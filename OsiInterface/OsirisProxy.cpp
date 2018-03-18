@@ -44,8 +44,8 @@ void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
 	{
 		// Look for the instruction "jmp short $+7"
 		if (ptr[0] == 0xEB && ptr[1] == 0x07 &&
-			// Look for the instruction "mov cs:xxx, rbx"
-			ptr[2] == 0x48 && ptr[3] == 0x89 && ptr[4] == 0x1D)
+			// Look for the instruction "mov cs:[rip + xxx], <64-bit register>"
+			ptr[2] == 0x48 && ptr[3] == 0x89 && (ptr[4] & 0xC7) == 0x05)
 		{
 			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 5);
 			uint64_t osiPtr = (uint64_t)ptr + relOffset + 9;
