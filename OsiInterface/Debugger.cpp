@@ -103,10 +103,6 @@ namespace osidbg
 	ResultCode Debugger::ContinueExecution(DbgContinue_Action action)
 	{
 		std::unique_lock<std::mutex> lk(breakpointMutex_);
-		if (!isPaused_) {
-			Debug(L"Debugger::ContinueExecution(): Not paused");
-			return ResultCode::NotInPause;
-		}
 
 		if (action == DbgContinue_Action_PAUSE) {
 			if (isPaused_) {
@@ -121,6 +117,11 @@ namespace osidbg
 			// This is not a "continue" message, it just sets the breakpoint flags,
 			// so we don't go through the continue code here
 			return ResultCode::Success;
+		}
+
+		if (!isPaused_) {
+			Debug(L"Debugger::ContinueExecution(): Not paused");
+			return ResultCode::NotInPause;
 		}
 
 		switch (action) {
