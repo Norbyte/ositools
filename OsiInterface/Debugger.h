@@ -28,8 +28,10 @@ namespace osidbg
 		GlobalBreakOnRuleAction = 1 << 4,
 		GlobalBreakOnInitCall = 1 << 5,
 		GlobalBreakOnExitCall = 1 << 6,
+		GlobalBreakOnGameInit = 1 << 7,
 		GlobalBreakpointTypeAll = GlobalBreakOnStoryLoaded | GlobalBreakOnValid | GlobalBreakOnPushDown 
 			| GlobalBreakOnInsert | GlobalBreakOnRuleAction | GlobalBreakOnInitCall | GlobalBreakOnExitCall
+			| GlobalBreakOnGameInit
 	};
 
 	// Mapping of a rule action to its call site (rule then part, goal init/exit)
@@ -64,9 +66,10 @@ namespace osidbg
 
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
 		ResultCode SetBreakpoint(uint32_t nodeId, BreakpointType type);
-		ResultCode ContinueExecution();
+		ResultCode ContinueExecution(DbgContinue_Action action);
 		void ClearAllBreakpoints();
 
+		void GameInitHook();
 		void RuleActionPreHook(RuleActionNode * action);
 		void RuleActionPostHook(RuleActionNode * action);
 
@@ -92,15 +95,25 @@ namespace osidbg
 
 		OsirisGlobals const & globals_;
 		DebugMessageHandler & messageHandler_;
-		uint32_t globalBreakpoints_;
-		std::unordered_map<uint64_t, Breakpoint> breakpoints_;
-		bool isPaused_{ false };
-		std::mutex breakpointMutex_;
-		std::condition_variable breakpointCv_;
 		std::vector<CallStackFrame> callStack_;
 		// Mapping of a rule action to its call site (rule then part, goal init/exit)
 		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
 
+		std::mutex breakpointMutex_;
+		std::condition_variable breakpointCv_;
+
+		uint32_t globalBreakpoints_;
+		std::unordered_map<uint64_t, Breakpoint> breakpoints_;
+		bool isPaused_{ false };
+		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
+		bool forceBreakpoint_{ false };
+		// Call stack depth at which we'll trigger a breakpoint
+		// (used for step over/into/out)
+		uint32_t maxBreakDepth_{ 0 };
+
+		void FinishedSingleStep();
+		bool ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
+		void ConditionalBreakpointInServerThread(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
 		void BreakpointInServerThread();
 		void GlobalBreakpointInServerThread(GlobalBreakpointReason reason);
 

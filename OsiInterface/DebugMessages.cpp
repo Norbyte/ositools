@@ -240,7 +240,7 @@ namespace osidbg
 		}
 		else
 		{
-			rc = debugger_->ContinueExecution();
+			rc = debugger_->ContinueExecution(req.action());
 		}
 
 		SendResult(seq, rc);
@@ -291,7 +291,7 @@ namespace osidbg
 		if (debugger_) {
 			debugger_->ClearAllBreakpoints();
 			if (debugger_->IsPaused()) {
-				debugger_->ContinueExecution();
+				debugger_->ContinueExecution(DbgContinue_Action_CONTINUE);
 			}
 		}
 

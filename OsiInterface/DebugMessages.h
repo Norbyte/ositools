@@ -9,7 +9,8 @@ namespace osidbg
 {
 	enum class GlobalBreakpointReason
 	{
-		StoryLoaded = 0
+		StoryLoaded = 0,
+		GameInit = 1
 	};
 
 	enum class BreakpointReason
@@ -30,7 +31,9 @@ namespace osidbg
 		UnsupportedBreakpointType = 1,
 		InvalidNodeId = 2,
 		NotInPause = 3,
-		NoDebuggee = 4
+		NoDebuggee = 4,
+		InvalidContinueAction = 5,
+		InPause = 6
 	};
 
 	struct CallStackFrame

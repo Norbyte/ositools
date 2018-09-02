@@ -16,8 +16,6 @@ namespace osidbg
 			globalBreakpoints_ = 0;
 		}
 
-		isPaused_ = false;
-
 		messageHandler_.SetDebugger(this);
 
 		using namespace std::placeholders;
@@ -52,6 +50,13 @@ namespace osidbg
 		messageHandler_.SendStoryLoaded();
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnStoryLoaded) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::StoryLoaded);
+		}
+	}
+
+	void Debugger::GameInitHook()
+	{
+		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameInit) {
+			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameInit);
 		}
 	}
 
@@ -95,7 +100,7 @@ namespace osidbg
 		return ResultCode::Success;
 	}
 
-	ResultCode Debugger::ContinueExecution()
+	ResultCode Debugger::ContinueExecution(DbgContinue_Action action)
 	{
 		std::unique_lock<std::mutex> lk(breakpointMutex_);
 		if (!isPaused_) {
@@ -103,7 +108,52 @@ namespace osidbg
 			return ResultCode::NotInPause;
 		}
 
-		Debug(L"Debugger::ContinueExecution(): Continuing");
+		if (action == DbgContinue_Action_PAUSE) {
+			if (isPaused_) {
+				Debug(L"Debugger::ContinueExecution(): Already paused");
+				return ResultCode::InPause;
+			}
+
+			Debug(L"Debugger::ContinueExecution(): Force pause on next node");
+			// Forcibly break on the next call
+			forceBreakpoint_ = true;
+			maxBreakDepth_ = 0x7fffffff;
+			// This is not a "continue" message, it just sets the breakpoint flags,
+			// so we don't go through the continue code here
+			return ResultCode::Success;
+		}
+
+		switch (action) {
+		case DbgContinue_Action_CONTINUE:
+			// No forced break on the next node
+			forceBreakpoint_ = false;
+			maxBreakDepth_ = 0;
+			break;
+
+		case DbgContinue_Action_STEP_OVER:
+			// Step over the current frame; max depth is the current call stack depth
+			forceBreakpoint_ = true;
+			maxBreakDepth_ = (uint32_t)callStack_.size();
+			break;
+
+		case DbgContinue_Action_STEP_INTO:
+			// Step into the current frame; max depth is unlimited
+			forceBreakpoint_ = true;
+			maxBreakDepth_ = 0x7fffffff;
+			break;
+
+		case DbgContinue_Action_STEP_OUT:
+			// Step out of the current frame; max depth is current - 1
+			forceBreakpoint_ = true;
+			maxBreakDepth_ = (uint32_t)callStack_.size() - 1;
+			break;
+
+		default:
+			Debug(L"Debugger::ContinueExecution(): Continue action %d not known", action);
+			return ResultCode::InvalidContinueAction;
+		}
+
+		Debug(L"Debugger::ContinueExecution(%d): Continuing", action);
 		isPaused_ = false;
 		breakpointCv_.notify_one();
 
@@ -114,6 +164,45 @@ namespace osidbg
 	{
 		globalBreakpoints_ = 0;
 		breakpoints_.clear();
+		forceBreakpoint_ = false;
+		maxBreakDepth_ = 0;
+	}
+
+	void Debugger::FinishedSingleStep()
+	{
+		// Called when we're finished single stepping and want to cancel single-step triggers
+		forceBreakpoint_ = false;
+		maxBreakDepth_ = 0;
+	}
+
+	bool Debugger::ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
+	{
+		// Check if there is a breakpoint on this node ID
+		auto it = breakpoints_.find(bpNodeId);
+		if (it != breakpoints_.end()
+			&& (it->second.type & bpType)) {
+			return true;
+		}
+
+		// Check if there is a global breakpoint for this frame type
+		if (globalBreakpoints_ & globalBpType) {
+			return true;
+		}
+
+		// Check if we're single stepping
+		if (forceBreakpoint_ && callStack_.size() <= maxBreakDepth_) {
+			return true;
+		}
+
+		return false;
+	}
+
+	void Debugger::ConditionalBreakpointInServerThread(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
+	{
+		if (ShouldTriggerBreakpoint(bpNodeId, bpType, globalBpType)) {
+			FinishedSingleStep();
+			BreakpointInServerThread();
+		}
 	}
 
 	void Debugger::BreakpointInServerThread()
@@ -185,11 +274,10 @@ namespace osidbg
 	{
 		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
-		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
-		if ((it != breakpoints_.end() && (it->second.type & BreakOnValid))
-			|| (globalBreakpoints_ & GlobalBreakOnValid)) {
-			BreakpointInServerThread();
-		}
+		ConditionalBreakpointInServerThread(
+			MakeNodeBreakpointId(node->Id),
+			BreakOnValid,
+			GlobalBreakOnValid);
 	}
 
 	void Debugger::IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
@@ -202,11 +290,10 @@ namespace osidbg
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
-		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
-		if ((it != breakpoints_.end() && (it->second.type & BreakOnPushDown))
-			|| (globalBreakpoints_ & GlobalBreakOnPushDown)) {
-			BreakpointInServerThread();
-		}
+		ConditionalBreakpointInServerThread(
+			MakeNodeBreakpointId(node->Id),
+			BreakOnPushDown,
+			GlobalBreakOnPushDown);
 	}
 
 	void Debugger::PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
@@ -220,11 +307,10 @@ namespace osidbg
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
-		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
-		if ((it != breakpoints_.end() && (it->second.type & BreakOnInsert))
-			|| (globalBreakpoints_ & GlobalBreakOnInsert)) {
-			BreakpointInServerThread();
-		}
+		ConditionalBreakpointInServerThread(
+			MakeNodeBreakpointId(node->Id),
+			BreakOnInsert,
+			GlobalBreakOnInsert);
 	}
 
 	void Debugger::InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted)
@@ -326,11 +412,7 @@ namespace osidbg
 
 		PushFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
 
-		auto it = breakpoints_.find(breakpointId);
-		if ((it != breakpoints_.end() && (it->second.type & BreakOnPushDown))
-			|| (globalBreakpoints_ & GlobalBreakOnPushDown)) {
-			BreakpointInServerThread();
-		}
+		ConditionalBreakpointInServerThread(breakpointId, bpType, globalBpType);
 	}
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)
