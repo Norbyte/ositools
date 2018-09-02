@@ -328,3 +328,9 @@ Detours/
 # Ignore JsonCpp library
 jsoncpp-build/
 jsoncpp-master/
+
+# Ignore protobuf
+External/x64-windows
+D3dErr
+OsiInterface/osidebug.pb.cc
+OsiInterface/osidebug.pb.h

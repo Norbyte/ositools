@@ -3,6 +3,7 @@
 [[noreturn]]
 void Fail(TCHAR const * reason)
 {
+	DebugBreak();
 	Debug(L"%s", reason);
 	MessageBox(NULL, reason, L"DxgiWrapper Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);

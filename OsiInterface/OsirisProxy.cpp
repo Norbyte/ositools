@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "OsirisProxy.h"
-#include <detours.h>
+#include "NodeHooks.h"
+#include "DebugInterface.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <chrono>
 #include <ctime>
 
-namespace osi
+namespace osidbg
 {
 
 std::unique_ptr<OsirisProxy> gOsirisProxy;
@@ -33,7 +34,9 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
 
 void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
 {
+#if 0
 	Debug(L"OsirisProxy::FindOsirisGlobals:");
+#endif
 	uint8_t * Addr = ResolveRealFunctionAddress((uint8_t *)CtorProc);
 
 	// Try to find pointers of Osiris globals
@@ -59,23 +62,25 @@ void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
 		Fail(L"Could not locate global Osiris variables");
 	}
 
-	OsirisVariables = (VariableDb **)globals[0];
-	OsirisTypes = (TypeDb **)globals[1];
-	OsirisFunctions = (TypeDb **)globals[2];
-	OsirisObjects = (TypeDb **)globals[3];
-	OsirisGoals = (void **)globals[4];
-	OsirisAdapters = (AdapterDb **)globals[5];
-	OsirisDatabases = (DatabaseDb **)globals[6];
-	OsirisNodes = (NodeDb **)globals[7];
+	Globals.Variables = (VariableDb **)globals[0];
+	Globals.Types = (TypeDb **)globals[1];
+	Globals.Functions = (TypeDb **)globals[2];
+	Globals.Objects = (TypeDb **)globals[3];
+	Globals.Goals = (void **)globals[4];
+	Globals.Adapters = (AdapterDb **)globals[5];
+	Globals.Databases = (DatabaseDb **)globals[6];
+	Globals.Nodes = (NodeDb **)globals[7];
 
-	Debug(L"\tOsirisVariables = %p", OsirisVariables);
-	Debug(L"\tOsirisTypes = %p", OsirisTypes);
-	Debug(L"\tOsirisFunctions = %p", OsirisFunctions);
-	Debug(L"\tOsirisObjects = %p", OsirisObjects);
-	Debug(L"\tOsirisGoals = %p", OsirisGoals);
-	Debug(L"\tOsirisAdapters = %p", OsirisAdapters);
-	Debug(L"\tOsirisDatabases = %p", OsirisDatabases);
-	Debug(L"\tOsirisNodes = %p", OsirisNodes);
+#if 0
+	Debug(L"\tVariables = %p", Globals.Variables);
+	Debug(L"\tTypes = %p", Globals.Types);
+	Debug(L"\tFunctions = %p", Globals.Functions);
+	Debug(L"\tObjects = %p", Globals.Objects);
+	Debug(L"\tGoals = %p", Globals.Goals);
+	Debug(L"\tAdapters = %p", Globals.Adapters);
+	Debug(L"\tDatabases = %p", Globals.Databases);
+	Debug(L"\tNodes = %p", Globals.Nodes);
+#endif
 }
 
 void OsirisProxy::FindDebugFlags(FARPROC SetOptionProc)
@@ -92,16 +97,18 @@ void OsirisProxy::FindDebugFlags(FARPROC SetOptionProc)
 		{
 			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 2);
 			uint64_t dbgPtr = (uint64_t)ptr + relOffset + 6;
-			GlobalDebugFlags = (DebugFlag *)dbgPtr;
+			Globals.DebugFlags = (DebugFlag *)dbgPtr;
 			break;
 		}
 	}
 
-	if (GlobalDebugFlags == nullptr) {
+	if (Globals.DebugFlags == nullptr) {
 		Fail(L"Could not locate global variable DebugFlags");
 	}
 
-	Debug(L"OsirisProxy::FindDebugFlags: DebugFlags = %p", GlobalDebugFlags);
+#if 0
+	Debug(L"OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
+#endif
 }
 
 void OsirisProxy::Initialize()
@@ -124,7 +131,9 @@ void OsirisProxy::Initialize()
 		Fail(L"Could not locate RegisterDIVFunctions in osiris_x64.dll");
 	}
 
+#if 0
 	Debug(L"OsirisProxy::Initialize: Detouring RegisterDIVFunctions");
+#endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	RegisterDivFunctions.Wrap(RegisterDIVFunctionsProc, &SRegisterDIVFunctionsWrapper);
@@ -157,6 +166,13 @@ void OsirisProxy::Initialize()
 	}
 
 	OsirisReadHeaderProc = (COsirisReadHeaderProc)ReadHeaderProc;
+
+	FARPROC LoadProc = GetProcAddress(OsirisModule, "?Load@COsiris@@QEAA_NAEAVCOsiSmartBuf@@@Z");
+	if (LoadProc == NULL) {
+		Fail(L"Could not locate COsiris::Load in osiris_x64.dll");
+	}
+
+	OsirisLoadProc = (COsirisLoadProc)LoadProc;
 }
 
 void OsirisProxy::Shutdown()
@@ -186,7 +202,7 @@ void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring co
 
 void OsirisProxy::RestartLogging()
 {
-	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*GlobalDebugFlags & 0x0000ffff));
+	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Globals.DebugFlags & 0x0000ffff));
 
 	if (LogFilename.empty())
 	{
@@ -220,17 +236,28 @@ void OsirisProxy::RestartLogging()
 		Debug(L"OsirisProxy::RestartLogging: Starting debug logging.\r\n"
 			"\tPath=%s\r\n"
 			"\tOriginalDebugFlags=%08x\r\n"
-			"\tDebugFlags=%08x", LogFilename.c_str(), *GlobalDebugFlags, NewFlags);
+			"\tDebugFlags=%08x", LogFilename.c_str(), *Globals.DebugFlags, NewFlags);
 	}
 
-	OsirisCloseLogFileProc(OsirisObject);
-	*GlobalDebugFlags = NewFlags;
-	OsirisOpenLogFileProc(OsirisObject, LogFilename.c_str(), L"ab+");
+	OsirisCloseLogFileProc(Globals.OsirisObject);
+	*Globals.DebugFlags = NewFlags;
+	OsirisOpenLogFileProc(Globals.OsirisObject, LogFilename.c_str(), L"ab+");
+}
+
+void OsirisProxy::HookNodeVMTs()
+{
+	gNodeVMTWrappers = std::make_unique<NodeVMTWrappers>(NodeVMTs);
+}
+
+void DebugThreadRunner(DebugInterface & intf)
+{
+	intf.Run();
 }
 
 int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Functions)
 {
-	OsirisObject = Osiris;
+	StoryLoaded = false;
+	Globals.OsirisObject = Osiris;
 	uint8_t * interfaceLoadPtr = nullptr;
 	uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Functions->ErrorMessage);
 
@@ -242,13 +269,13 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 3);
 			uint64_t osiPtr = (uint64_t)ptr + relOffset + 7;
 			osirisInterface = *(OsirisInterface **)osiPtr;
-			Manager = osirisInterface->Manager;
+			Globals.Manager = osirisInterface->Manager;
 			break;
 		}
 	}
 
-	if (Manager == nullptr) {
-		Fail(L"Could not locate osi::OsirisInterface");
+	if (Globals.Manager == nullptr) {
+		Fail(L"Could not locate OsirisInterface");
 	}
 
 	if (HooksEnabled) {
@@ -263,22 +290,34 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 		Functions->Assert = &SAssertWrapper;
 	}
 
-	if (LoggingEnabled) {
-		if (!WrappedOsirisReadHeader.IsWrapped()) {
-			Debug(L"OsirisProxy::RegisterDIVFunctionsWrapper: Hooking COsiris::_ReadHeader");
-			DetourTransactionBegin();
-			DetourUpdateThread(GetCurrentThread());
-			WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
-			DetourTransactionCommit();
-		}
+	if (!WrappedOsirisReadHeader.IsWrapped()) {
+#if 0
+		Debug(L"OsirisProxy::RegisterDIVFunctionsWrapper: Hooking COsiris functions");
+#endif
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
+		WrappedOsirisLoad.Wrap(OsirisLoadProc, &SOsirisLoad);
+		DetourTransactionCommit();
+	}
 
+	if (LoggingEnabled) {
 		RestartLogging();
 	}
 
+#if 0
 	Debug(L"OsirisProxy::RegisterDIVFunctionsWrapper: Initializing story.");
 	Debug(L"\tErrorMessageProc = %p", errorMessageFunc);
-	Debug(L"\tOsirisManager = %p", Manager);
+	Debug(L"\tOsirisManager = %p", Globals.Manager);
 	Debug(L"\tOsirisInterface = %p", osirisInterface);
+#endif
+
+	if (DebuggerThread == nullptr) {
+		debugInterface_ = std::make_unique<DebugInterface>();
+		debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
+
+		DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+	}
 
 	return RegisterDivFunctions(Osiris, Functions);
 }
@@ -290,11 +329,7 @@ int OsirisProxy::SRegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Func
 
 bool OsirisProxy::CallWrapper(uint32_t FunctionId, CallParam * Params)
 {
-	if (NodeVMTs.empty()) {
-		ResolveNodeVMTs(*OsirisNodes);
-	}
-
-	DebugDumpCall("Call", FunctionId, Params);
+	// DebugDumpCall("Call", FunctionId, Params);
 	return CallOriginal(FunctionId, Params);
 }
 
@@ -305,11 +340,7 @@ bool OsirisProxy::SCallWrapper(uint32_t FunctionId, CallParam * Params)
 
 bool OsirisProxy::QueryWrapper(uint32_t FunctionId, CallParam * Params)
 {
-	if (NodeVMTs.empty()) {
-		ResolveNodeVMTs(*OsirisNodes);
-	}
-
-	DebugDumpCall("Query", FunctionId, Params);
+	// DebugDumpCall("Query", FunctionId, Params);
 	return QueryOriginal(FunctionId, Params);
 }
 
@@ -328,28 +359,64 @@ void OsirisProxy::SErrorWrapper(char const * Message)
 	gOsirisProxy->ErrorWrapper(Message);
 }
 
-void OsirisProxy::AssertWrapper(char const * Unknown, char const * Message, bool Unknown2)
+void OsirisProxy::AssertWrapper(bool Successful, char const * Message, bool Unknown2)
 {
-	AssertOriginal(Unknown, Message, Unknown2);
+	if (!Successful) {
+		Debug("Osiris Assert: %s", Message);
+	}
+
+	AssertOriginal(Successful, Message, Unknown2);
 }
 
-void OsirisProxy::SAssertWrapper(char const * Unknown, char const * Message, bool Unknown2)
+void OsirisProxy::SAssertWrapper(bool Successful, char const * Message, bool Unknown2)
 {
-	gOsirisProxy->AssertWrapper(Unknown, Message, Unknown2);
+	gOsirisProxy->AssertWrapper(Successful, Message, Unknown2);
 }
 
 int OsirisProxy::OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags)
 {
 	int retval = WrappedOsirisReadHeader(Osiris, OsiSmartBuf, MajorVersion, MinorVersion, BigEndian, Unused, StoryFileVersion, DebugFlags);
-	uint32_t NewFlags = (DesiredLogLevel & 0xffff0000) | (*DebugFlags & 0x0000ffff);
-	Debug(L"OsirisProxy::OsirisReadHeader: Change DebugFlags from %08x to %08x", *DebugFlags, NewFlags);
-	*DebugFlags = NewFlags;
+	if (LoggingEnabled) {
+		uint32_t NewFlags = (DesiredLogLevel & 0xffff0000) | (*DebugFlags & 0x0000ffff);
+#if 0
+		Debug(L"OsirisProxy::OsirisReadHeader: Change DebugFlags from %08x to %08x", *DebugFlags, NewFlags);
+#endif
+		*DebugFlags = NewFlags;
+	}
+
 	return retval;
 }
 
 int OsirisProxy::SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags)
 {
 	return gOsirisProxy->OsirisReadHeader(Osiris, OsiSmartBuf, MajorVersion, MinorVersion, BigEndian, Unused, StoryFileVersion, DebugFlags);
+}
+
+int OsirisProxy::OsirisLoad(void * Osiris, void * Buf)
+{
+	int retval = WrappedOsirisLoad(Osiris, Buf);
+
+	if (!ResolvedNodeVMTs) {
+		ResolveNodeVMTs(*Globals.Nodes);
+		ResolvedNodeVMTs = true;
+		HookNodeVMTs();
+	}
+
+	StoryLoaded = true;
+	Debug(L"OsirisProxy::Load: %d nodes", (*Globals.Nodes)->Db.Size);
+
+	if (DebuggerThread != nullptr && gNodeVMTWrappers) {
+		debugger_.reset();
+		debugger_ = std::make_unique<Debugger>(Globals, std::ref(*debugMsgHandler_));
+		debugger_->StoryLoaded();
+	}
+
+	return retval;
+}
+
+int OsirisProxy::SOsirisLoad(void * Osiris, void * Buf)
+{
+	return gOsirisProxy->OsirisLoad(Osiris, Buf);
 }
 
 void DebugDumpParam(std::wstringstream & ss, CallParam & param)
@@ -384,13 +451,13 @@ void DebugDumpParam(std::wstringstream & ss, CallParam & param)
 
 void OsirisProxy::DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, CallParam * Params)
 {
-	Node * firstNode = *(*OsirisNodes)->Db.Start;
-	Database * db = (*OsirisDatabases)->Db.Start[3];
-	auto * node = &db->Facts.Start->Item;
+	Node * firstNode = *(*Globals.Nodes)->Db.Start;
+	Database * db = (*Globals.Databases)->Db.Start[4];
+	auto * node = &db->Facts.Head;
 	std::wstringstream ss;
 
 	auto functionId = Handle.GetFunctionId();
-	auto function = Manager->Functions.Buffer[functionId];
+	auto function = Globals.Manager->Functions.Buffer[functionId];
 	ss << "[" << Type << "] " << function->Name << " (";
 
 	bool hasOutputs = false;
@@ -441,7 +508,9 @@ void OsirisProxy::DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, 
 
 void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 {
+#if 0
 	Debug(L"OsirisProxy::ResolveNodeVMTs");
+#endif
 	std::set<NodeVMT *> VMTs;
 
 	for (unsigned i = 0; i < Db->Db.Size; i++) {
@@ -450,19 +519,19 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		VMTs.insert(vmt);
 	}
 
-	if (VMTs.size() != 9) {
+	if (VMTs.size() != (unsigned)NodeType::Max + 1) {
 		Fail(L"Could not locate all Osiris node VMT-s");
 	}
 
-	// RuleNode has a different SetRightValueIndex_M implementation
+	// RuleNode has a different SetLineNumber implementation
 	void * srv{ nullptr };
 	std::vector<NodeVMT *> srvA, srvB;
 	for (auto vmt : VMTs) {
 		if (srv == nullptr) {
-			srv = vmt->SetRightValueIndex_M;
+			srv = vmt->SetLineNumber;
 		}
 
-		if (srv == vmt->SetRightValueIndex_M) {
+		if (srv == vmt->SetLineNumber) {
 			srvA.push_back(vmt);
 		} else {
 			srvB.push_back(vmt);
@@ -478,8 +547,10 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		Fail(L"Could not locate RuleNode::__vfptr");
 	}
 
+#if 0
 	Debug(L"RuleNode::__vfptr is %p", ruleNodeVMT);
-	NodeVMTs.insert(std::make_pair(ruleNodeVMT, NodeType::Rule));
+#endif
+	NodeVMTs[(unsigned)NodeType::Rule] = ruleNodeVMT;
 
 	// RelOpNode is the only node that has the same GetAdapter implementation
 	NodeVMT * relOpNodeVMT{ nullptr };
@@ -498,8 +569,10 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		Fail(L"Could not locate RelOpNode::__vfptr");
 	}
 
+#if 0
 	Debug(L"RuleNode::__vfptr is %p", relOpNodeVMT);
-	NodeVMTs.insert(std::make_pair(relOpNodeVMT, NodeType::RelOp));
+#endif
+	NodeVMTs[(unsigned)NodeType::RelOp] = relOpNodeVMT;
 
 	// Find And, NotAnd
 	NodeVMT * and1VMT{ nullptr }, *and2VMT{ nullptr };
@@ -520,14 +593,16 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		Fail(L"Could not locate AndNode::__vfptr");
 	}
 
+#if 0
 	Debug(L"AndNode::__vfptr is %p and %p", and1VMT, and2VMT);
+#endif
 	// No reliable way to detect these; assume that AndNode VMT < NotAndNode VMT
 	if (and1VMT < and2VMT) {
-		NodeVMTs.insert(std::make_pair(and1VMT, NodeType::And));
-		NodeVMTs.insert(std::make_pair(and2VMT, NodeType::NotAnd));
+		NodeVMTs[(unsigned)NodeType::And] = and1VMT;
+		NodeVMTs[(unsigned)NodeType::NotAnd] = and2VMT;
 	} else {
-		NodeVMTs.insert(std::make_pair(and1VMT, NodeType::NotAnd));
-		NodeVMTs.insert(std::make_pair(and2VMT, NodeType::And));
+		NodeVMTs[(unsigned)NodeType::NotAnd] = and1VMT;
+		NodeVMTs[(unsigned)NodeType::And] = and2VMT;
 	}
 
 	// Find Query nodes
@@ -555,17 +630,23 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 	for (auto vmt : *queryVMTs) {
-		auto getName = (QueryGetNameProc)vmt->QueryGetName;
-		std::string name{ getName() };
+		auto getName = (NodeVMT::GetQueryNameProc)vmt->GetQueryName;
+		std::string name{ getName(nullptr) };
 		if (name == "internal query") {
+#if 0
 			Debug(L"InternalQuery::__vfptr is %p", vmt);
-			NodeVMTs.insert(std::make_pair(vmt, NodeType::InternalQuery));
+#endif
+			NodeVMTs[(unsigned)NodeType::InternalQuery] = vmt;
 		} else if (name == "DIV query") {
+#if 0
 			Debug(L"DivQuery::__vfptr is %p", vmt);
-			NodeVMTs.insert(std::make_pair(vmt, NodeType::DivQuery));
+#endif
+			NodeVMTs[(unsigned)NodeType::DivQuery] = vmt;
 		} else if (name == "Osi user query") {
+#if 0
 			Debug(L"UserQuery::__vfptr is %p", vmt);
-			NodeVMTs.insert(std::make_pair(vmt, NodeType::UserQuery));
+#endif
+			NodeVMTs[(unsigned)NodeType::UserQuery] = vmt;
 		} else {
 			Fail(L"Unrecognized Query node VMT");
 		}
@@ -601,10 +682,12 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		Fail(L"Could not locate DatabaseNode::__vfptr");
 	}
 
+#if 0
 	Debug(L"ProcNode::__vfptr is %p", procNodeVMT);
 	Debug(L"DatabaseNode::__vfptr is %p", databaseNodeVMT);
-	NodeVMTs.insert(std::make_pair(procNodeVMT, NodeType::Proc));
-	NodeVMTs.insert(std::make_pair(databaseNodeVMT, NodeType::Database));
+#endif
+	NodeVMTs[(unsigned)NodeType::Proc] = procNodeVMT;
+	NodeVMTs[(unsigned)NodeType::Database] = databaseNodeVMT;
 }
 
 }

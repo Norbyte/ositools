@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DxgiWrapper.h"
 #include "OsirisProxy.h"
+#include "SocketProxy.h"
 #include "json/json.h"
 #include <ShellAPI.h>
 #include <KnownFolders.h>
@@ -12,6 +13,7 @@
 
 struct ToolConfig
 {
+	bool EnableLogging{ true };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
 };
@@ -33,6 +35,16 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		std::wstringstream err;
 		err << L"Failed to load configuration file '" << configPath << "':\r\n" << werrs;
 		Fail(err.str().c_str());
+	}
+
+	auto enableLogging = root["EnableLogging"];
+	if (!enableLogging.isNull()) {
+		if (enableLogging.isBool()) {
+			config.EnableLogging = enableLogging.asBool();
+		}
+		else {
+			Fail(L"Config option 'EnableLogging' should be a boolean.");
+		}
 	}
 
 	auto flags = root["DebugFlags"];
@@ -74,12 +86,14 @@ void SetupOsirisProxy()
 
 	if (config.DebugFlags == 0) {
 		// Disabled: DF_FunctionList, DF_NodeList ,DF_LogSuccessfulFacts, DF_LogFailedFacts, DB_LogFactFailures, DF_DumpDatabases, DF_DebugFacts, DF_LogRuleFailures
-		config.DebugFlags = osi::DF_DebugTrace | osi::DF_SuppressInitLog;
+		config.DebugFlags = osidbg::DF_DebugTrace | osidbg::DF_SuppressInitLog;
 	}
 
-	osi::gOsirisProxy = std::make_unique<osi::OsirisProxy>();
-	osi::gOsirisProxy->SetupLogging(true, (osi::DebugFlag)config.DebugFlags, config.LogDirectory);
-	osi::gOsirisProxy->Initialize();
+	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
+	if (config.EnableLogging) {
+		osidbg::gOsirisProxy->SetupLogging(true, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
+	}
+	osidbg::gOsirisProxy->Initialize();
 
 	Debug(L" ***** OsirisProxy setup completed ***** ");
 	Debug(L"Logs will be written to %s", config.LogDirectory.c_str());
@@ -96,13 +110,14 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_ATTACH:
 		CreateConsole(hModule);
 		Debug(L" ***** OsirisProxy starting ***** ");
+		RunSocketProxy();
 		gDxgiWrapper = std::make_unique<DxgiWrapper>();
 		SetupOsirisProxy();
 		break;
 
 	case DLL_PROCESS_DETACH:
-		osi::gOsirisProxy->Shutdown();
-		osi::gOsirisProxy.reset();
+		osidbg::gOsirisProxy->Shutdown();
+		osidbg::gOsirisProxy.reset();
 		gDxgiWrapper.reset();
 		break;
 

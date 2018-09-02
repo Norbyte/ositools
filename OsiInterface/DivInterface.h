@@ -1,10 +1,12 @@
+#pragma once
+
 #include <cstdint>
 #include <array>
 #include <vector>
 #include <set>
 #include <map>
 
-namespace eoc
+namespace osidbg
 {
 
 #pragma pack(push, 1)
@@ -66,7 +68,7 @@ struct DivFunctions
 	typedef bool (* CallProc)(uint32_t FunctionId, CallParam * Params);
 	typedef bool (* CallProc)(uint32_t FunctionId, CallParam * Params);
 	typedef void (* ErrorMessageProc)(char const * Message);
-	typedef void (* AssertProc)(char const * Unknown, char const * Message, bool Unknown2);
+	typedef void (* AssertProc)(bool Successful, char const * Message, bool Unknown2);
 
 	void * Unknown0;
 	CallProc Call;
@@ -279,14 +281,14 @@ struct Vector
 template <class T>
 struct ListNode
 {
-	ListNode<T> * Start, * Prev;
+	ListNode<T> * Next, * Head;
 	T Item;
 };
 
 template <class T>
 struct List
 {
-	ListNode<T> * Start;
+	ListNode<T> * Head;
 	uint64_t Size;
 };
 
@@ -357,28 +359,47 @@ struct DatabaseParam
 	uint64_t B;
 };
 
-class Fact
+struct TypedValueList
+{
+	uint64_t Size;
+	TypedValue Values[1];
+};
+
+class TupleVec
 {
 public:
-	virtual ~Fact() {};
+	virtual ~TupleVec() {};
 
+	// Ptr to (&TypedValueList->Values)
 	TypedValue * Values;
 	uint8_t Size;
 	uint8_t __Padding[7];
 	uint32_t Unknown;
 };
 
-struct TupleData
+struct TuplePtrLL
 {
-	List<TypedValue> Items;
+	List<TypedValue *> Items;
 };
 
-class VirtTuple
+struct TupleLL
+{
+	struct Item
+	{
+		uint8_t Index;
+		uint8_t __Padding[7];
+		TypedValue Value;
+	};
+
+	List<Item> Items;
+};
+
+class VirtTupleLL
 {
 public:
-	virtual ~VirtTuple() {}
+	virtual ~VirtTupleLL() {}
 
-	TupleData Data;
+	TupleLL Data;
 };
 
 struct Database
@@ -387,7 +408,7 @@ struct Database
 	uint64_t B;
 	SomeDbItem Items[16];
 	uint64_t C;
-	List<Fact> Facts;
+	List<TupleVec> Facts;
 	Vector<uint32_t> ParamTypes;
 	uint8_t NumParams;
 	uint8_t __Padding[7];
@@ -427,85 +448,103 @@ typedef Ref<AdapterDb> AdapterRef;
 typedef Ref<NodeDb> NodeRef;
 typedef Ref<DatabaseDb> DatabaseRef;
 
+enum class EntryPoint : uint32_t
+{
+	None = 0,
+	Left = 1,
+	Right = 2
+};
+
 class NodeEntryRef
 {
 public:
-	virtual void write(); // TODO
-	virtual void read(); // TODO
+	virtual void write() {}; // TODO
+	virtual void read() {}; // TODO
 
 	NodeRef Node;
-	uint32_t EntryPoint;
+	EntryPoint EntryPoint;
 	uint32_t GoalId;
-};
-
-enum AdapterType
-{
-	AT_EntryPoint = 0,
-	AT_Left = 1,
-	AT_Right = 2
 };
 
 struct NodeVMT
 {
-	void * Destroy; // 0
-	void * GetDatabaseRef; // 8
-	void * GetDatabaseRef2; // 10
-	void * IsDataNode; // 18
-	void * IsValid; // 20
-	void * IsProc; // 28
-	void * IsPartOfAProc; // 30
-	void * GetParent; // 38
-	void * SetNextNode; // 40
-	void * GetAdapter; // 48
-	void * InsertFact; // 50
-	void * SelectFacts; // 58
-	void * InsertFactLocal; // 60
-	void * SelectFactsLocal; // 68
-	void * SelectFactsOnAllRefs; // 70
-	void * SelectFactsLocalOnAllRefs; // 78
-	void * GetLowDatabaseRef; // 80
-	void * GetLowDatabase; // 88
-	void * GetLowDatabaseFlags; // 90
-	void * Save; // 98
-	void * DebugDump; // A0
-	void * DebugDump2; // A8
-	void * SetRightValueIndex_M; // B0
-	void * RelUnused; // B8
-	void * QueryGetName; // C0
-};
+	using DestroyProc = void (*)(Node * self, bool free);
+	using GetDatabaseRefProc = DatabaseRef * (*)(Node * self, DatabaseRef * ref);
+	using IsDataNodeProc = bool (*)(Node * self);
+	using IsValidProc = bool(*)(Node * self, VirtTupleLL * Values, AdapterRef * Adapter);
+	using IsProcProc = bool(*)(Node * self);
+	using IsPartOfAProcProc = bool(*)(Node * self);
+	using GetParentProc = NodeRef * (*)(Node * self, NodeRef * ref);
+	using SetNextNodeProc = void (*)(Node * self, NodeEntryRef * ref);
+	using GetAdapterProc = Adapter * (*)(Node * self, EntryPoint which);
+	using InsertTupleProc = void (*)(Node * self, TuplePtrLL * tuple);
+	using PushDownTupleProc = void(*)(Node * self, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entryPoint);
+	using TriggerInsertEventProc = void (*)(Node * self, TupleVec * tuple);
+	using GetLowDatabaseRefProc = NodeRef * (*)(Node * self, NodeRef * ref);
+	using GetLowDatabaseProc = NodeEntryRef * (*)(Node * self, NodeEntryRef * ref);
+	using GetLowDatabaseIndirectionProc = int (*)(Node * self);
+	using SaveProc = bool (*)(Node * self, void * buf);
+	using DebugDumpProc = char * (*)(Node * self, char * buf);
+	using SetLineNumberProc = void (*)(Node * self, unsigned int line);
+	using GetQueryNameProc = const char * (*)(Node * self);
 
-typedef char * const (* QueryGetNameProc)();
+	DestroyProc Destroy; // 0
+	GetDatabaseRefProc GetDatabaseRef; // 8
+	GetDatabaseRefProc GetDatabaseRef2; // 10
+	IsDataNodeProc IsDataNode; // 18
+	IsValidProc IsValid; // 20
+	IsProcProc IsProc; // 28
+	IsPartOfAProcProc IsPartOfAProc; // 30
+	GetParentProc GetParent; // 38
+	SetNextNodeProc SetNextNode; // 40
+	GetAdapterProc GetAdapter; // 48
+	InsertTupleProc InsertTuple; // 50
+	PushDownTupleProc PushDownTuple; // 58
+	InsertTupleProc DeleteTuple; // 60
+	PushDownTupleProc PushDownTupleDelete; // 68
+	TriggerInsertEventProc TriggerInsertEvent; // 70
+	TriggerInsertEventProc TriggerDeleteEvent; // 78
+	GetLowDatabaseRefProc GetLowDatabaseRef; // 80
+	GetLowDatabaseProc GetLowDatabase; // 88
+	GetLowDatabaseIndirectionProc GetLowDatabaseFlags; // 90
+	SaveProc Save; // 98
+	DebugDumpProc DebugDump; // A0
+	DebugDumpProc DebugDump2; // A8
+	SetLineNumberProc SetLineNumber; // B0
+	void * RelUnused; // B8
+	GetQueryNameProc GetQueryName; // C0
+};
 
 class Node
 {
 public:
-	virtual ~Node();
-	virtual DatabaseRef * GetDatabaseRef(DatabaseRef * Db);
-	virtual DatabaseRef * GetDatabaseRef2(DatabaseRef * Db);
-	virtual bool IsDataNode();
-	virtual bool IsValid(VirtTuple * Values, AdapterRef * Adapter);
-	virtual bool IsProc();
-	virtual bool IsPartOfAProc();
-	virtual NodeRef * GetParent(NodeRef * Node);
-	virtual void SetNextNode(NodeEntryRef * Node);
-	virtual Adapter * GetAdapter(AdapterType Which);
-	virtual void InsertFact(TupleData * Fact);
-	virtual void SelectFacts(VirtTuple * Fact, AdapterRef * Adapter, AdapterType Which);
-	virtual void InsertFactLocal(TupleData * Fact);
-	virtual void SelectFactsLocal(VirtTuple * Fact, AdapterRef * Adapter, AdapterType Which);
-	virtual void SelectFactsOnAllRefs(TupleData * Fact);
-	virtual void SelectFactsLocalOnAllRefs(TupleData * Fact);
-	virtual NodeRef * GetLowDatabaseRef(NodeRef * Node);
-	virtual NodeEntryRef * GetLowDatabase(NodeEntryRef * Node);
-	virtual uint8_t GetLowDatabaseFlags();
-	virtual void Save(void * SmartBuf);
-	virtual int DebugDump(char * Buffer);
-	virtual int DebugDump2(char * Buffer);
-	virtual void SetRightValueIndex_M(int Index);
+	virtual ~Node() = 0;
+	virtual DatabaseRef * GetDatabaseRef(DatabaseRef * Db) = 0;
+	virtual DatabaseRef * GetDatabaseRef2(DatabaseRef * Db) = 0;
+	virtual bool IsDataNode() = 0;
+	virtual bool IsValid(VirtTupleLL * Tuple, AdapterRef * Adapter) = 0;
+	virtual bool IsProc() = 0;
+	virtual bool IsPartOfAProc() = 0;
+	virtual NodeRef * GetParent(NodeRef * Node) = 0;
+	virtual void SetNextNode(NodeEntryRef * Node) = 0;
+	virtual Adapter * GetAdapter(EntryPoint Which) = 0;
+	virtual void InsertTuple(TuplePtrLL * Tuple) = 0;
+	virtual void PushDownTuple(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
+	virtual void InsertTuple2(TuplePtrLL * Tuple) = 0;
+	virtual void PushDownTuple2(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
+	virtual void TriggerInsertEvent(TupleVec * Tuple) = 0;
+	virtual void TriggerInsertEvent2(TupleVec * Tuple) = 0;
+	virtual NodeRef * GetLowDatabaseRef(NodeRef * Node) = 0;
+	virtual NodeEntryRef * GetLowDatabase(NodeEntryRef * Node) = 0;
+	virtual uint8_t GetLowDatabaseIndirection() = 0;
+	virtual bool Save(void * SmartBuf) = 0;
+	virtual char * DebugDump(char * Buffer) = 0;
+	virtual char * DebugDump2(char * Buffer) = 0;
+	virtual void SetLineNumber(int Line) = 0;
 
 
-	uint64_t Unknown1;
-	uint64_t Unknown2;
+	uint32_t Id;
+	NodeDb * NodeDb;
 	Function * Function;
 	DatabaseRef Database;
 };
@@ -523,7 +562,7 @@ public:
 	AdapterRef Adapter;
 	NodeRef RelDatabaseRef;
 	NodeEntryRef RelDatabase;
-	uint8_t RelDatabaseFlag;
+	uint8_t RelDatabaseIndirection;
 	uint8_t __Padding[7];
 };
 
@@ -536,28 +575,32 @@ public:
 	TypedValue LeftValue;
 	TypedValue RightValue;
 	uint32_t RelOp;
-	uint32_t Unknown;
+	uint32_t __Padding3;
+
+	static inline void HookVMTs(NodeVMT * vmt) {}
 };
 
-class RuleCallList
+struct RuleActionParams
+{
+	uint64_t Unknown1, Unknown2;
+};
+
+class RuleActionNode
 {
 public:
-	virtual ~RuleCallList(); // TODO
-	uint64_t Unknown1, Unknown2;
-};
-
-struct CallParams
-{
-	uint64_t Unknown1, Unknown2;
-};
-
-struct RuleCall
-{
-	char * Name;
-	CallParams * Params;
-	bool Negate;
+	const char * FunctionName;
+	RuleActionParams * Arguments;
+	bool Not;
 	uint8_t __Padding[3];
 	uint32_t GoalIdOrDebugHook;
+};
+
+class RuleActionList
+{
+public:
+	virtual ~RuleActionList() = 0;
+	RuleActionNode * Head;
+	void * Unknown;
 };
 
 class RuleNode : public RelNode
@@ -567,7 +610,9 @@ public:
 	bool IsQuery;
 	uint8_t __Padding2[3];
 	void * Variables;
-	RuleCallList * Calls;
+	RuleActionList * Calls;
+
+	static inline void HookVMTs(NodeVMT * vmt) {}
 };
 
 class JoinNode : public TreeNode
@@ -580,22 +625,39 @@ public:
 	uint64_t Unknown;
 	NodeRef LeftDatabaseRef;
 	NodeEntryRef LeftDatabase;
-	uint8_t LeftDatabaseFlag;
+	uint8_t LeftDatabaseIndirection;
 	uint8_t __Padding1[7];
 	NodeRef RightDatabaseRef;
 	NodeEntryRef RightDatabase;
-	uint8_t RightDatabaseFlag;
+	uint8_t RightDatabaseIndirection;
 	uint8_t __Padding2[7];
 };
 
 class AndNode : public JoinNode
 {
 public:
+
+	static inline void HookVMTs(NodeVMT * vmt) {}
 };
 
 class NotAndNode : public JoinNode
 {
 public:
+
+	static inline void HookVMTs(NodeVMT * vmt) {}
+};
+
+struct DataNodeRef
+{
+	DataNodeRef * Head;
+	DataNodeRef * Prev;
+	NodeEntryRef Reference;
+};
+
+struct DataNodeReferenceList
+{
+	DataNodeRef * Head;
+	uint64_t Count;
 };
 
 class DataNode : public Node
@@ -644,7 +706,8 @@ enum class NodeType
 	RelOp,
 	Rule,
 	InternalQuery,
-	UserQuery
+	UserQuery,
+	Max = UserQuery
 };
 
 enum DebugFlag
@@ -669,6 +732,7 @@ enum DebugFlag
 
 typedef void (* COsirisOpenLogFileProc)(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
 typedef void (* COsirisCloseLogFileProc)(void * Osiris);
+typedef int (* COsirisLoadProc)(void * Osiris, void * Buf);
 typedef int (* COsirisReadHeaderProc)(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 
 }

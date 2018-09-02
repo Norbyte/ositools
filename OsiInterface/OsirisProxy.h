@@ -1,10 +1,13 @@
 #pragma once
 
 #include "DivInterface.h"
+#include "DebugInterface.h"
+#include "DebugMessages.h"
+#include "Debugger.h"
+#include <detours.h>
+#include <thread>
 
-namespace osi {
-
-using namespace eoc;
+namespace osidbg {
 
 template <typename T>
 class WrappedFunction;
@@ -49,6 +52,21 @@ private:
 	FuncType FuncTrampoline{ nullptr };
 };
 
+struct OsirisGlobals
+{
+	void * OsirisObject{ nullptr };
+	OsirisManager * Manager{ nullptr };
+	VariableDb ** Variables{ nullptr };
+	TypeDb ** Types{ nullptr };
+	TypeDb ** Functions{ nullptr };
+	TypeDb ** Objects{ nullptr };
+	void ** Goals{ nullptr };
+	AdapterDb ** Adapters{ nullptr };
+	DatabaseDb ** Databases{ nullptr };
+	NodeDb ** Nodes{ nullptr };
+	DebugFlag * DebugFlags{ nullptr };
+};
+
 class OsirisProxy
 {
 public:
@@ -57,23 +75,19 @@ public:
 	void EnableHooks(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 
+	inline OsirisGlobals const & GetGlobals() const
+	{
+		return Globals;
+	}
+
 private:
 	WrappedFunction<int(void *, DivFunctions *)> RegisterDivFunctions;
-	void * OsirisObject{ nullptr };
-	OsirisManager * Manager{ nullptr };
-	VariableDb ** OsirisVariables{ nullptr };
-	TypeDb ** OsirisTypes{ nullptr };
-	TypeDb ** OsirisFunctions{ nullptr };
-	TypeDb ** OsirisObjects{ nullptr };
-	void ** OsirisGoals{ nullptr };
-	AdapterDb ** OsirisAdapters{ nullptr };
-	DatabaseDb ** OsirisDatabases{ nullptr };
-	NodeDb ** OsirisNodes{ nullptr };
-	DebugFlag * GlobalDebugFlags{ nullptr };
+	OsirisGlobals Globals;
 
 	HMODULE OsirisModule{ NULL };
 
-	std::map<void *, NodeType> NodeVMTs;
+	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
+	bool ResolvedNodeVMTs{ false };
 
 	int RegisterDIVFunctionsWrapper(void *, DivFunctions *);
 	static int SRegisterDIVFunctionsWrapper(void *, DivFunctions *);
@@ -90,28 +104,41 @@ private:
 	static void SErrorWrapper(char const * Message);
 	DivFunctions::ErrorMessageProc ErrorOriginal;
 
-	void AssertWrapper(char const * Unknown, char const * Message, bool Unknown2);
-	static void SAssertWrapper(char const * Unknown, char const * Message, bool Unknown2);
+	void AssertWrapper(bool Successful, char const * Message, bool Unknown2);
+	static void SAssertWrapper(bool Successful, char const * Message, bool Unknown2);
 	DivFunctions::AssertProc AssertOriginal;
 
 	COsirisCloseLogFileProc OsirisCloseLogFileProc;
 	COsirisOpenLogFileProc OsirisOpenLogFileProc;
 	COsirisReadHeaderProc OsirisReadHeaderProc;
+	COsirisLoadProc OsirisLoadProc;
 
 	int OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 	static int SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 	WrappedFunction<int(void *, void *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, char *, unsigned int *)> WrappedOsirisReadHeader;
 
-	bool HooksEnabled{ false };
+	int OsirisLoad(void * Osiris, void * Buf);
+	static int SOsirisLoad(void * Osiris, void * Buf);
+	WrappedFunction<int (void *, void *)> WrappedOsirisLoad;
+
+	bool HooksEnabled{ true };
 	bool LoggingEnabled{ false };
 	DebugFlag DesiredLogLevel;
 	std::wstring LogDirectory;
 	std::wstring LogFilename;
 
+	std::thread * DebuggerThread{ nullptr };
+	bool StoryLoaded{ false };
+
+	std::unique_ptr<DebugInterface> debugInterface_;
+	std::unique_ptr<DebugMessageHandler> debugMsgHandler_;
+	std::unique_ptr<Debugger> debugger_;
+
 	void DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, CallParam * Params);
 	void FindOsirisGlobals(FARPROC CtorProc);
 	void FindDebugFlags(FARPROC SetOptionProc);
 	void ResolveNodeVMTs(NodeDb * Db);
+	void HookNodeVMTs();
 	void RestartLogging();
 };
 
