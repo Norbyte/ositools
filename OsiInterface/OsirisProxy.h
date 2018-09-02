@@ -85,6 +85,8 @@ private:
 	OsirisGlobals Globals;
 
 	HMODULE OsirisModule{ NULL };
+	void * OsirisDllStart{ nullptr };
+	uint32_t OsirisDllSize{ 0 };
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -112,6 +114,7 @@ private:
 	COsirisOpenLogFileProc OsirisOpenLogFileProc;
 	COsirisReadHeaderProc OsirisReadHeaderProc;
 	COsirisLoadProc OsirisLoadProc;
+	RuleActionCallProc OriginalRuleActionCallProc;
 
 	int OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 	static int SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
@@ -120,6 +123,10 @@ private:
 	int OsirisLoad(void * Osiris, void * Buf);
 	static int SOsirisLoad(void * Osiris, void * Buf);
 	WrappedFunction<int (void *, void *)> WrappedOsirisLoad;
+
+	void RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
+	static void SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
+	WrappedFunction<void (RuleActionNode *, void *, void *, void *, void *)> WrappedRuleActionCall;
 
 	bool HooksEnabled{ true };
 	bool LoggingEnabled{ false };
@@ -135,6 +142,7 @@ private:
 	std::unique_ptr<Debugger> debugger_;
 
 	void DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, CallParam * Params);
+	void * FindRuleActionCallProc();
 	void FindOsirisGlobals(FARPROC CtorProc);
 	void FindDebugFlags(FARPROC SetOptionProc);
 	void ResolveNodeVMTs(NodeDb * Db);

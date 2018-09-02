@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <chrono>
 #include <ctime>
+#include <psapi.h>
 
 namespace osidbg
 {
@@ -30,6 +31,36 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
 
 	// Could not find any relocations
 	return Address;
+}
+
+void * OsirisProxy::FindRuleActionCallProc()
+{
+#if 0
+	Debug(L"OsirisProxy::FindRuleActionCallProc");
+#endif
+	uint8_t * Addr = static_cast<uint8_t *>(OsirisDllStart);
+
+	// Function prologue of RuleAction::Call
+	static const uint8_t instructions[18] = {
+		0x40, 0x55, // push rbp
+		0x53, // push rbx
+		0x56, // push rsi
+		0x41, 0x56, // push r14
+		0x48, 0x8D, 0x6C, 0x24, 0xC1, // lea rbp, [rsp-3Fh]
+		0x48, 0x81, 0xEC, 0x88, 0x00, 0x00, 0x00 // sub rsp, 88h
+	};
+
+	// Look for prologue in the entire osiris DLL
+	for (uint8_t * ptr = Addr; ptr < Addr + OsirisDllSize; ptr++)
+	{
+		if (*reinterpret_cast<uint64_t *>(ptr) == *reinterpret_cast<uint64_t const *>(&instructions[0])
+			&& memcmp(instructions, ptr, sizeof(instructions)) == 0)
+		{
+			return ptr;
+		}
+	}
+
+	return nullptr;
 }
 
 void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
@@ -119,12 +150,25 @@ void OsirisProxy::Initialize()
 		Fail(L"Could not load osiris_x64.dll");
 	}
 
+	MODULEINFO moduleInfo;
+	if (!GetModuleInformation(GetCurrentProcess(), OsirisModule, &moduleInfo, sizeof(moduleInfo))) {
+		Fail(L"Could not get module info of osiris_x64.dll");
+	}
+
+	OsirisDllStart = moduleInfo.lpBaseOfDll;
+	OsirisDllSize = moduleInfo.SizeOfImage;
+
 	FARPROC OsirisCtorProc = GetProcAddress(OsirisModule, "??0COsiris@@QEAA@XZ");
 	if (OsirisCtorProc == NULL) {
 		Fail(L"Could not locate COsiris::COsiris() in osiris_x64.dll");
 	}
 
 	FindOsirisGlobals(OsirisCtorProc);
+
+	OriginalRuleActionCallProc = (RuleActionCallProc)FindRuleActionCallProc();
+	if (!OriginalRuleActionCallProc) {
+		Fail(L"Could not locate RuleAction::Call in osiris_x64.dll");
+	}
 
 	FARPROC RegisterDIVFunctionsProc = GetProcAddress(OsirisModule, "?RegisterDIVFunctions@COsiris@@QEAAXPEAUTOsirisInitFunction@@@Z");
 	if (RegisterDIVFunctionsProc == NULL) {
@@ -180,6 +224,7 @@ void OsirisProxy::Shutdown()
 	Debug(L"OsirisProxy::Shutdown: Starting");
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+	WrappedRuleActionCall.Unwrap();
 	RegisterDivFunctions.Unwrap();
 	WrappedOsirisReadHeader.Unwrap();
 	DetourTransactionCommit();
@@ -298,6 +343,7 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 		DetourUpdateThread(GetCurrentThread());
 		WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
 		WrappedOsirisLoad.Wrap(OsirisLoadProc, &SOsirisLoad);
+		WrappedRuleActionCall.Wrap(OriginalRuleActionCallProc, &SRuleActionCall);
 		DetourTransactionCommit();
 	}
 
@@ -417,6 +463,24 @@ int OsirisProxy::OsirisLoad(void * Osiris, void * Buf)
 int OsirisProxy::SOsirisLoad(void * Osiris, void * Buf)
 {
 	return gOsirisProxy->OsirisLoad(Osiris, Buf);
+}
+
+void OsirisProxy::RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
+{
+	if (debugger_ != nullptr) {
+		debugger_->RuleActionPreHook(Action);
+	}
+
+	WrappedRuleActionCall(Action, a1, a2, a3, a4);
+
+	if (debugger_ != nullptr) {
+		debugger_->RuleActionPostHook(Action);
+	}
+}
+
+void OsirisProxy::SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
+{
+	gOsirisProxy->RuleActionCall(Action, a1, a2, a3, a4);
 }
 
 void DebugDumpParam(std::wstringstream & ss, CallParam & param)

@@ -44,6 +44,9 @@ namespace osidbg
 		ResultCode ContinueExecution();
 		void ClearAllBreakpoints();
 
+		void RuleActionPreHook(RuleActionNode * action);
+		void RuleActionPostHook(RuleActionNode * action);
+
 	private:
 		struct Breakpoint
 		{

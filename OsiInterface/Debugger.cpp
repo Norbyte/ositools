@@ -232,4 +232,12 @@ namespace osidbg
 	{
 		PopFrame(type, node, nullptr, tuple, deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple);
 	}
+
+	void Debugger::RuleActionPreHook(RuleActionNode * action)
+	{
+	}
+
+	void Debugger::RuleActionPostHook(RuleActionNode * action)
+	{
+	}
 }
