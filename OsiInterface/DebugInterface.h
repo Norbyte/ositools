@@ -14,6 +14,7 @@ namespace osidbg
 
 		void SetMessageHandler(
 			std::function<bool(DebuggerToBackend const *)> messageHandler,
+			std::function<void()> connectHandler,
 			std::function<void()> disconnectHandler
 		);
 		bool IsConnected() const;
@@ -31,6 +32,7 @@ namespace osidbg
 		uint8_t receiveBuf_[0x10000];
 		uint32_t receivePos_;
 		std::function<bool (DebuggerToBackend const *)> messageHandler_;
+		std::function<void ()> connectHandler_;
 		std::function<void ()> disconnectHandler_;
 	};
 }

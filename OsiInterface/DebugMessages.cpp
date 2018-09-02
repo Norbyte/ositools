@@ -11,6 +11,7 @@ namespace osidbg
 	{
 		intf_.SetMessageHandler(
 			std::bind(&DebugMessageHandler::HandleMessage, this, std::placeholders::_1),
+			std::bind(&DebugMessageHandler::HandleConnect, this),
 			std::bind(&DebugMessageHandler::HandleDisconnect, this));
 	}
 
@@ -285,6 +286,14 @@ namespace osidbg
 		return true;
 	}
 
+	void DebugMessageHandler::HandleConnect()
+	{
+		Debug(L"Connected to debugger frontend");
+
+		outboundSeq_ = 1;
+		inboundSeq_ = 1;
+	}
+
 	void DebugMessageHandler::HandleDisconnect()
 	{
 		Debug(L"Disconnected from debugger frontend");
@@ -294,15 +303,16 @@ namespace osidbg
 				debugger_->ContinueExecution(DbgContinue_Action_CONTINUE);
 			}
 		}
-
-		outboundSeq_ = 1;
-		inboundSeq_ = 1;
 	}
 
 	void DebugMessageHandler::Send(BackendToDebugger & msg)
 	{
-		msg.set_seq_no(outboundSeq_++);
-		intf_.Send(msg);
+		if (intf_.IsConnected()) {
+			msg.set_seq_no(outboundSeq_++);
+			intf_.Send(msg);
+		} else {
+			Debug(L"DebugMessageHandler::Send(): Not connected to debugger frontend");
+		}
 	}
 
 	void DebugMessageHandler::SendResult(uint32_t seq, ResultCode code)

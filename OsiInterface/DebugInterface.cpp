@@ -42,9 +42,11 @@ namespace osidbg
 
 	void DebugInterface::SetMessageHandler(
 		std::function<bool(DebuggerToBackend const *)> messageHandler,
+		std::function<void()> connectHandler,
 		std::function<void()> disconnectHandler)
 	{
 		messageHandler_ = messageHandler;
+		connectHandler_ = connectHandler;
 		disconnectHandler_ = disconnectHandler;
 	}
 
@@ -166,6 +168,10 @@ namespace osidbg
 			int addrlen = sizeof(addr);
 			clientSocket_ = accept(socket_, (sockaddr *)&addr, &addrlen);
 			Debug(L"Accepted debug connection.");
+			if (connectHandler_) {
+				connectHandler_();
+			}
+
 			RunLink(clientSocket_);
 			Disconnect();
 		}

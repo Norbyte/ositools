@@ -71,6 +71,7 @@ namespace osidbg
 		uint32_t outboundSeq_{ 1 };
 
 		bool HandleMessage(DebuggerToBackend const * msg);
+		void HandleConnect();
 		void HandleDisconnect();
 
 		void HandleIdentify(uint32_t seq, DbgIdentifyRequest const & req);
