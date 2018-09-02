@@ -60,7 +60,7 @@ struct OsirisGlobals
 	TypeDb ** Types{ nullptr };
 	TypeDb ** Functions{ nullptr };
 	TypeDb ** Objects{ nullptr };
-	void ** Goals{ nullptr };
+	GoalDb ** Goals{ nullptr };
 	AdapterDb ** Adapters{ nullptr };
 	DatabaseDb ** Databases{ nullptr };
 	NodeDb ** Nodes{ nullptr };

@@ -50,19 +50,19 @@ namespace osidbg
 		void WrappedInsertTuple(Node * node, TuplePtrLL * tuple);
 		void WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
 
-		std::function<void (NodeType, Node *, VirtTupleLL *, AdapterRef *)> IsValidPreHook;
-		std::function<void (NodeType, Node *, VirtTupleLL *, AdapterRef *, bool)> IsValidPostHook;
-		std::function<void (NodeType, Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)> PushDownPreHook;
-		std::function<void (NodeType, Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)> PushDownPostHook;
-		std::function<void (NodeType, Node *, TuplePtrLL *, bool)> InsertPreHook;
-		std::function<void (NodeType, Node *, TuplePtrLL *, bool)> InsertPostHook;
+		std::function<void (Node *, VirtTupleLL *, AdapterRef *)> IsValidPreHook;
+		std::function<void (Node *, VirtTupleLL *, AdapterRef *, bool)> IsValidPostHook;
+		std::function<void (Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)> PushDownPreHook;
+		std::function<void (Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)> PushDownPostHook;
+		std::function<void (Node *, TuplePtrLL *, bool)> InsertPreHook;
+		std::function<void (Node *, TuplePtrLL *, bool)> InsertPostHook;
+
+		NodeType GetType(Node * node);
 
 	private:
 		NodeVMT ** vmts_;
 		std::unique_ptr<NodeVMTWrapper> wrappers_[(unsigned)NodeType::Max + 1];
 		std::unordered_map<NodeVMT *, NodeType> vmtToTypeMap_;
-
-		NodeType GetType(Node * node);
 	};
 
 	extern std::unique_ptr<NodeVMTWrappers> gNodeVMTWrappers;

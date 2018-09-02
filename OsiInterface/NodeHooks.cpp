@@ -146,7 +146,7 @@ namespace osidbg
 		auto type = GetType(node);
 
 		if (IsValidPreHook) {
-			IsValidPreHook(type, node, tuple, adapter);
+			IsValidPreHook(node, tuple, adapter);
 		}
 
 		bool succeeded = wrappers_[(unsigned)type]->WrappedIsValid(node, tuple, adapter);
@@ -157,7 +157,7 @@ namespace osidbg
 		//Debug(L"IsValid<%d> (%s)", type, ss.str().c_str());
 
 		if (IsValidPostHook) {
-			IsValidPostHook(type, node, tuple, adapter, succeeded);
+			IsValidPostHook(node, tuple, adapter, succeeded);
 		}
 
 		return succeeded;
@@ -173,13 +173,13 @@ namespace osidbg
 		//Debug(L"WrappedPushDownTuple<%d> (%s)", type, ss.str().c_str());
 
 		if (PushDownPreHook) {
-			PushDownPreHook(type, node, tuple, adapter, which, false);
+			PushDownPreHook(node, tuple, adapter, which, false);
 		}
 
 		wrappers_[(unsigned)type]->WrappedPushDownTuple(node, tuple, adapter, which);
 
 		if (PushDownPostHook) {
-			PushDownPostHook(type, node, tuple, adapter, which, false);
+			PushDownPostHook(node, tuple, adapter, which, false);
 		}
 	}
 
@@ -193,13 +193,13 @@ namespace osidbg
 		//Debug(L"WrappedPushDownTuple2<%d> (%s)", type, ss.str().c_str());
 
 		if (PushDownPreHook) {
-			PushDownPreHook(type, node, tuple, adapter, which, true);
+			PushDownPreHook(node, tuple, adapter, which, true);
 		}
 
 		wrappers_[(unsigned)type]->WrappedPushDownTupleDelete(node, tuple, adapter, which);
 
 		if (PushDownPostHook) {
-			PushDownPostHook(type, node, tuple, adapter, which, true);
+			PushDownPostHook(node, tuple, adapter, which, true);
 		}
 	}
 
@@ -208,13 +208,13 @@ namespace osidbg
 		auto type = GetType(node);
 
 		if (InsertPreHook) {
-			InsertPreHook(type, node, tuple, false);
+			InsertPreHook(node, tuple, false);
 		}
 
 		wrappers_[(unsigned)type]->WrappedInsertTuple(node, tuple);
 
 		if (InsertPostHook) {
-			InsertPostHook(type, node, tuple, false);
+			InsertPostHook(node, tuple, false);
 		}
 	}
 
@@ -223,13 +223,13 @@ namespace osidbg
 		auto type = GetType(node);
 
 		if (InsertPreHook) {
-			InsertPreHook(type, node, tuple, true);
+			InsertPreHook(node, tuple, true);
 		}
 
 		wrappers_[(unsigned)type]->WrappedDeleteTuple(node, tuple);
 
 		if (InsertPostHook) {
-			InsertPostHook(type, node, tuple, true);
+			InsertPostHook(node, tuple, true);
 		}
 	}
 

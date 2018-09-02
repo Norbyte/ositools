@@ -415,6 +415,87 @@ struct Database
 	Vector<DatabaseParam> OrderedFacts;
 };
 
+struct RuleActionParams
+{
+	uint64_t Unknown1, Unknown2;
+};
+
+class RuleActionNode
+{
+public:
+	const char * FunctionName;
+	RuleActionParams * Arguments;
+	bool Not;
+	uint8_t __Padding[3];
+	uint32_t GoalIdOrDebugHook;
+};
+
+class RuleActionList
+{
+public:
+	virtual ~RuleActionList() = 0;
+	List<RuleActionNode *> Actions;
+};
+
+struct Goal
+{
+	RuleActionList * InitCalls;
+	RuleActionList * ExitCalls;
+	uint32_t Id;
+	uint32_t __Padding1;
+	char const * Name;
+	uint32_t SubGoalCombination;
+	uint32_t __Padding2;
+	TArray<uint32_t> ParentGoals;
+	TArray<uint32_t> SubGoals;
+	uint8_t Flags;
+	uint8_t __Padding3[7];
+};
+
+struct GoalTreeNode
+{
+	GoalTreeNode * Left;
+	GoalTreeNode * Root;
+	GoalTreeNode * Right;
+	uint8_t Unknown;
+	uint8_t IsLeaf;
+	uint8_t __Padding[6];
+	uint32_t GoalId;
+	uint32_t __Padding2;
+	Goal * Goal;
+};
+
+struct GoalDb
+{
+	void * Unknown[2047];
+	uint32_t Count;
+	uint32_t __Padding;
+	GoalTreeNode * Root;
+
+	Goal * FindGoal(uint32_t goalId)
+	{
+		auto finalTreeNode = Root;
+		auto currentTreeNode = Root->Root;
+		while (!currentTreeNode->IsLeaf)
+		{
+			if (currentTreeNode->GoalId >= goalId)
+			{
+				finalTreeNode = currentTreeNode;
+				currentTreeNode = currentTreeNode->Left;
+			}
+			else
+			{
+				currentTreeNode = currentTreeNode->Right;
+			}
+		}
+
+		if (finalTreeNode == Root || goalId < finalTreeNode->GoalId)
+			return Root->Goal;
+		else
+			return finalTreeNode->Goal;
+	}
+};
+
 struct DatabaseDb
 {
 	TArray<Database *> Db;
@@ -544,6 +625,7 @@ public:
 
 
 	uint32_t Id;
+	uint32_t __Padding0;
 	NodeDb * NodeDb;
 	Function * Function;
 	DatabaseRef Database;
@@ -578,29 +660,6 @@ public:
 	uint32_t __Padding3;
 
 	static inline void HookVMTs(NodeVMT * vmt) {}
-};
-
-struct RuleActionParams
-{
-	uint64_t Unknown1, Unknown2;
-};
-
-class RuleActionNode
-{
-public:
-	const char * FunctionName;
-	RuleActionParams * Arguments;
-	bool Not;
-	uint8_t __Padding[3];
-	uint32_t GoalIdOrDebugHook;
-};
-
-class RuleActionList
-{
-public:
-	virtual ~RuleActionList() = 0;
-	RuleActionNode * Head;
-	void * Unknown;
 };
 
 class RuleNode : public RelNode

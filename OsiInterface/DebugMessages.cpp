@@ -107,13 +107,21 @@ namespace osidbg
 	{
 		for (auto const & frame : callStack) {
 			auto msgFrame = msg.add_call_stack();
-			msgFrame->set_node_id(frame.node->Id);
 			msgFrame->set_type((MsgFrame_FrameType)frame.frameType);
+			msgFrame->set_action_index((MsgFrame_FrameType)frame.actionIndex);
+
+			if (frame.node != nullptr) {
+				msgFrame->set_node_id(frame.node->Id);
+			}
+
+			if (frame.goal != nullptr) {
+				msgFrame->set_goal_id(frame.goal->Id);
+			}
+
 			auto tuple = msgFrame->mutable_tuple();
 			if (frame.tupleLL != nullptr) {
 				MakeMsgTuple(*tuple, *frame.tupleLL);
-			}
-			else {
+			} else if (frame.tuplePtrLL != nullptr) {
 				MakeMsgTuple(*tuple, *frame.tuplePtrLL);
 			}
 		}
@@ -130,11 +138,14 @@ namespace osidbg
 		std::wstringstream tup;
 		if (lastFrame.tupleLL != nullptr) {
 			DebugDumpTuple(tup, *lastFrame.tupleLL);
-		}
-		else {
+		} else if (lastFrame.tuplePtrLL != nullptr) {
 			DebugDumpTuple(tup, *lastFrame.tuplePtrLL);
 		}
-		Debug(L" <-- BkBreakpointTriggered(%d, %d, (%s))", lastFrame.node->Id, lastFrame.frameType, tup.str().c_str());
+		Debug(L" <-- BkBreakpointTriggered(type %d, node %d/goal %d, tuple (%s))", 
+			lastFrame.frameType, 
+			lastFrame.node ? lastFrame.node->Id : 0,
+			lastFrame.goal ? lastFrame.goal->Id : 0,
+			tup.str().c_str());
 	}
 
 	void DebugMessageHandler::SendGlobalBreakpointTriggered(GlobalBreakpointReason reason)

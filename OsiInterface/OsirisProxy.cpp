@@ -97,7 +97,7 @@ void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
 	Globals.Types = (TypeDb **)globals[1];
 	Globals.Functions = (TypeDb **)globals[2];
 	Globals.Objects = (TypeDb **)globals[3];
-	Globals.Goals = (void **)globals[4];
+	Globals.Goals = (GoalDb **)globals[4];
 	Globals.Adapters = (AdapterDb **)globals[5];
 	Globals.Databases = (DatabaseDb **)globals[6];
 	Globals.Nodes = (NodeDb **)globals[7];

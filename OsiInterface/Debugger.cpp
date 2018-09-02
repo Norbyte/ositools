@@ -21,12 +21,12 @@ namespace osidbg
 		messageHandler_.SetDebugger(this);
 
 		using namespace std::placeholders;
-		gNodeVMTWrappers->IsValidPreHook = std::bind(&Debugger::IsValidPreHook, this, _1, _2, _3, _4);
-		gNodeVMTWrappers->IsValidPostHook = std::bind(&Debugger::IsValidPostHook, this, _1, _2, _3, _4, _5);
-		gNodeVMTWrappers->PushDownPreHook = std::bind(&Debugger::PushDownPreHook, this, _1, _2, _3, _4, _5, _6);
-		gNodeVMTWrappers->PushDownPostHook = std::bind(&Debugger::PushDownPostHook, this, _1, _2, _3, _4, _5, _6);
-		gNodeVMTWrappers->InsertPreHook = std::bind(&Debugger::InsertPreHook, this, _1, _2, _3, _4);
-		gNodeVMTWrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3, _4);
+		gNodeVMTWrappers->IsValidPreHook = std::bind(&Debugger::IsValidPreHook, this, _1, _2, _3);
+		gNodeVMTWrappers->IsValidPostHook = std::bind(&Debugger::IsValidPostHook, this, _1, _2, _3, _4);
+		gNodeVMTWrappers->PushDownPreHook = std::bind(&Debugger::PushDownPreHook, this, _1, _2, _3, _4, _5);
+		gNodeVMTWrappers->PushDownPostHook = std::bind(&Debugger::PushDownPostHook, this, _1, _2, _3, _4, _5);
+		gNodeVMTWrappers->InsertPreHook = std::bind(&Debugger::InsertPreHook, this, _1, _2, _3);
+		gNodeVMTWrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3);
 		Debug(L"Debugger::Debugger(): Attached to story");
 	}
 
@@ -37,17 +37,18 @@ namespace osidbg
 		messageHandler_.SetDebugger(nullptr);
 
 		if (gNodeVMTWrappers) {
-			gNodeVMTWrappers->IsValidPreHook = std::function<void(NodeType, Node *, VirtTupleLL *, AdapterRef *)>();
-			gNodeVMTWrappers->IsValidPostHook = std::function<void(NodeType, Node *, VirtTupleLL *, AdapterRef *, bool)>();
-			gNodeVMTWrappers->PushDownPreHook = std::function<void(NodeType, Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
-			gNodeVMTWrappers->PushDownPostHook = std::function<void(NodeType, Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
-			gNodeVMTWrappers->InsertPreHook = std::function<void(NodeType, Node *, TuplePtrLL *, bool)>();
-			gNodeVMTWrappers->InsertPostHook = std::function<void(NodeType, Node *, TuplePtrLL *, bool)>();
+			gNodeVMTWrappers->IsValidPreHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *)>();
+			gNodeVMTWrappers->IsValidPostHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, bool)>();
+			gNodeVMTWrappers->PushDownPreHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
+			gNodeVMTWrappers->PushDownPostHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
+			gNodeVMTWrappers->InsertPreHook = std::function<void(Node *, TuplePtrLL *, bool)>();
+			gNodeVMTWrappers->InsertPostHook = std::function<void(Node *, TuplePtrLL *, bool)>();
 		}
 	}
 
 	void Debugger::StoryLoaded()
 	{
+		UpdateRuleActionMappings();
 		messageHandler_.SendStoryLoaded();
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnStoryLoaded) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::StoryLoaded);
@@ -122,7 +123,7 @@ namespace osidbg
 		}
 
 		auto const & lastFrame = *callStack_.rbegin();
-		Debug(L"Debugger::BreakpointInServerThread(): Node %d, type %d", lastFrame.node->Id, lastFrame.frameType);
+		Debug(L"Debugger::BreakpointInServerThread(): type %d", lastFrame.frameType);
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
 			isPaused_ = true;
@@ -156,88 +157,196 @@ namespace osidbg
 		Debug(L"Continuing from breakpoint.");
 	}
 
-	void Debugger::PushFrame(NodeType type, Node * node, TupleLL * tuple, TuplePtrLL * ptrTuple, BreakpointReason reason)
+	void Debugger::PushFrame(CallStackFrame const & frame)
 	{
-		CallStackFrame frame;
-		frame.type = type;
-		frame.node = node;
-		frame.tupleLL = tuple;
-		frame.tuplePtrLL = ptrTuple;
-		frame.frameType = reason;
 		callStack_.push_back(frame);
 	}
 
-	void Debugger::PopFrame(NodeType type, Node * node, TupleLL * tuple, TuplePtrLL * ptrTuple, BreakpointReason reason)
+	void Debugger::PopFrame(CallStackFrame const & frame)
 	{
 		if (callStack_.empty()) {
 			Fail(L"Tried to remove frame from empty callstack");
 		}
 
 		auto const & lastFrame = *callStack_.rbegin();
-		if (lastFrame.type != type
-			|| lastFrame.node != node
-			|| lastFrame.tupleLL != tuple
-			|| lastFrame.tuplePtrLL != ptrTuple
-			|| lastFrame.frameType != reason) {
+		if (lastFrame.frameType != frame.frameType
+			|| lastFrame.node != frame.node
+			|| lastFrame.goal != frame.goal
+			|| lastFrame.tupleLL != frame.tupleLL
+			|| lastFrame.tuplePtrLL != frame.tuplePtrLL
+			|| lastFrame.actionIndex != frame.actionIndex) {
 			Fail(L"Call stack frame mismatch");
 		}
 
 		callStack_.pop_back();
 	}
 
-	void Debugger::IsValidPreHook(NodeType type, Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
+	void Debugger::IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
-		PushFrame(type, node, &tuple->Data, nullptr, BreakpointReason::NodeIsValid);
+		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
-		auto it = breakpoints_.find(node->Id);
+		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
 		if ((it != breakpoints_.end() && (it->second.type & BreakOnValid))
 			|| (globalBreakpoints_ & GlobalBreakOnValid)) {
 			BreakpointInServerThread();
 		}
 	}
 
-	void Debugger::IsValidPostHook(NodeType type, Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
+	void Debugger::IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
 	{
-		PopFrame(type, node, &tuple->Data, nullptr, BreakpointReason::NodeIsValid);
+		PopFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
-	void Debugger::PushDownPreHook(NodeType type, Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
+	void Debugger::PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
-		PushFrame(type, node, &tuple->Data, nullptr, deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple);
+		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
+		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
-		auto it = breakpoints_.find(node->Id);
+		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
 		if ((it != breakpoints_.end() && (it->second.type & BreakOnPushDown))
 			|| (globalBreakpoints_ & GlobalBreakOnPushDown)) {
 			BreakpointInServerThread();
 		}
 	}
 
-	void Debugger::PushDownPostHook(NodeType type, Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
+	void Debugger::PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
-		PopFrame(type, node, &tuple->Data, nullptr, deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple);
+		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
+		PopFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
-	void Debugger::InsertPreHook(NodeType type, Node * node, TuplePtrLL * tuple, bool deleted)
+	void Debugger::InsertPreHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
-		PushFrame(type, node, nullptr, tuple, deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple);
+		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
+		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
-		auto it = breakpoints_.find(node->Id);
+		auto it = breakpoints_.find(MakeNodeBreakpointId(node->Id));
 		if ((it != breakpoints_.end() && (it->second.type & BreakOnInsert))
 			|| (globalBreakpoints_ & GlobalBreakOnInsert)) {
 			BreakpointInServerThread();
 		}
 	}
 
-	void Debugger::InsertPostHook(NodeType type, Node * node, TuplePtrLL * tuple, bool deleted)
+	void Debugger::InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
-		PopFrame(type, node, nullptr, tuple, deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple);
+		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
+		PopFrame({ reason, node, nullptr, 0, nullptr, tuple });
+	}
+
+	uint64_t Debugger::MakeNodeBreakpointId(uint32_t nodeId)
+	{
+		return ((uint64_t)BreakpointItemType::BP_Node << 56) | nodeId;
+	}
+
+	uint64_t Debugger::MakeRuleActionBreakpointId(uint32_t nodeId, uint32_t actionIndex)
+	{
+		return ((uint64_t)BreakpointItemType::BP_RuleAction << 56) | ((uint64_t)actionIndex << 32) | nodeId;
+	}
+
+	uint64_t Debugger::MakeGoalInitBreakpointId(uint32_t goalId, uint32_t actionIndex)
+	{
+		return ((uint64_t)BreakpointItemType::BP_GoalInit << 56) | ((uint64_t)actionIndex << 32) | goalId;
+	}
+
+	uint64_t Debugger::MakeGoalExitBreakpointId(uint32_t goalId, uint32_t actionIndex)
+	{
+		return ((uint64_t)BreakpointItemType::BP_GoalExit << 56) | ((uint64_t)actionIndex << 32) | goalId;
+	}
+
+	void Debugger::AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions)
+	{
+		auto head = actions->Actions.Head;
+		auto current = head->Next;
+		uint32_t actionIndex = 0;
+		while (current != head) {
+			ruleActionMappings_.insert(std::pair<RuleActionNode *, RuleActionMapping>(
+				current->Item,
+				{ current->Item, node, goal, isInit, actionIndex }
+			));
+			current = current->Next;
+			actionIndex++;
+		}
+	}
+
+	void Debugger::UpdateRuleActionMappings()
+	{
+		ruleActionMappings_.clear();
+
+		auto const & nodeDb = (*globals_.Nodes)->Db;
+		for (unsigned i = 0; i < nodeDb.Size; i++) {
+			auto node = nodeDb.Start[i];
+			NodeType type = gNodeVMTWrappers->GetType(node);
+			if (type == NodeType::Rule) {
+				auto rule = static_cast<RuleNode *>(node);
+				AddRuleActionMappings(rule, nullptr, false, rule->Calls);
+			}
+		}
+
+		auto const & goalDb = (*globals_.Goals);
+		for (unsigned i = 0; i < goalDb->Count; i++) {
+			auto goal = goalDb->FindGoal(i + 1);
+			AddRuleActionMappings(nullptr, goal, true, goal->InitCalls);
+			AddRuleActionMappings(nullptr, goal, false, goal->ExitCalls);
+		}
+	}
+
+	RuleActionMapping const & Debugger::FindActionMapping(RuleActionNode * action)
+	{
+		auto mapping = ruleActionMappings_.find(action);
+		if (mapping == ruleActionMappings_.end()) {
+			Fail(L"Could not find action mapping for rule action");
+		}
+
+		return mapping->second;
 	}
 
 	void Debugger::RuleActionPreHook(RuleActionNode * action)
 	{
+		auto const & mapping = FindActionMapping(action);
+		BreakpointReason reason;
+		BreakpointType bpType;
+		GlobalBreakpointType globalBpType;
+		uint64_t breakpointId;
+		if (mapping.rule != nullptr) {
+			reason = BreakpointReason::RuleActionCall;
+			bpType = BreakpointType::BreakOnRuleAction;
+			globalBpType = GlobalBreakpointType::GlobalBreakOnRuleAction;
+			breakpointId = MakeRuleActionBreakpointId(mapping.rule->Id, mapping.actionIndex);
+		} else if (mapping.isInit) {
+			reason = BreakpointReason::GoalInitCall;
+			bpType = BreakpointType::BreakOnInitCall;
+			globalBpType = GlobalBreakpointType::GlobalBreakOnInitCall;
+			breakpointId = MakeGoalInitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+		} else {
+			reason = BreakpointReason::GoalExitCall;
+			bpType = BreakpointType::BreakOnExitCall;
+			globalBpType = GlobalBreakpointType::GlobalBreakOnExitCall;
+			breakpointId = MakeGoalExitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+		}
+
+		PushFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
+
+		auto it = breakpoints_.find(breakpointId);
+		if ((it != breakpoints_.end() && (it->second.type & BreakOnPushDown))
+			|| (globalBreakpoints_ & GlobalBreakOnPushDown)) {
+			BreakpointInServerThread();
+		}
 	}
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)
 	{
+		auto const & mapping = FindActionMapping(action);
+		BreakpointReason reason;
+		if (mapping.rule != nullptr) {
+			reason = BreakpointReason::RuleActionCall;
+		}
+		else if (mapping.isInit) {
+			reason = BreakpointReason::GoalInitCall;
+		}
+		else {
+			reason = BreakpointReason::GoalExitCall;
+		}
+
+		PopFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
 	}
 }

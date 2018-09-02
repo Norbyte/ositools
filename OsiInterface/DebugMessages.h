@@ -18,7 +18,10 @@ namespace osidbg
 		NodePushDownTuple = 1,
 		NodeInsertTuple = 2,
 		NodeDeleteTuple = 3,
-		NodePushDownTupleDelete = 4
+		NodePushDownTupleDelete = 4,
+		RuleActionCall = 5,
+		GoalInitCall = 6,
+		GoalExitCall = 7
 	};
 
 	enum class ResultCode
@@ -32,11 +35,12 @@ namespace osidbg
 
 	struct CallStackFrame
 	{
-		NodeType type;
+		BreakpointReason frameType;
 		Node * node;
+		Goal * goal;
+		uint32_t actionIndex;
 		TupleLL * tupleLL;
 		TuplePtrLL * tuplePtrLL;
-		BreakpointReason frameType;
 	};
 
 	class Debugger;
