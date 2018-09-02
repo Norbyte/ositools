@@ -71,30 +71,68 @@ namespace osidbg
 		return ResultCode::Success;
 	}
 
-	ResultCode Debugger::SetBreakpoint(uint32_t nodeId, BreakpointType type)
+	void Debugger::ClearNodeBreakpoints()
+	{
+		Debug(L"Debugger::ClearNodeBreakpoints()");
+		breakpoints_.clear();
+	}
+
+	ResultCode Debugger::SetBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type)
 	{
 		if (type & ~BreakpointTypeAll) {
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
-		if (nodeId == 0 || nodeId > (*globals_.Nodes)->Db.Size) {
+		if (nodeId > (*globals_.Nodes)->Db.Size) {
+			Debug(L"Debugger::SetBreakpoint(): Tried to set on nonexistent node ID %d", nodeId);
 			return ResultCode::InvalidNodeId;
 		}
 
+		if (goalId > (*globals_.Goals)->Count) {
+			Debug(L"Debugger::SetBreakpoint(): Tried to set on nonexistent goal ID %d", nodeId);
+			return ResultCode::InvalidGoalId;
+		}
+
+		uint64_t breakpointId;
+		if (actionIndex == -1) {
+			if (nodeId == 0) {
+				Debug(L"Debugger::SetBreakpoint(): Node ID must be nonzero for node actions", nodeId);
+				return ResultCode::InvalidNodeId;
+			}
+
+			breakpointId = MakeNodeBreakpointId(nodeId);
+		} else {
+			if (nodeId != 0) {
+				breakpointId = MakeRuleActionBreakpointId(nodeId, actionIndex);
+			} else if (goalId != 0) {
+				if (isInit) {
+					breakpointId = MakeGoalInitBreakpointId(goalId, actionIndex);
+				} else {
+					breakpointId = MakeGoalExitBreakpointId(goalId, actionIndex);
+				}
+			} else {
+				Debug(L"Debugger::SetBreakpoint(): No node/goal specified");
+				return ResultCode::InvalidNodeId;
+			}
+		}
+
 		if (!type) {
-			Debug(L"Debugger::SetBreakpoint(): Removed on node %d", nodeId);
-			auto it = breakpoints_.find(nodeId);
+			Debug(L"Debugger::SetBreakpoint(): Removed on key %16x", breakpointId);
+			auto it = breakpoints_.find(breakpointId);
 			if (it != breakpoints_.end()) {
 				breakpoints_.erase(it);
 			}
 		}
 		else
 		{
-			Debug(L"Debugger::SetBreakpoint(): Set on node %d to %08x", nodeId, type);
+			Debug(L"Debugger::SetBreakpoint(): Set on key %16x to %08x", breakpointId, type);
 			Breakpoint bp;
 			bp.nodeId = nodeId;
+			bp.goalId = goalId;
+			bp.isInit = isInit;
+			bp.actionIndex = actionIndex;
 			bp.type = type;
-			breakpoints_[nodeId] = bp;
+			breakpoints_[breakpointId] = bp;
 		}
 
 		return ResultCode::Success;

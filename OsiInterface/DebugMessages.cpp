@@ -214,10 +214,16 @@ namespace osidbg
 		}
 		else
 		{
+			rc = ResultCode::Success;
+
 			for (auto const & bp : req.breakpoint()) {
-				Debug(L"SetBreakpoint(%d, %d)", bp.node_id(), bp.breakpoint_mask());
+				Debug(L"SetBreakpoint(node %d, goal %d, action %d, flags %d)", 
+					bp.node_id(), bp.goal_id(), bp.action_index(), bp.breakpoint_mask());
 				rc = debugger_->SetBreakpoint(
 					bp.node_id(),
+					bp.goal_id(), 
+					bp.is_init_action(),
+					bp.action_index(),
 					(BreakpointType)bp.breakpoint_mask()
 				);
 

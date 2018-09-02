@@ -33,7 +33,8 @@ namespace osidbg
 		NotInPause = 3,
 		NoDebuggee = 4,
 		InvalidContinueAction = 5,
-		InPause = 6
+		InPause = 6,
+		InvalidGoalId = 7
 	};
 
 	struct CallStackFrame

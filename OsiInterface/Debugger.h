@@ -65,7 +65,8 @@ namespace osidbg
 		}
 
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
-		ResultCode SetBreakpoint(uint32_t nodeId, BreakpointType type);
+		void ClearNodeBreakpoints();
+		ResultCode SetBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
 		ResultCode ContinueExecution(DbgContinue_Action action);
 		void ClearAllBreakpoints();
 
@@ -77,6 +78,9 @@ namespace osidbg
 		struct Breakpoint
 		{
 			uint32_t nodeId;
+			uint32_t goalId;
+			bool isInit;
+			uint32_t actionIndex;
 			BreakpointType type;
 		};
 
