@@ -175,12 +175,20 @@ void OsirisProxy::Initialize()
 		Fail(L"Could not locate RegisterDIVFunctions in osiris_x64.dll");
 	}
 
+	FARPROC InitGameProc = GetProcAddress(OsirisModule, "?InitGame@COsiris@@QEAA_NXZ");
+	if (InitGameProc == NULL) {
+		Fail(L"Could not locate COsiris::InitGameProc in osiris_x64.dll");
+	}
+
+	OsirisInitGameProc = (COsirisInitGameProc)InitGameProc;
+
 #if 0
-	Debug(L"OsirisProxy::Initialize: Detouring RegisterDIVFunctions");
+	Debug(L"OsirisProxy::Initialize: Detouring functions");
 #endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	RegisterDivFunctions.Wrap(RegisterDIVFunctionsProc, &SRegisterDIVFunctionsWrapper);
+	InitGame.Wrap(OsirisInitGameProc, &SInitGameWrapper);
 	DetourTransactionCommit();
 
 	FARPROC SetOptionProc = GetProcAddress(OsirisModule, "?SetOption@COsiris@@QEAAXI@Z");
@@ -371,6 +379,21 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 int OsirisProxy::SRegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Functions)
 {
 	return gOsirisProxy->RegisterDIVFunctionsWrapper(Osiris, Functions);
+}
+
+int OsirisProxy::InitGameWrapper(void * Osiris)
+{
+	Debug(L"OsirisProxy::InitGame()");
+	if (debugger_) {
+		debugger_->GameInitHook();
+	}
+
+	return InitGame(Osiris);
+}
+
+int OsirisProxy::SInitGameWrapper(void * Osiris)
+{
+	return gOsirisProxy->InitGameWrapper(Osiris);
 }
 
 bool OsirisProxy::CallWrapper(uint32_t FunctionId, CallParam * Params)
