@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OsiInterface", "OsiInterface\OsiInterface.vcxproj", "{4723A102-E4DE-4874-BED7-6DA4EC2D0C80}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OsirisDebugLauncher", "EditorLauncher\EditorLauncher.vcxproj", "{E77055C4-9E1B-4245-A66B-91321D0AA9B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -19,6 +21,10 @@ Global
 		{34306CBB-0B8A-4901-91F8-F75EF789707D}.Debug|x64.Build.0 = Debug|x64
 		{34306CBB-0B8A-4901-91F8-F75EF789707D}.Release|x64.ActiveCfg = Release|x64
 		{34306CBB-0B8A-4901-91F8-F75EF789707D}.Release|x64.Build.0 = Release|x64
+		{E77055C4-9E1B-4245-A66B-91321D0AA9B1}.Debug|x64.ActiveCfg = Debug|x64
+		{E77055C4-9E1B-4245-A66B-91321D0AA9B1}.Debug|x64.Build.0 = Debug|x64
+		{E77055C4-9E1B-4245-A66B-91321D0AA9B1}.Release|x64.ActiveCfg = Release|x64
+		{E77055C4-9E1B-4245-A66B-91321D0AA9B1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
