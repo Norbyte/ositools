@@ -184,7 +184,11 @@ namespace osidbg
 			auto actionInfo = addAction();
 			if (current->Item->FunctionName != nullptr) {
 				actionInfo->set_function(current->Item->FunctionName);
-				actionInfo->set_arity((uint32_t)current->Item->Arguments->Size);
+				if (current->Item->Arguments != nullptr) {
+					actionInfo->set_arity((uint32_t)current->Item->Arguments->Size);
+				} else {
+					actionInfo->set_arity(0);
+				}
 			} else {
 				actionInfo->set_goal_id(current->Item->GoalIdOrDebugHook);
 			}
