@@ -592,6 +592,11 @@ void OsirisProxy::DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, 
 	OutputDebugStringW(ss.str().c_str());
 }
 
+void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)
+{
+	assert(type >= NodeType::Database && type <= NodeType::Max);
+	NodeVMTs[(unsigned)type] = vmt;
+}
 
 void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 {
@@ -606,7 +611,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		VMTs.insert(vmt);
 	}
 
-	if (VMTs.size() != (unsigned)NodeType::Max + 1) {
+	if (VMTs.size() != (unsigned)NodeType::Max) {
 		Fail(L"Could not locate all Osiris node VMT-s");
 	}
 
@@ -637,7 +642,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #if 0
 	Debug(L"RuleNode::__vfptr is %p", ruleNodeVMT);
 #endif
-	NodeVMTs[(unsigned)NodeType::Rule] = ruleNodeVMT;
+	SaveNodeVMT(NodeType::Rule, ruleNodeVMT);
 
 	// RelOpNode is the only node that has the same GetAdapter implementation
 	NodeVMT * relOpNodeVMT{ nullptr };
@@ -659,7 +664,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #if 0
 	Debug(L"RuleNode::__vfptr is %p", relOpNodeVMT);
 #endif
-	NodeVMTs[(unsigned)NodeType::RelOp] = relOpNodeVMT;
+	SaveNodeVMT(NodeType::RelOp, relOpNodeVMT);
 
 	// Find And, NotAnd
 	NodeVMT * and1VMT{ nullptr }, *and2VMT{ nullptr };
@@ -685,11 +690,11 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #endif
 	// No reliable way to detect these; assume that AndNode VMT < NotAndNode VMT
 	if (and1VMT < and2VMT) {
-		NodeVMTs[(unsigned)NodeType::And] = and1VMT;
-		NodeVMTs[(unsigned)NodeType::NotAnd] = and2VMT;
+		SaveNodeVMT(NodeType::And, and1VMT);
+		SaveNodeVMT(NodeType::NotAnd, and2VMT);
 	} else {
-		NodeVMTs[(unsigned)NodeType::NotAnd] = and1VMT;
-		NodeVMTs[(unsigned)NodeType::And] = and2VMT;
+		SaveNodeVMT(NodeType::NotAnd, and1VMT);
+		SaveNodeVMT(NodeType::And, and2VMT);
 	}
 
 	// Find Query nodes
@@ -723,17 +728,17 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #if 0
 			Debug(L"InternalQuery::__vfptr is %p", vmt);
 #endif
-			NodeVMTs[(unsigned)NodeType::InternalQuery] = vmt;
+			SaveNodeVMT(NodeType::InternalQuery, vmt);
 		} else if (name == "DIV query") {
 #if 0
 			Debug(L"DivQuery::__vfptr is %p", vmt);
 #endif
-			NodeVMTs[(unsigned)NodeType::DivQuery] = vmt;
+			SaveNodeVMT(NodeType::DivQuery, vmt);
 		} else if (name == "Osi user query") {
 #if 0
 			Debug(L"UserQuery::__vfptr is %p", vmt);
 #endif
-			NodeVMTs[(unsigned)NodeType::UserQuery] = vmt;
+			SaveNodeVMT(NodeType::UserQuery, vmt);
 		} else {
 			Fail(L"Unrecognized Query node VMT");
 		}
@@ -773,8 +778,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	Debug(L"ProcNode::__vfptr is %p", procNodeVMT);
 	Debug(L"DatabaseNode::__vfptr is %p", databaseNodeVMT);
 #endif
-	NodeVMTs[(unsigned)NodeType::Proc] = procNodeVMT;
-	NodeVMTs[(unsigned)NodeType::Database] = databaseNodeVMT;
+	SaveNodeVMT(NodeType::Proc, procNodeVMT);
+	SaveNodeVMT(NodeType::Database, databaseNodeVMT);
 }
 
 }

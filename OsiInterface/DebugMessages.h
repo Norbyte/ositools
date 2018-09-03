@@ -64,6 +64,10 @@ namespace osidbg
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
 		void SendDebugSessionEnded();
+		void SendSyncStory(Goal * goal);
+		void SendSyncStory(Database ** databases, uint32_t count);
+		void SendSyncStory(Node ** nodes, uint32_t count);
+		void SendSyncStoryFinished();
 
 	private:
 		DebugInterface & intf_;
@@ -80,6 +84,7 @@ namespace osidbg
 		void HandleSetBreakpoints(uint32_t seq, DbgSetBreakpoints const & req);
 		void HandleContinue(uint32_t seq, DbgContinue const & req);
 		void HandleGetDatabaseContents(uint32_t seq, DbgGetDatabaseContents const & req);
+		void HandleSyncStory(uint32_t seq, DbgSyncStory const & req);
 
 		void Send(BackendToDebugger & msg);
 		void SendVersionInfo(uint32_t seq);

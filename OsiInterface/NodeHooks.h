@@ -58,6 +58,7 @@ namespace osidbg
 		std::function<void (Node *, TuplePtrLL *, bool)> InsertPostHook;
 
 		NodeType GetType(Node * node);
+		NodeVMTWrapper & GetWrapper(Node * node);
 
 	private:
 		NodeVMT ** vmts_;

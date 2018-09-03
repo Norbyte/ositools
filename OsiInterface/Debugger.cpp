@@ -207,6 +207,27 @@ namespace osidbg
 		maxBreakDepth_ = 0;
 	}
 
+	void Debugger::SyncStory()
+	{
+		auto const & goalDb = (*globals_.Goals);
+		for (unsigned i = 0; i < goalDb->Count; i++) {
+			auto goal = goalDb->FindGoal(i + 1);
+			messageHandler_.SendSyncStory(goal);
+		}
+
+		auto const & databaseDb = (*globals_.Databases)->Db;
+		for (unsigned i = 0; i < databaseDb.Size; i += 100) {
+			uint32_t numDatabases = std::min<uint32_t>(databaseDb.Size - i, 100);
+			messageHandler_.SendSyncStory(&databaseDb.Start[i], numDatabases);
+		}
+
+		auto const & nodeDb = (*globals_.Nodes)->Db;
+		for (unsigned i = 0; i < nodeDb.Size; i += 100) {
+			uint32_t numNodes = std::min<uint32_t>(nodeDb.Size - i, 100);
+			messageHandler_.SendSyncStory(&nodeDb.Start[i], numNodes);
+		}
+	}
+
 	void Debugger::FinishedSingleStep()
 	{
 		// Called when we're finished single stepping and want to cancel single-step triggers

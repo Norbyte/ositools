@@ -69,6 +69,7 @@ namespace osidbg
 		ResultCode SetBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
 		ResultCode ContinueExecution(DbgContinue_Action action);
 		void ClearAllBreakpoints();
+		void SyncStory();
 
 		void GameInitHook();
 		void RuleActionPreHook(RuleActionNode * action);

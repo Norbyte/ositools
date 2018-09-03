@@ -404,30 +404,31 @@ public:
 
 struct Database
 {
-	uint64_t A;
+	uint32_t DatabaseId;
+	uint32_t __Padding;
 	uint64_t B;
 	SomeDbItem Items[16];
 	uint64_t C;
 	List<TupleVec> Facts;
 	Vector<uint32_t> ParamTypes;
 	uint8_t NumParams;
-	uint8_t __Padding[7];
+	uint8_t __Padding2[7];
 	Vector<DatabaseParam> OrderedFacts;
 };
 
-struct RuleActionParams
+struct RuleActionParam
 {
-	uint64_t Unknown1, Unknown2;
+	void * Unknown;
 };
 
 class RuleActionNode
 {
 public:
 	const char * FunctionName;
-	RuleActionParams * Arguments;
+	List<RuleActionParam> * Arguments;
 	bool Not;
 	uint8_t __Padding[3];
-	uint32_t GoalIdOrDebugHook;
+	int32_t GoalIdOrDebugHook;
 };
 
 class RuleActionList
@@ -511,11 +512,6 @@ struct NodeDb
 	TArray<class Node *> Db;
 };
 
-struct Function
-{
-
-};
-
 template <typename ManagerType>
 struct Ref
 {
@@ -545,6 +541,47 @@ public:
 	NodeRef Node;
 	EntryPoint EntryPoint;
 	uint32_t GoalId;
+};
+
+struct FunctionParamDesc
+{
+	uint32_t Type;
+	uint32_t Unknown;
+};
+
+struct FunctionParamList
+{
+	void * VMT;
+	List<FunctionParamDesc> Params;
+};
+
+struct FuncSigOutParamList
+{
+	uint8_t * Params;
+	uint32_t Count;
+};
+
+struct FunctionSignature
+{
+	void * VMT;
+	const char * Name;
+	FunctionParamList * Params;
+	FuncSigOutParamList OutParamList;
+	uint32_t Unknown;
+};
+
+struct Function
+{
+	void * VMT;
+	uint32_t Line;
+	uint32_t Unknown1;
+	uint32_t Unknown2;
+	uint32_t __Padding;
+	FunctionSignature * Signature;
+	NodeRef Node;
+	uint32_t Type;
+	uint32_t Key[4];
+	uint32_t Unknown3;
 };
 
 struct NodeVMT
@@ -757,15 +794,16 @@ class InternalQueryNode : public QueryNode
 
 enum class NodeType
 {
-	Database,
-	Proc,
-	DivQuery,
-	And,
-	NotAnd,
-	RelOp,
-	Rule,
-	InternalQuery,
-	UserQuery,
+	None = 0,
+	Database = 1,
+	Proc = 2,
+	DivQuery = 3,
+	And = 4,
+	NotAnd = 5,
+	RelOp = 6,
+	Rule = 7,
+	InternalQuery = 8,
+	UserQuery = 9,
 	Max = UserQuery
 };
 

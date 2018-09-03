@@ -25,7 +25,7 @@ namespace osidbg
 		void Disconnect();
 		void Send(uint8_t * buf, uint32_t length);
 		bool ProcessMessage(uint8_t * buf, uint32_t length);
-		void RunLink(SOCKET sock);
+		void MessageLoop(SOCKET sock);
 
 		SOCKET socket_;
 		SOCKET clientSocket_{ 0 };

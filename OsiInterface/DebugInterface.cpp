@@ -126,7 +126,7 @@ namespace osidbg
 		}
 	}
 
-	void DebugInterface::RunLink(SOCKET sock)
+	void DebugInterface::MessageLoop(SOCKET sock)
 	{
 		receivePos_ = 0;
 		for (;;) {
@@ -141,13 +141,13 @@ namespace osidbg
 				uint32_t messageLength = *reinterpret_cast<uint32_t *>(&receiveBuf_[0]);
 
 				if (messageLength < 4 || messageLength > sizeof(receiveBuf_)) {
-					Debug(L"Illegal message length: %d", messageLength);
+					Debug(L"DebugInterface::MessageLoop(): Illegal message length: %d", messageLength);
 					return;
 				}
 
 				if (receivePos_ >= messageLength) {
 					if (!ProcessMessage(&receiveBuf_[4], messageLength - 4)) {
-						Debug(L"Message processing failed.");
+						Debug(L"DebugInterface::MessageLoop(): Message processing failed");
 						return;
 					}
 
@@ -172,7 +172,7 @@ namespace osidbg
 				connectHandler_();
 			}
 
-			RunLink(clientSocket_);
+			MessageLoop(clientSocket_);
 			Disconnect();
 		}
 	}

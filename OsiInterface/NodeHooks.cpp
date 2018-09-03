@@ -2,6 +2,7 @@
 #include "NodeHooks.h"
 #include <sstream>
 #include <memory>
+#include <cassert>
 
 namespace osidbg
 {
@@ -60,8 +61,6 @@ namespace osidbg
 		*vmt_ = originalVmt_;
 	}
 
-	void DebugDumpTuple(std::wstringstream & ss, TupleLL const & tuple);
-
 	bool NodeVMTWrapper::WrappedIsValid(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
 		return originalVmt_.IsValid(node, tuple, adapter);
@@ -113,6 +112,7 @@ namespace osidbg
 	}
 
 	NodeWrapOptions VMTWrapOptions[(unsigned)NodeType::Max + 1] = {
+		{ false, false, false, false, false }, // None
 		{ true, false, false, true, true }, // Database
 		{ true, false, false, true, true }, // Proc
 		{ true, false, false, false, false }, // DivQuery
@@ -127,7 +127,7 @@ namespace osidbg
 	NodeVMTWrappers::NodeVMTWrappers(NodeVMT ** vmts)
 		: vmts_(vmts)
 	{
-		for (unsigned i = 0; i <= (unsigned)NodeType::Max; i++) {
+		for (unsigned i = 1; i < (unsigned)NodeType::Max + 1; i++) {
 			wrappers_[i] = std::make_unique<NodeVMTWrapper>(vmts_[i], VMTWrapOptions[i]);
 			vmtToTypeMap_[vmts[i]] = (NodeType)i;
 		}
@@ -141,20 +141,22 @@ namespace osidbg
 		return typeIt->second;
 	}
 
+	NodeVMTWrapper & NodeVMTWrappers::GetWrapper(Node * node)
+	{
+		NodeType type = GetType(node);
+		assert(type >= NodeType::Database && type <= NodeType::Max);
+		return *wrappers_[(unsigned)type].get();
+	}
+
 	bool NodeVMTWrappers::WrappedIsValid(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
-		auto type = GetType(node);
+		auto & wrapper = GetWrapper(node);
 
 		if (IsValidPreHook) {
 			IsValidPreHook(node, tuple, adapter);
 		}
 
-		bool succeeded = wrappers_[(unsigned)type]->WrappedIsValid(node, tuple, adapter);
-
-		//std::wstringstream ss;
-		//DebugDumpTuple(ss, tuple->Data);
-
-		//Debug(L"IsValid<%d> (%s)", type, ss.str().c_str());
+		bool succeeded = wrapper.WrappedIsValid(node, tuple, adapter);
 
 		if (IsValidPostHook) {
 			IsValidPostHook(node, tuple, adapter, succeeded);
@@ -165,18 +167,13 @@ namespace osidbg
 
 	void NodeVMTWrappers::WrappedPushDownTuple(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which)
 	{
-		auto type = GetType(node);
-
-		//std::wstringstream ss;
-		//DebugDumpTuple(ss, tuple->Data);
-
-		//Debug(L"WrappedPushDownTuple<%d> (%s)", type, ss.str().c_str());
+		auto & wrapper = GetWrapper(node);
 
 		if (PushDownPreHook) {
 			PushDownPreHook(node, tuple, adapter, which, false);
 		}
 
-		wrappers_[(unsigned)type]->WrappedPushDownTuple(node, tuple, adapter, which);
+		wrapper.WrappedPushDownTuple(node, tuple, adapter, which);
 
 		if (PushDownPostHook) {
 			PushDownPostHook(node, tuple, adapter, which, false);
@@ -185,18 +182,13 @@ namespace osidbg
 
 	void NodeVMTWrappers::WrappedPushDownTupleDelete(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which)
 	{
-		auto type = GetType(node);
-
-		//std::wstringstream ss;
-		//DebugDumpTuple(ss, tuple->Data);
-
-		//Debug(L"WrappedPushDownTuple2<%d> (%s)", type, ss.str().c_str());
+		auto & wrapper = GetWrapper(node);
 
 		if (PushDownPreHook) {
 			PushDownPreHook(node, tuple, adapter, which, true);
 		}
 
-		wrappers_[(unsigned)type]->WrappedPushDownTupleDelete(node, tuple, adapter, which);
+		wrapper.WrappedPushDownTupleDelete(node, tuple, adapter, which);
 
 		if (PushDownPostHook) {
 			PushDownPostHook(node, tuple, adapter, which, true);
@@ -205,13 +197,13 @@ namespace osidbg
 
 	void NodeVMTWrappers::WrappedInsertTuple(Node * node, TuplePtrLL * tuple)
 	{
-		auto type = GetType(node);
+		auto & wrapper = GetWrapper(node);
 
 		if (InsertPreHook) {
 			InsertPreHook(node, tuple, false);
 		}
 
-		wrappers_[(unsigned)type]->WrappedInsertTuple(node, tuple);
+		wrapper.WrappedInsertTuple(node, tuple);
 
 		if (InsertPostHook) {
 			InsertPostHook(node, tuple, false);
@@ -220,13 +212,13 @@ namespace osidbg
 
 	void NodeVMTWrappers::WrappedDeleteTuple(Node * node, TuplePtrLL * tuple)
 	{
-		auto type = GetType(node);
+		auto & wrapper = GetWrapper(node);
 
 		if (InsertPreHook) {
 			InsertPreHook(node, tuple, true);
 		}
 
-		wrappers_[(unsigned)type]->WrappedDeleteTuple(node, tuple);
+		wrapper.WrappedDeleteTuple(node, tuple);
 
 		if (InsertPostHook) {
 			InsertPostHook(node, tuple, true);

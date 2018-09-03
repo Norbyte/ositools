@@ -151,6 +151,7 @@ private:
 	void FindOsirisGlobals(FARPROC CtorProc);
 	void FindDebugFlags(FARPROC SetOptionProc);
 	void ResolveNodeVMTs(NodeDb * Db);
+	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
 	void HookNodeVMTs();
 	void RestartLogging();
 };

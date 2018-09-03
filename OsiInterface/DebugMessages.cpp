@@ -175,6 +175,88 @@ namespace osidbg
 		Debug(L" <-- BkDebugSessionEnded()");
 	}
 
+	void AddActionInfo(RuleActionList * actions, std::function<MsgActionInfo * ()> addAction)
+	{
+		auto head = actions->Actions.Head;
+		auto current = head->Next;
+		uint32_t actionIndex = 0;
+		while (current != head) {
+			auto actionInfo = addAction();
+			if (current->Item->FunctionName != nullptr) {
+				actionInfo->set_function(current->Item->FunctionName);
+				actionInfo->set_arity((uint32_t)current->Item->Arguments->Size);
+			} else {
+				actionInfo->set_goal_id(current->Item->GoalIdOrDebugHook);
+			}
+			current = current->Next;
+			actionIndex++;
+		}
+	}
+
+	void DebugMessageHandler::SendSyncStory(Goal * goal)
+	{
+		BackendToDebugger msg;
+		auto sync = msg.mutable_syncstorydata();
+		auto goalInfo = sync->add_goal();
+		goalInfo->set_id(goal->Id);
+		goalInfo->set_name(goal->Name);
+		AddActionInfo(goal->InitCalls, [goalInfo]() -> MsgActionInfo * { return goalInfo->add_initactions(); });
+		AddActionInfo(goal->ExitCalls, [goalInfo]() -> MsgActionInfo * { return goalInfo->add_exitactions(); });
+		Send(msg);
+		Debug(L" <-- BkSyncStoryData(Goal #%d)", goal->Id);
+	}
+
+	void DebugMessageHandler::SendSyncStory(Database ** databases, uint32_t count)
+	{
+		BackendToDebugger msg;
+		auto sync = msg.mutable_syncstorydata();
+		for (uint32_t i = 0; i < count; i++) {
+			auto * db = databases[i];
+			auto dbInfo = sync->add_database();
+			dbInfo->set_id(db->DatabaseId);
+			for (auto arg = 0; arg < db->NumParams; arg++) {
+				dbInfo->add_argumenttype(db->ParamTypes.Start[arg]);
+			}
+		}
+
+		Send(msg);
+		Debug(L" <-- BkSyncStoryData(%d databases)", count);
+	}
+
+	void DebugMessageHandler::SendSyncStory(Node ** nodes, uint32_t count)
+	{
+		BackendToDebugger msg;
+		auto sync = msg.mutable_syncstorydata();
+		for (uint32_t i = 0; i < count; i++) {
+			auto * node = nodes[i];
+			auto nodeInfo = sync->add_node();
+			nodeInfo->set_id(node->Id);
+			auto type = gNodeVMTWrappers->GetType(node);
+			nodeInfo->set_type((uint32_t)type);
+			if (node->Function != nullptr) {
+				nodeInfo->set_name(node->Function->Signature->Name);
+			}
+			
+			if (type == NodeType::Rule) {
+				auto ruleInfo = sync->add_rule();
+				ruleInfo->set_node_id(node->Id);
+				RuleNode * rule = static_cast<RuleNode *>(node);
+				AddActionInfo(rule->Calls, [ruleInfo]() -> MsgActionInfo * { return ruleInfo->add_actions(); });
+			}
+		}
+
+		Send(msg);
+		Debug(L" <-- BkSyncStoryData(%d nodes)", count);
+	}
+
+	void DebugMessageHandler::SendSyncStoryFinished()
+	{
+		BackendToDebugger msg;
+		auto syncFinished = msg.mutable_syncstoryfinished();
+		Send(msg);
+		Debug(L" <-- BkSyncStoryFinished()");
+	}
+
 	void DebugMessageHandler::SetDebugger(Debugger * debugger)
 	{
 		debugger_ = debugger;
@@ -253,6 +335,19 @@ namespace osidbg
 		SendResult(seq, rc);
 	}
 
+	void DebugMessageHandler::HandleSyncStory(uint32_t seq, DbgSyncStory const & req)
+	{
+		Debug(L" --> DbgSyncStory()");
+
+		if (debugger_) {
+			debugger_->SyncStory();
+		} else {
+			Debug(L"Continue: Not attached to story debugger!");
+		}
+
+		SendSyncStoryFinished();
+	}
+
 	bool DebugMessageHandler::HandleMessage(DebuggerToBackend const * msg)
 	{
 		uint32_t seq = msg->seq_no();
@@ -284,8 +379,12 @@ namespace osidbg
 			//	HandleContinue(seq, msg->get_database_contents());
 			//	break;
 
+		case DebuggerToBackend::kSyncStory:
+			HandleSyncStory(seq, msg->syncstory());
+			break;
+
 		default:
-			Debug(L"Unknown message in stream.");
+			Debug(L"Unknown message type received: %d", msg->msg_case());
 			return false;
 		}
 
