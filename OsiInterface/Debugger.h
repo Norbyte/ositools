@@ -59,6 +59,11 @@ namespace osidbg
 
 		void StoryLoaded();
 
+		inline bool IsInitialized() const
+		{
+			return isInitialized_;
+		}
+
 		inline bool IsPaused() const
 		{
 			return isPaused_;
@@ -103,6 +108,8 @@ namespace osidbg
 		std::vector<CallStackFrame> callStack_;
 		// Mapping of a rule action to its call site (rule then part, goal init/exit)
 		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
+		// Did the engine call COsiris::InitGame() in this session?
+		bool isInitialized_{ false };
 
 		std::mutex breakpointMutex_;
 		std::condition_variable breakpointCv_;

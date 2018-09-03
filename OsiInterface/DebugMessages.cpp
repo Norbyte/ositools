@@ -435,8 +435,17 @@ namespace osidbg
 		BackendToDebugger msg;
 		auto version = msg.mutable_versioninfo();
 		version->set_protocol_version(1);
-		version->set_story_loaded(debugger_ != nullptr);
-		version->set_story_version("");
+		if (debugger_ != nullptr)
+		{
+			version->set_story_loaded(true);
+			version->set_story_initialized(debugger_->IsInitialized());
+		}
+		else
+		{
+			version->set_story_loaded(false);
+			version->set_story_initialized(false);
+		}
+
 		Send(msg);
 		Debug(L" <-- BkVersionInfoResponse()");
 	}

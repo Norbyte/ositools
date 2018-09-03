@@ -46,6 +46,7 @@ namespace osidbg
 
 	void Debugger::StoryLoaded()
 	{
+		isInitialized_ = false;
 		UpdateRuleActionMappings();
 		messageHandler_.SendStoryLoaded();
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnStoryLoaded) {
@@ -55,6 +56,7 @@ namespace osidbg
 
 	void Debugger::GameInitHook()
 	{
+		isInitialized_ = true;
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameInit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameInit);
 		}
