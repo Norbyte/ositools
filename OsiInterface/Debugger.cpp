@@ -4,6 +4,8 @@
 #include "OsirisProxy.h"
 #include <sstream>
 
+#undef DUMP_TRACEPOINTS
+
 namespace osidbg
 {
 	Debugger::Debugger(OsirisGlobals const & globals, DebugMessageHandler & messageHandler)
@@ -127,7 +129,7 @@ namespace osidbg
 		}
 
 		if (!type) {
-			Debug(L"Debugger::SetBreakpoint(): Removed on key %16x", breakpointId);
+			Debug(L"Debugger::SetBreakpoint(): Removed on key %016x", breakpointId);
 			auto it = breakpoints_.find(breakpointId);
 			if (it != breakpoints_.end()) {
 				breakpoints_.erase(it);
@@ -135,7 +137,7 @@ namespace osidbg
 		}
 		else
 		{
-			Debug(L"Debugger::SetBreakpoint(): Set on key %16x to %08x", breakpointId, type);
+			Debug(L"Debugger::SetBreakpoint(): Set on key %016x to %08x", breakpointId, type);
 			Breakpoint bp;
 			bp.nodeId = nodeId;
 			bp.goalId = goalId;
@@ -344,6 +346,9 @@ namespace osidbg
 	{
 		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
+#if defined(DUMP_TRACEPOINTS)
+		Debug(L"IsValid(Node %d)", node->Id);
+#endif
 		ConditionalBreakpointInServerThread(
 			MakeNodeBreakpointId(node->Id),
 			BreakOnValid,
@@ -360,6 +365,9 @@ namespace osidbg
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
+#if defined(DUMP_TRACEPOINTS)
+		Debug(L"PushDown(Node %d)", node->Id);
+#endif
 		ConditionalBreakpointInServerThread(
 			MakeNodeBreakpointId(node->Id),
 			BreakOnPushDown,
@@ -377,10 +385,13 @@ namespace osidbg
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
+#if defined(DUMP_TRACEPOINTS)
+		Debug(L"%s(Node %d)", deleted ? L"Delete" : L"Insert", node->Id);
+#endif
 		ConditionalBreakpointInServerThread(
 			MakeNodeBreakpointId(node->Id),
-			BreakOnInsert,
-			GlobalBreakOnInsert);
+			deleted ? BreakOnDelete : BreakOnInsert,
+			deleted ? GlobalBreakOnDelete : GlobalBreakOnInsert);
 	}
 
 	void Debugger::InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted)
@@ -468,19 +479,29 @@ namespace osidbg
 			bpType = BreakpointType::BreakOnRuleAction;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnRuleAction;
 			breakpointId = MakeRuleActionBreakpointId(mapping.rule->Id, mapping.actionIndex);
+#if defined(DUMP_TRACEPOINTS)
+			Debug(L"RuleAction(Rule %d, Action %d)", mapping.rule->Id, mapping.actionIndex);
+#endif
 		} else if (mapping.isInit) {
 			reason = BreakpointReason::GoalInitCall;
 			bpType = BreakpointType::BreakOnInitCall;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnInitCall;
 			breakpointId = MakeGoalInitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+#if defined(DUMP_TRACEPOINTS)
+			Debug(L"GoalInit(Goal %d, Action %d)", mapping.goal->Id, mapping.actionIndex);
+#endif
 		} else {
 			reason = BreakpointReason::GoalExitCall;
 			bpType = BreakpointType::BreakOnExitCall;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnExitCall;
 			breakpointId = MakeGoalExitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+#if defined(DUMP_TRACEPOINTS)
+			Debug(L"GoalExit(Goal %d, Action %d)", mapping.goal->Id, mapping.actionIndex);
+#endif
 		}
 
 		PushFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
+
 
 		ConditionalBreakpointInServerThread(breakpointId, bpType, globalBpType);
 	}

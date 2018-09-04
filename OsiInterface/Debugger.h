@@ -15,8 +15,9 @@ namespace osidbg
 		BreakOnRuleAction = 1 << 3,
 		BreakOnInitCall = 1 << 4,
 		BreakOnExitCall = 1 << 5,
+		BreakOnDelete = 1 << 6,
 		BreakpointTypeAll = BreakOnValid | BreakOnPushDown | BreakOnInsert
-			| BreakOnRuleAction | BreakOnInitCall | BreakOnExitCall
+			| BreakOnRuleAction | BreakOnInitCall | BreakOnExitCall | BreakOnDelete
 	};
 
 	enum GlobalBreakpointType
@@ -30,9 +31,10 @@ namespace osidbg
 		GlobalBreakOnExitCall = 1 << 6,
 		GlobalBreakOnGameInit = 1 << 7,
 		GlobalBreakOnGameExit = 1 << 8,
+		GlobalBreakOnDelete = 1 << 9,
 		GlobalBreakpointTypeAll = GlobalBreakOnStoryLoaded | GlobalBreakOnValid | GlobalBreakOnPushDown 
 			| GlobalBreakOnInsert | GlobalBreakOnRuleAction | GlobalBreakOnInitCall | GlobalBreakOnExitCall
-			| GlobalBreakOnGameInit | GlobalBreakOnGameExit
+			| GlobalBreakOnGameInit | GlobalBreakOnGameExit | GlobalBreakOnDelete
 	};
 
 	// Mapping of a rule action to its call site (rule then part, goal init/exit)
