@@ -268,8 +268,14 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleIdentify(uint32_t seq, DbgIdentifyRequest const & req)
 	{
-		Debug(L" --> DbgIdentifyRequest()");
+		Debug(L" --> DbgIdentifyRequest(Version %d)", req.protocol_version());
 		SendVersionInfo(seq);
+
+		if (req.protocol_version() != ProtocolVersion) {
+			Debug(L"DebugMessageHandler::HandleIdentify(): Client sent unsupported protocol version; got %d, we only support %d", 
+				req.protocol_version(), ProtocolVersion);
+			intf_.Disconnect();
+		}
 	}
 
 	void DebugMessageHandler::HandleSetGlobalBreakpoints(uint32_t seq, DbgSetGlobalBreakpoints const & req)
@@ -441,7 +447,7 @@ namespace osidbg
 	{
 		BackendToDebugger msg;
 		auto version = msg.mutable_versioninfo();
-		version->set_protocol_version(1);
+		version->set_protocol_version(ProtocolVersion);
 		if (debugger_ != nullptr)
 		{
 			version->set_story_loaded(true);

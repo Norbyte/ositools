@@ -53,6 +53,8 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
+		static const uint32_t ProtocolVersion = 2;
+
 		DebugMessageHandler(DebugInterface & intf);
 
 		inline bool IsConnected() const

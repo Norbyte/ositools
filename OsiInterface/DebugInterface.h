@@ -20,9 +20,9 @@ namespace osidbg
 		bool IsConnected() const;
 		void Send(BackendToDebugger const & msg);
 		void Run();
+		void Disconnect();
 
 	private:
-		void Disconnect();
 		void Send(uint8_t * buf, uint32_t length);
 		bool ProcessMessage(uint8_t * buf, uint32_t length);
 		void MessageLoop(SOCKET sock);
