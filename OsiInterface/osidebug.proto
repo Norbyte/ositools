@@ -119,6 +119,7 @@ message BkResult {
 message BkStoryLoaded {
 }
 
+// Notifies the frontend that the story was unloaded
 message BkDebugSessionEnded {
 }
 
@@ -165,10 +166,6 @@ message BkSyncStoryData {
 message BkSyncStoryFinished {
 }
 
-// Notifies the frontend that the story was unloaded
-message BkStoryUnloaded {
-}
-
 
 message DebuggerToBackend {
   oneof msg {
@@ -194,7 +191,6 @@ message BackendToDebugger {
 	BkGlobalBreakpointTriggered globalBreakpointTriggered = 7;
 	BkSyncStoryData syncStoryData = 10;
 	BkSyncStoryFinished syncStoryFinished = 11;
-	BkStoryUnloaded storyUnloaded = 12;
   }
   uint32 seq_no = 8;
   uint32 reply_seq_no = 9;

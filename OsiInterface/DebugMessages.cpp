@@ -167,14 +167,6 @@ namespace osidbg
 		Debug(L" <-- BkStoryLoaded()");
 	}
 
-	void DebugMessageHandler::SendStoryUnloaded()
-	{
-		BackendToDebugger msg;
-		auto storyLoaded = msg.mutable_storyunloaded();
-		Send(msg);
-		Debug(L" <-- BkStoryUnloaded()");
-	}
-
 	void DebugMessageHandler::SendDebugSessionEnded()
 	{
 		BackendToDebugger msg;

@@ -64,7 +64,6 @@ namespace osidbg
 		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
-		void SendStoryUnloaded();
 		void SendDebugSessionEnded();
 		void SendSyncStory(Goal * goal);
 		void SendSyncStory(Database ** databases, uint32_t count);

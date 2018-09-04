@@ -68,8 +68,6 @@ namespace osidbg
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameExit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameExit);
 		}
-
-		messageHandler_.SendStoryUnloaded();
 	}
 
 	ResultCode Debugger::SetGlobalBreakpoints(GlobalBreakpointType breakpoints)
