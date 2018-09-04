@@ -9,7 +9,8 @@
 namespace osidbg
 {
 	Debugger::Debugger(OsirisGlobals const & globals, DebugMessageHandler & messageHandler)
-		: globals_(globals), messageHandler_(messageHandler)
+		: globals_(globals), messageHandler_(messageHandler),
+		breakpoints_(new std::unordered_map<uint64_t, Breakpoint>())
 	{
 		if (messageHandler_.IsConnected()) {
 			globalBreakpoints_ = GlobalBreakpointType::GlobalBreakOnStoryLoaded;
@@ -48,6 +49,7 @@ namespace osidbg
 
 	void Debugger::StoryLoaded()
 	{
+		SeverThreadReentry();
 		isInitialized_ = false;
 		UpdateRuleActionMappings();
 		messageHandler_.SendStoryLoaded();
@@ -58,6 +60,7 @@ namespace osidbg
 
 	void Debugger::GameInitHook()
 	{
+		SeverThreadReentry();
 		isInitialized_ = true;
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameInit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameInit);
@@ -66,6 +69,7 @@ namespace osidbg
 
 	void Debugger::DeleteAllDataHook()
 	{
+		SeverThreadReentry();
 		isInitialized_ = false;
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameExit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameExit);
@@ -83,32 +87,32 @@ namespace osidbg
 		return ResultCode::Success;
 	}
 
-	void Debugger::ClearNodeBreakpoints()
+	void Debugger::BeginUpdatingNodeBreakpoints()
 	{
-		Debug(L"Debugger::ClearNodeBreakpoints()");
-		breakpoints_.clear();
+		Debug(L"Debugger::BeginUpdatingNodeBreakpoints()");
+		pendingBreakpoints_.reset(new std::unordered_map<uint64_t, Breakpoint>());
 	}
 
-	ResultCode Debugger::SetBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type)
+	ResultCode Debugger::AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type)
 	{
 		if (type & ~BreakpointTypeAll) {
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
 		if (nodeId > (*globals_.Nodes)->Db.Size) {
-			Debug(L"Debugger::SetBreakpoint(): Tried to set on nonexistent node ID %d", nodeId);
+			Debug(L"Debugger::AddBreakpoint(): Tried to set on nonexistent node ID %d", nodeId);
 			return ResultCode::InvalidNodeId;
 		}
 
 		if (goalId > (*globals_.Goals)->Count) {
-			Debug(L"Debugger::SetBreakpoint(): Tried to set on nonexistent goal ID %d", nodeId);
+			Debug(L"Debugger::AddBreakpoint(): Tried to set on nonexistent goal ID %d", nodeId);
 			return ResultCode::InvalidGoalId;
 		}
 
 		uint64_t breakpointId;
 		if (actionIndex == -1) {
 			if (nodeId == 0) {
-				Debug(L"Debugger::SetBreakpoint(): Node ID must be nonzero for node actions", nodeId);
+				Debug(L"Debugger::AddBreakpoint(): Node ID must be nonzero for node actions", nodeId);
 				return ResultCode::InvalidNodeId;
 			}
 
@@ -123,31 +127,34 @@ namespace osidbg
 					breakpointId = MakeGoalExitBreakpointId(goalId, actionIndex);
 				}
 			} else {
-				Debug(L"Debugger::SetBreakpoint(): No node/goal specified");
+				Debug(L"Debugger::AddBreakpoint(): No node/goal specified");
 				return ResultCode::InvalidNodeId;
 			}
 		}
 
-		if (!type) {
-			Debug(L"Debugger::SetBreakpoint(): Removed on key %016x", breakpointId);
-			auto it = breakpoints_.find(breakpointId);
-			if (it != breakpoints_.end()) {
-				breakpoints_.erase(it);
-			}
-		}
-		else
-		{
-			Debug(L"Debugger::SetBreakpoint(): Set on key %016x to %08x", breakpointId, type);
-			Breakpoint bp;
-			bp.nodeId = nodeId;
-			bp.goalId = goalId;
-			bp.isInit = isInit;
-			bp.actionIndex = actionIndex;
-			bp.type = type;
-			breakpoints_[breakpointId] = bp;
-		}
+		Debug(L"Debugger::AddBreakpoint(): Set on key %016x to %08x", breakpointId, type);
+		Breakpoint bp;
+		bp.nodeId = nodeId;
+		bp.goalId = goalId;
+		bp.isInit = isInit;
+		bp.actionIndex = actionIndex;
+		bp.type = type;
+		(*pendingBreakpoints_)[breakpointId] = bp;
 
 		return ResultCode::Success;
+	}
+
+	void Debugger::FinishUpdatingNodeBreakpoints()
+	{
+		Debug(L"Debugger::FinishUpdatingNodeBreakpoints()");
+
+		pendingActions_.push([this]() {
+			Debug(L"Debugger::FinishUpdatingNodeBreakpoints(): Syncing breakpoints in server thread");
+			auto pendingBps = std::move(this->pendingBreakpoints_);
+			if (pendingBps.get() != nullptr) {
+				this->breakpoints_.swap(pendingBps);
+			}
+		});
 	}
 
 	ResultCode Debugger::ContinueExecution(DbgContinue_Action action)
@@ -214,7 +221,7 @@ namespace osidbg
 	void Debugger::ClearAllBreakpoints()
 	{
 		globalBreakpoints_ = 0;
-		breakpoints_.clear();
+		breakpoints_->clear();
 		forceBreakpoint_ = false;
 		maxBreakDepth_ = 0;
 	}
@@ -240,6 +247,15 @@ namespace osidbg
 		}
 	}
 
+	void Debugger::SeverThreadReentry()
+	{
+		// Called when the debugger is entered from any of the server thread hooks
+		std::function<void ()> func;
+		while (pendingActions_.try_pop(func)) {
+			func();
+		}
+	}
+
 	void Debugger::FinishedSingleStep()
 	{
 		// Called when we're finished single stepping and want to cancel single-step triggers
@@ -250,8 +266,8 @@ namespace osidbg
 	bool Debugger::ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
 	{
 		// Check if there is a breakpoint on this node ID
-		auto it = breakpoints_.find(bpNodeId);
-		if (it != breakpoints_.end()
+		auto it = breakpoints_->find(bpNodeId);
+		if (it != breakpoints_->end()
 			&& (it->second.type & bpType)) {
 			return true;
 		}
@@ -344,6 +360,7 @@ namespace osidbg
 
 	void Debugger::IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
+		SeverThreadReentry();
 		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
 #if defined(DUMP_TRACEPOINTS)
@@ -357,11 +374,13 @@ namespace osidbg
 
 	void Debugger::IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
 	{
+		SeverThreadReentry();
 		PopFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
 	void Debugger::PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
+		SeverThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
@@ -376,12 +395,14 @@ namespace osidbg
 
 	void Debugger::PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
+		SeverThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PopFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
 	void Debugger::InsertPreHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
+		SeverThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
@@ -396,6 +417,7 @@ namespace osidbg
 
 	void Debugger::InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
+		SeverThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PopFrame({ reason, node, nullptr, 0, nullptr, tuple });
 	}
@@ -457,69 +479,79 @@ namespace osidbg
 		}
 	}
 
-	RuleActionMapping const & Debugger::FindActionMapping(RuleActionNode * action)
+	RuleActionMapping const * Debugger::FindActionMapping(RuleActionNode * action)
 	{
 		auto mapping = ruleActionMappings_.find(action);
 		if (mapping == ruleActionMappings_.end()) {
-			Fail(L"Could not find action mapping for rule action");
+			Fail(L"Debugger::FindActionMapping(): Could not find action mapping for rule action");
+			return nullptr;
 		}
 
-		return mapping->second;
+		return &mapping->second;
 	}
 
 	void Debugger::RuleActionPreHook(RuleActionNode * action)
 	{
-		auto const & mapping = FindActionMapping(action);
+		SeverThreadReentry();
+		auto const * mapping = FindActionMapping(action);
+		if (mapping == nullptr) {
+			return;
+		}
+
 		BreakpointReason reason;
 		BreakpointType bpType;
 		GlobalBreakpointType globalBpType;
 		uint64_t breakpointId;
-		if (mapping.rule != nullptr) {
+		if (mapping->rule != nullptr) {
 			reason = BreakpointReason::RuleActionCall;
 			bpType = BreakpointType::BreakOnRuleAction;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnRuleAction;
-			breakpointId = MakeRuleActionBreakpointId(mapping.rule->Id, mapping.actionIndex);
+			breakpointId = MakeRuleActionBreakpointId(mapping->rule->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"RuleAction(Rule %d, Action %d)", mapping.rule->Id, mapping.actionIndex);
+			Debug(L"RuleAction(Rule %d, Action %d)", mapping->rule->Id, mapping->actionIndex);
 #endif
-		} else if (mapping.isInit) {
+		} else if (mapping->isInit) {
 			reason = BreakpointReason::GoalInitCall;
 			bpType = BreakpointType::BreakOnInitCall;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnInitCall;
-			breakpointId = MakeGoalInitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+			breakpointId = MakeGoalInitBreakpointId(mapping->goal->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"GoalInit(Goal %d, Action %d)", mapping.goal->Id, mapping.actionIndex);
+			Debug(L"GoalInit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
 #endif
 		} else {
 			reason = BreakpointReason::GoalExitCall;
 			bpType = BreakpointType::BreakOnExitCall;
 			globalBpType = GlobalBreakpointType::GlobalBreakOnExitCall;
-			breakpointId = MakeGoalExitBreakpointId(mapping.goal->Id, mapping.actionIndex);
+			breakpointId = MakeGoalExitBreakpointId(mapping->goal->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"GoalExit(Goal %d, Action %d)", mapping.goal->Id, mapping.actionIndex);
+			Debug(L"GoalExit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
 #endif
 		}
 
-		PushFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
-
+		PushFrame({ reason, mapping->rule, mapping->goal, mapping->actionIndex, nullptr, nullptr });
 
 		ConditionalBreakpointInServerThread(breakpointId, bpType, globalBpType);
 	}
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)
 	{
-		auto const & mapping = FindActionMapping(action);
+		SeverThreadReentry();
+		auto const * mapping = FindActionMapping(action);
+		if (mapping == nullptr) {
+			return;
+		}
+
 		BreakpointReason reason;
-		if (mapping.rule != nullptr) {
+		if (mapping->rule != nullptr) {
 			reason = BreakpointReason::RuleActionCall;
 		}
-		else if (mapping.isInit) {
+		else if (mapping->isInit) {
 			reason = BreakpointReason::GoalInitCall;
 		}
 		else {
 			reason = BreakpointReason::GoalExitCall;
 		}
 
-		PopFrame({ reason, mapping.rule, mapping.goal, mapping.actionIndex, nullptr, nullptr });
+		PopFrame({ reason, mapping->rule, mapping->goal, mapping->actionIndex, nullptr, nullptr });
 	}
 }

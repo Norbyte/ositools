@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <concurrent_queue.h>
 #include "osidebug.pb.h"
 #include "DivInterface.h"
 #include "DebugMessages.h"
@@ -72,9 +73,11 @@ namespace osidbg
 			return isPaused_;
 		}
 
+		void BeginUpdatingNodeBreakpoints();
+		ResultCode AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
+		void FinishUpdatingNodeBreakpoints();
+
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
-		void ClearNodeBreakpoints();
-		ResultCode SetBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
 		ResultCode ContinueExecution(DbgContinue_Action action);
 		void ClearAllBreakpoints();
 		void SyncStory();
@@ -119,13 +122,22 @@ namespace osidbg
 		std::condition_variable breakpointCv_;
 
 		uint32_t globalBreakpoints_;
-		std::unordered_map<uint64_t, Breakpoint> breakpoints_;
+		// Breakpoints that are currently active
+		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> breakpoints_;
+		// Breakpoints that are being applied via the debugger protocol
+		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> pendingBreakpoints_;
 		bool isPaused_{ false };
 		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
 		bool forceBreakpoint_{ false };
 		// Call stack depth at which we'll trigger a breakpoint
 		// (used for step over/into/out)
 		uint32_t maxBreakDepth_{ 0 };
+
+		// Actions that we'll perform in the server thread instead of the messaging runtime thread.
+		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.
+		Concurrency::concurrent_queue<std::function<void ()>> pendingActions_;
+
+		void SeverThreadReentry();
 
 		void FinishedSingleStep();
 		bool ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
@@ -135,7 +147,7 @@ namespace osidbg
 
 		void AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions);
 		void UpdateRuleActionMappings();
-		RuleActionMapping const & FindActionMapping(RuleActionNode * action);
+		RuleActionMapping const * FindActionMapping(RuleActionNode * action);
 
 		void IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter);
 		void IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded);
