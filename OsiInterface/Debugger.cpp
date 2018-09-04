@@ -314,6 +314,7 @@ namespace osidbg
 		}
 
 		Debug(L"Continuing from breakpoint.");
+		SeverThreadReentry();
 	}
 
 	void Debugger::GlobalBreakpointInServerThread(GlobalBreakpointReason reason)
@@ -332,6 +333,7 @@ namespace osidbg
 		}
 
 		Debug(L"Continuing from breakpoint.");
+		SeverThreadReentry();
 	}
 
 	void Debugger::PushFrame(CallStackFrame const & frame)
