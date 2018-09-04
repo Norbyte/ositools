@@ -62,6 +62,16 @@ namespace osidbg
 		}
 	}
 
+	void Debugger::DeleteAllDataHook()
+	{
+		isInitialized_ = false;
+		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameExit) {
+			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameExit);
+		}
+
+		messageHandler_.SendStoryUnloaded();
+	}
+
 	ResultCode Debugger::SetGlobalBreakpoints(GlobalBreakpointType breakpoints)
 	{
 		if (breakpoints & ~GlobalBreakpointTypeAll) {

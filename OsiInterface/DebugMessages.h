@@ -10,7 +10,8 @@ namespace osidbg
 	enum class GlobalBreakpointReason
 	{
 		StoryLoaded = 0,
-		GameInit = 1
+		GameInit = 1,
+		GameExit = 2
 	};
 
 	enum class BreakpointReason
@@ -63,6 +64,7 @@ namespace osidbg
 		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
+		void SendStoryUnloaded();
 		void SendDebugSessionEnded();
 		void SendSyncStory(Goal * goal);
 		void SendSyncStory(Database ** databases, uint32_t count);

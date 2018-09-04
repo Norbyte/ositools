@@ -29,9 +29,10 @@ namespace osidbg
 		GlobalBreakOnInitCall = 1 << 5,
 		GlobalBreakOnExitCall = 1 << 6,
 		GlobalBreakOnGameInit = 1 << 7,
+		GlobalBreakOnGameExit = 1 << 8,
 		GlobalBreakpointTypeAll = GlobalBreakOnStoryLoaded | GlobalBreakOnValid | GlobalBreakOnPushDown 
 			| GlobalBreakOnInsert | GlobalBreakOnRuleAction | GlobalBreakOnInitCall | GlobalBreakOnExitCall
-			| GlobalBreakOnGameInit
+			| GlobalBreakOnGameInit | GlobalBreakOnGameExit
 	};
 
 	// Mapping of a rule action to its call site (rule then part, goal init/exit)
@@ -77,6 +78,7 @@ namespace osidbg
 		void SyncStory();
 
 		void GameInitHook();
+		void DeleteAllDataHook();
 		void RuleActionPreHook(RuleActionNode * action);
 		void RuleActionPostHook(RuleActionNode * action);
 

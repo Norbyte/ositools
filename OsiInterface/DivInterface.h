@@ -831,6 +831,7 @@ typedef void (* COsirisOpenLogFileProc)(void * Osiris, wchar_t const * Path, wch
 typedef void (* COsirisCloseLogFileProc)(void * Osiris);
 typedef int (* COsirisInitGameProc)(void * Osiris);
 typedef int (* COsirisLoadProc)(void * Osiris, void * Buf);
+typedef int (* COsirisDeleteAllDataProc)(void * Osiris, bool DeleteTypes);
 typedef int (* COsirisReadHeaderProc)(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 typedef void (* RuleActionCallProc)(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 

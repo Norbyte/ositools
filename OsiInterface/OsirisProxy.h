@@ -83,6 +83,7 @@ public:
 private:
 	WrappedFunction<int(void *, DivFunctions *)> RegisterDivFunctions;
 	WrappedFunction<int(void *)> InitGame;
+	WrappedFunction<int(void *, bool)> DeleteAllData;
 	OsirisGlobals Globals;
 
 	HMODULE OsirisModule{ NULL };
@@ -97,6 +98,9 @@ private:
 
 	int InitGameWrapper(void *);
 	static int SInitGameWrapper(void *);
+
+	int DeleteAllDataWrapper(void *, bool);
+	static int SDeleteAllDataWrapper(void *, bool);
 
 	bool CallWrapper(uint32_t FunctionHandle, CallParam * Params);
 	static bool SCallWrapper(uint32_t FunctionHandle, CallParam * Params);
@@ -117,6 +121,7 @@ private:
 	COsirisCloseLogFileProc OsirisCloseLogFileProc;
 	COsirisOpenLogFileProc OsirisOpenLogFileProc;
 	COsirisInitGameProc OsirisInitGameProc;
+	COsirisDeleteAllDataProc OsirisDeleteAllDataProc;
 	COsirisReadHeaderProc OsirisReadHeaderProc;
 	COsirisLoadProc OsirisLoadProc;
 	RuleActionCallProc OriginalRuleActionCallProc;

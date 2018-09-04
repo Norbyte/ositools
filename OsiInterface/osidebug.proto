@@ -69,6 +69,7 @@ message BkGlobalBreakpointTriggered {
   enum Reason {
 	BREAKPOINT_STORY_LOADED = 0;
 	BREAKPOINT_GAME_INIT = 1;
+	BREAKPOINT_GAME_EXIT = 2;
   };
   
   Reason reason = 1;
@@ -164,6 +165,11 @@ message BkSyncStoryData {
 message BkSyncStoryFinished {
 }
 
+// Notifies the frontend that the story was unloaded
+message BkStoryUnloaded {
+}
+
+
 message DebuggerToBackend {
   oneof msg {
     DbgIdentifyRequest identify = 1;
@@ -188,6 +194,7 @@ message BackendToDebugger {
 	BkGlobalBreakpointTriggered globalBreakpointTriggered = 7;
 	BkSyncStoryData syncStoryData = 10;
 	BkSyncStoryFinished syncStoryFinished = 11;
+	BkStoryUnloaded storyUnloaded = 12;
   }
   uint32 seq_no = 8;
   uint32 reply_seq_no = 9;

@@ -177,10 +177,17 @@ void OsirisProxy::Initialize()
 
 	FARPROC InitGameProc = GetProcAddress(OsirisModule, "?InitGame@COsiris@@QEAA_NXZ");
 	if (InitGameProc == NULL) {
-		Fail(L"Could not locate COsiris::InitGameProc in osiris_x64.dll");
+		Fail(L"Could not locate COsiris::InitGame in osiris_x64.dll");
 	}
 
 	OsirisInitGameProc = (COsirisInitGameProc)InitGameProc;
+
+	FARPROC DeleteAllDataProc = GetProcAddress(OsirisModule, "?DeleteAllData@COsiris@@QEAAX_N@Z");
+	if (DeleteAllDataProc == NULL) {
+		Fail(L"Could not locate COsiris::DeleteAllData in osiris_x64.dll");
+}
+
+	OsirisDeleteAllDataProc = (COsirisDeleteAllDataProc)DeleteAllDataProc;
 
 #if 0
 	Debug(L"OsirisProxy::Initialize: Detouring functions");
@@ -189,6 +196,7 @@ void OsirisProxy::Initialize()
 	DetourUpdateThread(GetCurrentThread());
 	RegisterDivFunctions.Wrap(RegisterDIVFunctionsProc, &SRegisterDIVFunctionsWrapper);
 	InitGame.Wrap(OsirisInitGameProc, &SInitGameWrapper);
+	DeleteAllData.Wrap(OsirisDeleteAllDataProc, &SDeleteAllDataWrapper);
 	DetourTransactionCommit();
 
 	FARPROC SetOptionProc = GetProcAddress(OsirisModule, "?SetOption@COsiris@@QEAAXI@Z");
@@ -394,6 +402,22 @@ int OsirisProxy::InitGameWrapper(void * Osiris)
 int OsirisProxy::SInitGameWrapper(void * Osiris)
 {
 	return gOsirisProxy->InitGameWrapper(Osiris);
+}
+
+int OsirisProxy::DeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
+{
+	if (debugger_) {
+		Debug(L"OsirisProxy::DeleteAllData()");
+		debugger_->DeleteAllDataHook();
+		debugger_.reset();
+	}
+
+	return DeleteAllData(Osiris, DeleteTypes);
+}
+
+int OsirisProxy::SDeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
+{
+	return gOsirisProxy->DeleteAllDataWrapper(Osiris, DeleteTypes);
 }
 
 bool OsirisProxy::CallWrapper(uint32_t FunctionId, CallParam * Params)
