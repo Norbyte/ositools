@@ -342,7 +342,7 @@ namespace osidbg
 		}
 		else
 		{
-			rc = debugger_->ContinueExecution(req.action());
+			rc = debugger_->ContinueExecution(req.action(), req.breakpoint_mask(), req.flags());
 		}
 
 		SendResult(seq, rc);
@@ -418,7 +418,7 @@ namespace osidbg
 		if (debugger_) {
 			debugger_->ClearAllBreakpoints();
 			if (debugger_->IsPaused()) {
-				debugger_->ContinueExecution(DbgContinue_Action_CONTINUE);
+				debugger_->ContinueExecution(DbgContinue_Action_CONTINUE, 0, 0);
 			}
 		}
 	}

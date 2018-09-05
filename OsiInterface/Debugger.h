@@ -38,6 +38,13 @@ namespace osidbg
 			| GlobalBreakOnGameInit | GlobalBreakOnGameExit | GlobalBreakOnDelete
 	};
 
+	enum ContinueFlag
+	{
+		ContinueSkipRulePushdown = 1 << 0,
+		ContinueSkipDbPropagation = 1 << 1,
+		ContinueFlagAll = ContinueSkipRulePushdown | ContinueSkipDbPropagation
+	};
+
 	// Mapping of a rule action to its call site (rule then part, goal init/exit)
 	struct RuleActionMapping
 	{
@@ -78,7 +85,7 @@ namespace osidbg
 		void FinishUpdatingNodeBreakpoints();
 
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
-		ResultCode ContinueExecution(DbgContinue_Action action);
+		ResultCode ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags);
 		void ClearAllBreakpoints();
 		void SyncStory();
 
@@ -129,6 +136,11 @@ namespace osidbg
 		bool isPaused_{ false };
 		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
 		bool forceBreakpoint_{ false };
+		// Events that will trigger a forced breakpoint.
+		// This only filters forced BPs, not traditional breakpoints.
+		uint32_t forceBreakpointMask_{ 0 };
+		// Additional filter flags on forced breakpoints.
+		uint32_t forceBreakpointFlags_{ 0 };
 		// Call stack depth at which we'll trigger a breakpoint
 		// (used for step over/into/out)
 		uint32_t maxBreakDepth_{ 0 };
@@ -140,8 +152,9 @@ namespace osidbg
 		void SeverThreadReentry();
 
 		void FinishedSingleStep();
-		bool ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
-		void ConditionalBreakpointInServerThread(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
+		bool ForcedBreakpointConditionsSatisfied(Node * bpNode, BreakpointType bpType);
+		bool ShouldTriggerBreakpoint(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
+		void ConditionalBreakpointInServerThread(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
 		void BreakpointInServerThread();
 		void GlobalBreakpointInServerThread(GlobalBreakpointReason reason);
 

@@ -35,7 +35,8 @@ namespace osidbg
 		NoDebuggee = 4,
 		InvalidContinueAction = 5,
 		InPause = 6,
-		InvalidGoalId = 7
+		InvalidGoalId = 7,
+		UnsupportedContinueFlags = 8
 	};
 
 	struct CallStackFrame
@@ -53,7 +54,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 2;
+		static const uint32_t ProtocolVersion = 3;
 
 		DebugMessageHandler(DebugInterface & intf);
 

@@ -96,6 +96,7 @@ namespace osidbg
 	ResultCode Debugger::AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type)
 	{
 		if (type & ~BreakpointTypeAll) {
+			Debug(L"Debugger::AddBreakpoint(): Unsupported breakpoint type set: %08x", type);
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
@@ -149,16 +150,26 @@ namespace osidbg
 		Debug(L"Debugger::FinishUpdatingNodeBreakpoints()");
 
 		pendingActions_.push([this]() {
-			Debug(L"Debugger::FinishUpdatingNodeBreakpoints(): Syncing breakpoints in server thread");
 			auto pendingBps = std::move(this->pendingBreakpoints_);
 			if (pendingBps.get() != nullptr) {
+				Debug(L"Debugger::FinishUpdatingNodeBreakpoints(): Syncing breakpoints in server thread");
 				this->breakpoints_.swap(pendingBps);
 			}
 		});
 	}
 
-	ResultCode Debugger::ContinueExecution(DbgContinue_Action action)
+	ResultCode Debugger::ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags)
 	{
+		if (breakpointMask & ~BreakpointTypeAll) {
+			Debug(L"Debugger::ContinueExecution(): Unsupported breakpoint type set: %08x", breakpointMask);
+			return ResultCode::UnsupportedBreakpointType;
+		}
+
+		if (flags & ~ContinueFlagAll) {
+			Debug(L"Debugger::ContinueExecution(): Unsupported flag set: %08x", flags);
+			return ResultCode::UnsupportedContinueFlags;
+		}
+
 		std::unique_lock<std::mutex> lk(breakpointMutex_);
 
 		if (action == DbgContinue_Action_PAUSE) {
@@ -170,6 +181,8 @@ namespace osidbg
 			Debug(L"Debugger::ContinueExecution(): Force pause on next node");
 			// Forcibly break on the next call
 			forceBreakpoint_ = true;
+			forceBreakpointMask_ = breakpointMask;
+			forceBreakpointFlags_ = flags;
 			maxBreakDepth_ = 0x7fffffff;
 			// This is not a "continue" message, it just sets the breakpoint flags,
 			// so we don't go through the continue code here
@@ -180,6 +193,9 @@ namespace osidbg
 			Debug(L"Debugger::ContinueExecution(): Not paused");
 			return ResultCode::NotInPause;
 		}
+
+		forceBreakpointMask_ = breakpointMask;
+		forceBreakpointFlags_ = flags;
 
 		switch (action) {
 		case DbgContinue_Action_CONTINUE:
@@ -211,7 +227,7 @@ namespace osidbg
 			return ResultCode::InvalidContinueAction;
 		}
 
-		Debug(L"Debugger::ContinueExecution(%d): Continuing", action);
+		Debug(L"Debugger::ContinueExecution(): Continuing; action %d, mask %08x, flags %08x", action, breakpointMask, flags);
 		isPaused_ = false;
 		breakpointCv_.notify_one();
 
@@ -224,6 +240,7 @@ namespace osidbg
 		breakpoints_->clear();
 		forceBreakpoint_ = false;
 		maxBreakDepth_ = 0;
+		forceBreakpointMask_ = 0;
 	}
 
 	void Debugger::SyncStory()
@@ -261,9 +278,71 @@ namespace osidbg
 		// Called when we're finished single stepping and want to cancel single-step triggers
 		forceBreakpoint_ = false;
 		maxBreakDepth_ = 0;
+		forceBreakpointMask_ = 0;
 	}
 
-	bool Debugger::ShouldTriggerBreakpoint(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
+	bool Debugger::ForcedBreakpointConditionsSatisfied(Node * bpNode, BreakpointType bpType)
+	{
+		// Check if the current frame type is one we can break on
+		if (!(forceBreakpointMask_ & bpType)) {
+			return false;
+		}
+
+		// Check if we're on the correct stack depth
+		if (callStack_.size() > maxBreakDepth_) {
+			return false;
+		}
+
+		// Skip rule pushdown frames (avoids unnecessary additional single-stepping frame)
+		if (forceBreakpointFlags_ & ContinueSkipRulePushdown) {
+			if (bpType == BreakpointType::BreakOnPushDown
+				&& bpNode != nullptr
+				&& gNodeVMTWrappers->GetType(bpNode) == NodeType::Rule) {
+				return false;
+			}
+		}
+
+		// Skip database propagation nodes
+		if (forceBreakpointFlags_ & ContinueSkipDbPropagation) {
+			// Look for a likely database propagation signature in the call stack
+			// (an Insert/Delete frame followed by a Pushdown frame)
+			for (auto i = 0; i < callStack_.size() - 1; i++) {
+				auto & first = callStack_[i];
+				auto & second = callStack_[i + 1];
+
+				if ((first.frameType == BreakpointReason::NodeInsertTuple
+					|| first.frameType == BreakpointReason::NodeDeleteTuple)
+					&& (second.frameType == BreakpointReason::NodePushDownTuple
+						|| second.frameType == BreakpointReason::NodePushDownTupleDelete)) {
+					// Check whether the first node is a parent of the second node
+					auto secondType = gNodeVMTWrappers->GetType(second.node);
+					uint32_t parentNodeId;
+					if (secondType == NodeType::Rule || secondType == NodeType::RelOp)
+					{
+						auto rel = static_cast<RelNode *>(second.node);
+						parentNodeId = rel->Parent.Id;
+					}
+					else if (secondType == NodeType::And || secondType == NodeType::NotAnd) {
+						auto join = static_cast<JoinNode *>(second.node);
+						parentNodeId = join->Left.Id;
+					}
+					else {
+						Debug(L"Debugger::ForcedBreakpointConditionsSatisfied(): Illegal call order: %d --> %d",
+							first.node->Id, second.node->Id);
+						parentNodeId = first.node->Id;
+					}
+
+					if (parentNodeId != first.node->Id) {
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool Debugger::ShouldTriggerBreakpoint(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
 	{
 		// Check if there is a breakpoint on this node ID
 		auto it = breakpoints_->find(bpNodeId);
@@ -278,16 +357,17 @@ namespace osidbg
 		}
 
 		// Check if we're single stepping
-		if (forceBreakpoint_ && callStack_.size() <= maxBreakDepth_) {
+		if (forceBreakpoint_ 
+			&& ForcedBreakpointConditionsSatisfied(bpNode, bpType)) {
 			return true;
 		}
 
 		return false;
 	}
 
-	void Debugger::ConditionalBreakpointInServerThread(uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
+	void Debugger::ConditionalBreakpointInServerThread(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
 	{
-		if (ShouldTriggerBreakpoint(bpNodeId, bpType, globalBpType)) {
+		if (ShouldTriggerBreakpoint(bpNode, bpNodeId, bpType, globalBpType)) {
 			FinishedSingleStep();
 			BreakpointInServerThread();
 		}
@@ -369,6 +449,7 @@ namespace osidbg
 		Debug(L"IsValid(Node %d)", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
+			node,
 			MakeNodeBreakpointId(node->Id),
 			BreakOnValid,
 			GlobalBreakOnValid);
@@ -390,6 +471,7 @@ namespace osidbg
 		Debug(L"PushDown(Node %d)", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
+			node,
 			MakeNodeBreakpointId(node->Id),
 			BreakOnPushDown,
 			GlobalBreakOnPushDown);
@@ -412,6 +494,7 @@ namespace osidbg
 		Debug(L"%s(Node %d)", deleted ? L"Delete" : L"Insert", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
+			node,
 			MakeNodeBreakpointId(node->Id),
 			deleted ? BreakOnDelete : BreakOnInsert,
 			deleted ? GlobalBreakOnDelete : GlobalBreakOnInsert);
@@ -532,7 +615,7 @@ namespace osidbg
 
 		PushFrame({ reason, mapping->rule, mapping->goal, mapping->actionIndex, nullptr, nullptr });
 
-		ConditionalBreakpointInServerThread(breakpointId, bpType, globalBpType);
+		ConditionalBreakpointInServerThread(nullptr, breakpointId, bpType, globalBpType);
 	}
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)
