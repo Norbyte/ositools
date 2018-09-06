@@ -13,7 +13,10 @@
 
 struct ToolConfig
 {
-	bool EnableLogging{ true };
+	bool CreateConsole{ true };
+	bool EnableLogging{ false };
+	bool EnableDebugger{ true };
+	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
 };
@@ -37,13 +40,39 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		Fail(err.str().c_str());
 	}
 
+	auto createConsole = root["CreateConsole"];
+	if (!createConsole.isNull()) {
+		if (createConsole.isBool()) {
+			config.CreateConsole = createConsole.asBool();
+		} else {
+			Fail(L"Config option 'CreateConsole' should be a boolean.");
+		}
+	}
+
 	auto enableLogging = root["EnableLogging"];
 	if (!enableLogging.isNull()) {
 		if (enableLogging.isBool()) {
 			config.EnableLogging = enableLogging.asBool();
-		}
-		else {
+		} else {
 			Fail(L"Config option 'EnableLogging' should be a boolean.");
+		}
+	}
+
+	auto enableDAP = root["EnableDebugger"];
+	if (!enableDAP.isNull()) {
+		if (enableDAP.isBool()) {
+			config.EnableDebugger = enableDAP.asBool();
+		} else {
+			Fail(L"Config option 'EnableDebugger' should be a boolean.");
+		}
+	}
+
+	auto debuggerPort = root["DebuggerPort"];
+	if (!debuggerPort.isNull()) {
+		if (debuggerPort.isUInt()) {
+			config.DebuggerPort = debuggerPort.asUInt();
+		} else {
+			Fail(L"Config option 'DebuggerPort' should be an integer.");
 		}
 	}
 
@@ -68,20 +97,13 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 	}
 }
 
-void SetupOsirisProxy()
+void SetupOsirisProxy(HMODULE hModule)
 {
 	ToolConfig config;
 	LoadConfig(L"OsirisProxy.json", config);
 
-	if (config.LogDirectory.empty()) {
-		TCHAR * DocumentsPath;
-		if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
-			Fail(L"Could not get user documents path.");
-		}
-
-		std::wstring logDir = DocumentsPath;
-		logDir += L"\\OsirisLogs";
-		config.LogDirectory = logDir;
+	if (config.CreateConsole) {
+		CreateConsole(hModule);
 	}
 
 	if (config.DebugFlags == 0) {
@@ -90,14 +112,32 @@ void SetupOsirisProxy()
 	}
 
 	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
+
 	if (config.EnableLogging) {
+		if (config.LogDirectory.empty()) {
+			TCHAR * DocumentsPath;
+			if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
+				Fail(L"Could not get user documents path.");
+			}
+
+			std::wstring logDir = DocumentsPath;
+			logDir += L"\\OsirisLogs";
+			config.LogDirectory = logDir;
+		}
+
 		osidbg::gOsirisProxy->SetupLogging(true, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
+		Debug(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
 	}
+
+	if (config.EnableDebugger) {
+		osidbg::gOsirisProxy->EnableDebugging(true, config.DebuggerPort);
+	}
+
 	osidbg::gOsirisProxy->Initialize();
 
+#if 0
 	Debug(L" ***** OsirisProxy setup completed ***** ");
-	Debug(L"Logs will be written to %s", config.LogDirectory.c_str());
-	Debug(L"");
+#endif
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -108,11 +148,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		CreateConsole(hModule);
-		Debug(L" ***** OsirisProxy starting ***** ");
 		RunSocketProxy();
 		gDxgiWrapper = std::make_unique<DxgiWrapper>();
-		SetupOsirisProxy();
+		SetupOsirisProxy(hModule);
 		break;
 
 	case DLL_PROCESS_DETACH:

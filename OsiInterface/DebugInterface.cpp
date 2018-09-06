@@ -10,7 +10,8 @@
 
 namespace osidbg
 {
-	DebugInterface::DebugInterface()
+	DebugInterface::DebugInterface(uint16_t port)
+		: port_(port)
 	{
 		WSADATA wsaData;
 		WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -21,18 +22,18 @@ namespace osidbg
 		sockaddr_in addr;
 		addr.sin_family = AF_INET;
 		addr.sin_addr.S_un.S_addr = ip;
-		addr.sin_port = htons(9999);
+		addr.sin_port = htons(port_);
 		if (bind(socket_, (sockaddr *)&addr, sizeof(addr)) != 0) {
 			Debug(L"Could not bind debugger server socket: %d", WSAGetLastError());
 			Fail(L"Debug server start failed");
 		}
 
-		if (listen(socket_, 10) != 0) {
+		if (listen(socket_, 30) != 0) {
 			Debug(L"Could not listen on server socket: %d", WSAGetLastError());
 			Fail(L"Debug server start failed");
 		}
 
-		Debug(L"Debug interface listening on 127.0.0.1:%d", 9999);
+		Debug(L"Debug interface listening on 127.0.0.1:%d; DBG protocol version %d", port_, DebugMessageHandler::ProtocolVersion);
 	}
 
 	DebugInterface::~DebugInterface()

@@ -9,7 +9,7 @@ namespace osidbg
 	class DebugInterface
 	{
 	public:
-		DebugInterface();
+		DebugInterface(uint16_t port);
 		~DebugInterface();
 
 		void SetMessageHandler(
@@ -27,6 +27,7 @@ namespace osidbg
 		bool ProcessMessage(uint8_t * buf, uint32_t length);
 		void MessageLoop(SOCKET sock);
 
+		uint16_t port_;
 		SOCKET socket_;
 		SOCKET clientSocket_{ 0 };
 		uint8_t receiveBuf_[0x10000];

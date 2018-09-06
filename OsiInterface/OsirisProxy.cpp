@@ -248,6 +248,12 @@ void OsirisProxy::Shutdown()
 	FreeLibrary(OsirisModule);
 }
 
+void OsirisProxy::EnableDebugging(bool Enabled, uint16_t Port)
+{
+	DebuggingEnabled = Enabled;
+	DebuggerPort = Port;
+}
+
 void OsirisProxy::EnableHooks(bool Enabled)
 {
 	HooksEnabled = Enabled;
@@ -374,11 +380,14 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 	Debug(L"\tOsirisInterface = %p", osirisInterface);
 #endif
 
-	if (DebuggerThread == nullptr) {
-		debugInterface_ = std::make_unique<DebugInterface>();
+	if (DebuggingEnabled && DebuggerThread == nullptr) {
+		Debug(L"Starting debugger server");
+		debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
 		debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
 
 		DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+	} else {
+		Debug(L"Debugging not enabled; not starting debugger server thread.");
 	}
 
 	return RegisterDivFunctions(Osiris, Functions);
@@ -422,7 +431,6 @@ int OsirisProxy::SDeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
 
 bool OsirisProxy::CallWrapper(uint32_t FunctionId, CallParam * Params)
 {
-	// DebugDumpCall("Call", FunctionId, Params);
 	return CallOriginal(FunctionId, Params);
 }
 
@@ -433,7 +441,6 @@ bool OsirisProxy::SCallWrapper(uint32_t FunctionId, CallParam * Params)
 
 bool OsirisProxy::QueryWrapper(uint32_t FunctionId, CallParam * Params)
 {
-	// DebugDumpCall("Query", FunctionId, Params);
 	return QueryOriginal(FunctionId, Params);
 }
 
@@ -528,92 +535,6 @@ void OsirisProxy::RuleActionCall(RuleActionNode * Action, void * a1, void * a2, 
 void OsirisProxy::SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
 {
 	gOsirisProxy->RuleActionCall(Action, a1, a2, a3, a4);
-}
-
-void DebugDumpParam(std::wstringstream & ss, CallParam & param)
-{
-	switch (param.Type) {
-	case ValueType::Integer:
-		ss << param.Value.Int;
-		break;
-
-	case ValueType::Integer64:
-		ss << param.Value.Int64;
-		break;
-
-	case ValueType::Real:
-		ss << param.Value.Real;
-		break;
-
-	case ValueType::None:
-	case ValueType::Undefined:
-		ss << "(None)";
-		break;
-
-	default:
-		if (param.Value.String) {
-			ss << '"' << param.Value.String << '"';
-		} else {
-			ss << "(Null)";
-		}
-		break;
-	}
-}
-
-void OsirisProxy::DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, CallParam * Params)
-{
-	Node * firstNode = *(*Globals.Nodes)->Db.Start;
-	Database * db = (*Globals.Databases)->Db.Start[4];
-	auto * node = &db->Facts.Head;
-	std::wstringstream ss;
-
-	auto functionId = Handle.GetFunctionId();
-	auto function = Globals.Manager->Functions.Buffer[functionId];
-	ss << "[" << Type << "] " << function->Name << " (";
-
-	bool hasOutputs = false;
-	auto param = Params;
-	unsigned paramNo = 0;
-	while (param) {
-		auto & arg = function->Arguments[paramNo];
-		if (arg.Direction == FunctionArgumentDirection::In) {
-			if (paramNo > 0) {
-				ss << ", ";
-			}
-			ss << arg.Name << ": ";
-			DebugDumpParam(ss, *param);
-		} else {
-			hasOutputs = true;
-		}
-
-		param = param->NextParam;
-		paramNo++;
-	}
-	ss << ")";
-
-	if (hasOutputs) {
-		ss << " -> (";
-		param = Params;
-		paramNo = 0;
-		while (param) {
-			auto & arg = function->Arguments[paramNo];
-			if (arg.Direction == FunctionArgumentDirection::Out) {
-				ss << arg.Name << ": ";
-				DebugDumpParam(ss, *param);
-				if (param->NextParam) {
-					ss << ", ";
-				}
-			}
-
-			param = param->NextParam;
-			paramNo++;
-		}
-		ss << ")";
-	}
-	
-	ss << std::endl;
-
-	OutputDebugStringW(ss.str().c_str());
 }
 
 void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)

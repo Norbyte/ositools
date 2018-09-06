@@ -72,6 +72,7 @@ class OsirisProxy
 public:
 	void Initialize();
 	void Shutdown();
+	void EnableDebugging(bool Enabled, uint16_t Port);
 	void EnableHooks(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 
@@ -139,6 +140,8 @@ private:
 	WrappedFunction<void (RuleActionNode *, void *, void *, void *, void *)> WrappedRuleActionCall;
 
 	bool HooksEnabled{ true };
+	bool DebuggingEnabled{ false };
+	uint16_t DebuggerPort;
 	bool LoggingEnabled{ false };
 	DebugFlag DesiredLogLevel;
 	std::wstring LogDirectory;
@@ -151,7 +154,6 @@ private:
 	std::unique_ptr<DebugMessageHandler> debugMsgHandler_;
 	std::unique_ptr<Debugger> debugger_;
 
-	void DebugDumpCall(char const * Type, OsirisFunctionHandle Handle, CallParam * Params);
 	void * FindRuleActionCallProc();
 	void FindOsirisGlobals(FARPROC CtorProc);
 	void FindDebugFlags(FARPROC SetOptionProc);
