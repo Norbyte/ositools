@@ -52,6 +52,14 @@ namespace osidbg
 		}
 	}
 
+	void MakeMsgTuple(MsgTuple & msgTuple, TupleVec const & tuple)
+	{
+		for (unsigned i = 0; i < tuple.Size; i++) {
+			auto column = msgTuple.add_column();
+			MakeMsgColumn(*column, tuple.Values[i]);
+		}
+	}
+
 	void DebugDumpTV(std::wstringstream & ss, TypedValue const & tv)
 	{
 		switch ((ValueType)tv.TypeId) {
@@ -344,6 +352,23 @@ namespace osidbg
 		SendResult(seq, rc);
 	}
 
+	void DebugMessageHandler::HandleGetDatabaseContents(uint32_t seq, DbgGetDatabaseContents const & req)
+	{
+		Debug(L" --> DbgGetDatabaseContents(%d)", req.database_id());
+
+		ResultCode rc;
+		if (!debugger_) {
+			Debug(L"GetDatabaseContents: Not attached to story debugger!");
+			rc = ResultCode::NoDebuggee;
+		}
+		else
+		{
+			rc = debugger_->GetDatabaseContents(req.database_id());
+		}
+
+		SendResult(seq, rc);
+	}
+
 	void DebugMessageHandler::HandleContinue(uint32_t seq, DbgContinue const & req)
 	{
 		Debug(L" --> DbgContinue()");
@@ -401,9 +426,9 @@ namespace osidbg
 			HandleContinue(seq, msg->continue_());
 			break;
 
-			//case DebuggerToBackend::kGetDatabaseContents:
-			//	HandleContinue(seq, msg->get_database_contents());
-			//	break;
+		case DebuggerToBackend::kGetDatabaseContents:
+			HandleGetDatabaseContents(seq, msg->getdatabasecontents());
+			break;
 
 		case DebuggerToBackend::kSyncStory:
 			HandleSyncStory(seq, msg->syncstory());
@@ -474,5 +499,36 @@ namespace osidbg
 
 		Send(msg);
 		Debug(L" <-- BkVersionInfoResponse()");
+	}
+
+	void DebugMessageHandler::SendBeginDatabaseContents(uint32_t databaseId)
+	{
+		BackendToDebugger msg;
+		auto beginMsg = msg.mutable_begindatabasecontents();
+		beginMsg->set_database_id(databaseId);
+		Send(msg);
+		Debug(L" <-- BkBeginDatabaseContents()");
+	}
+
+	void DebugMessageHandler::SendDatabaseRow(uint32_t databaseId, TupleVec * row)
+	{
+		BackendToDebugger msg;
+		auto rowMsg = msg.mutable_databaserow();
+		rowMsg->set_database_id(databaseId);
+
+		auto msgRow = rowMsg->add_row();
+		MakeMsgTuple(*msgRow, *row);
+
+		Send(msg);
+		Debug(L" <-- BkDatabaseRow()");
+	}
+
+	void DebugMessageHandler::SendEndDatabaseContents(uint32_t databaseId)
+	{
+		BackendToDebugger msg;
+		auto endMsg = msg.mutable_enddatabasecontents();
+		endMsg->set_database_id(databaseId);
+		Send(msg);
+		Debug(L" <-- BkEndDatabaseContents()");
 	}
 }

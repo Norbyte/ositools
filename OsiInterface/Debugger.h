@@ -86,6 +86,7 @@ namespace osidbg
 		ResultCode AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
 		void FinishUpdatingNodeBreakpoints();
 
+		ResultCode GetDatabaseContents(uint32_t databaseId);
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
 		ResultCode ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags);
 		void ClearAllBreakpoints();

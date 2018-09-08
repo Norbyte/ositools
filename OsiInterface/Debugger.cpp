@@ -66,7 +66,6 @@ namespace osidbg
 		// Disable debugging during merge, as the nodes will be changing dynamically
 		// which breaks most debugger assumptions
 		debuggingDisabled_ = true;
-
 	}
 
 	void Debugger::MergeFinished()
@@ -99,9 +98,42 @@ namespace osidbg
 		}
 	}
 
+	ResultCode Debugger::GetDatabaseContents(uint32_t databaseId)
+	{
+		auto & dbs = (*globals_.Databases)->Db;
+		if (databaseId == 0 || databaseId > dbs.Size)
+		{
+			Debug(L"Debugger::GetDatabaseContents(): Invalid database ID %d", databaseId);
+			return ResultCode::InvalidDatabaseId;
+		}
+
+		if (!isPaused_) {
+			// Technically we can read rows anytime, but its not thread-safe and there 
+			// is a slight chance of crashing.
+			Debug(L"Debugger::GetDatabaseContents(): Cannot read rows while story is running!");
+			return ResultCode::NotInPause;
+		}
+
+		auto & db = dbs.Start[databaseId - 1];
+		auto const & facts = db->Facts();
+		auto head = facts.Head;
+		auto current = head->Next;
+
+		messageHandler_.SendBeginDatabaseContents(databaseId);
+		while (current != head) {
+			messageHandler_.SendDatabaseRow(databaseId, &current->Item);
+			current = current->Next;
+		}
+
+		messageHandler_.SendEndDatabaseContents(databaseId);
+
+		return ResultCode::Success;
+	}
+
 	ResultCode Debugger::SetGlobalBreakpoints(GlobalBreakpointType breakpoints)
 	{
 		if (breakpoints & ~GlobalBreakpointTypeAll) {
+			Debug(L"Debugger::SetGlobalBreakpoints(): Unsupported breakpoint type set: %08x", breakpoints);
 			return ResultCode::UnsupportedBreakpointType;
 		}
 

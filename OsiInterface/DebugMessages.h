@@ -36,7 +36,8 @@ namespace osidbg
 		InvalidContinueAction = 5,
 		InPause = 6,
 		InvalidGoalId = 7,
-		UnsupportedContinueFlags = 8
+		UnsupportedContinueFlags = 8,
+		InvalidDatabaseId = 9
 	};
 
 	struct CallStackFrame
@@ -54,7 +55,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 4;
+		static const uint32_t ProtocolVersion = 5;
 
 		DebugMessageHandler(DebugInterface & intf);
 
@@ -73,6 +74,9 @@ namespace osidbg
 		void SendSyncStory(Node ** nodes, uint32_t count);
 		void SendSyncStoryFinished();
 		void SendDebugOutput(char const * message);
+		void SendBeginDatabaseContents(uint32_t databaseId);
+		void SendDatabaseRow(uint32_t databaseId, TupleVec * row);
+		void SendEndDatabaseContents(uint32_t databaseId);
 
 	private:
 		DebugInterface & intf_;

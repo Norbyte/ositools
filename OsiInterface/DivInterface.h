@@ -513,6 +513,17 @@ struct Database
 			return dos2.ParamTypes;
 		}
 	}
+
+	List<TupleVec> const & Facts() const
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de.Facts;
+		}
+		else {
+			return dos2.Facts;
+		}
+	}
 };
 
 class RuleActionNode
