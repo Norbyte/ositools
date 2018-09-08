@@ -155,7 +155,7 @@ namespace osidbg
 		Concurrency::concurrent_queue<std::function<void ()>> pendingActions_;
 
 		void DetectGameVersion();
-		void SeverThreadReentry();
+		void ServerThreadReentry();
 
 		void FinishedSingleStep();
 		bool ForcedBreakpointConditionsSatisfied(Node * bpNode, BreakpointType bpType);

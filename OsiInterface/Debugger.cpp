@@ -51,7 +51,7 @@ namespace osidbg
 
 	void Debugger::StoryLoaded()
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		isInitialized_ = false;
 		UpdateRuleActionMappings();
 		messageHandler_.SendStoryLoaded();
@@ -62,7 +62,7 @@ namespace osidbg
 
 	void Debugger::MergeStarted()
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		// Disable debugging during merge, as the nodes will be changing dynamically
 		// which breaks most debugger assumptions
 		debuggingDisabled_ = true;
@@ -71,7 +71,7 @@ namespace osidbg
 
 	void Debugger::MergeFinished()
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		debuggingDisabled_ = false;
 
 		isInitialized_ = true;
@@ -83,7 +83,7 @@ namespace osidbg
 
 	void Debugger::GameInitHook()
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		isInitialized_ = true;
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameInit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameInit);
@@ -92,7 +92,7 @@ namespace osidbg
 
 	void Debugger::DeleteAllDataHook()
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		isInitialized_ = false;
 		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameExit) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameExit);
@@ -304,7 +304,7 @@ namespace osidbg
 		}
 	}
 
-	void Debugger::SeverThreadReentry()
+	void Debugger::ServerThreadReentry()
 	{
 		// Called when the debugger is entered from any of the server thread hooks
 		std::function<void ()> func;
@@ -438,7 +438,7 @@ namespace osidbg
 		}
 
 		Debug(L"Continuing from breakpoint.");
-		SeverThreadReentry();
+		ServerThreadReentry();
 	}
 
 	void Debugger::GlobalBreakpointInServerThread(GlobalBreakpointReason reason)
@@ -459,7 +459,7 @@ namespace osidbg
 		}
 
 		Debug(L"Continuing from breakpoint.");
-		SeverThreadReentry();
+		ServerThreadReentry();
 	}
 
 	void Debugger::PushFrame(CallStackFrame const & frame)
@@ -488,7 +488,7 @@ namespace osidbg
 
 	void Debugger::IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
 #if defined(DUMP_TRACEPOINTS)
@@ -503,13 +503,13 @@ namespace osidbg
 
 	void Debugger::IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		PopFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
 	void Debugger::PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
@@ -525,14 +525,14 @@ namespace osidbg
 
 	void Debugger::PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PopFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 	}
 
 	void Debugger::InsertPreHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
@@ -548,7 +548,7 @@ namespace osidbg
 
 	void Debugger::InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted)
 	{
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PopFrame({ reason, node, nullptr, 0, nullptr, tuple });
 	}
@@ -628,7 +628,7 @@ namespace osidbg
 			return;
 		}
 
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto const * mapping = FindActionMapping(action);
 		if (mapping == nullptr) {
 			return;
@@ -692,7 +692,7 @@ namespace osidbg
 			return;
 		}
 
-		SeverThreadReentry();
+		ServerThreadReentry();
 		auto const * mapping = FindActionMapping(action);
 		if (mapping == nullptr) {
 			return;
