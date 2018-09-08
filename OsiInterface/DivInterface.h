@@ -387,9 +387,43 @@ public:
 	uint32_t Unknown;
 };
 
-struct TuplePtrLL
+struct TuplePtrLLDOS2
 {
 	List<TypedValue *> Items;
+};
+
+struct TuplePtrLLDOS2DE
+{
+	virtual ~TuplePtrLLDOS2DE() {}
+
+	List<TypedValue *> Items;
+};
+
+struct TuplePtrLL
+{
+	struct {
+		TuplePtrLLDOS2 _placeholder;
+	};
+
+	TuplePtrLLDOS2 const * dos2() const
+	{
+		return reinterpret_cast<TuplePtrLLDOS2 const *>(this);
+	}
+
+	TuplePtrLLDOS2DE const * dos2de() const
+	{
+		return reinterpret_cast<TuplePtrLLDOS2DE const *>(this);
+	}
+
+	List<TypedValue *> const & Items() const
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de()->Items;
+		} else {
+			return dos2()->Items;
+		}
+	}
 };
 
 struct TupleLL

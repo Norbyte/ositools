@@ -42,7 +42,8 @@ namespace osidbg
 
 	void MakeMsgTuple(MsgTuple & msgTuple, TuplePtrLL const & tuple)
 	{
-		auto head = tuple.Items.Head;
+		auto const & items = tuple.Items();
+		auto head = items.Head;
 		auto col = head->Next;
 		while (col != head) {
 			auto column = msgTuple.add_column();
@@ -95,7 +96,8 @@ namespace osidbg
 
 	void DebugDumpTuple(std::wstringstream & ss, TuplePtrLL const & tuple)
 	{
-		auto head = tuple.Items.Head;
+		auto const & items = tuple.Items();
+		auto head = items.Head;
 		auto cur = head->Next;
 		while (cur != head) {
 			DebugDumpTV(ss, *cur->Item);
