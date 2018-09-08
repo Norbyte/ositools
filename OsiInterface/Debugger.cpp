@@ -60,6 +60,27 @@ namespace osidbg
 		}
 	}
 
+	void Debugger::MergeStarted()
+	{
+		SeverThreadReentry();
+		// Disable debugging during merge, as the nodes will be changing dynamically
+		// which breaks most debugger assumptions
+		debuggingDisabled_ = true;
+
+	}
+
+	void Debugger::MergeFinished()
+	{
+		SeverThreadReentry();
+		debuggingDisabled_ = false;
+
+		isInitialized_ = true;
+		UpdateRuleActionMappings();
+		if (globalBreakpoints_ & GlobalBreakpointType::GlobalBreakOnGameInit) {
+			GlobalBreakpointInServerThread(GlobalBreakpointReason::GameInit);
+		}
+	}
+
 	void Debugger::GameInitHook()
 	{
 		SeverThreadReentry();
@@ -363,6 +384,10 @@ namespace osidbg
 
 	bool Debugger::ShouldTriggerBreakpoint(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
 	{
+		if (debuggingDisabled_) {
+			return false;
+		}
+
 		// Check if there is a breakpoint on this node ID
 		auto it = breakpoints_->find(bpNodeId);
 		if (it != breakpoints_->end()
@@ -418,6 +443,8 @@ namespace osidbg
 
 	void Debugger::GlobalBreakpointInServerThread(GlobalBreakpointReason reason)
 	{
+		if (debuggingDisabled_) return;
+
 		Debug(L"Debugger::GlobalBreakpointInServerThread(): Reason %d", reason);
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
@@ -596,6 +623,11 @@ namespace osidbg
 
 	void Debugger::RuleActionPreHook(RuleActionNode * action)
 	{
+		// Avoid action mapping errors during merge
+		if (debuggingDisabled_) {
+			return;
+		}
+
 		SeverThreadReentry();
 		auto const * mapping = FindActionMapping(action);
 		if (mapping == nullptr) {
@@ -655,6 +687,11 @@ namespace osidbg
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)
 	{
+		// Avoid action mapping errors during merge
+		if (debuggingDisabled_) {
+			return;
+		}
+
 		SeverThreadReentry();
 		auto const * mapping = FindActionMapping(action);
 		if (mapping == nullptr) {

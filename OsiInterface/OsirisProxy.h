@@ -135,6 +135,7 @@ private:
 	COsirisDeleteAllDataProc OsirisDeleteAllDataProc;
 	COsirisReadHeaderProc OsirisReadHeaderProc;
 	COsirisLoadProc OsirisLoadProc;
+	COsirisMergeProc OsirisMergeProc;
 	RuleActionCallProc OriginalRuleActionCallProc;
 
 	int OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
@@ -144,6 +145,10 @@ private:
 	int OsirisLoad(void * Osiris, void * Buf);
 	static int SOsirisLoad(void * Osiris, void * Buf);
 	WrappedFunction<int (void *, void *)> WrappedOsirisLoad;
+
+	bool OsirisMerge(void * Osiris, wchar_t * Src);
+	static bool SOsirisMerge(void * Osiris, wchar_t * Src);
+	WrappedFunction<bool (void *, wchar_t *)> WrappedOsirisMerge;
 
 	void RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 	static void SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);

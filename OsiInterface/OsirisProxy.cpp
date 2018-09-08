@@ -235,6 +235,13 @@ void OsirisProxy::Initialize()
 	}
 
 	OsirisLoadProc = (COsirisLoadProc)LoadProc;
+
+	FARPROC MergeProc = GetProcAddress(OsirisModule, "?Merge@COsiris@@QEAA_NPEB_W@Z");
+	if (MergeProc == NULL) {
+		Fail(L"Could not locate COsiris::Merge in osiris_x64.dll");
+	}
+
+	OsirisMergeProc = (COsirisMergeProc)MergeProc;
 }
 
 void OsirisProxy::Shutdown()
@@ -242,6 +249,9 @@ void OsirisProxy::Shutdown()
 	Debug(L"OsirisProxy::Shutdown: Starting");
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+	WrappedRuleActionCall.Unwrap();
+	WrappedOsirisMerge.Unwrap();
+	WrappedOsirisLoad.Unwrap();
 	WrappedRuleActionCall.Unwrap();
 	RegisterDivFunctions.Unwrap();
 	WrappedOsirisReadHeader.Unwrap();
@@ -367,6 +377,7 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 		DetourUpdateThread(GetCurrentThread());
 		WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
 		WrappedOsirisLoad.Wrap(OsirisLoadProc, &SOsirisLoad);
+		WrappedOsirisMerge.Wrap(OsirisMergeProc, &SOsirisMerge);
 		WrappedRuleActionCall.Wrap(OriginalRuleActionCallProc, &SRuleActionCall);
 		DetourTransactionCommit();
 	}
@@ -521,6 +532,29 @@ int OsirisProxy::OsirisLoad(void * Osiris, void * Buf)
 int OsirisProxy::SOsirisLoad(void * Osiris, void * Buf)
 {
 	return gOsirisProxy->OsirisLoad(Osiris, Buf);
+}
+
+bool OsirisProxy::OsirisMerge(void * Osiris, wchar_t * Src)
+{
+	Debug(L"OsirisProxy::Merge() - Started merge");
+
+	if (debugger_ != nullptr) {
+		debugger_->MergeStarted();
+	}
+
+	bool retval = WrappedOsirisMerge(Osiris, Src);
+
+	if (debugger_ != nullptr) {
+		debugger_->MergeFinished();
+	}
+
+	Debug(L"OsirisProxy::Merge() - Finished merge");
+	return retval;
+}
+
+bool OsirisProxy::SOsirisMerge(void * Osiris, wchar_t * Src)
+{
+	return gOsirisProxy->OsirisMerge(Osiris, Src);
 }
 
 void OsirisProxy::RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)

@@ -69,6 +69,8 @@ namespace osidbg
 		~Debugger();
 
 		void StoryLoaded();
+		void MergeStarted();
+		void MergeFinished();
 
 		inline bool IsInitialized() const
 		{
@@ -133,6 +135,9 @@ namespace osidbg
 		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> breakpoints_;
 		// Breakpoints that are being applied via the debugger protocol
 		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> pendingBreakpoints_;
+		// Is debugging disabled?
+		// (i.e. we don't handle any continue requests, and don't stop on breakpoints)
+		bool debuggingDisabled_{ false };
 		bool isPaused_{ false };
 		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
 		bool forceBreakpoint_{ false };
