@@ -54,7 +54,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 3;
+		static const uint32_t ProtocolVersion = 4;
 
 		DebugMessageHandler(DebugInterface & intf);
 
@@ -72,6 +72,7 @@ namespace osidbg
 		void SendSyncStory(Database ** databases, uint32_t count);
 		void SendSyncStory(Node ** nodes, uint32_t count);
 		void SendSyncStoryFinished();
+		void SendDebugOutput(char const * message);
 
 	private:
 		DebugInterface & intf_;

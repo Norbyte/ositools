@@ -635,6 +635,22 @@ namespace osidbg
 		PushFrame({ reason, mapping->rule, mapping->goal, mapping->actionIndex, nullptr, nullptr });
 
 		ConditionalBreakpointInServerThread(nullptr, breakpointId, bpType, globalBpType);
+
+		// Capture debug output from the DebugBreak() Osiris call and forward it to the dbg frontend
+		
+		if (action->FunctionName != nullptr
+			&& action->Arguments != nullptr
+			&& action->Arguments->Size == 1
+			&& strcmp(action->FunctionName, "DebugBreak") == 0) {
+			TypedValue * message = action->Arguments->Head->Next->Item;
+			if (message->TypeId == (uint32_t)ValueType::String
+				&& message->Value.Val.String != nullptr) {
+				messageHandler_.SendDebugOutput(message->Value.Val.String);
+			}
+			else {
+				Debug(L"Invalid message parameter type for DebugBreak(): %d", message->TypeId);
+			}
+		}
 	}
 
 	void Debugger::RuleActionPostHook(RuleActionNode * action)

@@ -515,16 +515,11 @@ struct Database
 	}
 };
 
-struct RuleActionParam
-{
-	void * Unknown;
-};
-
 class RuleActionNode
 {
 public:
 	const char * FunctionName;
-	List<RuleActionParam> * Arguments;
+	List<TypedValue *> * Arguments;
 	bool Not;
 	uint8_t __Padding[3];
 	int32_t GoalIdOrDebugHook;
@@ -669,6 +664,18 @@ struct FunctionSignature
 	uint32_t Unknown;
 };
 
+enum class FunctionType : uint32_t
+{
+	Event = 1,
+	Query = 2,
+	Call = 3,
+	Database = 4,
+	Proc = 5,
+	SysQuery = 6,
+	SysCall = 7,
+	UserQuery = 8
+};
+
 struct Function
 {
 	void * VMT;
@@ -678,7 +685,7 @@ struct Function
 	uint32_t __Padding;
 	FunctionSignature * Signature;
 	NodeRef Node;
-	uint32_t Type;
+	FunctionType Type;
 	uint32_t Key[4];
 	uint32_t Unknown3;
 };

@@ -265,6 +265,15 @@ namespace osidbg
 		Debug(L" <-- BkSyncStoryFinished()");
 	}
 
+	void DebugMessageHandler::SendDebugOutput(char const * message)
+	{
+		BackendToDebugger msg;
+		auto debugMsg = msg.mutable_debugoutput();
+		debugMsg->set_message(message);
+		Send(msg);
+		Debug(L" <-- BkDebugOutput(): \"%s\"", message);
+	}
+
 	void DebugMessageHandler::SetDebugger(Debugger * debugger)
 	{
 		debugger_ = debugger;
