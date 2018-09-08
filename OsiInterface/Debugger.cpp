@@ -587,7 +587,7 @@ namespace osidbg
 	{
 		auto mapping = ruleActionMappings_.find(action);
 		if (mapping == ruleActionMappings_.end()) {
-			Fail(L"Debugger::FindActionMapping(): Could not find action mapping for rule action");
+			Debug(L"Debugger::FindActionMapping(%016x): Could not find action mapping for rule action", action);
 			return nullptr;
 		}
 
