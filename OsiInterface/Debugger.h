@@ -149,6 +149,7 @@ namespace osidbg
 		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.
 		Concurrency::concurrent_queue<std::function<void ()>> pendingActions_;
 
+		void DetectGameVersion();
 		void SeverThreadReentry();
 
 		void FinishedSingleStep();

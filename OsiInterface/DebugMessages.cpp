@@ -217,9 +217,11 @@ namespace osidbg
 		for (uint32_t i = 0; i < count; i++) {
 			auto * db = databases[i];
 			auto dbInfo = sync->add_database();
-			dbInfo->set_id(db->DatabaseId);
-			for (auto arg = 0; arg < db->NumParams; arg++) {
-				dbInfo->add_argumenttype(db->ParamTypes.Start[arg]);
+			dbInfo->set_id(db->DatabaseId());
+			auto numParams = db->NumParams();
+			auto const & paramTypes = db->ParamTypes();
+			for (auto arg = 0; arg < numParams; arg++) {
+				dbInfo->add_argumenttype(paramTypes.Start[arg]);
 			}
 		}
 

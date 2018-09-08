@@ -12,6 +12,8 @@
 namespace osidbg
 {
 
+GameType gGameType = GameType::Unknown;
+
 std::unique_ptr<OsirisProxy> gOsirisProxy;
 
 uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
@@ -380,12 +382,14 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 	Debug(L"\tOsirisInterface = %p", osirisInterface);
 #endif
 
-	if (DebuggingEnabled && DebuggerThread == nullptr) {
-		Debug(L"Starting debugger server");
-		debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
-		debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
+	if (DebuggingEnabled) {
+		if (DebuggerThread == nullptr) {
+			Debug(L"Starting debugger server");
+			debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
+			debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
 
-		DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+		}
 	} else {
 		Debug(L"Debugging not enabled; not starting debugger server thread.");
 	}

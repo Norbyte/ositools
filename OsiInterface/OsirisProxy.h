@@ -81,6 +81,16 @@ public:
 		return Globals;
 	}
 
+	inline void * GetOsirisDllStart() const
+	{
+		return OsirisDllStart;
+	}
+
+	inline uint32_t GetOsirisDllSize() const
+	{
+		return OsirisDllSize;
+	}
+
 private:
 	WrappedFunction<int(void *, DivFunctions *)> RegisterDivFunctions;
 	WrappedFunction<int(void *)> InitGame;

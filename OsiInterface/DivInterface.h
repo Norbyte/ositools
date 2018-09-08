@@ -5,9 +5,19 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <cassert>
 
 namespace osidbg
 {
+
+enum class GameType
+{
+	Unknown,
+	DOS2,
+	DOS2DE
+};
+
+extern GameType gGameType;
 
 #pragma pack(push, 1)
 enum class ValueType : uint8_t
@@ -402,7 +412,7 @@ public:
 	TupleLL Data;
 };
 
-struct Database
+struct DatabaseDOS2
 {
 	uint32_t DatabaseId;
 	uint32_t __Padding;
@@ -414,6 +424,61 @@ struct Database
 	uint8_t NumParams;
 	uint8_t __Padding2[7];
 	Vector<DatabaseParam> OrderedFacts;
+};
+
+struct DatabaseDOS2DE
+{
+	uint32_t DatabaseId;
+	uint32_t __Padding;
+	uint64_t B;
+	SomeDbItem Items[16];
+	uint64_t C;
+	void * FactsVMT;
+	List<TupleVec> Facts;
+	Vector<uint32_t> ParamTypes;
+	uint8_t NumParams;
+	uint8_t __Padding2[7];
+	Vector<DatabaseParam> OrderedFacts;
+};
+
+struct Database
+{
+	static bool IsDatabaseDOS2DE(Database * db, void * dllStart, void * dllEnd)
+	{
+		return db->dos2de.FactsVMT >= dllStart
+			&& db->dos2de.FactsVMT < dllEnd;
+	}
+
+	union {
+		DatabaseDOS2 dos2;
+		DatabaseDOS2DE dos2de;
+	};
+
+	uint32_t DatabaseId() const
+	{
+		return dos2.DatabaseId;
+	}
+
+	uint8_t NumParams() const
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de.NumParams;
+		} else {
+			return dos2.NumParams;
+		}
+	}
+
+	Vector<uint32_t> const & ParamTypes() const
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de.ParamTypes;
+		}
+		else {
+			return dos2.ParamTypes;
+		}
+	}
 };
 
 struct RuleActionParam

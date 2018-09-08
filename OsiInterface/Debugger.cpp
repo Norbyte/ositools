@@ -29,6 +29,8 @@ namespace osidbg
 		gNodeVMTWrappers->InsertPreHook = std::bind(&Debugger::InsertPreHook, this, _1, _2, _3);
 		gNodeVMTWrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3);
 		Debug(L"Debugger::Debugger(): Attached to story");
+
+		DetectGameVersion();
 	}
 
 	Debugger::~Debugger()
@@ -261,6 +263,23 @@ namespace osidbg
 		for (unsigned i = 0; i < nodeDb.Size; i += 100) {
 			uint32_t numNodes = std::min<uint32_t>(nodeDb.Size - i, 100);
 			messageHandler_.SendSyncStory(&nodeDb.Start[i], numNodes);
+		}
+	}
+
+	void Debugger::DetectGameVersion()
+	{
+		auto & dbs = (*globals_.Databases)->Db;
+		assert(dbs.Size > 0);
+		auto db1 = *dbs.Start;
+		bool isDE = Database::IsDatabaseDOS2DE(db1,
+			gOsirisProxy->GetOsirisDllStart(),
+			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
+		if (isDE) {
+			gGameType = GameType::DOS2DE;
+			Debug(L"Debugger::DetectGameVersion(): Detected D:OS2 DE");
+		} else {
+			gGameType = GameType::DOS2;
+			Debug(L"Debugger::DetectGameVersion(): Detected D:OS2 Classic");
 		}
 	}
 
