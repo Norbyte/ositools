@@ -17,8 +17,10 @@ namespace osidbg
 		BreakOnInitCall = 1 << 4,
 		BreakOnExitCall = 1 << 5,
 		BreakOnDelete = 1 << 6,
+		BreakOnFailedQuery = 1 << 7,
 		BreakpointTypeAll = BreakOnValid | BreakOnPushDown | BreakOnInsert
 			| BreakOnRuleAction | BreakOnInitCall | BreakOnExitCall | BreakOnDelete
+			| BreakOnFailedQuery
 	};
 
 	enum GlobalBreakpointType
@@ -33,9 +35,10 @@ namespace osidbg
 		GlobalBreakOnGameInit = 1 << 7,
 		GlobalBreakOnGameExit = 1 << 8,
 		GlobalBreakOnDelete = 1 << 9,
+		GlobalBreakOnFailedQuery = 1 << 10,
 		GlobalBreakpointTypeAll = GlobalBreakOnStoryLoaded | GlobalBreakOnValid | GlobalBreakOnPushDown 
 			| GlobalBreakOnInsert | GlobalBreakOnRuleAction | GlobalBreakOnInitCall | GlobalBreakOnExitCall
-			| GlobalBreakOnGameInit | GlobalBreakOnGameExit | GlobalBreakOnDelete
+			| GlobalBreakOnGameInit | GlobalBreakOnGameExit | GlobalBreakOnDelete | GlobalBreakOnFailedQuery
 	};
 
 	enum ContinueFlag
@@ -150,6 +153,12 @@ namespace osidbg
 		// Call stack depth at which we'll trigger a breakpoint
 		// (used for step over/into/out)
 		uint32_t maxBreakDepth_{ 0 };
+		// Do we have any information about the result of the last IsValid query?
+		bool hasLastQueryInfo_{ false };
+		// Stack depth of last recorded query info
+		uint32_t lastQueryDepth_{ 0 };
+		// Did the last query succeed?
+		bool lastQuerySucceeded_;
 
 		// Actions that we'll perform in the server thread instead of the messaging runtime thread.
 		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.

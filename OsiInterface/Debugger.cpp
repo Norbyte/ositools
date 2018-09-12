@@ -462,7 +462,14 @@ namespace osidbg
 			isPaused_ = true;
 		}
 
-		messageHandler_.SendBreakpointTriggered(callStack_);
+		bool * querySucceeded = nullptr;
+		if (hasLastQueryInfo_
+			&& callStack_.size() == lastQueryDepth_ - 1)
+		{
+			querySucceeded = &lastQuerySucceeded_;
+		}
+
+		messageHandler_.SendBreakpointTriggered(callStack_, querySucceeded);
 
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
@@ -535,6 +542,10 @@ namespace osidbg
 
 	void Debugger::IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded)
 	{
+		hasLastQueryInfo_ = true;
+		lastQueryDepth_ = (uint32_t)callStack_.size();
+		lastQuerySucceeded_ = succeeded;
+
 		ServerThreadReentry();
 		PopFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 	}
@@ -553,10 +564,23 @@ namespace osidbg
 			MakeNodeBreakpointId(node->Id),
 			BreakOnPushDown,
 			GlobalBreakOnPushDown);
+
+		hasLastQueryInfo_ = false;
 	}
 
 	void Debugger::PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
+		// Trigger a failed query breakpoint if the last query didn't succeed
+		if (hasLastQueryInfo_
+			&& callStack_.size() == lastQueryDepth_ - 1
+			&& !lastQuerySucceeded_) {
+			ConditionalBreakpointInServerThread(
+				node,
+				MakeNodeBreakpointId(node->Id),
+				BreakOnFailedQuery,
+				GlobalBreakOnFailedQuery);
+		}
+
 		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PopFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });

@@ -138,12 +138,25 @@ namespace osidbg
 		}
 	}
 
-	void DebugMessageHandler::SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack)
+	void DebugMessageHandler::SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
+		bool * querySucceeded)
 	{
 		auto const & lastFrame = *callStack.rbegin();
 		BackendToDebugger msg;
 		auto trigger = msg.mutable_breakpointtriggered();
 		MakeMsgCallStack(*trigger, callStack);
+
+		if (querySucceeded != nullptr) {
+			if (*querySucceeded) {
+				trigger->set_query_succeeded(BkBreakpointTriggered::SUCCEEDED);
+			} else {
+				trigger->set_query_succeeded(BkBreakpointTriggered::FAILED);
+			}
+			
+		} else {
+			trigger->set_query_succeeded(BkBreakpointTriggered::NOT_A_QUERY);
+		}
+
 		Send(msg);
 
 		std::wstringstream tup;

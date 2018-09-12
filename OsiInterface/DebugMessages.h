@@ -48,6 +48,7 @@ namespace osidbg
 		uint32_t actionIndex;
 		TupleLL * tupleLL;
 		TuplePtrLL * tuplePtrLL;
+
 	};
 
 	class Debugger;
@@ -55,7 +56,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 5;
+		static const uint32_t ProtocolVersion = 6;
 
 		DebugMessageHandler(DebugInterface & intf);
 
@@ -65,7 +66,8 @@ namespace osidbg
 		}
 
 		void SetDebugger(Debugger * debugger);
-		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack);
+		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
+			bool * querySucceeded);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
 		void SendDebugSessionEnded();
