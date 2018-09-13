@@ -444,22 +444,22 @@ int OsirisProxy::SDeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
 	return gOsirisProxy->DeleteAllDataWrapper(Osiris, DeleteTypes);
 }
 
-bool OsirisProxy::CallWrapper(uint32_t FunctionId, CallParam * Params)
+bool OsirisProxy::CallWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
 {
 	return CallOriginal(FunctionId, Params);
 }
 
-bool OsirisProxy::SCallWrapper(uint32_t FunctionId, CallParam * Params)
+bool OsirisProxy::SCallWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
 {
 	return gOsirisProxy->CallWrapper(FunctionId, Params);
 }
 
-bool OsirisProxy::QueryWrapper(uint32_t FunctionId, CallParam * Params)
+bool OsirisProxy::QueryWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
 {
 	return QueryOriginal(FunctionId, Params);
 }
 
-bool OsirisProxy::SQueryWrapper(uint32_t FunctionId, CallParam * Params)
+bool OsirisProxy::SQueryWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
 {
 	return gOsirisProxy->QueryWrapper(FunctionId, Params);
 }

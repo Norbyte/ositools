@@ -159,6 +159,8 @@ namespace osidbg
 		uint32_t lastQueryDepth_{ 0 };
 		// Did the last query succeed?
 		bool lastQuerySucceeded_;
+		// Results of last div query
+		std::vector<OsiArgumentValue> lastQueryResults_;
 
 		// Actions that we'll perform in the server thread instead of the messaging runtime thread.
 		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.
@@ -184,6 +186,8 @@ namespace osidbg
 		void PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted);
 		void InsertPreHook(Node * node, TuplePtrLL * tuple, bool deleted);
 		void InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted);
+		void CallQueryPreHook(Node * node, OsiArgumentDesc * args);
+		void CallQueryPostHook(Node * node, OsiArgumentDesc * args, bool succeeded);
 
 		void PushFrame(CallStackFrame const & frame);
 		void PopFrame(CallStackFrame const & frame);

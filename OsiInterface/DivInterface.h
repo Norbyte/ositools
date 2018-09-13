@@ -36,17 +36,22 @@ enum class ValueType : uint8_t
 	Undefined = 0x7f
 };
 
-struct CallParam
+struct OsiArgumentValue
 {
-	ValueType Type;
+	ValueType TypeId;
 	uint8_t __Padding[7];
 	union {
 		char * String;
-		int32_t Int;
+		int32_t Int32;
 		int64_t Int64;
-		float Real;
-	} Value;
-	CallParam * NextParam;
+		float Float;
+	};
+};
+
+struct OsiArgumentDesc
+{
+	OsiArgumentValue Value;
+	OsiArgumentDesc * NextParam;
 };
 
 enum class EoCFunctionArgumentType : uint32_t
@@ -75,8 +80,8 @@ struct EoCCallParam
 
 struct DivFunctions
 {
-	typedef bool (* CallProc)(uint32_t FunctionId, CallParam * Params);
-	typedef bool (* CallProc)(uint32_t FunctionId, CallParam * Params);
+	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
+	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
 	typedef void (* ErrorMessageProc)(char const * Message);
 	typedef void (* AssertProc)(bool Successful, char const * Message, bool Unknown2);
 
@@ -721,6 +726,7 @@ struct NodeVMT
 	using SaveProc = bool (*)(Node * self, void * buf);
 	using DebugDumpProc = char * (*)(Node * self, char * buf);
 	using SetLineNumberProc = void (*)(Node * self, unsigned int line);
+	using CallQueryProc = bool (*)(Node * self, OsiArgumentDesc * args);
 	using GetQueryNameProc = const char * (*)(Node * self);
 
 	DestroyProc Destroy; // 0
@@ -746,7 +752,10 @@ struct NodeVMT
 	DebugDumpProc DebugDump; // A0
 	DebugDumpProc DebugDump2; // A8
 	SetLineNumberProc SetLineNumber; // B0
-	void * RelUnused; // B8
+	union { // B8
+		void * RelUnused;
+		CallQueryProc CallQuery;
+	};
 	GetQueryNameProc GetQueryName; // C0
 };
 

@@ -53,6 +53,10 @@ namespace osidbg
 		if (options_.WrapDeleteTuple) {
 			vmt_->DeleteTuple = &s_WrappedDeleteTuple;
 		}
+
+		if (options_.WrapCallQuery) {
+			vmt_->CallQuery = &s_WrappedCallQuery;
+		}
 	}
 
 	NodeVMTWrapper::~NodeVMTWrapper()
@@ -86,6 +90,11 @@ namespace osidbg
 		originalVmt_.DeleteTuple(node, tuple);
 	}
 
+	bool NodeVMTWrapper::WrappedCallQuery(Node * node, OsiArgumentDesc * args)
+	{
+		return originalVmt_.CallQuery(node, args);
+	}
+
 	bool NodeVMTWrapper::s_WrappedIsValid(Node * node, VirtTupleLL * tuple, AdapterRef * adapter)
 	{
 		return gNodeVMTWrappers->WrappedIsValid(node, tuple, adapter);
@@ -111,17 +120,22 @@ namespace osidbg
 		gNodeVMTWrappers->WrappedDeleteTuple(node, tuple);
 	}
 
+	bool NodeVMTWrapper::s_WrappedCallQuery(Node * node, OsiArgumentDesc * args)
+	{
+		return gNodeVMTWrappers->WrappedCallQuery(node, args);
+	}
+
 	NodeWrapOptions VMTWrapOptions[(unsigned)NodeType::Max + 1] = {
-		{ false, false, false, false, false }, // None
-		{ true, false, false, true, true }, // Database
-		{ true, false, false, true, true }, // Proc
-		{ true, false, false, false, false }, // DivQuery
-		{ true, true, true, false, false }, // And
-		{ true, true, true, false, false }, // NotAnd
-		{ true, true, true, false, false }, // RelOp
-		{ true, true, true, false, false }, // Rule
-		{ true, false, false, false, false }, // InternalQuery
-		{ true, false, false, false, false } // UserQuery
+		{ false, false, false, false, false, false }, // None
+		{ true, false, false, true, true, false }, // Database
+		{ true, false, false, true, true, false }, // Proc
+		{ true, false, false, false, false, true }, // DivQuery
+		{ true, true, true, false, false, false }, // And
+		{ true, true, true, false, false, false }, // NotAnd
+		{ true, true, true, false, false, false }, // RelOp
+		{ true, true, true, false, false, false }, // Rule
+		{ true, false, false, false, false, false }, // InternalQuery
+		{ true, false, false, false, false, false } // UserQuery
 	};
 
 	NodeVMTWrappers::NodeVMTWrappers(NodeVMT ** vmts)
@@ -223,6 +237,23 @@ namespace osidbg
 		if (InsertPostHook) {
 			InsertPostHook(node, tuple, true);
 		}
+	}
+
+	bool NodeVMTWrappers::WrappedCallQuery(Node * node, OsiArgumentDesc * args)
+	{
+		auto & wrapper = GetWrapper(node);
+
+		if (CallQueryPreHook) {
+			CallQueryPreHook(node, args);
+		}
+
+		bool succeeded = wrapper.WrappedCallQuery(node, args);
+
+		if (CallQueryPostHook) {
+			CallQueryPostHook(node, args, succeeded);
+		}
+
+		return succeeded;
 	}
 
 	std::unique_ptr<NodeVMTWrappers> gNodeVMTWrappers;

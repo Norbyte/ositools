@@ -29,6 +29,19 @@ namespace osidbg
 		}
 	}
 
+	void MakeMsgColumn(MsgTypedValue & msgTv, OsiArgumentValue const & arg)
+	{
+		msgTv.set_type_id((uint32_t)arg.TypeId);
+
+		switch (arg.TypeId) {
+		case ValueType::None: break;
+		case ValueType::Integer: msgTv.set_intval(arg.Int32); break;
+		case ValueType::Integer64: msgTv.set_intval(arg.Int64); break;
+		case ValueType::Real: msgTv.set_floatval(arg.Float); break;
+		default: *msgTv.mutable_stringval() = arg.String; break;
+		}
+	}
+
 	void MakeMsgTuple(MsgTuple & msgTuple, TupleLL const & tuple)
 	{
 		auto head = tuple.Items.Head;
@@ -57,6 +70,14 @@ namespace osidbg
 		for (unsigned i = 0; i < tuple.Size; i++) {
 			auto column = msgTuple.add_column();
 			MakeMsgColumn(*column, tuple.Values[i]);
+		}
+	}
+
+	void MakeMsgTuple(MsgTuple & msgTuple, std::vector<OsiArgumentValue> const & tuple)
+	{
+		for (auto const & val : tuple) {
+			auto column = msgTuple.add_column();
+			MakeMsgColumn(*column, val);
 		}
 	}
 
@@ -139,7 +160,7 @@ namespace osidbg
 	}
 
 	void DebugMessageHandler::SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
-		bool * querySucceeded)
+		bool * querySucceeded, std::vector<OsiArgumentValue> const * results)
 	{
 		auto const & lastFrame = *callStack.rbegin();
 		BackendToDebugger msg;
@@ -155,6 +176,11 @@ namespace osidbg
 			
 		} else {
 			trigger->set_query_succeeded(BkBreakpointTriggered::NOT_A_QUERY);
+		}
+
+		if (results != nullptr) {
+			auto tuple = trigger->mutable_query_results();
+			MakeMsgTuple(*tuple, *results);
 		}
 
 		Send(msg);

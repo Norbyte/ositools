@@ -56,7 +56,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 6;
+		static const uint32_t ProtocolVersion = 7;
 
 		DebugMessageHandler(DebugInterface & intf);
 
@@ -67,7 +67,7 @@ namespace osidbg
 
 		void SetDebugger(Debugger * debugger);
 		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
-			bool * querySucceeded);
+			bool * querySucceeded = nullptr, std::vector<OsiArgumentValue> const * results = nullptr);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
 		void SendDebugSessionEnded();

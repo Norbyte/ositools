@@ -28,6 +28,8 @@ namespace osidbg
 		gNodeVMTWrappers->PushDownPostHook = std::bind(&Debugger::PushDownPostHook, this, _1, _2, _3, _4, _5);
 		gNodeVMTWrappers->InsertPreHook = std::bind(&Debugger::InsertPreHook, this, _1, _2, _3);
 		gNodeVMTWrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3);
+		gNodeVMTWrappers->CallQueryPreHook = std::bind(&Debugger::CallQueryPreHook, this, _1, _2);
+		gNodeVMTWrappers->CallQueryPostHook = std::bind(&Debugger::CallQueryPostHook, this, _1, _2, _3);
 		Debug(L"Debugger::Debugger(): Attached to story");
 
 		DetectGameVersion();
@@ -46,6 +48,8 @@ namespace osidbg
 			gNodeVMTWrappers->PushDownPostHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
 			gNodeVMTWrappers->InsertPreHook = std::function<void(Node *, TuplePtrLL *, bool)>();
 			gNodeVMTWrappers->InsertPostHook = std::function<void(Node *, TuplePtrLL *, bool)>();
+			gNodeVMTWrappers->CallQueryPreHook = std::function<void(Node *, OsiArgumentDesc *)>();
+			gNodeVMTWrappers->CallQueryPostHook = std::function<void(Node *, OsiArgumentDesc *, bool)>();
 		}
 	}
 
@@ -463,13 +467,15 @@ namespace osidbg
 		}
 
 		bool * querySucceeded = nullptr;
+		std::vector<OsiArgumentValue> * queryResults = nullptr;
 		if (hasLastQueryInfo_
 			&& callStack_.size() == lastQueryDepth_ - 1)
 		{
 			querySucceeded = &lastQuerySucceeded_;
+			queryResults = &lastQueryResults_;
 		}
 
-		messageHandler_.SendBreakpointTriggered(callStack_, querySucceeded);
+		messageHandler_.SendBreakpointTriggered(callStack_, querySucceeded, queryResults);
 
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
@@ -545,6 +551,10 @@ namespace osidbg
 		hasLastQueryInfo_ = true;
 		lastQueryDepth_ = (uint32_t)callStack_.size();
 		lastQuerySucceeded_ = succeeded;
+		if (gNodeVMTWrappers->GetType(node) != NodeType::DivQuery
+			&& !lastQueryResults_.empty()) {
+			lastQueryResults_.clear();
+		}
 
 		ServerThreadReentry();
 		PopFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
@@ -607,6 +617,28 @@ namespace osidbg
 		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodeDeleteTuple : BreakpointReason::NodeInsertTuple;
 		PopFrame({ reason, node, nullptr, 0, nullptr, tuple });
+	}
+
+	void Debugger::CallQueryPreHook(Node * node, OsiArgumentDesc * args)
+	{
+		ServerThreadReentry();
+
+#if defined(DUMP_TRACEPOINTS)
+		Debug(L"CallQuery(Node %d)", node->Id);
+#endif
+		// No breakpoint allowed on CallQuery
+	}
+
+	void Debugger::CallQueryPostHook(Node * node, OsiArgumentDesc * args, bool succeeded)
+	{
+		ServerThreadReentry();
+		// No breakpoint allowed on CallQuery
+
+		lastQueryResults_.clear();
+		while (args) {
+			lastQueryResults_.push_back(args->Value);
+			args = args->NextParam;
+		}
 	}
 
 	uint64_t Debugger::MakeNodeBreakpointId(uint32_t nodeId)

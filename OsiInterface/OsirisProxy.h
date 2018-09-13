@@ -113,12 +113,12 @@ private:
 	int DeleteAllDataWrapper(void *, bool);
 	static int SDeleteAllDataWrapper(void *, bool);
 
-	bool CallWrapper(uint32_t FunctionHandle, CallParam * Params);
-	static bool SCallWrapper(uint32_t FunctionHandle, CallParam * Params);
+	bool CallWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
+	static bool SCallWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
 	DivFunctions::CallProc CallOriginal;
 
-	bool QueryWrapper(uint32_t FunctionHandle, CallParam * Params);
-	static bool SQueryWrapper(uint32_t FunctionHandle, CallParam * Params);
+	bool QueryWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
+	static bool SQueryWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
 	DivFunctions::CallProc QueryOriginal;
 
 	void ErrorWrapper(char const * Message);

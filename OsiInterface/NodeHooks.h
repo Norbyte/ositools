@@ -13,6 +13,7 @@ namespace osidbg
 		bool WrapPushDownTupleDelete;
 		bool WrapInsertTuple;
 		bool WrapDeleteTuple;
+		bool WrapCallQuery;
 	};
 
 	class NodeVMTWrapper
@@ -26,6 +27,7 @@ namespace osidbg
 		void WrappedPushDownTupleDelete(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which);
 		void WrappedInsertTuple(Node * node, TuplePtrLL * tuple);
 		void WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
+		bool WrappedCallQuery(Node * node, OsiArgumentDesc * args);
 
 	private:
 		NodeVMT * vmt_;
@@ -37,6 +39,7 @@ namespace osidbg
 		static void s_WrappedPushDownTupleDelete(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which);
 		static void s_WrappedInsertTuple(Node * node, TuplePtrLL * tuple);
 		static void s_WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
+		static bool s_WrappedCallQuery(Node * node, OsiArgumentDesc * args);
 	};
 
 	class NodeVMTWrappers
@@ -49,6 +52,7 @@ namespace osidbg
 		void WrappedPushDownTupleDelete(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which);
 		void WrappedInsertTuple(Node * node, TuplePtrLL * tuple);
 		void WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
+		bool WrappedCallQuery(Node * node, OsiArgumentDesc * args);
 
 		std::function<void (Node *, VirtTupleLL *, AdapterRef *)> IsValidPreHook;
 		std::function<void (Node *, VirtTupleLL *, AdapterRef *, bool)> IsValidPostHook;
@@ -56,6 +60,8 @@ namespace osidbg
 		std::function<void (Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)> PushDownPostHook;
 		std::function<void (Node *, TuplePtrLL *, bool)> InsertPreHook;
 		std::function<void (Node *, TuplePtrLL *, bool)> InsertPostHook;
+		std::function<void(Node *, OsiArgumentDesc *)> CallQueryPreHook;
+		std::function<void(Node *, OsiArgumentDesc *, bool)> CallQueryPostHook;
 
 		NodeType GetType(Node * node);
 		NodeVMTWrapper & GetWrapper(Node * node);
