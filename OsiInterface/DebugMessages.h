@@ -48,7 +48,16 @@ namespace osidbg
 		uint32_t actionIndex;
 		TupleLL * tupleLL;
 		TuplePtrLL * tuplePtrLL;
+	};
 
+	struct QueryResultInfo
+	{
+		// Node ID of last query
+		uint32_t queryNodeId;
+		// Did the last query succeed?
+		bool succeeded;
+		// Results of last div query
+		std::vector<OsiArgumentValue> results;
 	};
 
 	class Debugger;
@@ -67,7 +76,7 @@ namespace osidbg
 
 		void SetDebugger(Debugger * debugger);
 		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
-			bool * querySucceeded = nullptr, std::vector<OsiArgumentValue> const * results = nullptr);
+			QueryResultInfo const * results = nullptr);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();
 		void SendDebugSessionEnded();

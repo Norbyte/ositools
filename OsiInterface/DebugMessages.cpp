@@ -160,27 +160,26 @@ namespace osidbg
 	}
 
 	void DebugMessageHandler::SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
-		bool * querySucceeded, std::vector<OsiArgumentValue> const * results)
+		QueryResultInfo const * results)
 	{
 		auto const & lastFrame = *callStack.rbegin();
 		BackendToDebugger msg;
 		auto trigger = msg.mutable_breakpointtriggered();
 		MakeMsgCallStack(*trigger, callStack);
 
-		if (querySucceeded != nullptr) {
-			if (*querySucceeded) {
+		if (results != nullptr) {
+			if (results->succeeded) {
 				trigger->set_query_succeeded(BkBreakpointTriggered::SUCCEEDED);
 			} else {
 				trigger->set_query_succeeded(BkBreakpointTriggered::FAILED);
 			}
 			
+			auto tuple = trigger->mutable_query_results();
+			MakeMsgTuple(*tuple, results->results);
+
+			trigger->set_query_node_id(results->queryNodeId);
 		} else {
 			trigger->set_query_succeeded(BkBreakpointTriggered::NOT_A_QUERY);
-		}
-
-		if (results != nullptr) {
-			auto tuple = trigger->mutable_query_results();
-			MakeMsgTuple(*tuple, *results);
 		}
 
 		Send(msg);

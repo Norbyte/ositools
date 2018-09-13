@@ -157,10 +157,8 @@ namespace osidbg
 		bool hasLastQueryInfo_{ false };
 		// Stack depth of last recorded query info
 		uint32_t lastQueryDepth_{ 0 };
-		// Did the last query succeed?
-		bool lastQuerySucceeded_;
 		// Results of last div query
-		std::vector<OsiArgumentValue> lastQueryResults_;
+		QueryResultInfo lastQueryResults_;
 
 		// Actions that we'll perform in the server thread instead of the messaging runtime thread.
 		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.

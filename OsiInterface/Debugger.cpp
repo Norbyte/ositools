@@ -466,16 +466,14 @@ namespace osidbg
 			isPaused_ = true;
 		}
 
-		bool * querySucceeded = nullptr;
-		std::vector<OsiArgumentValue> * queryResults = nullptr;
+		QueryResultInfo * queryResults = nullptr;
 		if (hasLastQueryInfo_
 			&& callStack_.size() == lastQueryDepth_ - 1)
 		{
-			querySucceeded = &lastQuerySucceeded_;
 			queryResults = &lastQueryResults_;
 		}
 
-		messageHandler_.SendBreakpointTriggered(callStack_, querySucceeded, queryResults);
+		messageHandler_.SendBreakpointTriggered(callStack_, queryResults);
 
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
@@ -550,10 +548,11 @@ namespace osidbg
 	{
 		hasLastQueryInfo_ = true;
 		lastQueryDepth_ = (uint32_t)callStack_.size();
-		lastQuerySucceeded_ = succeeded;
+		lastQueryResults_.queryNodeId = node->Id;
+		lastQueryResults_.succeeded = succeeded;
 		if (gNodeVMTWrappers->GetType(node) != NodeType::DivQuery
-			&& !lastQueryResults_.empty()) {
-			lastQueryResults_.clear();
+			&& !lastQueryResults_.results.empty()) {
+			lastQueryResults_.results.clear();
 		}
 
 		ServerThreadReentry();
@@ -583,7 +582,7 @@ namespace osidbg
 		// Trigger a failed query breakpoint if the last query didn't succeed
 		if (hasLastQueryInfo_
 			&& callStack_.size() == lastQueryDepth_ - 1
-			&& !lastQuerySucceeded_) {
+			&& !lastQueryResults_.succeeded) {
 			ConditionalBreakpointInServerThread(
 				node,
 				MakeNodeBreakpointId(node->Id),
@@ -634,9 +633,9 @@ namespace osidbg
 		ServerThreadReentry();
 		// No breakpoint allowed on CallQuery
 
-		lastQueryResults_.clear();
+		lastQueryResults_.results.clear();
 		while (args) {
-			lastQueryResults_.push_back(args->Value);
+			lastQueryResults_.results.push_back(args->Value);
 			args = args->NextParam;
 		}
 	}
