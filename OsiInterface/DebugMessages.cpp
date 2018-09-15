@@ -348,7 +348,7 @@ namespace osidbg
 		}
 		else
 		{
-			rc = debugger_->SetGlobalBreakpoints((GlobalBreakpointType)req.breakpoint_mask());
+			rc = debugger_->Breakpoints().SetGlobalBreakpoints((GlobalBreakpointType)req.breakpoint_mask());
 		}
 
 		SendResult(seq, rc);
@@ -367,11 +367,11 @@ namespace osidbg
 		{
 			rc = ResultCode::Success;
 
-			debugger_->BeginUpdatingNodeBreakpoints();
+			debugger_->Breakpoints().BeginUpdatingNodeBreakpoints();
 			for (auto const & bp : req.breakpoint()) {
 				Debug(L"AddBreakpoint(node %d, goal %d, action %d, flags %d)", 
 					bp.node_id(), bp.goal_id(), bp.action_index(), bp.breakpoint_mask());
-				rc = debugger_->AddBreakpoint(
+				rc = debugger_->Breakpoints().AddBreakpoint(
 					bp.node_id(),
 					bp.goal_id(), 
 					bp.is_init_action(),
@@ -492,7 +492,7 @@ namespace osidbg
 	{
 		Debug(L"Disconnected from debugger frontend");
 		if (debugger_) {
-			debugger_->ClearAllBreakpoints();
+			debugger_->Breakpoints().ClearAllBreakpoints();
 			if (debugger_->IsPaused()) {
 				debugger_->ContinueExecution(DbgContinue_Action_CONTINUE, 0, 0);
 			}

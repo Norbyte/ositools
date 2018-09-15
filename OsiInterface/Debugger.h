@@ -65,6 +65,86 @@ namespace osidbg
 
 	struct OsirisGlobals;
 
+	class RuleActionMap
+	{
+	public:
+		RuleActionMap(OsirisGlobals const &);
+
+		void AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions);
+		void UpdateRuleActionMappings();
+		RuleActionMapping const * FindActionMapping(RuleActionNode * action);
+
+	private:
+		OsirisGlobals const & globals_;
+		// Mapping of a rule action to its call site (rule then part, goal init/exit)
+		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
+	};
+
+	class BreakpointManager
+	{
+	public:
+		BreakpointManager(OsirisGlobals const &);
+
+		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
+		void ClearAllBreakpoints();
+		void BeginUpdatingNodeBreakpoints();
+		ResultCode AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
+		void FinishUpdatingNodeBreakpoints();
+
+		void SetDebuggingDisabled(bool disabled);
+		void SetForcedBreakpoints(bool enabled, uint32_t bpMask, uint32_t flags, uint32_t maxDepth);
+		void ClearForcedBreakpoints();
+
+		bool ForcedBreakpointConditionsSatisfied(std::vector<CallStackFrame> const & stack, Node * bpNode, 
+			BreakpointType bpType);
+		bool ShouldTriggerBreakpoint(std::vector<CallStackFrame> const & stack, Node * bpNode, uint64_t bpNodeId, 
+			BreakpointType bpType, GlobalBreakpointType globalBpType);
+		bool ShouldTriggerGlobalBreakpoint(GlobalBreakpointType globalBpType);
+
+		static uint64_t MakeNodeBreakpointId(uint32_t nodeId);
+		static uint64_t MakeRuleActionBreakpointId(uint32_t nodeId, uint32_t actionIndex);
+		static uint64_t MakeGoalInitBreakpointId(uint32_t goalId, uint32_t actionIndex);
+		static uint64_t MakeGoalExitBreakpointId(uint32_t goalId, uint32_t actionIndex);
+
+	private:
+		struct Breakpoint
+		{
+			uint32_t nodeId;
+			uint32_t goalId;
+			bool isInit;
+			uint32_t actionIndex;
+			BreakpointType type;
+		};
+
+		enum BreakpointItemType : uint8_t
+		{
+			BP_Node = 0,
+			BP_RuleAction = 1,
+			BP_GoalInit = 2,
+			BP_GoalExit = 3
+		};
+
+		OsirisGlobals const & globals_;
+		// Is debugging disabled?
+		// (i.e. we don't stop on breakpoints)
+		bool debuggingDisabled_{ false };
+		uint32_t globalBreakpoints_{ 0 };
+		// Breakpoints that are currently active
+		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> breakpoints_;
+		// Breakpoints that are being applied via the debugger protocol
+		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> pendingBreakpoints_;
+		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
+		bool forceBreakpoint_{ false };
+		// Events that will trigger a forced breakpoint.
+		// This only filters forced BPs, not traditional breakpoints.
+		uint32_t forceBreakpointMask_{ 0 };
+		// Additional filter flags on forced breakpoints.
+		uint32_t forceBreakpointFlags_{ 0 };
+		// Call stack depth at which we'll trigger a breakpoint
+		// (used for step over/into/out)
+		uint32_t maxBreakDepth_{ 0 };
+	};
+
 	class Debugger
 	{
 	public:
@@ -85,14 +165,14 @@ namespace osidbg
 			return isPaused_;
 		}
 
-		void BeginUpdatingNodeBreakpoints();
-		ResultCode AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type);
-		void FinishUpdatingNodeBreakpoints();
+		inline BreakpointManager & Breakpoints()
+		{
+			return breakpoints_;
+		}
 
+		void FinishUpdatingNodeBreakpoints();
 		ResultCode GetDatabaseContents(uint32_t databaseId);
-		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
 		ResultCode ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags);
-		void ClearAllBreakpoints();
 		void SyncStory();
 
 		void GameInitHook();
@@ -101,58 +181,22 @@ namespace osidbg
 		void RuleActionPostHook(RuleActionNode * action);
 
 	private:
-		struct Breakpoint
-		{
-			uint32_t nodeId;
-			uint32_t goalId;
-			bool isInit;
-			uint32_t actionIndex;
-			BreakpointType type;
-		};
-
-		enum BreakpointItemType : uint8_t
-		{
-			BP_Node = 0,
-			BP_RuleAction = 1,
-			BP_GoalInit = 2,
-			BP_GoalExit = 3
-		};
-
-		static uint64_t MakeNodeBreakpointId(uint32_t nodeId);
-		static uint64_t MakeRuleActionBreakpointId(uint32_t nodeId, uint32_t actionIndex);
-		static uint64_t MakeGoalInitBreakpointId(uint32_t goalId, uint32_t actionIndex);
-		static uint64_t MakeGoalExitBreakpointId(uint32_t goalId, uint32_t actionIndex);
-
 		OsirisGlobals const & globals_;
 		DebugMessageHandler & messageHandler_;
 		std::vector<CallStackFrame> callStack_;
-		// Mapping of a rule action to its call site (rule then part, goal init/exit)
-		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
+		RuleActionMap actionMappings_;
 		// Did the engine call COsiris::InitGame() in this session?
 		bool isInitialized_{ false };
 
 		std::mutex breakpointMutex_;
 		std::condition_variable breakpointCv_;
 
-		uint32_t globalBreakpoints_;
-		// Breakpoints that are currently active
-		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> breakpoints_;
-		// Breakpoints that are being applied via the debugger protocol
-		std::unique_ptr<std::unordered_map<uint64_t, Breakpoint>> pendingBreakpoints_;
 		// Is debugging disabled?
 		// (i.e. we don't handle any continue requests, and don't stop on breakpoints)
 		bool debuggingDisabled_{ false };
 		bool isPaused_{ false };
-		// Forcibly triggers a breakpoint if all breakpoint conditions are met.
-		bool forceBreakpoint_{ false };
-		// Events that will trigger a forced breakpoint.
-		// This only filters forced BPs, not traditional breakpoints.
-		uint32_t forceBreakpointMask_{ 0 };
-		// Additional filter flags on forced breakpoints.
-		uint32_t forceBreakpointFlags_{ 0 };
-		// Call stack depth at which we'll trigger a breakpoint
-		// (used for step over/into/out)
-		uint32_t maxBreakDepth_{ 0 };
+		BreakpointManager breakpoints_;
+
 		// Do we have any information about the result of the last IsValid query?
 		bool hasLastQueryInfo_{ false };
 		// Stack depth of last recorded query info
@@ -168,15 +212,9 @@ namespace osidbg
 		void ServerThreadReentry();
 
 		void FinishedSingleStep();
-		bool ForcedBreakpointConditionsSatisfied(Node * bpNode, BreakpointType bpType);
-		bool ShouldTriggerBreakpoint(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
 		void ConditionalBreakpointInServerThread(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
 		void BreakpointInServerThread();
 		void GlobalBreakpointInServerThread(GlobalBreakpointReason reason);
-
-		void AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions);
-		void UpdateRuleActionMappings();
-		RuleActionMapping const * FindActionMapping(RuleActionNode * action);
 
 		void IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter);
 		void IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded);
