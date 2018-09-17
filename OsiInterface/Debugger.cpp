@@ -8,6 +8,50 @@
 
 namespace osidbg
 {
+	DebugAdapterMap::DebugAdapterMap(OsirisGlobals const & globals)
+		: globals_(globals)
+	{}
+
+	void DebugAdapterMap::UpdateAdapters()
+	{
+		auto const & adapterDb = (*globals_.Adapters)->Db;
+		for (unsigned i = 0; i < adapterDb.Size; i++) {
+			auto adapter = adapterDb.Start[i];
+			TryAddAdapter(adapter);
+		}
+	}
+
+	bool DebugAdapterMap::HasAllAdapters()
+	{
+		for (unsigned i = 0; i <= MaxColumns; i++) {
+			auto it = adapters_.find(i);
+			if (it == adapters_.end()) return false;
+		}
+
+		return true;
+	}
+
+	Adapter * DebugAdapterMap::FindAdapter(uint8_t columns)
+	{
+		auto it = adapters_.find(columns);
+		if (it == adapters_.end()) return nullptr;
+		return it->second;
+	}
+
+	void DebugAdapterMap::TryAddAdapter(Adapter * adapter)
+	{
+		if (adapter->Constants.Data.Items.Size > 0) return;
+
+		auto varMap = adapter->ColumnToVarMaps.Start;
+		auto varEnd = adapter->ColumnToVarMaps.Start + adapter->VarToColumnMapCount;
+		int8_t varIdx = 0;
+		while (varMap < varEnd) {
+			if (varIdx++ != *varMap++) return;
+		}
+
+		adapters_[(uint8_t)adapter->VarToColumnMapCount] = adapter;
+	}
+
 	RuleActionMap::RuleActionMap(OsirisGlobals const & globals)
 		: globals_(globals)
 	{}
@@ -43,7 +87,7 @@ namespace osidbg
 
 		auto const & goalDb = (*globals_.Goals);
 		for (unsigned i = 0; i < goalDb->Count; i++) {
-			auto goal = goalDb->FindGoal(i + 1);
+			auto goal = goalDb->Goals.Find(i + 1);
 			AddRuleActionMappings(nullptr, goal, true, goal->InitCalls);
 			AddRuleActionMappings(nullptr, goal, false, goal->ExitCalls);
 		}
@@ -294,9 +338,10 @@ namespace osidbg
 
 
 
-	Debugger::Debugger(OsirisGlobals const & globals, DebugMessageHandler & messageHandler)
+	Debugger::Debugger(OsirisGlobals & globals, DebugMessageHandler & messageHandler)
 		: globals_(globals), messageHandler_(messageHandler),
 		actionMappings_(globals),
+		debugAdapters_(globals),
 		breakpoints_(globals)
 	{
 		if (messageHandler_.IsConnected()) {
@@ -343,6 +388,11 @@ namespace osidbg
 		ServerThreadReentry();
 		isInitialized_ = false;
 		actionMappings_.UpdateRuleActionMappings();
+		debugAdapters_.UpdateAdapters();
+		if (!debugAdapters_.HasAllAdapters()) {
+			Debug(L"Debugger::StoryLoaded(): Not all debug adapters are available - some debug calls will not work!");
+		}
+
 		messageHandler_.SendStoryLoaded();
 		if (breakpoints_.ShouldTriggerGlobalBreakpoint(GlobalBreakpointType::GlobalBreakOnStoryLoaded)) {
 			GlobalBreakpointInServerThread(GlobalBreakpointReason::StoryLoaded);
@@ -491,7 +541,7 @@ namespace osidbg
 	{
 		auto const & goalDb = (*globals_.Goals);
 		for (unsigned i = 0; i < goalDb->Count; i++) {
-			auto goal = goalDb->FindGoal(i + 1);
+			auto goal = goalDb->Goals.Find(i + 1);
 			messageHandler_.SendSyncStory(goal);
 		}
 
@@ -506,6 +556,219 @@ namespace osidbg
 			uint32_t numNodes = std::min<uint32_t>(nodeDb.Size - i, 100);
 			messageHandler_.SendSyncStory(&nodeDb.Start[i], numNodes);
 		}
+	}
+
+	void Debugger::Evaluate(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params,
+		std::function<void(ResultCode, bool)> completionCallback)
+	{
+		pendingActions_.push([=]() {
+			bool querySucceeded = false;
+			auto rc = this->EvaluateInServerThread(seq, type, nodeId, params, querySucceeded);
+			completionCallback(rc, querySucceeded);
+		});
+		breakpointCv_.notify_one();
+	}
+
+	void MsgToValue(MsgTypedValue const & msg, TypedValue & tv, void * tvVmt)
+	{
+		tv.VMT = tvVmt;
+		tv.TypeId = msg.type_id();
+		switch ((ValueType)msg.type_id()) {
+		case ValueType::None:
+			break;
+
+		case ValueType::Integer:
+			tv.Value.Val.Int32 = (int32_t)msg.intval();
+			break;
+
+		case ValueType::Integer64:
+			tv.Value.Val.Int64 = msg.intval();
+			break;
+
+		case ValueType::Real:
+			tv.Value.Val.Float = msg.floatval();
+			break;
+
+		case ValueType::String:
+		case ValueType::GuidString:
+		default:
+			tv.Value.Val.String = _strdup(msg.stringval().c_str());
+			break;
+		}
+	}
+
+	void MsgToTuple(MsgTuple const & msg, VirtTupleLL & tuple, void * tvVmt)
+	{
+		tuple.Data.Items.Size = msg.column_size();
+		auto head = new ListNode<TupleLL::Item>();
+		tuple.Data.Items.Head = head;
+		head->Head = head;
+		head->Next = head;
+
+		auto prev = head;
+		for (int i = 0; i < msg.column_size(); i++) {
+			auto item = new ListNode<TupleLL::Item>();
+			item->Head = head;
+			item->Next = head;
+			prev->Next = item;
+
+			auto & param = msg.column()[i];
+			item->Item.Index = i;
+			MsgToValue(param, item->Item.Value, tvVmt);
+
+			prev = item;
+		}
+	}
+
+	void MsgToTuple(MsgTuple const & msg, TuplePtrLL & tuple, void * tvVmt)
+	{
+		auto & items = tuple.Items();
+		items.Size = msg.column_size();
+		auto head = new ListNode<TypedValue *>();
+		items.Head = head;
+		head->Head = head;
+		head->Next = head;
+
+		auto prev = head;
+		for (int i = 0; i < msg.column_size(); i++) {
+			auto item = new ListNode<TypedValue *>();
+			item->Head = head;
+			item->Next = head;
+			prev->Next = item;
+
+			auto & param = msg.column()[i];
+			item->Item = new TypedValue();
+			MsgToValue(param, *item->Item, tvVmt);
+
+			prev = item;
+		}
+	}
+
+	void TupClearOutParams(VirtTupleLL & tuple, FunctionSignature const & signature)
+	{
+		auto head = tuple.Data.Items.Head;
+		auto cur = head->Next;
+		for (unsigned i = 0; i < tuple.Data.Items.Size; i++) {
+			if (signature.OutParamList.isOutParam(i)) {
+				cur->Item.Value.TypeId = (uint32_t)ValueType::None;
+			}
+
+			cur = cur->Next;
+		}
+	}
+
+	bool AreTypesCompatible(uint32_t type1, uint32_t type2)
+	{
+		if (type1 > (uint32_t)ValueType::GuidString)
+		{
+			type1 = (uint32_t)ValueType::GuidString;
+		}
+
+		if (type2 > (uint32_t)ValueType::GuidString)
+		{
+			type2 = (uint32_t)ValueType::GuidString;
+		}
+
+		return type1 == type2;
+	}
+
+	ResultCode Debugger::EvaluateInServerThread(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params,
+		bool & querySucceeded)
+	{
+		Debug(L"Debugger::EvaluateInServerThread(): Type %d, node %d", type, nodeId);
+
+		if (nodeId == 0 || nodeId > (*globals_.Nodes)->Db.Size) {
+			Debug(L"Debugger::EvaluateInServerThread(): Tried to call nonexistent node %d", nodeId);
+			return ResultCode::InvalidNodeId;
+		}
+
+		auto node = (*globals_.Nodes)->Db.Start[nodeId - 1];
+		if (node->Function == nullptr) {
+			Debug(L"Debugger::EvaluateInServerThread(): Node has no function!");
+			return ResultCode::NotCallable;
+		}
+
+		auto const & sig = node->Function->Signature;
+		if (params.column_size() != sig->Params->Params.Size) {
+			Debug(L"Debugger::EvaluateInServerThread(): Got %d params, but node %d has %d!",
+				params.column_size(), nodeId, sig->Params->Params.Size);
+			return ResultCode::InvalidParameters;
+		}
+
+		auto typeNode = sig->Params->Params.Head->Next;
+		for (unsigned i = 0; i < sig->Params->Params.Size; i++) {
+			auto typeId = params.column()[i].type_id();
+			if (typeId != (uint32_t)ValueType::None
+				&& !AreTypesCompatible(typeNode->Item.Type, typeId)) {
+				Debug(L"Debugger::EvaluateInServerThread(): Parameter %d type mismatch; expected %d, got %d!",
+					i, typeNode->Item.Type, typeId);
+				return ResultCode::InvalidParameters;
+			}
+			typeNode = typeNode->Next;
+
+			if (typeId == (uint32_t)ValueType::None
+				&& type != EvalType::Pushdown
+				&& !sig->OutParamList.isOutParam(i)) {
+				Debug(L"Debugger::EvaluateInServerThread(): Got a null value for IN parameter %d!", i);
+				return ResultCode::InvalidParameters;
+			}
+		}
+
+		auto adapter = debugAdapters_.FindAdapter(params.column_size());
+		if (adapter == nullptr) {
+			Debug(L"Debugger::EvaluateInServerThread(): No debug adapter available for %d columns!", params.column_size());
+			return ResultCode::NoAdapter;
+		}
+
+		if (globals_.TypedValueVMT == nullptr) {
+			Debug(L"Debugger::EvaluateInServerThread(): TypedValue VMT not available");
+			return ResultCode::NoAdapter;
+		}
+
+		AdapterRef adapterRef;
+		adapterRef.Id = adapter->Id;
+		adapterRef.Manager = adapter->Db;
+
+		breakpoints_.SetDebuggingDisabled(true);
+
+		switch (type)
+		{
+		case EvalType::IsValid:
+		{
+			VirtTupleLL tuple;
+			MsgToTuple(params, tuple, globals_.TypedValueVMT);
+			node->IsValid(&tuple, &adapterRef);
+			TupClearOutParams(tuple, *sig);
+			querySucceeded = node->IsValid(&tuple, &adapterRef);
+			messageHandler_.SendEvaluateRow(seq, tuple);
+			break;
+		}
+
+		case EvalType::Insert:
+		{
+			TuplePtrLL tuple;
+			MsgToTuple(params, tuple, globals_.TypedValueVMT);
+			node->InsertTuple(&tuple);
+			break;
+		}
+
+		case EvalType::Delete:
+		{
+			TuplePtrLL tuple;
+			MsgToTuple(params, tuple, globals_.TypedValueVMT);
+			node->DeleteTuple(&tuple);
+			break;
+		}
+
+		default:
+			Debug(L"Debugger::EvaluateInServerThread(): Unknown eval type %d", type);
+			breakpoints_.SetDebuggingDisabled(false);
+			return ResultCode::InvalidEvalType;
+		}
+
+		breakpoints_.SetDebuggingDisabled(false);
+
+		return ResultCode::Success;
 	}
 
 	void Debugger::DetectGameVersion()
@@ -547,6 +810,7 @@ namespace osidbg
 		pendingActions_.push([this]() {
 			breakpoints_.FinishUpdatingNodeBreakpoints();
 		});
+		breakpointCv_.notify_one();
 	}
 
 	void Debugger::ConditionalBreakpointInServerThread(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
@@ -581,11 +845,10 @@ namespace osidbg
 
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
-			breakpointCv_.wait(lk, [this]() { return !this->isPaused_; });
+			breakpointCv_.wait(lk, [this]() { this->ServerThreadReentry(); return !this->isPaused_; });
 		}
 
 		Debug(L"Continuing from breakpoint.");
-		ServerThreadReentry();
 	}
 
 	void Debugger::GlobalBreakpointInServerThread(GlobalBreakpointReason reason)
@@ -665,6 +928,11 @@ namespace osidbg
 
 	void Debugger::PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
+		if (globals_.TypedValueVMT == nullptr
+			&& tuple->Data.Items.Size > 0) {
+			globals_.TypedValueVMT = tuple->Data.Items.Head->Next->Item.Value.VMT;
+		}
+
 		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
@@ -746,6 +1014,12 @@ namespace osidbg
 
 	void Debugger::RuleActionPreHook(RuleActionNode * action)
 	{
+		if (globals_.TypedValueVMT == nullptr
+			&& action->Arguments != nullptr
+			&& action->Arguments->Args().Size > 0) {
+			globals_.TypedValueVMT = action->Arguments->Args().Head->Next->Item->VMT;
+		}
+
 		// Avoid action mapping errors during merge
 		if (debuggingDisabled_) {
 			return;
@@ -795,9 +1069,9 @@ namespace osidbg
 		
 		if (action->FunctionName != nullptr
 			&& action->Arguments != nullptr
-			&& action->Arguments->Size == 1
+			&& action->Arguments->Args().Size == 1
 			&& strcmp(action->FunctionName, "DebugBreak") == 0) {
-			TypedValue * message = action->Arguments->Head->Next->Item;
+			TypedValue * message = action->Arguments->Args().Head->Next->Item;
 			if (message->TypeId == (uint32_t)ValueType::String
 				&& message->Value.Val.String != nullptr) {
 				messageHandler_.SendDebugOutput(message->Value.Val.String);

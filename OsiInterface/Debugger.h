@@ -65,12 +65,30 @@ namespace osidbg
 
 	struct OsirisGlobals;
 
+	class DebugAdapterMap
+	{
+	public:
+		const unsigned MaxColumns = 16;
+
+		DebugAdapterMap(OsirisGlobals const &);
+
+		void UpdateAdapters();
+		bool HasAllAdapters();
+		Adapter * FindAdapter(uint8_t columns);
+
+	private:
+		void TryAddAdapter(Adapter * adapter);
+
+		OsirisGlobals const & globals_;
+		// Mapping of a rule action to its call site (rule then part, goal init/exit)
+		std::unordered_map<uint8_t, Adapter *> adapters_;
+	};
+
 	class RuleActionMap
 	{
 	public:
 		RuleActionMap(OsirisGlobals const &);
 
-		void AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions);
 		void UpdateRuleActionMappings();
 		RuleActionMapping const * FindActionMapping(RuleActionNode * action);
 
@@ -78,6 +96,8 @@ namespace osidbg
 		OsirisGlobals const & globals_;
 		// Mapping of a rule action to its call site (rule then part, goal init/exit)
 		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
+
+		void AddRuleActionMappings(Node * node, Goal * goal, bool isInit, RuleActionList * actions);
 	};
 
 	class BreakpointManager
@@ -148,7 +168,7 @@ namespace osidbg
 	class Debugger
 	{
 	public:
-		Debugger(OsirisGlobals const & globals, DebugMessageHandler & messageHandler);
+		Debugger(OsirisGlobals & globals, DebugMessageHandler & messageHandler);
 		~Debugger();
 
 		void StoryLoaded();
@@ -174,6 +194,8 @@ namespace osidbg
 		ResultCode GetDatabaseContents(uint32_t databaseId);
 		ResultCode ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags);
 		void SyncStory();
+		void Evaluate(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params, 
+			std::function<void (ResultCode, bool)> completionCallback);
 
 		void GameInitHook();
 		void DeleteAllDataHook();
@@ -181,7 +203,7 @@ namespace osidbg
 		void RuleActionPostHook(RuleActionNode * action);
 
 	private:
-		OsirisGlobals const & globals_;
+		OsirisGlobals & globals_;
 		DebugMessageHandler & messageHandler_;
 		std::vector<CallStackFrame> callStack_;
 		RuleActionMap actionMappings_;
@@ -196,6 +218,7 @@ namespace osidbg
 		bool debuggingDisabled_{ false };
 		bool isPaused_{ false };
 		BreakpointManager breakpoints_;
+		DebugAdapterMap debugAdapters_;
 
 		// Do we have any information about the result of the last IsValid query?
 		bool hasLastQueryInfo_{ false };
@@ -215,6 +238,9 @@ namespace osidbg
 		void ConditionalBreakpointInServerThread(Node * bpNode, uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType);
 		void BreakpointInServerThread();
 		void GlobalBreakpointInServerThread(GlobalBreakpointReason reason);
+
+		ResultCode EvaluateInServerThread(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params,
+			bool & querySucceeded);
 
 		void IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter);
 		void IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded);

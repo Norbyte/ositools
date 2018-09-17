@@ -307,9 +307,47 @@ struct List
 	uint64_t Size;
 };
 
-struct Adapter
+template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
+struct TMapNode
 {
+	TMapNode<TKey, TVal, TKeyPad, TValPad> * Left;
+	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
+	TMapNode<TKey, TVal, TKeyPad, TValPad> * Right;
+	bool Unknown;
+	bool IsLeaf;
+	uint8_t __KeyPad[TKeyPad];
+	TKey Key;
+	uint8_t __ValPad[TValPad];
+	TVal Value;
+};
 
+template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
+struct TMap
+{
+	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
+
+	TVal & Find(TKey key)
+	{
+		auto finalTreeNode = Root;
+		auto currentTreeNode = Root->Root;
+		while (!currentTreeNode->IsLeaf)
+		{
+			if (currentTreeNode->Key >= key)
+			{
+				finalTreeNode = currentTreeNode;
+				currentTreeNode = currentTreeNode->Left;
+			}
+			else
+			{
+				currentTreeNode = currentTreeNode->Right;
+			}
+		}
+
+		if (finalTreeNode == Root || key < finalTreeNode->Key)
+			return Root->Value;
+		else
+			return finalTreeNode->Value;
+	}
 };
 
 struct SomeDbItem
@@ -347,7 +385,7 @@ struct TValue
 class TypedValue
 {
 public:
-	virtual bool Serialize(void * SmartBuf);
+	/*virtual bool Serialize(void * SmartBuf);
 	virtual ~TypedValue() {};
 	virtual bool SetType(ValueType type);
 	virtual ValueType GetType();
@@ -361,7 +399,9 @@ public:
 	virtual bool IsOutParam();
 	virtual uint8_t Index();
 	virtual bool IsUnused();
-	virtual bool IsAdapted();
+	virtual bool IsAdapted();*/
+
+	void * VMT;
 
 	uint32_t TypeId;
 	uint32_t __Padding;
@@ -399,34 +439,34 @@ struct TuplePtrLLDOS2
 
 struct TuplePtrLLDOS2DE
 {
-	virtual ~TuplePtrLLDOS2DE() {}
-
+	void * VMT;
 	List<TypedValue *> Items;
 };
 
 struct TuplePtrLL
 {
-	struct {
-		TuplePtrLLDOS2 _placeholder;
+	union {
+		TuplePtrLLDOS2 dos2;
+		TuplePtrLLDOS2DE dos2de;
 	};
-
-	TuplePtrLLDOS2 const * dos2() const
-	{
-		return reinterpret_cast<TuplePtrLLDOS2 const *>(this);
-	}
-
-	TuplePtrLLDOS2DE const * dos2de() const
-	{
-		return reinterpret_cast<TuplePtrLLDOS2DE const *>(this);
-	}
 
 	List<TypedValue *> const & Items() const
 	{
 		assert(gGameType != GameType::Unknown);
 		if (gGameType == GameType::DOS2DE) {
-			return dos2de()->Items;
+			return dos2de.Items;
 		} else {
-			return dos2()->Items;
+			return dos2.Items;
+		}
+	}
+
+	List<TypedValue *> & Items()
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de.Items;
+		} else {
+			return dos2.Items;
 		}
 	}
 };
@@ -531,11 +571,42 @@ struct Database
 	}
 };
 
+class RuleActionArguments
+{
+public:
+	List<TypedValue *> const & Args() const
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			return dos2de.Args;
+		} else {
+			return dos2.Args;
+		}
+	}
+
+private:
+	struct DOS2
+	{
+		List<TypedValue *> Args;
+	};
+
+	struct DOS2DE
+	{
+		void * VMT;
+		List<TypedValue *> Args;
+	};
+
+	union {
+		DOS2 dos2;
+		DOS2DE dos2de;
+	};
+};
+
 class RuleActionNode
 {
 public:
 	const char * FunctionName;
-	List<TypedValue *> * Arguments;
+	RuleActionArguments * Arguments;
 	bool Not;
 	uint8_t __Padding[3];
 	int32_t GoalIdOrDebugHook;
@@ -563,53 +634,31 @@ struct Goal
 	uint8_t __Padding3[7];
 };
 
-struct GoalTreeNode
-{
-	GoalTreeNode * Left;
-	GoalTreeNode * Root;
-	GoalTreeNode * Right;
-	uint8_t Unknown;
-	uint8_t IsLeaf;
-	uint8_t __Padding[6];
-	uint32_t GoalId;
-	uint32_t __Padding2;
-	Goal * Goal;
-};
-
 struct GoalDb
 {
 	void * Unknown[2047];
 	uint32_t Count;
 	uint32_t __Padding;
-	GoalTreeNode * Root;
-
-	Goal * FindGoal(uint32_t goalId)
-	{
-		auto finalTreeNode = Root;
-		auto currentTreeNode = Root->Root;
-		while (!currentTreeNode->IsLeaf)
-		{
-			if (currentTreeNode->GoalId >= goalId)
-			{
-				finalTreeNode = currentTreeNode;
-				currentTreeNode = currentTreeNode->Left;
-			}
-			else
-			{
-				currentTreeNode = currentTreeNode->Right;
-			}
-		}
-
-		if (finalTreeNode == Root || goalId < finalTreeNode->GoalId)
-			return Root->Goal;
-		else
-			return finalTreeNode->Goal;
-	}
+	TMap<uint32_t, Goal *, 6, 4> Goals;
 };
 
 struct DatabaseDb
 {
 	TArray<Database *> Db;
+};
+
+class VirtTupleLL;
+struct AdapterDb;
+
+struct Adapter
+{
+	uint32_t Id;
+	uint32_t __Padding;
+	AdapterDb * Db;
+	TMap<uint8_t, uint8_t, 0, 0> VarToColumnMaps;
+	uint64_t VarToColumnMapCount;
+	Vector<int8_t> ColumnToVarMaps;
+	VirtTupleLL Constants;
 };
 
 struct AdapterDb
@@ -669,6 +718,12 @@ struct FuncSigOutParamList
 {
 	uint8_t * Params;
 	uint32_t Count;
+
+	bool isOutParam(unsigned i) const
+	{
+		assert(i < Count*8);
+		return ((Params[i >> 3] << (i & 7)) & 0x80) == 0x80;
+	}
 };
 
 struct FunctionSignature
@@ -774,8 +829,8 @@ public:
 	virtual Adapter * GetAdapter(EntryPoint Which) = 0;
 	virtual void InsertTuple(TuplePtrLL * Tuple) = 0;
 	virtual void PushDownTuple(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
-	virtual void InsertTuple2(TuplePtrLL * Tuple) = 0;
-	virtual void PushDownTuple2(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
+	virtual void DeleteTuple(TuplePtrLL * Tuple) = 0;
+	virtual void PushDownTupleDelete(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
 	virtual void TriggerInsertEvent(TupleVec * Tuple) = 0;
 	virtual void TriggerInsertEvent2(TupleVec * Tuple) = 0;
 	virtual NodeRef * GetLowDatabaseRef(NodeRef * Node) = 0;

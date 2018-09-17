@@ -65,6 +65,7 @@ struct OsirisGlobals
 	DatabaseDb ** Databases{ nullptr };
 	NodeDb ** Nodes{ nullptr };
 	DebugFlag * DebugFlags{ nullptr };
+	void * TypedValueVMT{ nullptr };
 };
 
 class OsirisProxy

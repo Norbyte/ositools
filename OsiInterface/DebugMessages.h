@@ -37,7 +37,19 @@ namespace osidbg
 		InPause = 6,
 		InvalidGoalId = 7,
 		UnsupportedContinueFlags = 8,
-		InvalidDatabaseId = 9
+		InvalidDatabaseId = 9,
+		NotCallable = 10,
+		InvalidParameters = 11,
+		NoAdapter = 12,
+		InvalidEvalType = 13
+	};
+
+	enum class EvalType
+	{
+		IsValid = 0,
+		Pushdown = 1,
+		Insert = 2,
+		Delete = 3
 	};
 
 	struct CallStackFrame
@@ -65,7 +77,7 @@ namespace osidbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 7;
+		static const uint32_t ProtocolVersion = 8;
 
 		DebugMessageHandler(DebugInterface & intf);
 
@@ -88,6 +100,8 @@ namespace osidbg
 		void SendBeginDatabaseContents(uint32_t databaseId);
 		void SendDatabaseRow(uint32_t databaseId, TupleVec * row);
 		void SendEndDatabaseContents(uint32_t databaseId);
+		void SendEvaluateRow(uint32_t seq, VirtTupleLL & row);
+		void SendEvaluateFinished(uint32_t seq, ResultCode rc, bool querySucceeded);
 
 	private:
 		DebugInterface & intf_;
@@ -105,6 +119,7 @@ namespace osidbg
 		void HandleContinue(uint32_t seq, DbgContinue const & req);
 		void HandleGetDatabaseContents(uint32_t seq, DbgGetDatabaseContents const & req);
 		void HandleSyncStory(uint32_t seq, DbgSyncStory const & req);
+		void HandleEvaluate(uint32_t seq, DbgEvaluate const & req);
 
 		void Send(BackendToDebugger & msg);
 		void SendVersionInfo(uint32_t seq);

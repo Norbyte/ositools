@@ -233,7 +233,7 @@ namespace osidbg
 			if (current->Item->FunctionName != nullptr) {
 				actionInfo->set_function(current->Item->FunctionName);
 				if (current->Item->Arguments != nullptr) {
-					actionInfo->set_arity((uint32_t)current->Item->Arguments->Size);
+					actionInfo->set_arity((uint32_t)current->Item->Arguments->Args().Size);
 				} else {
 					actionInfo->set_arity(0);
 				}
@@ -431,10 +431,26 @@ namespace osidbg
 		if (debugger_) {
 			debugger_->SyncStory();
 		} else {
-			Debug(L"Continue: Not attached to story debugger!");
+			Debug(L"SyncStory: Not attached to story debugger!");
 		}
 
 		SendSyncStoryFinished();
+	}
+
+	void DebugMessageHandler::HandleEvaluate(uint32_t seq, DbgEvaluate const & req)
+	{
+		Debug(L" --> DbgEvaluate(%d, %d)", req.type(), req.node_id());
+
+		if (debugger_) {
+			bool querySucceeded = false;
+			auto process = [this, seq] (ResultCode rc, bool querySucceeded) {
+				SendEvaluateFinished(seq, rc, querySucceeded);
+			};
+
+			debugger_->Evaluate(seq, (EvalType)req.type(), req.node_id(), req.params(), process);
+		} else {
+			Debug(L"Evaluate: Not attached to story debugger!");
+		}
 	}
 
 	bool DebugMessageHandler::HandleMessage(DebuggerToBackend const * msg)
@@ -470,6 +486,10 @@ namespace osidbg
 
 		case DebuggerToBackend::kSyncStory:
 			HandleSyncStory(seq, msg->syncstory());
+			break;
+
+		case DebuggerToBackend::kEvaluate:
+			HandleEvaluate(seq, msg->evaluate());
 			break;
 
 		default:
@@ -514,7 +534,7 @@ namespace osidbg
 		BackendToDebugger msg;
 		msg.set_reply_seq_no(seq);
 		auto results = msg.mutable_results();
-		results->set_status_code((BkResult::StatusCode)code);
+		results->set_status_code((StatusCode)code);
 		Send(msg);
 		Debug(L" <-- BkResult(%d)", code);
 	}
@@ -568,5 +588,28 @@ namespace osidbg
 		endMsg->set_database_id(databaseId);
 		Send(msg);
 		Debug(L" <-- BkEndDatabaseContents()");
+	}
+
+	void DebugMessageHandler::SendEvaluateRow(uint32_t seq, VirtTupleLL & row)
+	{
+		BackendToDebugger msg;
+		msg.set_reply_seq_no(seq);
+		auto rowMsg = msg.mutable_evaluaterow();
+		auto msgRow = rowMsg->add_row();
+		MakeMsgTuple(*msgRow, row.Data);
+
+		Send(msg);
+		Debug(L" <-- BkEvaluateRow()");
+	}
+
+	void DebugMessageHandler::SendEvaluateFinished(uint32_t seq, ResultCode rc, bool querySucceeded)
+	{
+		BackendToDebugger msg;
+		msg.set_reply_seq_no(seq);
+		auto endMsg = msg.mutable_evaluatefinished();
+		endMsg->set_result_code((StatusCode)rc);
+		endMsg->set_query_succeeded(querySucceeded);
+		Send(msg);
+		Debug(L" <-- BkEvaluateFinished()");
 	}
 }
