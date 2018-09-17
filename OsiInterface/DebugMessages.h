@@ -41,7 +41,11 @@ namespace osidbg
 		NotCallable = 10,
 		InvalidParameters = 11,
 		NoAdapter = 12,
-		InvalidEvalType = 13
+		InvalidEvalType = 13,
+		EvalEngineNotReady = 14,
+		InvalidParamTupleArity = 15,
+		InvalidParamType = 16,
+		MissingRequiredParam = 17
 	};
 
 	enum class EvalType

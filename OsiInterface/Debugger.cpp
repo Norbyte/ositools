@@ -692,7 +692,7 @@ namespace osidbg
 		if (params.column_size() != sig->Params->Params.Size) {
 			Debug(L"Debugger::EvaluateInServerThread(): Got %d params, but node %d has %d!",
 				params.column_size(), nodeId, sig->Params->Params.Size);
-			return ResultCode::InvalidParameters;
+			return ResultCode::InvalidParamTupleArity;
 		}
 
 		auto typeNode = sig->Params->Params.Head->Next;
@@ -702,7 +702,7 @@ namespace osidbg
 				&& !AreTypesCompatible(typeNode->Item.Type, typeId)) {
 				Debug(L"Debugger::EvaluateInServerThread(): Parameter %d type mismatch; expected %d, got %d!",
 					i, typeNode->Item.Type, typeId);
-				return ResultCode::InvalidParameters;
+				return ResultCode::InvalidParamType;
 			}
 			typeNode = typeNode->Next;
 
@@ -710,7 +710,7 @@ namespace osidbg
 				&& type != EvalType::Pushdown
 				&& !sig->OutParamList.isOutParam(i)) {
 				Debug(L"Debugger::EvaluateInServerThread(): Got a null value for IN parameter %d!", i);
-				return ResultCode::InvalidParameters;
+				return ResultCode::MissingRequiredParam;
 			}
 		}
 
@@ -722,7 +722,7 @@ namespace osidbg
 
 		if (globals_.TypedValueVMT == nullptr) {
 			Debug(L"Debugger::EvaluateInServerThread(): TypedValue VMT not available");
-			return ResultCode::NoAdapter;
+			return ResultCode::EvalEngineNotReady;
 		}
 
 		AdapterRef adapterRef;
