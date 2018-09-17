@@ -737,9 +737,14 @@ namespace osidbg
 		{
 			VirtTupleLL tuple;
 			MsgToTuple(params, tuple, globals_.TypedValueVMT);
-			node->IsValid(&tuple, &adapterRef);
-			TupClearOutParams(tuple, *sig);
+			// Evaluate whether the query succeeds
 			querySucceeded = node->IsValid(&tuple, &adapterRef);
+			// Fetch output values
+			TupClearOutParams(tuple, *sig);
+			node->IsValid(&tuple, &adapterRef);
+			// TODO - We need to do this twice, for some reason
+			TupClearOutParams(tuple, *sig);
+			node->IsValid(&tuple, &adapterRef);
 			messageHandler_.SendEvaluateRow(seq, tuple);
 			break;
 		}
