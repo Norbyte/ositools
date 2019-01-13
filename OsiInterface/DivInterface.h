@@ -1010,6 +1010,7 @@ enum DebugFlag
 
 typedef void (* COsirisOpenLogFileProc)(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
 typedef void (* COsirisCloseLogFileProc)(void * Osiris);
+typedef bool (* COsirisCompileProc)(void * Osiris, wchar_t const * path, wchar_t const * mode);
 typedef int (* COsirisInitGameProc)(void * Osiris);
 typedef int (* COsirisLoadProc)(void * Osiris, void * Buf);
 typedef bool (* COsirisMergeProc)(void * Osiris, wchar_t * Src);

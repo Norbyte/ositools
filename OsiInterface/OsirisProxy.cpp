@@ -3,6 +3,7 @@
 #include "NodeHooks.h"
 #include "DebugInterface.h"
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <chrono>
@@ -236,6 +237,13 @@ void OsirisProxy::Initialize()
 
 	OsirisLoadProc = (COsirisLoadProc)LoadProc;
 
+	FARPROC CompileProc = GetProcAddress(OsirisModule, "?Compile@COsiris@@QEAA_NPEB_W0@Z");
+	if (CompileProc == NULL) {
+		Fail(L"Could not locate COsiris::Compile in osiris_x64.dll");
+	}
+
+	OsirisCompileProc = (COsirisCompileProc)CompileProc;
+
 	FARPROC MergeProc = GetProcAddress(OsirisModule, "?Merge@COsiris@@QEAA_NPEB_W@Z");
 	if (MergeProc == NULL) {
 		Fail(L"Could not locate COsiris::Merge in osiris_x64.dll");
@@ -254,6 +262,7 @@ void OsirisProxy::Shutdown()
 	WrappedOsirisLoad.Unwrap();
 	WrappedRuleActionCall.Unwrap();
 	RegisterDivFunctions.Unwrap();
+	WrappedOsirisCompile.Unwrap();
 	WrappedOsirisReadHeader.Unwrap();
 	DetourTransactionCommit();
 
@@ -279,48 +288,62 @@ void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring co
 	LogDirectory = Path;
 }
 
-void OsirisProxy::RestartLogging()
+void OsirisProxy::EnableCompileLogging(bool Log)
+{
+	CompilationLogEnabled = Log;
+}
+
+void OsirisProxy::RestartLogging(std::wstring const & Type)
 {
 	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Globals.DebugFlags & 0x0000ffff));
 
-	if (LogFilename.empty())
+	if (LogFilename.empty() || LogType != Type)
 	{
-		BOOL created = CreateDirectoryW(LogDirectory.c_str(), NULL);
-		if (created == FALSE)
-		{
-			DWORD lastError = GetLastError();
-			if (lastError != ERROR_ALREADY_EXISTS)
-			{
-				std::wstringstream err;
-				err << L"Could not create log directory '" << LogDirectory << "': Error " << lastError;
-				Fail(err.str().c_str());
-			}
-		}
+		LogFilename = MakeLogFilePath(Type, L"log");
+		LogType = Type;
 
-		auto now = std::chrono::system_clock::now();
-		auto tt = std::chrono::system_clock::to_time_t(now);
-		std::tm tm;
-		gmtime_s(&tm, &tt);
-
-		std::wstringstream ss;
-		ss  << std::setfill(L'0') 
-			<< (tm.tm_year + 1900) << "-" 
-			<< std::setw(2) << (tm.tm_mon + 1) << "-"
-			<< std::setw(2) << tm.tm_mday << " "
-			<< std::setw(2) << tm.tm_hour << "-"
-			<< std::setw(2) << tm.tm_min << "-"
-			<< std::setw(2) << tm.tm_sec << ".log";
-		LogFilename = LogDirectory + L"\\" + ss.str();
-
-		Debug(L"OsirisProxy::RestartLogging: Starting debug logging.\r\n"
+		Debug(L"OsirisProxy::RestartLogging: Starting %s debug logging.\r\n"
 			"\tPath=%s\r\n"
 			"\tOriginalDebugFlags=%08x\r\n"
-			"\tDebugFlags=%08x", LogFilename.c_str(), *Globals.DebugFlags, NewFlags);
+			"\tDebugFlags=%08x", 
+			Type.c_str(), LogFilename.c_str(), *Globals.DebugFlags, NewFlags);
 	}
 
 	OsirisCloseLogFileProc(Globals.OsirisObject);
 	*Globals.DebugFlags = NewFlags;
 	OsirisOpenLogFileProc(Globals.OsirisObject, LogFilename.c_str(), L"ab+");
+}
+
+std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
+{
+	BOOL created = CreateDirectoryW(LogDirectory.c_str(), NULL);
+	if (created == FALSE)
+	{
+		DWORD lastError = GetLastError();
+		if (lastError != ERROR_ALREADY_EXISTS)
+		{
+			std::wstringstream err;
+			err << L"Could not create log directory '" << LogDirectory << "': Error " << lastError;
+			Fail(err.str().c_str());
+		}
+	}
+
+	auto now = std::chrono::system_clock::now();
+	auto tt = std::chrono::system_clock::to_time_t(now);
+	std::tm tm;
+	gmtime_s(&tm, &tt);
+
+	std::wstringstream ss;
+	ss << LogDirectory << L"\\"
+		<< Type << L" "
+		<< std::setfill(L'0')
+		<< (tm.tm_year + 1900) << L"-"
+		<< std::setw(2) << (tm.tm_mon + 1) << L"-"
+		<< std::setw(2) << tm.tm_mday << L" "
+		<< std::setw(2) << tm.tm_hour << L"-"
+		<< std::setw(2) << tm.tm_min << L"-"
+		<< std::setw(2) << tm.tm_sec << L"." << Extension;
+	return ss.str();
 }
 
 void OsirisProxy::HookNodeVMTs()
@@ -376,6 +399,7 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
+		WrappedOsirisCompile.Wrap(OsirisCompileProc, &SOsirisCompile);
 		WrappedOsirisLoad.Wrap(OsirisLoadProc, &SOsirisLoad);
 		WrappedOsirisMerge.Wrap(OsirisMergeProc, &SOsirisMerge);
 		WrappedRuleActionCall.Wrap(OriginalRuleActionCallProc, &SRuleActionCall);
@@ -383,7 +407,7 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 	}
 
 	if (LoggingEnabled) {
-		RestartLogging();
+		RestartLogging(L"Runtime");
 	}
 
 #if 0
@@ -401,8 +425,9 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 
 			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
 		}
-	} else {
+	} else if (!DebugDisableLogged){
 		Debug(L"Debugging not enabled; not starting debugger server thread.");
+		DebugDisableLogged = true;
 	}
 
 	return RegisterDivFunctions(Osiris, Functions);
@@ -466,6 +491,7 @@ bool OsirisProxy::SQueryWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
 
 void OsirisProxy::ErrorWrapper(char const * Message)
 {
+	Debug("Osiris Error: %s", Message);
 	ErrorOriginal(Message);
 }
 
@@ -505,6 +531,63 @@ int OsirisProxy::OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __
 int OsirisProxy::SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags)
 {
 	return gOsirisProxy->OsirisReadHeader(Osiris, OsiSmartBuf, MajorVersion, MinorVersion, BigEndian, Unused, StoryFileVersion, DebugFlags);
+}
+
+
+bool OsirisProxy::OsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode)
+{
+	Debug(L"OsirisProxy::OsirisCompile: Starting compilation of '%s'", Path);
+	auto OriginalFlags = *Globals.DebugFlags;
+	auto storyPath = MakeLogFilePath(L"Compile", L"div");
+
+	if (CompilationLogEnabled) {
+		*Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
+		CopyFileW(Path, storyPath.c_str(), TRUE);
+		RestartLogging(L"Compile");
+	}
+
+	auto ret = WrappedOsirisCompile(Osiris, Path, Mode);
+
+	if (ret) {
+		Debug(L"OsirisProxy::OsirisCompile: Success.");
+	} else {
+		Debug(L"OsirisProxy::OsirisCompile: Compilation FAILED.");
+	}
+
+	if (CompilationLogEnabled) {
+		*Globals.DebugFlags = OriginalFlags;
+		OsirisCloseLogFileProc(Globals.OsirisObject);
+
+		if (ret) {
+			DeleteFileW(storyPath.c_str());
+			DeleteFileW(LogFilename.c_str());
+		} else {
+			auto filteredLogPath = MakeLogFilePath(L"Compile", L"final.log");
+			std::ifstream logIn(LogFilename.c_str(), std::ios::in);
+			std::ofstream logOut(filteredLogPath.c_str(), std::ios::out);
+			std::string logLine;
+
+			while (std::getline(logIn, logLine)) {
+				if (logLine.length() < 9 ||
+					(memcmp(logLine.c_str(), ">>> call", 8) != 0 &&
+					 memcmp(logLine.c_str(), ">>> Auto-", 9) != 0)) {
+					logOut << logLine << std::endl;
+				}
+			}
+
+			logIn.close();
+			logOut.close();
+
+			DeleteFileW(LogFilename.c_str());
+		}
+	}
+
+	return ret;
+}
+
+bool OsirisProxy::SOsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode)
+{
+	return gOsirisProxy->OsirisCompile(Osiris, Path, Mode);
 }
 
 int OsirisProxy::OsirisLoad(void * Osiris, void * Buf)

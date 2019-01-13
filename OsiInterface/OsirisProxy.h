@@ -31,7 +31,12 @@ public:
 
 		OriginalFunc = Function;
 		NewFunc = NewFunction;
-		DetourAttachEx((PVOID *)&OriginalFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
+		auto status = DetourAttachEx((PVOID *)&OriginalFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
+		if (status != NO_ERROR) {
+			std::wstringstream ss;
+			ss << "Detour attach failed: error " << status;
+			Fail(ss.str().c_str());
+		}
 	}
 
 	void Unwrap()
@@ -76,6 +81,7 @@ public:
 	void EnableDebugging(bool Enabled, uint16_t Port);
 	void EnableHooks(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
+	void EnableCompileLogging(bool Log);
 
 	inline OsirisGlobals const & GetGlobals() const
 	{
@@ -132,6 +138,7 @@ private:
 
 	COsirisCloseLogFileProc OsirisCloseLogFileProc;
 	COsirisOpenLogFileProc OsirisOpenLogFileProc;
+	COsirisCompileProc OsirisCompileProc;
 	COsirisInitGameProc OsirisInitGameProc;
 	COsirisDeleteAllDataProc OsirisDeleteAllDataProc;
 	COsirisReadHeaderProc OsirisReadHeaderProc;
@@ -142,6 +149,10 @@ private:
 	int OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 	static int SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 	WrappedFunction<int(void *, void *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, char *, unsigned int *)> WrappedOsirisReadHeader;
+
+	bool OsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
+	static bool SOsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
+	WrappedFunction<bool(void *, wchar_t const *, wchar_t const *)> WrappedOsirisCompile;
 
 	int OsirisLoad(void * Osiris, void * Buf);
 	static int SOsirisLoad(void * Osiris, void * Buf);
@@ -159,9 +170,11 @@ private:
 	bool DebuggingEnabled{ false };
 	uint16_t DebuggerPort;
 	bool LoggingEnabled{ false };
+	bool CompilationLogEnabled{ false };
 	DebugFlag DesiredLogLevel;
 	std::wstring LogDirectory;
 	std::wstring LogFilename;
+	std::wstring LogType;
 
 	std::thread * DebuggerThread{ nullptr };
 	bool StoryLoaded{ false };
@@ -169,6 +182,7 @@ private:
 	std::unique_ptr<DebugInterface> debugInterface_;
 	std::unique_ptr<DebugMessageHandler> debugMsgHandler_;
 	std::unique_ptr<Debugger> debugger_;
+	bool DebugDisableLogged{ false };
 
 	void * FindRuleActionCallProc();
 	void FindOsirisGlobals(FARPROC CtorProc);
@@ -176,7 +190,8 @@ private:
 	void ResolveNodeVMTs(NodeDb * Db);
 	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
 	void HookNodeVMTs();
-	void RestartLogging();
+	void RestartLogging(std::wstring const & Type);
+	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
 };
 
 extern std::unique_ptr<OsirisProxy> gOsirisProxy;

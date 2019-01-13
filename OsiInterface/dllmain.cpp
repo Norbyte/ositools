@@ -15,6 +15,7 @@ struct ToolConfig
 {
 	bool CreateConsole{ true };
 	bool EnableLogging{ false };
+	bool LogCompile{ false };
 	bool EnableDebugger{ true };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
@@ -55,6 +56,16 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 			config.EnableLogging = enableLogging.asBool();
 		} else {
 			Fail(L"Config option 'EnableLogging' should be a boolean.");
+		}
+	}
+
+	auto logCompile = root["LogCompile"];
+	if (!logCompile.isNull()) {
+		if (logCompile.isBool()) {
+			config.LogCompile = logCompile.asBool();
+		}
+		else {
+			Fail(L"Config option 'LogCompile' should be a boolean.");
 		}
 	}
 
@@ -126,6 +137,7 @@ void SetupOsirisProxy(HMODULE hModule)
 		}
 
 		osidbg::gOsirisProxy->SetupLogging(true, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
+		osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
 		Debug(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
 	}
 
