@@ -91,10 +91,9 @@ namespace osidbg
 			return true;
 		}
 
-		void Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback)
+		void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
 		{
 			uint8_t initial = pattern_[0].pattern;
-			auto end = start + length - pattern_.size();
 
 			for (auto p = start; p < end; p++) {
 				if (*p == initial) {
@@ -102,6 +101,59 @@ namespace osidbg
 						callback(p);
 					}
 				}
+			}
+		}
+
+		void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
+		{
+			uint16_t initial = pattern_[0].pattern
+				| (pattern_[1].pattern << 8);
+
+			for (auto p = start; p < end; p++) {
+				if (*reinterpret_cast<uint16_t const *>(p) == initial) {
+					if (MatchPattern(p)) {
+						callback(p);
+					}
+				}
+			}
+		}
+
+		void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
+		{
+			uint32_t initial = pattern_[0].pattern
+				| (pattern_[1].pattern << 8)
+				| (pattern_[2].pattern << 16)
+				| (pattern_[3].pattern << 24);
+
+			for (auto p = start; p < end; p++) {
+				if (*reinterpret_cast<uint32_t const *>(p) == initial) {
+					if (MatchPattern(p)) {
+						callback(p);
+					}
+				}
+			}
+		}
+
+		void Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback)
+		{
+			// Check prefix length
+			auto prefixLength = 0;
+			for (auto i = 0; i < pattern_.size(); i++) {
+				if (pattern_[i].mask == 0xff) {
+					prefixLength++;
+				}
+				else {
+					break;
+				}
+			}
+
+			auto end = start + length - pattern_.size();
+			if (prefixLength >= 4) {
+				ScanPrefix4(start, end, callback);
+			} else if (prefixLength >= 2) {
+				ScanPrefix2(start, end, callback);
+			} else {
+				ScanPrefix1(start, end, callback);
 			}
 		}
 	};
