@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Functions">
+      <UniqueIdentifier>{d2b6899d-6374-4a36-9af3-fff1fe2db71c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -63,13 +66,13 @@
     <ClInclude Include="DataLibraries.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FunctionLibrary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OsiInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DivInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Functions\FunctionLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,14 +116,29 @@
     <ClCompile Include="DataLibraries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionLibrary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DivInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionUtilities.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="Functions\UtilityFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\FunctionLibrary.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\FunctionUtilities.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\StatFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\StatusFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\GameActionFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Functions\ProjectileFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

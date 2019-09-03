@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CustomFunctions.h"
+#include "../CustomFunctions.h"
 
 namespace osidbg
 {
@@ -32,6 +32,11 @@ namespace osidbg
 		CustomFunctionLibrary(class OsirisProxy & osiris);
 
 		void Register();
+		void RegisterHelperFunctions();
+		void RegisterStatFunctions();
+		void RegisterStatusFunctions();
+		void RegisterGameActionFunctions();
+		void RegisterProjectileFunctions();
 
 	private:
 		OsirisProxy & osiris_;

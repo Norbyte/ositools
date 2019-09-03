@@ -1,7 +1,6 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "FunctionLibrary.h"
-#include "OsirisProxy.h"
-#include <random>
+#include <OsirisProxy.h>
 
 namespace osidbg
 {

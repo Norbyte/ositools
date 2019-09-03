@@ -198,7 +198,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -224,7 +224,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -298,7 +298,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;OSI_NO_DEBUGGER;OSI_EXTENSION_BUILD;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -330,7 +330,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\Detours\include;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -359,8 +359,8 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="DebugMessages.h" />
     <ClInclude Include="DivInterface.h" />
     <ClInclude Include="DxgiWrapper.h" />
+    <ClInclude Include="Functions\FunctionLibrary.h" />
     <ClInclude Include="OsiInterface.h" />
-    <ClInclude Include="FunctionLibrary.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
     <ClInclude Include="OsirisProxy.h" />
@@ -415,8 +415,13 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="DxgiWrapper.cpp" />
-    <ClCompile Include="FunctionLibrary.cpp" />
-    <ClCompile Include="FunctionUtilities.cpp" />
+    <ClCompile Include="Functions\FunctionLibrary.cpp" />
+    <ClCompile Include="Functions\FunctionUtilities.cpp" />
+    <ClCompile Include="Functions\GameActionFunctions.cpp" />
+    <ClCompile Include="Functions\ProjectileFunctions.cpp" />
+    <ClCompile Include="Functions\StatFunctions.cpp" />
+    <ClCompile Include="Functions\StatusFunctions.cpp" />
+    <ClCompile Include="Functions\UtilityFunctions.cpp" />
     <ClCompile Include="NodeHooks.cpp" />
     <ClCompile Include="osidebug.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

@@ -7,7 +7,7 @@
 #include "OsirisWrappers.h"
 #include "CustomFunctions.h"
 #include "DataLibraries.h"
-#include "FunctionLibrary.h"
+#include "Functions/FunctionLibrary.h"
 
 #include <thread>
 
