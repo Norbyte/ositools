@@ -75,6 +75,9 @@
     <ClInclude Include="Functions\FunctionLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DivBaseTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

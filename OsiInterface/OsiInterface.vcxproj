@@ -357,6 +357,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="DebugInterface.h" />
     <ClInclude Include="DebugMessages.h" />
+    <ClInclude Include="DivBaseTypes.h" />
     <ClInclude Include="DivInterface.h" />
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />
