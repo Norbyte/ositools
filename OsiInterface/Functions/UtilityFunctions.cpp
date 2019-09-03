@@ -10,8 +10,7 @@ namespace osidbg
 		void Log(OsiArgumentDesc const & args)
 		{
 			auto msg = args.Get(0).ToString();
-			Debug("[Osiris] %s", msg.c_str());
-			gOsirisProxy->GetWrappers().AssertOriginal(false, msg.c_str(), false);
+			OsiMsg(msg);
 		}
 
 		std::unique_ptr<std::mt19937_64> OsiRng;

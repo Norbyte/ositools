@@ -25,6 +25,7 @@ namespace osidbg
 
 		void DoExperiment(OsiArgumentDesc const & args)
 		{
+			OsiError("Nothing to see here");
 		}
 	}
 

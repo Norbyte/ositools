@@ -10,6 +10,10 @@ namespace osidbg
 
 		void ProjectileBegin(OsiArgumentDesc const & args)
 		{
+			if (ProjectileHelper) {
+				OsiWarn("ProjectileBegin(): Destroying active ProjectileHelper?");
+			}
+
 			ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
 		}
 
@@ -22,7 +26,7 @@ namespace osidbg
 			}
 			else
 			{
-				Debug("ProjectileEnd(): No projectile to shoot!");
+				OsiError("ProjectileEnd(): No projectile to shoot!");
 			}
 		}
 
@@ -31,7 +35,11 @@ namespace osidbg
 			auto prop = args.Get(0).String;
 			auto value = args.Get(1).Int32;
 
-			if (!ProjectileHelper) return;
+			if (!ProjectileHelper) {
+				OsiError("ProjectileSetInt(): Called when no projectile is active!");
+				return;
+			}
+
 			ProjectileHelper->SetInt(prop, value);
 		}
 
@@ -40,7 +48,11 @@ namespace osidbg
 			auto prop = args.Get(0).String;
 			auto value = args.Get(1).String;
 
-			if (!ProjectileHelper) return;
+			if (!ProjectileHelper) {
+				OsiError("ProjectileSetString(): Called when no projectile is active!");
+				return;
+			}
+
 			ProjectileHelper->SetString(prop, value);
 		}
 
@@ -49,7 +61,11 @@ namespace osidbg
 			auto prop = args.Get(0).String;
 			auto value = args.Get(1).String;
 
-			if (!ProjectileHelper) return;
+			if (!ProjectileHelper) {
+				OsiError("ProjectileSetGuidString(): Called when no projectile is active!");
+				return;
+			}
+
 			ProjectileHelper->SetGuidString(prop, value);
 		}
 
@@ -61,7 +77,11 @@ namespace osidbg
 			vec[1] = args.Get(2).Float;
 			vec[2] = args.Get(3).Float;
 
-			if (!ProjectileHelper) return;
+			if (!ProjectileHelper) {
+				OsiError("ProjectileSetVector3(): Called when no projectile is active!");
+				return;
+			}
+
 			ProjectileHelper->SetVector(prop, vec);
 		}
 	}

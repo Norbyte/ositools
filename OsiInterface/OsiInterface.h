@@ -101,7 +101,7 @@ struct OsiArgumentValue
 		switch (TypeId)
 		{
 		case ValueType::None:
-			return "<Untyped>";
+			return "(Untyped)";
 
 		case ValueType::Integer:
 			return std::to_string(Int32);
@@ -113,8 +113,6 @@ struct OsiArgumentValue
 			return std::to_string(Float);
 
 		case ValueType::String:
-			return std::string("\"") + String + "\"";
-
 		case ValueType::GuidString:
 			return String;
 

@@ -92,6 +92,25 @@ void OsirisProxy::EnableCompileLogging(bool Log)
 	CompilationLogEnabled = Log;
 }
 
+void OsirisProxy::LogOsirisError(std::string const & msg)
+{
+	LogOsirisMsg("{E} " + msg);
+}
+
+void OsirisProxy::LogOsirisWarning(std::string const & msg)
+{
+	LogOsirisMsg("{W} " + msg);
+}
+
+void OsirisProxy::LogOsirisMsg(std::string const & msg)
+{
+	auto log = "[Osiris] " + msg;
+	Debug("%s", log.c_str());
+	if (StoryLoaded) {
+		Wrappers.AssertOriginal(false, log.c_str(), false);
+	}
+}
+
 void OsirisProxy::RestartLogging(std::wstring const & Type)
 {
 	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));

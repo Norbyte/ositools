@@ -51,11 +51,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
+				OsiError("GetStatAttributeInt(): Stat object '" << statName << "' does not exist");
 				return false;
 			}
 
 			auto value = stats->GetAttributeInt(object, attributeName);
 			if (!value) {
+				OsiError("GetStatAttributeInt(): Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
 			}
 
@@ -75,11 +77,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
+				OsiError("GetStatAttributeString(): Stat object '" << statName << "' does not exist");
 				return false;
 			}
 
 			auto value = stats->GetAttributeFixedString(object, attributeName);
 			if (!value) {
+				OsiError("GetStatAttributeString(): Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
 			}
 
@@ -98,6 +102,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statsId);
 			if (object == nullptr) {
+				OsiError("GetStatType(): Stat object '" << statsId << "' does not exist");
 				return false;
 			}
 
@@ -122,6 +127,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
+				OsiError("SetStatAttributeInt(): Stat object '" << statName << "' does not exist");
 				return;
 			}
 
@@ -140,6 +146,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
+				OsiError("SetStatAttributeString(): Stat object '" << statName << "' does not exist");
 				return;
 			}
 

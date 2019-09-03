@@ -13,6 +13,24 @@
 
 namespace osidbg {
 
+#define OsiError(msg) { \
+	std::stringstream ss; \
+	ss << msg; \
+	gOsirisProxy->LogOsirisError(ss.str()); \
+}
+
+#define OsiWarn(msg) { \
+	std::stringstream ss; \
+	ss << msg; \
+	gOsirisProxy->LogOsirisWarning(ss.str()); \
+}
+
+#define OsiMsg(msg) { \
+	std::stringstream ss; \
+	ss << msg; \
+	gOsirisProxy->LogOsirisMsg(ss.str()); \
+}
+
 class OsirisProxy
 {
 public:
@@ -23,6 +41,10 @@ public:
 	void EnableExtensions(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 	void EnableCompileLogging(bool Log);
+
+	void LogOsirisError(std::string const & msg);
+	void LogOsirisWarning(std::string const & msg);
+	void LogOsirisMsg(std::string const & msg);
 
 	inline OsirisStaticGlobals const & GetGlobals() const
 	{

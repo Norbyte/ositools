@@ -11,11 +11,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
+				OsiError("PrepareAction(): Character '" << args.Get(0).String << "' does not exist!");
 				return nullptr;
 			}
 
 			auto skillId = ToFixedString(args.Get(1).String);
 			if (!skillId) {
+				OsiError("PrepareAction(): '" << args.Get(1).String << "' is not a valid FixedString!");
 				return nullptr;
 			}
 
@@ -70,11 +72,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
+				OsiError("CreateWall(): Character '" << args.Get(0).String << "' does not exist!");
 				return;
 			}
 
 			auto skillId = ToFixedString(args.Get(1).String);
 			if (!skillId) {
+				OsiError("CreateWall(): '" << args.Get(1).String << "' is not a valid FixedString!");
 				return;
 			}
 
@@ -85,11 +89,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(args.Get(1).String);
 			if (object == nullptr) {
+				OsiError("CreateWall(): No such skill entry: '" << args.Get(1).String << "'");
 				return;
 			}
 
 			auto lifetime = stats->GetAttributeInt(object, "Lifetime");
 			if (!lifetime) {
+				OsiError("CreateWall(): Couldn't fetch lifetime of skill '" << args.Get(1).String << "'");
 				return;
 			}
 
@@ -146,12 +152,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
+				OsiError("Summon(): Character '" << args.Get(0).String << "' does not exist!");
 				return false;
 			}
 
 			auto objectTemplate = NameGuidToFixedString(args.Get(1).String);
 			if (!objectTemplate) {
-				Debug("Summon(): Template '%s' not in FixedString table!", args.Get(1).String);
+				OsiError("Summon(): Template '" << args.Get(1).String << "' not in FixedString table!");
 				return false;
 			}
 
@@ -211,6 +218,7 @@ namespace osidbg
 				}
 			}
 			else {
+				OsiError("Summon(): esv::SummonHelpers::Summon() call failed!");
 				return false;
 			}
 		}

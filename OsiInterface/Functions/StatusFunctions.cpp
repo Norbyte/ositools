@@ -12,6 +12,7 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
+				OsiError("IterateCharacterStatuses(): Character " << args.Get(0).String << " does not exist!");
 				return;
 			}
 
@@ -37,14 +38,20 @@ namespace osidbg
 		EsvStatus * GetStatusHelper(OsiArgumentDesc const & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
-			if (character == nullptr || character->StatusManager == nullptr) {
+			if (character == nullptr) {
+				OsiError("GetStatusHelper(): Character " << args.Get(0).String << " does not exist!");
+				return nullptr;
+			}
+
+			if (character->StatusManager == nullptr) {
+				OsiError("GetStatusHelper(): Character " << args.Get(0).String << " has no StatusManager!");
 				return nullptr;
 			}
 
 			auto handle = args.Get(1).Int64;
 			auto statuses = character->StatusManager;
 			if (handle < 0 || handle >= statuses->StatusCount) {
-				Debug("GetStatusHelper(): Status handle out of bounds");
+				OsiError("GetStatusHelper(): Status handle out of bounds");
 				return nullptr;
 			}
 
@@ -63,7 +70,7 @@ namespace osidbg
 				args.Get(3).String = const_cast<char *>(status->StatusId.Str);
 			}
 			else {
-				Debug("GetStatusAttributeString(): Unknown attribute");
+				OsiError("GetStatusAttributeString(): Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -92,7 +99,7 @@ namespace osidbg
 				handle = status->SomeHandle;
 			}
 			else {
-				Debug("GetStatusAttributeGuidString(): Unknown attribute");
+				OsiError("GetStatusAttributeGuidString(): Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -132,7 +139,7 @@ namespace osidbg
 				args.Get(3).Float = status->StatsMultiplier;
 			}
 			else {
-				Debug("GetStatusAttributeFloat(): Unknown attribute");
+				OsiError("GetStatusAttributeFloat(): Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -202,7 +209,7 @@ namespace osidbg
 				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_Started) ? 1 : 0;
 			}
 			else {
-				Debug("GetStatusAttributeInt(): Unknown attribute");
+				OsiError("GetStatusAttributeInt(): Unknown attribute: " << attributeName);
 				return false;
 			}
 
