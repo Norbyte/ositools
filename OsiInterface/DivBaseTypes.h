@@ -12,6 +12,11 @@
 namespace osidbg
 {
 #pragma pack(push, 1)
+	struct Vector3
+	{
+		float X, Y, Z;
+	};
+
 	template <class T>
 	struct PrimitiveSet
 	{
@@ -93,13 +98,52 @@ namespace osidbg
 		}
 	};
 
+	template <class ValueType>
+	struct FixedStringRefMap
+	{
+		struct Node
+		{
+			Node * Next;
+			FixedString Key;
+			ValueType Value;
+		};
+
+		uint32_t ItemCount;
+		uint32_t HashSize;
+		Node ** HashTable;
+
+		ValueType * Find(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			if (fs) {
+				auto item = HashTable[(uint64_t)fs.Str % HashSize];
+				while (item != nullptr) {
+					if (fs.Str == item->Key.Str) {
+						return &item->Value;
+					}
+
+					item = item->Next;
+				}
+			}
+
+			return nullptr;
+		}
+	};
+
+	template <class T>
+	struct Set
+	{
+		T * Buf;
+		uint32_t Capacity;
+		uint32_t Size;
+		uint64_t CapacityIncrementSize;
+	};
+
+	template <class T>
 	struct ObjectSet
 	{
 		void * Unknown;
-		void * Buf;
-		uint32_t Capacity;
-		uint32_t Size;
-		void * Unknown2;
+		Set<T> Set;
 	};
 
 	struct TranslatedString

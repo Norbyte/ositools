@@ -26,11 +26,11 @@ namespace osidbg
 		FixedStringMapBase<int> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
-		ObjectSet Requirements;
-		ObjectSet MemorizationRequirements;
-		ObjectSet CrimeReactionPriorities;
-		ObjectSet StringProperties1;
-		ObjectSet ComboCategories;
+		ObjectSet<void *> Requirements; // Set<Requirement>
+		ObjectSet<void *> MemorizationRequirements; // Set<Requirement>
+		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
+		ObjectSet<FixedString> StringProperties1;
+		ObjectSet<FixedString> ComboCategories;
 		void * SomeSTDWSTRING;
 		uint64_t C[3];
 		uint32_t Using;
@@ -100,7 +100,6 @@ namespace osidbg
 	struct ModifierList
 	{
 		CNamedElementManager<CRPGStats_Modifier> Attributes;
-		//uint32_t Unused;
 		FixedString Name;
 
 		CRPGStats_Modifier * GetAttributeInfo(const char * name, int * attributeIndex) const;
@@ -256,7 +255,7 @@ namespace osidbg
 		uint8_t _Pad1[3];
 		ObjectHandle ObjHandle1;
 		ObjectHandle TargetCIHandle;
-		ObjectSet StatusOwner;
+		ObjectSet<ObjectHandle> StatusOwner;
 		ObjectHandle StatusSourceHandle;
 		ObjectHandle SomeHandle;
 		uint8_t Flags2;
@@ -274,6 +273,70 @@ namespace osidbg
 		uint32_t U3;
 		uint32_t StatusCount;
 		uint64_t U4[4];
+	};
+
+	struct EsvSkillConditions
+	{
+		int32_t MinimumHealthPercentage;
+		int32_t MaximumHealthPercentage;
+		bool HasNoPhysicalArmor;
+		bool HasNoMagicalArmor;
+		uint8_t _Pad[6];
+		ObjectSet<FixedString> Tags;
+	};
+
+	struct EsvSkillInfo
+	{
+		float ScoreModifier;
+		int32_t StartRound;
+		int32_t MinimumImpact;
+		bool OnlyCastOnSelf;
+		uint8_t AIFlags; // Enum
+		uint8_t _Pad[2];
+		EsvSkillConditions SourceConditions;
+		EsvSkillConditions TargetConditions;
+		bool CasualExplorer;
+		bool Classic;
+		bool TacticianHardcore;
+		bool HonorHardcore;
+		uint32_t Unknown;
+	};
+
+	struct EsvSkill
+	{
+		void * VMT;
+		FixedString UnknownFS;
+		uint32_t NetID;
+		uint8_t _Pad[4];
+		EsvSkillInfo Info;
+		ObjectSet<ObjectHandle> CauseList;
+		ObjectHandle UnknownHandle;
+		uint32_t Unknown1;
+		uint8_t _Pad2[4];
+		ObjectHandle OwnerHandle;
+		FixedString SkillId;
+		float ActiveCooldown;
+		bool IsActivated;
+		bool IsLearned;
+		bool ZeroMemory;
+		bool OncePerCombat;
+		bool Unknown2;
+		uint8_t _Pad3[3];
+		uint32_t NumCharges;
+		uint8_t _Pad4[4];
+		uint64_t Unknown3;
+	};
+
+	struct EsvSkillManager
+	{
+		void * FreeSkillState;
+		ObjectHandle OwnerHandle;
+		FixedStringMapBase<EsvSkill *> Skills;
+		uint8_t _Pad[4];
+		FixedStringRefMap<uint32_t> TimeItemAddedToSkillManager;
+		bool IsLoading;
+		uint8_t _Pad2[3];
+		uint32_t SomeCount;
 	};
 
 	struct EsvCharacter
@@ -348,7 +411,7 @@ namespace osidbg
 		void * AnimationOverrideFS;
 		uint32_t WalkSpeedOverride;
 		uint32_t RunSpeedOverride;
-		ObjectSet VoiceSet;
+		ObjectSet<FixedString> VoiceSet;
 		bool NeedsUpdate;
 		bool ScriptForceUpdate;
 		bool ForceSynch;
@@ -364,7 +427,7 @@ namespace osidbg
 		uint64_t U8[5];
 		void * TaskController;
 		EsvStatusManager * StatusManager;
-		void * SkillManager;
+		EsvSkillManager * SkillManager;
 		void * VariableManager;
 		void * RaceVariableManager_M;
 		void * Attitudes;
@@ -383,15 +446,15 @@ namespace osidbg
 		ObjectHandle SpiritCharacterHandle;
 		ObjectHandle CorpseCharacterHandle;
 		ObjectHandle ObjectHandle6;
-		ObjectSet EnemyHandleSet;
-		ObjectSet SurfacePathInfluenceSet;
-		ObjectSet SummonHandleSet;
+		ObjectSet<ObjectHandle> EnemyHandles;
+		ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePAthInfluence>
+		ObjectSet<ObjectHandle> SummonHandles;
 		void * PlanManager;
 		uint32_t PartialAP;
 		uint32_t _Pad6;
 		void * StatusManagerDirty_M;
-		ObjectSet ObjectHandleSet3;
-		ObjectSet RegisteredTriggerFSSet;
+		ObjectSet<ObjectHandle> ObjectHandleSet3;
+		ObjectSet<FixedString> RegisteredTriggers;
 		void * PlayerData;
 		void * PlayerUpgrade;
 		uint64_t U13[20];
@@ -405,9 +468,10 @@ namespace osidbg
 		uint32_t _Pad7;
 		void * AnimationSetOverride;
 		ObjectHandle PartyHandle;
-		ObjectSet CreatedTemplateItems;
+		ObjectSet<FixedString> CreatedTemplateItems;
 		void * Treasures;
-		ObjectSet customTradeTreasure;
+		Set<ObjectHandle> CustomTradeTreasure;
+		uint64_t U141;
 		void * Target;
 		uint64_t U15[3];
 		ObjectHandle CrimeHandle;
@@ -598,13 +662,13 @@ namespace osidbg
 		float HitRadius;
 		uint32_t _Pad4;
 		uint64_t _Unk2;
-		ObjectSet AnchorList; // Vec3 set
+		ObjectSet<Vector3> AnchorList;
 		uint64_t Anchor;
 		float Interpolation;
 		uint32_t _Unk3;
 		ObjectHandle SurfaceActionHandle;
-		ObjectSet HitCharacterHandles;
-		ObjectSet HitItemHandles;
+		ObjectSet<ObjectHandle> HitCharacterHandles;
+		ObjectSet<ObjectHandle> HitItemHandles;
 		FixedString CleanseStatuses;
 		float StatusClearChance;
 	};
@@ -621,9 +685,9 @@ namespace osidbg
 		bool IsFromItem;
 		uint8_t _Pad3[6];
 		uint64_t Unkn[3 * 5];
-		ObjectSet FSSet;
-		ObjectSet ProjectileTargetDescSet;
-		ObjectSet StrikeSet;
+		ObjectSet<FixedString> FSSet;
+		ObjectSet<void *> ProjectileTargetDescSet;
+		ObjectSet<void *> StrikeSet;
 	};
 
 	struct EsvRainAction : public EsvGameAction
@@ -652,7 +716,7 @@ namespace osidbg
 		float Source[3];
 		float LifeTime;
 		uint8_t _Pad3[4];
-		ObjectSet Walls;
+		ObjectSet<void *> Walls;
 		float TurnTimer;
 		bool Finished;
 		bool IsFromItem;
