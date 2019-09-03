@@ -14,13 +14,21 @@ namespace osidbg
 			gOsirisProxy->GetWrappers().AssertOriginal(false, msg.c_str(), false);
 		}
 
+		std::unique_ptr<std::mt19937_64> OsiRng;
+
 		bool RandomFloat(OsiArgumentDesc & args)
 		{
 			auto min = args.Get(0).Float;
 			auto max = args.Get(1).Float;
+
+			if (!OsiRng) {
+				OsiRng = std::make_unique<std::mt19937_64>();
+				time_t tm;
+				OsiRng->seed(time(&tm));
+			}
+
 			std::uniform_real_distribution<float> dist(min, max);
-			std::mt19937_64 rng(12345);
-			args.Get(2).Float = dist(rng);
+			args.Get(2).Float = dist(*OsiRng);
 			return true;
 		}
 
