@@ -7,7 +7,18 @@ void Fail(TCHAR const * reason)
 	DebugBreak();
 #endif
 	Debug(L"%s", reason);
-	MessageBox(NULL, reason, L"OsirisDebuggerBackend Error", MB_OK | MB_ICONERROR);
+	MessageBoxW(NULL, reason, L"OsirisDebuggerBackend Error", MB_OK | MB_ICONERROR);
+	TerminateProcess(GetCurrentProcess(), 1);
+}
+
+[[noreturn]]
+void Fail(char const * reason)
+{
+#if defined(_DEBUG)
+	DebugBreak();
+#endif
+	Debug("%s", reason);
+	MessageBoxA(NULL, reason, "OsirisDebuggerBackend Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 

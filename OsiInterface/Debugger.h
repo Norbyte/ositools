@@ -1,9 +1,11 @@
 #pragma once
 
+#if !defined(OSI_NO_DEBUGGER)
+
 #include <cstdint>
 #include <concurrent_queue.h>
 #include "osidebug.pb.h"
-#include "DivInterface.h"
+#include "OsiInterface.h"
 #include "DebugMessages.h"
 
 namespace osidbg
@@ -70,7 +72,7 @@ namespace osidbg
 	public:
 		const unsigned MaxColumns = 16;
 
-		DebugAdapterMap(OsirisGlobals const &);
+		DebugAdapterMap(OsirisStaticGlobals const &);
 
 		void UpdateAdapters();
 		bool HasAllAdapters();
@@ -79,7 +81,7 @@ namespace osidbg
 	private:
 		void TryAddAdapter(Adapter * adapter);
 
-		OsirisGlobals const & globals_;
+		OsirisStaticGlobals const & globals_;
 		// Mapping of a rule action to its call site (rule then part, goal init/exit)
 		std::unordered_map<uint8_t, Adapter *> adapters_;
 	};
@@ -87,13 +89,13 @@ namespace osidbg
 	class RuleActionMap
 	{
 	public:
-		RuleActionMap(OsirisGlobals const &);
+		RuleActionMap(OsirisStaticGlobals const &);
 
 		void UpdateRuleActionMappings();
 		RuleActionMapping const * FindActionMapping(RuleActionNode * action);
 
 	private:
-		OsirisGlobals const & globals_;
+		OsirisStaticGlobals const & globals_;
 		// Mapping of a rule action to its call site (rule then part, goal init/exit)
 		std::unordered_map<RuleActionNode *, RuleActionMapping> ruleActionMappings_;
 
@@ -103,7 +105,7 @@ namespace osidbg
 	class BreakpointManager
 	{
 	public:
-		BreakpointManager(OsirisGlobals const &);
+		BreakpointManager(OsirisStaticGlobals const &);
 
 		ResultCode SetGlobalBreakpoints(GlobalBreakpointType type);
 		void ClearAllBreakpoints();
@@ -144,7 +146,7 @@ namespace osidbg
 			BP_GoalExit = 3
 		};
 
-		OsirisGlobals const & globals_;
+		OsirisStaticGlobals const & globals_;
 		// Is debugging disabled?
 		// (i.e. we don't stop on breakpoints)
 		bool debuggingDisabled_{ false };
@@ -168,7 +170,7 @@ namespace osidbg
 	class Debugger
 	{
 	public:
-		Debugger(OsirisGlobals & globals, DebugMessageHandler & messageHandler);
+		Debugger(OsirisStaticGlobals & globals, DebugMessageHandler & messageHandler);
 		~Debugger();
 
 		void StoryLoaded();
@@ -203,7 +205,7 @@ namespace osidbg
 		void RuleActionPostHook(RuleActionNode * action);
 
 	private:
-		OsirisGlobals & globals_;
+		OsirisStaticGlobals & globals_;
 		DebugMessageHandler & messageHandler_;
 		std::vector<CallStackFrame> callStack_;
 		RuleActionMap actionMappings_;
@@ -255,3 +257,5 @@ namespace osidbg
 		void PopFrame(CallStackFrame const & frame);
 	};
 }
+
+#endif

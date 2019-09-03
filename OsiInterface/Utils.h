@@ -29,4 +29,7 @@ void Debug(char const * fmt, Args... args)
 [[noreturn]]
 void Fail(TCHAR const * reason);
 
+[[noreturn]]
+void Fail(char const * reason);
+
 void CreateConsole(HMODULE hModule);

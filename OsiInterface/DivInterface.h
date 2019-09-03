@@ -5,1017 +5,928 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <string>
 #include <cassert>
+#include <optional>
 
 namespace osidbg
 {
 
-enum class GameType
-{
-	Unknown,
-	DOS2,
-	DOS2DE
-};
-
-extern GameType gGameType;
-
 #pragma pack(push, 1)
-enum class ValueType : uint8_t
-{
-	None = 0,
-	Integer = 1,
-	Integer64 = 2,
-	Real = 3,
-	String = 4,
-	GuidString = 5,
-	CharacterGuid = 6,
-	ItemGuid = 7,
-	TriggerGuid = 8,
-	SplineGuid = 9,
-	LevelTemplateGuid = 10,
-	Undefined = 0x7f
-};
-
-struct OsiArgumentValue
-{
-	ValueType TypeId;
-	uint8_t __Padding[7];
-	union {
-		char * String;
-		int32_t Int32;
-		int64_t Int64;
-		float Float;
+	template <class T>
+	struct PrimitiveSet
+	{
+		T * Buf;
+		uint32_t AllocationSize;
+		uint32_t ItemCount;
 	};
-};
 
-struct OsiArgumentDesc
-{
-	OsiArgumentValue Value;
-	OsiArgumentDesc * NextParam;
-};
-
-enum class EoCFunctionArgumentType : uint32_t
-{
-	InParam = 1,
-	OutParam = 2
-};
-
-struct EoCFunctionArgument
-{
-	char const * Name;
-	ValueType Type;
-	uint8_t __Padding[3];
-	EoCFunctionArgumentType ArgType;
-};
-
-struct EoCCallParam
-{
-	EoCFunctionArgument * Argument;
-	union {
-		char * String;
-		int32_t Int;
-		float Float;
-	} Value;
-};
-
-struct DivFunctions
-{
-	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
-	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
-	typedef void (* ErrorMessageProc)(char const * Message);
-	typedef void (* AssertProc)(bool Successful, char const * Message, bool Unknown2);
-
-	void * Unknown0;
-	CallProc Call;
-	CallProc Query;
-	ErrorMessageProc ErrorMessage;
-	AssertProc Assert;
-};
-
-struct BufferPool
-{
-	void * VMT;
-	uint8_t Unknown;
-	uint8_t __Padding[3];
-	uint32_t MaxSize;
-	uint32_t GrowCount;
-	uint32_t Unknown3;
-	uint32_t Capacity;
-	uint8_t __Padding2[4];
-	void * PoolMemoryVMT;
-	void * PoolMemory;
-	uint32_t CurrentSize;
-	uint32_t SomeCounter;
-	uint32_t Unknown4;
-	uint32_t CurrentPos;
-	uint32_t Unknown5;
-	uint32_t Unknown6;
-	char const * Name;
-};
-
-template <typename T>
-struct BaseArray
-{
-	void * VMT;
-	T * Buffer;
-	uint32_t Capacity;
-	uint32_t Size;
-	uint32_t Free;
-
-
-};
-
-struct OsirisInterface;
-struct OsirisManager;
-
-enum class FunctionArgumentDirection : uint32_t
-{
-	In = 1,
-	Out = 2
-};
-
-struct FunctionArgument
-{
-	char const * Name;
-	ValueType Type;
-	uint8_t __Padding[3];
-	FunctionArgumentDirection Direction;
-};
-
-struct OsirisFunctionHandle
-{
-	uint32_t Handle;
-
-	OsirisFunctionHandle() : Handle(0) {}
-	OsirisFunctionHandle(uint32_t InHandle) : Handle(InHandle) {}
-
-	inline uint8_t GetPart1() const
+	struct FixedString
 	{
-		return Handle & 7;
-	}
+		inline FixedString()
+			: Str(nullptr)
+		{}
 
-	inline uint32_t GetPart2() const
-	{
-		return (Handle >> 3) & 0x1FFFF;
-	}
+		inline FixedString(char const * s)
+			: Str(s)
+		{}
 
-	inline uint16_t GetFunctionId() const
-	{
-		return (Handle >> 20) & 0x3FF;
-	}
+		inline FixedString(FixedString const & fs)
+			: Str(fs.Str)
+		{}
 
-	inline uint32_t GetPart4() const
-	{
-		return Handle >> 30;
-	}
-};
-
-struct OsirisFunction
-{
-	void * VMT;
-	char const * Name;
-	FunctionArgument * Arguments;
-	uint32_t NumArguments;
-	uint8_t __Padding[4];
-	uint64_t ArgumentSize;
-	OsirisFunctionHandle Handle;
-	uint8_t __Padding2[4];
-	OsirisManager * Manager;
-	uint32_t Unknown;
-	uint8_t __Padding3[4];
-	void * StoryImplementation;
-	void * HandlerProc;
-	uint64_t Unknown2;
-};
-
-struct TypeInfo
-{
-	char const * Name;
-	ValueType Type;
-	uint8_t __Padding[1];
-	uint16_t Alias;
-	uint32_t Unknown;
-	uint64_t SizeInBytes;
-	uint64_t Unknown2;
-	void * TypeFunc1;
-	void * TypeFunc2;
-};
-
-struct FixedStringMap
-{
-	uint32_t Capacity;
-	uint32_t Unknown;
-	void ** Buffer;
-	uint32_t Size;
-};
-
-struct OsirisManager
-{
-	void * Allocator;
-	OsirisInterface * Interface;
-	void * Osiris;
-	BaseArray<OsirisFunction *> Functions;
-	uint32_t CallbackBufIncrement;
-	BaseArray<void *> Objects;
-	uint32_t Unknown1;
-	FixedStringMap StringMap;
-	uint32_t Unknown2;
-	std::array<TypeInfo, 16> BuiltinTypes;
-	uint32_t Unknown3[2];
-	uint64_t Unknown4[3];
-	uint64_t NotificationBufferSize;
-	BaseArray<char *> NotificationBuffer;
-	uint32_t Unknown5;
-	uint32_t NotificationBufferClampedSize;
-	uint32_t NotificationBufferTotalSize;
-	uint64_t Unknown6[3];
-};
-
-struct OsirisInterface
-{
-	void * Osiris;
-	OsirisManager * Manager;
-	BufferPool ParamBufferPool;
-	BufferPool ExecutionContextPool;
-	void * Unknown1;
-	void * Unknown2;
-	void * Unknown3;
-};
-
-struct VariableItem
-{
-	void * ptr;
-	uint64_t unused;
-};
-
-struct VariableItem2
-{
-	uint32_t a, b;
-	void * strptr;
-	uint64_t strpad, str1, str2;
-};
-
-struct VariableDb
-{
-	VariableItem vars[256];
-	uint32_t NumVariables;
-	uint8_t __Padding[4];
-	uint16_t b;
-	uint8_t padding[6];
-	VariableItem2 * VarsStart;
-	VariableItem2 * VarsPtr;
-	VariableItem2 * VarsEnd;
-};
-
-struct TypeItem
-{
-	void * ptr;
-	uint64_t unused;
-};
-
-struct TypeDb
-{
-	TypeItem vars[1023];
-	uint64_t a, b, c, d;
-};
-
-template <class T>
-struct TArray
-{
-	uint32_t Size;
-	uint32_t __Padding;
-	T * Start, *End, *BufEnd;
-};
-
-template <class T>
-struct Vector
-{
-	T * Start, * End, * BufEnd;
-};
-
-template <class T>
-struct ListNode
-{
-	ListNode<T> * Next, * Head;
-	T Item;
-};
-
-template <class T>
-struct List
-{
-	ListNode<T> * Head;
-	uint64_t Size;
-};
-
-template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
-struct TMapNode
-{
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Left;
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Right;
-	bool Unknown;
-	bool IsLeaf;
-	uint8_t __KeyPad[TKeyPad];
-	TKey Key;
-	uint8_t __ValPad[TValPad];
-	TVal Value;
-};
-
-template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
-struct TMap
-{
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
-
-	TVal & Find(TKey key)
-	{
-		auto finalTreeNode = Root;
-		auto currentTreeNode = Root->Root;
-		while (!currentTreeNode->IsLeaf)
+		inline operator bool() const
 		{
-			if (currentTreeNode->Key >= key)
-			{
-				finalTreeNode = currentTreeNode;
-				currentTreeNode = currentTreeNode->Left;
+			return Str != nullptr;
+		}
+
+		char const * Str;
+	};
+
+	template <class ValueType>
+	struct FixedStringMapBase
+	{
+		struct Node
+		{
+			Node * Next;
+			FixedString Key;
+			ValueType Value;
+		};
+
+		uint32_t HashSize;
+		uint32_t _Unused;
+		Node ** HashTable;
+		uint32_t ItemCount;
+
+		ValueType * Find(char const * str) const
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node * item = HashTable[bucket];
+				while (item != nullptr) {
+					if (strcmp(str, item->Key.Str) == 0) {
+						return &item->Value;
+					}
+
+					item = item->Next;
+				}
 			}
-			else
-			{
-				currentTreeNode = currentTreeNode->Right;
+
+			return nullptr;
+		}
+
+		FixedString * FindByValue(ValueType const & value) const
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node * item = HashTable[bucket];
+				while (item != nullptr) {
+					if (value == item->Value) {
+						return &item->Key;
+					}
+
+					item = item->Next;
+				}
 			}
+
+			return nullptr;
 		}
-
-		if (finalTreeNode == Root || key < finalTreeNode->Key)
-			return Root->Value;
-		else
-			return finalTreeNode->Value;
-	}
-};
-
-struct SomeDbItem
-{
-	uint64_t Unknown;
-	SomeDbItem * Next;
-};
-
-union Value
-{
-	int64_t Int64;
-	float Float;
-	int32_t Int32;
-	char * String;
-};
-
-struct String
-{
-	union {
-		char Buf[16];
-		char * Ptr;
-	};
-	uint64_t Length;
-	uint64_t BufferLength;
-};
-
-struct TValue
-{
-	Value Val;
-	uint32_t Unknown;
-	uint32_t __Padding;
-	String Str;
-};
-
-class TypedValue
-{
-public:
-	/*virtual bool Serialize(void * SmartBuf);
-	virtual ~TypedValue() {};
-	virtual bool SetType(ValueType type);
-	virtual ValueType GetType();
-	virtual bool IsValid();
-	virtual void DebugDump(char * log);
-	virtual void SetValue(TValue * value);
-	virtual TValue * GetValue();
-	virtual bool IsVariable();
-	virtual void SetOutParam(bool OutParam);
-	virtual void SetOutParam2(bool OutParam);
-	virtual bool IsOutParam();
-	virtual uint8_t Index();
-	virtual bool IsUnused();
-	virtual bool IsAdapted();*/
-
-	void * VMT;
-
-	uint32_t TypeId;
-	uint32_t __Padding;
-	TValue Value;
-};
-
-struct DatabaseParam
-{
-	uint64_t A;
-	uint64_t B;
-};
-
-struct TypedValueList
-{
-	uint64_t Size;
-	TypedValue Values[1];
-};
-
-class TupleVec
-{
-public:
-	virtual ~TupleVec() {};
-
-	// Ptr to (&TypedValueList->Values)
-	TypedValue * Values;
-	uint8_t Size;
-	uint8_t __Padding[7];
-	uint32_t Unknown;
-};
-
-struct TuplePtrLLDOS2
-{
-	List<TypedValue *> Items;
-};
-
-struct TuplePtrLLDOS2DE
-{
-	void * VMT;
-	List<TypedValue *> Items;
-};
-
-struct TuplePtrLL
-{
-	union {
-		TuplePtrLLDOS2 dos2;
-		TuplePtrLLDOS2DE dos2de;
 	};
 
-	List<TypedValue *> const & Items() const
+	struct ObjectSet
 	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Items;
-		} else {
-			return dos2.Items;
-		}
-	}
-
-	List<TypedValue *> & Items()
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Items;
-		} else {
-			return dos2.Items;
-		}
-	}
-};
-
-struct TupleLL
-{
-	struct Item
-	{
-		uint8_t Index;
-		uint8_t __Padding[7];
-		TypedValue Value;
+		void * Unknown;
+		void * Buf;
+		uint32_t Capacity;
+		uint32_t Size;
+		void * Unknown2;
 	};
 
-	List<Item> Items;
-};
-
-class VirtTupleLL
-{
-public:
-	virtual ~VirtTupleLL() {}
-
-	TupleLL Data;
-};
-
-struct DatabaseDOS2
-{
-	uint32_t DatabaseId;
-	uint32_t __Padding;
-	uint64_t B;
-	SomeDbItem Items[16];
-	uint64_t C;
-	List<TupleVec> Facts;
-	Vector<uint32_t> ParamTypes;
-	uint8_t NumParams;
-	uint8_t __Padding2[7];
-	Vector<DatabaseParam> OrderedFacts;
-};
-
-struct DatabaseDOS2DE
-{
-	uint32_t DatabaseId;
-	uint32_t __Padding;
-	uint64_t B;
-	SomeDbItem Items[16];
-	uint64_t C;
-	void * FactsVMT;
-	List<TupleVec> Facts;
-	Vector<uint32_t> ParamTypes;
-	uint8_t NumParams;
-	uint8_t __Padding2[7];
-	Vector<DatabaseParam> OrderedFacts;
-};
-
-struct Database
-{
-	static bool IsDatabaseDOS2DE(Database * db, void * dllStart, void * dllEnd)
+	struct TranslatedString
 	{
-		return db->dos2de.FactsVMT >= dllStart
-			&& db->dos2de.FactsVMT < dllEnd;
-	}
-
-	union {
-		DatabaseDOS2 dos2;
-		DatabaseDOS2DE dos2de;
+		void * Unknown;
+		char const * String;
+		char const * TranslatedStringKey;
 	};
 
-	uint32_t DatabaseId() const
+	struct STDWString
 	{
-		return dos2.DatabaseId;
-	}
-
-	uint8_t NumParams() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.NumParams;
-		} else {
-			return dos2.NumParams;
-		}
-	}
-
-	Vector<uint32_t> const & ParamTypes() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.ParamTypes;
-		}
-		else {
-			return dos2.ParamTypes;
-		}
-	}
-
-	List<TupleVec> const & Facts() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Facts;
-		}
-		else {
-			return dos2.Facts;
-		}
-	}
-};
-
-class RuleActionArguments
-{
-public:
-	List<TypedValue *> const & Args() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Args;
-		} else {
-			return dos2.Args;
-		}
-	}
-
-private:
-	struct DOS2
-	{
-		List<TypedValue *> Args;
+		uint64_t Unkn[4];
 	};
 
-	struct DOS2DE
+	struct CRPGStats_Object
 	{
 		void * VMT;
-		List<TypedValue *> Args;
+		uint32_t A;
+		uint32_t Unused1;
+		uint32_t ModifierListIndex;
+		uint32_t Unused2;
+		int32_t * IndexedProperties;
+		uint64_t Unused3;
+		uint64_t Unused4;
+		char * Name;
+		TranslatedString TranslatedStringX;
+		uint64_t B[18];
+		FixedString FS2;
+		uint64_t EntryType;
+		FixedStringMapBase<int> PropertyList;
+		uint32_t Unused5;
+		FixedStringMapBase<int> ConditionList;
+		uint32_t Unused6;
+		uint64_t AIFlags;
+		ObjectSet Requirements;
+		ObjectSet MemorizationRequirements;
+		ObjectSet CrimeReactionPriorities;
+		ObjectSet StringProperties1;
+		ObjectSet ComboCategories;
+		void * SomeSTDWSTRING;
+		uint64_t C[3];
+		uint32_t Using;
+		uint32_t D;
 	};
 
-	union {
-		DOS2 dos2;
-		DOS2DE dos2de;
-	};
-};
-
-class RuleActionNode
-{
-public:
-	const char * FunctionName;
-	RuleActionArguments * Arguments;
-	bool Not;
-	uint8_t __Padding[3];
-	int32_t GoalIdOrDebugHook;
-};
-
-class RuleActionList
-{
-public:
-	virtual ~RuleActionList() = 0;
-	List<RuleActionNode *> Actions;
-};
-
-struct Goal
-{
-	RuleActionList * InitCalls;
-	RuleActionList * ExitCalls;
-	uint32_t Id;
-	uint32_t __Padding1;
-	char const * Name;
-	uint32_t SubGoalCombination;
-	uint32_t __Padding2;
-	TArray<uint32_t> ParentGoals;
-	TArray<uint32_t> SubGoals;
-	uint8_t Flags;
-	uint8_t __Padding3[7];
-};
-
-struct GoalDb
-{
-	void * Unknown[2047];
-	uint32_t Count;
-	uint32_t __Padding;
-	TMap<uint32_t, Goal *, 6, 4> Goals;
-};
-
-struct DatabaseDb
-{
-	TArray<Database *> Db;
-};
-
-class VirtTupleLL;
-struct AdapterDb;
-
-struct Adapter
-{
-	uint32_t Id;
-	uint32_t __Padding;
-	AdapterDb * Db;
-	TMap<uint8_t, uint8_t, 0, 0> VarToColumnMaps;
-	uint64_t VarToColumnMapCount;
-	Vector<int8_t> ColumnToVarMaps;
-	VirtTupleLL Constants;
-};
-
-struct AdapterDb
-{
-	TArray<Adapter *> Db;
-};
-
-struct NodeDb
-{
-	TArray<class Node *> Db;
-};
-
-template <typename ManagerType>
-struct Ref
-{
-	uint32_t Id;
-	uint32_t __Padding;
-	ManagerType * Manager;
-};
-
-typedef Ref<DatabaseDb> DatabaseRef;
-typedef Ref<AdapterDb> AdapterRef;
-typedef Ref<NodeDb> NodeRef;
-typedef Ref<DatabaseDb> DatabaseRef;
-
-enum class EntryPoint : uint32_t
-{
-	None = 0,
-	Left = 1,
-	Right = 2
-};
-
-class NodeEntryRef
-{
-public:
-	virtual void write() {}; // TODO
-	virtual void read() {}; // TODO
-
-	NodeRef Node;
-	EntryPoint EntryPoint;
-	uint32_t GoalId;
-};
-
-struct FunctionParamDesc
-{
-	uint32_t Type;
-	uint32_t Unknown;
-};
-
-struct FunctionParamList
-{
-	void * VMT;
-	List<FunctionParamDesc> Params;
-};
-
-struct FuncSigOutParamList
-{
-	uint8_t * Params;
-	uint32_t Count;
-
-	bool isOutParam(unsigned i) const
+	struct RPGEnumeration
 	{
-		assert(i < Count*8);
-		return ((Params[i >> 3] << (i & 7)) & 0x80) == 0x80;
-	}
-};
-
-struct FunctionSignature
-{
-	void * VMT;
-	const char * Name;
-	FunctionParamList * Params;
-	FuncSigOutParamList OutParamList;
-	uint32_t Unknown;
-};
-
-enum class FunctionType : uint32_t
-{
-	Event = 1,
-	Query = 2,
-	Call = 3,
-	Database = 4,
-	Proc = 5,
-	SysQuery = 6,
-	SysCall = 7,
-	UserQuery = 8
-};
-
-struct Function
-{
-	void * VMT;
-	uint32_t Line;
-	uint32_t Unknown1;
-	uint32_t Unknown2;
-	uint32_t __Padding;
-	FunctionSignature * Signature;
-	NodeRef Node;
-	FunctionType Type;
-	uint32_t Key[4];
-	uint32_t Unknown3;
-};
-
-struct NodeVMT
-{
-	using DestroyProc = void (*)(Node * self, bool free);
-	using GetDatabaseRefProc = DatabaseRef * (*)(Node * self, DatabaseRef * ref);
-	using IsDataNodeProc = bool (*)(Node * self);
-	using IsValidProc = bool(*)(Node * self, VirtTupleLL * Values, AdapterRef * Adapter);
-	using IsProcProc = bool(*)(Node * self);
-	using IsPartOfAProcProc = bool(*)(Node * self);
-	using GetParentProc = NodeRef * (*)(Node * self, NodeRef * ref);
-	using SetNextNodeProc = void (*)(Node * self, NodeEntryRef * ref);
-	using GetAdapterProc = Adapter * (*)(Node * self, EntryPoint which);
-	using InsertTupleProc = void (*)(Node * self, TuplePtrLL * tuple);
-	using PushDownTupleProc = void(*)(Node * self, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entryPoint);
-	using TriggerInsertEventProc = void (*)(Node * self, TupleVec * tuple);
-	using GetLowDatabaseRefProc = NodeRef * (*)(Node * self, NodeRef * ref);
-	using GetLowDatabaseProc = NodeEntryRef * (*)(Node * self, NodeEntryRef * ref);
-	using GetLowDatabaseIndirectionProc = int (*)(Node * self);
-	using SaveProc = bool (*)(Node * self, void * buf);
-	using DebugDumpProc = char * (*)(Node * self, char * buf);
-	using SetLineNumberProc = void (*)(Node * self, unsigned int line);
-	using CallQueryProc = bool (*)(Node * self, OsiArgumentDesc * args);
-	using GetQueryNameProc = const char * (*)(Node * self);
-
-	DestroyProc Destroy; // 0
-	GetDatabaseRefProc GetDatabaseRef; // 8
-	GetDatabaseRefProc GetDatabaseRef2; // 10
-	IsDataNodeProc IsDataNode; // 18
-	IsValidProc IsValid; // 20
-	IsProcProc IsProc; // 28
-	IsPartOfAProcProc IsPartOfAProc; // 30
-	GetParentProc GetParent; // 38
-	SetNextNodeProc SetNextNode; // 40
-	GetAdapterProc GetAdapter; // 48
-	InsertTupleProc InsertTuple; // 50
-	PushDownTupleProc PushDownTuple; // 58
-	InsertTupleProc DeleteTuple; // 60
-	PushDownTupleProc PushDownTupleDelete; // 68
-	TriggerInsertEventProc TriggerInsertEvent; // 70
-	TriggerInsertEventProc TriggerDeleteEvent; // 78
-	GetLowDatabaseRefProc GetLowDatabaseRef; // 80
-	GetLowDatabaseProc GetLowDatabase; // 88
-	GetLowDatabaseIndirectionProc GetLowDatabaseFlags; // 90
-	SaveProc Save; // 98
-	DebugDumpProc DebugDump; // A0
-	DebugDumpProc DebugDump2; // A8
-	SetLineNumberProc SetLineNumber; // B0
-	union { // B8
-		void * RelUnused;
-		CallQueryProc CallQuery;
+		FixedString Name;
+		FixedStringMapBase<int32_t> Values;
 	};
-	GetQueryNameProc GetQueryName; // C0
-};
 
-class Node
-{
-public:
-	virtual ~Node() = 0;
-	virtual DatabaseRef * GetDatabaseRef(DatabaseRef * Db) = 0;
-	virtual DatabaseRef * GetDatabaseRef2(DatabaseRef * Db) = 0;
-	virtual bool IsDataNode() = 0;
-	virtual bool IsValid(VirtTupleLL * Tuple, AdapterRef * Adapter) = 0;
-	virtual bool IsProc() = 0;
-	virtual bool IsPartOfAProc() = 0;
-	virtual NodeRef * GetParent(NodeRef * Node) = 0;
-	virtual void SetNextNode(NodeEntryRef * Node) = 0;
-	virtual Adapter * GetAdapter(EntryPoint Which) = 0;
-	virtual void InsertTuple(TuplePtrLL * Tuple) = 0;
-	virtual void PushDownTuple(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
-	virtual void DeleteTuple(TuplePtrLL * Tuple) = 0;
-	virtual void PushDownTupleDelete(VirtTupleLL * Tuple, AdapterRef * Adapter, EntryPoint Which, NodeRef Ref) = 0;
-	virtual void TriggerInsertEvent(TupleVec * Tuple) = 0;
-	virtual void TriggerInsertEvent2(TupleVec * Tuple) = 0;
-	virtual NodeRef * GetLowDatabaseRef(NodeRef * Node) = 0;
-	virtual NodeEntryRef * GetLowDatabase(NodeEntryRef * Node) = 0;
-	virtual uint8_t GetLowDatabaseIndirection() = 0;
-	virtual bool Save(void * SmartBuf) = 0;
-	virtual char * DebugDump(char * Buffer) = 0;
-	virtual char * DebugDump2(char * Buffer) = 0;
-	virtual void SetLineNumber(int Line) = 0;
+	struct CRPGStats_Modifier
+	{
+		int32_t RPGEnumerationIndex;
+		int32_t Unknown2;
+		int32_t UnknownZero;
+		uint32_t _Padding;
+		FixedString Name;
+	};
 
+	template <class T>
+	struct CNamedElementManager
+	{
+		void * VMT;
+		void * PrimitiveSetVMT;
+		PrimitiveSet<T *> Primitives;
+		uint64_t Unknown;
+		FixedStringMapBase<uint32_t> NameHashMap;
+		uint32_t Unused;
+		uint32_t NumItems;
+		uint32_t NumSomeItems;
 
-	uint32_t Id;
-	uint32_t __Padding0;
-	NodeDb * NodeDb;
-	Function * Function;
-	DatabaseRef Database;
-};
+		int FindIndex(char const * str) const
+		{
+			auto ptr = NameHashMap.Find(str);
+			if (ptr != nullptr) {
+				return (int)*ptr;
+			}
+			else {
+				return -1;
+			}
+		}
 
-class TreeNode : public Node
-{
-public:
-	NodeEntryRef Next;
-};
+		T * Find(int index) const
+		{
+			if (index < 0 || index >= (int)Primitives.ItemCount) {
+				return nullptr;
+			}
+			else {
+				return Primitives.Buf[index];
+			}
+		}
 
-class RelNode : public TreeNode
-{
-public:
-	NodeRef Parent;
-	AdapterRef Adapter;
-	NodeRef RelDatabaseRef;
-	NodeEntryRef RelDatabase;
-	uint8_t RelDatabaseIndirection;
-	uint8_t __Padding[7];
-};
+		T * Find(char const * str) const
+		{
+			auto ptr = NameHashMap.Find(str);
+			if (ptr != nullptr) {
+				return Primitives.Buf[*ptr];
+			}
+			else {
+				return nullptr;
+			}
+		}
+	};
 
-class RelOpNode : public RelNode
-{
-public:
-	uint8_t LeftValueIndex;
-	uint8_t RightValueIndex;
-	uint8_t __Padding2[6];
-	TypedValue LeftValue;
-	TypedValue RightValue;
-	uint32_t RelOp;
-	uint32_t __Padding3;
+	struct ModifierList
+	{
+		CNamedElementManager<CRPGStats_Modifier> Attributes;
+		//uint32_t Unused;
+		FixedString Name;
 
-	static inline void HookVMTs(NodeVMT * vmt) {}
-};
+		CRPGStats_Modifier * GetAttributeInfo(const char * name, int * attributeIndex) const;
+	};
 
-class RuleNode : public RelNode
-{
-public:
-	uint32_t Line;
-	bool IsQuery;
-	uint8_t __Padding2[3];
-	void * Variables;
-	RuleActionList * Calls;
+	struct CRPGStatsManager
+	{
+		CNamedElementManager<RPGEnumeration> modifierValueList;
+		CNamedElementManager<ModifierList> modifierList;
+		CNamedElementManager<CRPGStats_Object> objects;
+		CNamedElementManager<uint64_t> levelMods;
+		CNamedElementManager<uint64_t> deltaMods;
+		CNamedElementManager<uint64_t> treasureSubtables;
+		CNamedElementManager<uint64_t> treasureTables;
+		CNamedElementManager<uint64_t> itemTypes;
+		uint64_t unknown[47];
+		PrimitiveSet<FixedString> ModifierFSSet;
+		uint64_t unknown2[165];
 
-	static inline void HookVMTs(NodeVMT * vmt) {}
-};
+		ModifierList * GetTypeInfo(CRPGStats_Object * object);
+		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);
+		std::optional<FixedString> GetAttributeFixedString(CRPGStats_Object * object, const char * attributeName);
+		std::optional<int> GetAttributeInt(CRPGStats_Object * object, const char * attributeName);
+		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
+		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
+	};
 
-class JoinNode : public TreeNode
-{
-public:
-	NodeRef Left;
-	NodeRef Right;
-	AdapterRef LeftAdapter;
-	AdapterRef RightAdapter;
-	uint64_t Unknown;
-	NodeRef LeftDatabaseRef;
-	NodeEntryRef LeftDatabase;
-	uint8_t LeftDatabaseIndirection;
-	uint8_t __Padding1[7];
-	NodeRef RightDatabaseRef;
-	NodeEntryRef RightDatabase;
-	uint8_t RightDatabaseIndirection;
-	uint8_t __Padding2[7];
-};
+	template <class T>
+	struct Array
+	{
+		void * VMT;
+		T * Buf;
+		uint32_t Capacity;
+		uint32_t Size;
+		uint32_t Unkn[2];
+	};
 
-class AndNode : public JoinNode
-{
-public:
+	struct ObjectHandle
+	{
+		uint64_t Handle;
 
-	static inline void HookVMTs(NodeVMT * vmt) {}
-};
+		inline ObjectHandle()
+			: Handle(0)
+		{}
 
-class NotAndNode : public JoinNode
-{
-public:
+		inline ObjectHandle(uint64_t handle)
+			: Handle(handle)
+		{}
 
-	static inline void HookVMTs(NodeVMT * vmt) {}
-};
+		inline ObjectHandle(uint64_t type, uint64_t index, uint64_t salt)
+		{
+			if (type >= 0x400 || salt >= 0x400000) {
+				Fail("ObjectHandle type/salt overflow.");
+			}
 
-struct DataNodeRef
-{
-	DataNodeRef * Head;
-	DataNodeRef * Prev;
-	NodeEntryRef Reference;
-};
+			Handle = index | (salt << 32) | (type << 54);
+		}
 
-struct DataNodeReferenceList
-{
-	DataNodeRef * Head;
-	uint64_t Count;
-};
+		inline ObjectHandle(ObjectHandle const & oh)
+			: Handle(oh.Handle)
+		{}
 
-class DataNode : public Node
-{
-public:
-	uint32_t UsedBy;
-};
+		inline ObjectHandle & operator = (ObjectHandle const & oh)
+		{
+			Handle = oh.Handle;
+			return *this;
+		}
 
-class ProcNode : public DataNode
-{
-public:
-	uint32_t UsedBy;
-};
+		inline bool operator == (ObjectHandle const & oh) const
+		{
+			return Handle == oh.Handle;
+		}
 
-class DatabaseNode : public DataNode
-{
-public:
-	uint32_t UsedBy;
-};
+		inline uint32_t GetType() const
+		{
+			return Handle >> 54;
+		}
 
-class QueryNode : public Node
-{
-};
+		inline uint32_t GetSalt() const
+		{
+			return (Handle >> 32) & 0x3fffff;
+		}
 
-class UserQueryNode : public QueryNode
-{
-};
+		inline uint32_t GetIndex() const
+		{
+			return (uint32_t)(Handle & 0xffffffff);
+		}
 
-class DivQueryNode : public QueryNode
-{
-};
+		inline operator bool() const
+		{
+			return Handle != 0;
+		}
 
-class InternalQueryNode : public QueryNode
-{
-};
+		explicit inline operator int64_t() const
+		{
+			return (int64_t)Handle;
+		}
+	};
+
+	struct ObjectFactory
+	{
+		void * VMT;
+		Array<void *> CharPtrArray;
+		Array<unsigned int> IntArray;
+		void * unkn;
+		uint32_t unkn2[4];
+		PrimitiveSet<void *> CharPrimitives;
+		uint64_t unkn3[3];
+	};
+
+	struct NetworkObjectFactory : public ObjectFactory
+	{
+		FixedStringMapBase<void *> CharacterMap;
+		uint32_t _Pad;
+		uint32_t Unkn4;
+		uint32_t _Pad2;
+		uint64_t Unkn5;
+		uint32_t Unkn6;
+		uint32_t _Pad3;
+		uint64_t Unkn7[7];
+		Array<unsigned short> ShortArray;
+		uint64_t Unkn8;
+	};
+
+	struct Component
+	{
+		virtual void VMT00() = 0;
+		virtual void VMT08() = 0;
+		virtual void VMT10() = 0;
+		virtual void VMT18() = 0;
+		virtual void * FindComponentByHandle(ObjectHandle const * oh) = 0;
+		virtual void VMT28() = 0;
+		virtual void * FindComponentByGuid(FixedString const * fs) = 0;
+	};
+
+	struct ComponentEntry
+	{
+		// todo
+		Component * component;
+		uint64_t dummy[31];
+	};
+
+	struct EntityWorld
+	{
+		uint64_t Unkn[17];
+		Array<ComponentEntry> Components;
+	};
+
+	struct ComponentHandle
+	{
+		uint64_t TypeId;
+		ObjectHandle Handle;
+	};
+
+	struct BaseComponent
+	{
+		void * VMT;
+		ObjectHandle Handle;
+		ComponentHandle Component;
+	};
+
+	struct CharacterFactory : public NetworkObjectFactory
+	{
+		void * VMT2;
+		void * VMT3;
+		FixedStringMapBase<void *> FSMap_ReloadComponent;
+		uint32_t _Pad4;
+		EntityWorld * Entities;
+		uint64_t Unkn8[2];
+	};
+
+	struct ItemFactory : public NetworkObjectFactory
+	{
+		void * VMT2;
+		void * VMT3;
+		FixedStringMapBase<void *> FSMap_ReloadComponent;
+		uint32_t _Pad4;
+		EntityWorld * Entities;
+		uint64_t Unkn8[2];
+	};
+
+	struct EsvStatus
+	{
+		virtual ~EsvStatus() = 0;
+		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
+		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
+		virtual uint32_t GetStatusId() = 0;
+		// 3 - Toggle, 0 - Normal, 1 - ???, 2 - OnlyOnce?
+		virtual uint32_t GetTriggerBehavior_M() = 0;
+		virtual void AddStatsData2_Maybe() = 0;
+		virtual void * GetStatsIdByIndex(int index) = 0;
+		virtual void VMT38() = 0;
+		virtual void VMT40() = 0;
+		virtual void VMT48() = 0;
+		virtual bool CanEnter() = 0;
+		virtual void Init() = 0;
+		virtual bool Enter() = 0;
+		virtual bool Resume() = 0;
+		virtual void Update(void * A, float Time_M) = 0;
+		virtual void Tick(int * a2, float a3, float a4) = 0;
+		virtual void Exit() = 0;
+		virtual void VMT88() = 0;
+		virtual void ConsumeStatsId() = 0;
+		virtual void VMT98() = 0;
+		virtual void IsImmobilizingStatus() = 0;
+		virtual void VMTA8() = 0;
+		virtual void VMTB0() = 0;
+		virtual void GetSyncData() = 0;
+		virtual void VMTC0() = 0;
+		virtual void Serialize() = 0;
+		virtual void VMTD0() = 0;
+		virtual void CreateVisuals() = 0;
+		virtual void DestroyVisuals() = 0;
+		virtual void SetHostileFlagFromSavingThrow_M() = 0;
+		virtual void GetEnterChance() = 0;
+		virtual void AddStatsData_Maybe() = 0;
+
+		enum Flags0
+		{
+			SF0_KeepAlive = 1,
+			SF0_IsOnSourceSurface = 2,
+			SF0_IsFromItem = 4,
+			SF0_Channeled = 8,
+			SF0_IsLifeTimeSet = 0x10,
+			SF0_InitiateCombat = 0x20,
+			SF0_Influence = 0x80
+		};
+
+		enum Flags1
+		{
+			SF1_BringIntoCombat = 1,
+			SF1_IsHostileAct = 2,
+			SF1_IsInvulnerable = 8,
+			SF1_IsResistingDeath = 0x10
+		};
+
+		enum Flags2
+		{
+			SF2_ForceStatus = 1,
+			SF2_ForceFailStatus = 2,
+			SF2_RequestDelete = 0x20,
+			SF2_RequestDeleteAtTurnEnd = 0x40,
+			SF2_Started = 0x80
+		};
+
+		// void * VMT;
+		FixedString FS1;
+		uint32_t NetID;
+		uint32_t _Pad0;
+		uint64_t U1;
+		FixedString StatusId;
+		uint32_t CanEnterChance;
+		float StartTimer;
+		float LifeTime;
+		float CurrentLifeTime;
+		float TurnTimer;
+		float Strength;
+		float StatsMultiplier;
+		uint8_t DamageSourceType;
+		uint8_t _Pad1[3];
+		ObjectHandle ObjHandle1;
+		ObjectHandle TargetCIHandle;
+		ObjectSet StatusOwner;
+		ObjectHandle StatusSourceHandle;
+		ObjectHandle SomeHandle;
+		uint8_t Flags2;
+		uint8_t Flags0;
+		uint8_t Flags1;
+		uint8_t _Pad2;
+		uint32_t _Pad3;
+	};
+
+	struct EsvStatusManager
+	{
+		uint64_t U1[8];
+		uint8_t U2[240];
+		EsvStatus ** Statuses;
+		uint32_t U3;
+		uint32_t StatusCount;
+		uint64_t U4[4];
+	};
+
+	struct EsvCharacter
+	{
+		virtual ~EsvCharacter() = 0;
+		virtual void VMT08() = 0;
+		virtual uint64_t Ret5() = 0;
+		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
+		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
+		virtual void SetGuid(FixedString const & fs) = 0;
+		virtual FixedString * GetGuid() = 0;
+		virtual void SetNetID(uint32_t netId) = 0;
+		virtual void GetNetID(uint32_t & netId) = 0;
+		virtual void SetCurrentTemplate() = 0;
+		virtual void GetCurrentTemplate() = 0;
+		virtual void SetGlobal() = 0;
+		virtual void GetGlobal() = 0;
+		virtual void GetComponentType() = 0;
+		virtual void GetEntityObjectByHandle() = 0;
+		virtual void GetName() = 0;
+		virtual void UNK1() = 0;
+		virtual void UNK2() = 0;
+		virtual void HasFlag() = 0;
+		virtual void SetAiColliding() = 0;
+		virtual void GetTags() = 0;
+		virtual void IsTagged() = 0;
+		virtual void GetTranslate() = 0;
+		virtual void GetRotation() = 0;
+		virtual void GetScale() = 0;
+		virtual void SetTranslate() = 0;
+		virtual void SetRotation() = 0;
+		virtual void SetScale() = 0;
+		virtual void UNK3() = 0;
+		virtual void UNK4() = 0;
+		virtual void LoadVisual() = 0;
+		virtual void UnloadVisual() = 0;
+		virtual void ReloadVisual() = 0;
+		virtual void GetVisual() = 0;
+		virtual void GetPhysics() = 0;
+		virtual void SetPhysics() = 0;
+		virtual void LoadPhysics() = 0;
+		virtual void UnloadPhysics() = 0;
+		virtual void ReloadPhysics() = 0;
+		virtual void GetHeight() = 0;
+		virtual void GetParentUUID() = 0;
+		virtual FixedString * GetCurrentLevel() = 0;
+		virtual void SetCurrentLevel() = 0;
+		virtual void AddPeer() = 0;
+
+		BaseComponent Base;
+		FixedString MyGuid;
+		uint32_t NetID;
+		uint32_t _Pad1;
+		float WorldPos[3];
+		uint32_t _Pad2;
+		uint64_t Flags2;
+		uint32_t U2;
+		uint32_t _Pad3;
+		void * CurrentLevel;
+		float WorldRot[9];
+		float Scale;
+		PrimitiveSet<void *> PeerIDClassNames;
+		uint64_t U3[2];
+		void * CurrentTemplate;
+		void * OriginalTemplate;
+		void * TemplateUsedForSkills;
+		uint8_t Flags[3];
+		uint8_t Team;
+		uint8_t Color;
+		uint8_t _Pad4[3];
+		uint64_t U4[7];
+		void * AnimationOverrideFS;
+		uint32_t WalkSpeedOverride;
+		uint32_t RunSpeedOverride;
+		ObjectSet VoiceSet;
+		bool NeedsUpdate;
+		bool ScriptForceUpdate;
+		bool ForceSynch;
+		bool U5;
+		uint8_t _Pad5[4];
+		void * Stats;
+		ObjectHandle InventoryHandle;
+		uint64_t U6[2];
+		void * SteeringMachine;
+		void * BehaviourMachine;
+		uint64_t U7[2];
+		void * OsirisController;
+		uint64_t U8[5];
+		void * TaskController;
+		EsvStatusManager * StatusManager;
+		void * SkillManager;
+		void * VariableManager;
+		void * RaceVariableManager_M;
+		void * Attitudes;
+		uint64_t U9[4];
+		uint32_t Dialog;
+		bool IsDialogAiControlled;
+		uint8_t U10[3];
+		float LifeTime;
+		float TurnTimer;
+		float TriggerTrapsTimer;
+		uint32_t U11;
+		uint64_t U12;
+		ObjectHandle OwnerHandle;
+		ObjectHandle FollowCharacterHandle;
+		ObjectHandle EnemyCharacterHandle;
+		ObjectHandle SpiritCharacterHandle;
+		ObjectHandle CorpseCharacterHandle;
+		ObjectHandle ObjectHandle6;
+		ObjectSet EnemyHandleSet;
+		ObjectSet SurfacePathInfluenceSet;
+		ObjectSet SummonHandleSet;
+		void * PlanManager;
+		uint32_t PartialAP;
+		uint32_t _Pad6;
+		void * StatusManagerDirty_M;
+		ObjectSet ObjectHandleSet3;
+		ObjectSet RegisteredTriggerFSSet;
+		void * PlayerData;
+		void * PlayerUpgrade;
+		uint64_t U13[20];
+		void * CustomDisplayName;
+		void * StoryDisplayName;
+		void * OriginalTransformDisplayName;
+		uint64_t U14[20];
+		uint32_t MaxVitalityPatchCheck;
+		uint32_t MaxArmorPatchCheck;
+		uint32_t MaxMagicArmorPatchCheck;
+		uint32_t _Pad7;
+		void * AnimationSetOverride;
+		ObjectHandle PartyHandle;
+		ObjectSet CreatedTemplateItems;
+		void * Treasures;
+		ObjectSet customTradeTreasure;
+		void * Target;
+		uint64_t U15[3];
+		ObjectHandle CrimeHandle;
+		ObjectHandle PreviousCrimeHandle;
+		uint32_t CrimeState;
+		uint32_t PreviousCrimeState;
+		bool IsAlarmed;
+		bool CrimeWarningsEnabled;
+		bool CrimeInterrogationEnabled;
+		bool _Pad8;
+		uint32_t InvestigationTimer;
+		void * DisabledCrime;
+		uint64_t U16[3];
+		uint64_t DamageCounter;
+		uint64_t HealCounter;
+		uint64_t KillCounter;
+		uint64_t U17;
+		uint64_t Archetype;
+		uint64_t EquipmentColor;
+		uint64_t ProjectileTemplate;
+		uint64_t TimeElapsed;
+		uint64_t PreferredAiTarget;
+		uint64_t U18[10];
+		void * VisualSetIndices;
+		bool ReadyCheckBlocked;
+		bool CorpseLootable;
+		uint8_t NumConsumables;
+		uint8_t _Pad9[5];
+		void * PreviousLevel;
+	};
+
+	struct EsvItem
+	{
+		virtual ~EsvItem() = 0;
+		virtual void HandleTextKeyEvent() = 0;
+		virtual uint64_t Ret5() = 0;
+		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
+		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
+		virtual void SetGuid(FixedString const & fs) = 0;
+		virtual FixedString * GetGuid() = 0;
+		virtual void SetNetID(uint32_t netId) = 0;
+		virtual void GetNetID(uint32_t & netId) = 0;
+		virtual void SetCurrentTemplate() = 0;
+		virtual void GetCurrentTemplate() = 0;
+		virtual void SetGlobal() = 0;
+		virtual void GetGlobal() = 0;
+		virtual void GetComponentType() = 0;
+		virtual void GetEntityObjectByHandle() = 0;
+		virtual void GetName() = 0;
+		virtual void UNK1() = 0;
+		virtual void UNK2() = 0;
+		virtual void HasFlag() = 0;
+		virtual void SetAiColliding() = 0;
+		virtual void GetTags() = 0;
+		virtual void IsTagged() = 0;
+		virtual void GetPosition() = 0;
+		virtual void GetRotation() = 0;
+		virtual void GetScale() = 0;
+
+		BaseComponent Base;
+		FixedString MyGuid;
+		uint32_t NetID;
+		uint32_t _Pad1;
+		float WorldPos[3];
+		uint32_t _Pad2;
+		uint64_t Flags2;
+		uint32_t U2;
+		uint32_t _Pad3;
+		void * CurrentLevel;
+		float WorldRot[9];
+		float Scale;
+		uint8_t Flags3;
+		uint8_t _Pad4[7];
+		uint64_t U3[4];
+		float WorldVelocity[3];
+		uint32_t _Pad5;
+		uint64_t U4;
+		FixedString CurrentTemplate;
+		uint64_t OriginalTemplateType;
+		STDWString CustomDisplayName;
+		STDWString CustomDescription;
+		STDWString CustomBookContent;
+		FixedString StatsId;
+		void * StatsDynamic; // CDivinityStats_Item *
+		CRPGStats_Object * StatsFromName;
+		void * Generation;
+		ObjectHandle InventoryHandle;
+		void * Parent;
+		uint16_t Slot;
+		uint16_t _Pad6;
+		uint32_t Amount;
+		uint32_t Vitality;
+		uint32_t Armor;
+		ObjectHandle InUseByCharacterHandle;
+		uint64_t U5[2];
+		uint32_t LockLevel;
+		uint32_t _Pad7;
+		void * ItemMachine;
+		void * PlanMachine;
+		void * VariableManager;
+		EsvStatusManager * StatusMachine;
+		void * U6;
+		ObjectHandle OwnerHandle;
+		ObjectHandle OriginalOwnerCharacter;
+		void * Sockets;
+		uint64_t U7;
+		uint32_t ComputedVitality;
+		uint32_t Durability;
+		FixedString ItemType;
+		uint32_t GoldValueOverwrite;
+		uint32_t WeightValueOverwrite;
+		uint64_t U8;
+		void * Tags;
+		void * DynamicTags;
+		uint32_t U9;
+		uint32_t HasDynamicTags;
+		uint64_t U10;
+		uint64_t TeleportTargetOverride;
+		uint32_t TreasureLevel;
+		uint32_t LevelOverride;
+		bool ForceSynch;
+		uint8_t _Pad8[3];
+		uint32_t TeleportUseCount;
+		uint64_t PreviousLevel;
+	};
+
+	struct ShootProjectileHelper
+	{
+		FixedString SkillId;
+		ObjectHandle SourceCharacter;
+		ObjectHandle Target;
+		ObjectHandle Target2;
+		float StartPosition[3];
+		float EndPosition[3];
+		uint8_t Random;
+		uint8_t _Pad[7];
+		void * DamageList;
+		int32_t CasterLevel;
+		uint32_t _Pad2;
+		void * CollisionInfo;
+		bool IsTrap;
+		bool UnknownFlag1;
+		uint8_t _Pad3[6];
+		FixedString FS2;
+		float StatusClearChance;
+		bool HasCaster;
+		bool IsStealthed;
+		bool UnknownFlag2;
+	};
+
+	struct EsvGameAction
+	{
+		enum ActionType
+		{
+			RainAction = 1,
+			StormAction = 2,
+			WallAction = 4,
+			TornadoAction = 6,
+			PathAction = 7,
+			GameObjectMoveAction = 8,
+			StatusDomeAction = 9
+		};
+
+		void * VMT;
+		FixedString SomeFS;
+		uint64_t NetID;
+		PrimitiveSet<uint16_t> PeerIDClassNames;
+		uint64_t _Unk[2];
+		ObjectHandle SomeObjectHandle;
+		uint32_t GameActionType;
+		bool Active;
+		bool Dirty;
+		uint8_t _Pad1[2];
+		float ActivateTimer;
+		uint32_t _Pad2;
+	};
+
+	struct EsvTornadoAction : public EsvGameAction
+	{
+		FixedString SkillId;
+		ObjectHandle OwnerHandle;
+		float Position[3];
+		float Target[3];
+		float TurnTimer;
+		bool Finished;
+		bool IsFromItem;
+		uint8_t _Pad3[2];
+		float HitRadius;
+		uint32_t _Pad4;
+		uint64_t _Unk2;
+		ObjectSet AnchorList; // Vec3 set
+		uint64_t Anchor;
+		float Interpolation;
+		uint32_t _Unk3;
+		ObjectHandle SurfaceActionHandle;
+		ObjectSet HitCharacterHandles;
+		ObjectSet HitItemHandles;
+		FixedString CleanseStatuses;
+		float StatusClearChance;
+	};
+
+	struct EsvStormAction : public EsvGameAction
+	{
+		ObjectHandle OwnerHandle;
+		float Position[3];
+		float LifeTime;
+		FixedString SkillId;
+		float TurnTimer;
+		float StrikeTimer;
+		bool Finished;
+		bool IsFromItem;
+		uint8_t _Pad3[6];
+		uint64_t Unkn[3 * 5];
+		ObjectSet FSSet;
+		ObjectSet ProjectileTargetDescSet;
+		ObjectSet StrikeSet;
+	};
+
+	struct EsvRainAction : public EsvGameAction
+	{
+		ObjectHandle OwnerHandle;
+		float Position[3];
+		float AreaRadius;
+		float LifeTime;
+		float Duration;
+		bool FirstTick;
+		uint8_t _Pad3[7];
+		FixedString SkillId;
+		float ConsequencesStartTime;
+		float TurnTimer;
+		bool Finished;
+		bool IsFromItem;
+		uint8_t _Pad4[2];
+		FixedString SkillProperties;
+	};
+
+	struct EsvWallAction : public EsvGameAction
+	{
+		FixedString SkillId;
+		ObjectHandle OwnerHandle;
+		float Target[3];
+		float Source[3];
+		float LifeTime;
+		uint8_t _Pad3[4];
+		ObjectSet Walls;
+		float TurnTimer;
+		bool Finished;
+		bool IsFromItem;
+		uint8_t _Pad4[2];
+		uint64_t Unk1;
+		uint64_t Unk2;
+		uint32_t Unk3;
+		uint32_t Unk4;
+	};
+
+	struct EsvStatusDomeAction : public EsvGameAction
+	{
+		ObjectHandle OwnerHandle;
+		float Position[3];
+		uint8_t _Pad3[4];
+		float LifeTime;
+		uint8_t _Pad4[4];
+		FixedString SkillId;
+		bool Finished;
+		uint8_t _Pad5[7];
+		void * SkillStatusAura;
+	};
+
+	struct SummonHelperResults
+	{
+		ObjectHandle SummonHandle;
+		uint32_t Unknown;
+	};
+
+	struct SummonHelperSummonArgs
+	{
+		ObjectHandle OwnerCharacterHandle;
+		FixedString GameObjectTemplateFS;
+		FixedString Level;
+		float Position[3];
+		uint32_t SummonLevel;
+		float Lifetime;
+		bool IsTotem;
+		bool MapToAiGrid;
+	};
+
+	struct GlobalStringTable
+	{
+		static bool UseMurmur;
+
+		struct Entry
+		{
+			const char * StringPtrs[10];
+			Entry * Next;
+			uint32_t StringPtrItems;
+			uint32_t Unused;
+
+			uint32_t Count() const;
+			char const * Get(uint32_t i) const;
+		};
+
+		Entry HashTable[65521];
+
+		const char * Find(char const * s, uint64_t length) const;
+		static uint32_t Hash(char const * s, uint64_t length);
+	};
 #pragma pack(pop)
-
-
-enum class NodeType
-{
-	None = 0,
-	Database = 1,
-	Proc = 2,
-	DivQuery = 3,
-	And = 4,
-	NotAnd = 5,
-	RelOp = 6,
-	Rule = 7,
-	InternalQuery = 8,
-	UserQuery = 9,
-	Max = UserQuery
-};
-
-enum DebugFlag
-{
-	DF_FunctionList = 1 << 16,
-	DF_NodeList = 1 << 17,
-	DF_CompileTrace = 1 << 18,
-	DF_DebugTrace = 1 << 19,
-	DF_DebugFacts = 1 << 20,
-	DF_LogRuleFailures = 1 << 21,
-	DF_ListOrphans = 1 << 22,
-	DF_SuppressInitLog = 1 << 23,
-	DF_LogFactFailures = 1 << 24,
-	DF_LogSuccessfulFacts = 1 << 25,
-	DF_LogFailedFacts = 1 << 26,
-	DF_SuppressRuleVariables = 1 << 27,
-	DF_SuppressParentGoals = 1 << 28,
-	DF_SuppressUnknown = 1 << 29,
-	DF_SuppressQueryResults = 1 << 30,
-	DF_DumpDatabases = 1 << 31
-};
-
-typedef void (* COsirisOpenLogFileProc)(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
-typedef void (* COsirisCloseLogFileProc)(void * Osiris);
-typedef bool (* COsirisCompileProc)(void * Osiris, wchar_t const * path, wchar_t const * mode);
-typedef int (* COsirisInitGameProc)(void * Osiris);
-typedef int (* COsirisLoadProc)(void * Osiris, void * Buf);
-typedef bool (* COsirisMergeProc)(void * Osiris, wchar_t * Src);
-typedef int (* COsirisDeleteAllDataProc)(void * Osiris, bool DeleteTypes);
-typedef int (* COsirisReadHeaderProc)(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
-typedef void (* RuleActionCallProc)(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 
 }

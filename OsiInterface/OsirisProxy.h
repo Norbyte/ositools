@@ -1,174 +1,96 @@
 #pragma once
 
-#include "DivInterface.h"
+#include "OsiInterface.h"
 #include "DebugInterface.h"
 #include "DebugMessages.h"
 #include "Debugger.h"
-#include <detours.h>
+#include "OsirisWrappers.h"
+#include "CustomFunctions.h"
+#include "DataLibraries.h"
+#include "FunctionLibrary.h"
+
 #include <thread>
 
 namespace osidbg {
 
-template <typename T>
-class WrappedFunction;
-
-template <typename R, typename... Params>
-class WrappedFunction<R(Params...)>
-{
-public:
-	typedef R(*FuncType)(Params...);
-
-	bool IsWrapped() const
-	{
-		return OriginalFunc != nullptr;
-	}
-
-	void Wrap(void * Function, FuncType NewFunction)
-	{
-		if (IsWrapped()) {
-			throw std::runtime_error("Tried to wrap function multiple times");
-		}
-
-		OriginalFunc = Function;
-		NewFunc = NewFunction;
-		auto status = DetourAttachEx((PVOID *)&OriginalFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
-		if (status != NO_ERROR) {
-			std::wstringstream ss;
-			ss << "Detour attach failed: error " << status;
-			Fail(ss.str().c_str());
-		}
-	}
-
-	void Unwrap()
-	{
-		if (IsWrapped()) {
-			DetourDetach((PVOID *)&OriginalFunc, (PVOID)NewFunc);
-		}
-	}
-
-	inline R operator ()(Params... Args)
-	{
-		return FuncTrampoline(Args...);
-	}
-
-private:
-	void * OriginalFunc{ nullptr };
-	FuncType NewFunc{ nullptr };
-	FuncType FuncTrampoline{ nullptr };
-};
-
-struct OsirisGlobals
-{
-	void * OsirisObject{ nullptr };
-	OsirisManager * Manager{ nullptr };
-	VariableDb ** Variables{ nullptr };
-	TypeDb ** Types{ nullptr };
-	TypeDb ** Functions{ nullptr };
-	TypeDb ** Objects{ nullptr };
-	GoalDb ** Goals{ nullptr };
-	AdapterDb ** Adapters{ nullptr };
-	DatabaseDb ** Databases{ nullptr };
-	NodeDb ** Nodes{ nullptr };
-	DebugFlag * DebugFlags{ nullptr };
-	void * TypedValueVMT{ nullptr };
-};
-
 class OsirisProxy
 {
 public:
+	OsirisProxy();
 	void Initialize();
 	void Shutdown();
 	void EnableDebugging(bool Enabled, uint16_t Port);
-	void EnableHooks(bool Enabled);
+	void EnableExtensions(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 	void EnableCompileLogging(bool Log);
 
-	inline OsirisGlobals const & GetGlobals() const
+	inline OsirisStaticGlobals const & GetGlobals() const
 	{
-		return Globals;
+		return Wrappers.Globals;
+	}
+
+	inline OsirisDynamicGlobals const & GetDynamicGlobals() const
+	{
+		return DynGlobals;
+	}
+
+	inline CustomFunctionManager & GetCustomFunctionManager()
+	{
+		return CustomFunctions;
+	}
+
+	inline CustomFunctionInjector const & GetCustomFunctionInjector() const
+	{
+		return CustomInjector;
+	}
+
+	inline LibraryManager const & GetLibraryManager() const
+	{
+		return Libraries;
 	}
 
 	inline void * GetOsirisDllStart() const
 	{
-		return OsirisDllStart;
+		return Wrappers.OsirisDllStart;
 	}
 
 	inline uint32_t GetOsirisDllSize() const
 	{
-		return OsirisDllSize;
+		return Wrappers.OsirisDllSize;
+	}
+
+	inline OsirisWrappers const & GetWrappers() const
+	{
+		return Wrappers;
 	}
 
 private:
-	WrappedFunction<int(void *, DivFunctions *)> RegisterDivFunctions;
-	WrappedFunction<int(void *)> InitGame;
-	WrappedFunction<int(void *, bool)> DeleteAllData;
-	OsirisGlobals Globals;
-
-	HMODULE OsirisModule{ NULL };
-	void * OsirisDllStart{ nullptr };
-	uint32_t OsirisDllSize{ 0 };
+	OsirisWrappers Wrappers;
+	OsirisDynamicGlobals DynGlobals;
+	CustomFunctionManager CustomFunctions;
+	CustomFunctionInjector CustomInjector;
+	CustomFunctionLibrary FunctionLibrary;
+	LibraryManager Libraries;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
 
-	int RegisterDIVFunctionsWrapper(void *, DivFunctions *);
-	static int SRegisterDIVFunctionsWrapper(void *, DivFunctions *);
+	void OnRegisterDIVFunctions(void *, DivFunctions *);
+	void OnInitGame(void *);
+	void OnDeleteAllData(void *, bool);
 
-	int InitGameWrapper(void *);
-	static int SInitGameWrapper(void *);
+	void OnError(char const * Message);
+	void OnAssert(bool Successful, char const * Message, bool Unknown2);
+	bool CompileWrapper(std::function<bool (void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode);
+	void OnAfterOsirisLoad(void * Osiris, void * Buf, int retval);
+	bool MergeWrapper(std::function<bool(void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src);
+	void RuleActionCall(std::function<void(RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 
-	int DeleteAllDataWrapper(void *, bool);
-	static int SDeleteAllDataWrapper(void *, bool);
-
-	bool CallWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
-	static bool SCallWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
-	DivFunctions::CallProc CallOriginal;
-
-	bool QueryWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
-	static bool SQueryWrapper(uint32_t FunctionHandle, OsiArgumentDesc * Params);
-	DivFunctions::CallProc QueryOriginal;
-
-	void ErrorWrapper(char const * Message);
-	static void SErrorWrapper(char const * Message);
-	DivFunctions::ErrorMessageProc ErrorOriginal;
-
-	void AssertWrapper(bool Successful, char const * Message, bool Unknown2);
-	static void SAssertWrapper(bool Successful, char const * Message, bool Unknown2);
-	DivFunctions::AssertProc AssertOriginal;
-
-	COsirisCloseLogFileProc OsirisCloseLogFileProc;
-	COsirisOpenLogFileProc OsirisOpenLogFileProc;
-	COsirisCompileProc OsirisCompileProc;
-	COsirisInitGameProc OsirisInitGameProc;
-	COsirisDeleteAllDataProc OsirisDeleteAllDataProc;
-	COsirisReadHeaderProc OsirisReadHeaderProc;
-	COsirisLoadProc OsirisLoadProc;
-	COsirisMergeProc OsirisMergeProc;
-	RuleActionCallProc OriginalRuleActionCallProc;
-
-	int OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
-	static int SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
-	WrappedFunction<int(void *, void *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, char *, unsigned int *)> WrappedOsirisReadHeader;
-
-	bool OsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
-	static bool SOsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode);
-	WrappedFunction<bool(void *, wchar_t const *, wchar_t const *)> WrappedOsirisCompile;
-
-	int OsirisLoad(void * Osiris, void * Buf);
-	static int SOsirisLoad(void * Osiris, void * Buf);
-	WrappedFunction<int (void *, void *)> WrappedOsirisLoad;
-
-	bool OsirisMerge(void * Osiris, wchar_t * Src);
-	static bool SOsirisMerge(void * Osiris, wchar_t * Src);
-	WrappedFunction<bool (void *, wchar_t *)> WrappedOsirisMerge;
-
-	void RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
-	static void SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
-	WrappedFunction<void (RuleActionNode *, void *, void *, void *, void *)> WrappedRuleActionCall;
-
-	bool HooksEnabled{ true };
 	bool DebuggingEnabled{ false };
 	uint16_t DebuggerPort;
+
+	bool ExtensionsEnabled{ false };
+
 	bool LoggingEnabled{ false };
 	bool CompilationLogEnabled{ false };
 	DebugFlag DesiredLogLevel;
@@ -176,17 +98,16 @@ private:
 	std::wstring LogFilename;
 	std::wstring LogType;
 
-	std::thread * DebuggerThread{ nullptr };
 	bool StoryLoaded{ false };
 
+#if !defined(OSI_NO_DEBUGGER)
+	std::thread * DebuggerThread{ nullptr };
 	std::unique_ptr<DebugInterface> debugInterface_;
 	std::unique_ptr<DebugMessageHandler> debugMsgHandler_;
 	std::unique_ptr<Debugger> debugger_;
 	bool DebugDisableLogged{ false };
+#endif
 
-	void * FindRuleActionCallProc();
-	void FindOsirisGlobals(FARPROC CtorProc);
-	void FindDebugFlags(FARPROC SetOptionProc);
 	void ResolveNodeVMTs(NodeDb * Db);
 	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
 	void HookNodeVMTs();

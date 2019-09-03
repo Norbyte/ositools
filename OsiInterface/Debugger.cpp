@@ -8,7 +8,7 @@
 
 namespace osidbg
 {
-	DebugAdapterMap::DebugAdapterMap(OsirisGlobals const & globals)
+	DebugAdapterMap::DebugAdapterMap(OsirisStaticGlobals const & globals)
 		: globals_(globals)
 	{}
 
@@ -52,7 +52,7 @@ namespace osidbg
 		adapters_[(uint8_t)adapter->VarToColumnMapCount] = adapter;
 	}
 
-	RuleActionMap::RuleActionMap(OsirisGlobals const & globals)
+	RuleActionMap::RuleActionMap(OsirisStaticGlobals const & globals)
 		: globals_(globals)
 	{}
 
@@ -106,7 +106,7 @@ namespace osidbg
 
 
 
-	BreakpointManager::BreakpointManager(OsirisGlobals const & globals)
+	BreakpointManager::BreakpointManager(OsirisStaticGlobals const & globals)
 		: breakpoints_(new std::unordered_map<uint64_t, Breakpoint>()),
 		globals_(globals)
 	{}
@@ -338,7 +338,7 @@ namespace osidbg
 
 
 
-	Debugger::Debugger(OsirisGlobals & globals, DebugMessageHandler & messageHandler)
+	Debugger::Debugger(OsirisStaticGlobals & globals, DebugMessageHandler & messageHandler)
 		: globals_(globals), messageHandler_(messageHandler),
 		actionMappings_(globals),
 		debugAdapters_(globals),

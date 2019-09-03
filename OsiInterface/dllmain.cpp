@@ -13,10 +13,19 @@
 
 struct ToolConfig
 {
+#if defined(OSI_EXTENSION_BUILD)
+	bool CreateConsole{ false };
+	bool EnableLogging{ false };
+	bool LogCompile{ false };
+	bool EnableExtensions{ true };
+	bool EnableDebugger{ false };
+#else
 	bool CreateConsole{ true };
 	bool EnableLogging{ false };
 	bool LogCompile{ false };
+	bool EnableExtensions{ false };
 	bool EnableDebugger{ true };
+#endif
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
@@ -66,6 +75,16 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		}
 		else {
 			Fail(L"Config option 'LogCompile' should be a boolean.");
+		}
+	}
+
+	auto enableExtensions = root["EnableExtensions"];
+	if (!enableExtensions.isNull()) {
+		if (enableExtensions.isBool()) {
+			config.EnableExtensions = enableExtensions.asBool();
+		}
+		else {
+			Fail(L"Config option 'EnableExtensions' should be a boolean.");
 		}
 	}
 
@@ -145,11 +164,19 @@ void SetupOsirisProxy(HMODULE hModule)
 		osidbg::gOsirisProxy->EnableDebugging(true, config.DebuggerPort);
 	}
 
+	osidbg::gOsirisProxy->EnableExtensions(config.EnableExtensions);
+
 	osidbg::gOsirisProxy->Initialize();
 
 #if 0
 	Debug(L" ***** OsirisProxy setup completed ***** ");
 #endif
+}
+
+bool ShouldRunProxy()
+{
+	return GetModuleHandleW(L"EoCApp.exe") != NULL
+		|| GetModuleHandleW(L"DivinityEngine2.exe") != NULL;
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -160,15 +187,18 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		RunSocketProxy();
-		gDxgiWrapper = std::make_unique<DxgiWrapper>();
-		SetupOsirisProxy(hModule);
+		if (ShouldRunProxy()) {
+			gDxgiWrapper = std::make_unique<DxgiWrapper>();
+			SetupOsirisProxy(hModule);
+		}
 		break;
 
 	case DLL_PROCESS_DETACH:
-		osidbg::gOsirisProxy->Shutdown();
-		osidbg::gOsirisProxy.reset();
-		gDxgiWrapper.reset();
+		if (gDxgiWrapper) {
+			osidbg::gOsirisProxy->Shutdown();
+			osidbg::gOsirisProxy.reset();
+			gDxgiWrapper.reset();
+		}
 		break;
 
 	case DLL_THREAD_ATTACH:

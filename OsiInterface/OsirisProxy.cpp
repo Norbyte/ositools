@@ -17,257 +17,56 @@ GameType gGameType = GameType::Unknown;
 
 std::unique_ptr<OsirisProxy> gOsirisProxy;
 
-uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
+
+OsirisProxy::OsirisProxy()
+	: CustomInjector(Wrappers, CustomFunctions),
+	FunctionLibrary(*this)
 {
-	// Resolve function pointer through relocations
-	for (uint8_t * ptr = Address; ptr < Address + 64; ptr++)
-	{
-		// Look for the instruction "cmp qword ptr [rip+xxxxxx], 0"
-		if (ptr[0] == 0x48 && ptr[1] == 0x83 && ptr[2] == 0x3d && ptr[6] == 0x00 &&
-			// Look for the instruction "jmp xxxx"
-			ptr[13] == 0xe9)
-		{
-			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 14);
-			return ptr + relOffset + 18;
-		}
-	}
-
-	// Could not find any relocations
-	return Address;
-}
-
-void * OsirisProxy::FindRuleActionCallProc()
-{
-#if 0
-	Debug(L"OsirisProxy::FindRuleActionCallProc");
-#endif
-	uint8_t * Addr = static_cast<uint8_t *>(OsirisDllStart);
-
-	// Function prologue of RuleAction::Call
-	static const uint8_t instructions[18] = {
-		0x40, 0x55, // push rbp
-		0x53, // push rbx
-		0x56, // push rsi
-		0x41, 0x56, // push r14
-		0x48, 0x8D, 0x6C, 0x24, 0xC1, // lea rbp, [rsp-3Fh]
-		0x48, 0x81, 0xEC, 0x88, 0x00, 0x00, 0x00 // sub rsp, 88h
-	};
-
-	// Look for prologue in the entire osiris DLL
-	for (uint8_t * ptr = Addr; ptr < Addr + OsirisDllSize; ptr++)
-	{
-		if (*reinterpret_cast<uint64_t *>(ptr) == *reinterpret_cast<uint64_t const *>(&instructions[0])
-			&& memcmp(instructions, ptr, sizeof(instructions)) == 0)
-		{
-			return ptr;
-		}
-	}
-
-	return nullptr;
-}
-
-void OsirisProxy::FindOsirisGlobals(FARPROC CtorProc)
-{
-#if 0
-	Debug(L"OsirisProxy::FindOsirisGlobals:");
-#endif
-	uint8_t * Addr = ResolveRealFunctionAddress((uint8_t *)CtorProc);
-
-	// Try to find pointers of Osiris globals
-	const unsigned NumGlobals = 8;
-	uint8_t * globals[NumGlobals];
-	unsigned foundGlobals = 0;
-	for (uint8_t * ptr = Addr; ptr < Addr + 0x300; ptr++)
-	{
-		// Look for the instruction "jmp short $+7"
-		if (ptr[0] == 0xEB && ptr[1] == 0x07 &&
-			// Look for the instruction "mov cs:[rip + xxx], <64-bit register>"
-			ptr[2] == 0x48 && ptr[3] == 0x89 && (ptr[4] & 0xC7) == 0x05)
-		{
-			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 5);
-			uint64_t osiPtr = (uint64_t)ptr + relOffset + 9;
-			globals[foundGlobals++] = (uint8_t *)osiPtr;
-			if (foundGlobals == NumGlobals) break;
-		}
-	}
-
-	if (foundGlobals < NumGlobals)
-	{
-		Fail(L"Could not locate global Osiris variables");
-	}
-
-	Globals.Variables = (VariableDb **)globals[0];
-	Globals.Types = (TypeDb **)globals[1];
-	Globals.Functions = (TypeDb **)globals[2];
-	Globals.Objects = (TypeDb **)globals[3];
-	Globals.Goals = (GoalDb **)globals[4];
-	Globals.Adapters = (AdapterDb **)globals[5];
-	Globals.Databases = (DatabaseDb **)globals[6];
-	Globals.Nodes = (NodeDb **)globals[7];
-
-#if 0
-	Debug(L"\tVariables = %p", Globals.Variables);
-	Debug(L"\tTypes = %p", Globals.Types);
-	Debug(L"\tFunctions = %p", Globals.Functions);
-	Debug(L"\tObjects = %p", Globals.Objects);
-	Debug(L"\tGoals = %p", Globals.Goals);
-	Debug(L"\tAdapters = %p", Globals.Adapters);
-	Debug(L"\tDatabases = %p", Globals.Databases);
-	Debug(L"\tNodes = %p", Globals.Nodes);
-#endif
-}
-
-void OsirisProxy::FindDebugFlags(FARPROC SetOptionProc)
-{
-	uint8_t * Addr = ResolveRealFunctionAddress((uint8_t *)SetOptionProc);
-
-	// Try to find pointer of global var DebugFlags
-	for (uint8_t * ptr = Addr; ptr < Addr + 0x80; ptr++)
-	{
-		// Look for the instruction "mov ecx, cs:xxx"
-		if (ptr[0] == 0x8B && ptr[1] == 0x0D &&
-			// Look for the instruction "shr e*x, 14h"
-			ptr[8] == 0xC1 && ptr[10] == 0x14)
-		{
-			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 2);
-			uint64_t dbgPtr = (uint64_t)ptr + relOffset + 6;
-			Globals.DebugFlags = (DebugFlag *)dbgPtr;
-			break;
-		}
-	}
-
-	if (Globals.DebugFlags == nullptr) {
-		Fail(L"Could not locate global variable DebugFlags");
-	}
-
-#if 0
-	Debug(L"OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
-#endif
 }
 
 void OsirisProxy::Initialize()
 {
 	Debug(L"OsirisProxy::Initialize: Starting");
-	OsirisModule = LoadLibrary(L"osiris_x64.dll");
-	if (OsirisModule == NULL) {
-		Fail(L"Could not load osiris_x64.dll");
-	}
+	Wrappers.Initialize();
 
-	MODULEINFO moduleInfo;
-	if (!GetModuleInformation(GetCurrentProcess(), OsirisModule, &moduleInfo, sizeof(moduleInfo))) {
-		Fail(L"Could not get module info of osiris_x64.dll");
-	}
-
-	OsirisDllStart = moduleInfo.lpBaseOfDll;
-	OsirisDllSize = moduleInfo.SizeOfImage;
-
-	FARPROC OsirisCtorProc = GetProcAddress(OsirisModule, "??0COsiris@@QEAA@XZ");
-	if (OsirisCtorProc == NULL) {
-		Fail(L"Could not locate COsiris::COsiris() in osiris_x64.dll");
-	}
-
-	FindOsirisGlobals(OsirisCtorProc);
-
-	OriginalRuleActionCallProc = (RuleActionCallProc)FindRuleActionCallProc();
-	if (!OriginalRuleActionCallProc) {
-		Fail(L"Could not locate RuleAction::Call in osiris_x64.dll");
-	}
-
-	FARPROC RegisterDIVFunctionsProc = GetProcAddress(OsirisModule, "?RegisterDIVFunctions@COsiris@@QEAAXPEAUTOsirisInitFunction@@@Z");
-	if (RegisterDIVFunctionsProc == NULL) {
-		Fail(L"Could not locate RegisterDIVFunctions in osiris_x64.dll");
-	}
-
-	FARPROC InitGameProc = GetProcAddress(OsirisModule, "?InitGame@COsiris@@QEAA_NXZ");
-	if (InitGameProc == NULL) {
-		Fail(L"Could not locate COsiris::InitGame in osiris_x64.dll");
-	}
-
-	OsirisInitGameProc = (COsirisInitGameProc)InitGameProc;
-
-	FARPROC DeleteAllDataProc = GetProcAddress(OsirisModule, "?DeleteAllData@COsiris@@QEAAX_N@Z");
-	if (DeleteAllDataProc == NULL) {
-		Fail(L"Could not locate COsiris::DeleteAllData in osiris_x64.dll");
-}
-
-	OsirisDeleteAllDataProc = (COsirisDeleteAllDataProc)DeleteAllDataProc;
-
-#if 0
-	Debug(L"OsirisProxy::Initialize: Detouring functions");
+	using namespace std::placeholders;
+	Wrappers.RegisterDivFunctions.AddPreHook(std::bind(&OsirisProxy::OnRegisterDIVFunctions, this, _1, _2));
+	Wrappers.InitGame.AddPreHook(std::bind(&OsirisProxy::OnInitGame, this, _1));
+	Wrappers.DeleteAllData.AddPreHook(std::bind(&OsirisProxy::OnDeleteAllData, this, _1, _2));
+	Wrappers.Error.AddPreHook(std::bind(&OsirisProxy::OnError, this, _1));
+	Wrappers.Assert.AddPreHook(std::bind(&OsirisProxy::OnAssert, this, _1, _2, _3));
+	Wrappers.Compile.AddWrapper(std::bind(&OsirisProxy::CompileWrapper, this, _1, _2, _3, _4));
+	Wrappers.Load.AddPostHook(std::bind(&OsirisProxy::OnAfterOsirisLoad, this, _1, _2, _3));
+	Wrappers.Merge.AddWrapper(std::bind(&OsirisProxy::MergeWrapper, this, _1, _2, _3));
+#if !defined(OSI_NO_DEBUGGER)
+	Wrappers.RuleActionCall.AddWrapper(std::bind(&OsirisProxy::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
 #endif
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	RegisterDivFunctions.Wrap(RegisterDIVFunctionsProc, &SRegisterDIVFunctionsWrapper);
-	InitGame.Wrap(OsirisInitGameProc, &SInitGameWrapper);
-	DeleteAllData.Wrap(OsirisDeleteAllDataProc, &SDeleteAllDataWrapper);
-	DetourTransactionCommit();
 
-	FARPROC SetOptionProc = GetProcAddress(OsirisModule, "?SetOption@COsiris@@QEAAXI@Z");
-	if (SetOptionProc == NULL) {
-		Fail(L"Could not locate COsiris::SetOption in osiris_x64.dll");
+	if (ExtensionsEnabled) {
+		Debug(L"OsirisProxy::Initialize: Initializing libraries.");
+		if (Libraries.FindLibraries()) {
+			CustomInjector.Initialize();
+			FunctionLibrary.Register();
+			auto headers = CustomFunctions.GenerateHeaders();
+			Debug(L" === EXTENSION HEADERS ===");
+			std::cout << headers << std::endl;
+			Debug(L" === END EXTENSION HEADERS ===");
+		}
+		else {
+			Debug(L"OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
+		}
 	}
-
-	FindDebugFlags(SetOptionProc);
-
-	FARPROC OpenLogFileProc = GetProcAddress(OsirisModule, "?OpenLogFile@COsiris@@QEAA_NPEB_W0@Z");
-	if (OpenLogFileProc == NULL) {
-		Fail(L"Could not locate COsiris::OpenLogFile in osiris_x64.dll");
+	else {
+		Debug(L"OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
 	}
-
-	OsirisOpenLogFileProc = (COsirisOpenLogFileProc)OpenLogFileProc;
-
-	FARPROC CloseLogFileProc = GetProcAddress(OsirisModule, "?CloseLogFile@COsiris@@QEAAXXZ");
-	if (CloseLogFileProc == NULL) {
-		Fail(L"Could not locate COsiris::CloseLogFile in osiris_x64.dll");
-	}
-
-	OsirisCloseLogFileProc = (COsirisCloseLogFileProc)CloseLogFileProc;
-
-	FARPROC ReadHeaderProc = GetProcAddress(OsirisModule, "?_ReadHeader@COsiris@@IEAA_NAEAVCOsiSmartBuf@@AEAE111PEADAEAI@Z");
-	if (ReadHeaderProc == NULL) {
-		Fail(L"Could not locate COsiris::_ReadHeader in osiris_x64.dll");
-	}
-
-	OsirisReadHeaderProc = (COsirisReadHeaderProc)ReadHeaderProc;
-
-	FARPROC LoadProc = GetProcAddress(OsirisModule, "?Load@COsiris@@QEAA_NAEAVCOsiSmartBuf@@@Z");
-	if (LoadProc == NULL) {
-		Fail(L"Could not locate COsiris::Load in osiris_x64.dll");
-	}
-
-	OsirisLoadProc = (COsirisLoadProc)LoadProc;
-
-	FARPROC CompileProc = GetProcAddress(OsirisModule, "?Compile@COsiris@@QEAA_NPEB_W0@Z");
-	if (CompileProc == NULL) {
-		Fail(L"Could not locate COsiris::Compile in osiris_x64.dll");
-	}
-
-	OsirisCompileProc = (COsirisCompileProc)CompileProc;
-
-	FARPROC MergeProc = GetProcAddress(OsirisModule, "?Merge@COsiris@@QEAA_NPEB_W@Z");
-	if (MergeProc == NULL) {
-		Fail(L"Could not locate COsiris::Merge in osiris_x64.dll");
-	}
-
-	OsirisMergeProc = (COsirisMergeProc)MergeProc;
 }
 
 void OsirisProxy::Shutdown()
 {
 	Debug(L"OsirisProxy::Shutdown: Starting");
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	WrappedRuleActionCall.Unwrap();
-	WrappedOsirisMerge.Unwrap();
-	WrappedOsirisLoad.Unwrap();
-	WrappedRuleActionCall.Unwrap();
-	RegisterDivFunctions.Unwrap();
-	WrappedOsirisCompile.Unwrap();
-	WrappedOsirisReadHeader.Unwrap();
-	DetourTransactionCommit();
-
-	FreeLibrary(OsirisModule);
+	Wrappers.Shutdown();
 }
+
 
 void OsirisProxy::EnableDebugging(bool Enabled, uint16_t Port)
 {
@@ -275,9 +74,9 @@ void OsirisProxy::EnableDebugging(bool Enabled, uint16_t Port)
 	DebuggerPort = Port;
 }
 
-void OsirisProxy::EnableHooks(bool Enabled)
+void OsirisProxy::EnableExtensions(bool Enabled)
 {
-	HooksEnabled = Enabled;
+	ExtensionsEnabled = Enabled;
 }
 
 void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path)
@@ -295,7 +94,7 @@ void OsirisProxy::EnableCompileLogging(bool Log)
 
 void OsirisProxy::RestartLogging(std::wstring const & Type)
 {
-	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Globals.DebugFlags & 0x0000ffff));
+	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));
 
 	if (LogFilename.empty() || LogType != Type)
 	{
@@ -306,12 +105,12 @@ void OsirisProxy::RestartLogging(std::wstring const & Type)
 			"\tPath=%s\r\n"
 			"\tOriginalDebugFlags=%08x\r\n"
 			"\tDebugFlags=%08x", 
-			Type.c_str(), LogFilename.c_str(), *Globals.DebugFlags, NewFlags);
+			Type.c_str(), LogFilename.c_str(), *Wrappers.Globals.DebugFlags, NewFlags);
 	}
 
-	OsirisCloseLogFileProc(Globals.OsirisObject);
-	*Globals.DebugFlags = NewFlags;
-	OsirisOpenLogFileProc(Globals.OsirisObject, LogFilename.c_str(), L"ab+");
+	Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
+	*Wrappers.Globals.DebugFlags = NewFlags;
+	Wrappers.OpenLogFile.CallOriginal(DynGlobals.OsirisObject, LogFilename.c_str(), L"ab+");
 }
 
 std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
@@ -351,17 +150,21 @@ void OsirisProxy::HookNodeVMTs()
 	gNodeVMTWrappers = std::make_unique<NodeVMTWrappers>(NodeVMTs);
 }
 
+#if !defined(OSI_NO_DEBUGGER)
 void DebugThreadRunner(DebugInterface & intf)
 {
 	intf.Run();
 }
+#endif
 
-int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Functions)
+void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
 {
+	// FIXME - register before OsirisWrappers!
 	StoryLoaded = false;
-	Globals.OsirisObject = Osiris;
+	DynGlobals.OsirisObject = Osiris;
 	uint8_t * interfaceLoadPtr = nullptr;
-	uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Functions->ErrorMessage);
+	// uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Functions->ErrorMessage);
+	uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Wrappers.ErrorOriginal);
 
 	// Try to find ptr of gOsirisInterface
 	OsirisInterface * osirisInterface = nullptr;
@@ -371,39 +174,13 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 3);
 			uint64_t osiPtr = (uint64_t)ptr + relOffset + 7;
 			osirisInterface = *(OsirisInterface **)osiPtr;
-			Globals.Manager = osirisInterface->Manager;
+			DynGlobals.Manager = osirisInterface->Manager;
 			break;
 		}
 	}
 
-	if (Globals.Manager == nullptr) {
+	if (DynGlobals.Manager == nullptr) {
 		Fail(L"Could not locate OsirisInterface");
-	}
-
-	if (HooksEnabled) {
-		CallOriginal = Functions->Call;
-		QueryOriginal = Functions->Query;
-		ErrorOriginal = Functions->ErrorMessage;
-		AssertOriginal = Functions->Assert;
-
-		Functions->Call = &SCallWrapper;
-		Functions->Query = &SQueryWrapper;
-		Functions->ErrorMessage = &SErrorWrapper;
-		Functions->Assert = &SAssertWrapper;
-	}
-
-	if (!WrappedOsirisReadHeader.IsWrapped()) {
-#if 0
-		Debug(L"OsirisProxy::RegisterDIVFunctionsWrapper: Hooking COsiris functions");
-#endif
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		WrappedOsirisReadHeader.Wrap(OsirisReadHeaderProc, &SOsirisReadHeader);
-		WrappedOsirisCompile.Wrap(OsirisCompileProc, &SOsirisCompile);
-		WrappedOsirisLoad.Wrap(OsirisLoadProc, &SOsirisLoad);
-		WrappedOsirisMerge.Wrap(OsirisMergeProc, &SOsirisMerge);
-		WrappedRuleActionCall.Wrap(OriginalRuleActionCallProc, &SRuleActionCall);
-		DetourTransactionCommit();
 	}
 
 	if (LoggingEnabled) {
@@ -411,12 +188,14 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 	}
 
 #if 0
-	Debug(L"OsirisProxy::RegisterDIVFunctionsWrapper: Initializing story.");
+	Debug(L"OsirisProxy::OnRegisterDIVFunctions: Initializing story.");
 	Debug(L"\tErrorMessageProc = %p", errorMessageFunc);
 	Debug(L"\tOsirisManager = %p", Globals.Manager);
 	Debug(L"\tOsirisInterface = %p", osirisInterface);
 #endif
 
+#if !defined(OSI_NO_DEBUGGER)
+	// FIXME - move to DebuggerHooks
 	if (DebuggingEnabled) {
 		if (DebuggerThread == nullptr) {
 			Debug(L"Starting debugger server");
@@ -425,138 +204,89 @@ int OsirisProxy::RegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Funct
 
 			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
 		}
-	} else if (!DebugDisableLogged){
+	} else if (!DebugDisableLogged) {
 		Debug(L"Debugging not enabled; not starting debugger server thread.");
 		DebugDisableLogged = true;
 	}
+#endif
 
-	return RegisterDivFunctions(Osiris, Functions);
+	Libraries.PostStartupFindLibraries();
 }
 
-int OsirisProxy::SRegisterDIVFunctionsWrapper(void * Osiris, DivFunctions * Functions)
+void OsirisProxy::OnInitGame(void * Osiris)
 {
-	return gOsirisProxy->RegisterDIVFunctionsWrapper(Osiris, Functions);
-}
+	Debug(L"OsirisProxy::OnInitGame()");
+	auto stats = Libraries.GetStats();
+	auto vamp = stats->objects.Find("Target_SourceVampirism");
+	auto description = stats->GetAttributeFixedString(vamp, "DescriptionRef");
+	auto deathType = stats->GetAttributeFixedString(vamp, "DeathType");
 
-int OsirisProxy::InitGameWrapper(void * Osiris)
-{
-	Debug(L"OsirisProxy::InitGame()");
+	auto descrInt = stats->GetAttributeInt(vamp, "DescriptionRef");
+	auto deathTypeInt = stats->GetAttributeInt(vamp, "DeathType");
+	auto targetRadiusInt = stats->GetAttributeInt(vamp, "TargetRadius");
+
+	auto kraken = stats->objects.Find("Animals_Voidwoken_Kraken_Tentacle");
+	auto piercingRes = stats->GetAttributeInt(kraken, "PiercingResistance");
+
+	auto cf = Libraries.GetCharacterFactory();
+
+	auto gsp = Libraries.GetGlobalStringTable();
+	auto found = gsp->Find("FUR_Bucket_A_CONT_Barrel_A_Water", strlen("FUR_Bucket_A_CONT_Barrel_A_Water"));
+
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
 		debugger_->GameInitHook();
 	}
-
-	return InitGame(Osiris);
+#endif
 }
 
-int OsirisProxy::SInitGameWrapper(void * Osiris)
+void OsirisProxy::OnDeleteAllData(void * Osiris, bool DeleteTypes)
 {
-	return gOsirisProxy->InitGameWrapper(Osiris);
-}
-
-int OsirisProxy::DeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
-{
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
-		Debug(L"OsirisProxy::DeleteAllData()");
+		Debug(L"OsirisProxy::OnDeleteAllData()");
 		debugger_->DeleteAllDataHook();
 		debugger_.reset();
 	}
-
-	return DeleteAllData(Osiris, DeleteTypes);
+#endif
 }
 
-int OsirisProxy::SDeleteAllDataWrapper(void * Osiris, bool DeleteTypes)
-{
-	return gOsirisProxy->DeleteAllDataWrapper(Osiris, DeleteTypes);
-}
-
-bool OsirisProxy::CallWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
-{
-	return CallOriginal(FunctionId, Params);
-}
-
-bool OsirisProxy::SCallWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
-{
-	return gOsirisProxy->CallWrapper(FunctionId, Params);
-}
-
-bool OsirisProxy::QueryWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
-{
-	return QueryOriginal(FunctionId, Params);
-}
-
-bool OsirisProxy::SQueryWrapper(uint32_t FunctionId, OsiArgumentDesc * Params)
-{
-	return gOsirisProxy->QueryWrapper(FunctionId, Params);
-}
-
-void OsirisProxy::ErrorWrapper(char const * Message)
+void OsirisProxy::OnError(char const * Message)
 {
 	Debug("Osiris Error: %s", Message);
-	ErrorOriginal(Message);
 }
 
-void OsirisProxy::SErrorWrapper(char const * Message)
-{
-	gOsirisProxy->ErrorWrapper(Message);
-}
-
-void OsirisProxy::AssertWrapper(bool Successful, char const * Message, bool Unknown2)
+void OsirisProxy::OnAssert(bool Successful, char const * Message, bool Unknown2)
 {
 	if (!Successful) {
 		Debug("Osiris Assert: %s", Message);
 	}
-
-	AssertOriginal(Successful, Message, Unknown2);
 }
 
-void OsirisProxy::SAssertWrapper(bool Successful, char const * Message, bool Unknown2)
+bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode)
 {
-	gOsirisProxy->AssertWrapper(Successful, Message, Unknown2);
-}
-
-int OsirisProxy::OsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags)
-{
-	int retval = WrappedOsirisReadHeader(Osiris, OsiSmartBuf, MajorVersion, MinorVersion, BigEndian, Unused, StoryFileVersion, DebugFlags);
-	if (LoggingEnabled) {
-		uint32_t NewFlags = (DesiredLogLevel & 0xffff0000) | (*DebugFlags & 0x0000ffff);
-#if 0
-		Debug(L"OsirisProxy::OsirisReadHeader: Change DebugFlags from %08x to %08x", *DebugFlags, NewFlags);
-#endif
-		*DebugFlags = NewFlags;
-	}
-
-	return retval;
-}
-
-int OsirisProxy::SOsirisReadHeader(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags)
-{
-	return gOsirisProxy->OsirisReadHeader(Osiris, OsiSmartBuf, MajorVersion, MinorVersion, BigEndian, Unused, StoryFileVersion, DebugFlags);
-}
-
-
-bool OsirisProxy::OsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode)
-{
-	Debug(L"OsirisProxy::OsirisCompile: Starting compilation of '%s'", Path);
-	auto OriginalFlags = *Globals.DebugFlags;
-	auto storyPath = MakeLogFilePath(L"Compile", L"div");
+	Debug(L"OsirisProxy::CompileWrapper: Starting compilation of '%s'", Path);
+	auto OriginalFlags = *Wrappers.Globals.DebugFlags;
+	std::wstring storyPath;
 
 	if (CompilationLogEnabled) {
-		*Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
+		storyPath = MakeLogFilePath(L"Compile", L"div");
+		*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
 		CopyFileW(Path, storyPath.c_str(), TRUE);
 		RestartLogging(L"Compile");
 	}
 
-	auto ret = WrappedOsirisCompile(Osiris, Path, Mode);
+	auto ret = Next(Osiris, Path, Mode);
 
 	if (ret) {
-		Debug(L"OsirisProxy::OsirisCompile: Success.");
+		Debug(L"OsirisProxy::CompileWrapper: Success.");
 	} else {
-		Debug(L"OsirisProxy::OsirisCompile: Compilation FAILED.");
+		Debug(L"OsirisProxy::CompileWrapper: Compilation FAILED.");
 	}
 
 	if (CompilationLogEnabled) {
-		*Globals.DebugFlags = OriginalFlags;
-		OsirisCloseLogFileProc(Globals.OsirisObject);
+		*Wrappers.Globals.DebugFlags = OriginalFlags;
+		Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
 
 		if (ret) {
 			DeleteFileW(storyPath.c_str());
@@ -585,77 +315,63 @@ bool OsirisProxy::OsirisCompile(void * Osiris, wchar_t const * Path, wchar_t con
 	return ret;
 }
 
-bool OsirisProxy::SOsirisCompile(void * Osiris, wchar_t const * Path, wchar_t const * Mode)
+void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 {
-	return gOsirisProxy->OsirisCompile(Osiris, Path, Mode);
-}
-
-int OsirisProxy::OsirisLoad(void * Osiris, void * Buf)
-{
-	int retval = WrappedOsirisLoad(Osiris, Buf);
-
 	if (!ResolvedNodeVMTs) {
-		ResolveNodeVMTs(*Globals.Nodes);
+		ResolveNodeVMTs(*Wrappers.Globals.Nodes);
 		ResolvedNodeVMTs = true;
 		HookNodeVMTs();
 	}
 
 	StoryLoaded = true;
-	Debug(L"OsirisProxy::Load: %d nodes", (*Globals.Nodes)->Db.Size);
+	Debug(L"OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
+#if !defined(OSI_NO_DEBUGGER)
 	if (DebuggerThread != nullptr && gNodeVMTWrappers) {
 		debugger_.reset();
-		debugger_ = std::make_unique<Debugger>(Globals, std::ref(*debugMsgHandler_));
+		debugger_ = std::make_unique<Debugger>(Wrappers.Globals, std::ref(*debugMsgHandler_));
 		debugger_->StoryLoaded();
 	}
-
-	return retval;
+#endif
 }
 
-int OsirisProxy::SOsirisLoad(void * Osiris, void * Buf)
+bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
 {
-	return gOsirisProxy->OsirisLoad(Osiris, Buf);
-}
+	Debug(L"OsirisProxy::MergeWrapper() - Started merge");
 
-bool OsirisProxy::OsirisMerge(void * Osiris, wchar_t * Src)
-{
-	Debug(L"OsirisProxy::Merge() - Started merge");
-
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
 		debugger_->MergeStarted();
 	}
+#endif
 
-	bool retval = WrappedOsirisMerge(Osiris, Src);
+	bool retval = Next(Osiris, Src);
 
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
 		debugger_->MergeFinished();
 	}
+#endif
 
-	Debug(L"OsirisProxy::Merge() - Finished merge");
+	Debug(L"OsirisProxy::MergeWrapper() - Finished merge");
 	return retval;
 }
 
-bool OsirisProxy::SOsirisMerge(void * Osiris, wchar_t * Src)
+void OsirisProxy::RuleActionCall(std::function<void (RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
 {
-	return gOsirisProxy->OsirisMerge(Osiris, Src);
-}
-
-void OsirisProxy::RuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
-{
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
 		debugger_->RuleActionPreHook(Action);
 	}
+#endif
 
-	WrappedRuleActionCall(Action, a1, a2, a3, a4);
+	Next(Action, a1, a2, a3, a4);
 
+#if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
 		debugger_->RuleActionPostHook(Action);
 	}
-}
-
-void OsirisProxy::SRuleActionCall(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
-{
-	gOsirisProxy->RuleActionCall(Action, a1, a2, a3, a4);
+#endif
 }
 
 void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)

@@ -1,8 +1,10 @@
 #pragma once
 
+#if !defined(OSI_NO_DEBUGGER)
+
 #include <cstdint>
 #include "osidebug.pb.h"
-#include "DivInterface.h"
+#include "OsiInterface.h"
 #include "DebugInterface.h"
 
 namespace osidbg
@@ -130,3 +132,5 @@ namespace osidbg
 		void SendResult(uint32_t seq, ResultCode code);
 	};
 }
+
+#endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DivInterface.h"
+#include "OsiInterface.h"
 #include <unordered_map>
 #include <functional>
 

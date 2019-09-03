@@ -1,5 +1,7 @@
 #pragma once
 
+#if !defined(OSI_NO_DEBUGGER)
+
 #include <cstdint>
 #include <WinSock2.h>
 #include "osidebug.pb.h"
@@ -37,3 +39,5 @@ namespace osidbg
 		std::function<void ()> disconnectHandler_;
 	};
 }
+
+#endif
