@@ -10,25 +10,26 @@ namespace osidbg
 	{
 		void IterateCharacterStatuses(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto characterGuid = args.Get(0).String;
+			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
-				OsiError("IterateCharacterStatuses(): Character " << args.Get(0).String << " does not exist!");
+				OsiError("IterateCharacterStatuses(): Character " << characterGuid << " does not exist!");
 				return;
 			}
 
 			auto eventName = args.Get(1).String;
 			auto statuses = character->StatusManager;
 			if (statuses != nullptr) {
-				auto index = 0;
-				EsvStatus ** end = statuses->Statuses + statuses->StatusCount;
-				for (auto status = statuses->Statuses; status != end; status++) {
+				// Fetch the number of statuses before triggering any events to make sure we don't see
+				// subsequent altererations of the StatusMachine
+				auto numStatuses = statuses->StatusCount;
+				for (auto index = 0; index < numStatuses; index++) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
-					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, args.Get(0).String });
+					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
 					eventArgs->Add(OsiArgumentValue{ (int64_t)index });
 
 					auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
 					gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)StatusIteratorEventHandle, eventArgs);
-					index++;
 
 					delete eventArgs;
 				}
