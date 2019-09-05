@@ -37,6 +37,51 @@ namespace osidbg
 		uint32_t D;
 	};
 
+	struct CRPGStats_ObjectInstance : public CRPGStats_Object
+	{
+		uint32_t InstanceId;
+	};
+
+	struct CDivinityStats_Item : public CRPGStats_ObjectInstance
+	{
+		uint32_t _Pad0;
+		uint32_t U1;
+		uint32_t ItemType;
+		uint32_t ItemSlot;
+		uint32_t WeaponType;
+		uint32_t AnimType;
+		uint32_t WeaponRange;
+		uint32_t IsIdentified;
+		uint32_t U2;
+		uint32_t U3;
+		uint32_t U4;
+		bool IsTwoHanded;
+		bool HasAddedItems_M;
+		bool U5;
+		bool HasModifiedSkills;
+		uint32_t U6;
+		uint64_t Skills;
+		uint32_t DamageTypeOverwrite;
+		uint32_t Durability;
+		uint32_t DurabilityCounter;
+		uint32_t U7;
+		FixedString ItemTypeReal;
+		FixedString U8;
+		void * DynamicAttributes_Start;
+		void * DynamicAttributes_End;
+		uint64_t U9[3];
+		uint32_t MaxCharges;
+		uint32_t Charges;
+		uint8_t LevelGroupIndex;
+		uint8_t RootGroupIndex;
+		uint8_t NameGroupIndex;
+		uint8_t NameIndex;
+		uint32_t NameCool;
+		ObjectSet<void *> Tags_Maybe;
+		ObjectSet<FixedString> BoostNameSet;
+		uint64_t U10[12];
+	};
+
 	struct RPGEnumeration
 	{
 		FixedString Name;
@@ -339,6 +384,33 @@ namespace osidbg
 		uint32_t SomeCount;
 	};
 
+	enum EsvCharacterFlags : uint64_t
+	{
+		kHostControl = 0x08,
+		kOffStage = 0x20,
+		kCannotBePossessed = 0x80
+	};
+
+	enum EsvCharacterFlags2 : uint8_t
+	{
+		kGlobal = 0x01,
+		kHasOsirisDialog = 0x02,
+		kHasDefaultDialog = 0x04,
+		kTreasureGeneratedForTrader = 0x10,
+		kResurrected = 0x20
+	};
+
+	enum EsvCharacterFlags3 : uint8_t
+	{
+		kIsPet = 0x01,
+		kIsSpectating = 0x02,
+		kNoReptuationEffects = 0x04,
+		kHasWalkSpeedOverride = 0x08,
+		kHasRunSpeedOverride = 0x10,
+		kIsGameMaster = 0x20,
+		kIsPossessed = 0x40
+	};
+
 	struct EsvCharacter
 	{
 		virtual ~EsvCharacter() = 0;
@@ -357,8 +429,8 @@ namespace osidbg
 		virtual void GetComponentType() = 0;
 		virtual void GetEntityObjectByHandle() = 0;
 		virtual void GetName() = 0;
-		virtual void UNK1() = 0;
-		virtual void UNK2() = 0;
+		virtual void SetFlags(uint64_t flag) = 0;
+		virtual void ClearFlags(uint64_t flag) = 0;
 		virtual void HasFlag() = 0;
 		virtual void SetAiColliding() = 0;
 		virtual void GetTags() = 0;
@@ -366,11 +438,11 @@ namespace osidbg
 		virtual void GetTranslate() = 0;
 		virtual void GetRotation() = 0;
 		virtual void GetScale() = 0;
-		virtual void SetTranslate() = 0;
+		virtual void SetTranslate(Vector3 const & translate) = 0;
 		virtual void SetRotation() = 0;
-		virtual void SetScale() = 0;
-		virtual void UNK3() = 0;
-		virtual void UNK4() = 0;
+		virtual void SetScale(float scale) = 0;
+		virtual void GetVelocity() = 0;
+		virtual void SetVelocity(Vector3 const & translate) = 0;
 		virtual void LoadVisual() = 0;
 		virtual void UnloadVisual() = 0;
 		virtual void ReloadVisual() = 0;
@@ -383,8 +455,19 @@ namespace osidbg
 		virtual void GetHeight() = 0;
 		virtual void GetParentUUID() = 0;
 		virtual FixedString * GetCurrentLevel() = 0;
-		virtual void SetCurrentLevel() = 0;
+		virtual void SetCurrentLevel(FixedString const & level) = 0;
 		virtual void AddPeer() = 0;
+		virtual void UNK1() = 0;
+		virtual void UNK2() = 0;
+		virtual void UNK3() = 0;
+		virtual void GetAi() = 0;
+		virtual void LoadAi() = 0;
+		virtual void UnloadAi() = 0;
+		virtual void GetDisplayName() = 0;
+		virtual void SavegameVisit() = 0;
+		virtual void GetEntityNetworkId() = 0;
+		virtual void SetTemplate() = 0;
+		virtual void SetOriginalTemplate_M() = 0;
 
 		BaseComponent Base;
 		FixedString MyGuid;
@@ -392,7 +475,7 @@ namespace osidbg
 		uint32_t _Pad1;
 		float WorldPos[3];
 		uint32_t _Pad2;
-		uint64_t Flags2;
+		EsvCharacterFlags Flags;
 		uint32_t U2;
 		uint32_t _Pad3;
 		void * CurrentLevel;
@@ -403,7 +486,9 @@ namespace osidbg
 		void * CurrentTemplate;
 		void * OriginalTemplate;
 		void * TemplateUsedForSkills;
-		uint8_t Flags[3];
+		EsvCharacterFlags2 Flags2;
+		EsvCharacterFlags3 Flags3;
+		uint8_t FlagsEx;
 		uint8_t Team;
 		uint8_t Color;
 		uint8_t _Pad4[3];
@@ -412,9 +497,9 @@ namespace osidbg
 		uint32_t WalkSpeedOverride;
 		uint32_t RunSpeedOverride;
 		ObjectSet<FixedString> VoiceSet;
-		bool NeedsUpdate;
-		bool ScriptForceUpdate;
-		bool ForceSynch;
+		uint8_t NeedsUpdateCount;
+		uint8_t ScriptForceUpdateCount;
+		uint8_t ForceSynchCount;
 		bool U5;
 		uint8_t _Pad5[4];
 		void * Stats;
@@ -521,8 +606,8 @@ namespace osidbg
 		virtual void GetComponentType() = 0;
 		virtual void GetEntityObjectByHandle() = 0;
 		virtual void GetName() = 0;
-		virtual void UNK1() = 0;
-		virtual void UNK2() = 0;
+		virtual void SetFlags(uint64_t flag) = 0;
+		virtual void ClearFlags(uint64_t flag) = 0;
 		virtual void HasFlag() = 0;
 		virtual void SetAiColliding() = 0;
 		virtual void GetTags() = 0;
@@ -530,6 +615,36 @@ namespace osidbg
 		virtual void GetPosition() = 0;
 		virtual void GetRotation() = 0;
 		virtual void GetScale() = 0;
+		virtual void SetTranslate(Vector3 const & translate) = 0;
+		virtual void SetRotation() = 0;
+		virtual void SetScale(float scale) = 0;
+		virtual void GetVelocity() = 0;
+		virtual void SetVelocity(Vector3 const & translate) = 0;
+		virtual void LoadVisual() = 0;
+		virtual void UnloadVisual() = 0;
+		virtual void ReloadVisual() = 0;
+		virtual void GetVisual() = 0;
+		virtual void GetPhysics() = 0;
+		virtual void SetPhysics() = 0;
+		virtual void LoadPhysics() = 0;
+		virtual void UnloadPhysics() = 0;
+		virtual void ReloadPhysics() = 0;
+		virtual void GetHeight() = 0;
+		virtual void GetParentUUID() = 0;
+		virtual FixedString * GetCurrentLevel() = 0;
+		virtual void SetCurrentLevel(FixedString const & level) = 0;
+		virtual void AddPeer() = 0;
+		virtual void UNK1() = 0;
+		virtual void UNK2() = 0;
+		virtual void UNK3() = 0;
+		virtual void GetAi() = 0;
+		virtual void LoadAi() = 0;
+		virtual void UnloadAi() = 0;
+		virtual void GetDisplayName() = 0;
+		virtual void SavegameVisit() = 0;
+		virtual void GetEntityNetworkId() = 0;
+		virtual void SetTemplate() = 0;
+		virtual void SetOriginalTemplate_M() = 0;
 
 		BaseComponent Base;
 		FixedString MyGuid;
@@ -555,7 +670,7 @@ namespace osidbg
 		STDWString CustomDescription;
 		STDWString CustomBookContent;
 		FixedString StatsId;
-		void * StatsDynamic; // CDivinityStats_Item *
+		CDivinityStats_Item * StatsDynamic;
 		CRPGStats_Object * StatsFromName;
 		void * Generation;
 		ObjectHandle InventoryHandle;

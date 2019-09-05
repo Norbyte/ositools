@@ -155,7 +155,12 @@ namespace osidbg
 
 	struct STDWString
 	{
-		uint64_t Unkn[4];
+		union {
+			uint16_t Buf[8];
+			uint16_t * BufPtr;
+		};
+		uint64_t Size;
+		uint64_t Capacity;
 	};
 
 	template <class T>

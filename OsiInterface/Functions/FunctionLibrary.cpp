@@ -8,18 +8,33 @@ namespace osidbg
 	{
 		bool ItemGetStatsId(OsiArgumentDesc & args)
 		{
-			auto item = FindItemByNameGuid(args.Get(0).String);
+			auto itemGuid = args.Get(0).String;
+			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
+				OsiError("ItemGetStatsId(): Item '" << itemGuid << "' does not exist!");
 				return false;
 			}
 
 			if (!item->StatsId.Str) {
+				OsiError("ItemGetStatsId(): Item '" << itemGuid << "' has no stats ID!");
 				return false;
 			}
 			else {
 				args.Get(1).String = const_cast<char *>(item->StatsId.Str);
 				return true;
 			}
+		}
+
+		void ItemSetIdentified(OsiArgumentDesc const & args)
+		{
+			auto itemGuid = args.Get(0).String;
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) {
+				OsiError("ItemSetIdentified(): Item '" << itemGuid << "' does not exist!");
+				return;
+			}
+
+			item->StatsDynamic->IsIdentified = args.Get(1).Int32 ? 1 : 0;
 		}
 
 		void SkillSetCooldown(OsiArgumentDesc const & args)
@@ -98,6 +113,17 @@ namespace osidbg
 			&func::ItemGetStatsId
 		);
 		functionMgr.Register(std::move(itemGetStatsId));
+
+
+		auto itemSetIdentified = std::make_unique<CustomCall>(
+			"NRD_ItemSetIdentified",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "IsIdentified", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::ItemSetIdentified
+		);
+		functionMgr.Register(std::move(itemSetIdentified));
 
 
 		auto skillSetCooldown = std::make_unique<CustomCall>(
