@@ -8,16 +8,16 @@ namespace osidbg
 	{
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
-		void ProjectileBegin(OsiArgumentDesc const & args)
+		void ProjectilePrepareLaunch(OsiArgumentDesc const & args)
 		{
 			if (ProjectileHelper) {
-				OsiWarn("ProjectileBegin(): Destroying active ProjectileHelper?");
+				OsiWarn("ProjectilePrepareLaunch(): Destroying active ProjectileHelper?");
 			}
 
 			ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
 		}
 
-		void ProjectileEnd(OsiArgumentDesc const & args)
+		void ProjectileLaunch(OsiArgumentDesc const & args)
 		{
 			if (ProjectileHelper != nullptr)
 			{
@@ -26,7 +26,7 @@ namespace osidbg
 			}
 			else
 			{
-				OsiError("ProjectileEnd(): No projectile to shoot!");
+				OsiError("ProjectileLaunch(): No projectile to shoot!");
 			}
 		}
 
@@ -90,19 +90,19 @@ namespace osidbg
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
-		auto beginProjectile = std::make_unique<CustomCall>(
-			"NRD_BeginProjectile",
+		auto projectilePrepareLaunch = std::make_unique<CustomCall>(
+			"NRD_ProjectilePrepareLaunch",
 			std::vector<CustomFunctionParam>{},
-			&func::ProjectileBegin
+			&func::ProjectilePrepareLaunch
 		);
-		functionMgr.Register(std::move(beginProjectile));
+		functionMgr.Register(std::move(projectilePrepareLaunch));
 
-		auto endProjectile = std::make_unique<CustomCall>(
-			"NRD_EndProjectile",
+		auto projectileLaunch = std::make_unique<CustomCall>(
+			"NRD_ProjectileLaunch",
 			std::vector<CustomFunctionParam>{},
-			&func::ProjectileEnd
+			&func::ProjectileLaunch
 		);
-		functionMgr.Register(std::move(endProjectile));
+		functionMgr.Register(std::move(projectileLaunch));
 
 		auto projectileSetInt = std::make_unique<CustomCall>(
 			"NRD_ProjectileSetInt",
