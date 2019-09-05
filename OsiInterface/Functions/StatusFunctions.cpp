@@ -216,6 +216,44 @@ namespace osidbg
 
 			return true;
 		}
+
+		void SetStatusAttributeFloat(OsiArgumentDesc const & args)
+		{
+			auto status = GetStatusHelper(args);
+			if (status == nullptr) {
+				return;
+			}
+
+			auto attributeName = args.Get(2).String;
+			auto value = args.Get(3).Float;
+
+			if (value < 0.0f) {
+				OsiError("SetStatusAttributeFloat(): Cannot set a negative value");
+				return;
+			}
+
+			if (strcmp(attributeName, "LifeTime") == 0) {
+				status->LifeTime = value;
+				if (status->CurrentLifeTime > status->LifeTime) {
+					status->CurrentLifeTime = status->LifeTime;
+				}
+			}
+			else if (strcmp(attributeName, "CurrentLifeTime") == 0) {
+				status->CurrentLifeTime = value;
+				if (status->LifeTime < status->CurrentLifeTime) {
+					status->LifeTime = status->CurrentLifeTime;
+				}
+			}
+			else if (strcmp(attributeName, "Strength") == 0) {
+				status->Strength = value;
+			}
+			else if (strcmp(attributeName, "StatsMultiplier") == 0) {
+				status->StatsMultiplier = value;
+			}
+			else {
+				OsiError("SetStatusAttributeFloat(): Cannot set attribute: " << attributeName);
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterStatusFunctions()
@@ -279,6 +317,18 @@ namespace osidbg
 			&func::GetStatusAttributeGuidString
 		);
 		functionMgr.Register(std::move(getStatusAttributeGuidString));
+
+		auto setStatusAttributeFloat = std::make_unique<CustomCall>(
+			"NRD_SetStatusAttributeFloat",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
+			},
+			&func::SetStatusAttributeFloat
+		);
+		functionMgr.Register(std::move(setStatusAttributeFloat));
 
 		auto statusIteratorEvent = std::make_unique<CustomEvent>(
 			"NRD_StatusIteratorEvent",
