@@ -35,11 +35,11 @@ void OsirisProxy::Initialize()
 	Wrappers.DeleteAllData.AddPreHook(std::bind(&OsirisProxy::OnDeleteAllData, this, _1, _2));
 	Wrappers.Error.AddPreHook(std::bind(&OsirisProxy::OnError, this, _1));
 	Wrappers.Assert.AddPreHook(std::bind(&OsirisProxy::OnAssert, this, _1, _2, _3));
-	Wrappers.Compile.AddWrapper(std::bind(&OsirisProxy::CompileWrapper, this, _1, _2, _3, _4));
+	Wrappers.Compile.SetWrapper(std::bind(&OsirisProxy::CompileWrapper, this, _1, _2, _3, _4));
 	Wrappers.Load.AddPostHook(std::bind(&OsirisProxy::OnAfterOsirisLoad, this, _1, _2, _3));
-	Wrappers.Merge.AddWrapper(std::bind(&OsirisProxy::MergeWrapper, this, _1, _2, _3));
+	Wrappers.Merge.SetWrapper(std::bind(&OsirisProxy::MergeWrapper, this, _1, _2, _3));
 #if !defined(OSI_NO_DEBUGGER)
-	Wrappers.RuleActionCall.AddWrapper(std::bind(&OsirisProxy::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
+	Wrappers.RuleActionCall.SetWrapper(std::bind(&OsirisProxy::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
 #endif
 
 	if (ExtensionsEnabled) {
@@ -336,11 +336,13 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 
 void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 {
-	if (!ResolvedNodeVMTs) {
+#if !defined(OSI_NO_DEBUGGER)
+	if (DebuggerThread != nullptr && !ResolvedNodeVMTs) {
 		ResolveNodeVMTs(*Wrappers.Globals.Nodes);
 		ResolvedNodeVMTs = true;
 		HookNodeVMTs();
 	}
+#endif
 
 	StoryLoaded = true;
 	Debug(L"OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);

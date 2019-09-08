@@ -12,6 +12,9 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address);
 #define HOOKABLE(ty, name) enum class name##Tag {}; \
 	HookableFunction<name##Tag, ty> name
 
+#define WRAPPABLE(ty, name) enum class name##Tag {}; \
+	WrappableFunction<name##Tag, ty> name
+
 class OsirisWrappers
 {
 public:
@@ -34,16 +37,16 @@ public:
 	HOOKABLE(void(void * Osiris), CloseLogFile);
 
 	HOOKABLE(int(void *, void *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, char *, unsigned int *), ReadHeader);
-	HOOKABLE(bool(void *, wchar_t const *, wchar_t const *), Compile);
+	WRAPPABLE(bool(void *, wchar_t const *, wchar_t const *), Compile);
 	HOOKABLE(int(void *, void *), Load);
-	HOOKABLE(bool(void *, wchar_t *), Merge);
+	WRAPPABLE(bool(void *, wchar_t *), Merge);
 	HOOKABLE(ReturnCode(void *, uint32_t, OsiArgumentDesc *), Event);
 
 	RuleActionCallProc OriginalRuleActionCallProc;
-	HOOKABLE(void(RuleActionNode *, void *, void *, void *, void *), RuleActionCall);
+	WRAPPABLE(void(RuleActionNode *, void *, void *, void *, void *), RuleActionCall);
 
-	HOOKABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Call);
-	HOOKABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Query);
+	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Call);
+	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Query);
 	HOOKABLE(void(char const * Message), Error);
 	HOOKABLE(void(bool Successful, char const * Message, bool Unknown2), Assert);
 
