@@ -20,12 +20,10 @@ namespace osidbg
 			auto eventName = args.Get(1).String;
 			auto statuses = character->StatusManager;
 			if (statuses != nullptr) {
-				// Fetch the number of statuses before triggering any events to make sure we don't see
-				// subsequent altererations of the StatusMachine
-				auto numStatuses = statuses->StatusCount;
-				for (auto index = 0; index < numStatuses; index++) {
+				for (auto index = 0; index < statuses->StatusCount; index++) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, statuses->Statuses[index]->StatusId.Str });
 					eventArgs->Add(OsiArgumentValue{ (int64_t)index });
 
 					auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
@@ -49,14 +47,46 @@ namespace osidbg
 				return nullptr;
 			}
 
-			auto handle = args.Get(1).Int64;
+			auto index = args.Get(1).Int64;
 			auto statuses = character->StatusManager;
-			if (handle < 0 || handle >= statuses->StatusCount) {
+			if (index < 0 || index >= statuses->StatusCount) {
 				OsiError("GetStatusHelper(): Status handle out of bounds");
 				return nullptr;
 			}
 
-			return statuses->Statuses[handle];
+			return statuses->Statuses[index];
+		}
+
+		bool StatusGetHandle(OsiArgumentDesc & args)
+		{
+			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			if (character == nullptr) {
+				OsiError("StatusGetHandle(): Character " << args.Get(0).String << " does not exist!");
+				return false;
+			}
+
+			if (character->StatusManager == nullptr) {
+				OsiError("StatusGetHandle(): Character " << args.Get(0).String << " has no StatusManager!");
+				return false;
+			}
+
+			auto statusId = ToFixedString(args.Get(1).String);
+			if (!statusId) {
+				// No fixed string with this ID --> invalid status name
+				OsiWarn("StatusGetHandle(): Status " << args.Get(1).String << " not in string table, possibly invalid status name?");
+				return false;
+			}
+
+			auto statuses = character->StatusManager;
+			for (auto index = 0; index < statuses->StatusCount; index++) {
+				auto status = statuses->Statuses[index];
+				if (status->StatusId == statusId) {
+					args.Get(2).Int64 = index;
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		bool StatusGetAttributeString(OsiArgumentDesc & args)
@@ -270,6 +300,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(iterateCharacterStatuses));
 
+		auto getStatusHandle = std::make_unique<CustomQuery>(
+			"NRD_StatusGetHandle",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+			},
+			&func::StatusGetHandle
+		);
+		functionMgr.Register(std::move(getStatusHandle));
+
 		auto getStatusAttributeInt = std::make_unique<CustomQuery>(
 			"NRD_StatusGetAttributeInt",
 			std::vector<CustomFunctionParam>{
@@ -335,6 +376,7 @@ namespace osidbg
 			std::vector<CustomFunctionParam>{
 				{ "Event", ValueType::String, FunctionArgumentDirection::In },
 				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 			}
 		);
