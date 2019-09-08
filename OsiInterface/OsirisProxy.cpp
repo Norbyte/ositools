@@ -235,23 +235,6 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 void OsirisProxy::OnInitGame(void * Osiris)
 {
 	Debug(L"OsirisProxy::OnInitGame()");
-	auto stats = Libraries.GetStats();
-	auto vamp = stats->objects.Find("Target_SourceVampirism");
-	auto description = stats->GetAttributeFixedString(vamp, "DescriptionRef");
-	auto deathType = stats->GetAttributeFixedString(vamp, "DeathType");
-
-	auto descrInt = stats->GetAttributeInt(vamp, "DescriptionRef");
-	auto deathTypeInt = stats->GetAttributeInt(vamp, "DeathType");
-	auto targetRadiusInt = stats->GetAttributeInt(vamp, "TargetRadius");
-
-	auto kraken = stats->objects.Find("Animals_Voidwoken_Kraken_Tentacle");
-	auto piercingRes = stats->GetAttributeInt(kraken, "PiercingResistance");
-
-	auto cf = Libraries.GetCharacterFactory();
-
-	auto gsp = Libraries.GetGlobalStringTable();
-	auto found = gsp->Find("FUR_Bucket_A_CONT_Barrel_A_Water", strlen("FUR_Bucket_A_CONT_Barrel_A_Water"));
-
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
 		debugger_->GameInitHook();
