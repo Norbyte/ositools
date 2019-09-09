@@ -97,6 +97,7 @@ namespace osidbg
 	void CustomFunctionLibrary::Register()
 	{
 		RegisterHelperFunctions();
+		RegisterMathFunctions();
 		RegisterStatFunctions();
 		RegisterStatusFunctions();
 		RegisterGameActionFunctions();

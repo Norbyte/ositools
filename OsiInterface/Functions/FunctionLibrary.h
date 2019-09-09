@@ -33,6 +33,7 @@ namespace osidbg
 
 		void Register();
 		void RegisterHelperFunctions();
+		void RegisterMathFunctions();
 		void RegisterStatFunctions();
 		void RegisterStatusFunctions();
 		void RegisterGameActionFunctions();

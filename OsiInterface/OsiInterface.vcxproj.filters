@@ -143,6 +143,9 @@
     <ClCompile Include="Functions\ProjectileFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
+    <ClCompile Include="Functions\MathFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">

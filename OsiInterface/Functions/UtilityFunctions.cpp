@@ -5,44 +5,15 @@
 
 namespace osidbg
 {
+	FunctionHandle ForLoopEventHandle;
+	FunctionHandle ForLoopObjectEventHandle;
+
 	namespace func
 	{
-		void Log(OsiArgumentDesc const & args)
+		void DebugLog(OsiArgumentDesc const & args)
 		{
 			auto msg = args.Get(0).ToString();
 			OsiMsg(msg);
-		}
-
-		std::unique_ptr<std::mt19937_64> OsiRng;
-
-		bool RandomFloat(OsiArgumentDesc & args)
-		{
-			auto min = args.Get(0).Float;
-			auto max = args.Get(1).Float;
-
-			if (!OsiRng) {
-				OsiRng = std::make_unique<std::mt19937_64>();
-				time_t tm;
-				OsiRng->seed(time(&tm));
-			}
-
-			std::uniform_real_distribution<float> dist(min, max);
-			args.Get(2).Float = dist(*OsiRng);
-			return true;
-		}
-
-		bool Sin(OsiArgumentDesc & args)
-		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = sin(x);
-			return true;
-		}
-
-		bool Cos(OsiArgumentDesc & args)
-		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = cos(x);
-			return true;
 		}
 
 		bool StringCompare(OsiArgumentDesc & args)
@@ -94,6 +65,40 @@ namespace osidbg
 				return false;
 			}
 		}
+
+		void ForLoop(OsiArgumentDesc const & args)
+		{
+			auto eventName = args.Get(0).String;
+			auto count = args.Get(1).Int32;
+
+			for (int32_t index = 0; index < count; index++) {
+				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
+
+				auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+				gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)ForLoopEventHandle, eventArgs);
+
+				delete eventArgs;
+			}
+		}
+
+		void ForLoopObject(OsiArgumentDesc const & args)
+		{
+			auto objectGuid = args.Get(0).String;
+			auto eventName = args.Get(1).String;
+			auto count = args.Get(2).Int32;
+
+			for (int32_t index = 0; index < count; index++) {
+				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, objectGuid });
+				eventArgs->Add(OsiArgumentValue{ ValueType::String, eventName });
+				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
+
+				auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+				gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)ForLoopObjectEventHandle, eventArgs);
+
+				delete eventArgs;
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterHelperFunctions()
@@ -103,40 +108,9 @@ namespace osidbg
 		auto debugLog = std::make_unique<CustomCall>(
 			"NRD_DebugLog",
 			std::vector<CustomFunctionParam>{ { "Message", ValueType::None, FunctionArgumentDirection::In } },
-			&func::Log
+			&func::DebugLog
 		);
 		functionMgr.Register(std::move(debugLog));
-
-		auto randomFloat = std::make_unique<CustomQuery>(
-			"NRD_RandomFloat",
-			std::vector<CustomFunctionParam>{
-				{ "Min", ValueType::Real, FunctionArgumentDirection::In },
-				{ "Max", ValueType::Real, FunctionArgumentDirection::In },
-				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
-			},
-			&func::RandomFloat
-		);
-		functionMgr.Register(std::move(randomFloat));
-
-		auto sine = std::make_unique<CustomQuery>(
-			"NRD_Sin",
-			std::vector<CustomFunctionParam>{
-				{ "X", ValueType::Real, FunctionArgumentDirection::In },
-				{ "Sine", ValueType::Real, FunctionArgumentDirection::Out }
-			},
-			&func::Sin
-		);
-		functionMgr.Register(std::move(sine));
-
-		auto cosine = std::make_unique<CustomQuery>(
-			"NRD_Cos",
-			std::vector<CustomFunctionParam>{
-				{ "X", ValueType::Real, FunctionArgumentDirection::In },
-				{ "Cosine", ValueType::Real, FunctionArgumentDirection::Out }
-			},
-			&func::Cos
-		);
-		functionMgr.Register(std::move(cosine));
 
 		auto stringCompare = std::make_unique<CustomQuery>(
 			"NRD_StringCompare",
@@ -178,6 +152,46 @@ namespace osidbg
 			&func::StringToFloat
 		);
 		functionMgr.Register(std::move(stringToFloat));
+
+		auto startLoop = std::make_unique<CustomCall>(
+			"NRD_ForLoop",
+			std::vector<CustomFunctionParam>{ 
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Count", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::ForLoop
+		);
+		functionMgr.Register(std::move(startLoop));
+
+		auto startLoop2 = std::make_unique<CustomCall>(
+			"NRD_ForLoop",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Count", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::ForLoopObject
+		);
+		functionMgr.Register(std::move(startLoop2));
+
+		auto forLoopEvent = std::make_unique<CustomEvent>(
+			"NRD_Loop",
+			std::vector<CustomFunctionParam>{
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Num", ValueType::Integer, FunctionArgumentDirection::In },
+			}
+		);
+		ForLoopEventHandle = functionMgr.Register(std::move(forLoopEvent));
+
+		auto forLoopObjectEvent = std::make_unique<CustomEvent>(
+			"NRD_Loop",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Num", ValueType::Integer, FunctionArgumentDirection::In },
+			}
+		);
+		ForLoopObjectEventHandle = functionMgr.Register(std::move(forLoopObjectEvent));
 	}
 
 }
