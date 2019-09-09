@@ -894,6 +894,106 @@ namespace osidbg
 		// FIXME: WallAction, SummonHelpers::Summon
 	}
 
+	void LibraryManager::FindStatusMachineEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"83 7A 1C 00 " // cmp     dword ptr [rdx+1Ch], 0
+			"48 8B F2 " // mov     rsi, rdx
+			"4C 8B F1 " // mov     r14, rcx
+			"7E 7E " // jle     short xxx
+			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_LIFESTEAL
+			"48 89 5C 24 30 " //  mov     [rsp+28h+arg_0], rbx
+			"48 89 7C 24 40 " //  mov     [rsp+28h+arg_10], rdi
+			"48 8B B9 B0 01 00 00 " //  mov     rdi, [rcx+1B0h]
+			"4D 8B 00 " //  mov     r8, [r8]
+			"48 8B CF " //  mov     rcx, rdi 
+			"E8 XX XX XX XX " //  call    esv__StatusMachine__CreateStatus
+		);
+
+		uint8_t const * lastMatch;
+		p.Scan(moduleStart_, moduleSize_, [this, &lastMatch](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 19);
+			if (IsFixedStringRef(fsx, "LIFESTEAL")) {
+				auto actionAddr = AsmCallToAbsoluteAddress(match + 49);
+				lastMatch = match + 55;
+				StatusMachineCreateStatus = (StatusMachine__CreateStatus)actionAddr;
+			}
+		});
+
+		if (StatusMachineCreateStatus == nullptr) {
+			Debug(L"LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::CreateStatus");
+		}
+
+		Pattern p2;
+		p2.FromString(
+			"C7 43 2C 00 00 00 00 " // mov     dword ptr [rbx+2Ch], 0
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    esv__StatusMachine__ApplyStatus
+			"48 8B 7C 24 40 " // mov     rdi, [rsp+28h+arg_10]
+		);
+
+		p2.Scan(lastMatch, 0x100, [this](const uint8_t * match) {
+			auto actionAddr = AsmCallToAbsoluteAddress(match + 10);
+			StatusMachineApplyStatus = (StatusMachine__ApplyStatus)actionAddr;
+		});
+
+		if (StatusMachineApplyStatus == nullptr) {
+			Debug(L"LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::ApplyStatus");
+		}
+	}
+
+	void LibraryManager::FindStatusMachineEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"83 7A 1C 00 " // cmp     dword ptr [rdx+1Ch], 0
+			"48 8B F2 " // mov     rsi, rdx
+			"4C 8B F1 " // mov     r14, rcx
+			"0F 8E 8C 00 00 00 " // jle     short xxx
+			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_LIFESTEAL
+			"48 89 5C 24 30 " //  mov     [rsp+28h+arg_0], rbx
+			"48 89 7C 24 40 " //  mov     [rsp+28h+arg_10], rdi
+			"48 8B B9 A0 01 00 00 " //  mov     rdi, [rcx+1A0h]
+			"48 8B CF " //  mov     rcx, rdi 
+			"E8 XX XX XX XX " //  call    esv__StatusMachine__CreateStatus
+		);
+
+		uint8_t const * lastMatch;
+		p.Scan(moduleStart_, moduleSize_, [this, &lastMatch](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 23);
+			if (IsFixedStringRef(fsx, "LIFESTEAL")) {
+				auto actionAddr = AsmCallToAbsoluteAddress(match + 50);
+				lastMatch = match + 55;
+				StatusMachineCreateStatus = (StatusMachine__CreateStatus)actionAddr;
+			}
+		});
+
+		if (StatusMachineCreateStatus == nullptr) {
+			Debug(L"LibraryManager::FindStatusMachineEoCApp(): Could not find StatusMachine::CreateStatus");
+		}
+
+		Pattern p2;
+		p2.FromString(
+			"C7 43 2C 00 00 00 00 " // mov     dword ptr [rbx+2Ch], 0
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    esv__StatusMachine__ApplyStatus
+			"48 8B 7C 24 40 " // mov     rdi, [rsp+28h+arg_10]
+		);
+
+		p2.Scan(lastMatch, 0x100, [this](const uint8_t * match) {
+			auto actionAddr = AsmCallToAbsoluteAddress(match + 10);
+			StatusMachineApplyStatus = (StatusMachine__ApplyStatus)actionAddr;
+		});
+
+		if (StatusMachineApplyStatus == nullptr) {
+			Debug(L"LibraryManager::FindStatusMachineEoCApp(): Could not find StatusMachine::ApplyStatus");
+		}
+	}
+
+
 	bool LibraryManager::FindLibraries()
 	{
 		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
@@ -923,10 +1023,12 @@ namespace osidbg
 		if (coreLibStart_ != nullptr) {
 			FindGameActionManagerEoCPlugin();
 			FindGameActionsEoCPlugin();
+			FindStatusMachineEoCPlugin();
 		}
 		else {
 			FindGameActionManagerEoCApp();
 			FindGameActionsEoCApp();
+			FindStatusMachineEoCApp();
 		}
 	}
 

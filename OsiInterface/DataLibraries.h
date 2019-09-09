@@ -11,6 +11,8 @@ namespace osidbg {
 	typedef void (* TornadoAction__Setup)(void * TornadoAction);
 	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, float * TargetPosition);
 	typedef void (* SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
+	typedef EsvStatus * (* StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
+	typedef void (* StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
 	
 	
 
@@ -85,6 +87,8 @@ namespace osidbg {
 		TornadoAction__Setup WallActionCreateWall{ nullptr };
 		SummonHelpers__Summon SummonHelpersSummon{ nullptr };
 		GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
+		StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
+		StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
 
 	private:
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
@@ -107,6 +111,9 @@ namespace osidbg {
 
 		void FindGameActionsEoCPlugin();
 		void FindGameActionsEoCApp();
+
+		void FindStatusMachineEoCPlugin();
+		void FindStatusMachineEoCApp();
 
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 

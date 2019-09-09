@@ -166,10 +166,10 @@ namespace osidbg
 	template <class T>
 	struct Array
 	{
-		void * VMT;
-		T * Buf;
-		uint32_t Capacity;
-		uint32_t Size;
+		void * VMT{ nullptr };
+		T * Buf{ nullptr };
+		uint32_t Capacity{ 0 };
+		uint32_t Size{ 0 };
 		uint32_t Unkn[2];
 	};
 
