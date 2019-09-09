@@ -143,6 +143,16 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(randomFloat));
 
+		auto factorial = std::make_unique<CustomQuery>(
+			"NRD_Factorial",
+			std::vector<CustomFunctionParam>{
+				{ "In", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Out", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Factorial
+		);
+		functionMgr.Register(std::move(factorial));
+
 		MATH_QUERY1(Sin)
 		MATH_QUERY1(Cos)
 		MATH_QUERY1(Tan)
@@ -153,7 +163,6 @@ namespace osidbg
 		MATH_QUERY1(Pow)
 		MATH_QUERY1(Sqrt)
 		MATH_QUERY1(Exp)
-		MATH_QUERY1(Factorial)
 		MATH_QUERY1(Log)
 	}
 
