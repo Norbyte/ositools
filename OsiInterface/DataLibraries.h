@@ -9,6 +9,7 @@ namespace osidbg {
 	typedef void * (* GameActionManager__CreateAction)(void * GameActionManager, int actionId, uint64_t SomeHandle);
 	typedef void (* GameActionManager__AddAction)(void * GameActionManager, void * Action);
 	typedef void (* TornadoAction__Setup)(void * TornadoAction);
+	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, float * TargetPosition);
 	typedef void (* SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	
 	
@@ -83,6 +84,7 @@ namespace osidbg {
 		TornadoAction__Setup TornadoActionSetup{ nullptr };
 		TornadoAction__Setup WallActionCreateWall{ nullptr };
 		SummonHelpers__Summon SummonHelpersSummon{ nullptr };
+		GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
 
 	private:
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);

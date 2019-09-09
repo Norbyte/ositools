@@ -855,6 +855,20 @@ namespace osidbg
 		void * SkillStatusAura;
 	};
 
+	struct EsvGameObjectMoveAction : public EsvGameAction
+	{
+		void * PathMover;
+		ObjectHandle ObjectToMove;
+		bool DoneMoving;
+		uint8_t _Pad3[3];
+		uint32_t U3[2];
+		uint8_t _Pad4[4];
+		ObjectHandle CasterCharacterHandle;
+		FixedString BeamEffectName;
+		ObjectHandle SomeHandle;
+		uint64_t _U4[8];
+	};
+
 	struct SummonHelperResults
 	{
 		ObjectHandle SummonHandle;

@@ -148,6 +148,62 @@ namespace osidbg
 			lib.AddGameAction(actionMgr, action);
 		}
 
+		void CreateGameObjectMove(OsiArgumentDesc const & args)
+		{
+			ObjectHandle objectHandle;
+
+			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			if (character != nullptr) {
+				character->GetObjectHandle(&objectHandle);
+			} else {
+				auto item = FindItemByNameGuid(args.Get(0).String);
+				if (item != nullptr) {
+					item->GetObjectHandle(&objectHandle);
+				} else {
+					OsiError("CreateGameObjectMove(): Game object '" << args.Get(0).String << "' does not exist!");
+					return;
+				}
+			}
+
+			auto beamEffectName = args.Get(4).String;
+			FixedString beamEffectFs;
+			EsvCharacter * caster{ nullptr };
+			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
+				beamEffectFs = ToFixedString(beamEffectName);
+
+				if (!beamEffectFs) {
+					OsiError("CreateGameObjectMove(): Beam effect is not a valid FixedString!");
+					return;
+				}
+
+				auto casterGuid = args.Get(5).String;
+				caster = FindCharacterByNameGuid(casterGuid);
+				if (caster == nullptr) {
+					OsiError("CreateGameObjectMove(): Caster character '" << casterGuid << "' does not exist!");
+					return;
+				}
+			}
+
+			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto actionMgr = lib.GetGameActionManager();
+			auto action = (EsvGameObjectMoveAction *)lib.CreateGameAction(actionMgr, EsvGameAction::GameObjectMoveAction, 0);
+
+			float targetPosition[3];
+			targetPosition[0] = args.Get(1).Float;
+			targetPosition[1] = args.Get(2).Float;
+			targetPosition[2] = args.Get(3).Float;
+
+			if (caster != nullptr) {
+				ObjectHandle casterHandle;
+				caster->GetObjectHandle(&casterHandle);
+				action->CasterCharacterHandle = casterHandle;
+				action->BeamEffectName = beamEffectFs;
+			}
+
+			lib.GameObjectMoveActionSetup(action, objectHandle, targetPosition);
+			lib.AddGameAction(actionMgr, action);
+		}
+
 		bool Summon(OsiArgumentDesc & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
@@ -298,6 +354,20 @@ namespace osidbg
 			&func::CreateDome
 		);
 		functionMgr.Register(std::move(createDome));
+
+		auto gameObjectMove = std::make_unique<CustomCall>(
+			"NRD_CreateGameObjectMove",
+			std::vector<CustomFunctionParam>{
+				{ "TargetCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "X", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
+				{ "BeamEffectName", ValueType::String, FunctionArgumentDirection::In },
+				{ "CasterCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+			},
+			&func::CreateGameObjectMove
+		);
+		functionMgr.Register(std::move(gameObjectMove));
 
 		auto summon = std::make_unique<CustomQuery>(
 			"NRD_Summon",

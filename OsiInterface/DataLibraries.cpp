@@ -651,7 +651,7 @@ namespace osidbg
 			"48 8B C8 " // mov     rcx, rax
 			"48 8D 56 68 " // lea     rdx, [rsi+68h]
 			"48 8B D8 " // mov     rbx, rax
-			"E8 XX XX XX XX " // call xxx
+			"E8 XX XX XX XX " // call esv__GameObjectMoveAction__Setup
 			"48 8B D3 " // mov     rdx, rbx
 			"48 8B CF " // mov     rcx, rdi
 			"E8 XX XX XX XX " // call    esv__GameActionManager__AddAction
@@ -662,6 +662,9 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "ForceMove")) {
 				p3.Scan(match, 0x100, [this](const uint8_t * match2) {
 					LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
+
+					auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 57);
+					GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
 
 					auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 68);
 					AddGameAction = (GameActionManager__AddAction)addActionAddr;
@@ -730,7 +733,7 @@ namespace osidbg
 			"48 8B C8 " // mov     rcx, rax
 			"48 8D 56 68 " // lea     rdx, [rsi+68h]
 			"48 8B D8 " // mov     rbx, rax
-			"E8 XX XX XX XX " // call    xxx
+			"E8 XX XX XX XX " // call    esv__GameObjectMoveAction__Setup
 			"48 8B D3 " // mov     rdx, rbx
 			"48 8B CF " // mov     rcx, rdi
 			"E8 XX XX XX XX " // call    esv__GameActionManager__AddAction
@@ -741,6 +744,9 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "ForceMove")) {
 				p3.Scan(match, 0x100, [this](const uint8_t * match2) {
 					LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
+
+					auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 73);
+					GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
 
 					auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 84);
 					AddGameAction = (GameActionManager__AddAction)addActionAddr;
@@ -849,7 +855,7 @@ namespace osidbg
 		});
 
 		if (SummonHelpersSummon == nullptr) {
-			Debug(L"LibraryManager::FindGameActionsEoCApp(): Could not find SummonHelpers::Summon");
+			Debug(L"LibraryManager::FindGameActionsEoCPlugin(): Could not find SummonHelpers::Summon");
 		}
 	}
 
@@ -884,6 +890,8 @@ namespace osidbg
 		if (TornadoActionSetup == nullptr) {
 			Debug(L"LibraryManager::FindGameActionsEoCApp(): Could not find TornadoAction");
 		}
+
+		// FIXME: WallAction, SummonHelpers::Summon
 	}
 
 	bool LibraryManager::FindLibraries()
