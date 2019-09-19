@@ -210,6 +210,9 @@ namespace osidbg
 	private:
 		OsirisWrappers & wrappers_;
 		CustomFunctionManager & functions_;
+		std::wstring storyHeaderPath_;
+		HANDLE storyHeaderFile_{ NULL };
+		bool extendingStory_{ false };
 
 		void OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount);
 		bool CallWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);
@@ -221,6 +224,8 @@ namespace osidbg
 			LPSECURITY_ATTRIBUTES lpSecurityAttributes,
 			DWORD dwCreationDisposition,
 			DWORD dwFlagsAndAttributes,
-			HANDLE hTemplateFile);
+			HANDLE hTemplateFile,
+			HANDLE hFile);
+		void OnCloseHandle(HANDLE hFile, BOOL bSucceeded);
 	};
 }

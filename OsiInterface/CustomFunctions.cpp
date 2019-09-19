@@ -216,7 +216,8 @@ void CustomFunctionInjector::Initialize()
 	wrappers_.GetFunctionMappings.AddPostHook(std::bind(&CustomFunctionInjector::OnAfterGetFunctionMappings, this, _1, _2, _3));
 	wrappers_.Call.SetWrapper(std::bind(&CustomFunctionInjector::CallWrapper, this, _1, _2, _3));
 	wrappers_.Query.SetWrapper(std::bind(&CustomFunctionInjector::QueryWrapper, this, _1, _2, _3));
-	wrappers_.CreateFileW.AddPreHook(std::bind(&CustomFunctionInjector::OnCreateFile, this, _1, _2, _3, _4, _5, _6, _7));
+	wrappers_.CreateFileW.AddPostHook(std::bind(&CustomFunctionInjector::OnCreateFile, this, _1, _2, _3, _4, _5, _6, _7, _8));
+	wrappers_.CloseHandle.AddPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
 }
 
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
@@ -263,6 +264,8 @@ bool CustomFunctionInjector::QueryWrapper(std::function<bool(uint32_t, OsiArgume
 
 void CustomFunctionInjector::ExtendStoryHeader(std::wstring const & headerPath)
 {
+	extendingStory_ = true;
+
 	std::ifstream f(headerPath.c_str(), std::ios::in | std::ios::binary);
 	f.seekg(0, std::ios::end);
 	auto length = f.tellg();
@@ -281,6 +284,8 @@ void CustomFunctionInjector::ExtendStoryHeader(std::wstring const & headerPath)
 	std::ofstream wf(headerPath.c_str(), std::ios::out | std::ios::binary);
 	wf.write(s.data(), s.size());
 	wf.close();
+
+	extendingStory_ = false;
 }
 
 void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
@@ -289,16 +294,24 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
 	DWORD dwCreationDisposition,
 	DWORD dwFlagsAndAttributes,
-	HANDLE hTemplateFile)
+	HANDLE hTemplateFile,
+	HANDLE hFile)
 {
-	if (dwDesiredAccess & GENERIC_WRITE) {
+	if (!extendingStory_ && (dwDesiredAccess & GENERIC_WRITE)) {
 		auto length = wcslen(lpFileName);
-		if (length > 19 && wcscmp(&lpFileName[length - 19], L"story_generated.div") == 0) {
+		if (length > 16 && wcscmp(&lpFileName[length - 16], L"story_header.div") == 0) {
 			Debug(L"CustomFunctionInjector::OnCreateFile: %s", lpFileName);
-			std::wstring headerPath(lpFileName, lpFileName + length - 19);
-			headerPath += L"story_header.div";
-			ExtendStoryHeader(headerPath);
+			storyHeaderFile_ = hFile;
+			storyHeaderPath_ = lpFileName;
 		}
+	}
+}
+
+void CustomFunctionInjector::OnCloseHandle(HANDLE hFile, BOOL bSucceeded)
+{
+	if (bSucceeded && !extendingStory_ && storyHeaderFile_ != NULL && hFile == storyHeaderFile_) {
+		ExtendStoryHeader(storyHeaderPath_);
+		storyHeaderFile_ = NULL;
 	}
 }
 

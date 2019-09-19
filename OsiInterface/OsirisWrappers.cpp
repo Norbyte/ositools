@@ -32,6 +32,7 @@ STATIC_HOOK(Query)
 STATIC_HOOK(Error)
 STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
+STATIC_HOOK(CloseHandle)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -118,6 +119,7 @@ void OsirisWrappers::Initialize()
 	// FIXME - PERF Assert.Wrap(&AssertWrapper);
 
 	CreateFileW.Wrap(Kernel32Module, "CreateFileW");
+	CloseHandle.Wrap(Kernel32Module, "CloseHandle");
 
 	DetourTransactionCommit();
 }
@@ -148,6 +150,7 @@ void OsirisWrappers::Shutdown()
 	Assert.Unwrap();
 
 	CreateFileW.Unwrap();
+	CloseHandle.Unwrap();
 
 	DetourTransactionCommit();
 

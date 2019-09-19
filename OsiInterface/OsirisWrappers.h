@@ -51,6 +51,7 @@ public:
 	HOOKABLE(void(bool Successful, char const * Message, bool Unknown2), Assert);
 
 	HOOKABLE(HANDLE(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE), CreateFileW);
+	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;
