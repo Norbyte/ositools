@@ -994,6 +994,48 @@ namespace osidbg
 	}
 
 
+	void LibraryManager::FindHitFuncsEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"4C 89 XX 24 18 01 00 00 " // mov     [rsp+150h+var_38], r15
+			"E8 XX XX XX XX " // call    eoc__StatusPrototype__GetMappedValue
+			"85 C0 " // test    eax, eax
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_DamageItems
+			"48 8B CB " // mov     rcx, rbx
+			"40 0F 95 C7 " // setnz   dil
+		);
+
+		Pattern p2;
+		p2.FromString(
+			"48 89 44 24 30 " // mov     qword ptr [rsp+150h+a7], rax
+			"C6 44 24 28 00 " // mov     byte ptr [rsp+150h+a6], 0
+			"C7 44 24 20 05 00 00 00 " // mov     [rsp+150h+a5], 5
+			"E8 XX XX XX XX " // call    esv__Character__Hit
+			"XX 8B XX B0 01 00 00 " // mov     r13, [r15+1B0h]
+			"EB 66 " // jmp short xxx
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this, &p2](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 15);
+			if (IsFixedStringRef(fsx, "DamageItems")) {
+				p2.Scan(match, 0x300, [this](const uint8_t * match) {
+					auto actionAddr = AsmCallToAbsoluteAddress(match + 18);
+					CharacterHit = (Character__Hit)actionAddr;
+				});
+			}
+		});
+
+		if (CharacterHit == nullptr) {
+			Debug(L"LibraryManager::FindHitFuncsEoCPlugin(): Could not find Character::Hit");
+		}
+	}
+
+	void LibraryManager::FindHitFuncsEoCApp()
+	{
+		Debug(L"LibraryManager::FindHitFuncsEoCApp(): Not implemented yet!");
+	}
+
 	bool LibraryManager::FindLibraries()
 	{
 		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
@@ -1020,16 +1062,24 @@ namespace osidbg
 
 	void LibraryManager::PostStartupFindLibraries()
 	{
+		if (PostLoaded) {
+			return;
+		}
+
 		if (coreLibStart_ != nullptr) {
 			FindGameActionManagerEoCPlugin();
 			FindGameActionsEoCPlugin();
 			FindStatusMachineEoCPlugin();
+			FindHitFuncsEoCPlugin();
 		}
 		else {
 			FindGameActionManagerEoCApp();
 			FindGameActionsEoCApp();
 			FindStatusMachineEoCApp();
+			FindHitFuncsEoCApp();
 		}
+
+		PostLoaded = true;
 	}
 
 	bool LibraryManager::FindEoCPlugin(uint8_t const * & start, size_t & size)

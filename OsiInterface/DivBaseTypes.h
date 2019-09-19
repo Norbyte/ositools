@@ -8,14 +8,12 @@
 #include <string>
 #include <cassert>
 #include <optional>
+#include <glm/glm.hpp>
 
 namespace osidbg
 {
 #pragma pack(push, 1)
-	struct Vector3
-	{
-		float X, Y, Z;
-	};
+	using Vector3 = glm::vec3;
 
 	template <class T>
 	struct PrimitiveSet
@@ -170,7 +168,7 @@ namespace osidbg
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
-		uint32_t Unkn[2];
+		uint32_t Unkn[2]{ 0 };
 	};
 
 	struct ObjectHandle

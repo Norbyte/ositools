@@ -310,6 +310,74 @@ namespace osidbg
 		uint32_t _Pad3;
 	};
 
+	struct TDamagePair
+	{
+		uint32_t Amount;
+		uint32_t DamageType;
+	};
+
+	struct HitDamageInfo
+	{
+		enum EffectFlag
+		{
+			EF_Hit = 1,
+			EF_Blocked = 2,
+			EF_Dodged = 4,
+			EF_Missed = 8,
+			EF_CriticalHit = 0x10,
+			EF_AlwaysBackstab = 0x20,
+			EF_FromSetHP = 0x40,
+			EF_DontCreateBloodSurface = 0x80,
+			EF_Reflection = 0x200,
+			EF_NoDamageOnOwner = 0x400,
+			EF_FromShacklesOfPain = 0x800,
+			EF_DamagedMagicArmor = 0x1000,
+			EF_DamagedPhysicalArmor = 0x2000,
+			EF_DamagedVitality = 0x4000,
+			EF_PropagatedFromOwner = 0x10000,
+			EF_ProcWindWalker = 0x80000
+		};
+
+		uint32_t Equipment{ 0 };
+		uint32_t TotalDamageDone{ 0 };
+		uint32_t Unknown{ 0 };
+		uint8_t DeathType{ 0x10 };
+		uint8_t _Pad1[3];
+		uint32_t DamageType{ 0 };
+		uint32_t AttackDirection{ 0 };
+		uint32_t ArmorAbsorption{ 0 };
+		uint32_t LifeSteal{ 0 };
+		uint32_t EffectFlags{ 0 };
+		bool HitWithWeapon{ false };
+		uint8_t _Pad2[3];
+		Array<TDamagePair> DamageList;
+	};
+
+	struct EsvStatusHit : public EsvStatus
+	{
+		uint32_t Unk2;
+		uint8_t Unk3;
+		uint8_t _Pad4[3];
+		void * RPGPropertyList;
+		HitDamageInfo DamageInfo;
+		ObjectHandle HitByHandle;
+		ObjectHandle HitWithHandle;
+		ObjectHandle WeaponHandle;
+		uint32_t HitReason;
+		uint8_t _Pad5[4];
+		FixedString SkillId;
+		bool Interruption;
+		bool AllowInterruptAction;
+		bool SomeBool;
+		uint8_t _Pad6[1];
+		uint8_t PropertyContext;
+		uint8_t _Pad7[3];
+		Vector3 ImpactPosition;
+		Vector3 ImpactOrigin;
+		Vector3 ImpactDirection;
+		uint32_t Unk4;
+	};
+
 	struct EsvStatusManager
 	{
 		uint64_t U1[8];
@@ -435,9 +503,9 @@ namespace osidbg
 		virtual void SetAiColliding() = 0;
 		virtual void GetTags() = 0;
 		virtual void IsTagged() = 0;
-		virtual void GetTranslate() = 0;
+		virtual Vector3 const * GetTranslate() = 0;
 		virtual void GetRotation() = 0;
-		virtual void GetScale() = 0;
+		virtual float GetScale() = 0;
 		virtual void SetTranslate(Vector3 const & translate) = 0;
 		virtual void SetRotation() = 0;
 		virtual void SetScale(float scale) = 0;
@@ -612,9 +680,9 @@ namespace osidbg
 		virtual void SetAiColliding() = 0;
 		virtual void GetTags() = 0;
 		virtual void IsTagged() = 0;
-		virtual void GetPosition() = 0;
+		virtual Vector3 const * GetTranslate() = 0;
 		virtual void GetRotation() = 0;
-		virtual void GetScale() = 0;
+		virtual float GetScale() = 0;
 		virtual void SetTranslate(Vector3 const & translate) = 0;
 		virtual void SetRotation() = 0;
 		virtual void SetScale(float scale) = 0;

@@ -102,6 +102,7 @@ namespace osidbg
 		RegisterStatusFunctions();
 		RegisterGameActionFunctions();
 		RegisterProjectileFunctions();
+		RegisterHitFunctions();
 
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
@@ -162,7 +163,9 @@ namespace osidbg
 		auto experiment = std::make_unique<CustomCall>(
 			"NRD_Experiment",
 			std::vector<CustomFunctionParam>{
-				{ "Experiment", ValueType::String, FunctionArgumentDirection::In }
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::String, FunctionArgumentDirection::In },
 			},
 			&func::DoExperiment
 		);

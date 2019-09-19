@@ -38,6 +38,7 @@ namespace osidbg
 		void RegisterStatusFunctions();
 		void RegisterGameActionFunctions();
 		void RegisterProjectileFunctions();
+		void RegisterHitFunctions();
 
 	private:
 		OsirisProxy & osiris_;

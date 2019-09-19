@@ -13,6 +13,8 @@ namespace osidbg {
 	typedef void (* SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef EsvStatus * (* StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
 	typedef void (* StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
+	typedef void (* Character__Hit)(EsvCharacter * self, void * attackerStats, CDivinityStats_Item * itemStats, Array<TDamagePair> * damageList, 
+		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int aiTest_M, void * skillProperties, int highGroundFlag, int reduceDurability, uint8_t criticalRoll);
 	
 	
 
@@ -89,6 +91,7 @@ namespace osidbg {
 		GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
 		StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
 		StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
+		Character__Hit CharacterHit{ nullptr };
 
 	private:
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
@@ -115,6 +118,9 @@ namespace osidbg {
 		void FindStatusMachineEoCPlugin();
 		void FindStatusMachineEoCApp();
 
+		void FindHitFuncsEoCPlugin();
+		void FindHitFuncsEoCApp();
+
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 
 		struct EoCLibraryInfo
@@ -129,6 +135,8 @@ namespace osidbg {
 
 		uint8_t const * coreLibStart_;
 		size_t coreLibSize_;
+
+		bool PostLoaded{ false };
 
 		GlobalStringTable const ** GlobalStrings;
 
