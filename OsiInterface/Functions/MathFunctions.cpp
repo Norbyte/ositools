@@ -77,8 +77,8 @@ namespace osidbg
 		bool Pow(OsiArgumentDesc & args)
 		{
 			auto base = args.Get(0).Float;
-			auto n = args.Get(1).Float;
-			args.Get(2).Float = pow(base, n);
+			auto exp = args.Get(1).Float;
+			args.Get(2).Float = pow(base, exp);
 			return true;
 		}
 
@@ -153,6 +153,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(factorial));
 
+		auto pow = std::make_unique<CustomQuery>(
+			"NRD_Pow",
+			std::vector<CustomFunctionParam>{
+				{ "Base", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Exp", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Out", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::Pow
+		);
+		functionMgr.Register(std::move(pow));
+
 		MATH_QUERY1(Sin)
 		MATH_QUERY1(Cos)
 		MATH_QUERY1(Tan)
@@ -160,7 +171,6 @@ namespace osidbg
 		MATH_QUERY1(Ceil)
 		MATH_QUERY1(Floor)
 		MATH_QUERY1(Abs)
-		MATH_QUERY1(Pow)
 		MATH_QUERY1(Sqrt)
 		MATH_QUERY1(Exp)
 		MATH_QUERY1(Log)

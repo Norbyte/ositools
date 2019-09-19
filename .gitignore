@@ -322,15 +322,14 @@ ASALocalRun/
 # MSBuild Binary and Structured Log
 *.binlog
 
-# Ignore Detours library
-Detours/
+# Ignore externals
+External/
 
 # Ignore JsonCpp library
 jsoncpp-build/
 jsoncpp-master/
 
 # Ignore protobuf
-External/x64-windows
 D3dErr
 OsiInterface/osidebug.pb.cc
 OsiInterface/osidebug.pb.h
