@@ -367,7 +367,6 @@ These functions create game actions (Rain/Storm/etc.), but bypass the skill cast
 Each function needs a skill stats id of the same type (Rain skill id for `NRD_CreateRain`, etc.)
 
 **Stability:**
- - The functions might get a handle return value in the future to ensure that the caller can destroy them if necessary.
  - The following additional options may be added:
    - Global: `ActivateTimer`
    - Tornado: `TurnTimer`, `IsFromItem`, `Finished`
@@ -377,22 +376,22 @@ Each function needs a skill stats id of the same type (Rain skill id for `NRD_Cr
    - Dome: `LifeTime`, `Finished`
 
 ### CreateRain
-`call NRD_CreateRain((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`query NRD_CreateRain([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateStorm
-`call NRD_CreateStorm((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`query NRD_CreateStorm([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateWall
-`call NRD_CreateWall((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_SourceX, (REAL)_SourceY, (REAL)_SourceZ, (REAL)_TargetX, (REAL)_TargetY, (REAL)_TargetZ)`
+`query NRD_CreateWall([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_SourceX, [in](REAL)_SourceY, [in](REAL)_SourceZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateTornado
-`call NRD_CreateTornado((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_PositionX, (REAL)_PositionY, (REAL)_PositionZ, (REAL)_TargetX, (REAL)_TargetY, (REAL)_TargetZ)`
+`query NRD_CreateTornado([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_PositionX, [in](REAL)_PositionY, [in](REAL)_PositionZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateDome
-`call NRD_CreateDome((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`query NRD_CreateDome([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### GameObjectMove
-`call NRD_CreateGameObjectMove((GUIDSTRING)_TargetCharacter, (REAL)_X, (REAL)_Y, (REAL)_Z, (STRING)_BeamEffectName, (GUIDSTRING)_CasterCharacter)`
+`query NRD_CreateGameObjectMove([in](GUIDSTRING)_TargetCharacter, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](GUIDSTRING)_CasterCharacter, [out](INTEGER64)_GameObjectHandle)`
 
 ### Summon
 `query NRD_Summon([in](GUIDSTRING)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](GUIDSTRING)_Summon)`

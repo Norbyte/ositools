@@ -823,7 +823,7 @@ namespace osidbg
 		uint64_t NetID;
 		PrimitiveSet<uint16_t> PeerIDClassNames;
 		uint64_t _Unk[2];
-		ObjectHandle SomeObjectHandle;
+		ObjectHandle MyHandle;
 		uint32_t GameActionType;
 		bool Active;
 		bool Dirty;

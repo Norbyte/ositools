@@ -46,57 +46,65 @@ namespace osidbg
 			return action;
 		}
 
-		void CreateRain(OsiArgumentDesc const & args)
+		bool CreateRain(OsiArgumentDesc & args)
 		{
 			auto action = PrepareAction<EsvRainAction>(args, EsvGameAction::RainAction);
+			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(5).Int64 = action->MyHandle;
+			return true;
 		}
 
-		void CreateStorm(OsiArgumentDesc const & args)
+		bool CreateStorm(OsiArgumentDesc & args)
 		{
 			auto action = PrepareAction<EsvStormAction>(args, EsvGameAction::StormAction);
+			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(5).Int64 = action->MyHandle;
+			return true;
 		}
 
-		void CreateWall(OsiArgumentDesc const & args)
+		bool CreateWall(OsiArgumentDesc & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
 				OsiError("CreateWall(): Character '" << args.Get(0).String << "' does not exist!");
-				return;
+				return false;
 			}
 
 			auto skillId = ToFixedString(args.Get(1).String);
 			if (!skillId) {
 				OsiError("CreateWall(): '" << args.Get(1).String << "' is not a valid FixedString!");
-				return;
+				return false;
 			}
 
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
-				return;
+				return false;
 			}
 
 			auto object = stats->objects.Find(args.Get(1).String);
 			if (object == nullptr) {
 				OsiError("CreateWall(): No such skill entry: '" << args.Get(1).String << "'");
-				return;
+				return false;
 			}
 
 			auto lifetime = stats->GetAttributeInt(object, "Lifetime");
 			if (!lifetime) {
 				OsiError("CreateWall(): Couldn't fetch lifetime of skill '" << args.Get(1).String << "'");
-				return;
+				return false;
 			}
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
@@ -121,11 +129,15 @@ namespace osidbg
 
 			lib.WallActionCreateWall(action);
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(8).Int64 = action->MyHandle;
+			return true;
 		}
 
-		void CreateTornado(OsiArgumentDesc const & args)
+		bool CreateTornado(OsiArgumentDesc & args)
 		{
 			auto action = PrepareAction<EsvTornadoAction>(args, EsvGameAction::TornadoAction);
+			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
 
@@ -137,18 +149,25 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.TornadoActionSetup(action);
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(8).Int64 = action->MyHandle;
+			return true;
 		}
 
-		void CreateDome(OsiArgumentDesc const & args)
+		bool CreateDome(OsiArgumentDesc & args)
 		{
 			auto action = PrepareAction<EsvStatusDomeAction>(args, EsvGameAction::StatusDomeAction);
+			if (action == nullptr) return false;
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(5).Int64 = action->MyHandle;
+			return true;
 		}
 
-		void CreateGameObjectMove(OsiArgumentDesc const & args)
+		bool CreateGameObjectMove(OsiArgumentDesc & args)
 		{
 			ObjectHandle objectHandle;
 
@@ -161,7 +180,7 @@ namespace osidbg
 					item->GetObjectHandle(&objectHandle);
 				} else {
 					OsiError("CreateGameObjectMove(): Game object '" << args.Get(0).String << "' does not exist!");
-					return;
+					return false;
 				}
 			}
 
@@ -173,14 +192,14 @@ namespace osidbg
 
 				if (!beamEffectFs) {
 					OsiError("CreateGameObjectMove(): Beam effect is not a valid FixedString!");
-					return;
+					return false;
 				}
 
 				auto casterGuid = args.Get(5).String;
 				caster = FindCharacterByNameGuid(casterGuid);
 				if (caster == nullptr) {
 					OsiError("CreateGameObjectMove(): Caster character '" << casterGuid << "' does not exist!");
-					return;
+					return false;
 				}
 			}
 
@@ -202,6 +221,9 @@ namespace osidbg
 
 			lib.GameObjectMoveActionSetup(action, objectHandle, targetPosition);
 			lib.AddGameAction(actionMgr, action);
+
+			args.Get(6).Int64 = action->MyHandle;
+			return true;
 		}
 
 		bool Summon(OsiArgumentDesc & args)
@@ -284,7 +306,7 @@ namespace osidbg
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
-		auto createRain = std::make_unique<CustomCall>(
+		auto createRain = std::make_unique<CustomQuery>(
 			"NRD_CreateRain",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -292,12 +314,13 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateRain
 		);
 		functionMgr.Register(std::move(createRain));
 
-		auto createStorm = std::make_unique<CustomCall>(
+		auto createStorm = std::make_unique<CustomQuery>(
 			"NRD_CreateStorm",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -305,12 +328,13 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateStorm
 		);
 		functionMgr.Register(std::move(createStorm));
 
-		auto createWall = std::make_unique<CustomCall>(
+		auto createWall = std::make_unique<CustomQuery>(
 			"NRD_CreateWall",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -321,12 +345,13 @@ namespace osidbg
 				{ "TargetX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetY", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetZ", ValueType::Real, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateWall
 		);
 		functionMgr.Register(std::move(createWall));
 
-		auto createTornado = std::make_unique<CustomCall>(
+		auto createTornado = std::make_unique<CustomQuery>(
 			"NRD_CreateTornado",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -337,12 +362,13 @@ namespace osidbg
 				{ "TargetX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetY", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetZ", ValueType::Real, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateTornado
 		);
 		functionMgr.Register(std::move(createTornado));
 
-		auto createDome = std::make_unique<CustomCall>(
+		auto createDome = std::make_unique<CustomQuery>(
 			"NRD_CreateDome",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -350,12 +376,13 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateDome
 		);
 		functionMgr.Register(std::move(createDome));
 
-		auto gameObjectMove = std::make_unique<CustomCall>(
+		auto gameObjectMove = std::make_unique<CustomQuery>(
 			"NRD_CreateGameObjectMove",
 			std::vector<CustomFunctionParam>{
 				{ "TargetCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -364,6 +391,7 @@ namespace osidbg
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
 				{ "BeamEffectName", ValueType::String, FunctionArgumentDirection::In },
 				{ "CasterCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateGameObjectMove
 		);
