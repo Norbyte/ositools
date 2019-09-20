@@ -1,0 +1,575 @@
+### !!! DRAFT API DOCS !!!
+
+### Notes on API stability
+Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
+Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
+
+# Stat functions
+
+These functions can be used to query stats entries.
+
+**Stability:**
+All functions are considered to be final except `StatSetAttributeInt` and `StatSetAttributeString`, which are experimental.
+
+### StatExists
+`query NRD_StatExists([in](STRING)_StatsId)`
+
+Checks whether the specified stat entry exists. The query succeeds if the stat entry exists, and fails if it does not.
+
+### StatAttributeExists
+`query NRD_StatAttributeExists([in](STRING)_StatsId, [in](STRING)_Attribute)`
+
+Checks whether the stat entry `_StatsId` has an attribute (data) named `_Attribute`. The query succeeds if the attribute exists, and fails if it does not.
+
+### StatGetAttributeInt
+`query NRD_StatGetAttributeInt([in](STRING)_StatsId, [in](STRING)_Attribute, [out](INTEGER)_Value)`
+
+Returns the specified `_Attribute` of the stat entry.
+If the stat entry does not exist, the stat entry doesn't have an attribute named `_Attribute`, or the attribute isn't convertible to integer, the query fails.
+
+**Notes:**
+ - For enumerations, the function will return the index of the value in the enumeration. eg. for Damage Type `Corrosive`, it will return 3.
+
+### StatGetAttributeString
+`query NRD_StatGetAttributeString([in](STRING)_StatsId, [in](STRING)_Attribute, [out](STRING)_Value)`
+
+Returns the specified `_Attribute` of the stat entry.
+If the stat entry does not exist, the stat entry doesn't have an attribute named `_Attribute`, or the attribute isn't convertible to string, the query fails.
+
+**Notes:**
+ - For enumerations, the function will return the name of the enumeration value (eg. `Corrosive`).
+
+### StatGetType
+`query NRD_StatGetType([in](STRING)_StatsId, [out](STRING)_Type)`
+
+Returns the type of the specified stat entry. If the stat entry does not exist, the query fails.
+Possible return values: `Character`, `Potion`, `Armor`, `Object`, `Shield`, `Weapon`, `SkillData`, `StatusData`.
+
+### StatSetAttributeInt
+`call NRD_StatSetAttributeInt((STRING)_StatsId, (STRING)_Attribute, (INTEGER)_Value)`
+
+**TODO -- This is an experimental function and should not be used**
+
+### StatSetAttributeString
+`call NRD_StatSetAttributeString((STRING)_StatsId, (STRING)_Attribute, (STRING)_Value)`
+
+**TODO -- This is an experimental function and should not be used**
+
+
+# Status functions
+
+### IterateCharacterStatuses
+`call NRD_IterateCharacterStatuses((GUIDSTRING)_CharacterGuid, (STRING)_Event)`
+`event NRD_StatusIteratorEvent((STRING)_Event, (CHARACTERGUID)_Character, (STRING)_StatusId, (INTEGER64)_StatusHandle)`
+
+Throws status iterator event `_Event` for each status present on the character. Unlike regular events, `NRD_StatusIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_IterateCharacterStatuses` call), so there is no need for an additional cleanup/finalizer event.
+
+Example usage:  
+```c
+// ...
+NRD_IterateCharacterStatuses(Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, "MyMod_Statuses");
+
+IF
+NRD_StatusIteratorEvent("MyMod_Statuses", _Char, _StatusId, _StatusIdx)
+THEN
+DebugBreak(_StatusId);
+```
+
+**Notes:**
+ - The call might not enumerate all statuses correctly (i.e. miss some statuses or iterate over them multiple times) if statuses are added or removed during the `NRD_StatusIteratorEvent` event.
+ - Although the returned `_StatusHandle` is currently the index of the status, it should be treated as an opaque value. The index-like behavior is an implementation detail and should not be relied on.
+
+### StatusGetHandle
+`query NRD_StatusGetHandle([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
+
+Returns the handle of the first status with the specified `_StatusId`. If no such status exists, the query fails.
+
+Example usage:
+```c
+// ...
+AND
+NRD_StatusGetHandle(Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, "WET", _Handle)
+THEN
+NRD_DebugLog((STRING)_Handle);
+```
+
+### StatusGetAttribute
+`query NRD_StatusGetAttributeInt([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
+`query NRD_StatusGetAttributeFloat([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
+`query NRD_StatusGetAttributeString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
+`query NRD_StatusGetAttributeGuidString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
+
+Returns the specified status attribute. If the character or status does not exist, or if the attribute is not of the appropriate type, the query fails.
+
+**String attributes:**
+ - `StatsId` - Name of the associated stat entry
+
+**GuidString attributes:**
+ - `Obj1` - *Unknown; name subject to change*
+ - `TargetCI` - *Unknown; name subject to change*
+ - `StatusSource` - Character or item that caused the status
+ - `Obj2` - *Unknown; name subject to change*
+
+**Float attributes:**
+ - `StartTimer`
+ - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
+ - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
+ - `TurnTimer` - Elapsed time in the current turn (0..6)
+ - `Strength`
+ - `StatsMultiplier`
+
+**Int attributes:**
+ - `CanEnterChance`
+ - `DamageSourceType`
+
+**Flag attributes:** (Int attributes that can only be 0 or 1)
+ - `KeepAlive`
+ - `IsOnSourceSurface`
+ - `IsFromItem` - Was the status added by an item?
+ - `Channeled`
+ - `IsLifeTimeSet` - Does the status have a lifetime or is it infinite?
+ - `InitiateCombat`
+ - `Influence`
+ - `BringIntoCombat`
+ - `IsHostileAct`
+ - `IsInvulnerable` - The status turns the character invulnerable
+ - `IsResistingDeath` - The character can't die until the status expires
+ - `ForceStatus` - The status was forcibly applied (i.e. it bypasses resistance checks)
+ - `ForceFailStatus`
+ - `RequestDelete` - The status is being deleted
+ - `RequestDeleteAtTurnEnd` - The status will be deleted at the end of the current turn
+ - `Started`
+
+```c
+// ...
+AND
+NRD_StatusGetAttributeGuidString(_Char, _StatusIdx, "StatusSource", _Source)
+AND
+GetUUID(_Source, _SourceStr)
+THEN
+DebugBreak("Status source character:");
+DebugBreak(_SourceStr);
+```
+
+### StatusSetAttribute
+`call NRD_StatusSetAttributeFloat((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
+
+Updates the specified status attribute.
+
+**Stability:** Additional float attributes (`Strength`, etc.) and calls (`StatusSetAttributeInt`, etc.) will be added when it has been determined that it's safe to update those values during the lifetime of the status.
+
+**Float attributes:**
+ - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
+ - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
+
+Example usage:
+```c
+// Extend status lifetime by 2 turns
+// ...
+AND
+NRD_StatusGetHandle(_Character, "WET", _Handle)
+AND
+NRD_StatusGetAttributeFloat(_Character, _Handle, "CurrentLifeTime", _CurrentLifeTime)
+AND
+RealSum(_CurrentLifeTime, 12.0, _NewLifeTime)
+THEN
+NRD_StatusSetAttributeFloat(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
+```
+
+# Hit functions
+
+`call NRD_HitPrepare((GUIDSTRING)_Target, (GUIDSTRING)_Source)`
+`call NRD_HitExecute()`
+`call NRD_HitSetInt((STRING)_Property, (INTEGER)_Value)`
+`call NRD_HitSetString((STRING)_Property, (STRING)_Value)`
+`call NRD_HitSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`call NRD_HitSetFlag((STRING)_Flag)`
+`call NRD_HitAddDamage((INTEGER)_DamageType, (INTEGER)_Amount)`
+
+The Hit API is an extension of `ApplyDamage()` with many additional features. 
+**Usage steps:**
+ - Call `NRD_HitPrepare()`. This will clear the variables set by previous hit calls, and prepares a new hit call.
+ - Set hit parameters by calling the `NRD_HitSet...` functions
+ - Add one or more damage types by calling `NRD_HitAddDamage()`
+ - Apply the hit using `NRD_HitExecute()`
+
+**Int parameters:**
+ - `CallCharacterHit` - **TODO this is complex!**
+ - `HitType` - **TODO** *Used in many places, meaning not known. Possibly a bitmask. Values 0, 1, 2, 4 and 5 have special significance*
+ - `RollForDamage` - Determines whether the hit is guaranteed
+   - 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically
+   - 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically.
+ - `CriticalRoll` - Determines the outcome of the critical hit roll. 
+   - 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result
+   - 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically
+   - 2 = The hit is not a critical hit.
+ - `ReduceDurability` - **TODO maybe incorrect** Possibly ProcWindWalker?
+ - `HighGround` - High ground bonus indicator
+   - 0 = High ground test not performed
+   - 1 = Attacker is on high ground
+   - 2 = Attacker is on even ground
+   - 3 = Attacker is on low ground
+ - `Equipment` - **TODO** *Meaning not known.*
+ - `DeathType` - A value from the `Death Type` enumeration; allowed values (including undocumented items):
+   - 0 - None
+   - 1 - Physical
+   - 2 - Piercing
+   - 3 - Arrow
+   - 4 - DoT
+   - 5 - Incinerate
+   - 6 - Acid
+   - 7 - Electrocution
+   - 8 - FrozenShatter
+   - 9 - PetrifiedShatter
+   - 10 - Explode
+   - 11 - Surrender
+   - 12 - Hang
+   - 13 - KnockedDown
+   - 14 - Lifetime
+   - 15 - Sulfur
+   - 16 - Sentinel (default value)
+ - `DamageType` - A value from the `Damage Type` enumeration.
+ - `AttackDirection` - *Purpose not known.* Possible values:
+   - 0 - FrontToBack_Upper
+   - 1 - FrontToBack_Lower
+   - 2 - LeftToRight_Upper
+   - 3 - LeftToRight_Lower
+   - 4 - RightToLeft_Upper
+   - 5 - RightToLeft_Lower
+   - 6 - UpToDown
+   - 7 - DownToUp
+ - `ArmorAbsorption` - **TODO** *Meaning not known.*
+ - `LifeSteal` - **TODO** *Meaning not known.*
+ - `EffectFlags` - Collection of flags controlling how damage is applied. This is a bitmask and should only be changed if you really know what you're doing. See `NRD_HitSetFlag`. **TODO** *May be removed.*
+ - `HitWithWeapon` - Equivalent to the skill property `UseWeaponDamage`. **TODO Rename?**
+ - `HitReason` - **TODO** *Meaning not known.*
+ - `DamageSourceType` - *Purpose not known.*. Possible values:
+   - 0 - None
+   - 1 - SurfaceMove
+   - 2 - SurfaceCreate
+   - 3 - SurfaceStatus
+   - 4 - StatusEnter
+   - 5 - StatusTick
+   - 6 - Attack
+   - 7 - Offhand
+   - 8 - GM
+ - `Strength` - **TODO** *Meaning not known.*
+
+**Flag parameters:** (for `NRD_HitSetFlag`)
+ - `Hit` - The attack hit
+ - `Blocked` - The attack was blocked
+ - `Dodged` - The attack was dodged
+ - `Missed` - The attack missed
+ - `CriticalHit`
+ - `AlwaysBackstab` - Equivalent to the `AlwaysBackstab` skill property
+ - `FromSetHP` - Indicates that the hit was called from `CharacterSetHitpointsPercentage` (or similar)
+ - `DontCreateBloodSurface` - Avoids creating a blood surface when the character is hit
+ - `Reflection`
+ - `NoDamageOnOwner`
+ - `FromShacklesOfPain`
+ - `DamagedMagicArmor` - Indicates that the hit damaged magic armor
+ - `DamagedPhysicalArmor` - Indicates that the hit damaged physical armor
+ - `DamagedVitality` - Indicates that the hit damaged the characters vitality
+ - `PropagatedFromOwner`
+ - `ProcWindWalker` - Hit should proc the Wind Walker talent
+
+**Vector parameters:**
+ - `ImpactPosition`
+ - `ImpactOrigin`
+ - `ImpactDirection`
+
+**String parameters:**
+ - `SkillId`  - Skill that was used for the attack
+
+**Notes:**
+ - Make sure that both `NRD_HitPrepare` and `NRD_HitExecute` are called in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the hit.
+
+**Example usage (normal hit):**
+```c
+NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
+NRD_HitAddDamage(8, 50);
+NRD_HitSetInt("CallCharacterHit", 1);
+NRD_HitSetInt("CriticalRoll", 1);
+NRD_HitExecute();
+```
+
+**Example usage (manually controlled hit):**
+```c
+NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
+NRD_HitAddDamage(2, 50);
+NRD_HitSetFlag("Hit");
+NRD_HitSetFlag("DamagedVitality");
+NRD_HitExecute();
+```
+
+# Projectile functions
+
+`call NRD_ProjectilePrepareLaunch()`
+`call NRD_ProjectileLaunch()`
+`call NRD_ProjectileSetInt((STRING)_Property, (INTEGER)_Value)`
+`call NRD_ProjectileSetString((STRING)_Property, (STRING)_Value)`
+`call NRD_ProjectileSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`call NRD_ProjectileSetGuidString((STRING)_Property, (GUIDSTRING)_Value)`
+
+The projectile API is a set of functions for casting Projectile/ProjectileStrike skills. It is an extension of `CreateProjectileStrikeAt` and `CreateExplosion`.
+
+**Usage:**
+A cast must be prepared by calling `NRD_BeginProjectile()`. Projectile parameters must be set by calling the `NRD_ProjectileSetString/GuidString/Int/Vector3` functions. When all parameters are set, the skill is cast by calling `NRD_EndProjectile()`.
+
+**Stability:**
+Function signatures are final. Projectile parameters that are not documented are subject to change. An additional `NRD_ProjectileAddDamage` call may be introduced later on.
+
+**Projectile parameters:**
+ - `SkillId` (string) - Skill to cast. Must be a Projectile or ProjectileStrike skill.
+ - `FS2` (string) - *Unknown; name subject to change*
+ - `CasterLevel` (int)
+ - `StatusClearChance` (int) - 
+ - `IsTrap` (bool)
+ - `UnknownFlag1` (bool) - *Unknown; name subject to change*
+ - `HasCaster` (bool)
+ - `IsStealthed` (bool) - Indicates whether the caster is stealthed
+ - `UnknownFlag2` (bool) - *Unknown; name subject to change*
+ - `SourcePosition` (Vector3) - Launch projectile from the specified position
+ - `SourcePosition` (GuidString) - Launch projectile from the position of the specified character/item
+ - `TargetPosition` (Vector3) - Launch projectile towards the specified position
+ - `TargetPosition` (GuidString) - Launch projectile towards the position of the specified character/item
+ - `Source` (GuidString) - Caster character
+ - `Target` (GuidString) - Target character
+ - `Target2` - *Unknown; name subject to change*
+
+**Notes:**
+ - For a successful cast, at least `SkillId`, `SourcePosition` and `TargetPosition` (either Vector3 or GuidString) must be set.
+ - Calling `ProjectileSetGuidString` with `SourcePosition` or `TargetPosition` is a shortcut for calling `GetPosition()` and `NRD_ProjectileSetVector3()` for the specified character/item.
+ - The character/item specified when setting `SourcePosition` is not considered to be the caster of the skill, and the cast will trigger no adverse reaction towards the caster. To set the caster character, set the `Source` property as well.
+ - Make sure that you call `NRD_ProjectilePrepareLaunch` and `NRD_ProjectileLaunch` in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the projectile.
+
+**Example:**
+```c
+NRD_ProjectilePrepareLaunch();
+NRD_ProjectileSetString("SkillId", "Projectile_Grenade_PoisonFlask");
+NRD_ProjectileSetInt("CasterLevel", 3);
+NRD_ProjectileSetGuidString("SourcePosition", Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
+NRD_ProjectileSetGuidString("TargetPosition", Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
+NRD_ProjectileLaunch();
+```
+
+# Skill functions
+
+### SkillSetCooldown
+`call NRD_SkillSetCooldown((GUIDSTRING)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
+
+Set the current cooldown timer of the skill (in seconds).
+Doesn't work on skills that can only be used once per combat.
+
+# Game Action functions
+
+These functions create game actions (Rain/Storm/etc.), but bypass the skill casting system entirely (doesn't consume AP, doesn't play skill use animations, doesn't reset skill cooldowns).
+Each function needs a skill stats id of the same type (Rain skill id for `NRD_CreateRain`, etc.)
+
+**Stability:**
+ - The functions might get a handle return value in the future to ensure that the caller can destroy them if necessary.
+ - The following additional options may be added:
+   - Global: `ActivateTimer`
+   - Tornado: `TurnTimer`, `IsFromItem`, `Finished`
+   - Storm: `TurnTimer`, `LifeTime`, `IsFromItem`, `Finished`
+   - Rain: `TurnTimer`, `LifeTime`, `Duration`, `IsFromItem`, `Finished`
+   - Wall: `TurnTimer`, `LifeTime`, `IsFromItem`, `Finished`
+   - Dome: `LifeTime`, `Finished`
+
+### CreateRain
+`call NRD_CreateRain((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+
+### CreateStorm
+`call NRD_CreateStorm((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+
+### CreateWall
+`call NRD_CreateWall((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_SourceX, (REAL)_SourceY, (REAL)_SourceZ, (REAL)_TargetX, (REAL)_TargetY, (REAL)_TargetZ)`
+
+### CreateTornado
+`call NRD_CreateTornado((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_PositionX, (REAL)_PositionY, (REAL)_PositionZ, (REAL)_TargetX, (REAL)_TargetY, (REAL)_TargetZ)`
+
+### CreateDome
+`call NRD_CreateDome((GUIDSTRING)_OwnerCharacter, (STRING)_SkillId, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+
+### GameObjectMove
+`call NRD_CreateGameObjectMove((GUIDSTRING)_TargetCharacter, (REAL)_X, (REAL)_Y, (REAL)_Z, (STRING)_BeamEffectName, (GUIDSTRING)_CasterCharacter)`
+
+### Summon
+`query NRD_Summon([in](GUIDSTRING)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](GUIDSTRING)_Summon)`
+
+
+
+# Item functions
+
+### ItemSetIdentified
+`call NRD_ItemSetIdentified((GUIDSTRING)_Item, (INTEGER)_IsIdentified)`
+
+Sets whether the item is identified or not.
+Marking common items (that cannot be identified) as unidentified has no effect.
+
+### ItemGetStatsId
+`query NRD_ItemGetStatsId([in](GUIDSTRING)_Item, [out](STRING)_StatsId)`
+
+Return the stats entry ID of the specified item.
+
+
+# Miscellaneous functions
+
+### DebugLog 
+`call NRD_DebugLog((STRING)_Message)`
+
+Functionally equivalent to `DebugBreak()`, except that the `_Message` argument accepts any type, not only strings. To use non-string arguments, cast the variable to the appropriate type.
+
+Example usage:  
+```c
+IF
+StoryEvent((ITEMGUID)_Item, "TEST")
+THEN
+NRD_DebugLog((STRING)_Item);
+```
+
+
+### ForLoop
+`call NRD_ForLoop((STRING)_Event, (INTEGER)_Count)`
+`call NRD_ForLoop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Count)`
+`event NRD_Loop((STRING)_Event, (INTEGER)_Num)`
+`event NRD_Loop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Num)`
+
+Counts from 0 up to `_Count - 1` and throws loop event `_Event` for each value. Unlike regular events, `NRD_Loop` are not queued and are thrown immediately (i.e. during the `NRD_ForLoop` call), so there is no need for an additional cleanup/finalizer event.
+
+Example usage:  
+```c
+// ...
+NRD_ForLoop("MyMod_SomeLoopEvent", 10);
+
+IF
+NRD_Loop("MyMod_SomeLoopEvent", _Int)
+THEN
+NRD_DebugLog((STRING)_Int);
+```
+  
+Example usage with GUIDs:
+```c
+// ...
+NRD_ForLoop(CHARACTERGUID_S_GLO_CharacterCreationDummy_001_da072fe7-fdd5-42ae-9139-8bd4b9fca406, "MyMod_SomeLoopEvent", 10);
+  
+IF
+NRD_Loop((CHARACTERGUID)_Char, "MyMod_SomeLoopEvent", _Int)
+THEN
+NRD_DebugLog((STRING)_Char);
+NRD_DebugLog((STRING)_Int);
+```
+  
+  
+
+# Math functions
+
+### Sin
+`query NRD_Sin([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the sine of the argument `_In` (measured in radians).
+  
+
+### Cos
+`query NRD_Cos([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the cosine of the argument `_In` (measured in radians).
+  
+
+### Tan
+`query NRD_Tan([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the tangent of the argument `_In` (measured in radians).
+  
+
+### Round
+`query NRD_Round([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the nearest integer value to the argument `_In`, rounding halfway cases away from zero.
+  
+
+### Ceil
+`query NRD_Ceil([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the smallest integer value not less than the argument.
+
+
+### Floor
+`query NRD_Floor([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the largest integer value not greater than the argument.
+  
+
+### Abs
+`query NRD_Abs([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the absolute value of the argument.
+  
+
+### Pow
+`query NRD_Pow([in](REAL)_Base, [in](INTEGER)_Exp, [out](REAL)_Out)`
+
+Computes the value of `_Base` raised to the power `_Exp`.
+  
+
+### Sqrt
+`query NRD_Sqrt([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the square root of `_In`.
+  
+
+### Exp
+`query NRD_Exp([in](REAL)_In, [out](REAL)_Out)`
+
+Computes `e` (Euler's number, 2.7182818...) raised to the given power `_In`.
+
+### Log
+`query NRD_Log([in](REAL)_In, [out](REAL)_Out)`
+
+Computes the natural (base `e`) logarithm of `_In`.
+
+
+### Factorial
+`query NRD_Factorial([in](INTEGER)_In, [out](INTEGER)_Out)`
+
+Computes the factorial of the value `_In`.
+
+### RandomFloat
+`query NRD_RandomFloat([in](REAL)_Min, [in](REAL)_Max, [out](REAL)_Result)`
+
+Returns uniformly distributed random numbers in the range [`_Min` ... `_Max`].
+
+**TODO**: Rename to `RandomReal` for consistency?
+  
+# String functions
+
+### StringCompare
+`query NRD_StringCompare([in](STRING)_A, [in](STRING)_B, [out](INTEGER)_Result)`
+
+Compare strings `A` and `B` using lexicographic ordering.
+**Value of `Result`:**
+ - -1, if `A` comes before `B`
+ - 0, if `A` is equal to `B`
+ - 1, if `A` comes after `B`
+
+### StringLength
+`query NRD_StringLength([in](STRING)_String, [out](INTEGER)_Length)`
+
+Computes the length of the string `_String`, and returns it in `_Length`.
+
+### StringToInt
+`query NRD_StringToInt([in](STRING)_String, [out](INTEGER)_Result)`
+
+Attempts to convert `_String` to an integer value. If the conversion succeeds (i.e. the string is a valid integer), the integer value is returned in `_Result`. If `_String` is not a valid integer, the query fails.
+
+For detailed rules [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stol)
+
+
+### StringToFloat
+`query NRD_StringToFloat([in](STRING)_String, [out](REAL)_Result)`
+
+Attempts to convert `_String` to a real value. If the conversion succeeds (i.e. the string is a valid real), the real value is returned in `_Result`. If `_String` is not a valid real value, the query fails.
+
+For detailed rules see [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stof)
+
+**TODO**: Rename to `RandomReal` for consistency?
