@@ -54,7 +54,7 @@ namespace osidbg
 			}
 		}
 
-		bool StringToFloat(OsiArgumentDesc & args)
+		bool StringToReal(OsiArgumentDesc & args)
 		{
 			auto a = args.Get(0).String;
 			try {
@@ -143,15 +143,15 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(stringToInt));
 
-		auto stringToFloat = std::make_unique<CustomQuery>(
-			"NRD_StringToFloat",
+		auto stringToReal = std::make_unique<CustomQuery>(
+			"NRD_StringToReal",
 			std::vector<CustomFunctionParam>{
 				{ "String", ValueType::String, FunctionArgumentDirection::In },
 				{ "Result", ValueType::Real, FunctionArgumentDirection::Out }
 			},
-			&func::StringToFloat
+			&func::StringToReal
 		);
-		functionMgr.Register(std::move(stringToFloat));
+		functionMgr.Register(std::move(stringToReal));
 
 		auto startLoop = std::make_unique<CustomCall>(
 			"NRD_ForLoop",

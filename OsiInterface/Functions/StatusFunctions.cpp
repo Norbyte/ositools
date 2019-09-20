@@ -143,7 +143,7 @@ namespace osidbg
 			return true;
 		}
 
-		bool StatusGetAttributeFloat(OsiArgumentDesc & args)
+		bool StatusGetAttributeReal(OsiArgumentDesc & args)
 		{
 			auto status = GetStatusHelper(args);
 			if (status == nullptr) {
@@ -170,7 +170,7 @@ namespace osidbg
 				args.Get(3).Float = status->StatsMultiplier;
 			}
 			else {
-				OsiError("StatusGetAttributeFloat(): Unknown attribute: " << attributeName);
+				OsiError("StatusGetAttributeReal(): Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -247,7 +247,7 @@ namespace osidbg
 			return true;
 		}
 
-		void StatusSetAttributeFloat(OsiArgumentDesc const & args)
+		void StatusSetAttributeReal(OsiArgumentDesc const & args)
 		{
 			auto status = GetStatusHelper(args);
 			if (status == nullptr) {
@@ -258,7 +258,7 @@ namespace osidbg
 			auto value = args.Get(3).Float;
 
 			if (value < 0.0f) {
-				OsiError("StatusSetAttributeFloat(): Cannot set a negative value");
+				OsiError("StatusSetAttributeReal(): Cannot set a negative value");
 				return;
 			}
 
@@ -281,7 +281,7 @@ namespace osidbg
 				status->StatsMultiplier = value;
 			}
 			else {
-				OsiError("StatusSetAttributeFloat(): Cannot set attribute: " << attributeName);
+				OsiError("StatusSetAttributeReal(): Cannot set attribute: " << attributeName);
 			}
 		}
 	}
@@ -323,17 +323,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(getStatusAttributeInt));
 
-		auto getStatusAttributeFloat = std::make_unique<CustomQuery>(
-			"NRD_StatusGetAttributeFloat",
+		auto getStatusAttributeReal = std::make_unique<CustomQuery>(
+			"NRD_StatusGetAttributeReal",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttributeFloat
+			&func::StatusGetAttributeReal
 		);
-		functionMgr.Register(std::move(getStatusAttributeFloat));
+		functionMgr.Register(std::move(getStatusAttributeReal));
 
 		auto getStatusAttributeString = std::make_unique<CustomQuery>(
 			"NRD_StatusGetAttributeString",
@@ -359,17 +359,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(getStatusAttributeGuidString));
 
-		auto setStatusAttributeFloat = std::make_unique<CustomCall>(
-			"NRD_StatusSetAttributeFloat",
+		auto setStatusAttributeReal = std::make_unique<CustomCall>(
+			"NRD_StatusSetAttributeReal",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttributeFloat
+			&func::StatusSetAttributeReal
 		);
-		functionMgr.Register(std::move(setStatusAttributeFloat));
+		functionMgr.Register(std::move(setStatusAttributeReal));
 
 		auto statusIteratorEvent = std::make_unique<CustomEvent>(
 			"NRD_StatusIteratorEvent",

@@ -95,7 +95,7 @@ NRD_DebugLog((STRING)_Handle);
 
 ### StatusGetAttribute
 `query NRD_StatusGetAttributeInt([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
-`query NRD_StatusGetAttributeFloat([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
+`query NRD_StatusGetAttributeReal([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
 `query NRD_StatusGetAttributeString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
 `query NRD_StatusGetAttributeGuidString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
 
@@ -110,7 +110,7 @@ Returns the specified status attribute. If the character or status does not exis
  - `StatusSource` - Character or item that caused the status
  - `Obj2` - *Unknown; name subject to change*
 
-**Float attributes:**
+**Real attributes:**
  - `StartTimer`
  - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
  - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
@@ -152,13 +152,13 @@ DebugBreak(_SourceStr);
 ```
 
 ### StatusSetAttribute
-`call NRD_StatusSetAttributeFloat((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
+`call NRD_StatusSetAttributeReal((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
 
 Updates the specified status attribute.
 
-**Stability:** Additional float attributes (`Strength`, etc.) and calls (`StatusSetAttributeInt`, etc.) will be added when it has been determined that it's safe to update those values during the lifetime of the status.
+**Stability:** Additional real attributes (`Strength`, etc.) and calls (`StatusSetAttributeInt`, etc.) will be added when it has been determined that it's safe to update those values during the lifetime of the status.
 
-**Float attributes:**
+**Real attributes:**
  - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
  - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
 
@@ -169,11 +169,11 @@ Example usage:
 AND
 NRD_StatusGetHandle(_Character, "WET", _Handle)
 AND
-NRD_StatusGetAttributeFloat(_Character, _Handle, "CurrentLifeTime", _CurrentLifeTime)
+NRD_StatusGetAttributeReal(_Character, _Handle, "CurrentLifeTime", _CurrentLifeTime)
 AND
 RealSum(_CurrentLifeTime, 12.0, _NewLifeTime)
 THEN
-NRD_StatusSetAttributeFloat(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
+NRD_StatusSetAttributeReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
 ```
 
 # Hit functions
@@ -533,12 +533,11 @@ Computes the natural (base `e`) logarithm of `_In`.
 
 Computes the factorial of the value `_In`.
 
-### RandomFloat
-`query NRD_RandomFloat([in](REAL)_Min, [in](REAL)_Max, [out](REAL)_Result)`
+### RandomReal
+`query NRD_RandomReal([in](REAL)_Min, [in](REAL)_Max, [out](REAL)_Result)`
 
 Returns uniformly distributed random numbers in the range [`_Min` ... `_Max`].
 
-**TODO**: Rename to `RandomReal` for consistency?
   
 # String functions
 
@@ -564,11 +563,9 @@ Attempts to convert `_String` to an integer value. If the conversion succeeds (i
 For detailed rules [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stol)
 
 
-### StringToFloat
-`query NRD_StringToFloat([in](STRING)_String, [out](REAL)_Result)`
+### StringToReal
+`query NRD_StringToReal([in](STRING)_String, [out](REAL)_Result)`
 
 Attempts to convert `_String` to a real value. If the conversion succeeds (i.e. the string is a valid real), the real value is returned in `_Result`. If `_String` is not a valid real value, the query fails.
 
 For detailed rules see [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stof)
-
-**TODO**: Rename to `RandomReal` for consistency?

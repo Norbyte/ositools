@@ -9,7 +9,7 @@ namespace osidbg
 	{
 		std::unique_ptr<std::mt19937_64> OsiRng;
 
-		bool RandomFloat(OsiArgumentDesc & args)
+		bool RandomReal(OsiArgumentDesc & args)
 		{
 			auto min = args.Get(0).Float;
 			auto max = args.Get(1).Float;
@@ -132,16 +132,16 @@ namespace osidbg
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
-		auto randomFloat = std::make_unique<CustomQuery>(
-			"NRD_RandomFloat",
+		auto randomReal = std::make_unique<CustomQuery>(
+			"NRD_RandomReal",
 			std::vector<CustomFunctionParam>{
 				{ "Min", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Max", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
 			},
-			&func::RandomFloat
+			&func::RandomReal
 		);
-		functionMgr.Register(std::move(randomFloat));
+		functionMgr.Register(std::move(randomReal));
 
 		auto factorial = std::make_unique<CustomQuery>(
 			"NRD_Factorial",
