@@ -183,6 +183,10 @@ namespace osidbg
 			: Handle(handle)
 		{}
 
+		inline ObjectHandle(int64_t handle)
+			: Handle((uint64_t)handle)
+		{}
+
 		inline ObjectHandle(uint64_t type, uint64_t index, uint64_t salt)
 		{
 			if (type >= 0x400 || salt >= 0x400000) {
@@ -222,9 +226,14 @@ namespace osidbg
 			return (uint32_t)(Handle & 0xffffffff);
 		}
 
-		inline operator bool() const
+		explicit inline operator bool() const
 		{
 			return Handle != 0;
+		}
+
+		inline bool operator !() const
+		{
+			return Handle == 0;
 		}
 
 		explicit inline operator int64_t() const

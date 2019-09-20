@@ -10,6 +10,7 @@ namespace osidbg
 	EsvCharacter * FindCharacterByHandle(ObjectHandle const & handle);
 	EsvItem * FindItemByNameGuid(std::string const & nameGuid);
 	EsvItem * FindItemByHandle(ObjectHandle const & handle);
+	EsvGameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
 
 	struct ShootProjectileApiHelper

@@ -6,8 +6,8 @@
 namespace osidbg {
 
 	typedef void (* ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper, float Unknown);
-	typedef void * (* GameActionManager__CreateAction)(void * GameActionManager, int actionId, uint64_t SomeHandle);
-	typedef void (* GameActionManager__AddAction)(void * GameActionManager, void * Action);
+	typedef void * (* GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, int actionId, uint64_t SomeHandle);
+	typedef void (* GameActionManager__AddAction)(EsvGameActionManager * GameActionManager, void * Action);
 	typedef void (* TornadoAction__Setup)(void * TornadoAction);
 	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, float * TargetPosition);
 	typedef void (* SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
@@ -63,7 +63,7 @@ namespace osidbg {
 			}
 		}
 
-		inline void * GetGameActionManager() const
+		inline EsvGameActionManager * GetGameActionManager() const
 		{
 			if (LevelManager == nullptr || *LevelManager == nullptr) {
 				return nullptr;
@@ -73,12 +73,12 @@ namespace osidbg {
 			if (coreLibStart_ == nullptr) {
 				auto l1 = ((uint64_t *)levelMgr)[16];
 				auto l2 = *(uint64_t *)(l1 + 208);
-				return (void *)l2;
+				return (EsvGameActionManager *)l2;
 			}
 			else {
 				auto l1 = ((uint64_t *)levelMgr)[1];
 				auto l2 = *(uint64_t *)(l1 + 216);
-				return (void *)l2;
+				return (EsvGameActionManager *)l2;
 			}
 		}
 

@@ -832,6 +832,12 @@ namespace osidbg
 		uint32_t _Pad2;
 	};
 
+	struct EsvGameActionManager
+	{
+		uint8_t Unmapped[0x130];
+		Set<EsvGameAction *> GameActions;
+	};
+
 	struct EsvTornadoAction : public EsvGameAction
 	{
 		FixedString SkillId;

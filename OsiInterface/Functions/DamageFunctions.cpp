@@ -257,9 +257,9 @@ namespace osidbg
 			auto hit = (EsvStatusHit *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, fsHit, 0);
 
 			hit->StartTimer = 0.0f;
-			hit->HitByHandle = 0;
-			hit->HitWithHandle = 0; // FIXME?
-			hit->WeaponHandle = 0; // FIXME?
+			hit->HitByHandle = ObjectHandle{};
+			hit->HitWithHandle = ObjectHandle{}; // FIXME?
+			hit->WeaponHandle = ObjectHandle{}; // FIXME?
 			hit->HitReason = HitReason;
 			hit->Flags0 &= 0xFB; // Clear IsFromItem
 
@@ -271,7 +271,7 @@ namespace osidbg
 
 			hit->Strength = Strength;
 			hit->DamageSourceType = DamageSourceType;
-			hit->StatusSourceHandle = 0;
+			hit->StatusSourceHandle = ObjectHandle{};
 
 			if (Source != nullptr) {
 				ObjectHandle sourceHandle;

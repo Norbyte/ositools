@@ -57,7 +57,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = action->MyHandle;
+			args.Get(5).Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -72,7 +72,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = action->MyHandle;
+			args.Get(5).Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -130,7 +130,7 @@ namespace osidbg
 			lib.WallActionCreateWall(action);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(8).Int64 = action->MyHandle;
+			args.Get(8).Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -150,7 +150,7 @@ namespace osidbg
 			lib.TornadoActionSetup(action);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(8).Int64 = action->MyHandle;
+			args.Get(8).Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -163,7 +163,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = action->MyHandle;
+			args.Get(5).Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -222,8 +222,111 @@ namespace osidbg
 			lib.GameObjectMoveActionSetup(action, objectHandle, targetPosition);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(6).Int64 = action->MyHandle;
+			args.Get(6).Int64 = (int64_t)action->MyHandle;
 			return true;
+		}
+
+		void DestroyGameActionInternal(EsvGameAction & action)
+		{
+			switch (action.GameActionType) {
+			case EsvGameAction::RainAction:
+				static_cast<EsvRainAction &>(action).Finished = true;
+				break;
+
+			case EsvGameAction::StormAction:
+				static_cast<EsvStormAction &>(action).LifeTime = 0.0f;
+				break;
+
+			case EsvGameAction::WallAction:
+				static_cast<EsvWallAction &>(action).LifeTime = 0.0f;
+				break;
+
+			case EsvGameAction::TornadoAction:
+				static_cast<EsvTornadoAction &>(action).Finished = true;
+				break;
+
+			case EsvGameAction::StatusDomeAction:
+				static_cast<EsvStatusDomeAction &>(action).Finished = true;
+				break;
+
+			case EsvGameAction::GameObjectMoveAction:
+				static_cast<EsvGameObjectMoveAction &>(action).DoneMoving = true;
+				break;
+
+			default:
+				OsiError("DestroyGameActionInternal(): Don't know how to destroy game action type " << action.GameActionType);
+				break;
+			}
+		}
+
+		void GameActionDestroy(OsiArgumentDesc const & args)
+		{
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			if (gameAction == nullptr) return;
+
+			DestroyGameActionInternal(*gameAction);
+		}
+
+		bool GameActionGetLifeTime(OsiArgumentDesc & args)
+		{
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			if (gameAction == nullptr) return false;
+
+			float lifeTime;
+			switch (gameAction->GameActionType) {
+			case EsvGameAction::RainAction:
+				lifeTime = static_cast<EsvRainAction *>(gameAction)->LifeTime;
+				break;
+
+			case EsvGameAction::StormAction:
+				lifeTime = static_cast<EsvStormAction *>(gameAction)->LifeTime;
+				break;
+
+			case EsvGameAction::WallAction:
+				lifeTime = static_cast<EsvWallAction *>(gameAction)->LifeTime;
+				break;
+
+			case EsvGameAction::StatusDomeAction:
+				lifeTime = static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime;
+				break;
+
+			default:
+				OsiError("GameActionGetLifeTime(): Not supported for game action type " << gameAction->GameActionType);
+				return false;
+			}
+
+			args.Get(1).Float = lifeTime;
+			return true;
+		}
+
+		void GameActionSetLifeTime(OsiArgumentDesc const & args)
+		{
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			if (gameAction == nullptr) return;
+
+			auto lifeTime = args.Get(1).Float;
+			if (lifeTime < 0.0f) {
+				OsiError("GameActionSetLifeTime(): Lifetime must be a positive value");
+				return;
+			}
+
+			switch (gameAction->GameActionType) {
+			case EsvGameAction::RainAction:
+				static_cast<EsvRainAction *>(gameAction)->LifeTime = lifeTime;
+				break;
+
+			case EsvGameAction::StormAction:
+				static_cast<EsvStormAction *>(gameAction)->LifeTime = lifeTime;
+				break;
+
+			case EsvGameAction::StatusDomeAction:
+				static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime = lifeTime;
+				break;
+
+			default:
+				OsiError("GameActionSetLifeTime(): Not supported for game action type " << gameAction->GameActionType);
+				break;
+			}
 		}
 
 		bool Summon(OsiArgumentDesc & args)
@@ -396,6 +499,35 @@ namespace osidbg
 			&func::CreateGameObjectMove
 		);
 		functionMgr.Register(std::move(gameObjectMove));
+
+		auto destroyGameAction = std::make_unique<CustomCall>(
+			"NRD_GameActionDestroy",
+			std::vector<CustomFunctionParam>{
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::In }
+			},
+			&func::GameActionDestroy
+		);
+		functionMgr.Register(std::move(destroyGameAction));
+
+		auto gameActionGetLifeTime = std::make_unique<CustomQuery>(
+			"NRD_GameActionGetLifeTime",
+			std::vector<CustomFunctionParam>{
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::Out }
+			},
+			&func::GameActionGetLifeTime
+		);
+		functionMgr.Register(std::move(gameActionGetLifeTime));
+
+		auto gameActionSetLifeTime = std::make_unique<CustomCall>(
+			"NRD_GameActionSetLifeTime",
+			std::vector<CustomFunctionParam>{
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::In }
+			},
+			&func::GameActionSetLifeTime
+		);
+		functionMgr.Register(std::move(gameActionSetLifeTime));
 
 		auto summon = std::make_unique<CustomQuery>(
 			"NRD_Summon",

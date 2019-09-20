@@ -124,6 +124,22 @@ namespace osidbg
 		}
 	}
 
+	EsvGameAction * FindGameActionByHandle(ObjectHandle const & handle)
+	{
+		auto const & lib = gOsirisProxy->GetLibraryManager();
+		auto actionMgr = lib.GetGameActionManager();
+
+		for (auto i = 0; i < actionMgr->GameActions.Size; i++) {
+			auto action = actionMgr->GameActions.Buf[i];
+			if (action->MyHandle == handle) {
+				return action;
+			}
+		}
+
+		OsiError("FindGameActionByHandle(): Nm game action found with handle " << (int64_t)handle);
+		return nullptr;
+	}
+
 	ShootProjectileApiHelper::ShootProjectileApiHelper()
 	{
 		Helper.Random = (uint8_t)rand();

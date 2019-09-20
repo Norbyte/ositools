@@ -393,10 +393,36 @@ Each function needs a skill stats id of the same type (Rain skill id for `NRD_Cr
 ### GameObjectMove
 `query NRD_CreateGameObjectMove([in](GUIDSTRING)_TargetCharacter, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](GUIDSTRING)_CasterCharacter, [out](INTEGER64)_GameObjectHandle)`
 
+### GameActionDestroy
+`call NRD_GameActionDestroy((INTEGER64)_GameActionHandle)`
+
+Destroys the specified game action. `_GameActionHandle` is the handle returned from one of the game action create functions (`CreateWall`, `CreateDome`, etc).
+
+**Notes:**
+ - The game action is not destroyed immediately, but on the next tick. This means that the game action might survive the current turn (up to 6 seconds) and will exit afterwards. This behavior might change in the future if a safer way is found to destroy game actions.
+
+### GameActionGetLifeTime
+`query NRD_GameActionGetLifeTime([in](INTEGER64)_GameActionHandle, [out](REAL)_LifeTime)`
+
+Returns the total lifetime of the specified game action. 
+
+**Notes:**
+ - Only `Rain`, `Storm`, `Wall` and `Dome` actions are supported.
+
+
+### GameActionSetLifeTime
+`call NRD_GameActionSetLifeTime((INTEGER64)_GameActionHandle, (REAL)_LifeTime)`
+
+Updates the total lifetime of the specified game action.
+
+**Notes:**
+ - Only `Rain`, `Storm` and `Dome` actions are supported; the others cannot be controlled directly via the lifetime variable.
+
+
 ### Summon
 `query NRD_Summon([in](GUIDSTRING)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](GUIDSTRING)_Summon)`
 
-
+** TODO Documentation **
 
 # Item functions
 
