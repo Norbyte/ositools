@@ -129,7 +129,7 @@ namespace osidbg
 		auto const & lib = gOsirisProxy->GetLibraryManager();
 		auto actionMgr = lib.GetGameActionManager();
 
-		for (auto i = 0; i < actionMgr->GameActions.Size; i++) {
+		for (uint32_t i = 0; i < actionMgr->GameActions.Size; i++) {
 			auto action = actionMgr->GameActions.Buf[i];
 			if (action->MyHandle == handle) {
 				return action;
@@ -193,7 +193,7 @@ namespace osidbg
 		}
 
 		ObjectHandle handle;
-		float const * position;
+		glm::vec3 position;
 
 		if (character != nullptr) {
 			character->GetObjectHandle(&handle);
@@ -206,15 +206,11 @@ namespace osidbg
 		}
 
 		if (strcmp(prop, "SourcePosition") == 0) {
-			Helper.StartPosition[0] = position[0];
-			Helper.StartPosition[1] = position[1];
-			Helper.StartPosition[2] = position[2];
+			Helper.StartPosition = position;
 			HasStartPosition = true;
 		}
 		else if (strcmp(prop, "TargetPosition") == 0) {
-			Helper.EndPosition[0] = position[0];
-			Helper.EndPosition[1] = position[1];
-			Helper.EndPosition[2] = position[2];
+			Helper.EndPosition = position;
 			HasEndPosition = true;
 		}
 		else if (strcmp(prop, "Source") == 0) {
@@ -233,18 +229,14 @@ namespace osidbg
 		}
 	}
 
-	void ShootProjectileApiHelper::SetVector(char const * prop, float const * value)
+	void ShootProjectileApiHelper::SetVector(char const * prop, glm::vec3 const & value)
 	{
 		if (strcmp(prop, "SourcePosition") == 0) {
-			Helper.StartPosition[0] = value[0];
-			Helper.StartPosition[1] = value[1];
-			Helper.StartPosition[2] = value[2];
+			Helper.StartPosition = value;
 			HasStartPosition = true;
 		}
 		else if (strcmp(prop, "TargetPosition") == 0) {
-			Helper.EndPosition[0] = value[0];
-			Helper.EndPosition[1] = value[1];
-			Helper.EndPosition[2] = value[2];
+			Helper.EndPosition = value;
 			HasEndPosition = true;
 		}
 		else {

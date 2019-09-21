@@ -20,7 +20,7 @@ namespace osidbg
 			auto eventName = args.Get(1).String;
 			auto statuses = character->StatusManager;
 			if (statuses != nullptr) {
-				for (auto index = 0; index < statuses->StatusCount; index++) {
+				for (uint32_t index = 0; index < statuses->StatusCount; index++) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
 					eventArgs->Add(OsiArgumentValue{ ValueType::String, statuses->Statuses[index]->StatusId.Str });
@@ -78,7 +78,7 @@ namespace osidbg
 			}
 
 			auto statuses = character->StatusManager;
-			for (auto index = 0; index < statuses->StatusCount; index++) {
+			for (uint32_t index = 0; index < statuses->StatusCount; index++) {
 				auto status = statuses->Statuses[index];
 				if (status->StatusId == statusId) {
 					args.Get(2).Int64 = index;

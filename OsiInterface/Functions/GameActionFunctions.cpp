@@ -21,14 +21,10 @@ namespace osidbg
 				return nullptr;
 			}
 
-			auto x = args.Get(2).Float;
-			auto y = args.Get(3).Float;
-			auto z = args.Get(4).Float;
+			auto pos = args.GetVector(2);
 
-			if (x == -1.0f && y == -1.0f && z == -1.0f) {
-				x = character->WorldPos[0];
-				y = character->WorldPos[1];
-				z = character->WorldPos[2];
+			if (pos.x == -1.0f && pos.y == -1.0f && pos.z == -1.0f) {
+				pos = character->WorldPos;
 			}
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
@@ -40,9 +36,7 @@ namespace osidbg
 			character->GetObjectHandle(&characterHandle);
 			action->OwnerHandle = characterHandle;
 
-			action->Position[0] = x;
-			action->Position[1] = y;
-			action->Position[2] = z;
+			action->Position = pos;
 			return action;
 		}
 
@@ -119,13 +113,8 @@ namespace osidbg
 			action->IsFromItem = false;
 			action->LifeTime = *lifetime / 1000.0f;
 
-			action->Source[0] = args.Get(2).Float;
-			action->Source[1] = args.Get(3).Float;
-			action->Source[2] = args.Get(4).Float;
-
-			action->Target[0] = args.Get(5).Float;
-			action->Target[1] = args.Get(6).Float;
-			action->Target[2] = args.Get(7).Float;
+			action->Source = args.GetVector(2);
+			action->Target = args.GetVector(5);
 
 			lib.WallActionCreateWall(action);
 			lib.AddGameAction(actionMgr, action);
@@ -141,9 +130,7 @@ namespace osidbg
 
 			action->IsFromItem = false;
 
-			action->Target[0] = args.Get(5).Float;
-			action->Target[1] = args.Get(6).Float;
-			action->Target[2] = args.Get(7).Float;
+			action->Target = args.GetVector(5);
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
@@ -207,10 +194,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			auto action = (EsvGameObjectMoveAction *)lib.CreateGameAction(actionMgr, EsvGameAction::GameObjectMoveAction, 0);
 
-			float targetPosition[3];
-			targetPosition[0] = args.Get(1).Float;
-			targetPosition[1] = args.Get(2).Float;
-			targetPosition[2] = args.Get(3).Float;
+			glm::vec3 targetPosition = args.GetVector(1);
 
 			if (caster != nullptr) {
 				ObjectHandle casterHandle;
@@ -219,7 +203,7 @@ namespace osidbg
 				action->BeamEffectName = beamEffectFs;
 			}
 
-			lib.GameObjectMoveActionSetup(action, objectHandle, targetPosition);
+			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
 			lib.AddGameAction(actionMgr, action);
 
 			args.Get(6).Int64 = (int64_t)action->MyHandle;
@@ -343,18 +327,14 @@ namespace osidbg
 				return false;
 			}
 
-			auto x = args.Get(2).Float;
-			auto y = args.Get(3).Float;
-			auto z = args.Get(4).Float;
+			auto pos = args.GetVector(2);
 			auto lifetime = args.Get(5).Float;
 			auto summonLevel = args.Get(6).Int32;
 			auto isTotem = args.Get(7).Int32 != 0;
 			auto mapToAiGrid = args.Get(8).Int32 != 0;
 
-			if (x == -1.0f && y == -1.0f && z == -1.0f) {
-				x = character->WorldPos[0];
-				y = character->WorldPos[1];
-				z = character->WorldPos[2];
+			if (pos.x == -1.0f && pos.y == -1.0f && pos.z == -1.0f) {
+				pos = character->WorldPos;
 			}
 
 			SummonHelperResults results;
@@ -365,9 +345,7 @@ namespace osidbg
 			summonArgs.OwnerCharacterHandle = characterHandle;
 			summonArgs.GameObjectTemplateFS = objectTemplate;
 			summonArgs.Level = *character->GetCurrentLevel();
-			summonArgs.Position[0] = x;
-			summonArgs.Position[1] = y;
-			summonArgs.Position[2] = z;
+			summonArgs.Position = pos;
 			summonArgs.SummonLevel = summonLevel;
 			summonArgs.Lifetime = lifetime;
 			summonArgs.IsTotem = isTotem;

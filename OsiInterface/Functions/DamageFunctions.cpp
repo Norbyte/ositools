@@ -297,7 +297,7 @@ namespace osidbg
 					&damage, 0, nullptr, HighGround, ReduceDurability ? 1 : 0, Critical);
 			} else {
 				damage.DamageList.Size = DamageList.Size;
-				for (auto i = 0; i < DamageList.Size; i++) {
+				for (uint32_t i = 0; i < DamageList.Size; i++) {
 					damage.DamageList.Buf[i] = DamageList.Buf[i];
 					damage.TotalDamageDone += DamageList.Buf[i].Amount;
 				}
@@ -397,10 +397,7 @@ namespace osidbg
 		void HitSetVector3(OsiArgumentDesc const & args)
 		{
 			auto prop = args.Get(0).String;
-			Vector3 vec;
-			vec.x = args.Get(1).Float;
-			vec.y = args.Get(2).Float;
-			vec.z = args.Get(3).Float;
+			Vector3 vec = args.GetVector(1);
 
 			if (!DamageHelper) {
 				OsiError("HitSetVector3(): Called when not preparing a hit!");

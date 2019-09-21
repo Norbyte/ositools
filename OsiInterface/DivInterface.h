@@ -541,13 +541,13 @@ namespace osidbg
 		FixedString MyGuid;
 		uint32_t NetID;
 		uint32_t _Pad1;
-		float WorldPos[3];
+		glm::vec3 WorldPos;
 		uint32_t _Pad2;
 		EsvCharacterFlags Flags;
 		uint32_t U2;
 		uint32_t _Pad3;
 		void * CurrentLevel;
-		float WorldRot[9];
+		glm::mat3 WorldRot;
 		float Scale;
 		PrimitiveSet<void *> PeerIDClassNames;
 		uint64_t U3[2];
@@ -718,18 +718,18 @@ namespace osidbg
 		FixedString MyGuid;
 		uint32_t NetID;
 		uint32_t _Pad1;
-		float WorldPos[3];
+		glm::vec3 WorldPos;
 		uint32_t _Pad2;
 		uint64_t Flags2;
 		uint32_t U2;
 		uint32_t _Pad3;
 		void * CurrentLevel;
-		float WorldRot[9];
+		glm::mat3 WorldRot;
 		float Scale;
 		uint8_t Flags3;
 		uint8_t _Pad4[7];
 		uint64_t U3[4];
-		float WorldVelocity[3];
+		glm::vec3 WorldVelocity;
 		uint32_t _Pad5;
 		uint64_t U4;
 		FixedString CurrentTemplate;
@@ -787,8 +787,8 @@ namespace osidbg
 		ObjectHandle SourceCharacter;
 		ObjectHandle Target;
 		ObjectHandle Target2;
-		float StartPosition[3];
-		float EndPosition[3];
+		glm::vec3 StartPosition;
+		glm::vec3 EndPosition;
 		uint8_t Random;
 		uint8_t _Pad[7];
 		void * DamageList;
@@ -842,8 +842,8 @@ namespace osidbg
 	{
 		FixedString SkillId;
 		ObjectHandle OwnerHandle;
-		float Position[3];
-		float Target[3];
+		glm::vec3 Position;
+		glm::vec3 Target;
 		float TurnTimer;
 		bool Finished;
 		bool IsFromItem;
@@ -865,7 +865,7 @@ namespace osidbg
 	struct EsvStormAction : public EsvGameAction
 	{
 		ObjectHandle OwnerHandle;
-		float Position[3];
+		glm::vec3 Position;
 		float LifeTime;
 		FixedString SkillId;
 		float TurnTimer;
@@ -882,7 +882,7 @@ namespace osidbg
 	struct EsvRainAction : public EsvGameAction
 	{
 		ObjectHandle OwnerHandle;
-		float Position[3];
+		glm::vec3 Position;
 		float AreaRadius;
 		float LifeTime;
 		float Duration;
@@ -901,8 +901,8 @@ namespace osidbg
 	{
 		FixedString SkillId;
 		ObjectHandle OwnerHandle;
-		float Target[3];
-		float Source[3];
+		glm::vec3 Target;
+		glm::vec3 Source;
 		float LifeTime;
 		uint8_t _Pad3[4];
 		ObjectSet<void *> Walls;
@@ -919,7 +919,7 @@ namespace osidbg
 	struct EsvStatusDomeAction : public EsvGameAction
 	{
 		ObjectHandle OwnerHandle;
-		float Position[3];
+		glm::vec3 Position;
 		uint8_t _Pad3[4];
 		float LifeTime;
 		uint8_t _Pad4[4];
@@ -954,7 +954,7 @@ namespace osidbg
 		ObjectHandle OwnerCharacterHandle;
 		FixedString GameObjectTemplateFS;
 		FixedString Level;
-		float Position[3];
+		glm::vec3 Position;
 		uint32_t SummonLevel;
 		float Lifetime;
 		bool IsTotem;

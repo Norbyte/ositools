@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <cassert>
+#include <glm/vec3.hpp>
 
 namespace osidbg
 {
@@ -187,6 +188,32 @@ struct OsiArgumentDesc
 		}
 
 		return next->Value;
+	}
+
+	inline glm::vec3 GetVector(uint32_t index) const
+	{
+		auto next = this;
+		while (index--) {
+			next = next->NextParam;
+		}
+
+		glm::vec3 vec; 
+		vec.x = next->Value.Float;
+		vec.y = next->NextParam->Value.Float;
+		vec.z = next->NextParam->NextParam->Value.Float;
+		return vec;
+	}
+
+	inline void SetVector(uint32_t index, glm::vec3 const & vec)
+	{
+		auto next = this;
+		while (index--) {
+			next = next->NextParam;
+		}
+
+		next->Value.Float = vec.x;
+		next->NextParam->Value.Float = vec.y;
+		next->NextParam->NextParam->Value.Float = vec.z;
 	}
 };
 

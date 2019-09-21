@@ -9,7 +9,7 @@ namespace osidbg {
 	typedef void * (* GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, int actionId, uint64_t SomeHandle);
 	typedef void (* GameActionManager__AddAction)(EsvGameActionManager * GameActionManager, void * Action);
 	typedef void (* TornadoAction__Setup)(void * TornadoAction);
-	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, float * TargetPosition);
+	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
 	typedef void (* SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef EsvStatus * (* StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
 	typedef void (* StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);

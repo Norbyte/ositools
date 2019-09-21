@@ -72,10 +72,7 @@ namespace osidbg
 		void ProjectileSetVector3(OsiArgumentDesc const & args)
 		{
 			auto prop = args.Get(0).String;
-			float vec[3];
-			vec[0] = args.Get(1).Float;
-			vec[1] = args.Get(2).Float;
-			vec[2] = args.Get(3).Float;
+			glm::vec3 vec = args.GetVector(1);
 
 			if (!ProjectileHelper) {
 				OsiError("ProjectileSetVector3(): Called when no projectile is active!");

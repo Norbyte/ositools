@@ -22,7 +22,7 @@ namespace osidbg
 		ShootProjectileApiHelper();
 		void SetInt(char const * prop, int32_t value);
 		void SetGuidString(char const * prop, char const * value);
-		void SetVector(char const * prop, float const * value);
+		void SetVector(char const * prop, glm::vec3 const & value);
 		void SetString(char const * prop, char const * value);
 		bool Shoot();
 	};
