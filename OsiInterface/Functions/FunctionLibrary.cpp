@@ -176,7 +176,7 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(skillSetCooldown));
 
-
+#if !defined(NDEBUG)
 		auto breakOnCharacter = std::make_unique<CustomCall>(
 			"NRD_BreakOnCharacter",
 			std::vector<CustomFunctionParam>{
@@ -207,6 +207,7 @@ namespace osidbg
 			&func::DoExperiment
 		);
 		functionMgr.Register(std::move(experiment));
+#endif
 	}
 
 }

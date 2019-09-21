@@ -66,6 +66,17 @@ namespace osidbg
 			}
 		}
 
+		// We need to keep the returned string alive
+		// until it reaches Osi
+		std::string gRealToStringTemp;
+
+		bool RealToString(OsiArgumentDesc & args)
+		{
+			gRealToStringTemp = std::to_string(args.Get(0).Float);
+			args.Get(1).String = const_cast<char *>(gRealToStringTemp.c_str());
+			return true;
+		}
+
 		void ForLoop(OsiArgumentDesc const & args)
 		{
 			auto eventName = args.Get(0).String;
@@ -152,6 +163,16 @@ namespace osidbg
 			&func::StringToReal
 		);
 		functionMgr.Register(std::move(stringToReal));
+
+		auto realToString = std::make_unique<CustomQuery>(
+			"NRD_RealToString",
+			std::vector<CustomFunctionParam>{
+				{ "Real", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Result", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::RealToString
+		);
+		functionMgr.Register(std::move(realToString));
 
 		auto startLoop = std::make_unique<CustomCall>(
 			"NRD_ForLoop",

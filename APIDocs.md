@@ -361,6 +361,12 @@ NRD_ProjectileLaunch();
 Set the current cooldown timer of the skill (in seconds).
 Doesn't work on skills that can only be used once per combat.
 
+### SkillGetCooldown
+`query NRD_SkillGetCooldown([in](GUIDSTRING)_Character, [in](STRING)_SkillId, [out](REAL)_Cooldown)`
+
+Returns the current cooldown timer of the skill (in seconds).
+For skills that can only be used once per combat -1.0 is returned.
+
 # Game Action functions
 
 These functions create game actions (Rain/Storm/etc.), but bypass the skill casting system entirely (doesn't consume AP, doesn't play skill use animations, doesn't reset skill cooldowns).
@@ -595,3 +601,9 @@ For detailed rules [check the reference](https://en.cppreference.com/w/cpp/strin
 Attempts to convert `_String` to a real value. If the conversion succeeds (i.e. the string is a valid real), the real value is returned in `_Result`. If `_String` is not a valid real value, the query fails.
 
 For detailed rules see [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stof)
+
+
+### RealToString
+`query NRD_RealToString([in](REAL)_Real, [out](STRING)_Result)`
+
+Converts `_Real` to a string value.
