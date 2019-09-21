@@ -37,6 +37,31 @@ namespace osidbg
 			item->StatsDynamic->IsIdentified = args.Get(1).Int32 ? 1 : 0;
 		}
 
+		bool SkillGetCooldown(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args.Get(0).String;
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) {
+				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' does not exist!");
+				return false;
+			}
+
+			if (character->SkillManager == nullptr) {
+				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' has no SkillManager!");
+				return false;
+			}
+
+			auto skillId = args.Get(1).String;
+			auto skill = character->SkillManager->Skills.Find(skillId);
+			if (skill == nullptr) {
+				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
+				return false;
+			}
+
+			args.Get(2).Float = (*skill)->ActiveCooldown;
+			return true;
+		}
+
 		void SkillSetCooldown(OsiArgumentDesc const & args)
 		{
 			auto characterGuid = args.Get(0).String;
@@ -126,6 +151,18 @@ namespace osidbg
 			&func::ItemSetIdentified
 		);
 		functionMgr.Register(std::move(itemSetIdentified));
+
+
+		auto skillGetCooldown = std::make_unique<CustomQuery>(
+			"NRD_SkillGetCooldown",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
+				{ "Cooldown", ValueType::Real, FunctionArgumentDirection::Out }
+			},
+			&func::SkillGetCooldown
+		);
+		functionMgr.Register(std::move(skillGetCooldown));
 
 
 		auto skillSetCooldown = std::make_unique<CustomCall>(
