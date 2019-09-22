@@ -367,6 +367,51 @@ Doesn't work on skills that can only be used once per combat.
 Returns the current cooldown timer of the skill (in seconds).
 For skills that can only be used once per combat -1.0 is returned.
 
+# Skillbar functions
+
+**Notes:**
+ - The skill bar functions can only be used on player characters
+ - The skill bar slot (`_Slot`) must be an integer between 0 and 144.
+
+### SkillBarGetItem
+`query NRD_SkillBarGetItem([in](GUIDSTRING)_Character, [in](INTEGER)_Slot, [out](GUIDSTRING)_Item)`
+
+Retrieves the item in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by a skill, the query fails.
+
+### SkillBarGetSkill
+`query NRD_SkillBarGetSkill([in](GUIDSTRING)_Character, [in](INTEGER)_Slot, [out](STRING)_Skill)`
+
+Retrieves the skill in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by an item, the query fails.
+
+### SkillBarFindSkill
+`query NRD_SkillBarFindSkill([in](GUIDSTRING)_Character, [in](STRING)_Skill, [out](INTEGER)_Slot)`
+
+Checks whether the player has the skill `_Skill` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the skill is not on the skill bar, the query fails.
+
+### SkillBarFindItem
+`query NRD_SkillBarFindItem([in](GUIDSTRING)_Character, [in](GUIDSTRING)_Item, [out](INTEGER)_Slot)`
+
+Checks whether the player has the item `_Item` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the item is not on the skill bar, the query fails.
+
+### SkillBarSetSkill
+`call NRD_SkillBarSetSkill((GUIDSTRING)_Character, (INTEGER)_Slot, (STRING)_SkillId)`
+
+Removes any item or skill that's currently in the skill bar slot and replaces it with the specified skill.
+
+**Notes:**
+ - It is possible to pin any skill to the skill bar, not just ones that the character currently has.
+
+### SkillBarSetItem
+`call NRD_SkillBarSetItem((GUIDSTRING)_Character, (INTEGER)_Slot, (GUIDSTRING)_Item)`
+
+Removes any item or skill that's currently in the skill bar slot and replaces it with the specified item.
+
+### SkillBarClear
+`call NRD_SkillBarClear((GUIDSTRING)_Character, (INTEGER)_Slot)`
+
+Removes any item or skill that's currently in the specified skill bar slot.
+
+
 # Game Action functions
 
 These functions create game actions (Rain/Storm/etc.), but bypass the skill casting system entirely (doesn't consume AP, doesn't play skill use animations, doesn't reset skill cooldowns).
