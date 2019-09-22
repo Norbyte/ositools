@@ -98,7 +98,7 @@ namespace osidbg
 
 			auto attributeName = args.Get(2).String;
 			if (strcmp(attributeName, "StatsId") == 0) {
-				args.Get(3).String = const_cast<char *>(status->StatusId.Str);
+				args.Get(3).String = status->StatusId.Str;
 			}
 			else {
 				OsiError("StatusGetAttributeString(): Unknown attribute: " << attributeName);
@@ -139,7 +139,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(3).String = const_cast<char *>(character->MyGuid.Str);
+			args.Get(3).String = character->MyGuid.Str;
 			return true;
 		}
 

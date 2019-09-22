@@ -43,7 +43,7 @@ struct OsiArgumentValue
 	ValueType TypeId;
 	uint8_t __Padding[7];
 	union {
-		char * String;
+		char const * String;
 		int32_t Int32;
 		int64_t Int64;
 		float Float;

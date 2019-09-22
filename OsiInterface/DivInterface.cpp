@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <cassert>
+#include "OsirisProxy.h"
 
 namespace osidbg
 {
@@ -23,6 +24,21 @@ namespace osidbg
 			*attributeIndex = index;
 			return Attributes.Find(index);
 		}
+	}
+
+	bool CRPGStatsManager::ObjectExists(FixedString statsId, FixedString type)
+	{
+		auto object = objects.Find(statsId);
+		if (object == nullptr) {
+			return false;
+		}
+
+		auto typeInfo = GetTypeInfo(object);
+		if (typeInfo == nullptr) {
+			return false;
+		}
+
+		return typeInfo->Name == type;
 	}
 
 	ModifierList * CRPGStatsManager::GetTypeInfo(CRPGStats_Object * object)

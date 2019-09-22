@@ -37,7 +37,22 @@ namespace osidbg
 			: Str(fs.Str)
 		{}
 
-		inline operator bool() const
+		inline bool operator == (FixedString const & fs) const
+		{
+			return Str == fs.Str;
+		}
+
+		inline bool operator != (FixedString const & fs) const
+		{
+			return Str != fs.Str;
+		}
+
+		inline bool operator !() const
+		{
+			return Str == nullptr;
+		}
+
+		inline explicit operator bool() const
 		{
 			return Str != nullptr;
 		}
@@ -138,10 +153,9 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct ObjectSet
+	struct ObjectSet : public Set<T>
 	{
-		void * Unknown;
-		Set<T> Set;
+		virtual ~ObjectSet();
 	};
 
 	struct TranslatedString

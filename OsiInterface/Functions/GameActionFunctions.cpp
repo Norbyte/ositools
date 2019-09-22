@@ -368,7 +368,7 @@ namespace osidbg
 				}
 
 				if (guid) {
-					args.Get(9).String = const_cast<char *>(guid.Str);
+					args.Get(9).String = guid.Str;
 					return true;
 				}
 				else {

@@ -87,7 +87,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(2).String = const_cast<char *>(value->Str);
+			args.Get(2).String = value->Str;
 			return true;
 		}
 
@@ -111,7 +111,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(1).String = const_cast<char *>(typeInfo->Name.Str);
+			args.Get(1).String = typeInfo->Name.Str;
 			return true;
 		}
 

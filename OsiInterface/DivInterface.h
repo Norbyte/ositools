@@ -109,9 +109,9 @@ namespace osidbg
 		uint32_t NumItems;
 		uint32_t NumSomeItems;
 
-		int FindIndex(char const * str) const
+		int FindIndex(FixedString str) const
 		{
-			auto ptr = NameHashMap.Find(str);
+			auto ptr = NameHashMap.Find(str.Str);
 			if (ptr != nullptr) {
 				return (int)*ptr;
 			}
@@ -130,9 +130,9 @@ namespace osidbg
 			}
 		}
 
-		T * Find(char const * str) const
+		T * Find(FixedString str) const
 		{
-			auto ptr = NameHashMap.Find(str);
+			auto ptr = NameHashMap.Find(str.Str);
 			if (ptr != nullptr) {
 				return Primitives.Buf[*ptr];
 			}
@@ -170,6 +170,7 @@ namespace osidbg
 		std::optional<int> GetAttributeInt(CRPGStats_Object * object, const char * attributeName);
 		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
 		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
+		bool ObjectExists(FixedString statsId, FixedString type);
 	};
 
 	struct NetworkObjectFactory : public ObjectFactory
@@ -479,6 +480,97 @@ namespace osidbg
 		kIsPossessed = 0x40
 	};
 
+	struct EsvSkillBarItem
+	{
+		enum ItemType : uint32_t
+		{
+			kNone = 0,
+			kSkill = 1,
+			kItem = 2
+		};
+
+		ItemType Type;
+		uint32_t _Pad;
+		FixedString SkillOrStatId;
+		ObjectHandle ItemHandle;
+	};
+
+	struct EsvPlayerCustomData
+	{
+		void * VMT;
+		bool Initialized;
+		bool CustomLookEnabled;
+		uint8_t _Pad[6];
+		STDWString Name;
+		TranslatedString NameTranslated;
+		uint64_t Unkn1[18];
+		FixedString ClassType;
+		uint32_t SkinColor;
+		uint32_t HairColor;
+		uint32_t ClothColor1;
+		uint32_t ClothColor2;
+		uint32_t ClothColor3;
+		bool IsMale;
+		uint8_t _Pad2[3];
+		FixedString Race;
+		FixedString OriginName;
+		FixedString Icon;
+		FixedString MusicInstrument;
+		FixedString OwnerProfileID;
+		FixedString ReservedProfileID;
+		FixedString AiPersonality;
+		FixedString Speaker;
+		void * CustomIconImg;
+	};
+
+	struct EsvPlayerData
+	{
+		ObjectHandle SomeObjectHandle;
+		ObjectSet<EsvSkillBarItem> SkillBar;
+		ObjectSet<uint32_t> LockedAbility;
+		FixedStringMapBase<void *> ShapeShiftVariableManagers;
+		uint8_t _Pad1[4];
+		FixedStringMapBase<void *> ShapeShiftAttitudeMaps;
+		uint8_t _Pad2[4];
+		bool LevelUpMarker;
+		uint8_t SelectedSkillSetIndex;
+		uint8_t _Pad3[6];
+		FixedString QuestSelected;
+		EsvPlayerCustomData CustomData;
+		uint64_t Unkn1[3];
+		void * PreviousPickpocketTargets;
+		ObjectHandle SomeObjectHandle2;
+		ObjectSet<glm::vec3> PreviousPositions;
+		uint32_t PreviousPositionId;
+		bool HelmetOption;
+		bool Dirty;
+		uint8_t _Pad4[2];
+		uint32_t Renown;
+		uint8_t CachedTension;
+		uint8_t _Pad5[3];
+		ObjectHandle SomeObjectHandle3;
+		uint8_t HomesteadKeyState;
+		uint8_t _Pad6[7];
+		ObjectHandle RecruiterHandle;
+		FixedString OriginalTemplate;
+		FixedString Region;
+	};
+
+	struct EocPlayerUpgrade
+	{
+		void * Stats;
+		uint32_t AttributePoints;
+		uint32_t CombatAbilityPoints;
+		uint32_t CivilAbilityPoints;
+		uint32_t TalentPoints;
+		uint64_t Unknown;
+		ObjectSet<int> Attributes;
+		ObjectSet<int> Abilities;
+		uint32_t Talents[4];
+		ObjectSet<uint16_t> Traits;
+		bool IsCustom;
+	};
+
 	struct EsvCharacter
 	{
 		virtual ~EsvCharacter() = 0;
@@ -608,9 +700,10 @@ namespace osidbg
 		void * StatusManagerDirty_M;
 		ObjectSet<ObjectHandle> ObjectHandleSet3;
 		ObjectSet<FixedString> RegisteredTriggers;
-		void * PlayerData;
-		void * PlayerUpgrade;
-		uint64_t U13[20];
+		EsvPlayerData * PlayerData;
+		EocPlayerUpgrade PlayerUpgrade;
+		uint8_t _Pad61[7];
+		uint64_t U13[2];
 		void * CustomDisplayName;
 		void * StoryDisplayName;
 		void * OriginalTransformDisplayName;

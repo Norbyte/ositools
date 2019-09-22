@@ -73,7 +73,7 @@ namespace osidbg
 		bool RealToString(OsiArgumentDesc & args)
 		{
 			gRealToStringTemp = std::to_string(args.Get(0).Float);
-			args.Get(1).String = const_cast<char *>(gRealToStringTemp.c_str());
+			args.Get(1).String = gRealToStringTemp.c_str();
 			return true;
 		}
 
