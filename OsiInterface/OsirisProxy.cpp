@@ -229,7 +229,9 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 #endif
 
-	Libraries.PostStartupFindLibraries();
+	if (ExtensionsEnabled) {
+		Libraries.PostStartupFindLibraries();
+	}
 }
 
 void OsirisProxy::OnInitGame(void * Osiris)
