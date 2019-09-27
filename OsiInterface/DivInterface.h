@@ -42,6 +42,40 @@ namespace osidbg
 		uint32_t InstanceId;
 	};
 
+	struct CDivinityStats_Equipment_Attributes
+	{
+		void * VMT;
+		uint32_t InstanceId;
+		uint32_t Unkn0;
+		uint64_t Unkn1;
+		uint32_t Durability;
+		uint32_t DurabilityDegradeSpeed;
+		uint32_t StrengthBoost;
+		uint32_t FinesseBoost;
+		uint32_t IntelligenceBoost;
+		uint32_t ConstitutionBoost;
+		uint32_t Memory;
+		uint32_t WitsBoost;
+		uint32_t SightBoost;
+		uint32_t HearingBoost;
+		uint32_t VitalityBoost;
+		uint32_t SourcePointsBoost;
+		uint32_t MaxAP;
+		uint32_t StartAP;
+		uint32_t APRecovery;
+		uint32_t AccuracyBoost;
+		uint32_t DodgeBoost;
+		uint32_t LifeSteal;
+		uint32_t CriticalChance;
+		uint32_t ChanceToHitBoost;
+		uint32_t MovementSpeedBoost;
+		uint32_t RuneSlots;
+		uint32_t RuneSlots_V1;
+		uint32_t FireResistance;
+		uint32_t AirResistance;
+		// TODO
+	};
+
 	struct CDivinityStats_Item : public CRPGStats_ObjectInstance
 	{
 		uint32_t _Pad0;
@@ -67,8 +101,8 @@ namespace osidbg
 		uint32_t U7;
 		FixedString ItemTypeReal;
 		FixedString U8;
-		void * DynamicAttributes_Start;
-		void * DynamicAttributes_End;
+		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
+		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
 		uint64_t U9[3];
 		uint32_t MaxCharges;
 		uint32_t Charges;
@@ -80,6 +114,156 @@ namespace osidbg
 		ObjectSet<void *> Tags_Maybe;
 		ObjectSet<FixedString> BoostNameSet;
 		uint64_t U10[12];
+	};
+
+	struct EoCGameRandom
+	{
+		uint64_t Unkn0;
+		uint32_t Unkn1[7];
+		uint8_t Unkn2;
+	};
+
+	struct CharacterEquippedItem
+	{
+		uint32_t ItemStatsHandle;
+		uint8_t ItemSlot;
+		bool IsEquipped;
+	};
+
+	struct CharacterStat
+	{
+		uint64_t Unkn0;
+		uint64_t Unkn1;
+
+		uint32_t SummonLifelinkModifier;
+		uint32_t Strength;
+		uint32_t Memory;
+		uint32_t Intelligence;
+		uint32_t Movement;
+		uint32_t MovementSpeedBoost;
+		uint32_t Finesse;
+		uint32_t Wits;
+		uint32_t Constitution;
+
+		uint32_t FireResistance;
+		uint32_t EarthResistance;
+		uint32_t WaterResistance;
+		uint32_t AirResistance;
+		uint32_t PoisonResistance;
+		uint32_t ShadowResistance;
+
+		uint32_t Willpower;
+		uint32_t Bodybuilding;
+		uint32_t PiercingResistance;
+		uint32_t PhysicalResistance;
+		uint32_t CorrosiveResistance;
+		uint32_t MagicResistance;
+		uint32_t CustomResistance;
+
+		uint32_t Sight;
+		uint32_t Hearing;
+		uint32_t FOV;
+		uint32_t APMaximum;
+		uint32_t APStart;
+		uint32_t APRecovery;
+		uint32_t CriticalChance;
+		uint32_t Initiative;
+		uint32_t Vitality;
+		uint32_t VitalityBoost;
+		uint32_t MagicPoints;
+		uint32_t Level;
+		uint32_t Gain;
+
+		uint32_t Armor;
+		uint32_t MagicArmor;
+		uint32_t ArmorBoost;
+		uint32_t MagicArmorBoost;
+		uint32_t ArmorBoostGrowthPerLevel;
+		uint32_t MagicArmorBoostGrowthPerLevel;
+		uint32_t DamageBoost;
+		uint32_t DamageBoostGrowthPerLevel;
+
+		uint32_t Accuracy;
+		uint32_t Dodge;
+		uint32_t MaxResistance;
+		uint32_t LifeSteal;
+		uint32_t Weight;
+		uint32_t ChanceToHitBoost;
+		uint32_t RangeBoost;
+		uint32_t APCostBoost;
+		uint32_t SPCostBoost;
+		uint32_t MaxSummons;
+		uint32_t Abilities[40];
+		uint32_t BonusWeaponDamageMultiplier;
+		uint32_t Talents[4];
+		uint32_t RemovedTalents[4];
+		uint16_t Traits[18];
+		uint32_t BoostConditionsMask;
+		FixedString TranslationKey;
+		FixedString BonusWeapon;
+		uint64_t Reflection;
+		uint32_t Unkn2;
+		uint32_t Unkn3;
+		uint64_t AttributeFlags;
+		uint32_t Unkn4;
+	};
+
+	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
+	{
+		uint32_t _Pad0;
+		uint32_t CurrentVitality;
+		uint32_t CurrentArmor;
+		uint32_t CurrentMagicArmor;
+		uint32_t ArmorAfterHitCooldownMultiplier;
+		uint32_t MagicArmorAfterHitCooldownMultiplier;
+		uint32_t MPStart;
+		uint32_t CurrentAP;
+		uint32_t BonusActionPoints;
+		uint32_t Experience;
+		uint32_t Reputation;
+		bool Flanked;
+		uint8_t _Pad1[3];
+		uint32_t Karma;
+		uint8_t Flags;
+		uint8_t _Pad2[3];
+		uint32_t Unkn0;
+		ObjectSet<int> TraitOrder;
+		uint32_t Unkn1[2];
+		struct EsvCharacter * Character;
+		uint32_t Unkn2;
+		uint32_t IsIncapacitatedRefCount;
+		CharacterStat ** DynamicStats;
+		CharacterStat ** DynamicStatsEnd;
+		uint64_t Unkn3[2];
+		CharacterEquippedItem ** ItemStats;
+		CharacterEquippedItem ** ItemStatsEnd;
+		uint64_t Unkn4;
+		ObjectSet<void *> SurfacePathInfluences;
+		uint32_t ActiveBoostConditions[16];
+		EoCGameRandom DamageRng;
+		uint8_t _Pad4[3];
+		EoCGameRandom CriticalHitRng;
+		uint8_t _Pad5[3];
+		uint32_t MaxVitality;
+		uint32_t BoostedMaxVitality;
+		uint32_t MaxArmor;
+		uint32_t BoostedMaxArmor;
+		uint32_t MaxMagicArmor;
+		uint32_t BoostedMaxMagicArmor;
+		uint32_t BoostedSight;
+		uint32_t Sight;
+		uint32_t Flags0;
+		uint32_t Flags1;
+		uint32_t Flags2;
+		uint32_t Flags3;
+		uint32_t Unkn5[2];
+		bool SomeComputePendingFlag;
+		uint8_t _Pad6[3];
+		uint32_t MaxSummons;
+		uint32_t BoostedMaxSummons;
+		uint32_t MaxMpOverride;
+		uint64_t DisabledTalents;
+		uint64_t Unkn6;
 	};
 
 	struct RPGEnumeration
@@ -558,7 +742,7 @@ namespace osidbg
 
 	struct EocPlayerUpgrade
 	{
-		void * Stats;
+		CDivinityStats_Character * Stats;
 		uint32_t AttributePoints;
 		uint32_t CombatAbilityPoints;
 		uint32_t CivilAbilityPoints;
@@ -662,7 +846,7 @@ namespace osidbg
 		uint8_t ForceSynchCount;
 		bool U5;
 		uint8_t _Pad5[4];
-		void * Stats;
+		CDivinityStats_Character * Stats;
 		ObjectHandle InventoryHandle;
 		uint64_t U6[2];
 		void * SteeringMachine;
