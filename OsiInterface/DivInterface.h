@@ -44,36 +44,102 @@ namespace osidbg
 
 	struct CDivinityStats_Equipment_Attributes
 	{
+		enum StatsType : uint32_t
+		{
+			ST_Weapon = 0,
+			ST_Armor = 1,
+			ST_Shield = 2
+		};
+
 		void * VMT;
 		uint32_t InstanceId;
 		uint32_t Unkn0;
 		uint64_t Unkn1;
-		uint32_t Durability;
-		uint32_t DurabilityDegradeSpeed;
-		uint32_t StrengthBoost;
-		uint32_t FinesseBoost;
-		uint32_t IntelligenceBoost;
-		uint32_t ConstitutionBoost;
-		uint32_t Memory;
-		uint32_t WitsBoost;
-		uint32_t SightBoost;
-		uint32_t HearingBoost;
-		uint32_t VitalityBoost;
-		uint32_t SourcePointsBoost;
-		uint32_t MaxAP;
-		uint32_t StartAP;
-		uint32_t APRecovery;
-		uint32_t AccuracyBoost;
-		uint32_t DodgeBoost;
-		uint32_t LifeSteal;
-		uint32_t CriticalChance;
-		uint32_t ChanceToHitBoost;
-		uint32_t MovementSpeedBoost;
-		uint32_t RuneSlots;
-		uint32_t RuneSlots_V1;
-		uint32_t FireResistance;
-		uint32_t AirResistance;
-		// TODO
+		int32_t Durability;
+		int32_t DurabilityDegradeSpeed;
+		int32_t StrengthBoost;
+		int32_t FinesseBoost;
+		int32_t IntelligenceBoost;
+		int32_t ConstitutionBoost;
+		int32_t Memory;
+		int32_t WitsBoost;
+		int32_t SightBoost;
+		int32_t HearingBoost;
+		int32_t VitalityBoost;
+		int32_t SourcePointsBoost;
+		int32_t MaxAP;
+		int32_t StartAP;
+		int32_t APRecovery;
+		int32_t AccuracyBoost;
+		int32_t DodgeBoost;
+		int32_t LifeSteal;
+		int32_t CriticalChance;
+		int32_t ChanceToHitBoost;
+		int32_t MovementSpeedBoost;
+		int32_t RuneSlots;
+		int32_t RuneSlots_V1;
+		int32_t FireResistance;
+		int32_t AirResistance;
+		int32_t WaterResistance;
+		int32_t EarthResistance;
+		int32_t PoisonResistance;
+		int32_t TenebriumResistance;
+		int32_t PiercingResistance;
+		int32_t CorrosiveResistance;
+		int32_t PhysicalResistance;
+		int32_t MagicResistance;
+		int32_t CustomResistance;
+		int32_t Movement;
+		int32_t Initiative;
+		int32_t Willpower;
+		int32_t Bodybuilding;
+		int32_t MaxSummons;
+		int32_t AbilityModifiers[40];
+		int32_t Value;
+		int32_t Weight;
+		uint32_t Unkn2;
+		void * Reflection;
+		FixedString Skills;
+		FixedString ItemColor;
+		uint32_t ModifierType;
+		uint32_t Unkn3;
+		FixedString ObjectInstanceName;
+		FixedString FS4;
+		uint32_t EquipmentStatsType;
+		uint32_t Talents[4];
+		uint32_t Unkn4;
+		uint64_t Flags;
+	};
+
+	struct CDivinityStats_Equipment_Attributes_Weapon : public CDivinityStats_Equipment_Attributes
+	{
+		int32_t DamageType;
+		int32_t MinDamage;
+		int32_t MaxDamage;
+		int32_t DamageBoost;
+		int32_t DamageFromBase;
+		int32_t CriticalDamage;
+		float WeaponRange;
+		int32_t CleaveAngle;
+		float CleavePercentage;
+		int32_t AttackAPCost;
+	};
+
+	struct CDivinityStats_Equipment_Attributes_Shield : public CDivinityStats_Equipment_Attributes
+	{
+		int32_t ArmorValue;
+		int32_t ArmorBoost;
+		int32_t MagicArmorValue;
+		int32_t MagicArmorBoost;
+		int32_t Blocking;
+	};
+
+	struct CDivinityStats_Equipment_Attributes_Armor : public CDivinityStats_Equipment_Attributes
+	{
+		int32_t ArmorValue;
+		int32_t ArmorBoost;
+		int32_t MagicArmorValue;
+		int32_t MagicArmorBoost;
 	};
 
 	struct CDivinityStats_Item : public CRPGStats_ObjectInstance

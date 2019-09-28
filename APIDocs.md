@@ -488,6 +488,39 @@ Marking common items (that cannot be identified) as unidentified has no effect.
 
 Return the stats entry ID of the specified item.
 
+## Permanent Boosts
+Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
+
+**Boosts available for all item types:**
+Durability, DurabilityDegradeSpeed, StrengthBoost, FinesseBoost, IntelligenceBoost, ConstitutionBoost, Memory, WitsBoost, SightBoost, HearingBoost, VitalityBoost, SourcePointsBoost, MaxAP, StartAP, APRecovery, AccuracyBoost, DodgeBoost, LifeSteal, CriticalChance, ChanceToHitBoost, MovementSpeedBoost, RuneSlots, RuneSlots_V1, FireResistance, AirResistance, WaterResistance, EarthResistance, PoisonResistance, TenebriumResistance, PiercingResistance, CorrosiveResistance, PhysicalResistance, MagicResistance, CustomResistance, Movement, Initiative, Willpower, Bodybuilding, MaxSummons, Value, Weight
+
+**Boosts for Weapons:**
+DamageType, MinDamage, MaxDamage, DamageBoost, DamageFromBase, CriticalDamage, WeaponRange, CleaveAngle, CleavePercentage, AttackAPCost
+
+**Boosts for Armor:**
+ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost
+
+**Boosts for Shields:**
+ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost, Blocking
+
+
+### ItemGetPermanentBoost
+`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+
+Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
+
+
+### ItemSetPermanentBoost
+`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+
+Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
+
+
+### ItemAddPermanentBoost
+`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+
+Adds the specified boost value to the current boost value of the item. `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
+
 
 # Miscellaneous functions
 

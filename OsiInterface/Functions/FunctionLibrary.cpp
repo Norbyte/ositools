@@ -156,6 +156,7 @@ namespace osidbg
 
 			if (skillBarItem->Type == EsvSkillBarItem::kSkill) {
 				args.Get(2).String = skillBarItem->SkillOrStatId.Str;
+				return true;
 			} else {
 				return false;
 			}
@@ -289,6 +290,28 @@ namespace osidbg
 
 		void DoExperiment(OsiArgumentDesc const & args)
 		{
+			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			if (character) {
+				auto stats = character->Stats->DynamicStats[1];
+				stats->PoisonResistance += 50;
+				stats->APStart += 3;
+				stats->APRecovery += 3;
+
+				auto stats0 = character->Stats->DynamicStats[0];
+				stats0->PoisonResistance += 50;
+				OsiError("DoExperiment(): Applied to character");
+			}
+
+			auto item = FindItemByNameGuid(args.Get(1).String);
+			if (item) {
+				auto stats = item->StatsDynamic->DynamicAttributes_Start[1];
+				stats->FireResistance += 50;
+
+				auto stats0 = item->StatsDynamic->DynamicAttributes_Start[0];
+				stats0->FireResistance += 50;
+				OsiError("DoExperiment(): Applied to item");
+			}
+
 			OsiError("Nothing to see here");
 		}
 	}
@@ -431,7 +454,6 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(skillBarClear));
 
-#if !defined(NDEBUG)
 		auto breakOnCharacter = std::make_unique<CustomCall>(
 			"NRD_BreakOnCharacter",
 			std::vector<CustomFunctionParam>{
@@ -462,7 +484,6 @@ namespace osidbg
 			&func::DoExperiment
 		);
 		functionMgr.Register(std::move(experiment));
-#endif
 	}
 
 }
