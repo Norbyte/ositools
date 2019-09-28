@@ -503,6 +503,11 @@ ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost
 **Boosts for Shields:**
 ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost, Blocking
 
+**Limitations:**
+Permanent boosts don't show up immediately due to how client-server communication works in the game. To ensure that boosts are visible on the client:
+ - For new items, the item and the permanent boost should be created in the same tick (e.g. an `ItemSetPermanentBoost` call immediately after `CreateItemTemplateAtPosition`)
+ - For existing items, the item should be cloned after calling `ItemSetPermanentBoost`, and the original item should be replaced by the clone. (The permanent boosts are visible on the clone, but not on the original item.)
+ - A save/reload also makes boosts visible
 
 ### ItemGetPermanentBoost
 `query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
