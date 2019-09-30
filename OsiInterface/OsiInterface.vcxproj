@@ -420,7 +420,9 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Functions\FunctionLibrary.cpp" />
     <ClCompile Include="Functions\FunctionUtilities.cpp" />
     <ClCompile Include="Functions\GameActionFunctions.cpp" />
+    <ClCompile Include="Functions\ItemFunctions.cpp" />
     <ClCompile Include="Functions\MathFunctions.cpp" />
+    <ClCompile Include="Functions\PlayerFunctions.cpp" />
     <ClCompile Include="Functions\ProjectileFunctions.cpp" />
     <ClCompile Include="Functions\StatFunctions.cpp" />
     <ClCompile Include="Functions\StatusFunctions.cpp" />

@@ -47,10 +47,12 @@ void OsirisProxy::Initialize()
 		if (Libraries.FindLibraries()) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
+#if 0
 			auto headers = CustomFunctions.GenerateHeaders();
 			Debug(L" === EXTENSION HEADERS ===");
 			std::cout << headers << std::endl;
 			Debug(L" === END EXTENSION HEADERS ===");
+#endif
 		}
 		else {
 			Debug(L"OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
