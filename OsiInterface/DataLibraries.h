@@ -92,6 +92,8 @@ namespace osidbg {
 		StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
 		StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
 		Character__Hit CharacterHit{ nullptr };
+		void const * StatusHealVMT{ nullptr };
+		void const * StatusHitVMT{ nullptr };
 
 	private:
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
@@ -117,6 +119,9 @@ namespace osidbg {
 
 		void FindStatusMachineEoCPlugin();
 		void FindStatusMachineEoCApp();
+
+		void FindStatusTypesEoCPlugin();
+		void FindStatusTypesEoCApp();
 
 		void FindHitFuncsEoCPlugin();
 		void FindHitFuncsEoCApp();

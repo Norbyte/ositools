@@ -220,10 +220,12 @@ namespace osidbg
 			}
 		}
 
+#if 0
 		Debug("LibraryManager::FindLibrariesEoCPlugin(): Found libraries:");
 		for (auto const & v : libraries_) {
 			Debug("\t(Init %p; Dtor %p, Refs %d)!", v.second.initFunc, v.second.freeFunc, v.second.refs);
 		}
+#endif
 	}
 
 	void LibraryManager::FindLibrariesEoCApp()
@@ -269,10 +271,12 @@ namespace osidbg
 			}
 		}
 
+#if 0
 		Debug("LibraryManager::FindLibrariesEoCApp(): Found libraries:");
 		for (auto const & v : libraries_) {
 			Debug("\t(Init %p; Dtor %p, Refs %d)!", v.second.initFunc, v.second.freeFunc, v.second.refs);
 		}
+#endif
 	}
 
 	void LibraryManager::FindServerGlobalsEoCPlugin()
@@ -993,6 +997,147 @@ namespace osidbg
 		}
 	}
 
+	void LibraryManager::FindStatusTypesEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"45 33 C9 " // xor     r9d, r9d
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_TargetDependentHeal
+			"48 8B CB " // mov     rcx, rbx
+			"FF 90 B0 01 00 00 " // call    qword ptr [rax+1B0h]
+		);
+
+		Pattern p2;
+		p2.FromString(
+			"48 89 5C 24 10 " // mov     [rsp-8+arg_8], rbx
+			"48 89 74 24 18 " // mov     [rsp-8+arg_10], rsi
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this, &p2](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 3);
+			if (IsFixedStringRef(fsx, "TargetDependentHeal")) {
+				p2.Scan(match - 0x200, 0x200, [this](const uint8_t * match) {
+					// Look for this function ptr
+					auto ptr = (uint64_t)match;
+					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
+						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+							StatusHealVMT = p - 25 * 8;
+						}
+					}
+				});
+			}
+		});
+
+		if (StatusHealVMT == nullptr) {
+			Debug(L"LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHeal");
+		}
+
+		Pattern p3;
+		p3.FromString(
+			"4C 8D 0D XX XX XX XX " // lea     r9, fsx_Dummy_BodyFX
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
+			"E8 XX XX XX XX " // call    esv__EffectFactory__CreateEffectWrapper
+			"48 8B D8 " // mov     rbx, rax
+		);
+
+		Pattern p4;
+		p4.FromString(
+			"48 8B C4 " // mov     rax, rsp
+			"55 " // push    rbp
+			"53 " // push    rbx
+		);
+
+		p3.Scan(moduleStart_, moduleSize_, [this, &p4](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 7);
+			if (IsFixedStringRef(fsx, "RS3_FX_GP_Status_Retaliation_Beam_01")) {
+				p4.Scan(match - 0x600, 0x600, [this](const uint8_t * match) {
+					// Look for this function ptr
+					auto ptr = (uint64_t)match;
+					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
+						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+							StatusHitVMT = p - 12 * 8;
+						}
+					}
+				});
+			}
+		});
+
+		if (StatusHitVMT == nullptr) {
+			Debug(L"LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHit");
+		}
+	}
+
+	void LibraryManager::FindStatusTypesEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"45 33 C9 " // xor     r9d, r9d
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_TargetDependentHeal
+			"48 8B CB " // mov     rcx, rbx
+			"FF 90 B0 01 00 00 " // call    qword ptr [rax+1B0h]
+		);
+
+		Pattern p2;
+		p2.FromString(
+			"48 89 5C 24 10 " // mov     [rsp-8+arg_8], rbx
+			"48 89 74 24 18 " // mov     [rsp-8+arg_10], rsi
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this, &p2](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 3);
+			if (IsFixedStringRef(fsx, "TargetDependentHeal")) {
+				p2.Scan(match - 0x200, 0x200, [this](const uint8_t * match) {
+					// Look for this function ptr
+					auto ptr = (uint64_t)match;
+					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
+						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+							StatusHealVMT = p - 25 * 8;
+						}
+					}
+				});
+			}
+		});
+
+		if (StatusHealVMT == nullptr) {
+			Debug(L"LibraryManager::FindStatusTypesEoCApp(): Could not find esv::StatusHeal");
+		}
+
+		Pattern p3;
+		p3.FromString(
+			"4C 8D 0D XX XX XX XX " // lea     r9, fsx_Dummy_BodyFX
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
+			"E8 XX XX XX XX " // call    esv__EffectFactory__CreateEffectWrapper
+			"48 8B D8 " // mov     rbx, rax
+		);
+
+		Pattern p4;
+		p4.FromString(
+			"40 55 " // push    rbp
+			"41 54 " // push    r12
+			"41 55 " // push    r13
+			"41 57 " // push    r15
+		);
+
+		p3.Scan(moduleStart_, moduleSize_, [this, &p4](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 7);
+			if (IsFixedStringRef(fsx, "RS3_FX_GP_Status_Retaliation_Beam_01")) {
+				p4.Scan(match - 0xa00, 0xa00, [this](const uint8_t * match) {
+					// Look for this function ptr
+					auto ptr = (uint64_t)match;
+					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
+						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+							StatusHitVMT = p - 12 * 8;
+						}
+					}
+				});
+			}
+		});
+
+		if (StatusHitVMT == nullptr) {
+			Debug(L"LibraryManager::FindStatusTypesEoCApp(): Could not find esv::StatusHit");
+		}
+	}
+
 
 	void LibraryManager::FindHitFuncsEoCPlugin()
 	{
@@ -1033,7 +1178,37 @@ namespace osidbg
 
 	void LibraryManager::FindHitFuncsEoCApp()
 	{
-		Debug(L"LibraryManager::FindHitFuncsEoCApp(): Not implemented yet!");
+		Pattern p;
+		p.FromString(
+			"74 74 " // jz      short loc_141A3EED4
+			"48 8B 00 " // mov     rax, [rax]
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_DamageItems
+			"48 8B CE " // mov     rcx, rsi
+			"FF 50 28 " // call    qword ptr [rax+28h]
+		);
+
+		Pattern p2;
+		p2.FromString(
+			"C7 44 24 20 05 00 00 00 " // mov     dword ptr [rsp+140h+var_120], 5
+			"44 89 65 50 " // mov     [rbp+40h+arg_0], r12d
+			"E8 XX XX XX XX " // call    esv__Character__Hit
+			"4C 8B AE A0 01 00 00 " // mov     r13, [rsi+1A0h]
+			"EB 5F " // jmp short xxx
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this, &p2](const uint8_t * match) {
+			auto fsx = AsmLeaToAbsoluteAddress(match + 5);
+			if (IsFixedStringRef(fsx, "DamageItems")) {
+				p2.Scan(match, 0x400, [this](const uint8_t * match) {
+					auto actionAddr = AsmCallToAbsoluteAddress(match + 12);
+					CharacterHit = (Character__Hit)actionAddr;
+				});
+			}
+		});
+
+		if (CharacterHit == nullptr) {
+			Debug(L"LibraryManager::FindHitFuncsEoCApp(): Could not find Character::Hit");
+		}
 	}
 
 	bool LibraryManager::FindLibraries()
@@ -1071,12 +1246,14 @@ namespace osidbg
 			FindGameActionsEoCPlugin();
 			FindStatusMachineEoCPlugin();
 			FindHitFuncsEoCPlugin();
+			FindStatusTypesEoCPlugin();
 		}
 		else {
 			FindGameActionManagerEoCApp();
 			FindGameActionsEoCApp();
 			FindStatusMachineEoCApp();
 			FindHitFuncsEoCApp();
+			FindStatusTypesEoCApp();
 		}
 
 		PostLoaded = true;
