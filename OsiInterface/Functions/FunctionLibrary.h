@@ -43,8 +43,14 @@ namespace osidbg
 		void RegisterPlayerFunctions();
 		void RegisterItemFunctions();
 
+		void PostStartup();
+
+		void OnStatusHitEnter(EsvStatus * status);
+		void OnStatusHealEnter(EsvStatus * status);
+
 	private:
 		OsirisProxy & osiris_;
+		bool PostLoaded{ false };
 	};
 
 }

@@ -46,6 +46,9 @@ namespace osidbg
 		}
 	}
 
+	FunctionHandle HitEventHandle;
+	FunctionHandle HealEventHandle;
+
 	CustomFunctionLibrary::CustomFunctionLibrary(class OsirisProxy & osiris)
 		: osiris_(osiris)
 	{}
@@ -92,6 +95,102 @@ namespace osidbg
 			&func::DoExperiment
 		);
 		functionMgr.Register(std::move(experiment));
+
+		auto hitEvent = std::make_unique<CustomEvent>(
+			"NRD_OnHit",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+			}
+		);
+		HitEventHandle = functionMgr.Register(std::move(hitEvent));
+
+		auto healEvent = std::make_unique<CustomEvent>(
+			"NRD_OnHeal",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+			}
+		);
+		HealEventHandle = functionMgr.Register(std::move(healEvent));
+	}
+
+
+	void CustomFunctionLibrary::PostStartup()
+	{
+		if (PostLoaded) {
+			return;
+		}
+
+		using namespace std::placeholders;
+
+		osiris_.GetLibraryManager().StatusHitEnter.AddPreHook(
+			std::bind(&CustomFunctionLibrary::OnStatusHitEnter, this, _1)
+		);
+		osiris_.GetLibraryManager().StatusHealEnter.AddPreHook(
+			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
+		);
+
+		PostLoaded = true;
+	}
+
+
+	void CustomFunctionLibrary::OnStatusHitEnter(EsvStatus * status)
+	{
+		auto statusHit = static_cast<EsvStatusHit *>(status);
+
+		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		if (target == nullptr) {
+			OsiError("Status has no target?");
+			return;
+		}
+
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		if (source != nullptr) {
+			sourceGuid = source->GetGuid()->Str;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamageDone });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+
+		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)HitEventHandle, eventArgs);
+
+		delete eventArgs;
+	}
+
+	void CustomFunctionLibrary::OnStatusHealEnter(EsvStatus * status)
+	{
+		auto statusHeal = static_cast<EsvStatusHeal *>(status);
+
+		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		if (target == nullptr) {
+			OsiError("Status has no target?");
+			return;
+		}
+
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		if (source != nullptr) {
+			sourceGuid = source->GetGuid()->Str;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHeal->HealAmount });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+
+		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)HealEventHandle, eventArgs);
+
+		delete eventArgs;
 	}
 
 }
