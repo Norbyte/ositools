@@ -38,13 +38,13 @@ namespace osidbg
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
-			OsiError("FindCharacterByNameGuid(): Could not map GUID '" << nameGuid << "' to FixedString");
+			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
 			return nullptr;
 		}
 
 		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
 		if (charFactory == nullptr) {
-			OsiError("FindCharacterByNameGuid(): CharacterFactory not available!");
+			OsiError("CharacterFactory not available!");
 			return nullptr;
 		}
 
@@ -56,7 +56,7 @@ namespace osidbg
 			return (EsvCharacter *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("FindCharacterByNameGuid(): No Character component found with GUID '" << nameGuid << "'");
+			OsiError("No Character component found with GUID '" << nameGuid << "'");
 			return nullptr;
 		}
 	}
@@ -65,7 +65,7 @@ namespace osidbg
 	{
 		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
 		if (charFactory == nullptr) {
-			OsiError("FindCharacterByHandle(): CharacterFactory not available!");
+			OsiError("CharacterFactory not available!");
 			return nullptr;
 		}
 
@@ -74,7 +74,7 @@ namespace osidbg
 			return (EsvCharacter *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("FindCharacterByHandle(): No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
+			OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
 			return nullptr;
 		}
 	}
@@ -83,13 +83,13 @@ namespace osidbg
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
-			OsiError("FindItemByNameGuid(): Could not map GUID '" << nameGuid << "' to FixedString");
+			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
 			return nullptr;
 		}
 
 		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
 		if (itemFactory == nullptr) {
-			OsiError("FindItemByNameGuid(): ItemFactory not available!");
+			OsiError("ItemFactory not available!");
 			return nullptr;
 		}
 
@@ -101,7 +101,7 @@ namespace osidbg
 			return (EsvItem *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("FindItemByNameGuid(): No Item component found with GUID '" << nameGuid << "'");
+			OsiError("No Item component found with GUID '" << nameGuid << "'");
 			return nullptr;
 		}
 	}
@@ -110,7 +110,7 @@ namespace osidbg
 	{
 		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
 		if (itemFactory == nullptr) {
-			OsiError("FindItemByHandle(): ItemFactory not available!");
+			OsiError("ItemFactory not available!");
 			return nullptr;
 		}
 
@@ -119,7 +119,7 @@ namespace osidbg
 			return (EsvItem *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("FindItemByHandle(): No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
+			OsiError("No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
 			return nullptr;
 		}
 	}
@@ -136,7 +136,7 @@ namespace osidbg
 			}
 		}
 
-		OsiError("FindGameActionByHandle(): Nm game action found with handle " << (int64_t)handle);
+		OsiError("Nm game action found with handle " << (int64_t)handle);
 		return nullptr;
 	}
 
@@ -178,7 +178,7 @@ namespace osidbg
 			Helper.UnknownFlag2 = value ? 1 : 0;
 		}
 		else {
-			OsiError("ShootProjectileApiHelper::SetInt(): Unknown int property: '" << prop << "'");
+			OsiError("Unknown int property: '" << prop << "'");
 		}
 	}
 
@@ -188,7 +188,7 @@ namespace osidbg
 		auto item = FindItemByNameGuid(value);
 
 		if (character == nullptr && item == nullptr) {
-			OsiError("ShootProjectileApiHelper::SetGuidString(): GUID '" << value << "' is not a valid item or object");
+			OsiError("GUID '" << value << "' is not a valid item or object");
 			return;
 		}
 
@@ -225,7 +225,7 @@ namespace osidbg
 			Helper.Target2 = handle;
 		}
 		else {
-			OsiError("ShootProjectileApiHelper::SetGuidString(): Unknown object property '" << prop << "'");
+			OsiError("Unknown object property '" << prop << "'");
 		}
 	}
 
@@ -240,7 +240,7 @@ namespace osidbg
 			HasEndPosition = true;
 		}
 		else {
-			OsiError("ShootProjectileApiHelper::SetVector(): Unknown vector3 property '" << prop << "'");
+			OsiError("Unknown vector3 property '" << prop << "'");
 		}
 	}
 
@@ -248,7 +248,7 @@ namespace osidbg
 	{
 		auto fs = ToFixedString(value);
 		if (!fs) {
-			OsiError("ShootProjectileApiHelper::SetString(): Could not map value '" << value << "' to FixedString");
+			OsiError("Could not map value '" << value << "' to FixedString");
 			return;
 		}
 
@@ -259,30 +259,30 @@ namespace osidbg
 			Helper.FS2 = fs;
 		}
 		else {
-			OsiError("ShootProjectileApiHelper::SetString(): Unknown string property '" << prop << "'");
+			OsiError("Unknown string property '" << prop << "'");
 		}
 	}
 
 	bool ShootProjectileApiHelper::Shoot()
 	{
 		if (!HasStartPosition) {
-			OsiError("ShootProjectileApiHelper::Shoot(): No start position!");
+			OsiError("No start position!");
 			return false;
 		}
 
 		if (!HasEndPosition) {
-			OsiError("ShootProjectileApiHelper::Shoot(): No end position!");
+			OsiError("No end position!");
 			return false;
 		}
 
 		if (!Helper.SkillId.Str) {
-			OsiError("ShootProjectileApiHelper::Shoot(): No skill id!");
+			OsiError("No skill id!");
 			return false;
 		}
 
 		auto shoot = gOsirisProxy->GetLibraryManager().ShootProjectile;
 		if (shoot == nullptr) {
-			OsiError("ShootProjectileApiHelper::Shoot(): ShootProjectile helper not found!");
+			OsiError("ShootProjectile helper not found!");
 			return false;
 		}
 

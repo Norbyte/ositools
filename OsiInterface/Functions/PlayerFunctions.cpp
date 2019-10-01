@@ -11,19 +11,19 @@ namespace osidbg
 			auto characterGuid = args.Get(0).String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
-				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' does not exist!");
+				OsiError("Character '" << characterGuid << "' does not exist!");
 				return false;
 			}
 
 			if (character->SkillManager == nullptr) {
-				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' has no SkillManager!");
+				OsiError("Character '" << characterGuid << "' has no SkillManager!");
 				return false;
 			}
 
 			auto skillId = args.Get(1).String;
 			auto skill = character->SkillManager->Skills.Find(skillId);
 			if (skill == nullptr) {
-				OsiError("SkillGetCooldown(): Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
+				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return false;
 			}
 
@@ -36,30 +36,30 @@ namespace osidbg
 			auto characterGuid = args.Get(0).String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
-				OsiError("SkillSetCooldown(): Character '" << characterGuid << "' does not exist!");
+				OsiError("Character '" << characterGuid << "' does not exist!");
 				return;
 			}
 
 			if (character->SkillManager == nullptr) {
-				OsiError("SkillSetCooldown(): Character '" << characterGuid << "' has no SkillManager!");
+				OsiError("Character '" << characterGuid << "' has no SkillManager!");
 				return;
 			}
 
 			auto skillId = args.Get(1).String;
 			auto skill = character->SkillManager->Skills.Find(skillId);
 			if (skill == nullptr) {
-				OsiError("SkillSetCooldown(): Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
+				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return;
 			}
 
 			if ((*skill)->OncePerCombat) {
-				OsiError("SkillSetCooldown(): Skill '" << skillId << " doesn't support cooldown!");
+				OsiError("Skill '" << skillId << " doesn't support cooldown!");
 				return;
 			}
 
 			auto cooldown = args.Get(2).Float;
 			if (cooldown < 0.0f) {
-				OsiError("SkillSetCooldown(): Cooldown cannot be negative!");
+				OsiError("Cooldown cannot be negative!");
 				return;
 			}
 
@@ -70,13 +70,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
-				OsiError("GetSkillBar(): Character '" << characterGuid << "' does not exist!");
+				OsiError("Character '" << characterGuid << "' does not exist!");
 				return nullptr;
 			}
 
 			if (character->PlayerData == nullptr
 				|| character->PlayerData->SkillBar.Size == 0) {
-				OsiError("GetSkillBar(): Character '" << characterGuid << "' has no skill bar!");
+				OsiError("Character '" << characterGuid << "' has no skill bar!");
 				return nullptr;
 			}
 
@@ -89,7 +89,7 @@ namespace osidbg
 			if (skillBar == nullptr) return nullptr;
 
 			if (slot < 0 || slot >= (int)skillBar->Size) {
-				OsiError("SkillBarGetSlot(): Invalid skill bar slot index: " << slot);
+				OsiError("Invalid skill bar slot index: " << slot);
 				return nullptr;
 			}
 
@@ -159,7 +159,7 @@ namespace osidbg
 			auto itemGuid = args.Get(1).String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
-				OsiError("SkillBarFindItem(): Item '" << itemGuid << "' does not exist!");
+				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
 			}
 
@@ -187,7 +187,7 @@ namespace osidbg
 			auto * stats = gOsirisProxy->GetLibraryManager().GetStats();
 			auto skillDataFs = ToFixedString("SkillData");
 			if (!stats->ObjectExists(skillId, skillDataFs)) {
-				OsiError("SkillBarSetSkill(): '" << skillId.Str << "' is not a valid skill ID!");
+				OsiError("'" << skillId.Str << "' is not a valid skill ID!");
 				return;
 			}
 
@@ -210,7 +210,7 @@ namespace osidbg
 
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
-				OsiError("SkillBarSetItem(): Item '" << itemGuid << "' does not exist!");
+				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
 			}
 

@@ -11,12 +11,12 @@ namespace osidbg
 			auto itemGuid = args.Get(0).String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
-				OsiError("ItemGetStatsId(): Item '" << itemGuid << "' does not exist!");
+				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
 			}
 
 			if (!item->StatsId.Str) {
-				OsiError("ItemGetStatsId(): Item '" << itemGuid << "' has no stats ID!");
+				OsiError("Item '" << itemGuid << "' has no stats ID!");
 				return false;
 			}
 			else {
@@ -30,7 +30,7 @@ namespace osidbg
 			auto itemGuid = args.Get(0).String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
-				OsiError("ItemSetIdentified(): Item '" << itemGuid << "' does not exist!");
+				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
 			}
 
@@ -127,7 +127,7 @@ namespace osidbg
 				}
 
 				default:
-					OsiError("StatAttributeToPtr(): Unknown equipment stats type: " << attributes.EquipmentStatsType);
+					OsiError("Unknown equipment stats type: " << attributes.EquipmentStatsType);
 					break;
 			}
 
@@ -142,7 +142,7 @@ namespace osidbg
 
 			if (item->StatsDynamic == nullptr
 				|| item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start < 2) {
-				OsiError("ItemGetPermanentBoost(): Item has no stats!");
+				OsiError("Item has no stats!");
 				return false;
 			}
 
@@ -164,7 +164,7 @@ namespace osidbg
 
 			if (item->StatsDynamic == nullptr
 				|| item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start < 2) {
-				OsiError("ItemSetPermanentBoost(): Item has no stats!");
+				OsiError("Item has no stats!");
 				return;
 			}
 
@@ -189,7 +189,7 @@ namespace osidbg
 
 			if (item->StatsDynamic == nullptr
 				|| item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start < 2) {
-				OsiError("ItemAddPermanentBoost(): Item has no stats!");
+				OsiError("Item has no stats!");
 				return;
 			}
 

@@ -11,13 +11,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
-				OsiError("PrepareAction(): Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args.Get(0).String << "' does not exist!");
 				return nullptr;
 			}
 
 			auto skillId = ToFixedString(args.Get(1).String);
 			if (!skillId) {
-				OsiError("PrepareAction(): '" << args.Get(1).String << "' is not a valid FixedString!");
+				OsiError("'" << args.Get(1).String << "' is not a valid FixedString!");
 				return nullptr;
 			}
 
@@ -74,13 +74,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
-				OsiError("CreateWall(): Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args.Get(0).String << "' does not exist!");
 				return false;
 			}
 
 			auto skillId = ToFixedString(args.Get(1).String);
 			if (!skillId) {
-				OsiError("CreateWall(): '" << args.Get(1).String << "' is not a valid FixedString!");
+				OsiError("'" << args.Get(1).String << "' is not a valid FixedString!");
 				return false;
 			}
 
@@ -91,13 +91,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(args.Get(1).String);
 			if (object == nullptr) {
-				OsiError("CreateWall(): No such skill entry: '" << args.Get(1).String << "'");
+				OsiError("No such skill entry: '" << args.Get(1).String << "'");
 				return false;
 			}
 
 			auto lifetime = stats->GetAttributeInt(object, "Lifetime");
 			if (!lifetime) {
-				OsiError("CreateWall(): Couldn't fetch lifetime of skill '" << args.Get(1).String << "'");
+				OsiError("Couldn't fetch lifetime of skill '" << args.Get(1).String << "'");
 				return false;
 			}
 
@@ -166,7 +166,7 @@ namespace osidbg
 				if (item != nullptr) {
 					item->GetObjectHandle(&objectHandle);
 				} else {
-					OsiError("CreateGameObjectMove(): Game object '" << args.Get(0).String << "' does not exist!");
+					OsiError("Game object '" << args.Get(0).String << "' does not exist!");
 					return false;
 				}
 			}
@@ -178,14 +178,14 @@ namespace osidbg
 				beamEffectFs = ToFixedString(beamEffectName);
 
 				if (!beamEffectFs) {
-					OsiError("CreateGameObjectMove(): Beam effect is not a valid FixedString!");
+					OsiError("Beam effect is not a valid FixedString!");
 					return false;
 				}
 
 				auto casterGuid = args.Get(5).String;
 				caster = FindCharacterByNameGuid(casterGuid);
 				if (caster == nullptr) {
-					OsiError("CreateGameObjectMove(): Caster character '" << casterGuid << "' does not exist!");
+					OsiError("Caster character '" << casterGuid << "' does not exist!");
 					return false;
 				}
 			}
@@ -238,7 +238,7 @@ namespace osidbg
 				break;
 
 			default:
-				OsiError("DestroyGameActionInternal(): Don't know how to destroy game action type " << action.GameActionType);
+				OsiError("Don't know how to destroy game action type " << action.GameActionType);
 				break;
 			}
 		}
@@ -275,7 +275,7 @@ namespace osidbg
 				break;
 
 			default:
-				OsiError("GameActionGetLifeTime(): Not supported for game action type " << gameAction->GameActionType);
+				OsiError("Not supported for game action type " << gameAction->GameActionType);
 				return false;
 			}
 
@@ -290,7 +290,7 @@ namespace osidbg
 
 			auto lifeTime = args.Get(1).Float;
 			if (lifeTime < 0.0f) {
-				OsiError("GameActionSetLifeTime(): Lifetime must be a positive value");
+				OsiError("Lifetime must be a positive value");
 				return;
 			}
 
@@ -308,7 +308,7 @@ namespace osidbg
 				break;
 
 			default:
-				OsiError("GameActionSetLifeTime(): Not supported for game action type " << gameAction->GameActionType);
+				OsiError("Not supported for game action type " << gameAction->GameActionType);
 				break;
 			}
 		}
@@ -317,13 +317,13 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
-				OsiError("Summon(): Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args.Get(0).String << "' does not exist!");
 				return false;
 			}
 
 			auto objectTemplate = NameGuidToFixedString(args.Get(1).String);
 			if (!objectTemplate) {
-				OsiError("Summon(): Template '" << args.Get(1).String << "' not in FixedString table!");
+				OsiError("Template '" << args.Get(1).String << "' not in FixedString table!");
 				return false;
 			}
 
@@ -372,12 +372,12 @@ namespace osidbg
 					return true;
 				}
 				else {
-					Debug("Summon(): Summoned object is not a character or item!");
+					Debug("Summoned object is not a character or item!");
 					return false;
 				}
 			}
 			else {
-				OsiError("Summon(): esv::SummonHelpers::Summon() call failed!");
+				OsiError("esv::SummonHelpers::Summon() call failed!");
 				return false;
 			}
 		}

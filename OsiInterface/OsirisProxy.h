@@ -15,7 +15,7 @@ namespace osidbg {
 
 #define OsiError(msg) { \
 	std::stringstream ss; \
-	ss << msg; \
+	ss << __FUNCTION__ "(): " msg; \
 	gOsirisProxy->LogOsirisError(ss.str()); \
 }
 

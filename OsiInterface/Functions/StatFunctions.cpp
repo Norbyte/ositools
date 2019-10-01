@@ -51,13 +51,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
-				OsiError("StatGetAttributeInt(): Stat object '" << statName << "' does not exist");
+				OsiError("Stat object '" << statName << "' does not exist");
 				return false;
 			}
 
 			auto value = stats->GetAttributeInt(object, attributeName);
 			if (!value) {
-				OsiError("StatGetAttributeInt(): Attribute '" << attributeName << "' not found on object '" << statName << "'");
+				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
 			}
 
@@ -77,13 +77,13 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
-				OsiError("StatGetAttributeString(): Stat object '" << statName << "' does not exist");
+				OsiError("Stat object '" << statName << "' does not exist");
 				return false;
 			}
 
 			auto value = stats->GetAttributeFixedString(object, attributeName);
 			if (!value) {
-				OsiError("StatGetAttributeString(): Attribute '" << attributeName << "' not found on object '" << statName << "'");
+				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
 			}
 
@@ -102,7 +102,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statsId);
 			if (object == nullptr) {
-				OsiError("StatGetType(): Stat object '" << statsId << "' does not exist");
+				OsiError("Stat object '" << statsId << "' does not exist");
 				return false;
 			}
 
@@ -127,7 +127,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
-				OsiError("StatSetAttributeInt(): Stat object '" << statName << "' does not exist");
+				OsiError("Stat object '" << statName << "' does not exist");
 				return;
 			}
 
@@ -146,7 +146,7 @@ namespace osidbg
 
 			auto object = stats->objects.Find(statName);
 			if (object == nullptr) {
-				OsiError("StatSetAttributeString(): Stat object '" << statName << "' does not exist");
+				OsiError("Stat object '" << statName << "' does not exist");
 				return;
 			}
 

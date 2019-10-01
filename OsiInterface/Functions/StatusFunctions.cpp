@@ -13,7 +13,7 @@ namespace osidbg
 			auto characterGuid = args.Get(0).String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
-				OsiError("IterateCharacterStatuses(): Character " << characterGuid << " does not exist!");
+				OsiError("Character " << characterGuid << " does not exist!");
 				return;
 			}
 
@@ -38,7 +38,7 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
-				OsiError("GetStatusHelper(): Character " << args.Get(0).String << " does not exist!");
+				OsiError("Character " << args.Get(0).String << " does not exist!");
 				return nullptr;
 			}
 
@@ -50,7 +50,7 @@ namespace osidbg
 			auto index = args.Get(1).Int64;
 			auto statuses = character->StatusManager;
 			if (index < 0 || index >= statuses->StatusCount) {
-				OsiError("GetStatusHelper(): Status handle out of bounds");
+				OsiError("No status found with handle " << (int64_t)statusHandle);
 				return nullptr;
 			}
 
@@ -61,19 +61,19 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
-				OsiError("StatusGetHandle(): Character " << args.Get(0).String << " does not exist!");
+				OsiError("Character " << args.Get(0).String << " does not exist!");
 				return false;
 			}
 
 			if (character->StatusManager == nullptr) {
-				OsiError("StatusGetHandle(): Character " << args.Get(0).String << " has no StatusManager!");
+				OsiError("Character " << args.Get(0).String << " has no StatusManager!");
 				return false;
 			}
 
 			auto statusId = ToFixedString(args.Get(1).String);
 			if (!statusId) {
 				// No fixed string with this ID --> invalid status name
-				OsiWarn("StatusGetHandle(): Status " << args.Get(1).String << " not in string table, possibly invalid status name?");
+				OsiWarn("Status " << args.Get(1).String << " not in string table, possibly invalid status name?");
 				return false;
 			}
 
@@ -101,7 +101,7 @@ namespace osidbg
 				args.Get(3).String = status->StatusId.Str;
 			}
 			else {
-				OsiError("StatusGetAttributeString(): Unknown attribute: " << attributeName);
+				OsiError("Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -130,7 +130,7 @@ namespace osidbg
 				handle = status->SomeHandle;
 			}
 			else {
-				OsiError("StatusGetAttributeGuidString(): Unknown attribute: " << attributeName);
+				OsiError("Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -170,7 +170,7 @@ namespace osidbg
 				args.Get(3).Float = status->StatsMultiplier;
 			}
 			else {
-				OsiError("StatusGetAttributeReal(): Unknown attribute: " << attributeName);
+				OsiError("Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -240,7 +240,7 @@ namespace osidbg
 				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_Started) ? 1 : 0;
 			}
 			else {
-				OsiError("StatusGetAttributeInt(): Unknown attribute: " << attributeName);
+				OsiError("Unknown attribute: " << attributeName);
 				return false;
 			}
 
@@ -258,7 +258,7 @@ namespace osidbg
 			auto value = args.Get(3).Float;
 
 			if (value < 0.0f) {
-				OsiError("StatusSetAttributeReal(): Cannot set a negative value");
+				OsiError("Cannot set a negative value");
 				return;
 			}
 
@@ -281,7 +281,7 @@ namespace osidbg
 				status->StatsMultiplier = value;
 			}
 			else {
-				OsiError("StatusSetAttributeReal(): Cannot set attribute: " << attributeName);
+				OsiError("Cannot set attribute: " << attributeName);
 			}
 		}
 	}

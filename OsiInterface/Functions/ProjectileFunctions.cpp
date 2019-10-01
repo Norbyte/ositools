@@ -26,7 +26,7 @@ namespace osidbg
 			}
 			else
 			{
-				OsiError("ProjectileLaunch(): No projectile to shoot!");
+				OsiError("No projectile to shoot!");
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace osidbg
 			auto value = args.Get(1).Int32;
 
 			if (!ProjectileHelper) {
-				OsiError("ProjectileSetInt(): Called when no projectile is active!");
+				OsiError("Called when no projectile is active!");
 				return;
 			}
 
@@ -49,7 +49,7 @@ namespace osidbg
 			auto value = args.Get(1).String;
 
 			if (!ProjectileHelper) {
-				OsiError("ProjectileSetString(): Called when no projectile is active!");
+				OsiError("Called when no projectile is active!");
 				return;
 			}
 
@@ -62,7 +62,7 @@ namespace osidbg
 			auto value = args.Get(1).String;
 
 			if (!ProjectileHelper) {
-				OsiError("ProjectileSetGuidString(): Called when no projectile is active!");
+				OsiError("Called when no projectile is active!");
 				return;
 			}
 
@@ -75,7 +75,7 @@ namespace osidbg
 			glm::vec3 vec = args.GetVector(1);
 
 			if (!ProjectileHelper) {
-				OsiError("ProjectileSetVector3(): Called when no projectile is active!");
+				OsiError("Called when no projectile is active!");
 				return;
 			}
 

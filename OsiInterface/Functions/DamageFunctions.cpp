@@ -77,14 +77,14 @@ namespace osidbg
 			}
 			else if (strcmp(prop, "HighGround") == 0) {
 				if (value < 0 || value > HG_HighGround) {
-					OsiError("DamageHelpers::SetInt(): Value '" << value << "' is not a value HighGround flag");
+					OsiError("Value '" << value << "' is not a value HighGround flag");
 				} else {
 					HighGround = (HighGroundBonus)value;
 				}
 			}
 			else if (strcmp(prop, "CriticalRoll") == 0) {
 				if (value < 0 || value > CR_NotCritical) {
-					OsiError("DamageHelpers::SetInt(): Value '" << value << "' is not a value CriticalRoll flag");
+					OsiError(" Value '" << value << "' is not a value CriticalRoll flag");
 				} else {
 					Critical = (CriticalRoll)value;
 				}
@@ -123,7 +123,7 @@ namespace osidbg
 				Strength = value / 100.0f;
 			}
 			else {
-				OsiError("DamageHelpers::SetInt(): Unknown int property: '" << prop << "'");
+				OsiError("Unknown int property: '" << prop << "'");
 			}
 		}
 
@@ -142,7 +142,7 @@ namespace osidbg
 				HasImpactDirection = true;
 			}
 			else {
-				OsiError("DamageHelpers::SetVector(): Unknown vector3 property '" << prop << "'");
+				OsiError("Unknown vector3 property '" << prop << "'");
 			}
 		}
 
@@ -197,7 +197,7 @@ namespace osidbg
 				Hit.EffectFlags |= HitDamageInfo::EF_ProcWindWalker;
 			}
 			else {
-				OsiError("DamageHelpers::SetFlag(): Unknown flag: '" << flag << "'");
+				OsiError("Unknown flag: '" << flag << "'");
 			}
 		}
 
@@ -205,7 +205,7 @@ namespace osidbg
 		{
 			auto fs = ToFixedString(value);
 			if (!fs) {
-				OsiError("DamageHelpers::SetString(): Could not map value '" << value << "' to FixedString");
+				OsiError("Could not map value '" << value << "' to FixedString");
 				return;
 			}
 
@@ -213,14 +213,14 @@ namespace osidbg
 				SkillId = fs;
 			}
 			else {
-				OsiError("DamageHelpers::SetString(): Unknown string property '" << prop << "'");
+				OsiError("Unknown string property '" << prop << "'");
 			}
 		}
 
 		void AddDamage(uint32_t DamageType, uint32_t Amount)
 		{
 			if (DamageList.Size == DamageList.Capacity) {
-				OsiError("DamageHelpers::AddDamage(): Exceeded damage list capacity");
+				OsiError("Exceeded damage list capacity");
 				return;
 			}
 
@@ -232,24 +232,24 @@ namespace osidbg
 		bool Execute()
 		{
 			if (!Target) {
-				OsiError("DamageHelpers::Execute(): No target!");
+				OsiError("No target!");
 				return false;
 			}
 
 			if (DamageList.Size == 0) {
-				OsiError("DamageHelpers::Execute(): At least one damage type should be added!");
+				OsiError("At least one damage type should be added!");
 				return false;
 			}
 
 			auto characterHit = gOsirisProxy->GetLibraryManager().CharacterHit;
 			if (CallCharacterHit && characterHit == nullptr) {
-				OsiError("DamageHelpers::Execute(): esv::Character::Hit not found!");
+				OsiError("esv::Character::Hit not found!");
 				return false;
 			}
 
 			auto statusMachine = Target->StatusManager;
 			if (!statusMachine) {
-				OsiError("DamageHelpers::Execute(): Target has no StatusMachine!");
+				OsiError("Target has no StatusMachine!");
 				return false;
 			}
 
@@ -340,13 +340,13 @@ namespace osidbg
 		void HitPrepare(OsiArgumentDesc const & args)
 		{
 			if (DamageHelper) {
-				OsiWarn("HitPrepare(): Destroying active DamageHelper?");
+				OsiWarn("Destroying active DamageHelper?");
 			}
 
 			auto targetGuid = args.Get(0).String;
 			auto target = FindCharacterByNameGuid(targetGuid);
 			if (target == nullptr) {
-				OsiError("HitPrepare(): Target character '" << targetGuid << "' doesn't exist!");
+				OsiError("Target character '" << targetGuid << "' doesn't exist!");
 				return;
 			}
 
@@ -364,7 +364,7 @@ namespace osidbg
 			}
 			else
 			{
-				OsiError("HitExecute(): No damage prepared!");
+				OsiError("No damage prepared!");
 			}
 		}
 
@@ -374,7 +374,7 @@ namespace osidbg
 			auto value = args.Get(1).Int32;
 
 			if (!DamageHelper) {
-				OsiError("HitSetInt(): Called when not preparing a hit!");
+				OsiError("Called when not preparing a hit!");
 				return;
 			}
 
@@ -387,7 +387,7 @@ namespace osidbg
 			auto value = args.Get(1).String;
 
 			if (!DamageHelper) {
-				OsiError("HitSetString(): Called when not preparing a hit!");
+				OsiError("Called when not preparing a hit!");
 				return;
 			}
 
@@ -400,7 +400,7 @@ namespace osidbg
 			Vector3 vec = args.GetVector(1);
 
 			if (!DamageHelper) {
-				OsiError("HitSetVector3(): Called when not preparing a hit!");
+				OsiError("Called when not preparing a hit!");
 				return;
 			}
 
@@ -412,7 +412,7 @@ namespace osidbg
 			auto flag = args.Get(0).String;
 
 			if (!DamageHelper) {
-				OsiError("HitSetFlag(): Called when not preparing a hit!");
+				OsiError("Called when not preparing a hit!");
 				return;
 			}
 
@@ -425,7 +425,7 @@ namespace osidbg
 			auto amount = (uint32_t)args.Get(1).Int32;
 
 			if (!DamageHelper) {
-				OsiError("HitAddDamage(): Called when not preparing a hit!");
+				OsiError("Called when not preparing a hit!");
 				return;
 			}
 
