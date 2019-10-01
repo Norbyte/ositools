@@ -470,6 +470,42 @@ namespace osidbg
 		uint64_t Unkn8[2];
 	};
 
+	struct EsvStatusVMT
+	{
+		void * Destroy;
+		void * SetObjectHandle;
+		void * GetObjectHandle;
+		void * GetStatusId;
+		void * GetTriggerBehavior_M;
+		void * AddStatsData2_Maybe;
+		void * GetStatsIdByIndex;
+		void * VMT38;
+		void * VMT40;
+		void * VMT48;
+		void * CanEnter;
+		void * Init;
+		void * Enter;
+		void * Resume;
+		void * Update;
+		void * Tick;
+		void * Exit;
+		void * VMT88;
+		void * ConsumeStatsId;
+		void * VMT98;
+		void * IsImmobilizingStatus;
+		void * VMTA8;
+		void * VMTB0;
+		void * GetSyncData;
+		void * VMTC0;
+		void * Serialize;
+		void * VMTD0;
+		void * CreateVisuals;
+		void * DestroyVisuals;
+		void * SetHostileFlagFromSavingThrow_M;
+		void * GetEnterChance;
+		void * AddStatsData_Maybe;
+	};
+
 	struct EsvStatus
 	{
 		virtual ~EsvStatus() = 0;

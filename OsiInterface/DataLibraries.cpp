@@ -6,6 +6,9 @@
 
 namespace osidbg
 {
+	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
+	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
+
 	bool GlobalStringTable::UseMurmur = false;
 
 	uint8_t CharToByte(char c)
@@ -1021,7 +1024,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHealVMT = p - 25 * 8;
+							StatusHealVMT = reinterpret_cast<EsvStatusVMT const *>(p - 25 * 8);
 						}
 					}
 				});
@@ -1055,7 +1058,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHitVMT = p - 12 * 8;
+							StatusHitVMT = reinterpret_cast<EsvStatusVMT const *>(p - 12 * 8);
 						}
 					}
 				});
@@ -1091,7 +1094,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHealVMT = p - 25 * 8;
+							StatusHealVMT = reinterpret_cast<EsvStatusVMT const *>(p - 25 * 8);
 						}
 					}
 				});
@@ -1126,7 +1129,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHitVMT = p - 12 * 8;
+							StatusHitVMT = reinterpret_cast<EsvStatusVMT const *>(p - 12 * 8);
 						}
 					}
 				});
@@ -1256,7 +1259,31 @@ namespace osidbg
 			FindStatusTypesEoCApp();
 		}
 
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+
+		if (StatusHitVMT != nullptr) {
+			StatusHitEnter.Wrap(StatusHitVMT->Enter);
+		}
+
+		if (StatusHealVMT != nullptr) {
+			StatusHealEnter.Wrap(StatusHealVMT->Enter);
+		}
+
+		DetourTransactionCommit();
+
 		PostLoaded = true;
+	}
+
+	void LibraryManager::Cleanup()
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+
+		StatusHitEnter.Unwrap();
+		StatusHealEnter.Unwrap();
+
+		DetourTransactionCommit();
 	}
 
 	bool LibraryManager::FindEoCPlugin(uint8_t const * & start, size_t & size)

@@ -233,6 +233,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 
 	if (ExtensionsEnabled) {
 		Libraries.PostStartupFindLibraries();
+		FunctionLibrary.PostStartup();
 	}
 }
 

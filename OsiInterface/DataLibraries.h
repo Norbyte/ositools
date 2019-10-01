@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DivInterface.h"
+#include "Wrappers.h"
 #include <optional>
 
 namespace osidbg {
@@ -15,7 +16,8 @@ namespace osidbg {
 	typedef void (* StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
 	typedef void (* Character__Hit)(EsvCharacter * self, void * attackerStats, CDivinityStats_Item * itemStats, Array<TDamagePair> * damageList, 
 		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int aiTest_M, void * skillProperties, int highGroundFlag, int reduceDurability, uint8_t criticalRoll);
-	
+	typedef bool (* Status__Enter)(EsvStatus * Status);
+
 	
 
 	class LibraryManager
@@ -23,6 +25,7 @@ namespace osidbg {
 	public:
 		bool FindLibraries();
 		void PostStartupFindLibraries();
+		void Cleanup();
 
 		inline CRPGStatsManager * GetStats() const
 		{
@@ -92,8 +95,14 @@ namespace osidbg {
 		StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
 		StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
 		Character__Hit CharacterHit{ nullptr };
-		void const * StatusHealVMT{ nullptr };
-		void const * StatusHitVMT{ nullptr };
+		EsvStatusVMT const * StatusHealVMT{ nullptr };
+		EsvStatusVMT const * StatusHitVMT{ nullptr };
+		
+		enum class StatusHealEnterTag {};
+		HookableFunction<StatusHealEnterTag, bool (EsvStatus *)> StatusHealEnter;
+
+		enum class StatusHitEnterTag {};
+		HookableFunction<StatusHitEnterTag, bool (EsvStatus *)> StatusHitEnter;
 
 	private:
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);

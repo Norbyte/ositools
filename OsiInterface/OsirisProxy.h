@@ -71,6 +71,11 @@ public:
 		return Libraries;
 	}
 
+	inline LibraryManager & GetLibraryManager()
+	{
+		return Libraries;
+	}
+
 	inline void * GetOsirisDllStart() const
 	{
 		return Wrappers.OsirisDllStart;
