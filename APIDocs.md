@@ -313,6 +313,25 @@ NRD_HitSetFlag("DamagedVitality");
 NRD_HitExecute();
 ```
 
+### OnHit
+`event NRD_OnHit((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Damage, (INTEGER64)_StatusHandle)`
+
+Throw before a character is hit. Status-level attributes can be queried using the `NRD_StatusGetAttribute[...]`  functions. Hit-level attributes can be queried using the `NRD_HitGet[...]` functions (**TODO - not implemented yet**).
+
+**Stability:**
+ - Function signature will be changed to allow both item and character parameters in the future.
+ - Since the event is thrown before the hit occurs, it is possible to modify or cancel the hit effect. API-s for this will be available in a future version.
+
+### OnHeal
+`event NRD_OnHeal((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Amount, (INTEGER64)_StatusHandle)`
+
+Thrown before a character is healed. Status-level attributes can be queried using the `NRD_StatusGetAttribute[...]`  functions. Heal-level attributes can be queried using the `NRD_HealGet[...]` functions (**TODO - not implemented yet**).
+
+**Stability:**
+ - Function signature will be changed to allow both item and character parameters in the future.
+ - Since the event is thrown before heal occurs, it is possible to modify or cancel the heal effect. API-s for this will be available in a future version.
+
+
 # Projectile functions
 
 `call NRD_ProjectilePrepareLaunch()`
