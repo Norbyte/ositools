@@ -21,10 +21,11 @@ namespace osidbg
 			auto statuses = character->StatusManager;
 			if (statuses != nullptr) {
 				for (uint32_t index = 0; index < statuses->StatusCount; index++) {
+					auto status = statuses->Statuses[index];
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, statuses->Statuses[index]->StatusId.Str });
-					eventArgs->Add(OsiArgumentValue{ (int64_t)index });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+					eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
 					auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
 					gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)StatusIteratorEventHandle, eventArgs);
@@ -42,19 +43,14 @@ namespace osidbg
 				return nullptr;
 			}
 
-			if (character->StatusManager == nullptr) {
-				OsiError("GetStatusHelper(): Character " << args.Get(0).String << " has no StatusManager!");
-				return nullptr;
-			}
-
-			auto index = args.Get(1).Int64;
-			auto statuses = character->StatusManager;
-			if (index < 0 || index >= statuses->StatusCount) {
+			ObjectHandle statusHandle{ args.Get(1).Int64 };
+			auto status = character->GetStatusByHandle(statusHandle);
+			if (status == nullptr) {
 				OsiError("No status found with handle " << (int64_t)statusHandle);
 				return nullptr;
 			}
 
-			return statuses->Statuses[index];
+			return status;
 		}
 
 		bool StatusGetHandle(OsiArgumentDesc & args)
@@ -81,7 +77,7 @@ namespace osidbg
 			for (uint32_t index = 0; index < statuses->StatusCount; index++) {
 				auto status = statuses->Statuses[index];
 				if (status->StatusId == statusId) {
-					args.Get(2).Int64 = index;
+					args.Get(2).Int64 = (int64_t)status->StatusHandle;
 					return true;
 				}
 			}
@@ -117,8 +113,8 @@ namespace osidbg
 
 			auto attributeName = args.Get(2).String;
 			ObjectHandle handle;
-			if (strcmp(attributeName, "Obj1") == 0) {
-				handle = status->ObjHandle1;
+			if (strcmp(attributeName, "StatusHandle") == 0) {
+				handle = status->StatusHandle;
 			}
 			else if (strcmp(attributeName, "TargetCI") == 0) {
 				handle = status->TargetCIHandle;

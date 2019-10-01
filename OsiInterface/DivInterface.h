@@ -585,7 +585,7 @@ namespace osidbg
 		float StatsMultiplier;
 		uint8_t DamageSourceType;
 		uint8_t _Pad1[3];
-		ObjectHandle ObjHandle1;
+		ObjectHandle StatusHandle;
 		ObjectHandle TargetCIHandle;
 		ObjectSet<ObjectHandle> StatusOwner;
 		ObjectHandle StatusSourceHandle;
@@ -1092,6 +1092,8 @@ namespace osidbg
 		virtual void GetEntityNetworkId() = 0;
 		virtual void SetTemplate() = 0;
 		virtual void SetOriginalTemplate_M() = 0;
+
+		EsvStatus * GetStatusByHandle(ObjectHandle handle) const;
 
 		BaseComponent Base;
 		FixedString MyGuid;

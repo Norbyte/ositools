@@ -76,13 +76,15 @@ DebugBreak(_StatusId);
 ```
 
 **Notes:**
- - The call might not enumerate all statuses correctly (i.e. miss some statuses or iterate over them multiple times) if statuses are added or removed during the `NRD_StatusIteratorEvent` event.
- - Although the returned `_StatusHandle` is currently the index of the status, it should be treated as an opaque value. The index-like behavior is an implementation detail and should not be relied on.
+ - The call might not enumerate all statuses correctly (i.e. miss some statuses or iterate over them multiple times) if statuses are added or removed during the `NRD_StatusIteratorEvent` event
+ - The `_StatusHandle` is a persistent, unique value (like UUIDs) identifying the status instance. Unlike status names, it can be used to differentiate between two instances of the same status.
 
 ### StatusGetHandle
 `query NRD_StatusGetHandle([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
 
 Returns the handle of the first status with the specified `_StatusId`. If no such status exists, the query fails.
+
+The `_StatusHandle` is a persistent, unique value (like UUIDs) identifying the status instance.
 
 Example usage:
 ```c
@@ -105,7 +107,7 @@ Returns the specified status attribute. If the character or status does not exis
  - `StatsId` - Name of the associated stat entry
 
 **GuidString attributes:**
- - `Obj1` - *Unknown; name subject to change*
+ - `StatusHandle` - Handle of this status
  - `TargetCI` - *Unknown; name subject to change*
  - `StatusSource` - Character or item that caused the status
  - `Obj2` - *Unknown; name subject to change*

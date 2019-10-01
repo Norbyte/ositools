@@ -256,4 +256,20 @@ namespace osidbg
 		}
 	}
 
+
+	EsvStatus * EsvCharacter::GetStatusByHandle(ObjectHandle handle) const
+	{
+		if (StatusManager == nullptr) {
+			return nullptr;
+		}
+
+		for (uint32_t i = 0; i < StatusManager->StatusCount; i++) {
+			auto status = StatusManager->Statuses[i];
+			if (status->StatusHandle == handle) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
 }
