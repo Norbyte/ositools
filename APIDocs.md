@@ -121,8 +121,17 @@ Returns the specified status attribute. If the character or status does not exis
  - `StatsMultiplier`
 
 **Int attributes:**
- - `CanEnterChance`
- - `DamageSourceType`
+ - `CanEnterChance` - Chance of entering status (between 0 and 100)
+ - `DamageSourceType` - Cause of status. Possible values:
+   - 0 - None
+   - 1 - SurfaceMove
+   - 2 - SurfaceCreate
+   - 3 - SurfaceStatus
+   - 4 - StatusEnter
+   - 5 - StatusTick
+   - 6 - Attack
+   - 7 - Offhand
+   - 8 - GM
 
 **Flag attributes:** (Int attributes that can only be 0 or 1)
  - `KeepAlive`

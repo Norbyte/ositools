@@ -44,7 +44,7 @@ namespace osidbg
 		Vector3 ImpactDirection;
 		bool HasImpactDirection{ false };
 
-		uint32_t DamageSourceType{ 0 };
+		EsvStatus::CauseType DamageSourceType{ EsvStatus::CT_None };
 		float Strength{ 0.0f };
 
 		Array<TDamagePair> DamageList;
@@ -93,10 +93,12 @@ namespace osidbg
 				Hit.Equipment = (uint32_t)value;
 			}
 			else if (strcmp(prop, "DeathType") == 0) {
-				Hit.DeathType = (uint32_t)value;
+				// FIXME - filter 
+				Hit.DeathType = (DeathType)value;
 			}
 			else if (strcmp(prop, "DamageType") == 0) {
-				Hit.DamageType = (uint32_t)value;
+				// FIXME - filter 
+				Hit.DamageType = (DamageType)value;
 			}
 			else if (strcmp(prop, "AttackDirection") == 0) {
 				Hit.AttackDirection = (uint32_t)value;
@@ -117,7 +119,8 @@ namespace osidbg
 				HitReason = (uint32_t)value;
 			}
 			else if (strcmp(prop, "DamageSourceType") == 0) {
-				DamageSourceType = (uint32_t)value;
+				// FIXME - filter 
+				DamageSourceType = (EsvStatus::CauseType)value;
 			}
 			else if (strcmp(prop, "Strength") == 0) {
 				Strength = value / 100.0f;

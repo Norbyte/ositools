@@ -570,6 +570,19 @@ namespace osidbg
 			SF2_Started = 0x80
 		};
 
+		enum CauseType : uint8_t
+		{
+			CT_None = 0,
+			CT_SurfaceMove = 1,
+			CT_SurfaceCreate = 2,
+			CT_SurfaceStatus = 3,
+			CT_StatusEnter = 4,
+			CT_StatusTick = 5,
+			CT_Attack = 6,
+			CT_Offhand = 7,
+			CT_GM = 8
+		};
+
 		// void * VMT;
 		FixedString FS1;
 		uint32_t NetID;
@@ -583,7 +596,7 @@ namespace osidbg
 		float TurnTimer;
 		float Strength;
 		float StatsMultiplier;
-		uint8_t DamageSourceType;
+		CauseType DamageSourceType;
 		uint8_t _Pad1[3];
 		ObjectHandle StatusHandle;
 		ObjectHandle TargetCIHandle;
@@ -601,6 +614,62 @@ namespace osidbg
 	{
 		uint32_t Amount;
 		uint32_t DamageType;
+	};
+
+	enum DeathType : uint8_t
+	{
+		DET_None = 0,
+		DET_Physical = 1,
+		DET_Piercing = 2,
+		DET_Arrow = 3,
+		DET_DoT = 4,
+		DET_Incinerate = 5,
+		DET_Acid = 6,
+		DET_Electrocution = 7,
+		DET_FrozenShatter = 8,
+		DET_PetrifiedShatter = 9,
+		DET_Explode = 10,
+		DET_Surrender = 11,
+		DET_Hang = 12,
+		DET_KnockedDown = 13,
+		DET_Lifetime = 14,
+		DET_Sulfur = 15,
+		DET_Sentinel = 16
+	};
+
+	enum DamageType : uint32_t
+	{
+		DT_None = 0,
+		DT_Physical = 1,
+		DT_Piercing = 2,
+		DT_Corrosive = 3,
+		DT_Magic = 4,
+		DT_Chaos = 5,
+		DT_Fire = 6,
+		DT_Air = 7,
+		DT_Water = 8,
+		DT_Earth = 9,
+		DT_Poison = 10,
+		DT_Shadow = 11,
+		DT_Custom = 12
+	};
+
+	enum ItemSlot : uint8_t
+	{
+		IS_Helmet = 0,
+		IS_Breast = 1,
+		IS_Leggings = 2,
+		IS_Weapon = 3,
+		IS_Shield = 4,
+		IS_Ring = 5,
+		IS_Belt = 6,
+		IS_Boots = 7,
+		IS_Gloves = 8,
+		IS_Amulet = 9,
+		IS_Ring2 = 10,
+		IS_Wings = 11,
+		IS_Horns = 12,
+		IS_Overhead = 13
 	};
 
 	struct HitDamageInfo
@@ -628,9 +697,9 @@ namespace osidbg
 		uint32_t Equipment{ 0 };
 		uint32_t TotalDamageDone{ 0 };
 		uint32_t Unknown{ 0 };
-		uint8_t DeathType{ 0x10 };
+		DeathType DeathType{ DET_Sentinel };
 		uint8_t _Pad1[3];
-		uint32_t DamageType{ 0 };
+		DamageType DamageType{ DT_None };
 		uint32_t AttackDirection{ 0 };
 		uint32_t ArmorAbsorption{ 0 };
 		uint32_t LifeSteal{ 0 };
@@ -650,6 +719,11 @@ namespace osidbg
 		ObjectHandle HitByHandle;
 		ObjectHandle HitWithHandle;
 		ObjectHandle WeaponHandle;
+		// 0 - ASAttack
+		// 1 - Character::ApplyDamage, StatusDying, ExecPropertyDamage, StatusDamage
+		// 2 - AI hit test
+		// 5 - InSurface
+		// 6 - SetHP, osi::ApplyDamage, StatusConsume
 		uint32_t HitReason;
 		uint8_t _Pad5[4];
 		FixedString SkillId;
@@ -663,6 +737,24 @@ namespace osidbg
 		Vector3 ImpactOrigin;
 		Vector3 ImpactDirection;
 		uint32_t Unk4;
+	};
+
+	struct EsvStatusHeal : public EsvStatus
+	{
+		uint32_t EffectTime;
+		uint32_t HealAmount;
+		uint32_t HealEffect;
+		uint8_t _Pad4[4];
+		FixedString HealEffectId;
+		uint32_t HealType;
+		uint32_t AbsorbSurfaceRange;
+		ObjectSet<void *> AbsorbSurfaceTypes;
+		uint64_t Unkn2;
+		bool TargetDependentHeal;
+		uint8_t _Pad5[3];
+		uint32_t TargetDependentValue[3];
+		uint32_t TargetDependentHealAmount[3];
+		uint32_t Unkn3;
 	};
 
 	struct EsvStatusManager
@@ -915,6 +1007,8 @@ namespace osidbg
 		virtual void SetTemplate() = 0;
 		virtual void SetOriginalTemplate_M() = 0;
 
+		EsvStatus * GetStatusByHandle(ObjectHandle handle) const;
+
 		BaseComponent Base;
 		FixedString MyGuid;
 		uint32_t NetID;
@@ -1092,8 +1186,6 @@ namespace osidbg
 		virtual void GetEntityNetworkId() = 0;
 		virtual void SetTemplate() = 0;
 		virtual void SetOriginalTemplate_M() = 0;
-
-		EsvStatus * GetStatusByHandle(ObjectHandle handle) const;
 
 		BaseComponent Base;
 		FixedString MyGuid;
