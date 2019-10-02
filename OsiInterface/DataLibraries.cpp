@@ -689,14 +689,14 @@ namespace osidbg
 		Pattern p;
 		p.FromString(
 			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_GameAction
-			"49 8B CE " // mov     rcx, r14
+			"XX 8B XX " // mov     xx, xx
 			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
 			"84 C0 " // test    al, al
 			"0F 84 XX XX 00 00 " // jz      xxx
 			"84 DB " // test    bl, bl
-			"74 13 " // jz      short loc_xxx
+			"74 XX " // jz      short loc_xxx
 			"4C 8B 06 " // mov     r8, [rsi]
-			"49 8B CD " // mov     rcx, r13
+			"49 8B XX " // mov     rcx, xx
 			"8B 56 08 " // mov     edx, [rsi+8]
 			"E8 XX XX XX XX " // call    esv__GameActionManager__CreateAction
 		);
@@ -710,7 +710,32 @@ namespace osidbg
 		});
 
 		if (CreateGameAction == nullptr) {
-			Debug(L"LibraryManager::FindGameActionManagerEoCApp(): Could not find GameActionManager::CreateAction");
+			Pattern alternate;
+			alternate.FromString(
+				"48 8D 15 XX XX XX XX " // lea     rdx, fsx_GameAction
+				"XX 8B XX " // mov     xx, xx
+				"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+				"84 C0 " // test    al, al
+				"0F 84 XX XX 00 00 " // jz      xxx
+				"45 84 FF " // test    r15b, r15b
+				"74 XX " // jz      short loc_xxx
+				"4C 8B 06 " // mov     r8, [rsi]
+				"49 8B XX " // mov     rcx, xx
+				"8B 56 08 " // mov     edx, [rsi+8]
+				"E8 XX XX XX XX " // call    esv__GameActionManager__CreateAction
+			);
+
+			alternate.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+				auto fsx = AsmLeaToAbsoluteAddress(match);
+				if (IsFixedStringRef(fsx, "GameAction")) {
+					auto actionAddr = AsmCallToAbsoluteAddress(match + 38);
+					CreateGameAction = (GameActionManager__CreateAction)actionAddr;
+				}
+			});
+
+			if (CreateGameAction == nullptr) {
+				Debug(L"LibraryManager::FindGameActionManagerEoCApp(): Could not find GameActionManager::CreateAction");
+			}
 		}
 
 		Pattern p2;
@@ -726,7 +751,7 @@ namespace osidbg
 
 		Pattern p3;
 		p3.FromString(
-			"48 8B 05 XX XX XX XX " // mov     rcx, cs:ls__gServerLevelAllocator
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__gServerLevelAllocator
 			"4C 8D 44 24 60 " // lea     r8, [rsp+58h+arg_0]
 			"48 8D 54 24 70 " // lea     rdx, [rsp+58h+arg_10]
 			"C7 44 24 60 FF FF FF FF " // mov     dword ptr [rsp+58h+arg_0], 0FFFFFFFFh
@@ -758,6 +783,41 @@ namespace osidbg
 					auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 84);
 					AddGameAction = (GameActionManager__AddAction)addActionAddr;
 				});
+
+				if (LevelManager == nullptr || AddGameAction == nullptr) {
+					Pattern alternate;
+					alternate.FromString(
+						"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__gServerLevelAllocator
+						"4C 8D 44 24 60 " // lea     r8, [rsp+58h+arg_0]
+						"48 8D 54 24 70 " // lea     rdx, [rsp+58h+arg_10]
+						"C7 44 24 60 FF FF FF FF " // mov     dword ptr [rsp+58h+arg_0], 0FFFFFFFFh
+						"48 8B 88 80 00 00 00 " //  mov     rcx, [rax+80h]
+						"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__ObjectHandle__Unassigned
+						"48 89 44 24 70 " // mov     [rsp+58h+arg_10], rax
+						"48 8B B9 D0 00 00 00 " // mov     rdi, [rcx+0D0h]
+						"48 8B CF " // mov     rcx, rdi
+						"E8 XX XX XX XX " // call    xxx
+						"4C 8D 46 70 " // lea     r8, [rsi+70h]
+						"48 8B C8 " // mov     rcx, rax
+						"48 8D 56 68 " // lea     rdx, [rsi+68h]
+						"48 8B D8 " // mov     rbx, rax
+						"E8 XX XX XX XX " // call    esv__GameObjectMoveAction__Setup
+						"48 8D 8F 30 01 00 00 " // lea     rcx, [rdi+130h]
+						"48 89 5C 24 60 " // mov     [rsp+58h+arg_0], rbx
+						"48 8D 54 24 60 " // lea     rdx, [rsp+58h+arg_0]
+						"E8 XX XX XX XX " // call    esv__GameActionManager__AddAction
+					);
+
+					alternate.Scan(match, 0x100, [this](const uint8_t * match2) {
+						LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
+
+						auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 73);
+						GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
+
+						auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 95);
+						AddGameAction = (GameActionManager__AddAction)addActionAddr;
+					});
+				}
 			}
 		});
 
@@ -873,16 +933,15 @@ namespace osidbg
 			"EB XX " // jmp     short xxx
 			"48 8B 00 " // mov     rax, [rax]
 			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_RandomPoints
-			"48 8B CB " // mov     rcx, rbx
+			"48 8B XX " // mov     rcx, rbx
 			"FF 50 28 " // call    qword ptr [rax+28h]
-			"4C 8B 03 " // mov     r8, [rbx]
+			"4C 8B XX " // mov     r8, [rbx]
 		);
 
 		Pattern p2;
 		p2.FromString(
 			"48 8B C4 " // mov     rax, rsp
 			"53 " // push    rbx
-			"41 " // push    r12
 		);
 
 		p.Scan(moduleStart_, moduleSize_, [this, &p2](const uint8_t * match) {
