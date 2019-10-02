@@ -21,7 +21,7 @@ namespace osidbg {
 
 #define OsiWarn(msg) { \
 	std::stringstream ss; \
-	ss << msg; \
+	ss << __FUNCTION__ "(): " msg; \
 	gOsirisProxy->LogOsirisWarning(ss.str()); \
 }
 

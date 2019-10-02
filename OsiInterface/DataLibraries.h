@@ -7,7 +7,7 @@
 namespace osidbg {
 
 	typedef void (* ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper, float Unknown);
-	typedef void * (* GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, int actionId, uint64_t SomeHandle);
+	typedef void * (* GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
 	typedef void (* GameActionManager__AddAction)(EsvGameActionManager * GameActionManager, void * Action);
 	typedef void (* TornadoAction__Setup)(void * TornadoAction);
 	typedef void (* GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
@@ -15,7 +15,7 @@ namespace osidbg {
 	typedef EsvStatus * (* StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
 	typedef void (* StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
 	typedef void (* Character__Hit)(EsvCharacter * self, void * attackerStats, CDivinityStats_Item * itemStats, Array<TDamagePair> * damageList, 
-		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int aiTest_M, void * skillProperties, int highGroundFlag, int reduceDurability, uint8_t criticalRoll);
+		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int aiTest_M, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 	typedef bool (* Status__Enter)(EsvStatus * Status);
 
 	

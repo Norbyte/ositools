@@ -11,7 +11,7 @@ namespace osidbg
 		void ProjectilePrepareLaunch(OsiArgumentDesc const & args)
 		{
 			if (ProjectileHelper) {
-				OsiWarn("ProjectilePrepareLaunch(): Destroying active ProjectileHelper?");
+				OsiWarn("Destroying active ProjectileHelper?");
 			}
 
 			ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();

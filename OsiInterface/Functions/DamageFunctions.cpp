@@ -6,21 +6,6 @@ namespace osidbg
 {
 	struct DamageHelpers
 	{
-		enum CriticalRoll
-		{
-			CR_Roll = 0,
-			CR_Critical = 1,
-			CR_NotCritical = 2
-		};
-
-		enum HighGroundBonus
-		{
-			HG_Unknown = 0,
-			HG_HighGround = 1,
-			HG_EvenGround = 2,
-			HG_LowGround = 3
-		};
-
 		EsvCharacter * Source{ nullptr };
 		EsvCharacter * Target{ nullptr };
 
@@ -29,10 +14,10 @@ namespace osidbg
 		// 0, 1, 4, 5, (hitType & 0xFFFFFFFC) spec values
 		uint32_t HitType{ 0 };
 		bool RollForDamage{ false };
-		bool ReduceDurability{ false };
+		bool ProcWindWalker{ false };
 		// TODO - SkillProperties
-		HighGroundBonus HighGround{ HG_Unknown };
-		CriticalRoll Critical{ CR_Roll };
+		HighGroundBonus HighGround{ HighGroundBonus::Unknown };
+		CriticalRoll Critical{ CriticalRoll::Roll };
 
 		// TODO - WeaponHandle, PropertyList, PropertyContext
 		uint32_t HitReason{ 6 };
@@ -44,7 +29,7 @@ namespace osidbg
 		Vector3 ImpactDirection;
 		bool HasImpactDirection{ false };
 
-		EsvStatus::CauseType DamageSourceType{ EsvStatus::CT_None };
+		CauseType DamageSourceType{ CauseType::None };
 		float Strength{ 0.0f };
 
 		Array<TDamagePair> DamageList;
@@ -72,61 +57,35 @@ namespace osidbg
 			else if (strcmp(prop, "RollForDamage") == 0) {
 				RollForDamage = value > 0;
 			}
-			else if (strcmp(prop, "ReduceDurability") == 0) {
-				ReduceDurability = value > 0;
+			else if (strcmp(prop, "ProcWindWalker") == 0) {
+				ProcWindWalker = value > 0;
 			}
 			else if (strcmp(prop, "HighGround") == 0) {
-				if (value < 0 || value > HG_HighGround) {
+				if (value < 0 || value > (int32_t)HighGroundBonus::HighGround) {
 					OsiError("Value '" << value << "' is not a value HighGround flag");
 				} else {
 					HighGround = (HighGroundBonus)value;
 				}
 			}
 			else if (strcmp(prop, "CriticalRoll") == 0) {
-				if (value < 0 || value > CR_NotCritical) {
+				if (value < 0 || value > (int32_t)CriticalRoll::NotCritical) {
 					OsiError(" Value '" << value << "' is not a value CriticalRoll flag");
 				} else {
 					Critical = (CriticalRoll)value;
 				}
-			}
-			else if (strcmp(prop, "Equipment") == 0) {
-				Hit.Equipment = (uint32_t)value;
-			}
-			else if (strcmp(prop, "DeathType") == 0) {
-				// FIXME - filter 
-				Hit.DeathType = (DeathType)value;
-			}
-			else if (strcmp(prop, "DamageType") == 0) {
-				// FIXME - filter 
-				Hit.DamageType = (DamageType)value;
-			}
-			else if (strcmp(prop, "AttackDirection") == 0) {
-				Hit.AttackDirection = (uint32_t)value;
-			}
-			else if (strcmp(prop, "ArmorAbsorption") == 0) {
-				Hit.ArmorAbsorption = (uint32_t)value;
-			}
-			else if (strcmp(prop, "LifeSteal") == 0) {
-				Hit.LifeSteal = (uint32_t)value;
-			}
-			else if (strcmp(prop, "EffectFlags") == 0) {
-				Hit.EffectFlags = (uint32_t)value;
-			}
-			else if (strcmp(prop, "HitWithWeapon") == 0) {
-				Hit.HitWithWeapon = value > 0;
 			}
 			else if (strcmp(prop, "HitReason") == 0) {
 				HitReason = (uint32_t)value;
 			}
 			else if (strcmp(prop, "DamageSourceType") == 0) {
 				// FIXME - filter 
-				DamageSourceType = (EsvStatus::CauseType)value;
+				DamageSourceType = (CauseType)value;
 			}
 			else if (strcmp(prop, "Strength") == 0) {
 				Strength = value / 100.0f;
 			}
 			else {
-				OsiError("Unknown int property: '" << prop << "'");
+				Hit.SetInt(prop, value);
 			}
 		}
 
@@ -151,57 +110,7 @@ namespace osidbg
 
 		void SetFlag(char const * flag)
 		{
-			if (strcmp(flag, "Hit") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_Hit;
-			}
-			else if (strcmp(flag, "Blocked") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_Blocked;
-			}
-			else if (strcmp(flag, "Dodged") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_Dodged;
-			}
-			else if (strcmp(flag, "Missed") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_Missed;
-			}
-			else if (strcmp(flag, "CriticalHit") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_CriticalHit;
-			}
-			else if (strcmp(flag, "AlwaysBackstab") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_AlwaysBackstab;
-			}
-			else if (strcmp(flag, "FromSetHP") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_FromSetHP;
-			}
-			else if (strcmp(flag, "DontCreateBloodSurface") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_DontCreateBloodSurface;
-			}
-			else if (strcmp(flag, "Reflection") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_Reflection;
-			}
-			else if (strcmp(flag, "NoDamageOnOwner") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_NoDamageOnOwner;
-			}
-			else if (strcmp(flag, "FromShacklesOfPain") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_FromShacklesOfPain;
-			}
-			else if (strcmp(flag, "DamagedMagicArmor") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_DamagedMagicArmor;
-			}
-			else if (strcmp(flag, "DamagedPhysicalArmor") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_DamagedPhysicalArmor;
-			}
-			else if (strcmp(flag, "DamagedVitality") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_DamagedVitality;
-			}
-			else if (strcmp(flag, "PropagatedFromOwner") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_PropagatedFromOwner;
-			}
-			else if (strcmp(flag, "ProcWindWalker") == 0) {
-				Hit.EffectFlags |= HitDamageInfo::EF_ProcWindWalker;
-			}
-			else {
-				OsiError("Unknown flag: '" << flag << "'");
-			}
+			Hit.SetFlag(flag);
 		}
 
 		void SetString(char const * prop, char const * value)
@@ -216,20 +125,18 @@ namespace osidbg
 				SkillId = fs;
 			}
 			else {
-				OsiError("Unknown string property '" << prop << "'");
+				Hit.SetString(prop, value);
 			}
 		}
 
-		void AddDamage(uint32_t DamageType, uint32_t Amount)
+		void AddDamage(DamageType DamageType, uint32_t Amount)
 		{
-			if (DamageList.Size == DamageList.Capacity) {
-				OsiError("Exceeded damage list capacity");
-				return;
-			}
-
-			auto & dmg = DamageList.Buf[DamageList.Size++];
+			TDamagePair dmg;
 			dmg.DamageType = DamageType;
 			dmg.Amount = Amount;
+			if (!DamageList.SafeAdd(dmg)) {
+				OsiError("Exceeded damage list capacity");
+			}
 		}
 
 		bool Execute()
@@ -297,7 +204,7 @@ namespace osidbg
 
 			if (CallCharacterHit) {
 				characterHit(Target, Source->Stats, nullptr, &DamageList, HitType, RollForDamage ? 1 : 0, 
-					&damage, 0, nullptr, HighGround, ReduceDurability ? 1 : 0, Critical);
+					&damage, 0, nullptr, HighGround, ProcWindWalker, Critical);
 			} else {
 				damage.DamageList.Size = DamageList.Size;
 				for (uint32_t i = 0; i < DamageList.Size; i++) {
@@ -432,7 +339,187 @@ namespace osidbg
 				return;
 			}
 
-			DamageHelper->AddDamage(damageType, amount);
+			DamageHelper->AddDamage((DamageType)damageType, amount);
+		}
+
+
+
+		EsvStatusHit * HitStatusGet(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args.Get(0).String;
+			auto statusHandle = args.Get(1).Int64;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) {
+				return nullptr;
+			}
+
+			auto status = character->GetStatusByHandle(ObjectHandle{ statusHandle });
+			if (status == nullptr) {
+				OsiError("No status found with this handle: " << statusHandle);
+				return nullptr;
+			}
+
+			if (status->GetStatusId() != StatusType::Hit) {
+				OsiError("Status with handle " << statusHandle << " is not a HIT!");
+				return nullptr;
+			}
+
+			return static_cast<EsvStatusHit *>(status);
+		}
+
+		bool HitStatusGetInt(OsiArgumentDesc & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return false;
+
+			auto prop = args.Get(2).String;
+			auto value = status->DamageInfo.GetInt(prop);
+			if (value) {
+				args.Get(3).Int32 = *value;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		void HitStatusSetInt(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			auto prop = args.Get(2).String;
+			auto value = args.Get(3).Int32;
+			status->DamageInfo.SetInt(prop, value);
+		}
+
+		bool HitStatusGetString(OsiArgumentDesc & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return false;
+
+			auto prop = args.Get(2).String;
+			auto value = status->DamageInfo.GetString(prop);
+			if (value) {
+				args.Get(3).String = *value;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		void HitStatusSetString(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			auto prop = args.Get(2).String;
+			auto value = args.Get(3).String;
+			status->DamageInfo.SetString(prop, value);
+		}
+
+		bool HitStatusGetFlag(OsiArgumentDesc & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return false;
+
+			auto prop = args.Get(2).String;
+			auto flag = status->DamageInfo.HasFlag(prop);
+			if (flag) {
+				args.Get(3).Int32 = (*flag) ? 1 : 0;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		void HitStatusSetFlag(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			auto prop = args.Get(2).String;
+			auto value = args.Get(3).Int32;
+			if (value) {
+				status->DamageInfo.SetFlag(prop);
+			} else {
+				status->DamageInfo.ClearFlag(prop);
+			}
+		}
+
+		void HitStatusClearAllDamage(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			status->DamageInfo.DamageList.Clear();
+		}
+
+		void HitStatusClearDamage(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			auto damageTypeStr = args.Get(2).String;
+			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			if (!damageType) {
+				OsiError("Not a valid DamageType: " << damageTypeStr);
+				return;
+			}
+
+			auto & dmgList = status->DamageInfo.DamageList;
+			for (uint32_t i = 0; i < dmgList.Size; i++) {
+				if (dmgList.Buf[i].DamageType == *damageType) {
+					dmgList.Remove(i);
+					break;
+				}
+			}
+		}
+
+		bool HitStatusGetDamage(OsiArgumentDesc & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return false;
+
+			auto damageTypeStr = args.Get(2).String;
+			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			if (!damageType) {
+				OsiError("Not a valid DamageType: " << damageTypeStr);
+				return false;
+			}
+
+			auto & dmgList = status->DamageInfo.DamageList;
+			uint32_t amount = 0;
+			for (uint32_t i = 0; i < dmgList.Size; i++) {
+				if (dmgList.Buf[i].DamageType == *damageType) {
+					amount += dmgList.Buf[i].Amount;
+				}
+			}
+
+			args.Get(3).Int32 = (int32_t)amount;
+			return true;
+		}
+
+		void HitStatusAddDamage(OsiArgumentDesc const & args)
+		{
+			auto status = HitStatusGet(args);
+			if (status == nullptr) return;
+
+			auto damageTypeStr = args.Get(2).String;
+			auto amount = args.Get(3).Int32;
+
+			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			if (!damageType) {
+				OsiError("Not a valid DamageType: " << damageTypeStr);
+				return;
+			}
+
+			TDamagePair dmg;
+			dmg.DamageType = *damageType;
+			dmg.Amount = (uint32_t)amount;
+			if (!status->DamageInfo.DamageList.SafeAdd(dmg)) {
+				OsiError("DamageList capacity exceeded!");
+			}
 		}
 	}
 
@@ -507,6 +594,126 @@ namespace osidbg
 			&func::HitAddDamage
 		);
 		functionMgr.Register(std::move(hitAddDamage));
+
+
+
+		auto hitStatusGetInt = std::make_unique<CustomQuery>(
+			"NRD_HitGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::HitStatusGetInt
+		);
+		functionMgr.Register(std::move(hitStatusGetInt));
+
+		auto hitStatusSetInt = std::make_unique<CustomCall>(
+			"NRD_HitSetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusSetInt
+		);
+		functionMgr.Register(std::move(hitStatusSetInt));
+
+		auto hitStatusGetString = std::make_unique<CustomQuery>(
+			"NRD_HitGetString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::HitStatusGetString
+		);
+		functionMgr.Register(std::move(hitStatusGetString));
+
+		auto hitStatusSetString = std::make_unique<CustomCall>(
+			"NRD_HitSetString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusSetString
+		);
+		functionMgr.Register(std::move(hitStatusSetString));
+
+		auto hitStatusGetFlag = std::make_unique<CustomQuery>(
+			"NRD_HitGetFlag",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Flag", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsSet", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::HitStatusGetFlag
+		);
+		functionMgr.Register(std::move(hitStatusGetFlag));
+
+		auto hitStatusSetFlag = std::make_unique<CustomCall>(
+			"NRD_HitSetFlag",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Flag", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsSet", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusSetFlag
+		);
+		functionMgr.Register(std::move(hitStatusSetFlag));
+
+		auto hitStatusClearAllDamage = std::make_unique<CustomCall>(
+			"NRD_HitClearAllDamage",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusClearAllDamage
+		);
+		functionMgr.Register(std::move(hitStatusClearAllDamage));
+
+		auto hitStatusGetDamage = std::make_unique<CustomQuery>(
+			"NRD_HitGetDamage",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "DamageType", ValueType::String, FunctionArgumentDirection::In },
+				{ "Amount", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::HitStatusGetDamage
+		);
+		functionMgr.Register(std::move(hitStatusGetDamage));
+
+		auto hitStatusClearDamage = std::make_unique<CustomCall>(
+			"NRD_HitClearDamage",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "DamageType", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusClearDamage
+		);
+		functionMgr.Register(std::move(hitStatusClearDamage));
+
+		auto hitStatusAddDamage = std::make_unique<CustomCall>(
+			"NRD_HitAddDamage",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "DamageType", ValueType::String, FunctionArgumentDirection::In },
+				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::HitStatusAddDamage
+		);
+		functionMgr.Register(std::move(hitStatusAddDamage));
+
 	}
 
 }

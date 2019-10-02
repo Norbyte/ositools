@@ -185,55 +185,55 @@ namespace osidbg
 				args.Get(3).Int32 = status->CanEnterChance;
 			}
 			else if (strcmp(attributeName, "DamageSourceType") == 0) {
-				args.Get(3).Int32 = status->DamageSourceType;
+				args.Get(3).Int32 = (int32_t)status->DamageSourceType;
 			}
 			else if (strcmp(attributeName, "KeepAlive") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_KeepAlive) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_KeepAlive) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsOnSourceSurface") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_IsOnSourceSurface) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_IsOnSourceSurface) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsFromItem") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_IsFromItem) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_IsFromItem) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "Channeled") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_Channeled) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_Channeled) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsLifeTimeSet") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_IsLifeTimeSet) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_IsLifeTimeSet) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "InitiateCombat") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_InitiateCombat) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_InitiateCombat) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "Influence") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & EsvStatus::SF0_Influence) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags0 & SF0_Influence) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "BringIntoCombat") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & EsvStatus::SF1_BringIntoCombat) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags1 & SF1_BringIntoCombat) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsHostileAct") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & EsvStatus::SF1_IsHostileAct) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags1 & SF1_IsHostileAct) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsInvulnerable") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & EsvStatus::SF1_IsInvulnerable) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags1 & SF1_IsInvulnerable) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "IsResistingDeath") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & EsvStatus::SF1_IsResistingDeath) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags1 & SF1_IsResistingDeath) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "ForceStatus") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_ForceStatus) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags2 & SF2_ForceStatus) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "ForceFailStatus") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_ForceFailStatus) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags2 & SF2_ForceFailStatus) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "RequestDelete") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_RequestDelete) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags2 & SF2_RequestDelete) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "RequestDeleteAtTurnEnd") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_RequestDeleteAtTurnEnd) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags2 & SF2_RequestDeleteAtTurnEnd) ? 1 : 0;
 			}
 			else if (strcmp(attributeName, "Started") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & EsvStatus::SF2_Started) ? 1 : 0;
+				args.Get(3).Int32 = (status->Flags2 & SF2_Started) ? 1 : 0;
 			}
 			else {
 				OsiError("Unknown attribute: " << attributeName);

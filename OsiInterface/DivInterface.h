@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DivBaseTypes.h"
+#include "DivEnumerations.h"
 
 namespace osidbg
 {
@@ -44,13 +45,6 @@ namespace osidbg
 
 	struct CDivinityStats_Equipment_Attributes
 	{
-		enum StatsType : uint32_t
-		{
-			ST_Weapon = 0,
-			ST_Armor = 1,
-			ST_Shield = 2
-		};
-
 		void * VMT;
 		uint32_t InstanceId;
 		uint32_t Unkn0;
@@ -105,7 +99,7 @@ namespace osidbg
 		uint32_t Unkn3;
 		FixedString ObjectInstanceName;
 		FixedString FS4;
-		uint32_t EquipmentStatsType;
+		EquipmentStatsType StatsType;
 		uint32_t Talents[4];
 		uint32_t Unkn4;
 		uint64_t Flags;
@@ -511,7 +505,7 @@ namespace osidbg
 		virtual ~EsvStatus() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
 		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
-		virtual uint32_t GetStatusId() = 0;
+		virtual StatusType GetStatusId() = 0;
 		// 3 - Toggle, 0 - Normal, 1 - ???, 2 - OnlyOnce?
 		virtual uint32_t GetTriggerBehavior_M() = 0;
 		virtual void AddStatsData2_Maybe() = 0;
@@ -541,47 +535,6 @@ namespace osidbg
 		virtual void SetHostileFlagFromSavingThrow_M() = 0;
 		virtual void GetEnterChance() = 0;
 		virtual void AddStatsData_Maybe() = 0;
-
-		enum Flags0
-		{
-			SF0_KeepAlive = 1,
-			SF0_IsOnSourceSurface = 2,
-			SF0_IsFromItem = 4,
-			SF0_Channeled = 8,
-			SF0_IsLifeTimeSet = 0x10,
-			SF0_InitiateCombat = 0x20,
-			SF0_Influence = 0x80
-		};
-
-		enum Flags1
-		{
-			SF1_BringIntoCombat = 1,
-			SF1_IsHostileAct = 2,
-			SF1_IsInvulnerable = 8,
-			SF1_IsResistingDeath = 0x10
-		};
-
-		enum Flags2
-		{
-			SF2_ForceStatus = 1,
-			SF2_ForceFailStatus = 2,
-			SF2_RequestDelete = 0x20,
-			SF2_RequestDeleteAtTurnEnd = 0x40,
-			SF2_Started = 0x80
-		};
-
-		enum CauseType : uint8_t
-		{
-			CT_None = 0,
-			CT_SurfaceMove = 1,
-			CT_SurfaceCreate = 2,
-			CT_SurfaceStatus = 3,
-			CT_StatusEnter = 4,
-			CT_StatusTick = 5,
-			CT_Attack = 6,
-			CT_Offhand = 7,
-			CT_GM = 8
-		};
 
 		// void * VMT;
 		FixedString FS1;
@@ -613,93 +566,17 @@ namespace osidbg
 	struct TDamagePair
 	{
 		uint32_t Amount;
-		uint32_t DamageType;
-	};
-
-	enum DeathType : uint8_t
-	{
-		DET_None = 0,
-		DET_Physical = 1,
-		DET_Piercing = 2,
-		DET_Arrow = 3,
-		DET_DoT = 4,
-		DET_Incinerate = 5,
-		DET_Acid = 6,
-		DET_Electrocution = 7,
-		DET_FrozenShatter = 8,
-		DET_PetrifiedShatter = 9,
-		DET_Explode = 10,
-		DET_Surrender = 11,
-		DET_Hang = 12,
-		DET_KnockedDown = 13,
-		DET_Lifetime = 14,
-		DET_Sulfur = 15,
-		DET_Sentinel = 16
-	};
-
-	enum DamageType : uint32_t
-	{
-		DT_None = 0,
-		DT_Physical = 1,
-		DT_Piercing = 2,
-		DT_Corrosive = 3,
-		DT_Magic = 4,
-		DT_Chaos = 5,
-		DT_Fire = 6,
-		DT_Air = 7,
-		DT_Water = 8,
-		DT_Earth = 9,
-		DT_Poison = 10,
-		DT_Shadow = 11,
-		DT_Custom = 12
-	};
-
-	enum ItemSlot : uint8_t
-	{
-		IS_Helmet = 0,
-		IS_Breast = 1,
-		IS_Leggings = 2,
-		IS_Weapon = 3,
-		IS_Shield = 4,
-		IS_Ring = 5,
-		IS_Belt = 6,
-		IS_Boots = 7,
-		IS_Gloves = 8,
-		IS_Amulet = 9,
-		IS_Ring2 = 10,
-		IS_Wings = 11,
-		IS_Horns = 12,
-		IS_Overhead = 13
+		DamageType DamageType;
 	};
 
 	struct HitDamageInfo
 	{
-		enum EffectFlag
-		{
-			EF_Hit = 1,
-			EF_Blocked = 2,
-			EF_Dodged = 4,
-			EF_Missed = 8,
-			EF_CriticalHit = 0x10,
-			EF_AlwaysBackstab = 0x20,
-			EF_FromSetHP = 0x40,
-			EF_DontCreateBloodSurface = 0x80,
-			EF_Reflection = 0x200,
-			EF_NoDamageOnOwner = 0x400,
-			EF_FromShacklesOfPain = 0x800,
-			EF_DamagedMagicArmor = 0x1000,
-			EF_DamagedPhysicalArmor = 0x2000,
-			EF_DamagedVitality = 0x4000,
-			EF_PropagatedFromOwner = 0x10000,
-			EF_ProcWindWalker = 0x80000
-		};
-
 		uint32_t Equipment{ 0 };
 		uint32_t TotalDamageDone{ 0 };
 		uint32_t Unknown{ 0 };
-		DeathType DeathType{ DET_Sentinel };
+		DeathType DeathType{ DeathType::Sentinel };
 		uint8_t _Pad1[3];
-		DamageType DamageType{ DT_None };
+		DamageType DamageType{ DamageType::None };
 		uint32_t AttackDirection{ 0 };
 		uint32_t ArmorAbsorption{ 0 };
 		uint32_t LifeSteal{ 0 };
@@ -707,6 +584,16 @@ namespace osidbg
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];
 		Array<TDamagePair> DamageList;
+
+		bool SetFlag(char const * flag);
+		bool ClearFlag(char const * flag);
+		std::optional<bool> HasFlag(char const * flag);
+
+		std::optional<int> GetInt(char const * prop);
+		bool SetInt(char const * prop, int value);
+
+		std::optional<char const *> GetString(char const * prop);
+		bool SetString(char const * prop, char const * value);
 	};
 
 	struct EsvStatusHit : public EsvStatus
@@ -829,33 +716,6 @@ namespace osidbg
 		bool IsLoading;
 		uint8_t _Pad2[3];
 		uint32_t SomeCount;
-	};
-
-	enum EsvCharacterFlags : uint64_t
-	{
-		kHostControl = 0x08,
-		kOffStage = 0x20,
-		kCannotBePossessed = 0x80
-	};
-
-	enum EsvCharacterFlags2 : uint8_t
-	{
-		kGlobal = 0x01,
-		kHasOsirisDialog = 0x02,
-		kHasDefaultDialog = 0x04,
-		kTreasureGeneratedForTrader = 0x10,
-		kResurrected = 0x20
-	};
-
-	enum EsvCharacterFlags3 : uint8_t
-	{
-		kIsPet = 0x01,
-		kIsSpectating = 0x02,
-		kNoReptuationEffects = 0x04,
-		kHasWalkSpeedOverride = 0x08,
-		kHasRunSpeedOverride = 0x10,
-		kIsGameMaster = 0x20,
-		kIsPossessed = 0x40
 	};
 
 	struct EsvSkillBarItem
@@ -1280,17 +1140,6 @@ namespace osidbg
 
 	struct EsvGameAction
 	{
-		enum ActionType
-		{
-			RainAction = 1,
-			StormAction = 2,
-			WallAction = 4,
-			TornadoAction = 6,
-			PathAction = 7,
-			GameObjectMoveAction = 8,
-			StatusDomeAction = 9
-		};
-
 		void * VMT;
 		FixedString SomeFS;
 		uint64_t NetID;

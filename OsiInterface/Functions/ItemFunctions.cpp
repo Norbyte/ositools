@@ -86,8 +86,8 @@ namespace osidbg
 
 			// TODO - ObjectInstanceName?, Skills, AbilityModifiers, Talents
 
-			switch (attributes.EquipmentStatsType) {
-				case CDivinityStats_Equipment_Attributes::ST_Weapon:
+			switch (attributes.StatsType) {
+				case EquipmentStatsType::Weapon:
 				{
 					auto & weapon = static_cast<CDivinityStats_Equipment_Attributes_Weapon &>(attributes);
 					STATOBJ(weapon, DamageType);
@@ -105,7 +105,7 @@ namespace osidbg
 					break;
 				}
 
-				case CDivinityStats_Equipment_Attributes::ST_Armor:
+				case EquipmentStatsType::Armor:
 				{
 					auto & armor = static_cast<CDivinityStats_Equipment_Attributes_Armor &>(attributes);
 					STATOBJ(armor, ArmorValue);
@@ -115,7 +115,7 @@ namespace osidbg
 					break;
 				}
 
-				case CDivinityStats_Equipment_Attributes::ST_Shield:
+				case EquipmentStatsType::Shield:
 				{
 					auto & shield = static_cast<CDivinityStats_Equipment_Attributes_Shield &>(attributes);
 					STATOBJ(shield, ArmorValue);
@@ -127,7 +127,7 @@ namespace osidbg
 				}
 
 				default:
-					OsiError("Unknown equipment stats type: " << attributes.EquipmentStatsType);
+					OsiError("Unknown equipment stats type: " << (unsigned)attributes.StatsType);
 					break;
 			}
 

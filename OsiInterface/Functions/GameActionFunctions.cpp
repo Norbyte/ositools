@@ -7,7 +7,7 @@ namespace osidbg
 	namespace func
 	{
 		template <class TAction>
-		TAction * PrepareAction(OsiArgumentDesc const & args, EsvGameAction::ActionType type)
+		TAction * PrepareAction(OsiArgumentDesc const & args, GameActionType type)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
@@ -42,7 +42,7 @@ namespace osidbg
 
 		bool CreateRain(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvRainAction>(args, EsvGameAction::RainAction);
+			auto action = PrepareAction<EsvRainAction>(args, GameActionType::RainAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -57,7 +57,7 @@ namespace osidbg
 
 		bool CreateStorm(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvStormAction>(args, EsvGameAction::StormAction);
+			auto action = PrepareAction<EsvStormAction>(args, GameActionType::StormAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -103,7 +103,7 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
-			auto action = (EsvWallAction *)lib.CreateGameAction(actionMgr, EsvGameAction::WallAction, 0);
+			auto action = (EsvWallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
 
 			action->SkillId = skillId;
 			ObjectHandle characterHandle;
@@ -125,7 +125,7 @@ namespace osidbg
 
 		bool CreateTornado(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvTornadoAction>(args, EsvGameAction::TornadoAction);
+			auto action = PrepareAction<EsvTornadoAction>(args, GameActionType::TornadoAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -143,7 +143,7 @@ namespace osidbg
 
 		bool CreateDome(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvStatusDomeAction>(args, EsvGameAction::StatusDomeAction);
+			auto action = PrepareAction<EsvStatusDomeAction>(args, GameActionType::StatusDomeAction);
 			if (action == nullptr) return false;
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
@@ -192,7 +192,7 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
-			auto action = (EsvGameObjectMoveAction *)lib.CreateGameAction(actionMgr, EsvGameAction::GameObjectMoveAction, 0);
+			auto action = (EsvGameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
 
 			glm::vec3 targetPosition = args.GetVector(1);
 
@@ -213,27 +213,27 @@ namespace osidbg
 		void DestroyGameActionInternal(EsvGameAction & action)
 		{
 			switch (action.GameActionType) {
-			case EsvGameAction::RainAction:
+			case GameActionType::RainAction:
 				static_cast<EsvRainAction &>(action).Finished = true;
 				break;
 
-			case EsvGameAction::StormAction:
+			case GameActionType::StormAction:
 				static_cast<EsvStormAction &>(action).LifeTime = 0.0f;
 				break;
 
-			case EsvGameAction::WallAction:
+			case GameActionType::WallAction:
 				static_cast<EsvWallAction &>(action).LifeTime = 0.0f;
 				break;
 
-			case EsvGameAction::TornadoAction:
+			case GameActionType::TornadoAction:
 				static_cast<EsvTornadoAction &>(action).Finished = true;
 				break;
 
-			case EsvGameAction::StatusDomeAction:
+			case GameActionType::StatusDomeAction:
 				static_cast<EsvStatusDomeAction &>(action).Finished = true;
 				break;
 
-			case EsvGameAction::GameObjectMoveAction:
+			case GameActionType::GameObjectMoveAction:
 				static_cast<EsvGameObjectMoveAction &>(action).DoneMoving = true;
 				break;
 
@@ -258,19 +258,19 @@ namespace osidbg
 
 			float lifeTime;
 			switch (gameAction->GameActionType) {
-			case EsvGameAction::RainAction:
+			case GameActionType::RainAction:
 				lifeTime = static_cast<EsvRainAction *>(gameAction)->LifeTime;
 				break;
 
-			case EsvGameAction::StormAction:
+			case GameActionType::StormAction:
 				lifeTime = static_cast<EsvStormAction *>(gameAction)->LifeTime;
 				break;
 
-			case EsvGameAction::WallAction:
+			case GameActionType::WallAction:
 				lifeTime = static_cast<EsvWallAction *>(gameAction)->LifeTime;
 				break;
 
-			case EsvGameAction::StatusDomeAction:
+			case GameActionType::StatusDomeAction:
 				lifeTime = static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime;
 				break;
 
@@ -295,15 +295,15 @@ namespace osidbg
 			}
 
 			switch (gameAction->GameActionType) {
-			case EsvGameAction::RainAction:
+			case GameActionType::RainAction:
 				static_cast<EsvRainAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 
-			case EsvGameAction::StormAction:
+			case GameActionType::StormAction:
 				static_cast<EsvStormAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 
-			case EsvGameAction::StatusDomeAction:
+			case GameActionType::StatusDomeAction:
 				static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 

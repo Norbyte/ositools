@@ -241,7 +241,7 @@
 copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto</Command>
+      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -358,6 +358,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="DebugInterface.h" />
     <ClInclude Include="DebugMessages.h" />
     <ClInclude Include="DivBaseTypes.h" />
+    <ClInclude Include="DivEnumerations.h" />
     <ClInclude Include="DivInterface.h" />
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />

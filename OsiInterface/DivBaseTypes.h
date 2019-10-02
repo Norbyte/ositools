@@ -183,6 +183,30 @@ namespace osidbg
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
 		uint32_t Unkn[2]{ 0 };
+
+		void Clear()
+		{
+			Size = 0;
+		}
+
+		bool SafeAdd(T const & val)
+		{
+			if (Size < Capacity) {
+				Buf[Size++] = val;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		void Remove(uint32_t index)
+		{
+			for (auto i = index + 1; i < Size; i++) {
+				Buf[index] = Buf[index + 1];
+			}
+
+			Size--;
+		}
 	};
 
 	struct ObjectHandle

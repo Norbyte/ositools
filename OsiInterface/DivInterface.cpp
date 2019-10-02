@@ -272,4 +272,263 @@ namespace osidbg
 
 		return nullptr;
 	}
+
+
+	bool HitDamageInfo::SetFlag(char const * flag)
+	{
+		auto value = EnumInfo<HitFlag>::Find(flag);
+		if (!value) {
+			OsiError("Unknown flag: " << flag);
+			return false;
+		}
+
+		EffectFlags |= *value;
+		return true;
+	}
+
+	bool HitDamageInfo::ClearFlag(char const * flag)
+	{
+		auto value = EnumInfo<HitFlag>::Find(flag);
+		if (!value) {
+			OsiError("Unknown flag: " << flag);
+			return false;
+		}
+
+		EffectFlags &= ~(*value);
+		return true;
+	}
+
+	std::optional<bool> HitDamageInfo::HasFlag(char const * flag)
+	{
+		auto value = EnumInfo<HitFlag>::Find(flag);
+		if (!value) {
+			OsiError("Unknown flag: " << flag);
+			return {};
+		}
+
+		return (EffectFlags & *value) != 0;
+	}
+
+	std::optional<int> HitDamageInfo::GetInt(char const * prop)
+	{
+		if (strcmp(prop, "Equipment") == 0) return Equipment;
+		if (strcmp(prop, "TotalDamageDone") == 0) return TotalDamageDone;
+		if (strcmp(prop, "DeathType") == 0) return (int)DeathType;
+		if (strcmp(prop, "DamageType") == 0) return (int)DamageType;
+		if (strcmp(prop, "AttackDirection") == 0) return AttackDirection;
+		if (strcmp(prop, "ArmorAbsorption") == 0) return ArmorAbsorption;
+		if (strcmp(prop, "LifeSteal") == 0) return LifeSteal;
+		if (strcmp(prop, "EffectFlags") == 0) return EffectFlags;
+		if (strcmp(prop, "HitWithWeapon") == 0) return HitWithWeapon ? 1 : 0;
+
+		OsiError("Unknown int property: " << prop);
+		return {};
+	}
+
+	bool HitDamageInfo::SetInt(char const * prop, int value)
+	{
+		if (strcmp(prop, "Equipment") == 0) Equipment = (uint32_t)value;
+		else if (strcmp(prop, "TotalDamageDone") == 0) TotalDamageDone = (uint32_t)value;
+		else if (strcmp(prop, "DeathType") == 0) {
+			if (EnumInfo<osidbg::DeathType>::Find((osidbg::DeathType)value)) {
+				DeathType = (osidbg::DeathType)value;
+			} else {
+				OsiError("Invalid value for DeathType enumeration: " << value);
+				return false;
+			}
+		}
+		else if (strcmp(prop, "DamageType") == 0) {
+			if (EnumInfo<osidbg::DamageType>::Find((osidbg::DamageType)value)) {
+				DamageType = (osidbg::DamageType)value;
+			} else {
+				OsiError("Invalid value for DamageType enumeration: " << value);
+				return false;
+			}
+		}
+		else if (strcmp(prop, "AttackDirection") == 0) return AttackDirection;
+		else if (strcmp(prop, "ArmorAbsorption") == 0) ArmorAbsorption = (uint32_t)value;
+		else if (strcmp(prop, "LifeSteal") == 0) LifeSteal = (uint32_t)value;
+		else if (strcmp(prop, "EffectFlags") == 0) EffectFlags = (uint32_t)value;
+		else if (strcmp(prop, "HitWithWeapon") == 0) HitWithWeapon = value ? 1 : 0;
+		else {
+			OsiError("Unknown int property: " << prop);
+			return false;
+		}
+
+		return true;
+	}
+
+	std::optional<const char *> HitDamageInfo::GetString(char const * prop)
+	{
+		if (strcmp(prop, "DeathType") == 0) {
+			auto label = EnumInfo<osidbg::DeathType>::Find(DeathType);
+			if (label) {
+				return *label;
+			} else {
+				OsiError("Hit DeathType not in enumeration: " << (int)DeathType);
+				return {};
+			}
+		} else if (strcmp(prop, "DamageType") == 0) {
+			auto label = EnumInfo<osidbg::DamageType>::Find(DamageType);
+			if (label) {
+				return *label;
+			} else {
+				OsiError("Hit DamageType not in enumeration: " << (int)DamageType);
+				return {};
+			}
+		} else {
+			OsiError("Unknown string property: " << prop);
+			return {};
+		}
+	}
+
+	bool HitDamageInfo::SetString(char const * prop, const char * value)
+	{
+		if (strcmp(prop, "DeathType") == 0) {
+			auto label = EnumInfo<osidbg::DeathType>::Find(value);
+			if (label) {
+				DeathType = *label;
+			} else {
+				OsiError("Invalid value for DeathType enumeration: " << value);
+				return false;
+			}
+		} else if (strcmp(prop, "DamageType") == 0) {
+			auto label = EnumInfo<osidbg::DamageType>::Find(value);
+			if (label) {
+				DamageType = *label;
+			} else {
+				OsiError("Invalid value for DamageType enumeration: " << value);
+				return false;
+			}
+		} else {
+			OsiError("Unknown string property: " << prop);
+			return false;
+		}
+
+		return true;
+	}
+
+
+
+	EnumInfo<CriticalRoll>::Label const EnumInfo<CriticalRoll>::Values[] = {
+		{ CriticalRoll::Roll, "Roll" },
+		{ CriticalRoll::Critical, "Critical" },
+		{ CriticalRoll::NotCritical, "NotCritical" }
+	};
+
+	EnumInfo<HighGroundBonus>::Label const EnumInfo<HighGroundBonus>::Values[] = {
+		{ HighGroundBonus::Unknown, "Unknown" },
+		{ HighGroundBonus::HighGround, "HighGround" },
+		{ HighGroundBonus::EvenGround, "EvenGround" },
+		{ HighGroundBonus::LowGround, "LowGround" }
+	};
+
+	EnumInfo<StatusFlags0>::Label const EnumInfo<StatusFlags0>::Values[] = {
+		{ StatusFlags0::SF0_KeepAlive, "KeepAlive" },
+		{ StatusFlags0::SF0_IsOnSourceSurface, "IsOnSourceSurface" },
+		{ StatusFlags0::SF0_IsFromItem, "IsFromItem" },
+		{ StatusFlags0::SF0_Channeled, "Channeled" },
+		{ StatusFlags0::SF0_IsLifeTimeSet, "IsLifeTimeSet" },
+		{ StatusFlags0::SF0_InitiateCombat, "InitiateCombat" },
+		{ StatusFlags0::SF0_Influence, "Influence" }
+	};
+
+	EnumInfo<StatusFlags1>::Label const EnumInfo<StatusFlags1>::Values[] = {
+		{ StatusFlags1::SF1_BringIntoCombat, "BringIntoCombat" },
+		{ StatusFlags1::SF1_IsHostileAct, "IsHostileAct" },
+		{ StatusFlags1::SF1_IsInvulnerable, "IsInvulnerable" },
+		{ StatusFlags1::SF1_IsResistingDeath, "IsResistingDeath" }
+	};
+
+	EnumInfo<StatusFlags2>::Label const EnumInfo<StatusFlags2>::Values[] = {
+		{ StatusFlags2::SF2_ForceStatus, "ForceStatus" },
+		{ StatusFlags2::SF2_ForceFailStatus, "ForceFailStatus" },
+		{ StatusFlags2::SF2_RequestDelete, "RequestDelete" },
+		{ StatusFlags2::SF2_RequestDeleteAtTurnEnd, "RequestDeleteAtTurnEnd" },
+		{ StatusFlags2::SF2_Started, "Started" }
+	};
+
+	EnumInfo<CauseType>::Label const EnumInfo<CauseType>::Values[] = {
+		{ CauseType::None, "None" },
+		{ CauseType::SurfaceMove, "SurfaceMove" },
+		{ CauseType::SurfaceCreate, "SurfaceCreate" },
+		{ CauseType::SurfaceStatus, "SurfaceStatus" },
+		{ CauseType::StatusEnter, "StatusEnter" },
+		{ CauseType::StatusTick, "StatusTick" },
+		{ CauseType::Attack, "Attack" },
+		{ CauseType::Offhand, "Offhand" },
+		{ CauseType::GM, "GM" }
+	};
+
+	EnumInfo<DeathType>::Label const EnumInfo<DeathType>::Values[] = {
+		{ DeathType::None, "None" },
+		{ DeathType::Physical, "Physical" },
+		{ DeathType::Piercing, "Piercing" },
+		{ DeathType::Arrow, "Arrow" },
+		{ DeathType::DoT, "DoT" },
+		{ DeathType::Incinerate, "Incinerate" },
+		{ DeathType::Acid, "Acid" },
+		{ DeathType::Electrocution, "Electrocution" },
+		{ DeathType::FrozenShatter, "FrozenShatter" },
+		{ DeathType::PetrifiedShatter, "PetrifiedShatter" },
+		{ DeathType::Explode, "Explode" },
+		{ DeathType::Surrender, "Surrender" },
+		{ DeathType::Hang, "Hang" },
+		{ DeathType::KnockedDown, "KnockedDown" },
+		{ DeathType::Lifetime, "Lifetime" },
+		{ DeathType::Sulfur, "Sulfur" },
+		{ DeathType::Sentinel, "Sentinel" }
+	};
+
+	EnumInfo<DamageType>::Label const EnumInfo<DamageType>::Values[] = {
+		{ DamageType::None, "None" },
+		{ DamageType::Physical, "Physical" },
+		{ DamageType::Piercing, "Piercing" },
+		{ DamageType::Corrosive, "Corrosive" },
+		{ DamageType::Magic, "Magic" },
+		{ DamageType::Chaos, "Chaos" },
+		{ DamageType::Fire, "Fire" },
+		{ DamageType::Air, "Air" },
+		{ DamageType::Water, "Water" },
+		{ DamageType::Earth, "Earth" },
+		{ DamageType::Poison, "Poison" },
+		{ DamageType::Shadow, "Shadow" },
+		{ DamageType::Custom, "Custom" }
+	};
+
+	EnumInfo<ItemSlot>::Label const EnumInfo<ItemSlot>::Values[] = {
+		{ ItemSlot::Helmet, "Helmet" },
+		{ ItemSlot::Breast, "Breast" },
+		{ ItemSlot::Leggings, "Leggings" },
+		{ ItemSlot::Weapon, "Weapon" },
+		{ ItemSlot::Shield, "Shield" },
+		{ ItemSlot::Ring, "Ring" },
+		{ ItemSlot::Belt, "Belt" },
+		{ ItemSlot::Boots, "Boots" },
+		{ ItemSlot::Gloves, "Gloves" },
+		{ ItemSlot::Amulet, "Amulet" },
+		{ ItemSlot::Ring2, "Ring2" },
+		{ ItemSlot::Wings, "Wings" },
+		{ ItemSlot::Horns, "Horns" },
+		{ ItemSlot::Overhead, "Overhead" }
+	};
+
+	EnumInfo<HitFlag>::Label const EnumInfo<HitFlag>::Values[] = {
+		{ HitFlag::HF_Hit, "Hit" },
+		{ HitFlag::HF_Blocked, "Blocked" },
+		{ HitFlag::HF_Missed, "Missed" },
+		{ HitFlag::HF_CriticalHit, "CriticalHit" },
+		{ HitFlag::HF_AlwaysBackstab, "AlwaysBackstab" },
+		{ HitFlag::HF_FromSetHP, "FromSetHP" },
+		{ HitFlag::HF_DontCreateBloodSurface, "DontCreateBloodSurface" },
+		{ HitFlag::HF_Reflection, "Reflection" },
+		{ HitFlag::HF_NoDamageOnOwner, "NoDamageOnOwner" },
+		{ HitFlag::HF_FromShacklesOfPain, "FromShacklesOfPain" },
+		{ HitFlag::HF_DamagedMagicArmor, "DamagedMagicArmor" },
+		{ HitFlag::HF_DamagedPhysicalArmor, "DamagedPhysicalArmor" },
+		{ HitFlag::HF_DamagedVitality, "DamagedVitality" },
+		{ HitFlag::HF_PropagatedFromOwner, "PropagatedFromOwner" },
+		{ HitFlag::HF_ProcWindWalker, "ProcWindWalker" }
+	};
+
 }
