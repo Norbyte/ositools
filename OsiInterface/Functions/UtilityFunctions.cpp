@@ -86,8 +86,7 @@ namespace osidbg
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
 
-				auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-				gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)ForLoopEventHandle, eventArgs);
+				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ForLoopEventHandle, eventArgs);
 
 				delete eventArgs;
 			}
@@ -104,8 +103,7 @@ namespace osidbg
 				eventArgs->Add(OsiArgumentValue{ ValueType::String, eventName });
 				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
 
-				auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-				gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)ForLoopObjectEventHandle, eventArgs);
+				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ForLoopObjectEventHandle, eventArgs);
 
 				delete eventArgs;
 			}

@@ -160,8 +160,7 @@ namespace osidbg
 		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamageDone });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
-		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)HitEventHandle, eventArgs);
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
 
 		delete eventArgs;
 	}
@@ -187,8 +186,7 @@ namespace osidbg
 		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHeal->HealAmount });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
-		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)HealEventHandle, eventArgs);
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HealEventHandle, eventArgs);
 
 		delete eventArgs;
 	}

@@ -84,6 +84,16 @@ namespace std
 			return h1 ^ (h2 << 1);
 		}
 	};
+
+	template<> struct hash<osidbg::FunctionHandle>
+	{
+		typedef osidbg::FunctionHandle argument_type;
+		typedef std::size_t result_type;
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<uint32_t>{}((unsigned int)fn);
+		}
+	};
 }
 
 namespace osidbg
@@ -185,6 +195,7 @@ namespace osidbg
 		FunctionHandle Register(std::unique_ptr<CustomCall> call);
 		FunctionHandle Register(std::unique_ptr<CustomQuery> qry);
 		FunctionHandle Register(std::unique_ptr<CustomEvent> event);
+		CustomFunction * Find(FunctionNameAndArity const & signature);
 
 		bool Call(FunctionHandle handle, OsiArgumentDesc const & params);
 		bool Query(FunctionHandle handle, OsiArgumentDesc & params);
@@ -206,6 +217,7 @@ namespace osidbg
 		CustomFunctionInjector(class OsirisWrappers & wrappers, CustomFunctionManager & functions);
 
 		void Initialize();
+		void ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const;
 
 	private:
 		OsirisWrappers & wrappers_;
@@ -213,6 +225,8 @@ namespace osidbg
 		std::wstring storyHeaderPath_;
 		HANDLE storyHeaderFile_{ NULL };
 		bool extendingStory_{ false };
+		std::unordered_map<uint32_t, FunctionHandle> osiToDivMappings_;
+		std::unordered_map<FunctionHandle, uint32_t> divToOsiMappings_;
 
 		void OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount);
 		bool CallWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);

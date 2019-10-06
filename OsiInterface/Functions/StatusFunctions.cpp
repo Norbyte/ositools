@@ -27,8 +27,7 @@ namespace osidbg
 					eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
 					eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
-					auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-					gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, (uint32_t)StatusIteratorEventHandle, eventArgs);
+					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusIteratorEventHandle, eventArgs);
 
 					delete eventArgs;
 				}

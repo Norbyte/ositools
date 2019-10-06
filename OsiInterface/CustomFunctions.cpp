@@ -144,6 +144,16 @@ FunctionHandle CustomFunctionManager::Register(std::unique_ptr<CustomEvent> even
 	return handle;
 }
 
+CustomFunction * CustomFunctionManager::Find(FunctionNameAndArity const & signature)
+{
+	auto it = signatures_.find(signature);
+	if (it == signatures_.end()) {
+		return nullptr;
+	} else {
+		return it->second;
+	}
+}
+
 bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & params)
 {
 	if (handle.classIndex() != CallClassId) {
@@ -220,21 +230,35 @@ void CustomFunctionInjector::Initialize()
 	wrappers_.CloseHandle.AddPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
 }
 
+void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const
+{
+	auto it = divToOsiMappings_.find(handle);
+	if (it != divToOsiMappings_.end()) {
+		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
+	} else {
+		Debug(L"CustomFunctionInjector::ThrowEvent(): Event handle not mapped: %08x", (unsigned)handle);
+	}
+}
+
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
 {
 	Debug(L"CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs: %d", *MappingCount);
 
 	// Remove local functions
 	auto outputIndex = 0;
+	osiToDivMappings_.clear();
+	divToOsiMappings_.clear();
 	for (unsigned i = 0; i < *MappingCount; i++) {
 		auto const & mapping = (*Mappings)[i];
-		auto classIndex = FunctionHandle(mapping.Id).classIndex();
-		if (classIndex != CustomFunctionManager::CallClassId
-			&& classIndex != CustomFunctionManager::QueryClassId
-			&& classIndex != CustomFunctionManager::EventClassId) {
+		FunctionNameAndArity sig{ mapping.Name, mapping.NumParams };
+		auto mapped = functions_.Find(sig);
+		if (mapped == nullptr) {
 			(*Mappings)[outputIndex++] = mapping;
 		} else {
-			Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): Removed custom function: %s", mapping.Name);
+			osiToDivMappings_.insert(std::make_pair(mapping.Id, mapped->Handle()));
+			divToOsiMappings_.insert(std::make_pair(mapped->Handle(), mapping.Id));
+			Debug("Function mapping (%s): %08x --> %08x", mapping.Name, mapping.Id, (unsigned int)mapped->Handle());
 		}
 	}
 
@@ -244,9 +268,9 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
 {
-	auto classIndex = FunctionHandle(handle).classIndex();
-	if (classIndex == CustomFunctionManager::CallClassId) {
-		return functions_.Call(handle, *params);
+	auto it = osiToDivMappings_.find(handle);
+	if (it != osiToDivMappings_.end()) {
+		return functions_.Call(it->second, *params);
 	} else {
 		return next(handle, params);
 	}
@@ -254,9 +278,9 @@ bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgume
 
 bool CustomFunctionInjector::QueryWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
 {
-	auto classIndex = FunctionHandle(handle).classIndex();
-	if (classIndex == CustomFunctionManager::QueryClassId) {
-		return functions_.Query(handle, *params);
+	auto it = osiToDivMappings_.find(handle);
+	if (it != osiToDivMappings_.end()) {
+		return functions_.Query(it->second, *params);
 	} else {
 		return next(handle, params);
 	}
