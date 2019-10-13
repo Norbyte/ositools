@@ -95,66 +95,18 @@ THEN
 NRD_DebugLog((STRING)_Handle);
 ```
 
-### StatusGetAttribute
-`query NRD_StatusGetAttributeInt([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
-`query NRD_StatusGetAttributeReal([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
-`query NRD_StatusGetAttributeString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
-`query NRD_StatusGetAttributeGuidString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
+### StatusGet
+`query NRD_StatusGetInt([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
+`query NRD_StatusGetReal([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
+`query NRD_StatusGetString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
+`query NRD_StatusGetGuidString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
 
 Returns the specified status attribute. If the character or status does not exist, or if the attribute is not of the appropriate type, the query fails.
-
-**String attributes:**
- - `StatsId` - Name of the associated stat entry
-
-**GuidString attributes:**
- - `StatusHandle` - Handle of this status
- - `TargetCI` - *Unknown; name subject to change*
- - `StatusSource` - Character or item that caused the status
- - `Obj2` - *Unknown; name subject to change*
-
-**Real attributes:**
- - `StartTimer`
- - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
- - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
- - `TurnTimer` - Elapsed time in the current turn (0..6)
- - `Strength`
- - `StatsMultiplier`
-
-**Int attributes:**
- - `CanEnterChance` - Chance of entering status (between 0 and 100)
- - `DamageSourceType` - Cause of status. Possible values:
-   - 0 - None
-   - 1 - SurfaceMove
-   - 2 - SurfaceCreate
-   - 3 - SurfaceStatus
-   - 4 - StatusEnter
-   - 5 - StatusTick
-   - 6 - Attack
-   - 7 - Offhand
-   - 8 - GM
-
-**Flag attributes:** (Int attributes that can only be 0 or 1)
- - `KeepAlive`
- - `IsOnSourceSurface`
- - `IsFromItem` - Was the status added by an item?
- - `Channeled`
- - `IsLifeTimeSet` - Does the status have a lifetime or is it infinite?
- - `InitiateCombat`
- - `Influence`
- - `BringIntoCombat`
- - `IsHostileAct`
- - `IsInvulnerable` - The status turns the character invulnerable
- - `IsResistingDeath` - The character can't die until the status expires
- - `ForceStatus` - The status was forcibly applied (i.e. it bypasses resistance checks)
- - `ForceFailStatus`
- - `RequestDelete` - The status is being deleted
- - `RequestDeleteAtTurnEnd` - The status will be deleted at the end of the current turn
- - `Started`
 
 ```c
 // ...
 AND
-NRD_StatusGetAttributeGuidString(_Char, _StatusIdx, "StatusSource", _Source)
+NRD_StatusGetGuidString(_Char, _StatusIdx, "StatusSource", _Source)
 AND
 GetUUID(_Source, _SourceStr)
 THEN
@@ -162,16 +114,17 @@ DebugBreak("Status source character:");
 DebugBreak(_SourceStr);
 ```
 
-### StatusSetAttribute
-`call NRD_StatusSetAttributeReal((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
+### StatusSet
+`call NRD_StatusSetInt((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (INTEGER)_Value)`
+`call NRD_StatusSetReal((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
+`call NRD_StatusSetString((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (STRING)_Value)`
+`call NRD_StatusSetGuidString((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (GUIDSTRING)_Value)`
+`call NRD_StatusSetVector3((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_X, (REAL)_Y, (REAL)_Z)`
 
 Updates the specified status attribute.
+See the "Status attributes" section below for a list of attributes that can be modified.
 
-**Stability:** Additional real attributes (`Strength`, etc.) and calls (`StatusSetAttributeInt`, etc.) will be added when it has been determined that it's safe to update those values during the lifetime of the status.
-
-**Real attributes:**
- - `LifeTime` - Total lifetime of the status, in seconds. -1 if the status does not expire.
- - `CurrentLifeTime` - Remaining lifetime of the status, in seconds.
+**Stability:** Additional real attributes (`Strength`, etc.) will be added when it has been determined that it's safe to update those values during the lifetime of the status.
 
 Example usage:
 ```c
@@ -180,12 +133,91 @@ Example usage:
 AND
 NRD_StatusGetHandle(_Character, "WET", _Handle)
 AND
-NRD_StatusGetAttributeReal(_Character, _Handle, "CurrentLifeTime", _CurrentLifeTime)
+NRD_StatusGetReal(_Character, _Handle, "CurrentLifeTime", _CurrentLifeTime)
 AND
 RealSum(_CurrentLifeTime, 12.0, _NewLifeTime)
 THEN
-NRD_StatusSetAttributeReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
+NRD_StatusSetReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
 ```
+
+### Status attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
+| StatsId | String | Read | Name of the associated stat entry |
+| StatusHandle | Integer64 | Read | Handle of this status |
+| TargetCI | GuidString | Read | *Unknown; name subject to change* |
+| StatusSource | GuidString | Read | Character or item that caused the status |
+| Obj2 | GuidString | Read | *Unknown; name subject to change* |
+| StartTimer | Real | Read |  |
+| LifeTime | Real | Read/Write | Total lifetime of the status, in seconds. -1 if the status does not expire. |
+| CurrentLifeTime | Real/Write | Read | Remaining lifetime of the status, in seconds. |
+| TurnTimer | Real | Read | Elapsed time in the current turn (0..6) |
+| Strength | Real | Read/Write |  |
+| StatsMultiplier | Real | Read/Write |  |
+| CanEnterChance | Integer | Read | Chance of entering status (between 0 and 100) |
+| DamageSourceType | Enum | Read | Cause of status (See `DamageSourceType` enum) |
+| KeepAlive | Flag | Read |  |
+| IsOnSourceSurface | Flag | Read |  |
+| IsFromItem | Flag | Read |  |
+| Channeled | Flag | Read |  |
+| IsLifeTimeSet | Flag | Read | Does the status have a lifetime or is it infinite? |
+| InitiateCombat | Flag | Read |  |
+| Influence | Flag | Read |  |
+| BringIntoCombat | Flag | Read |  |
+| IsHostileAct | Flag | Read |  |
+| IsInvulnerable | Flag | Read | The status turns the character invulnerable |
+| IsResistingDeath | Flag | Read | The character can't die until the status expires |
+| ForceStatus | Flag | Read | The status was forcibly applied (i.e. it bypasses resistance checks) |
+| ForceFailStatus | Flag | Read |  |
+| RequestDelete | Flag | Read | The status is being deleted (i.e. it's not active anymore) |
+| RequestDeleteAtTurnEnd | Flag | Read | The status will be deleted at the end of the current turn |
+| Started | Flag | Read |  |
+
+## StatusHeal attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
+| EffectTime | Real | Read/Write |  |
+| HealAmount | Integer | Read/Write |  |
+| HealEffect | Enum | Read/Write |  |
+| HealEffectId | String | Read/Write | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
+| HealType | Enum | Read/Write | See `StatusHealType` enumeration  |
+| AbsorbSurfaceRange | Integer | Read/Write |  |
+| TargetDependentHeal | Flag | Read/Write |  |
+
+## StatusHit attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
+| SkillId | String | Read/Write | Skill that was used for the attack |
+| Equipment | Integer | Read/Write | **TODO** *Meaning not known.* |
+| DeathType | Enum | Read/Write | A value from the `Death Type` enumeration |
+| DamageType | Enum | Read/Write | A value from the `Damage Type` enumeration |
+| AttackDirection | Enum | Read/Write | See `AttackDirection` enumeration. *Purpose not known.* |
+| ArmorAbsorption | Integer | Read/Write |  |
+| LifeSteal | Integer | Read/Write |  |
+| HitWithWeapon | Integer | Read/Write |  |
+| HitReason | Integer | Read/Write |  |
+| Hit | Flag | Read/Write | The attack hit |
+| Blocked | Flag | Read/Write | The attack was blocked |
+| Dodged | Flag | Read/Write | The attack was dodged |
+| Missed | Flag | Read/Write | The attack missed |
+| CriticalHit | Flag | Read/Write |  |
+| AlwaysBackstab | Flag | Read/Write | Equivalent to the `AlwaysBackstab` skill property |
+| FromSetHP | Flag | Read/Write | Indicates that the hit was called from `CharacterSetHitpointsPercentage` (or similar) |
+| DontCreateBloodSurface | Flag | Read/Write | Avoids creating a blood surface when the character is hit |
+| Reflection | Flag | Read/Write |  |
+| NoDamageOnOwner | Flag | Read/Write |  |
+| FromShacklesOfPain | Flag | Read/Write |  |
+| DamagedMagicArmor | Flag | Read/Write | Indicates that the hit damaged magic armor |
+| DamagedPhysicalArmor | Flag | Read/Write | Indicates that the hit damaged physical armor |
+| DamagedVitality | Flag | Read/Write | Indicates that the hit damaged the characters vitality |
+| PropagatedFromOwner | Flag | Read/Write |  |
+| ProcWindWalker | Flag | Read/Write | Hit should proc the Wind Walker talent |
+| ImpactPosition | Vector3 | Read/Write |  |
+| ImpactOrigin | Vector3 | Read/Write |  |
+| ImpactDirection | Vector3 | Read/Write |  |
 
 # Hit functions
 
@@ -204,93 +236,17 @@ The Hit API is an extension of `ApplyDamage()` with many additional features.
  - Add one or more damage types by calling `NRD_HitAddDamage()`
  - Apply the hit using `NRD_HitExecute()`
 
-**Int parameters:**
- - `CallCharacterHit` - **TODO this is complex!**
- - `HitType` - **TODO** *Used in many places, meaning not known. Possibly a bitmask. Values 0, 1, 2, 4 and 5 have special significance*
- - `RollForDamage` - Determines whether the hit is guaranteed
-   - 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically
-   - 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically.
- - `CriticalRoll` - Determines the outcome of the critical hit roll. 
-   - 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result
-   - 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically
-   - 2 = The hit is not a critical hit.
- - `ReduceDurability` - **TODO maybe incorrect** Possibly ProcWindWalker?
- - `HighGround` - High ground bonus indicator
-   - 0 = High ground test not performed
-   - 1 = Attacker is on high ground
-   - 2 = Attacker is on even ground
-   - 3 = Attacker is on low ground
- - `Equipment` - **TODO** *Meaning not known.*
- - `DeathType` - A value from the `Death Type` enumeration; allowed values (including undocumented items):
-   - 0 - None
-   - 1 - Physical
-   - 2 - Piercing
-   - 3 - Arrow
-   - 4 - DoT
-   - 5 - Incinerate
-   - 6 - Acid
-   - 7 - Electrocution
-   - 8 - FrozenShatter
-   - 9 - PetrifiedShatter
-   - 10 - Explode
-   - 11 - Surrender
-   - 12 - Hang
-   - 13 - KnockedDown
-   - 14 - Lifetime
-   - 15 - Sulfur
-   - 16 - Sentinel (default value)
- - `DamageType` - A value from the `Damage Type` enumeration.
- - `AttackDirection` - *Purpose not known.* Possible values:
-   - 0 - FrontToBack_Upper
-   - 1 - FrontToBack_Lower
-   - 2 - LeftToRight_Upper
-   - 3 - LeftToRight_Lower
-   - 4 - RightToLeft_Upper
-   - 5 - RightToLeft_Lower
-   - 6 - UpToDown
-   - 7 - DownToUp
- - `ArmorAbsorption` - **TODO** *Meaning not known.*
- - `LifeSteal` - **TODO** *Meaning not known.*
- - `EffectFlags` - Collection of flags controlling how damage is applied. This is a bitmask and should only be changed if you really know what you're doing. See `NRD_HitSetFlag`. **TODO** *May be removed.*
- - `HitWithWeapon` - Equivalent to the skill property `UseWeaponDamage`. **TODO Rename?**
- - `HitReason` - **TODO** *Meaning not known.*
- - `DamageSourceType` - *Purpose not known.*. Possible values:
-   - 0 - None
-   - 1 - SurfaceMove
-   - 2 - SurfaceCreate
-   - 3 - SurfaceStatus
-   - 4 - StatusEnter
-   - 5 - StatusTick
-   - 6 - Attack
-   - 7 - Offhand
-   - 8 - GM
- - `Strength` - **TODO** *Meaning not known.*
+In addition to the parameters listed in [StatusHit attributes](#statushit-attributes) the following parameters can be set when launching a hit:
 
-**Flag parameters:** (for `NRD_HitSetFlag`)
- - `Hit` - The attack hit
- - `Blocked` - The attack was blocked
- - `Dodged` - The attack was dodged
- - `Missed` - The attack missed
- - `CriticalHit`
- - `AlwaysBackstab` - Equivalent to the `AlwaysBackstab` skill property
- - `FromSetHP` - Indicates that the hit was called from `CharacterSetHitpointsPercentage` (or similar)
- - `DontCreateBloodSurface` - Avoids creating a blood surface when the character is hit
- - `Reflection`
- - `NoDamageOnOwner`
- - `FromShacklesOfPain`
- - `DamagedMagicArmor` - Indicates that the hit damaged magic armor
- - `DamagedPhysicalArmor` - Indicates that the hit damaged physical armor
- - `DamagedVitality` - Indicates that the hit damaged the characters vitality
- - `PropagatedFromOwner`
- - `ProcWindWalker` - Hit should proc the Wind Walker talent
-
-**Vector parameters:**
- - `ImpactPosition`
- - `ImpactOrigin`
- - `ImpactDirection`
-
-**String parameters:**
- - `SkillId`  - Skill that was used for the attack
+| Attribute | Type | Description |
+|--|--|--|
+| CallCharacterHit | Flag | **TODO this is complex!** |
+| HitType | Integer | **TODO** *Used in many places, meaning not known. Possibly a bitmask. Values 0, 1, 2, 4 and 5 have special significance* |
+| RollForDamage | Integer | Determines if the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
+| RollForDamage | Integer | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
+| CriticalRoll | Integer | Determines the outcome of the critical hit roll. 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result. 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically. 2 = The hit is not a critical hit. |
+| ProcWindWalker | Flag |  |
+| HighGround | Integer | High ground bonus indicator. 0 = High ground test not performed. 1 = Attacker is on high ground. 2 = Attacker is on even ground. 3 = Attacker is on low ground. |
 
 **Notes:**
  - Make sure that both `NRD_HitPrepare` and `NRD_HitExecute` are called in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the hit.
@@ -316,7 +272,7 @@ NRD_HitExecute();
 ### OnHit
 `event NRD_OnHit((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Damage, (INTEGER64)_StatusHandle)`
 
-Throw before a character is hit. Status-level attributes can be queried using the `NRD_StatusGetAttribute[...]`  functions. Hit-level attributes can be queried using the `NRD_HitGet[...]` functions (**TODO - not implemented yet**).
+Thrown before a character is hit. Status attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHit attributes](#statushit-attributes).
 
 **Stability:**
  - Function signature will be changed to allow both item and character parameters in the future.
@@ -325,7 +281,7 @@ Throw before a character is hit. Status-level attributes can be queried using th
 ### OnHeal
 `event NRD_OnHeal((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Amount, (INTEGER64)_StatusHandle)`
 
-Thrown before a character is healed. Status-level attributes can be queried using the `NRD_StatusGetAttribute[...]`  functions. Heal-level attributes can be queried using the `NRD_HealGet[...]` functions (**TODO - not implemented yet**).
+Thrown before a character is healed. Statu attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHeal attributes](#statusheal-attributes).
 
 **Stability:**
  - Function signature will be changed to allow both item and character parameters in the future.
@@ -518,43 +474,130 @@ Marking common items (that cannot be identified) as unidentified has no effect.
 
 Return the stats entry ID of the specified item.
 
+### ItemGetGenerationParams
+`query NRD_ItemGetGenerationParams([in](GUIDSTRING)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level)`
+
+Return the stats generation parameters of the specified item.
+
+### ItemHasDeltaModifier
+`query NRD_ItemHasDeltaModifier([in](GUIDSTRING)_Item, [in](STRING)_DeltaMod, [out](INTEGER)_Count)`
+
+Return the number of DeltaMods on the item with the specified boost name. Unlike vanilla `ItemHasDeltaModifier`, this also takes into account the boosts added by item generation.
+
+
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
 
-**Boosts available for all item types:**
-Durability, DurabilityDegradeSpeed, StrengthBoost, FinesseBoost, IntelligenceBoost, ConstitutionBoost, Memory, WitsBoost, SightBoost, HearingBoost, VitalityBoost, SourcePointsBoost, MaxAP, StartAP, APRecovery, AccuracyBoost, DodgeBoost, LifeSteal, CriticalChance, ChanceToHitBoost, MovementSpeedBoost, RuneSlots, RuneSlots_V1, FireResistance, AirResistance, WaterResistance, EarthResistance, PoisonResistance, TenebriumResistance, PiercingResistance, CorrosiveResistance, PhysicalResistance, MagicResistance, CustomResistance, Movement, Initiative, Willpower, Bodybuilding, MaxSummons, Value, Weight
-
-**Boosts for Weapons:**
-DamageType, MinDamage, MaxDamage, DamageBoost, DamageFromBase, CriticalDamage, WeaponRange, CleaveAngle, CleavePercentage, AttackAPCost
-
-**Boosts for Armor:**
-ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost
-
-**Boosts for Shields:**
-ArmorValue, ArmorBoost, MagicArmorValue, MagicArmorBoost, Blocking
+| Attribute | Type | Item Type |
+|--|--|--|--|
+| Durability | Integer | Any |
+| DurabilityDegradeSpeed | Integer | Any |
+| StrengthBoost | Integer | Any |
+| FinesseBoost | Integer | Any |
+| IntelligenceBoost | Integer | Any |
+| ConstitutionBoost | Integer | Any |
+| Memory  | Integer | Any |
+| WitsBoost | Integer | Any |
+| SightBoost | Integer | Any |
+| HearingBoost | Integer | Any |
+| VitalityBoost | Integer | Any |
+| SourcePointsBoost | Integer | Any |
+| MaxAP | Integer | Any |
+| StartAP | Integer | Any |
+| APRecovery | Integer | Any |
+| AccuracyBoost | Integer | Any |
+| DodgeBoost | Integer | Any |
+| AccuracyBoost | Integer | Any |
+| LifeSteal | Integer | Any |
+| CriticalChance | Integer | Any |
+| ChanceToHitBoost | Integer | Any |
+| MovementSpeedBoost | Integer | Any |
+| RuneSlots  | Integer | Any |
+| RuneSlots_V1 | Integer | Any |
+| FireResistance | Integer | Any |
+| AirResistance | Integer | Any |
+| WaterResistance | Integer | Any |
+| EarthResistance | Integer | Any |
+| PoisonResistance | Integer | Any |
+| TenebriumResistance | Integer | Any |
+| PiercingResistance | Integer | Any |
+| CorrosiveResistance | Integer | Any |
+| PhysicalResistance | Integer | Any |
+| MagicResistance | Integer | Any |
+| CustomResistance | Integer | Any |
+| Movement | Integer | Any |
+| Initiative | Integer | Any |
+| Willpower | Integer | Any |
+| Bodybuilding | Integer | Any |
+| MaxSummons | Integer | Any |
+| Value | Integer | Any |
+| Weight | Integer | Any |
+| DamageType | Integer | Weapon |
+| MinDamage | Integer | Weapon |
+| MaxDamage | Integer | Weapon |
+| DamageBoost | Integer | Weapon |
+| DamageFromBase | Integer | Weapon |
+| CriticalDamage | Integer | Weapon |
+| WeaponRange | Real | Weapon |
+| CleaveAngle | Integer | Weapon |
+| CleavePercentage | Real | Weapon |
+| AttackAPCost | Integer | Weapon |
+| ArmorValue | Integer | Armor/Shield |
+| ArmorBoost | Integer | Armor/Shield |
+| MagicArmorValue | Integer | Armor/Shield |
+| MagicArmorBoost | Integer | Armor/Shield |
+| Blocking | Integer | Shield |
 
 **Limitations:**
-Permanent boosts don't show up immediately due to how client-server communication works in the game. To ensure that boosts are visible on the client:
+Permanent boosts don't show up immediately because of how client-server communication works in the game. To ensure that boosts are visible on the client:
  - For new items, the item and the permanent boost should be created in the same tick (e.g. an `ItemSetPermanentBoost` call immediately after `CreateItemTemplateAtPosition`)
  - For existing items, the item should be cloned after calling `ItemSetPermanentBoost`, and the original item should be replaced by the clone. (The permanent boosts are visible on the clone, but not on the original item.)
  - A save/reload also makes boosts visible
 
+
 ### ItemGetPermanentBoost
-`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostInt([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostReal([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
 
 Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
 
 
 ### ItemSetPermanentBoost
-`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostInt([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostReal([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
-### ItemAddPermanentBoost
-`query NRD_ItemGetPermanentBoost([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+## Cloning items
 
-Adds the specified boost value to the current boost value of the item. `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
+`call NRD_ItemCloneBegin((GUIDSTRING)_Item)`
+`call NRD_ItemCloneSetInt((STRING)_Property, (INTEGER)_Value)`
+`call NRD_ItemCloneSetString((STRING)_Property, (STRING)_Value)`
+`query NRD_ItemClone([out](GUIDSTRING)_NewItem)`
+
+**Usage:**
+The clone API creates a copy of a specific item.
+To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications can be applied to the newly created item by calling `NRD_ItemCloneSetXyz(...)`. After the parameter modifications were performed, the clone operation is finished by calling `NRD_ItemClone()`.
+
+**Clone parameters (passed to `NRD_ItemCloneSetXyz`):**
+| Attribute | Type | Description |
+|--|--|--|--|
+| RootTemplate | GuidString | Root template of the new item |
+| OriginalRootTemplate | GuidString | Original root template (to be used for items that are already transformed during cloning) |
+| Amount | Integer | Number of items |
+| Slot | Integer | Original inventory slot of item |
+| GoldValueOverwrite | Integer | Overrides the gold value of the item |
+| WeightValueOverwrite | Integer | Overrides the weight of the item |
+| DamageTypeOverwrite | Integer | Overrides the damage type of the item |
+| ItemType | String | Item rarity (eg. `Uncommon`) |
+| GenerationStatsId | String | Stats used to generate the item (eg. `WPN_Shield`) |
+| GenerationItemType | String | Item rarity used to generate the item (eg. `Uncommon`) |
+| GenerationRandom | Integer | Random seed for item generation |
+| GenerationLevel | Integer | Level of generated item |
+| StatsEntryName | String | Stats ID of the item (eg. `WPN_Shield`) |
+| HasModifiedSkills | Flag | Indicates that the skills of the item were overridden |
+| Skills | String | Item skills |
 
 
 # Miscellaneous functions
@@ -720,3 +763,54 @@ For detailed rules see [check the reference](https://en.cppreference.com/w/cpp/s
 `query NRD_RealToString([in](REAL)_Real, [out](STRING)_Result)`
 
 Converts `_Real` to a string value.
+
+
+# Enumerations
+
+### DamageSourceType
+| Value | Label |
+|--|--|
+| 0 | None |
+| 1 | SurfaceMove |
+| 2 | SurfaceCreate |
+| 3 | SurfaceStatus |
+| 4 | StatusEnter |
+| 5 | StatusTick |
+| 6 | Attack |
+| 7 | Offhand |
+| 8 | GM |
+
+
+### DeathType
+| Value | Label |
+|--|--|
+| 0 | None |
+| 1 | Physical |
+| 2 | Piercing |
+| 3 | Arrow |
+| 4 | DoT |
+| 5 | Incinerate |
+| 6 | Acid |
+| 7 | Electrocution |
+| 8 | FrozenShatter |
+| 9 | PetrifiedShatter |
+| 10 | Explode |
+| 11 | Surrender |
+| 12 | Hang |
+| 13 | KnockedDown |
+| 14 | Lifetime |
+| 15 | Sulfur |
+| 16 | Sentinel (default value) |
+
+
+### AttackDirection
+| Value | Label |
+|--|--|
+| 0 | FrontToBack_Upper |
+| 1 | FrontToBack_Lower |
+| 2 | LeftToRight_Upper |
+| 3 | LeftToRight_Lower |
+| 4 | RightToLeft_Upper |
+| 5 | RightToLeft_Lower |
+| 6 | UpToDown |
+| 7 | DownToUp |
