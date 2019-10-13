@@ -146,16 +146,17 @@ namespace osidbg
 	template <class T>
 	struct Set
 	{
-		T * Buf;
-		uint32_t Capacity;
-		uint32_t Size;
-		uint64_t CapacityIncrementSize;
+		T * Buf{ nullptr };
+		uint32_t Capacity{ 0 };
+		uint32_t Size{ 0 };
+		uint64_t CapacityIncrementSize{ 0 };
 	};
 
 	template <class T>
-	struct ObjectSet : public Set<T>
+	struct ObjectSet
 	{
-		virtual ~ObjectSet();
+		void * VMT{ nullptr };
+		Set<T> Set;
 	};
 
 	struct TranslatedString
@@ -334,6 +335,16 @@ namespace osidbg
 
 		const char * Find(char const * s, uint64_t length) const;
 		static uint32_t Hash(char const * s, uint64_t length);
+	};
+
+	struct ScratchBuffer
+	{
+		void * Buffer;
+		uint32_t Unkn;
+		uint32_t Size;
+		uint32_t WritePosition;
+		uint32_t ReadPosition;
+		uint32_t GrowSize;
 	};
 #pragma pack(pop)
 

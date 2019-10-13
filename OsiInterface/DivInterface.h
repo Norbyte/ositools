@@ -2,6 +2,7 @@
 
 #include "DivBaseTypes.h"
 #include "DivEnumerations.h"
+#include "PropertyMap.h"
 
 namespace osidbg
 {
@@ -145,21 +146,21 @@ namespace osidbg
 		uint32_t WeaponType;
 		uint32_t AnimType;
 		uint32_t WeaponRange;
-		uint32_t IsIdentified;
+		uint32_t IsIdentified; // Saved
 		uint32_t U2;
 		uint32_t U3;
 		uint32_t U4;
 		bool IsTwoHanded;
 		bool HasAddedItems_M;
 		bool U5;
-		bool HasModifiedSkills;
+		bool HasModifiedSkills; // Saved
 		uint32_t U6;
-		uint64_t Skills;
-		uint32_t DamageTypeOverwrite;
-		uint32_t Durability;
-		uint32_t DurabilityCounter;
+		FixedString Skills; // Saved
+		uint32_t DamageTypeOverwrite; // Saved
+		uint32_t Durability; // Saved
+		uint32_t DurabilityCounter; // Saved
 		uint32_t U7;
-		FixedString ItemTypeReal;
+		FixedString ItemTypeReal; // Saved
 		FixedString U8;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
@@ -628,7 +629,7 @@ namespace osidbg
 
 	struct EsvStatusHeal : public EsvStatus
 	{
-		uint32_t EffectTime;
+		float EffectTime;
 		uint32_t HealAmount;
 		uint32_t HealEffect;
 		uint8_t _Pad4[4];
@@ -990,6 +991,90 @@ namespace osidbg
 		void * PreviousLevel;
 	};
 
+	struct EoCItemDefinition
+	{
+		uint32_t Unknown;
+		uint32_t NetId;
+		uint32_t ItemNetId;
+		uint8_t _Pad0[4];
+		FixedString FS1;
+		// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
+		FixedString RootTemplate;
+		uint32_t Unkn1;
+		uint8_t _Pad1[4];
+		// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
+		FixedString OriginalRootTemplate;
+		uint32_t Unkn2[4];
+		uint32_t Unkn3;
+		float Unkn3Flt;
+		uint32_t Unkn4[2];
+		float Unkn4Flt;
+		uint32_t Unkn41[4];
+		uint32_t Amount;
+		uint32_t InventoryNetID;
+		uint32_t InventorySubContainerNetID;
+		uint16_t Slot;
+		uint8_t _Pad3[2];
+		uint32_t Unkn6;
+		uint32_t GoldValueOverwrite;
+		uint32_t WeightValueOverwrite;
+		uint32_t DamageTypeOverwrite;
+		uint32_t SomeOverwrite;
+		FixedString FS4;
+		// eg. "Uncommon"
+		FixedString ItemType;
+		STDWString CustomDisplayName;
+		STDWString CustomDescription;
+		STDWString CustomBookContent;
+		STDWString GenerationBase;
+		// eg. "WPN_Shield"
+		FixedString GenerationStatsId;
+		// eg. "Uncommon"
+		FixedString GenerationItemType;
+		uint32_t GenerationRandom;
+		uint16_t GenerationLevel;
+		uint8_t _Pad4[2];
+		ObjectSet<FixedString> GenerationBoosts;
+		uint8_t LevelGroupIndex;
+		uint16_t RootGroupIndex;
+		uint8_t NameIndex;
+		uint8_t NameCool;
+		uint8_t _Pad5[3];
+		uint32_t Unkn;
+		uint8_t _Pad6[4];
+		FixedString StatsName;
+		uint32_t Level;
+		uint32_t Unkn11;
+		// eg. "WPN_Shield"
+		FixedString StatsEntryName;
+		uint32_t EquipmentStatsType;
+		uint8_t _Pad7[4];
+		ScratchBuffer PermanentBoostsBuf;
+		uint8_t _Pad8[4];
+		ScratchBuffer BaseStatsBuf;
+		uint8_t _Pad9[4];
+		bool HasModifiedSkills;
+		uint8_t _Pad10[7];
+		FixedString Skills;
+		ObjectSet<FixedString> FSSet2;
+		ObjectSet<FixedString> RuneBoostNames;
+		uint8_t Flags0[2];
+		uint8_t HasItemGeneration_M;
+		uint8_t Flags1[12];
+		uint8_t IsIdentified;
+		uint8_t Flags2[3];
+	};
+	
+	struct EsvItemGeneration
+	{
+		FixedString Base; // Saved
+		FixedString ItemType; // Saved
+		uint32_t Random; // Saved
+		uint16_t Level; // Saved
+		uint16_t _Pad0;
+		Set<FixedString> Boosts; // Saved
+	};
+
 	struct EsvItem
 	{
 		virtual ~EsvItem() = 0;
@@ -1052,67 +1137,67 @@ namespace osidbg
 		FixedString MyGuid;
 		uint32_t NetID;
 		uint32_t _Pad1;
-		glm::vec3 WorldPos;
+		glm::vec3 WorldPos; // Saved
 		uint32_t _Pad2;
-		uint64_t Flags2;
+		uint64_t Flags2; // Saved
 		uint32_t U2;
 		uint32_t _Pad3;
-		void * CurrentLevel;
-		glm::mat3 WorldRot;
-		float Scale;
+		void * CurrentLevel; // Saved
+		glm::mat3 WorldRot; // Saved
+		float Scale; // Saved
 		uint8_t Flags3;
 		uint8_t _Pad4[7];
 		uint64_t U3[4];
-		glm::vec3 WorldVelocity;
+		glm::vec3 WorldVelocity; // Saved
 		uint32_t _Pad5;
 		uint64_t U4;
-		FixedString CurrentTemplate;
-		uint64_t OriginalTemplateType;
-		STDWString CustomDisplayName;
-		STDWString CustomDescription;
-		STDWString CustomBookContent;
-		FixedString StatsId;
+		FixedString CurrentTemplate; // Saved
+		uint64_t OriginalTemplateType; // Saved
+		STDWString CustomDisplayName; // Saved
+		STDWString CustomDescription; // Saved
+		STDWString CustomBookContent; // Saved
+		FixedString StatsId; // Saved
 		CDivinityStats_Item * StatsDynamic;
 		CRPGStats_Object * StatsFromName;
-		void * Generation;
-		ObjectHandle InventoryHandle;
-		void * Parent;
-		uint16_t Slot;
+		EsvItemGeneration * Generation; // Saved
+		ObjectHandle InventoryHandle; // Saved
+		ObjectHandle ParentInventoryHandle; // Saved
+		uint16_t Slot; // Saved
 		uint16_t _Pad6;
-		uint32_t Amount;
-		uint32_t Vitality;
-		uint32_t Armor;
+		uint32_t Amount; // Saved
+		uint32_t Vitality; // Saved
+		uint32_t Armor; // Saved
 		ObjectHandle InUseByCharacterHandle;
 		uint64_t U5[2];
-		uint32_t LockLevel;
+		uint32_t LockLevel; // Saved
 		uint32_t _Pad7;
-		void * ItemMachine;
-		void * PlanMachine;
-		void * VariableManager;
-		EsvStatusManager * StatusMachine;
+		void * ItemMachine; // Saved
+		void * PlanMachine; // Saved
+		void * VariableManager; // Saved
+		EsvStatusManager * StatusMachine; // Saved
 		void * U6;
-		ObjectHandle OwnerHandle;
-		ObjectHandle OriginalOwnerCharacter;
-		void * Sockets;
+		ObjectHandle OwnerHandle; // Saved
+		ObjectHandle OriginalOwnerCharacter; // Saved
+		void * Sockets; // Saved
 		uint64_t U7;
 		uint32_t ComputedVitality;
-		uint32_t Durability;
-		FixedString ItemType;
-		uint32_t GoldValueOverwrite;
-		uint32_t WeightValueOverwrite;
+		uint32_t MaxDurabilityPatchCheck; // Saved
+		FixedString ItemType; // Saved
+		uint32_t GoldValueOverwrite; // Saved
+		uint32_t WeightValueOverwrite; // Saved
 		uint64_t U8;
-		void * Tags;
+		void * Tags; // Saved
 		void * DynamicTags;
 		uint32_t U9;
 		uint32_t HasDynamicTags;
 		uint64_t U10;
-		uint64_t TeleportTargetOverride;
-		uint32_t TreasureLevel;
-		uint32_t LevelOverride;
-		bool ForceSynch;
+		uint64_t TeleportTargetOverride; // Saved
+		uint32_t TreasureLevel; // Saved
+		uint32_t LevelOverride; // Saved
+		bool ForceSynch; // Saved
 		uint8_t _Pad8[3];
-		uint32_t TeleportUseCount;
-		uint64_t PreviousLevel;
+		uint32_t TeleportUseCount; // Saved
+		uint64_t PreviousLevel; // Saved
 	};
 
 	struct ShootProjectileHelper

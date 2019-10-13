@@ -288,7 +288,7 @@ namespace osidbg
 		HF_ProcWindWalker = 0x80000
 	};
 
-	MAKE_ENUM_INFO(HitFlag, 16);
+	MAKE_ENUM_INFO(HitFlag, 15);
 
 	enum EsvCharacterFlags : uint64_t
 	{

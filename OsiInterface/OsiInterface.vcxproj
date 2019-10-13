@@ -367,6 +367,8 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="osidebug.pb.h" />
     <ClInclude Include="OsirisProxy.h" />
     <ClInclude Include="OsirisWrappers.h" />
+    <ClInclude Include="PropertyMap.h" />
+    <ClInclude Include="PropertyMaps.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SocketProxy.h" />
     <ClInclude Include="stdafx.h" />
@@ -439,6 +441,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     </ClCompile>
     <ClCompile Include="OsirisProxy.cpp" />
     <ClCompile Include="OsirisWrappers.cpp" />
+    <ClCompile Include="PropertyMaps.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|Win32'">Create</PrecompiledHeader>
@@ -452,6 +455,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="Exports.def" />
     <None Include="osidebug.proto" />
   </ItemGroup>

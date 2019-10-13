@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include "PropertyMaps.h"
 
 namespace osidbg
 {
@@ -84,199 +85,59 @@ namespace osidbg
 			return false;
 		}
 
-		bool StatusGetAttributeString(OsiArgumentDesc & args)
+		template <OsiPropertyMapType Type>
+		bool StatusGetAttribute(OsiArgumentDesc & args)
 		{
 			auto status = GetStatusHelper(args);
 			if (status == nullptr) {
 				return false;
 			}
 
-			auto attributeName = args.Get(2).String;
-			if (strcmp(attributeName, "StatsId") == 0) {
-				args.Get(3).String = status->StatusId.Str;
-			}
-			else {
-				OsiError("Unknown attribute: " << attributeName);
-				return false;
-			}
+			switch (status->GetStatusId()) {
+				case StatusType::Hit:
+				{
+					auto hit = static_cast<EsvStatusHit *>(status);
+					if (!OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+						return OsirisPropertyMapGet(gStatusHitPropertyMap, hit, args, 2, Type);
+					}
+				}
 
-			return true;
+				case StatusType::Heal:
+				{
+					auto heal = static_cast<EsvStatusHeal *>(status);
+					return OsirisPropertyMapGet(gStatusHealPropertyMap, heal, args, 2, Type);
+				}
+
+				default:
+					return OsirisPropertyMapGet(gStatusPropertyMap, status, args, 2, Type);
+			}
 		}
 
-		bool StatusGetAttributeGuidString(OsiArgumentDesc & args)
-		{
-			auto status = GetStatusHelper(args);
-			if (status == nullptr) {
-				return false;
-			}
-
-			auto attributeName = args.Get(2).String;
-			ObjectHandle handle;
-			if (strcmp(attributeName, "StatusHandle") == 0) {
-				handle = status->StatusHandle;
-			}
-			else if (strcmp(attributeName, "TargetCI") == 0) {
-				handle = status->TargetCIHandle;
-			}
-			else if (strcmp(attributeName, "StatusSource") == 0) {
-				handle = status->StatusSourceHandle;
-			}
-			else if (strcmp(attributeName, "Obj2") == 0) {
-				handle = status->SomeHandle;
-			}
-			else {
-				OsiError("Unknown attribute: " << attributeName);
-				return false;
-			}
-
-			auto character = FindCharacterByHandle(handle);
-			if (character == nullptr) {
-				return false;
-			}
-
-			args.Get(3).String = character->MyGuid.Str;
-			return true;
-		}
-
-		bool StatusGetAttributeReal(OsiArgumentDesc & args)
-		{
-			auto status = GetStatusHelper(args);
-			if (status == nullptr) {
-				return false;
-			}
-
-			auto attributeName = args.Get(2).String;
-			if (strcmp(attributeName, "StartTimer") == 0) {
-				args.Get(3).Float = status->StartTimer;
-			}
-			else if (strcmp(attributeName, "LifeTime") == 0) {
-				args.Get(3).Float = status->LifeTime;
-			}
-			else if (strcmp(attributeName, "CurrentLifeTime") == 0) {
-				args.Get(3).Float = status->CurrentLifeTime;
-			}
-			else if (strcmp(attributeName, "TurnTimer") == 0) {
-				args.Get(3).Float = status->TurnTimer;
-			}
-			else if (strcmp(attributeName, "Strength") == 0) {
-				args.Get(3).Float = status->Strength;
-			}
-			else if (strcmp(attributeName, "StatsMultiplier") == 0) {
-				args.Get(3).Float = status->StatsMultiplier;
-			}
-			else {
-				OsiError("Unknown attribute: " << attributeName);
-				return false;
-			}
-
-			return true;
-		}
-
-		bool StatusGetAttributeInt(OsiArgumentDesc & args)
-		{
-			auto status = GetStatusHelper(args);
-			if (status == nullptr) {
-				return false;
-			}
-
-			auto attributeName = args.Get(2).String;
-			if (strcmp(attributeName, "CanEnterChance") == 0) {
-				args.Get(3).Int32 = status->CanEnterChance;
-			}
-			else if (strcmp(attributeName, "DamageSourceType") == 0) {
-				args.Get(3).Int32 = (int32_t)status->DamageSourceType;
-			}
-			else if (strcmp(attributeName, "KeepAlive") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_KeepAlive) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsOnSourceSurface") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_IsOnSourceSurface) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsFromItem") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_IsFromItem) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "Channeled") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_Channeled) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsLifeTimeSet") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_IsLifeTimeSet) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "InitiateCombat") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_InitiateCombat) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "Influence") == 0) {
-				args.Get(3).Int32 = (status->Flags0 & SF0_Influence) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "BringIntoCombat") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & SF1_BringIntoCombat) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsHostileAct") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & SF1_IsHostileAct) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsInvulnerable") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & SF1_IsInvulnerable) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "IsResistingDeath") == 0) {
-				args.Get(3).Int32 = (status->Flags1 & SF1_IsResistingDeath) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "ForceStatus") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & SF2_ForceStatus) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "ForceFailStatus") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & SF2_ForceFailStatus) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "RequestDelete") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & SF2_RequestDelete) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "RequestDeleteAtTurnEnd") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & SF2_RequestDeleteAtTurnEnd) ? 1 : 0;
-			}
-			else if (strcmp(attributeName, "Started") == 0) {
-				args.Get(3).Int32 = (status->Flags2 & SF2_Started) ? 1 : 0;
-			}
-			else {
-				OsiError("Unknown attribute: " << attributeName);
-				return false;
-			}
-
-			return true;
-		}
-
-		void StatusSetAttributeReal(OsiArgumentDesc const & args)
+		template <OsiPropertyMapType Type>
+		void StatusSetAttribute(OsiArgumentDesc const & args)
 		{
 			auto status = GetStatusHelper(args);
 			if (status == nullptr) {
 				return;
 			}
 
-			auto attributeName = args.Get(2).String;
-			auto value = args.Get(3).Float;
-
-			if (value < 0.0f) {
-				OsiError("Cannot set a negative value");
-				return;
-			}
-
-			if (strcmp(attributeName, "LifeTime") == 0) {
-				status->LifeTime = value;
-				if (status->CurrentLifeTime > status->LifeTime) {
-					status->CurrentLifeTime = status->LifeTime;
+			switch (status->GetStatusId()) {
+				case StatusType::Hit:
+				{
+					auto hit = static_cast<EsvStatusHit *>(status);
+					if (!OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+						OsirisPropertyMapSet(gStatusHitPropertyMap, hit, args, 2, Type);
+					}
 				}
-			}
-			else if (strcmp(attributeName, "CurrentLifeTime") == 0) {
-				status->CurrentLifeTime = value;
-				if (status->LifeTime < status->CurrentLifeTime) {
-					status->LifeTime = status->CurrentLifeTime;
+
+				case StatusType::Heal:
+				{
+					auto heal = static_cast<EsvStatusHeal *>(status);
+					OsirisPropertyMapSet(gStatusHealPropertyMap, heal, args, 2, Type);
 				}
-			}
-			else if (strcmp(attributeName, "Strength") == 0) {
-				status->Strength = value;
-			}
-			else if (strcmp(attributeName, "StatsMultiplier") == 0) {
-				status->StatsMultiplier = value;
-			}
-			else {
-				OsiError("Cannot set attribute: " << attributeName);
+
+				default:
+					OsirisPropertyMapSet(gStatusPropertyMap, status, args, 2, Type);
 			}
 		}
 	}
@@ -307,64 +168,114 @@ namespace osidbg
 		functionMgr.Register(std::move(getStatusHandle));
 
 		auto getStatusAttributeInt = std::make_unique<CustomQuery>(
-			"NRD_StatusGetAttributeInt",
+			"NRD_StatusGetInt",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttributeInt
+			&func::StatusGetAttribute<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(getStatusAttributeInt));
 
 		auto getStatusAttributeReal = std::make_unique<CustomQuery>(
-			"NRD_StatusGetAttributeReal",
+			"NRD_StatusGetReal",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttributeReal
+			&func::StatusGetAttribute<OsiPropertyMapType::Real>
 		);
 		functionMgr.Register(std::move(getStatusAttributeReal));
 
 		auto getStatusAttributeString = std::make_unique<CustomQuery>(
-			"NRD_StatusGetAttributeString",
+			"NRD_StatusGetString",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttributeString
+			&func::StatusGetAttribute<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(getStatusAttributeString));
 
 		auto getStatusAttributeGuidString = std::make_unique<CustomQuery>(
-			"NRD_StatusGetAttributeGuidString",
+			"NRD_StatusGetGuidString",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttributeGuidString
+			&func::StatusGetAttribute<OsiPropertyMapType::GuidStringHandle>
 		);
 		functionMgr.Register(std::move(getStatusAttributeGuidString));
 
+		auto setStatusAttributeInt = std::make_unique<CustomCall>(
+			"NRD_StatusSetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::StatusSetAttribute<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(setStatusAttributeInt));
+
 		auto setStatusAttributeReal = std::make_unique<CustomCall>(
-			"NRD_StatusSetAttributeReal",
+			"NRD_StatusSetReal",
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttributeReal
+			&func::StatusSetAttribute<OsiPropertyMapType::Real>
 		);
 		functionMgr.Register(std::move(setStatusAttributeReal));
+
+		auto setStatusAttributeString = std::make_unique<CustomCall>(
+			"NRD_StatusSetString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::In },
+			},
+			&func::StatusSetAttribute<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(setStatusAttributeString));
+
+		auto setStatusAttributeGuidString = std::make_unique<CustomCall>(
+			"NRD_StatusSetGuidString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::GuidString, FunctionArgumentDirection::In },
+			},
+			&func::StatusSetAttribute<OsiPropertyMapType::GuidStringHandle>
+		);
+		functionMgr.Register(std::move(setStatusAttributeGuidString));
+
+		auto setStatusAttributeVector3 = std::make_unique<CustomCall>(
+			"NRD_StatusSetVector3",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "X", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
+			},
+			&func::StatusSetAttribute<OsiPropertyMapType::Vector3>
+		);
+		functionMgr.Register(std::move(setStatusAttributeVector3));
 
 		auto statusIteratorEvent = std::make_unique<CustomEvent>(
 			"NRD_StatusIteratorEvent",

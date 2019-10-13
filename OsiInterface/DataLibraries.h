@@ -17,6 +17,8 @@ namespace osidbg {
 	typedef void (* Character__Hit)(EsvCharacter * self, void * attackerStats, CDivinityStats_Item * itemStats, Array<TDamagePair> * damageList, 
 		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int aiTest_M, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 	typedef bool (* Status__Enter)(EsvStatus * Status);
+	typedef void (* esv__ParseItem)(EsvItem * Item, ObjectSet<EoCItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
+	typedef EsvItem * (* esv__CreateItemFromParsed)(ObjectSet<EoCItemDefinition> * ParsedItems, uint32_t Index);
 
 	
 
@@ -97,6 +99,8 @@ namespace osidbg {
 		Character__Hit CharacterHit{ nullptr };
 		EsvStatusVMT const * StatusHealVMT{ nullptr };
 		EsvStatusVMT const * StatusHitVMT{ nullptr };
+		esv__ParseItem ParseItem{ nullptr };
+		esv__CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (EsvStatus *)> StatusHealEnter;
@@ -134,6 +138,9 @@ namespace osidbg {
 
 		void FindHitFuncsEoCPlugin();
 		void FindHitFuncsEoCApp();
+
+		void FindItemFuncsEoCPlugin();
+		void FindItemFuncsEoCApp();
 
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 

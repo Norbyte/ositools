@@ -1,0 +1,209 @@
+#include <stdafx.h>
+#include "PropertyMaps.h"
+
+namespace osidbg
+{
+	PropertyMap<EsvStatus, void> gStatusPropertyMap;
+	PropertyMap<EsvStatusHit, EsvStatus> gStatusHitPropertyMap;
+	PropertyMap<EsvStatusHeal, EsvStatus> gStatusHealPropertyMap;
+	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	PropertyMap<EoCItemDefinition, void> gEoCItemDefinitionPropertyMap;
+	PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
+	PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
+	PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
+	PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
+
+#define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
+#define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
+#define PROP_ENUM(cls, name) AddPropertyEnum<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
+#define PROP_FLAGS(cls, name, enum) AddPropertyFlags<decltype(cls::name), enum>(propertyMap, #name, offsetof(cls, name))
+
+	void InitPropertyMaps()
+	{
+		{
+			auto & propertyMap = gStatusPropertyMap;
+			PROP_RO(EsvStatus, StatusId);
+			PROP_RO(EsvStatus, CanEnterChance);
+			PROP_RO(EsvStatus, StartTimer);
+			PROP_RO(EsvStatus, LifeTime);
+			PROP_RO(EsvStatus, CurrentLifeTime);
+			PROP_RO(EsvStatus, TurnTimer);
+			PROP_RO(EsvStatus, Strength);
+			PROP_RO(EsvStatus, StatsMultiplier);
+			PROP_ENUM(EsvStatus, DamageSourceType);
+			PROP_RO(EsvStatus, StatusHandle);
+			PROP_RO(EsvStatus, TargetCIHandle);
+			PROP_RO(EsvStatus, StatusSourceHandle);
+			PROP_RO(EsvStatus, SomeHandle);
+			PROP_FLAGS(EsvStatus, Flags0, StatusFlags0);
+			PROP_FLAGS(EsvStatus, Flags1, StatusFlags1);
+			PROP_FLAGS(EsvStatus, Flags2, StatusFlags2);
+
+			propertyMap.Properties["LifeTime"].SetFloat = [](EsvStatus * status, float value) -> bool {
+				if (value < 0.0f) return false;
+				status->LifeTime = value;
+				if (status->CurrentLifeTime > status->LifeTime) {
+					status->CurrentLifeTime = status->LifeTime;
+				}
+
+				return true;
+			};
+
+			propertyMap.Properties["CurrentLifeTime"].SetFloat = [](EsvStatus * status, float value) -> bool {
+				if (value < 0.0f) return false;
+				status->CurrentLifeTime = value;
+				if (status->LifeTime < status->CurrentLifeTime) {
+					status->LifeTime = status->CurrentLifeTime;
+				}
+
+				return true;
+			};
+		}
+
+		{
+			auto & propertyMap = gStatusHitPropertyMap;
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(EsvStatusHit, HitByHandle);
+			PROP(EsvStatusHit, HitWithHandle);
+			PROP(EsvStatusHit, WeaponHandle);
+			PROP(EsvStatusHit, HitReason);
+			PROP(EsvStatusHit, SkillId);
+			PROP(EsvStatusHit, Interruption);
+			PROP(EsvStatusHit, AllowInterruptAction);
+			PROP(EsvStatusHit, SomeBool);
+			PROP(EsvStatusHit, ImpactPosition);
+			PROP(EsvStatusHit, ImpactOrigin);
+			PROP(EsvStatusHit, ImpactDirection);
+		}
+
+		{
+			auto & propertyMap = gStatusHealPropertyMap;
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(EsvStatusHeal, EffectTime);
+			PROP(EsvStatusHeal, HealAmount);
+			PROP(EsvStatusHeal, HealEffect);
+			PROP(EsvStatusHeal, HealEffectId);
+			PROP(EsvStatusHeal, HealType);
+			PROP(EsvStatusHeal, AbsorbSurfaceRange);
+			PROP(EsvStatusHeal, TargetDependentHeal);
+		}
+
+		{
+			auto & propertyMap = gHitDamageInfoPropertyMap;
+			PROP(HitDamageInfo, Equipment);
+			PROP(HitDamageInfo, TotalDamageDone);
+			PROP(HitDamageInfo, Unknown);
+			PROP_ENUM(HitDamageInfo, DeathType);
+			PROP_ENUM(HitDamageInfo, DamageType);
+			PROP(HitDamageInfo, AttackDirection);
+			PROP(HitDamageInfo, ArmorAbsorption);
+			PROP(HitDamageInfo, LifeSteal);
+			PROP_FLAGS(HitDamageInfo, EffectFlags, HitFlag);
+			PROP(HitDamageInfo, HitWithWeapon);
+		}
+
+		{
+			auto & propertyMap = gEoCItemDefinitionPropertyMap;
+			PROP(EoCItemDefinition, RootTemplate);
+			PROP(EoCItemDefinition, OriginalRootTemplate);
+			PROP(EoCItemDefinition, Amount);
+			PROP(EoCItemDefinition, Slot);
+			PROP(EoCItemDefinition, GoldValueOverwrite);
+			PROP(EoCItemDefinition, WeightValueOverwrite);
+			PROP(EoCItemDefinition, DamageTypeOverwrite);
+			PROP(EoCItemDefinition, ItemType);
+			PROP(EoCItemDefinition, GenerationStatsId);
+			PROP(EoCItemDefinition, GenerationItemType);
+			PROP(EoCItemDefinition, GenerationRandom);
+			PROP(EoCItemDefinition, GenerationLevel);
+			PROP(EoCItemDefinition, StatsName);
+			PROP(EoCItemDefinition, Level);
+			PROP(EoCItemDefinition, StatsEntryName);
+			PROP(EoCItemDefinition, HasModifiedSkills);
+			PROP(EoCItemDefinition, Skills);
+		}
+
+		{
+			auto & propertyMap = gEquipmentAttributesPropertyMap;
+			PROP(CDivinityStats_Equipment_Attributes, Durability);
+			PROP(CDivinityStats_Equipment_Attributes, DurabilityDegradeSpeed);
+			PROP(CDivinityStats_Equipment_Attributes, StrengthBoost);
+			PROP(CDivinityStats_Equipment_Attributes, FinesseBoost);
+			PROP(CDivinityStats_Equipment_Attributes, IntelligenceBoost);
+			PROP(CDivinityStats_Equipment_Attributes, ConstitutionBoost);
+			PROP(CDivinityStats_Equipment_Attributes, Memory);
+			PROP(CDivinityStats_Equipment_Attributes, WitsBoost);
+			PROP(CDivinityStats_Equipment_Attributes, SightBoost);
+			PROP(CDivinityStats_Equipment_Attributes, HearingBoost);
+			PROP(CDivinityStats_Equipment_Attributes, VitalityBoost);
+			PROP(CDivinityStats_Equipment_Attributes, SourcePointsBoost);
+			PROP(CDivinityStats_Equipment_Attributes, MaxAP);
+			PROP(CDivinityStats_Equipment_Attributes, StartAP);
+			PROP(CDivinityStats_Equipment_Attributes, APRecovery);
+			PROP(CDivinityStats_Equipment_Attributes, AccuracyBoost);
+			PROP(CDivinityStats_Equipment_Attributes, DodgeBoost);
+			PROP(CDivinityStats_Equipment_Attributes, LifeSteal);
+			PROP(CDivinityStats_Equipment_Attributes, CriticalChance);
+			PROP(CDivinityStats_Equipment_Attributes, ChanceToHitBoost);
+			PROP(CDivinityStats_Equipment_Attributes, MovementSpeedBoost);
+			PROP(CDivinityStats_Equipment_Attributes, RuneSlots);
+			PROP(CDivinityStats_Equipment_Attributes, RuneSlots_V1);
+			PROP(CDivinityStats_Equipment_Attributes, FireResistance);
+			PROP(CDivinityStats_Equipment_Attributes, AirResistance);
+			PROP(CDivinityStats_Equipment_Attributes, WaterResistance);
+			PROP(CDivinityStats_Equipment_Attributes, EarthResistance);
+			PROP(CDivinityStats_Equipment_Attributes, PoisonResistance);
+			PROP(CDivinityStats_Equipment_Attributes, TenebriumResistance);
+			PROP(CDivinityStats_Equipment_Attributes, PiercingResistance);
+			PROP(CDivinityStats_Equipment_Attributes, CorrosiveResistance);
+			PROP(CDivinityStats_Equipment_Attributes, PhysicalResistance);
+			PROP(CDivinityStats_Equipment_Attributes, MagicResistance);
+			PROP(CDivinityStats_Equipment_Attributes, CustomResistance);
+			PROP(CDivinityStats_Equipment_Attributes, Movement);
+			PROP(CDivinityStats_Equipment_Attributes, Initiative);
+			PROP(CDivinityStats_Equipment_Attributes, Willpower);
+			PROP(CDivinityStats_Equipment_Attributes, Bodybuilding);
+			PROP(CDivinityStats_Equipment_Attributes, MaxSummons);
+			PROP(CDivinityStats_Equipment_Attributes, Value);
+			PROP(CDivinityStats_Equipment_Attributes, Weight);
+			// TODO - Reflection
+			PROP(CDivinityStats_Equipment_Attributes, Skills);
+			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
+			// TODO - ObjectInstanceName?, AbilityModifiers, Talents
+		}
+
+		{
+			auto & propertyMap = gEquipmentAttributesWeaponPropertyMap;
+			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageType);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, MinDamage);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, MaxDamage);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageBoost);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageFromBase);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, CriticalDamage);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, WeaponRange);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, CleaveAngle);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, CleavePercentage);
+			PROP(CDivinityStats_Equipment_Attributes_Weapon, AttackAPCost);
+		}
+
+		{
+			auto & propertyMap = gEquipmentAttributesArmorPropertyMap;
+			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
+			PROP(CDivinityStats_Equipment_Attributes_Armor, ArmorValue);
+			PROP(CDivinityStats_Equipment_Attributes_Armor, ArmorBoost);
+			PROP(CDivinityStats_Equipment_Attributes_Armor, MagicArmorValue);
+			PROP(CDivinityStats_Equipment_Attributes_Armor, MagicArmorBoost);
+		}
+
+		{
+			auto & propertyMap = gEquipmentAttributesShieldPropertyMap;
+			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
+			PROP(CDivinityStats_Equipment_Attributes_Shield, ArmorValue);
+			PROP(CDivinityStats_Equipment_Attributes_Shield, ArmorBoost);
+			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorValue);
+			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorBoost);
+			PROP(CDivinityStats_Equipment_Attributes_Shield, Blocking);
+		}
+	}
+}

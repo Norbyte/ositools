@@ -81,6 +81,12 @@
     <ClInclude Include="DivEnumerations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PropertyMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyMaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -158,6 +164,9 @@
     <ClCompile Include="Functions\ItemFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyMaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
@@ -166,6 +175,7 @@
     <None Include="osidebug.proto">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

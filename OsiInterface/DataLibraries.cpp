@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DataLibraries.h"
+#include "PropertyMaps.h"
 #include <string>
 #include <functional>
 #include <psapi.h>
@@ -1273,6 +1274,54 @@ namespace osidbg
 		}
 	}
 
+	void LibraryManager::FindItemFuncsEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"48 8B C8 " // mov     rcx, rax
+			"48 89 5C 24 60 " // mov     [rsp+0B8h+var_58.VMT], rbx
+			"E8 XX XX XX XX " // call    esv__ParseItem
+			"33 D2 " // xor     edx, edx
+			"48 8D 4C 24 60 " // lea     rcx, [rsp+0B8h+var_58]
+			"E8 XX XX XX XX " // call    esv__CreateItemFromParsed
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto parseAddr = AsmCallToAbsoluteAddress(match + 8);
+			ParseItem = (esv__ParseItem)parseAddr;
+			auto createAddr = AsmCallToAbsoluteAddress(match + 20);
+			CreateItemFromParsed = (esv__CreateItemFromParsed)createAddr;
+		});
+
+		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
+			Debug(L"LibraryManager::FindItemFuncsEoCPlugin(): Could not find esv::CreateItemFromParsed");
+		}
+	}
+
+	void LibraryManager::FindItemFuncsEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"45 0F B6 C1 " // movzx   r8d, r9b
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    esv__ParseItem
+			"33 D2 " // xor     edx, edx
+			"48 8D 4C 24 60 " // lea     rcx, [rsp+0B8h+var_58]
+			"E8 XX XX XX XX " // call    esv__CreateItemFromParsed
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto parseAddr = AsmCallToAbsoluteAddress(match + 8);
+			ParseItem = (esv__ParseItem)parseAddr;
+			auto createAddr = AsmCallToAbsoluteAddress(match + 20);
+			CreateItemFromParsed = (esv__CreateItemFromParsed)createAddr;
+		});
+
+		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
+			Debug(L"LibraryManager::FindItemFuncsEoCApp(): Could not find esv::CreateItemFromParsed");
+		}
+	}
+
 	bool LibraryManager::FindLibraries()
 	{
 		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
@@ -1308,6 +1357,7 @@ namespace osidbg
 			FindGameActionsEoCPlugin();
 			FindStatusMachineEoCPlugin();
 			FindHitFuncsEoCPlugin();
+			FindItemFuncsEoCPlugin();
 			FindStatusTypesEoCPlugin();
 		}
 		else {
@@ -1315,8 +1365,11 @@ namespace osidbg
 			FindGameActionsEoCApp();
 			FindStatusMachineEoCApp();
 			FindHitFuncsEoCApp();
+			FindItemFuncsEoCApp();
 			FindStatusTypesEoCApp();
 		}
+
+		InitPropertyMaps();
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());

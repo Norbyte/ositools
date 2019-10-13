@@ -75,7 +75,7 @@ namespace osidbg
 			}
 
 			if (character->PlayerData == nullptr
-				|| character->PlayerData->SkillBar.Size == 0) {
+				|| character->PlayerData->SkillBar.Set.Size == 0) {
 				OsiError("Character '" << characterGuid << "' has no skill bar!");
 				return nullptr;
 			}
@@ -88,12 +88,12 @@ namespace osidbg
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return nullptr;
 
-			if (slot < 0 || slot >= (int)skillBar->Size) {
+			if (slot < 0 || slot >= (int)skillBar->Set.Size) {
 				OsiError("Invalid skill bar slot index: " << slot);
 				return nullptr;
 			}
 
-			return &skillBar->Buf[slot];
+			return &skillBar->Set.Buf[slot];
 		}
 
 		bool SkillBarGetItem(OsiArgumentDesc & args)
@@ -138,8 +138,8 @@ namespace osidbg
 			if (skillBar == nullptr) return false;
 
 			auto skillId = ToFixedString(args.Get(1).String);
-			for (uint32_t i = 0; i < skillBar->Size; i++) {
-				auto & skill = skillBar->Buf[i];
+			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
+				auto & skill = skillBar->Set.Buf[i];
 				if (skill.Type == EsvSkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
 					args.Get(2).Int32 = i;
@@ -166,8 +166,8 @@ namespace osidbg
 			ObjectHandle handle;
 			item->GetObjectHandle(&handle);
 
-			for (uint32_t i = 0; i < skillBar->Size; i++) {
-				auto & skill = skillBar->Buf[i];
+			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
+				auto & skill = skillBar->Set.Buf[i];
 				if (skill.Type == EsvSkillBarItem::kItem
 					&& skill.ItemHandle == handle) {
 					args.Get(2).Int32 = i;
