@@ -291,6 +291,7 @@ A cast must be prepared by calling `NRD_BeginProjectile()`. Projectile parameter
 Function signatures are final. Projectile parameters that are not documented are subject to change. An additional `NRD_ProjectileAddDamage` call may be introduced later on.
 
 **Projectile parameters:**
+
 | Parameter | Type | Description |
 |--|--|--|
 | SkillId | String | Skill to cast. Must be a Projectile or ProjectileStrike skill |
@@ -568,6 +569,7 @@ The clone API creates a copy of a specific item.
 To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications can be applied to the newly created item by calling `NRD_ItemCloneSetXyz(...)`. After the parameter modifications were performed, the clone operation is finished by calling `NRD_ItemClone()`.
 
 **Clone parameters (passed to `NRD_ItemCloneSetXyz`):**
+
 | Attribute | Type | Description |
 |--|--|--|
 | RootTemplate | GuidString | Root template of the new item |

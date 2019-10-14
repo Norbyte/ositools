@@ -13,6 +13,7 @@
 
 namespace osidbg {
 
+#if !defined(OSI_NO_DEBUG_LOG)
 #define OsiError(msg) { \
 	std::stringstream ss; \
 	ss << __FUNCTION__ "(): " msg; \
@@ -30,6 +31,11 @@ namespace osidbg {
 	ss << msg; \
 	gOsirisProxy->LogOsirisMsg(ss.str()); \
 }
+#else
+#define OsiError(msg) (void)0
+#define OsiWarn(msg) (void)0
+#define OsiMsg(msg) (void)0
+#endif
 
 class OsirisProxy
 {
