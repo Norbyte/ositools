@@ -292,7 +292,7 @@ Function signatures are final. Projectile parameters that are not documented are
 
 **Projectile parameters:**
 | Parameter | Type | Description |
-|--|--|--|--|
+|--|--|--|
 | SkillId | String | Skill to cast. Must be a Projectile or ProjectileStrike skill |
 | FS2 | String | *Unknown; name subject to change* |
 | CasterLevel | Integer |  |
@@ -569,7 +569,7 @@ To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications 
 
 **Clone parameters (passed to `NRD_ItemCloneSetXyz`):**
 | Attribute | Type | Description |
-|--|--|--|--|
+|--|--|--|
 | RootTemplate | GuidString | Root template of the new item |
 | OriginalRootTemplate | GuidString | Original root template (to be used for items that are already transformed during cloning) |
 | Amount | Integer | Number of items |
