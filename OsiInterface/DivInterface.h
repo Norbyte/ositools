@@ -911,7 +911,10 @@ namespace osidbg
 		void * BehaviourMachine;
 		uint64_t U7[2];
 		void * OsirisController;
-		uint64_t U8[5];
+		void * RequestController;
+		void * StatusController;
+		uint64_t U8[2];
+		void * ScriptController;
 		void * TaskController;
 		EsvStatusManager * StatusManager;
 		EsvSkillManager * SkillManager;

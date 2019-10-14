@@ -1311,9 +1311,9 @@ namespace osidbg
 		);
 
 		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
-			auto parseAddr = AsmCallToAbsoluteAddress(match + 8);
+			auto parseAddr = AsmCallToAbsoluteAddress(match + 7);
 			ParseItem = (esv__ParseItem)parseAddr;
-			auto createAddr = AsmCallToAbsoluteAddress(match + 20);
+			auto createAddr = AsmCallToAbsoluteAddress(match + 19);
 			CreateItemFromParsed = (esv__CreateItemFromParsed)createAddr;
 		});
 
