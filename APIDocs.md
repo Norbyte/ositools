@@ -257,21 +257,19 @@ NRD_HitExecute();
 ```
 
 ### OnHit
-`event NRD_OnHit((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Damage, (INTEGER64)_StatusHandle)`
+`event NRD_OnHit((GUIDSTRING)_Target, (GUIDSTRING)_Instigator, (INTEGER)_Damage, (INTEGER64)_StatusHandle)`
 
 Thrown before a character is hit. Status attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHit attributes](#statushit-attributes).
 
 **Stability:**
- - Function signature will be changed to allow both item and character parameters in the future.
  - Since the event is thrown before the hit occurs, it is possible to modify or cancel the hit effect. API-s for this will be available in a future version.
 
 ### OnHeal
-`event NRD_OnHeal((CHARACTERGUID)_Target, (CHARACTERGUID)_Instigator, (INTEGER)_Amount, (INTEGER64)_StatusHandle)`
+`event NRD_OnHeal((GUIDSTRING)_Target, (GUIDSTRING)_Instigator, (INTEGER)_Amount, (INTEGER64)_StatusHandle)`
 
-Thrown before a character is healed. Statu attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHeal attributes](#statusheal-attributes).
+Thrown before a character is healed. Status attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHeal attributes](#statusheal-attributes).
 
 **Stability:**
- - Function signature will be changed to allow both item and character parameters in the future.
  - Since the event is thrown before heal occurs, it is possible to modify or cancel the heal effect. API-s for this will be available in a future version.
 
 

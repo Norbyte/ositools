@@ -99,8 +99,8 @@ namespace osidbg
 		auto hitEvent = std::make_unique<CustomEvent>(
 			"NRD_OnHit",
 			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "Instigator", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 			}
@@ -110,8 +110,8 @@ namespace osidbg
 		auto healEvent = std::make_unique<CustomEvent>(
 			"NRD_OnHeal",
 			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "Instigator", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 			}
