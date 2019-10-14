@@ -291,22 +291,24 @@ A cast must be prepared by calling `NRD_BeginProjectile()`. Projectile parameter
 Function signatures are final. Projectile parameters that are not documented are subject to change. An additional `NRD_ProjectileAddDamage` call may be introduced later on.
 
 **Projectile parameters:**
- - `SkillId` (string) - Skill to cast. Must be a Projectile or ProjectileStrike skill.
- - `FS2` (string) - *Unknown; name subject to change*
- - `CasterLevel` (int)
- - `StatusClearChance` (int) - 
- - `IsTrap` (bool)
- - `UnknownFlag1` (bool) - *Unknown; name subject to change*
- - `HasCaster` (bool)
- - `IsStealthed` (bool) - Indicates whether the caster is stealthed
- - `UnknownFlag2` (bool) - *Unknown; name subject to change*
- - `SourcePosition` (Vector3) - Launch projectile from the specified position
- - `SourcePosition` (GuidString) - Launch projectile from the position of the specified character/item
- - `TargetPosition` (Vector3) - Launch projectile towards the specified position
- - `TargetPosition` (GuidString) - Launch projectile towards the position of the specified character/item
- - `Source` (GuidString) - Caster character
- - `Target` (GuidString) - Target character
- - `Target2` - *Unknown; name subject to change*
+| Parameter | Type | Description |
+|--|--|--|--|
+| SkillId | String | Skill to cast. Must be a Projectile or ProjectileStrike skill |
+| FS2 | String | *Unknown; name subject to change* |
+| CasterLevel | Integer |  |
+| StatusClearChance | Integer |  |
+| IsTrap | Flag |  |
+| UnknownFlag1 | Flag | *Unknown; name subject to change* |
+| HasCaster | Flag |  |
+| IsStealthed| Flag |  |
+| UnknownFlag2 | Flag |  |
+| SourcePosition | Vector3 | Launch projectile from the specified position |
+| SourcePosition | GuidString | Launch projectile from the position of the specified character/item |
+| TargetPosition | Vector3 | Launch projectile towards the specified position|
+| TargetPosition | GuidString | Launch projectile towards the position of the specified character/item |
+| Source | GuidString | Caster character |
+| Target | GuidString | Target character |
+| Target2 | GuidString | *Unknown; name subject to change* |
 
 **Notes:**
  - For a successful cast, at least `SkillId`, `SourcePosition` and `TargetPosition` (either Vector3 or GuidString) must be set.
