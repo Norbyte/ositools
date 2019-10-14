@@ -114,44 +114,6 @@ namespace osidbg
 			args.Get(1).String = typeInfo->Name.Str;
 			return true;
 		}
-
-		void StatSetAttributeInt(OsiArgumentDesc const & args)
-		{
-			auto statName = args.Get(0).String;
-			auto attributeName = args.Get(1).String;
-
-			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
-			if (stats == nullptr) {
-				return;
-			}
-
-			auto object = stats->objects.Find(statName);
-			if (object == nullptr) {
-				OsiError("Stat object '" << statName << "' does not exist");
-				return;
-			}
-
-			stats->SetAttributeInt(object, attributeName, args.Get(2).Int32);
-		}
-
-		void StatSetAttributeString(OsiArgumentDesc const & args)
-		{
-			auto statName = args.Get(0).String;
-			auto attributeName = args.Get(1).String;
-
-			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
-			if (stats == nullptr) {
-				return;
-			}
-
-			auto object = stats->objects.Find(statName);
-			if (object == nullptr) {
-				OsiError("Stat object '" << statName << "' does not exist");
-				return;
-			}
-
-			stats->SetAttributeString(object, attributeName, args.Get(2).String);
-		}
 	}
 
 	void CustomFunctionLibrary::RegisterStatFunctions()
@@ -208,28 +170,6 @@ namespace osidbg
 			&func::StatGetType
 		);
 		functionMgr.Register(std::move(getStatType));
-
-		auto setStatAttributeInt = std::make_unique<CustomCall>(
-			"NRD_StatSetAttributeInt",
-			std::vector<CustomFunctionParam>{
-				{ "StatsId", ValueType::String, FunctionArgumentDirection::In },
-				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }, 
-			},
-			&func::StatSetAttributeInt
-		);
-		functionMgr.Register(std::move(setStatAttributeInt));
-
-		auto setStatAttributeString = std::make_unique<CustomCall>(
-			"NRD_StatSetAttributeString",
-			std::vector<CustomFunctionParam>{
-				{ "StatsId", ValueType::String, FunctionArgumentDirection::In },
-				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::String, FunctionArgumentDirection::In },
-			},
-			&func::StatSetAttributeString
-		);
-		functionMgr.Register(std::move(setStatAttributeString));
 	}
 
 }

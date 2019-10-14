@@ -8,9 +8,6 @@ Functions marked *Experimental* might be removed in future versions, or may chan
 
 These functions can be used to query stats entries.
 
-**Stability:**
-All functions are considered to be final except `StatSetAttributeInt` and `StatSetAttributeString`, which are experimental.
-
 ### StatExists
 `query NRD_StatExists([in](STRING)_StatsId)`
 
@@ -44,16 +41,6 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 
 Returns the type of the specified stat entry. If the stat entry does not exist, the query fails.
 Possible return values: `Character`, `Potion`, `Armor`, `Object`, `Shield`, `Weapon`, `SkillData`, `StatusData`.
-
-### StatSetAttributeInt
-`call NRD_StatSetAttributeInt((STRING)_StatsId, (STRING)_Attribute, (INTEGER)_Value)`
-
-**TODO -- This is an experimental function and should not be used**
-
-### StatSetAttributeString
-`call NRD_StatSetAttributeString((STRING)_StatsId, (STRING)_Attribute, (STRING)_Value)`
-
-**TODO -- This is an experimental function and should not be used**
 
 
 # Status functions
