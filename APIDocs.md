@@ -476,7 +476,7 @@ Return the number of DeltaMods on the item with the specified boost name. Unlike
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
 
 | Attribute | Type | Item Type |
-|--|--|--|--|
+|--|--|--|
 | Durability | Integer | Any |
 | DurabilityDegradeSpeed | Integer | Any |
 | StrengthBoost | Integer | Any |
