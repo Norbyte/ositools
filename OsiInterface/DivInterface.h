@@ -11,8 +11,8 @@ namespace osidbg
 	struct CRPGStats_Object
 	{
 		void * VMT;
-		uint32_t A;
-		uint32_t Unused1;
+		uint32_t Handle;
+		uint32_t Level;
 		uint32_t ModifierListIndex;
 		uint32_t Unused2;
 		int32_t * IndexedProperties;
@@ -542,24 +542,24 @@ namespace osidbg
 		uint32_t NetID;
 		uint32_t _Pad0;
 		uint64_t U1;
-		FixedString StatusId;
-		uint32_t CanEnterChance;
-		float StartTimer;
-		float LifeTime;
-		float CurrentLifeTime;
-		float TurnTimer;
-		float Strength;
-		float StatsMultiplier;
-		CauseType DamageSourceType;
+		FixedString StatusId; // Saved
+		uint32_t CanEnterChance; // Saved
+		float StartTimer; // Saved
+		float LifeTime; // Saved
+		float CurrentLifeTime; // Saved
+		float TurnTimer; // Saved
+		float Strength; // Saved
+		float StatsMultiplier; // Saved
+		CauseType DamageSourceType; // Saved
 		uint8_t _Pad1[3];
 		ObjectHandle StatusHandle;
 		ObjectHandle TargetCIHandle;
-		ObjectSet<ObjectHandle> StatusOwner;
-		ObjectHandle StatusSourceHandle;
+		ObjectSet<ObjectHandle> StatusOwner; // Saved
+		ObjectHandle StatusSourceHandle; // Saved
 		ObjectHandle SomeHandle;
-		uint8_t Flags2;
-		uint8_t Flags0;
-		uint8_t Flags1;
+		uint8_t Flags2; // Saved
+		uint8_t Flags0; // Saved
+		uint8_t Flags1; // Saved
 		uint8_t _Pad2;
 		uint32_t _Pad3;
 	};
@@ -644,6 +644,76 @@ namespace osidbg
 		uint32_t TargetDependentHealAmount[3];
 		uint32_t Unkn3;
 	};
+
+	struct EsvStatusConsume : public EsvStatus
+	{
+		ObjectSet<FixedString> Skill; // Saved
+		ObjectSet<FixedString> Items; // Saved
+		PrimitiveSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
+		int64_t field_E0;
+		int64_t field_E8;
+		bool ResetAllCooldowns; // Saved
+		bool ResetOncePerCombat; // Saved
+		bool ScaleWithVitality; // Saved
+		bool LoseControl; // Saved
+		FixedString ApplyStatusOnTick;
+		ObjectSet<ObjectHandle> ItemHandles; // Saved
+		float EffectTime; // Saved
+		FixedString StatsId; // Saved
+		ObjectSet<void *> StatsIDs; // Set<StatsData>
+		FixedString StackId;
+		FixedString OriginalWeaponStatsId;
+		FixedString OverrideWeaponStatsId;
+		ObjectHandle OverrideWeaponHandle;
+		int field_170;
+		int SavingThrow;
+		Vector3 SourceDirection; // Saved
+		uint8_t _Pad10[4];
+		PrimitiveSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
+		int field_198;
+		int field_19C;
+		int64_t field_1A0;
+		int Turn; // Saved
+		int field_1AC;
+		EsvStatus * AuraStatus; // Saved
+		int HealEffectOverride; // Saved
+		char field_1BC;
+		char field_1BD;
+		char field_1BE;
+		char field_1BF;
+	};
+
+	struct EsvStatusDamage : public EsvStatusConsume
+	{
+		int32_t DamageEvent; // Saved
+		float HitTimer; // Saved
+		float TimeElapsed; // Saved
+		int DamageLevel; // Saved
+		uint64_t DamageStats; // Saved
+		bool SpawnBlood; // Saved
+		uint8_t _Pad20[7];
+	};
+
+
+	struct EsvStatusDamageOnMove : public EsvStatusDamage
+	{
+		float DistancePerDamage; // Saved
+		float DistanceTraveled; // Saved
+		FixedString _Unknown;
+	};
+
+	struct EsvStatusActiveDefense : public EsvStatusConsume
+	{
+		int Charges;
+		Vector3 TargetPos;
+		ObjectHandle TargetHandle;
+		int _Unkn10;
+		FixedString FixedStr;
+		uint64_t _Unkn1011;
+		ObjectSet<void *> Targets; // ObjectSet<StatusActiveDefenseTargetData>
+		ObjectSet<ObjectHandle> PreviousTargets;
+	};
+
 
 	struct EsvStatusManager
 	{

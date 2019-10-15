@@ -127,7 +127,26 @@ THEN
 NRD_StatusSetReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
 ```
 
-### Status attributes
+### ApplyActiveDefense
+`query NRD_ApplyActiveDefense([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [in](REAL)_LifeTime, [out](INTEGER64)_StatusHandle)`
+
+Apply the specified `ACTIVE_DEFENSE` status on the character.
+ - `_StatusId` - Status to apply
+ - `_LifeTime` - Lifetime of status in seconds (one turn = 6 seconds)
+ - `_StatusHandle` - Handle of created status
+
+### ApplyDamageOnMove
+`query NRD_ApplyDamageOnMove([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [in](GUIDSTRING)_SourceCharacter, [in](REAL)_LifeTime, [in](REAL)_DistancePerDamage, [out](INTEGER64)_StatusHandle)`
+
+Apply the specified `DAMAGE_ON_MOVE` status on the character.
+ - `_StatusId` - Status to apply
+ - `_SourceCharacter` - Character applying the status
+ - `_LifeTime` - Lifetime of status in seconds (one turn = 6 seconds)
+ - `_DistancePerDamage` - Distance the character has to pass before damage is triggered (specified in meters)
+ - `_StatusHandle` - Handle of created status
+
+
+## Status attributes
 
 | Attribute | Type | Access | Description |
 |--|--|--|--|
@@ -177,7 +196,7 @@ NRD_StatusSetReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
 
 | Attribute | Type | Access | Description |
 |--|--|--|--|
-| SkillId | String | Read/Write | Skill that was used for the attack |
+| SkillId | String | Read/Write | Stats ID of the skill (`SkillData`) that was used for the attack |
 | Equipment | Integer | Read/Write | **TODO** *Meaning not known.* |
 | DeathType | Enum | Read/Write | A value from the `Death Type` enumeration |
 | DamageType | Enum | Read/Write | A value from the `Damage Type` enumeration |
@@ -229,7 +248,6 @@ In addition to the parameters listed in [StatusHit attributes](#statushit-attrib
 |--|--|--|
 | CallCharacterHit | Flag | **TODO this is complex!** |
 | HitType | Integer | **TODO** *Used in many places, meaning not known. Possibly a bitmask. Values 0, 1, 2, 4 and 5 have special significance* |
-| RollForDamage | Integer | Determines if the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
 | RollForDamage | Integer | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
 | CriticalRoll | Integer | Determines the outcome of the critical hit roll. 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result. 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically. 2 = The hit is not a critical hit. |
 | ProcWindWalker | Flag |  |

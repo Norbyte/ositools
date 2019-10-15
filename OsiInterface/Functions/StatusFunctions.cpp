@@ -140,6 +140,132 @@ namespace osidbg
 					OsirisPropertyMapSet(gStatusPropertyMap, status, args, 2, Type);
 			}
 		}
+
+		template <class T>
+		T * ConstructStatus(EsvStatusManager * statusMachine, char const * statusId, StatusType type)
+		{
+			auto statusIdFs = ToFixedString(statusId);
+			T * status{ nullptr };
+
+			if (statusIdFs) {
+				status = (T *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, statusIdFs, 0);
+			}
+
+			if (status == nullptr) {
+				OsiError("Status does not exist: " << statusId);
+				return nullptr;
+			}
+
+			if (status->GetStatusId() != type) {
+				// TODO - dangling status ptr!
+				OsiError("Status has incorrect type: " << statusId);
+				return nullptr;
+			}
+
+			return status;
+		}
+
+
+		bool ApplyActiveDefense(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args.Get(0).String;
+			auto statusId = args.Get(1).String;
+			auto lifeTime = args.Get(2).Float;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) {
+				OsiError("Character " << characterGuid << " does not exist!");
+				return false;
+			}
+
+			auto statusMachine = character->StatusManager;
+			if (!statusMachine) {
+				OsiError("Character has no StatusMachine!");
+				return false;
+			}
+
+			auto status = ConstructStatus<EsvStatusActiveDefense>(statusMachine, statusId, StatusType::ActiveDefense);
+			if (status == nullptr) {
+				return false;
+			}
+			
+			if (lifeTime < 0.0f) {
+				status->Flags0 |= SF0_KeepAlive;
+				status->CurrentLifeTime = 1.0f;
+			} else {
+				status->Flags0 |= SF0_IsLifeTimeSet;
+				status->LifeTime = lifeTime;
+				status->CurrentLifeTime = lifeTime;
+			}
+
+			ObjectHandle handle;
+			character->GetObjectHandle(&handle);
+
+			status->TargetHandle = handle;
+			status->TargetPos = *character->GetTranslate();
+
+			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
+			args.Get(3).Int64 = (int64_t)status->StatusHandle;
+			return true;
+		}
+
+
+		bool ApplyDamageOnMove(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args.Get(0).String;
+			auto statusId = args.Get(1).String;
+			auto sourceCharacterGuid = args.Get(2).String;
+			auto lifeTime = args.Get(3).Float;
+			auto distancePerDamage = args.Get(4).Float;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) {
+				OsiError("Character " << characterGuid << " does not exist!");
+				return false;
+			}
+
+			auto statusMachine = character->StatusManager;
+			if (!statusMachine) {
+				OsiError("Character has no StatusMachine!");
+				return false;
+			}
+
+			if (distancePerDamage <= 0.01) {
+				OsiError("DistancePerDamage must be a positive value!");
+				return false;
+			}
+
+			auto status = ConstructStatus<EsvStatusDamageOnMove>(statusMachine, statusId, StatusType::DamageOnMove);
+			if (status == nullptr) {
+				return false;
+			}
+
+			if (lifeTime < 0.0f) {
+				status->Flags0 |= SF0_KeepAlive;
+				status->CurrentLifeTime = 1.0f;
+			} else {
+				status->Flags0 |= SF0_IsLifeTimeSet;
+				status->LifeTime = lifeTime;
+				status->CurrentLifeTime = lifeTime;
+			}
+
+			auto sourceCharacter = FindCharacterByNameGuid(sourceCharacterGuid);
+			if (sourceCharacter == nullptr) {
+				status->StatusSourceHandle = ObjectHandle{};
+			} else {
+				ObjectHandle sourceHandle;
+				sourceCharacter->GetObjectHandle(&sourceHandle);
+				status->StatusSourceHandle = sourceHandle;
+			}
+
+			status->StartTimer = 0.0f;
+			status->StatsMultiplier = 1.0f;
+			status->DistancePerDamage = distancePerDamage;
+
+			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
+			args.Get(5).Int64 = (int64_t)status->StatusHandle;
+			return true;
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterStatusFunctions()
@@ -287,6 +413,32 @@ namespace osidbg
 			}
 		);
 		StatusIteratorEventHandle = functionMgr.Register(std::move(statusIteratorEvent));
+
+		auto applyActiveDefense = std::make_unique<CustomQuery>(
+			"NRD_ApplyActiveDefense",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
+				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+			},
+			&func::ApplyActiveDefense
+		);
+		functionMgr.Register(std::move(applyActiveDefense));
+
+		auto applyDamageOnMove = std::make_unique<CustomQuery>(
+			"NRD_ApplyDamageOnMove",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
+				{ "SourceCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::In },
+				{ "DistancePerDamage", ValueType::Real, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+			},
+			&func::ApplyDamageOnMove
+		);
+		functionMgr.Register(std::move(applyDamageOnMove));
 	}
 
 }
