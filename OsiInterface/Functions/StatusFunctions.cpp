@@ -97,7 +97,9 @@ namespace osidbg
 				case StatusType::Hit:
 				{
 					auto hit = static_cast<EsvStatusHit *>(status);
-					if (!OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+					if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+						return true;
+					} else {
 						return OsirisPropertyMapGet(gStatusHitPropertyMap, hit, args, 2, Type);
 					}
 				}
