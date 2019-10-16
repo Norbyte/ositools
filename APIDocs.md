@@ -500,6 +500,37 @@ Updates the total lifetime of the specified game action.
 
 ** TODO Documentation **
 
+# Character functions
+
+## Permanent Boosts
+Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
+
+The following stats are supported: SummonLifelinkModifier, Strength, Memory, Intelligence, Movement, MovementSpeedBoost, Finesse, Wits, Constitution, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, Willpower, Bodybuilding, PiercingResistance, PhysicalResistance, CorrosiveResistance, MagicResistance, CustomResistance, Sight, Hearing, FOV, APMaximum, APStart, APRecovery, CriticalChance, Initiative, Vitality, VitalityBoost, MagicPoints, Level, Gain, Armor, MagicArmor, ArmorBoost, MagicArmorBoost, ArmorBoostGrowthPerLevel, MagicArmorBoostGrowthPerLevel, DamageBoost, DamageBoostGrowthPerLevel, Accuracy, Dodge, MaxResistance, LifeSteal, Weight, ChanceToHitBoost, RangeBoost, APCostBoost, SPCostBoost, MaxSummons, BonusWeaponDamageMultiplier.
+
+**Limitations:**
+Permanent boosts don't show up immediately because of how client-server communication works in the game. To ensure that boosts are visible on the client boosts must be synced by performing a no-op call to `CharacterAddAttribute`. Example:
+
+```c
+...
+NRD_CharacterGetPermanentBoostInt(_Character, "PoisonResistance", _Resistance)
+AND
+IntegerSum(_Resistance, 10, _NewResistance)
+THEN
+NRD_CharacterSetPermanentBoostInt(_Character, "PoisonResistance", _NewResistance);
+CharacterAddAttribute(_Character, "Dummy", 0); // Force boost sync
+```
+
+
+### CharacterGetPermanentBoost
+`query NRD_CharacterGetPermanentBoostInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)`
+
+Returns the permanent boost value applied to the specified character. `_Stat` must be one of the values listed above.
+
+
+### CharacterSetPermanentBoost
+`call NRD_CharacterSetPermanentBoostInt((CHARACTERGUID)_Character, (STRING)_Stat, (INTEGER)_Value)`
+
+Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
 # Item functions
@@ -604,8 +635,8 @@ Returns the permanent boost value applied to the specified item. `_Stat` must be
 
 
 ### ItemSetPermanentBoost
-`query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
-`query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
+`call NRD_ItemSetPermanentBoostInt((GUIDSTRING)_Item, (STRING)_Stat, (INTEGER)_Value)`
+`call NRD_ItemSetPermanentBoostReal((GUIDSTRING)_Item, (STRING)_Stat, (REAL)_Value)`
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 

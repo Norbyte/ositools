@@ -167,6 +167,9 @@
     <ClCompile Include="PropertyMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Functions\CharacterFunctions.cpp">
+      <Filter>Source Files\Functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">

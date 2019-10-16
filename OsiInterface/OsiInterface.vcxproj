@@ -422,6 +422,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="DxgiWrapper.cpp" />
+    <ClCompile Include="Functions\CharacterFunctions.cpp" />
     <ClCompile Include="Functions\DamageFunctions.cpp" />
     <ClCompile Include="Functions\FunctionLibrary.cpp" />
     <ClCompile Include="Functions\FunctionUtilities.cpp" />

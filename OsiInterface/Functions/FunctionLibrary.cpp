@@ -61,6 +61,7 @@ namespace osidbg
 		RegisterHitFunctions();
 		RegisterPlayerFunctions();
 		RegisterItemFunctions();
+		RegisterCharacterFunctions();
 
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 

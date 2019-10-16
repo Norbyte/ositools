@@ -42,6 +42,7 @@ namespace osidbg
 		void RegisterHitFunctions();
 		void RegisterPlayerFunctions();
 		void RegisterItemFunctions();
+		void RegisterCharacterFunctions();
 
 		void PostStartup();
 
