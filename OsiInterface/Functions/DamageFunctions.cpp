@@ -514,11 +514,29 @@ namespace osidbg
 				return;
 			}
 
-			TDamagePair dmg;
-			dmg.DamageType = *damageType;
-			dmg.Amount = (uint32_t)amount;
-			if (!status->DamageInfo.DamageList.SafeAdd(dmg)) {
-				OsiError("DamageList capacity exceeded!");
+			bool added{ false };
+			auto & dmgList = status->DamageInfo.DamageList;
+			for (uint32_t i = 0; i < dmgList.Size; i++) {
+				if (dmgList.Buf[i].DamageType == *damageType) {
+					auto newAmount = (int32_t)dmgList.Buf[i].Amount + amount;
+					if (newAmount <= 0) {
+						dmgList.Remove(i);
+					} else {
+						dmgList.Buf[i].Amount += (uint32_t)newAmount;
+					}
+
+					added = true;
+					break;
+				}
+			}
+
+			if (!added && amount > 0) {
+				TDamagePair dmg;
+				dmg.DamageType = *damageType;
+				dmg.Amount = (uint32_t)amount;
+				if (!status->DamageInfo.DamageList.SafeAdd(dmg)) {
+					OsiError("DamageList capacity exceeded!");
+				}
 			}
 		}
 	}
