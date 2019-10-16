@@ -146,6 +146,39 @@ Apply the specified `DAMAGE_ON_MOVE` status on the character.
  - `_StatusHandle` - Handle of created status
 
 
+## Hit status functions
+
+### HitAddDamage
+`call NRD_HitAddDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType, (INTEGER)_Amount)`
+
+Increases/decreases the amount of damage dealt by the `HIT` status.
+ - `_StatusHandle` - Handle of the `HIT` status
+ - `_DamageType` - Damage type to update; see `Damage Type` enumeration.
+ - `_Amount` - Damage amount. Positive values add, negative values remove damage. The total damage amount cannot go below zero.
+
+### HitClearDamage
+`call NRD_HitClearDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType)`
+
+Removes the specified damage type from the list of damages dealt by the `HIT` status.
+ - `_StatusHandle` - Handle of the `HIT` status
+ - `_DamageType` - Damage type to clear; see `Damage Type` enumeration.
+
+### HitClearAllDamage
+`call NRD_HitClearAllDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle)`
+
+Clears the list of damage types dealt by the `HIT` status.
+ - `_StatusHandle` - Handle of the `HIT` status
+
+
+### HitGetDamage
+`query NRD_HitGetDamage([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_DamageType, [out](INTEGER)_Amount)`
+
+Returns the amount of damage dealt by the `HIT` status.
+ - `_StatusHandle` - Handle of the `HIT` status
+ - `_DamageType` - Damage type to retrieve; see `Damage Type` enumeration.
+ - `_Amount` - Damage amount
+
+
 ## Status attributes
 
 | Attribute | Type | Access | Description |
