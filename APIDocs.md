@@ -46,7 +46,7 @@ Possible return values: `Character`, `Potion`, `Armor`, `Object`, `Shield`, `Wea
 # Status functions
 
 ### IterateCharacterStatuses
-`call NRD_IterateCharacterStatuses((GUIDSTRING)_CharacterGuid, (STRING)_Event)`
+`call NRD_IterateCharacterStatuses((CHARACTERGUID)_CharacterGuid, (STRING)_Event)`
 `event NRD_StatusIteratorEvent((STRING)_Event, (CHARACTERGUID)_Character, (STRING)_StatusId, (INTEGER64)_StatusHandle)`
 
 Throws status iterator event `_Event` for each status present on the character. Unlike regular events, `NRD_StatusIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_IterateCharacterStatuses` call), so there is no need for an additional cleanup/finalizer event.
@@ -67,7 +67,7 @@ DebugBreak(_StatusId);
  - The `_StatusHandle` is a persistent, unique value (like UUIDs) identifying the status instance. Unlike status names, it can be used to differentiate between two instances of the same status.
 
 ### StatusGetHandle
-`query NRD_StatusGetHandle([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
+`query NRD_StatusGetHandle([in](CHARACTERGUID)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
 
 Returns the handle of the first status with the specified `_StatusId`. If no such status exists, the query fails.
 
@@ -83,10 +83,10 @@ NRD_DebugLog((STRING)_Handle);
 ```
 
 ### StatusGet
-`query NRD_StatusGetInt([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
-`query NRD_StatusGetReal([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
-`query NRD_StatusGetString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
-`query NRD_StatusGetGuidString([in](GUIDSTRING)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
+`query NRD_StatusGetInt([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
+`query NRD_StatusGetReal([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
+`query NRD_StatusGetString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
+`query NRD_StatusGetGuidString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
 
 Returns the specified status attribute. If the character or status does not exist, or if the attribute is not of the appropriate type, the query fails.
 
@@ -102,11 +102,11 @@ DebugBreak(_SourceStr);
 ```
 
 ### StatusSet
-`call NRD_StatusSetInt((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (INTEGER)_Value)`
-`call NRD_StatusSetReal((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
-`call NRD_StatusSetString((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (STRING)_Value)`
-`call NRD_StatusSetGuidString((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (GUIDSTRING)_Value)`
-`call NRD_StatusSetVector3((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`call NRD_StatusSetInt((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (INTEGER)_Value)`
+`call NRD_StatusSetReal((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
+`call NRD_StatusSetString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (STRING)_Value)`
+`call NRD_StatusSetGuidString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (GUIDSTRING)_Value)`
+`call NRD_StatusSetVector3((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_X, (REAL)_Y, (REAL)_Z)`
 
 Updates the specified status attribute.
 See the "Status attributes" section below for a list of attributes that can be modified.
@@ -128,7 +128,7 @@ NRD_StatusSetReal(_Character, _Handle, "CurrentLifeTime", _NewLifeTime);
 ```
 
 ### ApplyActiveDefense
-`query NRD_ApplyActiveDefense([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [in](REAL)_LifeTime, [out](INTEGER64)_StatusHandle)`
+`query NRD_ApplyActiveDefense([in](CHARACTERGUID)_Character, [in](STRING)_StatusId, [in](REAL)_LifeTime, [out](INTEGER64)_StatusHandle)`
 
 Apply the specified `ACTIVE_DEFENSE` status on the character.
  - `_StatusId` - Status to apply
@@ -136,7 +136,7 @@ Apply the specified `ACTIVE_DEFENSE` status on the character.
  - `_StatusHandle` - Handle of created status
 
 ### ApplyDamageOnMove
-`query NRD_ApplyDamageOnMove([in](GUIDSTRING)_Character, [in](STRING)_StatusId, [in](GUIDSTRING)_SourceCharacter, [in](REAL)_LifeTime, [in](REAL)_DistancePerDamage, [out](INTEGER64)_StatusHandle)`
+`query NRD_ApplyDamageOnMove([in](CHARACTERGUID)_Character, [in](STRING)_StatusId, [in](CHARACTERGUID)_SourceCharacter, [in](REAL)_LifeTime, [in](REAL)_DistancePerDamage, [out](INTEGER64)_StatusHandle)`
 
 Apply the specified `DAMAGE_ON_MOVE` status on the character.
  - `_StatusId` - Status to apply
@@ -381,13 +381,13 @@ NRD_ProjectileLaunch();
 # Skill functions
 
 ### SkillSetCooldown
-`call NRD_SkillSetCooldown((GUIDSTRING)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
+`call NRD_SkillSetCooldown((CHARACTERGUID)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
 
 Set the current cooldown timer of the skill (in seconds).
 Doesn't work on skills that can only be used once per combat.
 
 ### SkillGetCooldown
-`query NRD_SkillGetCooldown([in](GUIDSTRING)_Character, [in](STRING)_SkillId, [out](REAL)_Cooldown)`
+`query NRD_SkillGetCooldown([in](CHARACTERGUID)_Character, [in](STRING)_SkillId, [out](REAL)_Cooldown)`
 
 Returns the current cooldown timer of the skill (in seconds).
 For skills that can only be used once per combat -1.0 is returned.
@@ -399,27 +399,27 @@ For skills that can only be used once per combat -1.0 is returned.
  - The skill bar slot (`_Slot`) must be an integer between 0 and 144.
 
 ### SkillBarGetItem
-`query NRD_SkillBarGetItem([in](GUIDSTRING)_Character, [in](INTEGER)_Slot, [out](GUIDSTRING)_Item)`
+`query NRD_SkillBarGetItem([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](ITEMGUID)_Item)`
 
 Retrieves the item in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by a skill, the query fails.
 
 ### SkillBarGetSkill
-`query NRD_SkillBarGetSkill([in](GUIDSTRING)_Character, [in](INTEGER)_Slot, [out](STRING)_Skill)`
+`query NRD_SkillBarGetSkill([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](STRING)_Skill)`
 
 Retrieves the skill in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by an item, the query fails.
 
 ### SkillBarFindSkill
-`query NRD_SkillBarFindSkill([in](GUIDSTRING)_Character, [in](STRING)_Skill, [out](INTEGER)_Slot)`
+`query NRD_SkillBarFindSkill([in](CHARACTERGUID)_Character, [in](STRING)_Skill, [out](INTEGER)_Slot)`
 
 Checks whether the player has the skill `_Skill` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the skill is not on the skill bar, the query fails.
 
 ### SkillBarFindItem
-`query NRD_SkillBarFindItem([in](GUIDSTRING)_Character, [in](GUIDSTRING)_Item, [out](INTEGER)_Slot)`
+`query NRD_SkillBarFindItem([in](CHARACTERGUID)_Character, [in](ITEMGUID)_Item, [out](INTEGER)_Slot)`
 
 Checks whether the player has the item `_Item` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the item is not on the skill bar, the query fails.
 
 ### SkillBarSetSkill
-`call NRD_SkillBarSetSkill((GUIDSTRING)_Character, (INTEGER)_Slot, (STRING)_SkillId)`
+`call NRD_SkillBarSetSkill((CHARACTERGUID)_Character, (INTEGER)_Slot, (STRING)_SkillId)`
 
 Removes any item or skill that's currently in the skill bar slot and replaces it with the specified skill.
 
@@ -427,12 +427,12 @@ Removes any item or skill that's currently in the skill bar slot and replaces it
  - It is possible to pin any skill to the skill bar, not just ones that the character currently has.
 
 ### SkillBarSetItem
-`call NRD_SkillBarSetItem((GUIDSTRING)_Character, (INTEGER)_Slot, (GUIDSTRING)_Item)`
+`call NRD_SkillBarSetItem((CHARACTERGUID)_Character, (INTEGER)_Slot, (ITEMGUID)_Item)`
 
 Removes any item or skill that's currently in the skill bar slot and replaces it with the specified item.
 
 ### SkillBarClear
-`call NRD_SkillBarClear((GUIDSTRING)_Character, (INTEGER)_Slot)`
+`call NRD_SkillBarClear((CHARACTERGUID)_Character, (INTEGER)_Slot)`
 
 Removes any item or skill that's currently in the specified skill bar slot.
 
@@ -452,22 +452,22 @@ Each function needs a skill stats id of the same type (Rain skill id for `NRD_Cr
    - Dome: `LifeTime`, `Finished`
 
 ### CreateRain
-`query NRD_CreateRain([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateRain([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateStorm
-`query NRD_CreateStorm([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateStorm([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateWall
-`query NRD_CreateWall([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_SourceX, [in](REAL)_SourceY, [in](REAL)_SourceZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateWall([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_SourceX, [in](REAL)_SourceY, [in](REAL)_SourceZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateTornado
-`query NRD_CreateTornado([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_PositionX, [in](REAL)_PositionY, [in](REAL)_PositionZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateTornado([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_PositionX, [in](REAL)_PositionY, [in](REAL)_PositionZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
 
 ### CreateDome
-`query NRD_CreateDome([in](GUIDSTRING)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateDome([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
 
 ### GameObjectMove
-`query NRD_CreateGameObjectMove([in](GUIDSTRING)_TargetCharacter, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](GUIDSTRING)_CasterCharacter, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateGameObjectMove([in](CHARACTERGUID)_TargetCharacter, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](CHARACTERGUID)_CasterCharacter, [out](INTEGER64)_GameObjectHandle)`
 
 ### GameActionDestroy
 `call NRD_GameActionDestroy((INTEGER64)_GameActionHandle)`
@@ -496,30 +496,32 @@ Updates the total lifetime of the specified game action.
 
 
 ### Summon
-`query NRD_Summon([in](GUIDSTRING)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](GUIDSTRING)_Summon)`
+`query NRD_Summon([in](CHARACTERGUID)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](CHARACTERGUID)_Summon)`
 
 ** TODO Documentation **
+
+
 
 # Item functions
 
 ### ItemSetIdentified
-`call NRD_ItemSetIdentified((GUIDSTRING)_Item, (INTEGER)_IsIdentified)`
+`call NRD_ItemSetIdentified((ITEMGUID)_Item, (INTEGER)_IsIdentified)`
 
 Sets whether the item is identified or not.
 Marking common items (that cannot be identified) as unidentified has no effect.
 
 ### ItemGetStatsId
-`query NRD_ItemGetStatsId([in](GUIDSTRING)_Item, [out](STRING)_StatsId)`
+`query NRD_ItemGetStatsId([in](ITEMGUID)_Item, [out](STRING)_StatsId)`
 
 Return the stats entry ID of the specified item.
 
 ### ItemGetGenerationParams
-`query NRD_ItemGetGenerationParams([in](GUIDSTRING)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level)`
+`query NRD_ItemGetGenerationParams([in](ITEMGUID)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level)`
 
 Return the stats generation parameters of the specified item.
 
 ### ItemHasDeltaModifier
-`query NRD_ItemHasDeltaModifier([in](GUIDSTRING)_Item, [in](STRING)_DeltaMod, [out](INTEGER)_Count)`
+`query NRD_ItemHasDeltaModifier([in](ITEMGUID)_Item, [in](STRING)_DeltaMod, [out](INTEGER)_Count)`
 
 Return the number of DeltaMods on the item with the specified boost name. Unlike vanilla `ItemHasDeltaModifier`, this also takes into account the boosts added by item generation.
 
@@ -595,25 +597,25 @@ Permanent boosts don't show up immediately because of how client-server communic
 
 
 ### ItemGetPermanentBoost
-`query NRD_ItemGetPermanentBoostInt([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
-`query NRD_ItemGetPermanentBoostReal([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
+`query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
 
 Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
 
 
 ### ItemSetPermanentBoost
-`query NRD_ItemGetPermanentBoostInt([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
-`query NRD_ItemGetPermanentBoostReal([in](GUIDSTRING)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
+`query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
 ## Cloning items
 
-`call NRD_ItemCloneBegin((GUIDSTRING)_Item)`
+`call NRD_ItemCloneBegin((ITEMGUID)_Item)`
 `call NRD_ItemCloneSetInt((STRING)_Property, (INTEGER)_Value)`
 `call NRD_ItemCloneSetString((STRING)_Property, (STRING)_Value)`
-`query NRD_ItemClone([out](GUIDSTRING)_NewItem)`
+`query NRD_ItemClone([out](ITEMGUID)_NewItem)`
 
 **Usage:**
 The clone API creates a copy of a specific item.

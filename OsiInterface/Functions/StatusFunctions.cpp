@@ -6,6 +6,8 @@
 namespace osidbg
 {
 	FunctionHandle StatusIteratorEventHandle;
+	FunctionHandle HitEventHandle;
+	FunctionHandle HealEventHandle;
 
 	namespace func
 	{
@@ -270,6 +272,61 @@ namespace osidbg
 		}
 	}
 
+
+	void CustomFunctionLibrary::OnStatusHitEnter(EsvStatus * status)
+	{
+		auto statusHit = static_cast<EsvStatusHit *>(status);
+
+		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		if (target == nullptr) {
+			OsiError("Status has no target?");
+			return;
+		}
+
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		if (source != nullptr) {
+			sourceGuid = source->GetGuid()->Str;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamageDone });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
+
+		delete eventArgs;
+	}
+
+
+	void CustomFunctionLibrary::OnStatusHealEnter(EsvStatus * status)
+	{
+		auto statusHeal = static_cast<EsvStatusHeal *>(status);
+
+		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		if (target == nullptr) {
+			OsiError("Status has no target?");
+			return;
+		}
+
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		if (source != nullptr) {
+			sourceGuid = source->GetGuid()->Str;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHeal->HealAmount });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HealEventHandle, eventArgs);
+
+		delete eventArgs;
+	}
+
+
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
@@ -277,7 +334,7 @@ namespace osidbg
 		auto iterateCharacterStatuses = std::make_unique<CustomCall>(
 			"NRD_IterateCharacterStatuses",
 			std::vector<CustomFunctionParam>{
-				{ "CharacterGuid", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "CharacterGuid", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Event", ValueType::String, FunctionArgumentDirection::In }
 			},
 			&func::IterateCharacterStatuses
@@ -287,7 +344,7 @@ namespace osidbg
 		auto getStatusHandle = std::make_unique<CustomQuery>(
 			"NRD_StatusGetHandle",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
@@ -298,7 +355,7 @@ namespace osidbg
 		auto getStatusAttributeInt = std::make_unique<CustomQuery>(
 			"NRD_StatusGetInt",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
@@ -310,7 +367,7 @@ namespace osidbg
 		auto getStatusAttributeReal = std::make_unique<CustomQuery>(
 			"NRD_StatusGetReal",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
@@ -322,7 +379,7 @@ namespace osidbg
 		auto getStatusAttributeString = std::make_unique<CustomQuery>(
 			"NRD_StatusGetString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
@@ -334,7 +391,7 @@ namespace osidbg
 		auto getStatusAttributeGuidString = std::make_unique<CustomQuery>(
 			"NRD_StatusGetGuidString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out },
@@ -346,7 +403,7 @@ namespace osidbg
 		auto setStatusAttributeInt = std::make_unique<CustomCall>(
 			"NRD_StatusSetInt",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
@@ -358,7 +415,7 @@ namespace osidbg
 		auto setStatusAttributeReal = std::make_unique<CustomCall>(
 			"NRD_StatusSetReal",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
@@ -370,7 +427,7 @@ namespace osidbg
 		auto setStatusAttributeString = std::make_unique<CustomCall>(
 			"NRD_StatusSetString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::In },
@@ -382,7 +439,7 @@ namespace osidbg
 		auto setStatusAttributeGuidString = std::make_unique<CustomCall>(
 			"NRD_StatusSetGuidString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -394,7 +451,7 @@ namespace osidbg
 		auto setStatusAttributeVector3 = std::make_unique<CustomCall>(
 			"NRD_StatusSetVector3",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
@@ -419,7 +476,7 @@ namespace osidbg
 		auto applyActiveDefense = std::make_unique<CustomQuery>(
 			"NRD_ApplyActiveDefense",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
 				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
@@ -431,9 +488,9 @@ namespace osidbg
 		auto applyDamageOnMove = std::make_unique<CustomQuery>(
 			"NRD_ApplyDamageOnMove",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
-				{ "SourceCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "SourceCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "LifeTime", ValueType::Real, FunctionArgumentDirection::In },
 				{ "DistancePerDamage", ValueType::Real, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
@@ -441,6 +498,28 @@ namespace osidbg
 			&func::ApplyDamageOnMove
 		);
 		functionMgr.Register(std::move(applyDamageOnMove));
+
+		auto hitEvent = std::make_unique<CustomEvent>(
+			"NRD_OnHit",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+			}
+		);
+		HitEventHandle = functionMgr.Register(std::move(hitEvent));
+
+		auto healEvent = std::make_unique<CustomEvent>(
+			"NRD_OnHeal",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+			}
+		);
+		HealEventHandle = functionMgr.Register(std::move(healEvent));
 	}
 
 }

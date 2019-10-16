@@ -239,7 +239,7 @@ namespace osidbg
 		auto itemGetStatsId = std::make_unique<CustomQuery>(
 			"NRD_ItemGetStatsId",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "StatsId", ValueType::String, FunctionArgumentDirection::Out }
 			},
 			&func::ItemGetStatsId
@@ -249,7 +249,7 @@ namespace osidbg
 		auto itemGetGenerationParams = std::make_unique<CustomQuery>(
 			"NRD_ItemGetGenerationParams",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Base", ValueType::String, FunctionArgumentDirection::Out },
 				{ "ItemType", ValueType::String, FunctionArgumentDirection::Out },
 				{ "Level", ValueType::Integer, FunctionArgumentDirection::Out }
@@ -261,7 +261,7 @@ namespace osidbg
 		auto itemHasDeltaMod = std::make_unique<CustomQuery>(
 			"NRD_ItemHasDeltaModifier",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "DeltaMod", ValueType::String, FunctionArgumentDirection::Out },
 				{ "Count", ValueType::Integer, FunctionArgumentDirection::Out }
 			},
@@ -272,7 +272,7 @@ namespace osidbg
 		auto itemSetIdentified = std::make_unique<CustomCall>(
 			"NRD_ItemSetIdentified",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "IsIdentified", ValueType::Integer, FunctionArgumentDirection::In }
 			},
 			&func::ItemSetIdentified
@@ -283,7 +283,7 @@ namespace osidbg
 		auto itemGetPermanentBoostInt = std::make_unique<CustomQuery>(
 			"NRD_ItemGetPermanentBoostInt",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
 			},
@@ -295,7 +295,7 @@ namespace osidbg
 		auto itemGetPermanentBoostReal = std::make_unique<CustomQuery>(
 			"NRD_ItemGetPermanentBoostReal",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
 			},
@@ -307,7 +307,7 @@ namespace osidbg
 		auto itemSetPermanentBoostInt = std::make_unique<CustomCall>(
 			"NRD_ItemSetPermanentBoostInt",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
 			},
@@ -319,7 +319,7 @@ namespace osidbg
 		auto itemSetPermanentBoostReal = std::make_unique<CustomCall>(
 			"NRD_ItemSetPermanentBoostReal",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
 			},
@@ -331,7 +331,7 @@ namespace osidbg
 		auto itemCloneBegin = std::make_unique<CustomCall>(
 			"NRD_ItemCloneBegin",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In }
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In }
 			},
 			&func::ItemCloneBegin
 		);
@@ -340,7 +340,7 @@ namespace osidbg
 		auto itemClone = std::make_unique<CustomQuery>(
 			"NRD_ItemClone",
 			std::vector<CustomFunctionParam>{
-				{ "NewItem", ValueType::GuidString, FunctionArgumentDirection::Out }
+				{ "NewItem", ValueType::ItemGuid, FunctionArgumentDirection::Out }
 			},
 			&func::ItemClone
 		);

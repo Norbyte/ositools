@@ -252,7 +252,7 @@ namespace osidbg
 		auto skillGetCooldown = std::make_unique<CustomQuery>(
 			"NRD_SkillGetCooldown",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "Cooldown", ValueType::Real, FunctionArgumentDirection::Out }
 			},
@@ -263,7 +263,7 @@ namespace osidbg
 		auto skillSetCooldown = std::make_unique<CustomCall>(
 			"NRD_SkillSetCooldown",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "Cooldown", ValueType::Real, FunctionArgumentDirection::In }
 			},
@@ -275,9 +275,9 @@ namespace osidbg
 		auto skillBarGetItem = std::make_unique<CustomQuery>(
 			"NRD_SkillBarGetItem",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::In },
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::Out }
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::Out }
 			},
 			&func::SkillBarGetItem
 		);
@@ -286,7 +286,7 @@ namespace osidbg
 		auto skillBarGetSkill = std::make_unique<CustomQuery>(
 			"NRD_SkillBarGetSkill",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "Skill", ValueType::String, FunctionArgumentDirection::Out }
 			},
@@ -297,7 +297,7 @@ namespace osidbg
 		auto skillBarFindSkill = std::make_unique<CustomQuery>(
 			"NRD_SkillBarFindSkill",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Skill", ValueType::String, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::Out }
 			},
@@ -308,8 +308,8 @@ namespace osidbg
 		auto skillBarFindItem = std::make_unique<CustomQuery>(
 			"NRD_SkillBarFindItem",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::Out }
 			},
 			&func::SkillBarFindItem
@@ -319,7 +319,7 @@ namespace osidbg
 		auto skillBarSetSkill = std::make_unique<CustomCall>(
 			"NRD_SkillBarSetSkill",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In }
 			},
@@ -330,9 +330,9 @@ namespace osidbg
 		auto skillBarSetItem = std::make_unique<CustomCall>(
 			"NRD_SkillBarSetItem",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::In },
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In }
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In }
 			},
 			&func::SkillBarSetItem
 		);
@@ -341,7 +341,7 @@ namespace osidbg
 		auto skillBarClear = std::make_unique<CustomCall>(
 			"NRD_SkillBarClear",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::Integer, FunctionArgumentDirection::In }
 			},
 			&func::SkillBarClear

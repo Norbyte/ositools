@@ -390,7 +390,7 @@ namespace osidbg
 		auto createRain = std::make_unique<CustomQuery>(
 			"NRD_CreateRain",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
@@ -404,7 +404,7 @@ namespace osidbg
 		auto createStorm = std::make_unique<CustomQuery>(
 			"NRD_CreateStorm",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
@@ -418,7 +418,7 @@ namespace osidbg
 		auto createWall = std::make_unique<CustomQuery>(
 			"NRD_CreateWall",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "SourceX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "SourceY", ValueType::Real, FunctionArgumentDirection::In },
@@ -435,7 +435,7 @@ namespace osidbg
 		auto createTornado = std::make_unique<CustomQuery>(
 			"NRD_CreateTornado",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "PositionX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "PositionY", ValueType::Real, FunctionArgumentDirection::In },
@@ -452,7 +452,7 @@ namespace osidbg
 		auto createDome = std::make_unique<CustomQuery>(
 			"NRD_CreateDome",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
@@ -466,12 +466,12 @@ namespace osidbg
 		auto gameObjectMove = std::make_unique<CustomQuery>(
 			"NRD_CreateGameObjectMove",
 			std::vector<CustomFunctionParam>{
-				{ "TargetCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "TargetCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
 				{ "BeamEffectName", ValueType::String, FunctionArgumentDirection::In },
-				{ "CasterCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "CasterCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateGameObjectMove
@@ -510,7 +510,7 @@ namespace osidbg
 		auto summon = std::make_unique<CustomQuery>(
 			"NRD_Summon",
 			std::vector<CustomFunctionParam>{
-				{ "OwnerCharacter", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Template", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
@@ -519,7 +519,7 @@ namespace osidbg
 				{ "Level", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "IsTotem", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "MapToAiGrid", ValueType::Integer, FunctionArgumentDirection::In },
-				{ "Summon", ValueType::GuidString, FunctionArgumentDirection::Out },
+				{ "Summon", ValueType::CharacterGuid, FunctionArgumentDirection::Out },
 			},
 			&func::Summon
 		);

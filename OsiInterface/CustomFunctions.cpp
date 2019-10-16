@@ -11,7 +11,7 @@ namespace osidbg {
 bool CustomFunction::ValidateArgs(OsiArgumentDesc const & params) const
 {
 	if (params.Count() != params_.size()) {
-		Debug("Function %s/%d: Argument count mismatch", name_.c_str(), params_.size());
+		OsiError("Function " << name_  << "/" << params_.size() << ": Argument count mismatch");
 		return false;
 	}
 
@@ -42,10 +42,18 @@ bool CustomFunction::ValidateParam(CustomFunctionParam const & param, OsiArgumen
 		typeId = ValueType::GuidString;
 	}
 
-	if (typeId != param.Type) {
-		Debug("Function %s/%d: Argument '%s' type mismatch; expected %d, got %d",
-			name_.c_str(), params_.size(), param.Name.c_str(),
-			param.Type, typeId);
+	auto paramTypeId = param.Type;
+	if (paramTypeId == ValueType::CharacterGuid
+		|| paramTypeId == ValueType::ItemGuid
+		|| paramTypeId == ValueType::TriggerGuid
+		|| paramTypeId == ValueType::SplineGuid
+		|| paramTypeId == ValueType::LevelTemplateGuid) {
+		paramTypeId = ValueType::GuidString;
+	}
+
+	if (typeId != paramTypeId) {
+		OsiError("Function " << name_ << "/" << params_.size() << ": Argument '" << param.Name
+			<< "' type mismatch; expected " << (unsigned)paramTypeId << ", got " << (unsigned)typeId);
 		return false;
 	}
 
@@ -157,12 +165,12 @@ CustomFunction * CustomFunctionManager::Find(FunctionNameAndArity const & signat
 bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & params)
 {
 	if (handle.classIndex() != CallClassId) {
-		Debug("CustomFunctionManager::Call(): Cannot call %08x - not a custom function!", (uint32_t)handle);
+		OsiError("CustomFunctionManager::Call(): Cannot call " << (uint32_t)handle << " - not a custom function!");
 		return false;
 	}
 
 	if (handle.functionIndex() >= calls_.size()) {
-		Debug("CustomFunctionManager::Call(): Call index %d out of bounds!", handle.functionIndex());
+		OsiError("CustomFunctionManager::Call(): Call index " << handle.functionIndex() << " out of bounds!");
 		return false;
 	}
 
@@ -172,12 +180,12 @@ bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & 
 bool CustomFunctionManager::Query(FunctionHandle handle, OsiArgumentDesc & params)
 {
 	if (handle.classIndex() != QueryClassId) {
-		Debug("CustomFunctionManager::Query(): Cannot query %08x - not a custom function!", (uint32_t)handle);
+		OsiError("CustomFunctionManager::Query(): Cannot query " << (uint32_t)handle << " - not a custom function!");
 		return false;
 	}
 
 	if (handle.functionIndex() >= queries_.size()) {
-		Debug("CustomFunctionManager::Query(): Query index %d out of bounds!", handle.functionIndex());
+		OsiError("CustomFunctionManager::Query(): Query index " << handle.functionIndex() << " out of bounds!");
 		return false;
 	}
 
@@ -237,13 +245,13 @@ void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc *
 		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
 		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
 	} else {
-		Debug(L"CustomFunctionInjector::ThrowEvent(): Event handle not mapped: %08x", (unsigned)handle);
+		OsiError("CustomFunctionInjector::ThrowEvent(): Event handle not mapped: " << (unsigned)handle);
 	}
 }
 
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
 {
-	Debug(L"CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs: %d", *MappingCount);
+	Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs: %d", *MappingCount);
 
 	// Remove local functions
 	auto outputIndex = 0;
@@ -263,7 +271,7 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 	}
 
 	*MappingCount = outputIndex;
-	Debug(L"CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs after filtering: %d", *MappingCount);
+	Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs after filtering: %d", *MappingCount);
 }
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)

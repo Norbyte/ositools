@@ -46,9 +46,6 @@ namespace osidbg
 		}
 	}
 
-	FunctionHandle HitEventHandle;
-	FunctionHandle HealEventHandle;
-
 	CustomFunctionLibrary::CustomFunctionLibrary(class OsirisProxy & osiris)
 		: osiris_(osiris)
 	{}
@@ -70,7 +67,7 @@ namespace osidbg
 		auto breakOnCharacter = std::make_unique<CustomCall>(
 			"NRD_BreakOnCharacter",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::GuidString, FunctionArgumentDirection::In }
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In }
 			},
 			&func::BreakOnCharacter
 		);
@@ -79,7 +76,7 @@ namespace osidbg
 		auto breakOnItem = std::make_unique<CustomCall>(
 			"NRD_BreakOnItem",
 			std::vector<CustomFunctionParam>{
-				{ "Item", ValueType::GuidString, FunctionArgumentDirection::In }
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In }
 			},
 			&func::BreakOnItem
 		);
@@ -95,28 +92,6 @@ namespace osidbg
 			&func::DoExperiment
 		);
 		functionMgr.Register(std::move(experiment));
-
-		auto hitEvent = std::make_unique<CustomEvent>(
-			"NRD_OnHit",
-			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-			}
-		);
-		HitEventHandle = functionMgr.Register(std::move(hitEvent));
-
-		auto healEvent = std::make_unique<CustomEvent>(
-			"NRD_OnHeal",
-			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-			}
-		);
-		HealEventHandle = functionMgr.Register(std::move(healEvent));
 	}
 
 
@@ -137,58 +112,4 @@ namespace osidbg
 
 		PostLoaded = true;
 	}
-
-
-	void CustomFunctionLibrary::OnStatusHitEnter(EsvStatus * status)
-	{
-		auto statusHit = static_cast<EsvStatusHit *>(status);
-
-		auto target = FindCharacterByHandle(status->TargetCIHandle);
-		if (target == nullptr) {
-			OsiError("Status has no target?");
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = FindCharacterByHandle(status->StatusSourceHandle);
-		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamageDone });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
-
-		delete eventArgs;
-	}
-
-	void CustomFunctionLibrary::OnStatusHealEnter(EsvStatus * status)
-	{
-		auto statusHeal = static_cast<EsvStatusHeal *>(status);
-
-		auto target = FindCharacterByHandle(status->TargetCIHandle);
-		if (target == nullptr) {
-			OsiError("Status has no target?");
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = FindCharacterByHandle(status->StatusSourceHandle);
-		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHeal->HealAmount });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HealEventHandle, eventArgs);
-
-		delete eventArgs;
-	}
-
 }
