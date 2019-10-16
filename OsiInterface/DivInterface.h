@@ -191,74 +191,74 @@ namespace osidbg
 		bool IsEquipped;
 	};
 
-	struct CharacterStat
+	struct CharacterDynamicStat
 	{
 		uint64_t Unkn0;
 		uint64_t Unkn1;
 
-		uint32_t SummonLifelinkModifier;
-		uint32_t Strength;
-		uint32_t Memory;
-		uint32_t Intelligence;
-		uint32_t Movement;
-		uint32_t MovementSpeedBoost;
-		uint32_t Finesse;
-		uint32_t Wits;
-		uint32_t Constitution;
+		int32_t SummonLifelinkModifier;
+		int32_t Strength;
+		int32_t Memory;
+		int32_t Intelligence;
+		int32_t Movement;
+		int32_t MovementSpeedBoost;
+		int32_t Finesse;
+		int32_t Wits;
+		int32_t Constitution;
 
-		uint32_t FireResistance;
-		uint32_t EarthResistance;
-		uint32_t WaterResistance;
-		uint32_t AirResistance;
-		uint32_t PoisonResistance;
-		uint32_t ShadowResistance;
+		int32_t FireResistance;
+		int32_t EarthResistance;
+		int32_t WaterResistance;
+		int32_t AirResistance;
+		int32_t PoisonResistance;
+		int32_t ShadowResistance;
 
-		uint32_t Willpower;
-		uint32_t Bodybuilding;
-		uint32_t PiercingResistance;
-		uint32_t PhysicalResistance;
-		uint32_t CorrosiveResistance;
-		uint32_t MagicResistance;
-		uint32_t CustomResistance;
+		int32_t Willpower;
+		int32_t Bodybuilding;
+		int32_t PiercingResistance;
+		int32_t PhysicalResistance;
+		int32_t CorrosiveResistance;
+		int32_t MagicResistance;
+		int32_t CustomResistance;
 
-		uint32_t Sight;
-		uint32_t Hearing;
-		uint32_t FOV;
-		uint32_t APMaximum;
-		uint32_t APStart;
-		uint32_t APRecovery;
-		uint32_t CriticalChance;
-		uint32_t Initiative;
-		uint32_t Vitality;
-		uint32_t VitalityBoost;
-		uint32_t MagicPoints;
-		uint32_t Level;
-		uint32_t Gain;
+		int32_t Sight;
+		int32_t Hearing;
+		int32_t FOV;
+		int32_t APMaximum;
+		int32_t APStart;
+		int32_t APRecovery;
+		int32_t CriticalChance;
+		int32_t Initiative;
+		int32_t Vitality;
+		int32_t VitalityBoost;
+		int32_t MagicPoints;
+		int32_t Level;
+		int32_t Gain;
 
-		uint32_t Armor;
-		uint32_t MagicArmor;
-		uint32_t ArmorBoost;
-		uint32_t MagicArmorBoost;
-		uint32_t ArmorBoostGrowthPerLevel;
-		uint32_t MagicArmorBoostGrowthPerLevel;
-		uint32_t DamageBoost;
-		uint32_t DamageBoostGrowthPerLevel;
+		int32_t Armor;
+		int32_t MagicArmor;
+		int32_t ArmorBoost;
+		int32_t MagicArmorBoost;
+		int32_t ArmorBoostGrowthPerLevel;
+		int32_t MagicArmorBoostGrowthPerLevel;
+		int32_t DamageBoost;
+		int32_t DamageBoostGrowthPerLevel;
 
-		uint32_t Accuracy;
-		uint32_t Dodge;
-		uint32_t MaxResistance;
-		uint32_t LifeSteal;
-		uint32_t Weight;
-		uint32_t ChanceToHitBoost;
-		uint32_t RangeBoost;
-		uint32_t APCostBoost;
-		uint32_t SPCostBoost;
-		uint32_t MaxSummons;
-		uint32_t Abilities[40];
-		uint32_t BonusWeaponDamageMultiplier;
+		int32_t Accuracy;
+		int32_t Dodge;
+		int32_t MaxResistance;
+		int32_t LifeSteal;
+		int32_t Weight;
+		int32_t ChanceToHitBoost;
+		int32_t RangeBoost;
+		int32_t APCostBoost;
+		int32_t SPCostBoost;
+		int32_t MaxSummons;
+		int32_t Abilities[40];
+		int32_t BonusWeaponDamageMultiplier;
 		uint32_t Talents[4];
 		uint32_t RemovedTalents[4];
-		uint16_t Traits[18];
+		int16_t Traits[18];
 		uint32_t BoostConditionsMask;
 		FixedString TranslationKey;
 		FixedString BonusWeapon;
@@ -279,40 +279,40 @@ namespace osidbg
 		uint32_t MagicArmorAfterHitCooldownMultiplier;
 		uint32_t MPStart;
 		uint32_t CurrentAP;
-		uint32_t BonusActionPoints;
-		uint32_t Experience;
+		uint32_t BonusActionPoints; // Saved
+		uint32_t Experience; // Saved
 		uint32_t Reputation;
-		bool Flanked;
+		uint8_t Flanked; // Saved
 		uint8_t _Pad1[3];
-		uint32_t Karma;
+		uint32_t Karma; // Saved
 		uint8_t Flags;
 		uint8_t _Pad2[3];
 		uint32_t Unkn0;
-		ObjectSet<int> TraitOrder;
+		ObjectSet<int> TraitOrder; // Saved
 		uint32_t Unkn1[2];
 		struct EsvCharacter * Character;
 		uint32_t Unkn2;
 		uint32_t IsIncapacitatedRefCount;
-		CharacterStat ** DynamicStats;
-		CharacterStat ** DynamicStatsEnd;
+		CharacterDynamicStat ** DynamicStats;
+		CharacterDynamicStat ** DynamicStatsEnd;
 		uint64_t Unkn3[2];
 		CharacterEquippedItem ** ItemStats;
 		CharacterEquippedItem ** ItemStatsEnd;
 		uint64_t Unkn4;
 		ObjectSet<void *> SurfacePathInfluences;
-		uint32_t ActiveBoostConditions[16];
+		uint32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
 		uint8_t _Pad4[3];
 		EoCGameRandom CriticalHitRng;
 		uint8_t _Pad5[3];
 		uint32_t MaxVitality;
-		uint32_t BoostedMaxVitality;
+		uint32_t BaseMaxVitality;
 		uint32_t MaxArmor;
-		uint32_t BoostedMaxArmor;
+		uint32_t BaseMaxArmor;
 		uint32_t MaxMagicArmor;
-		uint32_t BoostedMaxMagicArmor;
-		uint32_t BoostedSight;
+		uint32_t BaseMaxMagicArmor;
 		uint32_t Sight;
+		uint32_t BaseSight;
 		uint32_t Flags0;
 		uint32_t Flags1;
 		uint32_t Flags2;
@@ -321,10 +321,9 @@ namespace osidbg
 		bool SomeComputePendingFlag;
 		uint8_t _Pad6[3];
 		uint32_t MaxSummons;
-		uint32_t BoostedMaxSummons;
-		uint32_t MaxMpOverride;
-		uint64_t DisabledTalents;
-		uint64_t Unkn6;
+		uint32_t BaseMaxSummons;
+		uint32_t MaxMpOverride; // Saved
+		uint32_t DisabledTalents[4]; // Saved
 	};
 
 	struct RPGEnumeration

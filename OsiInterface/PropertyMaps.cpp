@@ -12,6 +12,8 @@ namespace osidbg
 	PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
+	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
+	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -204,6 +206,101 @@ namespace osidbg
 			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorValue);
 			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorBoost);
 			PROP(CDivinityStats_Equipment_Attributes_Shield, Blocking);
+		}
+
+		{
+			auto & propertyMap = gCharacterDynamicStatPropertyMap;
+			PROP(CharacterDynamicStat, SummonLifelinkModifier);
+			PROP(CharacterDynamicStat, Strength);
+			PROP(CharacterDynamicStat, Memory);
+			PROP(CharacterDynamicStat, Intelligence);
+			PROP(CharacterDynamicStat, Movement);
+			PROP(CharacterDynamicStat, MovementSpeedBoost);
+			PROP(CharacterDynamicStat, Finesse);
+			PROP(CharacterDynamicStat, Wits);
+			PROP(CharacterDynamicStat, Constitution);
+
+			PROP(CharacterDynamicStat, FireResistance);
+			PROP(CharacterDynamicStat, EarthResistance);
+			PROP(CharacterDynamicStat, WaterResistance);
+			PROP(CharacterDynamicStat, AirResistance);
+			PROP(CharacterDynamicStat, PoisonResistance);
+			PROP(CharacterDynamicStat, ShadowResistance);
+
+			PROP(CharacterDynamicStat, Willpower);
+			PROP(CharacterDynamicStat, Bodybuilding);
+			PROP(CharacterDynamicStat, PiercingResistance);
+			PROP(CharacterDynamicStat, PhysicalResistance);
+			PROP(CharacterDynamicStat, CorrosiveResistance);
+			PROP(CharacterDynamicStat, MagicResistance);
+			PROP(CharacterDynamicStat, CustomResistance);
+
+			PROP(CharacterDynamicStat, Sight);
+			PROP(CharacterDynamicStat, Hearing);
+			PROP(CharacterDynamicStat, FOV);
+			PROP(CharacterDynamicStat, APMaximum);
+			PROP(CharacterDynamicStat, APStart);
+			PROP(CharacterDynamicStat, APRecovery);
+			PROP(CharacterDynamicStat, CriticalChance);
+			PROP(CharacterDynamicStat, Initiative);
+			PROP(CharacterDynamicStat, Vitality);
+			PROP(CharacterDynamicStat, VitalityBoost);
+			PROP(CharacterDynamicStat, MagicPoints);
+			PROP(CharacterDynamicStat, Level);
+			PROP(CharacterDynamicStat, Gain);
+
+			PROP(CharacterDynamicStat, Armor);
+			PROP(CharacterDynamicStat, MagicArmor);
+			PROP(CharacterDynamicStat, ArmorBoost);
+			PROP(CharacterDynamicStat, MagicArmorBoost);
+			PROP(CharacterDynamicStat, ArmorBoostGrowthPerLevel);
+			PROP(CharacterDynamicStat, MagicArmorBoostGrowthPerLevel);
+			PROP(CharacterDynamicStat, DamageBoost);
+			PROP(CharacterDynamicStat, DamageBoostGrowthPerLevel);
+
+			PROP(CharacterDynamicStat, Accuracy);
+			PROP(CharacterDynamicStat, Dodge);
+			PROP(CharacterDynamicStat, MaxResistance);
+			PROP(CharacterDynamicStat, LifeSteal);
+			PROP(CharacterDynamicStat, Weight);
+			PROP(CharacterDynamicStat, ChanceToHitBoost);
+			PROP(CharacterDynamicStat, RangeBoost);
+			PROP(CharacterDynamicStat, APCostBoost);
+			PROP(CharacterDynamicStat, SPCostBoost);
+			PROP(CharacterDynamicStat, MaxSummons);
+			PROP(CharacterDynamicStat, BonusWeaponDamageMultiplier);
+			// TODO Abilities, Talents, RemovedTalents, Traits
+		}
+
+		{
+			auto & propertyMap = gCharacterStatsPropertyMap;
+			PROP_RO(CDivinityStats_Character, CurrentVitality);
+			PROP_RO(CDivinityStats_Character, CurrentArmor);
+			PROP_RO(CDivinityStats_Character, CurrentMagicArmor);
+			PROP_RO(CDivinityStats_Character, ArmorAfterHitCooldownMultiplier);
+			PROP_RO(CDivinityStats_Character, MagicArmorAfterHitCooldownMultiplier);
+			PROP_RO(CDivinityStats_Character, MPStart);
+			PROP_RO(CDivinityStats_Character, CurrentAP);
+			PROP_RO(CDivinityStats_Character, BonusActionPoints);
+			PROP_RO(CDivinityStats_Character, Experience);
+			PROP_RO(CDivinityStats_Character, Reputation);
+			PROP_RO(CDivinityStats_Character, Flanked);
+			PROP_RO(CDivinityStats_Character, Karma);
+			PROP_RO(CDivinityStats_Character, IsIncapacitatedRefCount);
+
+			PROP_RO(CDivinityStats_Character, MaxVitality);
+			PROP_RO(CDivinityStats_Character, BaseMaxVitality);
+			PROP_RO(CDivinityStats_Character, MaxArmor);
+			PROP_RO(CDivinityStats_Character, BaseMaxArmor);
+			PROP_RO(CDivinityStats_Character, MaxMagicArmor);
+			PROP_RO(CDivinityStats_Character, BaseMaxMagicArmor);
+			PROP_RO(CDivinityStats_Character, Sight);
+			PROP_RO(CDivinityStats_Character, BaseSight);
+			PROP_RO(CDivinityStats_Character, MaxSummons);
+			PROP_RO(CDivinityStats_Character, BaseMaxSummons);
+			PROP_RO(CDivinityStats_Character, MaxMpOverride);
+
+			// TODO - DisabledTalents, TraitOrder, flags01/23?
 		}
 	}
 }

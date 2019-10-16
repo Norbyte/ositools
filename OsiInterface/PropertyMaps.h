@@ -14,6 +14,8 @@ namespace osidbg
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
+	extern PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
+	extern PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 
 	void InitPropertyMaps();
 
