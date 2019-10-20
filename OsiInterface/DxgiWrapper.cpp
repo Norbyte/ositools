@@ -9,7 +9,7 @@ DxgiWrapper::DxgiWrapper()
 	DWORD dxgiPathSize = GetSystemDirectory(dxgiPath, 1024);
 	if (dxgiPathSize == 0)
 	{
-		Fail(L"Could not get system directory path");
+		Fail("Could not get system directory path");
 	}
 
 	wcscpy_s(dxgiPath + dxgiPathSize, 1024 + 64 - dxgiPathSize, L"\\dxgi.dll");
@@ -17,7 +17,7 @@ DxgiWrapper::DxgiWrapper()
 	dxgiHandle = LoadLibrary(dxgiPath);
 	if (dxgiHandle == NULL)
 	{
-		Fail(L"Could not load dxgi.dll");
+		Fail("Could not load dxgi.dll");
 	}
 
 	createDXGIFactory = (CreateDXGIFactoryProc)GetProcAddress(dxgiHandle, "CreateDXGIFactory");
@@ -26,7 +26,7 @@ DxgiWrapper::DxgiWrapper()
 
 	if (createDXGIFactory == NULL)
 	{
-		Fail(L"Could not locate CreateDXGIFactory in dxgi.dll");
+		Fail("Could not locate CreateDXGIFactory in dxgi.dll");
 	}
 }
 
@@ -44,7 +44,7 @@ HRESULT DxgiWrapper::CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
 {
 	if (createDXGIFactory1 == NULL)
 	{
-		Fail(L"CreateDXGIFactory1() called, but the original entry point could not be located in dxgi.dll");
+		Fail("CreateDXGIFactory1() called, but the original entry point could not be located in dxgi.dll");
 	}
 
 	return createDXGIFactory1(riid, ppFactory);
@@ -54,7 +54,7 @@ HRESULT DxgiWrapper::CreateDXGIFactory2(UINT Flags, REFIID riid, _Out_ void **pp
 {
 	if (createDXGIFactory2 == NULL)
 	{
-		Fail(L"CreateDXGIFactory2() called, but the original entry point could not be located in dxgi.dll");
+		Fail("CreateDXGIFactory2() called, but the original entry point could not be located in dxgi.dll");
 	}
 
 	return createDXGIFactory2(Flags, riid, ppFactory);

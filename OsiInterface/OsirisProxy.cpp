@@ -26,7 +26,7 @@ OsirisProxy::OsirisProxy()
 
 void OsirisProxy::Initialize()
 {
-	Debug(L"OsirisProxy::Initialize: Starting");
+	Debug("OsirisProxy::Initialize: Starting");
 	Wrappers.Initialize();
 
 	using namespace std::placeholders;
@@ -43,29 +43,29 @@ void OsirisProxy::Initialize()
 #endif
 
 	if (ExtensionsEnabled) {
-		Debug(L"OsirisProxy::Initialize: Initializing libraries.");
+		Debug("OsirisProxy::Initialize: Initializing libraries.");
 		if (Libraries.FindLibraries()) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
 #if 0
 			auto headers = CustomFunctions.GenerateHeaders();
-			Debug(L" === EXTENSION HEADERS ===");
+			Debug(" === EXTENSION HEADERS ===");
 			std::cout << headers << std::endl;
-			Debug(L" === END EXTENSION HEADERS ===");
+			Debug(" === END EXTENSION HEADERS ===");
 #endif
 		}
 		else {
-			Debug(L"OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
+			Debug("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
 		}
 	}
 	else {
-		Debug(L"OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
+		Debug("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
 	}
 }
 
 void OsirisProxy::Shutdown()
 {
-	Debug(L"OsirisProxy::Shutdown: Starting");
+	Debug("OsirisProxy::Shutdown: Starting");
 	Wrappers.Shutdown();
 }
 
@@ -201,7 +201,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 
 	if (DynGlobals.Manager == nullptr) {
-		Fail(L"Could not locate OsirisInterface");
+		Fail("Could not locate OsirisInterface");
 	}
 
 	if (LoggingEnabled) {
@@ -209,24 +209,24 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 
 #if 0
-	Debug(L"OsirisProxy::OnRegisterDIVFunctions: Initializing story.");
-	Debug(L"\tErrorMessageProc = %p", errorMessageFunc);
-	Debug(L"\tOsirisManager = %p", Globals.Manager);
-	Debug(L"\tOsirisInterface = %p", osirisInterface);
+	Debug("OsirisProxy::OnRegisterDIVFunctions: Initializing story.");
+	Debug("\tErrorMessageProc = %p", errorMessageFunc);
+	Debug("\tOsirisManager = %p", Globals.Manager);
+	Debug("\tOsirisInterface = %p", osirisInterface);
 #endif
 
 #if !defined(OSI_NO_DEBUGGER)
 	// FIXME - move to DebuggerHooks
 	if (DebuggingEnabled) {
 		if (DebuggerThread == nullptr) {
-			Debug(L"Starting debugger server");
+			Debug("Starting debugger server");
 			debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
 			debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
 
 			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
 		}
 	} else if (!DebugDisableLogged) {
-		Debug(L"Debugging not enabled; not starting debugger server thread.");
+		Debug("Debugging not enabled; not starting debugger server thread.");
 		DebugDisableLogged = true;
 	}
 #endif
@@ -239,7 +239,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 
 void OsirisProxy::OnInitGame(void * Osiris)
 {
-	Debug(L"OsirisProxy::OnInitGame()");
+	Debug("OsirisProxy::OnInitGame()");
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
 		debugger_->GameInitHook();
@@ -251,7 +251,7 @@ void OsirisProxy::OnDeleteAllData(void * Osiris, bool DeleteTypes)
 {
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
-		Debug(L"OsirisProxy::OnDeleteAllData()");
+		Debug("OsirisProxy::OnDeleteAllData()");
 		debugger_->DeleteAllDataHook();
 		debugger_.reset();
 	}
@@ -286,9 +286,9 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 	auto ret = Next(Osiris, Path, Mode);
 
 	if (ret) {
-		Debug(L"OsirisProxy::CompileWrapper: Success.");
+		Debug("OsirisProxy::CompileWrapper: Success.");
 	} else {
-		Debug(L"OsirisProxy::CompileWrapper: Compilation FAILED.");
+		Debug("OsirisProxy::CompileWrapper: Compilation FAILED.");
 	}
 
 	if (CompilationLogEnabled) {
@@ -333,7 +333,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 #endif
 
 	StoryLoaded = true;
-	Debug(L"OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
+	Debug("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (DebuggerThread != nullptr && gNodeVMTWrappers) {
@@ -346,7 +346,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 
 bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
 {
-	Debug(L"OsirisProxy::MergeWrapper() - Started merge");
+	Debug("OsirisProxy::MergeWrapper() - Started merge");
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
@@ -362,7 +362,7 @@ bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & N
 	}
 #endif
 
-	Debug(L"OsirisProxy::MergeWrapper() - Finished merge");
+	Debug("OsirisProxy::MergeWrapper() - Finished merge");
 	return retval;
 }
 
@@ -392,7 +392,7 @@ void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)
 void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 {
 #if 0
-	Debug(L"OsirisProxy::ResolveNodeVMTs");
+	Debug("OsirisProxy::ResolveNodeVMTs");
 #endif
 	std::set<NodeVMT *> VMTs;
 
@@ -403,7 +403,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 	if (VMTs.size() != (unsigned)NodeType::Max) {
-		Fail(L"Could not locate all Osiris node VMT-s");
+		Fail("Could not locate all Osiris node VMT-s");
 	}
 
 	// RuleNode has a different SetLineNumber implementation
@@ -427,11 +427,11 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	} else if (srvB.size() == 1) {
 		ruleNodeVMT = *srvB.begin();
 	} else {
-		Fail(L"Could not locate RuleNode::__vfptr");
+		Fail("Could not locate RuleNode::__vfptr");
 	}
 
 #if 0
-	Debug(L"RuleNode::__vfptr is %p", ruleNodeVMT);
+	Debug("RuleNode::__vfptr is %p", ruleNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::Rule, ruleNodeVMT);
 
@@ -443,17 +443,17 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (relOpNodeVMT == nullptr) {
 				relOpNodeVMT = vmt;
 			} else {
-				Fail(L"RelOpNode::__vfptr pattern matches multiple VMT-s");
+				Fail("RelOpNode::__vfptr pattern matches multiple VMT-s");
 			}
 		}
 	}
 
 	if (relOpNodeVMT == nullptr) {
-		Fail(L"Could not locate RelOpNode::__vfptr");
+		Fail("Could not locate RelOpNode::__vfptr");
 	}
 
 #if 0
-	Debug(L"RuleNode::__vfptr is %p", relOpNodeVMT);
+	Debug("RuleNode::__vfptr is %p", relOpNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::RelOp, relOpNodeVMT);
 
@@ -467,17 +467,17 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			} else if (and2VMT == nullptr) {
 				and2VMT = vmt;
 			} else {
-				Fail(L"AndNode::__vfptr pattern matches multiple VMT-s");
+				Fail("AndNode::__vfptr pattern matches multiple VMT-s");
 			}
 		}
 	}
 
 	if (and1VMT == nullptr || and2VMT == nullptr) {
-		Fail(L"Could not locate AndNode::__vfptr");
+		Fail("Could not locate AndNode::__vfptr");
 	}
 
 #if 0
-	Debug(L"AndNode::__vfptr is %p and %p", and1VMT, and2VMT);
+	Debug("AndNode::__vfptr is %p and %p", and1VMT, and2VMT);
 #endif
 	// No reliable way to detect these; assume that AndNode VMT < NotAndNode VMT
 	if (and1VMT < and2VMT) {
@@ -509,7 +509,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 	if (queryVMTs == nullptr) {
-		Fail(L"Could not locate all Query node VMT-s");
+		Fail("Could not locate all Query node VMT-s");
 	}
 
 	for (auto vmt : *queryVMTs) {
@@ -517,21 +517,21 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		std::string name{ getName(nullptr) };
 		if (name == "internal query") {
 #if 0
-			Debug(L"InternalQuery::__vfptr is %p", vmt);
+			Debug("InternalQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::InternalQuery, vmt);
 		} else if (name == "DIV query") {
 #if 0
-			Debug(L"DivQuery::__vfptr is %p", vmt);
+			Debug("DivQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::DivQuery, vmt);
 		} else if (name == "Osi user query") {
 #if 0
-			Debug(L"UserQuery::__vfptr is %p", vmt);
+			Debug("UserQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::UserQuery, vmt);
 		} else {
-			Fail(L"Unrecognized Query node VMT");
+			Fail("Unrecognized Query node VMT");
 		}
 	}
 
@@ -543,7 +543,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (procNodeVMT == nullptr) {
 				procNodeVMT = vmt;
 			} else {
-				Fail(L"ProcNode::__vfptr pattern matches multiple VMT-s");
+				Fail("ProcNode::__vfptr pattern matches multiple VMT-s");
 			}
 		}
 
@@ -552,22 +552,22 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (databaseNodeVMT == nullptr) {
 				databaseNodeVMT = vmt;
 			} else {
-				Fail(L"DatabaseNode::__vfptr pattern matches multiple VMT-s");
+				Fail("DatabaseNode::__vfptr pattern matches multiple VMT-s");
 			}
 		}
 	}
 
 	if (procNodeVMT == nullptr) {
-		Fail(L"Could not locate ProcNode::__vfptr");
+		Fail("Could not locate ProcNode::__vfptr");
 	}
 
 	if (databaseNodeVMT == nullptr) {
-		Fail(L"Could not locate DatabaseNode::__vfptr");
+		Fail("Could not locate DatabaseNode::__vfptr");
 	}
 
 #if 0
-	Debug(L"ProcNode::__vfptr is %p", procNodeVMT);
-	Debug(L"DatabaseNode::__vfptr is %p", databaseNodeVMT);
+	Debug("ProcNode::__vfptr is %p", procNodeVMT);
+	Debug("DatabaseNode::__vfptr is %p", databaseNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::Proc, procNodeVMT);
 	SaveNodeVMT(NodeType::Database, databaseNodeVMT);

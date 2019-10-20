@@ -173,6 +173,12 @@
     <ClCompile Include="LuaBinding.cpp\LuaBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DataLibrariesEoCApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLibrariesEoCPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">

@@ -55,7 +55,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		if (createConsole.isBool()) {
 			config.CreateConsole = createConsole.asBool();
 		} else {
-			Fail(L"Config option 'CreateConsole' should be a boolean.");
+			Fail("Config option 'CreateConsole' should be a boolean.");
 		}
 	}
 
@@ -64,7 +64,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		if (enableLogging.isBool()) {
 			config.EnableLogging = enableLogging.asBool();
 		} else {
-			Fail(L"Config option 'EnableLogging' should be a boolean.");
+			Fail("Config option 'EnableLogging' should be a boolean.");
 		}
 	}
 
@@ -74,7 +74,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 			config.LogCompile = logCompile.asBool();
 		}
 		else {
-			Fail(L"Config option 'LogCompile' should be a boolean.");
+			Fail("Config option 'LogCompile' should be a boolean.");
 		}
 	}
 
@@ -84,7 +84,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 			config.EnableExtensions = enableExtensions.asBool();
 		}
 		else {
-			Fail(L"Config option 'EnableExtensions' should be a boolean.");
+			Fail("Config option 'EnableExtensions' should be a boolean.");
 		}
 	}
 
@@ -93,7 +93,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		if (enableDAP.isBool()) {
 			config.EnableDebugger = enableDAP.asBool();
 		} else {
-			Fail(L"Config option 'EnableDebugger' should be a boolean.");
+			Fail("Config option 'EnableDebugger' should be a boolean.");
 		}
 	}
 
@@ -102,7 +102,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		if (debuggerPort.isUInt()) {
 			config.DebuggerPort = debuggerPort.asUInt();
 		} else {
-			Fail(L"Config option 'DebuggerPort' should be an integer.");
+			Fail("Config option 'DebuggerPort' should be an integer.");
 		}
 	}
 
@@ -111,7 +111,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		if (flags.isUInt()) {
 			config.DebugFlags = flags.asUInt();
 		} else {
-			Fail(L"Config option 'DebugFlags' should be an integer.");
+			Fail("Config option 'DebugFlags' should be an integer.");
 		}
 	}
 
@@ -122,7 +122,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 			config.LogDirectory = converter.from_bytes(logDir.asString());
 		}
 		else {
-			Fail(L"Config option 'LogDirectory' should be a string.");
+			Fail("Config option 'LogDirectory' should be a string.");
 		}
 	}
 }
@@ -147,7 +147,7 @@ void SetupOsirisProxy(HMODULE hModule)
 		if (config.LogDirectory.empty()) {
 			TCHAR * DocumentsPath;
 			if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
-				Fail(L"Could not get user documents path.");
+				Fail("Could not get user documents path.");
 			}
 
 			std::wstring logDir = DocumentsPath;
@@ -169,7 +169,7 @@ void SetupOsirisProxy(HMODULE hModule)
 	osidbg::gOsirisProxy->Initialize();
 
 #if 0
-	Debug(L" ***** OsirisProxy setup completed ***** ");
+	Debug(" ***** OsirisProxy setup completed ***** ");
 #endif
 }
 

@@ -7,7 +7,7 @@ void Fail(TCHAR const * reason)
 	DebugBreak();
 #endif
 	Debug(L"%s", reason);
-	MessageBoxW(NULL, reason, L"OsirisDebuggerBackend Error", MB_OK | MB_ICONERROR);
+	MessageBoxW(NULL, reason, L"Osiris Extender Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 
@@ -18,7 +18,7 @@ void Fail(char const * reason)
 	DebugBreak();
 #endif
 	Debug("%s", reason);
-	MessageBoxA(NULL, reason, "OsirisDebuggerBackend Error", MB_OK | MB_ICONERROR);
+	MessageBoxA(NULL, reason, "Osiris Extender Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 

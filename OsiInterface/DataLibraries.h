@@ -6,6 +6,31 @@
 
 namespace osidbg {
 
+
+	struct Pattern
+	{
+		void FromString(std::string const & s);
+		void FromRaw(const char * s);
+		void Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback);
+
+	private:
+		struct PatternByte
+		{
+			uint8_t pattern;
+			uint8_t mask;
+		};
+
+		std::vector<PatternByte> pattern_;
+
+		bool MatchPattern(uint8_t const * start);
+		void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
+		void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
+		void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
+	};
+
+	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call);
+	uint8_t const * AsmLeaToAbsoluteAddress(uint8_t const * lea);
+
 	class LibraryManager
 	{
 	public:
@@ -97,38 +122,32 @@ namespace osidbg {
 			uint32_t, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
 
 	private:
-		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
+
+#if defined(OSI_EOCAPP)
 		bool FindEoCApp(uint8_t const * & start, size_t & size);
-
-		void FindLibrariesEoCPlugin();
 		void FindLibrariesEoCApp();
-
-		void FindServerGlobalsEoCPlugin();
 		void FindServerGlobalsEoCApp();
-
-		void FindEoCGlobalsEoCPlugin();
 		void FindEoCGlobalsEoCApp();
-
-		void FindGlobalStringTableCoreLib();
 		void FindGlobalStringTableEoCApp();
-
-		void FindGameActionManagerEoCPlugin();
 		void FindGameActionManagerEoCApp();
-
-		void FindGameActionsEoCPlugin();
 		void FindGameActionsEoCApp();
-
-		void FindStatusMachineEoCPlugin();
 		void FindStatusMachineEoCApp();
-
-		void FindStatusTypesEoCPlugin();
 		void FindStatusTypesEoCApp();
-
-		void FindHitFuncsEoCPlugin();
 		void FindHitFuncsEoCApp();
-
-		void FindItemFuncsEoCPlugin();
 		void FindItemFuncsEoCApp();
+#else
+		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
+		void FindLibrariesEoCPlugin();
+		void FindServerGlobalsEoCPlugin();
+		void FindEoCGlobalsEoCPlugin();
+		void FindGlobalStringTableCoreLib();
+		void FindGameActionManagerEoCPlugin();
+		void FindGameActionsEoCPlugin();
+		void FindStatusMachineEoCPlugin();
+		void FindStatusTypesEoCPlugin();
+		void FindHitFuncsEoCPlugin();
+		void FindItemFuncsEoCPlugin();
+#endif
 
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 

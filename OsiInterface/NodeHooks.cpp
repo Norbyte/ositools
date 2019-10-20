@@ -14,13 +14,13 @@ namespace osidbg
 			: region_(region)
 		{
 			BOOL succeeded = VirtualProtect((LPVOID)region_, sizeof(T), PAGE_READWRITE, &oldProtect_);
-			if (!succeeded) Fail(L"VirtualProtect() on region failed");
+			if (!succeeded) Fail("VirtualProtect() on region failed");
 		}
 		
 		~ROWriteAnchor()
 		{
 			BOOL succeeded = VirtualProtect((LPVOID)region_, sizeof(T), oldProtect_, &oldProtect_);
-			if (!succeeded) Fail(L"VirtualProtect() on region failed");
+			if (!succeeded) Fail("VirtualProtect() on region failed");
 		}
 
 	private:
@@ -151,7 +151,7 @@ namespace osidbg
 	{
 		NodeVMT * vfptr = *reinterpret_cast<NodeVMT **>(node);
 		auto typeIt = vmtToTypeMap_.find(vfptr);
-		if (typeIt == vmtToTypeMap_.end()) Fail(L"Called virtual method on a node that could not be identified");
+		if (typeIt == vmtToTypeMap_.end()) Fail("Called virtual method on a node that could not be identified");
 		return typeIt->second;
 	}
 

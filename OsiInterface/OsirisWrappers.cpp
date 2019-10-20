@@ -58,17 +58,17 @@ void OsirisWrappers::Initialize()
 {
 	Kernel32Module = LoadLibrary(L"kernel32.dll");
 	if (Kernel32Module == NULL) {
-		Fail(L"Could not load kernel32.dll");
+		Fail("Could not load kernel32.dll");
 	}
 
 	OsirisModule = LoadLibrary(L"osiris_x64.dll");
 	if (OsirisModule == NULL) {
-		Fail(L"Could not load osiris_x64.dll");
+		Fail("Could not load osiris_x64.dll");
 	}
 
 	MODULEINFO moduleInfo;
 	if (!GetModuleInformation(GetCurrentProcess(), OsirisModule, &moduleInfo, sizeof(moduleInfo))) {
-		Fail(L"Could not get module info of osiris_x64.dll");
+		Fail("Could not get module info of osiris_x64.dll");
 	}
 
 	OsirisDllStart = moduleInfo.lpBaseOfDll;
@@ -76,25 +76,25 @@ void OsirisWrappers::Initialize()
 
 	OriginalRuleActionCallProc = (RuleActionCallProc)FindRuleActionCallProc();
 	if (!OriginalRuleActionCallProc) {
-		Fail(L"Could not locate RuleAction::Call in osiris_x64.dll");
+		Fail("Could not locate RuleAction::Call in osiris_x64.dll");
 	}
 
 	FARPROC OsirisCtorProc = GetProcAddress(OsirisModule, "??0COsiris@@QEAA@XZ");
 	if (OsirisCtorProc == NULL) {
-		Fail(L"Could not locate COsiris::COsiris() in osiris_x64.dll");
+		Fail("Could not locate COsiris::COsiris() in osiris_x64.dll");
 	}
 
 	FindOsirisGlobals(OsirisCtorProc);
 
 	FARPROC SetOptionProc = GetProcAddress(OsirisModule, "?SetOption@COsiris@@QEAAXI@Z");
 	if (SetOptionProc == NULL) {
-		Fail(L"Could not locate COsiris::SetOption in osiris_x64.dll");
+		Fail("Could not locate COsiris::SetOption in osiris_x64.dll");
 	}
 
 	FindDebugFlags(SetOptionProc);
 
 #if 0
-	Debug(L"OsirisWrappers::Initialize: Detouring functions");
+	Debug("OsirisWrappers::Initialize: Detouring functions");
 #endif
 
 	DetourTransactionBegin();
@@ -127,7 +127,7 @@ void OsirisWrappers::Initialize()
 void OsirisWrappers::Shutdown()
 {
 #if 0
-	Debug(L"OsirisWrappers::Shutdown: Unregistering hooks");
+	Debug("OsirisWrappers::Shutdown: Unregistering hooks");
 #endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -181,7 +181,7 @@ void OsirisWrappers::AssertWrapper(bool Successful, char const * Message, bool U
 void * OsirisWrappers::FindRuleActionCallProc()
 {
 #if 0
-	Debug(L"OsirisWrappers::FindRuleActionCallProc");
+	Debug("OsirisWrappers::FindRuleActionCallProc");
 #endif
 	uint8_t * Addr = static_cast<uint8_t *>(OsirisDllStart);
 
@@ -230,7 +230,7 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
 void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 {
 #if 0
-	Debug(L"OsirisProxy::FindOsirisGlobals:");
+	Debug("OsirisProxy::FindOsirisGlobals:");
 #endif
 	uint8_t * Addr = ResolveRealFunctionAddress((uint8_t *)CtorProc);
 
@@ -254,7 +254,7 @@ void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 
 	if (foundGlobals < NumGlobals)
 	{
-		Fail(L"Could not locate global Osiris variables");
+		Fail("Could not locate global Osiris variables");
 	}
 
 	Globals.Variables = (VariableDb **)globals[0];
@@ -267,14 +267,14 @@ void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 	Globals.Nodes = (NodeDb **)globals[7];
 
 #if 0
-	Debug(L"\tVariables = %p", Globals.Variables);
-	Debug(L"\tTypes = %p", Globals.Types);
-	Debug(L"\tFunctions = %p", Globals.Functions);
-	Debug(L"\tObjects = %p", Globals.Objects);
-	Debug(L"\tGoals = %p", Globals.Goals);
-	Debug(L"\tAdapters = %p", Globals.Adapters);
-	Debug(L"\tDatabases = %p", Globals.Databases);
-	Debug(L"\tNodes = %p", Globals.Nodes);
+	Debug("\tVariables = %p", Globals.Variables);
+	Debug("\tTypes = %p", Globals.Types);
+	Debug("\tFunctions = %p", Globals.Functions);
+	Debug("\tObjects = %p", Globals.Objects);
+	Debug("\tGoals = %p", Globals.Goals);
+	Debug("\tAdapters = %p", Globals.Adapters);
+	Debug("\tDatabases = %p", Globals.Databases);
+	Debug("\tNodes = %p", Globals.Nodes);
 #endif
 }
 
@@ -298,11 +298,11 @@ void OsirisWrappers::FindDebugFlags(FARPROC SetOptionProc)
 	}
 
 	if (Globals.DebugFlags == nullptr) {
-		Fail(L"Could not locate global variable DebugFlags");
+		Fail("Could not locate global variable DebugFlags");
 	}
 
 #if 0
-	Debug(L"OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
+	Debug("OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
 #endif
 }
 

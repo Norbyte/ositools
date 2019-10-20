@@ -350,7 +350,7 @@ namespace osidbg
 		}
 
 		int32_t totalDamage{ 0 };
-		for (int32_t i = 0; i < damageList->Size; i++) {
+		for (uint32_t i = 0; i < damageList->Size; i++) {
 			totalDamage += damageList->Buf[i].Amount;
 		}
 

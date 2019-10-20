@@ -97,7 +97,7 @@ namespace osidbg
 	{
 		auto mapping = ruleActionMappings_.find(action);
 		if (mapping == ruleActionMappings_.end()) {
-			Debug(L"Debugger::FindActionMapping(%016x): Could not find action mapping for rule action", action);
+			Debug("Debugger::FindActionMapping(%016x): Could not find action mapping for rule action", action);
 			return nullptr;
 		}
 
@@ -114,42 +114,42 @@ namespace osidbg
 	ResultCode BreakpointManager::SetGlobalBreakpoints(GlobalBreakpointType breakpoints)
 	{
 		if (breakpoints & ~GlobalBreakpointTypeAll) {
-			Debug(L"Debugger::SetGlobalBreakpoints(): Unsupported breakpoint type set: %08x", breakpoints);
+			Debug("Debugger::SetGlobalBreakpoints(): Unsupported breakpoint type set: %08x", breakpoints);
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
-		Debug(L"Debugger::SetGlobalBreakpoints(): Set to %08x", breakpoints);
+		Debug("Debugger::SetGlobalBreakpoints(): Set to %08x", breakpoints);
 		globalBreakpoints_ = breakpoints;
 		return ResultCode::Success;
 	}
 
 	void BreakpointManager::BeginUpdatingNodeBreakpoints()
 	{
-		Debug(L"Debugger::BeginUpdatingNodeBreakpoints()");
+		Debug("Debugger::BeginUpdatingNodeBreakpoints()");
 		pendingBreakpoints_.reset(new std::unordered_map<uint64_t, Breakpoint>());
 	}
 
 	ResultCode BreakpointManager::AddBreakpoint(uint32_t nodeId, uint32_t goalId, bool isInit, int32_t actionIndex, BreakpointType type)
 	{
 		if (type & ~BreakpointTypeAll) {
-			Debug(L"Debugger::AddBreakpoint(): Unsupported breakpoint type set: %08x", type);
+			Debug("Debugger::AddBreakpoint(): Unsupported breakpoint type set: %08x", type);
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
 		if (nodeId > (*globals_.Nodes)->Db.Size) {
-			Debug(L"Debugger::AddBreakpoint(): Tried to set on nonexistent node ID %d", nodeId);
+			Debug("Debugger::AddBreakpoint(): Tried to set on nonexistent node ID %d", nodeId);
 			return ResultCode::InvalidNodeId;
 		}
 
 		if (goalId > (*globals_.Goals)->Count) {
-			Debug(L"Debugger::AddBreakpoint(): Tried to set on nonexistent goal ID %d", nodeId);
+			Debug("Debugger::AddBreakpoint(): Tried to set on nonexistent goal ID %d", nodeId);
 			return ResultCode::InvalidGoalId;
 		}
 
 		uint64_t breakpointId;
 		if (actionIndex == -1) {
 			if (nodeId == 0) {
-				Debug(L"Debugger::AddBreakpoint(): Node ID must be nonzero for node actions", nodeId);
+				Debug("Debugger::AddBreakpoint(): Node ID must be nonzero for node actions", nodeId);
 				return ResultCode::InvalidNodeId;
 			}
 
@@ -168,12 +168,12 @@ namespace osidbg
 				}
 			}
 			else {
-				Debug(L"Debugger::AddBreakpoint(): No node/goal specified");
+				Debug("Debugger::AddBreakpoint(): No node/goal specified");
 				return ResultCode::InvalidNodeId;
 			}
 		}
 
-		Debug(L"Debugger::AddBreakpoint(): Set on key %016x to %08x", breakpointId, type);
+		Debug("Debugger::AddBreakpoint(): Set on key %016x to %08x", breakpointId, type);
 		Breakpoint bp;
 		bp.nodeId = nodeId;
 		bp.goalId = goalId;
@@ -189,7 +189,7 @@ namespace osidbg
 	{
 		auto pendingBps = std::move(this->pendingBreakpoints_);
 		if (pendingBps.get() != nullptr) {
-			Debug(L"BreakpointManager::FinishUpdatingNodeBreakpoints(): Syncing breakpoints in server thread");
+			Debug("BreakpointManager::FinishUpdatingNodeBreakpoints(): Syncing breakpoints in server thread");
 			this->breakpoints_.swap(pendingBps);
 		}
 	}
@@ -288,7 +288,7 @@ namespace osidbg
 						parentNodeId = join->Left.Id;
 					}
 					else {
-						Debug(L"Debugger::ForcedBreakpointConditionsSatisfied(): Illegal call order: %d --> %d",
+						Debug("Debugger::ForcedBreakpointConditionsSatisfied(): Illegal call order: %d --> %d",
 							first.node->Id, second.node->Id);
 						parentNodeId = first.node->Id;
 					}
@@ -360,14 +360,14 @@ namespace osidbg
 		gNodeVMTWrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3);
 		gNodeVMTWrappers->CallQueryPreHook = std::bind(&Debugger::CallQueryPreHook, this, _1, _2);
 		gNodeVMTWrappers->CallQueryPostHook = std::bind(&Debugger::CallQueryPostHook, this, _1, _2, _3);
-		Debug(L"Debugger::Debugger(): Attached to story");
+		Debug("Debugger::Debugger(): Attached to story");
 
 		DetectGameVersion();
 	}
 
 	Debugger::~Debugger()
 	{
-		Debug(L"Debugger::~Debugger(): Shutting down debugger");
+		Debug("Debugger::~Debugger(): Shutting down debugger");
 		messageHandler_.SendDebugSessionEnded();
 		messageHandler_.SetDebugger(nullptr);
 
@@ -390,7 +390,7 @@ namespace osidbg
 		actionMappings_.UpdateRuleActionMappings();
 		debugAdapters_.UpdateAdapters();
 		if (!debugAdapters_.HasAllAdapters()) {
-			Debug(L"Debugger::StoryLoaded(): Not all debug adapters are available - some debug calls will not work!");
+			Debug("Debugger::StoryLoaded(): Not all debug adapters are available - some debug calls will not work!");
 		}
 
 		messageHandler_.SendStoryLoaded();
@@ -444,14 +444,14 @@ namespace osidbg
 		auto & dbs = (*globals_.Databases)->Db;
 		if (databaseId == 0 || databaseId > dbs.Size)
 		{
-			Debug(L"Debugger::GetDatabaseContents(): Invalid database ID %d", databaseId);
+			Debug("Debugger::GetDatabaseContents(): Invalid database ID %d", databaseId);
 			return ResultCode::InvalidDatabaseId;
 		}
 
 		if (!isPaused_) {
 			// Technically we can read rows anytime, but its not thread-safe and there 
 			// is a slight chance of crashing.
-			Debug(L"Debugger::GetDatabaseContents(): Cannot read rows while story is running!");
+			Debug("Debugger::GetDatabaseContents(): Cannot read rows while story is running!");
 			return ResultCode::NotInPause;
 		}
 
@@ -474,12 +474,12 @@ namespace osidbg
 	ResultCode Debugger::ContinueExecution(DbgContinue_Action action, uint32_t breakpointMask, uint32_t flags)
 	{
 		if (breakpointMask & ~BreakpointTypeAll) {
-			Debug(L"Debugger::ContinueExecution(): Unsupported breakpoint type set: %08x", breakpointMask);
+			Debug("Debugger::ContinueExecution(): Unsupported breakpoint type set: %08x", breakpointMask);
 			return ResultCode::UnsupportedBreakpointType;
 		}
 
 		if (flags & ~ContinueFlagAll) {
-			Debug(L"Debugger::ContinueExecution(): Unsupported flag set: %08x", flags);
+			Debug("Debugger::ContinueExecution(): Unsupported flag set: %08x", flags);
 			return ResultCode::UnsupportedContinueFlags;
 		}
 
@@ -487,11 +487,11 @@ namespace osidbg
 
 		if (action == DbgContinue_Action_PAUSE) {
 			if (isPaused_) {
-				Debug(L"Debugger::ContinueExecution(): Already paused");
+				Debug("Debugger::ContinueExecution(): Already paused");
 				return ResultCode::InPause;
 			}
 
-			Debug(L"Debugger::ContinueExecution(): Force pause on next node");
+			Debug("Debugger::ContinueExecution(): Force pause on next node");
 			// Forcibly break on the next call
 			breakpoints_.SetForcedBreakpoints(true, breakpointMask, flags, 0x7fffffff);
 			// This is not a "continue" message, it just sets the breakpoint flags,
@@ -500,7 +500,7 @@ namespace osidbg
 		}
 
 		if (!isPaused_) {
-			Debug(L"Debugger::ContinueExecution(): Not paused");
+			Debug("Debugger::ContinueExecution(): Not paused");
 			return ResultCode::NotInPause;
 		}
 
@@ -526,11 +526,11 @@ namespace osidbg
 			break;
 
 		default:
-			Debug(L"Debugger::ContinueExecution(): Continue action %d not known", action);
+			Debug("Debugger::ContinueExecution(): Continue action %d not known", action);
 			return ResultCode::InvalidContinueAction;
 		}
 
-		Debug(L"Debugger::ContinueExecution(): Continuing; action %d, mask %08x, flags %08x", action, breakpointMask, flags);
+		Debug("Debugger::ContinueExecution(): Continuing; action %d, mask %08x, flags %08x", action, breakpointMask, flags);
 		isPaused_ = false;
 		breakpointCv_.notify_one();
 
@@ -675,22 +675,22 @@ namespace osidbg
 	ResultCode Debugger::EvaluateInServerThread(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params,
 		bool & querySucceeded)
 	{
-		Debug(L"Debugger::EvaluateInServerThread(): Type %d, node %d", type, nodeId);
+		Debug("Debugger::EvaluateInServerThread(): Type %d, node %d", type, nodeId);
 
 		if (nodeId == 0 || nodeId > (*globals_.Nodes)->Db.Size) {
-			Debug(L"Debugger::EvaluateInServerThread(): Tried to call nonexistent node %d", nodeId);
+			Debug("Debugger::EvaluateInServerThread(): Tried to call nonexistent node %d", nodeId);
 			return ResultCode::InvalidNodeId;
 		}
 
 		auto node = (*globals_.Nodes)->Db.Start[nodeId - 1];
 		if (node->Function == nullptr) {
-			Debug(L"Debugger::EvaluateInServerThread(): Node has no function!");
+			Debug("Debugger::EvaluateInServerThread(): Node has no function!");
 			return ResultCode::NotCallable;
 		}
 
 		auto const & sig = node->Function->Signature;
 		if (params.column_size() != sig->Params->Params.Size) {
-			Debug(L"Debugger::EvaluateInServerThread(): Got %d params, but node %d has %d!",
+			Debug("Debugger::EvaluateInServerThread(): Got %d params, but node %d has %d!",
 				params.column_size(), nodeId, sig->Params->Params.Size);
 			return ResultCode::InvalidParamTupleArity;
 		}
@@ -700,7 +700,7 @@ namespace osidbg
 			auto typeId = params.column()[i].type_id();
 			if (typeId != (uint32_t)ValueType::None
 				&& !AreTypesCompatible(typeNode->Item.Type, typeId)) {
-				Debug(L"Debugger::EvaluateInServerThread(): Parameter %d type mismatch; expected %d, got %d!",
+				Debug("Debugger::EvaluateInServerThread(): Parameter %d type mismatch; expected %d, got %d!",
 					i, typeNode->Item.Type, typeId);
 				return ResultCode::InvalidParamType;
 			}
@@ -709,19 +709,19 @@ namespace osidbg
 			if (typeId == (uint32_t)ValueType::None
 				&& type != EvalType::Pushdown
 				&& !sig->OutParamList.isOutParam(i)) {
-				Debug(L"Debugger::EvaluateInServerThread(): Got a null value for IN parameter %d!", i);
+				Debug("Debugger::EvaluateInServerThread(): Got a null value for IN parameter %d!", i);
 				return ResultCode::MissingRequiredParam;
 			}
 		}
 
 		auto adapter = debugAdapters_.FindAdapter(params.column_size());
 		if (adapter == nullptr) {
-			Debug(L"Debugger::EvaluateInServerThread(): No debug adapter available for %d columns!", params.column_size());
+			Debug("Debugger::EvaluateInServerThread(): No debug adapter available for %d columns!", params.column_size());
 			return ResultCode::NoAdapter;
 		}
 
 		if (globals_.TypedValueVMT == nullptr) {
-			Debug(L"Debugger::EvaluateInServerThread(): TypedValue VMT not available");
+			Debug("Debugger::EvaluateInServerThread(): TypedValue VMT not available");
 			return ResultCode::EvalEngineNotReady;
 		}
 
@@ -766,7 +766,7 @@ namespace osidbg
 		}
 
 		default:
-			Debug(L"Debugger::EvaluateInServerThread(): Unknown eval type %d", type);
+			Debug("Debugger::EvaluateInServerThread(): Unknown eval type %d", type);
 			breakpoints_.SetDebuggingDisabled(false);
 			return ResultCode::InvalidEvalType;
 		}
@@ -786,10 +786,10 @@ namespace osidbg
 			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
 		if (isDE) {
 			gGameType = GameType::DOS2DE;
-			Debug(L"Debugger::DetectGameVersion(): Detected D:OS2 DE");
+			Debug("Debugger::DetectGameVersion(): Detected D:OS2 DE");
 		} else {
 			gGameType = GameType::DOS2;
-			Debug(L"Debugger::DetectGameVersion(): Detected D:OS2 Classic");
+			Debug("Debugger::DetectGameVersion(): Detected D:OS2 Classic");
 		}
 	}
 
@@ -810,7 +810,7 @@ namespace osidbg
 
 	void Debugger::FinishUpdatingNodeBreakpoints()
 	{
-		Debug(L"Debugger::FinishUpdatingNodeBreakpoints()");
+		Debug("Debugger::FinishUpdatingNodeBreakpoints()");
 
 		pendingActions_.push([this]() {
 			breakpoints_.FinishUpdatingNodeBreakpoints();
@@ -829,11 +829,11 @@ namespace osidbg
 	void Debugger::BreakpointInServerThread()
 	{
 		if (callStack_.empty()) {
-			Fail(L"Tried to trigger breakpoint with empty callstack");
+			Fail("Tried to trigger breakpoint with empty callstack");
 		}
 
 		auto const & lastFrame = *callStack_.rbegin();
-		Debug(L"Debugger::BreakpointInServerThread(): type %d", lastFrame.frameType);
+		Debug("Debugger::BreakpointInServerThread(): type %d", lastFrame.frameType);
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
 			isPaused_ = true;
@@ -853,14 +853,14 @@ namespace osidbg
 			breakpointCv_.wait(lk, [this]() { this->ServerThreadReentry(); return !this->isPaused_; });
 		}
 
-		Debug(L"Continuing from breakpoint.");
+		Debug("Continuing from breakpoint.");
 	}
 
 	void Debugger::GlobalBreakpointInServerThread(GlobalBreakpointReason reason)
 	{
 		if (debuggingDisabled_) return;
 
-		Debug(L"Debugger::GlobalBreakpointInServerThread(): Reason %d", reason);
+		Debug("Debugger::GlobalBreakpointInServerThread(): Reason %d", reason);
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
 			isPaused_ = true;
@@ -873,7 +873,7 @@ namespace osidbg
 			breakpointCv_.wait(lk, [this]() { return !this->isPaused_; });
 		}
 
-		Debug(L"Continuing from breakpoint.");
+		Debug("Continuing from breakpoint.");
 		ServerThreadReentry();
 	}
 
@@ -885,7 +885,7 @@ namespace osidbg
 	void Debugger::PopFrame(CallStackFrame const & frame)
 	{
 		if (callStack_.empty()) {
-			Fail(L"Tried to remove frame from empty callstack");
+			Fail("Tried to remove frame from empty callstack");
 		}
 
 		auto const & lastFrame = *callStack_.rbegin();
@@ -895,7 +895,7 @@ namespace osidbg
 			|| lastFrame.tupleLL != frame.tupleLL
 			|| lastFrame.tuplePtrLL != frame.tuplePtrLL
 			|| lastFrame.actionIndex != frame.actionIndex) {
-			Fail(L"Call stack frame mismatch");
+			Fail("Call stack frame mismatch");
 		}
 
 		callStack_.pop_back();
@@ -907,7 +907,7 @@ namespace osidbg
 		PushFrame({ BreakpointReason::NodeIsValid, node, nullptr, 0, &tuple->Data, nullptr });
 
 #if defined(DUMP_TRACEPOINTS)
-		Debug(L"IsValid(Node %d)", node->Id);
+		Debug("IsValid(Node %d)", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
 			node,
@@ -943,7 +943,7 @@ namespace osidbg
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
 
 #if defined(DUMP_TRACEPOINTS)
-		Debug(L"PushDown(Node %d)", node->Id);
+		Debug("PushDown(Node %d)", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
 			node,
@@ -979,7 +979,7 @@ namespace osidbg
 		PushFrame({ reason, node, nullptr, 0, nullptr, tuple });
 
 #if defined(DUMP_TRACEPOINTS)
-		Debug(L"%s(Node %d)", deleted ? L"Delete" : L"Insert", node->Id);
+		Debug("%s(Node %d)", deleted ? L"Delete" : L"Insert", node->Id);
 #endif
 		ConditionalBreakpointInServerThread(
 			node,
@@ -1000,7 +1000,7 @@ namespace osidbg
 		ServerThreadReentry();
 
 #if defined(DUMP_TRACEPOINTS)
-		Debug(L"CallQuery(Node %d)", node->Id);
+		Debug("CallQuery(Node %d)", node->Id);
 #endif
 		// No breakpoint allowed on CallQuery
 	}
@@ -1046,7 +1046,7 @@ namespace osidbg
 			globalBpType = GlobalBreakpointType::GlobalBreakOnRuleAction;
 			breakpointId = BreakpointManager::MakeRuleActionBreakpointId(mapping->rule->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"RuleAction(Rule %d, Action %d)", mapping->rule->Id, mapping->actionIndex);
+			Debug("RuleAction(Rule %d, Action %d)", mapping->rule->Id, mapping->actionIndex);
 #endif
 		} else if (mapping->isInit) {
 			reason = BreakpointReason::GoalInitCall;
@@ -1054,7 +1054,7 @@ namespace osidbg
 			globalBpType = GlobalBreakpointType::GlobalBreakOnInitCall;
 			breakpointId = BreakpointManager::MakeGoalInitBreakpointId(mapping->goal->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"GoalInit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
+			Debug("GoalInit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
 #endif
 		} else {
 			reason = BreakpointReason::GoalExitCall;
@@ -1062,7 +1062,7 @@ namespace osidbg
 			globalBpType = GlobalBreakpointType::GlobalBreakOnExitCall;
 			breakpointId = BreakpointManager::MakeGoalExitBreakpointId(mapping->goal->Id, mapping->actionIndex);
 #if defined(DUMP_TRACEPOINTS)
-			Debug(L"GoalExit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
+			Debug("GoalExit(Goal %d, Action %d)", mapping->goal->Id, mapping->actionIndex);
 #endif
 		}
 
@@ -1082,7 +1082,7 @@ namespace osidbg
 				messageHandler_.SendDebugOutput(message->Value.Val.String);
 			}
 			else {
-				Debug(L"Invalid message parameter type for DebugBreak(): %d", message->TypeId);
+				Debug("Invalid message parameter type for DebugBreak(): %d", message->TypeId);
 			}
 		}
 	}

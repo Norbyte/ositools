@@ -33,8 +33,9 @@ namespace osidbg
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
 		ObjectSet<FixedString> StringProperties1;
 		ObjectSet<FixedString> ComboCategories;
-		void * SomeSTDWSTRING;
-		uint64_t C[3];
+#if !defined(OSI_EOCAPP)
+		STDWString SomeSTDWSTRING;
+#endif
 		uint32_t Using;
 		uint32_t D;
 	};
@@ -994,7 +995,9 @@ namespace osidbg
 		void * OsirisController;
 		void * RequestController;
 		void * StatusController;
+#if !defined(OSI_EOCAPP)
 		uint64_t U8[2];
+#endif
 		void * ScriptController;
 		void * TaskController;
 		EsvStatusManager * StatusManager;
