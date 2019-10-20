@@ -1307,7 +1307,7 @@ namespace osidbg
 			"48 8B CF " // mov     rcx, rdi
 			"E8 XX XX XX XX " // call    esv__ParseItem
 			"33 D2 " // xor     edx, edx
-			"48 8D 4C 24 60 " // lea     rcx, [rsp+0B8h+var_58]
+			"48 8D 4C 24 38 " // lea     rcx, [rsp+78h+var_40]
 			"E8 XX XX XX XX " // call    esv__CreateItemFromParsed
 		);
 
