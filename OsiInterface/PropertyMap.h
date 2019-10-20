@@ -66,18 +66,18 @@ namespace osidbg
 	template <class T>
 	struct PropertyMapInterface
 	{
-		virtual std::optional<int64_t> getInt(T * obj, std::string const & name, bool raw) const = 0;
-		virtual std::optional<float> getFloat(T * obj, std::string const & name, bool raw) const = 0;
-		virtual bool setInt(T * obj, std::string const & name, int64_t value, bool raw) const = 0;
-		virtual bool setFloat(T * obj, std::string const & name, float value, bool raw) const = 0;
-		virtual std::optional<char const *> getString(T * obj, std::string const & name, bool raw) const = 0;
-		virtual bool setString(T * obj, std::string const & name, char const * value, bool raw) const = 0;
-		virtual std::optional<ObjectHandle> getHandle(T * obj, std::string const & name, bool raw) const = 0;
-		virtual bool setHandle(T * obj, std::string const & name, ObjectHandle value, bool raw) const = 0;
-		virtual std::optional<Vector3> getVector3(T * obj, std::string const & name, bool raw) const = 0;
-		virtual bool setVector3(T * obj, std::string const & name, Vector3 const & value, bool raw) const = 0;
-		virtual std::optional<bool> getFlag(T * obj, std::string const & name, bool raw) const = 0;
-		virtual bool setFlag(T * obj, std::string const & name, bool value, bool raw) const = 0;
+		virtual std::optional<int64_t> getInt(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual std::optional<float> getFloat(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual bool setInt(T * obj, std::string const & name, int64_t value, bool raw, bool throwError) const = 0;
+		virtual bool setFloat(T * obj, std::string const & name, float value, bool raw, bool throwError) const = 0;
+		virtual std::optional<char const *> getString(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual bool setString(T * obj, std::string const & name, char const * value, bool raw, bool throwError) const = 0;
+		virtual std::optional<ObjectHandle> getHandle(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual bool setHandle(T * obj, std::string const & name, ObjectHandle value, bool raw, bool throwError) const = 0;
+		virtual std::optional<Vector3> getVector3(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual bool setVector3(T * obj, std::string const & name, Vector3 const & value, bool raw, bool throwError) const = 0;
+		virtual std::optional<bool> getFlag(T * obj, std::string const & name, bool raw, bool throwError) const = 0;
+		virtual bool setFlag(T * obj, std::string const & name, bool value, bool raw, bool throwError) const = 0;
 	};
 
 	template <class T, class TBase>
@@ -119,13 +119,14 @@ namespace osidbg
 
 		PropertyMapInterface<BaseType> * Parent{ nullptr };
 
-		std::optional<int64_t> getInt(T * obj, std::string const & name, bool raw) const
+		std::optional<int64_t> getInt(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->getInt(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getInt(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get int '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -135,6 +136,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
+				OsiError("Failed to get int '" << name << "': Property not readable");
 				return {};
 			}
 
@@ -149,17 +151,20 @@ namespace osidbg
 			case PropertyType::kInt64: return (int64_t)*reinterpret_cast<int64_t *>(ptr);
 			case PropertyType::kUInt64: return (int64_t)*reinterpret_cast<uint64_t *>(ptr);
 			case PropertyType::kFloat: return (int64_t)*reinterpret_cast<float *>(ptr);
-			default: return {};
+			default:
+				OsiError("Failed to get property '" << name << "': Property is not an int");
+				return {};
 			}
 		}
 
-		std::optional<float> getFloat(T * obj, std::string const & name, bool raw) const
+		std::optional<float> getFloat(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->getFloat(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getFloat(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get float '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -169,23 +174,27 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
+				OsiError("Failed to get float '" << name << "': Property not readable");
 				return {};
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
 			case PropertyType::kFloat: return *reinterpret_cast<float *>(ptr);
-			default: return {};
+			default:
+				OsiError("Failed to get property '" << name << "': Property is not a float");
+				return {};
 			}
 		}
 
-		bool setInt(T * obj, std::string const & name, int64_t value, bool raw) const
+		bool setInt(T * obj, std::string const & name, int64_t value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->setInt(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setInt(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set int '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -195,6 +204,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
+				OsiError("Failed to set int '" << name << "': Property not writeable");
 				return false;
 			}
 
@@ -209,19 +219,22 @@ namespace osidbg
 			case PropertyType::kInt64: *reinterpret_cast<int64_t *>(ptr) = (int64_t)value; break;
 			case PropertyType::kUInt64: *reinterpret_cast<uint64_t *>(ptr) = (uint64_t)value; break;
 			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = (float)value; break;
-			default: return false;
+			default:
+				OsiError("Failed to set property '" << name << "': Property is not an int");
+				return false;
 			}
 
 			return true;
 		}
 
-		bool setFloat(T * obj, std::string const & name, float value, bool raw) const
+		bool setFloat(T * obj, std::string const & name, float value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->setFloat(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setFloat(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set float '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -231,25 +244,29 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
+				OsiError("Failed to set float '" << name << "': Property not writeable");
 				return false;
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
 			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = value; break;
-			default: return false;
+			default:
+				OsiError("Failed to set property '" << name << "': Property is not a float");
+				return false;
 			}
 
 			return true;
 		}
 
-		std::optional<char const *> getString(T * obj, std::string const & name, bool raw) const
+		std::optional<char const *> getString(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->getString(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getString(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get string '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -259,6 +276,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
+				OsiError("Failed to get string '" << name << "': Property not readable");
 				return {};
 			}
 
@@ -266,17 +284,19 @@ namespace osidbg
 			if (prop->second.Type == PropertyType::kFixedString) {
 				return reinterpret_cast<FixedString *>(ptr)->Str;
 			} else {
+				OsiError("Failed to get property '" << name << "': Property is not a string");
 				return {};
 			}
 		}
 
-		bool setString(T * obj, std::string const & name, char const * value, bool raw) const
+		bool setString(T * obj, std::string const & name, char const * value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->setString(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setString(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set string '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -286,6 +306,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
+				OsiError("Failed to set string '" << name << "': Property not writeable");
 				return false;
 			}
 
@@ -293,23 +314,26 @@ namespace osidbg
 			if (prop->second.Type == PropertyType::kFixedString) {
 				auto fs = ToFixedString(value);
 				if (!fs) {
+					OsiError("Failed to set string '" << name << "': Could not map to FixedString");
 					return false;
 				} else {
 					*reinterpret_cast<FixedString *>(ptr) = fs;
 					return true;
 				}
 			} else {
+				OsiError("Failed to set property '" << name << "': Property is not a string");
 				return false;
 			}
 		}
 
-		std::optional<ObjectHandle> getHandle(T * obj, std::string const & name, bool raw) const
+		std::optional<ObjectHandle> getHandle(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->getHandle(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getHandle(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get handle '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -319,6 +343,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
+				OsiError("Failed to get handle '" << name << "': Property not readable");
 				return {};
 			}
 
@@ -326,17 +351,19 @@ namespace osidbg
 			if (prop->second.Type == PropertyType::kObjectHandle) {
 				return *reinterpret_cast<ObjectHandle *>(ptr);
 			} else {
+				OsiError("Failed to get property '" << name << "': Property is not a handle");
 				return {};
 			}
 		}
 
-		bool setHandle(T * obj, std::string const & name, ObjectHandle value, bool raw) const
+		bool setHandle(T * obj, std::string const & name, ObjectHandle value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->setHandle(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setHandle(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set handle '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -346,6 +373,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
+				OsiError("Failed to set handle '" << name << "': Property not writeable");
 				return false;
 			}
 
@@ -354,17 +382,19 @@ namespace osidbg
 				*reinterpret_cast<ObjectHandle *>(ptr) = value;
 				return true;
 			} else {
+				OsiError("Failed to set property '" << name << "': Property is not a handle");
 				return false;
 			}
 		}
 
-		std::optional<Vector3> getVector3(T * obj, std::string const & name, bool raw) const
+		std::optional<Vector3> getVector3(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->getVector3(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getVector3(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get vector '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -374,6 +404,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
+				OsiError("Failed to get vector '" << name << "': Property not readable");
 				return {};
 			}
 
@@ -381,17 +412,19 @@ namespace osidbg
 			if (prop->second.Type == PropertyType::kVector3) {
 				return *reinterpret_cast<Vector3 *>(ptr);
 			} else {
+				OsiError("Failed to get property '" << name << "': Property is not a vector");
 				return {};
 			}
 		}
 
-		bool setVector3(T * obj, std::string const & name, Vector3 const & value, bool raw) const
+		bool setVector3(T * obj, std::string const & name, Vector3 const & value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
 				if (Parent != nullptr) {
-					return Parent->setVector3(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setVector3(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set vector '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -401,6 +434,7 @@ namespace osidbg
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
+				OsiError("Failed to set vector '" << name << "': Property not writeable");
 				return false;
 			}
 
@@ -409,17 +443,19 @@ namespace osidbg
 				*reinterpret_cast<Vector3 *>(ptr) = value;
 				return true;
 			} else {
+				OsiError("Failed to get property '" << name << "': Property is not a vector");
 				return false;
 			}
 		}
 
-		std::optional<bool> getFlag(T * obj, std::string const & name, bool raw) const
+		std::optional<bool> getFlag(T * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto flag = Flags.find(name);
 			if (flag == Flags.end()) {
 				if (Parent != nullptr) {
-					return Parent->getFlag(static_cast<BaseType *>(obj), name, raw);
+					return Parent->getFlag(static_cast<BaseType *>(obj), name, raw, throwError);
 				} else {
+					OsiError("Failed to get flag '" << name << "': Property does not exist");
 					return {};
 				}
 			}
@@ -429,10 +465,11 @@ namespace osidbg
 			}
 
 			if (!raw && !(flag->second.Flags & kPropRead)) {
+				OsiError("Failed to get flag '" << name << "': Property not readable");
 				return {};
 			}
 
-			auto value = getInt(obj, flag->second.Property, true);
+			auto value = getInt(obj, flag->second.Property, true, throwError);
 			if (!value) {
 				return {};
 			}
@@ -440,13 +477,14 @@ namespace osidbg
 			return (*value & flag->second.Mask) != 0;
 		}
 
-		bool setFlag(T * obj, std::string const & name, bool value, bool raw) const
+		bool setFlag(T * obj, std::string const & name, bool value, bool raw, bool throwError) const
 		{
 			auto flag = Flags.find(name);
 			if (flag == Flags.end()) {
 				if (Parent != nullptr) {
-					return Parent->setFlag(static_cast<BaseType *>(obj), name, value, raw);
+					return Parent->setFlag(static_cast<BaseType *>(obj), name, value, raw, throwError);
 				} else {
+					OsiError("Failed to set flag '" << name << "': Property does not exist");
 					return false;
 				}
 			}
@@ -456,10 +494,11 @@ namespace osidbg
 			}
 
 			if (!raw && !(flag->second.Flags & kPropWrite)) {
+				OsiError("Failed to set flag '" << name << "': Property not writeable");
 				return false;
 			}
 
-			auto currentValue = getInt(obj, flag->second.Property, true);
+			auto currentValue = getInt(obj, flag->second.Property, true, throwError);
 			if (!currentValue) {
 				return false;
 			}
@@ -470,7 +509,7 @@ namespace osidbg
 				*currentValue &= ~flag->second.Mask;
 			}
 
-			return setInt(obj, flag->second.Property, *currentValue, true);
+			return setInt(obj, flag->second.Property, *currentValue, true, throwError);
 		}
 	};
 

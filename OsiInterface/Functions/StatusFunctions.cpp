@@ -100,7 +100,7 @@ namespace osidbg
 				case StatusType::Hit:
 				{
 					auto hit = static_cast<EsvStatusHit *>(status);
-					if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+					if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
 						return true;
 					} else {
 						return OsirisPropertyMapGet(gStatusHitPropertyMap, hit, args, 2, Type);
@@ -136,9 +136,10 @@ namespace osidbg
 				case StatusType::Hit:
 				{
 					auto hit = static_cast<EsvStatusHit *>(status);
-					if (!OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type)) {
+					if (!OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
 						OsirisPropertyMapSet(gStatusHitPropertyMap, hit, args, 2, Type);
 					}
+					break;
 				}
 
 				case StatusType::Heal:
@@ -157,6 +158,7 @@ namespace osidbg
 
 				default:
 					OsirisPropertyMapSet(gStatusPropertyMap, status, args, 2, Type);
+					break;
 			}
 		}
 

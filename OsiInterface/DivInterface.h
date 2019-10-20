@@ -2,7 +2,6 @@
 
 #include "DivBaseTypes.h"
 #include "DivEnumerations.h"
-#include "PropertyMap.h"
 
 namespace osidbg
 {

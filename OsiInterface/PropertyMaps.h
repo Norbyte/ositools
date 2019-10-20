@@ -2,6 +2,7 @@
 
 #include "CustomFunctions.h"
 #include "Functions/FunctionLibrary.h"
+#include "PropertyMap.h"
 
 namespace osidbg
 {
@@ -33,22 +34,23 @@ namespace osidbg
 
 	template <class T>
 	bool OsirisPropertyMapGet(PropertyMapInterface<T> const & propertyMap, T * obj,
-		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type)
+		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError = true)
 	{
+		auto propertyName = args.Get(firstArg).String;
+
 		if (obj == nullptr) {
-			OsiError("Attempted to get property of null object!");
+			OsiError("Attempted to get property '" << propertyName << "' of null object!");
 			return false;
 		}
 
-		auto propertyName = args.Get(firstArg).String;
 		switch (type) {
 			case OsiPropertyMapType::Integer:
 			{
-				auto val = propertyMap.getInt(obj, propertyName, false);
+				auto val = propertyMap.getInt(obj, propertyName, false, false);
 				if (val) {
 					args.Get(firstArg + 1).Int32 = (int32_t)*val;
 				} else {
-					auto boolval = propertyMap.getFlag(obj, propertyName, false);
+					auto boolval = propertyMap.getFlag(obj, propertyName, false, throwError);
 					if (boolval) {
 						args.Get(firstArg + 1).Int32 = *boolval ? 1 : 0;
 					} else {
@@ -61,7 +63,7 @@ namespace osidbg
 
 			case OsiPropertyMapType::Integer64:
 			{
-				auto val = propertyMap.getInt(obj, propertyName, false);
+				auto val = propertyMap.getInt(obj, propertyName, false, throwError);
 				if (!val) {
 					return false;
 				}
@@ -72,7 +74,7 @@ namespace osidbg
 
 			case OsiPropertyMapType::Real:
 			{
-				auto val = propertyMap.getFloat(obj, propertyName, false);
+				auto val = propertyMap.getFloat(obj, propertyName, false, throwError);
 				if (!val) {
 					return false;
 				}
@@ -83,7 +85,7 @@ namespace osidbg
 
 			case OsiPropertyMapType::String:
 			{
-				auto val = propertyMap.getString(obj, propertyName, false);
+				auto val = propertyMap.getString(obj, propertyName, false, throwError);
 				if (!val) {
 					return false;
 				}
@@ -94,7 +96,7 @@ namespace osidbg
 
 			case OsiPropertyMapType::GuidStringHandle:
 			{
-				auto val = propertyMap.getHandle(obj, propertyName, false);
+				auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
 				if (!val) {
 					return false;
 				}
@@ -116,13 +118,13 @@ namespace osidbg
 					return true;
 				}
 
-				OsiError("Could not map handle to game object: " << (int64_t)*val);
+				OsiError("Failed to get property '" << propertyName << "': Could not map handle to game object: " << (int64_t)*val);
 				return false;
 			}
 
 			case OsiPropertyMapType::Vector3:
 			{
-				auto val = propertyMap.getVector3(obj, propertyName, false);
+				auto val = propertyMap.getVector3(obj, propertyName, false, throwError);
 				if (!val) {
 					return false;
 				}
@@ -134,28 +136,28 @@ namespace osidbg
 			}
 
 			default:
-				OsiError("Unknown Osi property type!");
+				OsiError("Failed to get property '" << propertyName << "': Unknown Osi property type!");
 				return false;
 		}
 	}
 
 	template <class T>
 	bool OsirisPropertyMapSet(PropertyMapInterface<T> const & propertyMap, T * obj,
-		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type)
+		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError = true)
 	{
+		auto propertyName = args.Get(firstArg).String;
 		if (obj == nullptr) {
-			OsiError("Attempted to set property of null object!");
+			OsiError("Attempted to set property '" << propertyName << "' of null object!");
 			return false;
 		}
 
-		auto propertyName = args.Get(firstArg).String;
 		switch (type) {
 		case OsiPropertyMapType::Integer:
 		{
 			auto val = args.Get(firstArg + 1).Int32;
 
-			if (!propertyMap.setFlag(obj, propertyName, val != 0, false)) {
-				return propertyMap.setInt(obj, propertyName, val, false);
+			if (!propertyMap.setFlag(obj, propertyName, val != 0, false, false)) {
+				return propertyMap.setInt(obj, propertyName, val, false, throwError);
 			} else {
 				return true;
 			}
@@ -164,19 +166,19 @@ namespace osidbg
 		case OsiPropertyMapType::Integer64:
 		{
 			auto val = args.Get(firstArg + 1).Int64;
-			return propertyMap.setInt(obj, propertyName, val, false);
+			return propertyMap.setInt(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::Real:
 		{
 			auto val = args.Get(firstArg + 1).Float;
-			return propertyMap.setFloat(obj, propertyName, val, false);
+			return propertyMap.setFloat(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::String:
 		{
 			auto val = args.Get(firstArg + 1).String;
-			return propertyMap.setString(obj, propertyName, val, false);
+			return propertyMap.setString(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::GuidStringHandle:
@@ -185,24 +187,24 @@ namespace osidbg
 			if (guid == nullptr 
 				|| !strlen(guid) 
 				|| NameGuidToFixedString(guid) == ToFixedString("00000000-0000-0000-0000-000000000000").Str) {
-				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false);
+				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
 			}
 
 			auto character = FindCharacterByNameGuid(guid);
 			if (character != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				return propertyMap.setHandle(obj, propertyName, handle, false);
+				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
 
 			auto item = FindItemByNameGuid(guid);
 			if (item != nullptr) {
 				ObjectHandle handle;
 				item->GetObjectHandle(&handle);
-				return propertyMap.setHandle(obj, propertyName, handle, false);
+				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
 
-			OsiError("Could not map GUID to game object: " << guid);
+			OsiError("Failed to set property '" << propertyName << "': Could not map GUID to game object: " << guid);
 			return false;
 		}
 
@@ -212,11 +214,11 @@ namespace osidbg
 			auto y = args.Get(firstArg + 2).Float;
 			auto z = args.Get(firstArg + 3).Float;
 			Vector3 vec(x, y, z);
-			return propertyMap.setVector3(obj, propertyName, vec, false);
+			return propertyMap.setVector3(obj, propertyName, vec, false, throwError);
 		}
 
 		default:
-			OsiError("Unknown Osi property type!");
+			OsiError("Failed to set property '" << propertyName << "': Unknown Osi property type!");
 			return false;
 		}
 	}
