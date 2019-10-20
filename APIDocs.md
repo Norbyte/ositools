@@ -148,30 +148,30 @@ Apply the specified `DAMAGE_ON_MOVE` status on the character.
 
 ## Hit status functions
 
-### HitAddDamage
-`call NRD_HitAddDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType, (INTEGER)_Amount)`
+### HitStatusAddDamage
+`call NRD_HitStatusAddDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType, (INTEGER)_Amount)`
 
 Increases/decreases the amount of damage dealt by the `HIT` status.
  - `_StatusHandle` - Handle of the `HIT` status
  - `_DamageType` - Damage type to update; see `Damage Type` enumeration.
  - `_Amount` - Damage amount. Positive values add, negative values remove damage. The total damage amount cannot go below zero.
 
-### HitClearDamage
-`call NRD_HitClearDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType)`
+### HitStatusClearDamage
+`call NRD_HitStatusClearDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType)`
 
 Removes the specified damage type from the list of damages dealt by the `HIT` status.
  - `_StatusHandle` - Handle of the `HIT` status
  - `_DamageType` - Damage type to clear; see `Damage Type` enumeration.
 
-### HitClearAllDamage
-`call NRD_HitClearAllDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle)`
+### HitStatusClearAllDamage
+`call NRD_HitStatusClearAllDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle)`
 
 Clears the list of damage types dealt by the `HIT` status.
  - `_StatusHandle` - Handle of the `HIT` status
 
 
-### HitGetDamage
-`query NRD_HitGetDamage([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_DamageType, [out](INTEGER)_Amount)`
+### HitStatusGetDamage
+`query NRD_HitStatusGetDamage([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_DamageType, [out](INTEGER)_Amount)`
 
 Returns the amount of damage dealt by the `HIT` status.
  - `_StatusHandle` - Handle of the `HIT` status
@@ -190,7 +190,7 @@ Returns the amount of damage dealt by the `HIT` status.
 | Obj2 | GuidString | Read | *Unknown; name subject to change* |
 | StartTimer | Real | Read |  |
 | LifeTime | Real | Read/Write | Total lifetime of the status, in seconds. -1 if the status does not expire. |
-| CurrentLifeTime | Real/Write | Read | Remaining lifetime of the status, in seconds. |
+| CurrentLifeTime | Real | Read/Write | Remaining lifetime of the status, in seconds. |
 | TurnTimer | Real | Read | Elapsed time in the current turn (0..6) |
 | Strength | Real | Read/Write |  |
 | StatsMultiplier | Real | Read/Write |  |
@@ -213,23 +213,27 @@ Returns the amount of damage dealt by the `HIT` status.
 | RequestDeleteAtTurnEnd | Flag | Read | The status will be deleted at the end of the current turn |
 | Started | Flag | Read |  |
 
-## StatusHeal attributes
-
-| Attribute | Type | Access | Description |
-|--|--|--|--|
-| EffectTime | Real | Read/Write |  |
-| HealAmount | Integer | Read/Write |  |
-| HealEffect | Enum | Read/Write |  |
-| HealEffectId | String | Read/Write | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
-| HealType | Enum | Read/Write | See `StatusHealType` enumeration  |
-| AbsorbSurfaceRange | Integer | Read/Write |  |
-| TargetDependentHeal | Flag | Read/Write |  |
-
 ## StatusHit attributes
 
 | Attribute | Type | Access | Description |
 |--|--|--|--|
 | SkillId | String | Read/Write | Stats ID of the skill (`SkillData`) that was used for the attack |
+| HitByHandle | GuidString | Read |  |
+| HitWithHandle | GuidString | Read |  |
+| WeaponHandle | GuidString | Read |  |
+| HitReason | Integer | Read/Write |  |
+| Interruption | Flag | Read/Write |  |
+| AllowInterruptAction | Flag | Read/Write |  |
+| ForceInterrupt | Flag | Read/Write |  |
+| DecDelayDeathCount | Flag | Read |  |
+| ImpactPosition | Vector3 | Read/Write |  |
+| ImpactOrigin | Vector3 | Read/Write |  |
+| ImpactDirection | Vector3 | Read/Write |  |
+
+## Hit attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
 | Equipment | Integer | Read/Write | **TODO** *Meaning not known.* |
 | DeathType | Enum | Read/Write | A value from the `Death Type` enumeration |
 | DamageType | Enum | Read/Write | A value from the `Damage Type` enumeration |
@@ -237,7 +241,6 @@ Returns the amount of damage dealt by the `HIT` status.
 | ArmorAbsorption | Integer | Read/Write |  |
 | LifeSteal | Integer | Read/Write |  |
 | HitWithWeapon | Integer | Read/Write |  |
-| HitReason | Integer | Read/Write |  |
 | Hit | Flag | Read/Write | The attack hit |
 | Blocked | Flag | Read/Write | The attack was blocked |
 | Dodged | Flag | Read/Write | The attack was dodged |
@@ -254,19 +257,31 @@ Returns the amount of damage dealt by the `HIT` status.
 | DamagedVitality | Flag | Read/Write | Indicates that the hit damaged the characters vitality |
 | PropagatedFromOwner | Flag | Read/Write |  |
 | ProcWindWalker | Flag | Read/Write | Hit should proc the Wind Walker talent |
-| ImpactPosition | Vector3 | Read/Write |  |
-| ImpactOrigin | Vector3 | Read/Write |  |
-| ImpactDirection | Vector3 | Read/Write |  |
+| NoEvents | Flag | Read/Write | Don't throw `OnHit`/`OnPrepareHit` events for this hit |
+
+
+## StatusHeal attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
+| EffectTime | Real | Read/Write |  |
+| HealAmount | Integer | Read/Write |  |
+| HealEffect | Enum | Read/Write |  |
+| HealEffectId | String | Read/Write | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
+| HealType | Enum | Read/Write | See `StatusHealType` enumeration  |
+| AbsorbSurfaceRange | Integer | Read/Write |  |
+| TargetDependentHeal | Flag | Read/Write |  |
+
 
 # Hit functions
 
-`call NRD_HitPrepare((GUIDSTRING)_Target, (GUIDSTRING)_Source)`
-`call NRD_HitExecute()`
-`call NRD_HitSetInt((STRING)_Property, (INTEGER)_Value)`
-`call NRD_HitSetString((STRING)_Property, (STRING)_Value)`
-`call NRD_HitSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
-`call NRD_HitSetFlag((STRING)_Flag)`
-`call NRD_HitAddDamage((INTEGER)_DamageType, (INTEGER)_Amount)`
+`query NRD_HitPrepare([in](GUIDSTRING)_Target, [in](GUIDSTRING)_Source, [out](INTEGER64)_HitHandle)`
+`query NRD_HitQryExecute([in](INTEGER64)_HitHandle, [out](INTEGER64)_StatusHandle)`
+`call NRD_HitSetInt((INTEGER64)_HitHandle, (STRING)_Property, (INTEGER)_Value)`
+`call NRD_HitSetString((INTEGER64)_HitHandle, (STRING)_Property, (STRING)_Value)`
+`call NRD_HitSetVector3((INTEGER64)_HitHandle, (STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+`call NRD_HitSetFlag((INTEGER64)_HitHandle, (STRING)_Flag)`
+`call NRD_HitAddDamage((INTEGER64)_HitHandle, (INTEGER)_DamageType, (INTEGER)_Amount)`
 
 The Hit API is an extension of `ApplyDamage()` with many additional features. 
 **Usage steps:**
@@ -275,7 +290,7 @@ The Hit API is an extension of `ApplyDamage()` with many additional features.
  - Add one or more damage types by calling `NRD_HitAddDamage()`
  - Apply the hit using `NRD_HitExecute()`
 
-In addition to the parameters listed in [StatusHit attributes](#statushit-attributes) the following parameters can be set when launching a hit:
+In addition to the parameters listed in [Hit attributes](#hit-attributes) the following parameters can be set when launching a hit:
 
 | Attribute | Type | Description |
 |--|--|--|
@@ -284,44 +299,86 @@ In addition to the parameters listed in [StatusHit attributes](#statushit-attrib
 | RollForDamage | Integer | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
 | CriticalRoll | Integer | Determines the outcome of the critical hit roll. 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result. 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically. 2 = The hit is not a critical hit. |
 | ProcWindWalker | Flag |  |
+| ForceReduceDurability | Flag |  |
 | HighGround | Integer | High ground bonus indicator. 0 = High ground test not performed. 1 = Attacker is on high ground. 2 = Attacker is on even ground. 3 = Attacker is on low ground. |
 
 **Notes:**
- - Make sure that both `NRD_HitPrepare` and `NRD_HitExecute` are called in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the hit.
+ - The hit handles returned from `NRD_HitPrepare` are not persistent (i.e. they don't survive a save/load) and they can only be used for a single hit; they're destroyed after calling `NRD_HitExecute`.
 
 **Example usage (normal hit):**
 ```c
-NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
-NRD_HitAddDamage(8, 50);
-NRD_HitSetInt("CallCharacterHit", 1);
-NRD_HitSetInt("CriticalRoll", 1);
-NRD_HitExecute();
+[...]
+AND
+NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, _HitHandle)
+THEN
+NRD_HitAddDamage(_HitHandle, "Physical", 5);
+NRD_HitSetFlag(_HitHandle, "Hit");
+NRD_HitSetInt(_HitHandle, "CallCharacterHit", 1);
+NRD_HitExecute(_HitHandle);
 ```
 
 **Example usage (manually controlled hit):**
 ```c
-NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6);
-NRD_HitAddDamage(2, 50);
-NRD_HitSetFlag("Hit");
-NRD_HitSetFlag("DamagedVitality");
-NRD_HitExecute();
+[...]
+AND
+NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, _HitHandle)
+THEN
+NRD_HitAddDamage(_HitHandle, "Corrosive", 50);
+NRD_HitSetFlag(_HitHandle,"Hit");
+NRD_HitSetFlag(_HitHandle,"DamagedVitality");
+NRD_HitExecute(_HitHandle);
 ```
+
+
+### HitAddDamage
+`call NRD_HitAddDamage((INTEGER64)_HitHandle, (STRING)_DamageType, (INTEGER)_Amount)`
+
+Increases/decreases the amount of damage dealt by the hit.
+ - `_HitHandle` - Handle of hit
+ - `_DamageType` - Damage type to update; see `Damage Type` enumeration.
+ - `_Amount` - Damage amount. Positive values add, negative values remove damage. The total damage amount cannot go below zero.
+
+### HitClearDamage
+`call NRD_HitClearDamage((INTEGER64)_HitHandle, (STRING)_DamageType)`
+
+Removes the specified damage type from the list of damages dealt by the hit.
+ - `_HitHandle` - Handle of the hit
+ - `_DamageType` - Damage type to clear; see `Damage Type` enumeration.
+
+### HitClearAllDamage
+`call NRD_HitClearAllDamage((INTEGER64)_HitHandle)`
+
+Clears the list of damage types dealt by the hit.
+ - `_HitHandle` - Handle of the hit
+
+
+### HitGetDamage
+`query NRD_HitGetDamage([in](INTEGER64)_HitHandle, [in](STRING)_DamageType, [out](INTEGER)_Amount)`
+
+Returns the amount of damage dealt by the hit.
+ - `_HitHandle` - Handle of the hit
+ - `_DamageType` - Damage type to retrieve; see `Damage Type` enumeration.
+ - `_Amount` - Damage amount
+
+
+### OnPrepareHit
+`event NRD_OnPrepareHit((GUIDSTRING)_Target, (GUIDSTRING)_Instigator, (INTEGER)_Damage, (INTEGER64)_HitHandle)`
+
+Thrown before a hit damage calculation on a character takes place. Hit attributes can be queried using the `NRD_HitGet[...]`  functions and updated using the `NRD_HitSet[...]` functions. For a list of attributes, see [Hit attributes](#hit-attributes).
+
+**Note:** The `_HitHandle` only works for the duration of the prepare event, it is destroyed afterwards.
+
 
 ### OnHit
 `event NRD_OnHit((GUIDSTRING)_Target, (GUIDSTRING)_Instigator, (INTEGER)_Damage, (INTEGER64)_StatusHandle)`
 
-Thrown before a character is hit. Status attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHit attributes](#statushit-attributes).
+Thrown before a hit status is applied to the character (i.e. before the character is hit). Status attributes can be queried using the `NRD_StatusGet[...]`  functions and updated using the `NRD_StatusSet[...]` functions. For a list of attributes, see [Status attributes](#status-attributes), [StatusHit attributes](#statushit-attributes) and  [Hit attributes](#hit-attributes).
 
-**Stability:**
- - Since the event is thrown before the hit occurs, it is possible to modify or cancel the hit effect. API-s for this will be available in a future version.
 
 ### OnHeal
 `event NRD_OnHeal((GUIDSTRING)_Target, (GUIDSTRING)_Instigator, (INTEGER)_Amount, (INTEGER64)_StatusHandle)`
 
 Thrown before a character is healed. Status attributes can be queried using the `NRD_StatusGet[...]`  functions. For a list of attributes, see [Status attributes](#status-attributes) and [StatusHeal attributes](#statusheal-attributes).
-
-**Stability:**
- - Since the event is thrown before heal occurs, it is possible to modify or cancel the heal effect. API-s for this will be available in a future version.
 
 
 # Projectile functions
