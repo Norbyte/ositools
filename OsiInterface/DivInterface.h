@@ -566,7 +566,7 @@ namespace osidbg
 
 	struct TDamagePair
 	{
-		uint32_t Amount;
+		int32_t Amount;
 		DamageType DamageType;
 	};
 
@@ -578,14 +578,14 @@ namespace osidbg
 	struct HitDamageInfo
 	{
 		uint32_t Equipment{ 0 };
-		uint32_t TotalDamageDone{ 0 };
+		int32_t TotalDamageDone{ 0 };
 		uint32_t Unknown{ 0 };
 		DeathType DeathType{ DeathType::Sentinel };
 		uint8_t _Pad1[3];
 		DamageType DamageType{ DamageType::None };
 		uint32_t AttackDirection{ 0 };
-		uint32_t ArmorAbsorption{ 0 };
-		uint32_t LifeSteal{ 0 };
+		int32_t ArmorAbsorption{ 0 };
+		int32_t LifeSteal{ 0 };
 		uint32_t EffectFlags{ 0 };
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];

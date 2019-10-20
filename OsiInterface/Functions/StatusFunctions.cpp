@@ -349,8 +349,8 @@ namespace osidbg
 			sourceGuid = attackerStats->Character->GetGuid()->Str;
 		}
 
-		uint32_t totalDamage{ 0 };
-		for (uint32_t i = 0; i < damageList->Size; i++) {
+		int32_t totalDamage{ 0 };
+		for (int32_t i = 0; i < damageList->Size; i++) {
 			totalDamage += damageList->Buf[i].Amount;
 		}
 

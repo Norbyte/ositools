@@ -280,11 +280,11 @@ namespace osidbg
 		bool added{ false };
 		for (uint32_t i = 0; i < Size; i++) {
 			if (Buf[i].DamageType == DamageType) {
-				auto newAmount = (int32_t)Buf[i].Amount + Amount;
-				if (newAmount <= 0) {
+				auto newAmount = Buf[i].Amount + Amount;
+				if (newAmount == 0) {
 					Remove(i);
 				} else {
-					Buf[i].Amount += (uint32_t)newAmount;
+					Buf[i].Amount += newAmount;
 				}
 
 				added = true;
@@ -295,7 +295,7 @@ namespace osidbg
 		if (!added && Amount > 0) {
 			TDamagePair dmg;
 			dmg.DamageType = DamageType;
-			dmg.Amount = (uint32_t)Amount;
+			dmg.Amount = Amount;
 			if (!SafeAdd(dmg)) {
 				OsiError("DamageList capacity exceeded!");
 			}
@@ -357,7 +357,7 @@ namespace osidbg
 	bool HitDamageInfo::SetInt(char const * prop, int value)
 	{
 		if (strcmp(prop, "Equipment") == 0) Equipment = (uint32_t)value;
-		else if (strcmp(prop, "TotalDamageDone") == 0) TotalDamageDone = (uint32_t)value;
+		else if (strcmp(prop, "TotalDamageDone") == 0) TotalDamageDone = value;
 		else if (strcmp(prop, "DeathType") == 0) {
 			if (EnumInfo<osidbg::DeathType>::Find((osidbg::DeathType)value)) {
 				DeathType = (osidbg::DeathType)value;
@@ -375,8 +375,8 @@ namespace osidbg
 			}
 		}
 		else if (strcmp(prop, "AttackDirection") == 0) return AttackDirection;
-		else if (strcmp(prop, "ArmorAbsorption") == 0) ArmorAbsorption = (uint32_t)value;
-		else if (strcmp(prop, "LifeSteal") == 0) LifeSteal = (uint32_t)value;
+		else if (strcmp(prop, "ArmorAbsorption") == 0) ArmorAbsorption = value;
+		else if (strcmp(prop, "LifeSteal") == 0) LifeSteal = value;
 		else if (strcmp(prop, "EffectFlags") == 0) EffectFlags = (uint32_t)value;
 		else if (strcmp(prop, "HitWithWeapon") == 0) HitWithWeapon = value ? 1 : 0;
 		else {

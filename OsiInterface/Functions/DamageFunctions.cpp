@@ -89,6 +89,8 @@ namespace osidbg
 		}
 		else if (strcmp(prop, "ProcWindWalker") == 0) {
 			ProcWindWalker = value > 0;
+		} else if (strcmp(prop, "ForceReduceDurability") == 0) {
+			ForceReduceDurability = value > 0;
 		}
 		else if (strcmp(prop, "HighGround") == 0) {
 			if (value < 0 || value > (int32_t)HighGroundBonus::HighGround) {
@@ -430,7 +432,7 @@ namespace osidbg
 			}
 
 			auto & dmgList = *helper->DamageList;
-			uint32_t amount = 0;
+			int32_t amount = 0;
 			for (uint32_t i = 0; i < dmgList.Size; i++) {
 				if (dmgList.Buf[i].DamageType == *damageType) {
 					amount += dmgList.Buf[i].Amount;
@@ -605,14 +607,14 @@ namespace osidbg
 			}
 
 			auto & dmgList = status->DamageInfo.DamageList;
-			uint32_t amount = 0;
+			int32_t amount = 0;
 			for (uint32_t i = 0; i < dmgList.Size; i++) {
 				if (dmgList.Buf[i].DamageType == *damageType) {
 					amount += dmgList.Buf[i].Amount;
 				}
 			}
 
-			args.Get(3).Int32 = (int32_t)amount;
+			args.Get(3).Int32 = amount;
 			return true;
 		}
 
