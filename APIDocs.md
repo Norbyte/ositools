@@ -273,6 +273,20 @@ Returns the amount of damage dealt by the `HIT` status.
 | TargetDependentHeal | Flag | Read/Write |  |
 
 
+## StatusHealing attributes
+
+| Attribute | Type | Access | Description |
+|--|--|--|--|
+| HealAmount | Integer | Read/Write |  |
+| TimeElapsed | Real | Read/Write |  |
+| HealEffect | Enum | Read/Write |  |
+| HealEffectId | String | Read/Write | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
+| SkipInitialEffect | Flag | Read/Write | |
+| HealingEvent | Integer | Read/Write |  |
+| HealStat | Enum | Read/Write |  |
+| AbsorbSurfaceRange | Integer | Read/Write |  |
+
+
 # Hit functions
 
 `query NRD_HitPrepare([in](GUIDSTRING)_Target, [in](GUIDSTRING)_Source, [out](INTEGER64)_HitHandle)`
