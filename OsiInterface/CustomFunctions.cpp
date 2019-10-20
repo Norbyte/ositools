@@ -249,9 +249,66 @@ void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc *
 	}
 }
 
+void OsiFunctionToSymbolInfo(Function & func, OsiSymbolInfo & symbol)
+{
+	symbol.name = func.Signature->Name;
+	symbol.type = func.Type;
+	symbol.nodeId = func.Node.Id;
+	symbol.EoCFunctionId = 0;
+
+	symbol.params.resize(func.Signature->Params->Params.Size);
+	uint32_t paramIdx = 0;
+	auto paramHead = func.Signature->Params->Params.Head;
+	auto param = paramHead->Next;
+	while (param != paramHead) {
+		symbol.params[paramIdx].output = func.Signature->OutParamList.isOutParam(paramIdx);
+		symbol.params[paramIdx++].type = (ValueType)param->Item.Type;
+		param = param->Next;
+	}
+}
+
+void CustomFunctionInjector::CreateOsirisSymbolMap(MappingInfo ** Mappings, uint32_t * MappingCount)
+{
+	// Create a map of Osiris symbols
+	osiSymbols_.clear();
+	osiSymbols_.reserve(10000);
+
+	std::unordered_map<FunctionNameAndArity, uint32_t> symbolMap;
+	auto funcs = *gOsirisProxy->GetGlobals().Functions;
+	auto visit = [&symbolMap, this](STDString const & str, Function * func) {
+		OsiSymbolInfo symbol;
+		OsiFunctionToSymbolInfo(*func, symbol);
+
+		FunctionNameAndArity sig{ symbol.name, (uint32_t)symbol.params.size() };
+		symbolMap.insert(std::make_pair(sig, (uint32_t)osiSymbols_.size()));
+
+		osiSymbols_.push_back(std::move(symbol));
+	};
+
+	for (auto i = 0; i < 0x3ff; i++) {
+		auto map = funcs->Hash[i].NodeMap;
+		map.Iterate(visit);
+	}
+
+	// Map EoC function indices to Osiris functions
+	for (unsigned i = 0; i < *MappingCount; i++) {
+		auto const & mapping = (*Mappings)[i];
+		FunctionNameAndArity sig{ mapping.Name, mapping.NumParams };
+		auto it = symbolMap.find(sig);
+		if (it != symbolMap.end()) {
+			osiSymbols_[it->second].EoCFunctionId = mapping.Id;
+		} else {
+			Debug("No Osiris definition found for engine function %s/%d", mapping.Name, mapping.NumParams);
+		}
+	}
+}
+
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
 {
 	Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs: %d", *MappingCount);
+
+	CreateOsirisSymbolMap(Mappings, MappingCount);
+	gOsirisProxy->GetExtensionState().Reset();
 
 	// Remove local functions
 	auto outputIndex = 0;

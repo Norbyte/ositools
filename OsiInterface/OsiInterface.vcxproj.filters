@@ -170,6 +170,9 @@
     <ClCompile Include="Functions\CharacterFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
+    <ClCompile Include="LuaBinding.cpp\LuaBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">

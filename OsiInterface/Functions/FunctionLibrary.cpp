@@ -1,11 +1,52 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <fstream>
 
 namespace osidbg
 {
+
+	void LuaReset();
+	void LuaLoad(std::string const & path);
+	void LuaCall(char const * func, char const * arg);
+
 	namespace func
 	{
+
+		char const * ItemGetStatsIdProxy(char const * itemGuid)
+		{
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) {
+				OsiError("Item '" << itemGuid << "' does not exist!");
+				return nullptr;
+			}
+
+			if (!item->StatsId.Str) {
+				OsiError("Item '" << itemGuid << "' has no stats ID!");
+				return nullptr;
+			} else {
+				return item->StatsId.Str;
+			}
+		}
+
+		void OsiLuaReset(OsiArgumentDesc const & args)
+		{
+			LuaReset();
+		}
+
+		void OsiLuaLoad(OsiArgumentDesc const & args)
+		{
+			auto path = args.Get(0).String;
+			LuaLoad(path);
+		}
+
+		void OsiLuaCall(OsiArgumentDesc const & args)
+		{
+			auto func = args.Get(0).String;
+			auto arg = args.Get(1).String;
+			LuaCall(func, arg);
+		}
+
 		void BreakOnCharacter(OsiArgumentDesc const & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
@@ -93,8 +134,33 @@ namespace osidbg
 			&func::DoExperiment
 		);
 		functionMgr.Register(std::move(experiment));
-	}
 
+		auto luaReset = std::make_unique<CustomCall>(
+			"NRD_LuaReset",
+			std::vector<CustomFunctionParam>{},
+			&func::OsiLuaReset
+		);
+		functionMgr.Register(std::move(luaReset));
+
+		auto luaLoad = std::make_unique<CustomCall>(
+			"NRD_LuaLoad",
+			std::vector<CustomFunctionParam>{
+				{ "Path", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaLoad
+		);
+		functionMgr.Register(std::move(luaLoad));
+
+		auto luaCall = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall));
+	}
 
 	void CustomFunctionLibrary::PostStartup()
 	{

@@ -258,9 +258,9 @@ void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 	}
 
 	Globals.Variables = (VariableDb **)globals[0];
-	Globals.Types = (TypeDb **)globals[1];
-	Globals.Functions = (TypeDb **)globals[2];
-	Globals.Objects = (TypeDb **)globals[3];
+	Globals.Types = (OsiTypeDb **)globals[1];
+	Globals.Functions = (FunctionDb **)globals[2];
+	Globals.Objects = (ObjectDb **)globals[3];
 	Globals.Goals = (GoalDb **)globals[4];
 	Globals.Adapters = (AdapterDb **)globals[5];
 	Globals.Databases = (DatabaseDb **)globals[6];

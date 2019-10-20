@@ -211,6 +211,21 @@ namespace osidbg
 		void RegisterSignature(CustomFunction * func);
 	};
 
+	struct OsiSymbolInfo
+	{
+		struct ParamInfo
+		{
+			ValueType type;
+			bool output;
+		};
+
+		std::string name;
+		std::vector<ParamInfo> params;
+		FunctionType type{ FunctionType::Unknown };
+		uint32_t nodeId{ 0 };
+		uint32_t EoCFunctionId{ 0 };
+	};
+
 	class CustomFunctionInjector
 	{
 	public:
@@ -218,6 +233,11 @@ namespace osidbg
 
 		void Initialize();
 		void ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const;
+
+		inline std::vector<OsiSymbolInfo> const & OsiSymbols() const
+		{
+			return osiSymbols_;
+		}
 
 	private:
 		OsirisWrappers & wrappers_;
@@ -227,7 +247,9 @@ namespace osidbg
 		bool extendingStory_{ false };
 		std::unordered_map<uint32_t, FunctionHandle> osiToDivMappings_;
 		std::unordered_map<FunctionHandle, uint32_t> divToOsiMappings_;
+		std::vector<OsiSymbolInfo> osiSymbols_;
 
+		void CreateOsirisSymbolMap(MappingInfo ** Mappings, uint32_t * MappingCount);
 		void OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount);
 		bool CallWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);
 		bool QueryWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);

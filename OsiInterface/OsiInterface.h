@@ -21,6 +21,25 @@ enum class GameType
 
 extern GameType gGameType;
 
+struct STDString
+{
+	union {
+		char Buf[16];
+		char * BufPtr;
+	};
+	uint64_t Size;
+	uint64_t Capacity;
+
+	char const * Get() const
+	{
+		if (Capacity < 16) {
+			return &Buf[0];
+		} else {
+			return BufPtr;
+		}
+	}
+};
+
 #pragma pack(push, 1)
 enum class ValueType : uint8_t
 {
@@ -181,6 +200,26 @@ struct OsiArgumentDesc
 	}
 
 	inline OsiArgumentValue & Get(uint32_t index)
+	{
+		auto next = this;
+		while (index--) {
+			next = next->NextParam;
+		}
+
+		return next->Value;
+	}
+
+	inline OsiArgumentValue const & operator [] (uint32_t index) const
+	{
+		auto next = this;
+		while (index--) {
+			next = next->NextParam;
+		}
+
+		return next->Value;
+	}
+
+	inline OsiArgumentValue & operator [] (uint32_t index)
 	{
 		auto next = this;
 		while (index--) {
@@ -430,18 +469,6 @@ struct VariableDb
 	VariableItem2 * VarsEnd;
 };
 
-struct TypeItem
-{
-	void * ptr;
-	uint64_t unused;
-};
-
-struct TypeDb
-{
-	TypeItem vars[1023];
-	uint64_t a, b, c, d;
-};
-
 template <class T>
 struct TArray
 {
@@ -469,6 +496,18 @@ struct List
 	ListNode<T> * Head;
 	uint64_t Size;
 };
+template <class T, unsigned TPad>
+struct Padded
+{
+	uint8_t _Pad[TPad];
+	T Value;
+};
+
+template <class T>
+struct Padded<T, 0>
+{
+	T Value;
+};
 
 template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
 struct TMapNode
@@ -476,12 +515,10 @@ struct TMapNode
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Left;
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Right;
-	bool Unknown;
-	bool IsLeaf;
-	uint8_t __KeyPad[TKeyPad];
-	TKey Key;
-	uint8_t __ValPad[TValPad];
-	TVal Value;
+	bool Color;
+	bool IsRoot;
+	Padded<TKey, TKeyPad> Key;
+	Padded<TVal, TValPad> Value;
 };
 
 template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
@@ -493,24 +530,54 @@ struct TMap
 	{
 		auto finalTreeNode = Root;
 		auto currentTreeNode = Root->Root;
-		while (!currentTreeNode->IsLeaf)
+		while (!currentTreeNode->IsRoot)
 		{
-			if (currentTreeNode->Key >= key)
+			if (currentTreeNode->Key.Value >= key)
 			{
 				finalTreeNode = currentTreeNode;
 				currentTreeNode = currentTreeNode->Left;
-			}
-			else
+			} else
 			{
 				currentTreeNode = currentTreeNode->Right;
 			}
 		}
 
-		if (finalTreeNode == Root || key < finalTreeNode->Key)
-			return Root->Value;
+		if (finalTreeNode == Root || key < finalTreeNode->Key.Value)
+			return Root->Value.Value;
 		else
-			return finalTreeNode->Value;
+			return finalTreeNode->Value.Value;
 	}
+
+	template <class Visitor>
+	void Iterate(Visitor visitor)
+	{
+		Iterate(Root->Root, visitor);
+	}
+
+	template <class Visitor>
+	void Iterate(TMapNode<TKey, TVal, TKeyPad, TValPad> * node, Visitor visitor)
+	{
+		if (!node->IsRoot) {
+			visitor(node->Key.Value, node->Value.Value);
+			Iterate(node->Left, visitor);
+			Iterate(node->Right, visitor);
+		}
+	}
+};
+
+template <class TKey, class TValue>
+struct TypeDb
+{
+	struct HashSlot
+	{
+		TMap<TKey, TValue, 6, 0> NodeMap;
+		void * Unknown;
+	};
+
+	HashSlot Hash[1023];
+	uint32_t NumItems;
+	uint32_t _Pad;
+	uint64_t b, c, d;
 };
 
 struct SomeDbItem
@@ -900,6 +967,7 @@ struct FunctionSignature
 
 enum class FunctionType : uint32_t
 {
+	Unknown = 0,
 	Event = 1,
 	Query = 2,
 	Call = 3,
@@ -1197,12 +1265,16 @@ typedef int (* COsirisDeleteAllDataProc)(void * Osiris, bool DeleteTypes);
 typedef int (* COsirisReadHeaderProc)(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 typedef void (* RuleActionCallProc)(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 
+using OsiTypeDb = TypeDb<STDString, TypeInfo *>;
+using FunctionDb = TypeDb<STDString, Function *>;
+using ObjectDb = TypeDb<STDString, void *>;
+
 struct OsirisStaticGlobals
 {
 	VariableDb ** Variables{ nullptr };
-	TypeDb ** Types{ nullptr };
-	TypeDb ** Functions{ nullptr };
-	TypeDb ** Objects{ nullptr };
+	OsiTypeDb ** Types{ nullptr };
+	FunctionDb ** Functions{ nullptr };
+	ObjectDb ** Objects{ nullptr };
 	GoalDb ** Goals{ nullptr };
 	AdapterDb ** Adapters{ nullptr };
 	DatabaseDb ** Databases{ nullptr };

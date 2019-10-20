@@ -26,6 +26,12 @@ void Debug(char const * fmt, Args... args)
 	std::cout << buf;
 }
 
+inline void DebugRaw(char const * msg)
+{
+	OutputDebugStringA(msg);
+	std::cout << msg;
+}
+
 [[noreturn]]
 void Fail(TCHAR const * reason);
 
