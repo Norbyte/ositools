@@ -165,12 +165,12 @@ CustomFunction * CustomFunctionManager::Find(FunctionNameAndArity const & signat
 bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & params)
 {
 	if (handle.classIndex() != CallClassId) {
-		OsiError("CustomFunctionManager::Call(): Cannot call " << (uint32_t)handle << " - not a custom function!");
+		OsiError("Cannot call " << (uint32_t)handle << " - not a custom function!");
 		return false;
 	}
 
 	if (handle.functionIndex() >= calls_.size()) {
-		OsiError("CustomFunctionManager::Call(): Call index " << handle.functionIndex() << " out of bounds!");
+		OsiError("Call index " << handle.functionIndex() << " out of bounds!");
 		return false;
 	}
 
@@ -180,12 +180,12 @@ bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & 
 bool CustomFunctionManager::Query(FunctionHandle handle, OsiArgumentDesc & params)
 {
 	if (handle.classIndex() != QueryClassId) {
-		OsiError("CustomFunctionManager::Query(): Cannot query " << (uint32_t)handle << " - not a custom function!");
+		OsiError("Cannot query " << (uint32_t)handle << " - not a custom function!");
 		return false;
 	}
 
 	if (handle.functionIndex() >= queries_.size()) {
-		OsiError("CustomFunctionManager::Query(): Query index " << handle.functionIndex() << " out of bounds!");
+		OsiError("Query index " << handle.functionIndex() << " out of bounds!");
 		return false;
 	}
 
@@ -245,7 +245,7 @@ void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc *
 		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
 		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
 	} else {
-		OsiError("CustomFunctionInjector::ThrowEvent(): Event handle not mapped: " << (unsigned)handle);
+		OsiError("Event handle not mapped: " << std::hex << (unsigned)handle);
 	}
 }
 

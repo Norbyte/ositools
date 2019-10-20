@@ -91,19 +91,30 @@ namespace osidbg
 			item->StatsDynamic->IsIdentified = args.Get(1).Int32 ? 1 : 0;
 		}
 
+		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(EsvItem * item, uint32_t index)
+		{
+			if (item->StatsDynamic == nullptr) {
+				OsiError("Item has no dynamic stats!");
+				return nullptr;
+			}
+
+			auto numStats = item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start;
+			if (numStats <= 1) {
+				OsiError("Tried to get dynamic stat " << index << ", item only has " << numStats);
+				return nullptr;
+			}
+
+			return item->StatsDynamic->DynamicAttributes_Start[index];
+		}
+
 		template <OsiPropertyMapType Type>
 		bool ItemGetPermanentBoost(OsiArgumentDesc & args)
 		{
 			auto item = FindItemByNameGuid(args.Get(0).String);
 			if (item == nullptr) return false;
 
-			if (item->StatsDynamic == nullptr
-				|| item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start < 2) {
-				OsiError("Item has no stats!");
-				return false;
-			}
-
-			auto permanentBoosts = item->StatsDynamic->DynamicAttributes_Start[1];
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return false;
 
 			switch (permanentBoosts->StatsType) {
 			case EquipmentStatsType::Weapon:
@@ -136,13 +147,8 @@ namespace osidbg
 			auto item = FindItemByNameGuid(args.Get(0).String);
 			if (item == nullptr) return;
 
-			if (item->StatsDynamic == nullptr
-				|| item->StatsDynamic->DynamicAttributes_End - item->StatsDynamic->DynamicAttributes_Start < 2) {
-				OsiError("Item has no stats!");
-				return;
-			}
-
-			auto permanentBoosts = item->StatsDynamic->DynamicAttributes_Start[1];
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return;
 
 			switch (permanentBoosts->StatsType) {
 			case EquipmentStatsType::Weapon:

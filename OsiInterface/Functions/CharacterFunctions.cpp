@@ -7,11 +7,9 @@ namespace osidbg
 {
 	namespace func
 	{
-		CharacterDynamicStat * GetDynamicStat(EsvCharacter * character, uint32_t index)
+		CharacterDynamicStat * GetCharacterDynamicStat(EsvCharacter * character, uint32_t index)
 		{
-			if (character->Stats == nullptr
-				|| character->Stats->DynamicStats == nullptr
-				|| character->Stats->DynamicStatsEnd - character->Stats->DynamicStats < 2) {
+			if (character->Stats == nullptr) {
 				OsiError("Character has no stats!");
 				return nullptr;
 			}
@@ -36,7 +34,7 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) return false;
 
-			auto permanentBoosts = GetDynamicStat(character, 1);
+			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
 			if (permanentBoosts == nullptr) return false;
 
 			return OsirisPropertyMapGet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);
@@ -48,7 +46,7 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) return;
 
-			auto permanentBoosts = GetDynamicStat(character, 1);
+			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
 			if (permanentBoosts == nullptr) return;
 
 			OsirisPropertyMapSet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);

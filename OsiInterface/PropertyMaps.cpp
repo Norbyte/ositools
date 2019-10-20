@@ -65,9 +65,9 @@ namespace osidbg
 		{
 			auto & propertyMap = gStatusHitPropertyMap;
 			propertyMap.Parent = &gStatusPropertyMap;
-			PROP(EsvStatusHit, HitByHandle);
-			PROP(EsvStatusHit, HitWithHandle);
-			PROP(EsvStatusHit, WeaponHandle);
+			PROP_RO(EsvStatusHit, HitByHandle);
+			PROP_RO(EsvStatusHit, HitWithHandle);
+			PROP_RO(EsvStatusHit, WeaponHandle);
 			PROP(EsvStatusHit, HitReason);
 			PROP(EsvStatusHit, SkillId);
 			PROP(EsvStatusHit, Interruption);

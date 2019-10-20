@@ -63,6 +63,10 @@ namespace osidbg
 
 	EsvCharacter * FindCharacterByHandle(ObjectHandle const & handle)
 	{
+		if (handle.Handle == 0) {
+			return nullptr;
+		}
+
 		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
 		if (charFactory == nullptr) {
 			OsiError("CharacterFactory not available!");
@@ -108,6 +112,10 @@ namespace osidbg
 
 	EsvItem * FindItemByHandle(ObjectHandle const & handle)
 	{
+		if (handle.Handle == 0) {
+			return nullptr;
+		}
+
 		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
 		if (itemFactory == nullptr) {
 			OsiError("ItemFactory not available!");
