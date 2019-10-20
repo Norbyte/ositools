@@ -678,7 +678,7 @@ namespace osidbg
 		FixedString OverrideWeaponStatsId;
 		ObjectHandle OverrideWeaponHandle;
 		int field_170;
-		int SavingThrow;
+		int SavingThrow; // TODO enum + enum prop!
 		Vector3 SourceDirection; // Saved
 		uint8_t _Pad10[4];
 		PrimitiveSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
@@ -688,11 +688,25 @@ namespace osidbg
 		int Turn; // Saved
 		int field_1AC;
 		EsvStatus * AuraStatus; // Saved
-		int HealEffectOverride; // Saved
+		int HealEffectOverride; // Saved // TODO enum + enum prop!
 		char field_1BC;
 		char field_1BD;
 		char field_1BE;
 		char field_1BF;
+	};
+
+	struct EsvStatusHealing : public EsvStatusConsume
+	{
+		uint32_t HealAmount; // Saved
+		float TimeElapsed; // Saved
+		uint32_t HealEffect; // Saved // TODO enum + enum prop!
+		uint8_t _Pad5[4];
+		FixedString HealEffectId; // Saved
+		bool SkipInitialEffect; // Saved
+		uint8_t _Pad6[3];
+		uint32_t HealingEvent; // Saved
+		uint32_t HealStat; // Saved // TODO enum + enum prop!
+		uint32_t AbsorbSurfaceRange; // Saved
 	};
 
 	struct EsvStatusDamage : public EsvStatusConsume

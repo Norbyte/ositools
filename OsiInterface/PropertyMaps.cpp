@@ -1,11 +1,14 @@
 #include <stdafx.h>
+#include <OsirisProxy.h>
 #include "PropertyMaps.h"
 
 namespace osidbg
 {
 	PropertyMap<EsvStatus, void> gStatusPropertyMap;
+	PropertyMap<EsvStatusConsume, EsvStatus> gStatusConsumePropertyMap;
 	PropertyMap<EsvStatusHit, EsvStatus> gStatusHitPropertyMap;
 	PropertyMap<EsvStatusHeal, EsvStatus> gStatusHealPropertyMap;
+	PropertyMap<EsvStatusHealing, EsvStatusConsume> gStatusHealingPropertyMap;
 	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
 	PropertyMap<EoCItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
@@ -77,6 +80,40 @@ namespace osidbg
 			PROP(EsvStatusHit, ImpactPosition);
 			PROP(EsvStatusHit, ImpactOrigin);
 			PROP(EsvStatusHit, ImpactDirection);
+		}
+
+		{
+			auto & propertyMap = gStatusConsumePropertyMap;
+			propertyMap.Parent = &gStatusPropertyMap;
+			// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
+			PROP(EsvStatusConsume, ResetAllCooldowns);
+			PROP(EsvStatusConsume, ResetOncePerCombat);
+			PROP(EsvStatusConsume, ScaleWithVitality);
+			PROP(EsvStatusConsume, LoseControl);
+			PROP(EsvStatusConsume, ApplyStatusOnTick);
+			PROP(EsvStatusConsume, EffectTime);
+			PROP(EsvStatusConsume, StatsId);
+			PROP(EsvStatusConsume, StackId);
+			PROP(EsvStatusConsume, OriginalWeaponStatsId);
+			PROP(EsvStatusConsume, OverrideWeaponStatsId);
+			PROP(EsvStatusConsume, OverrideWeaponHandle);
+			PROP(EsvStatusConsume, SavingThrow);
+			PROP(EsvStatusConsume, SourceDirection);
+			PROP(EsvStatusConsume, Turn);
+			PROP(EsvStatusConsume, HealEffectOverride);
+		}
+
+		{
+			auto & propertyMap = gStatusHealingPropertyMap;
+			propertyMap.Parent = &gStatusConsumePropertyMap;
+			PROP(EsvStatusHealing, HealAmount);
+			PROP(EsvStatusHealing, TimeElapsed);
+			PROP(EsvStatusHealing, HealEffect);
+			PROP(EsvStatusHealing, HealEffectId);
+			PROP(EsvStatusHealing, SkipInitialEffect);
+			PROP(EsvStatusHealing, HealingEvent);
+			PROP(EsvStatusHealing, HealStat);
+			PROP(EsvStatusHealing, AbsorbSurfaceRange);
 		}
 
 		{

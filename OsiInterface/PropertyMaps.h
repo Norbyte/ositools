@@ -6,8 +6,10 @@
 namespace osidbg
 {
 	extern PropertyMap<EsvStatus, void> gStatusPropertyMap;
+	extern PropertyMap<EsvStatusConsume, EsvStatus> gStatusConsumePropertyMap;
 	extern PropertyMap<EsvStatusHit, EsvStatus> gStatusHitPropertyMap;
 	extern PropertyMap<EsvStatusHeal, EsvStatus> gStatusHealPropertyMap;
+	extern PropertyMap<EsvStatusHealing, EsvStatusConsume> gStatusHealingPropertyMap;
 	extern PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
 	extern PropertyMap<EoCItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;

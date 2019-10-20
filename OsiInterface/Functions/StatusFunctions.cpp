@@ -113,6 +113,12 @@ namespace osidbg
 					return OsirisPropertyMapGet(gStatusHealPropertyMap, heal, args, 2, Type);
 				}
 
+				case StatusType::Healing:
+				{
+					auto healing = static_cast<EsvStatusHealing *>(status);
+					return OsirisPropertyMapGet(gStatusHealingPropertyMap, healing, args, 2, Type);
+				}
+
 				default:
 					return OsirisPropertyMapGet(gStatusPropertyMap, status, args, 2, Type);
 			}
@@ -139,6 +145,14 @@ namespace osidbg
 				{
 					auto heal = static_cast<EsvStatusHeal *>(status);
 					OsirisPropertyMapSet(gStatusHealPropertyMap, heal, args, 2, Type);
+					break;
+				}
+
+				case StatusType::Healing:
+				{
+					auto healing = static_cast<EsvStatusHealing *>(status);
+					OsirisPropertyMapSet(gStatusHealingPropertyMap, healing, args, 2, Type);
+					break;
 				}
 
 				default:
