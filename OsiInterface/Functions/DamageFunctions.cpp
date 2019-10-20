@@ -422,6 +422,7 @@ namespace osidbg
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			auto damageTypeStr = args[1].String;
+			auto & damageAmount = args[2].Int32;
 
 			if (helper == nullptr) return false;
 
@@ -439,7 +440,7 @@ namespace osidbg
 				}
 			}
 
-			args.Get(3).Int32 = (int32_t)amount;
+			damageAmount = amount;
 			return true;
 		}
 
