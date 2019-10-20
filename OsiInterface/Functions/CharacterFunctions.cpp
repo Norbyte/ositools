@@ -7,20 +7,38 @@ namespace osidbg
 {
 	namespace func
 	{
+		CharacterDynamicStat * GetDynamicStat(EsvCharacter * character, uint32_t index)
+		{
+			if (character->Stats == nullptr
+				|| character->Stats->DynamicStats == nullptr
+				|| character->Stats->DynamicStatsEnd - character->Stats->DynamicStats < 2) {
+				OsiError("Character has no stats!");
+				return nullptr;
+			}
+
+			if (character->Stats->DynamicStats == nullptr) {
+				OsiError("Character has no dynamic stats!");
+				return nullptr;
+			}
+
+			auto numStats = character->Stats->DynamicStatsEnd - character->Stats->DynamicStats;
+			if (numStats <= index) {
+				OsiError("Tried to get dynamic stat " << index << ", character only has " << numStats);
+				return nullptr;
+			}
+
+			return character->Stats->DynamicStats[index];
+		}
+
 		template <OsiPropertyMapType Type>
 		bool CharacterGetPermanentBoost(OsiArgumentDesc & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) return false;
 
-			if (character->Stats == nullptr
-				|| character->Stats->DynamicStats == nullptr
-				|| character->Stats->DynamicStatsEnd - character->Stats->DynamicStats < 2) {
-				OsiError("Character has no permanent boost stats!");
-				return false;
-			}
+			auto permanentBoosts = GetDynamicStat(character, 1);
+			if (permanentBoosts == nullptr) return false;
 
-			auto permanentBoosts = character->Stats->DynamicStats[1];
 			return OsirisPropertyMapGet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);
 		}
 
@@ -30,14 +48,9 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) return;
 
-			if (character->Stats == nullptr
-				|| character->Stats->DynamicStats == nullptr
-				|| character->Stats->DynamicStatsEnd - character->Stats->DynamicStats < 2) {
-				OsiError("Character has no permanent boost stats!");
-				return;
-			}
+			auto permanentBoosts = GetDynamicStat(character, 1);
+			if (permanentBoosts == nullptr) return;
 
-			auto permanentBoosts = character->Stats->DynamicStats[1];
 			OsirisPropertyMapSet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);
 		}
 	}

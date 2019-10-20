@@ -289,7 +289,8 @@ namespace osidbg
 		uint8_t _Pad2[3];
 		uint32_t Unkn0;
 		ObjectSet<int> TraitOrder; // Saved
-		uint32_t Unkn1[2];
+		uint32_t MaxResistance;
+		uint32_t ItemsChanged_M;
 		struct EsvCharacter * Character;
 		uint32_t Unkn2;
 		uint32_t IsIncapacitatedRefCount;
@@ -569,6 +570,11 @@ namespace osidbg
 		DamageType DamageType;
 	};
 
+	struct DamagePairList : public Array<TDamagePair>
+	{
+		void AddDamage(DamageType DamageType, int32_t Amount);
+	};
+
 	struct HitDamageInfo
 	{
 		uint32_t Equipment{ 0 };
@@ -583,7 +589,7 @@ namespace osidbg
 		uint32_t EffectFlags{ 0 };
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];
-		Array<TDamagePair> DamageList;
+		DamagePairList DamageList;
 
 		bool SetFlag(char const * flag);
 		bool ClearFlag(char const * flag);
@@ -594,6 +600,8 @@ namespace osidbg
 
 		std::optional<char const *> GetString(char const * prop);
 		bool SetString(char const * prop, char const * value);
+
+
 	};
 
 	struct EsvStatusHit : public EsvStatus
@@ -604,6 +612,7 @@ namespace osidbg
 		void * RPGPropertyList;
 		HitDamageInfo DamageInfo;
 		ObjectHandle HitByHandle;
+		// Character, Item or Projectile
 		ObjectHandle HitWithHandle;
 		ObjectHandle WeaponHandle;
 		// 0 - ASAttack
@@ -616,8 +625,11 @@ namespace osidbg
 		FixedString SkillId;
 		bool Interruption;
 		bool AllowInterruptAction;
-		bool SomeBool;
-		uint8_t _Pad6[1];
+		// 0 = only interrupt Idle and Animation behaviors
+		// 1 = always interrupt character action
+		bool ForceInterrupt;
+		// Decrease characters' DelayDeathCount
+		bool DecDelayDeathCount;
 		uint8_t PropertyContext;
 		uint8_t _Pad7[3];
 		Vector3 ImpactPosition;
@@ -1010,7 +1022,9 @@ namespace osidbg
 		ObjectSet<ObjectHandle> SummonHandles;
 		void * PlanManager;
 		uint32_t PartialAP;
-		uint32_t _Pad6;
+		uint8_t AnimType;
+		uint8_t DelayDeathCount;
+		uint16_t _Pad6;
 		void * StatusManagerDirty_M;
 		ObjectSet<ObjectHandle> ObjectHandleSet3;
 		ObjectSet<FixedString> RegisteredTriggers;
@@ -1441,5 +1455,19 @@ namespace osidbg
 		bool MapToAiGrid;
 	};
 #pragma pack(pop)
+
+	typedef void(*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper, float Unknown);
+	typedef void * (*GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
+	typedef void(*GameActionManager__AddAction)(EsvGameActionManager * GameActionManager, void * Action);
+	typedef void(*TornadoAction__Setup)(void * TornadoAction);
+	typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
+	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
+	typedef EsvStatus * (*StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
+	typedef void(*StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
+	typedef void(*Character__Hit)(EsvCharacter * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
+		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
+	typedef bool(*Status__Enter)(EsvStatus * Status);
+	typedef void(*esv__ParseItem)(EsvItem * Item, ObjectSet<EoCItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
+	typedef EsvItem * (*esv__CreateItemFromParsed)(ObjectSet<EoCItemDefinition> * ParsedItems, uint32_t Index);
 
 }

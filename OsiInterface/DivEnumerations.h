@@ -285,10 +285,14 @@ namespace osidbg
 		HF_DamagedPhysicalArmor = 0x2000,
 		HF_DamagedVitality = 0x4000,
 		HF_PropagatedFromOwner = 0x10000,
-		HF_ProcWindWalker = 0x80000
+		HF_HitType4 = 0x20000,
+		HF_HitType5 = 0x40000,
+		HF_ProcWindWalker = 0x80000,
+		// Custom flags
+		HF_NoEvents = 0x80000000
 	};
 
-	MAKE_ENUM_INFO(HitFlag, 15);
+	MAKE_ENUM_INFO(HitFlag, 16);
 
 	enum EsvCharacterFlags : uint64_t
 	{

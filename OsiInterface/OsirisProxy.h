@@ -82,6 +82,11 @@ public:
 		return Libraries;
 	}
 
+	inline ExtensionState & GetExtensionState()
+	{
+		return ExtState;
+	}
+
 	inline void * GetOsirisDllStart() const
 	{
 		return Wrappers.OsirisDllStart;
@@ -103,6 +108,7 @@ private:
 	CustomFunctionManager CustomFunctions;
 	CustomFunctionInjector CustomInjector;
 	CustomFunctionLibrary FunctionLibrary;
+	ExtensionState ExtState;
 	LibraryManager Libraries;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];

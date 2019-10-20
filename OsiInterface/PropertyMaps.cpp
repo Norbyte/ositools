@@ -72,7 +72,8 @@ namespace osidbg
 			PROP(EsvStatusHit, SkillId);
 			PROP(EsvStatusHit, Interruption);
 			PROP(EsvStatusHit, AllowInterruptAction);
-			PROP(EsvStatusHit, SomeBool);
+			PROP(EsvStatusHit, ForceInterrupt);
+			PROP_RO(EsvStatusHit, DecDelayDeathCount);
 			PROP(EsvStatusHit, ImpactPosition);
 			PROP(EsvStatusHit, ImpactOrigin);
 			PROP(EsvStatusHit, ImpactDirection);

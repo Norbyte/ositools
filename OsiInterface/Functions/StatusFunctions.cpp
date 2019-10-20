@@ -6,6 +6,7 @@
 namespace osidbg
 {
 	FunctionHandle StatusIteratorEventHandle;
+	FunctionHandle HitPrepareEventHandle;
 	FunctionHandle HitEventHandle;
 	FunctionHandle HealEventHandle;
 
@@ -276,6 +277,9 @@ namespace osidbg
 	void CustomFunctionLibrary::OnStatusHitEnter(EsvStatus * status)
 	{
 		auto statusHit = static_cast<EsvStatusHit *>(status);
+		if (statusHit->DamageInfo.EffectFlags & HitFlag::HF_NoEvents) {
+			return;
+		}
 
 		auto target = FindCharacterByHandle(status->TargetCIHandle);
 		if (target == nullptr) {
@@ -324,6 +328,62 @@ namespace osidbg
 		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HealEventHandle, eventArgs);
 
 		delete eventArgs;
+	}
+
+
+	void CustomFunctionLibrary::OnCharacterHit(Character__Hit wrappedHit, EsvCharacter * self, CDivinityStats_Character * attackerStats,
+		CDivinityStats_Item * itemStats, DamagePairList * damageList, uint32_t hitType, bool rollForDamage,
+		HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGround,
+		bool procWindWalker, CriticalRoll criticalRoll)
+	{
+		if (damageInfo->EffectFlags & HitFlag::HF_NoEvents) {
+			wrappedHit(self, attackerStats, itemStats, damageList, hitType, rollForDamage,
+				damageInfo, forceReduceDurability, skillProperties, highGround,
+				procWindWalker, criticalRoll);
+			return;
+		}
+
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		if (attackerStats != nullptr
+			&& attackerStats->Character != nullptr) {
+			sourceGuid = attackerStats->Character->GetGuid()->Str;
+		}
+
+		uint32_t totalDamage{ 0 };
+		for (uint32_t i = 0; i < damageList->Size; i++) {
+			totalDamage += damageList->Buf[i].Amount;
+		}
+
+		auto helper = gOsirisProxy->GetExtensionState().DamageHelpers.Create();
+		helper->Type = DamageHelpers::HT_PrepareHitEvent;
+		helper->Target = self;
+		if (attackerStats != nullptr) {
+			helper->Source = attackerStats->Character;
+		}
+
+		helper->CallCharacterHit = true;
+		helper->HitType = hitType;
+		helper->RollForDamage = rollForDamage;
+		helper->ProcWindWalker = procWindWalker;
+		helper->HighGround = highGround;
+		helper->Critical = criticalRoll;
+		helper->ForceReduceDurability = (bool)forceReduceDurability;
+		helper->SetExternalDamageInfo(damageInfo, damageList);
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, self->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)totalDamage });
+		eventArgs->Add(OsiArgumentValue{ helper->Handle });
+
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitPrepareEventHandle, eventArgs);
+
+		delete eventArgs;
+
+		gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
+
+		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->RollForDamage,
+			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
+			helper->ProcWindWalker, helper->Critical);
 	}
 
 
@@ -498,6 +558,17 @@ namespace osidbg
 			&func::ApplyDamageOnMove
 		);
 		functionMgr.Register(std::move(applyDamageOnMove));
+
+		auto hitPrepareEvent = std::make_unique<CustomEvent>(
+			"NRD_OnPrepareHit",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "HitHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+			}
+		);
+		HitPrepareEventHandle = functionMgr.Register(std::move(hitPrepareEvent));
 
 		auto hitEvent = std::make_unique<CustomEvent>(
 			"NRD_OnHit",

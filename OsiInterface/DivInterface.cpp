@@ -274,6 +274,35 @@ namespace osidbg
 	}
 
 
+	void DamagePairList::AddDamage(DamageType DamageType, int32_t Amount)
+	{
+
+		bool added{ false };
+		for (uint32_t i = 0; i < Size; i++) {
+			if (Buf[i].DamageType == DamageType) {
+				auto newAmount = (int32_t)Buf[i].Amount + Amount;
+				if (newAmount <= 0) {
+					Remove(i);
+				} else {
+					Buf[i].Amount += (uint32_t)newAmount;
+				}
+
+				added = true;
+				break;
+			}
+		}
+
+		if (!added && Amount > 0) {
+			TDamagePair dmg;
+			dmg.DamageType = DamageType;
+			dmg.Amount = (uint32_t)Amount;
+			if (!SafeAdd(dmg)) {
+				OsiError("DamageList capacity exceeded!");
+			}
+		}
+	}
+
+
 	bool HitDamageInfo::SetFlag(char const * flag)
 	{
 		auto value = EnumInfo<HitFlag>::Find(flag);
@@ -528,7 +557,9 @@ namespace osidbg
 		{ HitFlag::HF_DamagedPhysicalArmor, "DamagedPhysicalArmor" },
 		{ HitFlag::HF_DamagedVitality, "DamagedVitality" },
 		{ HitFlag::HF_PropagatedFromOwner, "PropagatedFromOwner" },
-		{ HitFlag::HF_ProcWindWalker, "ProcWindWalker" }
+		{ HitFlag::HF_ProcWindWalker, "ProcWindWalker" },
+		// Custom flags
+		{ HitFlag::HF_NoEvents, "NoEvents" }
 	};
 
 }

@@ -9,6 +9,7 @@ namespace osidbg
 {
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
+	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
 
@@ -1382,6 +1383,10 @@ namespace osidbg
 			StatusHealEnter.Wrap(StatusHealVMT->Enter);
 		}
 
+		if (CharacterHit != nullptr) {
+			CharacterHitHook.Wrap(CharacterHit);
+		}
+
 		DetourTransactionCommit();
 
 		PostLoaded = true;
@@ -1394,6 +1399,7 @@ namespace osidbg
 
 		StatusHitEnter.Unwrap();
 		StatusHealEnter.Unwrap();
+		CharacterHitHook.Unwrap();
 
 		DetourTransactionCommit();
 	}
