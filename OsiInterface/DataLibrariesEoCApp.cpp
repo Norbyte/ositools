@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "DataLibraries.h"
-#include "PropertyMaps.h"
 #include <string>
 #include <functional>
 #include <psapi.h>

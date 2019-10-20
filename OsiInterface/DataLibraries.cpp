@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "DataLibraries.h"
-#include "PropertyMaps.h"
 #include <string>
 #include <functional>
 #include <psapi.h>
 
 namespace osidbg
 {
+	void InitPropertyMaps();
+
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
