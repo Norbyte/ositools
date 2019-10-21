@@ -389,7 +389,6 @@ namespace osidbg
 		void HitClearAllDamage(OsiArgumentDesc const & args)
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto flag = args[1].String;
 
 			if (helper == nullptr) return;
 
