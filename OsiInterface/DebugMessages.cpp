@@ -4,6 +4,8 @@
 #include "OsirisProxy.h"
 #include <sstream>
 
+#if !defined(OSI_NO_DEBUGGER)
+
 namespace osidbg
 {
 	DebugMessageHandler::DebugMessageHandler(DebugInterface & intf)
@@ -615,3 +617,5 @@ namespace osidbg
 		Debug(" <-- BkEvaluateFinished()");
 	}
 }
+
+#endif

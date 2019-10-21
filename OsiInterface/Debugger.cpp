@@ -4,6 +4,7 @@
 #include "OsirisProxy.h"
 #include <sstream>
 
+#if !defined(OSI_NO_DEBUGGER)
 #undef DUMP_TRACEPOINTS
 
 namespace osidbg
@@ -1114,3 +1115,5 @@ namespace osidbg
 		PopFrame({ reason, mapping->rule, mapping->goal, mapping->actionIndex, nullptr, nullptr });
 	}
 }
+
+#endif
