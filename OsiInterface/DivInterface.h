@@ -103,7 +103,7 @@ namespace osidbg
 		EquipmentStatsType StatsType;
 		uint32_t Talents[4];
 		uint32_t Unkn4;
-		uint64_t Flags;
+		uint64_t AttributeFlags;
 	};
 
 	struct CDivinityStats_Equipment_Attributes_Weapon : public CDivinityStats_Equipment_Attributes
@@ -264,7 +264,7 @@ namespace osidbg
 		FixedString BonusWeapon;
 		uint64_t Reflection;
 		uint32_t Unkn2;
-		uint32_t Unkn3;
+		uint32_t StepsType;
 		uint64_t AttributeFlags;
 		uint32_t Unkn4;
 	};
