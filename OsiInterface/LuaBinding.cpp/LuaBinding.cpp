@@ -165,6 +165,7 @@ namespace osidbg
 		OsiArgumentDesc * args_;
 	};
 
+
 	class OsiProxyLibrary
 	{
 	public:
@@ -247,16 +248,29 @@ namespace osidbg
 		static void LuaToOsiArg(lua_State * L, int i, OsiArgumentDesc & arg, OsiSymbolInfo::ParamInfo const & desc)
 		{
 			arg.Value.TypeId = desc.type;
+			auto type = lua_type(L, i);
 			switch (desc.type) {
 			case ValueType::Integer:
+				if (type != LUA_TNUMBER) {
+					luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
+				}
+
 				arg.Value.Int32 = (int32_t)lua_tointeger(L, i);
 				break;
 
 			case ValueType::Integer64:
+				if (type != LUA_TNUMBER) {
+					luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
+				}
+
 				arg.Value.Int64 = (int64_t)lua_tointeger(L, i);
 				break;
 
 			case ValueType::Real:
+				if (type != LUA_TNUMBER) {
+					luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
+				}
+
 				// TODO - set lua internal type to float?
 				arg.Value.Float = (float)lua_tonumber(L, i);
 				break;
@@ -265,9 +279,13 @@ namespace osidbg
 			case ValueType::GuidString:
 			case ValueType::CharacterGuid:
 			case ValueType::ItemGuid: // TODO ...
+				if (type != LUA_TSTRING) {
+					luaL_error(L, "String expected for argument %d, got %s", i, lua_typename(L, type));
+				}
+
 				arg.Value.String = lua_tostring(L, i);
 				if (arg.Value.String == nullptr) {
-					luaL_error(L, "String expected for argument %d", i);
+					luaL_error(L, "Could not cast argument %d to string", i);
 				}
 				break;
 
@@ -325,7 +343,7 @@ namespace osidbg
 				LuaToOsiArg(L, i + 2, args.Args()[i], signature->args[i]);
 			}
 
-			gOsirisProxy->GetWrappers().CallOriginal(signature->functionHandle, args.Args());
+			gOsirisProxy->GetWrappers().Call.CallWithHooks(signature->functionHandle, args.Args());
 			return 0;
 		}
 
@@ -352,7 +370,7 @@ namespace osidbg
 			}
 
 			auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-			gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, signature->functionHandle, args.Args());
+			gOsirisProxy->GetWrappers().Event.CallWithHooks(osiris, signature->functionHandle, args.Args());
 			return 0;
 		}
 
