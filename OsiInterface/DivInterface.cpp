@@ -276,7 +276,6 @@ namespace osidbg
 
 	void DamagePairList::AddDamage(DamageType DamageType, int32_t Amount)
 	{
-
 		bool added{ false };
 		for (uint32_t i = 0; i < Size; i++) {
 			if (Buf[i].DamageType == DamageType) {
@@ -292,7 +291,7 @@ namespace osidbg
 			}
 		}
 
-		if (!added && Amount > 0) {
+		if (!added && Amount != 0) {
 			TDamagePair dmg;
 			dmg.DamageType = DamageType;
 			dmg.Amount = Amount;
