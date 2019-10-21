@@ -154,7 +154,7 @@ namespace osidbg
 		WindWalker = 0x27,
 		DarkAvenger = 0x28,
 		Remorse = 0x29,
-		DecayingTou0xc = 0x2A,
+		DecayingTouch = 0x2A,
 		Unhealable = 0x2B,
 		Flanked = 0x2C,
 		Channeling = 0x2D,

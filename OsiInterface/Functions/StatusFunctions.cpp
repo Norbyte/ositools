@@ -119,6 +119,46 @@ namespace osidbg
 					return OsirisPropertyMapGet(gStatusHealingPropertyMap, healing, args, 2, Type);
 				}
 
+				case StatusType::Consume:
+				case StatusType::DarkAvenger:
+				case StatusType::DecayingTouch:
+				case StatusType::Remorse:
+				case StatusType::WindWalker:
+				case StatusType::Floating:
+				case StatusType::Incapacitated:
+				case StatusType::Polymorphed:
+				case StatusType::ShacklesOfPain:
+				case StatusType::ShacklesOfPainCaster:
+				case StatusType::Charmed:
+				case StatusType::ExtraTurn:
+				case StatusType::Damage:
+				case StatusType::Blind:
+				case StatusType::Encumbered:
+				case StatusType::Fear:
+				case StatusType::InfectiousDiseased:
+				case StatusType::Invisible:
+				case StatusType::Muted:
+				case StatusType::Stance:
+				case StatusType::Leadership:
+				case StatusType::Adrenaline:
+				case StatusType::LingeringWounds:
+				case StatusType::SpiritVision:
+				case StatusType::Overpowered:
+				case StatusType::Combustion:
+				case StatusType::GuardianAngel:
+				case StatusType::Challenge:
+				case StatusType::Disarmed:
+				case StatusType::HealSharing:
+				case StatusType::HealSharingCaster:
+				case StatusType::ActiveDefense:
+				case StatusType::Spark:
+				case StatusType::PlayDead:
+				case StatusType::Deactivated:
+				{
+					auto consume = static_cast<EsvStatusConsume *>(status);
+					return OsirisPropertyMapGet(gStatusConsumePropertyMap, consume, args, 2, Type);
+				}
+
 				default:
 					return OsirisPropertyMapGet(gStatusPropertyMap, status, args, 2, Type);
 			}
@@ -153,6 +193,47 @@ namespace osidbg
 				{
 					auto healing = static_cast<EsvStatusHealing *>(status);
 					OsirisPropertyMapSet(gStatusHealingPropertyMap, healing, args, 2, Type);
+					break;
+				}
+
+				case StatusType::Consume:
+				case StatusType::DarkAvenger:
+				case StatusType::DecayingTouch:
+				case StatusType::Remorse:
+				case StatusType::WindWalker:
+				case StatusType::Floating:
+				case StatusType::Incapacitated:
+				case StatusType::Polymorphed:
+				case StatusType::ShacklesOfPain:
+				case StatusType::ShacklesOfPainCaster:
+				case StatusType::Charmed:
+				case StatusType::ExtraTurn:
+				case StatusType::Damage:
+				case StatusType::Blind:
+				case StatusType::Encumbered:
+				case StatusType::Fear:
+				case StatusType::InfectiousDiseased:
+				case StatusType::Invisible:
+				case StatusType::Muted:
+				case StatusType::Stance:
+				case StatusType::Leadership:
+				case StatusType::Adrenaline:
+				case StatusType::LingeringWounds:
+				case StatusType::SpiritVision:
+				case StatusType::Overpowered:
+				case StatusType::Combustion:
+				case StatusType::GuardianAngel:
+				case StatusType::Challenge:
+				case StatusType::Disarmed:
+				case StatusType::HealSharing:
+				case StatusType::HealSharingCaster:
+				case StatusType::ActiveDefense:
+				case StatusType::Spark:
+				case StatusType::PlayDead:
+				case StatusType::Deactivated:
+				{
+					auto consume = static_cast<EsvStatusConsume *>(status);
+					OsirisPropertyMapSet(gStatusConsumePropertyMap, consume, args, 2, Type);
 					break;
 				}
 
