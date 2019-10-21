@@ -77,9 +77,9 @@ namespace osidbg
 		void SetInternalDamageInfo();
 		void SetExternalDamageInfo(HitDamageInfo * damageInfo, DamagePairList * damageList);
 
+		bool GetInt(char const * prop, int32_t & value);
 		void SetInt(char const * prop, int32_t value);
 		void SetVector(char const * prop, Vector3 const & value);
-		void SetFlag(char const * flag);
 		void SetString(char const * prop, char const * value);
 		void AddDamage(DamageType DamageType, int32_t Amount);
 		EsvStatusHit * Execute();

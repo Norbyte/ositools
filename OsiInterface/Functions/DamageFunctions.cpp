@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include "PropertyMaps.h"
 
 namespace osidbg
 {
@@ -72,6 +73,46 @@ namespace osidbg
 		DamageList = damageList;
 	}
 
+	bool DamageHelpers::GetInt(char const * prop, int32_t & value)
+	{
+		if (strcmp(prop, "CallCharacterHit") == 0) {
+			value = CallCharacterHit ? 1 : 0;
+		} else if (strcmp(prop, "HitType") == 0) {
+			value = (int32_t)HitType;
+		} else if (strcmp(prop, "RollForDamage") == 0) {
+			value = RollForDamage ? 1 : 0;
+		} else if (strcmp(prop, "ProcWindWalker") == 0) {
+			value = ProcWindWalker ? 1 : 0;
+		} else if (strcmp(prop, "ForceReduceDurability") == 0) {
+			value = ForceReduceDurability ? 1 : 0;
+		} else if (strcmp(prop, "HighGround") == 0) {
+			value = (int32_t)HighGround;
+		} else if (strcmp(prop, "CriticalRoll") == 0) {
+			value = (int32_t)Critical;
+		} else if (strcmp(prop, "HitReason") == 0) {
+			value = (int32_t)HitReason;
+		} else if (strcmp(prop, "DamageSourceType") == 0) {
+			value = (int32_t)DamageSourceType;
+		} else if (strcmp(prop, "Strength") == 0) {
+			value = (int32_t)(Strength * 100.0f);
+		} else {
+			auto & propertyMap = gHitDamageInfoPropertyMap;
+			auto flag = propertyMap.getFlag(Hit, prop, false, false);
+			if (flag) {
+				value = *flag ? 1 : 0;
+			} else {
+				auto val = propertyMap.getInt(Hit, prop, false, true);
+				if (val) {
+					value = (int32_t)*val;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	void DamageHelpers::SetInt(char const * prop, int32_t value)
 	{
 		if (strcmp(prop, "CallCharacterHit") == 0) {
@@ -121,7 +162,10 @@ namespace osidbg
 			}
 		}
 		else {
-			Hit->SetInt(prop, value);
+			auto & propertyMap = gHitDamageInfoPropertyMap;
+			if (!propertyMap.setFlag(Hit, prop, value != 0, false, false)) {
+				propertyMap.setInt(Hit, prop, value, false, true);
+			}
 		}
 	}
 
@@ -149,11 +193,6 @@ namespace osidbg
 		}
 	}
 
-	void DamageHelpers::SetFlag(char const * flag)
-	{
-		Hit->SetFlag(flag);
-	}
-
 	void DamageHelpers::SetString(char const * prop, char const * value)
 	{
 		auto fs = ToFixedString(value);
@@ -166,7 +205,8 @@ namespace osidbg
 			SkillId = fs;
 		}
 		else {
-			Hit->SetString(prop, value);
+			auto & propertyMap = gHitDamageInfoPropertyMap;
+			propertyMap.setString(Hit, prop, value, false, true);
 		}
 	}
 
@@ -354,6 +394,17 @@ namespace osidbg
 			helper->SetInt(prop, value);
 		}
 
+		bool HitGetInt(OsiArgumentDesc & args)
+		{
+			auto helper = HelperHandleToHelper(args[0].Int64);
+			auto prop = args[1].String;
+			auto & value = args[2].Int32;
+
+			if (helper == nullptr) return false;
+
+			return helper->GetInt(prop, value);
+		}
+
 		void HitSetString(OsiArgumentDesc const & args)
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
@@ -374,16 +425,6 @@ namespace osidbg
 			if (helper == nullptr) return;
 
 			helper->SetVector(prop, vec);
-		}
-
-		void HitSetFlag(OsiArgumentDesc const & args)
-		{
-			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto flag = args[1].String;
-
-			if (helper == nullptr) return;
-
-			helper->SetFlag(flag);
 		}
 
 		void HitClearAllDamage(OsiArgumentDesc const & args)
@@ -484,85 +525,6 @@ namespace osidbg
 			}
 
 			return static_cast<EsvStatusHit *>(status);
-		}
-
-		bool HitStatusGetInt(OsiArgumentDesc & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return false;
-
-			auto prop = args.Get(2).String;
-			auto value = status->DamageInfo.GetInt(prop);
-			if (value) {
-				args.Get(3).Int32 = *value;
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		void HitStatusSetInt(OsiArgumentDesc const & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return;
-
-			auto prop = args.Get(2).String;
-			auto value = args.Get(3).Int32;
-			status->DamageInfo.SetInt(prop, value);
-		}
-
-		bool HitStatusGetString(OsiArgumentDesc & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return false;
-
-			auto prop = args.Get(2).String;
-			auto value = status->DamageInfo.GetString(prop);
-			if (value) {
-				args.Get(3).String = *value;
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		void HitStatusSetString(OsiArgumentDesc const & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return;
-
-			auto prop = args.Get(2).String;
-			auto value = args.Get(3).String;
-			status->DamageInfo.SetString(prop, value);
-		}
-
-		bool HitStatusGetFlag(OsiArgumentDesc & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return false;
-
-			auto prop = args.Get(2).String;
-			auto flag = status->DamageInfo.HasFlag(prop);
-			if (flag) {
-				args.Get(3).Int32 = (*flag) ? 1 : 0;
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		void HitStatusSetFlag(OsiArgumentDesc const & args)
-		{
-			auto status = HitStatusGet(args);
-			if (status == nullptr) return;
-
-			auto prop = args.Get(2).String;
-			auto value = args.Get(3).Int32;
-			if (value) {
-				status->DamageInfo.SetFlag(prop);
-			} else {
-				status->DamageInfo.ClearFlag(prop);
-			}
 		}
 
 		void HitStatusClearAllDamage(OsiArgumentDesc const & args)
@@ -670,6 +632,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(hitExecuteEx));
 
+		auto hitGetInt = std::make_unique<CustomQuery>(
+			"NRD_HitGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "HitHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::HitGetInt
+		);
+		functionMgr.Register(std::move(hitGetInt));
+
 		auto hitSetInt = std::make_unique<CustomCall>(
 			"NRD_HitSetInt",
 			std::vector<CustomFunctionParam>{
@@ -704,16 +677,6 @@ namespace osidbg
 			&func::HitSetVector3
 		);
 		functionMgr.Register(std::move(hitSetVector3));
-
-		auto hitSetFlag = std::make_unique<CustomCall>(
-			"NRD_HitSetFlag",
-			std::vector<CustomFunctionParam>{
-				{ "HitHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Flag", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::HitSetFlag
-		);
-		functionMgr.Register(std::move(hitSetFlag));
 
 		auto hitClearAllDamage = std::make_unique<CustomCall>(
 			"NRD_HitClearAllDamage",
@@ -756,79 +719,6 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(hitAddDamage));
 
-
-
-		auto hitStatusGetInt = std::make_unique<CustomQuery>(
-			"NRD_HitStatusGetInt",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Property", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
-			},
-			&func::HitStatusGetInt
-		);
-		functionMgr.Register(std::move(hitStatusGetInt));
-
-		auto hitStatusSetInt = std::make_unique<CustomCall>(
-			"NRD_HitStatusSetInt",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Property", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
-			},
-			&func::HitStatusSetInt
-		);
-		functionMgr.Register(std::move(hitStatusSetInt));
-
-		auto hitStatusGetString = std::make_unique<CustomQuery>(
-			"NRD_HitStatusGetString",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Property", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
-			},
-			&func::HitStatusGetString
-		);
-		functionMgr.Register(std::move(hitStatusGetString));
-
-		auto hitStatusSetString = std::make_unique<CustomCall>(
-			"NRD_HitStatusSetString",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Property", ValueType::String, FunctionArgumentDirection::In },
-				{ "Value", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::HitStatusSetString
-		);
-		functionMgr.Register(std::move(hitStatusSetString));
-
-		auto hitStatusGetFlag = std::make_unique<CustomQuery>(
-			"NRD_HitStatusGetFlag",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Flag", ValueType::String, FunctionArgumentDirection::In },
-				{ "IsSet", ValueType::Integer, FunctionArgumentDirection::Out }
-			},
-			&func::HitStatusGetFlag
-		);
-		functionMgr.Register(std::move(hitStatusGetFlag));
-
-		auto hitStatusSetFlag = std::make_unique<CustomCall>(
-			"NRD_HitStatusSetFlag",
-			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
-				{ "Flag", ValueType::String, FunctionArgumentDirection::In },
-				{ "IsSet", ValueType::Integer, FunctionArgumentDirection::In }
-			},
-			&func::HitStatusSetFlag
-		);
-		functionMgr.Register(std::move(hitStatusSetFlag));
 
 		auto hitStatusClearAllDamage = std::make_unique<CustomCall>(
 			"NRD_HitStatusClearAllDamage",

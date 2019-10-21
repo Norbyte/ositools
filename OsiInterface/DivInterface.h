@@ -590,18 +590,6 @@ namespace osidbg
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];
 		DamagePairList DamageList;
-
-		bool SetFlag(char const * flag);
-		bool ClearFlag(char const * flag);
-		std::optional<bool> HasFlag(char const * flag);
-
-		std::optional<int> GetInt(char const * prop);
-		bool SetInt(char const * prop, int value);
-
-		std::optional<char const *> GetString(char const * prop);
-		bool SetString(char const * prop, char const * value);
-
-
 	};
 
 	struct EsvStatusHit : public EsvStatus
