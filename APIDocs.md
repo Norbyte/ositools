@@ -292,9 +292,9 @@ Returns the amount of damage dealt by the `HIT` status.
 `query NRD_HitPrepare([in](GUIDSTRING)_Target, [in](GUIDSTRING)_Source, [out](INTEGER64)_HitHandle)`
 `query NRD_HitQryExecute([in](INTEGER64)_HitHandle, [out](INTEGER64)_StatusHandle)`
 `call NRD_HitSetInt((INTEGER64)_HitHandle, (STRING)_Property, (INTEGER)_Value)`
+`query NRD_HitGetInt([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](INTEGER)_Value)`
 `call NRD_HitSetString((INTEGER64)_HitHandle, (STRING)_Property, (STRING)_Value)`
 `call NRD_HitSetVector3((INTEGER64)_HitHandle, (STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
-`call NRD_HitSetFlag((INTEGER64)_HitHandle, (STRING)_Flag)`
 `call NRD_HitAddDamage((INTEGER64)_HitHandle, (INTEGER)_DamageType, (INTEGER)_Amount)`
 
 The Hit API is an extension of `ApplyDamage()` with many additional features. 
