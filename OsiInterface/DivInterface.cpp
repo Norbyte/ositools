@@ -230,7 +230,7 @@ namespace osidbg
 			// FIXME: length not available in buffer?
 			//unsigned strLength = *(uint16_t const *)(s - 4);
 			if (/*strLength == length && strncmp(s, str, length) == 0*/
-				strcmp(s, str) == 0)
+				str != nullptr && strcmp(s, str) == 0)
 			{
 				return str;
 			}
