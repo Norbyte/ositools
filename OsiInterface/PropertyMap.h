@@ -107,7 +107,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getInt(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get int '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get int '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -145,7 +147,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getFloat(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get float '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get float '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -175,7 +179,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setInt(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set int '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set int '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
@@ -215,7 +221,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setFloat(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set float '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set float '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
@@ -247,7 +255,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getString(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get string '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get string '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -277,7 +287,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setString(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set string '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set string '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
@@ -314,7 +326,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getHandle(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get handle '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get handle '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -344,7 +358,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setHandle(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set handle '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set handle '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
@@ -375,7 +391,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getVector3(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get vector '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get vector '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -405,7 +423,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setVector3(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set vector '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set vector '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
@@ -436,7 +456,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->getFlag(toParent(obj), name, raw, throwError);
 				} else {
-					OsiError("Failed to get flag '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to get flag '" << name << "': Property does not exist");
+					}
 					return {};
 				}
 			}
@@ -465,7 +487,9 @@ namespace osidbg
 				if (Parent != nullptr) {
 					return Parent->setFlag(toParent(obj), name, value, raw, throwError);
 				} else {
-					OsiError("Failed to set flag '" << name << "': Property does not exist");
+					if (throwError) {
+						OsiError("Failed to set flag '" << name << "': Property does not exist");
+					}
 					return false;
 				}
 			}
