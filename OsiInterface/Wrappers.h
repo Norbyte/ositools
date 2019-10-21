@@ -240,7 +240,11 @@ namespace osidbg {
 
 		inline R CallWithHooks(Params... Args) const
 		{
-			return wrapperHook_(wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+			if (wrapperHook_) {
+				return wrapperHook_(wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+			} else {
+				return CallOriginal(std::forward<Params>(Args)...);
+			}
 		}
 
 	private:
