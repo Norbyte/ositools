@@ -144,7 +144,7 @@ namespace osidbg
 		uint32_t ItemType;
 		uint32_t ItemSlot;
 		uint32_t WeaponType;
-		uint32_t AnimType;
+		int32_t AnimType; // -1 = Not overridden
 		uint32_t WeaponRange;
 		uint32_t IsIdentified; // Saved
 		uint32_t U2;
@@ -156,7 +156,7 @@ namespace osidbg
 		bool HasModifiedSkills; // Saved
 		uint32_t U6;
 		FixedString Skills; // Saved
-		uint32_t DamageTypeOverwrite; // Saved
+		int32_t DamageTypeOverwrite; // Saved // -1 = Not overridden
 		uint32_t Durability; // Saved
 		uint32_t DurabilityCounter; // Saved
 		uint32_t U7;
@@ -165,8 +165,8 @@ namespace osidbg
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
 		uint64_t U9[3];
-		uint32_t MaxCharges;
-		uint32_t Charges;
+		int32_t MaxCharges; // -1 = Not overridden
+		int32_t Charges; // -1 = Not overridden
 		uint8_t LevelGroupIndex;
 		uint8_t RootGroupIndex;
 		uint8_t NameGroupIndex;
@@ -1115,11 +1115,11 @@ namespace osidbg
 		uint32_t Amount;
 		uint32_t InventoryNetID;
 		uint32_t InventorySubContainerNetID;
-		uint16_t Slot;
+		int16_t Slot; // -1 = Not in inventory
 		uint8_t _Pad3[2];
 		uint32_t Unkn6;
-		uint32_t GoldValueOverwrite;
-		uint32_t WeightValueOverwrite;
+		int32_t GoldValueOverwrite; // -1 = Not overridden
+		int32_t WeightValueOverwrite; // -1 = Not overridden
 		uint32_t DamageTypeOverwrite;
 		uint32_t SomeOverwrite;
 		FixedString FS4;
@@ -1294,11 +1294,11 @@ namespace osidbg
 		uint32_t HasDynamicTags;
 		uint64_t U10;
 		uint64_t TeleportTargetOverride; // Saved
-		uint32_t TreasureLevel; // Saved
+		int32_t TreasureLevel; // Saved // -1 = Not overridden
 		uint32_t LevelOverride; // Saved
 		bool ForceSynch; // Saved
 		uint8_t _Pad8[3];
-		uint32_t TeleportUseCount; // Saved
+		int32_t TeleportUseCount; // Saved
 		uint64_t PreviousLevel; // Saved
 	};
 
