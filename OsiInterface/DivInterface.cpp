@@ -302,6 +302,32 @@ namespace osidbg
 	}
 
 
+
+	bool CharacterDynamicStat::RemoveTalent(TalentType talent, bool remove)
+	{
+		uint32_t idx = (uint32_t)talent;
+		if (idx <= 0 || idx > (uint32_t)TALENT_Max) {
+			return false;
+		}
+
+		if (remove) {
+			RemovedTalents[(uint32_t)idx >> 5] |= (1 << (idx & 0x1f));
+		} else {
+			RemovedTalents[(uint32_t)idx >> 5] &= ~(1 << (idx & 0x1f));
+		}
+	}
+
+	bool CharacterDynamicStat::IsTalentRemoved(TalentType talent)
+	{
+		uint32_t idx = (uint32_t)talent;
+		if (idx <= 0 || idx > (uint32_t)TALENT_Max) {
+			return false;
+		}
+
+		return (RemovedTalents[(uint32_t)idx >> 5] & (1 << (idx & 0x1f))) != 0;
+	}
+
+
 	EnumInfo<CriticalRoll>::Label const EnumInfo<CriticalRoll>::Values[] = {
 		{ CriticalRoll::Roll, "Roll" },
 		{ CriticalRoll::Critical, "Critical" },
@@ -500,6 +526,123 @@ namespace osidbg
 		{ StatAttributeFlags::AF_ShacklesOfPainImmunity, "ShacklesOfPainImmunity" },
 		{ StatAttributeFlags::AF_ThrownImmunity, "ThrownImmunity" },
 		{ StatAttributeFlags::AF_InvisibilityImmunity, "InvisibilityImmunity" }
+	};
+
+	EnumInfo<TalentType>::Label const EnumInfo<TalentType>::Values[] = {
+		{ TalentType::TALENT_None, "None" },
+		{ TalentType::TALENT_ItemMovement, "ItemMovement" },
+		{ TalentType::TALENT_ItemCreation, "ItemCreation" },
+		{ TalentType::TALENT_Flanking, "Flanking" },
+		{ TalentType::TALENT_AttackOfOpportunity, "AttackOfOpportunity" },
+		{ TalentType::TALENT_Backstab, "Backstab" },
+		{ TalentType::TALENT_Trade, "Trade" },
+		{ TalentType::TALENT_Lockpick, "Lockpick" },
+		{ TalentType::TALENT_ChanceToHitRanged, "ChanceToHitRanged" },
+		{ TalentType::TALENT_ChanceToHitMelee, "ChanceToHitMelee" },
+		{ TalentType::TALENT_Damage, "Damage" },
+		{ TalentType::TALENT_ActionPoints, "ActionPoints" },
+		{ TalentType::TALENT_ActionPoints2, "ActionPoints2" },
+		{ TalentType::TALENT_Criticals, "Criticals" },
+		{ TalentType::TALENT_IncreasedArmor, "IncreasedArmor" },
+		{ TalentType::TALENT_Sight, "Sight" },
+		{ TalentType::TALENT_ResistFear, "ResistFear" },
+		{ TalentType::TALENT_ResistKnockdown, "ResistKnockdown" },
+		{ TalentType::TALENT_ResistStun, "ResistStun" },
+		{ TalentType::TALENT_ResistPoison, "ResistPoison" },
+		{ TalentType::TALENT_ResistSilence, "ResistSilence" },
+		{ TalentType::TALENT_ResistDead, "ResistDead" },
+		{ TalentType::TALENT_Carry, "Carry" },
+		{ TalentType::TALENT_Throwing, "Throwing" },
+		{ TalentType::TALENT_Repair, "Repair" },
+		{ TalentType::TALENT_ExpGain, "ExpGain" },
+		{ TalentType::TALENT_ExtraStatPoints, "ExtraStatPoints" },
+		{ TalentType::TALENT_ExtraSkillPoints, "ExtraSkillPoints" },
+		{ TalentType::TALENT_Durability, "Durability" },
+		{ TalentType::TALENT_Awareness, "Awareness" },
+		{ TalentType::TALENT_Vitality, "Vitality" },
+		{ TalentType::TALENT_FireSpells, "FireSpells" },
+		{ TalentType::TALENT_WaterSpells, "WaterSpells" },
+		{ TalentType::TALENT_AirSpells, "AirSpells" },
+		{ TalentType::TALENT_EarthSpells, "EarthSpells" },
+		{ TalentType::TALENT_Charm, "Charm" },
+		{ TalentType::TALENT_Intimidate, "Intimidate" },
+		{ TalentType::TALENT_Reason, "Reason" },
+		{ TalentType::TALENT_Luck, "Luck" },
+		{ TalentType::TALENT_Initiative, "Initiative" },
+		{ TalentType::TALENT_InventoryAccess, "InventoryAccess" },
+		{ TalentType::TALENT_AvoidDetection, "AvoidDetection" },
+		{ TalentType::TALENT_AnimalEmpathy, "AnimalEmpathy" },
+		{ TalentType::TALENT_Escapist, "Escapist" },
+		{ TalentType::TALENT_StandYourGround, "StandYourGround" },
+		{ TalentType::TALENT_SurpriseAttack, "SurpriseAttack" },
+		{ TalentType::TALENT_LightStep, "LightStep" },
+		{ TalentType::TALENT_ResurrectToFullHealth, "ResurrectToFullHealth" },
+		{ TalentType::TALENT_Scientist, "Scientist" },
+		{ TalentType::TALENT_Raistlin, "Raistlin" },
+		{ TalentType::TALENT_MrKnowItAll, "MrKnowItAll" },
+		{ TalentType::TALENT_WhatARush, "WhatARush" },
+		{ TalentType::TALENT_FaroutDude, "FaroutDude" },
+		{ TalentType::TALENT_Leech, "Leech" },
+		{ TalentType::TALENT_ElementalAffinity, "ElementalAffinity" },
+		{ TalentType::TALENT_FiveStarRestaurant, "FiveStarRestaurant" },
+		{ TalentType::TALENT_Bully, "Bully" },
+		{ TalentType::TALENT_ElementalRanger, "ElementalRanger" },
+		{ TalentType::TALENT_LightningRod, "LightningRod" },
+		{ TalentType::TALENT_Politician, "Politician" },
+		{ TalentType::TALENT_WeatherProof, "WeatherProof" },
+		{ TalentType::TALENT_LoneWolf, "LoneWolf" },
+		{ TalentType::TALENT_Zombie, "Zombie" },
+		{ TalentType::TALENT_Demon, "Demon" },
+		{ TalentType::TALENT_IceKing, "IceKing" },
+		{ TalentType::TALENT_Courageous, "Courageous" },
+		{ TalentType::TALENT_GoldenMage, "GoldenMage" },
+		{ TalentType::TALENT_WalkItOff, "WalkItOff" },
+		{ TalentType::TALENT_FolkDancer, "FolkDancer" },
+		{ TalentType::TALENT_SpillNoBlood, "SpillNoBlood" },
+		{ TalentType::TALENT_Stench, "Stench" },
+		{ TalentType::TALENT_Kickstarter, "Kickstarter" },
+		{ TalentType::TALENT_WarriorLoreNaturalArmor, "WarriorLoreNaturalArmor" },
+		{ TalentType::TALENT_WarriorLoreNaturalHealth, "WarriorLoreNaturalHealth" },
+		{ TalentType::TALENT_WarriorLoreNaturalResistance, "WarriorLoreNaturalResistance" },
+		{ TalentType::TALENT_RangerLoreArrowRecover, "RangerLoreArrowRecover" },
+		{ TalentType::TALENT_RangerLoreEvasionBonus, "RangerLoreEvasionBonus" },
+		{ TalentType::TALENT_RangerLoreRangedAPBonus, "RangerLoreRangedAPBonus" },
+		{ TalentType::TALENT_RogueLoreDaggerAPBonus, "RogueLoreDaggerAPBonus" },
+		{ TalentType::TALENT_RogueLoreDaggerBackStab, "RogueLoreDaggerBackStab" },
+		{ TalentType::TALENT_RogueLoreMovementBonus, "RogueLoreMovementBonus" },
+		{ TalentType::TALENT_RogueLoreHoldResistance, "RogueLoreHoldResistance" },
+		{ TalentType::TALENT_NoAttackOfOpportunity, "NoAttackOfOpportunity" },
+		{ TalentType::TALENT_WarriorLoreGrenadeRange, "WarriorLoreGrenadeRange" },
+		{ TalentType::TALENT_RogueLoreGrenadePrecision, "RogueLoreGrenadePrecision" },
+		{ TalentType::TALENT_WandCharge, "WandCharge" },
+		{ TalentType::TALENT_DualWieldingDodging, "DualWieldingDodging" },
+		{ TalentType::TALENT_Human_Inventive, "Human_Inventive" },
+		{ TalentType::TALENT_Human_Civil, "Human_Civil" },
+		{ TalentType::TALENT_Elf_Lore, "Elf_Lore" },
+		{ TalentType::TALENT_Elf_CorpseEating, "Elf_CorpseEating" },
+		{ TalentType::TALENT_Dwarf_Sturdy, "Dwarf_Sturdy" },
+		{ TalentType::TALENT_Dwarf_Sneaking, "Dwarf_Sneaking" },
+		{ TalentType::TALENT_Lizard_Resistance, "Lizard_Resistance" },
+		{ TalentType::TALENT_Lizard_Persuasion, "Lizard_Persuasion" },
+		{ TalentType::TALENT_Perfectionist, "Perfectionist" },
+		{ TalentType::TALENT_Executioner, "Executioner" },
+		{ TalentType::TALENT_ViolentMagic, "ViolentMagic" },
+		{ TalentType::TALENT_QuickStep, "QuickStep" },
+		{ TalentType::TALENT_Quest_SpidersKiss_Str, "Quest_SpidersKiss_Str" },
+		{ TalentType::TALENT_Quest_SpidersKiss_Int, "Quest_SpidersKiss_Int" },
+		{ TalentType::TALENT_Quest_SpidersKiss_Per, "Quest_SpidersKiss_Per" },
+		{ TalentType::TALENT_Quest_SpidersKiss_Null, "Quest_SpidersKiss_Null" },
+		{ TalentType::TALENT_Memory, "Memory" },
+		{ TalentType::TALENT_Quest_TradeSecrets, "Quest_TradeSecrets" },
+		{ TalentType::TALENT_Quest_GhostTree, "Quest_GhostTree" },
+		{ TalentType::TALENT_BeastMaster, "BeastMaster" },
+		{ TalentType::TALENT_LivingArmor, "LivingArmor" },
+		{ TalentType::TALENT_Torturer, "Torturer" },
+		{ TalentType::TALENT_Ambidextrous, "Ambidextrous" },
+		{ TalentType::TALENT_Unstable, "Unstable" },
+		{ TalentType::TALENT_ResurrectExtraHealth, "ResurrectExtraHealth" },
+		{ TalentType::TALENT_NaturalConductor, "NaturalConductor" },
+		{ TalentType::TALENT_Quest_Rooted, "Quest_Rooted" },
 	};
 
 }

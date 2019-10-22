@@ -51,6 +51,49 @@ namespace osidbg
 
 			OsirisPropertyMapSet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);
 		}
+
+		bool CharacterIsTalentDisabled(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+			auto talent = args[1].String;
+			auto & disabled = args[2].Int32;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) return false;
+
+			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
+			if (permanentBoosts == nullptr) return false;
+
+			auto talentId = EnumInfo<TalentType>::Find(talent);
+			if (!talentId) {
+				OsiError("Talent name is invalid: " << talent);
+				return false;
+			}
+
+			disabled = permanentBoosts->IsTalentRemoved(*talentId) ? 1 : 0;
+			return true;
+		}
+
+		void CharacterDisableTalent(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto talent = args[1].String;
+			auto disabled = args[2].Int32;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
+			if (permanentBoosts == nullptr) return;
+
+			auto talentId = EnumInfo<TalentType>::Find(talent);
+			if (!talentId) {
+				OsiError("Talent name is invalid: " << talent);
+				return;
+			}
+
+			permanentBoosts->RemoveTalent(*talentId, disabled != 0);
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -79,6 +122,30 @@ namespace osidbg
 			&func::CharacterSetPermanentBoost<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(characterSetPermanentBoostInt));
+
+
+		auto characterIsTalentDisabled = std::make_unique<CustomQuery>(
+			"NRD_CharacterIsTalentDisabled",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsDisabled", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterIsTalentDisabled
+		);
+		functionMgr.Register(std::move(characterIsTalentDisabled));
+
+
+		auto characterDisableTalent = std::make_unique<CustomCall>(
+			"NRD_CharacterDisableTalent",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsDisabled", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::CharacterDisableTalent
+		);
+		functionMgr.Register(std::move(characterDisableTalent));
 	}
 
 }

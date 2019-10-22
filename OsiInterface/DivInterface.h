@@ -267,6 +267,9 @@ namespace osidbg
 		uint32_t StepsType;
 		uint64_t AttributeFlags;
 		uint32_t Unkn4;
+
+		bool RemoveTalent(TalentType talent, bool remove);
+		bool IsTalentRemoved(TalentType talent);
 	};
 
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance

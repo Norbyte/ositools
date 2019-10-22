@@ -637,6 +637,17 @@ Returns the permanent boost value applied to the specified character. `_Stat` mu
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
+### CharacterIsTalentDisabled
+`query NRD_CharacterIsTalentDisabled([in](CHARACTERGUID)_Character, [in](STRING)_Talent, [out](INTEGER)_IsDisabled)`
+
+Returns whether the specified talent is disabled. `_Talent` must be a value from the [TalentType enumeration](#talenttype).
+
+### CharacterDisableTalent
+`call NRD_CharacterDisableTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_IsDisabled)`
+
+Disables or re-enables a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via a dummy `CharacterAddAttribute` call (see above).
+
+
 # Item functions
 
 ### ItemSetIdentified
@@ -1020,3 +1031,121 @@ Converts `_Real` to a string value.
 | 5 | RightToLeft_Lower |
 | 6 | UpToDown |
 | 7 | DownToUp |
+
+
+### TalentType
+| Value | Label |
+|--|--|
+| 1 | ItemMovement |
+| 2 | ItemCreation |
+| 3 | Flanking |
+| 4 | AttackOfOpportunity |
+| 5 | Backstab |
+| 6 | Trade |
+| 7 | Lockpick |
+| 8 | ChanceToHitRanged |
+| 9 | ChanceToHitMelee |
+| 10 | Damage |
+| 11 | ActionPoints |
+| 12 | ActionPoints2 |
+| 13 | Criticals |
+| 14 | IncreasedArmor |
+| 15 | Sight |
+| 16 | ResistFear |
+| 17 | ResistKnockdown |
+| 18 | ResistStun |
+| 19 | ResistPoison |
+| 20 | ResistSilence |
+| 21 | ResistDead |
+| 22 | Carry |
+| 23 | Throwing |
+| 24 | Repair |
+| 25 | ExpGain |
+| 26 | ExtraStatPoints |
+| 27 | ExtraSkillPoints |
+| 28 | Durability |
+| 29 | Awareness |
+| 30 | Vitality |
+| 31 | FireSpells |
+| 32 | WaterSpells |
+| 33 | AirSpells |
+| 34 | EarthSpells |
+| 35 | Charm |
+| 36 | Intimidate |
+| 37 | Reason |
+| 38 | Luck |
+| 39 | Initiative |
+| 40 | InventoryAccess |
+| 41 | AvoidDetection |
+| 42 | AnimalEmpathy |
+| 43 | Escapist |
+| 44 | StandYourGround |
+| 45 | SurpriseAttack |
+| 46 | LightStep |
+| 47 | ResurrectToFullHealth |
+| 48 | Scientist |
+| 49 | Raistlin |
+| 50 | MrKnowItAll |
+| 51 | WhatARush |
+| 52 | FaroutDude |
+| 53 | Leech |
+| 54 | ElementalAffinity |
+| 55 | FiveStarRestaurant |
+| 56 | Bully |
+| 57 | ElementalRanger |
+| 58 | LightningRod |
+| 59 | Politician |
+| 60 | WeatherProof |
+| 61 | LoneWolf |
+| 62 | Zombie |
+| 63 | Demon |
+| 64 | IceKing |
+| 65 | Courageous |
+| 66 | GoldenMage |
+| 67 | WalkItOff |
+| 68 | FolkDancer |
+| 69 | SpillNoBlood |
+| 70 | Stench |
+| 71 | Kickstarter |
+| 72 | WarriorLoreNaturalArmor |
+| 73 | WarriorLoreNaturalHealth |
+| 74 | WarriorLoreNaturalResistance |
+| 75 | RangerLoreArrowRecover |
+| 76 | RangerLoreEvasionBonus |
+| 77 | RangerLoreRangedAPBonus |
+| 78 | RogueLoreDaggerAPBonus |
+| 79 | RogueLoreDaggerBackStab |
+| 80 | RogueLoreMovementBonus |
+| 81 | RogueLoreHoldResistance |
+| 82 | NoAttackOfOpportunity |
+| 83 | WarriorLoreGrenadeRange |
+| 84 | RogueLoreGrenadePrecision |
+| 85 | WandCharge |
+| 86 | DualWieldingDodging |
+| 87 | Human_Inventive |
+| 88 | Human_Civil |
+| 89 | Elf_Lore |
+| 90 | Elf_CorpseEating |
+| 91 | Dwarf_Sturdy |
+| 92 | Dwarf_Sneaking |
+| 93 | Lizard_Resistance |
+| 94 | Lizard_Persuasion |
+| 95 | Perfectionist |
+| 96 | Executioner |
+| 97 | ViolentMagic |
+| 98 | QuickStep |
+| 99 | Quest_SpidersKiss_Str |
+| 100 | Quest_SpidersKiss_Int |
+| 101 | Quest_SpidersKiss_Per |
+| 102 | Quest_SpidersKiss_Null |
+| 103 | Memory |
+| 104 | Quest_TradeSecrets |
+| 105 | Quest_GhostTree |
+| 106 | BeastMaster |
+| 107 | LivingArmor |
+| 108 | Torturer |
+| 109 | Ambidextrous |
+| 110 | Unstable |
+| 111 | ResurrectExtraHealth |
+| 112 | NaturalConductor |
+| 113 | Quest_Rooted |
