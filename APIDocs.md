@@ -4,6 +4,39 @@
 Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
 Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
 
+### Data Types
+The data types mentioned in this document should be interpreted as follows:
+
+#### Integer
+A 32-bit signed integer; equivalent to the Osiris `INTEGER` type. Can be read/written using the `XyzGetInt()` and `XyzSetInt()` getter/setter functions.
+
+#### Real
+Equivalent to the Osiris `REAL` type. Can be read/written using the `XyzGetReal()` and `XyzSetReal()` getter/setter functions.
+
+#### String
+Equivalent to the Osiris `STRING` type. Can be read/written using the `XyzGetString()` and `XyzSetString()` getter/setter functions.
+
+#### Flag
+An integer value with two allowed values, 0 and 1. 
+These are essentially boolean values, but since Osiris lacks boolean support, they are passed as integers. Can be read/written using the `XyzGetInt()` and `XyzSetInt()` getter/setter functions.
+
+#### Enum
+An integer value with a list of allowed values. The values can be found in `Enumerations.xml` if it is a standard enumeration, or in the [Enumerations](#enumerations) section of this document if it's a non-standard/undocumented enumeration.
+
+An enum property can be read/written using its index with the `XyzGetInt()` and `XyzSetInt()` getter/setter functions, or using its textual label with the `XyzGetString()` and `XyzSetString()` getter/setter functions.
+Example:
+```c
+// Set DamageSourceType to SurfaceCreate by ID
+NRD_StatusSetInt(_Char, _Status, "DamageSourceType", 2);
+// Set DamageSourceType to SurfaceCreate by name
+NRD_StatusSetString(_Char, _Status, "DamageSourceType", "SurfaceCreate"); 
+...
+// GetDamageSourceType by ID (_Val == 2)
+NRD_StatusGetInt(_Char, _Status, "DamageSourceType", _Val);
+// GetDamageSourceType by name(_Val == "SurfaceCreate")
+NRD_StatusGetString(_Char, _Status, "DamageSourceType", _Val); 
+```
+
 # Stat functions
 
 These functions can be used to query stats entries.
