@@ -429,7 +429,7 @@ namespace osidbg
 
 
 	void CustomFunctionLibrary::OnCharacterHit(Character__Hit wrappedHit, EsvCharacter * self, CDivinityStats_Character * attackerStats,
-		CDivinityStats_Item * itemStats, DamagePairList * damageList, uint32_t hitType, bool rollForDamage,
+		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
 		HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
 	{
@@ -458,6 +458,7 @@ namespace osidbg
 			helper->Source = attackerStats->Character;
 		}
 
+		// TODO - allow disabling CallCharacterHit & not call the original func?
 		helper->CallCharacterHit = true;
 		helper->HitType = hitType;
 		helper->RollForDamage = rollForDamage;

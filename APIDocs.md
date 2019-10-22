@@ -294,8 +294,8 @@ Returns the amount of damage dealt by the `HIT` status.
 `call NRD_HitSetInt((INTEGER64)_HitHandle, (STRING)_Property, (INTEGER)_Value)`
 `query NRD_HitGetInt([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](INTEGER)_Value)`
 `call NRD_HitSetString((INTEGER64)_HitHandle, (STRING)_Property, (STRING)_Value)`
+`query NRD_HitGetString([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](STRING)_Value)`
 `call NRD_HitSetVector3((INTEGER64)_HitHandle, (STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
-`call NRD_HitAddDamage((INTEGER64)_HitHandle, (INTEGER)_DamageType, (INTEGER)_Amount)`
 
 The Hit API is an extension of `ApplyDamage()` with many additional features. 
 **Usage steps:**
@@ -309,12 +309,12 @@ In addition to the parameters listed in [Hit attributes](#hit-attributes) the fo
 | Attribute | Type | Description |
 |--|--|--|
 | CallCharacterHit | Flag | **TODO this is complex!** |
-| HitType | Integer | **TODO** *Used in many places, meaning not known. Possibly a bitmask. Values 0, 1, 2, 4 and 5 have special significance* |
-| RollForDamage | Integer | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
-| CriticalRoll | Integer | Determines the outcome of the critical hit roll. 0 = An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result. 1 = The hit is always a critical hit; flag `CriticalHit` is set automatically. 2 = The hit is not a critical hit. |
+| HitType | Enum | For a list of values, see [HitType enumeration](#hittype) |
+| RollForDamage | Flag | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
+| CriticalRoll | Enum | Determines the outcome of the critical hit roll. For a list of values, see [CriticalRoll enumeration](#criticalroll) |
 | ProcWindWalker | Flag |  |
 | ForceReduceDurability | Flag |  |
-| HighGround | Integer | High ground bonus indicator. 0 = High ground test not performed. 1 = Attacker is on high ground. 2 = Attacker is on even ground. 3 = Attacker is on low ground. |
+| HighGround | Enum | High ground bonus indicator. For a list of values, see [HighGround enumeration](#highground) |
 
 **Notes:**
  - The hit handles returned from `NRD_HitPrepare` are not persistent (i.e. they don't survive a save/load) and they can only be used for a single hit; they're destroyed after calling `NRD_HitExecute`.
@@ -923,6 +923,35 @@ Converts `_Real` to a string value.
 | 6 | Attack |
 | 7 | Offhand |
 | 8 | GM |
+
+
+### HitType
+| Value | Label |
+|--|--|
+| 0 | Melee |
+| 1 | Magic |
+| 2 | Ranged |
+| 3 | WeaponDamage |
+| 4 | Surface |
+| 5 | DoT |
+| 6 | Reflected |
+
+
+### CriticalRoll
+| Value | Label | Meaning |
+|--|--|--|
+| 0 | Roll | An RNG roll determines whether the attack is a critical hit; flag `CriticalHit` is set depending on the result |
+| 1 | Critical | The hit is always a critical hit; flag `CriticalHit` is set automatically. |
+| 2 | NotCritical | The hit is never a critical hit. |
+
+
+### HighGround
+| Value | Label | Meaning |
+|--|--|--|
+| 0 | Unknown | High ground test not performed |
+| 1 | HighGround | Attacker is on high ground |
+| 2 | EvenGround | Attacker is on even ground |
+| 3 | LowGround | Attacker is on low ground |
 
 
 ### DeathType

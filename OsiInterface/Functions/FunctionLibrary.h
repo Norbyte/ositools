@@ -43,8 +43,7 @@ namespace osidbg
 		HelperType Type;
 		HitDamageInfo * Hit{ nullptr };
 		bool CallCharacterHit{ false };
-		// 0, 1, 4, 5, (hitType & 0xFFFFFFFC) spec values
-		uint32_t HitType{ 0 };
+		HitType HitType{ HitType::Melee };
 		bool RollForDamage{ false };
 		bool ProcWindWalker{ false };
 		bool ForceReduceDurability{ false };
@@ -80,6 +79,7 @@ namespace osidbg
 		bool GetInt(char const * prop, int32_t & value);
 		void SetInt(char const * prop, int32_t value);
 		void SetVector(char const * prop, Vector3 const & value);
+		bool GetString(char const * prop, char const * & value);
 		void SetString(char const * prop, char const * value);
 		void AddDamage(DamageType DamageType, int32_t Amount);
 		EsvStatusHit * Execute();
@@ -132,7 +132,7 @@ namespace osidbg
 		void OnStatusHitEnter(EsvStatus * status);
 		void OnStatusHealEnter(EsvStatus * status);
 		void OnCharacterHit(Character__Hit wrappedHit, EsvCharacter * self, CDivinityStats_Character * attackerStats, 
-			CDivinityStats_Item * itemStats, DamagePairList * damageList, uint32_t hitType, bool rollForDamage,
+			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
 			HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, 
 			bool procWindWalker, CriticalRoll criticalRoll);
 

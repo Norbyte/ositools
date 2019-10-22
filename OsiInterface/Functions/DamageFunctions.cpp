@@ -113,6 +113,44 @@ namespace osidbg
 		return true;
 	}
 
+	bool DamageHelpers::GetString(char const * prop, char const * & value)
+	{
+		if (strcmp(prop, "HitType") == 0) {
+			auto val = EnumInfo<osidbg::HitType>::Find(HitType);
+			if (val) {
+				value = *val;
+			}
+			return val.has_value();
+		} else if (strcmp(prop, "HighGround") == 0) {
+			auto val = EnumInfo<HighGroundBonus>::Find(HighGround);
+			if (val) {
+				value = *val;
+			}
+			return val.has_value();
+		} else if (strcmp(prop, "CriticalRoll") == 0) {
+			auto val = EnumInfo<CriticalRoll>::Find(Critical);
+			if (val) {
+				value = *val;
+			}
+			return val.has_value();
+		} else if (strcmp(prop, "DamageSourceType") == 0) {
+			auto val = EnumInfo<CauseType>::Find(DamageSourceType);
+			if (val) {
+				value = *val;
+			}
+			return val.has_value();
+		} else {
+			auto & propertyMap = gHitDamageInfoPropertyMap;
+			auto val = propertyMap.getString(Hit, prop, false, true);
+			if (val) {
+				value = *val;
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
 	void DamageHelpers::SetInt(char const * prop, int32_t value)
 	{
 		if (strcmp(prop, "CallCharacterHit") == 0) {
@@ -123,7 +161,12 @@ namespace osidbg
 			}
 		}
 		else if (strcmp(prop, "HitType") == 0) {
-			HitType = (uint32_t)value;
+			auto val = EnumInfo<osidbg::HitType>::Find((osidbg::HitType)value);
+			if (val) {
+				HitType = (osidbg::HitType)value;
+			} else {
+				OsiError("Invalid value for enum 'HitType': " << value);
+			}
 		}
 		else if (strcmp(prop, "RollForDamage") == 0) {
 			RollForDamage = value > 0;
@@ -134,25 +177,32 @@ namespace osidbg
 			ForceReduceDurability = value > 0;
 		}
 		else if (strcmp(prop, "HighGround") == 0) {
-			if (value < 0 || value > (int32_t)HighGroundBonus::HighGround) {
-				OsiError("Value '" << value << "' is not a value HighGround flag");
-			} else {
+			auto val = EnumInfo<HighGroundBonus>::Find((HighGroundBonus)value);
+			if (val) {
 				HighGround = (HighGroundBonus)value;
+			} else {
+				OsiError("Invalid value for enum 'HighGround': " << value);
 			}
 		}
 		else if (strcmp(prop, "CriticalRoll") == 0) {
-			if (value < 0 || value > (int32_t)CriticalRoll::NotCritical) {
-				OsiError(" Value '" << value << "' is not a value CriticalRoll flag");
-			} else {
+			auto val = EnumInfo<CriticalRoll>::Find((CriticalRoll)value);
+			if (val) {
 				Critical = (CriticalRoll)value;
+			} else {
+				OsiError("Invalid value for enum 'CriticalRoll': " << value);
 			}
 		}
 		else if (strcmp(prop, "HitReason") == 0) {
+			// FIXME enum + filter
 			HitReason = (uint32_t)value;
 		}
 		else if (strcmp(prop, "DamageSourceType") == 0) {
-			// FIXME - filter 
-			DamageSourceType = (CauseType)value;
+			auto val = EnumInfo<CauseType>::Find((CauseType)value);
+			if (val) {
+				DamageSourceType = (CauseType)value;
+			} else {
+				OsiError("Invalid value for enum 'DamageSourceType': " << value);
+			}
 		}
 		else if (strcmp(prop, "Strength") == 0) {
 			if (Type == DamageHelpers::HT_CustomHit) {
@@ -203,8 +253,35 @@ namespace osidbg
 
 		if (strcmp(prop, "SkillId") == 0) {
 			SkillId = fs;
-		}
-		else {
+		} else if (strcmp(prop, "HitType") == 0) {
+			auto val = EnumInfo<osidbg::HitType>::Find(value);
+			if (val) {
+				HitType = *val;
+			} else {
+				OsiError("Invalid value for enum 'HitType': " << value);
+			}
+		} else if (strcmp(prop, "HighGround") == 0) {
+			auto val = EnumInfo<HighGroundBonus>::Find(value);
+			if (val) {
+				HighGround = *val;
+			} else {
+				OsiError("Invalid value for enum 'HighGround': " << value);
+			}
+		} else if (strcmp(prop, "CriticalRoll") == 0) {
+			auto val = EnumInfo<CriticalRoll>::Find(value);
+			if (val) {
+				Critical = *val;
+			} else {
+				OsiError("Invalid value for enum 'CriticalRoll': " << value);
+			}
+		} else if (strcmp(prop, "DamageSourceType") == 0) {
+			auto val = EnumInfo<CauseType>::Find(value);
+			if (val) {
+				DamageSourceType = *val;
+			} else {
+				OsiError("Invalid value for enum 'DamageSourceType': " << value);
+			}
+		} else {
 			auto & propertyMap = gHitDamageInfoPropertyMap;
 			propertyMap.setString(Hit, prop, value, false, true);
 		}
@@ -217,11 +294,6 @@ namespace osidbg
 
 	EsvStatusHit * DamageHelpers::Execute()
 	{
-		if (Type != DamageHelpers::HT_CustomHit) {
-			OsiError("Called on a DamageHelper that is not a custom hit!");
-			return false;
-		}
-
 		if (!Target) {
 			OsiError("No target!");
 			return false;
@@ -362,6 +434,11 @@ namespace osidbg
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			if (helper == nullptr) return;
 
+			if (helper->Type != DamageHelpers::HT_CustomHit) {
+				OsiError("Called on a DamageHelper that is not a custom hit!");
+				return;
+			}
+
 			helper->Execute();
 			gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
 		}
@@ -372,6 +449,11 @@ namespace osidbg
 			auto & statusHandle = args[1].Int64;
 
 			if (helper == nullptr) return false;
+
+			if (helper->Type != DamageHelpers::HT_CustomHit) {
+				OsiError("Called on a DamageHelper that is not a custom hit!");
+				return false;
+			}
 
 			auto status = helper->Execute();
 			gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
@@ -414,6 +496,17 @@ namespace osidbg
 			if (helper == nullptr) return;
 
 			helper->SetString(prop, value);
+		}
+
+		bool HitGetString(OsiArgumentDesc & args)
+		{
+			auto helper = HelperHandleToHelper(args[0].Int64);
+			auto prop = args[1].String;
+			auto & value = args[2].String;
+
+			if (helper == nullptr) return false;
+
+			return helper->GetString(prop, value);
 		}
 
 		void HitSetVector3(OsiArgumentDesc const & args)
@@ -653,6 +746,17 @@ namespace osidbg
 			&func::HitSetInt
 		);
 		functionMgr.Register(std::move(hitSetInt));
+
+		auto hitGetString = std::make_unique<CustomQuery>(
+			"NRD_HitGetString",
+			std::vector<CustomFunctionParam>{
+				{ "HitHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::HitGetString
+		);
+		functionMgr.Register(std::move(hitGetString));
 
 		auto hitSetString = std::make_unique<CustomCall>(
 			"NRD_HitSetString",

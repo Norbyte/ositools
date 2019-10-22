@@ -1469,7 +1469,7 @@ namespace osidbg
 	typedef EsvStatus * (*StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
 	typedef void(*StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
 	typedef void(*Character__Hit)(EsvCharacter * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
-		uint32_t hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
+		HitType hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 	typedef bool(*Status__Enter)(EsvStatus * Status);
 	typedef void(*esv__ParseItem)(EsvItem * Item, ObjectSet<EoCItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
 	typedef EsvItem * (*esv__CreateItemFromParsed)(ObjectSet<EoCItemDefinition> * ParsedItems, uint32_t Index);

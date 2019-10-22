@@ -119,7 +119,7 @@ namespace osidbg {
 
 		enum class CharacterHitTag {};
 		WrappableFunction<CharacterHitTag, void (EsvCharacter * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
-			uint32_t, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
+			HitType, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
 
 	private:
 

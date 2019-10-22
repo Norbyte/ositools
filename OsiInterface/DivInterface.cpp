@@ -388,6 +388,16 @@ namespace osidbg
 		{ DamageType::Custom, "Custom" }
 	};
 
+	EnumInfo<HitType>::Label const EnumInfo<HitType>::Values[] = {
+		{ HitType::Melee, "Melee" },
+		{ HitType::Magic, "Magic" },
+		{ HitType::Ranged, "Ranged" },
+		{ HitType::WeaponDamage, "WeaponDamage" },
+		{ HitType::Surface, "Surface" },
+		{ HitType::DoT, "DoT" },
+		{ HitType::Reflected, "Reflected" }
+	};
+
 	EnumInfo<ItemSlot>::Label const EnumInfo<ItemSlot>::Values[] = {
 		{ ItemSlot::Helmet, "Helmet" },
 		{ ItemSlot::Breast, "Breast" },
@@ -408,6 +418,7 @@ namespace osidbg
 	EnumInfo<HitFlag>::Label const EnumInfo<HitFlag>::Values[] = {
 		{ HitFlag::HF_Hit, "Hit" },
 		{ HitFlag::HF_Blocked, "Blocked" },
+		{ HitFlag::HF_Dodged, "Dodged" },
 		{ HitFlag::HF_Missed, "Missed" },
 		{ HitFlag::HF_CriticalHit, "CriticalHit" },
 		{ HitFlag::HF_AlwaysBackstab, "AlwaysBackstab" },
@@ -420,6 +431,8 @@ namespace osidbg
 		{ HitFlag::HF_DamagedPhysicalArmor, "DamagedPhysicalArmor" },
 		{ HitFlag::HF_DamagedVitality, "DamagedVitality" },
 		{ HitFlag::HF_PropagatedFromOwner, "PropagatedFromOwner" },
+		{ HitFlag::HF_Surface, "Surface" },
+		{ HitFlag::HF_DoT, "DoT" },
 		{ HitFlag::HF_ProcWindWalker, "ProcWindWalker" },
 		// Custom flags
 		{ HitFlag::HF_NoEvents, "NoEvents" }

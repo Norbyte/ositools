@@ -247,6 +247,19 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(DamageType, 13);
 
+	enum class HitType : uint32_t
+	{
+		Melee = 0,
+		Magic = 1,
+		Ranged = 2,
+		WeaponDamage = 3,
+		Surface = 4,
+		DoT = 5,
+		Reflected = 6
+	};
+
+	MAKE_ENUM_INFO(HitType, 7);
+
 	enum class ItemSlot : uint8_t
 	{
 		Helmet = 0,
@@ -285,14 +298,14 @@ namespace osidbg
 		HF_DamagedPhysicalArmor = 0x2000,
 		HF_DamagedVitality = 0x4000,
 		HF_PropagatedFromOwner = 0x10000,
-		HF_HitType4 = 0x20000,
-		HF_HitType5 = 0x40000,
+		HF_Surface = 0x20000,
+		HF_DoT = 0x40000,
 		HF_ProcWindWalker = 0x80000,
 		// Custom flags
 		HF_NoEvents = 0x80000000
 	};
 
-	MAKE_ENUM_INFO(HitFlag, 16);
+	MAKE_ENUM_INFO(HitFlag, 19);
 
 	enum EsvCharacterFlags : uint64_t
 	{
