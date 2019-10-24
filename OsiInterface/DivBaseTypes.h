@@ -347,5 +347,30 @@ namespace osidbg
 		uint32_t GrowSize;
 	};
 #pragma pack(pop)
+}
 
+
+namespace std
+{
+	template<> struct hash<osidbg::FixedString>
+	{
+		typedef osidbg::FixedString argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<std::uintptr_t>{}((std::uintptr_t)fn.Str);
+		}
+	};
+
+	template<> struct hash<osidbg::ObjectHandle>
+	{
+		typedef osidbg::ObjectHandle argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<uint64_t>{}(fn.Handle);
+		}
+	};
 }

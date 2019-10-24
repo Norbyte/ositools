@@ -121,6 +121,9 @@ namespace osidbg {
 		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
 			HitType, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
 
+		enum class ApplyStatusTag {};
+		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
+
 	private:
 
 #if defined(OSI_EOCAPP)

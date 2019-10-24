@@ -256,6 +256,41 @@ namespace osidbg
 		}
 	}
 
+	PendingStatuses gPendingStatuses;
+
+	void PendingStatuses::Add(esv::Status * status)
+	{
+		statuses_.insert(std::make_pair(status->StatusHandle, status));
+	}
+
+	void PendingStatuses::Remove(esv::Status * status)
+	{
+		auto it = statuses_.find(status->StatusHandle);
+		if (it != statuses_.end()) {
+			statuses_.erase(it);
+		} else {
+			OsiError("Attempted to remove non-pending status " << std::hex << (int64_t)status->StatusHandle);
+		}
+	}
+
+	esv::Status * PendingStatuses::Find(esv::Character const * character, ObjectHandle handle) const
+	{
+		auto it = statuses_.find(handle);
+		if (it != statuses_.end()) {
+			auto status = it->second;
+			ObjectHandle characterHandle;
+			character->GetObjectHandle(&characterHandle);
+			if (characterHandle == status->TargetCIHandle) {
+				return status;
+			} else {
+				OsiError("Attempted to retrieve pending status " << std::hex << (int64_t)status->StatusHandle
+					<< " on wrong character!");
+				return nullptr;
+			}
+		} else {
+			return nullptr;
+		}
+	}
 
 	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle handle) const
 	{
@@ -271,7 +306,7 @@ namespace osidbg
 			}
 		}
 
-		return nullptr;
+		return gPendingStatuses.Find(this, handle);
 	}
 
 

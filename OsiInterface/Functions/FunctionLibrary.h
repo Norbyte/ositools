@@ -135,6 +135,7 @@ namespace osidbg
 			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
 			HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, 
 			bool procWindWalker, CriticalRoll criticalRoll);
+		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 
 	private:
 		OsirisProxy & osiris_;

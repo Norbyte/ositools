@@ -184,6 +184,9 @@ namespace osidbg
 		osiris_.GetLibraryManager().CharacterHitHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnCharacterHit, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
 		);
+		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnApplyStatus, this, _1, _2, _3)
+		);
 
 		PostLoaded = true;
 	}

@@ -6,6 +6,7 @@
 namespace osidbg
 {
 	FunctionHandle StatusIteratorEventHandle;
+	FunctionHandle StatusAttemptEventHandle;
 	FunctionHandle HitPrepareEventHandle;
 	FunctionHandle HitEventHandle;
 	FunctionHandle HealEventHandle;
@@ -485,6 +486,51 @@ namespace osidbg
 	}
 
 
+	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)
+	{
+		char const * targetGuid{ nullptr };
+		auto targetCharacter = FindCharacterByHandle(self->OwnerObjectHandle);
+		if (targetCharacter != nullptr) {
+			targetGuid = targetCharacter->GetGuid()->Str;
+		} else {
+			auto targetItem = FindItemByHandle(self->OwnerObjectHandle);
+			if (targetItem != nullptr) {
+				targetGuid = targetItem->GetGuid()->Str;
+			} else {
+				OsiError("Can't throw ApplyStatus event - target handle could not be resolved.");
+			}
+		}
+
+		if (targetGuid != nullptr) {
+			char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+			if (status->StatusSourceHandle) {
+				auto sourceCharacter = FindCharacterByHandle(status->StatusSourceHandle);
+				if (sourceCharacter != nullptr) {
+					sourceGuid = sourceCharacter->GetGuid()->Str;
+				} else {
+					auto sourceItem = FindItemByHandle(status->StatusSourceHandle);
+					if (sourceItem != nullptr) {
+						sourceGuid = sourceItem->GetGuid()->Str;
+					}
+				}
+			}
+
+			auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, targetGuid });
+			eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+			eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
+
+			gPendingStatuses.Add(status);
+			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
+			gPendingStatuses.Remove(status);
+
+			delete eventArgs;
+		}
+
+		wrappedApply(self, status);
+	}
+
+
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
@@ -630,6 +676,17 @@ namespace osidbg
 			}
 		);
 		StatusIteratorEventHandle = functionMgr.Register(std::move(statusIteratorEvent));
+
+		auto statusAttemptEvent = std::make_unique<CustomEvent>(
+			"NRD_OnStatusAttempt",
+			std::vector<CustomFunctionParam>{
+				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
+			}
+		);
+		StatusAttemptEventHandle = functionMgr.Register(std::move(statusAttemptEvent));
 
 		auto applyActiveDefense = std::make_unique<CustomQuery>(
 			"NRD_ApplyActiveDefense",

@@ -11,6 +11,7 @@ namespace osidbg
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
+	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
 
@@ -253,6 +254,10 @@ namespace osidbg
 			CharacterHitHook.Wrap(CharacterHit);
 		}
 
+		if (StatusMachineApplyStatus != nullptr) {
+			ApplyStatusHook.Wrap(StatusMachineApplyStatus);
+		}
+
 		DetourTransactionCommit();
 
 		PostLoaded = true;
@@ -266,6 +271,7 @@ namespace osidbg
 		StatusHitEnter.Unwrap();
 		StatusHealEnter.Unwrap();
 		CharacterHitHook.Unwrap();
+		ApplyStatusHook.Unwrap();
 
 		DetourTransactionCommit();
 	}

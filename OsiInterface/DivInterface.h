@@ -988,27 +988,27 @@ namespace osidbg
 		virtual void VMT08() = 0;
 		virtual uint64_t Ret5() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
-		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
+		virtual void GetObjectHandle(ObjectHandle * Handle) const = 0;
 		virtual void SetGuid(FixedString const & fs) = 0;
-		virtual FixedString * GetGuid() = 0;
+		virtual FixedString * GetGuid() const = 0;
 		virtual void SetNetID(uint32_t netId) = 0;
-		virtual void GetNetID(uint32_t & netId) = 0;
+		virtual void GetNetID(uint32_t & netId) const = 0;
 		virtual void SetCurrentTemplate(void * esvTemplate) = 0;
-		virtual void * GetCurrentTemplate() = 0;
+		virtual void * GetCurrentTemplate() const = 0;
 		virtual void SetGlobal() = 0;
-		virtual bool IsGlobal() = 0;
+		virtual bool IsGlobal() const = 0;
 		virtual uint32_t GetComponentType() = 0;
 		virtual void * GetEntityObjectByHandle(ObjectHandle handle) = 0;
 		virtual STDWString * GetName() = 0;
 		virtual void SetFlags(uint64_t flag) = 0;
 		virtual void ClearFlags(uint64_t flag) = 0;
-		virtual bool HasFlag(uint64_t flag) = 0;
+		virtual bool HasFlag(uint64_t flag) const = 0;
 		virtual void SetAiColliding(bool colliding) = 0;
 		virtual void GetTags() = 0;
 		virtual void IsTagged() = 0;
-		virtual Vector3 const * GetTranslate() = 0;
-		virtual glm::mat3 const * GetRotation() = 0;
-		virtual float GetScale() = 0;
+		virtual Vector3 const * GetTranslate() const = 0;
+		virtual glm::mat3 const * GetRotation() const = 0;
+		virtual float GetScale() const = 0;
 		virtual void SetTranslate(Vector3 const & translate) = 0;
 		virtual void SetRotation(glm::mat3 const & rotate) = 0;
 		virtual void SetScale(float scale) = 0;
@@ -1025,7 +1025,7 @@ namespace osidbg
 		virtual void ReloadPhysics() = 0;
 		virtual void GetHeight() = 0;
 		virtual void GetParentUUID() = 0;
-		virtual FixedString * GetCurrentLevel() = 0;
+		virtual FixedString * GetCurrentLevel() const = 0;
 		virtual void SetCurrentLevel(FixedString const & level) = 0;
 		virtual void AddPeer() = 0;
 		virtual void UNK1() = 0;
@@ -1480,8 +1480,8 @@ namespace osidbg
 	typedef void(*TornadoAction__Setup)(void * TornadoAction);
 	typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
-	typedef Status * (*StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
-	typedef void(*StatusMachine__ApplyStatus)(void * StatusMachine, Status * Status);
+	typedef Status * (*StatusMachine__CreateStatus)(esv::StatusMachine * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
+	typedef void(*StatusMachine__ApplyStatus)(esv::StatusMachine * StatusMachine, Status * Status);
 	typedef void(*Character__Hit)(esv::Character * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
 		HitType hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 	typedef bool(*Status__Enter)(Status * Status);
@@ -1490,4 +1490,17 @@ namespace osidbg
 
 	}
 #pragma pack(pop)
+
+	class PendingStatuses
+	{
+	public:
+		void Add(esv::Status * status);
+		void Remove(esv::Status * status);
+		esv::Status * Find(esv::Character const * character, ObjectHandle handle) const;
+
+	private:
+		std::unordered_map<ObjectHandle, esv::Status *> statuses_;
+	};
+
+	extern PendingStatuses gPendingStatuses;
 }
