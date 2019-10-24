@@ -99,6 +99,17 @@ DebugBreak(_StatusId);
  - The call might not enumerate all statuses correctly (i.e. miss some statuses or iterate over them multiple times) if statuses are added or removed during the `NRD_StatusIteratorEvent` event
  - The `_StatusHandle` is a persistent, unique value (like UUIDs) identifying the status instance. Unlike status names, it can be used to differentiate between two instances of the same status.
 
+
+### OnStatusAttempt
+`event NRD_OnStatusAttempt((GUIDSTRING)_Target, (STRING)_StatusId, (INTEGER64)_StatusHandle, (GUIDSTRING)_Instigator)`
+
+Thrown before a status is applied to the target character or item. Status attributes can be queried using the `NRD_StatusGet[...]`  functions and updated using the `NRD_StatusSet[...]` functions. For a list of attributes, see [Status attributes](#status-attributes). 
+
+**Notes:**
+ - Since the event is thrown before the status prerequisite checks are performed, it is possible that the status won't be applied if it fails to pass a check.
+ - The status flags `ForceStatus` and `ForceFailStatus` can be set during the status attempt event to force a successful/failed prerequisite check result.
+
+
 ### StatusGetHandle
 `query NRD_StatusGetHandle([in](CHARACTERGUID)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
 
