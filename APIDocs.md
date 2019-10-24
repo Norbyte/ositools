@@ -240,8 +240,8 @@ Returns the amount of damage dealt by the `HIT` status.
 | IsHostileAct | Flag | Read |  |
 | IsInvulnerable | Flag | Read | The status turns the character invulnerable |
 | IsResistingDeath | Flag | Read | The character can't die until the status expires |
-| ForceStatus | Flag | Read | The status was forcibly applied (i.e. it bypasses resistance checks) |
-| ForceFailStatus | Flag | Read |  |
+| ForceStatus | Flag | Read/Write | Bypass immunity and status enter chance checks. |
+| ForceFailStatus | Flag | Read/Write | Forces prerequisite checks to fail. |
 | RequestDelete | Flag | Read | The status is being deleted (i.e. it's not active anymore) |
 | RequestDeleteAtTurnEnd | Flag | Read | The status will be deleted at the end of the current turn |
 | Started | Flag | Read |  |

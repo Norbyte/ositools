@@ -21,7 +21,7 @@ namespace osidbg
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_ENUM(cls, name) AddPropertyEnum<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
-#define PROP_FLAGS(cls, name, enum) AddPropertyFlags<decltype(cls::name), enum>(propertyMap, #name, offsetof(cls, name))
+#define PROP_FLAGS(cls, name, enum, writeable) AddPropertyFlags<decltype(cls::name), enum>(propertyMap, #name, offsetof(cls, name), writeable)
 
 	void InitPropertyMaps()
 	{
@@ -40,9 +40,12 @@ namespace osidbg
 			PROP_RO(EsvStatus, TargetCIHandle);
 			PROP_RO(EsvStatus, StatusSourceHandle);
 			PROP_RO(EsvStatus, SomeHandle);
-			PROP_FLAGS(EsvStatus, Flags0, StatusFlags0);
-			PROP_FLAGS(EsvStatus, Flags1, StatusFlags1);
-			PROP_FLAGS(EsvStatus, Flags2, StatusFlags2);
+			PROP_FLAGS(EsvStatus, Flags0, StatusFlags0, false);
+			PROP_FLAGS(EsvStatus, Flags1, StatusFlags1, false);
+			PROP_FLAGS(EsvStatus, Flags2, StatusFlags2, false);
+
+			propertyMap.Flags["ForceStatus"].Flags |= kPropWrite;
+			propertyMap.Flags["ForceFailStatus"].Flags |= kPropWrite;
 
 			propertyMap.Properties["LifeTime"].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<EsvStatus *>(st);
@@ -140,7 +143,7 @@ namespace osidbg
 			PROP(HitDamageInfo, AttackDirection);
 			PROP(HitDamageInfo, ArmorAbsorption);
 			PROP(HitDamageInfo, LifeSteal);
-			PROP_FLAGS(HitDamageInfo, EffectFlags, HitFlag);
+			PROP_FLAGS(HitDamageInfo, EffectFlags, HitFlag, true);
 			PROP(HitDamageInfo, HitWithWeapon);
 		}
 
@@ -211,7 +214,7 @@ namespace osidbg
 			// TODO - Reflection
 			PROP(CDivinityStats_Equipment_Attributes, Skills);
 			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
-			PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags);
+			PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
 			// TODO - ObjectInstanceName?, AbilityModifiers, Talents
 		}
 
@@ -310,7 +313,7 @@ namespace osidbg
 			PROP(CharacterDynamicStat, SPCostBoost);
 			PROP(CharacterDynamicStat, MaxSummons);
 			PROP(CharacterDynamicStat, BonusWeaponDamageMultiplier);
-			PROP_FLAGS(CharacterDynamicStat, AttributeFlags, StatAttributeFlags);
+			PROP_FLAGS(CharacterDynamicStat, AttributeFlags, StatAttributeFlags, true);
 			// TODO Abilities, Talents, RemovedTalents, Traits
 		}
 

@@ -510,8 +510,11 @@ namespace osidbg
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
 		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
 		virtual StatusType GetStatusId() = 0;
-		// 3 - Toggle, 0 - Normal, 1 - ???, 2 - OnlyOnce?
-		virtual uint32_t GetTriggerBehavior_M() = 0;
+		// 0 - Stackable
+		// 1 - Apply only the first instance, discard new ones
+		// 2 - Apply only one instance, new instances replace old ones
+		// 3 - Apply only the first instance; triggers combat?
+		virtual uint32_t GetStatusType() = 0;
 		virtual void AddStatsData2_Maybe() = 0;
 		virtual void * GetStatsIdByIndex(int index) = 0;
 		virtual void VMT38() = 0;

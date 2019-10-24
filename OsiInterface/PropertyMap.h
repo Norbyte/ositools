@@ -608,7 +608,8 @@ namespace osidbg
 	}
 
 	template <class TValue, class TEnum, class T, class TBase>
-	void AddPropertyFlags(PropertyMap<T, TBase> & map, std::string const & name, std::uintptr_t offset)
+	void AddPropertyFlags(PropertyMap<T, TBase> & map, std::string const & name, 
+		std::uintptr_t offset, bool canWrite)
 	{
 		using Enum = EnumInfo<TEnum>;
 
@@ -621,7 +622,7 @@ namespace osidbg
 		for (auto i = 0; i < std::size(Enum::Values); i++) {
 			PropertyMap<T, TBase>::FlagInfo flag;
 			flag.Property = name;
-			flag.Flags = kPropRead | kPropWrite;
+			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 			flag.Mask = (int64_t)Enum::Values[i].Val;
 			map.Flags.insert(std::make_pair(Enum::Values[i].Name, flag));
 		}
