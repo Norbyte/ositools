@@ -238,12 +238,32 @@ void CustomFunctionInjector::Initialize()
 	wrappers_.CloseHandle.AddPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
 }
 
+unsigned gCustomEventDepth{ 0 };
+
+struct CustomEventGuard
+{
+	static constexpr unsigned MaxDepth = 10;
+
+	CustomEventGuard() { gCustomEventDepth++; }
+	~CustomEventGuard() { gCustomEventDepth--; }
+
+	bool CanThrowEvent() const
+	{
+		return gCustomEventDepth < MaxDepth;
+	}
+};
+
 void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const
 {
 	auto it = divToOsiMappings_.find(handle);
 	if (it != divToOsiMappings_.end()) {
-		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-		gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
+		CustomEventGuard guard;
+		if (guard.CanThrowEvent()) {
+			auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
+			gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
+		} else {
+			OsiError("Maximum Osiris event depth (" << gCustomEventDepth << ") exceeded");
+		}
 	} else {
 		OsiError("Event handle not mapped: " << std::hex << (unsigned)handle);
 	}

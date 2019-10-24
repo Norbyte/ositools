@@ -29,7 +29,7 @@ void Debug(char const * fmt, Args... args)
 inline void DebugRaw(char const * msg)
 {
 	OutputDebugStringA(msg);
-	std::cout << msg;
+	std::cout << msg << std::endl;
 }
 
 [[noreturn]]
