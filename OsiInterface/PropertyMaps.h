@@ -6,13 +6,13 @@
 
 namespace osidbg
 {
-	extern PropertyMap<EsvStatus, void> gStatusPropertyMap;
-	extern PropertyMap<EsvStatusConsume, EsvStatus> gStatusConsumePropertyMap;
-	extern PropertyMap<EsvStatusHit, EsvStatus> gStatusHitPropertyMap;
-	extern PropertyMap<EsvStatusHeal, EsvStatus> gStatusHealPropertyMap;
-	extern PropertyMap<EsvStatusHealing, EsvStatusConsume> gStatusHealingPropertyMap;
+	extern PropertyMap<esv::Status, void> gStatusPropertyMap;
+	extern PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;
+	extern PropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
+	extern PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
+	extern PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
 	extern PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
-	extern PropertyMap<EoCItemDefinition, void> gEoCItemDefinitionPropertyMap;
+	extern PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;

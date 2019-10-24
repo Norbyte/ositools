@@ -77,7 +77,7 @@ namespace osidbg {
 			}
 		}
 
-		inline EsvGameActionManager * GetGameActionManager() const
+		inline esv::GameActionManager * GetGameActionManager() const
 		{
 			if (LevelManager == nullptr || *LevelManager == nullptr) {
 				return nullptr;
@@ -87,38 +87,38 @@ namespace osidbg {
 			if (coreLibStart_ == nullptr) {
 				auto l1 = ((uint64_t *)levelMgr)[16];
 				auto l2 = *(uint64_t *)(l1 + 208);
-				return (EsvGameActionManager *)l2;
+				return (esv::GameActionManager *)l2;
 			}
 			else {
 				auto l1 = ((uint64_t *)levelMgr)[1];
 				auto l2 = *(uint64_t *)(l1 + 216);
-				return (EsvGameActionManager *)l2;
+				return (esv::GameActionManager *)l2;
 			}
 		}
 
-		ProjectileHelpers_ShootProjectile ShootProjectile{ nullptr };
-		GameActionManager__CreateAction CreateGameAction{ nullptr };
-		GameActionManager__AddAction AddGameAction{ nullptr };
-		TornadoAction__Setup TornadoActionSetup{ nullptr };
-		TornadoAction__Setup WallActionCreateWall{ nullptr };
-		SummonHelpers__Summon SummonHelpersSummon{ nullptr };
-		GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
-		StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
-		StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
-		Character__Hit CharacterHit{ nullptr };
-		EsvStatusVMT const * StatusHealVMT{ nullptr };
-		EsvStatusVMT const * StatusHitVMT{ nullptr };
-		esv__ParseItem ParseItem{ nullptr };
-		esv__CreateItemFromParsed CreateItemFromParsed{ nullptr };
+		esv::ProjectileHelpers_ShootProjectile ShootProjectile{ nullptr };
+		esv::GameActionManager__CreateAction CreateGameAction{ nullptr };
+		esv::GameActionManager__AddAction AddGameAction{ nullptr };
+		esv::TornadoAction__Setup TornadoActionSetup{ nullptr };
+		esv::TornadoAction__Setup WallActionCreateWall{ nullptr };
+		esv::SummonHelpers__Summon SummonHelpersSummon{ nullptr };
+		esv::GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
+		esv::StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
+		esv::StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
+		esv::Character__Hit CharacterHit{ nullptr };
+		esv::StatusVMT const * StatusHealVMT{ nullptr };
+		esv::StatusVMT const * StatusHitVMT{ nullptr };
+		esv::ParseItem ParseItem{ nullptr };
+		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		
 		enum class StatusHealEnterTag {};
-		HookableFunction<StatusHealEnterTag, bool (EsvStatus *)> StatusHealEnter;
+		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
 
 		enum class StatusHitEnterTag {};
-		HookableFunction<StatusHitEnterTag, bool (EsvStatus *)> StatusHitEnter;
+		HookableFunction<StatusHitEnterTag, bool (esv::Status *)> StatusHitEnter;
 
 		enum class CharacterHitTag {};
-		WrappableFunction<CharacterHitTag, void (EsvCharacter * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
+		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
 			HitType, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
 
 	private:

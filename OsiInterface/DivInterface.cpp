@@ -257,14 +257,15 @@ namespace osidbg
 	}
 
 
-	EsvStatus * EsvCharacter::GetStatusByHandle(ObjectHandle handle) const
+	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle handle) const
 	{
-		if (StatusManager == nullptr) {
+		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		for (uint32_t i = 0; i < StatusManager->StatusCount; i++) {
-			auto status = StatusManager->Statuses[i];
+		auto count = StatusMachine->Statuses.Set.Size;
+		for (uint32_t i = 0; i < count; i++) {
+			auto status = StatusMachine->Statuses.Set.Buf[i];
 			if (status->StatusHandle == handle) {
 				return status;
 			}
@@ -315,6 +316,8 @@ namespace osidbg
 		} else {
 			RemovedTalents[(uint32_t)idx >> 5] &= ~(1 << (idx & 0x1f));
 		}
+
+		return true;
 	}
 
 	bool CharacterDynamicStat::IsTalentRemoved(TalentType talent)

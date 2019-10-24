@@ -66,7 +66,7 @@ namespace osidbg
 			(*skill)->ActiveCooldown = cooldown;
 		}
 
-		ObjectSet<EsvSkillBarItem> * GetSkillBar(char const * characterGuid)
+		ObjectSet<esv::SkillBarItem> * GetSkillBar(char const * characterGuid)
 		{
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
@@ -83,7 +83,7 @@ namespace osidbg
 			return &character->PlayerData->SkillBar;
 		}
 
-		EsvSkillBarItem * SkillBarGetSlot(char const * characterGuid, int slot)
+		esv::SkillBarItem * SkillBarGetSlot(char const * characterGuid, int slot)
 		{
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return nullptr;
@@ -103,7 +103,7 @@ namespace osidbg
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
-			if (skillBarItem->Type == EsvSkillBarItem::kItem) {
+			if (skillBarItem->Type == esv::SkillBarItem::kItem) {
 				auto item = FindItemByHandle(skillBarItem->ItemHandle);
 				if (item != nullptr) {
 					args.Get(2).String = item->MyGuid.Str;
@@ -123,7 +123,7 @@ namespace osidbg
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
-			if (skillBarItem->Type == EsvSkillBarItem::kSkill) {
+			if (skillBarItem->Type == esv::SkillBarItem::kSkill) {
 				args.Get(2).String = skillBarItem->SkillOrStatId.Str;
 				return true;
 			} else {
@@ -140,7 +140,7 @@ namespace osidbg
 			auto skillId = ToFixedString(args.Get(1).String);
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
 				auto & skill = skillBar->Set.Buf[i];
-				if (skill.Type == EsvSkillBarItem::kSkill
+				if (skill.Type == esv::SkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
 					args.Get(2).Int32 = i;
 					return true;
@@ -168,7 +168,7 @@ namespace osidbg
 
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
 				auto & skill = skillBar->Set.Buf[i];
-				if (skill.Type == EsvSkillBarItem::kItem
+				if (skill.Type == esv::SkillBarItem::kItem
 					&& skill.ItemHandle == handle) {
 					args.Get(2).Int32 = i;
 					return true;
@@ -194,7 +194,7 @@ namespace osidbg
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;
 
-			skillBarItem->Type = EsvSkillBarItem::kSkill;
+			skillBarItem->Type = esv::SkillBarItem::kSkill;
 			skillBarItem->SkillOrStatId = skillId;
 			skillBarItem->ItemHandle = ObjectHandle{};
 
@@ -221,7 +221,7 @@ namespace osidbg
 			item->GetObjectHandle(&handle);
 			// FIXME - check if item is in the players' inventory?
 
-			skillBarItem->Type = EsvSkillBarItem::kItem;
+			skillBarItem->Type = esv::SkillBarItem::kItem;
 			skillBarItem->SkillOrStatId = item->StatsId;
 			skillBarItem->ItemHandle = handle;
 
@@ -237,7 +237,7 @@ namespace osidbg
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;
 
-			skillBarItem->Type = EsvSkillBarItem::kNone;
+			skillBarItem->Type = esv::SkillBarItem::kNone;
 			skillBarItem->SkillOrStatId = ToFixedString("");
 			skillBarItem->ItemHandle = ObjectHandle{};
 

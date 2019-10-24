@@ -91,7 +91,7 @@ namespace osidbg
 			item->StatsDynamic->IsIdentified = args.Get(1).Int32 ? 1 : 0;
 		}
 
-		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(EsvItem * item, uint32_t index)
+		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(esv::Item * item, uint32_t index)
 		{
 			if (item->StatsDynamic == nullptr) {
 				OsiError("Item has no dynamic stats!");
@@ -178,7 +178,7 @@ namespace osidbg
 		}
 
 
-		std::unique_ptr<ObjectSet<EoCItemDefinition>> gPendingItemClone;
+		std::unique_ptr<ObjectSet<eoc::ItemDefinition>> gPendingItemClone;
 
 
 		void ItemCloneBegin(OsiArgumentDesc const & args)
@@ -193,7 +193,7 @@ namespace osidbg
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) return;
 
-			gPendingItemClone = std::make_unique<ObjectSet<EoCItemDefinition>>();
+			gPendingItemClone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			gOsirisProxy->GetLibraryManager().ParseItem(item, gPendingItemClone.get(), false, false);
 
 			if (gPendingItemClone->Set.Size != 1) {

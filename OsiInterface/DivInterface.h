@@ -272,6 +272,8 @@ namespace osidbg
 		bool IsTalentRemoved(TalentType talent);
 	};
 
+	namespace esv { struct Character; }
+
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
 	{
 		uint32_t _Pad0;
@@ -294,7 +296,7 @@ namespace osidbg
 		ObjectSet<int> TraitOrder; // Saved
 		uint32_t MaxResistance;
 		uint32_t ItemsChanged_M;
-		struct EsvCharacter * Character;
+		esv::Character * Character;
 		uint32_t Unkn2;
 		uint32_t IsIncapacitatedRefCount;
 		CharacterDynamicStat ** DynamicStats;
@@ -468,7 +470,130 @@ namespace osidbg
 		uint64_t Unkn8[2];
 	};
 
-	struct EsvStatusVMT
+	struct TDamagePair
+	{
+		int32_t Amount;
+		DamageType DamageType;
+	};
+
+	struct DamagePairList : public Array<TDamagePair>
+	{
+		void AddDamage(DamageType DamageType, int32_t Amount);
+	};
+
+	struct HitDamageInfo
+	{
+		uint32_t Equipment{ 0 };
+		int32_t TotalDamageDone{ 0 };
+		uint32_t Unknown{ 0 };
+		DeathType DeathType{ DeathType::Sentinel };
+		uint8_t _Pad1[3];
+		DamageType DamageType{ DamageType::None };
+		uint32_t AttackDirection{ 0 };
+		int32_t ArmorAbsorption{ 0 };
+		int32_t LifeSteal{ 0 };
+		uint32_t EffectFlags{ 0 };
+		bool HitWithWeapon{ false };
+		uint8_t _Pad2[3];
+		DamagePairList DamageList;
+	};
+
+	namespace eoc
+	{
+		struct PlayerUpgrade
+		{
+			CDivinityStats_Character * Stats;
+			uint32_t AttributePoints;
+			uint32_t CombatAbilityPoints;
+			uint32_t CivilAbilityPoints;
+			uint32_t TalentPoints;
+			uint64_t Unknown;
+			ObjectSet<int> Attributes;
+			ObjectSet<int> Abilities;
+			uint32_t Talents[4];
+			ObjectSet<uint16_t> Traits;
+			bool IsCustom;
+		};
+
+		struct ItemDefinition
+		{
+			uint32_t Unknown;
+			uint32_t NetId;
+			uint32_t ItemNetId;
+			uint8_t _Pad0[4];
+			FixedString FS1;
+			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
+			FixedString RootTemplate;
+			uint32_t Unkn1;
+			uint8_t _Pad1[4];
+			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
+			FixedString OriginalRootTemplate;
+			uint32_t Unkn2[4];
+			uint32_t Unkn3;
+			float Unkn3Flt;
+			uint32_t Unkn4[2];
+			float Unkn4Flt;
+			uint32_t Unkn41[4];
+			uint32_t Amount;
+			uint32_t InventoryNetID;
+			uint32_t InventorySubContainerNetID;
+			int16_t Slot; // -1 = Not in inventory
+			uint8_t _Pad3[2];
+			uint32_t Unkn6;
+			int32_t GoldValueOverwrite; // -1 = Not overridden
+			int32_t WeightValueOverwrite; // -1 = Not overridden
+			uint32_t DamageTypeOverwrite;
+			uint32_t SomeOverwrite;
+			FixedString FS4;
+			// eg. "Uncommon"
+			FixedString ItemType;
+			STDWString CustomDisplayName;
+			STDWString CustomDescription;
+			STDWString CustomBookContent;
+			STDWString GenerationBase;
+			// eg. "WPN_Shield"
+			FixedString GenerationStatsId;
+			// eg. "Uncommon"
+			FixedString GenerationItemType;
+			uint32_t GenerationRandom;
+			uint16_t GenerationLevel;
+			uint8_t _Pad4[2];
+			ObjectSet<FixedString> GenerationBoosts;
+			uint8_t LevelGroupIndex;
+			uint16_t RootGroupIndex;
+			uint8_t NameIndex;
+			uint8_t NameCool;
+			uint8_t _Pad5[3];
+			uint32_t Unkn;
+			uint8_t _Pad6[4];
+			FixedString StatsName;
+			uint32_t Level;
+			uint32_t Unkn11;
+			// eg. "WPN_Shield"
+			FixedString StatsEntryName;
+			uint32_t EquipmentStatsType;
+			uint8_t _Pad7[4];
+			ScratchBuffer PermanentBoostsBuf;
+			uint8_t _Pad8[4];
+			ScratchBuffer BaseStatsBuf;
+			uint8_t _Pad9[4];
+			bool HasModifiedSkills;
+			uint8_t _Pad10[7];
+			FixedString Skills;
+			ObjectSet<FixedString> FSSet2;
+			ObjectSet<FixedString> RuneBoostNames;
+			uint8_t Flags0[2];
+			uint8_t HasItemGeneration_M;
+			uint8_t Flags1[12];
+			uint8_t IsIdentified;
+			uint8_t Flags2[3];
+		};
+	}
+
+	namespace esv
+	{
+
+	struct StatusVMT
 	{
 		void * Destroy;
 		void * SetObjectHandle;
@@ -504,9 +629,9 @@ namespace osidbg
 		void * AddStatsData_Maybe;
 	};
 
-	struct EsvStatus
+	struct Status
 	{
-		virtual ~EsvStatus() = 0;
+		virtual ~Status() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
 		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
 		virtual StatusType GetStatusId() = 0;
@@ -570,35 +695,7 @@ namespace osidbg
 		uint32_t _Pad3;
 	};
 
-	struct TDamagePair
-	{
-		int32_t Amount;
-		DamageType DamageType;
-	};
-
-	struct DamagePairList : public Array<TDamagePair>
-	{
-		void AddDamage(DamageType DamageType, int32_t Amount);
-	};
-
-	struct HitDamageInfo
-	{
-		uint32_t Equipment{ 0 };
-		int32_t TotalDamageDone{ 0 };
-		uint32_t Unknown{ 0 };
-		DeathType DeathType{ DeathType::Sentinel };
-		uint8_t _Pad1[3];
-		DamageType DamageType{ DamageType::None };
-		uint32_t AttackDirection{ 0 };
-		int32_t ArmorAbsorption{ 0 };
-		int32_t LifeSteal{ 0 };
-		uint32_t EffectFlags{ 0 };
-		bool HitWithWeapon{ false };
-		uint8_t _Pad2[3];
-		DamagePairList DamageList;
-	};
-
-	struct EsvStatusHit : public EsvStatus
+	struct StatusHit : public Status
 	{
 		uint32_t Unk2;
 		uint8_t Unk3;
@@ -632,7 +729,7 @@ namespace osidbg
 		uint32_t Unk4;
 	};
 
-	struct EsvStatusHeal : public EsvStatus
+	struct StatusHeal : public Status
 	{
 		float EffectTime;
 		uint32_t HealAmount;
@@ -650,7 +747,7 @@ namespace osidbg
 		uint32_t Unkn3;
 	};
 
-	struct EsvStatusConsume : public EsvStatus
+	struct StatusConsume : public Status
 	{
 		ObjectSet<FixedString> Skill; // Saved
 		ObjectSet<FixedString> Items; // Saved
@@ -680,7 +777,7 @@ namespace osidbg
 		int64_t field_1A0;
 		int Turn; // Saved
 		int field_1AC;
-		EsvStatus * AuraStatus; // Saved
+		Status * AuraStatus; // Saved
 		int HealEffectOverride; // Saved // TODO enum + enum prop!
 		char field_1BC;
 		char field_1BD;
@@ -688,7 +785,7 @@ namespace osidbg
 		char field_1BF;
 	};
 
-	struct EsvStatusHealing : public EsvStatusConsume
+	struct StatusHealing : public StatusConsume
 	{
 		uint32_t HealAmount; // Saved
 		float TimeElapsed; // Saved
@@ -702,7 +799,7 @@ namespace osidbg
 		uint32_t AbsorbSurfaceRange; // Saved
 	};
 
-	struct EsvStatusDamage : public EsvStatusConsume
+	struct StatusDamage : public StatusConsume
 	{
 		int32_t DamageEvent; // Saved
 		float HitTimer; // Saved
@@ -714,14 +811,14 @@ namespace osidbg
 	};
 
 
-	struct EsvStatusDamageOnMove : public EsvStatusDamage
+	struct StatusDamageOnMove : public StatusDamage
 	{
 		float DistancePerDamage; // Saved
 		float DistanceTraveled; // Saved
 		FixedString _Unknown;
 	};
 
-	struct EsvStatusActiveDefense : public EsvStatusConsume
+	struct StatusActiveDefense : public StatusConsume
 	{
 		int Charges;
 		Vector3 TargetPos;
@@ -734,17 +831,18 @@ namespace osidbg
 	};
 
 
-	struct EsvStatusManager
+	struct StatusMachine
 	{
-		uint64_t U1[8];
-		uint8_t U2[240];
-		EsvStatus ** Statuses;
-		uint32_t U3;
-		uint32_t StatusCount;
-		uint64_t U4[4];
+		uint8_t U2[288];
+		bool IsStatusMachineActive;
+		bool PreventStatusApply;
+		uint8_t _Pad1[6];
+		ObjectSet<Status *> Statuses;
+		ObjectHandle OwnerObjectHandle;
+		uint32_t References;
 	};
 
-	struct EsvSkillConditions
+	struct SkillConditions
 	{
 		int32_t MinimumHealthPercentage;
 		int32_t MaximumHealthPercentage;
@@ -754,7 +852,7 @@ namespace osidbg
 		ObjectSet<FixedString> Tags;
 	};
 
-	struct EsvSkillInfo
+	struct SkillInfo
 	{
 		float ScoreModifier;
 		int32_t StartRound;
@@ -762,8 +860,8 @@ namespace osidbg
 		bool OnlyCastOnSelf;
 		uint8_t AIFlags; // Enum
 		uint8_t _Pad[2];
-		EsvSkillConditions SourceConditions;
-		EsvSkillConditions TargetConditions;
+		SkillConditions SourceConditions;
+		SkillConditions TargetConditions;
 		bool CasualExplorer;
 		bool Classic;
 		bool TacticianHardcore;
@@ -771,13 +869,13 @@ namespace osidbg
 		uint32_t Unknown;
 	};
 
-	struct EsvSkill
+	struct Skill
 	{
 		void * VMT;
 		FixedString UnknownFS;
 		uint32_t NetID;
 		uint8_t _Pad[4];
-		EsvSkillInfo Info;
+		SkillInfo Info;
 		ObjectSet<ObjectHandle> CauseList;
 		ObjectHandle UnknownHandle;
 		uint32_t Unknown1;
@@ -796,11 +894,11 @@ namespace osidbg
 		uint64_t Unknown3;
 	};
 
-	struct EsvSkillManager
+	struct SkillManager
 	{
 		void * FreeSkillState;
 		ObjectHandle OwnerHandle;
-		FixedStringMapBase<EsvSkill *> Skills;
+		FixedStringMapBase<Skill *> Skills;
 		uint8_t _Pad[4];
 		FixedStringRefMap<uint32_t> TimeItemAddedToSkillManager;
 		bool IsLoading;
@@ -808,7 +906,7 @@ namespace osidbg
 		uint32_t SomeCount;
 	};
 
-	struct EsvSkillBarItem
+	struct SkillBarItem
 	{
 		enum ItemType : uint32_t
 		{
@@ -823,7 +921,7 @@ namespace osidbg
 		ObjectHandle ItemHandle;
 	};
 
-	struct EsvPlayerCustomData
+	struct PlayerCustomData
 	{
 		void * VMT;
 		bool Initialized;
@@ -851,10 +949,10 @@ namespace osidbg
 		void * CustomIconImg;
 	};
 
-	struct EsvPlayerData
+	struct PlayerData
 	{
 		ObjectHandle SomeObjectHandle;
-		ObjectSet<EsvSkillBarItem> SkillBar;
+		ObjectSet<SkillBarItem> SkillBar;
 		ObjectSet<uint32_t> LockedAbility;
 		FixedStringMapBase<void *> ShapeShiftVariableManagers;
 		uint8_t _Pad1[4];
@@ -864,7 +962,7 @@ namespace osidbg
 		uint8_t SelectedSkillSetIndex;
 		uint8_t _Pad3[6];
 		FixedString QuestSelected;
-		EsvPlayerCustomData CustomData;
+		PlayerCustomData CustomData;
 		uint64_t Unkn1[3];
 		void * PreviousPickpocketTargets;
 		ObjectHandle SomeObjectHandle2;
@@ -884,24 +982,9 @@ namespace osidbg
 		FixedString Region;
 	};
 
-	struct EocPlayerUpgrade
+	struct Character
 	{
-		CDivinityStats_Character * Stats;
-		uint32_t AttributePoints;
-		uint32_t CombatAbilityPoints;
-		uint32_t CivilAbilityPoints;
-		uint32_t TalentPoints;
-		uint64_t Unknown;
-		ObjectSet<int> Attributes;
-		ObjectSet<int> Abilities;
-		uint32_t Talents[4];
-		ObjectSet<uint16_t> Traits;
-		bool IsCustom;
-	};
-
-	struct EsvCharacter
-	{
-		virtual ~EsvCharacter() = 0;
+		virtual ~Character() = 0;
 		virtual void VMT08() = 0;
 		virtual uint64_t Ret5() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
@@ -957,7 +1040,7 @@ namespace osidbg
 		virtual void SetTemplate() = 0;
 		virtual void SetOriginalTemplate_M() = 0;
 
-		EsvStatus * GetStatusByHandle(ObjectHandle handle) const;
+		Status * GetStatusByHandle(ObjectHandle handle) const;
 
 		BaseComponent Base;
 		FixedString MyGuid;
@@ -1007,8 +1090,8 @@ namespace osidbg
 #endif
 		void * ScriptController;
 		void * TaskController;
-		EsvStatusManager * StatusManager;
-		EsvSkillManager * SkillManager;
+		StatusMachine * StatusMachine;
+		SkillManager * SkillManager;
 		void * VariableManager;
 		void * RaceVariableManager_M;
 		void * Attitudes;
@@ -1038,8 +1121,8 @@ namespace osidbg
 		void * StatusManagerDirty_M;
 		ObjectSet<ObjectHandle> ObjectHandleSet3;
 		ObjectSet<FixedString> RegisteredTriggers;
-		EsvPlayerData * PlayerData;
-		EocPlayerUpgrade PlayerUpgrade;
+		PlayerData * PlayerData;
+		eoc::PlayerUpgrade PlayerUpgrade;
 		uint8_t _Pad61[7];
 		uint64_t U13[2];
 		void * CustomDisplayName;
@@ -1086,82 +1169,8 @@ namespace osidbg
 		uint8_t _Pad9[5];
 		void * PreviousLevel;
 	};
-
-	struct EoCItemDefinition
-	{
-		uint32_t Unknown;
-		uint32_t NetId;
-		uint32_t ItemNetId;
-		uint8_t _Pad0[4];
-		FixedString FS1;
-		// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
-		FixedString RootTemplate;
-		uint32_t Unkn1;
-		uint8_t _Pad1[4];
-		// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
-		FixedString OriginalRootTemplate;
-		uint32_t Unkn2[4];
-		uint32_t Unkn3;
-		float Unkn3Flt;
-		uint32_t Unkn4[2];
-		float Unkn4Flt;
-		uint32_t Unkn41[4];
-		uint32_t Amount;
-		uint32_t InventoryNetID;
-		uint32_t InventorySubContainerNetID;
-		int16_t Slot; // -1 = Not in inventory
-		uint8_t _Pad3[2];
-		uint32_t Unkn6;
-		int32_t GoldValueOverwrite; // -1 = Not overridden
-		int32_t WeightValueOverwrite; // -1 = Not overridden
-		uint32_t DamageTypeOverwrite;
-		uint32_t SomeOverwrite;
-		FixedString FS4;
-		// eg. "Uncommon"
-		FixedString ItemType;
-		STDWString CustomDisplayName;
-		STDWString CustomDescription;
-		STDWString CustomBookContent;
-		STDWString GenerationBase;
-		// eg. "WPN_Shield"
-		FixedString GenerationStatsId;
-		// eg. "Uncommon"
-		FixedString GenerationItemType;
-		uint32_t GenerationRandom;
-		uint16_t GenerationLevel;
-		uint8_t _Pad4[2];
-		ObjectSet<FixedString> GenerationBoosts;
-		uint8_t LevelGroupIndex;
-		uint16_t RootGroupIndex;
-		uint8_t NameIndex;
-		uint8_t NameCool;
-		uint8_t _Pad5[3];
-		uint32_t Unkn;
-		uint8_t _Pad6[4];
-		FixedString StatsName;
-		uint32_t Level;
-		uint32_t Unkn11;
-		// eg. "WPN_Shield"
-		FixedString StatsEntryName;
-		uint32_t EquipmentStatsType;
-		uint8_t _Pad7[4];
-		ScratchBuffer PermanentBoostsBuf;
-		uint8_t _Pad8[4];
-		ScratchBuffer BaseStatsBuf;
-		uint8_t _Pad9[4];
-		bool HasModifiedSkills;
-		uint8_t _Pad10[7];
-		FixedString Skills;
-		ObjectSet<FixedString> FSSet2;
-		ObjectSet<FixedString> RuneBoostNames;
-		uint8_t Flags0[2];
-		uint8_t HasItemGeneration_M;
-		uint8_t Flags1[12];
-		uint8_t IsIdentified;
-		uint8_t Flags2[3];
-	};
 	
-	struct EsvItemGeneration
+	struct ItemGeneration
 	{
 		FixedString Base; // Saved
 		FixedString ItemType; // Saved
@@ -1171,9 +1180,9 @@ namespace osidbg
 		Set<FixedString> Boosts; // Saved
 	};
 
-	struct EsvItem
+	struct Item
 	{
-		virtual ~EsvItem() = 0;
+		virtual ~Item() = 0;
 		virtual void HandleTextKeyEvent() = 0;
 		virtual uint64_t Ret5() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
@@ -1255,7 +1264,7 @@ namespace osidbg
 		FixedString StatsId; // Saved
 		CDivinityStats_Item * StatsDynamic;
 		CRPGStats_Object * StatsFromName;
-		EsvItemGeneration * Generation; // Saved
+		ItemGeneration * Generation; // Saved
 		ObjectHandle InventoryHandle; // Saved
 		ObjectHandle ParentInventoryHandle; // Saved
 		uint16_t Slot; // Saved
@@ -1270,7 +1279,7 @@ namespace osidbg
 		void * ItemMachine; // Saved
 		void * PlanMachine; // Saved
 		void * VariableManager; // Saved
-		EsvStatusManager * StatusMachine; // Saved
+		StatusMachine * StatusMachine; // Saved
 		void * U6;
 		ObjectHandle OwnerHandle; // Saved
 		ObjectHandle OriginalOwnerCharacter; // Saved
@@ -1320,7 +1329,7 @@ namespace osidbg
 		bool UnknownFlag2;
 	};
 
-	struct EsvGameAction
+	struct GameAction
 	{
 		void * VMT;
 		FixedString SomeFS;
@@ -1336,13 +1345,13 @@ namespace osidbg
 		uint32_t _Pad2;
 	};
 
-	struct EsvGameActionManager
+	struct GameActionManager
 	{
 		uint8_t Unmapped[0x130];
-		Set<EsvGameAction *> GameActions;
+		Set<GameAction *> GameActions;
 	};
 
-	struct EsvTornadoAction : public EsvGameAction
+	struct TornadoAction : public GameAction
 	{
 		FixedString SkillId;
 		ObjectHandle OwnerHandle;
@@ -1366,7 +1375,7 @@ namespace osidbg
 		float StatusClearChance;
 	};
 
-	struct EsvStormAction : public EsvGameAction
+	struct StormAction : public GameAction
 	{
 		ObjectHandle OwnerHandle;
 		glm::vec3 Position;
@@ -1383,7 +1392,7 @@ namespace osidbg
 		ObjectSet<void *> StrikeSet;
 	};
 
-	struct EsvRainAction : public EsvGameAction
+	struct RainAction : public GameAction
 	{
 		ObjectHandle OwnerHandle;
 		glm::vec3 Position;
@@ -1401,7 +1410,7 @@ namespace osidbg
 		FixedString SkillProperties;
 	};
 
-	struct EsvWallAction : public EsvGameAction
+	struct WallAction : public GameAction
 	{
 		FixedString SkillId;
 		ObjectHandle OwnerHandle;
@@ -1420,7 +1429,7 @@ namespace osidbg
 		uint32_t Unk4;
 	};
 
-	struct EsvStatusDomeAction : public EsvGameAction
+	struct StatusDomeAction : public GameAction
 	{
 		ObjectHandle OwnerHandle;
 		glm::vec3 Position;
@@ -1433,7 +1442,7 @@ namespace osidbg
 		void * SkillStatusAura;
 	};
 
-	struct EsvGameObjectMoveAction : public EsvGameAction
+	struct GameObjectMoveAction : public GameAction
 	{
 		void * PathMover;
 		ObjectHandle ObjectToMove;
@@ -1464,20 +1473,21 @@ namespace osidbg
 		bool IsTotem;
 		bool MapToAiGrid;
 	};
-#pragma pack(pop)
 
 	typedef void(*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper, float Unknown);
-	typedef void * (*GameActionManager__CreateAction)(EsvGameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
-	typedef void(*GameActionManager__AddAction)(EsvGameActionManager * GameActionManager, void * Action);
+	typedef void * (*GameActionManager__CreateAction)(GameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
+	typedef void(*GameActionManager__AddAction)(GameActionManager * GameActionManager, void * Action);
 	typedef void(*TornadoAction__Setup)(void * TornadoAction);
 	typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
-	typedef EsvStatus * (*StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
-	typedef void(*StatusMachine__ApplyStatus)(void * StatusMachine, EsvStatus * Status);
-	typedef void(*Character__Hit)(EsvCharacter * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
+	typedef Status * (*StatusMachine__CreateStatus)(void * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
+	typedef void(*StatusMachine__ApplyStatus)(void * StatusMachine, Status * Status);
+	typedef void(*Character__Hit)(esv::Character * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
 		HitType hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
-	typedef bool(*Status__Enter)(EsvStatus * Status);
-	typedef void(*esv__ParseItem)(EsvItem * Item, ObjectSet<EoCItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
-	typedef EsvItem * (*esv__CreateItemFromParsed)(ObjectSet<EoCItemDefinition> * ParsedItems, uint32_t Index);
+	typedef bool(*Status__Enter)(Status * Status);
+	typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
+	typedef Item * (*CreateItemFromParsed)(ObjectSet<eoc::ItemDefinition> * ParsedItems, uint32_t Index);
 
+	}
+#pragma pack(pop)
 }

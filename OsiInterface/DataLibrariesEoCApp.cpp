@@ -263,7 +263,7 @@ namespace osidbg
 			auto fsx = AsmLeaToAbsoluteAddress(match);
 			if (IsFixedStringRef(fsx, "GameAction")) {
 				auto actionAddr = AsmCallToAbsoluteAddress(match + 37);
-				CreateGameAction = (GameActionManager__CreateAction)actionAddr;
+				CreateGameAction = (esv::GameActionManager__CreateAction)actionAddr;
 			}
 		});
 
@@ -287,7 +287,7 @@ namespace osidbg
 				auto fsx = AsmLeaToAbsoluteAddress(match);
 				if (IsFixedStringRef(fsx, "GameAction")) {
 					auto actionAddr = AsmCallToAbsoluteAddress(match + 38);
-					CreateGameAction = (GameActionManager__CreateAction)actionAddr;
+					CreateGameAction = (esv::GameActionManager__CreateAction)actionAddr;
 				}
 			});
 
@@ -336,10 +336,10 @@ namespace osidbg
 					LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
 
 					auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 73);
-					GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
+					GameObjectMoveActionSetup = (esv::GameObjectMoveAction__Setup)moveSetupAddr;
 
 					auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 84);
-					AddGameAction = (GameActionManager__AddAction)addActionAddr;
+					AddGameAction = (esv::GameActionManager__AddAction)addActionAddr;
 				});
 
 				if (LevelManager == nullptr || AddGameAction == nullptr) {
@@ -370,10 +370,10 @@ namespace osidbg
 						LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
 
 						auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 73);
-						GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
+						GameObjectMoveActionSetup = (esv::GameObjectMoveAction__Setup)moveSetupAddr;
 
 						auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 95);
-						AddGameAction = (GameActionManager__AddAction)addActionAddr;
+						AddGameAction = (esv::GameActionManager__AddAction)addActionAddr;
 					});
 				}
 			}
@@ -406,7 +406,7 @@ namespace osidbg
 			auto fsx = AsmLeaToAbsoluteAddress(match + 5);
 			if (IsFixedStringRef(fsx, "RandomPoints")) {
 				p2.Scan(match - 0x200, 0x200, [this](const uint8_t * match2) {
-					TornadoActionSetup = (TornadoAction__Setup)match2;
+					TornadoActionSetup = (esv::TornadoAction__Setup)match2;
 				});
 			}
 		});
@@ -441,7 +441,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "LIFESTEAL")) {
 				auto actionAddr = AsmCallToAbsoluteAddress(match + 50);
 				lastMatch = match + 55;
-				StatusMachineCreateStatus = (StatusMachine__CreateStatus)actionAddr;
+				StatusMachineCreateStatus = (esv::StatusMachine__CreateStatus)actionAddr;
 			}
 		});
 
@@ -459,7 +459,7 @@ namespace osidbg
 
 		p2.Scan(lastMatch, 0x100, [this](const uint8_t * match) {
 			auto actionAddr = AsmCallToAbsoluteAddress(match + 10);
-			StatusMachineApplyStatus = (StatusMachine__ApplyStatus)actionAddr;
+			StatusMachineApplyStatus = (esv::StatusMachine__ApplyStatus)actionAddr;
 		});
 
 		if (StatusMachineApplyStatus == nullptr) {
@@ -491,7 +491,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHealVMT = reinterpret_cast<EsvStatusVMT const *>(p - 25 * 8);
+							StatusHealVMT = reinterpret_cast<esv::StatusVMT const *>(p - 25 * 8);
 						}
 					}
 				});
@@ -526,7 +526,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHitVMT = reinterpret_cast<EsvStatusVMT const *>(p - 12 * 8);
+							StatusHitVMT = reinterpret_cast<esv::StatusVMT const *>(p - 12 * 8);
 						}
 					}
 				});
@@ -563,7 +563,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "DamageItems")) {
 				p2.Scan(match, 0x400, [this](const uint8_t * match) {
 					auto actionAddr = AsmCallToAbsoluteAddress(match + 12);
-					CharacterHit = (Character__Hit)actionAddr;
+					CharacterHit = (esv::Character__Hit)actionAddr;
 				});
 			}
 		});
@@ -587,9 +587,9 @@ namespace osidbg
 
 		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
 			auto parseAddr = AsmCallToAbsoluteAddress(match + 7);
-			ParseItem = (esv__ParseItem)parseAddr;
+			ParseItem = (esv::ParseItem)parseAddr;
 			auto createAddr = AsmCallToAbsoluteAddress(match + 19);
-			CreateItemFromParsed = (esv__CreateItemFromParsed)createAddr;
+			CreateItemFromParsed = (esv::CreateItemFromParsed)createAddr;
 		});
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {

@@ -292,7 +292,7 @@ namespace osidbg
 		DamageList->AddDamage(DamageType, Amount);
 	}
 
-	EsvStatusHit * DamageHelpers::Execute()
+	esv::StatusHit * DamageHelpers::Execute()
 	{
 		if (!Target) {
 			OsiError("No target!");
@@ -310,14 +310,14 @@ namespace osidbg
 			return false;
 		}
 
-		auto statusMachine = Target->StatusManager;
+		auto statusMachine = Target->StatusMachine;
 		if (!statusMachine) {
 			OsiError("Target has no StatusMachine!");
 			return false;
 		}
 
 		auto fsHit = ToFixedString("HIT");
-		auto hit = (EsvStatusHit *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, fsHit, 0);
+		auto hit = (esv::StatusHit *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, fsHit, 0);
 
 		hit->StartTimer = 0.0f;
 		hit->HitByHandle = ObjectHandle{};
@@ -596,7 +596,7 @@ namespace osidbg
 
 
 
-		EsvStatusHit * HitStatusGet(OsiArgumentDesc const & args)
+		esv::StatusHit * HitStatusGet(OsiArgumentDesc const & args)
 		{
 			auto characterGuid = args.Get(0).String;
 			auto statusHandle = args.Get(1).Int64;
@@ -617,7 +617,7 @@ namespace osidbg
 				return nullptr;
 			}
 
-			return static_cast<EsvStatusHit *>(status);
+			return static_cast<esv::StatusHit *>(status);
 		}
 
 		void HitStatusClearAllDamage(OsiArgumentDesc const & args)

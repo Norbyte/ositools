@@ -6,16 +6,16 @@ namespace osidbg
 {
 	FixedString ToFixedString(const char * s);
 	char const * NameGuidToFixedString(std::string const & nameGuid);
-	EsvCharacter * FindCharacterByNameGuid(std::string const & nameGuid);
-	EsvCharacter * FindCharacterByHandle(ObjectHandle const & handle);
-	EsvItem * FindItemByNameGuid(std::string const & nameGuid);
-	EsvItem * FindItemByHandle(ObjectHandle const & handle);
-	EsvGameAction * FindGameActionByHandle(ObjectHandle const & handle);
+	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid);
+	esv::Character * FindCharacterByHandle(ObjectHandle const & handle);
+	esv::Item * FindItemByNameGuid(std::string const & nameGuid);
+	esv::Item * FindItemByHandle(ObjectHandle const & handle);
+	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
 
 	struct ShootProjectileApiHelper
 	{
-		ShootProjectileHelper Helper;
+		esv::ShootProjectileHelper Helper;
 		bool HasStartPosition{ false };
 		bool HasEndPosition{ false };
 
@@ -37,8 +37,8 @@ namespace osidbg
 		};
 
 		int64_t Handle;
-		EsvCharacter * Source{ nullptr };
-		EsvCharacter * Target{ nullptr };
+		esv::Character * Source{ nullptr };
+		esv::Character * Target{ nullptr };
 
 		HelperType Type;
 		HitDamageInfo * Hit{ nullptr };
@@ -82,7 +82,7 @@ namespace osidbg
 		bool GetString(char const * prop, char const * & value);
 		void SetString(char const * prop, char const * value);
 		void AddDamage(DamageType DamageType, int32_t Amount);
-		EsvStatusHit * Execute();
+		esv::StatusHit * Execute();
 
 	private:
 		std::unique_ptr<HitDamageInfo> MyDamageInfo;
@@ -129,9 +129,9 @@ namespace osidbg
 
 		void PostStartup();
 
-		void OnStatusHitEnter(EsvStatus * status);
-		void OnStatusHealEnter(EsvStatus * status);
-		void OnCharacterHit(Character__Hit wrappedHit, EsvCharacter * self, CDivinityStats_Character * attackerStats, 
+		void OnStatusHitEnter(esv::Status * status);
+		void OnStatusHealEnter(esv::Status * status);
+		void OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
 			HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, 
 			bool procWindWalker, CriticalRoll criticalRoll);

@@ -22,10 +22,10 @@ namespace osidbg
 			}
 
 			auto eventName = args.Get(1).String;
-			auto statuses = character->StatusManager;
-			if (statuses != nullptr) {
-				for (uint32_t index = 0; index < statuses->StatusCount; index++) {
-					auto status = statuses->Statuses[index];
+			if (character->StatusMachine != nullptr) {
+				auto & statuses = character->StatusMachine->Statuses.Set;
+				for (uint32_t index = 0; index < statuses.Size; index++) {
+					auto status = statuses.Buf[index];
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
 					eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
@@ -38,7 +38,7 @@ namespace osidbg
 			}
 		}
 
-		EsvStatus * GetStatusHelper(OsiArgumentDesc const & args)
+		esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
 			if (character == nullptr) {
@@ -64,7 +64,7 @@ namespace osidbg
 				return false;
 			}
 
-			if (character->StatusManager == nullptr) {
+			if (character->StatusMachine == nullptr) {
 				OsiError("Character " << args.Get(0).String << " has no StatusManager!");
 				return false;
 			}
@@ -76,9 +76,9 @@ namespace osidbg
 				return false;
 			}
 
-			auto statuses = character->StatusManager;
-			for (uint32_t index = 0; index < statuses->StatusCount; index++) {
-				auto status = statuses->Statuses[index];
+			auto & statuses = character->StatusMachine->Statuses.Set;
+			for (uint32_t index = 0; index < statuses.Size; index++) {
+				auto status = statuses.Buf[index];
 				if (status->StatusId == statusId) {
 					args.Get(2).Int64 = (int64_t)status->StatusHandle;
 					return true;
@@ -99,7 +99,7 @@ namespace osidbg
 			switch (status->GetStatusId()) {
 				case StatusType::Hit:
 				{
-					auto hit = static_cast<EsvStatusHit *>(status);
+					auto hit = static_cast<esv::StatusHit *>(status);
 					if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
 						return true;
 					} else {
@@ -109,13 +109,13 @@ namespace osidbg
 
 				case StatusType::Heal:
 				{
-					auto heal = static_cast<EsvStatusHeal *>(status);
+					auto heal = static_cast<esv::StatusHeal *>(status);
 					return OsirisPropertyMapGet(gStatusHealPropertyMap, heal, args, 2, Type);
 				}
 
 				case StatusType::Healing:
 				{
-					auto healing = static_cast<EsvStatusHealing *>(status);
+					auto healing = static_cast<esv::StatusHealing *>(status);
 					return OsirisPropertyMapGet(gStatusHealingPropertyMap, healing, args, 2, Type);
 				}
 
@@ -155,7 +155,7 @@ namespace osidbg
 				case StatusType::PlayDead:
 				case StatusType::Deactivated:
 				{
-					auto consume = static_cast<EsvStatusConsume *>(status);
+					auto consume = static_cast<esv::StatusConsume *>(status);
 					return OsirisPropertyMapGet(gStatusConsumePropertyMap, consume, args, 2, Type);
 				}
 
@@ -175,7 +175,7 @@ namespace osidbg
 			switch (status->GetStatusId()) {
 				case StatusType::Hit:
 				{
-					auto hit = static_cast<EsvStatusHit *>(status);
+					auto hit = static_cast<esv::StatusHit *>(status);
 					if (!OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
 						OsirisPropertyMapSet(gStatusHitPropertyMap, hit, args, 2, Type);
 					}
@@ -184,14 +184,14 @@ namespace osidbg
 
 				case StatusType::Heal:
 				{
-					auto heal = static_cast<EsvStatusHeal *>(status);
+					auto heal = static_cast<esv::StatusHeal *>(status);
 					OsirisPropertyMapSet(gStatusHealPropertyMap, heal, args, 2, Type);
 					break;
 				}
 
 				case StatusType::Healing:
 				{
-					auto healing = static_cast<EsvStatusHealing *>(status);
+					auto healing = static_cast<esv::StatusHealing *>(status);
 					OsirisPropertyMapSet(gStatusHealingPropertyMap, healing, args, 2, Type);
 					break;
 				}
@@ -232,7 +232,7 @@ namespace osidbg
 				case StatusType::PlayDead:
 				case StatusType::Deactivated:
 				{
-					auto consume = static_cast<EsvStatusConsume *>(status);
+					auto consume = static_cast<esv::StatusConsume *>(status);
 					OsirisPropertyMapSet(gStatusConsumePropertyMap, consume, args, 2, Type);
 					break;
 				}
@@ -244,7 +244,7 @@ namespace osidbg
 		}
 
 		template <class T>
-		T * ConstructStatus(EsvStatusManager * statusMachine, char const * statusId, StatusType type)
+		T * ConstructStatus(esv::StatusMachine * statusMachine, char const * statusId, StatusType type)
 		{
 			auto statusIdFs = ToFixedString(statusId);
 			T * status{ nullptr };
@@ -280,13 +280,13 @@ namespace osidbg
 				return false;
 			}
 
-			auto statusMachine = character->StatusManager;
+			auto statusMachine = character->StatusMachine;
 			if (!statusMachine) {
 				OsiError("Character has no StatusMachine!");
 				return false;
 			}
 
-			auto status = ConstructStatus<EsvStatusActiveDefense>(statusMachine, statusId, StatusType::ActiveDefense);
+			auto status = ConstructStatus<esv::StatusActiveDefense>(statusMachine, statusId, StatusType::ActiveDefense);
 			if (status == nullptr) {
 				return false;
 			}
@@ -326,7 +326,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto statusMachine = character->StatusManager;
+			auto statusMachine = character->StatusMachine;
 			if (!statusMachine) {
 				OsiError("Character has no StatusMachine!");
 				return false;
@@ -337,7 +337,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto status = ConstructStatus<EsvStatusDamageOnMove>(statusMachine, statusId, StatusType::DamageOnMove);
+			auto status = ConstructStatus<esv::StatusDamageOnMove>(statusMachine, statusId, StatusType::DamageOnMove);
 			if (status == nullptr) {
 				return false;
 			}
@@ -371,9 +371,9 @@ namespace osidbg
 	}
 
 
-	void CustomFunctionLibrary::OnStatusHitEnter(EsvStatus * status)
+	void CustomFunctionLibrary::OnStatusHitEnter(esv::Status * status)
 	{
-		auto statusHit = static_cast<EsvStatusHit *>(status);
+		auto statusHit = static_cast<esv::StatusHit *>(status);
 		if (statusHit->DamageInfo.EffectFlags & HitFlag::HF_NoEvents) {
 			return;
 		}
@@ -401,9 +401,9 @@ namespace osidbg
 	}
 
 
-	void CustomFunctionLibrary::OnStatusHealEnter(EsvStatus * status)
+	void CustomFunctionLibrary::OnStatusHealEnter(esv::Status * status)
 	{
-		auto statusHeal = static_cast<EsvStatusHeal *>(status);
+		auto statusHeal = static_cast<esv::StatusHeal *>(status);
 
 		auto target = FindCharacterByHandle(status->TargetCIHandle);
 		if (target == nullptr) {
@@ -428,7 +428,7 @@ namespace osidbg
 	}
 
 
-	void CustomFunctionLibrary::OnCharacterHit(Character__Hit wrappedHit, EsvCharacter * self, CDivinityStats_Character * attackerStats,
+	void CustomFunctionLibrary::OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
 		HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)

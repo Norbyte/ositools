@@ -7,7 +7,7 @@ namespace osidbg
 {
 	namespace func
 	{
-		CharacterDynamicStat * GetCharacterDynamicStat(EsvCharacter * character, uint32_t index)
+		CharacterDynamicStat * GetCharacterDynamicStat(esv::Character * character, uint32_t index)
 		{
 			if (character->Stats == nullptr) {
 				OsiError("Character has no stats!");

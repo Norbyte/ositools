@@ -4,13 +4,13 @@
 
 namespace osidbg
 {
-	PropertyMap<EsvStatus, void> gStatusPropertyMap;
-	PropertyMap<EsvStatusConsume, EsvStatus> gStatusConsumePropertyMap;
-	PropertyMap<EsvStatusHit, EsvStatus> gStatusHitPropertyMap;
-	PropertyMap<EsvStatusHeal, EsvStatus> gStatusHealPropertyMap;
-	PropertyMap<EsvStatusHealing, EsvStatusConsume> gStatusHealingPropertyMap;
+	PropertyMap<esv::Status, void> gStatusPropertyMap;
+	PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;
+	PropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
+	PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
+	PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
 	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
-	PropertyMap<EoCItemDefinition, void> gEoCItemDefinitionPropertyMap;
+	PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
@@ -27,28 +27,28 @@ namespace osidbg
 	{
 		{
 			auto & propertyMap = gStatusPropertyMap;
-			PROP_RO(EsvStatus, StatusId);
-			PROP_RO(EsvStatus, CanEnterChance);
-			PROP_RO(EsvStatus, StartTimer);
-			PROP_RO(EsvStatus, LifeTime);
-			PROP_RO(EsvStatus, CurrentLifeTime);
-			PROP_RO(EsvStatus, TurnTimer);
-			PROP_RO(EsvStatus, Strength);
-			PROP_RO(EsvStatus, StatsMultiplier);
-			PROP_ENUM(EsvStatus, DamageSourceType);
-			PROP_RO(EsvStatus, StatusHandle);
-			PROP_RO(EsvStatus, TargetCIHandle);
-			PROP_RO(EsvStatus, StatusSourceHandle);
-			PROP_RO(EsvStatus, SomeHandle);
-			PROP_FLAGS(EsvStatus, Flags0, StatusFlags0, false);
-			PROP_FLAGS(EsvStatus, Flags1, StatusFlags1, false);
-			PROP_FLAGS(EsvStatus, Flags2, StatusFlags2, false);
+			PROP_RO(esv::Status, StatusId);
+			PROP_RO(esv::Status, CanEnterChance);
+			PROP_RO(esv::Status, StartTimer);
+			PROP_RO(esv::Status, LifeTime);
+			PROP_RO(esv::Status, CurrentLifeTime);
+			PROP_RO(esv::Status, TurnTimer);
+			PROP_RO(esv::Status, Strength);
+			PROP_RO(esv::Status, StatsMultiplier);
+			PROP_ENUM(esv::Status, DamageSourceType);
+			PROP_RO(esv::Status, StatusHandle);
+			PROP_RO(esv::Status, TargetCIHandle);
+			PROP_RO(esv::Status, StatusSourceHandle);
+			PROP_RO(esv::Status, SomeHandle);
+			PROP_FLAGS(esv::Status, Flags0, StatusFlags0, false);
+			PROP_FLAGS(esv::Status, Flags1, StatusFlags1, false);
+			PROP_FLAGS(esv::Status, Flags2, StatusFlags2, false);
 
 			propertyMap.Flags["ForceStatus"].Flags |= kPropWrite;
 			propertyMap.Flags["ForceFailStatus"].Flags |= kPropWrite;
 
 			propertyMap.Properties["LifeTime"].SetFloat = [](void * st, float value) -> bool {
-				auto status = reinterpret_cast<EsvStatus *>(st);
+				auto status = reinterpret_cast<esv::Status *>(st);
 				if (value < 0.0f) return false;
 				status->LifeTime = value;
 				if (status->CurrentLifeTime > status->LifeTime) {
@@ -59,7 +59,7 @@ namespace osidbg
 			};
 
 			propertyMap.Properties["CurrentLifeTime"].SetFloat = [](void * st, float value) -> bool {
-				auto status = reinterpret_cast<EsvStatus *>(st);
+				auto status = reinterpret_cast<esv::Status *>(st);
 				if (value < 0.0f) return false;
 				status->CurrentLifeTime = value;
 				if (status->LifeTime < status->CurrentLifeTime) {
@@ -73,64 +73,64 @@ namespace osidbg
 		{
 			auto & propertyMap = gStatusHitPropertyMap;
 			propertyMap.Parent = &gStatusPropertyMap;
-			PROP_RO(EsvStatusHit, HitByHandle);
-			PROP_RO(EsvStatusHit, HitWithHandle);
-			PROP_RO(EsvStatusHit, WeaponHandle);
-			PROP(EsvStatusHit, HitReason);
-			PROP(EsvStatusHit, SkillId);
-			PROP(EsvStatusHit, Interruption);
-			PROP(EsvStatusHit, AllowInterruptAction);
-			PROP(EsvStatusHit, ForceInterrupt);
-			PROP_RO(EsvStatusHit, DecDelayDeathCount);
-			PROP(EsvStatusHit, ImpactPosition);
-			PROP(EsvStatusHit, ImpactOrigin);
-			PROP(EsvStatusHit, ImpactDirection);
+			PROP_RO(esv::StatusHit, HitByHandle);
+			PROP_RO(esv::StatusHit, HitWithHandle);
+			PROP_RO(esv::StatusHit, WeaponHandle);
+			PROP(esv::StatusHit, HitReason);
+			PROP(esv::StatusHit, SkillId);
+			PROP(esv::StatusHit, Interruption);
+			PROP(esv::StatusHit, AllowInterruptAction);
+			PROP(esv::StatusHit, ForceInterrupt);
+			PROP_RO(esv::StatusHit, DecDelayDeathCount);
+			PROP(esv::StatusHit, ImpactPosition);
+			PROP(esv::StatusHit, ImpactOrigin);
+			PROP(esv::StatusHit, ImpactDirection);
 		}
 
 		{
 			auto & propertyMap = gStatusConsumePropertyMap;
 			propertyMap.Parent = &gStatusPropertyMap;
 			// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
-			PROP(EsvStatusConsume, ResetAllCooldowns);
-			PROP(EsvStatusConsume, ResetOncePerCombat);
-			PROP(EsvStatusConsume, ScaleWithVitality);
-			PROP(EsvStatusConsume, LoseControl);
-			PROP(EsvStatusConsume, ApplyStatusOnTick);
-			PROP(EsvStatusConsume, EffectTime);
-			PROP(EsvStatusConsume, StatsId);
-			PROP(EsvStatusConsume, StackId);
-			PROP(EsvStatusConsume, OriginalWeaponStatsId);
-			PROP(EsvStatusConsume, OverrideWeaponStatsId);
-			PROP(EsvStatusConsume, OverrideWeaponHandle);
-			PROP(EsvStatusConsume, SavingThrow);
-			PROP(EsvStatusConsume, SourceDirection);
-			PROP(EsvStatusConsume, Turn);
-			PROP(EsvStatusConsume, HealEffectOverride);
+			PROP(esv::StatusConsume, ResetAllCooldowns);
+			PROP(esv::StatusConsume, ResetOncePerCombat);
+			PROP(esv::StatusConsume, ScaleWithVitality);
+			PROP(esv::StatusConsume, LoseControl);
+			PROP(esv::StatusConsume, ApplyStatusOnTick);
+			PROP(esv::StatusConsume, EffectTime);
+			PROP(esv::StatusConsume, StatsId);
+			PROP(esv::StatusConsume, StackId);
+			PROP(esv::StatusConsume, OriginalWeaponStatsId);
+			PROP(esv::StatusConsume, OverrideWeaponStatsId);
+			PROP(esv::StatusConsume, OverrideWeaponHandle);
+			PROP(esv::StatusConsume, SavingThrow);
+			PROP(esv::StatusConsume, SourceDirection);
+			PROP(esv::StatusConsume, Turn);
+			PROP(esv::StatusConsume, HealEffectOverride);
 		}
 
 		{
 			auto & propertyMap = gStatusHealingPropertyMap;
 			propertyMap.Parent = &gStatusConsumePropertyMap;
-			PROP(EsvStatusHealing, HealAmount);
-			PROP(EsvStatusHealing, TimeElapsed);
-			PROP(EsvStatusHealing, HealEffect);
-			PROP(EsvStatusHealing, HealEffectId);
-			PROP(EsvStatusHealing, SkipInitialEffect);
-			PROP(EsvStatusHealing, HealingEvent);
-			PROP(EsvStatusHealing, HealStat);
-			PROP(EsvStatusHealing, AbsorbSurfaceRange);
+			PROP(esv::StatusHealing, HealAmount);
+			PROP(esv::StatusHealing, TimeElapsed);
+			PROP(esv::StatusHealing, HealEffect);
+			PROP(esv::StatusHealing, HealEffectId);
+			PROP(esv::StatusHealing, SkipInitialEffect);
+			PROP(esv::StatusHealing, HealingEvent);
+			PROP(esv::StatusHealing, HealStat);
+			PROP(esv::StatusHealing, AbsorbSurfaceRange);
 		}
 
 		{
 			auto & propertyMap = gStatusHealPropertyMap;
 			propertyMap.Parent = &gStatusPropertyMap;
-			PROP(EsvStatusHeal, EffectTime);
-			PROP(EsvStatusHeal, HealAmount);
-			PROP(EsvStatusHeal, HealEffect);
-			PROP(EsvStatusHeal, HealEffectId);
-			PROP(EsvStatusHeal, HealType);
-			PROP(EsvStatusHeal, AbsorbSurfaceRange);
-			PROP(EsvStatusHeal, TargetDependentHeal);
+			PROP(esv::StatusHeal, EffectTime);
+			PROP(esv::StatusHeal, HealAmount);
+			PROP(esv::StatusHeal, HealEffect);
+			PROP(esv::StatusHeal, HealEffectId);
+			PROP(esv::StatusHeal, HealType);
+			PROP(esv::StatusHeal, AbsorbSurfaceRange);
+			PROP(esv::StatusHeal, TargetDependentHeal);
 		}
 
 		{
@@ -149,23 +149,23 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gEoCItemDefinitionPropertyMap;
-			PROP(EoCItemDefinition, RootTemplate);
-			PROP(EoCItemDefinition, OriginalRootTemplate);
-			PROP(EoCItemDefinition, Amount);
-			PROP(EoCItemDefinition, Slot);
-			PROP(EoCItemDefinition, GoldValueOverwrite);
-			PROP(EoCItemDefinition, WeightValueOverwrite);
-			PROP(EoCItemDefinition, DamageTypeOverwrite);
-			PROP(EoCItemDefinition, ItemType);
-			PROP(EoCItemDefinition, GenerationStatsId);
-			PROP(EoCItemDefinition, GenerationItemType);
-			PROP(EoCItemDefinition, GenerationRandom);
-			PROP(EoCItemDefinition, GenerationLevel);
-			PROP(EoCItemDefinition, StatsName);
-			PROP(EoCItemDefinition, Level);
-			PROP(EoCItemDefinition, StatsEntryName);
-			PROP(EoCItemDefinition, HasModifiedSkills);
-			PROP(EoCItemDefinition, Skills);
+			PROP(eoc::ItemDefinition, RootTemplate);
+			PROP(eoc::ItemDefinition, OriginalRootTemplate);
+			PROP(eoc::ItemDefinition, Amount);
+			PROP(eoc::ItemDefinition, Slot);
+			PROP(eoc::ItemDefinition, GoldValueOverwrite);
+			PROP(eoc::ItemDefinition, WeightValueOverwrite);
+			PROP(eoc::ItemDefinition, DamageTypeOverwrite);
+			PROP(eoc::ItemDefinition, ItemType);
+			PROP(eoc::ItemDefinition, GenerationStatsId);
+			PROP(eoc::ItemDefinition, GenerationItemType);
+			PROP(eoc::ItemDefinition, GenerationRandom);
+			PROP(eoc::ItemDefinition, GenerationLevel);
+			PROP(eoc::ItemDefinition, StatsName);
+			PROP(eoc::ItemDefinition, Level);
+			PROP(eoc::ItemDefinition, StatsEntryName);
+			PROP(eoc::ItemDefinition, HasModifiedSkills);
+			PROP(eoc::ItemDefinition, Skills);
 		}
 
 		{

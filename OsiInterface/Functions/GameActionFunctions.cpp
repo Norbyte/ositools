@@ -42,7 +42,7 @@ namespace osidbg
 
 		bool CreateRain(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvRainAction>(args, GameActionType::RainAction);
+			auto action = PrepareAction<esv::RainAction>(args, GameActionType::RainAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -57,7 +57,7 @@ namespace osidbg
 
 		bool CreateStorm(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvStormAction>(args, GameActionType::StormAction);
+			auto action = PrepareAction<esv::StormAction>(args, GameActionType::StormAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -103,7 +103,7 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
-			auto action = (EsvWallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
+			auto action = (esv::WallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
 
 			action->SkillId = skillId;
 			ObjectHandle characterHandle;
@@ -125,7 +125,7 @@ namespace osidbg
 
 		bool CreateTornado(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvTornadoAction>(args, GameActionType::TornadoAction);
+			auto action = PrepareAction<esv::TornadoAction>(args, GameActionType::TornadoAction);
 			if (action == nullptr) return false;
 
 			action->IsFromItem = false;
@@ -143,7 +143,7 @@ namespace osidbg
 
 		bool CreateDome(OsiArgumentDesc & args)
 		{
-			auto action = PrepareAction<EsvStatusDomeAction>(args, GameActionType::StatusDomeAction);
+			auto action = PrepareAction<esv::StatusDomeAction>(args, GameActionType::StatusDomeAction);
 			if (action == nullptr) return false;
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
@@ -173,7 +173,7 @@ namespace osidbg
 
 			auto beamEffectName = args.Get(4).String;
 			FixedString beamEffectFs;
-			EsvCharacter * caster{ nullptr };
+			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
 				beamEffectFs = ToFixedString(beamEffectName);
 
@@ -192,7 +192,7 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
-			auto action = (EsvGameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
+			auto action = (esv::GameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
 
 			glm::vec3 targetPosition = args.GetVector(1);
 
@@ -210,31 +210,31 @@ namespace osidbg
 			return true;
 		}
 
-		void DestroyGameActionInternal(EsvGameAction & action)
+		void DestroyGameActionInternal(esv::GameAction & action)
 		{
 			switch (action.GameActionType) {
 			case GameActionType::RainAction:
-				static_cast<EsvRainAction &>(action).Finished = true;
+				static_cast<esv::RainAction &>(action).Finished = true;
 				break;
 
 			case GameActionType::StormAction:
-				static_cast<EsvStormAction &>(action).LifeTime = 0.0f;
+				static_cast<esv::StormAction &>(action).LifeTime = 0.0f;
 				break;
 
 			case GameActionType::WallAction:
-				static_cast<EsvWallAction &>(action).LifeTime = 0.0f;
+				static_cast<esv::WallAction &>(action).LifeTime = 0.0f;
 				break;
 
 			case GameActionType::TornadoAction:
-				static_cast<EsvTornadoAction &>(action).Finished = true;
+				static_cast<esv::TornadoAction &>(action).Finished = true;
 				break;
 
 			case GameActionType::StatusDomeAction:
-				static_cast<EsvStatusDomeAction &>(action).Finished = true;
+				static_cast<esv::StatusDomeAction &>(action).Finished = true;
 				break;
 
 			case GameActionType::GameObjectMoveAction:
-				static_cast<EsvGameObjectMoveAction &>(action).DoneMoving = true;
+				static_cast<esv::GameObjectMoveAction &>(action).DoneMoving = true;
 				break;
 
 			default:
@@ -259,19 +259,19 @@ namespace osidbg
 			float lifeTime;
 			switch (gameAction->GameActionType) {
 			case GameActionType::RainAction:
-				lifeTime = static_cast<EsvRainAction *>(gameAction)->LifeTime;
+				lifeTime = static_cast<esv::RainAction *>(gameAction)->LifeTime;
 				break;
 
 			case GameActionType::StormAction:
-				lifeTime = static_cast<EsvStormAction *>(gameAction)->LifeTime;
+				lifeTime = static_cast<esv::StormAction *>(gameAction)->LifeTime;
 				break;
 
 			case GameActionType::WallAction:
-				lifeTime = static_cast<EsvWallAction *>(gameAction)->LifeTime;
+				lifeTime = static_cast<esv::WallAction *>(gameAction)->LifeTime;
 				break;
 
 			case GameActionType::StatusDomeAction:
-				lifeTime = static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime;
+				lifeTime = static_cast<esv::StatusDomeAction *>(gameAction)->LifeTime;
 				break;
 
 			default:
@@ -296,15 +296,15 @@ namespace osidbg
 
 			switch (gameAction->GameActionType) {
 			case GameActionType::RainAction:
-				static_cast<EsvRainAction *>(gameAction)->LifeTime = lifeTime;
+				static_cast<esv::RainAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 
 			case GameActionType::StormAction:
-				static_cast<EsvStormAction *>(gameAction)->LifeTime = lifeTime;
+				static_cast<esv::StormAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 
 			case GameActionType::StatusDomeAction:
-				static_cast<EsvStatusDomeAction *>(gameAction)->LifeTime = lifeTime;
+				static_cast<esv::StatusDomeAction *>(gameAction)->LifeTime = lifeTime;
 				break;
 
 			default:
@@ -337,8 +337,8 @@ namespace osidbg
 				pos = character->WorldPos;
 			}
 
-			SummonHelperResults results;
-			SummonHelperSummonArgs summonArgs;
+			esv::SummonHelperResults results;
+			esv::SummonHelperSummonArgs summonArgs;
 
 			ObjectHandle characterHandle;
 			character->GetObjectHandle(&characterHandle);

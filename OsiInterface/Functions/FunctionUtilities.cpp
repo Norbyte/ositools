@@ -34,7 +34,7 @@ namespace osidbg
 		return stringTable->Find(guid.c_str(), guid.size());
 	}
 
-	EsvCharacter * FindCharacterByNameGuid(std::string const & nameGuid)
+	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid)
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
@@ -53,7 +53,7 @@ namespace osidbg
 
 		auto component = charFactory->Entities->Components.Buf[0x0E].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
-			return (EsvCharacter *)((uint8_t *)component - 8);
+			return (esv::Character *)((uint8_t *)component - 8);
 		}
 		else {
 			OsiError("No Character component found with GUID '" << nameGuid << "'");
@@ -61,7 +61,7 @@ namespace osidbg
 		}
 	}
 
-	EsvCharacter * FindCharacterByHandle(ObjectHandle const & handle)
+	esv::Character * FindCharacterByHandle(ObjectHandle const & handle)
 	{
 		if (handle.Handle == 0) {
 			return nullptr;
@@ -75,7 +75,7 @@ namespace osidbg
 
 		auto component = charFactory->Entities->Components.Buf[0x0E].component->FindComponentByHandle(&handle);
 		if (component != nullptr) {
-			return (EsvCharacter *)((uint8_t *)component - 8);
+			return (esv::Character *)((uint8_t *)component - 8);
 		}
 		else {
 			OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
@@ -83,7 +83,7 @@ namespace osidbg
 		}
 	}
 
-	EsvItem * FindItemByNameGuid(std::string const & nameGuid)
+	esv::Item * FindItemByNameGuid(std::string const & nameGuid)
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
@@ -102,7 +102,7 @@ namespace osidbg
 
 		auto component = itemFactory->Entities->Components.Buf[0x0D].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
-			return (EsvItem *)((uint8_t *)component - 8);
+			return (esv::Item *)((uint8_t *)component - 8);
 		}
 		else {
 			OsiError("No Item component found with GUID '" << nameGuid << "'");
@@ -110,7 +110,7 @@ namespace osidbg
 		}
 	}
 
-	EsvItem * FindItemByHandle(ObjectHandle const & handle)
+	esv::Item * FindItemByHandle(ObjectHandle const & handle)
 	{
 		if (handle.Handle == 0) {
 			return nullptr;
@@ -124,7 +124,7 @@ namespace osidbg
 
 		auto component = itemFactory->Entities->Components.Buf[0x0D].component->FindComponentByHandle(&handle);
 		if (component != nullptr) {
-			return (EsvItem *)((uint8_t *)component - 8);
+			return (esv::Item *)((uint8_t *)component - 8);
 		}
 		else {
 			OsiError("No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
@@ -132,7 +132,7 @@ namespace osidbg
 		}
 	}
 
-	EsvGameAction * FindGameActionByHandle(ObjectHandle const & handle)
+	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle)
 	{
 		auto const & lib = gOsirisProxy->GetLibraryManager();
 		auto actionMgr = lib.GetGameActionManager();

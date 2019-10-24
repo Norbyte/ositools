@@ -162,7 +162,7 @@ namespace osidbg
 		EsvItemFactory = (ItemFactory **)serverGlobals_[(unsigned)EsvGlobalEoCPlugin::EsvItemFactory];
 
 		// FIXME - HACK
-		ShootProjectile = (ProjectileHelpers_ShootProjectile)((uint8_t const *)moduleStart_ + 0xC13440 + 0x1000);
+		ShootProjectile = (esv::ProjectileHelpers_ShootProjectile)((uint8_t const *)moduleStart_ + 0xC13440 + 0x1000);
 	}
 
 	void LibraryManager::FindEoCGlobalsEoCPlugin()
@@ -265,7 +265,7 @@ namespace osidbg
 			auto fsx = AsmLeaToAbsoluteAddress(match);
 			if (IsFixedStringRef(fsx, "GameAction")) {
 				auto actionAddr = AsmCallToAbsoluteAddress(match + 72);
-				CreateGameAction = (GameActionManager__CreateAction)actionAddr;
+				CreateGameAction = (esv::GameActionManager__CreateAction)actionAddr;
 			}
 		});
 
@@ -312,10 +312,10 @@ namespace osidbg
 					LevelManager = (void **)AsmLeaToAbsoluteAddress(match2);
 
 					auto moveSetupAddr = AsmCallToAbsoluteAddress(match2 + 57);
-					GameObjectMoveActionSetup = (GameObjectMoveAction__Setup)moveSetupAddr;
+					GameObjectMoveActionSetup = (esv::GameObjectMoveAction__Setup)moveSetupAddr;
 
 					auto addActionAddr = AsmCallToAbsoluteAddress(match2 + 68);
-					AddGameAction = (GameActionManager__AddAction)addActionAddr;
+					AddGameAction = (esv::GameActionManager__AddAction)addActionAddr;
 				});
 			}
 		});
@@ -349,7 +349,7 @@ namespace osidbg
 			auto fsx = AsmLeaToAbsoluteAddress(match + 13);
 			if (IsFixedStringRef(fsx, "RandomPoints")) {
 				p2.Scan(match - 0x100, 0x100, [this](const uint8_t * match2) {
-					TornadoActionSetup = (TornadoAction__Setup)match2;
+					TornadoActionSetup = (esv::TornadoAction__Setup)match2;
 				});
 			}
 		});
@@ -384,7 +384,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "GrowTimeout")
 				&& IsFixedStringRef(fsx2, "GrowSpeed")) {
 				p4.Scan(match - 0x100, 0x100, [this](const uint8_t * match2) {
-					WallActionCreateWall = (TornadoAction__Setup)match2;
+					WallActionCreateWall = (esv::TornadoAction__Setup)match2;
 				});
 			}
 		});
@@ -415,7 +415,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "SpawnObject")) {
 				p6.Scan(match - 0x400, 0x400, [this](const uint8_t * match2) {
 					auto summon = AsmCallToAbsoluteAddress(match2 + 13);
-					SummonHelpersSummon = (SummonHelpers__Summon)summon;
+					SummonHelpersSummon = (esv::SummonHelpers__Summon)summon;
 				});
 			}
 		});
@@ -449,7 +449,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "LIFESTEAL")) {
 				auto actionAddr = AsmCallToAbsoluteAddress(match + 49);
 				lastMatch = match + 55;
-				StatusMachineCreateStatus = (StatusMachine__CreateStatus)actionAddr;
+				StatusMachineCreateStatus = (esv::StatusMachine__CreateStatus)actionAddr;
 			}
 		});
 
@@ -467,7 +467,7 @@ namespace osidbg
 
 		p2.Scan(lastMatch, 0x100, [this](const uint8_t * match) {
 			auto actionAddr = AsmCallToAbsoluteAddress(match + 10);
-			StatusMachineApplyStatus = (StatusMachine__ApplyStatus)actionAddr;
+			StatusMachineApplyStatus = (esv::StatusMachine__ApplyStatus)actionAddr;
 		});
 
 		if (StatusMachineApplyStatus == nullptr) {
@@ -499,7 +499,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHealVMT = reinterpret_cast<EsvStatusVMT const *>(p - 25 * 8);
+							StatusHealVMT = reinterpret_cast<esv::StatusVMT const *>(p - 25 * 8);
 						}
 					}
 				});
@@ -533,7 +533,7 @@ namespace osidbg
 					auto ptr = (uint64_t)match;
 					for (auto p = moduleStart_; p < moduleStart_ + moduleSize_; p += 8) {
 						if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
-							StatusHitVMT = reinterpret_cast<EsvStatusVMT const *>(p - 12 * 8);
+							StatusHitVMT = reinterpret_cast<esv::StatusVMT const *>(p - 12 * 8);
 						}
 					}
 				});
@@ -573,7 +573,7 @@ namespace osidbg
 			if (IsFixedStringRef(fsx, "DamageItems")) {
 				p2.Scan(match, 0x300, [this](const uint8_t * match) {
 					auto actionAddr = AsmCallToAbsoluteAddress(match + 18);
-					CharacterHit = (Character__Hit)actionAddr;
+					CharacterHit = (esv::Character__Hit)actionAddr;
 				});
 			}
 		});
@@ -597,9 +597,9 @@ namespace osidbg
 
 		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
 			auto parseAddr = AsmCallToAbsoluteAddress(match + 8);
-			ParseItem = (esv__ParseItem)parseAddr;
+			ParseItem = (esv::ParseItem)parseAddr;
 			auto createAddr = AsmCallToAbsoluteAddress(match + 20);
-			CreateItemFromParsed = (esv__CreateItemFromParsed)createAddr;
+			CreateItemFromParsed = (esv::CreateItemFromParsed)createAddr;
 		});
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
