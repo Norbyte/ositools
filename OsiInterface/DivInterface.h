@@ -736,7 +736,7 @@ namespace osidbg
 		uint32_t HealEffect;
 		uint8_t _Pad4[4];
 		FixedString HealEffectId;
-		uint32_t HealType;
+		StatusHealType HealType;
 		uint32_t AbsorbSurfaceRange;
 		ObjectSet<void *> AbsorbSurfaceTypes;
 		uint64_t Unkn2;
@@ -795,7 +795,7 @@ namespace osidbg
 		bool SkipInitialEffect; // Saved
 		uint8_t _Pad6[3];
 		uint32_t HealingEvent; // Saved
-		uint32_t HealStat; // Saved // TODO enum + enum prop!
+		StatusHealType HealStat; // Saved
 		uint32_t AbsorbSurfaceRange; // Saved
 	};
 

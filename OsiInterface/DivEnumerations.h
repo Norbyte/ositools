@@ -307,6 +307,19 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(HitFlag, 19);
 
+	enum StatusHealType : uint32_t
+	{
+		SHT_None = 0,
+		SHT_Vitality = 1,
+		SHT_PhysicalArmor = 2,
+		SHT_MagicArmor = 3,
+		SHT_AllArmor = 4,
+		SHT_All = 5,
+		SHT_Source = 6
+	};
+
+	MAKE_ENUM_INFO(StatusHealType, 7);
+
 	enum EsvCharacterFlags : uint64_t
 	{
 		CF_HostControl = 0x08,

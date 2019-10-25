@@ -117,7 +117,7 @@ namespace osidbg
 			PROP(esv::StatusHealing, HealEffectId);
 			PROP(esv::StatusHealing, SkipInitialEffect);
 			PROP(esv::StatusHealing, HealingEvent);
-			PROP(esv::StatusHealing, HealStat);
+			PROP_ENUM(esv::StatusHealing, HealStat);
 			PROP(esv::StatusHealing, AbsorbSurfaceRange);
 		}
 
@@ -128,7 +128,7 @@ namespace osidbg
 			PROP(esv::StatusHeal, HealAmount);
 			PROP(esv::StatusHeal, HealEffect);
 			PROP(esv::StatusHeal, HealEffectId);
-			PROP(esv::StatusHeal, HealType);
+			PROP_ENUM(esv::StatusHeal, HealType);
 			PROP(esv::StatusHeal, AbsorbSurfaceRange);
 			PROP(esv::StatusHeal, TargetDependentHeal);
 		}

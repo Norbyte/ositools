@@ -502,6 +502,16 @@ namespace osidbg
 		{ HitFlag::HF_NoEvents, "NoEvents" }
 	};
 
+	EnumInfo<StatusHealType>::Label const EnumInfo<StatusHealType>::Values[] = {
+		{ StatusHealType::SHT_None, "None" },
+		{ StatusHealType::SHT_Vitality, "Vitality" },
+		{ StatusHealType::SHT_PhysicalArmor, "PhysicalArmor" },
+		{ StatusHealType::SHT_MagicArmor, "MagicArmor" },
+		{ StatusHealType::SHT_AllArmor, "AllArmor" },
+		{ StatusHealType::SHT_All, "All" },
+		{ StatusHealType::SHT_Source, "Source" }
+	};
+
 	EnumInfo<StatAttributeFlags>::Label const EnumInfo<StatAttributeFlags>::Values[] = { 
 		{ StatAttributeFlags::AF_None, "None" },
 		{ StatAttributeFlags::AF_FreezeImmunity, "FreezeImmunity" },
