@@ -114,6 +114,18 @@ namespace osidbg
 			args.Get(1).Float = log(x);
 			return true;
 		}
+		
+		bool IsDivisible(OsiArgumentDesc & args)
+		{
+			auto n = args.Get(0).Int;
+			auto d = args.Get(1).Int;
+			if (n%d == 0) {
+				args.Get(2).Int = 0;
+			} else {
+				args.Get(2).Int = 1;
+			}
+			return true;
+		}
 	}
 
 #define MATH_QUERY1(funcName) { \
@@ -174,6 +186,7 @@ namespace osidbg
 		MATH_QUERY1(Sqrt)
 		MATH_QUERY1(Exp)
 		MATH_QUERY1(Log)
+		MATH_QUERY1(IsDivisible)
 	}
 
 }
