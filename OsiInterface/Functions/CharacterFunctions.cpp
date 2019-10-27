@@ -37,13 +37,24 @@ namespace osidbg
 			return OsirisPropertyMapGet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
 		}
 
-		template <OsiPropertyMapType Type>
-		void CharacterSetStat(OsiArgumentDesc const & args)
+		void CharacterSetStatInt(OsiArgumentDesc const & args)
 		{
 			auto character = FindCharacterByNameGuid(args[0].String);
+			auto stat = args[1].String;
+			auto value = args[2].Int32;
+
 			if (character == nullptr || character->Stats == nullptr) return;
 
-			OsirisPropertyMapSet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
+			auto clamped = value;
+			if (strcmp(stat, "CurrentVitality") == 0) {
+				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxVitality);
+			} else if (strcmp(stat, "CurrentArmor") == 0) {
+				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxArmor);
+			} else if (strcmp(stat, "CurrentMagicArmor") == 0) {
+				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxMagicArmor);
+			}
+
+			gCharacterStatsPropertyMap.setInt(character->Stats, stat, clamped, false, true);
 		}
 
 		template <OsiPropertyMapType Type>
@@ -136,7 +147,7 @@ namespace osidbg
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
 			},
-			&func::CharacterSetStat<OsiPropertyMapType::Integer>
+			&func::CharacterSetStatInt
 		);
 		functionMgr.Register(std::move(characterSetStatInt));
 
