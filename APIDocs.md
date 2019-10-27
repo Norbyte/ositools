@@ -617,10 +617,28 @@ Updates the total lifetime of the specified game action.
 
 # Character functions
 
+## Stats
+
+### CharacterGetStat
+`query NRD_CharacterGetStatInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)`
+
+Returns a stat value of to the specified character. `_Stat` must be one of the following:
+CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
+In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
+
+
+### CharacterSetStat
+`call NRD_CharacterSetStatInt((CHARACTERGUID)_Character, (STRING)_Stat, (INTEGER)_Value)`
+
+Updates the stat value of `_Stat` to the specified value . `_Stat` must be one of the following:
+CurrentVitality, CurrentArmor, CurrentMagicArmor
+
+
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
 
 The following stats are supported: SummonLifelinkModifier, Strength, Memory, Intelligence, Movement, MovementSpeedBoost, Finesse, Wits, Constitution, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, Willpower, Bodybuilding, PiercingResistance, PhysicalResistance, CorrosiveResistance, MagicResistance, CustomResistance, Sight, Hearing, FOV, APMaximum, APStart, APRecovery, CriticalChance, Initiative, Vitality, VitalityBoost, MagicPoints, Level, Gain, Armor, MagicArmor, ArmorBoost, MagicArmorBoost, ArmorBoostGrowthPerLevel, MagicArmorBoostGrowthPerLevel, DamageBoost, DamageBoostGrowthPerLevel, Accuracy, Dodge, MaxResistance, LifeSteal, Weight, ChanceToHitBoost, RangeBoost, APCostBoost, SPCostBoost, MaxSummons, BonusWeaponDamageMultiplier.
+In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be set.
 
 **Limitations:**
 Permanent boosts don't show up immediately because of how client-server communication works in the game. To ensure that boosts are visible on the client boosts must be synced by performing a no-op call to `CharacterAddAttribute`. Example:
@@ -1160,3 +1178,69 @@ Converts `_Real` to a string value.
 | 111 | ResurrectExtraHealth |
 | 112 | NaturalConductor |
 | 113 | Quest_Rooted |
+
+### AttributeFlags
+
+| Value | Label |
+|--|--|
+| 0 | None |
+| 1 | FreezeImmunity |
+| 2 | BurnImmunity |
+| 3 | StunImmunity |
+| 4 | PoisonImmunity |
+| 5 | CharmImmunity |
+| 6 | FearImmunity |
+| 7 | KnockdownImmunity |
+| 8 | MuteImmunity |
+| 9 | ChilledImmunity |
+| 10 | WarmImmunity |
+| 11 | WetImmunity |
+| 12 | BleedingImmunity |
+| 13 | CrippledImmunity |
+| 14 | BlindImmunity |
+| 15 | CursedImmunity |
+| 16 | WeakImmunity |
+| 17 | SlowedImmunity |
+| 18 | DiseasedImmunity |
+| 19 | InfectiousDiseasedImmunity |
+| 20 | PetrifiedImmunity |
+| 21 | DrunkImmunity |
+| 22 | SlippingImmunity |
+| 23 | FreezeContact |
+| 24 | BurnContact |
+| 25 | StunContact |
+| 26 | PoisonContact |
+| 27 | ChillContact |
+| 28 | Torch |
+| 29 | Arrow |
+| 30 | Unbreakable |
+| 31 | Unrepairable |
+| 32 | Unstorable |
+| 33 | Grounded |
+| 34 | HastedImmunity |
+| 35 | TauntedImmunity |
+| 36 | SleepingImmunity |
+| 37 | AcidImmunity |
+| 38 | SuffocatingImmunity |
+| 39 | RegeneratingImmunity |
+| 40 | DisarmedImmunity |
+| 41 | DecayingImmunity |
+| 42 | ClairvoyantImmunity |
+| 43 | EnragedImmunity |
+| 44 | BlessedImmunity |
+| 45 | ProtectFromSummon |
+| 46 | Floating |
+| 47 | DeflectProjectiles |
+| 48 | IgnoreClouds |
+| 49 | MadnessImmunity |
+| 50 | ChickenImmunity |
+| 51 | IgnoreCursedOil |
+| 52 | ShockedImmunity |
+| 53 | WebImmunity |
+| 54 | LootableWhenEquipped |
+| 55 | PickpocketableWhenEquipped |
+| 56 | LoseDurabilityOnCharacterHit |
+| 57 | EntangledContact |
+| 58 | ShacklesOfPainImmunity |
+| 59 | ThrownImmunity |
+| 60 | InvisibilityImmunity |
