@@ -319,10 +319,8 @@ namespace osidbg
 		uint32_t BaseMaxMagicArmor;
 		uint32_t Sight;
 		uint32_t BaseSight;
-		uint32_t Flags0;
-		uint32_t Flags1;
-		uint32_t Flags2;
-		uint32_t Flags3;
+		uint64_t AttributeFlags;
+		uint64_t BaseAttributeFlags;
 		uint32_t Unkn5[2];
 		bool SomeComputePendingFlag;
 		uint8_t _Pad6[3];

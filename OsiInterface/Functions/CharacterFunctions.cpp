@@ -29,6 +29,24 @@ namespace osidbg
 		}
 
 		template <OsiPropertyMapType Type>
+		bool CharacterGetStat(OsiArgumentDesc & args)
+		{
+			auto character = FindCharacterByNameGuid(args[0].String);
+			if (character == nullptr || character->Stats == nullptr) return false;
+
+			return OsirisPropertyMapGet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
+		}
+
+		template <OsiPropertyMapType Type>
+		void CharacterSetStat(OsiArgumentDesc const & args)
+		{
+			auto character = FindCharacterByNameGuid(args[0].String);
+			if (character == nullptr || character->Stats == nullptr) return;
+
+			OsirisPropertyMapSet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
+		}
+
+		template <OsiPropertyMapType Type>
 		bool CharacterGetPermanentBoost(OsiArgumentDesc & args)
 		{
 			auto character = FindCharacterByNameGuid(args.Get(0).String);
@@ -99,6 +117,29 @@ namespace osidbg
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
+
+		auto characterGetStatInt = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetStatInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGetStat<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(characterGetStatInt));
+
+		auto characterSetStatInt = std::make_unique<CustomCall>(
+			"NRD_CharacterSetStatInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::CharacterSetStat<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(characterSetStatInt));
+
 
 		auto characterGetPermanentBoostInt = std::make_unique<CustomQuery>(
 			"NRD_CharacterGetPermanentBoostInt",

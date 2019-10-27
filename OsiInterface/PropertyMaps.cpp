@@ -319,9 +319,9 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gCharacterStatsPropertyMap;
-			PROP_RO(CDivinityStats_Character, CurrentVitality);
-			PROP_RO(CDivinityStats_Character, CurrentArmor);
-			PROP_RO(CDivinityStats_Character, CurrentMagicArmor);
+			PROP(CDivinityStats_Character, CurrentVitality);
+			PROP(CDivinityStats_Character, CurrentArmor);
+			PROP(CDivinityStats_Character, CurrentMagicArmor);
 			PROP_RO(CDivinityStats_Character, ArmorAfterHitCooldownMultiplier);
 			PROP_RO(CDivinityStats_Character, MagicArmorAfterHitCooldownMultiplier);
 			PROP_RO(CDivinityStats_Character, MPStart);
@@ -344,8 +344,9 @@ namespace osidbg
 			PROP_RO(CDivinityStats_Character, MaxSummons);
 			PROP_RO(CDivinityStats_Character, BaseMaxSummons);
 			PROP_RO(CDivinityStats_Character, MaxMpOverride);
+			PROP_FLAGS(CDivinityStats_Character, AttributeFlags, StatAttributeFlags, false);
 
-			// TODO - DisabledTalents, TraitOrder, flags01/23?
+			// TODO - DisabledTalents, TraitOrder?
 		}
 	}
 
