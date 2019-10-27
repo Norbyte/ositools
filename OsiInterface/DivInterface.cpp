@@ -573,7 +573,8 @@ namespace osidbg
 		{ StatAttributeFlags::AF_LoseDurabilityOnCharacterHit, "LoseDurabilityOnCharacterHit" },
 		{ StatAttributeFlags::AF_EntangledContact, "EntangledContact" },
 		{ StatAttributeFlags::AF_ShacklesOfPainImmunity, "ShacklesOfPainImmunity" },
-		{ StatAttributeFlags::AF_ThrownImmunity, "ThrownImmunity" },
+		{ StatAttributeFlags::AF_Custom1, "Custom1" },
+		{ StatAttributeFlags::AF_Custom2, "Custom2" },
 		{ StatAttributeFlags::AF_InvisibilityImmunity, "InvisibilityImmunity" }
 	};
 

@@ -420,11 +420,12 @@ namespace osidbg
 		AF_LoseDurabilityOnCharacterHit = 1ull << 56,
 		AF_EntangledContact = 1ull << 57,
 		AF_ShacklesOfPainImmunity = 1ull << 58,
-		AF_ThrownImmunity = 1ull << 59,
-		AF_InvisibilityImmunity = 1ull << 60
+		AF_Custom1 = 1ull << 59,
+		AF_Custom2 = 1ull << 60,
+		AF_InvisibilityImmunity = 1ull << 61
 	};
 
-	MAKE_ENUM_INFO(StatAttributeFlags, 61);
+	MAKE_ENUM_INFO(StatAttributeFlags, 62);
 
 
 	enum TalentType

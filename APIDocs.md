@@ -1244,5 +1244,6 @@ Converts `_Real` to a string value.
 | 56 | LoseDurabilityOnCharacterHit |
 | 57 | EntangledContact |
 | 58 | ShacklesOfPainImmunity |
-| 59 | ThrownImmunity |
-| 60 | InvisibilityImmunity |
+| 59 | Custom1 |
+| 60 | Custom2 |
+| 61 | InvisibilityImmunity |
