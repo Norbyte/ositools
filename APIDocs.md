@@ -106,6 +106,8 @@ DebugBreak(_StatusId);
 Thrown before a status is applied to the target character or item. Status attributes can be queried using the `NRD_StatusGet[...]`  functions and updated using the `NRD_StatusSet[...]` functions. For a list of attributes, see [Status attributes](#status-attributes). 
 
 **Notes:**
+ - Unlike `CharacterStatusAttempt`, the rules for this event are triggered before the status is applied.
+ - Built-in status queries like `HasActiveStatus`, `GetStatusTurns` won't see this status, since it hasn't been applied yet.
  - Since the event is thrown before the status prerequisite checks are performed, it is possible that the status won't be applied if it fails to pass a check.
  - The status flags `ForceStatus` and `ForceFailStatus` can be set during the status attempt event to force a successful/failed prerequisite check result.
 
