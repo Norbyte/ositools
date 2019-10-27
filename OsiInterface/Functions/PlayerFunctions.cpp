@@ -8,7 +8,7 @@ namespace osidbg
 	{
 		bool SkillGetCooldown(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
+			auto characterGuid = args[0].String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
@@ -20,20 +20,20 @@ namespace osidbg
 				return false;
 			}
 
-			auto skillId = args.Get(1).String;
+			auto skillId = args[1].String;
 			auto skill = character->SkillManager->Skills.Find(skillId);
 			if (skill == nullptr) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return false;
 			}
 
-			args.Get(2).Float = (*skill)->ActiveCooldown;
+			args[2].Float = (*skill)->ActiveCooldown;
 			return true;
 		}
 
 		void SkillSetCooldown(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
+			auto characterGuid = args[0].String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
@@ -45,7 +45,7 @@ namespace osidbg
 				return;
 			}
 
-			auto skillId = args.Get(1).String;
+			auto skillId = args[1].String;
 			auto skill = character->SkillManager->Skills.Find(skillId);
 			if (skill == nullptr) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
@@ -57,7 +57,7 @@ namespace osidbg
 				return;
 			}
 
-			auto cooldown = args.Get(2).Float;
+			auto cooldown = args[2].Float;
 			if (cooldown < 0.0f) {
 				OsiError("Cooldown cannot be negative!");
 				return;
@@ -98,15 +98,15 @@ namespace osidbg
 
 		bool SkillBarGetItem(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto slot = args.Get(1).Int32;
+			auto characterGuid = args[0].String;
+			auto slot = args[1].Int32;
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == esv::SkillBarItem::kItem) {
 				auto item = FindItemByHandle(skillBarItem->ItemHandle);
 				if (item != nullptr) {
-					args.Get(2).String = item->MyGuid.Str;
+					args[2].String = item->MyGuid.Str;
 					return true;
 				} else {
 					return false;
@@ -118,13 +118,13 @@ namespace osidbg
 
 		bool SkillBarGetSkill(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto slot = args.Get(1).Int32;
+			auto characterGuid = args[0].String;
+			auto slot = args[1].Int32;
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == esv::SkillBarItem::kSkill) {
-				args.Get(2).String = skillBarItem->SkillOrStatId.Str;
+				args[2].String = skillBarItem->SkillOrStatId.Str;
 				return true;
 			} else {
 				return false;
@@ -133,16 +133,16 @@ namespace osidbg
 
 		bool SkillBarFindSkill(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
+			auto characterGuid = args[0].String;
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return false;
 
-			auto skillId = ToFixedString(args.Get(1).String);
+			auto skillId = ToFixedString(args[1].String);
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
 				auto & skill = skillBar->Set.Buf[i];
 				if (skill.Type == esv::SkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
-					args.Get(2).Int32 = i;
+					args[2].Int32 = i;
 					return true;
 				}
 			}
@@ -152,11 +152,11 @@ namespace osidbg
 
 		bool SkillBarFindItem(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
+			auto characterGuid = args[0].String;
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return false;
 
-			auto itemGuid = args.Get(1).String;
+			auto itemGuid = args[1].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
@@ -170,7 +170,7 @@ namespace osidbg
 				auto & skill = skillBar->Set.Buf[i];
 				if (skill.Type == esv::SkillBarItem::kItem
 					&& skill.ItemHandle == handle) {
-					args.Get(2).Int32 = i;
+					args[2].Int32 = i;
 					return true;
 				}
 			}
@@ -180,9 +180,9 @@ namespace osidbg
 
 		void SkillBarSetSkill(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto slot = args.Get(1).Int32;
-			auto skillId = ToFixedString(args.Get(2).String);
+			auto characterGuid = args[0].String;
+			auto slot = args[1].Int32;
+			auto skillId = ToFixedString(args[2].String);
 
 			auto * stats = gOsirisProxy->GetLibraryManager().GetStats();
 			auto skillDataFs = ToFixedString("SkillData");
@@ -204,9 +204,9 @@ namespace osidbg
 
 		void SkillBarSetItem(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto slot = args.Get(1).Int32;
-			auto itemGuid = args.Get(2).String;
+			auto characterGuid = args[0].String;
+			auto slot = args[1].Int32;
+			auto itemGuid = args[2].String;
 
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
@@ -231,8 +231,8 @@ namespace osidbg
 
 		void SkillBarClear(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto slot = args.Get(1).Int32;
+			auto characterGuid = args[0].String;
+			auto slot = args[1].Int32;
 
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;

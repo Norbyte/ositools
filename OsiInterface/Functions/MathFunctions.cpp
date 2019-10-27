@@ -11,8 +11,8 @@ namespace osidbg
 
 		bool RandomReal(OsiArgumentDesc & args)
 		{
-			auto min = args.Get(0).Float;
-			auto max = args.Get(1).Float;
+			auto min = args[0].Float;
+			auto max = args[1].Float;
 
 			if (!OsiRng) {
 				OsiRng = std::make_unique<std::mt19937_64>();
@@ -21,109 +21,111 @@ namespace osidbg
 			}
 
 			std::uniform_real_distribution<float> dist(min, max);
-			args.Get(2).Float = dist(*OsiRng);
+			args[2].Float = dist(*OsiRng);
 			return true;
 		}
 
 		bool Sin(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = sin(x);
+			auto x = args[0].Float;
+			args[1].Float = sin(x);
 			return true;
 		}
 
 		bool Cos(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = cos(x);
+			auto x = args[0].Float;
+			args[1].Float = cos(x);
 			return true;
 		}
 
 		bool Tan(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = tan(x);
+			auto x = args[0].Float;
+			args[1].Float = tan(x);
 			return true;
 		}
 
 		bool Round(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = round(x);
+			auto x = args[0].Float;
+			args[1].Float = round(x);
 			return true;
 		}
 
 		bool Ceil(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = ceil(x);
+			auto x = args[0].Float;
+			args[1].Float = ceil(x);
 			return true;
 		}
 
 		bool Floor(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = floor(x);
+			auto x = args[0].Float;
+			args[1].Float = floor(x);
 			return true;
 		}
 
 		bool Abs(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = abs(x);
+			auto x = args[0].Float;
+			args[1].Float = abs(x);
 			return true;
 		}
 
 		bool Pow(OsiArgumentDesc & args)
 		{
-			auto base = args.Get(0).Float;
-			auto exp = args.Get(1).Float;
-			args.Get(2).Float = pow(base, exp);
+			auto base = args[0].Float;
+			auto exp = args[1].Float;
+			args[2].Float = pow(base, exp);
 			return true;
 		}
 
 		bool Sqrt(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = sqrt(x);
+			auto x = args[0].Float;
+			args[1].Float = sqrt(x);
 			return true;
 		}
 
 		bool Exp(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = exp(x);
+			auto x = args[0].Float;
+			args[1].Float = exp(x);
 			return true;
 		}
 
 		bool Factorial(OsiArgumentDesc & args)
 		{
-			auto n = args.Get(0).Int32;
+			auto n = args[0].Int32;
 			int32_t fact = 0;
 			for (int32_t i = 1; i <= n; i++) {
 				fact *= i;
 			}
 
-			args.Get(1).Int32 = fact;
+			args[1].Int32 = fact;
 			return true;
 		}
 
 		bool Log(OsiArgumentDesc & args)
 		{
-			auto x = args.Get(0).Float;
-			args.Get(1).Float = log(x);
+			auto x = args[0].Float;
+			args[1].Float = log(x);
 			return true;
 		}
 		
 		bool IsDivisible(OsiArgumentDesc & args)
 		{
-			auto n = args.Get(0).Int;
-			auto d = args.Get(1).Int;
-			if (n%d == 0) {
-				args.Get(2).Int = 0;
+			auto n = args[0].Int32;
+			auto d = args[1].Int32;
+
+			if (d != 0 && n%d == 0) {
+				args[2].Int32 = 1;
 			} else {
-				args.Get(2).Int = 1;
+				args[2].Int32 = 0;
 			}
+
 			return true;
 		}
 	}
@@ -186,7 +188,17 @@ namespace osidbg
 		MATH_QUERY1(Sqrt)
 		MATH_QUERY1(Exp)
 		MATH_QUERY1(Log)
-		MATH_QUERY1(IsDivisible)
+
+		auto isDivisible = std::make_unique<CustomQuery>(
+			"NRD_IsDivisible",
+			std::vector<CustomFunctionParam>{
+				{ "Numerator", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Denominator", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Divisible", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::IsDivisible
+		);
+		functionMgr.Register(std::move(isDivisible));
 	}
 
 }

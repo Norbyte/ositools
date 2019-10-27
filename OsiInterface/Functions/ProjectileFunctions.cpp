@@ -32,8 +32,8 @@ namespace osidbg
 
 		void ProjectileSetInt(OsiArgumentDesc const & args)
 		{
-			auto prop = args.Get(0).String;
-			auto value = args.Get(1).Int32;
+			auto prop = args[0].String;
+			auto value = args[1].Int32;
 
 			if (!ProjectileHelper) {
 				OsiError("Called when no projectile is active!");
@@ -45,8 +45,8 @@ namespace osidbg
 
 		void ProjectileSetString(OsiArgumentDesc const & args)
 		{
-			auto prop = args.Get(0).String;
-			auto value = args.Get(1).String;
+			auto prop = args[0].String;
+			auto value = args[1].String;
 
 			if (!ProjectileHelper) {
 				OsiError("Called when no projectile is active!");
@@ -58,8 +58,8 @@ namespace osidbg
 
 		void ProjectileSetGuidString(OsiArgumentDesc const & args)
 		{
-			auto prop = args.Get(0).String;
-			auto value = args.Get(1).String;
+			auto prop = args[0].String;
+			auto value = args[1].String;
 
 			if (!ProjectileHelper) {
 				OsiError("Called when no projectile is active!");
@@ -71,7 +71,7 @@ namespace osidbg
 
 		void ProjectileSetVector3(OsiArgumentDesc const & args)
 		{
-			auto prop = args.Get(0).String;
+			auto prop = args[0].String;
 			glm::vec3 vec = args.GetVector(1);
 
 			if (!ProjectileHelper) {

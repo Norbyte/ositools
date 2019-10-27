@@ -9,7 +9,7 @@ namespace osidbg
 	{
 		bool ItemGetStatsId(OsiArgumentDesc & args)
 		{
-			auto itemGuid = args.Get(0).String;
+			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
@@ -20,14 +20,14 @@ namespace osidbg
 				OsiError("Item '" << itemGuid << "' has no stats ID!");
 				return false;
 			} else {
-				args.Get(1).String = item->StatsId.Str;
+				args[1].String = item->StatsId.Str;
 				return true;
 			}
 		}
 
 		bool ItemGetGenerationParams(OsiArgumentDesc & args)
 		{
-			auto itemGuid = args.Get(0).String;
+			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
@@ -38,23 +38,23 @@ namespace osidbg
 				OsiError("Item '" << itemGuid << "' has no generation data!");
 				return false;
 			} else {
-				args.Get(1).String = item->Generation->Base.Str ? item->Generation->Base.Str : "";
-				args.Get(2).String = item->Generation->ItemType.Str ? item->Generation->ItemType.Str : "";
-				args.Get(3).Int32 = item->Generation->Level;
+				args[1].String = item->Generation->Base.Str ? item->Generation->Base.Str : "";
+				args[2].String = item->Generation->ItemType.Str ? item->Generation->ItemType.Str : "";
+				args[3].Int32 = item->Generation->Level;
 				return true;
 			}
 		}
 
 		bool ItemHasDeltaModifier(OsiArgumentDesc & args)
 		{
-			auto itemGuid = args.Get(0).String;
+			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
 			}
 
-			auto deltaMod = args.Get(1).String;
+			auto deltaMod = args[1].String;
 
 			int32_t count = 0;
 			if (item->StatsDynamic != nullptr) {
@@ -75,20 +75,20 @@ namespace osidbg
 				}
 			}
 
-			args.Get(2).Int32 = count;
+			args[2].Int32 = count;
 			return count > 0;
 		}
 
 		void ItemSetIdentified(OsiArgumentDesc const & args)
 		{
-			auto itemGuid = args.Get(0).String;
+			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
 			}
 
-			item->StatsDynamic->IsIdentified = args.Get(1).Int32 ? 1 : 0;
+			item->StatsDynamic->IsIdentified = args[1].Int32 ? 1 : 0;
 		}
 
 		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(esv::Item * item, uint32_t index)
@@ -110,7 +110,7 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		bool ItemGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto item = FindItemByNameGuid(args.Get(0).String);
+			auto item = FindItemByNameGuid(args[0].String);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -144,7 +144,7 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		void ItemSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto item = FindItemByNameGuid(args.Get(0).String);
+			auto item = FindItemByNameGuid(args[0].String);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -189,7 +189,7 @@ namespace osidbg
 
 			gPendingItemClone.reset();
 
-			auto itemGuid = args.Get(0).String;
+			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) return;
 
@@ -219,7 +219,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(0).String = item->GetGuid()->Str;
+			args[0].String = item->GetGuid()->Str;
 			return true;
 		}
 

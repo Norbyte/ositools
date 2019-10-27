@@ -15,14 +15,14 @@ namespace osidbg
 	{
 		void IterateCharacterStatuses(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
+			auto characterGuid = args[0].String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character " << characterGuid << " does not exist!");
 				return;
 			}
 
-			auto eventName = args.Get(1).String;
+			auto eventName = args[1].String;
 			if (character->StatusMachine != nullptr) {
 				auto & statuses = character->StatusMachine->Statuses.Set;
 				for (uint32_t index = 0; index < statuses.Size; index++) {
@@ -41,13 +41,13 @@ namespace osidbg
 
 		esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) {
-				OsiError("Character " << args.Get(0).String << " does not exist!");
+				OsiError("Character " << args[0].String << " does not exist!");
 				return nullptr;
 			}
 
-			ObjectHandle statusHandle{ args.Get(1).Int64 };
+			ObjectHandle statusHandle{ args[1].Int64 };
 			auto status = character->GetStatusByHandle(statusHandle);
 			if (status == nullptr) {
 				OsiError("No status found with handle " << (int64_t)statusHandle);
@@ -59,21 +59,21 @@ namespace osidbg
 
 		bool StatusGetHandle(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) {
-				OsiError("Character " << args.Get(0).String << " does not exist!");
+				OsiError("Character " << args[0].String << " does not exist!");
 				return false;
 			}
 
 			if (character->StatusMachine == nullptr) {
-				OsiError("Character " << args.Get(0).String << " has no StatusManager!");
+				OsiError("Character " << args[0].String << " has no StatusManager!");
 				return false;
 			}
 
-			auto statusId = ToFixedString(args.Get(1).String);
+			auto statusId = ToFixedString(args[1].String);
 			if (!statusId) {
 				// No fixed string with this ID --> invalid status name
-				OsiWarn("Status " << args.Get(1).String << " not in string table, possibly invalid status name?");
+				OsiWarn("Status " << args[1].String << " not in string table, possibly invalid status name?");
 				return false;
 			}
 
@@ -81,7 +81,7 @@ namespace osidbg
 			for (uint32_t index = 0; index < statuses.Size; index++) {
 				auto status = statuses.Buf[index];
 				if (status->StatusId == statusId) {
-					args.Get(2).Int64 = (int64_t)status->StatusHandle;
+					args[2].Int64 = (int64_t)status->StatusHandle;
 					return true;
 				}
 			}
@@ -271,9 +271,9 @@ namespace osidbg
 
 		bool ApplyActiveDefense(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto statusId = args.Get(1).String;
-			auto lifeTime = args.Get(2).Float;
+			auto characterGuid = args[0].String;
+			auto statusId = args[1].String;
+			auto lifeTime = args[2].Float;
 
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
@@ -308,18 +308,18 @@ namespace osidbg
 			status->TargetPos = *character->GetTranslate();
 
 			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
-			args.Get(3).Int64 = (int64_t)status->StatusHandle;
+			args[3].Int64 = (int64_t)status->StatusHandle;
 			return true;
 		}
 
 
 		bool ApplyDamageOnMove(OsiArgumentDesc & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto statusId = args.Get(1).String;
-			auto sourceCharacterGuid = args.Get(2).String;
-			auto lifeTime = args.Get(3).Float;
-			auto distancePerDamage = args.Get(4).Float;
+			auto characterGuid = args[0].String;
+			auto statusId = args[1].String;
+			auto sourceCharacterGuid = args[2].String;
+			auto lifeTime = args[3].Float;
+			auto distancePerDamage = args[4].Float;
 
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
@@ -366,7 +366,7 @@ namespace osidbg
 			status->DistancePerDamage = distancePerDamage;
 
 			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
-			args.Get(5).Int64 = (int64_t)status->StatusHandle;
+			args[5].Int64 = (int64_t)status->StatusHandle;
 			return true;
 		}
 	}

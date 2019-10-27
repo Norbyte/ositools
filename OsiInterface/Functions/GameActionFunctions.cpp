@@ -9,15 +9,15 @@ namespace osidbg
 		template <class TAction>
 		TAction * PrepareAction(OsiArgumentDesc const & args, GameActionType type)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) {
-				OsiError("Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args[0].String << "' does not exist!");
 				return nullptr;
 			}
 
-			auto skillId = ToFixedString(args.Get(1).String);
+			auto skillId = ToFixedString(args[1].String);
 			if (!skillId) {
-				OsiError("'" << args.Get(1).String << "' is not a valid FixedString!");
+				OsiError("'" << args[1].String << "' is not a valid FixedString!");
 				return nullptr;
 			}
 
@@ -51,7 +51,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = (int64_t)action->MyHandle;
+			args[5].Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -66,21 +66,21 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = (int64_t)action->MyHandle;
+			args[5].Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
 		bool CreateWall(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) {
-				OsiError("Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
 			}
 
-			auto skillId = ToFixedString(args.Get(1).String);
+			auto skillId = ToFixedString(args[1].String);
 			if (!skillId) {
-				OsiError("'" << args.Get(1).String << "' is not a valid FixedString!");
+				OsiError("'" << args[1].String << "' is not a valid FixedString!");
 				return false;
 			}
 
@@ -89,15 +89,15 @@ namespace osidbg
 				return false;
 			}
 
-			auto object = stats->objects.Find(args.Get(1).String);
+			auto object = stats->objects.Find(args[1].String);
 			if (object == nullptr) {
-				OsiError("No such skill entry: '" << args.Get(1).String << "'");
+				OsiError("No such skill entry: '" << args[1].String << "'");
 				return false;
 			}
 
 			auto lifetime = stats->GetAttributeInt(object, "Lifetime");
 			if (!lifetime) {
-				OsiError("Couldn't fetch lifetime of skill '" << args.Get(1).String << "'");
+				OsiError("Couldn't fetch lifetime of skill '" << args[1].String << "'");
 				return false;
 			}
 
@@ -150,7 +150,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(5).Int64 = (int64_t)action->MyHandle;
+			args[5].Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -158,20 +158,20 @@ namespace osidbg
 		{
 			ObjectHandle objectHandle;
 
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character != nullptr) {
 				character->GetObjectHandle(&objectHandle);
 			} else {
-				auto item = FindItemByNameGuid(args.Get(0).String);
+				auto item = FindItemByNameGuid(args[0].String);
 				if (item != nullptr) {
 					item->GetObjectHandle(&objectHandle);
 				} else {
-					OsiError("Game object '" << args.Get(0).String << "' does not exist!");
+					OsiError("Game object '" << args[0].String << "' does not exist!");
 					return false;
 				}
 			}
 
-			auto beamEffectName = args.Get(4).String;
+			auto beamEffectName = args[4].String;
 			FixedString beamEffectFs;
 			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
@@ -182,7 +182,7 @@ namespace osidbg
 					return false;
 				}
 
-				auto casterGuid = args.Get(5).String;
+				auto casterGuid = args[5].String;
 				caster = FindCharacterByNameGuid(casterGuid);
 				if (caster == nullptr) {
 					OsiError("Caster character '" << casterGuid << "' does not exist!");
@@ -206,7 +206,7 @@ namespace osidbg
 			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(6).Int64 = (int64_t)action->MyHandle;
+			args[6].Int64 = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -245,7 +245,7 @@ namespace osidbg
 
 		void GameActionDestroy(OsiArgumentDesc const & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return;
 
 			DestroyGameActionInternal(*gameAction);
@@ -253,7 +253,7 @@ namespace osidbg
 
 		bool GameActionGetLifeTime(OsiArgumentDesc & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return false;
 
 			float lifeTime;
@@ -279,16 +279,16 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(1).Float = lifeTime;
+			args[1].Float = lifeTime;
 			return true;
 		}
 
 		void GameActionSetLifeTime(OsiArgumentDesc const & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args.Get(0).Int64 });
+			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return;
 
-			auto lifeTime = args.Get(1).Float;
+			auto lifeTime = args[1].Float;
 			if (lifeTime < 0.0f) {
 				OsiError("Lifetime must be a positive value");
 				return;
@@ -315,23 +315,23 @@ namespace osidbg
 
 		bool Summon(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) {
-				OsiError("Character '" << args.Get(0).String << "' does not exist!");
+				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
 			}
 
-			auto objectTemplate = NameGuidToFixedString(args.Get(1).String);
+			auto objectTemplate = NameGuidToFixedString(args[1].String);
 			if (!objectTemplate) {
-				OsiError("Template '" << args.Get(1).String << "' not in FixedString table!");
+				OsiError("Template '" << args[1].String << "' not in FixedString table!");
 				return false;
 			}
 
 			auto pos = args.GetVector(2);
-			auto lifetime = args.Get(5).Float;
-			auto summonLevel = args.Get(6).Int32;
-			auto isTotem = args.Get(7).Int32 != 0;
-			auto mapToAiGrid = args.Get(8).Int32 != 0;
+			auto lifetime = args[5].Float;
+			auto summonLevel = args[6].Int32;
+			auto isTotem = args[7].Int32 != 0;
+			auto mapToAiGrid = args[8].Int32 != 0;
 
 			if (pos.x == -1.0f && pos.y == -1.0f && pos.z == -1.0f) {
 				pos = character->WorldPos;
@@ -368,7 +368,7 @@ namespace osidbg
 				}
 
 				if (guid) {
-					args.Get(9).String = guid.Str;
+					args[9].String = guid.Str;
 					return true;
 				}
 				else {

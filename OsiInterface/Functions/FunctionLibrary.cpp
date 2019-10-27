@@ -36,32 +36,32 @@ namespace osidbg
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
-			auto path = args.Get(0).String;
+			auto path = args[0].String;
 			LuaLoad(path);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
-			auto func = args.Get(0).String;
-			auto arg = args.Get(1).String;
+			auto func = args[0].String;
+			auto arg = args[1].String;
 			LuaCall(func, arg);
 		}
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			OsiWarn("GotIt");
 		}
 
 		void BreakOnItem(OsiArgumentDesc const & args)
 		{
-			auto item = FindItemByNameGuid(args.Get(0).String);
+			auto item = FindItemByNameGuid(args[0].String);
 			OsiWarn("GotIt");
 		}
 
 		void DoExperiment(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character) {
 				auto stats = character->Stats->DynamicStats[1];
 				stats->PoisonResistance += 50;
@@ -73,7 +73,7 @@ namespace osidbg
 				OsiError("DoExperiment(): Applied to character");
 			}
 
-			auto item = FindItemByNameGuid(args.Get(1).String);
+			auto item = FindItemByNameGuid(args[1].String);
 			if (item) {
 				auto stats = item->StatsDynamic->DynamicAttributes_Start[1];
 				stats->FireResistance += 50;

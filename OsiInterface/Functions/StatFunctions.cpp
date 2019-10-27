@@ -8,7 +8,7 @@ namespace osidbg
 	{
 		bool StatExists(OsiArgumentDesc & args)
 		{
-			auto statName = args.Get(0).String;
+			auto statName = args[0].String;
 			
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
@@ -21,8 +21,8 @@ namespace osidbg
 
 		bool StatAttributeExists(OsiArgumentDesc & args)
 		{
-			auto statName = args.Get(0).String;
-			auto attributeName = args.Get(1).String;
+			auto statName = args[0].String;
+			auto attributeName = args[1].String;
 
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
@@ -41,8 +41,8 @@ namespace osidbg
 
 		bool StatGetAttributeInt(OsiArgumentDesc & args)
 		{
-			auto statName = args.Get(0).String;
-			auto attributeName = args.Get(1).String;
+			auto statName = args[0].String;
+			auto attributeName = args[1].String;
 
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
@@ -61,14 +61,14 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(2).Int32 = *value;
+			args[2].Int32 = *value;
 			return true;
 		}
 
 		bool StatGetAttributeString(OsiArgumentDesc & args)
 		{
-			auto statName = args.Get(0).String;
-			auto attributeName = args.Get(1).String;
+			auto statName = args[0].String;
+			auto attributeName = args[1].String;
 
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
@@ -87,13 +87,13 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(2).String = value->Str;
+			args[2].String = value->Str;
 			return true;
 		}
 
 		bool StatGetType(OsiArgumentDesc & args)
 		{
-			auto statsId = args.Get(0).String;
+			auto statsId = args[0].String;
 
 			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
 			if (stats == nullptr) {
@@ -111,7 +111,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(1).String = typeInfo->Name.Str;
+			args[1].String = typeInfo->Name.Str;
 			return true;
 		}
 	}

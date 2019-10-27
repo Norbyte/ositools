@@ -49,7 +49,7 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		bool CharacterGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) return false;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -61,7 +61,7 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		void CharacterSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args.Get(0).String);
+			auto character = FindCharacterByNameGuid(args[0].String);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);

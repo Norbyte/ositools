@@ -12,24 +12,24 @@ namespace osidbg
 	{
 		void DebugLog(OsiArgumentDesc const & args)
 		{
-			auto msg = args.Get(0).ToString();
+			auto msg = args[0].ToString();
 			OsiMsg(msg);
 		}
 
 		bool StringCompare(OsiArgumentDesc & args)
 		{
-			auto a = args.Get(0).String;
-			auto b = args.Get(1).String;
+			auto a = args[0].String;
+			auto b = args[1].String;
 
 			int rel = strcmp(a, b);
 			if (rel < 0) {
-				args.Get(2).Int32 = -1;
+				args[2].Int32 = -1;
 			}
 			else if (rel == 0) {
-				args.Get(2).Int32 = 0;
+				args[2].Int32 = 0;
 			}
 			else {
-				args.Get(2).Int32 = 1;
+				args[2].Int32 = 1;
 			}
 
 			return true;
@@ -37,16 +37,16 @@ namespace osidbg
 
 		bool StringLength(OsiArgumentDesc & args)
 		{
-			auto str = args.Get(0).String;
-			args.Get(1).Int32 = (int32_t)strlen(str);
+			auto str = args[0].String;
+			args[1].Int32 = (int32_t)strlen(str);
 			return true;
 		}
 
 		bool StringToInt(OsiArgumentDesc & args)
 		{
-			auto a = args.Get(0).String;
+			auto a = args[0].String;
 			try {
-				args.Get(1).Int32 = std::stoi(a);
+				args[1].Int32 = std::stoi(a);
 				return true;
 			}
 			catch (std::invalid_argument &) {
@@ -56,9 +56,9 @@ namespace osidbg
 
 		bool StringToReal(OsiArgumentDesc & args)
 		{
-			auto a = args.Get(0).String;
+			auto a = args[0].String;
 			try {
-				args.Get(1).Float = std::stof(a);
+				args[1].Float = std::stof(a);
 				return true;
 			}
 			catch (std::invalid_argument &) {
@@ -72,15 +72,15 @@ namespace osidbg
 
 		bool RealToString(OsiArgumentDesc & args)
 		{
-			gRealToStringTemp = std::to_string(args.Get(0).Float);
-			args.Get(1).String = gRealToStringTemp.c_str();
+			gRealToStringTemp = std::to_string(args[0].Float);
+			args[1].String = gRealToStringTemp.c_str();
 			return true;
 		}
 
 		void ForLoop(OsiArgumentDesc const & args)
 		{
-			auto eventName = args.Get(0).String;
-			auto count = args.Get(1).Int32;
+			auto eventName = args[0].String;
+			auto count = args[1].Int32;
 
 			for (int32_t index = 0; index < count; index++) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
@@ -94,9 +94,9 @@ namespace osidbg
 
 		void ForLoopObject(OsiArgumentDesc const & args)
 		{
-			auto objectGuid = args.Get(0).String;
-			auto eventName = args.Get(1).String;
-			auto count = args.Get(2).Int32;
+			auto objectGuid = args[0].String;
+			auto eventName = args[1].String;
+			auto count = args[2].Int32;
 
 			for (int32_t index = 0; index < count; index++) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, objectGuid });

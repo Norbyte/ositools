@@ -598,8 +598,8 @@ namespace osidbg
 
 		esv::StatusHit * HitStatusGet(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args.Get(0).String;
-			auto statusHandle = args.Get(1).Int64;
+			auto characterGuid = args[0].String;
+			auto statusHandle = args[1].Int64;
 
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
@@ -633,7 +633,7 @@ namespace osidbg
 			auto status = HitStatusGet(args);
 			if (status == nullptr) return;
 
-			auto damageTypeStr = args.Get(2).String;
+			auto damageTypeStr = args[2].String;
 			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
@@ -654,7 +654,7 @@ namespace osidbg
 			auto status = HitStatusGet(args);
 			if (status == nullptr) return false;
 
-			auto damageTypeStr = args.Get(2).String;
+			auto damageTypeStr = args[2].String;
 			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
@@ -669,7 +669,7 @@ namespace osidbg
 				}
 			}
 
-			args.Get(3).Int32 = amount;
+			args[3].Int32 = amount;
 			return true;
 		}
 
@@ -678,8 +678,8 @@ namespace osidbg
 			auto status = HitStatusGet(args);
 			if (status == nullptr) return;
 
-			auto damageTypeStr = args.Get(2).String;
-			auto amount = args.Get(3).Int32;
+			auto damageTypeStr = args[2].String;
+			auto amount = args[3].Int32;
 
 			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
 			if (!damageType) {
