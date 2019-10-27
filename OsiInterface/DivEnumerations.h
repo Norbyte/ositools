@@ -242,10 +242,11 @@ namespace osidbg
 		Earth = 9,
 		Poison = 10,
 		Shadow = 11,
-		Custom = 12
+		Custom = 12,
+		Sentinel = 13
 	};
 
-	MAKE_ENUM_INFO(DamageType, 13);
+	MAKE_ENUM_INFO(DamageType, 14);
 
 	enum class HitType : uint32_t
 	{

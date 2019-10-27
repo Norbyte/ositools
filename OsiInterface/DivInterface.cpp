@@ -449,7 +449,8 @@ namespace osidbg
 		{ DamageType::Earth, "Earth" },
 		{ DamageType::Poison, "Poison" },
 		{ DamageType::Shadow, "Shadow" },
-		{ DamageType::Custom, "Custom" }
+		{ DamageType::Custom, "Custom" },
+		{ DamageType::Sentinel, "Sentinel" }
 	};
 
 	EnumInfo<HitType>::Label const EnumInfo<HitType>::Values[] = {
