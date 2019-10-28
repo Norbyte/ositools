@@ -244,6 +244,26 @@ namespace osidbg
 			}
 		}
 
+		void StatusPreventApply(OsiArgumentDesc const & args)
+		{
+			auto character = FindCharacterByNameGuid(args[0].String);
+			auto statusHandle = ObjectHandle{ args[1].Int64 };
+			auto preventApply = args[2].Int32;
+
+			if (character == nullptr) {
+				OsiError("Character " << args[0].String << " does not exist!");
+				return;
+			}
+
+			auto status = gPendingStatuses.Find(character, statusHandle);
+			if (status == nullptr) {
+				OsiError("No pending status found with handle " << (int64_t)statusHandle);
+				return;
+			}
+
+			status->PreventApply = (preventApply != 0);
+		}
+
 		template <class T>
 		T * ConstructStatus(esv::StatusMachine * statusMachine, char const * statusId, StatusType type)
 		{
@@ -501,6 +521,7 @@ namespace osidbg
 			}
 		}
 
+		bool eventThrown{ false };
 		if (targetGuid != nullptr) {
 			char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 			if (status->StatusSourceHandle) {
@@ -521,13 +542,29 @@ namespace osidbg
 			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 
 			gPendingStatuses.Add(status);
+			eventThrown = true;
 			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
-			gPendingStatuses.Remove(status);
 
 			delete eventArgs;
 		}
 
+		bool previousPreventApplyState = self->PreventStatusApply;
+		if (eventThrown) {
+			auto pendingStatus = gPendingStatuses.Find(targetCharacter, status->StatusHandle);
+			if (pendingStatus != nullptr) {
+				self->PreventStatusApply = pendingStatus->PreventApply;
+			} else {
+				OsiError("Status not found in pending status list during ApplyStatus ?!");
+			}
+		}
+
 		wrappedApply(self, status);
+
+		self->PreventStatusApply = previousPreventApplyState;
+
+		if (eventThrown) {
+			gPendingStatuses.Remove(status);
+		}
 	}
 
 
@@ -665,6 +702,17 @@ namespace osidbg
 			&func::StatusSetAttribute<OsiPropertyMapType::Vector3>
 		);
 		functionMgr.Register(std::move(setStatusAttributeVector3));
+
+		auto statusPreventApply = std::make_unique<CustomCall>(
+			"NRD_StatusPreventApply",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
+				{ "PreventApply", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::StatusPreventApply
+		);
+		functionMgr.Register(std::move(statusPreventApply));
 
 		auto statusIteratorEvent = std::make_unique<CustomEvent>(
 			"NRD_StatusIteratorEvent",

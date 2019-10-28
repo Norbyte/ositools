@@ -1489,15 +1489,21 @@ namespace osidbg
 	}
 #pragma pack(pop)
 
+	struct PendingStatus
+	{
+		esv::Status * Status;
+		bool PreventApply;
+	};
+
 	class PendingStatuses
 	{
 	public:
 		void Add(esv::Status * status);
 		void Remove(esv::Status * status);
-		esv::Status * Find(esv::Character const * character, ObjectHandle handle) const;
+		PendingStatus * Find(esv::Character const * character, ObjectHandle handle);
 
 	private:
-		std::unordered_map<ObjectHandle, esv::Status *> statuses_;
+		std::unordered_map<ObjectHandle, PendingStatus> statuses_;
 	};
 
 	extern PendingStatuses gPendingStatuses;
