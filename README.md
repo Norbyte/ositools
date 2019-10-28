@@ -9,7 +9,9 @@ Features:
  - Logging of Osiris compilation
 
 ### Configuration
+
 The following configuration variables can be set in the `OsirisProxy.json` file:
+
 | Variable | Type | Description |
 |--|--|--|
 | CreateConsole | Boolean | Creates a console window that logs extender internals. Mainly useful for debugging. |
