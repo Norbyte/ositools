@@ -112,6 +112,16 @@ Thrown before a status is applied to the target character or item. Status attrib
  - The status flags `ForceStatus` and `ForceFailStatus` can be set during the status attempt event to force a successful/failed prerequisite check result.
 
 
+### StatusPreventApply
+`call NRD_StatusPreventApply((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (INTEGER)_PreventApply)`
+
+Prevents a pending status from being applied to the character. 
+
+**Notes:**
+ - Can only be called during an `OnStatusAttempt` event; calling it after the status attempt event completed has no effect.
+ - Unlike the `ForceFailStatus` flag, stopping a status attempt using `StatusPreventApply` will also prevent the `CharacterStatusAttempt` and `FetchCharacterApplyStatusData` events.
+
+
 ### StatusGetHandle
 `query NRD_StatusGetHandle([in](CHARACTERGUID)_Character, [in](STRING)_StatusId, [out](INTEGER64)_StatusHandle)`
 
