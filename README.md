@@ -3,7 +3,7 @@
 A toolkit for manipulating Divinity Original Sin 2 internals.
 
 Features:
- - Lots of new Osiris calls and queries that expose previously unavailable functionality ([API Documentation]([https://github.com/Norbyte/ositools/blob/master/APIDocs.md](https://github.com/Norbyte/ositools/blob/master/APIDocs.md)))
+ - Lots of new Osiris calls and queries that expose previously unavailable functionality ([API Documentation](https://github.com/Norbyte/ositools/blob/master/APIDocs.md))
  - Real-time debugging of Osiris code ([Usage](https://gist.github.com/Norbyte/8b7eb35cd17f799ea113636b15e1f967))
  - Logging of Osiris rule execution
  - Logging of Osiris compilation
