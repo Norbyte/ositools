@@ -756,9 +756,11 @@ namespace osidbg
 		bool ResetOncePerCombat; // Saved
 		bool ScaleWithVitality; // Saved
 		bool LoseControl; // Saved
+		uint8_t _Pad10[4];
 		FixedString ApplyStatusOnTick;
 		ObjectSet<ObjectHandle> ItemHandles; // Saved
 		float EffectTime; // Saved
+		uint8_t _Pad11[4];
 		FixedString StatsId; // Saved
 		ObjectSet<void *> StatsIDs; // Set<StatsData>
 		FixedString StackId;
@@ -768,7 +770,7 @@ namespace osidbg
 		int field_170;
 		int SavingThrow; // TODO enum + enum prop!
 		Vector3 SourceDirection; // Saved
-		uint8_t _Pad10[4];
+		uint8_t _Pad12[4];
 		PrimitiveSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
 		int field_198;
 		int field_19C;
