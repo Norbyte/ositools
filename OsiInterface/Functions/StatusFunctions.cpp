@@ -527,6 +527,13 @@ namespace osidbg
 
 	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)
 	{
+		// Don't throw events for inactive status machines, as those will get swallowed
+		// by Osiris during loading anyway.
+		if (!self->IsStatusMachineActive) {
+			wrappedApply(self, status);
+			return;
+		}
+
 		char const * targetGuid{ nullptr };
 		auto target = FindGameObjectByHandle(self->OwnerObjectHandle);
 		if (target != nullptr) {
