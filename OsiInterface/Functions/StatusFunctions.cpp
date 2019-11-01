@@ -11,44 +11,65 @@ namespace osidbg
 	FunctionHandle HitEventHandle;
 	FunctionHandle HealEventHandle;
 
+	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid)
+	{
+		auto character = FindCharacterByNameGuid(gameObjectGuid, false);
+		if (character != nullptr) {
+			return character->StatusMachine;
+		}
+
+		auto item = FindItemByNameGuid(gameObjectGuid, false);
+		if (item != nullptr) {
+			return item->StatusMachine;
+		}
+
+		OsiError("Character or item " << gameObjectGuid << " does not exist!");
+		return nullptr;
+	}
+
 	namespace func
 	{
-		void IterateCharacterStatuses(OsiArgumentDesc const & args)
+		void IterateStatuses(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args[0].String;
-			auto character = FindCharacterByNameGuid(characterGuid);
-			if (character == nullptr) {
-				OsiError("Character " << characterGuid << " does not exist!");
-				return;
-			}
-
+			auto gameObjectGuid = args[0].String;
 			auto eventName = args[1].String;
-			if (character->StatusMachine != nullptr) {
-				auto & statuses = character->StatusMachine->Statuses.Set;
-				for (uint32_t index = 0; index < statuses.Size; index++) {
-					auto status = statuses.Buf[index];
-					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
-					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
-					eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
-					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusIteratorEventHandle, eventArgs);
+			auto statusMachine = GetStatusMachine(gameObjectGuid);
+			if (statusMachine == nullptr) return;
 
-					delete eventArgs;
-				}
+			auto & statuses = statusMachine->Statuses.Set;
+			for (uint32_t index = 0; index < statuses.Size; index++) {
+				auto status = statuses.Buf[index];
+				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, gameObjectGuid });
+				eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+				eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+
+				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusIteratorEventHandle, eventArgs);
+
+				delete eventArgs;
 			}
 		}
 
 		esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
-			if (character == nullptr) {
-				OsiError("Character " << args[0].String << " does not exist!");
-				return nullptr;
+			auto gameObjectGuid = args[0].String;
+			ObjectHandle statusHandle{ args[1].Int64 };
+
+			esv::Status * status{ nullptr };
+			auto character = FindCharacterByNameGuid(gameObjectGuid);
+			if (character != nullptr) {
+				status = character->GetStatusByHandle(statusHandle, true);
+			} else {
+				auto item = FindItemByNameGuid(gameObjectGuid);
+				if (item != nullptr) {
+					status = item->GetStatusByHandle(statusHandle, true);
+				} else {
+					OsiError("Character or item " << gameObjectGuid << " does not exist!");
+					return nullptr;
+				}
 			}
 
-			ObjectHandle statusHandle{ args[1].Int64 };
-			auto status = character->GetStatusByHandle(statusHandle);
 			if (status == nullptr) {
 				OsiError("No status found with handle " << (int64_t)statusHandle);
 				return nullptr;
@@ -59,28 +80,23 @@ namespace osidbg
 
 		bool StatusGetHandle(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
-			if (character == nullptr) {
-				OsiError("Character " << args[0].String << " does not exist!");
-				return false;
-			}
+			auto gameObjectGuid = args[0].String;
+			auto statusId = args[1].String;
 
-			if (character->StatusMachine == nullptr) {
-				OsiError("Character " << args[0].String << " has no StatusManager!");
-				return false;
-			}
+			auto statusMachine = GetStatusMachine(gameObjectGuid);
+			if (statusMachine == nullptr) return false;
 
-			auto statusId = ToFixedString(args[1].String);
-			if (!statusId) {
+			auto statusIdFS = ToFixedString(args[1].String);
+			if (!statusIdFS) {
 				// No fixed string with this ID --> invalid status name
 				OsiWarn("Status " << args[1].String << " not in string table, possibly invalid status name?");
 				return false;
 			}
 
-			auto & statuses = character->StatusMachine->Statuses.Set;
+			auto & statuses = statusMachine->Statuses.Set;
 			for (uint32_t index = 0; index < statuses.Size; index++) {
 				auto status = statuses.Buf[index];
-				if (status->StatusId == statusId) {
+				if (status->StatusId == statusIdFS) {
 					args[2].Int64 = (int64_t)status->StatusHandle;
 					return true;
 				}
@@ -246,16 +262,19 @@ namespace osidbg
 
 		void StatusPreventApply(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto gameObject = FindGameObjectByNameGuid(args[0].String);
 			auto statusHandle = ObjectHandle{ args[1].Int64 };
 			auto preventApply = args[2].Int32;
 
-			if (character == nullptr) {
-				OsiError("Character " << args[0].String << " does not exist!");
+			if (gameObject == nullptr) {
+				OsiError("Game object " << args[0].String << " does not exist!");
 				return;
 			}
 
-			auto status = gPendingStatuses.Find(character, statusHandle);
+			ObjectHandle gameObjectHandle;
+			gameObject->GetObjectHandle(&gameObjectHandle);
+
+			auto status = gPendingStatuses.Find(gameObjectHandle, statusHandle);
 			if (status == nullptr) {
 				OsiError("No pending status found with handle " << (int64_t)statusHandle);
 				return;
@@ -399,7 +418,7 @@ namespace osidbg
 			return;
 		}
 
-		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		auto target = FindGameObjectByHandle(status->TargetCIHandle);
 		if (target == nullptr) {
 			OsiError("Status has no target?");
 			return;
@@ -509,30 +528,20 @@ namespace osidbg
 	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)
 	{
 		char const * targetGuid{ nullptr };
-		auto targetCharacter = FindCharacterByHandle(self->OwnerObjectHandle);
-		if (targetCharacter != nullptr) {
-			targetGuid = targetCharacter->GetGuid()->Str;
+		auto target = FindGameObjectByHandle(self->OwnerObjectHandle);
+		if (target != nullptr) {
+			targetGuid = target->GetGuid()->Str;
 		} else {
-			auto targetItem = FindItemByHandle(self->OwnerObjectHandle);
-			if (targetItem != nullptr) {
-				targetGuid = targetItem->GetGuid()->Str;
-			} else {
-				OsiError("Can't throw ApplyStatus event - target handle could not be resolved.");
-			}
+			OsiError("Can't throw ApplyStatus event - target handle could not be resolved.");
 		}
 
 		bool eventThrown{ false };
 		if (targetGuid != nullptr) {
 			char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 			if (status->StatusSourceHandle) {
-				auto sourceCharacter = FindCharacterByHandle(status->StatusSourceHandle);
-				if (sourceCharacter != nullptr) {
-					sourceGuid = sourceCharacter->GetGuid()->Str;
-				} else {
-					auto sourceItem = FindItemByHandle(status->StatusSourceHandle);
-					if (sourceItem != nullptr) {
-						sourceGuid = sourceItem->GetGuid()->Str;
-					}
+				auto source = FindGameObjectByHandle(status->StatusSourceHandle);
+				if (source != nullptr) {
+					sourceGuid = source->GetGuid()->Str;
 				}
 			}
 
@@ -550,7 +559,10 @@ namespace osidbg
 
 		bool previousPreventApplyState = self->PreventStatusApply;
 		if (eventThrown) {
-			auto pendingStatus = gPendingStatuses.Find(targetCharacter, status->StatusHandle);
+			ObjectHandle targetHandle;
+			target->GetObjectHandle(&targetHandle);
+
+			auto pendingStatus = gPendingStatuses.Find(targetHandle, status->StatusHandle);
 			if (pendingStatus != nullptr) {
 				self->PreventStatusApply = pendingStatus->PreventApply;
 			} else {
@@ -573,19 +585,19 @@ namespace osidbg
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
 		auto iterateCharacterStatuses = std::make_unique<CustomCall>(
-			"NRD_IterateCharacterStatuses",
+			"NRD_IterateStatuses",
 			std::vector<CustomFunctionParam>{
-				{ "CharacterGuid", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "ObjectGuid", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Event", ValueType::String, FunctionArgumentDirection::In }
 			},
-			&func::IterateCharacterStatuses
+			&func::IterateStatuses
 		);
 		functionMgr.Register(std::move(iterateCharacterStatuses));
 
 		auto getStatusHandle = std::make_unique<CustomQuery>(
 			"NRD_StatusGetHandle",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
@@ -596,7 +608,7 @@ namespace osidbg
 		auto getStatusAttributeInt = std::make_unique<CustomQuery>(
 			"NRD_StatusGetInt",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
@@ -608,7 +620,7 @@ namespace osidbg
 		auto getStatusAttributeReal = std::make_unique<CustomQuery>(
 			"NRD_StatusGetReal",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
@@ -620,7 +632,7 @@ namespace osidbg
 		auto getStatusAttributeString = std::make_unique<CustomQuery>(
 			"NRD_StatusGetString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
@@ -632,7 +644,7 @@ namespace osidbg
 		auto getStatusAttributeGuidString = std::make_unique<CustomQuery>(
 			"NRD_StatusGetGuidString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out },
@@ -644,7 +656,7 @@ namespace osidbg
 		auto setStatusAttributeInt = std::make_unique<CustomCall>(
 			"NRD_StatusSetInt",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
@@ -656,7 +668,7 @@ namespace osidbg
 		auto setStatusAttributeReal = std::make_unique<CustomCall>(
 			"NRD_StatusSetReal",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
@@ -668,7 +680,7 @@ namespace osidbg
 		auto setStatusAttributeString = std::make_unique<CustomCall>(
 			"NRD_StatusSetString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::In },
@@ -680,7 +692,7 @@ namespace osidbg
 		auto setStatusAttributeGuidString = std::make_unique<CustomCall>(
 			"NRD_StatusSetGuidString",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::In },
@@ -692,7 +704,7 @@ namespace osidbg
 		auto setStatusAttributeVector3 = std::make_unique<CustomCall>(
 			"NRD_StatusSetVector3",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
@@ -706,7 +718,7 @@ namespace osidbg
 		auto statusPreventApply = std::make_unique<CustomCall>(
 			"NRD_StatusPreventApply",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "PreventApply", ValueType::Integer, FunctionArgumentDirection::In }
 			},
@@ -718,7 +730,7 @@ namespace osidbg
 			"NRD_StatusIteratorEvent",
 			std::vector<CustomFunctionParam>{
 				{ "Event", ValueType::String, FunctionArgumentDirection::In },
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusId", ValueType::String, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 			}
@@ -765,7 +777,7 @@ namespace osidbg
 		auto hitPrepareEvent = std::make_unique<CustomEvent>(
 			"NRD_OnPrepareHit",
 			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "HitHandle", ValueType::Integer64, FunctionArgumentDirection::In },
@@ -776,7 +788,7 @@ namespace osidbg
 		auto hitEvent = std::make_unique<CustomEvent>(
 			"NRD_OnHit",
 			std::vector<CustomFunctionParam>{
-				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Target", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Instigator", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "Damage", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },

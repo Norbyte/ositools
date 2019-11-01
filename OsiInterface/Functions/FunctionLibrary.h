@@ -6,10 +6,12 @@ namespace osidbg
 {
 	FixedString ToFixedString(const char * s);
 	char const * NameGuidToFixedString(std::string const & nameGuid);
-	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid);
-	esv::Character * FindCharacterByHandle(ObjectHandle const & handle);
-	esv::Item * FindItemByNameGuid(std::string const & nameGuid);
-	esv::Item * FindItemByHandle(ObjectHandle const & handle);
+	esv::EoCServerObject * FindGameObjectByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::EoCServerObject * FindGameObjectByHandle(ObjectHandle const & handle, bool logError = true);
+	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError = true);
+	esv::Item * FindItemByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
 
@@ -38,7 +40,7 @@ namespace osidbg
 
 		int64_t Handle;
 		esv::Character * Source{ nullptr };
-		esv::Character * Target{ nullptr };
+		esv::EoCServerObject * Target{ nullptr };
 
 		HelperType Type;
 		HitDamageInfo * Hit{ nullptr };

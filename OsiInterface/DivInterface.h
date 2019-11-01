@@ -833,6 +833,8 @@ namespace osidbg
 
 	struct StatusMachine
 	{
+		Status * GetStatusByHandle(ObjectHandle handle) const;
+
 		uint8_t U2[288];
 		bool IsStatusMachineActive;
 		bool PreventStatusApply;
@@ -982,10 +984,10 @@ namespace osidbg
 		FixedString Region;
 	};
 
-	struct Character
+	struct EoCServerObject
 	{
-		virtual ~Character() = 0;
-		virtual void VMT08() = 0;
+		virtual ~EoCServerObject() = 0;
+		virtual void HandleTextKeyEvent() = 0;
 		virtual uint64_t Ret5() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
 		virtual void GetObjectHandle(ObjectHandle * Handle) const = 0;
@@ -1040,18 +1042,23 @@ namespace osidbg
 		virtual void SetTemplate() = 0;
 		virtual void SetOriginalTemplate_M() = 0;
 
-		Status * GetStatusByHandle(ObjectHandle handle) const;
-
 		BaseComponent Base;
 		FixedString MyGuid;
+
 		uint32_t NetID;
 		uint32_t _Pad1;
-		glm::vec3 WorldPos;
+		glm::vec3 WorldPos; // Saved
 		uint32_t _Pad2;
-		EsvCharacterFlags Flags;
+		uint64_t Flags; // Saved
 		uint32_t U2;
 		uint32_t _Pad3;
-		void * CurrentLevel;
+		FixedString CurrentLevel; // Saved
+	};
+
+	struct Character : public EoCServerObject
+	{
+		Status * GetStatusByHandle(ObjectHandle handle, bool returnPending) const;
+
 		glm::mat3 WorldRot;
 		float Scale;
 		ObjectSet<void *> PeerIDClassNames;
@@ -1064,7 +1071,9 @@ namespace osidbg
 		uint8_t Team;
 		uint8_t Color;
 		uint8_t _Pad4[3];
-		uint64_t U4[6];
+		uint64_t U4[3];
+		float U41[3];
+		float U42[3];
 		void * AI;
 		FixedString AnimationOverride;
 		uint32_t WalkSpeedOverride;
@@ -1094,8 +1103,10 @@ namespace osidbg
 		SkillManager * SkillManager;
 		void * VariableManager;
 		void * RaceVariableManager_M;
-		void * Attitudes;
-		uint64_t U9[4];
+		FixedStringMapBase<void *> Attitudes; // Element type unknown
+		uint8_t _Pad61[4];
+		FixedString U91;
+		uint64_t U9[1];
 		uint32_t Dialog;
 		bool IsDialogAiControlled;
 		uint8_t U10[3];
@@ -1111,7 +1122,7 @@ namespace osidbg
 		ObjectHandle CorpseCharacterHandle;
 		ObjectHandle ObjectHandle6;
 		ObjectSet<ObjectHandle> EnemyHandles;
-		ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePAthInfluence>
+		ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePathInfluence>
 		ObjectSet<ObjectHandle> SummonHandles;
 		void * PlanManager;
 		uint32_t PartialAP;
@@ -1123,24 +1134,24 @@ namespace osidbg
 		ObjectSet<FixedString> RegisteredTriggers;
 		PlayerData * PlayerData;
 		eoc::PlayerUpgrade PlayerUpgrade;
-		uint8_t _Pad61[7];
-		uint64_t U13[2];
+		uint8_t _Pad62[7];
+		uint64_t U13;
+		float U131;
+		uint8_t _Pad63[4];
 		void * CustomDisplayName;
 		void * StoryDisplayName;
 		void * OriginalTransformDisplayName;
 		uint64_t U14[20];
-		uint32_t MaxVitalityPatchCheck;
-		uint32_t MaxArmorPatchCheck;
-		uint32_t MaxMagicArmorPatchCheck;
-		uint32_t _Pad7;
+		int32_t MaxVitalityPatchCheck;
+		int32_t MaxArmorPatchCheck;
+		int32_t MaxMagicArmorPatchCheck;
+		float _Pad7;
 		void * AnimationSetOverride;
 		ObjectHandle PartyHandle;
 		ObjectSet<FixedString> CreatedTemplateItems;
-		void * Treasures;
-		Set<ObjectHandle> CustomTradeTreasure;
-		uint64_t U141;
-		void * Target;
-		uint64_t U15[3];
+		ObjectSet<FixedString> CustomTradeTreasure;
+		FixedString U141;
+		ObjectSet<FixedString> Target;
 		ObjectHandle CrimeHandle;
 		ObjectHandle PreviousCrimeHandle;
 		uint32_t CrimeState;
@@ -1150,24 +1161,26 @@ namespace osidbg
 		bool CrimeInterrogationEnabled;
 		bool _Pad8;
 		uint32_t InvestigationTimer;
-		void * DisabledCrime;
-		uint64_t U16[3];
+		ObjectSet<FixedString> DisabledCrime;
 		uint64_t DamageCounter;
 		uint64_t HealCounter;
 		uint64_t KillCounter;
-		uint64_t U17;
-		uint64_t Archetype;
-		uint64_t EquipmentColor;
-		uint64_t ProjectileTemplate;
-		uint64_t TimeElapsed;
-		uint64_t PreferredAiTarget;
-		uint64_t U18[10];
+		ObjectHandle U17;
+		FixedString Archetype;
+		FixedString EquipmentColor;
+		FixedString ProjectileTemplate;
+		uint32_t TimeElapsed;
+		uint8_t _Pad81[4];
+		ObjectSet<FixedString> PreferredAiTarget;
+		uint64_t U18;
+		FixedStringRefMap<void *> U19;
+		ObjectSet<FixedString> U20;
 		void * VisualSetIndices;
 		bool ReadyCheckBlocked;
 		bool CorpseLootable;
 		uint8_t NumConsumables;
 		uint8_t _Pad9[5];
-		void * PreviousLevel;
+		FixedString PreviousLevel;
 	};
 	
 	struct ItemGeneration
@@ -1180,79 +1193,16 @@ namespace osidbg
 		Set<FixedString> Boosts; // Saved
 	};
 
-	struct Item
+	struct Item : public EoCServerObject
 	{
-		virtual ~Item() = 0;
-		virtual void HandleTextKeyEvent() = 0;
-		virtual uint64_t Ret5() = 0;
-		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
-		virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
-		virtual void SetGuid(FixedString const & fs) = 0;
-		virtual FixedString * GetGuid() = 0;
-		virtual void SetNetID(uint32_t netId) = 0;
-		virtual void GetNetID(uint32_t & netId) = 0;
-		virtual void SetCurrentTemplate() = 0;
-		virtual void GetCurrentTemplate() = 0;
-		virtual void SetGlobal() = 0;
-		virtual void GetGlobal() = 0;
-		virtual void GetComponentType() = 0;
-		virtual void GetEntityObjectByHandle() = 0;
-		virtual void GetName() = 0;
-		virtual void SetFlags(uint64_t flag) = 0;
-		virtual void ClearFlags(uint64_t flag) = 0;
-		virtual void HasFlag() = 0;
-		virtual void SetAiColliding() = 0;
-		virtual void GetTags() = 0;
-		virtual void IsTagged() = 0;
-		virtual Vector3 const * GetTranslate() = 0;
-		virtual void GetRotation() = 0;
-		virtual float GetScale() = 0;
-		virtual void SetTranslate(Vector3 const & translate) = 0;
-		virtual void SetRotation() = 0;
-		virtual void SetScale(float scale) = 0;
-		virtual void GetVelocity() = 0;
-		virtual void SetVelocity(Vector3 const & translate) = 0;
-		virtual void LoadVisual() = 0;
-		virtual void UnloadVisual() = 0;
-		virtual void ReloadVisual() = 0;
-		virtual void GetVisual() = 0;
-		virtual void GetPhysics() = 0;
-		virtual void SetPhysics() = 0;
-		virtual void LoadPhysics() = 0;
-		virtual void UnloadPhysics() = 0;
-		virtual void ReloadPhysics() = 0;
-		virtual void GetHeight() = 0;
-		virtual void GetParentUUID() = 0;
-		virtual FixedString * GetCurrentLevel() = 0;
-		virtual void SetCurrentLevel(FixedString const & level) = 0;
-		virtual void AddPeer() = 0;
-		virtual void UNK1() = 0;
-		virtual void UNK2() = 0;
-		virtual void UNK3() = 0;
-		virtual void GetAi() = 0;
-		virtual void LoadAi() = 0;
-		virtual void UnloadAi() = 0;
-		virtual void GetDisplayName() = 0;
-		virtual void SavegameVisit() = 0;
-		virtual void GetEntityNetworkId() = 0;
-		virtual void SetTemplate() = 0;
-		virtual void SetOriginalTemplate_M() = 0;
+		Status * GetStatusByHandle(ObjectHandle handle, bool returnPending) const;
 
-		BaseComponent Base;
-		FixedString MyGuid;
-		uint32_t NetID;
-		uint32_t _Pad1;
-		glm::vec3 WorldPos; // Saved
-		uint32_t _Pad2;
-		uint64_t Flags2; // Saved
-		uint32_t U2;
-		uint32_t _Pad3;
-		void * CurrentLevel; // Saved
 		glm::mat3 WorldRot; // Saved
 		float Scale; // Saved
 		uint8_t Flags3;
 		uint8_t _Pad4[7];
-		uint64_t U3[4];
+		PrimitiveSet<uint16_t> PeerIDClassNames;
+		uint64_t U3[2];
 		glm::vec3 WorldVelocity; // Saved
 		uint32_t _Pad5;
 		uint64_t U4;
@@ -1291,18 +1241,14 @@ namespace osidbg
 		uint32_t GoldValueOverwrite; // Saved
 		uint32_t WeightValueOverwrite; // Saved
 		uint64_t U8;
-		void * Tags; // Saved
-		void * DynamicTags;
-		uint32_t U9;
-		uint32_t HasDynamicTags;
-		uint64_t U10;
+		ObjectSet<FixedString> Tags; // Saved
 		uint64_t TeleportTargetOverride; // Saved
 		int32_t TreasureLevel; // Saved // -1 = Not overridden
 		uint32_t LevelOverride; // Saved
 		bool ForceSynch; // Saved
 		uint8_t _Pad8[3];
 		int32_t TeleportUseCount; // Saved
-		uint64_t PreviousLevel; // Saved
+		FixedString PreviousLevel; // Saved
 	};
 
 	struct ShootProjectileHelper
@@ -1502,7 +1448,7 @@ namespace osidbg
 	public:
 		void Add(esv::Status * status);
 		void Remove(esv::Status * status);
-		PendingStatus * Find(esv::Character const * character, ObjectHandle handle);
+		PendingStatus * Find(ObjectHandle owner, ObjectHandle statusHandle);
 
 	private:
 		std::unordered_map<ObjectHandle, PendingStatus> statuses_;

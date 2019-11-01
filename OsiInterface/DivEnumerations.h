@@ -548,4 +548,61 @@ namespace osidbg
 	};
 
 	MAKE_ENUM_INFO(TalentType, 114);
+
+
+	enum ESurfaceFlag : uint64_t
+	{
+		// --- BASE TYPE START
+		SurfaceFlag_Fire = 0x1000000,
+		SurfaceFlag_Water = 0x2000000,
+		SurfaceFlag_Blood = 0x4000000,
+		SurfaceFlag_Poison = 0x8000000,
+		SurfaceFlag_Oil = 0x10000000,
+		SurfaceFlag_Lava = 0x20000000,
+		SurfaceFlag_Source = 0x40000000,
+		SurfaceFlag_Web = 0x80000000,
+		SurfaceFlag_Deepwater = 0x100000000,
+		SurfaceFlag_Custom = 0x200000000,
+		// UNUSED = 0x400000000,
+		// --- BASE TYPE END
+
+
+		// --- CLOUD TYPE START
+		SurfaceFlag_FireCloud = 0x800000000,
+		SurfaceFlag_WaterCloud = 0x1000000000,
+		SurfaceFlag_BloodCloud = 0x2000000000,
+		SurfaceFlag_PoisonCloud = 0x4000000000,
+		SurfaceFlag_SmokeCloud = 0x8000000000,
+		SurfaceFlag_ExplosionCloud = 0x10000000000,
+		SurfaceFlag_FrostCloud = 0x20000000000,
+		SurfaceFlag_Deathfog = 0x40000000000,
+		SurfaceFlag_ShockwaveCloud = 0x80000000000,
+		// UNUSED = 0x100000000000,
+		// UNUSED = 0x200000000000,
+		// --- CLOUD TYPE END
+
+		SurfaceFlag_Blessed = 0x400000000000,
+		SurfaceFlag_Cursed = 0x800000000000,
+		SurfaceFlag_Purified = 0x1000000000000,
+		// SurfaceFlag_??? = 0x2000000000000,
+
+		// --- SURFACE ADJ START
+		SurfaceFlag_CloudBlessed = 0x4000000000000,
+		SurfaceFlag_CloudCursed = 0x8000000000000,
+		SurfaceFlag_CloudPurified = 0x10000000000000,
+		// UNUSED = 0x20000000000000,
+		// --- SURFACE ADJ END
+
+		// --- GROUND MOD START
+		SurfaceFlag_Electrified = 0x40000000000000,
+		SurfaceFlag_Frozen = 0x80000000000000,
+		SurfaceFlag_CloudElectrified = 0x100000000000000,
+		// --- GROUND MOD END
+
+		// --- CLOUD MOD START
+		SurfaceFlag_ElectrifiedDecay = 0x200000000000000,
+		SurfaceFlag_SomeDecay = 0x400000000000000,
+		// UNUSED = 0x800000000000000,
+		// --- CLOUD MOD END
+	};
 }

@@ -292,6 +292,8 @@ namespace osidbg
 		DamageList->AddDamage(DamageType, Amount);
 	}
 
+	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid);
+
 	esv::StatusHit * DamageHelpers::Execute()
 	{
 		if (!Target) {
@@ -310,7 +312,7 @@ namespace osidbg
 			return false;
 		}
 
-		auto statusMachine = Target->StatusMachine;
+		auto statusMachine = GetStatusMachine(Target->GetGuid()->Str);
 		if (!statusMachine) {
 			OsiError("Target has no StatusMachine!");
 			return false;
@@ -356,8 +358,14 @@ namespace osidbg
 		damage.HitWithWeapon = Hit->HitWithWeapon;
 
 		if (CallCharacterHit) {
-			characterHit(Target, Source->Stats, nullptr, DamageList, HitType, RollForDamage ? 1 : 0, 
-				&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);
+			auto targetCharacter = FindCharacterByNameGuid(Target->GetGuid()->Str);
+			if (targetCharacter == nullptr) {
+				OsiError("Attempt to hit an item with CallCharacterHit flag ?!");
+			} else {
+				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, RollForDamage ? 1 : 0,
+					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);
+			}
+
 		} else {
 			damage.DamageList.Size = DamageList->Size;
 			for (uint32_t i = 0; i < DamageList->Size; i++) {
@@ -403,9 +411,9 @@ namespace osidbg
 			auto sourceGuid = args[1].String;
 			auto & helperHandle = args[2].Int64;
 
-			auto target = FindCharacterByNameGuid(targetGuid);
+			auto target = FindGameObjectByNameGuid(targetGuid);
 			if (target == nullptr) {
-				OsiError("Target character '" << targetGuid << "' doesn't exist!");
+				OsiError("Target '" << targetGuid << "' doesn't exist!");
 				return false;
 			}
 
@@ -594,19 +602,13 @@ namespace osidbg
 			helper->AddDamage(*damageType, amount);
 		}
 
-
+		esv::Status * GetStatusHelper(OsiArgumentDesc const & args);
 
 		esv::StatusHit * HitStatusGet(OsiArgumentDesc const & args)
 		{
-			auto characterGuid = args[0].String;
 			auto statusHandle = args[1].Int64;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
-			if (character == nullptr) {
-				return nullptr;
-			}
-
-			auto status = character->GetStatusByHandle(ObjectHandle{ statusHandle });
+			auto status = GetStatusHelper(args);
 			if (status == nullptr) {
 				OsiError("No status found with this handle: " << statusHandle);
 				return nullptr;
@@ -827,7 +829,7 @@ namespace osidbg
 		auto hitStatusClearAllDamage = std::make_unique<CustomCall>(
 			"NRD_HitStatusClearAllDamage",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In }
 			},
 			&func::HitStatusClearAllDamage
@@ -837,7 +839,7 @@ namespace osidbg
 		auto hitStatusGetDamage = std::make_unique<CustomQuery>(
 			"NRD_HitStatusGetDamage",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "DamageType", ValueType::String, FunctionArgumentDirection::In },
 				{ "Amount", ValueType::Integer, FunctionArgumentDirection::Out }
@@ -849,7 +851,7 @@ namespace osidbg
 		auto hitStatusClearDamage = std::make_unique<CustomCall>(
 			"NRD_HitStatusClearDamage",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "DamageType", ValueType::String, FunctionArgumentDirection::In }
 			},
@@ -860,7 +862,7 @@ namespace osidbg
 		auto hitStatusAddDamage = std::make_unique<CustomCall>(
 			"NRD_HitStatusAddDamage",
 			std::vector<CustomFunctionParam>{
-				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "StatusHandle", ValueType::Integer64, FunctionArgumentDirection::In },
 				{ "DamageType", ValueType::String, FunctionArgumentDirection::In },
 				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In }

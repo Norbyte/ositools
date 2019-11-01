@@ -274,14 +274,12 @@ namespace osidbg
 		}
 	}
 
-	PendingStatus * PendingStatuses::Find(esv::Character const * character, ObjectHandle handle)
+	PendingStatus * PendingStatuses::Find(ObjectHandle owner, ObjectHandle handle)
 	{
 		auto it = statuses_.find(handle);
 		if (it != statuses_.end()) {
 			auto & status = it->second;
-			ObjectHandle characterHandle;
-			character->GetObjectHandle(&characterHandle);
-			if (characterHandle == status.Status->TargetCIHandle) {
+			if (owner == status.Status->TargetCIHandle) {
 				return &status;
 			} else {
 				OsiError("Attempted to retrieve pending status " << std::hex << (int64_t)status.Status->StatusHandle
@@ -293,23 +291,62 @@ namespace osidbg
 		}
 	}
 
-	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle handle) const
+	esv::Status * esv::StatusMachine::GetStatusByHandle(ObjectHandle handle) const
 	{
-		if (StatusMachine == nullptr) {
-			return nullptr;
-		}
-
-		auto count = StatusMachine->Statuses.Set.Size;
+		auto count = Statuses.Set.Size;
 		for (uint32_t i = 0; i < count; i++) {
-			auto status = StatusMachine->Statuses.Set.Buf[i];
+			auto status = Statuses.Set.Buf[i];
 			if (status->StatusHandle == handle) {
 				return status;
 			}
 		}
 
-		auto pendingStatus = gPendingStatuses.Find(this, handle);
-		if (pendingStatus != nullptr) {
-			return pendingStatus->Status;
+		return nullptr;
+	}
+
+	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle handle, bool returnPending) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		auto status = StatusMachine->GetStatusByHandle(handle);
+		if (status != nullptr) {
+			return status;
+		}
+
+		if (returnPending) {
+			ObjectHandle handle;
+			this->GetObjectHandle(&handle);
+
+			auto pendingStatus = gPendingStatuses.Find(handle, handle);
+			if (pendingStatus != nullptr) {
+				return pendingStatus->Status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	esv::Status * esv::Item::GetStatusByHandle(ObjectHandle handle, bool returnPending) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		auto status = StatusMachine->GetStatusByHandle(handle);
+		if (status != nullptr) {
+			return status;
+		}
+
+		if (returnPending) {
+			ObjectHandle handle;
+			this->GetObjectHandle(&handle);
+
+			auto pendingStatus = gPendingStatuses.Find(handle, handle);
+			if (pendingStatus != nullptr) {
+				return pendingStatus->Status;
+			}
 		}
 
 		return nullptr;

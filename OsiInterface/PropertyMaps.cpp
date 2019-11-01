@@ -424,15 +424,9 @@ namespace osidbg
 				return true;
 			}
 
-			auto character = FindCharacterByHandle(*val);
-			if (character != nullptr) {
-				args.Get(firstArg + 1).String = character->GetGuid()->Str;
-				return true;
-			}
-
-			auto item = FindItemByHandle(*val);
-			if (item != nullptr) {
-				args.Get(firstArg + 1).String = item->GetGuid()->Str;
+			auto gameObject = FindGameObjectByHandle(*val);
+			if (gameObject != nullptr) {
+				args.Get(firstArg + 1).String = gameObject->GetGuid()->Str;
 				return true;
 			}
 
@@ -508,17 +502,10 @@ namespace osidbg
 				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
 			}
 
-			auto character = FindCharacterByNameGuid(guid);
-			if (character != nullptr) {
+			auto gameObject = FindGameObjectByNameGuid(guid);
+			if (gameObject != nullptr) {
 				ObjectHandle handle;
-				character->GetObjectHandle(&handle);
-				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
-			}
-
-			auto item = FindItemByNameGuid(guid);
-			if (item != nullptr) {
-				ObjectHandle handle;
-				item->GetObjectHandle(&handle);
+				gameObject->GetObjectHandle(&handle);
 				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
 

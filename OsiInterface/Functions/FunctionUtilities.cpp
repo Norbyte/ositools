@@ -8,7 +8,7 @@ namespace osidbg
 	{
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			Debug("ToFixedString(): Global string table not available!");
+			OsiError("ToFixedString(): Global string table not available!");
 			return FixedString(nullptr);
 		}
 
@@ -19,7 +19,7 @@ namespace osidbg
 	char const * NameGuidToFixedString(std::string const & nameGuid)
 	{
 		if (nameGuid.size() < 36) {
-			Debug("NameGuidToFixedString(): GUID (%s) too short!", nameGuid.c_str());
+			OsiError("NameGuidToFixedString(): GUID (" << nameGuid << ") too short!");
 			return nullptr;
 		}
 
@@ -27,14 +27,56 @@ namespace osidbg
 
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			Debug("NameGuidToFixedString(): Global string table not available!");
+			OsiError("NameGuidToFixedString(): Global string table not available!");
 			return nullptr;
 		}
 
 		return stringTable->Find(guid.c_str(), guid.size());
 	}
 
-	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid)
+	esv::EoCServerObject * FindGameObjectByNameGuid(std::string const & nameGuid, bool logError)
+	{
+		auto character = FindCharacterByNameGuid(nameGuid, false);
+		if (character != nullptr) {
+			return character;
+		}
+
+		auto item = FindItemByNameGuid(nameGuid, false);
+		if (item != nullptr) {
+			return item;
+		}
+
+		if (logError) {
+			OsiError("No EoC server object found with GUID '" << nameGuid << "'");
+		}
+
+		return nullptr;
+	}
+
+	esv::EoCServerObject * FindGameObjectByHandle(ObjectHandle const & handle, bool logError)
+	{
+		if (handle.Handle == 0) {
+			return nullptr;
+		}
+
+		auto character = FindCharacterByHandle(handle, false);
+		if (character != nullptr) {
+			return character;
+		}
+
+		auto item = FindItemByHandle(handle, false);
+		if (item != nullptr) {
+			return item;
+		}
+
+		if (logError) {
+			OsiError("No EoC server object found with this handle (0x" << std::hex << handle.Handle << ")");
+		}
+
+		return nullptr;
+	}
+
+	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError)
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
@@ -56,12 +98,14 @@ namespace osidbg
 			return (esv::Character *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("No Character component found with GUID '" << nameGuid << "'");
+			if (logError) {
+				OsiError("No Character component found with GUID '" << nameGuid << "'");
+			}
 			return nullptr;
 		}
 	}
 
-	esv::Character * FindCharacterByHandle(ObjectHandle const & handle)
+	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError)
 	{
 		if (handle.Handle == 0) {
 			return nullptr;
@@ -78,12 +122,14 @@ namespace osidbg
 			return (esv::Character *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
+			if (logError) {
+				OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
+			}
 			return nullptr;
 		}
 	}
 
-	esv::Item * FindItemByNameGuid(std::string const & nameGuid)
+	esv::Item * FindItemByNameGuid(std::string const & nameGuid, bool logError)
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
@@ -105,12 +151,14 @@ namespace osidbg
 			return (esv::Item *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("No Item component found with GUID '" << nameGuid << "'");
+			if (logError) {
+				OsiError("No Item component found with GUID '" << nameGuid << "'");
+			}
 			return nullptr;
 		}
 	}
 
-	esv::Item * FindItemByHandle(ObjectHandle const & handle)
+	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError)
 	{
 		if (handle.Handle == 0) {
 			return nullptr;
@@ -127,7 +175,9 @@ namespace osidbg
 			return (esv::Item *)((uint8_t *)component - 8);
 		}
 		else {
-			OsiError("No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
+			if (logError) {
+				OsiError("No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
+			}
 			return nullptr;
 		}
 	}
@@ -192,26 +242,16 @@ namespace osidbg
 
 	void ShootProjectileApiHelper::SetGuidString(char const * prop, char const * value)
 	{
-		auto character = FindCharacterByNameGuid(value);
-		auto item = FindItemByNameGuid(value);
+		auto obj = FindGameObjectByNameGuid(value);
 
-		if (character == nullptr && item == nullptr) {
+		if (obj == nullptr) {
 			OsiError("GUID '" << value << "' is not a valid item or object");
 			return;
 		}
 
 		ObjectHandle handle;
-		glm::vec3 position;
-
-		if (character != nullptr) {
-			character->GetObjectHandle(&handle);
-			position = character->WorldPos;
-		}
-		else
-		{
-			item->GetObjectHandle(&handle);
-			position = item->WorldPos;
-		}
+		obj->GetObjectHandle(&handle);
+		glm::vec3 position = obj->WorldPos;
 
 		if (strcmp(prop, "SourcePosition") == 0) {
 			Helper.StartPosition = position;
@@ -222,7 +262,7 @@ namespace osidbg
 			HasEndPosition = true;
 		}
 		else if (strcmp(prop, "Source") == 0) {
-			if (character != nullptr) {
+			if (obj != nullptr) {
 				Helper.SourceCharacter = handle;
 			}
 		}
