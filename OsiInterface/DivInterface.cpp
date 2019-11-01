@@ -304,22 +304,22 @@ namespace osidbg
 		return nullptr;
 	}
 
-	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle handle, bool returnPending) const
+	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatusByHandle(handle);
+		auto status = StatusMachine->GetStatusByHandle(statusHandle);
 		if (status != nullptr) {
 			return status;
 		}
 
 		if (returnPending) {
-			ObjectHandle handle;
-			this->GetObjectHandle(&handle);
+			ObjectHandle ownerHandle;
+			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = gPendingStatuses.Find(handle, handle);
+			auto pendingStatus = gPendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
@@ -328,22 +328,22 @@ namespace osidbg
 		return nullptr;
 	}
 
-	esv::Status * esv::Item::GetStatusByHandle(ObjectHandle handle, bool returnPending) const
+	esv::Status * esv::Item::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatusByHandle(handle);
+		auto status = StatusMachine->GetStatusByHandle(statusHandle);
 		if (status != nullptr) {
 			return status;
 		}
 
 		if (returnPending) {
-			ObjectHandle handle;
-			this->GetObjectHandle(&handle);
+			ObjectHandle ownerHandle;
+			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = gPendingStatuses.Find(handle, handle);
+			auto pendingStatus = gPendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
