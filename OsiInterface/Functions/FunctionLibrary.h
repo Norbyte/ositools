@@ -4,8 +4,13 @@
 
 namespace osidbg
 {
+	EntityWorld * GetEntityWorld();
 	FixedString ToFixedString(const char * s);
 	char const * NameGuidToFixedString(std::string const & nameGuid);
+
+	void * FindComponentByNameGuid(ComponentType componentType, std::string const & nameGuid, bool logError = true);
+	void * FindComponentByHandle(ComponentType componentType, ObjectHandle const & handle, bool logError = true);
+
 	esv::EoCServerObject * FindGameObjectByNameGuid(std::string const & nameGuid, bool logError = true);
 	esv::EoCServerObject * FindGameObjectByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError = true);

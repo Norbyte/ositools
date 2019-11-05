@@ -169,11 +169,20 @@ namespace osidbg
 	struct STDWString
 	{
 		union {
-			uint16_t Buf[8];
-			uint16_t * BufPtr;
+			wchar_t Buf[8];
+			wchar_t * BufPtr;
 		};
 		uint64_t Size;
 		uint64_t Capacity;
+
+		inline wchar_t const * GetPtr() const
+		{
+			if (Size > 7) {
+				return BufPtr;
+			} else {
+				return Buf;
+			}
+		}
 	};
 
 	template <class T>
@@ -294,25 +303,39 @@ namespace osidbg
 
 	struct Component
 	{
-		virtual void VMT00() = 0;
-		virtual void VMT08() = 0;
-		virtual void VMT10() = 0;
-		virtual void VMT18() = 0;
+		virtual void Destroy() = 0;
+		virtual void DestroyComponent() = 0;
+		virtual void CreateComponent() = 0;
+		virtual void ForceCreateComponent() = 0;
 		virtual void * FindComponentByHandle(ObjectHandle const * oh) = 0;
-		virtual void VMT28() = 0;
+		virtual void TryFindComponentByHandle() = 0;
 		virtual void * FindComponentByGuid(FixedString const * fs) = 0;
+		virtual void MoveComponentByGuid() = 0;
+		virtual void GetComponentByNetId() = 0;
+		virtual void UNKN() = 0;
+		virtual void GetComponentByIndex() = 0;
+		virtual void GetFreeHandle() = 0;
+		virtual void IsFreeIndex() = 0;
+		virtual void IsReservedIndex() = 0;
+		virtual void ReserveIndex() = 0;
+		virtual void UnreserveIndex() = 0;
 	};
 
 	struct ComponentHandle
 	{
-		uint64_t TypeId;
+		int64_t TypeId;
 		ObjectHandle Handle;
+
+		inline bool IsValid() const
+		{
+			return TypeId != -1 && !!Handle;
+		}
 	};
 
 	struct BaseComponent
 	{
 		void * VMT;
-		ObjectHandle Handle;
+		ObjectHandle EntityObjectHandle;
 		ComponentHandle Component;
 	};
 

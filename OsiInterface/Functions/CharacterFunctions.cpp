@@ -2,6 +2,8 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
+#include <locale>
+#include <codecvt>
 
 namespace osidbg
 {
@@ -123,6 +125,57 @@ namespace osidbg
 
 			permanentBoosts->RemoveTalent(*talentId, disabled != 0);
 		}
+
+		esv::CustomStatDefinitionComponent * FindCustomStatDefinition(char const * name)
+		{
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			std::wstring wstrName = converter.from_bytes(name);
+
+			auto entityWorld = GetEntityWorld();
+			auto sys = entityWorld->SystemTypes.Buf[(uint32_t)SystemType::CustomStat].System;
+			auto statSystem = (esv::CustomStatSystem *)((uint8_t *)sys - 0x18);
+
+			for (uint32_t i = 0; i < statSystem->CustomStatDefinitionHandles.Set.Size; i++) {
+				auto handle = statSystem->CustomStatDefinitionHandles.Set.Buf[i].Handle;
+				auto component = FindComponentByHandle(ComponentType::CustomStatDefinition, handle);
+				if (component != nullptr) {
+					auto statDefn = (esv::CustomStatDefinitionComponent *)((uint8_t *)component - 80);
+					if (wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
+						return statDefn;
+					}
+				}
+			}
+
+			OsiError("Could not find custom stat definition '" << name << "'");
+			return nullptr;
+		}
+
+		bool CharacterGetCustomStat(OsiArgumentDesc & args)
+		{
+			auto character = FindCharacterByNameGuid(args[0].String);
+			auto statName = args[1].String;
+			auto & statValue = args[2].Int32;
+
+			auto statDefn = FindCustomStatDefinition(statName);
+			if (statDefn == nullptr) return false;
+
+			auto entityWorld = GetEntityWorld();
+			auto statsComponent = (eoc::CustomStatsComponent *)entityWorld->GetComponent(
+				character->Base.EntityObjectHandle, ComponentType::CustomStats);
+			if (statsComponent == nullptr) {
+				OsiError("Character has no CustomStatsComponent");
+				return false;
+			}
+
+			auto value = statsComponent->StatValues.Find(statDefn->Id.Str);
+			if (value == nullptr) {
+				OsiWarn("Character has no custom stat named '" << statName << "'");
+				return false;
+			}
+
+			statValue = *value;
+			return true;
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -198,6 +251,18 @@ namespace osidbg
 			&func::CharacterDisableTalent
 		);
 		functionMgr.Register(std::move(characterDisableTalent));
+
+
+		auto characterGetCustomStat = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetCustomStat",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGetCustomStat
+		);
+		functionMgr.Register(std::move(characterGetCustomStat));
 	}
 
 }

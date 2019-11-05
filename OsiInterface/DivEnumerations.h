@@ -49,6 +49,58 @@ namespace osidbg
 			static Label const Values[size]; \
 		}
 
+
+	enum class ComponentType : uint32_t
+	{
+		AnimationBlueprint = 0,
+		Spline,
+		Combat,
+		CustomStats,
+		GameMaster,
+		GMJournalNode,
+		Container,
+		ContainerElement,
+		Net,
+		OverviewMap,
+		Note,
+		Vignette,
+		CustomStatDefinition,
+		Item,
+		Character,
+		Egg,
+		Projectile,
+		// ...
+	};
+
+
+	enum class SystemType : uint32_t
+	{
+		AnimationBlueprint = 0,
+		Container,
+		ContainerElement,
+		TurnManager,
+		SightManager,
+		GameAction,
+		Surface,
+		Character,
+		Projectile,
+		Trigger,
+		Item,
+		Egg,
+		Effect,
+		Shroud,
+		EnvironmentalStatus,
+		NetEntity,
+		CustomStat,
+		Reward,
+		CharacterSpline,
+		CameraSpline,
+		GM,
+		GMCampaign,
+		GMJournal
+	};
+
+
 	enum class CriticalRoll
 	{
 		Roll = 0,

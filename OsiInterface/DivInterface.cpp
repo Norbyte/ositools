@@ -256,6 +256,44 @@ namespace osidbg
 		}
 	}
 
+
+	void * EntityWorld::GetComponent(ObjectHandle entityHandle, ComponentType type)
+	{
+		if (entityHandle.GetType() != 0) {
+			OsiError("Entity handle has invalid type " << entityHandle.GetType());
+			return nullptr;
+		}
+
+		auto index = entityHandle.GetIndex();
+		if (index >= EntityEntries.Size) {
+			OsiError("Entity index " << index << " too large!");
+			return nullptr;
+		}
+
+		auto salt = entityHandle.GetSalt();
+		if (salt != EntitySalts.Buf[index]) {
+			OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts.Buf[index]);
+			return nullptr;
+		}
+
+		auto entity = EntityEntries.Buf[index];
+		if ((uint32_t)type >= entity->Layout.Entries.Size) {
+			OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
+			return nullptr;
+		}
+
+		auto const & layoutEntry = entity->Layout.Entries.Buf[(uint32_t)type];
+		if (!layoutEntry.Handle.IsValid()) {
+			OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
+			return nullptr;
+		}
+
+		ObjectHandle componentHandle{ layoutEntry.Handle.Handle };
+		auto componentMgr = Components.Buf[(uint32_t)type].component;
+		return componentMgr->FindComponentByHandle(&componentHandle);
+	}
+
+
 	PendingStatuses gPendingStatuses;
 
 	void PendingStatuses::Add(esv::Status * status)

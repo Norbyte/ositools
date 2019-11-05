@@ -76,7 +76,23 @@ namespace osidbg
 		return nullptr;
 	}
 
-	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError)
+	EntityWorld * GetEntityWorld()
+	{
+		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
+		if (charFactory != nullptr) {
+			return charFactory->Entities;
+		}
+
+		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
+		if (itemFactory != nullptr) {
+			return itemFactory->Entities;
+		}
+
+		OsiError("EntityWorld not available!");
+		return nullptr;
+	}
+
+	void * FindComponentByNameGuid(ComponentType componentType, std::string const & nameGuid, bool logError)
 	{
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
@@ -84,44 +100,40 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
-		if (charFactory == nullptr) {
-			OsiError("CharacterFactory not available!");
+		auto entityWorld = GetEntityWorld();
+		if (entityWorld == nullptr) {
 			return nullptr;
 		}
 
 		FixedString fs;
 		fs.Str = stringPtr;
 
-		auto component = charFactory->Entities->Components.Buf[0x0E].component->FindComponentByGuid(&fs);
+		auto component = entityWorld->Components.Buf[(uint32_t)componentType].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
-			return (esv::Character *)((uint8_t *)component - 8);
-		}
-		else {
+			return component;
+		} else {
 			if (logError) {
-				OsiError("No Character component found with GUID '" << nameGuid << "'");
+				OsiError("No " << (uint32_t)componentType << " component found with GUID '" << nameGuid << "'");
 			}
 			return nullptr;
 		}
 	}
 
-	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError)
+	void * FindComponentByHandle(ComponentType componentType, ObjectHandle const & handle, bool logError)
 	{
 		if (handle.Handle == 0) {
 			return nullptr;
 		}
 
-		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
-		if (charFactory == nullptr) {
-			OsiError("CharacterFactory not available!");
+		auto entityWorld = GetEntityWorld();
+		if (entityWorld == nullptr) {
 			return nullptr;
 		}
 
-		auto component = charFactory->Entities->Components.Buf[0x0E].component->FindComponentByHandle(&handle);
+		auto component = entityWorld->Components.Buf[(uint32_t)componentType].component->FindComponentByHandle(&handle);
 		if (component != nullptr) {
-			return (esv::Character *)((uint8_t *)component - 8);
-		}
-		else {
+			return component;
+		} else {
 			if (logError) {
 				OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
 			}
@@ -129,55 +141,42 @@ namespace osidbg
 		}
 	}
 
+	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError)
+	{
+		auto component = FindComponentByNameGuid(ComponentType::Character, nameGuid, logError);
+		if (component != nullptr) {
+			return (esv::Character *)((uint8_t *)component - 8);
+		} else {
+			return nullptr;
+		}
+	}
+
+	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError)
+	{
+		auto component = FindComponentByHandle(ComponentType::Character, handle, logError);
+		if (component != nullptr) {
+			return (esv::Character *)((uint8_t *)component - 8);
+		} else {
+			return nullptr;
+		}
+	}
+
 	esv::Item * FindItemByNameGuid(std::string const & nameGuid, bool logError)
 	{
-		auto stringPtr = NameGuidToFixedString(nameGuid);
-		if (stringPtr == nullptr) {
-			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
-			return nullptr;
-		}
-
-		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
-		if (itemFactory == nullptr) {
-			OsiError("ItemFactory not available!");
-			return nullptr;
-		}
-
-		FixedString fs;
-		fs.Str = stringPtr;
-
-		auto component = itemFactory->Entities->Components.Buf[0x0D].component->FindComponentByGuid(&fs);
+		auto component = FindComponentByNameGuid(ComponentType::Item, nameGuid, logError);
 		if (component != nullptr) {
 			return (esv::Item *)((uint8_t *)component - 8);
-		}
-		else {
-			if (logError) {
-				OsiError("No Item component found with GUID '" << nameGuid << "'");
-			}
+		} else {
 			return nullptr;
 		}
 	}
 
 	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError)
 	{
-		if (handle.Handle == 0) {
-			return nullptr;
-		}
-
-		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
-		if (itemFactory == nullptr) {
-			OsiError("ItemFactory not available!");
-			return nullptr;
-		}
-
-		auto component = itemFactory->Entities->Components.Buf[0x0D].component->FindComponentByHandle(&handle);
+		auto component = FindComponentByHandle(ComponentType::Item, handle, logError);
 		if (component != nullptr) {
 			return (esv::Item *)((uint8_t *)component - 8);
-		}
-		else {
-			if (logError) {
-				OsiError("No Item component found with this handle (0x" << std::hex << handle.Handle << ")");
-			}
+		} else {
 			return nullptr;
 		}
 	}

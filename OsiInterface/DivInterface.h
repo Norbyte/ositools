@@ -435,17 +435,65 @@ namespace osidbg
 		uint64_t Unkn8;
 	};
 
-	struct ComponentEntry
+	struct ComponentTypeEntry
 	{
 		// todo
 		Component * component;
 		uint64_t dummy[31];
 	};
 
+	struct ComponentLayout
+	{
+		struct LayoutEntry
+		{
+			uint64_t unkn1;
+			ComponentHandle Handle;
+		};
+
+		Array<LayoutEntry> Entries;
+	};
+
+	struct SystemTypeEntry
+	{
+		void * System;
+		int64_t Unkn1;
+		uint32_t Unkn2;
+		uint8_t _Pad[4];
+		void * PrimitiveSetVMT;
+		PrimitiveSet<uint64_t> PSet;
+		uint8_t Unkn3;
+		uint8_t _Pad2[7];
+	};
+
+	struct EntityEntry
+	{
+		void * VMT;
+		ComponentLayout Layout;
+	};
+
 	struct EntityWorld
 	{
-		uint64_t Unkn[17];
-		Array<ComponentEntry> Components;
+		void * VMT;
+		Array<EntityEntry *> EntityEntries;
+		Array<uint32_t> EntitySalts;
+		uint64_t Unkn1[4];
+		PrimitiveSet<EntityEntry *> EntityEntries2;
+		uint64_t Unkn2;
+		uint8_t Unkn3;
+		uint8_t _Pad3[3];
+		uint32_t Unkn4;
+		Array<ComponentTypeEntry> Components;
+		ObjectSet<void *> KeepAlives; // ObjectSet<ObjectHandleRefMap<ComponentKeepAliveDesc>>
+		Array<SystemTypeEntry> SystemTypes;
+		Array<void *> EventTypes; // Array<EventTypeEntry>
+		void * EntityWorldManager;
+		void * SystemTypeEntry_PrimSetVMT;
+		PrimitiveSet<SystemTypeEntry> SystemTypes2;
+		uint64_t Unkn5;
+		ObjectSet<void *> Funcs; // ObjectSet<function>
+		FixedStringRefMap<int> RefMap; // ???
+
+		void * GetComponent(ObjectHandle entityHandle, ComponentType type);
 	};
 
 	struct CharacterFactory : public NetworkObjectFactory
@@ -586,10 +634,49 @@ namespace osidbg
 			uint8_t IsIdentified;
 			uint8_t Flags2[3];
 		};
+
+		struct CustomStatsComponent : public BaseComponent
+		{
+			FixedStringMapBase<int> StatValues;
+		};
+
+		struct CustomStatDefinitionComponent
+		{
+			void * VMT;
+			FixedString Id;
+			STDWString Name;
+			STDWString Description;
+		};
 	}
 
 	namespace esv
 	{
+
+	struct CustomStatDefinitionComponent : public eoc::CustomStatDefinitionComponent
+	{
+		BaseComponent Base;
+		FixedString someStr;
+		uint32_t NetId;
+		uint8_t _Pad[4];
+		uint64_t Unkn1;
+	};
+
+	struct CustomStatSystem
+	{
+		void * GameEventListenerVMT;
+		void * Unkn1;
+		void * NetEventListenerVMT;
+		void * BaseComponentVMT;
+		EntityWorld * EntityWorld;
+		ObjectSet<ComponentHandle> CustomStatDefinitionHandles;
+		ObjectSet<ComponentHandle> Handles2;
+		ObjectSet<ComponentHandle> Handles3;
+		ObjectSet<ComponentHandle> Handles4;
+		ObjectSet<ComponentHandle> Handles5;
+		PrimitiveSet<short> PeerIDClassnames;
+		uint64_t Unkn2;
+		uint64_t Unkn3;
+	};
 
 	struct StatusVMT
 	{
