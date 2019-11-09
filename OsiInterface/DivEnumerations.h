@@ -304,7 +304,7 @@ namespace osidbg
 		Earth = 9,
 		Poison = 10,
 		Shadow = 11,
-		Custom = 12,
+		Sulfuric = 12,
 		Sentinel = 13
 	};
 
@@ -482,8 +482,8 @@ namespace osidbg
 		AF_LoseDurabilityOnCharacterHit = 1ull << 56,
 		AF_EntangledContact = 1ull << 57,
 		AF_ShacklesOfPainImmunity = 1ull << 58,
-		AF_Custom1 = 1ull << 59,
-		AF_Custom2 = 1ull << 60,
+		AF_MagicalSulfur = 1ull << 59,
+		AF_ThrownImmunity = 1ull << 60,
 		AF_InvisibilityImmunity = 1ull << 61
 	};
 
@@ -624,7 +624,7 @@ namespace osidbg
 		SurfaceFlag_Source = 0x40000000,
 		SurfaceFlag_Web = 0x80000000,
 		SurfaceFlag_Deepwater = 0x100000000,
-		SurfaceFlag_Custom = 0x200000000,
+		SurfaceFlag_Sulfurium = 0x200000000,
 		// UNUSED = 0x400000000,
 		// --- BASE TYPE END
 
