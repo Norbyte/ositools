@@ -12,8 +12,42 @@
 
 namespace osidbg
 {
+#if defined(OSI_EOCAPP)
+	typedef void * (* EoCAllocFunc)(void * self, std::size_t size);
+#else
+	typedef void * (* EoCAllocFunc)(void * self, std::size_t size, char const * file, int line, char const * function);
+#endif
+	typedef void (* EoCFreeFunc)(void * self, void * ptr);
+
+	extern EoCAllocFunc EoCAlloc;
+	extern EoCFreeFunc EoCFree;
+
+	void * GameAllocRaw(std::size_t size);
+	void GameFree(void *);
+
+	template <class T>
+	T * GameAlloc()
+	{
+		auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T)));
+		new (ptr) T();
+		return ptr;
+	}
+
+	template <class T>
+	T * GameAlloc(std::size_t n)
+	{
+		auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T) * n));
+		for (auto i = 0; i < n; i++) {
+			new (ptr + i) T();
+		}
+		return ptr;
+	}
+
 #pragma pack(push, 1)
 	using Vector3 = glm::vec3;
+	using NetId = uint32_t;
+
+	constexpr NetId NetIdUnassigned = 0xffffffff;
 
 	template <class T>
 	struct PrimitiveSet
@@ -77,6 +111,36 @@ namespace osidbg
 		Node ** HashTable;
 		uint32_t ItemCount;
 
+		void Init(uint32_t hashSize)
+		{
+			HashSize = hashSize;
+			HashTable = GameAlloc<Node *>(hashSize);
+			ItemCount = 0;
+			memset(HashTable, 0, sizeof(Node *) * hashSize);
+		}
+
+		bool Add(FixedString key, ValueType const & value)
+		{
+			if (!key) return false;
+
+			auto * item = &HashTable[(uint64_t)key.Str % HashSize];
+			while (*item != nullptr) {
+				if (strcmp(key.Str, (*item)->Key.Str) == 0) {
+					(*item)->Value = value;
+					return true;
+				}
+
+				item = &(*item)->Next;
+			}
+
+			auto node = GameAlloc<Node>();
+			node->Next = nullptr;
+			node->Key = key;
+			node->Value = value;
+			*item = node;
+			return true;
+		}
+
 		ValueType * Find(char const * str) const
 		{
 			auto fs = ToFixedString(str);
@@ -108,6 +172,18 @@ namespace osidbg
 			}
 
 			return nullptr;
+		}
+
+		template <class Visitor>
+		void Iterate(Visitor visitor)
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node * item = HashTable[bucket];
+				while (item != nullptr) {
+					visitor(item->Key, item->Value);
+					item = item->Next;
+				}
+			}
 		}
 	};
 
@@ -170,10 +246,10 @@ namespace osidbg
 	{
 		union {
 			wchar_t Buf[8];
-			wchar_t * BufPtr;
+			wchar_t * BufPtr{ nullptr };
 		};
-		uint64_t Size;
-		uint64_t Capacity;
+		uint64_t Size{ 0 };
+		uint64_t Capacity{ 7 };
 
 		inline wchar_t const * GetPtr() const
 		{
@@ -183,6 +259,8 @@ namespace osidbg
 				return Buf;
 			}
 		}
+
+		void Set(std::wstring & s);
 	};
 
 	template <class T>

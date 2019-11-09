@@ -130,7 +130,7 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto component = entityWorld->Components.Buf[(uint32_t)componentType].component->FindComponentByHandle(&handle);
+		auto component = entityWorld->FindComponentByHandle(handle, componentType);
 		if (component != nullptr) {
 			return component;
 		} else {

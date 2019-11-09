@@ -11,7 +11,7 @@ namespace osidbg {
 	{
 		void FromString(std::string const & s);
 		void FromRaw(const char * s);
-		void Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback);
+		void Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback, bool multiple = true);
 
 	private:
 		struct PatternByte
@@ -23,9 +23,9 @@ namespace osidbg {
 		std::vector<PatternByte> pattern_;
 
 		bool MatchPattern(uint8_t const * start);
-		void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
-		void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
-		void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback);
+		void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple);
+		void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple);
+		void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple);
 	};
 
 	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call);
@@ -110,6 +110,12 @@ namespace osidbg {
 		esv::StatusVMT const * StatusHitVMT{ nullptr };
 		esv::ParseItem ParseItem{ nullptr };
 		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
+		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg { nullptr };
+
+		uint8_t const * UICharacterSheetHook{ nullptr };
+		uint8_t const * ActivateClientSystemsHook{ nullptr };
+		uint8_t const * ActivateServerSystemsHook{ nullptr };
+		uint8_t const * CustomStatUIRollHook{ nullptr };
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
@@ -128,6 +134,7 @@ namespace osidbg {
 
 #if defined(OSI_EOCAPP)
 		bool FindEoCApp(uint8_t const * & start, size_t & size);
+		void FindMemoryManagerEoCApp();
 		void FindLibrariesEoCApp();
 		void FindServerGlobalsEoCApp();
 		void FindEoCGlobalsEoCApp();
@@ -138,8 +145,10 @@ namespace osidbg {
 		void FindStatusTypesEoCApp();
 		void FindHitFuncsEoCApp();
 		void FindItemFuncsEoCApp();
+		void FindCustomStatsEoCApp();
 #else
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
+		void FindMemoryManagerEoCPlugin();
 		void FindLibrariesEoCPlugin();
 		void FindServerGlobalsEoCPlugin();
 		void FindEoCGlobalsEoCPlugin();
@@ -150,7 +159,10 @@ namespace osidbg {
 		void FindStatusTypesEoCPlugin();
 		void FindHitFuncsEoCPlugin();
 		void FindItemFuncsEoCPlugin();
+		void FindCustomStatsEoCPlugin();
 #endif
+
+		void EnableCustomStats();
 
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 

@@ -14,6 +14,42 @@
 
 namespace osidbg
 {
+	EoCAllocFunc EoCAlloc{ nullptr };
+	EoCFreeFunc EoCFree{ nullptr };
+
+	void * GameAllocRaw(std::size_t size)
+	{
+#if defined(OSI_EOCAPP)
+		return EoCAlloc(nullptr, size);
+#else
+		return EoCAlloc(nullptr, size, "", 1, "");
+#endif
+	}
+
+	void GameFree(void * ptr)
+	{
+		EoCFree(nullptr, ptr);
+	}
+
+
+	void STDWString::Set(std::wstring & s)
+	{
+		if (Capacity > 7) {
+			GameFree(BufPtr);
+		}
+
+		Size = s.size();
+		Capacity = s.size();
+
+		if (Size > 7) {
+			// FIXME - memory leak!
+			BufPtr = GameAlloc<wchar_t>(Capacity + 1);
+			wcscpy_s(BufPtr, Capacity + 1, s.c_str());
+		} else {
+			wcscpy_s(Buf, 8, s.c_str());
+		}
+	}
+
 	CRPGStats_Modifier * ModifierList::GetAttributeInfo(const char * name, int * attributeIndex) const
 	{
 		auto index = Attributes.FindIndex(name);
@@ -256,8 +292,23 @@ namespace osidbg
 		}
 	}
 
+	void * EntityWorld::FindComponentByHandle(ObjectHandle componentHandle, ComponentType type)
+	{
+		if ((uint32_t)type >= Components.Size) {
+			OsiError("Component type index " << (uint32_t)type << " too large!");
+			return nullptr;
+		}
 
-	void * EntityWorld::GetComponent(ObjectHandle entityHandle, ComponentType type)
+		auto componentMgr = Components.Buf[(uint32_t)type].component;
+		if (componentMgr == nullptr) {
+			OsiError("Component type " << (uint32_t)type << " not bound!");
+			return nullptr;
+		}
+
+		return componentMgr->FindComponentByHandle(&componentHandle);
+	}
+
+	void * EntityWorld::GetComponentByEntityHandle(ObjectHandle entityHandle, ComponentType type)
 	{
 		if (entityHandle.GetType() != 0) {
 			OsiError("Entity handle has invalid type " << entityHandle.GetType());

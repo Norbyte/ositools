@@ -48,6 +48,21 @@ namespace osidbg
 		return true;
 	}
 
+
+	void LibraryManager::FindMemoryManagerEoCPlugin()
+	{
+		HMODULE hCoreLib = GetModuleHandleW(L"CoreLib.dll");
+		auto allocProc = GetProcAddress(hCoreLib, "?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z");
+		auto freeProc = GetProcAddress(hCoreLib, "?Free@GlobalAllocator@ls@@QEAAXPEAX@Z");
+
+		EoCAlloc = (EoCAllocFunc)allocProc;
+		EoCFree = (EoCFreeFunc)freeProc;
+
+		if (allocProc == nullptr || freeProc == nullptr) {
+			Debug("Could not find memory management functions");
+		}
+	}
+
 	void LibraryManager::FindLibrariesEoCPlugin()
 	{
 		uint8_t const prologue0[] = {
@@ -116,7 +131,7 @@ namespace osidbg
 		uint8_t const * statComponentStr = nullptr;
 		statComponent.Scan((uint8_t const *)moduleStart_, moduleSize_, [&statComponentStr](const uint8_t * match) {
 			statComponentStr = match;
-		});
+		}, false);
 
 		if (!statComponentStr) Fail("Could not locate esv::CustomStatDefinitionComponent");
 
@@ -229,7 +244,7 @@ namespace osidbg
 
 			GlobalStrings = (GlobalStringTable const **)refTo;
 			GlobalStringTable::UseMurmur = true;
-		});
+		}, false);
 
 		if (GlobalStrings == nullptr) {
 			Debug("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
@@ -600,10 +615,96 @@ namespace osidbg
 			ParseItem = (esv::ParseItem)parseAddr;
 			auto createAddr = AsmCallToAbsoluteAddress(match + 20);
 			CreateItemFromParsed = (esv::CreateItemFromParsed)createAddr;
-		});
+		}, false);
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
 			Debug("LibraryManager::FindItemFuncsEoCPlugin(): Could not find esv::CreateItemFromParsed");
+		}
+	}
+
+	void LibraryManager::FindCustomStatsEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"41 0F B6 D5 " // movzx   edx, r13b
+			"48 8D 4D 10 " // lea     rcx, [rbp+0D0h+var_C0]
+			"FF 15 XX XX XX XX " // call    cs:??0InvokeDataValue@ls@@QEAA@_N@Z
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:ecl__gEocClient
+			"48 8D 4D B0 " // lea     rcx, [rbp+0D0h+var_120]
+			// Replacement: B2 01 90 90 90 90 90 90 90 90
+			"44 38 B8 B0 00 00 00 " // cmp     [rax+0B0h], r15b
+			"0F 94 C2 " // setz    dl
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			UICharacterSheetHook = match + 25;
+		}, false);
+
+		Pattern p2;
+		p2.FromString(
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    xxx
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    xxx
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
+			"48 8B 08 " // mov     rcx, [rax]
+			"80 B9 FB 0B 00 00 01 " // cmp     byte ptr [rcx+0BFBh], 1
+			// Replacement: 90 90
+			"75 XX " // jnz     short loc_180C3FCED
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    xxx
+		);
+
+		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			if (ActivateClientSystemsHook == nullptr) {
+				ActivateClientSystemsHook = match + 33;
+			} else {
+				ActivateServerSystemsHook = match + 33;
+			}
+		});
+
+		Pattern p3;
+		p3.FromString(
+			// Replacement: C3 (retn)
+			"4C 8B DC " // mov     r11, rsp
+			"48 81 EC 88 00 00 00 " // sub     rsp, 88h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 44 24 70 " // mov     [rsp+88h+var_18], rax
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:?s_Ptr@PlayerManager@ls@@1PEAV12@EA
+			"49 8D 53 A8 " // lea     rdx, [r11-58h]
+			"48 8B 08 " // mov     rcx, [rax]
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:qword_182543378
+			"49 89 43 98 " // mov     [r11-68h], rax
+		);
+
+		p3.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			CustomStatUIRollHook = match;
+		});
+
+		Pattern p4;
+		p4.FromString(
+			"4C 89 4C 24 20 " // mov     [rsp+arg_18], r9
+			"53 " // push    rbx
+			"41 56 " // push    r14
+			"41 57 " // push    r15
+			"48 83 EC 40 " // sub     rsp, 40h
+			"48 8D 15 XX XX XX XX " // lea     rdx, "esv::CustomStatsProtocol"
+		);
+
+		p4.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto str = AsmLeaToAbsoluteAddress(match + 14);
+			if (strcmp((char const *)str, "esv::CustomStatsProtocol") == 0) {
+				EsvCustomStatsProtocolProcessMsg = (esv::CustomStatsProtocol__ProcessMsg)match;
+			}
+		});
+
+		if (UICharacterSheetHook == nullptr 
+			|| ActivateServerSystemsHook == nullptr
+			|| ActivateClientSystemsHook == nullptr
+			|| CustomStatUIRollHook == nullptr
+			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
+			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
 		}
 	}
 }

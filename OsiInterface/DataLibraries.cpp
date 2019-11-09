@@ -88,7 +88,7 @@ namespace osidbg
 		return true;
 	}
 
-	void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
+	void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
 	{
 		uint8_t initial = pattern_[0].pattern;
 
@@ -96,12 +96,13 @@ namespace osidbg
 			if (*p == initial) {
 				if (MatchPattern(p)) {
 					callback(p);
+					if (!multiple) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
+	void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
 	{
 		uint16_t initial = pattern_[0].pattern
 			| (pattern_[1].pattern << 8);
@@ -110,12 +111,13 @@ namespace osidbg
 			if (*reinterpret_cast<uint16_t const *>(p) == initial) {
 				if (MatchPattern(p)) {
 					callback(p);
+					if (!multiple) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback)
+	void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
 	{
 		uint32_t initial = pattern_[0].pattern
 			| (pattern_[1].pattern << 8)
@@ -126,12 +128,13 @@ namespace osidbg
 			if (*reinterpret_cast<uint32_t const *>(p) == initial) {
 				if (MatchPattern(p)) {
 					callback(p);
+					if (!multiple) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback)
+	void Pattern::Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback, bool multiple)
 	{
 		// Check prefix length
 		auto prefixLength = 0;
@@ -146,11 +149,11 @@ namespace osidbg
 
 		auto end = start + length - pattern_.size();
 		if (prefixLength >= 4) {
-			ScanPrefix4(start, end, callback);
+			ScanPrefix4(start, end, callback, multiple);
 		} else if (prefixLength >= 2) {
-			ScanPrefix2(start, end, callback);
+			ScanPrefix2(start, end, callback, multiple);
 		} else {
-			ScanPrefix1(start, end, callback);
+			ScanPrefix1(start, end, callback, multiple);
 		}
 	}
 
@@ -194,6 +197,7 @@ namespace osidbg
 		if (FindEoCApp(moduleStart_, moduleSize_)) {
 			coreLibStart_ = nullptr;
 			coreLibSize_ = 0;
+			FindMemoryManagerEoCApp();
 			FindLibrariesEoCApp();
 			FindServerGlobalsEoCApp();
 			FindEoCGlobalsEoCApp();
@@ -202,6 +206,7 @@ namespace osidbg
 		}
 #else
 		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
+			FindMemoryManagerEoCPlugin();
 			FindLibrariesEoCPlugin();
 			FindServerGlobalsEoCPlugin();
 			FindEoCGlobalsEoCPlugin();
@@ -228,6 +233,7 @@ namespace osidbg
 		FindHitFuncsEoCApp();
 		FindItemFuncsEoCApp();
 		FindStatusTypesEoCApp();
+		FindCustomStatsEoCApp();
 #else
 		FindGameActionManagerEoCPlugin();
 		FindGameActionsEoCPlugin();
@@ -235,8 +241,10 @@ namespace osidbg
 		FindHitFuncsEoCPlugin();
 		FindItemFuncsEoCPlugin();
 		FindStatusTypesEoCPlugin();
+		FindCustomStatsEoCPlugin();
 #endif
 
+		EnableCustomStats();
 		InitPropertyMaps();
 
 		DetourTransactionBegin();
@@ -274,5 +282,75 @@ namespace osidbg
 		ApplyStatusHook.Unwrap();
 
 		DetourTransactionCommit();
+	}
+
+
+	class WriteAnchor
+	{
+	public:
+		WriteAnchor(uint8_t const * ptr, std::size_t size)
+			: ptr_(const_cast<uint8_t *>(ptr)),
+			size_(size)
+		{
+			BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, PAGE_READWRITE, &oldProtect_);
+			if (!succeeded) Fail("VirtualProtect() failed");
+		}
+
+		~WriteAnchor()
+		{
+			BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, oldProtect_, &oldProtect_);
+			if (!succeeded) Fail("VirtualProtect() failed");
+		}
+
+		inline uint8_t * ptr()
+		{
+			return ptr_;
+		}
+
+	private:
+		uint8_t * ptr_;
+		std::size_t size_;
+		DWORD oldProtect_;
+	};
+
+	void LibraryManager::EnableCustomStats()
+	{
+		if (UICharacterSheetHook == nullptr
+			|| ActivateClientSystemsHook == nullptr
+			|| ActivateServerSystemsHook == nullptr
+			|| CustomStatUIRollHook == nullptr) {
+			return;
+		}
+
+		{
+			uint8_t const replacement[] = {
+#if defined(OSI_EOCAPP)
+				0xc6, 0x45, 0xf8, 0x01
+#else
+				0xB2, 0x01, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
+#endif
+			};
+
+			WriteAnchor code(UICharacterSheetHook, sizeof(replacement));
+			memcpy(code.ptr(), replacement, sizeof(replacement));
+		}
+
+		{
+			uint8_t const replacement[] = { 0x90, 0x90 };
+			WriteAnchor code(ActivateClientSystemsHook, sizeof(replacement));
+			memcpy(code.ptr(), replacement, sizeof(replacement));
+		}
+
+		{
+			uint8_t const replacement[] = { 0x90, 0x90 };
+			WriteAnchor code(ActivateServerSystemsHook, sizeof(replacement));
+			memcpy(code.ptr(), replacement, sizeof(replacement));
+		}
+
+		{
+			uint8_t const replacement[] = { 0xC3 };
+			WriteAnchor code(CustomStatUIRollHook, sizeof(replacement));
+			memcpy(code.ptr(), replacement, sizeof(replacement));
+		}
 	}
 }

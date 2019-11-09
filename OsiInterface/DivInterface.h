@@ -471,6 +471,18 @@ namespace osidbg
 		ComponentLayout Layout;
 	};
 
+	namespace esv
+	{
+		struct CustomStatDefinitionComponent;
+		struct CustomStatSystem;
+		struct NetComponent;
+	}
+
+	namespace eoc
+	{
+		struct CustomStatsComponent;
+	}
+
 	struct EntityWorld
 	{
 		void * VMT;
@@ -493,7 +505,34 @@ namespace osidbg
 		ObjectSet<void *> Funcs; // ObjectSet<function>
 		FixedStringRefMap<int> RefMap; // ???
 
-		void * GetComponent(ObjectHandle entityHandle, ComponentType type);
+		void * GetComponentByEntityHandle(ObjectHandle entityHandle, ComponentType type);
+		void * FindComponentByHandle(ObjectHandle componentHandle, ComponentType type);
+
+		inline esv::CustomStatDefinitionComponent * FindCustomStatDefinitionComponentByHandle(ObjectHandle componentHandle)
+		{
+			auto component = FindComponentByHandle(componentHandle, ComponentType::CustomStatDefinition);
+			if (component != nullptr) {
+				return (esv::CustomStatDefinitionComponent *)((uint8_t *)component - 80);
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline eoc::CustomStatsComponent * GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle)
+		{
+			return (eoc::CustomStatsComponent *)GetComponentByEntityHandle(entityHandle, ComponentType::CustomStats);
+		}
+
+		inline esv::NetComponent * GetNetComponentByEntityHandle(ObjectHandle entityHandle)
+		{
+			return (esv::NetComponent *)GetComponentByEntityHandle(entityHandle, ComponentType::Net);
+		}
+
+		inline esv::CustomStatSystem * GetCustomStatSystem()
+		{
+			auto sys = SystemTypes.Buf[(uint32_t)SystemType::CustomStat].System;
+			return (esv::CustomStatSystem *)((uint8_t *)sys - 0x18);
+		}
 	};
 
 	struct CharacterFactory : public NetworkObjectFactory
@@ -544,6 +583,58 @@ namespace osidbg
 		DamagePairList DamageList;
 	};
 
+	namespace eocnet
+	{
+		struct Message
+		{
+			void * VMT;
+			uint32_t MessageId;
+			uint32_t Always4{ 4 };
+			uint32_t MsgType{ 1 };
+			uint8_t Always0{ 0 };
+			uint8_t Unknown1{ 0 };
+			uint8_t _Pad1[2];
+			uint64_t Unknown2{ 0 };
+			uint32_t Unknown3{ 0 };
+			uint32_t Unknown4{ 0 };
+		};
+
+		struct CustomStatDefinitionSyncInfo
+		{
+			NetId NetId{ NetIdUnassigned };
+			uint8_t _Pad1[4];
+			uint64_t Unknown1{ 0 };
+			FixedString Id;
+			STDWString Name;
+			STDWString Description;
+		};
+
+		struct CustomStatsDefinitionSyncMessage : public Message
+		{
+			ObjectSet<CustomStatDefinitionSyncInfo> StatDefns;
+		};
+
+		struct CustomStatsDefinitionRemoveMessage : public Message
+		{
+			void * PrimSetVMT;
+			ObjectSet<uint32_t> StatDefns; // NetID list
+			uint64_t Unkn{ 0 };
+		};
+
+		struct CustomStatsSyncInfo
+		{
+			NetId NetId{ NetIdUnassigned };
+			uint8_t _Pad1[4];
+			FixedStringMapBase<int> Stats;
+			uint8_t _Pad2[4];
+		};
+
+		struct CustomStatsSyncMessage : public Message
+		{
+			ObjectSet<CustomStatsSyncInfo> Stats;
+		};
+	}
+
 	namespace eoc
 	{
 		struct PlayerUpgrade
@@ -564,8 +655,8 @@ namespace osidbg
 		struct ItemDefinition
 		{
 			uint32_t Unknown;
-			uint32_t NetId;
-			uint32_t ItemNetId;
+			NetId NetID;
+			NetId ItemNetId;
 			uint8_t _Pad0[4];
 			FixedString FS1;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
@@ -581,8 +672,8 @@ namespace osidbg
 			float Unkn4Flt;
 			uint32_t Unkn41[4];
 			uint32_t Amount;
-			uint32_t InventoryNetID;
-			uint32_t InventorySubContainerNetID;
+			NetId InventoryNetID;
+			NetId InventorySubContainerNetID;
 			int16_t Slot; // -1 = Not in inventory
 			uint8_t _Pad3[2];
 			uint32_t Unkn6;
@@ -652,11 +743,20 @@ namespace osidbg
 	namespace esv
 	{
 
+	struct NetComponent
+	{
+		BaseComponent Base;
+		FixedString FixedStr1;
+		NetId NetID;
+		uint8_t _Pad[4];
+	};
+
+
 	struct CustomStatDefinitionComponent : public eoc::CustomStatDefinitionComponent
 	{
 		BaseComponent Base;
 		FixedString someStr;
-		uint32_t NetId;
+		NetId NetID;
 		uint8_t _Pad[4];
 		uint64_t Unkn1;
 	};
@@ -755,7 +855,7 @@ namespace osidbg
 
 		// void * VMT;
 		FixedString FS1;
-		uint32_t NetID;
+		NetId NetID;
 		uint32_t _Pad0;
 		uint64_t U1;
 		FixedString StatusId; // Saved
@@ -962,7 +1062,7 @@ namespace osidbg
 	{
 		void * VMT;
 		FixedString UnknownFS;
-		uint32_t NetID;
+		NetId NetID;
 		uint8_t _Pad[4];
 		SkillInfo Info;
 		ObjectSet<ObjectHandle> CauseList;
@@ -1080,8 +1180,8 @@ namespace osidbg
 		virtual void GetObjectHandle(ObjectHandle * Handle) const = 0;
 		virtual void SetGuid(FixedString const & fs) = 0;
 		virtual FixedString * GetGuid() const = 0;
-		virtual void SetNetID(uint32_t netId) = 0;
-		virtual void GetNetID(uint32_t & netId) const = 0;
+		virtual void SetNetID(NetId netId) = 0;
+		virtual void GetNetID(NetId & netId) const = 0;
 		virtual void SetCurrentTemplate(void * esvTemplate) = 0;
 		virtual void * GetCurrentTemplate() const = 0;
 		virtual void SetGlobal() = 0;
@@ -1132,7 +1232,7 @@ namespace osidbg
 		BaseComponent Base;
 		FixedString MyGuid;
 
-		uint32_t NetID;
+		NetId NetID;
 		uint32_t _Pad1;
 		glm::vec3 WorldPos; // Saved
 		uint32_t _Pad2;
@@ -1366,7 +1466,8 @@ namespace osidbg
 	{
 		void * VMT;
 		FixedString SomeFS;
-		uint64_t NetID;
+		NetId NetID;
+		uint8_t _Unk0[4];
 		PrimitiveSet<uint16_t> PeerIDClassNames;
 		uint64_t _Unk[2];
 		ObjectHandle MyHandle;
@@ -1520,6 +1621,7 @@ namespace osidbg
 	typedef bool(*Status__Enter)(Status * Status);
 	typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
 	typedef Item * (*CreateItemFromParsed)(ObjectSet<eoc::ItemDefinition> * ParsedItems, uint32_t Index);
+	typedef int (*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, eocnet::Message * msg);
 
 	}
 #pragma pack(pop)

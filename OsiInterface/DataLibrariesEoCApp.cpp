@@ -30,6 +30,33 @@ namespace osidbg
 		return true;
 	}
 
+
+	void LibraryManager::FindMemoryManagerEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"89 41 10 " // mov     [rcx+10h], eax
+			"E8 XX XX XX XX " // call    ls__GlobalAllocator__Free
+			"48 8B 47 08 " // mov     rax, [rdi+8]
+			"BA 28 01 00 00 " // mov     edx, 128h
+			"48 89 46 08 " // mov     [rsi+8], rax
+			"48 C7 47 08 00 00 00 00 " // mov     qword ptr [rdi+8], 0
+			"C7 07 00 00 00 00 " // mov     dword ptr [rdi], 0
+			"E8 XX XX XX XX " // call    ls__GlobalAllocator__Malloc
+			"33 D2 " // xor     edx, edx 
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			EoCAlloc = (EoCAllocFunc)AsmCallToAbsoluteAddress(match + 35);
+			EoCFree = (EoCFreeFunc)AsmCallToAbsoluteAddress(match + 3);
+		});
+
+		if (EoCAlloc == nullptr || EoCFree == nullptr) {
+			Debug("Could not find memory management functions");
+		}
+	}
+
+
 	void LibraryManager::FindLibrariesEoCApp()
 	{
 		uint8_t const prologue1[] = {
@@ -590,10 +617,94 @@ namespace osidbg
 			ParseItem = (esv::ParseItem)parseAddr;
 			auto createAddr = AsmCallToAbsoluteAddress(match + 19);
 			CreateItemFromParsed = (esv::CreateItemFromParsed)createAddr;
-		});
+		}, false);
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
 			Debug("LibraryManager::FindItemFuncsEoCApp(): Could not find esv::CreateItemFromParsed");
+		}
+	}
+
+
+	void LibraryManager::FindCustomStatsEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"48 89 5D 60 " // mov     [rbp+0D0h+var_70], rbx
+			"0F B6 88 B0 00 00 00 " // movzx   ecx, byte ptr [rax+0B0h]
+			"41 3A CF " // cmp     cl, r15b
+			"F2 0F 11 75 08 " // movsd   [rbp+0D0h+var_C8], xmm6
+			"48 8B 4E 18 " // mov     rcx, [rsi+18h]
+			"C7 45 B0 03 00 00 00 " // mov     [rbp+0D0h+var_120], 3
+			// Replacement: c6 45 f8 01             mov    BYTE PTR [rbp-0x8],0x1
+			"0F 94 45 F8 " // setz    [rbp+0D0h+var_D8]
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			UICharacterSheetHook = match + 30;
+		}, false);
+
+		Pattern p2;
+		p2.FromString(
+			"48 03 93 D0 00 00 00 " // add     rdx, [rbx+0D0h]
+			"E8 XX XX XX XX " // call    ecs__EntityWorld__ActivateSystemInternal
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__GlobalSwitches
+			"80 B8 F3 0B 00 00 01 " // cmp     byte ptr [rax+0BF3h], 1
+			// Replacement: 90 90
+			"75 XX " // jnz     short loc_1415A124C
+			"48 6B 15 XX XX XX XX 38 " // imul    rdx, cs:qword_1428F14F0, 38h
+			"48 8B CB " // mov     rcx, rbx
+		);
+
+		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			if (ActivateClientSystemsHook == nullptr) {
+				ActivateClientSystemsHook = match + 26;
+			} else {
+				ActivateServerSystemsHook = match + 26;
+			}
+		});
+
+		Pattern p3;
+		p3.FromString(
+			// Replacement: C3 (retn)
+			"4C 8B DC " // mov     r11, rsp
+			"48 81 EC 88 00 00 00 " // sub     rsp, 88h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 44 24 70 " // mov     [rsp+88h+var_18], rax
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:?s_Ptr@PlayerManager@ls@@1PEAV12@EA
+			"49 8D 53 A8 " // lea     rdx, [r11-58h]
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:qword_142940598
+			"49 89 43 98 " // mov     [r11-68h], rax
+			"48 8D 05 " // lea     rax, ecl__CustomStatsProtocolSomething__vftable
+		);
+
+		p3.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			CustomStatUIRollHook = match;
+		});
+
+		Pattern p4;
+		p4.FromString(
+			"4C 89 4C 24 20 " // mov     [rsp+arg_18], r9
+			"53 " // push    rbx
+			"57 " // push    rdi
+			"41 56 " // push    r14
+			"48 83 EC 30 " // sub     rsp, 30h
+			"41 8B 51 08 " // mov     edx, [r9+8]
+			"49 8B F9 " // mov     rdi, r9
+			"4D 8B F0 " // mov     r14, r8
+			"81 FA 3B 01 00 00 " // cmp     edx, 13Bh
+		);
+
+		p4.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			EsvCustomStatsProtocolProcessMsg = (esv::CustomStatsProtocol__ProcessMsg)match;
+		});
+
+		if (UICharacterSheetHook == nullptr
+			|| ActivateServerSystemsHook == nullptr
+			|| ActivateClientSystemsHook == nullptr
+			|| CustomStatUIRollHook == nullptr
+			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
+			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
 		}
 	}
 }
