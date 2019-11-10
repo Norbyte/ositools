@@ -133,6 +133,7 @@ namespace osidbg
 		void RegisterPlayerFunctions();
 		void RegisterItemFunctions();
 		void RegisterCharacterFunctions();
+		void RegisterCustomStatFunctions();
 
 		void PostStartup();
 
