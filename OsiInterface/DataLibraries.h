@@ -116,6 +116,8 @@ namespace osidbg {
 		uint8_t const * ActivateClientSystemsHook{ nullptr };
 		uint8_t const * ActivateServerSystemsHook{ nullptr };
 		uint8_t const * CustomStatUIRollHook{ nullptr };
+		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
+		void * InitNetworkFixedStrings{ nullptr };
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
@@ -146,6 +148,7 @@ namespace osidbg {
 		void FindHitFuncsEoCApp();
 		void FindItemFuncsEoCApp();
 		void FindCustomStatsEoCApp();
+		void FindNetworkFixedStringsEoCApp();
 #else
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
 		void FindMemoryManagerEoCPlugin();

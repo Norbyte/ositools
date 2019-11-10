@@ -581,7 +581,7 @@ namespace osidbg
 		{ DamageType::Earth, "Earth" },
 		{ DamageType::Poison, "Poison" },
 		{ DamageType::Shadow, "Shadow" },
-		{ DamageType::Sulfur, "Sulfur" },
+		{ DamageType::Sulfuric, "Sulfuric" },
 		{ DamageType::Sentinel, "Sentinel" }
 	};
 

@@ -33,6 +33,7 @@ STATIC_HOOK(Error)
 STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
 STATIC_HOOK(CloseHandle)
+STATIC_HOOK(InitNetworkFixedStrings)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -122,6 +123,26 @@ void OsirisWrappers::Initialize()
 	CloseHandle.Wrap(Kernel32Module, "CloseHandle");
 
 	DetourTransactionCommit();
+}
+
+void OsirisWrappers::InitializeExtensions()
+{
+	if (ExtensionsInitialized) {
+		return;
+	}
+
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	auto lib = gOsirisProxy->GetLibraryManager();
+	if (lib.InitNetworkFixedStrings != nullptr) {
+		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
+	}
+
+	DetourTransactionCommit();
+
+	ExtensionsInitialized = true;
 }
 
 void OsirisWrappers::Shutdown()

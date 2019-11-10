@@ -21,6 +21,7 @@ public:
 	OsirisWrappers();
 
 	void Initialize();
+	void InitializeExtensions();
 	void Shutdown();
 
 	OsirisStaticGlobals Globals;
@@ -53,6 +54,8 @@ public:
 	HOOKABLE(HANDLE(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE), CreateFileW);
 	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
+	HOOKABLE(void(void *, void *), InitNetworkFixedStrings);
+
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;
 	DivFunctions::ErrorMessageProc ErrorOriginal;
@@ -61,6 +64,7 @@ public:
 private:
 	HMODULE Kernel32Module{ NULL };
 	HMODULE OsirisModule{ NULL };
+	bool ExtensionsInitialized{ false };
 
 	void * FindRuleActionCallProc();
 	void FindOsirisGlobals(FARPROC CtorProc);

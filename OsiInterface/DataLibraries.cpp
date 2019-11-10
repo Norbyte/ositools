@@ -182,7 +182,7 @@ namespace osidbg
 
 	uint8_t const * AsmLeaToAbsoluteAddress(uint8_t const * lea)
 	{
-		if (lea[0] != 0x48 || (lea[1] != 0x8D && lea[1] != 0x8B)) {
+		if ((lea[0] != 0x48 && lea[0] != 0x4C) || (lea[1] != 0x8D && lea[1] != 0x8B)) {
 			Debug("AsmLeaToAbsoluteAddress(): Not a LEA @ %p", lea);
 			return nullptr;
 		}
@@ -202,6 +202,7 @@ namespace osidbg
 			FindServerGlobalsEoCApp();
 			FindEoCGlobalsEoCApp();
 			FindGlobalStringTableEoCApp();
+			FindNetworkFixedStringsEoCApp();
 			return true;
 		}
 #else

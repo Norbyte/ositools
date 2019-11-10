@@ -26,6 +26,7 @@ struct ToolConfig
 	bool EnableExtensions{ false };
 	bool EnableDebugger{ true };
 #endif
+	bool DumpNetworkStrings{ false };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
@@ -88,6 +89,15 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		}
 	}
 
+	auto dumpStrings = root["DumpNetworkStrings"];
+	if (!dumpStrings.isNull()) {
+		if (dumpStrings.isBool()) {
+			config.DumpNetworkStrings = dumpStrings.asBool();
+		} else {
+			Fail("Config option 'DumpNetworkStrings' should be a boolean.");
+		}
+	}
+
 	auto enableDAP = root["EnableDebugger"];
 	if (!enableDAP.isNull()) {
 		if (enableDAP.isBool()) {
@@ -143,25 +153,30 @@ void SetupOsirisProxy(HMODULE hModule)
 
 	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
 
-	if (config.EnableLogging) {
-		if (config.LogDirectory.empty()) {
-			TCHAR * DocumentsPath;
-			if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
-				Fail("Could not get user documents path.");
-			}
-
-			std::wstring logDir = DocumentsPath;
-			logDir += L"\\OsirisLogs";
-			config.LogDirectory = logDir;
+	if (config.LogDirectory.empty()) {
+		TCHAR * DocumentsPath;
+		if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
+			Fail("Could not get user documents path.");
 		}
 
-		osidbg::gOsirisProxy->SetupLogging(true, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
-		osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
+		std::wstring logDir = DocumentsPath;
+		logDir += L"\\OsirisLogs";
+		config.LogDirectory = logDir;
+	}
+
+	osidbg::gOsirisProxy->SetupLogging(config.EnableLogging, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
+	osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
+
+	if (config.EnableLogging) {
 		Debug(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
 	}
 
 	if (config.EnableDebugger) {
 		osidbg::gOsirisProxy->EnableDebugging(true, config.DebuggerPort);
+	}
+
+	if (config.DumpNetworkStrings) {
+		osidbg::gOsirisProxy->SetupNetworkStringsDump(true);
 	}
 
 	osidbg::gOsirisProxy->EnableExtensions(config.EnableExtensions);

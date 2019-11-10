@@ -637,6 +637,17 @@ namespace osidbg
 
 	namespace eoc
 	{
+		struct NetworkFixedStrings
+		{
+			uint16_t Initialized;
+			uint8_t _Pad[6];
+			ObjectSet<FixedString> FixedStrSet;
+			FixedStringMapBase<int> FixedStrToNetIndexMap;
+			uint8_t _Pad2[4];
+			uint64_t Unkn1;
+			uint64_t Unkn2;
+		};
+
 		struct PlayerUpgrade
 		{
 			CDivinityStats_Character * Stats;

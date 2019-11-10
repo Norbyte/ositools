@@ -47,6 +47,10 @@ void OsirisProxy::Initialize()
 		if (Libraries.FindLibraries()) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
+
+			Wrappers.InitializeExtensions();
+			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
+
 #if 0
 			auto headers = CustomFunctions.GenerateHeaders();
 			Debug(" === EXTENSION HEADERS ===");
@@ -92,6 +96,11 @@ void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring co
 void OsirisProxy::EnableCompileLogging(bool Log)
 {
 	CompilationLogEnabled = Log;
+}
+
+void OsirisProxy::SetupNetworkStringsDump(bool Enable)
+{
+	EnableNetworkStringsDump = Enable;
 }
 
 void OsirisProxy::LogOsirisError(std::string const & msg)
@@ -342,6 +351,34 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 		debugger_->StoryLoaded();
 	}
 #endif
+}
+
+void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
+{
+	if (EnableNetworkStringsDump) {
+		DumpNetworkFixedStrings();
+	}
+}
+
+void OsirisProxy::DumpNetworkFixedStrings()
+{
+	auto nfs = Libraries.NetworkFixedStrings;
+	if (nfs != nullptr && (*nfs)->Initialized) {
+		auto const & strings = (*nfs)->FixedStrSet.Set;
+
+		auto nfsLogPath = MakeLogFilePath(L"NetworkFixedStrings", L"log");
+		std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
+		for (uint32_t i = 0; i < strings.Size; i++) {
+			auto str = strings.Buf[i].Str;
+			logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
+		}
+		logOut.close();
+		Debug(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
+
+
+	} else {
+		Debug("OsirisProxy::DumpNetworkFixedStrings() - Fixed strings not initialized yet");
+	}
 }
 
 bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)

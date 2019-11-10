@@ -47,6 +47,7 @@ public:
 	void EnableExtensions(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 	void EnableCompileLogging(bool Log);
+	void SetupNetworkStringsDump(bool Enabled);
 
 	void LogOsirisError(std::string const & msg);
 	void LogOsirisWarning(std::string const & msg);
@@ -128,6 +129,7 @@ private:
 	bool DebuggingEnabled{ false };
 	uint16_t DebuggerPort;
 
+	bool EnableNetworkStringsDump{ false };
 	bool ExtensionsEnabled{ false };
 
 	bool LoggingEnabled{ false };
@@ -152,6 +154,9 @@ private:
 	void HookNodeVMTs();
 	void RestartLogging(std::wstring const & Type);
 	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
+
+	void OnInitNetworkFixedStrings(void * self, void * arg1);
+	void DumpNetworkFixedStrings();
 };
 
 extern std::unique_ptr<OsirisProxy> gOsirisProxy;
