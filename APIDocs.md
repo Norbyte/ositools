@@ -1,4 +1,53 @@
+
 ### !!! DRAFT API DOCS !!!
+
+
+### Table of Contents  
+[Foreword](#notes-on-api-stability)
+[Data Types](#data-types)
+[Stats](#stat-functions)
+[Statuses](#status-functions)
+ - [IterateCharacterStatuses](#iteratecharacterstatuses)
+ - [OnStatusAttempt](#onstatusattempt)
+ - [StatusPreventApply](#statuspreventapply)
+ - [StatusGetHandle](#statusgethandle)
+ - [StatusGet](#statusget)
+ - [StatusSet](#statusset)
+ - [ApplyActiveDefense](#applyactivedefense)
+
+[Hit Statuses](#hit-status-functions)
+[Status Attributes](#status-attributes)
+ - [StatusHit Attributes](#statushit-attributes)
+ - [Hit Attributes](#hit-attributes)
+ - [StatusHeal Attributes](#statusheal-attributes)
+ - [StatusHealing Attributes](#statushealing-attributes)
+
+[Hits](#hit-functions)
+[Projectiles](#projectile-functions)
+[Skills](#skill-functions)
+[Skillbar](#skillbar-functions)
+[Game Actions](#game-action-functions)
+[Characters](#character-functions)
+ - [Character Stats](#character-functions)
+ - [Permanent Boosts](#permanent-boosts)
+
+[Items](#item-functions)
+ - [Item Stats](#item-functions)
+ - [Item Cloning](#cloning-items)
+
+[Misc Functions](#miscellaneous-functions)
+[Math Functions](#math-functions)
+[String Functions](#string-functions)
+[Enumerations](#enumerations)
+ - [DamageSourceType](#damagesourcetype)
+ - [HitType](#hittype)
+ - [CriticalRoll](#criticalroll)
+ - [HighGround](#HighGround)
+ - [DeathType](#deathtype)
+ - [AttackDirection](#attackdirection)
+ - [TalentType](#talenttype)
+ - [AttributeFlags](#attributeflags)
+
 
 ### Notes on API stability
 Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
@@ -1254,6 +1303,6 @@ Converts `_Real` to a string value.
 | 56 | LoseDurabilityOnCharacterHit |
 | 57 | EntangledContact |
 | 58 | ShacklesOfPainImmunity |
-| 59 | Custom1 |
-| 60 | Custom2 |
+| 59 | MagicalSulfur |
+| 60 | ThrownImmunity |
 | 61 | InvisibilityImmunity |
