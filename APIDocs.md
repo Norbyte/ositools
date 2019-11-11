@@ -3,9 +3,13 @@
 
 
 ### Table of Contents  
+
 [Foreword](#notes-on-api-stability)
+
 [Data Types](#data-types)
+
 [Stats](#stat-functions)
+
 [Statuses](#status-functions)
  - [IterateCharacterStatuses](#iteratecharacterstatuses)
  - [OnStatusAttempt](#onstatusattempt)
@@ -16,6 +20,7 @@
  - [ApplyActiveDefense](#applyactivedefense)
 
 [Hit Statuses](#hit-status-functions)
+
 [Status Attributes](#status-attributes)
  - [StatusHit Attributes](#statushit-attributes)
  - [Hit Attributes](#hit-attributes)
@@ -23,10 +28,15 @@
  - [StatusHealing Attributes](#statushealing-attributes)
 
 [Hits](#hit-functions)
+
 [Projectiles](#projectile-functions)
+
 [Skills](#skill-functions)
+
 [Skillbar](#skillbar-functions)
+
 [Game Actions](#game-action-functions)
+
 [Characters](#character-functions)
  - [Character Stats](#character-functions)
  - [Permanent Boosts](#permanent-boosts)
@@ -36,8 +46,11 @@
  - [Item Cloning](#cloning-items)
 
 [Misc Functions](#miscellaneous-functions)
+
 [Math Functions](#math-functions)
+
 [String Functions](#string-functions)
+
 [Enumerations](#enumerations)
  - [DamageSourceType](#damagesourcetype)
  - [HitType](#hittype)
