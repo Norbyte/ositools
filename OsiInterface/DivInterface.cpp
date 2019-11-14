@@ -393,6 +393,107 @@ namespace osidbg
 		return nullptr;
 	}
 
+
+	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
+	{
+		auto const & getters = gOsirisProxy->GetLibraryManager().StatsGetters.Funcs;
+
+		std::optional<CDivinityStats_Character__GetStat> getStat;
+		if (strcmp(name, "MaxMp") == 0) {
+			getStat = getters.GetMaxMp;
+		} else if(strcmp(name, "APStart") == 0) {
+			getStat = getters.GetAPStart;
+		} else if (strcmp(name, "APRecovery") == 0) {
+			getStat = getters.GetAPRecovery;
+		} else if (strcmp(name, "APMaximum") == 0) {
+			getStat = getters.GetAPMaximum;
+		} else if (strcmp(name, "Vitality") == 0) {
+			getStat = getters.GetVitality;
+		} else if (strcmp(name, "Memory") == 0) {
+			getStat = getters.GetMemory;
+		} else if (strcmp(name, "Wits") == 0) {
+			getStat = getters.GetWits;
+		} else if (strcmp(name, "Accuracy") == 0) {
+			getStat = getters.GetAccuracy;
+		} else if (strcmp(name, "Dodge") == 0) {
+			getStat = getters.GetDodge;
+		} else if (strcmp(name, "CriticalChance") == 0) {
+			getStat = getters.GetCriticalChance;
+		} else if (strcmp(name, "LifeSteal") == 0) {
+			getStat = getters.GetLifeSteal;
+		} else if (strcmp(name, "Sight") == 0) {
+			getStat = getters.GetSight;
+		} else if (strcmp(name, "Movement") == 0) {
+			getStat = getters.GetMovement;
+		} else if (strcmp(name, "Initiative") == 0) {
+			getStat = getters.GetInitiative;
+		} else if (strcmp(name, "Unknown") == 0) {
+			getStat = getters.GetUnknown;
+		}
+		
+		if (getStat) {
+			if (*getStat != nullptr) {
+				return (*getStat)(this, baseStats);
+			} else {
+				OsiError("Getter unavailable for this stat type: '" << name << "'");
+				return {};
+			}
+		}
+
+		std::optional<CDivinityStats_Character__GetStatWithBoosts> getStatWithBoosts;
+		if (strcmp(name, "FireResistance") == 0) {
+			getStatWithBoosts = getters.GetFireResistance;
+		} else if (strcmp(name, "EarthResistance") == 0) {
+			getStatWithBoosts = getters.GetEarthResistance;
+		} else if (strcmp(name, "WaterResistance") == 0) {
+			getStatWithBoosts = getters.GetWaterResistance;
+		} else if (strcmp(name, "AirResistance") == 0) {
+			getStatWithBoosts = getters.GetAirResistance;
+		} else if (strcmp(name, "PoisonResistance") == 0) {
+			getStatWithBoosts = getters.GetPoisonResistance;
+		} else if (strcmp(name, "ShadowResistance") == 0) {
+			getStatWithBoosts = getters.GetShadowResistance;
+		} else if (strcmp(name, "CustomResistance") == 0) {
+			getStatWithBoosts = getters.GetCustomResistance;
+		}
+
+		if (getStatWithBoosts) {
+			if (*getStatWithBoosts != nullptr) {
+				return (*getStatWithBoosts)(this, baseStats, 0);
+			} else {
+				OsiError("Getter unavailable for this stat type: '" << name << "'");
+				return {};
+			}
+		}
+
+
+		std::optional<CDivinityStats_Character__GetStatWithInit> getStatWithInit;
+		if (strcmp(name, "Strength") == 0) {
+			getStatWithInit = getters.GetStrength;
+		} else if (strcmp(name, "Finesse") == 0) {
+			getStatWithInit = getters.GetFinesse;
+		} else if (strcmp(name, "Intelligence") == 0) {
+			getStatWithInit = getters.GetIntelligence;
+		}
+
+		if (getStatWithInit) {
+			if (*getStatWithInit != nullptr) {
+				return (*getStatWithInit)(this, baseStats, 0);
+			} else {
+				OsiError("Getter unavailable for this stat type: '" << name << "'");
+				return {};
+			}
+		}
+
+		if (strcmp(name, "Hearing") == 0 && getters.GetHearing != nullptr) {
+			return (int32_t)(getters.GetHearing(this, nullptr, baseStats) * 100.0f);
+		}
+
+		OsiError("Character stat not supported: '" << name << "'");
+		return {};
+	}
+
+
 	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
 	{
 		if (StatusMachine == nullptr) {

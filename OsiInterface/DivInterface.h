@@ -328,7 +328,14 @@ namespace osidbg
 		uint32_t BaseMaxSummons;
 		uint32_t MaxMpOverride; // Saved
 		uint32_t DisabledTalents[4]; // Saved
+
+		std::optional<int32_t> GetStat(char const * name, bool baseStats);
 	};
+
+	typedef int32_t (* CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
+	typedef int32_t (* CDivinityStats_Character__GetStatWithBoosts)(CDivinityStats_Character * self, bool baseStats, bool excludeBoosts);
+	typedef int32_t (* CDivinityStats_Character__GetStatWithInit)(CDivinityStats_Character * self, bool baseStats, int32_t initialValue);
+	typedef float (* CDivinityStats_Character__GetStatHearing)(CDivinityStats_Character * self, CDivinityStats_Character * other, bool baseStats);
 
 	struct RPGEnumeration
 	{

@@ -55,7 +55,6 @@ namespace osidbg
 			Debug("Could not find memory management functions");
 			CriticalInitFailed = true;
 		}
-		CriticalInitFailed = true;
 	}
 
 
@@ -775,6 +774,47 @@ namespace osidbg
 
 		if (EoCClient == nullptr || EoCClientHandleError == nullptr) {
 			Debug("LibraryManager::FindErrorFuncsEoCApp(): Could not find ecl::EoCClient::HandleError");
+			InitFailed = true;
+		}
+	}
+
+
+	void LibraryManager::FindCharacterStatFuncsEoCApp()
+	{
+		memset(&StatsGetters.Ptrs, 0, sizeof(StatsGetters.Ptrs));
+
+		Pattern p;
+		p.FromString(
+			"40 84 ED " // test    bpl, bpl
+			"74 08 " // jz      short loc_141C7A428
+			"8B 86 44 03 00 00 " // mov     eax, [rsi+344h]
+			"EB 06 " // jmp     short loc_141C7A42E
+			"8B 86 40 03 00 00 " // mov     eax, [rsi+340h]
+			"40 0F B6 D5 " // movzx   edx, bpl
+			"89 43 44 " // mov     [rbx+44h], eax
+		);
+
+		uint8_t const * gettersStart{ nullptr };
+		p.Scan(moduleStart_, moduleSize_, [&gettersStart](const uint8_t * match) {
+			gettersStart = match;
+		}, false);
+
+		if (gettersStart != nullptr) {
+			unsigned ptrIndex = 0;
+			for (auto p = gettersStart; p < gettersStart + 0x240; p++) {
+				auto insn = *reinterpret_cast<uint32_t const *>(p);
+				if (insn == 0xE8CE8B48 /* 48 8B CE E8 -- mov  rcx, rsi; call */
+					|| insn == 0xE8084389 /* 89 43 08 E8 -- mov [rbx+8], eax; call */) {
+					if (ptrIndex < std::size(StatsGetters.Ptrs)) {
+						auto ptr = AsmCallToAbsoluteAddress(p + 3);
+						StatsGetters.Ptrs[ptrIndex++] = (void *)ptr;
+					}
+				}
+			}
+		}
+
+		if (StatsGetters.Funcs.GetUnknown == nullptr) {
+			Debug("LibraryManager::FindCharacterStatFuncsEoCApp(): Could not find all stat getters");
 			InitFailed = true;
 		}
 	}

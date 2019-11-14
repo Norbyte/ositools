@@ -725,5 +725,48 @@ namespace osidbg
 			InitFailed = true;
 		}
 	}
+
+
+	void LibraryManager::FindCharacterStatFuncsEoCPlugin()
+	{
+		memset(&StatsGetters.Ptrs, 0, sizeof(StatsGetters.Ptrs));
+
+		Pattern p;
+		p.FromString(
+			"45 84 E4 " // test    r12b, r12b
+			"74 09 " // jz      short loc_1810554AD
+			"41 8B 87 64 03 00 00 " // mov     eax, [r15+364h]
+			"EB 07 " // jmp     short loc_1810554B4
+			"41 8B 87 60 03 00 00 " // mov     eax, [r15+360h]
+			"41 0F B6 D4 " // movzx   edx, r12b
+			"89 47 44 " // mov     [rdi+44h], eax
+		);
+
+		uint8_t const * gettersStart{ nullptr };
+		p.Scan(moduleStart_, moduleSize_, [&gettersStart](const uint8_t * match) {
+			gettersStart = match;
+		}, false);
+
+		if (gettersStart != nullptr) {
+			Pattern p2;
+			p2.FromString(
+				"49 8B CF " // mov     rcx, r15
+				"E8 XX XX XX XX " // call    CDivinityStats_Character__Getxxx
+			);
+
+			unsigned ptrIndex = 0;
+			p2.Scan(gettersStart, 0x240, [this, &ptrIndex](const uint8_t * match) {
+				if (ptrIndex < std::size(StatsGetters.Ptrs)) {
+					auto ptr = AsmCallToAbsoluteAddress(match + 3);
+					StatsGetters.Ptrs[ptrIndex++] = (void *)ptr;
+				}
+			});
+		}
+
+		if (StatsGetters.Funcs.GetUnknown == nullptr) {
+			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find all stat getters");
+			InitFailed = true;
+		}
+	}
 }
 #endif

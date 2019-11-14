@@ -30,6 +30,23 @@ namespace osidbg
 			return character->Stats->DynamicStats[index];
 		}
 
+		bool CharacterGetComputedStat(OsiArgumentDesc & args)
+		{
+			auto character = FindCharacterByNameGuid(args[0].String);
+			auto statName = args[1].String;
+			auto baseStats = args[2].Int32 == 1;
+			auto & statValue = args[3].Int32;
+			if (character == nullptr || character->Stats == nullptr) return false;
+
+			auto value = character->Stats->GetStat(statName, baseStats);
+			if (value) {
+				statValue = *value;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		template <OsiPropertyMapType Type>
 		bool CharacterGetStat(OsiArgumentDesc & args)
 		{
@@ -130,6 +147,18 @@ namespace osidbg
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
+
+		auto characterGetComputedStat = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetComputedStat",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsBaseStat", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGetComputedStat
+		);
+		functionMgr.Register(std::move(characterGetComputedStat));
 
 		auto characterGetStatInt = std::make_unique<CustomQuery>(
 			"NRD_CharacterGetStatInt",

@@ -147,6 +147,46 @@ namespace osidbg {
 		enum class ApplyStatusTag {};
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
 
+		struct CharacterStatsGetterFuncs
+		{
+			CDivinityStats_Character__GetStat GetMaxMp;
+			CDivinityStats_Character__GetStat GetAPStart;
+			CDivinityStats_Character__GetStat GetAPRecovery;
+			CDivinityStats_Character__GetStat GetAPMaximum;
+			CDivinityStats_Character__GetStatWithInit GetStrength;
+			CDivinityStats_Character__GetStatWithInit GetFinesse;
+			CDivinityStats_Character__GetStatWithInit GetIntelligence;
+			CDivinityStats_Character__GetStat GetVitality;
+			CDivinityStats_Character__GetStat GetMemory;
+			CDivinityStats_Character__GetStat GetWits;
+			CDivinityStats_Character__GetStat GetAccuracy;
+			CDivinityStats_Character__GetStat GetDodge;
+			CDivinityStats_Character__GetStat GetCriticalChance;
+			CDivinityStats_Character__GetStatWithBoosts GetFireResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetEarthResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetWaterResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetAirResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetPoisonResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetShadowResistance;
+			CDivinityStats_Character__GetStatWithBoosts GetCustomResistance;
+			CDivinityStats_Character__GetStat GetLifeSteal;
+			CDivinityStats_Character__GetStat GetSight;
+			CDivinityStats_Character__GetStatHearing GetHearing;
+			CDivinityStats_Character__GetStat GetMovement;
+			CDivinityStats_Character__GetStat GetInitiative;
+			CDivinityStats_Character__GetStat GetUnknown;
+		};
+
+		struct CharacterStatsGetters
+		{
+			union {
+				void * Ptrs[26];
+				CharacterStatsGetterFuncs Funcs;
+			};
+		};
+
+		CharacterStatsGetters StatsGetters;
+
 	private:
 
 #if defined(OSI_EOCAPP)
@@ -165,6 +205,7 @@ namespace osidbg {
 		void FindCustomStatsEoCApp();
 		void FindNetworkFixedStringsEoCApp();
 		void FindErrorFuncsEoCApp();
+		void FindCharacterStatFuncsEoCApp();
 #else
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
 		void FindMemoryManagerEoCPlugin();
@@ -179,6 +220,7 @@ namespace osidbg {
 		void FindHitFuncsEoCPlugin();
 		void FindItemFuncsEoCPlugin();
 		void FindCustomStatsEoCPlugin();
+		void FindCharacterStatFuncsEoCPlugin();
 #endif
 
 		void EnableCustomStats();

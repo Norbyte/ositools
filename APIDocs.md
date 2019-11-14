@@ -680,9 +680,18 @@ Updates the total lifetime of the specified game action.
 ### CharacterGetStat
 `query NRD_CharacterGetStatInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)`
 
-Returns a stat value of to the specified character. `_Stat` must be one of the following:
+Returns a stat value of the specified character. `_Stat` must be one of the following:
 CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
 In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
+
+
+### CharacterGetComputedStat
+`query NRD_CharacterGetComputedStat([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [in](INTEGER)_IsBaseStat, [out](INTEGER)_Value)`
+
+Returns a computed stat value of the specified character. `_Stat` must be one of the following:
+MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative.
+
+Unlike stats returned by `CharacterGetStat`, these stats are computed on the fly and cannot be changed via `CharacterSetStat`. It is, however, possible to adjust them using permanent boosts using the `CharacterSetPermanentBoost` function. [See this link](#permanent-boosts) for more details.
 
 
 ### CharacterSetStat

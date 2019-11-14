@@ -236,6 +236,7 @@ namespace osidbg
 		FindItemFuncsEoCApp();
 		FindStatusTypesEoCApp();
 		FindCustomStatsEoCApp();
+		FindCharacterStatFuncsEoCApp();
 #else
 		FindGameActionManagerEoCPlugin();
 		FindGameActionsEoCPlugin();
@@ -244,6 +245,7 @@ namespace osidbg
 		FindItemFuncsEoCPlugin();
 		FindStatusTypesEoCPlugin();
 		FindCustomStatsEoCPlugin();
+		FindCharacterStatFuncsEoCPlugin();
 #endif
 
 		if (!CriticalInitFailed) {
