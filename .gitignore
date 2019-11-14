@@ -329,7 +329,8 @@ External/
 jsoncpp-build/
 jsoncpp-master/
 
-# Ignore protobuf
 D3dErr
 OsiInterface/osidebug.pb.cc
 OsiInterface/osidebug.pb.h
+Latest.zip
+LatestBuild
