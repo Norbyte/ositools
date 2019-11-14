@@ -318,8 +318,15 @@ namespace osidbg
 			return false;
 		}
 
+		auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
+		auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+		if (createStatus == nullptr || applyStatus == nullptr) {
+			OsiError("esv::StatusMachine::CreateStatus not found!");
+			return false;
+		}
+
 		auto fsHit = ToFixedString("HIT");
-		auto hit = (esv::StatusHit *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, fsHit, 0);
+		auto hit = (esv::StatusHit *)createStatus(statusMachine, fsHit, 0);
 
 		hit->StartTimer = 0.0f;
 		hit->HitByHandle = ObjectHandle{};
@@ -399,7 +406,7 @@ namespace osidbg
 			hit->ImpactDirection = dir;
 		}
 
-		gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, hit);
+		applyStatus(statusMachine, hit);
 		return hit;
 	}
 

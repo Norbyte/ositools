@@ -66,6 +66,11 @@ namespace osidbg
 			dummy1.unkn2 = 0;
 
 			auto processMsg = gOsirisProxy->GetLibraryManager().EsvCustomStatsProtocolProcessMsg;
+			if (processMsg == nullptr) {
+				OsiError("esv::CustomStatsProtocol::ProcessMsg not found!");
+				return;
+			}
+
 			processMsg(nullptr, nullptr, &dummy1, msg);
 		}
 

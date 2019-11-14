@@ -203,7 +203,8 @@ namespace osidbg
 			FindEoCGlobalsEoCApp();
 			FindGlobalStringTableEoCApp();
 			FindNetworkFixedStringsEoCApp();
-			return true;
+			FindErrorFuncsEoCApp();
+			return !CriticalInitFailed;
 		}
 #else
 		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
@@ -212,7 +213,7 @@ namespace osidbg
 			FindServerGlobalsEoCPlugin();
 			FindEoCGlobalsEoCPlugin();
 			FindGlobalStringTableCoreLib();
-			return true;
+			return !CriticalInitFailed;
 		}
 #endif
 		else {
@@ -221,10 +222,10 @@ namespace osidbg
 		}
 	}
 
-	void LibraryManager::PostStartupFindLibraries()
+	bool LibraryManager::PostStartupFindLibraries()
 	{
 		if (PostLoaded) {
-			return;
+			return !CriticalInitFailed;
 		}
 
 #if defined(OSI_EOCAPP)
@@ -245,31 +246,34 @@ namespace osidbg
 		FindCustomStatsEoCPlugin();
 #endif
 
-		EnableCustomStats();
-		InitPropertyMaps();
+		if (!CriticalInitFailed) {
+			EnableCustomStats();
+			InitPropertyMaps();
 
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
+			DetourTransactionBegin();
+			DetourUpdateThread(GetCurrentThread());
 
-		if (StatusHitVMT != nullptr) {
-			StatusHitEnter.Wrap(StatusHitVMT->Enter);
+			if (StatusHitVMT != nullptr) {
+				StatusHitEnter.Wrap(StatusHitVMT->Enter);
+			}
+
+			if (StatusHealVMT != nullptr) {
+				StatusHealEnter.Wrap(StatusHealVMT->Enter);
+			}
+
+			if (CharacterHit != nullptr) {
+				CharacterHitHook.Wrap(CharacterHit);
+			}
+
+			if (StatusMachineApplyStatus != nullptr) {
+				ApplyStatusHook.Wrap(StatusMachineApplyStatus);
+			}
+
+			DetourTransactionCommit();
 		}
-
-		if (StatusHealVMT != nullptr) {
-			StatusHealEnter.Wrap(StatusHealVMT->Enter);
-		}
-
-		if (CharacterHit != nullptr) {
-			CharacterHitHook.Wrap(CharacterHit);
-		}
-
-		if (StatusMachineApplyStatus != nullptr) {
-			ApplyStatusHook.Wrap(StatusMachineApplyStatus);
-		}
-
-		DetourTransactionCommit();
 
 		PostLoaded = true;
+		return !CriticalInitFailed;
 	}
 
 	void LibraryManager::Cleanup()
@@ -285,6 +289,49 @@ namespace osidbg
 		DetourTransactionCommit();
 	}
 
+	void LibraryManager::ShowStartupError(std::wstring const & msg)
+	{
+		if (EoCClient == nullptr
+			|| EoCClientHandleError == nullptr
+			|| EoCAlloc == nullptr) {
+			return;
+		}
+
+		std::thread messageThread([this, msg]() {
+			unsigned retries{ 0 };
+			while (!CanShowError() && retries < 600) {
+				Sleep(100);
+				retries++;
+			}
+
+			if (retries >= 300) {
+				return;
+			}
+
+			STDWString str;
+			str.Set(msg);
+			EoCClientHandleError(*EoCClient, &str, false, &str);
+		});
+		messageThread.detach();
+	}
+
+	bool LibraryManager::CanShowError()
+	{
+		if (EoCClient == nullptr
+			|| *EoCClient == nullptr
+			|| (*EoCClient)->State == nullptr
+			|| *(*EoCClient)->State == nullptr
+			|| EoCClientHandleError == nullptr) {
+			return false;
+		}
+
+		auto state = (*(*EoCClient)->State)->State;
+		return state == 19
+			|| state == 17
+			|| state == 28
+			|| state == 7
+			|| state == 30;
+	}
 
 	class WriteAnchor
 	{
@@ -320,6 +367,7 @@ namespace osidbg
 			|| ActivateClientSystemsHook == nullptr
 			|| ActivateServerSystemsHook == nullptr
 			|| CustomStatUIRollHook == nullptr) {
+			Debug("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
 

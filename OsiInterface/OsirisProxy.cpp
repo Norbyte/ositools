@@ -60,6 +60,7 @@ void OsirisProxy::Initialize()
 		}
 		else {
 			Debug("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
+			ExtensionsEnabled = false;
 		}
 	}
 	else {
@@ -241,8 +242,15 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 #endif
 
 	if (ExtensionsEnabled) {
-		Libraries.PostStartupFindLibraries();
-		FunctionLibrary.PostStartup();
+		if (Libraries.PostStartupFindLibraries()) {
+			FunctionLibrary.PostStartup();
+		}
+	}
+
+	if (Libraries.CriticalInitializationFailed()) {
+		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.");
+	} else if (Libraries.InitializationFailed()) {
+		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.");
 	}
 }
 

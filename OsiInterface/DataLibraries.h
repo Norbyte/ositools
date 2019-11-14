@@ -35,8 +35,20 @@ namespace osidbg {
 	{
 	public:
 		bool FindLibraries();
-		void PostStartupFindLibraries();
+		bool PostStartupFindLibraries();
 		void Cleanup();
+
+		void ShowStartupError(std::wstring const & msg);
+
+		inline bool CriticalInitializationFailed() const
+		{
+			return CriticalInitFailed;
+		}
+
+		inline bool InitializationFailed() const
+		{
+			return InitFailed;
+		}
 
 		inline CRPGStatsManager * GetStats() const
 		{
@@ -112,6 +124,9 @@ namespace osidbg {
 		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg { nullptr };
 
+		ecl::EoCClient ** EoCClient{ nullptr };
+		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };
+
 		uint8_t const * UICharacterSheetHook{ nullptr };
 		uint8_t const * ActivateClientSystemsHook{ nullptr };
 		uint8_t const * ActivateServerSystemsHook{ nullptr };
@@ -149,6 +164,7 @@ namespace osidbg {
 		void FindItemFuncsEoCApp();
 		void FindCustomStatsEoCApp();
 		void FindNetworkFixedStringsEoCApp();
+		void FindErrorFuncsEoCApp();
 #else
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
 		void FindMemoryManagerEoCPlugin();
@@ -168,6 +184,7 @@ namespace osidbg {
 		void EnableCustomStats();
 
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
+		bool CanShowError();
 
 		struct EoCLibraryInfo
 		{
@@ -182,6 +199,8 @@ namespace osidbg {
 		uint8_t const * coreLibStart_;
 		size_t coreLibSize_;
 
+		bool InitFailed{ false };
+		bool CriticalInitFailed{ false };
 		bool PostLoaded{ false };
 
 		GlobalStringTable const ** GlobalStrings;

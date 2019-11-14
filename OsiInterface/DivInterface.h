@@ -1635,6 +1635,24 @@ namespace osidbg
 	typedef int (*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, eocnet::Message * msg);
 
 	}
+
+	namespace ecl {
+
+	struct EoCClientState
+	{
+		uint8_t Unkn[16];
+		uint32_t State;
+	};
+
+	struct EoCClient
+	{
+		uint8_t Unkn[64];
+		EoCClientState ** State;
+	};
+
+	typedef void (* EoCClient__HandleError)(void * self, STDWString *a2, bool a3, STDWString *a4);
+
+	}
 #pragma pack(pop)
 
 	struct PendingStatus

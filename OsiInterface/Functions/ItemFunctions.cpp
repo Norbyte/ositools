@@ -187,6 +187,13 @@ namespace osidbg
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
+			auto parseItem = gOsirisProxy->GetLibraryManager().ParseItem;
+			auto createItemFromParsed = gOsirisProxy->GetLibraryManager().CreateItemFromParsed;
+			if (parseItem == nullptr || createItemFromParsed == nullptr) {
+				OsiError("esv::ParseItem not found!");
+				return;
+			}
+			
 			gPendingItemClone.reset();
 
 			auto itemGuid = args[0].String;
@@ -194,7 +201,7 @@ namespace osidbg
 			if (item == nullptr) return;
 
 			gPendingItemClone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
-			gOsirisProxy->GetLibraryManager().ParseItem(item, gPendingItemClone.get(), false, false);
+			parseItem(item, gPendingItemClone.get(), false, false);
 
 			if (gPendingItemClone->Set.Size != 1) {
 				OsiError("Something went wrong during item parsing. Item set size: " << gPendingItemClone->Set.Size);

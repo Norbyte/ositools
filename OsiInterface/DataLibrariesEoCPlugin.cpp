@@ -60,6 +60,7 @@ namespace osidbg
 
 		if (allocProc == nullptr || freeProc == nullptr) {
 			Debug("Could not find memory management functions");
+			CriticalInitFailed = true;
 		}
 	}
 
@@ -178,6 +179,10 @@ namespace osidbg
 
 		// FIXME - HACK
 		ShootProjectile = (esv::ProjectileHelpers_ShootProjectile)((uint8_t const *)moduleStart_ + 0xC13440 + 0x1000);
+
+		if (EsvCharacterFactory == nullptr || EsvItemFactory == nullptr) {
+			CriticalInitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindEoCGlobalsEoCPlugin()
@@ -219,7 +224,7 @@ namespace osidbg
 
 		if (nextGlobalIndex != std::size(eocGlobals_)) {
 			Fail("LibraryManager::FindEoCGlobalsEoCPlugin(): Could not find all eoc globals!");
-			return;
+			InitFailed = true;
 		}
 	}
 
@@ -248,6 +253,7 @@ namespace osidbg
 
 		if (GlobalStrings == nullptr) {
 			Debug("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
+			CriticalInitFailed = true;
 		}
 	}
 
@@ -286,6 +292,7 @@ namespace osidbg
 
 		if (CreateGameAction == nullptr) {
 			Debug("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find GameActionManager::CreateAction");
+			InitFailed = true;
 		}
 
 		Pattern p2;
@@ -337,6 +344,7 @@ namespace osidbg
 
 		if (LevelManager == nullptr || AddGameAction == nullptr) {
 			Debug("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find esv::LevelManager");
+			InitFailed = true;
 		}
 	}
 
@@ -371,6 +379,7 @@ namespace osidbg
 
 		if (TornadoActionSetup == nullptr) {
 			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find TornadoAction");
+			InitFailed = true;
 		}
 
 
@@ -406,6 +415,7 @@ namespace osidbg
 
 		if (WallActionCreateWall == nullptr) {
 			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find WallAction");
+			InitFailed = true;
 		}
 
 
@@ -437,6 +447,7 @@ namespace osidbg
 
 		if (SummonHelpersSummon == nullptr) {
 			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find SummonHelpers::Summon");
+			InitFailed = true;
 		}
 	}
 
@@ -470,6 +481,7 @@ namespace osidbg
 
 		if (StatusMachineCreateStatus == nullptr) {
 			Debug("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::CreateStatus");
+			InitFailed = true;
 		}
 
 		Pattern p2;
@@ -487,6 +499,7 @@ namespace osidbg
 
 		if (StatusMachineApplyStatus == nullptr) {
 			Debug("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::ApplyStatus");
+			InitFailed = true;
 		}
 	}
 
@@ -523,6 +536,7 @@ namespace osidbg
 
 		if (StatusHealVMT == nullptr) {
 			Debug("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHeal");
+			InitFailed = true;
 		}
 
 		Pattern p3;
@@ -557,6 +571,7 @@ namespace osidbg
 
 		if (StatusHitVMT == nullptr) {
 			Debug("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHit");
+			InitFailed = true;
 		}
 	}
 
@@ -595,6 +610,7 @@ namespace osidbg
 
 		if (CharacterHit == nullptr) {
 			Debug("LibraryManager::FindHitFuncsEoCPlugin(): Could not find Character::Hit");
+			InitFailed = true;
 		}
 	}
 
@@ -619,6 +635,7 @@ namespace osidbg
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
 			Debug("LibraryManager::FindItemFuncsEoCPlugin(): Could not find esv::CreateItemFromParsed");
+			InitFailed = true;
 		}
 	}
 
@@ -705,6 +722,7 @@ namespace osidbg
 			|| CustomStatUIRollHook == nullptr
 			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
 			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
+			InitFailed = true;
 		}
 	}
 }

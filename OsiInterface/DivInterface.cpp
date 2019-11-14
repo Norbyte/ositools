@@ -32,7 +32,7 @@ namespace osidbg
 	}
 
 
-	void STDWString::Set(std::wstring & s)
+	void STDWString::Set(std::wstring const & s)
 	{
 		if (Capacity > 7) {
 			GameFree(BufPtr);

@@ -29,6 +29,12 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
+
+			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+				OsiError("Game Action maanger not available");
+				return false;
+			}
+
 			auto action = (TAction *)lib.CreateGameAction(actionMgr, type, 0);
 
 			action->SkillId = skillId;
@@ -103,6 +109,17 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
+
+			if (lib.WallActionCreateWall == nullptr) {
+				OsiError("Wall action symbols not available in library manager");
+				return false;
+			}
+
+			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+				OsiError("Game Action maanger not available");
+				return false;
+			}
+
 			auto action = (esv::WallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
 
 			action->SkillId = skillId;
@@ -125,6 +142,12 @@ namespace osidbg
 
 		bool CreateTornado(OsiArgumentDesc & args)
 		{
+			auto const & lib = gOsirisProxy->GetLibraryManager();
+			if (lib.TornadoActionSetup == nullptr) {
+				OsiError("Tornado action symbols not available in library manager");
+				return false;
+			}
+
 			auto action = PrepareAction<esv::TornadoAction>(args, GameActionType::TornadoAction);
 			if (action == nullptr) return false;
 
@@ -132,7 +155,6 @@ namespace osidbg
 
 			action->Target = args.GetVector(5);
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
 			lib.TornadoActionSetup(action);
 			lib.AddGameAction(actionMgr, action);
@@ -192,6 +214,17 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			auto actionMgr = lib.GetGameActionManager();
+
+			if (lib.GameObjectMoveActionSetup == nullptr) {
+				OsiError("GameObjectMove symbols not available in library manager");
+				return false;
+			}
+
+			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+				OsiError("Game Action maanger not available");
+				return false;
+			}
+
 			auto action = (esv::GameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
 
 			glm::vec3 targetPosition = args.GetVector(1);
@@ -327,6 +360,12 @@ namespace osidbg
 				return false;
 			}
 
+			auto const & lib = gOsirisProxy->GetLibraryManager();
+			if (lib.SummonHelpersSummon == nullptr) {
+				OsiError("Summon helper symbols not available in library manager");
+				return false;
+			}
+
 			auto pos = args.GetVector(2);
 			auto lifetime = args[5].Float;
 			auto summonLevel = args[6].Int32;
@@ -351,7 +390,6 @@ namespace osidbg
 			summonArgs.IsTotem = isTotem;
 			summonArgs.MapToAiGrid = mapToAiGrid;
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
 			lib.SummonHelpersSummon(&results, &summonArgs);
 			if (results.SummonHandle) {
 				FixedString guid;

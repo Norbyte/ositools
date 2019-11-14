@@ -260,7 +260,7 @@ namespace osidbg
 			}
 		}
 
-		void Set(std::wstring & s);
+		void Set(std::wstring const & s);
 	};
 
 	template <class T>

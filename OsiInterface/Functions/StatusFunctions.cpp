@@ -289,8 +289,14 @@ namespace osidbg
 			auto statusIdFs = ToFixedString(statusId);
 			T * status{ nullptr };
 
+			auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
+			if (createStatus == nullptr) {
+				OsiError("esv::StatusMachine::CreateStatus not found!");
+				return nullptr;
+			}
+
 			if (statusIdFs) {
-				status = (T *)gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus(statusMachine, statusIdFs, 0);
+				status = (T *)createStatus(statusMachine, statusIdFs, 0);
 			}
 
 			if (status == nullptr) {
@@ -326,6 +332,12 @@ namespace osidbg
 				return false;
 			}
 
+			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+			if (applyStatus == nullptr) {
+				OsiError("esv::StatusMachine::ApplyStatus not found!");
+				return false;
+			}
+
 			auto status = ConstructStatus<esv::StatusActiveDefense>(statusMachine, statusId, StatusType::ActiveDefense);
 			if (status == nullptr) {
 				return false;
@@ -346,7 +358,7 @@ namespace osidbg
 			status->TargetHandle = handle;
 			status->TargetPos = *character->GetTranslate();
 
-			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
+			applyStatus(statusMachine, status);
 			args[3].Int64 = (int64_t)status->StatusHandle;
 			return true;
 		}
@@ -377,6 +389,12 @@ namespace osidbg
 				return false;
 			}
 
+			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+			if (applyStatus == nullptr) {
+				OsiError("esv::StatusMachine::ApplyStatus not found!");
+				return false;
+			}
+
 			auto status = ConstructStatus<esv::StatusDamageOnMove>(statusMachine, statusId, StatusType::DamageOnMove);
 			if (status == nullptr) {
 				return false;
@@ -404,7 +422,7 @@ namespace osidbg
 			status->StatsMultiplier = 1.0f;
 			status->DistancePerDamage = distancePerDamage;
 
-			gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus(statusMachine, status);
+			applyStatus(statusMachine, status);
 			args[5].Int64 = (int64_t)status->StatusHandle;
 			return true;
 		}

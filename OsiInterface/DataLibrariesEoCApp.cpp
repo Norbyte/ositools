@@ -53,7 +53,9 @@ namespace osidbg
 
 		if (EoCAlloc == nullptr || EoCFree == nullptr) {
 			Debug("Could not find memory management functions");
+			CriticalInitFailed = true;
 		}
+		CriticalInitFailed = true;
 	}
 
 
@@ -169,6 +171,10 @@ namespace osidbg
 
 		EsvCharacterFactory = (CharacterFactory **)serverGlobals_[(unsigned)EsvGlobalEoCApp::EsvCharacterFactory];
 		EsvItemFactory = (ItemFactory **)serverGlobals_[(unsigned)EsvGlobalEoCApp::EsvItemFactory];
+
+		if (EsvCharacterFactory == nullptr || EsvItemFactory == nullptr) {
+			CriticalInitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindEoCGlobalsEoCApp()
@@ -266,6 +272,7 @@ namespace osidbg
 
 		if (GlobalStrings == nullptr) {
 			Debug("LibraryManager::FindGlobalStringTableEoCApp(): Could not find global string table");
+			CriticalInitFailed = true;
 		}
 	}
 
@@ -320,6 +327,7 @@ namespace osidbg
 
 			if (CreateGameAction == nullptr) {
 				Debug("LibraryManager::FindGameActionManagerEoCApp(): Could not find GameActionManager::CreateAction");
+				InitFailed = true;
 			}
 		}
 
@@ -408,6 +416,7 @@ namespace osidbg
 
 		if (LevelManager == nullptr || AddGameAction == nullptr) {
 			Debug("LibraryManager::FindGameActionManagerEoCApp(): Could not find esv::LevelManager");
+			InitFailed = true;
 		}
 	}
 
@@ -440,6 +449,7 @@ namespace osidbg
 
 		if (TornadoActionSetup == nullptr) {
 			Debug("LibraryManager::FindGameActionsEoCApp(): Could not find TornadoAction");
+			InitFailed = true;
 		}
 
 		// FIXME: WallAction, SummonHelpers::Summon
@@ -474,6 +484,7 @@ namespace osidbg
 
 		if (StatusMachineCreateStatus == nullptr) {
 			Debug("LibraryManager::FindStatusMachineEoCApp(): Could not find StatusMachine::CreateStatus");
+			InitFailed = true;
 		}
 
 		Pattern p2;
@@ -491,6 +502,7 @@ namespace osidbg
 
 		if (StatusMachineApplyStatus == nullptr) {
 			Debug("LibraryManager::FindStatusMachineEoCApp(): Could not find StatusMachine::ApplyStatus");
+			InitFailed = true;
 		}
 	}
 
@@ -527,6 +539,7 @@ namespace osidbg
 
 		if (StatusHealVMT == nullptr) {
 			Debug("LibraryManager::FindStatusTypesEoCApp(): Could not find esv::StatusHeal");
+			InitFailed = true;
 		}
 
 		Pattern p3;
@@ -562,6 +575,7 @@ namespace osidbg
 
 		if (StatusHitVMT == nullptr) {
 			Debug("LibraryManager::FindStatusTypesEoCApp(): Could not find esv::StatusHit");
+			InitFailed = true;
 		}
 	}
 
@@ -597,6 +611,7 @@ namespace osidbg
 
 		if (CharacterHit == nullptr) {
 			Debug("LibraryManager::FindHitFuncsEoCApp(): Could not find Character::Hit");
+			InitFailed = true;
 		}
 	}
 
@@ -621,6 +636,7 @@ namespace osidbg
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
 			Debug("LibraryManager::FindItemFuncsEoCApp(): Could not find esv::CreateItemFromParsed");
+			InitFailed = true;
 		}
 	}
 
@@ -705,6 +721,7 @@ namespace osidbg
 			|| CustomStatUIRollHook == nullptr
 			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
 			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
+			InitFailed = true;
 		}
 	}
 
@@ -734,6 +751,31 @@ namespace osidbg
 
 		if (NetworkFixedStrings == nullptr) {
 			Debug("LibraryManager::FindNetworkFixedStringsEoCApp(): Could not find eoc::NetworkFixedStrings");
+			InitFailed = true;
+		}
+	}
+
+
+	void LibraryManager::FindErrorFuncsEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:ecl__gEocClient
+			"4C 8D 8D 08 04 00 00 " // lea     r9, [rbp+8F8h+var_4F0]
+			"41 B0 01 " // mov     r8b, 1
+			"48 8D 95 E8 03 00 00 " // lea     rdx, [rbp+8F8h+var_510]
+			"E8 XX XX XX XX " // call    ecl__EocClient__HandleError
+			"48 8D 8D E8 03 00 00 " // lea     rdx, [rbp+8F8h+var_510]
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			EoCClient = (ecl::EoCClient **)AsmLeaToAbsoluteAddress(match);
+			EoCClientHandleError = (ecl::EoCClient__HandleError)AsmCallToAbsoluteAddress(match + 24);
+		}, false);
+
+		if (EoCClient == nullptr || EoCClientHandleError == nullptr) {
+			Debug("LibraryManager::FindErrorFuncsEoCApp(): Could not find ecl::EoCClient::HandleError");
+			InitFailed = true;
 		}
 	}
 }
