@@ -175,6 +175,8 @@ namespace osidbg {
 			CDivinityStats_Character__GetStat GetMovement;
 			CDivinityStats_Character__GetStat GetInitiative;
 			CDivinityStats_Character__GetStat GetUnknown;
+			CDivinityStats_Character__GetStat GetChanceToHitBoost;
+			CDivinityStats_Character__CalculateHitChance CalculateHitChance;
 		};
 
 		struct CharacterStatsGetters

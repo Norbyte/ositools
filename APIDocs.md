@@ -1,4 +1,5 @@
 
+
 ### !!! DRAFT API DOCS !!!
 
 
@@ -684,14 +685,23 @@ Returns a stat value of the specified character. `_Stat` must be one of the foll
 CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
 In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
 
+If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
 
 ### CharacterGetComputedStat
 `query NRD_CharacterGetComputedStat([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [in](INTEGER)_IsBaseStat, [out](INTEGER)_Value)`
 
 Returns a computed stat value of the specified character. `_Stat` must be one of the following:
-MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative.
+MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative, ChanceToHitBoost.
+
+If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
 
 Unlike stats returned by `CharacterGetStat`, these stats are computed on the fly and cannot be changed via `CharacterSetStat`. It is, however, possible to adjust them using permanent boosts using the `CharacterSetPermanentBoost` function. [See this link](#permanent-boosts) for more details.
+
+
+### CharacterGetHitChance
+`query NRD_CharacterGetHitChance([in](CHARACTERGUID)_Attacker, [in](CHARACTERGUID)_Target, [out](INTEGER)_HitChance)`
+
+Returns the chance of the attacker character hitting the target character (in percentages). If either `_Attacker` or `_Target` is a nonexistent character, the query fails.
 
 
 ### CharacterSetStat
@@ -1245,6 +1255,21 @@ Converts `_Real` to a string value.
 | 111 | ResurrectExtraHealth |
 | 112 | NaturalConductor |
 | 113 | Quest_Rooted |
+| 114 | PainDrinker |
+| 115 | DeathfogResistant |
+| 116 | Sourcerer |
+| 117 | Rager |
+| 118 | Elementalist |
+| 119 | Sadist |
+| 120 | Haymaker |
+| 121 | Gladiator |
+| 122 | Indomitable |
+| 123 | WildMag |
+| 124 | Jitterbug |
+| 125 | Soulcatcher |
+| 126 | MasterThief |
+| 127 | GreedyVessel |
+| 128 | MagicCycles |
 
 ### AttributeFlags
 

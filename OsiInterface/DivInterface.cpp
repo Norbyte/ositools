@@ -394,6 +394,18 @@ namespace osidbg
 	}
 
 
+	std::optional<int32_t> CDivinityStats_Character::GetHitChance(CDivinityStats_Character * target)
+	{
+		auto const & getters = gOsirisProxy->GetLibraryManager().StatsGetters.Funcs;
+		if (getters.CalculateHitChance == nullptr) {
+			OsiError("Getter unavailable for hit chance");
+			return {};
+		}
+
+		return getters.CalculateHitChance(this, target);
+	}
+
+
 	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
 	{
 		auto const & getters = gOsirisProxy->GetLibraryManager().StatsGetters.Funcs;
@@ -429,6 +441,8 @@ namespace osidbg
 			getStat = getters.GetInitiative;
 		} else if (strcmp(name, "Unknown") == 0) {
 			getStat = getters.GetUnknown;
+		} else if (strcmp(name, "ChanceToHitBoost") == 0) {
+			getStat = getters.GetChanceToHitBoost;
 		}
 		
 		if (getStat) {

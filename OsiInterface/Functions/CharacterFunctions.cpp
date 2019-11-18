@@ -47,6 +47,27 @@ namespace osidbg
 			}
 		}
 
+		bool CharacterGetHitChance(OsiArgumentDesc & args)
+		{
+			auto attacker = FindCharacterByNameGuid(args[0].String);
+			auto target = FindCharacterByNameGuid(args[1].String);
+			auto & hitChance = args[2].Int32;
+			if (attacker == nullptr
+				|| target == nullptr
+				|| attacker->Stats == nullptr
+				|| target->Stats == nullptr) {
+				return false;
+			}
+
+			auto chance = attacker->Stats->GetHitChance(target->Stats);
+			if (chance) {
+				hitChance = *chance;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		template <OsiPropertyMapType Type>
 		bool CharacterGetStat(OsiArgumentDesc & args)
 		{
@@ -159,6 +180,17 @@ namespace osidbg
 			&func::CharacterGetComputedStat
 		);
 		functionMgr.Register(std::move(characterGetComputedStat));
+
+		auto characterGetHitChance = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetHitChance",
+			std::vector<CustomFunctionParam>{
+				{ "Attacker", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Target", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "HitChance", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGetHitChance
+		);
+		functionMgr.Register(std::move(characterGetHitChance));
 
 		auto characterGetStatInt = std::make_unique<CustomQuery>(
 			"NRD_CharacterGetStatInt",

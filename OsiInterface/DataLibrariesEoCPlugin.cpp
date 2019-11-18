@@ -729,7 +729,7 @@ namespace osidbg
 
 	void LibraryManager::FindCharacterStatFuncsEoCPlugin()
 	{
-		memset(&StatsGetters.Ptrs, 0, sizeof(StatsGetters.Ptrs));
+		memset(&StatsGetters, 0, sizeof(StatsGetters));
 
 		Pattern p;
 		p.FromString(
@@ -765,6 +765,49 @@ namespace osidbg
 
 		if (StatsGetters.Funcs.GetUnknown == nullptr) {
 			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find all stat getters");
+			InitFailed = true;
+			return;
+		}
+
+		Pattern p2;
+		p2.FromString(
+			"48 89 5C 24 10 " // mov     [rsp+arg_8], rbx
+			"55 " // push    rbp
+			"56 " // push    rsi
+			"57 " // push    rdi
+			"48 83 EC 20 " // sub     rsp, 20h
+			"48 8B F2 " // mov     rsi, rdx
+			"48 8B F9 " // mov     rdi, rcx
+			"B2 01 " // mov     dl, 1 
+			"E8 XX XX XX XX " // call    CDivinityStats_Character__GetWeaponStats
+			"8B 88 04 02 00 00 " // mov     ecx, [rax+204h]
+		);
+
+		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			StatsGetters.Funcs.CalculateHitChance = (CDivinityStats_Character__CalculateHitChance)match;
+		}, false);
+
+		if (StatsGetters.Funcs.CalculateHitChance == nullptr) {
+			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::CalculateHitChance");
+			InitFailed = true;
+			return;
+		}
+
+		Pattern p3;
+		p3.FromString(
+			"48 0F 4D C2 " // cmovge  rax, rdx
+			"33 D2 " // xor     edx, edx
+			"8B 18 " // mov     ebx, [rax]
+			"E8 XX XX XX XX " // call    CDivinityStats_Character__GetChanceToHitBoost
+		);
+
+		p3.Scan((uint8_t const *)StatsGetters.Funcs.CalculateHitChance, 0x200, [this](const uint8_t * match) {
+			auto ptr = AsmCallToAbsoluteAddress(match + 8);
+			StatsGetters.Funcs.GetChanceToHitBoost = (CDivinityStats_Character__GetStat)ptr;
+		}, false);
+
+		if (StatsGetters.Funcs.GetChanceToHitBoost == nullptr) {
+			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetChanceToHitBoost");
 			InitFailed = true;
 		}
 	}
