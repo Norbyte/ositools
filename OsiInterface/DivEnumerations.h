@@ -606,10 +606,25 @@ namespace osidbg
 		TALENT_ResurrectExtraHealth = 111,
 		TALENT_NaturalConductor = 112,
 		TALENT_Quest_Rooted = 113,
-		TALENT_Max = TALENT_Quest_Rooted,
+		TALENT_PainDrinker = 114,
+		TALENT_DeathfogResistant = 115,
+		TALENT_Sourcerer = 116,
+		TALENT_Rager = 117,
+		TALENT_Elementalist = 118,
+		TALENT_Sadist = 119,
+		TALENT_Haymaker = 120,
+		TALENT_Gladiator = 121,
+		TALENT_Indomitable = 122,
+		TALENT_WildMag = 123,
+		TALENT_Jitterbug = 124,
+		TALENT_Soulcatcher = 125,
+		TALENT_MasterThief = 126,
+		TALENT_GreedyVessel = 127,
+		TALENT_MagicCycles = 128,
+		TALENT_Max = TALENT_MagicCycles,
 	};
 
-	MAKE_ENUM_INFO(TalentType, 114);
+	MAKE_ENUM_INFO(TalentType, 129);
 
 
 	enum ESurfaceFlag : uint64_t

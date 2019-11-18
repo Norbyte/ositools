@@ -926,6 +926,21 @@ namespace osidbg
 		{ TalentType::TALENT_ResurrectExtraHealth, "ResurrectExtraHealth" },
 		{ TalentType::TALENT_NaturalConductor, "NaturalConductor" },
 		{ TalentType::TALENT_Quest_Rooted, "Quest_Rooted" },
+		{ TalentType::TALENT_PainDrinker, "PainDrinker" },
+		{ TalentType::TALENT_DeathfogResistant, "DeathfogResistant" },
+		{ TalentType::TALENT_Sourcerer, "Sourcerer" },
+		{ TalentType::TALENT_Rager, "Rager" },
+		{ TalentType::TALENT_Elementalist, "Elementalist" },
+		{ TalentType::TALENT_Sadist, "Sadist" },
+		{ TalentType::TALENT_Haymaker, "Haymaker" },
+		{ TalentType::TALENT_Gladiator, "Gladiator" },
+		{ TalentType::TALENT_Indomitable, "Indomitable" },
+		{ TalentType::TALENT_WildMag, "WildMag" },
+		{ TalentType::TALENT_Jitterbug, "Jitterbug" },
+		{ TalentType::TALENT_Soulcatcher, "Soulcatcher" },
+		{ TalentType::TALENT_MasterThief, "MasterThief" },
+		{ TalentType::TALENT_GreedyVessel, "GreedyVessel" },
+		{ TalentType::TALENT_MagicCycles, "MagicCycles" }
 	};
 
 }
