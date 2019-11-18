@@ -27,6 +27,7 @@ OsirisProxy::OsirisProxy()
 void OsirisProxy::Initialize()
 {
 	Debug("OsirisProxy::Initialize: Starting");
+	auto initStart = std::chrono::high_resolution_clock::now();
 	Wrappers.Initialize();
 
 	using namespace std::placeholders;
@@ -43,7 +44,6 @@ void OsirisProxy::Initialize()
 #endif
 
 	if (ExtensionsEnabled) {
-		Debug("OsirisProxy::Initialize: Initializing libraries.");
 		if (Libraries.FindLibraries()) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
@@ -66,6 +66,10 @@ void OsirisProxy::Initialize()
 	else {
 		Debug("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
 	}
+
+	auto initEnd = std::chrono::high_resolution_clock::now();
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
+	Debug("Library startup took %d ms", ms);
 }
 
 void OsirisProxy::Shutdown()
@@ -190,6 +194,8 @@ void DebugThreadRunner(DebugInterface & intf)
 
 void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
 {
+	auto initStart = std::chrono::high_resolution_clock::now();
+
 	// FIXME - register before OsirisWrappers!
 	StoryLoaded = false;
 	DynGlobals.OsirisObject = Osiris;
@@ -252,6 +258,10 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	} else if (Libraries.InitializationFailed()) {
 		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.");
 	}
+
+	auto initEnd = std::chrono::high_resolution_clock::now();
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
+	Debug("Startup phase 2 took %d ms", ms);
 }
 
 void OsirisProxy::OnInitGame(void * Osiris)

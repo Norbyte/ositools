@@ -195,8 +195,6 @@ namespace osidbg
 	{
 #if defined(OSI_EOCAPP)
 		if (FindEoCApp(moduleStart_, moduleSize_)) {
-			coreLibStart_ = nullptr;
-			coreLibSize_ = 0;
 			FindMemoryManagerEoCApp();
 			FindLibrariesEoCApp();
 			FindServerGlobalsEoCApp();
@@ -204,6 +202,7 @@ namespace osidbg
 			FindGlobalStringTableEoCApp();
 			FindNetworkFixedStringsEoCApp();
 			FindErrorFuncsEoCApp();
+			FindFileSystemEoCApp();
 			return !CriticalInitFailed;
 		}
 #else
@@ -213,6 +212,8 @@ namespace osidbg
 			FindServerGlobalsEoCPlugin();
 			FindEoCGlobalsEoCPlugin();
 			FindGlobalStringTableCoreLib();
+			FindErrorFuncsEoCPlugin();
+			FindFileSystemCoreLib();
 			return !CriticalInitFailed;
 		}
 #endif
@@ -321,13 +322,13 @@ namespace osidbg
 	{
 		if (EoCClient == nullptr
 			|| *EoCClient == nullptr
-			|| (*EoCClient)->State == nullptr
-			|| *(*EoCClient)->State == nullptr
+			|| (*EoCClient)->GameStateMachine == nullptr
+			|| *(*EoCClient)->GameStateMachine == nullptr
 			|| EoCClientHandleError == nullptr) {
 			return false;
 		}
 
-		auto state = (*(*EoCClient)->State)->State;
+		auto state = (*(*EoCClient)->GameStateMachine)->State;
 		return state == 19
 			|| state == 17
 			|| state == 28

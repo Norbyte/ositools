@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include "osidebug.pb.h"
-#include "OsiInterface.h"
+#include <GameDefinitions/Osiris.h>
 #include "DebugInterface.h"
 
 namespace osidbg

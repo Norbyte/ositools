@@ -1,7 +1,4 @@
 #include "stdafx.h"
-#include "DivInterface.h"
-
-#pragma once
 
 #include <cstdint>
 #include <array>
@@ -10,6 +7,8 @@
 #include <map>
 #include <string>
 #include <cassert>
+
+#include <GameDefinitions/BaseTypes.h>
 #include "OsirisProxy.h"
 
 namespace osidbg
@@ -49,6 +48,26 @@ namespace osidbg
 			wcscpy_s(Buf, 8, s.c_str());
 		}
 	}
+
+
+	void STDString::Set(std::string const & s)
+	{
+		if (Capacity > 15) {
+			GameFree(BufPtr);
+		}
+
+		Size = s.size();
+		Capacity = s.size();
+
+		if (Size > 7) {
+			// FIXME - memory leak!
+			BufPtr = GameAlloc<char>(Capacity + 1);
+			strcpy_s(BufPtr, Capacity + 1, s.c_str());
+		} else {
+			strcpy_s(Buf, 16, s.c_str());
+		}
+	}
+
 
 	CRPGStats_Modifier * ModifierList::GetAttributeInfo(const char * name, int * attributeIndex) const
 	{

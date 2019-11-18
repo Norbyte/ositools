@@ -7,8 +7,7 @@
 #include <functional>
 
 #include "Utils.h"
-#include "OsiInterface.h"
-#include "DivInterface.h"
+#include "GameDefinitions/Osiris.h"
 
 namespace osidbg
 {

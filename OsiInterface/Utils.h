@@ -1,6 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <string>
+
+std::string ToUTF8(std::wstring const & s);
+std::wstring FromUTF8(std::string const & s);
 
 template <typename... Args>
 void Debug(wchar_t const * fmt, Args... args)

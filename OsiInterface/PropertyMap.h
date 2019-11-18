@@ -5,7 +5,7 @@
 #include <string>
 #include <optional>
 
-#include "DivBaseTypes.h"
+#include <GameDefinitions/BaseTypes.h>
 
 namespace osidbg
 {

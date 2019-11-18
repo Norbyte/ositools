@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <concurrent_queue.h>
 #include "osidebug.pb.h"
-#include "OsiInterface.h"
+#include <GameDefinitions/Osiris.h>
 #include "DebugMessages.h"
 
 namespace osidbg

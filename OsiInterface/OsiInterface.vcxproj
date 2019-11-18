@@ -361,13 +361,21 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="DebugInterface.h" />
     <ClInclude Include="DebugMessages.h" />
-    <ClInclude Include="DivBaseTypes.h" />
-    <ClInclude Include="DivEnumerations.h" />
-    <ClInclude Include="DivInterface.h" />
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />
+    <ClInclude Include="GameDefinitions\BaseTypes.h" />
+    <ClInclude Include="GameDefinitions\Character.h" />
+    <ClInclude Include="GameDefinitions\CustomStats.h" />
+    <ClInclude Include="GameDefinitions\Misc.h" />
+    <ClInclude Include="GameDefinitions\EntitySystem.h" />
+    <ClInclude Include="GameDefinitions\Enumerations.h" />
+    <ClInclude Include="GameDefinitions\GameAction.h" />
+    <ClInclude Include="GameDefinitions\Item.h" />
+    <ClInclude Include="GameDefinitions\Module.h" />
+    <ClInclude Include="GameDefinitions\Osiris.h" />
+    <ClInclude Include="GameDefinitions\Stats.h" />
+    <ClInclude Include="GameDefinitions\Status.h" />
     <ClInclude Include="LuaBinding.h" />
-    <ClInclude Include="OsiInterface.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
     <ClInclude Include="OsirisProxy.h" />
@@ -398,7 +406,6 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseExtensionsOnly|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="DivInterface.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Editor Debug|Win32'">false</CompileAsManaged>
@@ -439,7 +446,8 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Functions\StatFunctions.cpp" />
     <ClCompile Include="Functions\StatusFunctions.cpp" />
     <ClCompile Include="Functions\UtilityFunctions.cpp" />
-    <ClCompile Include="LuaBinding.cpp\LuaBinding.cpp" />
+    <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
+    <ClCompile Include="LuaBinding.cpp" />
     <ClCompile Include="NodeHooks.cpp" />
     <ClCompile Include="osidebug.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

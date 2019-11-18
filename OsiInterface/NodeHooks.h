@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OsiInterface.h"
+#include <GameDefinitions/Osiris.h>
 #include <unordered_map>
 #include <functional>
 

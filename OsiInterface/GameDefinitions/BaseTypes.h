@@ -263,6 +263,40 @@ namespace osidbg
 		void Set(std::wstring const & s);
 	};
 
+	struct StringView
+	{
+		char * Buf;
+		uint64_t Size;
+	};
+
+	struct STDString
+	{
+		union {
+			char Buf[16];
+			char * BufPtr{ nullptr };
+		};
+		uint64_t Size{ 0 };
+		uint64_t Capacity{ 15 };
+
+		inline char const * GetPtr() const
+		{
+			if (Size > 15) {
+				return BufPtr;
+			} else {
+				return Buf;
+			}
+		}
+
+		void Set(std::string const & s);
+	};
+
+	struct Path
+	{
+		STDString Name;
+		uint32_t Unknown{ 0 };
+		uint32_t _Pad;
+	};
+
 	template <class T>
 	struct Array
 	{

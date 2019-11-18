@@ -1,6 +1,12 @@
 #pragma once
 
-#include "DivInterface.h"
+#include <GameDefinitions/Character.h>
+#include <GameDefinitions/CustomStats.h>
+#include <GameDefinitions/GameAction.h>
+#include <GameDefinitions/Item.h>
+#include <GameDefinitions/Misc.h>
+#include <GameDefinitions/Osiris.h>
+#include <GameDefinitions/Status.h>
 #include "Wrappers.h"
 #include <optional>
 
@@ -89,6 +95,8 @@ namespace osidbg {
 			}
 		}
 
+		FileReader * MakeFileReader(std::string const & path) const;
+
 		inline esv::GameActionManager * GetGameActionManager() const
 		{
 			if (LevelManager == nullptr || *LevelManager == nullptr) {
@@ -96,16 +104,15 @@ namespace osidbg {
 			}
 
 			auto levelMgr = *LevelManager;
-			if (coreLibStart_ == nullptr) {
-				auto l1 = ((uint64_t *)levelMgr)[16];
-				auto l2 = *(uint64_t *)(l1 + 208);
-				return (esv::GameActionManager *)l2;
-			}
-			else {
-				auto l1 = ((uint64_t *)levelMgr)[1];
-				auto l2 = *(uint64_t *)(l1 + 216);
-				return (esv::GameActionManager *)l2;
-			}
+#if !defined(OSI_EOCAPP)
+			auto l1 = ((uint64_t *)levelMgr)[16];
+			auto l2 = *(uint64_t *)(l1 + 208);
+			return (esv::GameActionManager *)l2;
+#else
+			auto l1 = ((uint64_t *)levelMgr)[1];
+			auto l2 = *(uint64_t *)(l1 + 216);
+			return (esv::GameActionManager *)l2;
+#endif
 		}
 
 		esv::ProjectileHelpers_ShootProjectile ShootProjectile{ nullptr };
@@ -198,6 +205,8 @@ namespace osidbg {
 		void FindServerGlobalsEoCApp();
 		void FindEoCGlobalsEoCApp();
 		void FindGlobalStringTableEoCApp();
+		void FindFileSystemEoCApp();
+		void FindErrorFuncsEoCApp();
 		void FindGameActionManagerEoCApp();
 		void FindGameActionsEoCApp();
 		void FindStatusMachineEoCApp();
@@ -206,7 +215,6 @@ namespace osidbg {
 		void FindItemFuncsEoCApp();
 		void FindCustomStatsEoCApp();
 		void FindNetworkFixedStringsEoCApp();
-		void FindErrorFuncsEoCApp();
 		void FindCharacterStatFuncsEoCApp();
 #else
 		bool FindEoCPlugin(uint8_t const * & start, size_t & size);
@@ -215,6 +223,8 @@ namespace osidbg {
 		void FindServerGlobalsEoCPlugin();
 		void FindEoCGlobalsEoCPlugin();
 		void FindGlobalStringTableCoreLib();
+		void FindFileSystemCoreLib();
+		void FindErrorFuncsEoCPlugin();
 		void FindGameActionManagerEoCPlugin();
 		void FindGameActionsEoCPlugin();
 		void FindStatusMachineEoCPlugin();
@@ -237,21 +247,26 @@ namespace osidbg {
 			uint32_t refs;
 		};
 
-		uint8_t const * moduleStart_;
-		size_t moduleSize_;
+		uint8_t const * moduleStart_{ nullptr };
+		size_t moduleSize_{ 0 };
 
-		uint8_t const * coreLibStart_;
-		size_t coreLibSize_;
+#if !defined(OSI_EOCAPP)
+		HMODULE coreLib_{ NULL };
+		uint8_t const * coreLibStart_{ nullptr };
+		size_t coreLibSize_{ 0 };
+#endif
 
 		bool InitFailed{ false };
 		bool CriticalInitFailed{ false };
 		bool PostLoaded{ false };
 
-		GlobalStringTable const ** GlobalStrings;
+		GlobalStringTable const ** GlobalStrings{ nullptr };
+		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
+		ls__FileReader__FileReader FileReaderCtor{ nullptr };
 
-		void ** LevelManager;
-		CharacterFactory ** EsvCharacterFactory;
-		ItemFactory ** EsvItemFactory;
+		void ** LevelManager{ nullptr };
+		CharacterFactory ** EsvCharacterFactory{ nullptr };
+		ItemFactory ** EsvItemFactory{ nullptr };
 
 		enum class EsvGlobalEoCApp {
 			EsvLSDialogEventManager = 0,

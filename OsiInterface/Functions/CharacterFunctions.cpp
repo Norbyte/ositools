@@ -2,8 +2,6 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
-#include <locale>
-#include <codecvt>
 
 namespace osidbg
 {

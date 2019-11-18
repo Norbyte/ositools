@@ -2,8 +2,6 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
-#include <locale>
-#include <codecvt>
 
 namespace osidbg
 {
@@ -11,8 +9,7 @@ namespace osidbg
 	{
 		esv::CustomStatDefinitionComponent * FindCustomStatDefinitionByName(char const * name)
 		{
-			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-			std::wstring wstrName = converter.from_bytes(name);
+			std::wstring wstrName = FromUTF8(name);
 
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
@@ -158,9 +155,8 @@ namespace osidbg
 			msg.StatDefns.Set.Capacity = 1;
 			msg.StatDefns.Set.Size = 1;
 
-			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-			std::wstring wstrName = converter.from_bytes(name);
-			std::wstring wstrDescription = converter.from_bytes(description);
+			std::wstring wstrName = FromUTF8(name);
+			std::wstring wstrDescription = FromUTF8(description);
 
 			auto & defn = msg.StatDefns.Set.Buf[0];
 			defn.Name.Set(wstrName);

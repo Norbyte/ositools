@@ -8,8 +8,6 @@
 #include <ShlObj.h>
 #include <sstream>
 #include <fstream>
-#include <locale>
-#include <codecvt>
 
 struct ToolConfig
 {
@@ -43,8 +41,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 	Json::Value root;
 	std::string errs;
 	if (!Json::parseFromStream(factory, f, &root, &errs)) {
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring werrs = converter.from_bytes(errs);
+		std::wstring werrs = FromUTF8(errs);
 
 		std::wstringstream err;
 		err << L"Failed to load configuration file '" << configPath << "':\r\n" << werrs;
@@ -128,8 +125,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 	auto logDir = root["LogDirectory"];
 	if (!logDir.isNull()) {
 		if (logDir.isString()) {
-			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-			config.LogDirectory = converter.from_bytes(logDir.asString());
+			config.LogDirectory = FromUTF8(logDir.asString());
 		}
 		else {
 			Fail("Config option 'LogDirectory' should be a string.");

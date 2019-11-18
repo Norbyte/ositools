@@ -8,6 +8,7 @@
 #include <string>
 #include <cassert>
 #include <glm/vec3.hpp>
+#include <GameDefinitions/BaseTypes.h>
 
 namespace osidbg
 {
@@ -21,24 +22,6 @@ enum class GameType
 
 extern GameType gGameType;
 
-struct STDString
-{
-	union {
-		char Buf[16];
-		char * BufPtr;
-	};
-	uint64_t Size;
-	uint64_t Capacity;
-
-	char const * Get() const
-	{
-		if (Capacity < 16) {
-			return &Buf[0];
-		} else {
-			return BufPtr;
-		}
-	}
-};
 
 #pragma pack(push, 1)
 enum class ValueType : uint8_t

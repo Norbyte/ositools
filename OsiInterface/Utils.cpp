@@ -1,5 +1,26 @@
 #include "stdafx.h"
 
+
+std::string ToUTF8(std::wstring const & s)
+{
+	int size = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), (int)s.size(), NULL, 0, NULL, NULL);
+	std::string converted;
+	converted.resize(size);
+	WideCharToMultiByte(CP_UTF8, 0, s.c_str(), (int)s.size(), converted.data(), (int)converted.size(), NULL, NULL);
+	return converted;
+}
+
+
+std::wstring FromUTF8(std::string const & s)
+{
+	int size = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), NULL, 0);
+	std::wstring converted;
+	converted.resize(size);
+	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), converted.data(), (int)converted.size());
+	return converted;
+}
+
+
 [[noreturn]]
 void Fail(TCHAR const * reason)
 {

@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Functions">
       <UniqueIdentifier>{d2b6899d-6374-4a36-9af3-fff1fe2db71c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GameDefinitions">
+      <UniqueIdentifier>{637dd829-3943-4602-b58c-5d33b01ac51d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -66,19 +69,7 @@
     <ClInclude Include="DataLibraries.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OsiInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DivInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Functions\FunctionLibrary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DivBaseTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DivEnumerations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PropertyMap.h">
@@ -89,6 +80,42 @@
     </ClInclude>
     <ClInclude Include="LuaBinding.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\BaseTypes.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Enumerations.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Osiris.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Stats.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\EntitySystem.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Status.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameAction.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\CustomStats.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Module.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Character.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Item.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Misc.h">
+      <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +158,6 @@
     <ClCompile Include="DataLibraries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DivInterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Functions\UtilityFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
@@ -173,9 +197,6 @@
     <ClCompile Include="Functions\CharacterFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
-    <ClCompile Include="LuaBinding.cpp\LuaBinding.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DataLibrariesEoCApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -184,6 +205,12 @@
     </ClCompile>
     <ClCompile Include="Functions\CustomStatFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\GameHelpers.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

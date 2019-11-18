@@ -1,6 +1,11 @@
 #pragma once
 
 #include "../CustomFunctions.h"
+#include <GameDefinitions/EntitySystem.h>
+#include <GameDefinitions/Character.h>
+#include <GameDefinitions/Item.h>
+#include <GameDefinitions/GameAction.h>
+#include <GameDefinitions/Misc.h>
 
 namespace osidbg
 {

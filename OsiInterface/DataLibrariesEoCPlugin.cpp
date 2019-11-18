@@ -33,12 +33,12 @@ namespace osidbg
 		start = (uint8_t const *)moduleInfo.lpBaseOfDll;
 		size = moduleInfo.SizeOfImage;
 
-		HMODULE hCoreLib = LoadLibraryW(L"CoreLib.dll");
-		if (hCoreLib == NULL) {
+		coreLib_ = LoadLibraryW(L"CoreLib.dll");
+		if (coreLib_ == NULL) {
 			return false;
 		}
 
-		if (!GetModuleInformation(GetCurrentProcess(), hCoreLib, &moduleInfo, sizeof(moduleInfo))) {
+		if (!GetModuleInformation(GetCurrentProcess(), coreLib_, &moduleInfo, sizeof(moduleInfo))) {
 			Fail("Could not get module info of CoreLib.dll");
 		}
 
@@ -51,9 +51,8 @@ namespace osidbg
 
 	void LibraryManager::FindMemoryManagerEoCPlugin()
 	{
-		HMODULE hCoreLib = GetModuleHandleW(L"CoreLib.dll");
-		auto allocProc = GetProcAddress(hCoreLib, "?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z");
-		auto freeProc = GetProcAddress(hCoreLib, "?Free@GlobalAllocator@ls@@QEAAXPEAX@Z");
+		auto allocProc = GetProcAddress(coreLib_, "?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z");
+		auto freeProc = GetProcAddress(coreLib_, "?Free@GlobalAllocator@ls@@QEAAXPEAX@Z");
 
 		EoCAlloc = (EoCAllocFunc)allocProc;
 		EoCFree = (EoCFreeFunc)freeProc;
@@ -255,6 +254,41 @@ namespace osidbg
 			Debug("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
 			CriticalInitFailed = true;
 		}
+	}
+
+	void LibraryManager::FindFileSystemCoreLib()
+	{
+		auto getPrefixProc = GetProcAddress(coreLib_, "?GetPrefixForRoot@Path@ls@@CA?AV?$_StringView@DX@2@W4EPathRoot@2@@Z");
+		auto fileReaderProc = GetProcAddress(coreLib_, "??0FileReader@ls@@QEAA@AEBVPath@1@W4EType@01@@Z");
+
+		GetPrefixForRoot = (ls__Path__GetPrefixForRoot)getPrefixProc;
+		FileReaderCtor = (ls__FileReader__FileReader)fileReaderProc;
+
+		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
+			Debug("LibraryManager::FindFileSystemCoreLib(): Could not find filesystem functions");
+			CriticalInitFailed = true;
+		}
+	}
+
+	FileReader * LibraryManager::MakeFileReader(std::string const & path) const
+	{
+		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
+			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
+			return nullptr;
+		}
+
+		StringView root;
+		GetPrefixForRoot(&root, 1); // Get game data path
+
+		std::string absolutePath = root.Buf;
+		absolutePath += "/" + path;
+
+		Path lsPath;
+		lsPath.Name.Set(absolutePath);
+
+		auto reader = new FileReader();
+		FileReaderCtor(reader, &lsPath, 2);
+		return reader;
 	}
 
 	void LibraryManager::FindGameActionManagerEoCPlugin()
@@ -722,6 +756,35 @@ namespace osidbg
 			|| CustomStatUIRollHook == nullptr
 			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
 			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
+			InitFailed = true;
+		}
+	}
+
+
+	void LibraryManager::FindErrorFuncsEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"48 8B 1D XX XX XX XX " // mov     rbx, cs:ecl__gEocClient
+			"48 8D 8C 24 90 00 00 00 " // lea     rcx, [rsp+158h+var_C8]
+			"41 B1 01 " // mov     r9b, 1
+			"45 33 C0 " // xor     r8d, r8d
+			"33 D2 " // xor     edx, edx
+			"FF 15 XX XX XX XX " // call    cs:?Get@TranslatedString@ls@@QEBAAEBVSTDWString@2@W4EGender@2@0_N@Z 
+			"4C 8D 4C 24 20 " // lea     r9, [rsp+158h+var_138]
+			"45 33 C0 " // xor     r8d, r8d
+			"48 8B D0 " // mov     rdx, rax
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    ecl__EocClient__HandleError
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			EoCClient = (ecl::EoCClient **)AsmLeaToAbsoluteAddress(match);
+			EoCClientHandleError = (ecl::EoCClient__HandleError)AsmCallToAbsoluteAddress(match + 43);
+		}, false);
+
+		if (EoCClient == nullptr || EoCClientHandleError == nullptr) {
+			Debug("LibraryManager::FindErrorFuncsEoCPlugin(): Could not find ecl::EoCClient::HandleError");
 			InitFailed = true;
 		}
 	}
