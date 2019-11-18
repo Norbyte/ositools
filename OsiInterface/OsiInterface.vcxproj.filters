@@ -87,6 +87,9 @@
     <ClInclude Include="PropertyMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LuaBinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

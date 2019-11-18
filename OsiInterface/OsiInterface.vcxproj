@@ -366,6 +366,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="DivInterface.h" />
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />
+    <ClInclude Include="LuaBinding.h" />
     <ClInclude Include="OsiInterface.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
