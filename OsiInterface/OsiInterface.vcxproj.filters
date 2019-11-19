@@ -117,6 +117,12 @@
     <ClInclude Include="GameDefinitions\Misc.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="ExtensionHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtensionState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

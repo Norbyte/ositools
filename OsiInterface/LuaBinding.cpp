@@ -62,8 +62,17 @@ namespace osidbg
 		usedArguments_ -= num;
 	}
 
-	OsiArgumentPool gOsiArgumentPool;
 
+	OsiArgumentListPin::OsiArgumentListPin(uint32_t numArgs)
+		: numArgs_(numArgs)
+	{
+		args_ = ExtensionState::Get().OsiArgumentPool.AllocateArguments(numArgs_);
+	}
+
+	OsiArgumentListPin::~OsiArgumentListPin()
+	{
+		ExtensionState::Get().OsiArgumentPool.ReleaseArguments(numArgs_);
+	}
 
 
 	OsiProxyLibrary::OsiProxyLibrary()
@@ -419,18 +428,39 @@ _G = {})";
 		*/
 	}
 
-	std::unique_ptr<LuaState> gLuaState;
 
-
-	void LuaReset()
+	void ExtensionState::LuaReset()
 	{
-		gLuaState = std::make_unique<LuaState>();
+		Lua = std::make_unique<LuaState>();
 		OsiWarn("LUA VM reset.");
 	}
 
-	void LuaLoad(std::string const & path)
+	void ExtensionState::LuaStartup()
 	{
-		if (!gLuaState) {
+		auto modManager = GetModManager();
+		if (modManager == nullptr) {
+			OsiError("Could not bootstrap Lua modules - mod manager not available");
+			return;
+		}
+
+		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
+
+		OsiWarn("Bootstrapping Lua modules ...");
+		for (auto i = 0; i < mods.Size; i++) {
+			auto const & mod = mods.Buf[i];
+			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
+			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
+			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
+			if (reader != nullptr && reader->IsLoaded) {
+				OsiWarn("Found bootstrap file: " << bootstrapFile);
+				LuaLoadGameFile(reader);
+			}
+		}
+	}
+
+	void ExtensionState::LuaLoadExternalFile(std::string const & path)
+	{
+		if (!Lua) {
 			OsiError("Called when the Lua VM has not been initialized!");
 			return;
 		}
@@ -448,17 +478,53 @@ _G = {})";
 		f.read(const_cast<char *>(s.data()), length);
 		f.close();
 
-		gLuaState->LoadScript(s);
-		OsiWarn("Reloaded " << path);
+		Lua->LoadScript(s);
+		OsiWarn("Loaded external script: " << path);
 	}
 
-	void LuaCall(char const * func, char const * arg)
+	void ExtensionState::LuaLoadGameFile(FileReader * reader)
 	{
-		if (!gLuaState) {
+		if (!Lua) {
 			OsiError("Called when the Lua VM has not been initialized!");
 			return;
 		}
 
-		gLuaState->Call(func, arg);
+		if (reader == nullptr || !reader->IsLoaded) {
+			OsiError("Attempted to load script from invalid file reader");
+			return;
+		}
+
+		std::string script;
+		script.resize(reader->FileSize);
+		memcpy(script.data(), reader->ScratchBufPtr, reader->FileSize);
+
+		Lua->LoadScript(script);
+	}
+
+	void ExtensionState::LuaLoadGameFile(std::string const & path)
+	{
+		if (!Lua) {
+			OsiError("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(path);
+		if (reader == nullptr || !reader->IsLoaded) {
+			OsiError("Script file could not be opened: " << path);
+			return;
+		}
+
+		LuaLoadGameFile(reader);
+		OsiWarn("Loaded game script: " << path);
+	}
+
+	void ExtensionState::LuaCall(char const * func, char const * arg)
+	{
+		if (!Lua) {
+			OsiError("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		Lua->Call(func, arg);
 	}
 }

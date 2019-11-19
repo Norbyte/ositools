@@ -178,12 +178,9 @@ namespace osidbg
 		}
 
 
-		std::unique_ptr<ObjectSet<eoc::ItemDefinition>> gPendingItemClone;
-
-
 		void ItemCloneBegin(OsiArgumentDesc const & args)
 		{
-			if (gPendingItemClone) {
+			if (ExtensionState::Get().PendingItemClone) {
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
@@ -194,18 +191,19 @@ namespace osidbg
 				return;
 			}
 			
-			gPendingItemClone.reset();
+			ExtensionState::Get().PendingItemClone.reset();
 
 			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) return;
 
-			gPendingItemClone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
-			parseItem(item, gPendingItemClone.get(), false, false);
+			auto & clone = ExtensionState::Get().PendingItemClone;
+			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
+			parseItem(item, clone.get(), false, false);
 
-			if (gPendingItemClone->Set.Size != 1) {
-				OsiError("Something went wrong during item parsing. Item set size: " << gPendingItemClone->Set.Size);
-				gPendingItemClone.reset();
+			if (clone->Set.Size != 1) {
+				OsiError("Something went wrong during item parsing. Item set size: " << clone->Set.Size);
+				clone.reset();
 				return;
 			}
 		}
@@ -213,13 +211,14 @@ namespace osidbg
 
 		bool ItemClone(OsiArgumentDesc & args)
 		{
-			if (!gPendingItemClone) {
+			if (!ExtensionState::Get().PendingItemClone) {
 				OsiError("No item clone is in progress");
 				return false;
 			}
 
-			auto item = gOsirisProxy->GetLibraryManager().CreateItemFromParsed(gPendingItemClone.get(), 0);
-			gPendingItemClone.reset();
+			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto item = gOsirisProxy->GetLibraryManager().CreateItemFromParsed(clone.get(), 0);
+			clone.reset();
 
 			if (item == nullptr) {
 				OsiError("Failed to clone item.");
@@ -234,12 +233,14 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		void ItemCloneSet(OsiArgumentDesc const & args)
 		{
-			if (!gPendingItemClone) {
+			auto & clone = ExtensionState::Get().PendingItemClone;
+			if (!clone) {
 				OsiError("No item clone is currently in progress!");
 				return;
 			}
 
-			OsirisPropertyMapSet(gEoCItemDefinitionPropertyMap, &gPendingItemClone->Set.Buf[0], args, 0, Type);
+			OsirisPropertyMapSet(gEoCItemDefinitionPropertyMap, 
+				&clone->Set.Buf[0], args, 0, Type);
 		}
 
 

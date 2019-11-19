@@ -4,6 +4,26 @@
 
 namespace osidbg
 {
+	ecl::EoCClient * GetEoCClient()
+	{
+		auto clientPtr = gOsirisProxy->GetLibraryManager().EoCClient;
+		if (clientPtr == nullptr || *clientPtr == nullptr) {
+			return nullptr;
+		} else {
+			return *clientPtr;
+		}
+	}
+
+	ModManager * GetModManager()
+	{
+		auto client = GetEoCClient();
+		if (client == nullptr || client->ModManager == nullptr) {
+			return nullptr;
+		} else {
+			return client->ModManager;
+		}
+	}
+
 	FixedString ToFixedString(const char * s)
 	{
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();

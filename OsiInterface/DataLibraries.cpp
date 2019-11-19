@@ -203,6 +203,7 @@ namespace osidbg
 			FindNetworkFixedStringsEoCApp();
 			FindErrorFuncsEoCApp();
 			FindFileSystemEoCApp();
+			FindGameStateFuncsEoCApp();
 			return !CriticalInitFailed;
 		}
 #else
@@ -214,6 +215,7 @@ namespace osidbg
 			FindGlobalStringTableCoreLib();
 			FindErrorFuncsEoCPlugin();
 			FindFileSystemCoreLib();
+			FindGameStateFuncsEoCPlugin();
 			return !CriticalInitFailed;
 		}
 #endif
@@ -228,6 +230,8 @@ namespace osidbg
 		if (PostLoaded) {
 			return !CriticalInitFailed;
 		}
+
+		auto initStart = std::chrono::high_resolution_clock::now();
 
 #if defined(OSI_EOCAPP)
 		FindGameActionManagerEoCApp();
@@ -274,6 +278,10 @@ namespace osidbg
 
 			DetourTransactionCommit();
 		}
+
+		auto initEnd = std::chrono::high_resolution_clock::now();
+		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
+		Debug("LibraryManager::PostStartupFindLibraries() took %d ms", ms);
 
 		PostLoaded = true;
 		return !CriticalInitFailed;
@@ -329,11 +337,11 @@ namespace osidbg
 		}
 
 		auto state = (*(*EoCClient)->GameStateMachine)->State;
-		return state == 19
-			|| state == 17
-			|| state == 28
-			|| state == 7
-			|| state == 30;
+		return state == GameState::Running
+			|| state == GameState::Paused
+			|| state == GameState::GameMasterPause
+			|| state == GameState::Menu
+			|| state == GameState::Lobby;
 	}
 
 	class WriteAnchor

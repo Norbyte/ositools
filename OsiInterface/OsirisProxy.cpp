@@ -47,9 +47,11 @@ void OsirisProxy::Initialize()
 		if (Libraries.FindLibraries()) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
+			ResetExtensionState();
 
 			Wrappers.InitializeExtensions();
 			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
+			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
 
 #if 0
 			auto headers = CustomFunctions.GenerateHeaders();
@@ -194,8 +196,6 @@ void DebugThreadRunner(DebugInterface & intf)
 
 void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
 {
-	auto initStart = std::chrono::high_resolution_clock::now();
-
 	// FIXME - register before OsirisWrappers!
 	StoryLoaded = false;
 	DynGlobals.OsirisObject = Osiris;
@@ -247,21 +247,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 #endif
 
-	if (ExtensionsEnabled) {
-		if (Libraries.PostStartupFindLibraries()) {
-			FunctionLibrary.PostStartup();
-		}
-	}
-
-	if (Libraries.CriticalInitializationFailed()) {
-		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.");
-	} else if (Libraries.InitializationFailed()) {
-		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.");
-	}
-
-	auto initEnd = std::chrono::high_resolution_clock::now();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
-	Debug("Startup phase 2 took %d ms", ms);
+	PostInitExtension();
 }
 
 void OsirisProxy::OnInitGame(void * Osiris)
@@ -626,6 +612,41 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #endif
 	SaveNodeVMT(NodeType::Proc, procNodeVMT);
 	SaveNodeVMT(NodeType::Database, databaseNodeVMT);
+}
+
+void OsirisProxy::OnBaseModuleLoaded(void * self)
+{
+	auto modManager = GetModManager();
+	if (modManager != nullptr) {
+		Debug(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+	}
+
+	if (ExtensionsEnabled) {
+		PostInitExtension();
+		ResetExtensionState();
+		FunctionLibrary.OnBaseModuleLoaded();
+	}
+}
+
+void OsirisProxy::PostInitExtension()
+{
+	if (ExtensionsEnabled) {
+		if (Libraries.PostStartupFindLibraries()) {
+			FunctionLibrary.PostStartup();
+		}
+	}
+
+	if (Libraries.CriticalInitializationFailed()) {
+		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.");
+	} else if (Libraries.InitializationFailed()) {
+		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.");
+	}
+}
+
+void OsirisProxy::ResetExtensionState()
+{
+	ExtState = std::make_unique<ExtensionState>();
+	ExtState->Reset();
 }
 
 }

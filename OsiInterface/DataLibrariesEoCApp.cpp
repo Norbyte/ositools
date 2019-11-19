@@ -275,6 +275,65 @@ namespace osidbg
 		}
 	}
 
+	void LibraryManager::FindFileSystemEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"4C 89 6D 98 " // mov     [rbp+180h+var_1E8], r13
+			"44 89 6D A0 " // mov     [rbp+180h+var_1E0], r13d
+			"44 89 6D A8 " // mov     [rbp+180h+var_1D8], r13d
+			"4C 89 6D B0 " // mov     [rbp+180h+var_1D0], r13
+			"C6 44 24 60 00 " // mov     [rsp+280h+var_220], 0
+			"E8 XX XX XX XX " // call    ls__FileReader__FileReader
+			"48 8D 54 24 50 " // lea     rdx, [rsp+280h+Src]
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto fileReaderProc = AsmCallToAbsoluteAddress(match + 21);
+			FileReaderCtor = (ls__FileReader__FileReader)fileReaderProc;
+		}, false);
+
+		Pattern p2;
+		p2.FromString(
+			"48 83 EC 20 " // sub     rsp, 20h
+			"0F B7 C2 " // movzx   eax, dx
+			"48 8B D9 " // mov     rbx, rcx
+			"48 8D 0D XX XX XX XX " // lea     rcx, ls__Path__s_Roots
+			"49 8B F8 " // mov     rdi, r8
+			"48 8D 34 C1 " // lea     rsi, [rcx+rax*8]
+		);
+
+		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto roots = AsmLeaToAbsoluteAddress(match + 10);
+			PathRoots = (STDString **)roots;
+		}, false);
+
+		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
+			Debug("LibraryManager::FindFileSystemEoCApp(): Could not find filesystem functions");
+			CriticalInitFailed = true;
+		}
+	}
+
+	FileReader * LibraryManager::MakeFileReader(std::string const & path) const
+	{
+		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
+			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
+			return nullptr;
+		}
+
+		auto root = PathRoots[1];
+
+		std::string absolutePath = root->GetPtr();
+		absolutePath += "/" + path;
+
+		Path lsPath;
+		lsPath.Name.Set(absolutePath);
+
+		auto reader = new FileReader();
+		FileReaderCtor(reader, &lsPath, 2);
+		return reader;
+	}
+
 	void LibraryManager::FindGameActionManagerEoCApp()
 	{
 		Pattern p;
@@ -775,6 +834,32 @@ namespace osidbg
 		if (EoCClient == nullptr || EoCClientHandleError == nullptr) {
 			Debug("LibraryManager::FindErrorFuncsEoCApp(): Could not find ecl::EoCClient::HandleError");
 			InitFailed = true;
+		}
+	}
+
+
+	void LibraryManager::FindGameStateFuncsEoCApp()
+	{
+		Pattern p;
+		p.FromString(
+			"48 89 5C 24 10 " // mov     [rsp-8+arg_8], rbx
+			"48 89 74 24 18 " // mov     [rsp-8+arg_10], rsi
+			"48 89 7C 24 20 " // mov     [rsp-8+arg_18], rdi
+			"55 41 54 41 55 41 56 41 57 " // push    rbp, r12, r13, r14, r15
+			"48 8D AC 24 70 FC FF FF " // lea     rbp, [rsp-390h]
+			"48 81 EC 90 04 00 00 " // sub     rsp, 490h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 80 03 00 00 " // mov     [rbp+3B0h+var_30], rax
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			GameStateLoadModuleDo = (ecl::GameStateLoadModule__Do)match;
+		}, false);
+
+		if (GameStateLoadModuleDo == nullptr) {
+			Debug("LibraryManager::FindGameStateFuncsEoCApp(): Could not find ecl::GameStateLoadModule::Do");
+			CriticalInitFailed = true;
 		}
 	}
 

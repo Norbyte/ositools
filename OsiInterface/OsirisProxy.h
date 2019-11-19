@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameDefinitions/Osiris.h>
+#include <ExtensionState.h>
 #include "DebugInterface.h"
 #include "DebugMessages.h"
 #include "Debugger.h"
@@ -41,8 +42,10 @@ class OsirisProxy
 {
 public:
 	OsirisProxy();
+
 	void Initialize();
 	void Shutdown();
+
 	void EnableDebugging(bool Enabled, uint16_t Port);
 	void EnableExtensions(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
@@ -85,7 +88,7 @@ public:
 
 	inline ExtensionState & GetExtensionState()
 	{
-		return ExtState;
+		return *ExtState;
 	}
 
 	inline void * GetOsirisDllStart() const
@@ -109,7 +112,7 @@ private:
 	CustomFunctionManager CustomFunctions;
 	CustomFunctionInjector CustomInjector;
 	CustomFunctionLibrary FunctionLibrary;
-	ExtensionState ExtState;
+	std::unique_ptr<ExtensionState> ExtState;
 	LibraryManager Libraries;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
@@ -154,6 +157,10 @@ private:
 	void HookNodeVMTs();
 	void RestartLogging(std::wstring const & Type);
 	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
+
+	void OnBaseModuleLoaded(void * self);
+	void PostInitExtension();
+	void ResetExtensionState();
 
 	void OnInitNetworkFixedStrings(void * self, void * arg1);
 	void DumpNetworkFixedStrings();

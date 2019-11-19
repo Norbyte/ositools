@@ -364,8 +364,6 @@ namespace osidbg
 	}
 
 
-	PendingStatuses gPendingStatuses;
-
 	void PendingStatuses::Add(esv::Status * status)
 	{
 		PendingStatus pend { status, false };
@@ -542,7 +540,7 @@ namespace osidbg
 			ObjectHandle ownerHandle;
 			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = gPendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
@@ -566,7 +564,7 @@ namespace osidbg
 			ObjectHandle ownerHandle;
 			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = gPendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}

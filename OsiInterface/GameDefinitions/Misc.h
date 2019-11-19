@@ -78,7 +78,7 @@ namespace osidbg
 	struct GameStateMachine
 	{
 		uint8_t Unkn[16];
-		uint32_t State;
+		GameState State;
 	};
 
 	struct EoCClient
@@ -127,6 +127,7 @@ namespace osidbg
 	};
 
 	typedef void (* EoCClient__HandleError)(void * self, STDWString *a2, bool a3, STDWString *a4);
+	typedef void (* GameStateLoadModule__Do)(void * self);
 
 	}
 

@@ -34,6 +34,7 @@ STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
 STATIC_HOOK(CloseHandle)
 STATIC_HOOK(InitNetworkFixedStrings)
+STATIC_HOOK(GameStateLoadModuleDo)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -131,13 +132,16 @@ void OsirisWrappers::InitializeExtensions()
 		return;
 	}
 
-
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
 	auto lib = gOsirisProxy->GetLibraryManager();
 	if (lib.InitNetworkFixedStrings != nullptr) {
 		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
+	}
+
+	if (lib.GameStateLoadModuleDo != nullptr) {
+		GameStateLoadModuleDo.Wrap(lib.GameStateLoadModuleDo);
 	}
 
 	DetourTransactionCommit();
@@ -152,6 +156,10 @@ void OsirisWrappers::Shutdown()
 #endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+
+	InitNetworkFixedStrings.Unwrap();
+	GameStateLoadModuleDo.Unwrap();
+	ExtensionsInitialized = false;
 
 	RegisterDivFunctions.Unwrap();
 	InitGame.Unwrap();

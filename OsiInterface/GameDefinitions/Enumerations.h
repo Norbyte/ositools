@@ -50,6 +50,42 @@ namespace osidbg
 		}
 
 
+	enum class GameState : uint32_t
+	{
+		Unknown = 0,
+		Init,
+		InitMenu,
+		InitNetwork,
+		InitConnection,
+		Idle,
+		LoadMenu,
+		Menu,
+		Exit,
+		SwapLevel,
+		LoadLevel = 10,
+		LoadModule,
+		LoadSession,
+		LoadGMCampaign,
+		UnloadLevel,
+		UnloadModule,
+		UnloadSession,
+		Paused,
+		PrepareRunning,
+		Running,
+		Disconnect = 20,
+		Join,
+		StartLoading,
+		StopLoading,
+		StartServer,
+		Movie,
+		Installation,
+		GameMasterPause,
+		ModReceiving,
+		Lobby = 30,
+		BuildStory
+	};
+
+
 	enum class ComponentType : uint32_t
 	{
 		AnimationBlueprint = 0,

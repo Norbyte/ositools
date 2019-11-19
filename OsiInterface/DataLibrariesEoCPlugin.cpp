@@ -790,6 +790,32 @@ namespace osidbg
 	}
 
 
+	void LibraryManager::FindGameStateFuncsEoCPlugin()
+	{
+		Pattern p;
+		p.FromString(
+			"48 89 5C 24 10 " // mov     [rsp-8+arg_8], rbx
+			"48 89 74 24 18 " // mov     [rsp-8+arg_10], rsi
+			"48 89 7C 24 20 " // mov     [rsp-8+arg_18], rdi
+			"55 41 54 41 55 41 56 41 57 " // push    rbp, r12, r13, r14, r15
+			"48 8D AC 24 70 FF FF FF " // lea     rbp, [rsp-90h]
+			"48 81 EC 90 01 00 00 " // sub     rsp, 190h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 80 00 00 00 " // mov     [rbp+0B0h+var_30], rax
+		);
+
+		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			GameStateLoadModuleDo = (ecl::GameStateLoadModule__Do)match;
+		}, false);
+
+		if (GameStateLoadModuleDo == nullptr) {
+			Debug("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateLoadModule::Do");
+			CriticalInitFailed = true;
+		}
+	}
+
+
 	void LibraryManager::FindCharacterStatFuncsEoCPlugin()
 	{
 		memset(&StatsGetters, 0, sizeof(StatsGetters));

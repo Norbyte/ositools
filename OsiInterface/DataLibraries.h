@@ -140,6 +140,7 @@ namespace osidbg {
 		uint8_t const * CustomStatUIRollHook{ nullptr };
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
+		ecl::GameStateLoadModule__Do GameStateLoadModuleDo{ nullptr };
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
@@ -207,6 +208,7 @@ namespace osidbg {
 		void FindGlobalStringTableEoCApp();
 		void FindFileSystemEoCApp();
 		void FindErrorFuncsEoCApp();
+		void FindGameStateFuncsEoCApp();
 		void FindGameActionManagerEoCApp();
 		void FindGameActionsEoCApp();
 		void FindStatusMachineEoCApp();
@@ -225,6 +227,7 @@ namespace osidbg {
 		void FindGlobalStringTableCoreLib();
 		void FindFileSystemCoreLib();
 		void FindErrorFuncsEoCPlugin();
+		void FindGameStateFuncsEoCPlugin();
 		void FindGameActionManagerEoCPlugin();
 		void FindGameActionsEoCPlugin();
 		void FindStatusMachineEoCPlugin();
@@ -263,6 +266,7 @@ namespace osidbg {
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
 		ls__FileReader__FileReader FileReaderCtor{ nullptr };
+		STDString ** PathRoots{ nullptr };
 
 		void ** LevelManager{ nullptr };
 		CharacterFactory ** EsvCharacterFactory{ nullptr };

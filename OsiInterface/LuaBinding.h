@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OsirisProxy.h>
+#include <CustomFunctions.h>
 
 #include <cstdint>
 #include <lua.h>
@@ -38,21 +38,11 @@ namespace osidbg
 		uint32_t usedArguments_;
 	};
 
-	extern OsiArgumentPool gOsiArgumentPool;
-
 	class OsiArgumentListPin
 	{
 	public:
-		inline OsiArgumentListPin(uint32_t numArgs)
-			: numArgs_(numArgs)
-		{
-			args_ = gOsiArgumentPool.AllocateArguments(numArgs_);
-		}
-
-		inline ~OsiArgumentListPin()
-		{
-			gOsiArgumentPool.ReleaseArguments(numArgs_);
-		}
+		OsiArgumentListPin(uint32_t numArgs);
+		~OsiArgumentListPin();
 
 		inline OsiArgumentDesc * Args() const
 		{
@@ -87,7 +77,6 @@ namespace osidbg
 	};
 
 
-
 	class LuaState
 	{
 	public:
@@ -103,10 +92,4 @@ namespace osidbg
 		bool LoadScript(std::string const & script, std::string const & name = "");
 		void Call(char const * func, char const * arg);
 	};
-
-	extern std::unique_ptr<LuaState> gLuaState;
-
-	void LuaReset();
-	void LuaLoad(std::string const & path);
-	void LuaCall(char const * func, char const * arg);
 }

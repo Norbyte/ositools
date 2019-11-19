@@ -5,11 +5,6 @@
 
 namespace osidbg
 {
-
-	void LuaReset();
-	void LuaLoad(std::string const & path);
-	void LuaCall(char const * func, char const * arg);
-
 	namespace func
 	{
 
@@ -31,20 +26,21 @@ namespace osidbg
 
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
-			LuaReset();
+			ExtensionState::Get().LuaReset();
+			ExtensionState::Get().LuaStartup();
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
 			auto path = args[0].String;
-			LuaLoad(path);
+			ExtensionState::Get().LuaLoadGameFile(path);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
 			auto func = args[0].String;
 			auto arg = args[1].String;
-			LuaCall(func, arg);
+			ExtensionState::Get().LuaCall(func, arg);
 		}
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)
@@ -90,6 +86,9 @@ namespace osidbg
 	void ExtensionState::Reset()
 	{
 		DamageHelpers.Clear();
+
+		time_t tm;
+		OsiRng.seed(time(&tm));
 	}
 
 	CustomFunctionLibrary::CustomFunctionLibrary(class OsirisProxy & osiris)
@@ -190,5 +189,18 @@ namespace osidbg
 		);
 
 		PostLoaded = true;
+	}
+
+	void CustomFunctionLibrary::OnBaseModuleLoaded()
+	{
+		Debug("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
+		// FIXME - move extension state here?
+		ExtensionState::Get().LuaReset();
+		ExtensionState::Get().LuaStartup();
+	}
+
+	ExtensionState & ExtensionState::Get()
+	{
+		return gOsirisProxy->GetExtensionState();
 	}
 }

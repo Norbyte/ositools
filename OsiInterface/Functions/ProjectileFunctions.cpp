@@ -6,23 +6,22 @@ namespace osidbg
 {
 	namespace func
 	{
-		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
-
 		void ProjectilePrepareLaunch(OsiArgumentDesc const & args)
 		{
-			if (ProjectileHelper) {
+			if (ExtensionState::Get().ProjectileHelper) {
 				OsiWarn("Destroying active ProjectileHelper?");
 			}
 
-			ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
+			ExtensionState::Get().ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
 		}
 
 		void ProjectileLaunch(OsiArgumentDesc const & args)
 		{
-			if (ProjectileHelper != nullptr)
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (helper != nullptr)
 			{
-				ProjectileHelper->Shoot();
-				ProjectileHelper.reset();
+				helper->Shoot();
+				helper.reset();
 			}
 			else
 			{
@@ -35,12 +34,13 @@ namespace osidbg
 			auto prop = args[0].String;
 			auto value = args[1].Int32;
 
-			if (!ProjectileHelper) {
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (!helper) {
 				OsiError("Called when no projectile is active!");
 				return;
 			}
 
-			ProjectileHelper->SetInt(prop, value);
+			helper->SetInt(prop, value);
 		}
 
 		void ProjectileSetString(OsiArgumentDesc const & args)
@@ -48,12 +48,13 @@ namespace osidbg
 			auto prop = args[0].String;
 			auto value = args[1].String;
 
-			if (!ProjectileHelper) {
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (!helper) {
 				OsiError("Called when no projectile is active!");
 				return;
 			}
 
-			ProjectileHelper->SetString(prop, value);
+			helper->SetString(prop, value);
 		}
 
 		void ProjectileSetGuidString(OsiArgumentDesc const & args)
@@ -61,12 +62,13 @@ namespace osidbg
 			auto prop = args[0].String;
 			auto value = args[1].String;
 
-			if (!ProjectileHelper) {
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (!helper) {
 				OsiError("Called when no projectile is active!");
 				return;
 			}
 
-			ProjectileHelper->SetGuidString(prop, value);
+			helper->SetGuidString(prop, value);
 		}
 
 		void ProjectileSetVector3(OsiArgumentDesc const & args)
@@ -74,12 +76,13 @@ namespace osidbg
 			auto prop = args[0].String;
 			glm::vec3 vec = args.GetVector(1);
 
-			if (!ProjectileHelper) {
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (!helper) {
 				OsiError("Called when no projectile is active!");
 				return;
 			}
 
-			ProjectileHelper->SetVector(prop, vec);
+			helper->SetVector(prop, vec);
 		}
 	}
 

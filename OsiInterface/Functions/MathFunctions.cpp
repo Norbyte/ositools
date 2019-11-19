@@ -1,27 +1,18 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
-#include <random>
 
 namespace osidbg
 {
 	namespace func
 	{
-		std::unique_ptr<std::mt19937_64> OsiRng;
-
 		bool RandomReal(OsiArgumentDesc & args)
 		{
 			auto min = args[0].Float;
 			auto max = args[1].Float;
 
-			if (!OsiRng) {
-				OsiRng = std::make_unique<std::mt19937_64>();
-				time_t tm;
-				OsiRng->seed(time(&tm));
-			}
-
 			std::uniform_real_distribution<float> dist(min, max);
-			args[2].Float = dist(*OsiRng);
+			args[2].Float = dist(ExtensionState::Get().OsiRng);
 			return true;
 		}
 

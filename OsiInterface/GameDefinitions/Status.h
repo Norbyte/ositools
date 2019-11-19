@@ -312,6 +312,4 @@ namespace osidbg
 	private:
 		std::unordered_map<ObjectHandle, PendingStatus> statuses_;
 	};
-
-	extern PendingStatuses gPendingStatuses;
 }

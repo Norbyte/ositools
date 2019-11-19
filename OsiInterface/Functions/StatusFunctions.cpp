@@ -274,7 +274,7 @@ namespace osidbg
 			ObjectHandle gameObjectHandle;
 			gameObject->GetObjectHandle(&gameObjectHandle);
 
-			auto status = gPendingStatuses.Find(gameObjectHandle, statusHandle);
+			auto status = ExtensionState::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
 			if (status == nullptr) {
 				OsiError("No pending status found with handle " << (int64_t)statusHandle);
 				return;
@@ -575,7 +575,7 @@ namespace osidbg
 			eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 
-			gPendingStatuses.Add(status);
+			ExtensionState::Get().PendingStatuses.Add(status);
 			eventThrown = true;
 			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
 
@@ -587,7 +587,7 @@ namespace osidbg
 			ObjectHandle targetHandle;
 			target->GetObjectHandle(&targetHandle);
 
-			auto pendingStatus = gPendingStatuses.Find(targetHandle, status->StatusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
 			if (pendingStatus != nullptr) {
 				self->PreventStatusApply = pendingStatus->PreventApply;
 			} else {
@@ -600,7 +600,7 @@ namespace osidbg
 		self->PreventStatusApply = previousPreventApplyState;
 
 		if (eventThrown) {
-			gPendingStatuses.Remove(status);
+			ExtensionState::Get().PendingStatuses.Remove(status);
 		}
 	}
 
