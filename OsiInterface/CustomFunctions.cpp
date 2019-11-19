@@ -325,8 +325,6 @@ void CustomFunctionInjector::CreateOsirisSymbolMap(MappingInfo ** Mappings, uint
 
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
 {
-	Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs: %d", *MappingCount);
-
 	CreateOsirisSymbolMap(Mappings, MappingCount);
 	gOsirisProxy->GetExtensionState().Reset();
 
@@ -343,12 +341,14 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 		} else {
 			osiToDivMappings_.insert(std::make_pair(mapping.Id, mapped->Handle()));
 			divToOsiMappings_.insert(std::make_pair(mapped->Handle(), mapping.Id));
+#if 0
 			Debug("Function mapping (%s): %08x --> %08x", mapping.Name, mapping.Id, (unsigned int)mapped->Handle());
+#endif
 		}
 	}
 
+	Debug("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
 	*MappingCount = outputIndex;
-	Debug("CustomFunctionInjector::OnAfterGetFunctionMappings(): No. funcs after filtering: %d", *MappingCount);
 }
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
@@ -384,10 +384,11 @@ void CustomFunctionInjector::ExtendStoryHeader(std::wstring const & headerPath)
 	f.close();
 
 	auto headers = functions_.GenerateHeaders();
+#if 0
 	Debug("CustomFunctionInjector::ExtendStoryHeader(): Appending to header:\r\n");
-	// TODO - if debug?
 	OutputDebugStringA(headers.c_str());
 	std::cout << headers << std::endl;
+#endif
 	s += headers;
 
 	std::ofstream wf(headerPath.c_str(), std::ios::out | std::ios::binary);

@@ -47,10 +47,29 @@ namespace osidbg
 		FixedString ModuleType;
 	};
 
+	struct ModuleUnknownInner
+	{
+		void * VMT;
+		void * Unknown;
+		STDString Str1;
+		STDWString Str2;
+	};
+
+	struct ModuleUnknown
+	{
+		void * VMT;
+		ModuleUnknownInner Inner1;
+		ModuleUnknownInner Inner2;
+	};
+
 	struct Module
 	{
 		void * VMT;
 		ModuleInfo Info;
+#if defined(OSI_EOCAPP)
+		ModuleUnknown Unknown1;
+		ModuleUnknown Unknown2;
+#endif
 		ObjectSet<Module> LoadOrderedModules;
 		ObjectSet<Module> ContainedModules;
 		ObjectSet<Module> DependentModules;
