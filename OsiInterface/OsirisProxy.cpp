@@ -637,9 +637,9 @@ void OsirisProxy::PostInitExtension()
 	}
 
 	if (Libraries.CriticalInitializationFailed()) {
-		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.");
+		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.", true, false);
 	} else if (Libraries.InitializationFailed()) {
-		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.");
+		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.", true, false);
 	}
 }
 

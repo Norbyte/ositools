@@ -446,7 +446,7 @@ _G = {})";
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
 		OsiWarn("Bootstrapping Lua modules ...");
-		for (auto i = 0; i < mods.Size; i++) {
+		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods.Buf[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";

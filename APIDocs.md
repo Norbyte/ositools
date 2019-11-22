@@ -896,6 +896,18 @@ To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications 
 
 # Miscellaneous functions
 
+### IsModLoaded
+`query NRD_IsModLoaded([in](GUIDSTRING)_ModUuid, [out](INTEGER)_IsLoaded)`
+
+Returns whether the mod with UUID `_ModUuid` is loaded.
+
+
+### ShowErrorMessage
+`call NRD_ShowErrorMessage((STRING)_Message)`
+
+Displays an error dialog box with the text `_Message`.
+
+
 ### DebugLog 
 `call NRD_DebugLog((STRING)_Message)`
 

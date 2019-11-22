@@ -818,7 +818,7 @@ namespace osidbg
 
 	void LibraryManager::FindCharacterStatFuncsEoCPlugin()
 	{
-		memset(&StatsGetters, 0, sizeof(StatsGetters));
+		memset(&gCharacterStatsGetters.Ptrs, 0, sizeof(gCharacterStatsGetters.Ptrs));
 
 		Pattern p;
 		p.FromString(
@@ -845,14 +845,14 @@ namespace osidbg
 
 			unsigned ptrIndex = 0;
 			p2.Scan(gettersStart, 0x240, [this, &ptrIndex](const uint8_t * match) {
-				if (ptrIndex < std::size(StatsGetters.Ptrs)) {
+				if (ptrIndex < std::size(gCharacterStatsGetters.Ptrs)) {
 					auto ptr = AsmCallToAbsoluteAddress(match + 3);
-					StatsGetters.Ptrs[ptrIndex++] = (void *)ptr;
+					gCharacterStatsGetters.Ptrs[ptrIndex++] = (void *)ptr;
 				}
 			});
 		}
 
-		if (StatsGetters.Funcs.GetUnknown == nullptr) {
+		if (gCharacterStatsGetters.GetUnknown == nullptr) {
 			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find all stat getters");
 			InitFailed = true;
 			return;
@@ -873,10 +873,10 @@ namespace osidbg
 		);
 
 		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
-			StatsGetters.Funcs.CalculateHitChance = (CDivinityStats_Character__CalculateHitChance)match;
+			gCharacterStatsGetters.GetHitChance = (CDivinityStats_Character__GetHitChance *)match;
 		}, false);
 
-		if (StatsGetters.Funcs.CalculateHitChance == nullptr) {
+		if (gCharacterStatsGetters.GetHitChance == nullptr) {
 			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::CalculateHitChance");
 			InitFailed = true;
 			return;
@@ -890,12 +890,12 @@ namespace osidbg
 			"E8 XX XX XX XX " // call    CDivinityStats_Character__GetChanceToHitBoost
 		);
 
-		p3.Scan((uint8_t const *)StatsGetters.Funcs.CalculateHitChance, 0x200, [this](const uint8_t * match) {
+		p3.Scan((uint8_t const *)gCharacterStatsGetters.GetHitChance, 0x200, [this](const uint8_t * match) {
 			auto ptr = AsmCallToAbsoluteAddress(match + 8);
-			StatsGetters.Funcs.GetChanceToHitBoost = (CDivinityStats_Character__GetStat)ptr;
+			gCharacterStatsGetters.GetChanceToHitBoost = (CDivinityStats_Character__GetStat *)ptr;
 		}, false);
 
-		if (StatsGetters.Funcs.GetChanceToHitBoost == nullptr) {
+		if (gCharacterStatsGetters.GetChanceToHitBoost == nullptr) {
 			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetChanceToHitBoost");
 			InitFailed = true;
 		}

@@ -227,6 +227,9 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="GameDefinitions\CharacterGetters.inl">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

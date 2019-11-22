@@ -238,6 +238,16 @@ namespace osidbg {
 			wrapperHook_ = wrapper;
 		}
 
+		void ClearHook()
+		{
+			wrapperHook_ = decltype(wrapperHook_)();
+		}
+
+		inline bool IsHooked() const
+		{
+			return (bool)wrapperHook_;
+		}
+
 		inline R CallWithHooks(Params... Args) const
 		{
 			if (wrapperHook_) {
@@ -248,7 +258,7 @@ namespace osidbg {
 		}
 
 	private:
-		WrapperHookFuncType wrapperHook_{ nullptr };
+		WrapperHookFuncType wrapperHook_;
 
 		static WrappableFunction<Tag, R(Params...)> * gHook;
 

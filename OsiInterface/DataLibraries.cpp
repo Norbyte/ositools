@@ -276,6 +276,8 @@ namespace osidbg
 				ApplyStatusHook.Wrap(StatusMachineApplyStatus);
 			}
 
+			gCharacterStatsGetters.WrapAll();
+
 			DetourTransactionCommit();
 		}
 
@@ -300,7 +302,7 @@ namespace osidbg
 		DetourTransactionCommit();
 	}
 
-	void LibraryManager::ShowStartupError(std::wstring const & msg)
+	void LibraryManager::ShowStartupError(std::wstring const & msg, bool wait, bool exitGame)
 	{
 		if (EoCClient == nullptr
 			|| EoCClientHandleError == nullptr
@@ -308,22 +310,24 @@ namespace osidbg
 			return;
 		}
 
-		std::thread messageThread([this, msg]() {
-			unsigned retries{ 0 };
-			while (!CanShowError() && retries < 600) {
-				Sleep(100);
-				retries++;
-			}
+		if (wait) {
+			std::thread messageThread([this, msg, exitGame]() {
+				unsigned retries{ 0 };
+				while (!CanShowError() && retries < 600) {
+					Sleep(100);
+					retries++;
+				}
 
-			if (retries >= 300) {
-				return;
-			}
-
+				STDWString str;
+				str.Set(msg);
+				EoCClientHandleError(*EoCClient, &str, exitGame, &str);
+			});
+			messageThread.detach();
+		} else {
 			STDWString str;
 			str.Set(msg);
-			EoCClientHandleError(*EoCClient, &str, false, &str);
-		});
-		messageThread.detach();
+			EoCClientHandleError(*EoCClient, &str, exitGame, &str);
+		}
 	}
 
 	bool LibraryManager::CanShowError()

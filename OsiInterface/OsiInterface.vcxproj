@@ -477,6 +477,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
+    <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="osidebug.proto" />
   </ItemGroup>
   <ItemGroup>

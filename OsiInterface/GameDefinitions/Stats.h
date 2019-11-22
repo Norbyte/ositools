@@ -2,6 +2,7 @@
 
 #include "BaseTypes.h"
 #include "Enumerations.h"
+#include "Wrappers.h"
 
 namespace osidbg
 {
@@ -333,11 +334,11 @@ namespace osidbg
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
 	};
 
-	typedef int32_t(*CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
-	typedef int32_t(*CDivinityStats_Character__GetStatWithBoosts)(CDivinityStats_Character * self, bool baseStats, bool excludeBoosts);
-	typedef int32_t(*CDivinityStats_Character__GetStatWithInit)(CDivinityStats_Character * self, bool baseStats, int32_t initialValue);
-	typedef float(*CDivinityStats_Character__GetStatHearing)(CDivinityStats_Character * self, CDivinityStats_Character * other, bool baseStats);
-	typedef int32_t(*CDivinityStats_Character__CalculateHitChance)(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
+	typedef int32_t(CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
+	typedef int32_t(CDivinityStats_Character__GetStatWithBoosts)(CDivinityStats_Character * self, bool baseStats, bool excludeBoosts);
+	typedef int32_t(CDivinityStats_Character__GetStatWithInit)(CDivinityStats_Character * self, bool baseStats, int32_t initialValue);
+	typedef float(CDivinityStats_Character__GetStatHearing)(CDivinityStats_Character * self, CDivinityStats_Character * other, bool baseStats);
+	typedef int32_t(CDivinityStats_Character__GetHitChance)(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 
 	struct RPGEnumeration
 	{
@@ -427,4 +428,103 @@ namespace osidbg
 		bool ObjectExists(FixedString statsId, FixedString type);
 	};
 #pragma pack(pop)
+
+	template <class TTag>
+	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStat * getter,
+		WrappableFunction<TTag, CDivinityStats_Character__GetStat> & wrapper,
+		CDivinityStats_Character * character, bool original, bool baseStats)
+	{
+		if (getter == nullptr) {
+			return {};
+		}
+
+		if (original || !wrapper.IsWrapped()) {
+			return getter(character, baseStats);
+		} else {
+			return wrapper.CallWithHooks(character, baseStats);
+		}
+	}
+
+	template <class TTag>
+	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStatWithBoosts * getter,
+		WrappableFunction<TTag, CDivinityStats_Character__GetStatWithBoosts> & wrapper,
+		CDivinityStats_Character * character, bool original, bool baseStats)
+	{
+		if (getter == nullptr) {
+			return {};
+		}
+
+		if (original || !wrapper.IsWrapped()) {
+			return getter(character, baseStats, false);
+		} else {
+			return wrapper.CallWithHooks(character, baseStats, false);
+		}
+	}
+
+	template <class TTag>
+	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStatWithInit * getter,
+		WrappableFunction<TTag, CDivinityStats_Character__GetStatWithInit> & wrapper,
+		CDivinityStats_Character * character, bool original, bool baseStats)
+	{
+		if (getter == nullptr) {
+			return {};
+		}
+
+		if (original || !wrapper.IsWrapped()) {
+			return getter(character, baseStats, 0);
+		} else {
+			return wrapper.CallWithHooks(character, baseStats, 0);
+		}
+	}
+
+	template <class TTag>
+	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStatHearing * getter,
+		WrappableFunction<TTag, CDivinityStats_Character__GetStatHearing> & wrapper,
+		CDivinityStats_Character * character, bool original, bool baseStats)
+	{
+		if (getter == nullptr) {
+			return {};
+		}
+
+		if (original || !wrapper.IsWrapped()) {
+			return (int)(getter(character, nullptr, baseStats) * 100.0f);
+		} else {
+			return (int)(wrapper.CallWithHooks(character, nullptr, baseStats) * 100.0f);
+		}
+	}
+
+	struct CharacterStatsGetters
+	{
+
+		union {
+			void * Ptrs[26];
+			struct {
+#define DEFN_GETTER(type, name) CDivinityStats_Character__Get##type * Get##name;
+#include <GameDefinitions/CharacterGetters.inl>
+#undef DEFN_GETTER
+
+				CDivinityStats_Character__GetHitChance * GetHitChance;
+			};
+		};
+
+#define DEFN_GETTER(type, name) \
+	enum class name##Tag{}; \
+	WrappableFunction<name##Tag, CDivinityStats_Character__Get##type> Wrapper##name;
+
+#include <GameDefinitions/CharacterGetters.inl>
+#undef DEFN_GETTER
+
+		enum class HitChanceTag{}; \
+		WrappableFunction<HitChanceTag, CDivinityStats_Character__GetHitChance> WrapperHitChance;
+
+		bool Wrapped{ false };
+
+		void WrapAll();
+		void ResetExtension();
+
+		std::optional<int32_t> GetStat(CDivinityStats_Character * character, char const * name, 
+			bool original, bool baseValues);
+	};
+
+	extern CharacterStatsGetters gCharacterStatsGetters;
 }

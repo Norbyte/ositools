@@ -24,6 +24,42 @@ namespace osidbg
 			}
 		}
 
+		void ShowErrorMessage(OsiArgumentDesc const & args)
+		{
+			auto message = args[0].String;
+
+			auto wmsg = FromUTF8(message);
+			gOsirisProxy->GetLibraryManager().ShowStartupError(wmsg, false, false);
+		}
+
+		bool IsModLoaded(OsiArgumentDesc & args)
+		{
+			auto modUuid = ToFixedString(args[0].String);
+			auto & loaded = args[1].Int32;
+
+			auto modManager = GetModManager();
+			if (modManager == nullptr) {
+				OsiError("Mod manager not available");
+				return false;
+			}
+
+			if (!modUuid) {
+				loaded = 0;
+				return true;
+			}
+
+			loaded = 0;
+			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
+			for (uint32_t i = 0; i < mods.Size; i++) {
+				auto const & mod = mods.Buf[i];
+				if (mod.Info.ModuleUUID == modUuid) {
+					loaded = 1;
+				}
+			}
+
+			return true;
+		}
+
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
 			ExtensionState::Get().LuaReset();
@@ -140,6 +176,25 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(experiment));
 
+		auto showError = std::make_unique<CustomCall>(
+			"NRD_ShowErrorMessage",
+			std::vector<CustomFunctionParam>{
+				{ "Message", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::ShowErrorMessage
+		);
+		functionMgr.Register(std::move(showError));
+
+		auto isModLoaded = std::make_unique<CustomQuery>(
+			"NRD_IsModLoaded",
+			std::vector<CustomFunctionParam>{
+				{ "ModUuid", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "IsLoaded", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::IsModLoaded
+		);
+		functionMgr.Register(std::move(isModLoaded));
+
 		auto luaReset = std::make_unique<CustomCall>(
 			"NRD_LuaReset",
 			std::vector<CustomFunctionParam>{},
@@ -195,6 +250,7 @@ namespace osidbg
 	{
 		Debug("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
 		// FIXME - move extension state here?
+		gCharacterStatsGetters.ResetExtension();
 		ExtensionState::Get().LuaReset();
 		ExtensionState::Get().LuaStartup();
 	}
