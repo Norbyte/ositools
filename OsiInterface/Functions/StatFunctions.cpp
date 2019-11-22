@@ -39,7 +39,7 @@ namespace osidbg
 			return attrInfo != nullptr;
 		}
 
-		bool StatGetAttributeInt(OsiArgumentDesc & args)
+		bool StatGetInt(OsiArgumentDesc & args)
 		{
 			auto statName = args[0].String;
 			auto attributeName = args[1].String;
@@ -65,7 +65,7 @@ namespace osidbg
 			return true;
 		}
 
-		bool StatGetAttributeString(OsiArgumentDesc & args)
+		bool StatGetString(OsiArgumentDesc & args)
 		{
 			auto statName = args[0].String;
 			auto attributeName = args[1].String;
@@ -139,27 +139,27 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(statAttributeExists));
 
-		auto getStatAttributeInt = std::make_unique<CustomQuery>(
-			"NRD_StatGetAttributeInt",
+		auto getStatInt = std::make_unique<CustomQuery>(
+			"NRD_StatGetInt",
 			std::vector<CustomFunctionParam>{
 				{ "StatsId", ValueType::String, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
 			},
-			&func::StatGetAttributeInt
+			&func::StatGetInt
 		);
-		functionMgr.Register(std::move(getStatAttributeInt));
+		functionMgr.Register(std::move(getStatInt));
 
-		auto getStatAttributeString = std::make_unique<CustomQuery>(
-			"NRD_StatGetAttributeString",
+		auto getStatString = std::make_unique<CustomQuery>(
+			"NRD_StatGetString",
 			std::vector<CustomFunctionParam>{
 				{ "StatsId", ValueType::String, FunctionArgumentDirection::In },
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
 			},
-			&func::StatGetAttributeString
+			&func::StatGetString
 		);
-		functionMgr.Register(std::move(getStatAttributeString));
+		functionMgr.Register(std::move(getStatString));
 
 		auto getStatType = std::make_unique<CustomQuery>(
 			"NRD_StatGetType",

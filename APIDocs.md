@@ -122,8 +122,8 @@ Checks whether the specified stat entry exists. The query succeeds if the stat e
 
 Checks whether the stat entry `_StatsId` has an attribute (data) named `_Attribute`. The query succeeds if the attribute exists, and fails if it does not.
 
-### StatGetAttributeInt
-`query NRD_StatGetAttributeInt([in](STRING)_StatsId, [in](STRING)_Attribute, [out](INTEGER)_Value)`
+### StatGetInt
+`query NRD_StatGetInt([in](STRING)_StatsId, [in](STRING)_Attribute, [out](INTEGER)_Value)`
 
 Returns the specified `_Attribute` of the stat entry.
 If the stat entry does not exist, the stat entry doesn't have an attribute named `_Attribute`, or the attribute isn't convertible to integer, the query fails.
@@ -131,8 +131,8 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 **Notes:**
  - For enumerations, the function will return the index of the value in the enumeration. eg. for Damage Type `Corrosive`, it will return 3.
 
-### StatGetAttributeString
-`query NRD_StatGetAttributeString([in](STRING)_StatsId, [in](STRING)_Attribute, [out](STRING)_Value)`
+### StatGetString
+`query NRD_StatGetString([in](STRING)_StatsId, [in](STRING)_Attribute, [out](STRING)_Value)`
 
 Returns the specified `_Attribute` of the stat entry.
 If the stat entry does not exist, the stat entry doesn't have an attribute named `_Attribute`, or the attribute isn't convertible to string, the query fails.
@@ -940,6 +940,25 @@ To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications 
 | StatsEntryName | String | Stats ID of the item (eg. `WPN_Shield`) |
 | HasModifiedSkills | Flag | Indicates that the skills of the item were overridden |
 | Skills | String | Item skills |
+
+Example usage:
+```c
+[...]
+NRD_ItemCloneBegin(_Item);
+NRD_ItemCloneSetInt("Level", 10);
+NRD_ItemCloneSetInt("GoldValueOverwrite", 1000);
+PROC_XYZ_ItemCloneFinish();
+
+PROC
+PROC_XYZ_ItemCloneFinish()
+AND
+NRD_ItemClone(_NewItem)
+AND
+CharacterGetHostCharacter(_Character)
+THEN
+NRD_ItemSetPermanentBoostInt(_NewItem, "PoisonResistance", 20);
+ItemToInventory((ITEMGUID)_NewItem, _Character, 1, 1, 0);
+```
 
 
 # Miscellaneous functions
