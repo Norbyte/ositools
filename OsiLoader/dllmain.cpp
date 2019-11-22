@@ -16,8 +16,19 @@
 HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder);
 
 #define UPDATER_HOST L"nb-stor.s3.eu-central-1.amazonaws.com"
-#define UPDATER_PATH L"/dos/OsiExtender/Latest.zip"
+#define UPDATER_PATH_PREFIX L"/dos/OsiExtender/"
+#define UPDATER_PATH_POSTFIX L"/Latest.zip"
 
+std::string trim(std::string const & s)
+{
+	size_t first = s.find_first_not_of(" \t\r\n");
+	if (first == std::string::npos) {
+		first = 0;
+	}
+
+	size_t last = s.find_last_not_of(" \t\r\n");
+	return s.substr(first, (last - first + 1));
+}
 
 class OsiLoader
 {
@@ -44,8 +55,10 @@ public:
 	{
 		HttpFetcher fetcher(UPDATER_HOST);
 
+		std::wstring packageUri = UPDATER_PATH_PREFIX + updateChannel_ + UPDATER_PATH_POSTFIX;
+
 		std::string etag;
-		if (!fetcher.FetchETag(UPDATER_PATH, etag)) {
+		if (!fetcher.FetchETag(packageUri.c_str(), etag)) {
 			reason = "Something went wrong while checking for updates. Please make sure you're connected to the internet and try again";
 			return false;
 		}
@@ -56,7 +69,7 @@ public:
 		}
 
 		std::vector<uint8_t> response;
-		if (!fetcher.Fetch(UPDATER_PATH, response)) {
+		if (!fetcher.Fetch(packageUri.c_str(), response)) {
 			reason = "Something went wrong while downloading updates. Please make sure you're connected to the internet and try again";
 			return false;
 		}
@@ -77,6 +90,7 @@ private:
 	std::wstring appDataPath_;
 	std::wstring extensionPath_;
 	std::wstring dllPath_;
+	std::wstring updateChannel_;
 	bool isGame_{ false };
 
 	bool ExtenderDLLExists()
@@ -147,6 +161,21 @@ private:
 			dllPath_ = extensionPath_ + L"\\OsiExtenderEoCApp.dll";
 		} else {
 			dllPath_ = extensionPath_ + L"\\OsiExtenderEoCPlugin.dll";
+		}
+
+		updateChannel_ = L"Release";
+		std::ifstream channelFile("OsiUpdateChannel.txt", std::ios::in | std::ios::binary);
+		if (channelFile.good()) {
+			std::string channel;
+			channelFile.seekg(0, std::ios::end);
+			channel.resize(channelFile.tellg());
+			channelFile.seekg(0, std::ios::beg);
+			channelFile.read(channel.data(), channel.size());
+
+			channel = trim(channel);
+			if (!channel.empty()) {
+				updateChannel_ = FromUTF8(channel);
+			}
 		}
 	}
 };
