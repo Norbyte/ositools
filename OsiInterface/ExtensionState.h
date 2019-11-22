@@ -4,6 +4,8 @@
 #include "LuaBinding.h"
 #include <random>
 
+namespace Json { class Value; }
+
 namespace osidbg
 {
 	class DamageHelperPool
@@ -22,6 +24,12 @@ namespace osidbg
 	class ExtensionState
 	{
 	public:
+		bool EnableExtensions{ false };
+		bool EnableLua{ false };
+		bool EnableCustomStats{ false };
+		bool EnableCustomStatsPane{ false };
+		uint32_t MinimumVersion{ 0 };
+
 		DamageHelperPool DamageHelpers;
 		PendingStatuses PendingStatuses;
 		OsiArgumentPool OsiArgumentPool;
@@ -31,6 +39,9 @@ namespace osidbg
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
 		void Reset();
+		void LoadConfigs();
+		void LoadConfig(Module const & mod, std::string const & config);
+		void LoadConfig(Module const & mod, Json::Value & config);
 
 		void LuaReset();
 		void LuaStartup();

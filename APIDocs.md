@@ -1,7 +1,4 @@
-
-
-### !!! DRAFT API DOCS !!!
-
+### API v28 Documentation
 
 ### Table of Contents  
 
@@ -29,6 +26,7 @@
  - [Game Actions](#game-action-functions)
  - [Characters](#character-functions)
     * [Character Stats](#character-functions)
+    * [Custom Stats](#custom-stats)
     * [Permanent Boosts](#permanent-boosts)
  - [Items](#item-functions)
     * [Item Stats](#item-functions)
@@ -50,6 +48,31 @@
 ### Notes on API stability
 Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
 Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
+
+### Extension Setup
+
+To start using the extension in your mod, a configuration file must be created that describes what features are utilized by your mod.
+
+Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the following contents, then tweak the values as desired:
+```json
+{
+    "ExtendOsiris": false,
+	"Lua": false,
+    "UseCustomStats": false,
+	"UseCustomStatsPane": false,
+	"RequiredExtensionVersion": 28
+}
+```
+
+Meaning of configuration keys:
+| Key | Meaning |
+|--|--|
+| `ExtendOsiris` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
+| `Lua` | Enables scripting via the Lua runtime |
+| `UseCustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
+| `UseCustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
+| `RequiredExtensionVersion` | Minimum Osiris Extender version required to run the mod |
+
 
 ### Data Types
 The data types mentioned in this document should be interpreted as follows:
@@ -710,6 +733,30 @@ Returns the chance of the attacker character hitting the target character (in pe
 Updates the stat value of `_Stat` to the specified value . `_Stat` must be one of the following:
 CurrentVitality, CurrentArmor, CurrentMagicArmor
 
+## Custom Stats
+
+Custom stats are a GM mode feature that allows creating custom stats on characters. The extender supports adding custom stats in adventure (non-GM) campaigns as well, and allows programmatic access to these stats via Osiris queries.
+
+### GetCustomStat
+`query NRD_GetCustomStat([in](STRING)_Name, [out](GUIDSTRING)_StatId) (2,1338,63,1)`
+
+Returns the GUID of the custom stat with the given name. If no stat exists with the given name, the query fails.
+
+
+### CreateCustomStat
+`query NRD_CreateCustomStat([in](STRING)_Name, [in](STRING)_Description, [out](GUIDSTRING)_StatId)`
+
+Creates a custom stat with the given name and description, and returns the GUID of the newly created stat. If a stat with the given name already exists, the GUID of the existing stat is returned.
+
+### CharacterGetCustomStat
+`query NRD_CharacterGetCustomStat([in](CHARACTERGUID)_Character, [in](GUIDSTRING)_StatId, [out](INTEGER)_Value)`
+
+Returns the value of the specified custom stat on the character. If the character does not exist, the custom stat does not exist, or the custom stat value was not set on this character, the query fails.
+
+### CharacterSetCustomStat
+`call NRD_CharacterSetCustomStat((CHARACTERGUID)_Character, (GUIDSTRING)_StatId, (INTEGER)_Value)`
+
+Updates the value of the specified custom stat on the character.
 
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.

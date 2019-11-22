@@ -431,12 +431,22 @@ _G = {})";
 
 	void ExtensionState::LuaReset()
 	{
+		if (!EnableLua) {
+			OsiWarn("LUA extensions not enabled; not initializing Lua VM");
+			return;
+		}
+
 		Lua = std::make_unique<LuaState>();
 		OsiWarn("LUA VM reset.");
 	}
 
 	void ExtensionState::LuaStartup()
 	{
+		if (!Lua) {
+			OsiError("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
 		auto modManager = GetModManager();
 		if (modManager == nullptr) {
 			OsiError("Could not bootstrap Lua modules - mod manager not available");
@@ -494,11 +504,7 @@ _G = {})";
 			return;
 		}
 
-		std::string script;
-		script.resize(reader->FileSize);
-		memcpy(script.data(), reader->ScratchBufPtr, reader->FileSize);
-
-		Lua->LoadScript(script);
+		Lua->LoadScript(reader->ToString());
 	}
 
 	void ExtensionState::LuaLoadGameFile(std::string const & path)

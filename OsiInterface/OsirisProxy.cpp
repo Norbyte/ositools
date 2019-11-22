@@ -246,8 +246,6 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 		DebugDisableLogged = true;
 	}
 #endif
-
-	PostInitExtension();
 }
 
 void OsirisProxy::OnInitGame(void * Osiris)
@@ -622,9 +620,13 @@ void OsirisProxy::OnBaseModuleLoaded(void * self)
 	}
 
 	if (ExtensionsEnabled) {
-		PostInitExtension();
 		ResetExtensionState();
-		FunctionLibrary.OnBaseModuleLoaded();
+		ExtState->LoadConfigs();
+		PostInitExtension();
+		if (!Libraries.CriticalInitializationFailed()) {
+			Libraries.EnableCustomStats();
+			FunctionLibrary.OnBaseModuleLoaded();
+		}
 	}
 }
 

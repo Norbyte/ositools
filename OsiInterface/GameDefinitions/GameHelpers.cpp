@@ -69,6 +69,20 @@ namespace osidbg
 	}
 
 
+	std::string FileReader::ToString() const
+	{
+		if (!IsLoaded) {
+			OsiError("File not loaded!");
+			return "";
+		}
+
+		std::string contents;
+		contents.resize(FileSize);
+		memcpy(contents.data(), ScratchBufPtr, FileSize);
+		return contents;
+	}
+
+
 	CRPGStats_Modifier * ModifierList::GetAttributeInfo(const char * name, int * attributeIndex) const
 	{
 		auto index = Attributes.FindIndex(name);

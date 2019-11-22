@@ -389,6 +389,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Version.h" />
     <ClInclude Include="Wrappers.h" />
   </ItemGroup>
   <ItemGroup>

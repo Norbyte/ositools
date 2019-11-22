@@ -149,6 +149,8 @@ namespace osidbg
 		uint8_t _Pad2[4];
 		void * FileObject;
 		uint64_t _Fill[16];
+
+		std::string ToString() const;
 	};
 
 

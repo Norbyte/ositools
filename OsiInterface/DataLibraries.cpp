@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DataLibraries.h"
+#include "ExtensionState.h"
 #include <string>
 #include <functional>
 #include <psapi.h>
@@ -254,7 +255,6 @@ namespace osidbg
 #endif
 
 		if (!CriticalInitFailed) {
-			EnableCustomStats();
 			InitPropertyMaps();
 
 			DetourTransactionBegin();
@@ -386,7 +386,31 @@ namespace osidbg
 			return;
 		}
 
-		{
+		if (ExtensionState::Get().EnableCustomStats && !EnabledCustomStats) {
+			{
+				uint8_t const replacement[] = { 0x90, 0x90 };
+				WriteAnchor code(ActivateClientSystemsHook, sizeof(replacement));
+				memcpy(code.ptr(), replacement, sizeof(replacement));
+			}
+
+			{
+				uint8_t const replacement[] = { 0x90, 0x90 };
+				WriteAnchor code(ActivateServerSystemsHook, sizeof(replacement));
+				memcpy(code.ptr(), replacement, sizeof(replacement));
+			}
+
+			{
+				uint8_t const replacement[] = { 0xC3 };
+				WriteAnchor code(CustomStatUIRollHook, sizeof(replacement));
+				memcpy(code.ptr(), replacement, sizeof(replacement));
+			}
+
+			EnabledCustomStats = true;
+		}
+
+		if (ExtensionState::Get().EnableCustomStats 
+			&& ExtensionState::Get().EnableCustomStatsPane 
+			&& !EnabledCustomStatsPane) {
 			uint8_t const replacement[] = {
 #if defined(OSI_EOCAPP)
 				0xc6, 0x45, 0xf8, 0x01
@@ -397,24 +421,7 @@ namespace osidbg
 
 			WriteAnchor code(UICharacterSheetHook, sizeof(replacement));
 			memcpy(code.ptr(), replacement, sizeof(replacement));
-		}
-
-		{
-			uint8_t const replacement[] = { 0x90, 0x90 };
-			WriteAnchor code(ActivateClientSystemsHook, sizeof(replacement));
-			memcpy(code.ptr(), replacement, sizeof(replacement));
-		}
-
-		{
-			uint8_t const replacement[] = { 0x90, 0x90 };
-			WriteAnchor code(ActivateServerSystemsHook, sizeof(replacement));
-			memcpy(code.ptr(), replacement, sizeof(replacement));
-		}
-
-		{
-			uint8_t const replacement[] = { 0xC3 };
-			WriteAnchor code(CustomStatUIRollHook, sizeof(replacement));
-			memcpy(code.ptr(), replacement, sizeof(replacement));
+			EnabledCustomStatsPane = true;
 		}
 	}
 }

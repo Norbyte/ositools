@@ -42,6 +42,7 @@ namespace osidbg {
 	public:
 		bool FindLibraries();
 		bool PostStartupFindLibraries();
+		void EnableCustomStats();
 		void Cleanup();
 
 		void ShowStartupError(std::wstring const & msg, bool wait, bool exitGame);
@@ -196,8 +197,6 @@ namespace osidbg {
 		void FindCharacterStatFuncsEoCPlugin();
 #endif
 
-		void EnableCustomStats();
-
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 		bool CanShowError();
 
@@ -220,6 +219,8 @@ namespace osidbg {
 		bool InitFailed{ false };
 		bool CriticalInitFailed{ false };
 		bool PostLoaded{ false };
+		bool EnabledCustomStats{ false };
+		bool EnabledCustomStatsPane{ false };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };

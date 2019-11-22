@@ -420,7 +420,10 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 void CustomFunctionInjector::OnCloseHandle(HANDLE hFile, BOOL bSucceeded)
 {
 	if (bSucceeded && !extendingStory_ && storyHeaderFile_ != NULL && hFile == storyHeaderFile_) {
-		ExtendStoryHeader(storyHeaderPath_);
+		if (ExtensionState::Get().EnableExtensions) {
+			ExtendStoryHeader(storyHeaderPath_);
+		}
+
 		storyHeaderFile_ = NULL;
 	}
 }

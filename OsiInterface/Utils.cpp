@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Version.h"
 
 
 std::string ToUTF8(std::wstring const & s)
@@ -57,6 +58,6 @@ void CreateConsole(HMODULE hModule)
 	Debug("*                                                                            *");
 	Debug("******************************************************************************");
 	Debug("");
-	Debug("OsiInterface built on " __TIMESTAMP__);
+	Debug("OsiInterface v%d built on " __TIMESTAMP__, osidbg::CurrentVersion);
 }
 
