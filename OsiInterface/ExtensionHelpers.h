@@ -57,7 +57,7 @@ namespace osidbg
 
 		HelperType Type;
 		HitDamageInfo * Hit{ nullptr };
-		bool CallCharacterHit{ false };
+		bool SimulateHit{ false };
 		HitType HitType{ HitType::Melee };
 		bool RollForDamage{ false };
 		bool ProcWindWalker{ false };

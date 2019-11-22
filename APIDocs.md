@@ -65,6 +65,7 @@ Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the f
 ```
 
 Meaning of configuration keys:
+
 | Key | Meaning |
 |--|--|
 | `ExtendOsiris` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
@@ -430,11 +431,11 @@ The Hit API is an extension of `ApplyDamage()` with many additional features.
  - Add one or more damage types by calling `NRD_HitAddDamage()`
  - Apply the hit using `NRD_HitExecute()`
 
-In addition to the parameters listed in [Hit attributes](#hit-attributes) the following parameters can be set when launching a hit:
+In addition to the parameters listed in [Hit attributes](#hit-attributes) the following table lists parameters that can be set when launching a hit. These parameters are only taken into account if the `SimulateHit` flag is set; otherwise the hit calculations must be done entirely in Osiris code.
 
 | Attribute | Type | Description |
 |--|--|--|
-| CallCharacterHit | Flag | **TODO this is complex!** |
+| SimulateHit | Flag | Simulates a normal character hit; i.e. performs hit roll and sets `Hit`/`Dodged`/`Missed` flags; performs critical hit roll and sets `CriticalHit` flag; applies character resistances; applies Shackles of Pain and Lifesteal |
 | HitType | Enum | For a list of values, see [HitType enumeration](#hittype) |
 | RollForDamage | Flag | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
 | CriticalRoll | Enum | Determines the outcome of the critical hit roll. For a list of values, see [CriticalRoll enumeration](#criticalroll) |

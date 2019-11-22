@@ -75,8 +75,8 @@ namespace osidbg
 
 	bool DamageHelpers::GetInt(char const * prop, int32_t & value)
 	{
-		if (strcmp(prop, "CallCharacterHit") == 0) {
-			value = CallCharacterHit ? 1 : 0;
+		if (strcmp(prop, "SimulateHit") == 0) {
+			value = SimulateHit ? 1 : 0;
 		} else if (strcmp(prop, "HitType") == 0) {
 			value = (int32_t)HitType;
 		} else if (strcmp(prop, "RollForDamage") == 0) {
@@ -153,11 +153,11 @@ namespace osidbg
 
 	void DamageHelpers::SetInt(char const * prop, int32_t value)
 	{
-		if (strcmp(prop, "CallCharacterHit") == 0) {
+		if (strcmp(prop, "SimulateHit") == 0) {
 			if (Type == DamageHelpers::HT_CustomHit) {
-				CallCharacterHit = value > 0;
+				SimulateHit = value > 0;
 			} else {
-				OsiError("Property 'CallCharacterHit' can only be set for custom hits");
+				OsiError("Property 'SimulateHit' can only be set for custom hits");
 			}
 		}
 		else if (strcmp(prop, "HitType") == 0) {
@@ -307,7 +307,7 @@ namespace osidbg
 		}
 
 		auto characterHit = gOsirisProxy->GetLibraryManager().CharacterHit;
-		if (CallCharacterHit && characterHit == nullptr) {
+		if (SimulateHit && characterHit == nullptr) {
 			OsiError("esv::Character::Hit not found!");
 			return false;
 		}
@@ -364,10 +364,10 @@ namespace osidbg
 		damage.EffectFlags = Hit->EffectFlags;
 		damage.HitWithWeapon = Hit->HitWithWeapon;
 
-		if (CallCharacterHit) {
+		if (SimulateHit) {
 			auto targetCharacter = FindCharacterByNameGuid(Target->GetGuid()->Str);
 			if (targetCharacter == nullptr) {
-				OsiError("Attempt to hit an item with CallCharacterHit flag ?!");
+				OsiError("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
 				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, RollForDamage ? 1 : 0,
 					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);

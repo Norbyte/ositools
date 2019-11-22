@@ -516,8 +516,8 @@ namespace osidbg
 			helper->Source = attackerStats->Character;
 		}
 
-		// TODO - allow disabling CallCharacterHit & not call the original func?
-		helper->CallCharacterHit = true;
+		// TODO - allow disabling SimulateHit & not call the original func?
+		helper->SimulateHit = true;
 		helper->HitType = hitType;
 		helper->RollForDamage = rollForDamage;
 		helper->ProcWindWalker = procWindWalker;
