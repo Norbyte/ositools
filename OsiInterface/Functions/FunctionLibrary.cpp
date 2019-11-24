@@ -151,13 +151,15 @@ namespace osidbg
 		}
 
 		Debug("Mod configuration loaded.");
-		Debug("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, MinVersion=%d",
-			EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane,
-			MinimumVersion);
+		Debug("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
+			EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane, 
+			EnableFormulaOverrides, MinimumVersion);
 
-		if (CurrentVersion < MinimumVersion) {
-			std::wstring msg = L"TEST MSG";
-			gOsirisProxy->GetLibraryManager().ShowStartupError(msg, false, true);
+		if (CurrentVersion < MinimumVersion && HighestVersionMod != nullptr) {
+			std::wstringstream msg;
+			msg << L"Module \"" << HighestVersionMod->Info.Name.GetPtr() << "\" requires extension version "
+				<< MinimumVersion << "; current version is v" << CurrentVersion;
+			gOsirisProxy->GetLibraryManager().ShowStartupError(msg.str(), false, true);
 		}
 	}
 
@@ -230,9 +232,15 @@ namespace osidbg
 			EnableCustomStatsPane = true;
 		}
 
+		auto formulaOverrides = GetConfigBool(config, "FormulaOverrides");
+		if (formulaOverrides && *formulaOverrides) {
+			EnableFormulaOverrides = true;
+		}
+
 		auto version = GetConfigInt(config, "RequiredExtensionVersion");
 		if (version && MinimumVersion < (uint32_t)*version) {
 			MinimumVersion = (uint32_t)*version;
+			HighestVersionMod = &mod;
 		}
 	}
 

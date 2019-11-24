@@ -435,6 +435,7 @@ namespace osidbg
 
 	void CharacterStatsGetters::WrapAll()
 	{
+		if (!ExtensionState::Get().EnableFormulaOverrides) return;
 		if (Wrapped) return;
 
 #define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
@@ -443,8 +444,14 @@ namespace osidbg
 
 #include <GameDefinitions/CharacterGetters.inl>
 #undef DEFN_GETTER
+
 		if (GetHitChance != nullptr) {
 			WrapperHitChance.Wrap(GetHitChance);
+		}
+
+		// Temporary workaround for crash when GetMaxMP is wrapped
+		if (GetMaxMp != nullptr) {
+			WrapperMaxMp.Unwrap();
 		}
 
 		Wrapped = true;

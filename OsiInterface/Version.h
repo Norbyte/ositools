@@ -3,5 +3,5 @@
 #include <cstdint>
 
 namespace osidbg {
-	static constexpr uint32_t CurrentVersion = 28;
+	static constexpr uint32_t CurrentVersion = 29;
 }

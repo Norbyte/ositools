@@ -28,7 +28,9 @@ namespace osidbg
 		bool EnableLua{ false };
 		bool EnableCustomStats{ false };
 		bool EnableCustomStatsPane{ false };
+		bool EnableFormulaOverrides{ false };
 		uint32_t MinimumVersion{ 0 };
+		Module const * HighestVersionMod{ nullptr };
 
 		DamageHelperPool DamageHelpers;
 		PendingStatuses PendingStatuses;
