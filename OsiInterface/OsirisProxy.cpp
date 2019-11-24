@@ -287,6 +287,10 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 	auto OriginalFlags = *Wrappers.Globals.DebugFlags;
 	std::wstring storyPath;
 
+	if (ExtensionsEnabled) {
+		CustomFunctions.PreProcessStory(Path);
+	}
+
 	if (CompilationLogEnabled) {
 		storyPath = MakeLogFilePath(L"Compile", L"div");
 		*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);

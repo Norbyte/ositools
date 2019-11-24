@@ -3,6 +3,8 @@
 ### Table of Contents  
 
  - [Foreword](#notes-on-api-stability)
+ - [Extension Setup](#extension-setup)
+ - [Preprocessor](#preprocessor)
  - [Data Types](#data-types)
  - [Stats](#stat-functions)
  - [Statuses](#status-functions)
@@ -57,10 +59,12 @@ Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the f
 ```json
 {
     "ExtendOsiris": false,
-	"Lua": false,
+    "Lua": false,
     "UseCustomStats": false,
-	"UseCustomStatsPane": false,
-	"RequiredExtensionVersion": 28
+    "UseCustomStatsPane": false,
+    "EnableFormulaOverrides": false,
+    "PreprocessStory": false,
+    "RequiredExtensionVersion": 28
 }
 ```
 
@@ -72,7 +76,55 @@ Meaning of configuration keys:
 | `Lua` | Enables scripting via the Lua runtime |
 | `UseCustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
 | `UseCustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
+| `EnableFormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) **EXPERIMENTAL** |
+| `PreprocessStory` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
 | `RequiredExtensionVersion` | Minimum Osiris Extender version required to run the mod |
+
+
+### Preprocessor
+
+To support mods that may not want to depend on the extender in all cases but want to take advantages of its features when available, two "preprocessor" constructs are provided that allow conditional compilation of code when the extender is present / not present.
+
+The first construct allows defining code that only runs when the extender is loaded. To achieve this, the block comment `/* ... */` is tagged so the extender can uncomment the code during compilation if it is present.
+Syntax:
+```c
+/* [OSITOOLS_ONLY]
+// Code in this block is normally commented out; however,
+// the leading and trailing comment tags are removed if
+// the extender is present.
+IF
+Whatever()
+THEN
+DB_NOOP(1);
+*/
+```
+
+The second construct is the opposite, i.e. it only removes code when the extender is loaded.
+Syntax:
+```c
+// [BEGIN_NO_OSITOOLS]
+// This code is executed if the extender is not loaded.
+// With the extender, the code between "// [BEGIN..." and "// [END..." is removed entirely.
+IF
+Whatever()
+THEN
+DB_NOOP(1);
+// [END_NO_OSITOOLS]
+```
+
+Example usage:
+```c
+IF
+TextEventSet("preprocessor")
+THEN
+/* [OSITOOLS_ONLY]
+DebugBreak("This code only runs if OsiTools is loaded");
+*/
+DebugBreak("This always runs");
+// [BEGIN_NO_OSITOOLS]
+DebugBreak("This only runs if OsiTools is *NOT* loaded");
+// [END_NO_OSITOOLS]
+```
 
 
 ### Data Types

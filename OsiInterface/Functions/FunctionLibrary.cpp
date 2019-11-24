@@ -237,6 +237,11 @@ namespace osidbg
 			EnableFormulaOverrides = true;
 		}
 
+		auto preprocessStory = GetConfigBool(config, "PreprocessStory");
+		if (preprocessStory && *preprocessStory) {
+			PreprocessStory = true;
+		}
+
 		auto version = GetConfigInt(config, "RequiredExtensionVersion");
 		if (version && MinimumVersion < (uint32_t)*version) {
 			MinimumVersion = (uint32_t)*version;

@@ -200,6 +200,8 @@ namespace osidbg
 		bool Query(FunctionHandle handle, OsiArgumentDesc & params);
 
 		std::string GenerateHeaders() const;
+		void PreProcessStory(wchar_t const * path);
+		void PreProcessStory(std::string const & original, std::string & postProcessed);
 
 	private:
 		std::unordered_map<FunctionNameAndArity, CustomFunction *> signatures_;

@@ -222,6 +222,76 @@ std::string CustomFunctionManager::GenerateHeaders() const
 	return ss.str();
 }
 
+void CustomFunctionManager::PreProcessStory(std::string const & original, std::string & postProcessed)
+{
+	std::string ph1;
+	ph1.reserve(original.size());
+	postProcessed.reserve(original.size());
+
+	std::size_t pos = 0;
+	while (pos < original.size()) {
+		auto next = original.find("/* [OSITOOLS_ONLY]", pos);
+		if (next == std::string::npos) {
+			ph1 += original.substr(pos);
+			break;
+		}
+
+		auto end = original.find("*/", next);
+		if (end == std::string::npos) {
+			ph1 += original.substr(pos);
+			break;
+		}
+
+		ph1 += original.substr(pos, next - pos);
+		ph1 += original.substr(next + 19, end - next - 19);
+		pos = end + 2;
+	}
+
+	pos = 0;
+	while (pos < ph1.size()) {
+		auto next = ph1.find("// [BEGIN_NO_OSITOOLS]", pos);
+		if (next == std::string::npos) {
+			postProcessed += ph1.substr(pos);
+			break;
+		}
+
+		auto end = ph1.find("// [END_NO_OSITOOLS]", next);
+		if (end == std::string::npos) {
+			postProcessed += ph1.substr(pos);
+			break;
+		}
+
+		postProcessed += ph1.substr(pos, next - pos);
+		pos = end + 21;
+	}
+}
+
+void CustomFunctionManager::PreProcessStory(wchar_t const * path)
+{
+	if (!ExtensionState::Get().PreprocessStory) return;
+
+	std::string original;
+	std::string postProcessed;
+
+	{
+		std::ifstream f(path, std::ios::in | std::ios::binary);
+		if (!f.good()) return;
+
+		f.seekg(0, std::ios::end);
+		original.resize(f.tellg());
+		f.seekg(0, std::ios::beg);
+		f.read(original.data(), original.size());
+	}
+
+	PreProcessStory(original, postProcessed);
+
+	{
+		std::ofstream f(path, std::ios::out | std::ios::binary);
+		if (!f.good()) return;
+
+		f.write(postProcessed.data(), postProcessed.size());
+	}
+}
 
 
 CustomFunctionInjector::CustomFunctionInjector(OsirisWrappers & wrappers, CustomFunctionManager & functions)
