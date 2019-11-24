@@ -47,11 +47,11 @@
    * [AttributeFlags](#attributeflags)
 
 
-### Notes on API stability
+## Notes on API stability
 Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
 Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
 
-### Extension Setup
+## Extension Setup
 
 To start using the extension in your mod, a configuration file must be created that describes what features are utilized by your mod.
 
@@ -81,9 +81,10 @@ Meaning of configuration keys:
 | `RequiredExtensionVersion` | Minimum Osiris Extender version required to run the mod |
 
 
-### Preprocessor
+## Preprocessor
 
-To support mods that may not want to depend on the extender in all cases but want to take advantages of its features when available, two "preprocessor" constructs are provided that allow conditional compilation of code when the extender is present / not present.
+To support mods that may not want to depend on the extender but want to take advantages of its features when available, two "preprocessor" constructs are provided that allow conditional compilation of code when the extender is present / not present.
+To make use of this feature, enable the `PreprocessStory` variable in [your extension config](#extension-setup).
 
 The first construct allows defining code that only runs when the extender is loaded. To achieve this, the block comment `/* ... */` is tagged so the extender can uncomment the code during compilation if it is present.
 Syntax:
@@ -127,7 +128,7 @@ DebugBreak("This only runs if OsiTools is *NOT* loaded");
 ```
 
 
-### Data Types
+## Data Types
 The data types mentioned in this document should be interpreted as follows:
 
 #### Integer
@@ -789,6 +790,7 @@ CurrentVitality, CurrentArmor, CurrentMagicArmor
 ## Custom Stats
 
 Custom stats are a GM mode feature that allows creating custom stats on characters. The extender supports adding custom stats in adventure (non-GM) campaigns as well, and allows programmatic access to these stats via Osiris queries.
+To use custom stat functions in non-GM mode, enable the `UseCustomStats` variable in [your extension config](#extension-setup).
 
 ### GetCustomStat
 `query NRD_GetCustomStat([in](STRING)_Name, [out](GUIDSTRING)_StatId) (2,1338,63,1)`
