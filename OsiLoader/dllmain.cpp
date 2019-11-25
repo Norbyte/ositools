@@ -40,14 +40,14 @@ public:
 		bool updated = TryToUpdate(reason);
 
 		if (!updated && !ExtenderDLLExists()) {
-			auto msg = FromUTF8("Osiris Extender initialization failed:<br>" + reason);
+			auto msg = FromUTF8("Osiris Extender initialization failed:<br>\r\n" + reason);
 			gErrorUtils->ShowError(msg.c_str());
 			return;
 		}
 
 		HMODULE handle = LoadLibraryW(dllPath_.c_str());
 		if (handle == NULL) {
-			gErrorUtils->ShowError(L"Osiris Extender initialization failed:<br>Unable to load extender DLL.");
+			gErrorUtils->ShowError(L"Osiris Extender initialization failed:<br>\r\nUnable to load extender DLL.");
 		}
 	}
 
@@ -59,7 +59,9 @@ public:
 
 		std::string etag;
 		if (!fetcher.FetchETag(packageUri.c_str(), etag)) {
-			reason = "Something went wrong while checking for updates. Please make sure you're connected to the internet and try again";
+			reason = "Something went wrong while checking for updates. Please make sure you're connected to the internet and try again\r\n";
+			reason += "ETag fetch failed.\r\n";
+			reason += fetcher.GetLastError();
 			return false;
 		}
 
@@ -70,7 +72,9 @@ public:
 
 		std::vector<uint8_t> response;
 		if (!fetcher.Fetch(packageUri.c_str(), response)) {
-			reason = "Something went wrong while downloading updates. Please make sure you're connected to the internet and try again";
+			reason = "Something went wrong while downloading updates. Please make sure you're connected to the internet and try again\r\n";
+			reason += "Update payload fetch failed.\r\n";
+			reason += fetcher.GetLastError();
 			return false;
 		}
 
