@@ -66,10 +66,8 @@ namespace osidbg
 	{
 		void * VMT;
 		ModuleInfo Info;
-#if defined(OSI_EOCAPP)
 		ModuleUnknown Unknown1;
 		ModuleUnknown Unknown2;
-#endif
 		ObjectSet<Module> LoadOrderedModules;
 		ObjectSet<Module> ContainedModules;
 		ObjectSet<Module> DependentModules;

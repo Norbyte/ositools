@@ -45,6 +45,7 @@ namespace osidbg
 		auto len = s.size() / 3;
 		if (!len) Fail("Zero-length patterns not allowed");
 
+		pattern_.clear();
 		pattern_.reserve(len);
 
 		char const * c = s.data();

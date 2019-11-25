@@ -300,14 +300,14 @@ namespace osidbg
 			"48 8B CF " // mov     rcx, rdi
 			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
 			"84 C0 " // test    al, al
-			"0F 84 XX 00 00 00 " // jz      xxx
+			"0F 84 XX XX 00 00 " // jz      xxx
 			"49 8B D6 " // mov     rdx, r14
-			"48 8D 4D FF " // lea     rcx, [rbp+57h+Memory]
+			"48 8D 4D XX " // lea     rcx, [rbp+57h+Memory]
 			"E8 XX XX XX XX " // call xxx
 			"45 84 E4 " // test    r12b, r12b
 			"74 XX " // jz      short xxx
 			"49 8B D6 " // mov     rdx, r14
-			"48 8D 4D FF " // lea     rcx, [rbp+57h+Memory]
+			"48 8D 4D XX " // lea     rcx, [rbp+57h+Memory]
 			"48 8B D8 " // mov     rbx, rax
 			"E8 XX XX XX XX " // call    xxx
 			"4C 8B 03 " // mov     r8, [rbx]
@@ -714,6 +714,30 @@ namespace osidbg
 			}
 		});
 
+		if (ActivateClientSystemsHook == nullptr) {
+			p2.FromString(
+				"48 8B CB " // mov     rcx, rbx
+				"E8 XX XX XX XX " // call    xxx
+				"48 8B CB " // mov     rcx, rbx
+				"E8 XX XX XX XX " // call    xxx
+				"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
+				"48 8B 08 " // mov     rcx, [rax]
+				"80 B9 03 0C 00 00 01 " // cmp     byte ptr [rcx+0C03h], 1
+				// Replacement: 90 90
+				"75 XX " // jnz     short xxx
+				"48 8B CB " // mov     rcx, rbx
+				"E8 XX XX XX XX " // call    xxx
+			);
+
+			p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+				if (ActivateClientSystemsHook == nullptr) {
+					ActivateClientSystemsHook = match + 33;
+				} else {
+					ActivateServerSystemsHook = match + 33;
+				}
+			});
+		}
+
 		Pattern p3;
 		p3.FromString(
 			// Replacement: C3 (retn)
@@ -745,7 +769,8 @@ namespace osidbg
 
 		p4.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
 			auto str = AsmLeaToAbsoluteAddress(match + 14);
-			if (strcmp((char const *)str, "esv::CustomStatsProtocol") == 0) {
+			if (strcmp((char const *)str, "esv::CustomStatsProtocol") == 0
+				|| strcmp((char const *)str, "esv::CustomStatsProtocol::ProcessMsg") == 0) {
 				EsvCustomStatsProtocolProcessMsg = (esv::CustomStatsProtocol__ProcessMsg)match;
 			}
 		});
@@ -808,6 +833,28 @@ namespace osidbg
 		p.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
 			GameStateLoadModuleDo = (ecl::GameStateLoadModule__Do)match;
 		}, false);
+
+		if (GameStateLoadModuleDo == nullptr) {
+			// Signature added for GB3
+			Pattern p2;
+			p2.FromString(
+				"48 89 5C 24 10 " // mov     [rsp-8+arg_8], rbx
+				"48 89 74 24 18 " // mov     [rsp-8+arg_10], rsi
+				"48 89 7C 24 20 " // mov     [rsp-8+arg_18], rdi
+				"55 41 54 41 55 41 56 41 57 " // push    rbp, r12, r13, r14, r15
+				"48 8D AC 24 40 FF FF FF " // lea     rbp, [rsp-0C0h]
+				"48 81 EC C0 01 00 00 " // sub     rsp, 1C0h
+				"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+				"48 33 C4 " // xor     rax, rsp
+				"48 89 85 B0 00 00 00 " // mov     [rbp+0E0h+var_30], rax
+				"4C 8B E1 " // mov     r12, rcx
+			);
+
+			p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+				GameStateLoadModuleDo = (ecl::GameStateLoadModule__Do)match;
+			}, false);
+
+		}
 
 		if (GameStateLoadModuleDo == nullptr) {
 			Debug("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateLoadModule::Do");
@@ -875,6 +922,24 @@ namespace osidbg
 		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
 			gCharacterStatsGetters.GetHitChance = (CDivinityStats_Character__GetHitChance *)match;
 		}, false);
+
+		if (gCharacterStatsGetters.GetHitChance == nullptr) {
+			Pattern p3;
+			p3.FromString(
+				"48 89 5C 24 10 " // mov     [rsp+arg_8], rbx
+				"48 89 6C 24 20 " // mov     [rsp+arg_18], rbp
+				"56 " // push    rsi
+				"57 " // push    rdi
+				"41 56 " // push    r14
+				"48 83 EC 20 " // sub     rsp, 20h
+				"48 8B 99 68 02 00 00 " // mov     rbx, [rcx+268h]
+				"4C 8B F2 " //  mov     r14, rdx
+			);
+
+			p3.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+				gCharacterStatsGetters.GetHitChance = (CDivinityStats_Character__GetHitChance *)match;
+			}, false);
+		}
 
 		if (gCharacterStatsGetters.GetHitChance == nullptr) {
 			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::CalculateHitChance");
