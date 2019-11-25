@@ -6,7 +6,7 @@
 
 HttpFetcher::HttpFetcher(wchar_t const * host)
 {
-	session_ = WinHttpOpen(L"OsiLoader/1.0", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
+	session_ = WinHttpOpen(L"OsiLoader/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
 	if (session_ == NULL) {
 		LogError("WinHttpOpen");
