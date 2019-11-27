@@ -1,6 +1,6 @@
 #include <stdafx.h>
-#include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include "FunctionLibrary.h"
 #include <Version.h>
 #include <fstream>
 #include "json/json.h"
@@ -62,10 +62,17 @@ namespace osidbg
 			return true;
 		}
 
+		bool GetVersion(OsiArgumentDesc & args)
+		{
+			args[0].Int32 = CurrentVersion;
+			return true;
+		}
+
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
-			ExtensionState::Get().LuaReset();
-			ExtensionState::Get().LuaStartup();
+			auto & ext = ExtensionState::Get();
+			ext.LuaReset();
+			ext.LuaStartup();
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
@@ -76,9 +83,22 @@ namespace osidbg
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
+			auto & lua = ExtensionState::Get().Lua;
+			if (!lua) {
+				OsiError("Called when the Lua VM has not been initialized!");
+				return;
+			}
+
 			auto func = args[0].String;
-			auto arg = args[1].String;
-			ExtensionState::Get().LuaCall(func, arg);
+			auto numArgs = args.Count() - 1;
+			std::vector<OsiArgumentValue> luaArgs;
+			luaArgs.resize(numArgs);
+
+			for (uint32_t i = 0; i < numArgs; i++) {
+				luaArgs[i] = args[i + 1];
+			}
+
+			lua->Call(func, luaArgs);
 		}
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)
@@ -316,6 +336,15 @@ namespace osidbg
 			&func::IsModLoaded
 		);
 		functionMgr.Register(std::move(isModLoaded));
+
+		auto getVersion = std::make_unique<CustomQuery>(
+			"NRD_GetVersion",
+			std::vector<CustomFunctionParam>{
+				{ "Version", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::GetVersion
+		);
+		functionMgr.Register(std::move(getVersion));
 
 		auto luaReset = std::make_unique<CustomCall>(
 			"NRD_LuaReset",

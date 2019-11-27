@@ -31,6 +31,27 @@ namespace osidbg
 	}
 
 
+	void OsiDetectGameType()
+	{
+		if (gGameType != GameType::Unknown) return;
+
+		auto & dbs = (*gOsirisProxy->GetGlobals().Databases)->Db;
+		if (dbs.Size == 0) return;
+
+		auto db1 = *dbs.Start;
+		bool isDE = Database::IsDatabaseDOS2DE(db1,
+			gOsirisProxy->GetOsirisDllStart(),
+			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
+		if (isDE) {
+			gGameType = GameType::DOS2DE;
+			Debug("OsiDetectGameType(): Detected D:OS2 DE");
+		} else {
+			gGameType = GameType::DOS2;
+			Debug("OsiDetectGameType(): Detected D:OS2 Classic");
+		}
+	}
+
+
 	void STDWString::Set(std::wstring const & s)
 	{
 		if (Capacity > 7) {
@@ -59,7 +80,7 @@ namespace osidbg
 		Size = s.size();
 		Capacity = s.size();
 
-		if (Size > 7) {
+		if (Size > 15) {
 			// FIXME - memory leak!
 			BufPtr = GameAlloc<char>(Capacity + 1);
 			strcpy_s(BufPtr, Capacity + 1, s.c_str());
@@ -749,7 +770,6 @@ namespace osidbg
 	};
 
 	EnumInfo<StatAttributeFlags>::Label const EnumInfo<StatAttributeFlags>::Values[] = { 
-		{ StatAttributeFlags::AF_None, "None" },
 		{ StatAttributeFlags::AF_FreezeImmunity, "FreezeImmunity" },
 		{ StatAttributeFlags::AF_BurnImmunity, "BurnImmunity" },
 		{ StatAttributeFlags::AF_StunImmunity, "StunImmunity" },

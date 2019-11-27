@@ -9,11 +9,11 @@
 
 namespace osidbg
 {
-	DebugAdapterMap::DebugAdapterMap(OsirisStaticGlobals const & globals)
+	IdentityAdapterMap::IdentityAdapterMap(OsirisStaticGlobals const & globals)
 		: globals_(globals)
 	{}
 
-	void DebugAdapterMap::UpdateAdapters()
+	void IdentityAdapterMap::UpdateAdapters()
 	{
 		auto const & adapterDb = (*globals_.Adapters)->Db;
 		for (unsigned i = 0; i < adapterDb.Size; i++) {
@@ -22,7 +22,7 @@ namespace osidbg
 		}
 	}
 
-	bool DebugAdapterMap::HasAllAdapters()
+	bool IdentityAdapterMap::HasAllAdapters()
 	{
 		for (unsigned i = 0; i <= MaxColumns; i++) {
 			auto it = adapters_.find(i);
@@ -32,14 +32,14 @@ namespace osidbg
 		return true;
 	}
 
-	Adapter * DebugAdapterMap::FindAdapter(uint8_t columns)
+	Adapter * IdentityAdapterMap::FindAdapter(uint8_t columns)
 	{
 		auto it = adapters_.find(columns);
 		if (it == adapters_.end()) return nullptr;
 		return it->second;
 	}
 
-	void DebugAdapterMap::TryAddAdapter(Adapter * adapter)
+	void IdentityAdapterMap::TryAddAdapter(Adapter * adapter)
 	{
 		if (adapter->Constants.Data.Items.Size > 0) return;
 
@@ -89,8 +89,8 @@ namespace osidbg
 		auto const & goalDb = (*globals_.Goals);
 		for (unsigned i = 0; i < goalDb->Count; i++) {
 			auto goal = goalDb->Goals.Find(i + 1);
-			AddRuleActionMappings(nullptr, goal, true, goal->InitCalls);
-			AddRuleActionMappings(nullptr, goal, false, goal->ExitCalls);
+			AddRuleActionMappings(nullptr, *goal, true, (*goal)->InitCalls);
+			AddRuleActionMappings(nullptr, *goal, false, (*goal)->ExitCalls);
 		}
 	}
 
@@ -362,8 +362,6 @@ namespace osidbg
 		gNodeVMTWrappers->CallQueryPreHook = std::bind(&Debugger::CallQueryPreHook, this, _1, _2);
 		gNodeVMTWrappers->CallQueryPostHook = std::bind(&Debugger::CallQueryPostHook, this, _1, _2, _3);
 		Debug("Debugger::Debugger(): Attached to story");
-
-		DetectGameVersion();
 	}
 
 	Debugger::~Debugger()
@@ -543,7 +541,7 @@ namespace osidbg
 		auto const & goalDb = (*globals_.Goals);
 		for (unsigned i = 0; i < goalDb->Count; i++) {
 			auto goal = goalDb->Goals.Find(i + 1);
-			messageHandler_.SendSyncStory(goal);
+			messageHandler_.SendSyncStory(*goal);
 		}
 
 		auto const & databaseDb = (*globals_.Databases)->Db;
@@ -624,24 +622,14 @@ namespace osidbg
 	void MsgToTuple(MsgTuple const & msg, TuplePtrLL & tuple, void * tvVmt)
 	{
 		auto & items = tuple.Items();
-		items.Size = msg.column_size();
-		auto head = new ListNode<TypedValue *>();
-		items.Head = head;
-		head->Head = head;
-		head->Next = head;
+		items.Init();
 
-		auto prev = head;
+		auto prev = items.Head;
 		for (int i = 0; i < msg.column_size(); i++) {
-			auto item = new ListNode<TypedValue *>();
-			item->Head = head;
-			item->Next = head;
-			prev->Next = item;
-
 			auto & param = msg.column()[i];
-			item->Item = new TypedValue();
-			MsgToValue(param, *item->Item, tvVmt);
-
-			prev = item;
+			prev = items.Insert(prev);
+			prev->Item = new TypedValue();
+			MsgToValue(param, *prev->Item, tvVmt);
 		}
 	}
 
@@ -775,23 +763,6 @@ namespace osidbg
 		breakpoints_.SetDebuggingDisabled(false);
 
 		return ResultCode::Success;
-	}
-
-	void Debugger::DetectGameVersion()
-	{
-		auto & dbs = (*globals_.Databases)->Db;
-		assert(dbs.Size > 0);
-		auto db1 = *dbs.Start;
-		bool isDE = Database::IsDatabaseDOS2DE(db1,
-			gOsirisProxy->GetOsirisDllStart(),
-			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
-		if (isDE) {
-			gGameType = GameType::DOS2DE;
-			Debug("Debugger::DetectGameVersion(): Detected D:OS2 DE");
-		} else {
-			gGameType = GameType::DOS2;
-			Debug("Debugger::DetectGameVersion(): Detected D:OS2 Classic");
-		}
 	}
 
 	void Debugger::ServerThreadReentry()
@@ -934,11 +905,6 @@ namespace osidbg
 
 	void Debugger::PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted)
 	{
-		if (globals_.TypedValueVMT == nullptr
-			&& tuple->Data.Items.Size > 0) {
-			globals_.TypedValueVMT = tuple->Data.Items.Head->Next->Item.Value.VMT;
-		}
-
 		ServerThreadReentry();
 		auto reason = deleted ? BreakpointReason::NodePushDownTupleDelete : BreakpointReason::NodePushDownTuple;
 		PushFrame({ reason, node, nullptr, 0, &tuple->Data, nullptr });
@@ -1020,12 +986,6 @@ namespace osidbg
 
 	void Debugger::RuleActionPreHook(RuleActionNode * action)
 	{
-		if (globals_.TypedValueVMT == nullptr
-			&& action->Arguments != nullptr
-			&& action->Arguments->Args().Size > 0) {
-			globals_.TypedValueVMT = action->Arguments->Args().Head->Next->Item->VMT;
-		}
-
 		// Avoid action mapping errors during merge
 		if (debuggingDisabled_) {
 			return;

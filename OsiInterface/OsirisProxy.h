@@ -1,19 +1,5 @@
 #pragma once
 
-#include <GameDefinitions/Osiris.h>
-#include <ExtensionState.h>
-#include "DebugInterface.h"
-#include "DebugMessages.h"
-#include "Debugger.h"
-#include "OsirisWrappers.h"
-#include "CustomFunctions.h"
-#include "DataLibraries.h"
-#include "Functions/FunctionLibrary.h"
-
-#include <thread>
-
-namespace osidbg {
-
 #if !defined(OSI_NO_DEBUG_LOG)
 #define OsiError(msg) { \
 	std::stringstream ss; \
@@ -37,6 +23,21 @@ namespace osidbg {
 #define OsiWarn(msg) (void)0
 #define OsiMsg(msg) (void)0
 #endif
+
+
+#include <GameDefinitions/Osiris.h>
+#include <ExtensionState.h>
+#include "DebugInterface.h"
+#include "DebugMessages.h"
+#include "Debugger.h"
+#include "OsirisWrappers.h"
+#include "CustomFunctions.h"
+#include "DataLibraries.h"
+#include "Functions/FunctionLibrary.h"
+
+#include <thread>
+
+namespace osidbg {
 
 class OsirisProxy
 {

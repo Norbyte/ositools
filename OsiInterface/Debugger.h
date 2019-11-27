@@ -67,12 +67,12 @@ namespace osidbg
 
 	struct OsirisGlobals;
 
-	class DebugAdapterMap
+	class IdentityAdapterMap
 	{
 	public:
 		const unsigned MaxColumns = 16;
 
-		DebugAdapterMap(OsirisStaticGlobals const &);
+		IdentityAdapterMap(OsirisStaticGlobals const &);
 
 		void UpdateAdapters();
 		bool HasAllAdapters();
@@ -220,7 +220,7 @@ namespace osidbg
 		bool debuggingDisabled_{ false };
 		bool isPaused_{ false };
 		BreakpointManager breakpoints_;
-		DebugAdapterMap debugAdapters_;
+		IdentityAdapterMap debugAdapters_;
 
 		// Do we have any information about the result of the last IsValid query?
 		bool hasLastQueryInfo_{ false };
@@ -233,7 +233,6 @@ namespace osidbg
 		// This is needed to make sure that certain operations (eg. breakpoint update) execute in a thread-safe way.
 		Concurrency::concurrent_queue<std::function<void ()>> pendingActions_;
 
-		void DetectGameVersion();
 		void ServerThreadReentry();
 
 		void FinishedSingleStep();

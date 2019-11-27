@@ -35,7 +35,6 @@ namespace osidbg
 
 		DamageHelperPool DamageHelpers;
 		PendingStatuses PendingStatuses;
-		OsiArgumentPool OsiArgumentPool;
 		std::unique_ptr<LuaState> Lua;
 		std::unique_ptr<ObjectSet<eoc::ItemDefinition>> PendingItemClone;
 		std::mt19937_64 OsiRng;
@@ -45,6 +44,8 @@ namespace osidbg
 		void LoadConfigs();
 		void LoadConfig(Module const & mod, std::string const & config);
 		void LoadConfig(Module const & mod, Json::Value & config);
+
+		void StoryLoaded();
 
 		void LuaReset();
 		void LuaStartup();

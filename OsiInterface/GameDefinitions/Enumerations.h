@@ -522,7 +522,7 @@ namespace osidbg
 		AF_InvisibilityImmunity = 1ull << 60
 	};
 
-	MAKE_ENUM_INFO(StatAttributeFlags, 62);
+	MAKE_ENUM_INFO(StatAttributeFlags, 61);
 
 
 	enum TalentType

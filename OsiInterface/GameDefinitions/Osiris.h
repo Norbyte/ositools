@@ -22,6 +22,7 @@ enum class GameType
 
 extern GameType gGameType;
 
+void OsiDetectGameType();
 
 #pragma pack(push, 1)
 enum class ValueType : uint8_t
@@ -70,6 +71,11 @@ struct OsiArgumentValue
 	inline OsiArgumentValue(int64_t i64)
 		: TypeId(ValueType::Integer64), Int64(i64)
 	{}
+
+	inline OsiArgumentValue(OsiArgumentValue const & v)
+	{
+		*this = v;
+	}
 
 	inline OsiArgumentValue & operator = (OsiArgumentValue const & v)
 	{
@@ -333,6 +339,10 @@ struct OsirisFunctionHandle
 
 	OsirisFunctionHandle() : Handle(0) {}
 	OsirisFunctionHandle(uint32_t InHandle) : Handle(InHandle) {}
+	OsirisFunctionHandle(uint32_t Part1, uint32_t Part2, uint32_t Part3, uint32_t Part4) 
+		: Handle((Part1 & 7) | ((Part2 & 0x1FFFF) << 3)
+			| ((Part3 & 0x3FF) << 20) | (Part4 << 30))
+	{}
 
 	inline uint8_t GetPart1() const
 	{
@@ -469,16 +479,71 @@ struct Vector
 template <class T>
 struct ListNode
 {
-	ListNode<T> * Next, * Head;
+	ListNode<T> * Next{ nullptr }, * Head{ nullptr };
 	T Item;
+
+	ListNode() {}
+
+	ListNode(T const & item)
+		: Item(item)
+	{}
 };
 
 template <class T>
 struct List
 {
-	ListNode<T> * Head;
-	uint64_t Size;
+	ListNode<T> * Head{ nullptr };
+	uint64_t Size{ 0 };
+
+	void Init()
+	{
+		auto head = new ListNode<T>();
+		Init(head);
+	}
+
+	void Init(ListNode<T> * head)
+	{
+		Head = head;
+		Head->Next = head;
+		Head->Head = head;
+		Size = 0;
+	}
+
+	void Insert(T const & value, ListNode<T> * item, ListNode<T> * prev)
+	{
+		item->Item = value;
+		item->Head = Head;
+		item->Next = prev->Next;
+		prev->Next = item;
+		Size++;
+	}
+
+	ListNode<T> * Insert(T const & value, ListNode<T> * prev)
+	{
+		auto item = new ListNode<T>(value);
+		item->Head = Head;
+		item->Next = prev->Next;
+		prev->Next = item;
+		Size++;
+		return item;
+	}
+
+	void Insert(ListNode<T> * item, ListNode<T> * prev)
+	{
+		item->Head = Head;
+		item->Next = prev->Next;
+		prev->Next = item;
+		Size++;
+	}
+
+	ListNode<T> * Insert(ListNode<T> * prev)
+	{
+		auto item = new ListNode<T>();
+		Insert(item, prev);
+		return item;
+	}
 };
+
 template <class T, unsigned TPad>
 struct Padded
 {
@@ -509,26 +574,24 @@ struct TMap
 {
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
 
-	TVal & Find(TKey key)
+	TVal * Find(TKey key)
 	{
 		auto finalTreeNode = Root;
 		auto currentTreeNode = Root->Root;
 		while (!currentTreeNode->IsRoot)
 		{
-			if (currentTreeNode->Key.Value >= key)
-			{
+			if (currentTreeNode->Key.Value < key) {
+				currentTreeNode = currentTreeNode->Right;
+			} else {
 				finalTreeNode = currentTreeNode;
 				currentTreeNode = currentTreeNode->Left;
-			} else
-			{
-				currentTreeNode = currentTreeNode->Right;
 			}
 		}
 
 		if (finalTreeNode == Root || key < finalTreeNode->Key.Value)
-			return Root->Value.Value;
+			return nullptr;
 		else
-			return finalTreeNode->Value.Value;
+			return &finalTreeNode->Value.Value;
 	}
 
 	template <class Visitor>
@@ -548,6 +611,8 @@ struct TMap
 	}
 };
 
+
+
 template <class TKey, class TValue>
 struct TypeDb
 {
@@ -556,6 +621,12 @@ struct TypeDb
 		TMap<TKey, TValue, 6, 0> NodeMap;
 		void * Unknown;
 	};
+
+	TValue * Find(uint32_t hash, TKey key)
+	{
+		auto & bucket = Hash[hash % 0x3FF];
+		return bucket.NodeMap.Find(key);
+	}
 
 	HashSlot Hash[1023];
 	uint32_t NumItems;
@@ -585,12 +656,16 @@ struct String
 	};
 	uint64_t Length;
 	uint64_t BufferLength;
+
+	inline String()
+		: Ptr(nullptr), Length(0), BufferLength(15)
+	{}
 };
 
 struct TValue
 {
 	Value Val;
-	uint32_t Unknown;
+	uint32_t Unknown{ 0 };
 	uint32_t __Padding;
 	String Str;
 };
@@ -614,9 +689,9 @@ public:
 	virtual bool IsUnused();
 	virtual bool IsAdapted();*/
 
-	void * VMT;
+	void * VMT{ nullptr };
 
-	uint32_t TypeId;
+	uint32_t TypeId{ 0 };
 	uint32_t __Padding;
 	TValue Value;
 };
@@ -662,6 +737,25 @@ struct TuplePtrLL
 		TuplePtrLLDOS2 dos2;
 		TuplePtrLLDOS2DE dos2de;
 	};
+
+	TuplePtrLL()
+	{
+		assert(gGameType != GameType::Unknown);
+		if (gGameType == GameType::DOS2DE) {
+			new (&dos2de.Items) List<TypedValue *>();
+		} else {
+			new (&dos2.Items) List<TypedValue *>();
+		}
+	}
+
+	~TuplePtrLL()
+	{
+		if (gGameType == GameType::DOS2DE) {
+			dos2de.Items.~List<TypedValue *>();
+		} else {
+			dos2.Items.~List<TypedValue *>();
+		}
+	}
 
 	List<TypedValue *> const & Items() const
 	{
@@ -932,7 +1026,17 @@ struct FuncSigOutParamList
 	uint8_t * Params;
 	uint32_t Count;
 
-	bool isOutParam(unsigned i) const
+	inline uint32_t numOutParams() const
+	{
+		uint32_t numParams = 0;
+		for (uint32_t i = 0; i < (Count >> 3) + ((Count & 7) ? 1 : 0) ; i++) {
+			numParams += __popcnt16(Params[i]);
+		}
+
+		return numParams;
+	}
+
+	inline bool isOutParam(unsigned i) const
 	{
 		assert(i < Count*8);
 		return ((Params[i >> 3] << (i & 7)) & 0x80) == 0x80;
@@ -973,6 +1077,11 @@ struct Function
 	FunctionType Type;
 	uint32_t Key[4];
 	uint32_t Unknown3;
+
+	inline uint32_t GetHandle() const
+	{
+		return OsirisFunctionHandle(Key[0], Key[1], Key[2], Key[3]).Handle;
+	}
 };
 
 // Osiris -> EoCApp function mapping info

@@ -288,6 +288,11 @@ namespace osidbg
 		}
 
 		void Set(std::string const & s);
+
+		inline bool operator < (STDString const & other) const
+		{
+			return _stricmp(GetPtr(), other.GetPtr()) < 0;
+		}
 	};
 
 	struct Path

@@ -208,8 +208,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	for (uint8_t * ptr = errorMessageFunc; ptr < errorMessageFunc + 64; ptr++) {
 		// Look for the instruction "mov rbx, cs:gOsirisInterface"
 		if (ptr[0] == 0x48 && ptr[1] == 0x8B && ptr[2] == 0x1D && ptr[6] < 0x02) {
-			int32_t relOffset = *reinterpret_cast<int32_t *>(ptr + 3);
-			uint64_t osiPtr = (uint64_t)ptr + relOffset + 7;
+			auto osiPtr = AsmLeaToAbsoluteAddress(ptr);
 			osirisInterface = *(OsirisInterface **)osiPtr;
 			DynGlobals.Manager = osirisInterface->Manager;
 			break;
@@ -218,6 +217,27 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 
 	if (DynGlobals.Manager == nullptr) {
 		Fail("Could not locate OsirisInterface");
+	}
+
+	// Look for TypedValue::VMT
+	uint8_t const copyCtor1[] = {
+		0x48, 0x89, 0x5C, 0x24, 0x08, // mov     [rsp+arg_0], rbx
+		0x48, 0x89, 0x74, 0x24, 0x10, // mov     [rsp+arg_8], rsi
+		0x57, // push    rdi
+		0x48, 0x83, 0xEC, 0x20, // sub     rsp, 20h
+		0x33, 0xF6, // xor     esi, esi
+		0x48, 0x8D, 0x05 // lea     rax, TypedValue::VMT
+	};
+
+	auto start = reinterpret_cast<uint8_t *>(Wrappers.OsirisDllStart);
+	auto end = start + Wrappers.OsirisDllSize - sizeof(copyCtor1);
+
+	for (auto p = start; p < end; p++) {
+		if (*p == 0x48
+			&& memcmp(copyCtor1, p, sizeof(copyCtor1)) == 0) {
+			Wrappers.Globals.TypedValueVMT = (void *)AsmLeaToAbsoluteAddress(p + 17);
+			break;
+		}
 	}
 
 	if (LoggingEnabled) {
@@ -347,7 +367,8 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	}
 #endif
 
-	StoryLoaded = true;
+	StoryLoaded = true; 
+	OsiDetectGameType();
 	Debug("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
 #if !defined(OSI_NO_DEBUGGER)
@@ -357,6 +378,10 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 		debugger_->StoryLoaded();
 	}
 #endif
+
+	if (ExtensionsEnabled) {
+		ExtensionState::Get().StoryLoaded();
+	}
 }
 
 void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
