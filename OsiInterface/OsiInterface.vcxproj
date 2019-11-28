@@ -380,6 +380,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="LuaBinding.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
+    <ClInclude Include="OsirisHelpers.h" />
     <ClInclude Include="OsirisProxy.h" />
     <ClInclude Include="OsirisWrappers.h" />
     <ClInclude Include="PropertyMap.h" />
@@ -460,6 +461,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseExtensionsOnly|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="OsirisHelpers.cpp" />
     <ClCompile Include="OsirisProxy.cpp" />
     <ClCompile Include="OsirisWrappers.cpp" />
     <ClCompile Include="PropertyMaps.cpp" />

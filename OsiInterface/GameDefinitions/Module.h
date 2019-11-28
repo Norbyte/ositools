@@ -89,6 +89,8 @@ namespace osidbg
 		uint8_t _Pad1[7];
 		ObjectSet<Module> Modules;
 		ModuleSettings Settings;
+
+		Module const * FindModByNameGuid(std::string const & nameGuid) const;
 	};
 #pragma pack(pop)
 }

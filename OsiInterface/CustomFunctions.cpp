@@ -419,6 +419,8 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 
 	Debug("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
 	*MappingCount = outputIndex;
+
+	ExtensionState::Get().StoryFunctionMappingsUpdated();
 }
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)

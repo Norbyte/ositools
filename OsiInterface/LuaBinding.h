@@ -1,7 +1,7 @@
 #pragma once
 
 #include <CustomFunctions.h>
-#include <Debugger.h>
+#include <OsirisHelpers.h>
 
 #include <cstdint>
 #include <lua.h>

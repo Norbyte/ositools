@@ -346,6 +346,26 @@ namespace osidbg
 		}
 	}
 
+	Module const * ModManager::FindModByNameGuid(std::string const & nameGuid) const
+	{
+		auto modUuidFS = NameGuidToFixedString(nameGuid);
+		if (!modUuidFS) {
+			return nullptr;
+		}
+
+		auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+
+		for (uint32_t i = 0; i < mods.Size; i++) {
+			auto const mod = mods.Buf + i;
+
+			if (mod->Info.ModuleUUID == modUuidFS) {
+				return mod;
+			}
+		}
+
+		return nullptr;
+	}
+
 	void * EntityWorld::FindComponentByHandle(ObjectHandle componentHandle, ComponentType type)
 	{
 		if ((uint32_t)type >= Components.Size) {

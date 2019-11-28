@@ -764,6 +764,13 @@ _G = {})";
 		}
 	}
 
+	void ExtensionState::StoryFunctionMappingsUpdated()
+	{
+		if (Lua) {
+			Lua->StoryFunctionMappingsUpdated();
+		}
+	}
+
 	void ExtensionState::LuaReset()
 	{
 		if (!EnableLua) {
@@ -861,5 +868,21 @@ _G = {})";
 
 		LuaLoadGameFile(reader);
 		OsiWarn("Loaded game script: " << path);
+	}
+
+	void ExtensionState::LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName)
+	{
+		auto mod = GetModManager()->FindModByNameGuid(modNameGuid);
+		if (mod == nullptr) {
+			OsiError("Mod does not exist or is not loaded: " << modNameGuid);
+			return;
+		}
+
+		std::string path("Mods/");
+		path += ToUTF8(mod->Info.Directory.GetPtr());
+		path += "/Story/RawFiles/Lua/";
+		path += fileName;
+
+		LuaLoadGameFile(path);
 	}
 }

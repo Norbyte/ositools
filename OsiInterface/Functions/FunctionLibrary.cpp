@@ -70,15 +70,32 @@ namespace osidbg
 
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
+			auto bootstrapMods = args[0].Int32 == 1;
+
 			auto & ext = ExtensionState::Get();
 			ext.LuaReset();
-			ext.LuaStartup();
+			if (bootstrapMods) {
+				ext.LuaStartup();
+			}
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
-			auto path = args[0].String;
-			ExtensionState::Get().LuaLoadGameFile(path);
+			auto & lua = ExtensionState::Get().Lua;
+			if (!lua) {
+				OsiError("Called when the Lua VM has not been initialized!");
+				return;
+			}
+
+			auto mod = args[0].String;
+			auto fileName = args[1].String;
+
+			if (strstr(fileName, "..") != nullptr) {
+				OsiError("Illegal file name");
+				return;
+			}
+
+			ExtensionState::Get().LuaLoadGameFile(mod, fileName);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
@@ -348,7 +365,9 @@ namespace osidbg
 
 		auto luaReset = std::make_unique<CustomCall>(
 			"NRD_LuaReset",
-			std::vector<CustomFunctionParam>{},
+			std::vector<CustomFunctionParam>{
+				{ "BootstrapMods", ValueType::Integer, FunctionArgumentDirection::In }
+			},
 			&func::OsiLuaReset
 		);
 		functionMgr.Register(std::move(luaReset));
@@ -356,21 +375,81 @@ namespace osidbg
 		auto luaLoad = std::make_unique<CustomCall>(
 			"NRD_LuaLoad",
 			std::vector<CustomFunctionParam>{
-				{ "Path", ValueType::String, FunctionArgumentDirection::In }
+				{ "ModNameGuid", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "FileName", ValueType::String, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaLoad
 		);
 		functionMgr.Register(std::move(luaLoad));
 
-		auto luaCall = std::make_unique<CustomCall>(
+		auto luaCall0 = std::make_unique<CustomCall>(
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg", ValueType::String, FunctionArgumentDirection::In }
+				{ "Func", ValueType::String, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
-		functionMgr.Register(std::move(luaCall));
+		functionMgr.Register(std::move(luaCall0));
+
+		auto luaCall1 = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall1));
+
+		auto luaCall2 = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall2));
+		
+		auto luaCall3 = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall3));
+		
+		auto luaCall4 = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg4", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall4));
+		
+		auto luaCall5 = std::make_unique<CustomCall>(
+			"NRD_LuaCall",
+			std::vector<CustomFunctionParam>{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg4", ValueType::String, FunctionArgumentDirection::In },
+				{ "Arg5", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaCall
+		);
+		functionMgr.Register(std::move(luaCall5));
 	}
 
 	void CustomFunctionLibrary::PostStartup()

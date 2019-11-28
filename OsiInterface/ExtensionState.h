@@ -46,13 +46,14 @@ namespace osidbg
 		void LoadConfig(Module const & mod, Json::Value & config);
 
 		void StoryLoaded();
+		void StoryFunctionMappingsUpdated();
 
 		void LuaReset();
 		void LuaStartup();
 		void LuaLoadExternalFile(std::string const & path);
 		void LuaLoadGameFile(FileReader * reader);
 		void LuaLoadGameFile(std::string const & path);
-		void LuaCall(char const * func, char const * arg);
+		void LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName);
 
 		static ExtensionState & Get();
 	};
