@@ -315,17 +315,28 @@ namespace osidbg
 		}
 	}
 
-	FileReaderPin LibraryManager::MakeFileReader(std::string const & path) const
+	std::string LibraryManager::ToPath(std::string const & path, PathRootType root) const
+	{
+		if (PathRoots == nullptr) {
+			Debug("LibraryManager::ToPath(): Path root API not available!");
+			return "";
+		}
+
+		auto rootPath = PathRoots[(unsigned)root];
+
+		std::string absolutePath = rootPath->GetPtr();
+		absolutePath += "/" + path;
+		return absolutePath;
+	}
+
+	FileReaderPin LibraryManager::MakeFileReader(std::string const & path, PathRootType root) const
 	{
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
 			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
-		auto root = PathRoots[1];
-
-		std::string absolutePath = root->GetPtr();
-		absolutePath += "/" + path;
+		auto absolutePath = ToPath(path, root);
 
 		Path lsPath;
 		lsPath.Name.Set(absolutePath);

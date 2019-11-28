@@ -50,6 +50,16 @@ namespace osidbg
 		}
 
 
+	enum PathRootType
+	{
+		Root = 0, // Filesystem root
+		Data = 1, // Game data folder
+		Public = 2, // Game data/Public folder
+		MyDocuments = 3, // User's My Documents folder
+		GameStorage = 4 // Game settings/savegames folder
+	};
+
+
 	enum class GameState : uint32_t
 	{
 		Unknown = 0,

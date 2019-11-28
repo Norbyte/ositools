@@ -118,6 +118,82 @@ namespace osidbg
 			lua->Call(func, luaArgs);
 		}
 
+#define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
+
+		std::optional<std::string> GetPathForScriptIo(char const * scriptPath)
+		{
+			std::string path = scriptPath;
+
+			if (path.find_first_not_of(SAFE_PATH_CHARS) != std::string::npos
+				|| path.find("..") != std::string::npos) {
+				OsiError("Illegal file name for external file access: '" << path << "'");
+				return {};
+			}
+
+			auto storageRoot = gOsirisProxy->GetLibraryManager().ToPath("", PathRootType::GameStorage);
+			if (storageRoot.empty()) {
+				OsiError("Could not fetch game storage path");
+				return {};
+			}
+
+			storageRoot += "/Osiris Data";
+
+			auto storageRootWstr = FromUTF8(storageRoot);
+			BOOL created = CreateDirectory(storageRootWstr.c_str(), NULL);
+			if (created == FALSE) {
+				DWORD lastError = GetLastError();
+				if (lastError != ERROR_ALREADY_EXISTS) {
+					OsiError("Could not create storage root directory: " << storageRoot);
+					return {};
+				}
+			}
+
+			return storageRoot + "/" + path;
+		}
+
+		bool LoadFile(OsiArgumentDesc & args)
+		{
+			auto path = args[0].String;
+			auto & contents = args[1].String;
+
+			auto absolutePath = GetPathForScriptIo(path);
+			if (!absolutePath) return false;
+
+			std::ifstream f(absolutePath->c_str(), std::ios::in | std::ios::binary);
+			if (!f.good()) {
+				OsiError("Could not open file: '" << path << "'");
+				return false;
+			}
+
+			std::string body;
+			f.seekg(0, std::ios::end);
+			body.resize(f.tellg());
+			f.seekg(0, std::ios::beg);
+			f.read(body.data(), body.size());
+
+			// FIXME - who owns the string?
+			contents = _strdup(body.c_str());
+
+			return true;
+		}
+
+		void SaveFile(OsiArgumentDesc const & args)
+		{
+			auto path = args[0].String;
+			auto contents = args[1].String;
+
+			auto absolutePath = GetPathForScriptIo(path);
+			if (!absolutePath) return;
+
+			std::ofstream f(absolutePath->c_str(), std::ios::out | std::ios::binary);
+			if (!f.good()) {
+				OsiError("Could not open file: '" << path << "'");
+				return;
+			}
+
+			f.write(contents, strlen(contents));
+		}
+
 		void BreakOnCharacter(OsiArgumentDesc const & args)
 		{
 			auto character = FindCharacterByNameGuid(args[0].String);
@@ -450,6 +526,26 @@ namespace osidbg
 			&func::OsiLuaCall
 		);
 		functionMgr.Register(std::move(luaCall5));
+
+		auto loadFile = std::make_unique<CustomQuery>(
+			"NRD_LoadFile",
+			std::vector<CustomFunctionParam>{
+				{ "Path", ValueType::String, FunctionArgumentDirection::In },
+				{ "Contents", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::LoadFile
+		);
+		functionMgr.Register(std::move(loadFile));
+
+		auto saveFile = std::make_unique<CustomCall>(
+			"NRD_SaveFile",
+			std::vector<CustomFunctionParam>{
+				{ "Path", ValueType::String, FunctionArgumentDirection::In },
+				{ "Contents", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::SaveFile
+		);
+		functionMgr.Register(std::move(saveFile));
 	}
 
 	void CustomFunctionLibrary::PostStartup()

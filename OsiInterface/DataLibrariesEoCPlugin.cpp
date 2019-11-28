@@ -272,18 +272,29 @@ namespace osidbg
 		}
 	}
 
-	FileReaderPin LibraryManager::MakeFileReader(std::string const & path) const
+	std::string LibraryManager::ToPath(std::string const & path, PathRootType root) const
+	{
+		if (GetPrefixForRoot == nullptr) {
+			Debug("LibraryManager::ToPath(): Path root API not available!");
+			return "";
+		}
+
+		StringView rootPath;
+		GetPrefixForRoot(&rootPath, (unsigned)root);
+
+		std::string absolutePath = rootPath.Buf;
+		absolutePath += "/" + path;
+		return absolutePath;
+	}
+
+	FileReaderPin LibraryManager::MakeFileReader(std::string const & path, PathRootType root) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
 			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
-		StringView root;
-		GetPrefixForRoot(&root, 1); // Get game data path
-
-		std::string absolutePath = root.Buf;
-		absolutePath += "/" + path;
+		auto absolutePath = ToPath(path, root);
 
 		Path lsPath;
 		lsPath.Name.Set(absolutePath);

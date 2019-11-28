@@ -95,7 +95,8 @@ namespace osidbg {
 			}
 		}
 
-		FileReaderPin MakeFileReader(std::string const & path) const;
+		std::string ToPath(std::string const & path, PathRootType root) const;
+		FileReaderPin MakeFileReader(std::string const & path, PathRootType root = PathRootType::Data) const;
 		void DestroyFileReader(FileReader * reader);
 
 		inline esv::GameActionManager * GetGameActionManager() const
