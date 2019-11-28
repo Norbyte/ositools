@@ -516,7 +516,9 @@ namespace osidbg
 		auto hash = FunctionNameHash(name_.c_str()) + arity;
 		auto func = (*functions)->Find(hash, osiSig);
 		if (func == nullptr 
-			|| ((*func)->Node.Id == 0 && (*func)->Type != FunctionType::Call)) {
+			|| ((*func)->Node.Id == 0 
+				&& (*func)->Type != FunctionType::Call
+				&& (*func)->Type != FunctionType::Query)) {
 			return nullptr;
 		}
 
