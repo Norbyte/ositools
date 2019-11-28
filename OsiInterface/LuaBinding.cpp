@@ -575,20 +575,13 @@ namespace osidbg
 
 	void OsiProxyLibrary::RegisterLib(lua_State * L)
 	{
-		static const luaL_Reg osiLib[] = {
-			/*{"Call", Call},
-			{"Query", Query},
-			{"Event", Event},
-			{"CreateCall", CreateCall},
-			{"CreateQuery", CreateQuery},
-			{"CreateEvent", CreateEvent},*/
+		static const luaL_Reg extLib[] = {
+			{"Require", Require},
 			{0,0}
 		};
 
-		luaL_newlib(L, osiLib); // stack: lib
-		lua_pushvalue(L, -2); // stack: lib, lib
-		lua_setglobal(L, "Osi"); // stack: lib
-		lua_setmetatable(L, -2); // stack: -
+		luaL_newlib(L, extLib); // stack: lib
+		lua_setglobal(L, "Ext"); // stack: -
 	}
 
 	std::string OsiProxyLibrary::GenerateOsiHelpers()
@@ -629,38 +622,11 @@ namespace osidbg
 		}
 	}
 
-	int OsiProxyLibrary::CreateEvent(lua_State * L)
+	int OsiProxyLibrary::Require(lua_State * L)
 	{
-		/*int numArgs = lua_gettop(L);
-		if (numArgs < 1) {
-			luaL_error(L, "Event must have a name!");
-		}
-
-		auto name = lua_tostring(L, 1);
-		if (name == nullptr) {
-			luaL_error(L, "Name argument incorrect");
-		}
-
-		std::vector<CustomFunctionParam> args;
-		CustomFunctionParam arg;
-		for (uint32_t i = 2; i <= numArgs; i++) {
-			auto type = lua_tostring(L, i);
-			if (type == nullptr) {
-				luaL_error(L, "Type argument incorrect");
-			}
-
-			arg.Dir = FunctionArgumentDirection::In;
-			arg.Name = "_" + std::to_string(i - 1);
-			arg.Type = StringToValueType(type);
-			if (arg.Type == ValueType::None) {
-				luaL_error(L, "Unknown argument type specified");
-			}
-		}
-
-		
-
-		auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-		gOsirisProxy->GetWrappers().Event.CallWithHooks(osiris, signature->functionHandle, args.Args());*/
+		auto modGuid = luaL_checkstring(L, 1);
+		auto fileName = luaL_checkstring(L, 2);
+		ExtensionState::Get().LuaLoadGameFile(modGuid, fileName);
 		return 0;
 	}
 

@@ -123,10 +123,6 @@ namespace osidbg
 		void RegisterLib(lua_State * L);
 		std::string GenerateOsiHelpers();
 
-		static int CreateCall(lua_State * L);
-		static int CreateEvent(lua_State * L);
-		static int CreateQuery(lua_State * L);
-
 	private:
 		static char const * const NameResolverMetatableName;
 
@@ -134,6 +130,8 @@ namespace osidbg
 		void CreateNameResolver(lua_State * L);
 
 		static int LuaIndexResolverTable(lua_State * L);
+
+		static int Require(lua_State * L);
 	};
 
 	inline void OsiReleaseArgument(OsiArgumentDesc & arg)
