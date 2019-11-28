@@ -136,6 +136,15 @@ namespace osidbg
 		static int LuaIndexResolverTable(lua_State * L);
 	};
 
+	inline void OsiReleaseArgument(OsiArgumentDesc & arg)
+	{
+		arg.NextParam = nullptr;
+	}
+
+	inline void OsiReleaseArgument(TypedValue & arg) {}
+	inline void OsiReleaseArgument(ListNode<TypedValue *> & arg) {}
+	inline void OsiReleaseArgument(ListNode<TupleLL::Item> & arg) {}
+
 	template <class T>
 	class OsiArgumentPool
 	{
@@ -166,6 +175,10 @@ namespace osidbg
 		{
 			if (tail + num != usedArguments_) {
 				throw std::runtime_error("Attempted to release arguments out of order");
+			}
+
+			for (uint32_t i = 0; i < num; i++) {
+				OsiReleaseArgument(argumentPool_[tail + i]);
 			}
 
 			usedArguments_ -= num;
