@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DataLibraries.h"
 #include "ExtensionState.h"
+#include "OsirisProxy.h"
 #include <string>
 #include <functional>
 #include <psapi.h>
@@ -423,6 +424,13 @@ namespace osidbg
 			WriteAnchor code(UICharacterSheetHook, sizeof(replacement));
 			memcpy(code.ptr(), replacement, sizeof(replacement));
 			EnabledCustomStatsPane = true;
+		}
+	}
+
+	void LibraryManager::DestroyFileReader(FileReader * reader)
+	{
+		if (FileReaderDtor != nullptr) {
+			FileReaderDtor(reader);
 		}
 	}
 }

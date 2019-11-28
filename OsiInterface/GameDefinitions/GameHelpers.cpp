@@ -90,16 +90,23 @@ namespace osidbg
 	}
 
 
-	std::string FileReader::ToString() const
+	FileReaderPin::~FileReaderPin()
 	{
-		if (!IsLoaded) {
+		if (reader_ != nullptr) {
+			gOsirisProxy->GetLibraryManager().DestroyFileReader(reader_);
+		}
+	}
+
+	std::string FileReaderPin::ToString() const
+	{
+		if (!IsLoaded()) {
 			OsiError("File not loaded!");
 			return "";
 		}
 
 		std::string contents;
-		contents.resize(FileSize);
-		memcpy(contents.data(), ScratchBufPtr, FileSize);
+		contents.resize(Size());
+		memcpy(contents.data(), Buf(), Size());
 		return contents;
 	}
 

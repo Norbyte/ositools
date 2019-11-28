@@ -182,8 +182,8 @@ namespace osidbg
 			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(configFile);
 
-			if (reader != nullptr && reader->IsLoaded) {
-				LoadConfig(mod, reader->ToString());
+			if (reader.IsLoaded()) {
+				LoadConfig(mod, reader.ToString());
 			}
 		}
 

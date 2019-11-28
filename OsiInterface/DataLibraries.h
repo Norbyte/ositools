@@ -12,7 +12,6 @@
 
 namespace osidbg {
 
-
 	struct Pattern
 	{
 		void FromString(std::string const & s);
@@ -96,7 +95,8 @@ namespace osidbg {
 			}
 		}
 
-		FileReader * MakeFileReader(std::string const & path) const;
+		FileReaderPin MakeFileReader(std::string const & path) const;
+		void DestroyFileReader(FileReader * reader);
 
 		inline esv::GameActionManager * GetGameActionManager() const
 		{
@@ -225,6 +225,7 @@ namespace osidbg {
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
 		ls__FileReader__FileReader FileReaderCtor{ nullptr };
+		ls__FileReader__Dtor FileReaderDtor{ nullptr };
 		STDString ** PathRoots{ nullptr };
 
 		void ** LevelManager{ nullptr };

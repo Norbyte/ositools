@@ -807,7 +807,7 @@ _G = {})";
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
-			if (reader != nullptr && reader->IsLoaded) {
+			if (reader.IsLoaded()) {
 				OsiWarn("Found bootstrap file: " << bootstrapFile);
 				LuaLoadGameFile(reader);
 			}
@@ -838,19 +838,19 @@ _G = {})";
 		OsiWarn("Loaded external script: " << path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(FileReader * reader)
+	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader)
 	{
 		if (!Lua) {
 			OsiError("Called when the Lua VM has not been initialized!");
 			return;
 		}
 
-		if (reader == nullptr || !reader->IsLoaded) {
+		if (!reader.IsLoaded()) {
 			OsiError("Attempted to load script from invalid file reader");
 			return;
 		}
 
-		Lua->LoadScript(reader->ToString());
+		Lua->LoadScript(reader.ToString());
 	}
 
 	void ExtensionState::LuaLoadGameFile(std::string const & path)
@@ -861,7 +861,7 @@ _G = {})";
 		}
 
 		auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(path);
-		if (reader == nullptr || !reader->IsLoaded) {
+		if (!reader.IsLoaded()) {
 			OsiError("Script file could not be opened: " << path);
 			return;
 		}

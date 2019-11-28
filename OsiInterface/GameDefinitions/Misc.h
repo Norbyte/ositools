@@ -149,12 +149,62 @@ namespace osidbg
 		uint8_t _Pad2[4];
 		void * FileObject;
 		uint64_t _Fill[16];
+	};
+
+	class FileReaderPin
+	{
+	public:
+		inline FileReaderPin(FileReader * reader)
+			: reader_(reader)
+		{}
+
+		~FileReaderPin();
+
+		FileReaderPin(FileReaderPin const &) = delete;
+		FileReaderPin & operator =(FileReaderPin const &) = delete;
+		FileReaderPin & operator =(FileReaderPin &&) = delete;
+
+		inline FileReaderPin(FileReaderPin && other)
+		{
+			if (&other != this) {
+				reader_ = other.reader_;
+				other.reader_ = nullptr;
+			}
+		}
+
+		bool IsLoaded() const
+		{
+			return reader_ != nullptr && reader_->IsLoaded;
+		}
+
+		void * Buf() const
+		{
+			if (IsLoaded()) {
+				return reader_->ScratchBufPtr;
+			} else {
+				return nullptr;
+			}
+		}
+
+		std::size_t Size() const
+		{
+			if (IsLoaded()) {
+				return reader_->FileSize;
+			} else {
+				return 0;
+			}
+		}
 
 		std::string ToString() const;
+
+	private:
+		FileReader * reader_;
 	};
 
 
+
 	typedef void (* ls__FileReader__FileReader)(FileReader * self, Path * path, unsigned int type);
+	typedef void (* ls__FileReader__Dtor)(FileReader * self);
 	typedef StringView * (* ls__Path__GetPrefixForRoot)(StringView * path, unsigned int rootType);
 #pragma pack(pop)
 }

@@ -259,22 +259,24 @@ namespace osidbg
 	void LibraryManager::FindFileSystemCoreLib()
 	{
 		auto getPrefixProc = GetProcAddress(coreLib_, "?GetPrefixForRoot@Path@ls@@CA?AV?$_StringView@DX@2@W4EPathRoot@2@@Z");
-		auto fileReaderProc = GetProcAddress(coreLib_, "??0FileReader@ls@@QEAA@AEBVPath@1@W4EType@01@@Z");
+		auto fileReaderCtorProc = GetProcAddress(coreLib_, "??0FileReader@ls@@QEAA@AEBVPath@1@W4EType@01@@Z");
+		auto fileReaderDtorProc = GetProcAddress(coreLib_, "??1FileReader@ls@@QEAA@XZ");
 
 		GetPrefixForRoot = (ls__Path__GetPrefixForRoot)getPrefixProc;
-		FileReaderCtor = (ls__FileReader__FileReader)fileReaderProc;
+		FileReaderCtor = (ls__FileReader__FileReader)fileReaderCtorProc;
+		FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
 
-		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
+		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr || FileReaderDtor == nullptr) {
 			Debug("LibraryManager::FindFileSystemCoreLib(): Could not find filesystem functions");
 			CriticalInitFailed = true;
 		}
 	}
 
-	FileReader * LibraryManager::MakeFileReader(std::string const & path) const
+	FileReaderPin LibraryManager::MakeFileReader(std::string const & path) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
 			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
-			return nullptr;
+			return FileReaderPin(nullptr);
 		}
 
 		StringView root;
@@ -288,7 +290,7 @@ namespace osidbg
 
 		auto reader = new FileReader();
 		FileReaderCtor(reader, &lsPath, 2);
-		return reader;
+		return FileReaderPin(reader);
 	}
 
 	void LibraryManager::FindGameActionManagerEoCPlugin()

@@ -308,17 +308,18 @@ namespace osidbg
 			PathRoots = (STDString **)roots;
 		}, false);
 
+		// TODO - find FileReaderDtor
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
 			Debug("LibraryManager::FindFileSystemEoCApp(): Could not find filesystem functions");
 			CriticalInitFailed = true;
 		}
 	}
 
-	FileReader * LibraryManager::MakeFileReader(std::string const & path) const
+	FileReaderPin LibraryManager::MakeFileReader(std::string const & path) const
 	{
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
 			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
-			return nullptr;
+			return FileReaderPin(nullptr);
 		}
 
 		auto root = PathRoots[1];
@@ -331,7 +332,7 @@ namespace osidbg
 
 		auto reader = new FileReader();
 		FileReaderCtor(reader, &lsPath, 2);
-		return reader;
+		return FileReaderPin(reader);
 	}
 
 	void LibraryManager::FindGameActionManagerEoCApp()
