@@ -210,7 +210,9 @@ namespace osidbg
 		~LuaState();
 
 		LuaState(LuaState const &) = delete;
+		LuaState(LuaState &&) = delete;
 		LuaState & operator = (LuaState const &) = delete;
+		LuaState & operator = (LuaState &&) = delete;
 
 		inline lua_State * State()
 		{
@@ -249,6 +251,7 @@ namespace osidbg
 
 		void OpenLibs();
 		void StoryLoaded();
+		void StoryFunctionMappingsUpdated();
 
 		bool LoadScript(std::string const & script, std::string const & name = "");
 

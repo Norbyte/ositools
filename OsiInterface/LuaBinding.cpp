@@ -596,7 +596,7 @@ namespace osidbg
 		auto const & sigs = gOsirisProxy->GetCustomFunctionInjector().OsiSymbols();
 		for (auto const & sig : sigs) {
 			if (sig.EoCFunctionId != 0 && sig.params.size() <= 16) {
-				ss << "local " << sig.name << " = Osi." << sig.name << "\r\n";
+				ss << sig.name << " = Osi." << sig.name << "\r\n";
 			}
 		}
 
@@ -682,8 +682,6 @@ namespace osidbg
 		identityAdapters_.UpdateAdapters();
 
 		proxy_.Register(state_);
-		auto helpers = proxy_.GenerateOsiHelpers();
-		LoadScript(helpers, "bootstrapper");
 
 		auto sandbox = R"(
 dofile = function ()
@@ -753,6 +751,12 @@ _G = {})";
 		}
 	}
 
+	void LuaState::StoryFunctionMappingsUpdated()
+	{
+		auto helpers = proxy_.GenerateOsiHelpers();
+		LoadScript(helpers, "bootstrapper");
+	}
+
 	void ExtensionState::StoryLoaded()
 	{
 		if (Lua) {
@@ -767,7 +771,11 @@ _G = {})";
 			return;
 		}
 
+		// Destroy previous instance first to make sure that no dangling
+		// references are made to the old state while constructing the new
+		Lua.reset();
 		Lua = std::make_unique<LuaState>();
+		Lua->StoryFunctionMappingsUpdated();
 		OsiWarn("LUA VM reset.");
 	}
 
