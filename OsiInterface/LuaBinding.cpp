@@ -668,7 +668,20 @@ loadstring = function ()
 	error("loadstring() has been disabled for security reasons")
 end
 
-_G = {})";
+rawget = function ()
+	error("rawget() has been disabled for security reasons")
+end
+
+rawset = function ()
+	error("rawset() has been disabled for security reasons")
+end
+
+rawequal = function ()
+	error("rawequal() has been disabled for security reasons")
+end
+
+debug = nil
+)";
 		LoadScript(sandbox, "sandbox");
 	}
 
