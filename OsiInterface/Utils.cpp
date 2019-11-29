@@ -58,6 +58,6 @@ void CreateConsole(HMODULE hModule)
 	Debug("*                                                                            *");
 	Debug("******************************************************************************");
 	Debug("");
-	Debug("OsiInterface v%d built on " __TIMESTAMP__, osidbg::CurrentVersion);
+	Debug("OsiInterface v%d built on " __DATE__ " " __TIME__, osidbg::CurrentVersion);
 }
 

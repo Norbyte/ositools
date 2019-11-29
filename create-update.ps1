@@ -1,5 +1,5 @@
-msbuild OsiTools.sln /p:Configuration=Release /t:Rebuild /m
-msbuild OsiTools.sln /p:Configuration=ReleaseExtensionsOnly /t:Rebuild /m
+msbuild OsiTools.sln /p:Configuration=Release /t:Build /m
+msbuild OsiTools.sln /p:Configuration=ReleaseExtensionsOnly /t:Build /m
 
 Remove-Item LatestBuild -Recurse -ErrorAction SilentlyContinue
 

@@ -306,6 +306,8 @@ namespace osidbg
 
 	void LibraryManager::ShowStartupError(std::wstring const & msg, bool wait, bool exitGame)
 	{
+		Debug(L"STARTUP ERROR: %s", msg.c_str());
+
 		if (EoCClient == nullptr
 			|| EoCClientHandleError == nullptr
 			|| EoCAlloc == nullptr) {

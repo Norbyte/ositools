@@ -52,13 +52,6 @@ void OsirisProxy::Initialize()
 			Wrappers.InitializeExtensions();
 			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
 			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
-
-#if 0
-			auto headers = CustomFunctions.GenerateHeaders();
-			Debug(" === EXTENSION HEADERS ===");
-			std::cout << headers << std::endl;
-			Debug(" === END EXTENSION HEADERS ===");
-#endif
 		}
 		else {
 			Debug("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");

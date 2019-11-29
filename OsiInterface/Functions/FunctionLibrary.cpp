@@ -249,6 +249,7 @@ namespace osidbg
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
+		unsigned numConfigs{ 0 };
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods.Buf[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
@@ -257,13 +258,16 @@ namespace osidbg
 
 			if (reader.IsLoaded()) {
 				LoadConfig(mod, reader.ToString());
+				numConfigs++;
 			}
 		}
 
-		Debug("Mod configuration loaded.");
-		Debug("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
-			EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane, 
-			EnableFormulaOverrides, MinimumVersion);
+		if (numConfigs > 0) {
+			Debug("%d mod configuration(s) configuration loaded.", numConfigs);
+			Debug("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
+				EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane,
+				EnableFormulaOverrides, MinimumVersion);
+		}
 
 		if (CurrentVersion < MinimumVersion && HighestVersionMod != nullptr) {
 			std::wstringstream msg;
@@ -365,6 +369,9 @@ namespace osidbg
 
 	void CustomFunctionLibrary::Register()
 	{
+		auto & functionMgr = osiris_.GetCustomFunctionManager();
+		functionMgr.BeginStaticRegistrationPhase();
+
 		RegisterHelperFunctions();
 		RegisterMathFunctions();
 		RegisterStatFunctions();
@@ -376,8 +383,6 @@ namespace osidbg
 		RegisterItemFunctions();
 		RegisterCharacterFunctions();
 		RegisterCustomStatFunctions();
-
-		auto & functionMgr = osiris_.GetCustomFunctionManager();
 
 		auto breakOnCharacter = std::make_unique<CustomCall>(
 			"NRD_BreakOnCharacter",
@@ -543,6 +548,8 @@ namespace osidbg
 			&func::SaveFile
 		);
 		functionMgr.Register(std::move(saveFile));
+
+		functionMgr.EndStaticRegistrationPhase();
 	}
 
 	void CustomFunctionLibrary::PostStartup()
@@ -576,6 +583,9 @@ namespace osidbg
 	void CustomFunctionLibrary::OnBaseModuleLoaded()
 	{
 		Debug("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
+		auto & functionMgr = osiris_.GetCustomFunctionManager();
+		functionMgr.ClearDynamicEntries();
+
 		// FIXME - move extension state here?
 		gCharacterStatsGetters.ResetExtension();
 

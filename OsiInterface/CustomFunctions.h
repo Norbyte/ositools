@@ -111,6 +111,10 @@ namespace osidbg
 			: name_(name), params_(params)
 		{}
 
+		virtual ~CustomFunction();
+
+		virtual FunctionType GetType() = 0;
+
 		inline std::string Name() const
 		{
 			return name_;
@@ -147,29 +151,59 @@ namespace osidbg
 		bool ValidateParam(CustomFunctionParam const & param, OsiArgumentValue const & value) const;
 	};
 
-	class CustomCall : public CustomFunction
+	class CustomCallBase : public CustomFunction
+	{
+	public:
+		inline CustomCallBase(std::string const & name, std::vector<CustomFunctionParam> params)
+			: CustomFunction(name, std::move(params))
+		{}
+
+		virtual bool Call(OsiArgumentDesc const & params) = 0;
+
+		inline virtual FunctionType GetType() override
+		{
+			return FunctionType::Call;
+		}
+	};
+
+	class CustomCall : public CustomCallBase
 	{
 	public:
 		inline CustomCall(std::string const & name, std::vector<CustomFunctionParam> params,
 			std::function<void (OsiArgumentDesc const &)> handler)
-			: CustomFunction(name, std::move(params)), handler_(handler)
+			: CustomCallBase(name, std::move(params)), handler_(handler)
 		{}
 
-		bool Call(OsiArgumentDesc const & params);
+		virtual bool Call(OsiArgumentDesc const & params) override;
 
 	private:
 		std::function<void(OsiArgumentDesc const &)> handler_;
 	};
 
-	class CustomQuery : public CustomFunction
+	class CustomQueryBase : public CustomFunction
+	{
+	public:
+		inline CustomQueryBase(std::string const & name, std::vector<CustomFunctionParam> params)
+			: CustomFunction(name, std::move(params))
+		{}
+
+		virtual bool Query(OsiArgumentDesc & params) = 0;
+
+		inline virtual FunctionType GetType() override
+		{
+			return FunctionType::Query;
+		}
+	};
+
+	class CustomQuery : public CustomQueryBase
 	{
 	public:
 		inline CustomQuery(std::string const & name, std::vector<CustomFunctionParam> params,
 			std::function<bool(OsiArgumentDesc &)> handler)
-			: CustomFunction(name, std::move(params)), handler_(handler)
+			: CustomQueryBase(name, std::move(params)), handler_(handler)
 		{}
 
-		bool Query(OsiArgumentDesc & params);
+		virtual bool Query(OsiArgumentDesc & params) override;
 
 	private:
 		std::function<bool(OsiArgumentDesc &)> handler_;
@@ -181,19 +215,36 @@ namespace osidbg
 		inline CustomEvent(std::string const & name, std::vector<CustomFunctionParam> params)
 			: CustomFunction(name, std::move(params))
 		{}
+
+		inline virtual FunctionType GetType() override
+		{
+			return FunctionType::Event;
+		}
 	};
 
 	class CustomFunctionManager
 	{
 	public:
 		// Arbitrary ID for custom extension functions
-		static constexpr uint32_t CallClassId = 1337;
-		static constexpr uint32_t QueryClassId = 1338;
-		static constexpr uint32_t EventClassId = 1339;
+		static constexpr uint32_t CallClassIdMin = 1400; // 1400..1499
+		static constexpr uint32_t CallClassIdMax = 1499;
+		static constexpr uint32_t QueryClassIdMin = 1500; // 1500..1599
+		static constexpr uint32_t QueryClassIdMax = 1599;
+		static constexpr uint32_t EventClassIdMin = 1600; // 1600..1699
+		static constexpr uint32_t EventClassIdMax = 1699;
 
-		FunctionHandle Register(std::unique_ptr<CustomCall> call);
-		FunctionHandle Register(std::unique_ptr<CustomQuery> qry);
+		void BeginStaticRegistrationPhase();
+		void EndStaticRegistrationPhase();
+		void ClearDynamicEntries();
+
+		FunctionHandle Register(std::unique_ptr<CustomCallBase> call);
+		FunctionHandle Register(std::unique_ptr<CustomQueryBase> qry);
 		FunctionHandle Register(std::unique_ptr<CustomEvent> event);
+
+		std::optional<FunctionHandle> RegisterDynamic(std::unique_ptr<CustomCallBase> call);
+		std::optional<FunctionHandle> RegisterDynamic(std::unique_ptr<CustomQueryBase> qry);
+		std::optional<FunctionHandle> RegisterDynamic(std::unique_ptr<CustomEvent> event);
+
 		CustomFunction * Find(FunctionNameAndArity const & signature);
 
 		bool Call(FunctionHandle handle, OsiArgumentDesc const & params);
@@ -204,12 +255,27 @@ namespace osidbg
 		void PreProcessStory(std::string const & original, std::string & postProcessed);
 
 	private:
+		struct DynamicFunctionBindingInfo
+		{
+			FunctionType Type; 
+			uint32_t Index;
+			CustomFunction * Function;
+		};
+
 		std::unordered_map<FunctionNameAndArity, CustomFunction *> signatures_;
-		std::vector<std::unique_ptr<CustomCall>> calls_;
-		std::vector<std::unique_ptr<CustomQuery>> queries_;
+		std::unordered_map<FunctionNameAndArity, DynamicFunctionBindingInfo> dynamicSignatures_;
+
+		std::vector<std::unique_ptr<CustomCallBase>> calls_;
+		std::vector<std::unique_ptr<CustomQueryBase>> queries_;
 		std::vector<std::unique_ptr<CustomEvent>> events_;
 
+		std::size_t numStaticCalls_{ 0 };
+		std::size_t numStaticQueries_{ 0 };
+		std::size_t numStaticEvents_{ 0 };
+		bool staticRegistrationDone_{ false };
+
 		void RegisterSignature(CustomFunction * func);
+		bool RegisterDynamicSignature(CustomFunction * func, uint32_t & index);
 	};
 
 	struct OsiSymbolInfo

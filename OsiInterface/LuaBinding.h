@@ -17,6 +17,25 @@ namespace osidbg
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 	void OsiToLua(lua_State * L, TypedValue const & tv);
 
+	class LuaRegistryEntry
+	{
+	public:
+		LuaRegistryEntry(lua_State * L, int index);
+		~LuaRegistryEntry();
+
+		LuaRegistryEntry(LuaRegistryEntry const &) = delete;
+		LuaRegistryEntry(LuaRegistryEntry &&);
+
+		LuaRegistryEntry & operator = (LuaRegistryEntry const &) = delete;
+		LuaRegistryEntry & operator = (LuaRegistryEntry &&);
+
+		void Push();
+
+	private:
+		lua_State * L_;
+		int ref_;
+	};
+
 	class LuaCallable {};
 
 	template <class T>
@@ -114,6 +133,36 @@ namespace osidbg
 	};
 
 
+	class CustomLuaCall : public CustomCallBase
+	{
+	public:
+		inline CustomLuaCall(std::string const & name, std::vector<CustomFunctionParam> params,
+			LuaRegistryEntry handler)
+			: CustomCallBase(name, std::move(params)), handler_(std::move(handler))
+		{}
+
+		virtual bool Call(OsiArgumentDesc const & params) override;
+
+	private:
+		LuaRegistryEntry handler_;
+	};
+
+
+	class CustomLuaQuery : public CustomQueryBase
+	{
+	public:
+		inline CustomLuaQuery(std::string const & name, std::vector<CustomFunctionParam> params,
+			LuaRegistryEntry handler)
+			: CustomQueryBase(name, std::move(params)), handler_(std::move(handler))
+		{}
+
+		virtual bool Query(OsiArgumentDesc & params) override;
+
+	private:
+		LuaRegistryEntry handler_;
+	};
+
+
 	class OsiProxyLibrary
 	{
 	public:
@@ -132,6 +181,9 @@ namespace osidbg
 		static int LuaIndexResolverTable(lua_State * L);
 
 		static int Require(lua_State * L);
+		static int NewCall(lua_State * L);
+		static int NewQuery(lua_State * L);
+		static int NewEvent(lua_State * L);
 	};
 
 	inline void OsiReleaseArgument(OsiArgumentDesc & arg)
@@ -260,7 +312,12 @@ namespace osidbg
 			return tupleNodePool_;
 		}
 
-		void OpenLibs();
+		inline bool StartupDone() const
+		{
+			return startupDone_;
+		}
+
+		void FinishStartup();
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 
@@ -298,5 +355,8 @@ namespace osidbg
 		// ID of current story instance.
 		// Used to invalidate function/node pointers in Lua userdata objects
 		uint32_t generationId_{ 0 };
+		bool startupDone_{ false };
+
+		void OpenLibs();
 	};
 }

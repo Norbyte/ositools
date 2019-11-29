@@ -2,6 +2,7 @@
 #include <OsirisProxy.h>
 #include <LuaBinding.h>
 #include <fstream>
+#include <regex>
 
 
 namespace osidbg
@@ -171,6 +172,42 @@ namespace osidbg
 			break;
 		}
 	}
+
+
+	LuaRegistryEntry::LuaRegistryEntry(lua_State * L, int index)
+		: L_(L)
+	{
+		lua_pushvalue(L, index);
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+
+	LuaRegistryEntry::~LuaRegistryEntry()
+	{
+		if (ref_ != -1) {
+			luaL_unref(L_, LUA_REGISTRYINDEX, ref_);
+		}
+	}
+
+	LuaRegistryEntry::LuaRegistryEntry(LuaRegistryEntry && other)
+		: L_(other.L_), ref_(other.ref_)
+	{
+		other.ref_ = -1;
+	}
+
+	LuaRegistryEntry & LuaRegistryEntry::operator = (LuaRegistryEntry && other)
+	{
+		L_ = other.L_;
+		ref_ = other.ref_;
+		other.ref_ = -1;
+		return *this;
+	}
+
+	void LuaRegistryEntry::Push()
+	{
+		assert(ref_ != -1);
+		lua_rawgeti(L_, LUA_REGISTRYINDEX, ref_);
+	}
+
 
 	bool LuaOsiFunction::Bind(Function const * func, LuaState & state)
 	{
@@ -577,6 +614,9 @@ namespace osidbg
 	{
 		static const luaL_Reg extLib[] = {
 			{"Require", Require},
+			{"NewCall", NewCall},
+			{"NewQuery", NewQuery},
+			{"NewEvent", NewEvent},
 			{0,0}
 		};
 
@@ -622,11 +662,218 @@ namespace osidbg
 		}
 	}
 
+
+	bool CustomLuaCall::Call(OsiArgumentDesc const & params)
+	{
+		if (!ValidateArgs(params)) {
+			return false;
+		}
+
+		LuaStatePin lua(ExtensionState::Get());
+		if (!lua) {
+			OsiError("Call failed: Lua state not initialized");
+			return false;
+		}
+
+		auto L = lua->State();
+		handler_.Push();
+
+		auto param = &params;
+		int numParams{ 0 };
+		while (param != nullptr) {
+			OsiToLua(L, param->Value);
+			numParams++;
+			param = param->NextParam;
+		}
+
+		if (lua_pcall(L, numParams, 0, 0) != 0) {
+			OsiError("Handler for '" << Name() << "' failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	bool CustomLuaQuery::Query(OsiArgumentDesc & params)
+	{
+		if (!ValidateArgs(params)) {
+			return false;
+		}
+
+		LuaStatePin lua(ExtensionState::Get());
+		if (!lua) {
+			OsiError("Call failed: Lua state not initialized");
+			return false;
+		}
+
+		auto L = lua->State();
+		handler_.Push();
+
+		auto const & funcParams = Params();
+		int numParams{ 0 };
+		int numOutParams{ 0 };
+
+		auto param = &params;
+		int paramIndex{ 0 };
+		while (param != nullptr) {
+			if (funcParams[paramIndex].Dir == FunctionArgumentDirection::In) {
+				OsiToLua(L, param->Value);
+				numParams++;
+			} else {
+				numOutParams++;
+			}
+
+			param = param->NextParam;
+			paramIndex++;
+		}
+
+		if (lua_pcall(L, numParams, numOutParams, 0) != 0) {
+			OsiError("Handler for '" << Name() << "' failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		param = &params;
+		paramIndex = 0;
+		int stackIndex{ -numOutParams };
+		while (param != nullptr) {
+			if (funcParams[paramIndex].Dir == FunctionArgumentDirection::Out) {
+				LuaToOsi(L, stackIndex, param->Value, funcParams[paramIndex].Type);
+				numParams++;
+				stackIndex++;
+			}
+
+			param = param->NextParam;
+			paramIndex++;
+		}
+
+		lua_pop(L, numOutParams);
+
+		return true;
+	}
+
+
 	int OsiProxyLibrary::Require(lua_State * L)
 	{
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
 		ExtensionState::Get().LuaLoadGameFile(modGuid, fileName);
+		return 0;
+	}
+
+	const std::regex inOutParamRe("^\\s*(\\[(in|out)\\])?\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
+	const std::regex inParamRe("^\\s*\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
+
+	CustomFunctionParam ParseCustomFunctionParam(lua_State * L, std::string const & param, bool isQuery)
+	{
+		CustomFunctionParam parsed;
+
+		std::smatch paramMatch;
+		if (!std::regex_match(param, paramMatch, isQuery ? inOutParamRe : inParamRe)) {
+			luaL_error(L, "Parameter string malformed: %s", param.c_str());
+		}
+
+		if (isQuery && paramMatch[2].matched) {
+			auto dir = paramMatch[2].str();
+			if (dir == "in") {
+				parsed.Dir = FunctionArgumentDirection::In;
+			} else if (dir == "out") {
+				parsed.Dir = FunctionArgumentDirection::Out;
+			} else {
+				luaL_error(L, "Invalid parameter direction: %s", dir.c_str());
+			}
+		} else {
+			parsed.Dir = FunctionArgumentDirection::In;
+		}
+
+		auto type = paramMatch[isQuery ? 3 : 1].str();
+		parsed.Type = StringToValueType(type);
+		if (parsed.Type == ValueType::None) {
+			luaL_error(L, "Unsupported parameter type: %s", type.c_str());
+		}
+
+		parsed.Name = paramMatch[isQuery ? 4 : 2].str().substr(1);
+		return parsed;
+	}
+
+	void ParseCustomFunctionParams(lua_State * L, char const * s, 
+		std::vector<CustomFunctionParam> & params, bool isQuery)
+	{
+		std::string param;
+		std::istringstream paramStream(s);
+
+		while (std::getline(paramStream, param, ',')) {
+			auto parsedParam = ParseCustomFunctionParam(L, param, isQuery);
+			params.push_back(parsedParam);
+		}
+	}
+
+	int OsiProxyLibrary::NewCall(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (!lua) luaL_error(L, "Exiting");
+
+		if (lua->StartupDone()) luaL_error(L, "Attempted to register call after Lua startup phase");
+
+		luaL_checktype(L, 1, LUA_TFUNCTION);
+		auto funcName = luaL_checkstring(L, 2);
+		auto args = luaL_checkstring(L, 3);
+
+		std::vector<CustomFunctionParam> argList;
+		ParseCustomFunctionParams(L, args, argList, false);
+
+		LuaRegistryEntry func(L, 1);
+		auto call = std::make_unique<CustomLuaCall>(funcName, argList, std::move(func));
+
+		auto & functionMgr = gOsirisProxy->GetCustomFunctionManager();
+		functionMgr.RegisterDynamic(std::move(call));
+		
+		return 0;
+	}
+
+	int OsiProxyLibrary::NewQuery(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (!lua) luaL_error(L, "Exiting");
+
+		if (lua->StartupDone()) luaL_error(L, "Attempted to register query after Lua startup phase");
+
+		luaL_checktype(L, 1, LUA_TFUNCTION);
+		auto funcName = luaL_checkstring(L, 2);
+		auto args = luaL_checkstring(L, 3);
+
+		std::vector<CustomFunctionParam> argList;
+		ParseCustomFunctionParams(L, args, argList, true);
+
+		LuaRegistryEntry func(L, 1);
+		auto query = std::make_unique<CustomLuaQuery>(funcName, argList, std::move(func));
+
+		auto & functionMgr = gOsirisProxy->GetCustomFunctionManager();
+		functionMgr.RegisterDynamic(std::move(query));
+
+		return 0;
+	}
+
+	int OsiProxyLibrary::NewEvent(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (!lua) luaL_error(L, "Exiting");
+
+		if (lua->StartupDone()) luaL_error(L, "Attempted to register event after Lua startup phase");
+
+		auto funcName = luaL_checkstring(L, 1);
+		auto args = luaL_checkstring(L, 2);
+
+		std::vector<CustomFunctionParam> argList;
+		ParseCustomFunctionParams(L, args, argList, false);
+
+		auto customEvt = std::make_unique<CustomEvent>(funcName, argList);
+
+		auto & functionMgr = gOsirisProxy->GetCustomFunctionManager();
+		functionMgr.RegisterDynamic(std::move(customEvt));
+
 		return 0;
 	}
 
@@ -687,7 +934,17 @@ debug = nil
 
 	LuaState::~LuaState()
 	{
+		if (gOsirisProxy) {
+			gOsirisProxy->GetCustomFunctionManager().ClearDynamicEntries();
+		}
+
 		lua_close(state_);
+	}
+
+	void LuaState::FinishStartup()
+	{
+		assert(!startupDone_);
+		startupDone_ = true;
 	}
 
 	void LuaState::OpenLibs()
@@ -838,6 +1095,8 @@ debug = nil
 				LuaLoadGameFile(reader);
 			}
 		}
+		
+		lua->FinishStartup();
 	}
 
 	void ExtensionState::LuaLoadExternalFile(std::string const & path)
