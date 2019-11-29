@@ -35,7 +35,6 @@ namespace osidbg
 
 		DamageHelperPool DamageHelpers;
 		PendingStatuses PendingStatuses;
-		std::unique_ptr<LuaState> Lua;
 		std::unique_ptr<ObjectSet<eoc::ItemDefinition>> PendingItemClone;
 		std::mt19937_64 OsiRng;
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
@@ -48,14 +47,62 @@ namespace osidbg
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 
-		void LuaReset();
-		void LuaStartup();
+		void IncLuaRefs();
+		void DecLuaRefs();
+		void LuaReset(bool startup);
 		void LuaLoadExternalFile(std::string const & path);
 		void LuaLoadGameFile(FileReaderPin & reader);
 		void LuaLoadGameFile(std::string const & path);
 		void LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName);
 
 		static ExtensionState & Get();
+
+	protected:
+		friend class LuaStatePin;
+		std::unique_ptr<LuaState> Lua;
+		unsigned LuaRefs{ 0 };
+		bool LuaPendingDelete{ false };
+		bool LuaPendingStartup{ false };
+
+	private:
+		void LuaResetInternal();
+		void LuaStartup();
+	};
+
+	class LuaStatePin
+	{
+	public:
+		inline LuaStatePin(ExtensionState & state)
+			: state_(state)
+		{
+			state_.IncLuaRefs();
+		}
+
+		inline ~LuaStatePin()
+		{
+			state_.DecLuaRefs();
+		}
+
+		inline operator bool() const
+		{
+			return !state_.LuaPendingDelete
+				&& state_.Lua;
+		}
+
+		inline LuaState & Get() const
+		{
+			assert(*this);
+			return *state_.Lua;
+		}
+
+		inline LuaState * operator ->() const
+		{
+			assert(*this);
+			return state_.Lua.get();
+		}
+
+	private:
+		ExtensionState & state_;
 	};
 
 }

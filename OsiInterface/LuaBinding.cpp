@@ -554,8 +554,8 @@ namespace osidbg
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = luaL_checkstring(L, 2);
 
-		auto & state = *ExtensionState::Get().Lua;
-		LuaOsiFunctionNameProxy::New(L, name, std::ref(state)); // stack: tab, name, proxy
+		LuaStatePin lua(ExtensionState::Get());
+		LuaOsiFunctionNameProxy::New(L, name, std::ref(lua.Get())); // stack: tab, name, proxy
 
 		lua_pushvalue(L, 1); // stack: fun, tab
 		lua_pushstring(L, name); // stack: fun, tab, name
@@ -752,12 +752,51 @@ debug = nil
 		}
 	}
 
-	void ExtensionState::LuaReset()
+
+	void ExtensionState::IncLuaRefs()
+	{
+		assert(Lua);
+		LuaRefs++;
+	}
+
+	void ExtensionState::DecLuaRefs()
+	{
+		assert(LuaRefs > 0);
+		LuaRefs--;
+		if (LuaRefs == 0 && LuaPendingDelete) {
+			LuaResetInternal();
+		}
+	}
+
+	void ExtensionState::LuaReset(bool startup)
 	{
 		if (!EnableLua) {
-			OsiWarn("LUA extensions not enabled; not initializing Lua VM");
+			OsiWarn("Lua extensions not enabled; not initializing Lua VM");
 			return;
 		}
+
+		if (LuaPendingDelete) {
+			OsiWarn("State delete is already pending!");
+		}
+
+		LuaPendingDelete = true;
+		if (startup) {
+			LuaPendingStartup = true;
+		}
+
+		if (LuaRefs == 0) {
+			LuaResetInternal();
+		} else {
+			OsiWarn("Lua state deletion deferred (" << LuaRefs << " references still alive)");
+		}
+	}
+
+	void ExtensionState::LuaResetInternal()
+	{
+		assert(LuaPendingDelete);
+		assert(LuaRefs == 0);
+
+		LuaPendingDelete = false;
 
 		// Destroy previous instance first to make sure that no dangling
 		// references are made to the old state while constructing the new
@@ -765,11 +804,17 @@ debug = nil
 		Lua = std::make_unique<LuaState>();
 		Lua->StoryFunctionMappingsUpdated();
 		OsiWarn("LUA VM reset.");
+
+		if (LuaPendingStartup) {
+			LuaPendingStartup = false;
+			LuaStartup();
+		}
 	}
 
 	void ExtensionState::LuaStartup()
 	{
-		if (!Lua) {
+		LuaStatePin lua(*this);
+		if (!lua) {
 			OsiError("Called when the Lua VM has not been initialized!");
 			return;
 		}
@@ -797,11 +842,6 @@ debug = nil
 
 	void ExtensionState::LuaLoadExternalFile(std::string const & path)
 	{
-		if (!Lua) {
-			OsiError("Called when the Lua VM has not been initialized!");
-			return;
-		}
-
 		std::ifstream f(path, std::ios::in | std::ios::binary);
 		if (!f.good()) {
 			OsiError("File does not exist: " << path);
@@ -815,32 +855,34 @@ debug = nil
 		f.read(const_cast<char *>(s.data()), length);
 		f.close();
 
-		Lua->LoadScript(s);
+		LuaStatePin lua(*this);
+		if (!lua) {
+			OsiError("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		lua->LoadScript(s);
 		OsiWarn("Loaded external script: " << path);
 	}
 
 	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader)
 	{
-		if (!Lua) {
-			OsiError("Called when the Lua VM has not been initialized!");
-			return;
-		}
-
 		if (!reader.IsLoaded()) {
 			OsiError("Attempted to load script from invalid file reader");
 			return;
 		}
 
-		Lua->LoadScript(reader.ToString());
-	}
-
-	void ExtensionState::LuaLoadGameFile(std::string const & path)
-	{
-		if (!Lua) {
+		LuaStatePin lua(*this);
+		if (!lua) {
 			OsiError("Called when the Lua VM has not been initialized!");
 			return;
 		}
 
+		lua->LoadScript(reader.ToString());
+	}
+
+	void ExtensionState::LuaLoadGameFile(std::string const & path)
+	{
 		auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
 			OsiError("Script file could not be opened: " << path);

@@ -73,15 +73,12 @@ namespace osidbg
 			auto bootstrapMods = args[0].Int32 == 1;
 
 			auto & ext = ExtensionState::Get();
-			ext.LuaReset();
-			if (bootstrapMods) {
-				ext.LuaStartup();
-			}
+			ext.LuaReset(bootstrapMods);
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
-			auto & lua = ExtensionState::Get().Lua;
+			LuaStatePin lua(ExtensionState::Get());
 			if (!lua) {
 				OsiError("Called when the Lua VM has not been initialized!");
 				return;
@@ -100,7 +97,7 @@ namespace osidbg
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
-			auto & lua = ExtensionState::Get().Lua;
+			LuaStatePin lua(ExtensionState::Get());
 			if (!lua) {
 				OsiError("Called when the Lua VM has not been initialized!");
 				return;
@@ -582,8 +579,7 @@ namespace osidbg
 		// FIXME - move extension state here?
 		gCharacterStatsGetters.ResetExtension();
 
-		ExtensionState::Get().LuaReset();
-		ExtensionState::Get().LuaStartup();
+		ExtensionState::Get().LuaReset(true);
 	}
 
 	ExtensionState & ExtensionState::Get()
