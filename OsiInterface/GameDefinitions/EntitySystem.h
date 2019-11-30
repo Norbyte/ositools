@@ -174,7 +174,7 @@ namespace osidbg
 			virtual void GetNetID(NetId & netId) const = 0;
 			virtual void SetCurrentTemplate(void * esvTemplate) = 0;
 			virtual void * GetCurrentTemplate() const = 0;
-			virtual void SetGlobal() = 0;
+			virtual void SetGlobal(bool isGlobal) = 0;
 			virtual bool IsGlobal() const = 0;
 			virtual uint32_t GetComponentType() = 0;
 			virtual void * GetEntityObjectByHandle(ObjectHandle handle) = 0;

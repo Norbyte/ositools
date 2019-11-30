@@ -161,6 +161,17 @@ namespace osidbg
 
 			permanentBoosts->RemoveTalent(*talentId, disabled != 0);
 		}
+
+		void CharacterSetGlobal(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto global = args[1].Int32 == 1;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			character->SetGlobal(global);
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -259,6 +270,17 @@ namespace osidbg
 			&func::CharacterDisableTalent
 		);
 		functionMgr.Register(std::move(characterDisableTalent));
+
+
+		auto characterSetGlobal = std::make_unique<CustomCall>(
+			"NRD_CharacterSetGlobal",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "IsGlobal", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::CharacterSetGlobal
+		);
+		functionMgr.Register(std::move(characterSetGlobal));
 	}
 
 }
