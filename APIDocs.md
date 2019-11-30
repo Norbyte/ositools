@@ -363,7 +363,7 @@ Returns the amount of damage dealt by the `HIT` status.
 
 | Attribute | Type | Access | Description |
 |--|--|--|--|
-| StatsId | String | Read | Name of the associated stat entry |
+| StatusId | String | Read | Name of the associated stat entry |
 | StatusHandle | Integer64 | Read | Handle of this status |
 | TargetCI | GuidString | Read | *Unknown; name subject to change* |
 | StatusSource | GuidString | Read | Character or item that caused the status |
