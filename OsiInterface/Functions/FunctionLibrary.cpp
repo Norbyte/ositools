@@ -473,7 +473,7 @@ namespace osidbg
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::String, FunctionArgumentDirection::In }
+				{ "Arg1", ValueType::None, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
@@ -483,8 +483,8 @@ namespace osidbg
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::String, FunctionArgumentDirection::In }
+				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::None, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
@@ -494,9 +494,9 @@ namespace osidbg
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::String, FunctionArgumentDirection::In }
+				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::None, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
@@ -505,11 +505,11 @@ namespace osidbg
 		auto luaCall4 = std::make_unique<CustomCall>(
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::String, FunctionArgumentDirection::In }
+				{ "Func", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg4", ValueType::None, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
@@ -519,11 +519,11 @@ namespace osidbg
 			"NRD_LuaCall",
 			std::vector<CustomFunctionParam>{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg5", ValueType::String, FunctionArgumentDirection::In }
+				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg4", ValueType::None, FunctionArgumentDirection::In },
+				{ "Arg5", ValueType::None, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaCall
 		);
