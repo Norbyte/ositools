@@ -27,6 +27,7 @@ namespace osidbg
 		void RegisterItemFunctions();
 		void RegisterCharacterFunctions();
 		void RegisterCustomStatFunctions();
+		void RegisterLuaFunctions();
 
 		void PostStartup();
 		void OnBaseModuleLoaded();

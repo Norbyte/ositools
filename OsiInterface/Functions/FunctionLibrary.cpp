@@ -9,27 +9,9 @@ namespace osidbg
 {
 	namespace func
 	{
-
-		char const * ItemGetStatsIdProxy(char const * itemGuid)
-		{
-			auto item = FindItemByNameGuid(itemGuid);
-			if (item == nullptr) {
-				OsiError("Item '" << itemGuid << "' does not exist!");
-				return nullptr;
-			}
-
-			if (!item->StatsId.Str) {
-				OsiError("Item '" << itemGuid << "' has no stats ID!");
-				return nullptr;
-			} else {
-				return item->StatsId.Str;
-			}
-		}
-
 		void ShowErrorMessage(OsiArgumentDesc const & args)
 		{
 			auto message = args[0].String;
-
 			auto wmsg = FromUTF8(message);
 			gOsirisProxy->GetLibraryManager().ShowStartupError(wmsg, false, false);
 		}
@@ -66,53 +48,6 @@ namespace osidbg
 		{
 			args[0].Int32 = CurrentVersion;
 			return true;
-		}
-
-		void OsiLuaReset(OsiArgumentDesc const & args)
-		{
-			auto bootstrapMods = args[0].Int32 == 1;
-
-			auto & ext = ExtensionState::Get();
-			ext.LuaReset(bootstrapMods);
-		}
-
-		void OsiLuaLoad(OsiArgumentDesc const & args)
-		{
-			LuaStatePin lua(ExtensionState::Get());
-			if (!lua) {
-				OsiError("Called when the Lua VM has not been initialized!");
-				return;
-			}
-
-			auto mod = args[0].String;
-			auto fileName = args[1].String;
-
-			if (strstr(fileName, "..") != nullptr) {
-				OsiError("Illegal file name");
-				return;
-			}
-
-			ExtensionState::Get().LuaLoadGameFile(mod, fileName);
-		}
-
-		void OsiLuaCall(OsiArgumentDesc const & args)
-		{
-			LuaStatePin lua(ExtensionState::Get());
-			if (!lua) {
-				OsiError("Called when the Lua VM has not been initialized!");
-				return;
-			}
-
-			auto func = args[0].String;
-			auto numArgs = args.Count() - 1;
-			std::vector<OsiArgumentValue> luaArgs;
-			luaArgs.resize(numArgs);
-
-			for (uint32_t i = 0; i < numArgs; i++) {
-				luaArgs[i] = args[i + 1];
-			}
-
-			lua->Call(func, luaArgs);
 		}
 
 #define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
@@ -231,138 +166,6 @@ namespace osidbg
 		}
 	}
 
-	void ExtensionState::Reset()
-	{
-		DamageHelpers.Clear();
-
-		time_t tm;
-		OsiRng.seed(time(&tm));
-	}
-
-	void ExtensionState::LoadConfigs()
-	{
-		auto modManager = GetModManager();
-		if (modManager == nullptr) {
-			OsiError("Mod manager not available");
-			return;
-		}
-
-		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-
-		unsigned numConfigs{ 0 };
-		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods.Buf[i];
-			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
-			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
-			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(configFile);
-
-			if (reader.IsLoaded()) {
-				LoadConfig(mod, reader.ToString());
-				numConfigs++;
-			}
-		}
-
-		if (numConfigs > 0) {
-			Debug("%d mod configuration(s) configuration loaded.", numConfigs);
-			Debug("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
-				EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane,
-				EnableFormulaOverrides, MinimumVersion);
-		}
-
-		if (CurrentVersion < MinimumVersion && HighestVersionMod != nullptr) {
-			std::wstringstream msg;
-			msg << L"Module \"" << HighestVersionMod->Info.Name.GetPtr() << "\" requires extension version "
-				<< MinimumVersion << "; current version is v" << CurrentVersion;
-			gOsirisProxy->GetLibraryManager().ShowStartupError(msg.str(), false, true);
-		}
-	}
-
-	void ExtensionState::LoadConfig(Module const & mod, std::string const & config)
-	{
-		Json::CharReaderBuilder factory;
-		auto reader = factory.newCharReader();
-
-		Json::Value root;
-		std::string errs;
-		if (!reader->parse(config.c_str(), config.c_str() + config.size(), &root, &errs)) {
-			OsiError("Unable to parse configuration for mod '" << ToUTF8(mod.Info.Name.GetPtr()) << "': " << errs);
-			return;
-		}
-
-		LoadConfig(mod, root);
-
-		delete reader;
-	}
-
-	std::optional<bool> GetConfigBool(Json::Value & config, std::string const & key)
-	{
-		auto value = config[key];
-		if (!value.isNull()) {
-			if (value.isBool()) {
-				return value.asBool();
-			} else {
-				OsiError("Config option '" << key << "' should be a boolean.");
-				return {};
-			}
-		} else {
-			return {};
-		}
-	}
-
-	std::optional<int32_t> GetConfigInt(Json::Value & config, std::string const & key)
-	{
-		auto value = config[key];
-		if (!value.isNull()) {
-			if (value.isInt()) {
-				return value.asInt();
-			} else {
-				OsiError("Config option '" << key << "' should be an integer.");
-				return {};
-			}
-		} else {
-			return {};
-		}
-	}
-
-	void ExtensionState::LoadConfig(Module const & mod, Json::Value & config)
-	{
-		auto extendOsiris = GetConfigBool(config, "ExtendOsiris");
-		if (extendOsiris && *extendOsiris) {
-			EnableExtensions = true;
-		}
-
-		auto lua = GetConfigBool(config, "Lua");
-		if (lua && *lua) {
-			EnableLua = true;
-		}
-
-		auto customStats = GetConfigBool(config, "UseCustomStats");
-		if (customStats && *customStats) {
-			EnableCustomStats = true;
-		}
-
-		auto customStatsPane = GetConfigBool(config, "UseCustomStatsPane");
-		if (customStatsPane && *customStatsPane) {
-			EnableCustomStatsPane = true;
-		}
-
-		auto formulaOverrides = GetConfigBool(config, "FormulaOverrides");
-		if (formulaOverrides && *formulaOverrides) {
-			EnableFormulaOverrides = true;
-		}
-
-		auto preprocessStory = GetConfigBool(config, "PreprocessStory");
-		if (preprocessStory && *preprocessStory) {
-			PreprocessStory = true;
-		}
-
-		auto version = GetConfigInt(config, "RequiredExtensionVersion");
-		if (version && MinimumVersion < (uint32_t)*version) {
-			MinimumVersion = (uint32_t)*version;
-			HighestVersionMod = &mod;
-		}
-	}
-
 	CustomFunctionLibrary::CustomFunctionLibrary(class OsirisProxy & osiris)
 		: osiris_(osiris)
 	{}
@@ -383,6 +186,7 @@ namespace osidbg
 		RegisterItemFunctions();
 		RegisterCharacterFunctions();
 		RegisterCustomStatFunctions();
+		RegisterLuaFunctions();
 
 		auto breakOnCharacter = std::make_unique<CustomCall>(
 			"NRD_BreakOnCharacter",
@@ -440,94 +244,6 @@ namespace osidbg
 			&func::GetVersion
 		);
 		functionMgr.Register(std::move(getVersion));
-
-		auto luaReset = std::make_unique<CustomCall>(
-			"NRD_LuaReset",
-			std::vector<CustomFunctionParam>{
-				{ "BootstrapMods", ValueType::Integer, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaReset
-		);
-		functionMgr.Register(std::move(luaReset));
-
-		auto luaLoad = std::make_unique<CustomCall>(
-			"NRD_LuaLoad",
-			std::vector<CustomFunctionParam>{
-				{ "ModNameGuid", ValueType::GuidString, FunctionArgumentDirection::In },
-				{ "FileName", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaLoad
-		);
-		functionMgr.Register(std::move(luaLoad));
-
-		auto luaCall0 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall0));
-
-		auto luaCall1 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall1));
-
-		auto luaCall2 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall2));
-		
-		auto luaCall3 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall3));
-		
-		auto luaCall4 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall4));
-		
-		auto luaCall5 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg5", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall5));
 
 		auto loadFile = std::make_unique<CustomQuery>(
 			"NRD_LoadFile",
@@ -590,10 +306,5 @@ namespace osidbg
 		gCharacterStatsGetters.ResetExtension();
 
 		ExtensionState::Get().LuaReset(true);
-	}
-
-	ExtensionState & ExtensionState::Get()
-	{
-		return gOsirisProxy->GetExtensionState();
 	}
 }

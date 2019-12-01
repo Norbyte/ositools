@@ -343,6 +343,9 @@ namespace osidbg
 			}
 		}
 
+		bool Query(std::string const & name, LuaRegistryEntry * func,
+			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
+
 	private:
 		lua_State * state_;
 		OsiProxyLibrary proxy_;
@@ -358,5 +361,7 @@ namespace osidbg
 		bool startupDone_{ false };
 
 		void OpenLibs();
+		bool QueryInternal(std::string const & name, LuaRegistryEntry * func,
+			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 	};
 }
