@@ -26,7 +26,7 @@ OsirisProxy::OsirisProxy()
 
 void OsirisProxy::Initialize()
 {
-	Debug("OsirisProxy::Initialize: Starting");
+	DEBUG("OsirisProxy::Initialize: Starting");
 	auto initStart = std::chrono::high_resolution_clock::now();
 	Wrappers.Initialize();
 
@@ -54,22 +54,22 @@ void OsirisProxy::Initialize()
 			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
 		}
 		else {
-			Debug("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
+			ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
 			ExtensionsEnabled = false;
 		}
 	}
 	else {
-		Debug("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
+		DEBUG("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
 	}
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
-	Debug("Library startup took %d ms", ms);
+	DEBUG("Library startup took %d ms", ms);
 }
 
 void OsirisProxy::Shutdown()
 {
-	Debug("OsirisProxy::Shutdown: Starting");
+	DEBUG("OsirisProxy::Shutdown: Starting");
 	Wrappers.Shutdown();
 }
 
@@ -105,18 +105,26 @@ void OsirisProxy::SetupNetworkStringsDump(bool Enable)
 
 void OsirisProxy::LogOsirisError(std::string const & msg)
 {
-	LogOsirisMsg("{E} " + msg);
+	auto log = "[Osiris] {W} " + msg;
+	DebugRaw(DebugMessageType::Error, log.c_str());
+	if (StoryLoaded) {
+		Wrappers.AssertOriginal(false, log.c_str(), false);
+	}
 }
 
 void OsirisProxy::LogOsirisWarning(std::string const & msg)
 {
-	LogOsirisMsg("{W} " + msg);
+	auto log = "[Osiris] {W} " + msg;
+	DebugRaw(DebugMessageType::Warning, log.c_str());
+	if (StoryLoaded) {
+		Wrappers.AssertOriginal(false, log.c_str(), false);
+	}
 }
 
 void OsirisProxy::LogOsirisMsg(std::string const & msg)
 {
 	auto log = "[Osiris] " + msg;
-	DebugRaw(log.c_str());
+	DebugRaw(DebugMessageType::Info, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
@@ -131,11 +139,9 @@ void OsirisProxy::RestartLogging(std::wstring const & Type)
 		LogFilename = MakeLogFilePath(Type, L"log");
 		LogType = Type;
 
-		Debug(L"OsirisProxy::RestartLogging: Starting %s debug logging.\r\n"
-			"\tPath=%s\r\n"
-			"\tOriginalDebugFlags=%08x\r\n"
-			"\tDebugFlags=%08x", 
-			Type.c_str(), LogFilename.c_str(), *Wrappers.Globals.DebugFlags, NewFlags);
+		DEBUG(L"OsirisProxy::RestartLogging: Starting %s debug logging.\r\n"
+			"\tPath=%s", 
+			Type.c_str(), LogFilename.c_str());
 	}
 
 	Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
@@ -238,24 +244,24 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 
 #if 0
-	Debug("OsirisProxy::OnRegisterDIVFunctions: Initializing story.");
-	Debug("\tErrorMessageProc = %p", errorMessageFunc);
-	Debug("\tOsirisManager = %p", Globals.Manager);
-	Debug("\tOsirisInterface = %p", osirisInterface);
+	DEBUG("OsirisProxy::OnRegisterDIVFunctions: Initializing story.");
+	DEBUG("\tErrorMessageProc = %p", errorMessageFunc);
+	DEBUG("\tOsirisManager = %p", Globals.Manager);
+	DEBUG("\tOsirisInterface = %p", osirisInterface);
 #endif
 
 #if !defined(OSI_NO_DEBUGGER)
 	// FIXME - move to DebuggerHooks
 	if (DebuggingEnabled) {
 		if (DebuggerThread == nullptr) {
-			Debug("Starting debugger server");
+			DEBUG("Starting debugger server");
 			debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
 			debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
 
 			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
 		}
 	} else if (!DebugDisableLogged) {
-		Debug("Debugging not enabled; not starting debugger server thread.");
+		DEBUG("Debugging not enabled; not starting debugger server thread.");
 		DebugDisableLogged = true;
 	}
 #endif
@@ -263,7 +269,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 
 void OsirisProxy::OnInitGame(void * Osiris)
 {
-	Debug("OsirisProxy::OnInitGame()");
+	DEBUG("OsirisProxy::OnInitGame()");
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
 		debugger_->GameInitHook();
@@ -275,7 +281,7 @@ void OsirisProxy::OnDeleteAllData(void * Osiris, bool DeleteTypes)
 {
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_) {
-		Debug("OsirisProxy::OnDeleteAllData()");
+		DEBUG("OsirisProxy::OnDeleteAllData()");
 		debugger_->DeleteAllDataHook();
 		debugger_.reset();
 	}
@@ -284,19 +290,19 @@ void OsirisProxy::OnDeleteAllData(void * Osiris, bool DeleteTypes)
 
 void OsirisProxy::OnError(char const * Message)
 {
-	Debug("Osiris Error: %s", Message);
+	ERR("Osiris Error: %s", Message);
 }
 
 void OsirisProxy::OnAssert(bool Successful, char const * Message, bool Unknown2)
 {
 	if (!Successful) {
-		Debug("Osiris Assert: %s", Message);
+		WARN("Osiris Assert: %s", Message);
 	}
 }
 
 bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode)
 {
-	Debug(L"OsirisProxy::CompileWrapper: Starting compilation of '%s'", Path);
+	DEBUG(L"OsirisProxy::CompileWrapper: Starting compilation of '%s'", Path);
 	auto OriginalFlags = *Wrappers.Globals.DebugFlags;
 	std::wstring storyPath;
 
@@ -314,9 +320,9 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 	auto ret = Next(Osiris, Path, Mode);
 
 	if (ret) {
-		Debug("OsirisProxy::CompileWrapper: Success.");
+		DEBUG("OsirisProxy::CompileWrapper: Success.");
 	} else {
-		Debug("OsirisProxy::CompileWrapper: Compilation FAILED.");
+		ERR("OsirisProxy::CompileWrapper: Compilation FAILED.");
 	}
 
 	if (CompilationLogEnabled) {
@@ -362,7 +368,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 
 	StoryLoaded = true; 
 	OsiDetectGameType();
-	Debug("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
+	DEBUG("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (DebuggerThread != nullptr && gNodeVMTWrappers) {
@@ -397,17 +403,15 @@ void OsirisProxy::DumpNetworkFixedStrings()
 			logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
 		}
 		logOut.close();
-		Debug(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
-
-
+		DEBUG(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
 	} else {
-		Debug("OsirisProxy::DumpNetworkFixedStrings() - Fixed strings not initialized yet");
+		ERR("OsirisProxy::DumpNetworkFixedStrings() - Fixed strings not initialized yet");
 	}
 }
 
 bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
 {
-	Debug("OsirisProxy::MergeWrapper() - Started merge");
+	DEBUG("OsirisProxy::MergeWrapper() - Started merge");
 
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
@@ -423,7 +427,7 @@ bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & N
 	}
 #endif
 
-	Debug("OsirisProxy::MergeWrapper() - Finished merge");
+	DEBUG("OsirisProxy::MergeWrapper() - Finished merge");
 	return retval;
 }
 
@@ -453,7 +457,7 @@ void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)
 void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 {
 #if 0
-	Debug("OsirisProxy::ResolveNodeVMTs");
+	DEBUG("OsirisProxy::ResolveNodeVMTs");
 #endif
 	std::set<NodeVMT *> VMTs;
 
@@ -492,7 +496,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 #if 0
-	Debug("RuleNode::__vfptr is %p", ruleNodeVMT);
+	DEBUG("RuleNode::__vfptr is %p", ruleNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::Rule, ruleNodeVMT);
 
@@ -514,7 +518,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 #if 0
-	Debug("RuleNode::__vfptr is %p", relOpNodeVMT);
+	DEBUG("RuleNode::__vfptr is %p", relOpNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::RelOp, relOpNodeVMT);
 
@@ -538,7 +542,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 #if 0
-	Debug("AndNode::__vfptr is %p and %p", and1VMT, and2VMT);
+	DEBUG("AndNode::__vfptr is %p and %p", and1VMT, and2VMT);
 #endif
 	// No reliable way to detect these; assume that AndNode VMT < NotAndNode VMT
 	if (and1VMT < and2VMT) {
@@ -578,17 +582,17 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 		std::string name{ getName(nullptr) };
 		if (name == "internal query") {
 #if 0
-			Debug("InternalQuery::__vfptr is %p", vmt);
+			DEBUG("InternalQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::InternalQuery, vmt);
 		} else if (name == "DIV query") {
 #if 0
-			Debug("DivQuery::__vfptr is %p", vmt);
+			DEBUG("DivQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::DivQuery, vmt);
 		} else if (name == "Osi user query") {
 #if 0
-			Debug("UserQuery::__vfptr is %p", vmt);
+			DEBUG("UserQuery::__vfptr is %p", vmt);
 #endif
 			SaveNodeVMT(NodeType::UserQuery, vmt);
 		} else {
@@ -627,8 +631,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 #if 0
-	Debug("ProcNode::__vfptr is %p", procNodeVMT);
-	Debug("DatabaseNode::__vfptr is %p", databaseNodeVMT);
+	DEBUG("ProcNode::__vfptr is %p", procNodeVMT);
+	DEBUG("DatabaseNode::__vfptr is %p", databaseNodeVMT);
 #endif
 	SaveNodeVMT(NodeType::Proc, procNodeVMT);
 	SaveNodeVMT(NodeType::Database, databaseNodeVMT);
@@ -638,7 +642,7 @@ void OsirisProxy::OnBaseModuleLoaded(void * self)
 {
 	auto modManager = GetModManager();
 	if (modManager != nullptr) {
-		Debug(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+		DEBUG(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
 	}
 
 	if (ExtensionsEnabled) {

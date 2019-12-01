@@ -194,7 +194,7 @@ namespace osidbg
 		} else if (lastFrame.tuplePtrLL != nullptr) {
 			DebugDumpTuple(tup, *lastFrame.tuplePtrLL);
 		}
-		Debug(L" <-- BkBreakpointTriggered(type %d, node %d/goal %d, tuple (%s))", 
+		DEBUG(L" <-- BkBreakpointTriggered(type %d, node %d/goal %d, tuple (%s))",
 			lastFrame.frameType, 
 			lastFrame.node ? lastFrame.node->Id : 0,
 			lastFrame.goal ? lastFrame.goal->Id : 0,
@@ -208,7 +208,7 @@ namespace osidbg
 		trigger->set_reason((BkGlobalBreakpointTriggered_Reason)reason);
 		Send(msg);
 
-		Debug(" <-- BkGlobalBreakpointTriggered(%d)", reason);
+		DEBUG(" <-- BkGlobalBreakpointTriggered(%d)", reason);
 	}
 
 	void DebugMessageHandler::SendStoryLoaded()
@@ -216,7 +216,7 @@ namespace osidbg
 		BackendToDebugger msg;
 		auto storyLoaded = msg.mutable_storyloaded();
 		Send(msg);
-		Debug(" <-- BkStoryLoaded()");
+		DEBUG(" <-- BkStoryLoaded()");
 	}
 
 	void DebugMessageHandler::SendDebugSessionEnded()
@@ -224,7 +224,7 @@ namespace osidbg
 		BackendToDebugger msg;
 		auto sessionEnded = msg.mutable_debugsessionended();
 		Send(msg);
-		Debug(" <-- BkDebugSessionEnded()");
+		DEBUG(" <-- BkDebugSessionEnded()");
 	}
 
 	void AddActionInfo(RuleActionList * actions, std::function<MsgActionInfo * ()> addAction)
@@ -259,7 +259,7 @@ namespace osidbg
 		AddActionInfo(goal->InitCalls, [goalInfo]() -> MsgActionInfo * { return goalInfo->add_initactions(); });
 		AddActionInfo(goal->ExitCalls, [goalInfo]() -> MsgActionInfo * { return goalInfo->add_exitactions(); });
 		Send(msg);
-		Debug(" <-- BkSyncStoryData(Goal #%d)", goal->Id);
+		DEBUG(" <-- BkSyncStoryData(Goal #%d)", goal->Id);
 	}
 
 	void DebugMessageHandler::SendSyncStory(Database ** databases, uint32_t count)
@@ -278,7 +278,7 @@ namespace osidbg
 		}
 
 		Send(msg);
-		Debug(" <-- BkSyncStoryData(%d databases)", count);
+		DEBUG(" <-- BkSyncStoryData(%d databases)", count);
 	}
 
 	void DebugMessageHandler::SendSyncStory(Node ** nodes, uint32_t count)
@@ -304,7 +304,7 @@ namespace osidbg
 		}
 
 		Send(msg);
-		Debug(" <-- BkSyncStoryData(%d nodes)", count);
+		DEBUG(" <-- BkSyncStoryData(%d nodes)", count);
 	}
 
 	void DebugMessageHandler::SendSyncStoryFinished()
@@ -312,7 +312,7 @@ namespace osidbg
 		BackendToDebugger msg;
 		auto syncFinished = msg.mutable_syncstoryfinished();
 		Send(msg);
-		Debug(" <-- BkSyncStoryFinished()");
+		DEBUG(" <-- BkSyncStoryFinished()");
 	}
 
 	void DebugMessageHandler::SendDebugOutput(char const * message)
@@ -321,7 +321,7 @@ namespace osidbg
 		auto debugMsg = msg.mutable_debugoutput();
 		debugMsg->set_message(message);
 		Send(msg);
-		Debug(" <-- BkDebugOutput(): \"%s\"", message);
+		DEBUG(" <-- BkDebugOutput(): \"%s\"", message);
 	}
 
 	void DebugMessageHandler::SetDebugger(Debugger * debugger)
@@ -331,11 +331,11 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleIdentify(uint32_t seq, DbgIdentifyRequest const & req)
 	{
-		Debug(" --> DbgIdentifyRequest(Version %d)", req.protocol_version());
+		DEBUG(" --> DbgIdentifyRequest(Version %d)", req.protocol_version());
 		SendVersionInfo(seq);
 
 		if (req.protocol_version() != ProtocolVersion) {
-			Debug("DebugMessageHandler::HandleIdentify(): Client sent unsupported protocol version; got %d, we only support %d", 
+			WARN("DebugMessageHandler::HandleIdentify(): Client sent unsupported protocol version; got %d, we only support %d", 
 				req.protocol_version(), ProtocolVersion);
 			intf_.Disconnect();
 		}
@@ -343,11 +343,11 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleSetGlobalBreakpoints(uint32_t seq, DbgSetGlobalBreakpoints const & req)
 	{
-		Debug(" --> DbgSetGlobalBreakpoints(%d)", req.breakpoint_mask());
+		DEBUG(" --> DbgSetGlobalBreakpoints(%d)", req.breakpoint_mask());
 
 		ResultCode rc;
 		if (!debugger_) {
-			Debug("SetGlobalBreakpoints: Not attached to story debugger!");
+			WARN("SetGlobalBreakpoints: Not attached to story debugger!");
 			rc = ResultCode::NoDebuggee;
 		}
 		else
@@ -360,11 +360,11 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleSetBreakpoints(uint32_t seq, DbgSetBreakpoints const & req)
 	{
-		Debug(" --> DbgSetBreakpoints()");
+		DEBUG(" --> DbgSetBreakpoints()");
 
 		ResultCode rc;
 		if (!debugger_) {
-			Debug("SetBreakpoint: Not attached to story debugger!");
+			WARN("SetBreakpoint: Not attached to story debugger!");
 			rc = ResultCode::NoDebuggee;
 		}
 		else
@@ -373,7 +373,7 @@ namespace osidbg
 
 			debugger_->Breakpoints().BeginUpdatingNodeBreakpoints();
 			for (auto const & bp : req.breakpoint()) {
-				Debug("AddBreakpoint(node %d, goal %d, action %d, flags %d)", 
+				DEBUG("AddBreakpoint(node %d, goal %d, action %d, flags %d)",
 					bp.node_id(), bp.goal_id(), bp.action_index(), bp.breakpoint_mask());
 				rc = debugger_->Breakpoints().AddBreakpoint(
 					bp.node_id(),
@@ -396,11 +396,11 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleGetDatabaseContents(uint32_t seq, DbgGetDatabaseContents const & req)
 	{
-		Debug(" --> DbgGetDatabaseContents(%d)", req.database_id());
+		DEBUG(" --> DbgGetDatabaseContents(%d)", req.database_id());
 
 		ResultCode rc;
 		if (!debugger_) {
-			Debug("GetDatabaseContents: Not attached to story debugger!");
+			WARN("GetDatabaseContents: Not attached to story debugger!");
 			rc = ResultCode::NoDebuggee;
 		}
 		else
@@ -413,11 +413,11 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleContinue(uint32_t seq, DbgContinue const & req)
 	{
-		Debug(" --> DbgContinue()");
+		DEBUG(" --> DbgContinue()");
 
 		ResultCode rc;
 		if (!debugger_) {
-			Debug("Continue: Not attached to story debugger!");
+			WARN("Continue: Not attached to story debugger!");
 			rc = ResultCode::NoDebuggee;
 		}
 		else
@@ -430,12 +430,12 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleSyncStory(uint32_t seq, DbgSyncStory const & req)
 	{
-		Debug(" --> DbgSyncStory()");
+		DEBUG(" --> DbgSyncStory()");
 
 		if (debugger_) {
 			debugger_->SyncStory();
 		} else {
-			Debug("SyncStory: Not attached to story debugger!");
+			WARN("SyncStory: Not attached to story debugger!");
 		}
 
 		SendSyncStoryFinished();
@@ -443,7 +443,7 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleEvaluate(uint32_t seq, DbgEvaluate const & req)
 	{
-		Debug(" --> DbgEvaluate(%d, %d)", req.type(), req.node_id());
+		DEBUG(" --> DbgEvaluate(%d, %d)", req.type(), req.node_id());
 
 		if (debugger_) {
 			bool querySucceeded = false;
@@ -453,7 +453,7 @@ namespace osidbg
 
 			debugger_->Evaluate(seq, (EvalType)req.type(), req.node_id(), req.params(), process);
 		} else {
-			Debug("Evaluate: Not attached to story debugger!");
+			WARN("Evaluate: Not attached to story debugger!");
 		}
 	}
 
@@ -461,7 +461,7 @@ namespace osidbg
 	{
 		uint32_t seq = msg->seq_no();
 		if (seq != inboundSeq_) {
-			Debug("Incorrect sequence number in message; expected %d, got %d", inboundSeq_, seq);
+			ERR("Incorrect sequence number in message; expected %d, got %d", inboundSeq_, seq);
 			return false;
 		}
 
@@ -497,7 +497,7 @@ namespace osidbg
 			break;
 
 		default:
-			Debug("Unknown message type received: %d", msg->msg_case());
+			ERR("Unknown message type received: %d", msg->msg_case());
 			return false;
 		}
 
@@ -506,7 +506,7 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleConnect()
 	{
-		Debug("Connected to debugger frontend");
+		DEBUG("Connected to debugger frontend");
 
 		outboundSeq_ = 1;
 		inboundSeq_ = 1;
@@ -514,7 +514,7 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleDisconnect()
 	{
-		Debug("Disconnected from debugger frontend");
+		DEBUG("Disconnected from debugger frontend");
 		if (debugger_) {
 			debugger_->Breakpoints().ClearAllBreakpoints();
 			if (debugger_->IsPaused()) {
@@ -529,7 +529,7 @@ namespace osidbg
 			msg.set_seq_no(outboundSeq_++);
 			intf_.Send(msg);
 		} else {
-			Debug("DebugMessageHandler::Send(): Not connected to debugger frontend");
+			DEBUG("DebugMessageHandler::Send(): Not connected to debugger frontend");
 		}
 	}
 
@@ -540,7 +540,7 @@ namespace osidbg
 		auto results = msg.mutable_results();
 		results->set_status_code((StatusCode)code);
 		Send(msg);
-		Debug(" <-- BkResult(%d)", code);
+		DEBUG(" <-- BkResult(%d)", code);
 	}
 
 	void DebugMessageHandler::SendVersionInfo(uint32_t seq)
@@ -560,7 +560,7 @@ namespace osidbg
 		}
 
 		Send(msg);
-		Debug(" <-- BkVersionInfoResponse()");
+		DEBUG(" <-- BkVersionInfoResponse()");
 	}
 
 	void DebugMessageHandler::SendBeginDatabaseContents(uint32_t databaseId)
@@ -569,7 +569,7 @@ namespace osidbg
 		auto beginMsg = msg.mutable_begindatabasecontents();
 		beginMsg->set_database_id(databaseId);
 		Send(msg);
-		Debug(" <-- BkBeginDatabaseContents()");
+		DEBUG(" <-- BkBeginDatabaseContents()");
 	}
 
 	void DebugMessageHandler::SendDatabaseRow(uint32_t databaseId, TupleVec * row)
@@ -582,7 +582,7 @@ namespace osidbg
 		MakeMsgTuple(*msgRow, *row);
 
 		Send(msg);
-		Debug(" <-- BkDatabaseRow()");
+		DEBUG(" <-- BkDatabaseRow()");
 	}
 
 	void DebugMessageHandler::SendEndDatabaseContents(uint32_t databaseId)
@@ -591,7 +591,7 @@ namespace osidbg
 		auto endMsg = msg.mutable_enddatabasecontents();
 		endMsg->set_database_id(databaseId);
 		Send(msg);
-		Debug(" <-- BkEndDatabaseContents()");
+		DEBUG(" <-- BkEndDatabaseContents()");
 	}
 
 	void DebugMessageHandler::SendEvaluateRow(uint32_t seq, VirtTupleLL & row)
@@ -603,7 +603,7 @@ namespace osidbg
 		MakeMsgTuple(*msgRow, row.Data);
 
 		Send(msg);
-		Debug(" <-- BkEvaluateRow()");
+		DEBUG(" <-- BkEvaluateRow()");
 	}
 
 	void DebugMessageHandler::SendEvaluateFinished(uint32_t seq, ResultCode rc, bool querySucceeded)
@@ -614,7 +614,7 @@ namespace osidbg
 		endMsg->set_result_code((StatusCode)rc);
 		endMsg->set_query_succeeded(querySucceeded);
 		Send(msg);
-		Debug(" <-- BkEvaluateFinished()");
+		DEBUG(" <-- BkEvaluateFinished()");
 	}
 }
 

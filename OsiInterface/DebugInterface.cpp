@@ -27,16 +27,16 @@ namespace osidbg
 		addr.sin_addr.S_un.S_addr = ip;
 		addr.sin_port = htons(port_);
 		if (bind(socket_, (sockaddr *)&addr, sizeof(addr)) != 0) {
-			Debug("Could not bind debugger server socket: %d", WSAGetLastError());
+			ERR("Could not bind debugger server socket: %d", WSAGetLastError());
 			Fail("Debug server start failed");
 		}
 
 		if (listen(socket_, 30) != 0) {
-			Debug("Could not listen on server socket: %d", WSAGetLastError());
+			ERR("Could not listen on server socket: %d", WSAGetLastError());
 			Fail("Debug server start failed");
 		}
 
-		Debug("Debug interface listening on 127.0.0.1:%d; DBG protocol version %d", port_, DebugMessageHandler::ProtocolVersion);
+		DEBUG("Debug interface listening on 127.0.0.1:%d; DBG protocol version %d", port_, DebugMessageHandler::ProtocolVersion);
 	}
 
 	DebugInterface::~DebugInterface()
@@ -62,7 +62,7 @@ namespace osidbg
 	void DebugInterface::Send(BackendToDebugger const & msg)
 	{
 		if (clientSocket_ == 0) {
-			Debug("DebugInterface::Send(): Not connected to debugger frontend");
+			DEBUG("DebugInterface::Send(): Not connected to debugger frontend");
 			return;
 		}
 
@@ -95,7 +95,7 @@ namespace osidbg
 		while (length > 0) {
 			int sent = send(clientSocket_, (char *)buf, (int)length, 0);
 			if (sent <= 0) {
-				Debug("Socket send failed: %d, error %d", sent, WSAGetLastError());
+				ERR("Socket send failed: %d, error %d", sent, WSAGetLastError());
 				Disconnect();
 				return;
 			}
@@ -111,7 +111,7 @@ namespace osidbg
 		google::protobuf::io::CodedInputStream is(&ais);
 		DebuggerToBackend msg;
 		if (!msg.ParseFromCodedStream(&is)) {
-			Debug("Unable to decode protobuf message from coded stream.");
+			ERR("Unable to decode protobuf message from coded stream.");
 			return false;
 		}
 
@@ -136,7 +136,7 @@ namespace osidbg
 		for (;;) {
 			int len = recv(sock, (char *)&receiveBuf_[receivePos_], sizeof(receiveBuf_) - receivePos_, 0);
 			if (len < 0) {
-				Debug("Socket recv failed: %d, error %d", len, WSAGetLastError());
+				ERR("Socket recv failed: %d, error %d", len, WSAGetLastError());
 				return;
 			}
 
@@ -145,13 +145,13 @@ namespace osidbg
 				uint32_t messageLength = *reinterpret_cast<uint32_t *>(&receiveBuf_[0]);
 
 				if (messageLength < 4 || messageLength > sizeof(receiveBuf_)) {
-					Debug("DebugInterface::MessageLoop(): Illegal message length: %d", messageLength);
+					ERR("DebugInterface::MessageLoop(): Illegal message length: %d", messageLength);
 					return;
 				}
 
 				if (receivePos_ >= messageLength) {
 					if (!ProcessMessage(&receiveBuf_[4], messageLength - 4)) {
-						Debug("DebugInterface::MessageLoop(): Message processing failed");
+						WARN("DebugInterface::MessageLoop(): Message processing failed");
 						return;
 					}
 
@@ -171,7 +171,7 @@ namespace osidbg
 			sockaddr_in addr;
 			int addrlen = sizeof(addr);
 			clientSocket_ = accept(socket_, (sockaddr *)&addr, &addrlen);
-			Debug("Accepted debug connection.");
+			DEBUG("Accepted debug connection.");
 			if (connectHandler_) {
 				connectHandler_();
 			}

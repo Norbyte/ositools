@@ -58,7 +58,7 @@ namespace osidbg
 		EoCFree = (EoCFreeFunc)freeProc;
 
 		if (allocProc == nullptr || freeProc == nullptr) {
-			Debug("Could not find memory management functions");
+			ERR("Could not find memory management functions");
 			CriticalInitFailed = true;
 		}
 	}
@@ -114,9 +114,9 @@ namespace osidbg
 		}
 
 #if 0
-		Debug("LibraryManager::FindLibrariesEoCPlugin(): Found libraries:");
+		DEBUG("LibraryManager::FindLibrariesEoCPlugin(): Found libraries:");
 		for (auto const & v : libraries_) {
-			Debug("\t(Init %p; Dtor %p, Refs %d)!", v.second.initFunc, v.second.freeFunc, v.second.refs);
+			DEBUG("\t(Init %p; Dtor %p, Refs %d)!", v.second.initFunc, v.second.freeFunc, v.second.refs);
 		}
 #endif
 	}
@@ -133,7 +133,10 @@ namespace osidbg
 			statComponentStr = match;
 		}, false);
 
-		if (!statComponentStr) Fail("Could not locate esv::CustomStatDefinitionComponent");
+		if (!statComponentStr) {
+			ERR("Could not locate esv::CustomStatDefinitionComponent");
+			return;
+		}
 
 		// 2) Look for xrefs to esv::CustomStatDefinitionComponent
 		Pattern xref;
@@ -153,7 +156,10 @@ namespace osidbg
 			}
 		});
 
-		if (!statComponentXref) Fail("Could not locate registration xref for esv::CustomStatDefinitionComponent");
+		if (!statComponentXref) {
+			ERR("Could not locate registration xref for esv::CustomStatDefinitionComponent");
+			return;
+		}
 
 		Pattern p;
 		p.FromString(
@@ -222,8 +228,8 @@ namespace osidbg
 		}
 
 		if (nextGlobalIndex != std::size(eocGlobals_)) {
-			Fail("LibraryManager::FindEoCGlobalsEoCPlugin(): Could not find all eoc globals!");
-			InitFailed = true;
+			ERR("LibraryManager::FindEoCGlobalsEoCPlugin(): Could not find all eoc globals!");
+			CriticalInitFailed = true;
 		}
 	}
 
@@ -251,7 +257,7 @@ namespace osidbg
 		}, false);
 
 		if (GlobalStrings == nullptr) {
-			Debug("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
+			ERR("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
 			CriticalInitFailed = true;
 		}
 	}
@@ -267,7 +273,7 @@ namespace osidbg
 		FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
 
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr || FileReaderDtor == nullptr) {
-			Debug("LibraryManager::FindFileSystemCoreLib(): Could not find filesystem functions");
+			ERR("LibraryManager::FindFileSystemCoreLib(): Could not find filesystem functions");
 			CriticalInitFailed = true;
 		}
 	}
@@ -275,7 +281,7 @@ namespace osidbg
 	std::string LibraryManager::ToPath(std::string const & path, PathRootType root) const
 	{
 		if (GetPrefixForRoot == nullptr) {
-			Debug("LibraryManager::ToPath(): Path root API not available!");
+			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
 
@@ -290,7 +296,7 @@ namespace osidbg
 	FileReaderPin LibraryManager::MakeFileReader(std::string const & path, PathRootType root) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
-			Debug("LibraryManager::MakeFileReader(): File reader API not available!");
+			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
@@ -338,7 +344,7 @@ namespace osidbg
 		});
 
 		if (CreateGameAction == nullptr) {
-			Debug("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find GameActionManager::CreateAction");
+			ERR("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find GameActionManager::CreateAction");
 			InitFailed = true;
 		}
 
@@ -390,7 +396,7 @@ namespace osidbg
 		});
 
 		if (LevelManager == nullptr || AddGameAction == nullptr) {
-			Debug("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find esv::LevelManager");
+			ERR("LibraryManager::FindGameActionManagerEoCPlugin(): Could not find esv::LevelManager");
 			InitFailed = true;
 		}
 	}
@@ -425,7 +431,7 @@ namespace osidbg
 		});
 
 		if (TornadoActionSetup == nullptr) {
-			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find TornadoAction");
+			ERR("LibraryManager::FindGameActionsEoCPlugin(): Could not find TornadoAction");
 			InitFailed = true;
 		}
 
@@ -461,7 +467,7 @@ namespace osidbg
 		});
 
 		if (WallActionCreateWall == nullptr) {
-			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find WallAction");
+			ERR("LibraryManager::FindGameActionsEoCPlugin(): Could not find WallAction");
 			InitFailed = true;
 		}
 
@@ -493,7 +499,7 @@ namespace osidbg
 		});
 
 		if (SummonHelpersSummon == nullptr) {
-			Debug("LibraryManager::FindGameActionsEoCPlugin(): Could not find SummonHelpers::Summon");
+			ERR("LibraryManager::FindGameActionsEoCPlugin(): Could not find SummonHelpers::Summon");
 			InitFailed = true;
 		}
 	}
@@ -527,7 +533,7 @@ namespace osidbg
 		});
 
 		if (StatusMachineCreateStatus == nullptr) {
-			Debug("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::CreateStatus");
+			ERR("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::CreateStatus");
 			InitFailed = true;
 		}
 
@@ -545,7 +551,7 @@ namespace osidbg
 		});
 
 		if (StatusMachineApplyStatus == nullptr) {
-			Debug("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::ApplyStatus");
+			ERR("LibraryManager::FindStatusMachineEoCPlugin(): Could not find StatusMachine::ApplyStatus");
 			InitFailed = true;
 		}
 	}
@@ -582,7 +588,7 @@ namespace osidbg
 		});
 
 		if (StatusHealVMT == nullptr) {
-			Debug("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHeal");
+			ERR("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHeal");
 			InitFailed = true;
 		}
 
@@ -617,7 +623,7 @@ namespace osidbg
 		});
 
 		if (StatusHitVMT == nullptr) {
-			Debug("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHit");
+			ERR("LibraryManager::FindStatusTypesEoCPlugin(): Could not find esv::StatusHit");
 			InitFailed = true;
 		}
 	}
@@ -656,7 +662,7 @@ namespace osidbg
 		});
 
 		if (CharacterHit == nullptr) {
-			Debug("LibraryManager::FindHitFuncsEoCPlugin(): Could not find Character::Hit");
+			ERR("LibraryManager::FindHitFuncsEoCPlugin(): Could not find Character::Hit");
 			InitFailed = true;
 		}
 	}
@@ -681,7 +687,7 @@ namespace osidbg
 		}, false);
 
 		if (ParseItem == nullptr || CreateItemFromParsed == nullptr) {
-			Debug("LibraryManager::FindItemFuncsEoCPlugin(): Could not find esv::CreateItemFromParsed");
+			ERR("LibraryManager::FindItemFuncsEoCPlugin(): Could not find esv::CreateItemFromParsed");
 			InitFailed = true;
 		}
 	}
@@ -793,7 +799,7 @@ namespace osidbg
 			|| ActivateClientSystemsHook == nullptr
 			|| CustomStatUIRollHook == nullptr
 			|| EsvCustomStatsProtocolProcessMsg == nullptr) {
-			Debug("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
+			ERR("LibraryManager::FindCustomStatsEoCPlugin(): Could not find all hooks");
 			InitFailed = true;
 		}
 	}
@@ -822,7 +828,7 @@ namespace osidbg
 		}, false);
 
 		if (EoCClient == nullptr || EoCClientHandleError == nullptr) {
-			Debug("LibraryManager::FindErrorFuncsEoCPlugin(): Could not find ecl::EoCClient::HandleError");
+			ERR("LibraryManager::FindErrorFuncsEoCPlugin(): Could not find ecl::EoCClient::HandleError");
 			InitFailed = true;
 		}
 	}
@@ -870,7 +876,7 @@ namespace osidbg
 		}
 
 		if (GameStateLoadModuleDo == nullptr) {
-			Debug("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateLoadModule::Do");
+			ERR("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateLoadModule::Do");
 			CriticalInitFailed = true;
 		}
 	}
@@ -913,7 +919,7 @@ namespace osidbg
 		}
 
 		if (gCharacterStatsGetters.GetUnknown == nullptr) {
-			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find all stat getters");
+			ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find all stat getters");
 			InitFailed = true;
 			return;
 		}
@@ -955,7 +961,7 @@ namespace osidbg
 		}
 
 		if (gCharacterStatsGetters.GetHitChance == nullptr) {
-			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::CalculateHitChance");
+			ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::CalculateHitChance");
 			InitFailed = true;
 			return;
 		}
@@ -974,7 +980,7 @@ namespace osidbg
 		}, false);
 
 		if (gCharacterStatsGetters.GetChanceToHitBoost == nullptr) {
-			Debug("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetChanceToHitBoost");
+			ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetChanceToHitBoost");
 			InitFailed = true;
 		}
 	}

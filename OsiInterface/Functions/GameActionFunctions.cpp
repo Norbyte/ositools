@@ -410,7 +410,7 @@ namespace osidbg
 					return true;
 				}
 				else {
-					Debug("Summoned object is not a character or item!");
+					OsiError("Summoned object is not a character or item!");
 					return false;
 				}
 			}

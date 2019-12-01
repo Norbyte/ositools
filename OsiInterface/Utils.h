@@ -6,35 +6,37 @@
 std::string ToUTF8(std::wstring const & s);
 std::wstring FromUTF8(std::string const & s);
 
+enum class DebugMessageType
+{
+	Info,
+	Warning,
+	Error
+};
+
 template <typename... Args>
-void Debug(wchar_t const * fmt, Args... args)
+void Debug(DebugMessageType type, wchar_t const * fmt, Args... args)
 {
 	wchar_t buf[1024];
-	int length = swprintf_s(buf, 1024 - 4, fmt, args...);
-	buf[length++] = '\r';
-	buf[length++] = '\n';
+	int length = swprintf_s(buf, 1024 - 1, fmt, args...);
 	buf[length++] = 0;
-	OutputDebugStringW(buf);
-	std::wcout << buf;
+	DebugRaw(type, buf);
 }
 
 template <typename... Args>
-void Debug(char const * fmt, Args... args)
+void Debug(DebugMessageType type, char const * fmt, Args... args)
 {
 	char buf[1024];
-	int length = sprintf_s(buf, 1024 - 4, fmt, args...);
-	buf[length++] = '\r';
-	buf[length++] = '\n';
+	int length = sprintf_s(buf, 1024 - 1, fmt, args...);
 	buf[length++] = 0;
-	OutputDebugStringA(buf);
-	std::cout << buf;
+	DebugRaw(type, buf);
 }
 
-inline void DebugRaw(char const * msg)
-{
-	OutputDebugStringA(msg);
-	std::cout << msg << std::endl;
-}
+void DebugRaw(DebugMessageType type, char const * msg);
+void DebugRaw(DebugMessageType type, wchar_t const * msg);
+
+#define DEBUG(msg, ...) Debug(DebugMessageType::Info, msg, __VA_ARGS__)
+#define WARN(msg, ...) Debug(DebugMessageType::Warning, msg, __VA_ARGS__)
+#define ERR(msg, ...) Debug(DebugMessageType::Error, msg, __VA_ARGS__)
 
 [[noreturn]]
 void Fail(TCHAR const * reason);

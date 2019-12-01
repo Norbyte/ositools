@@ -175,7 +175,7 @@ namespace osidbg
 	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call)
 	{
 		if (call[0] != 0xE8) {
-			Debug("AsmCallToAbsoluteAddress(): Not a call @ %p", call);
+			ERR("AsmCallToAbsoluteAddress(): Not a call @ %p", call);
 			return nullptr;
 		}
 
@@ -186,7 +186,7 @@ namespace osidbg
 	uint8_t const * AsmLeaToAbsoluteAddress(uint8_t const * lea)
 	{
 		if ((lea[0] != 0x48 && lea[0] != 0x4C) || (lea[1] != 0x8D && lea[1] != 0x8B)) {
-			Debug("AsmLeaToAbsoluteAddress(): Not a LEA @ %p", lea);
+			ERR("AsmLeaToAbsoluteAddress(): Not a LEA @ %p", lea);
 			return nullptr;
 		}
 
@@ -223,7 +223,7 @@ namespace osidbg
 		}
 #endif
 		else {
-			Debug("LibraryManager::FindLibraries(): Unable to determine application type.");
+			ERR("LibraryManager::FindLibraries(): Unable to determine application type.");
 			return false;
 		}
 	}
@@ -285,7 +285,7 @@ namespace osidbg
 
 		auto initEnd = std::chrono::high_resolution_clock::now();
 		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
-		Debug("LibraryManager::PostStartupFindLibraries() took %d ms", ms);
+		DEBUG("LibraryManager::PostStartupFindLibraries() took %d ms", ms);
 
 		PostLoaded = true;
 		return !CriticalInitFailed;
@@ -306,7 +306,7 @@ namespace osidbg
 
 	void LibraryManager::ShowStartupError(std::wstring const & msg, bool wait, bool exitGame)
 	{
-		Debug(L"STARTUP ERROR: %s", msg.c_str());
+		ERR(L"STARTUP ERROR: %s", msg.c_str());
 
 		if (EoCClient == nullptr
 			|| EoCClientHandleError == nullptr
@@ -386,7 +386,7 @@ namespace osidbg
 			|| ActivateClientSystemsHook == nullptr
 			|| ActivateServerSystemsHook == nullptr
 			|| CustomStatUIRollHook == nullptr) {
-			Debug("LibraryManager::EnableCustomStats(): Hooks not available");
+			ERR("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
 

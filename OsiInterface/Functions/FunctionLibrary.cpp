@@ -298,7 +298,7 @@ namespace osidbg
 
 	void CustomFunctionLibrary::OnBaseModuleLoaded()
 	{
-		Debug("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
+		DEBUG("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 		functionMgr.ClearDynamicEntries();
 

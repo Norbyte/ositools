@@ -39,9 +39,6 @@
     <ClInclude Include="OsirisProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SocketProxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NodeHooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>

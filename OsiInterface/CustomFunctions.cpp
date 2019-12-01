@@ -530,7 +530,7 @@ void CustomFunctionInjector::CreateOsirisSymbolMap(MappingInfo ** Mappings, uint
 		if (it != symbolMap.end()) {
 			osiSymbols_[it->second].EoCFunctionId = mapping.Id;
 		} else {
-			Debug("No Osiris definition found for engine function %s/%d", mapping.Name, mapping.NumParams);
+			WARN("No Osiris definition found for engine function %s/%d", mapping.Name, mapping.NumParams);
 		}
 	}
 }
@@ -554,12 +554,12 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 			osiToDivMappings_.insert(std::make_pair(mapping.Id, mapped->Handle()));
 			divToOsiMappings_.insert(std::make_pair(mapped->Handle(), mapping.Id));
 #if 0
-			Debug("Function mapping (%s): %08x --> %08x", mapping.Name, mapping.Id, (unsigned int)mapped->Handle());
+			DEBUG("Function mapping (%s): %08x --> %08x", mapping.Name, mapping.Id, (unsigned int)mapped->Handle());
 #endif
 		}
 	}
 
-	Debug("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
+	DEBUG("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
 	*MappingCount = outputIndex;
 
 	ExtensionState::Get().StoryFunctionMappingsUpdated();
@@ -599,7 +599,7 @@ void CustomFunctionInjector::ExtendStoryHeader(std::wstring const & headerPath)
 
 	auto headers = functions_.GenerateHeaders();
 #if 0
-	Debug("CustomFunctionInjector::ExtendStoryHeader(): Appending to header:\r\n");
+	DEBUG("CustomFunctionInjector::ExtendStoryHeader(): Appending to header:\r\n");
 	OutputDebugStringA(headers.c_str());
 	std::cout << headers << std::endl;
 #endif
@@ -624,7 +624,7 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 	if (!extendingStory_ && (dwDesiredAccess & GENERIC_WRITE)) {
 		auto length = wcslen(lpFileName);
 		if (length > 16 && wcscmp(&lpFileName[length - 16], L"story_header.div") == 0) {
-			Debug(L"CustomFunctionInjector::OnCreateFile: %s", lpFileName);
+			DEBUG(L"CustomFunctionInjector::OnCreateFile: %s", lpFileName);
 			storyHeaderFile_ = hFile;
 			storyHeaderPath_ = lpFileName;
 		}

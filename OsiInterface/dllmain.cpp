@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "DxgiWrapper.h"
 #include "OsirisProxy.h"
-#include "SocketProxy.h"
 #include "json/json.h"
 #include <ShellAPI.h>
 #include <KnownFolders.h>
@@ -164,7 +163,7 @@ void SetupOsirisProxy(HMODULE hModule)
 	osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
 
 	if (config.EnableLogging) {
-		Debug(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
+		DEBUG(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
 	}
 
 	if (config.EnableDebugger) {
@@ -180,7 +179,7 @@ void SetupOsirisProxy(HMODULE hModule)
 	osidbg::gOsirisProxy->Initialize();
 
 #if 0
-	Debug(" ***** OsirisProxy setup completed ***** ");
+	DEBUG(" ***** OsirisProxy setup completed ***** ");
 #endif
 }
 

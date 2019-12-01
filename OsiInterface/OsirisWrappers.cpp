@@ -96,7 +96,7 @@ void OsirisWrappers::Initialize()
 	FindDebugFlags(SetOptionProc);
 
 #if 0
-	Debug("OsirisWrappers::Initialize: Detouring functions");
+	DEBUG("OsirisWrappers::Initialize: Detouring functions");
 #endif
 
 	DetourTransactionBegin();
@@ -152,7 +152,7 @@ void OsirisWrappers::InitializeExtensions()
 void OsirisWrappers::Shutdown()
 {
 #if 0
-	Debug("OsirisWrappers::Shutdown: Unregistering hooks");
+	DEBUG("OsirisWrappers::Shutdown: Unregistering hooks");
 #endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -210,7 +210,7 @@ void OsirisWrappers::AssertWrapper(bool Successful, char const * Message, bool U
 void * OsirisWrappers::FindRuleActionCallProc()
 {
 #if 0
-	Debug("OsirisWrappers::FindRuleActionCallProc");
+	DEBUG("OsirisWrappers::FindRuleActionCallProc");
 #endif
 	uint8_t * Addr = static_cast<uint8_t *>(OsirisDllStart);
 
@@ -259,7 +259,7 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address)
 void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 {
 #if 0
-	Debug("OsirisProxy::FindOsirisGlobals:");
+	DEBUG("OsirisProxy::FindOsirisGlobals:");
 #endif
 	uint8_t * Addr = ResolveRealFunctionAddress((uint8_t *)CtorProc);
 
@@ -296,14 +296,14 @@ void OsirisWrappers::FindOsirisGlobals(FARPROC CtorProc)
 	Globals.Nodes = (NodeDb **)globals[7];
 
 #if 0
-	Debug("\tVariables = %p", Globals.Variables);
-	Debug("\tTypes = %p", Globals.Types);
-	Debug("\tFunctions = %p", Globals.Functions);
-	Debug("\tObjects = %p", Globals.Objects);
-	Debug("\tGoals = %p", Globals.Goals);
-	Debug("\tAdapters = %p", Globals.Adapters);
-	Debug("\tDatabases = %p", Globals.Databases);
-	Debug("\tNodes = %p", Globals.Nodes);
+	DEBUG("\tVariables = %p", Globals.Variables);
+	DEBUG("\tTypes = %p", Globals.Types);
+	DEBUG("\tFunctions = %p", Globals.Functions);
+	DEBUG("\tObjects = %p", Globals.Objects);
+	DEBUG("\tGoals = %p", Globals.Goals);
+	DEBUG("\tAdapters = %p", Globals.Adapters);
+	DEBUG("\tDatabases = %p", Globals.Databases);
+	DEBUG("\tNodes = %p", Globals.Nodes);
 #endif
 }
 
@@ -331,7 +331,7 @@ void OsirisWrappers::FindDebugFlags(FARPROC SetOptionProc)
 	}
 
 #if 0
-	Debug("OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
+	DEBUG("OsirisProxy::FindDebugFlags: DebugFlags = %p", Globals.DebugFlags);
 #endif
 }
 

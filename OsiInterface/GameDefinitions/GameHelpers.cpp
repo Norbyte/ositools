@@ -44,10 +44,10 @@ namespace osidbg
 			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
 		if (isDE) {
 			gGameType = GameType::DOS2DE;
-			Debug("OsiDetectGameType(): Detected D:OS2 DE");
+			DEBUG("OsiDetectGameType(): Detected D:OS2 DE");
 		} else {
 			gGameType = GameType::DOS2;
-			Debug("OsiDetectGameType(): Detected D:OS2 Classic");
+			DEBUG("OsiDetectGameType(): Detected D:OS2 Classic");
 		}
 	}
 
@@ -206,12 +206,12 @@ namespace osidbg
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
 		if (typeInfo == nullptr) {
-			Debug("CRPGStatsManager::SetAttributeString(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
+			WARN("CRPGStatsManager::SetAttributeString(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
 			return false;
 		}
 
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			Debug("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Updating FixedStrings not supported YET!", object->Name, attributeName);
+			WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Updating FixedStrings not supported YET!", object->Name, attributeName);
 		}
 		else if (typeInfo->Values.ItemCount > 0) {
 			auto enumIndex = typeInfo->Values.Find(value);
@@ -219,12 +219,12 @@ namespace osidbg
 				object->IndexedProperties[attributeIndex] = *enumIndex;
 			}
 			else {
-				Debug("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Value is not a valid enum label", object->Name, attributeName);
+				WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Value is not a valid enum label", object->Name, attributeName);
 				return false;
 			}
 		}
 		else {
-			Debug("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
+			WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
 			return false;
 		}
 
@@ -236,7 +236,7 @@ namespace osidbg
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
 		if (typeInfo == nullptr) {
-			Debug("CRPGStatsManager::SetAttributeInt(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
+			WARN("CRPGStatsManager::SetAttributeInt(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
 			return false;
 		}
 
@@ -248,12 +248,12 @@ namespace osidbg
 				object->IndexedProperties[attributeIndex] = value;
 			}
 			else {
-				Debug("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Enum index out of range", object->Name, attributeName);
+				WARN("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Enum index out of range", object->Name, attributeName);
 				return false;
 			}
 		}
 		else {
-			Debug("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
+			WARN("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
 			return false;
 		}
 
