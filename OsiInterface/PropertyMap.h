@@ -21,6 +21,8 @@ namespace osidbg
 		kUInt64,
 		kFloat,
 		kFixedString,
+		kStdString,
+		kStdWString,
 		kObjectHandle,
 		kVector3
 	};
@@ -54,6 +56,10 @@ namespace osidbg
 			return PropertyType::kFloat;
 		} else if constexpr (std::is_same<T, FixedString>::value) {
 			return PropertyType::kFixedString;
+		} else if constexpr (std::is_same<T, STDString>::value) {
+			return PropertyType::kStdString;
+		} else if constexpr (std::is_same<T, STDWString>::value) {
+			return PropertyType::kStdWString;
 		} else if constexpr (std::is_same<T, ObjectHandle>::value) {
 			return PropertyType::kObjectHandle;
 		} else if constexpr (std::is_same<T, Vector3>::value) {
@@ -272,9 +278,18 @@ namespace osidbg
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kFixedString) {
+			switch (prop->second.Type) {
+			case PropertyType::kFixedString:
 				return reinterpret_cast<FixedString *>(ptr)->Str;
-			} else {
+
+			case PropertyType::kStdString:
+				return reinterpret_cast<STDString *>(ptr)->GetPtr();
+
+			case PropertyType::kStdWString:
+				OsiError("Failed to get property '" << name << "': kStdWString not supported yet!");
+				return {};
+
+			default:
 				OsiError("Failed to get property '" << name << "': Property is not a string");
 				return {};
 			}
@@ -304,16 +319,28 @@ namespace osidbg
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kFixedString) {
-				auto fs = ToFixedString(value);
-				if (!fs) {
-					OsiError("Failed to set string '" << name << "': Could not map to FixedString");
-					return false;
-				} else {
-					*reinterpret_cast<FixedString *>(ptr) = fs;
-					return true;
+			switch (prop->second.Type) {
+			case PropertyType::kFixedString:
+				{
+					auto fs = ToFixedString(value);
+					if (!fs) {
+						OsiError("Failed to set string '" << name << "': Could not map to FixedString");
+						return false;
+					} else {
+						*reinterpret_cast<FixedString *>(ptr) = fs;
+						return true;
+					}
 				}
-			} else {
+
+			case PropertyType::kStdString:
+				reinterpret_cast<STDString *>(ptr)->Set(value);
+				return true;
+
+			case PropertyType::kStdWString:
+				reinterpret_cast<STDWString *>(ptr)->Set(value);
+				return true;
+
+			default:
 				OsiError("Failed to set property '" << name << "': Property is not a string");
 				return false;
 			}
