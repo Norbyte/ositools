@@ -320,6 +320,35 @@ namespace osidbg
 
 			character->PlayerUpgrade.IsCustom = true;
 		}
+
+		template <OsiPropertyMapType Type>
+		bool PlayerGetCustomData(OsiArgumentDesc & args)
+		{
+			auto player = FindPlayerByNameGuid(args[0].String);
+			if (player == nullptr) return false;
+
+			if (!player->PlayerData->CustomData.Initialized) {
+				OsiError("Player custom data for character '" << args[0].String << "' has not been initialized!");
+				return false;
+			}
+
+			return OsirisPropertyMapGet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
+		}
+
+		template <OsiPropertyMapType Type>
+		void PlayerSetCustomData(OsiArgumentDesc const & args)
+		{
+			auto player = FindPlayerByNameGuid(args[0].String);
+			if (player == nullptr) return;
+
+			if (!player->PlayerData->CustomData.Initialized) {
+				OsiError("Player custom data for character '" << args[0].String << "' has not been initialized!");
+				return;
+			}
+
+			OsirisPropertyMapSet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
+			player->PlayerData->Dirty = true;
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterPlayerFunctions()
@@ -456,6 +485,50 @@ namespace osidbg
 			&func::PlayerSetBaseTalent
 		);
 		functionMgr.Register(std::move(playerSetBaseTalent));
+
+		auto playerGetCustomDataInt = std::make_unique<CustomQuery>(
+			"NRD_PlayerGetCustomDataInt",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::PlayerGetCustomData<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(playerGetCustomDataInt));
+
+		auto playerGetCustomDataString = std::make_unique<CustomQuery>(
+			"NRD_PlayerGetCustomDataString",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::PlayerGetCustomData<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(playerGetCustomDataString));
+
+		auto playerSetCustomDataInt = std::make_unique<CustomCall>(
+			"NRD_PlayerSetCustomDataInt",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::PlayerSetCustomData<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(playerSetCustomDataInt));
+
+		auto playerSetCustomDataString = std::make_unique<CustomCall>(
+			"NRD_PlayerSetCustomDataString",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::PlayerSetCustomData<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(playerSetCustomDataString));
 	}
 
 }

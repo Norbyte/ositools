@@ -23,13 +23,16 @@
     * [StatusHealing Attributes](#statushealing-attributes)
  - [Hits](#hit-functions)
  - [Projectiles](#projectile-functions)
- - [Skills](#skill-functions)
- - [Skillbar](#skillbar-functions)
  - [Game Actions](#game-action-functions)
  - [Characters](#character-functions)
     * [Character Stats](#character-functions)
+    * [Base Stats](#base-stats)
     * [Custom Stats](#custom-stats)
     * [Permanent Boosts](#permanent-boosts)
+    * [Skills](#skill-functions)
+ - [Player](#player-functions)
+   * [Player Customization](#player-customization-functions)
+   * [Skillbar](#skillbar-functions)
  - [Items](#item-functions)
     * [Item Stats](#item-functions)
     * [Item Cloning](#cloning-items)
@@ -629,64 +632,6 @@ NRD_ProjectileSetGuidString("TargetPosition", Sandbox_Market_Ernest_Herringway_d
 NRD_ProjectileLaunch();
 ```
 
-# Skill functions
-
-### SkillSetCooldown
-`call NRD_SkillSetCooldown((CHARACTERGUID)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
-
-Set the current cooldown timer of the skill (in seconds).
-Doesn't work on skills that can only be used once per combat.
-
-### SkillGetCooldown
-`query NRD_SkillGetCooldown([in](CHARACTERGUID)_Character, [in](STRING)_SkillId, [out](REAL)_Cooldown)`
-
-Returns the current cooldown timer of the skill (in seconds).
-For skills that can only be used once per combat -1.0 is returned.
-
-# Skillbar functions
-
-**Notes:**
- - The skill bar functions can only be used on player characters
- - The skill bar slot (`_Slot`) must be an integer between 0 and 144.
-
-### SkillBarGetItem
-`query NRD_SkillBarGetItem([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](ITEMGUID)_Item)`
-
-Retrieves the item in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by a skill, the query fails.
-
-### SkillBarGetSkill
-`query NRD_SkillBarGetSkill([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](STRING)_Skill)`
-
-Retrieves the skill in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by an item, the query fails.
-
-### SkillBarFindSkill
-`query NRD_SkillBarFindSkill([in](CHARACTERGUID)_Character, [in](STRING)_Skill, [out](INTEGER)_Slot)`
-
-Checks whether the player has the skill `_Skill` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the skill is not on the skill bar, the query fails.
-
-### SkillBarFindItem
-`query NRD_SkillBarFindItem([in](CHARACTERGUID)_Character, [in](ITEMGUID)_Item, [out](INTEGER)_Slot)`
-
-Checks whether the player has the item `_Item` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the item is not on the skill bar, the query fails.
-
-### SkillBarSetSkill
-`call NRD_SkillBarSetSkill((CHARACTERGUID)_Character, (INTEGER)_Slot, (STRING)_SkillId)`
-
-Removes any item or skill that's currently in the skill bar slot and replaces it with the specified skill.
-
-**Notes:**
- - It is possible to pin any skill to the skill bar, not just ones that the character currently has.
-
-### SkillBarSetItem
-`call NRD_SkillBarSetItem((CHARACTERGUID)_Character, (INTEGER)_Slot, (ITEMGUID)_Item)`
-
-Removes any item or skill that's currently in the skill bar slot and replaces it with the specified item.
-
-### SkillBarClear
-`call NRD_SkillBarClear((CHARACTERGUID)_Character, (INTEGER)_Slot)`
-
-Removes any item or skill that's currently in the specified skill bar slot.
-
 
 # Game Action functions
 
@@ -753,6 +698,15 @@ Updates the total lifetime of the specified game action.
 
 # Character functions
 
+## General
+
+### CharacterSetGlobal
+`call NRD_CharacterSetGlobal((CHARACTERGUID)_Character, (INTEGER)_IsGlobal)`
+
+Transforms `_Character` into a global/local entity.
+The side effects of making a character global/local has not been studied, so this function is **EXPERIMENTAL** and potentially dangerous.
+
+
 ## Stats
 
 ### CharacterGetStat
@@ -786,6 +740,37 @@ Returns the chance of the attacker character hitting the target character (in pe
 
 Updates the stat value of `_Stat` to the specified value . `_Stat` must be one of the following:
 CurrentVitality, CurrentArmor, CurrentMagicArmor
+
+
+## Base Stats
+
+**Limitations:**
+Base attribute/ability/talent changes don't show up immediately because of how client-server communication works in the game. To ensure that changes are synchronized a no-op call to `CharacterAddCivilAbilityPoint` must be performed. Example:
+
+```c
+NRD_PlayerSetBaseAbility(_Character, "WarriorLore", 5);
+NRD_PlayerSetBaseTalent(_Character, "AttackOfOpportunity", 1);
+CharacterAddCivilAbilityPoint(_Character, 0); // Force PlayerUpgrade sync
+```
+
+
+### CharacterSetBaseAttribute
+`call NRD_CharacterSetBaseAttribute((CHARACTERGUID)_Character, (STRING)_Attribute, (INTEGER)_Value)`
+
+Updates the level of the specified attribute. `_Attribute` must be one of `Strength`, `Finesse`, `Intelligence`, `Constitution`, `Memory`, `Wits`. After changing base attributes, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
+
+
+### CharacterSetBaseAbility
+`call NRD_CharacterSetBaseAbility((CHARACTERGUID)_Character, (STRING)_Ability, (INTEGER)_Value)`
+
+Updates the level of the specified ability. `_Ability` must be a value from the built-in enumeration `Ability` (see `Enumerations.xml`). After changing base abilities, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
+
+
+### CharacterSetBaseTalent
+`call NRD_CharacterSetBaseTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_HasTalent)`
+
+Adds or removes a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). Unlike `CharacterAddTalent` and `CharacterRemoveTalent`, this function changes the base talent values, not the boost talent values. After changing talents, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
+
 
 ## Custom Stats
 
@@ -854,6 +839,103 @@ Returns whether the specified talent is disabled. `_Talent` must be a value from
 `call NRD_CharacterDisableTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_IsDisabled)`
 
 Disables or re-enables a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via a dummy `CharacterAddAttribute` call (see above).
+
+## Skill functions
+
+### SkillSetCooldown
+`call NRD_SkillSetCooldown((CHARACTERGUID)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
+
+Set the current cooldown timer of the skill (in seconds).
+Doesn't work on skills that can only be used once per combat.
+
+### SkillGetCooldown
+`query NRD_SkillGetCooldown([in](CHARACTERGUID)_Character, [in](STRING)_SkillId, [out](REAL)_Cooldown)`
+
+Returns the current cooldown timer of the skill (in seconds).
+For skills that can only be used once per combat -1.0 is returned.
+
+
+# Player functions
+
+## Player Customization functions
+
+### PlayerGetCustomData
+```
+query NRD_PlayerGetCustomDataInt([in](CHARACTERGUID)_Player, [in](STRING)_Property, [out](INTEGER)_Value)
+query NRD_PlayerGetCustomDataString([in](CHARACTERGUID)_Player, [in](STRING)_Property, [out](STRING)_Value)
+```
+
+Returns the player customization property specified in `_Property`. If the property is not a valid player customization property, the specified character does not exist, the character is not a player, or the player customization data is not initialized, the query fails. (See below for a list of available properties.)
+
+### PlayerSetCustomData
+```
+call NRD_PlayerSetCustomDataInt((CHARACTERGUID)_Player, (STRING)_Property, (INTEGER)_Value)
+call NRD_PlayerSetCustomDataString((CHARACTERGUID)_Player, (STRING)_Property, (STRING)_Value)
+```
+
+Updates the player customization property specified in `_Property`. If the property is not a valid player customization property, the specified character does not exist, the character is not a player, or the player customization data is not initialized, the call will do nothing.
+
+### Player Customization Parameters
+| Attribute | Type | Access | 
+|--|--|--|
+| CustomLookEnabled | Flag | Read |
+| Name | String | Read/Write |
+| ClassType | String | Read/Write |
+| SkinColor | Integer | Read/Write |
+| HairColor | Integer | Read/Write |
+| ClothColor1 | Integer | Read/Write |
+| ClothColor2 | Integer | Read/Write |
+| ClothColor3 | Integer | Read/Write |
+| IsMale | Flag | Read/Write |
+| Race | String | Read/Write |
+| OriginName | String | Read/Write |
+| Icon | String | Read/Write |
+| MusicInstrument | String | Read/Write |
+
+
+## Skillbar functions
+
+**Notes:**
+ - The skill bar functions can only be used on player characters
+ - The skill bar slot (`_Slot`) must be an integer between 0 and 144.
+
+### SkillBarGetItem
+`query NRD_SkillBarGetItem([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](ITEMGUID)_Item)`
+
+Retrieves the item in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by a skill, the query fails.
+
+### SkillBarGetSkill
+`query NRD_SkillBarGetSkill([in](CHARACTERGUID)_Character, [in](INTEGER)_Slot, [out](STRING)_Skill)`
+
+Retrieves the skill in skill bar slot `_Slot`. If the character is not a player, the skill bar slot is empty, or if the skill bar slot is occupied by an item, the query fails.
+
+### SkillBarFindSkill
+`query NRD_SkillBarFindSkill([in](CHARACTERGUID)_Character, [in](STRING)_Skill, [out](INTEGER)_Slot)`
+
+Checks whether the player has the skill `_Skill` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the skill is not on the skill bar, the query fails.
+
+### SkillBarFindItem
+`query NRD_SkillBarFindItem([in](CHARACTERGUID)_Character, [in](ITEMGUID)_Item, [out](INTEGER)_Slot)`
+
+Checks whether the player has the item `_Item` on the skill bar, and returns the slot number of its first occurrence in `_Slot`. If the character is not a player or the item is not on the skill bar, the query fails.
+
+### SkillBarSetSkill
+`call NRD_SkillBarSetSkill((CHARACTERGUID)_Character, (INTEGER)_Slot, (STRING)_SkillId)`
+
+Removes any item or skill that's currently in the skill bar slot and replaces it with the specified skill.
+
+**Notes:**
+ - It is possible to pin any skill to the skill bar, not just ones that the character currently has.
+
+### SkillBarSetItem
+`call NRD_SkillBarSetItem((CHARACTERGUID)_Character, (INTEGER)_Slot, (ITEMGUID)_Item)`
+
+Removes any item or skill that's currently in the skill bar slot and replaces it with the specified item.
+
+### SkillBarClear
+`call NRD_SkillBarClear((CHARACTERGUID)_Character, (INTEGER)_Slot)`
+
+Removes any item or skill that's currently in the specified skill bar slot.
 
 
 # Item functions

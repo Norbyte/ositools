@@ -17,6 +17,7 @@ namespace osidbg
 	PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
 	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
+	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -346,6 +347,27 @@ namespace osidbg
 			PROP_FLAGS(CDivinityStats_Character, AttributeFlags, StatAttributeFlags, false);
 
 			// TODO - DisabledTalents, TraitOrder?
+		}
+
+		{
+			auto & propertyMap = gPlayerCustomDataPropertyMap;
+			PROP_RO(esv::PlayerCustomData, CustomLookEnabled);
+			PROP(esv::PlayerCustomData, Name);
+			PROP(esv::PlayerCustomData, ClassType);
+			PROP(esv::PlayerCustomData, SkinColor);
+			PROP(esv::PlayerCustomData, HairColor);
+			PROP(esv::PlayerCustomData, ClothColor1);
+			PROP(esv::PlayerCustomData, ClothColor2);
+			PROP(esv::PlayerCustomData, ClothColor3);
+			PROP(esv::PlayerCustomData, IsMale);
+			PROP(esv::PlayerCustomData, Race);
+			PROP(esv::PlayerCustomData, OriginName);
+			PROP(esv::PlayerCustomData, Icon);
+			PROP(esv::PlayerCustomData, MusicInstrument);
+			PROP_RO(esv::PlayerCustomData, OwnerProfileID);
+			PROP_RO(esv::PlayerCustomData, ReservedProfileID);
+			PROP(esv::PlayerCustomData, AiPersonality);
+			PROP_RO(esv::PlayerCustomData, Speaker);
 		}
 	}
 

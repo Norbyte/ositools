@@ -75,9 +75,6 @@
     <ClInclude Include="PropertyMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PropertyMaps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameDefinitions\BaseTypes.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
@@ -128,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="Lua\LuaBinding.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyMaps.h">
+      <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
