@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <PropertyMaps.h>
 
 namespace osidbg
 {
@@ -244,6 +245,81 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(characterGuid);
 			character->PlayerData->Dirty = true;
 		}
+
+		esv::Character * FindPlayerByNameGuid(char const * guid)
+		{
+			auto character = FindCharacterByNameGuid(guid);
+			if (character == nullptr) return nullptr;
+
+			if (character->PlayerData == nullptr) {
+				OsiError("Character " << guid << " is not a player!");
+				return nullptr;
+			}
+
+			return character;
+		}
+
+		void PlayerSetBaseAttribute(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto attributeName = args[1].String;
+			auto attributeValue = args[2].Int32;
+
+			auto character = FindPlayerByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			auto attribute = EnumInfo<PlayerUpgradeAttribute>::Find(attributeName);
+			if (!attribute) {
+				OsiError("Unknown character attribute: " << attributeName);
+				return;
+			}
+
+			character->PlayerUpgrade.Attributes.Set.Buf[(uint32_t)*attribute] = attributeValue;
+			character->PlayerUpgrade.IsCustom = true;
+		}
+
+		void PlayerSetBaseAbility(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto abilityName = args[1].String;
+			auto abilityValue = args[2].Int32;
+
+			auto character = FindPlayerByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			auto ability = EnumInfo<AbilityType>::Find(abilityName);
+			if (!ability) {
+				OsiError("Unknown ability: " << abilityName);
+				return;
+			}
+
+			character->PlayerUpgrade.Abilities.Set.Buf[(uint32_t)*ability - 1] = abilityValue;
+			character->PlayerUpgrade.IsCustom = true;
+		}
+
+		void PlayerSetBaseTalent(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto talentName = args[1].String;
+			auto talentValue = args[2].Int32;
+
+			auto character = FindPlayerByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			auto talent = EnumInfo<TalentType>::Find(talentName);
+			if (!talent) {
+				OsiError("Unknown talent type: " << talentName);
+				return;
+			}
+
+			if (talentValue != 0) {
+				character->PlayerUpgrade.Talents.Set((uint32_t)*talent);
+			} else {
+				character->PlayerUpgrade.Talents.Clear((uint32_t)*talent);
+			}
+
+			character->PlayerUpgrade.IsCustom = true;
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterPlayerFunctions()
@@ -347,6 +423,39 @@ namespace osidbg
 			&func::SkillBarClear
 		);
 		functionMgr.Register(std::move(skillBarClear));
+
+		auto playerSetBaseAttribute = std::make_unique<CustomCall>(
+			"NRD_PlayerSetBaseAttribute",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::PlayerSetBaseAttribute
+		);
+		functionMgr.Register(std::move(playerSetBaseAttribute));
+
+		auto playerSetBaseAbility = std::make_unique<CustomCall>(
+			"NRD_PlayerSetBaseAbility",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Ability", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::PlayerSetBaseAbility
+		);
+		functionMgr.Register(std::move(playerSetBaseAbility));
+
+		auto playerSetBaseTalent = std::make_unique<CustomCall>(
+			"NRD_PlayerSetBaseTalent",
+			std::vector<CustomFunctionParam>{
+				{ "Player", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "HasTalent", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::PlayerSetBaseTalent
+		);
+		functionMgr.Register(std::move(playerSetBaseTalent));
 	}
 
 }

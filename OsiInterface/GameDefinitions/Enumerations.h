@@ -157,6 +157,64 @@ namespace osidbg
 	};
 
 
+	enum class PlayerUpgradeAttribute
+	{
+		Strength = 0,
+		Finesse = 1,
+		Intelligence = 2,
+		Constitution = 3,
+		Memory = 4,
+		Wits = 5
+	};
+
+	MAKE_ENUM_INFO(PlayerUpgradeAttribute, 6);
+
+	enum class AbilityType
+	{
+		None = 0,
+		WarriorLore = 1,
+		RangerLore = 2,
+		RogueLore = 3,
+		SingleHanded = 4,
+		TwoHanded = 5,
+		Reflection = 6,
+		Ranged = 7,
+		Shield = 8,
+		Reflexes = 9,
+		PhysicalArmorMastery = 10,
+		Sourcery = 11,
+		Telekinesis = 12,
+		FireSpecialist = 13,
+		WaterSpecialist = 14,
+		AirSpecialist = 15,
+		EarthSpecialist = 16,
+		Necromancy = 17,
+		Summoning = 18,
+		Polymorph = 19,
+		Repair = 20,
+		Sneaking = 21,
+		Pickpocket = 22,
+		Thievery = 23,
+		Loremaster = 24,
+		Crafting = 25,
+		Barter = 26,
+		Charm = 27,
+		Intimidate = 28,
+		Reason = 29,
+		Persuasion = 30,
+		Leadership = 31,
+		Luck = 32,
+		DualWielding = 33,
+		Wand = 34,
+		MagicArmorMastery = 35,
+		VitalityMastery = 36,
+		Perseverance = 37,
+		Runecrafting = 38,
+		Brewmaster = 39
+	};
+
+	MAKE_ENUM_INFO(AbilityType, 40);
+
 	enum class CriticalRoll
 	{
 		Roll = 0,

@@ -145,6 +145,28 @@ namespace osidbg
 		return typeInfo->Name == type;
 	}
 
+	std::optional<int> CRPGStatsManager::EnumLabelToIndex(const char * enumName, const char * enumLabel)
+	{
+		auto fs = ToFixedString(enumName);
+		if (!fs) {
+			OsiError("No enum named '" << enumName << "' exists");
+			return {};
+		}
+
+		auto rpgEnum = modifierValueList.Find(enumName);
+		if (rpgEnum == nullptr) {
+			OsiError("No enum named '" << enumName << "' exists");
+			return {};
+		}
+
+		auto index = rpgEnum->Values.Find(enumLabel);
+		if (index == nullptr) {
+			return {};
+		} else {
+			return *index;
+		}
+	}
+
 	ModifierList * CRPGStatsManager::GetTypeInfo(CRPGStats_Object * object)
 	{
 		return modifierList.Find(object->ModifierListIndex);
@@ -642,6 +664,60 @@ namespace osidbg
 	{
 		return RemovedTalents.IsSet((uint32_t)talent);
 	}
+
+
+	EnumInfo<PlayerUpgradeAttribute>::Label const EnumInfo<PlayerUpgradeAttribute>::Values[] = {
+		{ PlayerUpgradeAttribute::Strength, "Strength" },
+		{ PlayerUpgradeAttribute::Finesse, "Finesse" },
+		{ PlayerUpgradeAttribute::Intelligence, "Intelligence" },
+		{ PlayerUpgradeAttribute::Constitution, "Constitution" },
+		{ PlayerUpgradeAttribute::Memory, "Memory" },
+		{ PlayerUpgradeAttribute::Wits, "Wits" },
+	};
+
+
+	EnumInfo<AbilityType>::Label const EnumInfo<AbilityType>::Values[] = {
+		{ AbilityType::None, "None" },
+		{ AbilityType::WarriorLore, "WarriorLore" },
+		{ AbilityType::RangerLore, "RangerLore" },
+		{ AbilityType::RogueLore, "RogueLore" },
+		{ AbilityType::SingleHanded, "SingleHanded" },
+		{ AbilityType::TwoHanded, "TwoHanded" },
+		{ AbilityType::Reflection, "Reflection" },
+		{ AbilityType::Ranged, "Ranged" },
+		{ AbilityType::Shield, "Shield" },
+		{ AbilityType::Reflexes, "Reflexes" },
+		{ AbilityType::PhysicalArmorMastery, "PhysicalArmorMastery" },
+		{ AbilityType::Sourcery, "Sourcery" },
+		{ AbilityType::Telekinesis, "Telekinesis" },
+		{ AbilityType::FireSpecialist, "FireSpecialist" },
+		{ AbilityType::WaterSpecialist, "WaterSpecialist" },
+		{ AbilityType::AirSpecialist, "AirSpecialist" },
+		{ AbilityType::EarthSpecialist, "EarthSpecialist" },
+		{ AbilityType::Necromancy, "Necromancy" },
+		{ AbilityType::Summoning, "Summoning" },
+		{ AbilityType::Polymorph, "Polymorph" },
+		{ AbilityType::Repair, "Repair" },
+		{ AbilityType::Sneaking, "Sneaking" },
+		{ AbilityType::Pickpocket, "Pickpocket" },
+		{ AbilityType::Thievery, "Thievery" },
+		{ AbilityType::Loremaster, "Loremaster" },
+		{ AbilityType::Crafting, "Crafting" },
+		{ AbilityType::Barter, "Barter" },
+		{ AbilityType::Charm, "Charm" },
+		{ AbilityType::Intimidate, "Intimidate" },
+		{ AbilityType::Reason, "Reason" },
+		{ AbilityType::Persuasion, "Persuasion" },
+		{ AbilityType::Leadership, "Leadership" },
+		{ AbilityType::Luck, "Luck" },
+		{ AbilityType::DualWielding, "DualWielding" },
+		{ AbilityType::Wand, "Wand" },
+		{ AbilityType::MagicArmorMastery, "MagicArmorMastery" },
+		{ AbilityType::VitalityMastery, "VitalityMastery" },
+		{ AbilityType::Perseverance, "Perseverance" },
+		{ AbilityType::Runecrafting, "Runecrafting" },
+		{ AbilityType::Brewmaster, "Brewmaster" }
+	};
 
 
 	EnumInfo<CriticalRoll>::Label const EnumInfo<CriticalRoll>::Values[] = {
