@@ -19,6 +19,9 @@
     <Filter Include="Header Files\GameDefinitions">
       <UniqueIdentifier>{637dd829-3943-4602-b58c-5d33b01ac51d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Lua">
+      <UniqueIdentifier>{fac8a037-d9da-43c0-98b6-9cd2c1e7fe8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -75,9 +78,6 @@
     <ClInclude Include="PropertyMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LuaBinding.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameDefinitions\BaseTypes.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
@@ -124,6 +124,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OsirisHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\LuaBinding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -215,9 +218,6 @@
     <ClCompile Include="Functions\CustomStatFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
-    <ClCompile Include="LuaBinding.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameDefinitions\GameHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -229,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="ExtensionState.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\LuaBinding.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\LuaOsiBridge.cpp">
+      <Filter>Source Files\Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

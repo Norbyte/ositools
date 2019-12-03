@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ExtensionHelpers.h"
-#include "LuaBinding.h"
+#include "Lua/LuaBinding.h"
 #include <random>
 
 namespace Json { class Value; }

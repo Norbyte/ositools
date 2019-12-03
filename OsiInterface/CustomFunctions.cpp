@@ -297,7 +297,7 @@ CustomFunction * CustomFunctionManager::Find(FunctionNameAndArity const & signat
 bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & params)
 {
 	if (handle.classIndex() < CallClassIdMin || handle.classIndex() > CallClassIdMax) {
-		OsiError("Cannot call " << (uint32_t)handle << " - not a custom function!");
+		OsiError("Cannot call " << (uint64_t)handle << " - not a custom function!");
 		return false;
 	}
 
@@ -314,7 +314,7 @@ bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & 
 bool CustomFunctionManager::Query(FunctionHandle handle, OsiArgumentDesc & params)
 {
 	if (handle.classIndex() < QueryClassIdMin || handle.classIndex() > QueryClassIdMax) {
-		OsiError("Cannot query " << (uint32_t)handle << " - not a custom function!");
+		OsiError("Cannot query " << (uint64_t)handle << " - not a custom function!");
 		return false;
 	}
 

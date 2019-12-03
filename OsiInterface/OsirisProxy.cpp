@@ -105,7 +105,7 @@ void OsirisProxy::SetupNetworkStringsDump(bool Enable)
 
 void OsirisProxy::LogOsirisError(std::string const & msg)
 {
-	auto log = "[Osiris] {W} " + msg;
+	auto log = "[Osiris] {E} " + msg;
 	DebugRaw(DebugMessageType::Error, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);

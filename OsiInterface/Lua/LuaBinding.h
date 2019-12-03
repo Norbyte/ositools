@@ -163,10 +163,10 @@ namespace osidbg
 	};
 
 
-	class OsiProxyLibrary
+	class LuaExtensionLibrary
 	{
 	public:
-		OsiProxyLibrary();
+		LuaExtensionLibrary();
 
 		void Register(lua_State * L);
 		void RegisterLib(lua_State * L);
@@ -266,6 +266,14 @@ namespace osidbg
 		T * args_;
 	};
 
+	class LuaException : public std::exception
+	{
+	public:
+		LuaException()
+			: std::exception("Lua error thrown")
+		{}
+	};
+
 	class LuaState
 	{
 	public:
@@ -328,18 +336,29 @@ namespace osidbg
 		{
 			std::lock_guard lock(mutex_);
 
-			auto L = state_;
+			auto L = State();
+			auto stackSize = lua_gettop(L);
 
-			lua_getglobal(L, func); // stack: func
-			for (auto & arg : args) {
-				OsiToLua(L, arg); // stack: func, arg0 ... argn
-			}
+			try {
+				lua_getglobal(L, func); // stack: func
+				for (auto & arg : args) {
+					OsiToLua(L, arg); // stack: func, arg0 ... argn
+				}
 			
-			auto status = lua_pcall(L, (int)args.size(), 0, 0);
-			if (status != LUA_OK) {
-				OsiError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
-				// stack: errmsg
-				lua_pop(L, 1); // stack: -
+				auto status = lua_pcall(L, (int)args.size(), 0, 0);
+				if (status != LUA_OK) {
+					OsiError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
+					// stack: errmsg
+					lua_pop(L, 1); // stack: -
+				}
+			} catch (LuaException &) {
+				auto stackRemaining = lua_gettop(L) - stackSize;
+				if (stackRemaining > 0) {
+					OsiError("Call '" << func << "' failed: " << lua_tostring(L, -1));
+					lua_pop(L, stackRemaining);
+				} else {
+					OsiError("Internal error during call '" << func << "'");
+				}
 			}
 		}
 
@@ -348,7 +367,7 @@ namespace osidbg
 
 	private:
 		lua_State * state_;
-		OsiProxyLibrary proxy_;
+		LuaExtensionLibrary proxy_;
 		OsiArgumentPool<OsiArgumentDesc> argDescPool_;
 		OsiArgumentPool<TypedValue> tvPool_;
 		OsiArgumentPool<ListNode<TypedValue *>> tvNodePool_;
