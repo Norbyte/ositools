@@ -266,7 +266,7 @@ namespace osidbg
 		uint64_t Reflection;
 		uint32_t Unkn2;
 		uint32_t StepsType;
-		uint64_t AttributeFlags;
+		uint64_t AttributeFlagsObjectId;
 		uint32_t Unkn4;
 
 		bool RemoveTalent(TalentType talent, bool remove);
@@ -322,8 +322,8 @@ namespace osidbg
 		uint32_t BaseSight;
 		uint64_t AttributeFlags;
 		uint64_t BaseAttributeFlags;
-		uint32_t Unkn5[2];
-		bool SomeComputePendingFlag;
+		uint64_t ItemBoostedAttributeFlags;
+		bool AttributeFlagsUpdated;
 		uint8_t _Pad6[3];
 		uint32_t MaxSummons;
 		uint32_t BaseMaxSummons;
@@ -415,8 +415,9 @@ namespace osidbg
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
 		CNamedElementManager<uint64_t> itemTypes;
-		uint64_t unknown[47];
-		PrimitiveSet<FixedString> ModifierFSSet;
+		uint64_t unknown[46];
+		ObjectSet<FixedString> ModifierFSSet;
+		ObjectSet<uint64_t> AttributeFlags;
 		uint64_t unknown2[165];
 
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);

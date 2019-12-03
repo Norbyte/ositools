@@ -313,7 +313,6 @@ namespace osidbg
 			PROP(CharacterDynamicStat, SPCostBoost);
 			PROP(CharacterDynamicStat, MaxSummons);
 			PROP(CharacterDynamicStat, BonusWeaponDamageMultiplier);
-			PROP_FLAGS(CharacterDynamicStat, AttributeFlags, StatAttributeFlags, true);
 			// TODO Abilities, Talents, RemovedTalents, Traits
 		}
 

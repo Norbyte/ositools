@@ -167,7 +167,7 @@ namespace osidbg
 
 		auto index = object->IndexedProperties[attributeIndex];
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			return ModifierFSSet.Buf[index];
+			return ModifierFSSet.Set.Buf[index];
 		}
 		else if (typeInfo->Values.ItemCount > 0) {
 			auto enumLabel = typeInfo->Values.FindByValue(index);

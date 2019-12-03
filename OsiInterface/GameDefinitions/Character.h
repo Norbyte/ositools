@@ -19,7 +19,8 @@ namespace osidbg
 			uint32_t CombatAbilityPoints;
 			uint32_t CivilAbilityPoints;
 			uint32_t TalentPoints;
-			uint64_t Unknown;
+			uint32_t Unknown;
+			uint8_t _Pad[4];
 			ObjectSet<int> Attributes;
 			ObjectSet<int> Abilities;
 			uint32_t Talents[4];
