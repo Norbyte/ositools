@@ -20,7 +20,7 @@ struct ToolConfig
 	bool CreateConsole{ true };
 	bool EnableLogging{ false };
 	bool LogCompile{ false };
-	bool EnableExtensions{ false };
+	bool EnableExtensions{ true };
 	bool EnableDebugger{ true };
 #endif
 	bool DumpNetworkStrings{ false };
@@ -135,7 +135,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 void SetupOsirisProxy(HMODULE hModule)
 {
 	ToolConfig config;
-	LoadConfig(L"OsirisProxy.json", config);
+	LoadConfig(L"OsirisExtenderSettings.json", config);
 
 	if (config.CreateConsole) {
 		CreateConsole(hModule);
