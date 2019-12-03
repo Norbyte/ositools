@@ -52,6 +52,13 @@ namespace osidbg
 	}
 
 
+	void STDWString::Set(std::string const & s)
+	{
+		auto wcs = FromUTF8(s);
+		Set(wcs);
+	}
+
+
 	void STDWString::Set(std::wstring const & s)
 	{
 		if (Capacity > 7) {
@@ -624,28 +631,16 @@ namespace osidbg
 
 	bool CharacterDynamicStat::RemoveTalent(TalentType talent, bool remove)
 	{
-		uint32_t idx = (uint32_t)talent;
-		if (idx <= 0 || idx > (uint32_t)TALENT_Max) {
-			return false;
-		}
-
 		if (remove) {
-			RemovedTalents[(uint32_t)idx >> 5] |= (1 << (idx & 0x1f));
+			return RemovedTalents.Set((uint32_t)talent);
 		} else {
-			RemovedTalents[(uint32_t)idx >> 5] &= ~(1 << (idx & 0x1f));
+			return RemovedTalents.Clear((uint32_t)talent);
 		}
-
-		return true;
 	}
 
 	bool CharacterDynamicStat::IsTalentRemoved(TalentType talent)
 	{
-		uint32_t idx = (uint32_t)talent;
-		if (idx <= 0 || idx > (uint32_t)TALENT_Max) {
-			return false;
-		}
-
-		return (RemovedTalents[(uint32_t)idx >> 5] & (1 << (idx & 0x1f))) != 0;
+		return RemovedTalents.IsSet((uint32_t)talent);
 	}
 
 

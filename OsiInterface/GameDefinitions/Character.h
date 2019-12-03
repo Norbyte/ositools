@@ -23,7 +23,7 @@ namespace osidbg
 			uint8_t _Pad[4];
 			ObjectSet<int> Attributes;
 			ObjectSet<int> Abilities;
-			uint32_t Talents[4];
+			BitArray<4> Talents;
 			ObjectSet<uint16_t> Traits;
 			bool IsCustom;
 		};
@@ -119,7 +119,6 @@ namespace osidbg
 			uint8_t _Pad[6];
 			STDWString Name;
 			TranslatedString NameTranslated;
-			uint64_t Unkn1[18];
 			FixedString ClassType;
 			uint32_t SkinColor;
 			uint32_t HairColor;

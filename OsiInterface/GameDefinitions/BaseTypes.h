@@ -235,11 +235,39 @@ namespace osidbg
 		Set<T> Set;
 	};
 
-	struct TranslatedString
+	template <unsigned TDWords>
+	struct BitArray
 	{
-		void * Unknown;
-		char const * String;
-		char const * TranslatedStringKey;
+		uint32_t Bits[TDWords];
+
+		inline bool Set(uint32_t index)
+		{
+			if (index <= 0 || index > (TDWords * 32)) {
+				return false;
+			}
+
+			Bits[(index - 1) >> 5] |= (1 << ((index - 1) & 0x1f));
+			return true;
+		}
+
+		inline bool Clear(uint32_t index)
+		{
+			if (index <= 0 || index > (TDWords * 32)) {
+				return false;
+			}
+
+			Bits[(index - 1) >> 5] &= ~(1 << ((index - 1) & 0x1f));
+			return true;
+		}
+
+		inline bool IsSet(uint32_t index)
+		{
+			if (index <= 0 || index > (TDWords * 32)) {
+				return false;
+			}
+
+			return (Bits[(index - 1) >> 5] & (1 << ((index - 1) & 0x1f))) != 0;
+		}
 	};
 
 	struct STDWString
@@ -260,6 +288,7 @@ namespace osidbg
 			}
 		}
 
+		void Set(std::string const & s);
 		void Set(std::wstring const & s);
 	};
 
@@ -300,6 +329,21 @@ namespace osidbg
 		STDString Name;
 		uint32_t Unknown{ 0 };
 		uint32_t _Pad;
+	};
+
+	struct RuntimeStringHandle
+	{
+		void * VMT;
+		FixedString FS;
+		STDString Str;
+		STDWString WStr;
+	};
+
+	struct TranslatedString
+	{
+		void * VMT;
+		RuntimeStringHandle Str1;
+		RuntimeStringHandle Str2;
 	};
 
 	template <class T>

@@ -160,6 +160,11 @@ namespace osidbg
 			}
 
 			permanentBoosts->RemoveTalent(*talentId, disabled != 0);
+			if (disabled != 0) {
+				character->Stats->DisabledTalents.Set((uint32_t)*talentId);
+			} else {
+				character->Stats->DisabledTalents.Clear((uint32_t)*talentId);
+			}
 		}
 
 		void CharacterSetGlobal(OsiArgumentDesc const & args)

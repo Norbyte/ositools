@@ -20,7 +20,6 @@ namespace osidbg
 		uint64_t Unused4;
 		char * Name;
 		TranslatedString TranslatedStringX;
-		uint64_t B[18];
 		FixedString FS2;
 		uint64_t EntryType;
 		FixedStringMapBase<int> PropertyList;
@@ -102,7 +101,7 @@ namespace osidbg
 		FixedString ObjectInstanceName;
 		FixedString FS4;
 		EquipmentStatsType StatsType;
-		uint32_t Talents[4];
+		BitArray<4> Talents;
 		uint32_t Unkn4;
 		uint64_t AttributeFlags;
 	};
@@ -257,8 +256,8 @@ namespace osidbg
 		int32_t MaxSummons;
 		int32_t Abilities[40];
 		int32_t BonusWeaponDamageMultiplier;
-		uint32_t Talents[4];
-		uint32_t RemovedTalents[4];
+		BitArray<4> Talents;
+		BitArray<4> RemovedTalents;
 		int16_t Traits[18];
 		uint32_t BoostConditionsMask;
 		FixedString TranslationKey;
@@ -328,7 +327,7 @@ namespace osidbg
 		uint32_t MaxSummons;
 		uint32_t BaseMaxSummons;
 		uint32_t MaxMpOverride; // Saved
-		uint32_t DisabledTalents[4]; // Saved
+		BitArray<4> DisabledTalents; // Saved
 
 		std::optional<int32_t> GetStat(char const * name, bool baseStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
@@ -427,6 +426,8 @@ namespace osidbg
 		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
 		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
 		bool ObjectExists(FixedString statsId, FixedString type);
+
+		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
 	};
 #pragma pack(pop)
 
