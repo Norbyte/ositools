@@ -30,6 +30,7 @@ namespace osidbg
 		bool EnableCustomStatsPane{ false };
 		bool EnableFormulaOverrides{ false };
 		bool PreprocessStory{ false };
+
 		uint32_t MinimumVersion{ 0 };
 		Module const * HighestVersionMod{ nullptr };
 

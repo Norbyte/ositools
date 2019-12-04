@@ -548,4 +548,172 @@ namespace osidbg
 			return false;
 		}
 	}
+
+
+	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
+		char const * propertyName, bool throwError)
+	{
+		if (obj == nullptr) {
+			OsiError("Attempted to get property '" << propertyName << "' of null object!");
+			return false;
+		}
+
+		auto prop = propertyMap.findProperty(propertyName);
+		if (prop == nullptr) {
+			auto flag = propertyMap.findFlag(propertyName);
+			if (flag == nullptr) {
+				OsiError("Failed to get property '" << propertyName << "': Property does not exist");
+				return {};
+			} else {
+				auto val = propertyMap.getFlag(obj, propertyName, false, throwError);
+				if (val) {
+					lua_pushboolean(L, *val);
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		switch (prop->Type) {
+		case PropertyType::kBool:
+		{
+			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
+			if (val) {
+				lua_pushboolean(L, *val != 0);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		case PropertyType::kUInt8:
+		case PropertyType::kInt16:
+		case PropertyType::kUInt16:
+		case PropertyType::kInt32:
+		case PropertyType::kUInt32:
+		case PropertyType::kInt64:
+		case PropertyType::kUInt64:
+		{
+			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
+			if (val) {
+				lua_pushinteger(L, *val);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		case PropertyType::kFloat:
+		{
+			auto val = propertyMap.getFloat(obj, propertyName, false, throwError);
+			if (val) {
+				lua_pushnumber(L, *val);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		case PropertyType::kFixedString:
+		case PropertyType::kStdString:
+		case PropertyType::kStdWString:
+		{
+			auto val = propertyMap.getString(obj, propertyName, false, throwError);
+			if (val) {
+				lua_pushstring(L, *val);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		case PropertyType::kObjectHandle:
+		{
+			auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
+			if (val) {
+				if (*val) {
+					lua_pushinteger(L, val->Handle);
+				} else {
+					lua_pushnil(L);
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		default:
+			OsiError("Failed to get property '" << propertyName << "': Unsupported property type for Lua fetch!");
+			return false;
+		}
+	}
+
+
+	bool LuaPropertyMapSet(lua_State * L, int index, PropertyMapBase const & propertyMap, 
+		void * obj, char const * propertyName, bool throwError)
+	{
+		if (obj == nullptr) {
+			OsiError("Attempted to set property '" << propertyName << "' of null object!");
+			return false;
+		}
+
+		auto prop = propertyMap.findProperty(propertyName);
+		if (prop == nullptr) {
+			auto flag = propertyMap.findFlag(propertyName);
+			if (flag == nullptr) {
+				OsiError("Failed to set property '" << propertyName << "': Property does not exist");
+				return {};
+			} else {
+				luaL_checktype(L, index, LUA_TBOOLEAN);
+				auto val = lua_toboolean(L, index);
+				return propertyMap.setFlag(obj, propertyName, val == 1, false, throwError);
+			}
+		}
+
+		switch (prop->Type) {
+		case PropertyType::kBool:
+		{
+			luaL_checktype(L, index, LUA_TBOOLEAN);
+			auto val = lua_toboolean(L, index);
+			return propertyMap.setFlag(obj, propertyName, val == 1, false, throwError);
+		}
+
+		case PropertyType::kUInt8:
+		case PropertyType::kInt16:
+		case PropertyType::kUInt16:
+		case PropertyType::kInt32:
+		case PropertyType::kUInt32:
+		case PropertyType::kInt64:
+		case PropertyType::kUInt64:
+		{
+			auto val = luaL_checkinteger(L, index);
+			return propertyMap.setInt(obj, propertyName, val, false, throwError);
+		}
+
+		case PropertyType::kFloat:
+		{
+			auto val = luaL_checknumber(L, index);
+			return propertyMap.setFloat(obj, propertyName, (float)val, false, throwError);
+		}
+
+		case PropertyType::kFixedString:
+		case PropertyType::kStdString:
+		case PropertyType::kStdWString:
+		{
+			auto val = luaL_checkstring(L, index);
+			return propertyMap.setString(obj, propertyName, val, false, throwError);
+		}
+
+		case PropertyType::kObjectHandle:
+		{
+			auto val = luaL_checkinteger(L, index);
+			return propertyMap.setHandle(obj, propertyName, ObjectHandle(val), false, throwError);
+		}
+
+		default:
+			OsiError("Failed to set property '" << propertyName << "': Unsupported property type for Lua fetch!");
+			return false;
+		}
+	}
 }

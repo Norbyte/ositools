@@ -280,6 +280,9 @@ namespace osidbg
 
 		using namespace std::placeholders;
 
+		osiris_.GetLibraryManager().StatusGetEnterChance.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3, _4)
+		);
 		osiris_.GetLibraryManager().StatusHitEnter.AddPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHitEnter, this, _1)
 		);
@@ -294,6 +297,26 @@ namespace osidbg
 		);
 
 		PostLoaded = true;
+	}
+
+	void CustomFunctionLibrary::EnableStatOverride(char const * stat)
+	{
+		using namespace std::placeholders;
+
+		if (!ExtensionState::Get().EnableFormulaOverrides) {
+			OsiError("Formula overrides not enabled in extension config");
+			return;
+		}
+
+		if (strcmp(stat, "HitChance") == 0) {
+			if (!gCharacterStatsGetters.WrapperHitChance.IsHooked()) {
+				gCharacterStatsGetters.WrapperHitChance.SetWrapper(
+					std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
+				);
+			}
+		} else {
+			OsiError("Override not supported for this stat: " << stat);
+		}
 	}
 
 	void CustomFunctionLibrary::OnBaseModuleLoaded()

@@ -32,6 +32,10 @@ namespace osidbg
 		void PostStartup();
 		void OnBaseModuleLoaded();
 
+		int32_t OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance, 
+			esv::Status * status, bool useCharacterStats, float chanceMultiplier);
+		int32_t OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance, 
+			CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		void OnStatusHitEnter(esv::Status * status);
 		void OnStatusHealEnter(esv::Status * status);
 		void OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
@@ -40,6 +44,7 @@ namespace osidbg
 			bool procWindWalker, CriticalRoll criticalRoll);
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 
+		void EnableStatOverride(char const * stat);
 	private:
 		OsirisProxy & osiris_;
 		bool PostLoaded{ false };

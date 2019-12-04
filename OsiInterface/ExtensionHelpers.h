@@ -27,6 +27,8 @@ namespace osidbg
 	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
+	struct PropertyMapBase;
+	PropertyMapBase & StatusToPropertyMap(esv::Status * status);
 
 	struct ShootProjectileApiHelper
 	{

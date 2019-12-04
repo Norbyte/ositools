@@ -10,6 +10,7 @@ namespace osidbg
 {
 	void InitPropertyMaps();
 
+	decltype(LibraryManager::StatusGetEnterChance) * decltype(LibraryManager::StatusGetEnterChance)::gHook;
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
@@ -268,6 +269,7 @@ namespace osidbg
 
 			if (StatusHealVMT != nullptr) {
 				StatusHealEnter.Wrap(StatusHealVMT->Enter);
+				StatusGetEnterChance.Wrap(StatusHealVMT->GetEnterChance);
 			}
 
 			if (CharacterHit != nullptr) {
@@ -280,6 +282,14 @@ namespace osidbg
 
 			gCharacterStatsGetters.WrapAll();
 
+			DetourTransactionCommit();
+
+			// Temporary workaround for crash when GetMaxMP is wrapped
+			DetourTransactionBegin();
+			DetourUpdateThread(GetCurrentThread());
+			if (gCharacterStatsGetters.GetMaxMp != nullptr) {
+				gCharacterStatsGetters.WrapperMaxMp.Unwrap();
+			}
 			DetourTransactionCommit();
 		}
 
@@ -296,6 +306,7 @@ namespace osidbg
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
+		StatusGetEnterChance.Unwrap();
 		StatusHitEnter.Unwrap();
 		StatusHealEnter.Unwrap();
 		CharacterHitHook.Unwrap();

@@ -40,16 +40,17 @@ namespace osidbg {
 			NewFunc = NewFunction;
 			auto status = DetourAttachEx((PVOID *)&OriginalFunc, (PVOID)NewFunc, (PDETOUR_TRAMPOLINE *)&FuncTrampoline, NULL, NULL);
 			if (status != NO_ERROR) {
-				std::wstringstream ss;
-				ss << "Detour attach failed: error " << status;
-				Fail(ss.str().c_str());
+				Fail("Detour attach failed");
 			}
 		}
 
 		void Unwrap()
 		{
 			if (IsWrapped()) {
-				DetourDetach((PVOID *)&OriginalFunc, (PVOID)NewFunc);
+				DWORD result = DetourDetach((PVOID *)&OriginalFunc, (PVOID)NewFunc);
+				if (result != NO_ERROR) {
+					Fail("DetourDetach failed!");
+				}
 			}
 		}
 

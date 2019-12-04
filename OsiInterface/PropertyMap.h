@@ -106,6 +106,36 @@ namespace osidbg
 
 		virtual void * toParent(void * obj) const = 0;
 
+		PropertyInfo const * findProperty(std::string const & name) const
+		{
+			PropertyMapBase const * propMap = this;
+			do {
+				auto prop = propMap->Properties.find(name);
+				if (prop != propMap->Properties.end()) {
+					return &prop->second;
+				}
+
+				propMap = propMap->Parent;
+			} while (propMap != nullptr);
+			
+			return nullptr;
+		}
+
+		FlagInfo const * findFlag(std::string const & name) const
+		{
+			PropertyMapBase const * propMap = this;
+			do {
+				auto prop = propMap->Flags.find(name);
+				if (prop != propMap->Flags.end()) {
+					return &prop->second;
+				}
+
+				propMap = propMap->Parent;
+			} while (propMap != nullptr);
+
+			return nullptr;
+		}
+
 		std::optional<int64_t> getInt(void * obj, std::string const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);

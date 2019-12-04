@@ -143,6 +143,9 @@ namespace osidbg {
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
 		ecl::GameStateLoadModule__Do GameStateLoadModuleDo{ nullptr };
+
+		enum class StatusGetEnterChanceTag {};
+		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool, float)> StatusGetEnterChance;
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;

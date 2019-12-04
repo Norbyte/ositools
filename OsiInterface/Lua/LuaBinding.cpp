@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
+#include <PropertyMaps.h>
 #include "LuaBinding.h"
 #include <fstream>
 #include <json/json.h>
@@ -42,6 +43,119 @@ namespace osidbg
 
 
 
+	char const * const LuaGameObjectProxy<esv::Status>::MetatableName = "LuaStatus";
+
+	int LuaGameObjectProxy<esv::Status>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto & propertyMap = StatusToPropertyMap(obj_);
+		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaGameObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
+	{
+		luaL_error(L, "Not supported yet!");
+		return 0;
+	}
+
+
+	std::optional<int32_t> GetCharacterDynamicStat(CDivinityStats_Character * stats, char const * statName)
+	{
+		bool isBaseStat = strncmp(statName, "Base", 4) == 0;
+		auto statType = EnumInfo<StatGetterType>::Find(isBaseStat ? (statName + 4) : statName);
+		if (statType) {
+			auto const & g = gCharacterStatsGetters;
+			switch (*statType) {
+			case StatGetterType::MaxMp: return g.GetMaxMp(stats, isBaseStat);
+			case StatGetterType::APStart: return g.GetAPStart(stats, isBaseStat);
+			case StatGetterType::APRecovery: return g.GetAPRecovery(stats, isBaseStat);
+			case StatGetterType::APMaximum: return g.GetAPMaximum(stats, isBaseStat);
+			case StatGetterType::Strength: return g.GetStrength(stats, isBaseStat, 0);
+			case StatGetterType::Finesse: return g.GetFinesse(stats, isBaseStat, 0);
+			case StatGetterType::Intelligence: return g.GetIntelligence(stats, isBaseStat, 0);
+			case StatGetterType::Vitality: return g.GetVitality(stats, isBaseStat);
+			case StatGetterType::Memory: return g.GetMemory(stats, isBaseStat);
+			case StatGetterType::Wits: return g.GetWits(stats, isBaseStat);
+			case StatGetterType::Accuracy: return g.GetAccuracy(stats, isBaseStat);
+			case StatGetterType::Dodge: return g.GetDodge(stats, isBaseStat);
+			case StatGetterType::CriticalChance: return g.GetCriticalChance(stats, isBaseStat);
+			case StatGetterType::FireResistance: return g.GetFireResistance(stats, isBaseStat, false);
+			case StatGetterType::EarthResistance: return g.GetEarthResistance(stats, isBaseStat, false);
+			case StatGetterType::WaterResistance: return g.GetWaterResistance(stats, isBaseStat, false);
+			case StatGetterType::AirResistance: return g.GetAirResistance(stats, isBaseStat, false);
+			case StatGetterType::PoisonResistance: return g.GetPoisonResistance(stats, isBaseStat, false);
+			case StatGetterType::ShadowResistance: return g.GetShadowResistance(stats, isBaseStat, false);
+			case StatGetterType::CustomResistance: return g.GetCustomResistance(stats, isBaseStat, false);
+			case StatGetterType::LifeSteal: return g.GetLifeSteal(stats, isBaseStat);
+			case StatGetterType::Sight: return g.GetSight(stats, isBaseStat);
+			case StatGetterType::Movement: return g.GetMovement(stats, isBaseStat);
+			case StatGetterType::Initiative: return g.GetInitiative(stats, isBaseStat);
+			case StatGetterType::ChanceToHitBoost: return g.GetChanceToHitBoost(stats, isBaseStat);
+			default:
+				OsiError("Unhandled stat getter type: " << (int)*statType);
+				return {};
+			}
+		} else {
+			return {};
+		}
+	}
+
+	char const * const LuaGameObjectProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStats";
+
+	int LuaGameObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "Character stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+
+		auto dynamicStat = GetCharacterDynamicStat(obj_, prop);
+		if (dynamicStat) {
+			lua_pushinteger(L, *dynamicStat);
+			return 1;
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, obj_, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaGameObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	{
+		luaL_error(L, "Not supported yet!");
+		return 0;
+	}
+
+
+
+	/*int JsonParse(lua_State * L)
+	{
+		auto json = luaL_checkstring(L, 1);
+
+		Json::CharReaderBuilder factory;
+		auto reader = factory.newCharReader();
+
+		Json::Value root;
+		std::string errs;
+		if (!reader->parse(config.c_str(), config.c_str() + config.size(), &root, &errs)) {
+			OsiError("Unable to parse configuration for mod '" << ToUTF8(mod.Info.Name.GetPtr()) << "': " << errs);
+			return;
+		}
+
+		std::vector<CustomFunctionParam> argList;
+		ParseCustomFunctionParams(L, args, argList, false);
+
+		LuaRegistryEntry func(L, 1);
+		auto call = std::make_unique<CustomLuaCall>(funcName, argList, std::move(func));
+
+		auto & functionMgr = gOsirisProxy->GetCustomFunctionManager();
+		functionMgr.RegisterDynamic(std::move(call));
+
+		return 1;
+	}*/
+
+
 	LuaExtensionLibrary::LuaExtensionLibrary()
 	{
 	}
@@ -50,8 +164,17 @@ namespace osidbg
 	{
 		RegisterLib(L);
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
+		LuaGameObjectProxy<esv::Status>::RegisterMetatable(L);
+		LuaGameObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
+	}
+
+	int EnableStatOverride(lua_State * L)
+	{
+		auto stat = luaL_checkstring(L, 1);
+		gOsirisProxy->GetFunctionLibrary().EnableStatOverride(stat);
+		return 0;
 	}
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
@@ -61,6 +184,9 @@ namespace osidbg
 			{"NewCall", NewCall},
 			{"NewQuery", NewQuery},
 			{"NewEvent", NewEvent},
+			{"EnableStatOverride", EnableStatOverride},
+			/*{"JsonParse", JsonParse},
+			{"JsonStringify", JsonStringify},*/
 			{0,0}
 		};
 
@@ -182,6 +308,86 @@ debug = nil
 		}
 
 		return true;
+	}
+
+	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
+	{
+		std::lock_guard lock(mutex_);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "StatusGetEnterChance"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		auto luaStatus = LuaGameObjectProxy<esv::Status>::New(L, status); // stack: fn, status
+		LuaGameObjectPin<esv::Status> _(luaStatus);
+		lua_pushboolean(L, useCharacterStats);
+		lua_pushnumber(L, chanceMultiplier); // stack: fn, status, useCS, chanceMul
+
+		if (lua_pcall(L, 3, 1, 0) != 0) { // stack: retval
+			OsiError("StatusGetEnterChance handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return {};
+		}
+
+		int isnum;
+		int isnil = lua_isnil(L, -1);
+		auto retval = lua_tointegerx(L, -1, &isnum);
+		lua_pop(L, 1); // stack: -
+
+		if (isnum) {
+			return std::clamp((int32_t)retval, 0, 100);
+		} else {
+			if (!isnil) {
+				OsiError("StatusGetEnterChance returned non-integer value");
+			}
+
+			return {};
+		}
+	}
+
+	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
+	{
+		std::lock_guard lock(mutex_);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "GetHitChance"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		auto luaAttacker = LuaGameObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
+		LuaGameObjectPin<CDivinityStats_Character> _(luaAttacker);
+		auto luaTarget = LuaGameObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
+		LuaGameObjectPin<CDivinityStats_Character> __(luaTarget);
+
+		if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
+			OsiError("GetHitChance handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return {};
+		}
+
+		int isnum;
+		int isnil = lua_isnil(L, -1);
+		auto retval = lua_tointegerx(L, -1, &isnum);
+		lua_pop(L, 1); // stack: -
+
+		if (isnum) {
+			return std::clamp((int32_t)retval, 0, 100);
+		} else {
+			if (!isnil) {
+				OsiError("GetHitChance returned non-integer value");
+			}
+
+			return {};
+		}
 	}
 
 

@@ -52,4 +52,9 @@ namespace osidbg
 	{
 		return OsirisPropertyMapSetRaw(propertyMap, obj, args, firstArg, type, throwError);
 	}
+
+	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
+		char const * propertyName, bool throwError);
+	bool LuaPropertyMapSet(lua_State * L, int index, PropertyMapBase const & propertyMap,
+		void * obj, char const * propertyName, bool throwError);
 }

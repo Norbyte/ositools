@@ -37,6 +37,8 @@ namespace osidbg
 	};
 
 	class LuaCallable {};
+	class LuaIndexable {};
+	class LuaNewIndexable {};
 
 	template <class T>
 	class LuaUserdata
@@ -70,6 +72,28 @@ namespace osidbg
 			}
 		}
 
+		static int LuaIndexProxy(lua_State * L)
+		{
+			if constexpr (std::is_base_of_v<LuaIndexable, T>) {
+				auto self = FromUserData(L, 1);
+				return self->LuaIndex(L);
+			} else {
+				luaL_error(L, "Not indexable!");
+				return 0;
+			}
+		}
+
+		static int LuaNewIndexProxy(lua_State * L)
+		{
+			if constexpr (std::is_base_of_v<LuaNewIndexable, T>) {
+				auto self = FromUserData(L, 1);
+				return self->LuaNewIndex(L);
+			} else {
+				luaL_error(L, "Not newindexable!");
+				return 0;
+			}
+		}
+
 		static void RegisterMetatable(lua_State * L)
 		{
 			lua_register(L, T::MetatableName, nullptr);
@@ -78,6 +102,16 @@ namespace osidbg
 			if constexpr (std::is_base_of_v<LuaCallable, T>) {
 				lua_pushcfunction(L, &LuaCallProxy); // stack: mt, &LuaCall
 				lua_setfield(L, -2, "__call"); // mt.__call = &LuaCall; stack: mt
+			}
+
+			if constexpr (std::is_base_of_v<LuaIndexable, T>) {
+				lua_pushcfunction(L, &LuaIndexProxy); // stack: mt, &LuaIndex
+				lua_setfield(L, -2, "__index"); // mt.__index = &LuaIndex; stack: mt
+			}
+
+			if constexpr (std::is_base_of_v<LuaNewIndexable, T>) {
+				lua_pushcfunction(L, &LuaNewIndexProxy); // stack: mt, &LuaNewIndex
+				lua_setfield(L, -2, "__newindex"); // mt.__index = &LuaNewIndex; stack: mt
 			}
 
 			lua_pop(L, 1); // stack: -
@@ -160,6 +194,45 @@ namespace osidbg
 
 	private:
 		LuaRegistryEntry handler_;
+	};
+
+	template <class T>
+	class LuaGameObjectProxy : public LuaUserdata<LuaGameObjectProxy<T>>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		LuaGameObjectProxy(T * obj)
+			: obj_(obj)
+		{}
+
+		void Unbind()
+		{
+			obj_ = nullptr;
+		}
+
+		int LuaIndex(lua_State * L);
+		int LuaNewIndex(lua_State * L);
+
+	private:
+		T * obj_;
+	};
+
+	template <class T>
+	class LuaGameObjectPin
+	{
+	public:
+		inline LuaGameObjectPin(LuaGameObjectProxy<T> * proxy)
+			: proxy_(proxy)
+		{}
+
+		inline ~LuaGameObjectPin()
+		{
+			if (proxy_) proxy_->Unbind();
+		}
+
+	private:
+		LuaGameObjectProxy<T> * proxy_;
 	};
 
 
@@ -364,6 +437,9 @@ namespace osidbg
 
 		bool Query(std::string const & name, LuaRegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
+
+		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier);
+		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 
 	private:
 		lua_State * state_;

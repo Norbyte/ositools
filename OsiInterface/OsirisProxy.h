@@ -77,6 +77,11 @@ public:
 		return CustomInjector;
 	}
 
+	inline CustomFunctionLibrary & GetFunctionLibrary()
+	{
+		return FunctionLibrary;
+	}
+
 	inline LibraryManager const & GetLibraryManager() const
 	{
 		return Libraries;

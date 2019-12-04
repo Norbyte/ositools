@@ -526,11 +526,6 @@ namespace osidbg
 			WrapperHitChance.Wrap(GetHitChance);
 		}
 
-		// Temporary workaround for crash when GetMaxMP is wrapped
-		if (GetMaxMp != nullptr) {
-			WrapperMaxMp.Unwrap();
-		}
-
 		Wrapped = true;
 	}
 
@@ -673,6 +668,37 @@ namespace osidbg
 		{ PlayerUpgradeAttribute::Constitution, "Constitution" },
 		{ PlayerUpgradeAttribute::Memory, "Memory" },
 		{ PlayerUpgradeAttribute::Wits, "Wits" },
+	};
+
+
+	EnumInfo<StatGetterType>::Label const EnumInfo<StatGetterType>::Values[] = {
+		{ StatGetterType::MaxMp, "MaxMp" },
+		{ StatGetterType::APStart, "APStart" },
+		{ StatGetterType::APRecovery, "APRecovery" },
+		{ StatGetterType::APMaximum, "APMaximum" },
+		{ StatGetterType::Strength, "Strength" },
+		{ StatGetterType::Finesse, "Finesse" },
+		{ StatGetterType::Intelligence, "Intelligence" },
+		{ StatGetterType::Vitality, "Vitality" },
+		{ StatGetterType::Memory, "Memory" },
+		{ StatGetterType::Wits, "Wits" },
+		{ StatGetterType::Accuracy, "Accuracy" },
+		{ StatGetterType::Dodge, "Dodge" },
+		{ StatGetterType::CriticalChance, "CriticalChance" },
+		{ StatGetterType::FireResistance, "FireResistance" },
+		{ StatGetterType::EarthResistance, "EarthResistance" },
+		{ StatGetterType::WaterResistance, "WaterResistance" },
+		{ StatGetterType::AirResistance, "AirResistance" },
+		{ StatGetterType::PoisonResistance, "PoisonResistance" },
+		{ StatGetterType::ShadowResistance, "ShadowResistance" },
+		{ StatGetterType::CustomResistance, "CustomResistance" },
+		{ StatGetterType::LifeSteal, "LifeSteal" },
+		{ StatGetterType::Sight, "Sight" },
+		{ StatGetterType::Hearing, "Hearing" },
+		{ StatGetterType::Movement, "Movement" },
+		{ StatGetterType::Initiative, "Initiative" },
+		{ StatGetterType::Unknown, "Unknown" },
+		{ StatGetterType::ChanceToHitBoost, "ChanceToHitBoost" }
 	};
 
 

@@ -27,6 +27,60 @@ namespace osidbg
 		return nullptr;
 	}
 
+	PropertyMapBase & StatusToPropertyMap(esv::Status * status)
+	{
+		switch (status->GetStatusId()) {
+		case StatusType::Hit:
+			return gStatusHitPropertyMap;
+
+		case StatusType::Heal:
+			return gStatusHealPropertyMap;
+
+		case StatusType::Healing:
+			return gStatusHealingPropertyMap;
+
+		case StatusType::Consume:
+		case StatusType::DarkAvenger:
+		case StatusType::DecayingTouch:
+		case StatusType::Remorse:
+		case StatusType::WindWalker:
+		case StatusType::Floating:
+		case StatusType::Incapacitated:
+		case StatusType::Polymorphed:
+		case StatusType::ShacklesOfPain:
+		case StatusType::ShacklesOfPainCaster:
+		case StatusType::Charmed:
+		case StatusType::ExtraTurn:
+		case StatusType::Damage:
+		case StatusType::Blind:
+		case StatusType::Encumbered:
+		case StatusType::Fear:
+		case StatusType::InfectiousDiseased:
+		case StatusType::Invisible:
+		case StatusType::Muted:
+		case StatusType::Stance:
+		case StatusType::Leadership:
+		case StatusType::Adrenaline:
+		case StatusType::LingeringWounds:
+		case StatusType::SpiritVision:
+		case StatusType::Overpowered:
+		case StatusType::Combustion:
+		case StatusType::GuardianAngel:
+		case StatusType::Challenge:
+		case StatusType::Disarmed:
+		case StatusType::HealSharing:
+		case StatusType::HealSharingCaster:
+		case StatusType::ActiveDefense:
+		case StatusType::Spark:
+		case StatusType::PlayDead:
+		case StatusType::Deactivated:
+			return gStatusConsumePropertyMap;
+
+		default:
+			return gStatusPropertyMap;
+		}
+	}
+
 	namespace func
 	{
 		void IterateStatuses(OsiArgumentDesc const & args)
@@ -428,6 +482,34 @@ namespace osidbg
 		}
 	}
 
+
+	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
+		esv::Status * status, bool useCharacterStats, float chanceMultiplier)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats, chanceMultiplier);
+			if (enterChance) {
+				return *enterChance;
+			}
+		}
+
+		return wrappedGetEnterChance(status, useCharacterStats, chanceMultiplier);
+	}
+
+	int32_t CustomFunctionLibrary::OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
+		CDivinityStats_Character * attacker, CDivinityStats_Character * target)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			auto hitChance = lua->GetHitChance(attacker, target);
+			if (hitChance) {
+				return *hitChance;
+			}
+		}
+
+		return wrappedGetHitChance(attacker, target);
+	}
 
 	void CustomFunctionLibrary::OnStatusHitEnter(esv::Status * status)
 	{

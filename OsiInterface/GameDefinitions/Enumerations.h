@@ -169,6 +169,45 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(PlayerUpgradeAttribute, 6);
 
+
+	enum class StatGetterType
+	{
+		MaxMp = 0,
+		APStart = 1,
+		APRecovery = 2,
+		APMaximum = 3,
+
+		Strength = 4,
+		Finesse = 5,
+		Intelligence = 6,
+		Vitality = 7,
+		Memory = 8,
+		Wits = 9,
+
+		Accuracy = 10,
+		Dodge = 11,
+		CriticalChance = 12,
+
+		FireResistance = 13,
+		EarthResistance = 14,
+		WaterResistance = 15,
+		AirResistance = 16,
+		PoisonResistance = 17,
+		ShadowResistance = 18,
+		CustomResistance = 19,
+
+		LifeSteal = 20,
+		Sight = 21,
+		Hearing = 22,
+		Movement = 23,
+		Initiative = 24,
+		Unknown = 25,
+		ChanceToHitBoost = 26
+	};
+
+	MAKE_ENUM_INFO(StatGetterType, 27);
+
+
 	enum class AbilityType
 	{
 		None = 0,
