@@ -213,6 +213,10 @@ namespace osidbg
 			luaL_error(L, "Called Osi function without 'self' argument?");
 		}
 
+		if (state_->RestrictionFlags & LuaState::RestrictOsiris) {
+			luaL_error(L, "Attempted to call Osiris function in restricted context");
+		}
+
 		switch (function_->Type) {
 		case FunctionType::Call:
 			OsiCall(L);
@@ -437,6 +441,10 @@ namespace osidbg
 
 	int LuaOsiFunctionNameProxy::LuaCall(lua_State * L)
 	{
+		if (state_.RestrictionFlags & LuaState::RestrictOsiris) {
+			luaL_error(L, "Attempted to fetch Osiris function in restricted context");
+		}
+
 		if (generationId_ != state_.GenerationId()) {
 			// Clear cached functions if story was reloaded
 			UnbindAll();

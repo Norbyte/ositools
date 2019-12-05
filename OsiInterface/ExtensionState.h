@@ -52,7 +52,7 @@ namespace osidbg
 		void DecLuaRefs();
 		void LuaReset(bool startup);
 		void LuaLoadExternalFile(std::string const & path);
-		void LuaLoadGameFile(FileReaderPin & reader);
+		void LuaLoadGameFile(FileReaderPin & reader, std::string const & path);
 		void LuaLoadGameFile(std::string const & path);
 		void LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName);
 

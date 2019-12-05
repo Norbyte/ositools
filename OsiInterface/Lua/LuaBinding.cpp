@@ -172,6 +172,11 @@ namespace osidbg
 
 	int EnableStatOverride(lua_State * L)
 	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictExt) {
+			luaL_error(L, "Attempted to toggle stat overrides in restricted context");
+		}
+
 		auto stat = luaL_checkstring(L, 1);
 		gOsirisProxy->GetFunctionLibrary().EnableStatOverride(stat);
 		return 0;
@@ -196,6 +201,11 @@ namespace osidbg
 
 	int LuaExtensionLibrary::Require(lua_State * L)
 	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictExt) {
+			luaL_error(L, "Attempted to load Lua code in restricted context");
+		}
+
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
 		ExtensionState::Get().LuaLoadGameFile(modGuid, fileName);
@@ -313,6 +323,7 @@ debug = nil
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
 	{
 		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, LuaState::RestrictOsiris);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -353,6 +364,7 @@ debug = nil
 	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, LuaState::RestrictOsiris | LuaState::RestrictExt);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -488,7 +500,7 @@ debug = nil
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
 			if (reader.IsLoaded()) {
 				OsiWarn("Found bootstrap file: " << bootstrapFile);
-				LuaLoadGameFile(reader);
+				LuaLoadGameFile(reader, bootstrapFile);
 			}
 		}
 		
@@ -516,11 +528,11 @@ debug = nil
 			return;
 		}
 
-		lua->LoadScript(s);
+		lua->LoadScript(s, path);
 		OsiWarn("Loaded external script: " << path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader)
+	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & path)
 	{
 		if (!reader.IsLoaded()) {
 			OsiError("Attempted to load script from invalid file reader");
@@ -533,7 +545,7 @@ debug = nil
 			return;
 		}
 
-		lua->LoadScript(reader.ToString());
+		lua->LoadScript(reader.ToString(), path);
 	}
 
 	void ExtensionState::LuaLoadGameFile(std::string const & path)
@@ -544,7 +556,7 @@ debug = nil
 			return;
 		}
 
-		LuaLoadGameFile(reader);
+		LuaLoadGameFile(reader, path);
 		OsiWarn("Loaded game script: " << path);
 	}
 

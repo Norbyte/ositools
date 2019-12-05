@@ -350,6 +350,14 @@ namespace osidbg
 	class LuaState
 	{
 	public:
+		enum Restriction
+		{
+			RestrictOsiris = 1 << 0,
+			RestrictExt = 1 << 1
+		};
+
+		uint32_t RestrictionFlags{ 0 };
+
 		LuaState();
 		~LuaState();
 
@@ -458,5 +466,24 @@ namespace osidbg
 		void OpenLibs();
 		bool QueryInternal(std::string const & name, LuaRegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
+	};
+
+	class LuaRestriction
+	{
+	public:
+		inline LuaRestriction(LuaState & state, uint32_t flags)
+			: state_(state), oldFlags_(state_.RestrictionFlags)
+		{
+			state_.RestrictionFlags = flags;
+		}
+
+		inline ~LuaRestriction()
+		{
+			state_.RestrictionFlags = oldFlags_;
+		}
+
+	private:
+		LuaState & state_;
+		uint32_t oldFlags_;
 	};
 }
