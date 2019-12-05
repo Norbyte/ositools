@@ -961,13 +961,13 @@ Return the stats generation parameters of the specified item.
 
 Return the number of DeltaMods on the item with the specified boost name. Unlike vanilla `ItemHasDeltaModifier`, this also takes into account the boosts added by item generation.
 
-### IterateItemDeltaModifiers
+### ItemIterateDeltaModifiers
 ```
-call NRD_IterateCharacterStatuses((CHARACTERGUID)_CharacterGuid, (STRING)_Event)
+call NRD_ItemIterateDeltaModifiers((ITEMGUID)_Item, (STRING)_EventName)
 event NRD_ItemDeltaModIteratorEvent((STRING)_Event, (ITEMGUID)_Item, (STRING)_DeltaMod, (INTEGER)_IsGenerated)
 ```
 
-Throws delta mod iterator event `_Event` for each delta modifier present on the item. Unlike regular events, `NRD_StatusIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_IterateItemDeltaModifiers` call), so there is no need for an additional cleanup/finalizer event.
+Throws delta mod iterator event `_Event` for each delta modifier present on the item. Unlike regular events, `NRD_ItemDeltaModIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_ItemIterateDeltaModifiers` call), so there is no need for an additional cleanup/finalizer event.
 
 Example usage:  
 ```c
