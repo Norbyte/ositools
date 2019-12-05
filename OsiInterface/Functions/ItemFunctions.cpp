@@ -5,6 +5,8 @@
 
 namespace osidbg
 {
+	FunctionHandle ItemDeltaModIteratorEventHandle;
+
 	namespace func
 	{
 		bool ItemGetStatsId(OsiArgumentDesc & args)
@@ -68,8 +70,8 @@ namespace osidbg
 
 			if (item->Generation != nullptr) {
 				auto const & boosts = item->Generation->Boosts;
-				for (uint32_t i = 0; i < boosts.Size; i++) {
-					if (strcmp(boosts.Buf[i].Str, deltaMod) == 0) {
+				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
+					if (strcmp(boosts.Set.Buf[i].Str, deltaMod) == 0) {
 						count++;
 					}
 				}
@@ -77,6 +79,40 @@ namespace osidbg
 
 			args[2].Int32 = count;
 			return count > 0;
+		}
+
+
+		void ItemIterateDeltaModifiers(OsiArgumentDesc const & args)
+		{
+			auto itemGuid = args[0].String;
+			auto eventName = args[1].String;
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return;
+
+			if (item->Generation != nullptr) {
+				auto const & boosts = item->Generation->Boosts;
+				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
+					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts.Set.Buf[i].Str });
+					eventArgs->Add(OsiArgumentValue{ 1 });
+					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
+					delete eventArgs;
+				}
+			}
+
+			if (item->StatsDynamic != nullptr) {
+				auto const & boosts = item->StatsDynamic->BoostNameSet;
+				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
+					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts.Set.Buf[i].Str });
+					eventArgs->Add(OsiArgumentValue{ 0 });
+					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
+					delete eventArgs;
+				}
+			}
 		}
 
 		void ItemSetIdentified(OsiArgumentDesc const & args)
@@ -283,6 +319,16 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(itemHasDeltaMod));
 
+		auto itemIterateDeltaMods = std::make_unique<CustomCall>(
+			"NRD_ItemIterateDeltaModifiers",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "EventName", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::ItemIterateDeltaModifiers
+		);
+		functionMgr.Register(std::move(itemIterateDeltaMods));
+
 		auto itemSetIdentified = std::make_unique<CustomCall>(
 			"NRD_ItemSetIdentified",
 			std::vector<CustomFunctionParam>{
@@ -379,6 +425,17 @@ namespace osidbg
 			&func::ItemCloneSet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(itemCloneSetString));
+
+		auto itemDeltaModIteratorEvent = std::make_unique<CustomEvent>(
+			"NRD_ItemDeltaModIteratorEvent",
+			std::vector<CustomFunctionParam>{
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "DeltaMod", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsGenerated", ValueType::Integer, FunctionArgumentDirection::In },
+			}
+		);
+		ItemDeltaModIteratorEventHandle = functionMgr.Register(std::move(itemDeltaModIteratorEvent));
 	}
 
 }

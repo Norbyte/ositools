@@ -98,6 +98,7 @@ struct OsiArgumentValue
 
 		case ValueType::String:
 		case ValueType::GuidString:
+		default:
 			String = v.String;
 			break;
 		}
@@ -123,6 +124,9 @@ struct OsiArgumentValue
 
 		case ValueType::String:
 		case ValueType::GuidString:
+		case ValueType::CharacterGuid:
+		case ValueType::ItemGuid:
+		case ValueType::TriggerGuid:
 			return String;
 
 		default:

@@ -220,11 +220,16 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct Set
+	struct CompactSet
 	{
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
+	};
+
+	template <class T>
+	struct Set : public CompactSet<T>
+	{
 		uint64_t CapacityIncrementSize{ 0 };
 	};
 
@@ -233,6 +238,13 @@ namespace osidbg
 	{
 		void * VMT{ nullptr };
 		Set<T> Set;
+	};
+
+	template <class T>
+	struct CompactObjectSet
+	{
+		void * VMT{ nullptr };
+		CompactSet<T> Set;
 	};
 
 	template <unsigned TDWords>

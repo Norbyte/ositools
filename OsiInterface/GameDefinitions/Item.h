@@ -97,7 +97,7 @@ namespace osidbg
 			uint32_t Random; // Saved
 			uint16_t Level; // Saved
 			uint16_t _Pad0;
-			Set<FixedString> Boosts; // Saved
+			CompactObjectSet<FixedString> Boosts; // Saved
 		};
 
 		struct Item : public EoCServerObject

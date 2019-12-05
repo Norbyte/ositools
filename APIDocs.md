@@ -961,6 +961,27 @@ Return the stats generation parameters of the specified item.
 
 Return the number of DeltaMods on the item with the specified boost name. Unlike vanilla `ItemHasDeltaModifier`, this also takes into account the boosts added by item generation.
 
+### IterateItemDeltaModifiers
+```
+call NRD_IterateCharacterStatuses((CHARACTERGUID)_CharacterGuid, (STRING)_Event)
+event NRD_ItemDeltaModIteratorEvent((STRING)_Event, (ITEMGUID)_Item, (STRING)_DeltaMod, (INTEGER)_IsGenerated)
+```
+
+Throws delta mod iterator event `_Event` for each delta modifier present on the item. Unlike regular events, `NRD_StatusIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_IterateItemDeltaModifiers` call), so there is no need for an additional cleanup/finalizer event.
+
+Example usage:  
+```c
+// ...
+THEN
+NRD_ItemIterateDeltaModifiers(ITEM_da8d55ba-0855-4147-b706-46bbc67ec8b6, "MyMod_IterDeltaMods");
+DebugBreak("Finished"); // Do finalizer stuff here
+
+IF
+NRD_ItemDeltaModIteratorEvent("MyMod_IterDeltaMods", _Item, _DeltaMod, _IsGenerated)
+THEN
+DebugBreak(_DeltaMod);
+```
+
 
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
