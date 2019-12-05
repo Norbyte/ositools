@@ -65,42 +65,7 @@ namespace osidbg
 	std::optional<int32_t> GetCharacterDynamicStat(CDivinityStats_Character * stats, char const * statName)
 	{
 		bool isBaseStat = strncmp(statName, "Base", 4) == 0;
-		auto statType = EnumInfo<StatGetterType>::Find(isBaseStat ? (statName + 4) : statName);
-		if (statType) {
-			auto const & g = gCharacterStatsGetters;
-			switch (*statType) {
-			case StatGetterType::MaxMp: return g.GetMaxMp(stats, isBaseStat);
-			case StatGetterType::APStart: return g.GetAPStart(stats, isBaseStat);
-			case StatGetterType::APRecovery: return g.GetAPRecovery(stats, isBaseStat);
-			case StatGetterType::APMaximum: return g.GetAPMaximum(stats, isBaseStat);
-			case StatGetterType::Strength: return g.GetStrength(stats, isBaseStat, 0);
-			case StatGetterType::Finesse: return g.GetFinesse(stats, isBaseStat, 0);
-			case StatGetterType::Intelligence: return g.GetIntelligence(stats, isBaseStat, 0);
-			case StatGetterType::Vitality: return g.GetVitality(stats, isBaseStat);
-			case StatGetterType::Memory: return g.GetMemory(stats, isBaseStat);
-			case StatGetterType::Wits: return g.GetWits(stats, isBaseStat);
-			case StatGetterType::Accuracy: return g.GetAccuracy(stats, isBaseStat);
-			case StatGetterType::Dodge: return g.GetDodge(stats, isBaseStat);
-			case StatGetterType::CriticalChance: return g.GetCriticalChance(stats, isBaseStat);
-			case StatGetterType::FireResistance: return g.GetFireResistance(stats, isBaseStat, false);
-			case StatGetterType::EarthResistance: return g.GetEarthResistance(stats, isBaseStat, false);
-			case StatGetterType::WaterResistance: return g.GetWaterResistance(stats, isBaseStat, false);
-			case StatGetterType::AirResistance: return g.GetAirResistance(stats, isBaseStat, false);
-			case StatGetterType::PoisonResistance: return g.GetPoisonResistance(stats, isBaseStat, false);
-			case StatGetterType::ShadowResistance: return g.GetShadowResistance(stats, isBaseStat, false);
-			case StatGetterType::CustomResistance: return g.GetCustomResistance(stats, isBaseStat, false);
-			case StatGetterType::LifeSteal: return g.GetLifeSteal(stats, isBaseStat);
-			case StatGetterType::Sight: return g.GetSight(stats, isBaseStat);
-			case StatGetterType::Movement: return g.GetMovement(stats, isBaseStat);
-			case StatGetterType::Initiative: return g.GetInitiative(stats, isBaseStat);
-			case StatGetterType::ChanceToHitBoost: return g.GetChanceToHitBoost(stats, isBaseStat);
-			default:
-				OsiError("Unhandled stat getter type: " << (int)*statType);
-				return {};
-			}
-		} else {
-			return {};
-		}
+		return stats->GetStat(isBaseStat ? (statName + 4) : statName, isBaseStat);
 	}
 
 	char const * const LuaGameObjectProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStats";
@@ -114,6 +79,24 @@ namespace osidbg
 		auto dynamicStat = GetCharacterDynamicStat(obj_, prop);
 		if (dynamicStat) {
 			lua_pushinteger(L, *dynamicStat);
+			return 1;
+		}
+
+		if (strncmp(prop, "TALENT_", 7) == 0) {
+			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
+			if (talentId) {
+				bool hasTalent = obj_->HasTalent(*talentId, false);
+				lua_pushboolean(L, hasTalent);
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		auto abilityId = EnumInfo<AbilityType>::Find(prop);
+		if (abilityId) {
+			int abilityLevel = obj_->GetAbility(*abilityId, false);
+			lua_pushinteger(L, abilityLevel);
 			return 1;
 		}
 
@@ -492,6 +475,7 @@ debug = nil
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
+		LuaRestriction restriction(*lua, LuaState::RestrictOsiris);
 		OsiWarn("Bootstrapping Lua modules ...");
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods.Buf[i];

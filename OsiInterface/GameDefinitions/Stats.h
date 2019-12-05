@@ -21,7 +21,7 @@ namespace osidbg
 		char * Name;
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
-		uint64_t EntryType;
+		struct CDivinityStats * DivStats;
 		FixedStringMapBase<int> PropertyList;
 		uint32_t Unused5;
 		FixedStringMapBase<int> ConditionList;
@@ -99,7 +99,7 @@ namespace osidbg
 		uint32_t ModifierType;
 		uint32_t Unkn3;
 		FixedString ObjectInstanceName;
-		FixedString FS4;
+		FixedString BoostName;
 		EquipmentStatsType StatsType;
 		BitArray<4> Talents;
 		uint32_t Unkn4;
@@ -186,8 +186,8 @@ namespace osidbg
 
 	struct CharacterEquippedItem
 	{
-		uint32_t ItemStatsHandle;
-		uint8_t ItemSlot;
+		int32_t ItemStatsHandle;
+		ItemSlot ItemSlot;
 		bool IsEquipped;
 	};
 
@@ -331,6 +331,8 @@ namespace osidbg
 
 		std::optional<int32_t> GetStat(char const * name, bool baseStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
+		bool HasTalent(TalentType talent, bool excludeBoosts);
+		int32_t GetAbility(AbilityType ability, bool excludeBoosts);
 	};
 
 	typedef int32_t (CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
@@ -338,6 +340,53 @@ namespace osidbg
 	typedef int32_t (CDivinityStats_Character__GetStatWithInit)(CDivinityStats_Character * self, bool baseStats, int32_t initialValue);
 	typedef float (CDivinityStats_Character__GetStatHearing)(CDivinityStats_Character * self, CDivinityStats_Character * other, bool baseStats);
 	typedef int32_t (CDivinityStats_Character__GetHitChance)(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
+	typedef bool (CDivinityStats_Character__GetTalent)(CDivinityStats_Character * self, TalentType talentId, char excludeBoosts);
+	typedef int32_t (CDivinityStats_Character__GetAbility)(CDivinityStats_Character * self, AbilityType abilityId, char excludeBoosts, char noLoneWolfBonus);
+
+	template <class T>
+	struct CHandleArray
+	{
+		__int64 VMT;
+		T ** Start;
+		T ** End;
+		T ** BufAllocationTail;
+		__int64 field_20;
+
+		inline std::size_t Size() const
+		{
+			return End - Start;
+		}
+	};
+
+	template <class T>
+	struct CDivinityStatsList
+	{
+		void * VMT;
+		CHandleArray<T> Handles;
+		struct CDivinityStats * Stats;
+
+		T * Get(int32_t index) const
+		{
+			if (index >= 0 && index < Handles.Size()) {
+				return Handles.Start[index];
+			} else {
+				return nullptr;
+			}
+		}
+	};
+
+	struct CDivinityStats
+	{
+		void * VMT;
+		bool SomeFlag;
+		uint8_t _Pad[7];
+		CDivinityStatsList<CDivinityStats_Item> * ItemList;
+		CDivinityStatsList<CDivinityStats_Character> * CharacterList;
+		char SomeBuf0x50b[80];
+		CDivinityStats_Item * DefaultWeaponStats;
+		ObjectSet<FixedString> FSSetUnkn;
+		uint64_t Unkn;
+	};
 
 	struct RPGEnumeration
 	{
@@ -506,6 +555,8 @@ namespace osidbg
 #undef DEFN_GETTER
 
 				CDivinityStats_Character__GetHitChance * GetHitChance;
+				CDivinityStats_Character__GetTalent * GetTalent;
+				CDivinityStats_Character__GetAbility * GetAbility;
 			};
 		};
 

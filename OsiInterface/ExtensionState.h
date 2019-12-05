@@ -96,6 +96,12 @@ namespace osidbg
 			return *state_.Lua;
 		}
 
+		inline LuaState & operator *() const
+		{
+			assert(*this);
+			return *state_.Lua;
+		}
+
 		inline LuaState * operator ->() const
 		{
 			assert(*this);

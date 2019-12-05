@@ -983,6 +983,46 @@ namespace osidbg
 			ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetChanceToHitBoost");
 			InitFailed = true;
 		}
+
+		if (gCharacterStatsGetters.GetDodge != nullptr) {
+			Pattern pa;
+			pa.FromString(
+				"45 33 C9 " // xor     r9d, r9d 
+				"45 33 C0 " // xor     r8d, r8d
+				"8B D0 " // mov     edx, eax 
+				"48 8B CF " // mov     rcx, rdi 
+				"E8 XX XX XX XX " // call    CDivinityStats_Character__GetAbility
+			);
+
+			pa.Scan((uint8_t *)gCharacterStatsGetters.GetDodge, 0x480, [this](const uint8_t * match) {
+				auto func = AsmCallToAbsoluteAddress(match + 11);
+				gCharacterStatsGetters.GetAbility = (CDivinityStats_Character__GetAbility *)func;
+			}, false);
+
+			if (gCharacterStatsGetters.GetAbility == nullptr) {
+				ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetAbility");
+				InitFailed = true;
+			}
+
+			Pattern pt;
+			pt.FromString(
+				"45 0F B6 C5 " // movzx   r8d, r13b
+				"BA 03 00 00 00 " // mov     edx, 3
+				"48 8B CF " // mov     rcx, rdi
+				"45 03 FC " // add     r15d, r12d 
+				"E8 XX XX XX XX " // call    CDivinityStats_Character__HasTalent
+			);
+
+			pt.Scan((uint8_t *)gCharacterStatsGetters.GetDodge, 0x480, [this](const uint8_t * match) {
+				auto func = AsmCallToAbsoluteAddress(match + 15);
+				gCharacterStatsGetters.GetTalent = (CDivinityStats_Character__GetTalent *)func;
+			}, false);
+
+			if (gCharacterStatsGetters.GetTalent == nullptr) {
+				ERR("LibraryManager::FindCharacterStatFuncsEoCPlugin(): Could not find CDivinityStats_Character::GetTalent");
+				InitFailed = true;
+			}
+		}
 	}
 }
 #endif

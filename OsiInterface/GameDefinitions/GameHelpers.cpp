@@ -540,15 +540,22 @@ namespace osidbg
 	std::optional<int32_t> CharacterStatsGetters::GetStat(CDivinityStats_Character * character, 
 		char const * name, bool original, bool baseStats)
 	{
-#define DEFN_GETTER(type, n) if (strcmp(#n, name) == 0) { \
-	return CharacterStatGetter<n##Tag>(Get##n, Wrapper##n, character, original, baseStats); \
-}
+		auto statType = EnumInfo<StatGetterType>::Find(name);
+		if (!statType) {
+			return {};
+		}
+
+		switch (*statType) {
+#define DEFN_GETTER(type, n) case StatGetterType::n: \
+	return CharacterStatGetter<n##Tag>(Get##n, Wrapper##n, character, original, baseStats);
 
 #include <GameDefinitions/CharacterGetters.inl>
 #undef DEFN_GETTER
 
-		OsiError("Unknown character stat: '" << name << "'");
-		return {};
+		default:
+			OsiError("Unknown character stat: '" << name << "'");
+			return {};
+		}
 	}
 
 
@@ -565,6 +572,26 @@ namespace osidbg
 	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
 	{
 		return gCharacterStatsGetters.GetStat(this, name, false, baseStats);
+	}
+
+
+	bool CDivinityStats_Character::HasTalent(TalentType talent, bool excludeBoosts)
+	{
+		if (gCharacterStatsGetters.GetTalent) {
+			return gCharacterStatsGetters.GetTalent(this, talent, excludeBoosts);
+		} else {
+			return false;
+		}
+	}
+
+
+	int32_t CDivinityStats_Character::GetAbility(AbilityType ability, bool excludeBoosts)
+	{
+		if (gCharacterStatsGetters.GetAbility) {
+			return gCharacterStatsGetters.GetAbility(this, ability, excludeBoosts, false);
+		} else {
+			return 0;
+		}
 	}
 
 
