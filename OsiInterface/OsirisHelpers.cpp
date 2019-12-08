@@ -9,6 +9,11 @@ namespace osidbg
 
 	void IdentityAdapterMap::UpdateAdapters()
 	{
+		if ((*globals_.Adapters) == nullptr) {
+			DEBUG("Not syncing adapters - DB not available");
+			return;
+		}
+
 		auto const & adapterDb = (*globals_.Adapters)->Db;
 		for (unsigned i = 0; i < adapterDb.Size; i++) {
 			auto adapter = adapterDb.Start[i];
