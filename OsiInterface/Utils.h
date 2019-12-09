@@ -9,6 +9,7 @@ std::wstring FromUTF8(std::string const & s);
 enum class DebugMessageType
 {
 	Info,
+	Osiris,
 	Warning,
 	Error
 };

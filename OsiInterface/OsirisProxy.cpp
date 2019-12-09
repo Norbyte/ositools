@@ -124,7 +124,7 @@ void OsirisProxy::LogOsirisWarning(std::string const & msg)
 void OsirisProxy::LogOsirisMsg(std::string const & msg)
 {
 	auto log = "[Osiris] " + msg;
-	DebugRaw(DebugMessageType::Info, log.c_str());
+	DebugRaw(DebugMessageType::Osiris, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}

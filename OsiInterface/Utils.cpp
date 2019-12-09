@@ -34,6 +34,10 @@ void SetConsoleColor(DebugMessageType type)
 		wAttributes = FOREGROUND_RED | FOREGROUND_GREEN;
 		break;
 
+	case DebugMessageType::Osiris:
+		wAttributes = FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE;
+		break;
+
 	case DebugMessageType::Info:
 	default:
 		wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;

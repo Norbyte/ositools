@@ -165,6 +165,28 @@ namespace osidbg
 		return 0;
 	}
 
+	int OsiPrint(lua_State* L)
+	{
+		int nargs = lua_gettop(L);  /* number of arguments */
+
+		std::stringstream ss;
+		lua_getglobal(L, "tostring");
+		for (int i = 1; i <= nargs; i++) {
+			lua_pushvalue(L, -1);  /* function to be called */
+			lua_pushvalue(L, i);   /* value to print */
+			lua_call(L, 1, 1);
+			const char * str = lua_tostring(L, -1);  /* get result */
+			if (str == nullptr)
+				return luaL_error(L, "'tostring' must return a string to 'print'");
+			if (i > 1) ss << "\t";
+			ss << str;
+			lua_pop(L, 1);  /* pop result */
+		}
+
+		gOsirisProxy->LogOsirisMsg(ss.str());
+		return 0;
+	}
+
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
@@ -173,6 +195,7 @@ namespace osidbg
 			{"NewQuery", NewQuery},
 			{"NewEvent", NewEvent},
 			{"EnableStatOverride", EnableStatOverride},
+			{"Print", OsiPrint},
 			/*{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},*/
 			{0,0}
