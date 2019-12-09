@@ -382,7 +382,7 @@ namespace osidbg
 		}
 	}
 
-	Module const * ModManager::FindModByNameGuid(std::string const & nameGuid) const
+	Module const * ModManager::FindModByNameGuid(char const * nameGuid) const
 	{
 		auto modUuidFS = NameGuidToFixedString(nameGuid);
 		if (!modUuidFS) {

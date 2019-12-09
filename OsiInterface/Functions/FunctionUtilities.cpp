@@ -26,24 +26,34 @@ namespace osidbg
 
 	FixedString ToFixedString(const char * s)
 	{
+		if (s == nullptr) {
+			OsiErrorS("ToFixedString(): Attempted to look up a null string!");
+			return FixedString{};
+		}
+
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			OsiError("ToFixedString(): Global string table not available!");
-			return FixedString(nullptr);
+			OsiErrorS("ToFixedString(): Global string table not available!");
+			return FixedString{};
 		}
 
 		auto str = stringTable->Find(s, strlen(s));
 		return FixedString(str);
 	}
 
-	char const * NameGuidToFixedString(std::string const & nameGuid)
+	char const * NameGuidToFixedString(char const * nameGuid)
 	{
-		if (nameGuid.size() < 36) {
+		if (nameGuid == nullptr) {
+			return nullptr;
+		}
+
+		auto nameLen = strlen(nameGuid);
+		if (nameLen < 36) {
 			OsiError("NameGuidToFixedString(): GUID (" << nameGuid << ") too short!");
 			return nullptr;
 		}
 
-		auto guid = nameGuid.substr(nameGuid.size() - 36, 36);
+		auto guid = nameGuid + nameLen - 36;
 
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
@@ -51,11 +61,16 @@ namespace osidbg
 			return nullptr;
 		}
 
-		return stringTable->Find(guid.c_str(), guid.size());
+		return stringTable->Find(guid, 36);
 	}
 
-	esv::EoCServerObject * FindGameObjectByNameGuid(std::string const & nameGuid, bool logError)
+	esv::EoCServerObject * FindGameObjectByNameGuid(char const * nameGuid, bool logError)
 	{
+		if (nameGuid == nullptr) {
+			OsiError("Attempted to look up object with null name!");
+			return nullptr;
+		}
+
 		auto character = FindCharacterByNameGuid(nameGuid, false);
 		if (character != nullptr) {
 			return character;
@@ -108,12 +123,17 @@ namespace osidbg
 			return itemFactory->Entities;
 		}
 
-		OsiError("EntityWorld not available!");
+		OsiErrorS("EntityWorld not available!");
 		return nullptr;
 	}
 
-	void * FindComponentByNameGuid(ComponentType componentType, std::string const & nameGuid, bool logError)
+	void * FindComponentByNameGuid(ComponentType componentType, char const * nameGuid, bool logError)
 	{
+		if (nameGuid == nullptr) {
+			OsiError("Attempted to look up component with null name!");
+			return nullptr;
+		}
+
 		auto stringPtr = NameGuidToFixedString(nameGuid);
 		if (stringPtr == nullptr) {
 			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
@@ -161,7 +181,7 @@ namespace osidbg
 		}
 	}
 
-	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError)
+	esv::Character * FindCharacterByNameGuid(char const * nameGuid, bool logError)
 	{
 		auto component = FindComponentByNameGuid(ComponentType::Character, nameGuid, logError);
 		if (component != nullptr) {
@@ -181,7 +201,7 @@ namespace osidbg
 		}
 	}
 
-	esv::Item * FindItemByNameGuid(std::string const & nameGuid, bool logError)
+	esv::Item * FindItemByNameGuid(char const * nameGuid, bool logError)
 	{
 		auto component = FindComponentByNameGuid(ComponentType::Item, nameGuid, logError);
 		if (component != nullptr) {
@@ -342,8 +362,8 @@ namespace osidbg
 			return false;
 		}
 
-		if (!Helper.SkillId.Str) {
-			OsiError("No skill id!");
+		if (!Helper.SkillId) {
+			OsiErrorS("No skill id!");
 			return false;
 		}
 

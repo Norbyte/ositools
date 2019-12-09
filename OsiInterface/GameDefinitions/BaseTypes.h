@@ -141,21 +141,26 @@ namespace osidbg
 			return true;
 		}
 
-		ValueType * Find(char const * str) const
+		ValueType * Find(FixedString fs) const
 		{
-			auto fs = ToFixedString(str);
-			if (fs) {
-				auto item = HashTable[(uint64_t)fs.Str % HashSize];
-				while (item != nullptr) {
-					if (strcmp(str, item->Key.Str) == 0) {
-						return &item->Value;
-					}
+			if (!fs) return nullptr;
 
-					item = item->Next;
+			auto item = HashTable[(uint64_t)fs.Str % HashSize];
+			while (item != nullptr) {
+				if (strcmp(fs.Str, item->Key.Str) == 0) {
+					return &item->Value;
 				}
+
+				item = item->Next;
 			}
 
 			return nullptr;
+		}
+
+		ValueType * Find(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			return Find(fs);
 		}
 
 		FixedString * FindByValue(ValueType const & value) const
@@ -201,21 +206,26 @@ namespace osidbg
 		uint32_t HashSize;
 		Node ** HashTable;
 
-		ValueType * Find(char const * str) const
+		ValueType * Find(FixedString fs) const
 		{
-			auto fs = ToFixedString(str);
-			if (fs) {
-				auto item = HashTable[(uint64_t)fs.Str % HashSize];
-				while (item != nullptr) {
-					if (fs.Str == item->Key.Str) {
-						return &item->Value;
-					}
+			if (!fs) return nullptr;
 
-					item = item->Next;
+			auto item = HashTable[(uint64_t)fs.Str % HashSize];
+			while (item != nullptr) {
+				if (fs.Str == item->Key.Str) {
+					return &item->Value;
 				}
+
+				item = item->Next;
 			}
 
 			return nullptr;
+		}
+
+		ValueType * Find(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			return Find(fs);
 		}
 	};
 

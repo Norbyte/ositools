@@ -546,7 +546,7 @@ debug = nil
 
 	void ExtensionState::LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName)
 	{
-		auto mod = GetModManager()->FindModByNameGuid(modNameGuid);
+		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
 			OsiError("Mod does not exist or is not loaded: " << modNameGuid);
 			return;

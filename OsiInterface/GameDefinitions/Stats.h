@@ -417,7 +417,7 @@ namespace osidbg
 
 		int FindIndex(FixedString str) const
 		{
-			auto ptr = NameHashMap.Find(str.Str);
+			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
 				return (int)*ptr;
 			} else {
@@ -436,7 +436,7 @@ namespace osidbg
 
 		T * Find(FixedString str) const
 		{
-			auto ptr = NameHashMap.Find(str.Str);
+			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
 				return Primitives.Buf[*ptr];
 			} else {

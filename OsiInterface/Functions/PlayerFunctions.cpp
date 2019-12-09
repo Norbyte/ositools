@@ -183,12 +183,13 @@ namespace osidbg
 		{
 			auto characterGuid = args[0].String;
 			auto slot = args[1].Int32;
-			auto skillId = ToFixedString(args[2].String);
+			auto skillId = args[2].String;
+			auto skillIdFs = ToFixedString(skillId);
 
 			auto * stats = gOsirisProxy->GetLibraryManager().GetStats();
 			auto skillDataFs = ToFixedString("SkillData");
-			if (!stats->ObjectExists(skillId, skillDataFs)) {
-				OsiError("'" << skillId.Str << "' is not a valid skill ID!");
+			if (!stats->ObjectExists(skillIdFs, skillDataFs)) {
+				OsiError("'" << skillId << "' is not a valid skill ID!");
 				return;
 			}
 
@@ -196,7 +197,7 @@ namespace osidbg
 			if (skillBarItem == nullptr) return;
 
 			skillBarItem->Type = esv::SkillBarItem::kSkill;
-			skillBarItem->SkillOrStatId = skillId;
+			skillBarItem->SkillOrStatId = skillIdFs;
 			skillBarItem->ItemHandle = ObjectHandle{};
 
 			auto character = FindCharacterByNameGuid(characterGuid);

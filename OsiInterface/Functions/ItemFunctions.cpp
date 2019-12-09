@@ -40,8 +40,8 @@ namespace osidbg
 				OsiError("Item '" << itemGuid << "' has no generation data!");
 				return false;
 			} else {
-				args[1].String = item->Generation->Base.Str ? item->Generation->Base.Str : "";
-				args[2].String = item->Generation->ItemType.Str ? item->Generation->ItemType.Str : "";
+				args[1].String = item->Generation->Base ? item->Generation->Base.Str : "";
+				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.Str : "";
 				args[3].Int32 = item->Generation->Level;
 				return true;
 			}

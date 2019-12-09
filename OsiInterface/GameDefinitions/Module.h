@@ -90,7 +90,7 @@ namespace osidbg
 		ObjectSet<Module> Modules;
 		ModuleSettings Settings;
 
-		Module const * FindModByNameGuid(std::string const & nameGuid) const;
+		Module const * FindModByNameGuid(char const * nameGuid) const;
 	};
 #pragma pack(pop)
 }

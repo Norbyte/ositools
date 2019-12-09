@@ -14,16 +14,16 @@ namespace osidbg
 
 	EntityWorld * GetEntityWorld();
 	FixedString ToFixedString(const char * s);
-	char const * NameGuidToFixedString(std::string const & nameGuid);
+	char const * NameGuidToFixedString(char const * nameGuid);
 
-	void * FindComponentByNameGuid(ComponentType componentType, std::string const & nameGuid, bool logError = true);
+	void * FindComponentByNameGuid(ComponentType componentType, char const * nameGuid, bool logError = true);
 	void * FindComponentByHandle(ComponentType componentType, ObjectHandle const & handle, bool logError = true);
 
-	esv::EoCServerObject * FindGameObjectByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::EoCServerObject * FindGameObjectByNameGuid(char const * nameGuid, bool logError = true);
 	esv::EoCServerObject * FindGameObjectByHandle(ObjectHandle const & handle, bool logError = true);
-	esv::Character * FindCharacterByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::Character * FindCharacterByNameGuid(char const * nameGuid, bool logError = true);
 	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError = true);
-	esv::Item * FindItemByNameGuid(std::string const & nameGuid, bool logError = true);
+	esv::Item * FindItemByNameGuid(char const * nameGuid, bool logError = true);
 	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
