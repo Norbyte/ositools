@@ -39,8 +39,8 @@ namespace osidbg
 		}
 
 		if (numConfigs > 0) {
-			DEBUG("%d mod configuration(s) configuration loaded.", numConfigs);
-			DEBUG("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
+			INFO("%d mod configuration(s) configuration loaded.", numConfigs);
+			INFO("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
 				EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane,
 				EnableFormulaOverrides, MinimumVersion);
 		}

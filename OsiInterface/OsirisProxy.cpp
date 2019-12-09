@@ -642,7 +642,7 @@ void OsirisProxy::OnBaseModuleLoaded(void * self)
 {
 	auto modManager = GetModManager();
 	if (modManager != nullptr) {
-		DEBUG(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+		INFO(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
 	}
 
 	if (ExtensionsEnabled) {

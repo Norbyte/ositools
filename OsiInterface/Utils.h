@@ -8,6 +8,7 @@ std::wstring FromUTF8(std::string const & s);
 
 enum class DebugMessageType
 {
+	Debug,
 	Info,
 	Osiris,
 	Warning,
@@ -35,7 +36,8 @@ void Debug(DebugMessageType type, char const * fmt, Args... args)
 void DebugRaw(DebugMessageType type, char const * msg);
 void DebugRaw(DebugMessageType type, wchar_t const * msg);
 
-#define DEBUG(msg, ...) Debug(DebugMessageType::Info, msg, __VA_ARGS__)
+#define DEBUG(msg, ...) Debug(DebugMessageType::Debug, msg, __VA_ARGS__)
+#define INFO(msg, ...) Debug(DebugMessageType::Info, msg, __VA_ARGS__)
 #define WARN(msg, ...) Debug(DebugMessageType::Warning, msg, __VA_ARGS__)
 #define ERR(msg, ...) Debug(DebugMessageType::Error, msg, __VA_ARGS__)
 

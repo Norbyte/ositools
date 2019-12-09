@@ -506,7 +506,7 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleConnect()
 	{
-		DEBUG("Connected to debugger frontend");
+		INFO("Connected to debugger frontend");
 
 		outboundSeq_ = 1;
 		inboundSeq_ = 1;
@@ -514,7 +514,7 @@ namespace osidbg
 
 	void DebugMessageHandler::HandleDisconnect()
 	{
-		DEBUG("Disconnected from debugger frontend");
+		INFO("Disconnected from debugger frontend");
 		if (debugger_) {
 			debugger_->Breakpoints().ClearAllBreakpoints();
 			if (debugger_->IsPaused()) {

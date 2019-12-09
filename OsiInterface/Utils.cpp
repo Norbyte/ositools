@@ -39,6 +39,10 @@ void SetConsoleColor(DebugMessageType type)
 		break;
 
 	case DebugMessageType::Info:
+		wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+		break;
+
+	case DebugMessageType::Debug:
 	default:
 		wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 		break;
@@ -54,7 +58,7 @@ void DebugRaw(DebugMessageType type, char const * msg)
 	OutputDebugStringA(msg);
 	std::cout << msg << std::endl;
 	std::cout.flush();
-	SetConsoleColor(DebugMessageType::Info);
+	SetConsoleColor(DebugMessageType::Debug);
 }
 
 void DebugRaw(DebugMessageType type, wchar_t const * msg)
@@ -63,7 +67,7 @@ void DebugRaw(DebugMessageType type, wchar_t const * msg)
 	OutputDebugStringW(msg);
 	std::wcout << msg << std::endl;
 	std::wcout.flush();
-	SetConsoleColor(DebugMessageType::Info);
+	SetConsoleColor(DebugMessageType::Debug);
 }
 
 [[noreturn]]
