@@ -105,7 +105,7 @@ namespace osidbg
 		}
 
 		if (logError) {
-			OsiError("No EoC server object found with this handle (0x" << std::hex << handle.Handle << ")");
+			OsiError("No EoC server object found with handle 0x" << std::hex << handle.Handle);
 		}
 
 		return nullptr;
@@ -125,6 +125,18 @@ namespace osidbg
 
 		OsiErrorS("EntityWorld not available!");
 		return nullptr;
+	}
+
+
+
+	std::string ComponentTypeToName(ComponentType type)
+	{
+		auto label = EnumInfo<ComponentType>::Find(type);
+		if (label) {
+			return *label;
+		} else {
+			return std::string("<Type ") + std::to_string((uint32_t)type) + ">";
+		}
 	}
 
 	void * FindComponentByNameGuid(ComponentType componentType, char const * nameGuid, bool logError)
@@ -153,7 +165,7 @@ namespace osidbg
 			return component;
 		} else {
 			if (logError) {
-				OsiError("No " << (uint32_t)componentType << " component found with GUID '" << nameGuid << "'");
+				OsiError("No " << ComponentTypeToName(componentType) << " component found with GUID '" << nameGuid << "'");
 			}
 			return nullptr;
 		}
@@ -175,7 +187,7 @@ namespace osidbg
 			return component;
 		} else {
 			if (logError) {
-				OsiError("No Character component found with this handle (0x" << std::hex << handle.Handle << ")");
+				OsiError("No " << ComponentTypeToName(componentType) << " component found with handle 0x" << std::hex << handle.Handle);
 			}
 			return nullptr;
 		}

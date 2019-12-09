@@ -688,6 +688,27 @@ namespace osidbg
 	}
 
 
+	EnumInfo<ComponentType>::Label const EnumInfo<ComponentType>::Values[] = {
+		{ ComponentType::AnimationBlueprint, "AnimationBlueprint" },
+		{ ComponentType::Spline, "Spline" },
+		{ ComponentType::Combat, "Combat" },
+		{ ComponentType::CustomStats, "CustomStats" },
+		{ ComponentType::GameMaster, "GameMaster" },
+		{ ComponentType::GMJournalNode, "GMJournalNode" },
+		{ ComponentType::Container, "Container" },
+		{ ComponentType::ContainerElement, "ContainerElement" },
+		{ ComponentType::Net, "Net" },
+		{ ComponentType::OverviewMap, "OverviewMap" },
+		{ ComponentType::Note, "Note" },
+		{ ComponentType::Vignette, "Vignette" },
+		{ ComponentType::CustomStatDefinition, "CustomStatDefinition" },
+		{ ComponentType::Item, "Item" },
+		{ ComponentType::Character, "Character" },
+		{ ComponentType::Egg, "Egg" },
+		{ ComponentType::Projectile, "Projectile" },
+	};
+
+
 	EnumInfo<PlayerUpgradeAttribute>::Label const EnumInfo<PlayerUpgradeAttribute>::Values[] = {
 		{ PlayerUpgradeAttribute::Strength, "Strength" },
 		{ PlayerUpgradeAttribute::Finesse, "Finesse" },

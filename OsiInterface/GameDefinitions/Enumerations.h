@@ -118,6 +118,8 @@ namespace osidbg
 		// ...
 	};
 
+	MAKE_ENUM_INFO(ComponentType, 17);
+
 
 	enum class SystemType : uint32_t
 	{
