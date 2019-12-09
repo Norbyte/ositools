@@ -1,3 +1,6 @@
+# Force a build date refresh
+(gci OsiInterface/Utils.cpp).LastWriteTime = Get-Date
+
 msbuild OsiTools.sln /p:Configuration=Release /t:Build /m
 msbuild OsiTools.sln /p:Configuration=ReleaseExtensionsOnly /t:Build /m
 
