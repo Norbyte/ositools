@@ -47,7 +47,7 @@ namespace osidbg
 
 	int LuaGameObjectProxy<esv::Status>::LuaIndex(lua_State * L)
 	{
-		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
+		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
 		auto & propertyMap = StatusToPropertyMap(obj_);
@@ -57,8 +57,7 @@ namespace osidbg
 
 	int LuaGameObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
 	{
-		luaL_error(L, "Not supported yet!");
-		return 0;
+		return luaL_error(L, "Not supported yet!");
 	}
 
 
@@ -72,7 +71,7 @@ namespace osidbg
 
 	int LuaGameObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
 	{
-		if (obj_ == nullptr) luaL_error(L, "Character stats no longer available");
+		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
 
@@ -106,8 +105,7 @@ namespace osidbg
 
 	int LuaGameObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
 	{
-		luaL_error(L, "Not supported yet!");
-		return 0;
+		return luaL_error(L, "Not supported yet!");
 	}
 
 
@@ -157,7 +155,7 @@ namespace osidbg
 	{
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictExt) {
-			luaL_error(L, "Attempted to toggle stat overrides in restricted context");
+			return luaL_error(L, "Attempted to toggle stat overrides in restricted context");
 		}
 
 		auto stat = luaL_checkstring(L, 1);
@@ -209,7 +207,7 @@ namespace osidbg
 	{
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictExt) {
-			luaL_error(L, "Attempted to load Lua code in restricted context");
+			return luaL_error(L, "Attempted to load Lua code in restricted context");
 		}
 
 		auto modGuid = luaL_checkstring(L, 1);

@@ -67,8 +67,7 @@ namespace osidbg
 				auto self = FromUserData(L, 1);
 				return self->LuaCall(L);
 			} else {
-				luaL_error(L, "Not callable!");
-				return 0;
+				return luaL_error(L, "Not callable!");
 			}
 		}
 
@@ -78,8 +77,7 @@ namespace osidbg
 				auto self = FromUserData(L, 1);
 				return self->LuaIndex(L);
 			} else {
-				luaL_error(L, "Not indexable!");
-				return 0;
+				return luaL_error(L, "Not indexable!");
 			}
 		}
 
@@ -89,8 +87,7 @@ namespace osidbg
 				auto self = FromUserData(L, 1);
 				return self->LuaNewIndex(L);
 			} else {
-				luaL_error(L, "Not newindexable!");
-				return 0;
+				return luaL_error(L, "Not newindexable!");
 			}
 		}
 

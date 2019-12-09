@@ -205,16 +205,16 @@ namespace osidbg
 	int LuaOsiFunction::LuaCall(lua_State * L)
 	{
 		if (function_ == nullptr) {
-			luaL_error(L, "Attempted to call an unbound Osiris function");
+			return luaL_error(L, "Attempted to call an unbound Osiris function");
 		}
 
 		int numArgs = lua_gettop(L);
 		if (numArgs < 1) {
-			luaL_error(L, "Called Osi function without 'self' argument?");
+			return luaL_error(L, "Called Osi function without 'self' argument?");
 		}
 
 		if (state_->RestrictionFlags & LuaState::RestrictOsiris) {
-			luaL_error(L, "Attempted to call Osiris function in restricted context");
+			return luaL_error(L, "Attempted to call Osiris function in restricted context");
 		}
 
 		switch (function_->Type) {
@@ -237,8 +237,7 @@ namespace osidbg
 
 		case FunctionType::SysCall:
 		default:
-			luaL_error(L, "Cannot call function of type %d", function_->Type);
-			return 0;
+			return luaL_error(L, "Cannot call function of type %d", function_->Type);
 		}
 	}
 
@@ -316,7 +315,7 @@ namespace osidbg
 
 		int numArgs = lua_gettop(L);
 		if (numArgs - 1 != inParams) {
-			luaL_error(L, "Incorrect number of IN arguments for '%s'; expected %d, got %d",
+			return luaL_error(L, "Incorrect number of IN arguments for '%s'; expected %d, got %d",
 				function_->Signature->Name, inParams, numArgs - 1);
 		}
 
@@ -362,7 +361,7 @@ namespace osidbg
 
 		int numArgs = lua_gettop(L);
 		if (numArgs - 1 != inParams) {
-			luaL_error(L, "Incorrect number of IN arguments for '%s'; expected %d, got %d",
+			return luaL_error(L, "Incorrect number of IN arguments for '%s'; expected %d, got %d",
 				function_->Signature->Name, inParams, numArgs - 1);
 		}
 
@@ -442,7 +441,7 @@ namespace osidbg
 	int LuaOsiFunctionNameProxy::LuaCall(lua_State * L)
 	{
 		if (state_.RestrictionFlags & LuaState::RestrictOsiris) {
-			luaL_error(L, "Attempted to fetch Osiris function in restricted context");
+			return luaL_error(L, "Attempted to fetch Osiris function in restricted context");
 		}
 
 		if (generationId_ != state_.GenerationId()) {
@@ -455,7 +454,7 @@ namespace osidbg
 
 		auto func = TryGetFunction(arity);
 		if (func == nullptr) {
-			luaL_error(L, "No function named '%s' exists that can be called with %d parameters.",
+			return luaL_error(L, "No function named '%s' exists that can be called with %d parameters.",
 				name_.c_str(), arity);
 		}
 
@@ -835,9 +834,9 @@ namespace osidbg
 	int LuaExtensionLibrary::NewCall(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (!lua) luaL_error(L, "Exiting");
+		if (!lua) return luaL_error(L, "Exiting");
 
-		if (lua->StartupDone()) luaL_error(L, "Attempted to register call after Lua startup phase");
+		if (lua->StartupDone()) return luaL_error(L, "Attempted to register call after Lua startup phase");
 
 		luaL_checktype(L, 1, LUA_TFUNCTION);
 		auto funcName = luaL_checkstring(L, 2);
@@ -858,9 +857,9 @@ namespace osidbg
 	int LuaExtensionLibrary::NewQuery(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (!lua) luaL_error(L, "Exiting");
+		if (!lua) return luaL_error(L, "Exiting");
 
-		if (lua->StartupDone()) luaL_error(L, "Attempted to register query after Lua startup phase");
+		if (lua->StartupDone()) return luaL_error(L, "Attempted to register query after Lua startup phase");
 
 		luaL_checktype(L, 1, LUA_TFUNCTION);
 		auto funcName = luaL_checkstring(L, 2);
@@ -881,9 +880,9 @@ namespace osidbg
 	int LuaExtensionLibrary::NewEvent(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (!lua) luaL_error(L, "Exiting");
+		if (!lua) return luaL_error(L, "Exiting");
 
-		if (lua->StartupDone()) luaL_error(L, "Attempted to register event after Lua startup phase");
+		if (lua->StartupDone()) return luaL_error(L, "Attempted to register event after Lua startup phase");
 
 		auto funcName = luaL_checkstring(L, 1);
 		auto args = luaL_checkstring(L, 2);
