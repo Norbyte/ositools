@@ -145,6 +145,10 @@ void CustomFunctionManager::EndStaticRegistrationPhase()
 void CustomFunctionManager::ClearDynamicEntries()
 {
 	assert(staticRegistrationDone_);
+	for (auto it = dynamicSignatures_.begin(); it != dynamicSignatures_.end(); ++it) {
+		it->second.Function = nullptr;
+	}
+
 	for (auto it = calls_.begin() + numStaticCalls_; it != calls_.end(); ++it) {
 		it->reset();
 	}
@@ -270,10 +274,16 @@ bool CustomFunctionManager::RegisterDynamicSignature(CustomFunction * func, uint
 		return true;
 	} else {
 		if (dynamicSig->second.Type != type) {
-			OsiError("Attempted to register function " << func->Name() << " with different type");
+			OsiError("Attempted to register function '" << func->Name() << "' with different type");
 			return false;
 		}
 
+		if (dynamicSig->second.Function != nullptr) {
+			OsiError("Dynamic function '" << func->Name() << "' is already bound!");
+			return false;
+		}
+
+		dynamicSig->second.Function = func;
 		index = dynamicSig->second.Index;
 		return true;
 	}
@@ -303,8 +313,13 @@ bool CustomFunctionManager::Call(FunctionHandle handle, OsiArgumentDesc const & 
 
 	auto index = ((handle.classIndex() - CallClassIdMin) << 10) + handle.functionIndex();
 
-	if (index >= calls_.size() || !calls_[index]) {
+	if (index >= calls_.size()) {
 		OsiError("Call index " << handle.functionIndex() << " out of bounds!");
+		return false;
+	}
+
+	if (!calls_[index]) {
+		OsiError("Call index " << handle.functionIndex() << " not mapped to a custom function!");
 		return false;
 	}
 
@@ -320,8 +335,13 @@ bool CustomFunctionManager::Query(FunctionHandle handle, OsiArgumentDesc & param
 
 	auto index = ((handle.classIndex() - QueryClassIdMin) << 10) + handle.functionIndex();
 
-	if (index >= queries_.size() || !queries_[index]) {
+	if (index >= queries_.size()) {
 		OsiError("Query index " << handle.functionIndex() << " out of bounds!");
+		return false;
+	}
+
+	if (!queries_[index]) {
+		OsiError("Query index " << handle.functionIndex() << " not mapped to a custom function!");
 		return false;
 	}
 
