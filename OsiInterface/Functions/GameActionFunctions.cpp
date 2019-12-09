@@ -31,7 +31,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
-				OsiError("Game Action maanger not available");
+				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
@@ -111,12 +111,12 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.WallActionCreateWall == nullptr) {
-				OsiError("Wall action symbols not available in library manager");
+				OsiErrorS("Wall action symbols not available in library manager");
 				return false;
 			}
 
 			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
-				OsiError("Game Action maanger not available");
+				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
@@ -144,7 +144,7 @@ namespace osidbg
 		{
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			if (lib.TornadoActionSetup == nullptr) {
-				OsiError("Tornado action symbols not available in library manager");
+				OsiErrorS("Tornado action symbols not available in library manager");
 				return false;
 			}
 
@@ -200,7 +200,7 @@ namespace osidbg
 				beamEffectFs = ToFixedString(beamEffectName);
 
 				if (!beamEffectFs) {
-					OsiError("Beam effect is not a valid FixedString!");
+					OsiErrorS("Beam effect is not a valid FixedString!");
 					return false;
 				}
 
@@ -216,12 +216,12 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.GameObjectMoveActionSetup == nullptr) {
-				OsiError("GameObjectMove symbols not available in library manager");
+				OsiErrorS("GameObjectMove symbols not available in library manager");
 				return false;
 			}
 
 			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
-				OsiError("Game Action maanger not available");
+				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
@@ -323,7 +323,7 @@ namespace osidbg
 
 			auto lifeTime = args[1].Float;
 			if (lifeTime < 0.0f) {
-				OsiError("Lifetime must be a positive value");
+				OsiErrorS("Lifetime must be a positive value");
 				return;
 			}
 
@@ -362,7 +362,7 @@ namespace osidbg
 
 			auto const & lib = gOsirisProxy->GetLibraryManager();
 			if (lib.SummonHelpersSummon == nullptr) {
-				OsiError("Summon helper symbols not available in library manager");
+				OsiErrorS("Summon helper symbols not available in library manager");
 				return false;
 			}
 
@@ -410,12 +410,12 @@ namespace osidbg
 					return true;
 				}
 				else {
-					OsiError("Summoned object is not a character or item!");
+					OsiErrorS("Summoned object is not a character or item!");
 					return false;
 				}
 			}
 			else {
-				OsiError("esv::SummonHelpers::Summon() call failed!");
+				OsiErrorS("esv::SummonHelpers::Summon() call failed!");
 				return false;
 			}
 		}

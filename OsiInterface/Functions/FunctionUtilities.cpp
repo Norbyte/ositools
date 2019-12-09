@@ -47,7 +47,7 @@ namespace osidbg
 
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			OsiError("NameGuidToFixedString(): Global string table not available!");
+			OsiErrorS("NameGuidToFixedString(): Global string table not available!");
 			return nullptr;
 		}
 
@@ -333,12 +333,12 @@ namespace osidbg
 	bool ShootProjectileApiHelper::Shoot()
 	{
 		if (!HasStartPosition) {
-			OsiError("No start position!");
+			OsiErrorS("No start position!");
 			return false;
 		}
 
 		if (!HasEndPosition) {
-			OsiError("No end position!");
+			OsiErrorS("No end position!");
 			return false;
 		}
 
@@ -349,7 +349,7 @@ namespace osidbg
 
 		auto shoot = gOsirisProxy->GetLibraryManager().ShootProjectile;
 		if (shoot == nullptr) {
-			OsiError("ShootProjectile helper not found!");
+			OsiErrorS("ShootProjectile helper not found!");
 			return false;
 		}
 

@@ -64,7 +64,7 @@ namespace osidbg
 
 			auto processMsg = gOsirisProxy->GetLibraryManager().EsvCustomStatsProtocolProcessMsg;
 			if (processMsg == nullptr) {
-				OsiError("esv::CustomStatsProtocol::ProcessMsg not found!");
+				OsiErrorS("esv::CustomStatsProtocol::ProcessMsg not found!");
 				return;
 			}
 
@@ -83,7 +83,7 @@ namespace osidbg
 			auto entityWorld = GetEntityWorld();
 			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle);
 			if (statsComponent == nullptr) {
-				OsiError("Character has no CustomStatsComponent");
+				OsiErrorS("Character has no CustomStatsComponent");
 				return false;
 			}
 

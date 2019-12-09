@@ -60,7 +60,7 @@ namespace osidbg
 
 			auto cooldown = args[2].Float;
 			if (cooldown < 0.0f) {
-				OsiError("Cooldown cannot be negative!");
+				OsiErrorS("Cooldown cannot be negative!");
 				return;
 			}
 

@@ -25,7 +25,7 @@ namespace osidbg
 			}
 			else
 			{
-				OsiError("No projectile to shoot!");
+				OsiErrorS("No projectile to shoot!");
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace osidbg
 
 			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
-				OsiError("Called when no projectile is active!");
+				OsiErrorS("Called when no projectile is active!");
 				return;
 			}
 
@@ -50,7 +50,7 @@ namespace osidbg
 
 			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
-				OsiError("Called when no projectile is active!");
+				OsiErrorS("Called when no projectile is active!");
 				return;
 			}
 
@@ -64,7 +64,7 @@ namespace osidbg
 
 			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
-				OsiError("Called when no projectile is active!");
+				OsiErrorS("Called when no projectile is active!");
 				return;
 			}
 
@@ -78,7 +78,7 @@ namespace osidbg
 
 			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
-				OsiError("Called when no projectile is active!");
+				OsiErrorS("Called when no projectile is active!");
 				return;
 			}
 

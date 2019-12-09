@@ -157,7 +157,7 @@ namespace osidbg
 			if (Type == DamageHelpers::HT_CustomHit) {
 				SimulateHit = value > 0;
 			} else {
-				OsiError("Property 'SimulateHit' can only be set for custom hits");
+				OsiErrorS("Property 'SimulateHit' can only be set for custom hits");
 			}
 		}
 		else if (strcmp(prop, "HitType") == 0) {
@@ -208,7 +208,7 @@ namespace osidbg
 			if (Type == DamageHelpers::HT_CustomHit) {
 				Strength = value / 100.0f;
 			} else {
-				OsiError("Property 'Strength' can only be set for custom hits");
+				OsiErrorS("Property 'Strength' can only be set for custom hits");
 			}
 		}
 		else {
@@ -222,7 +222,7 @@ namespace osidbg
 	void DamageHelpers::SetVector(char const * prop, Vector3 const & value)
 	{
 		if (Type != DamageHelpers::HT_CustomHit) {
-			OsiError("Impact vectors can only be set for custom hits");
+			OsiErrorS("Impact vectors can only be set for custom hits");
 			return;
 		}
 
@@ -297,31 +297,31 @@ namespace osidbg
 	esv::StatusHit * DamageHelpers::Execute()
 	{
 		if (!Target) {
-			OsiError("No target!");
+			OsiErrorS("No target!");
 			return false;
 		}
 
 		if (DamageList->Size == 0) {
-			OsiError("At least one damage type should be added!");
+			OsiErrorS("At least one damage type should be added!");
 			return false;
 		}
 
 		auto characterHit = gOsirisProxy->GetLibraryManager().CharacterHit;
 		if (SimulateHit && characterHit == nullptr) {
-			OsiError("esv::Character::Hit not found!");
+			OsiErrorS("esv::Character::Hit not found!");
 			return false;
 		}
 
 		auto statusMachine = GetStatusMachine(Target->GetGuid()->Str);
 		if (!statusMachine) {
-			OsiError("Target has no StatusMachine!");
+			OsiErrorS("Target has no StatusMachine!");
 			return false;
 		}
 
 		auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
 		auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
 		if (createStatus == nullptr || applyStatus == nullptr) {
-			OsiError("esv::StatusMachine::CreateStatus not found!");
+			OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 			return false;
 		}
 
@@ -367,7 +367,7 @@ namespace osidbg
 		if (SimulateHit) {
 			auto targetCharacter = FindCharacterByNameGuid(Target->GetGuid()->Str);
 			if (targetCharacter == nullptr) {
-				OsiError("Attempt to hit an item with SimulateHit flag ?!");
+				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
 				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, RollForDamage ? 1 : 0,
 					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);

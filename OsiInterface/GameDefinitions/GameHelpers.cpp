@@ -107,7 +107,7 @@ namespace osidbg
 	std::string FileReaderPin::ToString() const
 	{
 		if (!IsLoaded()) {
-			OsiError("File not loaded!");
+			OsiErrorS("File not loaded!");
 			return "";
 		}
 
@@ -666,7 +666,7 @@ namespace osidbg
 			dmg.DamageType = DamageType;
 			dmg.Amount = Amount;
 			if (!SafeAdd(dmg)) {
-				OsiError("DamageList capacity exceeded!");
+				OsiErrorS("DamageList capacity exceeded!");
 			}
 		}
 	}

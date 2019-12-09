@@ -18,10 +18,17 @@
 	ss << msg; \
 	gOsirisProxy->LogOsirisMsg(ss.str()); \
 }
+
+#define OsiErrorS(msg) gOsirisProxy->LogOsirisError(__FUNCTION__ "(): " msg)
+#define OsiWarnS(msg) gOsirisProxy->LogOsirisWarning(__FUNCTION__ "(): " msg)
+#define OsiMsgS(msg) gOsirisProxy->LogOsirisMsg(__FUNCTION__ "(): " msg)
 #else
 #define OsiError(msg) (void)0
 #define OsiWarn(msg) (void)0
 #define OsiMsg(msg) (void)0
+#define OsiErrorS(msg) (void)0
+#define OsiWarnS(msg) (void)0
+#define OsiMsgS(msg) (void)0
 #endif
 
 

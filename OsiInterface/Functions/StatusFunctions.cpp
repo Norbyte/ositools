@@ -345,7 +345,7 @@ namespace osidbg
 
 			auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
 			if (createStatus == nullptr) {
-				OsiError("esv::StatusMachine::CreateStatus not found!");
+				OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 				return nullptr;
 			}
 
@@ -382,13 +382,13 @@ namespace osidbg
 
 			auto statusMachine = character->StatusMachine;
 			if (!statusMachine) {
-				OsiError("Character has no StatusMachine!");
+				OsiErrorS("Character has no StatusMachine!");
 				return false;
 			}
 
 			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
-				OsiError("esv::StatusMachine::ApplyStatus not found!");
+				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
 			}
 
@@ -434,18 +434,18 @@ namespace osidbg
 
 			auto statusMachine = character->StatusMachine;
 			if (!statusMachine) {
-				OsiError("Character has no StatusMachine!");
+				OsiErrorS("Character has no StatusMachine!");
 				return false;
 			}
 
 			if (distancePerDamage <= 0.01) {
-				OsiError("DistancePerDamage must be a positive value!");
+				OsiErrorS("DistancePerDamage must be a positive value!");
 				return false;
 			}
 
 			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
-				OsiError("esv::StatusMachine::ApplyStatus not found!");
+				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
 			}
 
@@ -520,7 +520,7 @@ namespace osidbg
 
 		auto target = FindGameObjectByHandle(status->TargetCIHandle);
 		if (target == nullptr) {
-			OsiError("Status has no target?");
+			OsiErrorS("Status has no target?");
 			return;
 		}
 
@@ -547,7 +547,7 @@ namespace osidbg
 
 		auto target = FindCharacterByHandle(status->TargetCIHandle);
 		if (target == nullptr) {
-			OsiError("Status has no target?");
+			OsiErrorS("Status has no target?");
 			return;
 		}
 
@@ -639,7 +639,7 @@ namespace osidbg
 		if (target != nullptr) {
 			targetGuid = target->GetGuid()->Str;
 		} else {
-			OsiError("Can't throw ApplyStatus event - target handle could not be resolved.");
+			OsiErrorS("Can't throw ApplyStatus event - target handle could not be resolved.");
 		}
 
 		bool eventThrown{ false };
@@ -673,7 +673,7 @@ namespace osidbg
 			if (pendingStatus != nullptr) {
 				self->PreventStatusApply = pendingStatus->PreventApply;
 			} else {
-				OsiError("Status not found in pending status list during ApplyStatus ?!");
+				OsiErrorS("Status not found in pending status list during ApplyStatus ?!");
 			}
 		}
 

@@ -23,7 +23,7 @@ namespace osidbg
 
 			auto modManager = GetModManager();
 			if (modManager == nullptr) {
-				OsiError("Mod manager not available");
+				OsiErrorS("Mod manager not available");
 				return false;
 			}
 
@@ -64,7 +64,7 @@ namespace osidbg
 
 			auto storageRoot = gOsirisProxy->GetLibraryManager().ToPath("", PathRootType::GameStorage);
 			if (storageRoot.empty()) {
-				OsiError("Could not fetch game storage path");
+				OsiErrorS("Could not fetch game storage path");
 				return {};
 			}
 
@@ -149,7 +149,7 @@ namespace osidbg
 
 				auto stats0 = character->Stats->DynamicStats[0];
 				stats0->PoisonResistance += 50;
-				OsiError("DoExperiment(): Applied to character");
+				OsiErrorS("DoExperiment(): Applied to character");
 			}
 
 			auto item = FindItemByNameGuid(args[1].String);
@@ -159,10 +159,10 @@ namespace osidbg
 
 				auto stats0 = item->StatsDynamic->DynamicAttributes_Start[0];
 				stats0->FireResistance += 50;
-				OsiError("DoExperiment(): Applied to item");
+				OsiErrorS("DoExperiment(): Applied to item");
 			}
 
-			OsiError("Nothing to see here");
+			OsiErrorS("Nothing to see here");
 		}
 	}
 
@@ -304,7 +304,7 @@ namespace osidbg
 		using namespace std::placeholders;
 
 		if (!ExtensionState::Get().EnableFormulaOverrides) {
-			OsiError("Formula overrides not enabled in extension config");
+			OsiErrorS("Formula overrides not enabled in extension config");
 			return;
 		}
 

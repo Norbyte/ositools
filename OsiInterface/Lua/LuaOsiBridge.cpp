@@ -568,7 +568,7 @@ namespace osidbg
 
 		LuaStatePin lua(ExtensionState::Get());
 		if (!lua) {
-			OsiError("Call failed: Lua state not initialized");
+			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
 		}
 
@@ -726,7 +726,7 @@ namespace osidbg
 
 		LuaStatePin lua(ExtensionState::Get());
 		if (!lua) {
-			OsiError("Call failed: Lua state not initialized");
+			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
 		}
 

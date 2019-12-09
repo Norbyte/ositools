@@ -10,12 +10,12 @@ namespace osidbg
 		CharacterDynamicStat * GetCharacterDynamicStat(esv::Character * character, uint32_t index)
 		{
 			if (character->Stats == nullptr) {
-				OsiError("Character has no stats!");
+				OsiErrorS("Character has no stats!");
 				return nullptr;
 			}
 
 			if (character->Stats->DynamicStats == nullptr) {
-				OsiError("Character has no dynamic stats!");
+				OsiErrorS("Character has no dynamic stats!");
 				return nullptr;
 			}
 

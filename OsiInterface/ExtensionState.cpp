@@ -19,7 +19,7 @@ namespace osidbg
 	{
 		auto modManager = GetModManager();
 		if (modManager == nullptr) {
-			OsiError("Mod manager not available");
+			OsiErrorS("Mod manager not available");
 			return;
 		}
 

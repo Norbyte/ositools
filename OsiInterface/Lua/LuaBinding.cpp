@@ -378,7 +378,7 @@ debug = nil
 			return std::clamp((int32_t)retval, 0, 100);
 		} else {
 			if (!isnil) {
-				OsiError("GetHitChance returned non-integer value");
+				OsiErrorS("GetHitChance returned non-integer value");
 			}
 
 			return {};
@@ -463,20 +463,20 @@ debug = nil
 	{
 		LuaStatePin lua(*this);
 		if (!lua) {
-			OsiError("Called when the Lua VM has not been initialized!");
+			OsiErrorS("Called when the Lua VM has not been initialized!");
 			return;
 		}
 
 		auto modManager = GetModManager();
 		if (modManager == nullptr) {
-			OsiError("Could not bootstrap Lua modules - mod manager not available");
+			OsiErrorS("Could not bootstrap Lua modules - mod manager not available");
 			return;
 		}
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
 		LuaRestriction restriction(*lua, LuaState::RestrictOsiris);
-		OsiWarn("Bootstrapping Lua modules ...");
+		OsiWarnS("Bootstrapping Lua modules ...");
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods.Buf[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
@@ -508,7 +508,7 @@ debug = nil
 
 		LuaStatePin lua(*this);
 		if (!lua) {
-			OsiError("Called when the Lua VM has not been initialized!");
+			OsiErrorS("Called when the Lua VM has not been initialized!");
 			return;
 		}
 
@@ -519,13 +519,13 @@ debug = nil
 	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & path)
 	{
 		if (!reader.IsLoaded()) {
-			OsiError("Attempted to load script from invalid file reader");
+			OsiErrorS("Attempted to load script from invalid file reader");
 			return;
 		}
 
 		LuaStatePin lua(*this);
 		if (!lua) {
-			OsiError("Called when the Lua VM has not been initialized!");
+			OsiErrorS("Called when the Lua VM has not been initialized!");
 			return;
 		}
 

@@ -19,7 +19,7 @@ namespace osidbg
 		{
 			LuaStatePin lua(ExtensionState::Get());
 			if (!lua) {
-				OsiError("Called when the Lua VM has not been initialized!");
+				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
 			}
 
@@ -27,7 +27,7 @@ namespace osidbg
 			auto fileName = args[1].String;
 
 			if (strstr(fileName, "..") != nullptr) {
-				OsiError("Illegal file name");
+				OsiErrorS("Illegal file name");
 				return;
 			}
 
@@ -38,7 +38,7 @@ namespace osidbg
 		{
 			LuaStatePin lua(ExtensionState::Get());
 			if (!lua) {
-				OsiError("Called when the Lua VM has not been initialized!");
+				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
 			}
 
@@ -71,7 +71,7 @@ namespace osidbg
 		{
 			LuaStatePin lua(ExtensionState::Get());
 			if (!lua) {
-				OsiError("Called when the Lua VM has not been initialized!");
+				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return false;
 			}
 

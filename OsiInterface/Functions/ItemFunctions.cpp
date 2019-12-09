@@ -130,7 +130,7 @@ namespace osidbg
 		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(esv::Item * item, uint32_t index)
 		{
 			if (item->StatsDynamic == nullptr) {
-				OsiError("Item has no dynamic stats!");
+				OsiErrorS("Item has no dynamic stats!");
 				return nullptr;
 			}
 
@@ -223,7 +223,7 @@ namespace osidbg
 			auto parseItem = gOsirisProxy->GetLibraryManager().ParseItem;
 			auto createItemFromParsed = gOsirisProxy->GetLibraryManager().CreateItemFromParsed;
 			if (parseItem == nullptr || createItemFromParsed == nullptr) {
-				OsiError("esv::ParseItem not found!");
+				OsiErrorS("esv::ParseItem not found!");
 				return;
 			}
 			
@@ -248,7 +248,7 @@ namespace osidbg
 		bool ItemClone(OsiArgumentDesc & args)
 		{
 			if (!ExtensionState::Get().PendingItemClone) {
-				OsiError("No item clone is in progress");
+				OsiErrorS("No item clone is in progress");
 				return false;
 			}
 
@@ -257,7 +257,7 @@ namespace osidbg
 			clone.reset();
 
 			if (item == nullptr) {
-				OsiError("Failed to clone item.");
+				OsiErrorS("Failed to clone item.");
 				return false;
 			}
 
@@ -271,7 +271,7 @@ namespace osidbg
 		{
 			auto & clone = ExtensionState::Get().PendingItemClone;
 			if (!clone) {
-				OsiError("No item clone is currently in progress!");
+				OsiErrorS("No item clone is currently in progress!");
 				return;
 			}
 
