@@ -519,7 +519,7 @@ namespace osidbg
 			auto guid = args.Get(firstArg + 1).String;
 			if (guid == nullptr
 				|| !strlen(guid)
-				|| NameGuidToFixedString(guid) == ToFixedString("00000000-0000-0000-0000-000000000000").Str) {
+				|| NameGuidToFixedString(guid) == ToFixedString("00000000-0000-0000-0000-000000000000")) {
 				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
 			}
 

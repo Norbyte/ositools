@@ -415,6 +415,16 @@ namespace osidbg
 		uint32_t NumItems;
 		uint32_t NumSomeItems;
 
+		int FindIndex(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			if (fs) {
+				return FindIndex(fs);
+			} else {
+				return -1;
+			}
+		}
+
 		int FindIndex(FixedString str) const
 		{
 			auto ptr = NameHashMap.Find(str);
@@ -431,6 +441,16 @@ namespace osidbg
 				return nullptr;
 			} else {
 				return Primitives.Buf[index];
+			}
+		}
+
+		T * Find(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			if (fs) {
+				return Find(fs);
+			} else {
+				return nullptr;
 			}
 		}
 

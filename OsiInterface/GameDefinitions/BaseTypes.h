@@ -63,7 +63,7 @@ namespace osidbg
 			: Str(nullptr)
 		{}
 
-		inline FixedString(char const * s)
+		inline explicit FixedString(char const * s)
 			: Str(s)
 		{}
 

@@ -14,7 +14,7 @@ namespace osidbg
 
 	EntityWorld * GetEntityWorld();
 	FixedString ToFixedString(const char * s);
-	char const * NameGuidToFixedString(char const * nameGuid);
+	FixedString NameGuidToFixedString(char const * nameGuid);
 
 	void * FindComponentByNameGuid(ComponentType componentType, char const * nameGuid, bool logError = true);
 	void * FindComponentByHandle(ComponentType componentType, ObjectHandle const & handle, bool logError = true);

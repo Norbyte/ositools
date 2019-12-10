@@ -41,16 +41,16 @@ namespace osidbg
 		return FixedString(str);
 	}
 
-	char const * NameGuidToFixedString(char const * nameGuid)
+	FixedString NameGuidToFixedString(char const * nameGuid)
 	{
 		if (nameGuid == nullptr) {
-			return nullptr;
+			return FixedString{};
 		}
 
 		auto nameLen = strlen(nameGuid);
 		if (nameLen < 36) {
 			OsiError("NameGuidToFixedString(): GUID (" << nameGuid << ") too short!");
-			return nullptr;
+			return FixedString{};
 		}
 
 		auto guid = nameGuid + nameLen - 36;
@@ -58,10 +58,10 @@ namespace osidbg
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
 			OsiErrorS("NameGuidToFixedString(): Global string table not available!");
-			return nullptr;
+			return FixedString{};
 		}
 
-		return stringTable->Find(guid, 36);
+		return FixedString(stringTable->Find(guid, 36));
 	}
 
 	esv::EoCServerObject * FindGameObjectByNameGuid(char const * nameGuid, bool logError)
@@ -146,8 +146,8 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto stringPtr = NameGuidToFixedString(nameGuid);
-		if (stringPtr == nullptr) {
+		auto fs = NameGuidToFixedString(nameGuid);
+		if (!fs) {
 			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
 			return nullptr;
 		}
@@ -156,9 +156,6 @@ namespace osidbg
 		if (entityWorld == nullptr) {
 			return nullptr;
 		}
-
-		FixedString fs;
-		fs.Str = stringPtr;
 
 		auto component = entityWorld->Components.Buf[(uint32_t)componentType].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
