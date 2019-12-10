@@ -24,6 +24,22 @@ During the Lua bootstrap process, it is possible to declare new functions (calls
 
 Lua functions are registered through the story header (`story_header.div`). This means that each time a function is added, changed or removed, the story header must be regenerated in the editor. (The game regenerates its own story header, so it is always up to date.)
 
+### Types
+<a id="l2o_types"></a>
+
+The following table describes how Lua values are converted to Osiris values and vice versa.
+
+| Lua Type | Osiris Type | Notes |
+|--|--|--|
+| `nil` | - | `nil` is not convertible to an Osiris value, however it has a special meaning when calling/returning from queries (see [Queries](#l2o_queries)). |
+| `boolean` | `INTEGER` | Osiris has no true boolean type, it uses the integer value 1 to represent `true` and 0 to represent `false`. |
+| `number` (integer) | `INTEGER` | Although Lua only has one `number` type, its internal representation can vary depending on whether it stores an integer or floating point number. |
+| `number` (float) | `REAL` | |
+| `string` | `STRING`, `GUIDSTRING` | Any `GUIDSTRING` alias (eg. `CHARACTERGUID`, `ITEMGUID`, ...) is also convertible to string. |
+| `table` | - | Osiris only supports scalar values, so table cannot be passed to/from Osiris functions. |
+
+
+
 ### Calls
 <a id="l2o_calls"></a>
 
