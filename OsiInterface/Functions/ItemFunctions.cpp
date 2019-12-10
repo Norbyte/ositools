@@ -124,6 +124,11 @@ namespace osidbg
 				return;
 			}
 
+			if (item->StatsDynamic == nullptr) {
+				OsiError("Item '" << itemGuid << "' has no dynamic stats!");
+				return;
+			}
+
 			item->StatsDynamic->IsIdentified = args[1].Int32 ? 1 : 0;
 		}
 
