@@ -338,19 +338,24 @@ namespace osidbg
 		}
 
 		bool handled = gOsirisProxy->GetWrappers().Query.CallWithHooks(function_->GetHandle(), args.Args());
-		if (handled) {
-			for (uint32_t i = 0; i < numParams; i++) {
-				if (function_->Signature->OutParamList.isOutParam(i)) {
-					OsiToLua(L, args.Args()[i].Value);
+		if (outParams == 0) {
+			lua_pushboolean(L, handled ? 1 : 0);
+			return 1;
+		} else {
+			if (handled) {
+				for (uint32_t i = 0; i < numParams; i++) {
+					if (function_->Signature->OutParamList.isOutParam(i)) {
+						OsiToLua(L, args.Args()[i].Value);
+					}
+				}
+			} else {
+				for (uint32_t i = 0; i < outParams; i++) {
+					lua_pushnil(L);
 				}
 			}
-		} else {
-			for (uint32_t i = 0; i < outParams; i++) {
-				lua_pushnil(L);
-			}
-		}
 
-		return outParams;
+			return outParams;
+		}
 	}
 
 	int LuaOsiFunction::OsiUserQuery(lua_State * L)
