@@ -236,6 +236,9 @@
     <ClCompile Include="Lua\LuaOsiBridge.cpp">
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\LuaExtFunctions.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
