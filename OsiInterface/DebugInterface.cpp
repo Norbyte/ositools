@@ -28,12 +28,12 @@ namespace osidbg
 		addr.sin_port = htons(port_);
 		if (bind(socket_, (sockaddr *)&addr, sizeof(addr)) != 0) {
 			ERR("Could not bind debugger server socket: %d", WSAGetLastError());
-			Fail("Debug server start failed");
+			throw std::runtime_error("Debug server start failed");
 		}
 
 		if (listen(socket_, 30) != 0) {
 			ERR("Could not listen on server socket: %d", WSAGetLastError());
-			Fail("Debug server start failed");
+			throw std::runtime_error("Debug server start failed");
 		}
 
 		DEBUG("Debug interface listening on 127.0.0.1:%d; DBG protocol version %d", port_, DebugMessageHandler::ProtocolVersion);

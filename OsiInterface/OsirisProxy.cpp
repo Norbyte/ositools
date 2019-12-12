@@ -255,10 +255,13 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	if (DebuggingEnabled) {
 		if (DebuggerThread == nullptr) {
 			DEBUG("Starting debugger server");
-			debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
-			debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
-
-			DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+			try {
+				debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
+				debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
+				DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+			} catch (std::exception & e) {
+				ERR("Debugger start failed: %s", e.what());
+			}
 		}
 	} else if (!DebugDisableLogged) {
 		DEBUG("Debugging not enabled; not starting debugger server thread.");
