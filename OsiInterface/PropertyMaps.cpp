@@ -575,6 +575,12 @@ namespace osidbg
 			}
 		}
 
+		auto type = prop->Type;
+		if (prop->GetString) {
+			// Return enumeration labels instead of IDs if possible
+			type = PropertyType::kFixedString;
+		}
+
 		switch (prop->Type) {
 		case PropertyType::kBool:
 		{
@@ -671,7 +677,13 @@ namespace osidbg
 			}
 		}
 
-		switch (prop->Type) {
+		auto type = prop->Type;
+		if (prop->SetString && lua_type(L, index) == LUA_TSTRING) {
+			// Allow setting enumerations using labels
+			type = PropertyType::kFixedString;
+		}
+
+		switch (type) {
 		case PropertyType::kBool:
 		{
 			luaL_checktype(L, index, LUA_TBOOLEAN);
