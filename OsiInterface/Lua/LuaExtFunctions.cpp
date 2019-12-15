@@ -243,12 +243,10 @@ namespace osidbg
 		return 0;
 	}
 
-
-	int OsiPrint(lua_State* L)
+	void OsiArgsToStream(lua_State * L, std::stringstream & ss)
 	{
 		int nargs = lua_gettop(L);  /* number of arguments */
 
-		std::stringstream ss;
 		lua_getglobal(L, "tostring");
 		for (int i = 1; i <= nargs; i++) {
 			lua_pushvalue(L, -1);  /* function to be called */
@@ -256,16 +254,28 @@ namespace osidbg
 			lua_call(L, 1, 1);
 			const char * str = lua_tostring(L, -1);  /* get result */
 			if (str == nullptr)
-				return luaL_error(L, "'tostring' must return a string to 'print'");
+				luaL_error(L, "'tostring' must return a string to 'print'");
 			if (i > 1) ss << "\t";
 			ss << str;
 			lua_pop(L, 1);  /* pop result */
 		}
+	}
 
+	int OsiPrint(lua_State* L)
+	{
+		std::stringstream ss;
+		OsiArgsToStream(L, ss);
 		gOsirisProxy->LogOsirisMsg(ss.str());
 		return 0;
 	}
 
+	int OsiPrintError(lua_State* L)
+	{
+		std::stringstream ss;
+		OsiArgsToStream(L, ss);
+		gOsirisProxy->LogOsirisError(ss.str());
+		return 0;
+	}
 
 	int GetStatEntries(lua_State * L)
 	{
@@ -300,6 +310,40 @@ namespace osidbg
 			lua_pushinteger(L, index++);
 			lua_pushstring(L, object->Name);
 			lua_settable(L, -3);
+		}
+
+		return 1;
+	}
+
+
+	int StatGetAttribute(lua_State * L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto attributeName = luaL_checkstring(L, 2);
+
+		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		auto object = stats->objects.Find(statName);
+		if (object == nullptr) {
+			OsiError("Stat object '" << statName << "' does not exist");
+			return 0;
+		}
+
+		auto value = stats->GetAttributeFixedString(object, attributeName);
+		if (!value) {
+			auto intval = stats->GetAttributeInt(object, attributeName);
+			if (!intval) {
+				OsiError("Stat object '" << statName << "' does not exist");
+				return 0;
+			} else {
+				lua_pushinteger(L, *intval);
+			}
+		} else {
+			lua_pushstring(L, value->Str);
 		}
 
 		return 1;
