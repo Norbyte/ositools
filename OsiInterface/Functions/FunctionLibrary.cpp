@@ -281,7 +281,7 @@ namespace osidbg
 		using namespace std::placeholders;
 
 		osiris_.GetLibraryManager().StatusGetEnterChance.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3, _4)
+			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
 		);
 		osiris_.GetLibraryManager().StatusHitEnter.AddPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHitEnter, this, _1)

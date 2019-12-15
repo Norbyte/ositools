@@ -484,17 +484,17 @@ namespace osidbg
 
 
 	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
-		esv::Status * status, bool useCharacterStats, float chanceMultiplier)
+		esv::Status * status, bool useCharacterStats)
 	{
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua) {
-			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats, chanceMultiplier);
+			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats);
 			if (enterChance) {
 				return *enterChance;
 			}
 		}
 
-		return wrappedGetEnterChance(status, useCharacterStats, chanceMultiplier);
+		return wrappedGetEnterChance(status, useCharacterStats);
 	}
 
 	int32_t CustomFunctionLibrary::OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance,

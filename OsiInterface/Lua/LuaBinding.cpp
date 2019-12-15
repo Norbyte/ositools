@@ -333,7 +333,7 @@ oldDebug = nil
 		return 1;  /* return the traceback */
 	}
 
-	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
+	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
 	{
 		std::lock_guard lock(mutex_);
 		LuaRestriction restriction(*this, LuaState::RestrictAll);
@@ -349,8 +349,7 @@ oldDebug = nil
 
 		auto luaStatus = LuaGameObjectProxy<esv::Status>::New(L, status); // stack: fn, status
 		LuaGameObjectPin<esv::Status> _(luaStatus);
-		lua_pushboolean(L, useCharacterStats);
-		lua_pushnumber(L, chanceMultiplier); // stack: fn, status, useCS, chanceMul
+		lua_pushboolean(L, useCharacterStats); // stack: fn, status, useCS
 
 		if (CallWithTraceback(3, 1) != 0) { // stack: retval
 			OsiError("StatusGetEnterChance handler failed: " << lua_tostring(L, -1));

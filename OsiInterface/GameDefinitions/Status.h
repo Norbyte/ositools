@@ -293,7 +293,7 @@ namespace osidbg
 		typedef Status * (*StatusMachine__CreateStatus)(esv::StatusMachine * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
 		typedef void(*StatusMachine__ApplyStatus)(esv::StatusMachine * StatusMachine, Status * Status);
 		typedef bool(*Status__Enter)(Status * Status);
-		typedef int32_t(*Status__GetEnterChance)(Status * self, bool useCharacterStats, float chanceMultiplier);
+		typedef int32_t(*Status__GetEnterChance)(Status * self, bool useCharacterStats);
 
 	}
 #pragma pack(pop)

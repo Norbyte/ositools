@@ -451,7 +451,7 @@ namespace osidbg
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 		int CallWithTraceback(int narg, int nres);
 
-		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier);
+		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 
 	private:

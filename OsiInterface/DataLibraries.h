@@ -147,7 +147,7 @@ namespace osidbg {
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
 
 		enum class StatusGetEnterChanceTag {};
-		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool, float)> StatusGetEnterChance;
+		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool)> StatusGetEnterChance;
 		
 		enum class StatusHealEnterTag {};
 		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;

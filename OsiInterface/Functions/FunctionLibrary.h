@@ -33,7 +33,7 @@ namespace osidbg
 		void OnBaseModuleLoaded();
 
 		int32_t OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance, 
-			esv::Status * status, bool useCharacterStats, float chanceMultiplier);
+			esv::Status * status, bool useCharacterStats);
 		int32_t OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance, 
 			CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		void OnStatusHitEnter(esv::Status * status);
