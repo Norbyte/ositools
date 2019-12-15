@@ -124,9 +124,11 @@ namespace osidbg
 
 	int EnableStatOverride(lua_State * L);
 	int OsiPrint(lua_State* L);
+	int OsiPrintError(lua_State* L);
 	int JsonParse(lua_State * L);
 	int JsonStringify(lua_State * L);
 	int GetStatEntries(lua_State * L);
+	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
@@ -138,9 +140,11 @@ namespace osidbg
 			{"NewEvent", NewEvent},
 			{"EnableStatOverride", EnableStatOverride},
 			{"Print", OsiPrint},
+			{"PrintError", OsiPrintError},
 			{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},
 			{"GetStatEntries", GetStatEntries},
+			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
 			{0,0}
 		};
@@ -246,7 +250,9 @@ rawequal = function ()
 	error("rawequal() has been disabled for security reasons")
 end
 
-debug = nil
+local oldDebug = debug
+debug = {
+	traceback = oldDebug.traceback
 }
 oldDebug = nil
 )";
@@ -318,6 +324,13 @@ oldDebug = nil
 		if (msg == NULL) {  /* is error object not a string? */
 			if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
 				lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
+				return 1;  /* that is the message */
+			else
+				msg = lua_pushfstring(L, "(error object is a %s value)",
+					luaL_typename(L, 1));
+		}
+		luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
+		return 1;  /* return the traceback */
 	}
 
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
@@ -428,7 +441,7 @@ oldDebug = nil
 		lua_getfield(L, -1, "_OnModuleLoading"); // stack: Ext, fn
 		lua_remove(L, -2); // stack: fn
 
-		if (lua_pcall(L, 0, 0, 0) != 0) { // stack: -
+		if (CallWithTraceback(0, 0) != 0) { // stack: -
 			OsiError("Ext.OnModuleLoading failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -546,7 +559,15 @@ oldDebug = nil
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
 			if (reader.IsLoaded()) {
-				LuaLoadGameFile(reader, bootstrapFile);
+				std::string bootstrapScriptName;
+				if (dir.length() > 37) {
+					// Strip GUID from end of dir
+					bootstrapScriptName = dir.substr(0, dir.length() - 37) + "/Bootstrap.lua";
+				} else {
+					bootstrapScriptName = dir + "/Bootstrap.lua";
+				}
+
+				LuaLoadGameFile(reader, bootstrapScriptName);
 			}
 		}
 		
@@ -578,7 +599,7 @@ oldDebug = nil
 		OsiWarn("Loaded external script: " << path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & path)
+	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & scriptName)
 	{
 		if (!reader.IsLoaded()) {
 			OsiErrorS("Attempted to load script from invalid file reader");
@@ -591,10 +612,10 @@ oldDebug = nil
 			return;
 		}
 
-		lua->LoadScript(reader.ToString(), path);
+		lua->LoadScript(reader.ToString(), scriptName);
 	}
 
-	void ExtensionState::LuaLoadGameFile(std::string const & path)
+	void ExtensionState::LuaLoadGameFile(std::string const & path, std::string const & scriptName)
 	{
 		auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
@@ -602,11 +623,11 @@ oldDebug = nil
 			return;
 		}
 
-		LuaLoadGameFile(reader, path);
+		LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
 		OsiWarn("Loaded game script: " << path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(std::string const & modNameGuid, std::string const & fileName)
+	void ExtensionState::LuaLoadModScript(std::string const & modNameGuid, std::string const & fileName)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
@@ -619,6 +640,13 @@ oldDebug = nil
 		path += "/Story/RawFiles/Lua/";
 		path += fileName;
 
-		LuaLoadGameFile(path);
+		std::string scriptName = ToUTF8(mod->Info.Directory.GetPtr());
+		if (scriptName.length() > 37) {
+			// Strip GUID from end of dir
+			scriptName = scriptName.substr(0, scriptName.length() - 37);
+		}
+		scriptName += "/" + fileName;
+
+		LuaLoadGameFile(path, scriptName);
 	}
 }
