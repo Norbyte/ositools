@@ -71,7 +71,8 @@ void OsirisProxy::Initialize()
 
 void OsirisProxy::Shutdown()
 {
-	DEBUG("OsirisProxy::Shutdown: Starting");
+	DEBUG("OsirisProxy::Shutdown: Exiting");
+	ResetExtensionState();
 	Wrappers.Shutdown();
 }
 
