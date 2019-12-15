@@ -563,6 +563,8 @@ oldDebug = nil
 		std::lock_guard lock(mutex_);
 		LuaRestriction restriction(*this, RestrictAll & ~RestrictSessionLoad);
 
+		identityAdapters_.UpdateAdapters();
+
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_getfield(L, -1, "_OnGameSessionLoading"); // stack: Ext, fn
