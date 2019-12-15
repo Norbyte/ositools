@@ -342,6 +342,8 @@ namespace osidbg
 	typedef int32_t (CDivinityStats_Character__GetHitChance)(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 	typedef bool (CDivinityStats_Character__GetTalent)(CDivinityStats_Character * self, TalentType talentId, char excludeBoosts);
 	typedef int32_t (CDivinityStats_Character__GetAbility)(CDivinityStats_Character * self, AbilityType abilityId, char excludeBoosts, char noLoneWolfBonus);
+	
+	typedef void (* eoc__SkillPrototypeManager__Init)(void * self);
 
 	template <class T>
 	struct CHandleArray

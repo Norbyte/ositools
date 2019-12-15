@@ -349,11 +349,16 @@ namespace osidbg
 	public:
 		enum Restriction
 		{
+			// Disable Osiris calls
 			RestrictOsiris = 1 << 0,
-			RestrictExt = 1 << 1
+			// Disable calls only available during module load state
+			RestrictModuleLoad = 1 << 1,
+			// Disable calls only available during session load state
+			RestrictSessionLoad = 1 << 2,
+			RestrictAll = 0xf
 		};
 
-		uint32_t RestrictionFlags{ 0 };
+		uint32_t RestrictionFlags{ RestrictModuleLoad | RestrictSessionLoad };
 
 		LuaState();
 		~LuaState();
@@ -406,6 +411,8 @@ namespace osidbg
 		void FinishStartup();
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
+		void OnGameSessionLoading();
+		void OnModuleLoading();
 
 		bool LoadScript(std::string const & script, std::string const & name = "");
 

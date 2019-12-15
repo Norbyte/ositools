@@ -36,7 +36,7 @@ The following table describes how Lua values are converted to Osiris values and 
 | `number` (integer) | `INTEGER` | Although Lua only has one `number` type, its internal representation can vary depending on whether it stores an integer or floating point number. |
 | `number` (float) | `REAL` | |
 | `string` | `STRING`, `GUIDSTRING` | Any `GUIDSTRING` alias (eg. `CHARACTERGUID`, `ITEMGUID`, ...) is also convertible to string. |
-| `table` | - | Osiris only supports scalar values, so table cannot be passed to/from Osiris functions. |
+| `table` | - | Osiris only supports scalar values, so tables cannot be passed to/from Osiris functions. |
 
 
 
@@ -316,6 +316,7 @@ ab
  - Stat overrides, status chance overrides, Restricted contexts, Client-side behavior
  - Lua state lifetime, Globals behavior (not saved)
  - Ext.Require, Print
+ - File IO
  - Osi special Lua functions
  - Bootstrap phase
  - Reloading Lua and changing exports

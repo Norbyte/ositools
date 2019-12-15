@@ -151,11 +151,6 @@ namespace osidbg
 
 	int LuaExtensionLibrary::Require(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictExt) {
-			return luaL_error(L, "Attempted to load Lua code in restricted context");
-		}
-
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
 		ExtensionState::Get().LuaLoadGameFile(modGuid, fileName);
@@ -189,6 +184,38 @@ namespace osidbg
 		proxy_.Register(state_);
 
 		auto sandbox = R"(
+Ext._OnGameSessionLoading = function ()
+    for i,callback in pairs(Ext.OnGameSessionLoading) do
+        local status, err = xpcall(callback, debug.traceback)
+        if ~status then
+            Ext.PrintError("Error during OnGameSessionLoading: ", err)
+        end
+    end
+end
+
+Ext.OnGameSessionLoading = {}
+
+Ext._OnModuleLoading = function ()
+    for i,callback in pairs(Ext.OnModuleLoading) do
+        local status, err = xpcall(callback, debug.traceback)
+        if ~status then
+            Ext.PrintError("Error during OnGameSessionLoading: ", err)
+        end
+    end
+end
+
+Ext.OnModuleLoading = {}
+
+Ext.RegisterListener = function (type, fn)
+	if type == "SessionLoading" then
+		table.insert(Ext.OnGameSessionLoading, fn)
+	elseif type == "ModuleLoading" then
+		table.insert(Ext.OnModuleLoading, fn)
+	else
+		error("Unknown listener type: " .. type)
+	end
+end
+
 dofile = function ()
 	error("dofile() has been disabled for security reasons")
 end
@@ -273,7 +300,7 @@ debug = nil
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictOsiris);
+		LuaRestriction restriction(*this, LuaState::RestrictAll);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -314,7 +341,7 @@ debug = nil
 	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictOsiris | LuaState::RestrictExt);
+		LuaRestriction restriction(*this, LuaState::RestrictAll);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -352,6 +379,53 @@ debug = nil
 		}
 	}
 
+	void LuaState::OnGameSessionLoading()
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, LuaState::RestrictAll & ~LuaState::RestrictSessionLoad);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_OnGameSessionLoading"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+
+		if (lua_pcall(L, 0, 0, 0) != 0) { // stack: -
+			OsiError("Ext.OnGameSessionLoading failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+	void LuaState::OnModuleLoading()
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, LuaState::RestrictAll & ~LuaState::RestrictModuleLoad);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_OnModuleLoading"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+
+		if (lua_pcall(L, 0, 0, 0) != 0) { // stack: -
+			OsiError("Ext.OnModuleLoading failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+	void ExtensionState::OnGameSessionLoading()
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnGameSessionLoading();
+		}
+	}
+
+	void ExtensionState::OnModuleLoading()
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnModuleLoading();
+		}
+	}
 
 	void ExtensionState::StoryLoaded()
 	{
@@ -442,15 +516,13 @@ debug = nil
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
-		LuaRestriction restriction(*lua, LuaState::RestrictOsiris);
-		OsiWarnS("Bootstrapping Lua modules ...");
+		LuaRestriction restriction(*lua, LuaState::RestrictAll);
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods.Buf[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
 			if (reader.IsLoaded()) {
-				OsiWarn("Found bootstrap file: " << bootstrapFile);
 				LuaLoadGameFile(reader, bootstrapFile);
 			}
 		}

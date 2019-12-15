@@ -234,8 +234,8 @@ namespace osidbg
 	int EnableStatOverride(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictExt) {
-			return luaL_error(L, "Attempted to toggle stat overrides in restricted context");
+		if (lua->RestrictionFlags & LuaState::RestrictSessionLoad) {
+			return luaL_error(L, "EnableStatOverride() can only be called during session load");
 		}
 
 		auto stat = luaL_checkstring(L, 1);
@@ -309,8 +309,9 @@ namespace osidbg
 	int StatSetAttribute(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		// TODO: check module load state
-		if (!lua || lua->StartupDone()) return luaL_error(L, "Attempted to edit stats after Lua startup phase");
+		if (lua->RestrictionFlags & LuaState::RestrictModuleLoad) {
+			return luaL_error(L, "StatSetAttribute() can only be called during module load");
+		}
 
 		auto statName = luaL_checkstring(L, 1);
 		auto attributeName = luaL_checkstring(L, 2);

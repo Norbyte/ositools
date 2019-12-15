@@ -128,6 +128,7 @@ namespace osidbg
 
 	typedef void (* EoCClient__HandleError)(void * self, STDWString *a2, bool a3, STDWString *a4);
 	typedef void (* GameStateLoadModule__Do)(void * self);
+	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
 
 	}
 

@@ -879,6 +879,52 @@ namespace osidbg
 			ERR("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateLoadModule::Do");
 			CriticalInitFailed = true;
 		}
+
+
+		Pattern p3;
+		p3.FromString(
+			"4C 8D 05 XX XX XX XX " // lea     r8, aSkills     ; "Skills"
+			"BA 01 00 00 00 " // mov     edx, 1
+			"49 8B CC " // mov     rcx, rsi
+			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:eoc__gSkillPrototypeManager
+			"E8 XX XX XX XX " // call    eoc__SkillPrototypeManager__Init
+		);
+
+		p3.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto txtSkills = AsmLeaToAbsoluteAddress(match);
+			if (txtSkills != nullptr && strcmp((char const *)txtSkills, "Skills") == 0) {
+				auto func = AsmCallToAbsoluteAddress(match + 28);
+				SkillPrototypeManagerInit = (eoc__SkillPrototypeManager__Init)func;
+			}
+		});
+
+		if (SkillPrototypeManagerInit == nullptr) {
+			ERR("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find eoc::SkillPrototypeManager::Init");
+			CriticalInitFailed = true;
+		}
+
+
+		Pattern p4;
+		p4.FromString(
+			"4C 8D 0D XX XX XX XX " // lea r9, aClientStateSwa ; "CLIENT STATE SWAP - from: %s, to: %s\n"
+			"48 8B CF " // mov rcx, rdi
+			"C7 44 24 30 80 00 00 00 " // mov [rsp+78h+var_48.logLevel], 80h
+			"4C 8D 44 24 30 " // lea r8, [rsp+78h+var_48]
+		);
+
+		p4.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto txtSwap = AsmLeaToAbsoluteAddress(match);
+			if (txtSwap != nullptr && strcmp((char const *)txtSwap, "CLIENT STATE SWAP - from: %s, to: %s\n") == 0) {
+				auto func = AsmCallToAbsoluteAddress(match + 0x44);
+				GameStateChangedEvent = (ecl::GameStateEventManager__ExecuteGameStateChangedEvent)func;
+			}
+		});
+
+		if (GameStateChangedEvent == nullptr) {
+			ERR("LibraryManager::FindGameStateFuncsEoCPlugin(): Could not find ecl::GameStateEventManager::ExecuteGameStateChangedEvent");
+			CriticalInitFailed = true;
+		}
 	}
 
 

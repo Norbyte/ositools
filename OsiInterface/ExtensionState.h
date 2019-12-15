@@ -45,6 +45,8 @@ namespace osidbg
 		void LoadConfig(Module const & mod, std::string const & config);
 		void LoadConfig(Module const & mod, Json::Value & config);
 
+		void OnGameSessionLoading();
+		void OnModuleLoading();
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 

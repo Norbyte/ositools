@@ -127,6 +127,8 @@ private:
 	CustomFunctionLibrary FunctionLibrary;
 	std::unique_ptr<ExtensionState> ExtState;
 	LibraryManager Libraries;
+	bool LibrariesPostInitialized{ false };
+	bool ExtensionLoaded{ false };
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -172,8 +174,11 @@ private:
 	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
 
 	void OnBaseModuleLoaded(void * self);
-	void PostInitExtension();
+	void OnGameStateChanged(void * self, GameState fromState, GameState toState);
+	void OnSkillPrototypeManagerInit(void * self);
+	void PostInitLibraries();
 	void ResetExtensionState();
+	void LoadExtensionState();
 
 	void OnInitNetworkFixedStrings(void * self, void * arg1);
 	void DumpNetworkFixedStrings();

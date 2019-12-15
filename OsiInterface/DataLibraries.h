@@ -143,6 +143,8 @@ namespace osidbg {
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
 		ecl::GameStateLoadModule__Do GameStateLoadModuleDo{ nullptr };
+		ecl::GameStateEventManager__ExecuteGameStateChangedEvent GameStateChangedEvent{ nullptr };
+		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
 
 		enum class StatusGetEnterChanceTag {};
 		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool, float)> StatusGetEnterChance;

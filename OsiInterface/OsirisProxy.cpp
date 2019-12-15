@@ -52,6 +52,8 @@ void OsirisProxy::Initialize()
 			Wrappers.InitializeExtensions();
 			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
 			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
+			Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
+			Wrappers.SkillPrototypeManagerInit.AddPostHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 		}
 		else {
 			ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
@@ -643,24 +645,43 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 
 void OsirisProxy::OnBaseModuleLoaded(void * self)
 {
-	auto modManager = GetModManager();
-	if (modManager != nullptr) {
-		INFO(L"OsirisProxy::OnBaseModuleLoaded(): Loaded base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+}
+
+void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState toState)
+{
+	if (toState == GameState::UnloadSession && ExtensionsEnabled) {
+		INFO("OsirisProxy::OnGameStateChanged(): Unloading session");
+		ResetExtensionState();
 	}
 
-	if (ExtensionsEnabled) {
-		ResetExtensionState();
-		ExtState->LoadConfigs();
-		PostInitExtension();
-		if (!Libraries.CriticalInitializationFailed()) {
-			Libraries.EnableCustomStats();
-			FunctionLibrary.OnBaseModuleLoaded();
+	if (toState == GameState::LoadSession && ExtensionsEnabled) {
+		INFO("OsirisProxy::OnGameStateChanged(): Loading game session");
+		LoadExtensionState();
+		if (ExtState) {
+			ExtState->OnGameSessionLoading();
 		}
 	}
 }
 
-void OsirisProxy::PostInitExtension()
+void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 {
+	auto modManager = GetModManager();
+	if (modManager == nullptr) {
+		ERR("Module info not available in OnSkillPrototypeManagerInit?");
+		return;
+	}
+
+	INFO(L"Loading base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+	LoadExtensionState();
+	if (ExtState) {
+		ExtState->OnModuleLoading();
+	}
+}
+
+void OsirisProxy::PostInitLibraries()
+{
+	if (LibrariesPostInitialized) return;
+
 	if (ExtensionsEnabled) {
 		if (Libraries.PostStartupFindLibraries()) {
 			FunctionLibrary.PostStartup();
@@ -672,12 +693,34 @@ void OsirisProxy::PostInitExtension()
 	} else if (Libraries.InitializationFailed()) {
 		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.", true, false);
 	}
+
+	LibrariesPostInitialized = true;
 }
 
 void OsirisProxy::ResetExtensionState()
 {
 	ExtState = std::make_unique<ExtensionState>();
 	ExtState->Reset();
+	ExtensionLoaded = false;
+}
+
+void OsirisProxy::LoadExtensionState()
+{
+	if (ExtensionLoaded || !ExtensionsEnabled) return;
+
+	if (!ExtState) {
+		ResetExtensionState();
+	}
+
+	PostInitLibraries();
+
+	if (!Libraries.CriticalInitializationFailed()) {
+		ExtState->LoadConfigs();
+		Libraries.EnableCustomStats();
+		FunctionLibrary.OnBaseModuleLoaded();
+	}
+
+	ExtensionLoaded = true;
 }
 
 }

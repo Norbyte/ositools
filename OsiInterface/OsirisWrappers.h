@@ -56,6 +56,8 @@ public:
 
 	HOOKABLE(void(void *, void *), InitNetworkFixedStrings);
 	HOOKABLE(void(void *), GameStateLoadModuleDo);
+	HOOKABLE(void(void *, GameState, GameState), GameStateChangedEvent);
+	HOOKABLE(void(void *), SkillPrototypeManagerInit);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;
