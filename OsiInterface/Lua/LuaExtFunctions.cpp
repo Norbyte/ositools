@@ -89,9 +89,9 @@ namespace osidbg
 		return 1;
 	}
 
-	Json::Value JsonStringify(lua_State * L, int index);
+	Json::Value JsonStringify(lua_State * L, int index, int depth);
 
-	Json::Value JsonStringifyObject(lua_State * L, int index)
+	Json::Value JsonStringifyObject(lua_State * L, int index, int depth)
 	{
 		Json::Value arr(Json::objectValue);
 		lua_pushnil(L);
@@ -99,7 +99,7 @@ namespace osidbg
 		if (index < 0) index--;
 
 		while (lua_next(L, index) != 0) {
-			Json::Value val(JsonStringify(L, -1));
+			Json::Value val(JsonStringify(L, -1, depth + 1));
 
 			if (lua_type(L, -2) == LUA_TSTRING) {
 				auto key = lua_tostring(L, -2);
@@ -119,7 +119,7 @@ namespace osidbg
 		return arr;
 	}
 
-	Json::Value JsonStringifyArray(lua_State * L, int index)
+	Json::Value JsonStringifyArray(lua_State * L, int index, int depth)
 	{
 		Json::Value arr(Json::arrayValue);
 		lua_pushnil(L);
@@ -127,7 +127,7 @@ namespace osidbg
 		if (index < 0) index--;
 
 		while (lua_next(L, index) != 0) {
-			arr.append(JsonStringify(L, -1));
+			arr.append(JsonStringify(L, -1, depth + 1));
 			lua_pop(L, 1);
 		}
 
@@ -159,18 +159,22 @@ namespace osidbg
 		return isArray;
 	}
 
-	Json::Value JsonStringifyTable(lua_State * L, int index)
+	Json::Value JsonStringifyTable(lua_State * L, int index, int depth)
 	{
 		if (JsonCanStringifyAsArray(L, index)) {
-			return JsonStringifyArray(L, index);
+			return JsonStringifyArray(L, index, depth);
 		} else {
-			return JsonStringifyObject(L, index);
+			return JsonStringifyObject(L, index, depth);
 		}
 	}
 
 
-	Json::Value JsonStringify(lua_State * L, int index)
+	Json::Value JsonStringify(lua_State * L, int index, int depth)
 	{
+		if (depth > 64) {
+			throw std::runtime_error("Recursion depth exceeded while stringifying JSON");
+		}
+
 		switch (lua_type(L, index)) {
 		case LUA_TNIL:
 			return Json::Value(Json::nullValue);
@@ -189,7 +193,7 @@ namespace osidbg
 			return Json::Value(lua_tostring(L, index));
 
 		case LUA_TTABLE:
-			return JsonStringifyTable(L, index);
+			return JsonStringifyTable(L, index, depth);
 
 		case LUA_TLIGHTUSERDATA:
 		case LUA_TFUNCTION:
@@ -210,7 +214,7 @@ namespace osidbg
 
 		Json::Value root;
 		try {
-			root = JsonStringify(L, 1);
+			root = JsonStringify(L, 1, 0);
 		} catch (std::runtime_error & e) {
 			return luaL_error(L, "%s", e.what());
 		}

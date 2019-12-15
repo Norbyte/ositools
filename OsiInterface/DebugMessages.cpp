@@ -528,8 +528,6 @@ namespace osidbg
 		if (intf_.IsConnected()) {
 			msg.set_seq_no(outboundSeq_++);
 			intf_.Send(msg);
-		} else {
-			DEBUG("DebugMessageHandler::Send(): Not connected to debugger frontend");
 		}
 	}
 
