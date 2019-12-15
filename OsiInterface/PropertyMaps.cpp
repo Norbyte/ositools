@@ -38,7 +38,7 @@ namespace osidbg
 			PROP_RO(esv::Status, StatsMultiplier);
 			PROP_ENUM(esv::Status, DamageSourceType);
 			PROP_RO(esv::Status, StatusHandle);
-			PROP_RO(esv::Status, TargetCIHandle);
+			PROP_RO(esv::Status, TargetHandle);
 			PROP_RO(esv::Status, StatusSourceHandle);
 			PROP_RO(esv::Status, SomeHandle);
 			PROP_FLAGS(esv::Status, Flags0, StatusFlags0, false);

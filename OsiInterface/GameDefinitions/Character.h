@@ -222,7 +222,7 @@ namespace osidbg
 			void * RaceVariableManager_M;
 			FixedStringMapBase<void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
-			FixedString U91;
+			FixedString SkillNameBeingPrepared;
 			uint64_t U9[1];
 			uint32_t Dialog;
 			bool IsDialogAiControlled;

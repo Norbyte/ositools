@@ -518,7 +518,7 @@ namespace osidbg
 			return;
 		}
 
-		auto target = FindGameObjectByHandle(status->TargetCIHandle);
+		auto target = FindGameObjectByHandle(status->TargetHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;
@@ -545,7 +545,7 @@ namespace osidbg
 	{
 		auto statusHeal = static_cast<esv::StatusHeal *>(status);
 
-		auto target = FindCharacterByHandle(status->TargetCIHandle);
+		auto target = FindCharacterByHandle(status->TargetHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;

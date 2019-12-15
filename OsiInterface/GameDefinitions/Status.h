@@ -128,7 +128,7 @@ namespace osidbg
 			CauseType DamageSourceType; // Saved
 			uint8_t _Pad1[3];
 			ObjectHandle StatusHandle;
-			ObjectHandle TargetCIHandle;
+			ObjectHandle TargetHandle;
 			ObjectSet<ObjectHandle> StatusOwner; // Saved
 			ObjectHandle StatusSourceHandle; // Saved
 			ObjectHandle SomeHandle;
