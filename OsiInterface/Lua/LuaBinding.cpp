@@ -42,9 +42,9 @@ namespace osidbg
 
 
 
-	char const * const LuaGameObjectProxy<esv::Status>::MetatableName = "LuaStatus";
+	char const * const LuaObjectProxy<esv::Status>::MetatableName = "LuaStatus";
 
-	int LuaGameObjectProxy<esv::Status>::LuaIndex(lua_State * L)
+	int LuaObjectProxy<esv::Status>::LuaIndex(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
@@ -54,7 +54,7 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaGameObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
+	int LuaObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -66,15 +66,11 @@ namespace osidbg
 		return stats->GetStat(isBaseStat ? (statName + 4) : statName, isBaseStat);
 	}
 
-	char const * const LuaGameObjectProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStats";
+	char const * const LuaObjectProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStats";
 
-	int LuaGameObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const * prop)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
-
-		auto prop = luaL_checkstring(L, 2);
-
-		auto dynamicStat = GetCharacterDynamicStat(obj_, prop);
+		auto dynamicStat = GetCharacterDynamicStat(stats, prop);
 		if (dynamicStat) {
 			lua_pushinteger(L, *dynamicStat);
 			return 1;
@@ -83,7 +79,7 @@ namespace osidbg
 		if (strncmp(prop, "TALENT_", 7) == 0) {
 			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
 			if (talentId) {
-				bool hasTalent = obj_->HasTalent(*talentId, false);
+				bool hasTalent = stats->HasTalent(*talentId, false);
 				lua_pushboolean(L, hasTalent);
 				return 1;
 			} else {
@@ -93,16 +89,151 @@ namespace osidbg
 
 		auto abilityId = EnumInfo<AbilityType>::Find(prop);
 		if (abilityId) {
-			int abilityLevel = obj_->GetAbility(*abilityId, false);
+			int abilityLevel = stats->GetAbility(*abilityId, false);
 			lua_pushinteger(L, abilityLevel);
 			return 1;
 		}
 
-		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, obj_, prop, true);
+		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, true);
 		return fetched ? 1 : 0;
 	}
 
-	int LuaGameObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	int LuaObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		return CharacterFetchStat(L, obj_, prop);
+	}
+
+	int LuaObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+
+	char const * const LuaStatusHandleProxy::MetatableName = "LuaStatusHandleProxy";
+
+	int LuaStatusHandleProxy::LuaIndex(lua_State * L)
+	{
+		auto character = FindCharacterByHandle(character_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		
+		auto status = character->GetStatusByHandle(status_, true);
+		if (status == nullptr) return luaL_error(L, "Status handle invalid");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto & propertyMap = StatusToPropertyMap(status);
+		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaStatusHandleProxy::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const * const LuaHandleProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStatsHandleProxy";
+
+	int LuaHandleProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	{
+		auto character = FindCharacterByHandle(handle_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		if (character->Stats == nullptr) return luaL_error(L, "Character has no stats!");
+
+		auto prop = luaL_checkstring(L, 2);
+
+		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, character->Stats, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaHandleProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+
+	char const * const LuaHandleProxy<esv::PlayerCustomData>::MetatableName = "LuaPlayerCustomDataHandleProxy";
+
+	int LuaHandleProxy<esv::PlayerCustomData>::LuaIndex(lua_State * L)
+	{
+		auto character = FindCharacterByHandle(handle_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+
+		if (character->PlayerData == nullptr
+			|| !character->PlayerData->CustomData.Initialized) {
+			OsiError("Character has no player data, or custom data was not initialized.");
+			return 0;
+		}
+
+		auto prop = luaL_checkstring(L, 2);
+
+		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, &character->PlayerData->CustomData, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaHandleProxy<esv::PlayerCustomData>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const * const LuaHandleProxy<esv::Character>::MetatableName = "LuaCharacterHandleProxy";
+
+	int LuaHandleProxy<esv::Character>::LuaIndex(lua_State * L)
+	{
+		auto character = FindCharacterByHandle(handle_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+
+		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "PlayerCustomData") == 0) {
+			if (character->PlayerData != nullptr
+				&& character->PlayerData->CustomData.Initialized) {
+				LuaHandleProxy<esv::PlayerCustomData>::New(L, handle_);
+				return 1;
+			} else {
+				OsiError("Character has no player data, or custom data was not initialized.");
+				return 0;
+			}
+		}
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (character->Stats != nullptr) {
+				LuaHandleProxy<CDivinityStats_Character>::New(L, handle_);
+				return 1;
+			} else {
+				OsiError("Character has no stats.");
+				return 0;
+			}
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaHandleProxy<esv::Character>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const * const LuaHandleProxy<esv::Item>::MetatableName = "LuaItemHandleProxy";
+
+	int LuaHandleProxy<esv::Item>::LuaIndex(lua_State * L)
+	{
+		auto item = FindItemByHandle(handle_);
+		if (item == nullptr) return luaL_error(L, "Item handle invalid");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaHandleProxy<esv::Item>::LuaNewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -116,12 +247,18 @@ namespace osidbg
 	{
 		RegisterLib(L);
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
-		LuaGameObjectProxy<esv::Status>::RegisterMetatable(L);
-		LuaGameObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
+		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
+		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
+		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
+		LuaStatusHandleProxy::RegisterMetatable(L);
+		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
 
+	int GetExtensionVersion(lua_State * L);
 	int EnableStatOverride(lua_State * L);
 	int OsiPrint(lua_State* L);
 	int OsiPrintError(lua_State* L);
@@ -130,10 +267,14 @@ namespace osidbg
 	int GetStatEntries(lua_State * L);
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
+	int GetCharacter(lua_State * L);
+	int GetItem(lua_State * L);
+	int GetStatus(lua_State * L);
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
+			{"Version", GetExtensionVersion},
 			{"Require", Require},
 			{"NewCall", NewCall},
 			{"NewQuery", NewQuery},
@@ -146,6 +287,9 @@ namespace osidbg
 			{"GetStatEntries", GetStatEntries},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
+			{"GetCharacter", GetCharacter},
+			{"GetItem", GetItem},
+			{"GetStatus", GetStatus},
 			{0,0}
 		};
 
@@ -336,7 +480,7 @@ oldDebug = nil
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictAll);
+		LuaRestriction restriction(*this, RestrictAll & ~RestrictHandleConversion);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -347,11 +491,11 @@ oldDebug = nil
 			return {};
 		}
 
-		auto luaStatus = LuaGameObjectProxy<esv::Status>::New(L, status); // stack: fn, status
+		auto luaStatus = LuaObjectProxy<esv::Status>::New(L, status); // stack: fn, status
 		LuaGameObjectPin<esv::Status> _(luaStatus);
 		lua_pushboolean(L, useCharacterStats); // stack: fn, status, useCS
 
-		if (CallWithTraceback(3, 1) != 0) { // stack: retval
+		if (CallWithTraceback(2, 1) != 0) { // stack: retval
 			OsiError("StatusGetEnterChance handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return {};
@@ -376,7 +520,7 @@ oldDebug = nil
 	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictAll);
+		LuaRestriction restriction(*this, RestrictAll);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -387,9 +531,9 @@ oldDebug = nil
 			return {};
 		}
 
-		auto luaAttacker = LuaGameObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
+		auto luaAttacker = LuaObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
 		LuaGameObjectPin<CDivinityStats_Character> _(luaAttacker);
-		auto luaTarget = LuaGameObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
+		auto luaTarget = LuaObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
 		LuaGameObjectPin<CDivinityStats_Character> __(luaTarget);
 
 		if (CallWithTraceback(2, 1) != 0) { // stack: retval
@@ -417,7 +561,7 @@ oldDebug = nil
 	void LuaState::OnGameSessionLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictAll & ~LuaState::RestrictSessionLoad);
+		LuaRestriction restriction(*this, RestrictAll & ~RestrictSessionLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -433,7 +577,7 @@ oldDebug = nil
 	void LuaState::OnModuleLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, LuaState::RestrictAll & ~LuaState::RestrictModuleLoad);
+		LuaRestriction restriction(*this, RestrictAll & ~RestrictModuleLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext

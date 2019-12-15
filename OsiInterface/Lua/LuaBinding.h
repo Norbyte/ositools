@@ -194,12 +194,12 @@ namespace osidbg
 	};
 
 	template <class T>
-	class LuaGameObjectProxy : public LuaUserdata<LuaGameObjectProxy<T>>, public LuaIndexable
+	class LuaObjectProxy : public LuaUserdata<LuaObjectProxy<T>>, public LuaIndexable
 	{
 	public:
 		static char const * const MetatableName;
 
-		LuaGameObjectProxy(T * obj)
+		LuaObjectProxy(T * obj)
 			: obj_(obj)
 		{}
 
@@ -219,7 +219,7 @@ namespace osidbg
 	class LuaGameObjectPin
 	{
 	public:
-		inline LuaGameObjectPin(LuaGameObjectProxy<T> * proxy)
+		inline LuaGameObjectPin(LuaObjectProxy<T> * proxy)
 			: proxy_(proxy)
 		{}
 
@@ -229,7 +229,41 @@ namespace osidbg
 		}
 
 	private:
-		LuaGameObjectProxy<T> * proxy_;
+		LuaObjectProxy<T> * proxy_;
+	};
+
+	template <class T>
+	class LuaHandleProxy : public LuaUserdata<LuaHandleProxy<T>>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		LuaHandleProxy(ObjectHandle handle)
+			: handle_(handle)
+		{}
+
+		int LuaIndex(lua_State * L);
+		int LuaNewIndex(lua_State * L);
+
+	private:
+		ObjectHandle handle_;
+	};
+
+	class LuaStatusHandleProxy : public LuaUserdata<LuaStatusHandleProxy>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		inline LuaStatusHandleProxy(ObjectHandle character, ObjectHandle status)
+			: character_(character), status_(status)
+		{}
+
+		int LuaIndex(lua_State * L);
+		int LuaNewIndex(lua_State * L);
+
+	private:
+		ObjectHandle character_;
+		ObjectHandle status_;
 	};
 
 
@@ -355,6 +389,8 @@ namespace osidbg
 			RestrictModuleLoad = 1 << 1,
 			// Disable calls only available during session load state
 			RestrictSessionLoad = 1 << 2,
+			// Disable handle/guid to object conversion functions (Lua only)
+			RestrictHandleConversion = 1 << 3,
 			RestrictAll = 0xf
 		};
 

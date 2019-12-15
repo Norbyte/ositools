@@ -142,16 +142,16 @@ namespace osidbg
 			ObjectHandle OriginalOwnerCharacter; // Saved
 			void * Sockets; // Saved
 			uint64_t U7;
-			uint32_t ComputedVitality;
-			uint32_t MaxDurabilityPatchCheck; // Saved
+			int32_t ComputedVitality;
+			int32_t MaxDurabilityPatchCheck; // Saved
 			FixedString ItemType; // Saved
-			uint32_t GoldValueOverwrite; // Saved
-			uint32_t WeightValueOverwrite; // Saved
+			int32_t GoldValueOverwrite; // Saved
+			int32_t WeightValueOverwrite; // Saved
 			uint64_t U8;
 			ObjectSet<FixedString> Tags; // Saved
 			uint64_t TeleportTargetOverride; // Saved
 			int32_t TreasureLevel; // Saved // -1 = Not overridden
-			uint32_t LevelOverride; // Saved
+			int32_t LevelOverride; // Saved
 			bool ForceSynch; // Saved
 			uint8_t _Pad8[3];
 			int32_t TeleportUseCount; // Saved

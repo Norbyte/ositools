@@ -222,7 +222,7 @@ namespace osidbg
 			void * RaceVariableManager_M;
 			FixedStringMapBase<void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
-			FixedString SkillNameBeingPrepared;
+			FixedString SkillBeingPrepared;
 			uint64_t U9[1];
 			uint32_t Dialog;
 			bool IsDialogAiControlled;
@@ -263,11 +263,11 @@ namespace osidbg
 			int32_t MaxArmorPatchCheck;
 			int32_t MaxMagicArmorPatchCheck;
 			float _Pad7;
-			void * AnimationSetOverride;
+			FixedString AnimationSetOverride;
 			ObjectHandle PartyHandle;
 			ObjectSet<FixedString> CreatedTemplateItems;
-			ObjectSet<FixedString> CustomTradeTreasure;
-			FixedString U141;
+			ObjectSet<FixedString> Treasures;
+			FixedString CustomTradeTreasure;
 			ObjectSet<FixedString> Target;
 			ObjectHandle CrimeHandle;
 			ObjectHandle PreviousCrimeHandle;

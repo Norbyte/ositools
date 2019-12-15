@@ -20,6 +20,8 @@ namespace osidbg
 	extern PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
 	extern PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	extern PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
+	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 
 	void InitPropertyMaps();
 

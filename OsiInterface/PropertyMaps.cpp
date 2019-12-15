@@ -18,6 +18,8 @@ namespace osidbg
 	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	PropertyMap<esv::Character, void> gCharacterPropertyMap;
+	PropertyMap<esv::Item, void> gItemPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -368,6 +370,63 @@ namespace osidbg
 			PROP_RO(esv::PlayerCustomData, ReservedProfileID);
 			PROP(esv::PlayerCustomData, AiPersonality);
 			PROP_RO(esv::PlayerCustomData, Speaker);
+		}
+
+		{
+			auto & propertyMap = gCharacterPropertyMap;
+			// EoCServerObject
+			PROP_RO(esv::Character, MyGuid);
+			PROP_RO(esv::Character, WorldPos);
+			PROP_RO(esv::Character, CurrentLevel);
+			// Character
+			PROP_RO(esv::Character, Scale);
+			PROP_RO(esv::Character, AnimationOverride);
+			PROP_RO(esv::Character, WalkSpeedOverride);
+			PROP_RO(esv::Character, RunSpeedOverride);
+			PROP_RO(esv::Character, NeedsUpdateCount);
+			PROP_RO(esv::Character, ScriptForceUpdateCount);
+			PROP_RO(esv::Character, ForceSynchCount);
+			PROP_RO(esv::Character, InventoryHandle);
+			PROP_RO(esv::Character, SkillBeingPrepared);
+			PROP_RO(esv::Character, LifeTime);
+			PROP_RO(esv::Character, OwnerHandle);
+			PROP_RO(esv::Character, PartialAP);
+			PROP_RO(esv::Character, AnimType);
+			PROP_RO(esv::Character, DelayDeathCount);
+			PROP_RO(esv::Character, AnimationSetOverride);
+			PROP_RO(esv::Character, CustomTradeTreasure);
+			PROP_RO(esv::Character, Archetype);
+			PROP_RO(esv::Character, EquipmentColor);
+		}
+
+		{
+			auto & propertyMap = gItemPropertyMap;
+			// EoCServerObject
+			PROP_RO(esv::Item, MyGuid);
+			PROP_RO(esv::Item, WorldPos);
+			PROP_RO(esv::Item, CurrentLevel);
+			// Item
+			PROP_RO(esv::Item, Scale);
+			PROP_RO(esv::Item, CurrentTemplate);
+			PROP_RO(esv::Item, CustomDisplayName);
+			PROP_RO(esv::Item, CustomDescription);
+			PROP_RO(esv::Item, CustomBookContent);
+			PROP_RO(esv::Item, StatsId);
+			PROP_RO(esv::Item, InventoryHandle);
+			PROP_RO(esv::Item, ParentInventoryHandle);
+			PROP_RO(esv::Item, Slot);
+			PROP_RO(esv::Item, Amount);
+			PROP_RO(esv::Item, Vitality);
+			PROP_RO(esv::Item, Armor);
+			PROP_RO(esv::Item, InUseByCharacterHandle);
+			PROP_RO(esv::Item, LockLevel);
+			PROP_RO(esv::Item, ComputedVitality);
+			PROP_RO(esv::Item, ItemType);
+			PROP_RO(esv::Item, GoldValueOverwrite);
+			PROP_RO(esv::Item, WeightValueOverwrite);
+			PROP_RO(esv::Item, TreasureLevel);
+			PROP_RO(esv::Item, LevelOverride);
+			PROP_RO(esv::Item, ForceSynch);
 		}
 	}
 

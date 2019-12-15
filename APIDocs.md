@@ -1,4 +1,4 @@
-### API v28 Documentation
+### API v36 Documentation
 
 ### Table of Contents  
 
@@ -337,7 +337,7 @@ Apply the specified `DAMAGE_ON_MOVE` status on the character.
 Increases/decreases the amount of damage dealt by the `HIT` status.
  - `_StatusHandle` - Handle of the `HIT` status
  - `_DamageType` - Damage type to update; see `Damage Type` enumeration.
- - `_Amount` - Damage amount. Positive values add, negative values remove damage. The total damage amount cannot go below zero.
+ - `_Amount` - Damage amount. Positive values add, negative values remove damage.
 
 ### HitStatusClearDamage
 `call NRD_HitStatusClearDamage((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_DamageType)`
@@ -368,9 +368,9 @@ Returns the amount of damage dealt by the `HIT` status.
 |--|--|--|--|
 | StatusId | String | Read | Name of the associated stat entry |
 | StatusHandle | Integer64 | Read | Handle of this status |
-| TargetCI | GuidString | Read | *Unknown; name subject to change* |
+| TargetHandle | Integer64 | Read | Character or item that the status was applied to |
 | StatusSource | GuidString | Read | Character or item that caused the status |
-| Obj2 | GuidString | Read | *Unknown; name subject to change* |
+| StatusSourceHandle | Integer64 | Read | Character or item that caused the status |
 | StartTimer | Real | Read |  |
 | LifeTime | Real | Read/Write | Total lifetime of the status, in seconds. -1 if the status does not expire. |
 | CurrentLifeTime | Real | Read/Write | Remaining lifetime of the status, in seconds. |
@@ -533,7 +533,7 @@ NRD_HitExecute(_HitHandle);
 Increases/decreases the amount of damage dealt by the hit.
  - `_HitHandle` - Handle of hit
  - `_DamageType` - Damage type to update; see `Damage Type` enumeration.
- - `_Amount` - Damage amount. Positive values add, negative values remove damage. The total damage amount cannot go below zero.
+ - `_Amount` - Damage amount. Positive values add, negative values remove damage.
 
 ### HitClearDamage
 `call NRD_HitClearDamage((INTEGER64)_HitHandle, (STRING)_DamageType)`

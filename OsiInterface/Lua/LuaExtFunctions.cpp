@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
+#include <Version.h>
 #include "LuaBinding.h"
 #include <fstream>
 #include <json/json.h>
@@ -261,6 +262,12 @@ namespace osidbg
 		}
 	}
 
+	int GetExtensionVersion(lua_State* L)
+	{
+		lua_pushinteger(L, CurrentVersion);
+		return 1;
+	}
+
 	int OsiPrint(lua_State* L)
 	{
 		std::stringstream ss;
@@ -384,5 +391,111 @@ namespace osidbg
 		}
 
 		return 0;
+	}
+
+	esv::Character * GetCharacter(lua_State * L, int index)
+	{
+		esv::Character * character = nullptr;
+		switch (lua_type(L, index)) {
+		case LUA_TNUMBER:
+		{
+			auto handle = ObjectHandle(lua_tointeger(L, index));
+			character = FindCharacterByHandle(handle);
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, index);
+			character = FindCharacterByNameGuid(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected character GUID or handle");
+			break;
+		}
+
+		return character;
+	}
+
+	int GetCharacter(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve character handle in restricted context");
+		}
+
+		esv::Character * character = GetCharacter(L, 1);
+
+		if (character != nullptr) {
+			ObjectHandle handle;
+			character->GetObjectHandle(&handle);
+			LuaHandleProxy<esv::Character>::New(L, handle);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int GetItem(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve item handle in restricted context");
+		}
+
+		esv::Item * item = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TNUMBER:
+		{
+			auto handle = ObjectHandle(lua_tointeger(L, 1));
+			item = FindItemByHandle(handle);
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 2);
+			item = FindItemByNameGuid(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected item GUID or handle");
+			return 0;
+		}
+
+		if (item != nullptr) {
+			ObjectHandle handle;
+			item->GetObjectHandle(&handle);
+			LuaHandleProxy<esv::Item>::New(L, handle);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int GetStatus(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve status handle in restricted context");
+		}
+
+		esv::Character * character = GetCharacter(L, 1);
+		if (character == nullptr) return 0;
+
+		auto statusHandle = ObjectHandle(lua_tointeger(L, 2));
+		auto status = character->GetStatusByHandle(statusHandle, true);
+		if (status != nullptr) {
+			ObjectHandle characterHandle;
+			character->GetObjectHandle(&characterHandle);
+			LuaStatusHandleProxy::New(L, characterHandle, statusHandle);
+			return 1;
+		} else {
+			OsiError("Character has no status with handle " << statusHandle.Handle);
+			return 0;
+		}
 	}
 }
