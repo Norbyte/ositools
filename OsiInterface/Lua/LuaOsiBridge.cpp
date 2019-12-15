@@ -587,7 +587,7 @@ namespace osidbg
 			param = param->NextParam;
 		}
 
-		if (lua_pcall(L, numParams, 0, 0) != 0) {
+		if (lua->CallWithTraceback(numParams, 0) != 0) {
 			OsiError("Handler for '" << Name() << "' failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
@@ -649,7 +649,7 @@ namespace osidbg
 			paramIndex++;
 		}
 
-		if (lua_pcall(L, numParams, LUA_MULTRET, 0) != 0) {
+		if (CallWithTraceback(numParams, LUA_MULTRET) != 0) {
 			OsiError("Handler for '" << name << "' failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;

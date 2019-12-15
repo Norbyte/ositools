@@ -13,6 +13,7 @@ namespace osidbg
 
 			auto & ext = ExtensionState::Get();
 			ext.LuaReset(bootstrapMods);
+			ext.OnGameSessionLoading();
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
@@ -31,7 +32,7 @@ namespace osidbg
 				return;
 			}
 
-			ExtensionState::Get().LuaLoadGameFile(mod, fileName);
+			ExtensionState::Get().LuaLoadModScript(mod, fileName);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)

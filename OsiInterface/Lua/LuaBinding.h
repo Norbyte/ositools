@@ -430,7 +430,7 @@ namespace osidbg
 					OsiToLua(L, arg); // stack: func, arg0 ... argn
 				}
 			
-				auto status = lua_pcall(L, (int)args.size(), 0, 0);
+				auto status = CallWithTraceback((int)args.size(), 0);
 				if (status != LUA_OK) {
 					OsiError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
 					// stack: errmsg
@@ -449,6 +449,7 @@ namespace osidbg
 
 		bool Query(std::string const & name, LuaRegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
+		int CallWithTraceback(int narg, int nres);
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
@@ -470,6 +471,8 @@ namespace osidbg
 		void OpenLibs();
 		bool QueryInternal(std::string const & name, LuaRegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
+
+		static int TracebackHandler(lua_State * L);
 	};
 
 	class LuaRestriction

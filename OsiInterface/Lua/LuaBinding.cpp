@@ -153,7 +153,7 @@ namespace osidbg
 	{
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
-		ExtensionState::Get().LuaLoadGameFile(modGuid, fileName);
+		ExtensionState::Get().LuaLoadModScript(modGuid, fileName);
 		return 0;
 	}
 
@@ -164,6 +164,8 @@ namespace osidbg
 	  {LUA_TABLIBNAME, luaopen_table},
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
+	  // debug table is stripped in the sandbox startup script
+	  {LUA_DBLIBNAME, luaopen_debug},
 	  {NULL, NULL}
 	};
 
@@ -187,7 +189,7 @@ namespace osidbg
 Ext._OnGameSessionLoading = function ()
     for i,callback in pairs(Ext.OnGameSessionLoading) do
         local status, err = xpcall(callback, debug.traceback)
-        if ~status then
+        if not status then
             Ext.PrintError("Error during OnGameSessionLoading: ", err)
         end
     end
@@ -198,7 +200,7 @@ Ext.OnGameSessionLoading = {}
 Ext._OnModuleLoading = function ()
     for i,callback in pairs(Ext.OnModuleLoading) do
         local status, err = xpcall(callback, debug.traceback)
-        if ~status then
+        if not status then
             Ext.PrintError("Error during OnGameSessionLoading: ", err)
         end
     end
@@ -245,6 +247,8 @@ rawequal = function ()
 end
 
 debug = nil
+}
+oldDebug = nil
 )";
 		LoadScript(sandbox, "sandbox");
 	}
@@ -287,7 +291,7 @@ debug = nil
 		}
 
 		/* Ask Lua to run our little script */
-		status = lua_pcall(state_, 0, LUA_MULTRET, 0);
+		status = CallWithTraceback(0, LUA_MULTRET);
 		if (status != LUA_OK) {
 			OsiError("Failed to execute script: " << lua_tostring(state_, -1));
 			lua_pop(state_, 1); // pop error message from the stack
@@ -295,6 +299,25 @@ debug = nil
 		}
 
 		return true;
+	}
+
+	int LuaState::CallWithTraceback(int narg, int nres)
+	{
+		auto L = state_;
+		int base = lua_gettop(L) - narg;  /* function index */
+		lua_pushcfunction(L, &LuaState::TracebackHandler);  /* push message handler */
+		lua_insert(L, base);  /* put it under function and args */
+		int status = lua_pcall(L, narg, nres, base);
+		lua_remove(L, base);  /* remove message handler from the stack */
+		return status;
+	}
+
+	int LuaState::TracebackHandler(lua_State *L)
+	{
+		const char *msg = lua_tostring(L, 1);
+		if (msg == NULL) {  /* is error object not a string? */
+			if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
+				lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
 	}
 
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats, float chanceMultiplier)
@@ -316,7 +339,7 @@ debug = nil
 		lua_pushboolean(L, useCharacterStats);
 		lua_pushnumber(L, chanceMultiplier); // stack: fn, status, useCS, chanceMul
 
-		if (lua_pcall(L, 3, 1, 0) != 0) { // stack: retval
+		if (CallWithTraceback(3, 1) != 0) { // stack: retval
 			OsiError("StatusGetEnterChance handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return {};
@@ -357,7 +380,7 @@ debug = nil
 		auto luaTarget = LuaGameObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
 		LuaGameObjectPin<CDivinityStats_Character> __(luaTarget);
 
-		if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
+		if (CallWithTraceback(2, 1) != 0) { // stack: retval
 			OsiError("GetHitChance handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return {};
@@ -389,7 +412,7 @@ debug = nil
 		lua_getfield(L, -1, "_OnGameSessionLoading"); // stack: Ext, fn
 		lua_remove(L, -2); // stack: fn
 
-		if (lua_pcall(L, 0, 0, 0) != 0) { // stack: -
+		if (CallWithTraceback(0, 0) != 0) { // stack: -
 			OsiError("Ext.OnGameSessionLoading failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
