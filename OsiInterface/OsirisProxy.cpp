@@ -712,10 +712,12 @@ void OsirisProxy::LoadExtensionState()
 		ResetExtensionState();
 	}
 
+	ExtState->LoadConfigs();
+	// PostInitLibraries() should be called after extension config is loaded,
+	// otherwise it won't hook functions that may be needed later on
 	PostInitLibraries();
 
 	if (!Libraries.CriticalInitializationFailed()) {
-		ExtState->LoadConfigs();
 		Libraries.EnableCustomStats();
 		FunctionLibrary.OnBaseModuleLoaded();
 	}
