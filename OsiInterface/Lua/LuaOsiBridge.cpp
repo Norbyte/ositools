@@ -273,10 +273,6 @@ namespace osidbg
 				function_->Signature->Name, funcArgs, numArgs - 1);
 		}
 
-		if (gGameType == GameType::Unknown) {
-			luaL_error(L, "Story not loaded yet");
-		}
-
 		if (function_->Node.Id == 0) {
 			luaL_error(L, "Function has no node");
 		}
@@ -285,7 +281,7 @@ namespace osidbg
 		OsiArgumentListPin<ListNode<TypedValue *>> nodes(state_->GetTypedValueNodePool(), (uint32_t)funcArgs + 1);
 
 		TuplePtrLL tuple;
-		auto & args = tuple.Items();
+		auto & args = tuple.Items;
 		auto argType = function_->Signature->Params->Params.Head->Next;
 		args.Init(nodes.Args());
 

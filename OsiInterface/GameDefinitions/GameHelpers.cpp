@@ -31,27 +31,6 @@ namespace osidbg
 	}
 
 
-	void OsiDetectGameType()
-	{
-		if (gGameType != GameType::Unknown) return;
-
-		auto & dbs = (*gOsirisProxy->GetGlobals().Databases)->Db;
-		if (dbs.Size == 0) return;
-
-		auto db1 = *dbs.Start;
-		bool isDE = Database::IsDatabaseDOS2DE(db1,
-			gOsirisProxy->GetOsirisDllStart(),
-			(uint8_t *)gOsirisProxy->GetOsirisDllStart() + gOsirisProxy->GetOsirisDllSize());
-		if (isDE) {
-			gGameType = GameType::DOS2DE;
-			DEBUG("OsiDetectGameType(): Detected D:OS2 DE");
-		} else {
-			gGameType = GameType::DOS2;
-			DEBUG("OsiDetectGameType(): Detected D:OS2 Classic");
-		}
-	}
-
-
 	void STDWString::Set(std::string const & s)
 	{
 		auto wcs = FromUTF8(s);

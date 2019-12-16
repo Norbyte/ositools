@@ -411,7 +411,7 @@ namespace osidbg
 		}
 
 		auto & db = dbs.Start[databaseId - 1];
-		auto const & facts = db->Facts();
+		auto const & facts = db->Facts;
 		auto head = facts.Head;
 		auto current = head->Next;
 
@@ -577,7 +577,7 @@ namespace osidbg
 
 	void MsgToTuple(MsgTuple const & msg, TuplePtrLL & tuple, void * tvVmt)
 	{
-		auto & items = tuple.Items();
+		auto & items = tuple.Items;
 		items.Init();
 
 		auto prev = items.Head;
@@ -991,9 +991,9 @@ namespace osidbg
 		
 		if (action->FunctionName != nullptr
 			&& action->Arguments != nullptr
-			&& action->Arguments->Args().Size == 1
+			&& action->Arguments->Args.Size == 1
 			&& strcmp(action->FunctionName, "DebugBreak") == 0) {
-			TypedValue * message = action->Arguments->Args().Head->Next->Item;
+			TypedValue * message = action->Arguments->Args.Head->Next->Item;
 			if (message->TypeId == (uint32_t)ValueType::String
 				&& message->Value.Val.String != nullptr) {
 				messageHandler_.SendDebugOutput(message->Value.Val.String);

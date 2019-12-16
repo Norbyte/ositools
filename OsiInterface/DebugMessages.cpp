@@ -59,7 +59,7 @@ namespace osidbg
 
 	void MakeMsgTuple(MsgTuple & msgTuple, TuplePtrLL const & tuple)
 	{
-		auto const & items = tuple.Items();
+		auto const & items = tuple.Items;
 		auto head = items.Head;
 		auto col = head->Next;
 		while (col != head) {
@@ -129,7 +129,7 @@ namespace osidbg
 
 	void DebugDumpTuple(std::wstringstream & ss, TuplePtrLL const & tuple)
 	{
-		auto const & items = tuple.Items();
+		auto const & items = tuple.Items;
 		auto head = items.Head;
 		auto cur = head->Next;
 		while (cur != head) {
@@ -237,7 +237,7 @@ namespace osidbg
 			if (current->Item->FunctionName != nullptr) {
 				actionInfo->set_function(current->Item->FunctionName);
 				if (current->Item->Arguments != nullptr) {
-					actionInfo->set_arity((uint32_t)current->Item->Arguments->Args().Size);
+					actionInfo->set_arity((uint32_t)current->Item->Arguments->Args.Size);
 				} else {
 					actionInfo->set_arity(0);
 				}
@@ -269,9 +269,9 @@ namespace osidbg
 		for (uint32_t i = 0; i < count; i++) {
 			auto * db = databases[i];
 			auto dbInfo = sync->add_database();
-			dbInfo->set_id(db->DatabaseId());
-			auto numParams = db->NumParams();
-			auto const & paramTypes = db->ParamTypes();
+			dbInfo->set_id(db->DatabaseId);
+			auto numParams = db->NumParams;
+			auto const & paramTypes = db->ParamTypes;
 			for (auto arg = 0; arg < numParams; arg++) {
 				dbInfo->add_argumenttype(paramTypes.Start[arg]);
 			}

@@ -13,8 +13,6 @@
 namespace osidbg
 {
 
-GameType gGameType = GameType::Unknown;
-
 std::unique_ptr<OsirisProxy> gOsirisProxy;
 
 
@@ -373,7 +371,6 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 #endif
 
 	StoryLoaded = true; 
-	OsiDetectGameType();
 	DEBUG("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
 #if !defined(OSI_NO_DEBUGGER)

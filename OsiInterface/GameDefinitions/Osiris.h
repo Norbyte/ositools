@@ -13,17 +13,6 @@
 namespace osidbg
 {
 
-enum class GameType
-{
-	Unknown,
-	DOS2,
-	DOS2DE
-};
-
-extern GameType gGameType;
-
-void OsiDetectGameType();
-
 #pragma pack(push, 1)
 enum class ValueType : uint8_t
 {
@@ -724,62 +713,10 @@ public:
 	uint32_t Unknown;
 };
 
-struct TuplePtrLLDOS2
-{
-	List<TypedValue *> Items;
-};
-
-struct TuplePtrLLDOS2DE
+struct TuplePtrLL
 {
 	void * VMT;
 	List<TypedValue *> Items;
-};
-
-struct TuplePtrLL
-{
-	union {
-		TuplePtrLLDOS2 dos2;
-		TuplePtrLLDOS2DE dos2de;
-	};
-
-	TuplePtrLL()
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			new (&dos2de.Items) List<TypedValue *>();
-		} else {
-			new (&dos2.Items) List<TypedValue *>();
-		}
-	}
-
-	~TuplePtrLL()
-	{
-		if (gGameType == GameType::DOS2DE) {
-			dos2de.Items.~List<TypedValue *>();
-		} else {
-			dos2.Items.~List<TypedValue *>();
-		}
-	}
-
-	List<TypedValue *> const & Items() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Items;
-		} else {
-			return dos2.Items;
-		}
-	}
-
-	List<TypedValue *> & Items()
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Items;
-		} else {
-			return dos2.Items;
-		}
-	}
 };
 
 struct TupleLL
@@ -802,21 +739,7 @@ public:
 	TupleLL Data;
 };
 
-struct DatabaseDOS2
-{
-	uint32_t DatabaseId;
-	uint32_t __Padding;
-	uint64_t B;
-	SomeDbItem Items[16];
-	uint64_t C;
-	List<TupleVec> Facts;
-	Vector<uint32_t> ParamTypes;
-	uint8_t NumParams;
-	uint8_t __Padding2[7];
-	Vector<DatabaseParam> OrderedFacts;
-};
-
-struct DatabaseDOS2DE
+struct Database
 {
 	uint32_t DatabaseId;
 	uint32_t __Padding;
@@ -831,86 +754,11 @@ struct DatabaseDOS2DE
 	Vector<DatabaseParam> OrderedFacts;
 };
 
-struct Database
-{
-	static bool IsDatabaseDOS2DE(Database * db, void * dllStart, void * dllEnd)
-	{
-		return db->dos2de.FactsVMT >= dllStart
-			&& db->dos2de.FactsVMT < dllEnd;
-	}
-
-	union {
-		DatabaseDOS2 dos2;
-		DatabaseDOS2DE dos2de;
-	};
-
-	uint32_t DatabaseId() const
-	{
-		return dos2.DatabaseId;
-	}
-
-	uint8_t NumParams() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.NumParams;
-		} else {
-			return dos2.NumParams;
-		}
-	}
-
-	Vector<uint32_t> const & ParamTypes() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.ParamTypes;
-		}
-		else {
-			return dos2.ParamTypes;
-		}
-	}
-
-	List<TupleVec> const & Facts() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Facts;
-		}
-		else {
-			return dos2.Facts;
-		}
-	}
-};
-
 class RuleActionArguments
 {
 public:
-	List<TypedValue *> const & Args() const
-	{
-		assert(gGameType != GameType::Unknown);
-		if (gGameType == GameType::DOS2DE) {
-			return dos2de.Args;
-		} else {
-			return dos2.Args;
-		}
-	}
-
-private:
-	struct DOS2
-	{
-		List<TypedValue *> Args;
-	};
-
-	struct DOS2DE
-	{
-		void * VMT;
-		List<TypedValue *> Args;
-	};
-
-	union {
-		DOS2 dos2;
-		DOS2DE dos2de;
-	};
+	void * VMT;
+	List<TypedValue *> Args;
 };
 
 class RuleActionNode
