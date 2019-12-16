@@ -401,7 +401,7 @@ namespace osidbg
 			return;
 		}
 
-		if (ExtensionState::Get().EnableCustomStats && !EnabledCustomStats) {
+		if (ExtensionState::Get().HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
 				WriteAnchor code(ActivateClientSystemsHook, sizeof(replacement));
@@ -423,8 +423,8 @@ namespace osidbg
 			EnabledCustomStats = true;
 		}
 
-		if (ExtensionState::Get().EnableCustomStats 
-			&& ExtensionState::Get().EnableCustomStatsPane 
+		if (ExtensionState::Get().HasFeatureFlag("CustomStats")
+			&& ExtensionState::Get().HasFeatureFlag("CustomStatsPane")
 			&& !EnabledCustomStatsPane) {
 			uint8_t const replacement[] = {
 #if defined(OSI_EOCAPP)

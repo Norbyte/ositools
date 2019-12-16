@@ -270,7 +270,7 @@ namespace osidbg
 
 	void CustomFunctionLibrary::PostStartup()
 	{
-		if (!ExtensionState::Get().EnableExtensions) {
+		if (!ExtensionState::Get().HasFeatureFlag("OsirisExtensions")) {
 			return;
 		}
 
@@ -303,7 +303,7 @@ namespace osidbg
 	{
 		using namespace std::placeholders;
 
-		if (!ExtensionState::Get().EnableFormulaOverrides) {
+		if (!ExtensionState::Get().HasFeatureFlag("FormulaOverrides")) {
 			OsiErrorS("Formula overrides not enabled in extension config");
 			return;
 		}

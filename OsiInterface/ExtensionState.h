@@ -3,6 +3,7 @@
 #include "ExtensionHelpers.h"
 #include "Lua/LuaBinding.h"
 #include <random>
+#include <unordered_set>
 
 namespace Json { class Value; }
 
@@ -21,17 +22,16 @@ namespace osidbg
 		int64_t nextHelperId_{ 0 };
 	};
 
+	struct ExtensionModConfig
+	{
+		uint32_t MinimumVersion{ 0 };
+		std::unordered_set<std::string> FeatureFlags;
+	};
+
 	class ExtensionState
 	{
 	public:
-		bool EnableExtensions{ false };
-		bool EnableLua{ false };
-		bool EnableCustomStats{ false };
-		bool EnableCustomStatsPane{ false };
-		bool EnableFormulaOverrides{ false };
-		bool PreprocessStory{ false };
-
-		uint32_t MinimumVersion{ 0 };
+		ExtensionModConfig MergedConfig;
 		Module const * HighestVersionMod{ nullptr };
 
 		DamageHelperPool DamageHelpers;
@@ -42,8 +42,9 @@ namespace osidbg
 
 		void Reset();
 		void LoadConfigs();
-		void LoadConfig(Module const & mod, std::string const & config);
-		void LoadConfig(Module const & mod, Json::Value & config);
+		bool LoadConfig(Module const & mod, std::string const & configText, ExtensionModConfig & config);
+		bool LoadConfig(Module const & mod, Json::Value & configJson, ExtensionModConfig & config);
+		bool HasFeatureFlag(char const * flag) const;
 
 		void OnGameSessionLoading();
 		void OnModuleLoading();
@@ -62,6 +63,8 @@ namespace osidbg
 
 	protected:
 		friend class LuaStatePin;
+		static std::unordered_set<std::string> sAllFeatureFlags;
+
 		std::unique_ptr<LuaState> Lua;
 		unsigned LuaRefs{ 0 };
 		bool LuaPendingDelete{ false };

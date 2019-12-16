@@ -430,7 +430,7 @@ void CustomFunctionManager::PreProcessStory(std::string const & original, std::s
 
 void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 {
-	if (!ExtensionState::Get().PreprocessStory) return;
+	if (!ExtensionState::Get().HasFeatureFlag("Preprocessor")) return;
 
 	std::string original;
 	std::string postProcessed;
@@ -654,7 +654,7 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 void CustomFunctionInjector::OnCloseHandle(HANDLE hFile, BOOL bSucceeded)
 {
 	if (bSucceeded && !extendingStory_ && storyHeaderFile_ != NULL && hFile == storyHeaderFile_) {
-		if (ExtensionState::Get().EnableExtensions) {
+		if (ExtensionState::Get().HasFeatureFlag("OsirisExtensions")) {
 			ExtendStoryHeader(storyHeaderPath_);
 		}
 

@@ -640,7 +640,7 @@ oldDebug = nil
 
 	void ExtensionState::LuaReset(bool startup)
 	{
-		if (!EnableLua) {
+		if (!HasFeatureFlag("Lua")) {
 			OsiWarn("Lua extensions not enabled; not initializing Lua VM");
 			return;
 		}

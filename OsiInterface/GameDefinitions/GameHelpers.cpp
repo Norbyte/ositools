@@ -512,7 +512,7 @@ namespace osidbg
 
 	void CharacterStatsGetters::WrapAll()
 	{
-		if (!ExtensionState::Get().EnableFormulaOverrides) return;
+		if (!ExtensionState::Get().HasFeatureFlag("FormulaOverrides")) return;
 		if (Wrapped) return;
 
 #define DEFN_GETTER(type, name) if (Get##name != nullptr) { \

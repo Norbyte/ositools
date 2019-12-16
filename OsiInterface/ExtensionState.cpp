@@ -7,6 +7,15 @@
 
 namespace osidbg
 {
+	std::unordered_set<std::string> ExtensionState::sAllFeatureFlags = {
+		"OsirisExtensions",
+		"Lua",
+		"CustomStats",
+		"CustomStatsPane",
+		"FormulaOverrides",
+		"Preprocessor"
+	};
+
 	void ExtensionState::Reset()
 	{
 		DamageHelpers.Clear();
@@ -33,41 +42,62 @@ namespace osidbg
 			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(configFile);
 
 			if (reader.IsLoaded()) {
-				LoadConfig(mod, reader.ToString());
-				numConfigs++;
+				ExtensionModConfig config;
+				if (LoadConfig(mod, reader.ToString(), config)) {
+					std::stringstream featureFlags;
+					for (auto const & flag : config.FeatureFlags) {
+						featureFlags << flag << " ";
+					}
+
+					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.GetPtr(),
+						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
+
+					if (config.MinimumVersion != 0) {
+						MergedConfig.MinimumVersion = config.MinimumVersion;
+						HighestVersionMod = &mod;
+					}
+
+					for (auto const & flag : config.FeatureFlags) {
+						MergedConfig.FeatureFlags.insert(flag);
+					}
+
+					numConfigs++;
+				}
 			}
 		}
 
 		if (numConfigs > 0) {
-			INFO("%d mod configuration(s) configuration loaded.", numConfigs);
-			INFO("Extensions=%d, Lua=%d, CustomStats=%d, CustomStatsPane=%d, FormulaOverrides=%d, MinVersion=%d",
-				EnableExtensions, EnableLua, EnableCustomStats, EnableCustomStatsPane,
-				EnableFormulaOverrides, MinimumVersion);
+			INFO("%d mod configuration(s) loaded.", numConfigs);
+			std::stringstream featureFlags;
+			for (auto const & flag : MergedConfig.FeatureFlags) {
+				featureFlags << flag << " ";
+			}
+
+			INFO(L"Merged configuration:\r\n\tMinVersion %d; Feature flags: %s",
+				MergedConfig.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 		}
 
-		if (CurrentVersion < MinimumVersion && HighestVersionMod != nullptr) {
+		if (CurrentVersion < MergedConfig.MinimumVersion && HighestVersionMod != nullptr) {
 			std::wstringstream msg;
 			msg << L"Module \"" << HighestVersionMod->Info.Name.GetPtr() << "\" requires extension version "
-				<< MinimumVersion << "; current version is v" << CurrentVersion;
+				<< MergedConfig.MinimumVersion << "; current version is v" << CurrentVersion;
 			gOsirisProxy->GetLibraryManager().ShowStartupError(msg.str(), false, true);
 		}
 	}
 
-	void ExtensionState::LoadConfig(Module const & mod, std::string const & config)
+	bool ExtensionState::LoadConfig(Module const & mod, std::string const & configText, ExtensionModConfig & config)
 	{
 		Json::CharReaderBuilder factory;
-		auto reader = factory.newCharReader();
+		auto reader = std::unique_ptr<Json::CharReader>(factory.newCharReader());
 
 		Json::Value root;
 		std::string errs;
-		if (!reader->parse(config.c_str(), config.c_str() + config.size(), &root, &errs)) {
+		if (!reader->parse(configText.c_str(), configText.c_str() + configText.size(), &root, &errs)) {
 			OsiError("Unable to parse configuration for mod '" << ToUTF8(mod.Info.Name.GetPtr()) << "': " << errs);
-			return;
+			return false;
 		}
 
-		LoadConfig(mod, root);
-
-		delete reader;
+		return LoadConfig(mod, root, config);
 	}
 
 	std::optional<bool> GetConfigBool(Json::Value & config, std::string const & key)
@@ -100,43 +130,77 @@ namespace osidbg
 		}
 	}
 
-	void ExtensionState::LoadConfig(Module const & mod, Json::Value & config)
+	bool ExtensionState::LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config)
 	{
-		auto extendOsiris = GetConfigBool(config, "ExtendOsiris");
+		bool hasLegacyFeatureFlags = false;
+
+		auto extendOsiris = GetConfigBool(json, "ExtendOsiris");
 		if (extendOsiris && *extendOsiris) {
-			EnableExtensions = true;
+			config.FeatureFlags.insert("OsirisExtensions");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto lua = GetConfigBool(config, "Lua");
+		auto lua = GetConfigBool(json, "Lua");
 		if (lua && *lua) {
-			EnableLua = true;
+			config.FeatureFlags.insert("Lua");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto customStats = GetConfigBool(config, "UseCustomStats");
+		auto customStats = GetConfigBool(json, "UseCustomStats");
 		if (customStats && *customStats) {
-			EnableCustomStats = true;
+			config.FeatureFlags.insert("CustomStats");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto customStatsPane = GetConfigBool(config, "UseCustomStatsPane");
+		auto customStatsPane = GetConfigBool(json, "UseCustomStatsPane");
 		if (customStatsPane && *customStatsPane) {
-			EnableCustomStatsPane = true;
+			config.FeatureFlags.insert("CustomStatsPane");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto formulaOverrides = GetConfigBool(config, "FormulaOverrides");
+		auto formulaOverrides = GetConfigBool(json, "FormulaOverrides");
 		if (formulaOverrides && *formulaOverrides) {
-			EnableFormulaOverrides = true;
+			config.FeatureFlags.insert("FormulaOverrides");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto preprocessStory = GetConfigBool(config, "PreprocessStory");
+		auto preprocessStory = GetConfigBool(json, "PreprocessStory");
 		if (preprocessStory && *preprocessStory) {
-			PreprocessStory = true;
+			config.FeatureFlags.insert("Preprocessor");
+			hasLegacyFeatureFlags = true;
 		}
 
-		auto version = GetConfigInt(config, "RequiredExtensionVersion");
-		if (version && MinimumVersion < (uint32_t)*version) {
-			MinimumVersion = (uint32_t)*version;
-			HighestVersionMod = &mod;
+		auto version = GetConfigInt(json, "RequiredExtensionVersion");
+		if (version) {
+			config.MinimumVersion = (uint32_t)*version;
 		}
+
+		auto featureFlags = json["FeatureFlags"];
+		if (featureFlags.isArray()) {
+			for (auto const & flag : featureFlags) {
+				if (flag.isString()) {
+					auto flagStr = flag.asString();
+					if (sAllFeatureFlags.find(flagStr) != sAllFeatureFlags.end()) {
+						config.FeatureFlags.insert(flagStr);
+					} else {
+						ERR("Feature flag '%s' not supported!", flagStr.c_str());
+					}
+				} else {
+					ERR("Garbage found in FeatureFlags array");
+				}
+			}
+		}
+
+		if (hasLegacyFeatureFlags) {
+			WARN("Deprecated configuration key found (ExtendOsiris, Lua, PreprocessStory, etc.); please use FeatureFlags instead");
+		}
+
+		return true;
+	}
+
+	bool ExtensionState::HasFeatureFlag(char const * flag) const
+	{
+		return MergedConfig.FeatureFlags.find(flag) != MergedConfig.FeatureFlags.end();
 	}
 
 	ExtensionState & ExtensionState::Get()
