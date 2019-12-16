@@ -262,6 +262,7 @@ namespace osidbg
 	int OsiPrintError(lua_State* L);
 	int JsonParse(lua_State * L);
 	int JsonStringify(lua_State * L);
+	int IsModLoaded(lua_State* L);
 	int GetStatEntries(lua_State * L);
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
@@ -282,6 +283,7 @@ namespace osidbg
 			{"PrintError", OsiPrintError},
 			{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},
+			{"IsModLoaded", IsModLoaded},
 			{"GetStatEntries", GetStatEntries},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},

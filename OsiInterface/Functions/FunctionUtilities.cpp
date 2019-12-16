@@ -27,13 +27,13 @@ namespace osidbg
 	FixedString ToFixedString(const char * s)
 	{
 		if (s == nullptr) {
-			OsiErrorS("ToFixedString(): Attempted to look up a null string!");
+			OsiErrorS("Attempted to look up a null string!");
 			return FixedString{};
 		}
 
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			OsiErrorS("ToFixedString(): Global string table not available!");
+			OsiErrorS("Global string table not available!");
 			return FixedString{};
 		}
 
@@ -53,10 +53,10 @@ namespace osidbg
 				createFixedString(&str, s, -1);
 #endif
 				if (!str) {
-					OsiErrorS("MakeFixedString(): Failed to register FixedString in global string table?!");
+					OsiErrorS("Failed to register FixedString in global string table?!");
 				}
 			} else {
-				OsiErrorS("MakeFixedString(): ls::FixedString::Create not available!");
+				OsiErrorS("ls::FixedString::Create not available!");
 			}
 		}
 
@@ -71,7 +71,7 @@ namespace osidbg
 
 		auto nameLen = strlen(nameGuid);
 		if (nameLen < 36) {
-			OsiError("NameGuidToFixedString(): GUID (" << nameGuid << ") too short!");
+			OsiError("GUID (" << nameGuid << ") too short!");
 			return FixedString{};
 		}
 
@@ -79,7 +79,7 @@ namespace osidbg
 
 		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
 		if (stringTable == nullptr) {
-			OsiErrorS("NameGuidToFixedString(): Global string table not available!");
+			OsiErrorS("Global string table not available!");
 			return FixedString{};
 		}
 

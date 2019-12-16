@@ -284,6 +284,24 @@ namespace osidbg
 		return 0;
 	}
 
+	int IsModLoaded(lua_State* L)
+	{
+		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
+		if (modUuid) {
+			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+			for (uint32_t i = 0; i < mods.Size; i++) {
+				auto const & mod = mods.Buf[i];
+				if (mod.Info.ModuleUUID == modUuid) {
+					lua_pushboolean(L, 1);
+					return 1;
+				}
+			}
+		}
+
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
 	int GetStatEntries(lua_State * L)
 	{
 		FixedString statType;
