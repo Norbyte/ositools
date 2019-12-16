@@ -78,12 +78,12 @@ namespace osidbg
 		inline LuaStatePin(ExtensionState & state)
 			: state_(state)
 		{
-			state_.IncLuaRefs();
+			if (state_.Lua) state_.IncLuaRefs();
 		}
 
 		inline ~LuaStatePin()
 		{
-			state_.DecLuaRefs();
+			if (state_.Lua) state_.DecLuaRefs();
 		}
 
 		inline operator bool() const
