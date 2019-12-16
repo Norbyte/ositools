@@ -769,7 +769,7 @@ oldDebug = nil
 		}
 
 		LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
-		OsiWarn("Loaded game script: " << path);
+		OsiMsg("Loaded game script: " << path);
 	}
 
 	void ExtensionState::LuaLoadModScript(std::string const & modNameGuid, std::string const & fileName)

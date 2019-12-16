@@ -192,7 +192,7 @@ namespace osidbg
 		}
 
 		if (hasLegacyFeatureFlags) {
-			WARN("Deprecated configuration key found (ExtendOsiris, Lua, PreprocessStory, etc.); please use FeatureFlags instead");
+			ERR("Deprecated configuration key found (ExtendOsiris, Lua, PreprocessStory, etc.); please use FeatureFlags instead");
 		}
 
 		return true;

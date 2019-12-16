@@ -53,7 +53,7 @@ void OsirisProxy::Initialize()
 			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
 			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
 			Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
-			Wrappers.SkillPrototypeManagerInit.AddPostHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
+			Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 		}
 		else {
 			ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
