@@ -117,6 +117,8 @@ namespace osidbg {
 #endif
 		}
 
+		ls__FixedString__Create CreateFixedString{ nullptr };
+
 		esv::ProjectileHelpers_ShootProjectile ShootProjectile{ nullptr };
 		esv::GameActionManager__CreateAction CreateGameAction{ nullptr };
 		esv::GameActionManager__AddAction AddGameAction{ nullptr };

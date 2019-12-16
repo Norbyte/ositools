@@ -273,6 +273,32 @@ namespace osidbg
 			ERR("LibraryManager::FindGlobalStringTableEoCApp(): Could not find global string table");
 			CriticalInitFailed = true;
 		}
+
+		Pattern p2;
+		p2.FromString(
+			"48 8B F0 " // mov     rsi, rax
+			"48 85 C0 " // test    rax, rax
+			"0F XX XX XX 00 00 " // jz      loc_xxx
+			"83 CA FF " // or      edx, 0FFFFFFFFh
+			"4C 89 74 XX 60 " // mov     [rsp+0DB0h+var_D50], r14
+			"48 8D 0D XX XX XX XX " // lea     rcx, str_Damage ; "Damage"
+			"E8 XX XX XX XX " // call    ls__FixedString__Create
+			"83 CA FF " // or      edx, 0FFFFFFFFh
+		);
+
+		p2.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto damage = (char const *)AsmLeaToAbsoluteAddress(match + 20);
+			if (damage && strcmp(damage, "Damage") == 0) {
+				auto func = AsmCallToAbsoluteAddress(match + 27);
+				CreateFixedString = (ls__FixedString__Create)func;
+			}
+		}, false);
+
+
+		if (CreateFixedString == nullptr) {
+			ERR("LibraryManager::FindGlobalStringTableEoCApp(): Could not find ls::FixedString::Create");
+			CriticalInitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindFileSystemEoCApp()

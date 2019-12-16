@@ -235,25 +235,28 @@ namespace osidbg
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
 		if (typeInfo == nullptr) {
-			WARN("CRPGStatsManager::SetAttributeString(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
+			OsiError("Couldn't fetch type info for " << object->Name << "." << attributeName);
 			return false;
 		}
 
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Updating FixedStrings not supported YET!", object->Name, attributeName);
-		}
-		else if (typeInfo->Values.ItemCount > 0) {
+			auto fs = MakeFixedString(value);
+			if (fs) {
+				auto index = object->IndexedProperties[attributeIndex];
+				ModifierFSSet.Set.Buf[index] = fs;
+			} else {
+				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Value (\"" << value << "\") is not a valid FixedString");
+			}
+		} else if (typeInfo->Values.ItemCount > 0) {
 			auto enumIndex = typeInfo->Values.Find(value);
 			if (enumIndex != nullptr) {
 				object->IndexedProperties[attributeIndex] = *enumIndex;
-			}
-			else {
-				WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Value is not a valid enum label", object->Name, attributeName);
+			} else {
+				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Value (\"" << value << "\") is not a valid enum label");
 				return false;
 			}
-		}
-		else {
-			WARN("CRPGStatsManager::SetAttributeString(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
+		} else {
+			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type");
 			return false;
 		}
 
@@ -265,24 +268,21 @@ namespace osidbg
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
 		if (typeInfo == nullptr) {
-			WARN("CRPGStatsManager::SetAttributeInt(): Couldn't fetch type info for %s.%s", object->Name, attributeName);
+			OsiError("Couldn't fetch type info for " << object->Name << "." << attributeName);
 			return false;
 		}
 
 		if (strcmp(typeInfo->Name.Str, "ConstantInt") == 0) {
 			object->IndexedProperties[attributeIndex] = value;
-		}
-		else if (typeInfo->Values.ItemCount > 0) {
+		} else if (typeInfo->Values.ItemCount > 0) {
 			if (value > 0 && value < (int)typeInfo->Values.ItemCount) {
 				object->IndexedProperties[attributeIndex] = value;
-			}
-			else {
-				WARN("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Enum index out of range", object->Name, attributeName);
+			} else {
+				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Enum index (\"" << value << "\") out of range");
 				return false;
 			}
-		}
-		else {
-			WARN("CRPGStatsManager::SetAttributeInt(): Couldn't set %s.%s: Inappropriate type", object->Name, attributeName);
+		} else {
+			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type");
 			return false;
 		}
 

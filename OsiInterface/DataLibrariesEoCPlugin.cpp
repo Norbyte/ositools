@@ -260,6 +260,14 @@ namespace osidbg
 			ERR("LibraryManager::FindGlobalStringTableCoreLib(): Could not find global string table");
 			CriticalInitFailed = true;
 		}
+
+		auto createFixedStringProc = GetProcAddress(coreLib_, "?Create@FixedString@ls@@SA?AV12@PEBD_J@Z");
+		CreateFixedString = (ls__FixedString__Create)createFixedStringProc;
+
+		if (CreateFixedString == nullptr) {
+			ERR("LibraryManager::FindGlobalStringTableCoreLib(): Could not find ls::FixedString::Create");
+			CriticalInitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindFileSystemCoreLib()

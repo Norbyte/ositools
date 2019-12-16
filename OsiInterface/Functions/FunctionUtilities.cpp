@@ -41,6 +41,28 @@ namespace osidbg
 		return FixedString(str);
 	}
 
+	FixedString MakeFixedString(const char * s)
+	{
+		auto str = ToFixedString(s);
+		if (!str) {
+			auto createFixedString = gOsirisProxy->GetLibraryManager().CreateFixedString;
+			if (createFixedString != nullptr) {
+#if defined(OSI_EOCAPP)
+				str = FixedString(createFixedString(s, -1));
+#else
+				createFixedString(&str, s, -1);
+#endif
+				if (!str) {
+					OsiErrorS("MakeFixedString(): Failed to register FixedString in global string table?!");
+				}
+			} else {
+				OsiErrorS("MakeFixedString(): ls::FixedString::Create not available!");
+			}
+		}
+
+		return str;
+	}
+
 	FixedString NameGuidToFixedString(char const * nameGuid)
 	{
 		if (nameGuid == nullptr) {
