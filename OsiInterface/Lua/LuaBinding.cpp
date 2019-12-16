@@ -144,9 +144,7 @@ namespace osidbg
 		if (character->Stats == nullptr) return luaL_error(L, "Character has no stats!");
 
 		auto prop = luaL_checkstring(L, 2);
-
-		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, character->Stats, prop, true);
-		return fetched ? 1 : 0;
+		return CharacterFetchStat(L, character->Stats, prop);
 	}
 
 	int LuaHandleProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
