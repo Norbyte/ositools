@@ -255,9 +255,9 @@ namespace osidbg
 			uint64_t U13;
 			float U131;
 			uint8_t _Pad63[4];
-			void * CustomDisplayName;
+			STDWString * CustomDisplayName;
 			void * StoryDisplayName;
-			void * OriginalTransformDisplayName;
+			TranslatedString * OriginalTransformDisplayName;
 			uint64_t U14[20];
 			int32_t MaxVitalityPatchCheck;
 			int32_t MaxArmorPatchCheck;

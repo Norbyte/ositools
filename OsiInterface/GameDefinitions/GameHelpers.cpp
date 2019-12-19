@@ -730,19 +730,19 @@ namespace osidbg
 
 
 	EnumInfo<AbilityType>::Label const EnumInfo<AbilityType>::Values[] = {
-		{ AbilityType::None, "None" },
 		{ AbilityType::WarriorLore, "WarriorLore" },
 		{ AbilityType::RangerLore, "RangerLore" },
 		{ AbilityType::RogueLore, "RogueLore" },
 		{ AbilityType::SingleHanded, "SingleHanded" },
 		{ AbilityType::TwoHanded, "TwoHanded" },
-		{ AbilityType::Reflection, "Reflection" },
+		{ AbilityType::PainReflection, "PainReflection" },
 		{ AbilityType::Ranged, "Ranged" },
 		{ AbilityType::Shield, "Shield" },
 		{ AbilityType::Reflexes, "Reflexes" },
 		{ AbilityType::PhysicalArmorMastery, "PhysicalArmorMastery" },
+		{ AbilityType::MagicArmorMastery, "MagicArmorMastery" },
+		{ AbilityType::VitalityMastery, "VitalityMastery" },
 		{ AbilityType::Sourcery, "Sourcery" },
-		{ AbilityType::Telekinesis, "Telekinesis" },
 		{ AbilityType::FireSpecialist, "FireSpecialist" },
 		{ AbilityType::WaterSpecialist, "WaterSpecialist" },
 		{ AbilityType::AirSpecialist, "AirSpecialist" },
@@ -750,6 +750,7 @@ namespace osidbg
 		{ AbilityType::Necromancy, "Necromancy" },
 		{ AbilityType::Summoning, "Summoning" },
 		{ AbilityType::Polymorph, "Polymorph" },
+		{ AbilityType::Telekinesis, "Telekinesis" },
 		{ AbilityType::Repair, "Repair" },
 		{ AbilityType::Sneaking, "Sneaking" },
 		{ AbilityType::Pickpocket, "Pickpocket" },
@@ -765,11 +766,10 @@ namespace osidbg
 		{ AbilityType::Luck, "Luck" },
 		{ AbilityType::DualWielding, "DualWielding" },
 		{ AbilityType::Wand, "Wand" },
-		{ AbilityType::MagicArmorMastery, "MagicArmorMastery" },
-		{ AbilityType::VitalityMastery, "VitalityMastery" },
 		{ AbilityType::Perseverance, "Perseverance" },
 		{ AbilityType::Runecrafting, "Runecrafting" },
-		{ AbilityType::Brewmaster, "Brewmaster" }
+		{ AbilityType::Brewmaster, "Brewmaster" },
+		{ AbilityType::Sulfurology, "Sulfurology" }
 	};
 
 

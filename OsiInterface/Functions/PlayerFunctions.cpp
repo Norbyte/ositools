@@ -294,7 +294,7 @@ namespace osidbg
 				return;
 			}
 
-			character->PlayerUpgrade.Abilities.Set.Buf[(uint32_t)*ability - 1] = abilityValue;
+			character->PlayerUpgrade.Abilities.Set.Buf[(uint32_t)*ability] = abilityValue;
 			character->PlayerUpgrade.IsCustom = true;
 		}
 
