@@ -920,6 +920,42 @@ namespace osidbg
 		{ StatusHealType::SHT_Source, "Source" }
 	};
 
+	EnumInfo<EsvCharacterFlags>::Label const EnumInfo<EsvCharacterFlags>::Values[] = {
+		{ EsvCharacterFlags::CF_IsPlayer_M, "IsPlayer" },
+		{ EsvCharacterFlags::CF_IsPlayer2_M, "IsPlayer2" },
+		{ EsvCharacterFlags::CF_HostControl, "HostControl" },
+		{ EsvCharacterFlags::CF_OffStage, "OffStage" },
+		{ EsvCharacterFlags::CF_Dead, "Dead" },
+		{ EsvCharacterFlags::CF_Charmed, "Charmed" },
+		{ EsvCharacterFlags::CF_InDialog, "InDialog" },
+		{ EsvCharacterFlags::CF_Summon, "Summon" },
+		{ EsvCharacterFlags::CF_CharacterControl, "CharacterControl" },
+		{ EsvCharacterFlags::CF_Transformed_M, "Transformed" },
+		{ EsvCharacterFlags::CF_InArena, "InArena" },
+		{ EsvCharacterFlags::CF_Summon2, "Summon2" },
+		{ EsvCharacterFlags::CF_PartyFollower, "PartyFollower" },
+		{ EsvCharacterFlags::CF_Totem, "Totem" }
+	};
+
+	EnumInfo<EsvCharacterFlags2>::Label const EnumInfo<EsvCharacterFlags2>::Values[] = {
+		{ EsvCharacterFlags2::CF_Global, "Global" },
+		{ EsvCharacterFlags2::CF_HasOsirisDialog, "HasOsirisDialog" },
+		{ EsvCharacterFlags2::CF_HasDefaultDialog, "HasDefaultDialog" },
+		{ EsvCharacterFlags2::CF_TreasureGeneratedForTrader, "TreasureGeneratedForTrader" },
+		{ EsvCharacterFlags2::CF_Trader, "Trader" },
+		{ EsvCharacterFlags2::CF_Resurrected, "Resurrected" }
+	};
+
+	EnumInfo<EsvCharacterFlags3>::Label const EnumInfo<EsvCharacterFlags3>::Values[] = {
+		{ EsvCharacterFlags3::CF_IsPet, "IsPet" },
+		{ EsvCharacterFlags3::CF_IsSpectating, "IsSpectating" },
+		{ EsvCharacterFlags3::CF_NoReptuationEffects, "NoReptuationEffects" },
+		{ EsvCharacterFlags3::CF_HasWalkSpeedOverride, "HasWalkSpeedOverride" },
+		{ EsvCharacterFlags3::CF_HasRunSpeedOverride, "HasRunSpeedOverride" },
+		{ EsvCharacterFlags3::CF_IsGameMaster, "IsGameMaster" },
+		{ EsvCharacterFlags3::CF_IsPossessed, "IsPossessed" }
+	};
+
 	EnumInfo<StatAttributeFlags>::Label const EnumInfo<StatAttributeFlags>::Values[] = { 
 		{ StatAttributeFlags::AF_FreezeImmunity, "FreezeImmunity" },
 		{ StatAttributeFlags::AF_BurnImmunity, "BurnImmunity" },

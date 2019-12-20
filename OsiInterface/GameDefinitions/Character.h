@@ -161,8 +161,7 @@ namespace osidbg
 			bool Dirty;
 			uint8_t _Pad4[2];
 			uint32_t Renown;
-			uint8_t CachedTension;
-			uint8_t _Pad5[3];
+			uint32_t CachedTension;
 			ObjectHandle SomeObjectHandle3;
 			uint8_t HomesteadKeyState;
 			uint8_t _Pad6[7];
@@ -182,8 +181,8 @@ namespace osidbg
 			void * CurrentTemplate;
 			void * OriginalTemplate;
 			void * TemplateUsedForSkills;
-			EsvCharacterFlags2 Flags2;
-			EsvCharacterFlags3 Flags3;
+			uint8_t Flags2;
+			uint8_t Flags3;
 			uint8_t FlagsEx;
 			uint8_t Team;
 			uint8_t Color;

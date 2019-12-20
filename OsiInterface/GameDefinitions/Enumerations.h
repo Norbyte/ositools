@@ -528,12 +528,27 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(StatusHealType, 7);
 
+	// Persistent flags: 0x2414170022110
+	// AI flags: 0x4000070000060
 	enum EsvCharacterFlags : uint64_t
 	{
+		CF_IsPlayer_M = 0x01, // ???
+		CF_IsPlayer2_M = 0x02, // ???
 		CF_HostControl = 0x08,
 		CF_OffStage = 0x20,
-		CF_CannotBePossessed = 0x80
+		CF_Dead = 0x40,
+		CF_Charmed = 0x80,
+		CF_InDialog = 0x100, // ???
+		CF_Summon = 0x200,
+		CF_CharacterControl = 0x2000, // ???
+		CF_Transformed_M = 0x4000, // ???
+		CF_InArena = 0x10000,
+		CF_Summon2 = 0x2000000,
+		CF_PartyFollower = 0x400000000,
+		CF_Totem = 0x2000000000
 	};
+
+	MAKE_ENUM_INFO(EsvCharacterFlags, 14);
 
 	enum EsvCharacterFlags2 : uint8_t
 	{
@@ -541,8 +556,11 @@ namespace osidbg
 		CF_HasOsirisDialog = 0x02,
 		CF_HasDefaultDialog = 0x04,
 		CF_TreasureGeneratedForTrader = 0x10,
-		CF_Resurrected = 0x20
+		CF_Trader = 0x20,
+		CF_Resurrected = 0x40
 	};
+
+	MAKE_ENUM_INFO(EsvCharacterFlags2, 6);
 
 	enum EsvCharacterFlags3 : uint8_t
 	{
@@ -554,6 +572,8 @@ namespace osidbg
 		CF_IsGameMaster = 0x20,
 		CF_IsPossessed = 0x40
 	};
+
+	MAKE_ENUM_INFO(EsvCharacterFlags3, 7);
 
 	enum class GameActionType
 	{

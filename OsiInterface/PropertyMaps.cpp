@@ -378,7 +378,10 @@ namespace osidbg
 			PROP_RO(esv::Character, MyGuid);
 			PROP_RO(esv::Character, WorldPos);
 			PROP_RO(esv::Character, CurrentLevel);
+			PROP_FLAGS(esv::Character, Flags, EsvCharacterFlags, false);
 			// Character
+			PROP_FLAGS(esv::Character, Flags2, EsvCharacterFlags2, false);
+			PROP_FLAGS(esv::Character, Flags3, EsvCharacterFlags3, false);
 			PROP_RO(esv::Character, Scale);
 			PROP_RO(esv::Character, AnimationOverride);
 			PROP_RO(esv::Character, WalkSpeedOverride);

@@ -104,7 +104,6 @@ namespace osidbg
 
 		auto prop = luaL_checkstring(L, 2);
 		return CharacterFetchStat(L, obj_, prop);
-		return 0;
 	}
 
 	int LuaObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
