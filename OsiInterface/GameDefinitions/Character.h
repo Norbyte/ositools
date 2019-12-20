@@ -192,8 +192,8 @@ namespace osidbg
 			float U42[3];
 			void * AI;
 			FixedString AnimationOverride;
-			uint32_t WalkSpeedOverride;
-			uint32_t RunSpeedOverride;
+			int32_t WalkSpeedOverride;
+			int32_t RunSpeedOverride;
 			ObjectSet<FixedString> VoiceSet;
 			uint8_t NeedsUpdateCount;
 			uint8_t ScriptForceUpdateCount;

@@ -437,7 +437,7 @@ namespace osidbg
 	bool OsirisPropertyMapGetRaw(PropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
-		auto propertyName = args.Get(firstArg).String;
+		auto propertyName = args[firstArg].String;
 
 		if (obj == nullptr) {
 			OsiError("Attempted to get property '" << propertyName << "' of null object!");
@@ -449,11 +449,11 @@ namespace osidbg
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, false);
 			if (val) {
-				args.Get(firstArg + 1).Int32 = (int32_t)*val;
+				args[firstArg + 1].Int32 = (int32_t)*val;
 			} else {
 				auto boolval = propertyMap.getFlag(obj, propertyName, false, throwError);
 				if (boolval) {
-					args.Get(firstArg + 1).Int32 = *boolval ? 1 : 0;
+					args[firstArg + 1].Int32 = *boolval ? 1 : 0;
 				} else {
 					return false;
 				}
@@ -469,7 +469,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(firstArg + 1).Int64 = (int64_t)*val;
+			args[firstArg + 1].Int64 = (int64_t)*val;
 			return true;
 		}
 
@@ -480,7 +480,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(firstArg + 1).Float = *val;
+			args[firstArg + 1].Float = *val;
 			return true;
 		}
 
@@ -491,7 +491,7 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(firstArg + 1).String = *val;
+			args[firstArg + 1].String = *val;
 			return true;
 		}
 
@@ -503,13 +503,13 @@ namespace osidbg
 			}
 
 			if (!*val) {
-				args.Get(firstArg + 1).String = ToFixedString("NULL_00000000-0000-0000-0000-000000000000").Str;
+				args[firstArg + 1].String = ToFixedString("NULL_00000000-0000-0000-0000-000000000000").Str;
 				return true;
 			}
 
 			auto gameObject = FindGameObjectByHandle(*val);
 			if (gameObject != nullptr) {
-				args.Get(firstArg + 1).String = gameObject->GetGuid()->Str;
+				args[firstArg + 1].String = gameObject->GetGuid()->Str;
 				return true;
 			}
 
@@ -524,9 +524,9 @@ namespace osidbg
 				return false;
 			}
 
-			args.Get(firstArg + 1).Float = val->x;
-			args.Get(firstArg + 2).Float = val->y;
-			args.Get(firstArg + 3).Float = val->z;
+			args[firstArg + 1].Float = val->x;
+			args[firstArg + 2].Float = val->y;
+			args[firstArg + 3].Float = val->z;
 			return true;
 		}
 
@@ -540,7 +540,7 @@ namespace osidbg
 	bool OsirisPropertyMapSetRaw(PropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
-		auto propertyName = args.Get(firstArg).String;
+		auto propertyName = args[firstArg].String;
 		if (obj == nullptr) {
 			OsiError("Attempted to set property '" << propertyName << "' of null object!");
 			return false;
@@ -549,7 +549,7 @@ namespace osidbg
 		switch (type) {
 		case OsiPropertyMapType::Integer:
 		{
-			auto val = args.Get(firstArg + 1).Int32;
+			auto val = args[firstArg + 1].Int32;
 
 			if (!propertyMap.setFlag(obj, propertyName, val != 0, false, false)) {
 				return propertyMap.setInt(obj, propertyName, val, false, throwError);
@@ -560,25 +560,25 @@ namespace osidbg
 
 		case OsiPropertyMapType::Integer64:
 		{
-			auto val = args.Get(firstArg + 1).Int64;
+			auto val = args[firstArg + 1].Int64;
 			return propertyMap.setInt(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::Real:
 		{
-			auto val = args.Get(firstArg + 1).Float;
+			auto val = args[firstArg + 1].Float;
 			return propertyMap.setFloat(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::String:
 		{
-			auto val = args.Get(firstArg + 1).String;
+			auto val = args[firstArg + 1].String;
 			return propertyMap.setString(obj, propertyName, val, false, throwError);
 		}
 
 		case OsiPropertyMapType::GuidStringHandle:
 		{
-			auto guid = args.Get(firstArg + 1).String;
+			auto guid = args[firstArg + 1].String;
 			if (guid == nullptr
 				|| !strlen(guid)
 				|| NameGuidToFixedString(guid) == ToFixedString("00000000-0000-0000-0000-000000000000")) {
@@ -598,9 +598,9 @@ namespace osidbg
 
 		case OsiPropertyMapType::Vector3:
 		{
-			auto x = args.Get(firstArg + 1).Float;
-			auto y = args.Get(firstArg + 2).Float;
-			auto z = args.Get(firstArg + 3).Float;
+			auto x = args[firstArg + 1].Float;
+			auto y = args[firstArg + 2].Float;
+			auto z = args[firstArg + 3].Float;
 			Vector3 vec(x, y, z);
 			return propertyMap.setVector3(obj, propertyName, vec, false, throwError);
 		}

@@ -368,9 +368,8 @@ Returns the amount of damage dealt by the `HIT` status.
 |--|--|--|--|
 | StatusId | String | Read | Name of the associated stat entry |
 | StatusHandle | Integer64 | Read | Handle of this status |
-| TargetHandle | Integer64 | Read | Character or item that the status was applied to |
-| StatusSource | GuidString | Read | Character or item that caused the status |
-| StatusSourceHandle | Integer64 | Read | Character or item that caused the status |
+| TargetHandle | Handle/GuidString | Read | Character or item that the status was applied to |
+| StatusSourceHandle | Handle/GuidString | Read | Character or item that caused the status |
 | StartTimer | Real | Read |  |
 | LifeTime | Real | Read/Write | Total lifetime of the status, in seconds. -1 if the status does not expire. |
 | CurrentLifeTime | Real | Read/Write | Remaining lifetime of the status, in seconds. |
@@ -705,6 +704,59 @@ Updates the total lifetime of the specified game action.
 
 Transforms `_Character` into a global/local entity.
 The side effects of making a character global/local has not been studied, so this function is **EXPERIMENTAL** and potentially dangerous.
+
+
+### CharacterGet
+```
+query NRD_CharacterGetInt([in](CHARACTERGUID)_Character, [in](STRING)_Attribute, [out](INTEGER)_Value)
+query NRD_CharacterGetReal([in](CHARACTERGUID)_Character, [in](STRING)_Attribute, [out](REAL)_Value)
+query NRD_CharacterGetString([in](CHARACTERGUID)_Character, [in](STRING)_Attribute, [out](STRING)_Value)
+```
+
+Returns an attribute of the specified character. `_Attribute` must be one of the following:
+
+| Attribute | Type | Access |
+|--|--|--|
+| Scale | Real | Read |
+| AnimationOverride | String | Read |
+| WalkSpeedOverride | Integer | Read |
+| RunSpeedOverride | Integer | Read |
+| NeedsUpdateCount | Integer | Read |
+| ScriptForceUpdateCount | Integer | Read |
+| ForceSynchCount | Integer | Read |
+| SkillBeingPrepared | String | Read |
+| LifeTime | Real | Read |
+| PartialAP | String | Read |
+| AnimType | Integer | Read |
+| DelayDeathCount | Integer | Read |
+| AnimationSetOverride | String | Read |
+| CustomTradeTreasure | String | Read |
+| Archetype | String | Read |
+| EquipmentColor | String | Read |
+| IsPlayer | Flag | Read |
+| HostControl | Flag | Read |
+| OffStage | Flag | Read |
+| Dead | Flag | Read |
+| Charmed | Flag | Read |
+| InDialog | Flag | Read |
+| CharacterControl | Flag | Read |
+| Transformed | Flag | Read |
+| InArena | Flag | Read |
+| PartyFollower | Flag | Read |
+| Totem | Flag | Read |
+| Global | Flag | Read |
+| HasOsirisDialog | Flag | Read |
+| HasDefaultDialog | Flag | Read |
+| TreasureGeneratedForTrader | Flag | Read |
+| Trader | Flag | Read |
+| Resurrected | Flag | Read |
+| IsPet | Flag | Read |
+| IsSpectating | Flag | Read |
+| NoReptuationEffects | Flag | Read |
+| HasWalkSpeedOverride | Flag | Read |
+| HasRunSpeedOverride | Flag | Read |
+| IsGameMaster | Flag | Read |
+| IsPossessed| Flag | Read |
 
 
 ## Stats

@@ -177,6 +177,17 @@ namespace osidbg
 
 			character->SetGlobal(global);
 		}
+
+		template <OsiPropertyMapType Type>
+		bool CharacterGet(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) return false;
+
+			return OsirisPropertyMapGet(gCharacterPropertyMap, character, args, 1, Type);
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -286,6 +297,39 @@ namespace osidbg
 			&func::CharacterSetGlobal
 		);
 		functionMgr.Register(std::move(characterSetGlobal));
+
+		auto characterGetInt = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGet<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(characterGetInt));
+
+		auto characterGetReal = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetReal",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGet<OsiPropertyMapType::Real>
+		);
+		functionMgr.Register(std::move(characterGetReal));
+		
+		auto characterGetString = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGet<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(characterGetString));
 	}
 
 }
