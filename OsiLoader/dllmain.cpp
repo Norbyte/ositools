@@ -45,9 +45,18 @@ public:
 			return;
 		}
 
+		// Make sure that we can load dependencies from the extension directory
+		// (protobuf, etc.)
+		SetDllDirectoryW(extensionPath_.c_str());
+
 		HMODULE handle = LoadLibraryW(dllPath_.c_str());
 		if (handle == NULL) {
-			gErrorUtils->ShowError(L"Osiris Extender initialization failed:<br>\r\nUnable to load extender DLL.");
+			auto errc = GetLastError();
+			std::wstring errmsg = L"Osiris Extender initialization failed:<br>\r\n"
+				"Unable to load extender DLL.<br>\r\n"
+				"Error code: ";
+			errmsg += std::to_wstring(errc);
+			gErrorUtils->ShowError(errmsg.c_str());
 		}
 	}
 
