@@ -572,7 +572,7 @@ end
 	void LuaState::OnGameSessionLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll & ~RestrictSessionLoad);
+		LuaRestriction restriction(*this, RestrictAll | ScopeSessionLoad);
 
 		identityAdapters_.UpdateAdapters();
 
@@ -590,7 +590,7 @@ end
 	void LuaState::OnModuleLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll & ~RestrictModuleLoad);
+		LuaRestriction restriction(*this, RestrictAll | ScopeModuleLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext

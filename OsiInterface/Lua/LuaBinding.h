@@ -385,16 +385,18 @@ namespace osidbg
 		{
 			// Disable Osiris calls
 			RestrictOsiris = 1 << 0,
-			// Disable calls only available during module load state
-			RestrictModuleLoad = 1 << 1,
-			// Disable calls only available during session load state
-			RestrictSessionLoad = 1 << 2,
 			// Disable handle/guid to object conversion functions (Lua only)
-			RestrictHandleConversion = 1 << 3,
-			RestrictAll = 0xf
+			RestrictHandleConversion = 1 << 1,
+
+			// Permit calls only available during module load state
+			ScopeModuleLoad = 1 << 16,
+			// Permit calls only available during session load state
+			ScopeSessionLoad = 1 << 17,
+
+			RestrictAll = 0x0000ffff
 		};
 
-		uint32_t RestrictionFlags{ RestrictModuleLoad | RestrictSessionLoad };
+		uint32_t RestrictionFlags{ 0 };
 
 		LuaState();
 		~LuaState();

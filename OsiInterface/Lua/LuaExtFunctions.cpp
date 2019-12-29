@@ -235,7 +235,7 @@ namespace osidbg
 	int EnableStatOverride(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictSessionLoad) {
+		if (!(lua->RestrictionFlags & LuaState::ScopeSessionLoad)) {
 			return luaL_error(L, "EnableStatOverride() can only be called during session load");
 		}
 
@@ -378,7 +378,7 @@ namespace osidbg
 	int StatSetAttribute(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictModuleLoad) {
+		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
 			return luaL_error(L, "StatSetAttribute() can only be called during module load");
 		}
 
