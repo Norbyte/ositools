@@ -269,6 +269,8 @@ namespace osidbg
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
 	int GetStatus(lua_State * L);
+	int OsirisIsCallable(lua_State * L);
+	int LuaRandom(lua_State * L);
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
 	{
@@ -290,6 +292,8 @@ namespace osidbg
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
+			{"OsirisIsCallable", OsirisIsCallable},
+			{"Random", LuaRandom},
 			{0,0}
 		};
 
@@ -399,6 +403,13 @@ debug = {
 	traceback = oldDebug.traceback
 }
 oldDebug = nil
+
+-- math.random replaced by custom implementation
+math.random = Ext.Random
+-- math.randomseed not implemented
+math.randomseed = function ()
+	error("math.randomseed() not implemented")
+end
 )";
 		LoadScript(sandbox, "sandbox");
 	}

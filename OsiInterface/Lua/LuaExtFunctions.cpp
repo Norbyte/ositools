@@ -516,4 +516,47 @@ namespace osidbg
 			return 0;
 		}
 	}
+
+	int OsirisIsCallable(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		bool allowed = (lua->RestrictionFlags & LuaState::RestrictOsiris) != 0;
+		lua_pushboolean(L, allowed);
+		return 1;
+	}
+
+	// Variation of Lua builtin math_random() with custom RNG
+	int LuaRandom(lua_State *L)
+	{
+		auto & state = ExtensionState::Get();
+
+		lua_Integer low, up;
+		switch (lua_gettop(L)) {  /* check number of arguments */
+		case 0: {  /* no arguments */
+			std::uniform_real_distribution<double> dist(0.0, 1.0);
+			lua_pushnumber(L, (lua_Number)dist(state.OsiRng));  /* Number between 0 and 1 */
+			return 1;
+		}
+		case 1: {  /* only upper limit */
+			low = 1;
+			up = luaL_checkinteger(L, 1);
+			break;
+		}
+		case 2: {  /* lower and upper limits */
+			low = luaL_checkinteger(L, 1);
+			up = luaL_checkinteger(L, 2);
+			break;
+		}
+		default: return luaL_error(L, "wrong number of arguments");
+		}
+		/* random integer in the interval [low, up] */
+		luaL_argcheck(L, low <= up, 1, "interval is empty");
+		luaL_argcheck(L, low >= 0 || up <= LUA_MAXINTEGER + low, 1,
+			"interval too large");
+
+		std::uniform_int_distribution<int64_t> dist(low, up);
+		lua_pushnumber(L, (lua_Integer)dist(state.OsiRng));
+		return 1;
+	}
+
 }
