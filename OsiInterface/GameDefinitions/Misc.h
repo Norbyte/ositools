@@ -29,9 +29,9 @@ namespace osidbg
 	struct ShootProjectileHelper
 	{
 		FixedString SkillId;
-		ObjectHandle SourceCharacter;
+		ObjectHandle Caster;
+		ObjectHandle Source;
 		ObjectHandle Target;
-		ObjectHandle Target2;
 		glm::vec3 StartPosition;
 		glm::vec3 EndPosition;
 		uint8_t Random;
@@ -68,7 +68,7 @@ namespace osidbg
 		bool MapToAiGrid;
 	};
 
-	typedef void(*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper, float Unknown);
+	typedef void * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 
 	}

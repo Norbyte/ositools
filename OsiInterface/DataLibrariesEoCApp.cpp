@@ -514,6 +514,25 @@ namespace osidbg
 			ERR("LibraryManager::FindGameActionManagerEoCApp(): Could not find esv::LevelManager");
 			InitFailed = true;
 		}
+
+
+		Pattern p7;
+		p7.FromString(
+			"C6 45 AE 01 " // mov     [rbp+50h+var_A2], 1
+			"F6 80 08 02 00 00 0C " // test    byte ptr [rax+208h], 0Ch
+			"0F 95 45 AD " // setnz   [rbp+50h+var_A3]
+			"E8 XX XX XX XX " // call    esv__ProjectileHelpers__ShootProjectile
+		);
+
+		p7.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto fn = AsmCallToAbsoluteAddress(match + 15);
+			ShootProjectile = (esv::ProjectileHelpers_ShootProjectile)fn;
+		}, false);
+
+		if (ShootProjectile == nullptr) {
+			ERR("LibraryManager::FindGameActionManagerEoCApp(): Could not find esv::ProjectileHelpers::ShootProjectile");
+			InitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindGameActionsEoCApp()

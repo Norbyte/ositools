@@ -331,16 +331,14 @@ namespace osidbg
 			Helper.EndPosition = position;
 			HasEndPosition = true;
 		}
+		else if (strcmp(prop, "Caster") == 0) {
+			Helper.Caster = handle;
+		}
 		else if (strcmp(prop, "Source") == 0) {
-			if (obj != nullptr) {
-				Helper.SourceCharacter = handle;
-			}
+			Helper.Source = handle;
 		}
 		else if (strcmp(prop, "Target") == 0) {
 			Helper.Target = handle;
-		}
-		else if (strcmp(prop, "Target2") == 0) {
-			Helper.Target2 = handle;
 		}
 		else {
 			OsiError("Unknown object property '" << prop << "'");
@@ -404,7 +402,7 @@ namespace osidbg
 			return false;
 		}
 
-		shoot(&Helper, Helper.StatusClearChance);
+		shoot(&Helper);
 		return true;
 	}
 }

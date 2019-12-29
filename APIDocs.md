@@ -609,16 +609,16 @@ Function signatures are final. Projectile parameters that are not documented are
 | UnknownFlag2 | Flag |  |
 | SourcePosition | Vector3 | Launch projectile from the specified position |
 | SourcePosition | GuidString | Launch projectile from the position of the specified character/item |
-| TargetPosition | Vector3 | Launch projectile towards the specified position|
+| TargetPosition | Vector3 | Launch projectile towards the specified position |
 | TargetPosition | GuidString | Launch projectile towards the position of the specified character/item |
-| Source | GuidString | Caster character |
-| Target | GuidString | Target character |
-| Target2 | GuidString | *Unknown; name subject to change* |
+| Caster | GuidString | Caster character/item |
+| Source | GuidString | Source character/item |
+| Target | GuidString | Target character/item |
 
 **Notes:**
  - For a successful cast, at least `SkillId`, `SourcePosition` and `TargetPosition` (either Vector3 or GuidString) must be set.
  - Calling `ProjectileSetGuidString` with `SourcePosition` or `TargetPosition` is a shortcut for calling `GetPosition()` and `NRD_ProjectileSetVector3()` for the specified character/item.
- - The character/item specified when setting `SourcePosition` is not considered to be the caster of the skill, and the cast will trigger no adverse reaction towards the caster. To set the caster character, set the `Source` property as well.
+ - The character/item specified when setting `SourcePosition` is not considered to be the caster of the skill, and the cast will trigger no adverse reaction towards the caster. To set the caster character, set the `Caster` property as well.
  - Make sure that you call `NRD_ProjectilePrepareLaunch` and `NRD_ProjectileLaunch` in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the projectile.
 
 **Example:**
@@ -713,7 +713,8 @@ query NRD_CharacterGetReal([in](CHARACTERGUID)_Character, [in](STRING)_Attribute
 query NRD_CharacterGetString([in](CHARACTERGUID)_Character, [in](STRING)_Attribute, [out](STRING)_Value)
 ```
 
-Returns an attribute of the specified character. `_Attribute` must be one of the following:
+Returns an attribute of the specified character. If `_Character` is not a valid character or the specified attribute does not exist, the query fails.
+`_Attribute` must be one of the following:
 
 | Attribute | Type | Access |
 |--|--|--|

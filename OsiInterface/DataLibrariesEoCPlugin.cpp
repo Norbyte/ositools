@@ -182,9 +182,6 @@ namespace osidbg
 		EsvCharacterFactory = (CharacterFactory **)serverGlobals_[(unsigned)EsvGlobalEoCPlugin::EsvCharacterFactory];
 		EsvItemFactory = (ItemFactory **)serverGlobals_[(unsigned)EsvGlobalEoCPlugin::EsvItemFactory];
 
-		// FIXME - HACK
-		ShootProjectile = (esv::ProjectileHelpers_ShootProjectile)((uint8_t const *)moduleStart_ + 0xC13440 + 0x1000);
-
 		if (EsvCharacterFactory == nullptr || EsvItemFactory == nullptr) {
 			CriticalInitFailed = true;
 		}
@@ -508,6 +505,27 @@ namespace osidbg
 
 		if (SummonHelpersSummon == nullptr) {
 			ERR("LibraryManager::FindGameActionsEoCPlugin(): Could not find SummonHelpers::Summon");
+			InitFailed = true;
+		}
+
+
+		Pattern p7;
+		p7.FromString(
+			"48 89 44 24 28 " // mov     [rsp+0F8h+aPosition], rax
+			"4C 89 44 24 20 " // mov     [rsp+0F8h+a5], r8
+			"E8 XX XX XX XX " // call    ShootProjectileHelperStruct__ctor
+			"48 8D 4C 24 70 " // lea     rcx, [rsp+0F8h+shootProjectile]
+			"89 BC 24 B8 00 00 00 " // mov     [rsp+0F8h+shootProjectile.CasterLevel], edi
+			"E8 XX XX XX XX " // call    esv__ProjectileHelpers__ShootProjectile
+		);
+
+		p7.Scan(moduleStart_, moduleSize_, [this](const uint8_t * match) {
+			auto fn = AsmCallToAbsoluteAddress(match + 27);
+			ShootProjectile = (esv::ProjectileHelpers_ShootProjectile)fn;
+		}, false);
+
+		if (ShootProjectile == nullptr) {
+			ERR("LibraryManager::FindGameActionsEoCPlugin(): Could not find esv::ProjectileHelpers::ShootProjectile");
 			InitFailed = true;
 		}
 	}
