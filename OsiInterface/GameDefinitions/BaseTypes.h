@@ -241,6 +241,38 @@ namespace osidbg
 	struct Set : public CompactSet<T>
 	{
 		uint64_t CapacityIncrementSize{ 0 };
+
+		uint32_t CapacityIncrement() const
+		{
+			if (CapacityIncrementSize != 0) {
+				return Capacity + (uint32_t)CapacityIncrementSize;
+			} else if (Capacity > 0) {
+				return 2 * Capacity;
+			} else {
+				return 1;
+			}
+		}
+
+		void Reallocate(uint32_t newCapacity)
+		{
+			auto newBuf = GameAlloc<T>(newCapacity);
+			for (uint32_t i = 0; i < Size; i++) {
+				newBuf[i] = Buf[i];
+			}
+
+			GameFree(Buf);
+			Buf = newBuf;
+			Capacity = newCapacity;
+		}
+
+		void Add(T const & value)
+		{
+			if (Capacity < Size) {
+				Reallocate(CapacityIncrement());
+			}
+
+			Buf[Size++] = value;
+		}
 	};
 
 	template <class T>

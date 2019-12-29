@@ -499,6 +499,7 @@ namespace osidbg
 		bool ObjectExists(FixedString statsId, FixedString type);
 
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
+		int GetOrCreateFixedString(const char * value);
 	};
 #pragma pack(pop)
 

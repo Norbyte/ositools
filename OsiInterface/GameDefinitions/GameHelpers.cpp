@@ -209,6 +209,22 @@ namespace osidbg
 		}
 	}
 
+	int CRPGStatsManager::GetOrCreateFixedString(const char * value)
+	{
+		auto fs = MakeFixedString(value);
+		if (!fs) return -1;
+
+		auto & strings = ModifierFSSet.Set;
+		for (uint32_t i = 0; i < strings.Size; i++) {
+			if (strings.Buf[i] == fs) {
+				return i;
+			}
+		}
+
+		strings.Add(fs);
+		return strings.Size - 1;
+	}
+
 	bool CRPGStatsManager::SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value)
 	{
 		int attributeIndex;
@@ -219,12 +235,11 @@ namespace osidbg
 		}
 
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			auto fs = MakeFixedString(value);
-			if (fs) {
-				auto index = object->IndexedProperties[attributeIndex];
-				ModifierFSSet.Set.Buf[index] = fs;
+			auto fs = GetOrCreateFixedString(value);
+			if (fs != -1) {
+				object->IndexedProperties[attributeIndex] = fs;
 			} else {
-				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Value (\"" << value << "\") is not a valid FixedString");
+				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Unable to allocate pooled string");
 			}
 		} else if (typeInfo->Values.ItemCount > 0) {
 			auto enumIndex = typeInfo->Values.Find(value);
