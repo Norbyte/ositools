@@ -532,7 +532,7 @@ namespace osidbg
 
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamageDone });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamage });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
 		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);

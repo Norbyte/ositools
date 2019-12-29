@@ -638,12 +638,36 @@ namespace osidbg
 	}
 
 
-	void DamagePairList::AddDamage(DamageType DamageType, int32_t Amount)
+	void HitDamageInfo::ClearDamage()
+	{
+		TotalDamage = 0;
+		DamageList.Clear();
+	}
+
+	void HitDamageInfo::ClearDamage(osidbg::DamageType damageType)
+	{
+		for (uint32_t i = 0; i < DamageList.Size; i++) {
+			if (DamageList.Buf[i].DamageType == damageType) {
+				TotalDamage -= DamageList.Buf[i].Amount;
+				DamageList.Remove(i);
+				break;
+			}
+		}
+	}
+
+	void HitDamageInfo::AddDamage(osidbg::DamageType damageType, int32_t amount)
+	{
+		TotalDamage += amount;
+		DamageList.AddDamage(damageType, amount);
+	}
+
+
+	void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 	{
 		bool added{ false };
 		for (uint32_t i = 0; i < Size; i++) {
-			if (Buf[i].DamageType == DamageType) {
-				auto newAmount = Buf[i].Amount + Amount;
+			if (Buf[i].DamageType == damageType) {
+				auto newAmount = Buf[i].Amount + amount;
 				if (newAmount == 0) {
 					Remove(i);
 				} else {
@@ -655,10 +679,10 @@ namespace osidbg
 			}
 		}
 
-		if (!added && Amount != 0) {
+		if (!added && amount != 0) {
 			TDamagePair dmg;
-			dmg.DamageType = DamageType;
-			dmg.Amount = Amount;
+			dmg.DamageType = damageType;
+			dmg.Amount = amount;
 			if (!SafeAdd(dmg)) {
 				OsiErrorS("DamageList capacity exceeded!");
 			}

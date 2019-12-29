@@ -15,14 +15,16 @@ namespace osidbg
 
 	struct DamagePairList : public Array<TDamagePair>
 	{
-		void AddDamage(DamageType DamageType, int32_t Amount);
+		void AddDamage(DamageType damageType, int32_t amount);
 	};
 
 	struct HitDamageInfo
 	{
 		uint32_t Equipment{ 0 };
-		int32_t TotalDamageDone{ 0 };
-		uint32_t Unknown{ 0 };
+		// Sum of all damages in DamageList
+		int32_t TotalDamage{ 0 };
+		// Damage dealt after ApplyDamage() call
+		int32_t DamageDealt{ 0 };
 		DeathType DeathType{ DeathType::Sentinel };
 		uint8_t _Pad1[3];
 		DamageType DamageType{ DamageType::None };
@@ -33,6 +35,10 @@ namespace osidbg
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];
 		DamagePairList DamageList;
+
+		void ClearDamage();
+		void ClearDamage(osidbg::DamageType damageType);
+		void AddDamage(osidbg::DamageType damageType, int32_t amount);
 	};
 
 	namespace esv

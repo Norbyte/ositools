@@ -140,8 +140,8 @@ namespace osidbg
 		{
 			auto & propertyMap = gHitDamageInfoPropertyMap;
 			PROP(HitDamageInfo, Equipment);
-			PROP(HitDamageInfo, TotalDamageDone);
-			// PROP(HitDamageInfo, Unknown);
+			PROP_RO(HitDamageInfo, TotalDamage);
+			PROP_RO(HitDamageInfo, DamageDealt);
 			PROP_ENUM(HitDamageInfo, DeathType);
 			PROP_ENUM(HitDamageInfo, DamageType);
 			PROP(HitDamageInfo, AttackDirection);

@@ -555,7 +555,7 @@ namespace osidbg
 			"interval too large");
 
 		std::uniform_int_distribution<int64_t> dist(low, up);
-		lua_pushnumber(L, (lua_Integer)dist(state.OsiRng));
+		lua_pushinteger(L, (lua_Integer)dist(state.OsiRng));
 		return 1;
 	}
 

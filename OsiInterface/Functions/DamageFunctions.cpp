@@ -354,8 +354,8 @@ namespace osidbg
 
 		auto & damage = hit->DamageInfo;
 		damage.Equipment = Hit->Equipment;
-		damage.TotalDamageDone = Hit->TotalDamageDone;
-		damage.Unknown = Hit->Unknown;
+		damage.TotalDamage = Hit->TotalDamage;
+		damage.DamageDealt = Hit->DamageDealt;
 		damage.DeathType = Hit->DeathType;
 		damage.DamageType = Hit->DamageType;
 		damage.AttackDirection = Hit->AttackDirection;
@@ -377,7 +377,7 @@ namespace osidbg
 			damage.DamageList.Size = DamageList->Size;
 			for (uint32_t i = 0; i < DamageList->Size; i++) {
 				damage.DamageList.Buf[i] = DamageList->Buf[i];
-				damage.TotalDamageDone += DamageList->Buf[i].Amount;
+				damage.TotalDamage += DamageList->Buf[i].Amount;
 			}
 		}
 
@@ -634,7 +634,7 @@ namespace osidbg
 			auto status = HitStatusGet(args);
 			if (status == nullptr) return;
 
-			status->DamageInfo.DamageList.Clear();
+			status->DamageInfo.ClearDamage();
 		}
 
 		void HitStatusClearDamage(OsiArgumentDesc const & args)
@@ -649,13 +649,7 @@ namespace osidbg
 				return;
 			}
 
-			auto & dmgList = status->DamageInfo.DamageList;
-			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList.Buf[i].DamageType == *damageType) {
-					dmgList.Remove(i);
-					break;
-				}
-			}
+			status->DamageInfo.ClearDamage(*damageType);
 		}
 
 		bool HitStatusGetDamage(OsiArgumentDesc & args)
@@ -696,7 +690,7 @@ namespace osidbg
 				return;
 			}
 
-			status->DamageInfo.DamageList.AddDamage(*damageType, amount);
+			status->DamageInfo.AddDamage(*damageType, amount);
 		}
 	}
 
