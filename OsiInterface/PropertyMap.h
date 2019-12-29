@@ -21,6 +21,7 @@ namespace osidbg
 		kUInt64,
 		kFloat,
 		kFixedString,
+		kFixedStringGuid,
 		kStdString,
 		kStdWString,
 		kObjectHandle,
@@ -310,6 +311,7 @@ namespace osidbg
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
 			case PropertyType::kFixedString:
+			case PropertyType::kFixedStringGuid:
 				return reinterpret_cast<FixedString *>(ptr)->Str;
 
 			case PropertyType::kStdString:
@@ -355,6 +357,18 @@ namespace osidbg
 					auto fs = ToFixedString(value);
 					if (!fs) {
 						OsiError("Failed to set string '" << name << "': Could not map to FixedString");
+						return false;
+					} else {
+						*reinterpret_cast<FixedString *>(ptr) = fs;
+						return true;
+					}
+				}
+
+			case PropertyType::kFixedStringGuid:
+				{
+					auto fs = NameGuidToFixedString(value);
+					if (!fs) {
+						OsiError("Failed to set string '" << name << "': Could not map to FixedString GUID");
 						return false;
 					} else {
 						*reinterpret_cast<FixedString *>(ptr) = fs;
@@ -683,5 +697,17 @@ namespace osidbg
 			flag.Mask = (int64_t)Enum::Values[i].Val;
 			map.Flags.insert(std::make_pair(Enum::Values[i].Name, flag));
 		}
+	}
+
+	template <class TValue, class T, class TBase>
+	typename void AddPropertyGuidString(PropertyMap<T, TBase> & map, std::string const & name,
+		std::uintptr_t offset, bool canWrite)
+	{
+		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString GUID values are supported");
+		PropertyMap<T, TBase>::PropertyInfo info;
+		info.Type = PropertyType::kFixedStringGuid;
+		info.Offset = offset;
+		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
+		map.Properties.insert(std::make_pair(name, info));
 	}
 }

@@ -25,6 +25,7 @@ namespace osidbg
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_ENUM(cls, name) AddPropertyEnum<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_FLAGS(cls, name, enum, writeable) AddPropertyFlags<decltype(cls::name), enum>(propertyMap, #name, offsetof(cls, name), writeable)
+#define PROP_GUID(cls, name, writeable) AddPropertyGuidString<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name), writeable)
 
 	void InitPropertyMaps()
 	{
@@ -152,8 +153,8 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gEoCItemDefinitionPropertyMap;
-			PROP(eoc::ItemDefinition, RootTemplate);
-			PROP(eoc::ItemDefinition, OriginalRootTemplate);
+			PROP_GUID(eoc::ItemDefinition, RootTemplate, true);
+			PROP_GUID(eoc::ItemDefinition, OriginalRootTemplate, true);
 			PROP(eoc::ItemDefinition, Amount);
 			PROP(eoc::ItemDefinition, Slot);
 			PROP(eoc::ItemDefinition, GoldValueOverwrite);
@@ -684,6 +685,7 @@ namespace osidbg
 		}
 
 		case PropertyType::kFixedString:
+		case PropertyType::kFixedStringGuid:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
 		{
@@ -772,6 +774,7 @@ namespace osidbg
 		}
 
 		case PropertyType::kFixedString:
+		case PropertyType::kFixedStringGuid:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
 		{

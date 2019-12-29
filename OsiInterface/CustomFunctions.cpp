@@ -145,6 +145,8 @@ void CustomFunctionManager::EndStaticRegistrationPhase()
 void CustomFunctionManager::ClearDynamicEntries()
 {
 	assert(staticRegistrationDone_);
+	DEBUG("CustomFunctionManager::ClearDynamicEntries(): Clearing dynamic functions");
+
 	for (auto it = dynamicSignatures_.begin(); it != dynamicSignatures_.end(); ++it) {
 		it->second.Function = nullptr;
 	}
