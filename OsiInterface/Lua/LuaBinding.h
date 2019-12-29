@@ -517,7 +517,7 @@ namespace osidbg
 		inline LuaRestriction(LuaState & state, uint32_t flags)
 			: state_(state), oldFlags_(state_.RestrictionFlags)
 		{
-			state_.RestrictionFlags = flags;
+			state_.RestrictionFlags |= flags;
 		}
 
 		inline ~LuaRestriction()
