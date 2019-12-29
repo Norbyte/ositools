@@ -362,7 +362,7 @@ namespace osidbg
 		if (!value) {
 			auto intval = stats->GetAttributeInt(object, attributeName);
 			if (!intval) {
-				OsiError("Stat object '" << statName << "' does not exist");
+				OsiError("Stat object '" << statName << "' has no attribute named '" << attributeName << "'");
 				return 0;
 			} else {
 				lua_pushinteger(L, *intval);
