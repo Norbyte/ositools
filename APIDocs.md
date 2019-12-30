@@ -202,6 +202,11 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 Returns the type of the specified stat entry. If the stat entry does not exist, the query fails.
 Possible return values: `Character`, `Potion`, `Armor`, `Object`, `Shield`, `Weapon`, `SkillData`, `StatusData`.
 
+### StatGetExtraData
+`query NRD_StatGetExtraData([in](STRING)_Key, [out](REAL)_Value)`
+
+Returns the specified key from `Data.txt`. If the key does not exist, the query fails.
+
 
 # Status functions
 

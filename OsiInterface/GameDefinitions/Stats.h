@@ -475,6 +475,51 @@ namespace osidbg
 		CRPGStats_Modifier * GetAttributeInfo(const char * name, int * attributeIndex) const;
 	};
 
+	struct CRPGStats_ExtraData
+	{
+		FixedStringMapBase<float> Properties;
+	};
+
+	struct CRPGStats_Object_Property
+	{
+		void * VMT;
+		FixedString SomeHashedText;
+	};
+
+	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
+	{
+		uint32_t Unkn;
+		uint8_t PropertyContext;
+		uint8_t _Pad1[3];
+		void * ConditionBlockPtr;
+	};
+
+	struct CRPGStats_Object_Property_List
+	{
+		CNamedElementManager<CRPGStats_Object_Property> Properties;
+		FixedString FS1;
+		uint8_t Unknown;
+		uint8_t _Pad[7];
+	};
+
+	struct CDivinityStats_Condition
+	{
+		void * ScriptCheckBlock;
+		FixedString Id;
+	};
+
+	struct CRPGStats_Conditions_Manager
+	{
+		FixedStringMapBase<CDivinityStats_Condition *> Conditions;
+		uint8_t _Pad1[4];
+		ObjectSet<STDString> Strs;
+	};
+
+	struct CRPGStats_ItemType_Manager : public CNamedElementManager<uint64_t>
+	{
+		uint64_t Unknown;
+	};
+
 	struct CRPGStatsManager
 	{
 		CNamedElementManager<RPGEnumeration> modifierValueList;
@@ -484,11 +529,42 @@ namespace osidbg
 		CNamedElementManager<uint64_t> deltaMods;
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
-		CNamedElementManager<uint64_t> itemTypes;
-		uint64_t unknown[46];
+		CRPGStats_ItemType_Manager itemTypes;
+		FixedStringMapBase<CRPGStats_Object_Property_List> PropertyLists;
+		uint8_t _Pad1[4];
+		CRPGStats_Conditions_Manager ConditionsManager;
+		STDWString WStr1;
+		uint64_t Unkn1[5];
+		CRPGStats_ExtraData * ExtraData;
+		FixedStringRefMap<void *> RefMap1;
+		FixedStringRefMap<void *> RefMap2;
+		FixedStringMapBase<FixedString> FSMap1;
+		uint8_t _Pad2[4];
+		FixedStringMapBase<int> FSMapInt1;
+		uint8_t _Pad3[4];
+		FixedStringMapBase<int> FSMapInt2;
+		uint8_t _Pad4[4];
+		FixedStringMapBase<int> FSMapInt3;
+		uint8_t _Pad5[4];
+		FixedStringMapBase<void *> FSMap2;
+		uint64_t Unkn2[7];
 		ObjectSet<FixedString> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;
-		uint64_t unknown2[165];
+		uint64_t unknown2[140];
+		void * EquipmentSetManager;
+		void * SkillSetManager;
+		uint64_t Unkn3;
+		void * ItemCombinationManager;
+		uint64_t Unkn4;
+		FixedString FS1;
+		FixedStringMapBase<uint64_t> FSMapUInt64;
+		uint8_t _Pad6[4];
+		uint64_t Unkn5;
+		PrimitiveSet<void *> DataBufferSet;
+		uint64_t Unkn6;
+		void * DivinityStats;
+		void * CritSection;
+		uint64_t Unkn7[5];
 
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);
 		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);

@@ -114,6 +114,26 @@ namespace osidbg
 			args[1].String = typeInfo->Name.Str;
 			return true;
 		}
+
+		bool StatGetExtraData(OsiArgumentDesc & args)
+		{
+			auto key = args[0].String;
+			auto & value = args[1].Float;
+
+			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+			if (stats == nullptr || stats->ExtraData == nullptr) {
+				OsiError("RPGStats not available");
+				return false;
+			}
+
+			auto extraData = stats->ExtraData->Properties.Find(key);
+			if (extraData != nullptr) {
+				value = *extraData;
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterStatFunctions()
@@ -170,6 +190,16 @@ namespace osidbg
 			&func::StatGetType
 		);
 		functionMgr.Register(std::move(getStatType));
+
+		auto getExtraData = std::make_unique<CustomQuery>(
+			"NRD_StatGetExtraData",
+			std::vector<CustomFunctionParam>{
+				{ "Key", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::StatGetExtraData
+		);
+		functionMgr.Register(std::move(getExtraData));
 	}
 
 }

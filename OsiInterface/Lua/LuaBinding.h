@@ -266,6 +266,14 @@ namespace osidbg
 		ObjectHandle status_;
 	};
 
+	class LuaStatsExtraDataProxy : public LuaUserdata<LuaStatsExtraDataProxy>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		int LuaIndex(lua_State * L);
+	};
+
 
 	class LuaExtensionLibrary
 	{

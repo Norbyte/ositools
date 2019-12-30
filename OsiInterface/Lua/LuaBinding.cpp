@@ -237,6 +237,25 @@ namespace osidbg
 	}
 
 
+
+	char const * const LuaStatsExtraDataProxy::MetatableName = "LuaStatsExtraDataProxy";
+
+	int LuaStatsExtraDataProxy::LuaIndex(lua_State * L)
+	{
+		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
+
+		auto key = luaL_checkstring(L, 2);
+		auto extraData = stats->ExtraData->Properties.Find(key);
+		if (extraData != nullptr) {
+			lua_pushnumber(L, *extraData);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+
 	LuaExtensionLibrary::LuaExtensionLibrary()
 	{
 	}
@@ -252,6 +271,7 @@ namespace osidbg
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
 		LuaStatusHandleProxy::RegisterMetatable(L);
 		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaStatsExtraDataProxy::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
@@ -412,6 +432,13 @@ math.randomseed = function ()
 end
 )";
 		LoadScript(sandbox, "sandbox");
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
+		LuaStatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
+		lua_settable(L, -3); // stack: Ext
+		lua_pop(L, 1); // stack: -
 	}
 
 	LuaState::~LuaState()
