@@ -599,14 +599,14 @@ Function signatures are final. Projectile parameters that are not documented are
 | Parameter | Type | Description |
 |--|--|--|
 | SkillId | String | Skill to cast. Must be a Projectile or ProjectileStrike skill |
-| FS2 | String | *Unknown; name subject to change* |
+| CleanseStatuses | String | |
 | CasterLevel | Integer |  |
 | StatusClearChance | Integer |  |
 | IsTrap | Flag |  |
 | UnknownFlag1 | Flag | *Unknown; name subject to change* |
-| HasCaster | Flag |  |
-| IsStealthed| Flag |  |
-| UnknownFlag2 | Flag |  |
+| IsFromItem | Flag |  |
+| IsStealthed | Flag |  |
+| IgnoreObjects | Flag |  |
 | SourcePosition | Vector3 | Launch projectile from the specified position |
 | SourcePosition | GuidString | Launch projectile from the position of the specified character/item |
 | TargetPosition | Vector3 | Launch projectile towards the specified position |
