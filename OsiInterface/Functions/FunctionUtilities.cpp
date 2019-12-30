@@ -273,13 +273,13 @@ namespace osidbg
 		Helper.Random = (uint8_t)rand();
 		Helper.DamageList = nullptr;
 		Helper.CasterLevel = -1;
-		Helper.CollisionInfo = nullptr;
+		Helper.HitObject = nullptr;
 		Helper.IsTrap = false;
 		Helper.UnknownFlag1 = true;
 		Helper.StatusClearChance = 0.0f;
-		Helper.HasCaster = false;
+		Helper.IsFromItem = false;
 		Helper.IsStealthed = false;
-		Helper.UnknownFlag2 = false;
+		Helper.IgnoreObjects = false;
 	}
 
 	void ShootProjectileApiHelper::SetInt(char const * prop, int32_t value)
@@ -296,14 +296,14 @@ namespace osidbg
 		else if (strcmp(prop, "UnknownFlag1") == 0) {
 			Helper.UnknownFlag1 = value ? 1 : 0;
 		}
-		else if (strcmp(prop, "HasCaster") == 0) {
-			Helper.HasCaster = value ? 1 : 0;
+		else if (strcmp(prop, "IsFromItem") == 0) {
+			Helper.IsFromItem = value ? 1 : 0;
 		}
 		else if (strcmp(prop, "IsStealthed") == 0) {
 			Helper.IsStealthed = value ? 1 : 0;
 		}
-		else if (strcmp(prop, "UnknownFlag2") == 0) {
-			Helper.UnknownFlag2 = value ? 1 : 0;
+		else if (strcmp(prop, "IgnoreObjects") == 0) {
+			Helper.IgnoreObjects = value ? 1 : 0;
 		}
 		else {
 			OsiError("Unknown int property: '" << prop << "'");
@@ -371,8 +371,8 @@ namespace osidbg
 		if (strcmp(prop, "SkillId") == 0) {
 			Helper.SkillId = fs;
 		}
-		else if (strcmp(prop, "FS2") == 0) {
-			Helper.FS2 = fs;
+		else if (strcmp(prop, "CleanseStatuses") == 0) {
+			Helper.CleanseStatuses = fs;
 		}
 		else {
 			OsiError("Unknown string property '" << prop << "'");

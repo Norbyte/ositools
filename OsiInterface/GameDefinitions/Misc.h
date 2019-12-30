@@ -39,15 +39,15 @@ namespace osidbg
 		void * DamageList;
 		int32_t CasterLevel;
 		uint32_t _Pad2;
-		void * CollisionInfo;
+		void * HitObject;
 		bool IsTrap;
 		bool UnknownFlag1;
 		uint8_t _Pad3[6];
-		FixedString FS2;
+		FixedString CleanseStatuses;
 		float StatusClearChance;
-		bool HasCaster;
+		bool IsFromItem;
 		bool IsStealthed;
-		bool UnknownFlag2;
+		bool IgnoreObjects;
 	};
 
 	struct SummonHelperResults
