@@ -546,7 +546,7 @@ namespace osidbg
 		uint8_t _Pad4[4];
 		FixedStringMapBase<int> FSMapInt3;
 		uint8_t _Pad5[4];
-		FixedStringMapBase<void *> FSMap2;
+		FixedStringRefMap<void *> FSMap2;
 		uint64_t Unkn2[7];
 		ObjectSet<FixedString> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;
