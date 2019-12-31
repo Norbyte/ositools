@@ -34,17 +34,20 @@ ErrorUtils::ErrorUtils()
 {
 	if (FindModule()) {
 		FindErrorFuncs();
+		AddVectoredExceptionHandler(1, &ThreadNameCaptureFilter);
 	}
 }
 
-void ErrorUtils::ShowError(wchar_t const * msg)
+void ErrorUtils::ShowError(wchar_t const * msg) const
 {
 	if (!ShowErrorDialog(msg)) {
-		MessageBoxW(NULL, msg, L"Osiris Loader Error", MB_OK | MB_ICONERROR);
+		auto filtered = std::wstring(msg);
+		filtered.replace(filtered.begin(), filtered.end(), "<br>", "");
+		MessageBoxW(NULL, filtered.c_str(), L"Osiris Loader Error", MB_OK | MB_ICONERROR);
 	}
 }
 
-bool ErrorUtils::ShowErrorDialog(wchar_t const * msg)
+bool ErrorUtils::ShowErrorDialog(wchar_t const * msg) const
 {
 	if (EoCClient == nullptr
 		|| EoCClientHandleError == nullptr) {
@@ -61,30 +64,43 @@ bool ErrorUtils::ShowErrorDialog(wchar_t const * msg)
 		return false;
 	}
 
+	ClientHandleError(msg, false);
+	return true;
+}
+
+void ErrorUtils::ClientHandleError(wchar_t const * msg, bool exitGame) const
+{
+	if (EoCClientHandleError == nullptr) return;
+
 	STDWString str;
 	str.Size = wcslen(msg);
 	str.Capacity = 0xfff; // Used to bypass 7-character inline buffer check
 	str.BufPtr = const_cast<wchar_t *>(msg);
-	EoCClientHandleError(*EoCClient, &str, false, &str);
-	return true;
+	EoCClientHandleError(*EoCClient, &str, exitGame, &str);
 }
 
-bool ErrorUtils::CanShowError()
+bool ErrorUtils::CanShowError() const
+{
+	auto state = GetState();
+	return state
+		&& (*state == GameState::Running
+		|| *state == GameState::Paused
+		|| *state == GameState::GameMasterPause
+		|| *state == GameState::Menu
+		|| *state == GameState::Lobby);
+}
+
+std::optional<GameState> ErrorUtils::GetState() const
 {
 	if (EoCClient == nullptr
 		|| *EoCClient == nullptr
 		|| (*EoCClient)->State == nullptr
 		|| *(*EoCClient)->State == nullptr
 		|| EoCClientHandleError == nullptr) {
-		return false;
+		return {};
 	}
 
-	auto state = (*(*EoCClient)->State)->State;
-	return state == 19
-		|| state == 17
-		|| state == 28
-		|| state == 7
-		|| state == 30;
+	return (*(*EoCClient)->State)->State;
 }
 
 bool ErrorUtils::FindModule()
@@ -128,6 +144,57 @@ void ErrorUtils::FindErrorFuncs()
 	}
 }
 
+void ErrorUtils::SuspendClientThread() const
+{
+	auto thread = FindClientThread();
+	if (thread != nullptr) {
+		auto hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, thread->ThreadId);
+		if (hThread != INVALID_HANDLE_VALUE) {
+			SuspendThread(hThread);
+			CloseHandle(hThread);
+			// The error handler only displays a status message during the loading screen
+			ClientHandleError(L"Checking for Osiris Extender updates", false);
+		}
+	}
+}
+
+void ErrorUtils::ResumeClientThread() const
+{
+	auto thread = FindClientThread();
+	if (thread != nullptr) {
+		auto hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, thread->ThreadId);
+		if (hThread != INVALID_HANDLE_VALUE) {
+			ResumeThread(hThread);
+			CloseHandle(hThread);
+		}
+	}
+}
+
+ErrorUtils::ThreadInfo const * ErrorUtils::FindClientThread() const
+{
+	for (auto const & it : threads_) {
+		if (it.Name == "ClientInit" || it.Name == "ClientLoadModule") {
+			return &it;
+		}
+	}
+
+	return nullptr;
+}
+
+LONG NTAPI ErrorUtils::ThreadNameCaptureFilter(_EXCEPTION_POINTERS *ExceptionInfo)
+{
+	if (ExceptionInfo->ExceptionRecord->ExceptionCode == 0x406D1388) {
+		auto info = reinterpret_cast<THREADNAME_INFO *>(&ExceptionInfo->ExceptionRecord->ExceptionInformation);
+		if (info->dwType == 0x1000 && info->dwFlags == 0) {
+			ThreadInfo thread;
+			thread.ThreadId = info->dwThreadID;
+			thread.Name = info->szName;
+			gErrorUtils->threads_.push_back(thread);
+		}
+	}
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
 
 [[noreturn]]
 void Fail(char const * reason)

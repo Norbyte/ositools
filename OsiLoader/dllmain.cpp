@@ -40,6 +40,7 @@ public:
 		bool updated = TryToUpdate(reason);
 
 		if (!updated && !ExtenderDLLExists()) {
+			completed_ = true;
 			auto msg = FromUTF8("Osiris Extender initialization failed:<br>\r\n" + reason);
 			gErrorUtils->ShowError(msg.c_str());
 			return;
@@ -50,6 +51,10 @@ public:
 		SetDllDirectoryW(extensionPath_.c_str());
 
 		HMODULE handle = LoadLibraryW(dllPath_.c_str());
+		// Wait a bit for extender startup to complete
+		Sleep(300);
+		completed_ = true;
+
 		if (handle == NULL) {
 			auto errc = GetLastError();
 			std::wstring errmsg = L"Osiris Extender initialization failed:<br>\r\n"
@@ -99,12 +104,18 @@ public:
 		}
 	}
 
+	inline bool IsCompleted() const
+	{
+		return completed_;
+	}
+
 private:
 	std::wstring appDataPath_;
 	std::wstring extensionPath_;
 	std::wstring dllPath_;
 	std::wstring updateChannel_;
 	bool isGame_{ false };
+	bool completed_{ false };
 
 	bool ExtenderDLLExists()
 	{
@@ -193,17 +204,48 @@ private:
 	}
 };
 
+std::unique_ptr<OsiLoader> gLoader;
+
 bool ShouldLoad()
 {
 	return GetModuleHandleW(L"EoCApp.exe") != NULL
 		|| GetModuleHandleW(L"DivinityEngine2.exe") != NULL;
 }
 
+// This thread is responsible for polling and suspending/resuming
+// the client init thread if the update is still pending during client init.
+// The goal is to prevent the client from loading modules before the extender is loaded.
+DWORD WINAPI ClientWorkerSuspenderThread(LPVOID param)
+{
+	bool suspended{ false };
+	for (;;) {
+		auto state = gErrorUtils->GetState();
+		if (state) {
+			bool completed = gLoader->IsCompleted();
+			if (!suspended && !completed && (*state == GameState::LoadModule || *state == GameState::Init)) {
+				gErrorUtils->SuspendClientThread();
+				suspended = true;
+			}
+
+			if (completed || *state == GameState::Menu) {
+				gErrorUtils->ResumeClientThread();
+				// No update takes place once we reach the menu, exit thread
+				break;
+			}
+		}
+
+		Sleep(1);
+	}
+
+	return 0;
+}
+
 DWORD WINAPI UpdaterThread(LPVOID param)
 {
 	gErrorUtils = std::make_unique<ErrorUtils>();
-	OsiLoader loader;
-	loader.Launch();
+	gLoader = std::make_unique<OsiLoader>();
+	CreateThread(NULL, 0, &ClientWorkerSuspenderThread, NULL, 0, NULL);
+	gLoader->Launch();
 	return 0;
 }
 

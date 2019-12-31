@@ -13,8 +13,6 @@ HttpFetcher::HttpFetcher(wchar_t const * host)
 		return;
 	}
 
-	WinHttpSetTimeouts(session_, 3000, 3000, 3000, 3000);
-
 	httpSession_ = WinHttpConnect(session_, host, INTERNET_DEFAULT_HTTPS_PORT, 0);
 	if (httpSession_ == NULL) {
 		LogError("WinHttpConnect");
