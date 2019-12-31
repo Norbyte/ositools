@@ -652,6 +652,11 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 		ResetExtensionState();
 	}
 
+	if (toState == GameState::LoadGMCampaign && ExtensionsEnabled) {
+		INFO("OsirisProxy::OnGameStateChanged(): Loading GM campaign");
+		LoadExtensionState();
+	}
+
 	if (toState == GameState::LoadSession && ExtensionsEnabled) {
 		INFO("OsirisProxy::OnGameStateChanged(): Loading game session");
 		LoadExtensionState();
