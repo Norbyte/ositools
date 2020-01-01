@@ -41,9 +41,7 @@ ErrorUtils::ErrorUtils()
 void ErrorUtils::ShowError(wchar_t const * msg) const
 {
 	if (!ShowErrorDialog(msg)) {
-		auto filtered = std::wstring(msg);
-		filtered.replace(filtered.begin(), filtered.end(), "<br>", "");
-		MessageBoxW(NULL, filtered.c_str(), L"Osiris Loader Error", MB_OK | MB_ICONERROR);
+		MessageBoxW(NULL, msg, L"Osiris Loader Error", MB_OK | MB_ICONERROR);
 	}
 }
 
@@ -72,10 +70,15 @@ void ErrorUtils::ClientHandleError(wchar_t const * msg, bool exitGame) const
 {
 	if (EoCClientHandleError == nullptr) return;
 
+	std::wstring filtered(msg);
+	for (auto pos = filtered.find(L"\r\n"); pos != std::wstring::npos; pos = filtered.find(L"\r\n")) {
+		filtered.replace(filtered.begin() + pos, filtered.begin() + pos + 2, L"<br>");
+	}
+
 	STDWString str;
-	str.Size = wcslen(msg);
+	str.Size = filtered.size();
 	str.Capacity = 0xfff; // Used to bypass 7-character inline buffer check
-	str.BufPtr = const_cast<wchar_t *>(msg);
+	str.BufPtr = const_cast<wchar_t *>(filtered.c_str());
 	EoCClientHandleError(*EoCClient, &str, exitGame, &str);
 }
 
@@ -277,7 +280,7 @@ private:
 //
 // Unzip a zip file to the specified folder.
 //
-HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder)
+HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder, std::string & reason)
 {
 	CComScopedInit comInit;
 
@@ -294,13 +297,23 @@ HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder)
 	if (FAILED(hr))
 		return hr;
 
+	if (hr == S_FALSE) {
+		reason = "IShellDispatch::NameSpace() call failed on zip file\r\n";
+		reason += ToUTF8(pszZipFile);
+		return hr;
+	}
+
 	CComVariant vtDestFolder(pszDestFolder);
 	CComPtr<Folder> spDestination;
 	hr = spISD->NameSpace(vtDestFolder, &spDestination);
 	if (FAILED(hr))
 		return hr;
-	if (!spDestination)
-		return E_POINTER;
+
+	if (hr == S_FALSE) {
+		reason = "IShellDispatch::NameSpace() call failed on destination folder\r\n";
+		reason += ToUTF8(pszDestFolder);
+		return hr;
+	}
 
 	CComPtr<FolderItems> spFilesInside;
 	hr = spZipFile->Items(&spFilesInside);
