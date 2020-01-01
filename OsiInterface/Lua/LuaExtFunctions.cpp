@@ -327,7 +327,7 @@ namespace osidbg
 			auto object = objects.Buf[i];
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
-				if (type->Name != statType) {
+				if (type == nullptr || type->Name != statType) {
 					continue;
 				}
 			}

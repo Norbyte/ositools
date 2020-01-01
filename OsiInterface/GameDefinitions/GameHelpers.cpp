@@ -154,7 +154,9 @@ namespace osidbg
 	RPGEnumeration * CRPGStatsManager::GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex)
 	{
 		auto objModifiers = modifierList.Find(object->ModifierListIndex);
-		assert(objModifiers != nullptr);
+		if (objModifiers == nullptr) {
+			return nullptr;
+		}
 
 		auto modifierInfo = objModifiers->GetAttributeInfo(attributeName, &attributeIndex);
 		if (modifierInfo == nullptr) {
