@@ -10,6 +10,8 @@
 #include <ctime>
 #include <psapi.h>
 
+void InitCrashReporting();
+
 namespace osidbg
 {
 
@@ -97,6 +99,11 @@ void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring co
 void OsirisProxy::EnableCompileLogging(bool Log)
 {
 	CompilationLogEnabled = Log;
+}
+
+void OsirisProxy::EnableCrashReports(bool Enabled)
+{
+	SendCrashReports = Enabled;
 }
 
 void OsirisProxy::SetupNetworkStringsDump(bool Enable)
@@ -647,6 +654,12 @@ void OsirisProxy::OnBaseModuleLoaded(void * self)
 
 void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState toState)
 {
+	if (SendCrashReports) {
+		// We need to initialize the crash reporter after the game engine has started,
+		// otherwise the game will overwrite the top level exception filter
+		InitCrashReporting();
+	}
+
 	if (toState == GameState::UnloadSession && ExtensionsEnabled) {
 		INFO("OsirisProxy::OnGameStateChanged(): Unloading session");
 		ResetExtensionState();

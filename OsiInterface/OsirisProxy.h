@@ -58,6 +58,7 @@ public:
 	void EnableExtensions(bool Enabled);
 	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
 	void EnableCompileLogging(bool Log);
+	void EnableCrashReports(bool Enabled);
 	void SetupNetworkStringsDump(bool Enabled);
 
 	void LogOsirisError(std::string const & msg);
@@ -149,6 +150,7 @@ private:
 
 	bool EnableNetworkStringsDump{ false };
 	bool ExtensionsEnabled{ false };
+	bool SendCrashReports{ false };
 
 	bool LoggingEnabled{ false };
 	bool CompilationLogEnabled{ false };

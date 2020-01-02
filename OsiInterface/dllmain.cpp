@@ -23,11 +23,26 @@ struct ToolConfig
 	bool EnableExtensions{ true };
 	bool EnableDebugger{ true };
 #endif
+
+#if defined(NDEBUG)
+	bool SendCrashReports{ true };
+#else
+	bool SendCrashReports{ true };
+#endif
+
 	bool DumpNetworkStrings{ false };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
 };
+
+void ConfigGetBool(Json::Value & node, char const * key, bool & value)
+{
+	auto configVar = node[key];
+	if (!configVar.isNull() && configVar.isBool()) {
+		value = configVar.asBool();
+	}
+}
 
 void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 {
@@ -47,61 +62,13 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 		Fail(err.str().c_str());
 	}
 
-	auto createConsole = root["CreateConsole"];
-	if (!createConsole.isNull()) {
-		if (createConsole.isBool()) {
-			config.CreateConsole = createConsole.asBool();
-		} else {
-			Fail("Config option 'CreateConsole' should be a boolean.");
-		}
-	}
-
-	auto enableLogging = root["EnableLogging"];
-	if (!enableLogging.isNull()) {
-		if (enableLogging.isBool()) {
-			config.EnableLogging = enableLogging.asBool();
-		} else {
-			Fail("Config option 'EnableLogging' should be a boolean.");
-		}
-	}
-
-	auto logCompile = root["LogCompile"];
-	if (!logCompile.isNull()) {
-		if (logCompile.isBool()) {
-			config.LogCompile = logCompile.asBool();
-		}
-		else {
-			Fail("Config option 'LogCompile' should be a boolean.");
-		}
-	}
-
-	auto enableExtensions = root["EnableExtensions"];
-	if (!enableExtensions.isNull()) {
-		if (enableExtensions.isBool()) {
-			config.EnableExtensions = enableExtensions.asBool();
-		}
-		else {
-			Fail("Config option 'EnableExtensions' should be a boolean.");
-		}
-	}
-
-	auto dumpStrings = root["DumpNetworkStrings"];
-	if (!dumpStrings.isNull()) {
-		if (dumpStrings.isBool()) {
-			config.DumpNetworkStrings = dumpStrings.asBool();
-		} else {
-			Fail("Config option 'DumpNetworkStrings' should be a boolean.");
-		}
-	}
-
-	auto enableDAP = root["EnableDebugger"];
-	if (!enableDAP.isNull()) {
-		if (enableDAP.isBool()) {
-			config.EnableDebugger = enableDAP.asBool();
-		} else {
-			Fail("Config option 'EnableDebugger' should be a boolean.");
-		}
-	}
+	ConfigGetBool(root, "CreateConsole", config.CreateConsole);
+	ConfigGetBool(root, "EnableLogging", config.EnableLogging);
+	ConfigGetBool(root, "LogCompile", config.LogCompile);
+	ConfigGetBool(root, "EnableExtensions", config.EnableExtensions);
+	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
+	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
+	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
 
 	auto debuggerPort = root["DebuggerPort"];
 	if (!debuggerPort.isNull()) {
@@ -162,19 +129,14 @@ void SetupOsirisProxy(HMODULE hModule)
 	osidbg::gOsirisProxy->SetupLogging(config.EnableLogging, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
 	osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
 
-	if (config.EnableLogging) {
+	if (config.EnableLogging || config.LogCompile) {
 		DEBUG(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
 	}
 
-	if (config.EnableDebugger) {
-		osidbg::gOsirisProxy->EnableDebugging(true, config.DebuggerPort);
-	}
-
-	if (config.DumpNetworkStrings) {
-		osidbg::gOsirisProxy->SetupNetworkStringsDump(true);
-	}
-
+	osidbg::gOsirisProxy->EnableDebugging(config.EnableDebugger, config.DebuggerPort);
+	osidbg::gOsirisProxy->SetupNetworkStringsDump(config.DumpNetworkStrings);
 	osidbg::gOsirisProxy->EnableExtensions(config.EnableExtensions);
+	osidbg::gOsirisProxy->EnableCrashReports(config.SendCrashReports);
 
 	osidbg::gOsirisProxy->Initialize();
 
@@ -189,6 +151,8 @@ bool ShouldRunProxy()
 		|| GetModuleHandleW(L"DivinityEngine2.exe") != NULL;
 }
 
+HMODULE gThisModule{ NULL };
+
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -197,6 +161,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+		gThisModule = hModule;
 		if (ShouldRunProxy()) {
 			gDxgiWrapper = std::make_unique<DxgiWrapper>();
 			SetupOsirisProxy(hModule);
