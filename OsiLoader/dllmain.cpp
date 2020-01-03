@@ -286,6 +286,10 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	{
 	case DLL_PROCESS_ATTACH:
 		if (ShouldLoad()) {
+			// Allow loading graphics mods that work via DXGI.dll (ReShade, etc.)
+			// DXGI.dll should be renamed to DxgiNext.dll, and the updater will load it automatically.
+			LoadLibraryW(L"DxgiNext.dll");
+
 			gDxgiWrapper = std::make_unique<DxgiWrapper>();
 			StartUpdaterThread();
 		}
