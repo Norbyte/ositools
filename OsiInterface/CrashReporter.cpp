@@ -1,9 +1,7 @@
 #include "stdafx.h"
-#include "HttpUploader.h"
 
 #include <DbgHelp.h>
 #include <psapi.h>
-#include "resource.h"
 
 #include <vector>
 #include <string>
@@ -15,9 +13,8 @@ extern HMODULE gThisModule;
 class CrashReporter
 {
 public:
-	static void * Backtrace[16];
+	static void * Backtrace[32];
 	static bool Initialized;
-	static std::wstring MiniDumpPath;
 
 	static void Initialize()
 	{
@@ -81,62 +78,40 @@ public:
 		return false;
 	}
 
-	static void UploadMinidump()
+	static void LaunchCrashReporter(std::wstring & miniDumpPath)
 	{
-		std::ifstream f(MiniDumpPath, std::ios::in | std::ios::binary);
-		if (!f.good()) return;
-		std::vector<uint8_t> crashDump;
-		f.seekg(0, std::ios::end);
-		auto dumpSize = f.tellg();
-		crashDump.resize(dumpSize);
-		f.seekg(0, std::ios::beg);
-		f.read((char *)crashDump.data(), dumpSize);
+		std::wstring crashReporterPath;
+		crashReporterPath.resize(1024);
+		DWORD length = GetModuleFileName(gThisModule, crashReporterPath.data(), (DWORD)crashReporterPath.size());
+		// Module not found
+		if (length == 0) return;
+		crashReporterPath.resize(length);
 
-		std::vector<uint8_t> response;
-		std::string errorReason;
-		std::string dumpId;
-		HttpUploader uploader(L"osicrashreports.norbyte.dev");
+		auto sep = crashReporterPath.find_last_of('\\');
+		crashReporterPath = crashReporterPath.substr(0, sep);
+		crashReporterPath += L"\\CrashReporter.exe";
 
-		bool succeeded = uploader.Upload(L"/submit.php", crashDump, response);
-		if (succeeded) {
-			if (response.size() < 4 || memcmp(response.data(), "OK:", 3) != 0) {
-				errorReason = "Server returned illegible response";
-			} else {
-				dumpId.resize(response.size() - 3);
-				memcpy(dumpId.data(), response.data() + 3, response.size() - 3);
-			}
-		} else {
-			errorReason = uploader.GetLastError();
+		STARTUPINFO si;
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+
+		PROCESS_INFORMATION pi;
+		ZeroMemory(&pi, sizeof(pi));
+
+		if (!CreateProcessW(crashReporterPath.c_str(), miniDumpPath.data(), NULL, NULL, FALSE, 0,
+			NULL, NULL, &si, &pi)) {
+			return;
 		}
 
-		std::wstring resultText;
-		if (succeeded) {
-			resultText = L"Crash dump successfully uploaded.\r\nYour crash dump reference number is ";
-			resultText += FromUTF8(dumpId) + L".";
-			MessageBoxW(NULL, resultText.c_str(), L"Script Extender Crash",
-				MB_OK | MB_ICONINFORMATION | MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST);
-		} else {
-			resultText = L"Unable to upload crash dump. Reason:\r\n";
-			resultText += FromUTF8(errorReason);
-			MessageBoxW(NULL, resultText.c_str(), L"Script Extender Crash",
-				MB_OK | MB_ICONWARNING | MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST);
-		}
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
 	}
 
 	static DWORD WINAPI CrashReporterThread(LPVOID exceptionInfo)
 	{
-		auto result = MessageBoxW(NULL, L"The game has unexpectedly crashed.\r\n\r\n"
-			L"Would you like to send the crash information to the Script Extender team?\r\n"
-			"Additional details about what went wrong can help to create a solution.\r\n"
-			"No information besides the crash dump will be uploaded.",
-			L"Script Extender Crash",
-			MB_YESNO | MB_ICONINFORMATION | MB_TASKMODAL | MB_SETFOREGROUND | MB_TOPMOST);
-		if (result == IDYES) {
-			auto dumpPath = GetMiniDumpPath();
-			if (CreateMiniDump((_EXCEPTION_POINTERS *)exceptionInfo, dumpPath)) {
-				MiniDumpPath = dumpPath;
-				UploadMinidump();
-			}
+		auto dumpPath = GetMiniDumpPath();
+		if (CreateMiniDump((_EXCEPTION_POINTERS *)exceptionInfo, dumpPath)) {
+			LaunchCrashReporter(dumpPath);
 		}
 
 		ExitProcess(1);
@@ -146,6 +121,8 @@ public:
 	static LONG OnUnhandledException(_EXCEPTION_POINTERS * exceptionInfo)
 	{
 		if (IsExtensionRelatedCrash()) {
+			// Run crash reporter in a separate thread to ensure that
+			// we succeed if the stack is corrupted
 			CreateThread(NULL, 0, &CrashReporterThread, exceptionInfo, 0, NULL);
 			SuspendThread(GetCurrentThread());
 
@@ -156,9 +133,8 @@ public:
 	}
 };
 
-void * CrashReporter::Backtrace[16];
+void * CrashReporter::Backtrace[32];
 bool CrashReporter::Initialized{ false };
-std::wstring CrashReporter::MiniDumpPath;
 
 void InitCrashReporting()
 {

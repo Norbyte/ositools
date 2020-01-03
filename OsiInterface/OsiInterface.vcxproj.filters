@@ -129,9 +129,6 @@
     <ClInclude Include="PropertyMaps.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
-    <ClInclude Include="HttpUploader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -243,9 +240,6 @@
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
     <ClCompile Include="CrashReporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HttpUploader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

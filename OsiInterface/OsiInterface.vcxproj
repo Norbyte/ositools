@@ -377,7 +377,6 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="GameDefinitions\Osiris.h" />
     <ClInclude Include="GameDefinitions\Stats.h" />
     <ClInclude Include="GameDefinitions\Status.h" />
-    <ClInclude Include="HttpUploader.h" />
     <ClInclude Include="Lua\LuaBinding.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
@@ -454,7 +453,6 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Functions\StatusFunctions.cpp" />
     <ClCompile Include="Functions\UtilityFunctions.cpp" />
     <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
-    <ClCompile Include="HttpUploader.cpp" />
     <ClCompile Include="Lua\LuaBinding.cpp" />
     <ClCompile Include="Lua\LuaExtFunctions.cpp" />
     <ClCompile Include="Lua\LuaOsiBridge.cpp" />
