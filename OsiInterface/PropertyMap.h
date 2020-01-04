@@ -607,10 +607,10 @@ namespace osidbg
 		}
 	};
 
-	template <class TValue, class T, class TBase>
-	typename PropertyMap<T, TBase>::PropertyInfo & AddProperty(PropertyMap<T, TBase> & map, std::string const & name, std::uintptr_t offset)
+	template <class TValue>
+	typename PropertyMapBase::PropertyInfo & AddProperty(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
 	{
-		PropertyMap<T, TBase>::PropertyInfo info;
+		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | kPropWrite;
@@ -618,10 +618,10 @@ namespace osidbg
 		return it.first->second;
 	}
 
-	template <class TValue, class T, class TBase>
-	typename PropertyMap<T, TBase>::PropertyInfo & AddPropertyRO(PropertyMap<T, TBase> & map, std::string const & name, std::uintptr_t offset)
+	template <class TValue>
+	typename PropertyMapBase::PropertyInfo & AddPropertyRO(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
 	{
-		PropertyMap<T, TBase>::PropertyInfo info;
+		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead;
@@ -629,47 +629,43 @@ namespace osidbg
 		return it.first->second;
 	}
 
-	template <class TEnum, class T, class TBase>
-	typename PropertyMap<T, TBase>::PropertyInfo & AddPropertyEnum(PropertyMap<T, TBase> & map, std::string const & name, std::uintptr_t offset)
+	template <class TEnum>
+	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
 	{
 		using TValue = std::underlying_type<TEnum>::type;
-		PropertyMap<T, TBase>::PropertyInfo info;
+		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | kPropWrite;
 
 		info.GetInt = [offset](void * obj) -> std::optional<int64_t> {
-			auto o = reinterpret_cast<T *>(obj);
-			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(o) + offset);
+			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
 			return (int64_t)*ptr;
 		};
 
 		info.GetString = [offset](void * obj) -> std::optional<char const *> {
-			auto o = reinterpret_cast<T *>(obj);
-			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(o) + offset);
+			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
 			return EnumInfo<TEnum>::Find(*ptr);
 		};
 
 		info.SetInt = [offset](void * obj, int64_t val) -> bool {
-			auto o = reinterpret_cast<T *>(obj);
 			auto label = EnumInfo<TEnum>::Find((TEnum)val);
 			if (!label) {
 				return false;
 			}
 
-			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(o) + offset);
+			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
 			*ptr = (TEnum)val;
 			return true;
 		};
 
 		info.SetString = [offset](void * obj, char const * str) -> bool {
-			auto o = reinterpret_cast<T *>(obj);
 			auto enumVal = EnumInfo<TEnum>::Find(str);
 			if (!enumVal) {
 				return false;
 			}
 
-			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(o) + offset);
+			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
 			*ptr = *enumVal;
 			return true;
 		};
@@ -678,20 +674,20 @@ namespace osidbg
 		return it.first->second;
 	}
 
-	template <class TValue, class TEnum, class T, class TBase>
-	void AddPropertyFlags(PropertyMap<T, TBase> & map, std::string const & name, 
+	template <class TValue, class TEnum>
+	void AddPropertyFlags(PropertyMapBase & map, std::string const & name, 
 		std::uintptr_t offset, bool canWrite)
 	{
 		using Enum = EnumInfo<TEnum>;
 
-		PropertyMap<T, TBase>::PropertyInfo info;
+		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = 0;
 		map.Properties.insert(std::make_pair(name, info));
 
 		for (auto i = 0; i < std::size(Enum::Values); i++) {
-			PropertyMap<T, TBase>::FlagInfo flag;
+			PropertyMapBase::FlagInfo flag;
 			flag.Property = name;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 			flag.Mask = (int64_t)Enum::Values[i].Val;
@@ -699,12 +695,12 @@ namespace osidbg
 		}
 	}
 
-	template <class TValue, class T, class TBase>
-	typename void AddPropertyGuidString(PropertyMap<T, TBase> & map, std::string const & name,
+	template <class TValue>
+	typename void AddPropertyGuidString(PropertyMapBase & map, std::string const & name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString GUID values are supported");
-		PropertyMap<T, TBase>::PropertyInfo info;
+		PropertyMapBase::PropertyInfo info;
 		info.Type = PropertyType::kFixedStringGuid;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
