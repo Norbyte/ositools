@@ -367,6 +367,18 @@ namespace osidbg
 		functionMgr.Register(std::move(itemGetPermanentBoostReal));
 
 
+		auto itemGetPermanentBoostString = std::make_unique<CustomQuery>(
+			"NRD_ItemGetPermanentBoostString",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGetPermanentBoost<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(itemGetPermanentBoostString));
+
+
 		auto itemSetPermanentBoostInt = std::make_unique<CustomCall>(
 			"NRD_ItemSetPermanentBoostInt",
 			std::vector<CustomFunctionParam>{
@@ -389,6 +401,18 @@ namespace osidbg
 			&func::ItemSetPermanentBoost<OsiPropertyMapType::Real>
 		);
 		functionMgr.Register(std::move(itemSetPermanentBoostReal));
+
+
+		auto itemSetPermanentBoostString = std::make_unique<CustomCall>(
+			"NRD_ItemSetPermanentBoostString",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::In },
+			},
+			&func::ItemSetPermanentBoost<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(itemSetPermanentBoostString));
 
 
 		auto itemCloneBegin = std::make_unique<CustomCall>(

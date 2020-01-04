@@ -103,7 +103,7 @@ namespace osidbg
 		EquipmentStatsType StatsType;
 		BitArray<4> Talents;
 		uint32_t Unkn4;
-		uint64_t AttributeFlags;
+		uint64_t AttributeFlagsObjectId;
 
 		struct PropertyMapBase & GetPropertyMap() const;
 	};

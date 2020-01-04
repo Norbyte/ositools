@@ -219,7 +219,8 @@ namespace osidbg
 			// TODO - Reflection
 			PROP(CDivinityStats_Equipment_Attributes, Skills);
 			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
-			PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
+			// TODO - add attribute flags object support
+			// PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
 			// TODO - ObjectInstanceName?, AbilityModifiers, Talents
 		}
 

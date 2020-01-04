@@ -1149,7 +1149,9 @@ Permanent Boosts are stat bonuses or stat reductions that are applied to an item
 | MaxSummons | Integer | Any |
 | Value | Integer | Any |
 | Weight | Integer | Any |
-| DamageType | Integer | Weapon |
+| Skills | String | Any |
+| ItemColor | String | Any |
+| DamageType | Enum | Weapon |
 | MinDamage | Integer | Weapon |
 | MaxDamage | Integer | Weapon |
 | DamageBoost | Integer | Weapon |
@@ -1176,6 +1178,7 @@ Permanent boosts don't show up immediately because of how client-server communic
 ```
 query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)
 query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)
+query NRD_ItemGetPermanentBoostString([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](STRING)_Value)
 ```
 
 Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
@@ -1185,6 +1188,7 @@ Returns the permanent boost value applied to the specified item. `_Stat` must be
 ```
 call NRD_ItemSetPermanentBoostInt((GUIDSTRING)_Item, (STRING)_Stat, (INTEGER)_Value)
 call NRD_ItemSetPermanentBoostReal((GUIDSTRING)_Item, (STRING)_Stat, (REAL)_Value)
+call NRD_ItemSetPermanentBoostString((GUIDSTRING)_Item, (STRING)_Stat, (STRING)_Value)
 ```
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
