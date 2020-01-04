@@ -1,4 +1,4 @@
-### API v36 Documentation
+### API v38 Documentation
 
 ### Table of Contents  
 
@@ -211,8 +211,10 @@ Returns the specified key from `Data.txt`. If the key does not exist, the query 
 # Status functions
 
 ### IterateCharacterStatuses
-`call NRD_IterateCharacterStatuses((CHARACTERGUID)_CharacterGuid, (STRING)_Event)`
-`event NRD_StatusIteratorEvent((STRING)_Event, (CHARACTERGUID)_Character, (STRING)_StatusId, (INTEGER64)_StatusHandle)`
+```
+call NRD_IterateCharacterStatuses((CHARACTERGUID)_CharacterGuid, (STRING)_Event)
+event NRD_StatusIteratorEvent((STRING)_Event, (CHARACTERGUID)_Character, (STRING)_StatusId, (INTEGER64)_StatusHandle)
+```
 
 Throws status iterator event `_Event` for each status present on the character. Unlike regular events, `NRD_StatusIteratorEvent` events are not queued and are thrown immediately (i.e. during the `NRD_IterateCharacterStatuses` call), so there is no need for an additional cleanup/finalizer event.
 
@@ -271,10 +273,12 @@ NRD_DebugLog((STRING)_Handle);
 ```
 
 ### StatusGet
-`query NRD_StatusGetInt([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)`
-`query NRD_StatusGetReal([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)`
-`query NRD_StatusGetString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)`
-`query NRD_StatusGetGuidString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)`
+```
+query NRD_StatusGetInt([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](INTEGER)_Value)
+query NRD_StatusGetReal([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](REAL)_Value)
+query NRD_StatusGetString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](STRING)_Value)
+query NRD_StatusGetGuidString([in](CHARACTERGUID)_Character, [in](INTEGER64)_StatusHandle, [in](STRING)_Attribute, [out](GUIDSTRING)_Value)
+```
 
 Returns the specified status attribute. If the character or status does not exist, or if the attribute is not of the appropriate type, the query fails.
 
@@ -290,11 +294,13 @@ DebugBreak(_SourceStr);
 ```
 
 ### StatusSet
-`call NRD_StatusSetInt((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (INTEGER)_Value)`
-`call NRD_StatusSetReal((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)`
-`call NRD_StatusSetString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (STRING)_Value)`
-`call NRD_StatusSetGuidString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (GUIDSTRING)_Value)`
-`call NRD_StatusSetVector3((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+```
+call NRD_StatusSetInt((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (INTEGER)_Value)
+call NRD_StatusSetReal((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_Value)
+call NRD_StatusSetString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (STRING)_Value)
+call NRD_StatusSetGuidString((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (GUIDSTRING)_Value)
+call NRD_StatusSetVector3((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (STRING)_Attribute, (REAL)_X, (REAL)_Y, (REAL)_Z)
+```
 
 Updates the specified status attribute.
 See the "Status attributes" section below for a list of attributes that can be modified.
@@ -476,13 +482,15 @@ Returns the amount of damage dealt by the `HIT` status.
 
 # Hit functions
 
-`query NRD_HitPrepare([in](GUIDSTRING)_Target, [in](GUIDSTRING)_Source, [out](INTEGER64)_HitHandle)`
-`query NRD_HitQryExecute([in](INTEGER64)_HitHandle, [out](INTEGER64)_StatusHandle)`
-`call NRD_HitSetInt((INTEGER64)_HitHandle, (STRING)_Property, (INTEGER)_Value)`
-`query NRD_HitGetInt([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](INTEGER)_Value)`
-`call NRD_HitSetString((INTEGER64)_HitHandle, (STRING)_Property, (STRING)_Value)`
-`query NRD_HitGetString([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](STRING)_Value)`
-`call NRD_HitSetVector3((INTEGER64)_HitHandle, (STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
+```
+query NRD_HitPrepare([in](GUIDSTRING)_Target, [in](GUIDSTRING)_Source, [out](INTEGER64)_HitHandle)
+query NRD_HitQryExecute([in](INTEGER64)_HitHandle, [out](INTEGER64)_StatusHandle)
+call NRD_HitSetInt((INTEGER64)_HitHandle, (STRING)_Property, (INTEGER)_Value)
+query NRD_HitGetInt([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](INTEGER)_Value)
+call NRD_HitSetString((INTEGER64)_HitHandle, (STRING)_Property, (STRING)_Value)
+query NRD_HitGetString([in](INTEGER64)_HitHandle, [in](STRING)_Property, [out](STRING)_Value)
+call NRD_HitSetVector3((INTEGER64)_HitHandle, (STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)
+```
 
 The Hit API is an extension of `ApplyDamage()` with many additional features. 
 **Usage steps:**
@@ -584,12 +592,14 @@ Thrown before a character is healed. Status attributes can be queried using the 
 
 # Projectile functions
 
-`call NRD_ProjectilePrepareLaunch()`
-`call NRD_ProjectileLaunch()`
-`call NRD_ProjectileSetInt((STRING)_Property, (INTEGER)_Value)`
-`call NRD_ProjectileSetString((STRING)_Property, (STRING)_Value)`
-`call NRD_ProjectileSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)`
-`call NRD_ProjectileSetGuidString((STRING)_Property, (GUIDSTRING)_Value)`
+```
+call NRD_ProjectilePrepareLaunch()
+call NRD_ProjectileLaunch()
+call NRD_ProjectileSetInt((STRING)_Property, (INTEGER)_Value)
+call NRD_ProjectileSetString((STRING)_Property, (STRING)_Value)
+call NRD_ProjectileSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)
+call NRD_ProjectileSetGuidString((STRING)_Property, (GUIDSTRING)_Value)
+```
 
 The projectile API is a set of functions for casting Projectile/ProjectileStrike skills. It is an extension of `CreateProjectileStrikeAt` and `CreateExplosion`.
 
@@ -1041,8 +1051,10 @@ DebugBreak(_DeltaMod);
 ```
 
 ### ItemGet
-`query NRD_ItemGetInt([in](ITEMGUID)_Item, [in](STRING)_Property, [out](INTEGER)_Value)`
-`query NRD_ItemGetString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](REAL)_Value)`
+```
+query NRD_ItemGetInt([in](ITEMGUID)_Item, [in](STRING)_Property, [out](INTEGER)_Value)
+query NRD_ItemGetString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](REAL)_Value)
+```
 
 Returns the specified property of the item. `_Property` must be one of the values listed below. If the item or property does not exist, the query fails. If an attempt is made to fetch a stat property on an item that has no stats, the query fails.
 
@@ -1161,25 +1173,31 @@ Permanent boosts don't show up immediately because of how client-server communic
 
 
 ### ItemGetPermanentBoost
-`query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)`
-`query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)`
+```
+query NRD_ItemGetPermanentBoostInt([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](INTEGER)_Value)
+query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](REAL)_Value)
+```
 
 Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
 
 
 ### ItemSetPermanentBoost
-`call NRD_ItemSetPermanentBoostInt((GUIDSTRING)_Item, (STRING)_Stat, (INTEGER)_Value)`
-`call NRD_ItemSetPermanentBoostReal((GUIDSTRING)_Item, (STRING)_Stat, (REAL)_Value)`
+```
+call NRD_ItemSetPermanentBoostInt((GUIDSTRING)_Item, (STRING)_Stat, (INTEGER)_Value)
+call NRD_ItemSetPermanentBoostReal((GUIDSTRING)_Item, (STRING)_Stat, (REAL)_Value)
+```
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
 ## Cloning items
 
-`call NRD_ItemCloneBegin((ITEMGUID)_Item)`
-`call NRD_ItemCloneSetInt((STRING)_Property, (INTEGER)_Value)`
-`call NRD_ItemCloneSetString((STRING)_Property, (STRING)_Value)`
-`query NRD_ItemClone([out](ITEMGUID)_NewItem)`
+```
+call NRD_ItemCloneBegin((ITEMGUID)_Item)
+call NRD_ItemCloneSetInt((STRING)_Property, (INTEGER)_Value)
+call NRD_ItemCloneSetString((STRING)_Property, (STRING)_Value)
+query NRD_ItemClone([out](ITEMGUID)_NewItem)
+```
 
 **Usage:**
 The clone API creates a copy of a specific item.
@@ -1254,10 +1272,12 @@ NRD_DebugLog((STRING)_Item);
 
 
 ### ForLoop
-`call NRD_ForLoop((STRING)_Event, (INTEGER)_Count)`
-`call NRD_ForLoop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Count)`
-`event NRD_Loop((STRING)_Event, (INTEGER)_Num)`
-`event NRD_Loop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Num)`
+```
+call NRD_ForLoop((STRING)_Event, (INTEGER)_Count)
+call NRD_ForLoop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Count)
+event NRD_Loop((STRING)_Event, (INTEGER)_Num)
+event NRD_Loop((GUIDSTRING)_Object, (STRING)_Event, (INTEGER)_Num)
+```
 
 Counts from 0 up to `_Count - 1` and throws loop event `_Event` for each value. Unlike regular events, `NRD_Loop` are not queued and are thrown immediately (i.e. during the `NRD_ForLoop` call), so there is no need for an additional cleanup/finalizer event.
 
