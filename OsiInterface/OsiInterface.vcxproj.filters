@@ -129,6 +129,9 @@
     <ClInclude Include="PropertyMaps.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Symbols.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

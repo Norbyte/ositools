@@ -41,6 +41,7 @@
 #include "CustomFunctions.h"
 #include "DataLibraries.h"
 #include "Functions/FunctionLibrary.h"
+#include <GameDefinitions/Symbols.h>
 
 #include <thread>
 

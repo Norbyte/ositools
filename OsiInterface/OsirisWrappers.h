@@ -55,7 +55,6 @@ public:
 	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
 	HOOKABLE(void(void *, void *), InitNetworkFixedStrings);
-	HOOKABLE(void(void *), GameStateLoadModuleDo);
 	HOOKABLE(void(void *, GameState, GameState), GameStateChangedEvent);
 	HOOKABLE(void(void *), SkillPrototypeManagerInit);
 

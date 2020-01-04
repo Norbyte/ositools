@@ -51,7 +51,6 @@ void OsirisProxy::Initialize()
 
 			Wrappers.InitializeExtensions();
 			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
-			Wrappers.GameStateLoadModuleDo.AddPostHook(std::bind(&OsirisProxy::OnBaseModuleLoaded, this, _1));
 			Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
 			Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 		}
@@ -402,7 +401,7 @@ void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
 
 void OsirisProxy::DumpNetworkFixedStrings()
 {
-	auto nfs = Libraries.NetworkFixedStrings;
+	auto nfs = gStaticSymbols.NetworkFixedStrings;
 	if (nfs != nullptr && (*nfs)->Initialized) {
 		auto const & strings = (*nfs)->FixedStrSet.Set;
 

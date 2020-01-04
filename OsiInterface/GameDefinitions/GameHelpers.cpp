@@ -1,18 +1,13 @@
 #include "stdafx.h"
 
-#include <cstdint>
-#include <array>
-#include <vector>
-#include <set>
-#include <map>
-#include <string>
-#include <cassert>
-
 #include <GameDefinitions/BaseTypes.h>
+#include <GameDefinitions/Symbols.h>
 #include "OsirisProxy.h"
 
 namespace osidbg
 {
+	StaticSymbols gStaticSymbols;
+
 	EoCAllocFunc EoCAlloc{ nullptr };
 	EoCFreeFunc EoCFree{ nullptr };
 
@@ -75,11 +70,83 @@ namespace osidbg
 		}
 	}
 
+#if defined(OSI_EOCAPP)
+	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root) const
+	{
+		if (PathRoots == nullptr) {
+			ERR("LibraryManager::ToPath(): Path root API not available!");
+			return "";
+		}
+
+		auto rootPath = PathRoots[(unsigned)root];
+
+		std::string absolutePath = rootPath->GetPtr();
+		absolutePath += "/" + path;
+		return absolutePath;
+	}
+
+	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root) const
+	{
+		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
+			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
+			return FileReaderPin(nullptr);
+		}
+
+		auto absolutePath = ToPath(path, root);
+
+		Path lsPath;
+		lsPath.Name.Set(absolutePath);
+
+		auto reader = new FileReader();
+		FileReaderCtor(reader, &lsPath, 2);
+		return FileReaderPin(reader);
+	}
+#else
+	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root) const
+	{
+		if (GetPrefixForRoot == nullptr) {
+			ERR("LibraryManager::ToPath(): Path root API not available!");
+			return "";
+		}
+
+		StringView rootPath;
+		GetPrefixForRoot(&rootPath, (unsigned)root);
+
+		std::string absolutePath = rootPath.Buf;
+		absolutePath += "/" + path;
+		return absolutePath;
+	}
+
+	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root) const
+	{
+		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
+			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
+			return FileReaderPin(nullptr);
+		}
+
+		auto absolutePath = ToPath(path, root);
+
+		Path lsPath;
+		lsPath.Name.Set(absolutePath);
+
+		auto reader = new FileReader();
+		FileReaderCtor(reader, &lsPath, 2);
+		return FileReaderPin(reader);
+	}
+#endif
+
+	void StaticSymbols::DestroyFileReader(FileReader * reader)
+	{
+		if (FileReaderDtor != nullptr) {
+			FileReaderDtor(reader);
+		}
+	}
+
 
 	FileReaderPin::~FileReaderPin()
 	{
 		if (reader_ != nullptr) {
-			gOsirisProxy->GetLibraryManager().DestroyFileReader(reader_);
+			gStaticSymbols.DestroyFileReader(reader_);
 		}
 	}
 

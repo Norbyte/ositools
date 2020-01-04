@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
 namespace osidbg
@@ -62,7 +63,7 @@ namespace osidbg
 			DummyType dummy1;
 			dummy1.unkn2 = 0;
 
-			auto processMsg = gOsirisProxy->GetLibraryManager().EsvCustomStatsProtocolProcessMsg;
+			auto processMsg = gStaticSymbols.EsvCustomStatsProtocolProcessMsg;
 			if (processMsg == nullptr) {
 				OsiErrorS("esv::CustomStatsProtocol::ProcessMsg not found!");
 				return;

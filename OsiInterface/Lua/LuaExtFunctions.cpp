@@ -314,7 +314,7 @@ namespace osidbg
 			}
 		}
 		
-		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return 0;
@@ -346,7 +346,7 @@ namespace osidbg
 		auto statName = luaL_checkstring(L, 1);
 		auto attributeName = luaL_checkstring(L, 2);
 
-		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return 0;
@@ -386,7 +386,7 @@ namespace osidbg
 		auto attributeName = luaL_checkstring(L, 2);
 		auto valueType = lua_type(L, 3);
 
-		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return 0;

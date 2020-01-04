@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
 namespace osidbg
@@ -225,8 +226,8 @@ namespace osidbg
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
-			auto parseItem = gOsirisProxy->GetLibraryManager().ParseItem;
-			auto createItemFromParsed = gOsirisProxy->GetLibraryManager().CreateItemFromParsed;
+			auto parseItem = gStaticSymbols.ParseItem;
+			auto createItemFromParsed = gStaticSymbols.CreateItemFromParsed;
 			if (parseItem == nullptr || createItemFromParsed == nullptr) {
 				OsiErrorS("esv::ParseItem not found!");
 				return;
@@ -258,7 +259,7 @@ namespace osidbg
 			}
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
-			auto item = gOsirisProxy->GetLibraryManager().CreateItemFromParsed(clone.get(), 0);
+			auto item = gStaticSymbols.CreateItemFromParsed(clone.get(), 0);
 			clone.reset();
 
 			if (item == nullptr) {

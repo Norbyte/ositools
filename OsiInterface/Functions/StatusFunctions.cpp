@@ -343,7 +343,7 @@ namespace osidbg
 			auto statusIdFs = ToFixedString(statusId);
 			T * status{ nullptr };
 
-			auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
+			auto createStatus = gStaticSymbols.StatusMachineCreateStatus;
 			if (createStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 				return nullptr;
@@ -386,7 +386,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+			auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
@@ -443,7 +443,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+			auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;

@@ -242,7 +242,7 @@ namespace osidbg
 
 	int LuaStatsExtraDataProxy::LuaIndex(lua_State * L)
 	{
-		auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 		auto key = luaL_checkstring(L, 2);
@@ -740,7 +740,7 @@ end
 			auto const & mod = mods.Buf[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
-			auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(bootstrapFile);
+			auto reader = gStaticSymbols.MakeFileReader(bootstrapFile);
 			if (reader.IsLoaded()) {
 				std::string bootstrapScriptName;
 				if (dir.length() > 37) {
@@ -800,7 +800,7 @@ end
 
 	void ExtensionState::LuaLoadGameFile(std::string const & path, std::string const & scriptName)
 	{
-		auto reader = gOsirisProxy->GetLibraryManager().MakeFileReader(path);
+		auto reader = gStaticSymbols.MakeFileReader(path);
 		if (!reader.IsLoaded()) {
 			OsiError("Script file could not be opened: " << path);
 			return;

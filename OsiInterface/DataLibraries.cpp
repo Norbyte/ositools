@@ -2,9 +2,11 @@
 #include "DataLibraries.h"
 #include "ExtensionState.h"
 #include "OsirisProxy.h"
+#include <GameDefinitions/Symbols.h>
 #include <string>
 #include <functional>
 #include <psapi.h>
+#include <DbgHelp.h>
 
 namespace osidbg
 {
@@ -92,21 +94,21 @@ namespace osidbg
 		return true;
 	}
 
-	void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
+	void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
 	{
 		uint8_t initial = pattern_[0].pattern;
 
 		for (auto p = start; p < end; p++) {
 			if (*p == initial) {
 				if (MatchPattern(p)) {
-					callback(p);
-					if (!multiple) return;
+					auto matched = callback(p);
+					if (!multiple || (matched && *matched)) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
+	void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
 	{
 		uint16_t initial = pattern_[0].pattern
 			| (pattern_[1].pattern << 8);
@@ -114,14 +116,14 @@ namespace osidbg
 		for (auto p = start; p < end; p++) {
 			if (*reinterpret_cast<uint16_t const *>(p) == initial) {
 				if (MatchPattern(p)) {
-					callback(p);
-					if (!multiple) return;
+					auto matched = callback(p);
+					if (!multiple || (matched && *matched)) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<void(uint8_t const *)> callback, bool multiple)
+	void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
 	{
 		uint32_t initial = pattern_[0].pattern
 			| (pattern_[1].pattern << 8)
@@ -131,22 +133,21 @@ namespace osidbg
 		for (auto p = start; p < end; p++) {
 			if (*reinterpret_cast<uint32_t const *>(p) == initial) {
 				if (MatchPattern(p)) {
-					callback(p);
-					if (!multiple) return;
+					auto matched = callback(p);
+					if (!multiple || (matched && *matched)) return;
 				}
 			}
 		}
 	}
 
-	void Pattern::Scan(uint8_t const * start, size_t length, std::function<void(uint8_t const *)> callback, bool multiple)
+	void Pattern::Scan(uint8_t const * start, size_t length, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
 	{
 		// Check prefix length
 		auto prefixLength = 0;
 		for (auto i = 0; i < pattern_.size(); i++) {
 			if (pattern_[i].mask == 0xff) {
 				prefixLength++;
-			}
-			else {
+			} else {
 				break;
 			}
 		}
@@ -161,6 +162,14 @@ namespace osidbg
 		}
 	}
 
+	bool LibraryManager::IsConstStringRef(uint8_t const * ref, char const * str) const
+	{
+		return
+			ref >= moduleStart_ 
+			&& ref < moduleStart_ + moduleSize_
+			&& strcmp((char const *)ref, str) == 0;
+	}
+
 	bool LibraryManager::IsFixedStringRef(uint8_t const * ref, char const * str) const
 	{
 		if (ref >= moduleStart_ && ref < moduleStart_ + moduleSize_) {
@@ -172,6 +181,127 @@ namespace osidbg
 
 		return false;
 	}
+
+	bool LibraryManager::EvaluateSymbolCondition(SymbolMappingCondition const & cond, uint8_t const * match)
+	{
+		uint8_t const * ptr{ nullptr };
+		switch (cond.Type) {
+		case SymbolMappingCondition::kString:
+			ptr = AsmLeaToAbsoluteAddress(match + cond.Offset);
+			return ptr != nullptr && IsConstStringRef(ptr, cond.String);
+
+		case SymbolMappingCondition::kFixedString:
+			ptr = AsmLeaToAbsoluteAddress(match + cond.Offset);
+			return ptr != nullptr && IsFixedStringRef(ptr, cond.String);
+
+		case SymbolMappingCondition::kNone:
+		default:
+			return true;
+		}
+	}
+
+	SymbolMappingResult LibraryManager::ExecSymbolMappingAction(SymbolMappingTarget const & target, uint8_t const * match)
+	{
+		if (target.Type == SymbolMappingTarget::kNone) return SymbolMappingResult::Success;
+
+		uint8_t const * ptr{ nullptr };
+		switch (target.Type) {
+		case SymbolMappingTarget::kAbsolute:
+			ptr = match + target.Offset;
+			break;
+
+		case SymbolMappingTarget::kIndirectCall:
+			ptr = AsmCallToAbsoluteAddress(match + target.Offset);
+			break;
+
+		case SymbolMappingTarget::kIndirectLea:
+			ptr = AsmLeaToAbsoluteAddress(match + target.Offset);
+			break;
+
+		default:
+			break;
+		}
+
+		if (ptr != nullptr) {
+			if (target.TargetPtr != nullptr) {
+				*target.TargetPtr = const_cast<uint8_t *>(ptr);
+			}
+
+			if (target.NextSymbol != nullptr) {
+				if (!MapSymbol(*target.NextSymbol, ptr, target.NextSymbolSeekSize)) {
+					return SymbolMappingResult::Fail;
+				}
+			}
+
+			if (target.Handler != nullptr) {
+				return target.Handler(ptr);
+			} else {
+				return SymbolMappingResult::Success;
+			}
+		} else {
+			ERR("Could not map match to symbol address while resolving '%s'", target.Name);
+			return SymbolMappingResult::Fail;
+		}
+	}
+
+	bool LibraryManager::MapSymbol(SymbolMappingData const & mapping, uint8_t const * customStart, std::size_t customSize)
+	{
+		Pattern p;
+		p.FromString(mapping.Matcher);
+
+		uint8_t const * memStart;
+		std::size_t memSize;
+
+		switch (mapping.Scope) {
+		case SymbolMappingData::kBinary:
+			memStart = moduleStart_;
+			memSize = moduleSize_;
+			break;
+
+		case SymbolMappingData::kText:
+			memStart = moduleTextStart_;
+			memSize = moduleTextSize_;
+			break;
+
+		case SymbolMappingData::kCustom:
+			memStart = customStart;
+			memSize = customSize;
+			break;
+
+		default:
+			memStart = nullptr;
+			memSize = 0;
+			break;
+		}
+
+		bool mapped = false;
+		p.Scan(memStart, memSize, [this, &mapping, &mapped](const uint8_t * match) -> std::optional<bool> {
+			if (EvaluateSymbolCondition(mapping.Conditions, match)) {
+				auto action1 = ExecSymbolMappingAction(mapping.Target1, match);
+				auto action2 = ExecSymbolMappingAction(mapping.Target2, match);
+				auto action3 = ExecSymbolMappingAction(mapping.Target3, match);
+				mapped = action1 == SymbolMappingResult::Success 
+					&& action2 == SymbolMappingResult::Success
+					&& action3 == SymbolMappingResult::Success;
+				return action1 != SymbolMappingResult::TryNext 
+					&& action2 != SymbolMappingResult::TryNext
+					&& action3 != SymbolMappingResult::TryNext;
+			} else {
+				return {};
+			}
+		});
+
+		if (!mapped && !(mapping.Flag & SymbolMappingData::kAllowFail)) {
+			ERR("No match found for mapping '%s'", mapping.Name);
+			InitFailed = true;
+			if (mapping.Flag & SymbolMappingData::kCritical) {
+				CriticalInitFailed = true;
+			}
+		}
+
+		return mapped;
+	}
+
 
 	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call)
 	{
@@ -195,35 +325,50 @@ namespace osidbg
 		return lea + rel + 7;
 	}
 
+	void LibraryManager::FindTextSegment()
+	{
+		IMAGE_NT_HEADERS * pNtHdr = ImageNtHeader(const_cast<uint8_t *>(moduleStart_));
+		IMAGE_SECTION_HEADER * pSectionHdr = (IMAGE_SECTION_HEADER *)(pNtHdr + 1);
+
+		for (std::size_t i = 0; i < pNtHdr->FileHeader.NumberOfSections; i++) {
+			if (memcmp(pSectionHdr->Name, ".text", 6) == 0) {
+				moduleTextStart_ = moduleStart_ + pSectionHdr->VirtualAddress;
+				moduleTextSize_ = pSectionHdr->SizeOfRawData;
+				return;
+			}
+		}
+
+		// Fallback, if .text segment was not found
+		moduleTextStart_ = moduleStart_;
+		moduleTextSize_ = moduleSize_;
+	}
+
 	bool LibraryManager::FindLibraries()
 	{
+		memset(&gCharacterStatsGetters.Ptrs, 0, sizeof(gCharacterStatsGetters.Ptrs));
+
 #if defined(OSI_EOCAPP)
 		if (FindEoCApp(moduleStart_, moduleSize_)) {
-			FindMemoryManagerEoCApp();
-			FindLibrariesEoCApp();
+#else
+		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
+#endif
+
+			FindTextSegment();
+			MapAllSymbols(false);
+
+#if defined(OSI_EOCAPP)
 			FindServerGlobalsEoCApp();
 			FindEoCGlobalsEoCApp();
 			FindGlobalStringTableEoCApp();
-			FindNetworkFixedStringsEoCApp();
-			FindErrorFuncsEoCApp();
-			FindFileSystemEoCApp();
-			FindGameStateFuncsEoCApp();
-			return !CriticalInitFailed;
-		}
 #else
-		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
-			FindMemoryManagerEoCPlugin();
-			FindLibrariesEoCPlugin();
+			FindExportsEoCPlugin();
 			FindServerGlobalsEoCPlugin();
 			FindEoCGlobalsEoCPlugin();
 			FindGlobalStringTableCoreLib();
-			FindErrorFuncsEoCPlugin();
-			FindFileSystemCoreLib();
-			FindGameStateFuncsEoCPlugin();
-			return !CriticalInitFailed;
-		}
 #endif
-		else {
+
+			return !CriticalInitFailed;
+		} else {
 			ERR("LibraryManager::FindLibraries(): Unable to determine application type.");
 			return false;
 		}
@@ -237,25 +382,7 @@ namespace osidbg
 
 		auto initStart = std::chrono::high_resolution_clock::now();
 
-#if defined(OSI_EOCAPP)
-		FindGameActionManagerEoCApp();
-		FindGameActionsEoCApp();
-		FindStatusMachineEoCApp();
-		FindHitFuncsEoCApp();
-		FindItemFuncsEoCApp();
-		FindStatusTypesEoCApp();
-		FindCustomStatsEoCApp();
-		FindCharacterStatFuncsEoCApp();
-#else
-		FindGameActionManagerEoCPlugin();
-		FindGameActionsEoCPlugin();
-		FindStatusMachineEoCPlugin();
-		FindHitFuncsEoCPlugin();
-		FindItemFuncsEoCPlugin();
-		FindStatusTypesEoCPlugin();
-		FindCustomStatsEoCPlugin();
-		FindCharacterStatFuncsEoCPlugin();
-#endif
+		MapAllSymbols(true);
 
 		if (!CriticalInitFailed) {
 			InitPropertyMaps();
@@ -263,21 +390,21 @@ namespace osidbg
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
 
-			if (StatusHitVMT != nullptr) {
-				StatusHitEnter.Wrap(StatusHitVMT->Enter);
+			if (gStaticSymbols.StatusHitVMT != nullptr) {
+				StatusHitEnter.Wrap(gStaticSymbols.StatusHitVMT->Enter);
 			}
 
-			if (StatusHealVMT != nullptr) {
-				StatusHealEnter.Wrap(StatusHealVMT->Enter);
-				StatusGetEnterChance.Wrap(StatusHealVMT->GetEnterChance);
+			if (gStaticSymbols.StatusHealVMT != nullptr) {
+				StatusHealEnter.Wrap(gStaticSymbols.StatusHealVMT->Enter);
+				StatusGetEnterChance.Wrap(gStaticSymbols.StatusHealVMT->GetEnterChance);
 			}
 
-			if (CharacterHit != nullptr) {
-				CharacterHitHook.Wrap(CharacterHit);
+			if (gStaticSymbols.CharacterHit != nullptr) {
+				CharacterHitHook.Wrap(gStaticSymbols.CharacterHit);
 			}
 
-			if (StatusMachineApplyStatus != nullptr) {
-				ApplyStatusHook.Wrap(StatusMachineApplyStatus);
+			if (gStaticSymbols.StatusMachineApplyStatus != nullptr) {
+				ApplyStatusHook.Wrap(gStaticSymbols.StatusMachineApplyStatus);
 			}
 
 			gCharacterStatsGetters.WrapAll();
@@ -319,8 +446,8 @@ namespace osidbg
 	{
 		ERR(L"STARTUP ERROR: %s", msg.c_str());
 
-		if (EoCClient == nullptr
-			|| EoCClientHandleError == nullptr
+		if (gStaticSymbols.EoCClient == nullptr
+			|| gStaticSymbols.EoCClientHandleError == nullptr
 			|| EoCAlloc == nullptr) {
 			return;
 		}
@@ -335,27 +462,27 @@ namespace osidbg
 
 				STDWString str;
 				str.Set(msg);
-				EoCClientHandleError(*EoCClient, &str, exitGame, &str);
+				gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &str, exitGame, &str);
 			});
 			messageThread.detach();
 		} else {
 			STDWString str;
 			str.Set(msg);
-			EoCClientHandleError(*EoCClient, &str, exitGame, &str);
+			gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &str, exitGame, &str);
 		}
 	}
 
 	bool LibraryManager::CanShowError()
 	{
-		if (EoCClient == nullptr
-			|| *EoCClient == nullptr
-			|| (*EoCClient)->GameStateMachine == nullptr
-			|| *(*EoCClient)->GameStateMachine == nullptr
-			|| EoCClientHandleError == nullptr) {
+		if (gStaticSymbols.EoCClient == nullptr
+			|| *gStaticSymbols.EoCClient == nullptr
+			|| (*gStaticSymbols.EoCClient)->GameStateMachine == nullptr
+			|| *(*gStaticSymbols.EoCClient)->GameStateMachine == nullptr
+			|| gStaticSymbols.EoCClientHandleError == nullptr) {
 			return false;
 		}
 
-		auto state = (*(*EoCClient)->GameStateMachine)->State;
+		auto state = (*(*gStaticSymbols.EoCClient)->GameStateMachine)->State;
 		return state == GameState::Running
 			|| state == GameState::Paused
 			|| state == GameState::GameMasterPause
@@ -393,10 +520,10 @@ namespace osidbg
 
 	void LibraryManager::EnableCustomStats()
 	{
-		if (UICharacterSheetHook == nullptr
-			|| ActivateClientSystemsHook == nullptr
-			|| ActivateServerSystemsHook == nullptr
-			|| CustomStatUIRollHook == nullptr) {
+		if (gStaticSymbols.UICharacterSheetHook == nullptr
+			|| gStaticSymbols.ActivateClientSystemsHook == nullptr
+			|| gStaticSymbols.ActivateServerSystemsHook == nullptr
+			|| gStaticSymbols.CustomStatUIRollHook == nullptr) {
 			ERR("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
@@ -404,19 +531,19 @@ namespace osidbg
 		if (ExtensionState::Get().HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(ActivateClientSystemsHook, sizeof(replacement));
+				WriteAnchor code(gStaticSymbols.ActivateClientSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(ActivateServerSystemsHook, sizeof(replacement));
+				WriteAnchor code(gStaticSymbols.ActivateServerSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0xC3 };
-				WriteAnchor code(CustomStatUIRollHook, sizeof(replacement));
+				WriteAnchor code(gStaticSymbols.CustomStatUIRollHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
@@ -434,16 +561,9 @@ namespace osidbg
 #endif
 			};
 
-			WriteAnchor code(UICharacterSheetHook, sizeof(replacement));
+			WriteAnchor code(gStaticSymbols.UICharacterSheetHook, sizeof(replacement));
 			memcpy(code.ptr(), replacement, sizeof(replacement));
 			EnabledCustomStatsPane = true;
-		}
-	}
-
-	void LibraryManager::DestroyFileReader(FileReader * reader)
-	{
-		if (FileReaderDtor != nullptr) {
-			FileReaderDtor(reader);
 		}
 	}
 }

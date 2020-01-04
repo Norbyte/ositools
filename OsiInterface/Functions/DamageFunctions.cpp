@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
 namespace osidbg
@@ -306,7 +307,7 @@ namespace osidbg
 			return false;
 		}
 
-		auto characterHit = gOsirisProxy->GetLibraryManager().CharacterHit;
+		auto characterHit = gStaticSymbols.CharacterHit;
 		if (SimulateHit && characterHit == nullptr) {
 			OsiErrorS("esv::Character::Hit not found!");
 			return false;
@@ -318,8 +319,8 @@ namespace osidbg
 			return false;
 		}
 
-		auto createStatus = gOsirisProxy->GetLibraryManager().StatusMachineCreateStatus;
-		auto applyStatus = gOsirisProxy->GetLibraryManager().StatusMachineApplyStatus;
+		auto createStatus = gStaticSymbols.StatusMachineCreateStatus;
+		auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
 		if (createStatus == nullptr || applyStatus == nullptr) {
 			OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 			return false;

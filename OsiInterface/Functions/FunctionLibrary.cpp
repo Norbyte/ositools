@@ -62,7 +62,7 @@ namespace osidbg
 				return {};
 			}
 
-			auto storageRoot = gOsirisProxy->GetLibraryManager().ToPath("", PathRootType::GameStorage);
+			auto storageRoot = gStaticSymbols.ToPath("", PathRootType::GameStorage);
 			if (storageRoot.empty()) {
 				OsiErrorS("Could not fetch game storage path");
 				return {};

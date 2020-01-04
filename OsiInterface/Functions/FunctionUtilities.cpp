@@ -1,12 +1,13 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Symbols.h>
 
 namespace osidbg
 {
 	ecl::EoCClient * GetEoCClient()
 	{
-		auto clientPtr = gOsirisProxy->GetLibraryManager().EoCClient;
+		auto clientPtr = gStaticSymbols.EoCClient;
 		if (clientPtr == nullptr || *clientPtr == nullptr) {
 			return nullptr;
 		} else {
@@ -31,7 +32,7 @@ namespace osidbg
 			return FixedString{};
 		}
 
-		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
+		auto stringTable = gStaticSymbols.GetGlobalStringTable();
 		if (stringTable == nullptr) {
 			OsiErrorS("Global string table not available!");
 			return FixedString{};
@@ -45,7 +46,7 @@ namespace osidbg
 	{
 		auto str = ToFixedString(s);
 		if (!str) {
-			auto createFixedString = gOsirisProxy->GetLibraryManager().CreateFixedString;
+			auto createFixedString = gStaticSymbols.CreateFixedString;
 			if (createFixedString != nullptr) {
 #if defined(OSI_EOCAPP)
 				str = FixedString(createFixedString(s, -1));
@@ -77,7 +78,7 @@ namespace osidbg
 
 		auto guid = nameGuid + nameLen - 36;
 
-		auto stringTable = gOsirisProxy->GetLibraryManager().GetGlobalStringTable();
+		auto stringTable = gStaticSymbols.GetGlobalStringTable();
 		if (stringTable == nullptr) {
 			OsiErrorS("Global string table not available!");
 			return FixedString{};
@@ -135,12 +136,12 @@ namespace osidbg
 
 	EntityWorld * GetEntityWorld()
 	{
-		auto charFactory = gOsirisProxy->GetLibraryManager().GetCharacterFactory();
+		auto charFactory = gStaticSymbols.GetCharacterFactory();
 		if (charFactory != nullptr) {
 			return charFactory->Entities;
 		}
 
-		auto itemFactory = gOsirisProxy->GetLibraryManager().GetItemFactory();
+		auto itemFactory = gStaticSymbols.GetItemFactory();
 		if (itemFactory != nullptr) {
 			return itemFactory->Entities;
 		}
@@ -254,8 +255,7 @@ namespace osidbg
 
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle)
 	{
-		auto const & lib = gOsirisProxy->GetLibraryManager();
-		auto actionMgr = lib.GetGameActionManager();
+		auto actionMgr = gStaticSymbols.GetGameActionManager();
 
 		for (uint32_t i = 0; i < actionMgr->GameActions.Size; i++) {
 			auto action = actionMgr->GameActions.Buf[i];
@@ -396,7 +396,7 @@ namespace osidbg
 			return false;
 		}
 
-		auto shoot = gOsirisProxy->GetLibraryManager().ShootProjectile;
+		auto shoot = gStaticSymbols.ShootProjectile;
 		if (shoot == nullptr) {
 			OsiErrorS("ShootProjectile helper not found!");
 			return false;

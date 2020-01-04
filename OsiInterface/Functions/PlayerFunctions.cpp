@@ -186,7 +186,7 @@ namespace osidbg
 			auto skillId = args[2].String;
 			auto skillIdFs = ToFixedString(skillId);
 
-			auto * stats = gOsirisProxy->GetLibraryManager().GetStats();
+			auto * stats = gStaticSymbols.GetStats();
 			auto skillDataFs = ToFixedString("SkillData");
 			if (!stats->ObjectExists(skillIdFs, skillDataFs)) {
 				OsiError("'" << skillId << "' is not a valid skill ID!");

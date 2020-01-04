@@ -34,7 +34,6 @@ STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
 STATIC_HOOK(CloseHandle)
 STATIC_HOOK(InitNetworkFixedStrings)
-STATIC_HOOK(GameStateLoadModuleDo)
 STATIC_HOOK(GameStateChangedEvent)
 STATIC_HOOK(SkillPrototypeManagerInit)
 
@@ -137,13 +136,9 @@ void OsirisWrappers::InitializeExtensions()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	auto lib = gOsirisProxy->GetLibraryManager();
+	auto lib = gStaticSymbols;
 	if (lib.InitNetworkFixedStrings != nullptr) {
 		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
-	}
-
-	if (lib.GameStateLoadModuleDo != nullptr) {
-		GameStateLoadModuleDo.Wrap(lib.GameStateLoadModuleDo);
 	}
 
 	if (lib.GameStateChangedEvent != nullptr) {
@@ -168,7 +163,6 @@ void OsirisWrappers::Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	InitNetworkFixedStrings.Unwrap();
-	GameStateLoadModuleDo.Unwrap();
 	GameStateChangedEvent.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
 	ExtensionsInitialized = false;

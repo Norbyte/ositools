@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Symbols.h>
 
 namespace osidbg
 {
@@ -27,7 +28,7 @@ namespace osidbg
 				pos = character->WorldPos;
 			}
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
@@ -53,7 +54,7 @@ namespace osidbg
 
 			action->IsFromItem = false;
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
@@ -68,7 +69,7 @@ namespace osidbg
 
 			action->IsFromItem = false;
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
@@ -90,7 +91,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto stats = gOsirisProxy->GetLibraryManager().GetStats();
+			auto stats = gStaticSymbols.GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -107,7 +108,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.WallActionCreateWall == nullptr) {
@@ -142,7 +143,7 @@ namespace osidbg
 
 		bool CreateTornado(OsiArgumentDesc & args)
 		{
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			if (lib.TornadoActionSetup == nullptr) {
 				OsiErrorS("Tornado action symbols not available in library manager");
 				return false;
@@ -168,7 +169,7 @@ namespace osidbg
 			auto action = PrepareAction<esv::StatusDomeAction>(args, GameActionType::StatusDomeAction);
 			if (action == nullptr) return false;
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
@@ -212,7 +213,7 @@ namespace osidbg
 				}
 			}
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.GameObjectMoveActionSetup == nullptr) {
@@ -360,7 +361,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto const & lib = gOsirisProxy->GetLibraryManager();
+			auto const & lib = gStaticSymbols;
 			if (lib.SummonHelpersSummon == nullptr) {
 				OsiErrorS("Summon helper symbols not available in library manager");
 				return false;
