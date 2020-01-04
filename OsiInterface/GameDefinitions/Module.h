@@ -8,19 +8,19 @@ namespace osidbg
 #pragma pack(push, 1)
 	struct ModuleShortDesc : public ProtectedGameObject<ModuleShortDesc>
 	{
-		FixedString FS1;
-		STDWString WStr1;
-		int field_28;
-		int field_2C;
-		STDString Str1;
-		STDWString WStr2;
+		FixedString ModuleUUID;
+		STDWString Name;
+		uint32_t Version;
+		uint8_t _Pad[4];
+		STDString MD5;
+		STDWString Folder;
 	};
 
 	struct ModuleSettings : public ProtectedGameObject<ModuleSettings>
 	{
 		void *VMT;
-		ObjectSet<ModuleShortDesc> ObjSet_ModuleShortDesc;
-		ObjectSet<FixedString> ObjSet_FixedString;
+		ObjectSet<ModuleShortDesc> Mods;
+		ObjectSet<FixedString> ModOrder;
 	};
 
 	struct ModuleInfo : public ProtectedGameObject<ModuleInfo>
@@ -47,27 +47,12 @@ namespace osidbg
 		FixedString ModuleType;
 	};
 
-	struct ModuleUnknownInner
-	{
-		void * VMT;
-		void * Unknown;
-		STDString Str1;
-		STDWString Str2;
-	};
-
-	struct ModuleUnknown
-	{
-		void * VMT;
-		ModuleUnknownInner Inner1;
-		ModuleUnknownInner Inner2;
-	};
-
 	struct Module : public ProtectedGameObject<Module>
 	{
 		void * VMT;
 		ModuleInfo Info;
-		ModuleUnknown Unknown1;
-		ModuleUnknown Unknown2;
+		TranslatedString Unknown1;
+		TranslatedString Unknown2;
 		ObjectSet<Module> LoadOrderedModules;
 		ObjectSet<Module> ContainedModules;
 		ObjectSet<Module> DependentModules;
