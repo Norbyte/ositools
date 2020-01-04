@@ -9,7 +9,7 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace esv
 	{
-		struct GameAction
+		struct GameAction : public ProtectedGameObject<GameAction>
 		{
 			void * VMT;
 			FixedString SomeFS;
@@ -26,7 +26,7 @@ namespace osidbg
 			uint32_t _Pad2;
 		};
 
-		struct GameActionManager
+		struct GameActionManager : public ProtectedGameObject<GameActionManager>
 		{
 			uint8_t Unmapped[0x130];
 			Set<GameAction *> GameActions;

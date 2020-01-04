@@ -52,7 +52,7 @@ namespace osidbg
 			FixedStringMapBase<int> StatValues;
 		};
 
-		struct CustomStatDefinitionComponent
+		struct CustomStatDefinitionComponent : public ProtectedGameObject<CustomStatDefinitionComponent>
 		{
 			void * VMT;
 			FixedString Id;
@@ -63,7 +63,7 @@ namespace osidbg
 
 	namespace esv
 	{
-		struct NetComponent
+		struct NetComponent : public ProtectedGameObject<NetComponent>
 		{
 			BaseComponent Base;
 			FixedString FixedStr1;
@@ -80,7 +80,7 @@ namespace osidbg
 			uint64_t Unkn1;
 		};
 
-		struct CustomStatSystem
+		struct CustomStatSystem : public ProtectedGameObject<CustomStatSystem>
 		{
 			void * GameEventListenerVMT;
 			void * Unkn1;

@@ -12,7 +12,7 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace eoc
 	{
-		struct PlayerUpgrade
+		struct PlayerUpgrade : public ProtectedGameObject<PlayerUpgrade>
 		{
 			CDivinityStats_Character * Stats;
 			uint32_t AttributePoints;
@@ -59,7 +59,7 @@ namespace osidbg
 			uint32_t Unknown;
 		};
 
-		struct Skill
+		struct Skill : public ProtectedGameObject<Skill>
 		{
 			void * VMT;
 			FixedString UnknownFS;
@@ -84,7 +84,7 @@ namespace osidbg
 			uint64_t Unknown3;
 		};
 
-		struct SkillManager
+		struct SkillManager : public ProtectedGameObject<SkillManager>
 		{
 			void * FreeSkillState;
 			ObjectHandle OwnerHandle;
@@ -96,7 +96,7 @@ namespace osidbg
 			uint32_t SomeCount;
 		};
 
-		struct SkillBarItem
+		struct SkillBarItem : public ProtectedGameObject<SkillBarItem>
 		{
 			enum ItemType : uint32_t
 			{
@@ -111,7 +111,7 @@ namespace osidbg
 			ObjectHandle ItemHandle;
 		};
 
-		struct PlayerCustomData
+		struct PlayerCustomData : public ProtectedGameObject<PlayerCustomData>
 		{
 			void * VMT;
 			bool Initialized;
@@ -138,7 +138,7 @@ namespace osidbg
 			void * CustomIconImg;
 		};
 
-		struct PlayerData
+		struct PlayerData : public ProtectedGameObject<PlayerData>
 		{
 			ObjectHandle SomeObjectHandle;
 			ObjectSet<SkillBarItem> SkillBar;

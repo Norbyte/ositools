@@ -70,7 +70,7 @@ namespace osidbg
 		struct CustomStatsComponent;
 	}
 
-	struct EntityWorld
+	struct EntityWorld : public ProtectedGameObject<EntityWorld>
 	{
 		void * VMT;
 		Array<EntityEntry *> EntityEntries;
@@ -161,7 +161,7 @@ namespace osidbg
 
 	namespace esv
 	{
-		struct EoCServerObject
+		struct EoCServerObject : public ProtectedGameObject<EoCServerObject>
 		{
 			virtual ~EoCServerObject() = 0;
 			virtual void HandleTextKeyEvent() = 0;

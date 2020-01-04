@@ -18,7 +18,7 @@ namespace osidbg
 		void AddDamage(DamageType damageType, int32_t amount);
 	};
 
-	struct HitDamageInfo
+	struct HitDamageInfo : public Noncopyable<CRPGStatsManager>
 	{
 		uint32_t Equipment{ 0 };
 		// Sum of all damages in DamageList
@@ -36,6 +36,7 @@ namespace osidbg
 		uint8_t _Pad2[3];
 		DamagePairList DamageList;
 
+		inline HitDamageInfo() {}
 		void ClearDamage();
 		void ClearDamage(osidbg::DamageType damageType);
 		void AddDamage(osidbg::DamageType damageType, int32_t amount);
@@ -79,7 +80,7 @@ namespace osidbg
 			void * AddStatsData_Maybe;
 		};
 
-		struct Status
+		struct Status : public ProtectedGameObject<CRPGStatsManager>
 		{
 			virtual ~Status() = 0;
 			virtual void SetObjectHandle(ObjectHandle Handle) = 0;
@@ -283,7 +284,7 @@ namespace osidbg
 		};
 
 
-		struct StatusMachine
+		struct StatusMachine : public ProtectedGameObject<StatusMachine>
 		{
 			Status * GetStatusByHandle(ObjectHandle handle) const;
 

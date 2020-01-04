@@ -12,7 +12,7 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace eoc
 	{
-		struct ItemDefinition
+		struct ItemDefinition : public ProtectedGameObject<ItemDefinition>
 		{
 			uint32_t Unknown;
 			NetId NetID;

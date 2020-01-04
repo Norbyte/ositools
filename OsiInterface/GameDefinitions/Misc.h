@@ -11,7 +11,7 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace eoc
 	{
-		struct NetworkFixedStrings
+		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>
 		{
 			uint16_t Initialized;
 			uint8_t _Pad[6];
@@ -75,13 +75,13 @@ namespace osidbg
 
 	namespace ecl {
 
-	struct GameStateMachine
+	struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 	{
 		uint8_t Unkn[16];
 		GameState State;
 	};
 
-	struct EoCClient
+	struct EoCClient : public ProtectedGameObject<EoCClient>
 	{
 		void * VMT;
 		void * GameEventManagerVMT;
@@ -132,7 +132,7 @@ namespace osidbg
 
 	}
 
-	struct FileReader
+	struct FileReader : public Noncopyable<FileReader>
 	{
 		bool IsLoaded;
 		uint8_t _Pad0[7];

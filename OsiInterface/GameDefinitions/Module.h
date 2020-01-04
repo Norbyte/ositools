@@ -6,7 +6,7 @@ namespace osidbg
 {
 
 #pragma pack(push, 1)
-	struct ModuleShortDesc
+	struct ModuleShortDesc : public ProtectedGameObject<ModuleShortDesc>
 	{
 		FixedString FS1;
 		STDWString WStr1;
@@ -16,14 +16,14 @@ namespace osidbg
 		STDWString WStr2;
 	};
 
-	struct ModuleSettings
+	struct ModuleSettings : public ProtectedGameObject<ModuleSettings>
 	{
 		void *VMT;
 		ObjectSet<ModuleShortDesc> ObjSet_ModuleShortDesc;
 		ObjectSet<FixedString> ObjSet_FixedString;
 	};
 
-	struct ModuleInfo
+	struct ModuleInfo : public ProtectedGameObject<ModuleInfo>
 	{
 		FixedString ModuleUUID;
 		STDWString Name;
@@ -62,7 +62,7 @@ namespace osidbg
 		ModuleUnknownInner Inner2;
 	};
 
-	struct Module
+	struct Module : public ProtectedGameObject<Module>
 	{
 		void * VMT;
 		ModuleInfo Info;
@@ -81,7 +81,7 @@ namespace osidbg
 		uint8_t _Pad2[7];
 	};
 
-	struct ModManager
+	struct ModManager : public ProtectedGameObject<ModManager>
 	{
 		void * VMT;
 		Module BaseModule;

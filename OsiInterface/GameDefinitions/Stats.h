@@ -8,7 +8,7 @@ namespace osidbg
 {
 
 #pragma pack(push, 1)
-	struct CRPGStats_Object
+	struct CRPGStats_Object : public ProtectedGameObject<CRPGStats_Object>
 	{
 		void * VMT;
 		uint32_t Handle;
@@ -44,7 +44,7 @@ namespace osidbg
 		uint32_t InstanceId;
 	};
 
-	struct CDivinityStats_Equipment_Attributes
+	struct CDivinityStats_Equipment_Attributes : public ProtectedGameObject<CDivinityStats_Equipment_Attributes>
 	{
 		void * VMT;
 		uint32_t InstanceId;
@@ -191,7 +191,7 @@ namespace osidbg
 		bool IsEquipped;
 	};
 
-	struct CharacterDynamicStat
+	struct CharacterDynamicStat : public ProtectedGameObject<CharacterDynamicStat>
 	{
 		uint64_t Unkn0;
 		uint64_t Unkn1;
@@ -346,7 +346,7 @@ namespace osidbg
 	typedef void (* eoc__SkillPrototypeManager__Init)(void * self);
 
 	template <class T>
-	struct CHandleArray
+	struct CHandleArray : public ProtectedGameObject<CHandleArray<T>>
 	{
 		__int64 VMT;
 		T ** Start;
@@ -361,7 +361,7 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct CDivinityStatsList
+	struct CDivinityStatsList : public ProtectedGameObject<CDivinityStatsList<T>>
 	{
 		void * VMT;
 		CHandleArray<T> Handles;
@@ -377,7 +377,7 @@ namespace osidbg
 		}
 	};
 
-	struct CDivinityStats
+	struct CDivinityStats : public ProtectedGameObject<CDivinityStats>
 	{
 		void * VMT;
 		bool SomeFlag;
@@ -390,13 +390,13 @@ namespace osidbg
 		uint64_t Unkn;
 	};
 
-	struct RPGEnumeration
+	struct RPGEnumeration : public ProtectedGameObject<RPGEnumeration>
 	{
 		FixedString Name;
 		FixedStringMapBase<int32_t> Values;
 	};
 
-	struct CRPGStats_Modifier
+	struct CRPGStats_Modifier : public ProtectedGameObject<CRPGStats_Modifier>
 	{
 		int32_t RPGEnumerationIndex;
 		int32_t Unknown2;
@@ -406,7 +406,7 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct CNamedElementManager
+	struct CNamedElementManager : public ProtectedGameObject<CNamedElementManager<T>>
 	{
 		void * VMT;
 		void * PrimitiveSetVMT;
@@ -475,12 +475,12 @@ namespace osidbg
 		CRPGStats_Modifier * GetAttributeInfo(const char * name, int * attributeIndex) const;
 	};
 
-	struct CRPGStats_ExtraData
+	struct CRPGStats_ExtraData : public ProtectedGameObject<CRPGStats_ExtraData>
 	{
 		FixedStringMapBase<float> Properties;
 	};
 
-	struct CRPGStats_Object_Property
+	struct CRPGStats_Object_Property : public ProtectedGameObject<CRPGStats_Object_Property>
 	{
 		void * VMT;
 		FixedString SomeHashedText;
@@ -502,7 +502,7 @@ namespace osidbg
 		uint8_t _Pad[7];
 	};
 
-	struct CDivinityStats_Condition
+	struct CDivinityStats_Condition : public ProtectedGameObject<CDivinityStats_Condition>
 	{
 		void * ScriptCheckBlock;
 		FixedString Id;
@@ -520,7 +520,7 @@ namespace osidbg
 		uint64_t Unknown;
 	};
 
-	struct CRPGStatsManager
+	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
 		CNamedElementManager<RPGEnumeration> modifierValueList;
 		CNamedElementManager<ModifierList> modifierList;

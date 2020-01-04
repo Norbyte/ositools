@@ -49,8 +49,37 @@ namespace osidbg
 
 	constexpr NetId NetIdUnassigned = 0xffffffff;
 
+	// Base class for game objects that cannot be copied.
 	template <class T>
-	struct PrimitiveSet
+	class Noncopyable
+	{
+	public:
+		inline Noncopyable() {}
+
+		Noncopyable(const Noncopyable &) = delete;
+		T & operator = (const T &) = delete;
+		Noncopyable(Noncopyable &&) = delete;
+		T & operator = (T &&) = delete;
+	};
+
+	// Base class for game objects that are managed entirely
+	// by the game and we cannot create/copy them.
+	template <class T>
+	class ProtectedGameObject
+	{
+	public:
+		ProtectedGameObject(const ProtectedGameObject &) = delete;
+		T & operator = (const T &) = delete;
+		ProtectedGameObject(ProtectedGameObject &&) = delete;
+		T & operator = (T &&) = delete;
+
+	protected:
+		ProtectedGameObject() = delete;
+		//~ProtectedGameObject() = delete;
+	};
+
+	template <class T>
+	struct PrimitiveSet : public Noncopyable<PrimitiveSet<T>>
 	{
 		T * Buf;
 		uint32_t AllocationSize;
@@ -97,7 +126,7 @@ namespace osidbg
 	FixedString ToFixedString(const char * s);
 
 	template <class ValueType>
-	struct FixedStringMapBase
+	struct FixedStringMapBase : public Noncopyable<FixedStringMapBase<ValueType>>
 	{
 		struct Node
 		{
@@ -193,7 +222,7 @@ namespace osidbg
 	};
 
 	template <class ValueType>
-	struct FixedStringRefMap
+	struct FixedStringRefMap : public Noncopyable<FixedStringRefMap<ValueType>>
 	{
 		struct Node
 		{
@@ -230,11 +259,13 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct CompactSet
+	struct CompactSet : public Noncopyable<CompactSet<T>>
 	{
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
+
+		inline CompactSet() {}
 	};
 
 	template <class T>
@@ -324,7 +355,7 @@ namespace osidbg
 		}
 	};
 
-	struct STDWString
+	struct STDWString : public Noncopyable<STDWString>
 	{
 		union {
 			wchar_t Buf[8];
@@ -332,6 +363,8 @@ namespace osidbg
 		};
 		uint64_t Size{ 0 };
 		uint64_t Capacity{ 7 };
+
+		inline STDWString() {}
 
 		inline wchar_t const * GetPtr() const
 		{
@@ -352,7 +385,7 @@ namespace osidbg
 		uint64_t Size;
 	};
 
-	struct STDString
+	struct STDString : public Noncopyable<STDString>
 	{
 		union {
 			char Buf[16];
@@ -360,6 +393,8 @@ namespace osidbg
 		};
 		uint64_t Size{ 0 };
 		uint64_t Capacity{ 15 };
+
+		inline STDString() {}
 
 		inline char const * GetPtr() const
 		{
@@ -385,7 +420,7 @@ namespace osidbg
 		uint32_t _Pad;
 	};
 
-	struct RuntimeStringHandle
+	struct RuntimeStringHandle : public ProtectedGameObject<RuntimeStringHandle>
 	{
 		void * VMT;
 		FixedString FS;
@@ -393,7 +428,7 @@ namespace osidbg
 		STDWString WStr;
 	};
 
-	struct TranslatedString
+	struct TranslatedString : public ProtectedGameObject<TranslatedString>
 	{
 		void * VMT;
 		RuntimeStringHandle Str1;
@@ -401,7 +436,7 @@ namespace osidbg
 	};
 
 	template <class T>
-	struct Array
+	struct Array : public Noncopyable<Array<T>>
 	{
 		void * VMT{ nullptr };
 		T * Buf{ nullptr };
@@ -505,7 +540,7 @@ namespace osidbg
 		}
 	};
 
-	struct ObjectFactory
+	struct ObjectFactory : public ProtectedGameObject<ObjectFactory>
 	{
 		void * VMT;
 		Array<void *> CharPtrArray;
@@ -516,7 +551,7 @@ namespace osidbg
 		uint64_t unkn3[3];
 	};
 
-	struct Component
+	struct Component : public ProtectedGameObject<Component>
 	{
 		virtual void Destroy() = 0;
 		virtual void DestroyComponent() = 0;
@@ -554,7 +589,7 @@ namespace osidbg
 		ComponentHandle Component;
 	};
 
-	struct GlobalStringTable
+	struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
 	{
 		static bool UseMurmur;
 
@@ -575,7 +610,7 @@ namespace osidbg
 		static uint32_t Hash(char const * s, uint64_t length);
 	};
 
-	struct ScratchBuffer
+	struct ScratchBuffer : public ProtectedGameObject<ScratchBuffer>
 	{
 		void * Buffer;
 		uint32_t Unkn;

@@ -276,7 +276,7 @@ struct DivFunctions
 	AssertProc Assert;
 };
 
-struct BufferPool
+struct BufferPool : public ProtectedGameObject<BufferPool>
 {
 	void * VMT;
 	uint8_t Unknown;
@@ -358,7 +358,7 @@ struct OsirisFunctionHandle
 	}
 };
 
-struct OsirisFunction
+struct OsirisFunction : public ProtectedGameObject<OsirisFunction>
 {
 	void * VMT;
 	char const * Name;
@@ -376,7 +376,7 @@ struct OsirisFunction
 	uint64_t Unknown2;
 };
 
-struct TypeInfo
+struct TypeInfo : public ProtectedGameObject<TypeInfo>
 {
 	char const * Name;
 	ValueType Type;
@@ -397,7 +397,7 @@ struct FixedStringMap
 	uint32_t Size;
 };
 
-struct OsirisManager
+struct OsirisManager : public ProtectedGameObject<OsirisManager>
 {
 	void * Allocator;
 	OsirisInterface * Interface;
@@ -419,7 +419,7 @@ struct OsirisManager
 	uint64_t Unknown6[3];
 };
 
-struct OsirisInterface
+struct OsirisInterface : public ProtectedGameObject<OsirisInterface>
 {
 	void * Osiris;
 	OsirisManager * Manager;
@@ -443,7 +443,7 @@ struct VariableItem2
 	uint64_t strpad, str1, str2;
 };
 
-struct VariableDb
+struct VariableDb : public ProtectedGameObject<VariableDb>
 {
 	VariableItem vars[256];
 	uint32_t NumVariables;
@@ -567,7 +567,7 @@ struct TMap
 {
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
 
-	TVal * Find(TKey key)
+	TVal * Find(TKey const & key)
 	{
 		auto finalTreeNode = Root;
 		auto currentTreeNode = Root->Root;
@@ -607,7 +607,7 @@ struct TMap
 
 
 template <class TKey, class TValue>
-struct TypeDb
+struct TypeDb : public ProtectedGameObject<TypeDb<TKey, TValue>>
 {
 	struct HashSlot
 	{
@@ -615,7 +615,7 @@ struct TypeDb
 		void * Unknown;
 	};
 
-	TValue * Find(uint32_t hash, TKey key)
+	TValue * Find(uint32_t hash, TKey const & key)
 	{
 		auto & bucket = Hash[hash % 0x3FF];
 		return bucket.NodeMap.Find(key);
@@ -739,7 +739,7 @@ public:
 	TupleLL Data;
 };
 
-struct Database
+struct Database : public ProtectedGameObject<Database>
 {
 	uint32_t DatabaseId;
 	uint32_t __Padding;
@@ -778,7 +778,7 @@ public:
 	List<RuleActionNode *> Actions;
 };
 
-struct Goal
+struct Goal : public ProtectedGameObject<Goal>
 {
 	RuleActionList * InitCalls;
 	RuleActionList * ExitCalls;
@@ -809,7 +809,7 @@ struct DatabaseDb
 class VirtTupleLL;
 struct AdapterDb;
 
-struct Adapter
+struct Adapter : public ProtectedGameObject<Adapter>
 {
 	uint32_t Id;
 	uint32_t __Padding;
@@ -917,7 +917,7 @@ enum class FunctionType : uint32_t
 	UserQuery = 8
 };
 
-struct Function
+struct Function : public ProtectedGameObject<Function>
 {
 	void * VMT;
 	uint32_t Line;
@@ -997,7 +997,7 @@ struct NodeVMT
 	GetQueryNameProc GetQueryName; // C0
 };
 
-class Node
+class Node : public Noncopyable<Node>
 {
 public:
 	virtual ~Node() = 0;
