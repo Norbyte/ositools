@@ -248,15 +248,22 @@ namespace osidbg
 		{
 			"ls::FileReader::FileReader",
 			SymbolMappingData::kText, SymbolMappingData::kCritical,
-			"4C 89 6D 98 " // mov     [rbp+180h+var_1E8], r13
-			"44 89 6D A0 " // mov     [rbp+180h+var_1E0], r13d
-			"44 89 6D A8 " // mov     [rbp+180h+var_1D8], r13d
-			"4C 89 6D B0 " // mov     [rbp+180h+var_1D0], r13
-			"C6 44 24 60 00 " // mov     [rsp+280h+var_220], 0
+			"F3 0F 7F 45 D7 " // movdqu  [rbp+4Fh+var_78], xmm0
+			"E8 XX XX XX XX " // call    xxx
+			"45 33 C0 " // xor     r8d, r8d
+			"89 75 17 " // mov     [rbp+4Fh+var_38], esi
+			"48 8B D7 " // mov     rdx, rdi
+			"48 89 75 1F " // mov     [rbp+4Fh+var_30], rsi
+			"48 8D 4D CF " // lea     rcx, [rbp+4Fh+var_80]
 			"E8 XX XX XX XX " // call    ls__FileReader__FileReader
-			"48 8D 54 24 50 ", // lea     rdx, [rsp+280h+Src]
+			"48 8D 55 CF " // lea     rdx, [rbp+4Fh+var_80]
+			"48 8D 4C 24 30 " // lea     rcx, [rsp+110h+var_E0]
+			"E8 XX XX XX XX " // call    sub_1411CF840
+			"48 8D 4D CF " // lea     rcx, [rbp+4Fh+var_80]
+			"E8 XX XX XX XX ", // call    ls__FileReader__dtor
 			{}, // Unconditional
-			{"ls::FileReader::FileReader", SymbolMappingTarget::kIndirectCall, 21, (void **)&gStaticSymbols.FileReaderCtor}
+			{"ls::FileReader::FileReader", SymbolMappingTarget::kIndirectCall, 27, (void **)&gStaticSymbols.FileReaderCtor},
+			{"ls::FileReader::~FileReader", SymbolMappingTarget::kIndirectCall, 50, (void **)&gStaticSymbols.FileReaderDtor}
 		},
 
 		// TODO - find FileReaderDtor
