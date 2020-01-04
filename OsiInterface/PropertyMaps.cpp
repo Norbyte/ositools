@@ -17,6 +17,7 @@ namespace osidbg
 	PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
 	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
+	PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
 	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
@@ -159,7 +160,7 @@ namespace osidbg
 			PROP(eoc::ItemDefinition, Slot);
 			PROP(eoc::ItemDefinition, GoldValueOverwrite);
 			PROP(eoc::ItemDefinition, WeightValueOverwrite);
-			PROP(eoc::ItemDefinition, DamageTypeOverwrite);
+			PROP_ENUM(eoc::ItemDefinition, DamageTypeOverwrite);
 			PROP(eoc::ItemDefinition, ItemType);
 			PROP(eoc::ItemDefinition, GenerationStatsId);
 			PROP(eoc::ItemDefinition, GenerationItemType);
@@ -225,7 +226,7 @@ namespace osidbg
 		{
 			auto & propertyMap = gEquipmentAttributesWeaponPropertyMap;
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageType);
+			PROP_ENUM(CDivinityStats_Equipment_Attributes_Weapon, DamageType);
 			PROP(CDivinityStats_Equipment_Attributes_Weapon, MinDamage);
 			PROP(CDivinityStats_Equipment_Attributes_Weapon, MaxDamage);
 			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageBoost);
@@ -350,6 +351,25 @@ namespace osidbg
 			PROP_FLAGS(CDivinityStats_Character, AttributeFlags, StatAttributeFlags, false);
 
 			// TODO - DisabledTalents, TraitOrder?
+		}
+
+		{
+			auto & propertyMap = gItemStatsPropertyMap;
+			PROP_RO(CDivinityStats_Item, ItemType);
+			PROP_RO(CDivinityStats_Item, ItemSlot);
+			PROP_RO(CDivinityStats_Item, WeaponType);
+			PROP_RO(CDivinityStats_Item, AnimType);
+			PROP_RO(CDivinityStats_Item, WeaponRange);
+			PROP_RO(CDivinityStats_Item, IsIdentified);
+			PROP_RO(CDivinityStats_Item, IsTwoHanded);
+			PROP_RO(CDivinityStats_Item, HasModifiedSkills);
+			PROP_RO(CDivinityStats_Item, Skills);
+			PROP_ENUM(CDivinityStats_Item, DamageTypeOverwrite);
+			PROP_RO(CDivinityStats_Item, Durability);
+			PROP_RO(CDivinityStats_Item, DurabilityCounter);
+			PROP_RO(CDivinityStats_Item, ItemTypeReal);
+			PROP_RO(CDivinityStats_Item, MaxCharges);
+			PROP_RO(CDivinityStats_Item, Charges);
 		}
 
 		{

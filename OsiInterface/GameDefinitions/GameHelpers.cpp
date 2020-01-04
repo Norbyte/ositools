@@ -3,6 +3,7 @@
 #include <GameDefinitions/BaseTypes.h>
 #include <GameDefinitions/Symbols.h>
 #include "OsirisProxy.h"
+#include <PropertyMaps.h>
 
 namespace osidbg
 {
@@ -657,6 +658,24 @@ namespace osidbg
 		}
 	}
 
+
+	PropertyMapBase & CDivinityStats_Equipment_Attributes::GetPropertyMap() const
+	{
+		switch (StatsType) {
+		case EquipmentStatsType::Weapon:
+			return gEquipmentAttributesWeaponPropertyMap;
+
+		case EquipmentStatsType::Armor:
+			return gEquipmentAttributesArmorPropertyMap;
+
+		case EquipmentStatsType::Shield:
+				return gEquipmentAttributesShieldPropertyMap;
+
+		default:
+			OsiError("Unknown equipment stats type: " << (unsigned)StatsType);
+			return gEquipmentAttributesPropertyMap;
+		}
+	}
 
 	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
 	{

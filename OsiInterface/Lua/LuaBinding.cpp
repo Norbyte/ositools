@@ -227,7 +227,15 @@ namespace osidbg
 		if (item == nullptr) return luaL_error(L, "Item handle invalid");
 
 		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, prop, true);
+		bool fetched = false;
+		if (item->StatsDynamic != nullptr) {
+			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, prop, false);
+		}
+
+		if (!fetched) {
+			fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, prop, true);
+		}
+
 		return fetched ? 1 : 0;
 	}
 

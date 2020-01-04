@@ -39,7 +39,7 @@ namespace osidbg
 			uint32_t Unkn6;
 			int32_t GoldValueOverwrite; // -1 = Not overridden
 			int32_t WeightValueOverwrite; // -1 = Not overridden
-			uint32_t DamageTypeOverwrite;
+			DamageType DamageTypeOverwrite;
 			uint32_t SomeOverwrite;
 			FixedString FS4;
 			// eg. "Uncommon"

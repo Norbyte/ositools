@@ -104,11 +104,13 @@ namespace osidbg
 		BitArray<4> Talents;
 		uint32_t Unkn4;
 		uint64_t AttributeFlags;
+
+		struct PropertyMapBase & GetPropertyMap() const;
 	};
 
 	struct CDivinityStats_Equipment_Attributes_Weapon : public CDivinityStats_Equipment_Attributes
 	{
-		int32_t DamageType;
+		DamageType DamageType;
 		int32_t MinDamage;
 		int32_t MaxDamage;
 		int32_t DamageBoost;
@@ -156,7 +158,7 @@ namespace osidbg
 		bool HasModifiedSkills; // Saved
 		uint32_t U6;
 		FixedString Skills; // Saved
-		int32_t DamageTypeOverwrite; // Saved // -1 = Not overridden
+		DamageType DamageTypeOverwrite; // Saved // -1 = Not overridden
 		uint32_t Durability; // Saved
 		uint32_t DurabilityCounter; // Saved
 		uint32_t U7;

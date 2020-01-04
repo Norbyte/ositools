@@ -812,20 +812,20 @@ CharacterAddCivilAbilityPoint(_Character, 0); // Force PlayerUpgrade sync
 ```
 
 
-### CharacterSetBaseAttribute
-`call NRD_CharacterSetBaseAttribute((CHARACTERGUID)_Character, (STRING)_Attribute, (INTEGER)_Value)`
+### PlayerSetBaseAttribute
+`call NRD_PlayerSetBaseAttribute((CHARACTERGUID)_Character, (STRING)_Attribute, (INTEGER)_Value)`
 
 Updates the level of the specified attribute. `_Attribute` must be one of `Strength`, `Finesse`, `Intelligence`, `Constitution`, `Memory`, `Wits`. After changing base attributes, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
 
 
-### CharacterSetBaseAbility
-`call NRD_CharacterSetBaseAbility((CHARACTERGUID)_Character, (STRING)_Ability, (INTEGER)_Value)`
+### PlayerSetBaseAbility
+`call NRD_PlayerSetBaseAbility((CHARACTERGUID)_Character, (STRING)_Ability, (INTEGER)_Value)`
 
 Updates the level of the specified ability. `_Ability` must be a value from the built-in enumeration `Ability` (see `Enumerations.xml`). After changing base abilities, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
 
 
-### CharacterSetBaseTalent
-`call NRD_CharacterSetBaseTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_HasTalent)`
+### PlayerSetBaseTalent
+`call NRD_PlayerSetBaseTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_HasTalent)`
 
 Adds or removes a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). Unlike `CharacterAddTalent` and `CharacterRemoveTalent`, this function changes the base talent values, not the boost talent values. After changing talents, boosts must be synchronized via a dummy `CharacterAddCivilAbilityPoint` call (see above).
 
@@ -1039,6 +1039,55 @@ NRD_ItemDeltaModIteratorEvent("MyMod_IterDeltaMods", _Item, _DeltaMod, _IsGenera
 THEN
 DebugBreak(_DeltaMod);
 ```
+
+### ItemGet
+`query NRD_ItemGetInt([in](ITEMGUID)_Item, [in](STRING)_Property, [out](INTEGER)_Value)`
+`query NRD_ItemGetString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](REAL)_Value)`
+
+Returns the specified property of the item. `_Property` must be one of the values listed below. If the item or property does not exist, the query fails. If an attempt is made to fetch a stat property on an item that has no stats, the query fails.
+
+Item properties (can be fetched on all items):
+
+| Attribute | Type | Description |
+|--|--|--|
+| CurrentLevel | String | Level the item is currently on (eg. `FJ_FortJoy_Main`) |
+| CurrentTemplate | GuidString | Active template GUID |
+| CustomDisplayName | String | |
+| CustomDescription | String | |
+| CustomBookContent | String | |
+| StatsId | String | Stats entry (eg. `WPN_Dagger`) |
+| InventoryHandle | Handle | If the item is a container, returns the handle of the inventory within the item |
+| ParentInventoryHandle | Handle | Inventory that contains the item |
+| Slot | Integer | |
+| Amount | Integer | |
+| Vitality | Integer | |
+| LockLevel | Integer | |
+| ItemType | Integer | |
+| GoldValueOverwrite | Integer | |
+| WeightValueOverwrite | Integer | |
+| TreasureLevel | Integer | |
+| LevelOverride | Integer | |
+| ForceSynch | Flag | |
+
+Stat properties (can only be fetched on items with a stats entry):
+
+| Attribute | Type | Description |
+|--|--|--|
+| ItemType | Integer | |
+| ItemSlot | Integer | |
+| WeaponType | Integer | |
+| AnimType | Integer | |
+| WeaponRange | Real | |
+| IsIdentified | Flag | |
+| IsTwoHanded | Flag | |
+| HasModifiedSkills | Flag | |
+| Skills | String | |
+| DamageTypeOverwrite | Enum | `DamageType` value |
+| Durability | Integer | |
+| DurabilityCounter | Integer | |
+| ItemTypeReal | String | |
+| MaxCharges | Integer | |
+| Charges | Integer | |
 
 
 ## Permanent Boosts

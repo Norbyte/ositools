@@ -150,6 +150,24 @@ namespace osidbg
 		}
 
 		template <OsiPropertyMapType Type>
+		bool ItemGet(OsiArgumentDesc & args)
+		{
+			auto item = FindItemByNameGuid(args[0].String);
+			if (item == nullptr) return false;
+
+			bool fetched = false;
+			if (item->StatsDynamic != nullptr) {
+				fetched = OsirisPropertyMapGet(gItemStatsPropertyMap, item->StatsDynamic, args, 1, Type, false);
+			}
+
+			if (!fetched) {
+				fetched = OsirisPropertyMapGet(gItemPropertyMap, item, args, 1, Type, true);
+			}
+
+			return fetched;
+		}
+
+		template <OsiPropertyMapType Type>
 		bool ItemGetPermanentBoost(OsiArgumentDesc & args)
 		{
 			auto item = FindItemByNameGuid(args[0].String);
@@ -158,29 +176,8 @@ namespace osidbg
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return false;
 
-			switch (permanentBoosts->StatsType) {
-			case EquipmentStatsType::Weapon:
-			{
-				auto * weapon = static_cast<CDivinityStats_Equipment_Attributes_Weapon *>(permanentBoosts);
-				return OsirisPropertyMapGet(gEquipmentAttributesWeaponPropertyMap, weapon, args, 1, Type);
-			}
-
-			case EquipmentStatsType::Armor:
-			{
-				auto * armor = static_cast<CDivinityStats_Equipment_Attributes_Armor *>(permanentBoosts);
-				return OsirisPropertyMapGet(gEquipmentAttributesArmorPropertyMap, armor, args, 1, Type);
-			}
-
-			case EquipmentStatsType::Shield:
-			{
-				auto * shield = static_cast<CDivinityStats_Equipment_Attributes_Shield *>(permanentBoosts);
-				return OsirisPropertyMapGet(gEquipmentAttributesShieldPropertyMap, shield, args, 1, Type);
-			}
-
-			default:
-				OsiError("Unknown equipment stats type: " << (unsigned)permanentBoosts->StatsType);
-				return false;
-			}
+			auto & propertyMap = permanentBoosts->GetPropertyMap();
+			return OsirisPropertyMapGetRaw(propertyMap, permanentBoosts, args, 1, Type);
 		}
 
 		template <OsiPropertyMapType Type>
@@ -192,31 +189,8 @@ namespace osidbg
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return;
 
-			switch (permanentBoosts->StatsType) {
-			case EquipmentStatsType::Weapon:
-			{
-				auto * weapon = static_cast<CDivinityStats_Equipment_Attributes_Weapon *>(permanentBoosts);
-				OsirisPropertyMapSet(gEquipmentAttributesWeaponPropertyMap, weapon, args, 1, Type);
-				break;
-			}
-
-			case EquipmentStatsType::Armor:
-			{
-				auto * armor = static_cast<CDivinityStats_Equipment_Attributes_Armor *>(permanentBoosts);
-				OsirisPropertyMapSet(gEquipmentAttributesArmorPropertyMap, armor, args, 1, Type);
-				break;
-			}
-
-			case EquipmentStatsType::Shield:
-			{
-				auto * shield = static_cast<CDivinityStats_Equipment_Attributes_Shield *>(permanentBoosts);
-				OsirisPropertyMapSet(gEquipmentAttributesShieldPropertyMap, shield, args, 1, Type);
-				break;
-			}
-
-			default:
-				OsiError("Unknown equipment stats type: " << (unsigned)permanentBoosts->StatsType);
-			}
+			auto & propertyMap = permanentBoosts->GetPropertyMap();
+			OsirisPropertyMapSetRaw(propertyMap, permanentBoosts, args, 1, Type);
 		}
 
 
@@ -344,6 +318,29 @@ namespace osidbg
 			&func::ItemSetIdentified
 		);
 		functionMgr.Register(std::move(itemSetIdentified));
+
+
+		auto itemGetInt = std::make_unique<CustomQuery>(
+			"NRD_ItemGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGet<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(itemGetInt));
+
+		auto itemGetString = std::make_unique<CustomQuery>(
+			"NRD_ItemGetString",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGet<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(itemGetString));
 
 
 		auto itemGetPermanentBoostInt = std::make_unique<CustomQuery>(
