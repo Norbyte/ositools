@@ -5,6 +5,8 @@
 
 namespace osidbg
 {
+	FunctionHandle SkillIteratorEventHandle;
+
 	namespace func
 	{
 		CharacterDynamicStat * GetCharacterDynamicStat(esv::Character * character, uint32_t index)
@@ -188,6 +190,28 @@ namespace osidbg
 
 			return OsirisPropertyMapGet(gCharacterPropertyMap, character, args, 1, Type);
 		}
+
+		void CharacterIterateStatuses(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto eventName = args[1].String;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr || character->SkillManager == nullptr) return;
+
+			auto & skills = character->SkillManager->Skills;
+			skills.Iterate([&characterGuid, &eventName](FixedString const & skillId, esv::Skill * skill) {
+				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
+				eventArgs->Add(OsiArgumentValue{ ValueType::String, skill->SkillId.Str });
+				eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsLearned });
+				eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsActivated });
+
+				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(SkillIteratorEventHandle, eventArgs);
+
+				delete eventArgs;
+			});
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -330,6 +354,28 @@ namespace osidbg
 			&func::CharacterGet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(characterGetString));
+		
+		auto iterateCharacterSkills = std::make_unique<CustomCall>(
+			"NRD_CharacterIterateSkills",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Event", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::CharacterIterateStatuses
+		);
+		functionMgr.Register(std::move(iterateCharacterSkills));
+
+		auto skillIteratorEvent = std::make_unique<CustomEvent>(
+			"NRD_SkillIteratorEvent",
+			std::vector<CustomFunctionParam>{
+				{ "Event", ValueType::String, FunctionArgumentDirection::In },
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
+				{ "IsLearned", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "IsActivated", ValueType::Integer, FunctionArgumentDirection::In },
+			}
+		);
+		SkillIteratorEventHandle = functionMgr.Register(std::move(skillIteratorEvent));
 	}
 
 }

@@ -911,6 +911,31 @@ Disables or re-enables a talent. `_Talent` must be a value from the [TalentType 
 
 ## Skill functions
 
+
+### CharacterIterateSkills
+```
+call NRD_CharacterIterateSkills((CHARACTERGUID)_Character, (STRING)_Event)
+event NRD_SkillIteratorEvent((STRING)_Event, (CHARACTERGUID)_Character, (STRING)_SkillId, (INTEGER)_IsLearned, (INTEGER)_IsActivated)
+```
+
+Throws `NRD_SkillIteratorEvent` event for each skill that the character has. Events are not queued and are thrown immediately (i.e. during the `NRD_CharacterIterateSkills` call), so there is no need for an additional cleanup/finalizer event.
+
+ - `_SkillId`: the stats entry name of the skill.
+ - `_IsLearned`: 0 if the skill is from an item or status, 1 if the skill was learned by the character
+ - `_IsActivated`: 1 if the prerequisites for the skill are met, 0 if not
+
+Example usage:  
+```c
+// ...
+NRD_CharacterIterateSkills(Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, "MyMod_Skills");
+
+IF
+NRD_SkillIteratorEvent("MyMod_Skills", _Character, _SkillId, _, _)
+THEN
+DebugBreak(_SkillId);
+```
+
+
 ### SkillSetCooldown
 `call NRD_SkillSetCooldown((CHARACTERGUID)_Character, (STRING)_SkillId, (REAL)_Cooldown)`
 
