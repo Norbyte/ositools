@@ -44,7 +44,7 @@ public:
 
 		if (!updated && !ExtenderDLLExists()) {
 			completed_ = true;
-			auto msg = FromUTF8("Osiris Extender initialization failed:\r\n" + reason);
+			auto msg = FromUTF8(reason);
 			gErrorUtils->ShowError(msg.c_str());
 			return;
 		}
@@ -60,8 +60,7 @@ public:
 
 		if (handle == NULL) {
 			auto errc = GetLastError();
-			std::wstring errmsg = L"Osiris Extender initialization failed:\r\n"
-				"Unable to load extender DLL.\r\n"
+			std::wstring errmsg = L"Script Extender DLL load failed.\r\n"
 				"Error code: ";
 			errmsg += std::to_wstring(errc);
 			gErrorUtils->ShowError(errmsg.c_str());
@@ -76,8 +75,7 @@ public:
 
 		std::string etag;
 		if (!fetcher.FetchETag(packageUri.c_str(), etag)) {
-			reason = "Something went wrong while checking for updates. Please make sure you're connected to the internet and try again\r\n";
-			reason += "ETag fetch failed.\r\n";
+			reason = "Something went wrong while checking for Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
 			reason += fetcher.GetLastError();
 			return false;
 		}
@@ -89,8 +87,7 @@ public:
 
 		std::vector<uint8_t> response;
 		if (!fetcher.Fetch(packageUri.c_str(), response)) {
-			reason = "Something went wrong while downloading updates. Please make sure you're connected to the internet and try again\r\n";
-			reason += "Update payload fetch failed.\r\n";
+			reason = "Something went wrong while downloading Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
 			reason += fetcher.GetLastError();
 			return false;
 		}
@@ -105,15 +102,15 @@ public:
 			return true;
 		} else {
 			if (hr == S_FALSE) {
-				reason = "Unable to extract update package.\r\n";
+				reason = "Unable to extract Script Extender update package.\r\n";
 				reason += unzipReason;
 			} else {
 				_com_error err(hr);
 				LPCTSTR errMsg = err.ErrorMessage();
 
 				std::stringstream ss;
-				ss << "Unable to extract update package.\r\n"
-					<< "UnzipToFolder returned HRESULT 0x"
+				ss << "Unable to extract Script Extender update package.\r\n"
+					<< "HRESULT 0x"
 					<< std::hex << std::setw(8) << std::setfill('0') << hr;
 				if (errMsg != nullptr) {
 					ss << ": " << ToUTF8(errMsg);
