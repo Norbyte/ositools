@@ -30,6 +30,7 @@
     * [Custom Stats](#custom-stats)
     * [Permanent Boosts](#permanent-boosts)
     * [Skills](#skill-functions)
+    * [Actions](#action-state-functions)
  - [Player](#player-functions)
    * [Player Customization](#player-customization-functions)
    * [Skillbar](#skillbar-functions)
@@ -922,6 +923,42 @@ Doesn't work on skills that can only be used once per combat.
 Returns the current cooldown timer of the skill (in seconds).
 For skills that can only be used once per combat -1.0 is returned.
 
+## Action State functions
+
+
+### OnActionStateEnter
+`event NRD_OnActionStateEnter((CHARACTERGUID)_Character, (STRING)_Action)`
+
+This event is thrown when a character starts performing an action.
+`_Action` can be one of the following:
+ `Attack`, `Die`, `Hit`, `Idle`, `Animation`, `PrepareSkill`, `UseSkill`, `PickUp`, `Drop`, `MoveItem`, `KnockedDown`, `Summoning`, `Polymorphing`, `UseItem`, `CombineItem`, `TeleportFall`, `Sheath`, `Unsheath`, `Identify`, `Repair`, `Lockpick`, `DisarmTrap`, `Incapacitated`, `JumpFlight`.
+Details about the action can be queried using `NRD_ActionStateGetString*`.
+
+### CharacterGetCurrentAction
+`query NRD_CharacterGetCurrentAction([in](CHARACTERGUID)_Character, [out](STRING)_Action`
+
+Retrieves the action the character is currently performing.
+If the character does not exist, the query fails. If the character is not performing any action, `_Action` will be returned as `""` (empty string).
+
+### ActionStateGetString
+`query NRD_ActionStateGetString([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](STRING)_Value)`
+
+Retrieves a property of the action the character is currently performing.
+This is currently only implemented for the `PrepareSkill` action state. If the character does not exist, the character is not performing any action, or the specified property does not exist for the current action type, the query fails.
+
+The following property values can be retrieved:
+
+`PrepareSkill`:
+
+| Property | Type |
+|--|--|
+| SkillId | String |
+| PrepareAnimationInit | String |
+| PrepareAnimationLoop | String |
+| IsFinished | Flag |
+| IsEntered | Flag |
+
+** TODO add support for other action types**
 
 # Player functions
 
