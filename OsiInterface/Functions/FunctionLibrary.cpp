@@ -295,6 +295,9 @@ namespace osidbg
 		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnApplyStatus, this, _1, _2, _3)
 		);
+		osiris_.GetLibraryManager().ActionMachineSetStateHook.AddPostHook(
+			std::bind(&CustomFunctionLibrary::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
+		);
 
 		PostLoaded = true;
 	}

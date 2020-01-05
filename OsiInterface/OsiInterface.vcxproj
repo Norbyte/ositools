@@ -365,6 +365,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="ExtensionHelpers.h" />
     <ClInclude Include="ExtensionState.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />
+    <ClInclude Include="GameDefinitions\ActionMachine.h" />
     <ClInclude Include="GameDefinitions\BaseTypes.h" />
     <ClInclude Include="GameDefinitions\Character.h" />
     <ClInclude Include="GameDefinitions\CustomStats.h" />
@@ -438,6 +439,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     </ClCompile>
     <ClCompile Include="DxgiWrapper.cpp" />
     <ClCompile Include="CrashReporter.cpp" />
+    <ClCompile Include="Enumerations.cpp" />
     <ClCompile Include="ExtensionState.cpp" />
     <ClCompile Include="Functions\CharacterFunctions.cpp" />
     <ClCompile Include="Functions\CustomStatFunctions.cpp" />

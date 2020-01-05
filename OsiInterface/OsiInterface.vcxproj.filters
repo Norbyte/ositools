@@ -132,6 +132,9 @@
     <ClInclude Include="GameDefinitions\Symbols.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\ActionMachine.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -243,6 +246,9 @@
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
     <ClCompile Include="CrashReporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Enumerations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

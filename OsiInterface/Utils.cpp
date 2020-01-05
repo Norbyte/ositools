@@ -56,6 +56,7 @@ void DebugRaw(DebugMessageType type, char const * msg)
 {
 	SetConsoleColor(type);
 	OutputDebugStringA(msg);
+	OutputDebugStringA("\r\n");
 	std::cout << msg << std::endl;
 	std::cout.flush();
 	SetConsoleColor(DebugMessageType::Debug);
@@ -65,6 +66,7 @@ void DebugRaw(DebugMessageType type, wchar_t const * msg)
 {
 	SetConsoleColor(type);
 	OutputDebugStringW(msg);
+	OutputDebugStringW(L"\r\n");
 	std::wcout << msg << std::endl;
 	std::wcout.flush();
 	SetConsoleColor(DebugMessageType::Debug);

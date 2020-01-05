@@ -17,6 +17,7 @@ namespace osidbg
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
+	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
 
@@ -407,6 +408,10 @@ namespace osidbg
 				ApplyStatusHook.Wrap(gStaticSymbols.StatusMachineApplyStatus);
 			}
 
+			if (gStaticSymbols.EsvActionMachine__SetState != nullptr) {
+				ActionMachineSetStateHook.Wrap(gStaticSymbols.EsvActionMachine__SetState);
+			}
+
 			gCharacterStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
@@ -438,6 +443,7 @@ namespace osidbg
 		StatusHealEnter.Unwrap();
 		CharacterHitHook.Unwrap();
 		ApplyStatusHook.Unwrap();
+		ActionMachineSetStateHook.Unwrap();
 
 		DetourTransactionCommit();
 	}

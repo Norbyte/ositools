@@ -5,6 +5,7 @@
 #include "EntitySystem.h"
 #include "Stats.h"
 #include "Status.h"
+#include "ActionMachine.h"
 
 namespace osidbg
 {
@@ -203,7 +204,7 @@ namespace osidbg
 			CDivinityStats_Character * Stats;
 			ObjectHandle InventoryHandle;
 			void * MovementMachine;
-			void * ActionMachine;
+			esv::ActionMachine * ActionMachine;
 			void * SteeringMachine;
 			void * BehaviourMachine;
 			uint64_t U7[2];

@@ -420,7 +420,7 @@ namespace osidbg
 		uint32_t _Pad;
 	};
 
-	struct RuntimeStringHandle : public ProtectedGameObject<RuntimeStringHandle>
+	struct RuntimeStringHandle : public Noncopyable<RuntimeStringHandle>
 	{
 		void * VMT;
 		FixedString FS;
@@ -428,7 +428,7 @@ namespace osidbg
 		STDWString WStr;
 	};
 
-	struct TranslatedString : public ProtectedGameObject<TranslatedString>
+	struct TranslatedString : public Noncopyable<TranslatedString>
 	{
 		void * VMT;
 		RuntimeStringHandle Str1;

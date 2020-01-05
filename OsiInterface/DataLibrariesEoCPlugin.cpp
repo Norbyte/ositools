@@ -238,6 +238,17 @@ namespace osidbg
 		}
 	}
 
+	SymbolMappingResult FindActionMachineSetState(uint8_t const * match)
+	{
+		if (gStaticSymbols.EclActionMachine__SetState == nullptr) {
+			gStaticSymbols.EclActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			return SymbolMappingResult::TryNext;
+		} else {
+			gStaticSymbols.EsvActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			return SymbolMappingResult::Success;
+		}
+	}
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"esv::GameActionManager::CreateAction",
@@ -553,6 +564,21 @@ namespace osidbg
 			"48 8D 0D XX XX XX XX ", // lea rcx, xxx
 			{},
 			{"FindLibraries", SymbolMappingTarget::kAbsolute, 0, nullptr, &FindLibrariesEoCPlugin}
+		},
+
+		{
+			"esv::ActionMachine::SetState",
+			SymbolMappingData::kText, 0,
+			"C6 44 01 53 00 " // mov     byte ptr [rcx+rax+53h], 0
+			"45 33 C9 " // xor     r9d, r9d
+			"48 8B C8 " // mov     rcx, rax
+			"C6 44 24 28 01 " // mov     [rsp+78h+var_50], 1
+			"45 33 C0 " // xor     r8d, r8d
+			"C6 44 24 20 00 " // mov     [rsp+78h+a5], 0
+			"40 0F B6 D7 " // movzx   edx, dil
+			"E8 XX XX XX XX ", // call    xxx
+			{},
+			{"esv::ActionMachine::SetState", SymbolMappingTarget::kIndirectCall, 28, nullptr, &FindActionMachineSetState}
 		}
 	};
 

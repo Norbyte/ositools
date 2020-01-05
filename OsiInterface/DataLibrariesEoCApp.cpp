@@ -212,6 +212,17 @@ namespace osidbg
 		}
 	}
 
+	SymbolMappingResult FindActionMachineSetState(uint8_t const * match)
+	{
+		if (gStaticSymbols.EclActionMachine__SetState == nullptr) {
+			gStaticSymbols.EclActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			return SymbolMappingResult::TryNext;
+		} else {
+			gStaticSymbols.EsvActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			return SymbolMappingResult::Success;
+		}
+	}
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"EoCMemoryMgr", 
@@ -565,6 +576,21 @@ namespace osidbg
 			"48 8D 15 XX XX XX XX ", // lea rdx, xxx
 			{},
 			{"FindLibrariesEoCApp", SymbolMappingTarget::kAbsolute, 0, nullptr, &FindLibrariesEoCApp}
+		},
+
+		{
+			"esv::ActionMachine::UpdateSyncState",
+			SymbolMappingData::kText, 0,
+			"C6 44 24 28 01 " // mov     [rsp+58h+var_30], 1
+			"45 33 C9 " // xor     r9d, r9d
+			"45 33 C0 " // xor     r8d, r8d
+			"C6 44 24 20 00 " // mov     [rsp+58h+var_38], 0
+			"41 0F B6 D2 " // movzx   edx, r10b
+			"41 C6 44 3B 53 00 " // mov     byte ptr [r11+rdi+53h], 0
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX ", // call    xxx
+			{},
+			{"esv::ActionMachine::UpdateSyncState", SymbolMappingTarget::kIndirectCall, 29, nullptr, &FindActionMachineSetState}
 		}
 	};
 

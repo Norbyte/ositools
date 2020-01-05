@@ -7,6 +7,7 @@
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/Status.h>
+#include <GameDefinitions/ActionMachine.h>
 
 namespace osidbg
 {
@@ -77,6 +78,8 @@ namespace osidbg
 		esv::ParseItem ParseItem{ nullptr };
 		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg{ nullptr };
+		esv::ActionMachine::SetStateProc EclActionMachine__SetState{ nullptr };
+		esv::ActionMachine::SetStateProc EsvActionMachine__SetState{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };

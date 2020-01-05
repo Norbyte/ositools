@@ -21,6 +21,7 @@ namespace osidbg
 	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
+	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -452,6 +453,15 @@ namespace osidbg
 			PROP_RO(esv::Item, TreasureLevel);
 			PROP_RO(esv::Item, LevelOverride);
 			PROP_RO(esv::Item, ForceSynch);
+		}
+
+		{
+			auto & propertyMap = gASPrepareSkillStatPropertyMap;
+			PROP_RO(esv::ASPrepareSkill, SkillId);
+			PROP_RO(esv::ASPrepareSkill, PrepareAnimationInit);
+			PROP_RO(esv::ASPrepareSkill, PrepareAnimationLoop);
+			PROP_RO(esv::ASPrepareSkill, IsFinished);
+			PROP_RO(esv::ASPrepareSkill, IsEntered);
 		}
 	}
 

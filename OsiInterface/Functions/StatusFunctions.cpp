@@ -10,6 +10,7 @@ namespace osidbg
 	FunctionHandle HitPrepareEventHandle;
 	FunctionHandle HitEventHandle;
 	FunctionHandle HealEventHandle;
+	FunctionHandle ActionStateEnterHandle;
 
 	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid)
 	{
@@ -480,6 +481,58 @@ namespace osidbg
 			args[5].Int64 = (int64_t)status->StatusHandle;
 			return true;
 		}
+
+
+
+		template <OsiPropertyMapType Type>
+		bool ActionStateGet(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr
+				|| character->ActionMachine == nullptr
+				|| character->ActionMachine->Layers[0].State == nullptr) {
+				return false;
+			}
+
+			auto state = character->ActionMachine->Layers[0].State;
+			auto propertyMap = state->GetPropertyMap();
+
+			if (propertyMap != nullptr) {
+
+				// TODO - special for ASAttack, ASUseSkill?
+
+				return OsirisPropertyMapGetRaw(*propertyMap, state, args, 1, Type, true);
+			} else {
+				OsiError("No property map available for action type " << (unsigned)state->GetType() << " yet!");
+				return false;
+			}
+		}
+
+		bool CharacterGetCurrentAction(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+			auto & action = args[1].String;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr
+				|| character->ActionMachine == nullptr) {
+				return false;
+			}
+
+			auto actionState = character->ActionMachine->Layers[0].State;
+
+			if (actionState == nullptr) {
+				action = "";
+				return true;
+			}
+
+			auto typeName = actionState->GetTypeName();
+			if (typeName == nullptr) return false;
+			action = typeName;
+			return true;
+		}
 	}
 
 
@@ -684,6 +737,33 @@ namespace osidbg
 		if (eventThrown) {
 			ExtensionState::Get().PendingStatuses.Remove(status);
 		}
+	}
+
+	void CustomFunctionLibrary::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
+	{
+		if (!succeeded || actionState == nullptr || !setLayer) return;
+
+		auto character = FindCharacterByHandle(self->CharacterHandle);
+		if (character == nullptr) {
+			OsiErrorS("ActionMachine has no character?");
+			return;
+		}
+
+		auto type = actionState->GetType();
+		auto typeName = actionState->GetTypeName();
+		// Avoid event spam from idle/anim states
+		if (type == esv::ActionStateType::ASIdle
+			|| type == esv::ActionStateType::ASAnimation
+			|| typeName == nullptr) {
+			return;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
+
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ActionStateEnterHandle, eventArgs);
+
+		delete eventArgs;
 	}
 
 
@@ -913,6 +993,37 @@ namespace osidbg
 			}
 		);
 		HealEventHandle = functionMgr.Register(std::move(healEvent));
+
+
+		auto actionStateEnterEvent = std::make_unique<CustomEvent>(
+			"NRD_OnActionStateEnter",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Action", ValueType::String, FunctionArgumentDirection::In }
+			}
+		);
+		ActionStateEnterHandle = functionMgr.Register(std::move(actionStateEnterEvent));
+
+		auto characterGetCurrentAction = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetCurrentAction",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Action", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::CharacterGetCurrentAction
+		);
+		functionMgr.Register(std::move(characterGetCurrentAction));
+
+		auto actionStateGetString = std::make_unique<CustomQuery>(
+			"NRD_ActionStateGetString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::ActionStateGet<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(actionStateGetString));
 	}
 
 }

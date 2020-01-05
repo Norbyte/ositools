@@ -7,6 +7,7 @@
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/Status.h>
+#include <GameDefinitions/ActionMachine.h>
 #include "Wrappers.h"
 #include <optional>
 
@@ -154,6 +155,9 @@ namespace osidbg {
 
 		enum class ApplyStatusTag {};
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
+
+		enum class ActionMachineSetStateTag {};
+		HookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
 
 	private:
 

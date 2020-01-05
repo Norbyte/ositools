@@ -7,6 +7,7 @@
 #include <GameDefinitions/Item.h>
 #include <GameDefinitions/GameAction.h>
 #include <GameDefinitions/Misc.h>
+#include <GameDefinitions/ActionMachine.h>
 
 namespace osidbg
 {
@@ -43,6 +44,7 @@ namespace osidbg
 			HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, 
 			bool procWindWalker, CriticalRoll criticalRoll);
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
+		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 
 		void EnableStatOverride(char const * stat);
 	private:

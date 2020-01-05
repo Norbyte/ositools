@@ -213,7 +213,7 @@ namespace osidbg
 			virtual void GetAi() = 0;
 			virtual void LoadAi() = 0;
 			virtual void UnloadAi() = 0;
-			virtual void GetDisplayName() = 0;
+			virtual TranslatedString * GetDisplayName(TranslatedString * name) = 0;
 			virtual void SavegameVisit() = 0;
 			virtual void GetEntityNetworkId() = 0;
 			virtual void SetTemplate() = 0;
