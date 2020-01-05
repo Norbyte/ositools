@@ -8,6 +8,79 @@
 
 namespace osidbg
 {
+	void lua_push(lua_State * L, nullptr_t v)
+	{
+		lua_pushnil(L);
+	}
+
+	void lua_push(lua_State * L, bool v)
+	{
+		lua_pushboolean(L, v ? 1 : 0);
+	}
+
+	void lua_push(lua_State * L, int32_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	void lua_push(lua_State * L, uint32_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	void lua_push(lua_State * L, int64_t v)
+	{
+		lua_pushinteger(L, v);
+	}
+
+	void lua_push(lua_State * L, uint64_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	void lua_push(lua_State * L, double v)
+	{
+		lua_pushnumber(L, v);
+	}
+
+	void lua_push(lua_State * L, char const * v)
+	{
+		lua_pushstring(L, v);
+	}
+
+	void lua_push(lua_State * L, FixedString v)
+	{
+		lua_pushstring(L, v.Str);
+	}
+
+	void lua_push(lua_State * L, std::string const & v)
+	{
+		lua_pushstring(L, v.c_str());
+	}
+
+	void lua_push(lua_State * L, std::wstring const & v)
+	{
+		lua_pushstring(L, ToUTF8(v).c_str());
+	}
+
+	void lua_push(lua_State * L, STDString const & v)
+	{
+		lua_pushstring(L, v.GetPtr());
+	}
+
+	void lua_push(lua_State * L, STDWString const & v)
+	{
+		lua_pushstring(L, ToUTF8(v.GetPtr()).c_str());
+	}
+
+	template <class TKey, class TValue>
+	void luaL_settable(lua_State * L, TKey const & k, TValue const & v, int index = -3)
+	{
+		lua_push(L, k);
+		lua_push(L, v);
+		lua_settable(L, index);
+	}
+
 	void JsonParse(lua_State * L, Json::Value & val);
 
 	void JsonParseArray(lua_State * L, Json::Value & val)
@@ -302,6 +375,60 @@ namespace osidbg
 		return 1;
 	}
 
+	int GetModLoadOrder(lua_State* L)
+	{
+		lua_newtable(L);
+
+		auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+		for (uint32_t i = 0; i < mods.Size; i++) {
+			auto const & mod = mods.Buf[i];
+			luaL_settable(L, i + 1, mod.Info.ModuleUUID.Str);
+		}
+
+		return 1;
+	}
+
+	int GetModInfo(lua_State* L)
+	{
+		Module const * module{ nullptr };
+		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
+		if (modUuid) {
+			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+			for (uint32_t i = 0; i < mods.Size; i++) {
+				auto const & mod = mods.Buf[i];
+				if (mod.Info.ModuleUUID == modUuid) {
+					module = &mod;
+					break;
+				}
+			}
+		}
+
+		if (module != nullptr) {
+			lua_newtable(L);
+			luaL_settable(L, "UUID", module->Info.ModuleUUID);
+			luaL_settable(L, "Name", module->Info.Name);
+			luaL_settable(L, "Version", module->Info.Version);
+			luaL_settable(L, "PublishVersion", module->Info.PublishVersion);
+			luaL_settable(L, "Directory", module->Info.Directory);
+			luaL_settable(L, "Author", module->Info.Author);
+			luaL_settable(L, "Description", module->Info.Description);
+			luaL_settable(L, "ModuleType", module->Info.ModuleType);
+			
+			lua_pushstring(L, "Dependencies");
+			lua_newtable(L);
+			auto & dependents = module->DependentModules.Set;
+			for (uint32_t i = 0; i < dependents.Size; i++) {
+				auto const & mod = dependents.Buf[i];
+				luaL_settable(L, i + 1, mod.Info.ModuleUUID);
+			}
+			lua_settable(L, -3);
+
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	int GetStatEntries(lua_State * L)
 	{
 		FixedString statType;
@@ -332,9 +459,7 @@ namespace osidbg
 				}
 			}
 
-			lua_pushinteger(L, index++);
-			lua_pushstring(L, object->Name);
-			lua_settable(L, -3);
+			luaL_settable(L, index++, object->Name);
 		}
 
 		return 1;

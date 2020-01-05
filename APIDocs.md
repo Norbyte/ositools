@@ -931,7 +931,7 @@ For skills that can only be used once per combat -1.0 is returned.
 
 This event is thrown when a character starts performing an action.
 `_Action` can be one of the following:
- `Attack`, `Die`, `Hit`, `Idle`, `Animation`, `PrepareSkill`, `UseSkill`, `PickUp`, `Drop`, `MoveItem`, `KnockedDown`, `Summoning`, `Polymorphing`, `UseItem`, `CombineItem`, `TeleportFall`, `Sheath`, `Unsheath`, `Identify`, `Repair`, `Lockpick`, `DisarmTrap`, `Incapacitated`, `JumpFlight`.
+ `Attack`, `Die`, `Hit`, `PrepareSkill`, `UseSkill`, `PickUp`, `Drop`, `MoveItem`, `KnockedDown`, `Summoning`, `Polymorphing`, `UseItem`, `CombineItem`, `TeleportFall`, `Sheath`, `Unsheath`, `Identify`, `Repair`, `Lockpick`, `DisarmTrap`, `Incapacitated`, `JumpFlight`. For performance reasons no events are thrown for `Idle` and `Animation` actions.
 Details about the action can be queried using `NRD_ActionStateGetString*`.
 
 ### CharacterGetCurrentAction

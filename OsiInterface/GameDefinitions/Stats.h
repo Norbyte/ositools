@@ -22,9 +22,9 @@ namespace osidbg
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
 		struct CDivinityStats * DivStats;
-		FixedStringMapBase<int> PropertyList;
+		FixedStringMapBase<void *> PropertyList; // ExtraProperties
 		uint32_t Unused5;
-		FixedStringMapBase<int> ConditionList;
+		FixedStringMapBase<void *> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
 		ObjectSet<void *> Requirements; // Set<Requirement>
