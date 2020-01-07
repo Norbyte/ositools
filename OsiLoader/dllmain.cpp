@@ -18,8 +18,8 @@
 
 HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder, std::string & reason);
 
-#define UPDATER_HOST L"nb-stor.s3.eu-central-1.amazonaws.com"
-#define UPDATER_PATH_PREFIX L"/dos/OsiExtender/"
+#define UPDATER_HOST L"d1ov7wr93ghrd7.cloudfront.net"
+#define UPDATER_PATH_PREFIX L"/"
 #define UPDATER_PATH_POSTFIX L"/Latest.zip"
 
 std::string trim(std::string const & s)
