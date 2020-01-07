@@ -81,6 +81,49 @@ namespace osidbg
 		lua_settable(L, index);
 	}
 
+	template <class TValue>
+	TValue luaL_get(lua_State * L, int index = -1);
+
+	template <>
+	bool luaL_get<bool>(lua_State * L, int index)
+	{
+		return lua_toboolean(L, index) == 1;
+	}
+
+	template <>
+	int32_t luaL_get<int32_t>(lua_State * L, int index)
+	{
+		return (int32_t)lua_tointeger(L, index);
+	}
+
+	template <>
+	int64_t luaL_get<int64_t>(lua_State * L, int index)
+	{
+		return lua_tointeger(L, index);
+	}
+
+	template <>
+	double luaL_get<double>(lua_State * L, int index)
+	{
+		return lua_tonumber(L, index);
+	}
+
+	template <>
+	char const * luaL_get<char const *>(lua_State * L, int index)
+	{
+		return lua_tostring(L, index);
+	}
+
+	template <class TKey, class TValue>
+	TValue luaL_gettable(lua_State * L, TKey const & k, int index = -2)
+	{
+		lua_push(L, k);
+		lua_gettable(L, index);
+		TValue val = luaL_get<TValue>(L, -1);
+		lua_pop(L, 1);
+		return val;
+	}
+
 	void JsonParse(lua_State * L, Json::Value & val);
 
 	void JsonParseArray(lua_State * L, Json::Value & val)
@@ -465,6 +508,74 @@ namespace osidbg
 		return 1;
 	}
 
+	void RequirementToLua(lua_State * L, CRPGStats_Requirement const & requirement)
+	{
+		lua_newtable(L);
+
+		auto requirementLabel = EnumInfo<RequirementType>::Find(requirement.RequirementId);
+		if (requirementLabel) {
+			luaL_settable(L, "Requirement", *requirementLabel);
+		} else {
+			OsiError("Unknown requirement ID: " << (unsigned)requirement.RequirementId);
+			luaL_settable(L, "Requirement", "(Unknown)");
+		}
+
+		if (requirement.RequirementId == RequirementType::Tag) {
+			luaL_settable(L, "Param", requirement.StringParam);
+		} else {
+			luaL_settable(L, "Param", requirement.IntParam);
+		}
+		
+		luaL_settable(L, "Not", requirement.Negate);
+	}
+
+	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement> const & requirements)
+	{
+		lua_newtable(L);
+		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
+			lua_push(L, i + 1);
+			RequirementToLua(L, requirements.Set.Buf[i]);
+			lua_settable(L, -3);
+		}
+	}
+
+	void LuaToRequirement(lua_State * L, CRPGStats_Requirement & requirement)
+	{
+		auto requirementLabel = luaL_gettable<char const *, char const *>(L, "Requirement");
+		auto requirementId = EnumInfo<RequirementType>::Find(requirementLabel);
+		if (!requirementId) {
+			luaL_error(L, "Unknown requirement type: %s", requirementLabel);
+		}
+
+		requirement.RequirementId = *requirementId;
+		if (*requirementId == RequirementType::Tag) {
+			auto param = luaL_gettable<char const *, char const *>(L, "Param");
+			requirement.StringParam = MakeFixedString(param);
+			requirement.IntParam = -1;
+		} else {
+			auto param = luaL_gettable<char const *, int32_t>(L, "Param");
+			requirement.IntParam = param;
+		}
+
+		requirement.Negate = luaL_gettable<char const *, bool>(L, "Not");
+	}
+
+	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement> & requirements)
+	{
+		lua_len(L, -1);
+		auto len = lua_tointeger(L, -1);
+		lua_pop(L, 1);
+
+		requirements.Set.Reallocate((uint32_t)len);
+		requirements.Set.Size = (uint32_t)len;
+
+		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
+			lua_push(L, i + 1);
+			lua_gettable(L, -2);
+			LuaToRequirement(L, requirements.Set.Buf[i]);
+			lua_pop(L, 1);
+		}
+	}
 
 	int StatGetAttribute(lua_State * L)
 	{
@@ -483,6 +594,14 @@ namespace osidbg
 			return 0;
 		}
 
+		if (strcmp(attributeName, "Requirements") == 0) {
+			RequirementsToLua(L, object->Requirements);
+			return 1;
+		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+			RequirementsToLua(L, object->MemorizationRequirements);
+			return 1;
+		}
+
 		auto value = stats->GetAttributeFixedString(object, attributeName);
 		if (!value) {
 			auto intval = stats->GetAttributeInt(object, attributeName);
@@ -498,7 +617,6 @@ namespace osidbg
 
 		return 1;
 	}
-
 
 	int StatSetAttribute(lua_State * L)
 	{
@@ -520,6 +638,14 @@ namespace osidbg
 		auto object = stats->objects.Find(statName);
 		if (object == nullptr) {
 			OsiError("Stat object '" << statName << "' does not exist");
+			return 0;
+		}
+
+		if (strcmp(attributeName, "Requirements") == 0) {
+			LuaToRequirements(L, object->Requirements);
+			return 0;
+		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+ 			LuaToRequirements(L, object->MemorizationRequirements);
 			return 0;
 		}
 

@@ -8,6 +8,107 @@ namespace osidbg
 {
 
 #pragma pack(push, 1)
+	struct CRPGStats_Requirement
+	{
+		RequirementType RequirementId;
+		int32_t IntParam;
+		FixedString StringParam;
+		bool Negate;
+		uint8_t _Pad[7];
+	};
+
+	template <class T>
+	struct CNamedElementManager : public ProtectedGameObject<CNamedElementManager<T>>
+	{
+		void * VMT;
+		void * PrimitiveSetVMT;
+		PrimitiveSet<T *> Primitives;
+		uint64_t Unknown;
+		FixedStringMapBase<uint32_t> NameHashMap;
+		uint32_t Unused;
+		uint32_t NumItems;
+		uint32_t NumSomeItems;
+
+		int FindIndex(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			if (fs) {
+				return FindIndex(fs);
+			} else {
+				return -1;
+			}
+		}
+
+		int FindIndex(FixedString str) const
+		{
+			auto ptr = NameHashMap.Find(str);
+			if (ptr != nullptr) {
+				return (int)*ptr;
+			} else {
+				return -1;
+			}
+		}
+
+		T * Find(int index) const
+		{
+			if (index < 0 || index >= (int)Primitives.ItemCount) {
+				return nullptr;
+			} else {
+				return Primitives.Buf[index];
+			}
+		}
+
+		T * Find(char const * str) const
+		{
+			auto fs = ToFixedString(str);
+			if (fs) {
+				return Find(fs);
+			} else {
+				return nullptr;
+			}
+		}
+
+		T * Find(FixedString str) const
+		{
+			auto ptr = NameHashMap.Find(str);
+			if (ptr != nullptr) {
+				return Primitives.Buf[*ptr];
+			} else {
+				return nullptr;
+			}
+		}
+	};
+
+	struct CRPGStats_Object_Property : public Noncopyable<CRPGStats_Object_Property>
+	{
+		virtual ~CRPGStats_Object_Property() {}
+
+		FixedString SomeHashedText;
+	};
+
+	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
+	{
+		virtual ~CDivinityStats_Object_Property_Data() {}
+		virtual CDivinityStats_Object_Property_Data * Clone() = 0;
+		virtual bool GetDescription(STDWString * Line1) = 0;
+		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) = 0;
+		virtual bool GetDescription(TranslatedString * Line1) = 0;
+		virtual uint64_t Unknown() = 0;
+
+		uint32_t TypeId;
+		uint8_t PropertyContext;
+		uint8_t _Pad1[3];
+		void * ConditionBlockPtr;
+	};
+
+	struct CRPGStats_Object_Property_List
+	{
+		CNamedElementManager<CRPGStats_Object_Property> Properties;
+		FixedString StatsObjName_PropertyName;
+		bool Unknown;
+		uint8_t _Pad[7];
+	};
+
 	struct CRPGStats_Object : public ProtectedGameObject<CRPGStats_Object>
 	{
 		void * VMT;
@@ -22,13 +123,13 @@ namespace osidbg
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
 		struct CDivinityStats * DivStats;
-		FixedStringMapBase<void *> PropertyList; // ExtraProperties
+		FixedStringMapBase<CRPGStats_Object_Property_List *> PropertyList;
 		uint32_t Unused5;
 		FixedStringMapBase<void *> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
-		ObjectSet<void *> Requirements; // Set<Requirement>
-		ObjectSet<void *> MemorizationRequirements; // Set<Requirement>
+		ObjectSet<CRPGStats_Requirement> Requirements;
+		ObjectSet<CRPGStats_Requirement> MemorizationRequirements;
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
 		ObjectSet<FixedString> StringProperties1;
 		ObjectSet<FixedString> ComboCategories;
@@ -407,68 +508,6 @@ namespace osidbg
 		FixedString Name;
 	};
 
-	template <class T>
-	struct CNamedElementManager : public ProtectedGameObject<CNamedElementManager<T>>
-	{
-		void * VMT;
-		void * PrimitiveSetVMT;
-		PrimitiveSet<T *> Primitives;
-		uint64_t Unknown;
-		FixedStringMapBase<uint32_t> NameHashMap;
-		uint32_t Unused;
-		uint32_t NumItems;
-		uint32_t NumSomeItems;
-
-		int FindIndex(char const * str) const
-		{
-			auto fs = ToFixedString(str);
-			if (fs) {
-				return FindIndex(fs);
-			} else {
-				return -1;
-			}
-		}
-
-		int FindIndex(FixedString str) const
-		{
-			auto ptr = NameHashMap.Find(str);
-			if (ptr != nullptr) {
-				return (int)*ptr;
-			} else {
-				return -1;
-			}
-		}
-
-		T * Find(int index) const
-		{
-			if (index < 0 || index >= (int)Primitives.ItemCount) {
-				return nullptr;
-			} else {
-				return Primitives.Buf[index];
-			}
-		}
-
-		T * Find(char const * str) const
-		{
-			auto fs = ToFixedString(str);
-			if (fs) {
-				return Find(fs);
-			} else {
-				return nullptr;
-			}
-		}
-
-		T * Find(FixedString str) const
-		{
-			auto ptr = NameHashMap.Find(str);
-			if (ptr != nullptr) {
-				return Primitives.Buf[*ptr];
-			} else {
-				return nullptr;
-			}
-		}
-	};
-
 	struct ModifierList
 	{
 		CNamedElementManager<CRPGStats_Modifier> Attributes;
@@ -480,28 +519,6 @@ namespace osidbg
 	struct CRPGStats_ExtraData : public ProtectedGameObject<CRPGStats_ExtraData>
 	{
 		FixedStringMapBase<float> Properties;
-	};
-
-	struct CRPGStats_Object_Property : public ProtectedGameObject<CRPGStats_Object_Property>
-	{
-		void * VMT;
-		FixedString SomeHashedText;
-	};
-
-	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
-	{
-		uint32_t Unkn;
-		uint8_t PropertyContext;
-		uint8_t _Pad1[3];
-		void * ConditionBlockPtr;
-	};
-
-	struct CRPGStats_Object_Property_List
-	{
-		CNamedElementManager<CRPGStats_Object_Property> Properties;
-		FixedString FS1;
-		uint8_t Unknown;
-		uint8_t _Pad[7];
 	};
 
 	struct CDivinityStats_Condition : public ProtectedGameObject<CDivinityStats_Condition>
