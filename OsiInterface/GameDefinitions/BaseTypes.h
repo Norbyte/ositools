@@ -287,7 +287,7 @@ namespace osidbg
 		void Reallocate(uint32_t newCapacity)
 		{
 			auto newBuf = GameAlloc<T>(newCapacity);
-			for (uint32_t i = 0; i < Size; i++) {
+			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
 				newBuf[i] = Buf[i];
 			}
 
