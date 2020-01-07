@@ -19,7 +19,11 @@ namespace osidbg
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-			tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
+			if (lua_isinteger(L, i)) {
+				tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
+			} else {
+				tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
+			}
 			break;
 
 		case ValueType::Integer64:
@@ -27,7 +31,11 @@ namespace osidbg
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-			tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
+			if (lua_isinteger(L, i)) {
+				tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
+			} else {
+				tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
+			}
 			break;
 
 		case ValueType::Real:
@@ -35,8 +43,11 @@ namespace osidbg
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-			// TODO - set lua internal type to float?
-			tv.Value.Val.Float = (float)lua_tonumber(L, i);
+			if (lua_isinteger(L, i)) {
+				tv.Value.Val.Float = (float)lua_tointeger(L, i);
+			} else {
+				tv.Value.Val.Float = (float)lua_tonumber(L, i);
+			}
 			break;
 
 		case ValueType::String:
