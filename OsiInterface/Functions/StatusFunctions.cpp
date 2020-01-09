@@ -766,20 +766,38 @@ namespace osidbg
 		delete eventArgs;
 	}
 
-	void CustomFunctionLibrary::OnFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
+	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
 		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
 		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
 	{
 		std::wstring replacement;
+
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua) {
-			if (lua->GetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
+			if (lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
 				eocText->ReplaceParam(paramIndex, replacement);
 				return;
 			}
 		}
 
 		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
+	}
+
+	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype,
+		CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier,
+		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)
+	{
+		std::wstring replacement;
+
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->StatusGetDescriptionParam(prototype, statusSource, targetCharacter, *paramSet, replacement)) {
+				text->ReplaceParam(paramIndex, replacement);
+				return;
+			}
+		}
+
+		next(prototype, statusSource, targetCharacter, multiplier, text, paramIndex, param, paramSet);
 	}
 
 

@@ -499,8 +499,10 @@ namespace osidbg
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
-		bool GetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
+		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
+		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource, 
+			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 
 	private:
 		lua_State * state_;

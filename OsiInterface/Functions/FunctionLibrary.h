@@ -45,10 +45,13 @@ namespace osidbg
 			bool procWindWalker, CriticalRoll criticalRoll);
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
-		void OnFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
+		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
 			CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
 			float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * stdStringSet);
-
+		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype, 
+			CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier, 
+			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
+		
 		void EnableStatOverride(char const * stat);
 	private:
 		OsirisProxy & osiris_;

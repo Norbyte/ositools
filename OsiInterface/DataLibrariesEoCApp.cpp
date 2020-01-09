@@ -233,6 +233,16 @@ namespace osidbg
 		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
 	};
 
+	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
+		"eoc::StatusPrototype::FormatDescriptionParam2",
+		SymbolMappingData::kCustom, 0,
+		"4C 8B DC " // mov     r11, rsp
+		"55 " // push    rbp
+		"56 ", // push    rsi
+		{},
+		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.StatusPrototypeFormatDescriptionParam}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"EoCMemoryMgr", 
@@ -614,6 +624,17 @@ namespace osidbg
 			"8B C8 ", // mov     ecx, eax
 			{SymbolMappingCondition::kFixedString, 4, "Damage Multiplier"},
 			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x200, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x200}
+		},
+
+		{
+			"eoc::StatusPrototype::FormatDescriptionParam",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"49 89 7B C8 " // mov     [r11-38h], rdi
+			"0F 85 B5 00 00 00 " // jnz     loc_xxx
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_DamageStats
+			"49 8B CE ", // mov     rcx, r14
+			{SymbolMappingCondition::kFixedString, 10, "DamageStats"},
+			{"eoc::StatusPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x100, nullptr, nullptr, &sSymbolStatusPrototypeFormatDescriptionParam, 0x100}
 		},
 	};
 

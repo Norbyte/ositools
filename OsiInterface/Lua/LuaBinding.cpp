@@ -563,7 +563,7 @@ namespace osidbg
 	}
 
 
-	bool LuaState::GetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
+	bool LuaState::SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 		ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
 	{
 		std::lock_guard lock(mutex_);
@@ -600,7 +600,7 @@ namespace osidbg
 		}
 
 		if (CallWithTraceback(2 + paramTexts.Set.Size, 1) != 0) { // stack: retval
-			OsiError("GetDescriptionParam handler failed: " << lua_tostring(L, -1));
+			OsiError("SkillGetDescriptionParam handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}
@@ -616,7 +616,77 @@ namespace osidbg
 				replacement = FromUTF8(str);
 				ok = true;
 			} else {
-				OsiErrorS("GetDescriptionParam returned non-string value");
+				OsiErrorS("SkillGetDescriptionParam returned non-string value");
+				ok = false;
+			}
+		}
+
+		lua_pop(L, 1); // stack: -
+		return ok;
+	}
+
+	bool LuaState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
+		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAll);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_StatusGetDescriptionParam"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return false;
+		}
+
+		auto status = stats->objects.Find(prototype->RPGStatsObjectIndex);
+		if (status == nullptr) {
+			OsiError("Invalid RPGStats index in StatusPrototype?");
+			return false;
+		}
+
+		if (character == nullptr) {
+			character = statusSource;
+		}
+
+		auto luaStatus = LuaObjectProxy<CRPGStats_Object>::New(L, status); // stack: fn, status
+		LuaGameObjectPin<CRPGStats_Object> _(luaStatus);
+
+		auto luaSrcCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, statusSource); // stack: fn, status, srcCharacter, character
+		LuaGameObjectPin<CDivinityStats_Character> _2(luaSrcCharacter);
+
+		auto luaCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, status, srcCharacter, character
+		LuaGameObjectPin<CDivinityStats_Character> _3(luaCharacter);
+
+		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
+			lua_pushstring(L, paramTexts.Set.Buf[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
+		}
+
+		if (CallWithTraceback(3 + paramTexts.Set.Size, 1) != 0) { // stack: retval
+			OsiError("StatusGetDescriptionParam handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int isnil = lua_isnil(L, -1);
+
+		bool ok;
+		if (isnil) {
+			ok = false;
+		} else {
+			auto str = lua_tostring(L, -1);
+			if (str != nullptr) {
+				replacement = FromUTF8(str);
+				ok = true;
+			} else {
+				OsiErrorS("StatusGetDescriptionParam returned non-string value");
 				ok = false;
 			}
 		}

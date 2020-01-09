@@ -164,6 +164,11 @@ namespace osidbg {
 			eoc::Text *eocText, int paramIndex, __int64 isFromItem, float xmm9_4_0, FixedString * paramText,
 			ObjectSet<STDString> * stdStringSet)> SkillPrototypeFormatDescriptionParamHook;
 
+		enum class StatusPrototypeFormatDescriptionParamTag {};
+		WrappableFunction<StatusPrototypeFormatDescriptionParamTag, void(StatusPrototype *prototype, CDivinityStats_Character *statusSource,
+			CDivinityStats_Character *targetCharacter, float multiplier, eoc::Text * text, int paramIndex,
+			FixedString * param, ObjectSet<STDString> * paramSet)> StatusPrototypeFormatDescriptionParamHook;
+
 	private:
 
 		void MapAllSymbols(bool deferred);

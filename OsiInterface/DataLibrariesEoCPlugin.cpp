@@ -259,6 +259,16 @@ namespace osidbg
 		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
 	};
 
+	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
+		"eoc::StatusPrototype::FormatDescriptionParam2",
+		SymbolMappingData::kCustom, 0,
+		"40 53 " // push    rbx
+		"55 " // push    rbp
+		"56 ", // push    rsi
+		{},
+		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.StatusPrototypeFormatDescriptionParam}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"esv::GameActionManager::CreateAction",
@@ -600,6 +610,18 @@ namespace osidbg
 			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_UseWeaponDamage
 			{SymbolMappingCondition::kFixedString, 16, "UseWeaponDamage"},
 			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x100, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x100}
+		},
+
+		{
+			"eoc::StatusPrototype::FormatDescriptionParam",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 3B 05 XX XX XX XX " // cmp     rax, cs:fs_Damage
+			"0F 85 80 00 00 00 " // jnz     loc_xxx
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_DamageStats 
+			"48 8B CF " //  mov     rcx, rdi
+			"E8 XX XX XX XX ", // call    eoc__StatusPrototype__GetFixedStringValue
+			{SymbolMappingCondition::kFixedString, 13, "DamageStats"},
+			{"eoc::StatusPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x80, nullptr, nullptr, &sSymbolStatusPrototypeFormatDescriptionParam, 0x80}
 		},
 	};
 

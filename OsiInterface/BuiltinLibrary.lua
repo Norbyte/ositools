@@ -35,6 +35,21 @@ end
 
 Ext.SkillGetDescriptionParam = {}
 
+Ext._StatusGetDescriptionParam = function (...)
+    for i,callback in pairs(Ext.StatusGetDescriptionParam) do
+        local status, desc = xpcall(callback, debug.traceback, ...)
+        if status then
+			if desc ~= nil then
+				return desc
+			end
+		else
+            Ext.PrintError("Error during StatusGetDescriptionParam: ", desc)
+        end
+    end
+end
+
+Ext.StatusGetDescriptionParam = {}
+
 Ext.RegisterListener = function (type, fn)
 	if type == "SessionLoading" then
 		table.insert(Ext.OnGameSessionLoading, fn)
@@ -42,6 +57,8 @@ Ext.RegisterListener = function (type, fn)
 		table.insert(Ext.OnModuleLoading, fn)
 	elseif type == "SkillGetDescriptionParam" then
 		table.insert(Ext.SkillGetDescriptionParam, fn)
+	elseif type == "StatusGetDescriptionParam" then
+		table.insert(Ext.StatusGetDescriptionParam, fn)
 	else
 		error("Unknown listener type: " .. type)
 	end

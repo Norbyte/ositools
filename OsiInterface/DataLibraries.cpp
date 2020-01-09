@@ -19,6 +19,7 @@ namespace osidbg
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
+	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
 
@@ -417,6 +418,10 @@ namespace osidbg
 				SkillPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.SkillPrototypeFormatDescriptionParam);
 			}
 
+			if (gStaticSymbols.StatusPrototypeFormatDescriptionParam != nullptr) {
+				StatusPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.StatusPrototypeFormatDescriptionParam);
+			}
+
 			gCharacterStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
@@ -450,6 +455,7 @@ namespace osidbg
 		ApplyStatusHook.Unwrap();
 		ActionMachineSetStateHook.Unwrap();
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();
+		StatusPrototypeFormatDescriptionParamHook.Unwrap();
 
 		DetourTransactionCommit();
 	}

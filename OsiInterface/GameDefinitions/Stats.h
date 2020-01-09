@@ -600,6 +600,24 @@ namespace osidbg
 		uint64_t Unknown2[6];
 	};
 
+	struct StatusPrototype
+	{
+		typedef void (* FormatDescriptionParam)(StatusPrototype *prototype, CDivinityStats_Character *statusSource,
+			CDivinityStats_Character *targetCharacter, float multiplier, eoc::Text * text, int paramIndex, 
+			FixedString * param, ObjectSet<STDString> * paramSet);
+
+		void * VMT;
+		int RPGStatsObjectIndex;
+		int StatusIdExternal;
+		FixedString StatusName;
+		TranslatedString translatedString1;
+		FixedString FS2;
+		bool HasStats;
+		uint8_t _Pad[7];
+		uint64_t Unknown;
+	};
+
+
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
 		CNamedElementManager<RPGEnumeration> modifierValueList;
