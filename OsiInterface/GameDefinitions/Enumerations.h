@@ -765,6 +765,29 @@ namespace osidbg
 		StatusDomeAction = 9
 	};
 
+	enum class SkillType : uint32_t
+	{
+		Zone = 0x1,
+		SkillHeal = 0x2,
+		Jump = 0x3,
+		MultiStrike = 0x4,
+		Path = 0x5,
+		Projectile = 0x6,
+		ProjectileStrike = 0x7,
+		Quake = 0x8,
+		Rain = 0x9,
+		Rush = 0xA,
+		Shout = 0xB,
+		Storm = 0xC,
+		Summon = 0xD,
+		Target = 0xE,
+		Teleportation = 0xF,
+		Tornado = 0x10,
+		Wall = 0x11,
+		Dome = 0x12,
+	};
+
+
 	enum StatAttributeFlags : uint64_t
 	{
 		AF_FreezeImmunity = 1ull << 0,

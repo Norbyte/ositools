@@ -353,6 +353,51 @@ namespace osidbg
 		return true;
 	}
 
+	void TextBuffer::Replace(std::wstring const & replacement)
+	{
+		if (Buf) {
+			GameFree(Buf);
+		}
+
+		Buf = GameAlloc<wchar_t>(replacement.size() + 1);
+		memcpy(Buf, replacement.c_str(), sizeof(wchar_t) * (replacement.size() + 1));
+		Capacity = replacement.size() + 1;
+		Length = replacement.size();
+	}
+
+	void eoc::Text::ReplaceParam(int index, std::wstring const & replacement)
+	{
+		if (index < 1 || index > std::size(Params)) {
+			OsiWarnS("Param index out of bounds");
+			return;
+		}
+
+		auto & param = Params[index - 1];
+		if (param.PlaceholderOffset == -1 || param.PlaceholderSize == -1) {
+			return;
+		}
+
+		std::wstring s;
+		s.resize((std::size_t)Buf->Length);
+		memcpy(s.data(), Buf->Buf, sizeof(wchar_t) * Buf->Length);
+
+		std::wstring newS = s.substr(0, param.PlaceholderOffset);
+		newS += replacement;
+		newS += s.substr(param.PlaceholderOffset + param.PlaceholderSize);
+		Buf->Replace(newS);
+
+		for (auto i = 0; i < 8; i++) {
+			if (i != index - 1
+				&& Params[i].PlaceholderSize != -1
+				&& Params[i].PlaceholderOffset > param.PlaceholderOffset) {
+				Params[i].PlaceholderOffset -= param.PlaceholderSize;
+			}
+		}
+
+		param.PlaceholderOffset = -1;
+		param.PlaceholderSize = -1;
+	}
+
 	uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 	{
 		uint32_t h = seed;

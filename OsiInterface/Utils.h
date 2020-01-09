@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+extern HMODULE gThisModule;
+
 std::string ToUTF8(std::wstring const & s);
 std::wstring FromUTF8(std::string const & s);
 

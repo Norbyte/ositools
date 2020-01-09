@@ -577,6 +577,38 @@ namespace osidbg
 		}
 	}
 
+	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName)
+	{
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		if (strcmp(attributeName, "Requirements") == 0) {
+			RequirementsToLua(L, object->Requirements);
+			return 1;
+		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+			RequirementsToLua(L, object->MemorizationRequirements);
+			return 1;
+		}
+
+		auto value = stats->GetAttributeFixedString(object, attributeName);
+		if (!value) {
+			auto intval = stats->GetAttributeInt(object, attributeName);
+			if (!intval) {
+				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeName << "'");
+				return 0;
+			} else {
+				lua_pushinteger(L, *intval);
+			}
+		} else {
+			lua_pushstring(L, value->Str);
+		}
+
+		return 1;
+	}
+
 	int StatGetAttribute(lua_State * L)
 	{
 		auto statName = luaL_checkstring(L, 1);
@@ -594,28 +626,7 @@ namespace osidbg
 			return 0;
 		}
 
-		if (strcmp(attributeName, "Requirements") == 0) {
-			RequirementsToLua(L, object->Requirements);
-			return 1;
-		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
-			RequirementsToLua(L, object->MemorizationRequirements);
-			return 1;
-		}
-
-		auto value = stats->GetAttributeFixedString(object, attributeName);
-		if (!value) {
-			auto intval = stats->GetAttributeInt(object, attributeName);
-			if (!intval) {
-				OsiError("Stat object '" << statName << "' has no attribute named '" << attributeName << "'");
-				return 0;
-			} else {
-				lua_pushinteger(L, *intval);
-			}
-		} else {
-			lua_pushstring(L, value->Str);
-		}
-
-		return 1;
+		return LuaStatGetAttribute(L, object, attributeName);
 	}
 
 	int StatSetAttribute(lua_State * L)

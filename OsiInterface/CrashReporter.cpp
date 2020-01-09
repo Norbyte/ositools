@@ -8,8 +8,6 @@
 #include <iostream>
 #include <fstream>
 
-extern HMODULE gThisModule;
-
 class CrashReporter
 {
 public:

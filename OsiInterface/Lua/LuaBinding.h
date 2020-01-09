@@ -499,6 +499,8 @@ namespace osidbg
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
+		bool GetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
+			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 
 	private:
 		lua_State * state_;
@@ -519,6 +521,7 @@ namespace osidbg
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 
 		static int TracebackHandler(lua_State * L);
+		static std::string GetBuiltinLibrary();
 	};
 
 	class LuaRestriction

@@ -420,8 +420,8 @@ namespace osidbg
 		uint32_t BaseMaxArmor;
 		uint32_t MaxMagicArmor;
 		uint32_t BaseMaxMagicArmor;
-		uint32_t Sight;
-		uint32_t BaseSight;
+		float Sight;
+		float BaseSight;
 		uint64_t AttributeFlags;
 		uint64_t BaseAttributeFlags;
 		uint64_t ItemBoostedAttributeFlags;
@@ -537,6 +537,67 @@ namespace osidbg
 	struct CRPGStats_ItemType_Manager : public CNamedElementManager<uint64_t>
 	{
 		uint64_t Unknown;
+	};
+
+	struct TextBuffer
+	{
+		wchar_t * Buf;
+		uint64_t Capacity;
+		uint64_t Length;
+		uint64_t Unknown;
+
+		void Replace(std::wstring const & replacement);
+	};
+
+	namespace eoc
+	{
+		struct Text
+		{
+			struct Param
+			{
+				int32_t PlaceholderOffset;
+				int32_t Unknown[2];
+				int32_t PlaceholderSize;
+			};
+
+			void * VMT;
+			TextBuffer * Buf;
+			uint32_t Unknown[2];
+			Param Params[8];
+
+			void ReplaceParam(int index, std::wstring const & replacement);
+		};
+	}
+
+	struct SkillPrototype
+	{
+		typedef void (* FormatDescriptionParam)(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats, 
+			eoc::Text *eocText, int paramIndex, __int64 isFromItem, float xmm9_4_0, FixedString * paramText, 
+			ObjectSet<STDString> * stdStringSet);
+
+		// void * VMT;
+		int RPGStatsObjectIndex;
+		SkillType SkillTypeId;
+		FixedString SkillId;
+		uint16_t Ability;
+		uint8_t _Pad[2];
+		uint32_t Tier;
+		uint32_t Requirement;
+		uint32_t Level;
+		uint32_t MagicCost;
+		uint32_t MemoryCost;
+		uint32_t ActionPoints;
+		float Cooldown;
+		float CooldownReduction;
+		float ChargeDuration;
+		STDWString DisplayName;
+		FixedString Icon;
+		uint64_t AiFlags;
+		SkillPrototype * RootSkillPrototype;
+		uint64_t Unknown0[2];
+		uint32_t Unknown1;
+		uint32_t RootSkillPrototypeIndex_M;
+		uint64_t Unknown2[6];
 	};
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>

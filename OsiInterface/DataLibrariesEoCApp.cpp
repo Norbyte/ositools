@@ -223,6 +223,16 @@ namespace osidbg
 		}
 	}
 
+	SymbolMappingData const sSymbolSkillPrototypeFormatDescriptionParam = {
+		"eoc::SkillPrototype::FormatDescriptionParam2",
+		SymbolMappingData::kCustom, 0,
+		"4C 8B DC " // mov     r11, rsp
+		"55 " // push    rbp
+		"53 ", // push    rbx
+		{},
+		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"EoCMemoryMgr", 
@@ -591,7 +601,20 @@ namespace osidbg
 			"E8 XX XX XX XX ", // call    xxx
 			{},
 			{"esv::ActionMachine::UpdateSyncState", SymbolMappingTarget::kIndirectCall, 29, nullptr, &FindActionMachineSetState}
-		}
+		},
+
+		{
+			"eoc::SkillPrototype::FormatDescriptionParam",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 83 CF FF " // or      rdi, 0FFFFFFFFFFFFFFFFh
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_Damage_Multiplier
+			"44 8B C7 " // mov     r8d, edi
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    sub_141C979B0
+			"8B C8 ", // mov     ecx, eax
+			{SymbolMappingCondition::kFixedString, 4, "Damage Multiplier"},
+			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x200, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x200}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

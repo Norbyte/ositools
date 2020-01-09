@@ -485,6 +485,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BuiltinLibrary.lua" />
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
     <None Include="GameDefinitions\CharacterGetters.inl" />

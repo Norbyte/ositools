@@ -766,6 +766,22 @@ namespace osidbg
 		delete eventArgs;
 	}
 
+	void CustomFunctionLibrary::OnFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
+		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
+		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
+	{
+		std::wstring replacement;
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->GetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
+				eocText->ReplaceParam(paramIndex, replacement);
+				return;
+			}
+		}
+
+		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
+	}
+
 
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{

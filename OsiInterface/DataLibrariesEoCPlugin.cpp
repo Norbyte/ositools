@@ -249,6 +249,16 @@ namespace osidbg
 		}
 	}
 
+	SymbolMappingData const sSymbolSkillPrototypeFormatDescriptionParam = {
+		"eoc::SkillPrototype::FormatDescriptionParam2",
+		SymbolMappingData::kCustom, 0,
+		"40 55 " // push    rbp
+		"53 " // push    rbx
+		"56 ", // push    rsi
+		{},
+		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"esv::GameActionManager::CreateAction",
@@ -579,7 +589,18 @@ namespace osidbg
 			"E8 XX XX XX XX ", // call    xxx
 			{},
 			{"esv::ActionMachine::SetState", SymbolMappingTarget::kIndirectCall, 28, nullptr, &FindActionMachineSetState}
-		}
+		},
+
+		{
+			"eoc::SkillPrototype::FormatDescriptionParam",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"0F 29 BC 24 70 03 00 00 " // movaps  [rsp+3B0h+var_40], xmm7
+			"41 83 C8 FF " // or      r8d, 0FFFFFFFFh
+			"89 5C 24 4C " // mov     [rsp+3B0h+a3], ebx
+			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_UseWeaponDamage
+			{SymbolMappingCondition::kFixedString, 16, "UseWeaponDamage"},
+			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x100, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x100}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

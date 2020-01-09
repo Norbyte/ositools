@@ -2,6 +2,7 @@
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
 #include "LuaBinding.h"
+#include "resource.h"
 #include <fstream>
 
 namespace osidbg
@@ -55,6 +56,28 @@ namespace osidbg
 	}
 
 	int LuaObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName);
+
+	char const * const LuaObjectProxy<CRPGStats_Object>::MetatableName = "LuaCRPGStatsObjectProxy";
+
+	int LuaObjectProxy<CRPGStats_Object>::LuaIndex(lua_State * L)
+	{
+		auto attributeName = luaL_checkstring(L, 2);
+
+		if (strcmp(attributeName, "Name") == 0) {
+			lua_pushstring(L, obj_->Name);
+			return 1;
+		}
+
+		return LuaStatGetAttribute(L, obj_, attributeName);
+	}
+
+	int LuaObjectProxy<CRPGStats_Object>::LuaNewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -274,6 +297,7 @@ namespace osidbg
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
 		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaObjectProxy<CRPGStats_Object>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
 		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
@@ -372,80 +396,7 @@ namespace osidbg
 
 		proxy_.Register(state_);
 
-		auto sandbox = R"(
-Ext._OnGameSessionLoading = function ()
-    for i,callback in pairs(Ext.OnGameSessionLoading) do
-        local status, err = xpcall(callback, debug.traceback)
-        if not status then
-            Ext.PrintError("Error during OnGameSessionLoading: ", err)
-        end
-    end
-end
-
-Ext.OnGameSessionLoading = {}
-
-Ext._OnModuleLoading = function ()
-    for i,callback in pairs(Ext.OnModuleLoading) do
-        local status, err = xpcall(callback, debug.traceback)
-        if not status then
-            Ext.PrintError("Error during OnGameSessionLoading: ", err)
-        end
-    end
-end
-
-Ext.OnModuleLoading = {}
-
-Ext.RegisterListener = function (type, fn)
-	if type == "SessionLoading" then
-		table.insert(Ext.OnGameSessionLoading, fn)
-	elseif type == "ModuleLoading" then
-		table.insert(Ext.OnModuleLoading, fn)
-	else
-		error("Unknown listener type: " .. type)
-	end
-end
-
-dofile = function ()
-	error("dofile() has been disabled for security reasons")
-end
-
-loadfile = function ()
-	error("loadfile() has been disabled for security reasons")
-end
-
-load = function ()
-	error("load() has been disabled for security reasons")
-end
-
-loadstring = function ()
-	error("loadstring() has been disabled for security reasons")
-end
-
-rawget = function ()
-	error("rawget() has been disabled for security reasons")
-end
-
-rawset = function ()
-	error("rawset() has been disabled for security reasons")
-end
-
-rawequal = function ()
-	error("rawequal() has been disabled for security reasons")
-end
-
-local oldDebug = debug
-debug = {
-	traceback = oldDebug.traceback
-}
-oldDebug = nil
-
--- math.random replaced by custom implementation
-math.random = Ext.Random
--- math.randomseed not implemented
-math.randomseed = function ()
-	error("math.randomseed() not implemented")
-end
-)";
+		auto sandbox = GetBuiltinLibrary();
 		LoadScript(sandbox, "sandbox");
 
 		auto L = state_;
@@ -611,6 +562,69 @@ end
 		}
 	}
 
+
+	bool LuaState::GetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
+		ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAll);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_SkillGetDescriptionParam"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return false;
+		}
+
+		auto skill = stats->objects.Find(prototype->RPGStatsObjectIndex);
+		if (skill == nullptr) {
+			OsiError("Invalid RPGStats index in SkillPrototype?");
+			return false;
+		}
+
+		auto luaSkill = LuaObjectProxy<CRPGStats_Object>::New(L, skill); // stack: fn, skill
+		LuaGameObjectPin<CRPGStats_Object> _(luaSkill);
+		auto luaCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, skill, character
+		LuaGameObjectPin<CDivinityStats_Character> _2(luaCharacter);
+
+		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
+			lua_pushstring(L, paramTexts.Set.Buf[i].GetPtr()); // stack: fn, skill, character, params...
+		}
+
+		if (CallWithTraceback(2 + paramTexts.Set.Size, 1) != 0) { // stack: retval
+			OsiError("GetDescriptionParam handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int isnil = lua_isnil(L, -1);
+
+		bool ok;
+		if (isnil) {
+			ok = false;
+		} else {
+			auto str = lua_tostring(L, -1);
+			if (str != nullptr) {
+				replacement = FromUTF8(str);
+				ok = true;
+			} else {
+				OsiErrorS("GetDescriptionParam returned non-string value");
+				ok = false;
+			}
+		}
+
+		lua_pop(L, 1); // stack: -
+		return ok;
+	}
+
 	void LuaState::OnGameSessionLoading()
 	{
 		std::lock_guard lock(mutex_);
@@ -643,6 +657,29 @@ end
 			OsiError("Ext.OnModuleLoading failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
+	}
+
+	std::string LuaState::GetBuiltinLibrary()
+	{
+		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(IDR_LUA_BUILTIN_LIBRARY),
+			L"LUA_SCRIPT");
+
+		if (hResource) {
+			auto hGlobal = LoadResource(gThisModule, hResource);
+			if (hGlobal) {
+				auto resourceData = LockResource(hGlobal);
+				if (resourceData) {
+					DWORD resourceSize = SizeofResource(gThisModule, hResource);
+					std::string script;
+					script.resize(resourceSize);
+					memcpy(script.data(), resourceData, resourceSize);
+					return script;
+				}
+			}
+		}
+
+		OsiErrorS("Could not find bootstrap resource!");
+		return std::string();
 	}
 
 	void ExtensionState::OnGameSessionLoading()

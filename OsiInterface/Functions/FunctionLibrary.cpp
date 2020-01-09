@@ -298,6 +298,9 @@ namespace osidbg
 		osiris_.GetLibraryManager().ActionMachineSetStateHook.AddPostHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
 		);
+		osiris_.GetLibraryManager().SkillPrototypeFormatDescriptionParamHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
+		);
 
 		PostLoaded = true;
 	}

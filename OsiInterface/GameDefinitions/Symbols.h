@@ -92,6 +92,7 @@ namespace osidbg
 		void * InitNetworkFixedStrings{ nullptr };
 		ecl::GameStateEventManager__ExecuteGameStateChangedEvent GameStateChangedEvent{ nullptr };
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
+		SkillPrototype::FormatDescriptionParam SkillPrototypeFormatDescriptionParam{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };

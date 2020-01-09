@@ -263,6 +263,9 @@
     <None Include="GameDefinitions\CharacterGetters.inl">
       <Filter>Header Files\GameDefinitions</Filter>
     </None>
+    <None Include="BuiltinLibrary.lua">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">
