@@ -266,6 +266,32 @@ namespace osidbg
 		uint32_t Size{ 0 };
 
 		inline CompactSet() {}
+
+		void Reallocate(uint32_t newCapacity)
+		{
+			auto newBuf = GameAlloc<T>(newCapacity);
+			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
+				newBuf[i] = Buf[i];
+			}
+
+			GameFree(Buf);
+			Buf = newBuf;
+			Capacity = newCapacity;
+		}
+
+		void Remove(uint32_t index)
+		{
+			if (index >= Size) {
+				ERR("Tried to remove out-of-bounds index %d!", index);
+				return;
+			}
+
+			for (auto i = index; i < Size - 1; i++) {
+				Buf[i] = Buf[i + 1];
+			}
+
+			Size--;
+		}
 	};
 
 	template <class T>
@@ -282,18 +308,6 @@ namespace osidbg
 			} else {
 				return 1;
 			}
-		}
-
-		void Reallocate(uint32_t newCapacity)
-		{
-			auto newBuf = GameAlloc<T>(newCapacity);
-			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-				newBuf[i] = Buf[i];
-			}
-
-			GameFree(Buf);
-			Buf = newBuf;
-			Capacity = newCapacity;
 		}
 
 		void Add(T const & value)
@@ -461,8 +475,13 @@ namespace osidbg
 
 		void Remove(uint32_t index)
 		{
-			for (auto i = index + 1; i < Size; i++) {
-				Buf[index] = Buf[index + 1];
+			if (index >= Size) {
+				ERR("Tried to remove out-of-bounds index %d!", index);
+				return;
+			}
+
+			for (auto i = index; i < Size - 1; i++) {
+				Buf[i] = Buf[i + 1];
 			}
 
 			Size--;
