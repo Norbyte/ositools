@@ -783,7 +783,6 @@ namespace osidbg
 			if (DamageList.Buf[i].DamageType == damageType) {
 				TotalDamage -= DamageList.Buf[i].Amount;
 				DamageList.Remove(i);
-				break;
 			}
 		}
 	}
@@ -804,7 +803,7 @@ namespace osidbg
 				if (newAmount == 0) {
 					Remove(i);
 				} else {
-					Buf[i].Amount += newAmount;
+					Buf[i].Amount = newAmount;
 				}
 
 				added = true;
