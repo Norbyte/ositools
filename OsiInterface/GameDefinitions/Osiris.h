@@ -621,6 +621,15 @@ struct TypeDb : public ProtectedGameObject<TypeDb<TKey, TValue>>
 		return bucket.NodeMap.Find(key);
 	}
 
+	template <class Visitor>
+	void Iterate(Visitor visitor)
+	{
+		for (uint32_t i = 0; i < 0x3FF; i++) {
+			HashSlot & bucket = Hash[i];
+			bucket.NodeMap.Iterate(visitor);
+		}
+	}
+
 	HashSlot Hash[1023];
 	uint32_t NumItems;
 	uint32_t _Pad;

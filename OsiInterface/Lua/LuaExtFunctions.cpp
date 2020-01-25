@@ -861,4 +861,127 @@ namespace osidbg
 		return 1;
 	}
 
+	char const * OsiToLuaTypeName(ValueType type)
+	{
+		switch (type) {
+		case ValueType::Integer:
+		case ValueType::Integer64:
+			return "integer";
+
+		case ValueType::Real:
+			return "number";
+
+		case ValueType::String:
+			return "string";
+
+		case ValueType::GuidString:
+		case ValueType::SplineGuid:
+		case ValueType::LevelTemplateGuid:
+			return "string GUID";
+
+		case ValueType::CharacterGuid:
+			return "string Character GUID";
+
+		case ValueType::ItemGuid:
+			return "string Item GUID";
+
+		case ValueType::TriggerGuid:
+			return "string Trigger GUID";
+
+		default:
+			return "any";
+		}
+	}
+
+	std::string GenerateIdeHelpers()
+	{
+		std::string helpers;
+		helpers.reserve(0x20000);
+
+		auto functions = gOsirisProxy->GetGlobals().Functions;
+
+		(*functions)->Iterate([&helpers](STDString const & key, Function const * func) {
+			auto const & outParams = func->Signature->OutParamList;
+			auto numOutParams = outParams.numOutParams();
+
+			auto types = func->Signature->Params->Params.Head;
+			for (auto i = 0; i < func->Signature->Params->Params.Size; i++) {
+				types = types->Next;
+
+				if (!outParams.isOutParam(i)) {
+					helpers += "--- @param arg";
+					helpers += std::to_string(i + 1);
+					helpers += " ";
+					helpers += OsiToLuaTypeName((ValueType)types->Item.Type);
+					helpers += "\r\n";
+				}
+			}
+
+			if (numOutParams > 0) {
+				auto types = func->Signature->Params->Params.Head;
+				for (auto i = 0; i < func->Signature->Params->Params.Size; i++) {
+					types = types->Next;
+
+					if (outParams.isOutParam(i)) {
+						helpers += "--- @return ";
+						helpers += OsiToLuaTypeName((ValueType)types->Item.Type);
+						helpers += "\r\n";
+					}
+				}
+			} else {
+				if (func->Type == FunctionType::SysQuery
+					|| func->Type == FunctionType::Query
+					|| func->Type == FunctionType::UserQuery) {
+					helpers += "--- @return boolean Did the query succeed?\r\n";
+				}
+			}
+
+			helpers += "Osi.";
+			helpers += func->Signature->Name;
+			helpers += " = function (";
+
+			auto pendingInParams = func->Signature->Params->Params.Size - numOutParams;
+			for (auto i = 0; i < func->Signature->Params->Params.Size; i++) {
+				if (!outParams.isOutParam(i)) {
+					helpers += "arg";
+					helpers += std::to_string(i + 1);
+					if (--pendingInParams > 0) {
+						helpers += ", ";
+					}
+				}
+			}
+
+			helpers += ") end\r\n\r\n";
+		});
+
+		return helpers;
+	}
+
+	int GenerateIdeHelpers(lua_State * L)
+	{
+#if !defined(OSI_EOCAPP)
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictOsiris) {
+			return luaL_error(L, "Attempted to generate IDE helpers in restricted context");
+		}
+
+		auto helpers = GenerateIdeHelpers();
+
+		auto path = gStaticSymbols.ToPath("", PathRootType::Data);
+		path += "Mods/";
+		path += ToUTF8(GetModManager()->BaseModule.Info.Directory.GetPtr());
+		path += "/Story/RawFiles/Lua/OsiIdeHelpers.lua";
+
+		std::ofstream f(path.c_str(), std::ios::out | std::ios::binary);
+		if (!f.good()) {
+			OsiError("Could not open file to save IDE helpers: '" << path << "'");
+			return 0;
+		}
+
+		f.write(helpers.c_str(), helpers.size());
+#else
+		OsiError("GenerateIdeHelpers() only supported in editor mode");
+#endif
+		return 0;
+	}
 }

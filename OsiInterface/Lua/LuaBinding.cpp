@@ -328,6 +328,7 @@ namespace osidbg
 	int GetStatus(lua_State * L);
 	int OsirisIsCallable(lua_State * L);
 	int LuaRandom(lua_State * L);
+	int GenerateIdeHelpers(lua_State * L);
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
 	{
@@ -357,6 +358,7 @@ namespace osidbg
 			{"GetStatus", GetStatus},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"Random", LuaRandom},
+			{"GenerateIdeHelpers", GenerateIdeHelpers},
 			{0,0}
 		};
 
