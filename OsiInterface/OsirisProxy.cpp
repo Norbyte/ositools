@@ -43,25 +43,25 @@ void OsirisProxy::Initialize()
 	Wrappers.RuleActionCall.SetWrapper(std::bind(&OsirisProxy::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
 #endif
 
-	if (ExtensionsEnabled) {
-		if (Libraries.FindLibraries()) {
+	if (Libraries.FindLibraries()) {
+		if (ExtensionsEnabled) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
 			ResetExtensionState();
+		} else {
+			DEBUG("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
+		}
+	} else {
+		ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
+		ExtensionsEnabled = false;
+	}
 
-			Wrappers.InitializeExtensions();
-			Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
-			Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
-			Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
-		}
-		else {
-			ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
-			ExtensionsEnabled = false;
-		}
-	}
-	else {
-		DEBUG("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
-	}
+	// Wrap state change functions even if extension startup failed, otherwise
+	// we won't be able to show any startup errors
+	Wrappers.InitializeExtensions();
+	Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
+	Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
+	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
@@ -721,13 +721,16 @@ void OsirisProxy::ResetExtensionState()
 
 void OsirisProxy::LoadExtensionState()
 {
-	if (ExtensionLoaded || !ExtensionsEnabled) return;
+	if (ExtensionLoaded) return;
 
-	if (!ExtState) {
-		ResetExtensionState();
+	if (ExtensionsEnabled) {
+		if (!ExtState) {
+			ResetExtensionState();
+		}
+
+		ExtState->LoadConfigs();
 	}
 
-	ExtState->LoadConfigs();
 	// PostInitLibraries() should be called after extension config is loaded,
 	// otherwise it won't hook functions that may be needed later on
 	PostInitLibraries();
