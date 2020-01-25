@@ -93,6 +93,7 @@ namespace osidbg
 		ecl::GameStateEventManager__ExecuteGameStateChangedEvent GameStateChangedEvent{ nullptr };
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
 		SkillPrototype::FormatDescriptionParam SkillPrototypeFormatDescriptionParam{ nullptr };
+		SkillPrototype::GetSkillDamage SkillPrototypeGetSkillDamage{ nullptr };
 		StatusPrototype::FormatDescriptionParam StatusPrototypeFormatDescriptionParam{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };

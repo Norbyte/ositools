@@ -17,6 +17,190 @@ namespace osidbg
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 	void OsiToLua(lua_State * L, TypedValue const & tv);
 
+	inline void lua_push(lua_State * L, nullptr_t v)
+	{
+		lua_pushnil(L);
+	}
+
+	inline void lua_push(lua_State * L, bool v)
+	{
+		lua_pushboolean(L, v ? 1 : 0);
+	}
+
+	inline void lua_push(lua_State * L, int32_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	inline void lua_push(lua_State * L, uint32_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	inline void lua_push(lua_State * L, int64_t v)
+	{
+		lua_pushinteger(L, v);
+	}
+
+	inline void lua_push(lua_State * L, uint64_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
+	}
+
+	inline void lua_push(lua_State * L, double v)
+	{
+		lua_pushnumber(L, v);
+	}
+
+	inline void lua_push(lua_State * L, char const * v)
+	{
+		lua_pushstring(L, v);
+	}
+
+	inline void lua_push(lua_State * L, FixedString v)
+	{
+		lua_pushstring(L, v.Str);
+	}
+
+	inline void lua_push(lua_State * L, std::string const & v)
+	{
+		lua_pushstring(L, v.c_str());
+	}
+
+	inline void lua_push(lua_State * L, std::wstring const & v)
+	{
+		lua_pushstring(L, ToUTF8(v).c_str());
+	}
+
+	inline void lua_push(lua_State * L, STDString const & v)
+	{
+		lua_pushstring(L, v.GetPtr());
+	}
+
+	inline void lua_push(lua_State * L, STDWString const & v)
+	{
+		lua_pushstring(L, ToUTF8(v.GetPtr()).c_str());
+	}
+
+	template <class TKey, class TValue>
+	inline void luaL_settable(lua_State * L, TKey const & k, TValue const & v, int index = -3)
+	{
+		lua_push(L, k);
+		lua_push(L, v);
+		lua_settable(L, index);
+	}
+
+	template <class TValue>
+	TValue luaL_get(lua_State * L, int index = -1);
+
+	template <>
+	inline bool luaL_get<bool>(lua_State * L, int index)
+	{
+		return lua_toboolean(L, index) == 1;
+	}
+
+	template <>
+	inline int32_t luaL_get<int32_t>(lua_State * L, int index)
+	{
+		return (int32_t)lua_tointeger(L, index);
+	}
+
+	template <>
+	inline int64_t luaL_get<int64_t>(lua_State * L, int index)
+	{
+		return lua_tointeger(L, index);
+	}
+
+	template <>
+	inline double luaL_get<double>(lua_State * L, int index)
+	{
+		return lua_tonumber(L, index);
+	}
+
+	template <>
+	inline char const * luaL_get<char const *>(lua_State * L, int index)
+	{
+		return lua_tostring(L, index);
+	}
+
+	template <class TKey, class TValue>
+	TValue luaL_gettable(lua_State * L, TKey const & k, int index = -2)
+	{
+		lua_push(L, k);
+		lua_gettable(L, index);
+		TValue val = luaL_get<TValue>(L, -1);
+		lua_pop(L, 1);
+		return val;
+	}
+
+	template <class TEnum>
+	std::optional<TEnum> lua_toenum(lua_State * L, int index)
+	{
+		switch (lua_type(L, index)) {
+		case LUA_TSTRING:
+		{
+			auto val = lua_tostring(L, index);
+			auto index = EnumInfo<TEnum>::Find(val);
+			if (index) {
+				return (TEnum)*index;
+			} else {
+				return {};
+			}
+			break;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto val = lua_tointeger(L, index);
+			auto index = EnumInfo<TEnum>::Find((TEnum)val);
+			if (index) {
+				return (TEnum)val;
+			} else {
+				return {};
+			}
+			break;
+		}
+
+		default:
+			return {};
+		}
+	}
+
+	template <class TEnum>
+	TEnum lua_checkenum(lua_State * L, int index)
+	{
+		switch (lua_type(L, index)) {
+		case LUA_TSTRING:
+		{
+			auto val = lua_tostring(L, index);
+			auto index = EnumInfo<TEnum>::Find(val);
+			if (index) {
+				return (TEnum)*index;
+			} else {
+				luaL_error(L, "Param %d is not a valid enum label", index);
+			}
+			break;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto val = lua_tointeger(L, index);
+			auto index = EnumInfo<TEnum>::Find((TEnum)val);
+			if (index) {
+				return (TEnum)val;
+			} else {
+				luaL_error(L, "Param %d is not a valid enum label", index);
+			}
+			break;
+		}
+
+		default:
+			luaL_error(L, "Param %d must be an integer or string enumeration label", index);
+		}
+
+		return (TEnum)0;
+	}
+
 	class LuaRegistryEntry
 	{
 	public:
@@ -44,12 +228,20 @@ namespace osidbg
 	class LuaUserdata
 	{
 	public:
-		static T * FromUserData(lua_State * L, int index)
+		static T * AsUserData(lua_State * L, int index)
+		{
+			if (lua_type(L, index) == LUA_TUSERDATA) {
+				auto obj = luaL_testudata(L, index, T::MetatableName);
+				return reinterpret_cast<T *>(obj);
+			} else {
+				return nullptr;
+			}
+		}
+
+		static T * CheckUserData(lua_State * L, int index)
 		{
 			luaL_checktype(L, index, LUA_TUSERDATA);
-			auto obj = reinterpret_cast<T *>(luaL_checkudata(L, index, T::MetatableName));
-			if (obj == nullptr) luaL_error(L, "Metatable type mismatch");
-			return obj;
+			return reinterpret_cast<T *>(luaL_checkudata(L, index, T::MetatableName));
 		}
 
 		template <class... Args>
@@ -64,7 +256,7 @@ namespace osidbg
 		static int LuaCallProxy(lua_State * L)
 		{
 			if constexpr (std::is_base_of_v<LuaCallable, T>) {
-				auto self = FromUserData(L, 1);
+				auto self = CheckUserData(L, 1);
 				return self->LuaCall(L);
 			} else {
 				return luaL_error(L, "Not callable!");
@@ -74,7 +266,7 @@ namespace osidbg
 		static int LuaIndexProxy(lua_State * L)
 		{
 			if constexpr (std::is_base_of_v<LuaIndexable, T>) {
-				auto self = FromUserData(L, 1);
+				auto self = CheckUserData(L, 1);
 				return self->LuaIndex(L);
 			} else {
 				return luaL_error(L, "Not indexable!");
@@ -84,11 +276,16 @@ namespace osidbg
 		static int LuaNewIndexProxy(lua_State * L)
 		{
 			if constexpr (std::is_base_of_v<LuaNewIndexable, T>) {
-				auto self = FromUserData(L, 1);
+				auto self = CheckUserData(L, 1);
 				return self->LuaNewIndex(L);
 			} else {
 				return luaL_error(L, "Not newindexable!");
 			}
+		}
+
+		static void PopulateMetatable(lua_State * L)
+		{
+			// Add custom metatable items by overriding this in subclasses
 		}
 
 		static void RegisterMetatable(lua_State * L)
@@ -110,6 +307,8 @@ namespace osidbg
 				lua_pushcfunction(L, &LuaNewIndexProxy); // stack: mt, &LuaNewIndex
 				lua_setfield(L, -2, "__newindex"); // mt.__index = &LuaNewIndex; stack: mt
 			}
+
+			T::PopulateMetatable(L);
 
 			lua_pop(L, 1); // stack: -
 		}
@@ -253,6 +452,42 @@ namespace osidbg
 		LuaStatsProxy * proxy_;
 	};
 
+	class LuaSkillPrototypeProxy : public LuaUserdata<LuaSkillPrototypeProxy>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		LuaSkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level);
+
+		void Unbind()
+		{
+			obj_ = nullptr;
+		}
+
+		int LuaIndex(lua_State * L);
+
+	private:
+		SkillPrototype * obj_;
+		CRPGStats_Object * stats_;
+		std::optional<int> level_;
+	};
+
+	class LuaSkillPrototypePin
+	{
+	public:
+		inline LuaSkillPrototypePin(LuaSkillPrototypeProxy * proxy)
+			: proxy_(proxy)
+		{}
+
+		inline ~LuaSkillPrototypePin()
+		{
+			if (proxy_) proxy_->Unbind();
+		}
+
+	private:
+		LuaSkillPrototypeProxy * proxy_;
+	};
+
 	template <class T>
 	class LuaGameObjectPin
 	{
@@ -310,6 +545,30 @@ namespace osidbg
 		static char const * const MetatableName;
 
 		int LuaIndex(lua_State * L);
+	};
+
+	class LuaDamageList : public LuaUserdata<LuaDamageList>
+	{
+	public:
+		static char const * const MetatableName;
+
+		static void PopulateMetatable(lua_State * L);
+
+		inline DamagePairList & Get()
+		{
+			return damages_;
+		}
+
+	private:
+		DamagePairList damages_;
+
+		static int Add(lua_State * L);
+		static int Clear(lua_State * L);
+		static int Multiply(lua_State * L);
+		static int Merge(lua_State * L);
+		static int ConvertDamageType(lua_State * L);
+		static int AggregateSameTypeDamages(lua_State * L);
+		static int ToTable(lua_State * L);
 	};
 
 
@@ -539,6 +798,9 @@ namespace osidbg
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
+		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
+			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource, 
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 

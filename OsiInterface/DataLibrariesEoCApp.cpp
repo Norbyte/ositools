@@ -233,6 +233,15 @@ namespace osidbg
 		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
 	};
 
+	SymbolMappingData const sSymbolSkillPrototypeGetSkillDamage = {
+		"eoc::SkillPrototype::GetSkillDamage2",
+		SymbolMappingData::kCustom, 0,
+		"44 88 4C 24 20 " // mov     byte ptr [rsp+arg_18], r9b
+		"48 89 54 24 10 ", // mov     [rsp+damageList], rdx
+		{},
+		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeGetSkillDamage}
+	};
+
 	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
 		"eoc::StatusPrototype::FormatDescriptionParam2",
 		SymbolMappingData::kCustom, 0,
@@ -624,6 +633,17 @@ namespace osidbg
 			"8B C8 ", // mov     ecx, eax
 			{SymbolMappingCondition::kFixedString, 4, "Damage Multiplier"},
 			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x200, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x200}
+		},
+
+		{
+			"eoc::SkillPrototype::GetSkillDamage",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"0F 84 4D 06 00 00 " // jz      loc_xxx
+			"4C 8B 00 " // mov     r8, [rax]
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_Damage_Multiplier
+			"48 8B C8 ", // mov     rcx, rax
+			{SymbolMappingCondition::kFixedString, 9, "Damage Multiplier"},
+			{"eoc::SkillPrototype::GetSkillDamage", SymbolMappingTarget::kAbsolute, -0x200, nullptr, nullptr, &sSymbolSkillPrototypeGetSkillDamage, 0x200}
 		},
 
 		{

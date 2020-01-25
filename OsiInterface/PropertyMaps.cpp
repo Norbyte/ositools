@@ -22,6 +22,7 @@ namespace osidbg
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
+	PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -220,6 +221,7 @@ namespace osidbg
 			// TODO - Reflection
 			PROP(CDivinityStats_Equipment_Attributes, Skills);
 			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
+			PROP_ENUM(CDivinityStats_Equipment_Attributes, StatsType);
 			// TODO - add attribute flags object support
 			// PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
 			// TODO - ObjectInstanceName?, AbilityModifiers, Talents
@@ -325,6 +327,11 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gCharacterStatsPropertyMap;
+			// CRPGStats_Object
+			PROP_RO(CDivinityStats_Character, Level);
+			PROP_RO(CDivinityStats_Character, AIFlags);
+
+			// CDivinityStats_Character
 			PROP(CDivinityStats_Character, CurrentVitality);
 			PROP(CDivinityStats_Character, CurrentArmor);
 			PROP(CDivinityStats_Character, CurrentMagicArmor);
@@ -357,9 +364,9 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gItemStatsPropertyMap;
-			PROP_RO(CDivinityStats_Item, ItemType);
+			PROP_ENUM(CDivinityStats_Item, ItemType);
 			PROP_RO(CDivinityStats_Item, ItemSlot);
-			PROP_RO(CDivinityStats_Item, WeaponType);
+			PROP_ENUM(CDivinityStats_Item, WeaponType);
 			PROP_RO(CDivinityStats_Item, AnimType);
 			PROP_RO(CDivinityStats_Item, WeaponRange);
 			PROP_RO(CDivinityStats_Item, IsIdentified);
@@ -462,6 +469,11 @@ namespace osidbg
 			PROP_RO(esv::ASPrepareSkill, PrepareAnimationLoop);
 			PROP_RO(esv::ASPrepareSkill, IsFinished);
 			PROP_RO(esv::ASPrepareSkill, IsEntered);
+		}
+
+		{
+			auto & propertyMap = gASUseSkillStatPropertyMap;
+			// FIXME
 		}
 	}
 
@@ -648,7 +660,9 @@ namespace osidbg
 		char const * propertyName, bool throwError)
 	{
 		if (obj == nullptr) {
-			OsiError("Attempted to get property '" << propertyName << "' of null object!");
+			if (throwError) {
+				OsiError("Attempted to get property '" << propertyName << "' of null object!");
+			}
 			return false;
 		}
 
@@ -656,7 +670,9 @@ namespace osidbg
 		if (prop == nullptr) {
 			auto flag = propertyMap.findFlag(propertyName);
 			if (flag == nullptr) {
-				OsiError("Failed to get property '" << propertyName << "': Property does not exist");
+				if (throwError) {
+					OsiError("Failed to get property '" << propertyName << "': Property does not exist");
+				}
 				return {};
 			} else {
 				auto val = propertyMap.getFlag(obj, propertyName, false, throwError);
@@ -675,7 +691,7 @@ namespace osidbg
 			type = PropertyType::kFixedString;
 		}
 
-		switch (prop->Type) {
+		switch (type) {
 		case PropertyType::kBool:
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
@@ -755,7 +771,9 @@ namespace osidbg
 		void * obj, char const * propertyName, bool throwError)
 	{
 		if (obj == nullptr) {
-			OsiError("Attempted to set property '" << propertyName << "' of null object!");
+			if (throwError) {
+				OsiError("Attempted to set property '" << propertyName << "' of null object!");
+			}
 			return false;
 		}
 
@@ -763,7 +781,9 @@ namespace osidbg
 		if (prop == nullptr) {
 			auto flag = propertyMap.findFlag(propertyName);
 			if (flag == nullptr) {
-				OsiError("Failed to set property '" << propertyName << "': Property does not exist");
+				if (throwError) {
+					OsiError("Failed to set property '" << propertyName << "': Property does not exist");
+				}
 				return {};
 			} else {
 				luaL_checktype(L, index, LUA_TBOOLEAN);

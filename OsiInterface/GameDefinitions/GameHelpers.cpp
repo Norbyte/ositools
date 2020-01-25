@@ -375,6 +375,40 @@ namespace osidbg
 		return true;
 	}
 
+	CRPGStats_Object * StatFindObject(char const * name)
+	{
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return nullptr;
+		}
+
+		auto object = stats->objects.Find(name);
+		if (object == nullptr) {
+			OsiError("Stat object '" << name << "' does not exist");
+			return nullptr;
+		}
+
+		return object;
+	}
+
+	CRPGStats_Object * StatFindObject(int index)
+	{
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return nullptr;
+		}
+
+		auto object = stats->objects.Find(index);
+		if (object == nullptr) {
+			OsiError("Stat object #" << index << " does not exist");
+			return nullptr;
+		}
+
+		return object;
+	}
+
 	void TextBuffer::Replace(std::wstring const & replacement)
 	{
 		if (Buf) {
@@ -725,6 +759,89 @@ namespace osidbg
 		}
 	}
 
+	CDivinityStats_Item * CDivinityStats_Character::GetItemBySlot(ItemSlot slot, bool mustBeEquipped)
+	{
+		for (auto stat = ItemStats; stat != ItemStatsEnd; stat++) {
+			if ((*stat)->ItemSlot == slot && (!mustBeEquipped || (*stat)->IsEquipped)) {
+				auto index = (*stat)->ItemStatsHandle;
+				if (index >= 0 
+					&& index < DivStats->ItemList->Handles.Size()) {
+					auto item = DivStats->ItemList->Handles.Start[index];
+					if (item) {
+						return item;
+					}
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
+	CDivinityStats_Item * CDivinityStats_Character::GetMainWeapon()
+	{
+		auto weapon = GetItemBySlot(ItemSlot::Weapon, true);
+		if (weapon == nullptr || weapon->ItemType != EquipmentStatsType::Weapon) {
+			weapon = GetItemBySlot(ItemSlot::Shield, true);
+			if (weapon == nullptr || weapon->ItemType != EquipmentStatsType::Weapon) {
+				weapon = DivStats->DefaultWeaponStats;
+			}
+		}
+
+		return weapon;
+	}
+
+	CDivinityStats_Item * CDivinityStats_Character::GetOffHandWeapon()
+	{
+		auto mainWeapon = GetItemBySlot(ItemSlot::Weapon, true);
+		if (mainWeapon == nullptr || mainWeapon->ItemType != EquipmentStatsType::Weapon) {
+			return nullptr;
+		}
+
+		auto offHandWeapon = GetItemBySlot(ItemSlot::Shield, true);
+		if (offHandWeapon == nullptr || offHandWeapon->ItemType != EquipmentStatsType::Weapon) {
+			return nullptr;
+		}
+
+		return offHandWeapon;
+	}
+
+	bool CDivinityStats_Character::IsBoostActive(uint32_t conditionMask)
+	{
+		return conditionMask == 0
+			|| (conditionMask & 1) && ActiveBoostConditions[1] > 0
+			|| (conditionMask & 2) && ActiveBoostConditions[2] > 0
+			|| (conditionMask & 4) && ActiveBoostConditions[3] > 0
+			|| (conditionMask & 8) && ActiveBoostConditions[4] > 0
+			|| (conditionMask & 0x10) && ActiveBoostConditions[5] > 0
+			|| (conditionMask & 0x20) && ActiveBoostConditions[6] > 0
+			|| (conditionMask & 0x40) && ActiveBoostConditions[7] > 0
+			|| (conditionMask & 0x80) && ActiveBoostConditions[8] > 0
+			|| (conditionMask & 0x100) && ActiveBoostConditions[9] > 0
+			|| (conditionMask & 0x200) && ActiveBoostConditions[10] > 0
+			|| (conditionMask & 0x300) && ActiveBoostConditions[11] > 0
+			|| (conditionMask & 0x400) && ActiveBoostConditions[12] > 0
+			|| (conditionMask & 0x500) && ActiveBoostConditions[13] > 0
+			|| (conditionMask & 0x600) && ActiveBoostConditions[14] > 0
+			|| (conditionMask & 0x700) && ActiveBoostConditions[15] > 0;
+	}
+
+	int32_t CDivinityStats_Character::GetDamageBoost()
+	{
+		int32_t damageBoost = 0;
+
+		for (auto statPtr = DynamicStats; statPtr != DynamicStatsEnd; statPtr++) {
+			auto & stat = **statPtr;
+			if (stat.BoostConditionsMask == 0 || IsBoostActive(stat.BoostConditionsMask)) {
+				damageBoost += stat.DamageBoost;
+				if (Level > 1) {
+					damageBoost += (int)round(stat.DamageBoostGrowthPerLevel * (Level - 1) * 0.1f);
+				}
+			}
+		}
+
+		return damageBoost;
+	}
+
 
 	PropertyMapBase & CDivinityStats_Equipment_Attributes::GetPropertyMap() const
 	{
@@ -736,7 +853,7 @@ namespace osidbg
 			return gEquipmentAttributesArmorPropertyMap;
 
 		case EquipmentStatsType::Shield:
-				return gEquipmentAttributesShieldPropertyMap;
+			return gEquipmentAttributesShieldPropertyMap;
 
 		default:
 			OsiError("Unknown equipment stats type: " << (unsigned)StatsType);
@@ -801,12 +918,7 @@ namespace osidbg
 
 	void HitDamageInfo::ClearDamage(osidbg::DamageType damageType)
 	{
-		for (uint32_t i = 0; i < DamageList.Size; i++) {
-			if (DamageList.Buf[i].DamageType == damageType) {
-				TotalDamage -= DamageList.Buf[i].Amount;
-				DamageList.Remove(i);
-			}
-		}
+		DamageList.ClearDamage(damageType);
 	}
 
 	void HitDamageInfo::AddDamage(osidbg::DamageType damageType, int32_t amount)
@@ -816,8 +928,20 @@ namespace osidbg
 	}
 
 
+	void DamagePairList::ClearDamage(osidbg::DamageType damageType)
+	{
+		for (uint32_t i = 0; i < Size; i++) {
+			if (Buf[i].DamageType == damageType) {
+				Remove(i);
+				i--;
+			}
+		}
+	}
+
 	void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 	{
+		if (amount == 0) return;
+
 		bool added{ false };
 		for (uint32_t i = 0; i < Size; i++) {
 			if (Buf[i].DamageType == damageType) {

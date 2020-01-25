@@ -48,6 +48,9 @@ namespace osidbg
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
 			CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
 			float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * stdStringSet);
+		void OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype * self, DamagePairList * damageList,
+			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype, 
 			CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier, 
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);

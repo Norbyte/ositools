@@ -786,6 +786,20 @@ namespace osidbg
 		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
 	}
 
+	void CustomFunctionLibrary::OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype * self, DamagePairList * damageList,
+		CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->GetSkillDamage(self, damageList, attackerStats, isFromItem, stealthed, attackerPosition, targetPosition, pDeathType, level, noRandomization)) {
+				return;
+			}
+		}
+
+		next(self, damageList, attackerStats, isFromItem, stealthed, attackerPosition, targetPosition, pDeathType, level, noRandomization);
+	}
+
 	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype,
 		CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)

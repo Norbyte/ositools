@@ -242,6 +242,20 @@ namespace osidbg
 		{ RequirementType::Tag, "Tag" }
 	};
 
+	EnumInfo<WeaponType>::Label const EnumInfo<WeaponType>::Values[] = {
+		{ WeaponType::None, "None" },
+		{ WeaponType::Sword, "Sword" },
+		{ WeaponType::Club, "Club" },
+		{ WeaponType::Axe, "Axe" },
+		{ WeaponType::Staff, "Staff" },
+		{ WeaponType::Bow, "Bow" },
+		{ WeaponType::Crossbow, "Crossbow" },
+		{ WeaponType::Spear, "Spear" },
+		{ WeaponType::Knife, "Knife" },
+		{ WeaponType::Wand, "Wand" },
+		{ WeaponType::Arrow, "Arrow" },
+		{ WeaponType::Rifle, "Rifle" }
+	};
 
 	EnumInfo<AbilityType>::Label const EnumInfo<AbilityType>::Values[] = {
 		{ AbilityType::WarriorLore, "WarriorLore" },
@@ -283,7 +297,8 @@ namespace osidbg
 		{ AbilityType::Perseverance, "Perseverance" },
 		{ AbilityType::Runecrafting, "Runecrafting" },
 		{ AbilityType::Brewmaster, "Brewmaster" },
-		{ AbilityType::Sulfurology, "Sulfurology" }
+		{ AbilityType::Sulfurology, "Sulfurology" },
+		{ AbilityType::Sentinel, "Sentinel" }
 	};
 
 
@@ -399,6 +414,12 @@ namespace osidbg
 		{ ItemSlot::Wings, "Wings" },
 		{ ItemSlot::Horns, "Horns" },
 		{ ItemSlot::Overhead, "Overhead" }
+	};
+
+	EnumInfo<EquipmentStatsType>::Label const EnumInfo<EquipmentStatsType>::Values[] = {
+		{ EquipmentStatsType::Weapon, "Weapon" },
+		{ EquipmentStatsType::Armor, "Armor" },
+		{ EquipmentStatsType::Shield, "Shield" }
 	};
 
 	EnumInfo<HitFlag>::Label const EnumInfo<HitFlag>::Values[] = {

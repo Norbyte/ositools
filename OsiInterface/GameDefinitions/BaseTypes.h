@@ -274,7 +274,10 @@ namespace osidbg
 				newBuf[i] = Buf[i];
 			}
 
-			GameFree(Buf);
+			if (Buf != nullptr) {
+				GameFree(Buf);
+			}
+
 			Buf = newBuf;
 			Capacity = newCapacity;
 		}
@@ -312,7 +315,7 @@ namespace osidbg
 
 		void Add(T const & value)
 		{
-			if (Capacity < Size) {
+			if (Capacity <= Size) {
 				Reallocate(CapacityIncrement());
 			}
 
@@ -458,13 +461,41 @@ namespace osidbg
 		uint32_t Size{ 0 };
 		uint32_t Unkn[2]{ 0 };
 
+		uint32_t CapacityIncrement() const
+		{
+			if (Capacity > 0) {
+				return 2 * Capacity;
+			} else {
+				return 1;
+			}
+		}
+
 		void Clear()
 		{
 			Size = 0;
 		}
 
+		void Reallocate(uint32_t newCapacity)
+		{
+			auto newBuf = GameAlloc<T>(newCapacity);
+			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
+				newBuf[i] = Buf[i];
+			}
+
+			if (Buf != nullptr) {
+				GameFree(Buf);
+			}
+
+			Buf = newBuf;
+			Capacity = newCapacity;
+		}
+
 		bool SafeAdd(T const & val)
 		{
+			if (Capacity <= Size) {
+				Reallocate(CapacityIncrement());
+			}
+
 			if (Size < Capacity) {
 				Buf[Size++] = val;
 				return true;

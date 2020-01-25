@@ -85,6 +85,26 @@ namespace osidbg
 	}
 
 
+	char const * const LuaSkillPrototypeProxy::MetatableName = "LuaSkillPrototypeProxy";
+
+	LuaSkillPrototypeProxy::LuaSkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level)
+		: obj_(obj), level_(level)
+	{
+		stats_ = StatFindObject(obj->RPGStatsObjectIndex);
+	}
+
+	int LuaSkillPrototypeProxy::LuaIndex(lua_State * L)
+	{
+		auto attributeName = luaL_checkstring(L, 2);
+
+		if (strcmp(attributeName, "Level") == 0) {
+			lua_push(L, obj_->Level);
+			return 1;
+		}
+
+		return LuaStatGetAttribute(L, stats_, attributeName, level_);
+	}
+
 	std::optional<int32_t> GetCharacterDynamicStat(CDivinityStats_Character * stats, char const * statName)
 	{
 		bool isBaseStat = strncmp(statName, "Base", 4) == 0;
@@ -99,6 +119,31 @@ namespace osidbg
 		if (dynamicStat) {
 			lua_pushinteger(L, *dynamicStat);
 			return 1;
+		}
+
+		if (strcmp(prop, "DamageBoost") == 0) {
+			lua_pushinteger(L, stats->GetDamageBoost());
+			return 1;
+		}
+
+		if (strcmp(prop, "MainWeapon") == 0) {
+			auto weapon = stats->GetMainWeapon();
+			if (weapon != nullptr) {
+				LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		if (strcmp(prop, "OffHandWeapon") == 0) {
+			auto weapon = stats->GetOffHandWeapon();
+			if (weapon != nullptr) {
+				LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 
 		if (strncmp(prop, "TALENT_", 7) == 0) {
@@ -136,6 +181,57 @@ namespace osidbg
 		return luaL_error(L, "Not supported yet!");
 	}
 
+
+	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "LuaItemStats";
+
+	int LuaObjectProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Item stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "DynamicStats") == 0) {
+			lua_newtable(L);
+			unsigned statIdx = 1;
+			for (auto statPtr = obj_->DynamicAttributes_Start; statPtr != obj_->DynamicAttributes_End; statPtr++) {
+				lua_push(L, statIdx++);
+				LuaObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, *statPtr);
+				lua_settable(L, -3);
+			}
+
+			return 1;
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, obj_, prop, false);
+		if (fetched) {
+			return 1;
+		}
+
+		return LuaStatGetAttribute(L, obj_, prop, {});
+	}
+
+	int LuaObjectProxy<CDivinityStats_Item>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const * const LuaObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "LuaEquipmentAttributesProxy";
+
+	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Equipment stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto & propMap = obj_->GetPropertyMap();
+		auto fetched = LuaPropertyMapGet(L, propMap, obj_, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
 
 
 	char const * const LuaStatusHandleProxy::MetatableName = "LuaStatusHandleProxy";
@@ -289,6 +385,144 @@ namespace osidbg
 	}
 
 
+
+	char const * const LuaDamageList::MetatableName = "LuaDamageList";
+
+	void LuaDamageList::PopulateMetatable(lua_State * L)
+	{
+		lua_newtable(L);
+
+		lua_pushcfunction(L, &Add);
+		lua_setfield(L, -2, "Add");
+
+		lua_pushcfunction(L, &Clear);
+		lua_setfield(L, -2, "Clear");
+
+		lua_pushcfunction(L, &Multiply);
+		lua_setfield(L, -2, "Multiply");
+
+		lua_pushcfunction(L, &Merge);
+		lua_setfield(L, -2, "Merge");
+
+		lua_pushcfunction(L, &ConvertDamageType);
+		lua_setfield(L, -2, "ConvertDamageType");
+
+		lua_pushcfunction(L, &AggregateSameTypeDamages);
+		lua_setfield(L, -2, "AggregateSameTypeDamages");
+
+		lua_pushcfunction(L, &ToTable);
+		lua_setfield(L, -2, "ToTable");
+
+		lua_setfield(L, -2, "__index");
+	}
+
+	int LuaDamageList::Add(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto damageType = lua_checkenum<DamageType>(L, 2);
+		auto amount = (int32_t)luaL_checkinteger(L, 3);
+
+		self->damages_.AddDamage(damageType, amount);
+
+		return 0;
+	}
+
+	int LuaDamageList::Clear(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+		if (lua_gettop(L) >= 2) {
+			auto damageType = lua_checkenum<DamageType>(L, 2);
+			self->damages_.ClearDamage(damageType);
+		} else {
+			self->damages_.Clear();
+		}
+
+		return 0;
+	}
+
+	int LuaDamageList::Multiply(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto multiplier = luaL_checknumber(L, 2);
+
+		for (uint32_t i = 0; i < self->damages_.Size; i++) {
+			auto & item = self->damages_.Buf[i];
+			item.Amount = (int32_t)round(item.Amount * multiplier);
+		}
+
+		return 0;
+	}
+
+	int LuaDamageList::Merge(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto other = LuaDamageList::CheckUserData(L, 2);
+
+		for (uint32_t i = 0; i < other->damages_.Size; i++) {
+			auto & item = other->damages_.Buf[i];
+			self->damages_.AddDamage(item.DamageType, item.Amount);
+		}
+
+		return 0;
+	}
+
+	int LuaDamageList::ConvertDamageType(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto damageType = lua_checkenum<DamageType>(L, 2);
+
+		int32_t totalDamage = 0;
+		for (uint32_t i = 0; i < self->damages_.Size; i++) {
+			totalDamage += self->damages_.Buf[i].Amount;
+		}
+
+		self->damages_.Clear();
+		self->damages_.AddDamage(damageType, totalDamage);
+
+		return 0;
+	}
+
+	int LuaDamageList::AggregateSameTypeDamages(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+
+		for (uint32_t i = self->damages_.Size; i > 0; i--) {
+			auto & src = self->damages_.Buf[i - 1];
+			for (uint32_t j = i - 1; j > 0; j--) {
+				auto & dest = self->damages_.Buf[j - 1];
+				if (src.DamageType == dest.DamageType) {
+					dest.Amount += src.Amount;
+					self->damages_.Remove(i - 1);
+					break;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	int LuaDamageList::ToTable(lua_State * L)
+	{
+		auto self = LuaDamageList::CheckUserData(L, 1);
+
+		lua_newtable(L); // Stack: tab
+
+		for (uint32_t i = 0; i < self->damages_.Size; i++) {
+			auto const & item = self->damages_.Buf[i];
+
+			lua_push(L, i + 1); // Stack: tab, index
+			lua_newtable(L); // Stack: tab, index, dmgTab
+			auto dmgTypeName = EnumInfo<DamageType>::Find(item.DamageType);
+			luaL_settable(L, "DamageType", *dmgTypeName);
+			luaL_settable(L, "Amount", item.Amount);
+
+			lua_settable(L, -3); // Stack: tab
+		}
+
+		return 1;
+	}
+
+
 	LuaExtensionLibrary::LuaExtensionLibrary()
 	{
 	}
@@ -299,13 +533,17 @@ namespace osidbg
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
 		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaStatsProxy::RegisterMetatable(L);
+		LuaObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
+		LuaObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
 		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
 		LuaStatusHandleProxy::RegisterMetatable(L);
 		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
 		LuaStatsExtraDataProxy::RegisterMetatable(L);
+		LuaStatsProxy::RegisterMetatable(L);
+		LuaSkillPrototypeProxy::RegisterMetatable(L);
+		LuaDamageList::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
@@ -326,8 +564,10 @@ namespace osidbg
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
 	int GetStatus(lua_State * L);
+	int NewDamageList(lua_State * L);
 	int OsirisIsCallable(lua_State * L);
 	int LuaRandom(lua_State * L);
+	int LuaRound(lua_State * L);
 	int GenerateIdeHelpers(lua_State * L);
 
 	void LuaExtensionLibrary::RegisterLib(lua_State * L)
@@ -356,8 +596,10 @@ namespace osidbg
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
+			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"Random", LuaRandom},
+			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
 			{0,0}
 		};
@@ -628,6 +870,87 @@ namespace osidbg
 		}
 
 		lua_pop(L, 1); // stack: -
+		return ok;
+	}
+
+	bool LuaState::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
+		CDivinityStats_Character *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
+		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAll);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "GetSkillDamage"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		auto luaSkill = LuaSkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
+		LuaSkillPrototypePin _(luaSkill);
+		auto luaAttacker = LuaObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, skill, character
+		LuaGameObjectPin<CDivinityStats_Character> _2(luaAttacker);
+		lua_push(L, isFromItem);
+		lua_push(L, stealthed);
+		
+		// Push attacker position
+		lua_newtable(L);
+		luaL_settable(L, 1, attackerPosition[0]);
+		luaL_settable(L, 2, attackerPosition[1]);
+		luaL_settable(L, 3, attackerPosition[2]);
+
+		// Push target position
+		lua_newtable(L);
+		luaL_settable(L, 1, targetPosition[0]);
+		luaL_settable(L, 2, targetPosition[1]);
+		luaL_settable(L, 3, targetPosition[2]);
+
+		lua_push(L, level);
+		lua_push(L, noRandomization);
+
+		if (CallWithTraceback(8, 2) != 0) { // stack: damageList, deathType
+			OsiError("GetSkillDamage handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int isnil = lua_isnil(L, -1);
+
+		bool ok;
+		if (isnil) {
+			ok = false;
+		} else {
+			ok = true;
+
+			auto deathType = lua_toenum<DeathType>(L, -1);
+			if (deathType) {
+				if (pDeathType) {
+					*pDeathType = *deathType;
+				}
+			} else {
+				OsiErrorS("GetSkillDamage returned invalid death type");
+				ok = false;
+			}
+
+			if (ok) {
+				auto damages = LuaDamageList::AsUserData(L, -2);
+				if (damages) {
+					auto const & list = damages->Get();
+					for (uint32_t i = 0; i < list.Size; i++) {
+						auto const & item = list.Buf[i];
+						damageList->AddDamage(item.DamageType, item.Amount);
+					}
+				} else {
+					OsiErrorS("GetSkillDamage returned invalid damage list object");
+					ok = false;
+				}
+			}
+		}
+
+		lua_pop(L, 2); // stack: -
 		return ok;
 	}
 

@@ -24,6 +24,7 @@ namespace osidbg
 	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
+	extern PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 
 	void InitPropertyMaps();
 

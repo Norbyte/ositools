@@ -16,6 +16,7 @@ namespace osidbg
 	struct DamagePairList : public Array<TDamagePair>
 	{
 		void AddDamage(DamageType damageType, int32_t amount);
+		void ClearDamage(DamageType damageType);
 	};
 
 	struct HitDamageInfo : public Noncopyable<CRPGStatsManager>

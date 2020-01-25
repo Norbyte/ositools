@@ -301,6 +301,9 @@ namespace osidbg
 		osiris_.GetLibraryManager().SkillPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
+		osiris_.GetLibraryManager().SkillPrototypeGetSkillDamageHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnGetSkillDamage, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
+		);
 		osiris_.GetLibraryManager().StatusPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);

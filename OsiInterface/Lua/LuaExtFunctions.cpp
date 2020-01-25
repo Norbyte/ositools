@@ -8,122 +8,6 @@
 
 namespace osidbg
 {
-	void lua_push(lua_State * L, nullptr_t v)
-	{
-		lua_pushnil(L);
-	}
-
-	void lua_push(lua_State * L, bool v)
-	{
-		lua_pushboolean(L, v ? 1 : 0);
-	}
-
-	void lua_push(lua_State * L, int32_t v)
-	{
-		lua_pushinteger(L, (lua_Integer)v);
-	}
-
-	void lua_push(lua_State * L, uint32_t v)
-	{
-		lua_pushinteger(L, (lua_Integer)v);
-	}
-
-	void lua_push(lua_State * L, int64_t v)
-	{
-		lua_pushinteger(L, v);
-	}
-
-	void lua_push(lua_State * L, uint64_t v)
-	{
-		lua_pushinteger(L, (lua_Integer)v);
-	}
-
-	void lua_push(lua_State * L, double v)
-	{
-		lua_pushnumber(L, v);
-	}
-
-	void lua_push(lua_State * L, char const * v)
-	{
-		lua_pushstring(L, v);
-	}
-
-	void lua_push(lua_State * L, FixedString v)
-	{
-		lua_pushstring(L, v.Str);
-	}
-
-	void lua_push(lua_State * L, std::string const & v)
-	{
-		lua_pushstring(L, v.c_str());
-	}
-
-	void lua_push(lua_State * L, std::wstring const & v)
-	{
-		lua_pushstring(L, ToUTF8(v).c_str());
-	}
-
-	void lua_push(lua_State * L, STDString const & v)
-	{
-		lua_pushstring(L, v.GetPtr());
-	}
-
-	void lua_push(lua_State * L, STDWString const & v)
-	{
-		lua_pushstring(L, ToUTF8(v.GetPtr()).c_str());
-	}
-
-	template <class TKey, class TValue>
-	void luaL_settable(lua_State * L, TKey const & k, TValue const & v, int index = -3)
-	{
-		lua_push(L, k);
-		lua_push(L, v);
-		lua_settable(L, index);
-	}
-
-	template <class TValue>
-	TValue luaL_get(lua_State * L, int index = -1);
-
-	template <>
-	bool luaL_get<bool>(lua_State * L, int index)
-	{
-		return lua_toboolean(L, index) == 1;
-	}
-
-	template <>
-	int32_t luaL_get<int32_t>(lua_State * L, int index)
-	{
-		return (int32_t)lua_tointeger(L, index);
-	}
-
-	template <>
-	int64_t luaL_get<int64_t>(lua_State * L, int index)
-	{
-		return lua_tointeger(L, index);
-	}
-
-	template <>
-	double luaL_get<double>(lua_State * L, int index)
-	{
-		return lua_tonumber(L, index);
-	}
-
-	template <>
-	char const * luaL_get<char const *>(lua_State * L, int index)
-	{
-		return lua_tostring(L, index);
-	}
-
-	template <class TKey, class TValue>
-	TValue luaL_gettable(lua_State * L, TKey const & k, int index = -2)
-	{
-		lua_push(L, k);
-		lua_gettable(L, index);
-		TValue val = luaL_get<TValue>(L, -1);
-		lua_pop(L, 1);
-		return val;
-	}
-
 	void JsonParse(lua_State * L, Json::Value & val);
 
 	void JsonParseArray(lua_State * L, Json::Value & val)
@@ -577,23 +461,6 @@ namespace osidbg
 		}
 	}
 
-	CRPGStats_Object * StatFindObject(char const * name)
-	{
-		auto stats = gStaticSymbols.GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return nullptr;
-		}
-
-		auto object = stats->objects.Find(name);
-		if (object == nullptr) {
-			OsiError("Stat object '" << name << "' does not exist");
-			return nullptr;
-		}
-
-		return object;
-	}
-
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
 	{
 		auto stats = gStaticSymbols.GetStats();
@@ -741,8 +608,8 @@ namespace osidbg
 	{
 		auto statName = luaL_checkstring(L, 1);
 		std::optional<int> level;
-		if (lua_gettop(L) >= 2) {
-			level = luaL_checkinteger(L, 2);
+		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+			level = (int32_t)luaL_checkinteger(L, 2);
 		}
 		
 		auto object = StatFindObject(statName);
@@ -834,6 +701,12 @@ namespace osidbg
 		}
 	}
 
+	int NewDamageList(lua_State * L)
+	{
+		LuaDamageList::New(L);
+		return 1;
+	}
+
 	int OsirisIsCallable(lua_State * L)
 	{
 		LuaStatePin lua(ExtensionState::Get());
@@ -873,6 +746,13 @@ namespace osidbg
 
 		std::uniform_int_distribution<int64_t> dist(low, up);
 		lua_pushinteger(L, (lua_Integer)dist(state.OsiRng));
+		return 1;
+	}
+
+	int LuaRound(lua_State *L)
+	{
+		auto val = luaL_checknumber(L, 1);
+		lua_push(L, round(val));
 		return 1;
 	}
 

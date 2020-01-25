@@ -388,6 +388,23 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(RequirementType, 173);
 
+	enum class WeaponType : uint32_t
+	{
+		None = 0,
+		Sword = 1,
+		Club = 2,
+		Axe = 3,
+		Staff = 4,
+		Bow = 5,
+		Crossbow = 6,
+		Spear = 7,
+		Knife = 8,
+		Wand = 9,
+		Arrow = 10,
+		Rifle = 11
+	};
+
+	MAKE_ENUM_INFO(WeaponType, 12);
 
 	enum class AbilityType
 	{
@@ -430,10 +447,11 @@ namespace osidbg
 		Perseverance = 36,
 		Runecrafting = 37,
 		Brewmaster = 38,
-		Sulfurology = 39
+		Sulfurology = 39,
+		Sentinel = 40
 	};
 
-	MAKE_ENUM_INFO(AbilityType, 40);
+	MAKE_ENUM_INFO(AbilityType, 41);
 
 	enum class CriticalRoll
 	{

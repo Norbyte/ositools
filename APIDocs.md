@@ -522,8 +522,7 @@ AND
 NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, _HitHandle)
 THEN
 NRD_HitAddDamage(_HitHandle, "Physical", 5);
-NRD_HitSetInt(_HitHandle, "Hit", 1);
-NRD_HitSetInt(_HitHandle, "CallCharacterHit", 1);
+NRD_HitSetInt(_HitHandle, "SimulateHit", 1);
 NRD_HitExecute(_HitHandle);
 ```
 
@@ -534,8 +533,8 @@ AND
 NRD_HitPrepare(CHARACTERGUID_Sandbox_Arena_Shae_734e8ad4-c1ea-4c69-b5ad-310d28bf9462, CHARACTERGUID_Sandbox_Market_Ernest_Herringway_da8d55ba-0855-4147-b706-46bbc67ec8b6, _HitHandle)
 THEN
 NRD_HitAddDamage(_HitHandle, "Corrosive", 50);
-NRD_HitSetInt(_HitHandle,"Hit", 1);
-NRD_HitSetInt(_HitHandle,"DamagedVitality", 1);
+NRD_HitSetInt(_HitHandle, "Hit", 1);
+NRD_HitSetInt(_HitHandle, "DamagedVitality", 1);
 NRD_HitExecute(_HitHandle);
 ```
 
@@ -1147,9 +1146,9 @@ Stat properties (can only be fetched on items with a stats entry):
 
 | Attribute | Type | Description |
 |--|--|--|
-| ItemType | Integer | |
+| ItemType | Enum | `EquipmentStatType` value |
 | ItemSlot | Integer | |
-| WeaponType | Integer | |
+| WeaponType | Enum | `WeaponType` value |
 | AnimType | Integer | |
 | WeaponRange | Real | |
 | IsIdentified | Flag | |

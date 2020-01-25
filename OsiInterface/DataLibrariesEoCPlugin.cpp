@@ -259,6 +259,16 @@ namespace osidbg
 		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeFormatDescriptionParam}
 	};
 
+	SymbolMappingData const sSymbolSkillPrototypeGetSkillDamage = {
+		"eoc::SkillPrototype::GetSkillDamage2",
+		SymbolMappingData::kCustom, 0,
+		"44 88 4C 24 20 " // mov     [rsp-8+arg_18], r9b
+		"55 " // push    rbp
+		"53 ", // push    rbx
+		{},
+		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SkillPrototypeGetSkillDamage}
+	};
+
 	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
 		"eoc::StatusPrototype::FormatDescriptionParam2",
 		SymbolMappingData::kCustom, 0,
@@ -610,6 +620,17 @@ namespace osidbg
 			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_UseWeaponDamage
 			{SymbolMappingCondition::kFixedString, 16, "UseWeaponDamage"},
 			{"eoc::SkillPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x100, nullptr, nullptr, &sSymbolSkillPrototypeFormatDescriptionParam, 0x100}
+		},
+
+		{
+			"eoc::SkillPrototype::GetSkillDamage",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 0F 44 FE " // cmovz   rdi, rsi
+			"41 83 C8 FF " // or      r8d, 0FFFFFFFFh
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_Damage_Multiplier_2
+			"49 8B CD ", // mov     rcx, r13
+			{SymbolMappingCondition::kFixedString, 8, "Damage Multiplier"},
+			{"eoc::SkillPrototype::GetSkillDamage", SymbolMappingTarget::kAbsolute, -0x180, nullptr, nullptr, &sSymbolSkillPrototypeGetSkillDamage, 0x180}
 		},
 
 		{

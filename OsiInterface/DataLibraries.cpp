@@ -19,6 +19,7 @@ namespace osidbg
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
+	decltype(LibraryManager::SkillPrototypeGetSkillDamageHook) * decltype(LibraryManager::SkillPrototypeGetSkillDamageHook)::gHook;
 	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
@@ -418,6 +419,10 @@ namespace osidbg
 				SkillPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.SkillPrototypeFormatDescriptionParam);
 			}
 
+			if (gStaticSymbols.SkillPrototypeGetSkillDamage != nullptr) {
+				SkillPrototypeGetSkillDamageHook.Wrap(gStaticSymbols.SkillPrototypeGetSkillDamage);
+			}
+
 			if (gStaticSymbols.StatusPrototypeFormatDescriptionParam != nullptr) {
 				StatusPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.StatusPrototypeFormatDescriptionParam);
 			}
@@ -455,6 +460,7 @@ namespace osidbg
 		ApplyStatusHook.Unwrap();
 		ActionMachineSetStateHook.Unwrap();
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();
+		SkillPrototypeGetSkillDamageHook.Unwrap();
 		StatusPrototypeFormatDescriptionParamHook.Unwrap();
 
 		DetourTransactionCommit();

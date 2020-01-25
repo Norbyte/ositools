@@ -258,9 +258,9 @@ namespace osidbg
 	{
 		uint32_t _Pad0;
 		uint32_t U1;
-		uint32_t ItemType;
+		EquipmentStatsType ItemType;
 		uint32_t ItemSlot;
-		uint32_t WeaponType;
+		WeaponType WeaponType;
 		int32_t AnimType; // -1 = Not overridden
 		uint32_t WeaponRange;
 		uint32_t IsIdentified; // Saved
@@ -423,7 +423,7 @@ namespace osidbg
 		CharacterEquippedItem ** ItemStatsEnd;
 		uint64_t Unkn4;
 		ObjectSet<void *> SurfacePathInfluences;
-		uint32_t ActiveBoostConditions[16]; // Saved
+		int32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
 		uint8_t _Pad4[3];
 		EoCGameRandom CriticalHitRng;
@@ -450,6 +450,11 @@ namespace osidbg
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
 		bool HasTalent(TalentType talent, bool excludeBoosts);
 		int32_t GetAbility(AbilityType ability, bool excludeBoosts);
+		CDivinityStats_Item * GetItemBySlot(ItemSlot slot, bool mustBeEquipped);
+		CDivinityStats_Item * GetMainWeapon();
+		CDivinityStats_Item * GetOffHandWeapon();
+		int32_t GetDamageBoost();
+		bool IsBoostActive(uint32_t conditionsMask);
 	};
 
 	typedef int32_t (CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
@@ -589,6 +594,10 @@ namespace osidbg
 			eoc::Text *eocText, int paramIndex, __int64 isFromItem, float xmm9_4_0, FixedString * paramText, 
 			ObjectSet<STDString> * stdStringSet);
 
+		typedef void (* GetSkillDamage)(SkillPrototype * self, struct DamagePairList * damageList, 
+			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition, 
+			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+
 		// void * VMT;
 		int RPGStatsObjectIndex;
 		SkillType SkillTypeId;
@@ -690,6 +699,9 @@ namespace osidbg
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
 		int GetOrCreateFixedString(const char * value);
 	};
+
+	CRPGStats_Object * StatFindObject(char const * name);
+	CRPGStats_Object * StatFindObject(int index);
 #pragma pack(pop)
 
 	template <class TTag>
@@ -779,7 +791,7 @@ namespace osidbg
 #include <GameDefinitions/CharacterGetters.inl>
 #undef DEFN_GETTER
 
-		enum class HitChanceTag{}; \
+		enum class HitChanceTag {}; \
 		WrappableFunction<HitChanceTag, CDivinityStats_Character__GetHitChance> WrapperHitChance;
 
 		bool Wrapped{ false };
