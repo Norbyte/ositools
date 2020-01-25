@@ -52,7 +52,7 @@ namespace osidbg
 					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.GetPtr(),
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 
-					if (config.MinimumVersion != 0) {
+					if (config.MinimumVersion != 0 && config.MinimumVersion > MergedConfig.MinimumVersion) {
 						MergedConfig.MinimumVersion = config.MinimumVersion;
 						HighestVersionMod = &mod;
 					}
