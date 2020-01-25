@@ -26,6 +26,20 @@ OsirisProxy::OsirisProxy()
 
 void OsirisProxy::Initialize()
 {
+	GameVersionInfo gameVersion;
+	if (Libraries.GetGameVersion(gameVersion)) {
+		if (gameVersion.IsSupported()) {
+			INFO("Game version v%d.%d.%d.%d OK", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
+		} else {
+			ERR("Game version v%d.%d.%d.%d is not supported, please upgrade!", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
+			// Disable extensions with old game versions; 
+			// we'd crash if we tried to init extensions in these versions
+			ExtensionsEnabled = false;
+		}
+	} else {
+		ERR("Failed to retrieve game version info.");
+	}
+
 	DEBUG("OsirisProxy::Initialize: Starting");
 	auto initStart = std::chrono::high_resolution_clock::now();
 	Wrappers.Initialize();
@@ -703,7 +717,13 @@ void OsirisProxy::PostInitLibraries()
 		}
 	}
 
-	if (Libraries.CriticalInitializationFailed()) {
+	GameVersionInfo gameVersion;
+	if (Libraries.GetGameVersion(gameVersion) && !gameVersion.IsSupported()) {
+		std::wstringstream ss;
+		ss << L"Your game version (v" << gameVersion.Major << L"." << gameVersion.Minor << L"." << gameVersion.Revision << L"." << gameVersion.Build
+			<< L") is not supported by the Script Extender; please upgrade to at least v3.6.51.1333";
+		Libraries.ShowStartupError(ss.str(), true, false);
+	} else if (Libraries.CriticalInitializationFailed()) {
 		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.", true, false);
 	} else if (Libraries.InitializationFailed()) {
 		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.", true, false);
@@ -735,7 +755,7 @@ void OsirisProxy::LoadExtensionState()
 	// otherwise it won't hook functions that may be needed later on
 	PostInitLibraries();
 
-	if (!Libraries.CriticalInitializationFailed()) {
+	if (ExtensionsEnabled && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
 		FunctionLibrary.OnBaseModuleLoaded();
 	}

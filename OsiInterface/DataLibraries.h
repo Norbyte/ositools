@@ -105,6 +105,19 @@ namespace osidbg {
 		SymbolMappingTarget Target3;
 	};
 
+	struct GameVersionInfo
+	{
+		uint16_t Major, Minor, Revision, Build;
+
+		inline bool IsSupported() const
+		{
+			// We need v3.6.51.1333 or later
+			return Major > 3
+				|| (Major == 3 && Minor > 6)
+				|| (Major == 3 && Minor == 6 && Revision >= 51);
+		}
+	};
+
 	class LibraryManager
 	{
 	public:
@@ -112,6 +125,7 @@ namespace osidbg {
 		bool PostStartupFindLibraries();
 		void EnableCustomStats();
 		void Cleanup();
+		bool GetGameVersion(GameVersionInfo & version);
 
 		void ShowStartupError(std::wstring const & msg, bool wait, bool exitGame);
 

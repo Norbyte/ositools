@@ -466,6 +466,42 @@ namespace osidbg
 		DetourTransactionCommit();
 	}
 
+	bool LibraryManager::GetGameVersion(GameVersionInfo & version)
+	{
+#if defined(OSI_EOCAPP)
+		HMODULE hGameModule = GetModuleHandleW(L"EoCApp.exe");
+#else
+		HMODULE hGameModule = GetModuleHandleW(L"DivinityEngine2.exe");
+#endif
+		if (hGameModule == NULL) {
+			return false;
+		}
+
+		auto hResource = FindResource(hGameModule, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
+		if (hResource == NULL) return false;
+		auto dwSize = SizeofResource(hGameModule, hResource);
+		auto hData = LoadResource(hGameModule, hResource);
+		if (hData == NULL) return false;
+		auto pRes = LockResource(hData);
+		if (pRes == NULL) return false;
+
+		auto pResCopy = LocalAlloc(LMEM_FIXED, dwSize);
+		CopyMemory(pResCopy, pRes, dwSize);
+
+		UINT verLength;
+		VS_FIXEDFILEINFO * fixedFileInfo;
+		if (VerQueryValue(pResCopy, L"\\", (LPVOID*)&fixedFileInfo, &verLength) != TRUE) return false;
+
+		version.Major = HIWORD(fixedFileInfo->dwFileVersionMS);
+		version.Minor = LOWORD(fixedFileInfo->dwFileVersionMS);
+		version.Revision = HIWORD(fixedFileInfo->dwFileVersionLS);
+		version.Build = LOWORD(fixedFileInfo->dwFileVersionLS);
+
+		LocalFree(pResCopy);
+		FreeResource(hData);
+		return true;
+	}
+
 	void LibraryManager::ShowStartupError(std::wstring const & msg, bool wait, bool exitGame)
 	{
 		ERR(L"STARTUP ERROR: %s", msg.c_str());
