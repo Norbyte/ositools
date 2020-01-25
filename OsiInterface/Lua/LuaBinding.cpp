@@ -62,6 +62,7 @@ namespace osidbg
 
 
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName);
+	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
 
 	char const * const LuaObjectProxy<CRPGStats_Object>::MetatableName = "LuaCRPGStatsObjectProxy";
 
@@ -79,7 +80,8 @@ namespace osidbg
 
 	int LuaObjectProxy<CRPGStats_Object>::LuaNewIndex(lua_State * L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		auto attributeName = luaL_checkstring(L, 2);
+		return LuaStatSetAttribute(L, obj_, attributeName, 3);
 	}
 
 
@@ -320,6 +322,7 @@ namespace osidbg
 	int GetStatEntries(lua_State * L);
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
+	int GetStat(lua_State * L);
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
 	int GetStatus(lua_State * L);
@@ -348,6 +351,7 @@ namespace osidbg
 			{"GetStatEntries", GetStatEntries},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
+			{"GetStat", GetStat},
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},

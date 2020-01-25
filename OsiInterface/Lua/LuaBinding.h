@@ -194,7 +194,7 @@ namespace osidbg
 	};
 
 	template <class T>
-	class LuaObjectProxy : public LuaUserdata<LuaObjectProxy<T>>, public LuaIndexable
+	class LuaObjectProxy : public LuaUserdata<LuaObjectProxy<T>>, public LuaIndexable, public LuaNewIndexable
 	{
 	public:
 		static char const * const MetatableName;

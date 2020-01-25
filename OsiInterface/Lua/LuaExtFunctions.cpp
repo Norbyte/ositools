@@ -629,16 +629,50 @@ namespace osidbg
 		return LuaStatGetAttribute(L, object, attributeName);
 	}
 
-	int StatSetAttribute(lua_State * L)
+	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
 		LuaStatePin lua(ExtensionState::Get());
 		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
 			return luaL_error(L, "StatSetAttribute() can only be called during module load");
 		}
 
+		if (strcmp(attributeName, "Requirements") == 0) {
+			LuaToRequirements(L, object->Requirements);
+			return 0;
+		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+			LuaToRequirements(L, object->MemorizationRequirements);
+			return 0;
+		}
+
+		auto stats = gStaticSymbols.GetStats();
+		bool ok{ false };
+		switch (lua_type(L, valueIdx)) {
+		case LUA_TSTRING:
+		{
+			auto value = luaL_checkstring(L, valueIdx);
+			ok = stats->SetAttributeString(object, attributeName, value);
+			break;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto value = (int32_t)luaL_checkinteger(L, valueIdx);
+			ok = stats->SetAttributeInt(object, attributeName, value);
+			break;
+		}
+
+		default:
+			return luaL_error(L, "Expected a string or integer attribute value.");
+		}
+
+		lua_push(L, ok);
+		return 1;
+	}
+
+	int StatSetAttribute(lua_State * L)
+	{
 		auto statName = luaL_checkstring(L, 1);
 		auto attributeName = luaL_checkstring(L, 2);
-		auto valueType = lua_type(L, 3);
 
 		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr) {
@@ -652,25 +686,7 @@ namespace osidbg
 			return 0;
 		}
 
-		if (strcmp(attributeName, "Requirements") == 0) {
-			LuaToRequirements(L, object->Requirements);
-			return 0;
-		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
- 			LuaToRequirements(L, object->MemorizationRequirements);
-			return 0;
-		}
-
-		if (valueType == LUA_TSTRING) {
-			auto value = luaL_checkstring(L, 3);
-			stats->SetAttributeString(object, attributeName, value);
-		} else if (valueType == LUA_TNUMBER) {
-			auto value = (int32_t)luaL_checkinteger(L, 3);
-			stats->SetAttributeInt(object, attributeName, value);
-		} else {
-			return luaL_error(L, "Expected a string or integer attribute value.");
-		}
-
-		return 0;
+		return LuaStatSetAttribute(L, object, attributeName, 3);
 	}
 
 	esv::Character * GetCharacter(lua_State * L, int index)
@@ -697,6 +713,30 @@ namespace osidbg
 		}
 
 		return character;
+	}
+
+	int GetStat(lua_State * L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+
+		auto stats = gStaticSymbols.GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		auto object = stats->objects.Find(statName);
+		if (object == nullptr) {
+			OsiError("Stat object '" << statName << "' does not exist");
+			return 0;
+		}
+
+		if (object != nullptr) {
+			LuaObjectProxy<CRPGStats_Object>::New(L, object);
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 
 	int GetCharacter(lua_State * L)
