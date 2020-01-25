@@ -279,6 +279,28 @@ namespace osidbg
 		}
 	}
 
+	std::optional<int> CRPGStatsManager::GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level)
+	{
+		auto objModifiers = modifierList.Find(object->ModifierListIndex);
+		if (objModifiers == nullptr) {
+			return {};
+		}
+
+		int attributeIndex;
+		auto modifierInfo = objModifiers->GetAttributeInfo(attributeName, &attributeIndex);
+		if (modifierInfo == nullptr) {
+			return {};
+		}
+
+		auto levelMap = LevelMaps.Find(modifierInfo->LevelMapIndex);
+		auto value = object->IndexedProperties[attributeIndex];
+		if (levelMap) {
+			return (int32_t)levelMap->GetScaledValue(value, level);
+		} else {
+			return value;
+		}
+	}
+
 	int CRPGStatsManager::GetOrCreateFixedString(const char * value)
 	{
 		auto fs = MakeFixedString(value);

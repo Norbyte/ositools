@@ -109,6 +109,20 @@ namespace osidbg
 		uint8_t _Pad[7];
 	};
 
+	struct CRPGStats_LevelMap : public ProtectedGameObject<CRPGStats_LevelMap>
+	{
+		virtual void Destroy() = 0;
+		virtual void Unknown08(int a, int b) = 0;
+		virtual void LoadFromModifierList(FixedString modifierListName, FixedString modifierName) = 0;
+		virtual int64_t GetScaledValue(int difficultyScale, int level) = 0;
+
+		int ModifierListIndex;
+		int ModifierIndex;
+		int RPGEnumerationIndex;
+		uint8_t _Pad[4];
+		FixedString Name;
+	};
+
 	struct CRPGStats_Object : public ProtectedGameObject<CRPGStats_Object>
 	{
 		void * VMT;
@@ -502,7 +516,7 @@ namespace osidbg
 	struct CRPGStats_Modifier : public ProtectedGameObject<CRPGStats_Modifier>
 	{
 		int32_t RPGEnumerationIndex;
-		int32_t Unknown2;
+		int32_t LevelMapIndex;
 		int32_t UnknownZero;
 		uint32_t _Padding;
 		FixedString Name;
@@ -623,7 +637,7 @@ namespace osidbg
 		CNamedElementManager<RPGEnumeration> modifierValueList;
 		CNamedElementManager<ModifierList> modifierList;
 		CNamedElementManager<CRPGStats_Object> objects;
-		CNamedElementManager<uint64_t> levelMods;
+		CNamedElementManager<CRPGStats_LevelMap> LevelMaps;
 		CNamedElementManager<uint64_t> deltaMods;
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
@@ -668,6 +682,7 @@ namespace osidbg
 		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);
 		std::optional<FixedString> GetAttributeFixedString(CRPGStats_Object * object, const char * attributeName);
 		std::optional<int> GetAttributeInt(CRPGStats_Object * object, const char * attributeName);
+		std::optional<int> GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level);
 		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
 		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
 		bool ObjectExists(FixedString statsId, FixedString type);

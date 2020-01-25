@@ -61,12 +61,12 @@ namespace osidbg
 	}
 
 
-	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName);
+	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level);
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
 
-	char const * const LuaObjectProxy<CRPGStats_Object>::MetatableName = "LuaCRPGStatsObjectProxy";
+	char const * const LuaStatsProxy::MetatableName = "LuaStatsProxy";
 
-	int LuaObjectProxy<CRPGStats_Object>::LuaIndex(lua_State * L)
+	int LuaStatsProxy::LuaIndex(lua_State * L)
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 
@@ -75,10 +75,10 @@ namespace osidbg
 			return 1;
 		}
 
-		return LuaStatGetAttribute(L, obj_, attributeName);
+		return LuaStatGetAttribute(L, obj_, attributeName, level_);
 	}
 
-	int LuaObjectProxy<CRPGStats_Object>::LuaNewIndex(lua_State * L)
+	int LuaStatsProxy::LuaNewIndex(lua_State * L)
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 		return LuaStatSetAttribute(L, obj_, attributeName, 3);
@@ -299,7 +299,7 @@ namespace osidbg
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
 		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaObjectProxy<CRPGStats_Object>::RegisterMetatable(L);
+		LuaStatsProxy::RegisterMetatable(L);
 		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
 		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
@@ -596,8 +596,8 @@ namespace osidbg
 			return false;
 		}
 
-		auto luaSkill = LuaObjectProxy<CRPGStats_Object>::New(L, skill); // stack: fn, skill
-		LuaGameObjectPin<CRPGStats_Object> _(luaSkill);
+		auto luaSkill = LuaStatsProxy::New(L, skill, std::optional<int32_t>()); // stack: fn, skill
+		LuaStatsPin _(luaSkill);
 		auto luaCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, skill, character
 		LuaGameObjectPin<CDivinityStats_Character> _2(luaCharacter);
 
@@ -662,8 +662,8 @@ namespace osidbg
 			character = statusSource;
 		}
 
-		auto luaStatus = LuaObjectProxy<CRPGStats_Object>::New(L, status); // stack: fn, status
-		LuaGameObjectPin<CRPGStats_Object> _(luaStatus);
+		auto luaStatus = LuaStatsProxy::New(L, status, std::optional<int32_t>()); // stack: fn, status
+		LuaStatsPin _(luaStatus);
 
 		auto luaSrcCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, statusSource); // stack: fn, status, srcCharacter, character
 		LuaGameObjectPin<CDivinityStats_Character> _2(luaSrcCharacter);

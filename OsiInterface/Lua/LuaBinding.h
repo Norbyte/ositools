@@ -215,6 +215,44 @@ namespace osidbg
 		T * obj_;
 	};
 
+	class LuaStatsProxy : public LuaUserdata<LuaStatsProxy>, public LuaIndexable, public LuaNewIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		LuaStatsProxy(CRPGStats_Object * obj, std::optional<int> level)
+			: obj_(obj), level_(level)
+		{}
+
+		void Unbind()
+		{
+			obj_ = nullptr;
+		}
+
+		int LuaIndex(lua_State * L);
+		int LuaNewIndex(lua_State * L);
+
+	private:
+		CRPGStats_Object * obj_;
+		std::optional<int> level_;
+	};
+
+	class LuaStatsPin
+	{
+	public:
+		inline LuaStatsPin(LuaStatsProxy * proxy)
+			: proxy_(proxy)
+		{}
+
+		inline ~LuaStatsPin()
+		{
+			if (proxy_) proxy_->Unbind();
+		}
+
+	private:
+		LuaStatsProxy * proxy_;
+	};
+
 	template <class T>
 	class LuaGameObjectPin
 	{

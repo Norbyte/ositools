@@ -577,13 +577,26 @@ namespace osidbg
 		}
 	}
 
-	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName)
+	CRPGStats_Object * StatFindObject(char const * name)
 	{
 		auto stats = gStaticSymbols.GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
-			return 0;
+			return nullptr;
 		}
+
+		auto object = stats->objects.Find(name);
+		if (object == nullptr) {
+			OsiError("Stat object '" << name << "' does not exist");
+			return nullptr;
+		}
+
+		return object;
+	}
+
+	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
+	{
+		auto stats = gStaticSymbols.GetStats();
 
 		if (strcmp(attributeName, "Requirements") == 0) {
 			RequirementsToLua(L, object->Requirements);
@@ -595,7 +608,17 @@ namespace osidbg
 
 		auto value = stats->GetAttributeFixedString(object, attributeName);
 		if (!value) {
-			auto intval = stats->GetAttributeInt(object, attributeName);
+			std::optional<int> intval;
+			if (level) {
+				if (*level == -1) {
+					*level = object->Level;
+				}
+
+				intval = stats->GetAttributeIntScaled(object, attributeName, *level);
+			} else {
+				intval = stats->GetAttributeInt(object, attributeName);
+			}
+
 			if (!intval) {
 				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeName << "'");
 				return 0;
@@ -614,19 +637,21 @@ namespace osidbg
 		auto statName = luaL_checkstring(L, 1);
 		auto attributeName = luaL_checkstring(L, 2);
 
-		auto stats = gStaticSymbols.GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return 0;
-		}
+		auto object = StatFindObject(statName);
+		if (!object) return 0;
 
-		auto object = stats->objects.Find(statName);
-		if (object == nullptr) {
-			OsiError("Stat object '" << statName << "' does not exist");
-			return 0;
-		}
+		return LuaStatGetAttribute(L, object, attributeName, {});
+	}
 
-		return LuaStatGetAttribute(L, object, attributeName);
+	int StatGetAttributeScaled(lua_State * L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto attributeName = luaL_checkstring(L, 2);
+
+		auto object = StatFindObject(statName);
+		if (!object) return 0;
+
+		return LuaStatGetAttribute(L, object, attributeName, {});
 	}
 
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
@@ -674,17 +699,8 @@ namespace osidbg
 		auto statName = luaL_checkstring(L, 1);
 		auto attributeName = luaL_checkstring(L, 2);
 
-		auto stats = gStaticSymbols.GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return 0;
-		}
-
-		auto object = stats->objects.Find(statName);
-		if (object == nullptr) {
-			OsiError("Stat object '" << statName << "' does not exist");
-			return 0;
-		}
+		auto object = StatFindObject(statName);
+		if (!object) return 0;
 
 		return LuaStatSetAttribute(L, object, attributeName, 3);
 	}
@@ -718,21 +734,14 @@ namespace osidbg
 	int GetStat(lua_State * L)
 	{
 		auto statName = luaL_checkstring(L, 1);
-
-		auto stats = gStaticSymbols.GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return 0;
+		std::optional<int> level;
+		if (lua_gettop(L) >= 2) {
+			level = luaL_checkinteger(L, 2);
 		}
-
-		auto object = stats->objects.Find(statName);
-		if (object == nullptr) {
-			OsiError("Stat object '" << statName << "' does not exist");
-			return 0;
-		}
-
+		
+		auto object = StatFindObject(statName);
 		if (object != nullptr) {
-			LuaObjectProxy<CRPGStats_Object>::New(L, object);
+			LuaStatsProxy::New(L, object, level);
 			return 1;
 		} else {
 			return 0;
