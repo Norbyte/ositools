@@ -770,13 +770,16 @@ namespace osidbg
 		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
 		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
 	{
-		std::wstring replacement;
-
-		LuaStatePin lua(ExtensionState::Get());
-		if (lua) {
-			if (lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
-				eocText->ReplaceParam(paramIndex, replacement);
-				return;
+		// When fetching subproperties (recursively), paramTexts will be null.
+		// We won't post these to Lua since the Lua scripts already processed the original (unwrapped) query
+		if (paramTexts != nullptr) {
+			LuaStatePin lua(ExtensionState::Get());
+			if (lua) {
+				std::wstring replacement;
+				if (lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
+					eocText->ReplaceParam(paramIndex, replacement);
+					return;
+				}
 			}
 		}
 
