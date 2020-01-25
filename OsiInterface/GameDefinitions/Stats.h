@@ -51,7 +51,7 @@ namespace osidbg
 
 		T * Find(int index) const
 		{
-			if (index < 0 || index >= (int)Primitives.ItemCount) {
+			if (index < 0 || index >= (int)Primitives.Size) {
 				return nullptr;
 			} else {
 				return Primitives.Buf[index];
@@ -100,6 +100,52 @@ namespace osidbg
 		uint8_t _Pad1[3];
 		void * ConditionBlockPtr;
 	};
+
+	struct CRPGStats_Object_Property_CustomDescription : public CDivinityStats_Object_Property_Data
+	{
+		CRPGStats_Object_Property_CustomDescription()
+		{}
+
+		virtual ~CRPGStats_Object_Property_CustomDescription() {}
+
+		virtual CDivinityStats_Object_Property_Data * Clone()
+		{
+			auto cl = new CRPGStats_Object_Property_CustomDescription();
+			cl->SomeHashedText = SomeHashedText;
+			cl->TypeId = TypeId;
+			cl->PropertyContext = PropertyContext;
+			cl->ConditionBlockPtr = ConditionBlockPtr;
+			cl->TextLine1 = TextLine1;
+			return cl;
+		}
+
+		virtual bool GetDescription(STDWString * Line1)
+		{
+			Line1->Set(TextLine1);
+			return true;
+
+		}
+
+		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2)
+		{
+			GetDescription(Line1);
+			return true;
+		}
+
+		virtual bool GetDescription(TranslatedString * Line1)
+		{
+			GetDescription(&Line1->Str1.WStr);
+			return true;
+		}
+
+		virtual uint64_t Unknown()
+		{
+			return 0;
+		}
+
+		std::wstring TextLine1;
+	};
+
 
 	struct CRPGStats_Object_Property_List
 	{

@@ -560,6 +560,7 @@ namespace osidbg
 	int GetStatEntries(lua_State * L);
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
+	int StatAddCustomDescription(lua_State * L);
 	int GetStat(lua_State * L);
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
@@ -592,6 +593,7 @@ namespace osidbg
 			{"GetStatEntries", GetStatEntries},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
+			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"GetStat", GetStat},
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

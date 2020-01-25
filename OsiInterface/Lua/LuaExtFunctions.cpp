@@ -377,7 +377,7 @@ namespace osidbg
 		lua_newtable(L);
 		auto & objects = stats->objects.Primitives;
 		int32_t index = 1;
-		for (uint32_t i = 0; i < objects.ItemCount; i++) {
+		for (uint32_t i = 0; i < objects.Size; i++) {
 			auto object = objects.Buf[i];
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
@@ -576,6 +576,36 @@ namespace osidbg
 		if (!object) return 0;
 
 		return LuaStatSetAttribute(L, object, attributeName, 3);
+	}
+
+	int StatAddCustomDescription(lua_State * L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto attributeName = luaL_checkstring(L, 2);
+		auto description = luaL_checkstring(L, 3);
+
+		auto object = StatFindObject(statName);
+		if (!object) return 0;
+
+		LuaStatePin lua(ExtensionState::Get());
+		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
+			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
+		}
+
+		auto props = object->PropertyList.Find(attributeName);
+		if (props == nullptr || *props == nullptr) {
+			OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
+			return 0;
+		}
+
+		auto customProp = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
+		customProp->PropertyContext = 0;
+		customProp->TypeId = 99;
+		customProp->ConditionBlockPtr = nullptr;
+		customProp->TextLine1 = FromUTF8(description);
+		(*props)->Properties.Primitives.Add(customProp);
+
+		return 0;
 	}
 
 	esv::Character * GetCharacter(lua_State * L, int index)

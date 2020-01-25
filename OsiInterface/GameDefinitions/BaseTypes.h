@@ -78,14 +78,6 @@ namespace osidbg
 		//~ProtectedGameObject() = delete;
 	};
 
-	template <class T>
-	struct PrimitiveSet : public Noncopyable<PrimitiveSet<T>>
-	{
-		T * Buf;
-		uint32_t AllocationSize;
-		uint32_t ItemCount;
-	};
-
 	struct FixedString
 	{
 		inline FixedString()
@@ -294,6 +286,28 @@ namespace osidbg
 			}
 
 			Size--;
+		}
+	};
+
+	template <class T>
+	struct PrimitiveSet : public CompactSet<T>
+	{
+		uint32_t CapacityIncrement() const
+		{
+			if (Capacity > 0) {
+				return 2 * Capacity;
+			} else {
+				return 1;
+			}
+		}
+
+		void Add(T const & value)
+		{
+			if (Capacity <= Size) {
+				Reallocate(CapacityIncrement());
+			}
+
+			Buf[Size++] = value;
 		}
 	};
 
