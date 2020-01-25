@@ -604,6 +604,9 @@ namespace osidbg
 		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
 			RequirementsToLua(L, object->MemorizationRequirements);
 			return 1;
+		} else if (strcmp(attributeName, "AIFlags") == 0) {
+			lua_push(L, object->AIFlags);
+			return 1;
 		}
 
 		auto value = stats->GetAttributeFixedString(object, attributeName);
@@ -666,6 +669,9 @@ namespace osidbg
 			return 0;
 		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
 			LuaToRequirements(L, object->MemorizationRequirements);
+			return 0;
+		} else if (strcmp(attributeName, "AIFlags") == 0) {
+			object->AIFlags = (uint64_t)lua_tointeger(L, valueIdx);
 			return 0;
 		}
 
