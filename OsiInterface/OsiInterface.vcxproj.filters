@@ -135,6 +135,9 @@
     <ClInclude Include="GameDefinitions\ActionMachine.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\TurnManager.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

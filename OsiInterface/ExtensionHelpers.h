@@ -6,6 +6,7 @@
 #include <GameDefinitions/Item.h>
 #include <GameDefinitions/GameAction.h>
 #include <GameDefinitions/Misc.h>
+#include <GameDefinitions/TurnManager.h>
 
 namespace osidbg
 {
@@ -13,6 +14,7 @@ namespace osidbg
 	ModManager * GetModManager();
 
 	EntityWorld * GetEntityWorld();
+	esv::TurnManager * GetTurnManager();
 	FixedString ToFixedString(const char * s);
 	FixedString MakeFixedString(const char * s);
 	FixedString NameGuidToFixedString(char const * nameGuid);

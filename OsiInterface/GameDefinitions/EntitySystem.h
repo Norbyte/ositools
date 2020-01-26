@@ -69,6 +69,12 @@ namespace osidbg
 	{
 		struct CustomStatsComponent;
 	}
+	
+	struct BaseComponentProcessingSystem
+	{
+		void * VMT;
+		void * field_8;
+	};
 
 	struct EntityWorld : public ProtectedGameObject<EntityWorld>
 	{

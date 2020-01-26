@@ -150,7 +150,16 @@ namespace osidbg
 		return nullptr;
 	}
 
-
+	esv::TurnManager * GetTurnManager()
+	{
+		auto entityWorld = GetEntityWorld();
+		if (entityWorld) {
+			auto const & system = entityWorld->SystemTypes[(unsigned)SystemType::TurnManager];
+			return (esv::TurnManager *)((uint8_t *)system.System - 8);
+		} else {
+			return nullptr;
+		}
+	}
 
 	std::string ComponentTypeToName(ComponentType type)
 	{
