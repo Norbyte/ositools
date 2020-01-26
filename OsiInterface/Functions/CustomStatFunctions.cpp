@@ -95,6 +95,8 @@ namespace osidbg
 			auto statId = args[1].String;
 			auto & statValue = args[2].Int32;
 
+			if (character == nullptr) return false;
+
 			auto statDefn = FindCustomStatDefinitionById(statId);
 			if (statDefn == nullptr) return false;
 
@@ -153,6 +155,8 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(args[0].String);
 			auto statId = args[1].String;
 			auto statValue = args[2].Int32;
+
+			if (character == nullptr) return;
 
 			auto statDefn = FindCustomStatDefinitionById(statId);
 			if (statDefn == nullptr) return;
