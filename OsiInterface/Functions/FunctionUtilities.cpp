@@ -161,6 +161,18 @@ namespace osidbg
 		}
 	}
 
+	esv::TurnBasedProtocol * GetTurnBasedProtocol()
+	{
+		auto server = gStaticSymbols.EoCServer;
+		if (server == nullptr || *server == nullptr) return nullptr;
+
+		auto gameServer = (*server)->Server;
+		if (gameServer == nullptr) return nullptr;
+
+		if (gameServer->Protocols.Set.Size <= 22) return nullptr;
+		return (esv::TurnBasedProtocol *)gameServer->Protocols[22];
+	}
+
 	std::string ComponentTypeToName(ComponentType type)
 	{
 		auto label = EnumInfo<ComponentType>::Find(type);

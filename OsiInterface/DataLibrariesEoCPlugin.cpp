@@ -644,6 +644,17 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 13, "DamageStats"},
 			{"eoc::StatusPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x80, nullptr, nullptr, &sSymbolStatusPrototypeFormatDescriptionParam, 0x80}
 		},
+
+		{
+			"esv::EoCServer",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_CurrentCellCount
+			"48 8B CE " // mov     rcx, rsi
+			"FF 90 90 01 00 00 " // call    qword ptr [rax+190h]
+			"4C 8B 0D XX XX XX XX ", //  mov     r9, cs:esv__gEoCServer
+			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
+			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 16, (void **)&gStaticSymbols.EoCServer}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

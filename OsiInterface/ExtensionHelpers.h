@@ -15,6 +15,7 @@ namespace osidbg
 
 	EntityWorld * GetEntityWorld();
 	esv::TurnManager * GetTurnManager();
+	esv::TurnBasedProtocol * GetTurnBasedProtocol();
 	FixedString ToFixedString(const char * s);
 	FixedString MakeFixedString(const char * s);
 	FixedString NameGuidToFixedString(char const * nameGuid);

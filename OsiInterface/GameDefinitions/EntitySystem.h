@@ -238,6 +238,43 @@ namespace osidbg
 			FixedString CurrentLevel; // Saved
 		};
 
+		struct GameServer
+		{
+			uint8_t Unknown[0x320];
+			ObjectSet<void *> Protocols;
+		};
+
+		struct EoCServer
+		{
+			bool Unknown1;
+			uint8_t _Pad1[7];
+			uint64_t field_8;
+			uint64_t field_10;
+			ScratchBuffer ScratchBuffer1;
+			uint8_t _Pad2[4];
+			ScratchBuffer ScratchBuffer2;
+			uint8_t _Pad3[4];
+			FixedString FS1;
+			FixedString FS2;
+			FixedString FS3;
+			FixedString FSGUID4;
+			void * GameStateMachine;
+			GameServer * Server;
+			void * field_88;
+			void * GlobalRandom;
+			void * ItemCombinationManager;
+			void * CombineManager;
+			void * ModManagerServer;
+			bool Unknown2;
+			uint8_t _Pad4[7];
+			void * field_B8;
+			EntityWorld *EntityWorld;
+			void * field_C8;
+			void * ArenaManager;
+			void * GameMasterLobbyManager;
+			void * LobbyManagerOrigins;
+			bool field_E8;
+		};
 	}
 #pragma pack(pop)
 }

@@ -656,6 +656,19 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 10, "DamageStats"},
 			{"eoc::StatusPrototype::FormatDescriptionParam", SymbolMappingTarget::kAbsolute, -0x100, nullptr, nullptr, &sSymbolStatusPrototypeFormatDescriptionParam, 0x100}
 		},
+
+		{
+			"esv::EoCServer",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_CurrentCellCount
+			"48 8B CB " // mov     rcx, rbx
+			"FF 90 90 01 00 00 " // call    qword ptr [rax+190h]
+			"48 8B 03 " // mov     rax, [rbx]
+			"48 8B CB " // mov     rcx, rbx
+			"4C 8B 3D XX XX XX XX ", //  mov     rdi, cs:esv__gEoCServer
+			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
+			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 22, (void **)&gStaticSymbols.EoCServer}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

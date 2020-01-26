@@ -51,16 +51,16 @@ namespace osidbg
 		struct TurnBasedProtocol
 		{
 			void * VMT;
-			void * field_8;
+			GameServer * GameServer;
 			void * NetEventManagerVMT;
 			void * field_18;
 			void * GameEventManagerVMT;
-			ObjectSet<uint8_t> UpdatedCombatIds;
-			ObjectSet<uint8_t> PrimSet_uchar2;
-			eocnet::Message *TurnCombatSetTeamMessage;
-			eocnet::Message *FleeCombatResultMessage;
-			eocnet::Message *CombatTurnOrderMessage;
-			eocnet::Message *CombatSummonsMessage;
+			ObjectSet<uint8_t> UpdatedTurnOrderCombatIds;
+			ObjectSet<uint8_t> UpdatedSummonCombatIds;
+			eocnet::Message * TurnCombatSetTeamMessage;
+			eocnet::Message * FleeCombatResultMessage;
+			eocnet::Message * CombatTurnOrderMessage;
+			eocnet::Message * CombatSummonsMessage;
 		};
 
 		struct TurnManager
@@ -99,14 +99,15 @@ namespace osidbg
 
 			struct Combat
 			{
-				ObjectSet<CombatTeam *> CurrentRoundTeams;
-				ObjectSet<CombatTeam *> CombatTeams;
-				ObjectSet<CombatGroup *> CombatGroups;
-				ObjectSet<eoc::CombatTeamId> ValidEntityTeamIdSet;
-				ObjectSet<eoc::CombatTeamId> TeamIdSet2;
+				ObjectSet<CombatTeam *, MSVCMemoryAllocator> CurrentRoundTeams;
+				ObjectSet<CombatTeam *, MSVCMemoryAllocator> CombatTeams;
+				ObjectSet<CombatGroup *, MSVCMemoryAllocator> CombatGroups;
+				ObjectSet<eoc::CombatTeamId> TurnOrderNotificationTeamIds;
+				ObjectSet<eoc::CombatTeamId> EnterLeaveNotificationTeamIds;
 				ObjectSet<void *> SummonDataSet;
 				FixedStringRefMap<uint32_t, CombatTeam> CombatTeamRefMap;
-				uint64_t NextTeamId;
+				uint32_t NextTeamId;
+				uint8_t _Pad[4];
 				ObjectSet<ObjectHandle> WaitingForCharComponents;
 				FixedStringRefMap<FixedString, void *> ObjHKRefMap;
 				ObjectHandle InitialPlayerHandle;
