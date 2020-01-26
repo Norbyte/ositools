@@ -9,21 +9,18 @@ namespace osidbg
 {
 	StaticSymbols gStaticSymbols;
 
-	EoCAllocFunc EoCAlloc{ nullptr };
-	EoCFreeFunc EoCFree{ nullptr };
-
 	void * GameAllocRaw(std::size_t size)
 	{
 #if defined(OSI_EOCAPP)
-		return EoCAlloc(nullptr, size);
+		return gStaticSymbols.EoCAlloc(nullptr, size);
 #else
-		return EoCAlloc(nullptr, size, "", 1, "");
+		return gStaticSymbols.EoCAlloc(nullptr, size, "", 1, "");
 #endif
 	}
 
 	void GameFree(void * ptr)
 	{
-		EoCFree(nullptr, ptr);
+		gStaticSymbols.EoCFree(nullptr, ptr);
 	}
 
 

@@ -19,8 +19,8 @@ namespace osidbg
 #endif
 	typedef void (* EoCFreeFunc)(void * self, void * ptr);
 
-	extern EoCAllocFunc EoCAlloc;
-	extern EoCFreeFunc EoCFree;
+	typedef void * (* CrtAllocFunc)(std::size_t size);
+	typedef void (* CrtFreeFunc)(void * ptr);
 
 	void * GameAllocRaw(std::size_t size);
 	void GameFree(void *);
@@ -303,8 +303,62 @@ namespace osidbg
 		}
 	};
 
-	template <class T>
-	struct CompactSet : public Noncopyable<CompactSet<T>>
+	struct GameMemoryAllocator
+	{
+		template <class T>
+		static T * New()
+		{
+			return GameAlloc<T>();
+		}
+
+		template <class T>
+		static T * New(std::size_t count)
+		{
+			return GameAlloc<T>(count);
+		}
+
+		template <class T>
+		static void Free(T * ptr)
+		{
+			return GameFree(ptr);
+		}
+
+		template <class T>
+		static void FreeArray(T * ptr)
+		{
+			return GameFree(ptr);
+		}
+	};
+
+	struct MSVCMemoryAllocator
+	{
+		template <class T>
+		static T * New()
+		{
+			return (T *)gStaticSymbols.CrtAlloc(sizeof(T));
+		}
+
+		template <class T>
+		static T * New(std::size_t count)
+		{
+			return (T *)gStaticSymbols.CrtAlloc(sizeof(T) * count);
+		}
+
+		template <class T>
+		static void Free(T * ptr)
+		{
+			gStaticSymbols.CrtFree(ptr);
+		}
+
+		template <class T>
+		static void FreeArray(T * ptr)
+		{
+			gStaticSymbols.CrtFree(ptr);
+		}
+	};
+
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct CompactSet : public Noncopyable<CompactSet<T, Allocator>>
 	{
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
@@ -324,13 +378,13 @@ namespace osidbg
 
 		void Reallocate(uint32_t newCapacity)
 		{
-			auto newBuf = GameAlloc<T>(newCapacity);
+			auto newBuf = Allocator::New<T>(newCapacity);
 			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
 				newBuf[i] = Buf[i];
 			}
 
 			if (Buf != nullptr) {
-				GameFree(Buf);
+				Allocator::Free(Buf);
 			}
 
 			Buf = newBuf;
@@ -352,8 +406,8 @@ namespace osidbg
 		}
 	};
 
-	template <class T>
-	struct PrimitiveSet : public CompactSet<T>
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct PrimitiveSet : public CompactSet<T, Allocator>
 	{
 		uint32_t CapacityIncrement() const
 		{
@@ -374,8 +428,8 @@ namespace osidbg
 		}
 	};
 
-	template <class T>
-	struct Set : public CompactSet<T>
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct Set : public CompactSet<T, Allocator>
 	{
 		uint64_t CapacityIncrementSize{ 0 };
 
@@ -398,13 +452,27 @@ namespace osidbg
 
 			Buf[Size++] = value;
 		}
+
+		void InsertAt(uint32_t index, T const & value)
+		{
+			if (Capacity <= Size) {
+				Reallocate(CapacityIncrement());
+			}
+
+			for (auto i = Size; i > index; i--) {
+				Buf[i] = Buf[i - 1];
+			}
+
+			Buf[index] = value;
+			Size++;
+		}
 	};
 
-	template <class T>
+	template <class T, class Allocator = GameMemoryAllocator>
 	struct ObjectSet
 	{
 		void * VMT{ nullptr };
-		Set<T> Set;
+		Set<T, Allocator> Set;
 
 		inline T const & operator [] (uint32_t index) const
 		{
@@ -417,11 +485,11 @@ namespace osidbg
 		}
 	};
 
-	template <class T>
+	template <class T, class Allocator = GameMemoryAllocator>
 	struct CompactObjectSet
 	{
 		void * VMT{ nullptr };
-		CompactSet<T> Set;
+		CompactSet<T, Allocator> Set;
 
 		inline T const & operator [] (uint32_t index) const
 		{

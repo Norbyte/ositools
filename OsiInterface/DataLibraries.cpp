@@ -360,6 +360,18 @@ namespace osidbg
 			FindTextSegment();
 			MapAllSymbols(false);
 
+			HMODULE crtBase = GetModuleHandle(L"ucrtbase.dll");
+			auto crtAllocProc = GetProcAddress(crtBase, "malloc");
+			auto crtFreeProc = GetProcAddress(crtBase, "free");
+
+			gStaticSymbols.CrtAlloc = (CrtAllocFunc)crtAllocProc;
+			gStaticSymbols.CrtFree = (CrtFreeFunc)crtFreeProc;
+
+			if (crtAllocProc == nullptr || crtFreeProc == nullptr) {
+				ERR("Could not find memory management functions");
+				CriticalInitFailed = true;
+			}
+
 #if defined(OSI_EOCAPP)
 			FindServerGlobalsEoCApp();
 			FindEoCGlobalsEoCApp();
@@ -508,7 +520,7 @@ namespace osidbg
 
 		if (gStaticSymbols.EoCClient == nullptr
 			|| gStaticSymbols.EoCClientHandleError == nullptr
-			|| EoCAlloc == nullptr) {
+			|| gStaticSymbols.EoCAlloc == nullptr) {
 			return;
 		}
 
@@ -547,7 +559,7 @@ namespace osidbg
 			&& (*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
 			&& *(*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
 			&& gStaticSymbols.EoCClientHandleError != nullptr
-			&& EoCAlloc != nullptr;
+			&& gStaticSymbols.EoCAlloc != nullptr;
 	}
 
 	bool LibraryManager::CanShowError()

@@ -266,8 +266,8 @@ namespace osidbg
 			"E8 XX XX XX XX " // call    ls__GlobalAllocator__Malloc
 			"33 D2 ", // xor     edx, edx 
 			{}, // Unconditional
-			{"EoCAlloc", SymbolMappingTarget::kIndirectCall, 35, (void **)&EoCAlloc},
-			{"EoCFree", SymbolMappingTarget::kIndirectCall, 3, (void **)&EoCFree}
+			{"EoCAlloc", SymbolMappingTarget::kIndirectCall, 35, (void **)&gStaticSymbols.EoCAlloc},
+			{"EoCFree", SymbolMappingTarget::kIndirectCall, 3, (void **)&gStaticSymbols.EoCFree}
 		},
 
 		{

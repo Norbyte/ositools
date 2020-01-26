@@ -32,7 +32,8 @@ namespace osidbg
 	};
 
 	enum class EsvGlobalEoCPlugin {
-		// 0, 1
+		EsvSavegameManager = 0,
+		EsvEoCServer = 1,
 		EsvCacheTemplateManager = 2,
 		EsvAiFactory = 3,
 		EsvGameObjectFactory = 4,
@@ -105,6 +106,7 @@ namespace osidbg
 		void ** LevelManager{ nullptr };
 		CharacterFactory ** EsvCharacterFactory{ nullptr };
 		ItemFactory ** EsvItemFactory{ nullptr };
+		esv::EoCServer ** EoCServer{ nullptr };
 
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 
@@ -113,6 +115,10 @@ namespace osidbg
 		uint8_t const * EocRegisterFuncs[6]{ nullptr };
 		uint8_t const ** EocGlobals[6]{ nullptr };
 
+		EoCAllocFunc EoCAlloc{ nullptr };
+		EoCFreeFunc EoCFree{ nullptr };
+		CrtAllocFunc CrtAlloc{ nullptr };
+		CrtFreeFunc CrtFree{ nullptr };
 
 
 		inline CharacterFactory * GetCharacterFactory() const

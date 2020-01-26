@@ -703,8 +703,8 @@ namespace osidbg
 		auto allocProc = GetProcAddress(coreLib_, "?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z");
 		auto freeProc = GetProcAddress(coreLib_, "?Free@GlobalAllocator@ls@@QEAAXPEAX@Z");
 
-		EoCAlloc = (EoCAllocFunc)allocProc;
-		EoCFree = (EoCFreeFunc)freeProc;
+		gStaticSymbols.EoCAlloc = (EoCAllocFunc)allocProc;
+		gStaticSymbols.EoCFree = (EoCFreeFunc)freeProc;
 
 		if (allocProc == nullptr || freeProc == nullptr) {
 			ERR("Could not find memory management functions");
