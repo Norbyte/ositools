@@ -884,7 +884,7 @@ namespace osidbg
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "GetSkillDamage"); // stack: Ext, fn
+		lua_getfield(L, -1, "_GetSkillDamage"); // stack: Ext, fn
 		lua_remove(L, -2); // stack: fn
 		if (lua_isnil(L, -1)) {
 			lua_pop(L, 1); // stack: -

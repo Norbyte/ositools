@@ -50,6 +50,21 @@ end
 
 Ext.StatusGetDescriptionParam = {}
 
+Ext._GetSkillDamage = function (...)
+    for i,callback in pairs(Ext.GetSkillDamage) do
+        local status, damageList, deathType = xpcall(callback, debug.traceback, ...)
+        if status then
+			if damageList ~= nil then
+				return damageList, deathType
+			end
+		else
+            Ext.PrintError("Error during GetSkillDamage: ", damageList)
+        end
+    end
+end
+
+Ext.GetSkillDamage = {}
+
 Ext.RegisterListener = function (type, fn)
 	if type == "SessionLoading" then
 		table.insert(Ext.OnGameSessionLoading, fn)
@@ -57,6 +72,8 @@ Ext.RegisterListener = function (type, fn)
 		table.insert(Ext.OnModuleLoading, fn)
 	elseif type == "SkillGetDescriptionParam" then
 		table.insert(Ext.SkillGetDescriptionParam, fn)
+	elseif type == "GetSkillDamage" then
+		table.insert(Ext.GetSkillDamage, fn)
 	elseif type == "StatusGetDescriptionParam" then
 		table.insert(Ext.StatusGetDescriptionParam, fn)
 	else
