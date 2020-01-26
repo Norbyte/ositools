@@ -87,11 +87,11 @@ namespace osidbg
 			void * NetEventListenerVMT;
 			void * BaseComponentVMT;
 			EntityWorld * EntityWorld;
-			ObjectSet<ComponentHandle> CustomStatDefinitionHandles;
-			ObjectSet<ComponentHandle> Handles2;
-			ObjectSet<ComponentHandle> Handles3;
-			ObjectSet<ComponentHandle> Handles4;
-			ObjectSet<ComponentHandle> Handles5;
+			ObjectSet<ComponentHandle> CreatedDefinitions;
+			ObjectSet<ComponentHandle> InSyncDefinitions;
+			ObjectSet<ComponentHandle> RemovedDefinitions;
+			ObjectSet<ComponentHandle> UpdatedDefinitions;
+			ObjectSet<ComponentHandle> CustomStatComponents;
 			PrimitiveSet<short> PeerIDClassnames;
 			uint64_t Unkn2;
 			uint64_t Unkn3;

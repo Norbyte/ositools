@@ -14,17 +14,25 @@ namespace osidbg
 
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
-			auto & defnHandles = statSystem->CustomStatDefinitionHandles.Set;
 
-			for (uint32_t i = 0; i < defnHandles.Size; i++) {
-				auto handle = defnHandles[i].Handle;
+			auto & newDefns = statSystem->CreatedDefinitions.Set;
+			for (uint32_t i = 0; i < newDefns.Size; i++) {
+				auto handle = newDefns[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
 				if (statDefn != nullptr && wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
 					return statDefn;
 				}
 			}
 
-			OsiError("Could not find custom stat definition '" << name << "'");
+			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
+			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
+				auto handle = inSyncDefns[i].Handle;
+				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				if (statDefn != nullptr && wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
+					return statDefn;
+				}
+			}
+
 			return nullptr;
 		}
 
@@ -38,10 +46,19 @@ namespace osidbg
 
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
-			auto & defnHandles = statSystem->CustomStatDefinitionHandles.Set;
 
-			for (uint32_t i = 0; i < defnHandles.Size; i++) {
-				auto handle = defnHandles[i].Handle;
+			auto & createdDefns = statSystem->CreatedDefinitions.Set;
+			for (uint32_t i = 0; i < createdDefns.Size; i++) {
+				auto handle = createdDefns[i].Handle;
+				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				if (statDefn != nullptr && statDefn->Id == fs) {
+					return statDefn;
+				}
+			}
+
+			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
+			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
+				auto handle = inSyncDefns[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;
