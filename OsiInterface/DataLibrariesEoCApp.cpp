@@ -477,7 +477,7 @@ namespace osidbg
 			"49 89 43 98 " // mov     [r11-68h], rax
 			"48 8D 05 ", // lea     rax, ecl__CustomStatsProtocolSomething__vftable
 			{},
-			{"CustomStatUIRollHook", SymbolMappingTarget::kAbsolute, 30, (void **)&gStaticSymbols.CustomStatUIRollHook},
+			{"CustomStatUIRollHook", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.CustomStatUIRollHook},
 		},
 
 		{
@@ -494,7 +494,7 @@ namespace osidbg
 			"4D 8B F0 " // mov     r14, r8
 			"81 FA 3B 01 00 00 ", // cmp     edx, 13Bh
 			{},
-			{"esv::CustomStatsProtocol::ProcessMsg", SymbolMappingTarget::kAbsolute, 30, (void **)&gStaticSymbols.EsvCustomStatsProtocolProcessMsg},
+			{"esv::CustomStatsProtocol::ProcessMsg", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.EsvCustomStatsProtocolProcessMsg},
 		},
 
 		{
