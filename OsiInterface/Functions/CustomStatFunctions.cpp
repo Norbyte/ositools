@@ -103,17 +103,19 @@ namespace osidbg
 			auto entityWorld = GetEntityWorld();
 			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle);
 			if (statsComponent == nullptr) {
-				OsiErrorS("Character has no CustomStatsComponent");
-				return false;
+				// The game UI displays nonexistent stat entries as zero, 
+				// so we'll do the same in the API
+				statValue = 0;
+				return true;
 			}
 
 			auto value = statsComponent->StatValues.Find(statDefn->Id.Str);
 			if (value == nullptr) {
-				OsiWarn("Character has no custom stat named '" << statId << "'");
-				return false;
+				statValue = 0;
+			} else {
+				statValue = *value;
 			}
 
-			statValue = *value;
 			return true;
 		}
 

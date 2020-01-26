@@ -859,7 +859,7 @@ Creates a custom stat with the given name and description, and returns the GUID 
 ### CharacterGetCustomStat
 `query NRD_CharacterGetCustomStat([in](CHARACTERGUID)_Character, [in](GUIDSTRING)_StatId, [out](INTEGER)_Value)`
 
-Returns the value of the specified custom stat on the character. If the character does not exist, the custom stat does not exist, or the custom stat value was not set on this character, the query fails.
+Returns the value of the specified custom stat on the character. If the character does not exist or the custom stat does not exist, the query fails. If the custom stat value was not yet set on this character, the query returns 0.
 
 ### CharacterSetCustomStat
 `call NRD_CharacterSetCustomStat((CHARACTERGUID)_Character, (GUIDSTRING)_StatId, (INTEGER)_Value)`
