@@ -128,6 +128,7 @@ namespace osidbg {
 		bool GetGameVersion(GameVersionInfo & version);
 
 		void ShowStartupError(std::wstring const & msg, bool wait, bool exitGame);
+		void ShowStartupMessage(std::wstring const & msg, bool exitGame);
 
 		bool EvaluateSymbolCondition(SymbolMappingCondition const & cond, uint8_t const * match);
 		SymbolMappingResult ExecSymbolMappingAction(SymbolMappingTarget const & target, uint8_t const * match);
@@ -209,6 +210,7 @@ namespace osidbg {
 		bool IsConstStringRef(uint8_t const * ref, char const * str) const;
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 		bool CanShowError();
+		bool CanShowMessages();
 
 		uint8_t const * moduleStart_{ nullptr };
 		size_t moduleSize_{ 0 };

@@ -2,6 +2,7 @@
 #include "OsirisProxy.h"
 #include "NodeHooks.h"
 #include "DebugInterface.h"
+#include "Version.h"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -72,8 +73,6 @@ void OsirisProxy::Initialize()
 		ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
 		ExtensionsEnabled = false;
 	}
-
-	throw std::runtime_error("XXX");
 
 	// Wrap state change functions even if extension startup failed, otherwise
 	// we won't be able to show any startup errors
@@ -708,6 +707,14 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	}
 
 	INFO(L"Loading base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
+
+	std::wstring loadMsg = L"Loading ";
+	loadMsg += modManager->BaseModule.Info.Name.GetPtr();
+	loadMsg += L" (Script Extender v";
+	loadMsg += std::to_wstring(CurrentVersion);
+	loadMsg += L")";
+	Libraries.ShowStartupMessage(loadMsg, false);
+	
 	LoadExtensionState();
 	if (ExtState) {
 		ExtState->OnModuleLoading();

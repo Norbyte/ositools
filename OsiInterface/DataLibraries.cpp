@@ -520,27 +520,39 @@ namespace osidbg
 					retries++;
 				}
 
-				STDWString str;
-				str.Set(msg);
-				gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &str, exitGame, &str);
+				ShowStartupMessage(msg, exitGame);
 			});
 			messageThread.detach();
 		} else {
-			STDWString str;
-			str.Set(msg);
-			gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &str, exitGame, &str);
+			ShowStartupMessage(msg, exitGame);
 		}
+	}
+
+	void LibraryManager::ShowStartupMessage(std::wstring const & msg, bool exitGame)
+	{
+		if (!CanShowMessages() || CanShowError()) {
+			// Don't show progress if we're already in a loaded state, as it'll show a message box instead
+			return;
+		}
+
+		STDWString msgStr;
+		msgStr.Set(msg);
+		gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &msgStr, exitGame, &msgStr);
+	}
+
+	bool LibraryManager::CanShowMessages()
+	{
+		return gStaticSymbols.EoCClient != nullptr
+			&& *gStaticSymbols.EoCClient != nullptr
+			&& (*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
+			&& *(*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
+			&& gStaticSymbols.EoCClientHandleError != nullptr
+			&& EoCAlloc != nullptr;
 	}
 
 	bool LibraryManager::CanShowError()
 	{
-		if (gStaticSymbols.EoCClient == nullptr
-			|| *gStaticSymbols.EoCClient == nullptr
-			|| (*gStaticSymbols.EoCClient)->GameStateMachine == nullptr
-			|| *(*gStaticSymbols.EoCClient)->GameStateMachine == nullptr
-			|| gStaticSymbols.EoCClientHandleError == nullptr) {
-			return false;
-		}
+		if (!CanShowMessages()) return false;
 
 		auto state = (*(*gStaticSymbols.EoCClient)->GameStateMachine)->State;
 		return state == GameState::Running
