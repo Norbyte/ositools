@@ -90,7 +90,7 @@ namespace osidbg
 		PrimitiveSet<SystemTypeEntry> SystemTypes2;
 		uint64_t Unkn5;
 		ObjectSet<void *> Funcs; // ObjectSet<function>
-		FixedStringRefMap<int> RefMap; // ???
+		FixedStringRefMap<FixedString, int> RefMap; // ???
 
 		void * GetComponentByEntityHandle(ObjectHandle entityHandle, ComponentType type);
 		void * FindComponentByHandle(ObjectHandle componentHandle, ComponentType type);

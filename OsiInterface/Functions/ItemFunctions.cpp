@@ -63,7 +63,7 @@ namespace osidbg
 			if (item->StatsDynamic != nullptr) {
 				auto const & boosts = item->StatsDynamic->BoostNameSet;
 				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
-					if (strcmp(boosts.Set.Buf[i].Str, deltaMod) == 0) {
+					if (strcmp(boosts[i].Str, deltaMod) == 0) {
 						count++;
 					}
 				}
@@ -72,7 +72,7 @@ namespace osidbg
 			if (item->Generation != nullptr) {
 				auto const & boosts = item->Generation->Boosts;
 				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
-					if (strcmp(boosts.Set.Buf[i].Str, deltaMod) == 0) {
+					if (strcmp(boosts[i].Str, deltaMod) == 0) {
 						count++;
 					}
 				}
@@ -96,7 +96,7 @@ namespace osidbg
 				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts.Set.Buf[i].Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts[i].Str });
 					eventArgs->Add(OsiArgumentValue{ 1 });
 					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -108,7 +108,7 @@ namespace osidbg
 				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts.Set.Buf[i].Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts[i].Str });
 					eventArgs->Add(OsiArgumentValue{ 0 });
 					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -256,7 +256,7 @@ namespace osidbg
 			}
 
 			OsirisPropertyMapSet(gEoCItemDefinitionPropertyMap, 
-				&clone->Set.Buf[0], args, 0, Type);
+				&(*clone)[0], args, 0, Type);
 		}
 
 

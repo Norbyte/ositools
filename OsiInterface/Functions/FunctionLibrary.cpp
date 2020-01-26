@@ -35,7 +35,7 @@ namespace osidbg
 			loaded = 0;
 			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods.Buf[i];
+				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
 					loaded = 1;
 				}

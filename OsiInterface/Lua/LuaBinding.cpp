@@ -446,7 +446,7 @@ namespace osidbg
 		auto multiplier = luaL_checknumber(L, 2);
 
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			auto & item = self->damages_.Buf[i];
+			auto & item = self->damages_[i];
 			item.Amount = (int32_t)round(item.Amount * multiplier);
 		}
 
@@ -459,7 +459,7 @@ namespace osidbg
 		auto other = LuaDamageList::CheckUserData(L, 2);
 
 		for (uint32_t i = 0; i < other->damages_.Size; i++) {
-			auto & item = other->damages_.Buf[i];
+			auto & item = other->damages_[i];
 			self->damages_.AddDamage(item.DamageType, item.Amount);
 		}
 
@@ -473,7 +473,7 @@ namespace osidbg
 
 		int32_t totalDamage = 0;
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			totalDamage += self->damages_.Buf[i].Amount;
+			totalDamage += self->damages_[i].Amount;
 		}
 
 		self->damages_.Clear();
@@ -487,9 +487,9 @@ namespace osidbg
 		auto self = LuaDamageList::CheckUserData(L, 1);
 
 		for (uint32_t i = self->damages_.Size; i > 0; i--) {
-			auto & src = self->damages_.Buf[i - 1];
+			auto & src = self->damages_[i - 1];
 			for (uint32_t j = i - 1; j > 0; j--) {
-				auto & dest = self->damages_.Buf[j - 1];
+				auto & dest = self->damages_[j - 1];
 				if (src.DamageType == dest.DamageType) {
 					dest.Amount += src.Amount;
 					self->damages_.Remove(i - 1);
@@ -508,7 +508,7 @@ namespace osidbg
 		lua_newtable(L); // Stack: tab
 
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			auto const & item = self->damages_.Buf[i];
+			auto const & item = self->damages_[i];
 
 			lua_push(L, i + 1); // Stack: tab, index
 			lua_newtable(L); // Stack: tab, index, dmgTab
@@ -846,7 +846,7 @@ namespace osidbg
 		LuaGameObjectPin<CDivinityStats_Character> _2(luaCharacter);
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			lua_pushstring(L, paramTexts.Set.Buf[i].GetPtr()); // stack: fn, skill, character, params...
+			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, skill, character, params...
 		}
 
 		if (CallWithTraceback(2 + paramTexts.Set.Size, 1) != 0) { // stack: retval
@@ -942,7 +942,7 @@ namespace osidbg
 				if (damages) {
 					auto const & list = damages->Get();
 					for (uint32_t i = 0; i < list.Size; i++) {
-						auto const & item = list.Buf[i];
+						auto const & item = list[i];
 						damageList->AddDamage(item.DamageType, item.Amount);
 					}
 				} else {
@@ -997,7 +997,7 @@ namespace osidbg
 		LuaGameObjectPin<CDivinityStats_Character> _3(luaCharacter);
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			lua_pushstring(L, paramTexts.Set.Buf[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
+			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
 		}
 
 		if (CallWithTraceback(3 + paramTexts.Set.Size, 1) != 0) { // stack: retval
@@ -1190,7 +1190,7 @@ namespace osidbg
 
 		LuaRestriction restriction(*lua, LuaState::RestrictAll);
 		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods.Buf[i];
+			auto const & mod = mods[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
 			auto reader = gStaticSymbols.MakeFileReader(bootstrapFile);

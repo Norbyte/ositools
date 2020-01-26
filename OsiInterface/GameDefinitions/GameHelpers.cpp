@@ -245,7 +245,7 @@ namespace osidbg
 
 		auto index = object->IndexedProperties[attributeIndex];
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			return ModifierFSSet.Set.Buf[index];
+			return ModifierFSSet[index];
 		}
 		else if (typeInfo->Values.ItemCount > 0) {
 			auto enumLabel = typeInfo->Values.FindByValue(index);
@@ -308,7 +308,7 @@ namespace osidbg
 
 		auto & strings = ModifierFSSet.Set;
 		for (uint32_t i = 0; i < strings.Size; i++) {
-			if (strings.Buf[i] == fs) {
+			if (strings[i] == fs) {
 				return i;
 			}
 		}
@@ -574,7 +574,7 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto componentMgr = Components.Buf[(uint32_t)type].component;
+		auto componentMgr = Components[(uint32_t)type].component;
 		if (componentMgr == nullptr) {
 			OsiError("Component type " << (uint32_t)type << " not bound!");
 			return nullptr;
@@ -597,25 +597,25 @@ namespace osidbg
 		}
 
 		auto salt = entityHandle.GetSalt();
-		if (salt != EntitySalts.Buf[index]) {
-			OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts.Buf[index]);
+		if (salt != EntitySalts[index]) {
+			OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts[index]);
 			return nullptr;
 		}
 
-		auto entity = EntityEntries.Buf[index];
+		auto entity = EntityEntries[index];
 		if ((uint32_t)type >= entity->Layout.Entries.Size) {
 			OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
 			return nullptr;
 		}
 
-		auto const & layoutEntry = entity->Layout.Entries.Buf[(uint32_t)type];
+		auto const & layoutEntry = entity->Layout.Entries[(uint32_t)type];
 		if (!layoutEntry.Handle.IsValid()) {
 			OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
 			return nullptr;
 		}
 
 		ObjectHandle componentHandle{ layoutEntry.Handle.Handle };
-		auto componentMgr = Components.Buf[(uint32_t)type].component;
+		auto componentMgr = Components[(uint32_t)type].component;
 		return componentMgr->FindComponentByHandle(&componentHandle);
 	}
 
@@ -657,7 +657,7 @@ namespace osidbg
 	{
 		auto count = Statuses.Set.Size;
 		for (uint32_t i = 0; i < count; i++) {
-			auto status = Statuses.Set.Buf[i];
+			auto status = Statuses[i];
 			if (status->StatusHandle == handle) {
 				return status;
 			}

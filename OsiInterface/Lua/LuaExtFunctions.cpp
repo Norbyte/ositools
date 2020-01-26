@@ -290,7 +290,7 @@ namespace osidbg
 		if (modUuid) {
 			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods.Buf[i];
+				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
 					lua_pushboolean(L, 1);
 					return 1;
@@ -308,7 +308,7 @@ namespace osidbg
 
 		auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
 		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods.Buf[i];
+			auto const & mod = mods[i];
 			luaL_settable(L, i + 1, mod.Info.ModuleUUID.Str);
 		}
 
@@ -322,7 +322,7 @@ namespace osidbg
 		if (modUuid) {
 			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods.Buf[i];
+				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
 					module = &mod;
 					break;
@@ -345,7 +345,7 @@ namespace osidbg
 			lua_newtable(L);
 			auto & dependents = module->DependentModules.Set;
 			for (uint32_t i = 0; i < dependents.Size; i++) {
-				auto const & mod = dependents.Buf[i];
+				auto const & mod = dependents[i];
 				luaL_settable(L, i + 1, mod.Info.ModuleUUID);
 			}
 			lua_settable(L, -3);
@@ -378,7 +378,7 @@ namespace osidbg
 		auto & objects = stats->objects.Primitives;
 		int32_t index = 1;
 		for (uint32_t i = 0; i < objects.Size; i++) {
-			auto object = objects.Buf[i];
+			auto object = objects[i];
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
 				if (type == nullptr || type->Name != statType) {
@@ -418,7 +418,7 @@ namespace osidbg
 		lua_newtable(L);
 		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
 			lua_push(L, i + 1);
-			RequirementToLua(L, requirements.Set.Buf[i]);
+			RequirementToLua(L, requirements[i]);
 			lua_settable(L, -3);
 		}
 	}
@@ -456,7 +456,7 @@ namespace osidbg
 		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
 			lua_push(L, i + 1);
 			lua_gettable(L, -2);
-			LuaToRequirement(L, requirements.Set.Buf[i]);
+			LuaToRequirement(L, requirements[i]);
 			lua_pop(L, 1);
 		}
 	}

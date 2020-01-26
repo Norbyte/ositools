@@ -180,7 +180,7 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto component = entityWorld->Components.Buf[(uint32_t)componentType].component->FindComponentByGuid(&fs);
+		auto component = entityWorld->Components[(uint32_t)componentType].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
 			return component;
 		} else {
@@ -258,7 +258,7 @@ namespace osidbg
 		auto actionMgr = gStaticSymbols.GetGameActionManager();
 
 		for (uint32_t i = 0; i < actionMgr->GameActions.Size; i++) {
-			auto action = actionMgr->GameActions.Buf[i];
+			auto action = actionMgr->GameActions[i];
 			if (action->MyHandle == handle) {
 				return action;
 			}

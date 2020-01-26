@@ -428,7 +428,7 @@ void OsirisProxy::DumpNetworkFixedStrings()
 		auto nfsLogPath = MakeLogFilePath(L"NetworkFixedStrings", L"log");
 		std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
 		for (uint32_t i = 0; i < strings.Size; i++) {
-			auto str = strings.Buf[i].Str;
+			auto str = strings[i].Str;
 			logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
 		}
 		logOut.close();

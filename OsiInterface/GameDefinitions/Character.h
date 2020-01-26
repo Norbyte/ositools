@@ -91,7 +91,7 @@ namespace osidbg
 			ObjectHandle OwnerHandle;
 			FixedStringMapBase<Skill *> Skills;
 			uint8_t _Pad[4];
-			FixedStringRefMap<uint32_t> TimeItemAddedToSkillManager;
+			FixedStringRefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
 			bool IsLoading;
 			uint8_t _Pad2[3];
 			uint32_t SomeCount;
@@ -290,7 +290,7 @@ namespace osidbg
 			uint8_t _Pad81[4];
 			ObjectSet<FixedString> PreferredAiTarget;
 			uint64_t U18;
-			FixedStringRefMap<void *> U19;
+			FixedStringRefMap<FixedString, void *> U19;
 			ObjectSet<FixedString> U20;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;

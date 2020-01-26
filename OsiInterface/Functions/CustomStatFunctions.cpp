@@ -17,7 +17,7 @@ namespace osidbg
 			auto & defnHandles = statSystem->CustomStatDefinitionHandles.Set;
 
 			for (uint32_t i = 0; i < defnHandles.Size; i++) {
-				auto handle = defnHandles.Buf[i].Handle;
+				auto handle = defnHandles[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
 				if (statDefn != nullptr && wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
 					return statDefn;
@@ -41,7 +41,7 @@ namespace osidbg
 			auto & defnHandles = statSystem->CustomStatDefinitionHandles.Set;
 
 			for (uint32_t i = 0; i < defnHandles.Size; i++) {
-				auto handle = defnHandles.Buf[i].Handle;
+				auto handle = defnHandles[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;

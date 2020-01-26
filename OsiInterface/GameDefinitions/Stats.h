@@ -703,8 +703,8 @@ namespace osidbg
 		STDWString WStr1;
 		uint64_t Unkn1[5];
 		CRPGStats_ExtraData * ExtraData;
-		FixedStringRefMap<void *> RefMap1;
-		FixedStringRefMap<void *> RefMap2;
+		FixedStringRefMap<FixedString, void *> RefMap1;
+		FixedStringRefMap<FixedString, void *> RefMap2;
 		FixedStringMapBase<FixedString> FSMap1;
 		uint8_t _Pad2[4];
 		FixedStringMapBase<int> FSMapInt1;
@@ -713,7 +713,7 @@ namespace osidbg
 		uint8_t _Pad4[4];
 		FixedStringMapBase<int> FSMapInt3;
 		uint8_t _Pad5[4];
-		FixedStringRefMap<void *> FSMap2;
+		FixedStringRefMap<FixedString, void *> FSMap2;
 		uint64_t Unkn2[7];
 		ObjectSet<FixedString> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;

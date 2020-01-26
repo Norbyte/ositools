@@ -94,7 +94,7 @@ namespace osidbg
 				return nullptr;
 			}
 
-			return &skillBar->Set.Buf[slot];
+			return &(*skillBar)[slot];
 		}
 
 		bool SkillBarGetItem(OsiArgumentDesc & args)
@@ -140,7 +140,7 @@ namespace osidbg
 
 			auto skillId = ToFixedString(args[1].String);
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
-				auto & skill = skillBar->Set.Buf[i];
+				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
 					args[2].Int32 = i;
@@ -168,7 +168,7 @@ namespace osidbg
 			item->GetObjectHandle(&handle);
 
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
-				auto & skill = skillBar->Set.Buf[i];
+				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kItem
 					&& skill.ItemHandle == handle) {
 					args[2].Int32 = i;
@@ -275,7 +275,7 @@ namespace osidbg
 				return;
 			}
 
-			character->PlayerUpgrade.Attributes.Set.Buf[(uint32_t)*attribute] = attributeValue;
+			character->PlayerUpgrade.Attributes[(uint32_t)*attribute] = attributeValue;
 			character->PlayerUpgrade.IsCustom = true;
 		}
 
@@ -294,7 +294,7 @@ namespace osidbg
 				return;
 			}
 
-			character->PlayerUpgrade.Abilities.Set.Buf[(uint32_t)*ability] = abilityValue;
+			character->PlayerUpgrade.Abilities[(uint32_t)*ability] = abilityValue;
 			character->PlayerUpgrade.IsCustom = true;
 		}
 

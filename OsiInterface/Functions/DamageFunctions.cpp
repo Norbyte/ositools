@@ -377,7 +377,7 @@ namespace osidbg
 		} else {
 			damage.DamageList.Size = DamageList->Size;
 			for (uint32_t i = 0; i < DamageList->Size; i++) {
-				damage.DamageList.Buf[i] = DamageList->Buf[i];
+				damage.DamageList[i] = DamageList->Buf[i];
 				damage.TotalDamage += DamageList->Buf[i].Amount;
 			}
 		}
@@ -560,7 +560,7 @@ namespace osidbg
 
 			auto & dmgList = *helper->DamageList;
 			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList.Buf[i].DamageType == *damageType) {
+				if (dmgList[i].DamageType == *damageType) {
 					dmgList.Remove(i);
 					break;
 				}
@@ -584,8 +584,8 @@ namespace osidbg
 			auto & dmgList = *helper->DamageList;
 			int32_t amount = 0;
 			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList.Buf[i].DamageType == *damageType) {
-					amount += dmgList.Buf[i].Amount;
+				if (dmgList[i].DamageType == *damageType) {
+					amount += dmgList[i].Amount;
 				}
 			}
 
@@ -668,8 +668,8 @@ namespace osidbg
 			auto & dmgList = status->DamageInfo.DamageList;
 			int32_t amount = 0;
 			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList.Buf[i].DamageType == *damageType) {
-					amount += dmgList.Buf[i].Amount;
+				if (dmgList[i].DamageType == *damageType) {
+					amount += dmgList[i].Amount;
 				}
 			}
 

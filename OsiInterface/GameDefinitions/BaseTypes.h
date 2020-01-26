@@ -213,21 +213,62 @@ namespace osidbg
 		}
 	};
 
-	template <class ValueType>
-	struct FixedStringRefMap : public Noncopyable<FixedStringRefMap<ValueType>>
+	template <class TKey, class TValue>
+	struct FixedStringRefMap : public Noncopyable<FixedStringRefMap<TKey, TValue>>
 	{
 		struct Node
 		{
 			Node * Next;
-			FixedString Key;
-			ValueType Value;
+			alignas(8) TKey Key;
+			alignas(8) TValue Value;
 		};
 
 		uint32_t ItemCount;
 		uint32_t HashSize;
 		Node ** HashTable;
 
-		ValueType * Find(FixedString fs) const
+		TValue * Find(TKey const & key) const
+		{
+			auto item = HashTable[(uint64_t)key % HashSize];
+			while (item != nullptr) {
+				if (key == item->Key) {
+					return &item->Value;
+				}
+
+				item = item->Next;
+			}
+
+			return nullptr;
+		}
+
+		template <class Visitor>
+		void Iterate(Visitor visitor)
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node * item = HashTable[bucket];
+				while (item != nullptr) {
+					visitor(item->Key, item->Value);
+					item = item->Next;
+				}
+			}
+		}
+	};
+
+	template <class TValue>
+	struct FixedStringRefMap<FixedString, TValue> : public Noncopyable<FixedStringRefMap<FixedString, TValue>>
+	{
+		struct Node
+		{
+			Node * Next;
+			FixedString Key;
+			TValue Value;
+		};
+
+		uint32_t ItemCount;
+		uint32_t HashSize;
+		Node ** HashTable;
+
+		TValue * Find(FixedString fs) const
 		{
 			if (!fs) return nullptr;
 
@@ -243,10 +284,22 @@ namespace osidbg
 			return nullptr;
 		}
 
-		ValueType * Find(char const * str) const
+		TValue * Find(char const * str) const
 		{
 			auto fs = ToFixedString(str);
 			return Find(fs);
+		}
+
+		template <class Visitor>
+		void Iterate(Visitor visitor)
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node * item = HashTable[bucket];
+				while (item != nullptr) {
+					visitor(item->Key, item->Value);
+					item = item->Next;
+				}
+			}
 		}
 	};
 
@@ -258,6 +311,16 @@ namespace osidbg
 		uint32_t Size{ 0 };
 
 		inline CompactSet() {}
+
+		inline T const & operator [] (uint32_t index) const
+		{
+			return Buf[index];
+		}
+
+		inline T & operator [] (uint32_t index)
+		{
+			return Buf[index];
+		}
 
 		void Reallocate(uint32_t newCapacity)
 		{
@@ -342,6 +405,16 @@ namespace osidbg
 	{
 		void * VMT{ nullptr };
 		Set<T> Set;
+
+		inline T const & operator [] (uint32_t index) const
+		{
+			return Set[index];
+		}
+
+		inline T & operator [] (uint32_t index)
+		{
+			return Set[index];
+		}
 	};
 
 	template <class T>
@@ -349,6 +422,16 @@ namespace osidbg
 	{
 		void * VMT{ nullptr };
 		CompactSet<T> Set;
+
+		inline T const & operator [] (uint32_t index) const
+		{
+			return Set[index];
+		}
+
+		inline T & operator [] (uint32_t index)
+		{
+			return Set[index];
+		}
 	};
 
 	template <unsigned TDWords>
@@ -474,6 +557,16 @@ namespace osidbg
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
 		uint32_t Unkn[2]{ 0 };
+
+		inline T const & operator [] (uint32_t index) const
+		{
+			return Buf[index];
+		}
+
+		inline T & operator [] (uint32_t index)
+		{
+			return Buf[index];
+		}
 
 		uint32_t CapacityIncrement() const
 		{

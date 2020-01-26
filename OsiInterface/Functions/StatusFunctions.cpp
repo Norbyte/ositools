@@ -94,7 +94,7 @@ namespace osidbg
 
 			auto & statuses = statusMachine->Statuses.Set;
 			for (uint32_t index = 0; index < statuses.Size; index++) {
-				auto status = statuses.Buf[index];
+				auto status = statuses[index];
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, gameObjectGuid });
 				eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
@@ -150,7 +150,7 @@ namespace osidbg
 
 			auto & statuses = statusMachine->Statuses.Set;
 			for (uint32_t index = 0; index < statuses.Size; index++) {
-				auto status = statuses.Buf[index];
+				auto status = statuses[index];
 				if (status->StatusId == statusIdFS) {
 					args[2].Int64 = (int64_t)status->StatusHandle;
 					return true;

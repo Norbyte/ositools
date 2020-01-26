@@ -36,7 +36,7 @@ namespace osidbg
 
 		unsigned numConfigs{ 0 };
 		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods.Buf[i];
+			auto const & mod = mods[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
 			auto reader = gStaticSymbols.MakeFileReader(configFile);
