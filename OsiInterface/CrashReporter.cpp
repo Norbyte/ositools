@@ -13,13 +13,23 @@ class CrashReporter
 public:
 	static void * Backtrace[32];
 	static bool Initialized;
+	static LPTOP_LEVEL_EXCEPTION_FILTER PrevExceptionFilter;
 
 	static void Initialize()
 	{
 		if (Initialized || IsDebuggerPresent()) return;
 
-		SetUnhandledExceptionFilter(&OnUnhandledException);
+		PrevExceptionFilter = SetUnhandledExceptionFilter(&OnUnhandledException);
 		Initialized = true;
+	}
+
+	static void Shutdown()
+	{
+		if (!Initialized) return;
+
+		SetUnhandledExceptionFilter(PrevExceptionFilter);
+		PrevExceptionFilter = nullptr;
+		Initialized = false;
 	}
 
 	static std::wstring GetMiniDumpPath()
@@ -125,6 +135,8 @@ public:
 			SuspendThread(GetCurrentThread());
 
 			return EXCEPTION_EXECUTE_HANDLER;
+		} else if (PrevExceptionFilter != nullptr) {
+			return PrevExceptionFilter(exceptionInfo);
 		} else {
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
@@ -133,8 +145,14 @@ public:
 
 void * CrashReporter::Backtrace[32];
 bool CrashReporter::Initialized{ false };
+LPTOP_LEVEL_EXCEPTION_FILTER CrashReporter::PrevExceptionFilter{ nullptr };
 
 void InitCrashReporting()
 {
 	CrashReporter::Initialize();
+}
+
+void ShutdownCrashReporting()
+{
+	CrashReporter::Shutdown();
 }

@@ -11,6 +11,7 @@
 #include <psapi.h>
 
 void InitCrashReporting();
+void ShutdownCrashReporting();
 
 namespace osidbg
 {
@@ -26,6 +27,8 @@ OsirisProxy::OsirisProxy()
 
 void OsirisProxy::Initialize()
 {
+	InitCrashReporting();
+
 	GameVersionInfo gameVersion;
 	if (Libraries.GetGameVersion(gameVersion)) {
 		if (gameVersion.IsSupported()) {
@@ -70,6 +73,8 @@ void OsirisProxy::Initialize()
 		ExtensionsEnabled = false;
 	}
 
+	throw std::runtime_error("XXX");
+
 	// Wrap state change functions even if extension startup failed, otherwise
 	// we won't be able to show any startup errors
 	Wrappers.InitializeExtensions();
@@ -80,6 +85,8 @@ void OsirisProxy::Initialize()
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
 	DEBUG("Library startup took %d ms", ms);
+
+	ShutdownCrashReporting();
 }
 
 void OsirisProxy::Shutdown()
