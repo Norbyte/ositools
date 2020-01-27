@@ -665,7 +665,7 @@ namespace osidbg
 			"FF 90 90 01 00 00 " // call    qword ptr [rax+190h]
 			"48 8B 03 " // mov     rax, [rbx]
 			"48 8B CB " // mov     rcx, rbx
-			"4C 8B 3D XX XX XX XX ", //  mov     rdi, cs:esv__gEoCServer
+			"48 8B 3D XX XX XX XX ", //  mov     rdi, cs:esv__gEoCServer
 			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
 			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 22, (void **)&gStaticSymbols.EoCServer}
 		},

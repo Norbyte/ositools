@@ -240,7 +240,6 @@ namespace osidbg
 
 		static T * CheckUserData(lua_State * L, int index)
 		{
-			luaL_checktype(L, index, LUA_TUSERDATA);
 			return reinterpret_cast<T *>(luaL_checkudata(L, index, T::MetatableName));
 		}
 
@@ -569,6 +568,83 @@ namespace osidbg
 		static int ConvertDamageType(lua_State * L);
 		static int AggregateSameTypeDamages(lua_State * L);
 		static int ToTable(lua_State * L);
+	};
+
+	class LuaTurnManagerCombatProxy : public LuaUserdata<LuaTurnManagerCombatProxy>
+	{
+	public:
+		static char const * const MetatableName;
+
+		static void PopulateMetatable(lua_State * L);
+
+		inline LuaTurnManagerCombatProxy(uint8_t combatId)
+			: combatId_(combatId)
+		{}
+
+		inline esv::TurnManager::Combat * Get()
+		{
+			return GetTurnManager()->Combats.Find(combatId_);
+		}
+
+	private:
+		uint8_t combatId_;
+
+		static int GetCurrentTurnOrder(lua_State * L);
+		static int GetNextTurnOrder(lua_State * L);
+		static int UpdateCurrentTurnOrder(lua_State * L);
+		static int UpdateNextTurnOrder(lua_State * L);
+		static int GetAllTeams(lua_State * L);
+		/*static int Clear(lua_State * L);
+		static int Multiply(lua_State * L);
+		static int Merge(lua_State * L);
+		static int ConvertDamageType(lua_State * L);
+		static int AggregateSameTypeDamages(lua_State * L);
+		static int ToTable(lua_State * L);*/
+	};
+
+	class LuaTurnManagerTeamProxy : public LuaUserdata<LuaTurnManagerTeamProxy>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		//static void PopulateMetatable(lua_State * L);
+
+		inline LuaTurnManagerTeamProxy(eoc::CombatTeamId teamId)
+			: teamId_(teamId)
+		{}
+
+		inline eoc::CombatTeamId TeamId() const
+		{
+			return teamId_;
+		}
+
+		inline esv::TurnManager::CombatTeam * Get()
+		{
+			auto combat = GetTurnManager()->Combats.Find(teamId_.CombatId);
+			if (combat) {
+				auto team = combat->Teams.Find((uint32_t)teamId_);
+				if (team) {
+					return *team;
+				} else {
+					return nullptr;
+				}
+			} else {
+				return nullptr;
+			}
+		}
+
+		int LuaIndex(lua_State * L);
+
+	private:
+		eoc::CombatTeamId teamId_;
+
+		/*static int GetCurrentTurnOrder(lua_State * L);
+		static int Clear(lua_State * L);
+		static int Multiply(lua_State * L);
+		static int Merge(lua_State * L);
+		static int ConvertDamageType(lua_State * L);
+		static int AggregateSameTypeDamages(lua_State * L);
+		static int ToTable(lua_State * L);*/
 	};
 
 

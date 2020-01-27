@@ -11,8 +11,39 @@ namespace osidbg
 	{
 		struct alignas(4) CombatTeamId
 		{
-			uint32_t TeamId : 24;
-			uint32_t CombatId : 8;
+			union {
+				struct {
+					uint32_t TeamId : 24;
+					uint32_t CombatId : 8;
+				};
+				uint32_t CombinedId;
+			};
+
+			inline CombatTeamId() : CombinedId(0)
+			{}
+
+			inline CombatTeamId(uint32_t id) : CombinedId(id)
+			{}
+
+			inline operator uint32_t () const
+			{
+				return CombinedId;
+			}
+
+			inline bool operator == (CombatTeamId const & o) const
+			{
+				return CombinedId == o.CombinedId;
+			}
+
+			inline bool operator != (CombatTeamId const & o) const
+			{
+				return CombinedId != o.CombinedId;
+			}
+
+			inline bool operator < (CombatTeamId const & o) const
+			{
+				return CombinedId < o.CombinedId;
+			}
 		};
 
 		enum CombatComponentFlags : uint32_t
@@ -46,6 +77,8 @@ namespace osidbg
 		};
 	}
 
+	EntityWorld * GetEntityWorld();
+
 	namespace esv
 	{
 		struct TurnBasedProtocol
@@ -73,6 +106,21 @@ namespace osidbg
 				struct Item * Item;
 				uint8_t Flags;
 				uint8_t _Pad[7];
+
+				esv::Character * GetCharacter() const
+				{
+					return GetEntityWorld()->GetCharacterComponentByEntityHandle(EntityHandle);
+				}
+
+				esv::Item * GetItem() const
+				{
+					return GetEntityWorld()->GetItemComponentByEntityHandle(EntityHandle);
+				}
+
+				eoc::CombatComponent * GetCombatComponent() const
+				{
+					return GetEntityWorld()->GetCombatComponentByEntityHandle(EntityHandle);
+				}
 			};
 
 			struct CombatTeam
@@ -81,7 +129,7 @@ namespace osidbg
 				uint16_t Initiative;
 				uint16_t CombatTeamRound;
 				bool StillInCombat;
-				bool AddedToTeamIdSet2;
+				bool AddedNextTurnNotification;
 				uint8_t _Pad[6];
 				struct CombatGroup *CombatGroup;
 				EntityWrapper EntityWrapper;
@@ -100,12 +148,12 @@ namespace osidbg
 			struct Combat
 			{
 				ObjectSet<CombatTeam *, MSVCMemoryAllocator> CurrentRoundTeams;
-				ObjectSet<CombatTeam *, MSVCMemoryAllocator> CombatTeams;
+				ObjectSet<CombatTeam *, MSVCMemoryAllocator> NextRoundTeams;
 				ObjectSet<CombatGroup *, MSVCMemoryAllocator> CombatGroups;
-				ObjectSet<eoc::CombatTeamId> TurnOrderNotificationTeamIds;
-				ObjectSet<eoc::CombatTeamId> EnterLeaveNotificationTeamIds;
+				ObjectSet<eoc::CombatTeamId> CurrentTurnChangeNotificationTeamIds;
+				ObjectSet<eoc::CombatTeamId> NextTurnChangeNotificationTeamIds;
 				ObjectSet<void *> SummonDataSet;
-				FixedStringRefMap<uint32_t, CombatTeam> CombatTeamRefMap;
+				FixedStringRefMap<uint32_t, CombatTeam *> Teams;
 				uint32_t NextTeamId;
 				uint8_t _Pad[4];
 				ObjectSet<ObjectHandle> WaitingForCharComponents;
@@ -155,4 +203,18 @@ namespace osidbg
 	}
 #pragma pack(pop)
 
+}
+
+namespace std
+{
+	template<> struct hash<osidbg::eoc::CombatTeamId>
+	{
+		typedef osidbg::eoc::CombatTeamId argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<uint32_t>{}(fn.CombinedId);
+		}
+	};
 }

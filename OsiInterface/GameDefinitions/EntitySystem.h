@@ -63,10 +63,13 @@ namespace osidbg
 		struct CustomStatDefinitionComponent;
 		struct CustomStatSystem;
 		struct NetComponent;
+		struct Item;
+		struct Character;
 	}
 
 	namespace eoc
 	{
+		struct CombatComponent;
 		struct CustomStatsComponent;
 	}
 	
@@ -109,6 +112,23 @@ namespace osidbg
 			} else {
 				return nullptr;
 			}
+		}
+
+		inline esv::Character * GetCharacterComponentByEntityHandle(ObjectHandle entityHandle)
+		{
+			auto ptr = GetComponentByEntityHandle(entityHandle, ComponentType::Character);
+			return (esv::Character *)((uint8_t *)ptr - 8);
+		}
+
+		inline esv::Item * GetItemComponentByEntityHandle(ObjectHandle entityHandle)
+		{
+			auto ptr = GetComponentByEntityHandle(entityHandle, ComponentType::Item);
+			return (esv::Item *)((uint8_t *)ptr - 8);
+		}
+
+		inline eoc::CombatComponent * GetCombatComponentByEntityHandle(ObjectHandle entityHandle)
+		{
+			return (eoc::CombatComponent *)GetComponentByEntityHandle(entityHandle, ComponentType::Combat);
 		}
 
 		inline eoc::CustomStatsComponent * GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle)

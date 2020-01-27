@@ -523,6 +523,204 @@ namespace osidbg
 	}
 
 
+
+	char const * const LuaTurnManagerCombatProxy::MetatableName = "LuaTurnManagerCombatProxy";
+
+	void LuaTurnManagerCombatProxy::PopulateMetatable(lua_State * L)
+	{
+		lua_newtable(L);
+
+		lua_pushcfunction(L, &GetCurrentTurnOrder);
+		lua_setfield(L, -2, "GetCurrentTurnOrder");
+
+		lua_pushcfunction(L, &GetNextTurnOrder);
+		lua_setfield(L, -2, "GetNextTurnOrder");
+
+		lua_pushcfunction(L, &UpdateCurrentTurnOrder);
+		lua_setfield(L, -2, "UpdateCurrentTurnOrder");
+
+		lua_pushcfunction(L, &UpdateNextTurnOrder);
+		lua_setfield(L, -2, "UpdateNextTurnOrder");
+
+		lua_pushcfunction(L, &GetAllTeams);
+		lua_setfield(L, -2, "GetAllTeams");
+
+		lua_setfield(L, -2, "__index");
+	}
+
+	void CombatTeamListToLua(lua_State * L, CompactSet<esv::TurnManager::CombatTeam *, MSVCMemoryAllocator> const & teams)
+	{
+		lua_newtable(L);
+
+		for (uint32_t i = 0; i < teams.Size; i++) {
+			lua_push(L, i + 1);
+			LuaTurnManagerTeamProxy::New(L, teams[i]->TeamId);
+			lua_settable(L, -3);
+		}
+	}
+
+	int LuaTurnManagerCombatProxy::GetCurrentTurnOrder(lua_State * L)
+	{
+		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto combat = self->Get();
+		if (!combat) return 0;
+
+		CombatTeamListToLua(L, combat->CurrentRoundTeams.Set);
+		return 1;
+	}
+
+	int LuaTurnManagerCombatProxy::GetNextTurnOrder(lua_State * L)
+	{
+		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto combat = self->Get();
+		if (!combat) return 0;
+
+		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
+		return 1;
+	}
+
+	void UpdateTurnOrder(lua_State * L, uint8_t combatId, 
+		ObjectSet<esv::TurnManager::CombatTeam *, MSVCMemoryAllocator> & combatTeams,
+		ObjectSet<eoc::CombatTeamId> & combatNotifies)
+	{
+		if (lua_type(L, 2) != LUA_TTABLE) luaL_error(L, "UpdateTurnOrder() expects a table of teams as the first argument");
+
+		std::vector<esv::TurnManager::CombatTeam *> teams;
+		std::unordered_set<eoc::CombatTeamId> notifies;
+
+		lua_pushnil(L);
+		while (lua_next(L, 2) != 0) {
+			auto luaTeam = LuaTurnManagerTeamProxy::CheckUserData(L, -1);
+			if (luaTeam->TeamId().CombatId != combatId) {
+				luaL_error(L, "Tried to add team from another combat");
+			}
+
+			auto team = luaTeam->Get();
+			if (team == nullptr) {
+				luaL_error(L, "Tried to add nonexistent team");
+			}
+
+			teams.push_back(team);
+			notifies.insert(team->TeamId);
+			lua_pop(L, 1);
+		}
+
+		for (uint32_t i = 0; i < combatTeams.Set.Size; i++) {
+			notifies.insert(combatTeams[i]->TeamId);
+		}
+
+		for (uint32_t i = 0; i < combatNotifies.Set.Size; i++) {
+			notifies.insert(combatNotifies[i]);
+		}
+
+		combatTeams.Set.Size = 0;
+		for (auto const & team : teams) {
+			combatTeams.Set.Add(team);
+		}
+
+		combatNotifies.Set.Size = 0;
+		for (auto const & teamId : notifies) {
+			combatNotifies.Set.Add(teamId);
+		}
+
+		auto protocol = GetTurnBasedProtocol();
+		if (protocol != nullptr) {
+			// FIXME - filter duplicates
+			protocol->UpdatedTurnOrderCombatIds.Set.Add(combatId);
+		}
+	}
+
+	int LuaTurnManagerCombatProxy::UpdateCurrentTurnOrder(lua_State * L)
+	{
+		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto combat = self->Get();
+		if (!combat) return 0;
+
+		UpdateTurnOrder(L, self->combatId_, combat->CurrentRoundTeams, combat->CurrentTurnChangeNotificationTeamIds);
+		return 0;
+	}
+
+	int LuaTurnManagerCombatProxy::UpdateNextTurnOrder(lua_State * L)
+	{
+		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto combat = self->Get();
+		if (!combat) return 0;
+
+		UpdateTurnOrder(L, self->combatId_, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
+		return 0;
+	}
+
+	int LuaTurnManagerCombatProxy::GetAllTeams(lua_State * L)
+	{
+		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto combat = self->Get();
+		if (!combat) return 0;
+
+		lua_newtable(L);
+
+		uint32_t i = 1;
+		combat->Teams.Iterate([L, &i](uint32_t teamId, esv::TurnManager::CombatTeam * team) {
+			lua_push(L, i++);
+			LuaTurnManagerTeamProxy::New(L, eoc::CombatTeamId(teamId));
+			lua_settable(L, -3);
+		});
+
+		return 1;
+	}
+
+
+	char const * const LuaTurnManagerTeamProxy::MetatableName = "LuaTurnManagerTeamProxy";
+
+	/*void LuaTurnManagerTeamProxy::PopulateMetatable(lua_State * L)
+	{
+		lua_newtable(L);
+
+		lua_pushcfunction(L, &GetCurrentTurnOrder);
+		lua_setfield(L, -2, "GetCurrentTurnOrder");
+
+		lua_setfield(L, -2, "__index");
+	}*/
+
+	int LuaTurnManagerTeamProxy::LuaIndex(lua_State * L)
+	{
+		auto team = Get();
+		if (team == nullptr) return luaL_error(L, "Team no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		if (strcmp(prop, "TeamId") == 0) {
+			lua_push(L, (uint32_t)team->TeamId);
+		} else if (strcmp(prop, "Initiative") == 0) {
+			lua_push(L, (uint32_t)team->Initiative);
+		} else if (strcmp(prop, "StillInCombat") == 0) {
+			lua_push(L, team->StillInCombat);
+			// TODO - fetching CombatGroup?
+		} else if (strcmp(prop, "Character") == 0) {
+			auto character = team->EntityWrapper.GetCharacter();
+			if (character != nullptr) {
+				ObjectHandle handle;
+				character->GetObjectHandle(&handle);
+				LuaHandleProxy<esv::Character>::New(L, handle);
+			} else {
+				return 0;
+			}
+		} else if (strcmp(prop, "Item") == 0) {
+			auto item = team->EntityWrapper.GetItem();
+			if (item != nullptr) {
+				ObjectHandle handle;
+				item->GetObjectHandle(&handle);
+				LuaHandleProxy<esv::Item>::New(L, handle);
+			} else {
+				return 0;
+			}
+		} else {
+			OsiError("Combat team has no attribute named " << prop);
+			return 0;
+		}
+
+		return 1;
+	}
+
+
 	LuaExtensionLibrary::LuaExtensionLibrary()
 	{
 	}
@@ -544,6 +742,8 @@ namespace osidbg
 		LuaStatsProxy::RegisterMetatable(L);
 		LuaSkillPrototypeProxy::RegisterMetatable(L);
 		LuaDamageList::RegisterMetatable(L);
+		LuaTurnManagerCombatProxy::RegisterMetatable(L);
+		LuaTurnManagerTeamProxy::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
@@ -565,6 +765,7 @@ namespace osidbg
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
 	int GetStatus(lua_State * L);
+	int GetCombat(lua_State * L);
 	int NewDamageList(lua_State * L);
 	int OsirisIsCallable(lua_State * L);
 	int LuaRandom(lua_State * L);
@@ -598,6 +799,7 @@ namespace osidbg
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
+			{"GetCombat", GetCombat},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"Random", LuaRandom},

@@ -731,6 +731,30 @@ namespace osidbg
 		}
 	}
 
+	int GetCombat(lua_State * L)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
+		}
+
+		auto turnMgr = GetTurnManager();
+		if (turnMgr == nullptr) {
+			OsiErrorS("esv::TurnManager not available");
+			return 0;
+		}
+
+		auto combatId = (uint8_t)luaL_checkinteger(L, 1);
+		auto combat = turnMgr->Combats.Find(combatId);
+		if (combat == nullptr) {
+			OsiError("No combat found with ID " << (unsigned)combatId);
+			return 0;
+		}
+
+		LuaTurnManagerCombatProxy::New(L, combatId);
+		return 1;
+	}
+
 	int NewDamageList(lua_State * L)
 	{
 		LuaDamageList::New(L);
