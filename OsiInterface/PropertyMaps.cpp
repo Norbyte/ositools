@@ -329,6 +329,7 @@ namespace osidbg
 			auto & propertyMap = gCharacterStatsPropertyMap;
 			// CRPGStats_Object
 			PROP_RO(CDivinityStats_Character, Level);
+			PROP_RO(CDivinityStats_Character, Name);
 			PROP_RO(CDivinityStats_Character, AIFlags);
 
 			// CDivinityStats_Character
@@ -364,6 +365,11 @@ namespace osidbg
 
 		{
 			auto & propertyMap = gItemStatsPropertyMap;
+			// CRPGStats_Object
+			PROP_RO(CDivinityStats_Character, Level);
+			PROP_RO(CDivinityStats_Character, Name);
+
+			// CDivinityStats_Item
 			PROP_ENUM(CDivinityStats_Item, ItemType);
 			PROP_RO(CDivinityStats_Item, ItemSlot);
 			PROP_ENUM(CDivinityStats_Item, WeaponType);
@@ -733,6 +739,7 @@ namespace osidbg
 
 		case PropertyType::kFixedString:
 		case PropertyType::kFixedStringGuid:
+		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
 		{
@@ -826,6 +833,7 @@ namespace osidbg
 
 		case PropertyType::kFixedString:
 		case PropertyType::kFixedStringGuid:
+		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
 		{

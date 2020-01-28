@@ -252,6 +252,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(characterGetStatInt));
 
+		auto characterGetStatString = std::make_unique<CustomQuery>(
+			"NRD_CharacterGetStatString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
+			},
+			&func::CharacterGetStat<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(characterGetStatString));
+
 		auto characterSetStatInt = std::make_unique<CustomCall>(
 			"NRD_CharacterSetStatInt",
 			std::vector<CustomFunctionParam>{

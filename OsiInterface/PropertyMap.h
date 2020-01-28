@@ -22,6 +22,7 @@ namespace osidbg
 		kFloat,
 		kFixedString,
 		kFixedStringGuid,
+		kStringPtr,
 		kStdString,
 		kStdWString,
 		kObjectHandle,
@@ -57,6 +58,8 @@ namespace osidbg
 			return PropertyType::kFloat;
 		} else if constexpr (std::is_same<T, FixedString>::value) {
 			return PropertyType::kFixedString;
+		} else if constexpr (std::is_same<T, char *>::value) {
+			return PropertyType::kStringPtr;
 		} else if constexpr (std::is_same<T, STDString>::value) {
 			return PropertyType::kStdString;
 		} else if constexpr (std::is_same<T, STDWString>::value) {
@@ -312,7 +315,26 @@ namespace osidbg
 			switch (prop->second.Type) {
 			case PropertyType::kFixedString:
 			case PropertyType::kFixedStringGuid:
-				return reinterpret_cast<FixedString *>(ptr)->Str;
+			{
+				auto p = reinterpret_cast<FixedString *>(ptr)->Str;
+				if (p != nullptr) {
+					return p;
+				} else {
+					OsiError("Failed to get FixedString property '" << name << "': String is null!");
+					return {};
+				}
+			}
+
+			case PropertyType::kStringPtr:
+			{
+				auto p = *reinterpret_cast<char const **>(ptr);
+				if (p != nullptr) {
+					return p;
+				} else {
+					OsiError("Failed to get raw string property '" << name << "': String is null!");
+					return {};
+				}
+			}
 
 			case PropertyType::kStdString:
 				return reinterpret_cast<STDString *>(ptr)->GetPtr();
@@ -375,6 +397,10 @@ namespace osidbg
 						return true;
 					}
 				}
+
+			case PropertyType::kStringPtr:
+				OsiError("Failed to set property '" << name << "': Updating raw string properties not supported");
+				return false;
 
 			case PropertyType::kStdString:
 				reinterpret_cast<STDString *>(ptr)->Set(value);
