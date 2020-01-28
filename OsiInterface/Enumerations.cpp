@@ -441,6 +441,10 @@ namespace osidbg
 		{ HitFlag::HF_Surface, "Surface" },
 		{ HitFlag::HF_DoT, "DoT" },
 		{ HitFlag::HF_ProcWindWalker, "ProcWindWalker" },
+		{ HitFlag::HF_CounterAttack, "CounterAttack" },
+		{ HitFlag::HF_Poisoned, "Poisoned" },
+		{ HitFlag::HF_Burning, "Burning" },
+		{ HitFlag::HF_Bleeding, "Bleeding" },
 		// Custom flags
 		{ HitFlag::HF_NoEvents, "NoEvents" }
 	};

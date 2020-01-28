@@ -706,11 +706,15 @@ namespace osidbg
 		HF_Surface = 0x20000,
 		HF_DoT = 0x40000,
 		HF_ProcWindWalker = 0x80000,
+		HF_CounterAttack = 0x100000,
+		HF_Poisoned = 0x200000,
+		HF_Burning = 0x400000,
+		HF_Bleeding = 0x800000,
 		// Custom flags
 		HF_NoEvents = 0x80000000
 	};
 
-	MAKE_ENUM_INFO(HitFlag, 19);
+	MAKE_ENUM_INFO(HitFlag, 23);
 
 	enum StatusHealType : uint32_t
 	{

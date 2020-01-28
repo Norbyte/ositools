@@ -451,6 +451,10 @@ Returns the amount of damage dealt by the `HIT` status.
 | DamagedVitality | Flag | Read/Write | Indicates that the hit damaged the characters vitality |
 | PropagatedFromOwner | Flag | Read/Write |  |
 | ProcWindWalker | Flag | Read/Write | Hit should proc the Wind Walker talent |
+| CounterAttack | Flag | Read/Write | Counterattack triggered by Gladiator talent |
+| Poisoned | Flag | Read/Write | Character was poisoned when hit |
+| Bleeding | Flag | Read/Write | Character was bleeding when hit |
+| Burning | Flag | Read/Write | Character was burning when hit |
 | NoEvents | Flag | Read/Write | Don't throw `OnHit`/`OnPrepareHit` events for this hit |
 
 
