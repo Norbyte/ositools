@@ -98,6 +98,8 @@ namespace osidbg
 
 		struct TurnManager
 		{
+			typedef void (* UpdateTurnOrder)(esv::TurnManager * self, uint8_t combatId);
+
 			struct EntityWrapper
 			{
 				ObjectHandle EntityHandle;

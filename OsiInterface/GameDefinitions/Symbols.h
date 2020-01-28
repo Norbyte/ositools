@@ -8,6 +8,7 @@
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/Status.h>
 #include <GameDefinitions/ActionMachine.h>
+#include <GameDefinitions/TurnManager.h>
 
 namespace osidbg
 {
@@ -96,6 +97,7 @@ namespace osidbg
 		SkillPrototype::FormatDescriptionParam SkillPrototypeFormatDescriptionParam{ nullptr };
 		SkillPrototype::GetSkillDamage SkillPrototypeGetSkillDamage{ nullptr };
 		StatusPrototype::FormatDescriptionParam StatusPrototypeFormatDescriptionParam{ nullptr };
+		esv::TurnManager::UpdateTurnOrder TurnManagerUpdateTurnOrder{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };

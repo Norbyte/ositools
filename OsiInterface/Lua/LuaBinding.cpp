@@ -579,17 +579,19 @@ namespace osidbg
 		return 1;
 	}
 
-	void UpdateTurnOrder(lua_State * L, uint8_t combatId, 
+	void UpdateTurnOrder(lua_State * L, uint8_t combatId, int index,
 		ObjectSet<esv::TurnManager::CombatTeam *, MSVCMemoryAllocator> & combatTeams,
 		ObjectSet<eoc::CombatTeamId> & combatNotifies)
 	{
-		if (lua_type(L, 2) != LUA_TTABLE) luaL_error(L, "UpdateTurnOrder() expects a table of teams as the first argument");
+		if (lua_type(L, index) != LUA_TTABLE) luaL_error(L, "UpdateTurnOrder() expects a table of teams as the first argument");
 
 		std::vector<esv::TurnManager::CombatTeam *> teams;
 		std::unordered_set<eoc::CombatTeamId> notifies;
 
 		lua_pushnil(L);
-		while (lua_next(L, 2) != 0) {
+		if (index < 0) index--;
+
+		while (lua_next(L, index) != 0) {
 			auto luaTeam = LuaTurnManagerTeamProxy::CheckUserData(L, -1);
 			if (luaTeam->TeamId().CombatId != combatId) {
 				luaL_error(L, "Tried to add team from another combat");
@@ -636,7 +638,7 @@ namespace osidbg
 		auto combat = self->Get();
 		if (!combat) return 0;
 
-		UpdateTurnOrder(L, self->combatId_, combat->CurrentRoundTeams, combat->CurrentTurnChangeNotificationTeamIds);
+		UpdateTurnOrder(L, self->combatId_, 2, combat->CurrentRoundTeams, combat->CurrentTurnChangeNotificationTeamIds);
 		return 0;
 	}
 
@@ -646,7 +648,7 @@ namespace osidbg
 		auto combat = self->Get();
 		if (!combat) return 0;
 
-		UpdateTurnOrder(L, self->combatId_, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
+		UpdateTurnOrder(L, self->combatId_, 2, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
 		return 0;
 	}
 
@@ -1221,6 +1223,57 @@ namespace osidbg
 			} else {
 				OsiErrorS("StatusGetDescriptionParam returned non-string value");
 				ok = false;
+			}
+		}
+
+		lua_pop(L, 1); // stack: -
+		return ok;
+	}
+
+	bool LuaState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAll);
+
+		auto turnMgr = GetTurnManager();
+		if (!turnMgr) {
+			OsiErrorS("Couldn't fetch turn manager");
+			return false;
+		}
+
+		auto combat = turnMgr->Combats.Find(combatId);
+		if (combat == nullptr) {
+			OsiError("No combat found with ID " << (unsigned)combatId);
+			return false;
+		}
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_CalculateTurnOrder"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return {};
+		}
+
+		LuaTurnManagerCombatProxy::New(L, combatId); // stack: fn, combat
+		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
+
+		if (CallWithTraceback(2, 1) != 0) { // stack: retval
+			OsiError("OnUpdateTurnOrder handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int isnil = lua_isnil(L, -1);
+
+		bool ok = false;
+		if (!isnil) {
+			try {
+				UpdateTurnOrder(L, combatId, -1, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
+				ok = true;
+			} catch (LuaException &) {
+				OsiError("UpdateTurnOrder failed");
 			}
 		}
 

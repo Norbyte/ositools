@@ -21,6 +21,7 @@ namespace osidbg
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeGetSkillDamageHook) * decltype(LibraryManager::SkillPrototypeGetSkillDamageHook)::gHook;
 	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
+	decltype(LibraryManager::TurnManagerUpdateTurnOrderHook) * decltype(LibraryManager::TurnManagerUpdateTurnOrderHook)::gHook;
 
 	bool GlobalStringTable::UseMurmur = false;
 
@@ -439,6 +440,10 @@ namespace osidbg
 				StatusPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.StatusPrototypeFormatDescriptionParam);
 			}
 
+			if (gStaticSymbols.TurnManagerUpdateTurnOrder != nullptr) {
+				TurnManagerUpdateTurnOrderHook.Wrap(gStaticSymbols.TurnManagerUpdateTurnOrder);
+			}
+
 			gCharacterStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
@@ -474,6 +479,7 @@ namespace osidbg
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();
 		SkillPrototypeGetSkillDamageHook.Unwrap();
 		StatusPrototypeFormatDescriptionParamHook.Unwrap();
+		TurnManagerUpdateTurnOrderHook.Unwrap();
 
 		DetourTransactionCommit();
 	}

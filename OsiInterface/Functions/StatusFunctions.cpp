@@ -817,6 +817,14 @@ namespace osidbg
 		next(prototype, statusSource, targetCharacter, multiplier, text, paramIndex, param, paramSet);
 	}
 
+	void CustomFunctionLibrary::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnUpdateTurnOrder(self, combatId);
+		}
+	}
+
 
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{

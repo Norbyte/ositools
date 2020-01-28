@@ -655,6 +655,19 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
 			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 16, (void **)&gStaticSymbols.EoCServer}
 		},
+
+		{
+			"esv::TurnManager::UpdateTurnOrder",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"88 54 24 10 " // mov[rsp - 8 + a2], dl
+			"55 " // push    rbp
+			"41 55 " // push    r13
+			"48 8D 6C 24 B1 " //  lea     rbp,[rsp - 4Fh]
+			"48 81 EC 88 00 00 00 " //  sub     rsp, 88h
+			"3A 15 XX XX XX XX ", //  cmp     dl, cs:xxx
+			{},
+			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.TurnManagerUpdateTurnOrder}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

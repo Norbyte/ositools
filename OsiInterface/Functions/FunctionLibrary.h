@@ -54,6 +54,7 @@ namespace osidbg
 		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype, 
 			CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier, 
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
+		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 		
 		void EnableStatOverride(char const * stat);
 	private:

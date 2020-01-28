@@ -8,6 +8,7 @@
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/Status.h>
 #include <GameDefinitions/ActionMachine.h>
+#include <GameDefinitions/TurnManager.h>
 #include "Wrappers.h"
 #include <optional>
 
@@ -188,6 +189,9 @@ namespace osidbg {
 		WrappableFunction<StatusPrototypeFormatDescriptionParamTag, void(StatusPrototype *prototype, CDivinityStats_Character *statusSource,
 			CDivinityStats_Character *targetCharacter, float multiplier, eoc::Text * text, int paramIndex,
 			FixedString * param, ObjectSet<STDString> * paramSet)> StatusPrototypeFormatDescriptionParamHook;
+
+		enum class TurnManagerUpdateTurnOrderTag {};
+		HookableFunction<TurnManagerUpdateTurnOrderTag, void(esv::TurnManager * self, uint8_t combatId)> TurnManagerUpdateTurnOrderHook;
 
 	private:
 

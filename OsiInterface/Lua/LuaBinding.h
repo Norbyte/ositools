@@ -879,6 +879,7 @@ namespace osidbg
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource, 
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
+		bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 
 	private:
 		lua_State * state_;

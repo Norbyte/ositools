@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
+#include <GameDefinitions/TurnManager.h>
 #include "FunctionLibrary.h"
 #include <Version.h>
 #include <fstream>
@@ -306,6 +307,9 @@ namespace osidbg
 		);
 		osiris_.GetLibraryManager().StatusPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
+		);
+		osiris_.GetLibraryManager().TurnManagerUpdateTurnOrderHook.AddPostHook(
+			std::bind(&CustomFunctionLibrary::OnUpdateTurnOrder, this, _1, _2)
 		);
 
 		PostLoaded = true;

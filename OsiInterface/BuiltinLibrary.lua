@@ -65,6 +65,21 @@ end
 
 Ext.GetSkillDamage = {}
 
+Ext._CalculateTurnOrder = function (...)
+    for i,callback in pairs(Ext.CalculateTurnOrder) do
+        local status, turnOrder = xpcall(callback, debug.traceback, ...)
+        if status then
+			if turnOrder ~= nil then
+				return turnOrder
+			end
+		else
+            Ext.PrintError("Error during CalculateTurnOrder: ", turnOrder)
+        end
+    end
+end
+
+Ext.CalculateTurnOrder = {}
+
 Ext.RegisterListener = function (type, fn)
 	if type == "SessionLoading" then
 		table.insert(Ext.OnGameSessionLoading, fn)
@@ -76,6 +91,8 @@ Ext.RegisterListener = function (type, fn)
 		table.insert(Ext.GetSkillDamage, fn)
 	elseif type == "StatusGetDescriptionParam" then
 		table.insert(Ext.StatusGetDescriptionParam, fn)
+	elseif type == "CalculateTurnOrder" then
+		table.insert(Ext.CalculateTurnOrder, fn)
 	else
 		error("Unknown listener type: " .. type)
 	end
