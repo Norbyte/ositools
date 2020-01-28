@@ -450,6 +450,8 @@ Returns the amount of damage dealt by the `HIT` status.
 | DamagedPhysicalArmor | Flag | Read/Write | Indicates that the hit damaged physical armor |
 | DamagedVitality | Flag | Read/Write | Indicates that the hit damaged the characters vitality |
 | PropagatedFromOwner | Flag | Read/Write |  |
+| Surface | Flag | Read/Write | The hit is from a surface (`HitType` was `Surface`) |
+| DoT | Flag | Read/Write | The hit is from a DoT attack (`HitType` was `DoT`) |
 | ProcWindWalker | Flag | Read/Write | Hit should proc the Wind Walker talent |
 | CounterAttack | Flag | Read/Write | Counterattack triggered by Gladiator talent |
 | Poisoned | Flag | Read/Write | Character was poisoned when hit |
