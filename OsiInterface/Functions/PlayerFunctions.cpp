@@ -278,14 +278,14 @@ namespace osidbg
 			character->PlayerUpgrade.Attributes[(uint32_t)*attribute] = attributeValue;
 			character->PlayerUpgrade.IsCustom = true;
 
-			auto boostStats = character->Stats->DynamicStats[1];
+			auto baseStats = character->Stats->DynamicStats[0];
 			switch (*attribute) {
-			case PlayerUpgradeAttribute::Strength: boostStats->Strength = attributeValue; break;
-			case PlayerUpgradeAttribute::Finesse: boostStats->Finesse = attributeValue; break;
-			case PlayerUpgradeAttribute::Intelligence: boostStats->Intelligence = attributeValue; break;
-			case PlayerUpgradeAttribute::Constitution: boostStats->Constitution = attributeValue; break;
-			case PlayerUpgradeAttribute::Memory: boostStats->Memory = attributeValue; break;
-			case PlayerUpgradeAttribute::Wits: boostStats->Wits = attributeValue; break;
+			case PlayerUpgradeAttribute::Strength: baseStats->Strength = attributeValue; break;
+			case PlayerUpgradeAttribute::Finesse: baseStats->Finesse = attributeValue; break;
+			case PlayerUpgradeAttribute::Intelligence: baseStats->Intelligence = attributeValue; break;
+			case PlayerUpgradeAttribute::Constitution: baseStats->Constitution = attributeValue; break;
+			case PlayerUpgradeAttribute::Memory: baseStats->Memory = attributeValue; break;
+			case PlayerUpgradeAttribute::Wits: baseStats->Wits = attributeValue; break;
 			default:
 				OsiError("Unknown PlayerUpgradeAttribute " << (unsigned)*attribute);
 				break;
@@ -310,8 +310,8 @@ namespace osidbg
 			character->PlayerUpgrade.Abilities[(uint32_t)*ability] = abilityValue;
 			character->PlayerUpgrade.IsCustom = true;
 
-			auto boostStats = character->Stats->DynamicStats[1];
-			boostStats->Abilities[(uint32_t)*ability] = abilityValue;
+			auto baseStats = character->Stats->DynamicStats[0];
+			baseStats->Abilities[(uint32_t)*ability] = abilityValue;
 		}
 
 		void PlayerSetBaseTalent(OsiArgumentDesc const & args)
@@ -329,14 +329,14 @@ namespace osidbg
 				return;
 			}
 
-			auto boostStats = character->Stats->DynamicStats[1];
+			auto baseStats = character->Stats->DynamicStats[0];
 
 			if (talentValue != 0) {
 				character->PlayerUpgrade.Talents.Set((uint32_t)*talent);
-				boostStats->Talents.Set((uint32_t)*talent);
+				baseStats->Talents.Set((uint32_t)*talent);
 			} else {
 				character->PlayerUpgrade.Talents.Clear((uint32_t)*talent);
-				boostStats->Talents.Clear((uint32_t)*talent);
+				baseStats->Talents.Clear((uint32_t)*talent);
 			}
 
 			character->PlayerUpgrade.IsCustom = true;
