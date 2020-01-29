@@ -136,7 +136,8 @@ namespace osidbg
 			FixedString ReservedProfileID;
 			FixedString AiPersonality;
 			FixedString Speaker;
-			void * CustomIconImg;
+			ScratchBuffer CustomIconImg;
+			uint8_t _Pad3[4];
 		};
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>
@@ -153,7 +154,6 @@ namespace osidbg
 			uint8_t _Pad3[6];
 			FixedString QuestSelected;
 			PlayerCustomData CustomData;
-			uint64_t Unkn1[3];
 			void * PreviousPickpocketTargets;
 			ObjectHandle SomeObjectHandle2;
 			ObjectSet<glm::vec3> PreviousPositions;
@@ -219,7 +219,7 @@ namespace osidbg
 			StatusMachine * StatusMachine;
 			SkillManager * SkillManager;
 			void * VariableManager;
-			void * RaceVariableManager_M;
+			void * ShapeShiftVariableManager;
 			FixedStringMapBase<void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
 			FixedString SkillBeingPrepared;
@@ -246,7 +246,7 @@ namespace osidbg
 			uint8_t AnimType;
 			uint8_t DelayDeathCount;
 			uint16_t _Pad6;
-			void * StatusManagerDirty_M;
+			Status * DelayedDyingStatus;
 			ObjectSet<ObjectHandle> ObjectHandleSet3;
 			ObjectSet<FixedString> RegisteredTriggers;
 			PlayerData * PlayerData;

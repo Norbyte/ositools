@@ -356,8 +356,9 @@ namespace osidbg
 
 	struct CharacterDynamicStat : public ProtectedGameObject<CharacterDynamicStat>
 	{
-		uint64_t Unkn0;
-		uint64_t Unkn1;
+		int32_t CharacterInstanceId;
+		uint8_t _Pad0[4];
+		CDivinityStats * DivStats;
 
 		int32_t SummonLifelinkModifier;
 		int32_t Strength;
@@ -464,10 +465,11 @@ namespace osidbg
 		uint32_t IsIncapacitatedRefCount;
 		CharacterDynamicStat ** DynamicStats;
 		CharacterDynamicStat ** DynamicStatsEnd;
-		uint64_t Unkn3[2];
+		CharacterDynamicStat ** DynamicStatsCapacityEnd;
+		CharacterDynamicStat * StatsFromStatsEntry;
 		CharacterEquippedItem ** ItemStats;
 		CharacterEquippedItem ** ItemStatsEnd;
-		uint64_t Unkn4;
+		CharacterEquippedItem ** ItemStatsCapacityEnd;
 		ObjectSet<void *> SurfacePathInfluences;
 		int32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
