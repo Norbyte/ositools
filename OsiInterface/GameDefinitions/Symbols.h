@@ -157,15 +157,9 @@ namespace osidbg
 			}
 
 			auto levelMgr = *LevelManager;
-#if !defined(OSI_EOCAPP)
-			auto l1 = ((uint64_t *)levelMgr)[16];
-			auto l2 = *(uint64_t *)(l1 + 208);
-			return (esv::GameActionManager *)l2;
-#else
 			auto l1 = ((uint64_t *)levelMgr)[1];
 			auto l2 = *(uint64_t *)(l1 + 216);
 			return (esv::GameActionManager *)l2;
-#endif
 		}
 
 		inline CRPGStatsManager * GetStats() const
