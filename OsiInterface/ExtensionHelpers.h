@@ -75,6 +75,8 @@ namespace osidbg
 		// 0 - ASAttack
 		// 1 - Character::ApplyDamage, StatusDying, ExecPropertyDamage, StatusDamage
 		// 2 - AI hit test
+		// 3 - Explode
+		// 4 - Trap
 		// 5 - InSurface
 		// 6 - SetHP, osi::ApplyDamage, StatusConsume
 		uint32_t HitReason{ 6 };
