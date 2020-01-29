@@ -55,16 +55,25 @@ namespace osidbg
 			lua->Call(func, luaArgs);
 		}
 
-		char const * QueryArgNames[3] = {
+		char const * QueryArgNames[10] = {
 			"Arg1",
 			"Arg2",
-			"Arg3"
+			"Arg3",
+			"Arg4",
+			"Arg5",
+			"Arg6",
+			"Arg7",
+			"Arg8",
+			"Arg9",
+			"Arg10"
 		};
 
-		char const * QueryOutArgNames[3] = {
+		char const * QueryOutArgNames[5] = {
 			"Out1",
 			"Out2",
-			"Out3"
+			"Out3",
+			"Out4",
+			"Out5"
 		};
 
 		template <uint32_t TInParams>
@@ -97,6 +106,33 @@ namespace osidbg
 		}
 	}
 
+	template <unsigned TInParams>
+	void RegisterLuaQueries(CustomFunctionManager & functionMgr)
+	{
+		std::string procName = "NRD_LuaQuery";
+		procName += std::to_string(TInParams);
+
+		for (auto out = 0; out <= 5; out++) {
+			std::vector<CustomFunctionParam> args{
+				{ "Func", ValueType::String, FunctionArgumentDirection::In }
+			};
+
+			for (auto arg = 0; arg < TInParams; arg++) {
+				args.push_back({ func::QueryArgNames[arg], ValueType::None, FunctionArgumentDirection::In });
+			}
+
+			for (auto arg = 0; arg < out; arg++) {
+				args.push_back({ func::QueryOutArgNames[arg], ValueType::None, FunctionArgumentDirection::Out });
+			}
+
+			auto luaQuery = std::make_unique<CustomQuery>(
+				procName,
+				args,
+				&func::OsiLuaQuery<TInParams>
+			);
+			functionMgr.Register(std::move(luaQuery));
+		}
+	}
 
 	void CustomFunctionLibrary::RegisterLuaFunctions()
 	{
@@ -120,166 +156,32 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(luaLoad));
 
-		auto luaCall0 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
+		for (auto i = 0; i <= 10; i++) {
+			std::vector<CustomFunctionParam> args{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall0));
+			};
+			for (auto arg = 0; arg < i; arg++) {
+				args.push_back({ func::QueryArgNames[arg], ValueType::None, FunctionArgumentDirection::In });
+			}
 
-		auto luaCall1 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall1));
+			auto luaCall = std::make_unique<CustomCall>(
+				"NRD_LuaCall",
+				args,
+				&func::OsiLuaCall
+			);
+			functionMgr.Register(std::move(luaCall));
+		}
 
-		auto luaCall2 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall2));
-		
-		auto luaCall3 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall3));
-		
-		auto luaCall4 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall4));
-		
-		auto luaCall5 = std::make_unique<CustomCall>(
-			"NRD_LuaCall",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg5", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaCall
-		);
-		functionMgr.Register(std::move(luaCall5));
-
-		auto luaQuery00 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery0",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaQuery<0>
-		);
-		functionMgr.Register(std::move(luaQuery00));
-
-		auto luaQuery01 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery0",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<0>
-		);
-		functionMgr.Register(std::move(luaQuery01));
-
-		auto luaQuery11 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery1",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<1>
-		);
-		functionMgr.Register(std::move(luaQuery11));
-
-		auto luaQuery20 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery2",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In }
-			},
-			&func::OsiLuaQuery<2>
-		);
-		functionMgr.Register(std::move(luaQuery20));
-
-		auto luaQuery21 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery2",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<2>
-		);
-		functionMgr.Register(std::move(luaQuery21));
-
-		auto luaQuery22 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery2",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out },
-				{ "Out2", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<2>
-		);
-		functionMgr.Register(std::move(luaQuery22));
-
-		auto luaQuery31 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery3",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<3>
-		);
-		functionMgr.Register(std::move(luaQuery31));
-
-		auto luaQuery41 = std::make_unique<CustomQuery>(
-			"NRD_LuaQuery4",
-			std::vector<CustomFunctionParam>{
-				{ "Func", ValueType::String, FunctionArgumentDirection::In },
-				{ "Arg1", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg2", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg3", ValueType::None, FunctionArgumentDirection::In },
-				{ "Arg4", ValueType::None, FunctionArgumentDirection::In },
-				{ "Out1", ValueType::None, FunctionArgumentDirection::Out }
-			},
-			&func::OsiLuaQuery<4>
-		);
-		functionMgr.Register(std::move(luaQuery41));
+		RegisterLuaQueries<0>(functionMgr);
+		RegisterLuaQueries<1>(functionMgr);
+		RegisterLuaQueries<2>(functionMgr);
+		RegisterLuaQueries<3>(functionMgr);
+		RegisterLuaQueries<4>(functionMgr);
+		RegisterLuaQueries<5>(functionMgr);
+		RegisterLuaQueries<6>(functionMgr);
+		RegisterLuaQueries<7>(functionMgr);
+		RegisterLuaQueries<8>(functionMgr);
+		RegisterLuaQueries<9>(functionMgr);
+		RegisterLuaQueries<10>(functionMgr);
 	}
 }
