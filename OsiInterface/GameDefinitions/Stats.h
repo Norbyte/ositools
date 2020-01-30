@@ -663,12 +663,10 @@ namespace osidbg
 		float ChargeDuration;
 		STDWString DisplayName;
 		FixedString Icon;
-		uint64_t AiFlags;
+		uint8_t AiFlags;
+		uint8_t _Pad2[7];
 		SkillPrototype * RootSkillPrototype;
-		uint64_t Unknown0[2];
-		uint32_t Unknown1;
-		uint32_t RootSkillPrototypeIndex_M;
-		uint64_t Unknown2[6];
+		ObjectSet<SkillPrototype *> SomePrototypes;
 	};
 
 	struct StatusPrototype
