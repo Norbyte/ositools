@@ -4,6 +4,7 @@
 #include <GameDefinitions/CustomStats.h>
 #include <GameDefinitions/GameAction.h>
 #include <GameDefinitions/Item.h>
+#include <GameDefinitions/Level.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/Status.h>
@@ -105,7 +106,7 @@ namespace osidbg
 		ls__FileReader__Dtor FileReaderDtor{ nullptr };
 		STDString ** PathRoots{ nullptr };
 
-		void ** LevelManager{ nullptr };
+		esv::LevelManager ** LevelManager{ nullptr };
 		CharacterFactory ** EsvCharacterFactory{ nullptr };
 		ItemFactory ** EsvItemFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
@@ -152,14 +153,13 @@ namespace osidbg
 
 		inline esv::GameActionManager * GetGameActionManager() const
 		{
-			if (LevelManager == nullptr || *LevelManager == nullptr) {
+			if (LevelManager == nullptr 
+				|| *LevelManager == nullptr
+				|| (*LevelManager)->CurrentLevel == nullptr) {
 				return nullptr;
 			}
 
-			auto levelMgr = *LevelManager;
-			auto l1 = ((uint64_t *)levelMgr)[1];
-			auto l2 = *(uint64_t *)(l1 + 216);
-			return (esv::GameActionManager *)l2;
+			return (*LevelManager)->CurrentLevel->GameActionManager;
 		}
 
 		inline CRPGStatsManager * GetStats() const
