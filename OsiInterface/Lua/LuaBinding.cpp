@@ -559,6 +559,26 @@ namespace osidbg
 		}
 	}
 
+	int LuaTurnManagerCombatProxy::LuaIndex(lua_State * L)
+	{
+		auto combat = Get();
+		if (combat == nullptr) return luaL_error(L, "Combat no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		if (strcmp(prop, "CombatId") == 0) {
+			lua_push(L, combatId_);
+		} else if (strcmp(prop, "LevelName") == 0) {
+			lua_push(L, combat->LevelName.Str);
+		} else if (strcmp(prop, "IsActive") == 0) {
+			lua_push(L, combat->IsActive);
+		} else {
+			OsiError("Combat has no attribute named " << prop);
+			return 0;
+		}
+
+		return 1;
+	}
+
 	int LuaTurnManagerCombatProxy::GetCurrentTurnOrder(lua_State * L)
 	{
 		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
@@ -691,6 +711,8 @@ namespace osidbg
 		auto prop = luaL_checkstring(L, 2);
 		if (strcmp(prop, "TeamId") == 0) {
 			lua_push(L, (uint32_t)team->TeamId);
+		} else if (strcmp(prop, "CombatId") == 0) {
+			lua_push(L, team->TeamId.CombatId);
 		} else if (strcmp(prop, "Initiative") == 0) {
 			lua_push(L, (uint32_t)team->Initiative);
 		} else if (strcmp(prop, "StillInCombat") == 0) {

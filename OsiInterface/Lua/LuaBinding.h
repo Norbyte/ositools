@@ -570,7 +570,7 @@ namespace osidbg
 		static int ToTable(lua_State * L);
 	};
 
-	class LuaTurnManagerCombatProxy : public LuaUserdata<LuaTurnManagerCombatProxy>
+	class LuaTurnManagerCombatProxy : public LuaUserdata<LuaTurnManagerCombatProxy>, public LuaIndexable
 	{
 	public:
 		static char const * const MetatableName;
@@ -585,6 +585,8 @@ namespace osidbg
 		{
 			return GetTurnManager()->Combats.Find(combatId_);
 		}
+
+		int LuaIndex(lua_State * L);
 
 	private:
 		uint8_t combatId_;
