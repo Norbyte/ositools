@@ -1,4 +1,4 @@
-### API v38 Documentation
+### API v39 Documentation
 
 ### Table of Contents  
 
@@ -62,13 +62,15 @@ To start using the extension in your mod, a configuration file must be created t
 Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the following contents, then tweak the values as desired:
 ```json
 {
-    "ExtendOsiris": false,
-    "Lua": false,
-    "UseCustomStats": false,
-    "UseCustomStatsPane": false,
-    "EnableFormulaOverrides": false,
-    "PreprocessStory": false,
-    "RequiredExtensionVersion": 28
+    "RequiredExtensionVersion": 39,
+    "FeatureFlags": [
+        "OsirisExtensions",
+        "Lua",
+        "CustomStats",
+        "CustomStatsPane",
+        "FormulaOverrides",
+        "Preprocessor"
+    ]
 }
 ```
 
@@ -76,13 +78,18 @@ Meaning of configuration keys:
 
 | Key | Meaning |
 |--|--|
-| `ExtendOsiris` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
-| `Lua` | Enables scripting via the Lua runtime |
-| `UseCustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
-| `UseCustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
-| `EnableFormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) **EXPERIMENTAL** |
-| `PreprocessStory` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
 | `RequiredExtensionVersion` | Minimum Osiris Extender version required to run the mod |
+| `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only keep features that are actually in use. |
+
+The following features are accepted in `FeatureFlags`:
+
+
+| `OsirisExtensions` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
+| `Lua` | Enables scripting via the Lua runtime |
+| `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
+| `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
+| `FormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) **EXPERIMENTAL** |
+| `Preprocessor` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
 
 
 ## Preprocessor
@@ -785,9 +792,10 @@ Returns an attribute of the specified character. If `_Character` is not a valid 
 
 ### CharacterGetStat
 `query NRD_CharacterGetStatInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)`
+`query NRD_CharacterGetStatString([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](STRING)_Value)`
 
 Returns a stat value of the specified character. `_Stat` must be one of the following:
-CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
+Name, Level, CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
 In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
 
 If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
