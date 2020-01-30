@@ -201,7 +201,7 @@ namespace osidbg
 			skillBarItem->ItemHandle = ObjectHandle{};
 
 			auto character = FindCharacterByNameGuid(characterGuid);
-			character->PlayerData->Dirty = true;
+			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
 		void SkillBarSetItem(OsiArgumentDesc const & args)
@@ -228,7 +228,7 @@ namespace osidbg
 			skillBarItem->ItemHandle = handle;
 
 			auto character = FindCharacterByNameGuid(characterGuid);
-			character->PlayerData->Dirty = true;
+			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
 		void SkillBarClear(OsiArgumentDesc const & args)
@@ -244,7 +244,7 @@ namespace osidbg
 			skillBarItem->ItemHandle = ObjectHandle{};
 
 			auto character = FindCharacterByNameGuid(characterGuid);
-			character->PlayerData->Dirty = true;
+			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
 		esv::Character * FindPlayerByNameGuid(char const * guid)
@@ -368,7 +368,7 @@ namespace osidbg
 			}
 
 			OsirisPropertyMapSet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
-			player->PlayerData->Dirty = true;
+			player->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 	}
 

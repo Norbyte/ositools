@@ -159,7 +159,7 @@ namespace osidbg
 			ObjectSet<glm::vec3> PreviousPositions;
 			uint32_t PreviousPositionId;
 			bool HelmetOption;
-			bool Dirty;
+			bool ShouldReevaluateSkillBar;
 			uint8_t _Pad4[2];
 			uint32_t Renown;
 			uint32_t CachedTension;
