@@ -43,7 +43,7 @@ namespace osidbg
 
 
 
-	char const * const LuaObjectProxy<esv::Status>::MetatableName = "LuaStatus";
+	char const * const LuaObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
 	int LuaObjectProxy<esv::Status>::LuaIndex(lua_State * L)
 	{
@@ -64,7 +64,7 @@ namespace osidbg
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level);
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
 
-	char const * const LuaStatsProxy::MetatableName = "LuaStatsProxy";
+	char const * const LuaStatsProxy::MetatableName = "CRPGStats_Object";
 
 	int LuaStatsProxy::LuaIndex(lua_State * L)
 	{
@@ -85,7 +85,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaSkillPrototypeProxy::MetatableName = "LuaSkillPrototypeProxy";
+	char const * const LuaSkillPrototypeProxy::MetatableName = "eoc::SkillPrototype";
 
 	LuaSkillPrototypeProxy::LuaSkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level)
 		: obj_(obj), level_(level)
@@ -111,7 +111,7 @@ namespace osidbg
 		return stats->GetStat(isBaseStat ? (statName + 4) : statName, isBaseStat);
 	}
 
-	char const * const LuaObjectProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStats";
+	char const * const LuaObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
 
 	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const * prop)
 	{
@@ -182,7 +182,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "LuaItemStats";
+	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
 
 	int LuaObjectProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
 	{
@@ -216,7 +216,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "LuaEquipmentAttributesProxy";
+	char const * const LuaObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "CDivinityStats_Equipment_Attributes";
 
 	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaIndex(lua_State * L)
 	{
@@ -234,7 +234,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaStatusHandleProxy::MetatableName = "LuaStatusHandleProxy";
+	char const * const LuaStatusHandleProxy::MetatableName = "esv::HStatus";
 
 	int LuaStatusHandleProxy::LuaIndex(lua_State * L)
 	{
@@ -256,7 +256,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaHandleProxy<CDivinityStats_Character>::MetatableName = "LuaCharacterStatsHandleProxy";
+	char const * const LuaHandleProxy<CDivinityStats_Character>::MetatableName = "HCDivinityStats_Character";
 
 	int LuaHandleProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
 	{
@@ -275,7 +275,7 @@ namespace osidbg
 
 
 
-	char const * const LuaHandleProxy<esv::PlayerCustomData>::MetatableName = "LuaPlayerCustomDataHandleProxy";
+	char const * const LuaHandleProxy<esv::PlayerCustomData>::MetatableName = "esv::HPlayerCustomData";
 
 	int LuaHandleProxy<esv::PlayerCustomData>::LuaIndex(lua_State * L)
 	{
@@ -300,7 +300,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaHandleProxy<esv::Character>::MetatableName = "LuaCharacterHandleProxy";
+	char const * const LuaHandleProxy<esv::Character>::MetatableName = "esv::HCharacter";
 
 	int LuaHandleProxy<esv::Character>::LuaIndex(lua_State * L)
 	{
@@ -340,7 +340,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaHandleProxy<esv::Item>::MetatableName = "LuaItemHandleProxy";
+	char const * const LuaHandleProxy<esv::Item>::MetatableName = "esv::HItem";
 
 	int LuaHandleProxy<esv::Item>::LuaIndex(lua_State * L)
 	{
@@ -367,7 +367,7 @@ namespace osidbg
 
 
 
-	char const * const LuaStatsExtraDataProxy::MetatableName = "LuaStatsExtraDataProxy";
+	char const * const LuaStatsExtraDataProxy::MetatableName = "CRPGStats_ExtraData";
 
 	int LuaStatsExtraDataProxy::LuaIndex(lua_State * L)
 	{
@@ -386,7 +386,7 @@ namespace osidbg
 
 
 
-	char const * const LuaDamageList::MetatableName = "LuaDamageList";
+	char const * const LuaDamageList::MetatableName = "CDamageList";
 
 	void LuaDamageList::PopulateMetatable(lua_State * L)
 	{
@@ -524,7 +524,7 @@ namespace osidbg
 
 
 
-	char const * const LuaTurnManagerCombatProxy::MetatableName = "LuaTurnManagerCombatProxy";
+	char const * const LuaTurnManagerCombatProxy::MetatableName = "esv::TurnManager::Combat";
 
 	void LuaTurnManagerCombatProxy::PopulateMetatable(lua_State * L)
 	{
@@ -691,7 +691,7 @@ namespace osidbg
 	}
 
 
-	char const * const LuaTurnManagerTeamProxy::MetatableName = "LuaTurnManagerTeamProxy";
+	char const * const LuaTurnManagerTeamProxy::MetatableName = "esv::TurnManager::Team";
 
 	/*void LuaTurnManagerTeamProxy::PopulateMetatable(lua_State * L)
 	{
