@@ -787,7 +787,7 @@ namespace osidbg
 	}
 
 	void CustomFunctionLibrary::OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype * self, DamagePairList * damageList,
-		CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+		CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		LuaStatePin lua(ExtensionState::Get());

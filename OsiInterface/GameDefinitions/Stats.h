@@ -643,7 +643,7 @@ namespace osidbg
 			ObjectSet<STDString> * stdStringSet);
 
 		typedef void (* GetSkillDamage)(SkillPrototype * self, struct DamagePairList * damageList, 
-			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition, 
+			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 
 		// void * VMT;

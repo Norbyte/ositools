@@ -70,7 +70,10 @@ namespace osidbg
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 
-		if (strcmp(attributeName, "Name") == 0) {
+		if (strcmp(attributeName, "Level") == 0) {
+			lua_push(L, obj_->Level);
+			return 1;
+		} else if (strcmp(attributeName, "Name") == 0) {
 			lua_pushstring(L, obj_->Name);
 			return 1;
 		}
@@ -1102,7 +1105,7 @@ namespace osidbg
 	}
 
 	bool LuaState::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
-		CDivinityStats_Character *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
+		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		std::lock_guard lock(mutex_);
@@ -1119,8 +1122,21 @@ namespace osidbg
 
 		auto luaSkill = LuaSkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
 		LuaSkillPrototypePin _(luaSkill);
-		auto luaAttacker = LuaObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, skill, character
-		LuaGameObjectPin<CDivinityStats_Character> _2(luaAttacker);
+		LuaObjectProxy<CDivinityStats_Character> * luaAttackerChar{ nullptr };
+		LuaObjectProxy<CDivinityStats_Item> * luaAttackerItem{ nullptr };
+		LuaStatsProxy * luaAttackerObject{ nullptr };
+
+		if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
+			auto ch = reinterpret_cast<CDivinityStats_Character *>(attacker);
+			luaAttackerChar = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
+		} else if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
+			auto it = reinterpret_cast<CDivinityStats_Item *>(attacker);
+			luaAttackerItem = LuaObjectProxy<CDivinityStats_Item>::New(L, it);
+		} else {
+			luaAttackerObject = LuaStatsProxy::New(L, attacker, -1);
+			OsiWarnS("Could not determine stats type of attacker");
+		}
+
 		lua_push(L, isFromItem);
 		lua_push(L, stealthed);
 		
@@ -1139,7 +1155,19 @@ namespace osidbg
 		lua_push(L, level);
 		lua_push(L, noRandomization);
 
-		if (CallWithTraceback(8, 2) != 0) { // stack: damageList, deathType
+		bool succeeded = (CallWithTraceback(8, 2) != 0);
+
+		if (luaAttackerChar != nullptr) {
+			luaAttackerChar->Unbind();
+		}
+		if (luaAttackerItem != nullptr) {
+			luaAttackerItem->Unbind();
+		}
+		if (luaAttackerObject != nullptr) {
+			luaAttackerObject->Unbind();
+		}
+
+		if (succeeded) { // stack: damageList, deathType
 			OsiError("GetSkillDamage handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;

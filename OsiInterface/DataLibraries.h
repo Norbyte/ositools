@@ -182,7 +182,7 @@ namespace osidbg {
 
 		enum class SkillPrototypeGetSkillDamageTag {};
 		WrappableFunction<SkillPrototypeGetSkillDamageTag, void(SkillPrototype * self, DamagePairList * damageList,
-			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)> SkillPrototypeGetSkillDamageHook;
 
 		enum class StatusPrototypeFormatDescriptionParamTag {};

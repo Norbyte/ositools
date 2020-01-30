@@ -877,7 +877,7 @@ namespace osidbg
 		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
-			CDivinityStats_Character *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
+			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource, 
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
