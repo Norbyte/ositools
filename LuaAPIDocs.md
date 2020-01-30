@@ -1,4 +1,4 @@
-### Lua API v35 Documentation
+### Lua API v39 Documentation
 
 ### Table of Contents  
 
@@ -312,12 +312,151 @@ ab
 ```
 
 
+# The `Ext` library
+
+
+## Combat
+
+Each combat in-game is represented by a Combat object in Lua. 
+
+Properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| CombatId | integer | A number identifying the combat instance |
+| LevelName | string | Level where the combat is taking place |
+| IsActive | boolean |  |
+
+
+Methods:
+
+#### GetAllTeams()
+Retrieves all participants of the combat. The return value is a table of `Team` objects.
+
+#### GetCurrentTurnOrder()
+Retrieves the turn order of the current round. The return value is a table of `Team` objects.
+
+#### GetNextTurnOrder()
+Retrieves the turn order of the next round. The return value is a table of `Team` objects.
+
+#### UpdateCurrentTurnOrder(turnOrder)
+Updates the turn order of the current round. The `turnOrder` argument should be a reordered version of the table returned by `GetCurrentTurnOrder()`. 
+
+Notes:
+ - It is possible to remove or add characters to the current turn by adding/removing their `Team` object from the table. 
+ - It is possible to add a character to the current turn more than once, the character will only appear once in the UI however.
+ - The character whose turn is currently active (the very first item) should not be removed or reordered. This only applies for `GetCurrentTurnOrder`, the first item can be freely reordered in `GetNextTurnOrder`.
+ - Changed performed using this function are synchronized to the client at the end of the current server tick.
+
+#### UpdateNextTurnOrder(turnOrder)
+Updates the turn order of the next round. The `turnOrder` argument should be a reordered version of the table returned by `GetNextTurnOrder()`. 
+
+Notes:
+ - It is possible to remove or add characters to the next turn by adding/removing their `Team` object from the table. 
+ - It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
+ - Changed performed using this function are synchronized to the client at the end of the current server tick.
+
+### CalculateTurnOrder Event
+
+When the turn order of the next round of a combat is being updated for some reason (new round, character entered combat, etc.) the `CalculateTurnOrder` Ext event is thrown. 
+The event receives two parameters:
+ - `combat`: the Combat object
+ - `order`: the turn order determined by the game (equivalent to calling `combat:GetNextTurnOrder()`)
+
+To change the turn order, reorder the `order` table and return it from the event handler. To leave the turn order untouched, return `nil` (or nothing).
+
+```lua
+-- Example for calculating an initiative-based turn order
+local function CalcInitiativeTurnOrder(combat, order)
+    table.sort(order, function (a, b)
+        return a.Initiative > b.Initiative
+    end)
+    return order
+end
+
+Ext.RegisterListener("CalculateTurnOrder", CalcInitiativeTurnOrder)
+```
+
+### Team
+
+A `Team` is a combat participant (either a character or an item).
+
+Properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| TeamId | integer | A number identifying the team instance |
+| CombatId | integer | Identifies which combat the team is a participant of |
+| Initiative | integer | Computed initiative value of the team |
+| StillInCombat | boolean | Can the team currently fight, or is it temporarily out of combat? |
+| Character | esv::Character | Character object if the team is a character; `nil` otherwise |
+| Item | esv::Item | Item object if the team is an item; `nil` otherwise |
+
+
+## Damage Lists
+
+A damage list is an object that stores the amount of damage dealt for each damage type (`Physical`, `Poison`, etc.).
+It is currently only used by the `GetSkillDamage` event to fetch damage information.
+
+Damage lists can be created using the `Ext.NewDamageList()` function.
+
+Methods:
+
+#### Add(damageType, amount)
+Increase/decrease the amount of damage in the list. Positive values add, negative values remove damage.
+```lua
+list:Add("Physical", 10) -- Add 10 points of physical damage
+list:Add("Physical", -5) -- Subtract 5 points of physical damage
+```
+
+#### Clear([damageType])
+Clears the damage list. If `damageType` is specified, only damages with the specified type will be removed.
+```lua
+list:Clear() -- Remove all
+list:Clear("Poison") -- Remove only poison damage
+```
+
+#### Multiply(amount)
+Multiplies the amount of damage with the specified value.
+```lua
+list:Add("Physical", 10)
+list:Multiply(2.5) -- Physical damage amount is now 25
+```
+
+#### Merge(list)
+Merge the damage values in the second list into the first one.
+```lua
+list:Add("Physical", 15)
+local list2 = Ext.NewDamageList()
+list2:Add("Physical", 25)
+list:Merge(list2) -- Physical damage amount is now 40
+```
+
+#### ConvertDamageType(damageType)
+Converts the damage type of every item in the damage list to the specified value.
+```lua
+list:Add("Physical", 15)
+list:Add("Piercing", 15)
+list:ConvertDamageType("Poison") -- Poison damage amount is now 30
+```
+
+#### ToTable()
+Returns a table containing every item in the list.
+```lua
+for i,damage in pairs(list:ToTable()) do
+    Ext.Print(damage.DamageType .. ": " .. damage.Amount)
+end
+```
+
+
 ### TODO
  - Stat overrides, status chance overrides, Restricted contexts, Client-side behavior
  - Lua state lifetime, Globals behavior (not saved)
  - Ext.Require, Print
  - File IO
+ - StatSetAttribute, GetStatEntries
  - Osi special Lua functions
  - Bootstrap phase
  - Reloading Lua and changing exports
  - Reloading Story
+
