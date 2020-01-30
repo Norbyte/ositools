@@ -117,13 +117,21 @@ namespace osidbg
 		inline esv::Character * GetCharacterComponentByEntityHandle(ObjectHandle entityHandle)
 		{
 			auto ptr = GetComponentByEntityHandle(entityHandle, ComponentType::Character);
-			return (esv::Character *)((uint8_t *)ptr - 8);
+			if (ptr != nullptr) {
+				return (esv::Character *)((uint8_t *)ptr - 8);
+			} else {
+				return nullptr;
+			}
 		}
 
 		inline esv::Item * GetItemComponentByEntityHandle(ObjectHandle entityHandle)
 		{
 			auto ptr = GetComponentByEntityHandle(entityHandle, ComponentType::Item);
-			return (esv::Item *)((uint8_t *)ptr - 8);
+			if (ptr != nullptr) {
+				return (esv::Item *)((uint8_t *)ptr - 8);
+			} else {
+				return nullptr;
+			}
 		}
 
 		inline eoc::CombatComponent * GetCombatComponentByEntityHandle(ObjectHandle entityHandle)
