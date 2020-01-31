@@ -315,7 +315,7 @@ ab
 
 ## Overwriting Native Functions
 
-There are nativa hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
+There are native hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
 
 ### Hit Chance
 <a id="31o_hit_chance"></a>
@@ -342,7 +342,7 @@ Ext.GetHitChance = CustomGetHitChance_EXT
 Ext.EnableStatOverride("HitChance")
 ```
 
-Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want ot change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
+Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
 
 ### TODO
  - Stat overrides, status chance overrides, Restricted contexts, Client-side behavior
