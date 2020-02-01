@@ -1126,7 +1126,9 @@ namespace osidbg
 		LuaObjectProxy<CDivinityStats_Item> * luaAttackerItem{ nullptr };
 		LuaStatsProxy * luaAttackerObject{ nullptr };
 
-		if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
+		if (attacker == nullptr) {
+			lua_pushnil(L);
+		} else if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character *>(attacker);
 			luaAttackerChar = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
 		} else if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
