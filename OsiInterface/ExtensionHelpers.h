@@ -37,8 +37,11 @@ namespace osidbg
 	struct ShootProjectileApiHelper
 	{
 		esv::ShootProjectileHelper Helper;
+		esv::ShootProjectileHelperHitObject HitObject;
 		bool HasStartPosition{ false };
 		bool HasEndPosition{ false };
+		bool HasHitObject{ false };
+		bool HasHitObjectPosition{ false };
 
 		ShootProjectileApiHelper();
 		void SetInt(char const * prop, int32_t value);

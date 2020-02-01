@@ -352,6 +352,10 @@ namespace osidbg
 			Helper.EndPosition = position;
 			HasEndPosition = true;
 		}
+		else if (strcmp(prop, "HitObjectPosition") == 0) {
+			HitObject.Position = position;
+			HasHitObjectPosition = true;
+		}
 		else if (strcmp(prop, "Caster") == 0) {
 			Helper.Caster = handle;
 		}
@@ -360,6 +364,10 @@ namespace osidbg
 		}
 		else if (strcmp(prop, "Target") == 0) {
 			Helper.Target = handle;
+		}
+		else if (strcmp(prop, "HitObject") == 0) {
+			HitObject.Target = handle;
+			HasHitObject = true;
 		}
 		else {
 			OsiError("Unknown object property '" << prop << "'");
@@ -375,6 +383,10 @@ namespace osidbg
 		else if (strcmp(prop, "TargetPosition") == 0) {
 			Helper.EndPosition = value;
 			HasEndPosition = true;
+		}
+		else if (strcmp(prop, "HitObjectPosition") == 0) {
+			HitObject.Position = value;
+			HasHitObjectPosition = true;
 		}
 		else {
 			OsiError("Unknown vector3 property '" << prop << "'");
@@ -415,6 +427,14 @@ namespace osidbg
 		if (!Helper.SkillId) {
 			OsiErrorS("No skill id!");
 			return false;
+		}
+
+		if (HasHitObject)
+		{
+			Helper.HitObject = &HitObject;
+			if (!HasHitObjectPosition) {
+				HitObject.Position = Helper.StartPosition;
+			}
 		}
 
 		auto shoot = gStaticSymbols.ShootProjectile;

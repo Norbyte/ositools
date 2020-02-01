@@ -26,6 +26,15 @@ namespace osidbg
 	namespace esv
 	{
 
+	struct ShootProjectileHelperHitObject
+	{
+		int Unknown{ 0 };
+		uint8_t _Pad[4];
+		ObjectHandle Target;
+		glm::vec3 Position;
+		uint8_t _Pad2[4];
+	};
+
 	struct ShootProjectileHelper
 	{
 		FixedString SkillId;
@@ -39,7 +48,7 @@ namespace osidbg
 		void * DamageList;
 		int32_t CasterLevel;
 		uint32_t _Pad2;
-		void * HitObject;
+		ShootProjectileHelperHitObject * HitObject;
 		bool IsTrap;
 		bool UnknownFlag1;
 		uint8_t _Pad3[6];
