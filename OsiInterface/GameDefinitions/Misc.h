@@ -45,7 +45,7 @@ namespace osidbg
 		glm::vec3 EndPosition;
 		uint8_t Random;
 		uint8_t _Pad[7];
-		void * DamageList;
+		DamagePairList * DamageList;
 		int32_t CasterLevel;
 		uint32_t _Pad2;
 		ShootProjectileHelperHitObject * HitObject;

@@ -412,6 +412,12 @@ namespace osidbg
 		}
 	}
 
+	void ShootProjectileApiHelper::AddDamage(DamageType type, int32_t amount)
+	{
+		DamageList.AddDamage(type, amount);
+		HasDamageList = true;
+	}
+
 	bool ShootProjectileApiHelper::Shoot()
 	{
 		if (!HasStartPosition) {
@@ -435,6 +441,10 @@ namespace osidbg
 			if (!HasHitObjectPosition) {
 				HitObject.Position = Helper.StartPosition;
 			}
+		}
+
+		if (HasDamageList) {
+			Helper.DamageList = &DamageList;
 		}
 
 		auto shoot = gStaticSymbols.ShootProjectile;

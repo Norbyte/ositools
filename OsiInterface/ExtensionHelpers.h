@@ -38,16 +38,19 @@ namespace osidbg
 	{
 		esv::ShootProjectileHelper Helper;
 		esv::ShootProjectileHelperHitObject HitObject;
+		DamagePairList DamageList;
 		bool HasStartPosition{ false };
 		bool HasEndPosition{ false };
 		bool HasHitObject{ false };
 		bool HasHitObjectPosition{ false };
+		bool HasDamageList{ false };
 
 		ShootProjectileApiHelper();
 		void SetInt(char const * prop, int32_t value);
 		void SetGuidString(char const * prop, char const * value);
 		void SetVector(char const * prop, glm::vec3 const & value);
 		void SetString(char const * prop, char const * value);
+		void AddDamage(DamageType type, int32_t amount);
 		bool Shoot();
 	};
 
