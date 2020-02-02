@@ -612,6 +612,7 @@ call NRD_ProjectileSetInt((STRING)_Property, (INTEGER)_Value)
 call NRD_ProjectileSetString((STRING)_Property, (STRING)_Value)
 call NRD_ProjectileSetVector3((STRING)_Property, (REAL)_X, (REAL)_Y, (REAL)_Z)
 call NRD_ProjectileSetGuidString((STRING)_Property, (GUIDSTRING)_Value)
+call NRD_ProjectileAddDamage((STRING)_DamageType, (INTEGER)_Amount)
 ```
 
 The projectile API is a set of functions for casting Projectile/ProjectileStrike skills. It is an extension of `CreateProjectileStrikeAt` and `CreateExplosion`.
@@ -620,7 +621,7 @@ The projectile API is a set of functions for casting Projectile/ProjectileStrike
 A cast must be prepared by calling `NRD_BeginProjectile()`. Projectile parameters must be set by calling the `NRD_ProjectileSetString/GuidString/Int/Vector3` functions. When all parameters are set, the skill is cast by calling `NRD_EndProjectile()`.
 
 **Stability:**
-Function signatures are final. Projectile parameters that are not documented are subject to change. An additional `NRD_ProjectileAddDamage` call may be introduced later on.
+Function signatures are final. Projectile parameters that are not documented are subject to change.
 
 **Projectile parameters:**
 
@@ -639,15 +640,19 @@ Function signatures are final. Projectile parameters that are not documented are
 | SourcePosition | GuidString | Launch projectile from the position of the specified character/item |
 | TargetPosition | Vector3 | Launch projectile towards the specified position |
 | TargetPosition | GuidString | Launch projectile towards the position of the specified character/item |
+| HitObjectPosition | Vector3 | Position of object to hit |
+| HitObjectPosition | GuidString | Position of object to hit |
 | Caster | GuidString | Caster character/item |
 | Source | GuidString | Source character/item |
 | Target | GuidString | Target character/item |
+| HitObject | GuidString | Object to hit |
 
 **Notes:**
  - For a successful cast, at least `SkillId`, `SourcePosition` and `TargetPosition` (either Vector3 or GuidString) must be set.
  - Calling `ProjectileSetGuidString` with `SourcePosition` or `TargetPosition` is a shortcut for calling `GetPosition()` and `NRD_ProjectileSetVector3()` for the specified character/item.
  - The character/item specified when setting `SourcePosition` is not considered to be the caster of the skill, and the cast will trigger no adverse reaction towards the caster. To set the caster character, set the `Caster` property as well.
  - Make sure that you call `NRD_ProjectilePrepareLaunch` and `NRD_ProjectileLaunch` in the same rule/proc and that there are no calls between the two that might trigger other events, to ensure that other scripts can't interfere with the projectile.
+ - Optionally, it is possible to override skill damage calculation and replace it with custom damages by calling `NRD_ProjectileAddDamage` before launching the projectile
 
 **Example:**
 ```c
