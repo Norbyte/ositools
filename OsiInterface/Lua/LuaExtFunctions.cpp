@@ -476,7 +476,7 @@ namespace osidbg
 			return 1;
 		}
 
-		auto value = stats->GetAttributeFixedString(object, attributeName);
+		auto value = stats->GetAttributeString(object, attributeName);
 		if (!value) {
 			std::optional<int> intval;
 			if (level) {
@@ -496,7 +496,7 @@ namespace osidbg
 				lua_pushinteger(L, *intval);
 			}
 		} else {
-			lua_pushstring(L, value->Str);
+			lua_pushstring(L, *value);
 		}
 
 		return 1;

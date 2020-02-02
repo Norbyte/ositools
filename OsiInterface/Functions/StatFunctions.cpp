@@ -81,13 +81,13 @@ namespace osidbg
 				return false;
 			}
 
-			auto value = stats->GetAttributeFixedString(object, attributeName);
+			auto value = stats->GetAttributeString(object, attributeName);
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
 			}
 
-			args[2].String = value->Str;
+			args[2].String = *value;
 			return true;
 		}
 

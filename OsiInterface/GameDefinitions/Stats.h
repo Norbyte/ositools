@@ -735,7 +735,7 @@ namespace osidbg
 
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);
 		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);
-		std::optional<FixedString> GetAttributeFixedString(CRPGStats_Object * object, const char * attributeName);
+		std::optional<char const *> GetAttributeString(CRPGStats_Object * object, const char * attributeName);
 		std::optional<int> GetAttributeInt(CRPGStats_Object * object, const char * attributeName);
 		std::optional<int> GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level);
 		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
@@ -744,6 +744,7 @@ namespace osidbg
 
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
 		int GetOrCreateFixedString(const char * value);
+		std::optional<uint64_t> StringToAttributeFlags(const char * value);
 	};
 
 	CRPGStats_Object * StatFindObject(char const * name);

@@ -221,4 +221,15 @@ namespace osidbg
 	typedef void (* ls__FileReader__Dtor)(FileReader * self);
 	typedef StringView * (* ls__Path__GetPrefixForRoot)(StringView * path, unsigned int rootType);
 #pragma pack(pop)
+
+	class TempStrings
+	{
+	public:
+		char const * Make(std::string const & str);
+
+	private:
+		std::vector<char *> pool_;
+	};
+
+	extern TempStrings gTempStrings;
 }

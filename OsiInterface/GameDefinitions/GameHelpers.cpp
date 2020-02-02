@@ -2,6 +2,7 @@
 
 #include <GameDefinitions/BaseTypes.h>
 #include <GameDefinitions/Symbols.h>
+#include <GameDefinitions/Enumerations.h>
 #include "OsirisProxy.h"
 #include <PropertyMaps.h>
 
@@ -232,7 +233,7 @@ namespace osidbg
 		return typeInfo;
 	}
 
-	std::optional<FixedString> CRPGStatsManager::GetAttributeFixedString(CRPGStats_Object * object, const char * attributeName)
+	std::optional<char const *> CRPGStatsManager::GetAttributeString(CRPGStats_Object * object, const char * attributeName)
 	{
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
@@ -242,12 +243,32 @@ namespace osidbg
 
 		auto index = object->IndexedProperties[attributeIndex];
 		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
-			return ModifierFSSet[index];
-		}
-		else if (typeInfo->Values.ItemCount > 0) {
+			return ModifierFSSet[index].Str;
+		} else if (strcmp(typeInfo->Name.Str, "AttributeFlags") == 0) {
+			if (index != -1) {
+				auto attrFlags = AttributeFlags[index];
+				std::string flagsStr;
+				for (auto i = 0; i < 64; i++) {
+					if (attrFlags & (1 << i)) {
+						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1 << i));
+						if (label) {
+							if (!flagsStr.empty()) {
+								flagsStr += ';';
+							}
+
+							flagsStr += *label;
+						}
+					}
+				}
+
+				return gTempStrings.Make(flagsStr);
+			} else {
+				return "";
+			}
+		} else if (typeInfo->Values.ItemCount > 0) {
 			auto enumLabel = typeInfo->Values.FindByValue(index);
 			if (enumLabel) {
-				return *enumLabel;
+				return enumLabel->Str;
 			}
 			else {
 				return {};
@@ -314,6 +335,23 @@ namespace osidbg
 		return strings.Size - 1;
 	}
 
+	std::optional<uint64_t> CRPGStatsManager::StringToAttributeFlags(const char * value)
+	{
+		uint64_t flags{ 0 };
+		std::string token;
+		std::istringstream tokenStream(value);
+		while (std::getline(tokenStream, token, ';')) {
+			auto label = EnumInfo<StatAttributeFlags>::Find(token.c_str());
+			if (label) {
+				flags |= *label;
+			} else {
+				OsiError("Invalid AttributeFlag: " << token);
+			}
+		}
+
+		return flags;
+	}
+
 	bool CRPGStatsManager::SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value)
 	{
 		int attributeIndex;
@@ -330,6 +368,17 @@ namespace osidbg
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Unable to allocate pooled string");
 			}
+		} else if (strcmp(typeInfo->Name.Str, "AttributeFlags") == 0) {
+			auto attrFlagsIndex = object->IndexedProperties[attributeIndex];
+			if (attrFlagsIndex != -1) {
+				auto & attrFlags = AttributeFlags[attrFlagsIndex];
+				auto flags = StringToAttributeFlags(value);
+				if (flags) {
+					attrFlags = *flags;
+				}
+			} else {
+				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Stats entry has no AttributeFlags");
+			}
 		} else if (typeInfo->Values.ItemCount > 0) {
 			auto enumIndex = typeInfo->Values.Find(value);
 			if (enumIndex != nullptr) {
@@ -339,7 +388,7 @@ namespace osidbg
 				return false;
 			}
 		} else {
-			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type");
+			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type: " << typeInfo->Name.Str);
 			return false;
 		}
 
@@ -365,7 +414,7 @@ namespace osidbg
 				return false;
 			}
 		} else {
-			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type");
+			OsiError("Couldn't set " << object->Name << "." << attributeName << ": Inappropriate type: " << typeInfo->Name.Str);
 			return false;
 		}
 
@@ -1034,4 +1083,13 @@ namespace osidbg
 			}
 		}
 	}
+
+	char const * TempStrings::Make(std::string const & str)
+	{
+		auto s = _strdup(str.c_str());
+		pool_.push_back(s);
+		return s;
+	}
+
+	TempStrings gTempStrings;
 }
