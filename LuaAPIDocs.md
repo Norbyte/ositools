@@ -15,6 +15,8 @@
     * [User Queries](#o2l_qrys)
     * [Databases](#o2l_dbs)
  - [JSON Support](#json-support)
+ - [Overwriting Native Functions](#overwriting-native-functions)
+    * [Hit Chance](#31o_hit_chance)
 
 
 ## Calling Lua from Osiris
@@ -311,6 +313,36 @@ Expected output:
 ab
 ```
 
+## Overwriting Native Functions
+
+There are native hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
+
+### Hit Chance
+<a id="31o_hit_chance"></a>
+To overwrite the native Hit Chance Calculation, your Lua code should contain the following two lines:
+```lua
+Ext.GetHitChance = YourHitChanceFunction
+Ext.EnableStatOverride("HitChance")
+```
+
+The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
+```lua
+function CustomGetHitChance_EXT(attacker, target)
+    dodge = target.Dodge
+    accuracy = attacker.Accuracy
+
+    hitChance = accuracy - dodge
+    hitChance = math.max(hitChance, 0)
+    hitChance = math.min(hitChance, 100)
+
+    return hitChance
+end
+
+Ext.GetHitChance = CustomGetHitChance_EXT
+Ext.EnableStatOverride("HitChance")
+```
+
+Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
 
 # The `Ext` library
 
