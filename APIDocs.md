@@ -724,7 +724,7 @@ Updates the total lifetime of the specified game action.
 
 
 ### Summon
-`query NRD_Summon([in](CHARACTERGUID)_OwnerCharacter, [in](GUIDSTRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](CHARACTERGUID)_Summon)`
+`query NRD_Summon([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_Template, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](REAL)_Lifetime, [in](INTEGER)_Level, [in](INTEGER)_IsTotem, [in](INTEGER)_MapToAiGrid, [out](CHARACTERGUID)_Summon)`
 
 ** TODO Documentation **
 

@@ -550,7 +550,7 @@ namespace osidbg
 			"NRD_Summon",
 			std::vector<CustomFunctionParam>{
 				{ "OwnerCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "Template", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Template", ValueType::String, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
