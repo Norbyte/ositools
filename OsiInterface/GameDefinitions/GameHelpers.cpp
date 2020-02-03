@@ -249,8 +249,8 @@ namespace osidbg
 				auto attrFlags = AttributeFlags[index];
 				std::string flagsStr;
 				for (auto i = 0; i < 64; i++) {
-					if (attrFlags & (1 << i)) {
-						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1 << i));
+					if (attrFlags & (1ull << i)) {
+						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1ull << i));
 						if (label) {
 							if (!flagsStr.empty()) {
 								flagsStr += ';';
