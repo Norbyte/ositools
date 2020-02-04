@@ -66,6 +66,40 @@ namespace osidbg
 			}
 		}
 
+		bool IsHexChar(char c)
+		{
+			return (c >= '0' && c <= '9')
+				|| (c >= 'a' && c <= 'f');
+		}
+
+		bool IsValidGuidString(std::string const & s)
+		{
+			if (s.length() < 36) return false;
+
+			auto guidPos = s.length() - 36;
+			unsigned const nibbles[5] = { 8, 4, 4, 4, 12 };
+
+			for (auto n = 0; n < 5; n++) {
+				for (auto i = 0; i < nibbles[n]; i++) {
+					if (!IsHexChar(s[guidPos++])) return false;
+				}
+
+				if (n != 4 && s[guidPos++] != '-') return false;
+			}
+
+			return true;
+		}
+
+		bool StringToGuidString(OsiArgumentDesc & args)
+		{
+			if (IsValidGuidString(args[0].String)) {
+				args[1].String = args[0].String;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		// We need to keep the returned string alive
 		// until it reaches Osi
 		std::string gRealToStringTemp;
@@ -161,6 +195,16 @@ namespace osidbg
 			&func::StringToReal
 		);
 		functionMgr.Register(std::move(stringToReal));
+
+		auto stringToGuidString = std::make_unique<CustomQuery>(
+			"NRD_GuidString",
+			std::vector<CustomFunctionParam>{
+				{ "String", ValueType::String, FunctionArgumentDirection::In },
+				{ "Result", ValueType::GuidString, FunctionArgumentDirection::Out }
+			},
+			&func::StringToGuidString
+		);
+		functionMgr.Register(std::move(stringToGuidString));
 
 		auto realToString = std::make_unique<CustomQuery>(
 			"NRD_RealToString",

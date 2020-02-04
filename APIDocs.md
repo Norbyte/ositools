@@ -1484,6 +1484,12 @@ Compare strings `A` and `B` using lexicographic ordering.
 
 Computes the length of the string `_String`, and returns it in `_Length`.
 
+### GuidString
+`query NRD_GuidString([in](STRING)_String, [out](GUIDSTRING)_Result)`
+
+Attempts to convert `_String` to a GuidString. If the conversion succeeds (i.e. the string is a valid NameGUID), the value is returned in `_Result`. If `_String` is not a valid NameGUID, the query fails.
+
+
 ### StringToInt
 `query NRD_StringToInt([in](STRING)_String, [out](INTEGER)_Result)`
 
