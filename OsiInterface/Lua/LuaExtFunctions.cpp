@@ -688,7 +688,7 @@ namespace osidbg
 
 		case LUA_TSTRING:
 		{
-			auto guid = lua_tostring(L, 2);
+			auto guid = lua_tostring(L, 1);
 			item = FindItemByNameGuid(guid);
 			break;
 		}
