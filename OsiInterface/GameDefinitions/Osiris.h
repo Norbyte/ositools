@@ -885,12 +885,13 @@ struct FunctionParamList
 struct FuncSigOutParamList
 {
 	uint8_t * Params;
+	// Number of param bytes
 	uint32_t Count;
 
 	inline uint32_t numOutParams() const
 	{
 		uint32_t numParams = 0;
-		for (uint32_t i = 0; i < (Count >> 3) + ((Count & 7) ? 1 : 0) ; i++) {
+		for (uint32_t i = 0; i < Count; i++) {
 			numParams += __popcnt16(Params[i]);
 		}
 
