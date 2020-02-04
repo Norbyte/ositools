@@ -80,7 +80,7 @@ namespace osidbg
 			unsigned const nibbles[5] = { 8, 4, 4, 4, 12 };
 
 			for (auto n = 0; n < 5; n++) {
-				for (auto i = 0; i < nibbles[n]; i++) {
+				for (unsigned i = 0; i < nibbles[n]; i++) {
 					if (!IsHexChar(s[guidPos++])) return false;
 				}
 

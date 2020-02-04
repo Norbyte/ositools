@@ -45,6 +45,18 @@ namespace osidbg
 		{"esv::TornadoAction::Setup", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.TornadoActionSetup}
 	};
 
+	SymbolMappingData const sSymbolSummonHelpersSummon = {
+		"esv::SummonHelpers::Summon",
+		SymbolMappingData::kCustom, 0,
+		"48 8D 54 24 70 " // lea     rdx, [rsp+220h+args]
+		"40 88 75 A1 " // mov     byte ptr [rbp+120h+var_180+1], sil
+		"48 8D 4D 30 " // lea     rcx, [rbp+120h+results]
+		"E8 XX XX XX XX " // call    esv__SummonHelpers__Summon
+		"48 8B 55 30 ", // mov     rdx, [rbp+120h+results.SummonCharacterHandle]
+		{},
+		{"esv::SummonHelpers::Summon", SymbolMappingTarget::kIndirectCall, 13, (void **)&gStaticSymbols.SummonHelpersSummon}
+	};
+
 	SymbolMappingData const sSymbolApplyStatus = {
 		"ApplyStatus",
 		SymbolMappingData::kCustom, 0,
@@ -375,6 +387,16 @@ namespace osidbg
 			"4C 8B XX ", // mov     r8, [rbx]
 			{SymbolMappingCondition::kFixedString, 5, "RandomPoints"},
 			{"TornadoAction", SymbolMappingTarget::kAbsolute, -0x200, nullptr, nullptr, &sSymbolTornadoAction, 0x200}
+		},
+
+		{
+			"esv::SummonHelpers::Summon",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"44 0F 28 94 24 90 01 00 00 " // movaps  xmm10, [rsp+220h+var_90]
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_SpawnObject
+			"49 8B CC ", // mov     rcx, r12
+			{SymbolMappingCondition::kFixedString, 9, "SpawnObject"},
+			{"esv::SummonHelpers::Summon", SymbolMappingTarget::kAbsolute, -0x400, nullptr, nullptr, &sSymbolSummonHelpersSummon, 0x400}
 		},
 
 		{

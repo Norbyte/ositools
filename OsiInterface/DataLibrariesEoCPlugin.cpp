@@ -63,7 +63,7 @@ namespace osidbg
 		"E8 XX XX XX XX " // call    esv__SummonHelpers__Summon
 		"48 8D 4C 24 50 ", // lea     rcx, [rsp+1B0h+var_160]
 		{},
-		{"esv::SummonHelpers::Summon", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.SummonHelpersSummon}
+		{"esv::SummonHelpers::Summon", SymbolMappingTarget::kIndirectCall, 13, (void **)&gStaticSymbols.SummonHelpersSummon}
 	};
 
 	SymbolMappingData const sSymbolApplyStatus = {
