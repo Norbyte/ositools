@@ -124,6 +124,18 @@ namespace osidbg
 			return 1;
 		}
 
+		if (strcmp(prop, "DynamicStats") == 0) {
+			lua_newtable(L);
+			unsigned statIdx = 1;
+			for (auto statPtr = stats->DynamicStats; statPtr != stats->DynamicStatsEnd; statPtr++) {
+				lua_push(L, statIdx++);
+				LuaObjectProxy<CharacterDynamicStat>::New(L, *statPtr);
+				lua_settable(L, -3);
+			}
+
+			return 1;
+		}
+
 		if (strcmp(prop, "DamageBoost") == 0) {
 			lua_pushinteger(L, stats->GetDamageBoost());
 			return 1;
@@ -184,19 +196,12 @@ namespace osidbg
 		return luaL_error(L, "Not supported yet!");
 	}
 
-
-	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
-
-	int LuaObjectProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	int ItemFetchStat(lua_State * L, CDivinityStats_Item * item, char const * prop)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Item stats no longer available");
-
-		auto prop = luaL_checkstring(L, 2);
-
 		if (strcmp(prop, "DynamicStats") == 0) {
 			lua_newtable(L);
 			unsigned statIdx = 1;
-			for (auto statPtr = obj_->DynamicAttributes_Start; statPtr != obj_->DynamicAttributes_End; statPtr++) {
+			for (auto statPtr = item->DynamicAttributes_Start; statPtr != item->DynamicAttributes_End; statPtr++) {
 				lua_push(L, statIdx++);
 				LuaObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, *statPtr);
 				lua_settable(L, -3);
@@ -205,12 +210,54 @@ namespace osidbg
 			return 1;
 		}
 
-		auto fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, obj_, prop, false);
+		auto fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item, prop, false);
 		if (fetched) {
 			return 1;
 		}
 
-		return LuaStatGetAttribute(L, obj_, prop, {});
+		return LuaStatGetAttribute(L, item, prop, {});
+	}
+
+	int CharacterFetchProperty(lua_State * L, esv::Character * character, char const * prop)
+	{
+		if (strcmp(prop, "PlayerCustomData") == 0) {
+			if (character->PlayerData != nullptr
+				&& character->PlayerData->CustomData.Initialized) {
+				ObjectHandle handle;
+				character->GetObjectHandle(&handle);
+				LuaHandleProxy<esv::PlayerCustomData>::New(L, handle);
+				return 1;
+			} else {
+				OsiError("Character has no player data, or custom data was not initialized.");
+				return 0;
+			}
+		}
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (character->Stats != nullptr) {
+				ObjectHandle handle;
+				character->GetObjectHandle(&handle);
+				LuaHandleProxy<CDivinityStats_Character>::New(L, handle);
+				return 1;
+			} else {
+				OsiError("Character has no stats.");
+				return 0;
+			}
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+
+	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
+
+	int LuaObjectProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Item stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		return ItemFetchStat(L, obj_, prop);
 	}
 
 	int LuaObjectProxy<CDivinityStats_Item>::LuaNewIndex(lua_State * L)
@@ -232,6 +279,23 @@ namespace osidbg
 	}
 
 	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
+
+
+	char const * const LuaObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
+
+	int LuaObjectProxy<CharacterDynamicStat>::LuaIndex(lua_State * L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gCharacterDynamicStatPropertyMap, obj_, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int LuaObjectProxy<CharacterDynamicStat>::LuaNewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported!");
 	}
@@ -277,6 +341,24 @@ namespace osidbg
 	}
 
 
+	char const * const LuaHandleProxy<CDivinityStats_Item>::MetatableName = "HCDivinityStats_Item";
+
+	int LuaHandleProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	{
+		auto item = FindItemByHandle(handle_);
+		if (item == nullptr) return luaL_error(L, "Item handle invalid");
+		if (item->StatsDynamic == nullptr) return luaL_error(L, "Item has no stats!");
+
+		auto prop = luaL_checkstring(L, 2);
+		return ItemFetchStat(L, item->StatsDynamic, prop);
+	}
+
+	int LuaHandleProxy<CDivinityStats_Item>::LuaNewIndex(lua_State * L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
 
 	char const * const LuaHandleProxy<esv::PlayerCustomData>::MetatableName = "esv::HPlayerCustomData";
 
@@ -311,30 +393,7 @@ namespace osidbg
 		if (character == nullptr) return luaL_error(L, "Character handle invalid");
 
 		auto prop = luaL_checkstring(L, 2);
-
-		if (strcmp(prop, "PlayerCustomData") == 0) {
-			if (character->PlayerData != nullptr
-				&& character->PlayerData->CustomData.Initialized) {
-				LuaHandleProxy<esv::PlayerCustomData>::New(L, handle_);
-				return 1;
-			} else {
-				OsiError("Character has no player data, or custom data was not initialized.");
-				return 0;
-			}
-		}
-
-		if (strcmp(prop, "Stats") == 0) {
-			if (character->Stats != nullptr) {
-				LuaHandleProxy<CDivinityStats_Character>::New(L, handle_);
-				return 1;
-			} else {
-				OsiError("Character has no stats.");
-				return 0;
-			}
-		}
-
-		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
-		return fetched ? 1 : 0;
+		return CharacterFetchProperty(L, character, prop);
 	}
 
 	int LuaHandleProxy<esv::Character>::LuaNewIndex(lua_State * L)
@@ -351,6 +410,17 @@ namespace osidbg
 		if (item == nullptr) return luaL_error(L, "Item handle invalid");
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (item->StatsDynamic != nullptr) {
+				LuaHandleProxy<CDivinityStats_Item>::New(L, handle_);
+				return 1;
+			} else {
+				OsiError("Item has no stats.");
+				return 0;
+			}
+		}
+
 		bool fetched = false;
 		if (item->StatsDynamic != nullptr) {
 			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, prop, false);
@@ -758,6 +828,7 @@ namespace osidbg
 		LuaOsiFunctionNameProxy::RegisterMetatable(L);
 		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		LuaObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
@@ -765,6 +836,7 @@ namespace osidbg
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
 		LuaStatusHandleProxy::RegisterMetatable(L);
 		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaHandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		LuaStatsExtraDataProxy::RegisterMetatable(L);
 		LuaStatsProxy::RegisterMetatable(L);
 		LuaSkillPrototypeProxy::RegisterMetatable(L);

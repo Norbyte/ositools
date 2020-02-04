@@ -221,10 +221,13 @@ namespace osidbg
 			// TODO - Reflection
 			PROP(CDivinityStats_Equipment_Attributes, Skills);
 			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
+			PROP(CDivinityStats_Equipment_Attributes, ModifierType);
+			PROP(CDivinityStats_Equipment_Attributes, ObjectInstanceName);
+			PROP(CDivinityStats_Equipment_Attributes, BoostName);
 			PROP_ENUM(CDivinityStats_Equipment_Attributes, StatsType);
 			// TODO - add attribute flags object support
 			// PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
-			// TODO - ObjectInstanceName?, AbilityModifiers, Talents
+			// TODO - AbilityModifiers, Talents
 		}
 
 		{
@@ -322,6 +325,9 @@ namespace osidbg
 			PROP(CharacterDynamicStat, SPCostBoost);
 			PROP(CharacterDynamicStat, MaxSummons);
 			PROP(CharacterDynamicStat, BonusWeaponDamageMultiplier);
+			PROP(CharacterDynamicStat, TranslationKey);
+			PROP(CharacterDynamicStat, BonusWeapon);
+			PROP(CharacterDynamicStat, StepsType);
 			// TODO Abilities, Talents, RemovedTalents, Traits
 		}
 
