@@ -1526,6 +1526,29 @@ NRD_Substring("ABCDEFGH", 0, -2, _Res) // "ABCDEF"
 NRD_Substring("ABCDEFGH", 3, -2, _Res) // "DEF"
 ```
 
+### RegexMatch
+`query NRD_RegexMatch([in](STRING)_String, [in](STRING)_Regex, [in](INTEGER)_FullMatch, [out](INTEGER)_Result)`
+
+Matches the string `_String` against the ECMAScript regex pattern `_Regex`. If `_FullMatch` is 1, the whole string much match the pattern, otherwise a partial match is allowed. The query fails if the specified pattern is not a valid ECMAScript regex pattern . The query returns `1` if the pattern matches the string and `0` otherwise.
+Because of limitations in the Osiris parser, the character `^` must be replaced with `#`.
+
+Examples:
+```c
+NRD_RegexMatch("GetValue", "Get|GetValue", 0, _Ret) // _Ret = 1
+NRD_RegexMatch("GetValues", "Get|GetValue", 1, _Ret) // _Ret = 0
+```
+
+### RegexReplace
+`query NRD_RegexReplace([in](STRING)_String, [in](STRING)_Regex, [in](STRING)_Replacement, [out](STRING)_Result)`
+
+Replaces all occurrences of the ECMAScript regex pattern `_Regex` in `_String` with the replacement pattern `_Replacement` and returns the result in `_Result`. The query fails if the specified pattern is not a valid ECMAScript regex. 
+
+Examples:
+```c
+NRD_RegexReplace("Quick brown fox", "a|e|i|o|u", "[$&]", (STRING)_Ret)
+// _Ret = "Q[u][i]ck br[o]wn f[o]x"
+```
+
 ### GuidString
 `query NRD_GuidString([in](STRING)_String, [out](GUIDSTRING)_Result)`
 

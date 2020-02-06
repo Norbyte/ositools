@@ -2,6 +2,7 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 #include <random>
+#include <regex>
 
 namespace osidbg
 {
@@ -117,6 +118,53 @@ namespace osidbg
 				return true;
 			} else {
 				OsiError("Invalid bounds in NRD_Substring()");
+				return false;
+			}
+		}
+
+		bool RegexMatch(OsiArgumentDesc & args)
+		{
+			auto input = args[0].String;
+			std::string regex(args[1].String);
+			auto fullMatch = args[2].Int32;
+			auto & output = args[3].Int32;
+
+			std::replace(regex.begin(), regex.end(), '^', '#');
+
+			try {
+				std::regex re(regex);
+
+				bool match;
+				if (fullMatch != 0) {
+					match = std::regex_match(input, re);
+				} else {
+					match = std::regex_search(input, re);
+				}
+
+				output = match ? 1 : 0;
+				return true;
+			} catch (std::regex_error & e) {
+				OsiError("Regular expression \"" << input << "\" invalid: " << e.what());
+				return false;
+			}
+		}
+
+		bool RegexReplace(OsiArgumentDesc & args)
+		{
+			auto input = args[0].String;
+			std::string regex(args[1].String);
+			auto replacement = args[2].String;
+			auto & output = args[3].String;
+
+			std::replace(regex.begin(), regex.end(), '^', '#');
+
+			try {
+				std::regex re(regex);
+				StringFmtTemp = std::regex_replace(input, re, replacement);
+				output = StringFmtTemp.c_str();
+				return true;
+			} catch (std::regex_error & e) {
+				OsiError("Regular expression \"" << input << "\" invalid: " << e.what());
 				return false;
 			}
 		}
@@ -309,6 +357,30 @@ namespace osidbg
 			&func::Substring
 		);
 		functionMgr.Register(std::move(substring));
+
+		auto regexMatch = std::make_unique<CustomQuery>(
+			"NRD_RegexMatch",
+			std::vector<CustomFunctionParam>{
+				{ "String", ValueType::String, FunctionArgumentDirection::In },
+				{ "Regex", ValueType::String, FunctionArgumentDirection::In },
+				{ "FullMatch", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Matched", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::RegexMatch
+		);
+		functionMgr.Register(std::move(regexMatch));
+
+		auto regexReplace = std::make_unique<CustomQuery>(
+			"NRD_RegexReplace",
+			std::vector<CustomFunctionParam>{
+				{ "String", ValueType::String, FunctionArgumentDirection::In },
+				{ "Regex", ValueType::String, FunctionArgumentDirection::In },
+				{ "Replacement", ValueType::String, FunctionArgumentDirection::In },
+				{ "Result", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::RegexReplace
+		);
+		functionMgr.Register(std::move(regexReplace));
 
 		auto stringToInt = std::make_unique<CustomQuery>(
 			"NRD_StringToInt",
