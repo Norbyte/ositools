@@ -8,34 +8,6 @@
 #include <sstream>
 #include <fstream>
 
-struct ToolConfig
-{
-#if defined(OSI_EXTENSION_BUILD)
-	bool CreateConsole{ false };
-	bool EnableLogging{ false };
-	bool LogCompile{ false };
-	bool EnableExtensions{ true };
-	bool EnableDebugger{ false };
-#else
-	bool CreateConsole{ true };
-	bool EnableLogging{ false };
-	bool LogCompile{ false };
-	bool EnableExtensions{ true };
-	bool EnableDebugger{ true };
-#endif
-
-#if defined(NDEBUG)
-	bool SendCrashReports{ true };
-#else
-	bool SendCrashReports{ true };
-#endif
-
-	bool DumpNetworkStrings{ false };
-	uint16_t DebuggerPort{ 9999 };
-	uint32_t DebugFlags{ 0 };
-	std::wstring LogDirectory;
-};
-
 void ConfigGetBool(Json::Value & node, char const * key, bool & value)
 {
 	auto configVar = node[key];
@@ -44,7 +16,7 @@ void ConfigGetBool(Json::Value & node, char const * key, bool & value)
 	}
 }
 
-void LoadConfig(std::wstring const & configPath, ToolConfig & config)
+void LoadConfig(std::wstring const & configPath, osidbg::ToolConfig & config)
 {
 	std::ifstream f(configPath, std::ios::in);
 	if (!f.good()) {
@@ -69,6 +41,7 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
 	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
+	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
 
 	auto debuggerPort = root["DebuggerPort"];
 	if (!debuggerPort.isNull()) {
@@ -101,7 +74,8 @@ void LoadConfig(std::wstring const & configPath, ToolConfig & config)
 
 void SetupOsirisProxy(HMODULE hModule)
 {
-	ToolConfig config;
+	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
+	auto & config = osidbg::gOsirisProxy->GetConfig();
 	LoadConfig(L"OsirisExtenderSettings.json", config);
 
 	if (config.CreateConsole) {
@@ -113,8 +87,6 @@ void SetupOsirisProxy(HMODULE hModule)
 		config.DebugFlags = osidbg::DF_DebugTrace | osidbg::DF_SuppressInitLog;
 	}
 
-	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
-
 	if (config.LogDirectory.empty()) {
 		TCHAR * DocumentsPath;
 		if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
@@ -125,18 +97,6 @@ void SetupOsirisProxy(HMODULE hModule)
 		logDir += L"\\OsirisLogs";
 		config.LogDirectory = logDir;
 	}
-
-	osidbg::gOsirisProxy->SetupLogging(config.EnableLogging, (osidbg::DebugFlag)config.DebugFlags, config.LogDirectory);
-	osidbg::gOsirisProxy->EnableCompileLogging(config.LogCompile);
-
-	if (config.EnableLogging || config.LogCompile) {
-		DEBUG(L"Osiris logs will be written to %s", config.LogDirectory.c_str());
-	}
-
-	osidbg::gOsirisProxy->EnableDebugging(config.EnableDebugger, config.DebuggerPort);
-	osidbg::gOsirisProxy->SetupNetworkStringsDump(config.DumpNetworkStrings);
-	osidbg::gOsirisProxy->EnableExtensions(config.EnableExtensions);
-	osidbg::gOsirisProxy->EnableCrashReports(config.SendCrashReports);
 
 	osidbg::gOsirisProxy->Initialize();
 

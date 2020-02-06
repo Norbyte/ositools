@@ -30,6 +30,12 @@ void OsirisProxy::Initialize()
 {
 	InitCrashReporting();
 
+	if (config_.EnableLogging || config_.LogCompile) {
+		DEBUG(L"Osiris logs will be written to %s", config_.LogDirectory.c_str());
+	}
+
+	extensionsEnabled_ = config_.EnableExtensions;
+
 	GameVersionInfo gameVersion;
 	if (Libraries.GetGameVersion(gameVersion)) {
 		if (gameVersion.IsSupported()) {
@@ -38,7 +44,7 @@ void OsirisProxy::Initialize()
 			ERR("Game version v%d.%d.%d.%d is not supported, please upgrade!", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
 			// Disable extensions with old game versions; 
 			// we'd crash if we tried to init extensions in these versions
-			ExtensionsEnabled = false;
+			extensionsEnabled_ = false;
 		}
 	} else {
 		ERR("Failed to retrieve game version info.");
@@ -62,7 +68,7 @@ void OsirisProxy::Initialize()
 #endif
 
 	if (Libraries.FindLibraries()) {
-		if (ExtensionsEnabled) {
+		if (extensionsEnabled_) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
 			ResetExtensionState();
@@ -71,7 +77,7 @@ void OsirisProxy::Initialize()
 		}
 	} else {
 		ERR("OsirisProxy::Initialize: Could not load libraries; skipping scripting extension initialization.");
-		ExtensionsEnabled = false;
+		extensionsEnabled_ = false;
 	}
 
 	// Wrap state change functions even if extension startup failed, otherwise
@@ -93,41 +99,6 @@ void OsirisProxy::Shutdown()
 	DEBUG("OsirisProxy::Shutdown: Exiting");
 	ResetExtensionState();
 	Wrappers.Shutdown();
-}
-
-
-void OsirisProxy::EnableDebugging(bool Enabled, uint16_t Port)
-{
-	DebuggingEnabled = Enabled;
-	DebuggerPort = Port;
-}
-
-void OsirisProxy::EnableExtensions(bool Enabled)
-{
-	ExtensionsEnabled = Enabled;
-}
-
-void OsirisProxy::SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path)
-{
-	DeleteFileW(Path.c_str());
-	LoggingEnabled = Enabled;
-	DesiredLogLevel = LogLevel;
-	LogDirectory = Path;
-}
-
-void OsirisProxy::EnableCompileLogging(bool Log)
-{
-	CompilationLogEnabled = Log;
-}
-
-void OsirisProxy::EnableCrashReports(bool Enabled)
-{
-	SendCrashReports = Enabled;
-}
-
-void OsirisProxy::SetupNetworkStringsDump(bool Enable)
-{
-	EnableNetworkStringsDump = Enable;
 }
 
 void OsirisProxy::LogOsirisError(std::string const & msg)
@@ -159,7 +130,7 @@ void OsirisProxy::LogOsirisMsg(std::string const & msg)
 
 void OsirisProxy::RestartLogging(std::wstring const & Type)
 {
-	DebugFlag NewFlags = (DebugFlag)((DesiredLogLevel & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));
+	DebugFlag NewFlags = (DebugFlag)((config_.DebugFlags & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));
 
 	if (LogFilename.empty() || LogType != Type)
 	{
@@ -178,14 +149,14 @@ void OsirisProxy::RestartLogging(std::wstring const & Type)
 
 std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
 {
-	BOOL created = CreateDirectoryW(LogDirectory.c_str(), NULL);
+	BOOL created = CreateDirectoryW(config_.LogDirectory.c_str(), NULL);
 	if (created == FALSE)
 	{
 		DWORD lastError = GetLastError();
 		if (lastError != ERROR_ALREADY_EXISTS)
 		{
 			std::wstringstream err;
-			err << L"Could not create log directory '" << LogDirectory << "': Error " << lastError;
+			err << L"Could not create log directory '" << config_.LogDirectory << "': Error " << lastError;
 			Fail(err.str().c_str());
 		}
 	}
@@ -196,7 +167,7 @@ std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstrin
 	gmtime_s(&tm, &tt);
 
 	std::wstringstream ss;
-	ss << LogDirectory << L"\\"
+	ss << config_.LogDirectory << L"\\"
 		<< Type << L" "
 		<< std::setfill(L'0')
 		<< (tm.tm_year + 1900) << L"-"
@@ -266,7 +237,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 		}
 	}
 
-	if (LoggingEnabled) {
+	if (config_.EnableLogging) {
 		RestartLogging(L"Runtime");
 	}
 
@@ -279,11 +250,11 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 
 #if !defined(OSI_NO_DEBUGGER)
 	// FIXME - move to DebuggerHooks
-	if (DebuggingEnabled) {
+	if (config_.EnableDebugger) {
 		if (DebuggerThread == nullptr) {
 			DEBUG("Starting debugger server");
 			try {
-				debugInterface_ = std::make_unique<DebugInterface>(DebuggerPort);
+				debugInterface_ = std::make_unique<DebugInterface>(config_.DebuggerPort);
 				debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
 				DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
 			} catch (std::exception & e) {
@@ -336,11 +307,11 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 	auto OriginalFlags = *Wrappers.Globals.DebugFlags;
 	std::wstring storyPath;
 
-	if (ExtensionsEnabled) {
+	if (extensionsEnabled_) {
 		CustomFunctions.PreProcessStory(Path);
 	}
 
-	if (CompilationLogEnabled) {
+	if (config_.LogCompile) {
 		storyPath = MakeLogFilePath(L"Compile", L"div");
 		*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
 		CopyFileW(Path, storyPath.c_str(), TRUE);
@@ -355,7 +326,7 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 		ERR("OsirisProxy::CompileWrapper: Compilation FAILED.");
 	}
 
-	if (CompilationLogEnabled) {
+	if (config_.LogCompile) {
 		*Wrappers.Globals.DebugFlags = OriginalFlags;
 		Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
 
@@ -407,14 +378,14 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	}
 #endif
 
-	if (ExtensionsEnabled) {
+	if (extensionsEnabled_) {
 		ExtensionState::Get().StoryLoaded();
 	}
 }
 
 void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
 {
-	if (EnableNetworkStringsDump) {
+	if (config_.DumpNetworkStrings) {
 		DumpNetworkFixedStrings();
 	}
 }
@@ -673,27 +644,43 @@ void OsirisProxy::OnBaseModuleLoaded(void * self)
 
 void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState toState)
 {
-	if (SendCrashReports) {
+	if (config_.SendCrashReports) {
 		// We need to initialize the crash reporter after the game engine has started,
 		// otherwise the game will overwrite the top level exception filter
 		InitCrashReporting();
 	}
 
-	if (toState == GameState::UnloadSession && ExtensionsEnabled) {
-		INFO("OsirisProxy::OnGameStateChanged(): Unloading session");
-		ResetExtensionState();
-	}
+	if (extensionsEnabled_) {
+		switch (toState) {
+		case GameState::LoadModule:
+			if (config_.DisableModValidation) {
+				PostInitLibraries();
+				if (gStaticSymbols.GetGlobalSwitches()) {
+					gStaticSymbols.GetGlobalSwitches()->EnableModuleHashing = false;
+				} else {
+					WARN("Could not disable mod hashing - GlobalSwitches not mapped");
+				}
+			}
+			break;
 
-	if (toState == GameState::LoadGMCampaign && ExtensionsEnabled) {
-		INFO("OsirisProxy::OnGameStateChanged(): Loading GM campaign");
-		LoadExtensionState();
-	}
+		case GameState::UnloadSession:
+			INFO("OsirisProxy::OnGameStateChanged(): Unloading session");
+			ResetExtensionState();
+			break;
 
-	if (toState == GameState::LoadSession && ExtensionsEnabled) {
-		INFO("OsirisProxy::OnGameStateChanged(): Loading game session");
-		LoadExtensionState();
-		if (ExtState) {
-			ExtState->OnGameSessionLoading();
+		case GameState::LoadGMCampaign:
+			INFO("OsirisProxy::OnGameStateChanged(): Loading GM campaign");
+			LoadExtensionState();
+			break;
+
+		case GameState::LoadSession:
+			INFO("OsirisProxy::OnGameStateChanged(): Loading game session");
+			LoadExtensionState();
+			if (ExtState) {
+				ExtState->OnGameSessionLoading();
+			}
+			break;
+
 		}
 	}
 }
@@ -725,7 +712,7 @@ void OsirisProxy::PostInitLibraries()
 {
 	if (LibrariesPostInitialized) return;
 
-	if (ExtensionsEnabled) {
+	if (extensionsEnabled_) {
 		if (Libraries.PostStartupFindLibraries()) {
 			FunctionLibrary.PostStartup();
 		}
@@ -757,7 +744,7 @@ void OsirisProxy::LoadExtensionState()
 {
 	if (ExtensionLoaded) return;
 
-	if (ExtensionsEnabled) {
+	if (extensionsEnabled_) {
 		if (!ExtState) {
 			ResetExtensionState();
 		}
@@ -769,7 +756,7 @@ void OsirisProxy::LoadExtensionState()
 	// otherwise it won't hook functions that may be needed later on
 	PostInitLibraries();
 
-	if (ExtensionsEnabled && !Libraries.CriticalInitializationFailed()) {
+	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
 		FunctionLibrary.OnBaseModuleLoaded();
 	}

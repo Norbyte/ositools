@@ -658,7 +658,7 @@ namespace osidbg
 
 		{
 			"esv::TurnManager::UpdateTurnOrder",
-			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			SymbolMappingData::kText, 0,
 			"88 54 24 10 " // mov[rsp - 8 + a2], dl
 			"55 " // push    rbp
 			"41 55 " // push    r13
@@ -667,6 +667,18 @@ namespace osidbg
 			"3A 15 XX XX XX XX ", //  cmp     dl, cs:xxx
 			{},
 			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.TurnManagerUpdateTurnOrder}
+		},
+
+		{
+			"GlobalSwitches",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 83 EC 20 " // sub     rsp, 20h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
+			"4C 8B F2 " // mov     r14, rdx
+			"48 8B F1 " // mov     rsi, rcx
+			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_UseLevelCache
+			{SymbolMappingCondition::kFixedString, 17, "UseLevelCache"},
+			{"GlobalSwitches", SymbolMappingTarget::kIndirectLea, 4, (void **)&gStaticSymbols.pGlobalSwitches}
 		},
 	};
 

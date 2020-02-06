@@ -47,6 +47,37 @@
 
 namespace osidbg {
 
+
+struct ToolConfig
+{
+#if defined(OSI_EXTENSION_BUILD)
+	bool CreateConsole{ false };
+	bool EnableLogging{ false };
+	bool LogCompile{ false };
+	bool EnableExtensions{ true };
+	bool EnableDebugger{ false };
+#else
+	bool CreateConsole{ true };
+	bool EnableLogging{ false };
+	bool LogCompile{ false };
+	bool EnableExtensions{ true };
+	bool EnableDebugger{ true };
+#endif
+
+#if defined(NDEBUG)
+	bool SendCrashReports{ true };
+#else
+	bool SendCrashReports{ true };
+#endif
+
+	bool DisableModValidation{ false };
+	bool DumpNetworkStrings{ false };
+	uint16_t DebuggerPort{ 9999 };
+	uint32_t DebugFlags{ 0 };
+	std::wstring LogDirectory;
+};
+
+
 class OsirisProxy
 {
 public:
@@ -55,12 +86,10 @@ public:
 	void Initialize();
 	void Shutdown();
 
-	void EnableDebugging(bool Enabled, uint16_t Port);
-	void EnableExtensions(bool Enabled);
-	void SetupLogging(bool Enabled, DebugFlag LogLevel, std::wstring const & Path);
-	void EnableCompileLogging(bool Log);
-	void EnableCrashReports(bool Enabled);
-	void SetupNetworkStringsDump(bool Enabled);
+	inline ToolConfig & GetConfig()
+	{
+		return config_;
+	}
 
 	void LogOsirisError(std::string const & msg);
 	void LogOsirisWarning(std::string const & msg);
@@ -146,17 +175,9 @@ private:
 	bool MergeWrapper(std::function<bool(void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src);
 	void RuleActionCall(std::function<void(RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 
-	bool DebuggingEnabled{ false };
-	uint16_t DebuggerPort;
+	ToolConfig config_;
+	bool extensionsEnabled_{ false };
 
-	bool EnableNetworkStringsDump{ false };
-	bool ExtensionsEnabled{ false };
-	bool SendCrashReports{ false };
-
-	bool LoggingEnabled{ false };
-	bool CompilationLogEnabled{ false };
-	DebugFlag DesiredLogLevel;
-	std::wstring LogDirectory;
 	std::wstring LogFilename;
 	std::wstring LogType;
 

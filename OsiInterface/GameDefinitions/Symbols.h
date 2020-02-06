@@ -110,6 +110,11 @@ namespace osidbg
 		CharacterFactory ** EsvCharacterFactory{ nullptr };
 		ItemFactory ** EsvItemFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
+#if defined(OSI_EOCAPP)
+		GlobalSwitches ** pGlobalSwitches{ nullptr };
+#else
+		GlobalSwitches *** pGlobalSwitches{ nullptr };
+#endif
 
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 
@@ -122,6 +127,23 @@ namespace osidbg
 		EoCFreeFunc EoCFree{ nullptr };
 		CrtAllocFunc CrtAlloc{ nullptr };
 		CrtFreeFunc CrtFree{ nullptr };
+
+		inline GlobalSwitches * GetGlobalSwitches() const
+		{
+#if defined(OSI_EOCAPP)
+			if (pGlobalSwitches && *pGlobalSwitches) {
+				return *pGlobalSwitches;
+			} else {
+				return nullptr;
+			}
+#else
+			if (pGlobalSwitches && *pGlobalSwitches && **pGlobalSwitches) {
+				return **pGlobalSwitches;
+			} else {
+				return nullptr;
+			}
+#endif
+		}
 
 
 		inline CharacterFactory * GetCharacterFactory() const

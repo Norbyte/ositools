@@ -9,6 +9,114 @@ namespace osidbg
 {
 
 #pragma pack(push, 1)
+	struct GlobalSwitches
+	{
+		void * VMT;
+		uint32_t ShowDebugView;
+		bool Cleave_M;
+		bool ShowCloths;
+		bool field_E;
+		bool ShowDrawStats;
+		bool ShowDebugLines;
+		bool field_11;
+		bool ShowFPS;
+		bool ShowPhysics;
+		bool field_14;
+		bool ShowRagdollInfo;
+		bool field_16;
+		bool ShowRaycasting;
+		bool ShowPhysXBoxes;
+		bool field_19;
+		bool YieldOnLostFocus;
+		bool field_1B;
+		bool EnableAngularCulling;
+		bool field_1D;
+		bool field_1E;
+		bool field_1F;
+		bool field_20;
+		bool field_21;
+		bool LoadScenery;
+		bool LoadTextShaders;
+		float TexelDensityMin;
+		float TexelDensityIdeal;
+		float TexelDensityMax;
+		float TexelDensityExtreme;
+		float UIScaling;
+		float NodeWaitTimeMultiplier;
+		bool EnableGenome;
+		bool field_3D;
+		bool UpdateOffstageOverlayMaterials_M;
+		bool UpdateInvisibilityOverlayMaterials_M;
+		bool FileLoadingLog;
+		bool FileSavingLog;
+		uint16_t _Pad1;
+		uint32_t MouseSensitivity;
+		uint32_t MouseScrollSensitivity;
+		uint32_t ControllerSensitivity;
+		uint32_t ControllerStickDeadZone;
+		uint32_t ControllerStickPressDeadZone;
+		uint32_t ControllerTriggerDeadZone;
+		bool ServerMonitor;
+		bool StoryLog;
+		bool Story;
+		bool StoryEvents;
+		bool DisableStoryPatching;
+		bool ForceStoryPatching;
+		bool StatsArgPassed;
+		bool field_63;
+		bool EnableSoundErrorLogging;
+		bool _Pad2[3];
+		STDString ChatLanguage;
+		bool ShowLocalizationMarkers;
+		bool field_89;
+		uint16_t ForcePort;
+		bool EnablePortmapping;
+		char _Pad3[3];
+		uint32_t GameVisibilityOnline;
+		uint32_t GameVisibilityLAN;
+		uint32_t GameVisibilityDirect;
+		bool DisableLocalMessagePassing;
+		bool EnableSteamP2P;
+		uint16_t _Pad4;
+		STDString DirectConnectAddress;
+		uint32_t field_C0;
+		bool UpdateScene;
+		bool UpdatePhysXScene;
+		bool DoUnlearnCheck;
+		bool VisualizeTextures;
+		bool field_C8;
+		bool field_C9;
+		bool EnableModuleHashing;
+		bool SomePhysXRagdollFlag;
+		bool field_CC;
+		bool field_CD;
+		bool field_CE;
+		bool field_CF;
+		bool UseLevelCache;
+		bool LoadAllEffectPools;
+		bool ScriptLog;
+		bool ShroudEnabled;
+		bool GodMode;
+		bool Fading;
+		bool CheckRequirements;
+		bool UseEndTurnFallback;
+		bool ShowCharacterCreation;
+		bool ShorOriginIntroInCC;
+		bool DisableArmorSavingThrows;
+		bool AlwaysShowSplitterInTrade;
+		bool ResetTutorialsOnNewGame;
+		bool field_DD;
+		bool field_DE;
+		bool field_DF;
+		uint32_t ControllerLayout;
+		bool RotateMinimap;
+		bool ShowOverheadDamage;
+		bool ShowOverheadText;
+		bool ShowOverheadDialog;
+		// Rest of structure not properly mapped yet
+	};
+
+
 	namespace eoc
 	{
 		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>

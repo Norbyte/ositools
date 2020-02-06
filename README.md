@@ -20,5 +20,8 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 | LogCompile | Boolean | Log errors during Osiris story compilation to a log file. |
 | LogDirectory | String | Directory where the generated Osiris logs will be stored. Default is `My Documents\OsirisLogs` |
 | EnableExtensions | Boolean | Make the Osiris extension functionality available ingame or in the editor. |
+| SendCrashReports | Boolean | Upload minidumps to the crash report collection server after a game crash. |
+| DumpNetworkStrings | Boolean | Dumps the NetworkFixedString table to `LogDirectory`. Mainly useful for debugging desync issues. |
+| DisableModValidation | Boolean | Disable module hashing when loading modules. |
 | EnableDebugger | Boolean | Enables the debugger interface |
 | DebuggerPort | Integer | Port number the debugger will listen on (default 9999) |

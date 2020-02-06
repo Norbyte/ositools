@@ -691,6 +691,17 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
 			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 22, (void **)&gStaticSymbols.EoCServer}
 		},
+
+		{
+			"GlobalSwitches",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 83 EC 20 " // sub     rsp, 20h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_UseLevelCache
+			"48 8B F9 ", // mov     rdi, rcx
+			{SymbolMappingCondition::kFixedString, 11, "UseLevelCache"},
+			{"GlobalSwitches", SymbolMappingTarget::kIndirectLea, 4, (void **)&gStaticSymbols.pGlobalSwitches}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)
