@@ -205,6 +205,23 @@ namespace osidbg
 		uint32_t InstanceId;
 	};
 
+	struct TalentArray : public BitArray<4>
+	{
+		inline bool Toggle(TalentType talent, bool enabled)
+		{
+			if (enabled) {
+				return Set((uint32_t)talent);
+			} else {
+				return Clear((uint32_t)talent);
+			}
+		}
+
+		inline bool HasTalent(TalentType talent) const
+		{
+			return IsSet((uint32_t)talent);
+		}
+	};
+
 	struct CDivinityStats_Equipment_Attributes : public ProtectedGameObject<CDivinityStats_Equipment_Attributes>
 	{
 		void * VMT;
@@ -262,7 +279,7 @@ namespace osidbg
 		FixedString ObjectInstanceName;
 		FixedString BoostName;
 		EquipmentStatsType StatsType;
-		BitArray<4> Talents;
+		TalentArray Talents;
 		uint32_t Unkn4;
 		uint64_t AttributeFlagsObjectId;
 
@@ -420,8 +437,8 @@ namespace osidbg
 		int32_t MaxSummons;
 		int32_t Abilities[40];
 		int32_t BonusWeaponDamageMultiplier;
-		BitArray<4> Talents;
-		BitArray<4> RemovedTalents;
+		TalentArray Talents;
+		TalentArray RemovedTalents;
 		int16_t Traits[18];
 		uint32_t BoostConditionsMask;
 		FixedString TranslationKey;
@@ -431,9 +448,6 @@ namespace osidbg
 		uint32_t StepsType;
 		uint64_t AttributeFlagsObjectId;
 		uint32_t Unkn4;
-
-		bool RemoveTalent(TalentType talent, bool remove);
-		bool IsTalentRemoved(TalentType talent);
 	};
 
 	namespace esv { struct Character; }
@@ -492,7 +506,7 @@ namespace osidbg
 		uint32_t MaxSummons;
 		uint32_t BaseMaxSummons;
 		uint32_t MaxMpOverride; // Saved
-		BitArray<4> DisabledTalents; // Saved
+		TalentArray DisabledTalents; // Saved
 
 		std::optional<int32_t> GetStat(char const * name, bool baseStats);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);

@@ -1014,21 +1014,6 @@ namespace osidbg
 	}
 
 
-
-	bool CharacterDynamicStat::RemoveTalent(TalentType talent, bool remove)
-	{
-		if (remove) {
-			return RemovedTalents.Set((uint32_t)talent);
-		} else {
-			return RemovedTalents.Clear((uint32_t)talent);
-		}
-	}
-
-	bool CharacterDynamicStat::IsTalentRemoved(TalentType talent)
-	{
-		return RemovedTalents.IsSet((uint32_t)talent);
-	}
-
 	namespace esv
 	{
 		char const * const sActionStateNames[] = {

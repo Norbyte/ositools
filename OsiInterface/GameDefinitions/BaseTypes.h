@@ -527,7 +527,7 @@ namespace osidbg
 			return true;
 		}
 
-		inline bool IsSet(uint32_t index)
+		inline bool IsSet(uint32_t index) const
 		{
 			if (index <= 0 || index > (TDWords * 32)) {
 				return false;

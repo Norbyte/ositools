@@ -121,6 +121,27 @@ namespace osidbg
 			OsirisPropertyMapSet(gCharacterDynamicStatPropertyMap, permanentBoosts, args, 1, Type);
 		}
 
+		void CharacterSetPermanentBoostTalent(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto talent = args[1].String;
+			auto enabled = args[2].Int32;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr) return;
+
+			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
+			if (permanentBoosts == nullptr) return;
+
+			auto talentId = EnumInfo<TalentType>::Find(talent);
+			if (!talentId) {
+				OsiError("Talent name is invalid: " << talent);
+				return;
+			}
+
+			permanentBoosts->Talents.Toggle(*talentId, enabled != 0);
+		}
+
 		bool CharacterIsTalentDisabled(OsiArgumentDesc & args)
 		{
 			auto characterGuid = args[0].String;
@@ -139,7 +160,7 @@ namespace osidbg
 				return false;
 			}
 
-			disabled = permanentBoosts->IsTalentRemoved(*talentId) ? 1 : 0;
+			disabled = permanentBoosts->RemovedTalents.HasTalent(*talentId) ? 1 : 0;
 			return true;
 		}
 
@@ -161,12 +182,8 @@ namespace osidbg
 				return;
 			}
 
-			permanentBoosts->RemoveTalent(*talentId, disabled != 0);
-			if (disabled != 0) {
-				character->Stats->DisabledTalents.Set((uint32_t)*talentId);
-			} else {
-				character->Stats->DisabledTalents.Clear((uint32_t)*talentId);
-			}
+			permanentBoosts->RemovedTalents.Toggle(*talentId, disabled != 0);
+			character->Stats->DisabledTalents.Toggle(*talentId, disabled != 0);
 		}
 
 		void CharacterSetGlobal(OsiArgumentDesc const & args)
@@ -297,6 +314,18 @@ namespace osidbg
 			&func::CharacterSetPermanentBoost<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(characterSetPermanentBoostInt));
+
+
+		auto characterSetTalent = std::make_unique<CustomCall>(
+			"NRD_CharacterSetPermanentBoostTalent",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "HasTalent", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::CharacterSetPermanentBoostTalent
+		);
+		functionMgr.Register(std::move(characterSetTalent));
 
 
 		auto characterIsTalentDisabled = std::make_unique<CustomQuery>(
