@@ -917,6 +917,12 @@ Returns the permanent boost value applied to the specified character. `_Stat` mu
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
 
+### CharacterSetPermanentBoostTalent
+`call NRD_CharacterSetPermanentBoostTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_HasTalent)`
+
+Gives or removes a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via a dummy `CharacterAddAttribute` call (see above).
+
+
 ### CharacterIsTalentDisabled
 `query NRD_CharacterIsTalentDisabled([in](CHARACTERGUID)_Character, [in](STRING)_Talent, [out](INTEGER)_IsDisabled)`
 
@@ -925,7 +931,7 @@ Returns whether the specified talent is disabled. `_Talent` must be a value from
 ### CharacterDisableTalent
 `call NRD_CharacterDisableTalent((CHARACTERGUID)_Character, (STRING)_Talent, (INTEGER)_IsDisabled)`
 
-Disables or re-enables a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via a dummy `CharacterAddAttribute` call (see above).
+Disables or re-enables a talent. This means that the talent cannot be selected on the character sheet, and the effects of the talent won't trigger even if the character has the talent / gets the talent via a boost or item. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via a dummy `CharacterAddAttribute` call (see above).
 
 ## Skill functions
 
@@ -1483,6 +1489,22 @@ Compare strings `A` and `B` using lexicographic ordering.
 `query NRD_StringLength([in](STRING)_String, [out](INTEGER)_Length)`
 
 Computes the length of the string `_String`, and returns it in `_Length`.
+
+### StringFormat
+`query NRD_StringFormat([in](STRING)_Format, [out](STRING)_Result, [_Arg1], [_Arg2], [_Arg3], ...)`
+
+Substitutes the placeholders `[1]`, `[2]`, ... with the function arguments `_Arg1`, `_Arg2` and returns the formatted string in `_Result`.
+The arguments accept any type (`INTEGER`, `REAL`, ...) as long as it is passed using a `STRING` typecast (i.e. `(STRING)_IntVariable`).
+
+Example:
+```c
+...
+Random(_Modulo, _Random)
+AND
+NRD_StringFormat("Random modulo [1], number [2]", _Fmt, (STRING)_Modulo, (STRING)_Random)
+THEN
+DebugBreak(_Fmt);
+```
 
 ### GuidString
 `query NRD_GuidString([in](STRING)_String, [out](GUIDSTRING)_Result)`

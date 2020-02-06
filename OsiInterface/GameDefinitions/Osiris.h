@@ -116,7 +116,7 @@ struct OsiArgumentValue
 		case ValueType::CharacterGuid:
 		case ValueType::ItemGuid:
 		case ValueType::TriggerGuid:
-			return String;
+			return String ? String : "";
 
 		default:
 			return "(Unknown)";

@@ -16,6 +16,63 @@ namespace osidbg
 			OsiMsg(msg);
 		}
 
+		std::string StringFmtTemp;
+
+		char const * StringFormatArgNames[10] = {
+			"Arg1",
+			"Arg2",
+			"Arg3",
+			"Arg4",
+			"Arg5",
+			"Arg6",
+			"Arg7",
+			"Arg8",
+			"Arg9",
+			"Arg10"
+		};
+
+		char const * StringFormatReplacements[10] = {
+			"[1]",
+			"[2]",
+			"[3]",
+			"[4]",
+			"[5]",
+			"[6]",
+			"[7]",
+			"[8]",
+			"[9]",
+			"[10]",
+		};
+
+		bool StringFormat(OsiArgumentDesc & args)
+		{
+			auto fmtString = args[0].String;
+			auto & output = args[1].String;
+
+			StringFmtTemp = fmtString;
+			auto arg = args.NextParam->NextParam;
+			auto argIndex = 0;
+			while (arg != nullptr && argIndex < 10) {
+				auto replace = StringFormatReplacements[argIndex];
+
+				for (;;) {
+					std::size_t pos = StringFmtTemp.find(replace);
+					if (pos != std::string::npos) {
+						StringFmtTemp = StringFmtTemp.substr(0, pos) + arg->Value.ToString() 
+							+ StringFmtTemp.substr(pos + 3);
+					} else {
+						break;
+					}
+				}
+
+				argIndex++;
+				arg = arg->NextParam;
+			}
+
+			output = StringFmtTemp.c_str();
+			return true;
+		}
+
 		bool StringCompare(OsiArgumentDesc & args)
 		{
 			auto a = args[0].String;
@@ -175,6 +232,23 @@ namespace osidbg
 			&func::StringLength
 		);
 		functionMgr.Register(std::move(stringLength));
+
+		for (auto i = 0; i <= 10; i++) {
+			std::vector<CustomFunctionParam> args{
+				{ "Format", ValueType::String, FunctionArgumentDirection::In },
+				{ "Result", ValueType::String, FunctionArgumentDirection::Out },
+			};
+			for (auto arg = 0; arg < i; arg++) {
+				args.push_back({ func::StringFormatArgNames[arg], ValueType::None, FunctionArgumentDirection::In });
+			}
+
+			auto fmtCall = std::make_unique<CustomQuery>(
+				"NRD_StringFormat",
+				args,
+				&func::StringFormat
+			);
+			functionMgr.Register(std::move(fmtCall));
+		}
 
 		auto stringToInt = std::make_unique<CustomQuery>(
 			"NRD_StringToInt",
