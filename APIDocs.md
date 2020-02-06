@@ -1506,6 +1506,26 @@ THEN
 DebugBreak(_Fmt);
 ```
 
+### Substring
+`query NRD_Substring([in](STRING)_String, [in](INTEGER)_From, [in](INTEGER)_Length, [out](STRING)_Result`
+
+Returns a substring of length `_Length` from the position `_From`.
+Rules:
+ - If `_From` is past the end of the string an empty string is returned.
+ - If `_Length` is past the end of the string, the portion of the string between `_From` and the end of the string is returned.
+ - If `_From` is negative, `_From` is treated as an offset from the end of the string (i.e. for a 8 character string, a `_From` value of `-2` means offset `6`); this rule is helpful for fetching the last N characters of a string
+ - If `_Length` is negative, `_Length` is treated as an offset from the end of the string
+
+Examples:
+```c
+NRD_Substring("ABCDEFGH", 0, 3, _Res) // "ABC"
+NRD_Substring("ABCDEFGH", 9999, 3, _Res) // ""
+NRD_Substring("ABCDEFGH", 0, 9999, _Res) // "ABCDEFGH"
+NRD_Substring("ABCDEFGH", -2, 2, _Res) // "GH"
+NRD_Substring("ABCDEFGH", 0, -2, _Res) // "ABCDEF"
+NRD_Substring("ABCDEFGH", 3, -2, _Res) // "DEF"
+```
+
 ### GuidString
 `query NRD_GuidString([in](STRING)_String, [out](GUIDSTRING)_Result)`
 

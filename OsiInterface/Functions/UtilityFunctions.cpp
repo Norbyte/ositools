@@ -73,6 +73,54 @@ namespace osidbg
 			return true;
 		}
 
+		bool Substring(OsiArgumentDesc & args)
+		{
+			StringFmtTemp = args[0].String;
+			auto from = args[1].Int32;
+			auto length = args[2].Int32;
+			auto & output = args[3].String;
+
+			if (from < 0) {
+				if (-from <= StringFmtTemp.size()) {
+					from = (int)StringFmtTemp.size() + from;
+				} else {
+					from = 0;
+				}
+			} else if (from > StringFmtTemp.size()) {
+				from = (int)StringFmtTemp.size();
+			}
+
+			auto availableLength = (int)StringFmtTemp.size() - from;
+			if (length < 0) {
+				int to;
+				if (-length <= StringFmtTemp.size()) {
+					to = (int)StringFmtTemp.size() + length;
+				} else {
+					to = 0;
+				}
+
+				if (to < from) {
+					to = from;
+				}
+
+				length = to - from;
+			}
+
+			if (length > availableLength) {
+				length = availableLength;
+			}
+
+			if (from >= 0 && from <= StringFmtTemp.size()
+				&& length >= 0 && length + from <= StringFmtTemp.size()) {
+				StringFmtTemp = StringFmtTemp.substr(from, length);
+				output = StringFmtTemp.c_str();
+				return true;
+			} else {
+				OsiError("Invalid bounds in NRD_Substring()");
+				return false;
+			}
+		}
+
 		bool StringCompare(OsiArgumentDesc & args)
 		{
 			auto a = args[0].String;
@@ -249,6 +297,18 @@ namespace osidbg
 			);
 			functionMgr.Register(std::move(fmtCall));
 		}
+
+		auto substring = std::make_unique<CustomQuery>(
+			"NRD_Substring",
+			std::vector<CustomFunctionParam>{
+				{ "String", ValueType::String, FunctionArgumentDirection::In },
+				{ "From", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Length", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::Substring
+		);
+		functionMgr.Register(std::move(substring));
 
 		auto stringToInt = std::make_unique<CustomQuery>(
 			"NRD_StringToInt",
