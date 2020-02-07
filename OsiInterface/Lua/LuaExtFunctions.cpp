@@ -640,6 +640,7 @@ namespace osidbg
 		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 		{
 			LuaStatePin pin(ExtensionState::Get());
+			if (!pin) return {};
 			LuaRestriction restriction(*pin, LuaState::RestrictAll);
 
 			auto L = pin->State();
