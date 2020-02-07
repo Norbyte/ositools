@@ -669,7 +669,7 @@ namespace osidbg
 	{
 		auto & levelMaps = gStaticSymbols.GetStats()->LevelMaps.Primitives;
 		for (auto levelMapIndex : levelMapIds) {
-			auto levelMap = dynamic_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
+			auto levelMap = static_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
 			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
 		}
 
@@ -706,7 +706,7 @@ namespace osidbg
 		
 		auto it = lua->OverriddenLevelMaps.find(modifier->LevelMapIndex);
 		if (it != lua->OverriddenLevelMaps.end()) {
-			auto overridden = dynamic_cast<CRPGStats_CustomLevelMap *>(currentLevelMap);
+			auto overridden = static_cast<CRPGStats_CustomLevelMap *>(currentLevelMap);
 			originalLevelMap = overridden->OriginalLevelMap;
 		} else {
 			originalLevelMap = currentLevelMap;

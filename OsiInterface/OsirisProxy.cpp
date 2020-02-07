@@ -657,6 +657,7 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 				PostInitLibraries();
 				if (gStaticSymbols.GetGlobalSwitches()) {
 					gStaticSymbols.GetGlobalSwitches()->EnableModuleHashing = false;
+					INFO("Disabled module hashing");
 				} else {
 					WARN("Could not disable mod hashing - GlobalSwitches not mapped");
 				}
