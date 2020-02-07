@@ -660,7 +660,7 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 		switch (toState) {
 		case GameState::LoadModule:
 			if (config_.DisableModValidation) {
-				PostInitLibraries();
+				Libraries.PostStartupFindLibraries();
 				if (gStaticSymbols.GetGlobalSwitches()) {
 					gStaticSymbols.GetGlobalSwitches()->EnableModuleHashing = false;
 					INFO("Disabled module hashing");
