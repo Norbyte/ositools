@@ -193,6 +193,18 @@ namespace osidbg
 			}
 		}
 
+		inline std::optional<GameState> GetGameState() const
+		{
+			if (EoCClient != nullptr
+				&& *EoCClient != nullptr
+				&& (*EoCClient)->GameStateMachine != nullptr
+				&& *(*EoCClient)->GameStateMachine != nullptr) {
+				return (*(*EoCClient)->GameStateMachine)->State;
+			} else {
+				return {};
+			}
+		}
+
 		std::string ToPath(std::string const & path, PathRootType root) const;
 		FileReaderPin MakeFileReader(std::string const & path, PathRootType root = PathRootType::Data) const;
 		void DestroyFileReader(FileReader * reader);

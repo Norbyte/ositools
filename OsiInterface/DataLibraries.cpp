@@ -560,10 +560,7 @@ namespace osidbg
 
 	bool LibraryManager::CanShowMessages()
 	{
-		return gStaticSymbols.EoCClient != nullptr
-			&& *gStaticSymbols.EoCClient != nullptr
-			&& (*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
-			&& *(*gStaticSymbols.EoCClient)->GameStateMachine != nullptr
+		return gStaticSymbols.GetGameState()
 			&& gStaticSymbols.EoCClientHandleError != nullptr
 			&& gStaticSymbols.EoCAlloc != nullptr;
 	}
@@ -572,7 +569,7 @@ namespace osidbg
 	{
 		if (!CanShowMessages()) return false;
 
-		auto state = (*(*gStaticSymbols.EoCClient)->GameStateMachine)->State;
+		auto state = gStaticSymbols.GetGameState();
 		return state == GameState::Running
 			|| state == GameState::Paused
 			|| state == GameState::GameMasterPause

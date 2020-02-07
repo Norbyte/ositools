@@ -13,6 +13,7 @@ namespace osidbg
 
 			auto & ext = ExtensionState::Get();
 			ext.LuaReset(bootstrapMods);
+			ext.OnModuleResume();
 			ext.OnGameSessionLoading();
 		}
 

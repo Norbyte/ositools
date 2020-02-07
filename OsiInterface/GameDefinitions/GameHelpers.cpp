@@ -212,6 +212,16 @@ namespace osidbg
 		}
 	}
 
+	CRPGStats_Modifier * CRPGStatsManager::GetModifierInfo(const char * modifierListName, const char * modifierName)
+	{
+		auto modifiers = modifierList.Find(modifierListName);
+		if (modifiers != nullptr) {
+			return modifiers->Attributes.Find(modifierName);
+		} else {
+			return nullptr;
+		}
+	}
+
 	ModifierList * CRPGStatsManager::GetTypeInfo(CRPGStats_Object * object)
 	{
 		return modifierList.Find(object->ModifierListIndex);

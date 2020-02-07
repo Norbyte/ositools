@@ -40,6 +40,11 @@ namespace osidbg
 		std::mt19937_64 OsiRng;
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
+		inline bool WasStatLoadTriggered() const
+		{
+			return StatLoadTriggered;
+		}
+
 		void Reset();
 		void LoadConfigs();
 		bool LoadConfig(Module const & mod, std::string const & configText, ExtensionModConfig & config);
@@ -48,6 +53,7 @@ namespace osidbg
 
 		void OnGameSessionLoading();
 		void OnModuleLoading();
+		void OnModuleResume();
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 
@@ -69,6 +75,7 @@ namespace osidbg
 		unsigned LuaRefs{ 0 };
 		bool LuaPendingDelete{ false };
 		bool LuaPendingStartup{ false };
+		bool StatLoadTriggered{ false };
 
 	private:
 		void LuaResetInternal();

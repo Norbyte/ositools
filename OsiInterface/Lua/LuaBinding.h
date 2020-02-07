@@ -8,6 +8,7 @@
 #include <lualib.h>
 #include <lauxlib.h>
 #include <mutex>
+#include <unordered_set>
 
 namespace osidbg
 {
@@ -204,6 +205,7 @@ namespace osidbg
 	class LuaRegistryEntry
 	{
 	public:
+		LuaRegistryEntry();
 		LuaRegistryEntry(lua_State * L, int index);
 		~LuaRegistryEntry();
 
@@ -780,6 +782,7 @@ namespace osidbg
 		};
 
 		uint32_t RestrictionFlags{ 0 };
+		std::unordered_set<int32_t> OverriddenLevelMaps;
 
 		LuaState();
 		~LuaState();
@@ -834,6 +837,7 @@ namespace osidbg
 		void StoryFunctionMappingsUpdated();
 		void OnGameSessionLoading();
 		void OnModuleLoading();
+		void OnModuleResume();
 
 		bool LoadScript(std::string const & script, std::string const & name = "");
 

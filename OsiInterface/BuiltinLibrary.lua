@@ -13,12 +13,23 @@ Ext._OnModuleLoading = function ()
     for i,callback in pairs(Ext.OnModuleLoading) do
         local status, err = xpcall(callback, debug.traceback)
         if not status then
-            Ext.PrintError("Error during OnGameSessionLoading: ", err)
+            Ext.PrintError("Error during OnModuleLoading: ", err)
         end
     end
 end
 
 Ext.OnModuleLoading = {}
+
+Ext._OnModuleResume = function ()
+    for i,callback in pairs(Ext.OnModuleResume) do
+        local status, err = xpcall(callback, debug.traceback)
+        if not status then
+            Ext.PrintError("Error during OnModuleResume: ", err)
+        end
+    end
+end
+
+Ext.OnModuleResume = {}
 
 Ext._SkillGetDescriptionParam = function (...)
     for i,callback in pairs(Ext.SkillGetDescriptionParam) do
@@ -85,6 +96,8 @@ Ext.RegisterListener = function (type, fn)
 		table.insert(Ext.OnGameSessionLoading, fn)
 	elseif type == "ModuleLoading" then
 		table.insert(Ext.OnModuleLoading, fn)
+	elseif type == "ModuleResume" then
+		table.insert(Ext.OnModuleResume, fn)
 	elseif type == "SkillGetDescriptionParam" then
 		table.insert(Ext.SkillGetDescriptionParam, fn)
 	elseif type == "GetSkillDamage" then

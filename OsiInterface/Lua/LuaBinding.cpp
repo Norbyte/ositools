@@ -7,6 +7,10 @@
 
 namespace osidbg
 {
+	LuaRegistryEntry::LuaRegistryEntry()
+		: L_(nullptr), ref_(-1)
+	{}
+
 	LuaRegistryEntry::LuaRegistryEntry(lua_State * L, int index)
 		: L_(L)
 	{
@@ -860,6 +864,7 @@ namespace osidbg
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
 	int StatAddCustomDescription(lua_State * L);
+	int StatSetLevelScaling(lua_State * L);
 	int GetStat(lua_State * L);
 	int GetCharacter(lua_State * L);
 	int GetItem(lua_State * L);
@@ -894,6 +899,7 @@ namespace osidbg
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},
+			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
@@ -958,12 +964,15 @@ namespace osidbg
 		lua_pop(L, 1); // stack: -
 	}
 
+	void RestoreLevelMaps(std::unordered_set<int32_t> const &);
+
 	LuaState::~LuaState()
 	{
 		if (gOsirisProxy) {
 			gOsirisProxy->GetCustomFunctionManager().ClearDynamicEntries();
 		}
 
+		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(state_);
 	}
 
@@ -1439,6 +1448,22 @@ namespace osidbg
 		}
 	}
 
+	void LuaState::OnModuleResume()
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAll | ScopeModuleLoad);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_OnModuleResume"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+
+		if (CallWithTraceback(0, 0) != 0) { // stack: -
+			OsiError("Ext.OnModuleResume failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
 	std::string LuaState::GetBuiltinLibrary()
 	{
 		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(IDR_LUA_BUILTIN_LIBRARY),
@@ -1472,9 +1497,18 @@ namespace osidbg
 
 	void ExtensionState::OnModuleLoading()
 	{
+		StatLoadTriggered = true;
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua) {
 			lua->OnModuleLoading();
+		}
+	}
+
+	void ExtensionState::OnModuleResume()
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnModuleResume();
 		}
 	}
 
@@ -1587,6 +1621,22 @@ namespace osidbg
 		}
 		
 		lua->FinishStartup();
+
+		auto gameState = gStaticSymbols.GetGameState();
+		if (gameState 
+			&& (*gameState == GameState::LoadLevel
+				|| (*gameState == GameState::LoadModule && ExtensionState::Get().WasStatLoadTriggered())
+				|| *gameState == GameState::LoadSession
+				|| *gameState == GameState::LoadGMCampaign
+				|| *gameState == GameState::Paused
+				|| *gameState == GameState::PrepareRunning
+				|| *gameState == GameState::Running
+				|| *gameState == GameState::GameMasterPause)) {
+			lua->OnModuleResume();
+			OsiWarn("resume -- state " << (unsigned)*gameState);
+		} else {
+			OsiWarn("NO resume -- state " << (unsigned)*gameState);
+		}
 	}
 
 	void ExtensionState::LuaLoadExternalFile(std::string const & path)

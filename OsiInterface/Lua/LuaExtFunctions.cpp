@@ -608,6 +608,124 @@ namespace osidbg
 		return 0;
 	}
 
+
+	struct CRPGStats_CustomLevelMap : public CRPGStats_LevelMap
+	{
+		LuaRegistryEntry Function;
+		CRPGStats_LevelMap * OriginalLevelMap{ nullptr };
+
+		CRPGStats_CustomLevelMap() {}
+		~CRPGStats_CustomLevelMap() override {}
+		
+		void SetModifierList(int modifierListIndex, int modifierIndex) override
+		{
+			OsiError("Not supported!");
+		}
+
+		void SetModifierList(FixedString modifierListName, FixedString modifierName) override
+		{
+			OsiError("Not supported!");
+		}
+
+		int64_t GetScaledValue(int attributeValue, int level) override
+		{
+			auto value = LuaGetScaledValue(attributeValue, level);
+			if (value) {
+				return *value;
+			} else {
+				return OriginalLevelMap->GetScaledValue(attributeValue, level);
+			}
+		}
+
+		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
+		{
+			LuaStatePin pin(ExtensionState::Get());
+			LuaRestriction restriction(*pin, LuaState::RestrictAll);
+
+			auto L = pin->State();
+			Function.Push();
+
+			lua_push(L, attributeValue);
+			lua_push(L, level);
+
+			if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
+				OsiError("Level scaled value fetch failed: " << lua_tostring(L, -1));
+				lua_pop(L, 1);
+				return {};
+			}
+
+			if (lua_type(L, -1) != LUA_TNUMBER) {
+				OsiErrorS("Level scaled fetcher returned non-numeric value");
+				return {};
+			}
+
+			auto value = lua_tointeger(L, -1);
+			lua_pop(L, 1); // stack: -
+			return value;
+		}
+	};
+
+	void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
+	{
+		auto & levelMaps = gStaticSymbols.GetStats()->LevelMaps.Primitives;
+		for (auto levelMapIndex : levelMapIds) {
+			auto levelMap = dynamic_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
+			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
+		}
+
+		if (!levelMapIds.empty()) {
+			OsiWarn("Restored " << levelMapIds.size() << " level map overrides (Lua VM deleted)");
+		}
+	}
+
+	int StatSetLevelScaling(lua_State * L)
+	{
+		auto modifierListName = luaL_checkstring(L, 1);
+		auto modifierName = luaL_checkstring(L, 2);
+		luaL_checktype(L, 3, LUA_TFUNCTION);
+
+		LuaStatePin lua(ExtensionState::Get());
+		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
+			return luaL_error(L, "StatSetLevelScaling() can only be called during module load");
+		}
+
+		auto stats = gStaticSymbols.GetStats();
+		auto modifier = stats->GetModifierInfo(modifierListName, modifierName);
+		if (modifier == nullptr) {
+			OsiError("Modifier list '" << modifierListName << "' or modifier '" << modifierName << "' does not exist!");
+			return 0;
+		}
+
+		if (modifier->LevelMapIndex == -1) {
+			OsiError("Modifier list '" << modifierListName << "', modifier '" << modifierName << "' is not level scaled!");
+			return 0;
+		}
+
+		CRPGStats_LevelMap * originalLevelMap;
+		auto currentLevelMap = stats->LevelMaps.Find(modifier->LevelMapIndex);
+		
+		auto it = lua->OverriddenLevelMaps.find(modifier->LevelMapIndex);
+		if (it != lua->OverriddenLevelMaps.end()) {
+			auto overridden = dynamic_cast<CRPGStats_CustomLevelMap *>(currentLevelMap);
+			originalLevelMap = overridden->OriginalLevelMap;
+		} else {
+			originalLevelMap = currentLevelMap;
+		}
+
+		auto levelMap = GameAlloc<CRPGStats_CustomLevelMap>();
+		levelMap->ModifierListIndex = originalLevelMap->ModifierListIndex;
+		levelMap->ModifierIndex = originalLevelMap->ModifierIndex;
+		levelMap->RPGEnumerationIndex = originalLevelMap->RPGEnumerationIndex;
+		levelMap->Name = originalLevelMap->Name;
+		levelMap->Function = LuaRegistryEntry(L, 3);
+		levelMap->OriginalLevelMap = originalLevelMap;
+
+		stats->LevelMaps.Primitives.Buf[modifier->LevelMapIndex] = levelMap;
+		lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
+
+		return 0;
+	}
+
 	esv::Character * GetCharacter(lua_State * L, int index)
 	{
 		esv::Character * character = nullptr;

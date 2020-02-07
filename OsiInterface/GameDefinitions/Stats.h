@@ -155,16 +155,16 @@ namespace osidbg
 		uint8_t _Pad[7];
 	};
 
-	struct CRPGStats_LevelMap : public ProtectedGameObject<CRPGStats_LevelMap>
+	struct CRPGStats_LevelMap : public Noncopyable<CRPGStats_LevelMap>
 	{
-		virtual void Destroy() = 0;
-		virtual void Unknown08(int a, int b) = 0;
-		virtual void LoadFromModifierList(FixedString modifierListName, FixedString modifierName) = 0;
+		virtual ~CRPGStats_LevelMap() {}
+		virtual void SetModifierList(int modifierListIndex, int modifierIndex) = 0;
+		virtual void SetModifierList(FixedString modifierListName, FixedString modifierName) = 0;
 		virtual int64_t GetScaledValue(int difficultyScale, int level) = 0;
 
-		int ModifierListIndex;
-		int ModifierIndex;
-		int RPGEnumerationIndex;
+		int ModifierListIndex{ -1 };
+		int ModifierIndex{ -1 };
+		int RPGEnumerationIndex{ -1 };
 		uint8_t _Pad[4];
 		FixedString Name;
 	};
@@ -747,6 +747,7 @@ namespace osidbg
 		void * CritSection;
 		uint64_t Unkn7[5];
 
+		CRPGStats_Modifier * GetModifierInfo(const char * modifierListName, const char * modifierName);
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);
 		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);
 		std::optional<char const *> GetAttributeString(CRPGStats_Object * object, const char * attributeName);
