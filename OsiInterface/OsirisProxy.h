@@ -64,11 +64,7 @@ struct ToolConfig
 	bool EnableDebugger{ true };
 #endif
 
-#if defined(NDEBUG)
 	bool SendCrashReports{ true };
-#else
-	bool SendCrashReports{ true };
-#endif
 
 	bool DisableModValidation{ false };
 	bool DumpNetworkStrings{ false };

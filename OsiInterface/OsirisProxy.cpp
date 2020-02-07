@@ -28,7 +28,9 @@ OsirisProxy::OsirisProxy()
 
 void OsirisProxy::Initialize()
 {
-	InitCrashReporting();
+	if (config_.SendCrashReports) {
+		InitCrashReporting();
+	}
 
 	if (config_.EnableLogging || config_.LogCompile) {
 		DEBUG(L"Osiris logs will be written to %s", config_.LogDirectory.c_str());
@@ -91,7 +93,9 @@ void OsirisProxy::Initialize()
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
 	DEBUG("Library startup took %d ms", ms);
 
-	ShutdownCrashReporting();
+	if (config_.SendCrashReports) {
+		ShutdownCrashReporting();
+	}
 }
 
 void OsirisProxy::Shutdown()
