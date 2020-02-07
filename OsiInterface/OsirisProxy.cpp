@@ -363,6 +363,8 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 
 void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 {
+	std::lock_guard _(storyLoadLock_);
+
 #if !defined(OSI_NO_DEBUGGER)
 	if (DebuggerThread != nullptr && !ResolvedNodeVMTs) {
 		ResolveNodeVMTs(*Wrappers.Globals.Nodes);

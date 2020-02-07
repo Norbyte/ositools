@@ -44,6 +44,7 @@
 #include <GameDefinitions/Symbols.h>
 
 #include <thread>
+#include <mutex>
 
 namespace osidbg {
 
@@ -178,6 +179,7 @@ private:
 	std::wstring LogType;
 
 	bool StoryLoaded{ false };
+	std::recursive_mutex storyLoadLock_;
 
 #if !defined(OSI_NO_DEBUGGER)
 	std::thread * DebuggerThread{ nullptr };
