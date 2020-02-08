@@ -1,4 +1,4 @@
-### Lua API v39 Documentation
+### Lua API v40 Documentation
 
 ### Table of Contents  
 
@@ -14,9 +14,14 @@
     * [PROCs](#o2l_procs)
     * [User Queries](#o2l_qrys)
     * [Databases](#o2l_dbs)
- - [JSON Support](#json-support)
- - [Overwriting Native Functions](#overwriting-native-functions)
-    * [Hit Chance](#31o_hit_chance)
+ - [The Ext Library](#the-ext-library)  
+    * [Stats](#stats)
+    * [Mod Info](#mod-info)
+    * [Combat](#combat)
+    * [Damage lists](#damage-lists)
+    * [Overwriting Native Functions](#overwriting-native-functions)
+        * [Hit Chance](#31o_hit_chance)
+    * [JSON Support](#json-support)
 
 
 ## Calling Lua from Osiris
@@ -263,89 +268,163 @@ Osi.DB_CharacterAllCrimesDisabled(player)
 Deleting from DBs and iterating DBs is currently not implemented.
 
 
-## JSON Support
-
-Two functions are provided for parsing and building JSON documents, `Ext.JsonParse` and `Ext.JsonStringify`.
-
-Lua types are encoded in JSON (and vice versa) using the following table:
-
-| Lua Type | JS Type |
-|--|--|
-| `nil` | `null` |
-| `boolean` | `boolean` |
-| `number` (integer) | `number` |
-| `number` (float) | `number` |
-| `string` | `string` |
-| `table` (sequential keys) | `array` |
-| `table` (non-sequential) | `object` |
-
-It is not possible to stringify/parse `lightuserdata`, `userdata`, `function` and `thread` values.
-
-Since JSON only supports string object keys, Lua `number` (integer/float) keys are saved as `string`.
-
-Usage example:
-```lua
-local tab = {
-    asd = 1234,
-    arr = {
-        "ab", "bc", 44
-    }
-}
-
-local json = Ext.JsonStringify(tab)
-Ext.Print(json)
-
-local decoded = Ext.JsonParse(json)
-Ext.Print(decoded.arr[1])
-```
-
-Expected output:
-```
-{
-    "arr": [
-        "ab",
-        "bc",
-        44
-    ],
-    "asd" : 1234
-}
-
-ab
-```
-
-## Overwriting Native Functions
-
-There are native hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
-
-### Hit Chance
-<a id="31o_hit_chance"></a>
-To overwrite the native Hit Chance Calculation, your Lua code should contain the following two lines:
-```lua
-Ext.GetHitChance = YourHitChanceFunction
-Ext.EnableStatOverride("HitChance")
-```
-
-The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
-```lua
-function CustomGetHitChance_EXT(attacker, target)
-    dodge = target.Dodge
-    accuracy = attacker.Accuracy
-
-    hitChance = accuracy - dodge
-    hitChance = math.max(hitChance, 0)
-    hitChance = math.min(hitChance, 100)
-
-    return hitChance
-end
-
-Ext.GetHitChance = CustomGetHitChance_EXT
-Ext.EnableStatOverride("HitChance")
-```
-
-Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
 
 # The `Ext` library
 
+## Stats
+
+### GetStatEntries(type)
+
+Returns a table with the names of all loaded stat entries.
+When the optional parameter `type` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+
+### StatGetAttribute(stat, attribute)
+
+Returns the specified `attribute` of the stat entry.
+If the stat entry does not exist, the stat entry doesn't have an attribute named `attribute`, or the attribute is not supported, the function returns `nil`.
+
+**Notes:**
+ - For enumerations, the function will return the enumeration label (eg. `Corrosive`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
+ - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`, `SkillProperties`, `WinBoost`, `LoseBoost`
+
+`Requirements` and `MemorizationRequirements` are returned in the following format:
+```json
+[
+    {
+        "Not" : false, // Negated condition?
+        "Param" : 1, // Parameter; number for ability/attribute level, string for Tag
+        "Requirement" : "FireSpecialist" // Requirement name
+    },
+    {
+        "Not" : false,
+        "Param" : 1,
+        "Requirement" : "Necromancy"
+    }
+]
+```
+
+### StatSetAttribute(stat, attribute, value) <sup>R</sup>
+
+Updates the specified `attribute` of the stat entry. This essentially allows on-the-fly patching of stat .txt files from script without having to override the while stat entry.
+This function can only be called during the `ModuleLoading` event; calling it elsewhere throws a Lua error.
+
+**Notes:**
+ - For enumerations, the function accepts both the enumeration label (a string value, eg. `Corrosive`) and the enumeration index (an integer value, eg, `7`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
+ - Be aware that a lot of number-like attributes are in fact enums. eg. the `Strength`, `Finesse`, `Intelligence`, etc. attributes of `Potion` are enumerations and setting them by passing an integer value to this function will yield unexpected results. For example, calling `StatSetAttribute("SomePotion", "Strength", 5)` will set the `Strength` value to `-9.6`! The proper way to set these values is by passing the enumeration label as string, eg. `StatSetAttribute("SomePotion", "Strength", "5")`
+ - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`, `SkillProperties`, `WinBoost`, `LoseBoost`
+
+Example:
+```lua
+-- Swap DamageType from Poison to Air on all skills
+for i,name in pairs(Ext.GetStatEntries("SkillData")) do
+    local damageType = Ext.StatGetAttribute(name, "DamageType")
+    if damageType == "Poison" then
+        Ext.StatSetAttribute(name, "DamageType", "Air")
+    end
+end
+```
+
+### GetStat(stat, [level])
+
+Returns the specified stats entry as an object for easier manipulation.
+If the `level` argument is not specified or is `nil`, the table will contain stat values as specified in the stat entry.
+If the `level` argument is not `nil`, the table will contain level-scaled values for the specified level. A `level` value of `-1` will use the level specified in the stat entry.
+
+The behavior of getting a table entry is identical to that of `StatGetAttribute` and setting a table entry is identical to `StatSetAttribute`.
+
+The `StatSetAttribute` example rewritten using `GetStat`:
+```lua
+-- Swap DamageType from Poison to Air on all skills
+for i,name in pairs(Ext.GetStatEntries("SkillData")) do
+    local stat = Ext.GetStat(name)
+    if stat.DamageType == "Poison" then
+        stat.DamageType = "Air"
+    end
+end
+```
+
+### StatAddCustomDescription(stat, attribute, description) <sup>R</sup>
+
+Adds a custom property description to the specified stat entry. (The blue text in the skill description tooltip).
+This function can only be called during the `ModuleLoading` event.
+
+Example:
+```lua
+Ext.StatAddCustomDescription("Dome_CircleOfProtection", "SkillProperties", "Custom desc one")
+```
+### StatSetLevelScaling(statType, attribute, func) <sup>R</sup>
+
+Replaces level scaling formula for the specified stat.
+This function can only be called during the `ModuleLoading` event.
+
+`statType` is the type of stat to override (`Character`, `SkillData`, `Potion`, etc). `attribute` is the stat attribute to override (`Strength`, `Constitution`, ...).
+
+`func` must satisfy the following requirements:
+ - Must be a Lua function that receives two arguments `(attributeValue, level)` and returns the integer level scaled value.
+ - Must have no side effects (i.e. can't set external variables, call external functions, etc)
+ - Must always returns the same result when given the same argument values
+ - Since the function is called very frequently (up to 50,000 calls during a level load), it should execute as quickly as possible
+
+### ExtraData
+
+`Ext.ExtraData` is an object containing all entries from `Data.txt`.
+
+*Note*: It is possible to add custom `ExtraData` keys by adding a new `Data.txt` to the mod and then retrieve them using Lua.
+
+Example:
+```lua
+Ext.Print(Ext.ExtraData.DamageBoostFromAttribute)
+```
+
+
+## Mod Info
+
+### IsModLoaded(modGuid)
+
+Returns whether the module with the specified GUID is loaded.
+This is equivalent to Osiris `NRD_IsModLoaded`, but is callable when the Osiris scripting runtime is not yet available (i.e. `ModuleLoading˙, etc events).
+
+Example:
+```lua
+if (Ext.IsModLoaded("5cc23efe-f451-c414-117d-b68fbc53d32d"))
+    Ext.Print("Mod loaded")
+end
+```
+
+### GetModLoadOrder()
+
+Returns the list of loaded module UUIDs in the order they're loaded in.
+
+### GetModInfo(modGuid)
+
+Returns detailed information about the specified (loaded) module.
+Example:
+```lua
+local loadOrder = Ext.GetModLoadOrder()
+for k,uuid in pairs(loadOrder) do
+    local mod = Ext.GetModInfo(uuid)
+    Ext.Print(Ext.JsonStringify(mod))
+end
+```
+
+Output:
+```json
+{
+    "Author" : "Larian Studios",
+    "Dependencies" :
+    [
+        "2bd9bdbe-22ae-4aa2-9c93-205880fc6564",
+        "eedf7638-36ff-4f26-a50a-076b87d53ba0"
+    ],
+    "Description" : "",
+    "Directory" : "DivinityOrigins_1301db3d-1f54-4e98-9be5-5094030916e4",
+    "ModuleType" : "Adventure",
+    "Name" : "Divinity: Original Sin 2",
+    "PublishVersion" : 905969667,
+    "UUID" : "1301db3d-1f54-4e98-9be5-5094030916e4",
+    "Version" : 372645092
+}
+```
 
 ## Combat
 
@@ -388,7 +467,7 @@ Notes:
  - It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
  - Changed performed using this function are synchronized to the client at the end of the current server tick.
 
-### CalculateTurnOrder Event
+### CalculateTurnOrder Event <sup>R</sup>
 
 When the turn order of the next round of a combat is being updated for some reason (new round, character entered combat, etc.) the `CalculateTurnOrder` Ext event is thrown. 
 The event receives two parameters:
@@ -480,9 +559,92 @@ for i,damage in pairs(list:ToTable()) do
 end
 ```
 
+## Overwriting Native Functions
+
+There are native hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
+
+### Hit Chance
+<a id="31o_hit_chance"></a>
+To overwrite the native Hit Chance Calculation, your Lua code should contain the following two lines:
+```lua
+Ext.GetHitChance = YourHitChanceFunction
+Ext.EnableStatOverride("HitChance")
+```
+
+The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
+```lua
+function CustomGetHitChance_EXT(attacker, target)
+    dodge = target.Dodge
+    accuracy = attacker.Accuracy
+
+    hitChance = accuracy - dodge
+    hitChance = math.max(hitChance, 0)
+    hitChance = math.min(hitChance, 100)
+
+    return hitChance
+end
+
+Ext.GetHitChance = CustomGetHitChance_EXT
+Ext.EnableStatOverride("HitChance")
+```
+
+Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
+
+
+## JSON Support
+
+Two functions are provided for parsing and building JSON documents, `Ext.JsonParse` and `Ext.JsonStringify`.
+
+Lua types are encoded in JSON (and vice versa) using the following table:
+
+| Lua Type | JS Type |
+|--|--|
+| `nil` | `null` |
+| `boolean` | `boolean` |
+| `number` (integer) | `number` |
+| `number` (float) | `number` |
+| `string` | `string` |
+| `table` (sequential keys) | `array` |
+| `table` (non-sequential) | `object` |
+
+It is not possible to stringify/parse `lightuserdata`, `userdata`, `function` and `thread` values.
+
+Since JSON only supports string object keys, Lua `number` (integer/float) keys are saved as `string`.
+
+Usage example:
+```lua
+local tab = {
+    asd = 1234,
+    arr = {
+        "ab", "bc", 44
+    }
+}
+
+local json = Ext.JsonStringify(tab)
+Ext.Print(json)
+
+local decoded = Ext.JsonParse(json)
+Ext.Print(decoded.arr[1])
+```
+
+Expected output:
+```
+{
+    "arr": [
+        "ab",
+        "bc",
+        44
+    ],
+    "asd" : 1234
+}
+
+ab
+```
+
+
 
 ### TODO
- - Stat overrides, status chance overrides, Restricted contexts, Client-side behavior
+ - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks, Restricted contexts, Client-side behavior
  - Lua state lifetime, Globals behavior (not saved)
  - Ext.Require, Print
  - File IO
