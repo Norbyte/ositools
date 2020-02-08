@@ -974,7 +974,7 @@ namespace osidbg
 
 	void HitDamageInfo::ClearDamage(osidbg::DamageType damageType)
 	{
-		for (auto i = 0; i < DamageList.Size; i++) {
+		for (uint32_t i = 0; i < DamageList.Size; i++) {
 			auto const & dmg = DamageList[i];
 			if (dmg.DamageType == damageType) {
 				TotalDamage -= dmg.Amount;

@@ -777,8 +777,13 @@ namespace osidbg
 			ScopeModuleLoad = 1 << 16,
 			// Permit calls only available during session load state
 			ScopeSessionLoad = 1 << 17,
+			// Permit calls only available during module resume state
+			ScopeModuleResume = 1 << 18,
 
-			RestrictAll = 0x0000ffff
+			// Flags to use for code that only runs on the server
+			RestrictAllServer = 0x0000ffff & ~RestrictHandleConversion,
+			// Flags to use for code that runs on both server & client
+			RestrictAllClient = 0x0000ffff,
 		};
 
 		uint32_t RestrictionFlags{ 0 };
@@ -830,6 +835,11 @@ namespace osidbg
 		inline bool StartupDone() const
 		{
 			return startupDone_;
+		}
+
+		inline std::recursive_mutex & GetMutex()
+		{
+			return mutex_;
 		}
 
 		void FinishStartup();

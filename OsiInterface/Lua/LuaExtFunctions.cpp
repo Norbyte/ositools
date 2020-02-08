@@ -209,8 +209,13 @@ namespace osidbg
 	int JsonStringify(lua_State * L)
 	{
 		int nargs = lua_gettop(L);
-		if (nargs != 1) {
-			return luaL_error(L, "JsonStringify expects exactly one parameter.");
+		if (nargs < 1 || nargs > 2) {
+			return luaL_error(L, "JsonStringify expects at most two parameters.");
+		}
+
+		bool beautify{ true };
+		if (nargs >= 2) {
+			beautify = lua_toboolean(L, 2) == 1;
 		}
 
 		Json::Value root;
@@ -221,12 +226,13 @@ namespace osidbg
 		}
 
 		Json::StreamWriterBuilder builder;
-		builder["indentation"] = "\t";
+		if (beautify) {
+			builder["indentation"] = "\t";
+		}
 		std::stringstream ss;
 		std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
 		writer->write(root, &ss);
 
-		int nargs2 = lua_gettop(L);
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}
@@ -584,13 +590,13 @@ namespace osidbg
 		auto attributeName = luaL_checkstring(L, 2);
 		auto description = luaL_checkstring(L, 3);
 
-		auto object = StatFindObject(statName);
-		if (!object) return 0;
-
 		LuaStatePin lua(ExtensionState::Get());
 		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
 			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
+
+		auto object = StatFindObject(statName);
+		if (!object) return 0;
 
 		auto props = object->PropertyList.Find(attributeName);
 		if (props == nullptr || *props == nullptr) {
@@ -641,7 +647,9 @@ namespace osidbg
 		{
 			LuaStatePin pin(ExtensionState::Get());
 			if (!pin) return {};
-			LuaRestriction restriction(*pin, LuaState::RestrictAll);
+
+			std::lock_guard _(pin->GetMutex());
+			LuaRestriction restriction(*pin, LuaState::RestrictAllClient);
 
 			auto L = pin->State();
 			Function.Push();
@@ -686,8 +694,8 @@ namespace osidbg
 		luaL_checktype(L, 3, LUA_TFUNCTION);
 
 		LuaStatePin lua(ExtensionState::Get());
-		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
-			return luaL_error(L, "StatSetLevelScaling() can only be called during module load");
+		if (!(lua->RestrictionFlags & (LuaState::ScopeModuleLoad | LuaState::ScopeModuleResume))) {
+			return luaL_error(L, "StatSetLevelScaling() can only be called during module load/resume");
 		}
 
 		auto stats = gStaticSymbols.GetStats();
@@ -1030,7 +1038,7 @@ namespace osidbg
 #if !defined(OSI_EOCAPP)
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictOsiris) {
-			return luaL_error(L, "Attempted to generate IDE helpers in restricted context");
+			return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}
 
 		auto helpers = GenerateIdeHelpers();

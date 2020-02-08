@@ -1044,7 +1044,7 @@ namespace osidbg
 	std::optional<int32_t> LuaState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll & ~RestrictHandleConversion);
+		LuaRestriction restriction(*this, RestrictAllServer);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1084,7 +1084,7 @@ namespace osidbg
 	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll);
+		LuaRestriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1127,7 +1127,7 @@ namespace osidbg
 		ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll);
+		LuaRestriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1190,7 +1190,7 @@ namespace osidbg
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll);
+		LuaRestriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1297,7 +1297,7 @@ namespace osidbg
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll);
+		LuaRestriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1366,7 +1366,7 @@ namespace osidbg
 	bool LuaState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll);
+		LuaRestriction restriction(*this, RestrictAllServer);
 
 		auto turnMgr = GetTurnManager();
 		if (!turnMgr) {
@@ -1417,7 +1417,7 @@ namespace osidbg
 	void LuaState::OnGameSessionLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll | ScopeSessionLoad);
+		LuaRestriction restriction(*this, RestrictAllClient | ScopeSessionLoad);
 
 		identityAdapters_.UpdateAdapters();
 
@@ -1435,7 +1435,7 @@ namespace osidbg
 	void LuaState::OnModuleLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll | ScopeModuleLoad);
+		LuaRestriction restriction(*this, RestrictAllClient | ScopeModuleLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1451,7 +1451,7 @@ namespace osidbg
 	void LuaState::OnModuleResume()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAll | ScopeModuleLoad);
+		LuaRestriction restriction(*this, RestrictAllClient | ScopeModuleResume);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -1601,7 +1601,7 @@ namespace osidbg
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
-		LuaRestriction restriction(*lua, LuaState::RestrictAll);
+		LuaRestriction restriction(*lua, LuaState::RestrictAllClient);
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
