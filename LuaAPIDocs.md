@@ -288,7 +288,7 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
  - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`, `SkillProperties`, `WinBoost`, `LoseBoost`
 
 `Requirements` and `MemorizationRequirements` are returned in the following format:
-```json
+```js
 [
     {
         "Not" : false, // Negated condition?
