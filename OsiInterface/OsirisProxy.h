@@ -67,7 +67,11 @@ struct ToolConfig
 
 	bool SendCrashReports{ true };
 
+#if defined(OSI_EXTENSION_BUILD)
+	bool DisableModValidation{ true };
+#else
 	bool DisableModValidation{ false };
+#endif
 	bool DumpNetworkStrings{ false };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
