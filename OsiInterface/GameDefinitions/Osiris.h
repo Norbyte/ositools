@@ -810,47 +810,50 @@ struct GoalDb
 	TMap<uint32_t, Goal *, 6, 4> Goals;
 };
 
-struct DatabaseDb
+template <class T>
+struct TypedDb
 {
-	TArray<Database *> Db;
+	TArray<T *> Db;
 };
 
 class VirtTupleLL;
-struct AdapterDb;
+class Node;
 
 struct Adapter : public ProtectedGameObject<Adapter>
 {
 	uint32_t Id;
 	uint32_t __Padding;
-	AdapterDb * Db;
+	TypedDb<Adapter> * Db;
 	TMap<uint8_t, uint8_t, 0, 0> VarToColumnMaps;
 	uint64_t VarToColumnMapCount;
 	Vector<int8_t> ColumnToVarMaps;
 	VirtTupleLL Constants;
 };
 
-struct AdapterDb
-{
-	TArray<Adapter *> Db;
-};
+using DatabaseDb = TypedDb<Database>;
+using AdapterDb = TypedDb<Adapter>;
+using NodeDb = TypedDb<Node>;
 
-struct NodeDb
-{
-	TArray<class Node *> Db;
-};
-
-template <typename ManagerType>
+template <typename T>
 struct Ref
 {
 	uint32_t Id;
 	uint32_t __Padding;
-	ManagerType * Manager;
+	TypedDb<T> * Manager;
+
+	T * Get() const
+	{
+		if (Id == 0 || Manager == nullptr) {
+			return nullptr;
+		}
+
+		return Manager->Db.Start[Id - 1];
+	}
 };
 
-typedef Ref<DatabaseDb> DatabaseRef;
-typedef Ref<AdapterDb> AdapterRef;
-typedef Ref<NodeDb> NodeRef;
-typedef Ref<DatabaseDb> DatabaseRef;
+typedef Ref<Database> DatabaseRef;
+typedef Ref<Adapter> AdapterRef;
+typedef Ref<Node> NodeRef;
 
 enum class EntryPoint : uint32_t
 {

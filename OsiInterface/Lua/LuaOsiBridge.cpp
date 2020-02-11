@@ -263,6 +263,105 @@ namespace osidbg
 		}
 	}
 
+	int LuaOsiFunction::LuaGet(lua_State * L)
+	{
+		if (!IsBound()) {
+			return luaL_error(L, "Attempted to read an unbound Osiris database");
+		}
+
+		if (!IsDB()) {
+			return luaL_error(L, "Attempted to read function that's not a database");
+		}
+
+		int numArgs = lua_gettop(L);
+		if (numArgs < 1) {
+			return luaL_error(L, "Read Osi database without 'self' argument?");
+		}
+
+		if (state_->RestrictionFlags & LuaState::RestrictOsiris) {
+			return luaL_error(L, "Attempted to read Osiris database in restricted context");
+		}
+
+		auto db = function_->Node.Get()->Database.Get();
+		
+
+		auto head = db->Facts.Head;
+		auto current = head->Next;
+
+		lua_newtable(L);
+		auto index = 1;
+		while (current != head) {
+			if (MatchTuple(L, 2, current->Item)) {
+				lua_pushinteger(L, index++);
+				ConstructTuple(L, current->Item);
+				lua_settable(L, -3);
+			}
+
+			current = current->Next;
+		}
+
+		return 1;
+	}
+
+	bool LuaOsiFunction::MatchTuple(lua_State * L, int firstIndex, TupleVec const & tuple)
+	{
+		for (auto i = 0; i < tuple.Size; i++) {
+			if (!lua_isnil(L, firstIndex + i)) {
+				auto const & v = tuple.Values[i];
+				switch ((ValueType)v.TypeId) {
+				case ValueType::Integer:
+					if (v.Value.Val.Int32 != lua_tointeger(L, firstIndex + i)) {
+						return false;
+					}
+					break;
+
+				case ValueType::Integer64:
+					if (v.Value.Val.Int64 != lua_tointeger(L, firstIndex + i)) {
+						return false;
+					}
+					break;
+
+				case ValueType::Real:
+					if (abs(v.Value.Val.Float - lua_tonumber(L, firstIndex + i)) > 0.00001f) {
+						return false;
+					}
+					break;
+
+				case ValueType::String:
+				case ValueType::GuidString:
+				case ValueType::CharacterGuid:
+				case ValueType::ItemGuid:
+				case ValueType::TriggerGuid:
+				case ValueType::SplineGuid:
+				case ValueType::LevelTemplateGuid:
+				{
+					auto str = lua_tostring(L, firstIndex + i);
+					if (!str || strcmp(v.Value.Val.String, str) != 0) {
+						return false;
+					}
+					break;
+				}
+
+				default:
+					OsiError("Unsupported ValueType for comparison: " << v.TypeId);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	void LuaOsiFunction::ConstructTuple(lua_State * L, TupleVec const & tuple)
+	{
+		lua_newtable(L);
+		for (auto i = 0; i < tuple.Size; i++) {
+			lua_pushinteger(L, i + 1);
+			OsiToLua(L, tuple.Values[i]);
+			lua_settable(L, -3);
+		}
+	}
+
 	void LuaOsiFunction::OsiCall(lua_State * L)
 	{
 		auto funcArgs = function_->Signature->Params->Params.Size;
@@ -452,6 +551,16 @@ namespace osidbg
 
 	char const * const LuaOsiFunctionNameProxy::MetatableName = "LuaOsiFunctionNameProxy";
 
+	void LuaOsiFunctionNameProxy::PopulateMetatable(lua_State * L)
+	{
+		lua_newtable(L);
+
+		lua_pushcfunction(L, &LuaGet);
+		lua_setfield(L, -2, "Get");
+
+		lua_setfield(L, -2, "__index");
+	}
+
 	LuaOsiFunctionNameProxy::LuaOsiFunctionNameProxy(std::string const & name, LuaState & state)
 		: name_(name), state_(state), generationId_(state_.GenerationId())
 	{}
@@ -482,6 +591,34 @@ namespace osidbg
 		}
 
 		return func->LuaCall(L);
+	}
+
+	int LuaOsiFunctionNameProxy::LuaGet(lua_State * L)
+	{
+		auto self = LuaOsiFunctionNameProxy::CheckUserData(L, 1);
+
+		if (self->state_.RestrictionFlags & LuaState::RestrictOsiris) {
+			return luaL_error(L, "Attempted to read Osiris DB in restricted context");
+		}
+
+		if (self->generationId_ != self->state_.GenerationId()) {
+			// Clear cached functions if story was reloaded
+			self->UnbindAll();
+			self->generationId_ = self->state_.GenerationId();
+		}
+
+		auto arity = (uint32_t)lua_gettop(L) - 1;
+
+		auto func = self->TryGetFunction(arity);
+		if (func == nullptr) {
+			return luaL_error(L, "No database named '%s(%d)' exists", self->name_.c_str(), arity);
+		}
+
+		if (!func->IsDB()) {
+			return luaL_error(L, "Function '%s(%d)' is not a database", self->name_.c_str(), arity);
+		}
+
+		return func->LuaGet(L);
 	}
 
 	LuaOsiFunction * LuaOsiFunctionNameProxy::TryGetFunction(uint32_t arity)

@@ -259,13 +259,23 @@ local succeeded = Osi.Qry_IsHealingStatus("DAMAGE")
 ### Databases
 <a id="o2l_dbs"></a>
 
+Databases can be read using the `Get` method. The method checks its parameters against the database and only returns rows that match the query.
+Example:
+```lua
+-- Fetch all rows from DB_GiveTemplateFromNpcToPlayerDialogEvent
+local rows = Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Get(nil, nil, nil)
+
+-- Fetch rows where the first column is CON_Drink_Cup_A_Tea_080d0e93-12e0-481f-9a71-f0e84ac4d5a9
+local rows = Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Get("CON_Drink_Cup_A_Tea_080d0e93-12e0-481f-9a71-f0e84ac4d5a9", nil, nil)
+```
+
 It is possible to insert new tuples to Osiris databases by calling the DB like a function.
 
 ```lua
 Osi.DB_CharacterAllCrimesDisabled(player)
 ```
 
-Deleting from DBs and iterating DBs is currently not implemented.
+Deleting from DBs is currently not implemented.
 
 
 

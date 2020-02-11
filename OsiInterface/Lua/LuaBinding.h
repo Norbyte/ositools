@@ -323,10 +323,16 @@ namespace osidbg
 			return function_ != nullptr;
 		}
 
+		inline bool IsDB() const
+		{
+			return IsBound() && function_->Type == FunctionType::Database;
+		}
+
 		bool Bind(Function const * func, class LuaState & state);
 		void Unbind();
 
 		int LuaCall(lua_State * L);
+		int LuaGet(lua_State * L);
 
 	private:
 		Function const * function_{ nullptr };
@@ -337,6 +343,9 @@ namespace osidbg
 		void OsiInsert(lua_State * L, bool deleteTuple);
 		int OsiQuery(lua_State * L);
 		int OsiUserQuery(lua_State * L);
+
+		bool MatchTuple(lua_State * L, int firstIndex, TupleVec const & tuple);
+		void ConstructTuple(lua_State * L, TupleVec const & tuple);
 	};
 
 	class LuaOsiFunctionNameProxy : public LuaUserdata<LuaOsiFunctionNameProxy>, public LuaCallable
@@ -346,6 +355,8 @@ namespace osidbg
 		// Maximum number of OUT params that a query can return.
 		// (This setting determines how many function arities we'll check during name lookup)
 		static constexpr uint32_t MaxQueryOutParams = 6;
+
+		static void PopulateMetatable(lua_State * L);
 
 		LuaOsiFunctionNameProxy(std::string const & name, LuaState & state);
 
@@ -358,6 +369,7 @@ namespace osidbg
 		LuaState & state_;
 		uint32_t generationId_;
 
+		static int LuaGet(lua_State * L);
 		LuaOsiFunction * TryGetFunction(uint32_t arity);
 		LuaOsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);
 		Function const * LookupOsiFunction(uint32_t arity);
