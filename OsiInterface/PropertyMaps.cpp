@@ -337,6 +337,7 @@ namespace osidbg
 			PROP_RO(CDivinityStats_Character, Level);
 			PROP_RO(CDivinityStats_Character, Name);
 			PROP_RO(CDivinityStats_Character, AIFlags);
+			PROP_RO(CDivinityStats_Character, InstanceId);
 
 			// CDivinityStats_Character
 			PROP(CDivinityStats_Character, CurrentVitality);
@@ -372,8 +373,9 @@ namespace osidbg
 		{
 			auto & propertyMap = gItemStatsPropertyMap;
 			// CRPGStats_Object
-			PROP_RO(CDivinityStats_Character, Level);
-			PROP_RO(CDivinityStats_Character, Name);
+			PROP_RO(CDivinityStats_Item, Level);
+			PROP_RO(CDivinityStats_Item, Name);
+			PROP_RO(CDivinityStats_Item, InstanceId);
 
 			// CDivinityStats_Item
 			PROP_ENUM(CDivinityStats_Item, ItemType);
@@ -464,6 +466,7 @@ namespace osidbg
 			PROP_RO(esv::Item, Vitality);
 			PROP_RO(esv::Item, Armor);
 			PROP_RO(esv::Item, InUseByCharacterHandle);
+			PROP_RO(esv::Item, Key);
 			PROP_RO(esv::Item, LockLevel);
 			PROP_RO(esv::Item, ComputedVitality);
 			PROP_RO(esv::Item, ItemType);

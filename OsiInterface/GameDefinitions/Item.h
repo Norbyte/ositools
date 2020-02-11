@@ -130,7 +130,9 @@ namespace osidbg
 			uint32_t Vitality; // Saved
 			uint32_t Armor; // Saved
 			ObjectHandle InUseByCharacterHandle;
-			uint64_t U5[2];
+			uint32_t UserId;
+			uint32_t U50;
+			FixedString FS5;
 			uint32_t LockLevel; // Saved
 			uint32_t _Pad7;
 			void * ItemMachine; // Saved
