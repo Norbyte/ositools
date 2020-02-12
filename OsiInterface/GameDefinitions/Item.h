@@ -132,7 +132,7 @@ namespace osidbg
 			ObjectHandle InUseByCharacterHandle;
 			uint32_t UserId;
 			uint32_t U50;
-			FixedString FS5;
+			FixedString Key;
 			uint32_t LockLevel; // Saved
 			uint32_t _Pad7;
 			void * ItemMachine; // Saved

@@ -449,6 +449,14 @@ namespace osidbg
 		{ HitFlag::HF_NoEvents, "NoEvents" }
 	};
 
+	EnumInfo<StatCharacterFlags>::Label const EnumInfo<StatCharacterFlags>::Values[] = {
+		{ StatCharacterFlags::SCF_IsPlayer, "IsPlayer" },
+		{ StatCharacterFlags::SCF_InParty, "InParty" },
+		{ StatCharacterFlags::SCF_Sneaking, "Sneaking" },
+		{ StatCharacterFlags::SCF_Invisible, "Invisible" },
+		{ StatCharacterFlags::SCF_Blind, "Blind" },
+	};
+
 	EnumInfo<StatusHealType>::Label const EnumInfo<StatusHealType>::Values[] = {
 		{ StatusHealType::SHT_None, "None" },
 		{ StatusHealType::SHT_Vitality, "Vitality" },

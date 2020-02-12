@@ -352,6 +352,7 @@ namespace osidbg
 			PROP_RO(CDivinityStats_Character, Reputation);
 			PROP_RO(CDivinityStats_Character, Flanked);
 			PROP_RO(CDivinityStats_Character, Karma);
+			PROP_FLAGS(CDivinityStats_Character, Flags, StatCharacterFlags, false);
 			PROP_RO(CDivinityStats_Character, IsIncapacitatedRefCount);
 
 			PROP_RO(CDivinityStats_Character, MaxVitality);

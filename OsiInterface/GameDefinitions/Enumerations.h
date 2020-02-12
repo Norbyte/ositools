@@ -686,6 +686,17 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(ItemSlot, 15);
 
+	enum StatCharacterFlags : uint8_t
+	{
+		SCF_IsPlayer = 1,
+		SCF_InParty = 2,
+		SCF_Sneaking = 4,
+		SCF_Invisible = 8,
+		SCF_Blind = 16
+	};
+
+	MAKE_ENUM_INFO(StatCharacterFlags, 5);
+
 	enum HitFlag : uint32_t
 	{
 		HF_Hit = 1,

@@ -21,9 +21,7 @@ namespace osidbg
 	struct CNamedElementManager : public ProtectedGameObject<CNamedElementManager<T>>
 	{
 		void * VMT;
-		void * PrimitiveSetVMT;
-		PrimitiveSet<T *> Primitives;
-		uint64_t Unknown;
+		ObjectSet<T *> Primitives;
 		FixedStringMapBase<uint32_t> NameHashMap;
 		uint32_t Unused;
 		uint32_t NumItems;
@@ -82,6 +80,7 @@ namespace osidbg
 	struct CRPGStats_Object_Property : public Noncopyable<CRPGStats_Object_Property>
 	{
 		virtual ~CRPGStats_Object_Property() {}
+		virtual CRPGStats_Object_Property * Clone() = 0;
 
 		FixedString SomeHashedText;
 	};
@@ -89,7 +88,7 @@ namespace osidbg
 	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
 	{
 		virtual ~CDivinityStats_Object_Property_Data() {}
-		virtual CDivinityStats_Object_Property_Data * Clone() = 0;
+		virtual CRPGStats_Object_Property * Clone() = 0;
 		virtual bool GetDescription(STDWString * Line1) = 0;
 		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) = 0;
 		virtual bool GetDescription(TranslatedString * Line1) = 0;
@@ -108,7 +107,7 @@ namespace osidbg
 
 		virtual ~CRPGStats_Object_Property_CustomDescription() {}
 
-		virtual CDivinityStats_Object_Property_Data * Clone()
+		virtual CRPGStats_Object_Property * Clone()
 		{
 			auto cl = new CRPGStats_Object_Property_CustomDescription();
 			cl->SomeHashedText = SomeHashedText;
@@ -153,6 +152,13 @@ namespace osidbg
 		FixedString StatsObjName_PropertyName;
 		bool Unknown;
 		uint8_t _Pad[7];
+
+		CRPGStats_Object_Property_List * Copy() const
+		{
+			auto copy = GameAlloc<CRPGStats_Object_Property_List>();
+			copy->StatsObjName_PropertyName = StatsObjName_PropertyName;
+			copy->Unknown = Unknown;
+		}
 	};
 
 	struct CRPGStats_LevelMap : public Noncopyable<CRPGStats_LevelMap>
@@ -168,6 +174,8 @@ namespace osidbg
 		uint8_t _Pad[4];
 		FixedString Name;
 	};
+
+	struct CDivinityStats_Condition;
 
 	struct CRPGStats_Object : public ProtectedGameObject<CRPGStats_Object>
 	{
@@ -185,7 +193,7 @@ namespace osidbg
 		struct CDivinityStats * DivStats;
 		FixedStringMapBase<CRPGStats_Object_Property_List *> PropertyList;
 		uint32_t Unused5;
-		FixedStringMapBase<void *> ConditionList;
+		FixedStringMapBase<CDivinityStats_Condition *> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
 		ObjectSet<CRPGStats_Requirement> Requirements;
@@ -604,7 +612,7 @@ namespace osidbg
 
 	struct CDivinityStats_Condition : public ProtectedGameObject<CDivinityStats_Condition>
 	{
-		void * ScriptCheckBlock;
+		STDString * ScriptCheckBlock;
 		FixedString Id;
 	};
 
