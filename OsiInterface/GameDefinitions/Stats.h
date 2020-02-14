@@ -49,10 +49,10 @@ namespace osidbg
 
 		T * Find(int index) const
 		{
-			if (index < 0 || index >= (int)Primitives.Size) {
+			if (index < 0 || index >= (int)Primitives.Set.Size) {
 				return nullptr;
 			} else {
-				return Primitives.Buf[index];
+				return Primitives.Set.Buf[index];
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace osidbg
 		{
 			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
-				return Primitives.Buf[*ptr];
+				return Primitives.Set.Buf[*ptr];
 			} else {
 				return nullptr;
 			}
@@ -152,13 +152,13 @@ namespace osidbg
 		FixedString StatsObjName_PropertyName;
 		bool Unknown;
 		uint8_t _Pad[7];
-
+		/*
 		CRPGStats_Object_Property_List * Copy() const
 		{
 			auto copy = GameAlloc<CRPGStats_Object_Property_List>();
 			copy->StatsObjName_PropertyName = StatsObjName_PropertyName;
 			copy->Unknown = Unknown;
-		}
+		}*/
 	};
 
 	struct CRPGStats_LevelMap : public Noncopyable<CRPGStats_LevelMap>

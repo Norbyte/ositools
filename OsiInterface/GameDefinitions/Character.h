@@ -242,7 +242,7 @@ namespace osidbg
 			ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePathInfluence>
 			ObjectSet<ObjectHandle> SummonHandles;
 			void * PlanManager;
-			uint32_t PartialAP;
+			float PartialAP;
 			uint8_t AnimType;
 			uint8_t DelayDeathCount;
 			uint16_t _Pad6;

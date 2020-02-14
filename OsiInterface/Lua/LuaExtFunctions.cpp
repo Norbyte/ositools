@@ -381,7 +381,7 @@ namespace osidbg
 		}
 
 		lua_newtable(L);
-		auto & objects = stats->objects.Primitives;
+		auto & objects = stats->objects.Primitives.Set;
 		int32_t index = 1;
 		for (uint32_t i = 0; i < objects.Size; i++) {
 			auto object = objects[i];
@@ -609,7 +609,7 @@ namespace osidbg
 		customProp->TypeId = 99;
 		customProp->ConditionBlockPtr = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
-		(*props)->Properties.Primitives.Add(customProp);
+		(*props)->Properties.Primitives.Set.Add(customProp);
 
 		return 0;
 	}
@@ -676,7 +676,7 @@ namespace osidbg
 
 	void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
 	{
-		auto & levelMaps = gStaticSymbols.GetStats()->LevelMaps.Primitives;
+		auto & levelMaps = gStaticSymbols.GetStats()->LevelMaps.Primitives.Set;
 		for (auto levelMapIndex : levelMapIds) {
 			auto levelMap = static_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
 			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
@@ -729,7 +729,7 @@ namespace osidbg
 		levelMap->Function = LuaRegistryEntry(L, 3);
 		levelMap->OriginalLevelMap = originalLevelMap;
 
-		stats->LevelMaps.Primitives.Buf[modifier->LevelMapIndex] = levelMap;
+		stats->LevelMaps.Primitives.Set.Buf[modifier->LevelMapIndex] = levelMap;
 		lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 
 		return 0;

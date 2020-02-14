@@ -30,13 +30,12 @@ namespace osidbg
 			float Unkn3Flt;
 			uint32_t Unkn4[2];
 			float Unkn4Flt;
-			uint32_t Unkn41[4];
-			uint32_t Amount;
+			uint32_t Unkn41[5];
 			NetId InventoryNetID;
 			NetId InventorySubContainerNetID;
 			int16_t Slot; // -1 = Not in inventory
 			uint8_t _Pad3[2];
-			uint32_t Unkn6;
+			uint32_t Amount;
 			int32_t GoldValueOverwrite; // -1 = Not overridden
 			int32_t WeightValueOverwrite; // -1 = Not overridden
 			DamageType DamageTypeOverwrite;
@@ -61,7 +60,7 @@ namespace osidbg
 			uint8_t NameIndex;
 			uint8_t NameCool;
 			uint8_t _Pad5[3];
-			uint32_t Unkn;
+			uint32_t StatsLevel;
 			uint8_t _Pad6[4];
 			FixedString StatsName;
 			uint32_t Level;
@@ -78,12 +77,18 @@ namespace osidbg
 			uint8_t _Pad10[7];
 			FixedString Skills;
 			ObjectSet<FixedString> FSSet2;
-			ObjectSet<FixedString> RuneBoostNames;
+			ObjectSet<FixedString> RuneBoosts;
+			ObjectSet<FixedString> DeltaMods;
+			ObjectSet<FixedString> FSSet5;
 			uint8_t Flags0[2];
-			uint8_t HasItemGeneration_M;
-			uint8_t Flags1[12];
-			uint8_t IsIdentified;
-			uint8_t Flags2[3];
+			bool HasGeneratedStats;
+			uint8_t Flags1[13];
+			bool IsIdentified;
+			bool GMFolding;
+			uint8_t Flags2;
+			bool ItemFlag2_0x40;
+			uint8_t _Pad11[4];
+			uint64_t Unknown2[2];
 		};
 	}
 

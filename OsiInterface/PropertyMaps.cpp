@@ -164,15 +164,24 @@ namespace osidbg
 			PROP(eoc::ItemDefinition, WeightValueOverwrite);
 			PROP_ENUM(eoc::ItemDefinition, DamageTypeOverwrite);
 			PROP(eoc::ItemDefinition, ItemType);
+			PROP(eoc::ItemDefinition, CustomDisplayName);
+			PROP(eoc::ItemDefinition, CustomDescription);
+			PROP(eoc::ItemDefinition, CustomBookContent);
+			PROP(eoc::ItemDefinition, GenerationBase);
 			PROP(eoc::ItemDefinition, GenerationStatsId);
 			PROP(eoc::ItemDefinition, GenerationItemType);
 			PROP(eoc::ItemDefinition, GenerationRandom);
 			PROP(eoc::ItemDefinition, GenerationLevel);
+			PROP(eoc::ItemDefinition, StatsLevel);
 			PROP(eoc::ItemDefinition, StatsName);
 			PROP(eoc::ItemDefinition, Level);
 			PROP(eoc::ItemDefinition, StatsEntryName);
 			PROP(eoc::ItemDefinition, HasModifiedSkills);
 			PROP(eoc::ItemDefinition, Skills);
+			PROP(eoc::ItemDefinition, HasGeneratedStats);
+			PROP(eoc::ItemDefinition, IsIdentified);
+			PROP(eoc::ItemDefinition, GMFolding);
+			PROP(eoc::ItemDefinition, ItemFlag2_0x40);
 		}
 
 		{
