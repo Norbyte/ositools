@@ -41,9 +41,32 @@ namespace osidbg
 				OsiError("Item '" << itemGuid << "' has no generation data!");
 				return false;
 			} else {
+				OsiWarn("NRD_ItemGetGenerationParams() with 4 arguments is deprecated. Use the 5-argument version instead!");
+
 				args[1].String = item->Generation->Base ? item->Generation->Base.Str : "";
 				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.Str : "";
 				args[3].Int32 = item->Generation->Level;
+				return true;
+			}
+		}
+
+		bool ItemGetGenerationParams2(OsiArgumentDesc & args)
+		{
+			auto itemGuid = args[0].String;
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) {
+				OsiError("Item '" << itemGuid << "' does not exist!");
+				return false;
+			}
+
+			if (!item->Generation) {
+				OsiError("Item '" << itemGuid << "' has no generation data!");
+				return false;
+			} else {
+				args[1].String = item->Generation->Base ? item->Generation->Base.Str : "";
+				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.Str : "";
+				args[3].Int32 = item->Generation->Level;
+				args[4].Int32 = item->Generation->Random;
 				return true;
 			}
 		}
@@ -322,6 +345,19 @@ namespace osidbg
 			&func::ItemGetGenerationParams
 		);
 		functionMgr.Register(std::move(itemGetGenerationParams));
+
+		auto itemGetGenerationParams2 = std::make_unique<CustomQuery>(
+			"NRD_ItemGetGenerationParams",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Base", ValueType::String, FunctionArgumentDirection::Out },
+				{ "ItemType", ValueType::String, FunctionArgumentDirection::Out },
+				{ "Level", ValueType::Integer, FunctionArgumentDirection::Out },
+				{ "Random", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::ItemGetGenerationParams2
+		);
+		functionMgr.Register(std::move(itemGetGenerationParams2));
 
 		auto itemHasDeltaMod = std::make_unique<CustomQuery>(
 			"NRD_ItemHasDeltaModifier",
