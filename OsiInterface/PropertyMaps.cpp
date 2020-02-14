@@ -173,8 +173,8 @@ namespace osidbg
 			PROP(eoc::ItemDefinition, GenerationRandom);
 			PROP(eoc::ItemDefinition, GenerationLevel);
 			PROP(eoc::ItemDefinition, StatsLevel);
-			PROP(eoc::ItemDefinition, StatsName);
-			PROP(eoc::ItemDefinition, Level);
+			PROP(eoc::ItemDefinition, Key);
+			PROP(eoc::ItemDefinition, LockLevel);
 			PROP(eoc::ItemDefinition, StatsEntryName);
 			PROP(eoc::ItemDefinition, HasModifiedSkills);
 			PROP(eoc::ItemDefinition, Skills);

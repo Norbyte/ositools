@@ -62,8 +62,8 @@ namespace osidbg
 			uint8_t _Pad5[3];
 			uint32_t StatsLevel;
 			uint8_t _Pad6[4];
-			FixedString StatsName;
-			uint32_t Level;
+			FixedString Key;
+			uint32_t LockLevel;
 			uint32_t Unkn11;
 			// eg. "WPN_Shield"
 			FixedString StatsEntryName;

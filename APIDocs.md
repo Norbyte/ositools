@@ -1286,12 +1286,15 @@ Updates the permanent boost value of `_Stat` to the specified value . `_Stat` mu
 call NRD_ItemCloneBegin((ITEMGUID)_Item)
 call NRD_ItemCloneSetInt((STRING)_Property, (INTEGER)_Value)
 call NRD_ItemCloneSetString((STRING)_Property, (STRING)_Value)
+call NRD_ItemCloneAddBoost((STRING)_BoostType, (STRING)_Boost)
 query NRD_ItemClone([out](ITEMGUID)_NewItem)
 ```
 
 **Usage:**
 The clone API creates a copy of a specific item.
 To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications can be applied to the newly created item by calling `NRD_ItemCloneSetXyz(...)`. After the parameter modifications were performed, the clone operation is finished by calling `NRD_ItemClone()`.
+
+`NRD_ItemCloneAddBoost()` can be used to add various boosts to the item before cloning. The `_BoostType` parameter accepts three values: `Generation` (adds a generated boost), `DeltaMod` (equivalent to adding a DeltaMod via `ItemAddDeltaModifier`), `Rune` (equivalent to adding a rune to the item).
 
 **Clone parameters (passed to `NRD_ItemCloneSetXyz`):**
 
@@ -1305,13 +1308,23 @@ To start cloning an item, call `NRD_ItemCloneBegin()`. Additional modifications 
 | WeightValueOverwrite | Integer | Overrides the weight of the item |
 | DamageTypeOverwrite | Integer | Overrides the damage type of the item |
 | ItemType | String | Item rarity (eg. `Uncommon`) |
+| CustomDisplayName | String | |
+| CustomDescription | String | |
+| CustomBookContent | String | |
+| GenerationBase | String | |
 | GenerationStatsId | String | Stats used to generate the item (eg. `WPN_Shield`) |
 | GenerationItemType | String | Item rarity used to generate the item (eg. `Uncommon`) |
 | GenerationRandom | Integer | Random seed for item generation |
 | GenerationLevel | Integer | Level of generated item |
+| StatsLevel | Integer | Stats entry level |
+| Key | String | Key used to open container |
+| LockLevel | Integer | |
 | StatsEntryName | String | Stats ID of the item (eg. `WPN_Shield`) |
 | HasModifiedSkills | Flag | Indicates that the skills of the item were overridden |
 | Skills | String | Item skills |
+| HasGeneratedStats | Flag | Indicates that stats were already generated for this item (boost randomization, leveling, etc.) |
+| IsIdentified | Flag | Is the item identified? |
+| GMFolding | Flag | Enable/disable stats folding in GM mode |
 
 Example usage:
 ```c
@@ -1319,6 +1332,7 @@ Example usage:
 NRD_ItemCloneBegin(_Item);
 NRD_ItemCloneSetInt("Level", 10);
 NRD_ItemCloneSetInt("GoldValueOverwrite", 1000);
+NRD_ItemCloneAddBoost("DeltaMod", "Boost_Weapon_Secondary_Dodge_TwoHanded")
 PROC_XYZ_ItemCloneFinish();
 
 PROC
@@ -1328,7 +1342,6 @@ NRD_ItemClone(_NewItem)
 AND
 CharacterGetHostCharacter(_Character)
 THEN
-NRD_ItemSetPermanentBoostInt(_NewItem, "PoisonResistance", 20);
 ItemToInventory((ITEMGUID)_NewItem, _Character, 1, 1, 0);
 ```
 

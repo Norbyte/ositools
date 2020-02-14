@@ -260,6 +260,41 @@ namespace osidbg
 		}
 
 
+		void ItemCloneAddBoost(OsiArgumentDesc const & args)
+		{
+			auto & clone = ExtensionState::Get().PendingItemClone;
+			if (!clone) {
+				OsiErrorS("No item clone is currently in progress!");
+				return;
+			}
+
+			auto boostType = args[0].String;
+			auto boostName = ToFixedString(args[1].String);
+
+			if (!boostName) {
+				OsiError("Not a valid boost name: " << args[1].String);
+				return;
+			}
+
+			auto & defn = (*clone)[0];
+			ObjectSet<FixedString> * boostSet;
+			if (strcmp(boostType, "Generation") == 0) {
+				defn.GenerationBoosts.Set.Add(boostName);
+			} else if (strcmp(boostType, "DeltaMod") == 0) {
+				defn.DeltaMods.Set.Add(boostName);
+			} else if (strcmp(boostType, "Rune") == 0) {
+				for (uint32_t i = 0; i < defn.RuneBoosts.Set.Size; i++) {
+					if (!*defn.RuneBoosts[i].Str) {
+						defn.RuneBoosts[i] = boostName;
+						return;
+					}
+				}
+
+				OsiError("Item has no free rune slot");
+			} else {
+				OsiError("Unknown boost type: " << boostType);
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterItemFunctions()
@@ -452,6 +487,16 @@ namespace osidbg
 			&func::ItemCloneSet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(itemCloneSetString));
+
+		auto itemCloneAddBoost = std::make_unique<CustomCall>(
+			"NRD_ItemCloneAddBoost",
+			std::vector<CustomFunctionParam>{
+				{ "BoostType", ValueType::String, FunctionArgumentDirection::In },
+				{ "Boost", ValueType::String, FunctionArgumentDirection::In },
+			},
+			&func::ItemCloneAddBoost
+		);
+		functionMgr.Register(std::move(itemCloneAddBoost));
 
 		auto itemDeltaModIteratorEvent = std::make_unique<CustomEvent>(
 			"NRD_ItemDeltaModIteratorEvent",
