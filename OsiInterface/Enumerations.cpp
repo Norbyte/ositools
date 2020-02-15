@@ -467,6 +467,22 @@ namespace osidbg
 		{ StatusHealType::SHT_Source, "Source" }
 	};
 
+	EnumInfo<HealEffect>::Label const EnumInfo<HealEffect>::Values[] = {
+		{ HealEffect::HE_None, "None" },
+		{ HealEffect::HE_ResistDeath, "ResistDeath" },
+		{ HealEffect::HE_Heal, "Heal" },
+		{ HealEffect::HE_Behavior, "Behavior" },
+		{ HealEffect::HE_Unknown4, "Unknown4" },
+		{ HealEffect::HE_Sitting, "Sitting" },
+		{ HealEffect::HE_Surface, "Surface" },
+		{ HealEffect::HE_Lifesteal, "Lifesteal" },
+		{ HealEffect::HE_NegativeDamage, "NegativeDamage" },
+		{ HealEffect::HE_Unknown9, "Unknown9" },
+		{ HealEffect::HE_Script, "Script" },
+		{ HealEffect::HE_Necromantic, "Necromantic" },
+		{ HealEffect::HE_HealSharingReflected, "HealSharingReflected" },
+	};
+
 	EnumInfo<EsvCharacterFlags>::Label const EnumInfo<EsvCharacterFlags>::Values[] = {
 		{ EsvCharacterFlags::CF_IsPlayer_M, "IsPlayer" },
 		{ EsvCharacterFlags::CF_IsPlayer2_M, "IsPlayer2" },

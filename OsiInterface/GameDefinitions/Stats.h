@@ -699,13 +699,13 @@ namespace osidbg
 
 		void * VMT;
 		int RPGStatsObjectIndex;
-		int StatusIdExternal;
+		int StatusId;
 		FixedString StatusName;
-		TranslatedString translatedString1;
-		FixedString FS2;
+		TranslatedString DisplayName;
+		FixedString Icon;
 		bool HasStats;
 		uint8_t _Pad[7];
-		uint64_t Unknown;
+		PrimitiveSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
 	};
 
 

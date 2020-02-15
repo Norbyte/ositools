@@ -300,7 +300,6 @@ namespace osidbg
 			}
 
 			auto & defn = (*clone)[0];
-			ObjectSet<FixedString> * boostSet;
 			if (strcmp(boostType, "Generation") == 0) {
 				defn.GenerationBoosts.Set.Add(boostName);
 			} else if (strcmp(boostType, "DeltaMod") == 0) {

@@ -740,6 +740,26 @@ namespace osidbg
 
 	MAKE_ENUM_INFO(StatusHealType, 7);
 
+	enum HealEffect : uint32_t
+	{
+		HE_None = 0,
+		HE_ResistDeath = 1,
+		HE_Heal = 2,
+		HE_Behavior = 3,
+		HE_Unknown4 = 4,
+		HE_Sitting = 5,
+		HE_Surface = 6,
+		HE_Lifesteal = 7,
+		HE_NegativeDamage = 8,
+		HE_Unknown9 = 9,
+		HE_Script = 10,
+		HE_HealSharing = 11,
+		HE_Necromantic = 12,
+		HE_HealSharingReflected = 13
+	};
+
+	MAKE_ENUM_INFO(HealEffect, 14);
+
 	// Persistent flags: 0x2414170022110
 	// AI flags: 0x4000070000060
 	enum EsvCharacterFlags : uint64_t

@@ -112,7 +112,7 @@ namespace osidbg
 			PROP(esv::StatusConsume, SavingThrow);
 			PROP(esv::StatusConsume, SourceDirection);
 			PROP(esv::StatusConsume, Turn);
-			PROP(esv::StatusConsume, HealEffectOverride);
+			PROP_ENUM(esv::StatusConsume, HealEffectOverride);
 		}
 
 		{
@@ -120,7 +120,7 @@ namespace osidbg
 			propertyMap.Parent = &gStatusConsumePropertyMap;
 			PROP(esv::StatusHealing, HealAmount);
 			PROP(esv::StatusHealing, TimeElapsed);
-			PROP(esv::StatusHealing, HealEffect);
+			PROP_ENUM(esv::StatusHealing, HealEffect);
 			PROP(esv::StatusHealing, HealEffectId);
 			PROP(esv::StatusHealing, SkipInitialEffect);
 			PROP(esv::StatusHealing, HealingEvent);
@@ -133,7 +133,7 @@ namespace osidbg
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(esv::StatusHeal, EffectTime);
 			PROP(esv::StatusHeal, HealAmount);
-			PROP(esv::StatusHeal, HealEffect);
+			PROP_ENUM(esv::StatusHeal, HealEffect);
 			PROP(esv::StatusHeal, HealEffectId);
 			PROP_ENUM(esv::StatusHeal, HealType);
 			PROP(esv::StatusHeal, AbsorbSurfaceRange);

@@ -185,7 +185,7 @@ namespace osidbg
 		{
 			float EffectTime;
 			uint32_t HealAmount;
-			uint32_t HealEffect;
+			HealEffect HealEffect;
 			uint8_t _Pad4[4];
 			FixedString HealEffectId;
 			StatusHealType HealType;
@@ -232,7 +232,7 @@ namespace osidbg
 			int Turn; // Saved
 			int field_1AC;
 			Status * AuraStatus; // Saved
-			int HealEffectOverride; // Saved // TODO enum + enum prop!
+			HealEffect HealEffectOverride; // Saved
 			char field_1BC;
 			char field_1BD;
 			char field_1BE;
@@ -243,7 +243,7 @@ namespace osidbg
 		{
 			uint32_t HealAmount; // Saved
 			float TimeElapsed; // Saved
-			uint32_t HealEffect; // Saved // TODO enum + enum prop!
+			HealEffect HealEffect; // Saved
 			uint8_t _Pad5[4];
 			FixedString HealEffectId; // Saved
 			bool SkipInitialEffect; // Saved
