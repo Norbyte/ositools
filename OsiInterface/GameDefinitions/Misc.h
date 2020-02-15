@@ -179,7 +179,10 @@ namespace osidbg
 		FixedString GameObjectTemplateFS;
 		FixedString Level;
 		glm::vec3 Position;
-		uint32_t SummonLevel;
+		int32_t SummonLevel;
+#if defined(OSI_EOCAPP)
+		int32_t SummoningAbilityLevel;
+#endif
 		float Lifetime;
 		bool IsTotem;
 		bool MapToAiGrid;

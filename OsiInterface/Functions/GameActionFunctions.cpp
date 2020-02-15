@@ -385,6 +385,9 @@ namespace osidbg
 			summonArgs.OwnerCharacterHandle = characterHandle;
 			summonArgs.GameObjectTemplateFS = objectTemplate;
 			summonArgs.Level = *character->GetCurrentLevel();
+#if defined(OSI_EOCAPP)
+			summonArgs.SummoningAbilityLevel = -1;
+#endif
 			summonArgs.Position = pos;
 			summonArgs.SummonLevel = summonLevel;
 			summonArgs.Lifetime = lifetime;
