@@ -340,8 +340,10 @@ namespace osidbg
 				return reinterpret_cast<STDString *>(ptr)->GetPtr();
 
 			case PropertyType::kStdWString:
-				OsiError("Failed to get property '" << name << "': kStdWString not supported yet!");
-				return {};
+			{
+				auto str = reinterpret_cast<STDWString *>(ptr);
+				return gTempStrings.Make(ToUTF8(str->GetPtr()));
+			}
 
 			default:
 				OsiError("Failed to get property '" << name << "': Property is not a string");
