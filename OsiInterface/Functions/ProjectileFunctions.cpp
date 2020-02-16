@@ -84,6 +84,26 @@ namespace osidbg
 
 			helper->SetVector(prop, vec);
 		}
+
+		void ProjectileAddDamage(OsiArgumentDesc const & args)
+		{
+			auto damageType = args[0].String;
+			auto amount = args[1].Int32;
+
+			auto & helper = ExtensionState::Get().ProjectileHelper;
+			if (!helper) {
+				OsiErrorS("Called when no projectile is active!");
+				return;
+			}
+
+			auto damageTypeLbl = EnumInfo<DamageType>::Find(damageType);
+			if (!damageTypeLbl) {
+				OsiError("Unknown DamageType: " << damageType);
+				return;
+			}
+
+			helper->AddDamage(*damageTypeLbl, amount);
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterProjectileFunctions()
@@ -145,6 +165,16 @@ namespace osidbg
 			&func::ProjectileSetGuidString
 		);
 		functionMgr.Register(std::move(projectileSetGuidString));
+			
+		auto projectileAddDamage = std::make_unique<CustomCall>(
+			"NRD_ProjectileAddDamage",
+			std::vector<CustomFunctionParam>{
+				{ "DamageType", ValueType::String, FunctionArgumentDirection::In },
+				{ "Amount", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::ProjectileAddDamage
+		);
+		functionMgr.Register(std::move(projectileAddDamage));
 	}
 
 }
