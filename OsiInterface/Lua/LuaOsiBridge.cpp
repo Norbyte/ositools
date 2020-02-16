@@ -7,12 +7,17 @@
 
 namespace osidbg
 {
-	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType)
+	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil)
 	{
 		tv.VMT = gOsirisProxy->GetGlobals().TypedValueVMT;
 		tv.TypeId = (uint32_t)osiType;
 
 		auto type = lua_type(L, i);
+		if (allowNil && type == LUA_TNIL) {
+			tv.TypeId = (uint32_t)ValueType::None;
+			return;
+		}
+
 		switch (osiType) {
 		case ValueType::Integer:
 			if (type != LUA_TNUMBER) {
@@ -71,17 +76,22 @@ namespace osidbg
 		}
 	}
 
-	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType)
+	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil)
 	{
 		auto tv = new TypedValue();
-		LuaToOsi(L, i, *tv, osiType);
+		LuaToOsi(L, i, *tv, osiType, allowNil);
 		return tv;
 	}
 
-	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType)
+	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil)
 	{
 		arg.TypeId = osiType;
 		auto type = lua_type(L, i);
+		if (allowNil && type == LUA_TNIL) {
+			arg.TypeId = ValueType::None;
+			return;
+		}
+
 		switch (osiType) {
 		case ValueType::Integer:
 			if (type != LUA_TNUMBER) {
@@ -303,6 +313,29 @@ namespace osidbg
 		return 1;
 	}
 
+	int LuaOsiFunction::LuaDelete(lua_State * L)
+	{
+		if (!IsBound()) {
+			return luaL_error(L, "Attempted to delete from an unbound Osiris database");
+		}
+
+		if (!IsDB()) {
+			return luaL_error(L, "Attempted to delete from function that's not a database");
+		}
+
+		int numArgs = lua_gettop(L);
+		if (numArgs < 1) {
+			return luaL_error(L, "Delete from Osi database without 'self' argument?");
+		}
+
+		if (state_->RestrictionFlags & LuaState::RestrictOsiris) {
+			return luaL_error(L, "Attempted to delete from Osiris database in restricted context");
+		}
+
+		OsiInsert(L, true);
+		return 0;
+	}
+
 	bool LuaOsiFunction::MatchTuple(lua_State * L, int firstIndex, TupleVec const & tuple)
 	{
 		for (auto i = 0; i < tuple.Size; i++) {
@@ -409,14 +442,14 @@ namespace osidbg
 		auto prev = args.Head;
 		for (uint32_t i = 0; i < funcArgs; i++) {
 			auto tv = tvs.Args() + i;
-			LuaToOsi(L, i + 2, *tv, (ValueType)argType->Item.Type);
+			LuaToOsi(L, i + 2, *tv, (ValueType)argType->Item.Type, deleteTuple);
 			auto node = nodes.Args() + i + 1;
 			args.Insert(tv, node, prev);
 			prev = node;
 			argType = argType->Next;
 		}
 
-		auto node = (*gOsirisProxy->GetGlobals().Nodes)->Db.Start[function_->Node.Id - 1];
+		auto node = function_->Node.Get();
 		if (deleteTuple) {
 			node->DeleteTuple(&tuple);
 		} else {
@@ -558,6 +591,9 @@ namespace osidbg
 		lua_pushcfunction(L, &LuaGet);
 		lua_setfield(L, -2, "Get");
 
+		lua_pushcfunction(L, &LuaDelete);
+		lua_setfield(L, -2, "Delete");
+
 		lua_setfield(L, -2, "__index");
 	}
 
@@ -570,10 +606,11 @@ namespace osidbg
 		functions_.clear();
 	}
 
-	int LuaOsiFunctionNameProxy::LuaCall(lua_State * L)
+	bool LuaOsiFunctionNameProxy::BeforeCall(lua_State * L)
 	{
 		if (state_.RestrictionFlags & LuaState::RestrictOsiris) {
-			return luaL_error(L, "Attempted to fetch Osiris function in restricted context");
+			luaL_error(L, "Attempted to access Osiris function in restricted context");
+			return false;
 		}
 
 		if (generationId_ != state_.GenerationId()) {
@@ -581,6 +618,13 @@ namespace osidbg
 			UnbindAll();
 			generationId_ = state_.GenerationId();
 		}
+
+		return true;
+	}
+
+	int LuaOsiFunctionNameProxy::LuaCall(lua_State * L)
+	{
+		if (!BeforeCall(L)) return 1;
 
 		auto arity = (uint32_t)lua_gettop(L) - 1;
 
@@ -596,16 +640,7 @@ namespace osidbg
 	int LuaOsiFunctionNameProxy::LuaGet(lua_State * L)
 	{
 		auto self = LuaOsiFunctionNameProxy::CheckUserData(L, 1);
-
-		if (self->state_.RestrictionFlags & LuaState::RestrictOsiris) {
-			return luaL_error(L, "Attempted to read Osiris DB in restricted context");
-		}
-
-		if (self->generationId_ != self->state_.GenerationId()) {
-			// Clear cached functions if story was reloaded
-			self->UnbindAll();
-			self->generationId_ = self->state_.GenerationId();
-		}
+		if (!self->BeforeCall(L)) return 1;
 
 		auto arity = (uint32_t)lua_gettop(L) - 1;
 
@@ -619,6 +654,25 @@ namespace osidbg
 		}
 
 		return func->LuaGet(L);
+	}
+
+	int LuaOsiFunctionNameProxy::LuaDelete(lua_State * L)
+	{
+		auto self = LuaOsiFunctionNameProxy::CheckUserData(L, 1);
+		if (!self->BeforeCall(L)) return 1;
+
+		auto arity = (uint32_t)lua_gettop(L) - 1;
+
+		auto func = self->TryGetFunction(arity);
+		if (func == nullptr) {
+			return luaL_error(L, "No database named '%s(%d)' exists", self->name_.c_str(), arity);
+		}
+
+		if (!func->IsDB()) {
+			return luaL_error(L, "Function '%s(%d)' is not a database", self->name_.c_str(), arity);
+		}
+
+		return func->LuaDelete(L);
 	}
 
 	LuaOsiFunction * LuaOsiFunctionNameProxy::TryGetFunction(uint32_t arity)
