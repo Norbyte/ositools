@@ -1106,7 +1106,10 @@ Marking common items (that cannot be identified) as unidentified has no effect.
 Return the stats entry ID of the specified item.
 
 ### ItemGetGenerationParams
-`query NRD_ItemGetGenerationParams([in](ITEMGUID)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level)`
+```
+query NRD_ItemGetGenerationParams([in](ITEMGUID)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level)
+query NRD_ItemGetGenerationParams([in](ITEMGUID)_Item, [out](STRING)_Base, [out](STRING)_ItemType, [out](INTEGER)_Level, [out](INTEGER)_Random)
+```
 
 Return the stats generation parameters of the specified item.
 
@@ -1583,6 +1586,11 @@ Attempts to convert `_String` to a real value. If the conversion succeeds (i.e. 
 
 For detailed rules see [check the reference](https://en.cppreference.com/w/cpp/string/basic_string/stof)
 
+
+### IntegerToString
+`query NRD_IntegerToString([in](INTEGER)_Integer, [out](STRING)_Result)`
+
+Converts `_Integer` to a string value.
 
 ### RealToString
 `query NRD_RealToString([in](REAL)_Real, [out](STRING)_Result)`

@@ -264,6 +264,13 @@ namespace osidbg
 			return true;
 		}
 
+		bool IntegerToString(OsiArgumentDesc & args)
+		{
+			gRealToStringTemp = std::to_string(args[0].Int32);
+			args[1].String = gRealToStringTemp.c_str();
+			return true;
+		}
+
 		void ForLoop(OsiArgumentDesc const & args)
 		{
 			auto eventName = args[0].String;
@@ -421,6 +428,16 @@ namespace osidbg
 			&func::RealToString
 		);
 		functionMgr.Register(std::move(realToString));
+
+		auto integerToString = std::make_unique<CustomQuery>(
+			"NRD_IntegerToString",
+			std::vector<CustomFunctionParam>{
+				{ "Integer", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::String, FunctionArgumentDirection::Out }
+			},
+			&func::IntegerToString
+		);
+		functionMgr.Register(std::move(integerToString));
 
 		auto startLoop = std::make_unique<CustomCall>(
 			"NRD_ForLoop",
