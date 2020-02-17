@@ -972,6 +972,22 @@ Doesn't work on skills that can only be used once per combat.
 Returns the current cooldown timer of the skill (in seconds).
 For skills that can only be used once per combat -1.0 is returned.
 
+### SkillGetInt
+`query NRD_SkillGetInt([in](CHARACTERGUID)_Character, [in](STRING)_SkillId, [in](STRING)_Property, [out](INTEGER)_Value)`
+
+Returns a property of the specified character skill.
+If the character does not exist, the character doesn't have the specified skill or the property name is invalid, the query fails.
+The following properties are supported:
+
+| Property | Type | Notes |
+|--|--|--|
+| IsActivated | Flag | Is the skill usable by the character, i.e. all requirements are met and the skill is memorized |
+| IsLearned | Flag | Was the skill learned by the character, or was it acquired via a status/item? |
+| ZeroMemory | Flag | Indicates that the skill consumes no memory slots |
+| OncePerCombat | Flag | Indicates that the skill can only be used once per combat |
+| Charges | Integer | Number of skill uses left |
+
+
 ## Action State functions
 
 

@@ -208,7 +208,7 @@ namespace osidbg
 			return OsirisPropertyMapGet(gCharacterPropertyMap, character, args, 1, Type);
 		}
 
-		void CharacterIterateStatuses(OsiArgumentDesc const & args)
+		void CharacterIterateSkills(OsiArgumentDesc const & args)
 		{
 			auto characterGuid = args[0].String;
 			auto eventName = args[1].String;
@@ -401,7 +401,7 @@ namespace osidbg
 				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Event", ValueType::String, FunctionArgumentDirection::In }
 			},
-			&func::CharacterIterateStatuses
+			&func::CharacterIterateSkills
 		);
 		functionMgr.Register(std::move(iterateCharacterSkills));
 

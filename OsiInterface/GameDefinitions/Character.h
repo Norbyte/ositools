@@ -80,7 +80,7 @@ namespace osidbg
 			bool OncePerCombat;
 			bool Unknown2;
 			uint8_t _Pad3[3];
-			uint32_t NumCharges;
+			int32_t NumCharges;
 			uint8_t _Pad4[4];
 			uint64_t Unknown3;
 		};
@@ -94,7 +94,7 @@ namespace osidbg
 			FixedStringRefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
 			bool IsLoading;
 			uint8_t _Pad2[3];
-			uint32_t SomeCount;
+			uint32_t FreeMemorySlots;
 		};
 
 		struct SkillBarItem : public ProtectedGameObject<SkillBarItem>

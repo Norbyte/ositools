@@ -12,9 +12,9 @@
 
 namespace osidbg
 {
-	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType);
-	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType);
-	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType);
+	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil = false);
+	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil = false);
+	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false);
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 	void OsiToLua(lua_State * L, TypedValue const & tv);
 
@@ -333,6 +333,7 @@ namespace osidbg
 
 		int LuaCall(lua_State * L);
 		int LuaGet(lua_State * L);
+		int LuaDelete(lua_State * L);
 
 	private:
 		Function const * function_{ nullptr };
@@ -370,6 +371,8 @@ namespace osidbg
 		uint32_t generationId_;
 
 		static int LuaGet(lua_State * L);
+		static int LuaDelete(lua_State * L);
+		bool BeforeCall(lua_State * L);
 		LuaOsiFunction * TryGetFunction(uint32_t arity);
 		LuaOsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);
 		Function const * LookupOsiFunction(uint32_t arity);

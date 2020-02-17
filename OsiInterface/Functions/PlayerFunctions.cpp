@@ -7,53 +7,49 @@ namespace osidbg
 {
 	namespace func
 	{
-		bool SkillGetCooldown(OsiArgumentDesc & args)
+		esv::Skill * CharacterGetSkill(char const * characterGuid, char const * skillId)
 		{
-			auto characterGuid = args[0].String;
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
-				return false;
+				return nullptr;
 			}
 
 			if (character->SkillManager == nullptr) {
 				OsiError("Character '" << characterGuid << "' has no SkillManager!");
-				return false;
+				return nullptr;
 			}
 
-			auto skillId = args[1].String;
 			auto skill = character->SkillManager->Skills.Find(skillId);
 			if (skill == nullptr) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
-				return false;
+				return nullptr;
 			}
 
-			args[2].Float = (*skill)->ActiveCooldown;
+			return *skill;
+		}
+
+		bool SkillGetCooldown(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+			auto skillId = args[1].String;
+
+			auto skill = CharacterGetSkill(characterGuid, skillId);
+			if (skill == nullptr) return false;
+
+			args[2].Float = skill->ActiveCooldown;
 			return true;
 		}
 
 		void SkillSetCooldown(OsiArgumentDesc const & args)
 		{
 			auto characterGuid = args[0].String;
-			auto character = FindCharacterByNameGuid(characterGuid);
-			if (character == nullptr) {
-				OsiError("Character '" << characterGuid << "' does not exist!");
-				return;
-			}
-
-			if (character->SkillManager == nullptr) {
-				OsiError("Character '" << characterGuid << "' has no SkillManager!");
-				return;
-			}
-
 			auto skillId = args[1].String;
-			auto skill = character->SkillManager->Skills.Find(skillId);
-			if (skill == nullptr) {
-				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
-				return;
-			}
 
-			if ((*skill)->OncePerCombat) {
+			auto skill = CharacterGetSkill(characterGuid, skillId);
+			if (skill == nullptr) return;
+
+			if (skill->OncePerCombat) {
 				OsiError("Skill '" << skillId << " doesn't support cooldown!");
 				return;
 			}
@@ -64,7 +60,35 @@ namespace osidbg
 				return;
 			}
 
-			(*skill)->ActiveCooldown = cooldown;
+			skill->ActiveCooldown = cooldown;
+		}
+
+		bool SkillGetInt(OsiArgumentDesc & args)
+		{
+			auto characterGuid = args[0].String;
+			auto skillId = args[1].String;
+			auto flag = args[2].String;
+			auto & value = args[3].Int32;
+
+			auto skill = CharacterGetSkill(characterGuid, skillId);
+			if (skill == nullptr) return false;
+
+			if (strcmp(flag, "IsActivated") == 0) {
+				value = skill->IsActivated ? 1 : 0;
+			} else if (strcmp(flag, "IsLearned") == 0) {
+				value = skill->IsLearned ? 1 : 0;
+			} else if (strcmp(flag, "ZeroMemory") == 0) {
+				value = skill->ZeroMemory ? 1 : 0;
+			} else if (strcmp(flag, "OncePerCombat") == 0) {
+				value = skill->OncePerCombat ? 1 : 0;
+			} else if (strcmp(flag, "Charges") == 0) {
+				value = skill->NumCharges;
+			} else {
+				OsiError("Couldn't fetch unknown skill flag: " << flag);
+				return false;
+			}
+
+			return true;
 		}
 
 		ObjectSet<esv::SkillBarItem> * GetSkillBar(char const * characterGuid)
@@ -397,6 +421,17 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(skillSetCooldown));
 
+		auto skillGetInt = std::make_unique<CustomQuery>(
+			"NRD_SkillGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "SkillId", ValueType::String, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::SkillGetInt
+		);
+		functionMgr.Register(std::move(skillGetInt));
 
 		auto skillBarGetItem = std::make_unique<CustomQuery>(
 			"NRD_SkillBarGetItem",
