@@ -81,6 +81,18 @@ namespace osidbg
 				return false;
 			}
 
+			if (strcmp(attributeName, "Using") == 0) {
+				if (object->Using) {
+					auto parent = stats->objects.Find(object->Using);
+					if (parent != nullptr) {
+						args[2].String = parent->Name;
+						return true;
+					}
+				}
+
+				return false;
+			}
+
 			auto value = stats->GetAttributeString(object, attributeName);
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");

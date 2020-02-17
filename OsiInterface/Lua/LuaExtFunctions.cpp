@@ -471,7 +471,17 @@ namespace osidbg
 	{
 		auto stats = gStaticSymbols.GetStats();
 
-		if (strcmp(attributeName, "Requirements") == 0) {
+		if (strcmp(attributeName, "Using") == 0) {
+			if (object->Using) {
+				auto parent = stats->objects.Find(object->Using);
+				if (parent != nullptr) {
+					lua_push(L, parent->Name);
+					return 1;
+				}
+			}
+
+			return 0;
+		} else if (strcmp(attributeName, "Requirements") == 0) {
 			RequirementsToLua(L, object->Requirements);
 			return 1;
 		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {

@@ -204,7 +204,7 @@ namespace osidbg
 #if !defined(OSI_EOCAPP)
 		STDWString SomeSTDWSTRING;
 #endif
-		uint32_t Using;
+		int32_t Using;
 		uint32_t D;
 	};
 
