@@ -663,13 +663,27 @@ namespace osidbg
 				WriteAnchor code(p, 0x40);
 				p[0x26] = 0x90;
 				p[0x27] = 0xE9;
-				ERR("Dynamic item stat folding disabled.");
+				DEBUG("Dynamic item stat folding disabled.");
 			} else {
-				DEBUG("Could not disable item stat folding; symbol CDivinityStats_Item::FoldDynamicAttributes not mapped!");
+				ERR("Could not disable item stat folding; symbol CDivinityStats_Item::FoldDynamicAttributes not mapped!");
 			}
 #else
 			DEBUG("Folding is already disabled in the editor; not patching CDivinityStats_Item::FoldDynamicAttributes");
 #endif
 		}
+
+#if defined(OSI_EOCAPP)
+		if (gOsirisProxy->GetConfig().EnableAchievements) {
+			if (gStaticSymbols.ModuleSettingsHasCustomMods != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(gStaticSymbols.ModuleSettingsHasCustomMods);
+				WriteAnchor code(p, 0x40);
+				p[0x0E] = 0x90;
+				p[0x0F] = 0xE9;
+				DEBUG("Modded achievements enabled.");
+			} else {
+				ERR("Could not enable achievements; symbol ls::ModuleSettings::HasCustomMods not mapped!");
+			}
+		}
+#endif
 	}
 }

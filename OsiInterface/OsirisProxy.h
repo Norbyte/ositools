@@ -66,6 +66,7 @@ struct ToolConfig
 #endif
 
 	bool SendCrashReports{ true };
+	bool EnableAchievements{ false };
 
 #if defined(OSI_EXTENSION_BUILD)
 	bool DisableModValidation{ true };

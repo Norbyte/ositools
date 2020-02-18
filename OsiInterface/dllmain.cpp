@@ -42,6 +42,7 @@ void LoadConfig(std::wstring const & configPath, osidbg::ToolConfig & config)
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
 	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
 	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
+	ConfigGetBool(root, "EnableAchievements", config.EnableAchievements);
 
 	auto debuggerPort = root["DebuggerPort"];
 	if (!debuggerPort.isNull()) {

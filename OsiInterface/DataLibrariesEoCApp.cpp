@@ -715,7 +715,21 @@ namespace osidbg
 			"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
 			"4C 8B E9 ", // mov     r13, rcx
 			{},
-			{"GlobalSwitches", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.ItemFoldDynamicAttributes}
+			{"CDivinityStats_Item::FoldDynamicAttributes", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.ItemFoldDynamicAttributes}
+		},
+
+		{
+			"ls::ModuleSettings::HasCustomMods",
+			SymbolMappingData::kText, 0,
+			"48 89 6C 24 20 " // mov     [rsp+arg_18], rbp
+			"56 " // push    rsi
+			"8B 69 1C " // mov     ebp, [rcx+1Ch]
+			"33 F6 " // xor     esi, esi
+			"48 85 ED " // test    rbp, rbp
+			"0F 84 XX 00 00 00 " // jz      xxx
+			"48 8B 05 XX XX XX XX ", // mov     rax, cs:fs_xxx
+			{},
+			{"ls::ModuleSettings::HasCustomMods", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.ModuleSettingsHasCustomMods}
 		},
 	};
 

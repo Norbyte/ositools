@@ -23,5 +23,6 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 | SendCrashReports | Boolean | Upload minidumps to the crash report collection server after a game crash. |
 | DumpNetworkStrings | Boolean | Dumps the NetworkFixedString table to `LogDirectory`. Mainly useful for debugging desync issues. |
 | DisableModValidation | Boolean | Disable module hashing when loading modules. |
+| EnableAchievements | Boolean | Re-enable achievements for modded games. |
 | EnableDebugger | Boolean | Enables the debugger interface |
 | DebuggerPort | Integer | Port number the debugger will listen on (default 9999) |
