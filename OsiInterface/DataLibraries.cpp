@@ -653,4 +653,23 @@ namespace osidbg
 			EnabledCustomStatsPane = true;
 		}
 	}
+
+	void LibraryManager::DisableItemFolding()
+	{
+		if (ExtensionState::Get().HasFeatureFlag("DisableFolding")) {
+#if defined(OSI_EOCAPP)
+			if (gStaticSymbols.ItemFoldDynamicAttributes != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(gStaticSymbols.ItemFoldDynamicAttributes);
+				WriteAnchor code(p, 0x40);
+				p[0x26] = 0x90;
+				p[0x27] = 0xE9;
+				ERR("Dynamic item stat folding disabled.");
+			} else {
+				DEBUG("Could not disable item stat folding; symbol CDivinityStats_Item::FoldDynamicAttributes not mapped!");
+			}
+#else
+			DEBUG("Folding is already disabled in the editor; not patching CDivinityStats_Item::FoldDynamicAttributes");
+#endif
+		}
+	}
 }

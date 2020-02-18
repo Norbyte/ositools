@@ -702,6 +702,21 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 11, "UseLevelCache"},
 			{"GlobalSwitches", SymbolMappingTarget::kIndirectLea, 4, (void **)&gStaticSymbols.pGlobalSwitches}
 		},
+
+		{
+			"CDivinityStats_Item::FoldDynamicAttributes",
+			SymbolMappingData::kText, 0,
+			"4C 8B DC " // mov     r11, rsp
+			"49 89 4B 08 " // mov     [r11+8], rcx
+			"55 " // push    rbp
+			"41 55 " // push    r13
+			"49 8D 6B A1 " // lea     rbp, [r11-5Fh]
+			"48 81 EC B8 00 00 00 " // sub     rsp, 0B8h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:gGlobalSwitches
+			"4C 8B E9 ", // mov     r13, rcx
+			{},
+			{"GlobalSwitches", SymbolMappingTarget::kAbsolute, 0, (void **)&gStaticSymbols.ItemFoldDynamicAttributes}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

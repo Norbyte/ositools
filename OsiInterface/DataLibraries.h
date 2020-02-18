@@ -125,6 +125,7 @@ namespace osidbg {
 		bool FindLibraries();
 		bool PostStartupFindLibraries();
 		void EnableCustomStats();
+		void DisableItemFolding();
 		void Cleanup();
 		bool GetGameVersion(GameVersionInfo & version);
 

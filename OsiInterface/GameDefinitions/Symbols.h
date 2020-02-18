@@ -115,6 +115,7 @@ namespace osidbg
 #else
 		GlobalSwitches *** pGlobalSwitches{ nullptr };
 #endif
+		void * ItemFoldDynamicAttributes{ nullptr };
 
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 

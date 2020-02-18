@@ -765,6 +765,7 @@ void OsirisProxy::LoadExtensionState()
 
 	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
+		Libraries.DisableItemFolding();
 		FunctionLibrary.OnBaseModuleLoaded();
 	}
 

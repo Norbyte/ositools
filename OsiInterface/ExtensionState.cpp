@@ -13,7 +13,8 @@ namespace osidbg
 		"CustomStats",
 		"CustomStatsPane",
 		"FormulaOverrides",
-		"Preprocessor"
+		"Preprocessor",
+		"DisableFolding"
 	};
 
 	void ExtensionState::Reset()
