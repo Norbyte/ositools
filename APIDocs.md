@@ -88,8 +88,9 @@ The following features are accepted in `FeatureFlags`:
 | `Lua` | Enables scripting via the Lua runtime |
 | `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
 | `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
-| `FormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) **EXPERIMENTAL** |
+| `FormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) |
 | `Preprocessor` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
+| `DisableFolding` | Disable folding of dynamic item stats |
 
 
 ## Preprocessor
