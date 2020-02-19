@@ -344,7 +344,7 @@ namespace osidbg
 			auto statusIdFs = ToFixedString(statusId);
 			T * status{ nullptr };
 
-			auto createStatus = gStaticSymbols.StatusMachineCreateStatus;
+			auto createStatus = GetStaticSymbols().StatusMachineCreateStatus;
 			if (createStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 				return nullptr;
@@ -387,7 +387,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
+			auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
@@ -444,7 +444,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
+			auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;

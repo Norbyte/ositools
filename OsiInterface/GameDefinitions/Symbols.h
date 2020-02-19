@@ -118,6 +118,7 @@ namespace osidbg
 		void * ItemFoldDynamicAttributes{ nullptr };
 		void * ModuleSettingsHasCustomMods{ nullptr };
 
+		void * DUMMY1{ nullptr };
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 
 		uint8_t const * ServerRegisterFuncs[50]{ nullptr };
@@ -129,6 +130,12 @@ namespace osidbg
 		EoCFreeFunc EoCFree{ nullptr };
 		CrtAllocFunc CrtAlloc{ nullptr };
 		CrtFreeFunc CrtFree{ nullptr };
+
+		CharacterStatsGetters CharStatsGetters;
+
+		inline StaticSymbols() {}
+		StaticSymbols(StaticSymbols const &) = delete;
+		StaticSymbols & operator = (StaticSymbols const &) = delete;
 
 		inline GlobalSwitches * GetGlobalSwitches() const
 		{
@@ -212,5 +219,5 @@ namespace osidbg
 		void DestroyFileReader(FileReader * reader);
 	};
 
-	extern StaticSymbols gStaticSymbols;
+	StaticSymbols & GetStaticSymbols();
 }

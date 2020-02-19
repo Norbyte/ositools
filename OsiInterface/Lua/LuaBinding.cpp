@@ -448,7 +448,7 @@ namespace osidbg
 
 	int LuaStatsExtraDataProxy::LuaIndex(lua_State * L)
 	{
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 		auto key = luaL_checkstring(L, 2);
@@ -1138,7 +1138,7 @@ namespace osidbg
 			return {};
 		}
 
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return false;
@@ -1209,10 +1209,10 @@ namespace osidbg
 
 		if (attacker == nullptr) {
 			lua_pushnil(L);
-		} else if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
+		} else if (attacker->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character *>(attacker);
 			luaAttackerChar = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
-		} else if (attacker->ModifierListIndex == gStaticSymbols.GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
+		} else if (attacker->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
 			auto it = reinterpret_cast<CDivinityStats_Item *>(attacker);
 			luaAttackerItem = LuaObjectProxy<CDivinityStats_Item>::New(L, it);
 		} else {
@@ -1308,7 +1308,7 @@ namespace osidbg
 			return {};
 		}
 
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return false;
@@ -1606,7 +1606,7 @@ namespace osidbg
 			auto const & mod = mods[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto bootstrapFile = "Mods/" + dir + "/Story/RawFiles/Lua/Bootstrap.lua";
-			auto reader = gStaticSymbols.MakeFileReader(bootstrapFile);
+			auto reader = GetStaticSymbols().MakeFileReader(bootstrapFile);
 			if (reader.IsLoaded()) {
 				std::string bootstrapScriptName;
 				if (dir.length() > 37) {
@@ -1622,7 +1622,7 @@ namespace osidbg
 		
 		lua->FinishStartup();
 
-		auto gameState = gStaticSymbols.GetGameState();
+		auto gameState = GetStaticSymbols().GetGameState();
 		if (gameState 
 			&& (*gameState == GameState::LoadLevel
 				|| (*gameState == GameState::LoadModule && ExtensionState::Get().WasStatLoadTriggered())
@@ -1682,7 +1682,7 @@ namespace osidbg
 
 	void ExtensionState::LuaLoadGameFile(std::string const & path, std::string const & scriptName)
 	{
-		auto reader = gStaticSymbols.MakeFileReader(path);
+		auto reader = GetStaticSymbols().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
 			OsiError("Script file could not be opened: " << path);
 			return;

@@ -9,6 +9,7 @@
 #include <GameDefinitions/Status.h>
 #include <GameDefinitions/ActionMachine.h>
 #include <GameDefinitions/TurnManager.h>
+#include <GameDefinitions/Symbols.h>
 #include "Wrappers.h"
 #include <optional>
 
@@ -59,6 +60,36 @@ namespace osidbg {
 		TryNext
 	};
 
+	struct StaticSymbolRef
+	{
+		std::ptrdiff_t Offset;
+		void ** TargetPtr;
+
+		inline StaticSymbolRef()
+			: Offset(-1), TargetPtr(nullptr)
+		{}
+
+		inline StaticSymbolRef(void ** ptr)
+			: Offset(-1), TargetPtr(ptr)
+		{}
+
+		explicit inline StaticSymbolRef(std::ptrdiff_t offset)
+			: Offset(offset), TargetPtr(nullptr)
+		{}
+
+		inline void ** Get() const
+		{
+			if (Offset != -1) {
+				return (void **)((uint8_t *)&GetStaticSymbols() + Offset);
+			} else {
+				return TargetPtr;
+			}
+		}
+	};
+
+	#define STATIC_SYM(name) StaticSymbolRef(offsetof(StaticSymbols, name))
+	#define CHAR_GETTER_SYM(name) StaticSymbolRef(offsetof(StaticSymbols, CharStatsGetters) + offsetof(CharacterStatsGetters, name))
+
 	struct SymbolMappingTarget
 	{
 		typedef SymbolMappingResult (* HandlerProc)(uint8_t const *);
@@ -74,7 +105,7 @@ namespace osidbg {
 		char const * Name{ nullptr };
 		ActionType Type{ kNone };
 		int32_t Offset{ 0 };
-		void ** TargetPtr{ nullptr };
+		StaticSymbolRef Target;
 		HandlerProc Handler{ nullptr };
 		struct SymbolMappingData const * NextSymbol{ nullptr };
 		int32_t NextSymbolSeekSize{ 0 };

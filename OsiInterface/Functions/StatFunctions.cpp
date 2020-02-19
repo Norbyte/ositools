@@ -10,7 +10,7 @@ namespace osidbg
 		{
 			auto statName = args[0].String;
 			
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -24,7 +24,7 @@ namespace osidbg
 			auto statName = args[0].String;
 			auto attributeName = args[1].String;
 
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -44,7 +44,7 @@ namespace osidbg
 			auto statName = args[0].String;
 			auto attributeName = args[1].String;
 
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -70,7 +70,7 @@ namespace osidbg
 			auto statName = args[0].String;
 			auto attributeName = args[1].String;
 
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -107,7 +107,7 @@ namespace osidbg
 		{
 			auto statsId = args[0].String;
 
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
 			}
@@ -132,7 +132,7 @@ namespace osidbg
 			auto key = args[0].String;
 			auto & value = args[1].Float;
 
-			auto stats = gStaticSymbols.GetStats();
+			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr || stats->ExtraData == nullptr) {
 				OsiError("RPGStats not available");
 				return false;

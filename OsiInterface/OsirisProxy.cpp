@@ -398,7 +398,7 @@ void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
 
 void OsirisProxy::DumpNetworkFixedStrings()
 {
-	auto nfs = gStaticSymbols.NetworkFixedStrings;
+	auto nfs = GetStaticSymbols().NetworkFixedStrings;
 	if (nfs != nullptr && (*nfs)->Initialized) {
 		auto const & strings = (*nfs)->FixedStrSet.Set;
 
@@ -661,8 +661,8 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 		case GameState::LoadModule:
 			if (config_.DisableModValidation) {
 				Libraries.PostStartupFindLibraries();
-				if (gStaticSymbols.GetGlobalSwitches()) {
-					gStaticSymbols.GetGlobalSwitches()->EnableModuleHashing = false;
+				if (GetStaticSymbols().GetGlobalSwitches()) {
+					GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
 					INFO("Disabled module hashing");
 				} else {
 					WARN("Could not disable mod hashing - GlobalSwitches not mapped");

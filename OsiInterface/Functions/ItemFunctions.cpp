@@ -223,8 +223,8 @@ namespace osidbg
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
-			auto parseItem = gStaticSymbols.ParseItem;
-			auto createItemFromParsed = gStaticSymbols.CreateItemFromParsed;
+			auto parseItem = GetStaticSymbols().ParseItem;
+			auto createItemFromParsed = GetStaticSymbols().CreateItemFromParsed;
 			if (parseItem == nullptr || createItemFromParsed == nullptr) {
 				OsiErrorS("esv::ParseItem not found!");
 				return;
@@ -256,7 +256,7 @@ namespace osidbg
 			}
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
-			auto item = gStaticSymbols.CreateItemFromParsed(clone.get(), 0);
+			auto item = GetStaticSymbols().CreateItemFromParsed(clone.get(), 0);
 			clone.reset();
 
 			if (item == nullptr) {

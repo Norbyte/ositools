@@ -374,7 +374,7 @@ namespace osidbg
 			}
 		}
 		
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return 0;
@@ -469,7 +469,7 @@ namespace osidbg
 
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
 	{
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 
 		if (strcmp(attributeName, "Using") == 0) {
 			if (object->Using) {
@@ -558,7 +558,7 @@ namespace osidbg
 			return 0;
 		}
 
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		bool ok{ false };
 		switch (lua_type(L, valueIdx)) {
 		case LUA_TSTRING:
@@ -686,7 +686,7 @@ namespace osidbg
 
 	void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
 	{
-		auto & levelMaps = gStaticSymbols.GetStats()->LevelMaps.Primitives.Set;
+		auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives.Set;
 		for (auto levelMapIndex : levelMapIds) {
 			auto levelMap = static_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
 			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
@@ -708,7 +708,7 @@ namespace osidbg
 			return luaL_error(L, "StatSetLevelScaling() can only be called during module load/resume");
 		}
 
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		auto modifier = stats->GetModifierInfo(modifierListName, modifierName);
 		if (modifier == nullptr) {
 			OsiError("Modifier list '" << modifierListName << "' or modifier '" << modifierName << "' does not exist!");
@@ -1053,7 +1053,7 @@ namespace osidbg
 
 		auto helpers = GenerateIdeHelpers();
 
-		auto path = gStaticSymbols.ToPath("", PathRootType::Data);
+		auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
 		path += "Mods/";
 		path += ToUTF8(GetModManager()->BaseModule.Info.Directory.GetPtr());
 		path += "/Story/RawFiles/Lua/OsiIdeHelpers.lua";

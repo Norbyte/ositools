@@ -228,8 +228,9 @@ namespace osidbg
 		}
 
 		if (ptr != nullptr) {
-			if (target.TargetPtr != nullptr) {
-				*target.TargetPtr = const_cast<uint8_t *>(ptr);
+			auto targetPtr = target.Target.Get();
+			if (targetPtr != nullptr) {
+				*targetPtr = const_cast<uint8_t *>(ptr);
 			}
 
 			if (target.NextSymbol != nullptr) {
@@ -350,7 +351,7 @@ namespace osidbg
 
 	bool LibraryManager::FindLibraries()
 	{
-		memset(&gCharacterStatsGetters.Ptrs, 0, sizeof(gCharacterStatsGetters.Ptrs));
+		memset(&GetStaticSymbols().CharStatsGetters.Ptrs, 0, sizeof(GetStaticSymbols().CharStatsGetters.Ptrs));
 
 #if defined(OSI_EOCAPP)
 		if (FindEoCApp(moduleStart_, moduleSize_)) {
@@ -365,8 +366,8 @@ namespace osidbg
 			auto crtAllocProc = GetProcAddress(crtBase, "malloc");
 			auto crtFreeProc = GetProcAddress(crtBase, "free");
 
-			gStaticSymbols.CrtAlloc = (CrtAllocFunc)crtAllocProc;
-			gStaticSymbols.CrtFree = (CrtFreeFunc)crtFreeProc;
+			GetStaticSymbols().CrtAlloc = (CrtAllocFunc)crtAllocProc;
+			GetStaticSymbols().CrtFree = (CrtFreeFunc)crtFreeProc;
 
 			if (crtAllocProc == nullptr || crtFreeProc == nullptr) {
 				ERR("Could not find memory management functions");
@@ -407,52 +408,52 @@ namespace osidbg
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
 
-			if (gStaticSymbols.StatusHitVMT != nullptr) {
-				StatusHitEnter.Wrap(gStaticSymbols.StatusHitVMT->Enter);
+			if (GetStaticSymbols().StatusHitVMT != nullptr) {
+				StatusHitEnter.Wrap(GetStaticSymbols().StatusHitVMT->Enter);
 			}
 
-			if (gStaticSymbols.StatusHealVMT != nullptr) {
-				StatusHealEnter.Wrap(gStaticSymbols.StatusHealVMT->Enter);
-				StatusGetEnterChance.Wrap(gStaticSymbols.StatusHealVMT->GetEnterChance);
+			if (GetStaticSymbols().StatusHealVMT != nullptr) {
+				StatusHealEnter.Wrap(GetStaticSymbols().StatusHealVMT->Enter);
+				StatusGetEnterChance.Wrap(GetStaticSymbols().StatusHealVMT->GetEnterChance);
 			}
 
-			if (gStaticSymbols.CharacterHit != nullptr) {
-				CharacterHitHook.Wrap(gStaticSymbols.CharacterHit);
+			if (GetStaticSymbols().CharacterHit != nullptr) {
+				CharacterHitHook.Wrap(GetStaticSymbols().CharacterHit);
 			}
 
-			if (gStaticSymbols.StatusMachineApplyStatus != nullptr) {
-				ApplyStatusHook.Wrap(gStaticSymbols.StatusMachineApplyStatus);
+			if (GetStaticSymbols().StatusMachineApplyStatus != nullptr) {
+				ApplyStatusHook.Wrap(GetStaticSymbols().StatusMachineApplyStatus);
 			}
 
-			if (gStaticSymbols.EsvActionMachine__SetState != nullptr) {
-				ActionMachineSetStateHook.Wrap(gStaticSymbols.EsvActionMachine__SetState);
+			if (GetStaticSymbols().EsvActionMachine__SetState != nullptr) {
+				ActionMachineSetStateHook.Wrap(GetStaticSymbols().EsvActionMachine__SetState);
 			}
 
-			if (gStaticSymbols.SkillPrototypeFormatDescriptionParam != nullptr) {
-				SkillPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.SkillPrototypeFormatDescriptionParam);
+			if (GetStaticSymbols().SkillPrototypeFormatDescriptionParam != nullptr) {
+				SkillPrototypeFormatDescriptionParamHook.Wrap(GetStaticSymbols().SkillPrototypeFormatDescriptionParam);
 			}
 
-			if (gStaticSymbols.SkillPrototypeGetSkillDamage != nullptr) {
-				SkillPrototypeGetSkillDamageHook.Wrap(gStaticSymbols.SkillPrototypeGetSkillDamage);
+			if (GetStaticSymbols().SkillPrototypeGetSkillDamage != nullptr) {
+				SkillPrototypeGetSkillDamageHook.Wrap(GetStaticSymbols().SkillPrototypeGetSkillDamage);
 			}
 
-			if (gStaticSymbols.StatusPrototypeFormatDescriptionParam != nullptr) {
-				StatusPrototypeFormatDescriptionParamHook.Wrap(gStaticSymbols.StatusPrototypeFormatDescriptionParam);
+			if (GetStaticSymbols().StatusPrototypeFormatDescriptionParam != nullptr) {
+				StatusPrototypeFormatDescriptionParamHook.Wrap(GetStaticSymbols().StatusPrototypeFormatDescriptionParam);
 			}
 
-			if (gStaticSymbols.TurnManagerUpdateTurnOrder != nullptr) {
-				TurnManagerUpdateTurnOrderHook.Wrap(gStaticSymbols.TurnManagerUpdateTurnOrder);
+			if (GetStaticSymbols().TurnManagerUpdateTurnOrder != nullptr) {
+				TurnManagerUpdateTurnOrderHook.Wrap(GetStaticSymbols().TurnManagerUpdateTurnOrder);
 			}
 
-			gCharacterStatsGetters.WrapAll();
+			GetStaticSymbols().CharStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
 
 			// Temporary workaround for crash when GetMaxMP is wrapped
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
-			if (gCharacterStatsGetters.GetMaxMp != nullptr) {
-				gCharacterStatsGetters.WrapperMaxMp.Unwrap();
+			if (GetStaticSymbols().CharStatsGetters.GetMaxMp != nullptr) {
+				GetStaticSymbols().CharStatsGetters.WrapperMaxMp.Unwrap();
 			}
 			DetourTransactionCommit();
 		}
@@ -524,9 +525,9 @@ namespace osidbg
 	{
 		ERR(L"STARTUP ERROR: %s", msg.c_str());
 
-		if (gStaticSymbols.EoCClient == nullptr
-			|| gStaticSymbols.EoCClientHandleError == nullptr
-			|| gStaticSymbols.EoCAlloc == nullptr) {
+		if (GetStaticSymbols().EoCClient == nullptr
+			|| GetStaticSymbols().EoCClientHandleError == nullptr
+			|| GetStaticSymbols().EoCAlloc == nullptr) {
 			return;
 		}
 
@@ -555,21 +556,21 @@ namespace osidbg
 
 		STDWString msgStr;
 		msgStr.Set(msg);
-		gStaticSymbols.EoCClientHandleError(*gStaticSymbols.EoCClient, &msgStr, exitGame, &msgStr);
+		GetStaticSymbols().EoCClientHandleError(*GetStaticSymbols().EoCClient, &msgStr, exitGame, &msgStr);
 	}
 
 	bool LibraryManager::CanShowMessages()
 	{
-		return gStaticSymbols.GetGameState()
-			&& gStaticSymbols.EoCClientHandleError != nullptr
-			&& gStaticSymbols.EoCAlloc != nullptr;
+		return GetStaticSymbols().GetGameState()
+			&& GetStaticSymbols().EoCClientHandleError != nullptr
+			&& GetStaticSymbols().EoCAlloc != nullptr;
 	}
 
 	bool LibraryManager::CanShowError()
 	{
 		if (!CanShowMessages()) return false;
 
-		auto state = gStaticSymbols.GetGameState();
+		auto state = GetStaticSymbols().GetGameState();
 		return state == GameState::Running
 			|| state == GameState::Paused
 			|| state == GameState::GameMasterPause
@@ -607,10 +608,10 @@ namespace osidbg
 
 	void LibraryManager::EnableCustomStats()
 	{
-		if (gStaticSymbols.UICharacterSheetHook == nullptr
-			|| gStaticSymbols.ActivateClientSystemsHook == nullptr
-			|| gStaticSymbols.ActivateServerSystemsHook == nullptr
-			|| gStaticSymbols.CustomStatUIRollHook == nullptr) {
+		if (GetStaticSymbols().UICharacterSheetHook == nullptr
+			|| GetStaticSymbols().ActivateClientSystemsHook == nullptr
+			|| GetStaticSymbols().ActivateServerSystemsHook == nullptr
+			|| GetStaticSymbols().CustomStatUIRollHook == nullptr) {
 			ERR("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
@@ -618,19 +619,19 @@ namespace osidbg
 		if (ExtensionState::Get().HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(gStaticSymbols.ActivateClientSystemsHook, sizeof(replacement));
+				WriteAnchor code(GetStaticSymbols().ActivateClientSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(gStaticSymbols.ActivateServerSystemsHook, sizeof(replacement));
+				WriteAnchor code(GetStaticSymbols().ActivateServerSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0xC3 };
-				WriteAnchor code(gStaticSymbols.CustomStatUIRollHook, sizeof(replacement));
+				WriteAnchor code(GetStaticSymbols().CustomStatUIRollHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
@@ -648,7 +649,7 @@ namespace osidbg
 #endif
 			};
 
-			WriteAnchor code(gStaticSymbols.UICharacterSheetHook, sizeof(replacement));
+			WriteAnchor code(GetStaticSymbols().UICharacterSheetHook, sizeof(replacement));
 			memcpy(code.ptr(), replacement, sizeof(replacement));
 			EnabledCustomStatsPane = true;
 		}
@@ -658,8 +659,8 @@ namespace osidbg
 	{
 		if (ExtensionState::Get().HasFeatureFlag("DisableFolding")) {
 #if defined(OSI_EOCAPP)
-			if (gStaticSymbols.ItemFoldDynamicAttributes != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(gStaticSymbols.ItemFoldDynamicAttributes);
+			if (GetStaticSymbols().ItemFoldDynamicAttributes != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ItemFoldDynamicAttributes);
 				WriteAnchor code(p, 0x40);
 				p[0x26] = 0x90;
 				p[0x27] = 0xE9;
@@ -674,8 +675,8 @@ namespace osidbg
 
 #if defined(OSI_EOCAPP)
 		if (gOsirisProxy->GetConfig().EnableAchievements) {
-			if (gStaticSymbols.ModuleSettingsHasCustomMods != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(gStaticSymbols.ModuleSettingsHasCustomMods);
+			if (GetStaticSymbols().ModuleSettingsHasCustomMods != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ModuleSettingsHasCustomMods);
 				WriteAnchor code(p, 0x40);
 				p[0x0E] = 0x90;
 				p[0x0F] = 0xE9;

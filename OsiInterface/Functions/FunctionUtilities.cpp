@@ -7,7 +7,7 @@ namespace osidbg
 {
 	ecl::EoCClient * GetEoCClient()
 	{
-		auto clientPtr = gStaticSymbols.EoCClient;
+		auto clientPtr = GetStaticSymbols().EoCClient;
 		if (clientPtr == nullptr || *clientPtr == nullptr) {
 			return nullptr;
 		} else {
@@ -32,7 +32,7 @@ namespace osidbg
 			return FixedString{};
 		}
 
-		auto stringTable = gStaticSymbols.GetGlobalStringTable();
+		auto stringTable = GetStaticSymbols().GetGlobalStringTable();
 		if (stringTable == nullptr) {
 			OsiErrorS("Global string table not available!");
 			return FixedString{};
@@ -46,7 +46,7 @@ namespace osidbg
 	{
 		auto str = ToFixedString(s);
 		if (!str) {
-			auto createFixedString = gStaticSymbols.CreateFixedString;
+			auto createFixedString = GetStaticSymbols().CreateFixedString;
 			if (createFixedString != nullptr) {
 #if defined(OSI_EOCAPP)
 				str = FixedString(createFixedString(s, -1));
@@ -78,7 +78,7 @@ namespace osidbg
 
 		auto guid = nameGuid + nameLen - 36;
 
-		auto stringTable = gStaticSymbols.GetGlobalStringTable();
+		auto stringTable = GetStaticSymbols().GetGlobalStringTable();
 		if (stringTable == nullptr) {
 			OsiErrorS("Global string table not available!");
 			return FixedString{};
@@ -136,12 +136,12 @@ namespace osidbg
 
 	EntityWorld * GetEntityWorld()
 	{
-		auto charFactory = gStaticSymbols.GetCharacterFactory();
+		auto charFactory = GetStaticSymbols().GetCharacterFactory();
 		if (charFactory != nullptr) {
 			return charFactory->Entities;
 		}
 
-		auto itemFactory = gStaticSymbols.GetItemFactory();
+		auto itemFactory = GetStaticSymbols().GetItemFactory();
 		if (itemFactory != nullptr) {
 			return itemFactory->Entities;
 		}
@@ -163,7 +163,7 @@ namespace osidbg
 
 	esv::TurnBasedProtocol * GetTurnBasedProtocol()
 	{
-		auto server = gStaticSymbols.EoCServer;
+		auto server = GetStaticSymbols().EoCServer;
 		if (server == nullptr || *server == nullptr) return nullptr;
 
 		auto gameServer = (*server)->Server;
@@ -276,7 +276,7 @@ namespace osidbg
 
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle)
 	{
-		auto actionMgr = gStaticSymbols.GetGameActionManager();
+		auto actionMgr = GetStaticSymbols().GetGameActionManager();
 
 		for (uint32_t i = 0; i < actionMgr->GameActions.Size; i++) {
 			auto action = actionMgr->GameActions[i];
@@ -447,7 +447,7 @@ namespace osidbg
 			Helper.DamageList = &DamageList;
 		}
 
-		auto shoot = gStaticSymbols.ShootProjectile;
+		auto shoot = GetStaticSymbols().ShootProjectile;
 		if (shoot == nullptr) {
 			OsiErrorS("ShootProjectile helper not found!");
 			return false;

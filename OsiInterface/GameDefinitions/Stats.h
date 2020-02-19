@@ -872,6 +872,4 @@ namespace osidbg
 		std::optional<int32_t> GetStat(CDivinityStats_Character * character, char const * name, 
 			bool original, bool baseValues);
 	};
-
-	extern CharacterStatsGetters gCharacterStatsGetters;
 }

@@ -307,7 +307,7 @@ namespace osidbg
 			return false;
 		}
 
-		auto characterHit = gStaticSymbols.CharacterHit;
+		auto characterHit = GetStaticSymbols().CharacterHit;
 		if (SimulateHit && characterHit == nullptr) {
 			OsiErrorS("esv::Character::Hit not found!");
 			return false;
@@ -319,8 +319,8 @@ namespace osidbg
 			return false;
 		}
 
-		auto createStatus = gStaticSymbols.StatusMachineCreateStatus;
-		auto applyStatus = gStaticSymbols.StatusMachineApplyStatus;
+		auto createStatus = GetStaticSymbols().StatusMachineCreateStatus;
+		auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
 		if (createStatus == nullptr || applyStatus == nullptr) {
 			OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 			return false;

@@ -136,7 +136,7 @@ void OsirisWrappers::InitializeExtensions()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	auto lib = gStaticSymbols;
+	auto & lib = GetStaticSymbols();
 	if (lib.InitNetworkFixedStrings != nullptr) {
 		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
 	}

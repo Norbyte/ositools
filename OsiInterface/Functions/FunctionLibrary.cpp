@@ -63,7 +63,7 @@ namespace osidbg
 				return {};
 			}
 
-			auto storageRoot = gStaticSymbols.ToPath("", PathRootType::GameStorage);
+			auto storageRoot = GetStaticSymbols().ToPath("", PathRootType::GameStorage);
 			if (storageRoot.empty()) {
 				OsiErrorS("Could not fetch game storage path");
 				return {};
@@ -325,8 +325,9 @@ namespace osidbg
 		}
 
 		if (strcmp(stat, "HitChance") == 0) {
-			if (!gCharacterStatsGetters.WrapperHitChance.IsHooked()) {
-				gCharacterStatsGetters.WrapperHitChance.SetWrapper(
+			auto & hitChance = GetStaticSymbols().CharStatsGetters.WrapperHitChance;
+			if (!hitChance.IsHooked()) {
+				hitChance.SetWrapper(
 					std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 				);
 			}
@@ -342,7 +343,7 @@ namespace osidbg
 		functionMgr.ClearDynamicEntries();
 
 		// FIXME - move extension state here?
-		gCharacterStatsGetters.ResetExtension();
+		GetStaticSymbols().CharStatsGetters.ResetExtension();
 
 		ExtensionState::Get().LuaReset(true);
 	}

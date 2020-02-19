@@ -40,7 +40,7 @@ namespace osidbg
 			auto const & mod = mods[i];
 			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
 			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
-			auto reader = gStaticSymbols.MakeFileReader(configFile);
+			auto reader = GetStaticSymbols().MakeFileReader(configFile);
 
 			if (reader.IsLoaded()) {
 				ExtensionModConfig config;

@@ -335,25 +335,25 @@ namespace osidbg
 		template <class T>
 		static T * New()
 		{
-			return (T *)gStaticSymbols.CrtAlloc(sizeof(T));
+			return (T *)GetStaticSymbols().CrtAlloc(sizeof(T));
 		}
 
 		template <class T>
 		static T * New(std::size_t count)
 		{
-			return (T *)gStaticSymbols.CrtAlloc(sizeof(T) * count);
+			return (T *)GetStaticSymbols().CrtAlloc(sizeof(T) * count);
 		}
 
 		template <class T>
 		static void Free(T * ptr)
 		{
-			gStaticSymbols.CrtFree(ptr);
+			GetStaticSymbols().CrtFree(ptr);
 		}
 
 		template <class T>
 		static void FreeArray(T * ptr)
 		{
-			gStaticSymbols.CrtFree(ptr);
+			GetStaticSymbols().CrtFree(ptr);
 		}
 	};
 

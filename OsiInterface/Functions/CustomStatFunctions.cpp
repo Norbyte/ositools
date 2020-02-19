@@ -80,7 +80,7 @@ namespace osidbg
 			DummyType dummy1;
 			dummy1.unkn2 = 0;
 
-			auto processMsg = gStaticSymbols.EsvCustomStatsProtocolProcessMsg;
+			auto processMsg = GetStaticSymbols().EsvCustomStatsProtocolProcessMsg;
 			if (processMsg == nullptr) {
 				OsiErrorS("esv::CustomStatsProtocol::ProcessMsg not found!");
 				return;

@@ -8,20 +8,24 @@
 
 namespace osidbg
 {
-	StaticSymbols gStaticSymbols;
+	StaticSymbols & GetStaticSymbols()
+	{
+		static auto sSymbols = new StaticSymbols();
+		return *sSymbols;
+	}
 
 	void * GameAllocRaw(std::size_t size)
 	{
 #if defined(OSI_EOCAPP)
-		return gStaticSymbols.EoCAlloc(nullptr, size);
+		return GetStaticSymbols().EoCAlloc(nullptr, size);
 #else
-		return gStaticSymbols.EoCAlloc(nullptr, size, "", 1, "");
+		return GetStaticSymbols().EoCAlloc(nullptr, size, "", 1, "");
 #endif
 	}
 
 	void GameFree(void * ptr)
 	{
-		gStaticSymbols.EoCFree(nullptr, ptr);
+		GetStaticSymbols().EoCFree(nullptr, ptr);
 	}
 
 
@@ -145,7 +149,7 @@ namespace osidbg
 	FileReaderPin::~FileReaderPin()
 	{
 		if (reader_ != nullptr) {
-			gStaticSymbols.DestroyFileReader(reader_);
+			GetStaticSymbols().DestroyFileReader(reader_);
 		}
 	}
 
@@ -433,7 +437,7 @@ namespace osidbg
 
 	CRPGStats_Object * StatFindObject(char const * name)
 	{
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return nullptr;
@@ -450,7 +454,7 @@ namespace osidbg
 
 	CRPGStats_Object * StatFindObject(int index)
 	{
-		auto stats = gStaticSymbols.GetStats();
+		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
 			return nullptr;
@@ -723,8 +727,6 @@ namespace osidbg
 	}
 
 
-	CharacterStatsGetters gCharacterStatsGetters;
-
 #define DEFN_GETTER(type, name) decltype(CharacterStatsGetters::Wrapper##name) * decltype(CharacterStatsGetters::Wrapper##name)::gHook;
 #include <GameDefinitions/CharacterGetters.inl>
 #undef DEFN_GETTER
@@ -782,24 +784,26 @@ namespace osidbg
 
 	std::optional<int32_t> CDivinityStats_Character::GetHitChance(CDivinityStats_Character * target)
 	{
-		if (gCharacterStatsGetters.GetHitChance == nullptr) {
+		auto getter = GetStaticSymbols().CharStatsGetters.GetHitChance;
+		if (getter == nullptr) {
 			return {};
 		}
 
-		return gCharacterStatsGetters.GetHitChance(this, target);
+		return getter(this, target);
 	}
 
 
 	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
 	{
-		return gCharacterStatsGetters.GetStat(this, name, false, baseStats);
+		return GetStaticSymbols().CharStatsGetters.GetStat(this, name, false, baseStats);
 	}
 
 
 	bool CDivinityStats_Character::HasTalent(TalentType talent, bool excludeBoosts)
 	{
-		if (gCharacterStatsGetters.GetTalent) {
-			return gCharacterStatsGetters.GetTalent(this, talent, excludeBoosts);
+		auto getter = GetStaticSymbols().CharStatsGetters.GetTalent;
+		if (getter) {
+			return getter(this, talent, excludeBoosts);
 		} else {
 			return false;
 		}
@@ -808,8 +812,9 @@ namespace osidbg
 
 	int32_t CDivinityStats_Character::GetAbility(AbilityType ability, bool excludeBoosts)
 	{
-		if (gCharacterStatsGetters.GetAbility) {
-			return gCharacterStatsGetters.GetAbility(this, ability, excludeBoosts, false);
+		auto getter = GetStaticSymbols().CharStatsGetters.GetAbility;
+		if (getter) {
+			return getter(this, ability, excludeBoosts, false);
 		} else {
 			return 0;
 		}
