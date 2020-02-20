@@ -362,7 +362,43 @@ namespace osidbg
 			PROP_RO(CDivinityStats_Character, Flanked);
 			PROP_RO(CDivinityStats_Character, Karma);
 			PROP_FLAGS(CDivinityStats_Character, Flags, StatCharacterFlags, false);
+			PROP_RO(CDivinityStats_Character, MaxResistance);
+			PROP_RO(CDivinityStats_Character, HasTwoHandedWeapon);
 			PROP_RO(CDivinityStats_Character, IsIncapacitatedRefCount);
+
+			{
+				PropertyMapBase::PropertyInfo info;
+				info.Type = PropertyType::kFixedStringGuid;
+				info.Offset = 0;
+				info.Flags = kPropRead;
+				info.GetString = [](void * obj) -> std::optional<char const *> {
+					auto self = reinterpret_cast<CDivinityStats_Character *>(obj);
+					if (self->Character != nullptr) {
+						// MyGuid and WorldPos are in the same location in both esv::Character 
+						// and ecl::Character, so it's safe to access them on both client and server
+						return self->Character->MyGuid.Str;
+					} else {
+						return {};
+					}
+				};
+				propertyMap.Properties.insert(std::make_pair("CharacterGuid", info));
+			}
+
+			{
+				PropertyMapBase::PropertyInfo info;
+				info.Type = PropertyType::kVector3;
+				info.Offset = 0;
+				info.Flags = kPropRead;
+				info.GetVector3 = [](void * obj) -> std::optional<Vector3> {
+					auto self = reinterpret_cast<CDivinityStats_Character *>(obj);
+					if (self->Character != nullptr) {
+						return self->Character->WorldPos;
+					} else {
+						return {};
+					}
+				};
+				propertyMap.Properties.insert(std::make_pair("WorldPosition", info));
+			}
 
 			PROP_RO(CDivinityStats_Character, MaxVitality);
 			PROP_RO(CDivinityStats_Character, BaseMaxVitality);
@@ -395,12 +431,14 @@ namespace osidbg
 			PROP_RO(CDivinityStats_Item, WeaponRange);
 			PROP_RO(CDivinityStats_Item, IsIdentified);
 			PROP_RO(CDivinityStats_Item, IsTwoHanded);
+			PROP_RO(CDivinityStats_Item, ShouldSyncStats);
 			PROP_RO(CDivinityStats_Item, HasModifiedSkills);
 			PROP_RO(CDivinityStats_Item, Skills);
 			PROP_ENUM(CDivinityStats_Item, DamageTypeOverwrite);
 			PROP_RO(CDivinityStats_Item, Durability);
 			PROP_RO(CDivinityStats_Item, DurabilityCounter);
 			PROP_RO(CDivinityStats_Item, ItemTypeReal);
+			PROP_FLAGS(CDivinityStats_Item, AttributeFlags, StatAttributeFlags, false);
 			PROP_RO(CDivinityStats_Item, MaxCharges);
 			PROP_RO(CDivinityStats_Item, Charges);
 		}

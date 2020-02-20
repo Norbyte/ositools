@@ -457,6 +457,7 @@ Returns the amount of damage dealt by the `HIT` status.
 | DamagedMagicArmor | Flag | Read/Write | Indicates that the hit damaged magic armor |
 | DamagedPhysicalArmor | Flag | Read/Write | Indicates that the hit damaged physical armor |
 | DamagedVitality | Flag | Read/Write | Indicates that the hit damaged the characters vitality |
+| Flanking | Flag | Read/Write | |
 | PropagatedFromOwner | Flag | Read/Write |  |
 | Surface | Flag | Read/Write | The hit is from a surface (`HitType` was `Surface`) |
 | DoT | Flag | Read/Write | The hit is from a DoT attack (`HitType` was `DoT`) |
@@ -801,8 +802,8 @@ Returns an attribute of the specified character. If `_Character` is not a valid 
 `query NRD_CharacterGetStatString([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](STRING)_Value)`
 
 Returns a stat value of the specified character. `_Stat` must be one of the following:
-Name, Level, CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons.
-In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
+Name, Level, CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons, MaxResistance, HasTwoHandedWeapon, CharacterGuid.
+In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) or [StatCharacterFlags enumeration](#statcharacterflags) can be retrieved.
 
 If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
 
@@ -810,7 +811,7 @@ If `_Character` is a nonexistent character or no stat named `_Stat` exists, the 
 `query NRD_CharacterGetComputedStat([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [in](INTEGER)_IsBaseStat, [out](INTEGER)_Value)`
 
 Returns a computed stat value of the specified character. `_Stat` must be one of the following:
-MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative, ChanceToHitBoost.
+MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, PhysicalResistance, PiercingResistance, CorrosiveResistance, MagicResistance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative, ChanceToHitBoost.
 
 If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
 
@@ -1198,6 +1199,7 @@ Stat properties (can only be fetched on items with a stats entry):
 | WeaponRange | Real | |
 | IsIdentified | Flag | |
 | IsTwoHanded | Flag | |
+| ShouldSyncStats | Flag | |
 | HasModifiedSkills | Flag | |
 | Skills | String | |
 | DamageTypeOverwrite | Enum | `DamageType` value |
@@ -1207,6 +1209,7 @@ Stat properties (can only be fetched on items with a stats entry):
 | MaxCharges | Integer | |
 | Charges | Integer | |
 
+In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
 
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.

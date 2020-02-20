@@ -437,6 +437,7 @@ namespace osidbg
 		{ HitFlag::HF_DamagedMagicArmor, "DamagedMagicArmor" },
 		{ HitFlag::HF_DamagedPhysicalArmor, "DamagedPhysicalArmor" },
 		{ HitFlag::HF_DamagedVitality, "DamagedVitality" },
+		{ HitFlag::HF_Flanking, "Flanking" },
 		{ HitFlag::HF_PropagatedFromOwner, "PropagatedFromOwner" },
 		{ HitFlag::HF_Surface, "Surface" },
 		{ HitFlag::HF_DoT, "DoT" },
@@ -455,6 +456,7 @@ namespace osidbg
 		{ StatCharacterFlags::SCF_Sneaking, "Sneaking" },
 		{ StatCharacterFlags::SCF_Invisible, "Invisible" },
 		{ StatCharacterFlags::SCF_Blind, "Blind" },
+		{ StatCharacterFlags::SCF_EquipmentValidated, "EquipmentValidated" },
 	};
 
 	EnumInfo<StatusHealType>::Label const EnumInfo<StatusHealType>::Values[] = {

@@ -692,10 +692,11 @@ namespace osidbg
 		SCF_InParty = 2,
 		SCF_Sneaking = 4,
 		SCF_Invisible = 8,
-		SCF_Blind = 16
+		SCF_Blind = 16,
+		SCF_EquipmentValidated = 64
 	};
 
-	MAKE_ENUM_INFO(StatCharacterFlags, 5);
+	MAKE_ENUM_INFO(StatCharacterFlags, 6);
 
 	enum HitFlag : uint32_t
 	{
@@ -713,6 +714,7 @@ namespace osidbg
 		HF_DamagedMagicArmor = 0x1000,
 		HF_DamagedPhysicalArmor = 0x2000,
 		HF_DamagedVitality = 0x4000,
+		HF_Flanking = 0x8000,
 		HF_PropagatedFromOwner = 0x10000,
 		HF_Surface = 0x20000,
 		HF_DoT = 0x40000,
@@ -725,7 +727,7 @@ namespace osidbg
 		HF_NoEvents = 0x80000000
 	};
 
-	MAKE_ENUM_INFO(HitFlag, 23);
+	MAKE_ENUM_INFO(HitFlag, 24);
 
 	enum StatusHealType : uint32_t
 	{

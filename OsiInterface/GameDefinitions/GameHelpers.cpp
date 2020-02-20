@@ -765,6 +765,7 @@ namespace osidbg
 	{
 		auto statType = EnumInfo<StatGetterType>::Find(name);
 		if (!statType) {
+			OsiError("Unknown character stat: '" << name << "'");
 			return {};
 		}
 
@@ -776,7 +777,7 @@ namespace osidbg
 #undef DEFN_GETTER
 
 		default:
-			OsiError("Unknown character stat: '" << name << "'");
+			OsiError("No stat fetcher defined for stat: '" << name << "'");
 			return {};
 		}
 	}
@@ -795,7 +796,17 @@ namespace osidbg
 
 	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
 	{
-		return GetStaticSymbols().CharStatsGetters.GetStat(this, name, false, baseStats);
+		if (strcmp(name, "PhysicalResistance") == 0) {
+			return GetPhysicalResistance(baseStats);
+		} else if (strcmp(name, "PiercingResistance") == 0) {
+			return GetPiercingResistance(baseStats);
+		} else if (strcmp(name, "CorrosiveResistance") == 0) {
+			return GetCorrosiveResistance(baseStats);
+		} else if (strcmp(name, "MagicResistance") == 0) {
+			return GetMagicResistance(baseStats);
+		} else {
+			return GetStaticSymbols().CharStatsGetters.GetStat(this, name, false, baseStats);
+		}
 	}
 
 
@@ -886,6 +897,89 @@ namespace osidbg
 			|| (conditionMask & 0x700) && ActiveBoostConditions[15] > 0;
 	}
 
+	template <class IterFunc, class ItemFunc>
+	int32_t ComputeCharacterStat(CDivinityStats_Character * character, int32_t initVal, IterFunc iter, ItemFunc iterItem, bool excludeBoosts)
+	{
+		int32_t value = initVal;
+
+		auto lastStat = excludeBoosts ? (character->DynamicStats + 3) : character->DynamicStatsEnd;
+
+		unsigned i = 0;
+		for (auto statPtr = character->DynamicStats; statPtr != lastStat; statPtr++, i++) {
+			auto & stat = *statPtr;
+			if (stat->BoostConditionsMask == 0 || character->IsBoostActive(stat->BoostConditionsMask)) {
+				value = iter(character, value, i, stat);
+			}
+		}
+
+		if (!excludeBoosts) {
+			auto & itemHandles = character->DivStats->ItemList->Handles;
+			for (auto statPtr = character->ItemStats; statPtr != character->ItemStatsEnd; statPtr++) {
+				auto & stat = **statPtr;
+				if (stat.IsEquipped && stat.ItemStatsHandle >= 0 && stat.ItemStatsHandle < itemHandles.Size()) {
+					auto item = itemHandles.Start[stat.ItemStatsHandle];
+					if (item != nullptr) {
+						value = iterItem(character, value, item);
+					}
+				}
+			}
+		}
+
+		return value;
+	}
+
+	int32_t CDivinityStats_Character::GetPhysicalResistance(bool excludeBoosts)
+	{
+		auto physResist = std::min(DynamicStats[0]->PhysicalResistance, DynamicStats[0]->MaxResistance);
+		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
+			return val + stat->PhysicalResistance;
+		};
+		auto addItem = [](CDivinityStats_Character * self, int32_t val, CDivinityStats_Item * item) -> int32_t {
+			return val + item->GetPhysicalResistance();
+		};
+
+		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+	}
+
+	int32_t CDivinityStats_Character::GetPiercingResistance(bool excludeBoosts)
+	{
+		auto physResist = std::min(DynamicStats[0]->PiercingResistance, DynamicStats[0]->MaxResistance);
+		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
+			return val + stat->PiercingResistance;
+		};
+		auto addItem = [](CDivinityStats_Character * self, int32_t val, CDivinityStats_Item * item) -> int32_t {
+			return val + item->GetPiercingResistance();
+		};
+
+		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+	}
+
+	int32_t CDivinityStats_Character::GetCorrosiveResistance(bool excludeBoosts)
+	{
+		auto physResist = std::min(DynamicStats[0]->CorrosiveResistance, DynamicStats[0]->MaxResistance);
+		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
+			return val + stat->CorrosiveResistance;
+		};
+		auto addItem = [](CDivinityStats_Character * self, int32_t val, CDivinityStats_Item * item) -> int32_t {
+			return val + item->GetCorrosiveResistance();
+		};
+
+		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+	}
+
+	int32_t CDivinityStats_Character::GetMagicResistance(bool excludeBoosts)
+	{
+		auto physResist = std::min(DynamicStats[0]->MagicResistance, DynamicStats[0]->MaxResistance);
+		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
+			return val + stat->MagicResistance;
+		};
+		auto addItem = [](CDivinityStats_Character * self, int32_t val, CDivinityStats_Item * item) -> int32_t {
+			return val + item->GetMagicResistance();
+		};
+
+		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+	}
+
 	int32_t CDivinityStats_Character::GetDamageBoost()
 	{
 		int32_t damageBoost = 0;
@@ -901,6 +995,46 @@ namespace osidbg
 		}
 
 		return damageBoost;
+	}
+
+	int32_t CDivinityStats_Item::GetPhysicalResistance()
+	{
+		int32_t resistance = 0;
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			resistance += (*stat)->PhysicalResistance;
+		}
+
+		return resistance;
+	}
+
+	int32_t CDivinityStats_Item::GetPiercingResistance()
+	{
+		int32_t resistance = 0;
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			resistance += (*stat)->PiercingResistance;
+		}
+
+		return resistance;
+	}
+
+	int32_t CDivinityStats_Item::GetMagicResistance()
+	{
+		int32_t resistance = 0;
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			resistance += (*stat)->MagicResistance;
+		}
+
+		return resistance;
+	}
+
+	int32_t CDivinityStats_Item::GetCorrosiveResistance()
+	{
+		int32_t resistance = 0;
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			resistance += (*stat)->CorrosiveResistance;
+		}
+
+		return resistance;
 	}
 
 

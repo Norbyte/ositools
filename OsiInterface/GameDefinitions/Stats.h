@@ -339,7 +339,7 @@ namespace osidbg
 		uint32_t U3;
 		uint32_t U4;
 		bool IsTwoHanded;
-		bool HasAddedItems_M;
+		bool ShouldSyncStats;
 		bool U5;
 		bool HasModifiedSkills; // Saved
 		uint32_t U6;
@@ -352,7 +352,8 @@ namespace osidbg
 		FixedString U8;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
-		uint64_t U9[3];
+		uint64_t U9[2];
+		uint64_t AttributeFlags;
 		int32_t MaxCharges; // -1 = Not overridden
 		int32_t Charges; // -1 = Not overridden
 		uint8_t LevelGroupIndex;
@@ -363,6 +364,11 @@ namespace osidbg
 		ObjectSet<void *> Tags_Maybe;
 		ObjectSet<FixedString> BoostNameSet;
 		uint64_t U10[12];
+
+		int32_t GetPhysicalResistance();
+		int32_t GetPiercingResistance();
+		int32_t GetMagicResistance();
+		int32_t GetCorrosiveResistance();
 	};
 
 	struct EoCGameRandom
@@ -460,8 +466,17 @@ namespace osidbg
 
 	namespace esv { struct Character; }
 
+	struct DamagePairList;
+	struct HitDamageInfo;
+	struct SkillPrototype;
+
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
 	{
+		typedef void (* HitInternalProc)(CDivinityStats_Character * self, CDivinityStats_Character *attackerStats,
+			CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			bool forceReduceDurability, HitDamageInfo *damageInfo, SkillPrototype *skillProperties,
+			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
+
 		uint32_t _Pad0;
 		uint32_t CurrentVitality;
 		uint32_t CurrentArmor;
@@ -481,7 +496,7 @@ namespace osidbg
 		uint32_t Unkn0;
 		ObjectSet<int> TraitOrder; // Saved
 		uint32_t MaxResistance;
-		uint32_t ItemsChanged_M;
+		uint32_t HasTwoHandedWeapon;
 		esv::Character * Character;
 		uint32_t Unkn2;
 		uint32_t IsIncapacitatedRefCount;
@@ -523,6 +538,10 @@ namespace osidbg
 		CDivinityStats_Item * GetItemBySlot(ItemSlot slot, bool mustBeEquipped);
 		CDivinityStats_Item * GetMainWeapon();
 		CDivinityStats_Item * GetOffHandWeapon();
+		int32_t GetPhysicalResistance(bool excludeBoosts);
+		int32_t GetPiercingResistance(bool excludeBoosts);
+		int32_t GetMagicResistance(bool excludeBoosts);
+		int32_t GetCorrosiveResistance(bool excludeBoosts);
 		int32_t GetDamageBoost();
 		bool IsBoostActive(uint32_t conditionsMask);
 	};
