@@ -670,11 +670,11 @@ namespace osidbg
 
 		delete eventArgs;
 
-		gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
-
 		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->RollForDamage,
 			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
 			helper->ProcWindWalker, helper->Critical);
+
+		gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}
 
 
