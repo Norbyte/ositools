@@ -196,8 +196,8 @@ namespace osidbg
 		FixedStringMapBase<CDivinityStats_Condition *> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
-		ObjectSet<CRPGStats_Requirement> Requirements;
-		ObjectSet<CRPGStats_Requirement> MemorizationRequirements;
+		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
+		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> MemorizationRequirements;
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
 		ObjectSet<FixedString> StringProperties1;
 		ObjectSet<FixedString> ComboCategories;
@@ -756,7 +756,7 @@ namespace osidbg
 		uint8_t _Pad5[4];
 		FixedStringRefMap<FixedString, void *> FSMap2;
 		uint64_t Unkn2[7];
-		ObjectSet<FixedString> ModifierFSSet;
+		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;
 		uint64_t unknown2[140];
 		void * EquipmentSetManager;

@@ -357,8 +357,8 @@ namespace osidbg
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator>
-	struct CompactSet : public Noncopyable<CompactSet<T, Allocator>>
+	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
+	struct CompactSet : public Noncopyable<CompactSet<T, Allocator, StoreSize>>
 	{
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
@@ -378,16 +378,36 @@ namespace osidbg
 
 		void Reallocate(uint32_t newCapacity)
 		{
-			auto newBuf = Allocator::New<T>(newCapacity);
-			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-				newBuf[i] = Buf[i];
+			if (StoreSize)
+			{
+				auto newBuf = Allocator::New<T>(newCapacity + 8);
+				*(int64_t *)newBuf = Size;
+
+				auto newList = (T *)((std::ptrdiff_t)newBuf + 8);
+				for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
+					newList[i] = Buf[i];
+				}
+
+				if (Buf != nullptr) {
+					Allocator::Free((void *)((std::ptrdiff_t)Buf - 8));
+				}
+
+				Buf = newList;
+			}
+			else
+			{
+				auto newBuf = Allocator::New<T>(newCapacity);
+				for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
+					newBuf[i] = Buf[i];
+				}
+
+				if (Buf != nullptr) {
+					Allocator::Free(Buf);
+				}
+
+				Buf = newBuf;
 			}
 
-			if (Buf != nullptr) {
-				Allocator::Free(Buf);
-			}
-
-			Buf = newBuf;
 			Capacity = newCapacity;
 		}
 
@@ -407,7 +427,7 @@ namespace osidbg
 	};
 
 	template <class T, class Allocator = GameMemoryAllocator>
-	struct PrimitiveSet : public CompactSet<T, Allocator>
+	struct PrimitiveSet : public CompactSet<T, Allocator, false>
 	{
 		uint32_t CapacityIncrement() const
 		{
@@ -428,8 +448,8 @@ namespace osidbg
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator>
-	struct Set : public CompactSet<T, Allocator>
+	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
+	struct Set : public CompactSet<T, Allocator, StoreSize>
 	{
 		uint64_t CapacityIncrementSize{ 0 };
 
@@ -451,6 +471,9 @@ namespace osidbg
 			}
 
 			Buf[Size++] = value;
+			if (StoreSize) {
+				((int64_t *)Buf)[-1] = Size;
+			}
 		}
 
 		void InsertAt(uint32_t index, T const & value)
@@ -465,14 +488,17 @@ namespace osidbg
 
 			Buf[index] = value;
 			Size++;
+			if (StoreSize) {
+				((int64_t *)Buf)[-1] = Size;
+			}
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator>
+	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
 	struct ObjectSet
 	{
 		void * VMT{ nullptr };
-		Set<T, Allocator> Set;
+		Set<T, Allocator, StoreSize> Set;
 
 		inline T const & operator [] (uint32_t index) const
 		{

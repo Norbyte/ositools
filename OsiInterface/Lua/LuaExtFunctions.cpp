@@ -419,7 +419,7 @@ namespace osidbg
 		luaL_settable(L, "Not", requirement.Negate);
 	}
 
-	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement> const & requirements)
+	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> const & requirements)
 	{
 		lua_newtable(L);
 		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
@@ -450,7 +450,7 @@ namespace osidbg
 		requirement.Negate = luaL_gettable<char const *, bool>(L, "Not");
 	}
 
-	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement> & requirements)
+	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> & requirements)
 	{
 		lua_len(L, -1);
 		auto len = lua_tointeger(L, -1);
