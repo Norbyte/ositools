@@ -16,6 +16,7 @@ namespace osidbg
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
+	decltype(LibraryManager::CharacterHitInternalHook) * decltype(LibraryManager::CharacterHitInternalHook)::gHook;
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
@@ -421,6 +422,10 @@ namespace osidbg
 				CharacterHitHook.Wrap(GetStaticSymbols().CharacterHit);
 			}
 
+			if (GetStaticSymbols().CharacterHitInternal != nullptr) {
+				CharacterHitInternalHook.Wrap(GetStaticSymbols().CharacterHitInternal);
+			}
+
 			if (GetStaticSymbols().StatusMachineApplyStatus != nullptr) {
 				ApplyStatusHook.Wrap(GetStaticSymbols().StatusMachineApplyStatus);
 			}
@@ -475,6 +480,7 @@ namespace osidbg
 		StatusHitEnter.Unwrap();
 		StatusHealEnter.Unwrap();
 		CharacterHitHook.Unwrap();
+		CharacterHitInternalHook.Unwrap();
 		ApplyStatusHook.Unwrap();
 		ActionMachineSetStateHook.Unwrap();
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();

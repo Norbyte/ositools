@@ -76,6 +76,23 @@ end
 
 Ext.GetSkillDamage = {}
 
+Ext._ComputeCharacterHit = function (...)
+    for i,callback in pairs(Ext.ComputeCharacterHit) do
+        local status, hit = xpcall(callback, debug.traceback, ...)
+        if status then
+			if hit ~= nil then
+				return hit
+			end
+		else
+            Ext.PrintError("Error during ComputeCharacterHit: ", hit)
+        end
+    end
+
+	return false
+end
+
+Ext.ComputeCharacterHit = {}
+
 Ext._CalculateTurnOrder = function (...)
     for i,callback in pairs(Ext.CalculateTurnOrder) do
         local status, turnOrder = xpcall(callback, debug.traceback, ...)
@@ -104,6 +121,8 @@ Ext.RegisterListener = function (type, fn)
 		table.insert(Ext.GetSkillDamage, fn)
 	elseif type == "StatusGetDescriptionParam" then
 		table.insert(Ext.StatusGetDescriptionParam, fn)
+	elseif type == "ComputeCharacterHit" then
+		table.insert(Ext.ComputeCharacterHit, fn)
 	elseif type == "CalculateTurnOrder" then
 		table.insert(Ext.CalculateTurnOrder, fn)
 	else

@@ -193,6 +193,16 @@ namespace osidbg
 		{"GetChanceToHitBoost", SymbolMappingTarget::kIndirectCall, 6, CHAR_GETTER_SYM(GetChanceToHitBoost)}
 	};
 
+	SymbolMappingData const sSymbolCharacterHitInternal = {
+		"CDivinityStats_Character::_HitInternal",
+		SymbolMappingData::kCustom, 0,
+		"88 44 24 28 " // mov     [rsp+98h+rollForDamage], al
+		"89 7C 24 20 " // mov     [rsp+98h+hitType], edi
+		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
+		{},
+		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirectCall, 8, STATIC_SYM(CharacterHitInternal)}
+	};
+
 	SymbolMappingData const sSymbolCharacterHit = {
 		"esv::Character::CharacterHit",
 		SymbolMappingData::kCustom, 0,
@@ -202,7 +212,7 @@ namespace osidbg
 		"4C 8B AE A0 01 00 00 " // mov     r13, [rsi+1A0h]
 		"EB 5F ", // jmp short xxx
 		{},
-		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirectCall, 12, STATIC_SYM(CharacterHit)}
+		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirectCall, 12, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
 	};
 
 	SymbolMappingResult FindLibrariesEoCApp(uint8_t const * match)

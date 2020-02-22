@@ -47,6 +47,31 @@ namespace osidbg
 
 
 
+	LuaItemOrCharacterPushPin::LuaItemOrCharacterPushPin(lua_State * L, CRPGStats_Object * obj)
+	{
+		if (obj == nullptr) {
+			lua_pushnil(L);
+		} else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
+			auto ch = reinterpret_cast<CDivinityStats_Character *>(obj);
+			character_ = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
+		} else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
+			auto item = reinterpret_cast<CDivinityStats_Item *>(obj);
+			item_ = LuaObjectProxy<CDivinityStats_Item>::New(L, item);
+		} else {
+			object_ = LuaStatsProxy::New(L, obj, -1);
+			OsiWarnS("Could not determine stats type of object");
+		}
+	}
+
+	LuaItemOrCharacterPushPin::~LuaItemOrCharacterPushPin()
+	{
+		if (character_) character_->Unbind();
+		if (item_) item_->Unbind();
+		if (object_) object_->Unbind();
+	}
+
+
+
 	char const * const LuaObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
 	int LuaObjectProxy<esv::Status>::LuaIndex(lua_State * L)
@@ -183,7 +208,11 @@ namespace osidbg
 			return 1;
 		}
 
-		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, true);
+		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, false);
+		if (!fetched) {
+			OsiError("Unknown character stats property: " << prop);
+		}
+
 		return fetched ? 1 : 0;
 	}
 
@@ -1203,22 +1232,7 @@ namespace osidbg
 
 		auto luaSkill = LuaSkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
 		LuaSkillPrototypePin _(luaSkill);
-		LuaObjectProxy<CDivinityStats_Character> * luaAttackerChar{ nullptr };
-		LuaObjectProxy<CDivinityStats_Item> * luaAttackerItem{ nullptr };
-		LuaStatsProxy * luaAttackerObject{ nullptr };
-
-		if (attacker == nullptr) {
-			lua_pushnil(L);
-		} else if (attacker->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
-			auto ch = reinterpret_cast<CDivinityStats_Character *>(attacker);
-			luaAttackerChar = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
-		} else if (attacker->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
-			auto it = reinterpret_cast<CDivinityStats_Item *>(attacker);
-			luaAttackerItem = LuaObjectProxy<CDivinityStats_Item>::New(L, it);
-		} else {
-			luaAttackerObject = LuaStatsProxy::New(L, attacker, -1);
-			OsiWarnS("Could not determine stats type of attacker");
-		}
+		LuaItemOrCharacterPushPin _a(L, attacker);
 
 		lua_push(L, isFromItem);
 		lua_push(L, stealthed);
@@ -1238,19 +1252,7 @@ namespace osidbg
 		lua_push(L, level);
 		lua_push(L, noRandomization);
 
-		bool succeeded = (CallWithTraceback(8, 2) != 0);
-
-		if (luaAttackerChar != nullptr) {
-			luaAttackerChar->Unbind();
-		}
-		if (luaAttackerItem != nullptr) {
-			luaAttackerItem->Unbind();
-		}
-		if (luaAttackerObject != nullptr) {
-			luaAttackerObject->Unbind();
-		}
-
-		if (succeeded) { // stack: damageList, deathType
+		if (CallWithTraceback(8, 2) != 0) { // stack: damageList, deathType
 			OsiError("GetSkillDamage handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
@@ -1290,6 +1292,131 @@ namespace osidbg
 		}
 
 		lua_pop(L, 2); // stack: -
+		return ok;
+	}
+
+	bool LuaState::ComputeCharacterHit(CDivinityStats_Character * target,
+		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList, 
+		HitType hitType, bool rollForDamage, bool forceReduceDurability, HitDamageInfo *hit, 
+		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAllServer);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_ComputeCharacterHit"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return false;
+		}
+
+		auto luaTarget = LuaObjectProxy<CDivinityStats_Character>::New(L, target);
+		LuaGameObjectPin<CDivinityStats_Character> _(luaTarget);
+		LuaItemOrCharacterPushPin luaAttacker(L, attacker);
+
+		LuaObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
+		if (weapon != nullptr) {
+			luaWeapon = LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+		} else {
+			lua_pushnil(L);
+		}
+		LuaGameObjectPin<CDivinityStats_Item> _2(luaWeapon);
+
+		auto luaDamageList = LuaDamageList::New(L);
+		for (uint32_t i = 0; i < damageList->Size; i++) {
+			luaDamageList->Get().SafeAdd((*damageList)[i]);
+		}
+
+		auto hitTypeLabel = EnumInfo<HitType>::Find(hitType);
+		if (hitTypeLabel) {
+			lua_push(L, *hitTypeLabel);
+		} else {
+			lua_pushnil(L);
+		}
+
+		lua_push(L, rollForDamage);
+		lua_push(L, forceReduceDurability);
+		
+		lua_newtable(L);
+		luaL_settable(L, "EffectFlags", hit->EffectFlags);
+		luaL_settable(L, "TotalDamageDone", hit->TotalDamage);
+		luaL_settable(L, "ArmorAbsorption", hit->ArmorAbsorption);
+		luaL_settable(L, "LifeSteal", hit->LifeSteal);
+
+		auto damageTypeLabel = EnumInfo<DamageType>::Find(hit->DamageType);
+		if (damageTypeLabel) {
+			luaL_settable(L, "DamageType", *damageTypeLabel);
+		}
+
+		auto alwaysBackstab = skillProperties != nullptr
+			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
+		lua_push(L, alwaysBackstab);
+
+		auto highGroundLabel = EnumInfo<HighGroundBonus>::Find(highGroundFlag);
+		if (highGroundLabel) {
+			lua_push(L, *highGroundLabel);
+		} else {
+			lua_pushnil(L);
+		}
+
+		auto criticalRollLabel = EnumInfo<CriticalRoll>::Find(criticalRoll);
+		if (criticalRollLabel) {
+			lua_push(L, *criticalRollLabel);
+		} else {
+			lua_pushnil(L);
+		}
+
+		if (CallWithTraceback(11, 1) != 0) { // stack: succeeded
+			OsiError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int isnil = lua_isnil(L, -1);
+
+		bool ok;
+		if (isnil) {
+			ok = false;
+		} else if (lua_type(L, -1) == LUA_TTABLE) {
+			lua_getfield(L, -1, "EffectFlags");
+			auto effectFlags = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			lua_getfield(L, -1, "TotalDamageDone");
+			auto totalDamageDone = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			lua_getfield(L, -1, "ArmorAbsorption");
+			auto armorAbsorption = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			lua_getfield(L, -1, "LifeSteal");
+			auto lifeSteal = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			lua_getfield(L, -1, "DamageList");
+			auto damageList = LuaDamageList::AsUserData(L, -1);
+			lua_pop(L, 1);
+
+			if (damageList == nullptr) {
+				OsiErrorS("Missing 'DamageList' in table returned from ComputeCharacterHit");
+				ok = false;
+			} else {
+				hit->EffectFlags = (uint32_t)effectFlags;
+				hit->TotalDamage = (int32_t)totalDamageDone;
+				hit->ArmorAbsorption = (int32_t)armorAbsorption;
+				hit->LifeSteal = (int32_t)lifeSteal;
+				hit->DamageList.Clear();
+				for (uint32_t i = 0; i < damageList->Get().Size; i++) {
+					auto const & dmg = damageList->Get()[i];
+					hit->DamageList.AddDamage(dmg.DamageType, dmg.Amount);
+				}
+				ok = true;
+			}
+		} else {
+			OsiErrorS("ComputeCharacterHit must return a table");
+			ok = false;
+		}
+
+		lua_pop(L, 1); // stack: -
 		return ok;
 	}
 

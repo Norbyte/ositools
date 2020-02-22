@@ -41,8 +41,12 @@ namespace osidbg
 		void OnStatusHealEnter(esv::Status * status);
 		void OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
-			HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, 
+			HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag,
 			bool procWindWalker, CriticalRoll criticalRoll);
+		void OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self, 
+			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
+			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,

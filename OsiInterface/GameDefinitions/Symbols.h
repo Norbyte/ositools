@@ -76,6 +76,7 @@ namespace osidbg
 		esv::StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
 		esv::StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
 		esv::Character__Hit CharacterHit{ nullptr };
+		CDivinityStats_Character::HitInternalProc CharacterHitInternal{ nullptr };
 		esv::StatusVMT const * StatusHealVMT{ nullptr };
 		esv::StatusVMT const * StatusHitVMT{ nullptr };
 		esv::ParseItem ParseItem{ nullptr };

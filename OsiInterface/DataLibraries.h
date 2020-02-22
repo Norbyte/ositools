@@ -199,7 +199,12 @@ namespace osidbg {
 
 		enum class CharacterHitTag {};
 		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
-			HitType, bool, HitDamageInfo *, int, void *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
+			HitType, bool, HitDamageInfo *, int, CRPGStats_Object_Property_List *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
+
+		enum class CharacterHitInternalTag {};
+		WrappableFunction<CharacterHitInternalTag, void(CDivinityStats_Character *, CDivinityStats_Character *,
+			CDivinityStats_Item *, DamagePairList *, HitType, bool, bool, HitDamageInfo *, CRPGStats_Object_Property_List *,
+			HighGroundBonus, CriticalRoll)> CharacterHitInternalHook;
 
 		enum class ApplyStatusTag {};
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;

@@ -765,7 +765,6 @@ namespace osidbg
 	{
 		auto statType = EnumInfo<StatGetterType>::Find(name);
 		if (!statType) {
-			OsiError("Unknown character stat: '" << name << "'");
 			return {};
 		}
 

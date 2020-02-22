@@ -521,6 +521,18 @@ namespace osidbg
 		LuaObjectProxy<T> * proxy_;
 	};
 
+	class LuaItemOrCharacterPushPin
+	{
+	public:
+		LuaItemOrCharacterPushPin(lua_State * L, CRPGStats_Object * obj);
+		~LuaItemOrCharacterPushPin();
+
+	private:
+		LuaObjectProxy<CDivinityStats_Character> * character_{ nullptr };
+		LuaObjectProxy<CDivinityStats_Item> * item_{ nullptr };
+		LuaStatsProxy * object_{ nullptr };
+	};
+
 	template <class T>
 	class LuaHandleProxy : public LuaUserdata<LuaHandleProxy<T>>, public LuaIndexable
 	{
@@ -911,6 +923,10 @@ namespace osidbg
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource, 
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 		bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+		bool ComputeCharacterHit(CDivinityStats_Character * self,
+			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
+			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 
 	private:
 		lua_State * state_;

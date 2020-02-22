@@ -178,7 +178,7 @@ namespace osidbg
 		);
 
 		unsigned ptrIndex = 0;
-		p2.Scan(match, 0x240, [&ptrIndex](const uint8_t * match) -> std::optional<bool> {
+		p2.Scan(match, 0x240, [&ptrIndex, &getters](const uint8_t * match) -> std::optional<bool> {
 			if (ptrIndex < std::size(getters.Ptrs)) {
 				auto ptr = AsmCallToAbsoluteAddress(match + 3);
 				getters.Ptrs[ptrIndex++] = (void *)ptr;
@@ -189,8 +189,8 @@ namespace osidbg
 
 		if (getters.GetUnknown != nullptr) {
 			auto & library = gOsirisProxy->GetLibraryManager();
-			library.MapSymbol(sSymbolGetAbility, (uint8_t *)gCharacterStatsGetters.GetDodge, 0x480);
-			library.MapSymbol(sSymbolGetTalent, (uint8_t *)gCharacterStatsGetters.GetDodge, 0x480);
+			library.MapSymbol(sSymbolGetAbility, (uint8_t *)getters.GetDodge, 0x480);
+			library.MapSymbol(sSymbolGetTalent, (uint8_t *)getters.GetDodge, 0x480);
 		}
 
 		return (getters.GetUnknown != nullptr) ? SymbolMappingResult::Success : SymbolMappingResult::Fail;
@@ -207,6 +207,16 @@ namespace osidbg
 		{"GetChanceToHitBoost", SymbolMappingTarget::kIndirectCall, 8, CHAR_GETTER_SYM(GetChanceToHitBoost)}
 	};
 
+	SymbolMappingData const sSymbolCharacterHitInternal = {
+		"CDivinityStats_Character::_HitInternal",
+		SymbolMappingData::kCustom, 0,
+		"88 44 24 28 " // mov     [rsp+0A8h+var_80], al
+		"89 6C 24 20 " // mov     [rsp+0A8h+var_88], ebp
+		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
+		{},
+		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirectCall, 8, STATIC_SYM(CharacterHitInternal)}
+	};
+
 	SymbolMappingData const sSymbolCharacterHit = {
 		"esv::Character::CharacterHit",
 		SymbolMappingData::kCustom, 0,
@@ -217,7 +227,7 @@ namespace osidbg
 		"XX 8B XX B0 01 00 00 " // mov     r13, [r15+1B0h]
 		"EB 66 ", // jmp short xxx
 		{},
-		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirectCall, 18, STATIC_SYM(CharacterHit)}
+		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirectCall, 18, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
 	};
 
 	SymbolMappingResult FindLibrariesEoCPlugin(uint8_t const * match)

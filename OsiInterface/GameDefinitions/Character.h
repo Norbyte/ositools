@@ -301,7 +301,7 @@ namespace osidbg
 		};
 
 		typedef void(*Character__Hit)(esv::Character * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
-			HitType hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
+			HitType hitType, bool rollForDamage, HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 	}
 #pragma pack(pop)
 }

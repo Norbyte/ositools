@@ -474,7 +474,7 @@ namespace osidbg
 	{
 		typedef void (* HitInternalProc)(CDivinityStats_Character * self, CDivinityStats_Character *attackerStats,
 			CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
-			bool forceReduceDurability, HitDamageInfo *damageInfo, SkillPrototype *skillProperties,
+			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 
 		uint32_t _Pad0;

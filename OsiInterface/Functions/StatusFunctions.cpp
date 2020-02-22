@@ -623,7 +623,7 @@ namespace osidbg
 
 	void CustomFunctionLibrary::OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
-		HitDamageInfo * damageInfo, int forceReduceDurability, void * skillProperties, HighGroundBonus highGround,
+		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
 	{
 		if (damageInfo->EffectFlags & HitFlag::HF_NoEvents) {
@@ -677,6 +677,22 @@ namespace osidbg
 		gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}
 
+	void CustomFunctionLibrary::OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self,
+		CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
+		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
+	{
+		LuaStatePin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, rollForDamage, forceReduceDurability, damageInfo,
+				skillProperties, highGroundFlag, criticalRoll)) {
+				return;
+			}
+		}
+
+		next(self, attackerStats, item, damageList, hitType, rollForDamage, forceReduceDurability, damageInfo,
+			skillProperties, highGroundFlag, criticalRoll);
+	}
 
 	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)
 	{
