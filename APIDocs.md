@@ -682,22 +682,22 @@ Each function needs a skill stats id of the same type (Rain skill id for `NRD_Cr
    - Dome: `LifeTime`, `Finished`
 
 ### CreateRain
-`query NRD_CreateRain([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateRain([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameActionHandle)`
 
 ### CreateStorm
-`query NRD_CreateStorm([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateStorm([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameActionHandle)`
 
 ### CreateWall
-`query NRD_CreateWall([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_SourceX, [in](REAL)_SourceY, [in](REAL)_SourceZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateWall([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_SourceX, [in](REAL)_SourceY, [in](REAL)_SourceZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameActionHandle)`
 
 ### CreateTornado
-`query NRD_CreateTornado([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_PositionX, [in](REAL)_PositionY, [in](REAL)_PositionZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateTornado([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_PositionX, [in](REAL)_PositionY, [in](REAL)_PositionZ, [in](REAL)_TargetX, [in](REAL)_TargetY, [in](REAL)_TargetZ, [out](INTEGER64)_GameActionHandle)`
 
 ### CreateDome
-`query NRD_CreateDome([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateDome([in](CHARACTERGUID)_OwnerCharacter, [in](STRING)_SkillId, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [out](INTEGER64)_GameActionHandle)`
 
 ### GameObjectMove
-`query NRD_CreateGameObjectMove([in](CHARACTERGUID)_TargetCharacter, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](CHARACTERGUID)_CasterCharacter, [out](INTEGER64)_GameObjectHandle)`
+`query NRD_CreateGameObjectMove([in](GUIDSTRING)_TargetObject, [in](REAL)_X, [in](REAL)_Y, [in](REAL)_Z, [in](STRING)_BeamEffectName, [in](CHARACTERGUID)_CasterCharacter, [out](INTEGER64)_GameActionHandle)`
 
 ### GameActionDestroy
 `call NRD_GameActionDestroy((INTEGER64)_GameActionHandle)`

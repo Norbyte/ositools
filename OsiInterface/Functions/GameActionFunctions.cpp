@@ -179,22 +179,18 @@ namespace osidbg
 
 		bool CreateGameObjectMove(OsiArgumentDesc & args)
 		{
-			ObjectHandle objectHandle;
-
-			auto character = FindCharacterByNameGuid(args[0].String);
-			if (character != nullptr) {
-				character->GetObjectHandle(&objectHandle);
-			} else {
-				auto item = FindItemByNameGuid(args[0].String);
-				if (item != nullptr) {
-					item->GetObjectHandle(&objectHandle);
-				} else {
-					OsiError("Game object '" << args[0].String << "' does not exist!");
-					return false;
-				}
-			}
-
+			auto gameObjectGuid = args[0].String;
+			glm::vec3 targetPosition = args.GetVector(1);
 			auto beamEffectName = args[4].String;
+			auto casterGuid = args[5].String;
+			auto & gameActionHandle = args[6].Int64;
+
+			auto objectToMove = FindGameObjectByNameGuid(gameObjectGuid, true);
+			if (objectToMove == nullptr) return false;
+
+			ObjectHandle objectHandle;
+			objectToMove->GetObjectHandle(&objectHandle);
+
 			FixedString beamEffectFs;
 			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
@@ -205,7 +201,6 @@ namespace osidbg
 					return false;
 				}
 
-				auto casterGuid = args[5].String;
 				caster = FindCharacterByNameGuid(casterGuid);
 				if (caster == nullptr) {
 					OsiError("Caster character '" << casterGuid << "' does not exist!");
@@ -228,7 +223,6 @@ namespace osidbg
 
 			auto action = (esv::GameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
 
-			glm::vec3 targetPosition = args.GetVector(1);
 
 			if (caster != nullptr) {
 				ObjectHandle casterHandle;
@@ -240,7 +234,7 @@ namespace osidbg
 			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
 			lib.AddGameAction(actionMgr, action);
 
-			args[6].Int64 = (int64_t)action->MyHandle;
+			gameActionHandle = (int64_t)action->MyHandle;
 			return true;
 		}
 
@@ -437,7 +431,7 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateRain
 		);
@@ -451,7 +445,7 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateStorm
 		);
@@ -468,7 +462,7 @@ namespace osidbg
 				{ "TargetX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetY", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetZ", ValueType::Real, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateWall
 		);
@@ -485,7 +479,7 @@ namespace osidbg
 				{ "TargetX", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetY", ValueType::Real, FunctionArgumentDirection::In },
 				{ "TargetZ", ValueType::Real, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateTornado
 		);
@@ -499,7 +493,7 @@ namespace osidbg
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateDome
 		);
@@ -508,13 +502,13 @@ namespace osidbg
 		auto gameObjectMove = std::make_unique<CustomQuery>(
 			"NRD_CreateGameObjectMove",
 			std::vector<CustomFunctionParam>{
-				{ "TargetCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "TargetObject", ValueType::GuidString, FunctionArgumentDirection::In },
 				{ "X", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
 				{ "BeamEffectName", ValueType::String, FunctionArgumentDirection::In },
 				{ "CasterCharacter", ValueType::CharacterGuid, FunctionArgumentDirection::In },
-				{ "GameObjectHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
+				{ "GameActionHandle", ValueType::Integer64, FunctionArgumentDirection::Out },
 			},
 			&func::CreateGameObjectMove
 		);
