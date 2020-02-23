@@ -87,8 +87,6 @@ Ext._ComputeCharacterHit = function (...)
             Ext.PrintError("Error during ComputeCharacterHit: ", hit)
         end
     end
-
-	return false
 end
 
 Ext.ComputeCharacterHit = {}
