@@ -417,7 +417,7 @@ namespace osidbg
 		{
 			auto targetGuid = args[0].String;
 			auto sourceGuid = args[1].String;
-			auto & helperHandle = args[2].Int64;
+			auto & helperHandle = args[2];
 
 			auto target = FindGameObjectByNameGuid(targetGuid);
 			if (target == nullptr) {
@@ -431,7 +431,7 @@ namespace osidbg
 			helper->Source = FindCharacterByNameGuid(sourceGuid);
 			helper->SetInternalDamageInfo();
 
-			helperHandle = helper->Handle;
+			helperHandle.Set(helper->Handle);
 			return true;
 		}
 
@@ -462,7 +462,7 @@ namespace osidbg
 		bool HitExecuteRetStatus(OsiArgumentDesc & args)
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto & statusHandle = args[1].Int64;
+			auto & statusHandle = args[1];
 
 			if (helper == nullptr) return false;
 
@@ -476,7 +476,7 @@ namespace osidbg
 			if (status == nullptr) {
 				return false;
 			} else {
-				statusHandle = (int64_t)status->StatusHandle;
+				statusHandle.Set((int64_t)status->StatusHandle);
 				return true;
 			}
 		}
@@ -496,11 +496,17 @@ namespace osidbg
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			auto prop = args[1].String;
-			auto & value = args[2].Int32;
+			auto & value = args[2];
 
 			if (helper == nullptr) return false;
 
-			return helper->GetInt(prop, value);
+			int32_t val;
+			if (helper->GetInt(prop, val)) {
+				value.Set(val);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		void HitSetString(OsiArgumentDesc const & args)
@@ -518,11 +524,17 @@ namespace osidbg
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			auto prop = args[1].String;
-			auto & value = args[2].String;
+			auto & value = args[2];
 
 			if (helper == nullptr) return false;
 
-			return helper->GetString(prop, value);
+			char const * val;
+			if (helper->GetString(prop, val)) {
+				value.Set(val);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		void HitSetVector3(OsiArgumentDesc const & args)
@@ -571,7 +583,7 @@ namespace osidbg
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			auto damageTypeStr = args[1].String;
-			auto & damageAmount = args[2].Int32;
+			auto & damageAmount = args[2];
 
 			if (helper == nullptr) return false;
 
@@ -589,7 +601,7 @@ namespace osidbg
 				}
 			}
 
-			damageAmount = amount;
+			damageAmount.Set(amount);
 			return true;
 		}
 
@@ -673,7 +685,7 @@ namespace osidbg
 				}
 			}
 
-			args[3].Int32 = amount;
+			args[3].Set(amount);
 			return true;
 		}
 

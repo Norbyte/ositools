@@ -12,56 +12,56 @@ namespace osidbg
 			auto max = args[1].Float;
 
 			std::uniform_real_distribution<float> dist(min, max);
-			args[2].Float = dist(ExtensionState::Get().OsiRng);
+			args[2].Set(dist(ExtensionState::Get().OsiRng));
 			return true;
 		}
 
 		bool Sin(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = sin(x);
+			args[1].Set(sin(x));
 			return true;
 		}
 
 		bool Cos(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = cos(x);
+			args[1].Set(cos(x));
 			return true;
 		}
 
 		bool Tan(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = tan(x);
+			args[1].Set(tan(x));
 			return true;
 		}
 
 		bool Round(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = round(x);
+			args[1].Set(round(x));
 			return true;
 		}
 
 		bool Ceil(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = ceil(x);
+			args[1].Set(ceil(x));
 			return true;
 		}
 
 		bool Floor(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = floor(x);
+			args[1].Set(floor(x));
 			return true;
 		}
 
 		bool Abs(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = abs(x);
+			args[1].Set(abs(x));
 			return true;
 		}
 
@@ -69,21 +69,21 @@ namespace osidbg
 		{
 			auto base = args[0].Float;
 			auto exp = args[1].Float;
-			args[2].Float = pow(base, exp);
+			args[2].Set(pow(base, exp));
 			return true;
 		}
 
 		bool Sqrt(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = sqrt(x);
+			args[1].Set(sqrt(x));
 			return true;
 		}
 
 		bool Exp(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = exp(x);
+			args[1].Set(exp(x));
 			return true;
 		}
 
@@ -95,14 +95,14 @@ namespace osidbg
 				fact *= i;
 			}
 
-			args[1].Int32 = fact;
+			args[1].Set(fact);
 			return true;
 		}
 
 		bool Log(OsiArgumentDesc & args)
 		{
 			auto x = args[0].Float;
-			args[1].Float = log(x);
+			args[1].Set(log(x));
 			return true;
 		}
 		
@@ -112,9 +112,9 @@ namespace osidbg
 			auto d = args[1].Int32;
 
 			if (d != 0 && n%d == 0) {
-				args[2].Int32 = 1;
+				args[2].Set(1);
 			} else {
-				args[2].Int32 = 0;
+				args[2].Set(0);
 			}
 
 			return true;

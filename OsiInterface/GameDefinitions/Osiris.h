@@ -95,6 +95,11 @@ struct OsiArgumentValue
 		return *this;
 	}
 
+	void Set(int32_t value);
+	void Set(int64_t value);
+	void Set(float value);
+	void Set(char const * value);
+
 	std::string ToString() const
 	{
 		switch (TypeId)

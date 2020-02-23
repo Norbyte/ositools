@@ -35,12 +35,12 @@ namespace osidbg
 			auto character = FindCharacterByNameGuid(args[0].String);
 			auto statName = args[1].String;
 			auto baseStats = args[2].Int32 == 1;
-			auto & statValue = args[3].Int32;
+			auto & statValue = args[3];
 			if (character == nullptr || character->Stats == nullptr) return false;
 
 			auto value = character->Stats->GetStat(statName, baseStats);
 			if (value) {
-				statValue = *value;
+				statValue.Set(*value);
 				return true;
 			} else {
 				return false;
@@ -51,7 +51,7 @@ namespace osidbg
 		{
 			auto attacker = FindCharacterByNameGuid(args[0].String);
 			auto target = FindCharacterByNameGuid(args[1].String);
-			auto & hitChance = args[2].Int32;
+			auto & hitChance = args[2];
 			if (attacker == nullptr
 				|| target == nullptr
 				|| attacker->Stats == nullptr
@@ -61,7 +61,7 @@ namespace osidbg
 
 			auto chance = attacker->Stats->GetHitChance(target->Stats);
 			if (chance) {
-				hitChance = *chance;
+				hitChance.Set(*chance);
 				return true;
 			} else {
 				return false;
@@ -146,7 +146,7 @@ namespace osidbg
 		{
 			auto characterGuid = args[0].String;
 			auto talent = args[1].String;
-			auto & disabled = args[2].Int32;
+			auto & disabled = args[2];
 
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr) return false;
@@ -160,7 +160,7 @@ namespace osidbg
 				return false;
 			}
 
-			disabled = permanentBoosts->RemovedTalents.HasTalent(*talentId) ? 1 : 0;
+			disabled.Set(permanentBoosts->RemovedTalents.HasTalent(*talentId) ? 1 : 0);
 			return true;
 		}
 

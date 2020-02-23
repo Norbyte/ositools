@@ -20,7 +20,7 @@ namespace osidbg
 		bool IsModLoaded(OsiArgumentDesc & args)
 		{
 			auto modUuid = ToFixedString(args[0].String);
-			auto & loaded = args[1].Int32;
+			auto & loaded = args[1];
 
 			auto modManager = GetModManager();
 			if (modManager == nullptr) {
@@ -29,16 +29,16 @@ namespace osidbg
 			}
 
 			if (!modUuid) {
-				loaded = 0;
+				loaded.Set(0);
 				return true;
 			}
 
-			loaded = 0;
+			loaded.Set(0);
 			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
 				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
-					loaded = 1;
+					loaded.Set(1);
 				}
 			}
 
@@ -47,7 +47,7 @@ namespace osidbg
 
 		bool GetVersion(OsiArgumentDesc & args)
 		{
-			args[0].Int32 = CurrentVersion;
+			args[0].Set((int32_t)CurrentVersion);
 			return true;
 		}
 
@@ -87,7 +87,7 @@ namespace osidbg
 		bool LoadFile(OsiArgumentDesc & args)
 		{
 			auto path = args[0].String;
-			auto & contents = args[1].String;
+			auto & contents = args[1];
 
 			auto absolutePath = GetPathForScriptIo(path);
 			if (!absolutePath) return false;
@@ -104,8 +104,7 @@ namespace osidbg
 			f.seekg(0, std::ios::beg);
 			f.read(body.data(), body.size());
 
-			// FIXME - who owns the string?
-			contents = _strdup(body.c_str());
+			contents.Set(gTempStrings.Make(body));
 
 			return true;
 		}

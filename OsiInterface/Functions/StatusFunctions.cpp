@@ -152,7 +152,7 @@ namespace osidbg
 			for (uint32_t index = 0; index < statuses.Size; index++) {
 				auto status = statuses[index];
 				if (status->StatusId == statusIdFS) {
-					args[2].Int64 = (int64_t)status->StatusHandle;
+					args[2].Set((int64_t)status->StatusHandle);
 					return true;
 				}
 			}
@@ -414,7 +414,7 @@ namespace osidbg
 			status->TargetPos = *character->GetTranslate();
 
 			applyStatus(statusMachine, status);
-			args[3].Int64 = (int64_t)status->StatusHandle;
+			args[3].Set((int64_t)status->StatusHandle);
 			return true;
 		}
 
@@ -478,7 +478,7 @@ namespace osidbg
 			status->DistancePerDamage = distancePerDamage;
 
 			applyStatus(statusMachine, status);
-			args[5].Int64 = (int64_t)status->StatusHandle;
+			args[5].Set((int64_t)status->StatusHandle);
 			return true;
 		}
 
@@ -513,7 +513,7 @@ namespace osidbg
 		bool CharacterGetCurrentAction(OsiArgumentDesc & args)
 		{
 			auto characterGuid = args[0].String;
-			auto & action = args[1].String;
+			auto & action = args[1];
 
 			auto character = FindCharacterByNameGuid(characterGuid);
 			if (character == nullptr
@@ -524,13 +524,13 @@ namespace osidbg
 			auto actionState = character->ActionMachine->Layers[0].State;
 
 			if (actionState == nullptr) {
-				action = "";
+				action.Set("");
 				return true;
 			}
 
 			auto typeName = actionState->GetTypeName();
 			if (typeName == nullptr) return false;
-			action = typeName;
+			action.Set(typeName);
 			return true;
 		}
 	}

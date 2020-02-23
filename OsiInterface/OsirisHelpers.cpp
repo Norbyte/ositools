@@ -51,4 +51,45 @@ namespace osidbg
 
 		adapters_[(uint8_t)adapter->VarToColumnMapCount] = adapter;
 	}
+
+
+	void __declspec(noinline) OsiArgumentValue::Set(int32_t value)
+	{
+		if (TypeId == ValueType::None) return;
+		if (TypeId == ValueType::Integer) {
+			Int32 = value;
+		} else {
+			OsiError("Tried to return int32 as a " << (unsigned)TypeId << " variable!");
+		}
+	}
+
+	void __declspec(noinline) OsiArgumentValue::Set(int64_t value)
+	{
+		if (TypeId == ValueType::None) return;
+		if (TypeId == ValueType::Integer64) {
+			Int64 = value;
+		} else {
+			OsiError("Tried to return int64 as a " << (unsigned)TypeId << " variable!");
+		}
+	}
+
+	void __declspec(noinline) OsiArgumentValue::Set(float value)
+	{
+		if (TypeId == ValueType::None) return;
+		if (TypeId == ValueType::Real) {
+			Float = value;
+		} else {
+			OsiError("Tried to return float as a " << (unsigned)TypeId << " variable!");
+		}
+	}
+
+	void __declspec(noinline) OsiArgumentValue::Set(char const * value)
+	{
+		if (TypeId == ValueType::None) return;
+		if ((unsigned)TypeId >= (unsigned)ValueType::String) {
+			String = value;
+		} else {
+			OsiError("Tried to return string as a " << (unsigned)TypeId << " variable!");
+		}
+	}
 }

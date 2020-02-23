@@ -37,7 +37,7 @@ namespace osidbg
 			auto skill = CharacterGetSkill(characterGuid, skillId);
 			if (skill == nullptr) return false;
 
-			args[2].Float = skill->ActiveCooldown;
+			args[2].Set(skill->ActiveCooldown);
 			return true;
 		}
 
@@ -131,7 +131,7 @@ namespace osidbg
 			if (skillBarItem->Type == esv::SkillBarItem::kItem) {
 				auto item = FindItemByHandle(skillBarItem->ItemHandle);
 				if (item != nullptr) {
-					args[2].String = item->MyGuid.Str;
+					args[2].Set(item->MyGuid.Str);
 					return true;
 				} else {
 					return false;
@@ -149,7 +149,7 @@ namespace osidbg
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == esv::SkillBarItem::kSkill) {
-				args[2].String = skillBarItem->SkillOrStatId.Str;
+				args[2].Set(skillBarItem->SkillOrStatId.Str);
 				return true;
 			} else {
 				return false;
@@ -167,7 +167,7 @@ namespace osidbg
 				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
-					args[2].Int32 = i;
+					args[2].Set((int32_t)i);
 					return true;
 				}
 			}
@@ -195,7 +195,7 @@ namespace osidbg
 				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kItem
 					&& skill.ItemHandle == handle) {
-					args[2].Int32 = i;
+					args[2].Set((int32_t)i);
 					return true;
 				}
 			}
@@ -375,6 +375,7 @@ namespace osidbg
 			if (!player->PlayerData->CustomData.Initialized) {
 				OsiError("Player custom data for character '" << args[0].String << "' has not been initialized!");
 				return false;
+
 			}
 
 			return OsirisPropertyMapGet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);

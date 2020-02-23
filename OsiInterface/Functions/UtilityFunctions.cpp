@@ -48,7 +48,7 @@ namespace osidbg
 		bool StringFormat(OsiArgumentDesc & args)
 		{
 			auto fmtString = args[0].String;
-			auto & output = args[1].String;
+			auto & output = args[1];
 
 			StringFmtTemp = fmtString;
 			auto arg = args.NextParam->NextParam;
@@ -70,7 +70,7 @@ namespace osidbg
 				arg = arg->NextParam;
 			}
 
-			output = StringFmtTemp.c_str();
+			output.Set(StringFmtTemp.c_str());
 			return true;
 		}
 
@@ -79,7 +79,7 @@ namespace osidbg
 			StringFmtTemp = args[0].String;
 			auto from = args[1].Int32;
 			auto length = args[2].Int32;
-			auto & output = args[3].String;
+			auto & output = args[3];
 
 			if (from < 0) {
 				if (-from <= StringFmtTemp.size()) {
@@ -114,7 +114,7 @@ namespace osidbg
 			if (from >= 0 && from <= StringFmtTemp.size()
 				&& length >= 0 && length + from <= StringFmtTemp.size()) {
 				StringFmtTemp = StringFmtTemp.substr(from, length);
-				output = StringFmtTemp.c_str();
+				output.Set(StringFmtTemp.c_str());
 				return true;
 			} else {
 				OsiError("Invalid bounds in NRD_Substring()");
@@ -127,7 +127,7 @@ namespace osidbg
 			auto input = args[0].String;
 			std::string regex(args[1].String);
 			auto fullMatch = args[2].Int32;
-			auto & output = args[3].Int32;
+			auto & output = args[3];
 
 			std::replace(regex.begin(), regex.end(), '^', '#');
 
@@ -141,7 +141,7 @@ namespace osidbg
 					match = std::regex_search(input, re);
 				}
 
-				output = match ? 1 : 0;
+				output.Set(match ? 1 : 0);
 				return true;
 			} catch (std::regex_error & e) {
 				OsiError("Regular expression \"" << input << "\" invalid: " << e.what());
@@ -154,14 +154,14 @@ namespace osidbg
 			auto input = args[0].String;
 			std::string regex(args[1].String);
 			auto replacement = args[2].String;
-			auto & output = args[3].String;
+			auto & output = args[3];
 
 			std::replace(regex.begin(), regex.end(), '^', '#');
 
 			try {
 				std::regex re(regex);
 				StringFmtTemp = std::regex_replace(input, re, replacement);
-				output = StringFmtTemp.c_str();
+				output.Set(StringFmtTemp.c_str());
 				return true;
 			} catch (std::regex_error & e) {
 				OsiError("Regular expression \"" << input << "\" invalid: " << e.what());
@@ -176,13 +176,13 @@ namespace osidbg
 
 			int rel = strcmp(a, b);
 			if (rel < 0) {
-				args[2].Int32 = -1;
+				args[2].Set(-1);
 			}
 			else if (rel == 0) {
-				args[2].Int32 = 0;
+				args[2].Set(0);
 			}
 			else {
-				args[2].Int32 = 1;
+				args[2].Set(1);
 			}
 
 			return true;
@@ -191,7 +191,7 @@ namespace osidbg
 		bool StringLength(OsiArgumentDesc & args)
 		{
 			auto str = args[0].String;
-			args[1].Int32 = (int32_t)strlen(str);
+			args[1].Set((int32_t)strlen(str));
 			return true;
 		}
 
@@ -199,7 +199,7 @@ namespace osidbg
 		{
 			auto a = args[0].String;
 			try {
-				args[1].Int32 = std::stoi(a);
+				args[1].Set(std::stoi(a));
 				return true;
 			}
 			catch (std::invalid_argument &) {
@@ -211,7 +211,7 @@ namespace osidbg
 		{
 			auto a = args[0].String;
 			try {
-				args[1].Float = std::stof(a);
+				args[1].Set(std::stof(a));
 				return true;
 			}
 			catch (std::invalid_argument &) {
@@ -246,7 +246,7 @@ namespace osidbg
 		bool StringToGuidString(OsiArgumentDesc & args)
 		{
 			if (IsValidGuidString(args[0].String)) {
-				args[1].String = args[0].String;
+				args[1].Set(args[0].String);
 				return true;
 			} else {
 				return false;
@@ -260,14 +260,14 @@ namespace osidbg
 		bool RealToString(OsiArgumentDesc & args)
 		{
 			gRealToStringTemp = std::to_string(args[0].Float);
-			args[1].String = gRealToStringTemp.c_str();
+			args[1].Set(gRealToStringTemp.c_str());
 			return true;
 		}
 
 		bool IntegerToString(OsiArgumentDesc & args)
 		{
 			gRealToStringTemp = std::to_string(args[0].Int32);
-			args[1].String = gRealToStringTemp.c_str();
+			args[1].Set(gRealToStringTemp.c_str());
 			return true;
 		}
 

@@ -58,7 +58,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args[5].Int64 = (int64_t)action->MyHandle;
+			args[5].Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -73,7 +73,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args[5].Int64 = (int64_t)action->MyHandle;
+			args[5].Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -137,7 +137,7 @@ namespace osidbg
 			lib.WallActionCreateWall(action);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(8).Int64 = (int64_t)action->MyHandle;
+			args[8].Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -160,7 +160,7 @@ namespace osidbg
 			lib.TornadoActionSetup(action);
 			lib.AddGameAction(actionMgr, action);
 
-			args.Get(8).Int64 = (int64_t)action->MyHandle;
+			args[8].Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -173,7 +173,7 @@ namespace osidbg
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameAction(actionMgr, action);
 
-			args[5].Int64 = (int64_t)action->MyHandle;
+			args[5].Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -183,7 +183,7 @@ namespace osidbg
 			glm::vec3 targetPosition = args.GetVector(1);
 			auto beamEffectName = args[4].String;
 			auto casterGuid = args[5].String;
-			auto & gameActionHandle = args[6].Int64;
+			auto & gameActionHandle = args[6];
 
 			auto objectToMove = FindGameObjectByNameGuid(gameObjectGuid, true);
 			if (objectToMove == nullptr) return false;
@@ -234,7 +234,7 @@ namespace osidbg
 			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
 			lib.AddGameAction(actionMgr, action);
 
-			gameActionHandle = (int64_t)action->MyHandle;
+			gameActionHandle.Set((int64_t)action->MyHandle);
 			return true;
 		}
 
@@ -366,6 +366,7 @@ namespace osidbg
 			auto summonLevel = args[6].Int32;
 			auto isTotem = args[7].Int32 != 0;
 			auto mapToAiGrid = args[8].Int32 != 0;
+			auto & summonGuid = args[9];
 
 			if (pos.x == -1.0f && pos.y == -1.0f && pos.z == -1.0f) {
 				pos = character->WorldPos;
@@ -404,7 +405,7 @@ namespace osidbg
 				}
 
 				if (guid) {
-					args[9].String = guid.Str;
+					summonGuid.Set(guid.Str);
 					return true;
 				}
 				else {

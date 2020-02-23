@@ -61,7 +61,7 @@ namespace osidbg
 				return false;
 			}
 
-			args[2].Int32 = *value;
+			args[2].Set(*value);
 			return true;
 		}
 
@@ -85,7 +85,7 @@ namespace osidbg
 				if (object->Using) {
 					auto parent = stats->objects.Find(object->Using);
 					if (parent != nullptr) {
-						args[2].String = parent->Name;
+						args[2].Set(parent->Name);
 						return true;
 					}
 				}
@@ -123,14 +123,14 @@ namespace osidbg
 				return false;
 			}
 
-			args[1].String = typeInfo->Name.Str;
+			args[1].Set(typeInfo->Name.Str);
 			return true;
 		}
 
 		bool StatGetExtraData(OsiArgumentDesc & args)
 		{
 			auto key = args[0].String;
-			auto & value = args[1].Float;
+			auto & value = args[1];
 
 			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr || stats->ExtraData == nullptr) {
@@ -140,7 +140,7 @@ namespace osidbg
 
 			auto extraData = stats->ExtraData->Properties.Find(key);
 			if (extraData != nullptr) {
-				value = *extraData;
+				value.Set(*extraData);
 				return true;
 			} else {
 				return false;

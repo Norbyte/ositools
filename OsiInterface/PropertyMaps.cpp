@@ -556,11 +556,11 @@ namespace osidbg
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, false);
 			if (val) {
-				args[firstArg + 1].Int32 = (int32_t)*val;
+				args[firstArg + 1].Set((int32_t)*val);
 			} else {
 				auto boolval = propertyMap.getFlag(obj, propertyName, false, throwError);
 				if (boolval) {
-					args[firstArg + 1].Int32 = *boolval ? 1 : 0;
+					args[firstArg + 1].Set((int32_t)(*boolval ? 1 : 0));
 				} else {
 					return false;
 				}
@@ -576,7 +576,7 @@ namespace osidbg
 				return false;
 			}
 
-			args[firstArg + 1].Int64 = (int64_t)*val;
+			args[firstArg + 1].Set((int64_t)*val);
 			return true;
 		}
 
@@ -587,7 +587,7 @@ namespace osidbg
 				return false;
 			}
 
-			args[firstArg + 1].Float = *val;
+			args[firstArg + 1].Set(*val);
 			return true;
 		}
 
@@ -598,7 +598,7 @@ namespace osidbg
 				return false;
 			}
 
-			args[firstArg + 1].String = *val;
+			args[firstArg + 1].Set(*val);
 			return true;
 		}
 
@@ -610,13 +610,13 @@ namespace osidbg
 			}
 
 			if (!*val) {
-				args[firstArg + 1].String = ToFixedString("NULL_00000000-0000-0000-0000-000000000000").Str;
+				args[firstArg + 1].Set(ToFixedString("NULL_00000000-0000-0000-0000-000000000000").Str);
 				return true;
 			}
 
 			auto gameObject = FindGameObjectByHandle(*val);
 			if (gameObject != nullptr) {
-				args[firstArg + 1].String = gameObject->GetGuid()->Str;
+				args[firstArg + 1].Set(gameObject->GetGuid()->Str);
 				return true;
 			}
 
@@ -631,9 +631,9 @@ namespace osidbg
 				return false;
 			}
 
-			args[firstArg + 1].Float = val->x;
-			args[firstArg + 2].Float = val->y;
-			args[firstArg + 3].Float = val->z;
+			args[firstArg + 1].Set(val->x);
+			args[firstArg + 2].Set(val->y);
+			args[firstArg + 3].Set(val->z);
 			return true;
 		}
 

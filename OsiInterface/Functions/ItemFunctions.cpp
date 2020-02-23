@@ -23,7 +23,7 @@ namespace osidbg
 				OsiError("Item '" << itemGuid << "' has no stats ID!");
 				return false;
 			} else {
-				args[1].String = item->StatsId.Str;
+				args[1].Set(item->StatsId.Str);
 				return true;
 			}
 		}
@@ -43,9 +43,9 @@ namespace osidbg
 			} else {
 				OsiWarn("NRD_ItemGetGenerationParams() with 4 arguments is deprecated. Use the 5-argument version instead!");
 
-				args[1].String = item->Generation->Base ? item->Generation->Base.Str : "";
-				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.Str : "";
-				args[3].Int32 = item->Generation->Level;
+				args[1].Set(item->Generation->Base ? item->Generation->Base.Str : "");
+				args[2].Set(item->Generation->ItemType ? item->Generation->ItemType.Str : "");
+				args[3].Set((int32_t)item->Generation->Level);
 				return true;
 			}
 		}
@@ -101,7 +101,7 @@ namespace osidbg
 				}
 			}
 
-			args[2].Int32 = count;
+			args[2].Set(count);
 			return count > 0;
 		}
 
@@ -264,7 +264,7 @@ namespace osidbg
 				return false;
 			}
 
-			args[0].String = item->GetGuid()->Str;
+			args[0].Set(item->GetGuid()->Str);
 			return true;
 		}
 

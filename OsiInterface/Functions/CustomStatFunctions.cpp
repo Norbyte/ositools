@@ -93,7 +93,7 @@ namespace osidbg
 		{
 			auto character = FindCharacterByNameGuid(args[0].String);
 			auto statId = args[1].String;
-			auto & statValue = args[2].Int32;
+			auto & statValue = args[2];
 
 			if (character == nullptr) return false;
 
@@ -111,9 +111,9 @@ namespace osidbg
 
 			auto value = statsComponent->StatValues.Find(statDefn->Id.Str);
 			if (value == nullptr) {
-				statValue = 0;
+				statValue.Set(0);
 			} else {
-				statValue = *value;
+				statValue.Set(*value);
 			}
 
 			return true;
@@ -193,12 +193,12 @@ namespace osidbg
 		{
 			auto statName = args[0].String;
 			auto statDescription = args[1].String;
-			auto & statId = args[2].String;
+			auto & statId = args[2];
 
 			auto statDefn = FindCustomStatDefinitionByName(statName);
 			if (statDefn != nullptr) {
 				OsiWarn("Custom stat '" << statName << "' already exists!");
-				statId = statDefn->Id.Str;
+				statId.Set(statDefn->Id.Str);
 				return true;
 			}
 
@@ -206,7 +206,7 @@ namespace osidbg
 
 			statDefn = FindCustomStatDefinitionByName(statName);
 			if (statDefn != nullptr) {
-				statId = statDefn->Id.Str;
+				statId.Set(statDefn->Id.Str);
 				return true;
 			} else {
 				OsiWarn("Unable to create custom stat '" << statName << "' - not found after create message ?!");
@@ -217,11 +217,11 @@ namespace osidbg
 		bool GetCustomStat(OsiArgumentDesc & args)
 		{
 			auto statName = args[0].String;
-			auto & statId = args[1].String;
+			auto & statId = args[1];
 
 			auto statDefn = FindCustomStatDefinitionByName(statName);
 			if (statDefn != nullptr) {
-				statId = statDefn->Id.Str;
+				statId.Set(statDefn->Id.Str);
 				return true;
 			} else {
 				OsiWarn("Custom stat '" << statName << "' does not exist!");
