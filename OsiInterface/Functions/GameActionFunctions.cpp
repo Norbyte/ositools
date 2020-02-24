@@ -56,7 +56,7 @@ namespace osidbg
 
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[5].Set((int64_t)action->MyHandle);
 			return true;
@@ -71,7 +71,7 @@ namespace osidbg
 
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[5].Set((int64_t)action->MyHandle);
 			return true;
@@ -135,7 +135,7 @@ namespace osidbg
 			action->Target = args.GetVector(5);
 
 			lib.WallActionCreateWall(action);
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[8].Set((int64_t)action->MyHandle);
 			return true;
@@ -158,7 +158,7 @@ namespace osidbg
 
 			auto actionMgr = lib.GetGameActionManager();
 			lib.TornadoActionSetup(action);
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[8].Set((int64_t)action->MyHandle);
 			return true;
@@ -171,7 +171,7 @@ namespace osidbg
 
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[5].Set((int64_t)action->MyHandle);
 			return true;
@@ -232,7 +232,7 @@ namespace osidbg
 			}
 
 			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
-			lib.AddGameAction(actionMgr, action);
+			lib.AddGameActionWrapper(actionMgr, action);
 
 			gameActionHandle.Set((int64_t)action->MyHandle);
 			return true;

@@ -33,8 +33,10 @@ namespace osidbg
 			void * Text3DManager;
 			ObjectSet<void *> ActivePersistentLevelTemplates;
 			void * LayerManager;
+#if !defined(OSI_EOCAPP)
 			void * field_90;
-			void * field_98;
+#endif
+			void * EntityManager;
 			void * AiGrid;
 			void * VisionGrid;
 			void * SightManager;
@@ -56,6 +58,9 @@ namespace osidbg
 		struct LevelManager
 		{
 			void * VMT;
+#if defined(OSI_EOCAPP)
+			uint64_t Unknown[15];
+#endif
 			Level * CurrentLevel;
 			FixedStringMapBase<Level *> Levels;
 			uint8_t _Pad[4];

@@ -215,6 +215,17 @@ namespace osidbg
 			}
 		}
 
+		inline void AddGameActionWrapper(esv::GameActionManager * mgr, esv::GameAction * action) const
+		{
+			if (AddGameAction != nullptr) {
+#if defined(OSI_EOCAPP)
+				AddGameAction(&mgr->GameActions, &action);
+#else
+				AddGameAction(mgr, action);
+#endif
+			}
+		}
+
 		std::string ToPath(std::string const & path, PathRootType root) const;
 		FileReaderPin MakeFileReader(std::string const & path, PathRootType root = PathRootType::Data) const;
 		void DestroyFileReader(FileReader * reader);

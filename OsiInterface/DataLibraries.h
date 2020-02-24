@@ -143,10 +143,9 @@ namespace osidbg {
 
 		inline bool IsSupported() const
 		{
-			// We need v3.6.51.1333 or later
-			return Major > 3
-				|| (Major == 3 && Minor > 6)
-				|| (Major == 3 && Minor == 6 && Revision >= 51);
+			// We need v3.6.54 or later
+			return (Major == 3 && Minor > 6)
+				|| (Major == 3 && Minor == 6 && Revision >= 54);
 		}
 	};
 

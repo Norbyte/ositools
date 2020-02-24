@@ -729,7 +729,7 @@ void OsirisProxy::PostInitLibraries()
 	if (Libraries.GetGameVersion(gameVersion) && !gameVersion.IsSupported()) {
 		std::wstringstream ss;
 		ss << L"Your game version (v" << gameVersion.Major << L"." << gameVersion.Minor << L"." << gameVersion.Revision << L"." << gameVersion.Build
-			<< L") is not supported by the Script Extender; please upgrade to at least v3.6.51.1333";
+			<< L") is not supported by the Script Extender; please upgrade to at least v3.6.54";
 		Libraries.ShowStartupError(ss.str(), true, false);
 	} else if (Libraries.CriticalInitializationFailed()) {
 		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.", true, false);

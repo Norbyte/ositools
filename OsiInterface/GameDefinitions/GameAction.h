@@ -138,7 +138,11 @@ namespace osidbg
 		};
 
 		typedef void * (*GameActionManager__CreateAction)(GameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
-		typedef void(*GameActionManager__AddAction)(GameActionManager * GameActionManager, void * Action);
+#if defined(OSI_EOCAPP)
+		typedef void(*GameActionManager__AddAction)(Set<GameAction *> * GameActionManager, esv::GameAction ** Action);
+#else
+		typedef void(*GameActionManager__AddAction)(GameActionManager * GameActionManager, esv::GameAction * Action);
+#endif
 		typedef void(*TornadoAction__Setup)(void * TornadoAction);
 		typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
 
