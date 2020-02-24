@@ -1290,18 +1290,49 @@ query NRD_ItemGetPermanentBoostReal([in](ITEMGUID)_Item, [in](STRING)_Stat, [out
 query NRD_ItemGetPermanentBoostString([in](ITEMGUID)_Item, [in](STRING)_Stat, [out](STRING)_Value)
 ```
 
-Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above.
+Returns the permanent boost value applied to the specified item. `_Stat` must be one of the values listed above. If the specified item does not exist or `_Stat` is not a recognized stat identifier, the query fails.
+
+
+### ItemGetPermanentBoostTalent
+```
+query NRD_ItemGetPermanentBoostTalent([in](ITEMGUID)_Item, [in](STRING)_Talent, [out](INTEGER)_Enabled)
+```
+
+Returns whether the specified talent is boosted by the item via a permanent boost. `_Talent` must be a value from the [TalentType enumeration](#talenttype). If the specified item does not exist or `_Talent` is not a valid talent identifier, the query fails.
+
+
+### ItemGetPermanentBoostAbility
+```
+query NRD_ItemSetPermanentBoostAbility([in](ITEMGUID)_Item, [in](STRING)_Ability, [out](INTEGER)_Level)
+```
+
+Returns the level the item grants via permanent boosts for the given ability. `_Ability` must be a value from the Ability enumeration (see `Enumerations.xml`). If the specified item does not exist or `_Ability` is not a valid ability identifier, the query fails.
 
 
 ### ItemSetPermanentBoost
 ```
-call NRD_ItemSetPermanentBoostInt((GUIDSTRING)_Item, (STRING)_Stat, (INTEGER)_Value)
-call NRD_ItemSetPermanentBoostReal((GUIDSTRING)_Item, (STRING)_Stat, (REAL)_Value)
-call NRD_ItemSetPermanentBoostString((GUIDSTRING)_Item, (STRING)_Stat, (STRING)_Value)
+call NRD_ItemSetPermanentBoostInt((ITEMGUID)_Item, (STRING)_Stat, (INTEGER)_Value)
+call NRD_ItemSetPermanentBoostReal((ITEMGUID)_Item, (STRING)_Stat, (REAL)_Value)
+call NRD_ItemSetPermanentBoostString((ITEMGUID)_Item, (STRING)_Stat, (STRING)_Value)
 ```
 
 Updates the permanent boost value of `_Stat` to the specified value . `_Stat` must be one of the values listed above. Both positive and negative boost values are supported.
 
+
+### ItemSetPermanentBoostTalent
+```
+call NRD_ItemSetPermanentBoostTalent((ITEMGUID)_Item, (STRING)_Talent, (INTEGER)_Enabled)
+```
+
+Gives or removes a talent. `_Talent` must be a value from the [TalentType enumeration](#talenttype). After updating talents, boosts must be synchronized via one of the methods described in the *Limitations* section above.
+
+
+### ItemSetPermanentBoostAbility
+```
+call NRD_ItemSetPermanentBoostAbility((ITEMGUID)_Item, (STRING)_Ability, (INTEGER)_Level)
+```
+
+Updates the boost level the item grants via permanent boosts for the given ability. `_Ability` must be a value from the Ability enumeration (see `Enumerations.xml`). After updating ability boosts, boosts must be synchronized via one of the methods described in the *Limitations* section above.
 
 ## Cloning items
 

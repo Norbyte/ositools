@@ -243,6 +243,24 @@ namespace osidbg
 			return 1;
 		}
 
+		if (strncmp(prop, "TALENT_", 7) == 0) {
+			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
+			if (talentId) {
+				bool hasTalent = item->HasTalent(*talentId);
+				lua_pushboolean(L, hasTalent);
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		auto abilityId = EnumInfo<AbilityType>::Find(prop);
+		if (abilityId) {
+			int abilityLevel = item->GetAbility(*abilityId);
+			lua_pushinteger(L, abilityLevel);
+			return 1;
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item, prop, false);
 		if (fetched) {
 			return 1;
@@ -798,16 +816,6 @@ namespace osidbg
 
 
 	char const * const LuaTurnManagerTeamProxy::MetatableName = "esv::TurnManager::Team";
-
-	/*void LuaTurnManagerTeamProxy::PopulateMetatable(lua_State * L)
-	{
-		lua_newtable(L);
-
-		lua_pushcfunction(L, &GetCurrentTurnOrder);
-		lua_setfield(L, -2, "GetCurrentTurnOrder");
-
-		lua_setfield(L, -2, "__index");
-	}*/
 
 	int LuaTurnManagerTeamProxy::LuaIndex(lua_State * L)
 	{

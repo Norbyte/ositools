@@ -1037,6 +1037,29 @@ namespace osidbg
 	}
 
 
+	bool CDivinityStats_Item::HasTalent(TalentType talent)
+	{
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			if ((*stat)->Talents.HasTalent(talent)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	int32_t CDivinityStats_Item::GetAbility(AbilityType ability)
+	{
+		int32_t points = 0;
+		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
+			points += (*stat)->AbilityModifiers[(unsigned)ability];
+		}
+
+		return points;
+	}
+
+
 	PropertyMapBase & CDivinityStats_Equipment_Attributes::GetPropertyMap() const
 	{
 		switch (StatsType) {

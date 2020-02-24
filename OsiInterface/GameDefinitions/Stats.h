@@ -369,6 +369,9 @@ namespace osidbg
 		int32_t GetPiercingResistance();
 		int32_t GetMagicResistance();
 		int32_t GetCorrosiveResistance();
+
+		bool HasTalent(TalentType talent);
+		int32_t GetAbility(AbilityType ability);
 	};
 
 	struct EoCGameRandom

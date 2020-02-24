@@ -216,6 +216,92 @@ namespace osidbg
 			OsirisPropertyMapSetRaw(propertyMap, permanentBoosts, args, 1, Type);
 		}
 
+		bool ItemGetPermanentBoostAbility(OsiArgumentDesc & args)
+		{
+			auto itemGuid = args[0].String;
+			auto ability = args[1].String;
+			auto & level = args[2];
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return false;
+
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return false;
+
+			auto abilityId = EnumInfo<AbilityType>::Find(ability);
+			if (!abilityId) {
+				OsiError("Ability name is invalid: " << ability);
+				return false;
+			}
+
+			level.Set(permanentBoosts->AbilityModifiers[(unsigned)*abilityId]);
+			return true;
+		}
+
+		bool ItemGetPermanentBoostTalent(OsiArgumentDesc & args)
+		{
+			auto itemGuid = args[0].String;
+			auto talent = args[1].String;
+			auto & enabled = args[2];
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return false;
+
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return false;
+
+			auto talentId = EnumInfo<TalentType>::Find(talent);
+			if (!talentId) {
+				OsiError("Talent name is invalid: " << talent);
+				return false;
+			}
+
+			enabled.Set(permanentBoosts->Talents.HasTalent(*talentId) ? 1 : 0);
+			return true;
+		}
+
+		void ItemSetPermanentBoostAbility(OsiArgumentDesc const & args)
+		{
+			auto itemGuid = args[0].String;
+			auto ability = args[1].String;
+			auto level = args[2].Int32;
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return;
+
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return;
+
+			auto abilityId = EnumInfo<AbilityType>::Find(ability);
+			if (!abilityId) {
+				OsiError("Ability name is invalid: " << ability);
+				return;
+			}
+
+			permanentBoosts->AbilityModifiers[(unsigned)*abilityId] = level;
+		}
+
+		void ItemSetPermanentBoostTalent(OsiArgumentDesc const & args)
+		{
+			auto itemGuid = args[0].String;
+			auto talent = args[1].String;
+			auto enabled = args[2].Int32;
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return;
+
+			auto permanentBoosts = GetItemDynamicStat(item, 1);
+			if (permanentBoosts == nullptr) return;
+
+			auto talentId = EnumInfo<TalentType>::Find(talent);
+			if (!talentId) {
+				OsiError("Talent name is invalid: " << talent);
+				return;
+			}
+
+			permanentBoosts->Talents.Toggle(*talentId, enabled != 0);
+		}
+
 
 		void ItemCloneBegin(OsiArgumentDesc const & args)
 		{
@@ -449,6 +535,30 @@ namespace osidbg
 		functionMgr.Register(std::move(itemGetPermanentBoostString));
 
 
+		auto itemGetAbility = std::make_unique<CustomQuery>(
+			"NRD_ItemGetPermanentBoostAbility",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Ability", ValueType::String, FunctionArgumentDirection::In },
+				{ "Points", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGetPermanentBoostAbility
+		);
+		functionMgr.Register(std::move(itemGetAbility));
+
+
+		auto itemGetTalent = std::make_unique<CustomQuery>(
+			"NRD_ItemGetPermanentBoostTalent",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "HasTalent", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGetPermanentBoostTalent
+		);
+		functionMgr.Register(std::move(itemGetTalent));
+
+
 		auto itemSetPermanentBoostInt = std::make_unique<CustomCall>(
 			"NRD_ItemSetPermanentBoostInt",
 			std::vector<CustomFunctionParam>{
@@ -483,6 +593,30 @@ namespace osidbg
 			&func::ItemSetPermanentBoost<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(itemSetPermanentBoostString));
+
+
+		auto itemSetAbility = std::make_unique<CustomCall>(
+			"NRD_ItemSetPermanentBoostAbility",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Ability", ValueType::String, FunctionArgumentDirection::In },
+				{ "Points", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::ItemSetPermanentBoostAbility
+		);
+		functionMgr.Register(std::move(itemSetAbility));
+
+
+		auto itemSetTalent = std::make_unique<CustomCall>(
+			"NRD_ItemSetPermanentBoostTalent",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Talent", ValueType::String, FunctionArgumentDirection::In },
+				{ "HasTalent", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::ItemSetPermanentBoostTalent
+		);
+		functionMgr.Register(std::move(itemSetTalent));
 
 
 		auto itemCloneBegin = std::make_unique<CustomCall>(
