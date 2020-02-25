@@ -167,7 +167,6 @@ namespace osidbg
 			PROP(eoc::ItemDefinition, CustomDisplayName);
 			PROP(eoc::ItemDefinition, CustomDescription);
 			PROP(eoc::ItemDefinition, CustomBookContent);
-			PROP(eoc::ItemDefinition, GenerationBase);
 			PROP(eoc::ItemDefinition, GenerationStatsId);
 			PROP(eoc::ItemDefinition, GenerationItemType);
 			PROP(eoc::ItemDefinition, GenerationRandom);

@@ -43,10 +43,10 @@ namespace osidbg
 			FixedString FS4;
 			// eg. "Uncommon"
 			FixedString ItemType;
+			STDWString UnknownStr;
 			STDWString CustomDisplayName;
 			STDWString CustomDescription;
 			STDWString CustomBookContent;
-			STDWString GenerationBase;
 			// eg. "WPN_Shield"
 			FixedString GenerationStatsId;
 			// eg. "Uncommon"
