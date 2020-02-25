@@ -143,9 +143,13 @@ namespace osidbg {
 
 		inline bool IsSupported() const
 		{
-			// We need v3.6.54 or later
+			// We need v3.6.54 or later for game, v3.6.51+ for editor
 			return (Major == 3 && Minor > 6)
+#if defined(OSI_EOCAPP)
 				|| (Major == 3 && Minor == 6 && Revision >= 54);
+#else
+				|| (Major == 3 && Minor == 6 && Revision >= 51);
+#endif
 		}
 	};
 
