@@ -107,9 +107,14 @@ namespace osidbg
 
 		virtual ~CRPGStats_Object_Property_CustomDescription() {}
 
+		inline static void operator delete (void * ptr, size_t sz)
+		{
+			GameFree(ptr);
+		}
+
 		virtual CRPGStats_Object_Property * Clone()
 		{
-			auto cl = new CRPGStats_Object_Property_CustomDescription();
+			auto cl = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
 			cl->SomeHashedText = SomeHashedText;
 			cl->TypeId = TypeId;
 			cl->PropertyContext = PropertyContext;
