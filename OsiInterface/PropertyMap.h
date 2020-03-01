@@ -345,6 +345,21 @@ namespace osidbg
 				return gTempStrings.Make(ToUTF8(str->GetPtr()));
 			}
 
+			case PropertyType::kObjectHandle:
+			{
+				auto handle = reinterpret_cast<ObjectHandle *>(ptr);
+				if (*handle) {
+					auto object = FindGameObjectByHandle(*handle, false);
+					if (object != nullptr) {
+						return object->MyGuid.Str;
+					} else {
+						return {};
+					}
+				} else {
+					return {};
+				}
+			}
+
 			default:
 				OsiError("Failed to get property '" << name << "': Property is not a string");
 				return {};
