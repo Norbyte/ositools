@@ -1027,6 +1027,18 @@ The following property values can be retrieved:
 
 ** TODO add support for other action types**
 
+
+## Misc functions
+
+### CharacterEquipItem
+`call NRD_CharacterEquipItem((CHARACTERGUID)_Character, (ITEMGUID)_Item, (STRING)_Slot, (INTEGER)_CheckAP, (INTEGER)_CheckRequirements, (INTEGER)_UpdateVitality, (INTEGER)_UseWeaponAnimType)`
+
+Equips an item in the specified equipment slot. If `_Slot` is empty, the appropriate default slot for the item is used.
+If `_CheckAP` is set, a check is made to ensure that the character has sufficient AP for the action, and the required amount of AP is consumed afterwards.
+If `_CheckRequirements` is set, the item is only equipped if the character meets its requirements.
+If `_UpdateVitality` is set, the current vitality of the character is updated based on the stat changed during equip.
+If `_UseWeaponAnimType` is set, the current animation set of the character is updated to match that of the weapon.
+
 # Player functions
 
 ## Player Customization functions

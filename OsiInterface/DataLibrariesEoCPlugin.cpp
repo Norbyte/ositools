@@ -692,6 +692,17 @@ namespace osidbg
 			{SymbolMappingCondition::kFixedString, 17, "UseLevelCache"},
 			{"GlobalSwitches", SymbolMappingTarget::kIndirectLea, 4, STATIC_SYM(pGlobalSwitches)}
 		},
+
+		{
+			"esv::Inventory::Equip",
+			SymbolMappingData::kText, 0,
+			"48 89 54 24 10 " // mov     [rsp-8+a2], rdx
+			"55 56 41 54 41 56 41 57 " // push    rbp, rsi, r12, r14, r15
+			"48 8D 6C 24 E9 " // lea     rbp, [rsp-17h]
+			"48 81 EC B0 00 00 00 ", // sub     rsp, 0B0h
+			{},
+			{"esv::Inventory::Equip", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(InventoryEquip)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

@@ -100,6 +100,7 @@ namespace osidbg
 		SkillPrototype::GetSkillDamage SkillPrototypeGetSkillDamage{ nullptr };
 		StatusPrototype::FormatDescriptionParam StatusPrototypeFormatDescriptionParam{ nullptr };
 		esv::TurnManager::UpdateTurnOrder TurnManagerUpdateTurnOrder{ nullptr };
+		esv::Inventory::Equip InventoryEquip{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };

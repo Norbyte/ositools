@@ -229,6 +229,44 @@ namespace osidbg
 				delete eventArgs;
 			});
 		}
+
+		void CharacterEquipItem(OsiArgumentDesc const & args)
+		{
+			auto characterGuid = args[0].String;
+			auto itemGuid = args[1].String;
+			auto slotName = args[2].String;
+			auto checkAP = args[3].Int32 > 0;
+			auto checkRequirements = args[4].Int32 > 0;
+			auto updateVitality = args[5].Int32 > 0;
+			auto useWeaponAnimType = args[6].Int32 > 0;
+
+			auto character = FindCharacterByNameGuid(characterGuid);
+			if (character == nullptr || !character->InventoryHandle) return;
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) return;
+
+			int16_t slotIndex = -1;
+			if (*slotName) {
+				auto slot = EnumInfo<ItemSlot>::Find(slotName);
+				if (!slot) {
+					OsiError("Cannot equip item to invalid slot: " << slotName);
+					return;
+				}
+
+				slotIndex = (int16_t)*slot;
+			}
+
+			auto inventory = FindInventoryByHandle(character->InventoryHandle);
+			if (inventory == nullptr) return;
+
+			ObjectHandle itemHandle;
+			item->GetObjectHandle(&itemHandle);
+
+			auto equipProc = GetStaticSymbols().InventoryEquip;
+			equipProc(inventory, itemHandle.Handle, checkAP, slotIndex, true, checkRequirements,
+				updateVitality, useWeaponAnimType);
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -416,6 +454,21 @@ namespace osidbg
 			}
 		);
 		SkillIteratorEventHandle = functionMgr.Register(std::move(skillIteratorEvent));
+
+		auto characterEquipItem = std::make_unique<CustomCall>(
+			"NRD_CharacterEquipItem",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Slot", ValueType::String, FunctionArgumentDirection::In },
+				{ "CheckAP", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "CheckRequirements", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "UpdateVitality", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "UseWeaponAnimType", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::CharacterEquipItem
+		);
+		functionMgr.Register(std::move(characterEquipItem));
 	}
 
 }

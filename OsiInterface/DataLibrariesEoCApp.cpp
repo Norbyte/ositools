@@ -742,6 +742,17 @@ namespace osidbg
 			{},
 			{"ls::ModuleSettings::HasCustomMods", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(ModuleSettingsHasCustomMods)}
 		},
+
+		{
+			"esv::Inventory::Equip",
+			SymbolMappingData::kText, 0,
+			"48 89 54 24 10 " // mov     [rsp-8+arg_8], rdx
+			"55 56 57 41 54 41 56 " // push    rbp, rsi, rdi, r12, r14
+			"48 8D 6C 24 E9 " // lea     rbp, [rsp-17h]
+			"48 81 EC D0 00 00 00 ", // sub     rsp, 0D0h
+			{},
+			{"esv::Inventory::Equip", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(InventoryEquip)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)
