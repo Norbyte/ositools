@@ -611,25 +611,22 @@ void CustomFunctionInjector::ExtendStoryHeader(std::wstring const & headerPath)
 {
 	extendingStory_ = true;
 
-	std::ifstream f(headerPath.c_str(), std::ios::in | std::ios::binary);
-	f.seekg(0, std::ios::end);
-	auto length = f.tellg();
-	f.seekg(0, std::ios::beg);
-	std::string s(length, '\0');
-	f.read(const_cast<char *>(s.data()), length);
-	f.close();
-
-	auto headers = functions_.GenerateHeaders();
 #if 0
 	DEBUG("CustomFunctionInjector::ExtendStoryHeader(): Appending to header:\r\n");
 	OutputDebugStringA(headers.c_str());
 	std::cout << headers << std::endl;
 #endif
-	s += headers;
 
-	std::ofstream wf(headerPath.c_str(), std::ios::out | std::ios::binary);
-	wf.write(s.data(), s.size());
+	auto headers = functions_.GenerateHeaders();
+	std::ofstream wf(headerPath.c_str(), std::ios::out | std::ios::binary | std::ios::app);
+	wf.write(headers.data(), headers.size());
 	wf.close();
+
+#if !defined(OSI_EOCAPP)
+	// Workaround to Windows Defender keeping the file open while 
+	// the editor is trying to read the generated headers
+	Sleep(100);
+#endif
 
 	extendingStory_ = false;
 }

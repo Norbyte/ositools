@@ -706,6 +706,9 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	loadMsg += modManager->BaseModule.Info.Name.GetPtr();
 	loadMsg += L" (Script Extender v";
 	loadMsg += std::to_wstring(CurrentVersion);
+#if defined(DEBUG)
+	loadMsg += L" Devel";
+#endif
 	loadMsg += L")";
 	Libraries.ShowStartupMessage(loadMsg, false);
 	
