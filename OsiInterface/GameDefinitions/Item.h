@@ -154,7 +154,7 @@ namespace osidbg
 			FixedString ItemType; // Saved
 			int32_t GoldValueOverwrite; // Saved
 			int32_t WeightValueOverwrite; // Saved
-			uint64_t U8;
+			void * Portal;
 			ObjectSet<FixedString> Tags; // Saved
 			uint64_t TeleportTargetOverride; // Saved
 			int32_t TreasureLevel; // Saved // -1 = Not overridden

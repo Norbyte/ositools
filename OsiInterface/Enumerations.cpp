@@ -456,6 +456,7 @@ namespace osidbg
 		{ StatCharacterFlags::SCF_Sneaking, "Sneaking" },
 		{ StatCharacterFlags::SCF_Invisible, "Invisible" },
 		{ StatCharacterFlags::SCF_Blind, "Blind" },
+		{ StatCharacterFlags::SCF_DrinkedPotion, "DrinkedPotion" },
 		{ StatCharacterFlags::SCF_EquipmentValidated, "EquipmentValidated" },
 	};
 

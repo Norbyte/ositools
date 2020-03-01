@@ -693,10 +693,11 @@ namespace osidbg
 		SCF_Sneaking = 4,
 		SCF_Invisible = 8,
 		SCF_Blind = 16,
+		SCF_DrinkedPotion = 32,
 		SCF_EquipmentValidated = 64
 	};
 
-	MAKE_ENUM_INFO(StatCharacterFlags, 6);
+	MAKE_ENUM_INFO(StatCharacterFlags, 7);
 
 	enum HitFlag : uint32_t
 	{

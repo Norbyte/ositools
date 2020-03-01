@@ -466,7 +466,7 @@ namespace osidbg
 		FixedString TranslationKey;
 		FixedString BonusWeapon;
 		uint64_t Reflection;
-		uint32_t Unkn2;
+		uint32_t AttributeHandle;
 		uint32_t StepsType;
 		uint64_t AttributeFlagsObjectId;
 		uint32_t Unkn4;
