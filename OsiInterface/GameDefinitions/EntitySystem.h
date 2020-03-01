@@ -8,18 +8,20 @@ namespace osidbg
 {
 
 #pragma pack(push, 1)
-	struct NetworkObjectFactory : public ObjectFactory
+	template <class T, uint32_t TypeIndex>
+	struct NetworkObjectFactory : public ObjectFactory<T, TypeIndex>
 	{
-		FixedStringMapBase<void *> CharacterMap;
-		uint32_t _Pad;
-		uint32_t Unkn4;
+		FixedStringMapBase<T *> ObjectMap;
 		uint32_t _Pad2;
-		uint64_t Unkn5;
-		uint32_t Unkn6;
+		FixedStringMapBase<void *> ObjectMap2;
 		uint32_t _Pad3;
-		uint64_t Unkn7[7];
-		Array<unsigned short> ShortArray;
-		uint64_t Unkn8;
+		FixedStringMapBase<void *> ObjectMap3;
+		uint32_t _Pad4;
+		ObjectSet<uint32_t> Unknown4;
+		Array<uint16_t> Unknown5;
+		uint16_t Unknown6;
+		uint8_t Unknown7;
+		uint8_t _Pad5[5];
 	};
 
 	struct ComponentTypeEntry
@@ -65,6 +67,7 @@ namespace osidbg
 		struct NetComponent;
 		struct Item;
 		struct Character;
+		struct Inventory;
 	}
 
 	namespace eoc
@@ -156,7 +159,7 @@ namespace osidbg
 		}
 	};
 
-	struct CharacterFactory : public NetworkObjectFactory
+	struct CharacterFactory : public NetworkObjectFactory<esv::Character, (uint32_t)ObjectType::Character>
 	{
 		void * VMT2;
 		void * VMT3;
@@ -166,7 +169,7 @@ namespace osidbg
 		uint64_t Unkn8[2];
 	};
 
-	struct ItemFactory : public NetworkObjectFactory
+	struct ItemFactory : public NetworkObjectFactory<esv::Item, (uint32_t)ObjectType::Item>
 	{
 		void * VMT2;
 		void * VMT3;
@@ -174,6 +177,11 @@ namespace osidbg
 		uint32_t _Pad4;
 		EntityWorld * Entities;
 		uint64_t Unkn8[2];
+	};
+
+	struct InventoryFactory : public NetworkObjectFactory<esv::Inventory, (uint32_t)ObjectType::Inventory>
+	{
+		// TODO
 	};
 
 	namespace eocnet

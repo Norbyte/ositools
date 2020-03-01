@@ -168,6 +168,31 @@ namespace osidbg
 		typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
 		typedef Item * (*CreateItemFromParsed)(ObjectSet<eoc::ItemDefinition> * ParsedItems, uint32_t Index);
 
+
+		struct Inventory
+		{
+			void * VMT;
+			FixedString MyGuid;
+			NetId NetID;
+			uint8_t _Pad1[4];
+			PrimitiveSet<uint16_t> PeerIdClassNames;
+			uint64_t _Pad2[2];
+			ObjectHandle MyHandle;
+			uint8_t EquipmentSlots;
+			uint8_t _Pad3[7];
+			ObjectHandle ParentHandle;
+			uint32_t _Pad4;
+			uint32_t WeightValueComputed;
+			bool IsGlobal;
+			bool UnknownFlag;
+			uint8_t _Pad5[6];
+			ObjectSet<ObjectHandle> ItemsBySlot;
+			void * Views;
+			ObjectSet<ObjectHandle> UpdateViews;
+			uint64_t Unknown2;
+			FixedStringRefMap<FixedString, uint32_t> BuyBackAmounts;
+			FixedStringRefMap<FixedString, uint32_t> TimeItemAddedToInventory;
+		};
 	}
 #pragma pack(pop)
 }

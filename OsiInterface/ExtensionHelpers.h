@@ -29,6 +29,7 @@ namespace osidbg
 	esv::Character * FindCharacterByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::Item * FindItemByNameGuid(char const * nameGuid, bool logError = true);
 	esv::Item * FindItemByHandle(ObjectHandle const & handle, bool logError = true);
+	esv::Inventory * FindInventoryByHandle(ObjectHandle const & handle, bool logError = true);
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle);
 
 	struct PropertyMapBase;

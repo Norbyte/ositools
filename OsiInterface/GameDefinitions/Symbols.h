@@ -108,6 +108,7 @@ namespace osidbg
 		STDString ** PathRoots{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };
+		InventoryFactory ** EsvInventoryFactory{ nullptr };
 		CharacterFactory ** EsvCharacterFactory{ nullptr };
 		ItemFactory ** EsvItemFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
@@ -155,6 +156,15 @@ namespace osidbg
 #endif
 		}
 
+
+		inline InventoryFactory * GetInventoryFactory() const
+		{
+			if (EsvInventoryFactory) {
+				return *EsvInventoryFactory;
+			} else {
+				return nullptr;
+			}
+		}
 
 		inline CharacterFactory * GetCharacterFactory() const
 		{

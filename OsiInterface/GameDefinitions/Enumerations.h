@@ -96,6 +96,25 @@ namespace osidbg
 	};
 
 
+	enum class ObjectType : uint32_t
+	{
+		CustomStatDefinitionComponent = 0x35,
+		Egg,
+		Character,
+		Item,
+		Projectile,
+		Inventory,
+		InventoryView,
+		Party,
+		OverviewMap,
+		Vignette,
+		Note,
+		SurfaceAction,
+		EoCPointTrigger,
+		// ... other triggers
+	};
+
+
 	enum class ComponentType : uint32_t
 	{
 		AnimationBlueprint = 0,

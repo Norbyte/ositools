@@ -780,7 +780,8 @@ namespace osidbg
 	void LibraryManager::FindServerGlobalsEoCApp()
 	{
 		StaticSymbols::EoCLibraryInfo const * serverLib{ nullptr };
-		for (auto const & v : GetStaticSymbols().Libraries) {
+		auto & sym = GetStaticSymbols();
+		for (auto const & v : sym.Libraries) {
 			if (v.second.refs > 100) {
 				serverLib = &v.second;
 				break;
@@ -806,7 +807,7 @@ namespace osidbg
 				for (auto i = 0; i < 36; i++) {
 					int32_t rel = *(int32_t *)(funcPtr + 1);
 					uint8_t const * registrantFunc = funcPtr + rel + 5;
-					GetStaticSymbols().ServerRegisterFuncs[i] = registrantFunc;
+					sym.ServerRegisterFuncs[i] = registrantFunc;
 					funcPtr += 5;
 				}
 
@@ -814,7 +815,7 @@ namespace osidbg
 				for (auto i = 0; i < 14; i++) {
 					int32_t rel = *(int32_t *)(funcPtr + 1);
 					uint8_t const * registrantFunc = funcPtr + rel + 5;
-					GetStaticSymbols().ServerRegisterFuncs[i + 36] = registrantFunc;
+					sym.ServerRegisterFuncs[i + 36] = registrantFunc;
 					funcPtr += 5;
 				}
 
@@ -825,21 +826,22 @@ namespace osidbg
 
 						int32_t rel = *(int32_t *)(r + 7);
 						uint8_t const * registrantObj = r + rel + 4 + 7;
-						GetStaticSymbols().ServerGlobals[i] = (uint8_t const **)registrantObj;
+						sym.ServerGlobals[i] = (uint8_t const **)registrantObj;
 
 					}
 					else {
-						GetStaticSymbols().ServerGlobals[i] = nullptr;
+						sym.ServerGlobals[i] = nullptr;
 						DEBUG("LibraryManager::FindServerGlobalsEoCApp(): Could not extract global from func @ %p", r);
 					}
 				}
 			}
 		}
 
-		GetStaticSymbols().EsvCharacterFactory = (CharacterFactory **)GetStaticSymbols().ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvCharacterFactory];
-		GetStaticSymbols().EsvItemFactory = (ItemFactory **)GetStaticSymbols().ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvItemFactory];
+		sym.EsvCharacterFactory = (CharacterFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvCharacterFactory];
+		sym.EsvItemFactory = (ItemFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvItemFactory];
+		sym.EsvInventoryFactory = (InventoryFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryFactory];
 
-		if (GetStaticSymbols().EsvCharacterFactory == nullptr || GetStaticSymbols().EsvItemFactory == nullptr) {
+		if (sym.EsvCharacterFactory == nullptr || sym.EsvItemFactory == nullptr || sym.EsvInventoryFactory == nullptr) {
 			CriticalInitFailed = true;
 		}
 	}

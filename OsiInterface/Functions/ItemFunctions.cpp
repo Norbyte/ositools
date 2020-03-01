@@ -156,6 +156,39 @@ namespace osidbg
 			item->StatsDynamic->IsIdentified = args[1].Int32 ? 1 : 0;
 		}
 
+		bool ItemGetParent(OsiArgumentDesc & args)
+		{
+			auto itemGuid = args[0].String;
+			auto & parentGuid = args[1];
+
+			auto item = FindItemByNameGuid(itemGuid);
+			if (item == nullptr) {
+				OsiError("Item '" << itemGuid << "' does not exist!");
+				return false;
+			}
+
+			if (!item->ParentInventoryHandle) {
+				return false;
+			}
+
+			auto inventory = FindInventoryByHandle(item->ParentInventoryHandle);
+			if (inventory == nullptr) {
+				return false;
+			}
+
+			if (!inventory->ParentHandle) {
+				return false;
+			}
+
+			auto parent = FindGameObjectByHandle(inventory->ParentHandle);
+			if (parent != nullptr) {
+				parentGuid.Set(parent->MyGuid.Str);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(esv::Item * item, uint32_t index)
 		{
 			if (item->StatsDynamic == nullptr) {
@@ -476,6 +509,17 @@ namespace osidbg
 		functionMgr.Register(std::move(itemSetIdentified));
 
 
+		auto itemGetParent = std::make_unique<CustomQuery>(
+			"NRD_ItemGetParent",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Parent", ValueType::GuidString, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGetParent
+		);
+		functionMgr.Register(std::move(itemGetParent));
+
+
 		auto itemGetInt = std::make_unique<CustomQuery>(
 			"NRD_ItemGetInt",
 			std::vector<CustomFunctionParam>{
@@ -497,6 +541,17 @@ namespace osidbg
 			&func::ItemGet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(itemGetString));
+
+		auto itemGetGuidString = std::make_unique<CustomQuery>(
+			"NRD_ItemGetGuidString",
+			std::vector<CustomFunctionParam>{
+				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out },
+			},
+			&func::ItemGet<OsiPropertyMapType::GuidStringHandle>
+		);
+		functionMgr.Register(std::move(itemGetGuidString));
 
 
 		auto itemGetPermanentBoostInt = std::make_unique<CustomQuery>(

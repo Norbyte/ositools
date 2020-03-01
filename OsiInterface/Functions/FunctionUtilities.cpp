@@ -274,6 +274,16 @@ namespace osidbg
 		}
 	}
 
+	esv::Inventory * FindInventoryByHandle(ObjectHandle const & handle, bool logError)
+	{
+		auto inventoryMgr = GetStaticSymbols().GetInventoryFactory();
+		if (inventoryMgr != nullptr) {
+			return inventoryMgr->Get(handle);
+		} else {
+			return nullptr;
+		}
+	}
+
 	esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle)
 	{
 		auto actionMgr = GetStaticSymbols().GetGameActionManager();

@@ -791,15 +791,43 @@ namespace osidbg
 		}
 	};
 
-	struct ObjectFactory : public ProtectedGameObject<ObjectFactory>
+	template <class T, uint32_t TypeIndex>
+	struct ObjectFactory : public ProtectedGameObject<ObjectFactory<T, TypeIndex>>
 	{
+		/*virtual ObjectHandle * ReevaluateHandle(ObjectHandle & handle) = 0;
+		virtual ObjectHandle *  GetFreeHandle(ObjectHandle & handle) = 0;
+		virtual bool IsFreeIndex(uint32_t index) = 0;
+		virtual bool IsReservedIndex(uint32_t index) = 0;
+		virtual uint64_t ReserveIndex(uint32_t index) = 0;
+		virtual uint64_t UnreserveIndex(uint32_t index) = 0;
+		virtual void Destroy() = 0;*/
+
 		void * VMT;
-		Array<void *> CharPtrArray;
-		Array<unsigned int> IntArray;
-		void * unkn;
-		uint32_t unkn2[4];
-		PrimitiveSet<void *> CharPrimitives;
-		uint64_t unkn3[3];
+		Array<T *> Objects;
+		Array<uint32_t> Salts;
+		Set<void *> Unknown;
+		ObjectSet<T *> Primitives;
+		uint8_t Unknown2;
+		uint8_t _Pad1[3];
+		uint32_t Unknown3;
+
+		T * Get(ObjectHandle handle) const
+		{
+			if (!handle || handle.GetType() != TypeIndex) {
+				return nullptr;
+			}
+
+			auto index = handle.GetIndex();
+			if (index >= Objects.Size) {
+				return nullptr;
+			}
+
+			if (Salts[index] != handle.GetSalt()) {
+				return nullptr;
+			}
+
+			return Objects[index];
+		}
 	};
 
 	struct Component : public ProtectedGameObject<Component>
