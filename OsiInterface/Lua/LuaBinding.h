@@ -924,7 +924,7 @@ namespace osidbg
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 		bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 		bool ComputeCharacterHit(CDivinityStats_Character * self,
-			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 

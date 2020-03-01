@@ -1305,7 +1305,7 @@ namespace osidbg
 
 	bool LuaState::ComputeCharacterHit(CDivinityStats_Character * target,
 		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList, 
-		HitType hitType, bool rollForDamage, bool forceReduceDurability, HitDamageInfo *hit, 
+		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
 		std::lock_guard lock(mutex_);
@@ -1344,7 +1344,7 @@ namespace osidbg
 			lua_pushnil(L);
 		}
 
-		lua_push(L, rollForDamage);
+		lua_push(L, noHitRoll);
 		lua_push(L, forceReduceDurability);
 		
 		lua_newtable(L);

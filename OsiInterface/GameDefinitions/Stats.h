@@ -481,7 +481,7 @@ namespace osidbg
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
 	{
 		typedef void (* HitInternalProc)(CDivinityStats_Character * self, CDivinityStats_Character *attackerStats,
-			CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 

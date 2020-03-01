@@ -521,7 +521,7 @@ In addition to the parameters listed in [Hit attributes](#hit-attributes) the fo
 |--|--|--|
 | SimulateHit | Flag | Simulates a normal character hit; i.e. performs hit roll and sets `Hit`/`Dodged`/`Missed` flags; performs critical hit roll and sets `CriticalHit` flag; applies character resistances; applies Shackles of Pain and Lifesteal |
 | HitType | Enum | For a list of values, see [HitType enumeration](#hittype) |
-| RollForDamage | Flag | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
+| NoHitRoll | Flag | Determines whether the hit is guaranteed. 0 = An RNG roll determines whether the attack hits or is dodged/missed/blocked; the appropriate flag (`Hit`, `Dodged`, `Missed`, `Blocked`) is set automatically. 1 = No RNG roll is performed and the attack always hits; flag `Hit` is set automatically. |
 | CriticalRoll | Enum | Determines the outcome of the critical hit roll. For a list of values, see [CriticalRoll enumeration](#criticalroll) |
 | ProcWindWalker | Flag |  |
 | ForceReduceDurability | Flag |  |
@@ -1160,7 +1160,8 @@ DebugBreak(_DeltaMod);
 ### ItemGet
 ```
 query NRD_ItemGetInt([in](ITEMGUID)_Item, [in](STRING)_Property, [out](INTEGER)_Value)
-query NRD_ItemGetString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](REAL)_Value)
+query NRD_ItemGetString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](STRING)_Value)
+query NRD_ItemGetGuidString([in](ITEMGUID)_Item, [in](STRING)_Property, [out](GUIDSTRING)_Value)
 ```
 
 Returns the specified property of the item. `_Property` must be one of the values listed below. If the item or property does not exist, the query fails. If an attempt is made to fetch a stat property on an item that has no stats, the query fails.
@@ -1175,11 +1176,11 @@ Item properties (can be fetched on all items):
 | CustomDescription | String | |
 | CustomBookContent | String | |
 | StatsId | String | Stats entry (eg. `WPN_Dagger`) |
-| InventoryHandle | Handle | If the item is a container, returns the handle of the inventory within the item |
-| ParentInventoryHandle | Handle | Inventory that contains the item |
 | Slot | Integer | |
 | Amount | Integer | |
 | Vitality | Integer | |
+| InUseByCharacterHandle | GuidString | Character currently using the item |
+| Key | String | Key used to open the container |
 | LockLevel | Integer | |
 | ItemType | Integer | |
 | GoldValueOverwrite | Integer | |
@@ -1210,6 +1211,14 @@ Stat properties (can only be fetched on items with a stats entry):
 | Charges | Integer | |
 
 In addition, any attribute from the [AttributeFlags enumeration](#attributeflags) can be retrieved.
+
+### ItemGetParent
+```
+query NRD_ItemGetParent([in](ITEMGUID)_Item, [out](GUIDSTRING)_Parent)
+```
+
+Returns the parent container of the item (a character or an item). If the item does not exist or the item is not in an inventory, the query fails.
+
 
 ## Permanent Boosts
 Permanent Boosts are stat bonuses or stat reductions that are applied to an item. They are permanent, i.e. are stored in the savegame.
@@ -1303,7 +1312,7 @@ Returns whether the specified talent is boosted by the item via a permanent boos
 
 ### ItemGetPermanentBoostAbility
 ```
-query NRD_ItemSetPermanentBoostAbility([in](ITEMGUID)_Item, [in](STRING)_Ability, [out](INTEGER)_Level)
+query NRD_ItemGetPermanentBoostAbility([in](ITEMGUID)_Item, [in](STRING)_Ability, [out](INTEGER)_Level)
 ```
 
 Returns the level the item grants via permanent boosts for the given ability. `_Ability` must be a value from the Ability enumeration (see `Enumerations.xml`). If the specified item does not exist or `_Ability` is not a valid ability identifier, the query fails.

@@ -72,7 +72,7 @@ namespace osidbg
 		HitDamageInfo * Hit{ nullptr };
 		bool SimulateHit{ false };
 		HitType HitType{ HitType::Melee };
-		bool RollForDamage{ false };
+		bool NoHitRoll{ false };
 		bool ProcWindWalker{ false };
 		bool ForceReduceDurability{ false };
 		// TODO - SkillProperties

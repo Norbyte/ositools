@@ -80,8 +80,8 @@ namespace osidbg
 			value = SimulateHit ? 1 : 0;
 		} else if (strcmp(prop, "HitType") == 0) {
 			value = (int32_t)HitType;
-		} else if (strcmp(prop, "RollForDamage") == 0) {
-			value = RollForDamage ? 1 : 0;
+		} else if (strcmp(prop, "NoHitRoll") == 0) {
+			value = NoHitRoll ? 1 : 0;
 		} else if (strcmp(prop, "ProcWindWalker") == 0) {
 			value = ProcWindWalker ? 1 : 0;
 		} else if (strcmp(prop, "ForceReduceDurability") == 0) {
@@ -169,8 +169,8 @@ namespace osidbg
 				OsiError("Invalid value for enum 'HitType': " << value);
 			}
 		}
-		else if (strcmp(prop, "RollForDamage") == 0) {
-			RollForDamage = value > 0;
+		else if (strcmp(prop, "NoHitRoll") == 0) {
+			NoHitRoll = value > 0;
 		}
 		else if (strcmp(prop, "ProcWindWalker") == 0) {
 			ProcWindWalker = value > 0;
@@ -370,7 +370,7 @@ namespace osidbg
 			if (targetCharacter == nullptr) {
 				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
-				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, RollForDamage ? 1 : 0,
+				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, NoHitRoll,
 					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);
 			}
 

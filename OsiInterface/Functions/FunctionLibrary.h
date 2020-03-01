@@ -40,11 +40,11 @@ namespace osidbg
 		void OnStatusHitEnter(esv::Status * status);
 		void OnStatusHealEnter(esv::Status * status);
 		void OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
-			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
+			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 			HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag,
 			bool procWindWalker, CriticalRoll criticalRoll);
 		void OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self, 
-			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);

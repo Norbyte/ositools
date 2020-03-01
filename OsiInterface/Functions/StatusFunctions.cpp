@@ -622,12 +622,12 @@ namespace osidbg
 
 
 	void CustomFunctionLibrary::OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
-		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool rollForDamage,
+		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
 	{
 		if (damageInfo->EffectFlags & HitFlag::HF_NoEvents) {
-			wrappedHit(self, attackerStats, itemStats, damageList, hitType, rollForDamage,
+			wrappedHit(self, attackerStats, itemStats, damageList, hitType, noHitRoll,
 				damageInfo, forceReduceDurability, skillProperties, highGround,
 				procWindWalker, criticalRoll);
 			return;
@@ -654,7 +654,7 @@ namespace osidbg
 		// TODO - allow disabling SimulateHit & not call the original func?
 		helper->SimulateHit = true;
 		helper->HitType = hitType;
-		helper->RollForDamage = rollForDamage;
+		helper->NoHitRoll = noHitRoll;
 		helper->ProcWindWalker = procWindWalker;
 		helper->HighGround = highGround;
 		helper->Critical = criticalRoll;
@@ -670,7 +670,7 @@ namespace osidbg
 
 		delete eventArgs;
 
-		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->RollForDamage,
+		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->NoHitRoll,
 			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
 			helper->ProcWindWalker, helper->Critical);
 
@@ -678,19 +678,19 @@ namespace osidbg
 	}
 
 	void CustomFunctionLibrary::OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self,
-		CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool rollForDamage,
+		CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
 		LuaStatePin lua(ExtensionState::Get());
 		if (lua) {
-			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, rollForDamage, forceReduceDurability, damageInfo,
+			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
 				skillProperties, highGroundFlag, criticalRoll)) {
 				return;
 			}
 		}
 
-		next(self, attackerStats, item, damageList, hitType, rollForDamage, forceReduceDurability, damageInfo,
+		next(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
 			skillProperties, highGroundFlag, criticalRoll);
 	}
 

@@ -196,7 +196,7 @@ namespace osidbg
 	SymbolMappingData const sSymbolCharacterHitInternal = {
 		"CDivinityStats_Character::_HitInternal",
 		SymbolMappingData::kCustom, 0,
-		"88 44 24 28 " // mov     [rsp+98h+rollForDamage], al
+		"88 44 24 28 " // mov     [rsp+98h+noHitRoll], al
 		"89 7C 24 20 " // mov     [rsp+98h+hitType], edi
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
 		{},
