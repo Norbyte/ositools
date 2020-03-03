@@ -19,6 +19,7 @@ namespace osidbg
 	FixedString ToFixedString(const char * s);
 	FixedString MakeFixedString(const char * s);
 	FixedString NameGuidToFixedString(char const * nameGuid);
+	bool IsValidGuidString(const char * s);
 
 	void * FindComponentByNameGuid(ComponentType componentType, char const * nameGuid, bool logError = true);
 	void * FindComponentByHandle(ComponentType componentType, ObjectHandle const & handle, bool logError = true);

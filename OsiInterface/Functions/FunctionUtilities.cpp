@@ -64,6 +64,31 @@ namespace osidbg
 		return str;
 	}
 
+	bool IsHexChar(char c)
+	{
+		return (c >= '0' && c <= '9')
+			|| (c >= 'a' && c <= 'f');
+	}
+
+	bool IsValidGuidString(const char * s)
+	{
+		auto len = strlen(s);
+		if (len < 36) return false;
+
+		auto guidPos = len - 36;
+		unsigned const nibbles[5] = { 8, 4, 4, 4, 12 };
+
+		for (auto n = 0; n < 5; n++) {
+			for (unsigned i = 0; i < nibbles[n]; i++) {
+				if (!IsHexChar(s[guidPos++])) return false;
+			}
+
+			if (n != 4 && s[guidPos++] != '-') return false;
+		}
+
+		return true;
+	}
+
 	FixedString NameGuidToFixedString(char const * nameGuid)
 	{
 		if (nameGuid == nullptr) {
@@ -71,8 +96,8 @@ namespace osidbg
 		}
 
 		auto nameLen = strlen(nameGuid);
-		if (nameLen < 36) {
-			OsiError("GUID (" << nameGuid << ") too short!");
+		if (!IsValidGuidString(nameGuid)) {
+			OsiError("GUID (" << nameGuid << ") malformed!");
 			return FixedString{};
 		}
 

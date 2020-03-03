@@ -361,6 +361,14 @@ namespace osidbg
 					break;
 
 				case ValueType::String:
+				{
+					auto str = lua_tostring(L, firstIndex + i);
+					if (!str || _stricmp(v.Value.Val.String, str) != 0) {
+						return false;
+					}
+					break;
+				}
+
 				case ValueType::GuidString:
 				case ValueType::CharacterGuid:
 				case ValueType::ItemGuid:
@@ -369,7 +377,11 @@ namespace osidbg
 				case ValueType::LevelTemplateGuid:
 				{
 					auto str = lua_tostring(L, firstIndex + i);
-					if (!str || strcmp(v.Value.Val.String, str) != 0) {
+					if (!str) return false;
+
+					auto len = strlen(str);
+					auto valueLen = strlen(v.Value.Val.String);
+					if (valueLen < 36 || len < 36 || _stricmp(&v.Value.Val.String[valueLen - 36], &str[len - 36]) != 0) {
 						return false;
 					}
 					break;
