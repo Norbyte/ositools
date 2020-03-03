@@ -261,6 +261,9 @@ local succeeded = Osi.Qry_IsHealingStatus("DAMAGE")
 <a id="o2l_dbs"></a>
 
 Databases can be read using the `Get` method. The method checks its parameters against the database and only returns rows that match the query.
+
+The number of parameters passed to `Get` must be equivalent to the number of columns in the target database. Each parameter defines an (optional) filter on the corresponding column; if the parameter is `nil`, the column is not filtered (equivalent to passing `_` in Osiris). If the parameter is not `nil`, only rows with matching values will be returned.
+
 Example:
 ```lua
 -- Fetch all rows from DB_GiveTemplateFromNpcToPlayerDialogEvent
@@ -276,8 +279,16 @@ It is possible to insert new tuples to Osiris databases by calling the DB like a
 Osi.DB_CharacterAllCrimesDisabled(player)
 ```
 
-Deleting from DBs is currently not implemented.
+The `Delete` method can be used to delete rows from databases. The number of parameters passed to `Delete` must be equivalent to the number of columns in the target database.
+Each parameter defines an (optional) filter on the corresponding column; if the parameter is `nil`, the column is not filtered (equivalent to passing `_` in Osiris). If the parameter is not `nil`, only rows with matching values will be deleted.
+Example:
+```lua
+-- Delete all rows from DB_GiveTemplateFromNpcToPlayerDialogEvent
+Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Delete(nil, nil, nil)
 
+-- Delete rows where the first column is CON_Drink_Cup_A_Tea_080d0e93-12e0-481f-9a71-f0e84ac4d5a9
+Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Delete("CON_Drink_Cup_A_Tea_080d0e93-12e0-481f-9a71-f0e84ac4d5a9", nil, nil)
+```
 
 
 # The `Ext` library
