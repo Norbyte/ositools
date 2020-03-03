@@ -60,6 +60,7 @@ namespace osidbg
 			CCF_ShouldTakeExtraTurn1 = 0x4000,
 			CCF_ShouldTakeExtraTurn2 = 0x8000,
 			CCF_DelayDeathCount = 0x20000,
+			CCF_CounterAttacked = 0x40000
 		};
 
 		struct CombatComponent

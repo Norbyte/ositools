@@ -402,6 +402,22 @@ namespace osidbg
 		}
 
 
+		void ItemCloneResetProgression(OsiArgumentDesc const & args)
+		{
+			auto & clone = ExtensionState::Get().PendingItemClone;
+			if (!clone) {
+				OsiErrorS("No item clone is currently in progress!");
+				return;
+			}
+
+			auto & item = clone->Set[0];
+			item.LevelGroupIndex = -1;
+			item.RootGroupIndex = -1;
+			item.NameIndex = -1;
+			item.NameCool = 0;
+		}
+
+
 		void ItemCloneAddBoost(OsiArgumentDesc const & args)
 		{
 			auto & clone = ExtensionState::Get().PendingItemClone;
@@ -711,6 +727,13 @@ namespace osidbg
 			&func::ItemCloneSet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(itemCloneSetString));
+
+		auto itemCloneResetProgression = std::make_unique<CustomCall>(
+			"NRD_ItemCloneResetProgression",
+			std::vector<CustomFunctionParam>{},
+			&func::ItemCloneResetProgression
+		);
+		functionMgr.Register(std::move(itemCloneResetProgression));
 
 		auto itemCloneAddBoost = std::make_unique<CustomCall>(
 			"NRD_ItemCloneAddBoost",

@@ -55,9 +55,9 @@ namespace osidbg
 			uint16_t GenerationLevel;
 			uint8_t _Pad4[2];
 			ObjectSet<FixedString> GenerationBoosts;
-			uint8_t LevelGroupIndex;
-			uint16_t RootGroupIndex;
-			uint8_t NameIndex;
+			int8_t LevelGroupIndex;
+			int16_t RootGroupIndex;
+			int8_t NameIndex;
 			uint8_t NameCool;
 			uint8_t _Pad5[3];
 			uint32_t StatsLevel;
