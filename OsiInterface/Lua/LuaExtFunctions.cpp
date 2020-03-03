@@ -362,25 +362,26 @@ namespace osidbg
 		}
 	}
 
-	int GetStatEntries(lua_State * L)
+	void FetchSkillSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
-		FixedString statType;
-		if (!lua_isnil(L, 1)) {
-			auto statTypeName = luaL_checkstring(L, 1);
-			statType = ToFixedString(statTypeName);
-			if (!statType) {
-				OsiError("Invalid stat entry type: " << statTypeName);
-				return 0;
-			}
+		auto & skillSets = stats->SkillSetManager->Primitives.Set;
+		int32_t index = 1;
+		for (uint32_t i = 0; i < skillSets.Size; i++) {
+			luaL_settable(L, index++, skillSets[i]->Name);
 		}
-		
-		auto stats = GetStaticSymbols().GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return 0;
-		}
+	}
 
-		lua_newtable(L);
+	void FetchEquipmentSetEntries(lua_State * L, CRPGStatsManager * stats)
+	{
+		auto & equipmentSets = stats->EquipmentSetManager->Primitives.Set;
+		int32_t index = 1;
+		for (uint32_t i = 0; i < equipmentSets.Size; i++) {
+			luaL_settable(L, index++, equipmentSets[i]->Name);
+		}
+	}
+
+	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString statType)
+	{
 		auto & objects = stats->objects.Primitives.Set;
 		int32_t index = 1;
 		for (uint32_t i = 0; i < objects.Size; i++) {
@@ -393,6 +394,79 @@ namespace osidbg
 			}
 
 			luaL_settable(L, index++, object->Name);
+		}
+	}
+
+	int GetStatEntries(lua_State * L)
+	{
+		char const * statTypeName{ nullptr };
+		if (!lua_isnil(L, 1)) {
+			statTypeName = luaL_checkstring(L, 1);
+		}
+		
+		auto stats = GetStaticSymbols().GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		lua_newtable(L);
+		if (statTypeName && strcmp(statTypeName, "SkillSet") == 0) {
+			FetchSkillSetEntries(L, stats);
+		} else if (statTypeName && strcmp(statTypeName, "EquipmentSet") == 0) {
+			FetchEquipmentSetEntries(L, stats);
+		} else {
+			FixedString statType;
+			if (statTypeName != nullptr) {
+				statType = ToFixedString(statTypeName);
+				if (!statType) {
+					OsiError("Invalid stat entry type: " << statTypeName);
+					return 0;
+				}
+			}
+
+			FetchStatEntries(L, stats, statType);
+		}
+
+		return 1;
+	}
+
+	int GetSkillSet(lua_State * L)
+	{
+		auto skillSetName = luaL_checkstring(L, 1);
+
+		auto skillSets = GetStaticSymbols().GetStats()->SkillSetManager;
+		auto skillSet = skillSets->Find(skillSetName);
+		if (skillSet == nullptr) {
+			return 0;
+		}
+
+		lua_newtable(L);
+		int32_t index = 1;
+		for (uint32_t i = 0; i < skillSet->Skills.Set.Size; i++) {
+			luaL_settable(L, index++, skillSet->Skills.Set[i].Str);
+		}
+
+		return 1;
+	}
+
+	int GetEquipmentSet(lua_State * L)
+	{
+		auto equipmentSetName = luaL_checkstring(L, 1);
+
+		auto equipmentSets = GetStaticSymbols().GetStats()->EquipmentSetManager;
+		auto equipmentSet = equipmentSets->Find(equipmentSetName);
+		if (equipmentSet == nullptr) {
+			return 0;
+		}
+
+		lua_newtable(L);
+		int32_t index = 1;
+		for (auto group = equipmentSet->FirstGroup; group != equipmentSet->LastGroup; group++) {
+			auto & equipment = (*group)->Equipment.Set;
+			for (uint32_t i = 0; i < equipment.Size; i++) {
+				luaL_settable(L, index++, equipment[i].Str);
+			}
 		}
 
 		return 1;

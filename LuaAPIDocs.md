@@ -1,4 +1,4 @@
-### Lua API v40 Documentation
+### Lua API v42 Documentation
 
 ### Table of Contents  
 
@@ -16,6 +16,7 @@
     * [Databases](#o2l_dbs)
  - [The Ext Library](#the-ext-library)  
     * [Stats](#stats)
+    * [Skill/Status Overrides](#skillstatus-overrides)
     * [Mod Info](#mod-info)
     * [Combat](#combat)
     * [Damage lists](#damage-lists)
@@ -375,6 +376,14 @@ This function can only be called during the `ModuleLoading` event.
  - Must always returns the same result when given the same argument values
  - Since the function is called very frequently (up to 50,000 calls during a level load), it should execute as quickly as possible
 
+### GetSkillSet(name)
+
+Returns a table with the names of skills contained within the specified SkillSet.
+
+### GetEquipmentSet(name)
+
+Returns a table with the names of equipment entries contained within the specified EquipmentSet.
+
 ### ExtraData
 
 `Ext.ExtraData` is an object containing all entries from `Data.txt`.
@@ -385,6 +394,30 @@ Example:
 ```lua
 Ext.Print(Ext.ExtraData.DamageBoostFromAttribute)
 ```
+
+## Skill/Status Overrides
+
+Using the extender it is possible to replace/override hardcoded game math and behavior. The following hooks are supported:
+
+### Hit Chance
+
+Each time the game calculates hit chance, the Lua function `Ext.GetHitChance` gets called. If the function is overridden by a Lua script, the game will use the return value of the custom function as the hit chance. If the function is not overridden or the function call fails, the game's own hit chance calculation is used.
+
+The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
+```lua
+local function YourHitChanceFunction(attacker, target)
+    local hitChance = attacker.Accuracy - target.Dodge
+    -- Make sure that we return a value in the range (0% .. 100%)
+    hitChance = math.max(math.min(hitChance, 100), 0)
+    return hitChance
+end
+
+Ext.GetHitChance = YourHitChanceFunction
+Ext.EnableStatOverride("HitChance")
+```
+
+Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitated. To better approximate vanilla behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
+
 
 
 ## Mod Info
@@ -569,38 +602,6 @@ for i,damage in pairs(list:ToTable()) do
 end
 ```
 
-## Overwriting Native Functions
-
-There are native hardcoded functions that can now be editable using Lua. Currently, you can overwrite the Hit Chance and the Status Enter Chance.
-
-### Hit Chance
-<a id="31o_hit_chance"></a>
-To overwrite the native Hit Chance Calculation, your Lua code should contain the following two lines:
-```lua
-Ext.GetHitChance = YourHitChanceFunction
-Ext.EnableStatOverride("HitChance")
-```
-
-The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
-```lua
-function CustomGetHitChance_EXT(attacker, target)
-    dodge = target.Dodge
-    accuracy = attacker.Accuracy
-
-    hitChance = accuracy - dodge
-    hitChance = math.max(hitChance, 0)
-    hitChance = math.min(hitChance, 100)
-
-    return hitChance
-end
-
-Ext.GetHitChance = CustomGetHitChance_EXT
-Ext.EnableStatOverride("HitChance")
-```
-
-Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitaded. To better approximate the usual behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
-
-
 ## JSON Support
 
 Two functions are provided for parsing and building JSON documents, `Ext.JsonParse` and `Ext.JsonStringify`.
@@ -658,7 +659,6 @@ ab
  - Lua state lifetime, Globals behavior (not saved)
  - Ext.Require, Print
  - File IO
- - StatSetAttribute, GetStatEntries
  - Osi special Lua functions
  - Bootstrap phase
  - Reloading Lua and changing exports

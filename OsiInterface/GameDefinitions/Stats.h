@@ -735,6 +735,36 @@ namespace osidbg
 		PrimitiveSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
 	};
 
+	struct CSkillSet : public ProtectedGameObject<CSkillSet>
+	{
+		FixedString Name;
+		ObjectSet<FixedString> Skills;
+	};
+
+	struct CSkillSetManager : public CNamedElementManager<CSkillSet>
+	{
+		CSkillSet * ParsedSkillSet;
+	};
+
+	struct CEquipmentGroup : public ProtectedGameObject<CEquipmentGroup>
+	{
+		FixedString Name;
+		ObjectSet<FixedString> Equipment;
+	};
+
+	struct CEquipmentSet : public ProtectedGameObject<CEquipmentSet>
+	{
+		FixedString Name;
+		CEquipmentGroup ** FirstGroup;
+		CEquipmentGroup ** LastGroup;
+		CEquipmentGroup ** GroupBufEnd;
+	};
+
+	struct CEquipmentSetManager : public CNamedElementManager<CEquipmentSet>
+	{
+		CEquipmentSet * ParsedEquipmentSet;
+	};
+
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
@@ -767,8 +797,8 @@ namespace osidbg
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;
 		uint64_t unknown2[140];
-		void * EquipmentSetManager;
-		void * SkillSetManager;
+		CEquipmentSetManager * EquipmentSetManager;
+		CSkillSetManager * SkillSetManager;
 		uint64_t Unkn3;
 		void * ItemCombinationManager;
 		uint64_t Unkn4;

@@ -898,6 +898,8 @@ namespace osidbg
 	int GetModLoadOrder(lua_State* L);
 	int GetModInfo(lua_State* L);
 	int GetStatEntries(lua_State * L);
+	int GetSkillSet(lua_State * L);
+	int GetEquipmentSet(lua_State * L);
 	int StatGetAttribute(lua_State * L);
 	int StatSetAttribute(lua_State * L);
 	int StatAddCustomDescription(lua_State * L);
@@ -933,11 +935,14 @@ namespace osidbg
 			{"GetModInfo", GetModInfo},
 
 			{"GetStatEntries", GetStatEntries},
+			{"GetSkillSet", GetSkillSet},
+			{"GetEquipmentSet", GetEquipmentSet},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
+
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
