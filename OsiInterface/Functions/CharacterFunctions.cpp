@@ -267,6 +267,108 @@ namespace osidbg
 			equipProc(inventory, itemHandle.Handle, checkAP, slotIndex, true, checkRequirements,
 				updateVitality, useWeaponAnimType);
 		}
+
+		bool ObjectGetInternalFlag(OsiArgumentDesc & args)
+		{
+			auto guid = args[0].String;
+			auto flag = args[1].Int32;
+			auto & value = args[2];
+
+			if (flag < 0 || flag >= 88) {
+				OsiErrorS("Only flag values between 0..87 are supported.");
+				return false;
+			}
+
+			auto character = FindCharacterByNameGuid(guid, false);
+			if (character != nullptr) {
+				if (flag < 64) {
+					value.Set(character->HasFlag(1ull << flag));
+				} else if (flag < 72) {
+					value.Set((character->Flags2 | (1 << (flag - 64))) != 0);
+				} else if (flag < 80) {
+					value.Set((character->Flags3 | (1 << (flag - 70))) != 0);
+				} else if (flag < 88) {
+					value.Set((character->FlagsEx | (1 << (flag - 78))) != 0);
+				}
+
+				return true;
+			}
+
+			auto item = FindItemByNameGuid(guid);
+			if (item != nullptr) {
+				if (flag < 64) {
+					value.Set(item->HasFlag(1ull << flag));
+				} else if (flag < 72) {
+					value.Set((item->Flags3 | (1 << (flag - 64))) != 0);
+				}
+
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		void ObjectSetInternalFlag(OsiArgumentDesc const & args)
+		{
+			auto guid = args[0].String;
+			auto flag = args[1].Int32;
+			auto value = args[2].Int32 > 0;
+
+			if (flag < 0 || flag >= 88) {
+				OsiErrorS("Only flag values between 0..87 are supported.");
+				return;
+			}
+
+			auto character = FindCharacterByNameGuid(guid, false);
+			if (character != nullptr) {
+				if (flag < 64) {
+					if (value) {
+						character->SetFlags(1ull << flag);
+					} else {
+						character->ClearFlags(1ull << flag);
+					}
+				} else if (flag < 72) {
+					if (value) {
+						character->Flags2 |= (1 << (flag - 64));
+					} else {
+						character->Flags2 &= ~(1 << (flag - 64));
+					}
+				} else if (flag < 80) {
+					if (value) {
+						character->Flags3 |= (1 << (flag - 72));
+					} else {
+						character->Flags3 &= ~(1 << (flag - 72));
+					}
+				} else if (flag < 88) {
+					if (value) {
+						character->FlagsEx |= (1 << (flag - 80));
+					} else {
+						character->FlagsEx &= ~(1 << (flag - 80));
+					}
+				}
+
+				return;
+			}
+
+			auto item = FindItemByNameGuid(guid);
+			if (item != nullptr) {
+				if (flag < 64) {
+					if (value) {
+						item->SetFlags(1ull << flag);
+					} else {
+						item->ClearFlags(1ull << flag);
+					}
+				} else if (flag < 72) {
+					if (value) {
+						item->Flags3 |= (1 << (flag - 64));
+					} else {
+						item->Flags3 &= ~(1 << (flag - 64));
+					}
+				}
+
+				return;
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -469,6 +571,28 @@ namespace osidbg
 			&func::CharacterEquipItem
 		);
 		functionMgr.Register(std::move(characterEquipItem));
+
+		auto objectGetInternalFlag = std::make_unique<CustomQuery>(
+			"NRD_ObjectGetInternalFlag",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Flag", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::ObjectGetInternalFlag
+		);
+		functionMgr.Register(std::move(objectGetInternalFlag));
+
+		auto objectSetInternalFlag = std::make_unique<CustomCall>(
+			"NRD_ObjectSetInternalFlag",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Flag", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
+			},
+			&func::ObjectSetInternalFlag
+		);
+		functionMgr.Register(std::move(objectSetInternalFlag));
 	}
 
 }
