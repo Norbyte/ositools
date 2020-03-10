@@ -190,6 +190,7 @@ namespace osidbg
 
 	typedef void * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
+	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ServerGameState fromState, ServerGameState toState);
 
 	}
 
@@ -197,8 +198,10 @@ namespace osidbg
 
 	struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 	{
-		uint8_t Unkn[16];
-		GameState State;
+		uint8_t Unknown;
+		uint8_t _Pad1[7];
+		void * CurrentState;
+		ClientGameState State;
 	};
 
 	struct EoCClient : public ProtectedGameObject<EoCClient>
@@ -212,7 +215,7 @@ namespace osidbg
 		void * VMT3;
 		uint64_t field_38;
 		GameStateMachine ** GameStateMachine;
-		uint64_t SomeNetObject;
+		net::Client * GameClient;
 		uint64_t field_50;
 		uint64_t field_58;
 		uint64_t field_60;
@@ -228,15 +231,15 @@ namespace osidbg
 		uint64_t field_A8;
 		uint16_t field_B0;
 		uint8_t _Pad2[6];
-		uint64_t field_B8;
-		uint64_t field_C0;
+		void * Random;
+		void * ItemCombinationManager;
 		char field_C8;
 		uint8_t _Pad3[7];
 		uint64_t ScratchStr[4];
 		ScratchBuffer ScratchBuf;
 		uint8_t _Pad4[4];
 		ModManager * ModManager;
-		uint64_t field_118;
+		void * ChatManager;
 		STDWString WStr_CurrentHost_M;
 		uint64_t SomeObject[16];
 		int field_1C0;
@@ -248,7 +251,7 @@ namespace osidbg
 
 	typedef void (* EoCClient__HandleError)(void * self, STDWString * message, bool exitGame, STDWString *a4);
 	typedef void (* GameStateLoadModule__Do)(void * self);
-	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
+	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ClientGameState fromState, ClientGameState toState);
 
 	}
 

@@ -14,13 +14,12 @@ namespace osidbg
 		"CustomStatsPane",
 		"FormulaOverrides",
 		"Preprocessor",
-		"DisableFolding"
+		"DisableFolding",
+		"Net"
 	};
 
 	void ExtensionState::Reset()
 	{
-		DamageHelpers.Clear();
-
 		time_t tm;
 		OsiRng.seed(time(&tm));
 	}
@@ -52,6 +51,12 @@ namespace osidbg
 
 					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.GetPtr(),
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
+
+					if (config.MinimumVersion != 0 && config.MinimumVersion < 42) {
+						OsiError("Module '" << ToUTF8(mod.Info.Name.GetPtr()) << "' uses extender version v" << config.MinimumVersion << ", which uses the old unified client/server model.");
+						OsiError("The client and server components were split in v42 to improve support for client-side features.");
+						OsiError("Please migrate to v42+!");
+					}
 
 					if (config.MinimumVersion != 0 && config.MinimumVersion > MergedConfig.MinimumVersion) {
 						MergedConfig.MinimumVersion = config.MinimumVersion;
@@ -204,8 +209,196 @@ namespace osidbg
 		return MergedConfig.FeatureFlags.find(flag) != MergedConfig.FeatureFlags.end();
 	}
 
-	ExtensionState & ExtensionState::Get()
+	void ExtensionState::OnGameSessionLoading()
 	{
-		return gOsirisProxy->GetExtensionState();
+		LuaVirtualPin lua(*this);
+		if (lua) {
+			lua->OnGameSessionLoading();
+		}
+	}
+
+	void ExtensionState::OnModuleLoading()
+	{
+		StatLoadTriggered = true;
+		LuaVirtualPin lua(*this);
+		if (lua) {
+			lua->OnModuleLoading();
+		}
+	}
+
+	void ExtensionState::OnModuleResume()
+	{
+		LuaVirtualPin lua(*this);
+		if (lua) {
+			lua->OnModuleResume();
+		}
+	}
+
+
+	void ExtensionState::IncLuaRefs()
+	{
+		assert(GetLua());
+		LuaRefs++;
+	}
+
+	void ExtensionState::DecLuaRefs()
+	{
+		assert(LuaRefs > 0);
+		LuaRefs--;
+		if (LuaRefs == 0 && LuaPendingDelete) {
+			LuaResetInternal();
+		}
+	}
+
+	void ExtensionState::LuaReset(bool startup)
+	{
+		if (!HasFeatureFlag("Lua")) {
+			OsiWarn("Lua extensions not enabled; not initializing Lua VM");
+			return;
+		}
+
+		if (LuaPendingDelete) {
+			OsiWarn("State delete is already pending!");
+		}
+
+		LuaPendingDelete = true;
+		if (startup) {
+			LuaPendingStartup = true;
+		}
+
+		if (LuaRefs == 0) {
+			LuaResetInternal();
+		} else {
+			OsiWarn("Lua state deletion deferred (" << LuaRefs << " references still alive)");
+		}
+	}
+
+	void ExtensionState::LuaLoadExternalFile(std::string const & path)
+	{
+		std::ifstream f(path, std::ios::in | std::ios::binary);
+		if (!f.good()) {
+			OsiError("File does not exist: " << path);
+			return;
+		}
+
+		f.seekg(0, std::ios::end);
+		auto length = f.tellg();
+		f.seekg(0, std::ios::beg);
+		std::string s(length, '\0');
+		f.read(const_cast<char *>(s.data()), length);
+		f.close();
+
+		LuaVirtualPin lua(*this);
+		if (!lua) {
+			OsiErrorS("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		lua->LoadScript(s, path);
+		OsiWarn("Loaded external script: " << path);
+	}
+
+	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & scriptName)
+	{
+		if (!reader.IsLoaded()) {
+			OsiErrorS("Attempted to load script from invalid file reader");
+			return;
+		}
+
+		LuaVirtualPin lua(*this);
+		if (!lua) {
+			OsiErrorS("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		lua->LoadScript(reader.ToString(), scriptName);
+	}
+
+	bool ExtensionState::LuaLoadGameFile(std::string const & path, std::string const & scriptName, bool warnOnError)
+	{
+		auto reader = GetStaticSymbols().MakeFileReader(path);
+		if (!reader.IsLoaded()) {
+			if (warnOnError) {
+				OsiError("Script file could not be opened: " << path);
+			}
+			return false;
+		}
+
+		LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
+		OsiMsg("Loaded game script: " << path);
+		return true;
+	}
+
+	bool ExtensionState::LuaLoadModScript(std::string const & modNameGuid, std::string const & fileName, bool warnOnError)
+	{
+		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
+		if (mod == nullptr) {
+			OsiError("Mod does not exist or is not loaded: " << modNameGuid);
+			return false;
+		}
+
+		std::string path("Mods/");
+		path += ToUTF8(mod->Info.Directory.GetPtr());
+		path += "/Story/RawFiles/Lua/";
+		path += fileName;
+
+		std::string scriptName = ToUTF8(mod->Info.Directory.GetPtr());
+		if (scriptName.length() > 37) {
+			// Strip GUID from end of dir
+			scriptName = scriptName.substr(0, scriptName.length() - 37);
+		}
+		scriptName += "/" + fileName;
+
+		return LuaLoadGameFile(path, scriptName, warnOnError);
+	}
+
+	void ExtensionState::LuaResetInternal()
+	{
+		assert(LuaPendingDelete);
+		assert(LuaRefs == 0);
+
+		LuaPendingDelete = false;
+
+		// Destroy previous instance first to make sure that no dangling
+		// references are made to the old state while constructing the new
+		DoLuaReset();
+		OsiWarn("LUA VM reset.");
+
+		if (LuaPendingStartup) {
+			LuaPendingStartup = false;
+			LuaStartup();
+		}
+	}
+
+	void ExtensionState::LuaStartup()
+	{
+		LuaVirtualPin lua(*this);
+		if (!lua) {
+			OsiErrorS("Called when the Lua VM has not been initialized!");
+			return;
+		}
+
+		auto modManager = GetModManager();
+		if (modManager == nullptr) {
+			OsiErrorS("Could not bootstrap Lua modules - mod manager not available");
+			return;
+		}
+
+		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
+
+		auto bootstrapPath = GetBootstrapFileName();
+		LuaRestriction restriction(*lua, LuaState::RestrictAllClient);
+		for (uint32_t i = 0; i < mods.Size; i++) {
+			auto const & mod = mods[i];
+
+			if (!LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath, false)) {
+				if (LuaLoadModScript(mod.Info.ModuleUUID.Str, "Bootstrap.lua", false)) {
+					OsiError("Module '" << ToUTF8(mod.Info.Name.GetPtr()) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
+					OsiError("Please migrate to separate client/server bootstrap files!");
+				}
+			}
+		}
+
+		lua->FinishStartup();
 	}
 }

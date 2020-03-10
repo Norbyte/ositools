@@ -31,7 +31,8 @@ namespace osidbg
 		void RegisterLuaFunctions();
 
 		void PostStartup();
-		void OnBaseModuleLoaded();
+		void OnBaseModuleLoadedServer();
+		void OnBaseModuleLoadedClient();
 
 		int32_t OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance, 
 			esv::Status * status, bool useCharacterStats);
@@ -59,8 +60,7 @@ namespace osidbg
 			CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier, 
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
-		
-		void EnableStatOverride(char const * stat);
+
 	private:
 		OsirisProxy & osiris_;
 		bool PostLoaded{ false };

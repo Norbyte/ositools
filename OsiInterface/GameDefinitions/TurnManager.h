@@ -85,16 +85,16 @@ namespace osidbg
 		struct TurnBasedProtocol
 		{
 			void * VMT;
-			GameServer * GameServer;
+			net::Host * GameServer;
 			void * NetEventManagerVMT;
 			void * field_18;
 			void * GameEventManagerVMT;
 			ObjectSet<uint8_t> UpdatedTurnOrderCombatIds;
 			ObjectSet<uint8_t> UpdatedSummonCombatIds;
-			eocnet::Message * TurnCombatSetTeamMessage;
-			eocnet::Message * FleeCombatResultMessage;
-			eocnet::Message * CombatTurnOrderMessage;
-			eocnet::Message * CombatSummonsMessage;
+			net::Message * TurnCombatSetTeamMessage;
+			net::Message * FleeCombatResultMessage;
+			net::Message * CombatTurnOrderMessage;
+			net::Message * CombatSummonsMessage;
 		};
 
 		struct TurnManager

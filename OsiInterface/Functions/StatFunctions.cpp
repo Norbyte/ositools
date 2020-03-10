@@ -146,6 +146,26 @@ namespace osidbg
 				return false;
 			}
 		}
+
+		/*bool GetParentSkill(OsiArgumentDesc & args)
+		{
+			auto skillId = args[0].String;
+			auto & parentSkillId = args[1];
+
+			auto stats = GetStaticSymbols().GetStats();
+			if (stats == nullptr || stats->ExtraData == nullptr) {
+				OsiError("RPGStats not available");
+				return false;
+			}
+
+			auto extraData = stats->ExtraData->Properties.Find(key);
+			if (extraData != nullptr) {
+				value.Set(*extraData);
+				return true;
+			} else {
+				return false;
+			}
+		}*/
 	}
 
 	void CustomFunctionLibrary::RegisterStatFunctions()

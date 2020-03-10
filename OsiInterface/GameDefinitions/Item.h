@@ -12,34 +12,32 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace eoc
 	{
-		struct ItemDefinition : public ProtectedGameObject<ItemDefinition>
+		struct ItemDefinition : public Noncopyable<ItemDefinition>
 		{
-			uint32_t Unknown;
-			NetId NetID;
-			NetId ItemNetId;
+			uint32_t Version{ 0x36060000 };
+			NetId NetID{ -1 };
+			NetId ItemNetId{ -1 };
 			uint8_t _Pad0[4];
 			FixedString FS1;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
 			FixedString RootTemplate;
-			uint32_t Unkn1;
+			uint32_t Unkn1{ 6 };
 			uint8_t _Pad1[4];
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
 			FixedString OriginalRootTemplate;
-			uint32_t Unkn2[4];
-			uint32_t Unkn3;
-			float Unkn3Flt;
-			uint32_t Unkn4[2];
-			float Unkn4Flt;
-			uint32_t Unkn41[5];
-			NetId InventoryNetID;
-			NetId InventorySubContainerNetID;
-			int16_t Slot; // -1 = Not in inventory
-			uint8_t _Pad3[2];
-			uint32_t Amount;
-			int32_t GoldValueOverwrite; // -1 = Not overridden
-			int32_t WeightValueOverwrite; // -1 = Not overridden
-			DamageType DamageTypeOverwrite;
-			uint32_t SomeOverwrite;
+			uint32_t Unkn21{ 6 };
+			uint32_t Unkn22[3]{ 0 };
+			glm::mat3x3 WorldRot;
+			float Scale_M{ 1.0 };
+			NetId InventoryNetID{ -1 };
+			NetId InventorySubContainerNetID{ -1 };
+			int16_t Slot{ 0 }; // -1 = Not in inventory
+			uint8_t _Pad3[2]{ 0 };
+			uint32_t Amount{ 1 };
+			int32_t GoldValueOverwrite{ -1 }; // -1 = Not overridden
+			int32_t WeightValueOverwrite{ -1 }; // -1 = Not overridden
+			DamageType DamageTypeOverwrite{ (DamageType )-1 };
+			int32_t SomeOverwrite{ -1 };
 			FixedString FS4;
 			// eg. "Uncommon"
 			FixedString ItemType;
@@ -51,44 +49,44 @@ namespace osidbg
 			FixedString GenerationStatsId;
 			// eg. "Uncommon"
 			FixedString GenerationItemType;
-			uint32_t GenerationRandom;
-			uint16_t GenerationLevel;
+			uint32_t GenerationRandom{ 0 };
+			uint16_t GenerationLevel{ 1 };
 			uint8_t _Pad4[2];
 			ObjectSet<FixedString> GenerationBoosts;
-			int8_t LevelGroupIndex;
-			int16_t RootGroupIndex;
-			int8_t NameIndex;
-			uint8_t NameCool;
+			int8_t LevelGroupIndex{ -1 };
+			int16_t RootGroupIndex{ -1 };
+			int8_t NameIndex{ -1 };
+			uint8_t NameCool{ 0 };
 			uint8_t _Pad5[3];
-			uint32_t StatsLevel;
+			uint32_t StatsLevel{ 0 };
 			uint8_t _Pad6[4];
 			FixedString Key;
-			uint32_t LockLevel;
-			uint32_t Unkn11;
+			uint32_t LockLevel{ 1 };
+			uint32_t Unkn11{ 0 };
 			// eg. "WPN_Shield"
 			FixedString StatsEntryName;
-			uint32_t EquipmentStatsType;
+			uint32_t EquipmentStatsType{ 3 };
 			uint8_t _Pad7[4];
 			ScratchBuffer PermanentBoostsBuf;
 			uint8_t _Pad8[4];
 			ScratchBuffer BaseStatsBuf;
 			uint8_t _Pad9[4];
-			bool HasModifiedSkills;
+			bool HasModifiedSkills{ false };
 			uint8_t _Pad10[7];
 			FixedString Skills;
 			ObjectSet<FixedString> FSSet2;
 			ObjectSet<FixedString> RuneBoosts;
 			ObjectSet<FixedString> DeltaMods;
 			ObjectSet<FixedString> FSSet5;
-			uint8_t Flags0[2];
-			bool HasGeneratedStats;
-			uint8_t Flags1[13];
-			bool IsIdentified;
-			bool GMFolding;
-			uint8_t Flags2;
-			bool ItemFlag2_0x40;
-			uint8_t _Pad11[4];
-			uint64_t Unknown2[2];
+			uint8_t Flags0[2]{ 0 };
+			bool HasGeneratedStats{ false };
+			uint8_t Flags1[13]{ 0 };
+			bool IsIdentified{ false };
+			bool GMFolding{ false };
+			uint8_t Flags2{ 0 };
+			bool CanUseRemotely{ false };
+			uint8_t _Pad11[4]{ 0 };
+			uint64_t Unknown2[2]{ 0 };
 		};
 	}
 

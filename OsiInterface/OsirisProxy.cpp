@@ -73,7 +73,8 @@ void OsirisProxy::Initialize()
 		if (extensionsEnabled_) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
-			ResetExtensionState();
+			ResetExtensionStateServer();
+			ResetExtensionStateClient();
 		} else {
 			DEBUG("OsirisProxy::Initialize: Skipped library init -- scripting extensions not enabled.");
 		}
@@ -86,7 +87,8 @@ void OsirisProxy::Initialize()
 	// we won't be able to show any startup errors
 	Wrappers.InitializeExtensions();
 	Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
-	Wrappers.GameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnGameStateChanged, this, _1, _2, _3));
+	Wrappers.ClientGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnClientGameStateChanged, this, _1, _2, _3));
+	Wrappers.ServerGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnServerGameStateChanged, this, _1, _2, _3));
 	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
@@ -101,7 +103,8 @@ void OsirisProxy::Initialize()
 void OsirisProxy::Shutdown()
 {
 	DEBUG("OsirisProxy::Shutdown: Exiting");
-	ResetExtensionState();
+	ResetExtensionStateServer();
+	ResetExtensionStateClient();
 	Wrappers.Shutdown();
 }
 
@@ -385,7 +388,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 #endif
 
 	if (extensionsEnabled_) {
-		ExtensionState::Get().StoryLoaded();
+		ExtensionStateServer::Get().StoryLoaded();
 	}
 }
 
@@ -644,11 +647,91 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	SaveNodeVMT(NodeType::Database, databaseNodeVMT);
 }
 
+bool OsirisProxy::HasFeatureFlag(char const * flag) const
+{
+	return (ServerExtState && ServerExtState->HasFeatureFlag(flag))
+		|| (ClientExtState && ClientExtState->HasFeatureFlag(flag));
+}
+
+ExtensionState * OsirisProxy::GetCurrentExtensionState()
+{
+	auto tid = GetCurrentThreadId();
+	if (tid == ServerThreadId) {
+		return ServerExtState.get();
+	} else if (tid == ClientThreadId) {
+		return ClientExtState.get();
+	} else {
+		WARN("Called from unknown thread %d?", tid);
+		return ClientExtState.get();
+	}
+}
+
 void OsirisProxy::OnBaseModuleLoaded(void * self)
 {
 }
 
-void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState toState)
+char const * ClientGameStateNames[] =
+{
+	"Unknown",
+	"Init",
+	"InitMenu",
+	"InitNetwork",
+	"InitConnection",
+	"Idle",
+	"LoadMenu",
+	"Menu",
+	"Exit",
+	"SwapLevel",
+	"LoadLeve",
+	"LoadModule",
+	"LoadSession",
+	"LoadGMCampaign",
+	"UnloadLevel",
+	"UnloadModule",
+	"UnloadSession",
+	"Paused",
+	"PrepareRunning",
+	"Running",
+	"Disconnect",
+	"Join",
+	"StartLoading",
+	"StopLoading",
+	"StartServer",
+	"Movie",
+	"Installation",
+	"GameMasterPause",
+	"ModReceiving",
+	"Lobby",
+	"BuildStory"
+};
+
+
+char const * ServerGameStateNames[] =
+{
+	"Unknown",
+	"Uninitialized",
+	"Init",
+	"Idle",
+	"Exit",
+	"LoadLevel",
+	"LoadModule",
+	"LoadGMCampaign",
+	"LoadSession",
+	"UnloadLevel",
+	"UnloadModule",
+	"UnloadSession",
+	"Sync",
+	"Paused",
+	"Running",
+	"Save",
+	"Disconnect",
+	"GameMasterPause",
+	"BuildStory",
+	"ReloadStory",
+	"Installation"
+};
+
+void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState)
 {
 	if (config_.SendCrashReports) {
 		// We need to initialize the crash reporter after the game engine has started,
@@ -657,9 +740,28 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 	}
 
 	if (extensionsEnabled_) {
+		DEBUG("OsirisProxy::OnClientGameStateChanged(): %s -> %s", 
+			ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
+
+		if (ClientThreadId == 0) {
+			ClientThreadId = GetCurrentThreadId();
+		} else {
+			if (ClientThreadId != GetCurrentThreadId()) {
+				WARN("Client thread ID changed? %d -> %d", ClientThreadId, GetCurrentThreadId());
+			}
+
+			ClientThreadId = GetCurrentThreadId();
+		}
+
+		if (fromState == ClientGameState::LoadModule) {
+			INFO("OsirisProxy::OnClientGameStateChanged(): Loaded module");
+			LoadExtensionStateClient();
+		}
+
 		switch (toState) {
-		case GameState::LoadModule:
+		case ClientGameState::LoadModule:
 			if (config_.DisableModValidation) {
+				std::lock_guard _(globalStateLock_);
 				Libraries.PostStartupFindLibraries();
 				if (GetStaticSymbols().GetGlobalSwitches()) {
 					GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
@@ -670,21 +772,65 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 			}
 			break;
 
-		case GameState::UnloadSession:
-			INFO("OsirisProxy::OnGameStateChanged(): Unloading session");
-			ResetExtensionState();
+		case ClientGameState::UnloadSession:
+			INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
+			ResetExtensionStateClient();
 			break;
 
-		case GameState::LoadGMCampaign:
-			INFO("OsirisProxy::OnGameStateChanged(): Loading GM campaign");
-			LoadExtensionState();
+		case ClientGameState::LoadGMCampaign:
+			INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
+			LoadExtensionStateClient();
 			break;
 
-		case GameState::LoadSession:
-			INFO("OsirisProxy::OnGameStateChanged(): Loading game session");
-			LoadExtensionState();
-			if (ExtState) {
-				ExtState->OnGameSessionLoading();
+		case ClientGameState::LoadSession:
+			INFO("OsirisProxy::OnClientGameStateChanged(): Loading game session");
+			LoadExtensionStateClient();
+			if (ClientExtState) {
+				ClientExtState->OnGameSessionLoading();
+			}
+			break;
+
+		}
+	}
+}
+
+void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState)
+{
+	if (extensionsEnabled_) {
+		DEBUG("OsirisProxy::OnServerGameStateChanged(): %s -> %s", 
+			ServerGameStateNames[(unsigned)fromState], ServerGameStateNames[(unsigned)toState]);
+
+		if (ServerThreadId == 0) {
+			ServerThreadId = GetCurrentThreadId();
+		} else {
+			if (ServerThreadId != GetCurrentThreadId()) {
+				WARN("Server thread ID changed? %d -> %d", ServerThreadId, GetCurrentThreadId());
+			}
+
+			ServerThreadId = GetCurrentThreadId();
+		}
+
+		if (fromState == ServerGameState::LoadModule) {
+			INFO("OsirisProxy::OnServerGameStateChanged(): Loaded module");
+			LoadExtensionStateServer();
+		}
+
+		switch (toState) {
+		case ServerGameState::UnloadSession:
+			INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
+			ResetExtensionStateServer();
+			break;
+
+		case ServerGameState::LoadGMCampaign:
+			INFO("OsirisProxy::OnServerGameStateChanged(): Loading GM campaign");
+			LoadExtensionStateServer();
+			break;
+
+		case ServerGameState::LoadSession:
+			INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
+			LoadExtensionStateServer();
+			if (ServerExtState) {
+				ServerExtState->OnGameSessionLoading();
 			}
 			break;
 
@@ -694,7 +840,8 @@ void OsirisProxy::OnGameStateChanged(void * self, GameState fromState, GameState
 
 void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 {
-	auto modManager = GetModManager();
+	std::lock_guard _(globalStateLock_);
+	auto modManager = GetCurrentExtensionState()->GetModManager();
 	if (modManager == nullptr) {
 		ERR("Module info not available in OnSkillPrototypeManagerInit?");
 		return;
@@ -712,14 +859,21 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	loadMsg += L")";
 	Libraries.ShowStartupMessage(loadMsg, false);
 	
-	LoadExtensionState();
-	if (ExtState) {
-		ExtState->OnModuleLoading();
+	auto extState = GetCurrentExtensionState();
+	if (extState != nullptr) {
+		if (extState == ServerExtState.get()) {
+			LoadExtensionStateServer();
+		} else {
+			LoadExtensionStateClient();
+		}
+
+		extState->OnModuleLoading();
 	}
 }
 
 void OsirisProxy::PostInitLibraries()
 {
+	std::lock_guard _(globalStateLock_);
 	if (LibrariesPostInitialized) return;
 
 	if (extensionsEnabled_) {
@@ -743,23 +897,26 @@ void OsirisProxy::PostInitLibraries()
 	LibrariesPostInitialized = true;
 }
 
-void OsirisProxy::ResetExtensionState()
+void OsirisProxy::ResetExtensionStateServer()
 {
-	ExtState = std::make_unique<ExtensionState>();
-	ExtState->Reset();
-	ExtensionLoaded = false;
+	std::lock_guard _(globalStateLock_);
+	ServerExtState = std::make_unique<ExtensionStateServer>();
+	ServerExtState->Reset();
+	ServerExtensionLoaded = false;
 }
 
-void OsirisProxy::LoadExtensionState()
+void OsirisProxy::LoadExtensionStateServer()
 {
-	if (ExtensionLoaded) return;
+	std::lock_guard _(globalStateLock_);
+	if (ServerExtensionLoaded) return;
 
 	if (extensionsEnabled_) {
-		if (!ExtState) {
-			ResetExtensionState();
+		Libraries.PostStartupFindLibraries();
+		if (!ServerExtState) {
+			ResetExtensionStateServer();
 		}
 
-		ExtState->LoadConfigs();
+		ServerExtState->LoadConfigs();
 	}
 
 	// PostInitLibraries() should be called after extension config is loaded,
@@ -769,10 +926,47 @@ void OsirisProxy::LoadExtensionState()
 	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
 		Libraries.DisableItemFolding();
-		FunctionLibrary.OnBaseModuleLoaded();
+		Libraries.ExtendNetworking();
+		FunctionLibrary.OnBaseModuleLoadedServer();
 	}
 
-	ExtensionLoaded = true;
+	ServerExtensionLoaded = true;
+}
+
+void OsirisProxy::ResetExtensionStateClient()
+{
+	std::lock_guard _(globalStateLock_);
+	ClientExtState = std::make_unique<ExtensionStateClient>();
+	ClientExtState->Reset();
+	ClientExtensionLoaded = false;
+}
+
+void OsirisProxy::LoadExtensionStateClient()
+{
+	std::lock_guard _(globalStateLock_);
+	if (ClientExtensionLoaded) return;
+
+	if (extensionsEnabled_) {
+		Libraries.PostStartupFindLibraries();
+		if (!ClientExtState) {
+			ResetExtensionStateClient();
+		}
+
+		ClientExtState->LoadConfigs();
+	}
+
+	// PostInitLibraries() should be called after extension config is loaded,
+	// otherwise it won't hook functions that may be needed later on
+	PostInitLibraries();
+
+	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
+		Libraries.EnableCustomStats();
+		Libraries.DisableItemFolding();
+		Libraries.ExtendNetworking();
+		FunctionLibrary.OnBaseModuleLoadedClient();
+	}
+
+	ClientExtensionLoaded = true;
 }
 
 }

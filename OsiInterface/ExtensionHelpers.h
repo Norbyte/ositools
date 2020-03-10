@@ -11,7 +11,9 @@
 namespace osidbg
 {
 	ecl::EoCClient * GetEoCClient();
-	ModManager * GetModManager();
+	esv::EoCServer * GetEoCServer();
+	ModManager * GetModManagerClient();
+	ModManager * GetModManagerServer();
 
 	EntityWorld * GetEntityWorld();
 	esv::TurnManager * GetTurnManager();

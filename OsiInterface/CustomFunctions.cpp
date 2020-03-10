@@ -436,7 +436,7 @@ void CustomFunctionManager::PreProcessStory(std::string const & original, std::s
 
 void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 {
-	if (!ExtensionState::Get().HasFeatureFlag("Preprocessor")) return;
+	if (!ExtensionStateServer::Get().HasFeatureFlag("Preprocessor")) return;
 
 	std::string original;
 	std::string postProcessed;
@@ -564,7 +564,8 @@ void CustomFunctionInjector::CreateOsirisSymbolMap(MappingInfo ** Mappings, uint
 void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount)
 {
 	CreateOsirisSymbolMap(Mappings, MappingCount);
-	gOsirisProxy->GetExtensionState().Reset();
+	// FIXME - remove, move to server state load event?
+	gOsirisProxy->GetServerExtensionState().Reset();
 
 	// Remove local functions
 	auto outputIndex = 0;
@@ -588,7 +589,7 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 	DEBUG("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
 	*MappingCount = outputIndex;
 
-	ExtensionState::Get().StoryFunctionMappingsUpdated();
+	ExtensionStateServer::Get().StoryFunctionMappingsUpdated();
 }
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
@@ -657,7 +658,7 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 void CustomFunctionInjector::OnCloseHandle(HANDLE hFile, BOOL bSucceeded)
 {
 	if (bSucceeded && !extendingStory_ && storyHeaderFile_ != NULL && hFile == storyHeaderFile_) {
-		if (ExtensionState::Get().HasFeatureFlag("OsirisExtensions")) {
+		if (ExtensionStateServer::Get().HasFeatureFlag("OsirisExtensions")) {
 			ExtendStoryHeader(storyHeaderPath_);
 		}
 

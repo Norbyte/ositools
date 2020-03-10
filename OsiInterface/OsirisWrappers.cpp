@@ -34,7 +34,8 @@ STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
 STATIC_HOOK(CloseHandle)
 STATIC_HOOK(InitNetworkFixedStrings)
-STATIC_HOOK(GameStateChangedEvent)
+STATIC_HOOK(ClientGameStateChangedEvent)
+STATIC_HOOK(ServerGameStateChangedEvent)
 STATIC_HOOK(SkillPrototypeManagerInit)
 
 
@@ -141,8 +142,12 @@ void OsirisWrappers::InitializeExtensions()
 		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
 	}
 
-	if (lib.GameStateChangedEvent != nullptr) {
-		GameStateChangedEvent.Wrap(lib.GameStateChangedEvent);
+	if (lib.ecl__GameStateEventManager__ExecuteGameStateChangedEvent != nullptr) {
+		ClientGameStateChangedEvent.Wrap(lib.ecl__GameStateEventManager__ExecuteGameStateChangedEvent);
+	}
+
+	if (lib.esv__GameStateEventManager__ExecuteGameStateChangedEvent != nullptr) {
+		ServerGameStateChangedEvent.Wrap(lib.esv__GameStateEventManager__ExecuteGameStateChangedEvent);
 	}
 
 	if (lib.SkillPrototypeManagerInit != nullptr) {
@@ -163,7 +168,8 @@ void OsirisWrappers::Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	InitNetworkFixedStrings.Unwrap();
-	GameStateChangedEvent.Unwrap();
+	ClientGameStateChangedEvent.Unwrap();
+	ServerGameStateChangedEvent.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
 	ExtensionsInitialized = false;
 

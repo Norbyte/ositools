@@ -55,7 +55,8 @@ public:
 	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
 	HOOKABLE(void(void *, void *), InitNetworkFixedStrings);
-	HOOKABLE(void(void *, GameState, GameState), GameStateChangedEvent);
+	HOOKABLE(void(void *, ClientGameState, ClientGameState), ClientGameStateChangedEvent);
+	HOOKABLE(void(void *, ServerGameState, ServerGameState), ServerGameStateChangedEvent);
 	HOOKABLE(void(void *), SkillPrototypeManagerInit);
 
 	DivFunctions::CallProc CallOriginal;

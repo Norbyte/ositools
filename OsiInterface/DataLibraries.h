@@ -160,6 +160,7 @@ namespace osidbg {
 		bool PostStartupFindLibraries();
 		void EnableCustomStats();
 		void DisableItemFolding();
+		void ExtendNetworking();
 		void Cleanup();
 		bool GetGameVersion(GameVersionInfo & version);
 
@@ -173,7 +174,6 @@ namespace osidbg {
 		inline uint8_t const * GetModuleStart() const
 		{
 			return moduleStart_;
-			size_t moduleSize_{ 0 };
 		}
 
 		inline size_t GetModuleSize() const

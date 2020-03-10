@@ -2,6 +2,7 @@
 
 #include "BaseTypes.h"
 #include "Enumerations.h"
+#include "Net.h"
 
 namespace osidbg
 {
@@ -9,6 +10,15 @@ namespace osidbg
 #pragma pack(push, 1)
 	namespace eocnet
 	{
+		struct DummyMessage : public net::Message
+		{
+			inline ~DummyMessage() override {}
+			inline void Serialize(net::BitstreamSerializer & serializer) override {}
+			inline void Unknown() override {}
+			inline Message * CreateNew() override { return this; }
+			inline void Reset() override {}
+		};
+
 		struct CustomStatDefinitionSyncInfo
 		{
 			NetId NetId{ NetIdUnassigned };
@@ -19,12 +29,12 @@ namespace osidbg
 			STDWString Description;
 		};
 
-		struct CustomStatsDefinitionSyncMessage : public Message
+		struct CustomStatsDefinitionSyncMessage : public DummyMessage
 		{
 			ObjectSet<CustomStatDefinitionSyncInfo> StatDefns;
 		};
 
-		struct CustomStatsDefinitionRemoveMessage : public Message
+		struct CustomStatsDefinitionRemoveMessage : public DummyMessage
 		{
 			void * PrimSetVMT;
 			ObjectSet<uint32_t> StatDefns; // NetID list
@@ -39,7 +49,7 @@ namespace osidbg
 			uint8_t _Pad2[4];
 		};
 
-		struct CustomStatsSyncMessage : public Message
+		struct CustomStatsSyncMessage : public DummyMessage
 		{
 			ObjectSet<CustomStatsSyncInfo> Stats;
 		};
@@ -97,7 +107,7 @@ namespace osidbg
 			uint64_t Unkn3;
 		};
 
-		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, eocnet::Message * msg);
+		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, net::Message * msg);
 	}
 #pragma pack(pop)
 }

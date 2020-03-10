@@ -614,8 +614,7 @@ namespace osidbg
 			return nullptr;
 		}
 
-		auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
-
+		auto & mods = BaseModule.LoadOrderedModules.Set;
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const mod = mods.Buf + i;
 
@@ -735,7 +734,7 @@ namespace osidbg
 
 	void CharacterStatsGetters::WrapAll()
 	{
-		if (!ExtensionState::Get().HasFeatureFlag("FormulaOverrides")) return;
+		if (!ExtensionStateServer::Get().HasFeatureFlag("FormulaOverrides")) return;
 		if (Wrapped) return;
 
 #define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
@@ -1093,7 +1092,7 @@ namespace osidbg
 			ObjectHandle ownerHandle;
 			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
@@ -1117,7 +1116,7 @@ namespace osidbg
 			ObjectHandle ownerHandle;
 			this->GetObjectHandle(&ownerHandle);
 
-			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}

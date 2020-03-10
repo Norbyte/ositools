@@ -141,6 +141,21 @@
     <ClInclude Include="GameDefinitions\Level.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Net.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtensionStateClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtensionStateServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaBindingServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaBindingClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -257,6 +272,12 @@
     <ClCompile Include="Enumerations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\LuaClient.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\LuaServer.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
@@ -270,6 +291,15 @@
       <Filter>Header Files\GameDefinitions</Filter>
     </None>
     <None Include="BuiltinLibrary.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="SandboxStartup.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="BuiltinLibraryServer.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="BuiltinLibraryClient.lua">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -206,7 +206,7 @@ namespace osidbg
 	}
 
 
-	bool LuaOsiFunction::Bind(Function const * func, LuaState & state)
+	bool LuaOsiFunction::Bind(Function const * func, LuaStateServer & state)
 	{
 		if (func->Type == FunctionType::Query
 			|| func->Type == FunctionType::SysQuery
@@ -609,7 +609,7 @@ namespace osidbg
 		lua_setfield(L, -2, "__index");
 	}
 
-	LuaOsiFunctionNameProxy::LuaOsiFunctionNameProxy(std::string const & name, LuaState & state)
+	LuaOsiFunctionNameProxy::LuaOsiFunctionNameProxy(std::string const & name, LuaStateServer & state)
 		: name_(name), state_(state), generationId_(state_.GenerationId())
 	{}
 
@@ -791,7 +791,7 @@ namespace osidbg
 			return false;
 		}
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (!lua) {
 			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
@@ -818,7 +818,7 @@ namespace osidbg
 	}
 
 
-	bool LuaState::Query(std::string const & name, LuaRegistryEntry * func,
+	bool LuaStateServer::Query(std::string const & name, LuaRegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		std::lock_guard lock(mutex_);
@@ -842,7 +842,7 @@ namespace osidbg
 	}
 
 
-	bool LuaState::QueryInternal(std::string const & name, LuaRegistryEntry * func,
+	bool LuaStateServer::QueryInternal(std::string const & name, LuaRegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		auto L = State();
@@ -949,7 +949,7 @@ namespace osidbg
 			return false;
 		}
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (!lua) {
 			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
@@ -960,10 +960,10 @@ namespace osidbg
 
 
 
-	char const * const LuaExtensionLibrary::NameResolverMetatableName = "OsiProxyNameResolver";
+	char const * const LuaExtensionLibraryServer::NameResolverMetatableName = "OsiProxyNameResolver";
 
 
-	void LuaExtensionLibrary::RegisterNameResolverMetatable(lua_State * L)
+	void LuaExtensionLibraryServer::RegisterNameResolverMetatable(lua_State * L)
 	{
 		lua_register(L, NameResolverMetatableName, nullptr);
 		luaL_newmetatable(L, NameResolverMetatableName); // stack: mt
@@ -972,19 +972,19 @@ namespace osidbg
 		lua_pop(L, 1); // stack: mt
 	}
 
-	void LuaExtensionLibrary::CreateNameResolver(lua_State * L)
+	void LuaExtensionLibraryServer::CreateNameResolver(lua_State * L)
 	{
 		lua_newtable(L); // stack: osi
 		luaL_setmetatable(L, NameResolverMetatableName); // stack: osi
 		lua_setglobal(L, "Osi"); // stack: -
 	}
 
-	int LuaExtensionLibrary::LuaIndexResolverTable(lua_State * L)
+	int LuaExtensionLibraryServer::LuaIndexResolverTable(lua_State * L)
 	{
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = luaL_checkstring(L, 2);
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		LuaOsiFunctionNameProxy::New(L, name, std::ref(lua.Get())); // stack: tab, name, proxy
 
 		lua_pushvalue(L, 1); // stack: fun, tab
@@ -995,7 +995,7 @@ namespace osidbg
 		return 1;
 	}
 
-	std::string LuaExtensionLibrary::GenerateOsiHelpers()
+	std::string LuaExtensionLibraryServer::GenerateOsiHelpers()
 	{
 		std::stringstream ss;
 
@@ -1057,9 +1057,9 @@ namespace osidbg
 		}
 	}
 
-	int LuaExtensionLibrary::NewCall(lua_State * L)
+	int LuaExtensionLibraryServer::NewCall(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register call after Lua startup phase");
@@ -1080,9 +1080,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaExtensionLibrary::NewQuery(lua_State * L)
+	int LuaExtensionLibraryServer::NewQuery(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register query after Lua startup phase");
@@ -1103,9 +1103,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaExtensionLibrary::NewEvent(lua_State * L)
+	int LuaExtensionLibraryServer::NewEvent(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register event after Lua startup phase");
@@ -1124,7 +1124,7 @@ namespace osidbg
 		return 0;
 	}
 
-	void LuaState::StoryLoaded()
+	void LuaStateServer::StoryLoaded()
 	{
 		generationId_++;
 		identityAdapters_.UpdateAdapters();
@@ -1133,9 +1133,9 @@ namespace osidbg
 		}
 	}
 
-	void LuaState::StoryFunctionMappingsUpdated()
+	void LuaStateServer::StoryFunctionMappingsUpdated()
 	{
-		auto helpers = proxy_.GenerateOsiHelpers();
+		auto helpers = library_.GenerateOsiHelpers();
 		LoadScript(helpers, "bootstrapper");
 	}
 }

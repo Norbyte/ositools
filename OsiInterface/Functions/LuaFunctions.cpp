@@ -11,7 +11,7 @@ namespace osidbg
 		{
 			auto bootstrapMods = args[0].Int32 == 1;
 
-			auto & ext = ExtensionState::Get();
+			auto & ext = ExtensionStateServer::Get();
 			ext.LuaReset(bootstrapMods);
 			ext.OnModuleResume();
 			ext.OnGameSessionLoading();
@@ -19,7 +19,7 @@ namespace osidbg
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
-			LuaStatePin lua(ExtensionState::Get());
+			LuaServerPin lua(ExtensionStateServer::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
@@ -33,12 +33,12 @@ namespace osidbg
 				return;
 			}
 
-			ExtensionState::Get().LuaLoadModScript(mod, fileName);
+			ExtensionStateServer::Get().LuaLoadModScript(mod, fileName);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
-			LuaStatePin lua(ExtensionState::Get());
+			LuaServerPin lua(ExtensionStateServer::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
@@ -80,7 +80,7 @@ namespace osidbg
 		template <uint32_t TInParams>
 		bool OsiLuaQuery(OsiArgumentDesc & args)
 		{
-			LuaStatePin lua(ExtensionState::Get());
+			LuaServerPin lua(ExtensionStateServer::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return false;

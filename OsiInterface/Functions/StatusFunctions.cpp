@@ -112,11 +112,11 @@ namespace osidbg
 			ObjectHandle statusHandle{ args[1].Int64 };
 
 			esv::Status * status{ nullptr };
-			auto character = FindCharacterByNameGuid(gameObjectGuid);
+			auto character = FindCharacterByNameGuid(gameObjectGuid, false);
 			if (character != nullptr) {
 				status = character->GetStatusByHandle(statusHandle, true);
 			} else {
-				auto item = FindItemByNameGuid(gameObjectGuid);
+				auto item = FindItemByNameGuid(gameObjectGuid, false);
 				if (item != nullptr) {
 					status = item->GetStatusByHandle(statusHandle, true);
 				} else {
@@ -329,7 +329,7 @@ namespace osidbg
 			ObjectHandle gameObjectHandle;
 			gameObject->GetObjectHandle(&gameObjectHandle);
 
-			auto status = ExtensionState::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
+			auto status = ExtensionStateServer::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
 			if (status == nullptr) {
 				OsiError("No pending status found with handle " << (int64_t)statusHandle);
 				return;
@@ -539,7 +539,7 @@ namespace osidbg
 	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
 		esv::Status * status, bool useCharacterStats)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua) {
 			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats);
 			if (enterChance) {
@@ -553,7 +553,7 @@ namespace osidbg
 	int32_t CustomFunctionLibrary::OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
 		CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua) {
 			auto hitChance = lua->GetHitChance(attacker, target);
 			if (hitChance) {
@@ -644,7 +644,7 @@ namespace osidbg
 			totalDamage += damageList->Buf[i].Amount;
 		}
 
-		auto helper = gOsirisProxy->GetExtensionState().DamageHelpers.Create();
+		auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Create();
 		helper->Type = DamageHelpers::HT_PrepareHitEvent;
 		helper->Target = self;
 		if (attackerStats != nullptr) {
@@ -674,7 +674,7 @@ namespace osidbg
 			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
 			helper->ProcWindWalker, helper->Critical);
 
-		gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
+		gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}
 
 	void CustomFunctionLibrary::OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self,
@@ -682,7 +682,7 @@ namespace osidbg
 		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua) {
 			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
 				skillProperties, highGroundFlag, criticalRoll)) {
@@ -726,7 +726,7 @@ namespace osidbg
 			eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 
-			ExtensionState::Get().PendingStatuses.Add(status);
+			ExtensionStateServer::Get().PendingStatuses.Add(status);
 			eventThrown = true;
 			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
 
@@ -738,7 +738,7 @@ namespace osidbg
 			ObjectHandle targetHandle;
 			target->GetObjectHandle(&targetHandle);
 
-			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
+			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
 			if (pendingStatus != nullptr) {
 				self->PreventStatusApply = pendingStatus->PreventApply;
 			} else {
@@ -751,7 +751,7 @@ namespace osidbg
 		self->PreventStatusApply = previousPreventApplyState;
 
 		if (eventThrown) {
-			ExtensionState::Get().PendingStatuses.Remove(status);
+			ExtensionStateServer::Get().PendingStatuses.Remove(status);
 		}
 	}
 
@@ -789,7 +789,7 @@ namespace osidbg
 		// When fetching subproperties (recursively), paramTexts will be null.
 		// We won't post these to Lua since the Lua scripts already processed the original (unwrapped) query
 		if (paramTexts != nullptr) {
-			LuaStatePin lua(ExtensionState::Get());
+			LuaClientPin lua(ExtensionStateClient::Get());
 			if (lua) {
 				std::wstring replacement;
 				if (lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
@@ -806,7 +806,7 @@ namespace osidbg
 		CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua) {
 			if (lua->GetSkillDamage(self, damageList, attackerStats, isFromItem, stealthed, attackerPosition, targetPosition, pDeathType, level, noRandomization)) {
 				return;
@@ -822,7 +822,7 @@ namespace osidbg
 	{
 		std::wstring replacement;
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaClientPin lua(ExtensionStateClient::Get());
 		if (lua) {
 			if (lua->StatusGetDescriptionParam(prototype, statusSource, targetCharacter, *paramSet, replacement)) {
 				text->ReplaceParam(paramIndex, replacement);
@@ -835,7 +835,7 @@ namespace osidbg
 
 	void CustomFunctionLibrary::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua) {
 			lua->OnUpdateTurnOrder(self, combatId);
 		}

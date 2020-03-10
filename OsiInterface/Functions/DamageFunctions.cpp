@@ -425,7 +425,7 @@ namespace osidbg
 				return false;
 			}
 
-			auto helper = gOsirisProxy->GetExtensionState().DamageHelpers.Create();
+			auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Create();
 			helper->Type = DamageHelpers::HT_CustomHit;
 			helper->Target = target;
 			helper->Source = FindCharacterByNameGuid(sourceGuid);
@@ -437,7 +437,7 @@ namespace osidbg
 
 		DamageHelpers * HelperHandleToHelper(int64_t handle)
 		{
-			auto helper = gOsirisProxy->GetExtensionState().DamageHelpers.Get(handle);
+			auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Get(handle);
 			if (helper == nullptr) {
 				OsiError("Damage helper handle " << handle << " doesn't exist!");
 			}
@@ -456,7 +456,7 @@ namespace osidbg
 			}
 
 			helper->Execute();
-			gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
+			gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
 		}
 
 		bool HitExecuteRetStatus(OsiArgumentDesc & args)
@@ -472,7 +472,7 @@ namespace osidbg
 			}
 
 			auto status = helper->Execute();
-			gOsirisProxy->GetExtensionState().DamageHelpers.Destroy(helper->Handle);
+			gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
 			if (status == nullptr) {
 				return false;
 			} else {

@@ -45,7 +45,7 @@ namespace osidbg
 
 #pragma pack(push, 1)
 	using Vector3 = glm::vec3;
-	using NetId = uint32_t;
+	using NetId = int32_t;
 
 	constexpr NetId NetIdUnassigned = 0xffffffff;
 
@@ -376,39 +376,41 @@ namespace osidbg
 			return Buf[index];
 		}
 
-		void Reallocate(uint32_t newCapacity)
+		void FreeBuffer(void * buf)
 		{
-			if (StoreSize)
-			{
+			if (StoreSize) {
+				if (buf != nullptr) {
+					Allocator::Free((void *)((std::ptrdiff_t)buf - 8));
+				}
+			} else {
+				if (buf != nullptr) {
+					Allocator::Free(buf);
+				}
+			}
+		}
+
+		void RawReallocate(uint32_t newCapacity)
+		{
+			if (StoreSize) {
 				auto newBuf = Allocator::New<T>(newCapacity + 8);
 				*(int64_t *)newBuf = Size;
 
-				auto newList = (T *)((std::ptrdiff_t)newBuf + 8);
-				for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-					newList[i] = Buf[i];
-				}
-
-				if (Buf != nullptr) {
-					Allocator::Free((void *)((std::ptrdiff_t)Buf - 8));
-				}
-
-				Buf = newList;
-			}
-			else
-			{
-				auto newBuf = Allocator::New<T>(newCapacity);
-				for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-					newBuf[i] = Buf[i];
-				}
-
-				if (Buf != nullptr) {
-					Allocator::Free(Buf);
-				}
-
-				Buf = newBuf;
+				Buf = (T *)((std::ptrdiff_t)newBuf + 8);
+			} else {
+				Buf = Allocator::New<T>(newCapacity);
 			}
 
 			Capacity = newCapacity;
+		}
+
+		void Reallocate(uint32_t newCapacity)
+		{
+			auto oldBuf = Buf;
+			RawReallocate(newCapacity);
+			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
+				Buf[i] = oldBuf[i];
+			}
+			FreeBuffer(oldBuf);
 		}
 
 		void Remove(uint32_t index)
@@ -889,14 +891,14 @@ namespace osidbg
 		static uint32_t Hash(char const * s, uint64_t length);
 	};
 
-	struct ScratchBuffer : public ProtectedGameObject<ScratchBuffer>
+	struct ScratchBuffer : public Noncopyable<ScratchBuffer>
 	{
-		void * Buffer;
-		uint32_t Unkn;
-		uint32_t Size;
-		uint32_t WritePosition;
-		uint32_t ReadPosition;
-		uint32_t GrowSize;
+		void * Buffer{ nullptr };
+		uint32_t Unkn{ 0 };
+		uint32_t Size{ 0 };
+		uint32_t WritePosition{ 0 };
+		uint32_t ReadPosition{ 0 };
+		uint32_t GrowSize{ 0 };
 	};
 #pragma pack(pop)
 }

@@ -238,18 +238,6 @@ namespace osidbg
 	}
 
 
-	int EnableStatOverride(lua_State * L)
-	{
-		LuaStatePin lua(ExtensionState::Get());
-		if (!(lua->RestrictionFlags & LuaState::ScopeSessionLoad)) {
-			return luaL_error(L, "EnableStatOverride() can only be called during session load");
-		}
-
-		auto stat = luaL_checkstring(L, 1);
-		gOsirisProxy->GetFunctionLibrary().EnableStatOverride(stat);
-		return 0;
-	}
-
 	void OsiArgsToStream(lua_State * L, std::stringstream & ss)
 	{
 		int nargs = lua_gettop(L);  /* number of arguments */
@@ -294,7 +282,8 @@ namespace osidbg
 	{
 		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
 		if (modUuid) {
-			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
+			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
 				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
@@ -312,7 +301,8 @@ namespace osidbg
 	{
 		lua_newtable(L);
 
-		auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+		auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
+		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 			luaL_settable(L, i + 1, mod.Info.ModuleUUID.Str);
@@ -326,7 +316,8 @@ namespace osidbg
 		Module const * module{ nullptr };
 		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
 		if (modUuid) {
-			auto & mods = GetModManager()->BaseModule.LoadOrderedModules.Set;
+			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
+			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 			for (uint32_t i = 0; i < mods.Size; i++) {
 				auto const & mod = mods[i];
 				if (mod.Info.ModuleUUID == modUuid) {
@@ -616,7 +607,7 @@ namespace osidbg
 
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
 			return luaL_error(L, "StatSetAttribute() can only be called during module load");
 		}
@@ -674,7 +665,7 @@ namespace osidbg
 		auto attributeName = luaL_checkstring(L, 2);
 		auto description = luaL_checkstring(L, 3);
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
 			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
@@ -729,7 +720,7 @@ namespace osidbg
 
 		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 		{
-			LuaStatePin pin(ExtensionState::Get());
+			LuaVirtualPin pin(gOsirisProxy->GetCurrentExtensionState());
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
@@ -777,7 +768,7 @@ namespace osidbg
 		auto modifierName = luaL_checkstring(L, 2);
 		luaL_checktype(L, 3, LUA_TFUNCTION);
 
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (!(lua->RestrictionFlags & (LuaState::ScopeModuleLoad | LuaState::ScopeModuleResume))) {
 			return luaL_error(L, "StatSetLevelScaling() can only be called during module load/resume");
 		}
@@ -864,7 +855,7 @@ namespace osidbg
 
 	int GetCharacter(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve character handle in restricted context");
 		}
@@ -883,7 +874,7 @@ namespace osidbg
 
 	int GetItem(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
@@ -921,7 +912,7 @@ namespace osidbg
 
 	int GetStatus(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve status handle in restricted context");
 		}
@@ -944,7 +935,7 @@ namespace osidbg
 
 	int GetCombat(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
 		}
@@ -972,9 +963,15 @@ namespace osidbg
 		return 1;
 	}
 
+	int OsirisIsCallableClient(lua_State * L)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
 	int OsirisIsCallable(lua_State * L)
 	{
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		bool allowed = (lua->RestrictionFlags & LuaState::RestrictOsiris) != 0;
 		lua_pushboolean(L, allowed);
 		return 1;
@@ -983,13 +980,13 @@ namespace osidbg
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
 	{
-		auto & state = ExtensionState::Get();
+		auto state = gOsirisProxy->GetCurrentExtensionState();
 
 		lua_Integer low, up;
 		switch (lua_gettop(L)) {  /* check number of arguments */
 		case 0: {  /* no arguments */
 			std::uniform_real_distribution<double> dist(0.0, 1.0);
-			lua_pushnumber(L, (lua_Number)dist(state.OsiRng));  /* Number between 0 and 1 */
+			lua_pushnumber(L, (lua_Number)dist(state->OsiRng));  /* Number between 0 and 1 */
 			return 1;
 		}
 		case 1: {  /* only upper limit */
@@ -1010,7 +1007,7 @@ namespace osidbg
 			"interval too large");
 
 		std::uniform_int_distribution<int64_t> dist(low, up);
-		lua_pushinteger(L, (lua_Integer)dist(state.OsiRng));
+		lua_pushinteger(L, (lua_Integer)dist(state->OsiRng));
 		return 1;
 	}
 
@@ -1120,7 +1117,7 @@ namespace osidbg
 	int GenerateIdeHelpers(lua_State * L)
 	{
 #if !defined(OSI_EOCAPP)
-		LuaStatePin lua(ExtensionState::Get());
+		LuaServerPin lua(ExtensionStateServer::Get());
 		if (lua->RestrictionFlags & LuaState::RestrictOsiris) {
 			return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}
@@ -1129,7 +1126,7 @@ namespace osidbg
 
 		auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
 		path += "Mods/";
-		path += ToUTF8(GetModManager()->BaseModule.Info.Directory.GetPtr());
+		path += ToUTF8(GetModManagerServer()->BaseModule.Info.Directory.GetPtr());
 		path += "/Story/RawFiles/Lua/OsiIdeHelpers.lua";
 
 		std::ofstream f(path.c_str(), std::ios::out | std::ios::binary);

@@ -94,7 +94,11 @@ namespace osidbg
 		uint8_t const * CustomStatUIRollHook{ nullptr };
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
-		ecl::GameStateEventManager__ExecuteGameStateChangedEvent GameStateChangedEvent{ nullptr };
+		ecl::GameStateEventManager__ExecuteGameStateChangedEvent ecl__GameStateEventManager__ExecuteGameStateChangedEvent{ nullptr };
+		esv::GameStateEventManager__ExecuteGameStateChangedEvent esv__GameStateEventManager__ExecuteGameStateChangedEvent{ nullptr };
+		net::Host::AddProtocol net__Host__AddProtocol{ nullptr };
+		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };
+		net::MessageFactory::GetFreeMessage net__MessageFactory__GetFreeMessage{ nullptr };
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
 		SkillPrototype::FormatDescriptionParam SkillPrototypeFormatDescriptionParam{ nullptr };
 		SkillPrototype::GetSkillDamage SkillPrototypeGetSkillDamage{ nullptr };
@@ -214,13 +218,24 @@ namespace osidbg
 			}
 		}
 
-		inline std::optional<GameState> GetGameState() const
+		inline std::optional<ClientGameState> GetClientState() const
 		{
 			if (EoCClient != nullptr
 				&& *EoCClient != nullptr
 				&& (*EoCClient)->GameStateMachine != nullptr
 				&& *(*EoCClient)->GameStateMachine != nullptr) {
 				return (*(*EoCClient)->GameStateMachine)->State;
+			} else {
+				return {};
+			}
+		}
+
+		inline std::optional<ServerGameState> GetServerState() const
+		{
+			if (EoCServer != nullptr
+				&& *EoCServer != nullptr
+				&& (*EoCServer)->StateMachine != nullptr) {
+				return (*EoCServer)->StateMachine->State;
 			} else {
 				return {};
 			}

@@ -2,6 +2,8 @@
 
 #include "BaseTypes.h"
 #include "Enumerations.h"
+#include "Net.h"
+#include "Module.h"
 #include "Stats.h"
 
 namespace osidbg
@@ -184,23 +186,6 @@ namespace osidbg
 		// TODO
 	};
 
-	namespace eocnet
-	{
-		struct Message
-		{
-			void * VMT;
-			uint32_t MessageId;
-			uint32_t Always4{ 4 };
-			uint32_t MsgType{ 1 };
-			uint8_t Always0{ 0 };
-			uint8_t Unknown1{ 0 };
-			uint8_t _Pad1[2];
-			uint64_t Unknown2{ 0 };
-			uint32_t Unknown3{ 0 };
-			uint32_t Unknown4{ 0 };
-		};
-	}
-
 	namespace esv
 	{
 		struct EoCServerObject : public ProtectedGameObject<EoCServerObject>
@@ -274,10 +259,18 @@ namespace osidbg
 			FixedString CurrentLevel; // Saved
 		};
 
-		struct GameServer
+		struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 		{
-			uint8_t Unknown[0x320];
-			ObjectSet<void *> Protocols;
+			uint8_t Unknown;
+			uint8_t _Pad1[7];
+			void * CurrentState;
+			ServerGameState State;
+			uint8_t _Pad2[4];
+			void ** TargetStates;
+			uint32_t TargetStateBufSize;
+			uint32_t NumTargetStates;
+			uint32_t ReadStateIdx;
+			uint32_t WriteStateIdx;
 		};
 
 		struct EoCServer
@@ -285,7 +278,7 @@ namespace osidbg
 			bool Unknown1;
 			uint8_t _Pad1[7];
 			uint64_t field_8;
-			uint64_t field_10;
+			uint64_t GameTime_M;
 			ScratchBuffer ScratchBuffer1;
 			uint8_t _Pad2[4];
 			ScratchBuffer ScratchBuffer2;
@@ -294,18 +287,18 @@ namespace osidbg
 			FixedString FS2;
 			FixedString FS3;
 			FixedString FSGUID4;
-			void * GameStateMachine;
-			GameServer * Server;
+			GameStateMachine * StateMachine;
+			net::Host * GameServer;
 			void * field_88;
 			void * GlobalRandom;
 			void * ItemCombinationManager;
 			void * CombineManager;
-			void * ModManagerServer;
-			bool Unknown2;
+			ModManager * ModManagerServer;
+			bool ShutDown;
 			uint8_t _Pad4[7];
-			void * field_B8;
-			EntityWorld *EntityWorld;
-			void * field_C8;
+			void * EntityWorldManager;
+			EntityWorld * EntityWorld;
+			void * EntityManager;
 			void * ArenaManager;
 			void * GameMasterLobbyManager;
 			void * LobbyManagerOrigins;

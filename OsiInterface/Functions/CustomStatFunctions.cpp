@@ -69,7 +69,7 @@ namespace osidbg
 			return nullptr;
 		}
 
-		void ProcessCustomStatsMessage(eocnet::Message * msg)
+		void ProcessCustomStatsMessage(net::Message * msg)
 		{
 			struct DummyType
 			{
@@ -124,9 +124,9 @@ namespace osidbg
 		{
 			eocnet::CustomStatsSyncMessage statSyncMsg;
 			if (stats == nullptr) {
-				statSyncMsg.MessageId = NetMessage::NETMSG_CUSTOM_STATS_CREATE;
+				statSyncMsg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_CREATE;
 			} else {
-				statSyncMsg.MessageId = NetMessage::NETMSG_CUSTOM_STATS_UPDATE;
+				statSyncMsg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_UPDATE;
 			}
 
 			// FIXME - memory leak!
@@ -172,7 +172,7 @@ namespace osidbg
 		void CreateCustomStatInternal(char const * name, char const * description)
 		{
 			eocnet::CustomStatsDefinitionSyncMessage msg;
-			msg.MessageId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
+			msg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
 
 			// FIXME - memory leak!
 			msg.StatDefns.Set.Buf = GameAlloc<eocnet::CustomStatDefinitionSyncInfo>(1);

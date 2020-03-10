@@ -537,14 +537,67 @@ namespace osidbg
 		},
 
 		{
-			"GameStateChangedEvent",
+			"ecl::GameStateEventManager::ExecuteGameStateChangedEvent",
 			SymbolMappingData::kText, 0,
 			"4C 8D 0D XX XX XX XX " // lea r9, aClientStateSwa ; "CLIENT STATE SWAP - from: %s, to: %s\n"
 			"48 8B CF " // mov rcx, rdi
 			"C7 44 24 30 80 00 00 00 " // mov [rsp+78h+var_48.logLevel], 80h
 			"4C 8D 44 24 30 ", // lea r8, [rsp+78h+var_48]
 			{SymbolMappingCondition::kString, 0, "CLIENT STATE SWAP - from: %s, to: %s\n"},
-			{"GameStateChangedEvent", SymbolMappingTarget::kIndirectCall, 0x44, STATIC_SYM(GameStateChangedEvent)}
+			{"ecl::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirectCall, 0x44, STATIC_SYM(ecl__GameStateEventManager__ExecuteGameStateChangedEvent)}
+		},
+
+		{
+			"esv::GameStateEventManager::ExecuteGameStateChangedEvent",
+			SymbolMappingData::kText, 0,
+			"4C 8D 0D XX XX XX XX " // lea r9, aClientStateSwa ; "SERVER STATE SWAP - from: %s, to: %s\n"
+			"48 89 7C 24 28 " // mov     [rsp+78h+var_50], rdi
+			"4C 8D 44 24 30 ", // lea     r8, [rsp+78h+var_48]
+			{SymbolMappingCondition::kString, 0, "SERVER STATE SWAP - from: %s, to: %s\n"},
+			{"esv::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirectCall, 0x4D, STATIC_SYM(esv__GameStateEventManager__ExecuteGameStateChangedEvent)}
+		},
+
+		{
+			"net::Host::AddProtocol",
+			SymbolMappingData::kText, 0,
+			"4C 8B C0 " // mov     r8, rax
+			"BA 25 00 00 00 " // mov     edx, 25h ; '%'
+			"48 8B CE " // mov     rcx, rsi
+			"E8 XX XX XX XX " // call    net__Host__AddProtocol
+			"45 33 C9 " // xor     r9d, r9d
+			"C6 44 24 20 01 ", // mov     byte ptr [rsp+68h+var_48], 1
+			{},
+			{"net::Host::AddProtocol", SymbolMappingTarget::kIndirectCall, 11, STATIC_SYM(net__Host__AddProtocol)}
+		},
+
+		{
+			"net::MessageFactory::RegisterMessage",
+			SymbolMappingData::kText, 0,
+			"48 8D 05 XX XX XX XX " // lea     rax, aEocnetLevelloa ; "eocnet::LevelLoadMessage"
+			"41 B9 04 00 00 00 " // mov     r9d, 4
+			"4C 8B C3 " // mov     r8, rbx
+			"48 89 44 24 20 " // mov     [rsp+38h+a5], rax
+			"BA FE 00 00 00 " // mov     edx, 0FEh
+			"48 8B CE " // mov     rcx, rsi
+			"E8 XX XX XX XX ", // call    net__MessageFactory__RegisterMessage
+			{SymbolMappingCondition::kString, 0, "eocnet::LevelLoadMessage"},
+			{"net::MessageFactory::RegisterMessage", SymbolMappingTarget::kIndirectCall, 29, STATIC_SYM(net__MessageFactory__RegisterMessage)}
+		},
+
+		{
+			"net::MessageFactory::GetFreeMessage",
+			SymbolMappingData::kText, 0,
+			"BA ED 00 00 00 " // mov     edx, 0EDh
+			"F3 0F 10 75 28 " // movss   xmm6, dword ptr [rbp+28h]
+			"48 8B D8 " // mov     rbx, rax
+			"8B 7D 38 " // mov     edi, [rbp+38h]
+			"8B 75 48 " // mov     esi, [rbp+48h]
+			"4C 8B B9 80 00 00 00 " // mov     r15, [rcx+80h]
+			"8B 6D 58 " // mov     ebp, [rbp+58h]
+			"49 8B 8F F0 01 00 00 " // mov     rcx, [r15+1F0h]
+			"E8 XX XX XX XX ", // call    net__MessageFactory__GetFreeMessage
+			{},
+			{"net::MessageFactory::GetFreeMessage", SymbolMappingTarget::kIndirectCall, 36, STATIC_SYM(net__MessageFactory__GetFreeMessage)}
 		},
 
 		{

@@ -33,7 +33,8 @@
 
 
 #include <GameDefinitions/Osiris.h>
-#include <ExtensionState.h>
+#include <ExtensionStateClient.h>
+#include <ExtensionStateServer.h>
 #include "DebugInterface.h"
 #include "DebugMessages.h"
 #include "Debugger.h"
@@ -132,10 +133,19 @@ public:
 		return Libraries;
 	}
 
-	inline ExtensionState & GetExtensionState()
+	ExtensionState * GetCurrentExtensionState();
+
+	inline ExtensionStateServer & GetServerExtensionState()
 	{
-		return *ExtState;
+		return *ServerExtState;
 	}
+
+	inline ExtensionStateClient & GetClientExtensionState()
+	{
+		return *ClientExtState;
+	}
+
+	bool HasFeatureFlag(char const *) const;
 
 	inline void * GetOsirisDllStart() const
 	{
@@ -158,10 +168,15 @@ private:
 	CustomFunctionManager CustomFunctions;
 	CustomFunctionInjector CustomInjector;
 	CustomFunctionLibrary FunctionLibrary;
-	std::unique_ptr<ExtensionState> ExtState;
+	std::unique_ptr<ExtensionStateServer> ServerExtState;
+	std::unique_ptr<ExtensionStateClient> ClientExtState;
 	LibraryManager Libraries;
 	bool LibrariesPostInitialized{ false };
-	bool ExtensionLoaded{ false };
+	bool ServerExtensionLoaded{ false };
+	bool ClientExtensionLoaded{ false };
+	DWORD ClientThreadId{ 0 };
+	DWORD ServerThreadId{ 0 };
+	std::recursive_mutex globalStateLock_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -201,11 +216,14 @@ private:
 	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
 
 	void OnBaseModuleLoaded(void * self);
-	void OnGameStateChanged(void * self, GameState fromState, GameState toState);
+	void OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState);
+	void OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState);
 	void OnSkillPrototypeManagerInit(void * self);
 	void PostInitLibraries();
-	void ResetExtensionState();
-	void LoadExtensionState();
+	void ResetExtensionStateServer();
+	void LoadExtensionStateServer();
+	void ResetExtensionStateClient();
+	void LoadExtensionStateClient();
 
 	void OnInitNetworkFixedStrings(void * self, void * arg1);
 	void DumpNetworkFixedStrings();

@@ -364,6 +364,8 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="DxgiWrapper.h" />
     <ClInclude Include="ExtensionHelpers.h" />
     <ClInclude Include="ExtensionState.h" />
+    <ClInclude Include="ExtensionStateClient.h" />
+    <ClInclude Include="ExtensionStateServer.h" />
     <ClInclude Include="Functions\FunctionLibrary.h" />
     <ClInclude Include="GameDefinitions\ActionMachine.h" />
     <ClInclude Include="GameDefinitions\BaseTypes.h" />
@@ -376,11 +378,14 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="GameDefinitions\GameAction.h" />
     <ClInclude Include="GameDefinitions\Item.h" />
     <ClInclude Include="GameDefinitions\Module.h" />
+    <ClInclude Include="GameDefinitions\Net.h" />
     <ClInclude Include="GameDefinitions\Osiris.h" />
     <ClInclude Include="GameDefinitions\Stats.h" />
     <ClInclude Include="GameDefinitions\Status.h" />
     <ClInclude Include="GameDefinitions\Symbols.h" />
     <ClInclude Include="GameDefinitions\TurnManager.h" />
+    <ClInclude Include="LuaBindingClient.h" />
+    <ClInclude Include="LuaBindingServer.h" />
     <ClInclude Include="Lua\LuaBinding.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
@@ -459,8 +464,10 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Functions\UtilityFunctions.cpp" />
     <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
     <ClCompile Include="Lua\LuaBinding.cpp" />
+    <ClCompile Include="Lua\LuaClient.cpp" />
     <ClCompile Include="Lua\LuaExtFunctions.cpp" />
     <ClCompile Include="Lua\LuaOsiBridge.cpp" />
+    <ClCompile Include="Lua\LuaServer.cpp" />
     <ClCompile Include="NodeHooks.cpp" />
     <ClCompile Include="osidebug.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -488,10 +495,13 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
   </ItemGroup>
   <ItemGroup>
     <None Include="BuiltinLibrary.lua" />
+    <None Include="BuiltinLibraryClient.lua" />
+    <None Include="BuiltinLibraryServer.lua" />
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="osidebug.proto" />
+    <None Include="SandboxStartup.lua" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc" />

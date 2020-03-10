@@ -567,7 +567,7 @@ namespace osidbg
 
 	bool LibraryManager::CanShowMessages()
 	{
-		return GetStaticSymbols().GetGameState()
+		return GetStaticSymbols().GetClientState()
 			&& GetStaticSymbols().EoCClientHandleError != nullptr
 			&& GetStaticSymbols().EoCAlloc != nullptr;
 	}
@@ -576,12 +576,12 @@ namespace osidbg
 	{
 		if (!CanShowMessages()) return false;
 
-		auto state = GetStaticSymbols().GetGameState();
-		return state == GameState::Running
-			|| state == GameState::Paused
-			|| state == GameState::GameMasterPause
-			|| state == GameState::Menu
-			|| state == GameState::Lobby;
+		auto state = GetStaticSymbols().GetClientState();
+		return state == ClientGameState::Running
+			|| state == ClientGameState::Paused
+			|| state == ClientGameState::GameMasterPause
+			|| state == ClientGameState::Menu
+			|| state == ClientGameState::Lobby;
 	}
 
 	class WriteAnchor
@@ -622,7 +622,7 @@ namespace osidbg
 			return;
 		}
 
-		if (ExtensionState::Get().HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
+		if (gOsirisProxy->HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
 				WriteAnchor code(GetStaticSymbols().ActivateClientSystemsHook, sizeof(replacement));
@@ -644,8 +644,8 @@ namespace osidbg
 			EnabledCustomStats = true;
 		}
 
-		if (ExtensionState::Get().HasFeatureFlag("CustomStats")
-			&& ExtensionState::Get().HasFeatureFlag("CustomStatsPane")
+		if (gOsirisProxy->HasFeatureFlag("CustomStats")
+			&& gOsirisProxy->HasFeatureFlag("CustomStatsPane")
 			&& !EnabledCustomStatsPane) {
 			uint8_t const replacement[] = {
 #if defined(OSI_EOCAPP)
@@ -663,7 +663,7 @@ namespace osidbg
 
 	void LibraryManager::DisableItemFolding()
 	{
-		if (ExtensionState::Get().HasFeatureFlag("DisableFolding")) {
+		if (gOsirisProxy->HasFeatureFlag("DisableFolding")) {
 #if defined(OSI_EOCAPP)
 			if (GetStaticSymbols().ItemFoldDynamicAttributes != nullptr) {
 				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ItemFoldDynamicAttributes);
@@ -692,5 +692,120 @@ namespace osidbg
 			}
 		}
 #endif
+	}
+
+	struct ExtProtocol : public net::Protocol
+	{
+		~ExtProtocol() override {}
+
+		bool ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg) override
+		{
+			DEBUG("ProcessMsg: %d", Msg->MsgId);
+			return false;
+		}
+
+		void Unknown1() override
+		{
+			DEBUG("Unknown1");
+		}
+
+		int PreUpdate(void * Unknown) override
+		{
+			//DEBUG("PreUpdate");
+			return 0;
+		}
+
+		int PostUpdate(void * Unknown) override
+		{
+			//DEBUG("PostUpdate");
+			return 0;
+		}
+
+		void * OnAddedToHost() override
+		{
+			DEBUG("OnAddedToHost");
+			return nullptr;
+		}
+
+		void * OnRemovedFromHost() override
+		{
+			DEBUG("OnRemovedFromHost");
+			return nullptr;
+		}
+
+		void * Unknown2() override
+		{
+			DEBUG("Unknown2");
+			return nullptr;
+		}
+	};
+
+	struct ExtTestMessage : public net::Message
+	{
+		static constexpr uint32_t MessageId = 328;
+
+		ExtTestMessage()
+		{
+			MsgId = MessageId;
+		}
+
+		~ExtTestMessage() override {}
+
+		void Serialize(net::BitstreamSerializer & serializer) override
+		{
+			DEBUG("ExtTestMessage serialize: %d", (unsigned)serializer.IsWriting);
+		}
+
+		void Unknown() override
+		{
+			DEBUG("ExtTestMessage Unknown");
+		}
+
+		Message * CreateNew() override
+		{
+			DEBUG("ExtTestMessage CreateNew");
+			return new ExtTestMessage();
+		}
+
+		void Reset() override
+		{
+			DEBUG("ExtTestMessage Reset");
+		}
+	};
+
+
+	void LibraryManager::ExtendNetworking()
+	{
+		if (!gOsirisProxy->HasFeatureFlag("Net")) return;
+
+		if (GetStaticSymbols().net__Host__AddProtocol != nullptr
+			&& GetStaticSymbols().net__MessageFactory__RegisterMessage != nullptr) {
+			auto server = GetStaticSymbols().EoCServer;
+			if (server != nullptr && *server != nullptr && (*server)->GameServer != nullptr) {
+				auto gameServer = (*server)->GameServer;
+				auto extProtocol = new ExtProtocol();
+				GetStaticSymbols().net__Host__AddProtocol(gameServer, 100, extProtocol);
+
+				auto testMsg = new ExtTestMessage();
+				GetStaticSymbols().net__MessageFactory__RegisterMessage(gameServer->NetMessageFactory, ExtTestMessage::MessageId, testMsg, 4, "eocnet::ScriptExtenderMessage");
+				DEBUG("Registered custom esv network protocol");
+			}
+
+			auto client = GetStaticSymbols().EoCClient;
+			if (client != nullptr && *client != nullptr && (*client)->GameClient != nullptr) {
+				auto gameClient = (*client)->GameClient;
+				auto extProtocol = new ExtProtocol();
+				// Nasty hack to avoid having to lookup net::Client::AddProtocol
+				auto gameClientPtr = (net::Host *)((uintptr_t)gameClient + 8);
+				GetStaticSymbols().net__Host__AddProtocol(gameClientPtr, 100, extProtocol);
+
+				auto testMsg = new ExtTestMessage();
+				GetStaticSymbols().net__MessageFactory__RegisterMessage(gameClient->NetMessageFactory, ExtTestMessage::MessageId, testMsg, 4, "eocnet::ScriptExtenderMessage");
+				DEBUG("Registered custom ecl network protocol");
+			}
+
+		} else {
+			ERR("Could not register custom protocol; net::Host::AddProtocol not mapped!");
+		}
 	}
 }

@@ -2,6 +2,7 @@
 
 ### Table of Contents  
 
+ - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
  - [Calling Lua from Osiris](#calling-lua-from-osiris)
     * [Calls](#l2o_calls)
     * [Queries](#l2o_queries)
@@ -23,6 +24,20 @@
     * [Overwriting Native Functions](#overwriting-native-functions)
         * [Hit Chance](#31o_hit_chance)
     * [JSON Support](#json-support)
+
+
+## Migrating from v41 to v42
+
+The client and server Lua contexts were previously unified, i.e. both the server and the client used the same Lua state. After v42 server and client contexts are separated.
+
+The following changes must be observed when migrating to v42:
+ - `Bootstrap.lua` is deprecated. The server will load `BootstrapServer.lua`, the client will try to load `BootstrapClient.lua`. If these files cannot be found, `Bootstrap.lua` will be loaded as a fallback. In addition, care must be taken to ensure that `BootstrapServer.lua` only contains code that should be run on the server and `BootstrapClient.lua` only contains code for the client.
+ - `Ext.GetHitChance` and `Ext.StatusGetEnterChance` are now events; instead of assigning a single function to them as before (i.e. `Ext.GetHitChance = func`), a listener should be registered (`Ext.RegisterListener("GetHitChance", func)`). For backwards compatibility, during the deprecation period assigning a function to `Ext.GetHitChance` is equivalent to registering that function as a listener.
+ - Server-side scripts now only allow registering server-side listeners and vice versa
+     - Listeners allowed on the server: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `ComputeCharacterHit`, `CalculateTurnOrder`, `GetHitChance`, `StatusGetEnterChance`
+     - Listeners allowed on the client: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `SkillGetDescriptionParam`, `StatusGetDescriptionParam`, `GetHitChance`
+ - Calling `Ext.EnableStatOverride` is no longer necessary; any calls to this function should be removed
+ - The following functions are deleted in client contexts: `Ext.NewCall`, `Ext.NewQuery`, `Ext.NewEvent`, `Ext.GetCharacter`, `Ext.GetItem`, `Ext.GetStatus`, `Ext.GetCombat`, `Ext.GenerateIdeHelpers`
 
 
 ## Calling Lua from Osiris

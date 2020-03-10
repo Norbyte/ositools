@@ -336,9 +336,47 @@ namespace osidbg
 		}
 
 
+		void ItemConstructBegin(OsiArgumentDesc const & args)
+		{
+			auto templateGuid = args[0].String;
+
+			if (ExtensionStateServer::Get().PendingItemClone) {
+				OsiWarn("ItemConstructBegin() called when a clone is already in progress. Previous clone state will be discarded.");
+			}
+
+			ExtensionStateServer::Get().PendingItemClone.reset();
+
+			auto templateGuidFs = NameGuidToFixedString(templateGuid);
+			if (!IsValidGuidString(templateGuid) || !templateGuidFs) {
+				OsiError("Invalid template GUID passed to ItemConstructBegin: " << templateGuid);
+				return;
+			}
+
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
+			clone->Set.RawReallocate(1);
+			clone->Set.Size = 1;
+
+			auto emptyFs = ToFixedString("");
+			eoc::ItemDefinition & item = clone->Set.Buf[0];
+			new (&item) eoc::ItemDefinition();
+			item.FS1 = emptyFs;
+			item.RootTemplate = templateGuidFs;
+			item.OriginalRootTemplate = templateGuidFs;
+			item.WorldRot = glm::mat3x3(1.0f);
+			item.FS4 = emptyFs;
+			item.ItemType = emptyFs;
+			item.GenerationStatsId = emptyFs;
+			item.GenerationItemType = emptyFs;
+			item.Key = emptyFs;
+			item.StatsEntryName = emptyFs;
+			item.Skills = emptyFs;
+		}
+
+
 		void ItemCloneBegin(OsiArgumentDesc const & args)
 		{
-			if (ExtensionState::Get().PendingItemClone) {
+			if (ExtensionStateServer::Get().PendingItemClone) {
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
@@ -349,13 +387,13 @@ namespace osidbg
 				return;
 			}
 			
-			ExtensionState::Get().PendingItemClone.reset();
+			ExtensionStateServer::Get().PendingItemClone.reset();
 
 			auto itemGuid = args[0].String;
 			auto item = FindItemByNameGuid(itemGuid);
 			if (item == nullptr) return;
 
-			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			parseItem(item, clone.get(), false, false);
 
@@ -369,12 +407,12 @@ namespace osidbg
 
 		bool ItemClone(OsiArgumentDesc & args)
 		{
-			if (!ExtensionState::Get().PendingItemClone) {
+			if (!ExtensionStateServer::Get().PendingItemClone) {
 				OsiErrorS("No item clone is in progress");
 				return false;
 			}
 
-			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
 			auto item = GetStaticSymbols().CreateItemFromParsed(clone.get(), 0);
 			clone.reset();
 
@@ -391,7 +429,7 @@ namespace osidbg
 		template <OsiPropertyMapType Type>
 		void ItemCloneSet(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;
@@ -404,7 +442,7 @@ namespace osidbg
 
 		void ItemCloneResetProgression(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;
@@ -420,7 +458,7 @@ namespace osidbg
 
 		void ItemCloneAddBoost(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionState::Get().PendingItemClone;
+			auto & clone = ExtensionStateServer::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;
@@ -688,7 +726,16 @@ namespace osidbg
 			&func::ItemSetPermanentBoostTalent
 		);
 		functionMgr.Register(std::move(itemSetTalent));
+		
 
+		auto itemConstructBegin = std::make_unique<CustomCall>(
+			"NRD_ItemConstructBegin",
+			std::vector<CustomFunctionParam>{
+				{ "TemplateGuid", ValueType::String, FunctionArgumentDirection::In }
+			},
+			&func::ItemConstructBegin
+		);
+		functionMgr.Register(std::move(itemConstructBegin));
 
 		auto itemCloneBegin = std::make_unique<CustomCall>(
 			"NRD_ItemCloneBegin",

@@ -180,7 +180,7 @@ namespace osidbg
 			PROP(eoc::ItemDefinition, HasGeneratedStats);
 			PROP(eoc::ItemDefinition, IsIdentified);
 			PROP(eoc::ItemDefinition, GMFolding);
-			PROP(eoc::ItemDefinition, ItemFlag2_0x40);
+			PROP(eoc::ItemDefinition, CanUseRemotely);
 		}
 
 		{

@@ -15,13 +15,33 @@ namespace osidbg
 		}
 	}
 
-	ModManager * GetModManager()
+	ModManager * GetModManagerClient()
 	{
 		auto client = GetEoCClient();
 		if (client == nullptr || client->ModManager == nullptr) {
 			return nullptr;
 		} else {
 			return client->ModManager;
+		}
+	}
+
+	esv::EoCServer * GetEoCServer()
+	{
+		auto serverPtr = GetStaticSymbols().EoCServer;
+		if (serverPtr == nullptr || *serverPtr == nullptr) {
+			return nullptr;
+		} else {
+			return *serverPtr;
+		}
+	}
+
+	ModManager * GetModManagerServer()
+	{
+		auto server = GetEoCServer();
+		if (server == nullptr || server->ModManagerServer == nullptr) {
+			return nullptr;
+		} else {
+			return server->ModManagerServer;
 		}
 	}
 
@@ -191,7 +211,7 @@ namespace osidbg
 		auto server = GetStaticSymbols().EoCServer;
 		if (server == nullptr || *server == nullptr) return nullptr;
 
-		auto gameServer = (*server)->Server;
+		auto gameServer = (*server)->GameServer;
 		if (gameServer == nullptr) return nullptr;
 
 		if (gameServer->Protocols.Set.Size <= 22) return nullptr;

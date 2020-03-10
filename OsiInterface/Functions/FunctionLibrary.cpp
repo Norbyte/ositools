@@ -22,7 +22,7 @@ namespace osidbg
 			auto modUuid = ToFixedString(args[0].String);
 			auto & loaded = args[1];
 
-			auto modManager = GetModManager();
+			auto modManager = GetModManagerServer();
 			if (modManager == nullptr) {
 				OsiErrorS("Mod manager not available");
 				return false;
@@ -270,7 +270,7 @@ namespace osidbg
 
 	void CustomFunctionLibrary::PostStartup()
 	{
-		if (!ExtensionState::Get().HasFeatureFlag("OsirisExtensions")) {
+		if (!gOsirisProxy->HasFeatureFlag("OsirisExtensions")) {
 			return;
 		}
 
@@ -279,6 +279,7 @@ namespace osidbg
 		}
 
 		using namespace std::placeholders;
+		// FIXME - split to client c
 
 		osiris_.GetLibraryManager().StatusGetEnterChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
@@ -313,40 +314,29 @@ namespace osidbg
 		osiris_.GetLibraryManager().TurnManagerUpdateTurnOrderHook.AddPostHook(
 			std::bind(&CustomFunctionLibrary::OnUpdateTurnOrder, this, _1, _2)
 		);
+		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
+		);
 
 		PostLoaded = true;
 	}
 
-	void CustomFunctionLibrary::EnableStatOverride(char const * stat)
+	void CustomFunctionLibrary::OnBaseModuleLoadedServer()
 	{
-		using namespace std::placeholders;
-
-		if (!ExtensionState::Get().HasFeatureFlag("FormulaOverrides")) {
-			OsiErrorS("Formula overrides not enabled in extension config");
-			return;
-		}
-
-		if (strcmp(stat, "HitChance") == 0) {
-			auto & hitChance = GetStaticSymbols().CharStatsGetters.WrapperHitChance;
-			if (!hitChance.IsHooked()) {
-				hitChance.SetWrapper(
-					std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
-				);
-			}
-		} else {
-			OsiError("Override not supported for this stat: " << stat);
-		}
-	}
-
-	void CustomFunctionLibrary::OnBaseModuleLoaded()
-	{
-		DEBUG("CustomFunctionLibrary::OnBaseModuleLoaded(): Re-initializing module state.");
+		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedServer(): Re-initializing module state.");
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 		functionMgr.ClearDynamicEntries();
 
 		// FIXME - move extension state here?
 		GetStaticSymbols().CharStatsGetters.ResetExtension();
 
-		ExtensionState::Get().LuaReset(true);
+		ExtensionStateServer::Get().LuaReset(true);
+	}
+
+	void CustomFunctionLibrary::OnBaseModuleLoadedClient()
+	{
+		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedClient(): Re-initializing module state.");
+		GetStaticSymbols().CharStatsGetters.ResetExtension();
+		ExtensionStateClient::Get().LuaReset(true);
 	}
 }
