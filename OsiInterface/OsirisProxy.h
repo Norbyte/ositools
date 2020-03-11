@@ -42,6 +42,7 @@
 #include "CustomFunctions.h"
 #include "DataLibraries.h"
 #include "Functions/FunctionLibrary.h"
+#include "NetProtocol.h"
 #include <GameDefinitions/Symbols.h>
 
 #include <thread>
@@ -162,6 +163,11 @@ public:
 		return Wrappers;
 	}
 
+	inline NetworkManager & GetNetworkManager()
+	{
+		return networkManager_;
+	}
+
 private:
 	OsirisWrappers Wrappers;
 	OsirisDynamicGlobals DynGlobals;
@@ -174,9 +180,10 @@ private:
 	bool LibrariesPostInitialized{ false };
 	bool ServerExtensionLoaded{ false };
 	bool ClientExtensionLoaded{ false };
-	DWORD ClientThreadId{ 0 };
-	DWORD ServerThreadId{ 0 };
+	std::unordered_set<DWORD> ClientThreadIds;
+	std::unordered_set<DWORD> ServerThreadIds;
 	std::recursive_mutex globalStateLock_;
+	NetworkManager networkManager_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -218,6 +225,8 @@ private:
 	void OnBaseModuleLoaded(void * self);
 	void OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState);
 	void OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState);
+	void OnClientGameStateWorkerStart(void * self);
+	void OnServerGameStateWorkerStart(void * self);
 	void OnSkillPrototypeManagerInit(void * self);
 	void PostInitLibraries();
 	void ResetExtensionStateServer();
@@ -227,6 +236,9 @@ private:
 
 	void OnInitNetworkFixedStrings(void * self, void * arg1);
 	void DumpNetworkFixedStrings();
+
+	void AddClientThread(DWORD threadId);
+	void AddServerThread(DWORD threadId);
 };
 
 extern std::unique_ptr<OsirisProxy> gOsirisProxy;

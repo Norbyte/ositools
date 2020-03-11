@@ -160,7 +160,6 @@ namespace osidbg {
 		bool PostStartupFindLibraries();
 		void EnableCustomStats();
 		void DisableItemFolding();
-		void ExtendNetworking();
 		void Cleanup();
 		bool GetGameVersion(GameVersionInfo & version);
 

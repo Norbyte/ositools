@@ -156,6 +156,12 @@
     <ClInclude Include="LuaBindingClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NetProtocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptExtensions.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -278,12 +284,15 @@
     <ClCompile Include="Lua\LuaServer.cpp">
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
+    <ClCompile Include="NetProtocol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptExtensions.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="osidebug.proto">
       <Filter>Source Files</Filter>
     </None>
     <None Include="cpp.hint" />
@@ -300,6 +309,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="BuiltinLibraryClient.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="osidebug.proto">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ScriptExtensions.proto">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -191,6 +191,7 @@ namespace osidbg
 	typedef void * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ServerGameState fromState, ServerGameState toState);
+	typedef void(*GameStateThreaded__GameStateWorker__DoWork)(void * self);
 
 	}
 
@@ -250,7 +251,7 @@ namespace osidbg
 	};
 
 	typedef void (* EoCClient__HandleError)(void * self, STDWString * message, bool exitGame, STDWString *a4);
-	typedef void (* GameStateLoadModule__Do)(void * self);
+	typedef void (*GameStateThreaded__GameStateWorker__DoWork)(void * self);
 	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ClientGameState fromState, ClientGameState toState);
 
 	}

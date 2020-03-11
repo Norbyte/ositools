@@ -102,7 +102,10 @@ namespace osidbg
 			STDString stdString2;
 			uint64_t field_68;
 			uint64_t field_70;
-			uint64_t FileTransfer[38];
+			uint64_t FileTransfer[37];
+#if !defined(OSI_EOCAPP)
+			uint64_t FileTransfer2;
+#endif
 			ObjectSet<uint32_t> PeerIdClassNames;
 			ObjectSet<void *> DisconnectDelays;
 			void * field_1E8;
@@ -141,8 +144,10 @@ namespace osidbg
 			uint64_t field_2D8;
 			uint64_t field_2E0;
 			uint64_t field_2E8;
+#if !defined(OSI_EOCAPP)
 			uint64_t field_2F0;
 			STDString stdString5;
+#endif
 
 			template <class T>
 			T * GetFreeMessage()

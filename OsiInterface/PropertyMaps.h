@@ -21,6 +21,7 @@ namespace osidbg
 	extern PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	extern PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
 	extern PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	extern PropertyMap<esv::EoCServerObject, void> gEoCServerObjectPropertyMap;
 	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;

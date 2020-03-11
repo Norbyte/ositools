@@ -166,11 +166,19 @@ namespace osidbg
 		}
 
 		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, false);
-		if (!fetched) {
-			OsiError("Unknown character stats property: " << prop);
+		if (fetched) {
+			return 1;
 		}
 
-		return fetched ? 1 : 0;
+		if (stats->Character != nullptr) {
+			fetched = LuaPropertyMapGet(L, gEoCServerObjectPropertyMap, stats->Character, prop, false);
+			if (fetched) {
+				return 1;
+			}
+		}
+
+		OsiError("Unknown character stats property: " << prop);
+		return 0;
 	}
 
 	int LuaObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
@@ -743,6 +751,28 @@ namespace osidbg
 		return ok;
 	}
 
+	void LuaState::OnNetMessageReceived(std::string const & channel, std::string const & payload)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAllClient);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_NetMessageReceived"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return;
+		}
+
+		lua_push(L, channel);
+		lua_push(L, payload);
+
+		if (CallWithTraceback(2, 0) != 0) { // stack: retval
+			OsiError("NetMessageReceived handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
 
 	void LuaState::OnGameSessionLoading()
 	{

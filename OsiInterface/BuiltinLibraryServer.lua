@@ -1,30 +1,3 @@
-Ext._WarnDeprecated = function (msg)
-	Ext.PrintError(msg)
-	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v41-to-v42 for more info.")
-end
-
-Ext._Notify = function (event)
-    for i,callback in pairs(Ext._Listeners[event]) do
-        local status, err = xpcall(callback, debug.traceback)
-        if not status then
-            Ext.PrintError("Error during " .. event .. ": ", err)
-        end
-    end
-end
-
-Ext._EngineCallback1 = function (event, ...)
-    for i,callback in pairs(Ext._Listeners[event]) do
-        local status, result = xpcall(callback, debug.traceback, ...)
-        if status then
-			if result ~= nil then
-				return result
-			end
-		else
-            Ext.PrintError("Error during " .. event .. ": ", result)
-        end
-    end
-end
-
 Ext._Listeners = {
 	SessionLoading = {},
 	ModuleLoading = {},
@@ -35,18 +8,6 @@ Ext._Listeners = {
 	GetHitChance = {},
 	StatusGetEnterChance = {}
 }
-
-Ext._OnGameSessionLoading = function ()
-    Ext._Notify("SessionLoading")
-end
-
-Ext._OnModuleLoading = function ()
-    Ext._Notify("ModuleLoading")
-end
-
-Ext._OnModuleResume = function ()
-    Ext._Notify("ModuleResume")
-end
 
 Ext._GetSkillDamage = function (...)
     for i,callback in pairs(Ext._Listeners.GetSkillDamage) do
@@ -69,10 +30,6 @@ Ext._CalculateTurnOrder = function (...)
     return Ext._EngineCallback1("CalculateTurnOrder", ...)
 end
 
-Ext._GetHitChance = function (...)
-    return Ext._EngineCallback1("GetHitChance", ...)
-end
-
 Ext._StatusGetEnterChance = function (...)
     return Ext._EngineCallback1("StatusGetEnterChance", ...)
 end
@@ -87,7 +44,14 @@ Ext.RegisterListener = function (type, fn)
 	end
 end
 
--- FIXME - migration notes + migration helper function
+Ext.IsClient = function ()
+	return false
+end
+
+Ext.IsServer = function ()
+	return true
+end
+
 Ext.EnableStatOverride = function ()
 	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
 end

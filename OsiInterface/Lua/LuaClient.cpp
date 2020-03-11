@@ -100,6 +100,8 @@ namespace osidbg
 	{
 		library_.Register(state_);
 
+		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
+		LoadScript(baseLib, "BuiltinLibrary.lua");
 		auto clientLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_CLIENT);
 		LoadScript(clientLib, "BuiltinLibraryClient.lua");
 

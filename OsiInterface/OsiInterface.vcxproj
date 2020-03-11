@@ -243,7 +243,8 @@
 copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto</Command>
+      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface ScriptExtensions.proto</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -348,7 +349,8 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
       <AdditionalDependencies>LuaLib.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto</Command>
+      <Command>$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface osidebug.proto
+$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\OsiInterface ScriptExtensions.proto</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\Classic\DXGI.dll"
@@ -387,6 +389,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="LuaBindingClient.h" />
     <ClInclude Include="LuaBindingServer.h" />
     <ClInclude Include="Lua\LuaBinding.h" />
+    <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="NodeHooks.h" />
     <ClInclude Include="osidebug.pb.h" />
     <ClInclude Include="OsirisHelpers.h" />
@@ -395,6 +398,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClInclude Include="PropertyMap.h" />
     <ClInclude Include="PropertyMaps.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptExtensions.pb.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -468,6 +472,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="Lua\LuaExtFunctions.cpp" />
     <ClCompile Include="Lua\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\LuaServer.cpp" />
+    <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="NodeHooks.cpp" />
     <ClCompile Include="osidebug.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -481,6 +486,12 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <ClCompile Include="OsirisProxy.cpp" />
     <ClCompile Include="OsirisWrappers.cpp" />
     <ClCompile Include="PropertyMaps.cpp" />
+    <ClCompile Include="ScriptExtensions.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseExtensionsOnly|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|Win32'">Create</PrecompiledHeader>
@@ -502,6 +513,7 @@ copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity 
     <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="osidebug.proto" />
     <None Include="SandboxStartup.lua" />
+    <None Include="ScriptExtensions.proto" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc" />

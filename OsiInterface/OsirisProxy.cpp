@@ -11,6 +11,8 @@
 #include <ctime>
 #include <psapi.h>
 
+#undef DEBUG_SERVER_CLIENT
+
 void InitCrashReporting();
 void ShutdownCrashReporting();
 
@@ -89,6 +91,8 @@ void OsirisProxy::Initialize()
 	Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
 	Wrappers.ClientGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnClientGameStateChanged, this, _1, _2, _3));
 	Wrappers.ServerGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnServerGameStateChanged, this, _1, _2, _3));
+	Wrappers.ClientGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
+	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
 	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
@@ -656,9 +660,9 @@ bool OsirisProxy::HasFeatureFlag(char const * flag) const
 ExtensionState * OsirisProxy::GetCurrentExtensionState()
 {
 	auto tid = GetCurrentThreadId();
-	if (tid == ServerThreadId) {
+	if (ServerThreadIds.find(tid) != ServerThreadIds.end()) {
 		return ServerExtState.get();
-	} else if (tid == ClientThreadId) {
+	} else if (ClientThreadIds.find(tid) != ClientThreadIds.end()) {
 		return ClientExtState.get();
 	} else {
 		WARN("Called from unknown thread %d?", tid);
@@ -740,17 +744,13 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 	}
 
 	if (extensionsEnabled_) {
+#if defined(DEBUG_SERVER_CLIENT)
 		DEBUG("OsirisProxy::OnClientGameStateChanged(): %s -> %s", 
 			ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
+#endif
 
-		if (ClientThreadId == 0) {
-			ClientThreadId = GetCurrentThreadId();
-		} else {
-			if (ClientThreadId != GetCurrentThreadId()) {
-				WARN("Client thread ID changed? %d -> %d", ClientThreadId, GetCurrentThreadId());
-			}
-
-			ClientThreadId = GetCurrentThreadId();
+		if (fromState != ClientGameState::Unknown) {
+			AddClientThread(GetCurrentThreadId());
 		}
 
 		if (fromState == ClientGameState::LoadModule) {
@@ -797,17 +797,13 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState)
 {
 	if (extensionsEnabled_) {
+#if defined(DEBUG_SERVER_CLIENT)
 		DEBUG("OsirisProxy::OnServerGameStateChanged(): %s -> %s", 
 			ServerGameStateNames[(unsigned)fromState], ServerGameStateNames[(unsigned)toState]);
+#endif
 
-		if (ServerThreadId == 0) {
-			ServerThreadId = GetCurrentThreadId();
-		} else {
-			if (ServerThreadId != GetCurrentThreadId()) {
-				WARN("Server thread ID changed? %d -> %d", ServerThreadId, GetCurrentThreadId());
-			}
-
-			ServerThreadId = GetCurrentThreadId();
+		if (fromState != ServerGameState::Unknown) {
+			AddServerThread(GetCurrentThreadId());
 		}
 
 		if (fromState == ServerGameState::LoadModule) {
@@ -838,6 +834,50 @@ void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromStat
 	}
 }
 
+void OsirisProxy::AddClientThread(DWORD threadId)
+{
+	if (ClientThreadIds.empty()) {
+		ClientThreadIds.insert(threadId);
+#if defined(DEBUG_SERVER_CLIENT)
+		DEBUG("Initial client TID is %d", threadId);
+#endif
+	} else {
+		if (ClientThreadIds.find(threadId) == ClientThreadIds.end()) {
+#if defined(DEBUG_SERVER_CLIENT)
+			DEBUG("Registered client TID %d", threadId);
+#endif
+			ClientThreadIds.insert(threadId);
+		}
+	}
+}
+
+void OsirisProxy::AddServerThread(DWORD threadId)
+{
+	if (ServerThreadIds.empty()) {
+		ServerThreadIds.insert(threadId);
+#if defined(DEBUG_SERVER_CLIENT)
+		DEBUG("Initial server TID is %d", threadId);
+#endif
+	} else {
+		if (ServerThreadIds.find(threadId) == ServerThreadIds.end()) {
+#if defined(DEBUG_SERVER_CLIENT)
+			DEBUG("Registered server TID %d", threadId);
+#endif
+			ServerThreadIds.insert(threadId);
+		}
+	}
+}
+
+void OsirisProxy::OnClientGameStateWorkerStart(void * self)
+{
+	AddClientThread(GetCurrentThreadId());
+}
+
+void OsirisProxy::OnServerGameStateWorkerStart(void * self)
+{
+	AddServerThread(GetCurrentThreadId());
+}
+
 void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 {
 	std::lock_guard _(globalStateLock_);
@@ -846,8 +886,6 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 		ERR("Module info not available in OnSkillPrototypeManagerInit?");
 		return;
 	}
-
-	INFO(L"Loading base module '%s'", modManager->BaseModule.Info.Name.GetPtr());
 
 	std::wstring loadMsg = L"Loading ";
 	loadMsg += modManager->BaseModule.Info.Name.GetPtr();
@@ -926,7 +964,7 @@ void OsirisProxy::LoadExtensionStateServer()
 	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
 		Libraries.DisableItemFolding();
-		Libraries.ExtendNetworking();
+		networkManager_.ExtendNetworkingServer();
 		FunctionLibrary.OnBaseModuleLoadedServer();
 	}
 
@@ -962,7 +1000,7 @@ void OsirisProxy::LoadExtensionStateClient()
 	if (extensionsEnabled_ && !Libraries.CriticalInitializationFailed()) {
 		Libraries.EnableCustomStats();
 		Libraries.DisableItemFolding();
-		Libraries.ExtendNetworking();
+		networkManager_.ExtendNetworkingClient();
 		FunctionLibrary.OnBaseModuleLoadedClient();
 	}
 

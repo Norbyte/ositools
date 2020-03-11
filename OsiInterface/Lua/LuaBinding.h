@@ -555,6 +555,7 @@ namespace osidbg
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+		void OnNetMessageReceived(std::string const & channel, std::string const & payload);
 
 	protected:
 		lua_State * state_;

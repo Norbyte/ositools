@@ -19,6 +19,7 @@ namespace osidbg
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
 	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	PropertyMap<esv::EoCServerObject, void> gEoCServerObjectPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
@@ -461,6 +462,13 @@ namespace osidbg
 			PROP_RO(esv::PlayerCustomData, ReservedProfileID);
 			PROP(esv::PlayerCustomData, AiPersonality);
 			PROP_RO(esv::PlayerCustomData, Speaker);
+		}
+
+		{
+			auto & propertyMap = gEoCServerObjectPropertyMap;
+			PROP_RO(esv::EoCServerObject, MyGuid);
+			PROP_RO(esv::EoCServerObject, WorldPos);
+			PROP_RO(esv::EoCServerObject, CurrentLevel);
 		}
 
 		{

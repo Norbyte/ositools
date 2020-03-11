@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package osidbg;
+
+option optimize_for = LITE_RUNTIME;
+
+// Notifies the Lua runtime that a message was sent from a remote Lua script
+message MsgPostLuaMessage {
+  string channel_name = 1;
+  string payload = 2;
+}
+
+message MessageWrapper {
+  oneof msg {
+    MsgPostLuaMessage post_lua_message = 1;
+  }
+}

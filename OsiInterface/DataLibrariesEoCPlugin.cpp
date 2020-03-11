@@ -558,6 +558,22 @@ namespace osidbg
 		},
 
 		{
+			"esv::GameStateThreaded::GameStateWorker::DoWork",
+			SymbolMappingData::kText, 0,
+			"48 8D 2D XX XX XX XX ", // lea     rbp, aEsvGamestateth ; "esv::GameStateThreaded::GameStateWorker::DoWork"
+			{SymbolMappingCondition::kString, 0, "esv::GameStateThreaded::GameStateWorker::DoWork"},
+			{"esv::GameStateThreaded::GameStateWorker::DoWork", SymbolMappingTarget::kAbsolute, -0x44, STATIC_SYM(esv__GameStateThreaded__GameStateWorker__DoWork)}
+		},
+
+		{
+			"ecl::GameStateThreaded::GameStateWorker::DoWork",
+			SymbolMappingData::kText, 0,
+			"4C 8D 35 XX XX XX XX ", // lea     r14, aEclGamestateth ; "ecl::GameStateThreaded::GameStateWorker::DoWork"
+			{SymbolMappingCondition::kString, 0, "ecl::GameStateThreaded::GameStateWorker::DoWork"},
+			{"ecl::GameStateThreaded::GameStateWorker::DoWork", SymbolMappingTarget::kAbsolute, -0x30, STATIC_SYM(ecl__GameStateThreaded__GameStateWorker__DoWork)}
+		},
+
+		{
 			"net::Host::AddProtocol",
 			SymbolMappingData::kText, 0,
 			"4C 8B C0 " // mov     r8, rax
