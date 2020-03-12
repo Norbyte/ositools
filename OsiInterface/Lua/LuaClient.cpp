@@ -51,6 +51,24 @@ namespace osidbg
 	int LuaRound(lua_State * L);
 
 
+	int PostMessageToServer(lua_State * L)
+	{
+		auto channel = luaL_checkstring(L, 1);
+		auto payload = luaL_checkstring(L, 2);
+
+		auto & networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeClientMessage();
+		if (msg != nullptr) {
+			auto postMsg = msg->GetMessage().mutable_post_lua_message();
+			postMsg->set_channel_name(channel);
+			postMsg->set_payload(payload);
+			networkMgr.ClientSend(msg);
+		} else {
+			OsiErrorS("Could not get free message!");
+		}
+
+		return 0;
+	}
 
 	void LuaExtensionLibraryClient::RegisterLib(lua_State * L)
 	{
@@ -80,6 +98,8 @@ namespace osidbg
 			{"OsirisIsCallable", OsirisIsCallableClient},
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
+
+			{"PostMessageToServer", PostMessageToServer},
 			{0,0}
 		};
 

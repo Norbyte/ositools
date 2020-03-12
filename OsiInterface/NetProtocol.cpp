@@ -5,6 +5,17 @@
 
 namespace osidbg
 {
+	namespace net
+	{
+		void MessageFactory::ReservePools(uint32_t minPools)
+		{
+			if (MessagePools.Capacity >= minPools) return;
+
+			MessagePools.Reallocate(minPools);
+		}
+	}
+
+
 	ExtenderProtocol::~ExtenderProtocol() {}
 
 	bool ExtenderProtocol::ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg)
@@ -151,6 +162,7 @@ namespace osidbg
 			GetStaticSymbols().net__Host__AddProtocol(gameClientPtr, 100, clientProtocol_);
 
 			auto extenderMsg = new ScriptExtenderMessage();
+			client->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(client->NetMessageFactory, 
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
 			DEBUG("Registered custom ecl network protocol");
@@ -162,7 +174,7 @@ namespace osidbg
 	void NetworkManager::ExtendNetworkingServer()
 	{
 		if (!gOsirisProxy->HasFeatureFlag("Net")) return;
-		if (clientProtocol_ != nullptr) return;
+		if (serverProtocol_ != nullptr) return;
 
 		auto server = GetServer();
 		if (GetStaticSymbols().net__Host__AddProtocol != nullptr
@@ -172,6 +184,7 @@ namespace osidbg
 			GetStaticSymbols().net__Host__AddProtocol(server, 100, serverProtocol_);
 
 			auto extenderMsg = new ScriptExtenderMessage();
+			server->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(server->NetMessageFactory,
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
 			DEBUG("Registered custom esv network protocol");
@@ -180,7 +193,7 @@ namespace osidbg
 		}
 	}
 
-	net::Host * NetworkManager::GetServer() const
+	net::GameServer * NetworkManager::GetServer() const
 	{
 		auto server = GetStaticSymbols().EoCServer;
 		if (server != nullptr && *server != nullptr) {
@@ -217,6 +230,30 @@ namespace osidbg
 			return server->GetFreeMessage<ScriptExtenderMessage>();
 		} else {
 			return nullptr;
+		}
+	}
+
+	void NetworkManager::ClientSend(ScriptExtenderMessage * msg)
+	{
+		auto client = GetClient();
+		if (client != nullptr) {
+			client->VMT->ClientSend(client, client->ClientPeerId, msg);
+		}
+	}
+
+	void NetworkManager::ServerSend(ScriptExtenderMessage * msg, int32_t peerId)
+	{
+		auto server = GetServer();
+		if (server != nullptr) {
+			server->VMT->SendToPeer(server, &peerId, msg);
+		}
+	}
+
+	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, int32_t excludePeerId)
+	{
+		auto server = GetServer();
+		if (server != nullptr) {
+			server->VMT->SendToMultiplePeers(server, &server->ActivePeerIds, msg, excludePeerId);
 		}
 	}
 }

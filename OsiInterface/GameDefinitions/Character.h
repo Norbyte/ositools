@@ -230,7 +230,7 @@ namespace osidbg
 			float LifeTime;
 			float TurnTimer;
 			float TriggerTrapsTimer;
-			uint32_t PeerId;
+			int32_t PeerId;
 			uint32_t UserId;
 			uint32_t U12;
 			ObjectHandle OwnerHandle;

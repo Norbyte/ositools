@@ -394,6 +394,59 @@ namespace osidbg
 	int GenerateIdeHelpers(lua_State * L);
 
 
+	int BroadcastMessage(lua_State * L)
+	{
+		auto channel = luaL_checkstring(L, 1);
+		auto payload = luaL_checkstring(L, 2);
+
+		esv::Character * excludeCharacter = nullptr;
+		if (!lua_isnil(L, 3)) {
+			auto excludeCharacterGuid = luaL_checkstring(L, 3);
+			excludeCharacter = FindCharacterByNameGuid(excludeCharacterGuid);
+			if (excludeCharacter == nullptr) return 0;
+		}
+
+		auto & networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeServerMessage();
+		if (msg != nullptr) {
+			auto postMsg = msg->GetMessage().mutable_post_lua_message();
+			postMsg->set_channel_name(channel);
+			postMsg->set_payload(payload);
+			if (excludeCharacter != nullptr) {
+				networkMgr.ServerBroadcast(msg, excludeCharacter->PeerId);
+			} else {
+				networkMgr.ServerBroadcast(msg, -1);
+			}
+		} else {
+			OsiErrorS("Could not get free message!");
+		}
+
+		return 0;
+	}
+
+	int PostMessageToClient(lua_State * L)
+	{
+		auto characterGuid = luaL_checkstring(L, 1);
+		auto channel = luaL_checkstring(L, 2);
+		auto payload = luaL_checkstring(L, 3);
+
+		auto character = FindCharacterByNameGuid(characterGuid);
+		if (character == nullptr) return 0;
+
+		auto & networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeServerMessage();
+		if (msg != nullptr) {
+			auto postMsg = msg->GetMessage().mutable_post_lua_message();
+			postMsg->set_channel_name(channel);
+			postMsg->set_payload(payload);
+			networkMgr.ServerSend(msg, character->PeerId);
+		} else {
+			OsiErrorS("Could not get free message!");
+		}
+
+		return 0;
+	}
+
 	void LuaExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
@@ -430,6 +483,9 @@ namespace osidbg
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
+
+			{"BroadcastMessage", BroadcastMessage},
+			{"PostMessageToClient", PostMessageToClient},
 			{0,0}
 		};
 

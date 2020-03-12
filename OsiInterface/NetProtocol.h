@@ -8,7 +8,7 @@ namespace osidbg
 	class ScriptExtenderMessage : public net::Message
 	{
 	public:
-		static constexpr uint32_t MessageId = 328;
+		static constexpr uint32_t MessageId = 400;
 		static constexpr uint32_t MaxPayloadLength = 0x1ffff;
 
 		ScriptExtenderMessage();
@@ -73,11 +73,15 @@ namespace osidbg
 		ScriptExtenderMessage * GetFreeClientMessage();
 		ScriptExtenderMessage * GetFreeServerMessage();
 
+		void ClientSend(ScriptExtenderMessage * msg);
+		void ServerSend(ScriptExtenderMessage * msg, int32_t peerId);
+		void ServerBroadcast(ScriptExtenderMessage * msg, int32_t excludePeerId);
+
 	private:
 		ExtenderProtocolClient * clientProtocol_{ nullptr };
 		ExtenderProtocolServer * serverProtocol_{ nullptr };
 
-		net::Host * GetServer() const;
+		net::GameServer * GetServer() const;
 		net::Client * GetClient() const;
 	};
 }

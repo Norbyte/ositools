@@ -288,7 +288,7 @@ namespace osidbg
 			FixedString FS3;
 			FixedString FSGUID4;
 			GameStateMachine * StateMachine;
-			net::Host * GameServer;
+			net::GameServer * GameServer;
 			void * field_88;
 			void * GlobalRandom;
 			void * ItemCombinationManager;

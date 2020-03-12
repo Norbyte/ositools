@@ -85,7 +85,7 @@ namespace osidbg
 		struct TurnBasedProtocol
 		{
 			void * VMT;
-			net::Host * GameServer;
+			net::GameServer * GameServer;
 			void * NetEventManagerVMT;
 			void * field_18;
 			void * GameEventManagerVMT;

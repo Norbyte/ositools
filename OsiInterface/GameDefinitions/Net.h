@@ -45,6 +45,7 @@ namespace osidbg
 				unsigned int msgType, const char * messageName);
 			typedef Message * (* GetFreeMessage)(MessageFactory * self, int messageId);
 			
+			void ReservePools(uint32_t minPools);
 			
 			Array<void *> MessagePools;
 			CRITICAL_SECTION CriticalSection;
@@ -79,7 +80,7 @@ namespace osidbg
 		struct AbstractPeerVMT
 		{
 			typedef void (* SendToPeerProc)(AbstractPeer *, int32_t *, Message *);
-			typedef void (* SendToMultiplePeersProc)(AbstractPeer *, ObjectSet<uint32_t> *, Message *, int32_t);
+			typedef void (* SendToMultiplePeersProc)(AbstractPeer *, ObjectSet<int32_t> *, Message *, int32_t);
 			typedef void (* ClientSendProc)(AbstractPeer *, int32_t, Message *);
 
 			uint64_t Unknown[27];
@@ -102,7 +103,11 @@ namespace osidbg
 			STDString stdString2;
 			uint64_t field_68;
 			uint64_t field_70;
-			uint64_t FileTransfer[37];
+			uint64_t FileTransfer[10];
+			ObjectSet<int> SessionPeerIds;
+			uint64_t Unknown3;
+			ObjectSet<int> LevelPeerIds;
+			uint64_t Unknown5[18];
 #if !defined(OSI_EOCAPP)
 			uint64_t FileTransfer2;
 #endif
@@ -173,6 +178,24 @@ namespace osidbg
 			uint32_t ClientPeerId;
 			uint8_t _Pad5[4];
 			ObjectSet<void *> Protocols;
+		};
+
+		struct GameServer : public Host
+		{
+			void * EventListenerVMT;
+			void * field_348;
+			void * EventListenerVMT2;
+			void * LobbyManager;
+			ObjectSet<int> ConnectedPeerIds;
+			uint64_t field_380[13];
+			ObjectSet<int> ActivePeerIds;
+			ObjectSet<int> UnknownSet1;
+			ObjectSet<int> UnknownSet2;
+			ObjectSet<int> ConnectedPeerIds2;
+			FixedStringRefMap<int, void *> UserIdToUserInfo;
+			FixedStringRefMap<NetId, int> CharacterNetIdToUserId;
+			int Unknown[2];
+			void * VoiceProtocol;
 		};
 	}
 #pragma pack(pop)
