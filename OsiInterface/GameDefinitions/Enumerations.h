@@ -91,8 +91,8 @@ namespace osidbg
 		Installation,
 		GameMasterPause,
 		ModReceiving,
-		Lobby = 30,
-		BuildStory
+		Lobby,
+		BuildStory = 30
 	};
 
 

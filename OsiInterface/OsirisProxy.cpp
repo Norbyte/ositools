@@ -686,7 +686,7 @@ char const * ClientGameStateNames[] =
 	"Menu",
 	"Exit",
 	"SwapLevel",
-	"LoadLeve",
+	"LoadLevel",
 	"LoadModule",
 	"LoadSession",
 	"LoadGMCampaign",
