@@ -427,7 +427,7 @@ namespace osidbg
 			argType = argType->Next;
 		}
 
-		gOsirisProxy->GetWrappers().Call.CallWithHooks(function_->GetHandle(), args.Args());
+		gOsirisProxy->GetWrappers().Call.CallWithHooks(function_->GetHandle(), funcArgs == 0 ? nullptr : args.Args());
 	}
 
 	void LuaOsiFunction::OsiInsert(lua_State * L, bool deleteTuple)
@@ -499,7 +499,7 @@ namespace osidbg
 			argType = argType->Next;
 		}
 
-		bool handled = gOsirisProxy->GetWrappers().Query.CallWithHooks(function_->GetHandle(), args.Args());
+		bool handled = gOsirisProxy->GetWrappers().Query.CallWithHooks(function_->GetHandle(), numParams == 0 ? nullptr : args.Args());
 		if (outParams == 0) {
 			lua_pushboolean(L, handled ? 1 : 0);
 			return 1;

@@ -14,11 +14,7 @@ CustomFunction::~CustomFunction()
 
 bool CustomFunction::ValidateArgs(OsiArgumentDesc const & params) const
 {
-	auto numParams = params.Count();
-	if (numParams != params_.size()
-		// The game passes the first argument of the previous call,
-		// if the current function has 0 arguments.
-		&& !(numParams == 1 && params_.size() == 0)) {
+	if (params.Count() != params_.size()) {
 		OsiError("Function " << name_  << "/" << params_.size() << ": Argument count mismatch");
 		return false;
 	}
