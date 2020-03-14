@@ -303,8 +303,10 @@ namespace osidbg
 		}
 
 		if (DamageList->Size == 0) {
-			OsiErrorS("At least one damage type should be added!");
-			return false;
+			TDamagePair dummy;
+			dummy.Amount = 0;
+			dummy.DamageType = DamageType::Physical;
+			DamageList->SafeAdd(dummy);
 		}
 
 		auto characterHit = GetStaticSymbols().CharacterHit;
