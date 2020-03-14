@@ -60,6 +60,7 @@ public:
 	HOOKABLE(void(void *), ClientGameStateWorkerStart);
 	HOOKABLE(void(void *), ServerGameStateWorkerStart);
 	HOOKABLE(void(void *), SkillPrototypeManagerInit);
+	WRAPPABLE(FileReader * (FileReader *, Path *, unsigned int), FileReader__ctor);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;

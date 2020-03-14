@@ -332,7 +332,7 @@ namespace osidbg
 #else
 	typedef void(*ls__FixedString__Create)(FixedString * self, char const * str, int length);
 #endif
-	typedef void (* ls__FileReader__FileReader)(FileReader * self, Path * path, unsigned int type);
+	typedef FileReader * (* ls__FileReader__FileReader)(FileReader * self, Path * path, unsigned int type);
 	typedef void (* ls__FileReader__Dtor)(FileReader * self);
 	typedef StringView * (* ls__Path__GetPrefixForRoot)(StringView * path, unsigned int rootType);
 #pragma pack(pop)

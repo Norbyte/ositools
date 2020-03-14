@@ -39,6 +39,7 @@ STATIC_HOOK(ServerGameStateChangedEvent)
 STATIC_HOOK(ClientGameStateWorkerStart)
 STATIC_HOOK(ServerGameStateWorkerStart)
 STATIC_HOOK(SkillPrototypeManagerInit)
+STATIC_HOOK(FileReader__ctor)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -164,6 +165,10 @@ void OsirisWrappers::InitializeExtensions()
 		SkillPrototypeManagerInit.Wrap(lib.SkillPrototypeManagerInit);
 	}
 
+	if (lib.FileReaderCtor != nullptr) {
+		FileReader__ctor.Wrap(lib.FileReaderCtor);
+	}
+
 	DetourTransactionCommit();
 
 	ExtensionsInitialized = true;
@@ -183,6 +188,7 @@ void OsirisWrappers::Shutdown()
 	ClientGameStateWorkerStart.Unwrap();
 	ServerGameStateWorkerStart.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
+	FileReader__ctor.Unwrap();
 	ExtensionsInitialized = false;
 
 	RegisterDivFunctions.Unwrap();

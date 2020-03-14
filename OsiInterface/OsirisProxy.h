@@ -228,6 +228,7 @@ private:
 	void OnClientGameStateWorkerStart(void * self);
 	void OnServerGameStateWorkerStart(void * self);
 	void OnSkillPrototypeManagerInit(void * self);
+	FileReader * OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type);
 	void PostInitLibraries();
 	void ResetExtensionStateServer();
 	void LoadExtensionStateServer();
