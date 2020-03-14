@@ -326,17 +326,12 @@ namespace osidbg
 		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedServer(): Re-initializing module state.");
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 		functionMgr.ClearDynamicEntries();
-
-		// FIXME - move extension state here?
-		GetStaticSymbols().CharStatsGetters.ResetExtension();
-
 		ExtensionStateServer::Get().LuaReset(true);
 	}
 
 	void CustomFunctionLibrary::OnBaseModuleLoadedClient()
 	{
 		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedClient(): Re-initializing module state.");
-		GetStaticSymbols().CharStatsGetters.ResetExtension();
 		ExtensionStateClient::Get().LuaReset(true);
 	}
 }

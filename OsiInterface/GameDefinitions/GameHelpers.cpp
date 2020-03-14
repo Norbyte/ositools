@@ -734,7 +734,6 @@ namespace osidbg
 
 	void CharacterStatsGetters::WrapAll()
 	{
-		if (!ExtensionStateServer::Get().HasFeatureFlag("FormulaOverrides")) return;
 		if (Wrapped) return;
 
 #define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
@@ -751,7 +750,7 @@ namespace osidbg
 		Wrapped = true;
 	}
 
-	void CharacterStatsGetters::ResetExtension()
+	void CharacterStatsGetters::UnwrapAll()
 	{
 #define DEFN_GETTER(type, name) Wrapper##name.ClearHook();
 #include <GameDefinitions/CharacterGetters.inl>

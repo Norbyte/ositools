@@ -924,7 +924,7 @@ namespace osidbg
 		bool Wrapped{ false };
 
 		void WrapAll();
-		void ResetExtension();
+		void UnwrapAll();
 
 		std::optional<int32_t> GetStat(CDivinityStats_Character * character, char const * name, 
 			bool original, bool baseValues);
