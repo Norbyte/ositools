@@ -389,6 +389,7 @@ namespace osidbg
 	int GetCombat(lua_State * L);
 	int NewDamageList(lua_State * L);
 	int OsirisIsCallable(lua_State * L);
+	int AddPathOverride(lua_State * L);
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
 	int GenerateIdeHelpers(lua_State * L);
@@ -484,6 +485,7 @@ namespace osidbg
 			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
 
+			{"AddPathOverride", AddPathOverride},
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},
 			{0,0}

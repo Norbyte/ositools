@@ -47,6 +47,7 @@ namespace osidbg
 	int GetStat(lua_State * L);
 	int NewDamageList(lua_State * L);
 	int OsirisIsCallableClient(lua_State * L);
+	int AddPathOverride(lua_State * L);
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
 
@@ -99,6 +100,7 @@ namespace osidbg
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 
+			{"AddPathOverride", AddPathOverride},
 			{"PostMessageToServer", PostMessageToServer},
 			{0,0}
 		};

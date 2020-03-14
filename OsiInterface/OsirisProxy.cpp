@@ -94,7 +94,7 @@ void OsirisProxy::Initialize()
 	Wrappers.ClientGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
 	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
 	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
-	//Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
+	Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
@@ -910,8 +910,38 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	}
 }
 
+void OsirisProxy::ClearPathOverrides()
+{
+	std::unique_lock lock(pathOverrideMutex_);
+	pathOverrides_.clear();
+}
+
+void OsirisProxy::AddPathOverride(std::string const & path, std::string const & overriddenPath)
+{
+	auto absolutePath = GetStaticSymbols().ToPath(path, PathRootType::Data);
+	std::replace(absolutePath.begin(), absolutePath.end(), '\\', '/');
+	auto absoluteOverriddenPath = GetStaticSymbols().ToPath(overriddenPath, PathRootType::Data);
+	std::replace(absoluteOverriddenPath.begin(), absoluteOverriddenPath.end(), '\\', '/');
+
+	std::unique_lock lock(pathOverrideMutex_);
+	pathOverrides_.insert(std::make_pair(absolutePath, absoluteOverriddenPath));
+}
+
 FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type)
 {
+	if (!pathOverrides_.empty()) {
+		std::shared_lock lock(pathOverrideMutex_);
+		auto it = pathOverrides_.find(path->Name.GetPtr());
+		if (it != pathOverrides_.end()) {
+			DEBUG("FileReader path override: %s -> %s", path->Name.GetPtr(), it->second.c_str());
+			Path overriddenPath;
+			overriddenPath.Name.Set(it->second);
+			overriddenPath.Unknown = path->Unknown;
+			lock.unlock();
+			return next(self, &overriddenPath, type);
+		}
+	}
+
 	return next(self, path, type);
 }
 
@@ -982,6 +1012,7 @@ void OsirisProxy::ResetExtensionStateClient()
 	std::lock_guard _(globalStateLock_);
 	ClientExtState = std::make_unique<ExtensionStateClient>();
 	ClientExtState->Reset();
+	ClearPathOverrides();
 	ClientExtensionLoaded = false;
 }
 

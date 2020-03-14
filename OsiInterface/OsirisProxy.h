@@ -47,6 +47,7 @@
 
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 
 namespace osidbg {
 
@@ -168,6 +169,9 @@ public:
 		return networkManager_;
 	}
 
+	void ClearPathOverrides();
+	void AddPathOverride(std::string const & path, std::string const & overriddenPath);
+
 private:
 	OsirisWrappers Wrappers;
 	OsirisDynamicGlobals DynGlobals;
@@ -184,6 +188,8 @@ private:
 	std::unordered_set<DWORD> ServerThreadIds;
 	std::recursive_mutex globalStateLock_;
 	NetworkManager networkManager_;
+	std::shared_mutex pathOverrideMutex_;
+	std::unordered_map<std::string, std::string> pathOverrides_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };

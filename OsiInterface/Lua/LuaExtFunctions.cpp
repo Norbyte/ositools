@@ -977,6 +977,14 @@ namespace osidbg
 		return 1;
 	}
 
+	int AddPathOverride(lua_State * L)
+	{
+		auto path = luaL_checkstring(L, 1);
+		auto overridePath = luaL_checkstring(L, 2);
+		gOsirisProxy->AddPathOverride(path, overridePath);
+		return 0;
+	}
+
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
 	{
