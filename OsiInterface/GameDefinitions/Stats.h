@@ -539,7 +539,7 @@ namespace osidbg
 		uint32_t MaxMpOverride; // Saved
 		TalentArray DisabledTalents; // Saved
 
-		std::optional<int32_t> GetStat(char const * name, bool baseStats);
+		std::optional<int32_t> GetStat(char const * name, bool excludeBoosts);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
 		bool HasTalent(TalentType talent, bool excludeBoosts);
 		int32_t GetAbility(AbilityType ability, bool excludeBoosts);

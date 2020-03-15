@@ -791,18 +791,18 @@ namespace osidbg
 	}
 
 
-	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool baseStats)
+	std::optional<int32_t> CDivinityStats_Character::GetStat(char const * name, bool excludeBoosts)
 	{
 		if (strcmp(name, "PhysicalResistance") == 0) {
-			return GetPhysicalResistance(baseStats);
+			return GetPhysicalResistance(excludeBoosts);
 		} else if (strcmp(name, "PiercingResistance") == 0) {
-			return GetPiercingResistance(baseStats);
+			return GetPiercingResistance(excludeBoosts);
 		} else if (strcmp(name, "CorrosiveResistance") == 0) {
-			return GetCorrosiveResistance(baseStats);
+			return GetCorrosiveResistance(excludeBoosts);
 		} else if (strcmp(name, "MagicResistance") == 0) {
-			return GetMagicResistance(baseStats);
+			return GetMagicResistance(excludeBoosts);
 		} else {
-			return GetStaticSymbols().CharStatsGetters.GetStat(this, name, false, baseStats);
+			return GetStaticSymbols().CharStatsGetters.GetStat(this, name, false, excludeBoosts);
 		}
 	}
 

@@ -380,7 +380,7 @@ namespace osidbg
 			std::vector<CustomFunctionParam>{
 				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Stat", ValueType::String, FunctionArgumentDirection::In },
-				{ "IsBaseStat", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "ExcludeBoosts", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
 			},
 			&func::CharacterGetComputedStat
