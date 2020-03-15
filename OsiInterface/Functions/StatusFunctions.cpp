@@ -591,6 +591,13 @@ namespace osidbg
 		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
 
 		delete eventArgs;
+
+		if (statusHit->DamageInfo.DamageList.Size == 0) {
+			TDamagePair dummy;
+			dummy.Amount = 0;
+			dummy.DamageType = DamageType::Physical;
+			statusHit->DamageInfo.DamageList.SafeAdd(dummy);
+		}
 	}
 
 
@@ -649,13 +656,6 @@ namespace osidbg
 		helper->Target = self;
 		if (attackerStats != nullptr) {
 			helper->Source = attackerStats->Character;
-		}
-
-		if (damageList->Size == 0) {
-			TDamagePair dummy;
-			dummy.Amount = 0;
-			dummy.DamageType = DamageType::Physical;
-			damageList->SafeAdd(dummy);
 		}
 
 		// TODO - allow disabling SimulateHit & not call the original func?
