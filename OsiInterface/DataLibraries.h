@@ -264,6 +264,7 @@ namespace osidbg {
 		HMODULE coreLib_{ NULL };
 		uint8_t const * coreLibStart_{ nullptr };
 		size_t coreLibSize_{ 0 };
+		HMODULE gameEngine_{ NULL };
 #endif
 
 		bool InitFailed{ false };

@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <psapi.h>
+#include <GameDefinitions/UI.h>
 
 #if !defined(OSI_EOCAPP)
 namespace osidbg
@@ -772,6 +773,20 @@ namespace osidbg
 			{},
 			{"esv::Inventory::Equip", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(InventoryEquip)}
 		},
+
+		{
+			"ecl::EoCUI::EoCUI",
+			SymbolMappingData::kText, 0,
+			"FF 15 XX XX XX XX " // call    cs:??0UIObject@ls@@QEAA@AEBVPath@1@@Z
+			"C7 83 50 01 00 00 00 00 00 00 " // mov     dword ptr [rbx+150h], 0
+			"48 8D 05 XX XX XX XX " // lea     rax, ??_7EocUI@ecl@@6B@
+			"48 89 03 " // mov     [rbx], rax
+			"66 C7 83 54 01 00 00 00 00 " // mov     word ptr [rbx+154h], 0
+			"48 8B 05 XX XX XX XX ", // mov     rax, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			{},
+			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(EoCUI__ctor)},
+			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirectLea, 16, STATIC_SYM(EoCUI__vftable)},
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)
@@ -822,6 +837,11 @@ namespace osidbg
 		coreLibStart_ = (uint8_t const *)moduleInfo.lpBaseOfDll;
 		coreLibSize_ = moduleInfo.SizeOfImage;
 
+		gameEngine_ = LoadLibraryW(L"GameEngine.dll");
+		if (gameEngine_ == NULL) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -854,6 +874,16 @@ namespace osidbg
 		GetStaticSymbols().GetPrefixForRoot = (ls__Path__GetPrefixForRoot)getPrefixProc;
 		GetStaticSymbols().FileReaderCtor = (ls__FileReader__FileReader)fileReaderCtorProc;
 		GetStaticSymbols().FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
+
+		auto registerUIObjectCreatorProc = GetProcAddress(gameEngine_, "?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z");
+		auto createUIObjectProc = GetProcAddress(gameEngine_, "?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z");
+		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");
+		auto getUIObjectManagerProc = GetProcAddress(gameEngine_, "?GetInstance@?$Singleton@VUIObjectManager@ls@@@ls@@SAPEAVUIObjectManager@2@XZ");
+
+		GetStaticSymbols().UIObjectManager__RegisterUIObjectCreator = (UIObjectManager::RegisterUIObjectCreator)registerUIObjectCreatorProc;
+		GetStaticSymbols().UIObjectManager__CreateUIObject = (UIObjectManager::CreateUIObject)createUIObjectProc;
+		GetStaticSymbols().UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObject)destroyUIObjectProc;
+		GetStaticSymbols().UIObjectManager__GetInstance = (UIObjectManager::GetInstance)getUIObjectManagerProc;
 
 		if (GetStaticSymbols().GetPrefixForRoot == nullptr 
 			|| GetStaticSymbols().FileReaderCtor == nullptr 

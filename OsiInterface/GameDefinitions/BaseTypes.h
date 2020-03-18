@@ -25,20 +25,20 @@ namespace osidbg
 	void * GameAllocRaw(std::size_t size);
 	void GameFree(void *);
 
-	template <class T>
-	T * GameAlloc()
+	template <class T, class ...Args>
+	T * GameAlloc(Args... args)
 	{
 		auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T)));
-		new (ptr) T();
+		new (ptr) T(args...);
 		return ptr;
 	}
 
-	template <class T>
-	T * GameAlloc(std::size_t n)
+	template <class T, class ...Args>
+	T * GameAllocArray(std::size_t n, Args... args)
 	{
 		auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T) * n));
 		for (auto i = 0; i < n; i++) {
-			new (ptr + i) T();
+			new (ptr + i) T(args...);
 		}
 		return ptr;
 	}
@@ -135,7 +135,7 @@ namespace osidbg
 		void Init(uint32_t hashSize)
 		{
 			HashSize = hashSize;
-			HashTable = GameAlloc<Node *>(hashSize);
+			HashTable = GameAllocArray<Node *>(hashSize);
 			ItemCount = 0;
 			memset(HashTable, 0, sizeof(Node *) * hashSize);
 		}
@@ -314,7 +314,7 @@ namespace osidbg
 		template <class T>
 		static T * New(std::size_t count)
 		{
-			return GameAlloc<T>(count);
+			return GameAllocArray<T>(count);
 		}
 
 		template <class T>
@@ -680,7 +680,7 @@ namespace osidbg
 
 		void Reallocate(uint32_t newCapacity)
 		{
-			auto newBuf = GameAlloc<T>(newCapacity);
+			auto newBuf = GameAllocArray<T>(newCapacity);
 			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
 				newBuf[i] = Buf[i];
 			}

@@ -1,0 +1,420 @@
+#pragma once
+
+#include <windows.h>
+#include "BaseTypes.h"
+#include "Enumerations.h"
+
+namespace osidbg
+{
+
+#pragma pack(push, 1)
+	enum InvokeDataValueType : __int32
+	{
+		IDV_NoneVal = 0x1,
+		IDV_Bool = 0x3,
+		IDV_Double = 0x4,
+		IDV_String = 0x5,
+		IDV_WString = 0x6,
+		IDV_Pointer = 0x11,
+	};
+
+
+	struct InvokeDataValue
+	{
+		InvokeDataValueType TypeId;
+		uint8_t _Pad[4];
+		STDString StringVal;
+		STDWString WStringVal;
+		bool BoolVal;
+		uint8_t _Pad2[7];
+		__int64 PointerVal;
+		double DoubleVal;
+	};
+
+
+	namespace ig
+	{
+		struct FlashObject
+		{
+			virtual void Destroy() = 0;
+			virtual void SetX() = 0;
+			virtual void SetY() = 0;
+			virtual void SetScaleX() = 0;
+			virtual void SetScaleY() = 0;
+			virtual void SetRotation() = 0;
+			virtual void SetAlpha() = 0;
+			virtual void SetWidth() = 0;
+			virtual void SetHeight() = 0;
+			virtual void SetVisible() = 0;
+			virtual void SetValue(char const * path, InvokeDataValue const & value, int arrayIndex = -1) = 0;
+			virtual unsigned GetX() = 0;
+			virtual unsigned GetY() = 0;
+			virtual unsigned GetScaleX() = 0;
+			virtual unsigned GetScaleY() = 0;
+			virtual float GetRotation() = 0;
+			virtual float GetAlpha() = 0;
+			virtual unsigned GetWidth() = 0;
+			virtual unsigned GetHeight() = 0;
+			virtual bool GetVisible() = 0;
+			virtual bool GetValue(char const * path, InvokeDataValueType desiredType, InvokeDataValue & value, int arrayIndex = -1) = 0;
+
+			void * IggyValue;
+			void * ValuePathRef2;
+			void * StrX;
+			void * StrY;
+			void * StrScaleX;
+			void * StrScaleY;
+			void * StrRotation;
+			void * StrAlpha;
+			void * StrWidth;
+			void * StrHeight;
+			void * StrVisible;
+		};
+
+
+
+
+		struct FlashInvoke
+		{
+			__int64 field_0;
+			int field_8;
+			__int64 field_10;
+			__int64 field_18;
+			void *IggyDataValue;
+			__int64 field_28;
+		};
+
+
+		struct FlashInputEvent
+		{
+			uint64_t Unknown;
+			char const * EventName;
+		};
+
+
+		struct FlashPlayer
+		{
+			virtual void Destroy() = 0;
+			virtual void OnWTCompletion() = 0;
+			virtual void OnWTCanceled() = 0;
+			virtual void ExecuteWTKernel() = 0;
+			virtual int GetHeuristic() = 0;
+			virtual void OnInputEvent() = 0;
+			virtual void SendEventToFlash() = 0;
+			virtual uint16_t * OnInputEvent(uint16_t * retval, FlashInputEvent * event) = 0;
+			virtual void SetModifierStates(bool, bool, bool) = 0;
+			virtual void field_48() = 0;
+			virtual bool Invoke6(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4, InvokeDataValue *a5, InvokeDataValue *a6, InvokeDataValue *a7, InvokeDataValue *a8) = 0;
+			virtual bool Invoke5(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4, InvokeDataValue *a5, InvokeDataValue *a6, InvokeDataValue *a7) = 0;
+			virtual bool Invoke4(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4, InvokeDataValue *a5, InvokeDataValue *a6) = 0;
+			virtual bool Invoke3(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4, InvokeDataValue *a5) = 0;
+			virtual bool Invoke2(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4) = 0;
+			virtual bool Invoke1(int64_t invokeEnum, InvokeDataValue *a3) = 0;
+			virtual bool Invoke0(int64_t invokeEnum) = 0;
+			virtual bool InvokeArgs(int64_t invokeEnum, InvokeDataValue * args, unsigned numArgs) = 0;
+			virtual void field_90() = 0;
+			virtual void field_98() = 0;
+			virtual void field_A0() = 0;
+			virtual void field_A8() = 0;
+			virtual void field_B0() = 0;
+			virtual void SetRenderRectangle() = 0;
+			virtual void field_C0() = 0;
+			virtual void field_C8() = 0;
+			virtual void field_D0() = 0;
+			virtual void Render() = 0;
+			virtual void field_E0() = 0;
+			virtual void field_E8() = 0;
+			virtual void GetFlashMovieProperties() = 0;
+			virtual void GotoFrame(uint64_t frame) = 0;
+			virtual void GotoFrame2(uint64_t frame) = 0;
+			virtual FlashObject * CreateFlashObject(char const * path, int arrayIndex) = 0;
+			virtual ig::FlashObject *GetRootObject() = 0;
+			virtual void SetFrameRate() = 0;
+			virtual void SetPath(Path * path) = 0;
+			virtual void OnFunctionCalled() = 0;
+			virtual void Tick() = 0;
+			virtual void field_138() = 0;
+			virtual void Init() = 0;
+			virtual void OnEventTerminate() = 0;
+			virtual void Activate() = 0;
+			virtual void Deactivate() = 0;
+			virtual void GainFocus() = 0;
+			virtual void LoseFocus() = 0;
+			virtual void CopyEditableValue() = 0;
+			virtual void PasteEditableValue() = 0;
+			virtual void Cut() = 0;
+			virtual void SetFlashMousePosition() = 0;
+			virtual void SetupEventMapping() = 0;
+			virtual void SetStageSize() = 0;
+			virtual void AddInvokeName(int index, char const * name) = 0;
+			virtual void field_1A8() = 0;
+			virtual void LoadTextureFile(Path * path) = 0;
+			virtual void EnableMouseProcessing() = 0;
+
+
+			__int64 field_8;
+			int field_10;
+			int field_14;
+			int field_18;
+			int field_1C;
+			int field_20;
+			int field_24;
+			__int16 field_28;
+			void * IggyPlayer;
+			void * IggyPlayerRootPath;
+			ObjectSet<FlashInvoke> Invokes;
+			int FlashInvokePool;
+			int field_64;
+			__int64 PoolName;
+			CRITICAL_SECTION CriticalSection;
+			char Invoked_M;
+			char field_99;
+			uint8_t _Pad[6];
+			ObjectSet<void *> QueuedInvokes; // <FlashInvoke *>
+			ObjectSet<void *> Invokes2; // <FlashInvoke *>
+			ObjectSet<InvokeDataValue> InvokeValues;
+			ObjectSet<FlashPlayer *> FlashPlayers;
+			__int64 field_120;
+			__int64 field_128;
+			ig::FlashObject * RootFlashObject;
+			FixedStringRefMap<uint32_t, uint32_t> InputEvents;
+			ScratchBuffer * ScratchString1;
+			ScratchBuffer * ScratchStringW;
+			ScratchBuffer * ScratchString2;
+			Path Path;
+			__int64 field_188;
+			__int64 field_190;
+		};
+	}
+
+
+	struct UIObject
+	{
+		struct VMT
+		{
+			bool(* OnFunctionCalled)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
+			void(* OnCustomDrawCallback)(UIObject * self, void *);
+			void (* Destroy)(UIObject * self, bool);
+			void(* SetHandle)(UIObject * self, ObjectHandle *);
+			ObjectHandle * (* GetHandle)(UIObject * self, ObjectHandle *);
+			void(* RequestDelete)(UIObject * self);
+			void(* SetOwnerPlayerId)(UIObject * self, uint64_t);
+			void(* SetPos)(UIObject * self, int *);
+			void(* KeepWithin)(UIObject * self, int, int);
+			void(* Show)(UIObject * self);
+			void(* Hide)(UIObject * self);
+			const char *(* GetDebugName)(UIObject * self);
+			bool(* IsControllerUI)(UIObject * self);
+			void(* Init)(UIObject * self);
+			void(* InitAPI)(UIObject * self);
+			void(* Update)(UIObject * self, float);
+			void(* PostUpdate)(UIObject * self, float);
+			void(* Render)(UIObject * self, void *, void *);
+			void(* RegisterInvokeNames)(UIObject * self);
+			void(* Resize)(UIObject * self);
+			void *(* OnInputEvent)(UIObject * self, void *, void *);
+			uint8_t *(* SendEventToFlash)(UIObject * self, uint8_t * a2, void *a3, unsigned int a4);
+			void *(* OnInputEventText)(UIObject * self, void *, void *);
+			uint16_t *(* OnUnlinkedInput)(UIObject * self, uint16_t *, uint32_t, uint16_t);
+			void(* SetModifierStates)(UIObject * self, bool, bool, bool, bool);
+			bool(* OnAPIPreResetDevice)(UIObject * self, void *);
+			bool(* OnAPIPostResetDevice)(UIObject * self, void *);
+			void(* OnControllerModeChanged)(UIObject * self);
+			void(* OnPlayerDisconnect)(UIObject * self, int);
+			void(* ReleaseRenderData)(UIObject * self);
+			void(* PrepareRenderData)(UIObject * self);
+			void(* DoPrepareRenderData)(UIObject * self);
+			void(* Activate)(UIObject * self);
+			void(* Deactivate)(UIObject * self);
+			void(* LoseFocus)(UIObject * self);
+			int64_t(* GetBitmapHeight)(UIObject * self);
+			int64_t(* GetBitmapWidth)(UIObject * self);
+			void * (* GetCharacter)(UIObject * self);
+			bool (* SetPlayerHandle)(UIObject * self, ObjectHandle * handle);
+			ObjectHandle * (* GetPlayerHandle)(UIObject * self, ObjectHandle * handle);
+			bool (* Unknown1)(UIObject * self);
+			void(* Unknown2)(UIObject * self);
+			void * (* Unknown3)(UIObject * self);
+			void (* Unknown4)(UIObject * self, void * a1);
+		};
+
+
+		virtual bool OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3);
+		virtual void OnCustomDrawCallback(void * a1);
+		virtual void Destroy(bool a1);
+		virtual void SetHandle(ObjectHandle * a1);
+		virtual ObjectHandle * GetHandle(ObjectHandle *);
+		virtual void RequestDelete();
+		virtual void SetOwnerPlayerId(uint64_t a1);
+		virtual void SetPos(int * a1);
+		virtual void KeepWithin(int a1, int a2);
+		virtual void Show();
+		virtual void Hide();
+		virtual const char * GetDebugName();
+		virtual bool IsControllerUI();
+		virtual void Init();
+		virtual void InitAPI();
+		virtual void Update(float a1);
+		virtual void PostUpdate(float a1);
+		virtual void Render(void * a1, void * a2);
+		virtual void RegisterInvokeNames();
+		virtual void Resize();
+		virtual void * OnInputEvent(void * a1, void * a2);
+		virtual uint8_t * SendEventToFlash(uint8_t * a2, void *a3, unsigned int a4);
+		virtual void * OnInputEventText(void * a1, void * a2);
+		virtual uint16_t * OnUnlinkedInput(uint16_t * a1, uint32_t a2, uint16_t a3);
+		virtual void SetModifierStates(bool a1, bool a2, bool a3, bool a4);
+		virtual bool OnAPIPreResetDevice(void *);
+		virtual bool OnAPIPostResetDevice(void *);
+		virtual void OnControllerModeChanged();
+		virtual void OnPlayerDisconnect(int a1);
+		virtual void ReleaseRenderData();
+		virtual void PrepareRenderData();
+		virtual void DoPrepareRenderData();
+		virtual void Activate();
+		virtual void Deactivate();
+		virtual void LoseFocus();
+		virtual int64_t GetBitmapHeight();
+		virtual int64_t GetBitmapWidth();
+		virtual void * GetCharacter();
+		virtual bool SetPlayerHandle(ObjectHandle * handle);
+		virtual ObjectHandle * GetPlayerHandle(ObjectHandle * handle);
+		virtual bool Unknown1();
+		virtual void Unknown2();
+		virtual void * Unknown3();
+		virtual void Unknown4(void * a1);
+
+
+		int BufferSizes;
+		int field_C;
+		int field_10;
+		int Flags;
+		ig::FlashPlayer * FlashPlayer;
+		Path Path;
+		bool IsDragging;
+		uint8_t _Pad[7];
+		ObjectHandle ChildUIHandle;
+		ObjectHandle ParentUIHandle;
+		int Layer;
+		int RenderOrder;
+		int MovieLayout;
+		float FlashSize[2];
+		int field_74;
+		int field_78;
+		float FlashMovieSize[2];
+		int SysPanelX;
+		int SysPanelY;
+		float SysPanelW;
+		float SysPanelH;
+		float Left;
+		float Top;
+		float Right;
+		float MinWidth;
+		float MinHeight;
+		float UIScale;
+		float CustomScale;
+		FixedString AnchorObjectName;
+		STDString AnchorId;
+		STDString AnchorTarget;
+		STDString AnchorPos;
+		STDString AnchorTPos;
+		bool UIScaling;
+		bool IsUIMoving;
+		bool IsDragging2;
+		bool IsMoving2;
+		bool RenderDataPrepared;
+		bool InputFocused;
+		bool HasAnchorPos;
+		ObjectHandle UIObjectHandle;
+		int Type;
+		int16_t PlayerId;
+		uint8_t _Pad2[2];
+	};
+
+
+	struct UIObjectFunctor
+	{
+		UIObject * (* CreateProc)(Path *);
+		Path Path;
+	};
+
+
+
+	struct UIObjectManager : public ObjectFactory<UIObject, 99>
+	{
+		struct SomeObject
+		{
+			uint64_t ObjectIndex_M;
+			ObjectHandle ObjHandle1;
+			ObjectHandle ObjHandle2;
+			__int16 field_18;
+			BYTE field_1A[6];
+		};
+
+		typedef void (* RegisterUIObjectCreator)(UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
+		typedef ObjectHandle * (* CreateUIObject)(UIObjectManager * self, ObjectHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
+		typedef void (* DestroyUIObject)(UIObjectManager * self, ObjectHandle * handle);
+		typedef UIObjectManager * (* GetInstance)();
+
+		void * InputEventListenerVMT;
+		void * InputDeviceListenerVMT;
+		void * APIEventListenerVMT;
+		CRITICAL_SECTION CriticalSection3;
+		int64_t WorkerThreadJobVMT;
+		int64_t field_D0;
+		FixedStringRefMap<uint32_t, void *> UIObjectCreators;
+		int64_t field_E8;
+		ObjectSet<UIObject *> UIObjects;
+		bool ShouldPrepareRenderData;
+		bool SortNeeded;
+		bool RefreshTopNeeded;
+		bool IsRenderingObjects;
+		bool AllowRawInput;
+		bool field_115;
+		int UIDesignedHeight;
+		int UIDesignedWidth;
+		FixedStringRefMap<uint32_t, uint32_t> *field_120;
+		FixedStringRefMap<uint32_t, uint32_t> *field_128;
+		CRITICAL_SECTION CriticalSection;
+		SomeObject SomeObjects[4];
+		int64_t field_1D8;
+		int64_t field_1E0;
+		int64_t field_1E8;
+		int64_t field_1F0;
+		int64_t field_1F8;
+		FixedStringRefMap<uint32_t, uint32_t> field_200;
+		int64_t field_210;
+		int UIObjectAggregateFlags;
+		int field_21C;
+		int64_t field_220;
+		int64_t field_228;
+	};
+	
+	
+	namespace ecl
+	{
+		struct EoCUI : public UIObject
+		{
+			typedef void (* ctor)(EoCUI * self, osidbg::Path * path);
+
+			EoCUI(osidbg::Path * path);
+
+			bool field_150;
+			bool field_151;
+			bool field_152;
+			bool field_153;
+			bool field_154;
+			bool SomeInitPerformed;
+			__int16 field_156;
+			ObjectHandle ObjHandle1;
+			ObjectHandle TooltipHandle;
+			uint64_t field_168;
+			uint64_t field_170;
+			STDString field_178;
+		};
+	}
+
+
+#pragma pack(pop)
+
+}

@@ -10,6 +10,7 @@
 #include <GameDefinitions/Status.h>
 #include <GameDefinitions/ActionMachine.h>
 #include <GameDefinitions/TurnManager.h>
+#include <GameDefinitions/UI.h>
 
 namespace osidbg
 {
@@ -113,6 +114,13 @@ namespace osidbg
 		ls__FileReader__FileReader FileReaderCtor{ nullptr };
 		ls__FileReader__Dtor FileReaderDtor{ nullptr };
 		STDString ** PathRoots{ nullptr };
+
+		UIObjectManager::RegisterUIObjectCreator UIObjectManager__RegisterUIObjectCreator{ nullptr };
+		UIObjectManager::CreateUIObject UIObjectManager__CreateUIObject{ nullptr };
+		UIObjectManager::DestroyUIObject UIObjectManager__DestroyUIObject{ nullptr };
+		UIObjectManager::GetInstance UIObjectManager__GetInstance{ nullptr };
+		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
+		UIObject::VMT * EoCUI__vftable{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };
 		InventoryFactory ** EsvInventoryFactory{ nullptr };

@@ -47,7 +47,7 @@ namespace osidbg
 
 		if (Size > 7) {
 			// FIXME - memory leak!
-			BufPtr = GameAlloc<wchar_t>(Capacity + 1);
+			BufPtr = GameAllocArray<wchar_t>(Capacity + 1);
 			wcscpy_s(BufPtr, Capacity + 1, s.c_str());
 		} else {
 			wcscpy_s(Buf, 8, s.c_str());
@@ -66,7 +66,7 @@ namespace osidbg
 
 		if (Size > 15) {
 			// FIXME - memory leak!
-			BufPtr = GameAlloc<char>(Capacity + 1);
+			BufPtr = GameAllocArray<char>(Capacity + 1);
 			strcpy_s(BufPtr, Capacity + 1, s.c_str());
 		} else {
 			strcpy_s(Buf, 16, s.c_str());
@@ -475,7 +475,7 @@ namespace osidbg
 			GameFree(Buf);
 		}
 
-		Buf = GameAlloc<wchar_t>(replacement.size() + 1);
+		Buf = GameAllocArray<wchar_t>(replacement.size() + 1);
 		memcpy(Buf, replacement.c_str(), sizeof(wchar_t) * (replacement.size() + 1));
 		Capacity = replacement.size() + 1;
 		Length = replacement.size();
@@ -1253,4 +1253,234 @@ namespace osidbg
 	}
 
 	TempStrings gTempStrings;
+
+
+
+	bool UIObject::OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
+	}
+
+	void UIObject::OnCustomDrawCallback(void * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnCustomDrawCallback(this, a1);
+	}
+
+	void UIObject::Destroy(bool a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->Destroy(this, a1);
+	}
+
+	void UIObject::SetHandle(ObjectHandle * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SetHandle(this, a1);
+	}
+
+	ObjectHandle * UIObject::GetHandle(ObjectHandle * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetHandle(this, a1);
+	}
+
+	void UIObject::RequestDelete()
+	{
+		return GetStaticSymbols().EoCUI__vftable->RequestDelete(this);
+	}
+
+	void UIObject::SetOwnerPlayerId(uint64_t a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SetOwnerPlayerId(this, a1);
+	}
+
+	void UIObject::SetPos(int * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SetPos(this, a1);
+	}
+
+	void UIObject::KeepWithin(int a1, int a2)
+	{
+		return GetStaticSymbols().EoCUI__vftable->KeepWithin(this, a1, a2);
+	}
+
+	void UIObject::Show()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Show(this);
+	}
+
+	void UIObject::Hide()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Hide(this);
+	}
+
+	const char * UIObject::GetDebugName()
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetDebugName(this);
+	}
+
+	bool UIObject::IsControllerUI()
+	{
+		return GetStaticSymbols().EoCUI__vftable->IsControllerUI(this);
+	}
+
+	void UIObject::Init()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Init(this);
+	}
+
+	void UIObject::InitAPI()
+	{
+		return GetStaticSymbols().EoCUI__vftable->InitAPI(this);
+	}
+
+	void UIObject::Update(float a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->Update(this, a1);
+	}
+
+	void UIObject::PostUpdate(float a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->PostUpdate(this, a1);
+	}
+
+	void UIObject::Render(void * a1, void * a2)
+	{
+		return GetStaticSymbols().EoCUI__vftable->Render(this, a1, a2);
+	}
+
+	void UIObject::RegisterInvokeNames()
+	{
+		return GetStaticSymbols().EoCUI__vftable->RegisterInvokeNames(this);
+	}
+
+	void UIObject::Resize()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Resize(this);
+	}
+
+	void * UIObject::OnInputEvent(void * a1, void * a2)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnInputEvent(this, a1, a2);
+	}
+
+	uint8_t * UIObject::SendEventToFlash(uint8_t * a2, void *a3, unsigned int a4)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SendEventToFlash(this, a2, a3, a4);
+	}
+
+	void * UIObject::OnInputEventText(void * a1, void * a2)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnInputEventText(this, a1, a2);
+	}
+
+	uint16_t * UIObject::OnUnlinkedInput(uint16_t * a1, uint32_t a2, uint16_t a3)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnUnlinkedInput(this, a1, a2, a3);
+	}
+
+	void UIObject::SetModifierStates(bool a1, bool a2, bool a3, bool a4)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SetModifierStates(this, a1, a2, a3, a4);
+	}
+
+	bool UIObject::OnAPIPreResetDevice(void * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnAPIPreResetDevice(this, a1);
+	}
+
+	bool UIObject::OnAPIPostResetDevice(void * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnAPIPostResetDevice(this, a1);
+	}
+
+	void UIObject::OnControllerModeChanged()
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnControllerModeChanged(this);
+	}
+
+	void UIObject::OnPlayerDisconnect(int a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->OnPlayerDisconnect(this, a1);
+	}
+
+	void UIObject::ReleaseRenderData()
+	{
+		return GetStaticSymbols().EoCUI__vftable->ReleaseRenderData(this);
+	}
+
+	void UIObject::PrepareRenderData()
+	{
+		return GetStaticSymbols().EoCUI__vftable->PrepareRenderData(this);
+	}
+
+	void UIObject::DoPrepareRenderData()
+	{
+		return GetStaticSymbols().EoCUI__vftable->DoPrepareRenderData(this);
+	}
+
+	void UIObject::Activate()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Activate(this);
+	}
+
+	void UIObject::Deactivate()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Deactivate(this);
+	}
+
+	void UIObject::LoseFocus()
+	{
+		return GetStaticSymbols().EoCUI__vftable->LoseFocus(this);
+	}
+
+	int64_t UIObject::GetBitmapHeight()
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetBitmapHeight(this);
+	}
+
+	int64_t UIObject::GetBitmapWidth()
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetBitmapWidth(this);
+	}
+
+	void * UIObject::GetCharacter()
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetCharacter(this);
+	}
+
+	bool UIObject::SetPlayerHandle(ObjectHandle * handle)
+	{
+		return GetStaticSymbols().EoCUI__vftable->SetPlayerHandle(this, handle);
+	}
+
+	ObjectHandle * UIObject::GetPlayerHandle(ObjectHandle * handle)
+	{
+		return GetStaticSymbols().EoCUI__vftable->GetPlayerHandle(this, handle);
+	}
+
+	bool UIObject::Unknown1()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Unknown1(this);
+	}
+
+	void UIObject::Unknown2()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Unknown2(this);
+	}
+
+	void * UIObject::Unknown3()
+	{
+		return GetStaticSymbols().EoCUI__vftable->Unknown3(this);
+	}
+
+	void UIObject::Unknown4(void * a1)
+	{
+		return GetStaticSymbols().EoCUI__vftable->Unknown4(this, a1);
+	}
+
+	namespace ecl
+	{
+		EoCUI::EoCUI(osidbg::Path * path)
+		{
+			GetStaticSymbols().EoCUI__ctor(this, path);
+		}
+	}
 }

@@ -130,7 +130,7 @@ namespace osidbg
 			}
 
 			// FIXME - memory leak!
-			statSyncMsg.Stats.Set.Buf = GameAlloc<eocnet::CustomStatsSyncInfo>(1);
+			statSyncMsg.Stats.Set.Buf = GameAllocArray<eocnet::CustomStatsSyncInfo>(1);
 			statSyncMsg.Stats.Set.Capacity = 1;
 			statSyncMsg.Stats.Set.Size = 1;
 
@@ -175,7 +175,7 @@ namespace osidbg
 			msg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
 
 			// FIXME - memory leak!
-			msg.StatDefns.Set.Buf = GameAlloc<eocnet::CustomStatDefinitionSyncInfo>(1);
+			msg.StatDefns.Set.Buf = GameAllocArray<eocnet::CustomStatDefinitionSyncInfo>(1);
 			msg.StatDefns.Set.Capacity = 1;
 			msg.StatDefns.Set.Size = 1;
 
