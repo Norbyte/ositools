@@ -152,8 +152,12 @@ namespace osidbg
 
 	UIObject * LuaUIObjectProxy::Get()
 	{
-		auto uiManager = GetStaticSymbols().UIObjectManager__GetInstance();
-		return uiManager->Get(handle_);
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		if (uiManager != nullptr) {
+			return uiManager->Get(handle_);
+		} else {
+			return nullptr;
+		}
 	}
 
 
@@ -400,7 +404,17 @@ namespace osidbg
 		auto & sym = GetStaticSymbols();
 		auto absPath = sym.ToPath(path, PathRootType::Data);
 
-		auto uiManager = sym.UIObjectManager__GetInstance();
+		auto uiManager = sym.GetUIObjectManager();
+		if (uiManager == nullptr) {
+			OsiError("Couldn't get symbol for UIObjectManager!");
+			return 0;
+		}
+
+		if (sym.EoCUI__ctor == nullptr || sym.EoCUI__vftable == nullptr) {
+			OsiError("Couldn't get symbol for ecl::EoCUI::vftable!");
+			return 0;
+		}
+
 		std::optional<uint32_t> creatorId;
 		uiManager->UIObjectCreators.Iterate([&absPath, &creatorId](uint32_t id, UIObjectFunctor * value) {
 			if (strcmp(value->Path.Name.GetPtr(), absPath.c_str()) == 0) {
@@ -413,7 +427,7 @@ namespace osidbg
 			creator->Path.Name.Set(absPath);
 			creator->CreateProc = CustomUI::Creator;
 
-			sym.UIObjectManager__RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
+			sym.RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
 			creatorId = NextCustomCreatorId++;
 		}
 

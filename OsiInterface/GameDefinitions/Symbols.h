@@ -119,6 +119,7 @@ namespace osidbg
 		UIObjectManager::CreateUIObject UIObjectManager__CreateUIObject{ nullptr };
 		UIObjectManager::DestroyUIObject UIObjectManager__DestroyUIObject{ nullptr };
 		UIObjectManager::GetInstance UIObjectManager__GetInstance{ nullptr };
+		UIObjectManager ** UIObjectManager__Instance{ nullptr };
 		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
 		UIObject::VMT * EoCUI__vftable{ nullptr };
 
@@ -249,6 +250,27 @@ namespace osidbg
 			} else {
 				return {};
 			}
+		}
+
+		inline UIObjectManager * GetUIObjectManager() const
+		{
+			if (UIObjectManager__Instance != nullptr) {
+				return *UIObjectManager__Instance;
+			} else if (UIObjectManager__GetInstance != nullptr) {
+				return UIObjectManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline void RegisterUIObjectCreator(UIObjectManager * self, unsigned int index, UIObjectFunctor * creator)
+		{
+#if defined(OSI_EOCAPP)
+			auto hashMap = (UIObjectManager *)((intptr_t)self + offsetof(UIObjectManager, UIObjectCreators));
+			UIObjectManager__RegisterUIObjectCreator(hashMap, index, creator);
+#else
+			UIObjectManager__RegisterUIObjectCreator(self, index, creator);
+#endif
 		}
 
 		inline void AddGameActionWrapper(esv::GameActionManager * mgr, esv::GameAction * action) const

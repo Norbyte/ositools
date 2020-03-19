@@ -275,6 +275,15 @@ namespace osidbg
 		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusPrototypeFormatDescriptionParam)}
 	};
 
+	SymbolMappingData const sSymbolEoCUIvftable = {
+		"ecl::EoCUI::vftable",
+		SymbolMappingData::kCustom, 0,
+		"C7 83 48 01 00 00 00 00 00 00 " // mov     dword ptr [rbx+148h], 0
+		"48 8D 05 XX XX XX XX ", // lea     rax, ecl__EoCUI__vftable
+		{},
+		{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirectLea, 10, STATIC_SYM(EoCUI__vftable)}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"EoCMemoryMgr", 
@@ -820,6 +829,56 @@ namespace osidbg
 			"48 81 EC D0 00 00 00 ", // sub     rsp, 0D0h
 			{},
 			{"esv::Inventory::Equip", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(InventoryEquip)}
+		},
+
+		{
+			"ls::UIObjectManager",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:qword_1429824B0
+			"4D 8B C6 " // mov     r8, r14
+			"48 81 C1 D8 00 00 00 " // add     rcx, 0D8h
+			"BA 92 00 00 00 " // mov     edx, 92h
+			"E8 XX XX XX XX ", // call    ls__UIObjectManager__RegisterUIObjectCreator
+			{},
+			{"ls::UIObjectManager", SymbolMappingTarget::kIndirectLea, 0, STATIC_SYM(UIObjectManager__Instance)},
+			{"ls::UIObjectManager::RegisterUIObjectCreator", SymbolMappingTarget::kIndirectCall, 22, STATIC_SYM(UIObjectManager__RegisterUIObjectCreator)}
+		},
+
+		{
+			"ls::UIObjectManager::CreateUIObject",
+			SymbolMappingData::kText, 0,
+			"89 44 24 20 " // mov     [rsp+40h+var_20], eax
+			"45 8D 41 94 " // lea     r8d, [r9-6Ch]
+			"E8 XX XX XX XX " // call    ls__UIObjectManager__CreateUIObject
+			"48 8B 08 " // mov     rcx, [rax]
+			"48 89 8B 10 02 00 00 ", // mov     [rbx+210h], rcx
+			{},
+			{"ls::UIObjectManager::CreateUIObject", SymbolMappingTarget::kIndirectCall, 8, STATIC_SYM(UIObjectManager__CreateUIObject)}
+		},
+
+		{
+			"ls::UIObjectManager::DestroyUIObject",
+			SymbolMappingData::kText, 0,
+			"48 8D 93 A8 02 00 00 " // lea     rdx, [rbx+2A8h]
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    ls__UIObjectManager__DestroyUIObject
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__ObjectHandle__Unassigned
+			"48 89 83 A8 02 00 00 " // mov     [rbx+2A8h], rax
+			"45 84 E4 ", // test    r12b, r12b
+			{},
+			{"ls::UIObjectManager::DestroyUIObject", SymbolMappingTarget::kIndirectCall, 10, STATIC_SYM(UIObjectManager__DestroyUIObject)}
+		},
+
+		{
+			"eoc::EoCUI::ctor",
+			SymbolMappingData::kText, 0,
+			"48 8B D9 " // mov     rbx, rcx
+			"E8 XX XX XX XX " // call    ecl__EocUI__ctor
+			"C7 83 98 01 00 00 00 00 A0 40 " // mov     dword ptr [rbx+198h], 40A00000h
+			"48 8D 8B B0 01 00 00 " // lea     rcx, [rbx+1B0h]
+			"C7 83 9C 01 00 00 FF FF FF FF ", // mov     dword ptr [rbx+19Ch], 0FFFFFFFFh
+			{},
+			{"eoc::EoCUI::ctor", SymbolMappingTarget::kIndirectCall, 3, STATIC_SYM(EoCUI__ctor), nullptr, &sSymbolEoCUIvftable, 0x40}
 		},
 	};
 
