@@ -778,7 +778,6 @@ namespace osidbg
 	void LuaState::OnNetMessageReceived(std::string const & channel, std::string const & payload)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext

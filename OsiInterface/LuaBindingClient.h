@@ -12,7 +12,7 @@ namespace osidbg
 	};
 
 
-	class LuaUIObjectProxy : public LuaUserdata<LuaUIObjectProxy>, public LuaIndexable
+	class LuaUIObjectProxy : public LuaUserdata<LuaUIObjectProxy>
 	{
 	public:
 		static char const * const MetatableName;
@@ -25,8 +25,6 @@ namespace osidbg
 
 		struct UIObject * Get();
 
-		int LuaIndex(lua_State * L);
-
 	private:
 		ObjectHandle handle_;
 
@@ -37,9 +35,10 @@ namespace osidbg
 
 		static int Invoke(lua_State * L);
 		static int GotoFrame(lua_State * L);
-		static int AddInvokeName(lua_State * L);
 		static int GetValue(lua_State * L);
 		static int SetValue(lua_State * L);
+		static int GetHandle(lua_State * L);
+		static int Destroy(lua_State * L);
 	};
 
 
@@ -47,12 +46,19 @@ namespace osidbg
 	{
 	public:
 		LuaStateClient();
+		~LuaStateClient();
 
+		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, struct InvokeDataValue * args);
 		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
+
+		void OnClientUIObjectCreated(char const * name, ObjectHandle handle);
+		UIObject * GetUIObject(char const * name);
+
 	private:
 		LuaExtensionLibraryClient library_;
+		std::unordered_map<std::string, ObjectHandle> clientUI_;
 	};
 }

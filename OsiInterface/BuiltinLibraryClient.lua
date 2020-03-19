@@ -82,3 +82,30 @@ end
 Ext.EnableStatOverride = function ()
 	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
 end
+
+Ext._UIListeners = {}
+
+Ext.RegisterUICall = function (object, call, fn)
+	local handle = object:GetHandle()
+	if Ext._UIListeners[handle] == nil then
+		Ext._UIListeners[handle] = {}
+	end
+	
+	if Ext._UIListeners[handle][call] == nil then
+		Ext._UIListeners[handle][call] = {}
+	end
+	
+	table.insert(Ext._UIListeners[handle][call], fn)
+end
+
+Ext._UICall = function (object, call, ...)
+    local listeners = Ext._UIListeners[object:GetHandle()]
+	if listeners ~= nil and listeners[call] ~= nil then
+		for i,callback in pairs(listeners[call]) do
+			local status, err = xpcall(callback, debug.traceback, object, call, ...)
+			if not status then
+				Ext.PrintError("Error in UI ExternalInterface handler for '" .. call .. "': ", err)
+			end
+		end
+	end
+end

@@ -331,7 +331,9 @@ namespace osidbg
 		bool IsDragging;
 		uint8_t _Pad[7];
 		ObjectHandle ChildUIHandle;
+#if !defined(OSI_EOCAPP)
 		ObjectHandle ParentUIHandle;
+#endif
 		int Layer;
 		int RenderOrder;
 		int MovieLayout;
@@ -362,10 +364,11 @@ namespace osidbg
 		bool RenderDataPrepared;
 		bool InputFocused;
 		bool HasAnchorPos;
+		uint8_t _Pad2;
 		ObjectHandle UIObjectHandle;
 		int Type;
 		int16_t PlayerId;
-		uint8_t _Pad2[2];
+		uint8_t _Pad3[2];
 	};
 
 

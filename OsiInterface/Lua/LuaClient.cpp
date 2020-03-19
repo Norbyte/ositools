@@ -55,36 +55,26 @@ namespace osidbg
 	}
 
 
-	class UIObjectRegistry
-	{
-	public:
-		struct ObjectMetadata
-		{
-			uint32_t NextInvokeId;
-		};
-
-		ObjectMetadata * GetMetadata(ObjectHandle handle);
-	};
-
-	UIObjectRegistry gUIObjectRegistry;
-
-
 	struct CustomUI : public ecl::EoCUI
 	{
 		CustomUI(osidbg::Path * path)
 			: EoCUI(path)
 		{}
 
-		void OnFunctionCalled(const char * func, unsigned int a2, InvokeDataValue * arg)
+		void OnFunctionCalled(const char * func, unsigned int numArgs, InvokeDataValue * args)
 		{
-			// auto ui 
+			LuaClientPin lua(ExtensionStateClient::Get());
+			if (lua) {
+				lua->OnUICall(UIObjectHandle, func, numArgs, args);
+			}
 
-			EoCUI::OnFunctionCalled(func, a2, arg);
+			EoCUI::OnFunctionCalled(func, numArgs, args);
 		}
 
-		void Destroy(bool a1)
+		void Destroy(bool free)
 		{
-			if (a1) {
+			EoCUI::Destroy(false);
+			if (free) {
 				GameFree(this);
 			}
 		}
@@ -145,7 +135,9 @@ namespace osidbg
 			break;
 
 		default:
-			luaL_error(L, "Flash value of type %d cannot be passed to Lua", (unsigned)val.TypeId);
+			OsiError("Flash value of type " << (unsigned)val.TypeId << " cannot be passed to Lua");
+			lua_pushnil(L);
+			break;
 		}
 	}
 
@@ -185,28 +177,19 @@ namespace osidbg
 		lua_pushcfunction(L, &GotoFrame);
 		lua_setfield(L, -2, "GotoFrame");
 
-		lua_pushcfunction(L, &AddInvokeName);
-		lua_setfield(L, -2, "AddInvokeName");
-
 		lua_pushcfunction(L, &GetValue);
 		lua_setfield(L, -2, "GetValue");
 
 		lua_pushcfunction(L, &SetValue);
 		lua_setfield(L, -2, "SetValue");
 
+		lua_pushcfunction(L, &GetHandle);
+		lua_setfield(L, -2, "GetHandle");
+
+		lua_pushcfunction(L, &Destroy);
+		lua_setfield(L, -2, "Destroy");
+
 		lua_setfield(L, -2, "__index");
-	}
-
-
-	int LuaUIObjectProxy::LuaIndex(lua_State * L)
-	{
-		auto ui = Get();
-		if (ui == nullptr) return luaL_error(L, "UI object not available");
-
-		auto prop = luaL_checkstring(L, 2);
-		// FIXME
-
-		return 0;
 	}
 
 
@@ -278,8 +261,8 @@ namespace osidbg
 		}
 
 		if (!invokeId) {
-			OsiError("UI object has no invoke named '" << name << "'");
-			return 0;
+			invokeId = ui->FlashPlayer->Invokes.Set.Size;
+			ui->FlashPlayer->AddInvokeName(*invokeId, name);
 		}
 		
 		auto numArgs = lua_gettop(L) - 2;
@@ -312,18 +295,6 @@ namespace osidbg
 			ui->FlashPlayer->GotoFrame(frame);
 		}
 		
-		return 0;
-	}
-
-
-	int LuaUIObjectProxy::AddInvokeName(lua_State * L)
-	{
-		auto ui = CheckUserData(L, 1)->Get();
-		if (!ui || !ui->FlashPlayer) return 0;
-
-		auto name = luaL_checkstring(L, 2);
-		auto index = ui->FlashPlayer->Invokes.Set.Size;
-		ui->FlashPlayer->AddInvokeName(index, name);
 		return 0;
 	}
 
@@ -384,6 +355,27 @@ namespace osidbg
 		}
 	}
 
+
+	int LuaUIObjectProxy::GetHandle(lua_State * L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		lua_push(L, ui->UIObjectHandle.Handle);
+		return 1;
+	}
+
+
+	int LuaUIObjectProxy::Destroy(lua_State * L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		ui->RequestDelete();
+		return 0;
+	}
+
+
 	uint32_t NextCustomCreatorId = 1000;
 
 	int CreateUI(lua_State * L)
@@ -400,6 +392,14 @@ namespace osidbg
 		}
 
 		// FIXME - playerId, registerInvokeNames?
+
+		LuaClientPin pin(ExtensionStateClient::Get());
+		auto ui = pin->GetUIObject(name);
+		if (ui != nullptr) {
+			OsiError("An UI object with name '" << name << "' already exists!");
+			LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+			return 1;
+		}
 
 		auto & sym = GetStaticSymbols();
 		auto absPath = sym.ToPath(path, PathRootType::Data);
@@ -450,8 +450,38 @@ namespace osidbg
 			return 0;
 		}
 
+		pin->OnClientUIObjectCreated(name, handle);
 		LuaUIObjectProxy::New(L, handle);
 		return 1;
+	}
+
+	int GetUI(lua_State * L)
+	{
+		auto name = luaL_checkstring(L, 1);
+
+		LuaClientPin pin(ExtensionStateClient::Get());
+		auto ui = pin->GetUIObject(name);
+		if (ui != nullptr) {
+			LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int DestroyUI(lua_State * L)
+	{
+		auto name = luaL_checkstring(L, 1);
+
+		LuaClientPin pin(ExtensionStateClient::Get());
+		auto ui = pin->GetUIObject(name);
+		if (ui != nullptr) {
+			ui->RequestDelete();
+		} else {
+			OsiError("No UI object exists with name '" << name << "'!");
+		}
+
+		return 0;
 	}
 
 
@@ -487,6 +517,8 @@ namespace osidbg
 			{"AddPathOverride", AddPathOverride},
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},
+			{"GetUI", GetUI},
+			{"DestroyUI", DestroyUI},
 			{0,0}
 		};
 
@@ -514,6 +546,41 @@ namespace osidbg
 		// Ext is not writeable after loading SandboxStartup!
 		auto sandbox = GetBuiltinLibrary(IDR_LUA_SANDBOX_STARTUP);
 		LoadScript(sandbox, "SandboxStartup.lua");
+	}
+
+	LuaStateClient::~LuaStateClient()
+	{
+		auto & sym = GetStaticSymbols();
+		auto uiManager = sym.GetUIObjectManager();
+		for (auto & obj : clientUI_) {
+			sym.UIObjectManager__DestroyUIObject(uiManager, &obj.second);
+		}
+	}
+
+	void LuaStateClient::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
+	{
+		std::lock_guard lock(mutex_);
+		LuaRestriction restriction(*this, RestrictAllClient);
+
+		auto L = state_;
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_UICall"); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1); // stack: -
+			return;
+		}
+
+		LuaUIObjectProxy::New(L, uiObjectHandle);
+		lua_push(L, func);
+		for (uint32_t i = 0; i < numArgs; i++) {
+			InvokeDataValueToLua(L, args[i]);
+		}
+
+		if (CallWithTraceback(2 + numArgs, 0) != 0) { // stack: -
+			OsiError("UICall handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
 	}
 
 	bool LuaStateClient::SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
@@ -647,6 +714,26 @@ namespace osidbg
 
 		lua_pop(L, 1); // stack: -
 		return ok;
+	}
+
+
+	void LuaStateClient::OnClientUIObjectCreated(char const * name, ObjectHandle handle)
+	{
+		clientUI_.insert(std::make_pair(name, handle));
+	}
+
+
+	UIObject * LuaStateClient::GetUIObject(char const * name)
+	{
+		auto it = clientUI_.find(name);
+		if (it != clientUI_.end()) {
+			auto uiManager = GetStaticSymbols().GetUIObjectManager();
+			if (uiManager != nullptr) {
+				return uiManager->Get(it->second);
+			}
+		}
+
+		return nullptr;
 	}
 
 
