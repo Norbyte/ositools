@@ -486,6 +486,16 @@ namespace osidbg
 		static int ToTable(lua_State * L);
 	};
 
+	class LuaExtensionLibrary
+	{
+	public:
+		virtual void Register(lua_State * L);
+		virtual void RegisterLib(lua_State * L) = 0;
+
+	protected:
+		static int Require(lua_State * L);
+	};
+
 	class LuaException : public std::exception
 	{
 	public:

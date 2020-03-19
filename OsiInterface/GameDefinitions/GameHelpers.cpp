@@ -29,6 +29,18 @@ namespace osidbg
 	}
 
 
+	STDWString::STDWString(STDWString const & other)
+	{
+		Set(other.GetPtr());
+	}
+
+	STDWString & STDWString::operator = (STDWString const & other)
+	{
+		Set(other.GetPtr());
+		return *this;
+	}
+
+
 	void STDWString::Set(std::string const & s)
 	{
 		auto wcs = FromUTF8(s);
@@ -54,6 +66,17 @@ namespace osidbg
 		}
 	}
 
+
+	STDString::STDString(STDString const & other)
+	{
+		Set(other.GetPtr());
+	}
+
+	STDString & STDString::operator = (STDString const & other)
+	{
+		Set(other.GetPtr());
+		return *this;
+	}
 
 	void STDString::Set(std::string const & s)
 	{
@@ -1256,7 +1279,7 @@ namespace osidbg
 
 
 
-	bool UIObject::OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3)
+	void UIObject::OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3)
 	{
 		return GetStaticSymbols().EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
 	}

@@ -533,6 +533,30 @@ namespace osidbg
 	}
 
 
+	void LuaExtensionLibrary::Register(lua_State * L)
+	{
+		RegisterLib(L);
+		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
+		LuaObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
+		LuaObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
+		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		LuaHandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
+		LuaStatsExtraDataProxy::RegisterMetatable(L);
+		LuaStatsProxy::RegisterMetatable(L);
+		LuaSkillPrototypeProxy::RegisterMetatable(L);
+		LuaDamageList::RegisterMetatable(L);
+	}
+
+	int LuaExtensionLibrary::Require(lua_State * L)
+	{
+		auto modGuid = luaL_checkstring(L, 1);
+		auto fileName = luaL_checkstring(L, 2);
+		gOsirisProxy->GetCurrentExtensionState()->LuaLoadModScript(modGuid, fileName);
+		return 0;
+	}
+
+
 	// Unsafe libs (IO, OS, package, debug) removed
 	static const luaL_Reg loadedlibs[] = {
 	  {"_G", luaopen_base},

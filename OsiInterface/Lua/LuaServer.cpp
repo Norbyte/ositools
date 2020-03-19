@@ -338,29 +338,17 @@ namespace osidbg
 	}
 
 
-	LuaExtensionLibraryServer::LuaExtensionLibraryServer()
-	{
-	}
-
 	void LuaExtensionLibraryServer::Register(lua_State * L)
 	{
-		RegisterLib(L);
-		LuaOsiFunctionNameProxy::RegisterMetatable(L);
+		LuaExtensionLibrary::Register(L);
+
 		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
-		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
-		LuaObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
-		LuaObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
 		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
+
+		LuaOsiFunctionNameProxy::RegisterMetatable(L);
 		LuaStatusHandleProxy::RegisterMetatable(L);
-		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaHandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
-		LuaStatsExtraDataProxy::RegisterMetatable(L);
-		LuaStatsProxy::RegisterMetatable(L);
-		LuaSkillPrototypeProxy::RegisterMetatable(L);
-		LuaDamageList::RegisterMetatable(L);
 		LuaTurnManagerCombatProxy::RegisterMetatable(L);
 		LuaTurnManagerTeamProxy::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
@@ -493,14 +481,6 @@ namespace osidbg
 
 		luaL_newlib(L, extLib); // stack: lib
 		lua_setglobal(L, "Ext"); // stack: -
-	}
-
-	int LuaExtensionLibraryServer::Require(lua_State * L)
-	{
-		auto modGuid = luaL_checkstring(L, 1);
-		auto fileName = luaL_checkstring(L, 2);
-		ExtensionStateServer::Get().LuaLoadModScript(modGuid, fileName);
-		return 0;
 	}
 
 

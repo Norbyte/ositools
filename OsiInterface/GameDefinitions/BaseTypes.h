@@ -565,7 +565,7 @@ namespace osidbg
 		}
 	};
 
-	struct STDWString : public Noncopyable<STDWString>
+	struct STDWString
 	{
 		union {
 			wchar_t Buf[8];
@@ -585,6 +585,9 @@ namespace osidbg
 			}
 		}
 
+		STDWString(STDWString const &);
+		STDWString & operator = (STDWString const &);
+
 		void Set(std::string const & s);
 		void Set(std::wstring const & s);
 	};
@@ -595,7 +598,7 @@ namespace osidbg
 		uint64_t Size;
 	};
 
-	struct STDString : public Noncopyable<STDString>
+	struct STDString
 	{
 		union {
 			char Buf[16];
@@ -614,6 +617,9 @@ namespace osidbg
 				return Buf;
 			}
 		}
+
+		STDString(STDString const &);
+		STDString & operator = (STDString const &);
 
 		void Set(std::string const & s);
 

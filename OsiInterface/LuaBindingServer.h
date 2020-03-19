@@ -194,13 +194,11 @@ namespace osidbg
 	};
 
 
-	class LuaExtensionLibraryServer
+	class LuaExtensionLibraryServer : public LuaExtensionLibrary
 	{
 	public:
-		LuaExtensionLibraryServer();
-
-		void Register(lua_State * L);
-		void RegisterLib(lua_State * L);
+		void Register(lua_State * L) override;
+		void RegisterLib(lua_State * L) override;
 		std::string GenerateOsiHelpers();
 
 	private:
@@ -211,7 +209,6 @@ namespace osidbg
 
 		static int LuaIndexResolverTable(lua_State * L);
 
-		static int Require(lua_State * L);
 		static int NewCall(lua_State * L);
 		static int NewQuery(lua_State * L);
 		static int NewEvent(lua_State * L);

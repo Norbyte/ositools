@@ -34,7 +34,7 @@ namespace osidbg
 
 	namespace ig
 	{
-		struct FlashObject
+		struct FlashObject : ProtectedGameObject<FlashObject>
 		{
 			virtual void Destroy() = 0;
 			virtual void SetX() = 0;
@@ -92,7 +92,14 @@ namespace osidbg
 		};
 
 
-		struct FlashPlayer
+		struct FlashInvokeDefinition
+		{
+			void * IggyName;
+			char const * Name;
+		};
+
+
+		struct FlashPlayer : ProtectedGameObject<FlashPlayer>
 		{
 			virtual void Destroy() = 0;
 			virtual void OnWTCompletion() = 0;
@@ -112,14 +119,14 @@ namespace osidbg
 			virtual bool Invoke1(int64_t invokeEnum, InvokeDataValue *a3) = 0;
 			virtual bool Invoke0(int64_t invokeEnum) = 0;
 			virtual bool InvokeArgs(int64_t invokeEnum, InvokeDataValue * args, unsigned numArgs) = 0;
-			virtual void field_90() = 0;
-			virtual void field_98() = 0;
-			virtual void field_A0() = 0;
+			virtual bool HasFreeStringScratchArea(uint64_t size) = 0;
+			virtual bool HasFreeWStringScratchArea(uint64_t size) = 0;
+			virtual bool HasInvokes() = 0;
 			virtual void field_A8() = 0;
-			virtual void field_B0() = 0;
+			virtual void InvokeByName(char const * name, uint64_t unknown, InvokeDataValue * arg) = 0;
 			virtual void SetRenderRectangle() = 0;
-			virtual void field_C0() = 0;
-			virtual void field_C8() = 0;
+			virtual void SetSize(int * size) = 0;
+			virtual int * GetSize() = 0;
 			virtual void field_D0() = 0;
 			virtual void Render() = 0;
 			virtual void field_E0() = 0;
@@ -129,7 +136,7 @@ namespace osidbg
 			virtual void GotoFrame2(uint64_t frame) = 0;
 			virtual FlashObject * CreateFlashObject(char const * path, int arrayIndex) = 0;
 			virtual ig::FlashObject *GetRootObject() = 0;
-			virtual void SetFrameRate() = 0;
+			virtual void SetFrameRate(uint32_t frameRate) = 0;
 			virtual void SetPath(Path * path) = 0;
 			virtual void OnFunctionCalled() = 0;
 			virtual void Tick() = 0;
@@ -160,18 +167,19 @@ namespace osidbg
 			int field_20;
 			int field_24;
 			__int16 field_28;
+			uint8_t _Pad0[6];
 			void * IggyPlayer;
 			void * IggyPlayerRootPath;
-			ObjectSet<FlashInvoke> Invokes;
+			ObjectSet<FlashInvokeDefinition> Invokes;
 			int FlashInvokePool;
 			int field_64;
-			__int64 PoolName;
+			char const * PoolName;
 			CRITICAL_SECTION CriticalSection;
 			char Invoked_M;
 			char field_99;
-			uint8_t _Pad[6];
-			ObjectSet<void *> QueuedInvokes; // <FlashInvoke *>
-			ObjectSet<void *> Invokes2; // <FlashInvoke *>
+			uint8_t _Pad1[6];
+			ObjectSet<FlashInvoke *> QueuedInvokes; // <FlashInvoke *>
+			ObjectSet<FlashInvoke *> Invokes2; // <FlashInvoke *>
 			ObjectSet<InvokeDataValue> InvokeValues;
 			ObjectSet<FlashPlayer *> FlashPlayers;
 			__int64 field_120;
@@ -188,11 +196,40 @@ namespace osidbg
 	}
 
 
-	struct UIObject
+	enum UIObjectFlags : uint32_t
+	{
+		OF_Load = 0x1,
+		OF_Loaded = 0x2,
+		OF_RequestDelete = 0x4,
+		OF_Visible = 0x8,
+		OF_Activated = 0x10,
+		OF_PlayerInput1 = 0x20,
+		OF_PlayerInput2 = 0x40,
+		OF_PlayerInput3 = 0x80,
+		OF_PlayerInput4 = 0x100,
+		OF_PlayerModal1 = 0x200,
+		OF_PlayerModal2 = 0x400,
+		OF_PlayerModal3 = 0x800,
+		OF_PlayerModal4 = 0x1000,
+		OF_PositioningFlag1 = 0x8000,
+		OF_PositioningFlag2 = 0x10000,
+		OF_DeleteOnChildDestroy = 0x20000,
+		OF_SortOnAdd = 0x80000,
+		OF_PlayerTextInput1 = 0x800000,
+		OF_PlayerTextInput2 = 0x1000000,
+		OF_PlayerTextInput3 = 0x2000000,
+		OF_PlayerTextInput4 = 0x4000000,
+		OF_DontHideOnDelete = 0x10000000,
+		OF_PrecacheUIData = 0x20000000,
+		OF_PreventCameraMove = 0x40000000,
+	};
+
+
+	struct UIObject : Noncopyable<UIObject>
 	{
 		struct VMT
 		{
-			bool(* OnFunctionCalled)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
+			void(* OnFunctionCalled)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
 			void(* OnCustomDrawCallback)(UIObject * self, void *);
 			void (* Destroy)(UIObject * self, bool);
 			void(* SetHandle)(UIObject * self, ObjectHandle *);
@@ -239,7 +276,7 @@ namespace osidbg
 		};
 
 
-		virtual bool OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3);
+		virtual void OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3);
 		virtual void OnCustomDrawCallback(void * a1);
 		virtual void Destroy(bool a1);
 		virtual void SetHandle(ObjectHandle * a1);
@@ -288,7 +325,7 @@ namespace osidbg
 		int BufferSizes;
 		int field_C;
 		int field_10;
-		int Flags;
+		UIObjectFlags Flags;
 		ig::FlashPlayer * FlashPlayer;
 		Path Path;
 		bool IsDragging;
@@ -340,7 +377,7 @@ namespace osidbg
 
 
 
-	struct UIObjectManager : public ObjectFactory<UIObject, 99>
+	struct UIObjectManager : public ObjectFactory<UIObject, 3>
 	{
 		struct SomeObject
 		{
@@ -362,7 +399,7 @@ namespace osidbg
 		CRITICAL_SECTION CriticalSection3;
 		int64_t WorkerThreadJobVMT;
 		int64_t field_D0;
-		FixedStringRefMap<uint32_t, void *> UIObjectCreators;
+		FixedStringRefMap<uint32_t, UIObjectFunctor *> UIObjectCreators;
 		int64_t field_E8;
 		ObjectSet<UIObject *> UIObjects;
 		bool ShouldPrepareRenderData;

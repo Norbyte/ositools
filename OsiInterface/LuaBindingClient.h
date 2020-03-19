@@ -4,16 +4,42 @@
 
 namespace osidbg
 {
-	class LuaExtensionLibraryClient
+	class LuaExtensionLibraryClient : public LuaExtensionLibrary
 	{
 	public:
-		LuaExtensionLibraryClient();
+		void Register(lua_State * L) override;
+		void RegisterLib(lua_State * L) override;
+	};
 
-		void Register(lua_State * L);
-		void RegisterLib(lua_State * L);
+
+	class LuaUIObjectProxy : public LuaUserdata<LuaUIObjectProxy>, public LuaIndexable
+	{
+	public:
+		static char const * const MetatableName;
+
+		static void PopulateMetatable(lua_State * L);
+
+		inline LuaUIObjectProxy(ObjectHandle handle)
+			: handle_(handle)
+		{}
+
+		struct UIObject * Get();
+
+		int LuaIndex(lua_State * L);
 
 	private:
-		static int Require(lua_State * L);
+		ObjectHandle handle_;
+
+		static int SetPosition(lua_State * L);
+		static int Resize(lua_State * L);
+		static int Show(lua_State * L);
+		static int Hide(lua_State * L);
+
+		static int Invoke(lua_State * L);
+		static int GotoFrame(lua_State * L);
+		static int AddInvokeName(lua_State * L);
+		static int GetValue(lua_State * L);
+		static int SetValue(lua_State * L);
 	};
 
 
