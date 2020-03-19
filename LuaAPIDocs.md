@@ -16,6 +16,7 @@
     * [User Queries](#o2l_qrys)
     * [Databases](#o2l_dbs)
  - [The Ext Library](#the-ext-library)  
+    * [UI](#ui)
     * [Stats](#stats)
     * [Skill/Status Overrides](#skillstatus-overrides)
     * [Mod Info](#mod-info)
@@ -307,6 +308,96 @@ Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Delete("CON_Drink_Cup_A_Tea_080d0e
 
 
 # The `Ext` library
+
+## UI
+
+#### Ext.CreateUI(name, path, layer)
+
+Creates a new UI element. Returns the UI object on success and `nil` on failure.
+ - `name` is a user-defined unique name that identifies the UI element. To avoid name collisions, the name should always be prefixed with the mod name (e.g. `NRD_CraftingUI`)
+ - `path` is the path of the SWF file relative to the data directory (e.g. `"Public/ModName/GUI/CraftingUI.swf"`)
+ - `layer` specifies the stack order of the UI element. Overlapping elements with a larger layer value cover those with a smaller one.
+
+#### Ext.GetUI(name)
+
+Retrieves an UI element with the specified name. If no such element exists, the function returns `nil`.
+
+#### Ext.DestroyUI(name)
+
+Destroys the specified UI element.
+
+
+### Interacting with the UI Element
+
+#### UIObject:Invoke(func, ...)
+
+The `Invoke` method calls a method on the main timeline object of the UI element. The first argument (`func`) is the name of the ActionScript function to call; all subsequent arguments are passed to the ActionScript function as parameters.
+Only `string`, `number` and `boolean` arguments are supported.
+
+Example:
+```lua
+local ui = Ext.GetUI(...)
+ui:Invoke("exposedMethod", "test")
+```
+
+ActionScript:
+```actionscript
+function exposedMethod(val: String): * {
+	this.testLabel.text = val;
+}
+```
+
+
+#### Ext.RegisterUICall(object, name, handler)
+
+The `Ext.RegisterUICall` function registers a listener that is called when the `ExternalInterface.call` function is invoked from ActionScript. ([ExternalInterface docs](https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/external/ExternalInterface.html))
+ - `object` is the UI object that is returned from `Ext.CreateUI` or `Ext.GetUI`
+ - `name` is the ExternalInterface function name
+ - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
+
+Example:
+```lua
+local function handleTextEvent(ui, call, arg1, arg2)
+    ...
+end
+
+local ui = Ext.GetUI(...)
+Ext.RegisterUICall(ui, "sendTextEvent", handleTextEvent)
+```
+
+```actionscript
+ExternalInterface.call("sendTextEvent", "argument 1", "argument 2");
+```
+
+#### UIObject:SetValue(name, value, [arrayIndex])
+
+The `SetValue` method updates the specified public property of the main timeline object. 
+
+
+#### UIObject:GetValue(name, type, [arrayIndex])
+
+The `GetValue` method retrieves the specified public property of the main timeline object. 
+`type` contains the type of value to retrieve and must be `string`, `number` or `boolean`.
+
+
+#### UIObject:Show()
+
+Displays the UI element.
+
+#### UIObject:Hide()
+
+Hides the UI element.
+
+#### UIObject:SetPosition(x, y)
+
+Updates the position of the UI element.
+
+Example:
+```lua
+local ui = Ext.GetUI(...)
+UI:SetPosition(100, 100)
+```
+
 
 ## Stats
 
