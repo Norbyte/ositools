@@ -10,20 +10,30 @@ namespace osidbg
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
 			auto bootstrapMods = args[0].Int32 == 1;
+			bool resetServer = true;
+			bool resetClient = true;
+			if (args.Count == 3) {
+				resetServer = args[1].Int32 == 1;
+				resetClient = args[2].Int32 == 1;
+			}
 
-			auto & ext = ExtensionStateServer::Get();
-			ext.LuaReset(bootstrapMods);
-			ext.OnModuleResume();
-			ext.OnGameSessionLoading();
+			if (resetServer) {
+				auto & ext = ExtensionStateServer::Get();
+				ext.LuaReset(bootstrapMods);
+				ext.OnModuleResume();
+				ext.OnGameSessionLoading();
+			}
 
-			auto & networkMgr = gOsirisProxy->GetNetworkManager();
-			auto msg = networkMgr.GetFreeServerMessage();
-			if (msg != nullptr) {
-				auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
-				resetMsg->set_bootstrap_scripts(bootstrapMods);
-				networkMgr.ServerBroadcast(msg, -1);
-			} else {
-				OsiErrorS("Could not get free message!");
+			if (resetClient) {
+				auto & networkMgr = gOsirisProxy->GetNetworkManager();
+				auto msg = networkMgr.GetFreeServerMessage();
+				if (msg != nullptr) {
+					auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
+					resetMsg->set_bootstrap_scripts(bootstrapMods);
+					networkMgr.ServerBroadcast(msg, -1);
+				} else {
+					OsiErrorS("Could not get free message!");
+				}
 			}
 		}
 
@@ -152,6 +162,17 @@ namespace osidbg
 			"NRD_LuaReset",
 			std::vector<CustomFunctionParam>{
 				{ "BootstrapMods", ValueType::Integer, FunctionArgumentDirection::In }
+			},
+			&func::OsiLuaReset
+		);
+		functionMgr.Register(std::move(luaReset));
+		
+		auto luaReset = std::make_unique<CustomCall>(
+			"NRD_LuaReset",
+			std::vector<CustomFunctionParam>{
+				{ "BootstrapMods", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "ResetServer", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "ResetClient", ValueType::Integer, FunctionArgumentDirection::In }
 			},
 			&func::OsiLuaReset
 		);
