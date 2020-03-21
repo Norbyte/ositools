@@ -193,6 +193,35 @@ namespace osidbg
 			__int64 field_188;
 			__int64 field_190;
 		};
+
+		struct IggyBinding
+		{
+			void * VMT_APIeventListener;
+			CRITICAL_SECTION CriticalSection;
+			void * VMT_FileFormatIO;
+			void * SomeContextPtr;
+			ObjectSet<FlashPlayer *> FlashPlayers;
+			ObjectSet<void *> TextureSubstitutionDestroyCallbacks;
+			void * FlashWorkerThread;
+			DWORD Libraries[15];
+			int RenderFrameViewport[4];
+			bool Initialized;
+			bool IsRendering;
+			bool FlashRenderFrameStarted;
+			bool _Pad1;
+			ObjectHandle RenderTargetTextureHandle;
+			uint64_t field_E0;
+			void * GDraw;
+			ObjectSet<Path> Paths;
+			ObjectSet<STDString> ObjSet_StdString;
+			ObjectSet<void *> Fonts;
+			ObjectSet<uint32_t> FlashErrorValues;
+		};
+
+		typedef void (* TraceCallbackProc)(void *, void *, char const *);
+		typedef void (* WarningCallbackProc)(void *, void *, int, char const *);
+		typedef void (* SetWarningCallbackProc)(WarningCallbackProc, void *);
+		typedef void (* SetTraceCallbackUTF8Proc)(TraceCallbackProc, void *);
 	}
 
 

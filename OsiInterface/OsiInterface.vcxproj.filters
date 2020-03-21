@@ -293,9 +293,6 @@
     <ClCompile Include="ScriptExtensions.pb.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Functions\UIFunctions.cpp">
-      <Filter>Source Files\Functions</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">

@@ -17,6 +17,13 @@ namespace osidbg
 				resetClient = args[2].Int32 == 1;
 			}
 
+#if defined(OSI_EOCAPP)
+			if (!gOsirisProxy->GetConfig().DeveloperMode) {
+				OsiError("NRD_LuaReset is only callable in developer mode");
+				return;
+			}
+#endif
+
 			if (resetServer) {
 				auto & ext = ExtensionStateServer::Get();
 				ext.LuaReset(bootstrapMods);

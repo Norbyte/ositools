@@ -423,6 +423,47 @@ void OsirisProxy::DumpNetworkFixedStrings()
 	}
 }
 
+void OsirisProxy::RegisterFlashTraceCallbacks()
+{
+	HMODULE hIggy = GetModuleHandleW(L"iggy_w64.dll");
+	if (hIggy == NULL) {
+		return;
+	}
+
+	auto setWarningCallback = (ig::SetWarningCallbackProc)GetProcAddress(hIggy, "IggySetWarningCallback");
+	auto setTraceCallback = (ig::SetTraceCallbackUTF8Proc)GetProcAddress(hIggy, "IggySetTraceCallbackUTF8");
+
+	if (setWarningCallback != nullptr) {
+		setWarningCallback(&FlashWarningCallback, nullptr);
+	}
+
+	if (setTraceCallback != nullptr) {
+		setTraceCallback(&FlashTraceCallback, nullptr);
+	}
+}
+
+void OsirisProxy::FlashTraceCallback(void * ctx, void * player, char const * message)
+{
+	DEBUG("Flash: %s", message);
+}
+
+void OsirisProxy::FlashWarningCallback(void * ctx, void * player, int code, char const * message)
+{
+	if (code == 201 || code == 408) {
+		return;
+	}
+
+	if (code == 503) {
+		std::string errmsg(message);
+		if (errmsg.find("onEventResolution") != std::string::npos
+			|| errmsg.find("onEventResize") != std::string::npos) {
+			return;
+		}
+	}
+
+	WARN("Flash: (%d) %s", code, message);
+}
+
 bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
 {
 	DEBUG("OsirisProxy::MergeWrapper() - Started merge");
@@ -788,6 +829,10 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 			LoadExtensionStateClient();
 			if (ClientExtState) {
 				ClientExtState->OnGameSessionLoading();
+			}
+
+			if (config_.DeveloperMode) {
+				RegisterFlashTraceCallbacks();
 			}
 			break;
 

@@ -250,9 +250,13 @@ private:
 
 	void OnInitNetworkFixedStrings(void * self, void * arg1);
 	void DumpNetworkFixedStrings();
+	void RegisterFlashTraceCallbacks();
 
 	void AddClientThread(DWORD threadId);
 	void AddServerThread(DWORD threadId);
+	
+	static void FlashTraceCallback(void * ctx, void * player, char const * message);
+	static void FlashWarningCallback(void * ctx, void * player, int code, char const * message);
 };
 
 extern std::unique_ptr<OsirisProxy> gOsirisProxy;
