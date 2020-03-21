@@ -377,6 +377,7 @@ namespace osidbg
 	int GetCombat(lua_State * L);
 	int NewDamageList(lua_State * L);
 	int OsirisIsCallable(lua_State * L);
+	int IsDeveloperMode(lua_State * L);
 	int AddPathOverride(lua_State * L);
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
@@ -469,6 +470,7 @@ namespace osidbg
 			{"GetCombat", GetCombat},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
+			{"IsDeveloperMode", IsDeveloperMode},
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},

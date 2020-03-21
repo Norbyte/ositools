@@ -977,6 +977,12 @@ namespace osidbg
 		return 1;
 	}
 
+	int IsDeveloperMode(lua_State * L)
+	{
+		lua_pushboolean(L, gOsirisProxy->GetConfig().DeveloperMode);
+		return 1;
+	}
+
 	int AddPathOverride(lua_State * L)
 	{
 		auto path = luaL_checkstring(L, 1);

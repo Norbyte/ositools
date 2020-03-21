@@ -12,7 +12,7 @@ namespace osidbg
 			auto bootstrapMods = args[0].Int32 == 1;
 			bool resetServer = true;
 			bool resetClient = true;
-			if (args.Count == 3) {
+			if (args.Count() == 3) {
 				resetServer = args[1].Int32 == 1;
 				resetClient = args[2].Int32 == 1;
 			}
@@ -167,7 +167,7 @@ namespace osidbg
 		);
 		functionMgr.Register(std::move(luaReset));
 		
-		auto luaReset = std::make_unique<CustomCall>(
+		auto luaReset3 = std::make_unique<CustomCall>(
 			"NRD_LuaReset",
 			std::vector<CustomFunctionParam>{
 				{ "BootstrapMods", ValueType::Integer, FunctionArgumentDirection::In },
@@ -176,7 +176,7 @@ namespace osidbg
 			},
 			&func::OsiLuaReset
 		);
-		functionMgr.Register(std::move(luaReset));
+		functionMgr.Register(std::move(luaReset3));
 
 		auto luaLoad = std::make_unique<CustomCall>(
 			"NRD_LuaLoad",

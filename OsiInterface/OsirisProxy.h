@@ -73,9 +73,16 @@ struct ToolConfig
 
 #if defined(OSI_EXTENSION_BUILD)
 	bool DisableModValidation{ true };
+#if defined(_DEBUG)
+	bool DeveloperMode{ true };
+#else
+	bool DeveloperMode{ false };
+#endif // defined(_DEBUG)
 #else
 	bool DisableModValidation{ false };
-#endif
+	bool DeveloperMode{ true };
+#endif // defined(OSI_EXTENSION_BUILD)
+
 	bool DumpNetworkStrings{ false };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };

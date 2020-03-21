@@ -30,6 +30,7 @@ namespace osidbg
 	int GetStat(lua_State * L);
 	int NewDamageList(lua_State * L);
 	int OsirisIsCallableClient(lua_State * L);
+	int IsDeveloperMode(lua_State * L);
 	int AddPathOverride(lua_State * L);
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
@@ -511,6 +512,7 @@ namespace osidbg
 
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallableClient},
+			{"IsDeveloperMode", IsDeveloperMode},
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 
