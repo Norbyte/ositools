@@ -15,6 +15,16 @@ namespace osidbg
 			ext.LuaReset(bootstrapMods);
 			ext.OnModuleResume();
 			ext.OnGameSessionLoading();
+
+			auto & networkMgr = gOsirisProxy->GetNetworkManager();
+			auto msg = networkMgr.GetFreeServerMessage();
+			if (msg != nullptr) {
+				auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
+				resetMsg->set_bootstrap_scripts(bootstrapMods);
+				networkMgr.ServerBroadcast(msg, -1);
+			} else {
+				OsiErrorS("Could not get free message!");
+			}
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)

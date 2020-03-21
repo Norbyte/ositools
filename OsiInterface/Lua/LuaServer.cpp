@@ -398,7 +398,7 @@ namespace osidbg
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeServerMessage();
 		if (msg != nullptr) {
-			auto postMsg = msg->GetMessage().mutable_post_lua_message();
+			auto postMsg = msg->GetMessage().mutable_post_lua();
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
 			if (excludeCharacter != nullptr) {
@@ -425,7 +425,7 @@ namespace osidbg
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeServerMessage();
 		if (msg != nullptr) {
-			auto postMsg = msg->GetMessage().mutable_post_lua_message();
+			auto postMsg = msg->GetMessage().mutable_post_lua();
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
 			networkMgr.ServerSend(msg, character->PeerId);

@@ -10,8 +10,14 @@ message MsgPostLuaMessage {
   string payload = 2;
 }
 
+// Notifies the Lua runtime to reload client-side state
+message MsgS2CResetLuaMessage {
+  bool bootstrap_scripts = 1;
+}
+
 message MessageWrapper {
   oneof msg {
-    MsgPostLuaMessage post_lua_message = 1;
+    MsgPostLuaMessage post_lua = 1;
+    MsgS2CResetLuaMessage s2c_reset_lua = 2;
   }
 }

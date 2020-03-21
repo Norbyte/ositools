@@ -61,13 +61,23 @@ namespace osidbg
 	void ExtenderProtocolClient::ProcessExtenderMessage(MessageWrapper & msg)
 	{
 		switch (msg.msg_case()) {
-		case MessageWrapper::kPostLuaMessage:
+		case MessageWrapper::kPostLua:
 		{
-			auto & postMsg = msg.post_lua_message();
+			auto & postMsg = msg.post_lua();
 			LuaClientPin pin(ExtensionStateClient::Get());
 			if (pin) {
 				pin->OnNetMessageReceived(postMsg.channel_name(), postMsg.payload());
 			}
+			break;
+		}
+
+		case MessageWrapper::kS2CResetLua:
+		{
+			auto & resetMsg = msg.s2c_reset_lua();
+			auto & ext = ExtensionStateClient::Get();
+			ext.LuaReset(resetMsg.bootstrap_scripts());
+			ext.OnModuleResume();
+			ext.OnGameSessionLoading();
 			break;
 		}
 
@@ -79,9 +89,9 @@ namespace osidbg
 	void ExtenderProtocolServer::ProcessExtenderMessage(MessageWrapper & msg)
 	{
 		switch (msg.msg_case()) {
-		case MessageWrapper::kPostLuaMessage:
+		case MessageWrapper::kPostLua:
 		{
-			auto & postMsg = msg.post_lua_message();
+			auto & postMsg = msg.post_lua();
 			LuaServerPin pin(ExtensionStateServer::Get());
 			if (pin) {
 				pin->OnNetMessageReceived(postMsg.channel_name(), postMsg.payload());
