@@ -263,7 +263,12 @@ namespace osidbg
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
-			server->VMT->SendToMultiplePeers(server, &server->ActivePeerIds, msg, excludePeerId);
+			ObjectSet<int32_t> peerIds;
+			peerIds.Set.Reallocate(server->ActivePeerIds.Set.Size);
+			for (uint32_t i = 0; i < server->ActivePeerIds.Set.Size; i++) {
+				peerIds.Set.Add(server->ActivePeerIds[i]);
+			}
+			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
 		}
 	}
 }
