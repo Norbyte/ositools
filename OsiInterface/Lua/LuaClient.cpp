@@ -470,6 +470,29 @@ namespace osidbg
 		}
 	}
 
+	int GetBuiltinUI(lua_State * L)
+	{
+		auto path = luaL_checkstring(L, 1);
+		auto absPath = GetStaticSymbols().ToPath(path, PathRootType::Data);
+
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		if (uiManager == nullptr) {
+			OsiError("Couldn't get symbol for UIObjectManager!");
+			return 0;
+		}
+
+		for (uint32_t i = 0; i < uiManager->Objects.Size; i++) {
+			auto ui = uiManager->Objects[i];
+			if (ui != nullptr && ui->FlashPlayer != nullptr
+				&& absPath == ui->Path.Name.GetPtr()) {
+				LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+				return 1;
+			}
+		}
+
+		return 0;
+	}
+
 	int DestroyUI(lua_State * L)
 	{
 		auto name = luaL_checkstring(L, 1);
@@ -520,6 +543,7 @@ namespace osidbg
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},
 			{"GetUI", GetUI},
+			{"GetBuiltinUI", GetBuiltinUI},
 			{"DestroyUI", DestroyUI},
 			{0,0}
 		};
