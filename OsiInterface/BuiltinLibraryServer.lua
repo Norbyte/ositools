@@ -55,3 +55,7 @@ end
 Ext.EnableStatOverride = function ()
 	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
 end
+
+Ext.StatSetLevelScaling = function ()
+	Ext._WarnDeprecated("Calling Ext.StatSetLevelScaling() from a server context is deprecated!")
+end

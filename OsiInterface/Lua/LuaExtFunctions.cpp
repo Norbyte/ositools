@@ -720,7 +720,7 @@ namespace osidbg
 
 		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 		{
-			LuaVirtualPin pin(gOsirisProxy->GetCurrentExtensionState());
+			LuaClientPin pin(ExtensionStateClient::Get());
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
