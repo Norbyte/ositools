@@ -159,7 +159,6 @@ namespace osidbg
 
 	void NetworkManager::ExtendNetworkingClient()
 	{
-		if (!gOsirisProxy->HasFeatureFlag("Net")) return;
 		if (clientProtocol_ != nullptr) return;
 
 		auto client = GetClient();
@@ -183,7 +182,6 @@ namespace osidbg
 
 	void NetworkManager::ExtendNetworkingServer()
 	{
-		if (!gOsirisProxy->HasFeatureFlag("Net")) return;
 		if (serverProtocol_ != nullptr) return;
 
 		auto server = GetServer();
