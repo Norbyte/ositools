@@ -18,17 +18,17 @@ namespace osidbg
 
 	ExtenderProtocol::~ExtenderProtocol() {}
 
-	bool ExtenderProtocol::ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg)
+	net::MessageStatus ExtenderProtocol::ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg)
 	{
 		if (Msg->MsgId == ScriptExtenderMessage::MessageId) {
 			auto msg = static_cast<ScriptExtenderMessage *>(Msg);
 			if (msg->IsValid()) {
 				ProcessExtenderMessage(msg->GetMessage());
 			}
-			return true;
+			return net::MessageStatus::Handled;
 		}
 
-		return false;
+		return net::MessageStatus::Unhandled;
 	}
 
 	void ExtenderProtocol::Unknown1() {}

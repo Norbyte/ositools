@@ -62,10 +62,18 @@ namespace osidbg
 			uint8_t Unknown2;
 		};
 
+		enum class MessageStatus : int32_t
+		{
+			Unhandled = 0,
+			Handled = 1,
+			Unknown2 = 2,
+			Unknown3 = 3
+		};
+
 		struct Protocol
 		{
 			inline virtual ~Protocol() {}
-			virtual bool ProcessMsg(void * Unused, MessageContext * Unknown, Message * Msg) = 0;
+			virtual MessageStatus ProcessMsg(void * Unused, MessageContext * Unknown, Message * Msg) = 0;
 			virtual void Unknown1() = 0;
 			virtual int PreUpdate(void * Unknown) = 0;
 			virtual int PostUpdate(void * Unknown) = 0;

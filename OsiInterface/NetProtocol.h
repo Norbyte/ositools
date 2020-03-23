@@ -39,7 +39,7 @@ namespace osidbg
 	public:
 		~ExtenderProtocol() override;
 
-		bool ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg) override;
+		net::MessageStatus ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg) override;
 		void Unknown1() override;
 		int PreUpdate(void * Unknown) override;
 		int PostUpdate(void * Unknown) override;
