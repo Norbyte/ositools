@@ -529,7 +529,7 @@ namespace osidbg
 			if (i != index - 1
 				&& Params[i].PlaceholderSize != -1
 				&& Params[i].PlaceholderOffset > param.PlaceholderOffset) {
-				Params[i].PlaceholderOffset -= param.PlaceholderSize;
+				Params[i].PlaceholderOffset = Params[i].PlaceholderOffset - param.PlaceholderSize + replacement.size();
 			}
 		}
 
