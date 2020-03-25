@@ -555,6 +555,7 @@ namespace osidbg
 	};
 
 	typedef int32_t (CDivinityStats_Character__GetStat)(CDivinityStats_Character * self, bool baseStats);
+	typedef int32_t (CDivinityStats_Character__GetStatNoBoosts)(CDivinityStats_Character * self);
 	typedef int32_t (CDivinityStats_Character__GetStatWithBoosts)(CDivinityStats_Character * self, bool baseStats, bool excludeBoosts);
 	typedef int32_t (CDivinityStats_Character__GetStatWithInit)(CDivinityStats_Character * self, bool baseStats, int32_t initialValue);
 	typedef float (CDivinityStats_Character__GetStatHearing)(CDivinityStats_Character * self, CDivinityStats_Character * other, bool baseStats);
@@ -844,6 +845,22 @@ namespace osidbg
 			return getter(character, baseStats);
 		} else {
 			return wrapper.CallWithHooks(character, baseStats);
+		}
+	}
+
+	template <class TTag>
+	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStatNoBoosts * getter,
+		WrappableFunction<TTag, CDivinityStats_Character__GetStatNoBoosts> & wrapper,
+		CDivinityStats_Character * character, bool original, bool baseStats)
+	{
+		if (getter == nullptr) {
+			return {};
+		}
+
+		if (original || !wrapper.IsWrapped()) {
+			return getter(character);
+		} else {
+			return wrapper.CallWithHooks(character);
 		}
 	}
 

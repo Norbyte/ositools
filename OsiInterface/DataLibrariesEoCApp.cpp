@@ -171,16 +171,21 @@ namespace osidbg
 					auto ptr = AsmCallToAbsoluteAddress(p + 3);
 					getters.Ptrs[ptrIndex++] = (void *)ptr;
 				}
+			} else if (insn == 0x00908389) { /* mov [rbx+90h], eax */
+				if (ptrIndex < std::size(getters.Ptrs)) {
+					auto ptr = AsmCallToAbsoluteAddress(p + 6);
+					getters.Ptrs[ptrIndex++] = (void *)ptr;
+				}
 			}
 		}
 
-		if (getters.GetUnknown != nullptr) {
+		if (getters.GetBlockChance != nullptr) {
 			auto & library = gOsirisProxy->GetLibraryManager();
 			library.MapSymbol(sSymbolGetAbility, (uint8_t *)getters.GetDodge, 0x480);
 			library.MapSymbol(sSymbolGetTalent, (uint8_t *)getters.GetDodge, 0x480);
 		}
 
-		return (getters.GetUnknown != nullptr) ? SymbolMappingResult::Success : SymbolMappingResult::Fail;
+		return (getters.GetBlockChance != nullptr) ? SymbolMappingResult::Success : SymbolMappingResult::Fail;
 	}
 
 	SymbolMappingData const sSymbolChanceToHitBoost = {

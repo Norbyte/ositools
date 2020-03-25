@@ -62,7 +62,7 @@ namespace osidbg
 		{ StatGetterType::Hearing, "Hearing" },
 		{ StatGetterType::Movement, "Movement" },
 		{ StatGetterType::Initiative, "Initiative" },
-		{ StatGetterType::Unknown, "Unknown" },
+		{ StatGetterType::BlockChance, "BlockChance" },
 		{ StatGetterType::ChanceToHitBoost, "ChanceToHitBoost" }
 	};
 

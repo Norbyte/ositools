@@ -188,13 +188,13 @@ namespace osidbg
 			return {};
 		});
 
-		if (getters.GetUnknown != nullptr) {
+		if (getters.GetBlockChance != nullptr) {
 			auto & library = gOsirisProxy->GetLibraryManager();
 			library.MapSymbol(sSymbolGetAbility, (uint8_t *)getters.GetDodge, 0x480);
 			library.MapSymbol(sSymbolGetTalent, (uint8_t *)getters.GetDodge, 0x480);
 		}
 
-		return (getters.GetUnknown != nullptr) ? SymbolMappingResult::Success : SymbolMappingResult::Fail;
+		return (getters.GetBlockChance != nullptr) ? SymbolMappingResult::Success : SymbolMappingResult::Fail;
 	}
 
 	SymbolMappingData const sSymbolChanceToHitBoost = {

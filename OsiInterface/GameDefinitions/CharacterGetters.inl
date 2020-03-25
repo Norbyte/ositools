@@ -25,6 +25,6 @@ DEFN_GETTER(Stat, Sight)
 DEFN_GETTER(StatHearing, Hearing)
 DEFN_GETTER(Stat, Movement)
 DEFN_GETTER(Stat, Initiative)
-DEFN_GETTER(Stat, Unknown)
+DEFN_GETTER(StatNoBoosts, BlockChance)
 
 DEFN_GETTER(Stat, ChanceToHitBoost)

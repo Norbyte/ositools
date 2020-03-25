@@ -572,7 +572,7 @@ namespace osidbg
 		Hearing = 22,
 		Movement = 23,
 		Initiative = 24,
-		Unknown = 25,
+		BlockChance = 25,
 		ChanceToHitBoost = 26
 	};
 
