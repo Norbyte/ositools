@@ -822,11 +822,13 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		case ClientGameState::LoadGMCampaign:
 			INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
 			LoadExtensionStateClient();
+			networkManager_.ExtendNetworkingClient();
 			break;
 
 		case ClientGameState::LoadSession:
 			INFO("OsirisProxy::OnClientGameStateChanged(): Loading game session");
 			LoadExtensionStateClient();
+			networkManager_.ExtendNetworkingClient();
 			if (ClientExtState) {
 				ClientExtState->OnGameSessionLoading();
 			}
@@ -866,11 +868,13 @@ void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromStat
 		case ServerGameState::LoadGMCampaign:
 			INFO("OsirisProxy::OnServerGameStateChanged(): Loading GM campaign");
 			LoadExtensionStateServer();
+			networkManager_.ExtendNetworkingServer();
 			break;
 
 		case ServerGameState::LoadSession:
 			INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
 			LoadExtensionStateServer();
+			networkManager_.ExtendNetworkingServer();
 			if (ServerExtState) {
 				ServerExtState->OnGameSessionLoading();
 			}

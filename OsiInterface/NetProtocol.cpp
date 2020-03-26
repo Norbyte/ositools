@@ -159,9 +159,12 @@ namespace osidbg
 
 	void NetworkManager::ExtendNetworkingClient()
 	{
-		if (clientProtocol_ != nullptr) return;
-
 		auto client = GetClient();
+		if (client != nullptr
+			&& client->NetMessageFactory->MessagePools.Size >= ScriptExtenderMessage::MessageId) {
+			return;
+		}
+
 		if (GetStaticSymbols().net__Host__AddProtocol != nullptr
 			&& GetStaticSymbols().net__MessageFactory__RegisterMessage != nullptr
 			&& client != nullptr) {
@@ -182,9 +185,12 @@ namespace osidbg
 
 	void NetworkManager::ExtendNetworkingServer()
 	{
-		if (serverProtocol_ != nullptr) return;
-
 		auto server = GetServer();
+		if (server != nullptr
+			&& server->NetMessageFactory->MessagePools.Size >= ScriptExtenderMessage::MessageId) {
+			return;
+		}
+
 		if (GetStaticSymbols().net__Host__AddProtocol != nullptr
 			&& GetStaticSymbols().net__MessageFactory__RegisterMessage != nullptr
 			&& server != nullptr) {
