@@ -534,12 +534,17 @@ namespace osidbg
 		if (wait) {
 			std::thread messageThread([this, msg, exitGame]() {
 				unsigned retries{ 0 };
-				while (!CanShowError() && retries < 600) {
+				while (!CanShowError() && retries < 1200) {
 					Sleep(100);
 					retries++;
 				}
 
-				ShowStartupError(msg, exitGame);
+				if (retries < 1200) {
+					ShowStartupError(msg, exitGame);
+				} else {
+					MessageBoxW(NULL, msg.c_str(), L"Osiris Extender Error", 
+						MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND);
+				}
 			});
 			messageThread.detach();
 		} else {
