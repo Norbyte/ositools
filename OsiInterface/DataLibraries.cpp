@@ -346,7 +346,7 @@ namespace osidbg
 
 	bool LibraryManager::FindLibraries()
 	{
-		memset(&GetStaticSymbols().CharStatsGetters.Ptrs, 0, sizeof(GetStaticSymbols().CharStatsGetters.Ptrs));
+		memset(&GetStaticSymbols().CharStatsGetters, 0, sizeof(GetStaticSymbols().CharStatsGetters));
 
 #if defined(OSI_EOCAPP)
 		if (FindEoCApp(moduleStart_, moduleSize_)) {
