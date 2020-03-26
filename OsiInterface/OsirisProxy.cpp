@@ -785,102 +785,104 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		InitCrashReporting();
 	}
 
-	if (extensionsEnabled_) {
+	if (toState == ClientGameState::LoadModule && config_.DisableModValidation) {
+		std::lock_guard _(globalStateLock_);
+		Libraries.PostStartupFindLibraries();
+		if (GetStaticSymbols().GetGlobalSwitches()) {
+			GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
+			INFO("Disabled module hashing");
+		} else {
+			WARN("Could not disable mod hashing - GlobalSwitches not mapped");
+		}
+	}
+
+	if (toState == ClientGameState::Menu && Libraries.InitializationFailed()) {
+		PostInitLibraries();
+	}
+
+	if (!extensionsEnabled_) return;
+
 #if defined(DEBUG_SERVER_CLIENT)
-		DEBUG("OsirisProxy::OnClientGameStateChanged(): %s -> %s", 
-			ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
+	DEBUG("OsirisProxy::OnClientGameStateChanged(): %s -> %s", 
+		ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
 #endif
 
-		if (fromState != ClientGameState::Unknown) {
-			AddClientThread(GetCurrentThreadId());
+	if (fromState != ClientGameState::Unknown) {
+		AddClientThread(GetCurrentThreadId());
+	}
+
+	if (fromState == ClientGameState::LoadModule) {
+		INFO("OsirisProxy::OnClientGameStateChanged(): Loaded module");
+		LoadExtensionStateClient();
+	}
+
+	switch (toState) {
+	case ClientGameState::UnloadSession:
+		INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
+		ResetExtensionStateClient();
+		break;
+
+	case ClientGameState::LoadGMCampaign:
+		INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
+		LoadExtensionStateClient();
+		networkManager_.ExtendNetworkingClient();
+		break;
+
+	case ClientGameState::LoadSession:
+		INFO("OsirisProxy::OnClientGameStateChanged(): Loading game session");
+		LoadExtensionStateClient();
+		networkManager_.ExtendNetworkingClient();
+		if (ClientExtState) {
+			ClientExtState->OnGameSessionLoading();
 		}
 
-		if (fromState == ClientGameState::LoadModule) {
-			INFO("OsirisProxy::OnClientGameStateChanged(): Loaded module");
-			LoadExtensionStateClient();
+		if (config_.DeveloperMode) {
+			RegisterFlashTraceCallbacks();
 		}
+		break;
 
-		switch (toState) {
-		case ClientGameState::LoadModule:
-			if (config_.DisableModValidation) {
-				std::lock_guard _(globalStateLock_);
-				Libraries.PostStartupFindLibraries();
-				if (GetStaticSymbols().GetGlobalSwitches()) {
-					GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
-					INFO("Disabled module hashing");
-				} else {
-					WARN("Could not disable mod hashing - GlobalSwitches not mapped");
-				}
-			}
-			break;
-
-		case ClientGameState::UnloadSession:
-			INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
-			ResetExtensionStateClient();
-			break;
-
-		case ClientGameState::LoadGMCampaign:
-			INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
-			LoadExtensionStateClient();
-			networkManager_.ExtendNetworkingClient();
-			break;
-
-		case ClientGameState::LoadSession:
-			INFO("OsirisProxy::OnClientGameStateChanged(): Loading game session");
-			LoadExtensionStateClient();
-			networkManager_.ExtendNetworkingClient();
-			if (ClientExtState) {
-				ClientExtState->OnGameSessionLoading();
-			}
-
-			if (config_.DeveloperMode) {
-				RegisterFlashTraceCallbacks();
-			}
-			break;
-
-		}
 	}
 }
 
 void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState)
 {
-	if (extensionsEnabled_) {
+	if (!extensionsEnabled_) return;
+
 #if defined(DEBUG_SERVER_CLIENT)
 		DEBUG("OsirisProxy::OnServerGameStateChanged(): %s -> %s", 
 			ServerGameStateNames[(unsigned)fromState], ServerGameStateNames[(unsigned)toState]);
 #endif
 
-		if (fromState != ServerGameState::Unknown) {
-			AddServerThread(GetCurrentThreadId());
+	if (fromState != ServerGameState::Unknown) {
+		AddServerThread(GetCurrentThreadId());
+	}
+
+	if (fromState == ServerGameState::LoadModule) {
+		INFO("OsirisProxy::OnServerGameStateChanged(): Loaded module");
+		LoadExtensionStateServer();
+	}
+
+	switch (toState) {
+	case ServerGameState::UnloadSession:
+		INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
+		ResetExtensionStateServer();
+		break;
+
+	case ServerGameState::LoadGMCampaign:
+		INFO("OsirisProxy::OnServerGameStateChanged(): Loading GM campaign");
+		LoadExtensionStateServer();
+		networkManager_.ExtendNetworkingServer();
+		break;
+
+	case ServerGameState::LoadSession:
+		INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
+		LoadExtensionStateServer();
+		networkManager_.ExtendNetworkingServer();
+		if (ServerExtState) {
+			ServerExtState->OnGameSessionLoading();
 		}
+		break;
 
-		if (fromState == ServerGameState::LoadModule) {
-			INFO("OsirisProxy::OnServerGameStateChanged(): Loaded module");
-			LoadExtensionStateServer();
-		}
-
-		switch (toState) {
-		case ServerGameState::UnloadSession:
-			INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
-			ResetExtensionStateServer();
-			break;
-
-		case ServerGameState::LoadGMCampaign:
-			INFO("OsirisProxy::OnServerGameStateChanged(): Loading GM campaign");
-			LoadExtensionStateServer();
-			networkManager_.ExtendNetworkingServer();
-			break;
-
-		case ServerGameState::LoadSession:
-			INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
-			LoadExtensionStateServer();
-			networkManager_.ExtendNetworkingServer();
-			if (ServerExtState) {
-				ServerExtState->OnGameSessionLoading();
-			}
-			break;
-
-		}
 	}
 }
 
@@ -930,6 +932,8 @@ void OsirisProxy::OnServerGameStateWorkerStart(void * self)
 
 void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 {
+	if (!extensionsEnabled_) return;
+
 	std::lock_guard _(globalStateLock_);
 	auto extState = GetCurrentExtensionState();
 	if (extState == nullptr) {

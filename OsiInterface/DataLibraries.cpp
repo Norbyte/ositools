@@ -539,24 +539,33 @@ namespace osidbg
 					retries++;
 				}
 
-				ShowStartupMessage(msg, exitGame);
+				ShowStartupError(msg, exitGame);
 			});
 			messageThread.detach();
 		} else {
-			ShowStartupMessage(msg, exitGame);
+			if (CanShowError()) {
+				ShowStartupError(msg, exitGame);
+			} else {
+				ShowStartupMessage(msg, exitGame);
+			}
 		}
 	}
 
-	void LibraryManager::ShowStartupMessage(std::wstring const & msg, bool exitGame)
+	void LibraryManager::ShowStartupError(std::wstring const & msg, bool exitGame)
 	{
-		if (!CanShowMessages() || CanShowError()) {
-			// Don't show progress if we're already in a loaded state, as it'll show a message box instead
-			return;
-		}
+		if (!CanShowMessages()) return;
 
 		STDWString msgStr;
 		msgStr.Set(msg);
 		GetStaticSymbols().EoCClientHandleError(*GetStaticSymbols().EoCClient, &msgStr, exitGame, &msgStr);
+	}
+
+	void LibraryManager::ShowStartupMessage(std::wstring const & msg, bool exitGame)
+	{
+		// Don't show progress if we're already in a loaded state, as it'll show a message box instead
+		if (CanShowError()) return;
+
+		ShowStartupError(msg, exitGame);
 	}
 
 	bool LibraryManager::CanShowMessages()
