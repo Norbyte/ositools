@@ -43,6 +43,7 @@ public:
 		bool updated = TryToUpdate(reason);
 
 		if (!updated && !ExtenderDLLExists()) {
+			DEBUG("Update failed; reason: %s", reason.c_str());
 			completed_ = true;
 			auto msg = FromUTF8(reason);
 			gErrorUtils->ShowError(msg.c_str());
@@ -51,8 +52,10 @@ public:
 
 		// Make sure that we can load dependencies from the extension directory
 		// (protobuf, etc.)
+		DEBUG("SetDllDirectoryW(%s)", ToUTF8(extensionPath_).c_str());
 		SetDllDirectoryW(extensionPath_.c_str());
 
+		DEBUG("Loading extension: %s", ToUTF8(dllPath_).c_str());
 		HMODULE handle = LoadLibraryW(dllPath_.c_str());
 		// Wait a bit for extender startup to complete
 		Sleep(300);
@@ -60,6 +63,7 @@ public:
 
 		if (handle == NULL) {
 			auto errc = GetLastError();
+			DEBUG("Extension load failed; error code %d", errc);
 			std::wstring errmsg = L"Script Extender DLL load failed.\r\n"
 				"Error code: ";
 			errmsg += std::to_wstring(errc);
@@ -74,17 +78,20 @@ public:
 		std::wstring packageUri = UPDATER_PATH_PREFIX + updateChannel_ + UPDATER_PATH_POSTFIX;
 
 		std::string etag;
+		DEBUG("Fetching ETag");
 		if (!fetcher.FetchETag(packageUri.c_str(), etag)) {
 			reason = "Something went wrong while checking for Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
 			reason += fetcher.GetLastError();
 			return false;
 		}
 
+		DEBUG("Checking currently downloaded ETag");
 		std::string currentETag = ReadETag();
 		if (currentETag == etag) {
 			return true;
 		}
 
+		DEBUG("Fetching update package: %s", ToUTF8(packageUri).c_str());
 		std::vector<uint8_t> response;
 		if (!fetcher.Fetch(packageUri.c_str(), response)) {
 			reason = "Something went wrong while downloading Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
@@ -93,11 +100,14 @@ public:
 		}
 
 		auto zipPath = extensionPath_ + L"\\Update.zip";
+		DEBUG("Saving update to: %s", ToUTF8(zipPath).c_str());
 		SaveFile(zipPath, response);
 		
 		std::string unzipReason;
+		DEBUG("Unpacking update to %s", ToUTF8(extensionPath_).c_str());
 		HRESULT hr = UnzipToFolder(zipPath.c_str(), extensionPath_.c_str(), unzipReason);
 		if (hr == S_OK) {
+			DEBUG("Saving updated ETag");
 			SaveETag(etag);
 			return true;
 		} else {
@@ -161,6 +171,7 @@ private:
 		std::string s;
 		s.resize(size);
 		f.read(s.data(), size);
+		DEBUG("ETag loaded: %s", s.c_str());
 		return s;
 	}
 
@@ -206,6 +217,8 @@ private:
 			dllPath_ = extensionPath_ + L"\\OsiExtenderEoCPlugin.dll";
 		}
 
+		DEBUG("Determined DLL path: %s", ToUTF8(dllPath_).c_str());
+
 		updateChannel_ = L"Release";
 		std::ifstream channelFile("OsiUpdateChannel.txt", std::ios::in | std::ios::binary);
 		if (channelFile.good()) {
@@ -220,6 +233,8 @@ private:
 				updateChannel_ = FromUTF8(channel);
 			}
 		}
+
+		DEBUG("Update channel: %s", ToUTF8(updateChannel_).c_str());
 	}
 };
 
@@ -242,11 +257,13 @@ DWORD WINAPI ClientWorkerSuspenderThread(LPVOID param)
 		if (state) {
 			bool completed = gLoader->IsCompleted();
 			if (!suspended && !completed && (*state == GameState::LoadModule || *state == GameState::Init)) {
+				DEBUG("Suspending client thread (pending update)");
 				gErrorUtils->SuspendClientThread();
 				suspended = true;
 			}
 
 			if (completed || *state == GameState::Menu) {
+				DEBUG("Resuming client thread");
 				gErrorUtils->ResumeClientThread();
 				// No update takes place once we reach the menu, exit thread
 				break;
@@ -256,15 +273,19 @@ DWORD WINAPI ClientWorkerSuspenderThread(LPVOID param)
 		Sleep(1);
 	}
 
+	DEBUG("Client suspend worker exiting");
 	return 0;
 }
 
 DWORD WINAPI UpdaterThread(LPVOID param)
 {
+	DEBUG("Init loader");
 	gErrorUtils = std::make_unique<ErrorUtils>();
 	gLoader = std::make_unique<OsiLoader>();
 	CreateThread(NULL, 0, &ClientWorkerSuspenderThread, NULL, 0, NULL);
+	DEBUG("Launch loader");
 	gLoader->Launch();
+	DEBUG("Extender launcher thread exiting");
 	return 0;
 }
 
@@ -283,17 +304,29 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	{
 	case DLL_PROCESS_ATTACH:
 		if (ShouldLoad()) {
+#if defined(_DEBUG)
+			AllocConsole();
+			SetConsoleTitleW(L"Osiris Extender Debug Console");
+			DisableThreadLibraryCalls(hModule);
+			FILE * reopenedStream;
+			freopen_s(&reopenedStream, "CONOUT$", "w", stdout);
+#endif
+
 			// Allow loading graphics mods that work via DXGI.dll (ReShade, etc.)
 			// DXGI.dll should be renamed to DxgiNext.dll, and the updater will load it automatically.
+			DEBUG("Chain-loading DXGINext");
 			LoadLibraryW(L"DxgiNext.dll");
 
+			DEBUG("Creating DXGI wrapper");
 			gDxgiWrapper = std::make_unique<DxgiWrapper>();
+			DEBUG("Start updater thread");
 			StartUpdaterThread();
 		}
 		break;
 
 	case DLL_PROCESS_DETACH:
 		if (gDxgiWrapper) {
+			DEBUG("Shutting down wrapper");
 			gDxgiWrapper.reset();
 		}
 		break;

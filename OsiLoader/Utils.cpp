@@ -7,6 +7,15 @@
 #include <Shldisp.h>
 #include <atlbase.h>
 #include <psapi.h>
+#include <iostream>
+
+void DebugMsg(char const * msg)
+{
+	OutputDebugStringA(msg);
+	OutputDebugStringA("\r\n");
+	std::cout << msg << std::endl;
+	std::cout.flush();
+}
 
 uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call)
 {

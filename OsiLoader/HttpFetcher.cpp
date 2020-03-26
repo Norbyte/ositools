@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "HttpFetcher.h"
+#include "ErrorUtils.h"
 #include <sstream>
 #include <iomanip>
 
 
 HttpFetcher::HttpFetcher(wchar_t const * host)
 {
+	DEBUG("Updater - connecting to update host %s", ToUTF8(host).c_str());
 	session_ = WinHttpOpen(L"OsiLoader/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
 	if (session_ == NULL) {
@@ -34,6 +36,7 @@ void HttpFetcher::LogError(char const * activity)
 	ss << activity << " returned error 0x" << std::hex << std::setw(8) << std::setfill('0')
 		<< lastError << ": " << GetLastErrorString(lastError);
 	lastError_ = ss.str();
+	DEBUG("Updater error: %s", lastError_.c_str());
 }
 
 bool HttpFetcher::Fetch(wchar_t const * path, std::vector<uint8_t> & response)
@@ -42,6 +45,7 @@ bool HttpFetcher::Fetch(wchar_t const * path, std::vector<uint8_t> & response)
 		return false;
 	}
 
+	DEBUG("Fetching contents of %s", ToUTF8(path).c_str());
 	auto request = WinHttpOpenRequest(httpSession_, L"GET", path, NULL,
 		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
 	if (request == NULL) {
@@ -64,6 +68,7 @@ bool HttpFetcher::FetchETag(wchar_t const * path, std::string & etag)
 		return false;
 	}
 
+	DEBUG("Fetching ETag of %s", ToUTF8(path).c_str());
 	auto request = WinHttpOpenRequest(httpSession_, L"HEAD", path, NULL,
 		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
 	if (request == NULL) {
@@ -104,6 +109,7 @@ bool HttpFetcher::SendRequest(HINTERNET request, wchar_t const * path)
 		return false;
 	}
 
+	DEBUG("HTTP status code %s", ToUTF8(statusCode).c_str());
 	if (wcscmp(statusCode, L"200") != 0) {
 		lastError_ = "Server returned status code ";
 		lastError_ += ToUTF8(statusCode);
@@ -130,6 +136,7 @@ bool HttpFetcher::FetchBody(HINTERNET request, std::vector<uint8_t> & response)
 		return false;
 	}
 
+	DEBUG("Payload size: %d bytes", contentLength);
 	response.resize(contentLength);
 	DWORD totalBytesRead = 0;
 
@@ -161,6 +168,7 @@ bool HttpFetcher::FetchETag(HINTERNET request, std::string & etag)
 	}
 
 	etag = ToUTF8(etagStr);
+	DEBUG("Fetched ETag: %s", etag.c_str());
 
 	return true;
 }

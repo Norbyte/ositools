@@ -80,6 +80,24 @@ struct THREADNAME_INFO
 	DWORD dwFlags; // Reserved for future use, must be zero.
 };
 
+
+void DebugMsg(char const *);
+
+template <typename... Args>
+void Debug(char const * fmt, Args... args)
+{
+	char buf[1024];
+	int length = sprintf_s(buf, 1024 - 1, fmt, args...);
+	buf[length++] = 0;
+	DebugMsg(buf);
+}
+
+#if defined(_DEBUG)
+#define DEBUG(msg, ...) Debug(__FUNCTION__ "(): " msg, __VA_ARGS__)
+#else
+#define DEBUG(msg, ...)
+#endif
+
 class ErrorUtils
 {
 public:

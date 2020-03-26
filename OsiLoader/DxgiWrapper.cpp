@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DxgiWrapper.h"
+#include "ErrorUtils.h"
 
 std::unique_ptr<DxgiWrapper> gDxgiWrapper;
 
@@ -34,6 +35,8 @@ DxgiWrapper::DxgiWrapper()
 	{
 		Fail("Could not locate CreateDXGIFactory in dxgi.dll");
 	}
+
+	DEBUG("DXGI exports successfully mapped");
 }
 
 DxgiWrapper::~DxgiWrapper()
