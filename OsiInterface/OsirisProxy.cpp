@@ -931,7 +931,13 @@ void OsirisProxy::OnServerGameStateWorkerStart(void * self)
 void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 {
 	std::lock_guard _(globalStateLock_);
-	auto modManager = GetCurrentExtensionState()->GetModManager();
+	auto extState = GetCurrentExtensionState();
+	if (extState == nullptr) {
+		ERR("Extension not initialized in OnSkillPrototypeManagerInit?");
+		return;
+	}
+
+	auto modManager = extState->GetModManager();
 	if (modManager == nullptr) {
 		ERR("Module info not available in OnSkillPrototypeManagerInit?");
 		return;
@@ -947,16 +953,13 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	loadMsg += L")";
 	Libraries.ShowStartupMessage(loadMsg, false);
 	
-	auto extState = GetCurrentExtensionState();
-	if (extState != nullptr) {
-		if (extState == ServerExtState.get()) {
-			LoadExtensionStateServer();
-		} else {
-			LoadExtensionStateClient();
-		}
-
-		extState->OnModuleLoading();
+	if (extState == ServerExtState.get()) {
+		LoadExtensionStateServer();
+	} else {
+		LoadExtensionStateClient();
 	}
+
+	extState->OnModuleLoading();
 }
 
 void OsirisProxy::ClearPathOverrides()
