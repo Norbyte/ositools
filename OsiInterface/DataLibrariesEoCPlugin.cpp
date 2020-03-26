@@ -30,9 +30,9 @@ namespace osidbg
 		"48 8B CF " // mov     rcx, rdi
 		"E8 XX XX XX XX ", // call    esv__GameActionManager__AddAction
 		{},
-		{"LevelManager", SymbolMappingTarget::kIndirectLea, 0, STATIC_SYM(LevelManager)},
-		{"esv::GameObjectMoveAction::Setup", SymbolMappingTarget::kIndirectCall, 57, STATIC_SYM(GameObjectMoveActionSetup)},
-		{"esv::GameActionManager::AddAction", SymbolMappingTarget::kIndirectCall, 68, STATIC_SYM(AddGameAction)}
+		{"LevelManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(LevelManager)},
+		{"esv::GameObjectMoveAction::Setup", SymbolMappingTarget::kIndirect, 57, STATIC_SYM(GameObjectMoveActionSetup)},
+		{"esv::GameActionManager::AddAction", SymbolMappingTarget::kIndirect, 68, STATIC_SYM(AddGameAction)}
 	};
 
 	SymbolMappingData const sSymbolTornadoAction = {
@@ -64,7 +64,7 @@ namespace osidbg
 		"E8 XX XX XX XX " // call    esv__SummonHelpers__Summon
 		"48 8D 4C 24 50 ", // lea     rcx, [rsp+1B0h+var_160]
 		{},
-		{"esv::SummonHelpers::Summon", SymbolMappingTarget::kIndirectCall, 13, STATIC_SYM(SummonHelpersSummon)}
+		{"esv::SummonHelpers::Summon", SymbolMappingTarget::kIndirect, 13, STATIC_SYM(SummonHelpersSummon)}
 	};
 
 	SymbolMappingData const sSymbolApplyStatus = {
@@ -75,7 +75,7 @@ namespace osidbg
 		"E8 XX XX XX XX " // call    esv__StatusMachine__ApplyStatus
 		"48 8B 7C 24 40 ", // mov     rdi, [rsp+28h+arg_10]
 		{},
-		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirectCall, 10, STATIC_SYM(StatusMachineApplyStatus)}
+		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(StatusMachineApplyStatus)}
 	};
 
 	SymbolMappingResult FindStatusHitEoCApp2(uint8_t const * match)
@@ -153,7 +153,7 @@ namespace osidbg
 		"48 8B CF " // mov     rcx, rdi 
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character__GetAbility
 		{},
-		{"GetAbility", SymbolMappingTarget::kIndirectCall, 11, CHAR_GETTER_SYM(GetAbility)}
+		{"GetAbility", SymbolMappingTarget::kIndirect, 11, CHAR_GETTER_SYM(GetAbility)}
 	};
 
 	SymbolMappingData const sSymbolGetTalent = {
@@ -165,7 +165,7 @@ namespace osidbg
 		"45 03 FC " // add     r15d, r12d 
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character__HasTalent
 		{},
-		{"GetTalent", SymbolMappingTarget::kIndirectCall, 15, CHAR_GETTER_SYM(GetTalent)}
+		{"GetTalent", SymbolMappingTarget::kIndirect, 15, CHAR_GETTER_SYM(GetTalent)}
 	};
 
 	SymbolMappingResult FindCharacterStatGettersEoCApp(uint8_t const * match)
@@ -181,7 +181,7 @@ namespace osidbg
 		unsigned ptrIndex = 0;
 		p2.Scan(match, 0x240, [&ptrIndex, &getters](const uint8_t * match) -> std::optional<bool> {
 			if (ptrIndex < std::size(getters.Ptrs)) {
-				auto ptr = AsmCallToAbsoluteAddress(match + 3);
+				auto ptr = AsmResolveInstructionRef(match + 3);
 				getters.Ptrs[ptrIndex++] = (void *)ptr;
 			}
 
@@ -205,7 +205,7 @@ namespace osidbg
 		"8B 18 " // mov     ebx, [rax]
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character__GetChanceToHitBoost
 		{},
-		{"GetChanceToHitBoost", SymbolMappingTarget::kIndirectCall, 8, CHAR_GETTER_SYM(GetChanceToHitBoost)}
+		{"GetChanceToHitBoost", SymbolMappingTarget::kIndirect, 8, CHAR_GETTER_SYM(GetChanceToHitBoost)}
 	};
 
 	SymbolMappingData const sSymbolCharacterHitInternal = {
@@ -215,7 +215,7 @@ namespace osidbg
 		"89 6C 24 20 " // mov     [rsp+0A8h+var_88], ebp
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
 		{},
-		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirectCall, 8, STATIC_SYM(CharacterHitInternal)}
+		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CharacterHitInternal)}
 	};
 
 	SymbolMappingData const sSymbolCharacterHit = {
@@ -228,15 +228,15 @@ namespace osidbg
 		"XX 8B XX B0 01 00 00 " // mov     r13, [r15+1B0h]
 		"EB 66 ", // jmp short xxx
 		{},
-		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirectCall, 18, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
+		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirect, 18, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
 	};
 
 	SymbolMappingResult FindLibrariesEoCPlugin(uint8_t const * match)
 	{
 		auto & lib = GetStaticSymbols().Libraries;
 
-		auto freeFunc = AsmLeaToAbsoluteAddress(match + 0x21);
-		auto initFunc = AsmLeaToAbsoluteAddress(match + 0x28);
+		auto freeFunc = AsmResolveInstructionRef(match + 0x21);
+		auto initFunc = AsmResolveInstructionRef(match + 0x28);
 		if (initFunc != nullptr && freeFunc != nullptr) {
 			auto it = GetStaticSymbols().Libraries.find(initFunc);
 			if (it != lib.end()) {
@@ -316,7 +316,7 @@ namespace osidbg
 			"8B 50 08 " // mov     edx, [rax+8]
 			"E8 XX XX XX XX ", // call    esv__GameActionManager__CreateAction
 			{SymbolMappingCondition::kFixedString, 0, "GameAction"},
-			{"esv::GameActionManager::CreateAction", SymbolMappingTarget::kIndirectCall, 72, STATIC_SYM(CreateGameAction)}
+			{"esv::GameActionManager::CreateAction", SymbolMappingTarget::kIndirect, 72, STATIC_SYM(CreateGameAction)}
 		},
 
 		{
@@ -329,7 +329,7 @@ namespace osidbg
 			"89 BC 24 B8 00 00 00 " // mov     [rsp+0F8h+shootProjectile.CasterLevel], edi
 			"E8 XX XX XX XX ", // call    esv__ProjectileHelpers__ShootProjectile
 			{},
-			{"esv::ProjectileHelpers::ShootProjectile", SymbolMappingTarget::kIndirectCall, 27, STATIC_SYM(ShootProjectile)}
+			{"esv::ProjectileHelpers::ShootProjectile", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(ShootProjectile)}
 		},
 
 		{
@@ -401,7 +401,7 @@ namespace osidbg
 			"48 8B CF " //  mov     rcx, rdi 
 			"E8 XX XX XX XX ", //  call    esv__StatusMachine__CreateStatus
 			{SymbolMappingCondition::kFixedString, 19, "LIFESTEAL"},
-			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirectCall, 49, STATIC_SYM(StatusMachineCreateStatus)},
+			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirect, 49, STATIC_SYM(StatusMachineCreateStatus)},
 			{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kAbsolute, 55, nullptr, nullptr, &sSymbolApplyStatus, 0x100},
 		},
 
@@ -437,8 +437,8 @@ namespace osidbg
 			"48 8D 4C 24 60 " // lea     rcx, [rsp+0B8h+var_58]
 			"E8 XX XX XX XX ", // call    esv__CreateItemFromParsed
 			{},
-			{"esv::ParseItem", SymbolMappingTarget::kIndirectCall, 8, STATIC_SYM(ParseItem)},
-			{"esv::CreateItemFromParsed", SymbolMappingTarget::kIndirectCall, 20, STATIC_SYM(CreateItemFromParsed)},
+			{"esv::ParseItem", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(ParseItem)},
+			{"esv::CreateItemFromParsed", SymbolMappingTarget::kIndirect, 20, STATIC_SYM(CreateItemFromParsed)},
 		},
 
 		{
@@ -520,8 +520,8 @@ namespace osidbg
 			"48 8B CB " // mov     rcx, rbx
 			"E8 XX XX XX XX ", // call    ecl__EocClient__HandleError
 			{},
-			{"ecl::EoCClient", SymbolMappingTarget::kIndirectLea, 0, STATIC_SYM(EoCClient)},
-			{"ecl::EoCClient::HandleError", SymbolMappingTarget::kIndirectCall, 43, STATIC_SYM(EoCClientHandleError)}
+			{"ecl::EoCClient", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EoCClient)},
+			{"ecl::EoCClient::HandleError", SymbolMappingTarget::kIndirect, 43, STATIC_SYM(EoCClientHandleError)}
 		},
 
 		{
@@ -534,7 +534,7 @@ namespace osidbg
 			"48 8B 0D XX XX XX XX " // mov     rcx, cs:eoc__gSkillPrototypeManager
 			"E8 XX XX XX XX ", // call    eoc__SkillPrototypeManager__Init
 			{SymbolMappingCondition::kString, 0, "Skills"},
-			{"eoc::SkillPrototypeManager::Init", SymbolMappingTarget::kIndirectCall, 28, STATIC_SYM(SkillPrototypeManagerInit)}
+			{"eoc::SkillPrototypeManager::Init", SymbolMappingTarget::kIndirect, 28, STATIC_SYM(SkillPrototypeManagerInit)}
 		},
 
 		{
@@ -545,7 +545,7 @@ namespace osidbg
 			"C7 44 24 30 80 00 00 00 " // mov [rsp+78h+var_48.logLevel], 80h
 			"4C 8D 44 24 30 ", // lea r8, [rsp+78h+var_48]
 			{SymbolMappingCondition::kString, 0, "CLIENT STATE SWAP - from: %s, to: %s\n"},
-			{"ecl::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirectCall, 0x44, STATIC_SYM(ecl__GameStateEventManager__ExecuteGameStateChangedEvent)}
+			{"ecl::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x44, STATIC_SYM(ecl__GameStateEventManager__ExecuteGameStateChangedEvent)}
 		},
 
 		{
@@ -555,7 +555,7 @@ namespace osidbg
 			"48 89 7C 24 28 " // mov     [rsp+78h+var_50], rdi
 			"4C 8D 44 24 30 ", // lea     r8, [rsp+78h+var_48]
 			{SymbolMappingCondition::kString, 0, "SERVER STATE SWAP - from: %s, to: %s\n"},
-			{"esv::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirectCall, 0x4D, STATIC_SYM(esv__GameStateEventManager__ExecuteGameStateChangedEvent)}
+			{"esv::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x4D, STATIC_SYM(esv__GameStateEventManager__ExecuteGameStateChangedEvent)}
 		},
 
 		{
@@ -584,7 +584,7 @@ namespace osidbg
 			"45 33 C9 " // xor     r9d, r9d
 			"C6 44 24 20 01 ", // mov     byte ptr [rsp+68h+var_48], 1
 			{},
-			{"net::Host::AddProtocol", SymbolMappingTarget::kIndirectCall, 11, STATIC_SYM(net__Host__AddProtocol)}
+			{"net::Host::AddProtocol", SymbolMappingTarget::kIndirect, 11, STATIC_SYM(net__Host__AddProtocol)}
 		},
 
 		{
@@ -598,7 +598,7 @@ namespace osidbg
 			"48 8B CE " // mov     rcx, rsi
 			"E8 XX XX XX XX ", // call    net__MessageFactory__RegisterMessage
 			{SymbolMappingCondition::kString, 0, "eocnet::LevelLoadMessage"},
-			{"net::MessageFactory::RegisterMessage", SymbolMappingTarget::kIndirectCall, 29, STATIC_SYM(net__MessageFactory__RegisterMessage)}
+			{"net::MessageFactory::RegisterMessage", SymbolMappingTarget::kIndirect, 29, STATIC_SYM(net__MessageFactory__RegisterMessage)}
 		},
 
 		{
@@ -614,7 +614,7 @@ namespace osidbg
 			"49 8B 8F F0 01 00 00 " // mov     rcx, [r15+1F0h]
 			"E8 XX XX XX XX ", // call    net__MessageFactory__GetFreeMessage
 			{},
-			{"net::MessageFactory::GetFreeMessage", SymbolMappingTarget::kIndirectCall, 36, STATIC_SYM(net__MessageFactory__GetFreeMessage)}
+			{"net::MessageFactory::GetFreeMessage", SymbolMappingTarget::kIndirect, 36, STATIC_SYM(net__MessageFactory__GetFreeMessage)}
 		},
 
 		{
@@ -690,7 +690,7 @@ namespace osidbg
 			"40 0F B6 D7 " // movzx   edx, dil
 			"E8 XX XX XX XX ", // call    xxx
 			{},
-			{"esv::ActionMachine::SetState", SymbolMappingTarget::kIndirectCall, 28, nullptr, &FindActionMachineSetState}
+			{"esv::ActionMachine::SetState", SymbolMappingTarget::kIndirect, 28, nullptr, &FindActionMachineSetState}
 		},
 
 		{
@@ -735,7 +735,7 @@ namespace osidbg
 			"FF 90 90 01 00 00 " // call    qword ptr [rax+190h]
 			"4C 8B 0D XX XX XX XX ", //  mov     r9, cs:esv__gEoCServer
 			{SymbolMappingCondition::kFixedString, 0, "CurrentCellCount"},
-			{"esv::EoCServer", SymbolMappingTarget::kIndirectLea, 16, STATIC_SYM(EoCServer)}
+			{"esv::EoCServer", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(EoCServer)}
 		},
 
 		{
@@ -760,7 +760,7 @@ namespace osidbg
 			"48 8B F1 " // mov     rsi, rcx
 			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_UseLevelCache
 			{SymbolMappingCondition::kFixedString, 17, "UseLevelCache"},
-			{"GlobalSwitches", SymbolMappingTarget::kIndirectLea, 4, STATIC_SYM(pGlobalSwitches)}
+			{"GlobalSwitches", SymbolMappingTarget::kIndirect, 4, STATIC_SYM(pGlobalSwitches)}
 		},
 
 		{
@@ -785,7 +785,7 @@ namespace osidbg
 			"48 8B 05 XX XX XX XX ", // mov     rax, cs:?Unassigned@ObjectHandle@ls@@2V12@B
 			{},
 			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(EoCUI__ctor)},
-			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirectLea, 16, STATIC_SYM(EoCUI__vftable)},
+			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(EoCUI__vftable)},
 		},
 	};
 

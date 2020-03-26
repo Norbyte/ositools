@@ -217,7 +217,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	for (uint8_t * ptr = errorMessageFunc; ptr < errorMessageFunc + 64; ptr++) {
 		// Look for the instruction "mov rbx, cs:gOsirisInterface"
 		if (ptr[0] == 0x48 && ptr[1] == 0x8B && ptr[2] == 0x1D && ptr[6] < 0x02) {
-			auto osiPtr = AsmLeaToAbsoluteAddress(ptr);
+			auto osiPtr = AsmResolveInstructionRef(ptr);
 			osirisInterface = *(OsirisInterface **)osiPtr;
 			DynGlobals.Manager = osirisInterface->Manager;
 			break;
@@ -244,7 +244,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	for (auto p = start; p < end; p++) {
 		if (*p == 0x48
 			&& memcmp(copyCtor1, p, sizeof(copyCtor1)) == 0) {
-			Wrappers.Globals.TypedValueVMT = (void *)AsmLeaToAbsoluteAddress(p + 17);
+			Wrappers.Globals.TypedValueVMT = (void *)AsmResolveInstructionRef(p + 17);
 			break;
 		}
 	}

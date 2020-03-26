@@ -36,8 +36,7 @@ namespace osidbg {
 		void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple);
 	};
 
-	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call);
-	uint8_t const * AsmLeaToAbsoluteAddress(uint8_t const * lea);
+	uint8_t const * AsmResolveInstructionRef(uint8_t const * code);
 
 	struct SymbolMappingCondition
 	{
@@ -98,8 +97,7 @@ namespace osidbg {
 		{
 			kNone,
 			kAbsolute, // Save absolute value (p + Offset)
-			kIndirectCall, // Save AsmCallToAbsolutePtr(p + Offset)
-			kIndirectLea // Save AsmLeaToAbsolutePtr(p + Offset)
+			kIndirect // Save AsmResolveIndirectRef(p + Offset)
 		};
 
 		char const * Name{ nullptr };

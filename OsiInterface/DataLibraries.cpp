@@ -193,11 +193,11 @@ namespace osidbg
 		uint8_t const * ptr{ nullptr };
 		switch (cond.Type) {
 		case SymbolMappingCondition::kString:
-			ptr = AsmLeaToAbsoluteAddress(match + cond.Offset);
+			ptr = AsmResolveInstructionRef(match + cond.Offset);
 			return ptr != nullptr && IsConstStringRef(ptr, cond.String);
 
 		case SymbolMappingCondition::kFixedString:
-			ptr = AsmLeaToAbsoluteAddress(match + cond.Offset);
+			ptr = AsmResolveInstructionRef(match + cond.Offset);
 			return ptr != nullptr && IsFixedStringRef(ptr, cond.String);
 
 		case SymbolMappingCondition::kNone:
@@ -216,12 +216,8 @@ namespace osidbg
 			ptr = match + target.Offset;
 			break;
 
-		case SymbolMappingTarget::kIndirectCall:
-			ptr = AsmCallToAbsoluteAddress(match + target.Offset);
-			break;
-
-		case SymbolMappingTarget::kIndirectLea:
-			ptr = AsmLeaToAbsoluteAddress(match + target.Offset);
+		case SymbolMappingTarget::kIndirect:
+			ptr = AsmResolveInstructionRef(match + target.Offset);
 			break;
 
 		default:
@@ -310,26 +306,24 @@ namespace osidbg
 	}
 
 
-	uint8_t const * AsmCallToAbsoluteAddress(uint8_t const * call)
+	// Fetch the address referenced by an assembly instruction
+	uint8_t const * AsmResolveInstructionRef(uint8_t const * insn)
 	{
-		if (call[0] != 0xE8) {
-			ERR("AsmCallToAbsoluteAddress(): Not a call @ %p", call);
-			return nullptr;
+		// Call (4b operand) instruction
+		if (insn[0] == 0xE8) {
+			int32_t rel = *(int32_t const *)(insn + 1);
+			return insn + rel + 5;
 		}
 
-		int32_t rel = *(int32_t const *)(call + 1);
-		return call + rel + 5;
-	}
-
-	uint8_t const * AsmLeaToAbsoluteAddress(uint8_t const * lea)
-	{
-		if ((lea[0] != 0x48 && lea[0] != 0x4C) || (lea[1] != 0x8D && lea[1] != 0x8B)) {
-			ERR("AsmLeaToAbsoluteAddress(): Not a LEA @ %p", lea);
-			return nullptr;
+		// MOV/LEA (4b operand) instruction
+		if ((insn[0] == 0x48 || insn[0] == 0x4C) && (insn[1] == 0x8D || insn[1] == 0x8B)) {
+			int32_t rel = *(int32_t const *)(insn + 3);
+			return insn + rel + 7;
 		}
 
-		int32_t rel = *(int32_t const *)(lea + 3);
-		return lea + rel + 7;
+
+		ERR("AsmResolveInstructionRef(): Not a supported CALL, MOV or LEA instruction at %p", insn);
+		return nullptr;
 	}
 
 	void LibraryManager::FindTextSegment()
