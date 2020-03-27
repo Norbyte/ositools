@@ -6,7 +6,7 @@
 #include "Module.h"
 #include "Stats.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

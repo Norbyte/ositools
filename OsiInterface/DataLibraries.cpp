@@ -8,7 +8,7 @@
 #include <psapi.h>
 #include <DbgHelp.h>
 
-namespace osidbg
+namespace dse
 {
 	void InitPropertyMaps();
 

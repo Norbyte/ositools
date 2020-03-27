@@ -17,12 +17,12 @@ struct ExcludedSymbol
 
 // Symbols that will be excluded from being considered 
 static const ExcludedSymbol ExcludedSymbols[] = {
-	{&decltype(osidbg::LibraryManager::ActionMachineSetStateHook)::CallToTrampoline, 0x120},
-	{&decltype(osidbg::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
-	{&decltype(osidbg::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
-	{&decltype(osidbg::OsirisWrappers::Call)::CallToTrampoline, 0x120},
-	{&decltype(osidbg::OsirisWrappers::Query)::CallToTrampoline, 0x120},
-	{&decltype(osidbg::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
+	{&decltype(dse::LibraryManager::ActionMachineSetStateHook)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::Call)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::Query)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
 };
 
 class CrashReporter

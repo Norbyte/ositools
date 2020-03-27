@@ -6,7 +6,7 @@
 #include <fstream>
 #include "json/json.h"
 
-namespace osidbg
+namespace dse
 {
 	namespace func
 	{

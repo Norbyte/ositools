@@ -5,7 +5,7 @@
 #include <detours.h>
 #include <thread>
 
-namespace osidbg {
+namespace dse {
 
 uint8_t * ResolveRealFunctionAddress(uint8_t * Address);
 

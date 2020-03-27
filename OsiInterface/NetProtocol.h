@@ -3,7 +3,7 @@
 #include <GameDefinitions/Net.h>
 #include "ScriptExtensions.pb.h"
 
-namespace osidbg
+namespace dse
 {
 	class ScriptExtenderMessage : public net::Message
 	{

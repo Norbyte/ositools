@@ -6,7 +6,7 @@
 
 #if !defined(OSI_NO_DEBUGGER)
 
-namespace osidbg
+namespace dse
 {
 	DebugMessageHandler::DebugMessageHandler(DebugInterface & intf)
 		: intf_(intf)

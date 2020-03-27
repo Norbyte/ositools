@@ -9,7 +9,7 @@
 #include "Utils.h"
 #include "GameDefinitions/Osiris.h"
 
-namespace osidbg
+namespace dse
 {
 	enum EoCFunctionType
 	{
@@ -72,9 +72,9 @@ namespace osidbg
 
 namespace std
 {
-	template<> struct hash<osidbg::FunctionNameAndArity>
+	template<> struct hash<dse::FunctionNameAndArity>
 	{
-		typedef osidbg::FunctionNameAndArity argument_type;
+		typedef dse::FunctionNameAndArity argument_type;
 		typedef std::size_t result_type;
 		result_type operator()(argument_type const& fn) const noexcept
 		{
@@ -84,9 +84,9 @@ namespace std
 		}
 	};
 
-	template<> struct hash<osidbg::FunctionHandle>
+	template<> struct hash<dse::FunctionHandle>
 	{
-		typedef osidbg::FunctionHandle argument_type;
+		typedef dse::FunctionHandle argument_type;
 		typedef std::size_t result_type;
 		result_type operator()(argument_type const& fn) const noexcept
 		{
@@ -95,7 +95,7 @@ namespace std
 	};
 }
 
-namespace osidbg
+namespace dse
 {
 	struct CustomFunctionParam
 	{

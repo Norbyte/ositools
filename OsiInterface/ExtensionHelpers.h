@@ -8,7 +8,7 @@
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/TurnManager.h>
 
-namespace osidbg
+namespace dse
 {
 	ecl::EoCClient * GetEoCClient();
 	esv::EoCServer * GetEoCServer();

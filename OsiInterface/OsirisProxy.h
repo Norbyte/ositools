@@ -49,7 +49,7 @@
 #include <mutex>
 #include <shared_mutex>
 
-namespace osidbg {
+namespace dse {
 
 
 struct ToolConfig

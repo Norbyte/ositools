@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace osidbg {
+namespace dse {
 
 	template <typename T>
 	class WrappedFunction;

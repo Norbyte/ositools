@@ -10,7 +10,7 @@
 #include <optional>
 #include <glm/glm.hpp>
 
-namespace osidbg
+namespace dse
 {
 #if defined(OSI_EOCAPP)
 	typedef void * (* EoCAllocFunc)(void * self, std::size_t size);
@@ -912,9 +912,9 @@ namespace osidbg
 
 namespace std
 {
-	template<> struct hash<osidbg::FixedString>
+	template<> struct hash<dse::FixedString>
 	{
-		typedef osidbg::FixedString argument_type;
+		typedef dse::FixedString argument_type;
 		typedef std::size_t result_type;
 
 		result_type operator()(argument_type const& fn) const noexcept
@@ -923,9 +923,9 @@ namespace std
 		}
 	};
 
-	template<> struct hash<osidbg::ObjectHandle>
+	template<> struct hash<dse::ObjectHandle>
 	{
-		typedef osidbg::ObjectHandle argument_type;
+		typedef dse::ObjectHandle argument_type;
 		typedef std::size_t result_type;
 
 		result_type operator()(argument_type const& fn) const noexcept

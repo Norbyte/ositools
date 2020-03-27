@@ -1,21 +1,21 @@
 #pragma once
 
 #include "ExtensionState.h"
-#include <LuaBindingClient.h>
+#include <Lua/LuaBindingClient.h>
 
 namespace Json { class Value; }
 
-namespace osidbg
+namespace dse
 {
 	class ExtensionStateClient;
-	using LuaClientPin = LuaStatePin<ExtensionStateClient, LuaStateClient>;
+	using LuaClientPin = LuaStatePin<ExtensionStateClient, lua::ClientState>;
 
 	class ExtensionStateClient : public ExtensionState
 	{
 	public:
 		static ExtensionStateClient & Get();
 
-		LuaState * GetLua() override;
+		lua::State * GetLua() override;
 		ModManager * GetModManager() override;
 
 		inline char const * GetBootstrapFileName() override
@@ -24,8 +24,8 @@ namespace osidbg
 		}
 
 	protected:
-		friend LuaStatePin<ExtensionStateClient, LuaStateClient>;
-		std::unique_ptr<LuaStateClient> Lua;;
+		friend LuaStatePin<ExtensionStateClient, lua::ClientState>;
+		std::unique_ptr<lua::ClientState> Lua;;
 
 		void DoLuaReset() override;
 		void LuaStartup() override;

@@ -9,7 +9,7 @@
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/ActionMachine.h>
 
-namespace osidbg
+namespace dse
 {
 	class CustomFunctionLibrary
 	{

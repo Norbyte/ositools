@@ -7,7 +7,7 @@
 #include <GameDefinitions/UI.h>
 
 #if !defined(OSI_EOCAPP)
-namespace osidbg
+namespace dse
 {
 	SymbolMappingData const sSymbolLevelManager = {
 		"LevelManager2",

@@ -3,7 +3,7 @@
 #include <GameDefinitions/Symbols.h>
 #include <OsirisProxy.h>
 
-namespace osidbg
+namespace dse
 {
 	namespace net
 	{

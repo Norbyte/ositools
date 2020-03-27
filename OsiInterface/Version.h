@@ -4,6 +4,6 @@
 
 #include "resource.h"
 
-namespace osidbg {
+namespace dse {
 	static constexpr uint32_t CurrentVersion = RES_DLL_MAJOR_VERSION;
 }

@@ -4,7 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
-namespace osidbg
+namespace dse
 {
 	FunctionHandle ItemDeltaModIteratorEventHandle;
 

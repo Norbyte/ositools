@@ -7,7 +7,7 @@
 
 namespace Json { class Value; }
 
-namespace osidbg
+namespace dse
 {
 	struct ExtensionModConfig
 	{
@@ -24,7 +24,7 @@ namespace osidbg
 		std::mt19937_64 OsiRng;
 
 		virtual void Reset();
-		virtual LuaState * GetLua() = 0;
+		virtual lua::State * GetLua() = 0;
 		virtual ModManager * GetModManager() = 0;
 		virtual char const * GetBootstrapFileName() = 0;
 
@@ -92,19 +92,19 @@ namespace osidbg
 				&& state_->GetLua();
 		}
 
-		inline LuaState & Get() const
+		inline lua::State & Get() const
 		{
 			assert(*this);
 			return *state_->GetLua();
 		}
 
-		inline LuaState & operator *() const
+		inline lua::State & operator *() const
 		{
 			assert(*this);
 			return *state_->GetLua();
 		}
 
-		inline LuaState * operator ->() const
+		inline lua::State * operator ->() const
 		{
 			assert(*this);
 			return state_->GetLua();

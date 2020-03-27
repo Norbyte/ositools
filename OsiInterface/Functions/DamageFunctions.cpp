@@ -4,7 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
-namespace osidbg
+namespace dse
 {
 	void DamageHelperPool::Clear()
 	{
@@ -117,7 +117,7 @@ namespace osidbg
 	bool DamageHelpers::GetString(char const * prop, char const * & value)
 	{
 		if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<osidbg::HitType>::Find(HitType);
+			auto val = EnumInfo<dse::HitType>::Find(HitType);
 			if (val) {
 				value = *val;
 			}
@@ -162,9 +162,9 @@ namespace osidbg
 			}
 		}
 		else if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<osidbg::HitType>::Find((osidbg::HitType)value);
+			auto val = EnumInfo<dse::HitType>::Find((dse::HitType)value);
 			if (val) {
-				HitType = (osidbg::HitType)value;
+				HitType = (dse::HitType)value;
 			} else {
 				OsiError("Invalid value for enum 'HitType': " << value);
 			}
@@ -255,7 +255,7 @@ namespace osidbg
 		if (strcmp(prop, "SkillId") == 0) {
 			SkillId = fs;
 		} else if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<osidbg::HitType>::Find(value);
+			auto val = EnumInfo<dse::HitType>::Find(value);
 			if (val) {
 				HitType = *val;
 			} else {

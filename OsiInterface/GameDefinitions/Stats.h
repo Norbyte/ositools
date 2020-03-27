@@ -4,7 +4,7 @@
 #include "Enumerations.h"
 #include "Wrappers.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

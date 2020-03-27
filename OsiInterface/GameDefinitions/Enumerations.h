@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace osidbg
+namespace dse
 {
 	template <class T, class L>
 	struct EnumInfoBase

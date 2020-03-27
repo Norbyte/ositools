@@ -2,7 +2,7 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 
-namespace osidbg
+namespace dse
 {
 	namespace func
 	{

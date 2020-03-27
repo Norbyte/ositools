@@ -6,7 +6,7 @@
 #include <WinSock2.h>
 #include "osidebug.pb.h"
 
-namespace osidbg
+namespace dse
 {
 	class DebugInterface
 	{

@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
-namespace osidbg
+namespace dse
 {
 	struct NodeWrapOptions
 	{

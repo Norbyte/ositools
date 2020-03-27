@@ -3,7 +3,7 @@
 #include "BaseTypes.h"
 #include "EntitySystem.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)
@@ -210,9 +210,9 @@ namespace osidbg
 
 namespace std
 {
-	template<> struct hash<osidbg::eoc::CombatTeamId>
+	template<> struct hash<dse::eoc::CombatTeamId>
 	{
-		typedef osidbg::eoc::CombatTeamId argument_type;
+		typedef dse::eoc::CombatTeamId argument_type;
 		typedef std::size_t result_type;
 
 		result_type operator()(argument_type const& fn) const noexcept

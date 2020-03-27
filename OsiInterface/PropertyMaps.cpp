@@ -2,7 +2,7 @@
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
 
-namespace osidbg
+namespace dse
 {
 	PropertyMap<esv::Status, void> gStatusPropertyMap;
 	PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;

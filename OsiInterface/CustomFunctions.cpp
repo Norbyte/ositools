@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace osidbg {
+namespace dse {
 
 
 CustomFunction::~CustomFunction()

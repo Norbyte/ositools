@@ -4,7 +4,7 @@
 #include "BaseTypes.h"
 #include "Enumerations.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

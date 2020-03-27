@@ -3,7 +3,7 @@
 #include <GameDefinitions/BaseTypes.h>
 #include <GameDefinitions/Enumerations.h>
 
-namespace osidbg
+namespace dse
 {
 	EnumInfo<ComponentType>::Label const EnumInfo<ComponentType>::Values[] = {
 		{ ComponentType::AnimationBlueprint, "AnimationBlueprint" },

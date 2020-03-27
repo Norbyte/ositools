@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "OsirisProxy.h"
 
-namespace osidbg
+namespace dse
 {
 	IdentityAdapterMap::IdentityAdapterMap(OsirisStaticGlobals const & globals)
 		: globals_(globals)

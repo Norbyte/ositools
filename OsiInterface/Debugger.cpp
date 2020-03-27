@@ -7,7 +7,7 @@
 #if !defined(OSI_NO_DEBUGGER)
 #undef DUMP_TRACEPOINTS
 
-namespace osidbg
+namespace dse
 {
 	RuleActionMap::RuleActionMap(OsirisStaticGlobals const & globals)
 		: globals_(globals)

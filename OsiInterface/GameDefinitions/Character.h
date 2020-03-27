@@ -7,7 +7,7 @@
 #include "Status.h"
 #include "ActionMachine.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

@@ -3,7 +3,7 @@
 #include "FunctionLibrary.h"
 #include <Version.h>
 
-namespace osidbg
+namespace dse
 {
 	namespace func
 	{

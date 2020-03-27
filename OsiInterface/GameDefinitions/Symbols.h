@@ -12,7 +12,7 @@
 #include <GameDefinitions/TurnManager.h>
 #include <GameDefinitions/UI.h>
 
-namespace osidbg
+namespace dse
 {
 	enum class EsvGlobalEoCApp {
 		EsvLSDialogEventManager = 0,

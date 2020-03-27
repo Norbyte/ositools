@@ -4,7 +4,7 @@
 #include <random>
 #include <regex>
 
-namespace osidbg
+namespace dse
 {
 	FunctionHandle ForLoopEventHandle;
 	FunctionHandle ForLoopObjectEventHandle;

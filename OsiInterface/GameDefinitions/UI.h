@@ -4,7 +4,7 @@
 #include "BaseTypes.h"
 #include "Enumerations.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)
@@ -466,9 +466,9 @@ namespace osidbg
 	{
 		struct EoCUI : public UIObject
 		{
-			typedef void (* ctor)(EoCUI * self, osidbg::Path * path);
+			typedef void (* ctor)(EoCUI * self, dse::Path * path);
 
-			EoCUI(osidbg::Path * path);
+			EoCUI(dse::Path * path);
 
 			bool field_150;
 			bool field_151;

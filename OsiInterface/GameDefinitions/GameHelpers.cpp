@@ -6,7 +6,7 @@
 #include "OsirisProxy.h"
 #include <PropertyMaps.h>
 
-namespace osidbg
+namespace dse
 {
 	StaticSymbols & GetStaticSymbols()
 	{
@@ -548,7 +548,7 @@ namespace osidbg
 			if (i != index - 1
 				&& Params[i].PlaceholderSize != -1
 				&& Params[i].PlaceholderOffset > param.PlaceholderOffset) {
-				Params[i].PlaceholderOffset = Params[i].PlaceholderOffset - param.PlaceholderSize + replacement.size();
+				Params[i].PlaceholderOffset = Params[i].PlaceholderOffset - param.PlaceholderSize + (uint32_t)replacement.size();
 			}
 		}
 
@@ -1173,7 +1173,7 @@ namespace osidbg
 		DamageList.Clear();
 	}
 
-	void HitDamageInfo::ClearDamage(osidbg::DamageType damageType)
+	void HitDamageInfo::ClearDamage(dse::DamageType damageType)
 	{
 		for (uint32_t i = 0; i < DamageList.Size; i++) {
 			auto const & dmg = DamageList[i];
@@ -1185,14 +1185,14 @@ namespace osidbg
 		DamageList.ClearDamage(damageType);
 	}
 
-	void HitDamageInfo::AddDamage(osidbg::DamageType damageType, int32_t amount)
+	void HitDamageInfo::AddDamage(dse::DamageType damageType, int32_t amount)
 	{
 		TotalDamage += amount;
 		DamageList.AddDamage(damageType, amount);
 	}
 
 
-	void DamagePairList::ClearDamage(osidbg::DamageType damageType)
+	void DamagePairList::ClearDamage(dse::DamageType damageType)
 	{
 		for (uint32_t i = 0; i < Size; i++) {
 			if (Buf[i].DamageType == damageType) {
@@ -1520,7 +1520,7 @@ namespace osidbg
 
 	namespace ecl
 	{
-		EoCUI::EoCUI(osidbg::Path * path)
+		EoCUI::EoCUI(dse::Path * path)
 		{
 			GetStaticSymbols().EoCUI__ctor(this, path);
 		}

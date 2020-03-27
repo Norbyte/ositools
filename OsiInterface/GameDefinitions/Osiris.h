@@ -10,7 +10,7 @@
 #include <glm/vec3.hpp>
 #include <GameDefinitions/BaseTypes.h>
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

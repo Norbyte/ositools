@@ -16,7 +16,7 @@ void ConfigGetBool(Json::Value & node, char const * key, bool & value)
 	}
 }
 
-void LoadConfig(std::wstring const & configPath, osidbg::ToolConfig & config)
+void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 {
 	std::ifstream f(configPath, std::ios::in);
 	if (!f.good()) {
@@ -76,8 +76,8 @@ void LoadConfig(std::wstring const & configPath, osidbg::ToolConfig & config)
 
 void SetupOsirisProxy(HMODULE hModule)
 {
-	osidbg::gOsirisProxy = std::make_unique<osidbg::OsirisProxy>();
-	auto & config = osidbg::gOsirisProxy->GetConfig();
+	dse::gOsirisProxy = std::make_unique<dse::OsirisProxy>();
+	auto & config = dse::gOsirisProxy->GetConfig();
 	LoadConfig(L"OsirisExtenderSettings.json", config);
 
 	if (config.CreateConsole) {
@@ -86,7 +86,7 @@ void SetupOsirisProxy(HMODULE hModule)
 
 	if (config.DebugFlags == 0) {
 		// Disabled: DF_FunctionList, DF_NodeList ,DF_LogSuccessfulFacts, DF_LogFailedFacts, DB_LogFactFailures, DF_DumpDatabases, DF_DebugFacts, DF_LogRuleFailures
-		config.DebugFlags = osidbg::DF_DebugTrace | osidbg::DF_SuppressInitLog;
+		config.DebugFlags = dse::DF_DebugTrace | dse::DF_SuppressInitLog;
 	}
 
 	if (config.LogDirectory.empty()) {
@@ -100,7 +100,7 @@ void SetupOsirisProxy(HMODULE hModule)
 		config.LogDirectory = logDir;
 	}
 
-	osidbg::gOsirisProxy->Initialize();
+	dse::gOsirisProxy->Initialize();
 
 #if 0
 	DEBUG(" ***** OsirisProxy setup completed ***** ");
@@ -132,8 +132,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 	case DLL_PROCESS_DETACH:
 		if (gDxgiWrapper) {
-			osidbg::gOsirisProxy->Shutdown();
-			osidbg::gOsirisProxy.reset();
+			dse::gOsirisProxy->Shutdown();
+			dse::gOsirisProxy.reset();
 			gDxgiWrapper.reset();
 		}
 		break;

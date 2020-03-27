@@ -4,7 +4,7 @@
 #include <memory>
 #include <cassert>
 
-namespace osidbg
+namespace dse
 {
 	template <typename T>
 	class ROWriteAnchor

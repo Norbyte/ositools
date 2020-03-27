@@ -13,7 +13,7 @@
 #include "Wrappers.h"
 #include <optional>
 
-namespace osidbg {
+namespace dse {
 
 	struct Pattern
 	{

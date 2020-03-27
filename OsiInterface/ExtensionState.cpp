@@ -5,7 +5,7 @@
 #include <fstream>
 #include "json/json.h"
 
-namespace osidbg
+namespace dse
 {
 	std::unordered_set<std::string> ExtensionState::sAllFeatureFlags = {
 		"OsirisExtensions",
@@ -386,7 +386,7 @@ namespace osidbg
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
 		auto bootstrapPath = GetBootstrapFileName();
-		LuaRestriction restriction(*lua, LuaState::RestrictAllClient);
+		lua::Restriction restriction(*lua, lua::State::RestrictAllClient);
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 

@@ -2,7 +2,7 @@
 
 #include "BaseTypes.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

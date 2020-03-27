@@ -7,7 +7,7 @@
 
 #include <GameDefinitions/BaseTypes.h>
 
-namespace osidbg
+namespace dse
 {
 	enum class PropertyType
 	{

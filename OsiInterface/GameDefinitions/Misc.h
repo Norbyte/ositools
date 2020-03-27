@@ -5,7 +5,7 @@
 #include "EntitySystem.h"
 #include "Module.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)

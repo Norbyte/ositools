@@ -16,7 +16,7 @@
 void InitCrashReporting();
 void ShutdownCrashReporting();
 
-namespace osidbg
+namespace dse
 {
 
 std::unique_ptr<OsirisProxy> gOsirisProxy;

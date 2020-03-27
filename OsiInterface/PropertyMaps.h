@@ -4,7 +4,7 @@
 #include "Functions/FunctionLibrary.h"
 #include "PropertyMap.h"
 
-namespace osidbg
+namespace dse
 {
 	extern PropertyMap<esv::Status, void> gStatusPropertyMap;
 	extern PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;

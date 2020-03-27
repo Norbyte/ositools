@@ -3,7 +3,7 @@
 #include "BaseTypes.h"
 #include "Enumerations.h"
 
-namespace osidbg
+namespace dse
 {
 
 #pragma pack(push, 1)
@@ -39,8 +39,8 @@ namespace osidbg
 
 		inline HitDamageInfo() {}
 		void ClearDamage();
-		void ClearDamage(osidbg::DamageType damageType);
-		void AddDamage(osidbg::DamageType damageType, int32_t amount);
+		void ClearDamage(dse::DamageType damageType);
+		void AddDamage(dse::DamageType damageType, int32_t amount);
 	};
 
 	namespace esv

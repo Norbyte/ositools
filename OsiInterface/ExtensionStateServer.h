@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ExtensionState.h"
-#include <LuaBindingServer.h>
+#include <Lua/LuaBindingServer.h>
 
 namespace Json { class Value; }
 
-namespace osidbg
+namespace dse
 {
 	class DamageHelperPool
 	{
@@ -21,7 +21,7 @@ namespace osidbg
 	};
 
 	class ExtensionStateServer;
-	using LuaServerPin = LuaStatePin<ExtensionStateServer, LuaStateServer>;
+	using LuaServerPin = LuaStatePin<ExtensionStateServer, lua::ServerState>;
 
 	class ExtensionStateServer : public ExtensionState
 	{
@@ -32,7 +32,7 @@ namespace osidbg
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
 		void Reset() override;
-		LuaState * GetLua() override;
+		lua::State * GetLua() override;
 		ModManager * GetModManager() override;
 
 		inline char const * GetBootstrapFileName() override
@@ -46,8 +46,8 @@ namespace osidbg
 		static ExtensionStateServer & Get();
 
 	protected:
-		friend LuaStatePin<ExtensionStateServer, LuaStateServer>;
-		std::unique_ptr<LuaStateServer> Lua;
+		friend LuaStatePin<ExtensionStateServer, lua::ServerState>;
+		std::unique_ptr<lua::ServerState> Lua;
 
 		void DoLuaReset() override;
 		void LuaStartup() override;
