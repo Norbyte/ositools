@@ -542,7 +542,7 @@ namespace osidbg
 				if (retries < 1200) {
 					ShowStartupError(msg, exitGame);
 				} else {
-					MessageBoxW(NULL, msg.c_str(), L"Osiris Extender Error", 
+					MessageBoxW(NULL, msg.c_str(), L"Script Extender Error", 
 						MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND);
 				}
 			});

@@ -79,7 +79,7 @@ void Fail(TCHAR const * reason)
 	DebugBreak();
 #endif
 	ERR(L"%s", reason);
-	MessageBoxW(NULL, reason, L"Osiris Extender Error", MB_OK | MB_ICONERROR);
+	MessageBoxW(NULL, reason, L"Script Extender Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 
@@ -90,21 +90,21 @@ void Fail(char const * reason)
 	DebugBreak();
 #endif
 	ERR("%s", reason);
-	MessageBoxA(NULL, reason, "Osiris Extender Error", MB_OK | MB_ICONERROR);
+	MessageBoxA(NULL, reason, "Script Extender Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 
 void CreateConsole(HMODULE hModule)
 {
 	AllocConsole();
-	SetConsoleTitleW(L"Osiris Extender Debug Console");
+	SetConsoleTitleW(L"Script Extender Debug Console");
 	DisableThreadLibraryCalls(hModule);
 	FILE * reopenedStream;
 	freopen_s(&reopenedStream, "CONOUT$", "w", stdout);
 
 	DEBUG("******************************************************************************");
 	DEBUG("*                                                                            *");
-	DEBUG("*                       Osiris Extender Debug Console                        *");
+	DEBUG("*                       Script Extender Debug Console                        *");
 	DEBUG("*                                                                            *");
 	DEBUG("******************************************************************************");
 	DEBUG("");

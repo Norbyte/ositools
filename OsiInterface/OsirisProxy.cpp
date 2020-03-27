@@ -951,7 +951,7 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 	loadMsg += modManager->BaseModule.Info.Name.GetPtr();
 	loadMsg += L" (Script Extender v";
 	loadMsg += std::to_wstring(CurrentVersion);
-#if defined(DEBUG)
+#if defined(_DEBUG)
 	loadMsg += L" Devel";
 #endif
 	loadMsg += L")";
@@ -975,9 +975,7 @@ void OsirisProxy::ClearPathOverrides()
 void OsirisProxy::AddPathOverride(std::string const & path, std::string const & overriddenPath)
 {
 	auto absolutePath = GetStaticSymbols().ToPath(path, PathRootType::Data);
-	std::replace(absolutePath.begin(), absolutePath.end(), '\\', '/');
 	auto absoluteOverriddenPath = GetStaticSymbols().ToPath(overriddenPath, PathRootType::Data);
-	std::replace(absoluteOverriddenPath.begin(), absoluteOverriddenPath.end(), '\\', '/');
 
 	std::unique_lock lock(pathOverrideMutex_);
 	pathOverrides_.insert(std::make_pair(absolutePath, absoluteOverriddenPath));
@@ -1019,9 +1017,9 @@ void OsirisProxy::PostInitLibraries()
 			<< L") is not supported by the Script Extender; please upgrade to at least v3.6.54";
 		Libraries.ShowStartupError(ss.str(), true, false);
 	} else if (Libraries.CriticalInitializationFailed()) {
-		Libraries.ShowStartupError(L"A severe error has occurred during Osiris Extender initialization. Extension features will be unavailable.", true, false);
+		Libraries.ShowStartupError(L"A severe error has occurred during Script Extender initialization. Extension features will be unavailable.", true, false);
 	} else if (Libraries.InitializationFailed()) {
-		Libraries.ShowStartupError(L"An error has occurred during Osiris Extender initialization. Some extension features might be unavailable.", true, false);
+		Libraries.ShowStartupError(L"An error has occurred during Script Extender initialization. Some extension features might be unavailable.", true, false);
 	}
 
 	LibrariesPostInitialized = true;

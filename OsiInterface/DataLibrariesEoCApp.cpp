@@ -891,7 +891,7 @@ namespace osidbg
 	{
 		HMODULE hEoCPlugin = GetModuleHandleW(L"EoCPlugin.dll");
 		if (hEoCPlugin != NULL) {
-			MessageBoxW(NULL, L"This version of the Osiris Extender can only be used ingame.", L"Osiris Extender Error", MB_OK | MB_ICONERROR);
+			MessageBoxW(NULL, L"This version of the Script Extender can only be used ingame.", L"Osiris Extender Error", MB_OK | MB_ICONERROR);
 			TerminateProcess(GetCurrentProcess(), 1);
 		}
 

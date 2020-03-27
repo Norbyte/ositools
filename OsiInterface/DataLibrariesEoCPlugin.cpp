@@ -803,7 +803,7 @@ namespace osidbg
 	{
 		HMODULE hEoCApp = GetModuleHandleW(L"EoCApp.exe");
 		if (hEoCApp != NULL) {
-			MessageBoxW(NULL, L"This version of the Osiris Extender can only be used with the editor.", L"Osiris Extender Error", MB_OK | MB_ICONERROR);
+			MessageBoxW(NULL, L"This version of the Script Extender can only be used with the editor.", L"Osiris Extender Error", MB_OK | MB_ICONERROR);
 			TerminateProcess(GetCurrentProcess(), 1);
 		}
 
