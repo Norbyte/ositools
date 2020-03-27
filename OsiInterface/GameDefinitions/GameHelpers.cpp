@@ -96,29 +96,43 @@ namespace osidbg
 		}
 	}
 
+	void StaticSymbols::CanonicalizePath(std::string & path) const
+	{
+		if (path.find('\\') != std::string::npos) {
+			WARN("Path contains backslashes: \"%s\"; canonical paths should only contain forward slashes.", path.c_str());
+		}
+
+		std::replace(path.begin(), path.end(), '\\', '/');
+	}
+
 #if defined(OSI_EOCAPP)
-	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root) const
+	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
 
+		std::string canonicalPath = path;
+		if (canonicalize) {
+			CanonicalizePath(canonicalPath);
+		}
+
 		auto rootPath = PathRoots[(unsigned)root];
 
 		std::string absolutePath = rootPath->GetPtr();
-		absolutePath += "/" + path;
+		absolutePath += "/" + canonicalPath;
 		return absolutePath;
 	}
 
-	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root) const
+	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
 			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
-		auto absolutePath = ToPath(path, root);
+		auto absolutePath = ToPath(path, root, canonicalize);
 
 		Path lsPath;
 		lsPath.Name.Set(absolutePath);
@@ -128,11 +142,16 @@ namespace osidbg
 		return FileReaderPin(reader);
 	}
 #else
-	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root) const
+	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
+		}
+
+		std::string canonicalPath = path;
+		if (canonicalize) {
+			CanonicalizePath(canonicalPath);
 		}
 
 		StringView rootPath;
@@ -143,14 +162,14 @@ namespace osidbg
 		return absolutePath;
 	}
 
-	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root) const
+	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
 			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
-		auto absolutePath = ToPath(path, root);
+		auto absolutePath = ToPath(path, root, canonicalize);
 
 		Path lsPath;
 		lsPath.Name.Set(absolutePath);

@@ -284,8 +284,9 @@ namespace osidbg
 			}
 		}
 
-		std::string ToPath(std::string const & path, PathRootType root) const;
-		FileReaderPin MakeFileReader(std::string const & path, PathRootType root = PathRootType::Data) const;
+		void CanonicalizePath(std::string & path) const;
+		std::string ToPath(std::string const & path, PathRootType root, bool canonicalize = true) const;
+		FileReaderPin MakeFileReader(std::string const & path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 		void DestroyFileReader(FileReader * reader);
 	};
 
