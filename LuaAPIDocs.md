@@ -320,7 +320,11 @@ Creates a new UI element. Returns the UI object on success and `nil` on failure.
 
 #### Ext.GetUI(name)
 
-Retrieves an UI element with the specified name. If no such element exists, the function returns `nil`.
+Retrieves a UI element with the specified name. If no such element exists, the function returns `nil`.
+
+#### Ext.GetBuiltinUI(path)
+
+Retrieves a built-in UI element at the specified path. If no such element exists, the function returns `nil`.
 
 #### Ext.DestroyUI(name)
 
