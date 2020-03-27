@@ -813,7 +813,7 @@ namespace osidbg
 
 		{
 			"ls::ModuleSettings::HasCustomMods",
-			SymbolMappingData::kText, 0,
+			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
 			"48 89 6C 24 20 " // mov     [rsp+arg_18], rbp
 			"56 " // push    rsi
 			"8B 69 1C " // mov     ebp, [rcx+1Ch]
