@@ -1,14 +1,14 @@
 #include <stdafx.h>
-#include <LuaBindingServer.h>
+#include <Lua/LuaBindingServer.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
 #include "resource.h"
 
-namespace osidbg
+namespace dse::lua
 {
-	char const * const LuaObjectProxy<esv::Status>::MetatableName = "esv::Status";
+	char const * const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
-	int LuaObjectProxy<esv::Status>::LuaIndex(lua_State * L)
+	int ObjectProxy<esv::Status>::Index(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
@@ -18,15 +18,15 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaObjectProxy<esv::Status>::LuaNewIndex(lua_State * L)
+	int ObjectProxy<esv::Status>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaStatusHandleProxy::MetatableName = "esv::HStatus";
+	char const * const StatusHandleProxy::MetatableName = "esv::HStatus";
 
-	int LuaStatusHandleProxy::LuaIndex(lua_State * L)
+	int StatusHandleProxy::Index(lua_State * L)
 	{
 		auto character = FindCharacterByHandle(character_);
 		if (character == nullptr) return luaL_error(L, "Character handle invalid");
@@ -40,15 +40,15 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaStatusHandleProxy::LuaNewIndex(lua_State * L)
+	int StatusHandleProxy::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaHandleProxy<esv::PlayerCustomData>::MetatableName = "esv::HPlayerCustomData";
+	char const * const HandleProxy<esv::PlayerCustomData>::MetatableName = "esv::HPlayerCustomData";
 
-	int LuaHandleProxy<esv::PlayerCustomData>::LuaIndex(lua_State * L)
+	int HandleProxy<esv::PlayerCustomData>::Index(lua_State * L)
 	{
 		auto character = FindCharacterByHandle(handle_);
 		if (character == nullptr) return luaL_error(L, "Character handle invalid");
@@ -65,17 +65,17 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaHandleProxy<esv::PlayerCustomData>::LuaNewIndex(lua_State * L)
+	int HandleProxy<esv::PlayerCustomData>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaHandleProxy<esv::Character>::MetatableName = "esv::HCharacter";
+	char const * const HandleProxy<esv::Character>::MetatableName = "esv::HCharacter";
 
 	int CharacterFetchProperty(lua_State * L, esv::Character * character, char const * prop);
 
-	int LuaHandleProxy<esv::Character>::LuaIndex(lua_State * L)
+	int HandleProxy<esv::Character>::Index(lua_State * L)
 	{
 		auto character = FindCharacterByHandle(handle_);
 		if (character == nullptr) return luaL_error(L, "Character handle invalid");
@@ -84,15 +84,15 @@ namespace osidbg
 		return CharacterFetchProperty(L, character, prop);
 	}
 
-	int LuaHandleProxy<esv::Character>::LuaNewIndex(lua_State * L)
+	int HandleProxy<esv::Character>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaHandleProxy<esv::Item>::MetatableName = "esv::HItem";
+	char const * const HandleProxy<esv::Item>::MetatableName = "esv::HItem";
 
-	int LuaHandleProxy<esv::Item>::LuaIndex(lua_State * L)
+	int HandleProxy<esv::Item>::Index(lua_State * L)
 	{
 		auto item = FindItemByHandle(handle_);
 		if (item == nullptr) return luaL_error(L, "Item handle invalid");
@@ -101,7 +101,7 @@ namespace osidbg
 
 		if (strcmp(prop, "Stats") == 0) {
 			if (item->StatsDynamic != nullptr) {
-				LuaHandleProxy<CDivinityStats_Item>::New(L, handle_);
+				HandleProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
 			} else {
 				OsiError("Item has no stats.");
@@ -121,15 +121,15 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaHandleProxy<esv::Item>::LuaNewIndex(lua_State * L)
+	int HandleProxy<esv::Item>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaTurnManagerCombatProxy::MetatableName = "esv::TurnManager::Combat";
+	char const * const TurnManagerCombatProxy::MetatableName = "esv::TurnManager::Combat";
 
-	void LuaTurnManagerCombatProxy::PopulateMetatable(lua_State * L)
+	void TurnManagerCombatProxy::PopulateMetatable(lua_State * L)
 	{
 		lua_newtable(L);
 
@@ -156,24 +156,24 @@ namespace osidbg
 		lua_newtable(L);
 
 		for (uint32_t i = 0; i < teams.Size; i++) {
-			lua_push(L, i + 1);
-			LuaTurnManagerTeamProxy::New(L, teams[i]->TeamId);
+			push(L, i + 1);
+			TurnManagerTeamProxy::New(L, teams[i]->TeamId);
 			lua_settable(L, -3);
 		}
 	}
 
-	int LuaTurnManagerCombatProxy::LuaIndex(lua_State * L)
+	int TurnManagerCombatProxy::Index(lua_State * L)
 	{
 		auto combat = Get();
 		if (combat == nullptr) return luaL_error(L, "Combat no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
 		if (strcmp(prop, "CombatId") == 0) {
-			lua_push(L, combatId_);
+			push(L, combatId_);
 		} else if (strcmp(prop, "LevelName") == 0) {
-			lua_push(L, combat->LevelName.Str);
+			push(L, combat->LevelName.Str);
 		} else if (strcmp(prop, "IsActive") == 0) {
-			lua_push(L, combat->IsActive);
+			push(L, combat->IsActive);
 		} else {
 			OsiError("Combat has no attribute named " << prop);
 			return 0;
@@ -182,9 +182,9 @@ namespace osidbg
 		return 1;
 	}
 
-	int LuaTurnManagerCombatProxy::GetCurrentTurnOrder(lua_State * L)
+	int TurnManagerCombatProxy::GetCurrentTurnOrder(lua_State * L)
 	{
-		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto self = TurnManagerCombatProxy::CheckUserData(L, 1);
 		auto combat = self->Get();
 		if (!combat) return 0;
 
@@ -192,9 +192,9 @@ namespace osidbg
 		return 1;
 	}
 
-	int LuaTurnManagerCombatProxy::GetNextTurnOrder(lua_State * L)
+	int TurnManagerCombatProxy::GetNextTurnOrder(lua_State * L)
 	{
-		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto self = TurnManagerCombatProxy::CheckUserData(L, 1);
 		auto combat = self->Get();
 		if (!combat) return 0;
 
@@ -215,7 +215,7 @@ namespace osidbg
 		if (index < 0) index--;
 
 		while (lua_next(L, index) != 0) {
-			auto luaTeam = LuaTurnManagerTeamProxy::CheckUserData(L, -1);
+			auto luaTeam = TurnManagerTeamProxy::CheckUserData(L, -1);
 			if (luaTeam->TeamId().CombatId != combatId) {
 				luaL_error(L, "Tried to add team from another combat");
 			}
@@ -255,9 +255,9 @@ namespace osidbg
 		}
 	}
 
-	int LuaTurnManagerCombatProxy::UpdateCurrentTurnOrder(lua_State * L)
+	int TurnManagerCombatProxy::UpdateCurrentTurnOrder(lua_State * L)
 	{
-		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto self = TurnManagerCombatProxy::CheckUserData(L, 1);
 		auto combat = self->Get();
 		if (!combat) return 0;
 
@@ -265,9 +265,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaTurnManagerCombatProxy::UpdateNextTurnOrder(lua_State * L)
+	int TurnManagerCombatProxy::UpdateNextTurnOrder(lua_State * L)
 	{
-		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto self = TurnManagerCombatProxy::CheckUserData(L, 1);
 		auto combat = self->Get();
 		if (!combat) return 0;
 
@@ -275,9 +275,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaTurnManagerCombatProxy::GetAllTeams(lua_State * L)
+	int TurnManagerCombatProxy::GetAllTeams(lua_State * L)
 	{
-		auto self = LuaTurnManagerCombatProxy::CheckUserData(L, 1);
+		auto self = TurnManagerCombatProxy::CheckUserData(L, 1);
 		auto combat = self->Get();
 		if (!combat) return 0;
 
@@ -285,8 +285,8 @@ namespace osidbg
 
 		uint32_t i = 1;
 		combat->Teams.Iterate([L, &i](uint32_t teamId, esv::TurnManager::CombatTeam * team) {
-			lua_push(L, i++);
-			LuaTurnManagerTeamProxy::New(L, eoc::CombatTeamId(teamId));
+			push(L, i++);
+			TurnManagerTeamProxy::New(L, eoc::CombatTeamId(teamId));
 			lua_settable(L, -3);
 		});
 
@@ -294,29 +294,29 @@ namespace osidbg
 	}
 
 
-	char const * const LuaTurnManagerTeamProxy::MetatableName = "esv::TurnManager::Team";
+	char const * const TurnManagerTeamProxy::MetatableName = "esv::TurnManager::Team";
 
-	int LuaTurnManagerTeamProxy::LuaIndex(lua_State * L)
+	int TurnManagerTeamProxy::Index(lua_State * L)
 	{
 		auto team = Get();
 		if (team == nullptr) return luaL_error(L, "Team no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
 		if (strcmp(prop, "TeamId") == 0) {
-			lua_push(L, (uint32_t)team->TeamId);
+			push(L, (uint32_t)team->TeamId);
 		} else if (strcmp(prop, "CombatId") == 0) {
-			lua_push(L, team->TeamId.CombatId);
+			push(L, team->TeamId.CombatId);
 		} else if (strcmp(prop, "Initiative") == 0) {
-			lua_push(L, (uint32_t)team->Initiative);
+			push(L, (uint32_t)team->Initiative);
 		} else if (strcmp(prop, "StillInCombat") == 0) {
-			lua_push(L, team->StillInCombat);
+			push(L, team->StillInCombat);
 			// TODO - fetching CombatGroup?
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
 			if (character != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				LuaHandleProxy<esv::Character>::New(L, handle);
+				HandleProxy<esv::Character>::New(L, handle);
 			} else {
 				return 0;
 			}
@@ -325,7 +325,7 @@ namespace osidbg
 			if (item != nullptr) {
 				ObjectHandle handle;
 				item->GetObjectHandle(&handle);
-				LuaHandleProxy<esv::Item>::New(L, handle);
+				HandleProxy<esv::Item>::New(L, handle);
 			} else {
 				return 0;
 			}
@@ -338,19 +338,19 @@ namespace osidbg
 	}
 
 
-	void LuaExtensionLibraryServer::Register(lua_State * L)
+	void ExtensionLibraryServer::Register(lua_State * L)
 	{
-		LuaExtensionLibrary::Register(L);
+		ExtensionLibrary::Register(L);
 
-		LuaObjectProxy<esv::Status>::RegisterMetatable(L);
-		LuaHandleProxy<esv::Character>::RegisterMetatable(L);
-		LuaHandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
-		LuaHandleProxy<esv::Item>::RegisterMetatable(L);
+		ObjectProxy<esv::Status>::RegisterMetatable(L);
+		HandleProxy<esv::Character>::RegisterMetatable(L);
+		HandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
+		HandleProxy<esv::Item>::RegisterMetatable(L);
 
-		LuaOsiFunctionNameProxy::RegisterMetatable(L);
-		LuaStatusHandleProxy::RegisterMetatable(L);
-		LuaTurnManagerCombatProxy::RegisterMetatable(L);
-		LuaTurnManagerTeamProxy::RegisterMetatable(L);
+		OsiFunctionNameProxy::RegisterMetatable(L);
+		StatusHandleProxy::RegisterMetatable(L);
+		TurnManagerCombatProxy::RegisterMetatable(L);
+		TurnManagerTeamProxy::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
@@ -436,7 +436,7 @@ namespace osidbg
 		return 0;
 	}
 
-	void LuaExtensionLibraryServer::RegisterLib(lua_State * L)
+	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
@@ -484,7 +484,7 @@ namespace osidbg
 	}
 
 
-	LuaStateServer::LuaStateServer()
+	ServerState::ServerState()
 		: identityAdapters_(gOsirisProxy->GetGlobals())
 	{
 		identityAdapters_.UpdateAdapters();
@@ -499,7 +499,7 @@ namespace osidbg
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
-		LuaStatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
+		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
 		lua_settable(L, -3); // stack: Ext
 		lua_pop(L, 1); // stack: -
 
@@ -508,7 +508,7 @@ namespace osidbg
 		LoadScript(sandbox, "SandboxStartup.lua");
 	}
 
-	LuaStateServer::~LuaStateServer()
+	ServerState::~ServerState()
 	{
 		if (gOsirisProxy) {
 			gOsirisProxy->GetCustomFunctionManager().ClearDynamicEntries();
@@ -516,10 +516,10 @@ namespace osidbg
 	}
 
 
-	std::optional<int32_t> LuaStateServer::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
+	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAllServer);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -530,8 +530,8 @@ namespace osidbg
 			return {};
 		}
 
-		auto luaStatus = LuaObjectProxy<esv::Status>::New(L, status); // stack: fn, status
-		LuaGameObjectPin<esv::Status> _(luaStatus);
+		auto luaStatus = ObjectProxy<esv::Status>::New(L, status); // stack: fn, status
+		UnbindablePin _(luaStatus);
 		lua_pushboolean(L, useCharacterStats); // stack: fn, status, useCS
 
 		if (CallWithTraceback(2, 1) != 0) { // stack: retval
@@ -557,13 +557,13 @@ namespace osidbg
 	}
 
 
-	bool LuaStateServer::ComputeCharacterHit(CDivinityStats_Character * target,
+	bool ServerState::ComputeCharacterHit(CDivinityStats_Character * target,
 		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList,
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAllServer);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -574,58 +574,58 @@ namespace osidbg
 			return false;
 		}
 
-		auto luaTarget = LuaObjectProxy<CDivinityStats_Character>::New(L, target);
-		LuaGameObjectPin<CDivinityStats_Character> _(luaTarget);
-		LuaItemOrCharacterPushPin luaAttacker(L, attacker);
+		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target);
+		UnbindablePin _(luaTarget);
+		ItemOrCharacterPushPin luaAttacker(L, attacker);
 
-		LuaObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
+		ObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
 		if (weapon != nullptr) {
-			luaWeapon = LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+			luaWeapon = ObjectProxy<CDivinityStats_Item>::New(L, weapon);
 		} else {
 			lua_pushnil(L);
 		}
-		LuaGameObjectPin<CDivinityStats_Item> _2(luaWeapon);
+		UnbindablePin _2(luaWeapon);
 
-		auto luaDamageList = LuaDamageList::New(L);
+		auto luaDamageList = DamageList::New(L);
 		for (uint32_t i = 0; i < damageList->Size; i++) {
 			luaDamageList->Get().SafeAdd((*damageList)[i]);
 		}
 
 		auto hitTypeLabel = EnumInfo<HitType>::Find(hitType);
 		if (hitTypeLabel) {
-			lua_push(L, *hitTypeLabel);
+			push(L, *hitTypeLabel);
 		} else {
 			lua_pushnil(L);
 		}
 
-		lua_push(L, noHitRoll);
-		lua_push(L, forceReduceDurability);
+		push(L, noHitRoll);
+		push(L, forceReduceDurability);
 
 		lua_newtable(L);
-		luaL_settable(L, "EffectFlags", hit->EffectFlags);
-		luaL_settable(L, "TotalDamageDone", hit->TotalDamage);
-		luaL_settable(L, "ArmorAbsorption", hit->ArmorAbsorption);
-		luaL_settable(L, "LifeSteal", hit->LifeSteal);
+		settable(L, "EffectFlags", hit->EffectFlags);
+		settable(L, "TotalDamageDone", hit->TotalDamage);
+		settable(L, "ArmorAbsorption", hit->ArmorAbsorption);
+		settable(L, "LifeSteal", hit->LifeSteal);
 
 		auto damageTypeLabel = EnumInfo<DamageType>::Find(hit->DamageType);
 		if (damageTypeLabel) {
-			luaL_settable(L, "DamageType", *damageTypeLabel);
+			settable(L, "DamageType", *damageTypeLabel);
 		}
 
 		auto alwaysBackstab = skillProperties != nullptr
 			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
-		lua_push(L, alwaysBackstab);
+		push(L, alwaysBackstab);
 
 		auto highGroundLabel = EnumInfo<HighGroundBonus>::Find(highGroundFlag);
 		if (highGroundLabel) {
-			lua_push(L, *highGroundLabel);
+			push(L, *highGroundLabel);
 		} else {
 			lua_pushnil(L);
 		}
 
 		auto criticalRollLabel = EnumInfo<CriticalRoll>::Find(criticalRoll);
 		if (criticalRollLabel) {
-			lua_push(L, *criticalRollLabel);
+			push(L, *criticalRollLabel);
 		} else {
 			lua_pushnil(L);
 		}
@@ -655,7 +655,7 @@ namespace osidbg
 			auto lifeSteal = lua_tointeger(L, -1);
 			lua_pop(L, 1);
 			lua_getfield(L, -1, "DamageList");
-			auto damageList = LuaDamageList::AsUserData(L, -1);
+			auto damageList = DamageList::AsUserData(L, -1);
 			lua_pop(L, 1);
 
 			if (damageList == nullptr) {
@@ -683,10 +683,10 @@ namespace osidbg
 	}
 
 
-	bool LuaStateServer::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
+	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAllServer);
 
 		auto turnMgr = GetTurnManager();
 		if (!turnMgr) {
@@ -709,7 +709,7 @@ namespace osidbg
 			return {};
 		}
 
-		LuaTurnManagerCombatProxy::New(L, combatId); // stack: fn, combat
+		TurnManagerCombatProxy::New(L, combatId); // stack: fn, combat
 		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
 
 		if (CallWithTraceback(2, 1) != 0) { // stack: retval
@@ -725,7 +725,7 @@ namespace osidbg
 			try {
 				UpdateTurnOrder(L, combatId, -1, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
 				ok = true;
-			} catch (LuaException &) {
+			} catch (Exception &) {
 				OsiError("UpdateTurnOrder failed");
 			}
 		}
@@ -734,20 +734,23 @@ namespace osidbg
 		return ok;
 	}
 
-	void LuaStateServer::OnGameSessionLoading()
+	void ServerState::OnGameSessionLoading()
 	{
 		identityAdapters_.UpdateAdapters();
 
-		LuaState::OnGameSessionLoading();
+		State::OnGameSessionLoading();
 	}
+}
 
+namespace dse
+{
 
 	ExtensionStateServer & ExtensionStateServer::Get()
 	{
 		return gOsirisProxy->GetServerExtensionState();
 	}
 
-	LuaState * ExtensionStateServer::GetLua()
+	lua::State * ExtensionStateServer::GetLua()
 	{
 		if (Lua) {
 			return Lua.get();
@@ -770,7 +773,7 @@ namespace osidbg
 	void ExtensionStateServer::DoLuaReset()
 	{
 		Lua.reset();
-		Lua = std::make_unique<LuaStateServer>();
+		Lua = std::make_unique<lua::ServerState>();
 		Lua->StoryFunctionMappingsUpdated();
 	}
 

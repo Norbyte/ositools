@@ -8,7 +8,7 @@
 #include <ExtensionHelpers.h>
 #include <OsirisHelpers.h>
 
-namespace osidbg
+namespace dse::lua
 {
 	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil = false);
 	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil = false);
@@ -16,7 +16,7 @@ namespace osidbg
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 	void OsiToLua(lua_State * L, TypedValue const & tv);
 
-	class LuaOsiFunction
+	class OsiFunction
 	{
 	public:
 		inline bool IsBound() const
@@ -29,7 +29,7 @@ namespace osidbg
 			return IsBound() && function_->Type == FunctionType::Database;
 		}
 
-		bool Bind(Function const * func, class LuaStateServer & state);
+		bool Bind(Function const * func, class ServerState & state);
 		void Unbind();
 
 		int LuaCall(lua_State * L);
@@ -39,7 +39,7 @@ namespace osidbg
 	private:
 		Function const * function_{ nullptr };
 		AdapterRef adapter_;
-		LuaStateServer * state_;
+		ServerState * state_;
 
 		void OsiCall(lua_State * L);
 		void OsiInsert(lua_State * L, bool deleteTuple);
@@ -50,7 +50,7 @@ namespace osidbg
 		void ConstructTuple(lua_State * L, TupleVec const & tuple);
 	};
 
-	class LuaOsiFunctionNameProxy : public LuaUserdata<LuaOsiFunctionNameProxy>, public LuaCallable
+	class OsiFunctionNameProxy : public Userdata<OsiFunctionNameProxy>, public Callable
 	{
 	public:
 		static char const * const MetatableName;
@@ -60,22 +60,22 @@ namespace osidbg
 
 		static void PopulateMetatable(lua_State * L);
 
-		LuaOsiFunctionNameProxy(std::string const & name, LuaStateServer & state);
+		OsiFunctionNameProxy(std::string const & name, ServerState & state);
 
 		void UnbindAll();
 		int LuaCall(lua_State * L);
 
 	private:
 		std::string name_;
-		std::vector<LuaOsiFunction> functions_;
-		LuaStateServer & state_;
+		std::vector<OsiFunction> functions_;
+		ServerState & state_;
 		uint32_t generationId_;
 
 		static int LuaGet(lua_State * L);
 		static int LuaDelete(lua_State * L);
 		bool BeforeCall(lua_State * L);
-		LuaOsiFunction * TryGetFunction(uint32_t arity);
-		LuaOsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);
+		OsiFunction * TryGetFunction(uint32_t arity);
+		OsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);
 		Function const * LookupOsiFunction(uint32_t arity);
 	};
 
@@ -84,14 +84,14 @@ namespace osidbg
 	{
 	public:
 		inline CustomLuaCall(std::string const & name, std::vector<CustomFunctionParam> params,
-			LuaRegistryEntry handler)
+			RegistryEntry handler)
 			: CustomCallBase(name, std::move(params)), handler_(std::move(handler))
 		{}
 
 		virtual bool Call(OsiArgumentDesc const & params) override;
 
 	private:
-		LuaRegistryEntry handler_;
+		RegistryEntry handler_;
 	};
 
 
@@ -99,28 +99,28 @@ namespace osidbg
 	{
 	public:
 		inline CustomLuaQuery(std::string const & name, std::vector<CustomFunctionParam> params,
-			LuaRegistryEntry handler)
+			RegistryEntry handler)
 			: CustomQueryBase(name, std::move(params)), handler_(std::move(handler))
 		{}
 
 		virtual bool Query(OsiArgumentDesc & params) override;
 
 	private:
-		LuaRegistryEntry handler_;
+		RegistryEntry handler_;
 	};
 
 
-	class LuaStatusHandleProxy : public LuaUserdata<LuaStatusHandleProxy>, public LuaIndexable
+	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
 
-		inline LuaStatusHandleProxy(ObjectHandle character, ObjectHandle status)
+		inline StatusHandleProxy(ObjectHandle character, ObjectHandle status)
 			: character_(character), status_(status)
 		{}
 
-		int LuaIndex(lua_State * L);
-		int LuaNewIndex(lua_State * L);
+		int Index(lua_State * L);
+		int NewIndex(lua_State * L);
 
 	private:
 		ObjectHandle character_;
@@ -128,14 +128,14 @@ namespace osidbg
 	};
 
 
-	class LuaTurnManagerCombatProxy : public LuaUserdata<LuaTurnManagerCombatProxy>, public LuaIndexable
+	class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
 
 		static void PopulateMetatable(lua_State * L);
 
-		inline LuaTurnManagerCombatProxy(uint8_t combatId)
+		inline TurnManagerCombatProxy(uint8_t combatId)
 			: combatId_(combatId)
 		{}
 
@@ -144,7 +144,7 @@ namespace osidbg
 			return GetTurnManager()->Combats.Find(combatId_);
 		}
 
-		int LuaIndex(lua_State * L);
+		int Index(lua_State * L);
 
 	private:
 		uint8_t combatId_;
@@ -156,14 +156,12 @@ namespace osidbg
 		static int GetAllTeams(lua_State * L);
 	};
 
-	class LuaTurnManagerTeamProxy : public LuaUserdata<LuaTurnManagerTeamProxy>, public LuaIndexable
+	class TurnManagerTeamProxy : public Userdata<TurnManagerTeamProxy>, public Indexable, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
 
-		//static void PopulateMetatable(lua_State * L);
-
-		inline LuaTurnManagerTeamProxy(eoc::CombatTeamId teamId)
+		inline TurnManagerTeamProxy(eoc::CombatTeamId teamId)
 			: teamId_(teamId)
 		{}
 
@@ -187,14 +185,14 @@ namespace osidbg
 			}
 		}
 
-		int LuaIndex(lua_State * L);
+		int Index(lua_State * L);
 
 	private:
 		eoc::CombatTeamId teamId_;
 	};
 
 
-	class LuaExtensionLibraryServer : public LuaExtensionLibrary
+	class ExtensionLibraryServer : public ExtensionLibrary
 	{
 	public:
 		void Register(lua_State * L) override;
@@ -295,16 +293,16 @@ namespace osidbg
 	};
 
 
-	class LuaStateServer : public LuaState
+	class ServerState : public State
 	{
 	public:
-		LuaStateServer();
-		~LuaStateServer();
+		ServerState();
+		~ServerState();
 
-		LuaStateServer(LuaStateServer const &) = delete;
-		LuaStateServer(LuaStateServer &&) = delete;
-		LuaStateServer & operator = (LuaStateServer const &) = delete;
-		LuaStateServer & operator = (LuaStateServer &&) = delete;
+		ServerState(ServerState const &) = delete;
+		ServerState(ServerState &&) = delete;
+		ServerState & operator = (ServerState const &) = delete;
+		ServerState & operator = (ServerState &&) = delete;
 
 		inline uint32_t GenerationId() const
 		{
@@ -346,7 +344,7 @@ namespace osidbg
 		{
 			std::lock_guard lock(mutex_);
 
-			auto L = State();
+			auto L = GetState();
 			auto stackSize = lua_gettop(L);
 
 			try {
@@ -361,7 +359,7 @@ namespace osidbg
 					// stack: errmsg
 					lua_pop(L, 1); // stack: -
 				}
-			} catch (LuaException &) {
+			} catch (Exception &) {
 				auto stackRemaining = lua_gettop(L) - stackSize;
 				if (stackRemaining > 0) {
 					OsiError("Call '" << func << "' failed: " << lua_tostring(L, -1));
@@ -372,7 +370,7 @@ namespace osidbg
 			}
 		}
 
-		bool Query(std::string const & name, LuaRegistryEntry * func,
+		bool Query(std::string const & name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
@@ -383,7 +381,7 @@ namespace osidbg
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 
 	private:
-		LuaExtensionLibraryServer library_;
+		ExtensionLibraryServer library_;
 		OsiArgumentPool<OsiArgumentDesc> argDescPool_;
 		OsiArgumentPool<TypedValue> tvPool_;
 		OsiArgumentPool<ListNode<TypedValue *>> tvNodePool_;
@@ -393,7 +391,7 @@ namespace osidbg
 		// Used to invalidate function/node pointers in Lua userdata objects
 		uint32_t generationId_{ 0 };
 
-		bool QueryInternal(std::string const & name, LuaRegistryEntry * func,
+		bool QueryInternal(std::string const & name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 	};
 }

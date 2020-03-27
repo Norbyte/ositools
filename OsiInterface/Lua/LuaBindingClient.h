@@ -2,9 +2,15 @@
 
 #include <Lua/LuaBinding.h>
 
-namespace osidbg
+namespace dse
 {
-	class LuaExtensionLibraryClient : public LuaExtensionLibrary
+	struct InvokeDataValue;
+	struct UIObject;
+}
+
+namespace dse::lua
+{
+	class ExtensionLibraryClient : public ExtensionLibrary
 	{
 	public:
 		void Register(lua_State * L) override;
@@ -12,18 +18,18 @@ namespace osidbg
 	};
 
 
-	class LuaUIObjectProxy : public LuaUserdata<LuaUIObjectProxy>
+	class UIObjectProxy : public Userdata<UIObjectProxy>, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
 
 		static void PopulateMetatable(lua_State * L);
 
-		inline LuaUIObjectProxy(ObjectHandle handle)
+		inline UIObjectProxy(ObjectHandle handle)
 			: handle_(handle)
 		{}
 
-		struct UIObject * Get();
+		UIObject * Get();
 
 	private:
 		ObjectHandle handle_;
@@ -42,13 +48,13 @@ namespace osidbg
 	};
 
 
-	class LuaStateClient : public LuaState
+	class ClientState : public State
 	{
 	public:
-		LuaStateClient();
-		~LuaStateClient();
+		ClientState();
+		~ClientState();
 
-		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, struct InvokeDataValue * args);
+		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
 		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
 			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
 		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
@@ -58,7 +64,7 @@ namespace osidbg
 		UIObject * GetUIObject(char const * name);
 
 	private:
-		LuaExtensionLibraryClient library_;
+		ExtensionLibraryClient library_;
 		std::unordered_map<std::string, ObjectHandle> clientUI_;
 	};
 }

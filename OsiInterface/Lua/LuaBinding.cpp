@@ -5,33 +5,33 @@
 #include "resource.h"
 #include <fstream>
 
-namespace osidbg
+namespace dse::lua
 {
-	LuaRegistryEntry::LuaRegistryEntry()
+	RegistryEntry::RegistryEntry()
 		: L_(nullptr), ref_(-1)
 	{}
 
-	LuaRegistryEntry::LuaRegistryEntry(lua_State * L, int index)
+	RegistryEntry::RegistryEntry(lua_State * L, int index)
 		: L_(L)
 	{
 		lua_pushvalue(L, index);
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
-	LuaRegistryEntry::~LuaRegistryEntry()
+	RegistryEntry::~RegistryEntry()
 	{
 		if (ref_ != -1) {
 			luaL_unref(L_, LUA_REGISTRYINDEX, ref_);
 		}
 	}
 
-	LuaRegistryEntry::LuaRegistryEntry(LuaRegistryEntry && other)
+	RegistryEntry::RegistryEntry(RegistryEntry && other)
 		: L_(other.L_), ref_(other.ref_)
 	{
 		other.ref_ = -1;
 	}
 
-	LuaRegistryEntry & LuaRegistryEntry::operator = (LuaRegistryEntry && other)
+	RegistryEntry & RegistryEntry::operator = (RegistryEntry && other)
 	{
 		L_ = other.L_;
 		ref_ = other.ref_;
@@ -39,7 +39,7 @@ namespace osidbg
 		return *this;
 	}
 
-	void LuaRegistryEntry::Push()
+	void RegistryEntry::Push()
 	{
 		assert(ref_ != -1);
 		lua_rawgeti(L_, LUA_REGISTRYINDEX, ref_);
@@ -50,14 +50,14 @@ namespace osidbg
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level);
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
 
-	char const * const LuaStatsProxy::MetatableName = "CRPGStats_Object";
+	char const * const StatsProxy::MetatableName = "CRPGStats_Object";
 
-	int LuaStatsProxy::LuaIndex(lua_State * L)
+	int StatsProxy::Index(lua_State * L)
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 
 		if (strcmp(attributeName, "Level") == 0) {
-			lua_push(L, obj_->Level);
+			push(L, obj_->Level);
 			return 1;
 		} else if (strcmp(attributeName, "Name") == 0) {
 			lua_pushstring(L, obj_->Name);
@@ -67,27 +67,27 @@ namespace osidbg
 		return LuaStatGetAttribute(L, obj_, attributeName, level_);
 	}
 
-	int LuaStatsProxy::LuaNewIndex(lua_State * L)
+	int StatsProxy::NewIndex(lua_State * L)
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 		return LuaStatSetAttribute(L, obj_, attributeName, 3);
 	}
 
 
-	char const * const LuaSkillPrototypeProxy::MetatableName = "eoc::SkillPrototype";
+	char const * const SkillPrototypeProxy::MetatableName = "eoc::SkillPrototype";
 
-	LuaSkillPrototypeProxy::LuaSkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level)
+	SkillPrototypeProxy::SkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level)
 		: obj_(obj), level_(level)
 	{
 		stats_ = StatFindObject(obj->RPGStatsObjectIndex);
 	}
 
-	int LuaSkillPrototypeProxy::LuaIndex(lua_State * L)
+	int SkillPrototypeProxy::Index(lua_State * L)
 	{
 		auto attributeName = luaL_checkstring(L, 2);
 
 		if (strcmp(attributeName, "Level") == 0) {
-			lua_push(L, obj_->Level);
+			push(L, obj_->Level);
 			return 1;
 		}
 
@@ -100,7 +100,7 @@ namespace osidbg
 		return stats->GetStat(isBaseStat ? (statName + 4) : statName, isBaseStat);
 	}
 
-	char const * const LuaObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
+	char const * const ObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
 
 	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const * prop)
 	{
@@ -114,8 +114,8 @@ namespace osidbg
 			lua_newtable(L);
 			unsigned statIdx = 1;
 			for (auto statPtr = stats->DynamicStats; statPtr != stats->DynamicStatsEnd; statPtr++) {
-				lua_push(L, statIdx++);
-				LuaObjectProxy<CharacterDynamicStat>::New(L, *statPtr);
+				push(L, statIdx++);
+				ObjectProxy<CharacterDynamicStat>::New(L, *statPtr);
 				lua_settable(L, -3);
 			}
 
@@ -130,7 +130,7 @@ namespace osidbg
 		if (strcmp(prop, "MainWeapon") == 0) {
 			auto weapon = stats->GetMainWeapon();
 			if (weapon != nullptr) {
-				LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
 				return 1;
 			} else {
 				return 0;
@@ -140,7 +140,7 @@ namespace osidbg
 		if (strcmp(prop, "OffHandWeapon") == 0) {
 			auto weapon = stats->GetOffHandWeapon();
 			if (weapon != nullptr) {
-				LuaObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
 				return 1;
 			} else {
 				return 0;
@@ -181,7 +181,7 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaObjectProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Character>::Index(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
 
@@ -189,7 +189,7 @@ namespace osidbg
 		return CharacterFetchStat(L, obj_, prop);
 	}
 
-	int LuaObjectProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -200,8 +200,8 @@ namespace osidbg
 			lua_newtable(L);
 			unsigned statIdx = 1;
 			for (auto statPtr = item->DynamicAttributes_Start; statPtr != item->DynamicAttributes_End; statPtr++) {
-				lua_push(L, statIdx++);
-				LuaObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, *statPtr);
+				push(L, statIdx++);
+				ObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, *statPtr);
 				lua_settable(L, -3);
 			}
 
@@ -241,7 +241,7 @@ namespace osidbg
 				&& character->PlayerData->CustomData.Initialized) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				LuaHandleProxy<esv::PlayerCustomData>::New(L, handle);
+				HandleProxy<esv::PlayerCustomData>::New(L, handle);
 				return 1;
 			} else {
 				OsiError("Character has no player data, or custom data was not initialized.");
@@ -253,7 +253,7 @@ namespace osidbg
 			if (character->Stats != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				LuaHandleProxy<CDivinityStats_Character>::New(L, handle);
+				HandleProxy<CDivinityStats_Character>::New(L, handle);
 				return 1;
 			} else {
 				OsiError("Character has no stats.");
@@ -266,9 +266,9 @@ namespace osidbg
 	}
 
 
-	char const * const LuaObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
+	char const * const ObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
 
-	int LuaObjectProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Item>::Index(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Item stats no longer available");
 
@@ -276,15 +276,15 @@ namespace osidbg
 		return ItemFetchStat(L, obj_, prop);
 	}
 
-	int LuaObjectProxy<CDivinityStats_Item>::LuaNewIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "CDivinityStats_Equipment_Attributes";
+	char const * const ObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "CDivinityStats_Equipment_Attributes";
 
-	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Equipment_Attributes>::Index(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Equipment stats no longer available");
 
@@ -294,15 +294,15 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaObjectProxy<CDivinityStats_Equipment_Attributes>::LuaNewIndex(lua_State * L)
+	int ObjectProxy<CDivinityStats_Equipment_Attributes>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported!");
 	}
 
 
-	char const * const LuaObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
+	char const * const ObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
 
-	int LuaObjectProxy<CharacterDynamicStat>::LuaIndex(lua_State * L)
+	int ObjectProxy<CharacterDynamicStat>::Index(lua_State * L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
 
@@ -311,29 +311,29 @@ namespace osidbg
 		return fetched ? 1 : 0;
 	}
 
-	int LuaObjectProxy<CharacterDynamicStat>::LuaNewIndex(lua_State * L)
+	int ObjectProxy<CharacterDynamicStat>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported!");
 	}
 
 
-	LuaItemOrCharacterPushPin::LuaItemOrCharacterPushPin(lua_State * L, CRPGStats_Object * obj)
+	ItemOrCharacterPushPin::ItemOrCharacterPushPin(lua_State * L, CRPGStats_Object * obj)
 	{
 		if (obj == nullptr) {
 			lua_pushnil(L);
 		} else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character *>(obj);
-			character_ = LuaObjectProxy<CDivinityStats_Character>::New(L, ch);
+			character_ = ObjectProxy<CDivinityStats_Character>::New(L, ch);
 		} else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
 			auto item = reinterpret_cast<CDivinityStats_Item *>(obj);
-			item_ = LuaObjectProxy<CDivinityStats_Item>::New(L, item);
+			item_ = ObjectProxy<CDivinityStats_Item>::New(L, item);
 		} else {
-			object_ = LuaStatsProxy::New(L, obj, -1);
+			object_ = StatsProxy::New(L, obj, -1);
 			OsiWarnS("Could not determine stats type of object");
 		}
 	}
 
-	LuaItemOrCharacterPushPin::~LuaItemOrCharacterPushPin()
+	ItemOrCharacterPushPin::~ItemOrCharacterPushPin()
 	{
 		if (character_) character_->Unbind();
 		if (item_) item_->Unbind();
@@ -341,9 +341,9 @@ namespace osidbg
 	}
 
 
-	char const * const LuaHandleProxy<CDivinityStats_Character>::MetatableName = "HCDivinityStats_Character";
+	char const * const HandleProxy<CDivinityStats_Character>::MetatableName = "HCDivinityStats_Character";
 
-	int LuaHandleProxy<CDivinityStats_Character>::LuaIndex(lua_State * L)
+	int HandleProxy<CDivinityStats_Character>::Index(lua_State * L)
 	{
 		auto character = FindCharacterByHandle(handle_);
 		if (character == nullptr) return luaL_error(L, "Character handle invalid");
@@ -353,15 +353,15 @@ namespace osidbg
 		return CharacterFetchStat(L, character->Stats, prop);
 	}
 
-	int LuaHandleProxy<CDivinityStats_Character>::LuaNewIndex(lua_State * L)
+	int HandleProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaHandleProxy<CDivinityStats_Item>::MetatableName = "HCDivinityStats_Item";
+	char const * const HandleProxy<CDivinityStats_Item>::MetatableName = "HCDivinityStats_Item";
 
-	int LuaHandleProxy<CDivinityStats_Item>::LuaIndex(lua_State * L)
+	int HandleProxy<CDivinityStats_Item>::Index(lua_State * L)
 	{
 		auto item = FindItemByHandle(handle_);
 		if (item == nullptr) return luaL_error(L, "Item handle invalid");
@@ -371,15 +371,15 @@ namespace osidbg
 		return ItemFetchStat(L, item->StatsDynamic, prop);
 	}
 
-	int LuaHandleProxy<CDivinityStats_Item>::LuaNewIndex(lua_State * L)
+	int HandleProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const LuaStatsExtraDataProxy::MetatableName = "CRPGStats_ExtraData";
+	char const * const StatsExtraDataProxy::MetatableName = "CRPGStats_ExtraData";
 
-	int LuaStatsExtraDataProxy::LuaIndex(lua_State * L)
+	int StatsExtraDataProxy::Index(lua_State * L)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
@@ -396,9 +396,9 @@ namespace osidbg
 
 
 
-	char const * const LuaDamageList::MetatableName = "CDamageList";
+	char const * const DamageList::MetatableName = "CDamageList";
 
-	void LuaDamageList::PopulateMetatable(lua_State * L)
+	void DamageList::PopulateMetatable(lua_State * L)
 	{
 		lua_newtable(L);
 
@@ -426,10 +426,10 @@ namespace osidbg
 		lua_setfield(L, -2, "__index");
 	}
 
-	int LuaDamageList::Add(lua_State * L)
+	int DamageList::Add(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
-		auto damageType = lua_checkenum<DamageType>(L, 2);
+		auto self = DamageList::CheckUserData(L, 1);
+		auto damageType = checkenum<DamageType>(L, 2);
 		auto amount = (int32_t)luaL_checkinteger(L, 3);
 
 		self->damages_.AddDamage(damageType, amount);
@@ -437,11 +437,11 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::Clear(lua_State * L)
+	int DamageList::Clear(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto self = DamageList::CheckUserData(L, 1);
 		if (lua_gettop(L) >= 2) {
-			auto damageType = lua_checkenum<DamageType>(L, 2);
+			auto damageType = checkenum<DamageType>(L, 2);
 			self->damages_.ClearDamage(damageType);
 		} else {
 			self->damages_.Clear();
@@ -450,9 +450,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::Multiply(lua_State * L)
+	int DamageList::Multiply(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto self = DamageList::CheckUserData(L, 1);
 		auto multiplier = luaL_checknumber(L, 2);
 
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
@@ -463,10 +463,10 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::Merge(lua_State * L)
+	int DamageList::Merge(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
-		auto other = LuaDamageList::CheckUserData(L, 2);
+		auto self = DamageList::CheckUserData(L, 1);
+		auto other = DamageList::CheckUserData(L, 2);
 
 		for (uint32_t i = 0; i < other->damages_.Size; i++) {
 			auto & item = other->damages_[i];
@@ -476,10 +476,10 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::ConvertDamageType(lua_State * L)
+	int DamageList::ConvertDamageType(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
-		auto damageType = lua_checkenum<DamageType>(L, 2);
+		auto self = DamageList::CheckUserData(L, 1);
+		auto damageType = checkenum<DamageType>(L, 2);
 
 		int32_t totalDamage = 0;
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
@@ -492,9 +492,9 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::AggregateSameTypeDamages(lua_State * L)
+	int DamageList::AggregateSameTypeDamages(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto self = DamageList::CheckUserData(L, 1);
 
 		for (uint32_t i = self->damages_.Size; i > 0; i--) {
 			auto & src = self->damages_[i - 1];
@@ -511,20 +511,20 @@ namespace osidbg
 		return 0;
 	}
 
-	int LuaDamageList::ToTable(lua_State * L)
+	int DamageList::ToTable(lua_State * L)
 	{
-		auto self = LuaDamageList::CheckUserData(L, 1);
+		auto self = DamageList::CheckUserData(L, 1);
 
 		lua_newtable(L); // Stack: tab
 
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {
 			auto const & item = self->damages_[i];
 
-			lua_push(L, i + 1); // Stack: tab, index
+			push(L, i + 1); // Stack: tab, index
 			lua_newtable(L); // Stack: tab, index, dmgTab
 			auto dmgTypeName = EnumInfo<DamageType>::Find(item.DamageType);
-			luaL_settable(L, "DamageType", *dmgTypeName);
-			luaL_settable(L, "Amount", item.Amount);
+			settable(L, "DamageType", *dmgTypeName);
+			settable(L, "Amount", item.Amount);
 
 			lua_settable(L, -3); // Stack: tab
 		}
@@ -533,22 +533,22 @@ namespace osidbg
 	}
 
 
-	void LuaExtensionLibrary::Register(lua_State * L)
+	void ExtensionLibrary::Register(lua_State * L)
 	{
 		RegisterLib(L);
-		LuaObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
-		LuaObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
-		LuaObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
-		LuaHandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		LuaHandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
-		LuaStatsExtraDataProxy::RegisterMetatable(L);
-		LuaStatsProxy::RegisterMetatable(L);
-		LuaSkillPrototypeProxy::RegisterMetatable(L);
-		LuaDamageList::RegisterMetatable(L);
+		ObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		ObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
+		ObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
+		ObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
+		HandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
+		HandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
+		StatsExtraDataProxy::RegisterMetatable(L);
+		StatsProxy::RegisterMetatable(L);
+		SkillPrototypeProxy::RegisterMetatable(L);
+		DamageList::RegisterMetatable(L);
 	}
 
-	int LuaExtensionLibrary::Require(lua_State * L)
+	int ExtensionLibrary::Require(lua_State * L)
 	{
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
@@ -570,10 +570,10 @@ namespace osidbg
 
 	int LuaPanic(lua_State * L)
 	{
-		throw LuaException();
+		throw Exception();
 	}
 
-	LuaState::LuaState()
+	State::State()
 	{
 		state_ = luaL_newstate();
 		lua_atpanic(state_, &LuaPanic);
@@ -582,19 +582,19 @@ namespace osidbg
 
 	void RestoreLevelMaps(std::unordered_set<int32_t> const &);
 
-	LuaState::~LuaState()
+	State::~State()
 	{
 		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(state_);
 	}
 
-	void LuaState::FinishStartup()
+	void State::FinishStartup()
 	{
 		assert(!startupDone_);
 		startupDone_ = true;
 	}
 		
-	void LuaState::OpenLibs()
+	void State::OpenLibs()
 	{
 		const luaL_Reg *lib;
 		/* "require" functions from 'loadedlibs' and set results to global table */
@@ -604,7 +604,7 @@ namespace osidbg
 		}
 	}
 
-	bool LuaState::LoadScript(std::string const & script, std::string const & name)
+	bool State::LoadScript(std::string const & script, std::string const & name)
 	{
 		std::lock_guard lock(mutex_);
 
@@ -627,18 +627,18 @@ namespace osidbg
 		return true;
 	}
 
-	int LuaState::CallWithTraceback(int narg, int nres)
+	int State::CallWithTraceback(int narg, int nres)
 	{
 		auto L = state_;
 		int base = lua_gettop(L) - narg;  /* function index */
-		lua_pushcfunction(L, &LuaState::TracebackHandler);  /* push message handler */
+		lua_pushcfunction(L, &State::TracebackHandler);  /* push message handler */
 		lua_insert(L, base);  /* put it under function and args */
 		int status = lua_pcall(L, narg, nres, base);
 		lua_remove(L, base);  /* remove message handler from the stack */
 		return status;
 	}
 
-	int LuaState::TracebackHandler(lua_State *L)
+	int State::TracebackHandler(lua_State *L)
 	{
 		const char *msg = lua_tostring(L, 1);
 		if (msg == NULL) {  /* is error object not a string? */
@@ -653,10 +653,10 @@ namespace osidbg
 		return 1;  /* return the traceback */
 	}
 
-	std::optional<int32_t> LuaState::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
+	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -667,10 +667,10 @@ namespace osidbg
 			return {};
 		}
 
-		auto luaAttacker = LuaObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
-		LuaGameObjectPin<CDivinityStats_Character> _(luaAttacker);
-		auto luaTarget = LuaObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
-		LuaGameObjectPin<CDivinityStats_Character> __(luaTarget);
+		auto luaAttacker = ObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
+		UnbindablePin _(luaAttacker);
+		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
+		UnbindablePin __(luaTarget);
 
 		if (CallWithTraceback(2, 1) != 0) { // stack: retval
 			OsiError("GetHitChance handler failed: " << lua_tostring(L, -1));
@@ -694,12 +694,12 @@ namespace osidbg
 		}
 	}
 
-	bool LuaState::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
+	bool State::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
 		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -710,27 +710,27 @@ namespace osidbg
 			return {};
 		}
 
-		auto luaSkill = LuaSkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
-		LuaSkillPrototypePin _(luaSkill);
-		LuaItemOrCharacterPushPin _a(L, attacker);
+		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
+		UnbindablePin _(luaSkill);
+		ItemOrCharacterPushPin _a(L, attacker);
 
-		lua_push(L, isFromItem);
-		lua_push(L, stealthed);
+		push(L, isFromItem);
+		push(L, stealthed);
 		
 		// Push attacker position
 		lua_newtable(L);
-		luaL_settable(L, 1, attackerPosition[0]);
-		luaL_settable(L, 2, attackerPosition[1]);
-		luaL_settable(L, 3, attackerPosition[2]);
+		settable(L, 1, attackerPosition[0]);
+		settable(L, 2, attackerPosition[1]);
+		settable(L, 3, attackerPosition[2]);
 
 		// Push target position
 		lua_newtable(L);
-		luaL_settable(L, 1, targetPosition[0]);
-		luaL_settable(L, 2, targetPosition[1]);
-		luaL_settable(L, 3, targetPosition[2]);
+		settable(L, 1, targetPosition[0]);
+		settable(L, 2, targetPosition[1]);
+		settable(L, 3, targetPosition[2]);
 
-		lua_push(L, level);
-		lua_push(L, noRandomization);
+		push(L, level);
+		push(L, noRandomization);
 
 		if (CallWithTraceback(8, 2) != 0) { // stack: damageList, deathType
 			OsiError("GetSkillDamage handler failed: " << lua_tostring(L, -1));
@@ -746,7 +746,7 @@ namespace osidbg
 		} else {
 			ok = true;
 
-			auto deathType = lua_toenum<DeathType>(L, -1);
+			auto deathType = toenum<DeathType>(L, -1);
 			if (deathType) {
 				if (pDeathType) {
 					*pDeathType = *deathType;
@@ -757,7 +757,7 @@ namespace osidbg
 			}
 
 			if (ok) {
-				auto damages = LuaDamageList::AsUserData(L, -2);
+				auto damages = DamageList::AsUserData(L, -2);
 				if (damages) {
 					auto const & list = damages->Get();
 					for (uint32_t i = 0; i < list.Size; i++) {
@@ -775,7 +775,7 @@ namespace osidbg
 		return ok;
 	}
 
-	void LuaState::OnNetMessageReceived(std::string const & channel, std::string const & payload)
+	void State::OnNetMessageReceived(std::string const & channel, std::string const & payload)
 	{
 		std::lock_guard lock(mutex_);
 
@@ -788,8 +788,8 @@ namespace osidbg
 			return;
 		}
 
-		lua_push(L, channel);
-		lua_push(L, payload);
+		push(L, channel);
+		push(L, payload);
 
 		if (CallWithTraceback(2, 0) != 0) { // stack: retval
 			OsiError("NetMessageReceived handler failed: " << lua_tostring(L, -1));
@@ -797,10 +797,10 @@ namespace osidbg
 		}
 	}
 
-	void LuaState::OnGameSessionLoading()
+	void State::OnGameSessionLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient | ScopeSessionLoad);
+		Restriction restriction(*this, RestrictAllClient | ScopeSessionLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -813,10 +813,10 @@ namespace osidbg
 		}
 	}
 
-	void LuaState::OnModuleLoading()
+	void State::OnModuleLoading()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient | ScopeModuleLoad);
+		Restriction restriction(*this, RestrictAllClient | ScopeModuleLoad);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -829,10 +829,10 @@ namespace osidbg
 		}
 	}
 
-	void LuaState::OnModuleResume()
+	void State::OnModuleResume()
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient | ScopeModuleResume);
+		Restriction restriction(*this, RestrictAllClient | ScopeModuleResume);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -845,7 +845,7 @@ namespace osidbg
 		}
 	}
 
-	std::string LuaState::GetBuiltinLibrary(int resourceId)
+	std::string State::GetBuiltinLibrary(int resourceId)
 	{
 		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(resourceId),
 			L"LUA_SCRIPT");

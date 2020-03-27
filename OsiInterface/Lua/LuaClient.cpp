@@ -1,15 +1,16 @@
 #include <stdafx.h>
-#include <LuaBindingClient.h>
+#include <Lua/LuaBindingClient.h>
 #include <OsirisProxy.h>
 #include <ExtensionStateClient.h>
 #include "resource.h"
 
-namespace osidbg
+namespace dse::lua
 {
-	void LuaExtensionLibraryClient::Register(lua_State * L)
+
+	void ExtensionLibraryClient::Register(lua_State * L)
 	{
-		LuaExtensionLibrary::Register(L);
-		LuaUIObjectProxy::RegisterMetatable(L);
+		ExtensionLibrary::Register(L);
+		UIObjectProxy::RegisterMetatable(L);
 	}
 
 	int GetExtensionVersion(lua_State * L);
@@ -58,7 +59,7 @@ namespace osidbg
 
 	struct CustomUI : public ecl::EoCUI
 	{
-		CustomUI(osidbg::Path * path)
+		CustomUI(dse::Path * path)
 			: EoCUI(path)
 		{}
 
@@ -85,7 +86,7 @@ namespace osidbg
 			return "extender::CustomUI";
 		}
 
-		static UIObject * Creator(osidbg::Path * path)
+		static UIObject * Creator(dse::Path * path)
 		{
 			return GameAlloc<CustomUI>(path);
 		}
@@ -143,7 +144,7 @@ namespace osidbg
 	}
 
 
-	UIObject * LuaUIObjectProxy::Get()
+	UIObject * UIObjectProxy::Get()
 	{
 		auto uiManager = GetStaticSymbols().GetUIObjectManager();
 		if (uiManager != nullptr) {
@@ -154,9 +155,9 @@ namespace osidbg
 	}
 
 
-	char const * const LuaUIObjectProxy::MetatableName = "ecl::EoCUI";
+	char const * const UIObjectProxy::MetatableName = "ecl::EoCUI";
 
-	void LuaUIObjectProxy::PopulateMetatable(lua_State * L)
+	void UIObjectProxy::PopulateMetatable(lua_State * L)
 	{
 		lua_newtable(L);
 
@@ -194,7 +195,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::SetPosition(lua_State * L)
+	int UIObjectProxy::SetPosition(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
@@ -208,7 +209,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::Resize(lua_State * L)
+	int UIObjectProxy::Resize(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
@@ -222,7 +223,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::Show(lua_State * L)
+	int UIObjectProxy::Show(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
@@ -232,7 +233,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::Hide(lua_State * L)
+	int UIObjectProxy::Hide(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
@@ -242,7 +243,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::Invoke(lua_State * L)
+	int UIObjectProxy::Invoke(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
@@ -265,7 +266,7 @@ namespace osidbg
 			invokeId = ui->FlashPlayer->Invokes.Set.Size;
 			ui->FlashPlayer->AddInvokeName(*invokeId, name);
 		}
-		
+
 		auto numArgs = lua_gettop(L) - 2;
 		std::vector<InvokeDataValue> args;
 		args.resize(numArgs);
@@ -279,7 +280,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::GotoFrame(lua_State * L)
+	int UIObjectProxy::GotoFrame(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
@@ -295,12 +296,12 @@ namespace osidbg
 		} else {
 			ui->FlashPlayer->GotoFrame(frame);
 		}
-		
+
 		return 0;
 	}
 
 
-	int LuaUIObjectProxy::SetValue(lua_State * L)
+	int UIObjectProxy::SetValue(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
@@ -321,7 +322,7 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::GetValue(lua_State * L)
+	int UIObjectProxy::GetValue(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
@@ -357,17 +358,17 @@ namespace osidbg
 	}
 
 
-	int LuaUIObjectProxy::GetHandle(lua_State * L)
+	int UIObjectProxy::GetHandle(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
-		lua_push(L, ui->UIObjectHandle.Handle);
+		push(L, ui->UIObjectHandle.Handle);
 		return 1;
 	}
 
 
-	int LuaUIObjectProxy::Destroy(lua_State * L)
+	int UIObjectProxy::Destroy(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
@@ -398,7 +399,7 @@ namespace osidbg
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			OsiError("An UI object with name '" << name << "' already exists!");
-			LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+			UIObjectProxy::New(L, ui->UIObjectHandle);
 			return 1;
 		}
 
@@ -452,7 +453,7 @@ namespace osidbg
 		}
 
 		pin->OnClientUIObjectCreated(name, handle);
-		LuaUIObjectProxy::New(L, handle);
+		UIObjectProxy::New(L, handle);
 		return 1;
 	}
 
@@ -463,7 +464,7 @@ namespace osidbg
 		LuaClientPin pin(ExtensionStateClient::Get());
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
-			LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+			UIObjectProxy::New(L, ui->UIObjectHandle);
 			return 1;
 		} else {
 			return 0;
@@ -485,7 +486,7 @@ namespace osidbg
 			auto ui = uiManager->Objects[i];
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.GetPtr()) {
-				LuaUIObjectProxy::New(L, ui->UIObjectHandle);
+				UIObjectProxy::New(L, ui->UIObjectHandle);
 				return 1;
 			}
 		}
@@ -509,7 +510,7 @@ namespace osidbg
 	}
 
 
-	void LuaExtensionLibraryClient::RegisterLib(lua_State * L)
+	void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
@@ -553,7 +554,7 @@ namespace osidbg
 	}
 
 
-	LuaStateClient::LuaStateClient()
+	ClientState::ClientState()
 	{
 		library_.Register(state_);
 
@@ -565,7 +566,7 @@ namespace osidbg
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
-		LuaStatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
+		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
 		lua_settable(L, -3); // stack: Ext
 		lua_pop(L, 1); // stack: -
 
@@ -574,7 +575,7 @@ namespace osidbg
 		LoadScript(sandbox, "SandboxStartup.lua");
 	}
 
-	LuaStateClient::~LuaStateClient()
+	ClientState::~ClientState()
 	{
 		auto & sym = GetStaticSymbols();
 		auto uiManager = sym.GetUIObjectManager();
@@ -583,10 +584,10 @@ namespace osidbg
 		}
 	}
 
-	void LuaStateClient::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
+	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -597,8 +598,8 @@ namespace osidbg
 			return;
 		}
 
-		LuaUIObjectProxy::New(L, uiObjectHandle);
-		lua_push(L, func);
+		UIObjectProxy::New(L, uiObjectHandle);
+		push(L, func);
 		for (uint32_t i = 0; i < numArgs; i++) {
 			InvokeDataValueToLua(L, args[i]);
 		}
@@ -613,7 +614,7 @@ namespace osidbg
 		ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -636,13 +637,12 @@ namespace osidbg
 			return false;
 		}
 
-		auto luaSkill = LuaStatsProxy::New(L, skill, std::optional<int32_t>()); // stack: fn, skill
-		LuaStatsPin _(luaSkill);
-		auto luaCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, skill, character
-		LuaGameObjectPin<CDivinityStats_Character> _2(luaCharacter);
+		auto _{ PushArguments(L,
+			StatsProxy::New(L, skill, std::optional<int32_t>()),
+			ObjectProxy<CDivinityStats_Character>::New(L, character)) };
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, skill, character, params...
+			push(L, paramTexts[i]); // stack: fn, skill, character, params...
 		}
 
 		if (CallWithTraceback(2 + paramTexts.Set.Size, 1) != 0) { // stack: retval
@@ -665,18 +665,18 @@ namespace osidbg
 				OsiErrorS("SkillGetDescriptionParam returned non-string value");
 				ok = false;
 			}
-		}
+		}*/
 
-		lua_pop(L, 1); // stack: -
-		return ok;
+		//lua_pop(L, 1); // stack: -
+		return true;
 	}
 
 
-	bool LuaStateClient::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
+	bool ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
 	{
 		std::lock_guard lock(mutex_);
-		LuaRestriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAllClient);
 
 		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
@@ -703,14 +703,14 @@ namespace osidbg
 			character = statusSource;
 		}
 
-		auto luaStatus = LuaStatsProxy::New(L, status, std::optional<int32_t>()); // stack: fn, status
-		LuaStatsPin _(luaStatus);
+		auto luaStatus = StatsProxy::New(L, status, std::optional<int32_t>()); // stack: fn, status
+		UnbindablePin _(luaStatus);
 
-		auto luaSrcCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, statusSource); // stack: fn, status, srcCharacter, character
-		LuaGameObjectPin<CDivinityStats_Character> _2(luaSrcCharacter);
+		auto luaSrcCharacter = ObjectProxy<CDivinityStats_Character>::New(L, statusSource); // stack: fn, status, srcCharacter, character
+		UnbindablePin _2(luaSrcCharacter);
 
-		auto luaCharacter = LuaObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, status, srcCharacter, character
-		LuaGameObjectPin<CDivinityStats_Character> _3(luaCharacter);
+		auto luaCharacter = ObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, status, srcCharacter, character
+		UnbindablePin _3(luaCharacter);
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
@@ -722,7 +722,9 @@ namespace osidbg
 			return false;
 		}
 
-		int isnil = lua_isnil(L, -1);
+		auto ret = CheckedPopReturnValues<char const *>(L);
+
+		/*int isnil = lua_isnil(L, -1);
 
 		bool ok;
 		if (isnil) {
@@ -743,13 +745,13 @@ namespace osidbg
 	}
 
 
-	void LuaStateClient::OnClientUIObjectCreated(char const * name, ObjectHandle handle)
+	void ClientState::OnClientUIObjectCreated(char const * name, ObjectHandle handle)
 	{
 		clientUI_.insert(std::make_pair(name, handle));
 	}
 
 
-	UIObject * LuaStateClient::GetUIObject(char const * name)
+	UIObject * ClientState::GetUIObject(char const * name)
 	{
 		auto it = clientUI_.find(name);
 		if (it != clientUI_.end()) {
@@ -761,7 +763,10 @@ namespace osidbg
 
 		return nullptr;
 	}
+}
 
+namespace dse
+{
 
 	ExtensionStateClient & ExtensionStateClient::Get()
 	{
@@ -769,7 +774,7 @@ namespace osidbg
 	}
 
 
-	LuaState * ExtensionStateClient::GetLua()
+	lua::State * ExtensionStateClient::GetLua()
 	{
 		if (Lua) {
 			return Lua.get();
@@ -786,7 +791,7 @@ namespace osidbg
 	void ExtensionStateClient::DoLuaReset()
 	{
 		Lua.reset();
-		Lua = std::make_unique<LuaStateClient>();
+		Lua = std::make_unique<lua::ClientState>();
 	}
 
 	void ExtensionStateClient::LuaStartup()

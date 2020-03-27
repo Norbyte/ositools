@@ -6,7 +6,7 @@
 #include <fstream>
 #include <json/json.h>
 
-namespace osidbg
+namespace dse::lua
 {
 	void JsonParse(lua_State * L, Json::Value & val);
 
@@ -305,7 +305,7 @@ namespace osidbg
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
-			luaL_settable(L, i + 1, mod.Info.ModuleUUID.Str);
+			settable(L, i + 1, mod.Info.ModuleUUID.Str);
 		}
 
 		return 1;
@@ -329,21 +329,21 @@ namespace osidbg
 
 		if (module != nullptr) {
 			lua_newtable(L);
-			luaL_settable(L, "UUID", module->Info.ModuleUUID);
-			luaL_settable(L, "Name", module->Info.Name);
-			luaL_settable(L, "Version", module->Info.Version);
-			luaL_settable(L, "PublishVersion", module->Info.PublishVersion);
-			luaL_settable(L, "Directory", module->Info.Directory);
-			luaL_settable(L, "Author", module->Info.Author);
-			luaL_settable(L, "Description", module->Info.Description);
-			luaL_settable(L, "ModuleType", module->Info.ModuleType);
+			settable(L, "UUID", module->Info.ModuleUUID);
+			settable(L, "Name", module->Info.Name);
+			settable(L, "Version", module->Info.Version);
+			settable(L, "PublishVersion", module->Info.PublishVersion);
+			settable(L, "Directory", module->Info.Directory);
+			settable(L, "Author", module->Info.Author);
+			settable(L, "Description", module->Info.Description);
+			settable(L, "ModuleType", module->Info.ModuleType);
 			
 			lua_pushstring(L, "Dependencies");
 			lua_newtable(L);
 			auto & dependents = module->DependentModules.Set;
 			for (uint32_t i = 0; i < dependents.Size; i++) {
 				auto const & mod = dependents[i];
-				luaL_settable(L, i + 1, mod.Info.ModuleUUID);
+				settable(L, i + 1, mod.Info.ModuleUUID);
 			}
 			lua_settable(L, -3);
 
@@ -358,7 +358,7 @@ namespace osidbg
 		auto & skillSets = stats->SkillSetManager->Primitives.Set;
 		int32_t index = 1;
 		for (uint32_t i = 0; i < skillSets.Size; i++) {
-			luaL_settable(L, index++, skillSets[i]->Name);
+			settable(L, index++, skillSets[i]->Name);
 		}
 	}
 
@@ -367,7 +367,7 @@ namespace osidbg
 		auto & equipmentSets = stats->EquipmentSetManager->Primitives.Set;
 		int32_t index = 1;
 		for (uint32_t i = 0; i < equipmentSets.Size; i++) {
-			luaL_settable(L, index++, equipmentSets[i]->Name);
+			settable(L, index++, equipmentSets[i]->Name);
 		}
 	}
 
@@ -384,7 +384,7 @@ namespace osidbg
 				}
 			}
 
-			luaL_settable(L, index++, object->Name);
+			settable(L, index++, object->Name);
 		}
 	}
 
@@ -435,7 +435,7 @@ namespace osidbg
 		lua_newtable(L);
 		int32_t index = 1;
 		for (uint32_t i = 0; i < skillSet->Skills.Set.Size; i++) {
-			luaL_settable(L, index++, skillSet->Skills.Set[i].Str);
+			settable(L, index++, skillSet->Skills.Set[i].Str);
 		}
 
 		return 1;
@@ -456,7 +456,7 @@ namespace osidbg
 		for (auto group = equipmentSet->FirstGroup; group != equipmentSet->LastGroup; group++) {
 			auto & equipment = (*group)->Equipment.Set;
 			for (uint32_t i = 0; i < equipment.Size; i++) {
-				luaL_settable(L, index++, equipment[i].Str);
+				settable(L, index++, equipment[i].Str);
 			}
 		}
 
@@ -469,26 +469,26 @@ namespace osidbg
 
 		auto requirementLabel = EnumInfo<RequirementType>::Find(requirement.RequirementId);
 		if (requirementLabel) {
-			luaL_settable(L, "Requirement", *requirementLabel);
+			settable(L, "Requirement", *requirementLabel);
 		} else {
 			OsiError("Unknown requirement ID: " << (unsigned)requirement.RequirementId);
-			luaL_settable(L, "Requirement", "(Unknown)");
+			settable(L, "Requirement", "(Unknown)");
 		}
 
 		if (requirement.RequirementId == RequirementType::Tag) {
-			luaL_settable(L, "Param", requirement.StringParam);
+			settable(L, "Param", requirement.StringParam);
 		} else {
-			luaL_settable(L, "Param", requirement.IntParam);
+			settable(L, "Param", requirement.IntParam);
 		}
 		
-		luaL_settable(L, "Not", requirement.Negate);
+		settable(L, "Not", requirement.Negate);
 	}
 
 	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> const & requirements)
 	{
 		lua_newtable(L);
 		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
-			lua_push(L, i + 1);
+			push(L, i + 1);
 			RequirementToLua(L, requirements[i]);
 			lua_settable(L, -3);
 		}
@@ -496,7 +496,7 @@ namespace osidbg
 
 	void LuaToRequirement(lua_State * L, CRPGStats_Requirement & requirement)
 	{
-		auto requirementLabel = luaL_gettable<char const *, char const *>(L, "Requirement");
+		auto requirementLabel = gettable<char const *, char const *>(L, "Requirement");
 		auto requirementId = EnumInfo<RequirementType>::Find(requirementLabel);
 		if (!requirementId) {
 			luaL_error(L, "Unknown requirement type: %s", requirementLabel);
@@ -504,15 +504,15 @@ namespace osidbg
 
 		requirement.RequirementId = *requirementId;
 		if (*requirementId == RequirementType::Tag) {
-			auto param = luaL_gettable<char const *, char const *>(L, "Param");
+			auto param = gettable<char const *, char const *>(L, "Param");
 			requirement.StringParam = MakeFixedString(param);
 			requirement.IntParam = -1;
 		} else {
-			auto param = luaL_gettable<char const *, int32_t>(L, "Param");
+			auto param = gettable<char const *, int32_t>(L, "Param");
 			requirement.IntParam = param;
 		}
 
-		requirement.Negate = luaL_gettable<char const *, bool>(L, "Not");
+		requirement.Negate = gettable<char const *, bool>(L, "Not");
 	}
 
 	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> & requirements)
@@ -525,7 +525,7 @@ namespace osidbg
 		requirements.Set.Size = (uint32_t)len;
 
 		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
-			lua_push(L, i + 1);
+			push(L, i + 1);
 			lua_gettable(L, -2);
 			LuaToRequirement(L, requirements[i]);
 			lua_pop(L, 1);
@@ -540,7 +540,7 @@ namespace osidbg
 			if (object->Using) {
 				auto parent = stats->objects.Find(object->Using);
 				if (parent != nullptr) {
-					lua_push(L, parent->Name);
+					push(L, parent->Name);
 					return 1;
 				}
 			}
@@ -553,7 +553,7 @@ namespace osidbg
 			RequirementsToLua(L, object->MemorizationRequirements);
 			return 1;
 		} else if (strcmp(attributeName, "AIFlags") == 0) {
-			lua_push(L, object->AIFlags);
+			push(L, object->AIFlags);
 			return 1;
 		}
 
@@ -608,7 +608,7 @@ namespace osidbg
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
+		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
 			return luaL_error(L, "StatSetAttribute() can only be called during module load");
 		}
 
@@ -644,7 +644,7 @@ namespace osidbg
 			return luaL_error(L, "Expected a string or integer attribute value.");
 		}
 
-		lua_push(L, ok);
+		push(L, ok);
 		return 1;
 	}
 
@@ -666,7 +666,7 @@ namespace osidbg
 		auto description = luaL_checkstring(L, 3);
 
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (!(lua->RestrictionFlags & LuaState::ScopeModuleLoad)) {
+		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
 			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
 
@@ -692,7 +692,7 @@ namespace osidbg
 
 	struct CRPGStats_CustomLevelMap : public CRPGStats_LevelMap
 	{
-		LuaRegistryEntry Function;
+		RegistryEntry Function;
 		CRPGStats_LevelMap * OriginalLevelMap{ nullptr };
 
 		CRPGStats_CustomLevelMap() {}
@@ -724,13 +724,13 @@ namespace osidbg
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
-			LuaRestriction restriction(*pin, LuaState::RestrictAllClient);
+			Restriction restriction(*pin, State::RestrictAllClient);
 
-			auto L = pin->State();
+			auto L = pin->GetState();
 			Function.Push();
 
-			lua_push(L, attributeValue);
-			lua_push(L, level);
+			push(L, attributeValue);
+			push(L, level);
 
 			if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
 				OsiError("Level scaled value fetch failed: " << lua_tostring(L, -1));
@@ -769,7 +769,7 @@ namespace osidbg
 		luaL_checktype(L, 3, LUA_TFUNCTION);
 
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (!(lua->RestrictionFlags & (LuaState::ScopeModuleLoad | LuaState::ScopeModuleResume))) {
+		if (!(lua->RestrictionFlags & (State::ScopeModuleLoad | State::ScopeModuleResume))) {
 			return luaL_error(L, "StatSetLevelScaling() can only be called during module load/resume");
 		}
 
@@ -801,7 +801,7 @@ namespace osidbg
 		levelMap->ModifierIndex = originalLevelMap->ModifierIndex;
 		levelMap->RPGEnumerationIndex = originalLevelMap->RPGEnumerationIndex;
 		levelMap->Name = originalLevelMap->Name;
-		levelMap->Function = LuaRegistryEntry(L, 3);
+		levelMap->Function = RegistryEntry(L, 3);
 		levelMap->OriginalLevelMap = originalLevelMap;
 
 		stats->LevelMaps.Primitives.Set.Buf[modifier->LevelMapIndex] = levelMap;
@@ -846,7 +846,7 @@ namespace osidbg
 		
 		auto object = StatFindObject(statName);
 		if (object != nullptr) {
-			LuaStatsProxy::New(L, object, level);
+			StatsProxy::New(L, object, level);
 			return 1;
 		} else {
 			return 0;
@@ -856,7 +856,7 @@ namespace osidbg
 	int GetCharacter(lua_State * L)
 	{
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve character handle in restricted context");
 		}
 
@@ -865,7 +865,7 @@ namespace osidbg
 		if (character != nullptr) {
 			ObjectHandle handle;
 			character->GetObjectHandle(&handle);
-			LuaHandleProxy<esv::Character>::New(L, handle);
+			HandleProxy<esv::Character>::New(L, handle);
 			return 1;
 		} else {
 			return 0;
@@ -875,7 +875,7 @@ namespace osidbg
 	int GetItem(lua_State * L)
 	{
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
 
@@ -903,7 +903,7 @@ namespace osidbg
 		if (item != nullptr) {
 			ObjectHandle handle;
 			item->GetObjectHandle(&handle);
-			LuaHandleProxy<esv::Item>::New(L, handle);
+			HandleProxy<esv::Item>::New(L, handle);
 			return 1;
 		} else {
 			return 0;
@@ -913,7 +913,7 @@ namespace osidbg
 	int GetStatus(lua_State * L)
 	{
 		LuaServerPin lua(ExtensionStateServer::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve status handle in restricted context");
 		}
 
@@ -925,7 +925,7 @@ namespace osidbg
 		if (status != nullptr) {
 			ObjectHandle characterHandle;
 			character->GetObjectHandle(&characterHandle);
-			LuaStatusHandleProxy::New(L, characterHandle, statusHandle);
+			StatusHandleProxy::New(L, characterHandle, statusHandle);
 			return 1;
 		} else {
 			OsiError("Character has no status with handle " << statusHandle.Handle);
@@ -936,7 +936,7 @@ namespace osidbg
 	int GetCombat(lua_State * L)
 	{
 		LuaServerPin lua(ExtensionStateServer::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictHandleConversion) {
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
 		}
 
@@ -953,13 +953,13 @@ namespace osidbg
 			return 0;
 		}
 
-		LuaTurnManagerCombatProxy::New(L, combatId);
+		TurnManagerCombatProxy::New(L, combatId);
 		return 1;
 	}
 
 	int NewDamageList(lua_State * L)
 	{
-		LuaDamageList::New(L);
+		DamageList::New(L);
 		return 1;
 	}
 
@@ -972,7 +972,7 @@ namespace osidbg
 	int OsirisIsCallable(lua_State * L)
 	{
 		LuaServerPin lua(ExtensionStateServer::Get());
-		bool allowed = (lua->RestrictionFlags & LuaState::RestrictOsiris) != 0;
+		bool allowed = (lua->RestrictionFlags & State::RestrictOsiris) != 0;
 		lua_pushboolean(L, allowed);
 		return 1;
 	}
@@ -1028,7 +1028,7 @@ namespace osidbg
 	int LuaRound(lua_State *L)
 	{
 		auto val = luaL_checknumber(L, 1);
-		lua_push(L, round(val));
+		push(L, round(val));
 		return 1;
 	}
 
@@ -1132,7 +1132,7 @@ namespace osidbg
 	{
 #if !defined(OSI_EOCAPP)
 		LuaServerPin lua(ExtensionStateServer::Get());
-		if (lua->RestrictionFlags & LuaState::RestrictOsiris) {
+		if (lua->RestrictionFlags & State::RestrictOsiris) {
 			return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}
 
