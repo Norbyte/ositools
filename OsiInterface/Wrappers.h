@@ -180,16 +180,16 @@ namespace osidbg {
 			}
 		}
 
+		static R CallToTrampoline(Params... Args)
+		{
+			return gHook->CallWithHooks(std::forward<Params>(Args)...);
+		}
+
 	private:
 		std::vector<PreHookFuncType> preHooks_;
 		std::vector<PostHookFuncType> postHooks_;
 
 		static HookableFunction<Tag, R(Params...)> * gHook;
-
-		static R CallToTrampoline(Params... Args)
-		{
-			return gHook->CallWithHooks(std::forward<Params>(Args)...);
-		}
 	};
 
 	template <class Tag, class T>
@@ -258,15 +258,15 @@ namespace osidbg {
 			}
 		}
 
-	private:
-		WrapperHookFuncType wrapperHook_;
-
-		static WrappableFunction<Tag, R(Params...)> * gHook;
-
 		static R CallToTrampoline(Params... Args)
 		{
 			return gHook->CallWithHooks(std::forward<Params>(Args)...);
 		}
+
+	private:
+		WrapperHookFuncType wrapperHook_;
+
+		static WrappableFunction<Tag, R(Params...)> * gHook;
 	};
 
 	template <class Tag, class T>

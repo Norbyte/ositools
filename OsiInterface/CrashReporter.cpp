@@ -2,11 +2,28 @@
 
 #include <DbgHelp.h>
 #include <psapi.h>
+#include <OsirisProxy.h>
 
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
+
+struct ExcludedSymbol
+{
+	void * Ptr;
+	std::size_t Size;
+};
+
+// Symbols that will be excluded from being considered 
+static const ExcludedSymbol ExcludedSymbols[] = {
+	{&decltype(osidbg::LibraryManager::ActionMachineSetStateHook)::CallToTrampoline, 0x120},
+	{&decltype(osidbg::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
+	{&decltype(osidbg::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
+	{&decltype(osidbg::OsirisWrappers::Call)::CallToTrampoline, 0x120},
+	{&decltype(osidbg::OsirisWrappers::Query)::CallToTrampoline, 0x120},
+	{&decltype(osidbg::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
+};
 
 class CrashReporter
 {
@@ -134,7 +151,18 @@ public:
 		auto traceSize = CaptureStackBackTrace(2, (DWORD)std::size(Backtrace), Backtrace, NULL);
 		for (auto i = 0; i < traceSize; i++) {
 			if (Backtrace[i] >= moduleStart && Backtrace[i] < moduleEnd) {
-				return true;
+				bool excluded = false;
+				for (size_t i = 0; i < std::size(ExcludedSymbols); i++) {
+					auto & sym = ExcludedSymbols[i];
+					if (Backtrace[i] >= sym.Ptr && Backtrace[i] < (uint8_t *)sym.Ptr + sym.Size) {
+						excluded = true;
+						break;
+					}
+				}
+
+				if (!excluded) {
+					return true;
+				}
 			}
 		}
 
