@@ -353,7 +353,7 @@ namespace dse::lua
 					OsiToLua(L, arg); // stack: func, arg0 ... argn
 				}
 
-				auto status = CallWithTraceback((int)args.size(), 0);
+				auto status = CallWithTraceback(L, (int)args.size(), 0);
 				if (status != LUA_OK) {
 					OsiError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
 					// stack: errmsg

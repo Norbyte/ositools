@@ -556,14 +556,13 @@ namespace dse::lua
 
 	ClientState::ClientState()
 	{
-		library_.Register(state_);
+		library_.Register(L);
 
 		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
 		LoadScript(baseLib, "BuiltinLibrary.lua");
 		auto clientLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_CLIENT);
 		LoadScript(clientLib, "BuiltinLibraryClient.lua");
 
-		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
@@ -587,16 +586,9 @@ namespace dse::lua
 	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_UICall"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return;
-		}
+		PushExtFunction(L, "_UICall"); // stack: fn
 
 		UIObjectProxy::New(L, uiObjectHandle);
 		push(L, func);
@@ -604,38 +596,21 @@ namespace dse::lua
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		if (CallWithTraceback(2 + numArgs, 0) != 0) { // stack: -
-			OsiError("UICall handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		CheckedCall<>(L, 2 + numArgs, "Ext.UICall");
 	}
 
-	bool LuaStateClient::SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
-		ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
+	std::optional<std::wstring> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype, 
+		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_SkillGetDescriptionParam"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
+		auto skill = prototype->GetStats();
+		if (skill == nullptr) {
 			return {};
 		}
 
-		auto stats = GetStaticSymbols().GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return false;
-		}
-
-		auto skill = stats->objects.Find(prototype->RPGStatsObjectIndex);
-		if (skill == nullptr) {
-			OsiError("Invalid RPGStats index in SkillPrototype?");
-			return false;
-		}
+		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
 		auto _{ PushArguments(L,
 			StatsProxy::New(L, skill, std::optional<int32_t>()),
@@ -645,103 +620,47 @@ namespace dse::lua
 			push(L, paramTexts[i]); // stack: fn, skill, character, params...
 		}
 
-		if (CallWithTraceback(2 + paramTexts.Set.Size, 1) != 0) { // stack: retval
-			OsiError("SkillGetDescriptionParam handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return false;
-		}
-
-		int isnil = lua_isnil(L, -1);
-
-		bool ok;
-		if (isnil) {
-			ok = false;
+		auto result = CheckedCall<char const *>(L, 2 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
+		if (result) {
+			return FromUTF8(std::get<0>(*result));
 		} else {
-			auto str = lua_tostring(L, -1);
-			if (str != nullptr) {
-				replacement = FromUTF8(str);
-				ok = true;
-			} else {
-				OsiErrorS("SkillGetDescriptionParam returned non-string value");
-				ok = false;
-			}
-		}*/
-
-		//lua_pop(L, 1); // stack: -
-		return true;
+			return {};
+		}
 	}
 
 
-	bool ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
-		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement)
+	std::optional<std::wstring> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
+		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_StatusGetDescriptionParam"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return {};
-		}
-
-		auto stats = GetStaticSymbols().GetStats();
-		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
-			return false;
-		}
-
-		auto status = stats->objects.Find(prototype->RPGStatsObjectIndex);
+		auto status = prototype->GetStats();
 		if (status == nullptr) {
-			OsiError("Invalid RPGStats index in StatusPrototype?");
-			return false;
+			return {};
 		}
 
 		if (character == nullptr) {
 			character = statusSource;
 		}
 
-		auto luaStatus = StatsProxy::New(L, status, std::optional<int32_t>()); // stack: fn, status
-		UnbindablePin _(luaStatus);
+		PushExtFunction(L, "_StatusGetDescriptionParam"); // stack: fn
 
-		auto luaSrcCharacter = ObjectProxy<CDivinityStats_Character>::New(L, statusSource); // stack: fn, status, srcCharacter, character
-		UnbindablePin _2(luaSrcCharacter);
-
-		auto luaCharacter = ObjectProxy<CDivinityStats_Character>::New(L, character); // stack: fn, status, srcCharacter, character
-		UnbindablePin _3(luaCharacter);
+		auto _{ PushArguments(L,
+			StatsProxy::New(L, status, std::optional<int32_t>()),
+			ObjectProxy<CDivinityStats_Character>::New(L, statusSource),
+			ObjectProxy<CDivinityStats_Character>::New(L, character)) }; // stack: fn, status, srcCharacter, character
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
 		}
 
-		if (CallWithTraceback(3 + paramTexts.Set.Size, 1) != 0) { // stack: retval
-			OsiError("StatusGetDescriptionParam handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return false;
-		}
-
-		auto ret = CheckedPopReturnValues<char const *>(L);
-
-		/*int isnil = lua_isnil(L, -1);
-
-		bool ok;
-		if (isnil) {
-			ok = false;
+		auto result = CheckedCall<char const *>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");
+		if (result) {
+			return FromUTF8(std::get<0>(*result));
 		} else {
-			auto str = lua_tostring(L, -1);
-			if (str != nullptr) {
-				replacement = FromUTF8(str);
-				ok = true;
-			} else {
-				OsiErrorS("StatusGetDescriptionParam returned non-string value");
-				ok = false;
-			}
+			return {};
 		}
-
-		lua_pop(L, 1); // stack: -
-		return ok;
 	}
 
 

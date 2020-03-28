@@ -724,7 +724,7 @@ namespace dse::lua
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
-			Restriction restriction(*pin, State::RestrictAllClient);
+			Restriction restriction(*pin, State::RestrictAll);
 
 			auto L = pin->GetState();
 			Function.Push();

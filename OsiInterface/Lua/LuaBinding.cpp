@@ -46,6 +46,39 @@ namespace dse::lua
 	}
 
 
+	int TracebackHandler(lua_State * L)
+	{
+		const char *msg = lua_tostring(L, 1);
+		if (msg == NULL) {  /* is error object not a string? */
+			if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
+				lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
+				return 1;  /* that is the message */
+			else
+				msg = lua_pushfstring(L, "(error object is a %s value)",
+					luaL_typename(L, 1));
+		}
+		luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
+		return 1;  /* return the traceback */
+	}
+
+	int CallWithTraceback(lua_State * L, int narg, int nres)
+	{
+		int base = lua_gettop(L) - narg;  /* function index */
+		lua_pushcfunction(L, &TracebackHandler);  /* push message handler */
+		lua_insert(L, base);  /* put it under function and args */
+		int status = lua_pcall(L, narg, nres, base);
+		lua_remove(L, base);  /* remove message handler from the stack */
+		return status;
+	}
+
+
+	void PushExtFunction(lua_State * L, char const * func)
+	{
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, func); // stack: Ext, fn
+		lua_remove(L, -2); // stack: fn
+	}
+
 
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level);
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
@@ -575,8 +608,8 @@ namespace dse::lua
 
 	State::State()
 	{
-		state_ = luaL_newstate();
-		lua_atpanic(state_, &LuaPanic);
+		L = luaL_newstate();
+		lua_atpanic(L, &LuaPanic);
 		OpenLibs();
 	}
 
@@ -585,7 +618,7 @@ namespace dse::lua
 	State::~State()
 	{
 		RestoreLevelMaps(OverriddenLevelMaps);
-		lua_close(state_);
+		lua_close(L);
 	}
 
 	void State::FinishStartup()
@@ -599,8 +632,8 @@ namespace dse::lua
 		const luaL_Reg *lib;
 		/* "require" functions from 'loadedlibs' and set results to global table */
 		for (lib = loadedlibs; lib->func; lib++) {
-			luaL_requiref(state_, lib->name, lib->func, 1);
-			lua_pop(state_, 1);  /* remove lib */
+			luaL_requiref(L, lib->name, lib->func, 1);
+			lua_pop(L, 1);  /* remove lib */
 		}
 	}
 
@@ -609,87 +642,38 @@ namespace dse::lua
 		std::lock_guard lock(mutex_);
 
 		/* Load the file containing the script we are going to run */
-		int status = luaL_loadbufferx(state_, script.c_str(), script.size(), name.c_str(), "text");
+		int status = luaL_loadbufferx(L, script.c_str(), script.size(), name.c_str(), "text");
 		if (status != LUA_OK) {
-			OsiError("Failed to parse script: " << lua_tostring(state_, -1));
-			lua_pop(state_, 1);  /* pop error message from the stack */
+			OsiError("Failed to parse script: " << lua_tostring(L, -1));
+			lua_pop(L, 1);  /* pop error message from the stack */
 			return false;
 		}
 
 		/* Ask Lua to run our little script */
-		status = CallWithTraceback(0, LUA_MULTRET);
+		status = CallWithTraceback(L, 0, LUA_MULTRET);
 		if (status != LUA_OK) {
-			OsiError("Failed to execute script: " << lua_tostring(state_, -1));
-			lua_pop(state_, 1); // pop error message from the stack
+			OsiError("Failed to execute script: " << lua_tostring(L, -1));
+			lua_pop(L, 1); // pop error message from the stack
 			return false;
 		}
 
 		return true;
 	}
 
-	int State::CallWithTraceback(int narg, int nres)
-	{
-		auto L = state_;
-		int base = lua_gettop(L) - narg;  /* function index */
-		lua_pushcfunction(L, &State::TracebackHandler);  /* push message handler */
-		lua_insert(L, base);  /* put it under function and args */
-		int status = lua_pcall(L, narg, nres, base);
-		lua_remove(L, base);  /* remove message handler from the stack */
-		return status;
-	}
-
-	int State::TracebackHandler(lua_State *L)
-	{
-		const char *msg = lua_tostring(L, 1);
-		if (msg == NULL) {  /* is error object not a string? */
-			if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
-				lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
-				return 1;  /* that is the message */
-			else
-				msg = lua_pushfstring(L, "(error object is a %s value)",
-					luaL_typename(L, 1));
-		}
-		luaL_traceback(L, L, msg, 1);  /* append a standard traceback */
-		return 1;  /* return the traceback */
-	}
-
 	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_GetHitChance"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return {};
-		}
+		PushExtFunction(L, "_GetHitChance"); // stack: fn
+		auto _{ PushArguments(L,
+			ObjectProxy<CDivinityStats_Character>::New(L, attacker),
+			ObjectProxy<CDivinityStats_Character>::New(L, target)) };
 
-		auto luaAttacker = ObjectProxy<CDivinityStats_Character>::New(L, attacker); // stack: fn, attacker
-		UnbindablePin _(luaAttacker);
-		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target); // stack: fn, attacker, target
-		UnbindablePin __(luaTarget);
-
-		if (CallWithTraceback(2, 1) != 0) { // stack: retval
-			OsiError("GetHitChance handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return {};
-		}
-
-		int isnum;
-		int isnil = lua_isnil(L, -1);
-		auto retval = lua_tointegerx(L, -1, &isnum);
-		lua_pop(L, 1); // stack: -
-
-		if (isnum) {
-			return std::clamp((int32_t)retval, 0, 100);
+		auto result = CheckedCall<int32_t>(L, 2, "Ext.GetHitChance");
+		if (result) {
+			return std::get<0>(*result);
 		} else {
-			if (!isnil) {
-				OsiErrorS("GetHitChance returned non-integer value");
-			}
-
 			return {};
 		}
 	}
@@ -699,16 +683,9 @@ namespace dse::lua
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_GetSkillDamage"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return {};
-		}
+		PushExtFunction(L, "_GetSkillDamage"); // stack: fn
 
 		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
 		UnbindablePin _(luaSkill);
@@ -732,117 +709,43 @@ namespace dse::lua
 		push(L, level);
 		push(L, noRandomization);
 
-		if (CallWithTraceback(8, 2) != 0) { // stack: damageList, deathType
-			OsiError("GetSkillDamage handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
+		auto result = CheckedCall<DeathType, DamageList *>(L, 8, "Ext.GetSkillDamage");
+		if (result) {
+			if (pDeathType) {
+				*pDeathType = std::get<0>(*result);
+			}
+
+			auto damages = std::get<1>(*result);
+			auto const & list = damages->Get();
+			for (uint32_t i = 0; i < list.Size; i++) {
+				auto const & item = list[i];
+				damageList->AddDamage(item.DamageType, item.Amount);
+			}
+
+			return true;
+		} else {
 			return false;
 		}
-
-		int isnil = lua_isnil(L, -1);
-
-		bool ok;
-		if (isnil) {
-			ok = false;
-		} else {
-			ok = true;
-
-			auto deathType = toenum<DeathType>(L, -1);
-			if (deathType) {
-				if (pDeathType) {
-					*pDeathType = *deathType;
-				}
-			} else {
-				OsiErrorS("GetSkillDamage returned invalid death type");
-				ok = false;
-			}
-
-			if (ok) {
-				auto damages = DamageList::AsUserData(L, -2);
-				if (damages) {
-					auto const & list = damages->Get();
-					for (uint32_t i = 0; i < list.Size; i++) {
-						auto const & item = list[i];
-						damageList->AddDamage(item.DamageType, item.Amount);
-					}
-				} else {
-					OsiErrorS("GetSkillDamage returned invalid damage list object");
-					ok = false;
-				}
-			}
-		}
-
-		lua_pop(L, 2); // stack: -
-		return ok;
 	}
 
 	void State::OnNetMessageReceived(std::string const & channel, std::string const & payload)
 	{
-		std::lock_guard lock(mutex_);
-
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_NetMessageReceived"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return;
-		}
-
-		push(L, channel);
-		push(L, payload);
-
-		if (CallWithTraceback(2, 0) != 0) { // stack: retval
-			OsiError("NetMessageReceived handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		CallExt("_NetMessageReceived", 0, ReturnType<>{}, channel, payload);
 	}
 
 	void State::OnGameSessionLoading()
 	{
-		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient | ScopeSessionLoad);
-
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_OnGameSessionLoading"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-
-		if (CallWithTraceback(0, 0) != 0) { // stack: -
-			OsiError("Ext.OnGameSessionLoading failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		CallExt("_OnGameSessionLoading", RestrictAll | ScopeSessionLoad, ReturnType<>{});
 	}
 
 	void State::OnModuleLoading()
 	{
-		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient | ScopeModuleLoad);
-
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_OnModuleLoading"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-
-		if (CallWithTraceback(0, 0) != 0) { // stack: -
-			OsiError("Ext.OnModuleLoading failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		CallExt("_OnModuleLoading", RestrictAll | ScopeModuleLoad, ReturnType<>{});
 	}
 
 	void State::OnModuleResume()
 	{
-		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllClient | ScopeModuleResume);
-
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_OnModuleResume"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-
-		if (CallWithTraceback(0, 0) != 0) { // stack: -
-			OsiError("Ext.OnModuleResume failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		CallExt("_OnModuleResume", RestrictAll | ScopeModuleResume, ReturnType<>{});
 	}
 
 	std::string State::GetBuiltinLibrary(int resourceId)

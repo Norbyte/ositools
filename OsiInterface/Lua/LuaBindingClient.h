@@ -55,10 +55,10 @@ namespace dse::lua
 		~ClientState();
 
 		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
-		bool SkillGetDescriptionParam(SkillPrototype * prototype, CDivinityStats_Character * character,
-			ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
-		bool StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
-			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, std::wstring & replacement);
+		std::optional<std::wstring> SkillGetDescriptionParam(SkillPrototype * prototype, 
+			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts);
+		std::optional<std::wstring> StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
+			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts);
 
 		void OnClientUIObjectCreated(char const * name, ObjectHandle handle);
 		UIObject * GetUIObject(char const * name);

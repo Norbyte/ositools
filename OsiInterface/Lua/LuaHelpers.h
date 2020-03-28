@@ -183,11 +183,44 @@ namespace dse::lua
 	}
 
 
-	template <class TValue>
-	std::optional<TValue> checked_get(lua_State * L, int index = -1);
 
-	template <>
-	inline std::optional<bool> checked_get<bool>(lua_State * L, int index)
+	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
+	std::optional<T> safe_get(lua_State * L, int index = -1)
+	{
+		switch (lua_type(L, index)) {
+		case LUA_TSTRING:
+		{
+			auto val = lua_tostring(L, index);
+			auto index = EnumInfo<T>::Find(val);
+			if (index) {
+				return (T)*index;
+			} else {
+				ERR("'%s' is not a valid enumeration label in '%s'", val, EnumInfo<T>::Name);
+				return {};
+			}
+			break;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto val = lua_tointeger(L, index);
+			auto index = EnumInfo<T>::Find((T)val);
+			if (index) {
+				return (T)val;
+			} else {
+				ERR("'%d' is not a valid enumeration index in '%s'", val, EnumInfo<T>::Name);
+				return {};
+			}
+			break;
+		}
+
+		default:
+			return {};
+		}
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
+	inline std::optional<T> safe_get(lua_State * L, int index)
 	{
 		if (lua_type(L, index) == LUA_TBOOLEAN) {
 			return lua_toboolean(L, index) == 1;
@@ -196,38 +229,28 @@ namespace dse::lua
 		}
 	}
 
-	template <>
-	inline std::optional<int32_t> checked_get<int32_t>(lua_State * L, int index)
+	template <class T, typename std::enable_if_t<std::is_integral_v<T>, int> * = nullptr>
+	inline std::optional<T> safe_get(lua_State * L, int index)
 	{
 		if (lua_type(L, index) == LUA_TNUMBER) {
-			return (int32_t)lua_tointeger(L, index);
+			return (T)lua_tointeger(L, index);
 		} else {
 			return {};
 		}
 	}
 
-	template <>
-	inline std::optional<int64_t> checked_get<int64_t>(lua_State * L, int index)
+	template <class T, typename std::enable_if_t<std::is_floating_point_v<T>, int> * = nullptr>
+	inline std::optional<T> safe_get(lua_State * L, int index)
 	{
 		if (lua_type(L, index) == LUA_TNUMBER) {
-			return lua_tointeger(L, index);
+			return (T)lua_tonumber(L, index);
 		} else {
 			return {};
 		}
 	}
 
-	template <>
-	inline std::optional<double> checked_get<double>(lua_State * L, int index)
-	{
-		if (lua_type(L, index) == LUA_TNUMBER) {
-			return lua_tonumber(L, index);
-		} else {
-			return {};
-		}
-	}
-
-	template <>
-	inline std::optional<char const *> checked_get<char const *>(lua_State * L, int index)
+	template <class T, typename std::enable_if_t<std::is_same_v<T, char const *>, int> * = nullptr>
+	inline std::optional<char const *> safe_get(lua_State * L, int index)
 	{
 		if (lua_type(L, index) == LUA_TSTRING) {
 			return lua_tostring(L, index);
@@ -250,34 +273,7 @@ namespace dse::lua
 	template <class TEnum>
 	std::optional<TEnum> toenum(lua_State * L, int index)
 	{
-		switch (lua_type(L, index)) {
-		case LUA_TSTRING:
-		{
-			auto val = lua_tostring(L, index);
-			auto index = EnumInfo<TEnum>::Find(val);
-			if (index) {
-				return (TEnum)*index;
-			} else {
-				return {};
-			}
-			break;
-		}
-
-		case LUA_TNUMBER:
-		{
-			auto val = lua_tointeger(L, index);
-			auto index = EnumInfo<TEnum>::Find((TEnum)val);
-			if (index) {
-				return (TEnum)val;
-			} else {
-				return {};
-			}
-			break;
-		}
-
-		default:
-			return {};
-		}
+		return safe_get<TEnum>(L, index);
 	}
 
 	template <class TEnum>
@@ -315,6 +311,112 @@ namespace dse::lua
 		return (TEnum)0;
 	}
 
+	
+
+	// Pushes all arguments to the Lua stack and returns a pin that should
+	// be destroyed after the call
+	template <class ...Args>
+	inline auto PushArguments(lua_State * L, Args... args)
+	{
+		return std::tuple(push_pin(L, args)...);
+	}
+
+	// Helper for indicating return type of a Lua function
+	template <class... Args>
+	struct ReturnType {};
+
+	// Helper struct to allow function overloading without (real) template-dependent parameters
+	template <class>
+	struct Overload {};
+
+	// Fetches a required return value (i.e. succeeded = false if arg doesn't exist or is nil)
+	template <class T>
+	T CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<T>)
+	{
+		auto i = index++;
+		if (lua_isnil(L, i)) {
+			ERR("Return value %d must not be missing or nil", -i);
+			succeeded = false;
+			return {};
+		} else {
+			auto val = safe_get<T>(L, i);
+			if ((bool)val) {
+				return *val;
+			} else {
+				ERR("Failed to fetch return value %d, incorrect type?", -i);
+				succeeded = false;
+				return {};
+			}
+		}
+	}
+
+	// Fetches an optional return value (i.e. succeeded = true if arg doesn't exist or is nil)
+	template <class T>
+	std::optional<T> CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<std::optional<T>>)
+	{
+		auto i = index++;
+		if (lua_isnil(L, i)) {
+			return {};
+		} else {
+			auto val = safe_get<T>(L, i);
+			if ((bool)val) {
+				return val;
+			} else {
+				ERR("Failed to fetch return value %d, incorrect type?", -i);
+				succeeded = false;
+				return {};
+			}
+		}
+	}
+
+	// Fetch Lua return values into a tuple
+	// Sets succeeded=false if validation of any return value failed.
+	// Tuple size *must* match lua_call nres, otherwise it'll corrupt the Lua heap!
+	template <class... Args>
+	auto CheckedGetReturnValues(lua_State * L, bool & succeeded)
+	{
+		auto index = -(int)sizeof...(Args);
+		return std::tuple(CheckedGetReturnValue(L, index, succeeded, Overload<Args>{})...);
+	}
+
+	// Fetch Lua return values into a tuple
+	// Returns {} if validation of any return value failed, rval tuple otherwise.
+	// Tuple size *must* match lua_call nres, otherwise it'll corrupt the Lua heap!
+	template <class... Args>
+	auto CheckedPopReturnValues(lua_State * L)
+	{
+		bool succeeded{ true };
+		auto rval = CheckedGetReturnValues<Args...>(L, succeeded);
+		lua_pop(L, (int)sizeof...(Args));
+		if (succeeded) {
+			return std::optional(rval);
+		} else {
+			return std::optional<decltype(rval)>();
+		}
+	}
+
+	// Calls Lua function and fetches Lua return values into a tuple.
+	// Function and arguments must be already pushed to the Lua stack.
+	// Returns {} if call or return value fetch failed, rval tuple otherwise.
+	// Function name only needed for error reporting purposes
+	template <class... Args>
+	auto CheckedCall(lua_State * L, int numArgs, char const * functionName)
+	{
+		if (CallWithTraceback(L, numArgs, sizeof...(Args)) != 0) { // stack: errmsg
+			ERR("%s Lua call failed: %s", functionName, lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return decltype(CheckedPopReturnValues<Args...>(L))();
+		}
+
+		auto result = CheckedPopReturnValues<Args...>(L);
+		if (!result) {
+			ERR("Got incorrect return values from %s", functionName);
+		}
+
+		return result;
+	}
+
+
 	class RegistryEntry
 	{
 	public:
@@ -334,6 +436,8 @@ namespace dse::lua
 		lua_State * L_;
 		int ref_;
 	};
+
+	int CallWithTraceback(lua_State * L, int narg, int nres);
 
 	class Callable {};
 	class Indexable {};
@@ -427,4 +531,26 @@ namespace dse::lua
 			lua_pop(L, 1); // stack: -
 		}
 	};
+
+	template <class T>
+	inline std::optional<T *> safe_get_userdata(lua_State * L, int index)
+	{
+		if (lua_isnil(L, index)) {
+			return {};
+		} else {
+			auto val = T::AsUserData(L, index);
+			if (val) {
+				return val;
+			} else {
+				ERR("Expected userdata of type '%s'", T::MetatableName);
+				return {};
+			}
+		}
+	}
+
+	template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int> * = nullptr>
+	inline std::optional<T> safe_get(lua_State * L, int index)
+	{
+		return safe_get_userdata<std::remove_pointer_t<T>>(L, index);
+	}
 }

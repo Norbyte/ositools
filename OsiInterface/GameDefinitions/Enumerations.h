@@ -46,6 +46,7 @@ namespace dse
 
 	#define MAKE_ENUM_INFO(typeName, size) \
 		template <> struct EnumInfo<typeName> : public EnumInfoBase<typeName, EnumInfo<typeName>> { \
+			static constexpr char const * Name = #typeName; \
 			static Label const Values[size]; \
 		}
 

@@ -162,12 +162,6 @@
     <ClInclude Include="Lua\LuaBinding.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
-    <ClInclude Include="LuaBindingClient.h">
-      <Filter>Header Files\Lua</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaBindingServer.h">
-      <Filter>Header Files\Lua</Filter>
-    </ClInclude>
     <ClInclude Include="Lua\LuaBindingClient.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>

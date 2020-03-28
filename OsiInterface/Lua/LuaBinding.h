@@ -12,6 +12,8 @@
 
 namespace dse::lua
 {
+	void PushExtFunction(lua_State * L, char const * func);
+
 	template <class T>
 	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>
 	{
@@ -179,10 +181,7 @@ namespace dse::lua
 			// Permit calls only available during module resume state
 			ScopeModuleResume = 1 << 18,
 
-			// Flags to use for code that only runs on the server
-			RestrictAllServer = 0x0000ffff & ~RestrictHandleConversion,
-			// Flags to use for code that runs on both server & client
-			RestrictAllClient = 0x0000ffff,
+			RestrictAll = 0x0000ffff,
 		};
 
 		uint32_t RestrictionFlags{ 0 };
@@ -198,7 +197,7 @@ namespace dse::lua
 
 		inline lua_State * GetState()
 		{
-			return state_;
+			return L;
 		}
 
 		inline bool StartupDone() const
@@ -216,8 +215,17 @@ namespace dse::lua
 		void OnModuleLoading();
 		void OnModuleResume();
 
+		template <class... Ret, class... Args>
+		auto CallExt(char const * func, uint32_t restrictions, ReturnType<Ret...>, Args... args)
+		{
+			std::lock_guard lock(mutex_);
+			Restriction restriction(*this, restrictions);
+			PushExtFunction(L, func);
+			auto _{ PushArguments(L, args...) };
+			return CheckedCall<Ret...>(L, sizeof...(args), func);
+		}
+
 		bool LoadScript(std::string const & script, std::string const & name = "");
-		int CallWithTraceback(int narg, int nres);
 
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
@@ -226,13 +234,12 @@ namespace dse::lua
 		void OnNetMessageReceived(std::string const & channel, std::string const & payload);
 
 	protected:
-		lua_State * state_;
+		lua_State * L;
 		std::recursive_mutex mutex_;
 		bool startupDone_{ false };
 
 		void OpenLibs();
 
-		static int TracebackHandler(lua_State * L);
 		static std::string GetBuiltinLibrary(int resourceId);
 	};
 

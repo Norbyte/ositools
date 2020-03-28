@@ -808,7 +808,7 @@ namespace dse::lua
 			param = param->NextParam;
 		}
 
-		if (lua->CallWithTraceback(numParams, 0) != 0) {
+		if (CallWithTraceback(lua->GetState(), numParams, 0) != 0) {
 			OsiError("Handler for '" << Name() << "' failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
@@ -870,7 +870,7 @@ namespace dse::lua
 			paramIndex++;
 		}
 
-		if (CallWithTraceback(numParams, LUA_MULTRET) != 0) {
+		if (CallWithTraceback(L, numParams, LUA_MULTRET) != 0) {
 			OsiError("Handler for '" << name << "' failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;

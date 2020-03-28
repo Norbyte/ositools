@@ -717,6 +717,8 @@ namespace dse
 		uint8_t _Pad2[7];
 		SkillPrototype * RootSkillPrototype;
 		ObjectSet<SkillPrototype *> SomePrototypes;
+
+		CRPGStats_Object * GetStats() const;
 	};
 
 	struct StatusPrototype
@@ -734,6 +736,8 @@ namespace dse
 		bool HasStats;
 		uint8_t _Pad[7];
 		PrimitiveSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
+
+		CRPGStats_Object * GetStats() const;
 	};
 
 	struct CSkillSet : public ProtectedGameObject<CSkillSet>

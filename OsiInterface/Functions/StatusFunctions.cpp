@@ -798,9 +798,9 @@ namespace dse
 		if (paramTexts != nullptr) {
 			LuaClientPin lua(ExtensionStateClient::Get());
 			if (lua) {
-				std::wstring replacement;
-				if (lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, replacement)) {
-					eocText->ReplaceParam(paramIndex, replacement);
+				auto replacement = lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts);
+				if (replacement) {
+					eocText->ReplaceParam(paramIndex, *replacement);
 					return;
 				}
 			}
@@ -827,12 +827,11 @@ namespace dse
 		CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)
 	{
-		std::wstring replacement;
-
 		LuaClientPin lua(ExtensionStateClient::Get());
 		if (lua) {
-			if (lua->StatusGetDescriptionParam(prototype, statusSource, targetCharacter, *paramSet, replacement)) {
-				text->ReplaceParam(paramIndex, replacement);
+			auto replacement = lua->StatusGetDescriptionParam(prototype, statusSource, targetCharacter, *paramSet);
+			if (replacement) {
+				text->ReplaceParam(paramIndex, *replacement);
 				return;
 			}
 		}

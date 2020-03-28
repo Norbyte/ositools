@@ -165,7 +165,7 @@ void ErrorUtils::SuspendClientThread() const
 			SuspendThread(hThread);
 			CloseHandle(hThread);
 			// The error handler only displays a status message during the loading screen
-			ClientHandleError(L"Checking for Osiris Extender updates", false);
+			ClientHandleError(L"Checking for Script Extender updates", false);
 		}
 	}
 }

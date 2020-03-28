@@ -489,14 +489,13 @@ namespace dse::lua
 	{
 		identityAdapters_.UpdateAdapters();
 
-		library_.Register(state_);
+		library_.Register(L);
 
 		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
 		LoadScript(baseLib, "BuiltinLibrary.lua");
 		auto serverLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_SERVER);
 		LoadScript(serverLib, "BuiltinLibraryServer.lua");
 
-		auto L = state_;
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
@@ -519,39 +518,17 @@ namespace dse::lua
 	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_StatusGetEnterChance"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return {};
-		}
+		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
+		auto _{ PushArguments(L,
+			ObjectProxy<esv::Status>::New(L, status),
+			useCharacterStats) };
 
-		auto luaStatus = ObjectProxy<esv::Status>::New(L, status); // stack: fn, status
-		UnbindablePin _(luaStatus);
-		lua_pushboolean(L, useCharacterStats); // stack: fn, status, useCS
-
-		if (CallWithTraceback(2, 1) != 0) { // stack: retval
-			OsiError("StatusGetEnterChance handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return {};
-		}
-
-		int isnum;
-		int isnil = lua_isnil(L, -1);
-		auto retval = lua_tointegerx(L, -1, &isnum);
-		lua_pop(L, 1); // stack: -
-
-		if (isnum) {
-			return std::clamp((int32_t)retval, 0, 100);
+		auto result = CheckedCall<int32_t>(L, 2, "Ext.StatusGetEnterChance");
+		if (result) {
+			return std::get<0>(*result);
 		} else {
-			if (!isnil) {
-				OsiError("StatusGetEnterChance returned non-integer value");
-			}
-
 			return {};
 		}
 	}
@@ -563,16 +540,9 @@ namespace dse::lua
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAll);
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_ComputeCharacterHit"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return false;
-		}
+		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
 		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target);
 		UnbindablePin _(luaTarget);
@@ -630,7 +600,7 @@ namespace dse::lua
 			lua_pushnil(L);
 		}
 
-		if (CallWithTraceback(11, 1) != 0) { // stack: succeeded
+		if (CallWithTraceback(L, 11, 1) != 0) { // stack: succeeded
 			OsiError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
@@ -686,7 +656,7 @@ namespace dse::lua
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAllServer);
+		Restriction restriction(*this, RestrictAll);
 
 		auto turnMgr = GetTurnManager();
 		if (!turnMgr) {
@@ -700,19 +670,12 @@ namespace dse::lua
 			return false;
 		}
 
-		auto L = state_;
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, "_CalculateTurnOrder"); // stack: Ext, fn
-		lua_remove(L, -2); // stack: fn
-		if (lua_isnil(L, -1)) {
-			lua_pop(L, 1); // stack: -
-			return {};
-		}
+		PushExtFunction(L, "_CalculateTurnOrder"); // stack: fn
 
 		TurnManagerCombatProxy::New(L, combatId); // stack: fn, combat
 		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
 
-		if (CallWithTraceback(2, 1) != 0) { // stack: retval
+		if (CallWithTraceback(L, 2, 1) != 0) { // stack: retval
 			OsiError("OnUpdateTurnOrder handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;

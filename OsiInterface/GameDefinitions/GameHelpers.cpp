@@ -511,6 +511,16 @@ namespace dse
 		return object;
 	}
 
+	CRPGStats_Object * SkillPrototype::GetStats() const
+	{
+		return StatFindObject(RPGStatsObjectIndex);
+	}
+
+	CRPGStats_Object * StatusPrototype::GetStats() const
+	{
+		return StatFindObject(RPGStatsObjectIndex);
+	}
+
 	void TextBuffer::Replace(std::wstring const & replacement)
 	{
 		if (Buf) {

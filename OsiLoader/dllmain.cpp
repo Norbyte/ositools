@@ -306,7 +306,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		if (ShouldLoad()) {
 #if defined(_DEBUG)
 			AllocConsole();
-			SetConsoleTitleW(L"Osiris Extender Debug Console");
+			SetConsoleTitleW(L"Script Extender Updater Debug Console");
 			DisableThreadLibraryCalls(hModule);
 			FILE * reopenedStream;
 			freopen_s(&reopenedStream, "CONOUT$", "w", stdout);

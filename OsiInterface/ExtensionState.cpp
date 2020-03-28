@@ -386,7 +386,7 @@ namespace dse
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
 		auto bootstrapPath = GetBootstrapFileName();
-		lua::Restriction restriction(*lua, lua::State::RestrictAllClient);
+		lua::Restriction restriction(*lua, lua::State::RestrictAll);
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 
