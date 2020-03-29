@@ -5,8 +5,8 @@
 
 extern HMODULE gThisModule;
 
-std::string ToUTF8(std::wstring const & s);
-std::wstring FromUTF8(std::string const & s);
+std::string ToUTF8(std::wstring_view s);
+std::wstring FromUTF8(std::string_view s);
 
 enum class DebugMessageType
 {

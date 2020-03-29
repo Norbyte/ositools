@@ -36,7 +36,7 @@ namespace dse
 		unsigned numConfigs{ 0 };
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
-			auto dir = ToUTF8(mod.Info.Directory.GetPtr());
+			auto dir = ToUTF8(mod.Info.Directory);
 			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
 			auto reader = GetStaticSymbols().MakeFileReader(configFile);
 
@@ -48,11 +48,11 @@ namespace dse
 						featureFlags << flag << " ";
 					}
 
-					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.GetPtr(),
+					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.c_str(),
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 
 					if (config.MinimumVersion != 0 && config.MinimumVersion < 42) {
-						OsiError("Module '" << ToUTF8(mod.Info.Name.GetPtr()) << "' uses extender version v" << config.MinimumVersion << ", which uses the old unified client/server model.");
+						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << "' uses extender version v" << config.MinimumVersion << ", which uses the old unified client/server model.");
 						OsiError("The client and server components were split in v42 to improve support for client-side features.");
 						OsiError("Please migrate to v42+!");
 					}
@@ -84,9 +84,9 @@ namespace dse
 
 		if (CurrentVersion < MergedConfig.MinimumVersion && HighestVersionMod != nullptr) {
 			std::wstringstream msg;
-			msg << L"Module \"" << HighestVersionMod->Info.Name.GetPtr() << "\" requires extension version "
+			msg << L"Module \"" << HighestVersionMod->Info.Name << "\" requires extension version "
 				<< MergedConfig.MinimumVersion << "; current version is v" << CurrentVersion;
-			gOsirisProxy->GetLibraryManager().ShowStartupError(msg.str(), false, true);
+			gOsirisProxy->GetLibraryManager().ShowStartupError(msg.str().c_str(), false, true);
 		}
 	}
 
@@ -98,7 +98,7 @@ namespace dse
 		Json::Value root;
 		std::string errs;
 		if (!reader->parse(configText.c_str(), configText.c_str() + configText.size(), &root, &errs)) {
-			OsiError("Unable to parse configuration for mod '" << ToUTF8(mod.Info.Name.GetPtr()) << "': " << errs);
+			OsiError("Unable to parse configuration for mod '" << ToUTF8(mod.Info.Name) << "': " << errs);
 			return false;
 		}
 
@@ -336,19 +336,19 @@ namespace dse
 			return false;
 		}
 
-		std::string path("Mods/");
-		path += ToUTF8(mod->Info.Directory.GetPtr());
+		STDString path("Mods/");
+		path += ToUTF8(mod->Info.Directory);
 		path += "/Story/RawFiles/Lua/";
 		path += fileName;
 
-		std::string scriptName = ToUTF8(mod->Info.Directory.GetPtr());
+		STDString scriptName = ToUTF8(mod->Info.Directory);
 		if (scriptName.length() > 37) {
 			// Strip GUID from end of dir
 			scriptName = scriptName.substr(0, scriptName.length() - 37);
 		}
 		scriptName += "/" + fileName;
 
-		return LuaLoadGameFile(path, scriptName, warnOnError);
+		return LuaLoadGameFile(std::string(path), std::string(scriptName), warnOnError);
 	}
 
 	void ExtensionState::LuaResetInternal()
@@ -392,7 +392,7 @@ namespace dse
 
 			if (!LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath, false)) {
 				if (LuaLoadModScript(mod.Info.ModuleUUID.Str, "Bootstrap.lua", false)) {
-					OsiError("Module '" << ToUTF8(mod.Info.Name.GetPtr()) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
+					OsiError("Module '" << ToUTF8(mod.Info.Name) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
 					OsiError("Please migrate to separate client/server bootstrap files!");
 				}
 			}

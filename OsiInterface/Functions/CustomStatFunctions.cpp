@@ -10,7 +10,7 @@ namespace dse
 	{
 		esv::CustomStatDefinitionComponent * FindCustomStatDefinitionByName(char const * name)
 		{
-			std::wstring wstrName = FromUTF8(name);
+			STDWString wstrName = FromUTF8(name);
 
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
@@ -19,7 +19,7 @@ namespace dse
 			for (uint32_t i = 0; i < newDefns.Size; i++) {
 				auto handle = newDefns[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
-				if (statDefn != nullptr && wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
+				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
 			}
@@ -28,7 +28,7 @@ namespace dse
 			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
 				auto handle = inSyncDefns[i].Handle;
 				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
-				if (statDefn != nullptr && wcscmp(statDefn->Name.GetPtr(), wstrName.c_str()) == 0) {
+				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
 			}
@@ -179,12 +179,9 @@ namespace dse
 			msg.StatDefns.Set.Capacity = 1;
 			msg.StatDefns.Set.Size = 1;
 
-			std::wstring wstrName = FromUTF8(name);
-			std::wstring wstrDescription = FromUTF8(description);
-
 			auto & defn = msg.StatDefns.Set.Buf[0];
-			defn.Name.Set(wstrName);
-			defn.Description.Set(wstrDescription);
+			defn.Name = FromUTF8(name);
+			defn.Description = FromUTF8(description);
 
 			ProcessCustomStatsMessage(&msg);
 		}

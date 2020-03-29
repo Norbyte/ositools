@@ -29,74 +29,7 @@ namespace dse
 	}
 
 
-	STDWString::STDWString(STDWString const & other)
-	{
-		Set(other.GetPtr());
-	}
-
-	STDWString & STDWString::operator = (STDWString const & other)
-	{
-		Set(other.GetPtr());
-		return *this;
-	}
-
-
-	void STDWString::Set(std::string const & s)
-	{
-		auto wcs = FromUTF8(s);
-		Set(wcs);
-	}
-
-
-	void STDWString::Set(std::wstring const & s)
-	{
-		if (Capacity > 7) {
-			GameFree(BufPtr);
-		}
-
-		Size = s.size();
-		Capacity = s.size();
-
-		if (Size > 7) {
-			// FIXME - memory leak!
-			BufPtr = GameAllocArray<wchar_t>(Capacity + 1);
-			wcscpy_s(BufPtr, Capacity + 1, s.c_str());
-		} else {
-			wcscpy_s(Buf, 8, s.c_str());
-		}
-	}
-
-
-	STDString::STDString(STDString const & other)
-	{
-		Set(other.GetPtr());
-	}
-
-	STDString & STDString::operator = (STDString const & other)
-	{
-		Set(other.GetPtr());
-		return *this;
-	}
-
-	void STDString::Set(std::string const & s)
-	{
-		if (Capacity > 15) {
-			GameFree(BufPtr);
-		}
-
-		Size = s.size();
-		Capacity = s.size();
-
-		if (Size > 15) {
-			// FIXME - memory leak!
-			BufPtr = GameAllocArray<char>(Capacity + 1);
-			strcpy_s(BufPtr, Capacity + 1, s.c_str());
-		} else {
-			strcpy_s(Buf, 16, s.c_str());
-		}
-	}
-
-	void StaticSymbols::CanonicalizePath(std::string & path) const
+	void StaticSymbols::CanonicalizePath(STDString & path) const
 	{
 		if (path.find('\\') != std::string::npos) {
 			WARN("Path contains backslashes: \"%s\"; canonical paths should only contain forward slashes.", path.c_str());
@@ -106,26 +39,26 @@ namespace dse
 	}
 
 #if defined(OSI_EOCAPP)
-	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root, bool canonicalize) const
+	std::string StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
 
-		std::string canonicalPath = path;
+		STDString canonicalPath(path);
 		if (canonicalize) {
 			CanonicalizePath(canonicalPath);
 		}
 
 		auto rootPath = PathRoots[(unsigned)root];
 
-		std::string absolutePath = rootPath->GetPtr();
+		std::string absolutePath(*rootPath);
 		absolutePath += "/" + canonicalPath;
 		return absolutePath;
 	}
 
-	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root, bool canonicalize) const
+	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
 			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
@@ -135,21 +68,21 @@ namespace dse
 		auto absolutePath = ToPath(path, root, canonicalize);
 
 		Path lsPath;
-		lsPath.Name.Set(absolutePath);
+		lsPath.Name = absolutePath;
 
 		auto reader = new FileReader();
 		FileReaderCtor(reader, &lsPath, 2);
 		return FileReaderPin(reader);
 	}
 #else
-	std::string StaticSymbols::ToPath(std::string const & path, PathRootType root, bool canonicalize) const
+	std::string StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
 
-		std::string canonicalPath = path;
+		STDString canonicalPath(path);
 		if (canonicalize) {
 			CanonicalizePath(canonicalPath);
 		}
@@ -157,22 +90,21 @@ namespace dse
 		StringView rootPath;
 		GetPrefixForRoot(&rootPath, (unsigned)root);
 
-		std::string absolutePath = rootPath.Buf;
-		absolutePath += "/" + path;
+		std::string absolutePath(rootPath);
+		absolutePath += "/";
+		absolutePath += canonicalPath;
 		return absolutePath;
 	}
 
-	FileReaderPin StaticSymbols::MakeFileReader(std::string const & path, PathRootType root, bool canonicalize) const
+	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
 			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
-		auto absolutePath = ToPath(path, root, canonicalize);
-
 		Path lsPath;
-		lsPath.Name.Set(absolutePath);
+		lsPath.Name = ToPath(path, root, canonicalize);
 
 		auto reader = new FileReader();
 		FileReaderCtor(reader, &lsPath, 2);
@@ -521,19 +453,19 @@ namespace dse
 		return StatFindObject(RPGStatsObjectIndex);
 	}
 
-	void TextBuffer::Replace(std::wstring const & replacement)
+	void TextBuffer::Replace(WStringView replacement)
 	{
 		if (Buf) {
 			GameFree(Buf);
 		}
 
 		Buf = GameAllocArray<wchar_t>(replacement.size() + 1);
-		memcpy(Buf, replacement.c_str(), sizeof(wchar_t) * (replacement.size() + 1));
+		memcpy(Buf, replacement.data(), sizeof(wchar_t) * (replacement.size() + 1));
 		Capacity = replacement.size() + 1;
 		Length = replacement.size();
 	}
 
-	void eoc::Text::ReplaceParam(int index, std::wstring const & replacement)
+	void eoc::Text::ReplaceParam(int index, WStringView replacement)
 	{
 		if (index < 1 || index > std::size(Params)) {
 			OsiWarnS("Param index out of bounds");
@@ -545,11 +477,11 @@ namespace dse
 			return;
 		}
 
-		std::wstring s;
+		STDWString s;
 		s.resize((std::size_t)Buf->Length);
 		memcpy(s.data(), Buf->Buf, sizeof(wchar_t) * Buf->Length);
 
-		std::wstring newS = s.substr(0, param.PlaceholderOffset);
+		STDWString newS = s.substr(0, param.PlaceholderOffset);
 		newS += replacement;
 		newS += s.substr(param.PlaceholderOffset + param.PlaceholderSize);
 		Buf->Replace(newS);
@@ -1295,6 +1227,13 @@ namespace dse
 				return nullptr;
 			}
 		}
+	}
+
+	char const * TempStrings::Make(STDString const & str)
+	{
+		auto s = _strdup(str.c_str());
+		pool_.push_back(s);
+		return s;
 	}
 
 	char const * TempStrings::Make(std::string const & str)

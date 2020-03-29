@@ -521,7 +521,7 @@ namespace dse
 		return true;
 	}
 
-	void LibraryManager::ShowStartupError(std::wstring const & msg, bool wait, bool exitGame)
+	void LibraryManager::ShowStartupError(STDWString const & msg, bool wait, bool exitGame)
 	{
 		ERR(L"STARTUP ERROR: %s", msg.c_str());
 
@@ -556,16 +556,14 @@ namespace dse
 		}
 	}
 
-	void LibraryManager::ShowStartupError(std::wstring const & msg, bool exitGame)
+	void LibraryManager::ShowStartupError(STDWString const & msg, bool exitGame)
 	{
 		if (!CanShowMessages()) return;
 
-		STDWString msgStr;
-		msgStr.Set(msg);
-		GetStaticSymbols().EoCClientHandleError(*GetStaticSymbols().EoCClient, &msgStr, exitGame, &msgStr);
+		GetStaticSymbols().EoCClientHandleError(*GetStaticSymbols().EoCClient, &msg, exitGame, &msg);
 	}
 
-	void LibraryManager::ShowStartupMessage(std::wstring const & msg, bool exitGame)
+	void LibraryManager::ShowStartupMessage(STDWString const & msg, bool exitGame)
 	{
 		// Don't show progress if we're already in a loaded state, as it'll show a message box instead
 		if (CanShowError()) return;

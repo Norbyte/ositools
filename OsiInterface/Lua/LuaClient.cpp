@@ -109,7 +109,7 @@ namespace dse::lua
 
 		case LUA_TSTRING:
 			val.TypeId = InvokeDataValueType::IDV_String;
-			val.StringVal.Set(lua_tostring(L, index));
+			val.StringVal = lua_tostring(L, index);
 			break;
 
 		default:
@@ -134,7 +134,7 @@ namespace dse::lua
 			break;
 
 		case InvokeDataValueType::IDV_String:
-			lua_pushstring(L, val.StringVal.GetPtr());
+			lua_pushstring(L, val.StringVal.c_str());
 			break;
 
 		default:
@@ -420,14 +420,14 @@ namespace dse::lua
 
 		std::optional<uint32_t> creatorId;
 		uiManager->UIObjectCreators.Iterate([&absPath, &creatorId](uint32_t id, UIObjectFunctor * value) {
-			if (strcmp(value->Path.Name.GetPtr(), absPath.c_str()) == 0) {
+			if (value->Path.Name == absPath.c_str()) {
 				creatorId = id;
 			}
 		});
 
 		if (!creatorId) {
 			auto creator = GameAlloc<UIObjectFunctor>();
-			creator->Path.Name.Set(absPath);
+			creator->Path.Name = absPath;
 			creator->CreateProc = CustomUI::Creator;
 
 			sym.RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
@@ -486,7 +486,7 @@ namespace dse::lua
 		for (uint32_t i = 0; i < uiManager->Objects.Size; i++) {
 			auto ui = uiManager->Objects[i];
 			if (ui != nullptr && ui->FlashPlayer != nullptr
-				&& absPath == ui->Path.Name.GetPtr()) {
+				&& absPath == ui->Path.Name.c_str()) {
 				UIObjectProxy::New(L, ui->UIObjectHandle);
 				return 1;
 			}
@@ -602,7 +602,7 @@ namespace dse::lua
 		CheckedCall<>(L, 2 + numArgs, "Ext.UICall");
 	}
 
-	std::optional<std::wstring> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype, 
+	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
 	{
 		std::lock_guard lock(mutex_);
@@ -632,7 +632,7 @@ namespace dse::lua
 	}
 
 
-	std::optional<std::wstring> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
+	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
 	{
 		std::lock_guard lock(mutex_);
@@ -655,7 +655,7 @@ namespace dse::lua
 			ObjectProxy<CDivinityStats_Character>::New(L, character)) }; // stack: fn, status, srcCharacter, character
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			lua_pushstring(L, paramTexts[i].GetPtr()); // stack: fn, status, srcCharacter, character, params...
+			lua_pushstring(L, paramTexts[i].c_str()); // stack: fn, status, srcCharacter, character, params...
 		}
 
 		auto result = CheckedCall<char const *>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");

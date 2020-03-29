@@ -268,7 +268,7 @@ namespace dse
 		void * EntityManager;
 	};
 
-	typedef void (* EoCClient__HandleError)(void * self, STDWString * message, bool exitGame, STDWString *a4);
+	typedef void (* EoCClient__HandleError)(void * self, STDWString const * message, bool exitGame, STDWString const *a4);
 	typedef void (*GameStateThreaded__GameStateWorker__DoWork)(void * self);
 	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ClientGameState fromState, ClientGameState toState);
 
@@ -358,6 +358,7 @@ namespace dse
 	class TempStrings
 	{
 	public:
+		char const * Make(STDString const & str);
 		char const * Make(std::string const & str);
 
 	private:

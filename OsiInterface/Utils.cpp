@@ -1,26 +1,45 @@
 #include "stdafx.h"
 #include "Version.h"
+#include <GameDefinitions/BaseTypes.h>
 
-
-std::string ToUTF8(std::wstring const & s)
+namespace dse
 {
-	int size = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), (int)s.size(), NULL, 0, NULL, NULL);
+	STDString ToUTF8(WStringView s)
+	{
+		int size = WideCharToMultiByte(CP_UTF8, 0, s.data(), (int)s.size(), NULL, 0, NULL, NULL);
+		STDString converted;
+		converted.resize(size);
+		WideCharToMultiByte(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size(), NULL, NULL);
+		return converted;
+	}
+
+	STDWString FromUTF8(StringView s)
+	{
+		int size = MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), NULL, 0);
+		STDWString converted;
+		converted.resize(size);
+		MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size());
+		return converted;
+	}
+}
+
+std::string ToUTF8(std::wstring_view s)
+{
+	int size = WideCharToMultiByte(CP_UTF8, 0, s.data(), (int)s.size(), NULL, 0, NULL, NULL);
 	std::string converted;
 	converted.resize(size);
-	WideCharToMultiByte(CP_UTF8, 0, s.c_str(), (int)s.size(), converted.data(), (int)converted.size(), NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size(), NULL, NULL);
 	return converted;
 }
 
-
-std::wstring FromUTF8(std::string const & s)
+std::wstring FromUTF8(std::string_view s)
 {
-	int size = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), NULL, 0);
+	int size = MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), NULL, 0);
 	std::wstring converted;
 	converted.resize(size);
-	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), converted.data(), (int)converted.size());
+	MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size());
 	return converted;
 }
-
 
 void SetConsoleColor(DebugMessageType type)
 {

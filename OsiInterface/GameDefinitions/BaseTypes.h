@@ -43,6 +43,39 @@ namespace dse
 		return ptr;
 	}
 
+	template <class T>
+	class GameAllocator
+	{
+	public:
+		using value_type = T;
+
+		inline GameAllocator() noexcept {}
+		template <class U>
+		inline GameAllocator(GameAllocator<U> const &) noexcept {}
+
+		inline T * allocate(std::size_t cnt)
+		{
+			return reinterpret_cast<T *>(GameAllocRaw(cnt * sizeof(T)));
+		}
+
+		inline void deallocate(T * p, std::size_t cnt) noexcept
+		{
+			GameFree(p);
+		}
+	};
+
+	template <class T, class U>
+	bool operator == (GameAllocator<T> const &, GameAllocator<U> const &) noexcept
+	{
+		return true;
+	}
+
+	template <class T, class U>
+	bool operator != (GameAllocator<T> const & x, GameAllocator<U> const & y) noexcept
+	{
+		return !(x == y);
+	}
+
 #pragma pack(push, 1)
 	using Vector3 = glm::vec3;
 	using NetId = int32_t;
@@ -398,6 +431,15 @@ namespace dse
 		}
 	};
 
+	using STDString = std::basic_string<char, std::char_traits<char>, GameAllocator<char>>;
+	using STDWString = std::basic_string<wchar_t, std::char_traits<wchar_t>, GameAllocator<wchar_t>>;
+	using StringView = std::string_view;
+	using WStringView = std::wstring_view;
+
+	dse::STDString ToUTF8(WStringView s);
+	dse::STDWString FromUTF8(StringView s);
+
+
 	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
 	struct CompactSet : public Noncopyable<CompactSet<T, Allocator, StoreSize>>
 	{
@@ -603,70 +645,6 @@ namespace dse
 			}
 
 			return (Bits[(index - 1) >> 5] & (1 << ((index - 1) & 0x1f))) != 0;
-		}
-	};
-
-	struct STDWString
-	{
-		union {
-			wchar_t Buf[8];
-			wchar_t * BufPtr{ nullptr };
-		};
-		uint64_t Size{ 0 };
-		uint64_t Capacity{ 7 };
-
-		inline STDWString() {}
-
-		inline wchar_t const * GetPtr() const
-		{
-			if (Size > 7) {
-				return BufPtr;
-			} else {
-				return Buf;
-			}
-		}
-
-		STDWString(STDWString const &);
-		STDWString & operator = (STDWString const &);
-
-		void Set(std::string const & s);
-		void Set(std::wstring const & s);
-	};
-
-	struct StringView
-	{
-		char * Buf;
-		uint64_t Size;
-	};
-
-	struct STDString
-	{
-		union {
-			char Buf[16];
-			char * BufPtr{ nullptr };
-		};
-		uint64_t Size{ 0 };
-		uint64_t Capacity{ 15 };
-
-		inline STDString() {}
-
-		inline char const * GetPtr() const
-		{
-			if (Size > 15) {
-				return BufPtr;
-			} else {
-				return Buf;
-			}
-		}
-
-		STDString(STDString const &);
-		STDString & operator = (STDString const &);
-
-		void Set(std::string const & s);
-
-		inline bool operator < (STDString const & other) const
-		{
-			return _stricmp(GetPtr(), other.GetPtr()) < 0;
 		}
 	};
 

@@ -53,24 +53,14 @@ namespace dse::lua
 		lua_pushstring(L, v.Str);
 	}
 
-	inline void push(lua_State * L, std::string const & v)
+	inline void push(lua_State * L, StringView v)
 	{
-		lua_pushstring(L, v.c_str());
+		lua_pushlstring(L, v.data(), v.size());
 	}
 
-	inline void push(lua_State * L, std::wstring const & v)
+	inline void push(lua_State * L, WStringView v)
 	{
-		lua_pushstring(L, ToUTF8(v).c_str());
-	}
-
-	inline void push(lua_State * L, STDString const & v)
-	{
-		lua_pushstring(L, v.GetPtr());
-	}
-
-	inline void push(lua_State * L, STDWString const & v)
-	{
-		lua_pushstring(L, ToUTF8(v.GetPtr()).c_str());
+		push(L, ToUTF8(v));
 	}
 
 	// Dummy pin class for values that need no special pinning/unpinning behavior
@@ -135,10 +125,8 @@ namespace dse::lua
 	NULL_PIN(double)
 	NULL_PIN(char const *)
 	NULL_PIN(FixedString)
-	NULL_PIN(std::string const &)
-	NULL_PIN(std::wstring const &)
-	NULL_PIN(STDString const &)
-	NULL_PIN(STDWString const &)
+	NULL_PIN(StringView)
+	NULL_PIN(WStringView)
 
 
 	template <class TKey, class TValue>

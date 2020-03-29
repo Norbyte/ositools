@@ -337,12 +337,12 @@ namespace dse
 			}
 
 			case PropertyType::kStdString:
-				return reinterpret_cast<STDString *>(ptr)->GetPtr();
+				return gTempStrings.Make(*reinterpret_cast<STDString *>(ptr));
 
 			case PropertyType::kStdWString:
 			{
 				auto str = reinterpret_cast<STDWString *>(ptr);
-				return gTempStrings.Make(ToUTF8(str->GetPtr()));
+				return gTempStrings.Make(ToUTF8(*str));
 			}
 
 			case PropertyType::kObjectHandle:
@@ -420,11 +420,11 @@ namespace dse
 				return false;
 
 			case PropertyType::kStdString:
-				reinterpret_cast<STDString *>(ptr)->Set(value);
+				*reinterpret_cast<STDString *>(ptr) = value;
 				return true;
 
 			case PropertyType::kStdWString:
-				reinterpret_cast<STDWString *>(ptr)->Set(value);
+				*reinterpret_cast<STDWString *>(ptr) = FromUTF8(value);
 				return true;
 
 			default:

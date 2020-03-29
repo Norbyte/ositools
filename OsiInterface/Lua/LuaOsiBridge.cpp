@@ -742,14 +742,12 @@ namespace dse::lua
 	{
 		auto functions = gOsirisProxy->GetGlobals().Functions;
 
-		std::string sig = name_;
+		STDString sig(name_);
 		sig += "/";
 		sig += std::to_string(arity);
-		STDString osiSig;
-		osiSig.Set(sig);
 
 		auto hash = FunctionNameHash(name_.c_str()) + arity;
-		auto func = (*functions)->Find(hash, osiSig);
+		auto func = (*functions)->Find(hash, sig);
 		if (func == nullptr 
 			|| ((*func)->Node.Id == 0 
 				&& (*func)->Type != FunctionType::Call

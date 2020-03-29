@@ -125,7 +125,7 @@ namespace dse
 
 		virtual bool GetDescription(STDWString * Line1)
 		{
-			Line1->Set(TextLine1);
+			*Line1 = TextLine1;
 			return true;
 
 		}
@@ -147,7 +147,7 @@ namespace dse
 			return 0;
 		}
 
-		std::wstring TextLine1;
+		STDWString TextLine1;
 	};
 
 
@@ -663,7 +663,7 @@ namespace dse
 		uint64_t Length;
 		uint64_t Unknown;
 
-		void Replace(std::wstring const & replacement);
+		void Replace(WStringView replacement);
 	};
 
 	namespace eoc
@@ -682,7 +682,7 @@ namespace dse
 			uint32_t Unknown[2];
 			Param Params[8];
 
-			void ReplaceParam(int index, std::wstring const & replacement);
+			void ReplaceParam(int index, WStringView replacement);
 		};
 	}
 

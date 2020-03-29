@@ -947,8 +947,8 @@ void OsirisProxy::OnSkillPrototypeManagerInit(void * self)
 		return;
 	}
 
-	std::wstring loadMsg = L"Loading ";
-	loadMsg += modManager->BaseModule.Info.Name.GetPtr();
+	STDWString loadMsg = L"Loading ";
+	loadMsg += modManager->BaseModule.Info.Name;
 	loadMsg += L" (Script Extender v";
 	loadMsg += std::to_wstring(CurrentVersion);
 #if defined(_DEBUG)
@@ -985,11 +985,11 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 {
 	if (!pathOverrides_.empty()) {
 		std::shared_lock lock(pathOverrideMutex_);
-		auto it = pathOverrides_.find(path->Name.GetPtr());
+		auto it = pathOverrides_.find(std::string(path->Name));
 		if (it != pathOverrides_.end()) {
-			DEBUG("FileReader path override: %s -> %s", path->Name.GetPtr(), it->second.c_str());
+			DEBUG("FileReader path override: %s -> %s", path->Name.c_str(), it->second.c_str());
 			Path overriddenPath;
-			overriddenPath.Name.Set(it->second);
+			overriddenPath.Name = it->second;
 			overriddenPath.Unknown = path->Unknown;
 			lock.unlock();
 			return next(self, &overriddenPath, type);
@@ -1015,7 +1015,7 @@ void OsirisProxy::PostInitLibraries()
 		std::wstringstream ss;
 		ss << L"Your game version (v" << gameVersion.Major << L"." << gameVersion.Minor << L"." << gameVersion.Revision << L"." << gameVersion.Build
 			<< L") is not supported by the Script Extender; please upgrade to at least v3.6.54";
-		Libraries.ShowStartupError(ss.str(), true, false);
+		Libraries.ShowStartupError(ss.str().c_str(), true, false);
 	} else if (Libraries.CriticalInitializationFailed()) {
 		Libraries.ShowStartupError(L"A severe error has occurred during Script Extender initialization. Extension features will be unavailable.", true, false);
 	} else if (Libraries.InitializationFailed()) {
