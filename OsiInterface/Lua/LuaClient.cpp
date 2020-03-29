@@ -35,6 +35,7 @@ namespace dse::lua
 	int AddPathOverride(lua_State * L);
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
+	int AddVoiceMetaData(lua_State * L);
 
 
 	int PostMessageToServer(lua_State * L)
@@ -541,6 +542,8 @@ namespace dse::lua
 			{"Round", LuaRound},
 
 			{"AddPathOverride", AddPathOverride},
+			{"AddVoiceMetaData", AddVoiceMetaData},
+
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},
 			{"GetUI", GetUI},

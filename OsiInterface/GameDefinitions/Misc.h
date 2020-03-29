@@ -129,6 +129,24 @@ namespace dse
 			uint64_t Unkn1;
 			uint64_t Unkn2;
 		};
+
+		struct VoiceTextMetaData
+		{
+			float Length;
+			bool IsRecorded;
+			uint8_t _Pad[3];
+			int Priority;
+			uint8_t _Pad1[4];
+			Path Source;
+			int CodecID;
+			uint8_t _Pad2[4];
+		};
+
+		struct SpeakerManager
+		{
+			void * VMT;
+			FixedStringRefMap<FixedString, FixedStringRefMap<FixedString, VoiceTextMetaData>> * SpeakerMetaDataHashMap;
+		};
 	}
 
 	namespace esv

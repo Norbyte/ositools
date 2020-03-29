@@ -885,6 +885,17 @@ namespace dse
 			{},
 			{"eoc::EoCUI::ctor", SymbolMappingTarget::kIndirect, 3, STATIC_SYM(EoCUI__ctor), nullptr, &sSymbolEoCUIvftable, 0x40}
 		},
+
+		{
+			"eoc::gSpeakerManager",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:eoc__gSpeakerManager
+			"E8 XX XX XX XX " // call    eoc__SpeakerManager__LoadVoiceMetaData
+			"48 8B 07 " // mov     rax, [rdi]
+			"4C 8D 05 XX XX XX XX ", // lea     r8, aRootTemplates ; "Root templates"
+			{SymbolMappingCondition::kString, 15, "Root templates"},
+			{"eoc::gSpeakerManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(eoc__SpeakerManager)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

@@ -991,6 +991,31 @@ namespace dse::lua
 		return 0;
 	}
 
+	int AddVoiceMetaData(lua_State * L)
+	{
+		auto speakerGuid = luaL_checkstring(L, 1);
+		auto translatedStringKey = luaL_checkstring(L, 2);
+		auto source = luaL_checkstring(L, 3);
+		auto length = luaL_checknumber(L, 4);
+
+		auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
+		if (speakerMgr == nullptr || *speakerMgr == nullptr) {
+			OsiError("Speaker manager not initialized!");
+			return 0;
+		}
+
+		auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(MakeFixedString(speakerGuid));
+		auto voiceMeta = speaker->Insert(MakeFixedString(translatedStringKey));
+		voiceMeta->CodecID = 4;
+		voiceMeta->IsRecorded = true;
+		voiceMeta->Length = (float)length;
+
+		auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
+		voiceMeta->Source.Name = path;
+
+		return 0;
+	}
+
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
 	{

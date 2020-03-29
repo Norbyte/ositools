@@ -787,6 +787,17 @@ namespace dse
 			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(EoCUI__ctor)},
 			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(EoCUI__vftable)},
 		},
+
+		{
+			"eoc::gSpeakerManager",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:eoc__gSpeakerManager
+			"E8 XX XX XX XX " // call    eoc__SpeakerManager__LoadVoiceMetaData
+			"49 8B 04 24 " // mov     rax, [r12]
+			"4C 8D 05 XX XX XX XX ", // lea     r8, aRootTemplates ; "Root templates"
+			{SymbolMappingCondition::kString, 16, "Root templates"},
+			{"eoc::gSpeakerManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(eoc__SpeakerManager)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

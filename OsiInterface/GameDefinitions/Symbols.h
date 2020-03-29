@@ -123,6 +123,8 @@ namespace dse
 		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
 		UIObject::VMT * EoCUI__vftable{ nullptr };
 
+		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
+
 		esv::LevelManager ** LevelManager{ nullptr };
 		InventoryFactory ** EsvInventoryFactory{ nullptr };
 		CharacterFactory ** EsvCharacterFactory{ nullptr };

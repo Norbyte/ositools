@@ -268,6 +268,19 @@ namespace dse
 		uint32_t HashSize;
 		Node ** HashTable;
 
+		FixedStringRefMap(uint32_t hashSize = 31)
+			: ItemCount(0), HashSize(hashSize)
+		{
+			HashTable = GameAllocArray<Node *>(hashSize);
+		}
+
+		~FixedStringRefMap()
+		{
+			if (HashTable != nullptr) {
+				GameFree(HashTable);
+			}
+		}
+
 		TValue * Find(FixedString fs) const
 		{
 			if (!fs) return nullptr;
@@ -288,6 +301,34 @@ namespace dse
 		{
 			auto fs = ToFixedString(str);
 			return Find(fs);
+		}
+
+		TValue * Insert(FixedString fs) const
+		{
+			if (!fs) return nullptr;
+
+			auto item = HashTable[(uint64_t)fs.Str % HashSize];
+			auto last = item;
+			while (item != nullptr) {
+				if (fs.Str == item->Key.Str) {
+					return &item->Value;
+				}
+
+				last = item;
+				item = item->Next;
+			}
+
+			auto node = GameAlloc<Node>();
+			node->Next = nullptr;
+			node->Key = fs;
+
+			if (item == nullptr) {
+				HashTable[(uint64_t)fs.Str % HashSize] = node;
+			} else {
+				last->Next = node;
+			}
+
+			return &node->Value;
 		}
 
 		template <class Visitor>

@@ -381,6 +381,7 @@ namespace dse::lua
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
 	int GenerateIdeHelpers(lua_State * L);
+	int AddVoiceMetaData(lua_State * L);
 
 
 	int BroadcastMessage(lua_State * L)
@@ -474,6 +475,8 @@ namespace dse::lua
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
 
 			{"AddPathOverride", AddPathOverride},
+			{"AddVoiceMetaData", AddVoiceMetaData},
+
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},
 			{0,0}
