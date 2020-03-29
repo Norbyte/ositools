@@ -96,6 +96,7 @@ Ext.RegisterUICall = function (object, call, fn)
 	end
 	
 	table.insert(Ext._UIListeners[handle][call], fn)
+	object:CaptureExternalInterfaceCalls()
 end
 
 Ext._UICall = function (object, call, ...)

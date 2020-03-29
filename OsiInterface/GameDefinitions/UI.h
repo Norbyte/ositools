@@ -258,9 +258,11 @@ namespace dse
 
 	struct UIObject : Noncopyable<UIObject>
 	{
+		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
+
 		struct VMT
 		{
-			void(* OnFunctionCalled)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
+			OnFunctionCalledProc OnFunctionCalled;
 			void(* OnCustomDrawCallback)(UIObject * self, void *);
 			void (* Destroy)(UIObject * self, bool);
 			void(* SetHandle)(UIObject * self, ObjectHandle *);

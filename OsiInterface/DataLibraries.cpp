@@ -590,34 +590,6 @@ namespace dse
 			|| state == ClientGameState::Lobby;
 	}
 
-	class WriteAnchor
-	{
-	public:
-		WriteAnchor(uint8_t const * ptr, std::size_t size)
-			: ptr_(const_cast<uint8_t *>(ptr)),
-			size_(size)
-		{
-			BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, PAGE_READWRITE, &oldProtect_);
-			if (!succeeded) Fail("VirtualProtect() failed");
-		}
-
-		~WriteAnchor()
-		{
-			BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, oldProtect_, &oldProtect_);
-			if (!succeeded) Fail("VirtualProtect() failed");
-		}
-
-		inline uint8_t * ptr()
-		{
-			return ptr_;
-		}
-
-	private:
-		uint8_t * ptr_;
-		std::size_t size_;
-		DWORD oldProtect_;
-	};
-
 	void LibraryManager::EnableCustomStats()
 	{
 		if (GetStaticSymbols().UICharacterSheetHook == nullptr

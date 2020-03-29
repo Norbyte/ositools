@@ -1,4 +1,4 @@
-### Lua API v42 Documentation
+### Lua API v43 Documentation
 
 ### Table of Contents  
 
@@ -351,6 +351,16 @@ function exposedMethod(val: String): * {
 }
 ```
 
+#### UIObject:ExternalInterfaceCall(func, ...)
+
+The `ExternalInterfaceCall` method simulates an `ExternalInterface.call(...)` call from Flash, i.e. it calls an UI handler function in the game engine. The first argument (`func`) is the name of the UI function to call; all subsequent arguments are passed to the engine as parameters.
+Only `string`, `number` and `boolean` arguments are supported.
+
+Example:
+```lua
+local ui = Ext.GetBuiltinUI("Public/Game/GUI/characterSheet.swf")
+ui:ExternalInterfaceCall("show")
+```
 
 #### Ext.RegisterUICall(object, name, handler)
 
@@ -358,6 +368,8 @@ The `Ext.RegisterUICall` function registers a listener that is called when the `
  - `object` is the UI object that is returned from `Ext.CreateUI` or `Ext.GetUI`
  - `name` is the ExternalInterface function name
  - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
+
+Support for capturing ExternalInterface calls on builtin UI elements is available in version v43 (and above).
 
 Example:
 ```lua
@@ -772,7 +784,6 @@ Expected output:
 
 ab
 ```
-
 
 
 ### TODO

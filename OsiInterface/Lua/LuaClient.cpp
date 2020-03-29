@@ -192,6 +192,12 @@ namespace dse::lua
 		lua_pushcfunction(L, &Destroy);
 		lua_setfield(L, -2, "Destroy");
 
+		lua_pushcfunction(L, &ExternalInterfaceCall);
+		lua_setfield(L, -2, "ExternalInterfaceCall");
+
+		lua_pushcfunction(L, &CaptureExternalInterfaceCalls);
+		lua_setfield(L, -2, "CaptureExternalInterfaceCalls");
+
 		lua_setfield(L, -2, "__index");
 	}
 
@@ -375,6 +381,64 @@ namespace dse::lua
 		if (!ui) return 0;
 
 		ui->RequestDelete();
+		return 0;
+	}
+
+
+	int UIObjectProxy::ExternalInterfaceCall(lua_State * L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		auto function = luaL_checkstring(L, 2);
+		auto numArgs = lua_gettop(L) - 2;
+		std::vector<InvokeDataValue> args;
+		args.resize(numArgs);
+		for (auto i = 0; i < numArgs; i++) {
+			LuaToInvokeDataValue(L, i + 3, args[i]);
+		}
+
+		ui->OnFunctionCalled(function, numArgs, args.data());
+		return 0;
+	}
+
+
+	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
+	std::unordered_map<UIObject::VMT *, UIObject::OnFunctionCalledProc> OriginalUIObjectCallHandlers;
+
+
+	static void UIObjectFunctionCallCapture(UIObject * self, const char * function, unsigned int numArgs, InvokeDataValue * args)
+	{
+		LuaClientPin lua(ExtensionStateClient::Get());
+		if (lua) {
+			lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
+		}
+
+		auto vmt = *reinterpret_cast<UIObject::VMT **>(self);
+		auto handler = OriginalUIObjectCallHandlers.find(vmt);
+		if (handler != OriginalUIObjectCallHandlers.end()) {
+			handler->second(self, function, numArgs, args);
+		} else {
+			OsiError("Couldn't find original OnFunctionCalled handler for UI object");
+		}
+	}
+
+
+	int UIObjectProxy::CaptureExternalInterfaceCalls(lua_State * L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		// Custom UI element calls are captured by default, no need to hook them
+		if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return 0;
+
+		auto vmt = *reinterpret_cast<UIObject::VMT **>(ui);
+		if (vmt->OnFunctionCalled == &UIObjectFunctionCallCapture) return 0;
+
+		WriteAnchor _((uint8_t *)vmt, sizeof(*vmt));
+		OriginalUIObjectCallHandlers.insert(std::make_pair(vmt, vmt->OnFunctionCalled));
+		vmt->OnFunctionCalled = &UIObjectFunctionCallCapture;
+
 		return 0;
 	}
 
