@@ -78,6 +78,7 @@ namespace dse
 			ext.LuaReset(resetMsg.bootstrap_scripts());
 			ext.OnModuleResume();
 			ext.OnGameSessionLoading();
+			ext.OnGameSessionLoaded();
 			break;
 		}
 

@@ -212,6 +212,7 @@ namespace dse::lua
 
 		void FinishStartup();
 		virtual void OnGameSessionLoading();
+		void OnGameSessionLoaded();
 		void OnModuleLoading();
 		void OnModuleResume();
 

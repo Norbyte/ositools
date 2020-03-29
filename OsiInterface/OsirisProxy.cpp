@@ -813,6 +813,12 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		LoadExtensionStateClient();
 	}
 
+	if (fromState == ClientGameState::LoadSession) {
+		if (ClientExtState) {
+			ClientExtState->OnGameSessionLoaded();
+		}
+	}
+
 	switch (toState) {
 	case ClientGameState::UnloadSession:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
@@ -866,6 +872,12 @@ void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromStat
 	if (fromState == ServerGameState::LoadModule) {
 		INFO("OsirisProxy::OnServerGameStateChanged(): Loaded module");
 		LoadExtensionStateServer();
+	}
+
+	if (fromState == ServerGameState::LoadSession) {
+		if (ServerExtState) {
+			ServerExtState->OnGameSessionLoaded();
+		}
 	}
 
 	switch (toState) {

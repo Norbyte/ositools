@@ -39,6 +39,7 @@ namespace dse
 		}
 
 		void OnGameSessionLoading();
+		void OnGameSessionLoaded();
 		void OnModuleLoading();
 		void OnModuleResume();
 

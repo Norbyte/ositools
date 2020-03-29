@@ -29,6 +29,10 @@ Ext._OnGameSessionLoading = function ()
     Ext._Notify("SessionLoading")
 end
 
+Ext._OnGameSessionLoaded = function ()
+    Ext._Notify("SessionLoaded")
+end
+
 Ext._OnModuleLoading = function ()
     Ext._Notify("ModuleLoading")
 end

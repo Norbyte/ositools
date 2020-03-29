@@ -216,6 +216,14 @@ namespace dse
 		}
 	}
 
+	void ExtensionState::OnGameSessionLoaded()
+	{
+		LuaVirtualPin lua(*this);
+		if (lua) {
+			lua->OnGameSessionLoaded();
+		}
+	}
+
 	void ExtensionState::OnModuleLoading()
 	{
 		StatLoadTriggered = true;
