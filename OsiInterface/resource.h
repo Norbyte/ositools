@@ -2,13 +2,14 @@
 // Microsoft Visual C++ generated include file.
 // Used by OsiInterface.rc
 //
-#define RES_DLL_MAJOR_VERSION           42
-#define RES_DLL_VERSION_STRING          "42.0.0.0"
+#define RES_DLL_MAJOR_VERSION           43
+#define RES_DLL_VERSION_STRING          "43.0.0.0"
 
 #define IDR_LUA_BUILTIN_LIBRARY         101
 #define IDR_LUA_BUILTIN_LIBRARY_SERVER  102
 #define IDR_LUA_BUILTIN_LIBRARY_CLIENT  103
 #define IDR_LUA_SANDBOX_STARTUP         104
+#define IDR_LUA_GAME_MATH               105
 
 // Next default values for new objects
 // 

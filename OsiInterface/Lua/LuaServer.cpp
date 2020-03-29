@@ -498,6 +498,8 @@ namespace dse::lua
 		LoadScript(baseLib, "BuiltinLibrary.lua");
 		auto serverLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_SERVER);
 		LoadScript(serverLib, "BuiltinLibraryServer.lua");
+		auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
+		LoadScript(gameMathLib, "Game.Math.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
 		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"

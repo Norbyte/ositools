@@ -51,6 +51,11 @@ namespace dse
 					INFO(L"Configuration for '%s':\r\n\tMinVersion %d; Feature flags: %s", mod.Info.Name.c_str(),
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 
+					if (config.MinimumVersion == 0) {
+						OsiError("Specifying MinimumVersion in OsiToolsConfig.json is now mandatory for backwards compatibility reasons.");
+						OsiError("Mods without a MinimumVersion may stop working in v44!");
+					}
+
 					if (config.MinimumVersion != 0 && config.MinimumVersion < 42) {
 						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << "' uses extender version v" << config.MinimumVersion << ", which uses the old unified client/server model.");
 						OsiError("The client and server components were split in v42 to improve support for client-side features.");
