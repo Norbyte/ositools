@@ -152,8 +152,7 @@ public:
 		for (auto i = 0; i < traceSize; i++) {
 			if (Backtrace[i] >= moduleStart && Backtrace[i] < moduleEnd) {
 				bool excluded = false;
-				for (size_t i = 0; i < std::size(ExcludedSymbols); i++) {
-					auto & sym = ExcludedSymbols[i];
+				for (auto const & sym : ExcludedSymbols) {
 					if (Backtrace[i] >= sym.Ptr && Backtrace[i] < (uint8_t *)sym.Ptr + sym.Size) {
 						excluded = true;
 						break;
