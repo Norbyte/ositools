@@ -49,7 +49,7 @@ namespace dse
 		return (hi << 4) | lo;
 	}
 
-	void Pattern::FromString(std::string const & s)
+	void Pattern::FromString(std::string_view s)
 	{
 		if (s.size() % 3) Fail("Invalid pattern length");
 		auto len = s.size() / 3;

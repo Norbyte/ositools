@@ -17,7 +17,7 @@ namespace dse
 			OsiMsg(msg);
 		}
 
-		std::string StringFmtTemp;
+		STDString StringFmtTemp;
 
 		char const * StringFormatArgNames[10] = {
 			"Arg1",
@@ -58,8 +58,8 @@ namespace dse
 
 				for (;;) {
 					std::size_t pos = StringFmtTemp.find(replace);
-					if (pos != std::string::npos) {
-						StringFmtTemp = StringFmtTemp.substr(0, pos) + arg->Value.ToString() 
+					if (pos != STDString::npos) {
+						StringFmtTemp = StringFmtTemp.substr(0, pos) + STDString(arg->Value.ToString())
 							+ StringFmtTemp.substr(pos + 3);
 					} else {
 						break;
@@ -231,7 +231,7 @@ namespace dse
 
 		// We need to keep the returned string alive
 		// until it reaches Osi
-		std::string gRealToStringTemp;
+		STDString gRealToStringTemp;
 
 		bool RealToString(OsiArgumentDesc & args)
 		{

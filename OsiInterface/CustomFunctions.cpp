@@ -361,7 +361,7 @@ void CustomFunctionManager::RegisterSignature(CustomFunction * func)
 	signatures_.insert(std::make_pair(signature, func));
 }
 
-std::string CustomFunctionManager::GenerateHeaders() const
+STDString CustomFunctionManager::GenerateHeaders() const
 {
 	std::stringstream ss;
 
@@ -383,12 +383,12 @@ std::string CustomFunctionManager::GenerateHeaders() const
 		}
 	}
 
-	return ss.str();
+	return STDString(ss.str());
 }
 
-void CustomFunctionManager::PreProcessStory(std::string const & original, std::string & postProcessed)
+void CustomFunctionManager::PreProcessStory(STDString const & original, STDString & postProcessed)
 {
-	std::string ph1;
+	STDString ph1;
 	ph1.reserve(original.size());
 	postProcessed.reserve(original.size());
 
@@ -434,8 +434,8 @@ void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 {
 	if (!ExtensionStateServer::Get().HasFeatureFlag("Preprocessor")) return;
 
-	std::string original;
-	std::string postProcessed;
+	STDString original;
+	STDString postProcessed;
 
 	{
 		std::ifstream f(path, std::ios::in | std::ios::binary);

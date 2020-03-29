@@ -338,7 +338,7 @@ namespace dse
 			}
 		}
 
-		std::string ToString() const;
+		STDString ToString() const;
 
 	private:
 		FileReader * reader_;

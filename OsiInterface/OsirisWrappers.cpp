@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "OsirisProxy.h"
 #include "NodeHooks.h"
-#include "DebugInterface.h"
 #include <string>
 #include <fstream>
 #include <sstream>

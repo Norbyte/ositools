@@ -225,13 +225,13 @@ namespace dse::lua
 			return CheckedCall<Ret...>(L, sizeof...(args), func);
 		}
 
-		bool LoadScript(std::string const & script, std::string const & name = "");
+		bool LoadScript(STDString const & script, STDString const & name = "");
 
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
-		void OnNetMessageReceived(std::string const & channel, std::string const & payload);
+		void OnNetMessageReceived(STDString const & channel, STDString const & payload);
 
 	protected:
 		lua_State * L;
@@ -240,7 +240,7 @@ namespace dse::lua
 
 		void OpenLibs();
 
-		static std::string GetBuiltinLibrary(int resourceId);
+		static STDString GetBuiltinLibrary(int resourceId);
 	};
 
 	class Restriction

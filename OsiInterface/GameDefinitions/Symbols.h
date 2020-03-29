@@ -287,7 +287,7 @@ namespace dse
 		}
 
 		void CanonicalizePath(STDString & path) const;
-		std::string ToPath(StringView path, PathRootType root, bool canonicalize = true) const;
+		STDString ToPath(StringView path, PathRootType root, bool canonicalize = true) const;
 		FileReaderPin MakeFileReader(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 		void DestroyFileReader(FileReader * reader);
 	};

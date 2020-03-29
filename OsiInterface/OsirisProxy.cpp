@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "OsirisProxy.h"
 #include "NodeHooks.h"
-#include "DebugInterface.h"
 #include "Version.h"
 #include <string>
 #include <fstream>
@@ -73,8 +72,6 @@ void OsirisProxy::Initialize()
 
 	if (Libraries.FindLibraries()) {
 		if (extensionsEnabled_) {
-			CustomInjector.Initialize();
-			FunctionLibrary.Register();
 			ResetExtensionStateServer();
 			ResetExtensionStateClient();
 		} else {
@@ -349,7 +346,7 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 			auto filteredLogPath = MakeLogFilePath(L"Compile", L"final.log");
 			std::ifstream logIn(LogFilename.c_str(), std::ios::in);
 			std::ofstream logOut(filteredLogPath.c_str(), std::ios::out);
-			std::string logLine;
+			STDString logLine;
 
 			while (std::getline(logIn, logLine)) {
 				if (logLine.length() < 9 ||
@@ -454,7 +451,7 @@ void OsirisProxy::FlashWarningCallback(void * ctx, void * player, int code, char
 	}
 
 	if (code == 503) {
-		std::string errmsg(message);
+		STDString errmsg(message);
 		if (errmsg.find("onEventResolution") != std::string::npos
 			|| errmsg.find("onEventResize") != std::string::npos) {
 			return;
@@ -822,6 +819,15 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		ResetExtensionStateClient();
 		break;
 
+	case ClientGameState::LoadModule:
+		// We need to initialize the function library here, as GlobalAllocator isn't available in Init()
+		if (!functionLibraryInitialized_) {
+			CustomInjector.Initialize();
+			FunctionLibrary.Register();
+			functionLibraryInitialized_ = true;
+		}
+		break;
+
 	case ClientGameState::LoadGMCampaign:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
 		LoadExtensionStateClient();
@@ -972,7 +978,7 @@ void OsirisProxy::ClearPathOverrides()
 	pathOverrides_.clear();
 }
 
-void OsirisProxy::AddPathOverride(std::string const & path, std::string const & overriddenPath)
+void OsirisProxy::AddPathOverride(STDString const & path, STDString const & overriddenPath)
 {
 	auto absolutePath = GetStaticSymbols().ToPath(path, PathRootType::Data);
 	auto absoluteOverriddenPath = GetStaticSymbols().ToPath(overriddenPath, PathRootType::Data);
@@ -985,7 +991,7 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 {
 	if (!pathOverrides_.empty()) {
 		std::shared_lock lock(pathOverrideMutex_);
-		auto it = pathOverrides_.find(std::string(path->Name));
+		auto it = pathOverrides_.find(path->Name);
 		if (it != pathOverrides_.end()) {
 			DEBUG("FileReader path override: %s -> %s", path->Name.c_str(), it->second.c_str());
 			Path overriddenPath;

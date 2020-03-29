@@ -12,7 +12,7 @@ namespace dse
 	struct ExtensionModConfig
 	{
 		uint32_t MinimumVersion{ 0 };
-		std::unordered_set<std::string> FeatureFlags;
+		std::unordered_set<STDString> FeatureFlags;
 	};
 
 	class ExtensionState
@@ -29,7 +29,7 @@ namespace dse
 		virtual char const * GetBootstrapFileName() = 0;
 
 		void LoadConfigs();
-		bool LoadConfig(Module const & mod, std::string const & configText, ExtensionModConfig & config);
+		bool LoadConfig(Module const & mod, STDString const & configText, ExtensionModConfig & config);
 		bool LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config);
 		bool HasFeatureFlag(char const * flag) const;
 
@@ -45,14 +45,14 @@ namespace dse
 		void IncLuaRefs();
 		void DecLuaRefs();
 		void LuaReset(bool startup);
-		void LuaLoadExternalFile(std::string const & path);
-		void LuaLoadGameFile(FileReaderPin & reader, std::string const & scriptName);
-		bool LuaLoadGameFile(std::string const & path, std::string const & scriptName, bool warnOnError = true);
-		bool LuaLoadModScript(std::string const & modNameGuid, std::string const & fileName, bool warnOnError = true);
+		void LuaLoadExternalFile(STDString const & path);
+		void LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName);
+		bool LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError = true);
+		bool LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError = true);
 
 	protected:
 		friend class LuaVirtualPin;
-		static std::unordered_set<std::string> sAllFeatureFlags;
+		static std::unordered_set<std::string_view> sAllFeatureFlags;
 
 		unsigned LuaRefs{ 0 };
 		bool LuaPendingDelete{ false };

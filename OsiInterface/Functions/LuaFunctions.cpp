@@ -137,7 +137,7 @@ namespace dse
 	template <unsigned TInParams>
 	void RegisterLuaQueries(CustomFunctionManager & functionMgr)
 	{
-		std::string procName = "NRD_LuaQuery";
+		STDString procName = "NRD_LuaQuery";
 		procName += std::to_string(TInParams);
 
 		for (auto out = 0; out <= 5; out++) {

@@ -65,6 +65,6 @@ namespace dse::lua
 
 	private:
 		ExtensionLibraryClient library_;
-		std::unordered_map<std::string, ObjectHandle> clientUI_;
+		std::unordered_map<STDString, ObjectHandle> clientUI_;
 	};
 }

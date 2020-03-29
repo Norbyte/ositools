@@ -1089,9 +1089,9 @@ namespace dse::lua
 		}
 	}
 
-	std::string GenerateIdeHelpers()
+	STDString GenerateIdeHelpers()
 	{
-		std::string helpers;
+		STDString helpers;
 		helpers.reserve(0x20000);
 
 		auto functions = gOsirisProxy->GetGlobals().Functions;

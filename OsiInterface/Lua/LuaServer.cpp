@@ -528,7 +528,7 @@ namespace dse::lua
 			ObjectProxy<esv::Status>::New(L, status),
 			useCharacterStats) };
 
-		auto result = CheckedCall<int32_t>(L, 2, "Ext.StatusGetEnterChance");
+		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
 		if (result) {
 			return std::get<0>(*result);
 		} else {

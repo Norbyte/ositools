@@ -623,9 +623,14 @@ namespace dse::lua
 			push(L, paramTexts[i]); // stack: fn, skill, character, params...
 		}
 
-		auto result = CheckedCall<char const *>(L, 2 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
+		auto result = CheckedCall<std::optional<char const *>>(L, 2 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
 		if (result) {
-			return FromUTF8(std::get<0>(*result));
+			auto description = std::get<0>(*result);
+			if (description) {
+				return FromUTF8(*description);
+			} else {
+				return {};
+			}
 		} else {
 			return {};
 		}
@@ -658,9 +663,14 @@ namespace dse::lua
 			lua_pushstring(L, paramTexts[i].c_str()); // stack: fn, status, srcCharacter, character, params...
 		}
 
-		auto result = CheckedCall<char const *>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");
+		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");
 		if (result) {
-			return FromUTF8(std::get<0>(*result));
+			auto description = std::get<0>(*result);
+			if (description) {
+				return FromUTF8(*description);
+			} else {
+				return {};
+			}
 		} else {
 			return {};
 		}

@@ -39,7 +39,7 @@ namespace dse
 	}
 
 #if defined(OSI_EOCAPP)
-	std::string StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
+	STDString StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
@@ -53,7 +53,7 @@ namespace dse
 
 		auto rootPath = PathRoots[(unsigned)root];
 
-		std::string absolutePath(*rootPath);
+		STDString absolutePath(*rootPath);
 		absolutePath += "/" + canonicalPath;
 		return absolutePath;
 	}
@@ -75,7 +75,7 @@ namespace dse
 		return FileReaderPin(reader);
 	}
 #else
-	std::string StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
+	STDString StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
@@ -90,7 +90,7 @@ namespace dse
 		StringView rootPath;
 		GetPrefixForRoot(&rootPath, (unsigned)root);
 
-		std::string absolutePath(rootPath);
+		STDString absolutePath(rootPath);
 		absolutePath += "/";
 		absolutePath += canonicalPath;
 		return absolutePath;
@@ -127,14 +127,14 @@ namespace dse
 		}
 	}
 
-	std::string FileReaderPin::ToString() const
+	STDString FileReaderPin::ToString() const
 	{
 		if (!IsLoaded()) {
 			OsiErrorS("File not loaded!");
 			return "";
 		}
 
-		std::string contents;
+		STDString contents;
 		contents.resize(Size());
 		memcpy(contents.data(), Buf(), Size());
 		return contents;
@@ -235,7 +235,7 @@ namespace dse
 		} else if (strcmp(typeInfo->Name.Str, "AttributeFlags") == 0) {
 			if (index != -1) {
 				auto attrFlags = AttributeFlags[index];
-				std::string flagsStr;
+				STDString flagsStr;
 				for (auto i = 0; i < 64; i++) {
 					if (attrFlags & (1ull << i)) {
 						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1ull << i));
@@ -326,7 +326,7 @@ namespace dse
 	std::optional<uint64_t> CRPGStatsManager::StringToAttributeFlags(const char * value)
 	{
 		uint64_t flags{ 0 };
-		std::string token;
+		STDString token;
 		std::istringstream tokenStream(value);
 		while (std::getline(tokenStream, token, ';')) {
 			auto label = EnumInfo<StatAttributeFlags>::Find(token.c_str());

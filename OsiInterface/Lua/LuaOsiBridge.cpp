@@ -609,7 +609,7 @@ namespace dse::lua
 		lua_setfield(L, -2, "__index");
 	}
 
-	OsiFunctionNameProxy::OsiFunctionNameProxy(std::string const & name, ServerState & state)
+	OsiFunctionNameProxy::OsiFunctionNameProxy(STDString const & name, ServerState & state)
 		: name_(name), state_(state), generationId_(state_.GenerationId())
 	{}
 
@@ -758,7 +758,7 @@ namespace dse::lua
 		return *func;
 	}
 
-	ValueType StringToValueType(std::string const & s)
+	ValueType StringToValueType(std::string_view s)
 	{
 		if (s == "INTEGER") {
 			return ValueType::Integer;
@@ -777,7 +777,7 @@ namespace dse::lua
 		} else if (s == "ITEMGUID") {
 			return ValueType::ItemGuid;
 		} else {
-			OsiError("Unknown Osiris value type: " << s);
+			OsiError("Unknown Osiris value type: " << s.data());
 			return ValueType::None;
 		}
 	}
@@ -816,7 +816,7 @@ namespace dse::lua
 	}
 
 
-	bool ServerState::Query(std::string const & name, RegistryEntry * func,
+	bool ServerState::Query(STDString const & name, RegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		std::lock_guard lock(mutex_);
@@ -840,7 +840,7 @@ namespace dse::lua
 	}
 
 
-	bool ServerState::QueryInternal(std::string const & name, RegistryEntry * func,
+	bool ServerState::QueryInternal(STDString const & name, RegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		auto L = GetState();
@@ -993,7 +993,7 @@ namespace dse::lua
 		return 1;
 	}
 
-	std::string ExtensionLibraryServer::GenerateOsiHelpers()
+	STDString ExtensionLibraryServer::GenerateOsiHelpers()
 	{
 		std::stringstream ss;
 
@@ -1004,14 +1004,14 @@ namespace dse::lua
 			}
 		}
 
-		return ss.str();
+		return STDString(ss.str());
 	}
 
 
 	const std::regex inOutParamRe("^\\s*(\\[(in|out)\\])?\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
 	const std::regex inParamRe("^\\s*\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
 
-	CustomFunctionParam ParseCustomFunctionParam(lua_State * L, std::string const & param, bool isQuery)
+	CustomFunctionParam ParseCustomFunctionParam(lua_State * L, STDString const & param, bool isQuery)
 	{
 		CustomFunctionParam parsed;
 
@@ -1046,7 +1046,7 @@ namespace dse::lua
 	void ParseCustomFunctionParams(lua_State * L, char const * s, 
 		std::vector<CustomFunctionParam> & params, bool isQuery)
 	{
-		std::string param;
+		STDString param;
 		std::istringstream paramStream(s);
 
 		while (std::getline(paramStream, param, ',')) {

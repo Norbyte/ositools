@@ -60,7 +60,7 @@ namespace dse
 
 	struct FunctionNameAndArity
 	{
-		std::string Name;
+		STDString Name;
 		uint32_t Arity;
 
 		inline bool operator == (FunctionNameAndArity const & fn) const
@@ -78,7 +78,7 @@ namespace std
 		typedef std::size_t result_type;
 		result_type operator()(argument_type const& fn) const noexcept
 		{
-			result_type const h1(std::hash<std::string>{}(fn.Name));
+			result_type const h1(std::hash<dse::STDString>{}(fn.Name));
 			result_type const h2(std::hash<uint32_t>{}(fn.Arity));
 			return h1 ^ (h2 << 1);
 		}
@@ -99,7 +99,7 @@ namespace dse
 {
 	struct CustomFunctionParam
 	{
-		std::string Name;
+		STDString Name;
 		ValueType Type;
 		FunctionArgumentDirection Dir;
 	};
@@ -107,7 +107,7 @@ namespace dse
 	class CustomFunction
 	{
 	public:
-		inline CustomFunction(std::string const & name, std::vector<CustomFunctionParam> params)
+		inline CustomFunction(STDString const & name, std::vector<CustomFunctionParam> params)
 			: name_(name), params_(params)
 		{}
 
@@ -115,7 +115,7 @@ namespace dse
 
 		virtual FunctionType GetType() = 0;
 
-		inline std::string Name() const
+		inline STDString const & Name() const
 		{
 			return name_;
 		}
@@ -144,7 +144,7 @@ namespace dse
 		void GenerateHeader(std::stringstream & ss) const;
 
 	private:
-		std::string name_;
+		STDString name_;
 		std::vector<CustomFunctionParam> params_;
 		FunctionHandle handle_;
 
@@ -154,7 +154,7 @@ namespace dse
 	class CustomCallBase : public CustomFunction
 	{
 	public:
-		inline CustomCallBase(std::string const & name, std::vector<CustomFunctionParam> params)
+		inline CustomCallBase(STDString const & name, std::vector<CustomFunctionParam> params)
 			: CustomFunction(name, std::move(params))
 		{}
 
@@ -169,7 +169,7 @@ namespace dse
 	class CustomCall : public CustomCallBase
 	{
 	public:
-		inline CustomCall(std::string const & name, std::vector<CustomFunctionParam> params,
+		inline CustomCall(STDString const & name, std::vector<CustomFunctionParam> params,
 			std::function<void (OsiArgumentDesc const &)> handler)
 			: CustomCallBase(name, std::move(params)), handler_(handler)
 		{}
@@ -183,7 +183,7 @@ namespace dse
 	class CustomQueryBase : public CustomFunction
 	{
 	public:
-		inline CustomQueryBase(std::string const & name, std::vector<CustomFunctionParam> params)
+		inline CustomQueryBase(STDString const & name, std::vector<CustomFunctionParam> params)
 			: CustomFunction(name, std::move(params))
 		{}
 
@@ -198,7 +198,7 @@ namespace dse
 	class CustomQuery : public CustomQueryBase
 	{
 	public:
-		inline CustomQuery(std::string const & name, std::vector<CustomFunctionParam> params,
+		inline CustomQuery(STDString const & name, std::vector<CustomFunctionParam> params,
 			std::function<bool(OsiArgumentDesc &)> handler)
 			: CustomQueryBase(name, std::move(params)), handler_(handler)
 		{}
@@ -212,7 +212,7 @@ namespace dse
 	class CustomEvent : public CustomFunction
 	{
 	public:
-		inline CustomEvent(std::string const & name, std::vector<CustomFunctionParam> params)
+		inline CustomEvent(STDString const & name, std::vector<CustomFunctionParam> params)
 			: CustomFunction(name, std::move(params))
 		{}
 
@@ -250,9 +250,9 @@ namespace dse
 		bool Call(FunctionHandle handle, OsiArgumentDesc const & params);
 		bool Query(FunctionHandle handle, OsiArgumentDesc & params);
 
-		std::string GenerateHeaders() const;
+		STDString GenerateHeaders() const;
 		void PreProcessStory(wchar_t const * path);
-		void PreProcessStory(std::string const & original, std::string & postProcessed);
+		void PreProcessStory(STDString const & original, STDString & postProcessed);
 
 	private:
 		struct DynamicFunctionBindingInfo
@@ -286,7 +286,7 @@ namespace dse
 			bool output;
 		};
 
-		std::string name;
+		STDString name;
 		std::vector<ParamInfo> params;
 		FunctionType type{ FunctionType::Unknown };
 		uint32_t nodeId{ 0 };

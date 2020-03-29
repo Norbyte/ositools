@@ -7,7 +7,7 @@
 
 namespace dse
 {
-	std::unordered_set<std::string> ExtensionState::sAllFeatureFlags = {
+	std::unordered_set<std::string_view> ExtensionState::sAllFeatureFlags = {
 		"OsirisExtensions",
 		"Lua",
 		"CustomStats",
@@ -90,7 +90,7 @@ namespace dse
 		}
 	}
 
-	bool ExtensionState::LoadConfig(Module const & mod, std::string const & configText, ExtensionModConfig & config)
+	bool ExtensionState::LoadConfig(Module const & mod, STDString const & configText, ExtensionModConfig & config)
 	{
 		Json::CharReaderBuilder factory;
 		auto reader = std::unique_ptr<Json::CharReader>(factory.newCharReader());
@@ -186,7 +186,7 @@ namespace dse
 				if (flag.isString()) {
 					auto flagStr = flag.asString();
 					if (sAllFeatureFlags.find(flagStr) != sAllFeatureFlags.end()) {
-						config.FeatureFlags.insert(flagStr);
+						config.FeatureFlags.insert(STDString(flagStr));
 					} else {
 						ERR("Feature flag '%s' not supported!", flagStr.c_str());
 					}
@@ -272,9 +272,9 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::LuaLoadExternalFile(std::string const & path)
+	void ExtensionState::LuaLoadExternalFile(STDString const & path)
 	{
-		std::ifstream f(path, std::ios::in | std::ios::binary);
+		std::ifstream f(path.c_str(), std::ios::in | std::ios::binary);
 		if (!f.good()) {
 			OsiError("File does not exist: " << path);
 			return;
@@ -283,7 +283,7 @@ namespace dse
 		f.seekg(0, std::ios::end);
 		auto length = f.tellg();
 		f.seekg(0, std::ios::beg);
-		std::string s(length, '\0');
+		STDString s(length, '\0');
 		f.read(const_cast<char *>(s.data()), length);
 		f.close();
 
@@ -297,7 +297,7 @@ namespace dse
 		OsiWarn("Loaded external script: " << path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, std::string const & scriptName)
+	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
 	{
 		if (!reader.IsLoaded()) {
 			OsiErrorS("Attempted to load script from invalid file reader");
@@ -313,7 +313,7 @@ namespace dse
 		lua->LoadScript(reader.ToString(), scriptName);
 	}
 
-	bool ExtensionState::LuaLoadGameFile(std::string const & path, std::string const & scriptName, bool warnOnError)
+	bool ExtensionState::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
 	{
 		auto reader = GetStaticSymbols().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
@@ -328,7 +328,7 @@ namespace dse
 		return true;
 	}
 
-	bool ExtensionState::LuaLoadModScript(std::string const & modNameGuid, std::string const & fileName, bool warnOnError)
+	bool ExtensionState::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
@@ -348,7 +348,7 @@ namespace dse
 		}
 		scriptName += "/" + fileName;
 
-		return LuaLoadGameFile(std::string(path), std::string(scriptName), warnOnError);
+		return LuaLoadGameFile(path, scriptName, warnOnError);
 	}
 
 	void ExtensionState::LuaResetInternal()

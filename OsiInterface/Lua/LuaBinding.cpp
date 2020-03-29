@@ -637,7 +637,7 @@ namespace dse::lua
 		}
 	}
 
-	bool State::LoadScript(std::string const & script, std::string const & name)
+	bool State::LoadScript(STDString const & script, STDString const & name)
 	{
 		std::lock_guard lock(mutex_);
 
@@ -670,7 +670,7 @@ namespace dse::lua
 			ObjectProxy<CDivinityStats_Character>::New(L, attacker),
 			ObjectProxy<CDivinityStats_Character>::New(L, target)) };
 
-		auto result = CheckedCall<int32_t>(L, 2, "Ext.GetHitChance");
+		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
 			return std::get<0>(*result);
 		} else {
@@ -709,26 +709,30 @@ namespace dse::lua
 		push(L, level);
 		push(L, noRandomization);
 
-		auto result = CheckedCall<DeathType, DamageList *>(L, 8, "Ext.GetSkillDamage");
+		auto result = CheckedCall<std::optional<DeathType>, std::optional<DamageList *>>(L, 8, "Ext.GetSkillDamage");
 		if (result) {
-			if (pDeathType) {
-				*pDeathType = std::get<0>(*result);
-			}
-
+			auto deathType = std::get<0>(*result);
 			auto damages = std::get<1>(*result);
-			auto const & list = damages->Get();
-			for (uint32_t i = 0; i < list.Size; i++) {
-				auto const & item = list[i];
-				damageList->AddDamage(item.DamageType, item.Amount);
-			}
 
-			return true;
-		} else {
-			return false;
+			if (deathType && damages) {
+				if (pDeathType) {
+					*pDeathType = *deathType;
+				}
+
+				auto const & list = (*damages)->Get();
+				for (uint32_t i = 0; i < list.Size; i++) {
+					auto const & item = list[i];
+					damageList->AddDamage(item.DamageType, item.Amount);
+				}
+
+				return true;
+			}
 		}
+
+		return false;
 	}
 
-	void State::OnNetMessageReceived(std::string const & channel, std::string const & payload)
+	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload)
 	{
 		CallExt("_NetMessageReceived", 0, ReturnType<>{}, channel, payload);
 	}
@@ -748,7 +752,7 @@ namespace dse::lua
 		CallExt("_OnModuleResume", RestrictAll | ScopeModuleResume, ReturnType<>{});
 	}
 
-	std::string State::GetBuiltinLibrary(int resourceId)
+	STDString State::GetBuiltinLibrary(int resourceId)
 	{
 		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(resourceId),
 			L"LUA_SCRIPT");
@@ -759,7 +763,7 @@ namespace dse::lua
 				auto resourceData = LockResource(hGlobal);
 				if (resourceData) {
 					DWORD resourceSize = SizeofResource(gThisModule, hResource);
-					std::string script;
+					STDString script;
 					script.resize(resourceSize);
 					memcpy(script.data(), resourceData, resourceSize);
 					return script;
@@ -768,7 +772,7 @@ namespace dse::lua
 		}
 
 		OsiErrorS("Could not find bootstrap resource!");
-		return std::string();
+		return STDString();
 	}
 
 }

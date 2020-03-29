@@ -53,23 +53,21 @@ namespace dse
 
 #define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
 
-		std::optional<std::string> GetPathForScriptIo(char const * scriptPath)
+		std::optional<STDString> GetPathForScriptIo(std::string_view scriptPath)
 		{
-			std::string path = scriptPath;
+			STDString path(scriptPath);
 
-			if (path.find_first_not_of(SAFE_PATH_CHARS) != std::string::npos
-				|| path.find("..") != std::string::npos) {
+			if (path.find_first_not_of(SAFE_PATH_CHARS) != STDString::npos
+				|| path.find("..") != STDString::npos) {
 				OsiError("Illegal file name for external file access: '" << path << "'");
 				return {};
 			}
 
-			auto storageRoot = GetStaticSymbols().ToPath("", PathRootType::GameStorage);
+			auto storageRoot = GetStaticSymbols().ToPath("/Osiris Data", PathRootType::GameStorage);
 			if (storageRoot.empty()) {
 				OsiErrorS("Could not fetch game storage path");
 				return {};
 			}
-
-			storageRoot += "/Osiris Data";
 
 			auto storageRootWstr = FromUTF8(storageRoot);
 			BOOL created = CreateDirectory(storageRootWstr.c_str(), NULL);

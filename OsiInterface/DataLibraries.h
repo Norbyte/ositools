@@ -17,7 +17,7 @@ namespace dse {
 
 	struct Pattern
 	{
-		void FromString(std::string const & s);
+		void FromString(std::string_view s);
 		void FromRaw(const char * s);
 		void Scan(uint8_t const * start, size_t length, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple = true);
 

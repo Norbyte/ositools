@@ -66,7 +66,7 @@ namespace dse
 			auto & postMsg = msg.post_lua();
 			LuaClientPin pin(ExtensionStateClient::Get());
 			if (pin) {
-				pin->OnNetMessageReceived(postMsg.channel_name(), postMsg.payload());
+				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
 			}
 			break;
 		}
@@ -94,7 +94,7 @@ namespace dse
 			auto & postMsg = msg.post_lua();
 			LuaServerPin pin(ExtensionStateServer::Get());
 			if (pin) {
-				pin->OnNetMessageReceived(postMsg.channel_name(), postMsg.payload());
+				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
 			}
 			break;
 		}

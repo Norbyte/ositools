@@ -35,9 +35,11 @@
 #include <GameDefinitions/Osiris.h>
 #include <ExtensionStateClient.h>
 #include <ExtensionStateServer.h>
+#if !defined(OSI_NO_DEBUGGER)
 #include "DebugInterface.h"
 #include "DebugMessages.h"
 #include "Debugger.h"
+#endif
 #include "OsirisWrappers.h"
 #include "CustomFunctions.h"
 #include "DataLibraries.h"
@@ -177,7 +179,7 @@ public:
 	}
 
 	void ClearPathOverrides();
-	void AddPathOverride(std::string const & path, std::string const & overriddenPath);
+	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 
 private:
 	OsirisWrappers Wrappers;
@@ -196,7 +198,7 @@ private:
 	std::recursive_mutex globalStateLock_;
 	NetworkManager networkManager_;
 	std::shared_mutex pathOverrideMutex_;
-	std::unordered_map<std::string, std::string> pathOverrides_;
+	std::unordered_map<STDString, STDString> pathOverrides_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -214,6 +216,7 @@ private:
 
 	ToolConfig config_;
 	bool extensionsEnabled_{ false };
+	bool functionLibraryInitialized_{ false };
 
 	std::wstring LogFilename;
 	std::wstring LogType;

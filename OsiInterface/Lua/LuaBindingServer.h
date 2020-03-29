@@ -60,13 +60,13 @@ namespace dse::lua
 
 		static void PopulateMetatable(lua_State * L);
 
-		OsiFunctionNameProxy(std::string const & name, ServerState & state);
+		OsiFunctionNameProxy(STDString const & name, ServerState & state);
 
 		void UnbindAll();
 		int LuaCall(lua_State * L);
 
 	private:
-		std::string name_;
+		STDString name_;
 		std::vector<OsiFunction> functions_;
 		ServerState & state_;
 		uint32_t generationId_;
@@ -83,7 +83,7 @@ namespace dse::lua
 	class CustomLuaCall : public CustomCallBase
 	{
 	public:
-		inline CustomLuaCall(std::string const & name, std::vector<CustomFunctionParam> params,
+		inline CustomLuaCall(STDString const & name, std::vector<CustomFunctionParam> params,
 			RegistryEntry handler)
 			: CustomCallBase(name, std::move(params)), handler_(std::move(handler))
 		{}
@@ -98,7 +98,7 @@ namespace dse::lua
 	class CustomLuaQuery : public CustomQueryBase
 	{
 	public:
-		inline CustomLuaQuery(std::string const & name, std::vector<CustomFunctionParam> params,
+		inline CustomLuaQuery(STDString const & name, std::vector<CustomFunctionParam> params,
 			RegistryEntry handler)
 			: CustomQueryBase(name, std::move(params)), handler_(std::move(handler))
 		{}
@@ -197,7 +197,7 @@ namespace dse::lua
 	public:
 		void Register(lua_State * L) override;
 		void RegisterLib(lua_State * L) override;
-		std::string GenerateOsiHelpers();
+		STDString GenerateOsiHelpers();
 
 	private:
 		static char const * const NameResolverMetatableName;
@@ -370,7 +370,7 @@ namespace dse::lua
 			}
 		}
 
-		bool Query(std::string const & name, RegistryEntry * func,
+		bool Query(STDString const & name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
@@ -391,7 +391,7 @@ namespace dse::lua
 		// Used to invalidate function/node pointers in Lua userdata objects
 		uint32_t generationId_{ 0 };
 
-		bool QueryInternal(std::string const & name, RegistryEntry * func,
+		bool QueryInternal(STDString const & name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 	};
 }

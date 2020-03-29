@@ -15,7 +15,9 @@ struct ExcludedSymbol
 	std::size_t Size;
 };
 
-// Symbols that will be excluded from being considered 
+// Symbols that will be excluded from being reported.
+// Wrapper frames are included in the stack trace for any server/client worker thread crash,
+// so we have to filter them to make sure that we don't receive a report for every (unrelated) game crash.
 static const ExcludedSymbol ExcludedSymbols[] = {
 	{&decltype(dse::LibraryManager::ActionMachineSetStateHook)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
