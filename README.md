@@ -1,13 +1,15 @@
-# Osiris Extender / OsiTools
+# Norbyte's Divinity Script Extender
 
-A toolkit for manipulating Divinity Original Sin 2 internals.
+Downloads available [>>>HERE<<<](https://github.com/Norbyte/ositools/releases/latest).
+
+The Script Extender toolkit adds previously unavailable features to the scripting language of the game.
 
 Features:
- - Lots of new Osiris calls and queries that expose previously unavailable functionality ([API Documentation](https://github.com/Norbyte/ositools/blob/master/APIDocs.md))
+ - Lots of new Osiris calls and queries ([API Documentation](https://github.com/Norbyte/ositools/blob/master/APIDocs.md))
  - Lua scripting ([API Documentation](https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md))
  - Real-time debugging of Osiris code ([Usage](https://gist.github.com/Norbyte/8b7eb35cd17f799ea113636b15e1f967))
- - Logging of Osiris rule execution
- - Logging of Osiris compilation
+ - Significant improvements in modded game loading times
+ - Debug logging of Osiris rule execution/compilation
 
 ### Configuration
 
@@ -22,6 +24,7 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 | EnableExtensions | Boolean | Make the Osiris extension functionality available ingame or in the editor. |
 | SendCrashReports | Boolean | Upload minidumps to the crash report collection server after a game crash. |
 | DumpNetworkStrings | Boolean | Dumps the NetworkFixedString table to `LogDirectory`. Mainly useful for debugging desync issues. |
+| DeveloperMode | Boolean | Enables various debug functionality for development purposes. |
 | DisableModValidation | Boolean | Disable module hashing when loading modules. |
 | EnableAchievements | Boolean | Re-enable achievements for modded games. |
 | EnableDebugger | Boolean | Enables the debugger interface |
