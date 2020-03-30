@@ -567,7 +567,7 @@ struct TMapNode
 	Padded<TVal, TValPad> Value;
 };
 
-template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
+template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad, class Pred = std::less<TKey>>
 struct TMap
 {
 	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
@@ -578,7 +578,7 @@ struct TMap
 		auto currentTreeNode = Root->Root;
 		while (!currentTreeNode->IsRoot)
 		{
-			if (currentTreeNode->Key.Value < key) {
+			if (Pred()(currentTreeNode->Key.Value, key)) {
 				currentTreeNode = currentTreeNode->Right;
 			} else {
 				finalTreeNode = currentTreeNode;
@@ -586,7 +586,7 @@ struct TMap
 			}
 		}
 
-		if (finalTreeNode == Root || key < finalTreeNode->Key.Value)
+		if (finalTreeNode == Root || Pred()(key, finalTreeNode->Key.Value))
 			return nullptr;
 		else
 			return &finalTreeNode->Value.Value;
@@ -610,17 +610,24 @@ struct TMap
 };
 
 
+struct TypeDbLess
+{
+	bool operator ()(STDString const & a, STDString const & b) const
+	{
+		return _stricmp(a.c_str(), b.c_str()) < 0;
+	}
+};
 
-template <class TKey, class TValue>
-struct TypeDb : public ProtectedGameObject<TypeDb<TKey, TValue>>
+template <class TValue>
+struct TypeDb : public ProtectedGameObject<TypeDb<TValue>>
 {
 	struct HashSlot
 	{
-		TMap<TKey, TValue, 6, 0> NodeMap;
+		TMap<STDString, TValue, 6, 0, TypeDbLess> NodeMap;
 		void * Unknown;
 	};
 
-	TValue * Find(uint32_t hash, TKey const & key)
+	TValue * Find(uint32_t hash, STDString const & key)
 	{
 		auto & bucket = Hash[hash % 0x3FF];
 		return bucket.NodeMap.Find(key);
@@ -1227,9 +1234,9 @@ typedef int (* COsirisDeleteAllDataProc)(void * Osiris, bool DeleteTypes);
 typedef int (* COsirisReadHeaderProc)(void * Osiris, void * OsiSmartBuf, unsigned __int8 * MajorVersion, unsigned __int8 * MinorVersion, unsigned __int8 * BigEndian, unsigned __int8 * Unused, char * StoryFileVersion, unsigned int * DebugFlags);
 typedef void (* RuleActionCallProc)(RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
 
-using OsiTypeDb = TypeDb<STDString, TypeInfo *>;
-using FunctionDb = TypeDb<STDString, Function *>;
-using ObjectDb = TypeDb<STDString, void *>;
+using OsiTypeDb = TypeDb<TypeInfo *>;
+using FunctionDb = TypeDb<Function *>;
+using ObjectDb = TypeDb<void *>;
 
 struct OsirisStaticGlobals
 {
