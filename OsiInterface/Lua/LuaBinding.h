@@ -222,7 +222,7 @@ namespace dse::lua
 			std::lock_guard lock(mutex_);
 			Restriction restriction(*this, restrictions);
 			PushExtFunction(L, func);
-			auto _{ PushArguments(L, args...) };
+			auto _{ PushArguments(L, std::tuple{args...}) };
 			return CheckedCall<Ret...>(L, sizeof...(args), func);
 		}
 

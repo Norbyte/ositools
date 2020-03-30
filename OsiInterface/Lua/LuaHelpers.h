@@ -73,6 +73,12 @@ namespace dse::lua
 		return {};
 	}
 
+	template <class T, typename std::enable_if_t<std::is_invocable_v<T, lua_State *>, int> * = nullptr>
+	inline auto push_pin(lua_State * L, T v)
+	{
+		return v(L);
+	}
+
 	// Specifies additional actions taken when the object is pushed to a Lua call
 	enum class PushPolicy
 	{
@@ -99,21 +105,20 @@ namespace dse::lua
 			if (object_) object_->Unbind();
 		}
 
+		inline UnbindablePin(UnbindablePin const &) = delete;
+
+		inline UnbindablePin(UnbindablePin && other)
+			: object_(other.object_)
+		{
+			other.object_ = nullptr;
+		}
+
+		UnbindablePin & operator = (UnbindablePin const &) = delete;
+
+
 	private:
 		T * object_;
 	};
-
-	template <class T>
-	inline typename std::enable_if_t<std::is_base_of_v<Pushable<PushPolicy::Unbind>, T>, UnbindablePin<T>> push_pin(lua_State * L, T * v)
-	{
-		return UnbindablePin(v);
-	}
-
-	template <class T>
-	inline typename std::enable_if_t<std::is_base_of_v<Pushable<PushPolicy::None>, T>, NullPin> push_pin(lua_State * L, T * v)
-	{
-		return {};
-	}
 
 #define NULL_PIN(type) inline NullPin push_pin(lua_State * L, type v) \
 	{ \
@@ -299,14 +304,29 @@ namespace dse::lua
 		return (TEnum)0;
 	}
 
-	
+
+	template <class T, class... Args>
+	inline auto Push(Args... args)
+	{
+		return[args...](lua_State * L) {
+			auto obj = T::New(L, args...);
+			if constexpr (std::is_base_of_v<Pushable<PushPolicy::Unbind>, T>) {
+				return UnbindablePin{ obj };
+			} else {
+				return NullPin{};
+			}
+		};
+	}
 
 	// Pushes all arguments to the Lua stack and returns a pin that should
 	// be destroyed after the call
 	template <class ...Args>
-	inline auto PushArguments(lua_State * L, Args... args)
+	inline auto PushArguments(lua_State * L, std::tuple<Args...> args)
 	{
-		return std::tuple(push_pin(L, args)...);
+		return std::apply([=](const auto &... elem)
+		{
+			return std::tuple{ push_pin(L, elem)... };
+		}, args);
 	}
 
 	// Helper for indicating return type of a Lua function
@@ -321,7 +341,7 @@ namespace dse::lua
 	template <class T>
 	T CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<T>)
 	{
-		auto i = index++;
+		auto i = index--;
 		if (lua_isnil(L, i)) {
 			ERR("Return value %d must not be missing or nil", -i);
 			succeeded = false;
@@ -342,7 +362,7 @@ namespace dse::lua
 	template <class T>
 	std::optional<T> CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<std::optional<T>>)
 	{
-		auto i = index++;
+		auto i = index--;
 		if (lua_isnil(L, i)) {
 			return {};
 		} else {
@@ -363,8 +383,8 @@ namespace dse::lua
 	template <class... Args>
 	auto CheckedGetReturnValues(lua_State * L, bool & succeeded)
 	{
-		auto index = -(int)sizeof...(Args);
-		return std::tuple(CheckedGetReturnValue(L, index, succeeded, Overload<Args>{})...);
+		int index{ -1 };
+		return std::tuple{CheckedGetReturnValue(L, index, succeeded, Overload<Args>{})...};
 	}
 
 	// Fetch Lua return values into a tuple

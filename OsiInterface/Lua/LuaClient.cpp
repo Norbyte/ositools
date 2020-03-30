@@ -682,8 +682,8 @@ namespace dse::lua
 		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
 		auto _{ PushArguments(L,
-			StatsProxy::New(L, skill, std::optional<int32_t>()),
-			ObjectProxy<CDivinityStats_Character>::New(L, character)) };
+			std::tuple{Push<StatsProxy>(skill, std::optional<int32_t>()),
+			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			push(L, paramTexts[i]); // stack: fn, skill, character, params...
@@ -721,9 +721,9 @@ namespace dse::lua
 		PushExtFunction(L, "_StatusGetDescriptionParam"); // stack: fn
 
 		auto _{ PushArguments(L,
-			StatsProxy::New(L, status, std::optional<int32_t>()),
-			ObjectProxy<CDivinityStats_Character>::New(L, statusSource),
-			ObjectProxy<CDivinityStats_Character>::New(L, character)) }; // stack: fn, status, srcCharacter, character
+			std::tuple{Push<StatsProxy>(status, std::optional<int32_t>()),
+			Push<ObjectProxy<CDivinityStats_Character>>(statusSource),
+			Push<ObjectProxy<CDivinityStats_Character>>(character)}) }; // stack: fn, status, srcCharacter, character
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			lua_pushstring(L, paramTexts[i].c_str()); // stack: fn, status, srcCharacter, character, params...

@@ -527,8 +527,8 @@ namespace dse::lua
 
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
 		auto _{ PushArguments(L,
-			ObjectProxy<esv::Status>::New(L, status),
-			useCharacterStats) };
+			std::tuple{Push<ObjectProxy<esv::Status>>(status),
+			useCharacterStats}) };
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
 		if (result) {

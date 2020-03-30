@@ -87,6 +87,7 @@ namespace dse::lua
 
 	int StatsProxy::Index(lua_State * L)
 	{
+		if (obj_ == nullptr) return luaL_error(L, "Attempted to read property of null CRPGStats_Object object");
 		auto attributeName = luaL_checkstring(L, 2);
 
 		if (strcmp(attributeName, "Level") == 0) {
@@ -117,6 +118,7 @@ namespace dse::lua
 
 	int SkillPrototypeProxy::Index(lua_State * L)
 	{
+		if (stats_ == nullptr) return luaL_error(L, "Attempted to read property of null SkillPrototype object");
 		auto attributeName = luaL_checkstring(L, 2);
 
 		if (strcmp(attributeName, "Level") == 0) {
@@ -667,8 +669,8 @@ namespace dse::lua
 
 		PushExtFunction(L, "_GetHitChance"); // stack: fn
 		auto _{ PushArguments(L,
-			ObjectProxy<CDivinityStats_Character>::New(L, attacker),
-			ObjectProxy<CDivinityStats_Character>::New(L, target)) };
+			std::tuple{Push<ObjectProxy<CDivinityStats_Character>>(attacker),
+			Push < ObjectProxy<CDivinityStats_Character>>(target)}) };
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
