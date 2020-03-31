@@ -89,7 +89,7 @@ end
 function GetVitalityBoostByLevel(level)
     local extra = Ext.ExtraData
     local expGrowth = extra.VitalityExponentialGrowth
-    local growth = expGrowth ^ level
+    local growth = expGrowth ^ (level - 1)
 
     if level >= extra.FirstVitalityLeapLevel then
         growth = growth * extra.FirstVitalityLeapGrowth / expGrowth
@@ -171,15 +171,15 @@ function ApplyDamageBoosts(character, damageList)
     end
 end
 
-DamageSourceCalcTable = {
+local DamageSourceCalcTable = {
     BaseLevelDamage = function (attacker, target, level)
-        return GetLevelScaledDamage(level)
+        return Ext.Round(GetLevelScaledDamage(level))
     end,
     AverageLevelDamge = function (attacker, target, level)
-        return GetAverageLevelDamage(level)
+        return Ext.Round(GetAverageLevelDamage(level))
     end,
     MonsterWeaponDamage = function (attacker, target, level)
-        return GetLevelScaledMonsterWeaponDamage(level)
+        return Ext.Round(GetLevelScaledMonsterWeaponDamage(level))
     end,
     SourceMaximumVitality = function (attacker, target, level)
         return attacker.MaxVitality
@@ -497,9 +497,10 @@ function CustomGetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPo
         else
             damageBoost = 1.0
         end
-
-        local finalDamage = baseDamage * randomMultiplier * attrDamageScale * damageMultipliers * damageBoost
+		
+        local finalDamage = baseDamage * randomMultiplier * attrDamageScale * damageMultipliers
         finalDamage = math.max(Ext.Round(finalDamage), 1)
+        finalDamage = finalDamage + math.ceil(finalDamage * damageBoost)
         damageList:Add(damageType, finalDamage)
 
         if attacker ~= nil then
