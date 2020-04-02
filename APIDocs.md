@@ -1,4 +1,4 @@
-### API v42 Documentation
+### API v43 Documentation
 
 ### Table of Contents  
 
@@ -798,8 +798,10 @@ Returns an attribute of the specified character. If `_Character` is not a valid 
 ## Stats
 
 ### CharacterGetStat
-`query NRD_CharacterGetStatInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)`
-`query NRD_CharacterGetStatString([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](STRING)_Value)`
+```
+query NRD_CharacterGetStatInt([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](INTEGER)_Value)
+query NRD_CharacterGetStatString([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [out](STRING)_Value)
+```
 
 Returns a stat value of the specified character. `_Stat` must be one of the following:
 Name, Level, CurrentVitality, CurrentArmor, CurrentMagicArmor, ArmorAfterHitCooldownMultiplier, MagicArmorAfterHitCooldownMultiplier, CurrentAP, BonusActionPoints, Experience, Reputation, Flanked, Karma, MaxVitality, BaseMaxVitality, MaxArmor, BaseMaxArmor, MaxMagicArmor, BaseMaxMagicArmor, Sight, BaseSight, MaxSummons, BaseMaxSummons, MaxResistance, HasTwoHandedWeapon, CharacterGuid.
@@ -808,7 +810,7 @@ In addition, any attribute from the [AttributeFlags enumeration](#attributeflags
 If `_Character` is a nonexistent character or no stat named `_Stat` exists, the query fails.
 
 ### CharacterGetComputedStat
-`query NRD_CharacterGetComputedStat([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [in](INTEGER)_IsBaseStat, [out](INTEGER)_Value)`
+`query NRD_CharacterGetComputedStat([in](CHARACTERGUID)_Character, [in](STRING)_Stat, [in](INTEGER)_ExcludeBoosts, [out](INTEGER)_Value)`
 
 Returns a computed stat value of the specified character. `_Stat` must be one of the following:
 MaxMp, APStart, APRecovery, APMaximum, Strength, Finesse, Intelligence, Vitality, Memory, Wits, Accuracy, Dodge, CriticalChance, PhysicalResistance, PiercingResistance, CorrosiveResistance, MagicResistance, FireResistance, EarthResistance, WaterResistance, AirResistance, PoisonResistance, ShadowResistance, CustomResistance, LifeSteal, Sight, Hearing, Movement, Initiative, ChanceToHitBoost.
@@ -1735,6 +1737,18 @@ Converts `_Real` to a string value.
 | 14 | Lifetime |
 | 15 | Sulfur |
 | 16 | Sentinel (default value) |
+
+
+### StatCharacterFlags
+| Value | Label |
+|--|--|
+| 1 | IsPlayer |
+| 2 | InParty |
+| 4 | Visible |
+| 8 | Invisible |
+| 16 | Blind |
+| 32 | DrinkedPotion |
+| 64 | EquipmentValidated |
 
 
 ### AttackDirection
