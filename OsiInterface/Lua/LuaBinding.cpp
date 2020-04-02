@@ -464,7 +464,7 @@ namespace dse::lua
 	int DamageList::Add(lua_State * L)
 	{
 		auto self = DamageList::CheckUserData(L, 1);
-		auto damageType = checkenum<DamageType>(L, 2);
+		auto damageType = checked_get<DamageType>(L, 2);
 		auto amount = (int32_t)luaL_checkinteger(L, 3);
 
 		self->damages_.AddDamage(damageType, amount);
@@ -476,7 +476,7 @@ namespace dse::lua
 	{
 		auto self = DamageList::CheckUserData(L, 1);
 		if (lua_gettop(L) >= 2) {
-			auto damageType = checkenum<DamageType>(L, 2);
+			auto damageType = checked_get<DamageType>(L, 2);
 			self->damages_.ClearDamage(damageType);
 		} else {
 			self->damages_.Clear();
@@ -514,7 +514,7 @@ namespace dse::lua
 	int DamageList::ConvertDamageType(lua_State * L)
 	{
 		auto self = DamageList::CheckUserData(L, 1);
-		auto damageType = checkenum<DamageType>(L, 2);
+		auto damageType = checked_get<DamageType>(L, 2);
 
 		int32_t totalDamage = 0;
 		for (uint32_t i = 0; i < self->damages_.Size; i++) {

@@ -176,6 +176,68 @@ namespace dse::lua
 	}
 
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
+	inline bool checked_get(lua_State * L, int index)
+	{
+		luaL_checktype(L, index, LUA_TBOOLEAN);
+		return lua_toboolean(L, index) == 1;
+	}
+
+	template <class T, typename std::enable_if_t<std::is_integral_v<T>, int> * = nullptr>
+	inline T checked_get(lua_State * L, int index)
+	{
+		return (T)luaL_checkinteger(L, index);
+	}
+
+	template <class T, typename std::enable_if_t<std::is_floating_point_v<T>, int> * = nullptr>
+	inline T checked_get(lua_State * L, int index)
+	{
+		return (T)luaL_checknumber(L, index);
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, char const *>, int> * = nullptr>
+	inline char const * checked_get(lua_State * L, int index)
+	{
+		return luaL_checkstring(L, index);
+	}
+
+
+	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
+	T checked_get(lua_State * L, int index)
+	{
+		switch (lua_type(L, index)) {
+		case LUA_TSTRING:
+		{
+			auto val = lua_tostring(L, index);
+			auto index = EnumInfo<T>::Find(val);
+			if (index) {
+				return (T)*index;
+			} else {
+				luaL_error(L, "Param %d is not a valid enum label", index);
+			}
+			break;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto val = lua_tointeger(L, index);
+			auto index = EnumInfo<T>::Find((T)val);
+			if (index) {
+				return (T)val;
+			} else {
+				luaL_error(L, "Param %d is not a valid enum label", index);
+			}
+			break;
+		}
+
+		default:
+			luaL_error(L, "Param %d must be an integer or string enumeration label", index);
+		}
+
+		return (T)0;
+	}
+
+
 
 	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
 	std::optional<T> safe_get(lua_State * L, int index = -1)
@@ -261,47 +323,6 @@ namespace dse::lua
 		TValue val = get<TValue>(L, -1);
 		lua_pop(L, 1);
 		return val;
-	}
-
-	template <class TEnum>
-	std::optional<TEnum> toenum(lua_State * L, int index)
-	{
-		return safe_get<TEnum>(L, index);
-	}
-
-	template <class TEnum>
-	TEnum checkenum(lua_State * L, int index)
-	{
-		switch (lua_type(L, index)) {
-		case LUA_TSTRING:
-		{
-			auto val = lua_tostring(L, index);
-			auto index = EnumInfo<TEnum>::Find(val);
-			if (index) {
-				return (TEnum)*index;
-			} else {
-				luaL_error(L, "Param %d is not a valid enum label", index);
-			}
-			break;
-		}
-
-		case LUA_TNUMBER:
-		{
-			auto val = lua_tointeger(L, index);
-			auto index = EnumInfo<TEnum>::Find((TEnum)val);
-			if (index) {
-				return (TEnum)val;
-			} else {
-				luaL_error(L, "Param %d is not a valid enum label", index);
-			}
-			break;
-		}
-
-		default:
-			luaL_error(L, "Param %d must be an integer or string enumeration label", index);
-		}
-
-		return (TEnum)0;
 	}
 
 
@@ -560,5 +581,12 @@ namespace dse::lua
 	inline std::optional<T> safe_get(lua_State * L, int index)
 	{
 		return safe_get_userdata<std::remove_pointer_t<T>>(L, index);
+	}
+
+
+	template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int> * = nullptr>
+	inline T checked_get(lua_State * L, int index)
+	{
+		return std::remove_pointer_t<T>::CheckUserData(L, index);
 	}
 }
