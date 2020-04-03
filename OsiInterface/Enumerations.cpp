@@ -453,7 +453,7 @@ namespace dse
 	EnumInfo<StatCharacterFlags>::Label const EnumInfo<StatCharacterFlags>::Values[] = {
 		{ StatCharacterFlags::SCF_IsPlayer, "IsPlayer" },
 		{ StatCharacterFlags::SCF_InParty, "InParty" },
-		{ StatCharacterFlags::SCF_Visible, "Visible" },
+		{ StatCharacterFlags::SCF_NotSneaking, "NotSneaking" },
 		{ StatCharacterFlags::SCF_Invisible, "Invisible" },
 		{ StatCharacterFlags::SCF_Blind, "Blind" },
 		{ StatCharacterFlags::SCF_DrinkedPotion, "DrinkedPotion" },

@@ -370,7 +370,7 @@ function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomizat
     abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
 
     local boost = 1.0 + damageBoost * 0.01
-    if not character.Visible then
+    if not character.NotSneaking then
         boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
     end
 

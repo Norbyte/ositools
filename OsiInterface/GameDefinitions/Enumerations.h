@@ -1060,7 +1060,7 @@ namespace dse
 	{
 		SCF_IsPlayer = 1,
 		SCF_InParty = 2,
-		SCF_Visible = 4,
+		SCF_NotSneaking = 4,
 		SCF_Invisible = 8,
 		SCF_Blind = 16,
 		SCF_DrinkedPotion = 32,
