@@ -419,7 +419,35 @@ function CalculateWeaponDamage(attacker, weapon, noRandomization)
     return damageList
 end
 
-function CustomGetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization)
+local function CalculateWeaponDamageRange(character, weapon)
+    local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
+
+    local abilityBoosts = character.DamageBoost 
+        + ComputeWeaponCombatAbilityBoost(character, weapon)
+        + ComputeWeaponRequirementScaledDamage(character, weapon)
+    abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
+
+    local boost = 1.0 + damageBoost * 0.01
+    if not character.NotSneaking then
+        boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
+    end
+
+    local ranges = {}
+    for damageType, damage in pairs(damages) do
+        local min = math.ceil(damage.Min * boost * abilityBoosts)
+        local max = math.ceil(damage.Max * boost * abilityBoosts)
+
+        if min > max then
+            max = min
+        end
+
+        ranges[damageType] = {min, max}
+    end
+
+    return ranges
+end
+
+function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization)
     if attacker ~= nil and level < 0 then
         level = attacker.Level
     end
@@ -500,7 +528,7 @@ function CustomGetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPo
 		
         local finalDamage = baseDamage * randomMultiplier * attrDamageScale * damageMultipliers
         finalDamage = math.max(Ext.Round(finalDamage), 1)
-        finalDamage = finalDamage + math.ceil(finalDamage * damageBoost)
+        finalDamage = math.ceil(finalDamage * damageBoost)
         damageList:Add(damageType, finalDamage)
 
         if attacker ~= nil then
@@ -707,7 +735,7 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
         lifesteal = math.floor(lifesteal * modifier)
     end
 
-    if lifesteal >= target.CurrentVitality then
+    if lifesteal > target.CurrentVitality then
         lifesteal = target.CurrentVitality
     end
 
@@ -717,24 +745,35 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
 end
 
 
-function ApplyDamagesToHitInfo(damageList, hit)
+local function ApplyDamagesToHitInfo(damageList, hit)
+    local totalDamage = 0
     for i,damage in pairs(damageList:ToTable()) do
+        totalDamage = totalDamage + damage.Amount
         if damage.DamageType == "Chaos" then
             hit.DamageList:Add(hit.DamageType, damage.Amount)
         else
             hit.DamageList:Add(damage.DamageType, damage.Amount)
         end
     end
+
+    hit.TotalDamageDone = hit.TotalDamageDone + totalDamage
 end
 
 
-function ComputeArmorDamage(damageList, armor)
+local function ComputeArmorDamage(damageList, armor)
     local absorption = 0
+
+    local corrosive = damageList:GetByType("Corrosive")
+    if corrosive > 0 then
+        local damageAmount = math.min(armor, corrosive)
+        armor = armor - damageAmount
+        absorption = absorption + damageAmount
+    end
+
     for i,damage in pairs(damageList:ToTable()) do
         local type = damage.DamageType
-        if type == "Corrosive" or type == "Physical" or type == "Sulfur" then
+        if type == "Physical" or type == "Sulfur" then
             local damageAmount = math.min(armor, damage.Amount)
-            armor = armor - damageAmount
             absorption = absorption + damageAmount
         end
     end
@@ -743,13 +782,20 @@ function ComputeArmorDamage(damageList, armor)
 end
 
 
-function ComputeMagicArmorDamage(damageList, magicArmor)
+local function ComputeMagicArmorDamage(damageList, magicArmor)
     local absorption = 0
+
+    local magic = damageList:GetByType("Magic")
+    if magic > 0 then
+        local damageAmount = math.min(magicArmor, magic)
+        magicArmor = magicArmor - damageAmount
+        absorption = absorption + damageAmount
+    end
+
     for i,damage in pairs(damageList:ToTable()) do
         local type = damage.DamageType
-        if type == "Magic" or type == "Fire" or type == "Water" or type == "Air" or type == "Earth" or type == "Poison" then
+        if type == "Fire" or type == "Water" or type == "Air" or type == "Earth" or type == "Poison" then
             local damageAmount = math.min(magicArmor, damage.Amount)
-            magicArmor = magicArmor - damageAmount
             absorption = absorption + damageAmount
         end
     end
@@ -785,7 +831,7 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
     hit.ArmorAbsorption = hit.ArmorAbsorption + ComputeMagicArmorDamage(damageList, target.CurrentMagicArmor)
 
     if hit.TotalDamageDone > 0 then
-        ApplyLifeSteal(hit, attacker, hitType)
+        ApplyLifeSteal(hit, target, attacker, hitType)
     else
         hit.EffectFlags = hit.EffectFlags | HitFlag.DontCreateBloodSurface
     end
@@ -954,4 +1000,82 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, roll
     end
 
     return hit
+end
+
+local function GetSkillDamageRange(character, skill)
+    local damageMultiplier = skill['Damage Multiplier'] * 0.01
+
+    if skill.UseWeaponDamage == "Yes" then
+        local mainWeapon = character.MainWeapon
+        local mainDamageRange = CalculateWeaponDamageRange(character, mainWeapon)
+        local offHandWeapon = character.OffHandWeapon
+
+        if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
+            local offHandDamageRange = CalculateWeaponDamageRange(character, offHandWeapon)
+
+            local dualWieldPenalty = Ext.ExtraData.DualWieldingDamagePenalty
+            for damageType, range in pairs(offHandDamageRange) do
+                local min = range[1] * dualWieldPenalty
+                local max = range[2] * dualWieldPenalty
+                if mainDamageRange[damageType] ~= nil then
+                    mainDamageRange[damageType][1] = mainDamageRange[damageType][1] + min
+                    mainDamageRange[damageType][2] = mainDamageRange[damageType][2] + max
+                else
+                    mainDamageRange[damageType] = {min, max}
+                end
+            end
+        end
+
+        for damageType, range in pairs(mainDamageRange) do
+            local min = Ext.Round(range[1] * damageMultiplier)
+            local max = Ext.Round(range[2] * damageMultiplier)
+            range[1] = min + math.ceil(min * GetDamageBoostByType(character, damageType))
+            range[2] = max + math.ceil(max * GetDamageBoostByType(character, damageType))
+        end
+
+        local damageType = skill.DamageType
+        if damageType ~= "None" and damageType ~= "Sentinel" then
+            local min, max = 0, 0
+            for damageType, range in pairs(mainDamageRange) do
+                min = min + range[1]
+                max = max + range[2]
+            end
+    
+            mainDamageRange = {}
+            mainDamageRange[damageType] = {min, max}
+        end
+
+        return mainDamageRange
+    else
+        local damageType = skill.DamageType
+        if damageMultiplier <= 0 then
+            return {}
+        end
+
+        local level = character.Level
+        if (level < 0 or skill.OverrideSkillLevel == "Yes") and skill.Level > 0 then
+            level = skill.Level
+        end
+
+        local skillDamageType = skill.Damage
+        local attrDamageScale
+        if skillDamageType == "BaseLevelDamage" or skillDamageType == "AverageLevelDamge" then
+            attrDamageScale = GetSkillAttributeDamageScale(skill, character)
+        else
+            attrDamageScale = 1.0
+        end
+
+        local baseDamage = CalculateBaseDamage(skill.Damage, character, 0, level) * attrDamageScale * damageMultiplier
+        local damageRange = skill['Damage Range'] * baseDamage * 0.005
+
+        local damageType = skill.DamageType
+        local damageTypeBoost = 1.0 + GetDamageBoostByType(character, damageType)
+        local damageBoost = 1.0 + (character.DamageBoost / 100.0)
+        local damageRanges = {}
+        damageRanges[damageType] = {
+            math.ceil(math.ceil(Ext.Round(baseDamage - damageRange) * damageBoost) * damageTypeBoost),
+            math.ceil(math.ceil(Ext.Round(baseDamage + damageRange) * damageBoost) * damageTypeBoost)
+        }
+        return damageRanges
+    end
 end

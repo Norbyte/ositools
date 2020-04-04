@@ -136,6 +136,7 @@ namespace dse::lua
 	private:
 		DamagePairList damages_;
 
+		static int GetByType(lua_State * L);
 		static int Add(lua_State * L);
 		static int Clear(lua_State * L);
 		static int Multiply(lua_State * L);

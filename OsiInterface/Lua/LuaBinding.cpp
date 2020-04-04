@@ -437,6 +437,9 @@ namespace dse::lua
 	{
 		lua_newtable(L);
 
+		lua_pushcfunction(L, &GetByType);
+		lua_setfield(L, -2, "GetByType");
+
 		lua_pushcfunction(L, &Add);
 		lua_setfield(L, -2, "Add");
 
@@ -459,6 +462,23 @@ namespace dse::lua
 		lua_setfield(L, -2, "ToTable");
 
 		lua_setfield(L, -2, "__index");
+	}
+
+	int DamageList::GetByType(lua_State * L)
+	{
+		auto self = DamageList::CheckUserData(L, 1);
+		auto damageType = checked_get<DamageType>(L, 2);
+
+		int32_t amount = 0;
+		for (uint32_t i = 0; i < self->damages_.Size; i++) {
+			auto const & dmg = self->damages_.Buf[i];
+			if (dmg.DamageType == damageType) {
+				amount += dmg.Amount;
+			}
+		}
+
+		push(L, amount);
+		return 1;
 	}
 
 	int DamageList::Add(lua_State * L)
