@@ -206,6 +206,15 @@ namespace dse::lua
 		}
 
 		if (stats->Character != nullptr) {
+			if (strcmp(prop, "Rotation") == 0) {
+				auto rot = stats->Character->GetRotation();
+				lua_newtable(L);
+				for (auto i = 0; i < 9; i++) {
+					settable(L, i + 1, (*rot)[i / 3][i % 3]);
+				}
+				return 1;
+			}
+
 			fetched = LuaPropertyMapGet(L, gEoCServerObjectPropertyMap, stats->Character, prop, false);
 			if (fetched) {
 				return 1;
