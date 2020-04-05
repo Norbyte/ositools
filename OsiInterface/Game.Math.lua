@@ -925,7 +925,6 @@ function IsInFlankingPosition(target, attacker)
     local nx, ny, nz = dx * distanceSq, dy * distanceSq, dz * distanceSq
 
     local ang = -rotation[6] * normDX - rotation[7] * normDY - rotation[8] * normDZ
-    Ext.Print("IsInFlankingPosition", ang)
     return ang > math.cos(0.52359879)
 end
 
