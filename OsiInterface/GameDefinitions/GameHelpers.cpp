@@ -583,19 +583,7 @@ namespace dse
 
 	uint32_t GlobalStringTable::Hash(char const * s, uint64_t length)
 	{
-		if (UseMurmur) {
-			// D:OS2 DE
-			return murmur3_32((const uint8_t *)s, length, 0) % 0xFFF1;
-		}
-		else {
-			// D:OS2 classic
-			uint32_t hash = 0;
-			for (auto i = 0; i < length; i++) {
-				hash = *s++ + 33 * hash;
-			}
-
-			return hash % 0xFFF1;
-		}
+		return murmur3_32((const uint8_t *)s, length, 0) % 0xFFF1;
 	}
 
 	Module const * ModManager::FindModByNameGuid(char const * nameGuid) const

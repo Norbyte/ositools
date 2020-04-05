@@ -897,8 +897,6 @@ namespace dse
 
 	struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
 	{
-		static bool UseMurmur;
-
 		struct Entry
 		{
 			const char * StringPtrs[10];

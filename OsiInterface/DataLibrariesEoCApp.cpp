@@ -1087,7 +1087,6 @@ namespace dse
 				int32_t rel = *(int32_t *)(p + 26);
 
 				GetStaticSymbols().GlobalStrings = (GlobalStringTable const **)(p + rel + 23 + 7);
-				GlobalStringTable::UseMurmur = true;
 				break;
 			}
 		}

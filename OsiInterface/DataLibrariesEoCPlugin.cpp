@@ -1041,7 +1041,6 @@ namespace dse
 			auto refTo = match + rel + 7 + 32;
 
 			GetStaticSymbols().GlobalStrings = (GlobalStringTable const **)refTo;
-			GlobalStringTable::UseMurmur = true;
 			return true;
 		}, false);
 

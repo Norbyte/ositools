@@ -24,8 +24,6 @@ namespace dse
 	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
 	decltype(LibraryManager::TurnManagerUpdateTurnOrderHook) * decltype(LibraryManager::TurnManagerUpdateTurnOrderHook)::gHook;
 
-	bool GlobalStringTable::UseMurmur = false;
-
 	uint8_t CharToByte(char c)
 	{
 		if (c >= '0' && c <= '9') {
