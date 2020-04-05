@@ -695,7 +695,7 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     end
     
     if attacker.TALENT_ViolentMagic == false or hitType ~= "Magic" then
-        if (hit.EffectFlags & HitFlag.AlwaysBackstab) == 1 then
+        if (hit.EffectFlags & HitFlag.AlwaysBackstab) ~= 0 then
             return true
         end
 
@@ -916,8 +916,17 @@ function CalculateHitChance(attacker, target)
 end
 
 function IsInFlankingPosition(target, attacker)
-    -- FIXME - IsInFlankingPosition
-    return false
+    local tPos = target.Position
+    local aPos = attacker.Position
+    local rot = target.Rotation
+
+    local dx, dy, dz = tPos[1] - aPos[1], tPos[2] - aPos[2], tPos[3] - aPos[3]
+    local distanceSq = 1.0 / math.sqrt(dx^2 + dy^2 + dz^2)
+    local nx, ny, nz = dx * distanceSq, dy * distanceSq, dz * distanceSq
+
+    local ang = -rotation[6] * normDX - rotation[7] * normDY - rotation[8] * normDZ
+    Ext.Print("IsInFlankingPosition", ang)
+    return ang > math.cos(0.52359879)
 end
 
 function CanBackstab(target, attacker)
