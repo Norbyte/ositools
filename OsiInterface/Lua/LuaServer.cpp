@@ -46,62 +46,86 @@ namespace dse::lua
 	}
 
 
-	char const * const HandleProxy<esv::PlayerCustomData>::MetatableName = "esv::HPlayerCustomData";
+	char const * const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
 
-	int HandleProxy<esv::PlayerCustomData>::Index(lua_State * L)
+	esv::PlayerCustomData * ObjectProxy<esv::PlayerCustomData>::Get(lua_State* L)
 	{
+		if (obj_) return obj_;
 		auto character = FindCharacterByHandle(handle_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		if (character == nullptr) luaL_error(L, "Character handle invalid");
 
 		if (character->PlayerData == nullptr
 			|| !character->PlayerData->CustomData.Initialized) {
 			OsiError("Character has no player data, or custom data was not initialized.");
-			return 0;
+			return nullptr;
 		}
 
-		auto prop = luaL_checkstring(L, 2);
+		return &character->PlayerData->CustomData;
+	}
 
-		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, &character->PlayerData->CustomData, prop, true);
+	int ObjectProxy<esv::PlayerCustomData>::Index(lua_State * L)
+	{
+		auto customData = Get(L);
+		if (!customData) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
 		return fetched ? 1 : 0;
 	}
 
-	int HandleProxy<esv::PlayerCustomData>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const HandleProxy<esv::Character>::MetatableName = "esv::HCharacter";
+	char const * const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
 
 	int CharacterFetchProperty(lua_State * L, esv::Character * character, char const * prop);
 
-	int HandleProxy<esv::Character>::Index(lua_State * L)
+	esv::Character* ObjectProxy<esv::Character>::Get(lua_State* L)
 	{
+		if (obj_) return obj_;
 		auto character = FindCharacterByHandle(handle_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		if (character == nullptr) luaL_error(L, "Character handle invalid");
+		return character;
+	}
+
+	int ObjectProxy<esv::Character>::Index(lua_State * L)
+	{
+		auto character = Get(L);
+		if (!character) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
 		return CharacterFetchProperty(L, character, prop);
 	}
 
-	int HandleProxy<esv::Character>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::Character>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const HandleProxy<esv::Item>::MetatableName = "esv::HItem";
+	char const * const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
 
-	int HandleProxy<esv::Item>::Index(lua_State * L)
+	esv::Item* ObjectProxy<esv::Item>::Get(lua_State* L)
 	{
+		if (obj_) return obj_;
 		auto item = FindItemByHandle(handle_);
-		if (item == nullptr) return luaL_error(L, "Item handle invalid");
+		if (item == nullptr) luaL_error(L, "Item handle invalid");
+		return item;
+	}
+
+	int ObjectProxy<esv::Item>::Index(lua_State * L)
+	{
+		auto item = Get(L);
+		if (!item) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "Stats") == 0) {
 			if (item->StatsDynamic != nullptr) {
-				HandleProxy<CDivinityStats_Item>::New(L, handle_);
+				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
 			} else {
 				OsiError("Item has no stats.");
@@ -121,7 +145,7 @@ namespace dse::lua
 		return fetched ? 1 : 0;
 	}
 
-	int HandleProxy<esv::Item>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::Item>::NewIndex(lua_State * L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -316,7 +340,7 @@ namespace dse::lua
 			if (character != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				HandleProxy<esv::Character>::New(L, handle);
+				ObjectProxy<esv::Character>::New(L, handle);
 			} else {
 				return 0;
 			}
@@ -325,7 +349,7 @@ namespace dse::lua
 			if (item != nullptr) {
 				ObjectHandle handle;
 				item->GetObjectHandle(&handle);
-				HandleProxy<esv::Item>::New(L, handle);
+				ObjectProxy<esv::Item>::New(L, handle);
 			} else {
 				return 0;
 			}
@@ -343,9 +367,9 @@ namespace dse::lua
 		ExtensionLibrary::Register(L);
 
 		ObjectProxy<esv::Status>::RegisterMetatable(L);
-		HandleProxy<esv::Character>::RegisterMetatable(L);
-		HandleProxy<esv::PlayerCustomData>::RegisterMetatable(L);
-		HandleProxy<esv::Item>::RegisterMetatable(L);
+		ObjectProxy<esv::Character>::RegisterMetatable(L);
+		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
+		ObjectProxy<esv::Item>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
 		StatusHandleProxy::RegisterMetatable(L);

@@ -897,7 +897,7 @@ namespace dse::lua
 		if (character != nullptr) {
 			ObjectHandle handle;
 			character->GetObjectHandle(&handle);
-			HandleProxy<esv::Character>::New(L, handle);
+			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
 		} else {
 			return 0;
@@ -935,7 +935,7 @@ namespace dse::lua
 		if (item != nullptr) {
 			ObjectHandle handle;
 			item->GetObjectHandle(&handle);
-			HandleProxy<esv::Item>::New(L, handle);
+			ObjectProxy<esv::Item>::New(L, handle);
 			return 1;
 		} else {
 			return 0;

@@ -216,12 +216,41 @@ namespace dse::lua
 		return 0;
 	}
 
+	CDivinityStats_Character* ObjectProxy<CDivinityStats_Character>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto character = FindCharacterByHandle(handle_);
+		if (character == nullptr) luaL_error(L, "Character handle invalid");
+		if (character->Stats == nullptr) luaL_error(L, "Character has no stats!");
+		return character->Stats;
+	}
+
+	int CharacterGetItemBySlot(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<CDivinityStats_Character>*>(L, 1);
+		auto slot = checked_get<ItemSlot>(L, 2);
+
+		auto item = self->Get(L)->GetItemBySlot(slot, true);
+		if (item != nullptr) {
+			ObjectProxy<CDivinityStats_Item>::New(L, item);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
 	int ObjectProxy<CDivinityStats_Character>::Index(lua_State * L)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
+		auto stats = Get(L);
+		if (!stats) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
-		return CharacterFetchStat(L, obj_, prop);
+		if (strcmp(prop, "GetItemBySlot") == 0) {
+			lua_pushcfunction(L, &CharacterGetItemBySlot);
+			return 1;
+		}
+
+		return CharacterFetchStat(L, stats, prop);
 	}
 
 	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
@@ -276,7 +305,7 @@ namespace dse::lua
 				&& character->PlayerData->CustomData.Initialized) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				HandleProxy<esv::PlayerCustomData>::New(L, handle);
+				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
 				return 1;
 			} else {
 				OsiError("Character has no player data, or custom data was not initialized.");
@@ -288,7 +317,7 @@ namespace dse::lua
 			if (character->Stats != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(&handle);
-				HandleProxy<CDivinityStats_Character>::New(L, handle);
+				ObjectProxy<CDivinityStats_Character>::New(L, handle);
 				return 1;
 			} else {
 				OsiError("Character has no stats.");
@@ -303,12 +332,23 @@ namespace dse::lua
 
 	char const * const ObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
 
+	CDivinityStats_Item* ObjectProxy<CDivinityStats_Item>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto item = FindItemByHandle(handle_);
+		if (item == nullptr) luaL_error(L, "Item handle invalid");
+		if (item->StatsDynamic == nullptr) luaL_error(L, "Item has no stats!");
+		return item->StatsDynamic;
+	}
+
 	int ObjectProxy<CDivinityStats_Item>::Index(lua_State * L)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Item stats no longer available");
+		auto stats = Get(L);
+		if (!stats) return 0;
+
 
 		auto prop = luaL_checkstring(L, 2);
-		return ItemFetchStat(L, obj_, prop);
+		return ItemFetchStat(L, stats, prop);
 	}
 
 	int ObjectProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
@@ -319,13 +359,21 @@ namespace dse::lua
 
 	char const * const ObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "CDivinityStats_Equipment_Attributes";
 
+	CDivinityStats_Equipment_Attributes* ObjectProxy<CDivinityStats_Equipment_Attributes>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "Equipment stats no longer available");
+		return nullptr;
+	}
+
 	int ObjectProxy<CDivinityStats_Equipment_Attributes>::Index(lua_State * L)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Equipment stats no longer available");
+		auto stats = Get(L);
+		if (!stats) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
 		auto & propMap = obj_->GetPropertyMap();
-		auto fetched = LuaPropertyMapGet(L, propMap, obj_, prop, true);
+		auto fetched = LuaPropertyMapGet(L, propMap, stats, prop, true);
 		return fetched ? 1 : 0;
 	}
 
@@ -337,12 +385,20 @@ namespace dse::lua
 
 	char const * const ObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
 
+	CharacterDynamicStat* ObjectProxy<CharacterDynamicStat>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "Character stats no longer available");
+		return nullptr;
+	}
+
 	int ObjectProxy<CharacterDynamicStat>::Index(lua_State * L)
 	{
-		if (obj_ == nullptr) return luaL_error(L, "Character stats no longer available");
+		auto stats = Get(L);
+		if (!stats) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gCharacterDynamicStatPropertyMap, obj_, prop, true);
+		auto fetched = LuaPropertyMapGet(L, gCharacterDynamicStatPropertyMap, stats, prop, true);
 		return fetched ? 1 : 0;
 	}
 
@@ -373,42 +429,6 @@ namespace dse::lua
 		if (character_) character_->Unbind();
 		if (item_) item_->Unbind();
 		if (object_) object_->Unbind();
-	}
-
-
-	char const * const HandleProxy<CDivinityStats_Character>::MetatableName = "HCDivinityStats_Character";
-
-	int HandleProxy<CDivinityStats_Character>::Index(lua_State * L)
-	{
-		auto character = FindCharacterByHandle(handle_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
-		if (character->Stats == nullptr) return luaL_error(L, "Character has no stats!");
-
-		auto prop = luaL_checkstring(L, 2);
-		return CharacterFetchStat(L, character->Stats, prop);
-	}
-
-	int HandleProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
-	{
-		return luaL_error(L, "Not supported yet!");
-	}
-
-
-	char const * const HandleProxy<CDivinityStats_Item>::MetatableName = "HCDivinityStats_Item";
-
-	int HandleProxy<CDivinityStats_Item>::Index(lua_State * L)
-	{
-		auto item = FindItemByHandle(handle_);
-		if (item == nullptr) return luaL_error(L, "Item handle invalid");
-		if (item->StatsDynamic == nullptr) return luaL_error(L, "Item has no stats!");
-
-		auto prop = luaL_checkstring(L, 2);
-		return ItemFetchStat(L, item->StatsDynamic, prop);
-	}
-
-	int HandleProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
-	{
-		return luaL_error(L, "Not supported yet!");
 	}
 
 
@@ -595,8 +615,6 @@ namespace dse::lua
 		ObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
-		HandleProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		HandleProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		StatsExtraDataProxy::RegisterMetatable(L);
 		StatsProxy::RegisterMetatable(L);
 		SkillPrototypeProxy::RegisterMetatable(L);

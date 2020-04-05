@@ -21,7 +21,11 @@ namespace dse::lua
 		static char const * const MetatableName;
 
 		ObjectProxy(T * obj)
-			: obj_(obj)
+			: obj_(obj), handle_()
+		{}
+
+		ObjectProxy(ObjectHandle handle)
+			: obj_(nullptr), handle_(handle)
 		{}
 
 		void Unbind()
@@ -31,9 +35,11 @@ namespace dse::lua
 
 		int Index(lua_State * L);
 		int NewIndex(lua_State * L);
+		T* Get(lua_State* L);
 
 	private:
 		T * obj_;
+		ObjectHandle handle_;
 	};
 
 
@@ -91,24 +97,6 @@ namespace dse::lua
 		ObjectProxy<CDivinityStats_Character> * character_{ nullptr };
 		ObjectProxy<CDivinityStats_Item> * item_{ nullptr };
 		StatsProxy * object_{ nullptr };
-	};
-
-
-	template <class T>
-	class HandleProxy : public Userdata<HandleProxy<T>>, public Indexable, public Pushable<PushPolicy::None>
-	{
-	public:
-		static char const * const MetatableName;
-
-		HandleProxy(ObjectHandle handle)
-			: handle_(handle)
-		{}
-
-		int Index(lua_State * L);
-		int NewIndex(lua_State * L);
-
-	private:
-		ObjectHandle handle_;
 	};
 
 
