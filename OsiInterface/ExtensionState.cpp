@@ -52,8 +52,8 @@ namespace dse
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 
 					if (config.MinimumVersion == 0) {
-						OsiError("Specifying MinimumVersion in OsiToolsConfig.json is now mandatory for backwards compatibility reasons.");
-						OsiError("Mods without a MinimumVersion may stop working in v44!");
+						OsiError("Specifying RequiredExtensionVersion in OsiToolsConfig.json is now mandatory for backwards compatibility reasons.");
+						OsiError("Mods without a RequiredExtensionVersion may stop working in v44!");
 					}
 
 					if (config.MinimumVersion != 0 && config.MinimumVersion < 42) {
