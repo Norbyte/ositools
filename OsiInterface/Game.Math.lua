@@ -419,7 +419,7 @@ function CalculateWeaponDamage(attacker, weapon, noRandomization)
     return damageList
 end
 
-local function CalculateWeaponDamageRange(character, weapon)
+function CalculateWeaponDamageRange(character, weapon)
     local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
 
     local abilityBoosts = character.DamageBoost 
@@ -745,7 +745,7 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
 end
 
 
-local function ApplyDamagesToHitInfo(damageList, hit)
+function ApplyDamagesToHitInfo(damageList, hit)
     local totalDamage = 0
     for i,damage in pairs(damageList:ToTable()) do
         totalDamage = totalDamage + damage.Amount
@@ -760,7 +760,7 @@ local function ApplyDamagesToHitInfo(damageList, hit)
 end
 
 
-local function ComputeArmorDamage(damageList, armor)
+function ComputeArmorDamage(damageList, armor)
     local absorption = 0
 
     local corrosive = damageList:GetByType("Corrosive")
@@ -782,7 +782,7 @@ local function ComputeArmorDamage(damageList, armor)
 end
 
 
-local function ComputeMagicArmorDamage(damageList, magicArmor)
+function ComputeMagicArmorDamage(damageList, magicArmor)
     local absorption = 0
 
     local magic = damageList:GetByType("Magic")
@@ -1002,7 +1002,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, roll
     return hit
 end
 
-local function GetSkillDamageRange(character, skill)
+function GetSkillDamageRange(character, skill)
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
 
     if skill.UseWeaponDamage == "Yes" then
@@ -1036,7 +1036,7 @@ local function GetSkillDamageRange(character, skill)
         local damageType = skill.DamageType
         if damageType ~= "None" and damageType ~= "Sentinel" then
             local min, max = 0, 0
-            for damageType, range in pairs(mainDamageRange) do
+            for _, range in pairs(mainDamageRange) do
                 min = min + range[1]
                 max = max + range[2]
             end
