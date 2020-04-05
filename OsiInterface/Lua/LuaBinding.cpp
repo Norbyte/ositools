@@ -690,7 +690,7 @@ namespace dse::lua
 		PushExtFunction(L, "_GetHitChance"); // stack: fn
 		auto _{ PushArguments(L,
 			std::tuple{Push<ObjectProxy<CDivinityStats_Character>>(attacker),
-			Push < ObjectProxy<CDivinityStats_Character>>(target)}) };
+			Push<ObjectProxy<CDivinityStats_Character>>(target)}) };
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
