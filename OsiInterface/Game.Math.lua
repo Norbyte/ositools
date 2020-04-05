@@ -68,15 +68,13 @@ function GetSkillAttributeDamageScale(skill, attacker)
     end
 end
 
-function GetDamageMultipliers(skill, stealthed)
+function GetDamageMultipliers(skill, stealthed, attackerPos, targetPos)
     local stealthDamageMultiplier = 1.0
     if stealthed then
         stealthDamageMultiplier = skill['Stealth Damage Multiplier'] * 0.01
     end
 
-    -- FIXME math /targetDistance/
-    local targetDistance = 1.0
-
+    local targetDistance = math.sqrt((attackerPos[1] - targetPos[1])^2 + (attackerPos[3] - targetPos[3])^2)
     local distanceDamageMultiplier = 1.0
     if targetDistance > 1.0 then
         distanceDamageMultiplier = Ext.Round(targetDistance) * skill['Distance Damage Multiplier'] * 0.01 + 1
@@ -453,7 +451,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
     end
 
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
-    local damageMultipliers = GetDamageMultipliers(skill, stealthed)
+    local damageMultipliers = GetDamageMultipliers(skill, stealthed, attackerPos, targetPos)
     local skillDamageType = nil
 
     if level == 0 then
@@ -697,7 +695,11 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     end
     
     if attacker.TALENT_ViolentMagic == false or hitType ~= "Magic" then
-        if (hit.EffectFlags & HitFlag.AlwaysBackstab) == 0 or hitType == "Magic" or hitType == "DoT" or hitType == "Surface" then
+        if (hit.EffectFlags & HitFlag.AlwaysBackstab) == 1 then
+            return true
+        end
+
+        if hitType == "Magic" or hitType == "DoT" or hitType == "Surface" then
             return false
         end
 
@@ -919,8 +921,31 @@ function IsInFlankingPosition(target, attacker)
 end
 
 function CanBackstab(target, attacker)
-    -- FIXME - CanBackstab
-    return false
+    local targetPos = target.Position
+    local attackerPos = attacker.Position
+
+    local atkDir = {}
+    for i=1,3 do
+        atkDir[i] = attackerPos[i] - targetPos[i]
+    end
+
+    local atkAngle = math.deg(math.atan(atkDir[3], atkDir[1]))
+    if atkAngle < 0 then
+        atkAngle = 360 + atkAngle
+    end
+
+    local targetRot = target.Rotation
+    angle = math.deg(math.atan(-targetRot[1], targetRot[3]))
+    if angle < 0 then
+        angle = 360 + angle
+    end
+
+    relAngle = atkAngle - angle
+    if relAngle < 0 then
+        relAngle = 360 + relAngle
+    end
+
+    return relAngle >= 150 and relAngle <= 210
 end
 
 function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHitRoll, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
