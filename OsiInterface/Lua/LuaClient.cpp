@@ -15,6 +15,7 @@ namespace dse::lua
 
 	int GetExtensionVersion(lua_State * L);
 	int OsiPrint(lua_State* L);
+	int OsiPrintWarning(lua_State* L);
 	int OsiPrintError(lua_State* L);
 	int JsonParse(lua_State * L);
 	int JsonStringify(lua_State * L);
@@ -579,8 +580,9 @@ namespace dse::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
-			{"Require", Require},
+			{"RequireInternal", Require},
 			{"Print", OsiPrint},
+			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
 
 			{"JsonParse", JsonParse},

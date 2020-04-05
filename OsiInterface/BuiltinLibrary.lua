@@ -65,3 +65,15 @@ Ext._NetMessageReceived = function (channel, payload)
 		end
 	end
 end
+
+Ext.Require = function (mod, path)
+	if ModuleUUID == nil then
+		Ext.PrintWarning("Calling Ext.Require() after the module has loaded is deprecated!");
+	end
+
+	if path == nil then
+		return Ext.RequireInternal(ModuleUUID, mod)
+	else
+		return Ext.RequireInternal(mod, path)
+	end
+end

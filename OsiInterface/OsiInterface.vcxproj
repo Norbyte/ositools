@@ -506,6 +506,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Misc\ExtIdeHelpers.lua" />
     <None Include="BuiltinLibrary.lua" />
     <None Include="BuiltinLibraryClient.lua" />
     <None Include="BuiltinLibraryServer.lua" />

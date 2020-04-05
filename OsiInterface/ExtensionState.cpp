@@ -402,12 +402,19 @@ namespace dse
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 
+			auto L = lua->GetState();
+			lua::push(L, mod.Info.ModuleUUID);
+			lua_setglobal(L, "ModuleUUID");
+
 			if (!LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath, false)) {
 				if (LuaLoadModScript(mod.Info.ModuleUUID.Str, "Bootstrap.lua", false)) {
 					OsiError("Module '" << ToUTF8(mod.Info.Name) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
 					OsiError("Please migrate to separate client/server bootstrap files!");
 				}
 			}
+
+			lua::push(L, nullptr);
+			lua_setglobal(L, "ModuleUUID");
 		}
 
 		lua->FinishStartup();

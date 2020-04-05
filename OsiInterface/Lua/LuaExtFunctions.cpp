@@ -270,6 +270,14 @@ namespace dse::lua
 		return 0;
 	}
 
+	int OsiPrintWarning(lua_State* L)
+	{
+		std::stringstream ss;
+		OsiArgsToStream(L, ss);
+		gOsirisProxy->LogOsirisWarning(ss.str());
+		return 0;
+	}
+
 	int OsiPrintError(lua_State* L)
 	{
 		std::stringstream ss;
