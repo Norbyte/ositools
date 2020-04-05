@@ -112,6 +112,13 @@ namespace dse
 	}
 #endif
 
+	bool StaticSymbols::FileExists(StringView path, PathRootType root, bool canonicalize) const
+	{
+		// TODO - implement using proper FS file exists call
+		auto reader = MakeFileReader(path, root, canonicalize);
+		return reader.IsLoaded();
+	}
+
 	void StaticSymbols::DestroyFileReader(FileReader * reader)
 	{
 		if (FileReaderDtor != nullptr) {

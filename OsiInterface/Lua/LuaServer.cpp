@@ -441,7 +441,7 @@ namespace dse::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
-			{"RequireInternal", Require},
+			{"Include", Include},
 			{"NewCall", NewCall},
 			{"NewQuery", NewQuery},
 			{"NewEvent", NewEvent},

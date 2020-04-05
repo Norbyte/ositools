@@ -3,6 +3,7 @@
 ### Table of Contents  
 
  - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
+ - [Client / Server States](#client-server)
  - [Calling Lua from Osiris](#calling-lua-from-osiris)
     * [Calls](#l2o_calls)
     * [Queries](#l2o_queries)
@@ -15,19 +16,29 @@
     * [PROCs](#o2l_procs)
     * [User Queries](#o2l_qrys)
     * [Databases](#o2l_dbs)
- - [The Ext Library](#the-ext-library)  
+ - [The Ext Library](#the-ext-library)
     * [UI](#ui)
     * [Stats](#stats)
     * [Skill/Status Overrides](#skillstatus-overrides)
+        * [Hit Chance](#31o_hit_chance)
     * [Mod Info](#mod-info)
     * [Combat](#combat)
     * [Damage lists](#damage-lists)
-    * [Overwriting Native Functions](#overwriting-native-functions)
-        * [Hit Chance](#31o_hit_chance)
+    * [Utility functions](#ext-utility)
     * [JSON Support](#json-support)
 
 
-## Migrating from v41 to v42
+## Upgrading
+
+### Migrating from v42 to v43
+
+The following changes must be observed when migrating to v43:
+- Since it is very easy to accidentally pollute the global table, the global Lua table is changed for mods targeting v43 (i.e. `RequiredExtensionVersion` >= 43). A new config option in `OsiToolsConfig.json`, `ModTable` specifies the name of the mod in the global mod table. Each mod has an isolated mod-specific global table at `Mods[ModTable]`. This table contains all of the symbols from the original global table (`Ext`, `Osi`, ...) and built-in libraries (`math`, `table`, ...), but is otherwise separate. (i.e. declaring `function xyz()` is equivalent to setting `Mods[ModTable].xyz = function () ...`).
+- `Ext.Require` is only callable during bootstrap to avoid lag when loading files / doing startup stuff from the server loop
+- `Ext.Require` got a one-argument form; i.e. it is sufficient to call `Ext.Require("wtf.lua")` instead of `Ext.Require("SomeUUID_1111-2222-...", "wtf.lua")` (old version will still work) 
+
+
+### Migrating from v41 to v42
 
 The client and server Lua contexts were previously unified, i.e. both the server and the client used the same Lua state. After v42 server and client contexts are separated.
 
@@ -41,10 +52,23 @@ The following changes must be observed when migrating to v42:
  - The following functions are deleted in client contexts: `Ext.NewCall`, `Ext.NewQuery`, `Ext.NewEvent`, `Ext.GetCharacter`, `Ext.GetItem`, `Ext.GetStatus`, `Ext.GetCombat`, `Ext.GenerateIdeHelpers`
 
 
-## Calling Lua from Osiris
+## Client / Server States
+<a id="client-server"></a>
+
+Internally the game is split into two components, a client and a server component. When a new game is started/loaded, a new server is created and client connect to this server. The server component is only created on the host; client components are created on both the host and all peers. Because of this, the game technically always runs in multiplayer. Single player is just a special form of multiplayer where only one local peer is connected to the server.
+
+Osiris and behavior scripts (gamescripts) always run on the server. Since Lua has access to features that require client-side code (UI modification, level scaling formulas, status chances, skill damage calculation, etc.) the extender keeps multiple Lua states: one state for the server and one for each client (including the single player "fake client"). These states are completely separated from each other and cannot access the internal state of each other (Lua globals, functions, variables).
+
+Because they run in different environments, server and client states can access a different set of features. Functions/classes in this document are annotated with the following letters, which indicate where they are available:
+ - **C** - The function is only available on the client
+ - **S** - The function is only available on the server
+ - **R** - Restricted; the function is only callable in special contexts/locations
+
+
+## Calling Lua from Osiris <sup>S</sup>
 
 By default, functions defined in Lua are not visible to Osiris. 
-During the Lua bootstrap process, it is possible to declare new functions (calls/queries/events) that will be accessible to Osiris during compilation and execution.
+During the Lua server bootstrap process, it is possible to declare new functions (calls/queries/events) that will be accessible to Osiris during compilation and execution. Since Osiris only runs on the server, Osiris functions are inaccessible in Lua client states.
 
 Lua functions are registered through the story header (`story_header.div`). This means that each time a function is added, changed or removed, the story header must be regenerated in the editor. (The game regenerates its own story header, so it is always up to date.)
 
@@ -212,9 +236,9 @@ THEN
 DebugBreak(_Out1);
 ```
 
-## Calling Osiris from Lua
+## Calling Osiris from Lua <sup>S</sup>
 
-Lua ha a special global table called `Osi` that contains every Osiris symbol. In addition, built-in functions (calls, queries, events), functions added by the Osiris extender and functions registered from Lua via `Ext.NewCall`, `Ext.NewQuery` and `Ext.NewEvent` are also added to the global table.
+Lua server contexts have a special global table called `Osi` that contains every Osiris symbol. In addition, built-in functions (calls, queries, events), functions added by the Osiris extender and functions registered from Lua via `Ext.NewCall`, `Ext.NewQuery` and `Ext.NewEvent` are also added to the global table.
 
 ### Calls
 <a id="o2l_calls"></a>
@@ -311,29 +335,29 @@ Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Delete("CON_Drink_Cup_A_Tea_080d0e
 
 ## UI
 
-#### Ext.CreateUI(name, path, layer)
+#### Ext.CreateUI(name, path, layer) <sup>C</sup>
 
 Creates a new UI element. Returns the UI object on success and `nil` on failure.
  - `name` is a user-defined unique name that identifies the UI element. To avoid name collisions, the name should always be prefixed with the mod name (e.g. `NRD_CraftingUI`)
  - `path` is the path of the SWF file relative to the data directory (e.g. `"Public/ModName/GUI/CraftingUI.swf"`)
  - `layer` specifies the stack order of the UI element. Overlapping elements with a larger layer value cover those with a smaller one.
 
-#### Ext.GetUI(name)
+#### Ext.GetUI(name) <sup>C</sup>
 
 Retrieves a UI element with the specified name. If no such element exists, the function returns `nil`.
 
-#### Ext.GetBuiltinUI(path)
+#### Ext.GetBuiltinUI(path) <sup>C</sup>
 
 Retrieves a built-in UI element at the specified path. If no such element exists, the function returns `nil`.
 
-#### Ext.DestroyUI(name)
+#### Ext.DestroyUI(name) <sup>C</sup>
 
 Destroys the specified UI element.
 
 
 ### Interacting with the UI Element
 
-#### UIObject:Invoke(func, ...)
+#### UIObject:Invoke(func, ...) <sup>C</sup>
 
 The `Invoke` method calls a method on the main timeline object of the UI element. The first argument (`func`) is the name of the ActionScript function to call; all subsequent arguments are passed to the ActionScript function as parameters.
 Only `string`, `number` and `boolean` arguments are supported.
@@ -351,7 +375,7 @@ function exposedMethod(val: String): * {
 }
 ```
 
-#### UIObject:ExternalInterfaceCall(func, ...)
+#### UIObject:ExternalInterfaceCall(func, ...) <sup>C</sup>
 
 The `ExternalInterfaceCall` method simulates an `ExternalInterface.call(...)` call from Flash, i.e. it calls an UI handler function in the game engine. The first argument (`func`) is the name of the UI function to call; all subsequent arguments are passed to the engine as parameters.
 Only `string`, `number` and `boolean` arguments are supported.
@@ -362,7 +386,7 @@ local ui = Ext.GetBuiltinUI("Public/Game/GUI/characterSheet.swf")
 ui:ExternalInterfaceCall("show")
 ```
 
-#### Ext.RegisterUICall(object, name, handler)
+#### Ext.RegisterUICall(object, name, handler) <sup>C</sup>
 
 The `Ext.RegisterUICall` function registers a listener that is called when the `ExternalInterface.call` function is invoked from ActionScript. ([ExternalInterface docs](https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/external/ExternalInterface.html))
  - `object` is the UI object that is returned from `Ext.CreateUI` or `Ext.GetUI`
@@ -385,26 +409,26 @@ Ext.RegisterUICall(ui, "sendTextEvent", handleTextEvent)
 ExternalInterface.call("sendTextEvent", "argument 1", "argument 2");
 ```
 
-#### UIObject:SetValue(name, value, [arrayIndex])
+#### UIObject:SetValue(name, value, [arrayIndex]) <sup>C</sup>
 
 The `SetValue` method updates the specified public property of the main timeline object. 
 
 
-#### UIObject:GetValue(name, type, [arrayIndex])
+#### UIObject:GetValue(name, type, [arrayIndex]) <sup>C</sup>
 
 The `GetValue` method retrieves the specified public property of the main timeline object. 
 `type` contains the type of value to retrieve and must be `string`, `number` or `boolean`.
 
 
-#### UIObject:Show()
+#### UIObject:Show() <sup>C</sup>
 
 Displays the UI element.
 
-#### UIObject:Hide()
+#### UIObject:Hide() <sup>C</sup>
 
 Hides the UI element.
 
-#### UIObject:SetPosition(x, y)
+#### UIObject:SetPosition(x, y) <sup>C</sup>
 
 Updates the position of the UI element.
 
@@ -450,7 +474,7 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 ### StatSetAttribute(stat, attribute, value) <sup>R</sup>
 
 Updates the specified `attribute` of the stat entry. This essentially allows on-the-fly patching of stat .txt files from script without having to override the while stat entry.
-This function can only be called during the `ModuleLoading` event; calling it elsewhere throws a Lua error.
+This function can only be called from a `ModuleLoading` listener; calling it elsewhere throws a Lua error.
 
 **Notes:**
  - For enumerations, the function accepts both the enumeration label (a string value, eg. `Corrosive`) and the enumeration index (an integer value, eg, `7`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
@@ -490,7 +514,7 @@ end
 ### StatAddCustomDescription(stat, attribute, description) <sup>R</sup>
 
 Adds a custom property description to the specified stat entry. (The blue text in the skill description tooltip).
-This function can only be called during the `ModuleLoading` event.
+This function can only be called from a `ModuleLoading` listener.
 
 Example:
 ```lua
@@ -499,7 +523,7 @@ Ext.StatAddCustomDescription("Dome_CircleOfProtection", "SkillProperties", "Cust
 ### StatSetLevelScaling(statType, attribute, func) <sup>R</sup>
 
 Replaces level scaling formula for the specified stat.
-This function can only be called during the `ModuleLoading` event.
+This function can only be called from a `ModuleLoading` listener.
 
 `statType` is the type of stat to override (`Character`, `SkillData`, `Potion`, etc). `attribute` is the stat attribute to override (`Strength`, `Constitution`, ...).
 
@@ -534,7 +558,7 @@ Using the extender it is possible to replace/override hardcoded game math and be
 
 ### Hit Chance
 
-Each time the game calculates hit chance, the Lua function `Ext.GetHitChance` gets called. If the function is overridden by a Lua script, the game will use the return value of the custom function as the hit chance. If the function is not overridden or the function call fails, the game's own hit chance calculation is used.
+Each time the game calculates hit chance, the Lua event `GetHitChance` is triggered. If a Lua script listens to this event and returns a non-`nil` value from the listener function, the game will use the return value of the custom function as the hit chance. If the function returns `nil` or the function call fails, the game's own hit chance calculation is used.
 
 The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
 ```lua
@@ -545,8 +569,7 @@ local function YourHitChanceFunction(attacker, target)
     return hitChance
 end
 
-Ext.GetHitChance = YourHitChanceFunction
-Ext.EnableStatOverride("HitChance")
+Ext.RegisterListener("GetHitChance", YourHitChanceFunction)
 ```
 
 Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitated. To better approximate vanilla behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
@@ -602,7 +625,7 @@ Output:
 }
 ```
 
-## Combat
+## Combat <sup>S</sup>
 
 Each combat in-game is represented by a Combat object in Lua. 
 
@@ -617,16 +640,16 @@ Properties:
 
 Methods:
 
-#### GetAllTeams()
+#### GetAllTeams() <sup>S</sup>
 Retrieves all participants of the combat. The return value is a table of `Team` objects.
 
-#### GetCurrentTurnOrder()
+#### GetCurrentTurnOrder() <sup>S</sup>
 Retrieves the turn order of the current round. The return value is a table of `Team` objects.
 
-#### GetNextTurnOrder()
+#### GetNextTurnOrder() <sup>S</sup>
 Retrieves the turn order of the next round. The return value is a table of `Team` objects.
 
-#### UpdateCurrentTurnOrder(turnOrder)
+#### UpdateCurrentTurnOrder(turnOrder) <sup>S</sup>
 Updates the turn order of the current round. The `turnOrder` argument should be a reordered version of the table returned by `GetCurrentTurnOrder()`. 
 
 Notes:
@@ -635,7 +658,7 @@ Notes:
  - The character whose turn is currently active (the very first item) should not be removed or reordered. This only applies for `GetCurrentTurnOrder`, the first item can be freely reordered in `GetNextTurnOrder`.
  - Changed performed using this function are synchronized to the client at the end of the current server tick.
 
-#### UpdateNextTurnOrder(turnOrder)
+#### UpdateNextTurnOrder(turnOrder) <sup>S</sup>
 Updates the turn order of the next round. The `turnOrder` argument should be a reordered version of the table returned by `GetNextTurnOrder()`. 
 
 Notes:
@@ -643,7 +666,7 @@ Notes:
  - It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
  - Changed performed using this function are synchronized to the client at the end of the current server tick.
 
-### CalculateTurnOrder Event <sup>R</sup>
+### CalculateTurnOrder Event <sup>S R</sup>
 
 When the turn order of the next round of a combat is being updated for some reason (new round, character entered combat, etc.) the `CalculateTurnOrder` Ext event is thrown. 
 The event receives two parameters:
@@ -664,7 +687,7 @@ end
 Ext.RegisterListener("CalculateTurnOrder", CalcInitiativeTurnOrder)
 ```
 
-### Team
+### Team <sup>S</sup>
 
 A `Team` is a combat participant (either a character or an item).
 
@@ -735,6 +758,20 @@ for i,damage in pairs(list:ToTable()) do
 end
 ```
 
+## Utility functions
+<a id="ext-utility"></a>
+
+#### Ext.Require(path) <sup>R</sup>
+
+The `Ext.Require` function is the extender's version of the Lua built-in `require` function. 
+The function checks if the file at `Mods/<ModuleUUID>/Story/RawFiles/Lua/<path>` was already loaded; if not, it'll load the file, store the return value of the main chunk and return it to the caller. If the file was already loaded, it'll return the stored return value.
+**Note:** `Ext.Require` should only be called during module startup (i.e. when loading `BootstrapClient.lua` or `BoostrapServer.lua`). Loading Lua files after module startup is deprecated.
+
+#### Ext.Print(...)
+
+Prints the specified value(s) to the debug console. Works similarly to the built-in Lua `print()`, except that it also logs the printed messages to the editor messages pane.
+
+
 ## JSON Support
 
 Two functions are provided for parsing and building JSON documents, `Ext.JsonParse` and `Ext.JsonStringify`.
@@ -786,13 +823,12 @@ ab
 ```
 
 
+
 ### TODO
- - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks, Restricted contexts, Client-side behavior
+ - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks
  - Lua state lifetime, Globals behavior (not saved)
- - Ext.Require, Print
  - File IO
  - Osi special Lua functions
  - Bootstrap phase
  - Reloading Lua and changing exports
  - Reloading Story
-

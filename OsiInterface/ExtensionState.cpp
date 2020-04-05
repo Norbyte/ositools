@@ -52,6 +52,7 @@ namespace dse
 						config.MinimumVersion, FromUTF8(featureFlags.str()).c_str());
 
 					if (config.MinimumVersion == 0) {
+						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << ":");
 						OsiError("Specifying RequiredExtensionVersion in OsiToolsConfig.json is now mandatory for backwards compatibility reasons.");
 						OsiError("Mods without a RequiredExtensionVersion may stop working in v44!");
 					}
@@ -60,6 +61,18 @@ namespace dse
 						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << "' uses extender version v" << config.MinimumVersion << ", which uses the old unified client/server model.");
 						OsiError("The client and server components were split in v42 to improve support for client-side features.");
 						OsiError("Please migrate to v42+!");
+					}
+
+					if (config.MinimumVersion >= 43
+						&& config.FeatureFlags.find("Lua") != config.FeatureFlags.end()
+						&& config.ModTable.empty()) {
+						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << ":");
+						OsiError("Modules using Lua must specify a ModTable in OsiToolsConfig.json when targeting v43 or later.");
+						config.ModTable = mod.Info.ModuleUUID.Str;
+					}
+
+					if (config.MinimumVersion > CurrentVersion) {
+						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << " is targeting version v" << config.MinimumVersion << " that doesn't exist!");
 					}
 
 					if (config.MinimumVersion != 0 && config.MinimumVersion > MergedConfig.MinimumVersion) {
@@ -72,6 +85,8 @@ namespace dse
 					}
 
 					numConfigs++;
+
+					modConfigs_.insert(std::make_pair(mod.Info.ModuleUUID.Str, config));
 				}
 			}
 		}
@@ -118,11 +133,10 @@ namespace dse
 				return value.asBool();
 			} else {
 				OsiError("Config option '" << key << "' should be a boolean.");
-				return {};
 			}
-		} else {
-			return {};
 		}
+
+		return {};
 	}
 
 	std::optional<int32_t> GetConfigInt(Json::Value & config, std::string const & key)
@@ -133,11 +147,24 @@ namespace dse
 				return value.asInt();
 			} else {
 				OsiError("Config option '" << key << "' should be an integer.");
-				return {};
 			}
-		} else {
-			return {};
 		}
+
+		return {};
+	}
+
+	std::optional<STDString> GetConfigString(Json::Value& config, std::string const& key)
+	{
+		auto value = config[key];
+		if (!value.isNull()) {
+			if (value.isString()) {
+				return value.asString().c_str();
+			} else {
+				OsiError("Config option '" << key << "' should be a string.");
+			}
+		}
+
+		return {};
 	}
 
 	bool ExtensionState::LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config)
@@ -183,6 +210,11 @@ namespace dse
 		auto version = GetConfigInt(json, "RequiredExtensionVersion");
 		if (version) {
 			config.MinimumVersion = (uint32_t)*version;
+		}
+
+		auto modTable = GetConfigString(json, "ModTable");
+		if (modTable) {
+			config.ModTable = *modTable;
 		}
 
 		auto featureFlags = json["FeatureFlags"];
@@ -285,6 +317,26 @@ namespace dse
 		}
 	}
 
+	std::optional<STDString> ExtensionState::ResolveModScriptPath(STDString const& modNameGuid, STDString const& fileName)
+	{
+		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
+		if (mod == nullptr) {
+			OsiError("Mod does not exist or is not loaded: " << modNameGuid);
+			return {};
+		}
+
+		return ResolveModScriptPath(*mod, fileName);
+	}
+
+	STDString ExtensionState::ResolveModScriptPath(Module const& mod, STDString const& fileName)
+	{
+		STDString path("Mods/");
+		path += ToUTF8(mod.Info.Directory);
+		path += "/Story/RawFiles/Lua/";
+		path += fileName;
+		return path;
+	}
+
 	std::optional<int> ExtensionState::LuaLoadExternalFile(STDString const & path)
 	{
 		std::ifstream f(path.c_str(), std::ios::in | std::ios::binary);
@@ -306,7 +358,6 @@ namespace dse
 			return {};
 		}
 
-		OsiWarn("Loading external script: " << path);
 		return lua->LoadScript(s, path);
 	}
 
@@ -336,7 +387,6 @@ namespace dse
 			return {};
 		}
 
-		OsiMsg("Loading game script: " << path);
 		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
 	}
 
@@ -348,10 +398,7 @@ namespace dse
 			return {};
 		}
 
-		STDString path("Mods/");
-		path += ToUTF8(mod->Info.Directory);
-		path += "/Story/RawFiles/Lua/";
-		path += fileName;
+		auto path = ResolveModScriptPath(*mod, fileName);
 
 		STDString scriptName = ToUTF8(mod->Info.Directory);
 		if (scriptName.length() > 37) {
@@ -397,26 +444,57 @@ namespace dse
 
 		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
 
-		auto bootstrapPath = GetBootstrapFileName();
 		lua::Restriction restriction(*lua, lua::State::RestrictAll);
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 
+			auto configIt = modConfigs_.find(mod.Info.ModuleUUID.Str);
+			if (configIt != modConfigs_.end()) {
+				auto const & config = configIt->second;
+				if (config.FeatureFlags.find("Lua") != config.FeatureFlags.end()) {
+					LuaLoadBootstrap(config, mod);
+				}
+			}
+		}
+
+		lua->FinishStartup();
+	}
+
+	void ExtensionState::LuaLoadBootstrap(ExtensionModConfig const& config, Module const& mod)
+	{
+		auto bootstrapFileName = GetBootstrapFileName();
+		auto const& sym = GetStaticSymbols();
+		STDString bootstrapPath;
+
+		auto path = ResolveModScriptPath(mod, bootstrapFileName);
+		if (sym.FileExists(path)) {
+			bootstrapPath = bootstrapFileName;
+		} else {
+			path = ResolveModScriptPath(mod, "Bootstrap.lua");
+			if (sym.FileExists(path)) {
+				bootstrapPath = "Bootstrap.lua";
+				OsiError("Module '" << ToUTF8(mod.Info.Name) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
+				OsiError("Please migrate to separate client/server bootstrap files!");
+			}
+		}
+
+		if (!bootstrapPath.empty()) {
+			LuaVirtualPin lua(*this);
 			auto L = lua->GetState();
 			lua::push(L, mod.Info.ModuleUUID);
 			lua_setglobal(L, "ModuleUUID");
 
-			if (!LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath, false)) {
-				if (LuaLoadModScript(mod.Info.ModuleUUID.Str, "Bootstrap.lua", false)) {
-					OsiError("Module '" << ToUTF8(mod.Info.Name) << "' uses a legacy Lua bootstrap file (Bootstrap.lua)");
-					OsiError("Please migrate to separate client/server bootstrap files!");
-				}
+			OsiMsg("Loading bootstrap script: " << path);
+			if (config.MinimumVersion <= 42) {
+				// <= v42: Load module directly into global table
+				LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath);
+			} else {
+				// >= v43: Load module with _ENV=Mods[ModTable]
+				lua->LoadBootstrap(bootstrapPath, config.ModTable);
 			}
 
 			lua::push(L, nullptr);
 			lua_setglobal(L, "ModuleUUID");
 		}
-
-		lua->FinishStartup();
 	}
 }

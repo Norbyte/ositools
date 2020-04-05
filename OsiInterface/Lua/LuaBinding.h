@@ -154,7 +154,7 @@ namespace dse::lua
 		virtual void RegisterLib(lua_State * L) = 0;
 
 	protected:
-		static int Require(lua_State * L);
+		static int Include(lua_State * L);
 	};
 
 	class Exception : public std::exception
@@ -212,6 +212,7 @@ namespace dse::lua
 		}
 
 		void FinishStartup();
+		void LoadBootstrap(STDString const& path, STDString const& modTable);
 		virtual void OnGameSessionLoading();
 		void OnGameSessionLoaded();
 		void OnModuleLoading();

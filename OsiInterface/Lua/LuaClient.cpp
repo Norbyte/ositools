@@ -580,7 +580,7 @@ namespace dse::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
-			{"RequireInternal", Require},
+			{"Include", Include},
 			{"Print", OsiPrint},
 			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},

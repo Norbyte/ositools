@@ -1,3 +1,8 @@
+local _G = _G
+
+Ext._LoadedFiles = {}
+Mods = {}
+
 Ext._WarnDeprecated = function (msg)
 	Ext.PrintError(msg)
 	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v41-to-v42 for more info.")
@@ -68,12 +73,55 @@ end
 
 Ext.Require = function (mod, path)
 	if ModuleUUID == nil then
-		Ext.PrintWarning("Calling Ext.Require() after the module has loaded is deprecated!");
+		Ext.PrintWarning("Calling Ext.Require() after the module was loaded is deprecated!");
 	end
 
+	local fullName
 	if path == nil then
-		return Ext.RequireInternal(ModuleUUID, mod)
+		fullName = ModuleUUID .. "/" .. mod
 	else
-		return Ext.RequireInternal(mod, path)
+		fullName = mod .. "/" .. path
 	end
+
+	if Ext._LoadedFiles[fullName] ~= nil then
+		return Ext._LoadedFiles[fullName]
+	end
+
+	local loaded
+	if path == nil then
+		loaded = {Ext.Include(ModuleUUID, mod, nil)}
+	else
+		loaded = {Ext.Include(mod, path, nil)}
+	end
+
+	Ext._LoadedFiles[fullName] = loaded
+	return table.unpack(loaded)
+end
+
+Ext._LoadBootstrap = function (path, modTable)
+	local env = {
+		-- Put frequently used items directly into the table for faster access
+		type = type,
+		tostring = tostring,
+		tonumber = tonumber,
+		pairs = pairs,
+		ipairs = ipairs,
+		print = print,
+		error = error,
+		next = next,
+
+		string = string,
+		math = math,
+		table = table,
+
+		Ext = Ext,
+		Osi = Osi,
+		Game = Game,
+		Sandboxed = true
+	}
+	-- The rest are accessed via __index
+	setmetatable(env, {__index = _G})
+	Mods[modTable] = env
+
+	Ext.Include(ModuleUUID, path, env)
 end

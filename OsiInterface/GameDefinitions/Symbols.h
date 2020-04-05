@@ -290,6 +290,7 @@ namespace dse
 		STDString ToPath(StringView path, PathRootType root, bool canonicalize = true) const;
 		FileReaderPin MakeFileReader(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 		void DestroyFileReader(FileReader * reader);
+		bool FileExists(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 	};
 
 	StaticSymbols & GetStaticSymbols();

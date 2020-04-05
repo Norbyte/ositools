@@ -603,11 +603,29 @@ namespace dse::lua
 		DamageList::RegisterMetatable(L);
 	}
 
-	int ExtensionLibrary::Require(lua_State * L)
+	int ExtensionLibrary::Include(lua_State * L)
 	{
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
+
+		bool replaceGlobals = !lua_isnil(L, 3);
+		auto globalsIdx = lua_gettop(L);
+
+		if (replaceGlobals) {
+			luaL_checktype(L, 3, LUA_TTABLE);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+			lua_pushvalue(L, 3);
+			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+		}
+
 		auto nret = gOsirisProxy->GetCurrentExtensionState()->LuaLoadModScript(modGuid, fileName);
+
+		if (replaceGlobals) {
+			lua_pushvalue(L, globalsIdx);
+			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+			lua_remove(L, globalsIdx);
+		}
+
 		if (nret) {
 			return *nret;
 		} else {
@@ -645,6 +663,11 @@ namespace dse::lua
 	{
 		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
+	}
+
+	void State::LoadBootstrap(STDString const& path, STDString const& modTable)
+	{
+		CallExt("_LoadBootstrap", RestrictAll, ReturnType<>{}, path, modTable);
 	}
 
 	void State::FinishStartup()
