@@ -852,8 +852,8 @@ function GetAttackerDamageMultiplier(attacker, target, highGround)
     end
 
     if highGround == "HighGround" then
-        local highGroundBonus = attacker.RangerLore * Ext.ExtraData.HighGroundBaseDamageBonus
-        return math.max(highGroundBonus * Ext.ExtraData.SkillAbilityHighGroundBonusPerPoint, 0.0)
+        local rangerLoreBonus = attacker.RangerLore * Ext.ExtraData.SkillAbilityHighGroundBonusPerPoint
+        return math.max(rangerLoreBonus + Ext.ExtraData.HighGroundBaseDamageBonus, 0.0)
     elseif highGround == "LowGround" then
         return Ext.ExtraData.LowGroundBaseDamagePenalty
     else
