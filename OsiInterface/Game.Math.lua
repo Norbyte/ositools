@@ -923,7 +923,7 @@ function CanBackstab(target, attacker)
     return false
 end
 
-function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, rollForDamage, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
+function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHitRoll, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
 
     hit.DamageMultiplier = 1.0
     local statusBonusDmgTypes = {}
@@ -971,7 +971,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, roll
 
     local hitBlocked = false
 
-    if rollForDamage then
+    if not noHitRoll then
         local hitChance = CalculateHitChance(target, attacker)
         local hitRoll = math.random(0, 99)
         if hitRoll >= hitChance then
