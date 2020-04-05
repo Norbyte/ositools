@@ -285,12 +285,12 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::LuaLoadExternalFile(STDString const & path)
+	std::optional<int> ExtensionState::LuaLoadExternalFile(STDString const & path)
 	{
 		std::ifstream f(path.c_str(), std::ios::in | std::ios::binary);
 		if (!f.good()) {
 			OsiError("File does not exist: " << path);
-			return;
+			return {};
 		}
 
 		f.seekg(0, std::ios::end);
@@ -303,50 +303,49 @@ namespace dse
 		LuaVirtualPin lua(*this);
 		if (!lua) {
 			OsiErrorS("Called when the Lua VM has not been initialized!");
-			return;
+			return {};
 		}
 
-		lua->LoadScript(s, path);
-		OsiWarn("Loaded external script: " << path);
+		OsiWarn("Loading external script: " << path);
+		return lua->LoadScript(s, path);
 	}
 
-	void ExtensionState::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
+	std::optional<int> ExtensionState::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
 	{
 		if (!reader.IsLoaded()) {
 			OsiErrorS("Attempted to load script from invalid file reader");
-			return;
+			return {};
 		}
 
 		LuaVirtualPin lua(*this);
 		if (!lua) {
 			OsiErrorS("Called when the Lua VM has not been initialized!");
-			return;
+			return {};
 		}
 
-		lua->LoadScript(reader.ToString(), scriptName);
+		return lua->LoadScript(reader.ToString(), scriptName);
 	}
 
-	bool ExtensionState::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
+	std::optional<int> ExtensionState::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
 	{
 		auto reader = GetStaticSymbols().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
 			if (warnOnError) {
 				OsiError("Script file could not be opened: " << path);
 			}
-			return false;
+			return {};
 		}
 
-		LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
-		OsiMsg("Loaded game script: " << path);
-		return true;
+		OsiMsg("Loading game script: " << path);
+		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
 	}
 
-	bool ExtensionState::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
+	std::optional<int> ExtensionState::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
 			OsiError("Mod does not exist or is not loaded: " << modNameGuid);
-			return false;
+			return {};
 		}
 
 		STDString path("Mods/");

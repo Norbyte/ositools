@@ -607,8 +607,12 @@ namespace dse::lua
 	{
 		auto modGuid = luaL_checkstring(L, 1);
 		auto fileName = luaL_checkstring(L, 2);
-		gOsirisProxy->GetCurrentExtensionState()->LuaLoadModScript(modGuid, fileName);
-		return 0;
+		auto nret = gOsirisProxy->GetCurrentExtensionState()->LuaLoadModScript(modGuid, fileName);
+		if (nret) {
+			return *nret;
+		} else {
+			return 0;
+		}
 	}
 
 
@@ -659,16 +663,17 @@ namespace dse::lua
 		}
 	}
 
-	bool State::LoadScript(STDString const & script, STDString const & name)
+	std::optional<int> State::LoadScript(STDString const & script, STDString const & name)
 	{
 		std::lock_guard lock(mutex_);
+		int top = lua_gettop(L);
 
 		/* Load the file containing the script we are going to run */
 		int status = luaL_loadbufferx(L, script.c_str(), script.size(), name.c_str(), "text");
 		if (status != LUA_OK) {
 			OsiError("Failed to parse script: " << lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
-			return false;
+			return {};
 		}
 
 		/* Ask Lua to run our little script */
@@ -676,10 +681,10 @@ namespace dse::lua
 		if (status != LUA_OK) {
 			OsiError("Failed to execute script: " << lua_tostring(L, -1));
 			lua_pop(L, 1); // pop error message from the stack
-			return false;
+			return {};
 		}
 
-		return true;
+		return lua_gettop(L) - top;
 	}
 
 	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)

@@ -46,10 +46,10 @@ namespace dse
 		void IncLuaRefs();
 		void DecLuaRefs();
 		void LuaReset(bool startup);
-		void LuaLoadExternalFile(STDString const & path);
-		void LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName);
-		bool LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError = true);
-		bool LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError = true);
+		std::optional<int> LuaLoadExternalFile(STDString const & path);
+		std::optional<int> LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName);
+		std::optional<int> LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError = true);
+		std::optional<int> LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError = true);
 
 	protected:
 		friend class LuaVirtualPin;

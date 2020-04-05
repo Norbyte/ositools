@@ -227,7 +227,7 @@ namespace dse::lua
 			return CheckedCall<Ret...>(L, sizeof...(args), func);
 		}
 
-		bool LoadScript(STDString const & script, STDString const & name = "");
+		std::optional<int> LoadScript(STDString const & script, STDString const & name = "");
 
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
