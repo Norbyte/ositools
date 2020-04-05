@@ -215,6 +215,15 @@ namespace dse::lua
 				return 1;
 			}
 
+			if (strcmp(prop, "Position") == 0) {
+				auto trans = stats->Character->GetTranslate();
+				lua_newtable(L);
+				for (auto i = 0; i < 3; i++) {
+					settable(L, i + 1, (*trans)[i]);
+				}
+				return 1;
+			}
+
 			fetched = LuaPropertyMapGet(L, gEoCServerObjectPropertyMap, stats->Character, prop, false);
 			if (fetched) {
 				return 1;
