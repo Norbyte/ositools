@@ -198,7 +198,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -210,7 +210,7 @@
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <AdditionalDependencies>LuaLib.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\LuaJIT-2.1\x64_debug;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\LuaJIT-2.1\x64_debug;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\The Divinity Engine 2\DefEd\DXGI.dll"</Command>
@@ -227,7 +227,7 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;OSI_EOCAPP;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -239,7 +239,7 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <AdditionalDependencies>LuaLib.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
@@ -302,11 +302,12 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;OSI_EOCAPP;OSIINTERFACE_EXPORTS;OSI_NO_DEBUGGER;OSI_EXTENSION_BUILD;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -314,7 +315,7 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LuaLib.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -333,11 +334,12 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External\glm;$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\glm;$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.5\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -345,7 +347,7 @@ rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(Soluti
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LuaLib.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -508,6 +510,8 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\APIDocs.md" />
+    <None Include="..\LuaAPIDocs.md" />
     <None Include="..\Misc\ExtIdeHelpers.lua" />
     <None Include="BuiltinLibrary.lua" />
     <None Include="BuiltinLibraryClient.lua" />

@@ -338,6 +338,12 @@
     <None Include="..\Misc\ExtIdeHelpers.lua">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\APIDocs.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\LuaAPIDocs.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">
