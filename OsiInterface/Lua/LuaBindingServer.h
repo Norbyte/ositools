@@ -345,6 +345,7 @@ namespace dse::lua
 			std::lock_guard lock(mutex_);
 
 			auto L = GetState();
+			lua_checkstack(L, args.size() + 1);
 			auto stackSize = lua_gettop(L);
 
 			try {

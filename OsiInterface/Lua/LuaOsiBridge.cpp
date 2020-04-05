@@ -796,6 +796,7 @@ namespace dse::lua
 		}
 
 		auto L = lua->GetState();
+		lua_checkstack(L, params.Count() + 1);
 		handler_.Push();
 
 		auto param = &params;
@@ -844,6 +845,8 @@ namespace dse::lua
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		auto L = GetState();
+		lua_checkstack(L, params.Count() + 1);
+
 		auto stackSize = lua_gettop(L);
 		if (func) {
 			func->Push();
