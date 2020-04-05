@@ -1,8 +1,9 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <GameDefinitions/TurnManager.h>
-#include "FunctionLibrary.h"
+#include <Functions/FunctionLibrary.h>
 #include <Version.h>
+#include <ScriptHelpers.h>
 #include <fstream>
 #include "json/json.h"
 
@@ -51,60 +52,18 @@ namespace dse
 			return true;
 		}
 
-#define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
-
-		std::optional<STDString> GetPathForScriptIo(std::string_view scriptPath)
-		{
-			STDString path(scriptPath);
-
-			if (path.find_first_not_of(SAFE_PATH_CHARS) != STDString::npos
-				|| path.find("..") != STDString::npos) {
-				OsiError("Illegal file name for external file access: '" << path << "'");
-				return {};
-			}
-
-			auto storageRoot = GetStaticSymbols().ToPath("/Osiris Data", PathRootType::GameStorage);
-			if (storageRoot.empty()) {
-				OsiErrorS("Could not fetch game storage path");
-				return {};
-			}
-
-			auto storageRootWstr = FromUTF8(storageRoot);
-			BOOL created = CreateDirectory(storageRootWstr.c_str(), NULL);
-			if (created == FALSE) {
-				DWORD lastError = GetLastError();
-				if (lastError != ERROR_ALREADY_EXISTS) {
-					OsiError("Could not create storage root directory: " << storageRoot);
-					return {};
-				}
-			}
-
-			return storageRoot + "/" + path;
-		}
-
 		bool LoadFile(OsiArgumentDesc & args)
 		{
 			auto path = args[0].String;
 			auto & contents = args[1];
 
-			auto absolutePath = GetPathForScriptIo(path);
-			if (!absolutePath) return false;
-
-			std::ifstream f(absolutePath->c_str(), std::ios::in | std::ios::binary);
-			if (!f.good()) {
-				OsiError("Could not open file: '" << path << "'");
+			auto loaded = script::LoadExternalFile(path);
+			if (loaded) {
+				contents.Set(gTempStrings.Make(*loaded));
+				return true;
+			} else {
 				return false;
 			}
-
-			std::string body;
-			f.seekg(0, std::ios::end);
-			body.resize(f.tellg());
-			f.seekg(0, std::ios::beg);
-			f.read(body.data(), body.size());
-
-			contents.Set(gTempStrings.Make(body));
-
-			return true;
 		}
 
 		void SaveFile(OsiArgumentDesc const & args)
@@ -112,16 +71,7 @@ namespace dse
 			auto path = args[0].String;
 			auto contents = args[1].String;
 
-			auto absolutePath = GetPathForScriptIo(path);
-			if (!absolutePath) return;
-
-			std::ofstream f(absolutePath->c_str(), std::ios::out | std::ios::binary);
-			if (!f.good()) {
-				OsiError("Could not open file: '" << path << "'");
-				return;
-			}
-
-			f.write(contents, strlen(contents));
+			script::SaveExternalFile(path, contents);
 		}
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)

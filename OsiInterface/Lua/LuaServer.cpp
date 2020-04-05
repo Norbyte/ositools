@@ -358,6 +358,8 @@ namespace dse::lua
 	int GetExtensionVersion(lua_State * L);
 	int OsiPrint(lua_State* L);
 	int OsiPrintError(lua_State* L);
+	int SaveFile(lua_State* L);
+	int LoadFile(lua_State* L);
 	int JsonParse(lua_State * L);
 	int JsonStringify(lua_State * L);
 	int IsModLoaded(lua_State* L);
@@ -447,6 +449,9 @@ namespace dse::lua
 			{"NewEvent", NewEvent},
 			{"Print", OsiPrint},
 			{"PrintError", OsiPrintError},
+
+			{"SaveFile", SaveFile},
+			{"LoadFile", LoadFile},
 
 			{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},

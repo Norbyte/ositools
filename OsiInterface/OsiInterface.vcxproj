@@ -400,6 +400,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <ClInclude Include="PropertyMaps.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptExtensions.pb.h" />
+    <ClInclude Include="ScriptHelpers.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -493,6 +494,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ScriptHelpers.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|Win32'">Create</PrecompiledHeader>

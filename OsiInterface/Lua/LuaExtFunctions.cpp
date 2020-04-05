@@ -2,7 +2,9 @@
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
 #include <Version.h>
-#include "LuaBinding.h"
+#include <Lua/LuaBinding.h>
+#include <ScriptHelpers.h>
+
 #include <fstream>
 #include <json/json.h>
 
@@ -284,6 +286,28 @@ namespace dse::lua
 		OsiArgsToStream(L, ss);
 		gOsirisProxy->LogOsirisError(ss.str());
 		return 0;
+	}
+
+	int LoadFile(lua_State* L)
+	{
+		auto path = checked_get<char const*>(L, 1);
+
+		auto loaded = script::LoadExternalFile(path);
+		if (loaded) {
+			push(L, *loaded);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int SaveFile(lua_State* L)
+	{
+		auto path = checked_get<char const*>(L, 1);
+		auto contents = checked_get<char const*>(L, 2);
+
+		push(L, script::SaveExternalFile(path, contents));
+		return 1;
 	}
 
 	int IsModLoaded(lua_State* L)
