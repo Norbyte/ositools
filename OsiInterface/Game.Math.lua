@@ -558,7 +558,7 @@ HitFlag = {
     Dodged = 4,
     Missed = 8,
     CriticalHit = 0x10,
-    AlwaysBackstab = 0x20,
+    Backstab = 0x20,
     FromSetHP = 0x40,
     DontCreateBloodSurface = 0x80,
     Reflection = 0x200,
@@ -695,7 +695,7 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     end
     
     if attacker.TALENT_ViolentMagic == false or hitType ~= "Magic" then
-        if (hit.EffectFlags & HitFlag.AlwaysBackstab) ~= 0 then
+        if (hit.EffectFlags & HitFlag.Backstab) ~= 0 then
             return true
         end
 
@@ -975,7 +975,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
 
     local backstabbed = false
     if alwaysBackstab or (weapon ~= nil and weapon.WeaponType == "Knife" and CanBackstab(target, attacker)) then
-        hit.EffectFlags = hit.EffectFlags | HitFlag.AlwaysBackstab
+        hit.EffectFlags = hit.EffectFlags | HitFlag.Backstab
         backstabbed = true
     end
 

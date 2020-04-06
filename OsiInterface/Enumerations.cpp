@@ -428,7 +428,7 @@ namespace dse
 		{ HitFlag::HF_Dodged, "Dodged" },
 		{ HitFlag::HF_Missed, "Missed" },
 		{ HitFlag::HF_CriticalHit, "CriticalHit" },
-		{ HitFlag::HF_AlwaysBackstab, "AlwaysBackstab" },
+		{ HitFlag::HF_Backstab, "Backstab" },
 		{ HitFlag::HF_FromSetHP, "FromSetHP" },
 		{ HitFlag::HF_DontCreateBloodSurface, "DontCreateBloodSurface" },
 		{ HitFlag::HF_Reflection, "Reflection" },

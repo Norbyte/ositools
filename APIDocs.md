@@ -450,7 +450,7 @@ Returns the amount of damage dealt by the `HIT` status.
 | Dodged | Flag | Read/Write | The attack was dodged |
 | Missed | Flag | Read/Write | The attack missed |
 | CriticalHit | Flag | Read/Write |  |
-| AlwaysBackstab | Flag | Read/Write | Equivalent to the `AlwaysBackstab` skill property |
+| Backstab | Flag | Read/Write | Indicates that the attack was a backstab |
 | FromSetHP | Flag | Read/Write | Indicates that the hit was called from `CharacterSetHitpointsPercentage` (or similar) |
 | DontCreateBloodSurface | Flag | Read/Write | Avoids creating a blood surface when the character is hit |
 | Reflection | Flag | Read/Write |  |

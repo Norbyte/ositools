@@ -1076,7 +1076,7 @@ namespace dse
 		HF_Dodged = 4,
 		HF_Missed = 8,
 		HF_CriticalHit = 0x10,
-		HF_AlwaysBackstab = 0x20,
+		HF_Backstab = 0x20,
 		HF_FromSetHP = 0x40,
 		HF_DontCreateBloodSurface = 0x80,
 		HF_Reflection = 0x200,
