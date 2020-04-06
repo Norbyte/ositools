@@ -394,29 +394,14 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	}
 }
 
-void OsirisProxy::OnInitNetworkFixedStrings(void * self, void * arg1)
+void OsirisProxy::OnInitNetworkFixedStrings(eoc::NetworkFixedStrings * self, void * arg1)
 {
 	if (config_.DumpNetworkStrings) {
-		DumpNetworkFixedStrings();
+		networkFixedStrings_.Dump();
 	}
-}
 
-void OsirisProxy::DumpNetworkFixedStrings()
-{
-	auto nfs = GetStaticSymbols().NetworkFixedStrings;
-	if (nfs != nullptr && (*nfs)->Initialized) {
-		auto const & strings = (*nfs)->FixedStrSet.Set;
-
-		auto nfsLogPath = MakeLogFilePath(L"NetworkFixedStrings", L"log");
-		std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
-		for (uint32_t i = 0; i < strings.Size; i++) {
-			auto str = strings[i].Str;
-			logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
-		}
-		logOut.close();
-		DEBUG(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
-	} else {
-		ERR("OsirisProxy::DumpNetworkFixedStrings() - Fixed strings not initialized yet");
+	if (IsInClientThread()) {
+		networkFixedStrings_.UpdateFromServer();
 	}
 }
 
@@ -808,30 +793,45 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		AddClientThread(GetCurrentThreadId());
 	}
 
-	if (fromState == ClientGameState::LoadModule) {
+	switch (fromState) {
+	case ClientGameState::LoadModule:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Loaded module");
 		LoadExtensionStateClient();
-	}
+		break;
 
-	if (fromState == ClientGameState::LoadSession) {
+	case ClientGameState::LoadSession:
 		if (ClientExtState) {
 			ClientExtState->OnGameSessionLoaded();
 		}
+		break;
+
+	case ClientGameState::InitConnection:
+		networkManager_.ExtendNetworkingClient();
+		networkFixedStrings_.RequestFromServer();
+		break;
 	}
 
 	switch (toState) {
-	case ClientGameState::UnloadSession:
-		INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
-		ResetExtensionStateClient();
-		break;
-
-	case ClientGameState::LoadModule:
+	case ClientGameState::Init:
 		// We need to initialize the function library here, as GlobalAllocator isn't available in Init()
+		Libraries.PostStartupFindLibraries();
 		if (!functionLibraryInitialized_) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
 			functionLibraryInitialized_ = true;
 		}
+		break;
+
+	case ClientGameState::InitNetwork:
+	case ClientGameState::Disconnect:
+		// Clear stored NetworkFixedString updates from previous session
+		// Server will send a new list when it enters LoadModule state
+		networkFixedStrings_.ClientReset();
+		break;
+
+	case ClientGameState::UnloadSession:
+		INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
+		ResetExtensionStateClient();
 		break;
 
 	case ClientGameState::LoadGMCampaign:
@@ -853,6 +853,11 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		}
 		break;
 
+	case ClientGameState::Running:
+		if (fromState == ClientGameState::PrepareRunning) {
+			networkFixedStrings_.ClientLoaded();
+		}
+		break;
 	}
 }
 
@@ -884,6 +889,10 @@ void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromStat
 	case ServerGameState::UnloadSession:
 		INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
 		ResetExtensionStateServer();
+		break;
+
+	case ServerGameState::LoadModule:
+		networkManager_.ExtendNetworkingServer();
 		break;
 
 	case ServerGameState::LoadGMCampaign:
@@ -997,6 +1006,18 @@ void OsirisProxy::AddPathOverride(STDString const & path, STDString const & over
 
 	std::unique_lock lock(pathOverrideMutex_);
 	pathOverrides_.insert(std::make_pair(absolutePath, absoluteOverriddenPath));
+}
+
+bool OsirisProxy::IsInServerThread() const
+{
+	auto tid = GetCurrentThreadId();
+	return ServerThreadIds.find(tid) != ServerThreadIds.end();
+}
+
+bool OsirisProxy::IsInClientThread() const
+{
+	auto tid = GetCurrentThreadId();
+	return ClientThreadIds.find(tid) != ClientThreadIds.end();
 }
 
 FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type)

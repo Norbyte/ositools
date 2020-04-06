@@ -33,6 +33,13 @@ namespace dse
 		return ptr;
 	}
 
+	template <class T>
+	void GameDelete(T* obj)
+	{
+		obj->~T();
+		GameFree(obj);
+	}
+
 	template <class T, class ...Args>
 	T * GameAllocArray(std::size_t n, Args... args)
 	{
@@ -160,10 +167,17 @@ namespace dse
 			ValueType Value;
 		};
 
-		uint32_t HashSize;
-		uint32_t _Unused;
-		Node ** HashTable;
-		uint32_t ItemCount;
+		uint32_t HashSize{ 0 };
+		uint32_t _Unused{ 0 };
+		Node** HashTable{ nullptr };
+		uint32_t ItemCount{ 0 };
+
+		FixedStringMapBase() {}
+
+		~FixedStringMapBase()
+		{
+			Clear();
+		}
 
 		void Init(uint32_t hashSize)
 		{
@@ -171,6 +185,27 @@ namespace dse
 			HashTable = GameAllocArray<Node *>(hashSize);
 			ItemCount = 0;
 			memset(HashTable, 0, sizeof(Node *) * hashSize);
+		}
+
+		void Clear()
+		{
+			for (uint32_t i = 0; i < HashSize; i++) {
+				auto item = HashTable[i];
+				if (item != nullptr) {
+					FreeHashChain(item);
+					HashTable[i] = nullptr;
+				}
+			}
+		}
+
+		void FreeHashChain(Node* node)
+		{
+			do {
+				auto next = node->Next;
+				node->~Node();
+				GameDelete(node);
+				node = next;
+			} while (node != nullptr);
 		}
 
 		bool Add(FixedString key, ValueType const & value)
@@ -508,6 +543,11 @@ namespace dse
 			}
 
 			Size--;
+		}
+
+		void Clear()
+		{
+			Size = 0;
 		}
 	};
 

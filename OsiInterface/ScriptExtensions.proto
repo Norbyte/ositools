@@ -16,9 +16,21 @@ message MsgS2CResetLuaMessage {
   bool bootstrap_scripts = 1;
 }
 
+// Updates NetworkFixedString table on the client
+// This avoids frequent crashes/desync that are caused by slightly out of sync mod versions
+message MsgS2CSyncNetworkFixedStrings {
+  repeated string network_string = 1;
+}
+
+// Requests the NetworkFixedString table from the server
+message MsgC2SRequestNetworkFixedStrings {
+}
+
 message MessageWrapper {
   oneof msg {
     MsgPostLuaMessage post_lua = 1;
     MsgS2CResetLuaMessage s2c_reset_lua = 2;
+    MsgS2CSyncNetworkFixedStrings s2c_sync_strings = 3;
+    MsgC2SRequestNetworkFixedStrings c2s_request_strings = 4;
   }
 }

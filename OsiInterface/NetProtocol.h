@@ -9,7 +9,7 @@ namespace dse
 	{
 	public:
 		static constexpr uint32_t MessageId = 400;
-		static constexpr uint32_t MaxPayloadLength = 0x1ffff;
+		static constexpr uint32_t MaxPayloadLength = 0xfffff;
 
 		ScriptExtenderMessage();
 		~ScriptExtenderMessage() override;
@@ -21,7 +21,11 @@ namespace dse
 
 		inline MessageWrapper & GetMessage()
 		{
+#if defined(_DEBUG)
+			return *message_;
+#else
 			return message_;
+#endif
 		}
 
 		inline bool IsValid() const
@@ -30,7 +34,11 @@ namespace dse
 		}
 
 	private:
+#if defined(_DEBUG)
+		MessageWrapper* message_{ nullptr };
+#else
 		MessageWrapper message_;
+#endif
 		bool valid_{ false };
 	};
 
@@ -48,19 +56,22 @@ namespace dse
 		void * Unknown2() override;
 
 	protected:
-		virtual void ProcessExtenderMessage(MessageWrapper & msg) = 0;
+		virtual void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg) = 0;
 	};
 
 	class ExtenderProtocolClient : public ExtenderProtocol
 	{
 	protected:
-		void ProcessExtenderMessage(MessageWrapper & msg) override;
+		void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg) override;
+
+	private:
+		void SyncNetworkStrings(MsgS2CSyncNetworkFixedStrings const& msg);
 	};
 
 	class ExtenderProtocolServer : public ExtenderProtocol
 	{
 	protected:
-		void ProcessExtenderMessage(MessageWrapper & msg) override;
+		void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg) override;
 	};
 
 
@@ -76,6 +87,7 @@ namespace dse
 		void ClientSend(ScriptExtenderMessage * msg);
 		void ServerSend(ScriptExtenderMessage * msg, int32_t peerId);
 		void ServerBroadcast(ScriptExtenderMessage * msg, int32_t excludePeerId);
+		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, int32_t excludePeerId);
 
 	private:
 		ExtenderProtocolClient * clientProtocol_{ nullptr };
@@ -83,5 +95,28 @@ namespace dse
 
 		net::GameServer * GetServer() const;
 		net::Client * GetClient() const;
+	};
+
+
+	class NetworkFixedStringSynchronizer
+	{
+	public:
+		void SendToPeer(int32_t peerId);
+		void RequestFromServer();
+		void UpdateFromServer();
+		void ClientReset();
+		void ClientLoaded();
+		void Dump();
+
+		inline void SetServerNetworkFixedStrings(std::vector<FixedString>& strs)
+		{
+			updatedStrings_ = strs;
+		}
+
+	private:
+		std::vector<FixedString> updatedStrings_;
+		bool notInSync_{ false };
+		bool syncWarningShown_{ false };
+		FixedString conflictingString_;
 	};
 }

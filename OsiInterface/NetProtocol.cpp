@@ -2,6 +2,7 @@
 #include <NetProtocol.h>
 #include <GameDefinitions/Symbols.h>
 #include <OsirisProxy.h>
+#include <fstream>
 
 namespace dse
 {
@@ -18,12 +19,12 @@ namespace dse
 
 	ExtenderProtocol::~ExtenderProtocol() {}
 
-	net::MessageStatus ExtenderProtocol::ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg)
+	net::MessageStatus ExtenderProtocol::ProcessMsg(void * Unused, net::MessageContext * Context, net::Message * Msg)
 	{
 		if (Msg->MsgId == ScriptExtenderMessage::MessageId) {
 			auto msg = static_cast<ScriptExtenderMessage *>(Msg);
 			if (msg->IsValid()) {
-				ProcessExtenderMessage(msg->GetMessage());
+				ProcessExtenderMessage(*Context, msg->GetMessage());
 			}
 			return net::MessageStatus::Handled;
 		}
@@ -58,7 +59,27 @@ namespace dse
 		return nullptr;
 	}
 
-	void ExtenderProtocolClient::ProcessExtenderMessage(MessageWrapper & msg)
+	void ExtenderProtocolClient::SyncNetworkStrings(MsgS2CSyncNetworkFixedStrings const& msg)
+	{
+		auto fixedStrings = GetStaticSymbols().NetworkFixedStrings;
+		if (fixedStrings == nullptr || *fixedStrings == nullptr) {
+			ERR("Cannot sync fixed strings - NetworkFixedStrings is null!");
+			return;
+		}
+
+		std::vector<FixedString> strings;
+		auto numStrings = msg.network_string_size();
+		strings.reserve(numStrings);
+		for (auto i = 0; i < numStrings; i++) {
+			auto& str = msg.network_string(i);
+			strings.push_back(MakeFixedString(str.c_str()));
+		}
+
+		gOsirisProxy->NetworkFixedStringSync().SetServerNetworkFixedStrings(strings);
+		gOsirisProxy->NetworkFixedStringSync().UpdateFromServer();
+	}
+
+	void ExtenderProtocolClient::ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg)
 	{
 		switch (msg.msg_case()) {
 		case MessageWrapper::kPostLua:
@@ -82,12 +103,18 @@ namespace dse
 			break;
 		}
 
+		case MessageWrapper::kS2CSyncStrings:
+		{
+			SyncNetworkStrings(msg.s2c_sync_strings());
+			break;
+		}
+
 		default:
 			OsiErrorS("Unknown extension message type received!");
 		}
 	}
 
-	void ExtenderProtocolServer::ProcessExtenderMessage(MessageWrapper & msg)
+	void ExtenderProtocolServer::ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg)
 	{
 		switch (msg.msg_case()) {
 		case MessageWrapper::kPostLua:
@@ -96,6 +123,15 @@ namespace dse
 			LuaServerPin pin(ExtensionStateServer::Get());
 			if (pin) {
 				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
+			}
+			break;
+		}
+
+		case MessageWrapper::kC2SRequestStrings:
+		{
+			// FIXME - send to peer only!
+			if (gOsirisProxy->GetConfig().SyncNetworkStrings) {
+				gOsirisProxy->NetworkFixedStringSync().SendToPeer((int32_t)context.UserId);
 			}
 			break;
 		}
@@ -109,18 +145,20 @@ namespace dse
 	ScriptExtenderMessage::ScriptExtenderMessage()
 	{
 		MsgId = MessageId;
+		Reset();
 	}
 
 	ScriptExtenderMessage::~ScriptExtenderMessage() {}
 
 	void ScriptExtenderMessage::Serialize(net::BitstreamSerializer & serializer)
 	{
+		auto& msg = GetMessage();
 		if (serializer.IsWriting) {
-			uint32_t size = (uint32_t)message_.ByteSizeLong();
+			uint32_t size = (uint32_t)msg.ByteSizeLong();
 			if (size <= MaxPayloadLength) {
 				serializer.WriteBytes(&size, sizeof(size));
 				void * buf = GameAllocRaw(size);
-				message_.SerializeToArray(buf, size);
+				msg.SerializeToArray(buf, size);
 				serializer.WriteBytes(buf, size);
 				GameFree(buf);
 			} else {
@@ -138,7 +176,7 @@ namespace dse
 			} else if (size > 0) {
 				void * buf = GameAllocRaw(size);
 				serializer.ReadBytes(buf, size);
-				valid_ = message_.ParseFromArray(buf, size);
+				valid_ = msg.ParseFromArray(buf, size);
 				GameFree(buf);
 			}
 		}
@@ -153,7 +191,11 @@ namespace dse
 
 	void ScriptExtenderMessage::Reset()
 	{
-		message_.Clear();
+#if defined(_DEBUG)
+		message_ = new MessageWrapper();
+#else
+		GetMessage().Clear();
+#endif
 		valid_ = false;
 	}
 
@@ -274,6 +316,149 @@ namespace dse
 				peerIds.Set.Add(server->ActivePeerIds[i]);
 			}
 			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
+		}
+	}
+
+	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, int32_t excludePeerId)
+	{
+		auto server = GetServer();
+		if (server != nullptr) {
+			ObjectSet<int32_t> peerIds;
+			peerIds.Set.Reallocate(server->ConnectedPeerIds.Set.Size);
+			for (uint32_t i = 0; i < server->ConnectedPeerIds.Set.Size; i++) {
+				peerIds.Set.Add(server->ConnectedPeerIds[i]);
+			}
+			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
+		}
+	}
+
+
+	void NetworkFixedStringSynchronizer::Dump()
+	{
+		auto nfs = GetStaticSymbols().NetworkFixedStrings;
+		if (nfs != nullptr && (*nfs)->Initialized) {
+			auto const& strings = (*nfs)->FixedStrSet.Set;
+
+			auto nfsLogPath = gOsirisProxy->MakeLogFilePath(L"NetworkFixedStrings", L"log");
+			std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
+			for (uint32_t i = 0; i < strings.Size; i++) {
+				auto str = strings[i].Str;
+				logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
+			}
+			logOut.close();
+			DEBUG(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
+		} else {
+			ERR("OsirisProxy::DumpNetworkFixedStrings() - Fixed strings not initialized yet");
+		}
+	}
+
+	void NetworkFixedStringSynchronizer::RequestFromServer()
+	{
+		DEBUG("Requesting NetworkFixedStrings from server");
+		auto& networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeClientMessage();
+		if (msg != nullptr) {
+			msg->GetMessage().mutable_c2s_request_strings();
+			networkMgr.ClientSend(msg);
+		}
+		else {
+			OsiErrorS("Could not get free message!");
+		}
+	}
+
+	void NetworkFixedStringSynchronizer::SendToPeer(int32_t peerId)
+	{
+		auto fixedStrs = GetStaticSymbols().NetworkFixedStrings;
+		if (fixedStrs == nullptr || *fixedStrs == nullptr) {
+			return;
+		}
+
+		auto& nfs = **fixedStrs;
+
+		auto& networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeServerMessage();
+		if (msg != nullptr) {
+			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
+			auto numStrings = nfs.FixedStrSet.Set.Size;
+			for (uint32_t i = 1; i < numStrings; i++) {
+				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
+			}
+
+			networkMgr.ServerBroadcastToConnectedPeers(msg, -1);
+		}
+		else {
+			OsiErrorS("Could not get free message!");
+		}
+	}
+
+	void NetworkFixedStringSynchronizer::UpdateFromServer()
+	{
+		auto fixedStrs = GetStaticSymbols().NetworkFixedStrings;
+		if (updatedStrings_.empty()
+			|| fixedStrs == nullptr
+			|| *fixedStrs == nullptr
+			|| (*fixedStrs)->FixedStrSet.Set.Size == 0) {
+			return;
+		}
+
+		auto& fs = **fixedStrs;
+		auto numStrings = (uint32_t)updatedStrings_.size();
+
+		auto sizeMin = std::min(fs.FixedStrSet.Set.Size - 1, numStrings);
+		for (uint32_t i = 0; i < sizeMin; i++) {
+			auto serverString = updatedStrings_[i];
+			auto clientString = fs.FixedStrSet[i + 1];
+			if (serverString != clientString) {
+				ERR("NetworkFixedStrings mismatch - entry %d different! %s vs %s", i, serverString.Str, clientString.Str);
+
+				// Find out which string caused the conflict
+				conflictingString_ = FixedString{};
+				for (auto str : updatedStrings_) {
+					if (str == clientString) {
+						// Client string exists in server map --> server string missing from local NetworkFixedStrings
+						conflictingString_ = serverString;
+					}
+				}
+
+				if (!conflictingString_) {
+					// Client string not found on server
+					conflictingString_ = clientString;
+				}
+
+				notInSync_ = true;
+				break;
+			}
+		}
+
+		fs.FixedStrSet.Set.Clear();
+		fs.FixedStrToNetIndexMap.Clear();
+
+		fs.FixedStrSet.Set.Reallocate(numStrings + 1);
+
+		fs.FixedStrSet.Set.Add(FixedString{});
+		fs.FixedStrToNetIndexMap.Add(FixedString{}, 1);
+
+		for (uint32_t i = 0; i < numStrings; i++) {
+			auto fixedStr = updatedStrings_[i];
+			fs.FixedStrSet.Set.Add(fixedStr);
+			fs.FixedStrToNetIndexMap.Add(fixedStr, i + 2);
+		}
+	}
+
+	void NetworkFixedStringSynchronizer::ClientReset()
+	{
+		updatedStrings_.clear();
+		notInSync_ = false;
+		syncWarningShown_ = false;
+	}
+
+	void NetworkFixedStringSynchronizer::ClientLoaded()
+	{
+		if (notInSync_ && !syncWarningShown_) {
+			STDWString msg(L"Script Extender has detected a mod mismatch with the host. Make sure that mod versions are the same on both sides.\r\nFirst mismatching object: ");
+			msg += FromUTF8(conflictingString_.Str);
+			gOsirisProxy->GetLibraryManager().ShowStartupError(msg, false);
+			syncWarningShown_ = true;
 		}
 	}
 }

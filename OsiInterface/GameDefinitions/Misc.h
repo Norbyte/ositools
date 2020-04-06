@@ -123,7 +123,7 @@ namespace dse
 		{
 			uint16_t Initialized;
 			uint8_t _Pad[6];
-			ObjectSet<FixedString> FixedStrSet;
+			ObjectSet<FixedString, GameMemoryAllocator, true> FixedStrSet;
 			FixedStringMapBase<int> FixedStrToNetIndexMap;
 			uint8_t _Pad2[4];
 			uint64_t Unkn1;

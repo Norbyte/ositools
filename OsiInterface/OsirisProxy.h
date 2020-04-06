@@ -86,6 +86,7 @@ struct ToolConfig
 #endif // defined(OSI_EXTENSION_BUILD)
 
 	bool DumpNetworkStrings{ false };
+	bool SyncNetworkStrings{ false };
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
@@ -178,8 +179,18 @@ public:
 		return networkManager_;
 	}
 
+	inline NetworkFixedStringSynchronizer& NetworkFixedStringSync()
+	{
+		return networkFixedStrings_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
+
+	bool IsInServerThread() const;
+	bool IsInClientThread() const;
+
+	std::wstring MakeLogFilePath(std::wstring const& Type, std::wstring const& Extension);
 
 private:
 	OsirisWrappers Wrappers;
@@ -199,6 +210,7 @@ private:
 	NetworkManager networkManager_;
 	std::shared_mutex pathOverrideMutex_;
 	std::unordered_map<STDString, STDString> pathOverrides_;
+	NetworkFixedStringSynchronizer networkFixedStrings_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -236,7 +248,6 @@ private:
 	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
 	void HookNodeVMTs();
 	void RestartLogging(std::wstring const & Type);
-	std::wstring MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension);
 
 	void OnBaseModuleLoaded(void * self);
 	void OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState);
@@ -251,8 +262,7 @@ private:
 	void ResetExtensionStateClient();
 	void LoadExtensionStateClient();
 
-	void OnInitNetworkFixedStrings(void * self, void * arg1);
-	void DumpNetworkFixedStrings();
+	void OnInitNetworkFixedStrings(eoc::NetworkFixedStrings* self, void * arg1);
 	void RegisterFlashTraceCallbacks();
 
 	void AddClientThread(DWORD threadId);

@@ -40,6 +40,7 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "EnableExtensions", config.EnableExtensions);
 	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
+	ConfigGetBool(root, "SyncNetworkStrings", config.SyncNetworkStrings);
 	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
 	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
 	ConfigGetBool(root, "DeveloperMode", config.DeveloperMode);

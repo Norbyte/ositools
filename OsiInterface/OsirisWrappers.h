@@ -54,7 +54,7 @@ public:
 	HOOKABLE(HANDLE(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE), CreateFileW);
 	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
-	HOOKABLE(void(void *, void *), InitNetworkFixedStrings);
+	HOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
 	HOOKABLE(void(void *, ClientGameState, ClientGameState), ClientGameStateChangedEvent);
 	HOOKABLE(void(void *, ServerGameState, ServerGameState), ServerGameStateChangedEvent);
 	HOOKABLE(void(void *), ClientGameStateWorkerStart);
