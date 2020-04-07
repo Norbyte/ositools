@@ -91,12 +91,41 @@ namespace dse::lua
 		return character;
 	}
 
+	int CharacterGetInventoryItems(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+
+		lua_newtable(L);
+
+		auto inventory = FindInventoryByHandle(self->Get(L)->InventoryHandle);
+		if (inventory != nullptr) {
+			int32_t index = 1;
+			for (uint32_t i = 0; i < inventory->ItemsBySlot.Set.Size; i++) {
+				auto itemHandle = inventory->ItemsBySlot[i];
+				if (itemHandle) {
+					auto item = FindItemByHandle(itemHandle);
+					if (item != nullptr) {
+						settable(L, index++, item->MyGuid);
+					}
+				}
+			}
+		}
+
+		return 1;
+	}
+
 	int ObjectProxy<esv::Character>::Index(lua_State * L)
 	{
 		auto character = Get(L);
 		if (!character) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "GetInventoryItems") == 0) {
+			lua_pushcfunction(L, &CharacterGetInventoryItems);
+			return 1;
+		}
+
 		return CharacterFetchProperty(L, character, prop);
 	}
 

@@ -285,11 +285,11 @@ namespace dse
 		};
 
 
-		struct StatusMachine : public ProtectedGameObject<StatusMachine>
+		struct StatusMachine : public NetworkObjectFactory<esv::Status, (uint32_t)ObjectType::Character>
 		{
 			Status * GetStatusByHandle(ObjectHandle handle) const;
 
-			uint8_t U2[288];
+			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;
 			bool PreventStatusApply;
 			uint8_t _Pad1[6];
