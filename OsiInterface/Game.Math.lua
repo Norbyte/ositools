@@ -693,26 +693,26 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     if attacker.TALENT_Haymaker then
         return false
     end
+
+    if hitType == "DoT" or hitType == "Surface" then
+        return false
+    end
     
-    if attacker.TALENT_ViolentMagic == false or hitType ~= "Magic" then
+    local critChance = attacker.CriticalChance
+    if attacker.TALENT_ViolentMagic and hitType == "Magic" then
+        critChance = critChance * Ext.ExtraData.TalentViolentMagicCriticalChancePercent * 0.01
+        critChance = math.max(critChance, 1)
+    else
         if (hit.EffectFlags & HitFlag.Backstab) ~= 0 then
             return true
         end
 
-        if hitType == "Magic" or hitType == "DoT" or hitType == "Surface" then
+        if hitType == "Magic" then
             return false
         end
-
-        return math.random(0, 99) < attacker.CriticalChance
-    else
-        local critChance = attacker.CriticalChance
-        if attacker.TALENT_ViolentMagic then
-            critChance = critChance + Ext.ExtraData.TalentViolentMagicCriticalChancePercent
-        end
-
-        critChance = math.min(critChance, 1)
-        return math.random(0, 99) < attacker.CriticalChance
     end
+
+    return math.random(0, 99) < critChance
 end
 
 
@@ -762,47 +762,20 @@ function ApplyDamagesToHitInfo(damageList, hit)
 end
 
 
-function ComputeArmorDamage(damageList, armor)
-    local absorption = 0
-
-    local corrosive = damageList:GetByType("Corrosive")
-    if corrosive > 0 then
-        local damageAmount = math.min(armor, corrosive)
-        armor = armor - damageAmount
-        absorption = absorption + damageAmount
-    end
-
-    for i,damage in pairs(damageList:ToTable()) do
-        local type = damage.DamageType
-        if type == "Physical" or type == "Sulfur" then
-            local damageAmount = math.min(armor, damage.Amount)
-            absorption = absorption + damageAmount
-        end
-    end
-
-    return absorption
+local function ComputeArmorDamage(damageList, armor)
+    local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfur")
+    return math.min(armor, damage)
 end
 
 
-function ComputeMagicArmorDamage(damageList, magicArmor)
-    local absorption = 0
-
-    local magic = damageList:GetByType("Magic")
-    if magic > 0 then
-        local damageAmount = math.min(magicArmor, magic)
-        magicArmor = magicArmor - damageAmount
-        absorption = absorption + damageAmount
-    end
-
-    for i,damage in pairs(damageList:ToTable()) do
-        local type = damage.DamageType
-        if type == "Fire" or type == "Water" or type == "Air" or type == "Earth" or type == "Poison" then
-            local damageAmount = math.min(magicArmor, damage.Amount)
-            absorption = absorption + damageAmount
-        end
-    end
-
-    return absorption
+local function ComputeMagicArmorDamage(damageList, magicArmor)
+    local damage = damageList:GetByType("Magic") 
+        + damageList:GetByType("Fire") 
+        + damageList:GetByType("Water")
+        + damageList:GetByType("Air")
+        + damageList:GetByType("Earth")
+        + damageList:GetByType("Poison")
+    return math.min(magicArmor, damage)
 end
 
 
@@ -924,7 +897,7 @@ function IsInFlankingPosition(target, attacker)
     local distanceSq = 1.0 / math.sqrt(dx^2 + dy^2 + dz^2)
     local nx, ny, nz = dx * distanceSq, dy * distanceSq, dz * distanceSq
 
-    local ang = -rotation[6] * normDX - rotation[7] * normDY - rotation[8] * normDZ
+    local ang = -rotation[6] * nx - rotation[7] * ny - rotation[8] * nz
     return ang > math.cos(0.52359879)
 end
 
