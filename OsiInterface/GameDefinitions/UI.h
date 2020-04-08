@@ -364,9 +364,7 @@ namespace dse
 		bool IsDragging;
 		uint8_t _Pad[7];
 		ObjectHandle ChildUIHandle;
-#if !defined(OSI_EOCAPP)
 		ObjectHandle ParentUIHandle;
-#endif
 		int Layer;
 		int RenderOrder;
 		int MovieLayout;

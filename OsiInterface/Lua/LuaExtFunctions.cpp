@@ -1028,7 +1028,11 @@ namespace dse::lua
 		auto speakerGuid = luaL_checkstring(L, 1);
 		auto translatedStringKey = luaL_checkstring(L, 2);
 		auto source = luaL_checkstring(L, 3);
-		auto length = luaL_checknumber(L, 4);
+		auto length = checked_get<float>(L, 4);
+		int32_t priority = 0;
+		if (lua_gettop(L) > 4) {
+			priority = checked_get<int>(L, 5);
+		}
 
 		auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
 		if (speakerMgr == nullptr || *speakerMgr == nullptr) {
@@ -1041,6 +1045,7 @@ namespace dse::lua
 		voiceMeta->CodecID = 4;
 		voiceMeta->IsRecorded = true;
 		voiceMeta->Length = (float)length;
+		voiceMeta->Priority = priority;
 
 		auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
 		voiceMeta->Source.Name = path;

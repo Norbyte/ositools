@@ -691,8 +691,10 @@ namespace dse
 	struct Path
 	{
 		STDString Name;
+#if !defined(OSI_EOCAPP)
 		uint32_t Unknown{ 0 };
 		uint32_t _Pad;
+#endif
 	};
 
 	struct RuntimeStringHandle : public Noncopyable<RuntimeStringHandle>

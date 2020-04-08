@@ -1029,7 +1029,9 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 			DEBUG("FileReader path override: %s -> %s", path->Name.c_str(), it->second.c_str());
 			Path overriddenPath;
 			overriddenPath.Name = it->second;
+#if !defined(OSI_EOCAPP)
 			overriddenPath.Unknown = path->Unknown;
+#endif
 			lock.unlock();
 			return next(self, &overriddenPath, type);
 		}
