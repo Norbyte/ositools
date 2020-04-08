@@ -8,4 +8,5 @@ namespace dse::script {
 	std::optional<STDString> LoadExternalFile(std::string_view path);
 	bool SaveExternalFile(std::string_view path, std::string_view contents);
 
+	bool GetTranslatedString(char const* handle, STDWString& translated);
 }

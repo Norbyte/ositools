@@ -117,6 +117,13 @@ namespace dse
 	};
 
 
+	struct TranslatedStringRepository
+	{
+		typedef TranslatedStringRepository* (*GetInstance)();
+		typedef STDWString * (*Get)(TranslatedStringRepository* self, RuntimeStringHandle* handle, uint64_t * length, char gender1, char gender2, bool unknown);
+	};
+
+
 	namespace eoc
 	{
 		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>

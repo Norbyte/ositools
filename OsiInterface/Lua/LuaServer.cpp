@@ -437,6 +437,7 @@ namespace dse::lua
 	int LuaRound(lua_State * L);
 	int GenerateIdeHelpers(lua_State * L);
 	int AddVoiceMetaData(lua_State * L);
+	int GetTranslatedString(lua_State* L);
 
 
 	int BroadcastMessage(lua_State * L)
@@ -534,6 +535,7 @@ namespace dse::lua
 
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
+			{"GetTranslatedString", GetTranslatedString},
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},

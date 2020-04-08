@@ -896,6 +896,24 @@ namespace dse
 			{SymbolMappingCondition::kString, 15, "Root templates"},
 			{"eoc::gSpeakerManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(eoc__SpeakerManager)}
 		},
+
+		{
+			"ls::TranslatedStringRepository::Get",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:ls__gTranslatedStringRepository
+			"4C 8D 44 XX XX " // lea     r8, [rsp+190h+a3]
+			"C6 44 24 XX XX " // mov     [rsp+190h+a6], 1
+			"48 8D 54 XX XX " // lea     rdx, [rsp+190h+a2]
+			"45 33 C9 " // xor     r9d, r9d
+			"88 5C XX XX " // mov     [rsp+190h+a5], bl
+			"E8 XX XX XX XX " // call    ls__TranslatedStringRepository__Get
+			"4C 8D 4C XX XX " // lea     r9, [rsp+190h+var_140]
+			"4C 8B C0 " // mov     r8, rax
+			"48 8D 15 XX XX XX XX ", // lea     rdx, aListcivilabili ; "listCivilAbilities"
+			{SymbolMappingCondition::kString, 42, "listCivilAbilities"},
+			{"ls::TranslatedStringRepository::Instance", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(TranslatedStringRepository__Instance)},
+			{"ls::TranslatedStringRepository::Get", SymbolMappingTarget::kIndirect, 29, STATIC_SYM(TranslatedStringRepository__Get)},
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

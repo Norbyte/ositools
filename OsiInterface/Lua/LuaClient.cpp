@@ -39,6 +39,7 @@ namespace dse::lua
 	int LuaRandom(lua_State * L);
 	int LuaRound(lua_State * L);
 	int AddVoiceMetaData(lua_State * L);
+	int GetTranslatedString(lua_State* L);
 
 
 	int PostMessageToServer(lua_State * L)
@@ -347,7 +348,7 @@ namespace dse::lua
 			arrayIndex = (int)luaL_checkinteger(L, 4);
 		}
 
-		InvokeDataValueType type = InvokeDataValueType::IDV_NoneVal;
+		InvokeDataValueType type = IDV_NoneVal;
 		if (strcmp(typeName, "number") == 0) {
 			type = InvokeDataValueType::IDV_Double;
 		} else if (strcmp(typeName, "boolean") == 0) {
@@ -614,6 +615,7 @@ namespace dse::lua
 
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
+			{"GetTranslatedString", GetTranslatedString},
 
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},

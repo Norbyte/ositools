@@ -700,7 +700,7 @@ namespace dse
 	struct RuntimeStringHandle : public Noncopyable<RuntimeStringHandle>
 	{
 		void * VMT;
-		FixedString FS;
+		FixedString Handle;
 		STDString Str;
 		STDWString WStr;
 	};

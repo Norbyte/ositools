@@ -71,4 +71,40 @@ bool SaveExternalFile(std::string_view path, std::string_view contents)
 	return true;
 }
 
+bool GetTranslatedString(char const* handle, STDWString& translated)
+{
+	auto getRepoInstance = GetStaticSymbols().TranslatedStringRepository__GetInstance;
+	auto repoInstance = GetStaticSymbols().TranslatedStringRepository__Instance;
+	auto getter = GetStaticSymbols().TranslatedStringRepository__Get;
+
+	TranslatedStringRepository* repo{ nullptr };
+	if (getRepoInstance) {
+		repo = getRepoInstance();
+	} else if (repoInstance) {
+		repo = *repoInstance;
+	}
+
+	if (repo == nullptr || getter == nullptr) {
+		OsiError("TranslatedStringRepository functions not mapped!");
+		return false;
+	}
+
+	auto key = ToFixedString(handle);
+	if (!key) {
+		return false;
+	}
+
+	RuntimeStringHandle runtimeString;
+	runtimeString.Handle = key;
+	uint64_t length{ 0 };
+	auto translatedString = getter(repo, &runtimeString, &length, 0, 0, true);
+
+	if (translatedString) {
+		translated = *translatedString;
+		return true;
+	} else {
+		return false;
+	}
+}
+
 }

@@ -123,6 +123,10 @@ namespace dse
 		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
 		UIObject::VMT * EoCUI__vftable{ nullptr };
 
+		TranslatedStringRepository ** TranslatedStringRepository__Instance{ nullptr };
+		TranslatedStringRepository::GetInstance TranslatedStringRepository__GetInstance{ nullptr };
+		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };
+
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };

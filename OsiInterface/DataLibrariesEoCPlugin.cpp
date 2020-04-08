@@ -874,7 +874,7 @@ namespace dse
 		GetStaticSymbols().CreateFixedString = (ls__FixedString__Create)createFixedStringProc;
 
 		if (GetStaticSymbols().CreateFixedString == nullptr) {
-			ERR("LibraryManager::FindGlobalStringTableCoreLib(): Could not find ls::FixedString::Create");
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find ls::FixedString::Create");
 			CriticalInitFailed = true;
 		}
 
@@ -886,6 +886,13 @@ namespace dse
 		GetStaticSymbols().FileReaderCtor = (ls__FileReader__FileReader)fileReaderCtorProc;
 		GetStaticSymbols().FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
 
+		if (GetStaticSymbols().GetPrefixForRoot == nullptr 
+			|| GetStaticSymbols().FileReaderCtor == nullptr 
+			|| GetStaticSymbols().FileReaderDtor == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find filesystem functions");
+			CriticalInitFailed = true;
+		}
+
 		auto registerUIObjectCreatorProc = GetProcAddress(gameEngine_, "?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z");
 		auto createUIObjectProc = GetProcAddress(gameEngine_, "?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z");
 		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");
@@ -896,11 +903,28 @@ namespace dse
 		GetStaticSymbols().UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObject)destroyUIObjectProc;
 		GetStaticSymbols().UIObjectManager__GetInstance = (UIObjectManager::GetInstance)getUIObjectManagerProc;
 
-		if (GetStaticSymbols().GetPrefixForRoot == nullptr 
-			|| GetStaticSymbols().FileReaderCtor == nullptr 
-			|| GetStaticSymbols().FileReaderDtor == nullptr) {
-			ERR("LibraryManager::FindFileSystemCoreLib(): Could not find filesystem functions");
-			CriticalInitFailed = true;
+		if (GetStaticSymbols().UIObjectManager__RegisterUIObjectCreator == nullptr
+			|| GetStaticSymbols().UIObjectManager__CreateUIObject == nullptr
+			|| GetStaticSymbols().UIObjectManager__DestroyUIObject == nullptr
+			|| GetStaticSymbols().UIObjectManager__GetInstance == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find UI functions");
+			InitFailed = true;
+		}
+
+		auto getTranslatedStringRepoProc = GetProcAddress(coreLib_, "?GetInstance@?$Singleton@VTranslatedStringRepository@ls@@@ls@@SAPEAVTranslatedStringRepository@2@XZ");
+		auto getTranslatedStringProc = GetProcAddress(coreLib_, "?GetTranslatedString@TranslatedStringRepository@ls@@QEAA?AVTranslatedString@2@AEBVRuntimeStringHandle@2@QEBD@Z");
+		auto getTranslatedString2Proc = GetProcAddress(coreLib_, "?Get@TranslatedStringRepository@ls@@QEBAAEBVSTDWString@2@AEBVRuntimeStringHandle@2@AEA_KW4EGender@2@2_N@Z");
+
+		auto getTranslatedStringKeyMgrProc = GetProcAddress(coreLib_, "?GetInstance@?$Singleton@VTranslatedStringKeyManager@ls@@@ls@@SAPEAVTranslatedStringKeyManager@2@XZ");
+		auto getTranslatedStringFromKeyProc = GetProcAddress(coreLib_, "?GetTranlatedStringFromKey@TranslatedStringKeyManager@ls@@QEBA?AVTranslatedString@2@AEBVFixedString@2@_N@Z");
+
+		GetStaticSymbols().TranslatedStringRepository__GetInstance = (TranslatedStringRepository::GetInstance)getTranslatedStringRepoProc;
+		GetStaticSymbols().TranslatedStringRepository__Get = (TranslatedStringRepository::Get)getTranslatedString2Proc;
+
+		if (GetStaticSymbols().TranslatedStringRepository__GetInstance == nullptr
+			|| GetStaticSymbols().TranslatedStringRepository__Get == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find TranslatedStringRepository functions");
+			InitFailed = true;
 		}
 	}
 

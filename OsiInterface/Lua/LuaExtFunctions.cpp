@@ -1053,6 +1053,24 @@ namespace dse::lua
 		return 0;
 	}
 
+	int GetTranslatedString(lua_State* L)
+	{
+		auto translatedStringKey = luaL_checkstring(L, 1);
+		char const* fallbackText = "";
+		if (lua_gettop(L) > 1) {
+			fallbackText = luaL_checkstring(L, 2);
+		}
+
+		STDWString translated;
+		if (script::GetTranslatedString(translatedStringKey, translated)) {
+			push(L, translated);
+		} else {
+			push(L, fallbackText);
+		}
+
+		return 1;
+	}
+
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
 	{

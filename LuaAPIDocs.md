@@ -771,6 +771,14 @@ The function checks if the file at `Mods/<ModuleUUID>/Story/RawFiles/Lua/<path>`
 
 Prints the specified value(s) to the debug console. Works similarly to the built-in Lua `print()`, except that it also logs the printed messages to the editor messages pane.
 
+#### Ext.GetTranslatedString(key[, fallback])
+
+Returns the text associated with the specified translated string key. If the key doesn't exist, the value of `fallback` is returned. If no fallback value is specified, an empty string (`""`) is returned.
+
+```lua
+local str = Ext.GetTranslatedString("h17edbbb2g9444g4c79g9409gdb8eb5731c7c", "[1] cast [2] on the ground")
+```
+
 
 ## JSON Support
 
