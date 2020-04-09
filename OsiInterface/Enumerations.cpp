@@ -413,7 +413,8 @@ namespace dse
 		{ ItemSlot::Ring2, "Ring2" },
 		{ ItemSlot::Wings, "Wings" },
 		{ ItemSlot::Horns, "Horns" },
-		{ ItemSlot::Overhead, "Overhead" }
+		{ ItemSlot::Overhead, "Overhead" },
+		{ ItemSlot::Sentinel, "Sentinel" }
 	};
 
 	EnumInfo<EquipmentStatsType>::Label const EnumInfo<EquipmentStatsType>::Values[] = {

@@ -169,7 +169,7 @@ namespace dse
 
 		struct Inventory
 		{
-			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool checkAPRequirement, 
+			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
 				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
 				bool updateCurrentVitality, bool useWeaponAnimTypeAndSkills);
 

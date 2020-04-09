@@ -235,7 +235,7 @@ namespace dse
 			auto characterGuid = args[0].String;
 			auto itemGuid = args[1].String;
 			auto slotName = args[2].String;
-			auto checkAP = args[3].Int32 > 0;
+			auto consumeAP = args[3].Int32 > 0;
 			auto checkRequirements = args[4].Int32 > 0;
 			auto updateVitality = args[5].Int32 > 0;
 			auto useWeaponAnimType = args[6].Int32 > 0;
@@ -264,7 +264,7 @@ namespace dse
 			item->GetObjectHandle(&itemHandle);
 
 			auto equipProc = GetStaticSymbols().InventoryEquip;
-			equipProc(inventory, itemHandle.Handle, checkAP, slotIndex, true, checkRequirements,
+			equipProc(inventory, itemHandle.Handle, consumeAP, slotIndex, true, checkRequirements,
 				updateVitality, useWeaponAnimType);
 		}
 
@@ -563,7 +563,7 @@ namespace dse
 				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
 				{ "Item", ValueType::ItemGuid, FunctionArgumentDirection::In },
 				{ "Slot", ValueType::String, FunctionArgumentDirection::In },
-				{ "CheckAP", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "ConsumeAP", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "CheckRequirements", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "UpdateVitality", ValueType::Integer, FunctionArgumentDirection::In },
 				{ "UseWeaponAnimType", ValueType::Integer, FunctionArgumentDirection::In }
