@@ -790,7 +790,7 @@ namespace dse
 	}
 
 	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
-		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, __int64 isFromItem,
+		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
 	{
 		// When fetching subproperties (recursively), paramTexts will be null.
@@ -798,7 +798,7 @@ namespace dse
 		if (paramTexts != nullptr) {
 			LuaClientPin lua(ExtensionStateClient::Get());
 			if (lua) {
-				auto replacement = lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts);
+				auto replacement = lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, isFromItem);
 				if (replacement) {
 					eocText->ReplaceParam(paramIndex, *replacement);
 					return;

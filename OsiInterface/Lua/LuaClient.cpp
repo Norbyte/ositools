@@ -678,7 +678,7 @@ namespace dse::lua
 	}
 
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
-		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
+		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 	{
 		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
@@ -693,6 +693,7 @@ namespace dse::lua
 		auto _{ PushArguments(L,
 			std::tuple{Push<StatsProxy>(skill, std::optional<int32_t>()),
 			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
+		push(L, isFromItem);
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			push(L, paramTexts[i]); // stack: fn, skill, character, params...

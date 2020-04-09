@@ -689,7 +689,7 @@ namespace dse
 	struct SkillPrototype
 	{
 		typedef void (* FormatDescriptionParam)(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats, 
-			eoc::Text *eocText, int paramIndex, __int64 isFromItem, float xmm9_4_0, FixedString * paramText, 
+			eoc::Text *eocText, int paramIndex, bool isFromItem, float xmm9_4_0, FixedString * paramText,
 			ObjectSet<STDString> * stdStringSet);
 
 		typedef void (* GetSkillDamage)(SkillPrototype * self, struct DamagePairList * damageList, 

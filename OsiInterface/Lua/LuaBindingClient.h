@@ -58,7 +58,7 @@ namespace dse::lua
 
 		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
-			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts);
+			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts);
 
