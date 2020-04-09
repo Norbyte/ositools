@@ -44,7 +44,7 @@ namespace dse
 		{ StatGetterType::Strength, "Strength" },
 		{ StatGetterType::Finesse, "Finesse" },
 		{ StatGetterType::Intelligence, "Intelligence" },
-		{ StatGetterType::Vitality, "Vitality" },
+		{ StatGetterType::Constitution, "Constitution" },
 		{ StatGetterType::Memory, "Memory" },
 		{ StatGetterType::Wits, "Wits" },
 		{ StatGetterType::Accuracy, "Accuracy" },

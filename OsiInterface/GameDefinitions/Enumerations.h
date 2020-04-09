@@ -552,7 +552,7 @@ namespace dse
 		Strength = 4,
 		Finesse = 5,
 		Intelligence = 6,
-		Vitality = 7,
+		Constitution = 7,
 		Memory = 8,
 		Wits = 9,
 
