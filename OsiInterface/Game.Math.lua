@@ -485,7 +485,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
             damageList:Merge(mainDmgs)
         end
 
-        if offHand ~= nil and IsRangedWeapon(weapon) and IsRangedWeapon(offHand) then
+        if offHand ~= nil and IsRangedWeapon(weapon) == IsRangedWeapon(offHand) then
             local offHandDmgs = CalculateWeaponDamage(attacker, offHand, noRandomization)
             offHandDmgs:Multiply(damageMultipliers)
             if damageType ~= nil then
