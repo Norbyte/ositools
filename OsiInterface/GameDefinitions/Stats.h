@@ -22,7 +22,7 @@ namespace dse
 	{
 		void * VMT;
 		ObjectSet<T *> Primitives;
-		FixedStringMapBase<uint32_t> NameHashMap;
+		Map<FixedString, uint32_t> NameHashMap;
 		uint32_t Unused;
 		uint32_t NumItems;
 		uint32_t NumSomeItems;
@@ -196,9 +196,9 @@ namespace dse
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
 		struct CDivinityStats * DivStats;
-		FixedStringMapBase<CRPGStats_Object_Property_List *> PropertyList;
+		Map<FixedString, CRPGStats_Object_Property_List *> PropertyList;
 		uint32_t Unused5;
-		FixedStringMapBase<CDivinityStats_Condition *> ConditionList;
+		Map<FixedString, CDivinityStats_Condition *> ConditionList;
 		uint32_t Unused6;
 		uint64_t AIFlags;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
@@ -477,6 +477,7 @@ namespace dse
 	struct DamagePairList;
 	struct HitDamageInfo;
 	struct SkillPrototype;
+	struct IGameObject;
 
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
 	{
@@ -505,7 +506,7 @@ namespace dse
 		ObjectSet<int> TraitOrder; // Saved
 		uint32_t MaxResistance;
 		uint32_t HasTwoHandedWeapon;
-		esv::Character * Character;
+		IGameObject * Character;
 		uint32_t Unkn2;
 		uint32_t IsIncapacitatedRefCount;
 		CharacterDynamicStat ** DynamicStats;
@@ -613,7 +614,7 @@ namespace dse
 	struct RPGEnumeration : public ProtectedGameObject<RPGEnumeration>
 	{
 		FixedString Name;
-		FixedStringMapBase<int32_t> Values;
+		Map<FixedString, int32_t> Values;
 	};
 
 	struct CRPGStats_Modifier : public ProtectedGameObject<CRPGStats_Modifier>
@@ -635,7 +636,7 @@ namespace dse
 
 	struct CRPGStats_ExtraData : public ProtectedGameObject<CRPGStats_ExtraData>
 	{
-		FixedStringMapBase<float> Properties;
+		Map<FixedString, float> Properties;
 	};
 
 	struct CDivinityStats_Condition : public ProtectedGameObject<CDivinityStats_Condition>
@@ -646,7 +647,7 @@ namespace dse
 
 	struct CRPGStats_Conditions_Manager
 	{
-		FixedStringMapBase<CDivinityStats_Condition *> Conditions;
+		Map<FixedString, CDivinityStats_Condition *> Conditions;
 		uint8_t _Pad1[4];
 		ObjectSet<STDString> Strs;
 	};
@@ -781,23 +782,23 @@ namespace dse
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
 		CRPGStats_ItemType_Manager itemTypes;
-		FixedStringMapBase<CRPGStats_Object_Property_List> PropertyLists;
+		Map<FixedString, CRPGStats_Object_Property_List> PropertyLists;
 		uint8_t _Pad1[4];
 		CRPGStats_Conditions_Manager ConditionsManager;
 		STDWString WStr1;
 		uint64_t Unkn1[5];
 		CRPGStats_ExtraData * ExtraData;
-		FixedStringRefMap<FixedString, void *> RefMap1;
-		FixedStringRefMap<FixedString, void *> RefMap2;
-		FixedStringMapBase<FixedString> FSMap1;
+		RefMap<FixedString, void *> RefMap1;
+		RefMap<FixedString, void *> RefMap2;
+		Map<FixedString, FixedString> FSMap1;
 		uint8_t _Pad2[4];
-		FixedStringMapBase<int> FSMapInt1;
+		Map<FixedString, int> FSMapInt1;
 		uint8_t _Pad3[4];
-		FixedStringMapBase<int> FSMapInt2;
+		Map<FixedString, int> FSMapInt2;
 		uint8_t _Pad4[4];
-		FixedStringMapBase<int> FSMapInt3;
+		Map<FixedString, int> FSMapInt3;
 		uint8_t _Pad5[4];
-		FixedStringRefMap<FixedString, void *> FSMap2;
+		RefMap<FixedString, void *> FSMap2;
 		uint64_t Unkn2[7];
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
 		ObjectSet<uint64_t> AttributeFlags;
@@ -808,7 +809,7 @@ namespace dse
 		void * ItemCombinationManager;
 		uint64_t Unkn4;
 		FixedString FS1;
-		FixedStringMapBase<uint64_t> FSMapUInt64;
+		Map<FixedString, uint64_t> FSMapUInt64;
 		uint8_t _Pad6[4];
 		uint64_t Unkn5;
 		PrimitiveSet<void *> DataBufferSet;

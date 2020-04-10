@@ -213,7 +213,7 @@ namespace dse::lua
 			if (index) {
 				return (T)*index;
 			} else {
-				luaL_error(L, "Param %d is not a valid enum label", index);
+				luaL_error(L, "Param %d is not a valid '%s' enum label: %s", index, EnumInfo<T>::Name, val);
 			}
 			break;
 		}
@@ -225,7 +225,7 @@ namespace dse::lua
 			if (index) {
 				return (T)val;
 			} else {
-				luaL_error(L, "Param %d is not a valid enum label", index);
+				luaL_error(L, "Param %d is not a valid '%s' enum index: %d", index, EnumInfo<T>::Name, val);
 			}
 			break;
 		}

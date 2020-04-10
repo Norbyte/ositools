@@ -5,8 +5,10 @@
 #include <regex>
 
 
-namespace dse::lua
+namespace dse::esv::lua
 {
+	using namespace dse::lua;
+
 	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil)
 	{
 		tv.VMT = gOsirisProxy->GetGlobals().TypedValueVMT;
@@ -789,7 +791,7 @@ namespace dse::lua
 			return false;
 		}
 
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (!lua) {
 			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
@@ -950,7 +952,7 @@ namespace dse::lua
 			return false;
 		}
 
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (!lua) {
 			OsiErrorS("Call failed: Lua state not initialized");
 			return false;
@@ -985,7 +987,7 @@ namespace dse::lua
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = luaL_checkstring(L, 2);
 
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		OsiFunctionNameProxy::New(L, name, std::ref(lua.Get())); // stack: tab, name, proxy
 
 		lua_pushvalue(L, 1); // stack: fun, tab
@@ -1060,7 +1062,7 @@ namespace dse::lua
 
 	int ExtensionLibraryServer::NewCall(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register call after Lua startup phase");
@@ -1083,7 +1085,7 @@ namespace dse::lua
 
 	int ExtensionLibraryServer::NewQuery(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register query after Lua startup phase");
@@ -1106,7 +1108,7 @@ namespace dse::lua
 
 	int ExtensionLibraryServer::NewEvent(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (!lua) return luaL_error(L, "Exiting");
 
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register event after Lua startup phase");

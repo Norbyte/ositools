@@ -252,4 +252,33 @@ namespace dse::lua
 		State & state_;
 		uint32_t oldFlags_;
 	};
+
+
+	int GetExtensionVersion(lua_State* L);
+	int OsiPrint(lua_State* L);
+	int OsiPrintWarning(lua_State* L);
+	int OsiPrintError(lua_State* L);
+	int SaveFile(lua_State* L);
+	int LoadFile(lua_State* L);
+	int JsonParse(lua_State* L);
+	int JsonStringify(lua_State* L);
+	int IsModLoaded(lua_State* L);
+	int GetModLoadOrder(lua_State* L);
+	int GetModInfo(lua_State* L);
+	int GetStatEntries(lua_State* L);
+	int GetSkillSet(lua_State* L);
+	int GetEquipmentSet(lua_State* L);
+	int StatGetAttribute(lua_State* L);
+	int StatSetAttribute(lua_State* L);
+	int StatAddCustomDescription(lua_State* L);
+	int StatSetLevelScaling(lua_State* L);
+	int GetStat(lua_State* L);
+	int NewDamageList(lua_State* L);
+	int IsDeveloperMode(lua_State* L);
+	int AddPathOverride(lua_State* L);
+	int LuaRandom(lua_State* L);
+	int LuaRound(lua_State* L);
+	int AddVoiceMetaData(lua_State* L);
+	int GetTranslatedString(lua_State* L);
+	int GenerateIdeHelpers(lua_State* L);
 }

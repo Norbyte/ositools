@@ -18,12 +18,15 @@ namespace dse
 	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
-	PropertyMap<esv::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
-	PropertyMap<esv::EoCServerObject, void> gEoCServerObjectPropertyMap;
+	PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	PropertyMap<IEoCServerObject, void> gEoCServerObjectPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 	PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
+	PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
+	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
+	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
 #define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
 #define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
@@ -35,6 +38,7 @@ namespace dse
 	{
 		{
 			auto & propertyMap = gStatusPropertyMap;
+			PROP_RO(esv::Status, NetID);
 			PROP_RO(esv::Status, StatusId);
 			PROP_RO(esv::Status, CanEnterChance);
 			PROP_RO(esv::Status, StartTimer);
@@ -445,36 +449,37 @@ namespace dse
 
 		{
 			auto & propertyMap = gPlayerCustomDataPropertyMap;
-			PROP_RO(esv::PlayerCustomData, CustomLookEnabled);
-			PROP(esv::PlayerCustomData, Name);
-			PROP(esv::PlayerCustomData, ClassType);
-			PROP(esv::PlayerCustomData, SkinColor);
-			PROP(esv::PlayerCustomData, HairColor);
-			PROP(esv::PlayerCustomData, ClothColor1);
-			PROP(esv::PlayerCustomData, ClothColor2);
-			PROP(esv::PlayerCustomData, ClothColor3);
-			PROP(esv::PlayerCustomData, IsMale);
-			PROP(esv::PlayerCustomData, Race);
-			PROP(esv::PlayerCustomData, OriginName);
-			PROP(esv::PlayerCustomData, Icon);
-			PROP(esv::PlayerCustomData, MusicInstrument);
-			PROP_RO(esv::PlayerCustomData, OwnerProfileID);
-			PROP_RO(esv::PlayerCustomData, ReservedProfileID);
-			PROP(esv::PlayerCustomData, AiPersonality);
-			PROP_RO(esv::PlayerCustomData, Speaker);
+			PROP_RO(eoc::PlayerCustomData, CustomLookEnabled);
+			PROP(eoc::PlayerCustomData, Name);
+			PROP(eoc::PlayerCustomData, ClassType);
+			PROP(eoc::PlayerCustomData, SkinColor);
+			PROP(eoc::PlayerCustomData, HairColor);
+			PROP(eoc::PlayerCustomData, ClothColor1);
+			PROP(eoc::PlayerCustomData, ClothColor2);
+			PROP(eoc::PlayerCustomData, ClothColor3);
+			PROP(eoc::PlayerCustomData, IsMale);
+			PROP(eoc::PlayerCustomData, Race);
+			PROP(eoc::PlayerCustomData, OriginName);
+			PROP(eoc::PlayerCustomData, Icon);
+			PROP(eoc::PlayerCustomData, MusicInstrument);
+			PROP_RO(eoc::PlayerCustomData, OwnerProfileID);
+			PROP_RO(eoc::PlayerCustomData, ReservedProfileID);
+			PROP(eoc::PlayerCustomData, AiPersonality);
+			PROP_RO(eoc::PlayerCustomData, Speaker);
 		}
 
 		{
 			auto & propertyMap = gEoCServerObjectPropertyMap;
-			PROP_RO(esv::EoCServerObject, NetID);
-			PROP_RO(esv::EoCServerObject, MyGuid);
-			PROP_RO(esv::EoCServerObject, WorldPos);
-			PROP_RO(esv::EoCServerObject, CurrentLevel);
+			PROP_RO(IEoCServerObject, NetID);
+			PROP_RO(IEoCServerObject, MyGuid);
+			PROP_RO(IEoCServerObject, WorldPos);
+			PROP_RO(IEoCServerObject, CurrentLevel);
 		}
 
 		{
 			auto & propertyMap = gCharacterPropertyMap;
 			// EoCServerObject
+			PROP_RO(esv::Character, NetID);
 			PROP_RO(esv::Character, MyGuid);
 			PROP_RO(esv::Character, WorldPos);
 			PROP_RO(esv::Character, CurrentLevel);
@@ -505,6 +510,7 @@ namespace dse
 		{
 			auto & propertyMap = gItemPropertyMap;
 			// EoCServerObject
+			PROP_RO(esv::Item, NetID);
 			PROP_RO(esv::Item, MyGuid);
 			PROP_RO(esv::Item, WorldPos);
 			PROP_RO(esv::Item, CurrentLevel);
@@ -545,6 +551,50 @@ namespace dse
 		{
 			auto & propertyMap = gASUseSkillStatPropertyMap;
 			// FIXME
+		}
+
+		{
+			auto& propertyMap = gEclStatusPropertyMap;
+			PROP_RO(ecl::Status, NetID);
+			PROP_RO(ecl::Status, OwnerHandle);
+			PROP_RO(ecl::Status, StatusId);
+			PROP_RO(ecl::Status, LifeTime);
+			PROP_RO(ecl::Status, CurrentLifeTime);
+			PROP_RO(ecl::Status, StatsMultiplier);
+			PROP_FLAGS(ecl::Status, Flags, EclStatusFlags, false);
+			PROP_RO(ecl::Status, StatusSourceHandle);
+		}
+
+		{
+			auto & propertyMap = gEclCharacterPropertyMap;
+			// EoCClientObject
+			PROP_RO(ecl::Character, NetID);
+			PROP_RO(ecl::Character, MyGuid);
+			PROP_RO(ecl::Character, WorldPos);
+			PROP_RO(ecl::Character, CurrentLevel);
+			// Character
+			PROP_RO(ecl::Character, Scale);
+			PROP_RO(ecl::Character, AnimationSetOverride);
+		}
+
+		{
+			auto & propertyMap = gEclItemPropertyMap;
+			// EoCClientObject
+			PROP_RO(ecl::Item, NetID);
+			PROP_RO(ecl::Item, MyGuid);
+			PROP_RO(ecl::Item, WorldPos);
+			PROP_RO(ecl::Item, CurrentLevel);
+			// Item
+			PROP_RO(ecl::Item, LevelName);
+			PROP_RO(ecl::Item, Scale);
+			PROP_RO(ecl::Item, StatsId);
+			PROP_RO(ecl::Item, Weight);
+			PROP_RO(ecl::Item, KeyName);
+			PROP_RO(ecl::Item, Level);
+			PROP_RO(ecl::Item, ItemType);
+			PROP_RO(ecl::Item, GoldValueOverride);
+			PROP_RO(ecl::Item, BaseWeightOverwrite);
+			PROP_RO(ecl::Item, ItemColorOverride);
 		}
 	}
 
@@ -622,7 +672,7 @@ namespace dse
 				return true;
 			}
 
-			auto gameObject = FindGameObjectByHandle(*val);
+			auto gameObject = esv::GetEntityWorld()->GetGameObject(*val);
 			if (gameObject != nullptr) {
 				args[firstArg + 1].Set(gameObject->GetGuid()->Str);
 				return true;
@@ -700,10 +750,10 @@ namespace dse
 				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
 			}
 
-			auto gameObject = FindGameObjectByNameGuid(guid);
+			auto gameObject = esv::GetEntityWorld()->GetGameObject(guid);
 			if (gameObject != nullptr) {
 				ObjectHandle handle;
-				gameObject->GetObjectHandle(&handle);
+				gameObject->GetObjectHandle(handle);
 				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
 

@@ -3,14 +3,14 @@
 #include <OsirisProxy.h>
 #include <GameDefinitions/Symbols.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
 		template <class TAction>
 		TAction * PrepareAction(OsiArgumentDesc const & args, GameActionType type)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return nullptr;
@@ -40,7 +40,7 @@ namespace dse
 
 			action->SkillId = skillId;
 			ObjectHandle characterHandle;
-			character->GetObjectHandle(&characterHandle);
+			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
 
 			action->Position = pos;
@@ -79,7 +79,7 @@ namespace dse
 
 		bool CreateWall(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
@@ -125,7 +125,7 @@ namespace dse
 
 			action->SkillId = skillId;
 			ObjectHandle characterHandle;
-			character->GetObjectHandle(&characterHandle);
+			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
 
 			action->IsFromItem = false;
@@ -185,11 +185,11 @@ namespace dse
 			auto casterGuid = args[5].String;
 			auto & gameActionHandle = args[6];
 
-			auto objectToMove = FindGameObjectByNameGuid(gameObjectGuid, true);
+			auto objectToMove = GetEntityWorld()->GetGameObject(gameObjectGuid, true);
 			if (objectToMove == nullptr) return false;
 
 			ObjectHandle objectHandle;
-			objectToMove->GetObjectHandle(&objectHandle);
+			objectToMove->GetObjectHandle(objectHandle);
 
 			FixedString beamEffectFs;
 			esv::Character * caster{ nullptr };
@@ -201,7 +201,7 @@ namespace dse
 					return false;
 				}
 
-				caster = FindCharacterByNameGuid(casterGuid);
+				caster = GetEntityWorld()->GetCharacter(casterGuid);
 				if (caster == nullptr) {
 					OsiError("Caster character '" << casterGuid << "' does not exist!");
 					return false;
@@ -226,7 +226,7 @@ namespace dse
 
 			if (caster != nullptr) {
 				ObjectHandle casterHandle;
-				caster->GetObjectHandle(&casterHandle);
+				caster->GetObjectHandle(casterHandle);
 				action->CasterCharacterHandle = casterHandle;
 				action->BeamEffectName = beamEffectFs;
 			}
@@ -343,7 +343,7 @@ namespace dse
 
 		bool Summon(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
@@ -376,7 +376,7 @@ namespace dse
 			esv::SummonHelperSummonArgs summonArgs;
 
 			ObjectHandle characterHandle;
-			character->GetObjectHandle(&characterHandle);
+			character->GetObjectHandle(characterHandle);
 			summonArgs.OwnerCharacterHandle = characterHandle;
 			summonArgs.GameObjectTemplateFS = objectTemplate;
 			summonArgs.Level = *character->GetCurrentLevel();
@@ -393,12 +393,12 @@ namespace dse
 			if (results.SummonHandle) {
 				FixedString guid;
 
-				auto summonCharacter = FindCharacterByHandle(results.SummonHandle);
+				auto summonCharacter = GetEntityWorld()->GetCharacter(results.SummonHandle);
 				if (summonCharacter != nullptr) {
 					guid = *summonCharacter->GetGuid();
 				}
 				else {
-					auto summonItem = FindItemByHandle(results.SummonHandle);
+					auto summonItem = GetEntityWorld()->GetItem(results.SummonHandle);
 					if (summonItem != nullptr) {
 						guid = *summonItem->GetGuid();
 					}

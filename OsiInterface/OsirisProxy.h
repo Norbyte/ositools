@@ -1,37 +1,5 @@
 #pragma once
 
-#if !defined(OSI_NO_DEBUG_LOG)
-#define OsiError(msg) { \
-	std::stringstream ss; \
-	ss << __FUNCTION__ "(): " msg; \
-	gOsirisProxy->LogOsirisError(ss.str()); \
-}
-
-#define OsiWarn(msg) { \
-	std::stringstream ss; \
-	ss << __FUNCTION__ "(): " msg; \
-	gOsirisProxy->LogOsirisWarning(ss.str()); \
-}
-
-#define OsiMsg(msg) { \
-	std::stringstream ss; \
-	ss << msg; \
-	gOsirisProxy->LogOsirisMsg(ss.str()); \
-}
-
-#define OsiErrorS(msg) gOsirisProxy->LogOsirisError(__FUNCTION__ "(): " msg)
-#define OsiWarnS(msg) gOsirisProxy->LogOsirisWarning(__FUNCTION__ "(): " msg)
-#define OsiMsgS(msg) gOsirisProxy->LogOsirisMsg(__FUNCTION__ "(): " msg)
-#else
-#define OsiError(msg) (void)0
-#define OsiWarn(msg) (void)0
-#define OsiMsg(msg) (void)0
-#define OsiErrorS(msg) (void)0
-#define OsiWarnS(msg) (void)0
-#define OsiMsgS(msg) (void)0
-#endif
-
-
 #include <GameDefinitions/Osiris.h>
 #include <ExtensionStateClient.h>
 #include <ExtensionStateServer.h>
@@ -106,9 +74,9 @@ public:
 		return config_;
 	}
 
-	void LogOsirisError(std::string const & msg);
-	void LogOsirisWarning(std::string const & msg);
-	void LogOsirisMsg(std::string const & msg);
+	void LogOsirisError(std::string_view msg);
+	void LogOsirisWarning(std::string_view msg);
+	void LogOsirisMsg(std::string_view msg);
 
 	inline OsirisStaticGlobals const & GetGlobals() const
 	{
@@ -130,7 +98,7 @@ public:
 		return CustomInjector;
 	}
 
-	inline CustomFunctionLibrary & GetFunctionLibrary()
+	inline esv::CustomFunctionLibrary & GetFunctionLibrary()
 	{
 		return FunctionLibrary;
 	}
@@ -145,14 +113,14 @@ public:
 		return Libraries;
 	}
 
-	ExtensionState * GetCurrentExtensionState();
+	ExtensionStateBase* GetCurrentExtensionState();
 
-	inline ExtensionStateServer & GetServerExtensionState()
+	inline esv::ExtensionState & GetServerExtensionState()
 	{
 		return *ServerExtState;
 	}
 
-	inline ExtensionStateClient & GetClientExtensionState()
+	inline ecl::ExtensionState & GetClientExtensionState()
 	{
 		return *ClientExtState;
 	}
@@ -197,9 +165,9 @@ private:
 	OsirisDynamicGlobals DynGlobals;
 	CustomFunctionManager CustomFunctions;
 	CustomFunctionInjector CustomInjector;
-	CustomFunctionLibrary FunctionLibrary;
-	std::unique_ptr<ExtensionStateServer> ServerExtState;
-	std::unique_ptr<ExtensionStateClient> ClientExtState;
+	esv::CustomFunctionLibrary FunctionLibrary;
+	std::unique_ptr<esv::ExtensionState> ServerExtState;
+	std::unique_ptr<ecl::ExtensionState> ClientExtState;
 	LibraryManager Libraries;
 	bool LibrariesPostInitialized{ false };
 	bool ServerExtensionLoaded{ false };
@@ -250,8 +218,8 @@ private:
 	void RestartLogging(std::wstring const & Type);
 
 	void OnBaseModuleLoaded(void * self);
-	void OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState);
-	void OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState);
+	void OnClientGameStateChanged(void * self, ecl::GameState fromState, ecl::GameState toState);
+	void OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState);
 	void OnClientGameStateWorkerStart(void * self);
 	void OnServerGameStateWorkerStart(void * self);
 	void OnSkillPrototypeManagerInit(void * self);

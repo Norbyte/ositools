@@ -3,13 +3,13 @@
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
 		esv::Skill * CharacterGetSkill(char const * characterGuid, char const * skillId)
 		{
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
 				return nullptr;
@@ -20,7 +20,7 @@ namespace dse
 				return nullptr;
 			}
 
-			auto skill = character->SkillManager->Skills.Find(skillId);
+			auto skill = character->SkillManager->Skills.Find(ToFixedString(skillId));
 			if (skill == nullptr) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return nullptr;
@@ -93,7 +93,7 @@ namespace dse
 
 		ObjectSet<esv::SkillBarItem> * GetSkillBar(char const * characterGuid)
 		{
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
 				return nullptr;
@@ -129,7 +129,7 @@ namespace dse
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == esv::SkillBarItem::kItem) {
-				auto item = FindItemByHandle(skillBarItem->ItemHandle);
+				auto item = GetEntityWorld()->GetItem(skillBarItem->ItemHandle);
 				if (item != nullptr) {
 					args[2].Set(item->MyGuid.Str);
 					return true;
@@ -182,14 +182,14 @@ namespace dse
 			if (skillBar == nullptr) return false;
 
 			auto itemGuid = args[1].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
 			}
 
 			ObjectHandle handle;
-			item->GetObjectHandle(&handle);
+			item->GetObjectHandle(handle);
 
 			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
 				auto & skill = (*skillBar)[i];
@@ -224,7 +224,7 @@ namespace dse
 			skillBarItem->SkillOrStatId = skillIdFs;
 			skillBarItem->ItemHandle = ObjectHandle{};
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
@@ -234,7 +234,7 @@ namespace dse
 			auto slot = args[1].Int32;
 			auto itemGuid = args[2].String;
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
@@ -244,14 +244,14 @@ namespace dse
 			if (skillBarItem == nullptr) return;
 
 			ObjectHandle handle;
-			item->GetObjectHandle(&handle);
+			item->GetObjectHandle(handle);
 			// FIXME - check if item is in the players' inventory?
 
 			skillBarItem->Type = esv::SkillBarItem::kItem;
 			skillBarItem->SkillOrStatId = item->StatsId;
 			skillBarItem->ItemHandle = handle;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
@@ -267,13 +267,13 @@ namespace dse
 			skillBarItem->SkillOrStatId = ToFixedString("");
 			skillBarItem->ItemHandle = ObjectHandle{};
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
 		esv::Character * FindPlayerByNameGuid(char const * guid)
 		{
-			auto character = FindCharacterByNameGuid(guid);
+			auto character = GetEntityWorld()->GetCharacter(guid);
 			if (character == nullptr) return nullptr;
 
 			if (character->PlayerData == nullptr) {
@@ -378,7 +378,7 @@ namespace dse
 
 			}
 
-			return OsirisPropertyMapGet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
+			return OsirisPropertyMapGet<eoc::PlayerCustomData>(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
 		}
 
 		template <OsiPropertyMapType Type>
@@ -392,7 +392,7 @@ namespace dse
 				return;
 			}
 
-			OsirisPropertyMapSet(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
+			OsirisPropertyMapSet<eoc::PlayerCustomData>(gPlayerCustomDataPropertyMap, &player->PlayerData->CustomData, args, 1, Type);
 			player->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 	}

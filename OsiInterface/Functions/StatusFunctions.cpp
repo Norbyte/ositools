@@ -3,7 +3,7 @@
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
 
-namespace dse
+namespace dse::esv
 {
 	FunctionHandle StatusIteratorEventHandle;
 	FunctionHandle StatusAttemptEventHandle;
@@ -14,12 +14,12 @@ namespace dse
 
 	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid)
 	{
-		auto character = FindCharacterByNameGuid(gameObjectGuid, false);
+		auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
 		if (character != nullptr) {
 			return character->StatusMachine;
 		}
 
-		auto item = FindItemByNameGuid(gameObjectGuid, false);
+		auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
 		if (item != nullptr) {
 			return item->StatusMachine;
 		}
@@ -112,13 +112,13 @@ namespace dse
 			ObjectHandle statusHandle{ args[1].Int64 };
 
 			esv::Status * status{ nullptr };
-			auto character = FindCharacterByNameGuid(gameObjectGuid, false);
+			auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
 			if (character != nullptr) {
-				status = character->GetStatusByHandle(statusHandle, true);
+				status = character->GetStatus(statusHandle, true);
 			} else {
-				auto item = FindItemByNameGuid(gameObjectGuid, false);
+				auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
 				if (item != nullptr) {
-					status = item->GetStatusByHandle(statusHandle, true);
+					status = item->GetStatus(statusHandle, true);
 				} else {
 					OsiError("Character or item " << gameObjectGuid << " does not exist!");
 					return nullptr;
@@ -317,7 +317,7 @@ namespace dse
 
 		void StatusPreventApply(OsiArgumentDesc const & args)
 		{
-			auto gameObject = FindGameObjectByNameGuid(args[0].String);
+			auto gameObject = GetEntityWorld()->GetGameObject(args[0].String);
 			auto statusHandle = ObjectHandle{ args[1].Int64 };
 			auto preventApply = args[2].Int32;
 
@@ -327,9 +327,9 @@ namespace dse
 			}
 
 			ObjectHandle gameObjectHandle;
-			gameObject->GetObjectHandle(&gameObjectHandle);
+			gameObject->GetObjectHandle(gameObjectHandle);
 
-			auto status = ExtensionStateServer::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
+			auto status = ExtensionState::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
 			if (status == nullptr) {
 				OsiError("No pending status found with handle " << (int64_t)statusHandle);
 				return;
@@ -375,7 +375,7 @@ namespace dse
 			auto statusId = args[1].String;
 			auto lifeTime = args[2].Float;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character " << characterGuid << " does not exist!");
 				return false;
@@ -408,7 +408,7 @@ namespace dse
 			}
 
 			ObjectHandle handle;
-			character->GetObjectHandle(&handle);
+			character->GetObjectHandle(handle);
 
 			status->TargetHandle = handle;
 			status->TargetPos = *character->GetTranslate();
@@ -427,7 +427,7 @@ namespace dse
 			auto lifeTime = args[3].Float;
 			auto distancePerDamage = args[4].Float;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character " << characterGuid << " does not exist!");
 				return false;
@@ -464,12 +464,12 @@ namespace dse
 				status->CurrentLifeTime = lifeTime;
 			}
 
-			auto sourceCharacter = FindCharacterByNameGuid(sourceCharacterGuid);
+			auto sourceCharacter = GetEntityWorld()->GetCharacter(sourceCharacterGuid);
 			if (sourceCharacter == nullptr) {
 				status->StatusSourceHandle = ObjectHandle{};
 			} else {
 				ObjectHandle sourceHandle;
-				sourceCharacter->GetObjectHandle(&sourceHandle);
+				sourceCharacter->GetObjectHandle(sourceHandle);
 				status->StatusSourceHandle = sourceHandle;
 			}
 
@@ -489,7 +489,7 @@ namespace dse
 		{
 			auto characterGuid = args[0].String;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr
 				|| character->ActionMachine == nullptr
 				|| character->ActionMachine->Layers[0].State == nullptr) {
@@ -515,7 +515,7 @@ namespace dse
 			auto characterGuid = args[0].String;
 			auto & action = args[1];
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr
 				|| character->ActionMachine == nullptr) {
 				return false;
@@ -539,7 +539,7 @@ namespace dse
 	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
 		esv::Status * status, bool useCharacterStats)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
 			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats);
 			if (enterChance) {
@@ -571,14 +571,14 @@ namespace dse
 			return;
 		}
 
-		auto target = FindGameObjectByHandle(status->TargetHandle);
+		auto target = GetEntityWorld()->GetGameObject(status->TargetHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;
 		}
 
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		auto source = GetEntityWorld()->GetCharacter(status->StatusSourceHandle);
 		if (source != nullptr) {
 			sourceGuid = source->GetGuid()->Str;
 		}
@@ -605,14 +605,14 @@ namespace dse
 	{
 		auto statusHeal = static_cast<esv::StatusHeal *>(status);
 
-		auto target = FindCharacterByHandle(status->TargetHandle);
+		auto target = GetEntityWorld()->GetCharacter(status->TargetHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;
 		}
 
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = FindCharacterByHandle(status->StatusSourceHandle);
+		auto source = GetEntityWorld()->GetCharacter(status->StatusSourceHandle);
 		if (source != nullptr) {
 			sourceGuid = source->GetGuid()->Str;
 		}
@@ -655,7 +655,7 @@ namespace dse
 		helper->Type = DamageHelpers::HT_PrepareHitEvent;
 		helper->Target = self;
 		if (attackerStats != nullptr) {
-			helper->Source = attackerStats->Character;
+			helper->Source = static_cast<esv::Character*>(attackerStats->Character);
 		}
 
 		// TODO - allow disabling SimulateHit & not call the original func?
@@ -689,7 +689,7 @@ namespace dse
 		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
 			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
 				skillProperties, highGroundFlag, criticalRoll)) {
@@ -711,7 +711,7 @@ namespace dse
 		}
 
 		char const * targetGuid{ nullptr };
-		auto target = FindGameObjectByHandle(self->OwnerObjectHandle);
+		auto target = GetEntityWorld()->GetGameObject(self->OwnerObjectHandle);
 		if (target != nullptr) {
 			targetGuid = target->GetGuid()->Str;
 		} else {
@@ -722,7 +722,7 @@ namespace dse
 		if (targetGuid != nullptr) {
 			char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 			if (status->StatusSourceHandle) {
-				auto source = FindGameObjectByHandle(status->StatusSourceHandle);
+				auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 				if (source != nullptr) {
 					sourceGuid = source->GetGuid()->Str;
 				}
@@ -733,7 +733,7 @@ namespace dse
 			eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 
-			ExtensionStateServer::Get().PendingStatuses.Add(status);
+			ExtensionState::Get().PendingStatuses.Add(status);
 			eventThrown = true;
 			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
 
@@ -743,9 +743,9 @@ namespace dse
 		bool previousPreventApplyState = self->PreventStatusApply;
 		if (eventThrown) {
 			ObjectHandle targetHandle;
-			target->GetObjectHandle(&targetHandle);
+			target->GetObjectHandle(targetHandle);
 
-			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
 			if (pendingStatus != nullptr) {
 				self->PreventStatusApply = pendingStatus->PreventApply;
 			} else {
@@ -758,7 +758,7 @@ namespace dse
 		self->PreventStatusApply = previousPreventApplyState;
 
 		if (eventThrown) {
-			ExtensionStateServer::Get().PendingStatuses.Remove(status);
+			ExtensionState::Get().PendingStatuses.Remove(status);
 		}
 	}
 
@@ -766,7 +766,7 @@ namespace dse
 	{
 		if (!succeeded || actionState == nullptr || !setLayer) return;
 
-		auto character = FindCharacterByHandle(self->CharacterHandle);
+		auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
 		if (character == nullptr) {
 			OsiErrorS("ActionMachine has no character?");
 			return;
@@ -796,7 +796,7 @@ namespace dse
 		// When fetching subproperties (recursively), paramTexts will be null.
 		// We won't post these to Lua since the Lua scripts already processed the original (unwrapped) query
 		if (paramTexts != nullptr) {
-			LuaClientPin lua(ExtensionStateClient::Get());
+			ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 			if (lua) {
 				auto replacement = lua->SkillGetDescriptionParam(skillPrototype, tgtCharStats, *paramTexts, isFromItem);
 				if (replacement) {
@@ -827,7 +827,7 @@ namespace dse
 		CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)
 	{
-		LuaClientPin lua(ExtensionStateClient::Get());
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {
 			auto replacement = lua->StatusGetDescriptionParam(prototype, statusSource, targetCharacter, *paramSet);
 			if (replacement) {
@@ -841,7 +841,7 @@ namespace dse
 
 	void CustomFunctionLibrary::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
-		LuaServerPin lua(ExtensionStateServer::Get());
+		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
 			lua->OnUpdateTurnOrder(self, combatId);
 		}

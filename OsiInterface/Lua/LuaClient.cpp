@@ -2,45 +2,429 @@
 #include <Lua/LuaBindingClient.h>
 #include <OsirisProxy.h>
 #include <ExtensionStateClient.h>
+#include <PropertyMaps.h>
 #include "resource.h"
 
 namespace dse::lua
 {
+	char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
+
+
+	PropertyMapBase& ClientStatusToPropertyMap(ecl::Status* status)
+	{
+		// TODO - add property maps for statuses
+		return gEclStatusPropertyMap;
+	}
+
+
+	int ObjectProxy<ecl::Status>::Index(lua_State* L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto& propertyMap = ClientStatusToPropertyMap(obj_);
+		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<ecl::Status>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const* const ObjectProxy<ecl::PlayerCustomData>::MetatableName = "ecl::PlayerCustomData";
+
+	ecl::PlayerCustomData* ObjectProxy<ecl::PlayerCustomData>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
+		if (character == nullptr) luaL_error(L, "Character handle invalid");
+
+		if (character->PlayerData == nullptr
+			// Always false on the client for some reason
+			/*|| !character->PlayerData->CustomData.Initialized*/) {
+			OsiError("Character has no player data, or custom data was not initialized.");
+			return nullptr;
+		}
+
+		return &character->PlayerData->CustomData;
+	}
+
+	int ObjectProxy<ecl::PlayerCustomData>::Index(lua_State* L)
+	{
+		auto customData = Get(L);
+		if (!customData) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const* const ObjectProxy<ecl::Character>::MetatableName = "ecl::Character";
+
+	int ClientCharacterFetchProperty(lua_State* L, ecl::Character* character, char const* prop)
+	{
+		if (strcmp(prop, "PlayerCustomData") == 0) {
+			if (character->PlayerData != nullptr
+				// Always false on the client for some reason
+				/*&& character->PlayerData->CustomData.Initialized*/) {
+				ObjectHandle handle;
+				character->GetObjectHandle(handle);
+				ObjectProxy<ecl::PlayerCustomData>::New(L, handle);
+				return 1;
+			}
+			else {
+				OsiError("Character has no player data, or custom data was not initialized.");
+				return 0;
+			}
+		}
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (character->Stats != nullptr) {
+				// FIXME - use handle based proxy
+				ObjectProxy<CDivinityStats_Character>::New(L, character->Stats);
+				return 1;
+			}
+			else {
+				OsiError("Character has no stats.");
+				return 0;
+			}
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	ecl::Character* ObjectProxy<ecl::Character>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
+		if (character == nullptr) luaL_error(L, "Character handle invalid");
+		return character;
+	}
+
+	int CharacterHasTag(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto tag = luaL_checkstring(L, 2);
+
+		auto character = self->Get(L);
+		auto tagFs = ToFixedString(tag);
+
+		if (!character || !tagFs) {
+			push(L, false);
+			return 1;
+		}
+
+		for (uint32_t i = 0; i < character->Tags.Set.Size; i++) {
+			auto characterTag = character->Tags[i];
+			if (characterTag == tagFs) {
+				push(L, true);
+				return 1;
+			}
+		}
+
+		for (uint32_t i = 0; i < character->ItemTags.Set.Size; i++) {
+			auto characterTag = character->ItemTags[i];
+			if (characterTag == tagFs) {
+				push(L, true);
+				return 1;
+			}
+		}
+
+		push(L, false);
+		return 1;
+	}
+
+	int CharacterGetTags(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto character = self->Get(L);
+		if (!character) {
+			return 0;
+		}
+
+		lua_newtable(L);
+
+		int32_t index = 1;
+		for (uint32_t i = 0; i < character->Tags.Set.Size; i++) {
+			auto tag = character->Tags[i];
+			settable(L, index++, tag);
+		}
+
+		for (uint32_t i = 0; i < character->ItemTags.Set.Size; i++) {
+			auto tag = character->ItemTags[i];
+			settable(L, index++, tag);
+		}
+
+		return 1;
+	}
+
+	int CharacterGetStatus(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto statusId = luaL_checkstring(L, 2);
+
+		auto character = self->Get(L);
+		auto statusIdFs = ToFixedString(statusId);
+
+		if (!character || !character->StatusMachine || !statusIdFs) {
+			return 0;
+		}
+
+		auto status = character->StatusMachine->GetStatus(statusIdFs);
+		if (status) {
+			// FIXME - use handle based proxy
+			ObjectProxy<ecl::Status>::New(L, status);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int CharacterGetStatuses(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto character = self->Get(L);
+		if (!character || !character->StatusMachine) {
+			return 0;
+		}
+
+		lua_newtable(L);
+
+		int32_t index = 1;
+		for (uint32_t i = 0; i < character->StatusMachine->Statuses.Set.Size; i++) {
+			auto status = character->StatusMachine->Statuses[i];
+			settable(L, index++, status->StatusId);
+		}
+
+		return 1;
+	}
+
+	int ObjectProxy<ecl::Character>::Index(lua_State* L)
+	{
+		auto character = Get(L);
+		if (!character) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "HasTag") == 0) {
+			lua_pushcfunction(L, &CharacterHasTag);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetTags") == 0) {
+			lua_pushcfunction(L, &CharacterGetTags);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatus") == 0) {
+			lua_pushcfunction(L, &CharacterGetStatus);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatuses") == 0) {
+			lua_pushcfunction(L, &CharacterGetStatuses);
+			return 1;
+		}
+
+		return ClientCharacterFetchProperty(L, character, prop);
+	}
+
+	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const* const ObjectProxy<ecl::Item>::MetatableName = "ecl::Item";
+
+	ecl::Item* ObjectProxy<ecl::Item>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto item = ecl::GetEntityWorld()->GetItem(handle_);
+		if (item == nullptr) luaL_error(L, "Item handle invalid");
+		return item;
+	}
+
+	int ObjectProxy<ecl::Item>::Index(lua_State* L)
+	{
+		auto item = Get(L);
+		if (!item) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (item->Stats != nullptr) {
+				// FIXME - use handle based proxy
+				ObjectProxy<CDivinityStats_Item>::New(L, item->Stats);
+				return 1;
+			}
+			else {
+				OsiError("Item has no stats.");
+				return 0;
+			}
+		}
+
+		bool fetched = false;
+		if (item->Stats != nullptr) {
+			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, prop, false);
+		}
+
+		if (!fetched) {
+			fetched = LuaPropertyMapGet(L, gEclItemPropertyMap, item, prop, true);
+		}
+
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+}
+
+
+namespace dse::ecl::lua
+{
+	using namespace dse::lua;
 
 	void ExtensionLibraryClient::Register(lua_State * L)
 	{
 		ExtensionLibrary::Register(L);
+		ObjectProxy<Status>::RegisterMetatable(L);
+		ObjectProxy<ecl::PlayerCustomData>::RegisterMetatable(L);
+		ObjectProxy<Character>::RegisterMetatable(L);
+		ObjectProxy<Item>::RegisterMetatable(L);
 		UIObjectProxy::RegisterMetatable(L);
 	}
 
-	int GetExtensionVersion(lua_State * L);
-	int OsiPrint(lua_State* L);
-	int OsiPrintWarning(lua_State* L);
-	int OsiPrintError(lua_State* L);
-	int SaveFile(lua_State* L);
-	int LoadFile(lua_State* L);
-	int JsonParse(lua_State * L);
-	int JsonStringify(lua_State * L);
-	int IsModLoaded(lua_State* L);
-	int GetModLoadOrder(lua_State* L);
-	int GetModInfo(lua_State* L);
-	int GetStatEntries(lua_State * L);
-	int GetSkillSet(lua_State * L);
-	int GetEquipmentSet(lua_State * L);
-	int StatGetAttribute(lua_State * L);
-	int StatSetAttribute(lua_State * L);
-	int StatAddCustomDescription(lua_State * L);
-	int StatSetLevelScaling(lua_State * L);
-	int GetStat(lua_State * L);
-	int NewDamageList(lua_State * L);
-	int OsirisIsCallableClient(lua_State * L);
-	int IsDeveloperMode(lua_State * L);
-	int AddPathOverride(lua_State * L);
-	int LuaRandom(lua_State * L);
-	int LuaRound(lua_State * L);
-	int AddVoiceMetaData(lua_State * L);
-	int GetTranslatedString(lua_State* L);
 
+	ecl::Character* GetCharacter(lua_State* L, int index)
+	{
+		ecl::Character* character = nullptr;
+		switch (lua_type(L, index)) {
+		case LUA_TNUMBER:
+		{
+			auto value = lua_tointeger(L, index);
+			if (value > 0xffffffff) {
+				OsiError("Resolving characters by Handle is not supported on the client");
+			}
+			else {
+				NetId netId{ (uint32_t)value };
+				character = GetEntityWorld()->GetCharacter(netId);
+			}
+			break;
+		}
+
+		case LUA_TSTRING:
+			OsiError("Resolving characters by UUID is not supported on the client");
+			break;
+
+		default:
+			OsiError("Expected character NetId");
+			break;
+		}
+
+		return character;
+	}
+
+	int GetCharacter(lua_State* L)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+
+		ecl::Character* character = GetCharacter(L, 1);
+
+		if (character != nullptr) {
+			ObjectHandle handle;
+			character->GetObjectHandle(handle);
+			ObjectProxy<ecl::Character>::New(L, handle);
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	int GetItem(lua_State* L)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+
+		ecl::Item* item = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TNUMBER:
+		{
+			auto value = lua_tointeger(L, 1);
+			if (value > 0xffffffff) {
+				OsiError("Resolving items by Handle is not supported on the client");
+			} else {
+				NetId netId{ (uint32_t)value };
+				item = GetEntityWorld()->GetItem(netId);
+			}
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 1);
+			item = GetEntityWorld()->GetItem(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected item GUID or handle");
+			return 0;
+		}
+
+		if (item != nullptr) {
+			ObjectHandle handle;
+			item->GetObjectHandle(handle);
+			ObjectProxy<ecl::Item>::New(L, handle);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int GetStatus(lua_State* L)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+
+		auto character = GetCharacter(L, 1);
+		if (character == nullptr) return 0;
+
+		auto index = lua_tointeger(L, 2);
+		if (index > 0xffffffff) {
+			OsiError("Resolving statuses by Handle is not supported on the client");
+			return 0;
+		} 
+		
+		NetId statusNetId{ (uint32_t)index };
+		auto status = character->GetStatus(statusNetId);
+		if (status != nullptr) {
+			ObjectHandle characterHandle;
+			character->GetObjectHandle(characterHandle);
+			StatusHandleProxy::New(L, characterHandle, statusNetId);
+			return 1;
+		}
+
+		OsiError("Character has no status with NetId 0x" << std::hex << index);
+		return 0;
+	}
+
+
+	int OsirisIsCallableClient(lua_State* L)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 
 	int PostMessageToServer(lua_State * L)
 	{
@@ -62,6 +446,28 @@ namespace dse::lua
 	}
 
 
+	char const* const StatusHandleProxy::MetatableName = "ecl::HStatus";
+
+	int StatusHandleProxy::Index(lua_State* L)
+	{
+		auto character = GetEntityWorld()->GetCharacter(character_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+
+		auto status = character->GetStatus(statusNetId_);
+		if (status == nullptr) return luaL_error(L, "Status handle invalid");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto& propertyMap = ClientStatusToPropertyMap(status);
+		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int StatusHandleProxy::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
 	struct CustomUI : public ecl::EoCUI
 	{
 		CustomUI(dse::Path * path)
@@ -70,7 +476,7 @@ namespace dse::lua
 
 		void OnFunctionCalled(const char * func, unsigned int numArgs, InvokeDataValue * args)
 		{
-			LuaClientPin lua(ExtensionStateClient::Get());
+			LuaClientPin lua(ExtensionState::Get());
 			if (lua) {
 				lua->OnUICall(UIObjectHandle, func, numArgs, args);
 			}
@@ -413,7 +819,7 @@ namespace dse::lua
 
 	static void UIObjectFunctionCallCapture(UIObject * self, const char * function, unsigned int numArgs, InvokeDataValue * args)
 	{
-		LuaClientPin lua(ExtensionStateClient::Get());
+		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
 			lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
 		}
@@ -464,7 +870,7 @@ namespace dse::lua
 
 		// FIXME - playerId, registerInvokeNames?
 
-		LuaClientPin pin(ExtensionStateClient::Get());
+		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			OsiError("An UI object with name '" << name << "' already exists!");
@@ -530,7 +936,7 @@ namespace dse::lua
 	{
 		auto name = luaL_checkstring(L, 1);
 
-		LuaClientPin pin(ExtensionStateClient::Get());
+		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			UIObjectProxy::New(L, ui->UIObjectHandle);
@@ -567,7 +973,7 @@ namespace dse::lua
 	{
 		auto name = luaL_checkstring(L, 1);
 
-		LuaClientPin pin(ExtensionStateClient::Get());
+		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			ui->RequestDelete();
@@ -607,6 +1013,9 @@ namespace dse::lua
 			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
 
+			{"GetCharacter", GetCharacter},
+			{"GetItem", GetItem},
+			{"GetStatus", GetStatus},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallableClient},
 			{"IsDeveloperMode", IsDeveloperMode},
@@ -699,7 +1108,7 @@ namespace dse::lua
 			push(L, paramTexts[i]); // stack: fn, skill, character, params...
 		}
 
-		auto result = CheckedCall<std::optional<char const *>>(L, 2 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
+		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
 		if (result) {
 			auto description = std::get<0>(*result);
 			if (description) {
@@ -773,16 +1182,16 @@ namespace dse::lua
 	}
 }
 
-namespace dse
+namespace dse::ecl
 {
 
-	ExtensionStateClient & ExtensionStateClient::Get()
+	ExtensionState & ExtensionState::Get()
 	{
 		return gOsirisProxy->GetClientExtensionState();
 	}
 
 
-	lua::State * ExtensionStateClient::GetLua()
+	lua::State * ExtensionState::GetLua()
 	{
 		if (Lua) {
 			return Lua.get();
@@ -791,32 +1200,32 @@ namespace dse
 		}
 	}
 
-	ModManager * ExtensionStateClient::GetModManager()
+	ModManager * ExtensionState::GetModManager()
 	{
 		return GetModManagerClient();
 	}
 
-	void ExtensionStateClient::DoLuaReset()
+	void ExtensionState::DoLuaReset()
 	{
 		Lua.reset();
 		Lua = std::make_unique<lua::ClientState>();
 	}
 
-	void ExtensionStateClient::LuaStartup()
+	void ExtensionState::LuaStartup()
 	{
-		ExtensionState::LuaStartup();
+		ExtensionStateBase::LuaStartup();
 
 		LuaClientPin lua(*this);
 		auto gameState = GetStaticSymbols().GetClientState();
 		if (gameState
-			&& (*gameState == ClientGameState::LoadLevel
-				|| (*gameState == ClientGameState::LoadModule && WasStatLoadTriggered())
-				|| *gameState == ClientGameState::LoadSession
-				|| *gameState == ClientGameState::LoadGMCampaign
-				|| *gameState == ClientGameState::Paused
-				|| *gameState == ClientGameState::PrepareRunning
-				|| *gameState == ClientGameState::Running
-				|| *gameState == ClientGameState::GameMasterPause)) {
+			&& (*gameState == GameState::LoadLevel
+				|| (*gameState == GameState::LoadModule && WasStatLoadTriggered())
+				|| *gameState == GameState::LoadSession
+				|| *gameState == GameState::LoadGMCampaign
+				|| *gameState == GameState::Paused
+				|| *gameState == GameState::PrepareRunning
+				|| *gameState == GameState::Running
+				|| *gameState == GameState::GameMasterPause)) {
 			lua->OnModuleResume();
 			OsiWarn("Client resume -- state " << (unsigned)*gameState);
 		} else {

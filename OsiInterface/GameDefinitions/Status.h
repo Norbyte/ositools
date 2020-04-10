@@ -285,9 +285,10 @@ namespace dse
 		};
 
 
-		struct StatusMachine : public NetworkObjectFactory<esv::Status, (uint32_t)ObjectType::Character>
+		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Character>
 		{
-			Status * GetStatusByHandle(ObjectHandle handle) const;
+			Status * GetStatus(ObjectHandle handle) const;
+			Status* GetStatus(NetId netId) const;
 
 			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;
@@ -302,6 +303,76 @@ namespace dse
 		typedef void(*StatusMachine__ApplyStatus)(esv::StatusMachine * StatusMachine, Status * Status);
 		typedef bool(*Status__Enter)(Status * Status);
 		typedef int32_t(*Status__GetEnterChance)(Status * self, bool useCharacterStats);
+
+	}
+
+	namespace ecl
+	{
+		struct Status
+		{
+			virtual void Destroy() = 0;
+			virtual void SetOwnerHandle(ObjectHandle handle) = 0;
+			virtual ObjectHandle GetOwnerHandle(ObjectHandle *) = 0;
+			virtual StatusType GetStatusId() = 0;
+			virtual unsigned int GetStatusType() = 0;
+			virtual unsigned int BeforeAddStatus() = 0;
+			virtual bool Enter() = 0;
+			virtual bool Resume() = 0;
+			virtual void Update() = 0;
+			virtual uint32_t Tick(uint32_t * combatTeamId, float delta) = 0;
+			virtual void Exit() = 0;
+			virtual void OnEarlyDestroy() = 0;
+			virtual void ApplyStatsId() = 0;
+			virtual FixedString* GetIcon() = 0;
+			virtual void field_70() = 0;
+			virtual void GetDescriptionWithoutPrototype() = 0;
+			virtual void GetEffectTexts(ObjectSet<STDWString> & texts) = 0;
+			virtual void ConcatTooltipText(eoc::Text& text) = 0;
+			virtual void ConcatDescription(eoc::Text& text) = 0;
+			virtual FixedString* GetStatsId() = 0;
+			virtual int GetCauseLevel() = 0;
+			virtual void field_A8() = 0;
+			virtual bool ShouldShowVisuals() = 0;
+			virtual bool SyncData(ScratchBuffer& buffer) = 0;
+			virtual void DestroyVisuals() = 0;
+			virtual void RecreateVisuals() = 0;
+			virtual void field_D0() = 0;
+			virtual void OnSetRequestDelete() = 0;
+			virtual void GetTooltipText(eoc::Text& text) = 0;
+			virtual void FetchData() = 0;
+
+			FixedString field_8;
+			NetId NetID;
+			uint8_t _Pad0[4];
+			ObjectHandle OwnerHandle;
+			__int64 field_20;
+			FixedString StatusId;
+			int field_30;
+			float LifeTime;
+			float CurrentLifeTime;
+			float StatsMultiplier;
+			uint8_t Flags;
+			uint8_t _Pad1[7];
+			ObjectHandle StatusSourceHandle;
+		};
+
+
+		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)esv::ObjectType::Character>
+		{
+			Status* GetStatus(StatusType type) const;
+			Status* GetStatus(FixedString statusId) const;
+			Status* GetStatus(NetId netId) const;
+
+			void* GameEventMgrVMT;
+			bool IsStatusMachineActive;
+			bool PreventStatusApply;
+			uint8_t _Pad10[6];
+			ObjectSet<Status*> Statuses;
+			ObjectHandle OwnerObjectHandle;
+			uint32_t References;
+			int field_154;
+			__int64 field_158;
+		};
 
 	}
 #pragma pack(pop)

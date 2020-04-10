@@ -2,7 +2,7 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
@@ -138,7 +138,7 @@ namespace dse
 				return false;
 			}
 
-			auto extraData = stats->ExtraData->Properties.Find(key);
+			auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
 			if (extraData != nullptr) {
 				value.Set(*extraData);
 				return true;

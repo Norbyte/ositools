@@ -5,15 +5,15 @@
 
 namespace Json { class Value; }
 
-namespace dse
+namespace dse::ecl
 {
-	class ExtensionStateClient;
-	using LuaClientPin = LuaStatePin<ExtensionStateClient, lua::ClientState>;
+	class ExtensionState;
+	using LuaClientPin = LuaStatePin<ExtensionState, lua::ClientState>;
 
-	class ExtensionStateClient : public ExtensionState
+	class ExtensionState : public ExtensionStateBase
 	{
 	public:
-		static ExtensionStateClient & Get();
+		static ExtensionState & Get();
 
 		lua::State * GetLua() override;
 		ModManager * GetModManager() override;
@@ -24,7 +24,7 @@ namespace dse
 		}
 
 	protected:
-		friend LuaStatePin<ExtensionStateClient, lua::ClientState>;
+		friend LuaStatePin<ExtensionState, lua::ClientState>;
 		std::unique_ptr<lua::ClientState> Lua;;
 
 		void DoLuaReset() override;

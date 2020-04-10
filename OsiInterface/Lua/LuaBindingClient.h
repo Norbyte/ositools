@@ -8,13 +8,33 @@ namespace dse
 	struct UIObject;
 }
 
-namespace dse::lua
+namespace dse::ecl::lua
 {
+	using namespace dse::lua;
+
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
 	public:
 		void Register(lua_State * L) override;
 		void RegisterLib(lua_State * L) override;
+	};
+
+
+	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public Pushable<PushPolicy::None>
+	{
+	public:
+		static char const* const MetatableName;
+
+		inline StatusHandleProxy(ObjectHandle character, NetId status)
+			: character_(character), statusNetId_(status)
+		{}
+
+		int Index(lua_State* L);
+		int NewIndex(lua_State* L);
+
+	private:
+		ObjectHandle character_;
+		NetId statusNetId_;
 	};
 
 

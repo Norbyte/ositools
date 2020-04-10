@@ -130,9 +130,7 @@ namespace dse
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };
-		InventoryFactory ** EsvInventoryFactory{ nullptr };
-		CharacterFactory ** EsvCharacterFactory{ nullptr };
-		ItemFactory ** EsvItemFactory{ nullptr };
+		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
 #if defined(OSI_EOCAPP)
 		GlobalSwitches ** pGlobalSwitches{ nullptr };
@@ -179,28 +177,10 @@ namespace dse
 		}
 
 
-		inline InventoryFactory * GetInventoryFactory() const
+		inline esv::InventoryFactory * GetInventoryFactory() const
 		{
 			if (EsvInventoryFactory) {
 				return *EsvInventoryFactory;
-			} else {
-				return nullptr;
-			}
-		}
-
-		inline CharacterFactory * GetCharacterFactory() const
-		{
-			if (EsvCharacterFactory) {
-				return *EsvCharacterFactory;
-			} else {
-				return nullptr;
-			}
-		}
-
-		inline ItemFactory * GetItemFactory() const
-		{
-			if (EsvItemFactory) {
-				return *EsvItemFactory;
 			} else {
 				return nullptr;
 			}
@@ -235,7 +215,7 @@ namespace dse
 			}
 		}
 
-		inline std::optional<ClientGameState> GetClientState() const
+		inline std::optional<ecl::GameState> GetClientState() const
 		{
 			if (EoCClient != nullptr
 				&& *EoCClient != nullptr
@@ -247,7 +227,7 @@ namespace dse
 			}
 		}
 
-		inline std::optional<ServerGameState> GetServerState() const
+		inline std::optional<esv::GameState> GetServerState() const
 		{
 			if (EoCServer != nullptr
 				&& *EoCServer != nullptr

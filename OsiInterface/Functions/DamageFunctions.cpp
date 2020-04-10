@@ -4,7 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
-namespace dse
+namespace dse::esv
 {
 	void DamageHelperPool::Clear()
 	{
@@ -350,7 +350,7 @@ namespace dse
 
 		if (Source != nullptr) {
 			ObjectHandle sourceHandle;
-			Source->GetObjectHandle(&sourceHandle);
+			Source->GetObjectHandle(sourceHandle);
 			hit->HitByHandle = sourceHandle;
 			hit->StatusSourceHandle = sourceHandle;
 		}
@@ -368,11 +368,11 @@ namespace dse
 		damage.HitWithWeapon = Hit->HitWithWeapon;
 
 		if (SimulateHit) {
-			auto targetCharacter = FindCharacterByNameGuid(Target->GetGuid()->Str);
+			auto targetCharacter = GetEntityWorld()->GetCharacter(Target->GetGuid()->Str);
 			if (targetCharacter == nullptr) {
 				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
-				characterHit(targetCharacter, Source->Stats, nullptr, DamageList, HitType, NoHitRoll,
+				characterHit(targetCharacter, Source ? Source->Stats : nullptr, nullptr, DamageList, HitType, NoHitRoll,
 					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);
 			}
 
@@ -421,7 +421,7 @@ namespace dse
 			auto sourceGuid = args[1].String;
 			auto & helperHandle = args[2];
 
-			auto target = FindGameObjectByNameGuid(targetGuid);
+			auto target = GetEntityWorld()->GetGameObject(targetGuid);
 			if (target == nullptr) {
 				OsiError("Target '" << targetGuid << "' doesn't exist!");
 				return false;
@@ -430,7 +430,7 @@ namespace dse
 			auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Create();
 			helper->Type = DamageHelpers::HT_CustomHit;
 			helper->Target = target;
-			helper->Source = FindCharacterByNameGuid(sourceGuid);
+			helper->Source = GetEntityWorld()->GetCharacter(sourceGuid);
 			helper->SetInternalDamageInfo();
 
 			helperHandle.Set(helper->Handle);

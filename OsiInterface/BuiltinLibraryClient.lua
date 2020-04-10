@@ -60,18 +60,6 @@ Ext.NewEvent = function ()
 	Ext._WarnDeprecated("Calling Ext.NewEvent() from a client context is deprecated!")
 end
 
-Ext.GetCharacter = function ()
-	Ext._WarnDeprecated("Calling Ext.GetCharacter() from a client context is deprecated!")
-end
-
-Ext.GetItem = function ()
-	Ext._WarnDeprecated("Calling Ext.GetItem() from a client context is deprecated!")
-end
-
-Ext.GetStatus = function ()
-	Ext._WarnDeprecated("Calling Ext.GetStatus() from a client context is deprecated!")
-end
-
 Ext.GetCombat = function ()
 	Ext._WarnDeprecated("Calling Ext.GetCombat() from a client context is deprecated!")
 end

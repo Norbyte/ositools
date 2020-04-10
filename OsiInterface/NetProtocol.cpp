@@ -85,7 +85,7 @@ namespace dse
 		case MessageWrapper::kPostLua:
 		{
 			auto & postMsg = msg.post_lua();
-			LuaClientPin pin(ExtensionStateClient::Get());
+			ecl::LuaClientPin pin(ecl::ExtensionState::Get());
 			if (pin) {
 				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
 			}
@@ -95,7 +95,7 @@ namespace dse
 		case MessageWrapper::kS2CResetLua:
 		{
 			auto & resetMsg = msg.s2c_reset_lua();
-			auto & ext = ExtensionStateClient::Get();
+			auto & ext = ecl::ExtensionState::Get();
 			ext.LuaReset(resetMsg.bootstrap_scripts());
 			ext.OnModuleResume();
 			ext.OnGameSessionLoading();
@@ -120,7 +120,7 @@ namespace dse
 		case MessageWrapper::kPostLua:
 		{
 			auto & postMsg = msg.post_lua();
-			LuaServerPin pin(ExtensionStateServer::Get());
+			esv::LuaServerPin pin(esv::ExtensionState::Get());
 			if (pin) {
 				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
 			}
@@ -436,12 +436,12 @@ namespace dse
 		fs.FixedStrSet.Set.Reallocate(numStrings + 1);
 
 		fs.FixedStrSet.Set.Add(FixedString{});
-		fs.FixedStrToNetIndexMap.Add(FixedString{}, 1);
+		fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
 
 		for (uint32_t i = 0; i < numStrings; i++) {
 			auto fixedStr = updatedStrings_[i];
 			fs.FixedStrSet.Set.Add(fixedStr);
-			fs.FixedStrToNetIndexMap.Add(fixedStr, i + 2);
+			fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
 		}
 	}
 

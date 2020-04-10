@@ -4,7 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
-namespace dse
+namespace dse::esv
 {
 	FunctionHandle ItemDeltaModIteratorEventHandle;
 
@@ -13,7 +13,7 @@ namespace dse
 		bool ItemGetStatsId(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -31,7 +31,7 @@ namespace dse
 		bool ItemGetGenerationParams(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -53,7 +53,7 @@ namespace dse
 		bool ItemGetGenerationParams2(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -74,7 +74,7 @@ namespace dse
 		bool ItemHasDeltaModifier(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -111,7 +111,7 @@ namespace dse
 			auto itemGuid = args[0].String;
 			auto eventName = args[1].String;
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
 			if (item->Generation != nullptr) {
@@ -142,7 +142,7 @@ namespace dse
 		void ItemSetIdentified(OsiArgumentDesc const & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
@@ -161,7 +161,7 @@ namespace dse
 			auto itemGuid = args[0].String;
 			auto & parentGuid = args[1];
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -180,7 +180,7 @@ namespace dse
 				return false;
 			}
 
-			auto parent = FindGameObjectByHandle(inventory->ParentHandle);
+			auto parent = GetEntityWorld()->GetGameObject(inventory->ParentHandle);
 			if (parent != nullptr) {
 				parentGuid.Set(parent->MyGuid.Str);
 				return true;
@@ -208,7 +208,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		bool ItemGet(OsiArgumentDesc & args)
 		{
-			auto item = FindItemByNameGuid(args[0].String);
+			auto item = GetEntityWorld()->GetItem(args[0].String);
 			if (item == nullptr) return false;
 
 			bool fetched = false;
@@ -226,7 +226,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		bool ItemGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto item = FindItemByNameGuid(args[0].String);
+			auto item = GetEntityWorld()->GetItem(args[0].String);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -239,7 +239,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		void ItemSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto item = FindItemByNameGuid(args[0].String);
+			auto item = GetEntityWorld()->GetItem(args[0].String);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -255,7 +255,7 @@ namespace dse
 			auto ability = args[1].String;
 			auto & level = args[2];
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -277,7 +277,7 @@ namespace dse
 			auto talent = args[1].String;
 			auto & enabled = args[2];
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -299,7 +299,7 @@ namespace dse
 			auto ability = args[1].String;
 			auto level = args[2].Int32;
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -320,7 +320,7 @@ namespace dse
 			auto talent = args[1].String;
 			auto enabled = args[2].Int32;
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -340,11 +340,11 @@ namespace dse
 		{
 			auto templateGuid = args[0].String;
 
-			if (ExtensionStateServer::Get().PendingItemClone) {
+			if (ExtensionState::Get().PendingItemClone) {
 				OsiWarn("ItemConstructBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
-			ExtensionStateServer::Get().PendingItemClone.reset();
+			ExtensionState::Get().PendingItemClone.reset();
 
 			auto templateGuidFs = NameGuidToFixedString(templateGuid);
 			if (!IsValidGuidString(templateGuid) || !templateGuidFs) {
@@ -352,7 +352,7 @@ namespace dse
 				return;
 			}
 
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			clone->Set.RawReallocate(1);
 			clone->Set.Size = 1;
@@ -376,7 +376,7 @@ namespace dse
 
 		void ItemCloneBegin(OsiArgumentDesc const & args)
 		{
-			if (ExtensionStateServer::Get().PendingItemClone) {
+			if (ExtensionState::Get().PendingItemClone) {
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 
@@ -387,13 +387,13 @@ namespace dse
 				return;
 			}
 			
-			ExtensionStateServer::Get().PendingItemClone.reset();
+			ExtensionState::Get().PendingItemClone.reset();
 
 			auto itemGuid = args[0].String;
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			parseItem(item, clone.get(), false, false);
 
@@ -407,12 +407,12 @@ namespace dse
 
 		bool ItemClone(OsiArgumentDesc & args)
 		{
-			if (!ExtensionStateServer::Get().PendingItemClone) {
+			if (!ExtensionState::Get().PendingItemClone) {
 				OsiErrorS("No item clone is in progress");
 				return false;
 			}
 
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			auto item = GetStaticSymbols().CreateItemFromParsed(clone.get(), 0);
 			clone.reset();
 
@@ -429,7 +429,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		void ItemCloneSet(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;
@@ -442,7 +442,7 @@ namespace dse
 
 		void ItemCloneResetProgression(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;
@@ -458,7 +458,7 @@ namespace dse
 
 		void ItemCloneAddBoost(OsiArgumentDesc const & args)
 		{
-			auto & clone = ExtensionStateServer::Get().PendingItemClone;
+			auto & clone = ExtensionState::Get().PendingItemClone;
 			if (!clone) {
 				OsiErrorS("No item clone is currently in progress!");
 				return;

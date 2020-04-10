@@ -7,7 +7,7 @@
 #include <fstream>
 #include "json/json.h"
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
@@ -76,19 +76,19 @@ namespace dse
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			OsiWarn("GotIt");
 		}
 
 		void BreakOnItem(OsiArgumentDesc const & args)
 		{
-			auto item = FindItemByNameGuid(args[0].String);
+			auto item = GetEntityWorld()->GetItem(args[0].String);
 			OsiWarn("GotIt");
 		}
 
 		void DoExperiment(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character) {
 				auto stats = character->Stats->DynamicStats[1];
 				stats->PoisonResistance += 50;
@@ -100,7 +100,7 @@ namespace dse
 				OsiErrorS("DoExperiment(): Applied to character");
 			}
 
-			auto item = FindItemByNameGuid(args[1].String);
+			auto item = GetEntityWorld()->GetItem(args[1].String);
 			if (item) {
 				auto stats = item->StatsDynamic->DynamicAttributes_Start[1];
 				stats->FireResistance += 50;
@@ -114,7 +114,7 @@ namespace dse
 		}
 	}
 
-	CustomFunctionLibrary::CustomFunctionLibrary(class OsirisProxy & osiris)
+	CustomFunctionLibrary::CustomFunctionLibrary(OsirisProxy & osiris)
 		: osiris_(osiris)
 	{}
 
@@ -274,12 +274,12 @@ namespace dse
 		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedServer(): Re-initializing module state.");
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
 		functionMgr.ClearDynamicEntries();
-		ExtensionStateServer::Get().LuaReset(true);
+		esv::ExtensionState::Get().LuaReset(true);
 	}
 
 	void CustomFunctionLibrary::OnBaseModuleLoadedClient()
 	{
 		DEBUG("CustomFunctionLibrary::OnBaseModuleLoadedClient(): Re-initializing module state.");
-		ExtensionStateClient::Get().LuaReset(true);
+		ecl::ExtensionState::Get().LuaReset(true);
 	}
 }

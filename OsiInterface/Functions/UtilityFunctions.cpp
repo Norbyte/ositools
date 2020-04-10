@@ -4,7 +4,7 @@
 #include <random>
 #include <regex>
 
-namespace dse
+namespace dse::esv
 {
 	FunctionHandle ForLoopEventHandle;
 	FunctionHandle ForLoopObjectEventHandle;

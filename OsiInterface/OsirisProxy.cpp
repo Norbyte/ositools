@@ -110,27 +110,30 @@ void OsirisProxy::Shutdown()
 	Wrappers.Shutdown();
 }
 
-void OsirisProxy::LogOsirisError(std::string const & msg)
+void OsirisProxy::LogOsirisError(std::string_view msg)
 {
-	auto log = "[Osiris] {E} " + msg;
+	std::string log = "[Osiris] {E} ";
+	log += msg;
 	DebugRaw(DebugMessageType::Error, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
 }
 
-void OsirisProxy::LogOsirisWarning(std::string const & msg)
+void OsirisProxy::LogOsirisWarning(std::string_view msg)
 {
-	auto log = "[Osiris] {W} " + msg;
+	std::string log = "[Osiris] {W} ";
+	log += msg;
 	DebugRaw(DebugMessageType::Warning, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
 }
 
-void OsirisProxy::LogOsirisMsg(std::string const & msg)
+void OsirisProxy::LogOsirisMsg(std::string_view msg)
 {
-	auto log = "[Osiris] " + msg;
+	std::string log = "[Osiris] ";
+	log += msg;
 	DebugRaw(DebugMessageType::Osiris, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
@@ -390,7 +393,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 #endif
 
 	if (extensionsEnabled_) {
-		ExtensionStateServer::Get().StoryLoaded();
+		esv::ExtensionState::Get().StoryLoaded();
 	}
 }
 
@@ -681,7 +684,7 @@ bool OsirisProxy::HasFeatureFlag(char const * flag) const
 		|| (ClientExtState && ClientExtState->HasFeatureFlag(flag));
 }
 
-ExtensionState * OsirisProxy::GetCurrentExtensionState()
+ExtensionStateBase* OsirisProxy::GetCurrentExtensionState()
 {
 	auto tid = GetCurrentThreadId();
 	if (ServerThreadIds.find(tid) != ServerThreadIds.end()) {
@@ -759,7 +762,7 @@ char const * ServerGameStateNames[] =
 	"Installation"
 };
 
-void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromState, ClientGameState toState)
+void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState, ecl::GameState toState)
 {
 	if (config_.SendCrashReports) {
 		// We need to initialize the crash reporter after the game engine has started,
@@ -767,7 +770,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		InitCrashReporting();
 	}
 
-	if (toState == ClientGameState::LoadModule && config_.DisableModValidation) {
+	if (toState == ecl::GameState::LoadModule && config_.DisableModValidation) {
 		std::lock_guard _(globalStateLock_);
 		Libraries.PostStartupFindLibraries();
 		if (GetStaticSymbols().GetGlobalSwitches()) {
@@ -778,7 +781,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		}
 	}
 
-	if (toState == ClientGameState::Menu && Libraries.InitializationFailed()) {
+	if (toState == ecl::GameState::Menu && Libraries.InitializationFailed()) {
 		PostInitLibraries();
 	}
 
@@ -789,30 +792,30 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
 #endif
 
-	if (fromState != ClientGameState::Unknown) {
+	if (fromState != ecl::GameState::Unknown) {
 		AddClientThread(GetCurrentThreadId());
 	}
 
 	switch (fromState) {
-	case ClientGameState::LoadModule:
+	case ecl::GameState::LoadModule:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Loaded module");
 		LoadExtensionStateClient();
 		break;
 
-	case ClientGameState::LoadSession:
+	case ecl::GameState::LoadSession:
 		if (ClientExtState) {
 			ClientExtState->OnGameSessionLoaded();
 		}
 		break;
 
-	case ClientGameState::InitConnection:
+	case ecl::GameState::InitConnection:
 		networkManager_.ExtendNetworkingClient();
 		networkFixedStrings_.RequestFromServer();
 		break;
 	}
 
 	switch (toState) {
-	case ClientGameState::Init:
+	case ecl::GameState::Init:
 		// We need to initialize the function library here, as GlobalAllocator isn't available in Init()
 		Libraries.PostStartupFindLibraries();
 		if (!functionLibraryInitialized_) {
@@ -822,25 +825,25 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		}
 		break;
 
-	case ClientGameState::InitNetwork:
-	case ClientGameState::Disconnect:
+	case ecl::GameState::InitNetwork:
+	case ecl::GameState::Disconnect:
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
 		networkFixedStrings_.ClientReset();
 		break;
 
-	case ClientGameState::UnloadSession:
+	case ecl::GameState::UnloadSession:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Unloading session");
 		ResetExtensionStateClient();
 		break;
 
-	case ClientGameState::LoadGMCampaign:
+	case ecl::GameState::LoadGMCampaign:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Loading GM campaign");
 		LoadExtensionStateClient();
 		networkManager_.ExtendNetworkingClient();
 		break;
 
-	case ClientGameState::LoadSession:
+	case ecl::GameState::LoadSession:
 		INFO("OsirisProxy::OnClientGameStateChanged(): Loading game session");
 		LoadExtensionStateClient();
 		networkManager_.ExtendNetworkingClient();
@@ -853,15 +856,15 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ClientGameState fromStat
 		}
 		break;
 
-	case ClientGameState::Running:
-		if (fromState == ClientGameState::PrepareRunning) {
+	case ecl::GameState::Running:
+		if (fromState == ecl::GameState::PrepareRunning) {
 			networkFixedStrings_.ClientLoaded();
 		}
 		break;
 	}
 }
 
-void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromState, ServerGameState toState)
+void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState)
 {
 	if (!extensionsEnabled_) return;
 
@@ -870,38 +873,38 @@ void OsirisProxy::OnServerGameStateChanged(void * self, ServerGameState fromStat
 			ServerGameStateNames[(unsigned)fromState], ServerGameStateNames[(unsigned)toState]);
 #endif
 
-	if (fromState != ServerGameState::Unknown) {
+	if (fromState != esv::GameState::Unknown) {
 		AddServerThread(GetCurrentThreadId());
 	}
 
-	if (fromState == ServerGameState::LoadModule) {
+	if (fromState == esv::GameState::LoadModule) {
 		INFO("OsirisProxy::OnServerGameStateChanged(): Loaded module");
 		LoadExtensionStateServer();
 	}
 
-	if (fromState == ServerGameState::LoadSession) {
+	if (fromState == esv::GameState::LoadSession) {
 		if (ServerExtState) {
 			ServerExtState->OnGameSessionLoaded();
 		}
 	}
 
 	switch (toState) {
-	case ServerGameState::UnloadSession:
+	case esv::GameState::UnloadSession:
 		INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
 		ResetExtensionStateServer();
 		break;
 
-	case ServerGameState::LoadModule:
+	case esv::GameState::LoadModule:
 		networkManager_.ExtendNetworkingServer();
 		break;
 
-	case ServerGameState::LoadGMCampaign:
+	case esv::GameState::LoadGMCampaign:
 		INFO("OsirisProxy::OnServerGameStateChanged(): Loading GM campaign");
 		LoadExtensionStateServer();
 		networkManager_.ExtendNetworkingServer();
 		break;
 
-	case ServerGameState::LoadSession:
+	case esv::GameState::LoadSession:
 		INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
 		LoadExtensionStateServer();
 		networkManager_.ExtendNetworkingServer();
@@ -1069,7 +1072,7 @@ void OsirisProxy::PostInitLibraries()
 void OsirisProxy::ResetExtensionStateServer()
 {
 	std::lock_guard _(globalStateLock_);
-	ServerExtState = std::make_unique<ExtensionStateServer>();
+	ServerExtState = std::make_unique<esv::ExtensionState>();
 	ServerExtState->Reset();
 	ServerExtensionLoaded = false;
 }
@@ -1105,7 +1108,7 @@ void OsirisProxy::LoadExtensionStateServer()
 void OsirisProxy::ResetExtensionStateClient()
 {
 	std::lock_guard _(globalStateLock_);
-	ClientExtState = std::make_unique<ExtensionStateClient>();
+	ClientExtState = std::make_unique<ecl::ExtensionState>();
 	ClientExtState->Reset();
 	ClearPathOverrides();
 	ClientExtensionLoaded = false;

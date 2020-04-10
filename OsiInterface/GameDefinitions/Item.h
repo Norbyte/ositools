@@ -103,9 +103,10 @@ namespace dse
 			CompactObjectSet<FixedString> Boosts; // Saved
 		};
 
-		struct Item : public EoCServerObject
+		struct Item : public IEoCServerObject
 		{
-			Status * GetStatusByHandle(ObjectHandle handle, bool returnPending) const;
+			Status * GetStatus(ObjectHandle handle, bool returnPending) const;
+			Status* GetStatus(NetId netId) const;
 
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved
@@ -192,9 +193,69 @@ namespace dse
 			void * Views;
 			ObjectSet<ObjectHandle> UpdateViews;
 			uint64_t Unknown2;
-			FixedStringRefMap<FixedString, uint32_t> BuyBackAmounts;
-			FixedStringRefMap<FixedString, uint32_t> TimeItemAddedToInventory;
+			RefMap<FixedString, uint32_t> BuyBackAmounts;
+			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
 		};
+	}
+
+	namespace ecl
+	{
+		struct Item : public IEocClientObject
+		{
+			uint64_t Flags;
+			uint8_t Flags2;
+			__int64 field_58;
+			__int64 field_60;
+			__int64 field_68;
+			FixedString LevelName;
+			float WorldRot[9];
+			float Scale;
+			float Velocity[3];
+			uint8_t gap34[4];
+			void* PhysicsObject;
+			void* AiObject;
+			void* CurrentTemplate;
+			CDivinityStats_Item* Stats;
+			FixedString StatsId;
+			CRPGStats_Object* StatsFromName;
+			ObjectHandle InventoryHandle;
+			ObjectHandle InventoryParentHandle;
+			int field_78;
+			int Weight;
+			int field_80;
+			uint8_t gap84[4];
+			void* ItemMachine;
+			StatusMachine* StatusMachine;
+			ObjectHandle InUseByCharacterHandle;
+			int InUseByUserId;
+			uint8_t gapA4[4];
+			FixedString KeyName;
+			__int64 field_B0;
+			ObjectHandle OH5;
+			STDWString* CachedItemDescription;
+			STDWString* WString2;
+			ObjectHandle OH4;
+			void * Sockets;
+			__int64 field_E0;
+			ObjectSet<FixedString> Tags;
+			int field_108;
+			bool CachedDescriptionFlags;
+			char Flags3;
+			uint8_t gap10E[2];
+			int Level;
+			uint8_t gap114[4];
+			FixedString ItemType;
+			int GoldValueOverride;
+			int BaseWeightOverwrite;
+			__int64 field_128;
+			FixedString ItemColorOverride;
+			TranslatedString CustomDisplayName;
+			TranslatedString CustomDescription;
+			TranslatedString CustomBookContent;
+			int GatewayTeleportationsRemaining;
+			uint16_t UpdateRefCount;
+		};
+
 	}
 #pragma pack(pop)
 }

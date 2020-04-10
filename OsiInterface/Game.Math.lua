@@ -763,7 +763,7 @@ end
 
 
 local function ComputeArmorDamage(damageList, armor)
-    local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfur")
+    local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfuric")
     return math.min(armor, damage)
 end
 

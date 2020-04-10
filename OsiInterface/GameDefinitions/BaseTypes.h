@@ -85,9 +85,40 @@ namespace dse
 
 #pragma pack(push, 1)
 	using Vector3 = glm::vec3;
-	using NetId = int32_t;
 
-	constexpr NetId NetIdUnassigned = 0xffffffff;
+	struct NetId
+	{
+		static constexpr uint32_t Unassigned = 0xffffffff;
+
+		uint32_t Id;
+
+		inline constexpr NetId() : Id(Unassigned) {}
+		inline constexpr NetId(uint32_t id) : Id(id) {}
+		inline constexpr NetId(NetId const & id) : Id(id.Id) {}
+
+		inline operator bool() const
+		{
+			return Id != Unassigned;
+		}
+
+		inline bool operator !() const
+		{
+			return Id == Unassigned;
+		}
+
+		inline constexpr uint16_t GetIndex() const
+		{
+			return (uint16_t)Id;
+		}
+
+		inline constexpr uint16_t GetSalt() const
+		{
+			return (uint16_t)(Id >> 16);
+		}
+	};
+
+	constexpr NetId NetIdUnassigned{ 0xffffffff };
+
 
 	// Base class for game objects that cannot be copied.
 	template <class T>
@@ -157,14 +188,52 @@ namespace dse
 
 	FixedString ToFixedString(const char * s);
 
-	template <class ValueType>
-	struct FixedStringMapBase : public Noncopyable<FixedStringMapBase<ValueType>>
+
+	template <class T>
+	uint64_t Hash(T const&)
+	{
+		static_assert(false, "Hash<T> needs to be specialized!");
+	}
+
+	template <>
+	inline uint64_t Hash<uint8_t>(uint8_t const& v)
+	{
+		return v;
+	}
+
+	template <>
+	inline uint64_t Hash<uint16_t>(uint16_t const& v)
+	{
+		return v;
+	}
+
+	template <>
+	inline uint64_t Hash<uint32_t>(uint32_t const& v)
+	{
+		return v;
+	}
+
+	template <>
+	inline uint64_t Hash<int32_t>(int32_t const& v)
+	{
+		return v;
+	}
+
+	template <>
+	inline uint64_t Hash<FixedString>(FixedString const& s)
+	{
+		return (uint64_t)s.Str;
+	}
+
+
+	template <class TKey, class TValue>
+	struct Map : public Noncopyable<Map<TKey, TValue>>
 	{
 		struct Node
 		{
-			Node * Next;
-			FixedString Key;
-			ValueType Value;
+			Node * Next{ nullptr };
+			alignas(8) TKey Key;
+			alignas(8) TValue Value;
 		};
 
 		uint32_t HashSize{ 0 };
@@ -172,9 +241,14 @@ namespace dse
 		Node** HashTable{ nullptr };
 		uint32_t ItemCount{ 0 };
 
-		FixedStringMapBase() {}
+		Map() {}
 
-		~FixedStringMapBase()
+		Map(uint32_t hashSize)
+		{
+			Init(hashSize);
+		}
+
+		~Map()
 		{
 			Clear();
 		}
@@ -208,35 +282,45 @@ namespace dse
 			} while (node != nullptr);
 		}
 
-		bool Add(FixedString key, ValueType const & value)
+		TValue* Insert(TKey key, TValue const & value)
 		{
-			if (!key) return false;
+			auto nodeValue = Insert(key);
+			*nodeValue = value;
+			return nodeValue;
+		}
 
-			auto * item = &HashTable[(uint64_t)key.Str % HashSize];
-			while (*item != nullptr) {
-				if (strcmp(key.Str, (*item)->Key.Str) == 0) {
-					(*item)->Value = value;
-					return true;
+		TValue* Insert(TKey key) const
+		{
+			auto item = HashTable[Hash(key) % HashSize];
+			auto last = item;
+			while (item != nullptr) {
+				if (key == item->Key) {
+					return &item->Value;
 				}
 
-				item = &(*item)->Next;
+				last = item;
+				item = item->Next;
 			}
 
 			auto node = GameAlloc<Node>();
 			node->Next = nullptr;
 			node->Key = key;
-			node->Value = value;
-			*item = node;
-			return true;
+
+			if (item == nullptr) {
+				HashTable[Hash(key) % HashSize] = node;
+			}
+			else {
+				last->Next = node;
+			}
+
+			return &node->Value;
 		}
 
-		ValueType * Find(FixedString fs) const
+		TValue * Find(TKey key) const
 		{
-			if (!fs) return nullptr;
-
-			auto item = HashTable[(uint64_t)fs.Str % HashSize];
+			auto item = HashTable[Hash(key) % HashSize];
 			while (item != nullptr) {
-				if (strcmp(fs.Str, item->Key.Str) == 0) {
+				if (key == item->Key) {
 					return &item->Value;
 				}
 
@@ -246,13 +330,7 @@ namespace dse
 			return nullptr;
 		}
 
-		ValueType * Find(char const * str) const
-		{
-			auto fs = ToFixedString(str);
-			return Find(fs);
-		}
-
-		FixedString * FindByValue(ValueType const & value) const
+		TKey * FindByValue(TValue const & value) const
 		{
 			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
 				Node * item = HashTable[bucket];
@@ -282,22 +360,57 @@ namespace dse
 	};
 
 	template <class TKey, class TValue>
-	struct FixedStringRefMap : public Noncopyable<FixedStringRefMap<TKey, TValue>>
+	struct RefMap : public Noncopyable<RefMap<TKey, TValue>>
 	{
 		struct Node
 		{
-			Node * Next;
+			Node* Next{ nullptr };
 			alignas(8) TKey Key;
 			alignas(8) TValue Value;
 		};
 
-		uint32_t ItemCount;
-		uint32_t HashSize;
-		Node ** HashTable;
+		uint32_t ItemCount{ 0 };
+		uint32_t HashSize{ 0 };
+		Node** HashTable{ nullptr };
+
+		RefMap(uint32_t hashSize = 31)
+			: ItemCount(0), HashSize(hashSize)
+		{
+			HashTable = GameAllocArray<Node*>(hashSize);
+			memset(HashTable, 0, sizeof(Node*) * hashSize);
+		}
+
+		~RefMap()
+		{
+			if (HashTable != nullptr) {
+				GameFree(HashTable);
+			}
+		}
+
+		void Clear()
+		{
+			for (uint32_t i = 0; i < HashSize; i++) {
+				auto item = HashTable[i];
+				if (item != nullptr) {
+					FreeHashChain(item);
+					HashTable[i] = nullptr;
+				}
+			}
+		}
+
+		void FreeHashChain(Node* node)
+		{
+			do {
+				auto next = node->Next;
+				node->~Node();
+				GameDelete(node);
+				node = next;
+			} while (node != nullptr);
+		}
 
 		TValue * Find(TKey const & key) const
 		{
-			auto item = HashTable[(uint64_t)key % HashSize];
+			auto item = HashTable[Hash(key) % HashSize];
 			while (item != nullptr) {
 				if (key == item->Key) {
 					return &item->Value;
@@ -309,76 +422,12 @@ namespace dse
 			return nullptr;
 		}
 
-		template <class Visitor>
-		void Iterate(Visitor visitor)
+		TValue* Insert(TKey key) const
 		{
-			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
-				Node * item = HashTable[bucket];
-				while (item != nullptr) {
-					visitor(item->Key, item->Value);
-					item = item->Next;
-				}
-			}
-		}
-	};
-
-	template <class TValue>
-	struct FixedStringRefMap<FixedString, TValue> : public Noncopyable<FixedStringRefMap<FixedString, TValue>>
-	{
-		struct Node
-		{
-			Node * Next;
-			FixedString Key;
-			TValue Value;
-		};
-
-		uint32_t ItemCount;
-		uint32_t HashSize;
-		Node ** HashTable;
-
-		FixedStringRefMap(uint32_t hashSize = 31)
-			: ItemCount(0), HashSize(hashSize)
-		{
-			HashTable = GameAllocArray<Node *>(hashSize);
-		}
-
-		~FixedStringRefMap()
-		{
-			if (HashTable != nullptr) {
-				GameFree(HashTable);
-			}
-		}
-
-		TValue * Find(FixedString fs) const
-		{
-			if (!fs) return nullptr;
-
-			auto item = HashTable[(uint64_t)fs.Str % HashSize];
-			while (item != nullptr) {
-				if (fs.Str == item->Key.Str) {
-					return &item->Value;
-				}
-
-				item = item->Next;
-			}
-
-			return nullptr;
-		}
-
-		TValue * Find(char const * str) const
-		{
-			auto fs = ToFixedString(str);
-			return Find(fs);
-		}
-
-		TValue * Insert(FixedString fs) const
-		{
-			if (!fs) return nullptr;
-
-			auto item = HashTable[(uint64_t)fs.Str % HashSize];
+			auto item = HashTable[Hash(key) % HashSize];
 			auto last = item;
 			while (item != nullptr) {
-				if (fs.Str == item->Key.Str) {
+				if (key == item->Key) {
 					return &item->Value;
 				}
 
@@ -388,10 +437,10 @@ namespace dse
 
 			auto node = GameAlloc<Node>();
 			node->Next = nullptr;
-			node->Key = fs;
+			node->Key = key;
 
 			if (item == nullptr) {
-				HashTable[(uint64_t)fs.Str % HashSize] = node;
+				HashTable[Hash(key) % HashSize] = node;
 			} else {
 				last->Next = node;
 			}
@@ -904,14 +953,14 @@ namespace dse
 		virtual void Destroy() = 0;
 		virtual void DestroyComponent() = 0;
 		virtual void CreateComponent() = 0;
-		virtual void ForceCreateComponent() = 0;
+		virtual void ForceCreateComponent() = 0; // ForceComponentDefault
 		virtual void * FindComponentByHandle(ObjectHandle const * oh) = 0;
-		virtual void TryFindComponentByHandle() = 0;
+		virtual void * TryFindComponentByHandle(ObjectHandle const* oh) = 0;
 		virtual void * FindComponentByGuid(FixedString const * fs) = 0;
-		virtual void MoveComponentByGuid() = 0;
-		virtual void GetComponentByNetId() = 0;
+		virtual bool MoveComponentByGuid(FixedString const* fs, void* component) = 0;
+		virtual void * FindComponentByNetId(NetId const & netId, bool checkSalt = true) = 0;
 		virtual void UNKN() = 0;
-		virtual void GetComponentByIndex() = 0;
+		virtual void * GetComponentByIndex(uint64_t index) = 0;
 		virtual void GetFreeHandle() = 0;
 		virtual void IsFreeIndex() = 0;
 		virtual void IsReservedIndex() = 0;

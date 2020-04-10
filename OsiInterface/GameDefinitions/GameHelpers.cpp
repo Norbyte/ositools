@@ -189,7 +189,7 @@ namespace dse
 			return {};
 		}
 
-		auto index = rpgEnum->Values.Find(enumLabel);
+		auto index = rpgEnum->Values.Find(ToFixedString(enumLabel));
 		if (index == nullptr) {
 			return {};
 		} else {
@@ -375,7 +375,7 @@ namespace dse
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Stats entry has no AttributeFlags");
 			}
 		} else if (typeInfo->Values.ItemCount > 0) {
-			auto enumIndex = typeInfo->Values.Find(value);
+			auto enumIndex = typeInfo->Values.Find(ToFixedString(value));
 			if (enumIndex != nullptr) {
 				object->IndexedProperties[attributeIndex] = *enumIndex;
 			} else {
@@ -605,58 +605,6 @@ namespace dse
 		return nullptr;
 	}
 
-	void * EntityWorld::FindComponentByHandle(ObjectHandle componentHandle, ComponentType type)
-	{
-		if ((uint32_t)type >= Components.Size) {
-			OsiError("Component type index " << (uint32_t)type << " too large!");
-			return nullptr;
-		}
-
-		auto componentMgr = Components[(uint32_t)type].component;
-		if (componentMgr == nullptr) {
-			OsiError("Component type " << (uint32_t)type << " not bound!");
-			return nullptr;
-		}
-
-		return componentMgr->FindComponentByHandle(&componentHandle);
-	}
-
-	void * EntityWorld::GetComponentByEntityHandle(ObjectHandle entityHandle, ComponentType type)
-	{
-		if (entityHandle.GetType() != 0) {
-			OsiError("Entity handle has invalid type " << entityHandle.GetType());
-			return nullptr;
-		}
-
-		auto index = entityHandle.GetIndex();
-		if (index >= EntityEntries.Size) {
-			OsiError("Entity index " << index << " too large!");
-			return nullptr;
-		}
-
-		auto salt = entityHandle.GetSalt();
-		if (salt != EntitySalts[index]) {
-			OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts[index]);
-			return nullptr;
-		}
-
-		auto entity = EntityEntries[index];
-		if ((uint32_t)type >= entity->Layout.Entries.Size) {
-			OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
-			return nullptr;
-		}
-
-		auto const & layoutEntry = entity->Layout.Entries[(uint32_t)type];
-		if (!layoutEntry.Handle.IsValid()) {
-			OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
-			return nullptr;
-		}
-
-		ObjectHandle componentHandle{ layoutEntry.Handle.Handle };
-		auto componentMgr = Components[(uint32_t)type].component;
-		return componentMgr->FindComponentByHandle(&componentHandle);
-	}
-
 
 	void PendingStatuses::Add(esv::Status * status)
 	{
@@ -691,7 +639,7 @@ namespace dse
 		}
 	}
 
-	esv::Status * esv::StatusMachine::GetStatusByHandle(ObjectHandle handle) const
+	esv::Status * esv::StatusMachine::GetStatus(ObjectHandle handle) const
 	{
 		auto count = Statuses.Set.Size;
 		for (uint32_t i = 0; i < count; i++) {
@@ -702,6 +650,42 @@ namespace dse
 		}
 
 		return nullptr;
+	}
+
+	esv::Status* esv::StatusMachine::GetStatus(NetId netId) const
+	{
+		return FindByNetId(netId);
+	}
+
+	ecl::Status* ecl::StatusMachine::GetStatus(StatusType type) const
+	{
+		auto count = Statuses.Set.Size;
+		for (uint32_t i = 0; i < count; i++) {
+			auto status = Statuses[i];
+			if (status->GetStatusId() == type) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	ecl::Status* ecl::StatusMachine::GetStatus(FixedString statusId) const
+	{
+		auto count = Statuses.Set.Size;
+		for (uint32_t i = 0; i < count; i++) {
+			auto status = Statuses[i];
+			if (status->StatusId == statusId) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	ecl::Status* ecl::StatusMachine::GetStatus(NetId netId) const
+	{
+		return FindByNetId(netId);
 	}
 
 
@@ -1055,22 +1039,22 @@ namespace dse
 		}
 	}
 
-	esv::Status * esv::Character::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
+	esv::Status * esv::Character::GetStatus(ObjectHandle statusHandle, bool returnPending) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatusByHandle(statusHandle);
+		auto status = StatusMachine->GetStatus(statusHandle);
 		if (status != nullptr) {
 			return status;
 		}
 
 		if (returnPending) {
 			ObjectHandle ownerHandle;
-			this->GetObjectHandle(&ownerHandle);
+			this->GetObjectHandle(ownerHandle);
 
-			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
@@ -1079,22 +1063,32 @@ namespace dse
 		return nullptr;
 	}
 
-	esv::Status * esv::Item::GetStatusByHandle(ObjectHandle statusHandle, bool returnPending) const
+	esv::Status* esv::Character::GetStatus(NetId netId) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatusByHandle(statusHandle);
+		// Pending statuses have no NetID, so we can't check them here
+		return StatusMachine->GetStatus(netId);
+	}
+
+	esv::Status * esv::Item::GetStatus(ObjectHandle statusHandle, bool returnPending) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		auto status = StatusMachine->GetStatus(statusHandle);
 		if (status != nullptr) {
 			return status;
 		}
 
 		if (returnPending) {
 			ObjectHandle ownerHandle;
-			this->GetObjectHandle(&ownerHandle);
+			this->GetObjectHandle(ownerHandle);
 
-			auto pendingStatus = ExtensionStateServer::Get().PendingStatuses.Find(ownerHandle, statusHandle);
+			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
 			if (pendingStatus != nullptr) {
 				return pendingStatus->Status;
 			}
@@ -1103,6 +1097,24 @@ namespace dse
 		return nullptr;
 	}
 
+	esv::Status* esv::Item::GetStatus(NetId netId) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		return StatusMachine->GetStatus(netId);
+	}
+
+
+	ecl::Status* ecl::Character::GetStatus(NetId netId) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		return StatusMachine->GetStatus(netId);
+	}
 
 	void HitDamageInfo::ClearDamage()
 	{

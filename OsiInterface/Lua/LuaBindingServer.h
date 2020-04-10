@@ -8,8 +8,10 @@
 #include <ExtensionHelpers.h>
 #include <OsirisHelpers.h>
 
-namespace dse::lua
+namespace dse::esv::lua
 {
+	using namespace dse::lua;
+
 	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil = false);
 	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil = false);
 	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false);
@@ -116,7 +118,11 @@ namespace dse::lua
 		static char const * const MetatableName;
 
 		inline StatusHandleProxy(ObjectHandle character, ObjectHandle status)
-			: character_(character), status_(status)
+			: character_(character), statusHandle_(status)
+		{}
+
+		inline StatusHandleProxy(ObjectHandle character, NetId status)
+			: character_(character), statusNetId_(status)
 		{}
 
 		int Index(lua_State * L);
@@ -124,7 +130,8 @@ namespace dse::lua
 
 	private:
 		ObjectHandle character_;
-		ObjectHandle status_;
+		ObjectHandle statusHandle_;
+		NetId statusNetId_;
 	};
 
 
@@ -141,7 +148,7 @@ namespace dse::lua
 
 		inline esv::TurnManager::Combat * Get()
 		{
-			return GetTurnManager()->Combats.Find(combatId_);
+			return GetEntityWorld()->GetTurnManager()->Combats.Find(combatId_);
 		}
 
 		int Index(lua_State * L);
@@ -172,7 +179,7 @@ namespace dse::lua
 
 		inline esv::TurnManager::CombatTeam * Get()
 		{
-			auto combat = GetTurnManager()->Combats.Find(teamId_.CombatId);
+			auto combat = GetEntityWorld()->GetTurnManager()->Combats.Find(teamId_.CombatId);
 			if (combat) {
 				auto team = combat->Teams.Find((uint32_t)teamId_);
 				if (team) {

@@ -7,7 +7,7 @@
 
 namespace dse
 {
-	std::unordered_set<std::string_view> ExtensionState::sAllFeatureFlags = {
+	std::unordered_set<std::string_view> ExtensionStateBase::sAllFeatureFlags = {
 		"OsirisExtensions",
 		"Lua",
 		"CustomStats",
@@ -17,13 +17,13 @@ namespace dse
 		"DisableFolding"
 	};
 
-	void ExtensionState::Reset()
+	void ExtensionStateBase::Reset()
 	{
 		time_t tm;
 		OsiRng.seed(time(&tm));
 	}
 
-	void ExtensionState::LoadConfigs()
+	void ExtensionStateBase::LoadConfigs()
 	{
 		auto modManager = GetModManager();
 		if (modManager == nullptr) {
@@ -110,7 +110,7 @@ namespace dse
 		}
 	}
 
-	bool ExtensionState::LoadConfig(Module const & mod, STDString const & configText, ExtensionModConfig & config)
+	bool ExtensionStateBase::LoadConfig(Module const & mod, STDString const & configText, ExtensionModConfig & config)
 	{
 		Json::CharReaderBuilder factory;
 		auto reader = std::unique_ptr<Json::CharReader>(factory.newCharReader());
@@ -167,7 +167,7 @@ namespace dse
 		return {};
 	}
 
-	bool ExtensionState::LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config)
+	bool ExtensionStateBase::LoadConfig(Module const & mod, Json::Value & json, ExtensionModConfig & config)
 	{
 		bool hasLegacyFeatureFlags = false;
 
@@ -240,12 +240,12 @@ namespace dse
 		return true;
 	}
 
-	bool ExtensionState::HasFeatureFlag(char const * flag) const
+	bool ExtensionStateBase::HasFeatureFlag(char const * flag) const
 	{
 		return MergedConfig.FeatureFlags.find(flag) != MergedConfig.FeatureFlags.end();
 	}
 
-	void ExtensionState::OnGameSessionLoading()
+	void ExtensionStateBase::OnGameSessionLoading()
 	{
 		LuaVirtualPin lua(*this);
 		if (lua) {
@@ -253,7 +253,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::OnGameSessionLoaded()
+	void ExtensionStateBase::OnGameSessionLoaded()
 	{
 		LuaVirtualPin lua(*this);
 		if (lua) {
@@ -261,7 +261,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::OnModuleLoading()
+	void ExtensionStateBase::OnModuleLoading()
 	{
 		StatLoadTriggered = true;
 		LuaVirtualPin lua(*this);
@@ -270,7 +270,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::OnModuleResume()
+	void ExtensionStateBase::OnModuleResume()
 	{
 		LuaVirtualPin lua(*this);
 		if (lua) {
@@ -279,13 +279,13 @@ namespace dse
 	}
 
 
-	void ExtensionState::IncLuaRefs()
+	void ExtensionStateBase::IncLuaRefs()
 	{
 		assert(GetLua());
 		LuaRefs++;
 	}
 
-	void ExtensionState::DecLuaRefs()
+	void ExtensionStateBase::DecLuaRefs()
 	{
 		assert(LuaRefs > 0);
 		LuaRefs--;
@@ -294,7 +294,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::LuaReset(bool startup)
+	void ExtensionStateBase::LuaReset(bool startup)
 	{
 		if (!HasFeatureFlag("Lua")) {
 			OsiWarn("Lua extensions not enabled; not initializing Lua VM");
@@ -317,7 +317,7 @@ namespace dse
 		}
 	}
 
-	std::optional<STDString> ExtensionState::ResolveModScriptPath(STDString const& modNameGuid, STDString const& fileName)
+	std::optional<STDString> ExtensionStateBase::ResolveModScriptPath(STDString const& modNameGuid, STDString const& fileName)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
@@ -328,7 +328,7 @@ namespace dse
 		return ResolveModScriptPath(*mod, fileName);
 	}
 
-	STDString ExtensionState::ResolveModScriptPath(Module const& mod, STDString const& fileName)
+	STDString ExtensionStateBase::ResolveModScriptPath(Module const& mod, STDString const& fileName)
 	{
 		STDString path("Mods/");
 		path += ToUTF8(mod.Info.Directory);
@@ -337,7 +337,7 @@ namespace dse
 		return path;
 	}
 
-	std::optional<int> ExtensionState::LuaLoadExternalFile(STDString const & path)
+	std::optional<int> ExtensionStateBase::LuaLoadExternalFile(STDString const & path)
 	{
 		std::ifstream f(path.c_str(), std::ios::in | std::ios::binary);
 		if (!f.good()) {
@@ -361,7 +361,7 @@ namespace dse
 		return lua->LoadScript(s, path);
 	}
 
-	std::optional<int> ExtensionState::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
+	std::optional<int> ExtensionStateBase::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
 	{
 		if (!reader.IsLoaded()) {
 			OsiErrorS("Attempted to load script from invalid file reader");
@@ -377,7 +377,7 @@ namespace dse
 		return lua->LoadScript(reader.ToString(), scriptName);
 	}
 
-	std::optional<int> ExtensionState::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
+	std::optional<int> ExtensionStateBase::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
 	{
 		auto reader = GetStaticSymbols().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
@@ -390,7 +390,7 @@ namespace dse
 		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
 	}
 
-	std::optional<int> ExtensionState::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
+	std::optional<int> ExtensionStateBase::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
@@ -410,7 +410,7 @@ namespace dse
 		return LuaLoadGameFile(path, scriptName, warnOnError);
 	}
 
-	void ExtensionState::LuaResetInternal()
+	void ExtensionStateBase::LuaResetInternal()
 	{
 		assert(LuaPendingDelete);
 		assert(LuaRefs == 0);
@@ -428,7 +428,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionState::LuaStartup()
+	void ExtensionStateBase::LuaStartup()
 	{
 		LuaVirtualPin lua(*this);
 		if (!lua) {
@@ -460,7 +460,7 @@ namespace dse
 		lua->FinishStartup();
 	}
 
-	void ExtensionState::LuaLoadBootstrap(ExtensionModConfig const& config, Module const& mod)
+	void ExtensionStateBase::LuaLoadBootstrap(ExtensionModConfig const& config, Module const& mod)
 	{
 		auto bootstrapFileName = GetBootstrapFileName();
 		auto const& sym = GetStaticSymbols();

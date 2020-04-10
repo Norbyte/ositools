@@ -3,7 +3,7 @@
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
 
-namespace dse
+namespace dse::esv
 {
 	FunctionHandle SkillIteratorEventHandle;
 
@@ -32,7 +32,7 @@ namespace dse
 
 		bool CharacterGetComputedStat(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			auto statName = args[1].String;
 			auto baseStats = args[2].Int32 == 1;
 			auto & statValue = args[3];
@@ -49,8 +49,8 @@ namespace dse
 
 		bool CharacterGetHitChance(OsiArgumentDesc & args)
 		{
-			auto attacker = FindCharacterByNameGuid(args[0].String);
-			auto target = FindCharacterByNameGuid(args[1].String);
+			auto attacker = GetEntityWorld()->GetCharacter(args[0].String);
+			auto target = GetEntityWorld()->GetCharacter(args[1].String);
 			auto & hitChance = args[2];
 			if (attacker == nullptr
 				|| target == nullptr
@@ -71,7 +71,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		bool CharacterGetStat(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr || character->Stats == nullptr) return false;
 
 			return OsirisPropertyMapGet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
@@ -79,7 +79,7 @@ namespace dse
 
 		void CharacterSetStatInt(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			auto stat = args[1].String;
 			auto value = args[2].Int32;
 
@@ -100,7 +100,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		bool CharacterGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr) return false;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -112,7 +112,7 @@ namespace dse
 		template <OsiPropertyMapType Type>
 		void CharacterSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -127,7 +127,7 @@ namespace dse
 			auto talent = args[1].String;
 			auto enabled = args[2].Int32;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -148,7 +148,7 @@ namespace dse
 			auto talent = args[1].String;
 			auto & disabled = args[2];
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) return false;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -170,7 +170,7 @@ namespace dse
 			auto talent = args[1].String;
 			auto disabled = args[2].Int32;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -191,7 +191,7 @@ namespace dse
 			auto characterGuid = args[0].String;
 			auto global = args[1].Int32 == 1;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) return;
 
 			character->SetGlobal(global);
@@ -202,7 +202,7 @@ namespace dse
 		{
 			auto characterGuid = args[0].String;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr) return false;
 
 			return OsirisPropertyMapGet(gCharacterPropertyMap, character, args, 1, Type);
@@ -213,7 +213,7 @@ namespace dse
 			auto characterGuid = args[0].String;
 			auto eventName = args[1].String;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr || character->SkillManager == nullptr) return;
 
 			auto & skills = character->SkillManager->Skills;
@@ -240,10 +240,10 @@ namespace dse
 			auto updateVitality = args[5].Int32 > 0;
 			auto useWeaponAnimType = args[6].Int32 > 0;
 
-			auto character = FindCharacterByNameGuid(characterGuid);
+			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr || !character->InventoryHandle) return;
 
-			auto item = FindItemByNameGuid(itemGuid);
+			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
 			int16_t slotIndex = -1;
@@ -261,7 +261,7 @@ namespace dse
 			if (inventory == nullptr) return;
 
 			ObjectHandle itemHandle;
-			item->GetObjectHandle(&itemHandle);
+			item->GetObjectHandle(itemHandle);
 
 			auto equipProc = GetStaticSymbols().InventoryEquip;
 			equipProc(inventory, itemHandle.Handle, consumeAP, slotIndex, true, checkRequirements,
@@ -279,7 +279,7 @@ namespace dse
 				return false;
 			}
 
-			auto character = FindCharacterByNameGuid(guid, false);
+			auto character = GetEntityWorld()->GetCharacter(guid, false);
 			if (character != nullptr) {
 				if (flag < 64) {
 					value.Set(character->HasFlag(1ull << flag));
@@ -294,7 +294,7 @@ namespace dse
 				return true;
 			}
 
-			auto item = FindItemByNameGuid(guid);
+			auto item = GetEntityWorld()->GetItem(guid);
 			if (item != nullptr) {
 				if (flag < 64) {
 					value.Set(item->HasFlag(1ull << flag));
@@ -319,7 +319,7 @@ namespace dse
 				return;
 			}
 
-			auto character = FindCharacterByNameGuid(guid, false);
+			auto character = GetEntityWorld()->GetCharacter(guid, false);
 			if (character != nullptr) {
 				if (flag < 64) {
 					if (value) {
@@ -350,7 +350,7 @@ namespace dse
 				return;
 			}
 
-			auto item = FindItemByNameGuid(guid);
+			auto item = GetEntityWorld()->GetItem(guid);
 			if (item != nullptr) {
 				if (flag < 64) {
 					if (value) {

@@ -6,52 +6,30 @@
 
 namespace dse::lua
 {
-	char const * const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
+	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
-	int ObjectProxy<esv::Status>::Index(lua_State * L)
+	int ObjectProxy<esv::Status>::Index(lua_State* L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
-		auto & propertyMap = StatusToPropertyMap(obj_);
+		auto& propertyMap = StatusToPropertyMap(obj_);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
 		return fetched ? 1 : 0;
 	}
 
-	int ObjectProxy<esv::Status>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const StatusHandleProxy::MetatableName = "esv::HStatus";
+	char const* const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
 
-	int StatusHandleProxy::Index(lua_State * L)
-	{
-		auto character = FindCharacterByHandle(character_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
-
-		auto status = character->GetStatusByHandle(status_, true);
-		if (status == nullptr) return luaL_error(L, "Status handle invalid");
-
-		auto prop = luaL_checkstring(L, 2);
-		auto & propertyMap = StatusToPropertyMap(status);
-		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
-		return fetched ? 1 : 0;
-	}
-
-	int StatusHandleProxy::NewIndex(lua_State * L)
-	{
-		return luaL_error(L, "Not supported yet!");
-	}
-
-
-	char const * const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
-
-	esv::PlayerCustomData * ObjectProxy<esv::PlayerCustomData>::Get(lua_State* L)
+	esv::PlayerCustomData* ObjectProxy<esv::PlayerCustomData>::Get(lua_State* L)
 	{
 		if (obj_) return obj_;
-		auto character = FindCharacterByHandle(handle_);
+		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
 		if (character == nullptr) luaL_error(L, "Character handle invalid");
 
 		if (character->PlayerData == nullptr
@@ -63,7 +41,7 @@ namespace dse::lua
 		return &character->PlayerData->CustomData;
 	}
 
-	int ObjectProxy<esv::PlayerCustomData>::Index(lua_State * L)
+	int ObjectProxy<esv::PlayerCustomData>::Index(lua_State* L)
 	{
 		auto customData = Get(L);
 		if (!customData) return 0;
@@ -73,20 +51,51 @@ namespace dse::lua
 		return fetched ? 1 : 0;
 	}
 
-	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
+	char const* const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
 
-	int CharacterFetchProperty(lua_State * L, esv::Character * character, char const * prop);
+	int ServerCharacterFetchProperty(lua_State* L, esv::Character* character, char const* prop)
+	{
+		if (strcmp(prop, "PlayerCustomData") == 0) {
+			if (character->PlayerData != nullptr
+				&& character->PlayerData->CustomData.Initialized) {
+				ObjectHandle handle;
+				character->GetObjectHandle(handle);
+				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
+				return 1;
+			}
+			else {
+				OsiError("Character has no player data, or custom data was not initialized.");
+				return 0;
+			}
+		}
+
+		if (strcmp(prop, "Stats") == 0) {
+			if (character->Stats != nullptr) {
+				ObjectHandle handle;
+				character->GetObjectHandle(handle);
+				ObjectProxy<CDivinityStats_Character>::New(L, handle);
+				return 1;
+			}
+			else {
+				OsiError("Character has no stats.");
+				return 0;
+			}
+		}
+
+		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
+		return fetched ? 1 : 0;
+	}
 
 	esv::Character* ObjectProxy<esv::Character>::Get(lua_State* L)
 	{
 		if (obj_) return obj_;
-		auto character = FindCharacterByHandle(handle_);
+		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
 		if (character == nullptr) luaL_error(L, "Character handle invalid");
 		return character;
 	}
@@ -97,13 +106,13 @@ namespace dse::lua
 
 		lua_newtable(L);
 
-		auto inventory = FindInventoryByHandle(self->Get(L)->InventoryHandle);
+		auto inventory = esv::FindInventoryByHandle(self->Get(L)->InventoryHandle);
 		if (inventory != nullptr) {
 			int32_t index = 1;
 			for (uint32_t i = 0; i < inventory->ItemsBySlot.Set.Size; i++) {
 				auto itemHandle = inventory->ItemsBySlot[i];
 				if (itemHandle) {
-					auto item = FindItemByHandle(itemHandle);
+					auto item = esv::GetEntityWorld()->GetItem(itemHandle);
 					if (item != nullptr) {
 						settable(L, index++, item->MyGuid);
 					}
@@ -114,7 +123,7 @@ namespace dse::lua
 		return 1;
 	}
 
-	int ObjectProxy<esv::Character>::Index(lua_State * L)
+	int ObjectProxy<esv::Character>::Index(lua_State* L)
 	{
 		auto character = Get(L);
 		if (!character) return 0;
@@ -126,26 +135,26 @@ namespace dse::lua
 			return 1;
 		}
 
-		return CharacterFetchProperty(L, character, prop);
+		return ServerCharacterFetchProperty(L, character, prop);
 	}
 
-	int ObjectProxy<esv::Character>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::Character>::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
 
 
-	char const * const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
+	char const* const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
 
 	esv::Item* ObjectProxy<esv::Item>::Get(lua_State* L)
 	{
 		if (obj_) return obj_;
-		auto item = FindItemByHandle(handle_);
+		auto item = esv::GetEntityWorld()->GetItem(handle_);
 		if (item == nullptr) luaL_error(L, "Item handle invalid");
 		return item;
 	}
 
-	int ObjectProxy<esv::Item>::Index(lua_State * L)
+	int ObjectProxy<esv::Item>::Index(lua_State* L)
 	{
 		auto item = Get(L);
 		if (!item) return 0;
@@ -156,7 +165,8 @@ namespace dse::lua
 			if (item->StatsDynamic != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
-			} else {
+			}
+			else {
 				OsiError("Item has no stats.");
 				return 0;
 			}
@@ -174,7 +184,40 @@ namespace dse::lua
 		return fetched ? 1 : 0;
 	}
 
-	int ObjectProxy<esv::Item>::NewIndex(lua_State * L)
+	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+}
+
+namespace dse::esv::lua
+{
+	using namespace dse::lua;
+
+
+	char const* const StatusHandleProxy::MetatableName = "esv::HStatus";
+
+	int StatusHandleProxy::Index(lua_State* L)
+	{
+		auto character = GetEntityWorld()->GetCharacter(character_);
+		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+
+		esv::Status* status;
+		if (statusHandle_) {
+			status = character->GetStatus(statusHandle_, true);
+		} else {
+			status = character->GetStatus(statusNetId_);
+		}
+
+		if (status == nullptr) return luaL_error(L, "Status handle invalid");
+
+		auto prop = luaL_checkstring(L, 2);
+		auto& propertyMap = StatusToPropertyMap(status);
+		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int StatusHandleProxy::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -368,7 +411,7 @@ namespace dse::lua
 			auto character = team->EntityWrapper.GetCharacter();
 			if (character != nullptr) {
 				ObjectHandle handle;
-				character->GetObjectHandle(&handle);
+				character->GetObjectHandle(handle);
 				ObjectProxy<esv::Character>::New(L, handle);
 			} else {
 				return 0;
@@ -377,7 +420,7 @@ namespace dse::lua
 			auto item = team->EntityWrapper.GetItem();
 			if (item != nullptr) {
 				ObjectHandle handle;
-				item->GetObjectHandle(&handle);
+				item->GetObjectHandle(handle);
 				ObjectProxy<esv::Item>::New(L, handle);
 			} else {
 				return 0;
@@ -408,37 +451,165 @@ namespace dse::lua
 		CreateNameResolver(L);
 	}
 
-	int GetExtensionVersion(lua_State * L);
-	int OsiPrint(lua_State* L);
-	int OsiPrintError(lua_State* L);
-	int SaveFile(lua_State* L);
-	int LoadFile(lua_State* L);
-	int JsonParse(lua_State * L);
-	int JsonStringify(lua_State * L);
-	int IsModLoaded(lua_State* L);
-	int GetModLoadOrder(lua_State* L);
-	int GetModInfo(lua_State* L);
-	int GetStatEntries(lua_State * L);
-	int GetSkillSet(lua_State * L);
-	int GetEquipmentSet(lua_State * L);
-	int StatGetAttribute(lua_State * L);
-	int StatSetAttribute(lua_State * L);
-	int StatAddCustomDescription(lua_State * L);
-	int GetStat(lua_State * L);
-	int GetCharacter(lua_State * L);
-	int GetItem(lua_State * L);
-	int GetStatus(lua_State * L);
-	int GetCombat(lua_State * L);
-	int NewDamageList(lua_State * L);
-	int OsirisIsCallable(lua_State * L);
-	int IsDeveloperMode(lua_State * L);
-	int AddPathOverride(lua_State * L);
-	int LuaRandom(lua_State * L);
-	int LuaRound(lua_State * L);
-	int GenerateIdeHelpers(lua_State * L);
-	int AddVoiceMetaData(lua_State * L);
-	int GetTranslatedString(lua_State* L);
 
+	esv::Character* GetCharacter(lua_State* L, int index)
+	{
+		esv::Character* character = nullptr;
+		switch (lua_type(L, index)) {
+		case LUA_TNUMBER:
+		{
+			auto value = lua_tointeger(L, index);
+			if (value > 0xffffffff) {
+				ObjectHandle handle{ value };
+				character = GetEntityWorld()->GetCharacter(handle);
+			} else {
+				NetId netId{ (uint32_t)value };
+				character = GetEntityWorld()->GetCharacter(netId);
+			}
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, index);
+			character = GetEntityWorld()->GetCharacter(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected character UUID, Handle or NetId");
+			break;
+		}
+
+		return character;
+	}
+
+	int GetCharacter(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve character handle in restricted context");
+		}
+
+		esv::Character* character = GetCharacter(L, 1);
+
+		if (character != nullptr) {
+			ObjectHandle handle;
+			character->GetObjectHandle(handle);
+			ObjectProxy<esv::Character>::New(L, handle);
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	int GetItem(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve item handle in restricted context");
+		}
+
+		esv::Item* item = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TNUMBER:
+		{
+			auto handle = ObjectHandle(lua_tointeger(L, 1));
+			item = GetEntityWorld()->GetItem(handle);
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 1);
+			item = GetEntityWorld()->GetItem(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected item GUID or handle");
+			return 0;
+		}
+
+		if (item != nullptr) {
+			ObjectHandle handle;
+			item->GetObjectHandle(handle);
+			ObjectProxy<esv::Item>::New(L, handle);
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	int GetStatus(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve status handle in restricted context");
+		}
+
+		esv::Character* character = GetCharacter(L, 1);
+		if (character == nullptr) return 0;
+
+		auto index = lua_tointeger(L, 2);
+		esv::Status* status;
+		if (index > 0xffffffff) {
+			ObjectHandle statusHandle{ index };
+			status = character->GetStatus(statusHandle, true);
+			if (status != nullptr) {
+				ObjectHandle characterHandle;
+				character->GetObjectHandle(characterHandle);
+				StatusHandleProxy::New(L, characterHandle, statusHandle);
+				return 1;
+			}
+		} else {
+			NetId statusNetId{ (uint32_t)index };
+			status = character->GetStatus(statusNetId);
+			if (status != nullptr) {
+				ObjectHandle characterHandle;
+				character->GetObjectHandle(characterHandle);
+				StatusHandleProxy::New(L, characterHandle, statusNetId);
+				return 1;
+			}
+		}
+
+		OsiError("Character has no status with ObjectHandle/NetId 0x" << std::hex << index);
+		return 0;
+	}
+
+	int GetCombat(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
+		}
+
+		auto turnMgr = GetEntityWorld()->GetTurnManager();
+		if (turnMgr == nullptr) {
+			OsiErrorS("esv::TurnManager not available");
+			return 0;
+		}
+
+		auto combatId = (uint8_t)luaL_checkinteger(L, 1);
+		auto combat = turnMgr->Combats.Find(combatId);
+		if (combat == nullptr) {
+			OsiError("No combat found with ID " << (unsigned)combatId);
+			return 0;
+		}
+
+		TurnManagerCombatProxy::New(L, combatId);
+		return 1;
+	}
+
+	int OsirisIsCallable(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		bool allowed = (lua->RestrictionFlags & State::RestrictOsiris) != 0;
+		lua_pushboolean(L, allowed);
+		return 1;
+	}
 
 	int BroadcastMessage(lua_State * L)
 	{
@@ -448,7 +619,7 @@ namespace dse::lua
 		esv::Character * excludeCharacter = nullptr;
 		if (!lua_isnil(L, 3)) {
 			auto excludeCharacterGuid = luaL_checkstring(L, 3);
-			excludeCharacter = FindCharacterByNameGuid(excludeCharacterGuid);
+			excludeCharacter = GetEntityWorld()->GetCharacter(excludeCharacterGuid);
 			if (excludeCharacter == nullptr) return 0;
 		}
 
@@ -476,7 +647,7 @@ namespace dse::lua
 		auto channel = luaL_checkstring(L, 2);
 		auto payload = luaL_checkstring(L, 3);
 
-		auto character = FindCharacterByNameGuid(characterGuid);
+		auto character = GetEntityWorld()->GetCharacter(characterGuid);
 		if (character == nullptr) return 0;
 
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
@@ -723,7 +894,7 @@ namespace dse::lua
 		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
-		auto turnMgr = GetTurnManager();
+		auto turnMgr = GetEntityWorld()->GetTurnManager();
 		if (!turnMgr) {
 			OsiErrorS("Couldn't fetch turn manager");
 			return false;
@@ -770,15 +941,15 @@ namespace dse::lua
 	}
 }
 
-namespace dse
+namespace dse::esv
 {
 
-	ExtensionStateServer & ExtensionStateServer::Get()
+	ExtensionState & ExtensionState::Get()
 	{
 		return gOsirisProxy->GetServerExtensionState();
 	}
 
-	lua::State * ExtensionStateServer::GetLua()
+	lua::State * ExtensionState::GetLua()
 	{
 		if (Lua) {
 			return Lua.get();
@@ -787,39 +958,39 @@ namespace dse
 		}
 	}
 
-	ModManager * ExtensionStateServer::GetModManager()
+	ModManager * ExtensionState::GetModManager()
 	{
 		return GetModManagerServer();
 	}
 
-	void ExtensionStateServer::Reset()
+	void ExtensionState::Reset()
 	{
-		ExtensionState::Reset();
+		ExtensionStateBase::Reset();
 		DamageHelpers.Clear();
 	}
 
-	void ExtensionStateServer::DoLuaReset()
+	void ExtensionState::DoLuaReset()
 	{
 		Lua.reset();
 		Lua = std::make_unique<lua::ServerState>();
 		Lua->StoryFunctionMappingsUpdated();
 	}
 
-	void ExtensionStateServer::LuaStartup()
+	void ExtensionState::LuaStartup()
 	{
-		ExtensionState::LuaStartup();
+		ExtensionStateBase::LuaStartup();
 
 		LuaServerPin lua(*this);
 		auto gameState = GetStaticSymbols().GetServerState();
 		if (gameState
-			&& (*gameState == ServerGameState::LoadLevel
-				|| (*gameState == ServerGameState::LoadModule && WasStatLoadTriggered())
-				|| *gameState == ServerGameState::LoadGMCampaign
-				|| *gameState == ServerGameState::LoadSession
-				|| *gameState == ServerGameState::Sync
-				|| *gameState == ServerGameState::Paused
-				|| *gameState == ServerGameState::Running
-				|| *gameState == ServerGameState::GameMasterPause)) {
+			&& (*gameState == esv::GameState::LoadLevel
+				|| (*gameState == esv::GameState::LoadModule && WasStatLoadTriggered())
+				|| *gameState == esv::GameState::LoadGMCampaign
+				|| *gameState == esv::GameState::LoadSession
+				|| *gameState == esv::GameState::Sync
+				|| *gameState == esv::GameState::Paused
+				|| *gameState == esv::GameState::Running
+				|| *gameState == esv::GameState::GameMasterPause)) {
 			lua->OnModuleResume();
 			OsiWarn("Server resume -- state " << (unsigned)*gameState);
 		} else {
@@ -827,7 +998,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionStateServer::StoryLoaded()
+	void ExtensionState::StoryLoaded()
 	{
 		DEBUG("ExtensionStateServer::StoryLoaded()");
 		if (Lua) {
@@ -835,7 +1006,7 @@ namespace dse
 		}
 	}
 
-	void ExtensionStateServer::StoryFunctionMappingsUpdated()
+	void ExtensionState::StoryFunctionMappingsUpdated()
 	{
 		if (Lua) {
 			Lua->StoryFunctionMappingsUpdated();

@@ -705,7 +705,7 @@ namespace dse::lua
 		auto object = StatFindObject(statName);
 		if (!object) return 0;
 
-		auto props = object->PropertyList.Find(attributeName);
+		auto props = object->PropertyList.Find(ToFixedString(attributeName));
 		if (props == nullptr || *props == nullptr) {
 			OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
 			return 0;
@@ -752,7 +752,7 @@ namespace dse::lua
 
 		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 		{
-			LuaClientPin pin(ExtensionStateClient::Get());
+			LuaVirtualPin pin(gOsirisProxy->GetCurrentExtensionState());
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
@@ -842,32 +842,6 @@ namespace dse::lua
 		return 0;
 	}
 
-	esv::Character * GetCharacter(lua_State * L, int index)
-	{
-		esv::Character * character = nullptr;
-		switch (lua_type(L, index)) {
-		case LUA_TNUMBER:
-		{
-			auto handle = ObjectHandle(lua_tointeger(L, index));
-			character = FindCharacterByHandle(handle);
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = lua_tostring(L, index);
-			character = FindCharacterByNameGuid(guid);
-			break;
-		}
-
-		default:
-			OsiError("Expected character GUID or handle");
-			break;
-		}
-
-		return character;
-	}
-
 	int GetStat(lua_State * L)
 	{
 		auto statName = luaL_checkstring(L, 1);
@@ -885,127 +859,9 @@ namespace dse::lua
 		}
 	}
 
-	int GetCharacter(lua_State * L)
-	{
-		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve character handle in restricted context");
-		}
-
-		esv::Character * character = GetCharacter(L, 1);
-
-		if (character != nullptr) {
-			ObjectHandle handle;
-			character->GetObjectHandle(&handle);
-			ObjectProxy<esv::Character>::New(L, handle);
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-
-	int GetItem(lua_State * L)
-	{
-		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve item handle in restricted context");
-		}
-
-		esv::Item * item = nullptr;
-		switch (lua_type(L, 1)) {
-		case LUA_TNUMBER:
-		{
-			auto handle = ObjectHandle(lua_tointeger(L, 1));
-			item = FindItemByHandle(handle);
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = lua_tostring(L, 1);
-			item = FindItemByNameGuid(guid);
-			break;
-		}
-
-		default:
-			OsiError("Expected item GUID or handle");
-			return 0;
-		}
-
-		if (item != nullptr) {
-			ObjectHandle handle;
-			item->GetObjectHandle(&handle);
-			ObjectProxy<esv::Item>::New(L, handle);
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-
-	int GetStatus(lua_State * L)
-	{
-		LuaServerPin lua(ExtensionStateServer::Get());
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve status handle in restricted context");
-		}
-
-		esv::Character * character = GetCharacter(L, 1);
-		if (character == nullptr) return 0;
-
-		auto statusHandle = ObjectHandle(lua_tointeger(L, 2));
-		auto status = character->GetStatusByHandle(statusHandle, true);
-		if (status != nullptr) {
-			ObjectHandle characterHandle;
-			character->GetObjectHandle(&characterHandle);
-			StatusHandleProxy::New(L, characterHandle, statusHandle);
-			return 1;
-		} else {
-			OsiError("Character has no status with handle " << statusHandle.Handle);
-			return 0;
-		}
-	}
-
-	int GetCombat(lua_State * L)
-	{
-		LuaServerPin lua(ExtensionStateServer::Get());
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
-		}
-
-		auto turnMgr = GetTurnManager();
-		if (turnMgr == nullptr) {
-			OsiErrorS("esv::TurnManager not available");
-			return 0;
-		}
-
-		auto combatId = (uint8_t)luaL_checkinteger(L, 1);
-		auto combat = turnMgr->Combats.Find(combatId);
-		if (combat == nullptr) {
-			OsiError("No combat found with ID " << (unsigned)combatId);
-			return 0;
-		}
-
-		TurnManagerCombatProxy::New(L, combatId);
-		return 1;
-	}
-
 	int NewDamageList(lua_State * L)
 	{
 		DamageList::New(L);
-		return 1;
-	}
-
-	int OsirisIsCallableClient(lua_State * L)
-	{
-		lua_pushboolean(L, false);
-		return 1;
-	}
-
-	int OsirisIsCallable(lua_State * L)
-	{
-		LuaServerPin lua(ExtensionStateServer::Get());
-		bool allowed = (lua->RestrictionFlags & State::RestrictOsiris) != 0;
-		lua_pushboolean(L, allowed);
 		return 1;
 	}
 
@@ -1211,7 +1067,7 @@ namespace dse::lua
 	int GenerateIdeHelpers(lua_State * L)
 	{
 #if !defined(OSI_EOCAPP)
-		LuaServerPin lua(ExtensionStateServer::Get());
+		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua->RestrictionFlags & State::RestrictOsiris) {
 			return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}

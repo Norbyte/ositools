@@ -432,7 +432,7 @@ void CustomFunctionManager::PreProcessStory(STDString const & original, STDStrin
 
 void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 {
-	if (!ExtensionStateServer::Get().HasFeatureFlag("Preprocessor")) return;
+	if (!esv::ExtensionState::Get().HasFeatureFlag("Preprocessor")) return;
 
 	STDString original;
 	STDString postProcessed;
@@ -585,7 +585,7 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 	DEBUG("CustomFunctionInjector mapping phase: %d -> %d functions", *MappingCount, outputIndex);
 	*MappingCount = outputIndex;
 
-	ExtensionStateServer::Get().StoryFunctionMappingsUpdated();
+	esv::ExtensionState::Get().StoryFunctionMappingsUpdated();
 }
 
 bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
@@ -654,7 +654,7 @@ void CustomFunctionInjector::OnCreateFile(LPCWSTR lpFileName,
 void CustomFunctionInjector::OnCloseHandle(HANDLE hFile, BOOL bSucceeded)
 {
 	if (bSucceeded && !extendingStory_ && storyHeaderFile_ != NULL && hFile == storyHeaderFile_) {
-		if (ExtensionStateServer::Get().HasFeatureFlag("OsirisExtensions")) {
+		if (esv::ExtensionState::Get().HasFeatureFlag("OsirisExtensions")) {
 			ExtendStoryHeader(storyHeaderPath_);
 		}
 

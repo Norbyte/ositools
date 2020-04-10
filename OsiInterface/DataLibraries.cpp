@@ -581,11 +581,11 @@ namespace dse
 		if (!CanShowMessages()) return false;
 
 		auto state = GetStaticSymbols().GetClientState();
-		return state == ClientGameState::Running
-			|| state == ClientGameState::Paused
-			|| state == ClientGameState::GameMasterPause
-			|| state == ClientGameState::Menu
-			|| state == ClientGameState::Lobby;
+		return state == ecl::GameState::Running
+			|| state == ecl::GameState::Paused
+			|| state == ecl::GameState::GameMasterPause
+			|| state == ecl::GameState::Menu
+			|| state == ecl::GameState::Lobby;
 	}
 
 	void LibraryManager::EnableCustomStats()

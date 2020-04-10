@@ -5,24 +5,46 @@
 
 namespace dse
 {
-	EnumInfo<ComponentType>::Label const EnumInfo<ComponentType>::Values[] = {
-		{ ComponentType::AnimationBlueprint, "AnimationBlueprint" },
-		{ ComponentType::Spline, "Spline" },
-		{ ComponentType::Combat, "Combat" },
-		{ ComponentType::CustomStats, "CustomStats" },
-		{ ComponentType::GameMaster, "GameMaster" },
-		{ ComponentType::GMJournalNode, "GMJournalNode" },
-		{ ComponentType::Container, "Container" },
-		{ ComponentType::ContainerElement, "ContainerElement" },
-		{ ComponentType::Net, "Net" },
-		{ ComponentType::OverviewMap, "OverviewMap" },
-		{ ComponentType::Note, "Note" },
-		{ ComponentType::Vignette, "Vignette" },
-		{ ComponentType::CustomStatDefinition, "CustomStatDefinition" },
-		{ ComponentType::Item, "Item" },
-		{ ComponentType::Character, "Character" },
-		{ ComponentType::Egg, "Egg" },
-		{ ComponentType::Projectile, "Projectile" },
+	EnumInfo<esv::ComponentType>::Label const EnumInfo<esv::ComponentType>::Values[] = {
+		{ esv::ComponentType::AnimationBlueprint, "AnimationBlueprint" },
+		{ esv::ComponentType::Spline, "Spline" },
+		{ esv::ComponentType::Combat, "Combat" },
+		{ esv::ComponentType::CustomStats, "CustomStats" },
+		{ esv::ComponentType::GameMaster, "GameMaster" },
+		{ esv::ComponentType::GMJournalNode, "GMJournalNode" },
+		{ esv::ComponentType::Container, "Container" },
+		{ esv::ComponentType::ContainerElement, "ContainerElement" },
+		{ esv::ComponentType::Net, "Net" },
+		{ esv::ComponentType::OverviewMap, "OverviewMap" },
+		{ esv::ComponentType::Note, "Note" },
+		{ esv::ComponentType::Vignette, "Vignette" },
+		{ esv::ComponentType::CustomStatDefinition, "CustomStatDefinition" },
+		{ esv::ComponentType::Item, "Item" },
+		{ esv::ComponentType::Character, "Character" },
+		{ esv::ComponentType::Egg, "Egg" },
+		{ esv::ComponentType::Projectile, "Projectile" },
+	};
+
+
+	EnumInfo<ecl::ComponentType>::Label const EnumInfo<ecl::ComponentType>::Values[] = {
+		{ ecl::ComponentType::AnimationBlueprint, "AnimationBlueprint" },
+		{ ecl::ComponentType::Spline, "Spline" },
+		{ ecl::ComponentType::Combat, "Combat" },
+		{ ecl::ComponentType::CustomStats, "CustomStats" },
+		{ ecl::ComponentType::GameMaster, "GameMaster" },
+		{ ecl::ComponentType::GMJournalNode, "GMJournalNode" },
+		{ ecl::ComponentType::Container, "Container" },
+		{ ecl::ComponentType::ContainerElement, "ContainerElement" },
+		{ ecl::ComponentType::Net, "Net" },
+		{ ecl::ComponentType::OverviewMap, "OverviewMap" },
+		{ ecl::ComponentType::Vignette, "Vignette" },
+		{ ecl::ComponentType::Note, "Note" },
+		{ ecl::ComponentType::CustomStatDefinition, "CustomStatDefinition" },
+		{ ecl::ComponentType::Scenery, "Scenery" },
+		{ ecl::ComponentType::Item, "Item" },
+		{ ecl::ComponentType::Character, "Character" },
+		{ ecl::ComponentType::Egg, "Egg" },
+		{ ecl::ComponentType::Projectile, "Projectile" },
 	};
 
 
@@ -313,6 +335,13 @@ namespace dse
 		{ HighGroundBonus::HighGround, "HighGround" },
 		{ HighGroundBonus::EvenGround, "EvenGround" },
 		{ HighGroundBonus::LowGround, "LowGround" }
+	};
+
+	EnumInfo<EclStatusFlags>::Label const EnumInfo<EclStatusFlags>::Values[] = {
+		{ EclStatusFlags::CSF_RequestDelete, "RequestDelete" },
+		{ EclStatusFlags::CSF_Started, "Started" },
+		{ EclStatusFlags::CSF_KeepAlive, "KeepAlive" },
+		{ EclStatusFlags::CSF_HasVisuals, "HasVisuals" }
 	};
 
 	EnumInfo<StatusFlags0>::Label const EnumInfo<StatusFlags0>::Values[] = {

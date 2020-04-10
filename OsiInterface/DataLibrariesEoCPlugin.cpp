@@ -993,11 +993,9 @@ namespace dse
 		});
 
 		auto & serverGlobals = GetStaticSymbols().ServerGlobals;
-		GetStaticSymbols().EsvCharacterFactory = (CharacterFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvCharacterFactory];
-		GetStaticSymbols().EsvItemFactory = (ItemFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvItemFactory];
-		GetStaticSymbols().EsvInventoryFactory = (InventoryFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvInventoryFactory];
+		GetStaticSymbols().EsvInventoryFactory = (esv::InventoryFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvInventoryFactory];
 
-		if (GetStaticSymbols().EsvCharacterFactory == nullptr || GetStaticSymbols().EsvItemFactory == nullptr) {
+		if (GetStaticSymbols().EsvInventoryFactory == nullptr) {
 			CriticalInitFailed = true;
 		}
 	}

@@ -1009,11 +1009,9 @@ namespace dse
 			}
 		}
 
-		sym.EsvCharacterFactory = (CharacterFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvCharacterFactory];
-		sym.EsvItemFactory = (ItemFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvItemFactory];
-		sym.EsvInventoryFactory = (InventoryFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryFactory];
+		sym.EsvInventoryFactory = (esv::InventoryFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryFactory];
 
-		if (sym.EsvCharacterFactory == nullptr || sym.EsvItemFactory == nullptr || sym.EsvInventoryFactory == nullptr) {
+		if (sym.EsvInventoryFactory == nullptr) {
 			CriticalInitFailed = true;
 		}
 	}

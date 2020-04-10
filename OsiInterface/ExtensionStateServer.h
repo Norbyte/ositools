@@ -5,7 +5,7 @@
 
 namespace Json { class Value; }
 
-namespace dse
+namespace dse::esv
 {
 	class DamageHelperPool
 	{
@@ -20,10 +20,10 @@ namespace dse
 		int64_t nextHelperId_{ 0 };
 	};
 
-	class ExtensionStateServer;
-	using LuaServerPin = LuaStatePin<ExtensionStateServer, lua::ServerState>;
+	class ExtensionState;
+	using LuaServerPin = LuaStatePin<ExtensionState, lua::ServerState>;
 
-	class ExtensionStateServer : public ExtensionState
+	class ExtensionState : public ExtensionStateBase
 	{
 	public:
 		DamageHelperPool DamageHelpers;
@@ -43,10 +43,10 @@ namespace dse
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 
-		static ExtensionStateServer & Get();
+		static ExtensionState & Get();
 
 	protected:
-		friend LuaStatePin<ExtensionStateServer, lua::ServerState>;
+		friend LuaStatePin<ExtensionState, lua::ServerState>;
 		std::unique_ptr<lua::ServerState> Lua;
 
 		void DoLuaReset() override;

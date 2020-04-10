@@ -185,7 +185,7 @@ namespace dse
 			__int64 field_120;
 			__int64 field_128;
 			ig::FlashObject * RootFlashObject;
-			FixedStringRefMap<uint32_t, uint32_t> InputEvents;
+			RefMap<uint32_t, uint32_t> InputEvents;
 			ScratchBuffer * ScratchString1;
 			ScratchBuffer * ScratchStringW;
 			ScratchBuffer * ScratchString2;
@@ -433,7 +433,7 @@ namespace dse
 		CRITICAL_SECTION CriticalSection3;
 		int64_t WorkerThreadJobVMT;
 		int64_t field_D0;
-		FixedStringRefMap<uint32_t, UIObjectFunctor *> UIObjectCreators;
+		RefMap<uint32_t, UIObjectFunctor *> UIObjectCreators;
 		int64_t field_E8;
 		ObjectSet<UIObject *> UIObjects;
 		bool ShouldPrepareRenderData;
@@ -444,8 +444,8 @@ namespace dse
 		bool field_115;
 		int UIDesignedHeight;
 		int UIDesignedWidth;
-		FixedStringRefMap<uint32_t, uint32_t> *field_120;
-		FixedStringRefMap<uint32_t, uint32_t> *field_128;
+		RefMap<uint32_t, uint32_t> *field_120;
+		RefMap<uint32_t, uint32_t> *field_128;
 		CRITICAL_SECTION CriticalSection;
 		SomeObject SomeObjects[4];
 		int64_t field_1D8;
@@ -453,7 +453,7 @@ namespace dse
 		int64_t field_1E8;
 		int64_t field_1F0;
 		int64_t field_1F8;
-		FixedStringRefMap<uint32_t, uint32_t> field_200;
+		RefMap<uint32_t, uint32_t> field_200;
 		int64_t field_210;
 		int UIObjectAggregateFlags;
 		int field_21C;

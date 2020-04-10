@@ -62,12 +62,12 @@ namespace dse
 			uint64_t Unknown[15];
 #endif
 			Level * CurrentLevel;
-			FixedStringMapBase<Level *> Levels;
+			Map<FixedString, Level *> Levels;
 			uint8_t _Pad[4];
 			ObjectSet<LevelDesc *> LevelDescs;
-			FixedStringMapBase<Level *> Levels2;
+			Map<FixedString, Level *> Levels2;
 			uint8_t _Pad2[4];
-			FixedStringMapBase<char> FSMapChar;
+			Map<FixedString, char> FSMapChar;
 		};
 
 	}

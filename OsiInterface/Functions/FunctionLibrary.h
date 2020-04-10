@@ -11,10 +11,15 @@
 
 namespace dse
 {
+	class OsirisProxy;
+}
+
+namespace dse::esv
+{
 	class CustomFunctionLibrary
 	{
 	public:
-		CustomFunctionLibrary(class OsirisProxy & osiris);
+		CustomFunctionLibrary(OsirisProxy & osiris);
 
 		void Register();
 		void RegisterHelperFunctions();

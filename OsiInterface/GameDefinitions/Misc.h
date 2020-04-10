@@ -131,7 +131,7 @@ namespace dse
 			uint16_t Initialized;
 			uint8_t _Pad[6];
 			ObjectSet<FixedString, GameMemoryAllocator, true> FixedStrSet;
-			FixedStringMapBase<int> FixedStrToNetIndexMap;
+			Map<FixedString, int> FixedStrToNetIndexMap;
 			uint8_t _Pad2[4];
 			uint64_t Unkn1;
 			uint64_t Unkn2;
@@ -152,7 +152,7 @@ namespace dse
 		struct SpeakerManager
 		{
 			void * VMT;
-			FixedStringRefMap<FixedString, FixedStringRefMap<FixedString, VoiceTextMetaData>> * SpeakerMetaDataHashMap;
+			RefMap<FixedString, RefMap<FixedString, VoiceTextMetaData>> * SpeakerMetaDataHashMap;
 		};
 	}
 
@@ -174,28 +174,28 @@ namespace dse
 		ObjectHandle Caster;
 		ObjectHandle Source;
 		ObjectHandle Target;
-		glm::vec3 StartPosition;
-		glm::vec3 EndPosition;
-		uint8_t Random;
+		glm::vec3 StartPosition{ .0f };
+		glm::vec3 EndPosition{ .0f };
+		uint8_t Random{ 0 };
 		uint8_t _Pad[7];
 		DamagePairList * DamageList;
-		int32_t CasterLevel;
+		int32_t CasterLevel{ -1 };
 		uint32_t _Pad2;
 		ShootProjectileHelperHitObject * HitObject;
-		bool IsTrap;
-		bool UnknownFlag1;
+		bool IsTrap{ false };
+		bool UnknownFlag1{ false };
 		uint8_t _Pad3[6];
 		FixedString CleanseStatuses;
-		float StatusClearChance;
-		bool IsFromItem;
-		bool IsStealthed;
-		bool IgnoreObjects;
+		float StatusClearChance{ 0.0f };
+		bool IsFromItem{ false };
+		bool IsStealthed{ false };
+		bool IgnoreObjects{ false };
 	};
 
 	struct SummonHelperResults
 	{
 		ObjectHandle SummonHandle;
-		uint32_t Unknown;
+		uint32_t Unknown{ 0 };
 	};
 
 	struct SummonHelperSummonArgs
@@ -203,81 +203,20 @@ namespace dse
 		ObjectHandle OwnerCharacterHandle;
 		FixedString GameObjectTemplateFS;
 		FixedString Level;
-		glm::vec3 Position;
-		int32_t SummonLevel;
+		glm::vec3 Position{ .0f };
+		int32_t SummonLevel{ -1 };
 #if defined(OSI_EOCAPP)
 		int32_t SummoningAbilityLevel;
 #endif
-		float Lifetime;
-		bool IsTotem;
-		bool MapToAiGrid;
+		float Lifetime{ 0.0f };
+		bool IsTotem{ false };
+		bool MapToAiGrid{ true };
 	};
 
 	typedef void * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
-	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ServerGameState fromState, ServerGameState toState);
+	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
 	typedef void(*GameStateThreaded__GameStateWorker__DoWork)(void * self);
-
-	}
-
-	namespace ecl {
-
-	struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
-	{
-		uint8_t Unknown;
-		uint8_t _Pad1[7];
-		void * CurrentState;
-		ClientGameState State;
-	};
-
-	struct EoCClient : public ProtectedGameObject<EoCClient>
-	{
-		void * VMT;
-		void * GameEventManagerVMT;
-		uint64_t field_10;
-		void * NetEventManagerVMT;
-		uint64_t field_20;
-		void * VMT2;
-		void * VMT3;
-		uint64_t field_38;
-		GameStateMachine ** GameStateMachine;
-		net::Client * GameClient;
-		uint64_t field_50;
-		uint64_t field_58;
-		uint64_t field_60;
-		FixedString FS1;
-		FixedString LevelName;
-		FixedString SomeGUID;
-		FixedString FS_CurrentSaveGameGUID;
-		bool IsLoading;
-		bool IsLoading2;
-		uint8_t _Pad1[6];
-		void * PrimitiveSetVMT;
-		PrimitiveSet<int> PrimitiveSetUnkn;
-		uint64_t field_A8;
-		uint16_t field_B0;
-		uint8_t _Pad2[6];
-		void * Random;
-		void * ItemCombinationManager;
-		char field_C8;
-		uint8_t _Pad3[7];
-		uint64_t ScratchStr[4];
-		ScratchBuffer ScratchBuf;
-		uint8_t _Pad4[4];
-		ModManager * ModManager;
-		void * ChatManager;
-		STDWString WStr_CurrentHost_M;
-		uint64_t SomeObject[16];
-		int field_1C0;
-		uint8_t _Pad5[4];
-		uint64_t field_1C8[3];
-		EntityWorld * EntityWorld;
-		void * EntityManager;
-	};
-
-	typedef void (* EoCClient__HandleError)(void * self, STDWString const * message, bool exitGame, STDWString const *a4);
-	typedef void (*GameStateThreaded__GameStateWorker__DoWork)(void * self);
-	typedef void (* GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, ClientGameState fromState, ClientGameState toState);
 
 	}
 
@@ -314,10 +253,10 @@ namespace dse
 		FileReaderPin & operator =(FileReaderPin const &) = delete;
 		FileReaderPin & operator =(FileReaderPin &&) = delete;
 
-		inline FileReaderPin(FileReaderPin && other)
+		inline FileReaderPin(FileReaderPin && other) noexcept
 		{
+			reader_ = other.reader_;
 			if (&other != this) {
-				reader_ = other.reader_;
 				other.reader_ = nullptr;
 			}
 		}

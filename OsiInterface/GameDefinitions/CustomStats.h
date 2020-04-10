@@ -45,7 +45,7 @@ namespace dse
 		{
 			NetId NetId{ NetIdUnassigned };
 			uint8_t _Pad1[4];
-			FixedStringMapBase<int> Stats;
+			Map<FixedString, int> Stats;
 			uint8_t _Pad2[4];
 		};
 
@@ -59,7 +59,7 @@ namespace dse
 	{
 		struct CustomStatsComponent : public BaseComponent
 		{
-			FixedStringMapBase<int> StatValues;
+			Map<FixedString, int> StatValues;
 		};
 
 		struct CustomStatDefinitionComponent : public ProtectedGameObject<CustomStatDefinitionComponent>

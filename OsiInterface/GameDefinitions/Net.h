@@ -207,8 +207,8 @@ namespace dse
 			ObjectSet<int> UnknownSet1;
 			ObjectSet<int> UnknownSet2;
 			ObjectSet<int> ConnectedPeerIds2;
-			FixedStringRefMap<int, void *> UserIdToUserInfo;
-			FixedStringRefMap<NetId, int> CharacterNetIdToUserId;
+			RefMap<int, void *> UserIdToUserInfo;
+			RefMap<NetId, int> CharacterNetIdToUserId;
 			int Unknown[2];
 			void * VoiceProtocol;
 		};

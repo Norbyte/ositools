@@ -3,7 +3,7 @@
 #include "FunctionLibrary.h"
 #include <Version.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
@@ -25,7 +25,7 @@ namespace dse
 #endif
 
 			if (resetServer) {
-				auto & ext = ExtensionStateServer::Get();
+				auto & ext = ExtensionState::Get();
 				ext.LuaReset(bootstrapMods);
 				ext.OnModuleResume();
 				ext.OnGameSessionLoading();
@@ -47,7 +47,7 @@ namespace dse
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
 		{
-			LuaServerPin lua(ExtensionStateServer::Get());
+			LuaServerPin lua(ExtensionState::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
@@ -61,12 +61,12 @@ namespace dse
 				return;
 			}
 
-			ExtensionStateServer::Get().LuaLoadModScript(mod, fileName);
+			ExtensionState::Get().LuaLoadModScript(mod, fileName);
 		}
 
 		void OsiLuaCall(OsiArgumentDesc const & args)
 		{
-			LuaServerPin lua(ExtensionStateServer::Get());
+			LuaServerPin lua(ExtensionState::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return;
@@ -108,7 +108,7 @@ namespace dse
 		template <uint32_t TInParams>
 		bool OsiLuaQuery(OsiArgumentDesc & args)
 		{
-			LuaServerPin lua(ExtensionStateServer::Get());
+			LuaServerPin lua(ExtensionState::Get());
 			if (!lua) {
 				OsiErrorS("Called when the Lua VM has not been initialized!");
 				return false;
@@ -141,16 +141,16 @@ namespace dse
 		STDString procName = "NRD_LuaQuery";
 		procName += std::to_string(TInParams);
 
-		for (auto out = 0; out <= 5; out++) {
+		for (uint32_t out = 0; out <= 5; out++) {
 			std::vector<CustomFunctionParam> args{
 				{ "Func", ValueType::String, FunctionArgumentDirection::In }
 			};
 
-			for (auto arg = 0; arg < TInParams; arg++) {
+			for (uint32_t arg = 0; arg < TInParams; arg++) {
 				args.push_back({ func::QueryArgNames[arg], ValueType::None, FunctionArgumentDirection::In });
 			}
 
-			for (auto arg = 0; arg < out; arg++) {
+			for (uint32_t arg = 0; arg < out; arg++) {
 				args.push_back({ func::QueryOutArgNames[arg], ValueType::None, FunctionArgumentDirection::Out });
 			}
 

@@ -55,8 +55,8 @@ public:
 	HOOKABLE(BOOL(HANDLE), CloseHandle);
 
 	HOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
-	HOOKABLE(void(void *, ClientGameState, ClientGameState), ClientGameStateChangedEvent);
-	HOOKABLE(void(void *, ServerGameState, ServerGameState), ServerGameStateChangedEvent);
+	HOOKABLE(void(void *, ecl::GameState, ecl::GameState), ClientGameStateChangedEvent);
+	HOOKABLE(void(void *, esv::GameState, esv::GameState), ServerGameStateChangedEvent);
 	HOOKABLE(void(void *), ClientGameStateWorkerStart);
 	HOOKABLE(void(void *), ServerGameStateWorkerStart);
 	HOOKABLE(void(void *), SkillPrototypeManagerInit);

@@ -68,6 +68,8 @@ namespace dse
 			return PropertyType::kObjectHandle;
 		} else if constexpr (std::is_same<T, Vector3>::value) {
 			return PropertyType::kVector3;
+		} else if constexpr (std::is_same<T, NetId>::value) {
+			return PropertyType::kUInt32;
 		} else {
 			static_assert(false, "Unsupported property type");
 		}
@@ -349,7 +351,8 @@ namespace dse
 			{
 				auto handle = reinterpret_cast<ObjectHandle *>(ptr);
 				if (*handle) {
-					auto object = FindGameObjectByHandle(*handle, false);
+					// FIXME - support for client?
+					auto object = esv::GetEntityWorld()->GetGameObject(*handle, false);
 					if (object != nullptr) {
 						return object->MyGuid.Str;
 					} else {

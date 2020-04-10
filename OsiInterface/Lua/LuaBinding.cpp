@@ -206,6 +206,21 @@ namespace dse::lua
 		}
 
 		if (stats->Character != nullptr) {
+			if (strcmp(prop, "Character") == 0) {
+				if (gOsirisProxy->IsInClientThread()) {
+					auto character = static_cast<ecl::Character*>(stats->Character);
+					ObjectHandle handle;
+					character->GetObjectHandle(handle);
+					ObjectProxy<ecl::Character>::New(L, handle);
+				} else {
+					auto character = static_cast<esv::Character*>(stats->Character);
+					ObjectHandle handle;
+					character->GetObjectHandle(handle);
+					ObjectProxy<esv::Character>::New(L, handle);
+				}
+				return 1;
+			}
+
 			if (strcmp(prop, "Rotation") == 0) {
 				auto rot = stats->Character->GetRotation();
 				lua_newtable(L);
@@ -237,7 +252,7 @@ namespace dse::lua
 	CDivinityStats_Character* ObjectProxy<CDivinityStats_Character>::Get(lua_State* L)
 	{
 		if (obj_) return obj_;
-		auto character = FindCharacterByHandle(handle_);
+		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
 		if (character == nullptr) luaL_error(L, "Character handle invalid");
 		if (character->Stats == nullptr) luaL_error(L, "Character has no stats!");
 		return character->Stats;
@@ -316,44 +331,13 @@ namespace dse::lua
 		return LuaStatGetAttribute(L, item, prop, {});
 	}
 
-	int CharacterFetchProperty(lua_State * L, esv::Character * character, char const * prop)
-	{
-		if (strcmp(prop, "PlayerCustomData") == 0) {
-			if (character->PlayerData != nullptr
-				&& character->PlayerData->CustomData.Initialized) {
-				ObjectHandle handle;
-				character->GetObjectHandle(&handle);
-				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
-				return 1;
-			} else {
-				OsiError("Character has no player data, or custom data was not initialized.");
-				return 0;
-			}
-		}
-
-		if (strcmp(prop, "Stats") == 0) {
-			if (character->Stats != nullptr) {
-				ObjectHandle handle;
-				character->GetObjectHandle(&handle);
-				ObjectProxy<CDivinityStats_Character>::New(L, handle);
-				return 1;
-			} else {
-				OsiError("Character has no stats.");
-				return 0;
-			}
-		}
-
-		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
-		return fetched ? 1 : 0;
-	}
-
 
 	char const * const ObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
 
 	CDivinityStats_Item* ObjectProxy<CDivinityStats_Item>::Get(lua_State* L)
 	{
 		if (obj_) return obj_;
-		auto item = FindItemByHandle(handle_);
+		auto item = esv::GetEntityWorld()->GetItem(handle_);
 		if (item == nullptr) luaL_error(L, "Item handle invalid");
 		if (item->StatsDynamic == nullptr) luaL_error(L, "Item has no stats!");
 		return item->StatsDynamic;
@@ -458,7 +442,7 @@ namespace dse::lua
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 		auto key = luaL_checkstring(L, 2);
-		auto extraData = stats->ExtraData->Properties.Find(key);
+		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
 		if (extraData != nullptr) {
 			lua_pushnumber(L, *extraData);
 			return 1;

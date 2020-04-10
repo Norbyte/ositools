@@ -4,7 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
@@ -18,7 +18,7 @@ namespace dse
 			auto & newDefns = statSystem->CreatedDefinitions.Set;
 			for (uint32_t i = 0; i < newDefns.Size; i++) {
 				auto handle = newDefns[i].Handle;
-				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
 				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
@@ -27,7 +27,7 @@ namespace dse
 			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
 			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
 				auto handle = inSyncDefns[i].Handle;
-				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
 				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
@@ -50,7 +50,7 @@ namespace dse
 			auto & createdDefns = statSystem->CreatedDefinitions.Set;
 			for (uint32_t i = 0; i < createdDefns.Size; i++) {
 				auto handle = createdDefns[i].Handle;
-				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;
 				}
@@ -59,7 +59,7 @@ namespace dse
 			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
 			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
 				auto handle = inSyncDefns[i].Handle;
-				auto statDefn = entityWorld->FindCustomStatDefinitionComponentByHandle(handle);
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;
 				}
@@ -91,7 +91,7 @@ namespace dse
 
 		bool CharacterGetCustomStat(OsiArgumentDesc & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			auto statId = args[1].String;
 			auto & statValue = args[2];
 
@@ -109,7 +109,7 @@ namespace dse
 				return true;
 			}
 
-			auto value = statsComponent->StatValues.Find(statDefn->Id.Str);
+			auto value = statsComponent->StatValues.Find(ToFixedString(statDefn->Id.Str));
 			if (value == nullptr) {
 				statValue.Set(0);
 			} else {
@@ -143,18 +143,18 @@ namespace dse
 
 			if (stats != nullptr) {
 				stats->StatValues.Iterate([&stat](FixedString key, int value) {
-					stat.Stats.Add(key, value);
+					stat.Stats.Insert(key, value);
 				});
 			}
 
-			stat.Stats.Add(statKey, statValue);
+			stat.Stats.Insert(statKey, statValue);
 
 			ProcessCustomStatsMessage(&statSyncMsg);
 		}
 
 		void CharacterSetCustomStat(OsiArgumentDesc const & args)
 		{
-			auto character = FindCharacterByNameGuid(args[0].String);
+			auto character = GetEntityWorld()->GetCharacter(args[0].String);
 			auto statId = args[1].String;
 			auto statValue = args[2].Int32;
 

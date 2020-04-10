@@ -78,8 +78,6 @@ namespace dse
 		};
 	}
 
-	EntityWorld * GetEntityWorld();
-
 	namespace esv
 	{
 		struct TurnBasedProtocol
@@ -156,11 +154,11 @@ namespace dse
 				ObjectSet<eoc::CombatTeamId> CurrentTurnChangeNotificationTeamIds;
 				ObjectSet<eoc::CombatTeamId> NextTurnChangeNotificationTeamIds;
 				ObjectSet<void *> SummonDataSet;
-				FixedStringRefMap<uint32_t, CombatTeam *> Teams;
+				RefMap<uint32_t, CombatTeam *> Teams;
 				uint32_t NextTeamId;
 				uint8_t _Pad[4];
 				ObjectSet<ObjectHandle> WaitingForCharComponents;
-				FixedStringRefMap<FixedString, void *> ObjHKRefMap;
+				RefMap<FixedString, void *> ObjHKRefMap;
 				ObjectHandle InitialPlayerHandle;
 				ObjectHandle InitialEnemyHandle;
 				FixedString LevelName;
@@ -192,12 +190,12 @@ namespace dse
 			ObjectSet<ObjectHandle> EntitesLeftCombatHandleSet;
 			int TeamMode;
 			uint8_t _Pad1[4];
-			FixedStringRefMap<uint8_t, Combat> Combats;
+			RefMap<uint8_t, Combat> Combats;
 			ObjectSet<uint8_t> FreeIdSet;
 			uint8_t NextCombatId;
 			uint8_t _Pad2[7];
-			FixedStringRefMap<uint8_t, TimeoutOverride> TimeoutOverrides;
-			FixedStringMapBase<CombatGroup> CombatGroupInfos;
+			RefMap<uint8_t, TimeoutOverride> TimeoutOverrides;
+			Map<FixedString, CombatGroup> CombatGroupInfos;
 			uint8_t _Pad3[4];
 			ObjectSet<void *> WaypointDistSet;
 			ObjectSet<esv::Character *> CharacterPtrSet;

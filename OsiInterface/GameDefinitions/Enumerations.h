@@ -60,139 +60,184 @@ namespace dse
 		GameStorage = 4 // Game settings/savegames folder
 	};
 
-
-	enum class ClientGameState : uint32_t
+	namespace ecl
 	{
-		Unknown = 0,
-		Init,
-		InitMenu,
-		InitNetwork,
-		InitConnection,
-		Idle,
-		LoadMenu,
-		Menu,
-		Exit,
-		SwapLevel,
-		LoadLevel = 10,
-		LoadModule,
-		LoadSession,
-		LoadGMCampaign,
-		UnloadLevel,
-		UnloadModule,
-		UnloadSession,
-		Paused,
-		PrepareRunning,
-		Running,
-		Disconnect = 20,
-		Join,
-		StartLoading,
-		StopLoading,
-		StartServer,
-		Movie,
-		Installation,
-		GameMasterPause,
-		ModReceiving,
-		Lobby,
-		BuildStory = 30
-	};
+		enum class GameState : uint32_t
+		{
+			Unknown = 0,
+			Init,
+			InitMenu,
+			InitNetwork,
+			InitConnection,
+			Idle,
+			LoadMenu,
+			Menu,
+			Exit,
+			SwapLevel,
+			LoadLevel = 10,
+			LoadModule,
+			LoadSession,
+			LoadGMCampaign,
+			UnloadLevel,
+			UnloadModule,
+			UnloadSession,
+			Paused,
+			PrepareRunning,
+			Running,
+			Disconnect = 20,
+			Join,
+			StartLoading,
+			StopLoading,
+			StartServer,
+			Movie,
+			Installation,
+			GameMasterPause,
+			ModReceiving,
+			Lobby,
+			BuildStory = 30
+		};
 
 
-	enum class ServerGameState : uint32_t
+		enum class ComponentType : uint32_t
+		{
+			// Registered from App::InitGame
+			AnimationBlueprint = 0,
+			Spline,
+			Combat,
+			CustomStats,
+			GameMaster,
+			GMJournalNode,
+			Container,
+			ContainerElement,
+
+			// Registered from BaseApp::RegisterBaseComponentAndSystemTypes
+			Visual,
+			Light,
+			LightProbe,
+			Decal,
+			Sound,
+			PublishingRequest,
+			Effect,
+			ParentEntity,
+
+			// Registered from ecl::EoCClient::ConfigureECS
+			Net,
+			OverviewMap,
+			Vignette,
+			Note,
+			CustomStatDefinition,
+			Scenery,
+			Item,
+			Character,
+			Egg,
+			Projectile,
+			// ...
+		};
+	}
+
+	MAKE_ENUM_INFO(ecl::ComponentType, 18);
+
+	namespace esv
 	{
-		Unknown = 0,
-		Uninitialized,
-		Init,
-		Idle,
-		Exit,
-		LoadLevel,
-		LoadModule,
-		LoadGMCampaign,
-		LoadSession,
-		UnloadLevel,
-		UnloadModule = 10,
-		UnloadSession,
-		Sync,
-		Paused,
-		Running,
-		Save,
-		Disconnect,
-		GameMasterPause,
-		BuildStory,
-		ReloadStory,
-		Installation = 20
-	};
+		enum class GameState : uint32_t
+		{
+			Unknown = 0,
+			Uninitialized,
+			Init,
+			Idle,
+			Exit,
+			LoadLevel,
+			LoadModule,
+			LoadGMCampaign,
+			LoadSession,
+			UnloadLevel,
+			UnloadModule = 10,
+			UnloadSession,
+			Sync,
+			Paused,
+			Running,
+			Save,
+			Disconnect,
+			GameMasterPause,
+			BuildStory,
+			ReloadStory,
+			Installation = 20
+		};
 
 
-	enum class ObjectType : uint32_t
-	{
-		CustomStatDefinitionComponent = 0x35,
-		Egg,
-		Character,
-		Item,
-		Projectile,
-		Inventory,
-		InventoryView,
-		Party,
-		OverviewMap,
-		Vignette,
-		Note,
-		SurfaceAction,
-		EoCPointTrigger,
-		// ... other triggers
-	};
+		enum class ObjectType : uint32_t
+		{
+			CustomStatDefinitionComponent = 0x35,
+			Egg,
+			Character,
+			Item,
+			Projectile,
+			Inventory,
+			InventoryView,
+			Party,
+			OverviewMap,
+			Vignette,
+			Note,
+			SurfaceAction,
+			EoCPointTrigger,
+			// ... other triggers
+		};
 
 
-	enum class ComponentType : uint32_t
-	{
-		AnimationBlueprint = 0,
-		Spline,
-		Combat,
-		CustomStats,
-		GameMaster,
-		GMJournalNode,
-		Container,
-		ContainerElement,
-		Net,
-		OverviewMap,
-		Note,
-		Vignette,
-		CustomStatDefinition,
-		Item,
-		Character,
-		Egg,
-		Projectile,
-		// ...
-	};
+		enum class ComponentType : uint32_t
+		{
+			// Registered from App::InitGame
+			AnimationBlueprint = 0,
+			Spline,
+			Combat,
+			CustomStats,
+			GameMaster,
+			GMJournalNode,
+			Container,
+			ContainerElement,
 
-	MAKE_ENUM_INFO(ComponentType, 17);
+			// Registered from esv::EocServer::ConfigureECS
+			Net,
+			OverviewMap,
+			Note,
+			Vignette,
+			CustomStatDefinition,
+			Item,
+			Character,
+			Egg,
+			Projectile,
+			// ...
+		};
 
+		enum class SystemType : uint32_t
+		{
+			AnimationBlueprint = 0,
+			Container,
+			ContainerElement,
+			TurnManager,
+			SightManager,
+			GameAction,
+			Surface,
+			Character,
+			Projectile,
+			Trigger,
+			Item,
+			Egg,
+			Effect,
+			Shroud,
+			EnvironmentalStatus,
+			NetEntity,
+			CustomStat,
+			Reward,
+			CharacterSpline,
+			CameraSpline,
+			GM,
+			GMCampaign,
+			GMJournal
+		};
+	}
 
-	enum class SystemType : uint32_t
-	{
-		AnimationBlueprint = 0,
-		Container,
-		ContainerElement,
-		TurnManager,
-		SightManager,
-		GameAction,
-		Surface,
-		Character,
-		Projectile,
-		Trigger,
-		Item,
-		Egg,
-		Effect,
-		Shroud,
-		EnvironmentalStatus,
-		NetEntity,
-		CustomStat,
-		Reward,
-		CharacterSpline,
-		CameraSpline,
-		GM,
-		GMCampaign,
-		GMJournal
-	};
+	MAKE_ENUM_INFO(esv::ComponentType, 17);
 
 
 	enum NetMessage : uint32_t
@@ -850,6 +895,17 @@ namespace dse
 	};
 
 	MAKE_ENUM_INFO(EquipmentStatsType, 3);
+
+
+	enum EclStatusFlags : uint8_t
+	{
+		CSF_RequestDelete = 0x01,
+		CSF_Started = 0x02,
+		CSF_KeepAlive = 0x08,
+		CSF_HasVisuals = 0x40
+	};
+
+	MAKE_ENUM_INFO(EclStatusFlags, 4);
 
 
 	enum StatusFlags0 : uint8_t

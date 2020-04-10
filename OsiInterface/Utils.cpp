@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Version.h"
 #include <GameDefinitions/BaseTypes.h>
+#include <OsirisProxy.h>
 
 namespace dse
 {
@@ -112,6 +113,22 @@ void Fail(char const * reason)
 	MessageBoxA(NULL, reason, "Script Extender Error", MB_OK | MB_ICONERROR);
 	TerminateProcess(GetCurrentProcess(), 1);
 }
+
+void LogOsirisError(std::string_view msg)
+{
+	dse::gOsirisProxy->LogOsirisError(msg);
+}
+
+void LogOsirisWarning(std::string_view msg)
+{
+	dse::gOsirisProxy->LogOsirisWarning(msg);
+}
+
+void LogOsirisMsg(std::string_view msg)
+{
+	dse::gOsirisProxy->LogOsirisMsg(msg);
+}
+
 
 void CreateConsole(HMODULE hModule)
 {

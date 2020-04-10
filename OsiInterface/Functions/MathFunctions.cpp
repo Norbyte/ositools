@@ -2,7 +2,7 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
@@ -12,7 +12,7 @@ namespace dse
 			auto max = args[1].Float;
 
 			std::uniform_real_distribution<float> dist(min, max);
-			args[2].Set(dist(ExtensionStateServer::Get().OsiRng));
+			args[2].Set(dist(ExtensionState::Get().OsiRng));
 			return true;
 		}
 

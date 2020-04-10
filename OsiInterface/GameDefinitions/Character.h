@@ -28,6 +28,34 @@ namespace dse
 			ObjectSet<uint16_t> Traits;
 			bool IsCustom;
 		};
+
+		struct PlayerCustomData : public ProtectedGameObject<PlayerCustomData>
+		{
+			void* VMT;
+			bool Initialized;
+			bool CustomLookEnabled;
+			uint8_t _Pad[6];
+			STDWString Name;
+			TranslatedString NameTranslated;
+			FixedString ClassType;
+			uint32_t SkinColor;
+			uint32_t HairColor;
+			uint32_t ClothColor1;
+			uint32_t ClothColor2;
+			uint32_t ClothColor3;
+			bool IsMale;
+			uint8_t _Pad2[3];
+			FixedString Race;
+			FixedString OriginName;
+			FixedString Icon;
+			FixedString MusicInstrument;
+			FixedString OwnerProfileID;
+			FixedString ReservedProfileID;
+			FixedString AiPersonality;
+			FixedString Speaker;
+			ScratchBuffer CustomIconImg;
+			uint8_t _Pad3[4];
+		};
 	}
 
 	namespace esv
@@ -89,9 +117,9 @@ namespace dse
 		{
 			void * FreeSkillState;
 			ObjectHandle OwnerHandle;
-			FixedStringMapBase<Skill *> Skills;
+			Map<FixedString, Skill *> Skills;
 			uint8_t _Pad[4];
-			FixedStringRefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
+			RefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
 			bool IsLoading;
 			uint8_t _Pad2[3];
 			uint32_t FreeMemorySlots;
@@ -112,42 +140,16 @@ namespace dse
 			ObjectHandle ItemHandle;
 		};
 
-		struct PlayerCustomData : public ProtectedGameObject<PlayerCustomData>
-		{
-			void * VMT;
-			bool Initialized;
-			bool CustomLookEnabled;
-			uint8_t _Pad[6];
-			STDWString Name;
-			TranslatedString NameTranslated;
-			FixedString ClassType;
-			uint32_t SkinColor;
-			uint32_t HairColor;
-			uint32_t ClothColor1;
-			uint32_t ClothColor2;
-			uint32_t ClothColor3;
-			bool IsMale;
-			uint8_t _Pad2[3];
-			FixedString Race;
-			FixedString OriginName;
-			FixedString Icon;
-			FixedString MusicInstrument;
-			FixedString OwnerProfileID;
-			FixedString ReservedProfileID;
-			FixedString AiPersonality;
-			FixedString Speaker;
-			ScratchBuffer CustomIconImg;
-			uint8_t _Pad3[4];
-		};
+		struct PlayerCustomData : public eoc::PlayerCustomData {};
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>
 		{
 			ObjectHandle SomeObjectHandle;
 			ObjectSet<SkillBarItem> SkillBar;
 			ObjectSet<uint32_t> LockedAbility;
-			FixedStringMapBase<void *> ShapeShiftVariableManagers;
+			Map<FixedString, void *> ShapeShiftVariableManagers;
 			uint8_t _Pad1[4];
-			FixedStringMapBase<void *> ShapeShiftAttitudeMaps;
+			Map<FixedString, void *> ShapeShiftAttitudeMaps;
 			uint8_t _Pad2[4];
 			bool LevelUpMarker;
 			uint8_t SelectedSkillSetIndex;
@@ -172,9 +174,10 @@ namespace dse
 		};
 
 
-		struct Character : public EoCServerObject
+		struct Character : public IEoCServerObject
 		{
-			Status * GetStatusByHandle(ObjectHandle handle, bool returnPending) const;
+			Status* GetStatus(ObjectHandle handle, bool returnPending) const;
+			Status* GetStatus(NetId handle) const;
 
 			glm::mat3 WorldRot;
 			float Scale;
@@ -220,7 +223,7 @@ namespace dse
 			SkillManager * SkillManager;
 			void * VariableManager;
 			void * ShapeShiftVariableManager;
-			FixedStringMapBase<void *> Attitudes; // Element type unknown
+			Map<FixedString, void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
 			FixedString SkillBeingPrepared;
 			uint64_t U9[1];
@@ -269,7 +272,7 @@ namespace dse
 			ObjectSet<FixedString> CreatedTemplateItems;
 			ObjectSet<FixedString> Treasures;
 			FixedString CustomTradeTreasure;
-			ObjectSet<FixedString> Target;
+			ObjectSet<FixedString> Tags;
 			ObjectHandle CrimeHandle;
 			ObjectHandle PreviousCrimeHandle;
 			uint32_t CrimeState;
@@ -291,8 +294,8 @@ namespace dse
 			uint8_t _Pad81[4];
 			ObjectSet<FixedString> PreferredAiTarget;
 			uint64_t U18;
-			FixedStringRefMap<FixedString, void *> U19;
-			ObjectSet<FixedString> U20;
+			RefMap<FixedString, void *> U19;
+			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;
 			bool CorpseLootable;
@@ -303,6 +306,172 @@ namespace dse
 
 		typedef void(*Character__Hit)(esv::Character * self, CDivinityStats_Character * attackerStats, CDivinityStats_Item * itemStats, DamagePairList * damageList,
 			HitType hitType, bool noHitRoll, HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
+	}
+
+	namespace ecl 
+	{
+		struct PlayerCustomData : public eoc::PlayerCustomData {};
+
+		struct PlayerData : public ProtectedGameObject<PlayerData>
+		{
+			ObjectSet<void*> SkillBarItems; // ecl::SkillBarItem
+			ObjectSet<uint32_t> Abilities_EAbility;
+			Map<FixedString, void*> AttitudeOverrideMap; // ObjectHandleMap<int>*
+			uint8_t _Pad0[4];
+			char field_58;
+			uint8_t _Pad1[7];
+			__int64 field_60;
+			char field_68;
+			uint8_t _Pad2[7];
+			PlayerCustomData CustomData;
+			char field_1C8;
+			uint8_t _Pad3[7];
+			__int64 field_1D0;
+			int NetID1;
+			int NetID2;
+			int field_1E0;
+			int field_1E4;
+			FixedString field_1E8;
+			ObjectSet<FixedString> ObjSet_FS;
+			char field_210;
+			char field_211;
+			int NetID3;
+			uint8_t _Pad4[2];
+			FixedString field_218;
+			FixedString field_220;
+		};
+
+
+
+		struct Character : public IEocClientObject
+		{
+			Status* GetStatus(NetId handle) const;
+
+			float WorldRot[9];
+			float Scale;
+			float Velocity[3];
+			int field_34;
+			int field_38;
+			uint8_t gap3C[4];
+			uint64_t field_40;
+			__int64 field_48;
+			__int64 field_50;
+			void* PhysicsObject;
+			void* Light;
+			void* AiObject;
+			int field_70;
+			int UserId;
+			int UserId2;
+			NetId NetID2;
+			NetId NetID3;
+			uint8_t gap84[4];
+			void* Template;
+			void* OriginalTemplate;
+			CDivinityStats_Character* Stats;
+			void* InventoryHandle;
+			void* MovementMachine;
+			void* ActionStateMachine;
+			void* SteeringMachine;
+			void* BehaviourMachine;
+			__int64 field_C8;
+			__int64 field_D0;
+			__int64 field_D8;
+			__int64 field_E0;
+			__int64 field_E8;
+			StatusMachine* StatusMachine;
+			void* SkillManager;
+			int field_100;
+			uint8_t gap104[4];
+			__int64 field_108;
+			__int64 field_110;
+			__int64 OwnerCharacterHandle;
+			__int64 OH3;
+			__int64 CorpseCharacterHandle;
+			__int64 OH5;
+			int field_138;
+			uint8_t gap13C[4];
+			__int64 OH6;
+			__int64 OH7;
+			__int64 ViewConeEffectHandle;
+			__int64 field_158;
+			__int64 field_160;
+			ecl::PlayerData* PlayerData;
+			__int64 field_170;
+			int AttributeGrowthBonus;
+			int CombatAbilityBonus;
+			int CivilAbilityBonus;
+			int TalentGrowthBonus;
+			__int64 field_188;
+			__int64 field_190;
+			__int64 field_198;
+			__int64 field_1A0;
+			__int64 field_1A8;
+			__int64 field_1B0;
+			__int64 field_1B8;
+			__int64 field_1C0;
+			__int64 field_1C8;
+			__int64 field_1D0;
+			__int64 field_1D8;
+			__int64 field_1E0;
+			__int64 field_1E8;
+			__int64 field_1F0;
+			__int64 field_1F8;
+			char field_200;
+			uint8_t gap201[7];
+			ObjectSet<void*> SurfacePathInfluences;
+			ObjectSet<FixedString> Tags;
+			__int64 field_248;
+			float field_250;
+			uint8_t gap254[4];
+			ObjectHandle SoundObjectHandles[3];
+			ObjectHandle OH9;
+			ObjectHandle OH10;
+			char PickpocketNLootingFlags;
+			char Flags2;
+			uint8_t gap282[2];
+			int Flags3;
+			char field_288;
+			char field_289;
+			uint8_t gap28A[6];
+			TranslatedString* DisplayNameOverride;
+			TranslatedString DisplayName1;
+			TranslatedString DisplayName2;
+			ObjectHandle OH11;
+			float field_3F0;
+			int SoundBoneIndex;
+			int field_3F8;
+			int field_3FC;
+			ObjectSet<FixedString> FixedStrings2;
+			FixedString AnimationSetOverride;
+			__int64 field_428;
+			__int64 field_430;
+			__int64 OH12;
+			__int64 field_440;
+			void* ResourceTemplate2;
+			char Cloth;
+			uint8_t gap451[7];
+			void* ResourceTemplate1;
+			int field_460;
+			uint8_t gap464[4];
+			__int64 field_468;
+			__int64 field_470;
+			__int64 field_478;
+			ObjectHandle OH13;
+			FixedString FS_Base;
+			FixedString FS3;
+			int field_498;
+			char field_49C;
+			uint8_t gap49D[3];
+			ObjectSet< ObjectHandle> ObjectHandles;
+			Map<FixedString, void*> field_4C0;
+			uint8_t gap4D4[4];
+			__int64 field_4D8;
+			__int64 field_4E0;
+			ObjectSet<FixedString> ItemTags;
+			void* VisualSetIndices;
+			char field_510;
+		};
+
 	}
 #pragma pack(pop)
 }

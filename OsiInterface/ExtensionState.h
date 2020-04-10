@@ -17,7 +17,7 @@ namespace dse
 		std::unordered_set<STDString> FeatureFlags;
 	};
 
-	class ExtensionState
+	class ExtensionStateBase
 	{
 	public:
 		std::mt19937_64 OsiRng;
@@ -78,13 +78,13 @@ namespace dse
 	class LuaVirtualPin
 	{
 	public:
-		inline LuaVirtualPin(ExtensionState & state)
+		inline LuaVirtualPin(ExtensionStateBase& state)
 			: state_(&state)
 		{
 			if (state_->GetLua()) state_->IncLuaRefs();
 		}
 
-		inline LuaVirtualPin(ExtensionState * state)
+		inline LuaVirtualPin(ExtensionStateBase* state)
 			: state_(state)
 		{
 			if (state_ && state_->GetLua()) state_->IncLuaRefs();
@@ -121,7 +121,7 @@ namespace dse
 		}
 
 	private:
-		ExtensionState * state_;
+		ExtensionStateBase* state_;
 	};
 
 

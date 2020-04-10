@@ -2,22 +2,22 @@
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
 
-namespace dse
+namespace dse::esv
 {
 	namespace func
 	{
 		void ProjectilePrepareLaunch(OsiArgumentDesc const & args)
 		{
-			if (ExtensionStateServer::Get().ProjectileHelper) {
+			if (ExtensionState::Get().ProjectileHelper) {
 				OsiWarn("Destroying active ProjectileHelper?");
 			}
 
-			ExtensionStateServer::Get().ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
+			ExtensionState::Get().ProjectileHelper = std::make_unique<ShootProjectileApiHelper>();
 		}
 
 		void ProjectileLaunch(OsiArgumentDesc const & args)
 		{
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (helper != nullptr)
 			{
 				helper->Shoot();
@@ -34,7 +34,7 @@ namespace dse
 			auto prop = args[0].String;
 			auto value = args[1].Int32;
 
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
 				OsiErrorS("Called when no projectile is active!");
 				return;
@@ -48,7 +48,7 @@ namespace dse
 			auto prop = args[0].String;
 			auto value = args[1].String;
 
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
 				OsiErrorS("Called when no projectile is active!");
 				return;
@@ -62,7 +62,7 @@ namespace dse
 			auto prop = args[0].String;
 			auto value = args[1].String;
 
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
 				OsiErrorS("Called when no projectile is active!");
 				return;
@@ -76,7 +76,7 @@ namespace dse
 			auto prop = args[0].String;
 			glm::vec3 vec = args.GetVector(1);
 
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
 				OsiErrorS("Called when no projectile is active!");
 				return;
@@ -90,7 +90,7 @@ namespace dse
 			auto damageType = args[0].String;
 			auto amount = args[1].Int32;
 
-			auto & helper = ExtensionStateServer::Get().ProjectileHelper;
+			auto & helper = ExtensionState::Get().ProjectileHelper;
 			if (!helper) {
 				OsiErrorS("Called when no projectile is active!");
 				return;
