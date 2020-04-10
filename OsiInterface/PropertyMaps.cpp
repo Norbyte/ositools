@@ -466,6 +466,7 @@ namespace dse
 
 		{
 			auto & propertyMap = gEoCServerObjectPropertyMap;
+			PROP_RO(esv::EoCServerObject, NetID);
 			PROP_RO(esv::EoCServerObject, MyGuid);
 			PROP_RO(esv::EoCServerObject, WorldPos);
 			PROP_RO(esv::EoCServerObject, CurrentLevel);
