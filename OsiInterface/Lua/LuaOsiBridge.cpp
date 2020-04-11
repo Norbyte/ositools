@@ -22,15 +22,20 @@ namespace dse::esv::lua
 
 		switch (osiType) {
 		case ValueType::Integer:
-			if (type != LUA_TNUMBER) {
+			if (type == LUA_TNUMBER) {
+				if (lua_isinteger(L, i)) {
+					tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
+				}
+				else {
+					tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
+				}
+			} else if (type == LUA_TBOOLEAN) {
+				// Convert Lua booleans to 0/1 in Osiris
+				tv.Value.Val.Int32 = (int32_t)lua_toboolean(L, i);
+			} else {
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-			if (lua_isinteger(L, i)) {
-				tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
-			} else {
-				tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
-			}
 			break;
 
 		case ValueType::Integer64:
@@ -96,14 +101,17 @@ namespace dse::esv::lua
 
 		switch (osiType) {
 		case ValueType::Integer:
-			if (type != LUA_TNUMBER) {
-				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
-			}
-
-			if (lua_isinteger(L, i)) {
-				arg.Int32 = (int32_t)lua_tointeger(L, i);
+			if (type == LUA_TNUMBER) {
+				if (lua_isinteger(L, i)) {
+					arg.Int32 = (int32_t)lua_tointeger(L, i);
+				} else {
+					arg.Int32 = (int32_t)lua_tonumber(L, i);
+				}
+			} else if (type == LUA_TBOOLEAN) {
+				// Convert Lua booleans to 0/1 in Osiris
+				arg.Int32 = (int32_t)lua_toboolean(L, i);
 			} else {
-				arg.Int32 = (int32_t)lua_tonumber(L, i);
+				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 			break;
 
