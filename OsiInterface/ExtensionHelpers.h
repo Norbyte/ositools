@@ -53,13 +53,15 @@ namespace dse
 
 		struct DamageHelpers
 		{
+			static constexpr uint32_t HitHandleTypeId = 100;
+
 			enum HelperType
 			{
 				HT_CustomHit = 0,
 				HT_PrepareHitEvent = 1
 			};
 
-			int64_t Handle{ 0 };
+			ObjectHandle Handle;
 			esv::Character * Source{ nullptr };
 			IEoCServerObject * Target{ nullptr };
 

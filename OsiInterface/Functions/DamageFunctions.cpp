@@ -15,15 +15,19 @@ namespace dse::esv
 	{
 		auto id = nextHelperId_++;
 		auto helper = std::make_unique<DamageHelpers>();
-		helper->Handle = id;
+		helper->Handle = ObjectHandle(DamageHelpers::HitHandleTypeId, id, 0);
 		auto ptr = helper.get();
 		helpers_.insert(std::make_pair(id, std::move(helper)));
 		return ptr;
 	}
 
-	bool DamageHelperPool::Destroy(int64_t handle)
+	bool DamageHelperPool::Destroy(ObjectHandle handle)
 	{
-		auto it = helpers_.find(handle);
+		if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
+			return false;
+		}
+
+		auto it = helpers_.find(handle.GetIndex());
 		if (it == helpers_.end()) {
 			return false;
 		} else {
@@ -32,9 +36,13 @@ namespace dse::esv
 		}
 	}
 
-	DamageHelpers * DamageHelperPool::Get(int64_t handle) const
+	DamageHelpers * DamageHelperPool::Get(ObjectHandle handle) const
 	{
-		auto it = helpers_.find(handle);
+		if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
+			return false;
+		}
+
+		auto it = helpers_.find(handle.GetIndex());
 		if (it == helpers_.end()) {
 			return nullptr;
 		} else {
@@ -433,15 +441,21 @@ namespace dse::esv
 			helper->Source = GetEntityWorld()->GetCharacter(sourceGuid);
 			helper->SetInternalDamageInfo();
 
-			helperHandle.Set(helper->Handle);
+			helperHandle.Set((int64_t)helper->Handle.Handle);
 			return true;
 		}
 
-		DamageHelpers * HelperHandleToHelper(int64_t handle)
+		DamageHelpers * HelperHandleToHelper(ObjectHandle handle)
 		{
+			if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
+				OsiError("Attempted to use handle of type " << handle.GetType() << " in a hit function.");
+				OsiError("For HIT statuses and handles received from NRD_OnHit use the NRD_StatusGet... functions instead!");
+				return nullptr;
+			}
+
 			auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Get(handle);
 			if (helper == nullptr) {
-				OsiError("Damage helper handle " << handle << " doesn't exist!");
+				OsiError("Damage helper handle 0x" << std::hex << handle.Handle << " doesn't exist!");
 			}
 
 			return helper;

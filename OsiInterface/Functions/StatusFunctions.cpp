@@ -111,6 +111,12 @@ namespace dse::esv
 			auto gameObjectGuid = args[0].String;
 			ObjectHandle statusHandle{ args[1].Int64 };
 
+			if (statusHandle.GetType() == DamageHelpers::HitHandleTypeId) {
+				OsiError("Attempted to use a hit handle in a status function.");
+				OsiError("For handles received from NRD_OnPrepareHit/NRD_PrepareHit use the NRD_HitGet... functions instead!");
+				return nullptr;
+			}
+
 			esv::Status * status{ nullptr };
 			auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
 			if (character != nullptr) {
@@ -137,7 +143,7 @@ namespace dse::esv
 		{
 			auto gameObjectGuid = args[0].String;
 			auto statusType = args[1].String;
-			auto& hasStatus = args[2].Int32;
+			auto& hasStatus = args[2];
 
 			auto statusMachine = GetStatusMachine(gameObjectGuid);
 			if (statusMachine == nullptr) return false;
@@ -149,11 +155,11 @@ namespace dse::esv
 			}
 
 			auto const& statuses = statusMachine->Statuses.Set;
-			hasStatus = 0;
+			hasStatus.Set(0);
 			for (uint32_t index = 0; index < statuses.Size; index++) {
 				auto status = statuses[index];
 				if (status->GetStatusId() == *typeId) {
-					hasStatus = 1;
+					hasStatus.Set(1);
 					break;
 				}
 			}
@@ -699,7 +705,7 @@ namespace dse::esv
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, self->GetGuid()->Str });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 		eventArgs->Add(OsiArgumentValue{ (int32_t)totalDamage });
-		eventArgs->Add(OsiArgumentValue{ helper->Handle });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)helper->Handle.Handle });
 
 		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitPrepareEventHandle, eventArgs);
 

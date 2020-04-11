@@ -12,12 +12,12 @@ namespace dse::esv
 	public:
 		void Clear();
 		DamageHelpers * Create();
-		bool Destroy(int64_t handle);
-		DamageHelpers * Get(int64_t handle) const;
+		bool Destroy(ObjectHandle handle);
+		DamageHelpers * Get(ObjectHandle handle) const;
 
 	private:
-		std::unordered_map<int64_t, std::unique_ptr<DamageHelpers>> helpers_;
-		int64_t nextHelperId_{ 0 };
+		std::unordered_map<uint32_t, std::unique_ptr<DamageHelpers>> helpers_;
+		uint32_t nextHelperId_{ 0 };
 	};
 
 	class ExtensionState;
