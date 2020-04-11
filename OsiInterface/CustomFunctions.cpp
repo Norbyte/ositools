@@ -432,8 +432,6 @@ void CustomFunctionManager::PreProcessStory(STDString const & original, STDStrin
 
 void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 {
-	if (!esv::ExtensionState::Get().HasFeatureFlag("Preprocessor")) return;
-
 	STDString original;
 	STDString postProcessed;
 
@@ -447,7 +445,17 @@ void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 		f.read(original.data(), original.size());
 	}
 
-	PreProcessStory(original, postProcessed);
+	// Clear compile trace flags to avoid large compile traces
+	auto debugPos = original.find("option compile_trace\r\n");
+	if (debugPos != std::string::npos) {
+		for (std::size_t i = debugPos; i < debugPos + 20; i++) {
+			original[i] = ' ';
+		}
+	}
+
+	if (esv::ExtensionState::Get().HasFeatureFlag("Preprocessor")) {
+		PreProcessStory(original, postProcessed);
+	}
 
 	{
 		std::ofstream f(path, std::ios::out | std::ios::binary);

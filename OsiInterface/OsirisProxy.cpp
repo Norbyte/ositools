@@ -345,24 +345,6 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 		if (ret) {
 			DeleteFileW(storyPath.c_str());
 			DeleteFileW(LogFilename.c_str());
-		} else {
-			auto filteredLogPath = MakeLogFilePath(L"Compile", L"final.log");
-			std::ifstream logIn(LogFilename.c_str(), std::ios::in);
-			std::ofstream logOut(filteredLogPath.c_str(), std::ios::out);
-			STDString logLine;
-
-			while (std::getline(logIn, logLine)) {
-				if (logLine.length() < 9 ||
-					(memcmp(logLine.c_str(), ">>> call", 8) != 0 &&
-					 memcmp(logLine.c_str(), ">>> Auto-", 9) != 0)) {
-					logOut << logLine << std::endl;
-				}
-			}
-
-			logIn.close();
-			logOut.close();
-
-			DeleteFileW(LogFilename.c_str());
 		}
 	}
 
