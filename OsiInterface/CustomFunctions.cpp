@@ -455,6 +455,8 @@ void CustomFunctionManager::PreProcessStory(wchar_t const * path)
 
 	if (esv::ExtensionState::Get().HasFeatureFlag("Preprocessor")) {
 		PreProcessStory(original, postProcessed);
+	} else {
+		postProcessed = original;
 	}
 
 	{
