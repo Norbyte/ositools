@@ -897,6 +897,13 @@ struct FunctionParamList
 	List<FunctionParamDesc> Params;
 };
 
+inline int Popcnt8(uint8_t b)
+{
+	b = b - ((b >> 1) & 0x55);
+	b = (b & 0x33) + ((b >> 2) & 0x33);
+	return (((b + (b >> 4)) & 0x0F) * 0x01);
+}
+
 struct FuncSigOutParamList
 {
 	uint8_t * Params;
@@ -907,7 +914,7 @@ struct FuncSigOutParamList
 	{
 		uint32_t numParams = 0;
 		for (uint32_t i = 0; i < Count; i++) {
-			numParams += __popcnt16(Params[i]);
+			numParams += Popcnt8(Params[i]);
 		}
 
 		return numParams;
