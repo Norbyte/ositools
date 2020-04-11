@@ -129,9 +129,8 @@ namespace dse
 
 		case MessageWrapper::kC2SRequestStrings:
 		{
-			// FIXME - send to peer only!
 			if (gOsirisProxy->GetConfig().SyncNetworkStrings) {
-				gOsirisProxy->NetworkFixedStringSync().SendToPeer((int32_t)context.UserId);
+				gOsirisProxy->NetworkFixedStringSync().OnUpdateRequested((int32_t)context.UserId);
 			}
 			break;
 		}
@@ -366,15 +365,38 @@ namespace dse
 		}
 	}
 
-	void NetworkFixedStringSynchronizer::SendToPeer(int32_t peerId)
+	void NetworkFixedStringSynchronizer::FlushQueuedRequests()
+	{
+		for (auto peerId : pendingSyncRequests_) {
+			SendUpdateToPeer(peerId);
+		}
+
+		pendingSyncRequests_.clear();
+	}
+
+	void NetworkFixedStringSynchronizer::OnUpdateRequested(int32_t peerId)
+	{
+		auto gameState = *GetStaticSymbols().GetServerState();
+		if (gameState == esv::GameState::LoadSession
+			|| gameState == esv::GameState::LoadLevel
+			|| gameState == esv::GameState::BuildStory
+			|| gameState == esv::GameState::Sync
+			|| gameState == esv::GameState::Running) {
+			SendUpdateToPeer(peerId);
+		} else {
+			pendingSyncRequests_.insert(peerId);
+		}
+	}
+
+	void NetworkFixedStringSynchronizer::SendUpdateToPeer(int32_t peerId)
 	{
 		auto fixedStrs = GetStaticSymbols().NetworkFixedStrings;
 		if (fixedStrs == nullptr || *fixedStrs == nullptr) {
 			return;
 		}
 
+		DEBUG("Sending NetworkFixedString table to peer %d", peerId);
 		auto& nfs = **fixedStrs;
-
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeServerMessage();
 		if (msg != nullptr) {
@@ -384,7 +406,7 @@ namespace dse
 				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
 			}
 
-			networkMgr.ServerBroadcastToConnectedPeers(msg, -1);
+			networkMgr.ServerSend(msg, peerId);
 		}
 		else {
 			OsiErrorS("Could not get free message!");
@@ -401,6 +423,7 @@ namespace dse
 			return;
 		}
 
+		DEBUG("Updating NetworkFixedStrings from server");
 		auto& fs = **fixedStrs;
 		auto numStrings = (uint32_t)updatedStrings_.size();
 

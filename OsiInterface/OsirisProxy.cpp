@@ -908,6 +908,7 @@ void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState
 		INFO("OsirisProxy::OnServerGameStateChanged(): Loading game session");
 		LoadExtensionStateServer();
 		networkManager_.ExtendNetworkingServer();
+		networkFixedStrings_.FlushQueuedRequests();
 		if (ServerExtState) {
 			ServerExtState->OnGameSessionLoading();
 		}

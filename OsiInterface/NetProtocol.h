@@ -101,8 +101,9 @@ namespace dse
 	class NetworkFixedStringSynchronizer
 	{
 	public:
-		void SendToPeer(int32_t peerId);
+		void OnUpdateRequested(int32_t peerId);
 		void RequestFromServer();
+		void FlushQueuedRequests();
 		void UpdateFromServer();
 		void ClientReset();
 		void ClientLoaded();
@@ -115,8 +116,11 @@ namespace dse
 
 	private:
 		std::vector<FixedString> updatedStrings_;
+		std::unordered_set<int32_t> pendingSyncRequests_;
 		bool notInSync_{ false };
 		bool syncWarningShown_{ false };
 		FixedString conflictingString_;
+
+		void SendUpdateToPeer(int32_t peerId);
 	};
 }
