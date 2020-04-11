@@ -54,7 +54,11 @@ struct ToolConfig
 #endif // defined(OSI_EXTENSION_BUILD)
 
 	bool DumpNetworkStrings{ false };
+#if defined(OSI_EXTENSION_BUILD)
+	bool SyncNetworkStrings{ true };
+#else
 	bool SyncNetworkStrings{ false };
+#endif
 	uint16_t DebuggerPort{ 9999 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;

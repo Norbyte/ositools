@@ -455,7 +455,7 @@ namespace dse
 	void NetworkFixedStringSynchronizer::ClientLoaded()
 	{
 		if (notInSync_ && !syncWarningShown_) {
-			STDWString msg(L"Script Extender has detected a mod mismatch with the host. Make sure that mod versions are the same on both sides.\r\nFirst mismatching object: ");
+			STDWString msg(L"Script Extender has detected a desync issue! Make sure that mod versions are the same on both sides.\r\nFirst mismatching object: ");
 			msg += FromUTF8(conflictingString_.Str);
 			gOsirisProxy->GetLibraryManager().ShowStartupError(msg, false);
 			syncWarningShown_ = true;
