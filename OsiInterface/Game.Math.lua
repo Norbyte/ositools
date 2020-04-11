@@ -331,8 +331,8 @@ function ComputeBaseWeaponDamage(weapon)
                         maxDamage = math.max(dmgFromBase * baseMaxDamage, 1.0)
                     end
                 else
-                    minDamage = math.max(dmgFromBase * dmgFromBase * baseMinDamage, 1.0)
-                    maxDamage = math.max(dmgFromBase * dmgFromBase * baseMaxDamage, 1.0)
+                    minDamage = math.max(baseDmgFromBase * dmgFromBase * baseMinDamage, 1.0)
+                    maxDamage = math.max(baseDmgFromBase * dmgFromBase * baseMaxDamage, 1.0)
                 end
             end
 
