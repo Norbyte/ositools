@@ -218,15 +218,19 @@ namespace dse::esv
 
 			auto & skills = character->SkillManager->Skills;
 			skills.Iterate([&characterGuid, &eventName](FixedString const & skillId, esv::Skill * skill) {
-				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
-				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
-				eventArgs->Add(OsiArgumentValue{ ValueType::String, skill->SkillId.Str });
-				eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsLearned });
-				eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsActivated });
+				// Some skills are unnamed for some reason?
+				// Skip those to make sure that we don't crash
+				if (skill->SkillId) {
+					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, skill->SkillId.Str });
+					eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsLearned });
+					eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsActivated });
 
-				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(SkillIteratorEventHandle, eventArgs);
+					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(SkillIteratorEventHandle, eventArgs);
 
-				delete eventArgs;
+					delete eventArgs;
+				}
 			});
 		}
 
