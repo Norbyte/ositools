@@ -1020,6 +1020,8 @@ namespace dse
 		TutorialBed = 0x4C,
 	};
 
+	MAKE_ENUM_INFO(StatusType, 74);
+
 	enum class CauseType : uint8_t
 	{
 		None = 0,

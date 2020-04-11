@@ -289,6 +289,7 @@ namespace dse
 		{
 			Status * GetStatus(ObjectHandle handle) const;
 			Status* GetStatus(NetId netId) const;
+			Status* GetStatus(FixedString statusId) const;
 
 			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;

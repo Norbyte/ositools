@@ -344,6 +344,9 @@
     <None Include="..\LuaAPIDocs.md">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Lua\LuaShared.inl">
+      <Filter>Source Files\Lua</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

@@ -133,6 +133,34 @@ namespace dse::esv
 			return status;
 		}
 
+		bool ObjectHasStatusType(OsiArgumentDesc& args)
+		{
+			auto gameObjectGuid = args[0].String;
+			auto statusType = args[1].String;
+			auto& hasStatus = args[2].Int32;
+
+			auto statusMachine = GetStatusMachine(gameObjectGuid);
+			if (statusMachine == nullptr) return false;
+			
+			auto typeId = EnumInfo<StatusType>::Find(statusType);
+			if (!typeId) {
+				OsiError("Status type unknown: " << statusType);
+				return false;
+			}
+
+			auto const& statuses = statusMachine->Statuses.Set;
+			hasStatus = 0;
+			for (uint32_t index = 0; index < statuses.Size; index++) {
+				auto status = statuses[index];
+				if (status->GetStatusId() == *typeId) {
+					hasStatus = 1;
+					break;
+				}
+			}
+
+			return true;
+		}
+
 		bool StatusGetHandle(OsiArgumentDesc & args)
 		{
 			auto gameObjectGuid = args[0].String;
@@ -861,6 +889,17 @@ namespace dse::esv
 			&func::IterateStatuses
 		);
 		functionMgr.Register(std::move(iterateCharacterStatuses));
+
+		auto hasStatusType = std::make_unique<CustomQuery>(
+			"NRD_ObjectHasStatusType",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "StatusType", ValueType::String, FunctionArgumentDirection::In },
+				{ "HasStatus", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::ObjectHasStatusType
+		);
+		functionMgr.Register(std::move(hasStatusType));
 
 		auto getStatusHandle = std::make_unique<CustomQuery>(
 			"NRD_StatusGetHandle",

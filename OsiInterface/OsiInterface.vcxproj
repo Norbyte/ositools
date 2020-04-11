@@ -520,6 +520,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <None Include="Exports.def" />
     <None Include="Game.Math.lua" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
+    <None Include="Lua\LuaShared.inl" />
     <None Include="osidebug.proto" />
     <None Include="SandboxStartup.lua" />
     <None Include="ScriptExtensions.proto" />

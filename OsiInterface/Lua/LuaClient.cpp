@@ -110,103 +110,7 @@ namespace dse::lua
 		return character;
 	}
 
-	int CharacterHasTag(lua_State* L)
-	{
-		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto tag = luaL_checkstring(L, 2);
-
-		auto character = self->Get(L);
-		auto tagFs = ToFixedString(tag);
-
-		if (!character || !tagFs) {
-			push(L, false);
-			return 1;
-		}
-
-		for (uint32_t i = 0; i < character->Tags.Set.Size; i++) {
-			auto characterTag = character->Tags[i];
-			if (characterTag == tagFs) {
-				push(L, true);
-				return 1;
-			}
-		}
-
-		for (uint32_t i = 0; i < character->ItemTags.Set.Size; i++) {
-			auto characterTag = character->ItemTags[i];
-			if (characterTag == tagFs) {
-				push(L, true);
-				return 1;
-			}
-		}
-
-		push(L, false);
-		return 1;
-	}
-
-	int CharacterGetTags(lua_State* L)
-	{
-		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto character = self->Get(L);
-		if (!character) {
-			return 0;
-		}
-
-		lua_newtable(L);
-
-		int32_t index = 1;
-		for (uint32_t i = 0; i < character->Tags.Set.Size; i++) {
-			auto tag = character->Tags[i];
-			settable(L, index++, tag);
-		}
-
-		for (uint32_t i = 0; i < character->ItemTags.Set.Size; i++) {
-			auto tag = character->ItemTags[i];
-			settable(L, index++, tag);
-		}
-
-		return 1;
-	}
-
-	int CharacterGetStatus(lua_State* L)
-	{
-		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto statusId = luaL_checkstring(L, 2);
-
-		auto character = self->Get(L);
-		auto statusIdFs = ToFixedString(statusId);
-
-		if (!character || !character->StatusMachine || !statusIdFs) {
-			return 0;
-		}
-
-		auto status = character->StatusMachine->GetStatus(statusIdFs);
-		if (status) {
-			// FIXME - use handle based proxy
-			ObjectProxy<ecl::Status>::New(L, status);
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-
-	int CharacterGetStatuses(lua_State* L)
-	{
-		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto character = self->Get(L);
-		if (!character || !character->StatusMachine) {
-			return 0;
-		}
-
-		lua_newtable(L);
-
-		int32_t index = 1;
-		for (uint32_t i = 0; i < character->StatusMachine->Statuses.Set.Size; i++) {
-			auto status = character->StatusMachine->Statuses[i];
-			settable(L, index++, status->StatusId);
-		}
-
-		return 1;
-	}
+#include <Lua/LuaShared.inl>
 
 	int ObjectProxy<ecl::Character>::Index(lua_State* L)
 	{
@@ -216,22 +120,27 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "HasTag") == 0) {
-			lua_pushcfunction(L, &CharacterHasTag);
+			lua_pushcfunction(L, &CharacterHasTag<ecl::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetTags") == 0) {
-			lua_pushcfunction(L, &CharacterGetTags);
+			lua_pushcfunction(L, &CharacterGetTags<ecl::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatus") == 0) {
-			lua_pushcfunction(L, &CharacterGetStatus);
+			lua_pushcfunction(L, (&CharacterGetStatus<ecl::Character, ecl::Status>));
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatusByType") == 0) {
+			lua_pushcfunction(L, (&CharacterGetStatusByType<ecl::Character, ecl::Status>));
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatuses") == 0) {
-			lua_pushcfunction(L, &CharacterGetStatuses);
+			lua_pushcfunction(L, (&CharacterGetStatuses<ecl::Character>));
 			return 1;
 		}
 

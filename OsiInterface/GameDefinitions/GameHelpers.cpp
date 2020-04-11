@@ -657,6 +657,19 @@ namespace dse
 		return FindByNetId(netId);
 	}
 
+	esv::Status* esv::StatusMachine::GetStatus(FixedString statusId) const
+	{
+		auto count = Statuses.Set.Size;
+		for (uint32_t i = 0; i < count; i++) {
+			auto status = Statuses[i];
+			if (status->StatusId == statusId) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
 	ecl::Status* ecl::StatusMachine::GetStatus(StatusType type) const
 	{
 		auto count = Statuses.Set.Size;

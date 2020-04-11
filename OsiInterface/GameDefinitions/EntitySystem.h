@@ -273,8 +273,8 @@ namespace dse
 		virtual void ClearFlags(uint64_t flag) = 0;
 		virtual bool HasFlag(uint64_t flag) const = 0;
 		virtual void SetAiColliding(bool colliding) = 0;
-		virtual void GetTags() = 0;
-		virtual void IsTagged() = 0;
+		virtual void GetTags(ObjectSet<FixedString> & tags) = 0;
+		virtual bool IsTagged(FixedString & tag) = 0;
 		virtual Vector3 const* GetTranslate() const = 0;
 		virtual glm::mat3 const* GetRotation() const = 0;
 		virtual float GetScale() const = 0;

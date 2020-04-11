@@ -123,6 +123,8 @@ namespace dse::lua
 		return 1;
 	}
 
+#include <Lua/LuaShared.inl>
+
 	int ObjectProxy<esv::Character>::Index(lua_State* L)
 	{
 		auto character = Get(L);
@@ -132,6 +134,31 @@ namespace dse::lua
 
 		if (strcmp(prop, "GetInventoryItems") == 0) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
+			return 1;
+		}
+
+		if (strcmp(prop, "HasTag") == 0) {
+			lua_pushcfunction(L, &CharacterHasTag<esv::Character>);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetTags") == 0) {
+			lua_pushcfunction(L, &CharacterGetTags<esv::Character>);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatus") == 0) {
+			lua_pushcfunction(L, (&CharacterGetStatus<esv::Character, esv::Status>));
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatusByType") == 0) {
+			lua_pushcfunction(L, (&CharacterGetStatusByType<esv::Character, esv::Status>));
+			return 1;
+		}
+
+		if (strcmp(prop, "GetStatuses") == 0) {
+			lua_pushcfunction(L, (&CharacterGetStatuses<esv::Character>));
 			return 1;
 		}
 
