@@ -478,7 +478,7 @@ namespace dse
 			IEoCServerObject* GetGameObject(ObjectHandle handle, bool logError = true);
 		};
 
-		struct CharacterFactory : public NetworkObjectFactory<esv::Character, (uint32_t)ObjectType::Character>
+		struct CharacterFactory : public NetworkObjectFactory<esv::Character, (uint32_t)ObjectType::ServerCharacter>
 		{
 			void* VMT2;
 			void* VMT3;
@@ -488,7 +488,7 @@ namespace dse
 			uint64_t Unkn8[2];
 		};
 
-		struct ItemFactory : public NetworkObjectFactory<esv::Item, (uint32_t)ObjectType::Item>
+		struct ItemFactory : public NetworkObjectFactory<esv::Item, (uint32_t)ObjectType::ServerItem>
 		{
 			void* VMT2;
 			void* VMT3;
@@ -498,7 +498,7 @@ namespace dse
 			uint64_t Unkn8[2];
 		};
 
-		struct InventoryFactory : public NetworkObjectFactory<esv::Inventory, (uint32_t)ObjectType::Inventory>
+		struct InventoryFactory : public NetworkObjectFactory<esv::Inventory, (uint32_t)ObjectType::ServerInventory>
 		{
 			// TODO
 		};

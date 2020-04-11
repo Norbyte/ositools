@@ -285,7 +285,7 @@ namespace dse
 		};
 
 
-		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Character>
+		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Unknown>
 		{
 			Status * GetStatus(ObjectHandle handle) const;
 			Status* GetStatus(NetId netId) const;
@@ -358,7 +358,7 @@ namespace dse
 		};
 
 
-		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)esv::ObjectType::Character>
+		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)esv::ObjectType::Unknown>
 		{
 			Status* GetStatus(StatusType type) const;
 			Status* GetStatus(FixedString statusId) const;
