@@ -752,7 +752,9 @@ namespace dse::lua
 
 		std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 		{
-			LuaVirtualPin pin(gOsirisProxy->GetCurrentExtensionState());
+			// GetScaledValue must always use the client pin, as the override function is
+			// reigstered from the client state
+			ecl::LuaClientPin pin(ecl::ExtensionState::Get());
 			if (!pin) return {};
 
 			std::lock_guard _(pin->GetMutex());
