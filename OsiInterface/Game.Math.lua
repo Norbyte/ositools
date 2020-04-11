@@ -827,7 +827,7 @@ function GetAttackerDamageMultiplier(attacker, target, highGround)
     end
 
     if highGround == "HighGround" then
-        local rangerLoreBonus = attacker.RangerLore * Ext.ExtraData.SkillAbilityHighGroundBonusPerPoint
+        local rangerLoreBonus = attacker.RangerLore * Ext.ExtraData.SkillAbilityHighGroundBonusPerPoint * 0.01
         return math.max(rangerLoreBonus + Ext.ExtraData.HighGroundBaseDamageBonus, 0.0)
     elseif highGround == "LowGround" then
         return Ext.ExtraData.LowGroundBaseDamagePenalty
@@ -989,7 +989,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
             hitBlocked = true
         else
             local blockChance = target.BlockChance
-            if not backstabbed and blockChance > 0 and math.random(0, 99) <= blockChance then
+            if not backstabbed and blockChance > 0 and math.random(0, 99) < blockChance then
                 hit.EffectFlags = hit.EffectFlags | HitFlag.Blocked;
                 hitBlocked = true
             end
