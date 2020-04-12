@@ -809,6 +809,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 
 	case ecl::GameState::InitNetwork:
 	case ecl::GameState::Disconnect:
+	case ecl::GameState::UnloadModule:
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
 		networkFixedStrings_.ClientReset();
