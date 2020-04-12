@@ -7,7 +7,8 @@ Ext._Listeners = {
 	ComputeCharacterHit = {},
 	CalculateTurnOrder = {},
 	GetHitChance = {},
-	StatusGetEnterChance = {}
+	StatusGetEnterChance = {},
+	ConsoleCommand = {}
 }
 
 Ext._GetSkillDamage = function (...)

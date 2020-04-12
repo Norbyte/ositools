@@ -125,3 +125,11 @@ Ext._LoadBootstrap = function (path, modTable)
 
 	Ext.Include(ModuleUUID, path, env)
 end
+
+Ext.DoConsoleCommand = function (cmd)
+	local params = {}
+	for param in string.gmatch(cmd, "%S+") do
+		table.insert(params, param)
+	end
+	Ext._EngineCallback1("ConsoleCommand", table.unpack(params))
+end

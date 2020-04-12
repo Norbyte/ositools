@@ -119,9 +119,19 @@ public:
 
 	ExtensionStateBase* GetCurrentExtensionState();
 
+	inline bool HasServerExtensionState() const
+	{
+		return (bool)ServerExtState;
+	}
+
 	inline esv::ExtensionState & GetServerExtensionState()
 	{
 		return *ServerExtState;
+	}
+
+	inline bool HasClientExtensionState() const
+	{
+		return (bool)ClientExtState;
 	}
 
 	inline ecl::ExtensionState & GetClientExtensionState()

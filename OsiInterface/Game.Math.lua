@@ -508,7 +508,6 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
             randomMultiplier = 1.0 + (Ext.Random(0, damageRange) - damageRange/2) * 0.01
         end
 
-        -- FIXME damage types???
         local attrDamageScale
         local skillDamage = skill.Damage
         if skillDamage == "BaseLevelDamage" or skillDamage == "AverageLevelDamge" then
@@ -549,8 +548,6 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
 
     return damageList, deathType
 end
-
--- FIXME - impl GetCriticalHitMultiplier
 
 HitFlag = {
     Hit = 1,

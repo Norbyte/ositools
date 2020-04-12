@@ -173,7 +173,9 @@ namespace dse
 			ObjectSet<FlashInvokeDefinition> Invokes;
 			int FlashInvokePool;
 			int field_64;
+#if !defined(OSI_EOCAPP)
 			char const * PoolName;
+#endif
 			CRITICAL_SECTION CriticalSection;
 			char Invoked_M;
 			char field_99;

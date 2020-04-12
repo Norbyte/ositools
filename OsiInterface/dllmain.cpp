@@ -81,8 +81,9 @@ void SetupOsirisProxy(HMODULE hModule)
 	auto & config = dse::gOsirisProxy->GetConfig();
 	LoadConfig(L"OsirisExtenderSettings.json", config);
 
+	DisableThreadLibraryCalls(hModule);
 	if (config.CreateConsole) {
-		CreateConsole(hModule);
+		gConsole.Create();
 	}
 
 	if (config.DebugFlags == 0) {

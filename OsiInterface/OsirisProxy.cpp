@@ -114,7 +114,7 @@ void OsirisProxy::LogOsirisError(std::string_view msg)
 {
 	std::string log = "[Osiris] {E} ";
 	log += msg;
-	DebugRaw(DebugMessageType::Error, log.c_str());
+	gConsole.Debug(DebugMessageType::Error, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
@@ -124,7 +124,7 @@ void OsirisProxy::LogOsirisWarning(std::string_view msg)
 {
 	std::string log = "[Osiris] {W} ";
 	log += msg;
-	DebugRaw(DebugMessageType::Warning, log.c_str());
+	gConsole.Debug(DebugMessageType::Warning, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
@@ -134,7 +134,7 @@ void OsirisProxy::LogOsirisMsg(std::string_view msg)
 {
 	std::string log = "[Osiris] ";
 	log += msg;
-	DebugRaw(DebugMessageType::Osiris, log.c_str());
+	gConsole.Debug(DebugMessageType::Osiris, log.c_str());
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
