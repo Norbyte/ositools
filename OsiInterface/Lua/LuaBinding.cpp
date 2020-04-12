@@ -90,14 +90,6 @@ namespace dse::lua
 		if (obj_ == nullptr) return luaL_error(L, "Attempted to read property of null CRPGStats_Object object");
 		auto attributeName = luaL_checkstring(L, 2);
 
-		if (strcmp(attributeName, "Level") == 0) {
-			push(L, obj_->Level);
-			return 1;
-		} else if (strcmp(attributeName, "Name") == 0) {
-			lua_pushstring(L, obj_->Name);
-			return 1;
-		}
-
 		return LuaStatGetAttribute(L, obj_, attributeName, level_);
 	}
 

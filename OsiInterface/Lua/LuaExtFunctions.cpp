@@ -568,7 +568,13 @@ namespace dse::lua
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
-		if (strcmp(attributeName, "Using") == 0) {
+		if (strcmp(attributeName, "Level") == 0) {
+			push(L, object->Level);
+			return 1;
+		} else if (strcmp(attributeName, "Name") == 0) {
+			lua_pushstring(L, object->Name);
+			return 1;
+		} else if (strcmp(attributeName, "Using") == 0) {
 			if (object->Using) {
 				auto parent = stats->objects.Find(object->Using);
 				if (parent != nullptr) {
