@@ -630,7 +630,7 @@ namespace dse::lua
 		auto fileName = luaL_checkstring(L, 2);
 
 		bool replaceGlobals = !lua_isnil(L, 3);
-		auto globalsIdx = lua_gettop(L);
+		auto globalsIdx = lua_gettop(L) + 1;
 
 		if (replaceGlobals) {
 			luaL_checktype(L, 3, LUA_TTABLE);
