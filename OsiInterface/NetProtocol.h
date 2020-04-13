@@ -109,17 +109,17 @@ namespace dse
 		void ClientLoaded();
 		void Dump();
 
-		inline void SetServerNetworkFixedStrings(std::vector<FixedString>& strs)
+		inline void SetServerNetworkFixedStrings(std::vector<STDString>& strs)
 		{
 			updatedStrings_ = strs;
 		}
 
 	private:
-		std::vector<FixedString> updatedStrings_;
+		std::vector<STDString> updatedStrings_;
 		std::unordered_set<int32_t> pendingSyncRequests_;
 		bool notInSync_{ false };
 		bool syncWarningShown_{ false };
-		FixedString conflictingString_;
+		STDString conflictingString_;
 
 		void SendUpdateToPeer(int32_t peerId);
 	};

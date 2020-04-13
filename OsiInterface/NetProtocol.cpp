@@ -67,12 +67,12 @@ namespace dse
 			return;
 		}
 
-		std::vector<FixedString> strings;
+		std::vector<STDString> strings;
 		auto numStrings = msg.network_string_size();
 		strings.reserve(numStrings);
 		for (auto i = 0; i < numStrings; i++) {
 			auto& str = msg.network_string(i);
-			strings.push_back(MakeFixedString(str.c_str()));
+			strings.push_back(STDString(str));
 		}
 
 		gOsirisProxy->NetworkFixedStringSync().SetServerNetworkFixedStrings(strings);
@@ -367,6 +367,7 @@ namespace dse
 
 	void NetworkFixedStringSynchronizer::FlushQueuedRequests()
 	{
+		DEBUG("Flushing NetworkFixedString updates");
 		for (auto peerId : pendingSyncRequests_) {
 			SendUpdateToPeer(peerId);
 		}
@@ -382,8 +383,10 @@ namespace dse
 			|| gameState == esv::GameState::BuildStory
 			|| gameState == esv::GameState::Sync
 			|| gameState == esv::GameState::Running) {
+			DEBUG("Fulfill requested NetworkFixedString update for peer %d", peerId);
 			SendUpdateToPeer(peerId);
 		} else {
+			DEBUG("Queuing requested NetworkFixedString update for peer %d", peerId);
 			pendingSyncRequests_.insert(peerId);
 		}
 	}
@@ -428,24 +431,25 @@ namespace dse
 		auto numStrings = (uint32_t)updatedStrings_.size();
 
 		auto sizeMin = std::min(fs.FixedStrSet.Set.Size - 1, numStrings);
+		uint32_t brokenNum = 0;
 		for (uint32_t i = 0; i < sizeMin; i++) {
-			auto serverString = updatedStrings_[i];
+			auto const& serverString = updatedStrings_[i];
 			auto clientString = fs.FixedStrSet[i + 1];
-			if (serverString != clientString) {
-				ERR("NetworkFixedStrings mismatch - entry %d different! %s vs %s", i, serverString.Str, clientString.Str);
+			if (serverString != clientString.Str) {
+				ERR("NetworkFixedStrings mismatch - entry %d different! %s vs %s", i, serverString.c_str(), clientString.Str);
 
 				// Find out which string caused the conflict
-				conflictingString_ = FixedString{};
+				conflictingString_.clear();
 				for (auto str : updatedStrings_) {
-					if (str == clientString) {
+					if (str == clientString.Str) {
 						// Client string exists in server map --> server string missing from local NetworkFixedStrings
 						conflictingString_ = serverString;
 					}
 				}
 
-				if (!conflictingString_) {
+				if (conflictingString_.empty()) {
 					// Client string not found on server
-					conflictingString_ = clientString;
+					conflictingString_ = clientString.Str;
 				}
 
 				notInSync_ = true;
@@ -453,18 +457,20 @@ namespace dse
 			}
 		}
 
-		fs.FixedStrSet.Set.Clear();
-		fs.FixedStrToNetIndexMap.Clear();
+		if (notInSync_) {
+			fs.FixedStrSet.Set.Clear();
+			fs.FixedStrToNetIndexMap.Clear();
 
-		fs.FixedStrSet.Set.Reallocate(numStrings + 1);
+			fs.FixedStrSet.Set.Reallocate(numStrings + 1);
 
-		fs.FixedStrSet.Set.Add(FixedString{});
-		fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
+			fs.FixedStrSet.Set.Add(FixedString{});
+			fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
 
-		for (uint32_t i = 0; i < numStrings; i++) {
-			auto fixedStr = updatedStrings_[i];
-			fs.FixedStrSet.Set.Add(fixedStr);
-			fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
+			for (uint32_t i = 0; i < numStrings; i++) {
+				auto fixedStr = MakeFixedString(updatedStrings_[i].c_str());
+				fs.FixedStrSet.Set.Add(fixedStr);
+				fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
+			}
 		}
 	}
 
@@ -479,7 +485,7 @@ namespace dse
 	{
 		if (notInSync_ && !syncWarningShown_) {
 			STDWString msg(L"Script Extender has detected a desync issue! Make sure that mod versions are the same on both sides.\r\nFirst mismatching object: ");
-			msg += FromUTF8(conflictingString_.Str);
+			msg += FromUTF8(conflictingString_);
 			gOsirisProxy->GetLibraryManager().ShowStartupError(msg, false);
 			syncWarningShown_ = true;
 		}
