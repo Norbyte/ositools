@@ -13,6 +13,7 @@
 namespace dse::lua
 {
 	void PushExtFunction(lua_State * L, char const * func);
+	void PushModFunction(lua_State* L, char const* mod, char const* func);
 
 	template <class T>
 	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>

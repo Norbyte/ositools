@@ -80,6 +80,15 @@ namespace dse::lua
 	}
 
 
+	void PushModFunction(lua_State* L, char const* mod, char const* func)
+	{
+		lua_getglobal(L, "Mods"); // stack: Mods
+		lua_getfield(L, -1, mod); // stack: Mods, mod
+		lua_getfield(L, -1, func); // stack: Mods, fn
+		lua_remove(L, -2); // stack: fn
+	}
+
+
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level);
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx);
 

@@ -827,7 +827,7 @@ namespace dse::esv::lua
 	}
 
 
-	bool ServerState::Query(STDString const & name, RegistryEntry * func,
+	bool ServerState::Query(char const* mod, char const* name, RegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		std::lock_guard lock(mutex_);
@@ -836,7 +836,7 @@ namespace dse::esv::lua
 		auto stackSize = lua_gettop(L);
 
 		try {
-			return QueryInternal(name, func, signature, params);
+			return QueryInternal(mod, name, func, signature, params);
 		} catch (Exception &) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
 			if (stackRemaining > 0) {
@@ -851,7 +851,7 @@ namespace dse::esv::lua
 	}
 
 
-	bool ServerState::QueryInternal(STDString const & name, RegistryEntry * func,
+	bool ServerState::QueryInternal(char const* mod, char const* name, RegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
 		auto L = GetState();
@@ -860,8 +860,10 @@ namespace dse::esv::lua
 		auto stackSize = lua_gettop(L);
 		if (func) {
 			func->Push();
+		} else if (mod != nullptr) {
+			PushModFunction(L, mod, name);
 		} else {
-			lua_getglobal(L, name.c_str());
+			lua_getglobal(L, name);
 		}
 
 		int numParams{ 0 };
@@ -966,7 +968,7 @@ namespace dse::esv::lua
 			return false;
 		}
 
-		return lua->Query(Name(), &handler_, Params(), params);
+		return lua->Query(nullptr, Name().c_str(), &handler_, Params(), params);
 	}
 
 

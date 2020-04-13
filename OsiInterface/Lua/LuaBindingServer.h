@@ -347,7 +347,7 @@ namespace dse::esv::lua
 		void StoryFunctionMappingsUpdated();
 
 		template <class TArg>
-		void Call(char const * func, std::vector<TArg> const & args)
+		void Call(char const* mod, char const* func, std::vector<TArg> const & args)
 		{
 			std::lock_guard lock(mutex_);
 
@@ -356,7 +356,12 @@ namespace dse::esv::lua
 			auto stackSize = lua_gettop(L);
 
 			try {
-				lua_getglobal(L, func); // stack: func
+				if (mod != nullptr) {
+					PushModFunction(L, mod, func); // stack: func
+				} else {
+					lua_getglobal(L, func); // stack: func
+				}
+
 				for (auto & arg : args) {
 					OsiToLua(L, arg); // stack: func, arg0 ... argn
 				}
@@ -378,7 +383,7 @@ namespace dse::esv::lua
 			}
 		}
 
-		bool Query(STDString const & name, RegistryEntry * func,
+		bool Query(char const* mod, char const* name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
@@ -399,7 +404,7 @@ namespace dse::esv::lua
 		// Used to invalidate function/node pointers in Lua userdata objects
 		uint32_t generationId_{ 0 };
 
-		bool QueryInternal(STDString const & name, RegistryEntry * func,
+		bool QueryInternal(char const* mod, char const* name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 	};
 }
