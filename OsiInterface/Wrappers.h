@@ -146,6 +146,12 @@ namespace dse {
 			gHook = nullptr;
 		}
 
+		void ClearHooks()
+		{
+			preHooks_.clear();
+			postHooks_.clear();
+		}
+
 		void AddPreHook(PreHookFuncType hook)
 		{
 			preHooks_.push_back(hook);

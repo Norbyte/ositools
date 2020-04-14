@@ -78,30 +78,48 @@ namespace dse
 	class NetworkManager
 	{
 	public:
+		void ClientReset();
+		void ServerReset();
+
+		void ClientAllowExtenderMessages();
+		void ServerAllowExtenderMessages(PeerId peerId);
+
 		void ExtendNetworkingClient();
 		void ExtendNetworkingServer();
 
 		ScriptExtenderMessage * GetFreeClientMessage();
-		ScriptExtenderMessage * GetFreeServerMessage();
+		ScriptExtenderMessage * GetFreeServerMessage(PeerId peerId);
 
 		void ClientSend(ScriptExtenderMessage * msg);
-		void ServerSend(ScriptExtenderMessage * msg, int32_t peerId);
-		void ServerBroadcast(ScriptExtenderMessage * msg, int32_t excludePeerId);
-		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, int32_t excludePeerId);
+		void ServerSend(ScriptExtenderMessage * msg, PeerId peerId);
+		void ServerBroadcast(ScriptExtenderMessage * msg, PeerId excludePeerId);
+		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, PeerId excludePeerId);
 
 	private:
 		ExtenderProtocolClient * clientProtocol_{ nullptr };
 		ExtenderProtocolServer * serverProtocol_{ nullptr };
 
+		// Indicates that the client can support extender messages to the server
+		// (i.e. the server supports the message ID and won't crash)
+		bool clientExtenderSupport_{ false };
+		// List of clients that support the extender protocol
+		std::unordered_set<PeerId> serverExtenderPeerIds_;
+
 		net::GameServer * GetServer() const;
 		net::Client * GetClient() const;
+
+		void AppendMessageTrailer(net::BitstreamSerializer* serializer);
+		bool CheckMessageTrailer(net::BitstreamSerializer* serializer);
+		void OnClientConnectMessage(net::Message* msg, net::BitstreamSerializer* serializer);
+		void OnClientAcceptMessage(net::Message* msg, net::BitstreamSerializer* serializer);
+		void HookMessages(net::MessageFactory* messageFactory);
 	};
 
 
 	class NetworkFixedStringSynchronizer
 	{
 	public:
-		void OnUpdateRequested(int32_t peerId);
+		void OnUpdateRequested(PeerId peerId);
 		void RequestFromServer();
 		void FlushQueuedRequests();
 		void UpdateFromServer();
@@ -116,11 +134,11 @@ namespace dse
 
 	private:
 		std::vector<STDString> updatedStrings_;
-		std::unordered_set<int32_t> pendingSyncRequests_;
+		std::unordered_set<PeerId> pendingSyncRequests_;
 		bool notInSync_{ false };
 		bool syncWarningShown_{ false };
 		STDString conflictingString_;
 
-		void SendUpdateToPeer(int32_t peerId);
+		void SendUpdateToPeer(PeerId peerId);
 	};
 }

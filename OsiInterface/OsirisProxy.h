@@ -151,6 +151,11 @@ public:
 		return Wrappers.OsirisDllSize;
 	}
 
+	inline OsirisWrappers & GetWrappers()
+	{
+		return Wrappers;
+	}
+
 	inline OsirisWrappers const & GetWrappers() const
 	{
 		return Wrappers;

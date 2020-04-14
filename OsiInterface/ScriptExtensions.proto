@@ -26,11 +26,16 @@ message MsgS2CSyncNetworkFixedStrings {
 message MsgC2SRequestNetworkFixedStrings {
 }
 
+// Notifies the server that the client supports extender messages
+message MsgC2SExtenderHello {
+}
+
 message MessageWrapper {
   oneof msg {
     MsgPostLuaMessage post_lua = 1;
     MsgS2CResetLuaMessage s2c_reset_lua = 2;
     MsgS2CSyncNetworkFixedStrings s2c_sync_strings = 3;
     MsgC2SRequestNetworkFixedStrings c2s_request_strings = 4;
+    MsgC2SExtenderHello c2s_extender_hello = 5;
   }
 }

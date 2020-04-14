@@ -10,7 +10,7 @@
 #include <ctime>
 #include <psapi.h>
 
-#undef DEBUG_SERVER_CLIENT
+#define DEBUG_SERVER_CLIENT
 
 void InitCrashReporting();
 void ShutdownCrashReporting();
@@ -809,6 +809,10 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 
 	case ecl::GameState::InitNetwork:
 	case ecl::GameState::Disconnect:
+		networkManager_.ClientReset();
+		networkFixedStrings_.ClientReset();
+		break;
+
 	case ecl::GameState::UnloadModule:
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
@@ -872,6 +876,10 @@ void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState
 	}
 
 	switch (toState) {
+	case esv::GameState::UnloadModule:
+		networkManager_.ServerReset();
+		break;
+
 	case esv::GameState::UnloadSession:
 		INFO("OsirisProxy::OnServerGameStateChanged(): Unloading session");
 		ResetExtensionStateServer();

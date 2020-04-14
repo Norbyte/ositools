@@ -10,14 +10,34 @@ namespace dse
 #pragma pack(push, 1)
 	namespace net
 	{
+		struct Bitstream : ProtectedGameObject<Bitstream>
+		{
+			uint32_t NumBits;
+			uint32_t AllocatedBits;
+			uint32_t CurrentOffsetBits;
+			uint8_t _Pad[4];
+			void* Buf;
+			bool Unknown;
+			uint8_t _Pad1[7];
+		};
+
 		struct BitstreamSerializer : ProtectedGameObject<BitstreamSerializer>
 		{
-			virtual void WriteBytes(void * Buf, uint64_t Size) = 0;
-			virtual void ReadBytes(void * Buf, uint64_t Size) = 0;
+			virtual void WriteBytes(void const* Buf, uint64_t Size) = 0;
+			virtual void ReadBytes(void* Buf, uint64_t Size) = 0;
 
 			bool IsWriting;
 			uint8_t _Pad[7];
-			void * Bitstream;
+			Bitstream* Bitstream;
+		};
+
+		struct MessageVMT
+		{
+			void* Dtor;
+			void* Serialize;
+			void* Unknown;
+			void* CreateNew;
+			void* Reset;
 		};
 
 		struct Message
@@ -39,6 +59,14 @@ namespace dse
 			uint32_t Unknown4{ 0 };
 		};
 
+		struct MessagePool
+		{
+			Message* Template;
+			uint64_t Unknown[4];
+			ObjectSet<Message*> Messages;
+			STDString Name;
+		};
+
 		struct MessageFactory
 		{
 			typedef void (* RegisterMessage)(MessageFactory * self, int messageId, Message * msg, 
@@ -47,13 +75,13 @@ namespace dse
 			
 			void ReservePools(uint32_t minPools);
 			
-			Array<void *> MessagePools;
+			Array<MessagePool*> MessagePools;
 			CRITICAL_SECTION CriticalSection;
 		};
 
 		struct MessageContext
 		{
-			uint32_t UserId;
+			PeerId UserId;
 			uint8_t _Pad1[4];
 			ObjectSet<uint16_t> PeerIDClassNames;
 			ObjectSet<uint32_t> UserIDs;
@@ -112,14 +140,14 @@ namespace dse
 			uint64_t field_68;
 			uint64_t field_70;
 			uint64_t FileTransfer[10];
-			ObjectSet<int> SessionPeerIds;
+			ObjectSet<PeerId> SessionPeerIds;
 			uint64_t Unknown3;
-			ObjectSet<int> LevelPeerIds;
+			ObjectSet<PeerId> LevelPeerIds;
 			uint64_t Unknown5[18];
 #if !defined(OSI_EOCAPP)
 			uint64_t FileTransfer2;
 #endif
-			ObjectSet<uint32_t> PeerIdClassNames;
+			ObjectSet<PeerId> PeerIdClassNames;
 			ObjectSet<void *> DisconnectDelays;
 			void * field_1E8;
 			MessageFactory * NetMessageFactory;
@@ -190,7 +218,7 @@ namespace dse
 			typedef void (* AddProtocol)(Client * self, int protocolId, Protocol * protocol);
 
 			void * VMT3;
-			uint32_t ClientPeerId;
+			PeerId ClientPeerId;
 			uint8_t _Pad5[4];
 			ObjectSet<void *> Protocols;
 		};
@@ -201,14 +229,14 @@ namespace dse
 			void * field_348;
 			void * EventListenerVMT2;
 			void * LobbyManager;
-			ObjectSet<int> ConnectedPeerIds;
+			ObjectSet<PeerId> ConnectedPeerIds;
 			uint64_t field_380[13];
-			ObjectSet<int> ActivePeerIds;
-			ObjectSet<int> UnknownSet1;
-			ObjectSet<int> UnknownSet2;
-			ObjectSet<int> ConnectedPeerIds2;
-			RefMap<int, void *> UserIdToUserInfo;
-			RefMap<NetId, int> CharacterNetIdToUserId;
+			ObjectSet<PeerId> ActivePeerIds;
+			ObjectSet<PeerId> UnknownSet1;
+			ObjectSet<PeerId> UnknownSet2;
+			ObjectSet<PeerId> ConnectedPeerIds2;
+			RefMap<PeerId, void *> UserIdToUserInfo;
+			RefMap<NetId, PeerId> CharacterNetIdToUserId;
 			int Unknown[2];
 			void * VoiceProtocol;
 		};

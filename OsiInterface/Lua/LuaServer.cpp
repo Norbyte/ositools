@@ -651,13 +651,13 @@ namespace dse::esv::lua
 		}
 
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage();
+		auto msg = networkMgr.GetFreeServerMessage(-1);
 		if (msg != nullptr) {
 			auto postMsg = msg->GetMessage().mutable_post_lua();
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
 			if (excludeCharacter != nullptr) {
-				networkMgr.ServerBroadcast(msg, excludeCharacter->PeerId);
+				networkMgr.ServerBroadcast(msg, excludeCharacter->PeerID);
 			} else {
 				networkMgr.ServerBroadcast(msg, -1);
 			}
@@ -678,12 +678,12 @@ namespace dse::esv::lua
 		if (character == nullptr) return 0;
 
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage();
+		auto msg = networkMgr.GetFreeServerMessage(character->PeerID);
 		if (msg != nullptr) {
 			auto postMsg = msg->GetMessage().mutable_post_lua();
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
-			networkMgr.ServerSend(msg, character->PeerId);
+			networkMgr.ServerSend(msg, character->PeerID);
 		} else {
 			OsiErrorS("Could not get free message!");
 		}

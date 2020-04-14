@@ -2,6 +2,7 @@
 #include <NetProtocol.h>
 #include <GameDefinitions/Symbols.h>
 #include <OsirisProxy.h>
+#include <Version.h>
 #include <fstream>
 
 namespace dse
@@ -130,8 +131,15 @@ namespace dse
 		case MessageWrapper::kC2SRequestStrings:
 		{
 			if (gOsirisProxy->GetConfig().SyncNetworkStrings) {
-				gOsirisProxy->NetworkFixedStringSync().OnUpdateRequested((int32_t)context.UserId);
+				gOsirisProxy->NetworkFixedStringSync().OnUpdateRequested(context.UserId);
 			}
+			break;
+		}
+
+		case MessageWrapper::kC2SExtenderHello:
+		{
+			DEBUG("Got extender support notification from peer %d", context.UserId);
+			gOsirisProxy->GetNetworkManager().ServerAllowExtenderMessages(context.UserId);
 			break;
 		}
 
@@ -199,6 +207,27 @@ namespace dse
 	}
 
 
+	void NetworkManager::ClientReset()
+	{
+		clientExtenderSupport_ = false;
+	}
+
+	void NetworkManager::ServerReset()
+	{
+		serverExtenderPeerIds_.clear();
+	}
+
+	void NetworkManager::ClientAllowExtenderMessages()
+	{
+		clientExtenderSupport_ = true;
+	}
+
+	void NetworkManager::ServerAllowExtenderMessages(PeerId peerId)
+	{
+		serverExtenderPeerIds_.insert(peerId);
+	}
+
+
 	void NetworkManager::ExtendNetworkingClient()
 	{
 		auto client = GetClient();
@@ -219,10 +248,25 @@ namespace dse
 			client->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(client->NetMessageFactory, 
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
+			HookMessages(client->NetMessageFactory);
 			DEBUG("Registered custom ecl network protocol");
 		} else {
 			ERR("Could not register ecl protocol - symbols not mapped");
 		}
+	}
+
+	void NetworkManager::HookMessages(net::MessageFactory * messageFactory)
+	{
+		using namespace std::placeholders;
+
+		gOsirisProxy->GetWrappers().InitializeNetworking(messageFactory);
+
+		auto& connectMsg = gOsirisProxy->GetWrappers().eocnet__ClientConnectMessage__Serialize;
+		auto& acceptMsg = gOsirisProxy->GetWrappers().eocnet__ClientAcceptMessage__Serialize;
+		connectMsg.ClearHooks();
+		connectMsg.AddPostHook(std::bind(&NetworkManager::OnClientConnectMessage, this, _1, _2));
+		acceptMsg.ClearHooks();
+		acceptMsg.AddPostHook(std::bind(&NetworkManager::OnClientAcceptMessage, this, _1, _2));
 	}
 
 	void NetworkManager::ExtendNetworkingServer()
@@ -243,6 +287,7 @@ namespace dse
 			server->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(server->NetMessageFactory,
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
+			HookMessages(server->NetMessageFactory);
 			DEBUG("Registered custom esv network protocol");
 		} else {
 			ERR("Could not register esv protocol - symbols not mapped");
@@ -269,8 +314,77 @@ namespace dse
 		}
 	}
 
+	char const* ExtenderMsgSignature = "EXTD";
+
+	void NetworkManager::AppendMessageTrailer(net::BitstreamSerializer* serializer)
+	{
+		serializer->WriteBytes(ExtenderMsgSignature, 4);
+		uint32_t version = CurrentVersion;
+		serializer->WriteBytes(&version, sizeof(version));
+	}
+
+	bool NetworkManager::CheckMessageTrailer(net::BitstreamSerializer* serializer)
+	{
+		auto remaining = (serializer->Bitstream->NumBits - serializer->Bitstream->CurrentOffsetBits) / 8;
+		if (remaining >= 8) {
+			uint8_t signature[4];
+			uint32_t version;
+			serializer->ReadBytes(signature, 4);
+			serializer->ReadBytes(&version, sizeof(version));
+
+			if (memcmp(signature, ExtenderMsgSignature, 4) != 0) {
+				WARN("Extender signature incorrect in connect message");
+				return false;
+			}
+
+			if (version == CurrentVersion) {
+				return true;
+			} else {
+				WARN("Client extender version mismatch! Local %d, remote %d", CurrentVersion, version);
+				return false;
+			}
+		} else {
+			DEBUG("No extender trailer found in ClientConnect/ClientAccept");
+			return false;
+		}
+	}
+
+	void NetworkManager::OnClientConnectMessage(net::Message* msg, net::BitstreamSerializer* serializer)
+	{
+		if (serializer->IsWriting) {
+			AppendMessageTrailer(serializer);
+		} else if (CheckMessageTrailer(serializer)) {
+			// Nothing to do, client will send an ExtenderHello message
+		}
+	}
+
+	void NetworkManager::OnClientAcceptMessage(net::Message* msg, net::BitstreamSerializer* serializer)
+	{
+		if (serializer->IsWriting) {
+			AppendMessageTrailer(serializer);
+		} else if (CheckMessageTrailer(serializer)) {
+			DEBUG("Sending ExtenderHello to server");
+			ClientAllowExtenderMessages();
+			auto helloMsg = GetFreeClientMessage();
+			if (helloMsg != nullptr) {
+				helloMsg->GetMessage().mutable_c2s_extender_hello();
+				ClientSend(helloMsg);
+			} else {
+				OsiErrorS("Could not get free message!");
+			}
+		}
+	}
+
 	ScriptExtenderMessage * NetworkManager::GetFreeClientMessage()
 	{
+		// We need to make sure that no extender message is sent if the other party
+		// does not have the new message ID-s installed, otherwise the peer will crash
+		// while trying to parse the packet.
+		if (!clientExtenderSupport_) {
+			ERR("Attempted to send extender message to a host that does not understand extender protocol!");
+			return nullptr;
+		}
+
 		auto client = GetClient();
 		if (client != nullptr) {
 			return client->GetFreeMessage<ScriptExtenderMessage>();
@@ -279,8 +393,13 @@ namespace dse
 		}
 	}
 
-	ScriptExtenderMessage * NetworkManager::GetFreeServerMessage()
+	ScriptExtenderMessage * NetworkManager::GetFreeServerMessage(PeerId peerId)
 	{
+		if (peerId != -1 && serverExtenderPeerIds_.find(peerId) == serverExtenderPeerIds_.end()) {
+			ERR("Attempted to send extender message to peer %d that does not understand extender protocol!", peerId);
+			return nullptr;
+		}
+
 		auto server = GetServer();
 		if (server != nullptr) {
 			return server->GetFreeMessage<ScriptExtenderMessage>();
@@ -297,7 +416,7 @@ namespace dse
 		}
 	}
 
-	void NetworkManager::ServerSend(ScriptExtenderMessage * msg, int32_t peerId)
+	void NetworkManager::ServerSend(ScriptExtenderMessage * msg, PeerId peerId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
@@ -305,24 +424,27 @@ namespace dse
 		}
 	}
 
-	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, int32_t excludePeerId)
+	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, PeerId excludePeerId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
-			ObjectSet<int32_t> peerIds;
-			peerIds.Set.Reallocate(server->ActivePeerIds.Set.Size);
+			ObjectSet<PeerId> peerIds;
 			for (uint32_t i = 0; i < server->ActivePeerIds.Set.Size; i++) {
-				peerIds.Set.Add(server->ActivePeerIds[i]);
+				auto peerId = server->ActivePeerIds[i];
+				if (serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end()) {
+					peerIds.Set.Add(peerId);
+				}
 			}
+
 			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
 		}
 	}
 
-	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, int32_t excludePeerId)
+	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, PeerId excludePeerId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
-			ObjectSet<int32_t> peerIds;
+			ObjectSet<PeerId> peerIds;
 			peerIds.Set.Reallocate(server->ConnectedPeerIds.Set.Size);
 			for (uint32_t i = 0; i < server->ConnectedPeerIds.Set.Size; i++) {
 				peerIds.Set.Add(server->ConnectedPeerIds[i]);
@@ -375,7 +497,7 @@ namespace dse
 		pendingSyncRequests_.clear();
 	}
 
-	void NetworkFixedStringSynchronizer::OnUpdateRequested(int32_t peerId)
+	void NetworkFixedStringSynchronizer::OnUpdateRequested(PeerId peerId)
 	{
 		auto gameState = *GetStaticSymbols().GetServerState();
 		if (gameState == esv::GameState::LoadSession
@@ -391,7 +513,7 @@ namespace dse
 		}
 	}
 
-	void NetworkFixedStringSynchronizer::SendUpdateToPeer(int32_t peerId)
+	void NetworkFixedStringSynchronizer::SendUpdateToPeer(PeerId peerId)
 	{
 		auto fixedStrs = GetStaticSymbols().NetworkFixedStrings;
 		if (fixedStrs == nullptr || *fixedStrs == nullptr) {
@@ -401,7 +523,7 @@ namespace dse
 		DEBUG("Sending NetworkFixedString table to peer %d", peerId);
 		auto& nfs = **fixedStrs;
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage();
+		auto msg = networkMgr.GetFreeServerMessage(peerId);
 		if (msg != nullptr) {
 			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
 			auto numStrings = nfs.FixedStrSet.Set.Size;

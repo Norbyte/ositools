@@ -119,6 +119,7 @@ namespace dse
 
 	constexpr NetId NetIdUnassigned{ 0xffffffff };
 
+	using PeerId = int32_t;
 
 	// Base class for game objects that cannot be copied.
 	template <class T>

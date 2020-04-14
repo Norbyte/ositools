@@ -22,6 +22,7 @@ public:
 
 	void Initialize();
 	void InitializeExtensions();
+	void InitializeNetworking(net::MessageFactory * factory);
 	void Shutdown();
 
 	OsirisStaticGlobals Globals;
@@ -61,6 +62,8 @@ public:
 	HOOKABLE(void(void *), ServerGameStateWorkerStart);
 	HOOKABLE(void(void *), SkillPrototypeManagerInit);
 	WRAPPABLE(FileReader * (FileReader *, Path *, unsigned int), FileReader__ctor);
+	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);
+	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;
@@ -71,6 +74,7 @@ private:
 	HMODULE Kernel32Module{ NULL };
 	HMODULE OsirisModule{ NULL };
 	bool ExtensionsInitialized{ false };
+	bool NetworkingInitialized{ false };
 
 	void * FindRuleActionCallProc();
 	void FindOsirisGlobals(FARPROC CtorProc);

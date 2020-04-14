@@ -34,7 +34,7 @@ namespace dse::esv
 
 			if (resetClient) {
 				auto & networkMgr = gOsirisProxy->GetNetworkManager();
-				auto msg = networkMgr.GetFreeServerMessage();
+				auto msg = networkMgr.GetFreeServerMessage(-1);
 				if (msg != nullptr) {
 					auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
 					resetMsg->set_bootstrap_scripts(bootstrapMods);

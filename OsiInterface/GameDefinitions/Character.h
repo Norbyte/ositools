@@ -233,8 +233,8 @@ namespace dse
 			float LifeTime;
 			float TurnTimer;
 			float TriggerTrapsTimer;
-			int32_t PeerId;
-			uint32_t UserId;
+			PeerId PeerID;
+			uint32_t UserID;
 			uint32_t U12;
 			ObjectHandle OwnerHandle;
 			ObjectHandle FollowCharacterHandle;

@@ -39,6 +39,8 @@ STATIC_HOOK(ClientGameStateWorkerStart)
 STATIC_HOOK(ServerGameStateWorkerStart)
 STATIC_HOOK(SkillPrototypeManagerInit)
 STATIC_HOOK(FileReader__ctor)
+STATIC_HOOK(eocnet__ClientConnectMessage__Serialize)
+STATIC_HOOK(eocnet__ClientAcceptMessage__Serialize)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -173,6 +175,30 @@ void OsirisWrappers::InitializeExtensions()
 	ExtensionsInitialized = true;
 }
 
+void OsirisWrappers::InitializeNetworking(net::MessageFactory* factory)
+{
+	if (NetworkingInitialized) {
+		return;
+	}
+
+	if (factory->MessagePools.Size <= NETMSG_CLIENT_ACCEPT) {
+		ERR("MessageFactory not initialized yet?");
+		return;
+	}
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	auto clientConnect = factory->MessagePools[NETMSG_CLIENT_CONNECT]->Template;
+	auto clientAccept = factory->MessagePools[NETMSG_CLIENT_ACCEPT]->Template;
+	eocnet__ClientConnectMessage__Serialize.Wrap((*(net::MessageVMT**)clientConnect)->Serialize);
+	eocnet__ClientAcceptMessage__Serialize.Wrap((*(net::MessageVMT**)clientAccept)->Serialize);
+
+	DetourTransactionCommit();
+
+	NetworkingInitialized = true;
+}
+
 void OsirisWrappers::Shutdown()
 {
 #if 0
@@ -180,6 +206,9 @@ void OsirisWrappers::Shutdown()
 #endif
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+
+	eocnet__ClientConnectMessage__Serialize.Unwrap();
+	eocnet__ClientAcceptMessage__Serialize.Unwrap();
 
 	InitNetworkFixedStrings.Unwrap();
 	ClientGameStateChangedEvent.Unwrap();
