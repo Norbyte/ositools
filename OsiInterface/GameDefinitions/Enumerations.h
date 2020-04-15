@@ -1277,23 +1277,34 @@ namespace dse
 	// AI flags: 0x4000070000060
 	enum EsvCharacterFlags : uint64_t
 	{
-		CF_IsPlayer_M = 0x01, // ???
-		CF_IsPlayer2_M = 0x02, // ???
+		CF_IsPlayer = 0x01,
+		CF_Multiplayer = 0x02,
+		CF_InParty = 0x04,
 		CF_HostControl = 0x08,
 		CF_OffStage = 0x20,
 		CF_Dead = 0x40,
-		CF_Charmed = 0x80,
-		CF_InDialog = 0x100, // ???
+		CF_HasOwner = 0x80,
+		CF_InDialog = 0x100,
 		CF_Summon = 0x200,
-		CF_CharacterControl = 0x2000, // ???
-		CF_Transformed_M = 0x4000, // ???
+		CF_CharacterControl = 0x2000,
+		CF_Loaded = 0x4000,
 		CF_InArena = 0x10000,
+		CF_CharacterCreationFinished = 0x200000,
+		CF_Floating = 0x400000,
+		CF_SpotSneakers = 0x1000000,
 		CF_Summon2 = 0x2000000,
+		CF_WalkThrough = 0x10000000,
+		CF_CoverAmount = 0x20000000,
+		CF_CanShootThrough = 0x40000000,
 		CF_PartyFollower = 0x400000000,
-		CF_Totem = 0x2000000000
+		CF_Totem = 0x2000000000,
+		CF_NoRotate = 0x8000000000,
+		CF_IsHuge = 0x200000000000,
+		CF_MadePlayer = 0x1000000000000,
+		CF_RegisteredForAutomatedDialog = 0x40000000000000
 	};
 
-	MAKE_ENUM_INFO(EsvCharacterFlags, 14);
+	MAKE_ENUM_INFO(EsvCharacterFlags, 25);
 
 	enum EsvCharacterFlags2 : uint8_t
 	{

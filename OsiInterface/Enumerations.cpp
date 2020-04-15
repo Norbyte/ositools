@@ -595,20 +595,31 @@ namespace dse
 	};
 
 	EnumInfo<EsvCharacterFlags>::Label const EnumInfo<EsvCharacterFlags>::Values[] = {
-		{ EsvCharacterFlags::CF_IsPlayer_M, "IsPlayer" },
-		{ EsvCharacterFlags::CF_IsPlayer2_M, "IsPlayer2" },
+		{ EsvCharacterFlags::CF_IsPlayer, "IsPlayer" },
+		{ EsvCharacterFlags::CF_Multiplayer, "Multiplayer" },
+		{ EsvCharacterFlags::CF_InParty, "InParty" },
 		{ EsvCharacterFlags::CF_HostControl, "HostControl" },
 		{ EsvCharacterFlags::CF_OffStage, "OffStage" },
 		{ EsvCharacterFlags::CF_Dead, "Dead" },
-		{ EsvCharacterFlags::CF_Charmed, "Charmed" },
+		{ EsvCharacterFlags::CF_HasOwner, "HasOwner" },
 		{ EsvCharacterFlags::CF_InDialog, "InDialog" },
 		{ EsvCharacterFlags::CF_Summon, "Summon" },
 		{ EsvCharacterFlags::CF_CharacterControl, "CharacterControl" },
-		{ EsvCharacterFlags::CF_Transformed_M, "Transformed" },
+		{ EsvCharacterFlags::CF_Loaded, "Loaded" },
 		{ EsvCharacterFlags::CF_InArena, "InArena" },
+		{ EsvCharacterFlags::CF_CharacterCreationFinished, "CharacterCreationFinished" },
+		{ EsvCharacterFlags::CF_Floating, "Floating" },
+		{ EsvCharacterFlags::CF_SpotSneakers, "SpotSneakers" },
 		{ EsvCharacterFlags::CF_Summon2, "Summon2" },
+		{ EsvCharacterFlags::CF_WalkThrough, "WalkThrough" },
+		{ EsvCharacterFlags::CF_CoverAmount, "CoverAmount" },
+		{ EsvCharacterFlags::CF_CanShootThrough, "CanShootThrough" },
 		{ EsvCharacterFlags::CF_PartyFollower, "PartyFollower" },
-		{ EsvCharacterFlags::CF_Totem, "Totem" }
+		{ EsvCharacterFlags::CF_Totem, "Totem" },
+		{ EsvCharacterFlags::CF_NoRotate, "oRotate" },
+		{ EsvCharacterFlags::CF_IsHuge, "sHuge" },
+		{ EsvCharacterFlags::CF_MadePlayer, "adePlayer" },
+		{ EsvCharacterFlags::CF_RegisteredForAutomatedDialog, "egisteredForAutomatedDialog" },
 	};
 
 	EnumInfo<EsvCharacterFlags2>::Label const EnumInfo<EsvCharacterFlags2>::Values[] = {

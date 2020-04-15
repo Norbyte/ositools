@@ -1,9 +1,11 @@
-### Lua API v43 Documentation
+### Lua API v44 Documentation
 
 ### Table of Contents  
 
+ - [Migrating from v42 to v43](#migrating-from-v42-to-v43)
  - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
  - [Client / Server States](#client-server)
+ - [Console](#console)
  - [Calling Lua from Osiris](#calling-lua-from-osiris)
     * [Calls](#l2o_calls)
     * [Queries](#l2o_queries)
@@ -65,7 +67,33 @@ Because they run in different environments, server and client states can access 
  - **R** - Restricted; the function is only callable in special contexts/locations
 
 
+## Console
+
+Extender versions v44 and above allow commands to be entered to the console window.
+
+Press `<enter>` to enter console mode; in this mode the normal log output is disabled to avoid log spam while typing commands.
+
+Client/server context can be selected by typing `client` or `server`. This selects in which Lua environment the console commands will execute. By default the console uses the server context.
+
+Typing `exit` returns to log mode.
+
+Commands prefixed by a `!` will trigger the `ConsoleCommand` Lua event.
+Example:
+```lua
+local function consoleCmd(cmd, a1, a2, ...)
+    Ext.Print("Cmd: " .. cmd .. ", args: ", a1, ", ", a2);
+end
+Ext.RegisterListener("ConsoleCommand", consoleCmd);
+```
+The command `!test 123 456` will call `consoleCmd("test", 123, 456)` and prints `Cmd: test, args: 123, 456`.
+
+Anything else typed in the console will be executed as Lua code in the current context. (eg. typing `Ext.Print(1234)` will print `123`). 
+The console has full access to the underlying Lua state, i.e. server console commands can also call builtin/custom Osiris functions, so Osiris calls like `CharacterGiveReward(CharacterGetHostCharacter(), "CheatShieldsAllRarities", 1)` are possible using the console.
+Variables can be used just like in Lua, i.e. variable in one command can later on be used in another console command. Be careful, console code runs in global context, so make sure console variable names don't conflict with globals (i.e. `Mods`, `Ext`, etc.)! Don't use `local` for console variables, since the lifetime of the local will be one console command. (Each console command is technically a separate chunk).
+
+
 ## Calling Lua from Osiris <sup>S</sup>
+<a id="calling-lua-from-osiris"></a>
 
 By default, functions defined in Lua are not visible to Osiris. 
 During the Lua server bootstrap process, it is possible to declare new functions (calls/queries/events) that will be accessible to Osiris during compilation and execution. Since Osiris only runs on the server, Osiris functions are inaccessible in Lua client states.
@@ -179,9 +207,10 @@ NRD_EXT_TestEvent("Whatever");
 ### Custom calls/queries
 <a id="l2o_custom_calls"></a>
 
-It is possible to call Lua functions by name, without exporting them to the Osiris story header. For this purpose two polymorphic functions are provided, `NRD_LuaCall` and `NRD_LuaQuery*`.
+It is possible to call Lua functions by name, without exporting them to the Osiris story header. For this purpose multiple polymorphic functions are provided, `NRD_LuaCall*`, `NRD_ModCall*`, `NRD_LuaQuery*` and `NRD_ModQuery*`.
 
-`NRD_LuaCall` is a call (i.e. usable from the `THEN` part of the rule) and returns no results. Its first parameter is the function name to call, and it accepts an arbitrary number of arguments to pass to the Lua function. Only functions in the global table can be called this way.
+`NRD_LuaCall(Func, ...)` is a call (i.e. usable from the `THEN` part of the rule) and returns no results. Its first parameter is the function name to call, and it accepts an arbitrary number of arguments to pass to the Lua function. Only functions in the global table can be called this way, i.e. it is meant to be used for mods targeting v42 or below.
+`NRD_ModCall(Mod, Func, ...)` is similar to `NRD_LuaCall`, but its first two parameters are the mod name in the global table (i.e. the `ModTable` setting from `OsiToolsConfig.json`) and the function name to call. It calls the function `Mods[Mod].Func(...)` in Lua, i.e. it is meant to be used for mods targeting v43 or above.
 
 ```lua
 function TestFunc()
@@ -195,18 +224,23 @@ end
 ```
 
 ```c
-// Zero argument call
-NRD_LuaCall("TestFunc")
+// Zero argument call - before v42
+NRD_LuaCall("TestFunc");
+// v43+
+NRD_ModCall("YourMod", "TestFunc");
 
 // Two argument call
 [...]
 AND
 IntegerSum(1, 2, _Sum)
 THEN
-NRD_LuaCall("TestFunc2", "string arg", (STRING)_Sum)
+NRD_LuaCall("TestFunc2", "string arg", (STRING)_Sum);
+// v43+
+NRD_ModCall("YourMod", "TestFunc2", "string arg", (STRING)_Sum);
 ```
 
-`NRD_LuaQuery*` is a query (i.e. usable from the `IF` part of the rule). Its first parameter is the function name to call, and it accepts an arbitrary number of arguments to pass to the Lua function as well as an arbitrary number of results. The last character of the function name indicates the number of IN parameters (i.e. `NRD_LuaQuery2` for a query with 2 input parameters). Only functions in the global table can be called this way.
+`NRD_LuaQuery*(Func, ...)` is a query (i.e. usable from the `IF` part of the rule). Its first parameter is the function name to call, and it accepts an arbitrary number of arguments to pass to the Lua function as well as an arbitrary number of results. The last character of the function name indicates the number of IN parameters (i.e. `NRD_LuaQuery2` for a query with 2 input parameters). Only functions in the global table can be called this way, i.e. it is meant to be used for mods targeting v42 or below.
+`NRD_ModQuery*(Mod, Func, ...)` is a version of `NRD_LuaQuery` that calls functions from mod-local tables, i.e. it should be used for mods targeting version 43+.
 
 ```lua
 -- 0 input, 0 output
@@ -220,6 +254,7 @@ function TestFunc2(str1, str2)
 end
 ```
 
+Using `LuaQuery` (v42):
 ```c
 [...]
 AND
@@ -235,6 +270,24 @@ NRD_LuaQuery2("TestFunc2", "asdf", "ghjk", _Out1, _Out2)
 THEN
 DebugBreak(_Out1);
 ```
+
+Using `ModQuery` (v43+):
+```c
+[...]
+AND
+// Zero argument, zero return value query
+NRD_ModQuery0("YourMod", "TestFunc")
+THEN
+[...]
+
+[...]
+AND
+// Two argument, two return value query
+NRD_ModQuery2("YourMod", "TestFunc2", "asdf", "ghjk", _Out1, _Out2)
+THEN
+DebugBreak(_Out1);
+```
+
 
 ## Calling Osiris from Lua <sup>S</sup>
 
@@ -280,7 +333,7 @@ StoryEvent(player, "event name")
 ```
 
 ### PROCs
-<a name="o2l_procs"></a>
+<a id="o2l_procs"></a>
 
 Calling PROCs is equivalent to built-in calls, however they are not added to the global table.
 
@@ -625,7 +678,225 @@ Output:
 }
 ```
 
+## Server Characters <sup>S</sup>
+<a id="server-characters"></a>
+
+Characters in server contexts can be retrieved using the `Ext.GetCharacter(ref)` call. The function accepts a character GUID, a NetID or an ObjectHandle. If the character cannot be found, the return value is `nil`; otherwise a Character object is returned.
+
+Player objects have the following properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| Stats | userdata | See [CharacterStats](#character-stats) |
+| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
+| NetID | integer | Network ID of the character; should be used to send information to client about a particular character instead of GUID, as the GUID is unreliable on the client. |
+| MyGuid | string | GUID of the character |
+| WorldPos | number[3] | Position of the character |
+| CurrentLevel | String | Name of level (map) the character is currently on |
+| Scale | number |  |
+| AnimationOverride | string |  |
+| WalkSpeedOverride | integer |  |
+| RunSpeedOverride | integer |  |
+| NeedsUpdateCount | integer |  |
+| ScriptForceUpdateCount | integer |  |
+| ForceSynchCount | integer |  |
+| SkillBeingPrepared | string |  |
+| LifeTime | number | Used for summons to indicate lifetime |
+| PartialAP | number | Movement AP |
+| AnimType | integer |  |
+| DelayDeathCount | integer |  |
+| AnimationSetOverride | string |  |
+| CustomTradeTreasure | string |  |
+| Archetype | string |  |
+| EquipmentColor | string |  |
+| IsPlayer | boolean |  |
+| Multiplayer | boolean |  |
+| InParty | boolean |  |
+| HostControl | boolean |  |
+| OffStage | boolean |  |
+| Dead | boolean |  |
+| HasOwner | boolean  |  |
+| InDialog | boolean |  |
+| Summon | boolean  |  |
+| CharacterControl | boolean |  |
+| Loaded | boolean  |  |
+| InArena | boolean |  |
+| CharacterCreationFinished | boolean |  |
+| Floating | boolean |  |
+| SpotSneakers | boolean |  |
+| WalkThrough | boolean |  |
+| CoverAmount | boolean |  |
+| CanShootThrough | boolean |  |
+| PartyFollower | boolean |  |
+| Totem | boolean  |  |
+| NoRotate | boolean  |  |
+| IsHuge | boolean  |  |
+| Global | boolean |  |
+| HasOsirisDialog | boolean |  |
+| HasDefaultDialog | boolean |  |
+| TreasureGeneratedForTrader | boolean |  |
+| Trader | boolean |  |
+| Resurrected | boolean |  |
+| IsPet | boolean |  |
+| IsSpectating | boolean |  |
+| NoReptuationEffects | boolean |  |
+| HasWalkSpeedOverride | boolean |  |
+| HasRunSpeedOverride | boolean |  |
+| IsGameMaster | boolean  |  |
+| IsPossessed | boolean |  |
+
+
+## Player Custom Data
+<a id="player-custom-data"></a>
+
+Contains player customization info. Properties:
+
+| Name | Type | 
+|--|--|
+| CustomLookEnabled | boolean |
+| Name | string |
+| ClassType | string |
+| SkinColor | integer |
+| HairColor | integer |
+| ClothColor1 | integer |
+| ClothColor2 | integer |
+| ClothColor3 | integer |
+| IsMale | boolean |
+| Race | string |
+| OriginName | string |
+| Icon | string |
+| MusicInstrument | string |
+| OwnerProfileID | string |
+| ReservedProfileID | string |
+| AiPersonality | string |
+| Speaker | string |
+
+
+## Character Stats
+<a id="character-stats"></a>
+
+Represents all stats of a character (both players and non-players). Unlike Character objects which are different on the server and the client, the same Character Stats objects are present on both ends.
+
+| Name | Type | Notes |
+|--|--|--|
+| DynamicStats | table | A table containing all dynamic stat entries for the character. See [CharacterDynamicStats](#character-dynamic-stats) for details on what these are. |
+| MainWeapon | userdata | Currently equipped main hand weapon (or `nil` if none is equipped). See [ItemStats](#item-stats) |
+| OffHandWeapon | userdata | Currently equipped off-hand weapon (or `nil` if none is equipped). See [ItemStats](#item-stats) |
+
+To access items in other slots, use the `character:GetItemBySlot(slot)` method. The `slot` name must be one of `Helmet`, `Breast`, `Leggings`, `Weapon`, `Shield`, `Ring`, `Belt`, `Boots`, `Gloves`, `Amulet`, `Ring2` `Wings`, `Horns`, `Overhead`.
+
+It is possible to fetch the base and computed values of the following stats. To get the base value (returns base points + permanent boosts + talent bonuses), add a `Base` prefix to the field (i.e. `BasePhysicalResistance` instead of `PhysicalResistance`); to get the computed value, just use the name (i.e. `PhysicalResistance`).
+
+| Name | Type | Notes |
+|--|--|--|
+| MaxMp | integer | Max Source points |
+| APStart | integer | |
+| APRecovery | integer | |
+| APMaximum | integer | |
+| Strength | integer | |
+| Finesse | integer | |
+| Intelligence | integer | |
+| Constitution | integer | |
+| Memory | integer | |
+| Wits | integer | |
+| Accuracy | integer | |
+| Dodge | integer | |
+| CriticalChance | integer | |
+| FireResistance | integer | |
+| EarthResistance | integer | |
+| WaterResistance | integer | |
+| AirResistance | integer | |
+| PoisonResistance | integer | |
+| ShadowResistance | integer | |
+| CustomResistance | integer | |
+| PhysicalResistance | integer | |
+| PiercingResistance | integer | |
+| CorrosiveResistance | integer | |
+| MagicResistance | integer | |
+| LifeSteal | integer | |
+| Sight | integer | |
+| Hearing | integer | |
+| Movement | integer | |
+| Initiative | integer | |
+| BlockChance | integer | |
+| ChanceToHitBoost | integer | |
+| DamageBoost | integer | |
+
+Talents can be queried using the field name `TALENT_` + the talent name (e.g. `character.TALENT_Bully`). For a list of talents, see [https://docs.larian.game/Talent_list](https://docs.larian.game/Talent_list)
+
+Abilities can be queried using their name (e.g. `character.WarriorLore`). For a list of ability names see the `Ability` enumeration in `Enumerations.xml`.
+
+
+## Character Dynamic Stats
+<a id="character-dynamic-stats"></a>
+
+Character stats are calculated from multiple different sources (base stats, potions, statuses, etc.). Each of these sources is stored as a dynamic stat.
+
+Dynamic stat index `1` always contains character base stats, index `2` contains permanent boosts.
+
+| Name | Type | Notes |
+|--|--|--|
+| SummonLifelinkModifier | integer | |
+| Strength | integer | |
+| Memory | integer | |
+| Intelligence | integer | |
+| Movement | integer | |
+| MovementSpeedBoost | integer | |
+| Finesse | integer | |
+| Wits | integer | |
+| Constitution | integer | |
+| Willpower | integer | |
+| Bodybuilding | integer | |
+| FireResistance  | integer | |
+| EarthResistance | integer | |
+| WaterResistance | integer | |
+| AirResistance | integer | |
+| PoisonResistance | integer | |
+| ShadowResistance | integer | |
+| PiercingResistance | integer | |
+| PhysicalResistance | integer | |
+| CorrosiveResistance | integer | |
+| MagicResistance | integer | |
+| CustomResistance | integer | |
+| Sight | integer | |
+| Hearing | integer | |
+| FOV | integer | |
+| APMaximum | integer | |
+| APStart | integer | |
+| APRecovery | integer | |
+| CriticalChance | integer | |
+| Initiative | integer | |
+| CriticalChance | integer | |
+| Vitality | integer | |
+| VitalityBoost | integer | |
+| MagicPoints | integer | |
+| Level | integer | |
+| Gain | integer | |
+| Armor | integer | |
+| MagicArmor | integer | |
+| ArmorBoost | integer | |
+| MagicArmorBoost | integer | |
+| ArmorBoostGrowthPerLevel | integer | |
+| MagicArmorBoostGrowthPerLevel | integer | |
+| DamageBoost | integer | |
+| DamageBoostGrowthPerLevel | integer | |
+| Accuracy | integer | |
+| Dodge | integer | |
+| MaxResistance | integer | |
+| LifeSteal | integer | |
+| Weight | integer | |
+| ChanceToHitBoost | integer | |
+| RangeBoost | integer | |
+| APCostBoost | integer | |
+| SPCostBoost | integer | |
+| MaxSummons | integer | |
+| BonusWeaponDamageMultiplier | integer | |
+| TranslationKey | string | |
+| BonusWeapon | string | |
+
+
 ## Combat <sup>S</sup>
+<a id="combat"></a>
 
 Each combat in-game is represented by a Combat object in Lua. 
 
@@ -706,7 +977,7 @@ Properties:
 ## Damage Lists
 
 A damage list is an object that stores the amount of damage dealt for each damage type (`Physical`, `Poison`, etc.).
-It is currently only used by the `GetSkillDamage` event to fetch damage information.
+It is currently used by the `GetSkillDamage` and `ComputeCharacterHit` events to fetch damage information.
 
 Damage lists can be created using the `Ext.NewDamageList()` function.
 
@@ -779,6 +1050,16 @@ Returns the text associated with the specified translated string key. If the key
 local str = Ext.GetTranslatedString("h17edbbb2g9444g4c79g9409gdb8eb5731c7c", "[1] cast [2] on the ground")
 ```
 
+#### Ext.AddPathOverride(originalPath, newPath)
+
+Redirects file access from `originalPath` to `newPath`. This is useful for overriding built-in files or resources that are otherwise not moddable, eg. UI Flash files.
+Make sure that the override is added as early as possible (preferably in `ModuleLoading`), as adding path overrides after the game has already loaded the resource has no effect.
+
+Example:
+```lua
+Ext.AddPathOverride("Public/Game/GUI/enemyHealthBar.swf", "Public/YourMod/GUI/enemyHealthBar.swf")
+```
+
 
 ## JSON Support
 
@@ -834,6 +1115,7 @@ ab
 
 ### TODO
  - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks
+ - GetCharacter, GetItem, GetStatus (client/server) + updated property maps
  - Lua state lifetime, Globals behavior (not saved)
  - File IO
  - Osi special Lua functions
