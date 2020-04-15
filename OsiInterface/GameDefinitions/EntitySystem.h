@@ -118,7 +118,7 @@ namespace dse
 		RefMap<FixedString, int> RefMap; // ???
 
 
-		void* GetComponent(TComponentType type, ObjectHandle componentHandle, bool logError = true)
+		void* GetComponent(TComponentType type, ObjectType handleType, ObjectHandle componentHandle, bool logError = true)
 		{
 			if (this == nullptr) {
 				OsiError("Tried to find component on null EntityWorld!");
@@ -126,17 +126,49 @@ namespace dse
 			}
 
 			if (!componentHandle) {
+				OsiError("Attempted to resolve an unassigned ObjectHandle!");
 				return nullptr;
 			}
 
 			if ((uint32_t)type >= Components.Size) {
-				OsiError("Component type index " << (uint32_t)type << " too large!");
+				if (logError) {
+					OsiError("Component type index " << (uint32_t)type << " too large!");
+				}
 				return nullptr;
 			}
 
 			auto componentMgr = Components[(uint32_t)type].component;
 			if (componentMgr == nullptr) {
-				OsiError("Component type " << (uint32_t)type << " not bound!");
+				if (logError) {
+					OsiError("Component type " << (uint32_t)type << " not bound!");
+				}
+				return nullptr;
+			}
+
+			if (componentHandle.GetType() != (uint32_t)handleType) {
+				if (logError) {
+					OsiError("Type mismatch! Factory supports " << (unsigned)handleType << ", got " << (unsigned)componentHandle.GetType());
+				}
+				return nullptr;
+			}
+
+			// FIXME - This is somewhat ugly :(
+			auto factory = reinterpret_cast<ObjectFactory<void *, 0>*>((std::intptr_t)componentMgr + 8);
+			auto index = componentHandle.GetIndex();
+			auto salt = componentHandle.GetSalt();
+			if (index >= factory->Salts.Size) {
+				if (logError) {
+					OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.Size
+						<< " objects, requested " << (unsigned)index);
+				}
+				return nullptr;
+			}
+
+			if (salt != factory->Salts[index]) {
+				if (logError) {
+					OsiError("Salt mismatch for type " << (unsigned)handleType << ", object " << index << ": got "
+						<< salt << ", real is " << factory->Salts[index]);
+				}
 				return nullptr;
 			}
 
@@ -361,7 +393,7 @@ namespace dse
 		{
 			inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ObjectHandle componentHandle)
 			{
-				auto component = GetComponent(ComponentType::CustomStatDefinition, componentHandle);
+				auto component = GetComponent(ComponentType::CustomStatDefinition, ObjectType::ServerCustomStatDefinitionComponent, componentHandle);
 				if (component != nullptr) {
 					return (CustomStatDefinitionComponent*)((uint8_t*)component - 80);
 				}
@@ -432,7 +464,7 @@ namespace dse
 
 			inline Character* GetCharacter(ObjectHandle handle, bool logError = true)
 			{
-				auto component = GetComponent(ComponentType::Character, handle, logError);
+				auto component = GetComponent(ComponentType::Character, ObjectType::ServerCharacter, handle, logError);
 				if (component != nullptr) {
 					return (Character*)((uint8_t*)component - 8);
 				}
@@ -465,7 +497,7 @@ namespace dse
 
 			inline Item* GetItem(ObjectHandle handle, bool logError = true)
 			{
-				auto component = GetComponent(ComponentType::Item, handle, logError);
+				auto component = GetComponent(ComponentType::Item, ObjectType::ServerItem, handle, logError);
 				if (component != nullptr) {
 					return (Item*)((uint8_t*)component - 8);
 				}
@@ -561,7 +593,7 @@ namespace dse
 		{
 			inline Character* GetCharacter(ObjectHandle handle, bool logError = true)
 			{
-				auto component = GetComponent(ComponentType::Character, handle, logError);
+				auto component = GetComponent(ComponentType::Character, ObjectType::ClientCharacter, handle, logError);
 				if (component != nullptr) {
 					return (Character*)((uint8_t*)component - 8);
 				}
@@ -594,7 +626,7 @@ namespace dse
 
 			inline Item* GetItem(ObjectHandle handle, bool logError = true)
 			{
-				auto component = GetComponent(ComponentType::Item, handle, logError);
+				auto component = GetComponent(ComponentType::Item, ObjectType::ClientItem, handle, logError);
 				if (component != nullptr) {
 					return (Item*)((uint8_t*)component - 8);
 				}

@@ -10,7 +10,7 @@
 #include <ctime>
 #include <psapi.h>
 
-#define DEBUG_SERVER_CLIENT
+#undef DEBUG_SERVER_CLIENT
 
 void InitCrashReporting();
 void ShutdownCrashReporting();

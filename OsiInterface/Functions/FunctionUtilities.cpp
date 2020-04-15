@@ -160,25 +160,21 @@ namespace dse
 
 		IEoCServerObject* EntityWorld::GetGameObject(ObjectHandle handle, bool logError)
 		{
-			if (handle.Handle == 0) {
+			if (!handle) {
 				return nullptr;
 			}
 
-			auto character = GetCharacter(handle, false);
-			if (character != nullptr) {
-				return character;
-			}
+			switch ((ObjectType)handle.GetType()) {
+			case ObjectType::ServerCharacter:
+				return GetCharacter(handle, logError);
 
-			auto item = GetItem(handle, false);
-			if (item != nullptr) {
-				return item;
-			}
+			case ObjectType::ServerItem:
+				return GetItem(handle, logError);
 
-			if (logError) {
-				OsiError("No EoC server object found with handle 0x" << std::hex << handle.Handle);
+			default:
+				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");
+				return nullptr;
 			}
-
-			return nullptr;
 		}
 
 		EntityWorld* GetEntityWorld()
