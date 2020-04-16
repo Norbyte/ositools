@@ -24,10 +24,19 @@
     * [Skill/Status Overrides](#skillstatus-overrides)
         * [Hit Chance](#31o_hit_chance)
     * [Mod Info](#mod-info)
+    * [Server Characters](#server-characters)
+    * [Player Custom Data](#player-custom-data)
+    * [Character Stats](#character-stats)
+    * [Character Dynamic Stats](#character-dynamic-stats)
+    * [Server Items](#server-items)
+    * [Item Stats](#item-stats)
+    * [Item Dynamic Stats](#item-dynamic-stats)
+    * [Server Projectiles](#server-projectiles)
     * [Combat](#combat)
     * [Damage lists](#damage-lists)
     * [Utility functions](#ext-utility)
     * [JSON Support](#json-support)
+
 
 
 ## Upgrading
@@ -689,7 +698,7 @@ Player objects have the following properties:
 |--|--|--|
 | Stats | userdata | See [CharacterStats](#character-stats) |
 | PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
-| NetID | integer | Network ID of the character; should be used to send information to client about a particular character instead of GUID, as the GUID is unreliable on the client. |
+| NetID | integer | Network ID of the character |
 | MyGuid | string | GUID of the character |
 | WorldPos | number[3] | Position of the character |
 | CurrentLevel | String | Name of level (map) the character is currently on |
@@ -893,6 +902,210 @@ Dynamic stat index `1` always contains character base stats, index `2` contains 
 | BonusWeaponDamageMultiplier | integer | |
 | TranslationKey | string | |
 | BonusWeapon | string | |
+
+
+## Server Items <sup>S</sup>
+<a id="server-items"></a>
+
+Items on the server can be retrieved using the `Ext.GetItem(ref)` call. The function accepts an item GUID or an ObjectHandle. If the item cannot be found, the return value is `nil`; otherwise an Item object is returned.
+
+Items have the following properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| Stats | userdata | See [ItemStats](#item-stats) |
+| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
+| NetID | integer | Network ID of the item |
+| MyGuid | string | GUID of the item |
+| WorldPos | vec3 | Position of the item |
+| CurrentLevel | String | Name of level (map) the item is currently on |
+| Scale | number |  |
+| CustomDisplayName | string | |
+| CustomDescription | string | |
+| CustomBookContent | string | |
+| StatsId | string | Stats entry (eg. `WPN_Dagger`) |
+| Slot | integer | |
+| Amount | integer | |
+| Vitality | integer | |
+| Armor | integer | |
+| InUseByCharacterHandle | integer | Character currently using the item |
+| Key | string | Key used to open the container |
+| LockLevel | integer | |
+| OwnerHandle | integer | ObjectHandle to the owner of this item |
+| ComputedVitality | integer | |
+| ItemType | integer | |
+| GoldValueOverwrite | integer | |
+| WeightValueOverwrite | integer | |
+| TreasureLevel | integer | |
+| LevelOverride | integer | |
+| ForceSynch | boolean | |
+
+
+## Item Stats
+<a id="item-stats"></a>
+
+Represents all stats of an item. Unlike Item objects which are different on the server and the client, the same Item Stats objects are present on both ends.
+
+| Name | Type | Notes |
+|--|--|--|
+| DynamicStats | table | A table containing all dynamic stat entries for the item. See [ItemDynamicStats](#item-dynamic-stats) for details on what these are. |
+| ItemType | string | `EquipmentStatType` value |
+| ItemSlot | integer | |
+| WeaponType | string | `WeaponType` value |
+| AnimType | integer | |
+| WeaponRange | number | |
+| IsIdentified | boolean | |
+| IsTwoHanded | boolean | |
+| ShouldSyncStats | boolean | |
+| HasModifiedSkills | boolean | |
+| Skills | string | |
+| DamageTypeOverwrite | string | `DamageType` value |
+| Durability | integer | |
+| DurabilityCounter | integer | |
+| ItemTypeReal | string | |
+| MaxCharges | integer | |
+| Charges | integer | |
+
+Immunity/attribute flags from the [AttributeFlags enumeration](#attributeflags) can be retrieved using their name (i.e. `stats.KnockdownImmunity`).
+
+
+## Item Dynamic Stats
+<a id="item-dynamic-stats"></a>
+
+Item stats are calculated from multiple different sources (base stats, permanent boosts, runes, deltamods, etc.). Each of these sources is stored as a dynamic stat.
+
+Dynamic stat index `1` always contains item base stats, index `2` contains permanent boosts.
+
+| Name | Type | Notes |
+|--|--|--|
+| Durability| integer | |
+| DurabilityDegradeSpeed | integer | |
+| StrengthBoost | integer | |
+| FinesseBoost | integer | |
+| IntelligenceBoost | integer | |
+| ConstitutionBoost | integer | |
+| MemoryBoost | integer | |
+| WitsBoost | integer | |
+| SightBoost | integer | |
+| HearingBoost | integer | |
+| VitalityBoost | integer | |
+| SourcePointsBoost | integer | |
+| MaxAP | integer | |
+| StartAP | integer | |
+| APRecovery | integer | |
+| AccuracyBoost | integer | |
+| DodgeBoost | integer | |
+| LifeSteal | integer | |
+| CriticalChance | integer | |
+| ChanceToHitBoost | integer | |
+| MovementSpeedBoost | integer | |
+| RuneSlots | integer | |
+| RuneSlots_V1 | integer | |
+| FireResistance  | integer | |
+| EarthResistance | integer | |
+| WaterResistance | integer | |
+| AirResistance | integer | |
+| PoisonResistance | integer | |
+| ShadowResistance | integer | |
+| PiercingResistance | integer | |
+| PhysicalResistance | integer | |
+| CorrosiveResistance | integer | |
+| MagicResistance | integer | |
+| CustomResistance | integer | |
+| Movement | integer | |
+| Initiative | integer | |
+| Willpower | integer | |
+| Bodybuilding | integer | |
+| MaxSummons | integer | |
+| Value | integer | |
+| Weight | integer | |
+| Skills | string | |
+| ItemColor | string | |
+| ObjectInstanceName | string | |
+| BoostName | string | |
+| StatsType | string | (See `EquipmentStatsType` enumeration) 
+
+Weapon-only properties:
+| Name | Type | Notes |
+|--|--|--|
+| DamageType | string | (See `DamageType` enumeration) |
+| MinDamage | integer | |
+| MaxDamage | integer | |
+| DamageBoost | integer | |
+| DamageFromBase | integer | |
+| CriticalDamage | integer | |
+| WeaponRange | integer | |
+| CleaveAngle | integer | |
+| CleavePercentage | integer | |
+| AttackAPCost | integer | |
+
+Shield-only properties:
+| Name | Type | Notes |
+|--|--|--|
+| ArmorValue | integer | |
+| ArmorBoost | integer | |
+| MagicArmorValue | integer | |
+| MagicArmorBoost | integer | |
+| Blocking | integer | |
+
+Armor-only properties:
+| Name | Type | Notes |
+|--|--|--|
+| ArmorValue | integer | |
+| ArmorBoost | integer | |
+| MagicArmorValue | integer | |
+| MagicArmorBoost | integer | |
+
+
+## Projectiles <sup>S</sup>
+<a id="server-projectiles"></a>
+
+Currently projectiles are only available when passed as parameters to event listeners (`GetSkillDamage`, `ComputeCharacterHit`, etc.), and are not retrievable otherwise.
+
+They have the following properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| NetID | integer | Network ID of the projectile |
+| MyGuid | string | GUID of the projectile |
+| CasterHandle | integer | |
+| SourceHandle | integer | |
+| TargetObjectHandle | integer | |
+| HitObjectHandle | integer | |
+| SourcePosition | vec3 | |
+| TargetPosition | vec3 | |
+| DamageType | string | (See `DamageType` enumeration) |
+| DamageSourceType | string | (See `CauseType` enumeration) |
+| LifeTime | number |  |
+| HitInterpolation | number |  |
+| ExplodeRadius0 | number |  |
+| ExplodeRadius1 | number |  |
+| DeathType | string | (See `DeathType` enumeration) |
+| SkillId | string |  |
+| WeaponHandle | integer | |
+| MovingEffectHandle | integer |  |
+| SpawnEffect | string |  |
+| SpawnFXOverridesImpactFX | boolean |  |
+| EffectHandle | integer |  |
+| RequestDelete | boolean |  |
+| Launched | boolean |  |
+| IsTrap | boolean |  |
+| UseCharacterStats | boolean |  |
+| ReduceDurability | boolean |  |
+| AlwaysDamage | boolean |  |
+| ForceTarget | boolean  |  |
+| IsFromItem | boolean |  |
+| DivideDamage | boolean  |  |
+| IgnoreRoof | boolean |  |
+| CanDeflect | boolean  |  |
+| IgnoreObjects | boolean |  |
+| CleanseStatuses | string |  |
+| StatusClearChance | number |  |
+| Position | vec3 |  |
+| PrevPosition | vec3 |  |
+| Velocity | vec3 |  |
+| Scale | number|  |
+| CurrentLevel | string |  |
 
 
 ## Combat <sup>S</sup>
@@ -1118,7 +1331,6 @@ ab
  - GetCharacter, GetItem, GetStatus (client/server) + updated property maps
  - Lua state lifetime, Globals behavior (not saved)
  - File IO
- - Osi special Lua functions
  - Bootstrap phase
  - Reloading Lua and changing exports
  - Reloading Story

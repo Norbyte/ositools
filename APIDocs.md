@@ -1270,7 +1270,7 @@ Permanent Boosts are stat bonuses or stat reductions that are applied to an item
 | WaterResistance | Integer | Any |
 | EarthResistance | Integer | Any |
 | PoisonResistance | Integer | Any |
-| TenebriumResistance | Integer | Any |
+| ShadowResistance | Integer | Any |
 | PiercingResistance | Integer | Any |
 | CorrosiveResistance | Integer | Any |
 | PhysicalResistance | Integer | Any |
