@@ -724,8 +724,8 @@ namespace dse
 
 	struct StatusPrototype
 	{
-		typedef void (* FormatDescriptionParam)(StatusPrototype *prototype, CDivinityStats_Character *statusSource,
-			CDivinityStats_Character *targetCharacter, float multiplier, eoc::Text * text, int paramIndex, 
+		typedef void (* FormatDescriptionParam)(StatusPrototype *prototype, CRPGStats_ObjectInstance* owner,
+			CRPGStats_ObjectInstance* statusSource, float multiplier, eoc::Text * text, int paramIndex,
 			FixedString * param, ObjectSet<STDString> * paramSet);
 
 		void * VMT;

@@ -62,7 +62,7 @@ namespace dse::esv
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype, 
-			CDivinityStats_Character *statusSource, CDivinityStats_Character *targetCharacter, float multiplier, 
+			CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 

@@ -1031,8 +1031,8 @@ namespace dse::ecl::lua
 	}
 
 
-	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
-		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts)
+	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
+		CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 	{
 		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
@@ -1042,16 +1042,11 @@ namespace dse::ecl::lua
 			return {};
 		}
 
-		if (character == nullptr) {
-			character = statusSource;
-		}
-
 		PushExtFunction(L, "_StatusGetDescriptionParam"); // stack: fn
 
-		auto _{ PushArguments(L,
-			std::tuple{Push<StatsProxy>(status, std::optional<int32_t>()),
-			Push<ObjectProxy<CDivinityStats_Character>>(statusSource),
-			Push<ObjectProxy<CDivinityStats_Character>>(character)}) }; // stack: fn, status, srcCharacter, character
+		auto luaStatus = Push<StatsProxy>(status, std::optional<int32_t>())(L);
+		ItemOrCharacterPushPin luaSource(L, statusSource);
+		ItemOrCharacterPushPin luaOwner(L, owner);
 
 		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
 			lua_pushstring(L, paramTexts[i].c_str()); // stack: fn, status, srcCharacter, character, params...

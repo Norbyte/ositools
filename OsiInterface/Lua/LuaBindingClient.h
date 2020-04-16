@@ -79,8 +79,8 @@ namespace dse::ecl::lua
 		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
-		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CDivinityStats_Character * statusSource,
-			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts);
+		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
+			CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
 
 		void OnClientUIObjectCreated(char const * name, ObjectHandle handle);
 		UIObject * GetUIObject(char const * name);

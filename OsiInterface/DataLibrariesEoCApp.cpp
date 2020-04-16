@@ -1003,7 +1003,6 @@ namespace dse
 					}
 					else {
 						sym.ServerGlobals[i] = nullptr;
-						DEBUG("LibraryManager::FindServerGlobalsEoCApp(): Could not extract global from func @ %p", r);
 					}
 				}
 			}
@@ -1069,7 +1068,6 @@ namespace dse
 
 			} else {
 				GetStaticSymbols().EocGlobals[i] = nullptr;
-				DEBUG("LibraryManager::FindEoCGlobalsEoCApp(): Could not extract global from func @ %p", r);
 			}
 		}
 	}

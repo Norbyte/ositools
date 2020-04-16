@@ -253,8 +253,8 @@ namespace dse {
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)> SkillPrototypeGetSkillDamageHook;
 
 		enum class StatusPrototypeFormatDescriptionParamTag {};
-		WrappableFunction<StatusPrototypeFormatDescriptionParamTag, void(StatusPrototype *prototype, CDivinityStats_Character *statusSource,
-			CDivinityStats_Character *targetCharacter, float multiplier, eoc::Text * text, int paramIndex,
+		WrappableFunction<StatusPrototypeFormatDescriptionParamTag, void(StatusPrototype *prototype, CRPGStats_ObjectInstance* owner,
+			CRPGStats_ObjectInstance* statusSource, float multiplier, eoc::Text * text, int paramIndex,
 			FixedString * param, ObjectSet<STDString> * paramSet)> StatusPrototypeFormatDescriptionParamHook;
 
 		enum class TurnManagerUpdateTurnOrderTag {};
