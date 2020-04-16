@@ -644,6 +644,7 @@ namespace dse
 	template <class T, class TBase>
 	struct PropertyMap : public PropertyMapInterface<T>
 	{
+		using ObjectType = T;
 		using BaseType = typename std::conditional<!std::is_same<TBase, void>::value, TBase, T>::type;
 
 		virtual void * toParent(void * obj) const

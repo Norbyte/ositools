@@ -28,33 +28,36 @@ namespace dse
 	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
-#define PROP(cls, name) AddProperty<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
-#define PROP_RO(cls, name) AddPropertyRO<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
-#define PROP_ENUM(cls, name) AddPropertyEnum<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name))
-#define PROP_FLAGS(cls, name, enum, writeable) AddPropertyFlags<decltype(cls::name), enum>(propertyMap, #name, offsetof(cls, name), writeable)
-#define PROP_GUID(cls, name, writeable) AddPropertyGuidString<decltype(cls::name)>(propertyMap, #name, offsetof(cls, name), writeable)
+#define BEGIN_PROPERTIES(map) auto& propertyMap = map; \
+	using TObject = decltype(map)::ObjectType;
+
+#define PROP(name) AddProperty<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
+#define PROP_RO(name) AddPropertyRO<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
+#define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
+#define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<decltype(TObject::name), enum>(propertyMap, #name, offsetof(TObject, name), writeable)
+#define PROP_GUID(name, writeable) AddPropertyGuidString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), writeable)
 
 	void InitPropertyMaps()
 	{
 		{
-			auto & propertyMap = gStatusPropertyMap;
-			PROP_RO(esv::Status, NetID);
-			PROP_RO(esv::Status, StatusId);
-			PROP_RO(esv::Status, CanEnterChance);
-			PROP_RO(esv::Status, StartTimer);
-			PROP_RO(esv::Status, LifeTime);
-			PROP_RO(esv::Status, CurrentLifeTime);
-			PROP_RO(esv::Status, TurnTimer);
-			PROP_RO(esv::Status, Strength);
-			PROP_RO(esv::Status, StatsMultiplier);
-			PROP_ENUM(esv::Status, DamageSourceType);
-			PROP_RO(esv::Status, StatusHandle);
-			PROP_RO(esv::Status, TargetHandle);
-			PROP_RO(esv::Status, StatusSourceHandle);
-			PROP_RO(esv::Status, SomeHandle);
-			PROP_FLAGS(esv::Status, Flags0, StatusFlags0, false);
-			PROP_FLAGS(esv::Status, Flags1, StatusFlags1, false);
-			PROP_FLAGS(esv::Status, Flags2, StatusFlags2, false);
+			BEGIN_PROPERTIES(gStatusPropertyMap);
+			PROP_RO(NetID);
+			PROP_RO(StatusId);
+			PROP_RO(CanEnterChance);
+			PROP_RO(StartTimer);
+			PROP_RO(LifeTime);
+			PROP_RO(CurrentLifeTime);
+			PROP_RO(TurnTimer);
+			PROP_RO(Strength);
+			PROP_RO(StatsMultiplier);
+			PROP_ENUM(DamageSourceType);
+			PROP_RO(StatusHandle);
+			PROP_RO(TargetHandle);
+			PROP_RO(StatusSourceHandle);
+			PROP_RO(SomeHandle);
+			PROP_FLAGS(Flags0, StatusFlags0, false);
+			PROP_FLAGS(Flags1, StatusFlags1, false);
+			PROP_FLAGS(Flags2, StatusFlags2, false);
 
 			propertyMap.Flags["ForceStatus"].Flags |= kPropWrite;
 			propertyMap.Flags["ForceFailStatus"].Flags |= kPropWrite;
@@ -83,518 +86,475 @@ namespace dse
 		}
 
 		{
-			auto & propertyMap = gStatusHitPropertyMap;
+			BEGIN_PROPERTIES(gStatusHitPropertyMap);
 			propertyMap.Parent = &gStatusPropertyMap;
-			PROP_RO(esv::StatusHit, HitByHandle);
-			PROP_RO(esv::StatusHit, HitWithHandle);
-			PROP_RO(esv::StatusHit, WeaponHandle);
-			PROP(esv::StatusHit, HitReason);
-			PROP(esv::StatusHit, SkillId);
-			PROP(esv::StatusHit, Interruption);
-			PROP(esv::StatusHit, AllowInterruptAction);
-			PROP(esv::StatusHit, ForceInterrupt);
-			PROP_RO(esv::StatusHit, DecDelayDeathCount);
-			PROP(esv::StatusHit, ImpactPosition);
-			PROP(esv::StatusHit, ImpactOrigin);
-			PROP(esv::StatusHit, ImpactDirection);
+			PROP_RO(HitByHandle);
+			PROP_RO(HitWithHandle);
+			PROP_RO(WeaponHandle);
+			PROP(HitReason);
+			PROP(SkillId);
+			PROP(Interruption);
+			PROP(AllowInterruptAction);
+			PROP(ForceInterrupt);
+			PROP_RO(DecDelayDeathCount);
+			PROP(ImpactPosition);
+			PROP(ImpactOrigin);
+			PROP(ImpactDirection);
 		}
 
 		{
-			auto & propertyMap = gStatusConsumePropertyMap;
+			BEGIN_PROPERTIES(gStatusConsumePropertyMap);
 			propertyMap.Parent = &gStatusPropertyMap;
 			// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
-			PROP(esv::StatusConsume, ResetAllCooldowns);
-			PROP(esv::StatusConsume, ResetOncePerCombat);
-			PROP(esv::StatusConsume, ScaleWithVitality);
-			PROP(esv::StatusConsume, LoseControl);
-			PROP(esv::StatusConsume, ApplyStatusOnTick);
-			PROP(esv::StatusConsume, EffectTime);
-			PROP(esv::StatusConsume, StatsId);
-			PROP(esv::StatusConsume, StackId);
-			PROP(esv::StatusConsume, OriginalWeaponStatsId);
-			PROP(esv::StatusConsume, OverrideWeaponStatsId);
-			PROP(esv::StatusConsume, OverrideWeaponHandle);
-			PROP(esv::StatusConsume, SavingThrow);
-			PROP(esv::StatusConsume, SourceDirection);
-			PROP(esv::StatusConsume, Turn);
-			PROP_ENUM(esv::StatusConsume, HealEffectOverride);
+			PROP(ResetAllCooldowns);
+			PROP(ResetOncePerCombat);
+			PROP(ScaleWithVitality);
+			PROP(LoseControl);
+			PROP(ApplyStatusOnTick);
+			PROP(EffectTime);
+			PROP(StatsId);
+			PROP(StackId);
+			PROP(OriginalWeaponStatsId);
+			PROP(OverrideWeaponStatsId);
+			PROP(OverrideWeaponHandle);
+			PROP(SavingThrow);
+			PROP(SourceDirection);
+			PROP(Turn);
+			PROP_ENUM(HealEffectOverride);
 		}
 
 		{
-			auto & propertyMap = gStatusHealingPropertyMap;
+			BEGIN_PROPERTIES(gStatusHealingPropertyMap);
 			propertyMap.Parent = &gStatusConsumePropertyMap;
-			PROP(esv::StatusHealing, HealAmount);
-			PROP(esv::StatusHealing, TimeElapsed);
-			PROP_ENUM(esv::StatusHealing, HealEffect);
-			PROP(esv::StatusHealing, HealEffectId);
-			PROP(esv::StatusHealing, SkipInitialEffect);
-			PROP(esv::StatusHealing, HealingEvent);
-			PROP_ENUM(esv::StatusHealing, HealStat);
-			PROP(esv::StatusHealing, AbsorbSurfaceRange);
+			PROP(HealAmount);
+			PROP(TimeElapsed);
+			PROP_ENUM(HealEffect);
+			PROP(HealEffectId);
+			PROP(SkipInitialEffect);
+			PROP(HealingEvent);
+			PROP_ENUM(HealStat);
+			PROP(AbsorbSurfaceRange);
 		}
 
 		{
-			auto & propertyMap = gStatusHealPropertyMap;
+			BEGIN_PROPERTIES(gStatusHealPropertyMap);
 			propertyMap.Parent = &gStatusPropertyMap;
-			PROP(esv::StatusHeal, EffectTime);
-			PROP(esv::StatusHeal, HealAmount);
-			PROP_ENUM(esv::StatusHeal, HealEffect);
-			PROP(esv::StatusHeal, HealEffectId);
-			PROP_ENUM(esv::StatusHeal, HealType);
-			PROP(esv::StatusHeal, AbsorbSurfaceRange);
-			PROP(esv::StatusHeal, TargetDependentHeal);
+			PROP(EffectTime);
+			PROP(HealAmount);
+			PROP_ENUM(HealEffect);
+			PROP(HealEffectId);
+			PROP_ENUM(HealType);
+			PROP(AbsorbSurfaceRange);
+			PROP(TargetDependentHeal);
 		}
 
 		{
-			auto & propertyMap = gHitDamageInfoPropertyMap;
-			PROP(HitDamageInfo, Equipment);
-			PROP_RO(HitDamageInfo, TotalDamage);
-			PROP_RO(HitDamageInfo, DamageDealt);
-			PROP_ENUM(HitDamageInfo, DeathType);
-			PROP_ENUM(HitDamageInfo, DamageType);
-			PROP(HitDamageInfo, AttackDirection);
-			PROP(HitDamageInfo, ArmorAbsorption);
-			PROP(HitDamageInfo, LifeSteal);
-			PROP_FLAGS(HitDamageInfo, EffectFlags, HitFlag, true);
-			PROP(HitDamageInfo, HitWithWeapon);
+			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap);
+			PROP(Equipment);
+			PROP_RO(TotalDamage);
+			PROP_RO(DamageDealt);
+			PROP_ENUM(DeathType);
+			PROP_ENUM(DamageType);
+			PROP(AttackDirection);
+			PROP(ArmorAbsorption);
+			PROP(LifeSteal);
+			PROP_FLAGS(EffectFlags, HitFlag, true);
+			PROP(HitWithWeapon);
 		}
 
 		{
-			auto & propertyMap = gEoCItemDefinitionPropertyMap;
-			PROP_GUID(eoc::ItemDefinition, RootTemplate, true);
-			PROP_GUID(eoc::ItemDefinition, OriginalRootTemplate, true);
-			PROP(eoc::ItemDefinition, Amount);
-			PROP(eoc::ItemDefinition, Slot);
-			PROP(eoc::ItemDefinition, GoldValueOverwrite);
-			PROP(eoc::ItemDefinition, WeightValueOverwrite);
-			PROP_ENUM(eoc::ItemDefinition, DamageTypeOverwrite);
-			PROP(eoc::ItemDefinition, ItemType);
-			PROP(eoc::ItemDefinition, CustomDisplayName);
-			PROP(eoc::ItemDefinition, CustomDescription);
-			PROP(eoc::ItemDefinition, CustomBookContent);
-			PROP(eoc::ItemDefinition, GenerationStatsId);
-			PROP(eoc::ItemDefinition, GenerationItemType);
-			PROP(eoc::ItemDefinition, GenerationRandom);
-			PROP(eoc::ItemDefinition, GenerationLevel);
-			PROP(eoc::ItemDefinition, StatsLevel);
-			PROP(eoc::ItemDefinition, Key);
-			PROP(eoc::ItemDefinition, LockLevel);
-			PROP(eoc::ItemDefinition, StatsEntryName);
-			PROP(eoc::ItemDefinition, HasModifiedSkills);
-			PROP(eoc::ItemDefinition, Skills);
-			PROP(eoc::ItemDefinition, HasGeneratedStats);
-			PROP(eoc::ItemDefinition, IsIdentified);
-			PROP(eoc::ItemDefinition, GMFolding);
-			PROP(eoc::ItemDefinition, CanUseRemotely);
+			BEGIN_PROPERTIES(gEoCItemDefinitionPropertyMap);
+			PROP_GUID(RootTemplate, true);
+			PROP_GUID(OriginalRootTemplate, true);
+			PROP(Amount);
+			PROP(Slot);
+			PROP(GoldValueOverwrite);
+			PROP(WeightValueOverwrite);
+			PROP_ENUM(DamageTypeOverwrite);
+			PROP(ItemType);
+			PROP(CustomDisplayName);
+			PROP(CustomDescription);
+			PROP(CustomBookContent);
+			PROP(GenerationStatsId);
+			PROP(GenerationItemType);
+			PROP(GenerationRandom);
+			PROP(GenerationLevel);
+			PROP(StatsLevel);
+			PROP(Key);
+			PROP(LockLevel);
+			PROP(StatsEntryName);
+			PROP(HasModifiedSkills);
+			PROP(Skills);
+			PROP(HasGeneratedStats);
+			PROP(IsIdentified);
+			PROP(GMFolding);
+			PROP(CanUseRemotely);
 		}
 
 		{
-			auto & propertyMap = gEquipmentAttributesPropertyMap;
-			PROP(CDivinityStats_Equipment_Attributes, Durability);
-			PROP(CDivinityStats_Equipment_Attributes, DurabilityDegradeSpeed);
-			PROP(CDivinityStats_Equipment_Attributes, StrengthBoost);
-			PROP(CDivinityStats_Equipment_Attributes, FinesseBoost);
-			PROP(CDivinityStats_Equipment_Attributes, IntelligenceBoost);
-			PROP(CDivinityStats_Equipment_Attributes, ConstitutionBoost);
-			PROP(CDivinityStats_Equipment_Attributes, Memory);
-			PROP(CDivinityStats_Equipment_Attributes, WitsBoost);
-			PROP(CDivinityStats_Equipment_Attributes, SightBoost);
-			PROP(CDivinityStats_Equipment_Attributes, HearingBoost);
-			PROP(CDivinityStats_Equipment_Attributes, VitalityBoost);
-			PROP(CDivinityStats_Equipment_Attributes, SourcePointsBoost);
-			PROP(CDivinityStats_Equipment_Attributes, MaxAP);
-			PROP(CDivinityStats_Equipment_Attributes, StartAP);
-			PROP(CDivinityStats_Equipment_Attributes, APRecovery);
-			PROP(CDivinityStats_Equipment_Attributes, AccuracyBoost);
-			PROP(CDivinityStats_Equipment_Attributes, DodgeBoost);
-			PROP(CDivinityStats_Equipment_Attributes, LifeSteal);
-			PROP(CDivinityStats_Equipment_Attributes, CriticalChance);
-			PROP(CDivinityStats_Equipment_Attributes, ChanceToHitBoost);
-			PROP(CDivinityStats_Equipment_Attributes, MovementSpeedBoost);
-			PROP(CDivinityStats_Equipment_Attributes, RuneSlots);
-			PROP(CDivinityStats_Equipment_Attributes, RuneSlots_V1);
-			PROP(CDivinityStats_Equipment_Attributes, FireResistance);
-			PROP(CDivinityStats_Equipment_Attributes, AirResistance);
-			PROP(CDivinityStats_Equipment_Attributes, WaterResistance);
-			PROP(CDivinityStats_Equipment_Attributes, EarthResistance);
-			PROP(CDivinityStats_Equipment_Attributes, PoisonResistance);
-			PROP(CDivinityStats_Equipment_Attributes, TenebriumResistance);
-			PROP(CDivinityStats_Equipment_Attributes, PiercingResistance);
-			PROP(CDivinityStats_Equipment_Attributes, CorrosiveResistance);
-			PROP(CDivinityStats_Equipment_Attributes, PhysicalResistance);
-			PROP(CDivinityStats_Equipment_Attributes, MagicResistance);
-			PROP(CDivinityStats_Equipment_Attributes, CustomResistance);
-			PROP(CDivinityStats_Equipment_Attributes, Movement);
-			PROP(CDivinityStats_Equipment_Attributes, Initiative);
-			PROP(CDivinityStats_Equipment_Attributes, Willpower);
-			PROP(CDivinityStats_Equipment_Attributes, Bodybuilding);
-			PROP(CDivinityStats_Equipment_Attributes, MaxSummons);
-			PROP(CDivinityStats_Equipment_Attributes, Value);
-			PROP(CDivinityStats_Equipment_Attributes, Weight);
+			BEGIN_PROPERTIES(gEquipmentAttributesPropertyMap);
+
+			PROP(Durability);
+			PROP(DurabilityDegradeSpeed);
+			PROP(StrengthBoost);
+			PROP(FinesseBoost);
+			PROP(IntelligenceBoost);
+			PROP(ConstitutionBoost);
+			PROP(MemoryBoost);
+			PROP(WitsBoost);
+			PROP(SightBoost);
+			PROP(HearingBoost);
+			PROP(VitalityBoost);
+			PROP(SourcePointsBoost);
+			PROP(MaxAP);
+			PROP(StartAP);
+			PROP(APRecovery);
+			PROP(AccuracyBoost);
+			PROP(DodgeBoost);
+			PROP(LifeSteal);
+			PROP(CriticalChance);
+			PROP(ChanceToHitBoost);
+			PROP(MovementSpeedBoost);
+			PROP(RuneSlots);
+			PROP(RuneSlots_V1);
+			PROP(FireResistance);
+			PROP(AirResistance);
+			PROP(WaterResistance);
+			PROP(EarthResistance);
+			PROP(PoisonResistance);
+			PROP(ShadowResistance);
+			PROP(PiercingResistance);
+			PROP(CorrosiveResistance);
+			PROP(PhysicalResistance);
+			PROP(MagicResistance);
+			PROP(CustomResistance);
+			PROP(Movement);
+			PROP(Initiative);
+			PROP(Willpower);
+			PROP(Bodybuilding);
+			PROP(MaxSummons);
+			PROP(Value);
+			PROP(Weight);
 			// TODO - Reflection
-			PROP(CDivinityStats_Equipment_Attributes, Skills);
-			PROP(CDivinityStats_Equipment_Attributes, ItemColor);
-			PROP(CDivinityStats_Equipment_Attributes, ModifierType);
-			PROP(CDivinityStats_Equipment_Attributes, ObjectInstanceName);
-			PROP(CDivinityStats_Equipment_Attributes, BoostName);
-			PROP_ENUM(CDivinityStats_Equipment_Attributes, StatsType);
+			PROP(Skills);
+			PROP(ItemColor);
+			PROP(ModifierType);
+			PROP(ObjectInstanceName);
+			PROP(BoostName);
+			PROP_ENUM(StatsType);
 			// TODO - add attribute flags object support
-			// PROP_FLAGS(CDivinityStats_Equipment_Attributes, AttributeFlags, StatAttributeFlags, true);
+			// PROP_FLAGS(AttributeFlags, StatAttributeFlags, true);
 			// TODO - AbilityModifiers, Talents
 		}
 
 		{
-			auto & propertyMap = gEquipmentAttributesWeaponPropertyMap;
+			BEGIN_PROPERTIES(gEquipmentAttributesWeaponPropertyMap);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
-			PROP_ENUM(CDivinityStats_Equipment_Attributes_Weapon, DamageType);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, MinDamage);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, MaxDamage);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageBoost);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, DamageFromBase);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, CriticalDamage);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, WeaponRange);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, CleaveAngle);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, CleavePercentage);
-			PROP(CDivinityStats_Equipment_Attributes_Weapon, AttackAPCost);
+			PROP_ENUM(DamageType);
+			PROP(MinDamage);
+			PROP(MaxDamage);
+			PROP(DamageBoost);
+			PROP(DamageFromBase);
+			PROP(CriticalDamage);
+			PROP(WeaponRange);
+			PROP(CleaveAngle);
+			PROP(CleavePercentage);
+			PROP(AttackAPCost);
 		}
 
 		{
-			auto & propertyMap = gEquipmentAttributesArmorPropertyMap;
+			BEGIN_PROPERTIES(gEquipmentAttributesArmorPropertyMap);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
-			PROP(CDivinityStats_Equipment_Attributes_Armor, ArmorValue);
-			PROP(CDivinityStats_Equipment_Attributes_Armor, ArmorBoost);
-			PROP(CDivinityStats_Equipment_Attributes_Armor, MagicArmorValue);
-			PROP(CDivinityStats_Equipment_Attributes_Armor, MagicArmorBoost);
+			PROP(ArmorValue);
+			PROP(ArmorBoost);
+			PROP(MagicArmorValue);
+			PROP(MagicArmorBoost);
 		}
 
 		{
-			auto & propertyMap = gEquipmentAttributesShieldPropertyMap;
+			BEGIN_PROPERTIES(gEquipmentAttributesShieldPropertyMap);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
-			PROP(CDivinityStats_Equipment_Attributes_Shield, ArmorValue);
-			PROP(CDivinityStats_Equipment_Attributes_Shield, ArmorBoost);
-			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorValue);
-			PROP(CDivinityStats_Equipment_Attributes_Shield, MagicArmorBoost);
-			PROP(CDivinityStats_Equipment_Attributes_Shield, Blocking);
+			PROP(ArmorValue);
+			PROP(ArmorBoost);
+			PROP(MagicArmorValue);
+			PROP(MagicArmorBoost);
+			PROP(Blocking);
 		}
 
 		{
-			auto & propertyMap = gCharacterDynamicStatPropertyMap;
-			PROP(CharacterDynamicStat, SummonLifelinkModifier);
-			PROP(CharacterDynamicStat, Strength);
-			PROP(CharacterDynamicStat, Memory);
-			PROP(CharacterDynamicStat, Intelligence);
-			PROP(CharacterDynamicStat, Movement);
-			PROP(CharacterDynamicStat, MovementSpeedBoost);
-			PROP(CharacterDynamicStat, Finesse);
-			PROP(CharacterDynamicStat, Wits);
-			PROP(CharacterDynamicStat, Constitution);
+			BEGIN_PROPERTIES(gCharacterDynamicStatPropertyMap);
+			PROP(SummonLifelinkModifier);
+			PROP(Strength);
+			PROP(Memory);
+			PROP(Intelligence);
+			PROP(Movement);
+			PROP(MovementSpeedBoost);
+			PROP(Finesse);
+			PROP(Wits);
+			PROP(Constitution);
 
-			PROP(CharacterDynamicStat, FireResistance);
-			PROP(CharacterDynamicStat, EarthResistance);
-			PROP(CharacterDynamicStat, WaterResistance);
-			PROP(CharacterDynamicStat, AirResistance);
-			PROP(CharacterDynamicStat, PoisonResistance);
-			PROP(CharacterDynamicStat, ShadowResistance);
+			PROP(FireResistance);
+			PROP(EarthResistance);
+			PROP(WaterResistance);
+			PROP(AirResistance);
+			PROP(PoisonResistance);
+			PROP(ShadowResistance);
 
-			PROP(CharacterDynamicStat, Willpower);
-			PROP(CharacterDynamicStat, Bodybuilding);
-			PROP(CharacterDynamicStat, PiercingResistance);
-			PROP(CharacterDynamicStat, PhysicalResistance);
-			PROP(CharacterDynamicStat, CorrosiveResistance);
-			PROP(CharacterDynamicStat, MagicResistance);
-			PROP(CharacterDynamicStat, CustomResistance);
+			PROP(Willpower);
+			PROP(Bodybuilding);
+			PROP(PiercingResistance);
+			PROP(PhysicalResistance);
+			PROP(CorrosiveResistance);
+			PROP(MagicResistance);
+			PROP(CustomResistance);
 
-			PROP(CharacterDynamicStat, Sight);
-			PROP(CharacterDynamicStat, Hearing);
-			PROP(CharacterDynamicStat, FOV);
-			PROP(CharacterDynamicStat, APMaximum);
-			PROP(CharacterDynamicStat, APStart);
-			PROP(CharacterDynamicStat, APRecovery);
-			PROP(CharacterDynamicStat, CriticalChance);
-			PROP(CharacterDynamicStat, Initiative);
-			PROP(CharacterDynamicStat, Vitality);
-			PROP(CharacterDynamicStat, VitalityBoost);
-			PROP(CharacterDynamicStat, MagicPoints);
-			PROP(CharacterDynamicStat, Level);
-			PROP(CharacterDynamicStat, Gain);
+			PROP(Sight);
+			PROP(Hearing);
+			PROP(FOV);
+			PROP(APMaximum);
+			PROP(APStart);
+			PROP(APRecovery);
+			PROP(CriticalChance);
+			PROP(Initiative);
+			PROP(Vitality);
+			PROP(VitalityBoost);
+			PROP(MagicPoints);
+			PROP(Level);
+			PROP(Gain);
 
-			PROP(CharacterDynamicStat, Armor);
-			PROP(CharacterDynamicStat, MagicArmor);
-			PROP(CharacterDynamicStat, ArmorBoost);
-			PROP(CharacterDynamicStat, MagicArmorBoost);
-			PROP(CharacterDynamicStat, ArmorBoostGrowthPerLevel);
-			PROP(CharacterDynamicStat, MagicArmorBoostGrowthPerLevel);
-			PROP(CharacterDynamicStat, DamageBoost);
-			PROP(CharacterDynamicStat, DamageBoostGrowthPerLevel);
+			PROP(Armor);
+			PROP(MagicArmor);
+			PROP(ArmorBoost);
+			PROP(MagicArmorBoost);
+			PROP(ArmorBoostGrowthPerLevel);
+			PROP(MagicArmorBoostGrowthPerLevel);
+			PROP(DamageBoost);
+			PROP(DamageBoostGrowthPerLevel);
 
-			PROP(CharacterDynamicStat, Accuracy);
-			PROP(CharacterDynamicStat, Dodge);
-			PROP(CharacterDynamicStat, MaxResistance);
-			PROP(CharacterDynamicStat, LifeSteal);
-			PROP(CharacterDynamicStat, Weight);
-			PROP(CharacterDynamicStat, ChanceToHitBoost);
-			PROP(CharacterDynamicStat, RangeBoost);
-			PROP(CharacterDynamicStat, APCostBoost);
-			PROP(CharacterDynamicStat, SPCostBoost);
-			PROP(CharacterDynamicStat, MaxSummons);
-			PROP(CharacterDynamicStat, BonusWeaponDamageMultiplier);
-			PROP(CharacterDynamicStat, TranslationKey);
-			PROP(CharacterDynamicStat, BonusWeapon);
-			PROP(CharacterDynamicStat, StepsType);
+			PROP(Accuracy);
+			PROP(Dodge);
+			PROP(MaxResistance);
+			PROP(LifeSteal);
+			PROP(Weight);
+			PROP(ChanceToHitBoost);
+			PROP(RangeBoost);
+			PROP(APCostBoost);
+			PROP(SPCostBoost);
+			PROP(MaxSummons);
+			PROP(BonusWeaponDamageMultiplier);
+			PROP(TranslationKey);
+			PROP(BonusWeapon);
+			PROP(StepsType);
 			// TODO Abilities, Talents, RemovedTalents, Traits
 		}
 
 		{
-			auto & propertyMap = gCharacterStatsPropertyMap;
+			BEGIN_PROPERTIES(gCharacterStatsPropertyMap);
 			// CRPGStats_Object
-			PROP_RO(CDivinityStats_Character, Level);
-			PROP_RO(CDivinityStats_Character, Name);
-			PROP_RO(CDivinityStats_Character, AIFlags);
-			PROP_RO(CDivinityStats_Character, InstanceId);
+			PROP_RO(Level);
+			PROP_RO(Name);
+			PROP_RO(AIFlags);
+			PROP_RO(InstanceId);
 
 			// CDivinityStats_Character
-			PROP(CDivinityStats_Character, CurrentVitality);
-			PROP(CDivinityStats_Character, CurrentArmor);
-			PROP(CDivinityStats_Character, CurrentMagicArmor);
-			PROP_RO(CDivinityStats_Character, ArmorAfterHitCooldownMultiplier);
-			PROP_RO(CDivinityStats_Character, MagicArmorAfterHitCooldownMultiplier);
-			PROP_RO(CDivinityStats_Character, MPStart);
-			PROP_RO(CDivinityStats_Character, CurrentAP);
-			PROP_RO(CDivinityStats_Character, BonusActionPoints);
-			PROP_RO(CDivinityStats_Character, Experience);
-			PROP_RO(CDivinityStats_Character, Reputation);
-			PROP_RO(CDivinityStats_Character, Flanked);
-			PROP_RO(CDivinityStats_Character, Karma);
-			PROP_FLAGS(CDivinityStats_Character, Flags, StatCharacterFlags, false);
-			PROP_RO(CDivinityStats_Character, MaxResistance);
-			PROP_RO(CDivinityStats_Character, HasTwoHandedWeapon);
-			PROP_RO(CDivinityStats_Character, IsIncapacitatedRefCount);
-
-			{
-				PropertyMapBase::PropertyInfo info;
-				info.Type = PropertyType::kFixedStringGuid;
-				info.Offset = 0;
-				info.Flags = kPropRead;
-				info.GetString = [](void * obj) -> std::optional<char const *> {
-					auto self = reinterpret_cast<CDivinityStats_Character *>(obj);
-					if (self->Character != nullptr) {
-						// MyGuid and WorldPos are in the same location in both esv::Character 
-						// and ecl::Character, so it's safe to access them on both client and server
-						return self->Character->MyGuid.Str;
-					} else {
-						return {};
-					}
-				};
-				propertyMap.Properties.insert(std::make_pair("CharacterGuid", info));
-			}
-
-			{
-				PropertyMapBase::PropertyInfo info;
-				info.Type = PropertyType::kVector3;
-				info.Offset = 0;
-				info.Flags = kPropRead;
-				info.GetVector3 = [](void * obj) -> std::optional<Vector3> {
-					auto self = reinterpret_cast<CDivinityStats_Character *>(obj);
-					if (self->Character != nullptr) {
-						return self->Character->WorldPos;
-					} else {
-						return {};
-					}
-				};
-				propertyMap.Properties.insert(std::make_pair("WorldPosition", info));
-			}
-
-			PROP_RO(CDivinityStats_Character, MaxVitality);
-			PROP_RO(CDivinityStats_Character, BaseMaxVitality);
-			PROP_RO(CDivinityStats_Character, MaxArmor);
-			PROP_RO(CDivinityStats_Character, BaseMaxArmor);
-			PROP_RO(CDivinityStats_Character, MaxMagicArmor);
-			PROP_RO(CDivinityStats_Character, BaseMaxMagicArmor);
-			PROP_RO(CDivinityStats_Character, Sight);
-			PROP_RO(CDivinityStats_Character, BaseSight);
-			PROP_RO(CDivinityStats_Character, MaxSummons);
-			PROP_RO(CDivinityStats_Character, BaseMaxSummons);
-			PROP_RO(CDivinityStats_Character, MaxMpOverride);
-			PROP_FLAGS(CDivinityStats_Character, AttributeFlags, StatAttributeFlags, false);
+			PROP(CurrentVitality);
+			PROP(CurrentArmor);
+			PROP(CurrentMagicArmor);
+			PROP_RO(ArmorAfterHitCooldownMultiplier);
+			PROP_RO(MagicArmorAfterHitCooldownMultiplier);
+			PROP_RO(MPStart);
+			PROP_RO(CurrentAP);
+			PROP_RO(BonusActionPoints);
+			PROP_RO(Experience);
+			PROP_RO(Reputation);
+			PROP_RO(Flanked);
+			PROP_RO(Karma);
+			PROP_FLAGS(Flags, StatCharacterFlags, false);
+			PROP_RO(MaxResistance);
+			PROP_RO(HasTwoHandedWeapon);
+			PROP_RO(IsIncapacitatedRefCount);
+			PROP_RO(MaxVitality);
+			PROP_RO(BaseMaxVitality);
+			PROP_RO(MaxArmor);
+			PROP_RO(BaseMaxArmor);
+			PROP_RO(MaxMagicArmor);
+			PROP_RO(BaseMaxMagicArmor);
+			PROP_RO(Sight);
+			PROP_RO(BaseSight);
+			PROP_RO(MaxSummons);
+			PROP_RO(BaseMaxSummons);
+			PROP_RO(MaxMpOverride);
+			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
 
 			// TODO - DisabledTalents, TraitOrder?
 		}
 
 		{
-			auto & propertyMap = gItemStatsPropertyMap;
+			BEGIN_PROPERTIES(gItemStatsPropertyMap);
 			// CRPGStats_Object
-			PROP_RO(CDivinityStats_Item, Level);
-			PROP_RO(CDivinityStats_Item, Name);
-			PROP_RO(CDivinityStats_Item, InstanceId);
+			PROP_RO(Level);
+			PROP_RO(Name);
+			PROP_RO(InstanceId);
 
 			// CDivinityStats_Item
-			PROP_ENUM(CDivinityStats_Item, ItemType);
-			PROP_RO(CDivinityStats_Item, ItemSlot);
-			PROP_ENUM(CDivinityStats_Item, WeaponType);
-			PROP_RO(CDivinityStats_Item, AnimType);
-			PROP_RO(CDivinityStats_Item, WeaponRange);
-			PROP_RO(CDivinityStats_Item, IsIdentified);
-			PROP_RO(CDivinityStats_Item, IsTwoHanded);
-			PROP_RO(CDivinityStats_Item, ShouldSyncStats);
-			PROP_RO(CDivinityStats_Item, HasModifiedSkills);
-			PROP_RO(CDivinityStats_Item, Skills);
-			PROP_ENUM(CDivinityStats_Item, DamageTypeOverwrite);
-			PROP_RO(CDivinityStats_Item, Durability);
-			PROP_RO(CDivinityStats_Item, DurabilityCounter);
-			PROP_RO(CDivinityStats_Item, ItemTypeReal);
-			PROP_FLAGS(CDivinityStats_Item, AttributeFlags, StatAttributeFlags, false);
-			PROP_RO(CDivinityStats_Item, MaxCharges);
-			PROP_RO(CDivinityStats_Item, Charges);
+			PROP_ENUM(ItemType);
+			PROP_RO(ItemSlot);
+			PROP_ENUM(WeaponType);
+			PROP_RO(AnimType);
+			PROP_RO(WeaponRange);
+			PROP_RO(IsIdentified);
+			PROP_RO(IsTwoHanded);
+			PROP_RO(ShouldSyncStats);
+			PROP_RO(HasModifiedSkills);
+			PROP_RO(Skills);
+			PROP_ENUM(DamageTypeOverwrite);
+			PROP_RO(Durability);
+			PROP_RO(DurabilityCounter);
+			PROP_RO(ItemTypeReal);
+			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
+			PROP_RO(MaxCharges);
+			PROP_RO(Charges);
 		}
 
 		{
-			auto & propertyMap = gPlayerCustomDataPropertyMap;
-			PROP_RO(eoc::PlayerCustomData, CustomLookEnabled);
-			PROP(eoc::PlayerCustomData, Name);
-			PROP(eoc::PlayerCustomData, ClassType);
-			PROP(eoc::PlayerCustomData, SkinColor);
-			PROP(eoc::PlayerCustomData, HairColor);
-			PROP(eoc::PlayerCustomData, ClothColor1);
-			PROP(eoc::PlayerCustomData, ClothColor2);
-			PROP(eoc::PlayerCustomData, ClothColor3);
-			PROP(eoc::PlayerCustomData, IsMale);
-			PROP(eoc::PlayerCustomData, Race);
-			PROP(eoc::PlayerCustomData, OriginName);
-			PROP(eoc::PlayerCustomData, Icon);
-			PROP(eoc::PlayerCustomData, MusicInstrument);
-			PROP_RO(eoc::PlayerCustomData, OwnerProfileID);
-			PROP_RO(eoc::PlayerCustomData, ReservedProfileID);
-			PROP(eoc::PlayerCustomData, AiPersonality);
-			PROP_RO(eoc::PlayerCustomData, Speaker);
+			BEGIN_PROPERTIES(gPlayerCustomDataPropertyMap);
+			PROP_RO(CustomLookEnabled);
+			PROP(Name);
+			PROP(ClassType);
+			PROP(SkinColor);
+			PROP(HairColor);
+			PROP(ClothColor1);
+			PROP(ClothColor2);
+			PROP(ClothColor3);
+			PROP(IsMale);
+			PROP(Race);
+			PROP(OriginName);
+			PROP(Icon);
+			PROP(MusicInstrument);
+			PROP_RO(OwnerProfileID);
+			PROP_RO(ReservedProfileID);
+			PROP(AiPersonality);
+			PROP_RO(Speaker);
 		}
 
 		{
-			auto & propertyMap = gEoCServerObjectPropertyMap;
-			PROP_RO(IEoCServerObject, NetID);
-			PROP_RO(IEoCServerObject, MyGuid);
-			PROP_RO(IEoCServerObject, WorldPos);
-			PROP_RO(IEoCServerObject, CurrentLevel);
-		}
-
-		{
-			auto & propertyMap = gCharacterPropertyMap;
+			BEGIN_PROPERTIES(gCharacterPropertyMap);
 			// EoCServerObject
-			PROP_RO(esv::Character, NetID);
-			PROP_RO(esv::Character, MyGuid);
-			PROP_RO(esv::Character, WorldPos);
-			PROP_RO(esv::Character, CurrentLevel);
-			PROP_FLAGS(esv::Character, Flags, EsvCharacterFlags, false);
+			PROP_RO(NetID);
+			PROP_RO(MyGuid);
 			// Character
-			PROP_FLAGS(esv::Character, Flags2, EsvCharacterFlags2, false);
-			PROP_FLAGS(esv::Character, Flags3, EsvCharacterFlags3, false);
-			PROP_RO(esv::Character, Scale);
-			PROP_RO(esv::Character, AnimationOverride);
-			PROP_RO(esv::Character, WalkSpeedOverride);
-			PROP_RO(esv::Character, RunSpeedOverride);
-			PROP_RO(esv::Character, NeedsUpdateCount);
-			PROP_RO(esv::Character, ScriptForceUpdateCount);
-			PROP_RO(esv::Character, ForceSynchCount);
-			PROP_RO(esv::Character, InventoryHandle);
-			PROP_RO(esv::Character, SkillBeingPrepared);
-			PROP_RO(esv::Character, LifeTime);
-			PROP_RO(esv::Character, OwnerHandle);
-			PROP_RO(esv::Character, PartialAP);
-			PROP_RO(esv::Character, AnimType);
-			PROP_RO(esv::Character, DelayDeathCount);
-			PROP_RO(esv::Character, AnimationSetOverride);
-			PROP_RO(esv::Character, CustomTradeTreasure);
-			PROP_RO(esv::Character, Archetype);
-			PROP_RO(esv::Character, EquipmentColor);
+			PROP_RO(WorldPos);
+			PROP_RO(CurrentLevel);
+			PROP_FLAGS(Flags, EsvCharacterFlags, false);
+			PROP_FLAGS(Flags2, EsvCharacterFlags2, false);
+			PROP_FLAGS(Flags3, EsvCharacterFlags3, false);
+			PROP_RO(Scale);
+			PROP_RO(AnimationOverride);
+			PROP_RO(WalkSpeedOverride);
+			PROP_RO(RunSpeedOverride);
+			PROP_RO(NeedsUpdateCount);
+			PROP_RO(ScriptForceUpdateCount);
+			PROP_RO(ForceSynchCount);
+			PROP_RO(InventoryHandle);
+			PROP_RO(SkillBeingPrepared);
+			PROP_RO(LifeTime);
+			PROP_RO(OwnerHandle);
+			PROP_RO(PartialAP);
+			PROP_RO(AnimType);
+			PROP_RO(DelayDeathCount);
+			PROP_RO(AnimationSetOverride);
+			PROP_RO(CustomTradeTreasure);
+			PROP_RO(Archetype);
+			PROP_RO(EquipmentColor);
 		}
 
 		{
-			auto & propertyMap = gItemPropertyMap;
+			BEGIN_PROPERTIES(gItemPropertyMap);
 			// EoCServerObject
-			PROP_RO(esv::Item, NetID);
-			PROP_RO(esv::Item, MyGuid);
-			PROP_RO(esv::Item, WorldPos);
-			PROP_RO(esv::Item, CurrentLevel);
+			PROP_RO(NetID);
+			PROP_RO(MyGuid);
 			// Item
-			PROP_RO(esv::Item, Scale);
-			PROP_RO(esv::Item, CurrentTemplate);
-			PROP_RO(esv::Item, CustomDisplayName);
-			PROP_RO(esv::Item, CustomDescription);
-			PROP_RO(esv::Item, CustomBookContent);
-			PROP_RO(esv::Item, StatsId);
-			PROP_RO(esv::Item, InventoryHandle);
-			PROP_RO(esv::Item, ParentInventoryHandle);
-			PROP_RO(esv::Item, Slot);
-			PROP_RO(esv::Item, Amount);
-			PROP_RO(esv::Item, Vitality);
-			PROP_RO(esv::Item, Armor);
-			PROP_RO(esv::Item, InUseByCharacterHandle);
-			PROP_RO(esv::Item, Key);
-			PROP_RO(esv::Item, LockLevel);
-			PROP_RO(esv::Item, ComputedVitality);
-			PROP_RO(esv::Item, ItemType);
-			PROP_RO(esv::Item, GoldValueOverwrite);
-			PROP_RO(esv::Item, WeightValueOverwrite);
-			PROP_RO(esv::Item, TreasureLevel);
-			PROP_RO(esv::Item, LevelOverride);
-			PROP_RO(esv::Item, ForceSynch);
+			PROP_RO(WorldPos);
+			PROP_RO(CurrentLevel);
+			PROP_RO(Scale);
+			PROP_RO(CustomDisplayName);
+			PROP_RO(CustomDescription);
+			PROP_RO(CustomBookContent);
+			PROP_RO(StatsId);
+			PROP_RO(InventoryHandle);
+			PROP_RO(ParentInventoryHandle);
+			PROP_RO(Slot);
+			PROP_RO(Amount);
+			PROP_RO(Vitality);
+			PROP_RO(Armor);
+			PROP_RO(InUseByCharacterHandle);
+			PROP_RO(Key);
+			PROP_RO(LockLevel);
+			PROP_RO(OwnerHandle);
+			PROP_RO(ComputedVitality);
+			PROP_RO(ItemType);
+			PROP_RO(GoldValueOverwrite);
+			PROP_RO(WeightValueOverwrite);
+			PROP_RO(TreasureLevel);
+			PROP_RO(LevelOverride);
+			PROP_RO(ForceSynch);
 		}
 
 		{
-			auto & propertyMap = gASPrepareSkillStatPropertyMap;
-			PROP_RO(esv::ASPrepareSkill, SkillId);
-			PROP_RO(esv::ASPrepareSkill, PrepareAnimationInit);
-			PROP_RO(esv::ASPrepareSkill, PrepareAnimationLoop);
-			PROP_RO(esv::ASPrepareSkill, IsFinished);
-			PROP_RO(esv::ASPrepareSkill, IsEntered);
+			BEGIN_PROPERTIES(gASPrepareSkillStatPropertyMap);
+			PROP_RO(SkillId);
+			PROP_RO(PrepareAnimationInit);
+			PROP_RO(PrepareAnimationLoop);
+			PROP_RO(IsFinished);
+			PROP_RO(IsEntered);
 		}
 
 		{
-			auto & propertyMap = gASUseSkillStatPropertyMap;
+			BEGIN_PROPERTIES(gASUseSkillStatPropertyMap);
 			// FIXME
 		}
 
 		{
-			auto& propertyMap = gEclStatusPropertyMap;
-			PROP_RO(ecl::Status, NetID);
-			PROP_RO(ecl::Status, OwnerHandle);
-			PROP_RO(ecl::Status, StatusId);
-			PROP_RO(ecl::Status, LifeTime);
-			PROP_RO(ecl::Status, CurrentLifeTime);
-			PROP_RO(ecl::Status, StatsMultiplier);
-			PROP_FLAGS(ecl::Status, Flags, EclStatusFlags, false);
-			PROP_RO(ecl::Status, StatusSourceHandle);
+			BEGIN_PROPERTIES(gEclStatusPropertyMap);
+			PROP_RO(NetID);
+			PROP_RO(OwnerHandle);
+			PROP_RO(StatusId);
+			PROP_RO(LifeTime);
+			PROP_RO(CurrentLifeTime);
+			PROP_RO(StatsMultiplier);
+			PROP_FLAGS(Flags, EclStatusFlags, false);
+			PROP_RO(StatusSourceHandle);
 		}
 
 		{
-			auto & propertyMap = gEclCharacterPropertyMap;
+			BEGIN_PROPERTIES(gEclCharacterPropertyMap);
 			// EoCClientObject
-			PROP_RO(ecl::Character, NetID);
-			PROP_RO(ecl::Character, MyGuid);
-			PROP_RO(ecl::Character, WorldPos);
-			PROP_RO(ecl::Character, CurrentLevel);
+			PROP_RO(NetID);
+			PROP_RO(MyGuid);
 			// Character
-			PROP_RO(ecl::Character, Scale);
-			PROP_RO(ecl::Character, AnimationSetOverride);
+			PROP_RO(WorldPos);
+			PROP_RO(CurrentLevel);
+			PROP_RO(Scale);
+			PROP_RO(AnimationSetOverride);
 		}
 
 		{
-			auto & propertyMap = gEclItemPropertyMap;
+			BEGIN_PROPERTIES(gEclItemPropertyMap);
 			// EoCClientObject
-			PROP_RO(ecl::Item, NetID);
-			PROP_RO(ecl::Item, MyGuid);
-			PROP_RO(ecl::Item, WorldPos);
-			PROP_RO(ecl::Item, CurrentLevel);
+			PROP_RO(NetID);
+			PROP_RO(MyGuid);
 			// Item
-			PROP_RO(ecl::Item, LevelName);
-			PROP_RO(ecl::Item, Scale);
-			PROP_RO(ecl::Item, StatsId);
-			PROP_RO(ecl::Item, Weight);
-			PROP_RO(ecl::Item, KeyName);
-			PROP_RO(ecl::Item, Level);
-			PROP_RO(ecl::Item, ItemType);
-			PROP_RO(ecl::Item, GoldValueOverride);
-			PROP_RO(ecl::Item, BaseWeightOverwrite);
-			PROP_RO(ecl::Item, ItemColorOverride);
+			PROP_RO(WorldPos);
+			PROP_RO(CurrentLevel);
+			PROP_RO(Scale);
+			PROP_RO(StatsId);
+			PROP_RO(Weight);
+			PROP_RO(KeyName);
+			PROP_RO(Level);
+			PROP_RO(ItemType);
+			PROP_RO(GoldValueOverride);
+			PROP_RO(BaseWeightOverwrite);
+			PROP_RO(ItemColorOverride);
 		}
 	}
 
