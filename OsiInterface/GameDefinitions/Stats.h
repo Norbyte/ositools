@@ -247,7 +247,7 @@ namespace dse
 		int32_t FinesseBoost;
 		int32_t IntelligenceBoost;
 		int32_t ConstitutionBoost;
-		int32_t Memory;
+		int32_t MemoryBoost;
 		int32_t WitsBoost;
 		int32_t SightBoost;
 		int32_t HearingBoost;
@@ -269,7 +269,7 @@ namespace dse
 		int32_t WaterResistance;
 		int32_t EarthResistance;
 		int32_t PoisonResistance;
-		int32_t TenebriumResistance;
+		int32_t ShadowResistance;
 		int32_t PiercingResistance;
 		int32_t CorrosiveResistance;
 		int32_t PhysicalResistance;
