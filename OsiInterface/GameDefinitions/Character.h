@@ -179,6 +179,12 @@ namespace dse
 			Status* GetStatus(ObjectHandle handle, bool returnPending) const;
 			Status* GetStatus(NetId handle) const;
 
+			glm::vec3 WorldPos; // Saved
+			uint32_t _Pad2;
+			uint64_t Flags; // Saved
+			uint32_t U2;
+			uint32_t _Pad3;
+			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot;
 			float Scale;
 			ObjectSet<void *> PeerIDClassNames;
@@ -210,7 +216,8 @@ namespace dse
 			esv::ActionMachine * ActionMachine;
 			void * SteeringMachine;
 			void * BehaviourMachine;
-			uint64_t U7[2];
+			void * CharacterSupervisor;
+			void * NetworkController;
 			void * OsirisController;
 			void * RequestController;
 			void * StatusController;
@@ -218,7 +225,7 @@ namespace dse
 			uint64_t U8[2];
 #endif
 			void * ScriptController;
-			void * TaskController;
+			void * DialogController;
 			StatusMachine * StatusMachine;
 			SkillManager * SkillManager;
 			void * VariableManager;
@@ -226,15 +233,15 @@ namespace dse
 			Map<FixedString, void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
 			FixedString SkillBeingPrepared;
-			uint64_t U9[1];
+			void* CurrentTemplate2;
 			uint32_t Dialog;
 			bool IsDialogAiControlled;
 			uint8_t U10[3];
 			float LifeTime;
 			float TurnTimer;
 			float TriggerTrapsTimer;
-			PeerId PeerID;
-			uint32_t UserID;
+			UserId UserID;
+			uint32_t UserID2;
 			uint32_t U12;
 			ObjectHandle OwnerHandle;
 			ObjectHandle FollowCharacterHandle;
@@ -251,18 +258,18 @@ namespace dse
 			uint8_t DelayDeathCount;
 			uint16_t _Pad6;
 			Status * DelayedDyingStatus;
-			ObjectSet<ObjectHandle> ObjectHandleSet3;
+			ObjectSet<ObjectHandle> RegisteredTriggerHandles;
 			ObjectSet<FixedString> RegisteredTriggers;
 			PlayerData * PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
 			uint8_t _Pad62[7];
-			uint64_t U13;
+			uint32_t ServerControlRefCount;
+			uint32_t U13;
 			float U131;
 			uint8_t _Pad63[4];
 			STDWString * CustomDisplayName;
 			void * StoryDisplayName;
-			TranslatedString * OriginalTransformDisplayName;
-			uint64_t U14[20];
+			TranslatedString OriginalTransformDisplayName;
 			int32_t MaxVitalityPatchCheck;
 			int32_t MaxArmorPatchCheck;
 			int32_t MaxMagicArmorPatchCheck;
@@ -286,14 +293,14 @@ namespace dse
 			uint64_t DamageCounter;
 			uint64_t HealCounter;
 			uint64_t KillCounter;
-			ObjectHandle U17;
+			ObjectHandle MovingCasterHandle;
 			FixedString Archetype;
 			FixedString EquipmentColor;
 			FixedString ProjectileTemplate;
 			uint32_t TimeElapsed;
 			uint8_t _Pad81[4];
 			ObjectSet<FixedString> PreferredAiTarget;
-			uint64_t U18;
+			void* CharacterBody;
 			RefMap<FixedString, void *> U19;
 			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
@@ -347,9 +354,15 @@ namespace dse
 		{
 			Status* GetStatus(NetId handle) const;
 
-			float WorldRot[9];
+			glm::vec3 WorldPos; // Saved
+			uint32_t _Pad2;
+			uint64_t Flags; // Saved
+			uint32_t U2;
+			uint32_t _Pad3;
+			FixedString CurrentLevel; // Saved
+			glm::mat3 WorldRot;
 			float Scale;
-			float Velocity[3];
+			glm::vec3 Velocity;
 			int field_34;
 			int field_38;
 			uint8_t gap3C[4];

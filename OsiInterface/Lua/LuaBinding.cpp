@@ -208,40 +208,36 @@ namespace dse::lua
 
 		if (stats->Character != nullptr) {
 			if (strcmp(prop, "Character") == 0) {
-				if (gOsirisProxy->IsInClientThread()) {
-					auto character = static_cast<ecl::Character*>(stats->Character);
-					ObjectHandle handle;
-					character->GetObjectHandle(handle);
+				ObjectHandle handle;
+				stats->Character->GetObjectHandle(handle);
+				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 					ObjectProxy<ecl::Character>::New(L, handle);
-				} else {
-					auto character = static_cast<esv::Character*>(stats->Character);
-					ObjectHandle handle;
-					character->GetObjectHandle(handle);
+				} else if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
 					ObjectProxy<esv::Character>::New(L, handle);
+				} else {
+					ERR("Unknown character handle type: %d", handle.GetType());
+					push(L, nullptr);
 				}
 				return 1;
 			}
 
 			if (strcmp(prop, "Rotation") == 0) {
-				auto rot = stats->Character->GetRotation();
-				lua_newtable(L);
-				for (auto i = 0; i < 9; i++) {
-					settable(L, i + 1, (*rot)[i / 3][i % 3]);
-				}
+				push(L, *stats->Character->GetRotation());
 				return 1;
 			}
 
 			if (strcmp(prop, "Position") == 0) {
-				auto trans = stats->Character->GetTranslate();
-				lua_newtable(L);
-				for (auto i = 0; i < 3; i++) {
-					settable(L, i + 1, (*trans)[i]);
-				}
+				push(L, *stats->Character->GetTranslate());
 				return 1;
 			}
 
-			fetched = LuaPropertyMapGet(L, gEoCServerObjectPropertyMap, stats->Character, prop, false);
-			if (fetched) {
+			if (strcmp(prop, "MyGuid") == 0) {
+				push(L, stats->Character->GetGuid());
+				return 1;
+			}
+
+			if (strcmp(prop, "NetID") == 0) {
+				push(L, stats->Character->NetID);
 				return 1;
 			}
 		}

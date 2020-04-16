@@ -108,6 +108,12 @@ namespace dse
 			Status * GetStatus(ObjectHandle handle, bool returnPending) const;
 			Status* GetStatus(NetId netId) const;
 
+			glm::vec3 WorldPos; // Saved
+			uint32_t _Pad2;
+			uint64_t Flags; // Saved
+			uint32_t U2;
+			uint32_t _Pad3;
+			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved
 			uint8_t Flags3;
@@ -116,8 +122,8 @@ namespace dse
 			uint64_t U3[2];
 			glm::vec3 WorldVelocity; // Saved
 			uint32_t _Pad5;
-			uint64_t U4;
-			FixedString CurrentTemplate; // Saved
+			void* AI;
+			void* CurrentTemplate; // Saved
 			uint64_t OriginalTemplateType; // Saved
 			STDWString CustomDisplayName; // Saved
 			STDWString CustomDescription; // Saved
@@ -143,7 +149,7 @@ namespace dse
 			void * PlanMachine; // Saved
 			void * VariableManager; // Saved
 			StatusMachine * StatusMachine; // Saved
-			void * U6;
+			FixedString VisualResourceID;
 			ObjectHandle OwnerHandle; // Saved
 			ObjectHandle OriginalOwnerCharacter; // Saved
 			void * Sockets; // Saved
@@ -202,15 +208,18 @@ namespace dse
 	{
 		struct Item : public IEocClientObject
 		{
+			glm::vec3 WorldPos;
+			uint32_t _Pad2;
 			uint64_t Flags;
-			uint8_t Flags2;
+			uint32_t Flags2;
+			uint8_t _Pad3[7];
 			__int64 field_58;
 			__int64 field_60;
 			__int64 field_68;
-			FixedString LevelName;
-			float WorldRot[9];
+			FixedString CurrentLevel;
+			glm::mat3 WorldRot;
 			float Scale;
-			float Velocity[3];
+			glm::vec3 Velocity;
 			uint8_t gap34[4];
 			void* PhysicsObject;
 			void* AiObject;

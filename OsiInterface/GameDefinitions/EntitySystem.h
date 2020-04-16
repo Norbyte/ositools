@@ -333,12 +333,6 @@ namespace dse
 
 		NetId NetID;
 		uint32_t _Pad1;
-		glm::vec3 WorldPos; // Saved
-		uint32_t _Pad2;
-		uint64_t Flags; // Saved
-		uint32_t U2;
-		uint32_t _Pad3;
-		FixedString CurrentLevel; // Saved
 	};
 
 	struct IEocClientObject : public IGameObject
@@ -387,6 +381,7 @@ namespace dse
 		struct Character;
 		struct Inventory;
 		struct TurnManager;
+		struct Projectile;
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
@@ -499,6 +494,17 @@ namespace dse
 				auto component = GetComponent(ComponentType::Item, ObjectType::ServerItem, handle, logError);
 				if (component != nullptr) {
 					return (Item*)((uint8_t*)component - 8);
+				}
+				else {
+					return nullptr;
+				}
+			}
+
+			inline Projectile* GetProjectile(ObjectHandle handle, bool logError = true)
+			{
+				auto component = GetComponent(ComponentType::Item, ObjectType::ServerProjectile, handle, logError);
+				if (component != nullptr) {
+					return (Projectile*)((uint8_t*)component - 8);
 				}
 				else {
 					return nullptr;

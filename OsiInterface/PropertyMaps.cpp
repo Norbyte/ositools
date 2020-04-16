@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
+#include <GameDefinitions/Projectile.h>
 #include "PropertyMaps.h"
 
 namespace dse
@@ -19,9 +20,9 @@ namespace dse
 	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
 	PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
-	PropertyMap<IEoCServerObject, void> gEoCServerObjectPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
+	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 	PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 	PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
@@ -498,6 +499,52 @@ namespace dse
 			PROP_RO(TreasureLevel);
 			PROP_RO(LevelOverride);
 			PROP_RO(ForceSynch);
+		}
+
+		{
+			BEGIN_PROPERTIES(gProjectilePropertyMap);
+			// EoCServerObject
+			PROP_RO(NetID);
+			PROP_RO(MyGuid);
+			// Projectile
+			PROP_RO(CasterHandle);
+			PROP_RO(SourceHandle);
+			PROP_RO(TargetObjectHandle);
+			PROP_RO(HitObjectHandle);
+			PROP_RO(SourcePosition);
+			PROP_RO(TargetPosition);
+			PROP_ENUM(DamageType);
+			PROP_ENUM(DamageSourceType);
+			PROP_RO(LifeTime);
+			PROP_RO(HitInterpolation);
+			PROP_RO(ExplodeRadius0);
+			PROP_RO(ExplodeRadius1);
+			PROP_ENUM(DeathType);
+			PROP_RO(SkillId);
+			PROP_RO(WeaponHandle);
+			PROP_RO(MovingEffectHandle);
+			PROP_RO(SpawnEffect);
+			PROP_RO(SpawnFXOverridesImpactFX);
+			PROP_RO(EffectHandle);
+			PROP_RO(RequestDelete);
+			PROP_RO(Launched);
+			PROP_RO(IsTrap);
+			PROP_RO(UseCharacterStats);
+			PROP_RO(ReduceDurability);
+			PROP_RO(AlwaysDamage);
+			PROP_RO(ForceTarget);
+			PROP_RO(IsFromItem);
+			PROP_RO(DivideDamage);
+			PROP_RO(IgnoreRoof);
+			PROP_RO(CanDeflect);
+			PROP_RO(IgnoreObjects);
+			PROP_RO(CleanseStatuses);
+			PROP_RO(StatusClearChance);
+			PROP_RO(Position);
+			PROP_RO(PrevPosition);
+			PROP_RO(Velocity);
+			PROP_RO(Scale);
+			PROP_RO(CurrentLevel);
 		}
 
 		{

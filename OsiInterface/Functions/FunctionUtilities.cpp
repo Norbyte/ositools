@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <GameDefinitions/Projectile.h>
 #include <GameDefinitions/Symbols.h>
 
 namespace dse
@@ -171,6 +172,9 @@ namespace dse
 			case ObjectType::ServerItem:
 				return GetItem(handle, logError);
 
+			case ObjectType::ServerProjectile:
+				return GetProjectile(handle, logError);
+
 			default:
 				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");
 				return nullptr;
@@ -278,7 +282,7 @@ namespace dse
 
 			ObjectHandle handle;
 			obj->GetObjectHandle(handle);
-			glm::vec3 position = obj->WorldPos;
+			glm::vec3 position = reinterpret_cast<esv::Character*>(obj)->WorldPos;
 
 			if (strcmp(prop, "SourcePosition") == 0) {
 				Helper.StartPosition = position;

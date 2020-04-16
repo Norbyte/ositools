@@ -4,6 +4,7 @@
 #include "Enumerations.h"
 #include "EntitySystem.h"
 #include "Module.h"
+#include <glm/gtc/quaternion.hpp>
 
 namespace dse
 {
@@ -126,6 +127,29 @@ namespace dse
 
 	namespace eoc
 	{
+		struct PathMover
+		{
+			glm::quat PathRotateOrig;
+			glm::quat PathRotateTarget;
+			glm::vec3 StartingPosition;
+			glm::vec3 DestinationPos;
+			float PathInterpolateValue;
+			float PathSpeedSet;
+			float PathSpeed;
+			float PathAcceleration;
+			uint8_t PathType;
+			uint8_t _Pad1[3];
+			int PathRotationType;
+			float PathRadius;
+			float PathShift;
+			float PathMinArcDist;
+			float PathMaxArcDist;
+			uint64_t PathRepeat;
+			uint8_t PathRandom;
+			uint8_t _Pad2[7];
+		};
+
+
 		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>
 		{
 			uint16_t Initialized;

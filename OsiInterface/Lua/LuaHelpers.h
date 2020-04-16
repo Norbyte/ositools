@@ -8,6 +8,15 @@
 
 namespace dse::lua
 {
+	template <class TKey, class TValue>
+	inline void settable(lua_State* L, TKey const& k, TValue const& v, int index = -3)
+	{
+		push(L, k);
+		push(L, v);
+		lua_settable(L, index);
+	}
+
+
 	inline void push(lua_State * L, nullptr_t v)
 	{
 		lua_pushnil(L);
@@ -62,6 +71,23 @@ namespace dse::lua
 	{
 		push(L, ToUTF8(v));
 	}
+
+	inline void push(lua_State* L, glm::vec3 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+		settable(L, 3, v.z);
+	}
+
+	inline void push(lua_State* L, glm::mat3 const& m)
+	{
+		lua_newtable(L);
+		for (auto i = 0; i < 9; i++) {
+			settable(L, i + 1, m[i / 3][i % 3]);
+		}
+	}
+
 
 	// Dummy pin class for values that need no special pinning/unpinning behavior
 	struct NullPin {};
@@ -133,14 +159,6 @@ namespace dse::lua
 	NULL_PIN(StringView)
 	NULL_PIN(WStringView)
 
-
-	template <class TKey, class TValue>
-	inline void settable(lua_State * L, TKey const & k, TValue const & v, int index = -3)
-	{
-		push(L, k);
-		push(L, v);
-		lua_settable(L, index);
-	}
 
 	template <class TValue>
 	TValue get(lua_State * L, int index = -1);

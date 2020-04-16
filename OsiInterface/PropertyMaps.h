@@ -21,9 +21,9 @@ namespace dse
 	extern PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
 	extern PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
 	extern PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
-	extern PropertyMap<IEoCServerObject, void> gEoCServerObjectPropertyMap;
 	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
+	extern PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 	extern PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 	extern PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
