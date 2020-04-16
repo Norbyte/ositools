@@ -108,8 +108,6 @@ namespace dse
 		net::GameServer * GetServer() const;
 		net::Client * GetClient() const;
 
-		void AppendMessageTrailer(net::BitstreamSerializer* serializer);
-		bool CheckMessageTrailer(net::BitstreamSerializer* serializer);
 		void OnClientConnectMessage(net::Message* msg, net::BitstreamSerializer* serializer);
 		void OnClientAcceptMessage(net::Message* msg, net::BitstreamSerializer* serializer);
 		void HookMessages(net::MessageFactory* messageFactory);

@@ -314,64 +314,38 @@ namespace dse
 		}
 	}
 
-	char const* ExtenderMsgSignature = "EXTD";
-
-	void NetworkManager::AppendMessageTrailer(net::BitstreamSerializer* serializer)
-	{
-		serializer->WriteBytes(ExtenderMsgSignature, 4);
-		uint32_t version = CurrentVersion;
-		serializer->WriteBytes(&version, sizeof(version));
-	}
-
-	bool NetworkManager::CheckMessageTrailer(net::BitstreamSerializer* serializer)
-	{
-		auto remaining = (serializer->Bitstream->NumBits - serializer->Bitstream->CurrentOffsetBits) / 8;
-		if (remaining >= 8) {
-			uint8_t signature[4];
-			uint32_t version;
-			serializer->ReadBytes(signature, 4);
-			serializer->ReadBytes(&version, sizeof(version));
-
-			if (memcmp(signature, ExtenderMsgSignature, 4) != 0) {
-				WARN("Extender signature incorrect in connect message");
-				return false;
-			}
-
-			if (version == CurrentVersion) {
-				return true;
-			} else {
-				WARN("Client extender version mismatch! Local %d, remote %d", CurrentVersion, version);
-				return false;
-			}
-		} else {
-			DEBUG("No extender trailer found in ClientConnect/ClientAccept");
-			return false;
-		}
-	}
+	char const* ExtenderMsgSignature = "EX1";
+	uint8_t ExternderNullSignature[3] = { 0, 0, 0 };
 
 	void NetworkManager::OnClientConnectMessage(net::Message* msg, net::BitstreamSerializer* serializer)
 	{
-		if (serializer->IsWriting) {
-			AppendMessageTrailer(serializer);
-		} else if (CheckMessageTrailer(serializer)) {
-			// Nothing to do, client will send an ExtenderHello message
-		}
 	}
 
 	void NetworkManager::OnClientAcceptMessage(net::Message* msg, net::BitstreamSerializer* serializer)
 	{
 		if (serializer->IsWriting) {
-			AppendMessageTrailer(serializer);
-		} else if (CheckMessageTrailer(serializer)) {
-			DEBUG("Sending ExtenderHello to server");
-			ClientAllowExtenderMessages();
-			auto helloMsg = GetFreeClientMessage();
-			if (helloMsg != nullptr) {
-				helloMsg->GetMessage().mutable_c2s_extender_hello();
-				ClientSend(helloMsg);
+			DEBUG("Appending extender signature to ClientAccept");
+			// Client only uses LSB, so we have 3 "free" bytes.
+			// We cannot append data to the packet, as client also uses trailer for user IDs
+			memcpy(serializer->Bitstream->Buf + 2, ExtenderMsgSignature, 3);
+		} else if (memcmp(serializer->Bitstream->Buf + 2, ExternderNullSignature, 3) != 0) {
+			if (memcmp(serializer->Bitstream->Buf + 2, ExtenderMsgSignature, 3) == 0) {
+				DEBUG("Sending ExtenderHello to server");
+				ClientAllowExtenderMessages();
+				gOsirisProxy->GetNetworkManager().ExtendNetworkingClient();
+				auto helloMsg = GetFreeClientMessage();
+				if (helloMsg != nullptr) {
+					helloMsg->GetMessage().mutable_c2s_extender_hello();
+					ClientSend(helloMsg);
+				}
+				else {
+					OsiErrorS("Could not get free message!");
+				}
 			} else {
-				OsiErrorS("Could not get free message!");
+				WARN("Extender signature incorrect in ClientAccept message");
 			}
+		} else {
+			DEBUG("No extender trailer found in ClientAccept message");
 		}
 	}
 
