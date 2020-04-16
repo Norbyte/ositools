@@ -488,7 +488,11 @@ namespace dse::esv::lua
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
 				ObjectHandle handle{ value };
-				character = GetEntityWorld()->GetCharacter(handle);
+				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+					OsiError("Attempted to resolve client ObjectHandle on the server");
+				} else {
+					character = GetEntityWorld()->GetCharacter(handle);
+				}
 			} else {
 				NetId netId{ (uint32_t)value };
 				character = GetEntityWorld()->GetCharacter(netId);
@@ -644,7 +648,7 @@ namespace dse::esv::lua
 		auto payload = luaL_checkstring(L, 2);
 
 		esv::Character * excludeCharacter = nullptr;
-		if (!lua_isnil(L, 3)) {
+		if (lua_gettop(L) > 2 && !lua_isnil(L, 3)) {
 			auto excludeCharacterGuid = luaL_checkstring(L, 3);
 			excludeCharacter = GetEntityWorld()->GetCharacter(excludeCharacterGuid);
 			if (excludeCharacter == nullptr) return 0;
@@ -657,7 +661,7 @@ namespace dse::esv::lua
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
 			if (excludeCharacter != nullptr) {
-				networkMgr.ServerBroadcast(msg, excludeCharacter->PeerID);
+				networkMgr.ServerBroadcast(msg, excludeCharacter->UserID);
 			} else {
 				networkMgr.ServerBroadcast(msg, -1);
 			}
@@ -678,12 +682,12 @@ namespace dse::esv::lua
 		if (character == nullptr) return 0;
 
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage(character->PeerID);
+		auto msg = networkMgr.GetFreeServerMessage(character->UserID);
 		if (msg != nullptr) {
 			auto postMsg = msg->GetMessage().mutable_post_lua();
 			postMsg->set_channel_name(channel);
 			postMsg->set_payload(payload);
-			networkMgr.ServerSend(msg, character->PeerID);
+			networkMgr.ServerSend(msg, character->UserID);
 		} else {
 			OsiErrorS("Could not get free message!");
 		}

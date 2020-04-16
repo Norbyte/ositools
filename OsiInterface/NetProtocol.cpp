@@ -131,15 +131,15 @@ namespace dse
 		case MessageWrapper::kC2SRequestStrings:
 		{
 			if (gOsirisProxy->GetConfig().SyncNetworkStrings) {
-				gOsirisProxy->NetworkFixedStringSync().OnUpdateRequested(context.UserId);
+				gOsirisProxy->NetworkFixedStringSync().OnUpdateRequested(context.UserID);
 			}
 			break;
 		}
 
 		case MessageWrapper::kC2SExtenderHello:
 		{
-			DEBUG("Got extender support notification from peer %d", context.UserId);
-			gOsirisProxy->GetNetworkManager().ServerAllowExtenderMessages(context.UserId);
+			DEBUG("Got extender support notification from user %d", context.UserID.Id);
+			gOsirisProxy->GetNetworkManager().ServerAllowExtenderMessages(context.UserID.GetPeerId());
 			break;
 		}
 
@@ -393,10 +393,10 @@ namespace dse
 		}
 	}
 
-	ScriptExtenderMessage * NetworkManager::GetFreeServerMessage(PeerId peerId)
+	ScriptExtenderMessage * NetworkManager::GetFreeServerMessage(UserId userId)
 	{
-		if (peerId != -1 && serverExtenderPeerIds_.find(peerId) == serverExtenderPeerIds_.end()) {
-			ERR("Attempted to send extender message to peer %d that does not understand extender protocol!", peerId);
+		if (userId && serverExtenderPeerIds_.find(userId.GetPeerId()) == serverExtenderPeerIds_.end()) {
+			ERR("Attempted to send extender message to user %d that does not understand extender protocol!", userId.Id);
 			return nullptr;
 		}
 
@@ -416,15 +416,15 @@ namespace dse
 		}
 	}
 
-	void NetworkManager::ServerSend(ScriptExtenderMessage * msg, PeerId peerId)
+	void NetworkManager::ServerSend(ScriptExtenderMessage * msg, UserId userId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
-			server->VMT->SendToPeer(server, &peerId, msg);
+			server->VMT->SendToPeer(server, &userId.Id, msg);
 		}
 	}
 
-	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, PeerId excludePeerId)
+	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
@@ -433,14 +433,16 @@ namespace dse
 				auto peerId = server->ActivePeerIds[i];
 				if (serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end()) {
 					peerIds.Set.Add(peerId);
+				} else {
+					WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
 				}
 			}
 
-			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
+			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludeUserId.Id);
 		}
 	}
 
-	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, PeerId excludePeerId)
+	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
@@ -449,7 +451,7 @@ namespace dse
 			for (uint32_t i = 0; i < server->ConnectedPeerIds.Set.Size; i++) {
 				peerIds.Set.Add(server->ConnectedPeerIds[i]);
 			}
-			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludePeerId);
+			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludeUserId.Id);
 		}
 	}
 
@@ -490,14 +492,14 @@ namespace dse
 	void NetworkFixedStringSynchronizer::FlushQueuedRequests()
 	{
 		DEBUG("Flushing NetworkFixedString updates");
-		for (auto peerId : pendingSyncRequests_) {
-			SendUpdateToPeer(peerId);
+		for (auto userId : pendingSyncRequests_) {
+			SendUpdateToUser(userId);
 		}
 
 		pendingSyncRequests_.clear();
 	}
 
-	void NetworkFixedStringSynchronizer::OnUpdateRequested(PeerId peerId)
+	void NetworkFixedStringSynchronizer::OnUpdateRequested(UserId userId)
 	{
 		auto gameState = *GetStaticSymbols().GetServerState();
 		if (gameState == esv::GameState::LoadSession
@@ -505,25 +507,25 @@ namespace dse
 			|| gameState == esv::GameState::BuildStory
 			|| gameState == esv::GameState::Sync
 			|| gameState == esv::GameState::Running) {
-			DEBUG("Fulfill requested NetworkFixedString update for peer %d", peerId);
-			SendUpdateToPeer(peerId);
+			DEBUG("Fulfill requested NetworkFixedString update for user %d", userId.Id);
+			SendUpdateToUser(userId);
 		} else {
-			DEBUG("Queuing requested NetworkFixedString update for peer %d", peerId);
-			pendingSyncRequests_.insert(peerId);
+			DEBUG("Queuing requested NetworkFixedString update for user %d", userId.Id);
+			pendingSyncRequests_.insert(userId);
 		}
 	}
 
-	void NetworkFixedStringSynchronizer::SendUpdateToPeer(PeerId peerId)
+	void NetworkFixedStringSynchronizer::SendUpdateToUser(UserId userId)
 	{
 		auto fixedStrs = GetStaticSymbols().NetworkFixedStrings;
 		if (fixedStrs == nullptr || *fixedStrs == nullptr) {
 			return;
 		}
 
-		DEBUG("Sending NetworkFixedString table to peer %d", peerId);
+		DEBUG("Sending NetworkFixedString table to user %d", userId.Id);
 		auto& nfs = **fixedStrs;
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage(peerId);
+		auto msg = networkMgr.GetFreeServerMessage(userId);
 		if (msg != nullptr) {
 			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
 			auto numStrings = nfs.FixedStrSet.Set.Size;
@@ -531,7 +533,7 @@ namespace dse
 				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
 			}
 
-			networkMgr.ServerSend(msg, peerId);
+			networkMgr.ServerSend(msg, userId);
 		}
 		else {
 			OsiErrorS("Could not get free message!");

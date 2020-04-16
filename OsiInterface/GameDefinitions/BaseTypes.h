@@ -121,6 +121,32 @@ namespace dse
 
 	using PeerId = int32_t;
 
+	struct UserId
+	{
+		static constexpr int32_t Unassigned = -1;
+
+		int32_t Id;
+
+		inline constexpr UserId() : Id(Unassigned) {}
+		inline constexpr UserId(int32_t id) : Id(id) {}
+		inline constexpr UserId(UserId const& id) : Id(id.Id) {}
+
+		inline operator bool() const
+		{
+			return Id != Unassigned;
+		}
+
+		inline bool operator !() const
+		{
+			return Id == Unassigned;
+		}
+
+		inline constexpr PeerId GetPeerId() const
+		{
+			return (PeerId)(Id >> 16);
+		}
+	};
+
 	// Base class for game objects that cannot be copied.
 	template <class T>
 	class Noncopyable
@@ -1040,6 +1066,17 @@ namespace std
 		result_type operator()(argument_type const& fn) const noexcept
 		{
 			return std::hash<uint64_t>{}(fn.Handle);
+		}
+	};
+
+	template<> struct hash<dse::UserId>
+	{
+		typedef dse::UserId argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<int32_t>{}(fn.Id);
 		}
 	};
 }

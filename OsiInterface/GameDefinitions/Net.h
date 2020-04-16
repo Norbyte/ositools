@@ -16,7 +16,7 @@ namespace dse
 			uint32_t AllocatedBits;
 			uint32_t CurrentOffsetBits;
 			uint8_t _Pad[4];
-			void* Buf;
+			uint8_t* Buf;
 			bool Unknown;
 			uint8_t _Pad1[7];
 		};
@@ -81,7 +81,7 @@ namespace dse
 
 		struct MessageContext
 		{
-			PeerId UserId;
+			UserId UserID;
 			uint8_t _Pad1[4];
 			ObjectSet<uint16_t> PeerIDClassNames;
 			ObjectSet<uint32_t> UserIDs;

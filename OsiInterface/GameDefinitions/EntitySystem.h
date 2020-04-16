@@ -126,7 +126,6 @@ namespace dse
 			}
 
 			if (!componentHandle) {
-				OsiError("Attempted to resolve an unassigned ObjectHandle!");
 				return nullptr;
 			}
 
@@ -591,6 +590,17 @@ namespace dse
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
+			inline Character* GetCharacter(char const* nameGuid, bool logError = true)
+			{
+				auto component = GetComponent(ComponentType::Character, nameGuid, logError);
+				if (component != nullptr) {
+					return (Character*)((uint8_t*)component - 8);
+				}
+				else {
+					return nullptr;
+				}
+			}
+
 			inline Character* GetCharacter(ObjectHandle handle, bool logError = true)
 			{
 				auto component = GetComponent(ComponentType::Character, ObjectType::ClientCharacter, handle, logError);

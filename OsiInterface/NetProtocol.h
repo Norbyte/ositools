@@ -88,12 +88,12 @@ namespace dse
 		void ExtendNetworkingServer();
 
 		ScriptExtenderMessage * GetFreeClientMessage();
-		ScriptExtenderMessage * GetFreeServerMessage(PeerId peerId);
+		ScriptExtenderMessage * GetFreeServerMessage(UserId userId);
 
 		void ClientSend(ScriptExtenderMessage * msg);
-		void ServerSend(ScriptExtenderMessage * msg, PeerId peerId);
-		void ServerBroadcast(ScriptExtenderMessage * msg, PeerId excludePeerId);
-		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, PeerId excludePeerId);
+		void ServerSend(ScriptExtenderMessage * msg, UserId userId);
+		void ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId);
+		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId);
 
 	private:
 		ExtenderProtocolClient * clientProtocol_{ nullptr };
@@ -119,7 +119,7 @@ namespace dse
 	class NetworkFixedStringSynchronizer
 	{
 	public:
-		void OnUpdateRequested(PeerId peerId);
+		void OnUpdateRequested(UserId userId);
 		void RequestFromServer();
 		void FlushQueuedRequests();
 		void UpdateFromServer();
@@ -134,11 +134,11 @@ namespace dse
 
 	private:
 		std::vector<STDString> updatedStrings_;
-		std::unordered_set<PeerId> pendingSyncRequests_;
+		std::unordered_set<UserId> pendingSyncRequests_;
 		bool notInSync_{ false };
 		bool syncWarningShown_{ false };
 		STDString conflictingString_;
 
-		void SendUpdateToPeer(PeerId peerId);
+		void SendUpdateToUser(UserId userId);
 	};
 }

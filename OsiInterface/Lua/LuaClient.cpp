@@ -224,9 +224,13 @@ namespace dse::ecl::lua
 		{
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
-				OsiError("Resolving characters by Handle is not supported on the client");
-			}
-			else {
+				ObjectHandle handle{ value };
+				if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+					OsiError("Attempted to resolve server ObjectHandle on the client");
+				} else {
+					character = GetEntityWorld()->GetCharacter(handle);
+				}
+			} else {
 				NetId netId{ (uint32_t)value };
 				character = GetEntityWorld()->GetCharacter(netId);
 			}
@@ -234,11 +238,14 @@ namespace dse::ecl::lua
 		}
 
 		case LUA_TSTRING:
-			OsiError("Resolving characters by UUID is not supported on the client");
+		{
+			auto guid = lua_tostring(L, index);
+			character = GetEntityWorld()->GetCharacter(guid);
 			break;
+		}
 
 		default:
-			OsiError("Expected character NetId");
+			OsiError("Expected character UUID, Handle or NetId");
 			break;
 		}
 
@@ -272,7 +279,12 @@ namespace dse::ecl::lua
 		{
 			auto value = lua_tointeger(L, 1);
 			if (value > 0xffffffff) {
-				OsiError("Resolving items by Handle is not supported on the client");
+				ObjectHandle handle{ value };
+				if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
+					OsiError("Attempted to resolve server ObjectHandle on the client");
+				} else {
+					item = GetEntityWorld()->GetItem(handle);
+				}
 			} else {
 				NetId netId{ (uint32_t)value };
 				item = GetEntityWorld()->GetItem(netId);
@@ -288,7 +300,7 @@ namespace dse::ecl::lua
 		}
 
 		default:
-			OsiError("Expected item GUID or handle");
+			OsiError("Expected item UUID, Handle or NetId");
 			return 0;
 		}
 
