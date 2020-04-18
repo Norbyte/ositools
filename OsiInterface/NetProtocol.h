@@ -81,6 +81,7 @@ namespace dse
 		void ClientReset();
 		void ServerReset();
 
+		bool ClientCanSendExtenderMessages() const;
 		void ClientAllowExtenderMessages();
 		void ServerAllowExtenderMessages(PeerId peerId);
 

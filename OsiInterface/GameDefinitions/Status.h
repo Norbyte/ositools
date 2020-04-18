@@ -81,7 +81,7 @@ namespace dse
 			void * AddStatsData_Maybe;
 		};
 
-		struct Status : public ProtectedGameObject<CRPGStatsManager>
+		struct Status : public ProtectedGameObject<Status>
 		{
 			virtual ~Status() = 0;
 			virtual void SetObjectHandle(ObjectHandle Handle) = 0;
@@ -203,9 +203,7 @@ namespace dse
 		{
 			ObjectSet<FixedString> Skill; // Saved
 			ObjectSet<FixedString> Items; // Saved
-			PrimitiveSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
-			int64_t field_E0;
-			int64_t field_E8;
+			ObjectSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
 			bool ResetAllCooldowns; // Saved
 			bool ResetOncePerCombat; // Saved
 			bool ScaleWithVitality; // Saved
@@ -221,19 +219,16 @@ namespace dse
 			FixedString OriginalWeaponStatsId;
 			FixedString OverrideWeaponStatsId;
 			ObjectHandle OverrideWeaponHandle;
-			int field_170;
+			int AttributeHandle;
 			int SavingThrow; // TODO enum + enum prop!
 			Vector3 SourceDirection; // Saved
 			uint8_t _Pad12[4];
-			PrimitiveSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
-			int field_198;
-			int field_19C;
-			int64_t field_1A0;
+			ObjectSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
 			int Turn; // Saved
 			int field_1AC;
 			Status * AuraStatus; // Saved
 			HealEffect HealEffectOverride; // Saved
-			char field_1BC;
+			char Poisoned;
 			char field_1BD;
 			char field_1BE;
 			char field_1BF;
@@ -259,7 +254,7 @@ namespace dse
 			float HitTimer; // Saved
 			float TimeElapsed; // Saved
 			int DamageLevel; // Saved
-			uint64_t DamageStats; // Saved
+			FixedString DamageStats; // Saved
 			bool SpawnBlood; // Saved
 			uint8_t _Pad20[7];
 		};
@@ -271,7 +266,7 @@ namespace dse
 			float DistanceTraveled; // Saved
 			FixedString _Unknown;
 		};
-
+			
 		struct StatusActiveDefense : public StatusConsume
 		{
 			int Charges;

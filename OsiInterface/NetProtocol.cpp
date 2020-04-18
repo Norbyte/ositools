@@ -76,8 +76,22 @@ namespace dse
 			strings.push_back(STDString(str));
 		}
 
+		auto state = GetStaticSymbols().GetClientState();
+		DEBUG("Got fixedstring list from server");
 		gOsirisProxy->NetworkFixedStringSync().SetServerNetworkFixedStrings(strings);
-		gOsirisProxy->NetworkFixedStringSync().UpdateFromServer();
+
+		if (state == ecl::GameState::Running
+			|| state == ecl::GameState::PrepareRunning
+			|| state == ecl::GameState::Paused) {
+			WARN("Attempted to sync NetworkFixedStrings while the game is already running?");
+		}
+		else if (state == ecl::GameState::SwapLevel
+			|| state == ecl::GameState::LoadLevel
+			|| state == ecl::GameState::LoadModule
+			|| state == ecl::GameState::LoadSession
+			|| state == ecl::GameState::LoadGMCampaign) {
+			gOsirisProxy->NetworkFixedStringSync().UpdateFromServer();
+		}
 	}
 
 	void ExtenderProtocolClient::ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg)
@@ -215,6 +229,11 @@ namespace dse
 	void NetworkManager::ServerReset()
 	{
 		serverExtenderPeerIds_.clear();
+	}
+
+	bool NetworkManager::ClientCanSendExtenderMessages() const
+	{
+		return clientExtenderSupport_;
 	}
 
 	void NetworkManager::ClientAllowExtenderMessages()
@@ -451,6 +470,11 @@ namespace dse
 
 	void NetworkFixedStringSynchronizer::RequestFromServer()
 	{
+		if (!gOsirisProxy->GetNetworkManager().ClientCanSendExtenderMessages()) {
+			OsiWarnS("Not syncing fixedstrings - host has no extender support");
+			return;
+		}
+
 		DEBUG("Requesting NetworkFixedStrings from server");
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeClientMessage();
