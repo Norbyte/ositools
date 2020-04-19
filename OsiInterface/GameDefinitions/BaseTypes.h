@@ -8,6 +8,7 @@
 #include <string>
 #include <cassert>
 #include <optional>
+#include <atomic>
 #include <glm/glm.hpp>
 
 namespace dse
@@ -184,11 +185,31 @@ namespace dse
 
 		inline explicit FixedString(char const * s)
 			: Str(s)
-		{}
+		{
+			IncRef();
+		}
 
 		inline FixedString(FixedString const & fs)
 			: Str(fs.Str)
-		{}
+		{
+			IncRef();
+		}
+
+		inline ~FixedString()
+		{
+			DecRef();
+		}
+
+		inline FixedString & operator = (FixedString const& fs)
+		{
+			if (fs.Str != Str) {
+				DecRef();
+				Str = fs.Str;
+				IncRef();
+			}
+
+			return *this;
+		}
 
 		inline bool operator == (FixedString const & fs) const
 		{
@@ -211,6 +232,32 @@ namespace dse
 		}
 
 		char const * Str;
+
+	private:
+		struct Metadata
+		{
+			std::atomic<int64_t> RefCount;
+			uint8_t _Pad[4];
+			uint16_t HashKey;
+			uint16_t Length;
+		};
+
+		inline void IncRef()
+		{
+			if (Str) {
+				auto meta = (Metadata*)(const_cast<char *>(Str - 0x10));
+				meta->RefCount++;
+			}
+		}
+
+		inline void DecRef()
+		{
+			if (Str) {
+				auto meta = (Metadata*)(const_cast<char*>(Str - 0x10));
+				meta->RefCount--;
+				// TODO - remove from global pool if refcount reaches 1!
+			}
+		}
 	};
 
 	FixedString ToFixedString(const char * s);
@@ -290,6 +337,7 @@ namespace dse
 
 		void Clear()
 		{
+			ItemCount = 0;
 			for (uint32_t i = 0; i < HashSize; i++) {
 				auto item = HashTable[i];
 				if (item != nullptr) {
@@ -316,7 +364,7 @@ namespace dse
 			return nodeValue;
 		}
 
-		TValue* Insert(TKey key) const
+		TValue* Insert(TKey key)
 		{
 			auto item = HashTable[Hash(key) % HashSize];
 			auto last = item;
@@ -340,6 +388,7 @@ namespace dse
 				last->Next = node;
 			}
 
+			ItemCount++;
 			return &node->Value;
 		}
 
@@ -416,6 +465,7 @@ namespace dse
 
 		void Clear()
 		{
+			ItemCount = 0;
 			for (uint32_t i = 0; i < HashSize; i++) {
 				auto item = HashTable[i];
 				if (item != nullptr) {
@@ -449,7 +499,7 @@ namespace dse
 			return nullptr;
 		}
 
-		TValue* Insert(TKey key) const
+		TValue* Insert(TKey key)
 		{
 			auto item = HashTable[Hash(key) % HashSize];
 			auto last = item;
@@ -472,6 +522,7 @@ namespace dse
 				last->Next = node;
 			}
 
+			ItemCount++;
 			return &node->Value;
 		}
 
