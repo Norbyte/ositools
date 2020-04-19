@@ -1015,6 +1015,24 @@ bool OsirisProxy::IsInClientThread() const
 	return ClientThreadIds.find(tid) != ClientThreadIds.end();
 }
 
+void OsirisProxy::AttachConsoleThread(bool server)
+{
+	auto tid = GetCurrentThreadId();
+	if (server) {
+		ServerThreadIds.insert(tid);
+		auto it = ClientThreadIds.find(tid);
+		if (it != ClientThreadIds.end()) {
+			ClientThreadIds.erase(it);
+		}
+	} else {
+		ClientThreadIds.insert(tid);
+		auto it = ServerThreadIds.find(tid);
+		if (it != ServerThreadIds.end()) {
+			ServerThreadIds.erase(it);
+		}
+	}
+}
+
 FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type)
 {
 	if (!pathOverrides_.empty()) {

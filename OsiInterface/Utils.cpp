@@ -151,6 +151,8 @@ void DebugConsole::ConsoleThread()
 		DEBUG("Entering server Lua console.");
 
 		bool serverContext_ = true;
+		dse::gOsirisProxy->AttachConsoleThread(serverContext_);
+
 		while (consoleRunning_) {
 			inputEnabled_ = true;
 			std::cout << ">> ";
@@ -163,9 +165,11 @@ void DebugConsole::ConsoleThread()
 			} else if (line == "server") {
 				DEBUG("Switching to sever context.");
 				serverContext_ = true;
+				dse::gOsirisProxy->AttachConsoleThread(true);
 			} else if (line == "client") {
 				DEBUG("Switching to client context.");
 				serverContext_ = false;
+				dse::gOsirisProxy->AttachConsoleThread(false);
 			} else if (line == "help") {
 				DEBUG("Anything typed in will be executed as Lua code except the following special commands:");
 				DEBUG("  server - Switch to server context");

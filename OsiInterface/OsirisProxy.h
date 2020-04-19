@@ -176,6 +176,7 @@ public:
 
 	bool IsInServerThread() const;
 	bool IsInClientThread() const;
+	void AttachConsoleThread(bool server);
 
 	std::wstring MakeLogFilePath(std::wstring const& Type, std::wstring const& Extension);
 
