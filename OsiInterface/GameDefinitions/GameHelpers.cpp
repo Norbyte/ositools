@@ -593,12 +593,9 @@ namespace dse
 			return nullptr;
 		}
 
-		auto & mods = BaseModule.LoadOrderedModules.Set;
-		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const mod = mods.Buf + i;
-
-			if (mod->Info.ModuleUUID == modUuidFS) {
-				return mod;
+		for (auto const& mod : BaseModule.LoadOrderedModules) {
+			if (mod.Info.ModuleUUID == modUuidFS) {
+				return &mod;
 			}
 		}
 
@@ -641,9 +638,7 @@ namespace dse
 
 	esv::Status * esv::StatusMachine::GetStatus(ObjectHandle handle) const
 	{
-		auto count = Statuses.Set.Size;
-		for (uint32_t i = 0; i < count; i++) {
-			auto status = Statuses[i];
+		for (auto status : Statuses) {
 			if (status->StatusHandle == handle) {
 				return status;
 			}
@@ -659,9 +654,7 @@ namespace dse
 
 	esv::Status* esv::StatusMachine::GetStatus(FixedString statusId) const
 	{
-		auto count = Statuses.Set.Size;
-		for (uint32_t i = 0; i < count; i++) {
-			auto status = Statuses[i];
+		for (auto status : Statuses) {
 			if (status->StatusId == statusId) {
 				return status;
 			}
@@ -672,9 +665,7 @@ namespace dse
 
 	ecl::Status* ecl::StatusMachine::GetStatus(StatusType type) const
 	{
-		auto count = Statuses.Set.Size;
-		for (uint32_t i = 0; i < count; i++) {
-			auto status = Statuses[i];
+		for (auto status : Statuses) {
 			if (status->GetStatusId() == type) {
 				return status;
 			}
@@ -685,9 +676,7 @@ namespace dse
 
 	ecl::Status* ecl::StatusMachine::GetStatus(FixedString statusId) const
 	{
-		auto count = Statuses.Set.Size;
-		for (uint32_t i = 0; i < count; i++) {
-			auto status = Statuses[i];
+		for (auto status : Statuses) {
 			if (status->StatusId == statusId) {
 				return status;
 			}
@@ -1137,8 +1126,7 @@ namespace dse
 
 	void HitDamageInfo::ClearDamage(dse::DamageType damageType)
 	{
-		for (uint32_t i = 0; i < DamageList.Size; i++) {
-			auto const & dmg = DamageList[i];
+		for (auto const& dmg : DamageList) {
 			if (dmg.DamageType == damageType) {
 				TotalDamage -= dmg.Amount;
 			}

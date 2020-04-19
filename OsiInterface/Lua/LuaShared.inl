@@ -40,9 +40,7 @@ int CharacterGetStatusByType(lua_State* L)
 		return 0;
 	}
 
-	auto const& statuses = character->StatusMachine->Statuses.Set;
-	for (uint32_t index = 0; index < statuses.Size; index++) {
-		auto status = statuses[index];
+	for (auto status : character->StatusMachine->Statuses) {
 		if (status->GetStatusId() == *typeId) {
 			// FIXME - use handle based proxy
 			ObjectProxy<TStatus>::New(L, status);
@@ -65,8 +63,7 @@ int CharacterGetStatuses(lua_State* L)
 	lua_newtable(L);
 
 	int32_t index = 1;
-	for (uint32_t i = 0; i < character->StatusMachine->Statuses.Set.Size; i++) {
-		auto status = character->StatusMachine->Statuses[i];
+	for (auto status : character->StatusMachine->Statuses) {
 		settable(L, index++, status->StatusId);
 	}
 
@@ -107,8 +104,8 @@ int CharacterGetTags(lua_State* L)
 	ObjectSet<FixedString> tags;
 	character->GetTags(tags);
 
-	for (uint32_t i = 0; i < tags.Set.Size; i++) {
-		settable(L, index++, tags[i]);
+	for (auto const& tag : tags) {
+		settable(L, index++, tag);
 	}
 
 	return 1;

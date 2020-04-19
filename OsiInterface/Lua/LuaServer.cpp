@@ -109,8 +109,7 @@ namespace dse::lua
 		auto inventory = esv::FindInventoryByHandle(self->Get(L)->InventoryHandle);
 		if (inventory != nullptr) {
 			int32_t index = 1;
-			for (uint32_t i = 0; i < inventory->ItemsBySlot.Set.Size; i++) {
-				auto itemHandle = inventory->ItemsBySlot[i];
+			for (auto itemHandle : inventory->ItemsBySlot) {
 				if (itemHandle) {
 					auto item = esv::GetEntityWorld()->GetItem(itemHandle);
 					if (item != nullptr) {
@@ -353,12 +352,12 @@ namespace dse::esv::lua
 			lua_pop(L, 1);
 		}
 
-		for (uint32_t i = 0; i < combatTeams.Set.Size; i++) {
-			notifies.insert(combatTeams[i]->TeamId);
+		for (auto team : combatTeams) {
+			notifies.insert(team->TeamId);
 		}
 
-		for (uint32_t i = 0; i < combatNotifies.Set.Size; i++) {
-			notifies.insert(combatNotifies[i]);
+		for (auto notify : combatNotifies) {
+			notifies.insert(notify);
 		}
 
 		combatTeams.Set.Size = 0;
@@ -826,8 +825,8 @@ namespace dse::esv::lua
 		UnbindablePin _2(luaWeapon);
 
 		auto luaDamageList = DamageList::New(L);
-		for (uint32_t i = 0; i < damageList->Size; i++) {
-			luaDamageList->Get().SafeAdd((*damageList)[i]);
+		for (auto const& dmg : *damageList) {
+			luaDamageList->Get().SafeAdd(dmg);
 		}
 
 		auto hitTypeLabel = EnumInfo<HitType>::Find(hitType);
@@ -906,8 +905,7 @@ namespace dse::esv::lua
 				hit->ArmorAbsorption = (int32_t)armorAbsorption;
 				hit->LifeSteal = (int32_t)lifeSteal;
 				hit->DamageList.Clear();
-				for (uint32_t i = 0; i < damageList->Get().Size; i++) {
-					auto const & dmg = damageList->Get()[i];
+				for (auto const& dmg : damageList->Get()) {
 					hit->DamageList.AddDamage(dmg.DamageType, dmg.Amount);
 				}
 				ok = true;

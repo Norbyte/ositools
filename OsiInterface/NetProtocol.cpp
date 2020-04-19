@@ -422,8 +422,7 @@ namespace dse
 		auto server = GetServer();
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
-			for (uint32_t i = 0; i < server->ActivePeerIds.Set.Size; i++) {
-				auto peerId = server->ActivePeerIds[i];
+			for (auto peerId : server->ActivePeerIds) {
 				if (serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end()) {
 					peerIds.Set.Add(peerId);
 				} else {
@@ -441,8 +440,8 @@ namespace dse
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
 			peerIds.Set.Reallocate(server->ConnectedPeerIds.Set.Size);
-			for (uint32_t i = 0; i < server->ConnectedPeerIds.Set.Size; i++) {
-				peerIds.Set.Add(server->ConnectedPeerIds[i]);
+			for (auto peerId : server->ConnectedPeerIds) {
+				peerIds.Set.Add(peerId);
 			}
 			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludeUserId.Id);
 		}
@@ -457,9 +456,8 @@ namespace dse
 
 			auto nfsLogPath = gOsirisProxy->MakeLogFilePath(L"NetworkFixedStrings", L"log");
 			std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
-			for (uint32_t i = 0; i < strings.Size; i++) {
-				auto str = strings[i].Str;
-				logOut << (str == nullptr ? "(NULL)" : str) << std::endl;
+			for (auto const& string : strings) {
+				logOut << (string ? string.Str : "(NULL)") << std::endl;
 			}
 			logOut.close();
 			DEBUG(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
@@ -526,9 +524,8 @@ namespace dse
 		auto msg = networkMgr.GetFreeServerMessage(userId);
 		if (msg != nullptr) {
 			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
-			auto numStrings = nfs.FixedStrSet.Set.Size;
-			for (uint32_t i = 1; i < numStrings; i++) {
-				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
+			for (auto const& fs : nfs.FixedStrSet) {
+				syncMsg->add_network_string(fs.Str);
 			}
 
 			networkMgr.ServerSend(msg, userId);

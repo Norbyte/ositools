@@ -878,8 +878,7 @@ namespace dse::ecl::lua
 			return 0;
 		}
 
-		for (uint32_t i = 0; i < uiManager->Objects.Size; i++) {
-			auto ui = uiManager->Objects[i];
+		for (auto ui : uiManager->Objects) {
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.c_str()) {
 				UIObjectProxy::New(L, ui->UIObjectHandle);
@@ -1027,8 +1026,8 @@ namespace dse::ecl::lua
 			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
 		push(L, isFromItem);
 
-		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			push(L, paramTexts[i]); // stack: fn, skill, character, params...
+		for (auto const& paramText : paramTexts) {
+			push(L, paramText); // stack: fn, skill, character, params...
 		}
 
 		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
@@ -1062,8 +1061,8 @@ namespace dse::ecl::lua
 		ItemOrCharacterPushPin luaSource(L, statusSource);
 		ItemOrCharacterPushPin luaOwner(L, owner);
 
-		for (uint32_t i = 0; i < paramTexts.Set.Size; i++) {
-			lua_pushstring(L, paramTexts[i].c_str()); // stack: fn, status, srcCharacter, character, params...
+		for (auto const& paramText : paramTexts) {
+			push(L, paramText); // stack: fn, status, srcCharacter, character, params...
 		}
 
 		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");

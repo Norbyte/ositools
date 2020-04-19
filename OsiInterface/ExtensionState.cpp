@@ -31,11 +31,8 @@ namespace dse
 			return;
 		}
 
-		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-
 		unsigned numConfigs{ 0 };
-		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods[i];
+		for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 			auto dir = ToUTF8(mod.Info.Directory);
 			auto configFile = "Mods/" + dir + "/OsiToolsConfig.json";
 			auto reader = GetStaticSymbols().MakeFileReader(configFile);
@@ -442,12 +439,8 @@ namespace dse
 			return;
 		}
 
-		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-
 		lua::Restriction restriction(*lua, lua::State::RestrictAll);
-		for (uint32_t i = 0; i < mods.Size; i++) {
-			auto const & mod = mods[i];
-
+		for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 			auto configIt = modConfigs_.find(mod.Info.ModuleUUID.Str);
 			if (configIt != modConfigs_.end()) {
 				auto const & config = configIt->second;

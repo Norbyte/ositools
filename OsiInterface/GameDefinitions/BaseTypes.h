@@ -179,11 +179,13 @@ namespace dse
 
 	struct FixedString
 	{
+		enum FromPool {};
+
 		inline FixedString()
 			: Str(nullptr)
 		{}
 
-		inline explicit FixedString(char const * s)
+		inline explicit FixedString(char const * s, FromPool)
 			: Str(s)
 		{
 			IncRef();
@@ -193,6 +195,12 @@ namespace dse
 			: Str(fs.Str)
 		{
 			IncRef();
+		}
+
+		inline FixedString(FixedString && fs)
+			: Str(fs.Str)
+		{
+			fs.Str = nullptr;
 		}
 
 		inline ~FixedString()
@@ -206,6 +214,16 @@ namespace dse
 				DecRef();
 				Str = fs.Str;
 				IncRef();
+			}
+
+			return *this;
+		}
+
+		inline FixedString& operator = (FixedString && fs)
+		{
+			Str = fs.Str;
+			if (this != &fs) {
+				fs.Str = nullptr;
 			}
 
 			return *this;
@@ -601,6 +619,87 @@ namespace dse
 	dse::STDString ToUTF8(WStringView s);
 	dse::STDWString FromUTF8(StringView s);
 
+	template <class T>
+	struct ContiguousIterator
+	{
+		T* Ptr;
+
+		ContiguousIterator(T* p) : Ptr(p) {}
+
+		ContiguousIterator operator ++ ()
+		{
+			ContiguousIterator<T> it(Ptr);
+			Ptr++;
+			return it;
+		}
+
+		ContiguousIterator& operator ++ (int)
+		{
+			Ptr++;
+			return *this;
+		}
+
+		bool operator == (ContiguousIterator const& it)
+		{
+			return it.Ptr == Ptr;
+		}
+
+		bool operator != (ContiguousIterator const& it)
+		{
+			return it.Ptr != Ptr;
+		}
+
+		T& operator * ()
+		{
+			return *Ptr;
+		}
+
+		T* operator -> ()
+		{
+			return Ptr;
+		}
+	};
+
+	template <class T>
+	struct ContiguousConstIterator
+	{
+		T const* Ptr;
+
+		ContiguousConstIterator(T const* p) : Ptr(p) {}
+
+		ContiguousConstIterator operator ++ ()
+		{
+			ContiguousConstIterator<T> it(Ptr);
+			Ptr++;
+			return it;
+		}
+
+		ContiguousConstIterator& operator ++ (int)
+		{
+			Ptr++;
+			return *this;
+		}
+
+		bool operator == (ContiguousConstIterator const& it)
+		{
+			return it.Ptr == Ptr;
+		}
+
+		bool operator != (ContiguousConstIterator const& it)
+		{
+			return it.Ptr != Ptr;
+		}
+
+		T const& operator * ()
+		{
+			return *Ptr;
+		}
+
+		T const* operator -> ()
+		{
+			return Ptr;
+		}
+	};
 
 	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
 	struct CompactSet : public Noncopyable<CompactSet<T, Allocator, StoreSize>>
@@ -675,6 +774,26 @@ namespace dse
 		void Clear()
 		{
 			Size = 0;
+		}
+
+		ContiguousIterator<T> begin()
+		{
+			return ContiguousIterator<T>(Buf);
+		}
+
+		ContiguousConstIterator<T> begin() const
+		{
+			return ContiguousConstIterator<T>(Buf);
+		}
+
+		ContiguousIterator<T> end()
+		{
+			return ContiguousIterator<T>(Buf + Size);
+		}
+
+		ContiguousConstIterator<T> end() const
+		{
+			return ContiguousConstIterator<T>(Buf + Size);
 		}
 	};
 
@@ -761,6 +880,26 @@ namespace dse
 		{
 			return Set[index];
 		}
+
+		ContiguousIterator<T> begin()
+		{
+			return Set.begin();
+		}
+
+		ContiguousConstIterator<T> begin() const
+		{
+			return Set.begin();
+		}
+
+		ContiguousIterator<T> end()
+		{
+			return Set.end();
+		}
+
+		ContiguousConstIterator<T> end() const
+		{
+			return Set.end();
+		}
 	};
 
 	template <class T, class Allocator = GameMemoryAllocator>
@@ -777,6 +916,26 @@ namespace dse
 		inline T & operator [] (uint32_t index)
 		{
 			return Set[index];
+		}
+
+		ContiguousIterator<T> begin()
+		{
+			return Set.begin();
+		}
+
+		ContiguousConstIterator<T> begin() const
+		{
+			return Set.begin();
+		}
+
+		ContiguousIterator<T> end()
+		{
+			return Set.end();
+		}
+
+		ContiguousConstIterator<T> end() const
+		{
+			return Set.end();
 		}
 	};
 
@@ -913,6 +1072,26 @@ namespace dse
 			}
 
 			Size--;
+		}
+
+		ContiguousIterator<T> begin()
+		{
+			return ContiguousIterator<T>(Buf);
+		}
+
+		ContiguousConstIterator<T> begin() const
+		{
+			return ContiguousConstIterator<T>(Buf);
+		}
+
+		ContiguousIterator<T> end()
+		{
+			return ContiguousIterator<T>(Buf + Size);
+		}
+
+		ContiguousConstIterator<T> end() const
+		{
+			return ContiguousConstIterator<T>(Buf + Size);
 		}
 	};
 

@@ -489,8 +489,7 @@ namespace dse::lua
 		auto damageType = checked_get<DamageType>(L, 2);
 
 		int32_t amount = 0;
-		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			auto const & dmg = self->damages_.Buf[i];
+		for (auto const& dmg : self->damages_) {
 			if (dmg.DamageType == damageType) {
 				amount += dmg.Amount;
 			}
@@ -529,9 +528,8 @@ namespace dse::lua
 		auto self = DamageList::CheckUserData(L, 1);
 		auto multiplier = luaL_checknumber(L, 2);
 
-		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			auto & item = self->damages_[i];
-			item.Amount = (int32_t)round(item.Amount * multiplier);
+		for (auto& dmg : self->damages_) {
+			dmg.Amount = (int32_t)round(dmg.Amount * multiplier);
 		}
 
 		return 0;
@@ -542,9 +540,8 @@ namespace dse::lua
 		auto self = DamageList::CheckUserData(L, 1);
 		auto other = DamageList::CheckUserData(L, 2);
 
-		for (uint32_t i = 0; i < other->damages_.Size; i++) {
-			auto & item = other->damages_[i];
-			self->damages_.AddDamage(item.DamageType, item.Amount);
+		for (auto const& dmg : other->damages_) {
+			self->damages_.AddDamage(dmg.DamageType, dmg.Amount);
 		}
 
 		return 0;
@@ -556,8 +553,8 @@ namespace dse::lua
 		auto damageType = checked_get<DamageType>(L, 2);
 
 		int32_t totalDamage = 0;
-		for (uint32_t i = 0; i < self->damages_.Size; i++) {
-			totalDamage += self->damages_[i].Amount;
+		for (auto const& dmg : self->damages_) {
+			totalDamage += dmg.Amount;
 		}
 
 		self->damages_.Clear();
@@ -786,10 +783,8 @@ namespace dse::lua
 					*pDeathType = *deathType;
 				}
 
-				auto const & list = (*damages)->Get();
-				for (uint32_t i = 0; i < list.Size; i++) {
-					auto const & item = list[i];
-					damageList->AddDamage(item.DamageType, item.Amount);
+				for (auto const& dmg : (*damages)->Get()) {
+					damageList->AddDamage(dmg.DamageType, dmg.Amount);
 				}
 
 				return true;

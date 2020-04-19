@@ -35,9 +35,7 @@ namespace dse::esv
 			}
 
 			loaded.Set(0);
-			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods[i];
+			for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 				if (mod.Info.ModuleUUID == modUuid) {
 					loaded.Set(1);
 				}

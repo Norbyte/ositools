@@ -92,9 +92,7 @@ namespace dse::esv
 			auto statusMachine = GetStatusMachine(gameObjectGuid);
 			if (statusMachine == nullptr) return;
 
-			auto & statuses = statusMachine->Statuses.Set;
-			for (uint32_t index = 0; index < statuses.Size; index++) {
-				auto status = statuses[index];
+			for (auto const status : statusMachine->Statuses) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, gameObjectGuid });
 				eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
@@ -154,10 +152,8 @@ namespace dse::esv
 				return false;
 			}
 
-			auto const& statuses = statusMachine->Statuses.Set;
 			hasStatus.Set(0);
-			for (uint32_t index = 0; index < statuses.Size; index++) {
-				auto status = statuses[index];
+			for (auto const status : statusMachine->Statuses) {
 				if (status->GetStatusId() == *typeId) {
 					hasStatus.Set(1);
 					break;
@@ -182,9 +178,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto & statuses = statusMachine->Statuses.Set;
-			for (uint32_t index = 0; index < statuses.Size; index++) {
-				auto status = statuses[index];
+			for (auto const status : statusMachine->Statuses) {
 				if (status->StatusId == statusIdFS) {
 					args[2].Set((int64_t)status->StatusHandle);
 					return true;
@@ -681,8 +675,8 @@ namespace dse::esv
 		}
 
 		int32_t totalDamage{ 0 };
-		for (uint32_t i = 0; i < damageList->Size; i++) {
-			totalDamage += damageList->Buf[i].Amount;
+		for (auto const& dmg : *damageList) {
+			totalDamage += dmg.Amount;
 		}
 
 		auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Create();

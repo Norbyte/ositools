@@ -80,22 +80,20 @@ namespace dse::esv
 				return false;
 			}
 
-			auto deltaMod = args[1].String;
+			auto deltaMod = ToFixedString(args[1].String);
 
 			int32_t count = 0;
 			if (item->StatsDynamic != nullptr) {
-				auto const & boosts = item->StatsDynamic->BoostNameSet;
-				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
-					if (strcmp(boosts[i].Str, deltaMod) == 0) {
+				for (auto const& boost : item->StatsDynamic->BoostNameSet) {
+					if (boost == deltaMod) {
 						count++;
 					}
 				}
 			}
 
 			if (item->Generation != nullptr) {
-				auto const & boosts = item->Generation->Boosts;
-				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
-					if (strcmp(boosts[i].Str, deltaMod) == 0) {
+				for (auto const& boost : item->Generation->Boosts) {
+					if (boost == deltaMod) {
 						count++;
 					}
 				}
@@ -115,11 +113,10 @@ namespace dse::esv
 			if (item == nullptr) return;
 
 			if (item->Generation != nullptr) {
-				auto const & boosts = item->Generation->Boosts;
-				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
+				for (auto const& boost : item->Generation->Boosts) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts[i].Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });
 					eventArgs->Add(OsiArgumentValue{ 1 });
 					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -127,11 +124,10 @@ namespace dse::esv
 			}
 
 			if (item->StatsDynamic != nullptr) {
-				auto const & boosts = item->StatsDynamic->BoostNameSet;
-				for (uint32_t i = 0; i < boosts.Set.Size; i++) {
+				for (auto const& boost : item->StatsDynamic->BoostNameSet) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boosts[i].Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });
 					eventArgs->Add(OsiArgumentValue{ 0 });
 					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -478,9 +474,9 @@ namespace dse::esv
 			} else if (strcmp(boostType, "DeltaMod") == 0) {
 				defn.DeltaMods.Set.Add(boostName);
 			} else if (strcmp(boostType, "Rune") == 0) {
-				for (uint32_t i = 0; i < defn.RuneBoosts.Set.Size; i++) {
-					if (!*defn.RuneBoosts[i].Str) {
-						defn.RuneBoosts[i] = boostName;
+				for (auto& boost : defn.RuneBoosts) {
+					if (!boost) {
+						boost = boostName;
 						return;
 					}
 				}

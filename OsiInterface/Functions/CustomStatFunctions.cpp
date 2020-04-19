@@ -15,19 +15,15 @@ namespace dse::esv
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
 
-			auto & newDefns = statSystem->CreatedDefinitions.Set;
-			for (uint32_t i = 0; i < newDefns.Size; i++) {
-				auto handle = newDefns[i].Handle;
-				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
+			for (auto const& defn : statSystem->CreatedDefinitions) {
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
 				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
 			}
 
-			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
-			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
-				auto handle = inSyncDefns[i].Handle;
-				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
+			for (auto const& defn : statSystem->InSyncDefinitions) {
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
 				if (statDefn != nullptr && statDefn->Name == wstrName) {
 					return statDefn;
 				}
@@ -47,19 +43,15 @@ namespace dse::esv
 			auto entityWorld = GetEntityWorld();
 			auto statSystem = entityWorld->GetCustomStatSystem();
 
-			auto & createdDefns = statSystem->CreatedDefinitions.Set;
-			for (uint32_t i = 0; i < createdDefns.Size; i++) {
-				auto handle = createdDefns[i].Handle;
-				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
+			for (auto const& defn : statSystem->CreatedDefinitions) {
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;
 				}
 			}
 
-			auto & inSyncDefns = statSystem->InSyncDefinitions.Set;
-			for (uint32_t i = 0; i < inSyncDefns.Size; i++) {
-				auto handle = inSyncDefns[i].Handle;
-				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(handle);
+			for (auto const& defn : statSystem->InSyncDefinitions) {
+				auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
 				if (statDefn != nullptr && statDefn->Id == fs) {
 					return statDefn;
 				}

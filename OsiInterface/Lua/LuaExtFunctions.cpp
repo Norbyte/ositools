@@ -211,7 +211,11 @@ namespace dse::lua
 	int JsonStringify(lua_State * L)
 	{
 		int nargs = lua_gettop(L);
-		if (nargs < 1 || nargs > 2) {
+		if (nargs < 1) {
+			return luaL_error(L, "JsonStringify expects at least one parameter.");
+		}
+
+		if (nargs > 2) {
 			return luaL_error(L, "JsonStringify expects at most two parameters.");
 		}
 
@@ -315,9 +319,7 @@ namespace dse::lua
 		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
 		if (modUuid) {
 			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
-			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods[i];
+			for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 				if (mod.Info.ModuleUUID == modUuid) {
 					lua_pushboolean(L, 1);
 					return 1;
@@ -349,9 +351,7 @@ namespace dse::lua
 		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
 		if (modUuid) {
 			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
-			auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
-			for (uint32_t i = 0; i < mods.Size; i++) {
-				auto const & mod = mods[i];
+			for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 				if (mod.Info.ModuleUUID == modUuid) {
 					module = &mod;
 					break;
@@ -387,28 +387,24 @@ namespace dse::lua
 
 	void FetchSkillSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
-		auto & skillSets = stats->SkillSetManager->Primitives.Set;
 		int32_t index = 1;
-		for (uint32_t i = 0; i < skillSets.Size; i++) {
-			settable(L, index++, skillSets[i]->Name);
+		for (auto skillSet : stats->SkillSetManager->Primitives) {
+			settable(L, index++, skillSet->Name);
 		}
 	}
 
 	void FetchEquipmentSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
-		auto & equipmentSets = stats->EquipmentSetManager->Primitives.Set;
 		int32_t index = 1;
-		for (uint32_t i = 0; i < equipmentSets.Size; i++) {
-			settable(L, index++, equipmentSets[i]->Name);
+		for (auto equipmentSet : stats->EquipmentSetManager->Primitives) {
+			settable(L, index++, equipmentSet->Name);
 		}
 	}
 
 	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString statType)
 	{
-		auto & objects = stats->objects.Primitives.Set;
 		int32_t index = 1;
-		for (uint32_t i = 0; i < objects.Size; i++) {
-			auto object = objects[i];
+		for (auto object : stats->objects.Primitives) {
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
 				if (type == nullptr || type->Name != statType) {
@@ -466,8 +462,8 @@ namespace dse::lua
 
 		lua_newtable(L);
 		int32_t index = 1;
-		for (uint32_t i = 0; i < skillSet->Skills.Set.Size; i++) {
-			settable(L, index++, skillSet->Skills.Set[i].Str);
+		for (auto const& skill : skillSet->Skills) {
+			settable(L, index++, skill);
 		}
 
 		return 1;
@@ -486,9 +482,8 @@ namespace dse::lua
 		lua_newtable(L);
 		int32_t index = 1;
 		for (auto group = equipmentSet->FirstGroup; group != equipmentSet->LastGroup; group++) {
-			auto & equipment = (*group)->Equipment.Set;
-			for (uint32_t i = 0; i < equipment.Size; i++) {
-				settable(L, index++, equipment[i].Str);
+			for (auto const& equipment : (*group)->Equipment) {
+				settable(L, index++, equipment);
 			}
 		}
 
@@ -916,7 +911,7 @@ namespace dse::lua
 		push(L, "Boosts");
 		lua_newtable(L);
 		int index = 1;
-		for (int i = 0; i < deltaMod->BoostIndices.Set.Size; i++) {
+		for (uint32_t i = 0; i < deltaMod->BoostIndices.Set.Size; i++) {
 			auto boost = stats->objects.Find(deltaMod->BoostIndices[i]);
 			if (boost != nullptr) {
 				push(L, index++);

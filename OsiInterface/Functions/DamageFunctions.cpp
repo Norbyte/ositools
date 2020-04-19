@@ -609,11 +609,10 @@ namespace dse::esv
 				return false;
 			}
 
-			auto & dmgList = *helper->DamageList;
 			int32_t amount = 0;
-			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList[i].DamageType == *damageType) {
-					amount += dmgList[i].Amount;
+			for (auto const& dmg : *helper->DamageList) {
+				if (dmg.DamageType == *damageType) {
+					amount += dmg.Amount;
 				}
 			}
 
@@ -695,9 +694,9 @@ namespace dse::esv
 
 			auto & dmgList = status->DamageInfo.DamageList;
 			int32_t amount = 0;
-			for (uint32_t i = 0; i < dmgList.Size; i++) {
-				if (dmgList[i].DamageType == *damageType) {
-					amount += dmgList[i].Amount;
+			for (auto const& dmg : status->DamageInfo.DamageList) {
+				if (dmg.DamageType == *damageType) {
+					amount += dmg.Amount;
 				}
 			}
 

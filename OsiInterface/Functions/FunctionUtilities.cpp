@@ -60,7 +60,7 @@ namespace dse
 		}
 
 		auto str = stringTable->Find(s, strlen(s));
-		return FixedString(str);
+		return FixedString(str, FixedString::FromPool{});
 	}
 
 	FixedString MakeFixedString(const char * s)
@@ -70,7 +70,7 @@ namespace dse
 			auto createFixedString = GetStaticSymbols().CreateFixedString;
 			if (createFixedString != nullptr) {
 #if defined(OSI_EOCAPP)
-				str = FixedString(createFixedString(s, -1));
+				str = FixedString(createFixedString(s, -1), FixedString::FromPool{});
 #else
 				createFixedString(&str, s, -1);
 #endif
@@ -130,7 +130,7 @@ namespace dse
 			return FixedString{};
 		}
 
-		return FixedString(stringTable->Find(guid, 36));
+		return FixedString(stringTable->Find(guid, 36), FixedString::FromPool{});
 	}
 
 	namespace esv
@@ -218,8 +218,7 @@ namespace dse
 		{
 			auto actionMgr = GetStaticSymbols().GetGameActionManager();
 
-			for (uint32_t i = 0; i < actionMgr->GameActions.Size; i++) {
-				auto action = actionMgr->GameActions[i];
+			for (auto action : actionMgr->GameActions) {
 				if (action->MyHandle == handle) {
 					return action;
 				}

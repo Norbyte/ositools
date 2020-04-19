@@ -54,7 +54,11 @@ namespace dse::lua
 
 	inline void push(lua_State * L, char const * v)
 	{
-		lua_pushstring(L, v);
+		if (v) {
+			lua_pushstring(L, v);
+		} else {
+			lua_pushnil(L);
+		}
 	}
 
 	inline void push(lua_State * L, FixedString v)
