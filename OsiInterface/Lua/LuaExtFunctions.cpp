@@ -737,9 +737,14 @@ namespace dse::lua
 		} else if (strcmp(attributeName, "AIFlags") == 0) {
 			push(L, object->AIFlags);
 			return 1;
-		}
-
-		if (strcmp(attributeName, "SkillProperties") == 0) {
+		} else if (strcmp(attributeName, "ComboCategory") == 0) {
+			lua_newtable(L);
+			auto index = 1;
+			for (auto const& category : object->ComboCategories) {
+				settable(L, index++, category);
+			}
+			return 1;
+		} else if (strcmp(attributeName, "SkillProperties") == 0) {
 			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
 			if (propertyList) {
 				ObjectPropertyListToLua(L, **propertyList);
@@ -812,6 +817,14 @@ namespace dse::lua
 			return 0;
 		} else if (strcmp(attributeName, "AIFlags") == 0) {
 			object->AIFlags = (uint64_t)lua_tointeger(L, valueIdx);
+			return 0;
+		} else if (strcmp(attributeName, "ComboCategory") == 0) {
+			object->ComboCategories.Set.Clear();
+			for (auto category : iterate(L, valueIdx)) {
+				auto categoryName = checked_get<char const*>(L, category);
+				object->ComboCategories.Set.Add(MakeFixedString(categoryName));
+			}
+
 			return 0;
 		}
 
@@ -1127,18 +1140,16 @@ namespace dse::lua
 		deltaMod->BoostIndices.Set.Clear();
 		push(L, "Boosts");
 		lua_gettable(L, 1);
-		iterate(L, -1, [stats, deltaMod](lua_State* L, int key, int val) {
-			DEBUG("%s - %s\n",
-				lua_typename(L, lua_type(L, -2)),
-				lua_typename(L, lua_type(L, -1)));
-			auto boost = MakeFixedString(checked_gettable<char const*, char const*>(L, "Boost", val - 1));
-			auto flag = checked_gettable<char const*, int>(L, "Count", val - 1);
+
+		for (auto valueIndex : iterate(L, -1)) {
+			auto boost = MakeFixedString(checked_gettable<char const*, char const*>(L, "Boost", valueIndex - 1));
+			auto flag = checked_gettable<char const*, int>(L, "Count", valueIndex - 1);
 			auto object = stats->objects.FindIndex(boost);
 			if (object != -1) {
 				deltaMod->BoostIndices.Set.Add(object);
 				deltaMod->BoostCounts.Set.Add(flag);
 			}
-		});
+		}
 
 		return 1;
 	}

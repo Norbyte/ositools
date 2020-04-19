@@ -524,8 +524,9 @@ namespace dse
 		auto msg = networkMgr.GetFreeServerMessage(userId);
 		if (msg != nullptr) {
 			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
-			for (auto const& fs : nfs.FixedStrSet) {
-				syncMsg->add_network_string(fs.Str);
+			auto numStrings = nfs.FixedStrSet.Set.Size;
+			for (uint32_t i = 1; i < numStrings; i++) {
+				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
 			}
 
 			networkMgr.ServerSend(msg, userId);

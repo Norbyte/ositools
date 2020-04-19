@@ -622,15 +622,77 @@ namespace dse::lua
 		return std::remove_pointer_t<T>::CheckUserData(L, index);
 	}
 
-	template <class TFunc>
-	void iterate(lua_State* L, int index, TFunc func)
-	{
-		lua_pushnil(L);
-		if (index < 0) index--;
 
-		while (lua_next(L, index) != 0) {
-			func(L, -2, -1);
-			lua_pop(L, 1);
+	struct TableIterationHelper
+	{
+		struct EndIterator {};
+
+		struct Iterator
+		{
+			lua_State* L;
+			int Index;
+			bool End;
+
+			inline Iterator(lua_State* _L, int index)
+				: L(_L), Index(index), End(false)
+			{}
+
+			inline Iterator operator ++ ()
+			{
+				lua_pop(L, 1);
+				Iterator it(L, Index);
+				it.End = lua_next(L, Index) == 0;
+				End = it.End;
+				return it;
+			}
+
+			inline Iterator& operator ++ (int)
+			{
+				lua_pop(L, 1);
+				End = lua_next(L, Index) == 0;
+				return *this;
+			}
+
+			inline bool operator == (EndIterator const&)
+			{
+				return End;
+			}
+
+			inline bool operator != (EndIterator const&)
+			{
+				return !End;
+			}
+
+			inline int operator * ()
+			{
+				return -1;
+			}
+		};
+
+		lua_State* L;
+		int Index;
+
+		inline Iterator begin()
+		{
+			lua_pushnil(L);
+			if (Index < 0) Index--;
+
+			Iterator it(L, Index);
+			it.End = lua_next(L, Index) == 0;
+			return it;
 		}
+
+		inline EndIterator end()
+		{
+			return EndIterator{};
+		}
+	};
+
+	inline TableIterationHelper iterate(lua_State* L, int index)
+	{
+		TableIterationHelper helper;
+		helper.L = L;
+		helper.Index = index;
+		return helper;
 	}
 }
