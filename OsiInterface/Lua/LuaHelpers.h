@@ -343,6 +343,16 @@ namespace dse::lua
 		return val;
 	}
 
+	template <class TKey, class TValue>
+	TValue checked_gettable(lua_State* L, TKey const& k, int index = -2)
+	{
+		push(L, k);
+		lua_gettable(L, index);
+		TValue val = checked_get<TValue>(L, -1);
+		lua_pop(L, 1);
+		return val;
+	}
+
 
 	template <class T, class... Args>
 	inline auto Push(Args... args)
@@ -606,5 +616,17 @@ namespace dse::lua
 	inline T checked_get(lua_State * L, int index)
 	{
 		return std::remove_pointer_t<T>::CheckUserData(L, index);
+	}
+
+	template <class TFunc>
+	void iterate(lua_State* L, int index, TFunc func)
+	{
+		lua_pushnil(L);
+		if (index < 0) index--;
+
+		while (lua_next(L, index) != 0) {
+			func(L, -2, -1);
+			lua_pop(L, 1);
+		}
 	}
 }

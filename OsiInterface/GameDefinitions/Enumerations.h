@@ -898,10 +898,33 @@ namespace dse
 		Knife = 8,
 		Wand = 9,
 		Arrow = 10,
-		Rifle = 11
+		Rifle = 11,
+		Sentinel = 12
 	};
 
-	MAKE_ENUM_INFO(WeaponType, 12);
+	MAKE_ENUM_INFO(WeaponType, 13);
+
+	enum class ArmorType : uint32_t
+	{
+		None = 0,
+		Cloth = 1,
+		Leather = 2,
+		Mail = 3,
+		Plate = 4,
+		Robe = 5,
+		Sentinel = 6
+	};
+
+	MAKE_ENUM_INFO(ArmorType, 7);
+
+	enum class HandednessType : uint32_t
+	{
+		Any = 0,
+		One = 1,
+		Two = 2
+	};
+
+	MAKE_ENUM_INFO(HandednessType, 3);
 
 	enum class AbilityType
 	{

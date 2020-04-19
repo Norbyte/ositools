@@ -276,7 +276,24 @@ namespace dse
 		{ WeaponType::Knife, "Knife" },
 		{ WeaponType::Wand, "Wand" },
 		{ WeaponType::Arrow, "Arrow" },
-		{ WeaponType::Rifle, "Rifle" }
+		{ WeaponType::Rifle, "Rifle" },
+		{ WeaponType::Sentinel, "Sentinel" }
+	};
+
+	EnumInfo<ArmorType>::Label const EnumInfo<ArmorType>::Values[] = {
+		{ ArmorType::None, "None" },
+		{ ArmorType::Cloth, "Cloth" },
+		{ ArmorType::Leather, "Leather" },
+		{ ArmorType::Mail, "Mail" },
+		{ ArmorType::Plate, "Plate" },
+		{ ArmorType::Robe, "Robe" },
+		{ ArmorType::Sentinel, "Sentinel" }
+	};
+
+	EnumInfo<HandednessType>::Label const EnumInfo<HandednessType>::Values[] = {
+		{ HandednessType::Any, "Any" },
+		{ HandednessType::One, "One" },
+		{ HandednessType::Two, "Two" }
 	};
 
 	EnumInfo<AbilityType>::Label const EnumInfo<AbilityType>::Values[] = {

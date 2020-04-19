@@ -771,6 +771,27 @@ namespace dse
 		CEquipmentSet * ParsedEquipmentSet;
 	};
 
+	struct CRPGStats_DeltaModifier : public Noncopyable<CRPGStats_DeltaModifier>
+	{
+		ObjectSet<int> BoostIndices;
+		ObjectSet<int> BoostCounts;
+		FixedString ModifierType;
+		int SlotType{ (int)ItemSlot::Sentinel };
+		WeaponType WeaponType{ WeaponType::Sentinel };
+		ArmorType ArmorType{ ArmorType::Sentinel };
+		HandednessType Handedness{ HandednessType::Any };
+		FixedString Name;
+		FixedString BoostType;
+		int MinLevel{ -1 };
+		int MaxLevel{ -1 };
+		int MinLevelBoosted{ -1 };
+		int MaxLevelBoosted{ -1 };
+		int Frequency{ 0 };
+		int Frequency2{ 0 };
+	};
+
+	struct CRPGStats_DeltaModifier_List : public CNamedElementManager<CRPGStats_DeltaModifier>
+	{};
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
@@ -778,7 +799,7 @@ namespace dse
 		CNamedElementManager<ModifierList> modifierList;
 		CNamedElementManager<CRPGStats_Object> objects;
 		CNamedElementManager<CRPGStats_LevelMap> LevelMaps;
-		CNamedElementManager<uint64_t> deltaMods;
+		CNamedElementManager<CRPGStats_DeltaModifier_List> DeltaMods;
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
 		CRPGStats_ItemType_Manager itemTypes;

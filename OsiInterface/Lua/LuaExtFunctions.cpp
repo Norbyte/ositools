@@ -867,6 +867,127 @@ namespace dse::lua
 		}
 	}
 
+	int GetDeltaMod(lua_State* L)
+	{
+		auto name = checked_get<char const *>(L, 1);
+		auto modifierType = checked_get<char const*>(L, 2);
+
+		auto stats = GetStaticSymbols().GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		auto deltaModType = stats->DeltaMods.Find(modifierType);
+		if (deltaModType == nullptr) {
+			OsiError("Unknown DeltaMod ModifierType: " << modifierType);
+			return 0;
+		}
+
+		auto deltaMod = deltaModType->Find(name);
+		if (deltaMod == nullptr) {
+			return 0;
+		}
+
+		lua_newtable(L);
+		settable(L, "ModifierType", deltaMod->ModifierType);
+		auto slot = EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType);
+		if (slot) {
+			settable(L, "SlotType", *slot);
+		}
+		auto weapon = EnumInfo<WeaponType>::Find(deltaMod->WeaponType);
+		if (weapon) {
+			settable(L, "WeaponType", *weapon);
+		}
+		auto armor = EnumInfo<ArmorType>::Find(deltaMod->ArmorType);
+		if (armor) {
+			settable(L, "ArmorType", *armor);
+		}
+		auto handedness = EnumInfo<HandednessType>::Find(deltaMod->Handedness);
+		if (handedness) {
+			settable(L, "Handedness", *handedness);
+		}
+		settable(L, "Name", deltaMod->Name);
+		settable(L, "BoostType", deltaMod->BoostType);
+		settable(L, "MinLevel", deltaMod->MinLevel);
+		settable(L, "MaxLevel", deltaMod->MaxLevel);
+		settable(L, "Frequency", deltaMod->Frequency);
+
+		push(L, "Boosts");
+		lua_newtable(L);
+		int index = 1;
+		for (int i = 0; i < deltaMod->BoostIndices.Set.Size; i++) {
+			auto boost = stats->objects.Find(deltaMod->BoostIndices[i]);
+			if (boost != nullptr) {
+				push(L, index++);
+				lua_newtable(L);
+				settable(L, "Boost", boost->Name);
+				settable(L, "Count", deltaMod->BoostCounts[i]);
+				lua_settable(L, -3);
+			}
+		}
+		lua_settable(L, -3);
+
+		return 1;
+	}
+
+	int UpdateDeltaMod(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_gettable<char const*, char const*>(L, "Name", 1);
+		auto modifierType = checked_gettable<char const*, char const*>(L, "ModifierType", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		auto deltaModType = stats->DeltaMods.Find(modifierType);
+		if (deltaModType == nullptr) {
+			OsiError("Unknown DeltaMod ModifierType: " << modifierType);
+			return 0;
+		}
+
+		auto deltaMod = deltaModType->Find(name);
+		if (deltaMod == nullptr) {
+			OsiError("Cannot update nonexistent DeltaMod: " << name);
+			return 0;
+		}
+
+		deltaMod->ModifierType = MakeFixedString(modifierType);
+		deltaMod->SlotType = (int)checked_gettable<char const*, ItemSlot>(L, "SlotType", 1);
+		deltaMod->WeaponType = checked_gettable<char const*, WeaponType>(L, "WeaponType", 1);
+		deltaMod->ArmorType = checked_gettable<char const*, ArmorType>(L, "ArmorType", 1);
+		deltaMod->Handedness = checked_gettable<char const*, HandednessType>(L, "Handedness", 1);
+		deltaMod->Name = MakeFixedString(name);
+		deltaMod->BoostType = MakeFixedString(checked_gettable<char const*, char const*>(L, "BoostType", 1));
+		deltaMod->MinLevel = checked_gettable<char const*, int>(L, "MinLevel", 1);
+		deltaMod->MaxLevel = checked_gettable<char const*, int>(L, "MaxLevel", 1);
+		deltaMod->MinLevelBoosted = deltaMod->MinLevel;
+		deltaMod->MaxLevelBoosted = deltaMod->MaxLevel;
+		deltaMod->Frequency = checked_gettable<char const*, int>(L, "Frequency", 1);
+
+		deltaMod->BoostCounts.Set.Clear();
+		deltaMod->BoostIndices.Set.Clear();
+		push(L, "Boosts");
+		lua_gettable(L, 1);
+		iterate(L, -1, [stats, deltaMod](lua_State* L, int key, int val) {
+			DEBUG("%s - %s\n",
+				lua_typename(L, lua_type(L, -2)),
+				lua_typename(L, lua_type(L, -1)));
+			auto boost = MakeFixedString(checked_gettable<char const*, char const*>(L, "Boost", val - 1));
+			auto flag = checked_gettable<char const*, int>(L, "Count", val - 1);
+			auto object = stats->objects.FindIndex(boost);
+			if (object != -1) {
+				deltaMod->BoostIndices.Set.Add(object);
+				deltaMod->BoostCounts.Set.Add(flag);
+			}
+		});
+
+		return 1;
+	}
+
 	int NewDamageList(lua_State * L)
 	{
 		DamageList::New(L);
@@ -913,7 +1034,6 @@ namespace dse::lua
 
 		auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
 		voiceMeta->Source.Name = path;
-
 		return 0;
 	}
 

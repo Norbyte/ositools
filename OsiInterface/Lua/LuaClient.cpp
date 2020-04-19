@@ -933,6 +933,8 @@ namespace dse::ecl::lua
 			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
+			{"GetDeltaMod", GetDeltaMod},
+			{"UpdateDeltaMod", UpdateDeltaMod},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

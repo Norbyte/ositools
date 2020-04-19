@@ -723,6 +723,8 @@ namespace dse::esv::lua
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"GetStat", GetStat},
+			{"GetDeltaMod", GetDeltaMod},
+			{"UpdateDeltaMod", UpdateDeltaMod},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
