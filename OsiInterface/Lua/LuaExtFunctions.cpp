@@ -401,7 +401,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString statType)
+	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString const& statType)
 	{
 		int32_t index = 1;
 		for (auto object : stats->objects.Primitives) {
@@ -896,7 +896,7 @@ namespace dse::lua
 			OsiError("Not supported!");
 		}
 
-		void SetModifierList(FixedString modifierListName, FixedString modifierName) override
+		void SetModifierList(FixedString const& modifierListName, FixedString const& modifierName) override
 		{
 			OsiError("Not supported!");
 		}

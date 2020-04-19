@@ -160,7 +160,7 @@ namespace dse
 		}
 	}
 
-	bool CRPGStatsManager::ObjectExists(FixedString statsId, FixedString type)
+	bool CRPGStatsManager::ObjectExists(FixedString const& statsId, FixedString const& type)
 	{
 		auto object = objects.Find(statsId);
 		if (object == nullptr) {
@@ -675,7 +675,7 @@ namespace dse
 		return FindByNetId(netId);
 	}
 
-	esv::Status* esv::StatusMachine::GetStatus(FixedString statusId) const
+	esv::Status* esv::StatusMachine::GetStatus(FixedString const& statusId) const
 	{
 		for (auto status : Statuses) {
 			if (status->StatusId == statusId) {
@@ -697,7 +697,7 @@ namespace dse
 		return nullptr;
 	}
 
-	ecl::Status* ecl::StatusMachine::GetStatus(FixedString statusId) const
+	ecl::Status* ecl::StatusMachine::GetStatus(FixedString const& statusId) const
 	{
 		for (auto status : Statuses) {
 			if (status->StatusId == statusId) {

@@ -61,7 +61,7 @@ namespace dse::lua
 		}
 	}
 
-	inline void push(lua_State * L, FixedString v)
+	inline void push(lua_State * L, FixedString const& v)
 	{
 		lua_pushstring(L, v.Str);
 	}

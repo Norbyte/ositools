@@ -134,7 +134,7 @@ namespace dse::esv
 			stat.Stats.Init(0x25);
 
 			if (stats != nullptr) {
-				stats->StatValues.Iterate([&stat](FixedString key, int value) {
+				stats->StatValues.Iterate([&stat](FixedString const& key, int value) {
 					stat.Stats.Insert(key, value);
 				});
 			}

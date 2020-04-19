@@ -284,7 +284,7 @@ namespace dse
 		{
 			Status * GetStatus(ObjectHandle handle) const;
 			Status* GetStatus(NetId netId) const;
-			Status* GetStatus(FixedString statusId) const;
+			Status* GetStatus(FixedString const& statusId) const;
 
 			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;
@@ -356,7 +356,7 @@ namespace dse
 		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Unknown>
 		{
 			Status* GetStatus(StatusType type) const;
-			Status* GetStatus(FixedString statusId) const;
+			Status* GetStatus(FixedString const& statusId) const;
 			Status* GetStatus(NetId netId) const;
 
 			void* GameEventMgrVMT;

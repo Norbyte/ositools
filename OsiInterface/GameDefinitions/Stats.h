@@ -37,7 +37,7 @@ namespace dse
 			}
 		}
 
-		int FindIndex(FixedString str) const
+		int FindIndex(FixedString const& str) const
 		{
 			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
@@ -66,7 +66,7 @@ namespace dse
 			}
 		}
 
-		T * Find(FixedString str) const
+		T * Find(FixedString const& str) const
 		{
 			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
@@ -239,7 +239,7 @@ namespace dse
 	{
 		virtual ~CRPGStats_LevelMap() {}
 		virtual void SetModifierList(int modifierListIndex, int modifierIndex) = 0;
-		virtual void SetModifierList(FixedString modifierListName, FixedString modifierName) = 0;
+		virtual void SetModifierList(FixedString const& modifierListName, FixedString const& modifierName) = 0;
 		virtual int64_t GetScaledValue(int difficultyScale, int level) = 0;
 
 		int ModifierListIndex{ -1 };
@@ -916,7 +916,7 @@ namespace dse
 		std::optional<int> GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level);
 		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
 		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
-		bool ObjectExists(FixedString statsId, FixedString type);
+		bool ObjectExists(FixedString const& statsId, FixedString const& type);
 
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
 		FixedString EnumIndexToLabel(const char* enumName, int index);
