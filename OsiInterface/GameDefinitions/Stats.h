@@ -82,7 +82,8 @@ namespace dse
 		virtual ~CRPGStats_Object_Property() {}
 		virtual CRPGStats_Object_Property * Clone() = 0;
 
-		FixedString SomeHashedText;
+		FixedString Name;
+		CRPGStats_Object_Property_Type TypeId;
 	};
 
 	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
@@ -94,11 +95,79 @@ namespace dse
 		virtual bool GetDescription(TranslatedString * Line1) = 0;
 		virtual uint64_t Unknown() = 0;
 
-		uint32_t TypeId;
 		uint8_t PropertyContext;
 		uint8_t _Pad1[3];
 		void * ConditionBlockPtr;
 	};
+
+	struct CDivinityStats_Object_Property_Custom : public CDivinityStats_Object_Property_Data
+	{
+		int CustomProperties; // "Custom Properties" from ValueLists
+	};
+
+	struct CDivinityStats_Object_Property_Status : public CDivinityStats_Object_Property_Data
+	{
+		FixedString Status;
+		float StatusChance;
+		float Duration;
+		FixedString Argument3;
+		int Argument4;
+		int Argument5;
+		bool HasBoost;
+		uint8_t _Pad1[7];
+		ObjectSet<int> SurfaceBoosts; // ESurfaceType
+	};
+
+	struct CDivinityStats_Object_Property_SurfaceChange : public CDivinityStats_Object_Property_Data
+	{
+		int SurfaceChange; // "Surface Change" from ValueLists
+		float Arg1;
+		float Arg2;
+		float Arg3;
+		float Arg4;
+	};
+	
+	struct CDivinityStats_Object_Property_Sabotage : public CDivinityStats_Object_Property_Data
+	{
+		int Amount;
+	};
+	
+	struct CDivinityStats_Object_Property_Summon : public CDivinityStats_Object_Property_Data
+	{
+		FixedString Template;
+		float Duration;
+		bool IsTotem;
+		char _Pad[3];
+		FixedString Skill;
+	};
+
+	struct CDivinityStats_Object_Property_Force : public CDivinityStats_Object_Property_Data
+	{
+		int Distance;
+		char _Pad[4];
+		FixedString Unknown;
+	};
+
+	struct CDivinityStats_Object_Property_GameAction : public CDivinityStats_Object_Property_Data
+	{
+		int GameAction; // "Game Action" from ValueLists
+		float Arg1;
+		float Arg2;
+		uint8_t _Pad[4];
+		FixedString Arg3;
+		float Arg4;
+		float Arg5;
+		int StatusHealType; // "StatusHealType" from ValueLists
+	};
+
+	struct CDivinityStats_Object_Property_OsirisTask : public CDivinityStats_Object_Property_Data
+	{
+		int OsirisTask; // "Osiris Task" from ValueLists
+		float Chance;
+		int VitalityOnRevive;
+	};
+
+
 
 	struct CRPGStats_Object_Property_CustomDescription : public CDivinityStats_Object_Property_Data
 	{
@@ -115,7 +184,7 @@ namespace dse
 		virtual CRPGStats_Object_Property * Clone()
 		{
 			auto cl = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
-			cl->SomeHashedText = SomeHashedText;
+			cl->Name = Name;
 			cl->TypeId = TypeId;
 			cl->PropertyContext = PropertyContext;
 			cl->ConditionBlockPtr = ConditionBlockPtr;
@@ -803,7 +872,7 @@ namespace dse
 		CNamedElementManager<uint64_t> treasureSubtables;
 		CNamedElementManager<uint64_t> treasureTables;
 		CRPGStats_ItemType_Manager itemTypes;
-		Map<FixedString, CRPGStats_Object_Property_List> PropertyLists;
+		Map<FixedString, CRPGStats_Object_Property_List*> PropertyLists;
 		uint8_t _Pad1[4];
 		CRPGStats_Conditions_Manager ConditionsManager;
 		STDWString WStr1;
@@ -850,6 +919,7 @@ namespace dse
 		bool ObjectExists(FixedString statsId, FixedString type);
 
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
+		FixedString EnumIndexToLabel(const char* enumName, int index);
 		int GetOrCreateFixedString(const char * value);
 		std::optional<uint64_t> StringToAttributeFlags(const char * value);
 	};

@@ -706,6 +706,27 @@ namespace dse
 
 	MAKE_ENUM_INFO(StatGetterType, 27);
 
+	enum class CRPGStats_Object_Property_Type : uint32_t
+	{
+		Custom = 0x0,
+		Status = 0x1,
+		SurfaceChange = 0x2,
+		GameAction = 0x3,
+		OsirisTask = 0x4,
+		Sabotage = 0x5,
+		Summon = 0x6,
+		Force = 0x7,
+		CustomDescription = 0x80
+	};
+
+	enum class CRPGStats_Object_PropertyContext : uint8_t
+	{
+		Target = 0x01,
+		AoE = 0x02,
+		Self = 0x04,
+		SelfOnHit = 0x08,
+		SelfOnEquip = 0x10
+	};
 
 	enum class RequirementType : uint32_t
 	{

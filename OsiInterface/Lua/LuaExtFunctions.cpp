@@ -559,6 +559,155 @@ namespace dse::lua
 		}
 	}
 
+	void ObjectPropertyToLua(lua_State* L, CDivinityStats_Object_Property_Data const* property)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+
+		lua_newtable(L);
+
+		push(L, "Context");
+		lua_newtable(L);
+		int ctxIndex = 1;
+		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::Target) {
+			settable(L, ctxIndex++, "Target");
+		}
+		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::AoE) {
+			settable(L, ctxIndex++, "AoE");
+		}
+		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::Self) {
+			settable(L, ctxIndex++, "Self");
+		}
+		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::SelfOnHit) {
+			settable(L, ctxIndex++, "SelfOnHit");
+		}
+		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::SelfOnEquip) {
+			settable(L, ctxIndex++, "SelfOnEquip");
+		}
+		lua_settable(L, -3);
+		
+		if (property->ConditionBlockPtr) {
+			STDString name(property->Name.Str);
+			if (name[name.length() - 1] == ')') {
+				auto ifPos = name.find("_IF(");
+				if (ifPos != std::string::npos) {
+					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
+					settable(L, "Condition", condition);
+				}
+			}
+		}
+
+		switch (property->TypeId) {
+		case CRPGStats_Object_Property_Type::Custom:
+		{
+			auto prop = (CDivinityStats_Object_Property_Custom*)property;
+			auto customProperties = stats->EnumIndexToLabel("Custom Properties", prop->CustomProperties);
+			settable(L, "Type", "Custom");
+			settable(L, "Action", customProperties);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Status:
+		{
+			auto prop = (CDivinityStats_Object_Property_Status*)property;
+			settable(L, "Type", "Status");
+			settable(L, "Action", prop->Status);
+			settable(L, "StatusChance", prop->StatusChance);
+			settable(L, "Duration", prop->Duration);
+			settable(L, "Arg3", prop->Argument3);
+			settable(L, "Arg4", prop->Argument4);
+			settable(L, "Arg5", prop->Argument5);
+			settable(L, "SurfaceBoost", prop->HasBoost);
+			// FIXME - SurfaceBoosts
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::SurfaceChange:
+		{
+			auto prop = (CDivinityStats_Object_Property_SurfaceChange*)property;
+			auto surfaceChange = stats->EnumIndexToLabel("Surface Change", prop->SurfaceChange);
+			settable(L, "Type", "SurfaceChange");
+			settable(L, "Action", surfaceChange);
+			settable(L, "Arg1", prop->Arg1);
+			settable(L, "Arg2", prop->Arg2);
+			settable(L, "Arg3", prop->Arg3);
+			settable(L, "Arg4", prop->Arg4);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::GameAction:
+		{
+			auto prop = (CDivinityStats_Object_Property_GameAction*)property;
+			auto gameAction = stats->EnumIndexToLabel("Game Action", prop->GameAction);
+			settable(L, "Type", "GameAction");
+			settable(L, "Action", gameAction);
+			settable(L, "Arg1", prop->Arg1);
+			settable(L, "Arg2", prop->Arg2);
+			settable(L, "Arg3", prop->Arg3);
+			settable(L, "Arg4", prop->Arg4);
+			settable(L, "Arg5", prop->Arg5);
+			auto statusHealType = stats->EnumIndexToLabel("StatusHealType", prop->StatusHealType);
+			if (statusHealType) {
+				settable(L, "StatusHealType", statusHealType);
+			}
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::OsirisTask:
+		{
+			auto prop = (CDivinityStats_Object_Property_OsirisTask*)property;
+			settable(L, "Type", "OsirisTask");
+			auto osirisTask = stats->EnumIndexToLabel("Osiris Task", prop->OsirisTask);
+			settable(L, "Action", osirisTask);
+			settable(L, "Chance", prop->Chance);
+			settable(L, "VitalityOnRevive", prop->VitalityOnRevive);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Sabotage:
+		{
+			auto prop = (CDivinityStats_Object_Property_Sabotage*)property;
+			settable(L, "Type", "Sabotage");
+			settable(L, "Action", "Sabotage");
+			settable(L, "Amount", prop->Amount);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Summon:
+		{
+			auto prop = (CDivinityStats_Object_Property_Summon*)property;
+			settable(L, "Type", "Summon");
+			settable(L, "Template", prop->Template);
+			settable(L, "Duration", prop->Duration);
+			settable(L, "IsTotem", prop->IsTotem);
+			settable(L, "Skill", prop->Skill);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Force:
+		{
+			auto prop = (CDivinityStats_Object_Property_Force*)property;
+			settable(L, "Type", "Force");
+			settable(L, "Action", "Force");
+			settable(L, "Distance", prop->Distance);
+			break;
+		}
+
+		default:
+			WARN("Couldn't convert unknown property type %d to Lua!", property->TypeId);
+		}
+	}
+
+	void ObjectPropertyListToLua(lua_State* L, CRPGStats_Object_Property_List const& properties)
+	{
+		lua_newtable(L);
+		for (uint32_t i = 0; i < properties.Properties.Primitives.Set.Size; i++) {
+			push(L, i + 1);
+			auto prop = static_cast<CDivinityStats_Object_Property_Data*>(properties.Properties.Primitives[i]);
+			ObjectPropertyToLua(L, prop);
+			lua_settable(L, -3);
+		}
+	}
+
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
 	{
 		auto stats = GetStaticSymbols().GetStats();
@@ -588,6 +737,16 @@ namespace dse::lua
 		} else if (strcmp(attributeName, "AIFlags") == 0) {
 			push(L, object->AIFlags);
 			return 1;
+		}
+
+		if (strcmp(attributeName, "SkillProperties") == 0) {
+			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
+			if (propertyList) {
+				ObjectPropertyListToLua(L, **propertyList);
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 
 		auto value = stats->GetAttributeString(object, attributeName);
@@ -712,9 +871,10 @@ namespace dse::lua
 			return 0;
 		}
 
+		// FIXME - assign name + add to map properly
 		auto customProp = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
 		customProp->PropertyContext = 0;
-		customProp->TypeId = 99;
+		customProp->TypeId = CRPGStats_Object_Property_Type::CustomDescription;
 		customProp->ConditionBlockPtr = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
 		(*props)->Properties.Primitives.Set.Add(customProp);

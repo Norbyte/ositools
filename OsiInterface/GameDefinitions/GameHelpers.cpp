@@ -197,6 +197,29 @@ namespace dse
 		}
 	}
 
+	FixedString CRPGStatsManager::EnumIndexToLabel(const char* enumName, int index)
+	{
+		auto fs = ToFixedString(enumName);
+		if (!fs) {
+			OsiError("No enum named '" << enumName << "' exists");
+			return FixedString{};
+		}
+
+		auto rpgEnum = modifierValueList.Find(enumName);
+		if (rpgEnum == nullptr) {
+			OsiError("No enum named '" << enumName << "' exists");
+			return FixedString{};
+		}
+
+		auto value = rpgEnum->Values.FindByValue(index);
+		if (value) {
+			return *value;
+		}
+		else {
+			return FixedString{};
+		}
+	}
+
 	CRPGStats_Modifier * CRPGStatsManager::GetModifierInfo(const char * modifierListName, const char * modifierName)
 	{
 		auto modifiers = modifierList.Find(modifierListName);
