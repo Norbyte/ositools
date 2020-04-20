@@ -885,7 +885,7 @@ namespace dse::esv::lua
 	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool isEnterCheck)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAll);
+		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
 		auto _{ PushArguments(L,
@@ -907,7 +907,7 @@ namespace dse::esv::lua
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAll);
+		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
@@ -1022,7 +1022,7 @@ namespace dse::esv::lua
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		std::lock_guard lock(mutex_);
-		Restriction restriction(*this, RestrictAll);
+		Restriction restriction(*this, RestrictOsiris);
 
 		auto turnMgr = GetEntityWorld()->GetTurnManager();
 		if (!turnMgr) {
