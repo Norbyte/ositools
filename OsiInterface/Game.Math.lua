@@ -1082,3 +1082,103 @@ function GetSkillDamageRange(character, skill)
         return damageRanges
     end
 end
+
+
+
+StatusSavingThrows = {
+    MUTED = "MagicArmor",
+    CHARMED = "MagicArmor",
+    DRAIN = "MagicArmor",
+    SOURCE_MUTED = "MagicArmor",
+
+    KNOCKED_DOWN = "SavingThrow",
+    CONSUME = "SavingThrow",
+    DAMAGE = "SavingThrow",
+    INCAPACITATED = "SavingThrow",
+    POLYMORPHED = "SavingThrow",
+    DAMAGE_ON_MOVE = "SavingThrow",
+    DEMONIC_BARGAIN = "SavingThrow",
+    CHALLENGE = "SavingThrow",
+    DISARMED = "SavingThrow",
+    HEAL_SHARING = "SavingThrow",
+    
+    INFECTIOUS_DISEASED = "PhysicalArmor",
+    SHACKLES_OF_PAIN = "PhysicalArmor",
+    DECAYING_TOUCH = "PhysicalArmor",
+    REMORSE = "Remorse"
+}
+
+function GetSavingThrowForStatus(status)
+    if status.StatusId ~= status.StatusType then
+        return Ext.StatGetAttribute(status.StatusId, "SavingThrow")
+    end
+
+    local savingThrow = StatusSavingThrows[status.StatusType]
+    if savingThrow == nil then
+        return "None"
+    elseif savingThrow == "SavingThrow" then
+        return Ext.StatGetAttribute(status.StatusId, "SavingThrow")
+    else
+        return savingThrow
+    end
+end
+
+MagicSavingThrows = {
+    Frozen = true,
+    Mute = true,
+    Stunned = true,
+    Fear = true,
+    Charm = true,
+    Petrified = true,
+    Taunted = true,
+    MagicArmor = true
+}
+
+function GetSavingThrowChanceMultiplier(character, savingThrow)
+    if savingThrow == "PhysicalArmor" then
+        if character.Stats.CurrentArmor > 0 and not character.TALENT_Raistlin then
+            return 0.0
+        end
+    elseif MagicSavingThrows[savingThrow] ~= nil then
+        if character.Stats.CurrentMagicArmor > 0 and not character.TALENT_Raistlin then
+            return 0.0
+        end
+    end
+
+    return 1.0
+end
+
+function CanTriggerTorturer(status)
+    local source = Ext.GetGameObject(status.StatusSourceHandle)
+    local causeType = status.DamageSourceType
+    local statusType = status.StatusType
+
+    return source ~= nil and 
+        source.Stats.TALENT_Torturer and 
+        causeType ~= "SurfaceMove" and causeType ~= "SurfaceCreate" and causeType ~= "SurfaceStatus" and
+        (statusType == "DAMAGE" or statusType == "DAMAGE_ON_MOVE")
+end
+
+function StatusGetEnterChance(status, isEnterCheck)
+    local target = Ext.GetGameObject(status.TargetHandle)
+    if target ~= nil and not target.Dead and not target:HasTag("GHOST") then
+        if status.ForceStatus then
+            return 100
+        end
+        
+        local savingThrow = GetSavingThrowForStatus(status)
+        if savingThrow ~= "None" then
+            if isEnterCheck then
+                if CanTriggerTorturer(status) then
+                    return 100
+                else
+                    return status.CanEnterChance * GetSavingThrowChanceMultiplier(target, savingThrow)
+                end
+            end
+        elseif not isEnterCheck then
+            return 100
+        end
+    end
+      
+    return status.CanEnterChance
+end

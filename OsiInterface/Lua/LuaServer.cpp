@@ -14,6 +14,14 @@ namespace dse::lua
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "StatusType") == 0) {
+			auto statusType = obj_->GetStatusId();
+			auto typeName = EnumInfo<StatusType>::Find(statusType);
+			push(L, *typeName);
+			return 1;
+		}
+
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
 		return fetched ? 1 : 0;
