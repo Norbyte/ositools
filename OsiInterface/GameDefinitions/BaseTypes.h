@@ -559,6 +559,11 @@ namespace dse
 
 	struct GameMemoryAllocator
 	{
+		static void* Alloc(std::size_t size)
+		{
+			return GameAllocRaw(size);
+		}
+
 		template <class T>
 		static T * New()
 		{
@@ -586,6 +591,8 @@ namespace dse
 
 	struct MSVCMemoryAllocator
 	{
+		static void* Alloc(std::size_t size);
+
 		template <class T>
 		static T * New()
 		{
@@ -702,13 +709,43 @@ namespace dse
 	};
 
 	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
-	struct CompactSet : public Noncopyable<CompactSet<T, Allocator, StoreSize>>
+	struct CompactSet
 	{
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
 
 		inline CompactSet() {}
+
+		CompactSet(CompactSet const& other)
+		{
+			Reallocate(other.Size);
+			Size = other.Size;
+			for (uint32_t i = 0; i < other.Size; i++) {
+				Buf[i] = other.Buf[i];
+			}
+		}
+
+		~CompactSet()
+		{
+			if (Buf) {
+				for (uint32_t i = 0; i < Size; i++) {
+					Buf[i].~T();
+				}
+
+				FreeBuffer(Buf);
+			}
+		}
+
+		CompactSet& operator = (CompactSet const& other)
+		{
+			Reallocate(other.Size);
+			Size = other.Size;
+			for (uint32_t i = 0; i < other.Size; i++) {
+				Buf[i] = other.Buf[i];
+			}
+			return *this;
+		}
 
 		inline T const & operator [] (uint32_t index) const
 		{
@@ -735,13 +772,21 @@ namespace dse
 
 		void RawReallocate(uint32_t newCapacity)
 		{
-			if (StoreSize) {
-				auto newBuf = Allocator::New<T>(newCapacity + 8);
-				*(int64_t *)newBuf = Size;
+			if (newCapacity > 0) {
+				if (StoreSize) {
+					auto newBuf = Allocator::Alloc(newCapacity * sizeof(T) + 8);
+					*(uint64_t*)newBuf = newCapacity;
 
-				Buf = (T *)((std::ptrdiff_t)newBuf + 8);
+					Buf = (T*)((std::ptrdiff_t)newBuf + 8);
+					for (uint32_t i = 0; i < newCapacity; i++) {
+						new (Buf + i) T();
+					}
+				}
+				else {
+					Buf = Allocator::New<T>(newCapacity);
+				}
 			} else {
-				Buf = Allocator::New<T>(newCapacity);
+				Buf = nullptr;
 			}
 
 			Capacity = newCapacity;
@@ -842,9 +887,6 @@ namespace dse
 			}
 
 			Buf[Size++] = value;
-			if (StoreSize) {
-				((int64_t *)Buf)[-1] = Size;
-			}
 		}
 
 		void InsertAt(uint32_t index, T const & value)
@@ -859,9 +901,6 @@ namespace dse
 
 			Buf[index] = value;
 			Size++;
-			if (StoreSize) {
-				((int64_t *)Buf)[-1] = Size;
-			}
 		}
 	};
 
@@ -983,7 +1022,7 @@ namespace dse
 #endif
 	};
 
-	struct RuntimeStringHandle : public Noncopyable<RuntimeStringHandle>
+	struct RuntimeStringHandle
 	{
 		void * VMT;
 		FixedString Handle;
@@ -991,7 +1030,7 @@ namespace dse
 		STDWString WStr;
 	};
 
-	struct TranslatedString : public Noncopyable<TranslatedString>
+	struct TranslatedString
 	{
 		void * VMT;
 		RuntimeStringHandle Str1;

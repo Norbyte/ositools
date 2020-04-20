@@ -859,11 +859,12 @@ namespace dse
 
 	void LibraryManager::FindExportsEoCPlugin()
 	{
+		auto& sym = GetStaticSymbols();
 		auto allocProc = GetProcAddress(coreLib_, "?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z");
 		auto freeProc = GetProcAddress(coreLib_, "?Free@GlobalAllocator@ls@@QEAAXPEAX@Z");
 
-		GetStaticSymbols().EoCAlloc = (EoCAllocFunc)allocProc;
-		GetStaticSymbols().EoCFree = (EoCFreeFunc)freeProc;
+		sym.EoCAlloc = (EoCAllocFunc)allocProc;
+		sym.EoCFree = (EoCFreeFunc)freeProc;
 
 		if (allocProc == nullptr || freeProc == nullptr) {
 			ERR("Could not find memory management functions");
@@ -871,7 +872,7 @@ namespace dse
 		}
 
 		auto createFixedStringProc = GetProcAddress(coreLib_, "?Create@FixedString@ls@@SA?AV12@PEBD_J@Z");
-		GetStaticSymbols().CreateFixedString = (ls__FixedString__Create)createFixedStringProc;
+		sym.CreateFixedString = (ls__FixedString__Create)createFixedStringProc;
 
 		if (GetStaticSymbols().CreateFixedString == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find ls::FixedString::Create");
@@ -882,13 +883,13 @@ namespace dse
 		auto fileReaderCtorProc = GetProcAddress(coreLib_, "??0FileReader@ls@@QEAA@AEBVPath@1@W4EType@01@@Z");
 		auto fileReaderDtorProc = GetProcAddress(coreLib_, "??1FileReader@ls@@QEAA@XZ");
 
-		GetStaticSymbols().GetPrefixForRoot = (ls__Path__GetPrefixForRoot)getPrefixProc;
-		GetStaticSymbols().FileReaderCtor = (ls__FileReader__FileReader)fileReaderCtorProc;
-		GetStaticSymbols().FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
+		sym.GetPrefixForRoot = (ls__Path__GetPrefixForRoot)getPrefixProc;
+		sym.FileReaderCtor = (ls__FileReader__FileReader)fileReaderCtorProc;
+		sym.FileReaderDtor = (ls__FileReader__Dtor)fileReaderDtorProc;
 
-		if (GetStaticSymbols().GetPrefixForRoot == nullptr 
-			|| GetStaticSymbols().FileReaderCtor == nullptr 
-			|| GetStaticSymbols().FileReaderDtor == nullptr) {
+		if (sym.GetPrefixForRoot == nullptr
+			|| sym.FileReaderCtor == nullptr
+			|| sym.FileReaderDtor == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find filesystem functions");
 			CriticalInitFailed = true;
 		}
@@ -898,15 +899,15 @@ namespace dse
 		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");
 		auto getUIObjectManagerProc = GetProcAddress(gameEngine_, "?GetInstance@?$Singleton@VUIObjectManager@ls@@@ls@@SAPEAVUIObjectManager@2@XZ");
 
-		GetStaticSymbols().UIObjectManager__RegisterUIObjectCreator = (UIObjectManager::RegisterUIObjectCreator)registerUIObjectCreatorProc;
-		GetStaticSymbols().UIObjectManager__CreateUIObject = (UIObjectManager::CreateUIObject)createUIObjectProc;
-		GetStaticSymbols().UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObject)destroyUIObjectProc;
-		GetStaticSymbols().UIObjectManager__GetInstance = (UIObjectManager::GetInstance)getUIObjectManagerProc;
+		sym.UIObjectManager__RegisterUIObjectCreator = (UIObjectManager::RegisterUIObjectCreator)registerUIObjectCreatorProc;
+		sym.UIObjectManager__CreateUIObject = (UIObjectManager::CreateUIObject)createUIObjectProc;
+		sym.UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObject)destroyUIObjectProc;
+		sym.UIObjectManager__GetInstance = (UIObjectManager::GetInstance)getUIObjectManagerProc;
 
-		if (GetStaticSymbols().UIObjectManager__RegisterUIObjectCreator == nullptr
-			|| GetStaticSymbols().UIObjectManager__CreateUIObject == nullptr
-			|| GetStaticSymbols().UIObjectManager__DestroyUIObject == nullptr
-			|| GetStaticSymbols().UIObjectManager__GetInstance == nullptr) {
+		if (sym.UIObjectManager__RegisterUIObjectCreator == nullptr
+			|| sym.UIObjectManager__CreateUIObject == nullptr
+			|| sym.UIObjectManager__DestroyUIObject == nullptr
+			|| sym.UIObjectManager__GetInstance == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find UI functions");
 			InitFailed = true;
 		}
@@ -918,12 +919,20 @@ namespace dse
 		auto getTranslatedStringKeyMgrProc = GetProcAddress(coreLib_, "?GetInstance@?$Singleton@VTranslatedStringKeyManager@ls@@@ls@@SAPEAVTranslatedStringKeyManager@2@XZ");
 		auto getTranslatedStringFromKeyProc = GetProcAddress(coreLib_, "?GetTranlatedStringFromKey@TranslatedStringKeyManager@ls@@QEBA?AVTranslatedString@2@AEBVFixedString@2@_N@Z");
 
-		GetStaticSymbols().TranslatedStringRepository__GetInstance = (TranslatedStringRepository::GetInstance)getTranslatedStringRepoProc;
-		GetStaticSymbols().TranslatedStringRepository__Get = (TranslatedStringRepository::Get)getTranslatedString2Proc;
+		sym.TranslatedStringRepository__GetInstance = (TranslatedStringRepository::GetInstance)getTranslatedStringRepoProc;
+		sym.TranslatedStringRepository__Get = (TranslatedStringRepository::Get)getTranslatedString2Proc;
 
-		if (GetStaticSymbols().TranslatedStringRepository__GetInstance == nullptr
-			|| GetStaticSymbols().TranslatedStringRepository__Get == nullptr) {
+		if (sym.TranslatedStringRepository__GetInstance == nullptr
+			|| sym.TranslatedStringRepository__Get == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find TranslatedStringRepository functions");
+			InitFailed = true;
+		}
+
+		auto collectModsProc = GetProcAddress(gameEngine_, "?CollectAvailableMods@ModManager@ls@@SAXAEAV?$ObjectSet@VModule@ls@@V?$DefaultComparator@VModule@ls@@@2@@2@@Z");
+		sym.ModManager__CollectAvailableMods = (ModManager::CollectAvailableMods)collectModsProc;
+
+		if (sym.ModManager__CollectAvailableMods == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find CollectAvailableMods");
 			InitFailed = true;
 		}
 	}

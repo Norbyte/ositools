@@ -14,6 +14,11 @@ namespace dse
 		return *sSymbols;
 	}
 
+	void* MSVCMemoryAllocator::Alloc(std::size_t size)
+	{
+		return GetStaticSymbols().CrtAlloc(size);
+	}
+
 	void * GameAllocRaw(std::size_t size)
 	{
 #if defined(OSI_EOCAPP)

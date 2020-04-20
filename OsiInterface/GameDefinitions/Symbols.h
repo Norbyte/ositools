@@ -128,6 +128,7 @@ namespace dse
 		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };
 
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
+		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };

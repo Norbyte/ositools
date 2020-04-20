@@ -914,6 +914,17 @@ namespace dse
 			{"ls::TranslatedStringRepository::Instance", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(TranslatedStringRepository__Instance)},
 			{"ls::TranslatedStringRepository::Get", SymbolMappingTarget::kIndirect, 29, STATIC_SYM(TranslatedStringRepository__Get)},
 		},
+
+		{
+			"ls::ModuleManager::CollectAvailableMods",
+			SymbolMappingData::kText, SymbolMappingData::kCritical,
+			"C7 81 7C 03 00 00 00 00 00 00 " // mov     dword ptr [rcx+37Ch], 0
+			"48 81 C1 68 03 00 00 " // add     rcx, 368h
+			"E8 XX XX XX XX " // call    ls__ModManager__CollectAvailableMods
+			"48 8B 93 70 03 00 00 ", // mov     rdx, [rbx+370h]
+			{},
+			{"ls::ModuleManager::CollectAvailableMods", SymbolMappingTarget::kIndirect, 17, STATIC_SYM(ModManager__CollectAvailableMods)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)
