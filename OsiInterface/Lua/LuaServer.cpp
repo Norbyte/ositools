@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include <GameDefinitions/Projectile.h>
 #include <Lua/LuaBindingServer.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
@@ -211,6 +212,32 @@ namespace dse::lua
 	}
 
 	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const* const ObjectProxy<esv::Projectile>::MetatableName = "esv::Projectile";
+
+	esv::Projectile* ObjectProxy<esv::Projectile>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto projectile = esv::GetEntityWorld()->GetProjectile(handle_);
+		if (projectile == nullptr) luaL_error(L, "Projectile handle invalid");
+		return projectile;
+	}
+
+	int ObjectProxy<esv::Projectile>::Index(lua_State* L)
+	{
+		auto projectile = Get(L);
+		if (!projectile) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		bool fetched = LuaPropertyMapGet(L, gProjectilePropertyMap, projectile, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -468,6 +495,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Character>::RegisterMetatable(L);
 		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
+		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
 		StatusHandleProxy::RegisterMetatable(L);
@@ -569,6 +597,76 @@ namespace dse::esv::lua
 			return 1;
 		}
 		else {
+			return 0;
+		}
+	}
+
+	int GetGameObject(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
+		}
+
+		esv::Item* item = nullptr;
+		esv::Character* character = nullptr;
+		esv::Projectile* projectile = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TNUMBER:
+		{
+			auto handle = ObjectHandle(lua_tointeger(L, 1));
+			if (handle) {
+				switch ((ObjectType)handle.GetType()) {
+				case ObjectType::ServerCharacter:
+					character = GetEntityWorld()->GetCharacter(handle);
+					break;
+
+				case ObjectType::ServerItem:
+					item = GetEntityWorld()->GetItem(handle);
+					break;
+
+				case ObjectType::ServerProjectile:
+					projectile = GetEntityWorld()->GetProjectile(handle);
+					break;
+
+				default:
+					OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
+					break;
+				}
+			}
+
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 1);
+			character = GetEntityWorld()->GetCharacter(guid, false);
+			item = GetEntityWorld()->GetItem(guid, false);
+			break;
+		}
+
+		default:
+			OsiError("Expected object GUID or handle");
+			return 0;
+		}
+
+		if (item != nullptr) {
+			ObjectHandle handle;
+			item->GetObjectHandle(handle);
+			ObjectProxy<esv::Item>::New(L, handle);
+			return 1;
+		} else if (character != nullptr) {
+			ObjectHandle handle;
+			character->GetObjectHandle(handle);
+			ObjectProxy<esv::Character>::New(L, handle);
+			return 1;
+		} else if (projectile != nullptr) {
+			ObjectHandle handle;
+			projectile->GetObjectHandle(handle);
+			ObjectProxy<esv::Projectile>::New(L, handle);
+			return 1;
+		} else {
 			return 0;
 		}
 	}
@@ -727,6 +825,7 @@ namespace dse::esv::lua
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
+			{"GetGameObject", GetGameObject},
 			{"GetStatus", GetStatus},
 			{"GetCombat", GetCombat},
 			{"NewDamageList", NewDamageList},
