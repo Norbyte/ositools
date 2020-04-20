@@ -273,8 +273,8 @@ namespace dse
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> MemorizationRequirements;
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
-		ObjectSet<FixedString> StringProperties1;
-		ObjectSet<FixedString> ComboCategories;
+		ObjectSet<FixedString, GameMemoryAllocator, true> StringProperties1;
+		ObjectSet<FixedString, GameMemoryAllocator, true> ComboCategories;
 #if !defined(OSI_EOCAPP)
 		STDWString SomeSTDWSTRING;
 #endif
