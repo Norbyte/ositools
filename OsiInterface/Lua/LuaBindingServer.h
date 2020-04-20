@@ -386,7 +386,7 @@ namespace dse::esv::lua
 		bool Query(char const* mod, char const* name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);
 
-		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool useCharacterStats);
+		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool isEnterCheck);
 		bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 		bool ComputeCharacterHit(CDivinityStats_Character * self,
 			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,

@@ -565,17 +565,17 @@ namespace dse::esv
 
 
 	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
-		esv::Status * status, bool useCharacterStats)
+		esv::Status * status, bool isEnterCheck)
 	{
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
-			auto enterChance = lua->StatusGetEnterChance(status, useCharacterStats);
+			auto enterChance = lua->StatusGetEnterChance(status, isEnterCheck);
 			if (enterChance) {
 				return *enterChance;
 			}
 		}
 
-		return wrappedGetEnterChance(status, useCharacterStats);
+		return wrappedGetEnterChance(status, isEnterCheck);
 	}
 
 	int32_t CustomFunctionLibrary::OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance,

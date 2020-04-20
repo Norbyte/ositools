@@ -783,7 +783,7 @@ namespace dse::esv::lua
 	}
 
 
-	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool useCharacterStats)
+	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool isEnterCheck)
 	{
 		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
@@ -791,7 +791,7 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
 		auto _{ PushArguments(L,
 			std::tuple{Push<ObjectProxy<esv::Status>>(status)}) };
-		push(L, useCharacterStats);
+		push(L, isEnterCheck);
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
 		if (result) {
