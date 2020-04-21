@@ -205,7 +205,7 @@ namespace dse::lua
 		return lua_toboolean(L, index) == 1;
 	}
 
-	template <class T, typename std::enable_if_t<std::is_integral_v<T>, int> * = nullptr>
+	template <class T, typename std::enable_if_t<std::is_integral_v<T>, std::enable_if_t<!std::is_same<T, bool>::value, int>> * = nullptr>
 	inline T checked_get(lua_State * L, int index)
 	{
 		return (T)luaL_checkinteger(L, index);

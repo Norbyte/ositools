@@ -27,6 +27,12 @@ namespace dse
 		uint32_t NumItems;
 		uint32_t NumSomeItems;
 
+		void Add(FixedString const& name, T* elem)
+		{
+			NameHashMap.Insert(name, Primitives.Set.Size);
+			Primitives.Set.Add(elem);
+		}
+
 		int FindIndex(char const * str) const
 		{
 			auto fs = ToFixedString(str);
@@ -89,11 +95,11 @@ namespace dse
 	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
 	{
 		virtual ~CDivinityStats_Object_Property_Data() {}
-		virtual CRPGStats_Object_Property * Clone() = 0;
-		virtual bool GetDescription(STDWString * Line1) = 0;
-		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) = 0;
-		virtual bool GetDescription(TranslatedString * Line1) = 0;
-		virtual uint64_t Unknown() = 0;
+		virtual CRPGStats_Object_Property* Clone() { return nullptr; }
+		virtual bool GetDescription(STDWString* Line1) { return false; }
+		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) { return false; }
+		virtual bool GetDescription(TranslatedString * Line1) { return false; }
+		virtual uint64_t Unknown() { return 0; }
 
 		uint8_t PropertyContext;
 		uint8_t _Pad1[3];

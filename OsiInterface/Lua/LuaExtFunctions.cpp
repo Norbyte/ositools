@@ -600,9 +600,8 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::Custom:
 		{
 			auto prop = (CDivinityStats_Object_Property_Custom*)property;
-			auto customProperties = stats->EnumIndexToLabel("Custom Properties", prop->CustomProperties);
 			settable(L, "Type", "Custom");
-			settable(L, "Action", customProperties);
+			settable(L, "Action", prop->Name);
 			break;
 		}
 
@@ -705,6 +704,242 @@ namespace dse::lua
 			auto prop = static_cast<CDivinityStats_Object_Property_Data*>(properties.Properties.Primitives[i]);
 			ObjectPropertyToLua(L, prop);
 			lua_settable(L, -3);
+		}
+	}
+
+	struct ObjectPropertyInfo
+	{
+		CRPGStats_Object_Property_Type Type;
+		void* VMT;
+	};
+
+	static bool ObjectPropertyVMTsMapped{ false };
+	static std::unordered_map<std::string, ObjectPropertyInfo> ObjectPropertyTypes = {
+		{"Custom", {CRPGStats_Object_Property_Type::Custom, nullptr}},
+		{"Status", {CRPGStats_Object_Property_Type::Status, nullptr}},
+		{"SurfaceChange", {CRPGStats_Object_Property_Type::SurfaceChange, nullptr}},
+		{"GameAction", {CRPGStats_Object_Property_Type::GameAction, nullptr}},
+		{"OsirisTask", {CRPGStats_Object_Property_Type::OsirisTask, nullptr}},
+		{"Sabotage", {CRPGStats_Object_Property_Type::Sabotage, nullptr}},
+		{"Summon", {CRPGStats_Object_Property_Type::Summon, nullptr}},
+		{"Force", {CRPGStats_Object_Property_Type::Force, nullptr}}
+	};
+
+	void MapObjectPropertyVMTs()
+	{
+		if (ObjectPropertyVMTsMapped) return;
+		std::unordered_map<CRPGStats_Object_Property_Type, void*> VMTs;
+		auto stats = GetStaticSymbols().GetStats();
+		for (auto object : stats->objects.Primitives) {
+			object->PropertyList.Iterate([&VMTs](auto const& k, auto const& propList) {
+				for (auto prop : propList->Properties.Primitives) {
+					VMTs.insert(std::make_pair(prop->TypeId, *(void**)&prop));
+				}
+			});
+		}
+
+		for (auto& it : ObjectPropertyTypes) {
+			auto vmtIt = VMTs.find(it.second.Type);
+			if (vmtIt != VMTs.end()) {
+				it.second.VMT = vmtIt->second;
+			}
+		}
+
+		ObjectPropertyVMTsMapped = true;
+	}
+
+	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index)
+	{
+		MapObjectPropertyVMTs();
+		auto stats = GetStaticSymbols().GetStats();
+
+		auto type = checked_gettable<char const*, char const*>(L, "Type");
+		auto typeIt = ObjectPropertyTypes.find(type);
+		if (typeIt == ObjectPropertyTypes.end()) {
+			OsiError("Unknown SkillProperties type: " << type);
+			return nullptr;
+		}
+
+		if (typeIt->second.VMT == nullptr) {
+			OsiError("Cannot construct SkillProperties of type  " << type << " - VMT not mapped!");
+			return nullptr;
+		}
+
+		CDivinityStats_Object_Property_Data* prop{ nullptr };
+		switch (typeIt->second.Type) {
+		case CRPGStats_Object_Property_Type::Custom:
+		{
+			auto custom = new CDivinityStats_Object_Property_Custom();
+			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto action = stats->EnumLabelToIndex("Custom Properties", actionStr);
+			if (!action) {
+				OsiError("Unknown Custom Properties value: " << actionStr);
+				return nullptr;
+			}
+			custom->CustomProperties = *action;
+			prop = custom;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Status:
+		{
+			auto status = new CDivinityStats_Object_Property_Status();
+			status->Status = MakeFixedString(checked_gettable<char const*, char const*>(L, "Action"));
+			status->StatusChance = checked_gettable<char const*, float>(L, "StatusChance");
+			status->Duration = checked_gettable<char const*, float>(L, "Duration");
+			status->Argument3 = MakeFixedString(checked_gettable<char const*, char const*>(L, "Arg3"));
+			status->Argument4 = checked_gettable<char const*, int>(L, "Arg4");
+			status->Argument5 = checked_gettable<char const*, int>(L, "Arg5");
+			status->HasBoost = checked_gettable<char const*, bool>(L, "SurfaceBoost");
+			prop = status;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::SurfaceChange:
+		{
+			auto change = new CDivinityStats_Object_Property_SurfaceChange();
+			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto action = stats->EnumLabelToIndex("Surface Change", actionStr);
+			if (!action) {
+				OsiError("Unknown Surface Change value: " << actionStr);
+				return nullptr;
+			}
+			change->SurfaceChange = *action;
+
+			change->Arg1 = checked_gettable<char const*, float>(L, "Arg1");
+			change->Arg2 = checked_gettable<char const*, float>(L, "Arg2");
+			change->Arg3 = checked_gettable<char const*, float>(L, "Arg3");
+			change->Arg4 = checked_gettable<char const*, float>(L, "Arg4");
+			prop = change;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::GameAction:
+		{
+			auto gameAction = new CDivinityStats_Object_Property_GameAction();
+			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto action = stats->EnumLabelToIndex("Game Action", actionStr);
+			if (!action) {
+				OsiError("Unknown Custom Properties value: " << actionStr);
+				return nullptr;
+			}
+			gameAction->GameAction = *action;
+
+			gameAction->Arg1 = checked_gettable<char const*, float>(L, "Arg1");
+			gameAction->Arg2 = checked_gettable<char const*, float>(L, "Arg2");
+			gameAction->Arg3 = MakeFixedString(checked_gettable<char const*, char const*>(L, "Arg3"));
+			gameAction->Arg4 = checked_gettable<char const*, float>(L, "Arg4");
+			gameAction->Arg5 = checked_gettable<char const*, float>(L, "Arg5");
+			auto statusHealType = gettable<char const*, char const*>(L, "StatusHealType");
+			if (statusHealType) {
+				auto healTypeIndex = stats->EnumLabelToIndex("StatusHealType", statusHealType);
+				if (!healTypeIndex) {
+					OsiError("Unknown StatusHealType value: " << statusHealType);
+					return nullptr;
+				}
+
+				gameAction->StatusHealType = *healTypeIndex;
+			}
+
+			prop = gameAction;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::OsirisTask:
+		{
+			auto osirisTask = new CDivinityStats_Object_Property_OsirisTask();
+			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto action = stats->EnumLabelToIndex("Osiris Task", actionStr);
+			if (!action) {
+				OsiError("Unknown Osiris Task value: " << actionStr);
+				return nullptr;
+			}
+			osirisTask->OsirisTask = *action;
+			osirisTask->Chance = checked_gettable<char const*, float>(L, "Chance");
+			osirisTask->VitalityOnRevive = checked_gettable<char const*, int>(L, "VitalityOnRevive");
+			prop = osirisTask;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Sabotage:
+		{
+			auto sabotage = new CDivinityStats_Object_Property_Sabotage();
+			sabotage->Amount = checked_gettable<char const*, int>(L, "Amount");
+			prop = sabotage;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Summon:
+		{
+			auto summon = new CDivinityStats_Object_Property_Summon();
+			summon->Template = MakeFixedString(checked_gettable<char const*, char const*>(L, "Template"));
+			summon->Duration = checked_gettable<char const*, float>(L, "Duration");
+			summon->IsTotem = checked_gettable<char const*, bool>(L, "IsTotem");
+			summon->Skill = MakeFixedString(checked_gettable<char const*, char const*>(L, "Skill"));
+			prop = summon;
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Force:
+		{
+			auto force = new CDivinityStats_Object_Property_Force();
+			force->Distance = checked_gettable<char const*, int>(L, "Distance");
+			prop = force;
+			break;
+		}
+
+		default:
+			luaL_error(L, "Unhandled object property type!");
+			return nullptr;
+		}
+
+		STDString name = std::to_string(index).c_str();
+
+		auto conditions = gettable<char const*, char const*>(L, "Condition");
+		if (conditions) {
+			OsiWarn("Conditions property not supported yet on SkillProperties!");
+			name += "_IF(";
+			name += conditions;
+			name += ")";
+		}
+
+		*(void**)prop = typeIt->second.VMT;
+		prop->Name = MakeFixedString(name.c_str());
+		prop->TypeId = typeIt->second.Type;
+		prop->PropertyContext = 0;
+		prop->ConditionBlockPtr = nullptr;
+
+		push(L, "Context");
+		lua_gettable(L, -2);
+		for (auto idx : iterate(L, -1)) {
+			auto context = checked_get<char const*>(L, idx);
+			if (strcmp(context, "Target") == 0) {
+				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::Target;
+			} else if (strcmp(context, "AoE") == 0) {
+				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::AoE;
+			} else if (strcmp(context, "Self") == 0) {
+				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::Self;
+			} else if (strcmp(context, "SelfOnHit") == 0) {
+				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::SelfOnHit;
+			} else if (strcmp(context, "SelfOnEquip") == 0) {
+				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::SelfOnEquip;
+			} else {
+				OsiError("Unknown PropertyContext: " << context);
+			}
+		}
+		lua_pop(L, 1);
+
+		return prop;
+	}
+
+	void LuaToObjectPropertyList(lua_State* L, CRPGStats_Object_Property_List& properties)
+	{
+		auto index = 0;
+		for (auto idx : iterate(L, -1)) {
+			auto prop = LuaToObjectProperty(L, index++);
+			if (prop) {
+				properties.Properties.Add(prop->Name, prop);
+			}
 		}
 	}
 
@@ -823,6 +1058,15 @@ namespace dse::lua
 			for (auto category : iterate(L, valueIdx)) {
 				auto categoryName = checked_get<char const*>(L, category);
 				object->ComboCategories.Set.Add(MakeFixedString(categoryName));
+			}
+
+			return 0;
+		} else if (strcmp(attributeName, "SkillProperties") == 0) {
+			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
+			if (propertyList) {
+				LuaToObjectPropertyList(L, **propertyList);
+			} else {
+				OsiError("Skill has no SkillProperties!");
 			}
 
 			return 0;
