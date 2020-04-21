@@ -276,6 +276,7 @@ function GetWeaponScalingRequirement(weapon)
     local largestRequirement = -1
 
     for i, requirement in pairs(weapon.Requirements) do
+        local reqName = requirement.Requirement
         if not requirement.Not and requirement.Param > largestRequirement and
             (reqName == "Strength" or reqName == "Finesse" or reqName == "Constitution" or
             reqName == "Memory" or reqName == "Wits") then
@@ -367,7 +368,6 @@ function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomizat
     abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
 
     local boost = 1.0 + damageBoost * 0.01
-    Ext.Print("NOT SNEAK: ", character.NotSneaking, "SNEAK: ", character.IsSneaking)
     if character.IsSneaking then
         boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
     end
@@ -426,7 +426,6 @@ function CalculateWeaponDamageRange(character, weapon)
     abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
 
     local boost = 1.0 + damageBoost * 0.01
-    if not character.NotSneaking then
     if character.IsSneaking then
         boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
     end
@@ -469,7 +468,6 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
     end
 
     if skill.UseWeaponDamage == "Yes" then
-        Ext.Print("GSD Weapon")
         local damageType = skill.DamageType
         if damageType == "None" or damageType == "Sentinel" then
             damageType = nil
