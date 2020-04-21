@@ -163,22 +163,22 @@ namespace dse::esv::lua
 	{
 		switch (arg.TypeId) {
 		case ValueType::Integer:
-			lua_pushinteger(L, arg.Int32);
+			push(L, arg.Int32);
 			break;
 
 		case ValueType::Integer64:
-			lua_pushinteger(L, arg.Int64);
+			push(L, arg.Int64);
 			break;
 
 		case ValueType::Real:
-			lua_pushnumber(L, arg.Float);
+			push(L, arg.Float);
 			break;
 
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
 		case ValueType::ItemGuid: // TODO ...
-			lua_pushstring(L, arg.String);
+			push(L, arg.String);
 			break;
 
 		default:
@@ -191,22 +191,22 @@ namespace dse::esv::lua
 	{
 		switch ((ValueType)tv.TypeId) {
 		case ValueType::Integer:
-			lua_pushinteger(L, tv.Value.Val.Int32);
+			push(L, tv.Value.Val.Int32);
 			break;
 
 		case ValueType::Integer64:
-			lua_pushinteger(L, tv.Value.Val.Int64);
+			push(L, tv.Value.Val.Int64);
 			break;
 
 		case ValueType::Real:
-			lua_pushnumber(L, tv.Value.Val.Float);
+			push(L, tv.Value.Val.Float);
 			break;
 
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
 		case ValueType::ItemGuid: // TODO ...
-			lua_pushstring(L, tv.Value.Val.String);
+			push(L, tv.Value.Val.String);
 			break;
 
 		default:
@@ -312,7 +312,7 @@ namespace dse::esv::lua
 		auto index = 1;
 		while (current != head) {
 			if (MatchTuple(L, 2, current->Item)) {
-				lua_pushinteger(L, index++);
+				push(L, index++);
 				ConstructTuple(L, current->Item);
 				lua_settable(L, -3);
 			}
@@ -411,7 +411,7 @@ namespace dse::esv::lua
 	{
 		lua_newtable(L);
 		for (auto i = 0; i < tuple.Size; i++) {
-			lua_pushinteger(L, i + 1);
+			push(L, i + 1);
 			OsiToLua(L, tuple.Values[i]);
 			lua_settable(L, -3);
 		}
@@ -511,7 +511,7 @@ namespace dse::esv::lua
 
 		bool handled = gOsirisProxy->GetWrappers().Query.CallWithHooks(function_->GetHandle(), numParams == 0 ? nullptr : args.Args());
 		if (outParams == 0) {
-			lua_pushboolean(L, handled ? 1 : 0);
+			push(L, handled);
 			return 1;
 		} else {
 			if (handled) {
@@ -585,7 +585,7 @@ namespace dse::esv::lua
 
 				return outParams;
 			} else {
-				lua_pushboolean(L, 1);
+				push(L, true);
 				return 1;
 			}
 		} else {
@@ -596,7 +596,7 @@ namespace dse::esv::lua
 
 				return outParams;
 			} else {
-				lua_pushboolean(L, 0);
+				push(L, false);
 				return 1;
 			}
 		}
@@ -1001,7 +1001,7 @@ namespace dse::esv::lua
 		OsiFunctionNameProxy::New(L, name, std::ref(lua.Get())); // stack: tab, name, proxy
 
 		lua_pushvalue(L, 1); // stack: fun, tab
-		lua_pushstring(L, name); // stack: fun, tab, name
+		push(L, name); // stack: fun, tab, name
 		lua_pushvalue(L, -3); // stack: fun, tab, name, fun
 		lua_settable(L, -3); // stack: fun
 		lua_pop(L, 1);

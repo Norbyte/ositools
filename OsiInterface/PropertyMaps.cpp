@@ -805,7 +805,7 @@ namespace dse
 			} else {
 				auto val = propertyMap.getFlag(obj, propertyName, false, throwError);
 				if (val) {
-					lua_pushboolean(L, *val);
+					lua::push(L, *val);
 					return true;
 				} else {
 					return false;
@@ -824,7 +824,7 @@ namespace dse
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
 			if (val) {
-				lua_pushboolean(L, *val != 0);
+				lua::push(L, *val != 0);
 				return true;
 			} else {
 				return false;
@@ -841,7 +841,7 @@ namespace dse
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
 			if (val) {
-				lua_pushinteger(L, *val);
+				lua::push(L, *val);
 				return true;
 			} else {
 				return false;
@@ -852,7 +852,7 @@ namespace dse
 		{
 			auto val = propertyMap.getFloat(obj, propertyName, false, throwError);
 			if (val) {
-				lua_pushnumber(L, *val);
+				lua::push(L, *val);
 				return true;
 			} else {
 				return false;
@@ -867,7 +867,7 @@ namespace dse
 		{
 			auto val = propertyMap.getString(obj, propertyName, false, throwError);
 			if (val) {
-				lua_pushstring(L, *val);
+				lua::push(L, *val);
 				return true;
 			} else {
 				return false;
@@ -879,7 +879,7 @@ namespace dse
 			auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
 			if (val) {
 				if (*val) {
-					lua_pushinteger(L, val->Handle);
+					lua::push(L, val->Handle);
 				} else {
 					lua_pushnil(L);
 				}

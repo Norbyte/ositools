@@ -743,7 +743,7 @@ namespace dse::esv::lua
 	{
 		LuaServerPin lua(ExtensionState::Get());
 		bool allowed = (lua->RestrictionFlags & State::RestrictOsiris) != 0;
-		lua_pushboolean(L, allowed);
+		push(L, allowed);
 		return 1;
 	}
 
@@ -872,7 +872,7 @@ namespace dse::esv::lua
 		LoadScript(gameMathLib, "Game.Math.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
+		push(L, "ExtraData"); // stack: Ext, "ExtraData"
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
 		lua_settable(L, -3); // stack: Ext
 		lua_pop(L, 1); // stack: -

@@ -142,7 +142,7 @@ namespace dse::lua
 	{
 		auto dynamicStat = GetCharacterDynamicStat(stats, prop);
 		if (dynamicStat) {
-			lua_pushinteger(L, *dynamicStat);
+			push(L, *dynamicStat);
 			return 1;
 		}
 
@@ -159,7 +159,7 @@ namespace dse::lua
 		}
 
 		if (strcmp(prop, "DamageBoost") == 0) {
-			lua_pushinteger(L, stats->GetDamageBoost());
+			push(L, stats->GetDamageBoost());
 			return 1;
 		}
 
@@ -187,7 +187,7 @@ namespace dse::lua
 			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
 			if (talentId) {
 				bool hasTalent = stats->HasTalent(*talentId, false);
-				lua_pushboolean(L, hasTalent);
+				push(L, hasTalent);
 				return 1;
 			} else {
 				return 0;
@@ -202,7 +202,7 @@ namespace dse::lua
 		auto abilityId = EnumInfo<AbilityType>::Find(prop);
 		if (abilityId) {
 			int abilityLevel = stats->GetAbility(*abilityId, false);
-			lua_pushinteger(L, abilityLevel);
+			push(L, abilityLevel);
 			return 1;
 		}
 
@@ -311,7 +311,7 @@ namespace dse::lua
 			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
 			if (talentId) {
 				bool hasTalent = item->HasTalent(*talentId);
-				lua_pushboolean(L, hasTalent);
+				push(L, hasTalent);
 				return 1;
 			} else {
 				return 0;
@@ -321,7 +321,7 @@ namespace dse::lua
 		auto abilityId = EnumInfo<AbilityType>::Find(prop);
 		if (abilityId) {
 			int abilityLevel = item->GetAbility(*abilityId);
-			lua_pushinteger(L, abilityLevel);
+			push(L, abilityLevel);
 			return 1;
 		}
 
@@ -446,7 +446,7 @@ namespace dse::lua
 		auto key = luaL_checkstring(L, 2);
 		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
 		if (extraData != nullptr) {
-			lua_pushnumber(L, *extraData);
+			push(L, *extraData);
 			return 1;
 		} else {
 			return 0;

@@ -343,7 +343,7 @@ namespace dse::ecl::lua
 
 	int OsirisIsCallableClient(lua_State* L)
 	{
-		lua_pushboolean(L, false);
+		push(L, false);
 		return 1;
 	}
 
@@ -457,15 +457,15 @@ namespace dse::ecl::lua
 			break;
 
 		case InvokeDataValueType::IDV_Bool:
-			lua_pushboolean(L, val.BoolVal);
+			push(L, val.BoolVal);
 			break;
 
 		case InvokeDataValueType::IDV_Double:
-			lua_pushnumber(L, val.DoubleVal);
+			push(L, val.DoubleVal);
 			break;
 
 		case InvokeDataValueType::IDV_String:
-			lua_pushstring(L, val.StringVal.c_str());
+			push(L, val.StringVal);
 			break;
 
 		default:
@@ -613,7 +613,7 @@ namespace dse::ecl::lua
 		}
 
 		bool ok = ui->FlashPlayer->InvokeArgs(*invokeId, args.data(), numArgs);
-		lua_pushboolean(L, ok);
+		push(L, ok);
 		return 1;
 	}
 
@@ -973,7 +973,7 @@ namespace dse::ecl::lua
 		LoadScript(gameMathLib, "Game.Math.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_pushstring(L, "ExtraData"); // stack: Ext, "ExtraData"
+		push(L, "ExtraData"); // stack: Ext, "ExtraData"
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
 		lua_settable(L, -3); // stack: Ext
 		lua_pop(L, 1); // stack: -

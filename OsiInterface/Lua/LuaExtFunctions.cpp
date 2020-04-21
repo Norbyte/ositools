@@ -17,7 +17,7 @@ namespace dse::lua
 		lua_newtable(L);
 		int idx = 1;
 		for (auto it = val.begin(), end = val.end(); it != end; ++it) {
-			lua_pushinteger(L, idx++);
+			push(L, idx++);
 			JsonParse(L, *it);
 			lua_settable(L, -3);
 		}
@@ -41,23 +41,23 @@ namespace dse::lua
 			break;
 
 		case Json::intValue:
-			lua_pushinteger(L, val.asInt64());
+			push(L, val.asInt64());
 			break;
 
 		case Json::uintValue:
-			lua_pushinteger(L, (int64_t)val.asUInt64());
+			push(L, (int64_t)val.asUInt64());
 			break;
 
 		case Json::realValue:
-			lua_pushnumber(L, val.asDouble());
+			push(L, val.asDouble());
 			break;
 
 		case Json::stringValue:
-			lua_pushstring(L, val.asCString());
+			push(L, val.asCString());
 			break;
 
 		case Json::booleanValue:
-			lua_pushboolean(L, val.asBool() ? 1 : 0);
+			push(L, val.asBool());
 			break;
 
 		case Json::arrayValue:
@@ -239,7 +239,7 @@ namespace dse::lua
 		std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
 		writer->write(root, &ss);
 
-		lua_pushstring(L, ss.str().c_str());
+		push(L, ss.str());
 		return 1;
 	}
 
@@ -264,7 +264,7 @@ namespace dse::lua
 
 	int GetExtensionVersion(lua_State* L)
 	{
-		lua_pushinteger(L, CurrentVersion);
+		push(L, CurrentVersion);
 		return 1;
 	}
 
@@ -321,13 +321,13 @@ namespace dse::lua
 			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
 			for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 				if (mod.Info.ModuleUUID == modUuid) {
-					lua_pushboolean(L, 1);
+					push(L, true);
 					return 1;
 				}
 			}
 		}
 
-		lua_pushboolean(L, 0);
+		push(L, false);
 		return 1;
 	}
 
@@ -370,7 +370,7 @@ namespace dse::lua
 			settable(L, "Description", module->Info.Description);
 			settable(L, "ModuleType", module->Info.ModuleType);
 			
-			lua_pushstring(L, "Dependencies");
+			push(L, "Dependencies");
 			lua_newtable(L);
 			auto & dependents = module->DependentModules.Set;
 			for (uint32_t i = 0; i < dependents.Size; i++) {
@@ -716,7 +716,7 @@ namespace dse::lua
 			push(L, object->Level);
 			return 1;
 		} else if (strcmp(attributeName, "Name") == 0) {
-			lua_pushstring(L, object->Name);
+			push(L, object->Name);
 			return 1;
 		} else if (strcmp(attributeName, "Using") == 0) {
 			if (object->Using) {
@@ -771,10 +771,10 @@ namespace dse::lua
 				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeName << "'");
 				return 0;
 			} else {
-				lua_pushinteger(L, *intval);
+				push(L, *intval);
 			}
 		} else {
-			lua_pushstring(L, *value);
+			push(L, *value);
 		}
 
 		return 1;
@@ -1162,7 +1162,7 @@ namespace dse::lua
 
 	int IsDeveloperMode(lua_State * L)
 	{
-		lua_pushboolean(L, gOsirisProxy->GetConfig().DeveloperMode);
+		push(L, gOsirisProxy->GetConfig().DeveloperMode);
 		return 1;
 	}
 
@@ -1230,7 +1230,7 @@ namespace dse::lua
 		switch (lua_gettop(L)) {  /* check number of arguments */
 		case 0: {  /* no arguments */
 			std::uniform_real_distribution<double> dist(0.0, 1.0);
-			lua_pushnumber(L, (lua_Number)dist(state->OsiRng));  /* Number between 0 and 1 */
+			push(L, (lua_Number)dist(state->OsiRng));  /* Number between 0 and 1 */
 			return 1;
 		}
 		case 1: {  /* only upper limit */
@@ -1251,7 +1251,7 @@ namespace dse::lua
 			"interval too large");
 
 		std::uniform_int_distribution<int64_t> dist(low, up);
-		lua_pushinteger(L, (lua_Integer)dist(state->OsiRng));
+		push(L, dist(state->OsiRng));
 		return 1;
 	}
 
