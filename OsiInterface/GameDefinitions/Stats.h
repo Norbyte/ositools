@@ -18,14 +18,14 @@ namespace dse
 	};
 
 	template <class T>
-	struct CNamedElementManager : public ProtectedGameObject<CNamedElementManager<T>>
+	struct CNamedElementManager : public Noncopyable<CNamedElementManager<T>>
 	{
-		void * VMT;
+		void* VMT{ nullptr };
 		ObjectSet<T *> Primitives;
 		Map<FixedString, uint32_t> NameHashMap;
-		uint32_t Unused;
-		uint32_t NumItems;
-		uint32_t NumSomeItems;
+		uint32_t Unused{ 0 };
+		uint32_t NumItems{ 0 };
+		uint32_t NumSomeItems{ 0 };
 
 		void Add(FixedString const& name, T* elem)
 		{
@@ -229,16 +229,9 @@ namespace dse
 	struct CRPGStats_Object_Property_List
 	{
 		CNamedElementManager<CRPGStats_Object_Property> Properties;
-		FixedString StatsObjName_PropertyName;
-		bool Unknown;
+		FixedString Name;
+		uint8_t Unknown{ 3 };
 		uint8_t _Pad[7];
-		/*
-		CRPGStats_Object_Property_List * Copy() const
-		{
-			auto copy = GameAlloc<CRPGStats_Object_Property_List>();
-			copy->StatsObjName_PropertyName = StatsObjName_PropertyName;
-			copy->Unknown = Unknown;
-		}*/
 	};
 
 	struct CRPGStats_LevelMap : public Noncopyable<CRPGStats_LevelMap>

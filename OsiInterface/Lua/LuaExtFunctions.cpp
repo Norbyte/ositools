@@ -714,6 +714,7 @@ namespace dse::lua
 	};
 
 	static bool ObjectPropertyVMTsMapped{ false };
+	static void* SkillPropertiesVMT{ nullptr };
 	static std::unordered_map<std::string, ObjectPropertyInfo> ObjectPropertyTypes = {
 		{"Custom", {CRPGStats_Object_Property_Type::Custom, nullptr}},
 		{"Status", {CRPGStats_Object_Property_Type::Status, nullptr}},
@@ -732,8 +733,9 @@ namespace dse::lua
 		auto stats = GetStaticSymbols().GetStats();
 		for (auto object : stats->objects.Primitives) {
 			object->PropertyList.Iterate([&VMTs](auto const& k, auto const& propList) {
+				SkillPropertiesVMT = *(void**)propList;
 				for (auto prop : propList->Properties.Primitives) {
-					VMTs.insert(std::make_pair(prop->TypeId, *(void**)&prop));
+					VMTs.insert(std::make_pair(prop->TypeId, *(void**)prop));
 				}
 			});
 		}
@@ -750,7 +752,6 @@ namespace dse::lua
 
 	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index)
 	{
-		MapObjectPropertyVMTs();
 		auto stats = GetStaticSymbols().GetStats();
 
 		auto type = checked_gettable<char const*, char const*>(L, "Type");
@@ -932,15 +933,27 @@ namespace dse::lua
 		return prop;
 	}
 
-	void LuaToObjectPropertyList(lua_State* L, CRPGStats_Object_Property_List& properties)
+	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L)
 	{
+		MapObjectPropertyVMTs();
+		if (!SkillPropertiesVMT) {
+			OsiError("Cannot construct SkillProperties - VMT not mapped!");
+			return nullptr;
+		}
+
+		auto properties = new CRPGStats_Object_Property_List();
+		*(void**)properties = SkillPropertiesVMT;
+		properties->Properties.NameHashMap.Init(31);
+
 		auto index = 0;
 		for (auto idx : iterate(L, -1)) {
 			auto prop = LuaToObjectProperty(L, index++);
 			if (prop) {
-				properties.Properties.Add(prop->Name, prop);
+				properties->Properties.Add(prop->Name, prop);
 			}
 		}
+
+		return properties;
 	}
 
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
@@ -1062,11 +1075,21 @@ namespace dse::lua
 
 			return 0;
 		} else if (strcmp(attributeName, "SkillProperties") == 0) {
-			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
-			if (propertyList) {
-				LuaToObjectPropertyList(L, **propertyList);
-			} else {
-				OsiError("Skill has no SkillProperties!");
+			auto newList = LuaToObjectPropertyList(L);
+			if (newList) {
+				STDString name = object->Name;
+				name += "_";
+				name += attributeName;
+				newList->Name = MakeFixedString(name.c_str());
+
+				auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
+				if (propertyList) {
+					// FIXME - add Remove() support!
+					object->PropertyList.Clear();
+					GameFree(*propertyList);
+				}
+
+				object->PropertyList.Insert(newList->Name, newList);
 			}
 
 			return 0;
