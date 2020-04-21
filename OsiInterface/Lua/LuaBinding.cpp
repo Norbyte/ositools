@@ -194,6 +194,11 @@ namespace dse::lua
 			}
 		}
 
+		if (strcmp(prop, "NotSneaking") == 0) {
+			push(L, (stats->Flags & StatCharacterFlags::SCF_IsSneaking) == 0);
+			return 1;
+		}
+
 		auto abilityId = EnumInfo<AbilityType>::Find(prop);
 		if (abilityId) {
 			int abilityLevel = stats->GetAbility(*abilityId, false);
