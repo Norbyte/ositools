@@ -228,7 +228,7 @@ namespace dse
 			int field_1AC;
 			Status * AuraStatus; // Saved
 			HealEffect HealEffectOverride; // Saved
-			char Poisoned;
+			bool Poisoned;
 			char field_1BD;
 			char field_1BE;
 			char field_1BF;

@@ -216,22 +216,24 @@ namespace dse::esv
 			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr || character->SkillManager == nullptr) return;
 
+			std::vector<std::tuple<char const*, bool, bool>> skillEvents;
+
 			auto & skills = character->SkillManager->Skills;
-			skills.Iterate([&characterGuid, &eventName](FixedString const & skillId, esv::Skill * skill) {
-				// Some skills are unnamed for some reason?
-				// Skip those to make sure that we don't crash
-				if (skill->SkillId) {
-					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
-					eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, skill->SkillId.Str });
-					eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsLearned });
-					eventArgs->Add(OsiArgumentValue{ (int32_t)skill->IsActivated });
-
-					gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(SkillIteratorEventHandle, eventArgs);
-
-					delete eventArgs;
-				}
+			skills.Iterate([&characterGuid, &eventName, &skillEvents](FixedString const & skillId, esv::Skill * skill) {
+				skillEvents.push_back(std::tuple(skill->SkillId.Str, skill->IsLearned, skill->IsActivated));
 			});
+
+			for (auto const& skill : skillEvents) {
+				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
+				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, characterGuid });
+				eventArgs->Add(OsiArgumentValue{ ValueType::String, std::get<0>(skill) });
+				eventArgs->Add(OsiArgumentValue{ (int32_t)std::get<1>(skill) });
+				eventArgs->Add(OsiArgumentValue{ (int32_t)std::get<2>(skill) });
+
+				gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(SkillIteratorEventHandle, eventArgs);
+
+				delete eventArgs;
+			}
 		}
 
 		void CharacterEquipItem(OsiArgumentDesc const & args)
