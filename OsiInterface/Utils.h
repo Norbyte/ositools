@@ -28,6 +28,7 @@ public:
 private:
 	bool created_{ false };
 	bool inputEnabled_{ false };
+	bool silence_{ false };
 	bool consoleRunning_{ false };
 	std::thread* consoleThread_{ nullptr };
 

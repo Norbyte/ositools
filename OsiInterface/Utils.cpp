@@ -114,7 +114,7 @@ void DebugConsole::SetColor(DebugMessageType type)
 
 void DebugConsole::Debug(DebugMessageType type, char const* msg)
 {
-	if (!consoleRunning_ || inputEnabled_) return;
+	if (!consoleRunning_ || silence_) return;
 
 	SetColor(type);
 	OutputDebugStringA(msg);
@@ -126,7 +126,7 @@ void DebugConsole::Debug(DebugMessageType type, char const* msg)
 
 void DebugConsole::Debug(DebugMessageType type, wchar_t const* msg)
 {
-	if (!consoleRunning_ || inputEnabled_) return;
+	if (!consoleRunning_ || silence_) return;
 
 	SetColor(type);
 	OutputDebugStringW(msg);
@@ -139,6 +139,7 @@ void DebugConsole::Debug(DebugMessageType type, wchar_t const* msg)
 void DebugConsole::ConsoleThread()
 {
 	std::string line;
+	bool silence = true;
 	while (consoleRunning_) {
 		wchar_t tempBuf;
 		DWORD tempRead;
@@ -155,10 +156,12 @@ void DebugConsole::ConsoleThread()
 
 		while (consoleRunning_) {
 			inputEnabled_ = true;
+			silence_ = silence;
 			std::cout << ">> ";
 			std::cout.flush();
 			std::getline(std::cin, line);
 			inputEnabled_ = false;
+			silence_ = false;
 			if (line == "exit") break;
 
 			if (line.empty()) {
@@ -170,10 +173,17 @@ void DebugConsole::ConsoleThread()
 				DEBUG("Switching to client context.");
 				serverContext_ = false;
 				dse::gOsirisProxy->AttachConsoleThread(false);
+			} else if (line == "silence on") {
+				DEBUG("Silent mode ON");
+				silence = true;
+			} else if (line == "silence off") {
+				DEBUG("Silent mode OFF");
+				silence = false;
 			} else if (line == "help") {
 				DEBUG("Anything typed in will be executed as Lua code except the following special commands:");
 				DEBUG("  server - Switch to server context");
 				DEBUG("  client - Switch to client context");
+				DEBUG("  silence <on|off> - Enable/disable silent mode (log output when in input mode)");
 				DEBUG("  exit - Leave console mode");
 				DEBUG("  !<cmd> <arg1> ... <argN> - Trigger Lua \"ConsoleCommand\" event with arguments cmd, arg1, ..., argN");
 			} else {
