@@ -122,6 +122,7 @@ namespace dse
 			PROP(SourceDirection);
 			PROP(Turn);
 			PROP_ENUM(HealEffectOverride);
+			PROP(Poisoned);
 		}
 
 		{

@@ -555,28 +555,28 @@ namespace dse
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 
 		uint32_t _Pad0;
-		uint32_t CurrentVitality;
-		uint32_t CurrentArmor;
-		uint32_t CurrentMagicArmor;
-		uint32_t ArmorAfterHitCooldownMultiplier;
-		uint32_t MagicArmorAfterHitCooldownMultiplier;
-		uint32_t MPStart;
-		uint32_t CurrentAP;
-		uint32_t BonusActionPoints; // Saved
-		uint32_t Experience; // Saved
-		uint32_t Reputation;
+		int32_t CurrentVitality;
+		int32_t CurrentArmor;
+		int32_t CurrentMagicArmor;
+		int32_t ArmorAfterHitCooldownMultiplier;
+		int32_t MagicArmorAfterHitCooldownMultiplier;
+		int32_t MPStart;
+		int32_t CurrentAP;
+		int32_t BonusActionPoints; // Saved
+		int32_t Experience; // Saved
+		int32_t Reputation;
 		uint8_t Flanked; // Saved
 		uint8_t _Pad1[3];
-		uint32_t Karma; // Saved
+		int32_t Karma; // Saved
 		uint8_t Flags;
 		uint8_t _Pad2[3];
 		uint32_t Unkn0;
 		ObjectSet<int> TraitOrder; // Saved
-		uint32_t MaxResistance;
-		uint32_t HasTwoHandedWeapon;
+		int32_t MaxResistance;
+		int32_t HasTwoHandedWeapon;
 		IGameObject * Character;
-		uint32_t Unkn2;
-		uint32_t IsIncapacitatedRefCount;
+		int32_t Unkn2;
+		int32_t IsIncapacitatedRefCount;
 		CharacterDynamicStat ** DynamicStats;
 		CharacterDynamicStat ** DynamicStatsEnd;
 		CharacterDynamicStat ** DynamicStatsCapacityEnd;
@@ -590,12 +590,12 @@ namespace dse
 		uint8_t _Pad4[3];
 		EoCGameRandom CriticalHitRng;
 		uint8_t _Pad5[3];
-		uint32_t MaxVitality;
-		uint32_t BaseMaxVitality;
-		uint32_t MaxArmor;
-		uint32_t BaseMaxArmor;
-		uint32_t MaxMagicArmor;
-		uint32_t BaseMaxMagicArmor;
+		int32_t MaxVitality;
+		int32_t BaseMaxVitality;
+		int32_t MaxArmor;
+		int32_t BaseMaxArmor;
+		int32_t MaxMagicArmor;
+		int32_t BaseMaxMagicArmor;
 		float Sight;
 		float BaseSight;
 		uint64_t AttributeFlags;
@@ -603,9 +603,9 @@ namespace dse
 		uint64_t ItemBoostedAttributeFlags;
 		bool AttributeFlagsUpdated;
 		uint8_t _Pad6[3];
-		uint32_t MaxSummons;
-		uint32_t BaseMaxSummons;
-		uint32_t MaxMpOverride; // Saved
+		int32_t MaxSummons;
+		int32_t BaseMaxSummons;
+		int32_t MaxMpOverride; // Saved
 		TalentArray DisabledTalents; // Saved
 
 		std::optional<int32_t> GetStat(char const * name, bool excludeBoosts);
