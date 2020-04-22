@@ -678,6 +678,102 @@ local StatItemDynamic = {}
 
 -- Properties from ItemFetchStat
 --- @field public DynamicStats StatItemDynamic[]
+
+-- Indirect properties from StatEntryWeapon/Armor/Shield
+--- @field public Using string
+--- @field public Damage integer
+--- @field public Act string See Act enumeration
+--- @field public Handedness string See Handedness enumeration
+--- @field public DamageBoost integer
+--- @field public DamageFromBase integer
+--- @field public CriticalDamage integer
+--- @field public CriticalChance integer
+--- @field public Movement integer
+--- @field public Initiative integer
+--- @field public Requirements StatRequirement[]
+--- @field public Slot string See Itemslot enumeration
+--- @field public DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field public Value integer
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public Projectile string
+--- @field public StrengthBoost string See Penalty Qualifier enumeration
+--- @field public FinesseBoost string See Penalty Qualifier enumeration
+--- @field public IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field public ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field public MemoryBoost string See Penalty Qualifier enumeration
+--- @field public WitsBoost string See Penalty Qualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public Leadership integer
+--- @field public PainReflection integer
+--- @field public Perseverance integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public Fire integer
+--- @field public Earth integer
+--- @field public Water integer
+--- @field public Air integer
+--- @field public Poison integer
+--- @field public Physical integer
+--- @field public Piercing integer
+--- @field public SightBoost string See Penalty Qualifier enumeration
+--- @field public HearingBoost string See Penalty Qualifier enumeration
+--- @field public VitalityBoost integer
+--- @field public MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field public ChanceToHitBoost integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public AccuracyBoost integer
+--- @field public DodgeBoost integer
+--- @field public Weight integer
+--- @field public AttackAPCost integer
+--- @field public ComboCategory string
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public Boosts string
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public Reflection string
+--- @field public ItemGroup string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public MaxLevel integer
+--- @field public ItemColor string
+--- @field public MaxSummons integer
+--- @field public RuneSlots integer
+--- @field public RuneSlots_V1 integer
+--- @field public NeedsIdentification string See YesNo enumeration
+--- @field public LifeSteal integer
+--- @field public CleavePercentage integer
+--- @field public CleaveAngle integer
+--- @field public Talents string
+--- @field public IgnoreVisionBlock string See YesNo enumeration
+--- @field public Tags string
+--- @field public ArmorBoost integer
+--- @field public MagicArmorBoost integer
+--- @field public Blocking integer
 local StatItem = {}
 
 
@@ -866,6 +962,956 @@ local DeltaModBoost = {}
 --- @field public Frequency integer
 --- @field public Boosts DeltaModBoost[]
 local DeltaMod = {}
+
+
+--- @class StatRequirement
+--- @field public Requirement string
+--- @field public Param string|integer
+--- @field public Not boolean
+local StatRequirement = {}
+
+
+--- @class StatEntryWeapon
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public Damage integer
+--- @field public Act string See Act enumeration
+--- @field public Handedness string See Handedness enumeration
+--- @field public IsTwoHanded string See YesNo enumeration
+--- @field public DamageBoost integer
+--- @field public DamageFromBase integer
+--- @field public CriticalDamage integer
+--- @field public CriticalChance integer
+--- @field public Movement integer
+--- @field public Initiative integer
+--- @field public Requirements StatRequirement[]
+--- @field public Slot string See Itemslot enumeration
+--- @field public Durability integer
+--- @field public DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field public Value integer
+--- @field public WeaponType string See WeaponType enumeration
+--- @field public AnimType string See AnimType enumeration
+--- @field public WeaponRange integer
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public Projectile string
+--- @field public StrengthBoost string See Penalty Qualifier enumeration
+--- @field public FinesseBoost string See Penalty Qualifier enumeration
+--- @field public IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field public ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field public MemoryBoost string See Penalty Qualifier enumeration
+--- @field public WitsBoost string See Penalty Qualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public Leadership integer
+--- @field public PainReflection integer
+--- @field public Perseverance integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public Fire integer
+--- @field public Earth integer
+--- @field public Water integer
+--- @field public Air integer
+--- @field public Poison integer
+--- @field public Physical integer
+--- @field public Piercing integer
+--- @field public SightBoost string See Penalty Qualifier enumeration
+--- @field public HearingBoost string See Penalty Qualifier enumeration
+--- @field public VitalityBoost integer
+--- @field public MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field public ChanceToHitBoost integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public AccuracyBoost integer
+--- @field public DodgeBoost integer
+--- @field public Weight integer
+--- @field public AttackAPCost integer
+--- @field public ComboCategory string
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public Boosts string
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public Charges integer
+--- @field public MaxCharges integer
+--- @field public Skills string
+--- @field public Reflection string
+--- @field public ItemGroup string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public MaxLevel integer
+--- @field public ItemColor string
+--- @field public MaxSummons integer
+--- @field public RuneSlots integer
+--- @field public RuneSlots_V1 integer
+--- @field public NeedsIdentification string See YesNo enumeration
+--- @field public LifeSteal integer
+--- @field public CleavePercentage integer
+--- @field public CleaveAngle integer
+--- @field public Talents string
+--- @field public IgnoreVisionBlock string See YesNo enumeration
+--- @field public Tags string
+local StatEntryWeapon = {
+    --- @type string See Damage Type enumeration
+    ['Damage Type'] = "",
+    --- @type integer
+    ['Damage Range'] = 0,
+    --- @type string See ActPart enumeration
+    ['Act part'] = ""
+}
+
+
+--- @class StatEntryArmor
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public ArmorBoost integer
+--- @field public MagicArmorBoost integer
+--- @field public Movement integer
+--- @field public Initiative integer
+--- @field public Requirements StatRequirement[]
+--- @field public Slot string See Itemslot enumeration
+--- @field public Durability integer
+--- @field public DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field public Value integer
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public Act string See Act enumeration
+--- @field public Fire integer
+--- @field public Air integer
+--- @field public Water integer
+--- @field public Earth integer
+--- @field public Poison integer
+--- @field public Piercing integer
+--- @field public Physical integer
+--- @field public StrengthBoost string See Penalty Qualifier enumeration
+--- @field public FinesseBoost string See Penalty Qualifier enumeration
+--- @field public IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field public ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field public MemoryBoost string See Penalty Qualifier enumeration
+--- @field public WitsBoost string See Penalty Qualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public PainReflection integer
+--- @field public Perseverance integer
+--- @field public Leadership integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public SightBoost string See Penalty Qualifier enumeration
+--- @field public HearingBoost string See Penalty Qualifier enumeration
+--- @field public VitalityBoost integer
+--- @field public MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field public ChanceToHitBoost integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public AccuracyBoost integer
+--- @field public DodgeBoost integer
+--- @field public CriticalChance integer
+--- @field public ComboCategory string
+--- @field public Weight integer
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public ArmorType string See ArmorType enumeration
+--- @field public Boosts string
+--- @field public Skills string
+--- @field public ItemColor string
+--- @field public Reflection string
+--- @field public ItemGroup string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public MaxLevel integer
+--- @field public MaxSummons integer
+--- @field public NeedsIdentification string See YesNo enumeration
+--- @field public Charges integer
+--- @field public RuneSlots integer
+--- @field public RuneSlots_V1 integer
+--- @field public MaxCharges integer
+--- @field public Talents string
+--- @field public Tags string
+local StatEntryArmor = {
+    ['Armor Defense Value'] = 0,
+    ['Magic Armor Value'] = 0,
+    --- @type string See ActPart enumeration
+    ['Act part'] = ""
+}
+
+
+--- @class StatEntryShield
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public ArmorBoost integer
+--- @field public MagicArmorBoost integer
+--- @field public Movement integer
+--- @field public Initiative integer
+--- @field public Requirements StatRequirement[]
+--- @field public Slot string See Itemslot enumeration
+--- @field public Durability integer
+--- @field public DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field public Value integer
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public Act string See Act enumeration
+--- @field public Fire integer
+--- @field public Air integer
+--- @field public Water integer
+--- @field public Earth integer
+--- @field public Poison integer
+--- @field public Piercing integer
+--- @field public Physical integer
+--- @field public Blocking integer
+--- @field public StrengthBoost string See Penalty Qualifier enumeration
+--- @field public FinesseBoost string See Penalty Qualifier enumeration
+--- @field public IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field public ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field public MemoryBoost string See Penalty Qualifier enumeration
+--- @field public WitsBoost string See Penalty Qualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public Leadership integer
+--- @field public PainReflection integer
+--- @field public Perseverance integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public SightBoost string See Penalty Qualifier enumeration
+--- @field public HearingBoost string See Penalty Qualifier enumeration
+--- @field public VitalityBoost integer
+--- @field public MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field public ChanceToHitBoost integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public AccuracyBoost integer
+--- @field public DodgeBoost integer
+--- @field public CriticalChance string See Penalty Qualifier enumeration
+--- @field public ComboCategory string
+--- @field public Weight integer
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public Skills string
+--- @field public Reflection string
+--- @field public ItemGroup string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public MaxLevel integer
+--- @field public ItemColor string
+--- @field public MaxSummons integer
+--- @field public RuneSlots integer
+--- @field public RuneSlots_V1 integer
+--- @field public NeedsIdentification string See YesNo enumeration
+--- @field public Talents string
+--- @field public Tags string
+local StatEntryShield = {
+    ['Armor Defense Value'] = 0,
+    ['Magic Armor Value'] = 0,
+    --- @type string See ActPart enumeration
+    ['Act part'] = ""
+}
+
+
+--- @class StatEntryPotion
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public VitalityBoost integer
+--- @field public Strength string See Penalty PreciseQualifier enumeration
+--- @field public Finesse string See Penalty PreciseQualifier enumeration
+--- @field public Intelligence string See Penalty PreciseQualifier enumeration
+--- @field public Constitution string See Penalty PreciseQualifier enumeration
+--- @field public Memory string See Penalty PreciseQualifier enumeration
+--- @field public Wits string See Penalty PreciseQualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public PainReflection integer
+--- @field public Perseverance integer
+--- @field public Leadership integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public FireResistance integer
+--- @field public EarthResistance integer
+--- @field public WaterResistance integer
+--- @field public AirResistance integer
+--- @field public PoisonResistance integer
+--- @field public PhysicalResistance integer
+--- @field public PiercingResistance integer
+--- @field public Sight integer
+--- @field public Hearing string See Penalty Qualifier enumeration
+--- @field public Initiative integer
+--- @field public Vitality integer
+--- @field public VitalityPercentage integer
+--- @field public MagicPoints integer
+--- @field public ActionPoints integer
+--- @field public ChanceToHitBoost integer
+--- @field public AccuracyBoost integer
+--- @field public DodgeBoost integer
+--- @field public DamageBoost integer
+--- @field public APCostBoost integer
+--- @field public SPCostBoost integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public Movement integer
+--- @field public MovementSpeedBoost integer
+--- @field public Gain string See BigQualifier enumeration
+--- @field public Armor integer
+--- @field public MagicArmor integer
+--- @field public ArmorBoost integer
+--- @field public MagicArmorBoost integer
+--- @field public CriticalChance integer
+--- @field public Act string See Act enumeration
+--- @field public Duration integer
+--- @field public UseAPCost integer
+--- @field public ComboCategory string
+--- @field public StackId string
+--- @field public BoostConditions string
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public StatusMaterial string
+--- @field public StatusEffect string
+--- @field public StatusIcon string
+--- @field public SavingThrow string See SavingThrow enumeration
+--- @field public Weight integer
+--- @field public Value integer
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public UnknownBeforeConsume string See YesNo enumeration
+--- @field public Reflection string
+--- @field public Damage string See Qualifier enumeration
+--- @field public DamageType string See Damage Type enumeration
+--- @field public AuraRadius integer
+--- @field public AuraSelf string
+--- @field public AuraAllies string
+--- @field public AuraEnemies string
+--- @field public AuraNeutrals string
+--- @field public AuraItems string
+--- @field public AuraFX string
+--- @field public RootTemplate string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public MaxLevel integer
+--- @field public BloodSurfaceType string
+--- @field public MaxSummons integer
+--- @field public AddToBottomBar string See YesNo enumeration
+--- @field public SummonLifelinkModifier integer
+--- @field public IgnoredByAI string See YesNo enumeration
+--- @field public RangeBoost integer
+--- @field public BonusWeapon string
+--- @field public AiCalculationStatsOverride string
+--- @field public RuneEffectWeapon string
+--- @field public RuneEffectUpperbody string
+--- @field public RuneEffectAmulet string
+--- @field public RuneLevel integer
+--- @field public LifeSteal integer
+--- @field public IsFood string See YesNo enumeration
+--- @field public IsConsumable string See YesNo enumeration
+local StatEntryPotion = {
+    ['Damage Multiplier'] = 0,
+    ['Damage Range'] = 0,
+    --- @type string See ActPart enumeration
+    ['Act part'] = ""
+}
+
+
+--- @class StatEntryObject
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public ModifierType string See ModifierType enumeration
+--- @field public Act string See Act enumeration
+--- @field public UseAPCost integer
+--- @field public Value integer
+--- @field public ComboCategory string
+--- @field public Weight integer
+--- @field public Strength string See PreciseQualifier enumeration
+--- @field public Finesse string See PreciseQualifier enumeration
+--- @field public Intelligence string See PreciseQualifier enumeration
+--- @field public Constitution string See PreciseQualifier enumeration
+--- @field public Memory string See PreciseQualifier enumeration
+--- @field public Wits string See PreciseQualifier enumeration
+--- @field public Vitality integer
+--- @field public Armor string See PreciseQualifier enumeration
+--- @field public FireResistance integer
+--- @field public EarthResistance integer
+--- @field public WaterResistance integer
+--- @field public AirResistance integer
+--- @field public PoisonResistance integer
+--- @field public PiercingResistance integer
+--- @field public PhysicalResistance integer
+--- @field public ShadowResistance integer
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public Requirements StatRequirement[]
+--- @field public InventoryTab string See InventoryTabs enumeration
+--- @field public RootTemplate string
+--- @field public ObjectCategory string
+--- @field public MinAmount integer
+--- @field public MaxAmount integer
+--- @field public Priority integer
+--- @field public Unique integer
+--- @field public MinLevel integer
+--- @field public RuneEffectWeapon string
+--- @field public RuneEffectUpperbody string
+--- @field public RuneEffectAmulet string
+--- @field public RuneLevel integer
+--- @field public MaxLevel integer
+--- @field public AddToBottomBar string See YesNo enumeration
+--- @field public IgnoredByAI string See YesNo enumeration
+local StatEntryObject = {
+    --- @type string See ActPart enumeration
+    ['Act part'] = ""
+}
+
+
+--- @class StatEntryCharacter
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public Strength string See PreciseQualifier enumeration
+--- @field public Finesse string See PreciseQualifier enumeration
+--- @field public Intelligence string See PreciseQualifier enumeration
+--- @field public Constitution string See PreciseQualifier enumeration
+--- @field public Memory string See PreciseQualifier enumeration
+--- @field public Wits string See PreciseQualifier enumeration
+--- @field public SingleHanded integer
+--- @field public TwoHanded integer
+--- @field public Ranged integer
+--- @field public DualWielding integer
+--- @field public RogueLore integer
+--- @field public WarriorLore integer
+--- @field public RangerLore integer
+--- @field public FireSpecialist integer
+--- @field public WaterSpecialist integer
+--- @field public AirSpecialist integer
+--- @field public EarthSpecialist integer
+--- @field public Sourcery integer
+--- @field public Necromancy integer
+--- @field public Polymorph integer
+--- @field public Summoning integer
+--- @field public PainReflection integer
+--- @field public Leadership integer
+--- @field public Perseverance integer
+--- @field public Telekinesis integer
+--- @field public Sneaking integer
+--- @field public Thievery integer
+--- @field public Loremaster integer
+--- @field public Repair integer
+--- @field public Barter integer
+--- @field public Persuasion integer
+--- @field public Luck integer
+--- @field public FireResistance integer
+--- @field public EarthResistance integer
+--- @field public WaterResistance integer
+--- @field public AirResistance integer
+--- @field public PoisonResistance integer
+--- @field public PiercingResistance integer
+--- @field public PhysicalResistance integer
+--- @field public Sight string See Penalty Qualifier enumeration
+--- @field public Hearing string See Penalty Qualifier enumeration
+--- @field public FOV integer
+--- @field public APMaximum integer
+--- @field public APStart integer
+--- @field public APRecovery integer
+--- @field public Initiative integer
+--- @field public Vitality integer
+--- @field public MagicPoints integer
+--- @field public ChanceToHitBoost integer
+--- @field public Movement integer
+--- @field public MovementSpeedBoost integer
+--- @field public CriticalChance string See Penalty Qualifier enumeration
+--- @field public Gain string See BigQualifier enumeration
+--- @field public Armor integer
+--- @field public ArmorBoost integer
+--- @field public ArmorBoostGrowthPerLevel integer
+--- @field public MagicArmor integer
+--- @field public MagicArmorBoost integer
+--- @field public MagicArmorBoostGrowthPerLevel integer
+--- @field public Accuracy integer
+--- @field public Dodge integer
+--- @field public Act string See Act enumeration
+--- @field public MaxResistance integer
+--- @field public Weight integer
+--- @field public Talents string
+--- @field public Traits string
+--- @field public PathInfluence string
+--- @field public Flags string See AttributeFlags enumeration
+--- @field public Reflection string
+--- @field public StepsType string See StepsType enumeration
+--- @field public MaxSummons integer
+--- @field public MPStart integer
+--- @field public DamageBoost integer
+--- @field public DamageBoostGrowthPerLevel integer
+local StatEntryCharacter = {
+    --- @type string See ActPart enumeration
+    ['Act part'] = "",
+    --- @type string See Penalty Qualifier enumeration
+    ['Act strength'] = ""
+}
+
+
+--- @class StatEntrySkillData
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public SkillType string
+--- @field public Ability string See SkillAbility enumeration
+--- @field public Element string See SkillElement enumeration
+--- @field public Requirement string See SkillRequirement enumeration
+--- @field public Requirements StatRequirement[]
+--- @field public DisplayName string
+--- @field public DisplayNameRef string
+--- @field public Description string
+--- @field public DescriptionRef string
+--- @field public StatsDescription string
+--- @field public StatsDescriptionRef string
+--- @field public StatsDescriptionParams string
+--- @field public Icon string
+--- @field public FXScale integer
+--- @field public PrepareAnimationInit string
+--- @field public PrepareAnimationLoop string
+--- @field public PrepareEffect string
+--- @field public PrepareEffectBone string
+--- @field public CastAnimation string
+--- @field public CastTextEvent string
+--- @field public CastAnimationCheck string See CastCheckType enumeration
+--- @field public CastEffect string
+--- @field public CastEffectTextEvent string
+--- @field public TargetCastEffect string
+--- @field public TargetHitEffect string
+--- @field public TargetEffect string
+--- @field public SourceTargetEffect string
+--- @field public TargetTargetEffect string
+--- @field public LandingEffect string
+--- @field public ImpactEffect string
+--- @field public MaleImpactEffects string
+--- @field public FemaleImpactEffects string
+--- @field public OnHitEffect string
+--- @field public SelectedCharacterEffect string
+--- @field public SelectedObjectEffect string
+--- @field public SelectedPositionEffect string
+--- @field public DisappearEffect string
+--- @field public ReappearEffect string
+--- @field public ReappearEffectTextEvent string
+--- @field public RainEffect string
+--- @field public StormEffect string
+--- @field public FlyEffect string
+--- @field public SpatterEffect string
+--- @field public ShieldMaterial string
+--- @field public ShieldEffect string
+--- @field public ContinueEffect string
+--- @field public SkillEffect string
+--- @field public Template string
+--- @field public TemplateCheck string See CastCheckType enumeration
+--- @field public TemplateOverride string
+--- @field public TemplateAdvanced string
+--- @field public Totem string See YesNo enumeration
+--- @field public Template1 string
+--- @field public Template2 string
+--- @field public Template3 string
+--- @field public WeaponBones string
+--- @field public TeleportSelf string See YesNo enumeration
+--- @field public CanTargetCharacters string See YesNo enumeration
+--- @field public CanTargetItems string See YesNo enumeration
+--- @field public CanTargetTerrain string See YesNo enumeration
+--- @field public ForceTarget string See YesNo enumeration
+--- @field public TargetProjectiles string See YesNo enumeration
+--- @field public UseCharacterStats string See YesNo enumeration
+--- @field public UseWeaponDamage string See YesNo enumeration
+--- @field public UseWeaponProperties string See YesNo enumeration
+--- @field public SingleSource string See YesNo enumeration
+--- @field public ContinueOnKill string See YesNo enumeration
+--- @field public Autocast string See YesNo enumeration
+--- @field public AmountOfTargets integer
+--- @field public AutoAim string See YesNo enumeration
+--- @field public AddWeaponRange string See YesNo enumeration
+--- @field public ActionPoints integer
+--- @field public Cooldown integer
+--- @field public CooldownReduction integer
+--- @field public ChargeDuration integer
+--- @field public CastDelay integer
+--- @field public Offset integer
+--- @field public Lifetime integer
+--- @field public Duration string See Qualifier enumeration
+--- @field public TargetRadius integer
+--- @field public ExplodeRadius integer
+--- @field public AreaRadius integer
+--- @field public HitRadius integer
+--- @field public RadiusMax integer
+--- @field public Range integer
+--- @field public MaxDistance integer
+--- @field public Angle integer
+--- @field public TravelSpeed integer
+--- @field public Acceleration integer
+--- @field public Height integer
+--- @field public Damage string See DamageSourceType enumeration
+--- @field public DamageType string See Damage Type enumeration
+--- @field public DamageMultiplier string See PreciseQualifier enumeration
+--- @field public DeathType string See Death Type enumeration
+--- @field public BonusDamage string See Qualifier enumeration
+--- @field public HitPointsPercent integer
+--- @field public MinHitsPerTurn integer
+--- @field public MaxHitsPerTurn integer
+--- @field public HitDelay integer
+--- @field public MaxAttacks integer
+--- @field public NextAttackChance integer
+--- @field public NextAttackChanceDivider integer
+--- @field public EndPosRadius integer
+--- @field public JumpDelay integer
+--- @field public TeleportDelay integer
+--- @field public PointsMaxOffset integer
+--- @field public RandomPoints integer
+--- @field public ChanceToPierce integer
+--- @field public MaxPierceCount integer
+--- @field public MaxForkCount integer
+--- @field public ForkLevels integer
+--- @field public ForkChance integer
+--- @field public HealAmount string See PreciseQualifier enumeration
+--- @field public StatusClearChance integer
+--- @field public SurfaceType string See Surface Type enumeration
+--- @field public SurfaceLifetime integer
+--- @field public SurfaceStatusChance integer
+--- @field public SurfaceTileCollision string See SurfaceCollisionFlags enumeration
+--- @field public SurfaceGrowInterval integer
+--- @field public SurfaceGrowStep integer
+--- @field public SurfaceRadius integer
+--- @field public TotalSurfaceCells integer
+--- @field public SurfaceMinSpawnRadius integer
+--- @field public MinSurfaces integer
+--- @field public MaxSurfaces integer
+--- @field public MinSurfaceSize integer
+--- @field public MaxSurfaceSize integer
+--- @field public GrowSpeed integer
+--- @field public GrowOnSurface string See SurfaceCollisionFlags enumeration
+--- @field public GrowTimeout integer
+--- @field public SkillBoost string
+--- @field public SkillAttributeFlags string See AttributeFlags enumeration
+--- @field public SkillProperties StatProperty[]
+--- @field public CleanseStatuses string
+--- @field public AoEConditions string See Conditions enumeration
+--- @field public TargetConditions string See Conditions enumeration
+--- @field public ForkingConditions string See Conditions enumeration
+--- @field public CycleConditions string See Conditions enumeration
+--- @field public ShockWaveDuration integer
+--- @field public TeleportTextEvent string
+--- @field public SummonEffect string
+--- @field public ProjectileCount integer
+--- @field public ProjectileDelay integer
+--- @field public StrikeCount integer
+--- @field public StrikeDelay integer
+--- @field public PreviewStrikeHits string See YesNo enumeration
+--- @field public SummonLevel integer
+--- @field public StartTextEvent string
+--- @field public StopTextEvent string
+--- @field public Atmosphere string See AtmosphereType enumeration
+--- @field public ConsequencesStartTime integer
+--- @field public ConsequencesDuration integer
+--- @field public HealthBarColor integer
+--- @field public Skillbook string
+--- @field public PreviewImpactEffect string
+--- @field public IgnoreVisionBlock string See YesNo enumeration
+--- @field public HealEffectId string
+--- @field public AddRangeFromAbility string See Ability enumeration
+--- @field public DivideDamage string See YesNo enumeration
+--- @field public OverrideMinAP string See YesNo enumeration
+--- @field public OverrideSkillLevel string See YesNo enumeration
+--- @field public Tier string See SkillTier enumeration
+--- @field public GrenadeBone string
+--- @field public GrenadeProjectile string
+--- @field public GrenadePath string
+--- @field public MovingObject string
+--- @field public SpawnObject string
+--- @field public SpawnEffect string
+--- @field public SpawnFXOverridesImpactFX string See YesNo enumeration
+--- @field public SpawnLifetime integer
+--- @field public ProjectileTerrainOffset string See YesNo enumeration
+--- @field public ProjectileType string See ProjectileType enumeration
+--- @field public HitEffect string
+--- @field public PushDistance integer
+--- @field public ForceMove string See YesNo enumeration
+--- @field public Stealth string See YesNo enumeration
+--- @field public Distribution string See ProjectileDistribution enumeration
+--- @field public Shuffle string See YesNo enumeration
+--- @field public PushPullEffect string
+--- @field public BackStart integer
+--- @field public FrontOffset integer
+--- @field public TargetGroundEffect string
+--- @field public PositionEffect string
+--- @field public BeamEffect string
+--- @field public PreviewEffect string
+--- @field public CastSelfAnimation string
+--- @field public IgnoreCursed string See YesNo enumeration
+--- @field public IsEnemySkill string See YesNo enumeration
+--- @field public DomeEffect string
+--- @field public AuraSelf string
+--- @field public AuraAllies string
+--- @field public AuraEnemies string
+--- @field public AuraNeutrals string
+--- @field public AuraItems string
+--- @field public AIFlags string See AIFlags enumeration
+--- @field public Shape string
+--- @field public Base integer
+--- @field public AiCalculationSkillOverride string
+--- @field public TeleportSurface string See YesNo enumeration
+--- @field public ProjectileSkills string
+--- @field public SummonCount integer
+--- @field public LinkTeleports string See YesNo enumeration
+--- @field public TeleportsUseCount integer
+--- @field public HeightOffset integer
+--- @field public ForGameMaster string See YesNo enumeration
+--- @field public IsMelee string See YesNo enumeration
+--- @field public MemorizationRequirements StatRequirement[]
+--- @field public IgnoreSilence string See YesNo enumeration
+--- @field public IgnoreHeight string See YesNo enumeration
+local StatEntrySkillData = {
+    ['Memory Cost'] = 0,
+    ['Magic Cost'] = 0,
+    ['Damage Multiplier'] = 0,
+    ['Damage Range'] = 0,
+    ['Chance To Hit Multiplier'] = 0,
+    ['Damage On Jump'] = 0,
+    ['Damage On Landing'] = 0,
+    ['Healing Multiplier'] = 0,
+    ['Stealth Damage Multiplier'] = 0,
+    ['Distance Damage Multiplier'] = 0
+}
+
+
+--- @class StatEntryStatusData
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public StatusType string
+--- @field public Icon string
+--- @field public DisplayName string
+--- @field public DisplayNameRef string
+--- @field public Description string
+--- @field public DescriptionRef string
+--- @field public DescriptionParams string
+--- @field public OverrideDefaultDescription string See YesNo enumeration
+--- @field public FormatColor string See FormatStringColor enumeration
+--- @field public SavingThrow string See SavingThrow enumeration
+--- @field public IsChanneled string See YesNo enumeration
+--- @field public Instant string See YesNo enumeration
+--- @field public StatusEffect string
+--- @field public StatusEffectOverrideForItems string
+--- @field public StatusEffectOnTurn string
+--- @field public MaterialType string See MaterialType enumeration
+--- @field public Material string
+--- @field public MaterialApplyBody string See YesNo enumeration
+--- @field public MaterialApplyArmor string See YesNo enumeration
+--- @field public MaterialApplyWeapon string See YesNo enumeration
+--- @field public MaterialApplyNormalMap string See YesNo enumeration
+--- @field public MaterialFadeAmount integer
+--- @field public MaterialOverlayOffset integer
+--- @field public MaterialParameters string
+--- @field public HealingEvent string See StatusEvent enumeration
+--- @field public HealStat string See StatusHealType enumeration
+--- @field public HealType string See HealValueType enumeration
+--- @field public HealValue integer
+--- @field public StatsId string
+--- @field public IsInvulnerable string See YesNo enumeration
+--- @field public IsDisarmed string See YesNo enumeration
+--- @field public StackId string
+--- @field public StackPriority integer
+--- @field public AuraRadius integer
+--- @field public AuraSelf string
+--- @field public AuraAllies string
+--- @field public AuraEnemies string
+--- @field public AuraNeutrals string
+--- @field public AuraItems string
+--- @field public AuraFX string
+--- @field public ImmuneFlag string See AttributeFlag enumeration
+--- @field public CleanseStatuses string
+--- @field public MaxCleanseCount integer
+--- @field public ApplyAfterCleanse string See YesNo enumeration
+--- @field public SoundStart string
+--- @field public SoundLoop string
+--- @field public SoundStop string
+--- @field public DamageEvent string See StatusEvent enumeration
+--- @field public DamageStats string
+--- @field public DeathType string See Death Type enumeration
+--- @field public DamageCharacters string See YesNo enumeration
+--- @field public DamageItems string See YesNo enumeration
+--- @field public DamageTorches string See YesNo enumeration
+--- @field public FreezeTime integer
+--- @field public SurfaceChange string
+--- @field public PermanentOnTorch string See YesNo enumeration
+--- @field public AbsorbSurfaceType string
+--- @field public AbsorbSurfaceRange integer
+--- @field public Skills string
+--- @field public BonusFromAbility string See Ability enumeration
+--- @field public Items string
+--- @field public OnlyWhileMoving string See YesNo enumeration
+--- @field public DescriptionCaster string
+--- @field public DescriptionTarget string
+--- @field public WinBoost string See Properties enumeration
+--- @field public LoseBoost string See Properties enumeration
+--- @field public WeaponOverride string
+--- @field public ApplyEffect string
+--- @field public ForGameMaster string See YesNo enumeration
+--- @field public ResetCooldowns string
+--- @field public ResetOncePerCombat string See YesNo enumeration
+--- @field public PolymorphResult string
+--- @field public DisableInteractions string See YesNo enumeration
+--- @field public LoseControl string See YesNo enumeration
+--- @field public AiCalculationSkillOverride string
+--- @field public HealEffectId string
+--- @field public ScaleWithVitality string See YesNo enumeration
+--- @field public VampirismType string See VampirismType enumeration
+--- @field public BeamEffect string
+--- @field public HealMultiplier integer
+--- @field public InitiateCombat string See YesNo enumeration
+--- @field public Projectile string
+--- @field public Radius integer
+--- @field public Charges integer
+--- @field public MaxCharges integer
+--- @field public DefendTargetPosition string See YesNo enumeration
+--- @field public TargetConditions string See Conditions enumeration
+--- @field public Toggle string See YesNo enumeration
+--- @field public LeaveAction string
+--- @field public DieAction string
+--- @field public PlayerSameParty string See YesNo enumeration
+--- @field public PlayerHasTag string
+--- @field public PeaceOnly string See YesNo enumeration
+--- @field public Necromantic string See YesNo enumeration
+--- @field public RetainSkills string
+--- @field public BringIntoCombat string See YesNo enumeration
+--- @field public ApplyStatusOnTick string
+--- @field public IsResistingDeath string See YesNo enumeration
+--- @field public TargetEffect string
+--- @field public DamagePercentage integer
+--- @field public ForceOverhead string See YesNo enumeration
+--- @field public TickSFX string
+--- @field public ForceStackOverwrite string See YesNo enumeration
+--- @field public FreezeCooldowns string See YesNo enumeration
+local StatEntryStatusData = {}
+
+
+--- @class StatEntryCrime
+--- @field public Name string
+--- @field public Level integer
+--- @field public Using string
+--- @field public CrimeType string
+--- @field public TensionWeight integer
+--- @field public Lifetime integer
+--- @field public Audible string See YesNo enumeration
+--- @field public DetectionRange integer
+--- @field public CreatesCrimescene string See YesNo enumeration
+--- @field public Continuous string See YesNo enumeration
+--- @field public VictimReaction string
+--- @field public NoticedAD string
+--- @field public WarningDialog string
+--- @field public ArrestDialog string
+--- @field public InterrogateDialog string
+--- @field public ReactionCategory_Tag string
+--- @field public ReactionCategory_Priority integer
+--- @field public ReactionCategory_PrimaryReaction string
+--- @field public ReactionCategory_SecondaryReaction string
+--- @field public MaxInvestigators integer
+--- @field public ContinuousDelayTimer integer
+--- @field public SoundEvent string
+--- @field public AudibleRange integer
+--- @field public VictimDialog string
+--- @field public CanRaiseAlarm string See YesNo enumeration
+--- @field public CanMerge string See YesNo enumeration
+local StatEntryCrime = {}
+
+
+--- @class HitRequest
+--- @field public EffectFlags integer See HitFlags enumeration
+--- @field public TotalDamageDone integer
+--- @field public ArmorAbsorption integer
+--- @field public LifeSteal integer
+--- @field public DamageType string See DamageType enumeration
+--- @field public DamageList DamageList
+local HitRequest = {}
 
 
 --- @class EsvCombatTeam

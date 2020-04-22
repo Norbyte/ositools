@@ -20,6 +20,8 @@ DamageTypeToDeathTypeMap = {
     Poison = "Acid"
 }
 
+--- @param damageType string DamageType enumeration
+--- @return string
 function DamageTypeToDeathType(damageType)
     local deathType = DamageTypeToDeathTypeMap[damageType]
     if deathType ~= nil then
@@ -29,15 +31,19 @@ function DamageTypeToDeathType(damageType)
     end
 end
 
+--- @param item StatItem
 function IsRangedWeapon(item)
     local type = item.WeaponType
     return type == "Bow" or type == "Crossbow" or type == "Wand" or type == "Rifle"
 end
 
+--- @param primaryAttr integer
 function ScaledDamageFromPrimaryAttribute(primaryAttr)
     return (primaryAttr - Ext.ExtraData.AttributeBaseValue) * Ext.ExtraData.DamageBoostFromAttribute
 end
 
+--- @param skill StatEntrySkillData
+--- @param character StatCharacter
 function GetPrimaryAttributeAmount(skill, character)
     if skill.UseWeaponDamage == "Yes" and character.MainWeapon ~= nil then
         local main = character.MainWeapon
@@ -59,6 +65,8 @@ function GetPrimaryAttributeAmount(skill, character)
     end
 end
 
+--- @param skill StatEntrySkillData
+--- @param attacker StatCharacter
 function GetSkillAttributeDamageScale(skill, attacker)
     if attacker == nil or skill.UseWeaponDamage == "Yes" or skill.Ability == 0 then
         return 1.0
@@ -68,6 +76,10 @@ function GetSkillAttributeDamageScale(skill, attacker)
     end
 end
 
+--- @param skill StatEntrySkillData
+--- @param stealthed boolean
+--- @param attackerPos number[]
+--- @param targetPos number[]
 function GetDamageMultipliers(skill, stealthed, attackerPos, targetPos)
     local stealthDamageMultiplier = 1.0
     if stealthed then
@@ -84,6 +96,7 @@ function GetDamageMultipliers(skill, stealthed, attackerPos, targetPos)
     return stealthDamageMultiplier * distanceDamageMultiplier * damageMultiplier
 end
 
+--- @param level integer
 function GetVitalityBoostByLevel(level)
     local extra = Ext.ExtraData
     local expGrowth = extra.VitalityExponentialGrowth
@@ -109,48 +122,60 @@ function GetVitalityBoostByLevel(level)
     return Ext.Round(vit / 5.0) * 5.0
 end
 
+--- @param level integer
 function GetLevelScaledDamage(level)
     local vitalityBoost = GetVitalityBoostByLevel(level)
     return vitalityBoost / (((level - 1) * Ext.ExtraData.VitalityToDamageRatioGrowth) + Ext.ExtraData.VitalityToDamageRatio)
 end
 
+--- @param level integer
 function GetAverageLevelDamage(level)
     local scaled = GetLevelScaledDamage(level)
     return ((level * Ext.ExtraData.ExpectedDamageBoostFromAttributePerLevel) + 1.0) * scaled
         * ((level * Ext.ExtraData.ExpectedDamageBoostFromSkillAbilityPerLevel) + 1.0)
 end
 
+--- @param level integer
 function GetLevelScaledWeaponDamage(level)
     local scaledDmg = GetLevelScaledDamage(level)
     return ((level * Ext.ExtraData.ExpectedDamageBoostFromWeaponAbilityPerLevel) + 1.0) * scaledDmg
 end
 
+--- @param level integer
 function GetLevelScaledMonsterWeaponDamage(level)
     local weaponDmg = GetLevelScaledWeaponDamage(level)
     return ((level * Ext.ExtraData.MonsterDamageBoostPerLevel) + 1.0) * weaponDmg
 end
 
 DamageBoostTable = {
+    --- @param character StatCharacter
     Physical = function (character)
         return character.WarriorLore * Ext.ExtraData.SkillAbilityPhysicalDamageBoostPerPoint
     end,
+    --- @param character StatCharacter
     Fire = function (character)
         return character.FireSpecialist * Ext.ExtraData.SkillAbilityFireDamageBoostPerPoint
     end,
+    --- @param character StatCharacter
     Air = function (character)
         return character.AirSpecialist * Ext.ExtraData.SkillAbilityAirDamageBoostPerPoint
     end,
+    --- @param character StatCharacter
     Water = function (character)
         return character.WaterSpecialist * Ext.ExtraData.SkillAbilityWaterDamageBoostPerPoint
     end,
+    --- @param character StatCharacter
     Earth = function (character)
         return character.EarthSpecialist * Ext.ExtraData.SkillAbilityPoisonAndEarthDamageBoostPerPoint
     end,
+    --- @param character StatCharacter
     Poison = function (character)
         return character.EarthSpecialist * Ext.ExtraData.SkillAbilityPoisonAndEarthDamageBoostPerPoint
     end
 }
 
+--- @param character StatCharacter
+--- @param damageType string See DamageType enum
 function GetDamageBoostByType(character, damageType)
     local boostFunc = DamageBoostTable[damageType]
     if boostFunc ~= nil then
@@ -160,6 +185,8 @@ function GetDamageBoostByType(character, damageType)
     end
 end
 
+--- @param character StatCharacter
+--- @param damageList DamageList
 function ApplyDamageBoosts(character, damageList)
     for i, damage in pairs(damageList:ToTable()) do
         local boost = GetDamageBoostByType(character, damage.DamageType)
@@ -220,10 +247,15 @@ local DamageSourceCalcTable = {
     end
 }
 
+--- @param skillDamageType string See DamageType enumeration
+--- @param attacker StatCharacter
+--- @param target StatCharacter|StatItem
+--- @param level integer
 function CalculateBaseDamage(skillDamageType, attacker, target, level)
     return DamageSourceCalcTable[skillDamageType](attacker, target, level)
 end
 
+--- @param damageList DamageList
 function GetDamageListDeathType(damageList)
     local biggestDamage = -1
     local deathType
@@ -238,6 +270,8 @@ function GetDamageListDeathType(damageList)
     return deathType
 end
 
+--- @param character StatCharacter
+--- @param weapon StatItem
 function GetWeaponAbility(character, weapon)
     if weapon == nil then
         return nil
@@ -260,6 +294,8 @@ function GetWeaponAbility(character, weapon)
     return "SingleHanded"
 end
 
+--- @param character StatCharacter
+--- @param weapon StatItem
 function ComputeWeaponCombatAbilityBoost(character, weapon)
     local abilityType = GetWeaponAbility(character, weapon)
 
@@ -271,6 +307,7 @@ function ComputeWeaponCombatAbilityBoost(character, weapon)
     end
 end
 
+--- @param weapon StatItem
 function GetWeaponScalingRequirement(weapon)
     local requirementName
     local largestRequirement = -1
@@ -288,6 +325,8 @@ function GetWeaponScalingRequirement(weapon)
     return requirementName
 end
 
+--- @param character StatCharacter
+--- @param weapon StatItem
 function GetItemRequirementAttribute(character, weapon)
     local attribute = GetWeaponScalingRequirement(weapon)
     if attribute ~= nil then
@@ -297,6 +336,8 @@ function GetItemRequirementAttribute(character, weapon)
     end
 end
 
+--- @param character StatCharacter
+--- @param weapon StatItem
 function ComputeWeaponRequirementScaledDamage(character, weapon)
     local scalingReq = GetWeaponScalingRequirement(weapon)
     if scalingReq ~= nil then
@@ -306,6 +347,7 @@ function ComputeWeaponRequirementScaledDamage(character, weapon)
     end
 end
 
+--- @param weapon StatItem
 function ComputeBaseWeaponDamage(weapon)
     local damages = {}
     local stats = weapon.DynamicStats
@@ -359,6 +401,10 @@ function ComputeBaseWeaponDamage(weapon)
 end
 
 -- from CDivinityStats_Character::CalculateWeaponDamageInner and CDivinityStats_Item::ComputeScaledDamage
+--- @param character StatCharacter
+--- @param weapon StatItem
+--- @param damageList DamageList
+--- @param noRandomization boolean
 function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomization)
     local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
 
@@ -392,13 +438,16 @@ function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomizat
     end
 end
 
+--- @param attacker StatCharacter
+--- @param weapon StatItem
+--- @param noRandomization boolean
 function CalculateWeaponDamage(attacker, weapon, noRandomization)
     local damageList = Ext.NewDamageList()
 
     CalculateWeaponScaledDamage(attacker, weapon, damageList, noRandomization)
 
     local offHand = attacker.OffHandWeapon
-    if weapon ~= offHand and false then -- Temporarily off
+    if offHand ~= nil and weapon.InstanceId ~= offHand.InstanceId and false then -- Temporarily off
         local bonusWeapons = attacker.BonusWeapons -- FIXME - enumerate BonusWeapons /multiple/ from character stats!
         for i, bonusWeapon in pairs(bonusWeapons) do
             -- FIXME Create item from bonus weapon stat and apply attack as item???
@@ -410,13 +459,15 @@ function CalculateWeaponDamage(attacker, weapon, noRandomization)
 
     ApplyDamageBoosts(attacker, damageList)
 
-    if weapon == offHand then
+    if offHand ~= nil and weapon.InstanceId == offHand.InstanceId then
         damageList:Multiply(Ext.ExtraData.DualWieldingDamagePenalty)
     end
 
     return damageList
 end
 
+--- @param character StatCharacter
+--- @param weapon StatItem
 function CalculateWeaponDamageRange(character, weapon)
     local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
 
@@ -445,6 +496,14 @@ function CalculateWeaponDamageRange(character, weapon)
     return ranges
 end
 
+--- @param skill StatEntrySkillData
+--- @param attacker StatCharacter
+--- @param isFromItem boolean
+--- @param stealthed boolean
+--- @param attackerPos number[]
+--- @param targetPos number[]
+--- @param level integer
+--- @param noRandomization boolean
 function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization)
     if attacker ~= nil and level < 0 then
         level = attacker.Level
@@ -576,6 +635,8 @@ HitFlag = {
     NoEvents = 0x80000000
 }
 
+--- @param damageList DamageList
+--- @param attacker StatCharacter
 function ApplyDamageSkillAbilityBonuses(damageList, attacker)
 
     if attacker == nil then
@@ -616,6 +677,8 @@ function ApplyDamageSkillAbilityBonuses(damageList, attacker)
      end
 end
 
+--- @param character StatCharacter
+--- @param type string DamageType enumeration
 function GetResistance(character, type)
     if type == "None" or type == "Chaos" then
         return 0
@@ -624,6 +687,8 @@ function GetResistance(character, type)
     return character[type .. "Resistance"]
 end
 
+--- @param character StatCharacter
+--- @param damageList DamageList
 function ApplyHitResistances(character, damageList)
     for i,damage in pairs(damageList:ToTable()) do
         local resistance = GetResistance(character, damage.DamageType)
@@ -631,6 +696,9 @@ function ApplyHitResistances(character, damageList)
     end
 end
 
+--- @param character StatCharacter
+--- @param attacker StatCharacter
+--- @param damageList DamageList
 function ApplyDamageCharacterBonuses(character, attacker, damageList)
     damageList:AggregateSameTypeDamages()
     ApplyHitResistances(character, damageList)
@@ -639,6 +707,8 @@ function ApplyDamageCharacterBonuses(character, attacker, damageList)
 end
 
 
+--- @param character StatCharacter
+--- @param ability string Ability enumeration
 function GetAbilityCriticalHitMultiplier(character, ability)
     if ability == "TwoHanded" then
         return Ext.Round(character.TwoHanded * Ext.ExtraData.CombatAbilityCritMultiplierBonus)
@@ -651,7 +721,8 @@ function GetAbilityCriticalHitMultiplier(character, ability)
     return 0
 end
 
-
+--- @param weapon StatItem
+--- @param character StatCharacter
 function GetCriticalHitMultiplier(weapon, character)
     local criticalMultiplier = 0
     if weapon.ItemType == "Weapon" then
@@ -672,7 +743,8 @@ function GetCriticalHitMultiplier(weapon, character)
     return criticalMultiplier * 0.01
 end
 
-
+--- @param hit HitRequest
+--- @param attacker StatCharacter
 function ApplyCriticalHit(hit, attacker)
     local mainWeapon = attacker.MainWeapon
     if mainWeapon ~= nil then
@@ -681,7 +753,10 @@ function ApplyCriticalHit(hit, attacker)
     end
 end
 
-
+--- @param hit HitRequest
+--- @param attacker StatCharacter
+--- @param hitType string HitType enumeration
+--- @param criticalRoll string CriticalRoll enumeration
 function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     if criticalRoll ~= "Roll" then
         return criticalRoll == "Critical"
@@ -712,14 +787,21 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
     return math.random(0, 99) < critChance
 end
 
-
+--- @param hit HitRequest
+--- @param target StatCharacter
+--- @param attacker StatCharacter
+--- @param hitType string HitType enumeration
+--- @param criticalRoll string CriticalRoll enumeration
 function ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll)
     if ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll) then
         ApplyCriticalHit(hit, attacker)
     end
 end
 
-
+--- @param hit HitRequest
+--- @param target StatCharacter
+--- @param attacker StatCharacter
+--- @param hitType string HitType enumeration
 function ApplyLifeSteal(hit, target, attacker, hitType)
     if attacker == nil or hitType == "DoT" or hitType == "Surface" then
         return
@@ -743,7 +825,8 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
     end
 end
 
-
+--- @param damageList DamageList
+--- @param hit HitRequest
 function ApplyDamagesToHitInfo(damageList, hit)
     local totalDamage = 0
     for i,damage in pairs(damageList:ToTable()) do
@@ -758,13 +841,15 @@ function ApplyDamagesToHitInfo(damageList, hit)
     hit.TotalDamageDone = hit.TotalDamageDone + totalDamage
 end
 
-
+--- @param damageList DamageList
+--- @param armor integer
 local function ComputeArmorDamage(damageList, armor)
     local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfuric")
     return math.min(armor, damage)
 end
 
-
+--- @param damageList DamageList
+--- @param magicArmor integer
 local function ComputeMagicArmorDamage(damageList, magicArmor)
     local damage = damageList:GetByType("Magic") 
         + damageList:GetByType("Fire") 
@@ -775,7 +860,12 @@ local function ComputeMagicArmorDamage(damageList, magicArmor)
     return math.min(magicArmor, damage)
 end
 
-
+--- @param hit HitRequest
+--- @param damageList DamageList
+--- @param statusBonusDmgTypes DamageList
+--- @param hitType string HitType enumeration
+--- @param target StatCharacter
+--- @param attacker StatCharacter
 function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
     hit.EffectFlags = hit.EffectFlags | HitFlag.Hit;
     damageList:AggregateSameTypeDamages()
@@ -817,7 +907,9 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
     end
 end
 
-
+--- @param attacker StatCharacter
+--- @param target StatCharacter
+--- @param highGround string HighGround enumeration
 function GetAttackerDamageMultiplier(attacker, target, highGround)
     if target == nil then
         return 0.0
@@ -833,7 +925,8 @@ function GetAttackerDamageMultiplier(attacker, target, highGround)
     end
 end
 
-
+--- @param character StatCharacter
+--- @param item StatItem
 function DamageItemDurability(character, item)
     local degradeSpeed = 0
     for i,stats in pairs(item.DynamicStats) do
@@ -852,7 +945,8 @@ function DamageItemDurability(character, item)
     end
 end
 
-
+--- @param character StatCharacter
+--- @param item StatItem
 function ConditionalDamageItemDurability(character, item)
     if not character.InParty or not item.LoseDurabilityOnCharacterHit or item.Unbreakable or not IsRangedWeapon(item) then
         return
@@ -868,6 +962,8 @@ function ConditionalDamageItemDurability(character, item)
     end
 end
 
+--- @param attacker StatCharacter
+--- @param target StatCharacter
 function CalculateHitChance(attacker, target)
     if attacker.TALENT_Haymaker then
         return 100
@@ -885,6 +981,8 @@ function CalculateHitChance(attacker, target)
     return chanceToHit1 + attacker.ChanceToHitBoost
 end
 
+--- @param target StatCharacter
+--- @param attacker StatCharacter
 function IsInFlankingPosition(target, attacker)
     local tPos = target.Position
     local aPos = attacker.Position
@@ -898,6 +996,8 @@ function IsInFlankingPosition(target, attacker)
     return ang > math.cos(0.52359879)
 end
 
+--- @param target StatCharacter
+--- @param attacker StatCharacter
 function CanBackstab(target, attacker)
     local targetPos = target.Position
     local attackerPos = attacker.Position
@@ -926,6 +1026,17 @@ function CanBackstab(target, attacker)
     return relAngle >= 150 and relAngle <= 210
 end
 
+--- @param target StatCharacter
+--- @param attacker StatCharacter
+--- @param weapon StatItem
+--- @param damageList DamageList
+--- @param hitType string HitType enumeration
+--- @param noHitRoll boolean
+--- @param forceReduceDurability boolean
+--- @param hit HitRequest
+--- @param alwaysBackstab boolean
+--- @param highGroundFlag string HighGround enumeration
+--- @param criticalRoll string CriticalRoll enumeration
 function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHitRoll, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
 
     hit.DamageMultiplier = 1.0
@@ -1005,6 +1116,8 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
     return hit
 end
 
+--- @param character StatCharacter
+--- @param skill StatEntrySkillData
 function GetSkillDamageRange(character, skill)
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
 
@@ -1108,6 +1221,7 @@ StatusSavingThrows = {
     REMORSE = "Remorse"
 }
 
+--- @param status EsvStatus
 function GetSavingThrowForStatus(status)
     if status.StatusId ~= status.StatusType then
         return Ext.StatGetAttribute(status.StatusId, "SavingThrow")
@@ -1134,6 +1248,8 @@ MagicSavingThrows = {
     MagicArmor = true
 }
 
+--- @param character StatCharacter
+--- @param savingThrow string SavingThrow enumeration
 function GetSavingThrowChanceMultiplier(character, savingThrow)
     if savingThrow == "PhysicalArmor" then
         if character.Stats.CurrentArmor > 0 and not character.TALENT_Raistlin then
@@ -1148,6 +1264,7 @@ function GetSavingThrowChanceMultiplier(character, savingThrow)
     return 1.0
 end
 
+--- @param status EsvStatus
 function CanTriggerTorturer(status)
     local source = Ext.GetGameObject(status.StatusSourceHandle)
     local causeType = status.DamageSourceType
@@ -1159,6 +1276,8 @@ function CanTriggerTorturer(status)
         (statusType == "DAMAGE" or statusType == "DAMAGE_ON_MOVE")
 end
 
+--- @param status EsvStatus
+--- @param isEnterCheck boolean
 function StatusGetEnterChance(status, isEnterCheck)
     local target = Ext.GetGameObject(status.TargetHandle)
     if target ~= nil and not target.Dead and not target:HasTag("GHOST") then
