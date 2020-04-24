@@ -252,7 +252,6 @@ namespace dse::lua
 		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
 		if (character == nullptr) luaL_error(L, "Character handle invalid");
 		if (character->Stats == nullptr) luaL_error(L, "Character has no stats!");
-		obj_ = character->Stats;
 		return character->Stats;
 	}
 
