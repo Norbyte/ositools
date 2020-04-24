@@ -12,6 +12,8 @@ namespace dse
 	extern PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
 	extern PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
 	extern PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	extern PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
+	extern PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
 	extern PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
 	extern PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
@@ -64,6 +66,8 @@ namespace dse
 
 	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
 		char const * propertyName, bool throwError);
+	bool LuaPropertyMapGet(lua_State* L, PropertyMapBase const& propertyMap, void* obj,
+		FixedString const& propertyName, bool throwError);
 	bool LuaPropertyMapSet(lua_State * L, int index, PropertyMapBase const & propertyMap,
 		void * obj, char const * propertyName, bool throwError);
 }

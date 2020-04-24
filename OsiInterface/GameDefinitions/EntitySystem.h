@@ -5,6 +5,7 @@
 #include "Net.h"
 #include "Module.h"
 #include "Stats.h"
+#include <GlobalFixedStrings.h>
 
 namespace dse
 {
@@ -198,7 +199,7 @@ namespace dse
 			}
 			else {
 				if (logError) {
-					OsiError("No " << ComponentTypeToName(componentType) << " component found with GUID '" << nameGuid << "'");
+					OsiError("No " << ComponentTypeToName(componentType).Str << " component found with GUID '" << nameGuid << "'");
 				}
 				return nullptr;
 			}
@@ -270,14 +271,13 @@ namespace dse
 			return componentMgr->FindComponentByHandle(&componentHandle);
 		}
 
-		std::string ComponentTypeToName(TComponentType type)
+		FixedString ComponentTypeToName(TComponentType type)
 		{
 			auto label = EnumInfo<TComponentType>::Find(type);
 			if (label) {
-				return *label;
-			}
-			else {
-				return std::string("<Type ") + std::to_string((uint32_t)type) + ">";
+				return label;
+			} else {
+				return GFS.strEmpty;
 			}
 		}
 	};

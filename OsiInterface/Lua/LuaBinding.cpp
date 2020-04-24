@@ -130,23 +130,23 @@ namespace dse::lua
 		return LuaStatGetAttribute(L, stats_, attributeName, level_);
 	}
 
-	std::optional<int32_t> GetCharacterDynamicStat(CDivinityStats_Character * stats, char const * statName)
-	{
-		bool isBaseStat = strncmp(statName, "Base", 4) == 0;
-		return stats->GetStat(isBaseStat ? (statName + 4) : statName, isBaseStat);
-	}
-
 	char const * const ObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
 
-	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const * prop)
+	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const* propStr, FixedString const& prop)
 	{
-		auto dynamicStat = GetCharacterDynamicStat(stats, prop);
+		std::optional<int32_t> dynamicStat;
+		if (!prop && strncmp(propStr, "Base", 4) == 0) {
+			dynamicStat = stats->GetStat(ToFixedString(propStr + 4), true);
+		} else {
+			dynamicStat = stats->GetStat(prop, true);
+		}
+
 		if (dynamicStat) {
 			push(L, *dynamicStat);
 			return 1;
 		}
 
-		if (strcmp(prop, "DynamicStats") == 0) {
+		if (prop == GFS.strDynamicStats) {
 			lua_newtable(L);
 			unsigned statIdx = 1;
 			for (auto statPtr = stats->DynamicStats; statPtr != stats->DynamicStatsEnd; statPtr++) {
@@ -158,12 +158,7 @@ namespace dse::lua
 			return 1;
 		}
 
-		if (strcmp(prop, "DamageBoost") == 0) {
-			push(L, stats->GetDamageBoost());
-			return 1;
-		}
-
-		if (strcmp(prop, "MainWeapon") == 0) {
+		if (prop == GFS.strMainWeapon) {
 			auto weapon = stats->GetMainWeapon();
 			if (weapon != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
@@ -173,7 +168,7 @@ namespace dse::lua
 			}
 		}
 
-		if (strcmp(prop, "OffHandWeapon") == 0) {
+		if (prop == GFS.strOffHandWeapon) {
 			auto weapon = stats->GetOffHandWeapon();
 			if (weapon != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
@@ -183,8 +178,8 @@ namespace dse::lua
 			}
 		}
 
-		if (strncmp(prop, "TALENT_", 7) == 0) {
-			auto talentId = EnumInfo<TalentType>::Find(prop + 7);
+		if (!prop && strncmp(propStr, "TALENT_", 7) == 0) {
+			auto talentId = EnumInfo<TalentType>::Find(propStr + 7);
 			if (talentId) {
 				bool hasTalent = stats->HasTalent(*talentId, false);
 				push(L, hasTalent);
@@ -194,8 +189,8 @@ namespace dse::lua
 			}
 		}
 
-		if (strcmp(prop, "NotSneaking") == 0) {
-			push(L, (stats->Flags & StatCharacterFlags::SCF_IsSneaking) == 0);
+		if (prop == GFS.strNotSneaking) {
+			push(L, (bool)(stats->Flags & StatCharacterFlags::SCF_IsSneaking));
 			return 1;
 		}
 
@@ -212,7 +207,7 @@ namespace dse::lua
 		}
 
 		if (stats->Character != nullptr) {
-			if (strcmp(prop, "Character") == 0) {
+			if (prop == GFS.strCharacter) {
 				ObjectHandle handle;
 				stats->Character->GetObjectHandle(handle);
 				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
@@ -226,22 +221,22 @@ namespace dse::lua
 				return 1;
 			}
 
-			if (strcmp(prop, "Rotation") == 0) {
+			if (prop == GFS.strRotation) {
 				push(L, *stats->Character->GetRotation());
 				return 1;
 			}
 
-			if (strcmp(prop, "Position") == 0) {
+			if (prop == GFS.strPosition) {
 				push(L, *stats->Character->GetTranslate());
 				return 1;
 			}
 
-			if (strcmp(prop, "MyGuid") == 0) {
+			if (prop == GFS.strMyGuid) {
 				push(L, stats->Character->GetGuid());
 				return 1;
 			}
 
-			if (strcmp(prop, "NetID") == 0) {
+			if (prop == GFS.strNetID) {
 				push(L, stats->Character->NetID);
 				return 1;
 			}
@@ -257,6 +252,7 @@ namespace dse::lua
 		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
 		if (character == nullptr) luaL_error(L, "Character handle invalid");
 		if (character->Stats == nullptr) luaL_error(L, "Character has no stats!");
+		obj_ = character->Stats;
 		return character->Stats;
 	}
 
@@ -278,14 +274,16 @@ namespace dse::lua
 	{
 		auto stats = Get(L);
 		if (!stats) return 0;
-
+		
 		auto prop = luaL_checkstring(L, 2);
-		if (strcmp(prop, "GetItemBySlot") == 0) {
+		auto fs = ToFixedString(prop);
+
+		if (fs == GFS.strGetItemBySlot) {
 			lua_pushcfunction(L, &CharacterGetItemBySlot);
 			return 1;
 		}
 
-		return CharacterFetchStat(L, stats, prop);
+		return CharacterFetchStat(L, stats, prop, fs);
 	}
 
 	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
@@ -599,7 +597,7 @@ namespace dse::lua
 			push(L, i + 1); // Stack: tab, index
 			lua_newtable(L); // Stack: tab, index, dmgTab
 			auto dmgTypeName = EnumInfo<DamageType>::Find(item.DamageType);
-			settable(L, "DamageType", *dmgTypeName);
+			settable(L, "DamageType", dmgTypeName);
 			settable(L, "Amount", item.Amount);
 
 			lua_settable(L, -3); // Stack: tab

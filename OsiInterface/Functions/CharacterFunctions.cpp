@@ -38,7 +38,7 @@ namespace dse::esv
 			auto & statValue = args[3];
 			if (character == nullptr || character->Stats == nullptr) return false;
 
-			auto value = character->Stats->GetStat(statName, baseStats);
+			auto value = character->Stats->GetStat(ToFixedString(statName), baseStats);
 			if (value) {
 				statValue.Set(*value);
 				return true;
@@ -80,17 +80,17 @@ namespace dse::esv
 		void CharacterSetStatInt(OsiArgumentDesc const & args)
 		{
 			auto character = GetEntityWorld()->GetCharacter(args[0].String);
-			auto stat = args[1].String;
+			auto stat = ToFixedString(args[1].String);
 			auto value = args[2].Int32;
 
 			if (character == nullptr || character->Stats == nullptr) return;
 
 			auto clamped = value;
-			if (strcmp(stat, "CurrentVitality") == 0) {
+			if (stat == GFS.strCurrentVitality) {
 				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxVitality);
-			} else if (strcmp(stat, "CurrentArmor") == 0) {
+			} else if (stat == GFS.strCurrentArmor) {
 				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxArmor);
-			} else if (strcmp(stat, "CurrentMagicArmor") == 0) {
+			} else if (stat == GFS.strCurrentMagicArmor) {
 				clamped = std::clamp(value, 0, (int32_t)character->Stats->MaxMagicArmor);
 			}
 
@@ -290,9 +290,9 @@ namespace dse::esv
 				if (flag < 64) {
 					value.Set(character->HasFlag(1ull << flag));
 				} else if (flag < 72) {
-					value.Set((character->Flags2 | (1 << (flag - 64))) != 0);
+					value.Set(((uint64_t)character->Flags2 | (1ull << (flag - 64))) != 0);
 				} else if (flag < 80) {
-					value.Set((character->Flags3 | (1 << (flag - 70))) != 0);
+					value.Set(((uint64_t)character->Flags3 | (1ull << (flag - 70))) != 0);
 				} else if (flag < 88) {
 					value.Set((character->FlagsEx | (1 << (flag - 78))) != 0);
 				}
@@ -335,15 +335,15 @@ namespace dse::esv
 					}
 				} else if (flag < 72) {
 					if (value) {
-						character->Flags2 |= (1 << (flag - 64));
+						character->Flags2 |= (esv::CharacterFlags2)(1 << (flag - 64));
 					} else {
-						character->Flags2 &= ~(1 << (flag - 64));
+						character->Flags2 &= (esv::CharacterFlags2)~(1 << (flag - 64));
 					}
 				} else if (flag < 80) {
 					if (value) {
-						character->Flags3 |= (1 << (flag - 72));
+						character->Flags3 |= (esv::CharacterFlags3)(1 << (flag - 72));
 					} else {
-						character->Flags3 &= ~(1 << (flag - 72));
+						character->Flags3 &= (esv::CharacterFlags3)~(1 << (flag - 72));
 					}
 				} else if (flag < 88) {
 					if (value) {

@@ -251,7 +251,7 @@ namespace dse
 	{
 		auto client = GetClient();
 		if (client != nullptr
-			&& client->NetMessageFactory->MessagePools.Size >= ScriptExtenderMessage::MessageId) {
+			&& client->NetMessageFactory->MessagePools.Size >= (unsigned)ScriptExtenderMessage::MessageId) {
 			return;
 		}
 
@@ -264,7 +264,7 @@ namespace dse
 			GetStaticSymbols().net__Host__AddProtocol(gameClientPtr, 100, clientProtocol_);
 
 			auto extenderMsg = new ScriptExtenderMessage();
-			client->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
+			client->NetMessageFactory->ReservePools((unsigned)ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(client->NetMessageFactory, 
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
 			HookMessages(client->NetMessageFactory);
@@ -292,7 +292,7 @@ namespace dse
 	{
 		auto server = GetServer();
 		if (server != nullptr
-			&& server->NetMessageFactory->MessagePools.Size >= ScriptExtenderMessage::MessageId) {
+			&& server->NetMessageFactory->MessagePools.Size >= (unsigned)ScriptExtenderMessage::MessageId) {
 			return;
 		}
 
@@ -303,7 +303,7 @@ namespace dse
 			GetStaticSymbols().net__Host__AddProtocol(server, 100, serverProtocol_);
 
 			auto extenderMsg = new ScriptExtenderMessage();
-			server->NetMessageFactory->ReservePools(ScriptExtenderMessage::MessageId + 1);
+			server->NetMessageFactory->ReservePools((unsigned)ScriptExtenderMessage::MessageId + 1);
 			GetStaticSymbols().net__MessageFactory__RegisterMessage(server->NetMessageFactory,
 				ScriptExtenderMessage::MessageId, extenderMsg, 4, "ScriptExtenderMessage");
 			HookMessages(server->NetMessageFactory);

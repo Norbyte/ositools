@@ -18,7 +18,7 @@ namespace dse::lua
 		if (strcmp(prop, "StatusType") == 0) {
 			auto statusType = obj_->GetStatusId();
 			auto typeName = EnumInfo<StatusType>::Find(statusType);
-			push(L, *typeName);
+			push(L, typeName);
 			return 1;
 		}
 
@@ -804,6 +804,7 @@ namespace dse::esv::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
+			{"MonotonicTime", MonotonicTime},
 			{"Include", Include},
 			{"NewCall", NewCall},
 			{"NewQuery", NewQuery},
@@ -936,44 +937,23 @@ namespace dse::esv::lua
 			luaDamageList->Get().SafeAdd(dmg);
 		}
 
-		auto hitTypeLabel = EnumInfo<HitType>::Find(hitType);
-		if (hitTypeLabel) {
-			push(L, *hitTypeLabel);
-		} else {
-			lua_pushnil(L);
-		}
-
+		push(L, EnumInfo<HitType>::Find(hitType));
 		push(L, noHitRoll);
 		push(L, forceReduceDurability);
 
 		lua_newtable(L);
-		settable(L, "EffectFlags", hit->EffectFlags);
+		settable(L, "EffectFlags", (int64_t)hit->EffectFlags);
 		settable(L, "TotalDamageDone", hit->TotalDamage);
 		settable(L, "ArmorAbsorption", hit->ArmorAbsorption);
 		settable(L, "LifeSteal", hit->LifeSteal);
-
-		auto damageTypeLabel = EnumInfo<DamageType>::Find(hit->DamageType);
-		if (damageTypeLabel) {
-			settable(L, "DamageType", *damageTypeLabel);
-		}
+		settable(L, "DamageType", EnumInfo<DamageType>::Find(hit->DamageType));
 
 		auto alwaysBackstab = skillProperties != nullptr
 			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
 		push(L, alwaysBackstab);
 
-		auto highGroundLabel = EnumInfo<HighGroundBonus>::Find(highGroundFlag);
-		if (highGroundLabel) {
-			push(L, *highGroundLabel);
-		} else {
-			lua_pushnil(L);
-		}
-
-		auto criticalRollLabel = EnumInfo<CriticalRoll>::Find(criticalRoll);
-		if (criticalRollLabel) {
-			push(L, *criticalRollLabel);
-		} else {
-			lua_pushnil(L);
-		}
+		push(L, EnumInfo<HighGroundBonus>::Find(highGroundFlag));
+		push(L, EnumInfo<CriticalRoll>::Find(criticalRoll));
 
 		if (CallWithTraceback(L, 11, 1) != 0) { // stack: succeeded
 			OsiError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
@@ -1007,7 +987,7 @@ namespace dse::esv::lua
 				OsiErrorS("Missing 'DamageList' in table returned from ComputeCharacterHit");
 				ok = false;
 			} else {
-				hit->EffectFlags = (uint32_t)effectFlags;
+				hit->EffectFlags = (HitFlag)effectFlags;
 				hit->TotalDamage = (int32_t)totalDamageDone;
 				hit->ArmorAbsorption = (int32_t)armorAbsorption;
 				hit->LifeSteal = (int32_t)lifeSteal;

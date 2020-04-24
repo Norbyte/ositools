@@ -181,7 +181,7 @@ void OsirisWrappers::InitializeNetworking(net::MessageFactory* factory)
 		return;
 	}
 
-	if (factory->MessagePools.Size <= NETMSG_CLIENT_ACCEPT) {
+	if (factory->MessagePools.Size <= (unsigned)NetMessage::NETMSG_CLIENT_ACCEPT) {
 		ERR("MessageFactory not initialized yet?");
 		return;
 	}
@@ -189,8 +189,8 @@ void OsirisWrappers::InitializeNetworking(net::MessageFactory* factory)
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	auto clientConnect = factory->MessagePools[NETMSG_CLIENT_CONNECT]->Template;
-	auto clientAccept = factory->MessagePools[NETMSG_CLIENT_ACCEPT]->Template;
+	auto clientConnect = factory->MessagePools[(unsigned)NetMessage::NETMSG_CLIENT_CONNECT]->Template;
+	auto clientAccept = factory->MessagePools[(unsigned)NetMessage::NETMSG_CLIENT_ACCEPT]->Template;
 	eocnet__ClientConnectMessage__Serialize.Wrap((*(net::MessageVMT**)clientConnect)->Serialize);
 	eocnet__ClientAcceptMessage__Serialize.Wrap((*(net::MessageVMT**)clientAccept)->Serialize);
 

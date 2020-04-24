@@ -2,9 +2,6 @@
 
 #include <cstdint>
 #include <array>
-#include <vector>
-#include <set>
-#include <map>
 #include <string>
 #include <cassert>
 #include <optional>
@@ -317,6 +314,7 @@ namespace dse
 		return (uint64_t)s.Str;
 	}
 
+	unsigned int GetNearestLowerPrime(unsigned int num);
 
 	template <class TKey, class TValue>
 	struct Map : public Noncopyable<Map<TKey, TValue>>
@@ -375,14 +373,14 @@ namespace dse
 			} while (node != nullptr);
 		}
 
-		TValue* Insert(TKey key, TValue const & value)
+		TValue* Insert(TKey const& key, TValue const & value)
 		{
 			auto nodeValue = Insert(key);
 			*nodeValue = value;
 			return nodeValue;
 		}
 
-		TValue* Insert(TKey key)
+		TValue* Insert(TKey const& key)
 		{
 			auto item = HashTable[Hash(key) % HashSize];
 			auto last = item;
@@ -399,10 +397,9 @@ namespace dse
 			node->Next = nullptr;
 			node->Key = key;
 
-			if (item == nullptr) {
+			if (last == nullptr) {
 				HashTable[Hash(key) % HashSize] = node;
-			}
-			else {
+			} else {
 				last->Next = node;
 			}
 
@@ -410,7 +407,7 @@ namespace dse
 			return &node->Value;
 		}
 
-		TValue * Find(TKey key) const
+		TValue * Find(TKey const& key) const
 		{
 			auto item = HashTable[Hash(key) % HashSize];
 			while (item != nullptr) {
@@ -517,7 +514,7 @@ namespace dse
 			return nullptr;
 		}
 
-		TValue* Insert(TKey key)
+		TValue* Insert(TKey const& key)
 		{
 			auto item = HashTable[Hash(key) % HashSize];
 			auto last = item;
@@ -534,7 +531,7 @@ namespace dse
 			node->Next = nullptr;
 			node->Key = key;
 
-			if (item == nullptr) {
+			if (last == nullptr) {
 				HashTable[Hash(key) % HashSize] = node;
 			} else {
 				last->Next = node;
@@ -1348,4 +1345,14 @@ namespace std
 			return std::hash<int32_t>{}(fn.Id);
 		}
 	};
+
+	inline ostream& operator << (ostream& out, dse::FixedString const& str)
+	{
+		if (str) {
+			out << str.Str;
+		} else {
+			out << "(null)";
+		}
+		return out;
+	}
 }

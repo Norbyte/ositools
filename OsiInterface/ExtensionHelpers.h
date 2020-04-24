@@ -42,10 +42,8 @@ namespace dse
 			bool HasDamageList{ false };
 
 			ShootProjectileApiHelper();
-			void SetInt(char const * prop, int32_t value);
-			void SetGuidString(char const * prop, char const * value);
-			void SetVector(char const * prop, glm::vec3 const & value);
-			void SetString(char const * prop, char const * value);
+			void SetGuidString(FixedString const& prop, char const * value);
+			void SetVector(FixedString const& prop, glm::vec3 const & value);
 			void AddDamage(DamageType type, int32_t amount);
 			bool Shoot();
 		};
@@ -74,7 +72,7 @@ namespace dse
 			bool ForceReduceDurability{ false };
 			// TODO - SkillProperties
 			HighGroundBonus HighGround{ HighGroundBonus::Unknown };
-			CriticalRoll Critical{ CriticalRoll::Roll };
+			CriticalRoll CriticalRoll{ CriticalRoll::Roll };
 
 			// 0 - ASAttack
 			// 1 - Character::ApplyDamage, StatusDying, ExecPropertyDamage, StatusDamage
@@ -103,11 +101,7 @@ namespace dse
 			void SetInternalDamageInfo();
 			void SetExternalDamageInfo(HitDamageInfo * damageInfo, DamagePairList * damageList);
 
-			bool GetInt(char const * prop, int32_t & value);
-			void SetInt(char const * prop, int32_t value);
-			void SetVector(char const * prop, Vector3 const & value);
-			bool GetString(char const * prop, char const * & value);
-			void SetString(char const * prop, char const * value);
+			void SetVector(FixedString const& prop, Vector3 const & value);
 			void AddDamage(DamageType DamageType, int32_t Amount);
 			esv::StatusHit * Execute();
 

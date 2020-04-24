@@ -909,6 +909,7 @@ namespace dse::ecl::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
+			{"MonotonicTime", MonotonicTime},
 			{"Include", Include},
 			{"Print", OsiPrint},
 			{"PrintWarning", OsiPrintWarning},

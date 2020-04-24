@@ -32,7 +32,7 @@ namespace dse
 		uint32_t AttackDirection{ 0 };
 		int32_t ArmorAbsorption{ 0 };
 		int32_t LifeSteal{ 0 };
-		uint32_t EffectFlags{ 0 };
+		HitFlag EffectFlags{ 0 };
 		bool HitWithWeapon{ false };
 		uint8_t _Pad2[3];
 		DamagePairList DamageList;
@@ -140,9 +140,9 @@ namespace dse
 			ObjectSet<ObjectHandle> StatusOwner; // Saved
 			ObjectHandle StatusSourceHandle; // Saved
 			ObjectHandle SomeHandle;
-			uint8_t Flags2; // Saved
-			uint8_t Flags0; // Saved
-			uint8_t Flags1; // Saved
+			StatusFlags2 Flags2; // Saved
+			StatusFlags0 Flags0; // Saved
+			StatusFlags1 Flags1; // Saved
 			uint8_t _Pad2;
 			uint32_t _Pad3;
 		};
@@ -347,7 +347,7 @@ namespace dse
 			float LifeTime;
 			float CurrentLifeTime;
 			float StatsMultiplier;
-			uint8_t Flags;
+			StatusFlags Flags;
 			uint8_t _Pad1[7];
 			ObjectHandle StatusSourceHandle;
 		};

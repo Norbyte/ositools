@@ -11,6 +11,8 @@ namespace dse
 	PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
 	PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
 	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
+	PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
 	PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
 	PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
@@ -35,7 +37,7 @@ namespace dse
 #define PROP(name) AddProperty<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_RO(name) AddPropertyRO<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
-#define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<decltype(TObject::name), enum>(propertyMap, #name, offsetof(TObject, name), writeable)
+#define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<std::underlying_type_t<enum>, enum>(propertyMap, #name, offsetof(TObject, name), writeable)
 #define PROP_GUID(name, writeable) AddPropertyGuidString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), writeable)
 
 	void InitPropertyMaps()
@@ -56,14 +58,14 @@ namespace dse
 			PROP_RO(TargetHandle);
 			PROP_RO(StatusSourceHandle);
 			PROP_RO(SomeHandle);
-			PROP_FLAGS(Flags0, StatusFlags0, false);
-			PROP_FLAGS(Flags1, StatusFlags1, false);
-			PROP_FLAGS(Flags2, StatusFlags2, false);
+			PROP_FLAGS(Flags0, esv::StatusFlags0, false);
+			PROP_FLAGS(Flags1, esv::StatusFlags1, false);
+			PROP_FLAGS(Flags2, esv::StatusFlags2, false);
 
-			propertyMap.Flags["ForceStatus"].Flags |= kPropWrite;
-			propertyMap.Flags["ForceFailStatus"].Flags |= kPropWrite;
+			propertyMap.Flags[GFS.strForceStatus].Flags |= kPropWrite;
+			propertyMap.Flags[GFS.strForceFailStatus].Flags |= kPropWrite;
 
-			propertyMap.Properties["LifeTime"].SetFloat = [](void * st, float value) -> bool {
+			propertyMap.Properties[GFS.strLifeTime].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<esv::Status *>(st);
 				if (value < 0.0f) return false;
 				status->LifeTime = value;
@@ -74,7 +76,7 @@ namespace dse
 				return true;
 			};
 
-			propertyMap.Properties["CurrentLifeTime"].SetFloat = [](void * st, float value) -> bool {
+			propertyMap.Properties[GFS.strCurrentLifeTime].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<esv::Status *>(st);
 				if (value < 0.0f) return false;
 				status->CurrentLifeTime = value;
@@ -162,6 +164,39 @@ namespace dse
 			PROP(LifeSteal);
 			PROP_FLAGS(EffectFlags, HitFlag, true);
 			PROP(HitWithWeapon);
+		}
+
+		{
+			BEGIN_PROPERTIES(gDamageHelpersPropertyMap);
+			PROP(SimulateHit);
+			PROP_ENUM(HitType);
+			PROP(NoHitRoll);
+			PROP(ProcWindWalker);
+			PROP(ForceReduceDurability);
+			PROP_ENUM(HighGround);
+			PROP_ENUM(CriticalRoll);
+			PROP(HitReason);
+			PROP_ENUM(DamageSourceType);
+			PROP(Strength);
+		}
+
+		{
+			BEGIN_PROPERTIES(gShootProjectileHelperPropertyMap);
+			PROP(SkillId);
+			PROP(Caster);
+			PROP(Source);
+			PROP(Target);
+			PROP(StartPosition);
+			PROP(EndPosition);
+			PROP(Random);
+			PROP(CasterLevel);
+			PROP(IsTrap);
+			PROP(UnknownFlag1);
+			PROP(CleanseStatuses);
+			PROP(StatusClearChance);
+			PROP(IsFromItem);
+			PROP(IsStealthed);
+			PROP(IgnoreObjects);
 		}
 
 		{
@@ -447,9 +482,9 @@ namespace dse
 			// Character
 			PROP_RO(WorldPos);
 			PROP_RO(CurrentLevel);
-			PROP_FLAGS(Flags, EsvCharacterFlags, false);
-			PROP_FLAGS(Flags2, EsvCharacterFlags2, false);
-			PROP_FLAGS(Flags3, EsvCharacterFlags3, false);
+			PROP_FLAGS(Flags, esv::CharacterFlags, false);
+			PROP_FLAGS(Flags2, esv::CharacterFlags2, false);
+			PROP_FLAGS(Flags3, esv::CharacterFlags3, false);
 			PROP_RO(Scale);
 			PROP_RO(AnimationOverride);
 			PROP_RO(WalkSpeedOverride);
@@ -570,7 +605,7 @@ namespace dse
 			PROP_RO(LifeTime);
 			PROP_RO(CurrentLifeTime);
 			PROP_RO(StatsMultiplier);
-			PROP_FLAGS(Flags, EclStatusFlags, false);
+			PROP_FLAGS(Flags, ecl::StatusFlags, false);
 			PROP_RO(StatusSourceHandle);
 		}
 
@@ -610,10 +645,16 @@ namespace dse
 	bool OsirisPropertyMapGetRaw(PropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
-		auto propertyName = args[firstArg].String;
+		auto propertyNameStr = args[firstArg].String;
+		auto propertyName = ToFixedString(propertyNameStr);
 
 		if (obj == nullptr) {
-			OsiError("Attempted to get property '" << propertyName << "' of null object!");
+			OsiError("Attempted to get property '" << propertyNameStr << "' of null object!");
+			return false;
+		}
+
+		if (!propertyName) {
+			OsiError("Property name '" << propertyNameStr << "' not valid!");
 			return false;
 		}
 
@@ -686,7 +727,7 @@ namespace dse
 				return true;
 			}
 
-			OsiError("Failed to get property '" << propertyName << "': Could not map handle to game object: " << (int64_t)*val);
+			OsiError("Failed to get property '" << propertyNameStr << "': Could not map handle to game object: " << (int64_t)*val);
 			return false;
 		}
 
@@ -704,7 +745,7 @@ namespace dse
 		}
 
 		default:
-			OsiError("Failed to get property '" << propertyName << "': Unknown Osi property type!");
+			OsiError("Failed to get property '" << propertyNameStr << "': Unknown Osi property type!");
 			return false;
 		}
 	}
@@ -713,9 +754,16 @@ namespace dse
 	bool OsirisPropertyMapSetRaw(PropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
-		auto propertyName = args[firstArg].String;
+		auto propertyNameStr = args[firstArg].String;
+		auto propertyName = ToFixedString(propertyNameStr);
+
 		if (obj == nullptr) {
-			OsiError("Attempted to set property '" << propertyName << "' of null object!");
+			OsiError("Attempted to set property '" << propertyNameStr << "' of null object!");
+			return false;
+		}
+
+		if (!propertyName) {
+			OsiError("Property name '" << propertyNameStr << "' not valid!");
 			return false;
 		}
 
@@ -765,7 +813,7 @@ namespace dse
 				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
 
-			OsiError("Failed to set property '" << propertyName << "': Could not map GUID to game object: " << guid);
+			OsiError("Failed to set property '" << propertyNameStr << "': Could not map GUID to game object: " << guid);
 			return false;
 		}
 
@@ -779,14 +827,26 @@ namespace dse
 		}
 
 		default:
-			OsiError("Failed to set property '" << propertyName << "': Unknown Osi property type!");
+			OsiError("Failed to set property '" << propertyNameStr << "': Unknown Osi property type!");
 			return false;
 		}
 	}
 
 
+	bool LuaPropertyMapGet(lua_State* L, PropertyMapBase const& propertyMap, void* obj,
+		char const* propertyName, bool throwError)
+	{
+		auto propertyFS = ToFixedString(propertyName);
+		if (!propertyFS) {
+			OsiError("Property name '" << propertyName << "' not valid!");
+			return false;
+		}
+
+		return LuaPropertyMapGet(L, propertyMap, obj, propertyFS, throwError);
+	}
+
 	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
-		char const * propertyName, bool throwError)
+		FixedString const& propertyName, bool throwError)
 	{
 		if (obj == nullptr) {
 			if (throwError) {
@@ -907,9 +967,15 @@ namespace dse
 			return false;
 		}
 
-		auto prop = propertyMap.findProperty(propertyName);
+		auto propertyFS = ToFixedString(propertyName);
+		if (!propertyFS) {
+			OsiError("Property name '" << propertyName << "' not valid!");
+			return false;
+		}
+
+		auto prop = propertyMap.findProperty(propertyFS);
 		if (prop == nullptr) {
-			auto flag = propertyMap.findFlag(propertyName);
+			auto flag = propertyMap.findFlag(propertyFS);
 			if (flag == nullptr) {
 				if (throwError) {
 					OsiError("Failed to set property '" << propertyName << "': Property does not exist");
@@ -918,7 +984,7 @@ namespace dse
 			} else {
 				luaL_checktype(L, index, LUA_TBOOLEAN);
 				auto val = lua_toboolean(L, index);
-				return propertyMap.setFlag(obj, propertyName, val == 1, false, throwError);
+				return propertyMap.setFlag(obj, propertyFS, val == 1, false, throwError);
 			}
 		}
 
@@ -933,7 +999,7 @@ namespace dse
 		{
 			luaL_checktype(L, index, LUA_TBOOLEAN);
 			auto val = lua_toboolean(L, index);
-			return propertyMap.setFlag(obj, propertyName, val == 1, false, throwError);
+			return propertyMap.setFlag(obj, propertyFS, val == 1, false, throwError);
 		}
 
 		case PropertyType::kUInt8:
@@ -945,13 +1011,13 @@ namespace dse
 		case PropertyType::kUInt64:
 		{
 			auto val = luaL_checkinteger(L, index);
-			return propertyMap.setInt(obj, propertyName, val, false, throwError);
+			return propertyMap.setInt(obj, propertyFS, val, false, throwError);
 		}
 
 		case PropertyType::kFloat:
 		{
 			auto val = luaL_checknumber(L, index);
-			return propertyMap.setFloat(obj, propertyName, (float)val, false, throwError);
+			return propertyMap.setFloat(obj, propertyFS, (float)val, false, throwError);
 		}
 
 		case PropertyType::kFixedString:
@@ -961,13 +1027,13 @@ namespace dse
 		case PropertyType::kStdWString:
 		{
 			auto val = luaL_checkstring(L, index);
-			return propertyMap.setString(obj, propertyName, val, false, throwError);
+			return propertyMap.setString(obj, propertyFS, val, false, throwError);
 		}
 
 		case PropertyType::kObjectHandle:
 		{
 			auto val = luaL_checkinteger(L, index);
-			return propertyMap.setHandle(obj, propertyName, ObjectHandle(val), false, throwError);
+			return propertyMap.setHandle(obj, propertyFS, ObjectHandle(val), false, throwError);
 		}
 
 		default:

@@ -426,7 +426,7 @@ namespace dse
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
 		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
 		uint64_t U9[2];
-		uint64_t AttributeFlags;
+		StatAttributeFlags AttributeFlags;
 		int32_t MaxCharges; // -1 = Not overridden
 		int32_t Charges; // -1 = Not overridden
 		uint8_t LevelGroupIndex;
@@ -568,7 +568,7 @@ namespace dse
 		uint8_t Flanked; // Saved
 		uint8_t _Pad1[3];
 		int32_t Karma; // Saved
-		uint8_t Flags;
+		StatCharacterFlags Flags;
 		uint8_t _Pad2[3];
 		uint32_t Unkn0;
 		ObjectSet<int> TraitOrder; // Saved
@@ -598,9 +598,9 @@ namespace dse
 		int32_t BaseMaxMagicArmor;
 		float Sight;
 		float BaseSight;
-		uint64_t AttributeFlags;
-		uint64_t BaseAttributeFlags;
-		uint64_t ItemBoostedAttributeFlags;
+		StatAttributeFlags AttributeFlags;
+		StatAttributeFlags BaseAttributeFlags;
+		StatAttributeFlags ItemBoostedAttributeFlags;
 		bool AttributeFlagsUpdated;
 		uint8_t _Pad6[3];
 		int32_t MaxSummons;
@@ -608,7 +608,7 @@ namespace dse
 		int32_t MaxMpOverride; // Saved
 		TalentArray DisabledTalents; // Saved
 
-		std::optional<int32_t> GetStat(char const * name, bool excludeBoosts);
+		std::optional<int32_t> GetStat(FixedString const& name, bool excludeBoosts);
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
 		bool HasTalent(TalentType talent, bool excludeBoosts);
 		int32_t GetAbility(AbilityType ability, bool excludeBoosts);
@@ -890,7 +890,7 @@ namespace dse
 		RefMap<FixedString, void *> FSMap2;
 		uint64_t Unkn2[7];
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
-		ObjectSet<uint64_t> AttributeFlags;
+		ObjectSet<StatAttributeFlags> AttributeFlags;
 		uint64_t unknown2[140];
 		CEquipmentSetManager * EquipmentSetManager;
 		CSkillSetManager * SkillSetManager;
@@ -920,7 +920,7 @@ namespace dse
 		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
 		FixedString EnumIndexToLabel(const char* enumName, int index);
 		int GetOrCreateFixedString(const char * value);
-		std::optional<uint64_t> StringToAttributeFlags(const char * value);
+		std::optional<StatAttributeFlags> StringToAttributeFlags(const char * value);
 	};
 
 	CRPGStats_Object * StatFindObject(char const * name);
@@ -1038,7 +1038,7 @@ namespace dse
 		void WrapAll();
 		void UnwrapAll();
 
-		std::optional<int32_t> GetStat(CDivinityStats_Character * character, char const * name, 
+		std::optional<int32_t> GetStat(CDivinityStats_Character * character, FixedString const& name, 
 			bool original, bool baseValues);
 	};
 }

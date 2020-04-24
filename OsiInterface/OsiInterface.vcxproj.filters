@@ -177,6 +177,9 @@
     <ClInclude Include="GameDefinitions\Projectile.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalFixedStrings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -308,6 +311,9 @@
     <ClCompile Include="ScriptHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GlobalFixedStrings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
@@ -349,6 +355,12 @@
     </None>
     <None Include="Lua\LuaShared.inl">
       <Filter>Source Files\Lua</Filter>
+    </None>
+    <None Include="GlobalFixedStrings.inl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="GameDefinitions\Enumerations.inl">
+      <Filter>Header Files\GameDefinitions</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

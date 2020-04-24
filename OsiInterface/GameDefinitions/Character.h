@@ -181,7 +181,7 @@ namespace dse
 
 			glm::vec3 WorldPos; // Saved
 			uint32_t _Pad2;
-			uint64_t Flags; // Saved
+			CharacterFlags Flags; // Saved
 			uint32_t U2;
 			uint32_t _Pad3;
 			FixedString CurrentLevel; // Saved
@@ -191,8 +191,8 @@ namespace dse
 			void * CurrentTemplate;
 			void * OriginalTemplate;
 			void * TemplateUsedForSkills;
-			uint8_t Flags2;
-			uint8_t Flags3;
+			CharacterFlags2 Flags2;
+			CharacterFlags3 Flags3;
 			uint8_t FlagsEx;
 			uint8_t Team;
 			uint8_t Color;

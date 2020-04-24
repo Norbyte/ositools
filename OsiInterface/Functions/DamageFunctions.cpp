@@ -82,217 +82,27 @@ namespace dse::esv
 		DamageList = damageList;
 	}
 
-	bool DamageHelpers::GetInt(char const * prop, int32_t & value)
-	{
-		if (strcmp(prop, "SimulateHit") == 0) {
-			value = SimulateHit ? 1 : 0;
-		} else if (strcmp(prop, "HitType") == 0) {
-			value = (int32_t)HitType;
-		} else if (strcmp(prop, "NoHitRoll") == 0) {
-			value = NoHitRoll ? 1 : 0;
-		} else if (strcmp(prop, "ProcWindWalker") == 0) {
-			value = ProcWindWalker ? 1 : 0;
-		} else if (strcmp(prop, "ForceReduceDurability") == 0) {
-			value = ForceReduceDurability ? 1 : 0;
-		} else if (strcmp(prop, "HighGround") == 0) {
-			value = (int32_t)HighGround;
-		} else if (strcmp(prop, "CriticalRoll") == 0) {
-			value = (int32_t)Critical;
-		} else if (strcmp(prop, "HitReason") == 0) {
-			value = (int32_t)HitReason;
-		} else if (strcmp(prop, "DamageSourceType") == 0) {
-			value = (int32_t)DamageSourceType;
-		} else if (strcmp(prop, "Strength") == 0) {
-			value = (int32_t)(Strength * 100.0f);
-		} else {
-			auto & propertyMap = gHitDamageInfoPropertyMap;
-			auto flag = propertyMap.getFlag(Hit, prop, false, false);
-			if (flag) {
-				value = *flag ? 1 : 0;
-			} else {
-				auto val = propertyMap.getInt(Hit, prop, false, true);
-				if (val) {
-					value = (int32_t)*val;
-				} else {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	bool DamageHelpers::GetString(char const * prop, char const * & value)
-	{
-		if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<dse::HitType>::Find(HitType);
-			if (val) {
-				value = *val;
-			}
-			return val.has_value();
-		} else if (strcmp(prop, "HighGround") == 0) {
-			auto val = EnumInfo<HighGroundBonus>::Find(HighGround);
-			if (val) {
-				value = *val;
-			}
-			return val.has_value();
-		} else if (strcmp(prop, "CriticalRoll") == 0) {
-			auto val = EnumInfo<CriticalRoll>::Find(Critical);
-			if (val) {
-				value = *val;
-			}
-			return val.has_value();
-		} else if (strcmp(prop, "DamageSourceType") == 0) {
-			auto val = EnumInfo<CauseType>::Find(DamageSourceType);
-			if (val) {
-				value = *val;
-			}
-			return val.has_value();
-		} else {
-			auto & propertyMap = gHitDamageInfoPropertyMap;
-			auto val = propertyMap.getString(Hit, prop, false, true);
-			if (val) {
-				value = *val;
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-
-	void DamageHelpers::SetInt(char const * prop, int32_t value)
-	{
-		if (strcmp(prop, "SimulateHit") == 0) {
-			if (Type == DamageHelpers::HT_CustomHit) {
-				SimulateHit = value > 0;
-			} else {
-				OsiErrorS("Property 'SimulateHit' can only be set for custom hits");
-			}
-		}
-		else if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<dse::HitType>::Find((dse::HitType)value);
-			if (val) {
-				HitType = (dse::HitType)value;
-			} else {
-				OsiError("Invalid value for enum 'HitType': " << value);
-			}
-		}
-		else if (strcmp(prop, "NoHitRoll") == 0) {
-			NoHitRoll = value > 0;
-		}
-		else if (strcmp(prop, "ProcWindWalker") == 0) {
-			ProcWindWalker = value > 0;
-		} else if (strcmp(prop, "ForceReduceDurability") == 0) {
-			ForceReduceDurability = value > 0;
-		}
-		else if (strcmp(prop, "HighGround") == 0) {
-			auto val = EnumInfo<HighGroundBonus>::Find((HighGroundBonus)value);
-			if (val) {
-				HighGround = (HighGroundBonus)value;
-			} else {
-				OsiError("Invalid value for enum 'HighGround': " << value);
-			}
-		}
-		else if (strcmp(prop, "CriticalRoll") == 0) {
-			auto val = EnumInfo<CriticalRoll>::Find((CriticalRoll)value);
-			if (val) {
-				Critical = (CriticalRoll)value;
-			} else {
-				OsiError("Invalid value for enum 'CriticalRoll': " << value);
-			}
-		}
-		else if (strcmp(prop, "HitReason") == 0) {
-			// FIXME enum + filter
-			HitReason = (uint32_t)value;
-		}
-		else if (strcmp(prop, "DamageSourceType") == 0) {
-			auto val = EnumInfo<CauseType>::Find((CauseType)value);
-			if (val) {
-				DamageSourceType = (CauseType)value;
-			} else {
-				OsiError("Invalid value for enum 'DamageSourceType': " << value);
-			}
-		}
-		else if (strcmp(prop, "Strength") == 0) {
-			if (Type == DamageHelpers::HT_CustomHit) {
-				Strength = value / 100.0f;
-			} else {
-				OsiErrorS("Property 'Strength' can only be set for custom hits");
-			}
-		}
-		else {
-			auto & propertyMap = gHitDamageInfoPropertyMap;
-			if (!propertyMap.setFlag(Hit, prop, value != 0, false, false)) {
-				propertyMap.setInt(Hit, prop, value, false, true);
-			}
-		}
-	}
-
-	void DamageHelpers::SetVector(char const * prop, Vector3 const & value)
+	void DamageHelpers::SetVector(FixedString const& prop, Vector3 const & value)
 	{
 		if (Type != DamageHelpers::HT_CustomHit) {
 			OsiErrorS("Impact vectors can only be set for custom hits");
 			return;
 		}
 
-		if (strcmp(prop, "ImpactPosition") == 0) {
+		if (prop == GFS.strImpactPosition) {
 			ImpactPosition = value;
 			HasImpactPosition = true;
 		}
-		else if (strcmp(prop, "ImpactOrigin") == 0) {
+		else if (prop == GFS.strImpactOrigin) {
 			ImpactOrigin = value;
 			HasImpactOrigin = true;
 		}
-		else if (strcmp(prop, "ImpactDirection") == 0) {
+		else if (prop == GFS.strImpactDirection) {
 			ImpactDirection = value;
 			HasImpactDirection = true;
 		}
 		else {
 			OsiError("Unknown vector3 property '" << prop << "'");
-		}
-	}
-
-	void DamageHelpers::SetString(char const * prop, char const * value)
-	{
-		auto fs = ToFixedString(value);
-		if (!fs) {
-			OsiError("Could not map value '" << value << "' to FixedString");
-			return;
-		}
-
-		if (strcmp(prop, "SkillId") == 0) {
-			SkillId = fs;
-		} else if (strcmp(prop, "HitType") == 0) {
-			auto val = EnumInfo<dse::HitType>::Find(value);
-			if (val) {
-				HitType = *val;
-			} else {
-				OsiError("Invalid value for enum 'HitType': " << value);
-			}
-		} else if (strcmp(prop, "HighGround") == 0) {
-			auto val = EnumInfo<HighGroundBonus>::Find(value);
-			if (val) {
-				HighGround = *val;
-			} else {
-				OsiError("Invalid value for enum 'HighGround': " << value);
-			}
-		} else if (strcmp(prop, "CriticalRoll") == 0) {
-			auto val = EnumInfo<CriticalRoll>::Find(value);
-			if (val) {
-				Critical = *val;
-			} else {
-				OsiError("Invalid value for enum 'CriticalRoll': " << value);
-			}
-		} else if (strcmp(prop, "DamageSourceType") == 0) {
-			auto val = EnumInfo<CauseType>::Find(value);
-			if (val) {
-				DamageSourceType = *val;
-			} else {
-				OsiError("Invalid value for enum 'DamageSourceType': " << value);
-			}
-		} else {
-			auto & propertyMap = gHitDamageInfoPropertyMap;
-			propertyMap.setString(Hit, prop, value, false, true);
 		}
 	}
 
@@ -344,7 +154,7 @@ namespace dse::esv
 		hit->HitWithHandle = ObjectHandle{}; // FIXME?
 		hit->WeaponHandle = ObjectHandle{}; // FIXME?
 		hit->HitReason = HitReason;
-		hit->Flags0 &= 0xFB; // Clear IsFromItem
+		hit->Flags0 &= ~esv::StatusFlags0::IsFromItem; // Clear IsFromItem
 
 		if (SkillId) {
 			hit->SkillId = SkillId;
@@ -381,7 +191,7 @@ namespace dse::esv
 				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
 				characterHit(targetCharacter, Source ? Source->Stats : nullptr, nullptr, DamageList, HitType, NoHitRoll,
-					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, Critical);
+					&damage, ForceReduceDurability ? 1 : 0, nullptr, HighGround, ProcWindWalker, CriticalRoll);
 			}
 
 		} else {
@@ -497,59 +307,27 @@ namespace dse::esv
 			}
 		}
 
-		void HitSetInt(OsiArgumentDesc const & args)
+		template <OsiPropertyMapType Type>
+		void HitSet(OsiArgumentDesc const & args)
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto prop = args[1].String;
-			auto value = args[2].Int32;
-
 			if (helper == nullptr) return;
 
-			helper->SetInt(prop, value);
-		}
-
-		bool HitGetInt(OsiArgumentDesc & args)
-		{
-			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto prop = args[1].String;
-			auto & value = args[2];
-
-			if (helper == nullptr) return false;
-
-			int32_t val;
-			if (helper->GetInt(prop, val)) {
-				value.Set(val);
-				return true;
-			} else {
-				return false;
+			if (!OsirisPropertyMapSet(gDamageHelpersPropertyMap, helper, args, 1, Type, false)) {
+				OsirisPropertyMapSet(gHitDamageInfoPropertyMap, helper->Hit, args, 1, Type);
 			}
 		}
 
-		void HitSetString(OsiArgumentDesc const & args)
+		template <OsiPropertyMapType Type>
+		bool HitGet(OsiArgumentDesc & args)
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto prop = args[1].String;
-			auto value = args[2].String;
-
-			if (helper == nullptr) return;
-
-			helper->SetString(prop, value);
-		}
-
-		bool HitGetString(OsiArgumentDesc & args)
-		{
-			auto helper = HelperHandleToHelper(args[0].Int64);
-			auto prop = args[1].String;
-			auto & value = args[2];
-
 			if (helper == nullptr) return false;
 
-			char const * val;
-			if (helper->GetString(prop, val)) {
-				value.Set(val);
+			if (OsirisPropertyMapGet(gDamageHelpersPropertyMap, helper, args, 1, Type, false)) {
 				return true;
 			} else {
-				return false;
+				return OsirisPropertyMapGet(gHitDamageInfoPropertyMap, helper->Hit, args, 1, Type);
 			}
 		}
 
@@ -561,7 +339,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			helper->SetVector(prop, vec);
+			helper->SetVector(ToFixedString(prop), vec);
 		}
 
 		void HitClearAllDamage(OsiArgumentDesc const & args)
@@ -763,7 +541,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
 			},
-			&func::HitGetInt
+			&func::HitGet<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(hitGetInt));
 
@@ -774,7 +552,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
 			},
-			&func::HitSetInt
+			&func::HitSet<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(hitSetInt));
 
@@ -785,7 +563,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out }
 			},
-			&func::HitGetString
+			&func::HitGet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(hitGetString));
 
@@ -796,7 +574,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::In }
 			},
-			&func::HitSetString
+			&func::HitSet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(hitSetString));
 

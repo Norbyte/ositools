@@ -396,6 +396,8 @@ namespace dse
 		MapAllSymbols(true);
 
 		if (!CriticalInitFailed) {
+			GFS.Initialize();
+			InitializeEnumerations();
 			InitPropertyMaps();
 
 			DetourTransactionBegin();

@@ -48,7 +48,7 @@ namespace dse
 			virtual Message * CreateNew() = 0;
 			virtual void Reset() = 0;
 
-			uint32_t MsgId;
+			NetMessage MsgId;
 			uint32_t Always4{ 4 };
 			uint32_t MsgType{ 1 };
 			uint8_t Always0{ 0 };
@@ -69,9 +69,9 @@ namespace dse
 
 		struct MessageFactory
 		{
-			typedef void (* RegisterMessage)(MessageFactory * self, int messageId, Message * msg, 
+			typedef void (* RegisterMessage)(MessageFactory * self, NetMessage messageId, Message * msg, 
 				unsigned int msgType, const char * messageName);
-			typedef Message * (* GetFreeMessage)(MessageFactory * self, int messageId);
+			typedef Message * (* GetFreeMessage)(MessageFactory * self, NetMessage messageId);
 			
 			void ReservePools(uint32_t minPools);
 			
@@ -196,7 +196,7 @@ namespace dse
 				auto getMsg = GetStaticSymbols().net__MessageFactory__GetFreeMessage;
 				if (getMsg == nullptr) return nullptr;
 
-				if (NetMessageFactory->MessagePools.Size > T::MessageId) {
+				if (NetMessageFactory->MessagePools.Size > (unsigned)T::MessageId) {
 					return static_cast<T *>(getMsg(NetMessageFactory, T::MessageId));
 				} else {
 					ERR("GetFreeMessage(): Message factory not registered for this message type?");

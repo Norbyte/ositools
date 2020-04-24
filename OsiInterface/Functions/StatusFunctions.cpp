@@ -427,10 +427,10 @@ namespace dse::esv
 			}
 			
 			if (lifeTime < 0.0f) {
-				status->Flags0 |= SF0_KeepAlive;
+				status->Flags0 |= esv::StatusFlags0::KeepAlive;
 				status->CurrentLifeTime = 1.0f;
 			} else {
-				status->Flags0 |= SF0_IsLifeTimeSet;
+				status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
 				status->LifeTime = lifeTime;
 				status->CurrentLifeTime = lifeTime;
 			}
@@ -484,10 +484,10 @@ namespace dse::esv
 			}
 
 			if (lifeTime < 0.0f) {
-				status->Flags0 |= SF0_KeepAlive;
+				status->Flags0 |= esv::StatusFlags0::KeepAlive;
 				status->CurrentLifeTime = 1.0f;
 			} else {
-				status->Flags0 |= SF0_IsLifeTimeSet;
+				status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
 				status->LifeTime = lifeTime;
 				status->CurrentLifeTime = lifeTime;
 			}
@@ -595,7 +595,7 @@ namespace dse::esv
 	void CustomFunctionLibrary::OnStatusHitEnter(esv::Status * status)
 	{
 		auto statusHit = static_cast<esv::StatusHit *>(status);
-		if (statusHit->DamageInfo.EffectFlags & HitFlag::HF_NoEvents) {
+		if ((bool)(statusHit->DamageInfo.EffectFlags & HitFlag::NoEvents)) {
 			return;
 		}
 
@@ -661,7 +661,7 @@ namespace dse::esv
 		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
 	{
-		if (damageInfo->EffectFlags & HitFlag::HF_NoEvents) {
+		if ((bool)(damageInfo->EffectFlags & HitFlag::NoEvents)) {
 			wrappedHit(self, attackerStats, itemStats, damageList, hitType, noHitRoll,
 				damageInfo, forceReduceDurability, skillProperties, highGround,
 				procWindWalker, criticalRoll);
@@ -692,7 +692,7 @@ namespace dse::esv
 		helper->NoHitRoll = noHitRoll;
 		helper->ProcWindWalker = procWindWalker;
 		helper->HighGround = highGround;
-		helper->Critical = criticalRoll;
+		helper->CriticalRoll = criticalRoll;
 		helper->ForceReduceDurability = (bool)forceReduceDurability;
 		helper->SetExternalDamageInfo(damageInfo, damageList);
 
@@ -707,7 +707,7 @@ namespace dse::esv
 
 		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->NoHitRoll,
 			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
-			helper->ProcWindWalker, helper->Critical);
+			helper->ProcWindWalker, helper->CriticalRoll);
 
 		gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}

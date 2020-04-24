@@ -242,35 +242,7 @@ namespace dse
 			Helper.IgnoreObjects = false;
 		}
 
-		void ShootProjectileApiHelper::SetInt(char const * prop, int32_t value)
-		{
-			if (strcmp(prop, "CasterLevel") == 0) {
-				Helper.CasterLevel = value;
-			}
-			else if (strcmp(prop, "StatusClearChance") == 0) {
-				Helper.StatusClearChance = value / 100.0f;
-			}
-			else if (strcmp(prop, "IsTrap") == 0) {
-				Helper.IsTrap = value ? 1 : 0;
-			}
-			else if (strcmp(prop, "UnknownFlag1") == 0) {
-				Helper.UnknownFlag1 = value ? 1 : 0;
-			}
-			else if (strcmp(prop, "IsFromItem") == 0) {
-				Helper.IsFromItem = value ? 1 : 0;
-			}
-			else if (strcmp(prop, "IsStealthed") == 0) {
-				Helper.IsStealthed = value ? 1 : 0;
-			}
-			else if (strcmp(prop, "IgnoreObjects") == 0) {
-				Helper.IgnoreObjects = value ? 1 : 0;
-			}
-			else {
-				OsiError("Unknown int property: '" << prop << "'");
-			}
-		}
-
-		void ShootProjectileApiHelper::SetGuidString(char const * prop, char const * value)
+		void ShootProjectileApiHelper::SetGuidString(FixedString const& prop, char const * value)
 		{
 			auto obj = GetEntityWorld()->GetGameObject(value);
 
@@ -283,28 +255,28 @@ namespace dse
 			obj->GetObjectHandle(handle);
 			glm::vec3 position = reinterpret_cast<esv::Character*>(obj)->WorldPos;
 
-			if (strcmp(prop, "SourcePosition") == 0) {
+			if (prop == GFS.strSourcePosition) {
 				Helper.StartPosition = position;
 				HasStartPosition = true;
 			}
-			else if (strcmp(prop, "TargetPosition") == 0) {
+			else if (prop == GFS.strTargetPosition) {
 				Helper.EndPosition = position;
 				HasEndPosition = true;
 			}
-			else if (strcmp(prop, "HitObjectPosition") == 0) {
+			else if (prop == GFS.strHitObjectPosition) {
 				HitObject.Position = position;
 				HasHitObjectPosition = true;
 			}
-			else if (strcmp(prop, "Caster") == 0) {
+			else if (prop == GFS.strCaster) {
 				Helper.Caster = handle;
 			}
-			else if (strcmp(prop, "Source") == 0) {
+			else if (prop == GFS.strSource) {
 				Helper.Source = handle;
 			}
-			else if (strcmp(prop, "Target") == 0) {
+			else if (prop == GFS.strTarget) {
 				Helper.Target = handle;
 			}
-			else if (strcmp(prop, "HitObject") == 0) {
+			else if (prop == GFS.strHitObject) {
 				HitObject.Target = handle;
 				HasHitObject = true;
 			}
@@ -313,41 +285,22 @@ namespace dse
 			}
 		}
 
-		void ShootProjectileApiHelper::SetVector(char const * prop, glm::vec3 const & value)
+		void ShootProjectileApiHelper::SetVector(FixedString const& prop, glm::vec3 const & value)
 		{
-			if (strcmp(prop, "SourcePosition") == 0) {
+			if (prop == GFS.strSourcePosition) {
 				Helper.StartPosition = value;
 				HasStartPosition = true;
 			}
-			else if (strcmp(prop, "TargetPosition") == 0) {
+			else if (prop == GFS.strTargetPosition) {
 				Helper.EndPosition = value;
 				HasEndPosition = true;
 			}
-			else if (strcmp(prop, "HitObjectPosition") == 0) {
+			else if (prop == GFS.strHitObjectPosition) {
 				HitObject.Position = value;
 				HasHitObjectPosition = true;
 			}
 			else {
 				OsiError("Unknown vector3 property '" << prop << "'");
-			}
-		}
-
-		void ShootProjectileApiHelper::SetString(char const * prop, char const * value)
-		{
-			auto fs = ToFixedString(value);
-			if (!fs) {
-				OsiError("Could not map value '" << value << "' to FixedString");
-				return;
-			}
-
-			if (strcmp(prop, "SkillId") == 0) {
-				Helper.SkillId = fs;
-			}
-			else if (strcmp(prop, "CleanseStatuses") == 0) {
-				Helper.CleanseStatuses = fs;
-			}
-			else {
-				OsiError("Unknown string property '" << prop << "'");
 			}
 		}
 

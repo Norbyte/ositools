@@ -268,6 +268,14 @@ namespace dse::lua
 		return 1;
 	}
 
+	int MonotonicTime(lua_State* L)
+	{
+		using namespace std::chrono;
+		auto now = time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
+		push(L, now);
+		return 1;
+	}
+
 	int OsiPrint(lua_State* L)
 	{
 		std::stringstream ss;
@@ -496,7 +504,7 @@ namespace dse::lua
 
 		auto requirementLabel = EnumInfo<RequirementType>::Find(requirement.RequirementId);
 		if (requirementLabel) {
-			settable(L, "Requirement", *requirementLabel);
+			settable(L, "Requirement", requirementLabel);
 		} else {
 			OsiError("Unknown requirement ID: " << (unsigned)requirement.RequirementId);
 			settable(L, "Requirement", "(Unknown)");
@@ -1327,21 +1335,10 @@ namespace dse::lua
 		lua_newtable(L);
 		settable(L, "ModifierType", deltaMod->ModifierType);
 		auto slot = EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType);
-		if (slot) {
-			settable(L, "SlotType", *slot);
-		}
-		auto weapon = EnumInfo<WeaponType>::Find(deltaMod->WeaponType);
-		if (weapon) {
-			settable(L, "WeaponType", *weapon);
-		}
-		auto armor = EnumInfo<ArmorType>::Find(deltaMod->ArmorType);
-		if (armor) {
-			settable(L, "ArmorType", *armor);
-		}
-		auto handedness = EnumInfo<HandednessType>::Find(deltaMod->Handedness);
-		if (handedness) {
-			settable(L, "Handedness", *handedness);
-		}
+		settable(L, "SlotType", EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType));
+		settable(L, "WeaponType", EnumInfo<WeaponType>::Find(deltaMod->WeaponType));
+		settable(L, "ArmorType", EnumInfo<ArmorType>::Find(deltaMod->ArmorType));
+		settable(L, "Handedness", EnumInfo<HandednessType>::Find(deltaMod->Handedness));
 		settable(L, "Name", deltaMod->Name);
 		settable(L, "BoostType", deltaMod->BoostType);
 		settable(L, "MinLevel", deltaMod->MinLevel);

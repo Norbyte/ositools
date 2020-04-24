@@ -97,7 +97,7 @@ namespace dse
 
 		struct FlagInfo
 		{
-			std::string Property;
+			FixedString Property;
 			uint64_t Mask;
 			uint32_t Flags;
 
@@ -105,14 +105,14 @@ namespace dse
 			std::function<std::optional<bool> (void *)> Get;
 		};
 
-		std::unordered_map<std::string, PropertyInfo> Properties;
-		std::unordered_map<std::string, FlagInfo> Flags;
+		std::unordered_map<FixedString, PropertyInfo> Properties;
+		std::unordered_map<FixedString, FlagInfo> Flags;
 
 		PropertyMapBase * Parent{ nullptr };
 
 		virtual void * toParent(void * obj) const = 0;
 
-		PropertyInfo const * findProperty(std::string const & name) const
+		PropertyInfo const * findProperty(FixedString const& name) const
 		{
 			PropertyMapBase const * propMap = this;
 			do {
@@ -127,7 +127,7 @@ namespace dse
 			return nullptr;
 		}
 
-		FlagInfo const * findFlag(std::string const & name) const
+		FlagInfo const * findFlag(FixedString const& name) const
 		{
 			PropertyMapBase const * propMap = this;
 			do {
@@ -142,7 +142,7 @@ namespace dse
 			return nullptr;
 		}
 
-		std::optional<int64_t> getInt(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<int64_t> getInt(void * obj, FixedString const& name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -182,7 +182,7 @@ namespace dse
 			}
 		}
 
-		std::optional<float> getFloat(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<float> getFloat(void * obj, FixedString const& name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -214,7 +214,7 @@ namespace dse
 			}
 		}
 
-		bool setInt(void * obj, std::string const & name, int64_t value, bool raw, bool throwError) const
+		bool setInt(void * obj, FixedString const & name, int64_t value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -256,7 +256,7 @@ namespace dse
 			return true;
 		}
 
-		bool setFloat(void * obj, std::string const & name, float value, bool raw, bool throwError) const
+		bool setFloat(void * obj, FixedString const & name, float value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -290,7 +290,7 @@ namespace dse
 			return true;
 		}
 
-		std::optional<char const *> getString(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<char const *> getString(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -369,7 +369,7 @@ namespace dse
 			}
 		}
 
-		bool setString(void * obj, std::string const & name, char const * value, bool raw, bool throwError) const
+		bool setString(void * obj, FixedString const & name, char const * value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -436,7 +436,7 @@ namespace dse
 			}
 		}
 
-		std::optional<ObjectHandle> getHandle(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<ObjectHandle> getHandle(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -468,7 +468,7 @@ namespace dse
 			}
 		}
 
-		bool setHandle(void * obj, std::string const & name, ObjectHandle value, bool raw, bool throwError) const
+		bool setHandle(void * obj, FixedString const & name, ObjectHandle value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -501,7 +501,7 @@ namespace dse
 			}
 		}
 
-		std::optional<Vector3> getVector3(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<Vector3> getVector3(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -533,7 +533,7 @@ namespace dse
 			}
 		}
 
-		bool setVector3(void * obj, std::string const & name, Vector3 const & value, bool raw, bool throwError) const
+		bool setVector3(void * obj, FixedString const & name, Vector3 const & value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -566,7 +566,7 @@ namespace dse
 			}
 		}
 
-		std::optional<bool> getFlag(void * obj, std::string const & name, bool raw, bool throwError) const
+		std::optional<bool> getFlag(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto flag = Flags.find(name);
 			if (flag == Flags.end()) {
@@ -597,7 +597,7 @@ namespace dse
 			return (*value & flag->second.Mask) != 0;
 		}
 
-		bool setFlag(void * obj, std::string const & name, bool value, bool raw, bool throwError) const
+		bool setFlag(void * obj, FixedString const & name, bool value, bool raw, bool throwError) const
 		{
 			auto flag = Flags.find(name);
 			if (flag == Flags.end()) {
@@ -655,29 +655,29 @@ namespace dse
 	};
 
 	template <class TValue>
-	typename PropertyMapBase::PropertyInfo & AddProperty(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
+	typename PropertyMapBase::PropertyInfo & AddProperty(PropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
 		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | kPropWrite;
-		auto it = map.Properties.insert(std::make_pair(name, info));
+		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
 		return it.first->second;
 	}
 
 	template <class TValue>
-	typename PropertyMapBase::PropertyInfo & AddPropertyRO(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
+	typename PropertyMapBase::PropertyInfo & AddPropertyRO(PropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
 		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead;
-		auto it = map.Properties.insert(std::make_pair(name, info));
+		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
 		return it.first->second;
 	}
 
 	template <class TEnum>
-	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, std::string const & name, std::uintptr_t offset)
+	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
 		using TValue = std::underlying_type<TEnum>::type;
 		PropertyMapBase::PropertyInfo info;
@@ -692,7 +692,12 @@ namespace dse
 
 		info.GetString = [offset](void * obj) -> std::optional<char const *> {
 			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
-			return EnumInfo<TEnum>::Find(*ptr);
+			auto val = EnumInfo<TEnum>::Find(*ptr);
+			if (val) {
+				return val.Str;
+			} else {
+				return {};
+			}
 		};
 
 		info.SetInt = [offset](void * obj, int64_t val) -> bool {
@@ -717,33 +722,34 @@ namespace dse
 			return true;
 		};
 
-		auto it = map.Properties.insert(std::make_pair(name, info));
+		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
 		return it.first->second;
 	}
 
 	template <class TValue, class TEnum>
-	void AddPropertyFlags(PropertyMapBase & map, std::string const & name, 
+	void AddPropertyFlags(PropertyMapBase & map, char const* name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		using Enum = EnumInfo<TEnum>;
 
+		auto fieldName = MakeFixedString(name);
 		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = 0;
-		map.Properties.insert(std::make_pair(name, info));
+		map.Properties.insert(std::make_pair(fieldName, info));
 
-		for (auto i = 0; i < std::size(Enum::Values); i++) {
+		Enum::Values.Iterate([&map, canWrite, fieldName](auto const& k, auto v) {
 			PropertyMapBase::FlagInfo flag;
-			flag.Property = name;
+			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
-			flag.Mask = (int64_t)Enum::Values[i].Val;
-			map.Flags.insert(std::make_pair(Enum::Values[i].Name, flag));
-		}
+			flag.Mask = (int64_t)v;
+			map.Flags.insert(std::make_pair(k, flag));
+		});
 	}
 
 	template <class TValue>
-	typename void AddPropertyGuidString(PropertyMapBase & map, std::string const & name,
+	typename void AddPropertyGuidString(PropertyMapBase & map, char const* name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString GUID values are supported");
@@ -751,6 +757,6 @@ namespace dse
 		info.Type = PropertyType::kFixedStringGuid;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
-		map.Properties.insert(std::make_pair(name, info));
+		map.Properties.insert(std::make_pair(MakeFixedString(name), info));
 	}
 }

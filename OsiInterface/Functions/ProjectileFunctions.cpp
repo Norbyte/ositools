@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <PropertyMaps.h>
 
 namespace dse::esv
 {
@@ -29,7 +30,8 @@ namespace dse::esv
 			}
 		}
 
-		void ProjectileSetInt(OsiArgumentDesc const & args)
+		template <OsiPropertyMapType Type>
+		void ProjectileSet(OsiArgumentDesc const & args)
 		{
 			auto prop = args[0].String;
 			auto value = args[1].Int32;
@@ -40,21 +42,7 @@ namespace dse::esv
 				return;
 			}
 
-			helper->SetInt(prop, value);
-		}
-
-		void ProjectileSetString(OsiArgumentDesc const & args)
-		{
-			auto prop = args[0].String;
-			auto value = args[1].String;
-
-			auto & helper = ExtensionState::Get().ProjectileHelper;
-			if (!helper) {
-				OsiErrorS("Called when no projectile is active!");
-				return;
-			}
-
-			helper->SetString(prop, value);
+			OsirisPropertyMapSet(gShootProjectileHelperPropertyMap, &helper->Helper, args, 0, Type);
 		}
 
 		void ProjectileSetGuidString(OsiArgumentDesc const & args)
@@ -68,7 +56,7 @@ namespace dse::esv
 				return;
 			}
 
-			helper->SetGuidString(prop, value);
+			helper->SetGuidString(ToFixedString(prop), value);
 		}
 
 		void ProjectileSetVector3(OsiArgumentDesc const & args)
@@ -82,7 +70,7 @@ namespace dse::esv
 				return;
 			}
 
-			helper->SetVector(prop, vec);
+			helper->SetVector(ToFixedString(prop), vec);
 		}
 
 		void ProjectileAddDamage(OsiArgumentDesc const & args)
@@ -130,7 +118,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In }
 			},
-			&func::ProjectileSetInt
+			&func::ProjectileSet<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(projectileSetInt));
 
@@ -140,7 +128,7 @@ namespace dse::esv
 				{ "Property", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::In }
 			},
-			&func::ProjectileSetString
+			&func::ProjectileSet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(projectileSetString));
 

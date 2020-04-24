@@ -14,6 +14,7 @@
 #include "Functions/FunctionLibrary.h"
 #include "NetProtocol.h"
 #include <GameDefinitions/Symbols.h>
+#include <GlobalFixedStrings.h>
 
 #include <thread>
 #include <mutex>

@@ -8,7 +8,7 @@ namespace dse
 	class ScriptExtenderMessage : public net::Message
 	{
 	public:
-		static constexpr uint32_t MessageId = 400;
+		static constexpr NetMessage MessageId = NetMessage::NETMSG_SCRIPT_EXTENDER;
 		static constexpr uint32_t MaxPayloadLength = 0xfffff;
 
 		ScriptExtenderMessage();
