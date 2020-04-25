@@ -774,6 +774,7 @@ local StatItemDynamic = {}
 --- @field public ArmorBoost integer
 --- @field public MagicArmorBoost integer
 --- @field public Blocking integer
+--- @field public ExtraProperties StatProperty[]
 local StatItem = {}
 
 
@@ -1073,6 +1074,7 @@ local StatRequirement = {}
 --- @field public Talents string
 --- @field public IgnoreVisionBlock string See YesNo enumeration
 --- @field public Tags string
+--- @field public ExtraProperties StatProperty[]
 local StatEntryWeapon = {
     --- @type string See Damage Type enumeration
     ['Damage Type'] = "",
@@ -1173,6 +1175,7 @@ local StatEntryWeapon = {
 --- @field public MaxCharges integer
 --- @field public Talents string
 --- @field public Tags string
+--- @field public ExtraProperties StatProperty[]
 local StatEntryArmor = {
     ['Armor Defense Value'] = 0,
     ['Magic Armor Value'] = 0,
@@ -1268,6 +1271,7 @@ local StatEntryArmor = {
 --- @field public NeedsIdentification string See YesNo enumeration
 --- @field public Talents string
 --- @field public Tags string
+--- @field public ExtraProperties StatProperty[]
 local StatEntryShield = {
     ['Armor Defense Value'] = 0,
     ['Magic Armor Value'] = 0,
@@ -1393,6 +1397,7 @@ local StatEntryShield = {
 --- @field public LifeSteal integer
 --- @field public IsFood string See YesNo enumeration
 --- @field public IsConsumable string See YesNo enumeration
+--- @field public ExtraProperties StatProperty[]
 local StatEntryPotion = {
     ['Damage Multiplier'] = 0,
     ['Damage Range'] = 0,
