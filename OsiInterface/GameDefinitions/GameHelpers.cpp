@@ -669,9 +669,11 @@ namespace dse
 		auto numItems = entry.Count();
 		for (uint32_t i = 0; i < numItems; i++) {
 			const char * str = entry.Get(i);
-			auto metadata = reinterpret_cast<FixedString::Metadata*>(const_cast<char*>(str - 0x10));
-			if (metadata->Length == length && memcmp(s, str, length) == 0) {
-				return str;
+			if (str) {
+				auto metadata = reinterpret_cast<FixedString::Metadata*>(const_cast<char*>(str - 0x10));
+				if (metadata->Length == length && memcmp(s, str, length) == 0) {
+					return str;
+				}
 			}
 		}
 
