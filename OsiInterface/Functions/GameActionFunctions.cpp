@@ -102,7 +102,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto lifetime = stats->GetAttributeInt(object, "Lifetime");
+			auto lifetime = stats->GetAttributeInt(object, GFS.strLifetime);
 			if (!lifetime) {
 				OsiError("Couldn't fetch lifetime of skill '" << args[1].String << "'");
 				return false;

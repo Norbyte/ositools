@@ -594,7 +594,14 @@ namespace dse::lua
 		lua_settable(L, -3);
 		
 		if (property->Conditions) {
-			settable(L, "Condition", property->Conditions->CheckText);
+			STDString name(property->Name.Str);
+			if (name[name.length() - 1] == ')') {
+				auto ifPos = name.find("_IF(");
+				if (ifPos != std::string::npos) {
+					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
+					settable(L, "Condition", condition);
+				}
+			}
 		}
 
 		switch (property->TypeId) {
@@ -624,7 +631,7 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::SurfaceChange:
 		{
 			auto prop = (CDivinityStats_Object_Property_SurfaceChange*)property;
-			auto surfaceChange = stats->EnumIndexToLabel("Surface Change", prop->SurfaceChange);
+			auto surfaceChange = stats->EnumIndexToLabel(GFS.strSurfaceChange, prop->SurfaceChange);
 			settable(L, "Type", "SurfaceChange");
 			settable(L, "Action", surfaceChange);
 			settable(L, "Arg1", prop->Arg1);
@@ -637,7 +644,7 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::GameAction:
 		{
 			auto prop = (CDivinityStats_Object_Property_GameAction*)property;
-			auto gameAction = stats->EnumIndexToLabel("Game Action", prop->GameAction);
+			auto gameAction = stats->EnumIndexToLabel(GFS.strGameAction, prop->GameAction);
 			settable(L, "Type", "GameAction");
 			settable(L, "Action", gameAction);
 			settable(L, "Arg1", prop->Arg1);
@@ -645,7 +652,7 @@ namespace dse::lua
 			settable(L, "Arg3", prop->Arg3);
 			settable(L, "Arg4", prop->Arg4);
 			settable(L, "Arg5", prop->Arg5);
-			auto statusHealType = stats->EnumIndexToLabel("StatusHealType", prop->StatusHealType);
+			auto statusHealType = stats->EnumIndexToLabel(GFS.strStatusHealType, prop->StatusHealType);
 			if (statusHealType) {
 				settable(L, "StatusHealType", statusHealType);
 			}
@@ -656,7 +663,7 @@ namespace dse::lua
 		{
 			auto prop = (CDivinityStats_Object_Property_OsirisTask*)property;
 			settable(L, "Type", "OsirisTask");
-			auto osirisTask = stats->EnumIndexToLabel("Osiris Task", prop->OsirisTask);
+			auto osirisTask = stats->EnumIndexToLabel(GFS.strOsirisTask, prop->OsirisTask);
 			settable(L, "Action", osirisTask);
 			settable(L, "Chance", prop->Chance);
 			settable(L, "VitalityOnRevive", prop->VitalityOnRevive);
@@ -751,7 +758,7 @@ namespace dse::lua
 		ObjectPropertyVMTsMapped = true;
 	}
 
-	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index)
+	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index, FixedString const& propertyName)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
@@ -773,7 +780,7 @@ namespace dse::lua
 		{
 			auto custom = new CDivinityStats_Object_Property_Custom();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex("Custom Properties", actionStr);
+			auto action = stats->EnumLabelToIndex(GFS.strCustomProperties, actionStr);
 			if (!action) {
 				OsiError("Unknown Custom Properties value: " << actionStr);
 				return nullptr;
@@ -801,7 +808,7 @@ namespace dse::lua
 		{
 			auto change = new CDivinityStats_Object_Property_SurfaceChange();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex("Surface Change", actionStr);
+			auto action = stats->EnumLabelToIndex(GFS.strSurfaceChange, actionStr);
 			if (!action) {
 				OsiError("Unknown Surface Change value: " << actionStr);
 				return nullptr;
@@ -820,7 +827,7 @@ namespace dse::lua
 		{
 			auto gameAction = new CDivinityStats_Object_Property_GameAction();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex("Game Action", actionStr);
+			auto action = stats->EnumLabelToIndex(GFS.strGameAction, actionStr);
 			if (!action) {
 				OsiError("Unknown Custom Properties value: " << actionStr);
 				return nullptr;
@@ -834,7 +841,7 @@ namespace dse::lua
 			gameAction->Arg5 = checked_gettable<char const*, float>(L, "Arg5");
 			auto statusHealType = gettable<char const*, char const*>(L, "StatusHealType");
 			if (statusHealType) {
-				auto healTypeIndex = stats->EnumLabelToIndex("StatusHealType", statusHealType);
+				auto healTypeIndex = stats->EnumLabelToIndex(GFS.strStatusHealType, statusHealType);
 				if (!healTypeIndex) {
 					OsiError("Unknown StatusHealType value: " << statusHealType);
 					return nullptr;
@@ -851,7 +858,7 @@ namespace dse::lua
 		{
 			auto osirisTask = new CDivinityStats_Object_Property_OsirisTask();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex("Osiris Task", actionStr);
+			auto action = stats->EnumLabelToIndex(GFS.strOsirisTask, actionStr);
 			if (!action) {
 				OsiError("Unknown Osiris Task value: " << actionStr);
 				return nullptr;
@@ -909,7 +916,7 @@ namespace dse::lua
 			if (scriptCheckBlock) {
 				auto statConditions = GameAlloc<CDivinityStats_Condition>();
 				statConditions->ScriptCheckBlock = scriptCheckBlock;
-				statConditions->CheckText = MakeFixedString(conditions);
+				statConditions->Name = propertyName;
 				prop->Conditions = statConditions;
 			} else {
 				OsiWarn("Failed to parse conditions: " << conditions);
@@ -943,7 +950,7 @@ namespace dse::lua
 		return prop;
 	}
 
-	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L)
+	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L, FixedString const& propertyName)
 	{
 		MapObjectPropertyVMTs();
 		if (!SkillPropertiesVMT) {
@@ -954,10 +961,11 @@ namespace dse::lua
 		auto properties = new CRPGStats_Object_Property_List();
 		*(void**)properties = SkillPropertiesVMT;
 		properties->Properties.NameHashMap.Init(31);
+		properties->Name = propertyName;
 
 		auto index = 0;
 		for (auto idx : iterate(L, -1)) {
-			auto prop = LuaToObjectProperty(L, index++);
+			auto prop = LuaToObjectProperty(L, index++, propertyName);
 			if (prop) {
 				properties->Properties.Add(prop->Name, prop);
 				properties->AllPropertyContexts = prop->PropertyContext;
@@ -971,13 +979,19 @@ namespace dse::lua
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
-		if (strcmp(attributeName, "Level") == 0) {
+		auto attributeFS = ToFixedString(attributeName);
+		if (!attributeFS) {
+			OsiError("Invalid stats attribute name: " << object->Name);
+			return 0;
+		}
+
+		if (attributeFS == GFS.strLevel) {
 			push(L, object->Level);
 			return 1;
-		} else if (strcmp(attributeName, "Name") == 0) {
+		} else if (attributeFS == GFS.strName) {
 			push(L, object->Name);
 			return 1;
-		} else if (strcmp(attributeName, "Using") == 0) {
+		} else if (attributeFS == GFS.strUsing) {
 			if (object->Using) {
 				auto parent = stats->objects.Find(object->Using);
 				if (parent != nullptr) {
@@ -987,24 +1001,24 @@ namespace dse::lua
 			}
 
 			return 0;
-		} else if (strcmp(attributeName, "Requirements") == 0) {
+		} else if (attributeFS == GFS.strRequirements) {
 			RequirementsToLua(L, object->Requirements);
 			return 1;
-		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+		} else if (attributeFS == GFS.strMemorizationRequirements) {
 			RequirementsToLua(L, object->MemorizationRequirements);
 			return 1;
-		} else if (strcmp(attributeName, "AIFlags") == 0) {
+		} else if (attributeFS == GFS.strAIFlags) {
 			push(L, object->AIFlags);
 			return 1;
-		} else if (strcmp(attributeName, "ComboCategory") == 0) {
+		} else if (attributeFS == GFS.strComboCategory) {
 			lua_newtable(L);
 			auto index = 1;
 			for (auto const& category : object->ComboCategories) {
 				settable(L, index++, category);
 			}
 			return 1;
-		} else if (strcmp(attributeName, "SkillProperties") == 0 || strcmp(attributeName, "ExtraProperties") == 0) {
-			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
+		} else if (attributeFS == GFS.strSkillProperties || attributeFS == GFS.strExtraProperties) {
+			auto propertyList = object->PropertyList.Find(attributeFS);
 			if (propertyList) {
 				ObjectPropertyListToLua(L, **propertyList);
 				return 1;
@@ -1013,7 +1027,19 @@ namespace dse::lua
 			}
 		}
 
-		auto value = stats->GetAttributeString(object, attributeName);
+		int index;
+		auto attrInfo = stats->GetAttributeInfo(object, attributeFS, index);
+		if (attrInfo && attrInfo->Name == GFS.strConditions) {
+			auto conditions = object->ConditionList.Find(attributeFS);
+			if (conditions) {
+				OsiError("Conditions property '" << attributeFS << "' is not readable");
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		auto value = stats->GetAttributeString(object, attributeFS);
 		if (!value) {
 			std::optional<int> intval;
 			if (level) {
@@ -1021,13 +1047,13 @@ namespace dse::lua
 					*level = object->Level;
 				}
 
-				intval = stats->GetAttributeIntScaled(object, attributeName, *level);
+				intval = stats->GetAttributeIntScaled(object, attributeFS, *level);
 			} else {
-				intval = stats->GetAttributeInt(object, attributeName);
+				intval = stats->GetAttributeInt(object, attributeFS);
 			}
 
 			if (!intval) {
-				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeName << "'");
+				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeFS << "'");
 				return 0;
 			} else {
 				push(L, *intval);
@@ -1068,16 +1094,22 @@ namespace dse::lua
 			return luaL_error(L, "StatSetAttribute() can only be called during module load");
 		}
 
-		if (strcmp(attributeName, "Requirements") == 0) {
+		auto attributeFS = ToFixedString(attributeName);
+		if (!attributeFS) {
+			OsiError("Invalid stats attribute name: " << object->Name);
+			return 0;
+		}
+
+		if (attributeFS == GFS.strRequirements) {
 			LuaToRequirements(L, object->Requirements);
 			return 0;
-		} else if (strcmp(attributeName, "MemorizationRequirements") == 0) {
+		} else if (attributeFS == GFS.strMemorizationRequirements) {
 			LuaToRequirements(L, object->MemorizationRequirements);
 			return 0;
-		} else if (strcmp(attributeName, "AIFlags") == 0) {
+		} else if (attributeFS == GFS.strAIFlags) {
 			object->AIFlags = (uint64_t)lua_tointeger(L, valueIdx);
 			return 0;
-		} else if (strcmp(attributeName, "ComboCategory") == 0) {
+		} else if (attributeFS == GFS.strComboCategory) {
 			object->ComboCategories.Set.Clear();
 			for (auto category : iterate(L, valueIdx)) {
 				auto categoryName = checked_get<char const*>(L, category);
@@ -1085,14 +1117,14 @@ namespace dse::lua
 			}
 
 			return 0;
-		} else if (strcmp(attributeName, "SkillProperties") == 0 || strcmp(attributeName, "ExtraProperties") == 0) {
-			auto newList = LuaToObjectPropertyList(L);
-			if (newList) {
-				STDString name = object->Name;
-				name += "_";
-				name += attributeName;
-				newList->Name = MakeFixedString(name.c_str());
+		} else if (attributeFS == GFS.strSkillProperties || attributeFS == GFS.strExtraProperties) {
+			STDString name = object->Name;
+			name += "_";
+			name += attributeName;
+			auto statsPropertyKey = MakeFixedString(name.c_str());
 
+			auto newList = LuaToObjectPropertyList(L, statsPropertyKey);
+			if (newList) {
 				auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
 				if (propertyList) {
 					// FIXME - add Remove() support!
@@ -1106,20 +1138,46 @@ namespace dse::lua
 			return 0;
 		}
 
+		int index;
 		auto stats = GetStaticSymbols().GetStats();
+		auto attrInfo = stats->GetAttributeInfo(object, attributeFS, index);
+		if (attrInfo && attrInfo->Name == GFS.strConditions) {
+			auto conditions = object->ConditionList.Find(attributeFS);
+			if (conditions) {
+				auto value = luaL_checkstring(L, valueIdx);
+				auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(value);
+				if (scriptCheckBlock) {
+					auto statConditions = GameAlloc<CDivinityStats_Condition>();
+					statConditions->ScriptCheckBlock = scriptCheckBlock;
+					STDString name = object->Name;
+					name += "_";
+					name += attributeName;
+					statConditions->Name = MakeFixedString(name.c_str());
+					*conditions = statConditions;
+				} else {
+					OsiWarn("Failed to parse conditions: " << value);
+				}
+			} else {
+				// FIXME - not implemented yet!
+				OsiWarnS("Adding new Conditions entries not implemented yet!");
+			}
+
+			return 0;
+		}
+
 		bool ok{ false };
 		switch (lua_type(L, valueIdx)) {
 		case LUA_TSTRING:
 		{
 			auto value = luaL_checkstring(L, valueIdx);
-			ok = stats->SetAttributeString(object, attributeName, value);
+			ok = stats->SetAttributeString(object, attributeFS, value);
 			break;
 		}
 
 		case LUA_TNUMBER:
 		{
 			auto value = (int32_t)luaL_checkinteger(L, valueIdx);
-			ok = stats->SetAttributeInt(object, attributeName, value);
+			ok = stats->SetAttributeInt(object, attributeFS, value);
 			break;
 		}
 
@@ -1260,7 +1318,7 @@ namespace dse::lua
 		}
 
 		auto stats = GetStaticSymbols().GetStats();
-		auto modifier = stats->GetModifierInfo(modifierListName, modifierName);
+		auto modifier = stats->GetModifierInfo(ToFixedString(modifierListName), ToFixedString(modifierName));
 		if (modifier == nullptr) {
 			OsiError("Modifier list '" << modifierListName << "' or modifier '" << modifierName << "' does not exist!");
 			return 0;

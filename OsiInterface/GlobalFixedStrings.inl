@@ -39,3 +39,29 @@ FS(Position);
 FS(MyGuid);
 FS(NetID);
 FS(GetItemBySlot);
+
+// Stat attributes
+FS(Level);
+FS(Name);
+FS(Using);
+FS(Requirements);
+FS(MemorizationRequirements);
+FS(AIFlags);
+FS(ComboCategory);
+FS(SkillProperties);
+FS(ExtraProperties);
+FS(Lifetime);
+
+// Stat modifier types
+FS(FixedString);
+FS(AttributeFlags);
+FS(ConstantInt);
+FS(Conditions);
+
+// Enumerations
+FS(StatusHealType);
+FS_NAME(OsirisTask, "Osiris Task");
+FS_NAME(GameAction, "Game Action");
+FS_NAME(SurfaceChange, "Surface Change");
+FS_NAME(CustomProperties, "Custom Properties");
+

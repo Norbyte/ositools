@@ -214,7 +214,7 @@ namespace dse
 	}
 
 
-	CRPGStats_Modifier * ModifierList::GetAttributeInfo(const char * name, int * attributeIndex) const
+	CRPGStats_Modifier * ModifierList::GetAttributeInfo(FixedString const& name, int * attributeIndex) const
 	{
 		auto index = Attributes.FindIndex(name);
 		if (index == -1) {
@@ -241,14 +241,8 @@ namespace dse
 		return typeInfo->Name == type;
 	}
 
-	std::optional<int> CRPGStatsManager::EnumLabelToIndex(const char * enumName, const char * enumLabel)
+	std::optional<int> CRPGStatsManager::EnumLabelToIndex(FixedString const& enumName, char const* enumLabel)
 	{
-		auto fs = ToFixedString(enumName);
-		if (!fs) {
-			OsiError("No enum named '" << enumName << "' exists");
-			return {};
-		}
-
 		auto rpgEnum = modifierValueList.Find(enumName);
 		if (rpgEnum == nullptr) {
 			OsiError("No enum named '" << enumName << "' exists");
@@ -263,14 +257,8 @@ namespace dse
 		}
 	}
 
-	FixedString CRPGStatsManager::EnumIndexToLabel(const char* enumName, int index)
+	FixedString CRPGStatsManager::EnumIndexToLabel(FixedString const& enumName, int index)
 	{
-		auto fs = ToFixedString(enumName);
-		if (!fs) {
-			OsiError("No enum named '" << enumName << "' exists");
-			return FixedString{};
-		}
-
 		auto rpgEnum = modifierValueList.Find(enumName);
 		if (rpgEnum == nullptr) {
 			OsiError("No enum named '" << enumName << "' exists");
@@ -286,7 +274,7 @@ namespace dse
 		}
 	}
 
-	CRPGStats_Modifier * CRPGStatsManager::GetModifierInfo(const char * modifierListName, const char * modifierName)
+	CRPGStats_Modifier * CRPGStatsManager::GetModifierInfo(FixedString const& modifierListName, FixedString const& modifierName)
 	{
 		auto modifiers = modifierList.Find(modifierListName);
 		if (modifiers != nullptr) {
@@ -301,7 +289,7 @@ namespace dse
 		return modifierList.Find(object->ModifierListIndex);
 	}
 
-	RPGEnumeration * CRPGStatsManager::GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex)
+	RPGEnumeration * CRPGStatsManager::GetAttributeInfo(CRPGStats_Object * object, FixedString const& attributeName, int & attributeIndex)
 	{
 		auto objModifiers = modifierList.Find(object->ModifierListIndex);
 		if (objModifiers == nullptr) {
@@ -317,7 +305,7 @@ namespace dse
 		return typeInfo;
 	}
 
-	std::optional<char const *> CRPGStatsManager::GetAttributeString(CRPGStats_Object * object, const char * attributeName)
+	std::optional<char const *> CRPGStatsManager::GetAttributeString(CRPGStats_Object * object, FixedString const& attributeName)
 	{
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
@@ -326,9 +314,9 @@ namespace dse
 		}
 
 		auto index = object->IndexedProperties[attributeIndex];
-		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
+		if (typeInfo->Name == GFS.strFixedString) {
 			return ModifierFSSet[index].Str;
-		} else if (strcmp(typeInfo->Name.Str, "AttributeFlags") == 0) {
+		} else if (typeInfo->Name == GFS.strAttributeFlags) {
 			if (index != -1) {
 				auto attrFlags = (uint64_t)AttributeFlags[index];
 				STDString flagsStr;
@@ -363,7 +351,7 @@ namespace dse
 		}
 	}
 
-	std::optional<int> CRPGStatsManager::GetAttributeInt(CRPGStats_Object * object, const char * attributeName)
+	std::optional<int> CRPGStatsManager::GetAttributeInt(CRPGStats_Object * object, FixedString const& attributeName)
 	{
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
@@ -372,7 +360,7 @@ namespace dse
 		}
 
 		auto index = object->IndexedProperties[attributeIndex];
-		if (strcmp(typeInfo->Name.Str, "ConstantInt") == 0
+		if (typeInfo->Name == GFS.strConstantInt
 			|| typeInfo->Values.ItemCount > 0) {
 			return index;
 		}
@@ -381,7 +369,7 @@ namespace dse
 		}
 	}
 
-	std::optional<int> CRPGStatsManager::GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level)
+	std::optional<int> CRPGStatsManager::GetAttributeIntScaled(CRPGStats_Object * object, FixedString const& attributeName, int level)
 	{
 		auto objModifiers = modifierList.Find(object->ModifierListIndex);
 		if (objModifiers == nullptr) {
@@ -459,7 +447,7 @@ namespace dse
 		return BuildScriptCheckBlock(updated);
 	}
 
-	bool CRPGStatsManager::SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value)
+	bool CRPGStatsManager::SetAttributeString(CRPGStats_Object * object, FixedString const& attributeName, const char * value)
 	{
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
@@ -468,14 +456,14 @@ namespace dse
 			return false;
 		}
 
-		if (strcmp(typeInfo->Name.Str, "FixedString") == 0) {
+		if (typeInfo->Name == GFS.strFixedString) {
 			auto fs = GetOrCreateFixedString(value);
 			if (fs != -1) {
 				object->IndexedProperties[attributeIndex] = fs;
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Unable to allocate pooled string");
 			}
-		} else if (strcmp(typeInfo->Name.Str, "AttributeFlags") == 0) {
+		} else if (typeInfo->Name == GFS.strAttributeFlags) {
 			auto attrFlagsIndex = object->IndexedProperties[attributeIndex];
 			if (attrFlagsIndex != -1) {
 				auto & attrFlags = AttributeFlags[attrFlagsIndex];
@@ -502,7 +490,7 @@ namespace dse
 		return true;
 	}
 
-	bool CRPGStatsManager::SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value)
+	bool CRPGStatsManager::SetAttributeInt(CRPGStats_Object * object, FixedString const& attributeName, int32_t value)
 	{
 		int attributeIndex;
 		auto typeInfo = GetAttributeInfo(object, attributeName, attributeIndex);
@@ -511,7 +499,7 @@ namespace dse
 			return false;
 		}
 
-		if (strcmp(typeInfo->Name.Str, "ConstantInt") == 0) {
+		if (typeInfo->Name == GFS.strConstantInt) {
 			object->IndexedProperties[attributeIndex] = value;
 		} else if (typeInfo->Values.ItemCount > 0) {
 			if (value > 0 && value < (int)typeInfo->Values.ItemCount) {

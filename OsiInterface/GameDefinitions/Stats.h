@@ -701,7 +701,7 @@ namespace dse
 		CNamedElementManager<CRPGStats_Modifier> Attributes;
 		FixedString Name;
 
-		CRPGStats_Modifier * GetAttributeInfo(const char * name, int * attributeIndex) const;
+		CRPGStats_Modifier * GetAttributeInfo(FixedString const& name, int * attributeIndex) const;
 	};
 
 	struct CRPGStats_ExtraData : public ProtectedGameObject<CRPGStats_ExtraData>
@@ -712,7 +712,7 @@ namespace dse
 	struct CDivinityStats_Condition
 	{
 		void * ScriptCheckBlock;
-		FixedString CheckText;
+		FixedString Name;
 	};
 
 	struct CRPGStats_Conditions_Manager
@@ -909,18 +909,18 @@ namespace dse
 		void * CritSection;
 		uint64_t Unkn7[5];
 
-		CRPGStats_Modifier * GetModifierInfo(const char * modifierListName, const char * modifierName);
+		CRPGStats_Modifier * GetModifierInfo(FixedString const& modifierListName, FixedString const& modifierName);
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);
-		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, const char * attributeName, int & attributeIndex);
-		std::optional<char const *> GetAttributeString(CRPGStats_Object * object, const char * attributeName);
-		std::optional<int> GetAttributeInt(CRPGStats_Object * object, const char * attributeName);
-		std::optional<int> GetAttributeIntScaled(CRPGStats_Object * object, const char * attributeName, int level);
-		bool SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value);
-		bool SetAttributeInt(CRPGStats_Object * object, const char * attributeName, int32_t value);
+		RPGEnumeration * GetAttributeInfo(CRPGStats_Object * object, FixedString const& attributeName, int & attributeIndex);
+		std::optional<char const *> GetAttributeString(CRPGStats_Object * object, FixedString const& attributeName);
+		std::optional<int> GetAttributeInt(CRPGStats_Object * object, FixedString const& attributeName);
+		std::optional<int> GetAttributeIntScaled(CRPGStats_Object * object, FixedString const& attributeName, int level);
+		bool SetAttributeString(CRPGStats_Object * object, FixedString const& attributeName, const char * value);
+		bool SetAttributeInt(CRPGStats_Object * object, FixedString const& attributeName, int32_t value);
 		bool ObjectExists(FixedString const& statsId, FixedString const& type);
 
-		std::optional<int> EnumLabelToIndex(const char * enumName, const char * enumLabel);
-		FixedString EnumIndexToLabel(const char* enumName, int index);
+		std::optional<int> EnumLabelToIndex(FixedString const& enumName, char const* enumLabel);
+		FixedString EnumIndexToLabel(FixedString const& enumName, int index);
 		int GetOrCreateFixedString(const char * value);
 		std::optional<StatAttributeFlags> StringToAttributeFlags(const char * value);
 		void* BuildScriptCheckBlock(STDString const& source);

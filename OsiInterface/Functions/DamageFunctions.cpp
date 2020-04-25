@@ -427,7 +427,7 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			if (status->GetStatusId() != StatusType::Hit) {
+			if (status->GetStatusId() != StatusType::HIT) {
 				OsiError("Status with handle " << statusHandle << " is not a HIT!");
 				return nullptr;
 			}
