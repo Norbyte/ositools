@@ -178,6 +178,16 @@ namespace dse::lua
 			}
 		}
 
+		if (prop == GFS.strShield) {
+			auto shield = stats->GetShield();
+			if (shield != nullptr) {
+				ObjectProxy<CDivinityStats_Item::New(L, shield);
+				return 1;
+			}
+			
+			return 0;
+		}
+
 		if (strncmp(propStr, "TALENT_", 7) == 0) {
 			auto talentId = EnumInfo<TalentType>::Find(propStr + 7);
 			if (talentId) {

@@ -941,6 +941,16 @@ namespace dse
 		return offHandWeapon;
 	}
 
+	CDivinityStats_Item * CDivinityStats_Character::GetShield()
+	{
+		auto shield = GetItemBySlot(ItemSlot::Shield, true);
+		if (shield == nullptr || shield->ItemType != EquipmentStatsType::Shield) {
+			return nullptr;
+		}
+
+		return shield
+	}
+
 	bool CDivinityStats_Character::IsBoostActive(uint32_t conditionMask)
 	{
 		return conditionMask == 0

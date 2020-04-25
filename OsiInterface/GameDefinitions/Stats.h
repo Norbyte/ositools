@@ -617,6 +617,7 @@ namespace dse
 		CDivinityStats_Item * GetItemBySlot(ItemSlot slot, bool mustBeEquipped);
 		CDivinityStats_Item * GetMainWeapon();
 		CDivinityStats_Item * GetOffHandWeapon();
+		CDivinityStats_Item * GetShield();
 		int32_t GetPhysicalResistance(bool excludeBoosts);
 		int32_t GetPiercingResistance(bool excludeBoosts);
 		int32_t GetMagicResistance(bool excludeBoosts);
