@@ -669,11 +669,8 @@ namespace dse
 		auto numItems = entry.Count();
 		for (uint32_t i = 0; i < numItems; i++) {
 			const char * str = entry.Get(i);
-			// FIXME: length not available in buffer?
-			//unsigned strLength = *(uint16_t const *)(s - 4);
-			if (/*strLength == length && strncmp(s, str, length) == 0*/
-				str != nullptr && strcmp(s, str) == 0)
-			{
+			auto metadata = reinterpret_cast<FixedString::Metadata*>(const_cast<char*>(str - 0x10));
+			if (metadata->Length == length && memcmp(s, str, length) == 0) {
 				return str;
 			}
 		}

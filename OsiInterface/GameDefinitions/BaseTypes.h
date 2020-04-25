@@ -248,14 +248,15 @@ namespace dse
 
 		char const * Str;
 
-	private:
 		struct Metadata
 		{
 			std::atomic<int64_t> RefCount;
-			uint8_t _Pad[4];
-			uint16_t HashKey;
 			uint16_t Length;
+			uint16_t HashKey;
+			uint8_t _Pad[4];
 		};
+
+	private:
 
 		inline void IncRef()
 		{
