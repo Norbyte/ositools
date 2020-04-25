@@ -178,7 +178,7 @@ namespace dse::lua
 			}
 		}
 
-		if (!prop && strncmp(propStr, "TALENT_", 7) == 0) {
+		if (strncmp(propStr, "TALENT_", 7) == 0) {
 			auto talentId = EnumInfo<TalentType>::Find(propStr + 7);
 			if (talentId) {
 				bool hasTalent = stats->HasTalent(*talentId, false);
@@ -190,7 +190,7 @@ namespace dse::lua
 		}
 
 		if (prop == GFS.strNotSneaking) {
-			push(L, (bool)(stats->Flags & StatCharacterFlags::SCF_IsSneaking));
+			push(L, (bool)(stats->Flags & StatCharacterFlags::IsSneaking));
 			return 1;
 		}
 

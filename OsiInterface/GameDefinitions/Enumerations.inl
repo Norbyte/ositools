@@ -1135,13 +1135,13 @@ END_ENUM()
 
 
 BEGIN_BITMASK(StatCharacterFlags, uint8_t)
-	EV(SCF_IsPlayer, 1)
-	EV(SCF_InParty, 2)
-	EV(SCF_IsSneaking, 4)
-	EV(SCF_Invisible, 8)
-	EV(SCF_Blind, 16)
-	EV(SCF_DrinkedPotion, 32)
-	EV(SCF_EquipmentValidated, 64)
+	EV(IsPlayer, 1)
+	EV(InParty, 2)
+	EV(IsSneaking, 4)
+	EV(Invisible, 8)
+	EV(Blind, 16)
+	EV(DrinkedPotion, 32)
+	EV(EquipmentValidated, 64)
 END_ENUM()
 
 
