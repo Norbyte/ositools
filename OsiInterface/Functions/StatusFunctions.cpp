@@ -31,50 +31,50 @@ namespace dse::esv
 	PropertyMapBase & StatusToPropertyMap(esv::Status * status)
 	{
 		switch (status->GetStatusId()) {
-		case StatusType::Hit:
+		case StatusType::HIT:
 			return gStatusHitPropertyMap;
 
-		case StatusType::Heal:
+		case StatusType::HEAL:
 			return gStatusHealPropertyMap;
 
-		case StatusType::Healing:
+		case StatusType::HEALING:
 			return gStatusHealingPropertyMap;
 
-		case StatusType::Consume:
-		case StatusType::DarkAvenger:
-		case StatusType::DecayingTouch:
-		case StatusType::Remorse:
-		case StatusType::WindWalker:
-		case StatusType::Floating:
-		case StatusType::Incapacitated:
-		case StatusType::Polymorphed:
-		case StatusType::ShacklesOfPain:
-		case StatusType::ShacklesOfPainCaster:
-		case StatusType::Charmed:
-		case StatusType::ExtraTurn:
-		case StatusType::Damage:
-		case StatusType::Blind:
-		case StatusType::Encumbered:
-		case StatusType::Fear:
-		case StatusType::InfectiousDiseased:
-		case StatusType::Invisible:
-		case StatusType::Muted:
-		case StatusType::Stance:
-		case StatusType::Leadership:
-		case StatusType::Adrenaline:
-		case StatusType::LingeringWounds:
-		case StatusType::SpiritVision:
-		case StatusType::Overpowered:
-		case StatusType::Combustion:
-		case StatusType::GuardianAngel:
-		case StatusType::Challenge:
-		case StatusType::Disarmed:
-		case StatusType::HealSharing:
-		case StatusType::HealSharingCaster:
-		case StatusType::ActiveDefense:
-		case StatusType::Spark:
-		case StatusType::PlayDead:
-		case StatusType::Deactivated:
+		case StatusType::CONSUME:
+		case StatusType::DARK_AVENGER:
+		case StatusType::DECAYING_TOUCH:
+		case StatusType::REMORSE:
+		case StatusType::WIND_WALKER:
+		case StatusType::FLOATING:
+		case StatusType::INCAPACITATED:
+		case StatusType::POLYMORPHED:
+		case StatusType::SHACKLES_OF_PAIN:
+		case StatusType::SHACKLES_OF_PAIN_CASTER:
+		case StatusType::CHARMED:
+		case StatusType::EXTRA_TURN:
+		case StatusType::DAMAGE:
+		case StatusType::BLIND:
+		case StatusType::ENCUMBERED:
+		case StatusType::FEAR:
+		case StatusType::INFECTIOUS_DISEASED:
+		case StatusType::INVISIBLE:
+		case StatusType::MUTED:
+		case StatusType::STANCE:
+		case StatusType::LEADERSHIP:
+		case StatusType::ADRENALINE:
+		case StatusType::LINGERING_WOUNDS:
+		case StatusType::SPIRIT_VISION:
+		case StatusType::OVERPOWER:
+		case StatusType::COMBUSTION:
+		case StatusType::GUARDIAN_ANGEL:
+		case StatusType::CHALLENGE:
+		case StatusType::DISARMED:
+		case StatusType::HEAL_SHARING:
+		case StatusType::HEAL_SHARING_CASTER:
+		case StatusType::ACTIVE_DEFENSE:
+		case StatusType::SPARK:
+		case StatusType::PLAY_DEAD:
+		case StatusType::DEACTIVATED:
 			return gStatusConsumePropertyMap;
 
 		default:
@@ -197,7 +197,7 @@ namespace dse::esv
 			}
 
 			switch (status->GetStatusId()) {
-				case StatusType::Hit:
+				case StatusType::HIT:
 				{
 					auto hit = static_cast<esv::StatusHit *>(status);
 					if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
@@ -207,53 +207,53 @@ namespace dse::esv
 					}
 				}
 
-				case StatusType::Heal:
+				case StatusType::HEAL:
 				{
 					auto heal = static_cast<esv::StatusHeal *>(status);
 					return OsirisPropertyMapGet(gStatusHealPropertyMap, heal, args, 2, Type);
 				}
 
-				case StatusType::Healing:
+				case StatusType::HEALING:
 				{
 					auto healing = static_cast<esv::StatusHealing *>(status);
 					return OsirisPropertyMapGet(gStatusHealingPropertyMap, healing, args, 2, Type);
 				}
 
-				case StatusType::Consume:
-				case StatusType::DarkAvenger:
-				case StatusType::DecayingTouch:
-				case StatusType::Remorse:
-				case StatusType::WindWalker:
-				case StatusType::Floating:
-				case StatusType::Incapacitated:
-				case StatusType::Polymorphed:
-				case StatusType::ShacklesOfPain:
-				case StatusType::ShacklesOfPainCaster:
-				case StatusType::Charmed:
-				case StatusType::ExtraTurn:
-				case StatusType::Damage:
-				case StatusType::Blind:
-				case StatusType::Encumbered:
-				case StatusType::Fear:
-				case StatusType::InfectiousDiseased:
-				case StatusType::Invisible:
-				case StatusType::Muted:
-				case StatusType::Stance:
-				case StatusType::Leadership:
-				case StatusType::Adrenaline:
-				case StatusType::LingeringWounds:
-				case StatusType::SpiritVision:
-				case StatusType::Overpowered:
-				case StatusType::Combustion:
-				case StatusType::GuardianAngel:
-				case StatusType::Challenge:
-				case StatusType::Disarmed:
-				case StatusType::HealSharing:
-				case StatusType::HealSharingCaster:
-				case StatusType::ActiveDefense:
-				case StatusType::Spark:
-				case StatusType::PlayDead:
-				case StatusType::Deactivated:
+				case StatusType::CONSUME:
+				case StatusType::DARK_AVENGER:
+				case StatusType::DECAYING_TOUCH:
+				case StatusType::REMORSE:
+				case StatusType::WIND_WALKER:
+				case StatusType::FLOATING:
+				case StatusType::INCAPACITATED:
+				case StatusType::POLYMORPHED:
+				case StatusType::SHACKLES_OF_PAIN:
+				case StatusType::SHACKLES_OF_PAIN_CASTER:
+				case StatusType::CHARMED:
+				case StatusType::EXTRA_TURN:
+				case StatusType::DAMAGE:
+				case StatusType::BLIND:
+				case StatusType::ENCUMBERED:
+				case StatusType::FEAR:
+				case StatusType::INFECTIOUS_DISEASED:
+				case StatusType::INVISIBLE:
+				case StatusType::MUTED:
+				case StatusType::STANCE:
+				case StatusType::LEADERSHIP:
+				case StatusType::ADRENALINE:
+				case StatusType::LINGERING_WOUNDS:
+				case StatusType::SPIRIT_VISION:
+				case StatusType::OVERPOWER:
+				case StatusType::COMBUSTION:
+				case StatusType::GUARDIAN_ANGEL:
+				case StatusType::CHALLENGE:
+				case StatusType::DISARMED:
+				case StatusType::HEAL_SHARING:
+				case StatusType::HEAL_SHARING_CASTER:
+				case StatusType::ACTIVE_DEFENSE:
+				case StatusType::SPARK:
+				case StatusType::PLAY_DEAD:
+				case StatusType::DEACTIVATED:
 				{
 					auto consume = static_cast<esv::StatusConsume *>(status);
 					return OsirisPropertyMapGet(gStatusConsumePropertyMap, consume, args, 2, Type);
@@ -273,7 +273,7 @@ namespace dse::esv
 			}
 
 			switch (status->GetStatusId()) {
-				case StatusType::Hit:
+				case StatusType::HIT:
 				{
 					auto hit = static_cast<esv::StatusHit *>(status);
 					if (!OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
@@ -282,55 +282,55 @@ namespace dse::esv
 					break;
 				}
 
-				case StatusType::Heal:
+				case StatusType::HEAL:
 				{
 					auto heal = static_cast<esv::StatusHeal *>(status);
 					OsirisPropertyMapSet(gStatusHealPropertyMap, heal, args, 2, Type);
 					break;
 				}
 
-				case StatusType::Healing:
+				case StatusType::HEALING:
 				{
 					auto healing = static_cast<esv::StatusHealing *>(status);
 					OsirisPropertyMapSet(gStatusHealingPropertyMap, healing, args, 2, Type);
 					break;
 				}
 
-				case StatusType::Consume:
-				case StatusType::DarkAvenger:
-				case StatusType::DecayingTouch:
-				case StatusType::Remorse:
-				case StatusType::WindWalker:
-				case StatusType::Floating:
-				case StatusType::Incapacitated:
-				case StatusType::Polymorphed:
-				case StatusType::ShacklesOfPain:
-				case StatusType::ShacklesOfPainCaster:
-				case StatusType::Charmed:
-				case StatusType::ExtraTurn:
-				case StatusType::Damage:
-				case StatusType::Blind:
-				case StatusType::Encumbered:
-				case StatusType::Fear:
-				case StatusType::InfectiousDiseased:
-				case StatusType::Invisible:
-				case StatusType::Muted:
-				case StatusType::Stance:
-				case StatusType::Leadership:
-				case StatusType::Adrenaline:
-				case StatusType::LingeringWounds:
-				case StatusType::SpiritVision:
-				case StatusType::Overpowered:
-				case StatusType::Combustion:
-				case StatusType::GuardianAngel:
-				case StatusType::Challenge:
-				case StatusType::Disarmed:
-				case StatusType::HealSharing:
-				case StatusType::HealSharingCaster:
-				case StatusType::ActiveDefense:
-				case StatusType::Spark:
-				case StatusType::PlayDead:
-				case StatusType::Deactivated:
+				case StatusType::CONSUME:
+				case StatusType::DARK_AVENGER:
+				case StatusType::DECAYING_TOUCH:
+				case StatusType::REMORSE:
+				case StatusType::WIND_WALKER:
+				case StatusType::FLOATING:
+				case StatusType::INCAPACITATED:
+				case StatusType::POLYMORPHED:
+				case StatusType::SHACKLES_OF_PAIN:
+				case StatusType::SHACKLES_OF_PAIN_CASTER:
+				case StatusType::CHARMED:
+				case StatusType::EXTRA_TURN:
+				case StatusType::DAMAGE:
+				case StatusType::BLIND:
+				case StatusType::ENCUMBERED:
+				case StatusType::FEAR:
+				case StatusType::INFECTIOUS_DISEASED:
+				case StatusType::INVISIBLE:
+				case StatusType::MUTED:
+				case StatusType::STANCE:
+				case StatusType::LEADERSHIP:
+				case StatusType::ADRENALINE:
+				case StatusType::LINGERING_WOUNDS:
+				case StatusType::SPIRIT_VISION:
+				case StatusType::OVERPOWER:
+				case StatusType::COMBUSTION:
+				case StatusType::GUARDIAN_ANGEL:
+				case StatusType::CHALLENGE:
+				case StatusType::DISARMED:
+				case StatusType::HEAL_SHARING:
+				case StatusType::HEAL_SHARING_CASTER:
+				case StatusType::ACTIVE_DEFENSE:
+				case StatusType::SPARK:
+				case StatusType::PLAY_DEAD:
+				case StatusType::DEACTIVATED:
 				{
 					auto consume = static_cast<esv::StatusConsume *>(status);
 					OsirisPropertyMapSet(gStatusConsumePropertyMap, consume, args, 2, Type);
@@ -421,7 +421,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto status = ConstructStatus<esv::StatusActiveDefense>(statusMachine, statusId, StatusType::ActiveDefense);
+			auto status = ConstructStatus<esv::StatusActiveDefense>(statusMachine, statusId, StatusType::ACTIVE_DEFENSE);
 			if (status == nullptr) {
 				return false;
 			}
@@ -478,7 +478,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto status = ConstructStatus<esv::StatusDamageOnMove>(statusMachine, statusId, StatusType::DamageOnMove);
+			auto status = ConstructStatus<esv::StatusDamageOnMove>(statusMachine, statusId, StatusType::DAMAGE_ON_MOVE);
 			if (status == nullptr) {
 				return false;
 			}
