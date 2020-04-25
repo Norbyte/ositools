@@ -73,29 +73,57 @@ Ext.EnableStatOverride = function ()
 	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
 end
 
-Ext._UIListeners = {}
+Ext._UIExternalInterfaceListeners = {}
 
 Ext.RegisterUICall = function (object, call, fn)
 	local handle = object:GetHandle()
-	if Ext._UIListeners[handle] == nil then
-		Ext._UIListeners[handle] = {}
+	if Ext._UIExternalInterfaceListeners[handle] == nil then
+		Ext._UIExternalInterfaceListeners[handle] = {}
 	end
 	
-	if Ext._UIListeners[handle][call] == nil then
-		Ext._UIListeners[handle][call] = {}
+	if Ext._UIExternalInterfaceListeners[handle][call] == nil then
+		Ext._UIExternalInterfaceListeners[handle][call] = {}
 	end
 	
-	table.insert(Ext._UIListeners[handle][call], fn)
+	table.insert(Ext._UIExternalInterfaceListeners[handle][call], fn)
 	object:CaptureExternalInterfaceCalls()
 end
 
 Ext._UICall = function (object, call, ...)
-    local listeners = Ext._UIListeners[object:GetHandle()]
+    local listeners = Ext._UIExternalInterfaceListeners[object:GetHandle()]
 	if listeners ~= nil and listeners[call] ~= nil then
 		for i,callback in pairs(listeners[call]) do
 			local status, err = xpcall(callback, debug.traceback, object, call, ...)
 			if not status then
 				Ext.PrintError("Error in UI ExternalInterface handler for '" .. call .. "': ", err)
+			end
+		end
+	end
+end
+
+Ext._UIInvokeListeners = {}
+
+Ext.RegisterUIInvokeListener = function (object, method, fn)
+	local handle = object:GetHandle()
+	if Ext._UIInvokeListeners[handle] == nil then
+		Ext._UIInvokeListeners[handle] = {}
+	end
+	
+	if Ext._UIInvokeListeners[handle][method] == nil then
+		Ext._UIInvokeListeners[handle][method] = {}
+	end
+	
+	table.insert(Ext._UIInvokeListeners[handle][method], fn)
+	object:CaptureInvokes()
+end
+
+Ext._UIInvoke = function (object, method, ...)
+    local listeners = Ext._UIInvokeListeners[object:GetHandle()]
+	if listeners ~= nil and listeners[method] ~= nil then
+		for i,callback in pairs(listeners[method]) do
+			local status, err = xpcall(callback, debug.traceback, object, method, ...)
+			if not status then
+				Ext.PrintError("Error in UI Invoke listener for '" .. method .. "': ", err)
 			end
 		end
 	end

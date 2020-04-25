@@ -1,4 +1,4 @@
-### Lua API v44 Documentation
+### Lua API v45 Documentation
 
 ### Table of Contents  
 
@@ -32,6 +32,7 @@
     * [Item Stats](#item-stats)
     * [Item Dynamic Stats](#item-dynamic-stats)
     * [Server Projectiles](#server-projectiles)
+    * [Server Statuses](#server-statuses)
     * [Combat](#combat)
     * [Damage lists](#damage-lists)
     * [Utility functions](#ext-utility)
@@ -451,7 +452,7 @@ ui:ExternalInterfaceCall("show")
 #### Ext.RegisterUICall(object, name, handler) <sup>C</sup>
 
 The `Ext.RegisterUICall` function registers a listener that is called when the `ExternalInterface.call` function is invoked from ActionScript. ([ExternalInterface docs](https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/external/ExternalInterface.html))
- - `object` is the UI object that is returned from `Ext.CreateUI` or `Ext.GetUI`
+ - `object` is the UI object that is returned from `Ext.CreateUI`, `Ext.GetUI` or `Ext.GetBuiltinUI`
  - `name` is the ExternalInterface function name
  - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
 
@@ -470,6 +471,24 @@ Ext.RegisterUICall(ui, "sendTextEvent", handleTextEvent)
 ```actionscript
 ExternalInterface.call("sendTextEvent", "argument 1", "argument 2");
 ```
+
+#### Ext.RegisterUIInvokeListener(object, name, handler) <sup>C</sup>
+
+The `Ext.RegisterUIInvokeListener` function registers a listener that is called when the engine invokes a method on the Flash main timeline object.
+ - `object` is the UI object that is returned from `Ext.CreateUI`, `Ext.GetUI` or `Ext.GetBuiltinUI`
+ - `name` is the Flash method name
+ - `handler` is a Lua function that is called when the call is fired. The function receives the UI object and the method name as parameters followed by the arguments passed to the Flash method.
+
+Example:
+```lua
+local function onHelmetOptionChanged(ui, call, state)
+    ...
+end
+
+local ui = Ext.GetBuiltinUI(...)
+Ext.RegisterUICall(ui, "setHelmetOptionState", onHelmetOptionChanged)
+```
+
 
 #### UIObject:SetValue(name, value, [arrayIndex]) <sup>C</sup>
 
@@ -974,7 +993,7 @@ Immunity/attribute flags from the [AttributeFlags enumeration](#attributeflags) 
 
 Item stats are calculated from multiple different sources (base stats, permanent boosts, runes, deltamods, etc.). Each of these sources is stored as a dynamic stat.
 
-Dynamic stat index `1` always contains item base stats, index `2` contains permanent boosts.
+Dynamic stat index `1` always contains item base stats, index `2` contains permanent boosts, indices `3` to `5` are rune slots.
 
 | Name | Type | Notes |
 |--|--|--|
@@ -1106,6 +1125,158 @@ They have the following properties:
 | Velocity | vec3 |  |
 | Scale | number|  |
 | CurrentLevel | string |  |
+
+
+## Server Statuses <sup>S</sup>
+<a id="server-statuses"></a>
+
+Properties available on all statuses:
+
+| Property | Type | Notes |
+|--|--|--|--|
+| NetID | integer | Network ID of the status. Since status have no GUID, only the NetID can be used for sending status references between the client and the server. |
+| StatusId | string | Name of the associated stat entry |
+| StatusHandle | integer | Handle of this status |
+| TargetHandle | integer | Character or item that the status was applied to |
+| StatusSourceHandle | integer | Character or item that caused the status |
+| StartTimer | number |  |
+| LifeTime | number | Total lifetime of the status, in seconds. -1 if the status does not expire. |
+| CurrentLifeTime | number | Remaining lifetime of the status, in seconds. |
+| TurnTimer | number | Elapsed time in the current turn (0..6) |
+| Strength | number |  |
+| StatsMultiplier | number |  |
+| CanEnterChance | integer | Chance of entering status (between 0 and 100) |
+| DamageSourceType | string | Cause of status (See `DamageSourceType` enum) |
+| KeepAlive | boolean |  |
+| IsOnSourceSurface | boolean |  |
+| IsFromItem | boolean |  |
+| Channeled | boolean |  |
+| IsLifeTimeSet | boolean | Does the status have a lifetime or is it infinite? |
+| InitiateCombat | boolean |  |
+| Influence | boolean |  |
+| BringIntoCombat | boolean |  |
+| IsHostileAct | boolean |  |
+| IsInvulnerable | boolean | The status turns the character invulnerable |
+| IsResistingDeath | boolean | The character can't die until the status expires |
+| ForceStatus | boolean | Bypass immunity and status enter chance checks. |
+| ForceFailStatus | boolean | Forces prerequisite checks to fail. |
+| RequestDelete | boolean | The status is being deleted (i.e. it's not active anymore) |
+| RequestDeleteAtTurnEnd | boolean | The status will be deleted at the end of the current turn |
+| Started | boolean |  |
+
+### `CONSUME` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| ResetAllCooldowns | boolean |  |
+| ResetOncePerCombat | boolean |  |
+| ScaleWithVitality | boolean |  |
+| LoseControl | boolean |  |
+| ApplyStatusOnTick | boolean |  |
+| EffectTime | number |  |
+| StatsId | string |  |
+| StackId | string |  |
+| OriginalWeaponStatsId | string |  |
+| OverrideWeaponStatsId | string |  |
+| OverrideWeaponHandle | integer |  |
+| SavingThrow | string |  |
+| SourceDirection | vec3 |  |
+| Turn | integer | |
+| HealEffectOverride | string | See `HealEffect` enumeration |
+
+### `HIT` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| SkillId | string | Stats ID of the skill (`SkillData`) that was used for the attack |
+| HitByHandle | integer |  |
+| HitWithHandle | integer |  |
+| WeaponHandle | integer |  |
+| HitReason | integer |  |
+| Interruption | boolean |  |
+| AllowInterruptAction | boolean |  |
+| ForceInterrupt | boolean |  |
+| DecDelayDeathCount | boolean |  |
+| ImpactPosition | vec3 |  |
+| ImpactOrigin | vec3 |  |
+| ImpactDirection | vec3 |  |
+| Equipment | integer | |
+| TotalDamage | integer | Sum of all damages |
+| DamageDealt | integer | Damage dealt after ApplyDamage |
+| DeathType | string | See `Death Type` enumeration |
+| DamageType | string | See `Damage Type` enumeration |
+| AttackDirection | string | See `AttackDirection` enumeration. |
+| ArmorAbsorption | integer | Armor points consumed during attack |
+| LifeSteal | integer |  |
+| HitWithWeapon | boolean |  |
+| Hit | boolean | The attack hit |
+| Blocked | boolean | The attack was blocked |
+| Dodged | boolean | The attack was dodged |
+| Missed | boolean | The attack missed |
+| CriticalHit | boolean |  |
+| AlwaysBackstab | boolean | Equivalent to the `AlwaysBackstab` skill property |
+| FromSetHP | boolean | Indicates that the hit was called from `CharacterSetHitpointsPercentage` (or similar) |
+| DontCreateBloodSurface | boolean | Avoids creating a blood surface when the character is hit |
+| Reflection | boolean |  |
+| NoDamageOnOwner | boolean |  |
+| FromShacklesOfPain | boolean |  |
+| DamagedMagicArmor | boolean | Indicates that the hit damaged magic armor |
+| DamagedPhysicalArmor | boolean | Indicates that the hit damaged physical armor |
+| DamagedVitality | boolean | Indicates that the hit damaged the characters vitality |
+| Flanking | boolean | |
+| PropagatedFromOwner | boolean |  |
+| Surface | boolean | The hit is from a surface (`HitType` was `Surface`) |
+| DoT | boolean | The hit is from a DoT attack (`HitType` was `DoT`) |
+| ProcWindWalker | boolean | Hit should proc the Wind Walker talent |
+| CounterAttack | boolean | Counterattack triggered by Gladiator talent |
+| Poisoned | boolean | Character was poisoned when hit |
+| Bleeding | boolean | Character was bleeding when hit |
+| Burning | boolean | Character was burning when hit |
+| NoEvents | boolean | Don't throw `OnHit`/`OnPrepareHit` events for this hit |
+
+### `DAMAGE` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| DamageEvent | integer |  |
+| HitTimer | number |  |
+| TimeElapsed | number | |
+| DamageLevel | integer | |
+| DamageStats | string |  |
+| SpawnBlood | boolean | |
+
+### `DAMAGE_ON_MOVE` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| DistancePerDamage | number | |
+| DistanceTraveled | number | |
+
+### `HEAL` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| EffectTime | number |  |
+| HealAmount | integer |  |
+| HealEffect | string |  |
+| HealEffectId | string | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
+| HealType | string | See `StatusHealType` enumeration |
+| AbsorbSurfaceRange | integer |  |
+| TargetDependentHeal | boolean |  |
+
+
+### `HEALING` status properties
+
+| Property | Type | Notes |
+|--|--|--|--|
+| HealAmount | integer |  |
+| TimeElapsed | number |  |
+| HealEffect | string | See `HealEffect` enumeration |
+| HealEffectId | string | Default `RS3_FX_GP_ScriptedEvent_Regenerate_01` |
+| SkipInitialEffect | boolean | |
+| HealingEvent | integer |  |
+| HealStat | string | See `HealType` enumeration |
+| AbsorbSurfaceRange | integer |  |
 
 
 ## Combat <sup>S</sup>
@@ -1328,7 +1499,7 @@ ab
 
 ### TODO
  - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks
- - GetCharacter, GetItem, GetStatus (client/server) + updated property maps
+ - GetCharacter, GetItem, GetProjectile, GetGameObject, GetStatus (client/server) + updated property maps
  - Lua state lifetime, Globals behavior (not saved)
  - File IO
  - Bootstrap phase

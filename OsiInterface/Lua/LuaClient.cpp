@@ -468,6 +468,10 @@ namespace dse::ecl::lua
 			push(L, val.StringVal);
 			break;
 
+		case InvokeDataValueType::IDV_WString:
+			push(L, val.WStringVal);
+			break;
+
 		default:
 			OsiError("Flash value of type " << (unsigned)val.TypeId << " cannot be passed to Lua");
 			lua_pushnil(L);
@@ -528,6 +532,9 @@ namespace dse::ecl::lua
 
 		lua_pushcfunction(L, &CaptureExternalInterfaceCalls);
 		lua_setfield(L, -2, "CaptureExternalInterfaceCalls");
+
+		lua_pushcfunction(L, &CaptureInvokes);
+		lua_setfield(L, -2, "CaptureInvokes");
 
 		lua_setfield(L, -2, "__index");
 	}
@@ -737,25 +744,24 @@ namespace dse::ecl::lua
 	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
 	std::unordered_map<UIObject::VMT *, UIObject::OnFunctionCalledProc> OriginalUIObjectCallHandlers;
 
-
-	static void UIObjectFunctionCallCapture(UIObject * self, const char * function, unsigned int numArgs, InvokeDataValue * args)
+	static void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
 			lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
 		}
 
-		auto vmt = *reinterpret_cast<UIObject::VMT **>(self);
+		auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
 		auto handler = OriginalUIObjectCallHandlers.find(vmt);
 		if (handler != OriginalUIObjectCallHandlers.end()) {
 			handler->second(self, function, numArgs, args);
-		} else {
+		}
+		else {
 			OsiError("Couldn't find original OnFunctionCalled handler for UI object");
 		}
 	}
 
-
-	int UIObjectProxy::CaptureExternalInterfaceCalls(lua_State * L)
+	int UIObjectProxy::CaptureExternalInterfaceCalls(lua_State* L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
@@ -763,12 +769,185 @@ namespace dse::ecl::lua
 		// Custom UI element calls are captured by default, no need to hook them
 		if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return 0;
 
-		auto vmt = *reinterpret_cast<UIObject::VMT **>(ui);
+		auto vmt = *reinterpret_cast<UIObject::VMT**>(ui);
 		if (vmt->OnFunctionCalled == &UIObjectFunctionCallCapture) return 0;
 
-		WriteAnchor _((uint8_t *)vmt, sizeof(*vmt));
+		WriteAnchor _((uint8_t*)vmt, sizeof(*vmt));
 		OriginalUIObjectCallHandlers.insert(std::make_pair(vmt, vmt->OnFunctionCalled));
 		vmt->OnFunctionCalled = &UIObjectFunctionCallCapture;
+
+		return 0;
+	}
+
+
+	struct FlashPlayerHooks
+	{
+		bool Hooked{ false };
+		ig::FlashPlayer::VMT* VMT{ nullptr };
+		ig::FlashPlayer::VMT::Invoke6Proc OriginalInvoke6{ nullptr };
+		ig::FlashPlayer::VMT::Invoke5Proc OriginalInvoke5{ nullptr };
+		ig::FlashPlayer::VMT::Invoke4Proc OriginalInvoke4{ nullptr };
+		ig::FlashPlayer::VMT::Invoke3Proc OriginalInvoke3{ nullptr };
+		ig::FlashPlayer::VMT::Invoke2Proc OriginalInvoke2{ nullptr };
+		ig::FlashPlayer::VMT::Invoke1Proc OriginalInvoke1{ nullptr };
+		ig::FlashPlayer::VMT::Invoke0Proc OriginalInvoke0{ nullptr };
+		ig::FlashPlayer::VMT::InvokeArgsProc OriginalInvokeArgs{ nullptr };
+
+		void Hook(ig::FlashPlayer::VMT* vmt);
+	};
+
+	// Persistent for the lifetime of the app, as we don't restore FlashPlayer VMTs either
+	FlashPlayerHooks gFlashPlayerHooks;
+
+	ObjectHandle FindUIObjectHandle(ig::FlashPlayer* player)
+	{
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		if (uiManager == nullptr) {
+			OsiError("Couldn't get symbol for UIObjectManager!");
+			return {};
+		}
+
+		for (auto const& ui : uiManager->UIObjects) {
+			if (ui->FlashPlayer == player) {
+				return ui->UIObjectHandle;
+			}
+		}
+
+		return {};
+	}
+
+	static bool FlashPlayerInvoke6Capture(ig::FlashPlayer* self, int64_t invokeId,
+		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5, InvokeDataValue* a6)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5, *a6 };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke6(self, invokeId, a1, a2, a3, a4, a5, a6);
+	}
+
+	static bool FlashPlayerInvoke5Capture(ig::FlashPlayer* self, int64_t invokeId,
+		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5 };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke5(self, invokeId, a1, a2, a3, a4, a5);
+	}
+
+	static bool FlashPlayerInvoke4Capture(ig::FlashPlayer* self, int64_t invokeId,
+		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4 };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke4(self, invokeId, a1, a2, a3, a4);
+	}
+
+	static bool FlashPlayerInvoke3Capture(ig::FlashPlayer* self, int64_t invokeId,
+		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<InvokeDataValue> args{ *a1, *a2, *a3 };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke3(self, invokeId, a1, a2, a3);
+	}
+
+	static bool FlashPlayerInvoke2Capture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* a1, InvokeDataValue* a2)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<InvokeDataValue> args{ *a1, *a2 };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke2(self, invokeId, a1, a2);
+	}
+
+	static bool FlashPlayerInvoke1Capture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* a1)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 1, a1);
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke1(self, invokeId, a1);
+	}
+
+	static bool FlashPlayerInvoke0Capture(ig::FlashPlayer* self, int64_t invokeId)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 0, nullptr);
+		}
+
+		return gFlashPlayerHooks.OriginalInvoke0(self, invokeId);
+	}
+
+	static bool FlashPlayerInvokeArgsCapture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* args, unsigned numArgs)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+		}
+
+		return gFlashPlayerHooks.OriginalInvokeArgs(self, invokeId, args, numArgs);
+	}
+
+	void FlashPlayerHooks::Hook(ig::FlashPlayer::VMT* vmt)
+	{
+		if (Hooked) return;
+
+		WriteAnchor _((uint8_t*)vmt, sizeof(*vmt));
+		VMT = vmt;
+		OriginalInvoke6 = vmt->Invoke6;
+		OriginalInvoke5 = vmt->Invoke5;
+		OriginalInvoke4 = vmt->Invoke4;
+		OriginalInvoke3 = vmt->Invoke3;
+		OriginalInvoke2 = vmt->Invoke2;
+		OriginalInvoke1 = vmt->Invoke1;
+		OriginalInvoke0 = vmt->Invoke0;
+		OriginalInvokeArgs = vmt->InvokeArgs;
+
+		vmt->Invoke6 = &FlashPlayerInvoke6Capture;
+		vmt->Invoke5 = &FlashPlayerInvoke5Capture;
+		vmt->Invoke4 = &FlashPlayerInvoke4Capture;
+		vmt->Invoke3 = &FlashPlayerInvoke3Capture;
+		vmt->Invoke2 = &FlashPlayerInvoke2Capture;
+		vmt->Invoke1 = &FlashPlayerInvoke1Capture;
+		vmt->Invoke0 = &FlashPlayerInvoke0Capture;
+		vmt->InvokeArgs = &FlashPlayerInvokeArgsCapture;
+
+		Hooked = true;
+	}
+
+
+	int UIObjectProxy::CaptureInvokes(lua_State* L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		// Custom UI element calls are captured by default, no need to hook them
+		if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return 0;
+
+		if (ui->FlashPlayer == nullptr) {
+			OsiError("Cannot capture UI invokes - UI element has no flash player!");
+			return 0;
+		}
+
+		auto vmt = *reinterpret_cast<ig::FlashPlayer::VMT**>(ui->FlashPlayer);
+		gFlashPlayerHooks.Hook(vmt);
 
 		return 0;
 	}
@@ -1007,6 +1186,22 @@ namespace dse::ecl::lua
 		}
 
 		CheckedCall<>(L, 2 + numArgs, "Ext.UICall");
+	}
+
+	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_UIInvoke"); // stack: fn
+
+		UIObjectProxy::New(L, uiObjectHandle);
+		push(L, func);
+		for (uint32_t i = 0; i < numArgs; i++) {
+			InvokeDataValueToLua(L, args[i]);
+		}
+
+		CheckedCall<>(L, 2 + numArgs, "Ext.UIInvoke");
 	}
 
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,

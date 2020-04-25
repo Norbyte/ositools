@@ -2494,10 +2494,16 @@ Ext = {
     DestroyUI = function (name) end,
 
     --- Registers a listener that is called when the specified function is called from Flash
-    --- @param object UIObject UI object returned from Ext.CreateUI or Ext.GetUI
+    --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
     --- @param name string ExternalInterface function name
     --- @param handler function Lua handler
     RegisterUICall = function (object, name, handler) end,
+
+    --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
+    --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
+    --- @param method string Flash method name
+    --- @param handler function Lua handler
+    RegisterUIInvokeListener = function (object, name, handler) end,
 
     --- Write data to an external (persistent) file
     --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data

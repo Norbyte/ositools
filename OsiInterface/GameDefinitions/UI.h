@@ -101,6 +101,75 @@ namespace dse
 
 		struct FlashPlayer : ProtectedGameObject<FlashPlayer>
 		{
+			struct VMT
+			{
+				typedef bool (*Invoke6Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5, InvokeDataValue* a6, InvokeDataValue* a7, InvokeDataValue* a8);
+				typedef bool (*Invoke5Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5, InvokeDataValue* a6, InvokeDataValue* a7);
+				typedef bool (*Invoke4Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5, InvokeDataValue* a6);
+				typedef bool (*Invoke3Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5);
+				typedef bool (*Invoke2Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3, InvokeDataValue* a4);
+				typedef bool (*Invoke1Proc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* a3);
+				typedef bool (*Invoke0Proc)(FlashPlayer* self, int64_t invokeEnum);
+				typedef bool (*InvokeArgsProc)(FlashPlayer* self, int64_t invokeEnum, InvokeDataValue* args, unsigned numArgs);
+
+				void (*Destroy)(FlashPlayer* self);
+				void (*OnWTCompletion)(FlashPlayer* self);
+				void (*OnWTCanceled)(FlashPlayer* self);
+				void (*ExecuteWTKernel)(FlashPlayer* self);
+				int (*GetHeuristic)(FlashPlayer* self);
+				void (*OnInputEvent)(FlashPlayer* self);
+				void (*SendEventToFlash)(FlashPlayer* self);
+				uint16_t* (*OnInputEventText)(FlashPlayer* self, uint16_t* retval, FlashInputEvent* event);
+				void (*SetModifierStates)(FlashPlayer* self, bool, bool, bool);
+				void (*field_48)(FlashPlayer* self);
+				Invoke6Proc Invoke6;
+				Invoke5Proc Invoke5;
+				Invoke4Proc Invoke4;
+				Invoke3Proc Invoke3;
+				Invoke2Proc Invoke2;
+				Invoke1Proc Invoke1;
+				Invoke0Proc Invoke0;
+				InvokeArgsProc InvokeArgs;
+				bool (*HasFreeStringScratchArea)(FlashPlayer* self, uint64_t size);
+				bool (*HasFreeWStringScratchArea)(FlashPlayer* self, uint64_t size);
+				bool (*HasInvokes)(FlashPlayer* self);
+				void (*field_A8)(FlashPlayer* self);
+				void (*InvokeByName)(FlashPlayer* self, char const* name, uint64_t unknown, InvokeDataValue* arg);
+				void (*SetRenderRectangle)(FlashPlayer* self);
+				void (*SetSize)(FlashPlayer* self, int* size);
+				int* (*GetSize)(FlashPlayer* self);
+				void (*field_D0)(FlashPlayer* self);
+				void (*Render)(FlashPlayer* self);
+				void (*field_E0)(FlashPlayer* self);
+				void (*field_E8)(FlashPlayer* self);
+				void (*GetFlashMovieProperties)(FlashPlayer* self);
+				void (*GotoFrame)(FlashPlayer* self, uint64_t frame);
+				void (*GotoFrame2)(FlashPlayer* self, uint64_t frame);
+				FlashObject* (*CreateFlashObject)(FlashPlayer* self, char const* path, int arrayIndex);
+				ig::FlashObject* (* GetRootObject)(FlashPlayer* self);
+				void (*SetFrameRate)(FlashPlayer* self, uint32_t frameRate);
+				void (*SetPath)(FlashPlayer* self, Path* path);
+				void (*OnFunctionCalled)(FlashPlayer* self);
+				void (*Tick)(FlashPlayer* self);
+				void (*field_138)(FlashPlayer* self);
+				void (*Init)(FlashPlayer* self);
+				void (*OnEventTerminate)(FlashPlayer* self);
+				void (*Activate)(FlashPlayer* self);
+				void (*Deactivate)(FlashPlayer* self);
+				void (*GainFocus)(FlashPlayer* self);
+				void (*LoseFocus)(FlashPlayer* self);
+				void (*CopyEditableValue)(FlashPlayer* self);
+				void (*PasteEditableValue)(FlashPlayer* self);
+				void (*Cut)(FlashPlayer* self);
+				void (*SetFlashMousePosition)(FlashPlayer* self);
+				void (*SetupEventMapping)(FlashPlayer* self);
+				void (*SetStageSize)(FlashPlayer* self);
+				void (*AddInvokeName)(FlashPlayer* self, int index, char const* name);
+				void (*field_1A8)(FlashPlayer* self);
+				void (*LoadTextureFile)(FlashPlayer* self, Path* path);
+				void (*EnableMouseProcessing)(FlashPlayer* self);
+			};
+
 			virtual void Destroy() = 0;
 			virtual void OnWTCompletion() = 0;
 			virtual void OnWTCanceled() = 0;
@@ -108,7 +177,7 @@ namespace dse
 			virtual int GetHeuristic() = 0;
 			virtual void OnInputEvent() = 0;
 			virtual void SendEventToFlash() = 0;
-			virtual uint16_t * OnInputEvent(uint16_t * retval, FlashInputEvent * event) = 0;
+			virtual uint16_t * OnInputEventText(uint16_t * retval, FlashInputEvent * event) = 0;
 			virtual void SetModifierStates(bool, bool, bool) = 0;
 			virtual void field_48() = 0;
 			virtual bool Invoke6(int64_t invokeEnum, InvokeDataValue *a3, InvokeDataValue *a4, InvokeDataValue *a5, InvokeDataValue *a6, InvokeDataValue *a7, InvokeDataValue *a8) = 0;

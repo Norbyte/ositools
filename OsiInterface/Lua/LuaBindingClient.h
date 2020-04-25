@@ -67,6 +67,7 @@ namespace dse::ecl::lua
 		static int Destroy(lua_State * L);
 		static int ExternalInterfaceCall(lua_State * L);
 		static int CaptureExternalInterfaceCalls(lua_State * L);
+		static int CaptureInvokes(lua_State* L);
 	};
 
 
@@ -77,6 +78,7 @@ namespace dse::ecl::lua
 		~ClientState();
 
 		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
+		void OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
