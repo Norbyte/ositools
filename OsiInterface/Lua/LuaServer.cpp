@@ -543,7 +543,7 @@ namespace dse::esv::lua
 		}
 
 		default:
-			OsiError("Expected character UUID, Handle or NetId");
+			OsiError("Expected character UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 1)));
 			break;
 		}
 
@@ -594,7 +594,7 @@ namespace dse::esv::lua
 		}
 
 		default:
-			OsiError("Expected item GUID or handle");
+			OsiError("Expected item GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
 			return 0;
 		}
 
@@ -655,7 +655,7 @@ namespace dse::esv::lua
 		}
 
 		default:
-			OsiError("Expected object GUID or handle");
+			OsiError("Expected object GUID or handle, got ");
 			return 0;
 		}
 

@@ -576,32 +576,25 @@ namespace dse::lua
 		push(L, "Context");
 		lua_newtable(L);
 		int ctxIndex = 1;
-		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::Target) {
+		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::Target)) {
 			settable(L, ctxIndex++, "Target");
 		}
-		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::AoE) {
+		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::AoE)) {
 			settable(L, ctxIndex++, "AoE");
 		}
-		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::Self) {
+		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::Self)) {
 			settable(L, ctxIndex++, "Self");
 		}
-		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::SelfOnHit) {
+		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::SelfOnHit)) {
 			settable(L, ctxIndex++, "SelfOnHit");
 		}
-		if (property->PropertyContext & (uint8_t)CRPGStats_Object_PropertyContext::SelfOnEquip) {
+		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::SelfOnEquip)) {
 			settable(L, ctxIndex++, "SelfOnEquip");
 		}
 		lua_settable(L, -3);
 		
-		if (property->ConditionBlockPtr) {
-			STDString name(property->Name.Str);
-			if (name[name.length() - 1] == ')') {
-				auto ifPos = name.find("_IF(");
-				if (ifPos != std::string::npos) {
-					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
-					settable(L, "Condition", condition);
-				}
-			}
+		if (property->Conditions) {
+			settable(L, "Condition", property->Conditions->CheckText);
 		}
 
 		switch (property->TypeId) {
@@ -765,12 +758,12 @@ namespace dse::lua
 		auto type = checked_gettable<char const*, char const*>(L, "Type");
 		auto typeIt = ObjectPropertyTypes.find(type);
 		if (typeIt == ObjectPropertyTypes.end()) {
-			OsiError("Unknown SkillProperties type: " << type);
+			OsiError("Unknown object property type: " << type);
 			return nullptr;
 		}
 
 		if (typeIt->second.VMT == nullptr) {
-			OsiError("Cannot construct SkillProperties of type  " << type << " - VMT not mapped!");
+			OsiError("Cannot construct object property of type  " << type << " - VMT not mapped!");
 			return nullptr;
 		}
 
@@ -904,34 +897,43 @@ namespace dse::lua
 
 		STDString name = std::to_string(index).c_str();
 
+		*(void**)prop = typeIt->second.VMT;
+		prop->Name = MakeFixedString(name.c_str());
+		prop->TypeId = typeIt->second.Type;
+		prop->PropertyContext = (CRPGStats_Object_PropertyContext)0;
+		prop->Conditions = nullptr;
+
 		auto conditions = gettable<char const*, char const*>(L, "Condition");
-		if (conditions) {
-			OsiWarn("Conditions property not supported yet on SkillProperties!");
+		if (conditions && *conditions) {
+			auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(conditions);
+			if (scriptCheckBlock) {
+				auto statConditions = GameAlloc<CDivinityStats_Condition>();
+				statConditions->ScriptCheckBlock = scriptCheckBlock;
+				statConditions->CheckText = MakeFixedString(conditions);
+				prop->Conditions = statConditions;
+			} else {
+				OsiWarn("Failed to parse conditions: " << conditions);
+			}
+
 			name += "_IF(";
 			name += conditions;
 			name += ")";
 		}
-
-		*(void**)prop = typeIt->second.VMT;
-		prop->Name = MakeFixedString(name.c_str());
-		prop->TypeId = typeIt->second.Type;
-		prop->PropertyContext = 0;
-		prop->ConditionBlockPtr = nullptr;
 
 		push(L, "Context");
 		lua_gettable(L, -2);
 		for (auto idx : iterate(L, -1)) {
 			auto context = checked_get<char const*>(L, idx);
 			if (strcmp(context, "Target") == 0) {
-				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::Target;
+				prop->PropertyContext |= CRPGStats_Object_PropertyContext::Target;
 			} else if (strcmp(context, "AoE") == 0) {
-				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::AoE;
+				prop->PropertyContext |= CRPGStats_Object_PropertyContext::AoE;
 			} else if (strcmp(context, "Self") == 0) {
-				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::Self;
+				prop->PropertyContext |= CRPGStats_Object_PropertyContext::Self;
 			} else if (strcmp(context, "SelfOnHit") == 0) {
-				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::SelfOnHit;
+				prop->PropertyContext |= CRPGStats_Object_PropertyContext::SelfOnHit;
 			} else if (strcmp(context, "SelfOnEquip") == 0) {
-				prop->PropertyContext |= (uint8_t)CRPGStats_Object_PropertyContext::SelfOnEquip;
+				prop->PropertyContext |= CRPGStats_Object_PropertyContext::SelfOnEquip;
 			} else {
 				OsiError("Unknown PropertyContext: " << context);
 			}
@@ -945,7 +947,7 @@ namespace dse::lua
 	{
 		MapObjectPropertyVMTs();
 		if (!SkillPropertiesVMT) {
-			OsiError("Cannot construct SkillProperties - VMT not mapped!");
+			OsiError("Cannot construct object property list - VMT not mapped!");
 			return nullptr;
 		}
 
@@ -958,6 +960,7 @@ namespace dse::lua
 			auto prop = LuaToObjectProperty(L, index++);
 			if (prop) {
 				properties->Properties.Add(prop->Name, prop);
+				properties->AllPropertyContexts = prop->PropertyContext;
 			}
 		}
 
@@ -1000,7 +1003,7 @@ namespace dse::lua
 				settable(L, index++, category);
 			}
 			return 1;
-		} else if (strcmp(attributeName, "SkillProperties") == 0) {
+		} else if (strcmp(attributeName, "SkillProperties") == 0 || strcmp(attributeName, "ExtraProperties") == 0) {
 			auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
 			if (propertyList) {
 				ObjectPropertyListToLua(L, **propertyList);
@@ -1082,7 +1085,7 @@ namespace dse::lua
 			}
 
 			return 0;
-		} else if (strcmp(attributeName, "SkillProperties") == 0) {
+		} else if (strcmp(attributeName, "SkillProperties") == 0 || strcmp(attributeName, "ExtraProperties") == 0) {
 			auto newList = LuaToObjectPropertyList(L);
 			if (newList) {
 				STDString name = object->Name;
@@ -1097,7 +1100,7 @@ namespace dse::lua
 					GameFree(*propertyList);
 				}
 
-				object->PropertyList.Insert(newList->Name, newList);
+				object->PropertyList.Insert(MakeFixedString(attributeName), newList);
 			}
 
 			return 0;
@@ -1161,9 +1164,9 @@ namespace dse::lua
 
 		// FIXME - assign name + add to map properly
 		auto customProp = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
-		customProp->PropertyContext = 0;
+		customProp->PropertyContext = (CRPGStats_Object_PropertyContext)0;
 		customProp->TypeId = CRPGStats_Object_Property_Type::CustomDescription;
-		customProp->ConditionBlockPtr = nullptr;
+		customProp->Conditions = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
 		(*props)->Properties.Primitives.Set.Add(customProp);
 

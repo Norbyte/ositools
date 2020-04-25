@@ -1223,6 +1223,7 @@ StatusSavingThrows = {
 
 --- @param status EsvStatus
 function GetSavingThrowForStatus(status)
+    Ext.Print(status.StatusId, status.StatusType)
     if status.StatusId ~= status.StatusType then
         return Ext.StatGetAttribute(status.StatusId, "SavingThrow")
     end

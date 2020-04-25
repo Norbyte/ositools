@@ -129,6 +129,7 @@ namespace dse
 
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
+		ScriptCheckBlock__Build ScriptCheckBlock__Build{ nullptr };
 
 		esv::LevelManager ** LevelManager{ nullptr };
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };

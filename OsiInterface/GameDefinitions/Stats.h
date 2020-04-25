@@ -92,6 +92,8 @@ namespace dse
 		CRPGStats_Object_Property_Type TypeId;
 	};
 
+	struct CDivinityStats_Condition;
+
 	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
 	{
 		virtual ~CDivinityStats_Object_Property_Data() {}
@@ -101,9 +103,9 @@ namespace dse
 		virtual bool GetDescription(TranslatedString * Line1) { return false; }
 		virtual uint64_t Unknown() { return 0; }
 
-		uint8_t PropertyContext;
+		CRPGStats_Object_PropertyContext PropertyContext;
 		uint8_t _Pad1[3];
-		void * ConditionBlockPtr;
+		CDivinityStats_Condition* Conditions;
 	};
 
 	struct CDivinityStats_Object_Property_Custom : public CDivinityStats_Object_Property_Data
@@ -193,7 +195,7 @@ namespace dse
 			cl->Name = Name;
 			cl->TypeId = TypeId;
 			cl->PropertyContext = PropertyContext;
-			cl->ConditionBlockPtr = ConditionBlockPtr;
+			cl->Conditions = Conditions;
 			cl->TextLine1 = TextLine1;
 			return cl;
 		}
@@ -230,7 +232,7 @@ namespace dse
 	{
 		CNamedElementManager<CRPGStats_Object_Property> Properties;
 		FixedString Name;
-		uint8_t Unknown{ 3 };
+		CRPGStats_Object_PropertyContext AllPropertyContexts{ 0 };
 		uint8_t _Pad[7];
 	};
 
@@ -707,17 +709,17 @@ namespace dse
 		Map<FixedString, float> Properties;
 	};
 
-	struct CDivinityStats_Condition : public ProtectedGameObject<CDivinityStats_Condition>
+	struct CDivinityStats_Condition
 	{
-		STDString * ScriptCheckBlock;
-		FixedString Id;
+		void * ScriptCheckBlock;
+		FixedString CheckText;
 	};
 
 	struct CRPGStats_Conditions_Manager
 	{
 		Map<FixedString, CDivinityStats_Condition *> Conditions;
 		uint8_t _Pad1[4];
-		ObjectSet<STDString> Strs;
+		ObjectSet<STDString> Variables;
 	};
 
 	struct CRPGStats_ItemType_Manager : public CNamedElementManager<uint64_t>
@@ -921,7 +923,11 @@ namespace dse
 		FixedString EnumIndexToLabel(const char* enumName, int index);
 		int GetOrCreateFixedString(const char * value);
 		std::optional<StatAttributeFlags> StringToAttributeFlags(const char * value);
+		void* BuildScriptCheckBlock(STDString const& source);
+		void* BuildScriptCheckBlockFromProperties(STDString const& source);
 	};
+
+	typedef void* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);
 
 	CRPGStats_Object * StatFindObject(char const * name);
 	CRPGStats_Object * StatFindObject(int index);

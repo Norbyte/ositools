@@ -300,7 +300,7 @@ namespace dse::ecl::lua
 		}
 
 		default:
-			OsiError("Expected item UUID, Handle or NetId");
+			OsiError("Expected item UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 1)));
 			return 0;
 		}
 

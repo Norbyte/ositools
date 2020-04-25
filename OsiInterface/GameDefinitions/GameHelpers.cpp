@@ -436,6 +436,29 @@ namespace dse
 		return flags;
 	}
 
+	void* CRPGStatsManager::BuildScriptCheckBlock(STDString const& source)
+	{
+		auto build = GetStaticSymbols().ScriptCheckBlock__Build;
+		if (!build) {
+			OsiError("ScriptCheckBlock::Build not available!");
+			return nullptr;
+		}
+
+		return build(source, ConditionsManager.Variables, 0, (int)source.size());
+	}
+
+	void* CRPGStatsManager::BuildScriptCheckBlockFromProperties(STDString const& source)
+	{
+		STDString updated = source;
+		for (size_t i = 0; i < updated.size(); i++) {
+			if (updated[i] == ';') {
+				updated[i] = '&';
+			}
+		}
+		
+		return BuildScriptCheckBlock(updated);
+	}
+
 	bool CRPGStatsManager::SetAttributeString(CRPGStats_Object * object, const char * attributeName, const char * value)
 	{
 		int attributeIndex;

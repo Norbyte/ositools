@@ -935,6 +935,14 @@ namespace dse
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find CollectAvailableMods");
 			InitFailed = true;
 		}
+
+		auto buildCheckBlockProc = GetProcAddress(gameEngine_, "?Build@ScriptCheckBlock@ls@@SAPEAVIScriptCheckObject@2@AEBVSTDString@2@PEBV?$ObjectSet@VSTDString@ls@@V?$DefaultComparator@VSTDString@ls@@@2@@2@HH@Z");
+		sym.ScriptCheckBlock__Build = (ScriptCheckBlock__Build)buildCheckBlockProc;
+
+		if (sym.ScriptCheckBlock__Build == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find ScriptCheckBlock::Build");
+			InitFailed = true;
+		}
 	}
 
 	void LibraryManager::FindServerGlobalsEoCPlugin()

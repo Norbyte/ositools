@@ -917,13 +917,26 @@ namespace dse
 
 		{
 			"ls::ModuleManager::CollectAvailableMods",
-			SymbolMappingData::kText, SymbolMappingData::kCritical,
+			SymbolMappingData::kText, 0,
 			"C7 81 7C 03 00 00 00 00 00 00 " // mov     dword ptr [rcx+37Ch], 0
 			"48 81 C1 68 03 00 00 " // add     rcx, 368h
 			"E8 XX XX XX XX " // call    ls__ModManager__CollectAvailableMods
 			"48 8B 93 70 03 00 00 ", // mov     rdx, [rbx+370h]
 			{},
 			{"ls::ModuleManager::CollectAvailableMods", SymbolMappingTarget::kIndirect, 17, STATIC_SYM(ModManager__CollectAvailableMods)}
+		},
+
+		{
+			"ls::ScriptCheckBlock::Build",
+			SymbolMappingData::kText, 0,
+			"4C 8B 4B 10 " // mov     r9, [rbx+10h]
+			"48 8D 55 18 " // lea     rdx, [rbp+18h]
+			"41 FF C9 " // dec     r9d
+			"48 8D 4C 24 28 " // lea     rcx, [rsp+78h+Dst]
+			"45 33 C0 " // xor     r8d, r8d
+			"E8 XX XX XX XX ", // call    ls__ScriptCheckBlock__Build
+			{},
+			{"ls::ScriptCheckBlock::Build", SymbolMappingTarget::kIndirect, 19, STATIC_SYM(ScriptCheckBlock__Build)}
 		},
 	};
 
