@@ -4,8 +4,8 @@ ModuleUUID = "UUID"
 Osi = {}
 
 --- @class DamageItem
---- @property public DamageType string
---- @property public Amount integer
+--- @field public DamageType string
+--- @field public Amount integer
 local DamageItem = {
 }
 
@@ -634,21 +634,21 @@ local StatCharacter = {
 --- @field public ObjectInstanceName string
 --- @field public BoostName string
 --- @field public StatsType string See EquipmentStatsType enumeration
---- @field public DamageType integer (Weapon only!) - See DamageType enumeration
---- @field public MinDamage integer (Weapon only!)
---- @field public MaxDamage integer (Weapon only!)
---- @field public DamageBoost integer (Weapon only!)
---- @field public DamageFromBase integer (Weapon only!)
---- @field public CriticalDamage integer (Weapon only!)
---- @field public WeaponRange integer (Weapon only!)
---- @field public CleaveAngle integer (Weapon only!)
---- @field public CleavePercentage integer (Weapon only!)
---- @field public AttackAPCost integer (Weapon only!)
---- @field public ArmorValue integer (Shield/Armor only!)
---- @field public ArmorBoost integer (Shield/Armor only!)
---- @field public MagicArmorValue integer (Shield/Armor only!)
---- @field public MagicArmorBoost integer (Shield/Armor only!)
---- @field public Blocking integer (Shield only!)
+--- @field public DamageType integer Weapon only! - See DamageType enumeration
+--- @field public MinDamage integer Weapon only!
+--- @field public MaxDamage integer Weapon only!
+--- @field public DamageBoost integer Weapon only!
+--- @field public DamageFromBase integer Weapon only!
+--- @field public CriticalDamage integer Weapon only!
+--- @field public WeaponRange integer Weapon only!
+--- @field public CleaveAngle integer Weapon only!
+--- @field public CleavePercentage integer Weapon only!
+--- @field public AttackAPCost integer Weapon only!
+--- @field public ArmorValue integer Shield/Armor only!
+--- @field public ArmorBoost integer Shield/Armor only!
+--- @field public MagicArmorValue integer Shield/Armor only!
+--- @field public MagicArmorBoost integer Shield/Armor only!
+--- @field public Blocking integer Shield only!
 -- TODO - add attribute flags object support
 -- TODO - AbilityModifiers, Talents, Reflection
 local StatItemDynamic = {}
@@ -2026,7 +2026,7 @@ local UIObject = {
     --- "type" contains the type of value to retrieve and must be string, number or boolean.
     --- @param self UIObject
     --- @param property string Property path to set
-    --- @param type string | "'number'" | "'boolean'" | "'string'" |
+    --- @param type "'number'" | "'boolean'" | "'string'"
     --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
     --- @return number|boolean|string
     GetValue = function (self, property, type, arrayIndex) end,
@@ -2039,6 +2039,7 @@ local UIObject = {
     Destroy = function (self) end,
 }
 
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleResume'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'"
 
 --- @class Ext
 Ext = {
@@ -2279,6 +2280,11 @@ Ext = {
     --- @param fileName string Path of Lua file, relative to Mods/<Mod>/Story/RawFiles/Lua
     Require = function (modGuid, fileName) end,
 
+    --- Registers a function to call when an extender event is thrown
+    --- @param event ExtEngineEvent Event to listen for
+    --- @param callback function Lua function to run when the event fires
+    RegisterListener = function (event, callback) end,
+
     --- Registers a new call in Osiris
     --- @param func function Function to register
     --- @param funcName string Name of call to register
@@ -2458,6 +2464,11 @@ Ext = {
     --- @param channel string Channel that will receive the message
     --- @param payload string Message payload
     PostMessageToServer = function (channel, payload) end,
+
+    --- Registers a listener that is called when a network message is received on the specified channel
+    --- @param channel string Network channel name
+    --- @param handler function Lua handler
+    RegisterNetListener = function (channel, handler) end,
 
     --- Registers a new dialog voice line for the specified speaker.
     --- @param speakerGuid string Original path
