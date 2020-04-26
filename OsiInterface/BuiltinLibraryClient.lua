@@ -6,8 +6,7 @@ Ext._Listeners = {
 	SkillGetDescriptionParam = {},
 	StatusGetDescriptionParam = {},
 	GetSkillDamage = {},
-	GetHitChance = {},
-	ConsoleCommand = {}
+	GetHitChance = {}
 }
 
 Ext._SkillGetDescriptionParam = function (...)

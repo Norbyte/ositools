@@ -126,10 +126,29 @@ Ext._LoadBootstrap = function (path, modTable)
 	Ext.Include(ModuleUUID, path, env)
 end
 
+Ext._ConsoleCommandListeners = {}
+
 Ext.DoConsoleCommand = function (cmd)
 	local params = {}
 	for param in string.gmatch(cmd, "%S+") do
 		table.insert(params, param)
 	end
-	Ext._EngineCallback1("ConsoleCommand", table.unpack(params))
+
+	local listeners = Ext._ConsoleCommandListeners[params[1]]
+	if listeners ~= nil then
+		for i,callback in pairs(listeners) do
+			local status, result = xpcall(callback, debug.traceback, table.unpack(params))
+			if not status then
+				Ext.PrintError("Error during console command callback: ", result)
+			end
+		end
+	end
+end
+
+Ext.RegisterConsoleCommand = function (cmd, fn)
+	if Ext._ConsoleCommandListeners[cmd] == nil then
+		Ext._ConsoleCommandListeners[cmd] = {}
+	end
+
+	table.insert(Ext._ConsoleCommandListeners[cmd], fn)
 end

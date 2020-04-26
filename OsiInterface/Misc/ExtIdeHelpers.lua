@@ -2510,6 +2510,11 @@ Ext = {
     --- @param handler function Lua handler
     RegisterUIInvokeListener = function (object, name, handler) end,
 
+    --- Registers a listener that is called when a console command is entered in the dev console
+    --- @param cmd string Console command
+    --- @param handler function Lua handler
+    RegisterConsoleCommand = function (cmd, handler) end,
+
     --- Write data to an external (persistent) file
     --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
     --- @param contents string File contents to write
