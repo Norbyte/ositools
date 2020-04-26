@@ -138,7 +138,7 @@ namespace dse::lua
 		if (!prop && strncmp(propStr, "Base", 4) == 0) {
 			dynamicStat = stats->GetStat(ToFixedString(propStr + 4), true);
 		} else {
-			dynamicStat = stats->GetStat(prop, true);
+			dynamicStat = stats->GetStat(prop, false);
 		}
 
 		if (dynamicStat) {

@@ -876,7 +876,7 @@ namespace dse
 		Map<FixedString, CRPGStats_Object_Property_List*> PropertyLists;
 		uint8_t _Pad1[4];
 		CRPGStats_Conditions_Manager ConditionsManager;
-		STDWString WStr1;
+		STDWString LoadingModName;
 		uint64_t Unkn1[5];
 		CRPGStats_ExtraData * ExtraData;
 		RefMap<FixedString, void *> RefMap1;
