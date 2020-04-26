@@ -147,6 +147,24 @@ function GetLevelScaledMonsterWeaponDamage(level)
     return ((level * Ext.ExtraData.MonsterDamageBoostPerLevel) + 1.0) * weaponDmg
 end
 
+--- @param attacker StatCharacter
+function GetShieldPhysicalArmor(attacker)
+    local shield = attacker:GetItemBySlot("Shield", true)
+    if shield == nil or shield.ItemType ~= "Shield" then
+        return 0
+    end
+    local stats = shield.DynamicStats
+    local armor = 0
+    local boost = 0
+    for i, stat in pairs(stats) do
+        if stat.StatsType == "Shield" then
+            armor = armor + stat.ArmorValue
+            boost = boost + stat.ArmorBoost * 0.01
+        end
+    end
+    return armor * (1.0 + boost)
+end
+
 DamageBoostTable = {
     --- @param character StatCharacter
     Physical = function (character)
@@ -225,7 +243,7 @@ local DamageSourceCalcTable = {
         return attacker.CurrentMagicArmor
     end,
     SourceShieldPhysicalArmor = function (attacker, target, level)
-        error("SourceShieldPhysicalArmor NOT IMPLEMENTED YET")
+        return Ext.Round(GetShieldPhysicalArmor(attacker))
     end,
     TargetMaximumVitality = function (attacker, target, level)
         return target.MaxVitality
