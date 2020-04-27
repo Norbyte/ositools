@@ -1054,55 +1054,9 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 	return next(self, path, type);
 }
 
-class SavegameSerializer
-{
-public:
-	void SavegameVisit(ObjectVisitor* visitor)
-	{
-		if (visitor->EnterRegion(GFS.strScriptExtenderSave)) {
-			uint32_t version = CurrentVersion;
-			visitor->VisitUInt32(GFS.strExtenderVersion, &version, 0);
-			if (visitor->IsReading()) {
-				if (version > CurrentVersion) {
-					ERR("Savegame version too new! Extender version %d, savegame version %d; savegame data will not be loaded!");
-					std::wstringstream ss;
-					ss << "Could not load Script Extender save data - savegame is newer than the currently installed extender!<br>";
-					ss << "Extender version v" << CurrentVersion << ", savegame version v" << version;
-					gOsirisProxy->GetLibraryManager().ShowStartupError(ss.str().c_str(), true, false);
-				} else {
-					Serialize(visitor, version);
-				}
-			} else {
-				Serialize(visitor, CurrentVersion);
-			}
-
-			visitor->ExitRegion(GFS.strScriptExtenderSave);
-		}
-	}
-
-private:
-	void Serialize(ObjectVisitor* visitor, uint32_t version)
-	{
-		SerializePersistentVariables(visitor, version);
-	}
-
-
-	void SerializePersistentVariables(ObjectVisitor* visitor, uint32_t version)
-	{
-		if (visitor->EnterNode(GFS.strLuaVariables, GFS.strEmpty)) {
-			if (visitor->IsReading()) {
-
-			}
-
-			visitor->ExitNode(GFS.strLuaVariables);
-		}
-	}
-};
-
 void OsirisProxy::OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor)
 {
-	SavegameSerializer serializer;
-	serializer.SavegameVisit(visitor);
+	savegameSerializer_.SavegameVisit(visitor);
 }
 
 void OsirisProxy::PostInitLibraries()
@@ -1203,6 +1157,116 @@ void OsirisProxy::LoadExtensionStateClient()
 	}
 
 	ClientExtensionLoaded = true;
+}
+
+
+void SavegameSerializer::SavegameVisit(ObjectVisitor* visitor)
+{
+	if (visitor->EnterRegion(GFS.strScriptExtenderSave)) {
+		uint32_t version = CurrentVersion;
+		visitor->VisitUInt32(GFS.strExtenderVersion, version, 0);
+		if (visitor->IsReading()) {
+			if (version > CurrentVersion) {
+				ERR("Savegame version too new! Extender version %d, savegame version %d; savegame data will not be loaded!");
+				std::wstringstream ss;
+				ss << "Could not load Script Extender save data - savegame is newer than the currently installed extender!<br>";
+				ss << "Extender version v" << CurrentVersion << ", savegame version v" << version;
+				gOsirisProxy->GetLibraryManager().ShowStartupError(ss.str().c_str(), true, false);
+			}
+			else {
+				Serialize(visitor, version);
+			}
+		}
+		else {
+			Serialize(visitor, CurrentVersion);
+		}
+
+		visitor->ExitRegion(GFS.strScriptExtenderSave);
+	}
+}
+
+
+void SavegameSerializer::Serialize(ObjectVisitor* visitor, uint32_t version)
+{
+	SerializePersistentVariables(visitor, version);
+}
+
+
+void SavegameSerializer::SerializePersistentVariables(ObjectVisitor* visitor, uint32_t version)
+{
+	STDString nullStr;
+	if (visitor->EnterNode(GFS.strLuaVariables, GFS.strEmpty)) {
+		auto const& configs = gOsirisProxy->GetServerExtensionState().GetConfigs();
+
+		if (visitor->IsReading()) {
+			std::unordered_map<FixedString, STDString> variables;
+			uint32_t numMods{ 0 };
+			visitor->VisitCount(GFS.strMod, &numMods);
+
+			for (uint32_t i = 0; i < numMods; i++) {
+				if (visitor->EnterNode(GFS.strMod, GFS.strModId)) {
+					FixedString modId;
+					visitor->VisitFixedString(GFS.strModId, modId, GFS.strEmpty);
+					STDString modVars;
+					visitor->VisitSTDString(GFS.strLuaVariables, modVars, nullStr);
+
+					variables.insert(std::make_pair(modId, modVars));
+					visitor->ExitNode(GFS.strMod);
+				}
+			}
+
+			RestorePersistentVariables(variables);
+		}
+		else {
+			for (auto const& config : configs) {
+				if (config.second.MinimumVersion >= 43 && !config.second.ModTable.empty()) {
+					DEBUG("Getting persistent vars for mod %s", config.first.c_str());
+					esv::LuaServerPin lua(esv::ExtensionState::Get());
+					if (lua) {
+						auto vars = lua->GetModPersistentVars(config.second.ModTable);
+						if (vars) {
+							DEBUG("Saving persistent vars for mod %s (%ld bytes)", config.first.c_str(), vars->size());
+							if (visitor->EnterNode(GFS.strMod, GFS.strModId)) {
+								FixedString modId = MakeFixedString(config.first.c_str());
+								visitor->VisitFixedString(GFS.strModId, modId, GFS.strEmpty);
+								visitor->VisitSTDString(GFS.strLuaVariables, *vars, nullStr);
+								visitor->ExitNode(GFS.strMod);
+							}
+						}
+					}
+				}
+				else {
+					WARN("Mod %s is targeting < v43, not saving persistent variables", config.first.c_str());
+				}
+			}
+		}
+
+		visitor->ExitNode(GFS.strLuaVariables);
+	}
+}
+
+void SavegameSerializer::RestorePersistentVariables(std::unordered_map<FixedString, STDString> const& variables)
+{
+	auto const& configs = gOsirisProxy->GetServerExtensionState().GetConfigs();
+
+	for (auto const& var : variables) {
+		auto configIt = configs.find(var.first.Str);
+		if (configIt != configs.end()) {
+			if (!configIt->second.ModTable.empty()) {
+				DEBUG("Restoring persistent vars for mod %s (%ld bytes)", var.first.Str, var.second.size());
+				esv::LuaServerPin lua(esv::ExtensionState::Get());
+				if (lua) {
+					lua->RestoreModPersistentVars(configIt->second.ModTable, var.second);
+				}
+			}
+			else {
+				WARN("Mod %s has no ModTable - persistent variables will not be restored!", var.first.Str);
+			}
+		}
+		else {
+			WARN("Savegame has variables for mod %s, but it is not loaded! Variables will be lost on next save!", var.first.Str);
+		}
+	}
 }
 
 }

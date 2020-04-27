@@ -5,6 +5,7 @@
  - [Migrating from v42 to v43](#migrating-from-v42-to-v43)
  - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
  - [Client / Server States](#client-server)
+    - [Persistent Variables](#persistent-vars)
  - [Console](#console)
  - [Calling Lua from Osiris](#calling-lua-from-osiris)
     * [Calls](#l2o_calls)
@@ -75,6 +76,30 @@ Because they run in different environments, server and client states can access 
  - **C** - The function is only available on the client
  - **S** - The function is only available on the server
  - **R** - Restricted; the function is only callable in special contexts/locations
+
+### Persistent Variables
+<a id="persistent-vars"></a>
+
+The Lua state and all local variables are reset after each game reload. For keeping data through multiple play sessions it is possible to store them in the savegame by storing them in the mod-local table `Mods[ModTable].PersistentVars`. By default the table is `nil`, i.e. a mod should create the table and populate it with data it wishes to store in the savegame. The contents of `PersistentVars` is saved when a savegame is created, and restored before the `SessionLoaded` event is triggered.
+
+(Note: There is no global `PersistentVars` table, i.e. mods that haven't set their `ModTable` won't be able to use this feature).
+
+Example:
+```lua
+PersistentVars = {}
+...
+-- Variable will be restored after the savegame finished loading
+function doStuff()
+    PersistentVars['Test'] = 'Something to keep'
+end
+
+function OnSessionLoaded()
+    -- Persistent variables are only available after SessionLoaded is triggered!
+    Ext.Print(PersistentVars['Test'])
+end
+
+Ext.RegisterListener("SessionLoaded", OnSessionLoaded)
+```
 
 
 ## Console

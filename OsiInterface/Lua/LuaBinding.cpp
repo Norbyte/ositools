@@ -697,7 +697,9 @@ namespace dse::lua
 	State::State()
 	{
 		L = luaL_newstate();
+#if LUA_VERSION_NUM <= 501
 		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
+#endif
 		lua_atpanic(L, &LuaPanic);
 		OpenLibs();
 	}

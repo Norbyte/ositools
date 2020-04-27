@@ -66,6 +66,17 @@ struct ToolConfig
 };
 
 
+class SavegameSerializer
+{
+public:
+	void SavegameVisit(ObjectVisitor* visitor);
+
+private:
+	void Serialize(ObjectVisitor* visitor, uint32_t version);
+	void SerializePersistentVariables(ObjectVisitor* visitor, uint32_t version);
+	void RestorePersistentVariables(std::unordered_map<FixedString, STDString> const&);
+};
+
 class OsirisProxy
 {
 public:
@@ -200,6 +211,7 @@ private:
 	std::shared_mutex pathOverrideMutex_;
 	std::unordered_map<STDString, STDString> pathOverrides_;
 	NetworkFixedStringSynchronizer networkFixedStrings_;
+	SavegameSerializer savegameSerializer_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };

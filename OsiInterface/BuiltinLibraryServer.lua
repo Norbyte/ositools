@@ -60,3 +60,20 @@ end
 Ext.StatSetLevelScaling = function ()
 	Ext._WarnDeprecated("Calling Ext.StatSetLevelScaling() from a server context is deprecated!")
 end
+
+Ext._GetModPersistentVars = function (modTable)
+	local tab = Mods[modTable]
+	if tab ~= nil then
+		local persistent = tab.PersistentVars
+		if persistent ~= nil then
+			return Ext.JsonStringify(persistent)
+		end
+	end
+end
+
+Ext._RestoreModPersistentVars = function (modTable, vars)
+	local tab = Mods[modTable]
+	if tab ~= nil then
+		tab.PersistentVars = Ext.JsonParse(vars)
+	end
+end

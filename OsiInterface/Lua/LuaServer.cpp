@@ -1051,6 +1051,37 @@ namespace dse::esv::lua
 		return ok;
 	}
 
+
+	std::optional<STDString> ServerState::GetModPersistentVars(STDString const& modTable)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_GetModPersistentVars");
+		push(L, modTable);
+
+		auto ret = CheckedCall<std::optional<char const*>>(L, 1, "Ext.GetModPersistentVars");
+		if (ret) {
+			return std::get<0>(*ret);
+		} else {
+			return {};
+		}
+	}
+
+
+	void ServerState::RestoreModPersistentVars(STDString const& modTable, STDString const& vars)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_RestoreModPersistentVars");
+		push(L, modTable);
+		push(L, vars);
+
+		CheckedCall<>(L, 2, "Ext.RestoreModPersistentVars");
+	}
+
+
 	void ServerState::OnGameSessionLoading()
 	{
 		identityAdapters_.UpdateAdapters();

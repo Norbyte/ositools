@@ -69,3 +69,5 @@ FS_NAME(CustomProperties, "Custom Properties");
 FS(ScriptExtenderSave);
 FS(ExtenderVersion);
 FS(LuaVariables);
+FS(Mod);
+FS(ModId);
