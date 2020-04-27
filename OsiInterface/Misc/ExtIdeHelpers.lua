@@ -2535,4 +2535,15 @@ Ext = {
     --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
     --- @return string File contents
     LoadFile = function (path) end,
+
+    --- Returns a monotonic value representing the current time in milliseconds.
+    --- Useful for performance measurements / measuring real world time.
+    --- (Note: This value is not synchronized between peers and different clients may report different time values!)
+    --- @return number Time
+    MonotonicTime = function () end,
+
+    -- Returns whether the player has a compatible Script Extender version installed
+    --- @param playerGuid string GUID of player character
+    --- @return boolean
+    PlayerHasExtender = function (playerGuid) end
 }

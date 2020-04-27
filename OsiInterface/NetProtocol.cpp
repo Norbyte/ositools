@@ -241,6 +241,11 @@ namespace dse
 		clientExtenderSupport_ = true;
 	}
 
+	bool NetworkManager::ServerCanSendExtenderMessages(PeerId peerId) const
+	{
+		return serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end();
+	}
+
 	void NetworkManager::ServerAllowExtenderMessages(PeerId peerId)
 	{
 		serverExtenderPeerIds_.insert(peerId);
@@ -388,7 +393,7 @@ namespace dse
 
 	ScriptExtenderMessage * NetworkManager::GetFreeServerMessage(UserId userId)
 	{
-		if (userId && serverExtenderPeerIds_.find(userId.GetPeerId()) == serverExtenderPeerIds_.end()) {
+		if (userId && !ServerCanSendExtenderMessages(userId.GetPeerId())) {
 			ERR("Attempted to send extender message to user %d that does not understand extender protocol!", userId.Id);
 			return nullptr;
 		}
@@ -423,7 +428,7 @@ namespace dse
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
 			for (auto peerId : server->ActivePeerIds) {
-				if (serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end()) {
+				if (ServerCanSendExtenderMessages(peerId)) {
 					peerIds.Set.Add(peerId);
 				} else {
 					WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);

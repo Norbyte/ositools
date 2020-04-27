@@ -800,6 +800,19 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	int PlayerHasExtender(lua_State* L)
+	{
+		auto characterGuid = luaL_checkstring(L, 1);
+
+		auto character = GetEntityWorld()->GetCharacter(characterGuid);
+		if (character == nullptr) return 0;
+
+		auto& networkMgr = gOsirisProxy->GetNetworkManager();
+		bool hasExtender = networkMgr.ServerCanSendExtenderMessages(character->UserID.GetPeerId());
+		push(L, hasExtender);
+		return 1;
+	}
+
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
@@ -850,6 +863,7 @@ namespace dse::esv::lua
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},
+			{"PlayerHasExtender", PlayerHasExtender},
 			{0,0}
 		};
 
