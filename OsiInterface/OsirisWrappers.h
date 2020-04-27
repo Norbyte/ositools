@@ -22,6 +22,7 @@ public:
 
 	void Initialize();
 	void InitializeExtensions();
+	void InitializeDeferredExtensions();
 	void InitializeNetworking(net::MessageFactory * factory);
 	void Shutdown();
 
@@ -64,6 +65,7 @@ public:
 	WRAPPABLE(FileReader * (FileReader *, Path *, unsigned int), FileReader__ctor);
 	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);
 	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
+	HOOKABLE(bool(void*, ObjectVisitor*), esv__OsirisVariableHelper__SavegameVisit);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;
@@ -74,6 +76,7 @@ private:
 	HMODULE Kernel32Module{ NULL };
 	HMODULE OsirisModule{ NULL };
 	bool ExtensionsInitialized{ false };
+	bool DeferredExtensionsInitialized{ false };
 	bool NetworkingInitialized{ false };
 
 	void * FindRuleActionCallProc();

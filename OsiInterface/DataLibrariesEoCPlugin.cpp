@@ -798,6 +798,20 @@ namespace dse
 			{SymbolMappingCondition::kString, 16, "Root templates"},
 			{"eoc::gSpeakerManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(eoc__SpeakerManager)}
 		},
+
+		{
+			"esv::OsirisVariableHelper::SavegameVisit",
+			SymbolMappingData::kText, 0,
+			"40 53 " // push    rbx
+			"56 " // push    rsi
+			"57 " // push    rdi
+			"48 83 EC 30 " // sub     rsp, 30h
+			"48 8B FA " // mov     rdi, rdx
+			"48 8B D9 " // mov     rbx, rcx
+			"48 8D 15 XX XX XX XX ", // lea     rdx, xxx ; "esv::OsirisVariableHelper::SavegameVisit"
+			{SymbolMappingCondition::kString, 14, "esv::OsirisVariableHelper::SavegameVisit"},
+			{"esv::OsirisVariableHelper::SavegameVisit", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__OsirisVariableHelper__SavegameVisit)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

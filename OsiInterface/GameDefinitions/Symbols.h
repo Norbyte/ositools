@@ -128,6 +128,7 @@ namespace dse
 		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };
 
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
+		void* esv__OsirisVariableHelper__SavegameVisit{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 		ScriptCheckBlock__Build ScriptCheckBlock__Build{ nullptr };
 

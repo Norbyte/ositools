@@ -65,3 +65,7 @@ FS_NAME(GameAction, "Game Action");
 FS_NAME(SurfaceChange, "Surface Change");
 FS_NAME(CustomProperties, "Custom Properties");
 
+// Savegames
+FS(ScriptExtenderSave);
+FS(ExtenderVersion);
+FS(LuaVariables);

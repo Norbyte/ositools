@@ -938,6 +938,21 @@ namespace dse
 			{},
 			{"ls::ScriptCheckBlock::Build", SymbolMappingTarget::kIndirect, 19, STATIC_SYM(ScriptCheckBlock__Build)}
 		},
+
+		{
+			"esv::OsirisVariableHelper::SavegameVisit",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred | SymbolMappingData::kCritical,
+			"48 89 5C 24 18 " // mov     [rsp+arg_10], rbx
+			"48 89 6C 24 20 " // mov     [rsp+arg_18], rbp
+			"57 " // push    rdi
+			"48 83 EC 20 " // sub     rsp, 20h
+			"48 8B 02 " // mov     rax, [rdx]
+			"48 8B DA " // mov     rbx, rdx
+			"48 8B E9 " // mov     rbp, rcx
+			"48 8D 15 XX XX XX XX ", // lea     rdx, fs_OsirisVariableHelper
+			{SymbolMappingCondition::kFixedString, 24, "OsirisVariableHelper"},
+			{"esv::OsirisVariableHelper::SavegameVisit", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__OsirisVariableHelper__SavegameVisit)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

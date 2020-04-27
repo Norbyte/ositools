@@ -41,6 +41,7 @@ STATIC_HOOK(SkillPrototypeManagerInit)
 STATIC_HOOK(FileReader__ctor)
 STATIC_HOOK(eocnet__ClientConnectMessage__Serialize)
 STATIC_HOOK(eocnet__ClientAcceptMessage__Serialize)
+STATIC_HOOK(esv__OsirisVariableHelper__SavegameVisit)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -132,6 +133,25 @@ void OsirisWrappers::Initialize()
 	DetourTransactionCommit();
 }
 
+void OsirisWrappers::InitializeDeferredExtensions()
+{
+	if (DeferredExtensionsInitialized) {
+		return;
+	}
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	auto & lib = GetStaticSymbols();
+	if (lib.esv__OsirisVariableHelper__SavegameVisit != nullptr) {
+		esv__OsirisVariableHelper__SavegameVisit.Wrap(lib.esv__OsirisVariableHelper__SavegameVisit);
+	}
+
+	DetourTransactionCommit();
+
+	DeferredExtensionsInitialized = true;
+}
+
 void OsirisWrappers::InitializeExtensions()
 {
 	if (ExtensionsInitialized) {
@@ -207,6 +227,7 @@ void OsirisWrappers::Shutdown()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
+	esv__OsirisVariableHelper__SavegameVisit.Unwrap();
 	eocnet__ClientConnectMessage__Serialize.Unwrap();
 	eocnet__ClientAcceptMessage__Serialize.Unwrap();
 

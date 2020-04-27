@@ -245,6 +245,7 @@ private:
 	void OnServerGameStateWorkerStart(void * self);
 	void OnSkillPrototypeManagerInit(void * self);
 	FileReader * OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type);
+	void OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor);
 	void PostInitLibraries();
 	void ResetExtensionStateServer();
 	void LoadExtensionStateServer();

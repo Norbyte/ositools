@@ -92,6 +92,7 @@ void OsirisProxy::Initialize()
 	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
 	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
+	Wrappers.esv__OsirisVariableHelper__SavegameVisit.AddPreHook(std::bind(&OsirisProxy::OnSavegameVisit, this, _1, _2));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
@@ -1053,6 +1054,57 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 	return next(self, path, type);
 }
 
+class SavegameSerializer
+{
+public:
+	void SavegameVisit(ObjectVisitor* visitor)
+	{
+		if (visitor->EnterRegion(GFS.strScriptExtenderSave)) {
+			uint32_t version = CurrentVersion;
+			visitor->VisitUInt32(GFS.strExtenderVersion, &version, 0);
+			if (visitor->IsReading()) {
+				if (version > CurrentVersion) {
+					ERR("Savegame version too new! Extender version %d, savegame version %d; savegame data will not be loaded!");
+					std::wstringstream ss;
+					ss << "Could not load Script Extender save data - savegame is newer than the currently installed extender!<br>";
+					ss << "Extender version v" << CurrentVersion << ", savegame version v" << version;
+					gOsirisProxy->GetLibraryManager().ShowStartupError(ss.str().c_str(), true, false);
+				} else {
+					Serialize(visitor, version);
+				}
+			} else {
+				Serialize(visitor, CurrentVersion);
+			}
+
+			visitor->ExitRegion(GFS.strScriptExtenderSave);
+		}
+	}
+
+private:
+	void Serialize(ObjectVisitor* visitor, uint32_t version)
+	{
+		SerializePersistentVariables(visitor, version);
+	}
+
+
+	void SerializePersistentVariables(ObjectVisitor* visitor, uint32_t version)
+	{
+		if (visitor->EnterNode(GFS.strLuaVariables, GFS.strEmpty)) {
+			if (visitor->IsReading()) {
+
+			}
+
+			visitor->ExitNode(GFS.strLuaVariables);
+		}
+	}
+};
+
+void OsirisProxy::OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor)
+{
+	SavegameSerializer serializer;
+	serializer.SavegameVisit(visitor);
+}
+
 void OsirisProxy::PostInitLibraries()
 {
 	std::lock_guard _(globalStateLock_);
@@ -1060,6 +1112,7 @@ void OsirisProxy::PostInitLibraries()
 
 	if (extensionsEnabled_) {
 		if (Libraries.PostStartupFindLibraries()) {
+			Wrappers.InitializeDeferredExtensions();
 			FunctionLibrary.PostStartup();
 		}
 	}
