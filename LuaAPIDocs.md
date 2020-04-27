@@ -1469,6 +1469,30 @@ Example:
 Ext.AddPathOverride("Public/Game/GUI/enemyHealthBar.swf", "Public/YourMod/GUI/enemyHealthBar.swf")
 ```
 
+#### Ext.PlayerHasExtender(playerGuid)
+
+Returns whether the player that controls the character `playerGuid` has a compatible Script Extender version installed.
+Example:
+```lua
+for i,player in  ipairs(Osi.DB_IsPlayer:Get(nil)) do
+    if  not Ext.PlayerHasExtender(player[1]) then
+        OpenMessageBox(player[1], "Install the extender!!!")
+    end
+end
+```
+
+#### Ext.MonotonicTime()
+
+Returns a monotonic value representing the current system time in milliseconds. Useful for performance measurements / measuring real world time.
+(Note: This value is not synchronized between peers and different clients may report different time values!)
+
+Example:
+```lua
+local startTime = Ext.MonotonicTime()
+DoLongTask()
+local endTime = Ext.MonotonicTime()
+Ext.Print("Took: " .. tostring(endTime - startTime) .. " ms")
+```
 
 ## JSON Support
 
