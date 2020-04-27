@@ -758,14 +758,12 @@ namespace dse::lua
 		if (ObjectPropertyVMTsMapped) return;
 		std::unordered_map<CRPGStats_Object_Property_Type, void*> VMTs;
 		auto stats = GetStaticSymbols().GetStats();
-		for (auto object : stats->objects.Primitives) {
-			object->PropertyList.Iterate([&VMTs](auto const& k, auto const& propList) {
-				SkillPropertiesVMT = *(void**)propList;
-				for (auto prop : propList->Properties.Primitives) {
-					VMTs.insert(std::make_pair(prop->TypeId, *(void**)prop));
-				}
-			});
-		}
+		stats->PropertyLists.Iterate([&VMTs](auto const& k, auto const& propList) {
+			SkillPropertiesVMT = *(void**)propList;
+			for (auto prop : propList->Properties.Primitives) {
+				VMTs.insert(std::make_pair(prop->TypeId, *(void**)prop));
+			}
+		});
 
 		for (auto& it : ObjectPropertyTypes) {
 			auto vmtIt = VMTs.find(it.second.Type);
@@ -797,7 +795,7 @@ namespace dse::lua
 		switch (typeIt->second.Type) {
 		case CRPGStats_Object_Property_Type::Custom:
 		{
-			auto custom = new CDivinityStats_Object_Property_Custom();
+			auto custom = GameAlloc<CDivinityStats_Object_Property_Custom>();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strCustomProperties, actionStr);
 			if (!action) {
@@ -811,7 +809,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::Status:
 		{
-			auto status = new CDivinityStats_Object_Property_Status();
+			auto status = GameAlloc<CDivinityStats_Object_Property_Status>();
 			status->Status = MakeFixedString(checked_gettable<char const*, char const*>(L, "Action"));
 			status->StatusChance = checked_gettable<char const*, float>(L, "StatusChance");
 			status->Duration = checked_gettable<char const*, float>(L, "Duration");
@@ -825,7 +823,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::SurfaceChange:
 		{
-			auto change = new CDivinityStats_Object_Property_SurfaceChange();
+			auto change = GameAlloc<CDivinityStats_Object_Property_SurfaceChange>();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strSurfaceChange, actionStr);
 			if (!action) {
@@ -844,7 +842,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::GameAction:
 		{
-			auto gameAction = new CDivinityStats_Object_Property_GameAction();
+			auto gameAction = GameAlloc<CDivinityStats_Object_Property_GameAction>();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strGameAction, actionStr);
 			if (!action) {
@@ -875,7 +873,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::OsirisTask:
 		{
-			auto osirisTask = new CDivinityStats_Object_Property_OsirisTask();
+			auto osirisTask = GameAlloc<CDivinityStats_Object_Property_OsirisTask>();
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strOsirisTask, actionStr);
 			if (!action) {
@@ -891,7 +889,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::Sabotage:
 		{
-			auto sabotage = new CDivinityStats_Object_Property_Sabotage();
+			auto sabotage = GameAlloc<CDivinityStats_Object_Property_Sabotage>();
 			sabotage->Amount = checked_gettable<char const*, int>(L, "Amount");
 			prop = sabotage;
 			break;
@@ -899,7 +897,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::Summon:
 		{
-			auto summon = new CDivinityStats_Object_Property_Summon();
+			auto summon = GameAlloc<CDivinityStats_Object_Property_Summon>();
 			summon->Template = MakeFixedString(checked_gettable<char const*, char const*>(L, "Template"));
 			summon->Duration = checked_gettable<char const*, float>(L, "Duration");
 			summon->IsTotem = checked_gettable<char const*, bool>(L, "IsTotem");
@@ -910,7 +908,7 @@ namespace dse::lua
 
 		case CRPGStats_Object_Property_Type::Force:
 		{
-			auto force = new CDivinityStats_Object_Property_Force();
+			auto force = GameAlloc<CDivinityStats_Object_Property_Force>();
 			force->Distance = checked_gettable<char const*, int>(L, "Distance");
 			prop = force;
 			break;
@@ -977,8 +975,8 @@ namespace dse::lua
 			return nullptr;
 		}
 
-		auto properties = new CRPGStats_Object_Property_List();
-		*(void**)properties = SkillPropertiesVMT;
+		auto properties = GameAlloc<CRPGStats_Object_Property_List>();
+		properties->Properties.VMT = SkillPropertiesVMT;
 		properties->Properties.NameHashMap.Init(31);
 		properties->Name = propertyName;
 
@@ -1148,7 +1146,8 @@ namespace dse::lua
 				if (propertyList) {
 					// FIXME - add Remove() support!
 					object->PropertyList.Clear();
-					GameFree(*propertyList);
+					// FIXME - need to remove from stats.PropertyLists too!
+					// GameFree(*propertyList);
 				}
 
 				object->PropertyList.Insert(MakeFixedString(attributeName), newList);
