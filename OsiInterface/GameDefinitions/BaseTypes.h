@@ -368,7 +368,6 @@ namespace dse
 		{
 			do {
 				auto next = node->Next;
-				node->~Node();
 				GameDelete(node);
 				node = next;
 			} while (node != nullptr);
@@ -495,7 +494,6 @@ namespace dse
 		{
 			do {
 				auto next = node->Next;
-				node->~Node();
 				GameDelete(node);
 				node = next;
 			} while (node != nullptr);
