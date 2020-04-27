@@ -23,12 +23,15 @@ namespace dse::esv::lua
 		switch (osiType) {
 		case ValueType::Integer:
 			if (type == LUA_TNUMBER) {
+#if LUA_VERSION_NUM > 501
 				if (lua_isinteger(L, i)) {
 					tv.Value.Val.Int32 = (int32_t)lua_tointeger(L, i);
-				}
-				else {
+				} else {
 					tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
 				}
+#else
+				tv.Value.Val.Int32 = (int32_t)lua_tonumber(L, i);
+#endif
 			} else if (type == LUA_TBOOLEAN) {
 				// Convert Lua booleans to 0/1 in Osiris
 				tv.Value.Val.Int32 = (int32_t)lua_toboolean(L, i);
@@ -43,11 +46,15 @@ namespace dse::esv::lua
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, i)) {
 				tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
 			} else {
 				tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
 			}
+#else
+			tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
+#endif
 			break;
 
 		case ValueType::Real:
@@ -55,11 +62,15 @@ namespace dse::esv::lua
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, i)) {
 				tv.Value.Val.Float = (float)lua_tointeger(L, i);
 			} else {
 				tv.Value.Val.Float = (float)lua_tonumber(L, i);
 			}
+#else
+			tv.Value.Val.Float = (float)lua_tonumber(L, i);
+#endif
 			break;
 
 		case ValueType::String:
@@ -102,11 +113,15 @@ namespace dse::esv::lua
 		switch (osiType) {
 		case ValueType::Integer:
 			if (type == LUA_TNUMBER) {
+#if LUA_VERSION_NUM > 501
 				if (lua_isinteger(L, i)) {
 					arg.Int32 = (int32_t)lua_tointeger(L, i);
 				} else {
 					arg.Int32 = (int32_t)lua_tonumber(L, i);
 				}
+#else
+				arg.Int32 = (int32_t)lua_tonumber(L, i);
+#endif
 			} else if (type == LUA_TBOOLEAN) {
 				// Convert Lua booleans to 0/1 in Osiris
 				arg.Int32 = (int32_t)lua_toboolean(L, i);
@@ -120,11 +135,15 @@ namespace dse::esv::lua
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, i)) {
 				arg.Int64 = (int64_t)lua_tointeger(L, i);
 			} else {
 				arg.Int64 = (int64_t)lua_tonumber(L, i);
 			}
+#else
+			arg.Int64 = (int64_t)lua_tonumber(L, i);
+#endif
 			break;
 
 		case ValueType::Real:
@@ -132,11 +151,15 @@ namespace dse::esv::lua
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, i)) {
 				arg.Float = (float)lua_tointeger(L, i);
 			} else {
 				arg.Float = (float)lua_tonumber(L, i);
 			}
+#else
+			arg.Float = (float)lua_tonumber(L, i);
+#endif
 			break;
 
 		case ValueType::String:

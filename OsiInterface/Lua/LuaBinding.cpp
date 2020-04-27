@@ -629,17 +629,22 @@ namespace dse::lua
 
 		if (replaceGlobals) {
 			luaL_checktype(L, 3, LUA_TTABLE);
+#if LUA_VERSION_NUM > 501
 			lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
 			lua_pushvalue(L, 3);
 			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+#endif
 		}
 
-		auto nret = gOsirisProxy->GetCurrentExtensionState()->LuaLoadModScript(modGuid, fileName);
+		auto nret = gOsirisProxy->GetCurrentExtensionState()
+			->LuaLoadModScript(modGuid, fileName, true, replaceGlobals ? 3 : 0);
 
 		if (replaceGlobals) {
+#if LUA_VERSION_NUM > 501
 			lua_pushvalue(L, globalsIdx);
 			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
 			lua_remove(L, globalsIdx);
+#endif
 		}
 
 		if (nret) {
@@ -650,6 +655,7 @@ namespace dse::lua
 	}
 
 
+#if LUA_VERSION_NUM > 501
 	// Unsafe libs (IO, OS, package, debug) removed
 	static const luaL_Reg loadedlibs[] = {
 	  {"_G", luaopen_base},
@@ -661,6 +667,28 @@ namespace dse::lua
 	  {NULL, NULL}
 	};
 
+#else
+	// Unsafe libs (IO, OS, package, debug) removed
+	static const luaL_Reg loadedlibs[] = {
+	  {"", luaopen_base},
+	  {LUA_TABLIBNAME, luaopen_table},
+	  {LUA_STRLIBNAME, luaopen_string},
+	  {LUA_MATHLIBNAME, luaopen_math},
+	  {LUA_BITLIBNAME, luaopen_bit},
+	  // debug table is stripped in the sandbox startup script
+	  {LUA_DBLIBNAME, luaopen_debug},
+	  {NULL, NULL}
+	};
+
+	static const luaL_Reg lj_lib_preload[] = {
+	#if LJ_HASFFI
+	  { LUA_FFILIBNAME,	luaopen_ffi },
+	#endif
+	  { NULL,		NULL }
+	};
+
+#endif
+
 	int LuaPanic(lua_State * L)
 	{
 		throw Exception();
@@ -669,6 +697,7 @@ namespace dse::lua
 	State::State()
 	{
 		L = luaL_newstate();
+		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
 		lua_atpanic(L, &LuaPanic);
 		OpenLibs();
 	}
@@ -694,15 +723,31 @@ namespace dse::lua
 		
 	void State::OpenLibs()
 	{
+#if LUA_VERSION_NUM > 501
 		const luaL_Reg *lib;
 		/* "require" functions from 'loadedlibs' and set results to global table */
 		for (lib = loadedlibs; lib->func; lib++) {
 			luaL_requiref(L, lib->name, lib->func, 1);
 			lua_pop(L, 1);  /* remove lib */
 		}
+#else
+		const luaL_Reg* lib;
+		for (lib = loadedlibs; lib->func; lib++) {
+			lua_pushcfunction(L, lib->func);
+			lua_pushstring(L, lib->name);
+			lua_call(L, 1, 0);
+		}
+		luaL_findtable(L, LUA_REGISTRYINDEX, "_PRELOAD",
+			sizeof(lj_lib_preload) / sizeof(lj_lib_preload[0]) - 1);
+		for (lib = lj_lib_preload; lib->func; lib++) {
+			lua_pushcfunction(L, lib->func);
+			lua_setfield(L, -2, lib->name);
+		}
+		lua_pop(L, 1);
+#endif
 	}
 
-	std::optional<int> State::LoadScript(STDString const & script, STDString const & name)
+	std::optional<int> State::LoadScript(STDString const & script, STDString const & name, int globalsIdx)
 	{
 		std::lock_guard lock(mutex_);
 		int top = lua_gettop(L);
@@ -714,6 +759,13 @@ namespace dse::lua
 			lua_pop(L, 1);  /* pop error message from the stack */
 			return {};
 		}
+
+#if LUA_VERSION_NUM <= 501
+		if (globalsIdx != 0) {
+			lua_pushvalue(L, globalsIdx);
+			lua_setfenv(L, -2);
+		}
+#endif
 
 		/* Ask Lua to run our little script */
 		status = CallWithTraceback(L, 0, LUA_MULTRET);

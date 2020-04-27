@@ -86,12 +86,18 @@ Ext.Require = function (mod, path)
 	if Ext._LoadedFiles[fullName] ~= nil then
 		return Ext._LoadedFiles[fullName]
 	end
+	
+	local env
+	-- LuaJIT workaround
+	if getfenv ~= nil then
+		env = getfenv(2)
+	end
 
 	local loaded
 	if path == nil then
-		loaded = {Ext.Include(ModuleUUID, mod, nil)}
+		loaded = {Ext.Include(ModuleUUID, mod, env)}
 	else
-		loaded = {Ext.Include(mod, path, nil)}
+		loaded = {Ext.Include(mod, path, env)}
 	end
 
 	Ext._LoadedFiles[fullName] = loaded
@@ -122,7 +128,8 @@ Ext._LoadBootstrap = function (path, modTable)
 	-- The rest are accessed via __index
 	setmetatable(env, {__index = _G})
 	Mods[modTable] = env
-
+	
+	env._G = env
 	Ext.Include(ModuleUUID, path, env)
 end
 

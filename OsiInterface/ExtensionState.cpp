@@ -358,7 +358,7 @@ namespace dse
 		return lua->LoadScript(s, path);
 	}
 
-	std::optional<int> ExtensionStateBase::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName)
+	std::optional<int> ExtensionStateBase::LuaLoadGameFile(FileReaderPin & reader, STDString const & scriptName, int globalsIdx)
 	{
 		if (!reader.IsLoaded()) {
 			OsiErrorS("Attempted to load script from invalid file reader");
@@ -371,10 +371,11 @@ namespace dse
 			return {};
 		}
 
-		return lua->LoadScript(reader.ToString(), scriptName);
+		return lua->LoadScript(reader.ToString(), scriptName, globalsIdx);
 	}
 
-	std::optional<int> ExtensionStateBase::LuaLoadGameFile(STDString const & path, STDString const & scriptName, bool warnOnError)
+	std::optional<int> ExtensionStateBase::LuaLoadGameFile(STDString const & path, STDString const & scriptName, 
+		bool warnOnError, int globalsIdx)
 	{
 		auto reader = GetStaticSymbols().MakeFileReader(path);
 		if (!reader.IsLoaded()) {
@@ -384,10 +385,11 @@ namespace dse
 			return {};
 		}
 
-		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName);
+		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName, globalsIdx);
 	}
 
-	std::optional<int> ExtensionStateBase::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, bool warnOnError)
+	std::optional<int> ExtensionStateBase::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, 
+		bool warnOnError, int globalsIdx)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
 		if (mod == nullptr) {
@@ -404,7 +406,7 @@ namespace dse
 		}
 		scriptName += "/" + fileName;
 
-		return LuaLoadGameFile(path, scriptName, warnOnError);
+		return LuaLoadGameFile(path, scriptName, warnOnError, globalsIdx);
 	}
 
 	void ExtensionStateBase::LuaResetInternal()

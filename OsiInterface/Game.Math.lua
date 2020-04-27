@@ -9,6 +9,9 @@ Game = {
 }
 
 _ENV = Game.Math
+if setfenv ~= nil then
+    setfenv(1, Game.Math)
+end
 
 DamageTypeToDeathTypeMap = {
     Physical = "Physical",

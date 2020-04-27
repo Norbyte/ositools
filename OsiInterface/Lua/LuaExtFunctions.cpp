@@ -147,6 +147,7 @@ namespace dse::lua
 		int next = 1;
 		bool isArray = true;
 		while (lua_next(L, index) != 0) {
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, -2)) {
 				auto key = lua_tointeger(L, -2);
 				if (key != next++) {
@@ -155,6 +156,16 @@ namespace dse::lua
 			} else {
 				isArray = false;
 			}
+#else
+			if (lua_isnumber(L, -2)) {
+				auto key = lua_tonumber(L, -2);
+				if (abs(key - next++) < 0.0001) {
+					isArray = false;
+				}
+			} else {
+				isArray = false;
+			}
+#endif
 
 			lua_pop(L, 1);
 		}
@@ -186,11 +197,15 @@ namespace dse::lua
 			return Json::Value(lua_toboolean(L, index) == 1);
 
 		case LUA_TNUMBER:
+#if LUA_VERSION_NUM > 501
 			if (lua_isinteger(L, index)) {
 				return Json::Value(lua_tointeger(L, index));
 			} else {
 				return Json::Value(lua_tonumber(L, index));
 			}
+#else
+			return Json::Value(lua_tonumber(L, index));
+#endif
 
 		case LUA_TSTRING:
 			return Json::Value(lua_tostring(L, index));
@@ -552,9 +567,13 @@ namespace dse::lua
 
 	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> & requirements)
 	{
+#if LUA_VERSION_NUM > 501
 		lua_len(L, -1);
 		auto len = lua_tointeger(L, -1);
 		lua_pop(L, 1);
+#else
+		auto len = lua_objlen(L, -1);
+#endif
 
 		requirements.Set.Reallocate((uint32_t)len);
 		requirements.Set.Size = (uint32_t)len;
@@ -1572,8 +1591,10 @@ namespace dse::lua
 		}
 		/* random integer in the interval [low, up] */
 		luaL_argcheck(L, low <= up, 1, "interval is empty");
+#if LUA_VERSION_NUM > 501
 		luaL_argcheck(L, low >= 0 || up <= LUA_MAXINTEGER + low, 1,
 			"interval too large");
+#endif
 
 		std::uniform_int_distribution<int64_t> dist(low, up);
 		push(L, dist(state->OsiRng));
