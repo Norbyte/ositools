@@ -1,18 +1,18 @@
 
-template <class TCharacter, class TStatus>
-int CharacterGetStatus(lua_State* L)
+template <class TObject, class TStatus>
+int GameObjectGetStatus(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TCharacter>*>(L, 1);
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
 	auto statusId = luaL_checkstring(L, 2);
 
-	auto character = self->Get(L);
+	auto object = self->Get(L);
 	auto statusIdFs = ToFixedString(statusId);
 
-	if (!character || !character->StatusMachine || !statusIdFs) {
+	if (!object || !object->StatusMachine || !statusIdFs) {
 		return 0;
 	}
 
-	auto status = character->StatusMachine->GetStatus(statusIdFs);
+	auto status = object->StatusMachine->GetStatus(statusIdFs);
 	if (status) {
 		// FIXME - use handle based proxy
 		ObjectProxy<TStatus>::New(L, status);
@@ -23,14 +23,14 @@ int CharacterGetStatus(lua_State* L)
 	}
 }
 
-template <class TCharacter, class TStatus>
-int CharacterGetStatusByType(lua_State* L)
+template <class TObject, class TStatus>
+int GameObjectGetStatusByType(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TCharacter>*>(L, 1);
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
 	auto statusType = luaL_checkstring(L, 2);
 
-	auto character = self->Get(L);
-	if (!character || !character->StatusMachine) {
+	auto object = self->Get(L);
+	if (!object || !object->StatusMachine) {
 		return 0;
 	}
 
@@ -40,7 +40,7 @@ int CharacterGetStatusByType(lua_State* L)
 		return 0;
 	}
 
-	for (auto status : character->StatusMachine->Statuses) {
+	for (auto status : object->StatusMachine->Statuses) {
 		if (status->GetStatusId() == *typeId) {
 			// FIXME - use handle based proxy
 			ObjectProxy<TStatus>::New(L, status);
@@ -51,48 +51,48 @@ int CharacterGetStatusByType(lua_State* L)
 	return 0;
 }
 
-template <class TCharacter>
-int CharacterGetStatuses(lua_State* L)
+template <class TObject>
+int GameObjectGetStatuses(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TCharacter>*>(L, 1);
-	auto character = self->Get(L);
-	if (!character || !character->StatusMachine) {
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto object = self->Get(L);
+	if (!object || !object->StatusMachine) {
 		return 0;
 	}
 
 	lua_newtable(L);
 
 	int32_t index = 1;
-	for (auto status : character->StatusMachine->Statuses) {
+	for (auto status : object->StatusMachine->Statuses) {
 		settable(L, index++, status->StatusId);
 	}
 
 	return 1;
 }
 
-template <class TCharacter>
-int CharacterHasTag(lua_State* L)
+template <class TObject>
+int GameObjectHasTag(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TCharacter>*>(L, 1);
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
 	auto tag = luaL_checkstring(L, 2);
 
-	auto character = self->Get(L);
+	auto object = self->Get(L);
 	auto tagFs = ToFixedString(tag);
 
-	if (!character || !tagFs) {
+	if (!object || !tagFs) {
 		push(L, false);
 	}
 	else {
-		push(L, character->IsTagged(tagFs));
+		push(L, object->IsTagged(tagFs));
 	}
 
 	return 1;
 }
 
-template <class TCharacter>
-int CharacterGetTags(lua_State* L)
+template <class TObject>
+int GameObjectGetTags(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TCharacter>*>(L, 1);
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
 	auto character = self->Get(L);
 	if (!character) {
 		return 0;

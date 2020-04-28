@@ -120,27 +120,27 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "HasTag") == 0) {
-			lua_pushcfunction(L, &CharacterHasTag<ecl::Character>);
+			lua_pushcfunction(L, &GameObjectHasTag<ecl::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetTags") == 0) {
-			lua_pushcfunction(L, &CharacterGetTags<ecl::Character>);
+			lua_pushcfunction(L, &GameObjectGetTags<ecl::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatus") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatus<ecl::Character, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character, ecl::Status>));
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatusByType") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatusByType<ecl::Character, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Character, ecl::Status>));
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatuses") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatuses<ecl::Character>));
+			lua_pushcfunction(L, (&GameObjectGetStatuses<ecl::Character>));
 			return 1;
 		}
 
@@ -169,8 +169,34 @@ namespace dse::lua
 		if (!item) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
 
-		if (strcmp(prop, "Stats") == 0) {
+		if (propFS == GFS.strHasTag) {
+			lua_pushcfunction(L, &GameObjectHasTag<ecl::Item>);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetTags) {
+			lua_pushcfunction(L, &GameObjectGetTags<ecl::Item>);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatus) {
+			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Item, ecl::Status>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatusByType) {
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Item, ecl::Status>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatuses) {
+			lua_pushcfunction(L, (&GameObjectGetStatuses<ecl::Item>));
+			return 1;
+		}
+
+		if (propFS == GFS.strStats) {
 			if (item->Stats != nullptr) {
 				// FIXME - use handle based proxy
 				ObjectProxy<CDivinityStats_Item>::New(L, item->Stats);
@@ -184,11 +210,11 @@ namespace dse::lua
 
 		bool fetched = false;
 		if (item->Stats != nullptr) {
-			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, prop, false);
+			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, propFS, false);
 		}
 
 		if (!fetched) {
-			fetched = LuaPropertyMapGet(L, gEclItemPropertyMap, item, prop, true);
+			fetched = LuaPropertyMapGet(L, gEclItemPropertyMap, item, propFS, true);
 		}
 
 		return fetched ? 1 : 0;

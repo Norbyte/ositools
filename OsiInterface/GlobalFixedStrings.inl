@@ -28,6 +28,14 @@ FS(Source);
 FS(Target);
 FS(HitObject);
 
+// Game object funcs
+FS(HasTag);
+FS(GetTags);
+FS(GetStatus);
+FS(GetStatusByType);
+FS(GetStatuses);
+FS(Stats);
+
 // Character stats
 FS(DynamicStats);
 FS(MainWeapon);

@@ -146,27 +146,27 @@ namespace dse::lua
 		}
 
 		if (strcmp(prop, "HasTag") == 0) {
-			lua_pushcfunction(L, &CharacterHasTag<esv::Character>);
+			lua_pushcfunction(L, &GameObjectHasTag<esv::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetTags") == 0) {
-			lua_pushcfunction(L, &CharacterGetTags<esv::Character>);
+			lua_pushcfunction(L, &GameObjectGetTags<esv::Character>);
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatus") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatus<esv::Character, esv::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Character, esv::Status>));
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatusByType") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatusByType<esv::Character, esv::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Character, esv::Status>));
 			return 1;
 		}
 
 		if (strcmp(prop, "GetStatuses") == 0) {
-			lua_pushcfunction(L, (&CharacterGetStatuses<esv::Character>));
+			lua_pushcfunction(L, (&GameObjectGetStatuses<esv::Character>));
 			return 1;
 		}
 
@@ -195,8 +195,34 @@ namespace dse::lua
 		if (!item) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
 
-		if (strcmp(prop, "Stats") == 0) {
+		if (propFS == GFS.strHasTag) {
+			lua_pushcfunction(L, &GameObjectHasTag<esv::Item>);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetTags) {
+			lua_pushcfunction(L, &GameObjectGetTags<esv::Item>);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatus) {
+			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Item, esv::Status>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatusByType) {
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Item, esv::Status>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetStatuses) {
+			lua_pushcfunction(L, (&GameObjectGetStatuses<esv::Item>));
+			return 1;
+		}
+
+		if (propFS == GFS.strStats) {
 			if (item->StatsDynamic != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
@@ -209,11 +235,11 @@ namespace dse::lua
 
 		bool fetched = false;
 		if (item->StatsDynamic != nullptr) {
-			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, prop, false);
+			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, propFS, false);
 		}
 
 		if (!fetched) {
-			fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, prop, true);
+			fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, propFS, true);
 		}
 
 		return fetched ? 1 : 0;
