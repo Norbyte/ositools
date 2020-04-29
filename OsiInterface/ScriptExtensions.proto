@@ -30,6 +30,48 @@ message MsgC2SRequestNetworkFixedStrings {
 message MsgC2SExtenderHello {
 }
 
+message StatRequirement {
+    int32 requirement = 1;
+    int32 int_param = 2;
+    string string_param = 3;
+    bool negate = 4;
+}
+
+message StatProperty {
+    uint32 property_context = 1;
+    uint32 type = 2;
+    string conditions = 3;
+    repeated string string_params = 4;
+    repeated int32 int_params = 5;
+    repeated float float_params = 6;
+    repeated bool bool_params = 7;
+    repeated int32 surface_boosts = 8;
+    string name = 9;
+}
+
+message StatPropertyList {
+    string name = 1;
+    repeated StatProperty properties = 2;
+}
+
+message StatIndexedProperty {
+    int32 intval = 1;
+    string stringval = 2;
+}
+
+// Updates a stats entry on the client
+message MsgS2CSyncStat {
+  string name = 1;
+  sint32 level = 2;
+  int32 modifier_list = 3;
+  repeated StatIndexedProperty indexed_properties = 4;
+  fixed64 ai_flags = 5;
+  repeated StatRequirement requirements = 6;
+  repeated StatRequirement memorization_requirements = 7;
+  repeated string combo_categories = 8;
+  repeated StatPropertyList property_lists = 9;
+}
+
 message MessageWrapper {
   oneof msg {
     MsgPostLuaMessage post_lua = 1;
@@ -37,5 +79,6 @@ message MessageWrapper {
     MsgS2CSyncNetworkFixedStrings s2c_sync_strings = 3;
     MsgC2SRequestNetworkFixedStrings c2s_request_strings = 4;
     MsgC2SExtenderHello c2s_extender_hello = 5;
+    MsgS2CSyncStat s2c_sync_stat = 6;
   }
 }

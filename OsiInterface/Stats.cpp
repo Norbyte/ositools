@@ -8,6 +8,432 @@
 
 namespace dse
 {
+	void SkillPrototypeManager::SyncSkillStat(CRPGStats_Object* object)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		auto skillTypeFs = stats->GetAttributeString(object, GFS.strSkillType);
+		if (!skillTypeFs || !*skillTypeFs) {
+			OsiError("Skill stats object has no SkillType?");
+			return;
+		}
+
+		auto skillType = EnumInfo<SkillType>::Find(*skillTypeFs);
+		if (!skillType) {
+			OsiError("Unsupported SkillType: " << *skillTypeFs);
+			return;
+		}
+
+		auto pProto = Prototypes.Find(object->Name);
+		if (pProto == nullptr) {
+			auto proto = GameAlloc<SkillPrototype>();
+			proto->RPGStatsObjectIndex = object->Handle;
+			proto->SkillTypeId = *skillType;
+			proto->SkillId = object->Name;
+			proto->Ability = *stats->GetAttributeInt(object, GFS.strAbility);
+			proto->Tier = *stats->GetAttributeInt(object, GFS.strTier);
+			proto->Requirement = *stats->GetAttributeInt(object, GFS.strRequirement);
+			proto->Level = *stats->GetAttributeInt(object, GFS.strLevel);
+			proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
+			proto->MagicCost = *stats->GetAttributeInt(object, GFS.strMagicCost);
+			proto->MemoryCost = *stats->GetAttributeInt(object, GFS.strMemoryCost);
+			proto->ActionPoints = *stats->GetAttributeInt(object, GFS.strActionPoints);
+			proto->Cooldown = *stats->GetAttributeInt(object, GFS.strCooldown) * 6.0f;
+			proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
+			proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
+			proto->DisplayName = L"FIXME DisplayName!";
+			proto->AiFlags = 0; // FIXME
+			proto->RootSkillPrototype = nullptr;
+
+			Prototypes.Insert(proto->SkillId, proto);
+			PrototypeNames.Set.Add(proto->SkillId);
+
+			auto lv1Proto = GameAlloc<SkillPrototype>();
+			*lv1Proto = *proto;
+
+			STDString lv1Name = proto->SkillId.Str;
+			lv1Name += "_-1";
+			lv1Proto->SkillId = MakeFixedString(lv1Name.c_str());
+			lv1Proto->Level = -1;
+
+			proto->ChildPrototypes.Set.Add(lv1Proto);
+			lv1Proto->RootSkillPrototype = proto;
+
+			Prototypes.Insert(lv1Proto->SkillId, lv1Proto);
+			PrototypeNames.Set.Add(lv1Proto->SkillId);
+		} else {
+			// FIXME - sync existing skill prototypes!
+		}
+	}
+
+	void CRPGStats_Requirement::ToProtobuf(StatRequirement* msg) const
+	{
+		msg->set_requirement((int32_t)RequirementId);
+		msg->set_int_param(IntParam);
+		if (StringParam) {
+			msg->set_string_param(StringParam.Str);
+		}
+		msg->set_negate(Negate);
+	}
+
+	void CRPGStats_Requirement::FromProtobuf(StatRequirement const& msg)
+	{
+		RequirementId = (RequirementType)msg.requirement();
+		IntParam = msg.int_param();
+		if (!msg.string_param().empty()) {
+			StringParam = MakeFixedString(msg.string_param().c_str());
+		}
+
+		Negate = msg.negate();
+	}
+
+
+	void CDivinityStats_Object_Property_Data::ToProtobuf(StatProperty* msg) const
+	{
+		msg->set_name(Name.Str);
+		msg->set_type((uint32_t)TypeId);
+		msg->set_property_context((uint32_t)PropertyContext);
+		if (Conditions) {
+			STDString name(Name.Str);
+			if (name[name.length() - 1] == ')') {
+				auto ifPos = name.find("_IF(");
+				if (ifPos != std::string::npos) {
+					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
+					msg->set_conditions(condition.c_str());
+				}
+			}
+		}
+
+		switch (TypeId) {
+		case CRPGStats_Object_Property_Type::Custom:
+			break;
+
+		case CRPGStats_Object_Property_Type::Status:
+		{
+			auto const& p = (CDivinityStats_Object_Property_Status const&)*this;
+			msg->add_string_params(p.Status.Str);
+			msg->add_float_params(p.StatusChance);
+			msg->add_float_params(p.Duration);
+			msg->add_string_params(p.Argument3.Str);
+			msg->add_int_params(p.Argument4);
+			msg->add_int_params(p.Argument5);
+			msg->add_bool_params(p.HasBoost);
+			for (auto boost : p.SurfaceBoosts) {
+				msg->add_surface_boosts(boost);
+			}
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::SurfaceChange:
+		{
+			auto const& p = (CDivinityStats_Object_Property_SurfaceChange const&)*this;
+			msg->add_int_params(p.SurfaceChange);
+			msg->add_float_params(p.Arg1);
+			msg->add_float_params(p.Arg2);
+			msg->add_float_params(p.Arg3);
+			msg->add_float_params(p.Arg4);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::GameAction:
+		{
+			auto const& p = (CDivinityStats_Object_Property_GameAction const&)*this;
+			msg->add_int_params(p.GameAction);
+			msg->add_float_params(p.Arg1);
+			msg->add_float_params(p.Arg2);
+			msg->add_string_params(p.Arg3.Str);
+			msg->add_float_params(p.Arg4);
+			msg->add_float_params(p.Arg5);
+			msg->add_int_params(p.StatusHealType);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::OsirisTask:
+		{
+			auto const& p = (CDivinityStats_Object_Property_OsirisTask const&)*this;
+			msg->add_int_params(p.OsirisTask);
+			msg->add_float_params(p.Chance);
+			msg->add_int_params(p.VitalityOnRevive);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Sabotage:
+		{
+			auto const& p = (CDivinityStats_Object_Property_Sabotage const&)*this;
+			msg->add_int_params(p.Amount);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Summon:
+		{
+			auto const& p = (CDivinityStats_Object_Property_Summon const&)*this;
+			msg->add_string_params(p.Template.Str);
+			msg->add_float_params(p.Duration);
+			msg->add_bool_params(p.IsTotem);
+			msg->add_string_params(p.Skill.Str);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Force:
+		{
+			auto const& p = (CDivinityStats_Object_Property_Force const&)*this;
+			msg->add_int_params(p.Distance);
+			break;
+		}
+
+		default:
+			WARN("Couldn't convert unknown property type %d to protobuf!", TypeId);
+		}
+	}
+
+	void CDivinityStats_Object_Property_Data::FromProtobuf(StatProperty const& msg)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+
+		Name = MakeFixedString(msg.name().c_str());
+		PropertyContext = (CRPGStats_Object_PropertyContext)msg.property_context();
+
+		if (!msg.conditions().empty()) {
+			STDString conditions(msg.conditions().c_str());
+			auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(conditions);
+			if (scriptCheckBlock) {
+				auto statConditions = GameAlloc<CDivinityStats_Condition>();
+				statConditions->ScriptCheckBlock = scriptCheckBlock;
+				statConditions->Name = GFS.strEmpty; // TODO?
+				Conditions = statConditions;
+			} else {
+				OsiError("Failed to parse conditions from protobuf: " << conditions);
+			}
+		}
+
+		switch (TypeId) {
+		case CRPGStats_Object_Property_Type::Custom:
+			break;
+
+		case CRPGStats_Object_Property_Type::Status:
+		{
+			auto& p = (CDivinityStats_Object_Property_Status&)*this;
+			p.Status = MakeFixedString(msg.string_params()[0].c_str());
+			p.StatusChance = msg.float_params()[0];
+			p.Duration = msg.float_params()[1];
+			p.Argument3 = MakeFixedString(msg.string_params()[1].c_str());
+			p.Argument4 = msg.int_params()[0];
+			p.Argument5 = msg.int_params()[1];
+			p.HasBoost = msg.bool_params()[0];
+			for (auto boost : msg.surface_boosts()) {
+				p.SurfaceBoosts.Set.Add(boost);
+			}
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::SurfaceChange:
+		{
+			auto& p = (CDivinityStats_Object_Property_SurfaceChange&)*this;
+			p.SurfaceChange = msg.int_params()[0];
+			p.Arg1 = msg.float_params()[0];
+			p.Arg2 = msg.float_params()[1];
+			p.Arg3 = msg.float_params()[2];
+			p.Arg4 = msg.float_params()[3];
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::GameAction:
+		{
+			auto& p = (CDivinityStats_Object_Property_GameAction&)*this;
+			p.GameAction = msg.int_params()[0];
+			p.Arg1 = msg.float_params()[0];
+			p.Arg2 = msg.float_params()[1];
+			p.Arg3 = MakeFixedString(msg.string_params()[0].c_str());
+			p.Arg4 = msg.float_params()[2];
+			p.Arg5 = msg.float_params()[3];
+			p.StatusHealType = msg.int_params()[1];
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::OsirisTask:
+		{
+			auto& p = (CDivinityStats_Object_Property_OsirisTask&)*this;
+			p.OsirisTask = msg.int_params()[0];
+			p.Chance = msg.float_params()[0];
+			p.VitalityOnRevive = msg.int_params()[1];
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Sabotage:
+		{
+			auto& p = (CDivinityStats_Object_Property_Sabotage&)*this;
+			p.Amount = msg.int_params()[0];
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Summon:
+		{
+			auto& p = (CDivinityStats_Object_Property_Summon&)*this;
+			p.Template = MakeFixedString(msg.string_params()[0].c_str());
+			p.Duration = msg.float_params()[0];
+			p.IsTotem = msg.bool_params()[0];
+			p.Skill = MakeFixedString(msg.string_params()[1].c_str());
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Force:
+		{
+			auto& p = (CDivinityStats_Object_Property_Force&)*this;
+			p.Distance = msg.int_params()[0];
+			break;
+		}
+
+		default:
+			WARN("Couldn't parse unknown property type %d from protobuf!", TypeId);
+		}
+	}
+
+	void CRPGStats_Object_Property_List::ToProtobuf(FixedString const& name, StatPropertyList* msg) const
+	{
+		msg->set_name(name.Str);
+		for (auto const& prop : Properties.Primitives) {
+			auto const& dataProp = (CDivinityStats_Object_Property_Data const*)prop;
+			dataProp->ToProtobuf(msg->add_properties());
+		}
+	}
+
+	void CRPGStats_Object_Property_List::FromProtobuf(StatPropertyList const& msg)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		for (auto const& prop : msg.properties()) {
+			auto property = stats->ConstructProperty((CRPGStats_Object_Property_Type)prop.type());
+			if (property) {
+				property->FromProtobuf(prop);
+				Properties.Add(property->Name, property);
+				AllPropertyContexts |= property->PropertyContext;
+			}
+		}
+	}
+
+	void CRPGStats_Object::ToProtobuf(MsgS2CSyncStat* msg) const
+	{
+		msg->set_name(Name.Str);
+		msg->set_level(Level);
+		msg->set_modifier_list(ModifierListIndex);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto modifierList = stats->modifierList.Find(ModifierListIndex);
+
+		for (size_t i = 0; i < IndexedProperties.size(); i++) {
+			auto value = IndexedProperties[i];
+			auto indexedProp = msg->add_indexed_properties();
+			auto modifier = modifierList->Attributes.Find((uint32_t)i);
+			auto enumeration = stats->modifierValueList.Find(modifier->RPGEnumerationIndex);
+			if (enumeration->IsIndexedProperty()) {
+				if (enumeration->IsStringIndexedProperty()) {
+					indexedProp->set_stringval(stats->ModifierFSSet[value].Str);
+				} else {
+					indexedProp->set_intval(value);
+				}
+			}
+		}
+
+		msg->set_ai_flags(AIFlags);
+
+		for (auto const& reqmt : Requirements) {
+			reqmt.ToProtobuf(msg->add_requirements());
+		}
+
+		for (auto const& reqmt : MemorizationRequirements) {
+			reqmt.ToProtobuf(msg->add_memorization_requirements());
+		}
+
+		for (auto const& category : ComboCategories) {
+			msg->add_combo_categories(category.Str);
+		}
+
+		PropertyList.Iterate([msg](auto const& key, auto const& propertyList) {
+			propertyList->ToProtobuf(key, msg->add_property_lists());
+		});
+	}
+
+	void CRPGStats_Object::Sync(MsgS2CSyncStat const& msg)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		Level = msg.level();
+
+		if (msg.indexed_properties_size() != IndexedProperties.size()) {
+			OsiError("IndexedProperties size mismatch for '" << Name << "'! Got "
+				<< msg.indexed_properties_size() << ", expected " << IndexedProperties.size());
+			return;
+		}
+
+		auto modifierList = stats->modifierList.Find(ModifierListIndex);
+		for (size_t i = 0; i < IndexedProperties.size(); i++) {
+			auto modifier = modifierList->Attributes.Find((uint32_t)i);
+			auto enumeration = stats->modifierValueList.Find(modifier->RPGEnumerationIndex);
+			if (enumeration->IsIndexedProperty()) {
+				auto const& prop = msg.indexed_properties().Get((uint32_t)i);
+				if (enumeration->IsStringIndexedProperty()) {
+					IndexedProperties[i] = stats->GetOrCreateFixedString(prop.stringval().c_str());
+				} else {
+					IndexedProperties[i] = prop.intval();
+				}
+			} else {
+				IndexedProperties[i] = 0;
+			}
+		}
+
+		AIFlags = msg.ai_flags();
+
+		Requirements.Set.Clear();
+		for (auto const& reqmt : msg.requirements()) {
+			CRPGStats_Requirement requirement;
+			requirement.FromProtobuf(reqmt);
+			Requirements.Set.Add(requirement);
+		}
+
+		for (auto const& reqmt : msg.memorization_requirements()) {
+			CRPGStats_Requirement requirement;
+			requirement.FromProtobuf(reqmt);
+			Requirements.Set.Add(requirement);
+		}
+
+		ComboCategories.Set.Clear();
+		for (auto const& category : msg.combo_categories()) {
+			ComboCategories.Set.Add(MakeFixedString(category.c_str()));
+		}
+
+		PropertyList.Clear();
+		for (auto const& props : msg.property_lists()) {
+			auto name = MakeFixedString(props.name().c_str());
+			auto propertyList = stats->ConstructPropertyList(name);
+			propertyList->FromProtobuf(props);
+			PropertyList.Insert(name, propertyList);
+		}
+	}
+
+	void CRPGStats_Object::BroadcastSyncMessage() const
+	{
+		auto msg = gOsirisProxy->GetNetworkManager().GetFreeServerMessage(UserId::Unassigned);
+		if (!msg) {
+			OsiErrorS("Failed to get free message");
+			return;
+		}
+
+		auto& wrap = msg->GetMessage();
+		ToProtobuf(wrap.mutable_s2c_sync_stat());
+		gOsirisProxy->GetNetworkManager().ServerBroadcast(msg, UserId::Unassigned);
+	}
+
+	bool RPGEnumeration::IsIndexedProperty() const
+	{
+		return Name != GFS.strProperties
+			&& Name != GFS.strConditions
+			&& Name != GFS.strAIFlags
+			&& Name != GFS.strRequirements
+			&& Name != GFS.strMemorizationRequirements;
+	}
+
+	bool RPGEnumeration::IsStringIndexedProperty() const
+	{
+		return Name == GFS.strFixedString;
+	}
+
 	CRPGStats_Modifier * ModifierList::GetAttributeInfo(FixedString const& name, int * attributeIndex) const
 	{
 		auto index = Attributes.FindIndex(name);
@@ -18,6 +444,41 @@ namespace dse
 			*attributeIndex = index;
 			return Attributes.Find(index);
 		}
+	}
+
+	CRPGStatsVMTMappings gCRPGStatsVMTMappings;
+
+	CRPGStatsVMTMappings::CRPGStatsVMTMappings()
+	{
+		PropertyTypes = {
+			{CRPGStats_Object_Property_Type::Custom, nullptr},
+			{CRPGStats_Object_Property_Type::Status, nullptr},
+			{CRPGStats_Object_Property_Type::SurfaceChange, nullptr},
+			{CRPGStats_Object_Property_Type::GameAction, nullptr},
+			{CRPGStats_Object_Property_Type::OsirisTask, nullptr},
+			{CRPGStats_Object_Property_Type::Sabotage, nullptr},
+			{CRPGStats_Object_Property_Type::Summon, nullptr},
+			{CRPGStats_Object_Property_Type::Force, nullptr}
+		};
+	}
+	
+	void CRPGStatsVMTMappings::MapVMTs()
+	{
+		if (VMTsMapped) return;
+		auto stats = GetStaticSymbols().GetStats();
+
+		if (stats->objects.Primitives.Set.Size > 0) {
+			ObjectVMT = stats->objects.Primitives[0]->VMT;
+		}
+
+		stats->PropertyLists.Iterate([this](auto const& k, auto const& propList) {
+			SkillPropertiesVMT = *(void**)propList;
+			for (auto prop : propList->Properties.Primitives) {
+				PropertyTypes[prop->TypeId] = *(void**)prop;
+			}
+		});
+
+		VMTsMapped = true;
 	}
 
 	bool CRPGStatsManager::ObjectExists(FixedString const& statsId, FixedString const& type)
@@ -33,6 +494,158 @@ namespace dse
 		}
 
 		return typeInfo->Name == type;
+	}
+
+
+	std::optional<CRPGStats_Object*> CRPGStatsManager::CreateObject(FixedString const& name, FixedString const& type)
+	{
+		auto modifierIdx = modifierList.FindIndex(type);
+		if (modifierIdx == -1) {
+			OsiError("Unknown modifier list type: " << type);
+			return {};
+		}
+
+		return CreateObject(name, modifierIdx);
+	}
+
+	std::optional<CRPGStats_Object*> CRPGStatsManager::CreateObject(FixedString const& name, int32_t modifierListIndex)
+	{
+		auto modifier = modifierList.Find(modifierListIndex);
+
+		auto object = objects.Find(name);
+		if (object) {
+			OsiError("A stats object already exists with this name: " << name);
+			return {};
+		}
+
+		gCRPGStatsVMTMappings.MapVMTs();
+		if (!gCRPGStatsVMTMappings.ObjectVMT) {
+			OsiError("Cannot construct stats object - VMT not mapped!");
+			return {};
+		}
+
+		object = GameAlloc<CRPGStats_Object>();
+		object->VMT = gCRPGStatsVMTMappings.ObjectVMT;
+		object->ModifierListIndex = modifierListIndex;
+		object->IndexedProperties.resize(modifier->Attributes.Primitives.Set.Size, 0);
+		object->DivStats = DivinityStats;
+		object->Name = name;
+		object->PropertyList.Init(3);
+		object->ConditionList.Init(3);
+
+		object->Handle = objects.Primitives.Set.Size;
+		objects.Add(name, object);
+
+		return object;
+	}
+
+	void CRPGStatsManager::SyncObjectFromServer(MsgS2CSyncStat const& msg)
+	{
+		auto object = objects.Find(ToFixedString(msg.name().c_str()));
+		if (object) {
+			object->Sync(msg);
+			SyncWithPrototypeManager(object);
+		} else {
+			auto newObject = CreateObject(MakeFixedString(msg.name().c_str()), msg.modifier_list());
+			if (!newObject) {
+				OsiError("Could not construct stats object from server: " << msg.name());
+				return;
+			}
+
+			(*newObject)->Sync(msg);
+			SyncWithPrototypeManager(*newObject);
+		}
+	}
+
+	void CRPGStatsManager::SyncWithPrototypeManager(CRPGStats_Object* object)
+	{
+		auto modifier = modifierList.Find(object->ModifierListIndex);
+		if (modifier->Name == GFS.strSkillData) {
+			auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
+			if (skillProtoMgr && *skillProtoMgr) {
+				(*skillProtoMgr)->SyncSkillStat(object);
+			}
+		}
+
+		// FIXME - sync with status prototype manager
+	}
+
+	CRPGStats_Object_Property_List* CRPGStatsManager::ConstructPropertyList(FixedString const& propertyName)
+	{
+		gCRPGStatsVMTMappings.MapVMTs();
+		if (!gCRPGStatsVMTMappings.SkillPropertiesVMT) {
+			OsiError("Cannot construct object property list - VMT not mapped!");
+			return nullptr;
+		}
+
+		auto properties = GameAlloc<CRPGStats_Object_Property_List>();
+		properties->Properties.VMT = gCRPGStatsVMTMappings.SkillPropertiesVMT;
+		properties->Properties.NameHashMap.Init(31);
+		properties->Name = propertyName;
+		return properties;
+	}
+
+	CDivinityStats_Object_Property_Data* CRPGStatsManager::ConstructProperty(CRPGStats_Object_Property_Type type)
+	{
+		gCRPGStatsVMTMappings.MapVMTs();
+		auto stats = GetStaticSymbols().GetStats();
+
+		auto typeIt = gCRPGStatsVMTMappings.PropertyTypes.find(type);
+		if (typeIt == gCRPGStatsVMTMappings.PropertyTypes.end()) {
+			OsiError("Unknown object property type: " << (unsigned)type);
+			return nullptr;
+		}
+
+		if (typeIt->second == nullptr) {
+			OsiError("Cannot construct object property of type  " << (unsigned)type << " - VMT not mapped!");
+			return nullptr;
+		}
+
+		CDivinityStats_Object_Property_Data* prop{ nullptr };
+		switch (type) {
+		case CRPGStats_Object_Property_Type::Custom:
+			prop = GameAlloc<CDivinityStats_Object_Property_Custom>();
+			break;
+
+		case CRPGStats_Object_Property_Type::Status:
+			prop = GameAlloc<CDivinityStats_Object_Property_Status>();
+			break;
+
+		case CRPGStats_Object_Property_Type::SurfaceChange:
+			prop = GameAlloc<CDivinityStats_Object_Property_SurfaceChange>();
+			break;
+
+		case CRPGStats_Object_Property_Type::GameAction:
+			prop = GameAlloc<CDivinityStats_Object_Property_GameAction>();
+			break;
+
+		case CRPGStats_Object_Property_Type::OsirisTask:
+			prop = GameAlloc<CDivinityStats_Object_Property_OsirisTask>();
+			break;
+
+		case CRPGStats_Object_Property_Type::Sabotage:
+			prop = GameAlloc<CDivinityStats_Object_Property_Sabotage>();
+			break;
+
+		case CRPGStats_Object_Property_Type::Summon:
+			prop = GameAlloc<CDivinityStats_Object_Property_Summon>();
+			break;
+
+		case CRPGStats_Object_Property_Type::Force:
+			prop = GameAlloc<CDivinityStats_Object_Property_Force>();
+			break;
+
+		default:
+			OsiError("Unhandled object property type!");
+			return nullptr;
+		}
+
+		*(void**)prop = typeIt->second;
+		prop->TypeId = type;
+		prop->PropertyContext = (CRPGStats_Object_PropertyContext)0;
+		prop->Conditions = nullptr;
+
+		return prop;
 	}
 
 	std::optional<int> CRPGStatsManager::EnumLabelToIndex(FixedString const& enumName, char const* enumLabel)

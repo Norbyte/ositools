@@ -868,6 +868,8 @@ namespace dse::esv::lua
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"GetStat", GetStat},
+			{"CreateStat", CreateStat},
+			{"SyncStat", SyncStat},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 

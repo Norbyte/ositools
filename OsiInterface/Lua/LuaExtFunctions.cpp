@@ -734,68 +734,26 @@ namespace dse::lua
 		}
 	}
 
-	struct ObjectPropertyInfo
-	{
-		CRPGStats_Object_Property_Type Type;
-		void* VMT;
-	};
-
-	static bool ObjectPropertyVMTsMapped{ false };
-	static void* SkillPropertiesVMT{ nullptr };
-	static std::unordered_map<std::string, ObjectPropertyInfo> ObjectPropertyTypes = {
-		{"Custom", {CRPGStats_Object_Property_Type::Custom, nullptr}},
-		{"Status", {CRPGStats_Object_Property_Type::Status, nullptr}},
-		{"SurfaceChange", {CRPGStats_Object_Property_Type::SurfaceChange, nullptr}},
-		{"GameAction", {CRPGStats_Object_Property_Type::GameAction, nullptr}},
-		{"OsirisTask", {CRPGStats_Object_Property_Type::OsirisTask, nullptr}},
-		{"Sabotage", {CRPGStats_Object_Property_Type::Sabotage, nullptr}},
-		{"Summon", {CRPGStats_Object_Property_Type::Summon, nullptr}},
-		{"Force", {CRPGStats_Object_Property_Type::Force, nullptr}}
-	};
-
-	void MapObjectPropertyVMTs()
-	{
-		if (ObjectPropertyVMTsMapped) return;
-		std::unordered_map<CRPGStats_Object_Property_Type, void*> VMTs;
-		auto stats = GetStaticSymbols().GetStats();
-		stats->PropertyLists.Iterate([&VMTs](auto const& k, auto const& propList) {
-			SkillPropertiesVMT = *(void**)propList;
-			for (auto prop : propList->Properties.Primitives) {
-				VMTs.insert(std::make_pair(prop->TypeId, *(void**)prop));
-			}
-		});
-
-		for (auto& it : ObjectPropertyTypes) {
-			auto vmtIt = VMTs.find(it.second.Type);
-			if (vmtIt != VMTs.end()) {
-				it.second.VMT = vmtIt->second;
-			}
-		}
-
-		ObjectPropertyVMTsMapped = true;
-	}
-
 	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index, FixedString const& propertyName)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
 		auto type = checked_gettable<char const*, char const*>(L, "Type");
-		auto typeIt = ObjectPropertyTypes.find(type);
-		if (typeIt == ObjectPropertyTypes.end()) {
+		auto typeId = EnumInfo<CRPGStats_Object_Property_Type>::Find(type);
+		if (!typeId) {
 			OsiError("Unknown object property type: " << type);
 			return nullptr;
 		}
 
-		if (typeIt->second.VMT == nullptr) {
-			OsiError("Cannot construct object property of type  " << type << " - VMT not mapped!");
+		auto prop = stats->ConstructProperty(*typeId);
+		if (!prop) {
 			return nullptr;
 		}
 
-		CDivinityStats_Object_Property_Data* prop{ nullptr };
-		switch (typeIt->second.Type) {
+		switch (*typeId) {
 		case CRPGStats_Object_Property_Type::Custom:
 		{
-			auto custom = GameAlloc<CDivinityStats_Object_Property_Custom>();
+			auto custom = (CDivinityStats_Object_Property_Custom*)prop;
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strCustomProperties, actionStr);
 			if (!action) {
@@ -803,13 +761,12 @@ namespace dse::lua
 				return nullptr;
 			}
 			custom->CustomProperties = *action;
-			prop = custom;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Status:
 		{
-			auto status = GameAlloc<CDivinityStats_Object_Property_Status>();
+			auto status = (CDivinityStats_Object_Property_Status*)prop;
 			status->Status = MakeFixedString(checked_gettable<char const*, char const*>(L, "Action"));
 			status->StatusChance = checked_gettable<char const*, float>(L, "StatusChance");
 			status->Duration = checked_gettable<char const*, float>(L, "Duration");
@@ -817,13 +774,12 @@ namespace dse::lua
 			status->Argument4 = checked_gettable<char const*, int>(L, "Arg4");
 			status->Argument5 = checked_gettable<char const*, int>(L, "Arg5");
 			status->HasBoost = checked_gettable<char const*, bool>(L, "SurfaceBoost");
-			prop = status;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::SurfaceChange:
 		{
-			auto change = GameAlloc<CDivinityStats_Object_Property_SurfaceChange>();
+			auto change = (CDivinityStats_Object_Property_SurfaceChange*)prop;
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strSurfaceChange, actionStr);
 			if (!action) {
@@ -836,13 +792,12 @@ namespace dse::lua
 			change->Arg2 = checked_gettable<char const*, float>(L, "Arg2");
 			change->Arg3 = checked_gettable<char const*, float>(L, "Arg3");
 			change->Arg4 = checked_gettable<char const*, float>(L, "Arg4");
-			prop = change;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::GameAction:
 		{
-			auto gameAction = GameAlloc<CDivinityStats_Object_Property_GameAction>();
+			auto gameAction = (CDivinityStats_Object_Property_GameAction*)prop;
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strGameAction, actionStr);
 			if (!action) {
@@ -866,14 +821,12 @@ namespace dse::lua
 
 				gameAction->StatusHealType = *healTypeIndex;
 			}
-
-			prop = gameAction;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::OsirisTask:
 		{
-			auto osirisTask = GameAlloc<CDivinityStats_Object_Property_OsirisTask>();
+			auto osirisTask = (CDivinityStats_Object_Property_OsirisTask*)prop;
 			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strOsirisTask, actionStr);
 			if (!action) {
@@ -883,34 +836,30 @@ namespace dse::lua
 			osirisTask->OsirisTask = *action;
 			osirisTask->Chance = checked_gettable<char const*, float>(L, "Chance");
 			osirisTask->VitalityOnRevive = checked_gettable<char const*, int>(L, "VitalityOnRevive");
-			prop = osirisTask;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Sabotage:
 		{
-			auto sabotage = GameAlloc<CDivinityStats_Object_Property_Sabotage>();
+			auto sabotage = (CDivinityStats_Object_Property_Sabotage*)prop;
 			sabotage->Amount = checked_gettable<char const*, int>(L, "Amount");
-			prop = sabotage;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Summon:
 		{
-			auto summon = GameAlloc<CDivinityStats_Object_Property_Summon>();
+			auto summon = (CDivinityStats_Object_Property_Summon*)prop;
 			summon->Template = MakeFixedString(checked_gettable<char const*, char const*>(L, "Template"));
 			summon->Duration = checked_gettable<char const*, float>(L, "Duration");
 			summon->IsTotem = checked_gettable<char const*, bool>(L, "IsTotem");
 			summon->Skill = MakeFixedString(checked_gettable<char const*, char const*>(L, "Skill"));
-			prop = summon;
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Force:
 		{
-			auto force = GameAlloc<CDivinityStats_Object_Property_Force>();
+			auto force = (CDivinityStats_Object_Property_Force*)prop;
 			force->Distance = checked_gettable<char const*, int>(L, "Distance");
-			prop = force;
 			break;
 		}
 
@@ -920,12 +869,7 @@ namespace dse::lua
 		}
 
 		STDString name = std::to_string(index).c_str();
-
-		*(void**)prop = typeIt->second.VMT;
 		prop->Name = MakeFixedString(name.c_str());
-		prop->TypeId = typeIt->second.Type;
-		prop->PropertyContext = (CRPGStats_Object_PropertyContext)0;
-		prop->Conditions = nullptr;
 
 		auto conditions = gettable<char const*, char const*>(L, "Condition");
 		if (conditions && *conditions) {
@@ -969,16 +913,10 @@ namespace dse::lua
 
 	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L, FixedString const& propertyName)
 	{
-		MapObjectPropertyVMTs();
-		if (!SkillPropertiesVMT) {
-			OsiError("Cannot construct object property list - VMT not mapped!");
+		auto properties = GetStaticSymbols().GetStats()->ConstructPropertyList(propertyName);
+		if (!properties) {
 			return nullptr;
 		}
-
-		auto properties = GameAlloc<CRPGStats_Object_Property_List>();
-		properties->Properties.VMT = SkillPropertiesVMT;
-		properties->Properties.NameHashMap.Init(31);
-		properties->Name = propertyName;
 
 		auto index = 0;
 		for (auto idx : iterate(L, -1)) {
@@ -1108,7 +1046,11 @@ namespace dse::lua
 	{
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
-			return luaL_error(L, "StatSetAttribute() can only be called during module load");
+			static bool syncWarningShown{ false };
+			if (!syncWarningShown) {
+				OsiWarn("Stats edited after ModuleLoad must be synced manually; make sure that you call SyncStat() on it when you're finished!");
+				syncWarningShown = true;
+			}
 		}
 
 		auto attributeFS = ToFixedString(attributeName);
@@ -1135,7 +1077,7 @@ namespace dse::lua
 
 			return 0;
 		} else if (attributeFS == GFS.strSkillProperties || attributeFS == GFS.strExtraProperties) {
-			STDString name = object->Name;
+			STDString name = object->Name.Str;
 			name += "_";
 			name += attributeName;
 			auto statsPropertyKey = MakeFixedString(name.c_str());
@@ -1167,7 +1109,7 @@ namespace dse::lua
 				if (scriptCheckBlock) {
 					auto statConditions = GameAlloc<CDivinityStats_Condition>();
 					statConditions->ScriptCheckBlock = scriptCheckBlock;
-					STDString name = object->Name;
+					STDString name = object->Name.Str;
 					name += "_";
 					name += attributeName;
 					statConditions->Name = MakeFixedString(name.c_str());
@@ -1387,6 +1329,96 @@ namespace dse::lua
 		} else {
 			return 0;
 		}
+	}
+
+	bool CopyStats(CRPGStats_Object* obj, char const* copyFrom)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		auto copyFromObject = stats->objects.Find(ToFixedString(copyFrom));
+		if (copyFromObject == nullptr) {
+			OsiError("Cannot copy stats from nonexistent object: " << copyFrom);
+			return false;
+		}
+
+		if (obj->ModifierListIndex != copyFromObject->ModifierListIndex) {
+			auto objModifier = stats->modifierList.Find(obj->ModifierListIndex);
+			auto copyModifier = stats->modifierList.Find(obj->ModifierListIndex);
+			OsiError("Cannot copy stats from object '" << copyFrom << "' (a " << copyModifier->Name.Str 
+				<< ") to an object of type " << objModifier->Name.Str);
+			return false;
+		}
+
+		obj->Level = copyFromObject->Level;
+		obj->AIFlags = copyFromObject->AIFlags;
+
+		for (size_t i = 0; i < obj->IndexedProperties.size(); i++) {
+			obj->IndexedProperties[i] = copyFromObject->IndexedProperties[i];
+		}
+
+		copyFromObject->PropertyList.Iterate([obj](auto const& key, auto propertyList) {
+			// TODO - is reusing property list objects allowed?
+			obj->PropertyList.Insert(key, propertyList);
+		});
+
+		copyFromObject->ConditionList.Iterate([obj](auto const& key, auto propertyList) {
+			// TODO - is reusing condition objects allowed?
+			obj->ConditionList.Insert(key, propertyList);
+		});
+
+		obj->Requirements = copyFromObject->Requirements;
+		obj->MemorizationRequirements = copyFromObject->MemorizationRequirements;
+		obj->ComboCategories = copyFromObject->ComboCategories;
+
+		return true;
+	}
+
+	int CreateStat(lua_State * L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto modifierName = luaL_checkstring(L, 2);
+		char const* copyFrom{ nullptr };
+		if (lua_gettop(L) >= 3) {
+			copyFrom = luaL_checkstring(L, 3);
+		}
+
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
+			static bool syncWarningShown{ false };
+			if (!syncWarningShown) {
+				OsiWarn("Stats entres created after ModuleLoad must be synced manually; make sure that you call SyncStat() on it when you're finished!");
+				syncWarningShown = true;
+			}
+		}
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto object = stats->CreateObject(MakeFixedString(statName), MakeFixedString(modifierName));
+		if (!object) {
+			return 0;
+		}
+
+		if (copyFrom != nullptr) {
+			if (!CopyStats(*object, copyFrom)) {
+				return 0;
+			}
+		}
+
+		StatsProxy::New(L, *object, -1);
+		return 1;
+	}
+
+	int SyncStat(lua_State* L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto stats = GetStaticSymbols().GetStats();
+		auto object = stats->objects.Find(ToFixedString(statName));
+		if (!object) {
+			OsiError("Cannot sync nonexistent stat: " << statName);
+			return 0;
+		}
+
+		stats->SyncWithPrototypeManager(object);
+		object->BroadcastSyncMessage();
+		return 0;
 	}
 
 	int GetDeltaMod(lua_State* L)

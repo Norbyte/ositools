@@ -85,7 +85,7 @@ namespace dse::esv
 				if (object->Using) {
 					auto parent = stats->objects.Find(object->Using);
 					if (parent != nullptr) {
-						args[2].Set(parent->Name);
+						args[2].Set(parent->Name.Str);
 						return true;
 					}
 				}

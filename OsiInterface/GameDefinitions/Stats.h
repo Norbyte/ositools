@@ -15,6 +15,9 @@ namespace dse
 		FixedString StringParam;
 		bool Negate;
 		uint8_t _Pad[7];
+
+		void ToProtobuf(class StatRequirement* msg) const;
+		void FromProtobuf(StatRequirement const& msg);
 	};
 
 	template <class T>
@@ -24,13 +27,14 @@ namespace dse
 		ObjectSet<T *> Primitives;
 		Map<FixedString, uint32_t> NameHashMap;
 		uint32_t Unused{ 0 };
-		uint32_t NumItems{ 0 };
+		uint32_t NextHandle{ 0 };
 		uint32_t NumSomeItems{ 0 };
 
 		void Add(FixedString const& name, T* elem)
 		{
 			NameHashMap.Insert(name, Primitives.Set.Size);
 			Primitives.Set.Add(elem);
+			NextHandle++;
 		}
 
 		int FindIndex(char const * str) const
@@ -106,6 +110,9 @@ namespace dse
 		CRPGStats_Object_PropertyContext PropertyContext;
 		uint8_t _Pad1[3];
 		CDivinityStats_Condition* Conditions;
+
+		void ToProtobuf(class StatProperty* msg) const;
+		void FromProtobuf(StatProperty const& msg);
 	};
 
 	struct CDivinityStats_Object_Property_Custom : public CDivinityStats_Object_Property_Data
@@ -234,6 +241,9 @@ namespace dse
 		FixedString Name;
 		CRPGStats_Object_PropertyContext AllPropertyContexts{ 0 };
 		uint8_t _Pad[7];
+
+		void ToProtobuf(FixedString const& name, class StatPropertyList* msg) const;
+		void FromProtobuf(StatPropertyList const& msg);
 	};
 
 	struct CRPGStats_LevelMap : public Noncopyable<CRPGStats_LevelMap>
@@ -252,35 +262,37 @@ namespace dse
 
 	struct CDivinityStats_Condition;
 
-	struct CRPGStats_Object : public ProtectedGameObject<CRPGStats_Object>
+	struct CRPGStats_Object : public Noncopyable<CRPGStats_Object>
 	{
-		void * VMT;
-		uint32_t Handle;
-		uint32_t Level;
-		uint32_t ModifierListIndex;
-		uint32_t Unused2;
-		int32_t * IndexedProperties;
-		uint64_t Unused3;
-		uint64_t Unused4;
-		char * Name;
+		void* VMT{ nullptr };
+		int32_t Handle{ -1 };
+		int32_t Level{ -1 };
+		int32_t ModifierListIndex{ -1 };
+		uint32_t Unused2{ 0 };
+		std::vector<int32_t> IndexedProperties;
+		FixedString Name;
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
-		struct CDivinityStats * DivStats;
+		struct CDivinityStats* DivStats{ nullptr };
 		Map<FixedString, CRPGStats_Object_Property_List *> PropertyList;
-		uint32_t Unused5;
+		uint32_t Unused5{ 0 };
 		Map<FixedString, CDivinityStats_Condition *> ConditionList;
-		uint32_t Unused6;
-		uint64_t AIFlags;
+		uint32_t Unused6{ 0 };
+		uint64_t AIFlags{ 0 };
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> MemorizationRequirements;
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
 		ObjectSet<FixedString, GameMemoryAllocator, true> StringProperties1;
 		ObjectSet<FixedString, GameMemoryAllocator, true> ComboCategories;
 #if !defined(OSI_EOCAPP)
-		STDWString SomeSTDWSTRING;
+		STDWString CurrentModName;
 #endif
-		int32_t Using;
-		uint32_t D;
+		int32_t Using{ -1 };
+		uint32_t D{ 0 };
+
+		void ToProtobuf(class MsgS2CSyncStat* msg) const;
+		void Sync(MsgS2CSyncStat const& msg);
+		void BroadcastSyncMessage() const;
 	};
 
 	struct CRPGStats_ObjectInstance : public CRPGStats_Object
@@ -685,6 +697,9 @@ namespace dse
 	{
 		FixedString Name;
 		Map<FixedString, int32_t> Values;
+
+		bool IsIndexedProperty() const;
+		bool IsStringIndexedProperty() const;
 	};
 
 	struct CRPGStats_Modifier : public ProtectedGameObject<CRPGStats_Modifier>
@@ -767,7 +782,6 @@ namespace dse
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 
-		// void * VMT;
 		int RPGStatsObjectIndex;
 		SkillType SkillTypeId;
 		FixedString SkillId;
@@ -787,9 +801,20 @@ namespace dse
 		uint8_t AiFlags;
 		uint8_t _Pad2[7];
 		SkillPrototype * RootSkillPrototype;
-		ObjectSet<SkillPrototype *> SomePrototypes;
+		ObjectSet<SkillPrototype *> ChildPrototypes;
 
 		CRPGStats_Object * GetStats() const;
+	};
+
+	struct SkillPrototypeManager
+	{
+		void* VMT;
+		Map<FixedString, SkillPrototype*> Prototypes;
+		uint8_t _Pad[4];
+		ObjectSet<FixedString> PrototypeNames;
+		bool Initialized;
+
+		void SyncSkillStat(CRPGStats_Object* object);
 	};
 
 	struct StatusPrototype
@@ -810,6 +835,16 @@ namespace dse
 
 		CRPGStats_Object * GetStats() const;
 	};
+
+	struct StatusPrototypeManager
+	{
+	  void* VMT;
+	  Map<FixedString, StatusPrototype*> Prototypes;
+	  uint8_t _Pad[4];
+	  ObjectSet<StatusPrototype*> Unknown;
+	  bool Initialized;
+	};
+
 
 	struct CSkillSet : public ProtectedGameObject<CSkillSet>
 	{
@@ -863,6 +898,19 @@ namespace dse
 	struct CRPGStats_DeltaModifier_List : public CNamedElementManager<CRPGStats_DeltaModifier>
 	{};
 
+	struct CRPGStatsVMTMappings
+	{
+		bool VMTsMapped{ false };
+		void* SkillPropertiesVMT{ nullptr };
+		void* ObjectVMT{ nullptr };
+		std::unordered_map<CRPGStats_Object_Property_Type, void*> PropertyTypes;
+
+		CRPGStatsVMTMappings();
+		void MapVMTs();
+	};
+
+	extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;
+
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
 		CNamedElementManager<RPGEnumeration> modifierValueList;
@@ -896,18 +944,17 @@ namespace dse
 		uint64_t unknown2[140];
 		CEquipmentSetManager * EquipmentSetManager;
 		CSkillSetManager * SkillSetManager;
-		uint64_t Unkn3;
+		void * ItemProgressionManager;
 		void * ItemCombinationManager;
-		uint64_t Unkn4;
+		void * ItemSetsManager;
+		ScratchBuffer* CurrentPreParseBuf;
 		FixedString FS1;
-		Map<FixedString, uint64_t> FSMapUInt64;
+		Map<FixedString, void *> PreParsedDataBufferMap;
 		uint8_t _Pad6[4];
-		uint64_t Unkn5;
-		PrimitiveSet<void *> DataBufferSet;
-		uint64_t Unkn6;
-		void * DivinityStats;
-		void * CritSection;
-		uint64_t Unkn7[5];
+		ObjectSet<void *> PreParsedDataBuffers;
+		CDivinityStats* DivinityStats;
+		CRITICAL_SECTION CritSection;
+		uint16_t Unkn7[5];
 
 		CRPGStats_Modifier * GetModifierInfo(FixedString const& modifierListName, FixedString const& modifierName);
 		ModifierList * GetTypeInfo(CRPGStats_Object * object);
@@ -918,6 +965,13 @@ namespace dse
 		bool SetAttributeString(CRPGStats_Object * object, FixedString const& attributeName, const char * value);
 		bool SetAttributeInt(CRPGStats_Object * object, FixedString const& attributeName, int32_t value);
 		bool ObjectExists(FixedString const& statsId, FixedString const& type);
+		std::optional<CRPGStats_Object*> CreateObject(FixedString const& name, FixedString const& type);
+		std::optional<CRPGStats_Object*> CreateObject(FixedString const& name, int32_t modifierListIndex);
+		void SyncObjectFromServer(MsgS2CSyncStat const& msg);
+		void SyncWithPrototypeManager(CRPGStats_Object* object);
+
+		CRPGStats_Object_Property_List* ConstructPropertyList(FixedString const& propertyName);
+		CDivinityStats_Object_Property_Data* ConstructProperty(CRPGStats_Object_Property_Type type);
 
 		std::optional<int> EnumLabelToIndex(FixedString const& enumName, char const* enumLabel);
 		FixedString EnumIndexToLabel(FixedString const& enumName, int index);

@@ -534,7 +534,8 @@ namespace dse
 			"48 8B 0D XX XX XX XX " // mov     rcx, cs:eoc__gSkillPrototypeManager
 			"E8 XX XX XX XX ", // call    eoc__SkillPrototypeManager__Init
 			{SymbolMappingCondition::kString, 0, "Skills"},
-			{"eoc::SkillPrototypeManager::Init", SymbolMappingTarget::kIndirect, 28, STATIC_SYM(SkillPrototypeManagerInit)}
+			{"eoc::SkillPrototypeManager::Init", SymbolMappingTarget::kIndirect, 28, STATIC_SYM(SkillPrototypeManagerInit)},
+			{"eoc::SkillPrototypeManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(eoc__SkillPrototypeManager)}
 		},
 
 		{

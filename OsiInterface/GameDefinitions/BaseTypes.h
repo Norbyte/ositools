@@ -448,6 +448,18 @@ namespace dse
 				}
 			}
 		}
+
+		template <class Visitor>
+		void Iterate(Visitor visitor) const
+		{
+			for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
+				Node* item = HashTable[bucket];
+				while (item != nullptr) {
+					visitor(item->Key, item->Value);
+					item = item->Next;
+				}
+			}
+		}
 	};
 
 	template <class TKey, class TValue>

@@ -60,10 +60,27 @@ FS(SkillProperties);
 FS(ExtraProperties);
 FS(Lifetime);
 
+// Skill stat properties
+FS(SkillType);
+FS(SkillData);
+FS(Ability);
+FS(Tier);
+FS(Requirement);
+FS(Icon);
+FS_NAME(MagicCost, "Magic Cost");
+FS_NAME(MemoryCost, "Memory Cost");
+FS(ActionPoints);
+FS(Cooldown);
+FS(CooldownReduction);
+FS(ChargeDuration);
+FS(DisplayName);
+
+
 // Stat modifier types
 FS(FixedString);
 FS(AttributeFlags);
 FS(ConstantInt);
+FS(Properties);
 FS(Conditions);
 
 // Enumerations

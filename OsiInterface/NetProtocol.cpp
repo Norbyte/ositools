@@ -124,6 +124,13 @@ namespace dse
 			break;
 		}
 
+		case MessageWrapper::kS2CSyncStat:
+		{
+			auto stats = GetStaticSymbols().GetStats();
+			stats->SyncObjectFromServer(msg.s2c_sync_stat());
+			break;
+		}
+
 		default:
 			OsiErrorS("Unknown extension message type received!");
 		}
