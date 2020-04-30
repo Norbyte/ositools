@@ -1255,6 +1255,16 @@ BEGIN_BITMASK_NS(esv, CharacterFlags3, uint8_t)
 END_ENUM_NS()
 
 
+BEGIN_BITMASK(AIFlags, uint8_t)
+	EV(CanNotUse, 0x01)
+	EV(IgnoreSelf, 0x02)
+	EV(IgnoreDebuff, 0x04)
+	EV(IgnoreBuff, 0x08)
+	EV(StatusIsSecondary, 0x10)
+	EV(IgnoreControl, 0x20)
+	EV(CanNotTargetFrozen, 0x40)
+END_ENUM()
+
 BEGIN_ENUM(GameActionType, int)
 	EV(RainAction, 1)
 	EV(StormAction, 2)

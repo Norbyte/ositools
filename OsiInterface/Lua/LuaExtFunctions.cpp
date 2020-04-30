@@ -1066,7 +1066,7 @@ namespace dse::lua
 			LuaToRequirements(L, object->MemorizationRequirements);
 			return 0;
 		} else if (attributeFS == GFS.strAIFlags) {
-			object->AIFlags = (uint64_t)lua_tointeger(L, valueIdx);
+			object->AIFlags = MakeFixedString(lua_tostring(L, valueIdx));
 			return 0;
 		} else if (attributeFS == GFS.strComboCategory) {
 			object->ComboCategories.Set.Clear();

@@ -65,7 +65,7 @@ message MsgS2CSyncStat {
   sint32 level = 2;
   int32 modifier_list = 3;
   repeated StatIndexedProperty indexed_properties = 4;
-  fixed64 ai_flags = 5;
+  string ai_flags = 5;
   repeated StatRequirement requirements = 6;
   repeated StatRequirement memorization_requirements = 7;
   repeated string combo_categories = 8;

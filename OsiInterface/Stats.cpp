@@ -3,11 +3,24 @@
 #include <GameDefinitions/BaseTypes.h>
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/Enumerations.h>
+#include <ScriptHelpers.h>
 #include "OsirisProxy.h"
 #include <PropertyMaps.h>
 
 namespace dse
 {
+	void SkillPrototypeManager::SyncSkillStat(CRPGStats_Object* object, SkillPrototype* proto)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		proto->Ability = *stats->GetAttributeInt(object, GFS.strAbility);
+		proto->Tier = *stats->GetAttributeInt(object, GFS.strTier);
+		proto->Requirement = *stats->GetAttributeInt(object, GFS.strRequirement);
+		proto->Level = *stats->GetAttributeInt(object, GFS.strLevel);
+		proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
+		proto->MagicCost = *stats->GetAttributeInt(object, GFS.strMagicCost);
+		proto->MemoryCost = *stats->GetAttributeInt(object, GFS.strMemoryCost);
+		proto->ActionPoints = *stats->GetAttributeInt(object, GFS.strActionPoints);
+		proto->Cooldown = *stats->GetAttributeInt(object, GFS.strCooldown) * 6.0f;
 		proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
 		proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
 
@@ -15,6 +28,18 @@ namespace dse
 		TranslatedString displayName;
 		script::GetTranslatedStringFromKey(displayNameKey, displayName);
 		proto->DisplayName = displayName.Str1.WStr;
+
+		STDString aiFlags = object->AIFlags.Str;
+		proto->AiFlags = (AIFlags)0;
+		if (aiFlags.find("CanNotUse") != STDString::npos) proto->AiFlags |= AIFlags::CanNotUse;
+		if (aiFlags.find("IgnoreSelf") != STDString::npos) proto->AiFlags |= AIFlags::IgnoreSelf;
+		if (aiFlags.find("IgnoreDebuff") != STDString::npos) proto->AiFlags |= AIFlags::IgnoreDebuff;
+		if (aiFlags.find("IgnoreBuff") != STDString::npos) proto->AiFlags |= AIFlags::IgnoreBuff;
+		if (aiFlags.find("StatusIsSecondary") != STDString::npos) proto->AiFlags |= AIFlags::StatusIsSecondary;
+		if (aiFlags.find("IgnoreControl") != STDString::npos) proto->AiFlags |= AIFlags::IgnoreControl;
+		if (aiFlags.find("CanNotTargetFrozen") != STDString::npos) proto->AiFlags |= AIFlags::CanNotTargetFrozen;
+	}
+
 	void SkillPrototypeManager::SyncSkillStat(CRPGStats_Object* object)
 	{
 		auto stats = GetStaticSymbols().GetStats();
@@ -36,15 +61,6 @@ namespace dse
 			proto->RPGStatsObjectIndex = object->Handle;
 			proto->SkillTypeId = *skillType;
 			proto->SkillId = object->Name;
-			proto->Level = *stats->GetAttributeInt(object, GFS.strLevel);
-			proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
-			proto->MagicCost = *stats->GetAttributeInt(object, GFS.strMagicCost);
-			proto->MemoryCost = *stats->GetAttributeInt(object, GFS.strMemoryCost);
-			proto->ActionPoints = *stats->GetAttributeInt(object, GFS.strActionPoints);
-			proto->Cooldown = *stats->GetAttributeInt(object, GFS.strCooldown) * 6.0f;
-			proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
-			proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
-			proto->DisplayName = L"FIXME DisplayName!";
 			proto->RootSkillPrototype = nullptr;
 			SyncSkillStat(object, proto);
 
@@ -393,7 +409,7 @@ namespace dse
 			}
 		}
 
-		msg->set_ai_flags(AIFlags);
+		msg->set_ai_flags(AIFlags.Str);
 
 		for (auto const& reqmt : Requirements) {
 			reqmt.ToProtobuf(msg->add_requirements());
@@ -439,7 +455,7 @@ namespace dse
 			}
 		}
 
-		AIFlags = msg.ai_flags();
+		AIFlags = MakeFixedString(msg.ai_flags().c_str());
 
 		Requirements.Set.Clear();
 		for (auto const& reqmt : msg.requirements()) {

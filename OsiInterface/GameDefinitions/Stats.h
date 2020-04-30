@@ -278,7 +278,7 @@ namespace dse
 		uint32_t Unused5{ 0 };
 		Map<FixedString, CDivinityStats_Condition *> ConditionList;
 		uint32_t Unused6{ 0 };
-		uint64_t AIFlags{ 0 };
+		FixedString AIFlags;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> MemorizationRequirements;
 		ObjectSet<void *> CrimeReactionPriorities; // Set<CrimeReactionPriority>
@@ -786,7 +786,7 @@ namespace dse
 		float ChargeDuration;
 		STDWString DisplayName;
 		FixedString Icon;
-		uint8_t AiFlags;
+		AIFlags AiFlags;
 		uint8_t _Pad2[7];
 		SkillPrototype * RootSkillPrototype;
 		ObjectSet<SkillPrototype *> ChildPrototypes;
