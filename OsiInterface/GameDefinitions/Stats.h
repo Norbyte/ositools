@@ -291,7 +291,7 @@ namespace dse
 		uint32_t D{ 0 };
 
 		void ToProtobuf(class MsgS2CSyncStat* msg) const;
-		void Sync(MsgS2CSyncStat const& msg);
+		void FromProtobuf(MsgS2CSyncStat const& msg);
 		void BroadcastSyncMessage() const;
 	};
 

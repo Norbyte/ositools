@@ -428,7 +428,7 @@ namespace dse
 		});
 	}
 
-	void CRPGStats_Object::Sync(MsgS2CSyncStat const& msg)
+	void CRPGStats_Object::FromProtobuf(MsgS2CSyncStat const& msg)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 		Level = msg.level();
@@ -620,7 +620,7 @@ namespace dse
 	{
 		auto object = objects.Find(ToFixedString(msg.name().c_str()));
 		if (object) {
-			object->Sync(msg);
+			object->FromProtobuf(msg);
 			SyncWithPrototypeManager(object);
 		} else {
 			auto newObject = CreateObject(MakeFixedString(msg.name().c_str()), msg.modifier_list());
@@ -629,7 +629,7 @@ namespace dse
 				return;
 			}
 
-			(*newObject)->Sync(msg);
+			(*newObject)->FromProtobuf(msg);
 			SyncWithPrototypeManager(*newObject);
 		}
 	}

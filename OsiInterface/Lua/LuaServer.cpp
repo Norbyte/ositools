@@ -1155,6 +1155,12 @@ namespace dse::esv
 		return GetModManagerServer();
 	}
 
+	void ExtensionState::OnGameSessionLoading()
+	{
+		runtimeModifiedStats_.clear();
+		dse::ExtensionStateBase::OnGameSessionLoading();
+	}
+
 	void ExtensionState::Reset()
 	{
 		ExtensionStateBase::Reset();
@@ -1188,6 +1194,11 @@ namespace dse::esv
 		} else {
 			OsiWarn("Server NO resume -- state " << (unsigned)*gameState);
 		}
+	}
+
+	void ExtensionState::MarkRuntimeModifiedStat(FixedString const& statId)
+	{
+		runtimeModifiedStats_.insert(statId);
 	}
 
 	void ExtensionState::StoryLoaded()

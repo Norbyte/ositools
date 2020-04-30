@@ -37,7 +37,7 @@ namespace dse
 			return StatLoadTriggered;
 		}
 
-		void OnGameSessionLoading();
+		virtual void OnGameSessionLoading();
 		void OnGameSessionLoaded();
 		void OnModuleLoading();
 		void OnModuleResume();

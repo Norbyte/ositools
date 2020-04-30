@@ -102,3 +102,8 @@ FS(ExtenderVersion);
 FS(LuaVariables);
 FS(Mod);
 FS(ModId);
+
+FS(StatObject);
+FS(StatId);
+FS(StatType);
+FS(Blob);

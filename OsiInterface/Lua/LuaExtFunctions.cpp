@@ -1418,6 +1418,7 @@ namespace dse::lua
 
 		stats->SyncWithPrototypeManager(object);
 		object->BroadcastSyncMessage();
+		gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
 		return 0;
 	}
 

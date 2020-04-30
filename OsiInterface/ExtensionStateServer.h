@@ -34,11 +34,19 @@ namespace dse::esv
 		void Reset() override;
 		lua::State * GetLua() override;
 		ModManager * GetModManager() override;
+		void OnGameSessionLoading() override;
 
 		inline char const * GetBootstrapFileName() override
 		{
 			return "BootstrapServer.lua";
 		}
+
+		inline std::unordered_set<FixedString> const& GetRuntimeModifiedStats() const
+		{
+			return runtimeModifiedStats_;
+		}
+
+		void MarkRuntimeModifiedStat(FixedString const& statId);
 
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
@@ -48,6 +56,7 @@ namespace dse::esv
 	protected:
 		friend LuaStatePin<ExtensionState, lua::ServerState>;
 		std::unique_ptr<lua::ServerState> Lua;
+		std::unordered_set<FixedString> runtimeModifiedStats_;
 
 		void DoLuaReset() override;
 		void LuaStartup() override;
