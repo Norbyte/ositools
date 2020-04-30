@@ -27,6 +27,7 @@ FS(Caster);
 FS(Source);
 FS(Target);
 FS(HitObject);
+FS_NAME(NullStringHandle, "ls::TranslatedStringRepository::s_HandleUnknown");
 
 // Game object funcs
 FS(HasTag);

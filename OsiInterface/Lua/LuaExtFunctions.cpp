@@ -1596,6 +1596,20 @@ namespace dse::lua
 		return 1;
 	}
 
+	int GetTranslatedStringFromKey(lua_State* L)
+	{
+		auto key = ToFixedString(luaL_checkstring(L, 1));
+
+		TranslatedString translated;
+		if (script::GetTranslatedStringFromKey(key, translated)) {
+			push(L, translated.Str1.WStr);
+			push(L, translated.Str1.Handle);
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
 	{

@@ -286,5 +286,6 @@ namespace dse::lua
 	int LuaRound(lua_State* L);
 	int AddVoiceMetaData(lua_State* L);
 	int GetTranslatedString(lua_State* L);
+	int GetTranslatedStringFromKey(lua_State* L);
 	int GenerateIdeHelpers(lua_State* L);
 }

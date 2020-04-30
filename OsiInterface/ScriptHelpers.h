@@ -9,4 +9,5 @@ namespace dse::script {
 	bool SaveExternalFile(std::string_view path, std::string_view contents);
 
 	bool GetTranslatedString(char const* handle, STDWString& translated);
+	bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated);
 }

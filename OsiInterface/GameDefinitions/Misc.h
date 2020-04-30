@@ -125,6 +125,13 @@ namespace dse
 	};
 
 
+	struct TranslatedStringKeyManager
+	{
+		typedef TranslatedStringKeyManager* (*GetInstance)();
+		typedef TranslatedString * (*GetTranlatedStringFromKey)(TranslatedStringKeyManager* self, TranslatedString& string, FixedString const& handle, bool unknown);
+	};
+
+
 	namespace eoc
 	{
 		struct PathMover

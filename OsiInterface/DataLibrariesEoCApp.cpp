@@ -917,6 +917,23 @@ namespace dse
 		},
 
 		{
+			"ls::TranslatedStringKeyManager::GetTranlatedStringFromKey",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_DisplayName
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    sub_141C6E690
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:ls__gTranslatedStringKeyManager
+			"48 8D 55 30 " // lea     rdx, [rbp+1C0h+var_190]
+			"41 B1 01 " // mov     r9b, 1
+			"4C 8B C0 " // mov     r8, rax
+			"4C 8B F0 " // mov     r14, rax
+			"E8 XX XX XX XX ", // call    ls__TranslatedStringKeyManager__GetTranlatedStringFromKey
+			{SymbolMappingCondition::kFixedString, 0, "DisplayName"},
+			{"ls::TranslatedStringKeyManager::Instance", SymbolMappingTarget::kIndirect, 15, STATIC_SYM(TranslatedStringKeyManager__Instance)},
+			{"ls::TranslatedStringKeyManager::GetTranlatedStringFromKey", SymbolMappingTarget::kIndirect, 35, STATIC_SYM(TranslatedStringKeyManager__GetTranlatedStringFromKey)},
+		},
+
+		{
 			"ls::ModuleManager::CollectAvailableMods",
 			SymbolMappingData::kText, 0,
 			"C7 81 7C 03 00 00 00 00 00 00 " // mov     dword ptr [rcx+37Ch], 0

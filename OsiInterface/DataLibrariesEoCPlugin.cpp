@@ -937,8 +937,13 @@ namespace dse
 		sym.TranslatedStringRepository__GetInstance = (TranslatedStringRepository::GetInstance)getTranslatedStringRepoProc;
 		sym.TranslatedStringRepository__Get = (TranslatedStringRepository::Get)getTranslatedString2Proc;
 
+		sym.TranslatedStringKeyManager__GetInstance = (TranslatedStringKeyManager::GetInstance)getTranslatedStringKeyMgrProc;
+		sym.TranslatedStringKeyManager__GetTranlatedStringFromKey = (TranslatedStringKeyManager::GetTranlatedStringFromKey)getTranslatedStringFromKeyProc;
+
 		if (sym.TranslatedStringRepository__GetInstance == nullptr
-			|| sym.TranslatedStringRepository__Get == nullptr) {
+			|| sym.TranslatedStringRepository__Get == nullptr
+			|| sym.TranslatedStringKeyManager__GetInstance == nullptr
+			|| sym.TranslatedStringKeyManager__GetTranlatedStringFromKey == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find TranslatedStringRepository functions");
 			InitFailed = true;
 		}

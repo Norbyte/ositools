@@ -127,6 +127,10 @@ namespace dse
 		TranslatedStringRepository::GetInstance TranslatedStringRepository__GetInstance{ nullptr };
 		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };
 
+		TranslatedStringKeyManager** TranslatedStringKeyManager__Instance{ nullptr };
+		TranslatedStringKeyManager::GetInstance TranslatedStringKeyManager__GetInstance{ nullptr };
+		TranslatedStringKeyManager::GetTranlatedStringFromKey TranslatedStringKeyManager__GetTranlatedStringFromKey{ nullptr };
+
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };

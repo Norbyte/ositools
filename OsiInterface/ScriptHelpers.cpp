@@ -107,4 +107,27 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 	}
 }
 
+bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated)
+{
+	auto getKeyMgrInstance = GetStaticSymbols().TranslatedStringKeyManager__GetInstance;
+	auto keyMgrInstance = GetStaticSymbols().TranslatedStringKeyManager__Instance;
+	auto getter = GetStaticSymbols().TranslatedStringKeyManager__GetTranlatedStringFromKey;
+
+	TranslatedStringKeyManager* keyMgr{ nullptr };
+	if (getKeyMgrInstance) {
+		keyMgr = getKeyMgrInstance();
+	} else if (keyMgrInstance) {
+		keyMgr = *keyMgrInstance;
+	}
+
+	if (keyMgr == nullptr || getter == nullptr) {
+		OsiError("TranslatedStringKeyManager functions not mapped!");
+		return false;
+	}
+
+	getter(keyMgr, translated, key, true);
+
+	return translated.Str1.Handle != GFS.strNullStringHandle;
+}
+
 }

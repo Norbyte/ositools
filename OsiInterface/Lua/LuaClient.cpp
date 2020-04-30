@@ -1153,6 +1153,7 @@ namespace dse::ecl::lua
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},
+			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
 
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},

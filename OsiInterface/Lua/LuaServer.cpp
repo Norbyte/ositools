@@ -888,6 +888,7 @@ namespace dse::esv::lua
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},
+			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},

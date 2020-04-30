@@ -2385,8 +2385,19 @@ Ext = {
     --- Returns level scaled values if the level parameter is not nil.
     --- @param stat string Stat entry name
     --- @param level integer|nil Level scaling level
-    --- @return table
+    --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
     GetStat = function (stat, level) end,
+
+    --- Creates a new stats entry on the server
+    --- @param name string Stat entry name
+    --- @param type string Stat entry type (i.e. SkillData, StatusData, etc.)
+    --- @param template string|nil When not nil, all properties are copied from the specified stats entry
+    --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
+    CreateStat = function (name, type, template) end,
+
+    --- Synchronizes all modifications of the specified stat to all clients
+    --- @param name string Stat entry name
+    SyncStat = function (name) end,
 
     --- Returns the property proxy of the specified character
     --- @param id string|integer Character GUID or handle or NetID
@@ -2477,10 +2488,14 @@ Ext = {
     --- @param length number Length of audio in seconds
     AddVoiceMetaData = function (speakerGuid, textKey, path, length) end,
 
-    --- @param key string Translated string key
-    --- @param fallback string Fallback string if the specified key is not found
+    --- @param handle string Translated string handle
+    --- @param fallback string Fallback string if the specified handle is not found
     --- @return string Translated string
-    GetTranslatedString = function (key, fallback) end,
+    GetTranslatedString = function (handle, fallback) end,
+
+    --- @param key string Translated string key
+    --- @return string,string Translated string and handle
+    GetTranslatedStringFromKey = function (key) end,
 
     --- Redirects all file accesses to the specified path to another file.
     --- @param path string Original path
