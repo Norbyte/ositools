@@ -16,13 +16,13 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			if (character->Stats->DynamicStats == nullptr) {
+			if (character->Stats->DynamicStats.empty()) {
 				OsiErrorS("Character has no dynamic stats!");
 				return nullptr;
 			}
 
-			auto numStats = character->Stats->DynamicStatsEnd - character->Stats->DynamicStats;
-			if (numStats <= index) {
+			auto numStats = character->Stats->DynamicStats.size();
+			if ((uint32_t)numStats <= index) {
 				OsiError("Tried to get dynamic stat " << index << ", character only has " << numStats);
 				return nullptr;
 			}

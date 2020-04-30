@@ -1076,12 +1076,12 @@ namespace dse
 
 	CDivinityStats_Item * CDivinityStats_Character::GetItemBySlot(ItemSlot slot, bool mustBeEquipped)
 	{
-		for (auto stat = ItemStats; stat != ItemStatsEnd; stat++) {
-			if ((*stat)->ItemSlot == slot && (!mustBeEquipped || (*stat)->IsEquipped)) {
-				auto index = (*stat)->ItemStatsHandle;
+		for (auto stat : EquippedItems) {
+			if (stat->ItemSlot == slot && (!mustBeEquipped || stat->IsEquipped)) {
+				auto index = stat->ItemStatsHandle;
 				if (index >= 0 
-					&& index < DivStats->ItemList->Handles.Size()) {
-					auto item = DivStats->ItemList->Handles.Start[index];
+					&& index < DivStats->ItemList->Handles.Handles.size()) {
+					auto item = DivStats->ItemList->Handles.Handles[index];
 					if (item) {
 						return item;
 					}
@@ -1145,11 +1145,11 @@ namespace dse
 	{
 		int32_t value = initVal;
 
-		auto lastStat = excludeBoosts ? (character->DynamicStats + 3) : character->DynamicStatsEnd;
+		auto lastStatIt = excludeBoosts ? (character->DynamicStats.begin() + 3) : character->DynamicStats.end();
 
 		unsigned i = 0;
-		for (auto statPtr = character->DynamicStats; statPtr != lastStat; statPtr++, i++) {
-			auto & stat = *statPtr;
+		for (auto it = character->DynamicStats.begin(); it != lastStatIt; it++, i++) {
+			auto & stat = *it;
 			if (stat->BoostConditionsMask == 0 || character->IsBoostActive(stat->BoostConditionsMask)) {
 				value = iter(character, value, i, stat);
 			}
@@ -1157,10 +1157,9 @@ namespace dse
 
 		if (!excludeBoosts) {
 			auto & itemHandles = character->DivStats->ItemList->Handles;
-			for (auto statPtr = character->ItemStats; statPtr != character->ItemStatsEnd; statPtr++) {
-				auto & stat = **statPtr;
-				if (stat.IsEquipped && stat.ItemStatsHandle >= 0 && stat.ItemStatsHandle < itemHandles.Size()) {
-					auto item = itemHandles.Start[stat.ItemStatsHandle];
+			for (auto stat : character->EquippedItems) {
+				if (stat->IsEquipped && stat->ItemStatsHandle >= 0 && stat->ItemStatsHandle < itemHandles.Handles.size()) {
+					auto item = itemHandles.Handles[stat->ItemStatsHandle];
 					if (item != nullptr) {
 						value = iterItem(character, value, item);
 					}
@@ -1227,12 +1226,11 @@ namespace dse
 	{
 		int32_t damageBoost = 0;
 
-		for (auto statPtr = DynamicStats; statPtr != DynamicStatsEnd; statPtr++) {
-			auto & stat = **statPtr;
-			if (stat.BoostConditionsMask == 0 || IsBoostActive(stat.BoostConditionsMask)) {
-				damageBoost += stat.DamageBoost;
+		for (auto dynamicStat : DynamicStats) {
+			if (dynamicStat->BoostConditionsMask == 0 || IsBoostActive(dynamicStat->BoostConditionsMask)) {
+				damageBoost += dynamicStat->DamageBoost;
 				if (Level > 1) {
-					damageBoost += (int)round(stat.DamageBoostGrowthPerLevel * (Level - 1) * 0.1f);
+					damageBoost += (int)round(dynamicStat->DamageBoostGrowthPerLevel * (Level - 1) * 0.1f);
 				}
 			}
 		}
@@ -1243,8 +1241,8 @@ namespace dse
 	int32_t CDivinityStats_Item::GetPhysicalResistance()
 	{
 		int32_t resistance = 0;
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			resistance += (*stat)->PhysicalResistance;
+		for (auto dynamicStat : DynamicAttributes) {
+			resistance += dynamicStat->PhysicalResistance;
 		}
 
 		return resistance;
@@ -1253,8 +1251,8 @@ namespace dse
 	int32_t CDivinityStats_Item::GetPiercingResistance()
 	{
 		int32_t resistance = 0;
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			resistance += (*stat)->PiercingResistance;
+		for (auto dynamicStat : DynamicAttributes) {
+			resistance += dynamicStat->PiercingResistance;
 		}
 
 		return resistance;
@@ -1263,8 +1261,8 @@ namespace dse
 	int32_t CDivinityStats_Item::GetMagicResistance()
 	{
 		int32_t resistance = 0;
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			resistance += (*stat)->MagicResistance;
+		for (auto dynamicStat : DynamicAttributes) {
+			resistance += dynamicStat->MagicResistance;
 		}
 
 		return resistance;
@@ -1273,8 +1271,8 @@ namespace dse
 	int32_t CDivinityStats_Item::GetCorrosiveResistance()
 	{
 		int32_t resistance = 0;
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			resistance += (*stat)->CorrosiveResistance;
+		for (auto dynamicStat : DynamicAttributes) {
+			resistance += dynamicStat->CorrosiveResistance;
 		}
 
 		return resistance;
@@ -1283,8 +1281,8 @@ namespace dse
 
 	bool CDivinityStats_Item::HasTalent(TalentType talent)
 	{
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			if ((*stat)->Talents.HasTalent(talent)) {
+		for (auto dynamicStat : DynamicAttributes) {
+			if (dynamicStat->Talents.HasTalent(talent)) {
 				return true;
 			}
 		}
@@ -1296,8 +1294,8 @@ namespace dse
 	int32_t CDivinityStats_Item::GetAbility(AbilityType ability)
 	{
 		int32_t points = 0;
-		for (auto stat = DynamicAttributes_Start; stat != DynamicAttributes_End; stat++) {
-			points += (*stat)->AbilityModifiers[(unsigned)ability];
+		for (auto dynamicStat : DynamicAttributes) {
+			points += dynamicStat->AbilityModifiers[(unsigned)ability];
 		}
 
 		return points;

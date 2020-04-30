@@ -100,10 +100,10 @@ namespace dse::esv
 
 			auto item = GetEntityWorld()->GetItem(args[1].String);
 			if (item) {
-				auto stats = item->StatsDynamic->DynamicAttributes_Start[1];
+				auto stats = item->StatsDynamic->DynamicAttributes[1];
 				stats->FireResistance += 50;
 
-				auto stats0 = item->StatsDynamic->DynamicAttributes_Start[0];
+				auto stats0 = item->StatsDynamic->DynamicAttributes[0];
 				stats0->FireResistance += 50;
 				OsiErrorS("DoExperiment(): Applied to item");
 			}

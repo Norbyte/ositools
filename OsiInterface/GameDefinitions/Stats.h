@@ -437,9 +437,8 @@ namespace dse
 		uint32_t U7;
 		FixedString ItemTypeReal; // Saved
 		FixedString U8;
-		CDivinityStats_Equipment_Attributes ** DynamicAttributes_Start;
-		CDivinityStats_Equipment_Attributes ** DynamicAttributes_End;
-		uint64_t U9[2];
+		std::vector<CDivinityStats_Equipment_Attributes *> DynamicAttributes;
+		uint64_t U9[1];
 		StatAttributeFlags AttributeFlags;
 		int32_t MaxCharges; // -1 = Not overridden
 		int32_t Charges; // -1 = Not overridden
@@ -591,13 +590,9 @@ namespace dse
 		IGameObject * Character;
 		int32_t Unkn2;
 		int32_t IsIncapacitatedRefCount;
-		CharacterDynamicStat ** DynamicStats;
-		CharacterDynamicStat ** DynamicStatsEnd;
-		CharacterDynamicStat ** DynamicStatsCapacityEnd;
+		std::vector<CharacterDynamicStat*> DynamicStats;
 		CharacterDynamicStat * StatsFromStatsEntry;
-		CharacterEquippedItem ** ItemStats;
-		CharacterEquippedItem ** ItemStatsEnd;
-		CharacterEquippedItem ** ItemStatsCapacityEnd;
+		std::vector<CharacterEquippedItem*> EquippedItems;
 		ObjectSet<void *> SurfacePathInfluences;
 		int32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
@@ -651,16 +646,9 @@ namespace dse
 	template <class T>
 	struct CHandleArray : public ProtectedGameObject<CHandleArray<T>>
 	{
-		__int64 VMT;
-		T ** Start;
-		T ** End;
-		T ** BufAllocationTail;
+		void* VMT;
+		std::vector<T*> Handles;
 		__int64 field_20;
-
-		inline std::size_t Size() const
-		{
-			return End - Start;
-		}
 	};
 
 	template <class T>
@@ -815,6 +803,7 @@ namespace dse
 		bool Initialized;
 
 		void SyncSkillStat(CRPGStats_Object* object);
+		void SyncSkillStat(CRPGStats_Object* object, SkillPrototype* proto);
 	};
 
 	struct StatusPrototype
@@ -866,9 +855,7 @@ namespace dse
 	struct CEquipmentSet : public ProtectedGameObject<CEquipmentSet>
 	{
 		FixedString Name;
-		CEquipmentGroup ** FirstGroup;
-		CEquipmentGroup ** LastGroup;
-		CEquipmentGroup ** GroupBufEnd;
+		std::vector<CEquipmentGroup*> Groups;
 	};
 
 	struct CEquipmentSetManager : public CNamedElementManager<CEquipmentSet>

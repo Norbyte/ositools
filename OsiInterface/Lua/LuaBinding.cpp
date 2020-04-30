@@ -149,9 +149,9 @@ namespace dse::lua
 		if (prop == GFS.strDynamicStats) {
 			lua_newtable(L);
 			unsigned statIdx = 1;
-			for (auto statPtr = stats->DynamicStats; statPtr != stats->DynamicStatsEnd; statPtr++) {
+			for (auto dynamicStat : stats->DynamicStats) {
 				push(L, statIdx++);
-				ObjectProxy<CharacterDynamicStat>::New(L, *statPtr);
+				ObjectProxy<CharacterDynamicStat>::New(L, dynamicStat);
 				lua_settable(L, -3);
 			}
 
@@ -295,9 +295,9 @@ namespace dse::lua
 		if (strcmp(prop, "DynamicStats") == 0) {
 			lua_newtable(L);
 			unsigned statIdx = 1;
-			for (auto statPtr = item->DynamicAttributes_Start; statPtr != item->DynamicAttributes_End; statPtr++) {
+			for (auto dynamicStat : item->DynamicAttributes) {
 				push(L, statIdx++);
-				ObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, *statPtr);
+				ObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, dynamicStat);
 				lua_settable(L, -3);
 			}
 

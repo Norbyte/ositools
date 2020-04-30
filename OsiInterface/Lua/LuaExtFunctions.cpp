@@ -504,8 +504,8 @@ namespace dse::lua
 
 		lua_newtable(L);
 		int32_t index = 1;
-		for (auto group = equipmentSet->FirstGroup; group != equipmentSet->LastGroup; group++) {
-			for (auto const& equipment : (*group)->Equipment) {
+		for (auto group : equipmentSet->Groups) {
+			for (auto const& equipment : group->Equipment) {
 				settable(L, index++, equipment);
 			}
 		}
