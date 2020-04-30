@@ -589,6 +589,18 @@ namespace dse
 		},
 
 		{
+			"eoc::StatusPrototypeManager::Init",
+			SymbolMappingData::kText, 0,
+			"4C 8D 05 XX XX XX XX " // lea     r8, str_Skills  ; "Skills"
+			"BA 01 00 00 00 " // mov     edx, 1
+			"49 8B CF " // mov     rcx, rdi
+			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+			"48 8B 0D XX XX XX XX ", // mov     rcx, cs:eoc__gSkillPrototypeManager
+			{SymbolMappingCondition::kString, 0, "Statuses"},
+			{"eoc::StatusPrototypeManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(eoc__StatusPrototypeManager)}
+		},
+
+		{
 			"ecl::GameStateEventManager::ExecuteGameStateChangedEvent",
 			SymbolMappingData::kText, 0,
 			"4C 8D 0D XX XX XX XX " // lea r9, aClientStateSwa ; "CLIENT STATE SWAP - from: %s, to: %s\n"

@@ -76,6 +76,11 @@ FS(CooldownReduction);
 FS(ChargeDuration);
 FS(DisplayName);
 
+// Status stat properties
+FS(StatusType);
+FS(StatusData);
+FS(HIT);
+
 
 // Stat modifier types
 FS(FixedString);

@@ -812,15 +812,15 @@ namespace dse
 			CRPGStats_ObjectInstance* statusSource, float multiplier, eoc::Text * text, int paramIndex,
 			FixedString * param, ObjectSet<STDString> * paramSet);
 
-		void * VMT;
-		int RPGStatsObjectIndex;
-		int StatusId;
+		void* VMT{ nullptr };
+		int RPGStatsObjectIndex{ -1 };
+		StatusType StatusId;
 		FixedString StatusName;
 		TranslatedString DisplayName;
 		FixedString Icon;
-		bool HasStats;
+		bool HasStats{ false };
 		uint8_t _Pad[7];
-		PrimitiveSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
+		ObjectSet<uint32_t> AbsorbSurfaceTypes{ nullptr }; // eoc::ESurfaceType
 
 		CRPGStats_Object * GetStats() const;
 	};
@@ -830,8 +830,10 @@ namespace dse
 	  void* VMT;
 	  Map<FixedString, StatusPrototype*> Prototypes;
 	  uint8_t _Pad[4];
-	  ObjectSet<StatusPrototype*> Unknown;
+	  ObjectSet<FixedString> PrototypeNames;
 	  bool Initialized;
+
+	  void SyncStatusStat(CRPGStats_Object* object);
 	};
 
 

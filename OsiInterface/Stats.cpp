@@ -8,6 +8,13 @@
 
 namespace dse
 {
+		proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
+		proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
+
+		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
+		TranslatedString displayName;
+		script::GetTranslatedStringFromKey(displayNameKey, displayName);
+		proto->DisplayName = displayName.Str1.WStr;
 	void SkillPrototypeManager::SyncSkillStat(CRPGStats_Object* object)
 	{
 		auto stats = GetStaticSymbols().GetStats();
@@ -29,9 +36,6 @@ namespace dse
 			proto->RPGStatsObjectIndex = object->Handle;
 			proto->SkillTypeId = *skillType;
 			proto->SkillId = object->Name;
-			proto->Ability = *stats->GetAttributeInt(object, GFS.strAbility);
-			proto->Tier = *stats->GetAttributeInt(object, GFS.strTier);
-			proto->Requirement = *stats->GetAttributeInt(object, GFS.strRequirement);
 			proto->Level = *stats->GetAttributeInt(object, GFS.strLevel);
 			proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
 			proto->MagicCost = *stats->GetAttributeInt(object, GFS.strMagicCost);
@@ -41,8 +45,8 @@ namespace dse
 			proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
 			proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
 			proto->DisplayName = L"FIXME DisplayName!";
-			proto->AiFlags = 0; // FIXME
 			proto->RootSkillPrototype = nullptr;
+			SyncSkillStat(object, proto);
 
 			Prototypes.Insert(proto->SkillId, proto);
 			PrototypeNames.Set.Add(proto->SkillId);
@@ -61,8 +65,65 @@ namespace dse
 			Prototypes.Insert(lv1Proto->SkillId, lv1Proto);
 			PrototypeNames.Set.Add(lv1Proto->SkillId);
 		} else {
-			// FIXME - sync existing skill prototypes!
+			SyncSkillStat(object, *pProto);
+
+			STDString lv1Name = (*pProto)->SkillId.Str;
+			lv1Name += "_-1";
+			auto lv1Proto = Prototypes.Find(MakeFixedString(lv1Name.c_str()));
+			if (lv1Proto) {
+				SyncSkillStat(object, *lv1Proto);
+			}
 		}
+	}
+
+	void StatusPrototypeManager::SyncStatusStat(CRPGStats_Object* object)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		auto statusTypeFs = stats->GetAttributeString(object, GFS.strStatusType);
+		if (!statusTypeFs || !*statusTypeFs) {
+			OsiError("Status stats object has no StatusType?");
+			return;
+		}
+
+		auto statusType = EnumInfo<StatusType>::Find(*statusTypeFs);
+		if (!statusType) {
+			OsiError("Unsupported StatusType: " << *statusTypeFs);
+			return;
+		}
+
+		StatusPrototype* proto;
+		auto pProto = Prototypes.Find(object->Name);
+		if (pProto == nullptr) {
+			auto hitProto = Prototypes.Find(GFS.strHIT);
+			if (!hitProto) {
+				OsiError("Couldn't sync new status entry - missing HIT status!");
+				return;
+			}
+
+			proto = GameAlloc<StatusPrototype>();
+			proto->VMT = (*hitProto)->VMT;
+			proto->RPGStatsObjectIndex = object->Handle;
+			proto->StatusId = *statusType;
+			proto->StatusName = object->Name;
+			proto->HasStats = false;
+
+			Prototypes.Insert(proto->StatusName, proto);
+			PrototypeNames.Set.Add(proto->StatusName);
+		} else {
+			proto = *pProto;
+		}
+
+		if (proto->HasStats) {
+			OsiError("Cannot sync stats of builtin status " << proto->StatusName);
+			return;
+		}
+
+		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
+		TranslatedString displayName;
+		script::GetTranslatedStringFromKey(displayNameKey, displayName);
+		proto->DisplayName = displayName;
+		proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
+		// FIXME - AbsorbSurfaceType
 	}
 
 	void CRPGStats_Requirement::ToProtobuf(StatRequirement* msg) const
@@ -565,9 +626,12 @@ namespace dse
 			if (skillProtoMgr && *skillProtoMgr) {
 				(*skillProtoMgr)->SyncSkillStat(object);
 			}
+		} else if (modifier->Name == GFS.strStatusData) {
+			auto statusProtoMgr = GetStaticSymbols().eoc__StatusPrototypeManager;
+			if (statusProtoMgr && *statusProtoMgr) {
+				(*statusProtoMgr)->SyncStatusStat(object);
+			}
 		}
-
-		// FIXME - sync with status prototype manager
 	}
 
 	CRPGStats_Object_Property_List* CRPGStatsManager::ConstructPropertyList(FixedString const& propertyName)
