@@ -678,6 +678,8 @@ end
 Ext.RegisterListener("GetHitChance", YourHitChanceFunction)
 ```
 
+The Register Listener for `GetHitChance` should be declared on both `BootstrapClient.lua` and `BootstrapServer.lua`.
+
 Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitated. To better approximate vanilla behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
 
 
