@@ -523,6 +523,7 @@ namespace dse
 	void HitDamageInfo::ClearDamage()
 	{
 		TotalDamage = 0;
+		ArmorAbsorption = 0;
 		DamageList.Clear();
 	}
 
