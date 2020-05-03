@@ -223,7 +223,7 @@ namespace dse::lua
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
-		void OnNetMessageReceived(STDString const & channel, STDString const & payload);
+		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
 	protected:
 		lua_State * L;

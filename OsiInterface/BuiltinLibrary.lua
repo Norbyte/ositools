@@ -60,10 +60,10 @@ Ext.RegisterNetListener = function (channel, fn)
 	table.insert(Ext._NetListeners[channel], fn)
 end
 
-Ext._NetMessageReceived = function (channel, payload)
+Ext._NetMessageReceived = function (channel, payload, userId)
 	if Ext._NetListeners[channel] ~= nil then
 		for i,callback in pairs(Ext._NetListeners[channel]) do
-			local ok, err = xpcall(callback, debug.traceback, channel, payload)
+			local ok, err = xpcall(callback, debug.traceback, channel, payload, userId)
 			if not ok then
 				Ext.PrintError("Error during NetMessageReceived: ", err)
 			end

@@ -102,7 +102,7 @@ namespace dse
 			auto & postMsg = msg.post_lua();
 			ecl::LuaClientPin pin(ecl::ExtensionState::Get());
 			if (pin) {
-				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
+				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()), UserId::Unassigned);
 			}
 			break;
 		}
@@ -144,7 +144,7 @@ namespace dse
 			auto & postMsg = msg.post_lua();
 			esv::LuaServerPin pin(esv::ExtensionState::Get());
 			if (pin) {
-				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()));
+				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()), context.UserID);
 			}
 			break;
 		}

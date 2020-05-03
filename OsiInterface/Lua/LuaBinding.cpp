@@ -850,9 +850,9 @@ namespace dse::lua
 		return false;
 	}
 
-	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload)
+	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId)
 	{
-		CallExt("_NetMessageReceived", 0, ReturnType<>{}, channel, payload);
+		CallExt("_NetMessageReceived", 0, ReturnType<>{}, channel, payload, userId.Id);
 	}
 
 	void State::OnGameSessionLoading()
