@@ -469,12 +469,6 @@ struct TArray
 };
 
 template <class T>
-struct Vector
-{
-	T * Start, * End, * BufEnd;
-};
-
-template <class T>
 struct ListNode
 {
 	ListNode<T> * Next{ nullptr }, * Head{ nullptr };

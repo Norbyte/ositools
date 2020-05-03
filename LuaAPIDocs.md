@@ -1158,7 +1158,7 @@ They have the following properties:
 Properties available on all statuses:
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | NetID | integer | Network ID of the status. Since status have no GUID, only the NetID can be used for sending status references between the client and the server. |
 | StatusId | string | Name of the associated stat entry |
 | StatusHandle | integer | Handle of this status |
@@ -1192,7 +1192,7 @@ Properties available on all statuses:
 ### `CONSUME` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | ResetAllCooldowns | boolean |  |
 | ResetOncePerCombat | boolean |  |
 | ScaleWithVitality | boolean |  |
@@ -1212,7 +1212,7 @@ Properties available on all statuses:
 ### `HIT` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | SkillId | string | Stats ID of the skill (`SkillData`) that was used for the attack |
 | HitByHandle | integer |  |
 | HitWithHandle | integer |  |
@@ -1262,7 +1262,7 @@ Properties available on all statuses:
 ### `DAMAGE` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | DamageEvent | integer |  |
 | HitTimer | number |  |
 | TimeElapsed | number | |
@@ -1273,7 +1273,7 @@ Properties available on all statuses:
 ### `DAMAGE_ON_MOVE` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | DistancePerDamage | number | |
 | DistanceTraveled | number | |
 
@@ -1293,7 +1293,7 @@ Properties available on all statuses:
 ### `HEALING` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | HealAmount | integer |  |
 | TimeElapsed | number |  |
 | HealEffect | string | See `HealEffect` enumeration |

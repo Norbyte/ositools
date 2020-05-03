@@ -273,7 +273,7 @@ namespace dse
 			auto numParams = db->NumParams;
 			auto const & paramTypes = db->ParamTypes;
 			for (auto arg = 0; arg < numParams; arg++) {
-				dbInfo->add_argumenttype(paramTypes.Start[arg]);
+				dbInfo->add_argumenttype(paramTypes[arg]);
 			}
 		}
 

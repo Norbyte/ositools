@@ -269,7 +269,7 @@ namespace dse
 		int32_t Level{ -1 };
 		int32_t ModifierListIndex{ -1 };
 		uint32_t Unused2{ 0 };
-		std::vector<int32_t> IndexedProperties;
+		Vector<int32_t> IndexedProperties;
 		FixedString Name;
 		TranslatedString TranslatedStringX;
 		FixedString FS2;
@@ -437,7 +437,7 @@ namespace dse
 		uint32_t U7;
 		FixedString ItemTypeReal; // Saved
 		FixedString U8;
-		std::vector<CDivinityStats_Equipment_Attributes *> DynamicAttributes;
+		Vector<CDivinityStats_Equipment_Attributes *> DynamicAttributes;
 		uint64_t U9[1];
 		StatAttributeFlags AttributeFlags;
 		int32_t MaxCharges; // -1 = Not overridden
@@ -590,9 +590,9 @@ namespace dse
 		IGameObject * Character;
 		int32_t Unkn2;
 		int32_t IsIncapacitatedRefCount;
-		std::vector<CharacterDynamicStat*> DynamicStats;
+		Vector<CharacterDynamicStat*> DynamicStats;
 		CharacterDynamicStat * StatsFromStatsEntry;
-		std::vector<CharacterEquippedItem*> EquippedItems;
+		Vector<CharacterEquippedItem*> EquippedItems;
 		ObjectSet<void *> SurfacePathInfluences;
 		int32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
@@ -647,7 +647,7 @@ namespace dse
 	struct CHandleArray : public ProtectedGameObject<CHandleArray<T>>
 	{
 		void* VMT;
-		std::vector<T*> Handles;
+		Vector<T*> Handles;
 		__int64 field_20;
 	};
 
@@ -857,7 +857,7 @@ namespace dse
 	struct CEquipmentSet : public ProtectedGameObject<CEquipmentSet>
 	{
 		FixedString Name;
-		std::vector<CEquipmentGroup*> Groups;
+		Vector<CEquipmentGroup*> Groups;
 	};
 
 	struct CEquipmentSetManager : public CNamedElementManager<CEquipmentSet>

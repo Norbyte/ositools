@@ -42,11 +42,8 @@ namespace dse
 	{
 		if (adapter->Constants.Data.Items.Size > 0) return;
 
-		auto varMap = adapter->ColumnToVarMaps.Start;
-		auto varEnd = adapter->ColumnToVarMaps.Start + adapter->VarToColumnMapCount;
-		int8_t varIdx = 0;
-		while (varMap < varEnd) {
-			if (varIdx++ != *varMap++) return;
+		for (size_t i = 0; i < adapter->VarToColumnMapCount; i++) {
+			if (i != adapter->ColumnToVarMaps[i]) return;
 		}
 
 		adapters_[(uint8_t)adapter->VarToColumnMapCount] = adapter;

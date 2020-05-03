@@ -69,6 +69,27 @@ namespace dse
 		}
 	};
 
+	template <class T>
+	class MSVCAllocator
+	{
+	public:
+		using value_type = T;
+
+		inline MSVCAllocator() noexcept {}
+		template <class U>
+		inline MSVCAllocator(MSVCAllocator<U> const&) noexcept {}
+
+		inline T* allocate(std::size_t cnt)
+		{
+			return (T*)GetStaticSymbols().CrtAlloc(cnt * sizeof(T));
+		}
+
+		inline void deallocate(T* p, std::size_t cnt) noexcept
+		{
+			GetStaticSymbols().CrtFree(p);
+		}
+	};
+
 	template <class T, class U>
 	bool operator == (GameAllocator<T> const &, GameAllocator<U> const &) noexcept
 	{
@@ -80,6 +101,14 @@ namespace dse
 	{
 		return !(x == y);
 	}
+
+#if defined(OSI_EOCAPP)
+	template <class T>
+	using Vector = std::vector<T, GameAllocator<T>>;
+#else
+	template <class T>
+	using Vector = std::vector<T, MSVCAllocator<T>>;
+#endif
 
 #pragma pack(push, 1)
 	using Vector3 = glm::vec3;
