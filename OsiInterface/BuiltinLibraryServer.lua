@@ -7,7 +7,8 @@ Ext._Listeners = {
 	ComputeCharacterHit = {},
 	CalculateTurnOrder = {},
 	GetHitChance = {},
-	StatusGetEnterChance = {}
+	StatusGetEnterChance = {},
+	BeforeCharacterApplyDamage = {}
 }
 
 Ext._GetSkillDamage = function (...)
@@ -76,4 +77,15 @@ Ext._RestoreModPersistentVars = function (modTable, vars)
 	if tab ~= nil then
 		tab.PersistentVars = Ext.JsonParse(vars)
 	end
+end
+
+Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, impactDirection)
+    for i,callback in pairs(Ext._Listeners.BeforeCharacterApplyDamage) do
+        local status, result = xpcall(callback, debug.traceback, target, attacker, hit, causeType, impactDirection)
+        if not status then
+            Ext.PrintError("Error during BeforeCharacterApplyDamage: ", result)
+        end
+    end
+
+	return hit
 end

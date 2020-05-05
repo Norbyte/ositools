@@ -146,11 +146,11 @@ namespace dse::lua
 		static int Include(lua_State * L);
 	};
 
-	class Exception : public std::exception
+	class Exception : public std::runtime_error
 	{
 	public:
-		Exception()
-			: std::exception("Lua error thrown")
+		Exception(std::string const& msg)
+			: std::runtime_error("Lua error thrown: " + msg)
 		{}
 	};
 

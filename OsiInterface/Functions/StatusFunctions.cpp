@@ -656,7 +656,7 @@ namespace dse::esv
 	}
 
 
-	void CustomFunctionLibrary::OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
+	void CustomFunctionLibrary::OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
@@ -727,6 +727,22 @@ namespace dse::esv
 
 		next(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
 			skillProperties, highGroundFlag, criticalRoll);
+	}
+
+
+	void CustomFunctionLibrary::OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit,
+		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
+	{
+		HitDamageInfo luaHit = hit;
+
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->OnCharacterApplyDamage(self, luaHit, ObjectHandle(attackerHandle), causeType, impactDirection)) {
+				return;
+			}
+		}
+
+		next(self, luaHit, attackerHandle, causeType, impactDirection);
 	}
 
 	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)

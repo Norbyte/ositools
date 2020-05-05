@@ -17,6 +17,7 @@ namespace dse
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
 	decltype(LibraryManager::CharacterHitInternalHook) * decltype(LibraryManager::CharacterHitInternalHook)::gHook;
+	decltype(LibraryManager::CharacterApplyDamageHook) * decltype(LibraryManager::CharacterApplyDamageHook)::gHook;
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
@@ -420,6 +421,10 @@ namespace dse
 				CharacterHitInternalHook.Wrap(GetStaticSymbols().CharacterHitInternal);
 			}
 
+			if (GetStaticSymbols().esv__Character__ApplyDamage != nullptr) {
+				CharacterApplyDamageHook.Wrap(GetStaticSymbols().esv__Character__ApplyDamage);
+			}
+
 			if (GetStaticSymbols().StatusMachineApplyStatus != nullptr) {
 				ApplyStatusHook.Wrap(GetStaticSymbols().StatusMachineApplyStatus);
 			}
@@ -475,6 +480,7 @@ namespace dse
 		StatusHealEnter.Unwrap();
 		CharacterHitHook.Unwrap();
 		CharacterHitInternalHook.Unwrap();
+		CharacterApplyDamageHook.Unwrap();
 		ApplyStatusHook.Unwrap();
 		ActionMachineSetStateHook.Unwrap();
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();

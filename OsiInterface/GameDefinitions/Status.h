@@ -19,7 +19,7 @@ namespace dse
 		void ClearDamage(DamageType damageType);
 	};
 
-	struct HitDamageInfo : public Noncopyable<CRPGStatsManager>
+	struct HitDamageInfo
 	{
 		uint32_t Equipment{ 0 };
 		// Sum of all damages in DamageList

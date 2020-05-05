@@ -392,6 +392,9 @@ namespace dse::esv::lua
 			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
+		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
+			CauseType causeType, glm::vec3& impactDirection);
+
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);
 

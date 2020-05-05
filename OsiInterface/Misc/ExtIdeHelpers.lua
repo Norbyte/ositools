@@ -1910,11 +1910,16 @@ local StatEntryCrime = {}
 
 
 --- @class HitRequest
---- @field public EffectFlags integer See HitFlags enumeration
+--- @field public Equipment integer
 --- @field public TotalDamageDone integer
+--- @field public DamageDealt integer
+--- @field public DeathType string See DeathType enumeration
+--- @field public DamageType string See DamageType enumeration
+--- @field public AttackDirection integer
 --- @field public ArmorAbsorption integer
 --- @field public LifeSteal integer
---- @field public DamageType string See DamageType enumeration
+--- @field public EffectFlags integer See HitFlags enumeration
+--- @field public HitWithWeapon boolean
 --- @field public DamageList DamageList
 local HitRequest = {}
 
@@ -2039,7 +2044,16 @@ local UIObject = {
     Destroy = function (self) end,
 }
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleResume'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleResume'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | "'BeforeCharacterApplyDamage'"
+
+--- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
+--- @alias ExtGetSkillDamageCallback fun(skill: StatEntrySkillData, attacker: StatCharacter, isFromItem: boolean, stealthed: boolean, attackerPos: number[], targetPos: number[], level: number, noRandomization: boolean): DamageList, string
+--- @alias ExtCalculateTurnOrderCallback fun(combat: EsvCombat, order: EsvCombatTeam[]): EsvCombatTeam[]
+--- @alias ExtGetHitChanceCallback fun(attacker: StatCharacter, target: StatCharacter): number
+--- @alias ExtStatusGetEnterChanceCallback fun(status: EsvStatus, isEnterCheck: boolean): number
+--- @alias ExtSkillGetDescriptionParamCallback fun(skill: StatEntrySkillData, character: StatCharacter, isFromItem: boolean, ...): string
+--- @alias ExtStatusGetDescriptionParamCallback fun(status: EsvStatus, statusSource: EsvGameObject, character: StatCharacter, ...): string
+--- @alias ExtBeforeCharacterApplyDamageCallback fun(target: EsvCharacter, attacker: StatCharacter|StatItem, hit: HitRequest, causeType: string, impactDirection: number[]): HitRequest
 
 --- @class Ext
 Ext = {

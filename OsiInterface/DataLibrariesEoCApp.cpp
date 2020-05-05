@@ -983,6 +983,18 @@ namespace dse
 			{SymbolMappingCondition::kFixedString, 24, "OsirisVariableHelper"},
 			{"esv::OsirisVariableHelper::SavegameVisit", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__OsirisVariableHelper__SavegameVisit)}
 		},
+
+		{
+			"esv::Character::ApplyDamage",
+			SymbolMappingData::kText, 0,
+			"C7 45 CB 06 00 00 00 " // mov     [rbp+57h+hitDamageInfo.AttackDirection_Enum], 6
+			"44 89 75 07 " // mov     [rbp+57h+var_50], r14d
+			"C7 45 0B 00 00 80 BF " // mov     [rbp+57h+var_4C], 0BF800000h
+			"44 89 75 0F " // mov     [rbp+57h+var_48], r14d
+			"E8 XX XX XX XX ", // call    esv__Character__ApplyDamage
+			{},
+			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 22, STATIC_SYM(esv__Character__ApplyDamage)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

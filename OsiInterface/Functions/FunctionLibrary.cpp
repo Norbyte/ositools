@@ -242,6 +242,9 @@ namespace dse::esv
 		osiris_.GetLibraryManager().CharacterHitInternalHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnCharacterHitInternal, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
 		);
+		osiris_.GetLibraryManager().CharacterApplyDamageHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnCharacterApplyDamage, this, _1, _2, _3, _4, _5, _6)
+		);
 		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnApplyStatus, this, _1, _2, _3)
 		);

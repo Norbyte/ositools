@@ -1075,13 +1075,42 @@ namespace dse
 	};
 
 	template <class T>
-	struct Array : public Noncopyable<Array<T>>
+	struct Array
 	{
 		void * VMT{ nullptr };
 		T * Buf{ nullptr };
 		uint32_t Capacity{ 0 };
 		uint32_t Size{ 0 };
 		uint32_t Unkn[2]{ 0 };
+
+		inline Array() {}
+
+		Array(Array const& a)
+		{
+			CopyFrom(a);
+		}
+
+		Array& operator =(Array const& a)
+		{
+			CopyFrom(a);
+			return *this;
+		}
+
+		void CopyFrom(Array const& a)
+		{
+			VMT = a.VMT;
+			Unkn[0] = a.Unkn[0];
+			Unkn[1] = a.Unkn[1];
+			Clear();
+
+			if (a.Size > 0) {
+				Reallocate(a.Size);
+				Size = a.Size;
+				for (uint32_t i = 0; i < Size; i++) {
+					Buf[i] = a[i];
+				}
+			}
+		}
 
 		inline T const & operator [] (uint32_t index) const
 		{

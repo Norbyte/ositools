@@ -45,7 +45,8 @@ namespace dse::esv
 			CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		void OnStatusHitEnter(esv::Status * status);
 		void OnStatusHealEnter(esv::Status * status);
-		void OnCharacterHit(esv::Character__Hit wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
+
+		void OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
 			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 			HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag,
 			bool procWindWalker, CriticalRoll criticalRoll);
@@ -53,6 +54,9 @@ namespace dse::esv
 			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
+		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit, 
+			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+
 		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,

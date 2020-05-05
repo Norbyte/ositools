@@ -236,6 +236,10 @@ namespace dse {
 			CDivinityStats_Item *, DamagePairList *, HitType, bool, bool, HitDamageInfo *, CRPGStats_Object_Property_List *,
 			HighGroundBonus, CriticalRoll)> CharacterHitInternalHook;
 
+		enum class CharacterApplyDamageTag {};
+		WrappableFunction<CharacterApplyDamageTag, void(esv::Character*, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType,
+			glm::vec3& impactDirection)> CharacterApplyDamageHook;
+
 		enum class ApplyStatusTag {};
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
 

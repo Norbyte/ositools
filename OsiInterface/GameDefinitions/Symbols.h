@@ -76,8 +76,9 @@ namespace dse
 		esv::GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
 		esv::StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
 		esv::StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
-		esv::Character__Hit CharacterHit{ nullptr };
+		esv::Character::HitProc CharacterHit{ nullptr };
 		CDivinityStats_Character::HitInternalProc CharacterHitInternal{ nullptr };
+		esv::Character::ApplyDamageProc esv__Character__ApplyDamage{ nullptr };
 		esv::StatusVMT const * StatusHealVMT{ nullptr };
 		esv::StatusVMT const * StatusHitVMT{ nullptr };
 		esv::ParseItem ParseItem{ nullptr };

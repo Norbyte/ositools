@@ -1508,8 +1508,8 @@ namespace dse::lua
 		lua_gettable(L, 1);
 
 		for (auto valueIndex : iterate(L, -1)) {
-			auto boost = MakeFixedString(checked_getfield<char const*>(L, "Boost", valueIndex - 1));
-			auto flag = checked_getfield<int>(L, "Count", valueIndex - 1);
+			auto boost = MakeFixedString(checked_getfield<char const*>(L, "Boost", valueIndex));
+			auto flag = checked_getfield<int>(L, "Count", valueIndex);
 			auto object = stats->objects.FindIndex(boost);
 			if (object != -1) {
 				deltaMod->BoostIndices.Set.Add(object);

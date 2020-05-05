@@ -951,6 +951,58 @@ namespace dse::esv::lua
 	}
 
 
+	void PushHit(lua_State* L, HitDamageInfo const& hit)
+	{
+		lua_newtable(L);
+		setfield(L, "Equipment", hit.Equipment);
+		setfield(L, "TotalDamageDone", hit.TotalDamage);
+		setfield(L, "DamageDealt", hit.DamageDealt);
+		setfield(L, "DeathType", hit.DeathType);
+		setfield(L, "DamageType", hit.DamageType);
+		setfield(L, "AttackDirection", hit.AttackDirection);
+		setfield(L, "ArmorAbsorption", hit.ArmorAbsorption);
+		setfield(L, "LifeSteal", hit.LifeSteal);
+		setfield(L, "EffectFlags", (int64_t)hit.EffectFlags);
+		setfield(L, "HitWithWeapon", hit.HitWithWeapon);
+
+		auto luaDamageList = DamageList::New(L);
+		for (auto const& dmg : hit.DamageList) {
+			luaDamageList->Get().SafeAdd(dmg);
+		}
+		
+		lua_setfield(L, -2, "DamageList");
+	}
+
+	bool PopHit(lua_State* L, HitDamageInfo& hit, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		hit.Equipment = checked_getfield<uint32_t>(L, "Equipment", index);
+		hit.TotalDamage = checked_getfield<int32_t>(L, "TotalDamageDone", index);
+		hit.DamageDealt = checked_getfield<int32_t>(L, "DamageDealt", index);
+		hit.DeathType = checked_getfield<DeathType>(L, "DeathType", index);
+		hit.DamageType = checked_getfield<DamageType>(L, "DamageType", index);
+		hit.AttackDirection = checked_getfield<uint32_t>(L, "AttackDirection", index);
+		hit.ArmorAbsorption = checked_getfield<int32_t>(L, "ArmorAbsorption", index);
+		hit.LifeSteal = checked_getfield<int32_t>(L, "LifeSteal", index);
+		hit.HitWithWeapon = checked_getfield<bool>(L, "HitWithWeapon", index);
+		hit.EffectFlags = (HitFlag)checked_getfield<uint32_t>(L, "EffectFlags", index);
+
+		lua_getfield(L, index, "DamageList");
+		auto damageList = DamageList::AsUserData(L, -1);
+		lua_pop(L, 1);
+
+		if (damageList == nullptr) {
+			OsiErrorS("Missing 'DamageList' in Hit table");
+			return false;
+		} else {
+			hit.DamageList.Clear();
+			for (auto const& dmg : damageList->Get()) {
+				hit.DamageList.AddDamage(dmg.DamageType, dmg.Amount);
+			}
+			return true;
+		}
+	}
+
 	bool ServerState::ComputeCharacterHit(CDivinityStats_Character * target,
 		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList,
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
@@ -982,12 +1034,7 @@ namespace dse::esv::lua
 		push(L, noHitRoll);
 		push(L, forceReduceDurability);
 
-		lua_newtable(L);
-		setfield(L, "EffectFlags", (int64_t)hit->EffectFlags);
-		setfield(L, "TotalDamageDone", hit->TotalDamage);
-		setfield(L, "ArmorAbsorption", hit->ArmorAbsorption);
-		setfield(L, "LifeSteal", hit->LifeSteal);
-		setfield(L, "DamageType", hit->DamageType);
+		PushHit(L, *hit);
 
 		auto alwaysBackstab = skillProperties != nullptr
 			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
@@ -1045,6 +1092,58 @@ namespace dse::esv::lua
 
 		lua_pop(L, 1); // stack: -
 		return ok;
+	}
+
+	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
+			CauseType causeType, glm::vec3& impactDirection)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictOsiris);
+
+		PushExtFunction(L, "_BeforeCharacterApplyDamage"); // stack: fn
+
+		auto luaTarget = ObjectProxy<esv::Character>::New(L, target);
+		UnbindablePin _(luaTarget);
+
+		CRPGStats_Object* attacker{ nullptr };
+		if (attackerHandle) {
+			auto attackerChar = GetEntityWorld()->GetCharacter(attackerHandle, false);
+			if (attackerChar) {
+				attacker = attackerChar->Stats;
+			} else {
+				auto attackerItem = GetEntityWorld()->GetItem(attackerHandle, false);
+				if (attackerItem) {
+					attacker = attackerItem->StatsDynamic;
+				} else {
+					OsiError("Could not resolve attacker handle: " << std::hex << attackerHandle.Handle);
+				}
+			}
+		}
+
+		ItemOrCharacterPushPin luaAttacker(L, attacker);
+
+		PushHit(L, hit);
+
+		push(L, causeType);
+		push(L, impactDirection); // stack: fn, target, attacker, hit, causeType, impactDirection
+
+		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
+			OsiError("BeforeCharacterApplyDamage handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		int top = lua_gettop(L);
+		try {
+			PopHit(L, hit, -1);
+		}
+		catch (Exception& e) {
+			lua_settop(L, top);
+			OsiError("Exception thrown during BeforeCharacterApplyDamage processing: " << e.what());
+		}
+
+		lua_pop(L, 1); // stack: -
+		return false;
 	}
 
 

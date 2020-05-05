@@ -690,7 +690,12 @@ namespace dse::lua
 
 	int LuaPanic(lua_State * L)
 	{
-		throw Exception();
+		char const* err = "(Unknown)";
+		if (lua_type(L, -1) == LUA_TSTRING) {
+			err = lua_tostring(L, -1);
+		}
+
+		throw Exception(err);
 	}
 
 	State::State()

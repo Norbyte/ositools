@@ -1334,7 +1334,12 @@ void SavegameSerializer::RestoreStatObject(FixedString const& statId, FixedStrin
 		object = *newObject;
 	}
 
+#if defined(NDEBUG)
 	MsgS2CSyncStat msg;
+#else
+	// Workaround for different debug/release CRT runtimes between protobuf and the extender in debug mode
+	MsgS2CSyncStat& msg = *GameAlloc<MsgS2CSyncStat>();
+#endif
 	if (!msg.ParseFromArray(blob.Buffer, blob.Size)) {
 		OsiError("Unable to parse protobuf payload for stat '" << statId << "'! It will not be loaded from the savegame!");
 		return;

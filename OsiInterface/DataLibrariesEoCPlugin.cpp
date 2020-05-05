@@ -825,6 +825,19 @@ namespace dse
 			{SymbolMappingCondition::kString, 14, "esv::OsirisVariableHelper::SavegameVisit"},
 			{"esv::OsirisVariableHelper::SavegameVisit", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__OsirisVariableHelper__SavegameVisit)}
 		},
+
+		{
+			"esv::Character::ApplyDamage",
+			SymbolMappingData::kText, 0,
+			"C7 45 DB 00 00 80 BF " // mov     [rbp+57h+var_7C], 0BF800000h
+			"C7 45 DF 00 00 00 00 " // mov     [rbp+57h+var_78], 0
+			"4D 8B 00 " // mov     r8, [r8]
+			"C6 44 24 28 00 " // mov     [rsp+0B0h+var_88], 0
+			"48 89 44 24 20 " // mov     [rsp+0B0h+impactDirection], rax
+			"E8 XX XX XX XX ", // call    esv__Character__ApplyDamage
+			{},
+			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(esv__Character__ApplyDamage)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)
