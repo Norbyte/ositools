@@ -394,23 +394,22 @@ namespace dse::lua
 
 		if (module != nullptr) {
 			lua_newtable(L);
-			settable(L, "UUID", module->Info.ModuleUUID);
-			settable(L, "Name", module->Info.Name);
-			settable(L, "Version", module->Info.Version);
-			settable(L, "PublishVersion", module->Info.PublishVersion);
-			settable(L, "Directory", module->Info.Directory);
-			settable(L, "Author", module->Info.Author);
-			settable(L, "Description", module->Info.Description);
-			settable(L, "ModuleType", module->Info.ModuleType);
+			setfield(L, "UUID", module->Info.ModuleUUID);
+			setfield(L, "Name", module->Info.Name);
+			setfield(L, "Version", module->Info.Version);
+			setfield(L, "PublishVersion", module->Info.PublishVersion);
+			setfield(L, "Directory", module->Info.Directory);
+			setfield(L, "Author", module->Info.Author);
+			setfield(L, "Description", module->Info.Description);
+			setfield(L, "ModuleType", module->Info.ModuleType);
 			
-			push(L, "Dependencies");
 			lua_newtable(L);
 			auto & dependents = module->DependentModules.Set;
 			for (uint32_t i = 0; i < dependents.Size; i++) {
 				auto const & mod = dependents[i];
 				settable(L, i + 1, mod.Info.ModuleUUID);
 			}
-			lua_settable(L, -3);
+			lua_setfield(L, -2, "Dependencies");
 
 			return 1;
 		} else {
@@ -527,21 +526,14 @@ namespace dse::lua
 	{
 		lua_newtable(L);
 
-		auto requirementLabel = EnumInfo<RequirementType>::Find(requirement.RequirementId);
-		if (requirementLabel) {
-			settable(L, "Requirement", requirementLabel);
-		} else {
-			OsiError("Unknown requirement ID: " << (unsigned)requirement.RequirementId);
-			settable(L, "Requirement", "(Unknown)");
-		}
-
+		setfield(L, "Requirement", requirement.RequirementId);
 		if (requirement.RequirementId == RequirementType::Tag) {
-			settable(L, "Param", requirement.StringParam);
+			setfield(L, "Param", requirement.StringParam);
 		} else {
-			settable(L, "Param", requirement.IntParam);
+			setfield(L, "Param", requirement.IntParam);
 		}
 		
-		settable(L, "Not", requirement.Negate);
+		setfield(L, "Not", requirement.Negate);
 	}
 
 	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> const & requirements)
@@ -556,23 +548,19 @@ namespace dse::lua
 
 	void LuaToRequirement(lua_State * L, CRPGStats_Requirement & requirement)
 	{
-		auto requirementLabel = gettable<char const *, char const *>(L, "Requirement");
-		auto requirementId = EnumInfo<RequirementType>::Find(requirementLabel);
-		if (!requirementId) {
-			luaL_error(L, "Unknown requirement type: %s", requirementLabel);
-		}
+		auto requirementId = checked_getfield<RequirementType>(L, "Requirement");
 
-		requirement.RequirementId = *requirementId;
-		if (*requirementId == RequirementType::Tag) {
-			auto param = gettable<char const *, char const *>(L, "Param");
+		requirement.RequirementId = requirementId;
+		if (requirementId == RequirementType::Tag) {
+			auto param = getfield<char const *>(L, "Param");
 			requirement.StringParam = MakeFixedString(param);
 			requirement.IntParam = -1;
 		} else {
-			auto param = gettable<char const *, int32_t>(L, "Param");
+			auto param = getfield<int32_t>(L, "Param");
 			requirement.IntParam = param;
 		}
 
-		requirement.Negate = gettable<char const *, bool>(L, "Not");
+		requirement.Negate = getfield<bool>(L, "Not");
 	}
 
 	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> & requirements)
@@ -628,7 +616,7 @@ namespace dse::lua
 				auto ifPos = name.find("_IF(");
 				if (ifPos != std::string::npos) {
 					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
-					settable(L, "Condition", condition);
+					setfield(L, "Condition", condition);
 				}
 			}
 		}
@@ -637,22 +625,22 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::Custom:
 		{
 			auto prop = (CDivinityStats_Object_Property_Custom*)property;
-			settable(L, "Type", "Custom");
-			settable(L, "Action", prop->Name);
+			setfield(L, "Type", "Custom");
+			setfield(L, "Action", prop->Name);
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Status:
 		{
 			auto prop = (CDivinityStats_Object_Property_Status*)property;
-			settable(L, "Type", "Status");
-			settable(L, "Action", prop->Status);
-			settable(L, "StatusChance", prop->StatusChance);
-			settable(L, "Duration", prop->Duration);
-			settable(L, "Arg3", prop->Argument3);
-			settable(L, "Arg4", prop->Argument4);
-			settable(L, "Arg5", prop->Argument5);
-			settable(L, "SurfaceBoost", prop->HasBoost);
+			setfield(L, "Type", "Status");
+			setfield(L, "Action", prop->Status);
+			setfield(L, "StatusChance", prop->StatusChance);
+			setfield(L, "Duration", prop->Duration);
+			setfield(L, "Arg3", prop->Argument3);
+			setfield(L, "Arg4", prop->Argument4);
+			setfield(L, "Arg5", prop->Argument5);
+			setfield(L, "SurfaceBoost", prop->HasBoost);
 			// FIXME - SurfaceBoosts
 			break;
 		}
@@ -661,12 +649,12 @@ namespace dse::lua
 		{
 			auto prop = (CDivinityStats_Object_Property_SurfaceChange*)property;
 			auto surfaceChange = stats->EnumIndexToLabel(GFS.strSurfaceChange, prop->SurfaceChange);
-			settable(L, "Type", "SurfaceChange");
-			settable(L, "Action", surfaceChange);
-			settable(L, "Arg1", prop->Arg1);
-			settable(L, "Arg2", prop->Arg2);
-			settable(L, "Arg3", prop->Arg3);
-			settable(L, "Arg4", prop->Arg4);
+			setfield(L, "Type", "SurfaceChange");
+			setfield(L, "Action", surfaceChange);
+			setfield(L, "Arg1", prop->Arg1);
+			setfield(L, "Arg2", prop->Arg2);
+			setfield(L, "Arg3", prop->Arg3);
+			setfield(L, "Arg4", prop->Arg4);
 			break;
 		}
 
@@ -674,16 +662,16 @@ namespace dse::lua
 		{
 			auto prop = (CDivinityStats_Object_Property_GameAction*)property;
 			auto gameAction = stats->EnumIndexToLabel(GFS.strGameAction, prop->GameAction);
-			settable(L, "Type", "GameAction");
-			settable(L, "Action", gameAction);
-			settable(L, "Arg1", prop->Arg1);
-			settable(L, "Arg2", prop->Arg2);
-			settable(L, "Arg3", prop->Arg3);
-			settable(L, "Arg4", prop->Arg4);
-			settable(L, "Arg5", prop->Arg5);
+			setfield(L, "Type", "GameAction");
+			setfield(L, "Action", gameAction);
+			setfield(L, "Arg1", prop->Arg1);
+			setfield(L, "Arg2", prop->Arg2);
+			setfield(L, "Arg3", prop->Arg3);
+			setfield(L, "Arg4", prop->Arg4);
+			setfield(L, "Arg5", prop->Arg5);
 			auto statusHealType = stats->EnumIndexToLabel(GFS.strStatusHealType, prop->StatusHealType);
 			if (statusHealType) {
-				settable(L, "StatusHealType", statusHealType);
+				setfield(L, "StatusHealType", statusHealType);
 			}
 			break;
 		}
@@ -691,40 +679,40 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::OsirisTask:
 		{
 			auto prop = (CDivinityStats_Object_Property_OsirisTask*)property;
-			settable(L, "Type", "OsirisTask");
+			setfield(L, "Type", "OsirisTask");
 			auto osirisTask = stats->EnumIndexToLabel(GFS.strOsirisTask, prop->OsirisTask);
-			settable(L, "Action", osirisTask);
-			settable(L, "Chance", prop->Chance);
-			settable(L, "VitalityOnRevive", prop->VitalityOnRevive);
+			setfield(L, "Action", osirisTask);
+			setfield(L, "Chance", prop->Chance);
+			setfield(L, "VitalityOnRevive", prop->VitalityOnRevive);
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Sabotage:
 		{
 			auto prop = (CDivinityStats_Object_Property_Sabotage*)property;
-			settable(L, "Type", "Sabotage");
-			settable(L, "Action", "Sabotage");
-			settable(L, "Amount", prop->Amount);
+			setfield(L, "Type", "Sabotage");
+			setfield(L, "Action", "Sabotage");
+			setfield(L, "Amount", prop->Amount);
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Summon:
 		{
 			auto prop = (CDivinityStats_Object_Property_Summon*)property;
-			settable(L, "Type", "Summon");
-			settable(L, "Template", prop->Template);
-			settable(L, "Duration", prop->Duration);
-			settable(L, "IsTotem", prop->IsTotem);
-			settable(L, "Skill", prop->Skill);
+			setfield(L, "Type", "Summon");
+			setfield(L, "Template", prop->Template);
+			setfield(L, "Duration", prop->Duration);
+			setfield(L, "IsTotem", prop->IsTotem);
+			setfield(L, "Skill", prop->Skill);
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Force:
 		{
 			auto prop = (CDivinityStats_Object_Property_Force*)property;
-			settable(L, "Type", "Force");
-			settable(L, "Action", "Force");
-			settable(L, "Distance", prop->Distance);
+			setfield(L, "Type", "Force");
+			setfield(L, "Action", "Force");
+			setfield(L, "Distance", prop->Distance);
 			break;
 		}
 
@@ -747,24 +735,18 @@ namespace dse::lua
 	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index, FixedString const& propertyName)
 	{
 		auto stats = GetStaticSymbols().GetStats();
+		auto typeId = checked_getfield<CRPGStats_Object_Property_Type>(L, "Type");
 
-		auto type = checked_gettable<char const*, char const*>(L, "Type");
-		auto typeId = EnumInfo<CRPGStats_Object_Property_Type>::Find(type);
-		if (!typeId) {
-			OsiError("Unknown object property type: " << type);
-			return nullptr;
-		}
-
-		auto prop = stats->ConstructProperty(*typeId);
+		auto prop = stats->ConstructProperty(typeId);
 		if (!prop) {
 			return nullptr;
 		}
 
-		switch (*typeId) {
+		switch (typeId) {
 		case CRPGStats_Object_Property_Type::Custom:
 		{
 			auto custom = (CDivinityStats_Object_Property_Custom*)prop;
-			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto actionStr = checked_getfield<char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strCustomProperties, actionStr);
 			if (!action) {
 				OsiError("Unknown Custom Properties value: " << actionStr);
@@ -777,20 +759,20 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::Status:
 		{
 			auto status = (CDivinityStats_Object_Property_Status*)prop;
-			status->Status = MakeFixedString(checked_gettable<char const*, char const*>(L, "Action"));
-			status->StatusChance = checked_gettable<char const*, float>(L, "StatusChance");
-			status->Duration = checked_gettable<char const*, float>(L, "Duration");
-			status->Argument3 = MakeFixedString(checked_gettable<char const*, char const*>(L, "Arg3"));
-			status->Argument4 = checked_gettable<char const*, int>(L, "Arg4");
-			status->Argument5 = checked_gettable<char const*, int>(L, "Arg5");
-			status->HasBoost = checked_gettable<char const*, bool>(L, "SurfaceBoost");
+			status->Status = MakeFixedString(checked_getfield<char const*>(L, "Action"));
+			status->StatusChance = checked_getfield<float>(L, "StatusChance");
+			status->Duration = checked_getfield<float>(L, "Duration");
+			status->Argument3 = MakeFixedString(checked_getfield<char const*>(L, "Arg3"));
+			status->Argument4 = checked_getfield<int>(L, "Arg4");
+			status->Argument5 = checked_getfield<int>(L, "Arg5");
+			status->HasBoost = checked_getfield<bool>(L, "SurfaceBoost");
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::SurfaceChange:
 		{
 			auto change = (CDivinityStats_Object_Property_SurfaceChange*)prop;
-			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto actionStr = checked_getfield<char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strSurfaceChange, actionStr);
 			if (!action) {
 				OsiError("Unknown Surface Change value: " << actionStr);
@@ -798,17 +780,17 @@ namespace dse::lua
 			}
 			change->SurfaceChange = *action;
 
-			change->Arg1 = checked_gettable<char const*, float>(L, "Arg1");
-			change->Arg2 = checked_gettable<char const*, float>(L, "Arg2");
-			change->Arg3 = checked_gettable<char const*, float>(L, "Arg3");
-			change->Arg4 = checked_gettable<char const*, float>(L, "Arg4");
+			change->Arg1 = checked_getfield<float>(L, "Arg1");
+			change->Arg2 = checked_getfield<float>(L, "Arg2");
+			change->Arg3 = checked_getfield<float>(L, "Arg3");
+			change->Arg4 = checked_getfield<float>(L, "Arg4");
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::GameAction:
 		{
 			auto gameAction = (CDivinityStats_Object_Property_GameAction*)prop;
-			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto actionStr = checked_getfield<char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strGameAction, actionStr);
 			if (!action) {
 				OsiError("Unknown Custom Properties value: " << actionStr);
@@ -816,12 +798,12 @@ namespace dse::lua
 			}
 			gameAction->GameAction = *action;
 
-			gameAction->Arg1 = checked_gettable<char const*, float>(L, "Arg1");
-			gameAction->Arg2 = checked_gettable<char const*, float>(L, "Arg2");
-			gameAction->Arg3 = MakeFixedString(checked_gettable<char const*, char const*>(L, "Arg3"));
-			gameAction->Arg4 = checked_gettable<char const*, float>(L, "Arg4");
-			gameAction->Arg5 = checked_gettable<char const*, float>(L, "Arg5");
-			auto statusHealType = gettable<char const*, char const*>(L, "StatusHealType");
+			gameAction->Arg1 = checked_getfield<float>(L, "Arg1");
+			gameAction->Arg2 = checked_getfield<float>(L, "Arg2");
+			gameAction->Arg3 = MakeFixedString(checked_getfield<char const*>(L, "Arg3"));
+			gameAction->Arg4 = checked_getfield<float>(L, "Arg4");
+			gameAction->Arg5 = checked_getfield<float>(L, "Arg5");
+			auto statusHealType = getfield<char const*>(L, "StatusHealType");
 			if (statusHealType) {
 				auto healTypeIndex = stats->EnumLabelToIndex(GFS.strStatusHealType, statusHealType);
 				if (!healTypeIndex) {
@@ -837,39 +819,39 @@ namespace dse::lua
 		case CRPGStats_Object_Property_Type::OsirisTask:
 		{
 			auto osirisTask = (CDivinityStats_Object_Property_OsirisTask*)prop;
-			auto actionStr = checked_gettable<char const*, char const*>(L, "Action");
+			auto actionStr = checked_getfield<char const*>(L, "Action");
 			auto action = stats->EnumLabelToIndex(GFS.strOsirisTask, actionStr);
 			if (!action) {
 				OsiError("Unknown Osiris Task value: " << actionStr);
 				return nullptr;
 			}
 			osirisTask->OsirisTask = *action;
-			osirisTask->Chance = checked_gettable<char const*, float>(L, "Chance");
-			osirisTask->VitalityOnRevive = checked_gettable<char const*, int>(L, "VitalityOnRevive");
+			osirisTask->Chance = checked_getfield<float>(L, "Chance");
+			osirisTask->VitalityOnRevive = checked_getfield<int>(L, "VitalityOnRevive");
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Sabotage:
 		{
 			auto sabotage = (CDivinityStats_Object_Property_Sabotage*)prop;
-			sabotage->Amount = checked_gettable<char const*, int>(L, "Amount");
+			sabotage->Amount = checked_getfield<int>(L, "Amount");
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Summon:
 		{
 			auto summon = (CDivinityStats_Object_Property_Summon*)prop;
-			summon->Template = MakeFixedString(checked_gettable<char const*, char const*>(L, "Template"));
-			summon->Duration = checked_gettable<char const*, float>(L, "Duration");
-			summon->IsTotem = checked_gettable<char const*, bool>(L, "IsTotem");
-			summon->Skill = MakeFixedString(checked_gettable<char const*, char const*>(L, "Skill"));
+			summon->Template = MakeFixedString(checked_getfield<char const*>(L, "Template"));
+			summon->Duration = checked_getfield<float>(L, "Duration");
+			summon->IsTotem = checked_getfield<bool>(L, "IsTotem");
+			summon->Skill = MakeFixedString(checked_getfield<char const*>(L, "Skill"));
 			break;
 		}
 
 		case CRPGStats_Object_Property_Type::Force:
 		{
 			auto force = (CDivinityStats_Object_Property_Force*)prop;
-			force->Distance = checked_gettable<char const*, int>(L, "Distance");
+			force->Distance = checked_getfield<int>(L, "Distance");
 			break;
 		}
 
@@ -881,7 +863,7 @@ namespace dse::lua
 		STDString name = std::to_string(index).c_str();
 		prop->Name = MakeFixedString(name.c_str());
 
-		auto conditions = gettable<char const*, char const*>(L, "Condition");
+		auto conditions = getfield<char const*>(L, "Condition");
 		if (conditions && *conditions) {
 			auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(conditions);
 			if (scriptCheckBlock) {
@@ -1455,19 +1437,17 @@ namespace dse::lua
 		}
 
 		lua_newtable(L);
-		settable(L, "ModifierType", deltaMod->ModifierType);
-		auto slot = EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType);
-		settable(L, "SlotType", EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType));
-		settable(L, "WeaponType", EnumInfo<WeaponType>::Find(deltaMod->WeaponType));
-		settable(L, "ArmorType", EnumInfo<ArmorType>::Find(deltaMod->ArmorType));
-		settable(L, "Handedness", EnumInfo<HandednessType>::Find(deltaMod->Handedness));
-		settable(L, "Name", deltaMod->Name);
-		settable(L, "BoostType", deltaMod->BoostType);
-		settable(L, "MinLevel", deltaMod->MinLevel);
-		settable(L, "MaxLevel", deltaMod->MaxLevel);
-		settable(L, "Frequency", deltaMod->Frequency);
+		setfield(L, "ModifierType", deltaMod->ModifierType);
+		setfield(L, "SlotType", EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType));
+		setfield(L, "WeaponType", deltaMod->WeaponType);
+		setfield(L, "ArmorType", deltaMod->ArmorType);
+		setfield(L, "Handedness", deltaMod->Handedness);
+		setfield(L, "Name", deltaMod->Name);
+		setfield(L, "BoostType", deltaMod->BoostType);
+		setfield(L, "MinLevel", deltaMod->MinLevel);
+		setfield(L, "MaxLevel", deltaMod->MaxLevel);
+		setfield(L, "Frequency", deltaMod->Frequency);
 
-		push(L, "Boosts");
 		lua_newtable(L);
 		int index = 1;
 		for (uint32_t i = 0; i < deltaMod->BoostIndices.Set.Size; i++) {
@@ -1475,12 +1455,12 @@ namespace dse::lua
 			if (boost != nullptr) {
 				push(L, index++);
 				lua_newtable(L);
-				settable(L, "Boost", boost->Name);
-				settable(L, "Count", deltaMod->BoostCounts[i]);
+				setfield(L, "Boost", boost->Name);
+				setfield(L, "Count", deltaMod->BoostCounts[i]);
 				lua_settable(L, -3);
 			}
 		}
-		lua_settable(L, -3);
+		lua_setfield(L, -2, "Boosts");
 
 		return 1;
 	}
@@ -1488,8 +1468,8 @@ namespace dse::lua
 	int UpdateDeltaMod(lua_State* L)
 	{
 		luaL_checktype(L, 1, LUA_TTABLE);
-		auto name = checked_gettable<char const*, char const*>(L, "Name", 1);
-		auto modifierType = checked_gettable<char const*, char const*>(L, "ModifierType", 1);
+		auto name = checked_getfield<char const*>(L, "Name", 1);
+		auto modifierType = checked_getfield<char const*>(L, "ModifierType", 1);
 
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
@@ -1510,17 +1490,17 @@ namespace dse::lua
 		}
 
 		deltaMod->ModifierType = MakeFixedString(modifierType);
-		deltaMod->SlotType = (int)checked_gettable<char const*, ItemSlot>(L, "SlotType", 1);
-		deltaMod->WeaponType = checked_gettable<char const*, WeaponType>(L, "WeaponType", 1);
-		deltaMod->ArmorType = checked_gettable<char const*, ArmorType>(L, "ArmorType", 1);
-		deltaMod->Handedness = checked_gettable<char const*, HandednessType>(L, "Handedness", 1);
+		deltaMod->SlotType = (int)checked_getfield<ItemSlot>(L, "SlotType", 1);
+		deltaMod->WeaponType = checked_getfield<WeaponType>(L, "WeaponType", 1);
+		deltaMod->ArmorType = checked_getfield<ArmorType>(L, "ArmorType", 1);
+		deltaMod->Handedness = checked_getfield<HandednessType>(L, "Handedness", 1);
 		deltaMod->Name = MakeFixedString(name);
-		deltaMod->BoostType = MakeFixedString(checked_gettable<char const*, char const*>(L, "BoostType", 1));
-		deltaMod->MinLevel = checked_gettable<char const*, int>(L, "MinLevel", 1);
-		deltaMod->MaxLevel = checked_gettable<char const*, int>(L, "MaxLevel", 1);
+		deltaMod->BoostType = MakeFixedString(checked_getfield<char const*>(L, "BoostType", 1));
+		deltaMod->MinLevel = checked_getfield<int>(L, "MinLevel", 1);
+		deltaMod->MaxLevel = checked_getfield<int>(L, "MaxLevel", 1);
 		deltaMod->MinLevelBoosted = deltaMod->MinLevel;
 		deltaMod->MaxLevelBoosted = deltaMod->MaxLevel;
-		deltaMod->Frequency = checked_gettable<char const*, int>(L, "Frequency", 1);
+		deltaMod->Frequency = checked_getfield<int>(L, "Frequency", 1);
 
 		deltaMod->BoostCounts.Set.Clear();
 		deltaMod->BoostIndices.Set.Clear();
@@ -1528,8 +1508,8 @@ namespace dse::lua
 		lua_gettable(L, 1);
 
 		for (auto valueIndex : iterate(L, -1)) {
-			auto boost = MakeFixedString(checked_gettable<char const*, char const*>(L, "Boost", valueIndex - 1));
-			auto flag = checked_gettable<char const*, int>(L, "Count", valueIndex - 1);
+			auto boost = MakeFixedString(checked_getfield<char const*>(L, "Boost", valueIndex - 1));
+			auto flag = checked_getfield<int>(L, "Count", valueIndex - 1);
 			auto object = stats->objects.FindIndex(boost);
 			if (object != -1) {
 				deltaMod->BoostIndices.Set.Add(object);

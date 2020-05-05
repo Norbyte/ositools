@@ -1196,9 +1196,8 @@ namespace dse::ecl::lua
 		LoadScript(gameMathLib, "Game.Math.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
-		push(L, "ExtraData"); // stack: Ext, "ExtraData"
-		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
-		lua_settable(L, -3); // stack: Ext
+		StatsExtraDataProxy::New(L); // stack: Ext, ExtraDataProxy
+		lua_setfield(L, -2, "ExtraData"); // stack: Ext
 		lua_pop(L, 1); // stack: -
 
 		// Ext is not writeable after loading SandboxStartup!

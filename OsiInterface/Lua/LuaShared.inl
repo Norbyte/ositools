@@ -27,21 +27,15 @@ template <class TObject, class TStatus>
 int GameObjectGetStatusByType(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto statusType = luaL_checkstring(L, 2);
+	auto statusType = checked_get<StatusType>(L, 2);
 
 	auto object = self->Get(L);
 	if (!object || !object->StatusMachine) {
 		return 0;
 	}
 
-	auto typeId = EnumInfo<StatusType>::Find(statusType);
-	if (!typeId) {
-		OsiError("Status type unknown: " << statusType);
-		return 0;
-	}
-
 	for (auto status : object->StatusMachine->Statuses) {
-		if (status->GetStatusId() == *typeId) {
+		if (status->GetStatusId() == statusType) {
 			// FIXME - use handle based proxy
 			ObjectProxy<TStatus>::New(L, status);
 			return 1;

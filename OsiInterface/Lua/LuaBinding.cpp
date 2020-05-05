@@ -595,9 +595,8 @@ namespace dse::lua
 
 			push(L, i + 1); // Stack: tab, index
 			lua_newtable(L); // Stack: tab, index, dmgTab
-			auto dmgTypeName = EnumInfo<DamageType>::Find(item.DamageType);
-			settable(L, "DamageType", dmgTypeName);
-			settable(L, "Amount", item.Amount);
+			setfield(L, "DamageType", item.DamageType);
+			setfield(L, "Amount", item.Amount);
 
 			lua_settable(L, -3); // Stack: tab
 		}

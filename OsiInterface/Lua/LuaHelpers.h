@@ -8,6 +8,13 @@
 
 namespace dse::lua
 {
+	template <class TValue>
+	inline void setfield(lua_State* L, char const* k, TValue const& v, int index = -2)
+	{
+		push(L, v);
+		lua_setfield(L, index, k);
+	}
+
 	template <class TKey, class TValue>
 	inline void settable(lua_State* L, TKey const& k, TValue const& v, int index = -3)
 	{
@@ -89,6 +96,17 @@ namespace dse::lua
 		lua_newtable(L);
 		for (auto i = 0; i < 9; i++) {
 			settable(L, i + 1, m[i / 3][i % 3]);
+		}
+	}
+
+	template <class T>
+	inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
+	{
+		auto label = EnumInfo<T>::Find(v);
+		if (label) {
+			push(L, label);
+		} else {
+			lua_pushnil(L);
 		}
 	}
 
@@ -337,12 +355,30 @@ namespace dse::lua
 	}
 
 
+	template <class TValue>
+	TValue getfield(lua_State* L, char const* k, int index = -1)
+	{
+		lua_getfield(L, index, k);
+		TValue val = get<TValue>(L, -1);
+		lua_pop(L, 1);
+		return val;
+	}
+
 	template <class TKey, class TValue>
 	TValue gettable(lua_State * L, TKey const & k, int index = -2)
 	{
 		push(L, k);
 		lua_gettable(L, index);
 		TValue val = get<TValue>(L, -1);
+		lua_pop(L, 1);
+		return val;
+	}
+
+	template <class TValue>
+	TValue checked_getfield(lua_State* L, char const* k, int index = -1)
+	{
+		lua_getfield(L, index, k);
+		TValue val = checked_get<TValue>(L, -1);
 		lua_pop(L, 1);
 		return val;
 	}

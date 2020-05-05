@@ -16,9 +16,7 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "StatusType") == 0) {
-			auto statusType = obj_->GetStatusId();
-			auto typeName = EnumInfo<StatusType>::Find(statusType);
-			push(L, typeName);
+			push(L, obj_->GetStatusId());
 			return 1;
 		}
 
@@ -917,9 +915,8 @@ namespace dse::esv::lua
 		LoadScript(gameMathLib, "Game.Math.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
-		push(L, "ExtraData"); // stack: Ext, "ExtraData"
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
-		lua_settable(L, -3); // stack: Ext
+		lua_setfield(L, -2, "ExtraData"); // stack: Ext
 		lua_pop(L, 1); // stack: -
 
 		// Ext is not writeable after loading SandboxStartup!
@@ -981,23 +978,23 @@ namespace dse::esv::lua
 			luaDamageList->Get().SafeAdd(dmg);
 		}
 
-		push(L, EnumInfo<HitType>::Find(hitType));
+		push(L, hitType);
 		push(L, noHitRoll);
 		push(L, forceReduceDurability);
 
 		lua_newtable(L);
-		settable(L, "EffectFlags", (int64_t)hit->EffectFlags);
-		settable(L, "TotalDamageDone", hit->TotalDamage);
-		settable(L, "ArmorAbsorption", hit->ArmorAbsorption);
-		settable(L, "LifeSteal", hit->LifeSteal);
-		settable(L, "DamageType", EnumInfo<DamageType>::Find(hit->DamageType));
+		setfield(L, "EffectFlags", (int64_t)hit->EffectFlags);
+		setfield(L, "TotalDamageDone", hit->TotalDamage);
+		setfield(L, "ArmorAbsorption", hit->ArmorAbsorption);
+		setfield(L, "LifeSteal", hit->LifeSteal);
+		setfield(L, "DamageType", hit->DamageType);
 
 		auto alwaysBackstab = skillProperties != nullptr
 			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
 		push(L, alwaysBackstab);
 
-		push(L, EnumInfo<HighGroundBonus>::Find(highGroundFlag));
-		push(L, EnumInfo<CriticalRoll>::Find(criticalRoll));
+		push(L, highGroundFlag);
+		push(L, criticalRoll);
 
 		if (CallWithTraceback(L, 11, 1) != 0) { // stack: succeeded
 			OsiError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
