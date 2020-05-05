@@ -315,6 +315,16 @@ namespace dse::lua
 		return 0;
 	}
 
+	// int64 handle to double conversion hack for use in Flash external interface calls
+	// (Some of the builtin functions treat handles as double values)
+	int HandleToDouble(lua_State* L)
+	{
+		int64_t handle = checked_get<int64_t>(L, 1);
+		double dbl = *reinterpret_cast<double*>(&handle);
+		push(L, dbl);
+		return 1;
+	}
+
 	int LoadFile(lua_State* L)
 	{
 		auto path = checked_get<char const*>(L, 1);

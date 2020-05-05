@@ -850,6 +850,7 @@ namespace dse::esv::lua
 			{"NewEvent", NewEvent},
 			{"Print", OsiPrint},
 			{"PrintError", OsiPrintError},
+			{"HandleToDouble", HandleToDouble},
 
 			{"SaveFile", SaveFile},
 			{"LoadFile", LoadFile},

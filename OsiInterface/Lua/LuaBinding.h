@@ -260,6 +260,7 @@ namespace dse::lua
 	int OsiPrint(lua_State* L);
 	int OsiPrintWarning(lua_State* L);
 	int OsiPrintError(lua_State* L);
+	int HandleToDouble(lua_State* L);
 	int SaveFile(lua_State* L);
 	int LoadFile(lua_State* L);
 	int JsonParse(lua_State* L);

@@ -2560,5 +2560,11 @@ Ext = {
     -- Returns whether the player has a compatible Script Extender version installed
     --- @param playerGuid string GUID of player character
     --- @return boolean
-    PlayerHasExtender = function (playerGuid) end
+    PlayerHasExtender = function (playerGuid) end,
+
+    -- Handle to double conversion hack for use in Flash external interface calls
+    -- (Some of the builtin functions treat handles as double values)
+    --- @param handle number Integer handle to cast
+    --- @return number Double handle
+    HandleToDouble = function (handle) end
 }

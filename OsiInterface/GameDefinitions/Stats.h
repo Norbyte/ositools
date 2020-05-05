@@ -937,7 +937,7 @@ namespace dse
 		void * ItemCombinationManager;
 		void * ItemSetsManager;
 		ScratchBuffer* CurrentPreParseBuf;
-		FixedString FS1;
+		FixedString CurrentStatsEntryName;
 		Map<FixedString, void *> PreParsedDataBufferMap;
 		uint8_t _Pad6[4];
 		ObjectSet<void *> PreParsedDataBuffers;

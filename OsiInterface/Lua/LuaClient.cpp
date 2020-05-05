@@ -69,9 +69,9 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ecl::Character>::MetatableName = "ecl::Character";
 
-	int ClientCharacterFetchProperty(lua_State* L, ecl::Character* character, char const* prop)
+	int ClientCharacterFetchProperty(lua_State* L, ecl::Character* character, FixedString const& prop)
 	{
-		if (strcmp(prop, "PlayerCustomData") == 0) {
+		if (prop == GFS.strPlayerCustomData) {
 			if (character->PlayerData != nullptr
 				// Always false on the client for some reason
 				/*&& character->PlayerData->CustomData.Initialized*/) {
@@ -86,7 +86,7 @@ namespace dse::lua
 			}
 		}
 
-		if (strcmp(prop, "Stats") == 0) {
+		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
 				// FIXME - use handle based proxy
 				ObjectProxy<CDivinityStats_Character>::New(L, character->Stats);
@@ -96,6 +96,11 @@ namespace dse::lua
 				OsiError("Character has no stats.");
 				return 0;
 			}
+		}
+
+		if (prop == GFS.strHandle) {
+			push(L, character->Base.Component.Handle.Handle);
+			return 1;
 		}
 
 		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
@@ -118,33 +123,38 @@ namespace dse::lua
 		if (!character) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
+		if (!propFS) {
+			OsiError("Illegal property name: " << prop);
+			return 0;
+		}
 
-		if (strcmp(prop, "HasTag") == 0) {
+		if (propFS == GFS.strHasTag) {
 			lua_pushcfunction(L, &GameObjectHasTag<ecl::Character>);
 			return 1;
 		}
 
-		if (strcmp(prop, "GetTags") == 0) {
+		if (propFS == GFS.strGetTags) {
 			lua_pushcfunction(L, &GameObjectGetTags<ecl::Character>);
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatus") == 0) {
+		if (propFS == GFS.strGetStatus) {
 			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character, ecl::Status>));
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatusByType") == 0) {
+		if (propFS == GFS.strGetStatusByType) {
 			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Character, ecl::Status>));
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatuses") == 0) {
+		if (propFS == GFS.strGetStatuses) {
 			lua_pushcfunction(L, (&GameObjectGetStatuses<ecl::Character>));
 			return 1;
 		}
 
-		return ClientCharacterFetchProperty(L, character, prop);
+		return ClientCharacterFetchProperty(L, character, propFS);
 	}
 
 	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
@@ -206,6 +216,11 @@ namespace dse::lua
 				OsiError("Item has no stats.");
 				return 0;
 			}
+		}
+
+		if (propFS == GFS.strHandle) {
+			push(L, item->Base.Component.Handle.Handle);
+			return 1;
 		}
 
 		bool fetched = false;
@@ -1119,6 +1134,7 @@ namespace dse::ecl::lua
 			{"Print", OsiPrint},
 			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
+			{"HandleToDouble", HandleToDouble},
 
 			{"SaveFile", SaveFile},
 			{"LoadFile", LoadFile},

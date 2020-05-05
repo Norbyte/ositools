@@ -27,6 +27,7 @@ FS(Caster);
 FS(Source);
 FS(Target);
 FS(HitObject);
+FS(Handle);
 FS_NAME(NullStringHandle, "ls::TranslatedStringRepository::s_HandleUnknown");
 
 // Game object funcs
@@ -48,6 +49,7 @@ FS(Position);
 FS(MyGuid);
 FS(NetID);
 FS(GetItemBySlot);
+FS(PlayerCustomData);
 
 // Stat attributes
 FS(Level);
