@@ -475,11 +475,11 @@ CustomFunctionInjector::CustomFunctionInjector(OsirisWrappers & wrappers, Custom
 void CustomFunctionInjector::Initialize()
 {
 	using namespace std::placeholders;
-	wrappers_.GetFunctionMappings.AddPostHook(std::bind(&CustomFunctionInjector::OnAfterGetFunctionMappings, this, _1, _2, _3));
+	wrappers_.GetFunctionMappings.SetPostHook(std::bind(&CustomFunctionInjector::OnAfterGetFunctionMappings, this, _1, _2, _3));
 	wrappers_.Call.SetWrapper(std::bind(&CustomFunctionInjector::CallWrapper, this, _1, _2, _3));
 	wrappers_.Query.SetWrapper(std::bind(&CustomFunctionInjector::QueryWrapper, this, _1, _2, _3));
-	wrappers_.CreateFileW.AddPostHook(std::bind(&CustomFunctionInjector::OnCreateFile, this, _1, _2, _3, _4, _5, _6, _7, _8));
-	wrappers_.CloseHandle.AddPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
+	wrappers_.CreateFileW.SetPostHook(std::bind(&CustomFunctionInjector::OnCreateFile, this, _1, _2, _3, _4, _5, _6, _7, _8));
+	wrappers_.CloseHandle.SetPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
 }
 
 unsigned gCustomEventDepth{ 0 };

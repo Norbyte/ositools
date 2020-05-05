@@ -9,6 +9,12 @@ namespace dse {
 
 uint8_t * ResolveRealFunctionAddress(uint8_t * Address);
 
+#define PREHOOKABLE(ty, name) enum class name##Tag {}; \
+	PreHookableFunction<name##Tag, ty> name
+
+#define POSTHOOKABLE(ty, name) enum class name##Tag {}; \
+	PostHookableFunction<name##Tag, ty> name
+
 #define HOOKABLE(ty, name) enum class name##Tag {}; \
 	HookableFunction<name##Tag, ty> name
 
@@ -32,14 +38,13 @@ public:
 	uint32_t OsirisDllSize{ 0 };
 
 	HOOKABLE(int(void *, DivFunctions *), RegisterDivFunctions);
-	HOOKABLE(int(void *), InitGame);
-	HOOKABLE(int(void *, bool), DeleteAllData);
-	HOOKABLE(void(void *, MappingInfo **, uint32_t *), GetFunctionMappings);
+	PREHOOKABLE(int(void *), InitGame);
+	PREHOOKABLE(int(void *, bool), DeleteAllData);
+	POSTHOOKABLE(void(void *, MappingInfo **, uint32_t *), GetFunctionMappings);
 
-	HOOKABLE(void(void * Osiris, wchar_t const * Path, wchar_t const * Mode), OpenLogFile);
-	HOOKABLE(void(void * Osiris), CloseLogFile);
+	PREHOOKABLE(void(void * Osiris, wchar_t const * Path, wchar_t const * Mode), OpenLogFile);
+	PREHOOKABLE(void(void * Osiris), CloseLogFile);
 
-	HOOKABLE(int(void *, void *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, unsigned __int8 *, char *, unsigned int *), ReadHeader);
 	WRAPPABLE(bool(void *, wchar_t const *, wchar_t const *), Compile);
 	HOOKABLE(int(void *, void *), Load);
 	WRAPPABLE(bool(void *, wchar_t *), Merge);
@@ -50,22 +55,22 @@ public:
 
 	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Call);
 	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Query);
-	HOOKABLE(void(char const * Message), Error);
-	HOOKABLE(void(bool Successful, char const * Message, bool Unknown2), Assert);
+	PREHOOKABLE(void(char const * Message), Error);
+	PREHOOKABLE(void(bool Successful, char const * Message, bool Unknown2), Assert);
 
-	HOOKABLE(HANDLE(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE), CreateFileW);
-	HOOKABLE(BOOL(HANDLE), CloseHandle);
+	POSTHOOKABLE(HANDLE(LPCWSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE), CreateFileW);
+	POSTHOOKABLE(BOOL(HANDLE), CloseHandle);
 
-	HOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
-	HOOKABLE(void(void *, ecl::GameState, ecl::GameState), ClientGameStateChangedEvent);
-	HOOKABLE(void(void *, esv::GameState, esv::GameState), ServerGameStateChangedEvent);
-	HOOKABLE(void(void *), ClientGameStateWorkerStart);
-	HOOKABLE(void(void *), ServerGameStateWorkerStart);
-	HOOKABLE(void(void *), SkillPrototypeManagerInit);
+	POSTHOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
+	POSTHOOKABLE(void(void *, ecl::GameState, ecl::GameState), ClientGameStateChangedEvent);
+	POSTHOOKABLE(void(void *, esv::GameState, esv::GameState), ServerGameStateChangedEvent);
+	PREHOOKABLE(void(void *), ClientGameStateWorkerStart);
+	PREHOOKABLE(void(void *), ServerGameStateWorkerStart);
+	PREHOOKABLE(void(void *), SkillPrototypeManagerInit);
 	WRAPPABLE(FileReader * (FileReader *, Path *, unsigned int), FileReader__ctor);
-	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);
-	HOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
-	HOOKABLE(bool(void*, ObjectVisitor*), esv__OsirisVariableHelper__SavegameVisit);
+	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);
+	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
+	PREHOOKABLE(bool(void*, ObjectVisitor*), esv__OsirisVariableHelper__SavegameVisit);
 
 	DivFunctions::CallProc CallOriginal;
 	DivFunctions::CallProc QueryOriginal;

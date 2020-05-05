@@ -902,6 +902,8 @@ namespace dse
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
+		typedef bool (*PreParseDataLineProc)(CRPGStatsManager* self, char const* line);
+
 		CNamedElementManager<RPGEnumeration> modifierValueList;
 		CNamedElementManager<ModifierList> modifierList;
 		CNamedElementManager<CRPGStats_Object> objects;

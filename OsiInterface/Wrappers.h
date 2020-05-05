@@ -106,6 +106,153 @@ namespace dse {
 	};
 
 	template <class Tag, class T>
+	class PreHookableFunction;
+
+	template <class Tag, class R, class... Params>
+	class PreHookableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
+	{
+	public:
+		using PreHookType = void(Params...);
+		using PreHookFuncType = std::function<PreHookType>;
+
+		void Wrap(HMODULE Module, char * ProcName)
+		{
+			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Wrap(void * Function)
+		{
+			wrapped_.Wrap(Function, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Unwrap()
+		{
+			wrapped_.Unwrap();
+			gHook = nullptr;
+		}
+
+		void ClearHooks()
+		{
+			preHook_ = PreHookFuncType();
+		}
+
+		void SetPreHook(PreHookFuncType hook)
+		{
+			preHook_ = hook;
+		}
+
+		inline R CallWithHooks(Params... Args) const
+		{
+			if (preHook_) {
+				preHook_(std::forward<Params>(Args)...);
+			}
+
+			return CallOriginal(std::forward<Params>(Args)...);
+		}
+
+		static R CallToTrampoline(Params... Args)
+		{
+			return gHook->CallWithHooks(std::forward<Params>(Args)...);
+		}
+
+	private:
+		PreHookFuncType preHook_;
+
+		static PreHookableFunction<Tag, R(Params...)> * gHook;
+	};
+
+	template <class Tag, class T>
+	class PostHookableFunction;
+
+	template <class Tag, class R, class... Params>
+	class PostHookableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
+	{
+	public:
+		using PostHookType = typename GetHookSignature<R, Params...>::Type;
+		using PostHookFuncType = std::function<PostHookType>;
+
+		void Wrap(HMODULE Module, char * ProcName)
+		{
+			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Wrap(void * Function)
+		{
+			wrapped_.Wrap(Function, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Unwrap()
+		{
+			wrapped_.Unwrap();
+			gHook = nullptr;
+		}
+
+		void ClearHooks()
+		{
+			postHook_ = PostHookFuncType();
+		}
+
+		void SetPostHook(PostHookFuncType hook)
+		{
+			postHook_ = hook;
+		}
+
+		inline R CallWithHooks(Params... Args) const
+		{
+			if constexpr (std::is_same<void, R>::value) {
+				CallOriginal(std::forward<Params>(Args)...);
+
+				if (postHook_) {
+					postHook_(std::forward<Params>(Args)...);
+				}
+			}
+			else {
+				auto retval = CallOriginal(std::forward<Params>(Args)...);
+
+				if (postHook_) {
+					postHook_(std::forward<Params>(Args)..., std::forward<decltype(retval)>(retval));
+				}
+
+				return retval;
+			}
+		}
+
+		static R CallToTrampoline(Params... Args)
+		{
+			return gHook->CallWithHooks(std::forward<Params>(Args)...);
+		}
+
+	private:
+		PostHookFuncType postHook_;
+
+		static PostHookableFunction<Tag, R(Params...)> * gHook;
+	};
+
+	template <class Tag, class T>
 	class HookableFunction;
 
 	template <class Tag, class R, class... Params>

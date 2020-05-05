@@ -230,10 +230,10 @@ namespace dse::esv
 		osiris_.GetLibraryManager().StatusGetEnterChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
 		);
-		osiris_.GetLibraryManager().StatusHitEnter.AddPreHook(
+		osiris_.GetLibraryManager().StatusHitEnter.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHitEnter, this, _1)
 		);
-		osiris_.GetLibraryManager().StatusHealEnter.AddPreHook(
+		osiris_.GetLibraryManager().StatusHealEnter.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
 		);
 		osiris_.GetLibraryManager().CharacterHitHook.SetWrapper(
@@ -248,7 +248,7 @@ namespace dse::esv
 		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnApplyStatus, this, _1, _2, _3)
 		);
-		osiris_.GetLibraryManager().ActionMachineSetStateHook.AddPostHook(
+		osiris_.GetLibraryManager().ActionMachineSetStateHook.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
 		);
 		osiris_.GetLibraryManager().SkillPrototypeFormatDescriptionParamHook.SetWrapper(
@@ -260,7 +260,7 @@ namespace dse::esv
 		osiris_.GetLibraryManager().StatusPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
-		osiris_.GetLibraryManager().TurnManagerUpdateTurnOrderHook.AddPostHook(
+		osiris_.GetLibraryManager().TurnManagerUpdateTurnOrderHook.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnUpdateTurnOrder, this, _1, _2)
 		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(

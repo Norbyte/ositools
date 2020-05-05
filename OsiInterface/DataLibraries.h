@@ -222,10 +222,10 @@ namespace dse {
 		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool)> StatusGetEnterChance;
 		
 		enum class StatusHealEnterTag {};
-		HookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
+		PreHookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
 
 		enum class StatusHitEnterTag {};
-		HookableFunction<StatusHitEnterTag, bool (esv::Status *)> StatusHitEnter;
+		PreHookableFunction<StatusHitEnterTag, bool (esv::Status *)> StatusHitEnter;
 
 		enum class CharacterHitTag {};
 		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
@@ -244,7 +244,7 @@ namespace dse {
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
 
 		enum class ActionMachineSetStateTag {};
-		HookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
+		PostHookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
 
 		enum class SkillPrototypeFormatDescriptionParamTag {};
 		WrappableFunction<SkillPrototypeFormatDescriptionParamTag, void(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats,
@@ -262,7 +262,7 @@ namespace dse {
 			FixedString * param, ObjectSet<STDString> * paramSet)> StatusPrototypeFormatDescriptionParamHook;
 
 		enum class TurnManagerUpdateTurnOrderTag {};
-		HookableFunction<TurnManagerUpdateTurnOrderTag, void(esv::TurnManager * self, uint8_t combatId)> TurnManagerUpdateTurnOrderHook;
+		PostHookableFunction<TurnManagerUpdateTurnOrderTag, void(esv::TurnManager * self, uint8_t combatId)> TurnManagerUpdateTurnOrderHook;
 
 	private:
 

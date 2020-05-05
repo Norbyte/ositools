@@ -59,10 +59,10 @@ void OsirisProxy::Initialize()
 
 	using namespace std::placeholders;
 	Wrappers.RegisterDivFunctions.AddPreHook(std::bind(&OsirisProxy::OnRegisterDIVFunctions, this, _1, _2));
-	Wrappers.InitGame.AddPreHook(std::bind(&OsirisProxy::OnInitGame, this, _1));
-	Wrappers.DeleteAllData.AddPreHook(std::bind(&OsirisProxy::OnDeleteAllData, this, _1, _2));
-	Wrappers.Error.AddPreHook(std::bind(&OsirisProxy::OnError, this, _1));
-	Wrappers.Assert.AddPreHook(std::bind(&OsirisProxy::OnAssert, this, _1, _2, _3));
+	Wrappers.InitGame.SetPreHook(std::bind(&OsirisProxy::OnInitGame, this, _1));
+	Wrappers.DeleteAllData.SetPreHook(std::bind(&OsirisProxy::OnDeleteAllData, this, _1, _2));
+	Wrappers.Error.SetPreHook(std::bind(&OsirisProxy::OnError, this, _1));
+	Wrappers.Assert.SetPreHook(std::bind(&OsirisProxy::OnAssert, this, _1, _2, _3));
 	Wrappers.Compile.SetWrapper(std::bind(&OsirisProxy::CompileWrapper, this, _1, _2, _3, _4));
 	Wrappers.Load.AddPostHook(std::bind(&OsirisProxy::OnAfterOsirisLoad, this, _1, _2, _3));
 	Wrappers.Merge.SetWrapper(std::bind(&OsirisProxy::MergeWrapper, this, _1, _2, _3));
@@ -85,14 +85,14 @@ void OsirisProxy::Initialize()
 	// Wrap state change functions even if extension startup failed, otherwise
 	// we won't be able to show any startup errors
 	Wrappers.InitializeExtensions();
-	Wrappers.InitNetworkFixedStrings.AddPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
-	Wrappers.ClientGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnClientGameStateChanged, this, _1, _2, _3));
-	Wrappers.ServerGameStateChangedEvent.AddPostHook(std::bind(&OsirisProxy::OnServerGameStateChanged, this, _1, _2, _3));
-	Wrappers.ClientGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
-	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
-	Wrappers.SkillPrototypeManagerInit.AddPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
+	Wrappers.InitNetworkFixedStrings.SetPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
+	Wrappers.ClientGameStateChangedEvent.SetPostHook(std::bind(&OsirisProxy::OnClientGameStateChanged, this, _1, _2, _3));
+	Wrappers.ServerGameStateChangedEvent.SetPostHook(std::bind(&OsirisProxy::OnServerGameStateChanged, this, _1, _2, _3));
+	Wrappers.ClientGameStateWorkerStart.SetPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
+	Wrappers.ServerGameStateWorkerStart.SetPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
+	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
-	Wrappers.esv__OsirisVariableHelper__SavegameVisit.AddPreHook(std::bind(&OsirisProxy::OnSavegameVisit, this, _1, _2));
+	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&OsirisProxy::OnSavegameVisit, this, _1, _2));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();

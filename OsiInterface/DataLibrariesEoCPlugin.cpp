@@ -838,6 +838,21 @@ namespace dse
 			{},
 			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(esv__Character__ApplyDamage)}
 		},
+
+		{
+			"RPGStats::PreParseDataLine",
+			SymbolMappingData::kText, 0,
+			"41 B8 00 10 00 00 " // mov     r8d, 1000h
+			"48 8B CB " // mov     rcx, rbx
+			"FF 15 XX XX XX XX " // call    ls::FileReader::ReadLine
+			"84 C0 " // test    al, al
+			"74 15 " // jz      short xxx
+			"48 8D 54 24 70 " // lea     rdx, [rsp+10B8h+preParseBuf]
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX ", // call    RPGStats__PreParseDataLine
+			{},
+			{"RPGStats::PreParseDataLine", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(RPGStats__PreParseDataLine)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

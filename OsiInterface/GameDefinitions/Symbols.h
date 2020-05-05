@@ -132,6 +132,7 @@ namespace dse
 		TranslatedStringKeyManager::GetInstance TranslatedStringKeyManager__GetInstance{ nullptr };
 		TranslatedStringKeyManager::GetTranlatedStringFromKey TranslatedStringKeyManager__GetTranlatedStringFromKey{ nullptr };
 
+		CRPGStatsManager::PreParseDataLineProc RPGStats__PreParseDataLine{ nullptr };
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };

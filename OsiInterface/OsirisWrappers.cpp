@@ -20,7 +20,6 @@ STATIC_HOOK(DeleteAllData)
 STATIC_HOOK(GetFunctionMappings)
 STATIC_HOOK(OpenLogFile)
 STATIC_HOOK(CloseLogFile)
-STATIC_HOOK(ReadHeader)
 STATIC_HOOK(Compile)
 STATIC_HOOK(Load)
 STATIC_HOOK(Merge)
@@ -115,7 +114,6 @@ void OsirisWrappers::Initialize()
 	GetFunctionMappings.Wrap(OsirisModule, "?GetFunctionMappings@COsiris@@QEAAXPEAPEAUMappingInfo@@PEAI@Z");
 	OpenLogFile.Wrap(OsirisModule, "?OpenLogFile@COsiris@@QEAA_NPEB_W0@Z");
 	CloseLogFile.Wrap(OsirisModule, "?CloseLogFile@COsiris@@QEAAXXZ");
-	ReadHeader.Wrap(OsirisModule, "?_ReadHeader@COsiris@@IEAA_NAEAVCOsiSmartBuf@@AEAE111PEADAEAI@Z");
 	Load.Wrap(OsirisModule, "?Load@COsiris@@QEAA_NAEAVCOsiSmartBuf@@@Z");
 	Compile.Wrap(OsirisModule, "?Compile@COsiris@@QEAA_NPEB_W0@Z");
 	Merge.Wrap(OsirisModule, "?Merge@COsiris@@QEAA_NPEB_W@Z");
@@ -246,10 +244,10 @@ void OsirisWrappers::Shutdown()
 	GetFunctionMappings.Unwrap();
 	OpenLogFile.Unwrap();
 	CloseLogFile.Unwrap();
-	ReadHeader.Unwrap();
 	Load.Unwrap();
 	Compile.Unwrap();
 	Merge.Unwrap();
+	Event.Unwrap();
 	RuleActionCall.Unwrap();
 
 	Call.Unwrap();

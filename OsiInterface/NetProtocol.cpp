@@ -295,9 +295,9 @@ namespace dse
 		auto& connectMsg = gOsirisProxy->GetWrappers().eocnet__ClientConnectMessage__Serialize;
 		auto& acceptMsg = gOsirisProxy->GetWrappers().eocnet__ClientAcceptMessage__Serialize;
 		connectMsg.ClearHooks();
-		connectMsg.AddPostHook(std::bind(&NetworkManager::OnClientConnectMessage, this, _1, _2));
+		connectMsg.SetPostHook(std::bind(&NetworkManager::OnClientConnectMessage, this, _1, _2));
 		acceptMsg.ClearHooks();
-		acceptMsg.AddPostHook(std::bind(&NetworkManager::OnClientAcceptMessage, this, _1, _2));
+		acceptMsg.SetPostHook(std::bind(&NetworkManager::OnClientAcceptMessage, this, _1, _2));
 	}
 
 	void NetworkManager::ExtendNetworkingServer()
