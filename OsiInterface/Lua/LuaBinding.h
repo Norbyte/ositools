@@ -208,6 +208,7 @@ namespace dse::lua
 		void OnGameSessionLoaded();
 		void OnModuleLoadStarted();
 		void OnModuleLoading();
+		void OnStatsLoaded();
 		void OnModuleResume();
 
 		template <class... Ret, class... Args>

@@ -275,6 +275,14 @@ namespace dse
 		}
 	}
 
+	void ExtensionStateBase::OnStatsLoaded()
+	{
+		LuaVirtualPin lua(*this);
+		if (lua) {
+			lua->OnStatsLoaded();
+		}
+	}
+
 	void ExtensionStateBase::OnModuleResume()
 	{
 		LuaVirtualPin lua(*this);

@@ -46,6 +46,10 @@ Ext._OnModuleLoading = function ()
     Ext._Notify("ModuleLoading")
 end
 
+Ext._OnStatsLoaded = function ()
+    Ext._Notify("StatsLoaded")
+end
+
 Ext._OnModuleResume = function ()
     Ext._Notify("ModuleResume")
 end

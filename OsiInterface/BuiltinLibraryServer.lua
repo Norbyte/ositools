@@ -1,6 +1,7 @@
 Ext._Listeners = {
 	ModuleLoadStarted = {},
 	ModuleLoading = {},
+	StatsLoaded = {},
 	ModuleResume = {},
 	SessionLoading = {},
 	SessionLoaded = {},

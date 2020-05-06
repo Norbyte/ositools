@@ -884,6 +884,11 @@ namespace dse::lua
 		CallExt("_OnModuleLoading", RestrictAll | ScopeModuleLoad, ReturnType<>{});
 	}
 
+	void State::OnStatsLoaded()
+	{
+		CallExt("_OnStatsLoaded", RestrictAll | ScopeModuleLoad, ReturnType<>{});
+	}
+
 	void State::OnModuleResume()
 	{
 		CallExt("_OnModuleResume", RestrictAll | ScopeModuleResume, ReturnType<>{});

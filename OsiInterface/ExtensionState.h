@@ -41,6 +41,7 @@ namespace dse
 		void OnGameSessionLoaded();
 		void OnModuleLoadStarted();
 		void OnModuleLoading();
+		void OnStatsLoaded();
 		void OnModuleResume();
 
 		void IncLuaRefs();
