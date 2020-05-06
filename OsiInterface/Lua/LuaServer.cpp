@@ -847,6 +847,7 @@ namespace dse::esv::lua
 			{"NewQuery", NewQuery},
 			{"NewEvent", NewEvent},
 			{"Print", OsiPrint},
+			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
 			{"HandleToDouble", HandleToDouble},
 

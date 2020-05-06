@@ -2319,6 +2319,9 @@ Ext = {
     --- Print to console window and editor messages pane
     Print = function (...) end,
 
+    --- Print warning to console window and editor messages pane
+    PrintWarning = function (...) end,
+
     --- Print error to console window and editor messages pane
     PrintError = function (...) end,
 
