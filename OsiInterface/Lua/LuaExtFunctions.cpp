@@ -910,6 +910,7 @@ namespace dse::lua
 
 		push(L, "Context");
 		lua_gettable(L, -2);
+		luaL_checktype(L, -1, LUA_TTABLE);
 		for (auto idx : iterate(L, -1)) {
 			auto context = checked_get<char const*>(L, idx);
 			if (strcmp(context, "Target") == 0) {
@@ -933,6 +934,11 @@ namespace dse::lua
 
 	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L, FixedString const& propertyName)
 	{
+		if (lua_type(L, -1) != LUA_TTABLE) {
+			OsiError("Expected a table when setting property " << propertyName);
+			return nullptr;
+		}
+
 		auto properties = GetStaticSymbols().GetStats()->ConstructPropertyList(propertyName);
 		if (!properties) {
 			return nullptr;
@@ -1097,6 +1103,11 @@ namespace dse::lua
 			return 0;
 		} else if (attributeFS == GFS.strComboCategory) {
 			object->ComboCategories.Set.Clear();
+			if (lua_type(L, valueIdx) != LUA_TTABLE) {
+				OsiError("Must pass a table when setting ComboCategory");
+				return 0;
+			}
+
 			for (auto category : iterate(L, valueIdx)) {
 				auto categoryName = checked_get<char const*>(L, category);
 				object->ComboCategories.Set.Add(MakeFixedString(categoryName));
@@ -1554,6 +1565,7 @@ namespace dse::lua
 		push(L, "Boosts");
 		lua_gettable(L, 1);
 
+		luaL_checktype(L, -1, LUA_TTABLE);
 		for (auto valueIndex : iterate(L, -1)) {
 			auto boost = MakeFixedString(checked_getfield<char const*>(L, "Boost", valueIndex));
 			auto flag = checked_getfield<int>(L, "Count", valueIndex);
