@@ -417,15 +417,15 @@ void OsirisProxy::RegisterFlashTraceCallbacks()
 void OsirisProxy::OnStatsLoadStarted(CRPGStatsManager* mgr)
 {
 	statLoadOrderHelper_.OnLoadStarted();
-	auto state = GetCurrentExtensionState();
-	if (state) {
-		state->OnStatsLoaded();
-	}
 }
 
 void OsirisProxy::OnStatsLoadFinished(CRPGStatsManager* mgr)
 {
 	statLoadOrderHelper_.OnLoadFinished();
+	auto state = GetCurrentExtensionState();
+	if (state) {
+		state->OnStatsLoaded();
+	}
 }
 
 void OsirisProxy::FlashTraceCallback(void * ctx, void * player, char const * message)
