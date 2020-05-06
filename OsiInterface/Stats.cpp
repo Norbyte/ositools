@@ -989,7 +989,7 @@ namespace dse
 		if (typeInfo->Name == GFS.strConstantInt) {
 			object->IndexedProperties[attributeIndex] = value;
 		} else if (typeInfo->Values.ItemCount > 0) {
-			if (value > 0 && value < (int)typeInfo->Values.ItemCount) {
+			if (value >= 0 && value < (int)typeInfo->Values.ItemCount) {
 				object->IndexedProperties[attributeIndex] = value;
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Enum index (\"" << value << "\") out of range");
