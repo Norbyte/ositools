@@ -1,6 +1,118 @@
 
 # Script Extender Changelogs
 
+## Changes in v45
+
+### Migrating from v44 to v45
+
+It was discovered that there are situations when `ModuleLoading` is not triggered even though the stats were reloaded (this occurs during certain client-server sync situations and when stats were reloaded from the editor console); this causes stats to revert to their original values. A new event (`StatsLoaded`) was added to fix these shortcomings. The `StatsLoaded` event is meant to replace the use of `ModuleLoading` for stat override purposes, i.e. all stats should be edited when `StatsLoaded` is triggered. (The `ModuleLoading` event will be kept for backwards compatibility.)
+```lua
+local function statsLoaded()
+    -- Edit stats here!
+end
+
+Ext.RegisterListener("StatsLoaded", statsLoaded)
+``` 
+
+### Major Changes
+
+ - Lua variables can now be stored inside savegames; for more information see https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#persistent-vars
+
+### Stats
+ - Add `StatsLoaded` event for stat overrides
+ - Add `Ext.GetStatEntriesLoadedBefore(modId, [statType])` to fetch stat entries loaded before a specified mod. This returns a stat name list just like `Ext.GetStatEntries(...)`
+ - Added `Ext.GetDeltaMod`, `Ext.UpdateDeltaMod`; these functions allow DeltaMod stats entry manipulation
+ - Added read/write support for `SkillProperties` and `ExtraProperties`
+ - Added write support for `*Conditions` fields (`TargetConditions`, `AoEConditions`, etc.)
+ - Added read/write support for stats `ObjectCategory`
+ - The module that declared the stats entry can now be discovered using `stats.ModId`
+ - Stats entries can be created on the fly using `Ext.CreateStat(statId, type, [copyFrom])` and `Ext.SyncStat(statId)`
+ - Stat entries can be edited dynamically (`Ext.SyncStat(statId)` must be called after editing)
+Stat construction example:
+```lua
+    local stat = Ext.CreateStat("NRD_Dynamic_Skill", "SkillData", "Rain_Water")
+    stat.RainEffect = "RS3_FX_Environment_Rain_Fire_01"
+    stat.SurfaceType = "Fire"
+    Ext.SyncStat("NRD_Dynamic_Skill")
+
+    CharacterAddSkill(CharacterGetHostCharacter(), "NRD_Dynamic_Skill")
+```
+
+Stat editing example:
+```lua
+    local stat = Ext.GetStat("FROST_AURA")
+    stat.HealValue = 100
+    Ext.SyncStat("FROST_AURA")
+```
+
+ - Dynamically created/updated stat entries are stored in the savegame
+
+### Lua
+ - Add `ModuleLoadStarted` event to allow filesystem overrides for early files (localization, etc.)
+ - Status engine type is now available via `status.StatusType`
+ - Added `Ext.GetGameObject` call for fetching arbitrary objects
+ - Added support for capturing UI object invokes (calls from the engine to Flash) via `Ext.RegisterUIInvokeListener`
+ - Add `Ext.PlayerHasExtender(characterGuid)` call
+ - Add `Ext.MonotonicTime()` for timing purposes (returns time in milliseconds)
+ - Add `Ext.PrintWarning(...)`
+ - Add `BeforeCharacterApplyDamage` callback for editing raw damage values before server-side apply
+ - Add `HasTag`, `GetTags`, `GetStatus`, `GetStatusByType`, `GetStatuses` methods to client-side character and item objects
+ - Add Flash object handle helpers (`Ext.HandleToDouble(handle)`, `character.Handle`)
+ 
+### General
+ - Added definitions of all internal objects to Lua IDE helper: https://github.com/Norbyte/ositools/blob/master/OsiInterface/Misc/ExtIdeHelpers.lua
+ - Added type annotations in `Game-Math`
+ - Added `StatusGetEnterChance` implementation in `Game.Math`
+ - Added Lua projectile property maps
+ - Major internal restructuring with the aim of converting all static properties to FixedStrings
+ - Relaxed handle restrictions on server-side callbacks; `StatusGetEnterChance`, `OnUpdateTurnOrder` and `ComputeCharacterHit` callbacks can now look up objects via `Ext.GetXyz`
+ - Fixed `StatusGetEnterChance` signature (param 2 is `isEnterCheck`, not `useCharacterStats`)
+ - Fixed reference counting behavior for fixed strings. This fixes many random crashes that might have occurred when handling FixedString values
+ - Fixed sneaking flags again :)
+ - Fixed weapon requirements calculation in `Game.Math`
+ - Fixed crash during `CharacterIterateSkills` when the skill list was modified during iteration
+ - Fixed FixedString reference counter underflow crash when deleting from stat maps
+ - Various typing corrections for stats entries
+ - Fix incorrect type for `AIFlags`
+ - Fix armor absorption in hit reset functions
+ 
+
+## Changes in v44
+
+### Console
+
+The debug window (toggled with the `CreateConsole` config var) now supports console commands.
+Usage:
+ - Press <enter> to enter console mode; in this mode the normal log output is disabled to avoid log spam while typing commands.
+ - You can select client/server context by typing "client" or "server". This selects where the Lua code and console commands will execute.
+ - "exit" returns to log mode
+ - Commands prefixed by a `!` will trigger the `ConsoleCommand` Lua event. Example:
+```lua
+local function consoleCmd(cmd, a1, a2, ...)
+    Ext.Print("Cmd: " .. cmd .. ", args: ", a1, ", ", a2);
+end
+Ext.RegisterListener("ConsoleCommand", consoleCmd);
+```
+The command `!test 123 456` will print `Cmd: test, args: 123, 456`.
+
+Anything else you type in the console will be executed as Lua code in the current context. i.e. you can do `Ext.Print(1234)`. 
+Server console commands can also call builtin/custom Osiris functions, so calls like `CharacterGiveReward(CharacterGetHostCharacter(), "CheatShieldsAllRarities", 1)` are possible.
+You can use variables just like in Lua, i.e. if you assign a value to a variable in one command you'll be able to use that variable in another command. Be careful, console code runs in global context, so make sure your console variable names don't conflict with globals!
+Don't use `local` for console variables, since the lifetime of the local will be one console command. (Each console command is technically a separate chunk that is exited when the command is executed)
+
+### Fixes
+
+ - Re-added GUID and handle support in client `Ext.GetCharacter` (using NetID is not neccessary now)
+ - Add `NRD_ModCall` and `NRD_ModQuery`
+ - Fixed incorrect parameter order in `StatusGetDescriptionParam` callback; previously `statusSource` and `target` were swapped, the correct signature is `function (status, statusSource, target, param)`
+ - Fixed bug where editor did not recognize local peer as extender-capable
+ - Fixed bug where extender server messages would not be sent to peers
+ - Fixed crash when using extender-enabled clients with a non-extender host
+ - Fix missing type/salt checks during handle resolution
+ - Fix global table restore after an include call
+ - Fix strange NetworkFixedString corruption
+
+
 ## Changes in v43
 
 ### Migrating from v42 to v43
