@@ -448,11 +448,28 @@ namespace dse::lua
 		}
 	}
 
+	void FetchStatEntriesBefore(lua_State* L, CRPGStatsManager* stats, FixedString const& modId, FixedString const& statType)
+	{
+		auto entries = gOsirisProxy->GetStatLoadOrderHelper().GetStatsLoadedBefore(modId);
+
+		int32_t index = 1;
+		for (auto object : entries) {
+			if (statType) {
+				auto type = stats->GetTypeInfo(object);
+				if (type == nullptr || type->Name != statType) {
+					continue;
+				}
+			}
+
+			settable(L, index++, object->Name);
+		}
+	}
+
 	int GetStatEntries(lua_State * L)
 	{
-		char const * statTypeName{ nullptr };
-		if (!lua_isnil(L, 1)) {
-			statTypeName = luaL_checkstring(L, 1);
+		FixedString statType;
+		if (lua_gettop(L) >= 1 && !lua_isnil(L, 1)) {
+			statType = checked_get<FixedString>(L, 1);
 		}
 		
 		auto stats = GetStaticSymbols().GetStats();
@@ -462,22 +479,33 @@ namespace dse::lua
 		}
 
 		lua_newtable(L);
-		if (statTypeName && strcmp(statTypeName, "SkillSet") == 0) {
+		if (statType && strcmp(statType.Str, "SkillSet") == 0) {
 			FetchSkillSetEntries(L, stats);
-		} else if (statTypeName && strcmp(statTypeName, "EquipmentSet") == 0) {
+		} else if (statType && strcmp(statType.Str, "EquipmentSet") == 0) {
 			FetchEquipmentSetEntries(L, stats);
 		} else {
-			FixedString statType;
-			if (statTypeName != nullptr) {
-				statType = ToFixedString(statTypeName);
-				if (!statType) {
-					OsiError("Invalid stat entry type: " << statTypeName);
-					return 0;
-				}
-			}
-
 			FetchStatEntries(L, stats, statType);
 		}
+
+		return 1;
+	}
+
+	int GetStatEntriesLoadedBefore(lua_State* L)
+	{
+		auto modId = checked_get<FixedString>(L, 1);
+		FixedString statType;
+		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+			statType = checked_get<FixedString>(L, 2);
+		}
+
+		auto stats = GetStaticSymbols().GetStats();
+		if (stats == nullptr) {
+			OsiError("CRPGStatsManager not available");
+			return 0;
+		}
+
+		lua_newtable(L);
+		FetchStatEntriesBefore(L, stats, modId, statType);
 
 		return 1;
 	}
@@ -938,6 +966,9 @@ namespace dse::lua
 		} else if (attributeFS == GFS.strName) {
 			push(L, object->Name);
 			return 1;
+		} else if (attributeFS == GFS.strModId) {
+			push(L, gOsirisProxy->GetStatLoadOrderHelper().GetStatsEntryMod(object->Name));
+			return 1;
 		} else if (attributeFS == GFS.strUsing) {
 			if (object->Using) {
 				auto parent = stats->objects.Find(object->Using);
@@ -1037,6 +1068,10 @@ namespace dse::lua
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
+			return luaL_error(L, "Stat functions unavailable during module preload");
+		}
+
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
 			static bool syncWarningShown{ false };
 			if (!syncWarningShown) {
@@ -1159,6 +1194,10 @@ namespace dse::lua
 		auto description = luaL_checkstring(L, 3);
 
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
+			return luaL_error(L, "Stat functions unavailable during module preload");
+		}
+
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
 			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
@@ -1265,6 +1304,10 @@ namespace dse::lua
 		luaL_checktype(L, 3, LUA_TFUNCTION);
 
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
+			return luaL_error(L, "Stat functions unavailable during module preload");
+		}
+
 		if (!(lua->RestrictionFlags & (State::ScopeModuleLoad | State::ScopeModuleResume))) {
 			return luaL_error(L, "StatSetLevelScaling() can only be called during module load/resume");
 		}
@@ -1374,6 +1417,10 @@ namespace dse::lua
 		}
 
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
+			return luaL_error(L, "Stat functions unavailable during module preload");
+		}
+
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
 			static bool syncWarningShown{ false };
 			if (!syncWarningShown) {

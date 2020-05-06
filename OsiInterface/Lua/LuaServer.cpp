@@ -810,6 +810,11 @@ namespace dse::esv::lua
 		auto character = GetEntityWorld()->GetCharacter(characterGuid);
 		if (character == nullptr) return 0;
 
+		if (character->UserID.Id == UserId::Unassigned) {
+			OsiError("Attempted to send message to character " << characterGuid << " that has no user assigned!");
+			return 0;
+		}
+
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeServerMessage(character->UserID);
 		if (msg != nullptr) {
@@ -862,6 +867,7 @@ namespace dse::esv::lua
 			{"GetModInfo", GetModInfo},
 
 			{"GetStatEntries", GetStatEntries},
+			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
 			{"GetSkillSet", GetSkillSet},
 			{"GetEquipmentSet", GetEquipmentSet},
 			{"StatGetAttribute", StatGetAttribute},

@@ -539,6 +539,21 @@ namespace dse
 		},
 
 		{
+			"RPGStats::Load",
+			SymbolMappingData::kText, 0,
+			"48 8B D6 " // mov     rdx, rsi
+			"49 8B CC " // mov     rcx, r12
+			"E8 XX XX XX XX " // call    CRPGStatsManager__Load
+			"48 8B 3D XX XX XX XX " // mov     rdi, cs:esv__gItemFactory
+			"48 8B 1D XX XX XX XX " // mov     rbx, cs:ecl__gItemFactory
+			"48 81 C7 20 01 00 00 " // add     rdi, 120h
+			"48 8B CF " // mov     rcx, rdi
+			"48 89 7D EF ", // mov     [rbp+57h+var_68], rdi
+			{},
+			{"RPGStats::Load", SymbolMappingTarget::kIndirect, 6, STATIC_SYM(RPGStats__Load)}
+		},
+
+		{
 			"eoc::StatusPrototypeManager::Init",
 			SymbolMappingData::kText, 0,
 			"4C 8D 05 XX XX XX XX " // lea     r8, str_Skills  ; "Skills"

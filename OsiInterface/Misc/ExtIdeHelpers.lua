@@ -2354,6 +2354,12 @@ Ext = {
     --- @return string[]
     GetStatEntries = function (type) end,
 
+    --- Returns the list of stat entries that were loaded before the specified mod
+    --- @param modId string Mod ID to check
+    --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
+    --- @return string[]
+    GetStatEntriesLoadedBefore = function (type) end,
+
     --- Returns all skills from the specified skill set
     --- @param name string Name of skill set entry
     --- @return string[]

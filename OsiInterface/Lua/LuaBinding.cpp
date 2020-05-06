@@ -146,6 +146,11 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (prop == GFS.strModId) {
+			push(L, gOsirisProxy->GetStatLoadOrderHelper().GetStatsEntryMod(stats->Name));
+			return 1;
+		}
+
 		if (prop == GFS.strDynamicStats) {
 			lua_newtable(L);
 			unsigned statIdx = 1;

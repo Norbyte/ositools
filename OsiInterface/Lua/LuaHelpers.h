@@ -241,6 +241,19 @@ namespace dse::lua
 		return luaL_checkstring(L, index);
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, FixedString>, int>* = nullptr>
+	inline FixedString checked_get(lua_State* L, int index)
+	{
+		auto str = luaL_checkstring(L, index);
+		auto fs = ToFixedString(str);
+		if (!fs) {
+			luaL_error(L, "Argument %d: expected a valid FixedString value, got '%s'", index, str);
+			return {};
+		} else {
+			return fs;
+		}
+	}
+
 
 	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
 	T checked_get(lua_State * L, int index)

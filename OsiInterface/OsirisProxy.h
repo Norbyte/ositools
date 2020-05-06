@@ -80,6 +80,32 @@ private:
 	bool SerializeStatObject(FixedString const& statId, FixedString& statType, ScratchBuffer& blob);
 };
 
+class StatLoadOrderHelper
+{
+public:
+	void OnLoadStarted();
+	void OnLoadFinished();
+	void OnStatFileOpened();
+	void OnStatFileOpened(Path const& path);
+	void UpdateModDirectoryMap();
+
+	FixedString GetStatsEntryMod(FixedString statId) const;
+	std::vector<CRPGStats_Object*> GetStatsLoadedBefore(FixedString modId) const;
+
+private:
+	struct StatsEntryModMapping
+	{
+		FixedString Mod;
+		void* PreParseBuf;
+	};
+
+	std::shared_mutex modMapMutex_;
+	std::unordered_map<STDString, FixedString> modDirectoryToModMap_;
+	std::unordered_map<FixedString, StatsEntryModMapping> statsEntryToModMap_;
+	FixedString statLastTxtMod_;
+	bool loadingStats_{ false };
+};
+
 class OsirisProxy
 {
 public:
@@ -186,6 +212,11 @@ public:
 		return networkFixedStrings_;
 	}
 
+	inline StatLoadOrderHelper& GetStatLoadOrderHelper()
+	{
+		return statLoadOrderHelper_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 
@@ -215,6 +246,7 @@ private:
 	std::unordered_map<STDString, STDString> pathOverrides_;
 	NetworkFixedStringSynchronizer networkFixedStrings_;
 	SavegameSerializer savegameSerializer_;
+	StatLoadOrderHelper statLoadOrderHelper_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };
@@ -255,6 +287,8 @@ private:
 
 	void OnBaseModuleLoaded(void * self);
 	void OnModuleLoadStarted(TranslatedStringRepository * self);
+	void OnStatsLoadStarted(CRPGStatsManager* mgr);
+	void OnStatsLoadFinished(CRPGStatsManager* mgr);
 	void OnClientGameStateChanged(void * self, ecl::GameState fromState, ecl::GameState toState);
 	void OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState);
 	void OnClientGameStateWorkerStart(void * self);

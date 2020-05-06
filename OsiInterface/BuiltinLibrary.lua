@@ -127,7 +127,9 @@ Ext._LoadBootstrap = function (path, modTable)
 		Ext = Ext,
 		Osi = Osi,
 		Game = Game,
-		Sandboxed = true
+		Sandboxed = true,
+
+		ModuleUUID = ModuleUUID
 	}
 	-- The rest are accessed via __index
 	setmetatable(env, {__index = _G})

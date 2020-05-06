@@ -902,7 +902,7 @@ namespace dse
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
-		typedef bool (*PreParseDataLineProc)(CRPGStatsManager* self, char const* line);
+		typedef void (*LoadProc)(CRPGStatsManager* self);
 
 		CNamedElementManager<RPGEnumeration> modifierValueList;
 		CNamedElementManager<ModifierList> modifierList;
@@ -940,7 +940,7 @@ namespace dse
 		void * ItemSetsManager;
 		ScratchBuffer* CurrentPreParseBuf;
 		FixedString CurrentStatsEntryName;
-		Map<FixedString, void *> PreParsedDataBufferMap;
+		Map<FixedString, uint64_t> PreParsedDataBufferMap;
 		uint8_t _Pad6[4];
 		ObjectSet<void *> PreParsedDataBuffers;
 		CDivinityStats* DivinityStats;

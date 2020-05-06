@@ -1147,6 +1147,7 @@ namespace dse::ecl::lua
 			{"GetModInfo", GetModInfo},
 
 			{"GetStatEntries", GetStatEntries},
+			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
 			{"GetSkillSet", GetSkillSet},
 			{"GetEquipmentSet", GetEquipmentSet},
 			{"StatGetAttribute", StatGetAttribute},

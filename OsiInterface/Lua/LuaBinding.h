@@ -272,6 +272,7 @@ namespace dse::lua
 	int GetModLoadOrder(lua_State* L);
 	int GetModInfo(lua_State* L);
 	int GetStatEntries(lua_State* L);
+	int GetStatEntriesLoadedBefore(lua_State* L);
 	int GetSkillSet(lua_State* L);
 	int GetEquipmentSet(lua_State* L);
 	int StatGetAttribute(lua_State* L);

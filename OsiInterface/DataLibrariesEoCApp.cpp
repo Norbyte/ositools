@@ -589,6 +589,19 @@ namespace dse
 		},
 
 		{
+			"RPGStats::Load",
+			SymbolMappingData::kText, 0,
+			"48 8D 55 80 " // lea     rdx, [rbp+380h+modStatPaths]
+			"48 8B CB " // mov     rcx, rbx
+			"E8 XX XX XX XX " // call    CRPGStats__Load
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:qword_1429E2700
+			"48 8B 01 " // mov     rax, [rcx]
+			"FF 50 08 ", // call    qword ptr [rax+8]
+			{},
+			{"RPGStats::Load", SymbolMappingTarget::kIndirect, 7, STATIC_SYM(RPGStats__Load)}
+		},
+
+		{
 			"eoc::StatusPrototypeManager::Init",
 			SymbolMappingData::kText, 0,
 			"4C 8D 05 XX XX XX XX " // lea     r8, aStatuses   ; "Statuses"
