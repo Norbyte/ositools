@@ -1,8 +1,9 @@
 Ext._Listeners = {
-	SessionLoading = {},
-	SessionLoaded = {},
+	ModuleLoadStarted = {},
 	ModuleLoading = {},
 	ModuleResume = {},
+	SessionLoading = {},
+	SessionLoaded = {},
 	SkillGetDescriptionParam = {},
 	StatusGetDescriptionParam = {},
 	GetSkillDamage = {},

@@ -39,6 +39,7 @@ namespace dse
 
 		virtual void OnGameSessionLoading();
 		void OnGameSessionLoaded();
+		void OnModuleLoadStarted();
 		void OnModuleLoading();
 		void OnModuleResume();
 

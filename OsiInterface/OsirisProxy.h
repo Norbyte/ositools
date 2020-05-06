@@ -254,6 +254,7 @@ private:
 	void RestartLogging(std::wstring const & Type);
 
 	void OnBaseModuleLoaded(void * self);
+	void OnModuleLoadStarted(TranslatedStringRepository * self);
 	void OnClientGameStateChanged(void * self, ecl::GameState fromState, ecl::GameState toState);
 	void OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState);
 	void OnClientGameStateWorkerStart(void * self);

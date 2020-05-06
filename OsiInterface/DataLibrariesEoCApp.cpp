@@ -911,6 +911,20 @@ namespace dse
 		},
 
 		{
+			"ls::TranslatedStringRepository::UnloadOverrides",
+			SymbolMappingData::kText, 0,
+			"4C 8D 05 XX XX XX XX " // lea     r8, aLoadingModLoca ; "Loading Mod Localization"
+			"BA 01 00 00 00 " // mov     edx, 1
+			"48 8B CF " // mov     rcx, rdi
+			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+			"4C 8B 25 XX XX XX XX " // mov     r12, cs:ls__gTranslatedStringRepository
+			"49 8B CC " // mov     rcx, r12
+			"E8 XX XX XX XX ", // call    ls__TranslatedStringRepository__UnloadOverrides
+			{SymbolMappingCondition::kString, 0, "Loading Mod Localization"},
+			{"ls::TranslatedStringRepository::UnloadOverrides", SymbolMappingTarget::kIndirect, 31, STATIC_SYM(TranslatedStringRepository__UnloadOverrides)},
+		},
+
+		{
 			"ls::TranslatedStringRepository::Get",
 			SymbolMappingData::kText, 0,
 			"48 8B 0D XX XX XX XX " // mov     rcx, cs:ls__gTranslatedStringRepository

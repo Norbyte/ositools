@@ -122,6 +122,7 @@ namespace dse
 	{
 		typedef TranslatedStringRepository* (*GetInstance)();
 		typedef STDWString * (*Get)(TranslatedStringRepository* self, RuntimeStringHandle* handle, uint64_t * length, char gender1, char gender2, bool unknown);
+		typedef void (*UnloadOverrides)(TranslatedStringRepository* self);
 	};
 
 

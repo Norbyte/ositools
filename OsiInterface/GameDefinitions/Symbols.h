@@ -127,6 +127,7 @@ namespace dse
 		TranslatedStringRepository ** TranslatedStringRepository__Instance{ nullptr };
 		TranslatedStringRepository::GetInstance TranslatedStringRepository__GetInstance{ nullptr };
 		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };
+		TranslatedStringRepository::UnloadOverrides TranslatedStringRepository__UnloadOverrides{ nullptr };
 
 		TranslatedStringKeyManager** TranslatedStringKeyManager__Instance{ nullptr };
 		TranslatedStringKeyManager::GetInstance TranslatedStringKeyManager__GetInstance{ nullptr };

@@ -381,7 +381,11 @@ namespace dse
 
 			return !CriticalInitFailed;
 		} else {
-			ERR("LibraryManager::FindLibraries(): Unable to determine application type.");
+#if defined(OSI_EOCAPP)
+			ERR("LibraryManager::FindLibraries(): Unable to locate EoCApp module.");
+#else
+			ERR("LibraryManager::FindLibraries(): Unable to locate EoCPlugin module.");
+#endif
 			return false;
 		}
 	}

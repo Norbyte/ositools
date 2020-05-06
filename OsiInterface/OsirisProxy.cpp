@@ -93,6 +93,7 @@ void OsirisProxy::Initialize()
 	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
 	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&OsirisProxy::OnSavegameVisit, this, _1, _2));
+	Wrappers.TranslatedStringRepository__UnloadOverrides.SetPreHook(std::bind(&OsirisProxy::OnModuleLoadStarted, this, _1));
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
@@ -682,6 +683,14 @@ ExtensionStateBase* OsirisProxy::GetCurrentExtensionState()
 
 void OsirisProxy::OnBaseModuleLoaded(void * self)
 {
+}
+
+void OsirisProxy::OnModuleLoadStarted(TranslatedStringRepository* self)
+{
+	LoadExtensionStateClient();
+	if (ClientExtState) {
+		ClientExtState->OnModuleLoadStarted();
+	}
 }
 
 char const * ClientGameStateNames[] =

@@ -41,6 +41,7 @@ STATIC_HOOK(FileReader__ctor)
 STATIC_HOOK(eocnet__ClientConnectMessage__Serialize)
 STATIC_HOOK(eocnet__ClientAcceptMessage__Serialize)
 STATIC_HOOK(esv__OsirisVariableHelper__SavegameVisit)
+STATIC_HOOK(TranslatedStringRepository__UnloadOverrides)
 
 
 OsirisWrappers::OsirisWrappers()
@@ -188,6 +189,10 @@ void OsirisWrappers::InitializeExtensions()
 		FileReader__ctor.Wrap(lib.FileReaderCtor);
 	}
 
+	if (lib.TranslatedStringRepository__UnloadOverrides != nullptr) {
+		TranslatedStringRepository__UnloadOverrides.Wrap(lib.TranslatedStringRepository__UnloadOverrides);
+	}
+
 	DetourTransactionCommit();
 
 	ExtensionsInitialized = true;
@@ -236,6 +241,7 @@ void OsirisWrappers::Shutdown()
 	ServerGameStateWorkerStart.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
 	FileReader__ctor.Unwrap();
+	TranslatedStringRepository__UnloadOverrides.Unwrap();
 	ExtensionsInitialized = false;
 
 	RegisterDivFunctions.Unwrap();

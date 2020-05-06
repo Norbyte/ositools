@@ -838,21 +838,6 @@ namespace dse
 			{},
 			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(esv__Character__ApplyDamage)}
 		},
-
-		{
-			"RPGStats::PreParseDataLine",
-			SymbolMappingData::kText, 0,
-			"41 B8 00 10 00 00 " // mov     r8d, 1000h
-			"48 8B CB " // mov     rcx, rbx
-			"FF 15 XX XX XX XX " // call    ls::FileReader::ReadLine
-			"84 C0 " // test    al, al
-			"74 15 " // jz      short xxx
-			"48 8D 54 24 70 " // lea     rdx, [rsp+10B8h+preParseBuf]
-			"48 8B CF " // mov     rcx, rdi
-			"E8 XX XX XX XX ", // call    RPGStats__PreParseDataLine
-			{},
-			{"RPGStats::PreParseDataLine", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(RPGStats__PreParseDataLine)}
-		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)
@@ -973,9 +958,11 @@ namespace dse
 
 		auto getTranslatedStringKeyMgrProc = GetProcAddress(coreLib_, "?GetInstance@?$Singleton@VTranslatedStringKeyManager@ls@@@ls@@SAPEAVTranslatedStringKeyManager@2@XZ");
 		auto getTranslatedStringFromKeyProc = GetProcAddress(coreLib_, "?GetTranlatedStringFromKey@TranslatedStringKeyManager@ls@@QEBA?AVTranslatedString@2@AEBVFixedString@2@_N@Z");
+		auto unloadOverridesProc = GetProcAddress(coreLib_, "?UnloadOverrides@TranslatedStringRepository@ls@@QEAA?B_NXZ");
 
 		sym.TranslatedStringRepository__GetInstance = (TranslatedStringRepository::GetInstance)getTranslatedStringRepoProc;
 		sym.TranslatedStringRepository__Get = (TranslatedStringRepository::Get)getTranslatedString2Proc;
+		sym.TranslatedStringRepository__UnloadOverrides = (TranslatedStringRepository::UnloadOverrides)unloadOverridesProc;
 
 		sym.TranslatedStringKeyManager__GetInstance = (TranslatedStringKeyManager::GetInstance)getTranslatedStringKeyMgrProc;
 		sym.TranslatedStringKeyManager__GetTranlatedStringFromKey = (TranslatedStringKeyManager::GetTranlatedStringFromKey)getTranslatedStringFromKeyProc;
@@ -983,7 +970,8 @@ namespace dse
 		if (sym.TranslatedStringRepository__GetInstance == nullptr
 			|| sym.TranslatedStringRepository__Get == nullptr
 			|| sym.TranslatedStringKeyManager__GetInstance == nullptr
-			|| sym.TranslatedStringKeyManager__GetTranlatedStringFromKey == nullptr) {
+			|| sym.TranslatedStringKeyManager__GetTranlatedStringFromKey == nullptr
+			|| sym.TranslatedStringRepository__UnloadOverrides == nullptr) {
 			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find TranslatedStringRepository functions");
 			InitFailed = true;
 		}

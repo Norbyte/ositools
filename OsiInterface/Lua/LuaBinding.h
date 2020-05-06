@@ -170,6 +170,8 @@ namespace dse::lua
 			ScopeSessionLoad = 1 << 17,
 			// Permit calls only available during module resume state
 			ScopeModuleResume = 1 << 18,
+			// Permit calls only available during initial module load state (before loading any files)
+			ScopeModulePreLoad = 1 << 19,
 
 			RestrictAll = 0x0000ffff,
 		};
@@ -204,6 +206,7 @@ namespace dse::lua
 		void LoadBootstrap(STDString const& path, STDString const& modTable);
 		virtual void OnGameSessionLoading();
 		void OnGameSessionLoaded();
+		void OnModuleLoadStarted();
 		void OnModuleLoading();
 		void OnModuleResume();
 

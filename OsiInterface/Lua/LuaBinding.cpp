@@ -869,6 +869,11 @@ namespace dse::lua
 		CallExt("_OnGameSessionLoaded", RestrictAll, ReturnType<>{});
 	}
 
+	void State::OnModuleLoadStarted()
+	{
+		CallExt("_OnModuleLoadStarted", RestrictAll | ScopeModulePreLoad, ReturnType<>{});
+	}
+
 	void State::OnModuleLoading()
 	{
 		CallExt("_OnModuleLoading", RestrictAll | ScopeModuleLoad, ReturnType<>{});
