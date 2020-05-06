@@ -22,8 +22,6 @@
  - [The Ext Library](#the-ext-library)
     * [UI](#ui)
     * [Stats](#stats)
-    * [Skill/Status Overrides](#skillstatus-overrides)
-        * [Hit Chance](#31o_hit_chance)
     * [Mod Info](#mod-info)
     * [Server Characters](#server-characters)
     * [Player Custom Data](#player-custom-data)
@@ -679,29 +677,6 @@ Example:
 ```lua
 Ext.Print(Ext.ExtraData.DamageBoostFromAttribute)
 ```
-
-## Skill/Status Overrides
-
-Using the extender it is possible to replace/override hardcoded game math and behavior. The following hooks are supported:
-
-### Hit Chance
-
-Each time the game calculates hit chance, the Lua event `GetHitChance` is triggered. If a Lua script listens to this event and returns a non-`nil` value from the listener function, the game will use the return value of the custom function as the hit chance. If the function returns `nil` or the function call fails, the game's own hit chance calculation is used.
-
-The following example makes it so the overall Hit Chance is the Attacker's Accuracy minus the Target's Dodge, no multiplicative operations involved:
-```lua
-local function YourHitChanceFunction(attacker, target)
-    local hitChance = attacker.Accuracy - target.Dodge
-    -- Make sure that we return a value in the range (0% .. 100%)
-    hitChance = math.max(math.min(hitChance, 100), 0)
-    return hitChance
-end
-
-Ext.RegisterListener("GetHitChance", YourHitChanceFunction)
-```
-
-Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitated. To better approximate vanilla behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change. The complete code is available at: https://gist.github.com/Norbyte/e49cbff75e985f4558f0dbd6969d715c
-
 
 
 ## Mod Info
@@ -1757,15 +1732,19 @@ For a reference implementation that replicates the ingame status enter chance lo
 ## GetHitChance
 <a id="event-gethitchance"></a>
 
-The `GetHitChance` listener is called to fetch the chance of hitting another character. It is used by the server to perform hit checks and by the client to display the hit chance tooltip.
-
-Signature:
+Each time the game calculates hit chance, the `GetHitChance` listener is called. If a Lua script listens to this event and returns a non-`nil` value from the listener function, the game will use the return value of the custom function as the hit chance. If the function returns `nil` or the function call fails, the game's own hit chance calculation is used.
+The function is used by the server to perform hit checks and by the client to display the hit chance tooltip.
+ 
+The following example makes it so the overall hit chance is the attacker's Accuracy minus the target's Dodge, no multiplicative operations involved:
 ```lua
-local function GetHitChance(attacker, target)
-    [...]
+local function YourHitChanceFunction(attacker, target)
+    local hitChance = attacker.Accuracy - target.Dodge
+    -- Make sure that we return a value in the range (0% .. 100%)
+    hitChance = math.max(math.min(hitChance, 100), 0)
+    return hitChance
 end
 
-Ext.RegisterListener("GetHitChance", GetHitChance)
+Ext.RegisterListener("GetHitChance", YourHitChanceFunction)
 ```
 
 Parameters:
@@ -1773,6 +1752,8 @@ Parameters:
  - `attacker` is the stats object of the attacker character (`StatCharacter` type in IDE helpers)
 
 The function should return an integer value between 0 and 100 representing the hit chance percentage or return `nil` if the engine formula should be used. 
+
+Be aware that the Hit Chance Calculation considers a lot of variables, including checking if the target is incapacitated. To better approximate vanilla behavior, it is recommended to replicate the majority of the features present on the vanilla's code, changing only what you want to change.
 
 For a reference implementation that replicates the ingame hit chance logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
 
