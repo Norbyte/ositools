@@ -38,10 +38,32 @@
     * [Damage lists](#damage-lists)
     * [Utility functions](#ext-utility)
     * [JSON Support](#json-support)
-
-
+ - [Engine Events](#engine-events)
+    * [Load Events](#event-load-events)
+    * [SkillGetDescriptionParam](#event-skillgetdescriptionparam)
+    * [StatusGetDescriptionParam](#event-statusgetdescriptionparam)
+    * [GetSkillDamage](#event-getskilldamage)
+    * [ComputeCharacterHit](#event-computecharacterhit)
+    * [BeforeCharacterApplyDamage](#event-beforecharacterapplydamage)
+    * [StatusGetEnterChance](#event-statusgetenterchance)
+    * [GetHitChance](#event-gethitchance)
 
 ## Upgrading
+
+### Migrating from v44 to v45
+
+It was discovered that there are situations when `ModuleLoading` is not triggered even though the stats were reloaded (this occurs during certain client-server sync situations and when stats were reloaded from the editor console); this causes stats to revert to their original values. A new event (`StatsLoaded`) was added to fix these shortcomings. The `StatsLoaded` event is meant to replace the use of `ModuleLoading` for stat override purposes, i.e. all stats should be edited when `StatsLoaded` is triggered. (The `ModuleLoading` event will be kept for backwards compatibility.)
+```lua
+local function statsLoaded()
+    -- Edit stats here!
+end
+
+Ext.RegisterListener("StatsLoaded", statsLoaded)
+``` 
+
+### Migrating from v43 to v44
+
+There are no backwards incompatible changes in v44.
 
 ### Migrating from v42 to v43
 
@@ -1280,7 +1302,7 @@ Properties available on all statuses:
 ### `HEAL` status properties
 
 | Property | Type | Notes |
-|--|--|--|--|
+|--|--|--|
 | EffectTime | number |  |
 | HealAmount | integer |  |
 | HealEffect | string |  |
@@ -1545,10 +1567,222 @@ ab
 ```
 
 
+# Engine Events
+<a id="engine-events"></a>
+
+## Load Events
+<a id="event-load-events"></a>
+
+### ModuleLoadStarted
+
+The `ModuleLoadStarted` event is thrown when the engine has started loading mods. Mod data (stats, localization, root templates, etc.) is not yet loaded when this listener is called, so most mod editing functionality (eg. `Ext.StatSetAttribute`) is inaccessible.
+The purpose of this event is to allow adding filesystem-level hooks using `Ext.AddPathOverride` before mod data is loaded.
+
+### StatsLoaded
+
+`StatsLoaded` is thrown after stats entries (weapons, skills, etc.) were cleared and subsequently reloaded. Stat modifications that are valid for every game session should be applied here.
+
+### ModuleLoading
+
+`ModuleLoading` is thrown after the stats manager has finished loading; this callback is deprecated and `StatsLoaded` should be used instead.
+
+### SessionLoading
+
+`SessionLoading` is thrown when the the engine has started setting up a game session (i.e. new game, loading a savegame or joining a multiplayer game). Stat overrides that use Lua callbacks (`Ext.StatSetLevelScaling`) and custom UI (`Ext.CreateUI`, `Ext.RegisterUICall`, `Ext.RegisterUIInvokeListener`, etc.) should be set up here.
+
+### SessionLoaded
+
+`SessionLoaded` is thrown when the game session was set up.
+
+
+## SkillGetDescriptionParam <sup>C</sup>
+<a id="event-skillgetdescriptionparam"></a>
+
+`SkillGetDescriptionParam` is called when the substitution value for a skill description parameter is being calculated. The function should return the parameter value if it wishes to override the built-in value, or return `nil` if the engine substitution logic should be used. Each part of the colon-separated description param is passed as a separate parameter; i.e. `"Stats:Stats_Slowed:MovementSpeedBoost"` is passed as `(skill, character, isFromItem, "Stats", "Stats_Slowed", "MovementSpeedBoost")`. 
+This event must only be registered on the client (since the server has no UI).
+
+Example:
+```lua
+local skillGetDescriptionParam = function (skill, character, isFromItem, param)
+    if skill.Name == "MyCustomSkill" and param == "Constitution" then
+        return tostring(character.Constitution)
+    end
+end
+
+Ext.RegisterListener("SkillGetDescriptionParam", skillGetDescriptionParam)
+```
+
+## StatusGetDescriptionParam <sup>C</sup>
+<a id="event-statusgetdescriptionparam"></a>
+
+`StatusGetDescriptionParam`  is called when engine requests the value of a status description parameter. The function should return the parameter value if it wishes to override the built-in value, or return `nil` if the engine substitution logic should be used. Each part of the colon-separated description param is passed as a separate parameter; i.e. `"Stats:Stats_Slowed:MovementSpeedBoost"` is passed as `(status, statusSource, character, "Stats", "Stats_Slowed", "MovementSpeedBoost")`.
+This event must only be registered on the client (since the server has no UI).
+
+Example:
+```lua
+local statusGetDescriptionParam = function (status, statusSource, character, param)
+    if status.Name == "MyCustomStatus" and param == "HealAmount" then
+        if character.Vitality < character.MaxVitality*0.5 then
+            return tostring(status.HealAmount)
+        else
+            return "0"
+        end
+    end
+end
+
+Ext.RegisterListener("StatusGetDescriptionParam", statusGetDescriptionParam)
+```
+
+## GetSkillDamage
+<a id="event-getskilldamage"></a>
+
+`GetSkillDamage` is called when the engine is calculating the amount of damage dealt by a specific skill.
+Note that this function only calculates the base damage amount without taking into account the stats of the target character/item.
+
+Signature:
+```lua
+local function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization)
+    if skill.Name == "MySkill" then
+        local damageList = Ext.NewDamageList()
+        damageList:Add("Fire", attacker.Constitution)
+        return damageList, "Explode"
+    end
+end
+
+Ext.RegisterListener("GetSkillDamage", GetSkillDamage)
+```
+
+Parameters:
+ - `skill` is a stats object representing the skill being invoked (`StatEntrySkillData` type in IDE helpers)
+ - `attacker` is the stats object of the attacker character (`StatCharacter` type in IDE helpers)
+ - `isFromItem` indicates if the skill was used from an item or not
+ - `stealthed` indicates whether the attacker character is in stealth
+ - `attackerPos` is a 3-element (XYZ) vector containing the position of the attacker
+ - `targetPos` is a 3-element (XYZ) vector containing the position of the target
+ - `level` is the skill level being used
+ - `noRandomization` determines whether an RNG roll should be used for damage or the damage range should be ignored entirely
+
+The function should return a DamageList object and a DamageType string if it wishes to override the built-in damage calculation formula, or return nothing if the engine formula should be used. 
+
+For a reference implementation that replicates the ingame skill damage calculation logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
+
+
+## ComputeCharacterHit <sup>S</sup>
+<a id="event-computecharacterhit"></a>
+
+`ComputeCharacterHit` is called when the engine is applying a hit on a specific character.
+Since hit logic is run entirely on the server this callback cannot be registered on the client.
+
+Signature:
+```lua
+local function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHitRoll, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
+    [...]
+end
+
+Ext.RegisterListener("ComputeCharacterHit", ComputeCharacterHit)
+```
+
+Parameters:
+ - `target` is the stats object of the target character (`StatCharacter` type in IDE helpers)
+ - `attacker` is the stats object of the attacker character (`StatCharacter` type in IDE helpers)
+ - `weapon` is the stats object of the attackers weapon or `nil` if no weapon was used (`StatItem` type in IDE helpers)
+ - `damageList` contains the damage amounts being applied (usually the output of `GetSkillDamage`); `DamageList` type in IDE helpers
+ - `hitType` contains the type of hit (`DoT`, `Magic`, etc.) from the `HitType` enumeration
+ - `noHitRoll` indicates that no RNG roll should be made to determine if the attack hits (i.e. guaranteed hit)
+ - `forceReduceDurability` indicates that the durability of the attackers weapon should be reduced
+ - `hit` is a table containing parameters of the hit (`HitRequest` type in IDE helpers)
+ - `alwaysBackstab` indicates that the used skill has the `AlwaysBackstab` property
+ - `highGroundFlag` is a `HighGroundFlag` enumeration value indicating the type of high/low ground bonus that applies
+ - `criticalRoll` is a `CriticalRoll` enumeration value indicating how critical hit damage should be applied
+
+The function should update and return the `hit` table if it wishes to override the built-in hit simulation formula, or return nothing if the engine formula should be used. 
+
+For a reference implementation that replicates the ingame hit logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
+
+
+## BeforeCharacterApplyDamage <sup>S</sup>
+<a id="event-beforecharacterapplydamage"></a>
+
+The `BeforeCharacterApplyDamage` is called before a hit is applied on the character. The damage values passed to this function are final values (include resistances, bonuses, etc.).
+
+Changes made to damage types and amounts are not visible in client pop-ups and combat log messages, but are applied to the health/armor pools. Because of this behavior,  `BeforeCharacterApplyDamage` is ideal for applying systemic changes to damage types (i.e. converting `Fire` damage to behave as `Piercing`, but still show up as `Fire` on the client).
+
+Since hit logic is run entirely on the server this callback cannot be registered on the client.
+
+Example:
+```lua
+local function BeforeCharacterApplyDamage(target, attacker, hit, causeType, impactDirection)
+    hit.DamageList:ConvertDamageType("Corrosive")
+end
+
+Ext.RegisterListener("BeforeCharacterApplyDamage", BeforeCharacterApplyDamage)
+```
+
+Parameters:
+ - `target` is the stats object of the target character (`StatCharacter` type in IDE helpers)
+ - `attacker` is the stats object of the attacker character (`StatCharacter` type in IDE helpers)
+ - `hit` is a table containing parameters of the hit (`HitRequest` type in IDE helpers)
+ - `causeType` is a `CauseType` enumeration value containing the reason for the hit
+ - `impactDirection` is a 3D vector containing the direction of the hit
+
+The function should update fields in the `hit` table directly if it wishes to override the built-in hit simulation formula. Please note that unlike other callbacks, changes performed in this function are always applied as it has no return value!
+
+
+## StatusGetEnterChance <sup>S</sup>
+<a id="event-statusgetenterchance"></a>
+
+The `StatusGetEnterChance` listener is called to fetch the chance of entering/ticking a status.
+When a status is first applied to a character or item, `StatusGetEnterChance` is called with `isEnterCheck = true`. If the status apply succeeds, `StatusGetEnterChance` is called at the end of each subsequent turn with `isEnterCheck = false`. If the status tick check fails, the status is removed.
+
+Since status ticking is done by the server this callback cannot be registered on the client.
+
+Example:
+```lua
+local function StatusGetEnterChance(status, isEnterCheck)
+    return 100
+end
+
+Ext.RegisterListener("StatusGetEnterChance", StatusGetEnterChance)
+```
+
+Parameters:
+ - `status` is the status being applied/ticked (`EsvStatus` type in IDE helpers)
+ - `isEnterCheck` is `true` when the status is being applied and `false` when it is ticked
+
+The function should return an integer value between 0 and 100 representing the enter/tick chance percentage or return `nil` if the engine formula should be used. 
+
+For a reference implementation that replicates the ingame status enter chance logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
+
+
+## GetHitChance
+<a id="event-gethitchance"></a>
+
+The `GetHitChance` listener is called to fetch the chance of hitting another character. It is used by the server to perform hit checks and by the client to display the hit chance tooltip.
+
+Signature:
+```lua
+local function GetHitChance(attacker, target)
+    [...]
+end
+
+Ext.RegisterListener("GetHitChance", GetHitChance)
+```
+
+Parameters:
+ - `target` is the stats object of the target character (`StatCharacter` type in IDE helpers)
+ - `attacker` is the stats object of the attacker character (`StatCharacter` type in IDE helpers)
+
+The function should return an integer value between 0 and 100 representing the hit chance percentage or return `nil` if the engine formula should be used. 
+
+For a reference implementation that replicates the ingame hit chance logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
+
+
+
 
 ### TODO
  - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks
  - GetCharacter, GetItem, GetProjectile, GetGameObject, GetStatus (client/server) + updated property maps
+ - RegisterListener, RegisterConsoleCommand, RegisterNetListener
  - Lua state lifetime, Globals behavior (not saved)
  - File IO
  - Bootstrap phase
