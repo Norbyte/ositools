@@ -284,7 +284,8 @@ namespace dse::lua
 		}
 
 		default:
-			luaL_error(L, "Param %d must be an integer or string enumeration label", index);
+			luaL_error(L, "Param %d: expected integer or string '%s' enumeration value, got %s", index,
+				EnumInfo<T>::Name, lua_typename(L, lua_type(L, index)));
 		}
 
 		return (T)0;
