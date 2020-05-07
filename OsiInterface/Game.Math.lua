@@ -141,7 +141,7 @@ end
 --- @param level integer
 function GetLevelScaledWeaponDamage(level)
     local scaledDmg = GetLevelScaledDamage(level)
-    return ((level * Ext.ExtraData.ExpectedDamageBoostFromWeaponAbilityPerLevel) + 1.0) * scaledDmg
+    return scaledDmg / ((level * Ext.ExtraData.ExpectedDamageBoostFromWeaponAbilityPerLevel) + 1.0)
 end
 
 --- @param level integer
