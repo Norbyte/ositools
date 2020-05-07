@@ -393,6 +393,7 @@ namespace dse
 		int32_t CleaveAngle;
 		float CleavePercentage;
 		int32_t AttackAPCost;
+		FixedString Projectile;
 	};
 
 	struct CDivinityStats_Equipment_Attributes_Shield : public CDivinityStats_Equipment_Attributes

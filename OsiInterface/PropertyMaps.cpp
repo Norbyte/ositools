@@ -297,6 +297,7 @@ namespace dse
 			PROP(CleaveAngle);
 			PROP(CleavePercentage);
 			PROP(AttackAPCost);
+			PROP(Projectile);
 		}
 
 		{
