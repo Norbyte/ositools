@@ -1,4 +1,4 @@
-### API v43 Documentation
+### API v45 Documentation
 
 ### Table of Contents  
 
@@ -62,13 +62,10 @@ To start using the extension in your mod, a configuration file must be created t
 Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the following contents, then tweak the values as desired:
 ```json
 {
-    "RequiredExtensionVersion": 39,
+    "RequiredExtensionVersion": 45,
     "FeatureFlags": [
         "OsirisExtensions",
         "Lua",
-        "CustomStats",
-        "CustomStatsPane",
-        "FormulaOverrides",
         "Preprocessor"
     ]
 }
@@ -78,8 +75,8 @@ Meaning of configuration keys:
 
 | Key | Meaning |
 |--|--|
-| `RequiredExtensionVersion` | Minimum Osiris Extender version required to run the mod |
-| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua |
+| `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. Requires `RequiredExtensionVersion` 43 or higher. |
 | `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only keep features that are actually in use. |
 
 The following features are accepted in `FeatureFlags`:
@@ -88,11 +85,10 @@ The following features are accepted in `FeatureFlags`:
 |--|--|
 | `OsirisExtensions` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
 | `Lua` | Enables scripting via the Lua runtime |
-| `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
-| `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
-| `FormulaOverrides` | Allows scripts to override built-in calculations (eg. Vitality, hit chance, etc.) |
 | `Preprocessor` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
 | `DisableFolding` | Disable folding of dynamic item stats |
+| `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
+| `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
 
 
 ## Preprocessor
@@ -1187,7 +1183,6 @@ Item properties (can be fetched on all items):
 | Attribute | Type | Description |
 |--|--|--|
 | CurrentLevel | String | Level the item is currently on (eg. `FJ_FortJoy_Main`) |
-| CurrentTemplate | GuidString | Active template GUID |
 | CustomDisplayName | String | |
 | CustomDescription | String | |
 | CustomBookContent | String | |
