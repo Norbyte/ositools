@@ -76,7 +76,7 @@ Meaning of configuration keys:
 | Key | Meaning |
 |--|--|
 | `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
-| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. Requires `RequiredExtensionVersion` 43 or higher. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. RequiredExtensionVersion 43 or higher is required. |
 | `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only keep features that are actually in use. |
 
 The following features are accepted in `FeatureFlags`:
