@@ -742,7 +742,8 @@ char const * ClientGameStateNames[] =
 	"GameMasterPause",
 	"ModReceiving",
 	"Lobby",
-	"BuildStory"
+	"BuildStory",
+	"LoadLoca"
 };
 
 
@@ -905,7 +906,7 @@ void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState
 	}
 
 	switch (toState) {
-	case esv::GameState::UnloadModule:
+	// Gift Bag selection in the main menu reloads the module without reconnecting
 	// We only need to reset the extender enabled peer list on a disconnect.
 	case esv::GameState::Disconnect:
 		networkManager_.ServerReset();
