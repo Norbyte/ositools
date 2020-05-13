@@ -105,6 +105,7 @@ namespace dse
 			std::function<std::optional<bool> (void *)> Get;
 		};
 
+		STDString Name;
 		std::unordered_map<FixedString, PropertyInfo> Properties;
 		std::unordered_map<FixedString, FlagInfo> Flags;
 
@@ -150,7 +151,7 @@ namespace dse
 					return Parent->getInt(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get int '" << name << "': Property does not exist");
+						OsiError("Failed to get int property '" << name << "' of [" << Name << "]: Property does not exist!");
 					}
 					return {};
 				}
@@ -161,7 +162,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
-				OsiError("Failed to get int '" << name << "': Property not readable");
+				OsiError("Failed to get int property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -177,7 +178,7 @@ namespace dse
 			case PropertyType::kUInt64: return (int64_t)*reinterpret_cast<uint64_t *>(ptr);
 			case PropertyType::kFloat: return (int64_t)*reinterpret_cast<float *>(ptr);
 			default:
-				OsiError("Failed to get property '" << name << "': Property is not an int");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not an int");
 				return {};
 			}
 		}
@@ -190,7 +191,7 @@ namespace dse
 					return Parent->getFloat(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get float '" << name << "': Property does not exist");
+						OsiError("Failed to get float property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return {};
 				}
@@ -201,7 +202,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
-				OsiError("Failed to get float '" << name << "': Property not readable");
+				OsiError("Failed to get float property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -209,7 +210,7 @@ namespace dse
 			switch (prop->second.Type) {
 			case PropertyType::kFloat: return *reinterpret_cast<float *>(ptr);
 			default:
-				OsiError("Failed to get property '" << name << "': Property is not a float");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a float");
 				return {};
 			}
 		}
@@ -222,7 +223,7 @@ namespace dse
 					return Parent->setInt(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set int '" << name << "': Property does not exist");
+						OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -233,7 +234,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set int '" << name << "': Property not writeable");
+				OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 
@@ -249,7 +250,7 @@ namespace dse
 			case PropertyType::kUInt64: *reinterpret_cast<uint64_t *>(ptr) = (uint64_t)value; break;
 			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = (float)value; break;
 			default:
-				OsiError("Failed to set property '" << name << "': Property is not an int");
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not an int");
 				return false;
 			}
 
@@ -264,7 +265,7 @@ namespace dse
 					return Parent->setFloat(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set float '" << name << "': Property does not exist");
+						OsiError("Failed to set float property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -275,7 +276,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set float '" << name << "': Property not writeable");
+				OsiError("Failed to set float property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 
@@ -283,7 +284,7 @@ namespace dse
 			switch (prop->second.Type) {
 			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = value; break;
 			default:
-				OsiError("Failed to set property '" << name << "': Property is not a float");
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a float");
 				return false;
 			}
 
@@ -298,7 +299,7 @@ namespace dse
 					return Parent->getString(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get string '" << name << "': Property does not exist");
+						OsiError("Failed to get string property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return {};
 				}
@@ -309,7 +310,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
-				OsiError("Failed to get string '" << name << "': Property not readable");
+				OsiError("Failed to get string property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -322,7 +323,7 @@ namespace dse
 				if (p != nullptr) {
 					return p;
 				} else {
-					OsiError("Failed to get FixedString property '" << name << "': String is null!");
+					OsiError("Failed to get FixedString property '" << name << "' of [" << Name << "]: String is null!");
 					return {};
 				}
 			}
@@ -333,7 +334,7 @@ namespace dse
 				if (p != nullptr) {
 					return p;
 				} else {
-					OsiError("Failed to get raw string property '" << name << "': String is null!");
+					OsiError("Failed to get raw string property '" << name << "' of [" << Name << "]: String is null!");
 					return {};
 				}
 			}
@@ -364,7 +365,7 @@ namespace dse
 			}
 
 			default:
-				OsiError("Failed to get property '" << name << "': Property is not a string");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a string");
 				return {};
 			}
 		}
@@ -377,7 +378,7 @@ namespace dse
 					return Parent->setString(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set string '" << name << "': Property does not exist");
+						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -388,7 +389,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set string '" << name << "': Property not writeable");
+				OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 
@@ -398,7 +399,7 @@ namespace dse
 				{
 					auto fs = ToFixedString(value);
 					if (!fs) {
-						OsiError("Failed to set string '" << name << "': Could not map to FixedString");
+						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Could not map to FixedString");
 						return false;
 					} else {
 						*reinterpret_cast<FixedString *>(ptr) = fs;
@@ -410,7 +411,7 @@ namespace dse
 				{
 					auto fs = NameGuidToFixedString(value);
 					if (!fs) {
-						OsiError("Failed to set string '" << name << "': Could not map to FixedString GUID");
+						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Could not map to FixedString GUID");
 						return false;
 					} else {
 						*reinterpret_cast<FixedString *>(ptr) = fs;
@@ -419,7 +420,7 @@ namespace dse
 				}
 
 			case PropertyType::kStringPtr:
-				OsiError("Failed to set property '" << name << "': Updating raw string properties not supported");
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Updating raw string properties not supported");
 				return false;
 
 			case PropertyType::kStdString:
@@ -431,7 +432,7 @@ namespace dse
 				return true;
 
 			default:
-				OsiError("Failed to set property '" << name << "': Property is not a string");
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a string");
 				return false;
 			}
 		}
@@ -444,7 +445,7 @@ namespace dse
 					return Parent->getHandle(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get handle '" << name << "': Property does not exist");
+						OsiError("Failed to get handle property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return {};
 				}
@@ -455,7 +456,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
-				OsiError("Failed to get handle '" << name << "': Property not readable");
+				OsiError("Failed to get handle property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -463,7 +464,7 @@ namespace dse
 			if (prop->second.Type == PropertyType::kObjectHandle) {
 				return *reinterpret_cast<ObjectHandle *>(ptr);
 			} else {
-				OsiError("Failed to get property '" << name << "': Property is not a handle");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a handle");
 				return {};
 			}
 		}
@@ -476,7 +477,7 @@ namespace dse
 					return Parent->setHandle(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set handle '" << name << "': Property does not exist");
+						OsiError("Failed to set handle property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -487,7 +488,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set handle '" << name << "': Property not writeable");
+				OsiError("Failed to set handle property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 
@@ -496,7 +497,7 @@ namespace dse
 				*reinterpret_cast<ObjectHandle *>(ptr) = value;
 				return true;
 			} else {
-				OsiError("Failed to set property '" << name << "': Property is not a handle");
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a handle");
 				return false;
 			}
 		}
@@ -509,7 +510,7 @@ namespace dse
 					return Parent->getVector3(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get vector '" << name << "': Property does not exist");
+						OsiError("Failed to get vector property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return {};
 				}
@@ -520,7 +521,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropRead)) {
-				OsiError("Failed to get vector '" << name << "': Property not readable");
+				OsiError("Failed to get vector property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -528,7 +529,7 @@ namespace dse
 			if (prop->second.Type == PropertyType::kVector3) {
 				return *reinterpret_cast<Vector3 *>(ptr);
 			} else {
-				OsiError("Failed to get property '" << name << "': Property is not a vector");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a vector");
 				return {};
 			}
 		}
@@ -541,7 +542,7 @@ namespace dse
 					return Parent->setVector3(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set vector '" << name << "': Property does not exist");
+						OsiError("Failed to set vector property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -552,7 +553,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set vector '" << name << "': Property not writeable");
+				OsiError("Failed to set vector property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 
@@ -561,7 +562,7 @@ namespace dse
 				*reinterpret_cast<Vector3 *>(ptr) = value;
 				return true;
 			} else {
-				OsiError("Failed to get property '" << name << "': Property is not a vector");
+				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a vector");
 				return false;
 			}
 		}
@@ -574,7 +575,7 @@ namespace dse
 					return Parent->getFlag(toParent(obj), name, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to get flag '" << name << "': Property does not exist");
+						OsiError("Failed to get flag property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return {};
 				}
@@ -585,7 +586,7 @@ namespace dse
 			}
 
 			if (!raw && !(flag->second.Flags & kPropRead)) {
-				OsiError("Failed to get flag '" << name << "': Property not readable");
+				OsiError("Failed to get flag property '" << name << "' of [" << Name << "]: Property not readable");
 				return {};
 			}
 
@@ -605,7 +606,7 @@ namespace dse
 					return Parent->setFlag(toParent(obj), name, value, raw, throwError);
 				} else {
 					if (throwError) {
-						OsiError("Failed to set flag '" << name << "': Property does not exist");
+						OsiError("Failed to set flag property '" << name << "' of [" << Name << "]: Property does not exist");
 					}
 					return false;
 				}
@@ -616,7 +617,7 @@ namespace dse
 			}
 
 			if (!raw && !(flag->second.Flags & kPropWrite)) {
-				OsiError("Failed to set flag '" << name << "': Property not writeable");
+				OsiError("Failed to set flag property '" << name << "' of [" << Name << "]: Property not writeable");
 				return false;
 			}
 

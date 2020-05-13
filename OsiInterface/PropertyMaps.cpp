@@ -31,8 +31,9 @@ namespace dse
 	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
-#define BEGIN_PROPERTIES(map) auto& propertyMap = map; \
-	using TObject = decltype(map)::ObjectType;
+#define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
+	using TObject = decltype(map)::ObjectType; \
+	propertyMap.Name = #cls;
 
 #define PROP(name) AddProperty<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_RO(name) AddPropertyRO<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
@@ -43,7 +44,7 @@ namespace dse
 	void InitPropertyMaps()
 	{
 		{
-			BEGIN_PROPERTIES(gStatusPropertyMap);
+			BEGIN_PROPERTIES(gStatusPropertyMap, esv::Status);
 			PROP_RO(NetID);
 			PROP_RO(StatusId);
 			PROP_RO(CanEnterChance);
@@ -89,7 +90,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusHitPropertyMap);
+			BEGIN_PROPERTIES(gStatusHitPropertyMap, esv::StatusHit);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP_RO(HitByHandle);
 			PROP_RO(HitWithHandle);
@@ -106,7 +107,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusConsumePropertyMap);
+			BEGIN_PROPERTIES(gStatusConsumePropertyMap, esv::StatusConsume);
 			propertyMap.Parent = &gStatusPropertyMap;
 			// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
 			PROP(ResetAllCooldowns);
@@ -128,7 +129,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusHealingPropertyMap);
+			BEGIN_PROPERTIES(gStatusHealingPropertyMap, esv::StatusHeal);
 			propertyMap.Parent = &gStatusConsumePropertyMap;
 			PROP(HealAmount);
 			PROP(TimeElapsed);
@@ -141,7 +142,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusHealPropertyMap);
+			BEGIN_PROPERTIES(gStatusHealPropertyMap, esv::StatusHealing);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(EffectTime);
 			PROP(HealAmount);
@@ -153,7 +154,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap);
+			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap, HitDamageInfo);
 			PROP(Equipment);
 			PROP_RO(TotalDamage);
 			PROP_RO(DamageDealt);
@@ -167,7 +168,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gDamageHelpersPropertyMap);
+			BEGIN_PROPERTIES(gDamageHelpersPropertyMap, esv::DamageHelpers);
 			PROP(SimulateHit);
 			PROP_ENUM(HitType);
 			PROP(NoHitRoll);
@@ -181,7 +182,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gShootProjectileHelperPropertyMap);
+			BEGIN_PROPERTIES(gShootProjectileHelperPropertyMap, esv::ShootProjectileHelper);
 			PROP(SkillId);
 			PROP(Caster);
 			PROP(Source);
@@ -200,7 +201,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEoCItemDefinitionPropertyMap);
+			BEGIN_PROPERTIES(gEoCItemDefinitionPropertyMap, eoc::ItemDefinition);
 			PROP_GUID(RootTemplate, true);
 			PROP_GUID(OriginalRootTemplate, true);
 			PROP(Amount);
@@ -229,7 +230,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesPropertyMap);
+			BEGIN_PROPERTIES(gEquipmentAttributesPropertyMap, CDivinityStats_Equipment_Attributes);
 
 			PROP(Durability);
 			PROP(DurabilityDegradeSpeed);
@@ -285,7 +286,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesWeaponPropertyMap);
+			BEGIN_PROPERTIES(gEquipmentAttributesWeaponPropertyMap, CDivinityStats_Equipment_Attributes_Weapon);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP_ENUM(DamageType);
 			PROP(MinDamage);
@@ -301,7 +302,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesArmorPropertyMap);
+			BEGIN_PROPERTIES(gEquipmentAttributesArmorPropertyMap, CDivinityStats_Equipment_Attributes_Armor);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP(ArmorValue);
 			PROP(ArmorBoost);
@@ -310,7 +311,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesShieldPropertyMap);
+			BEGIN_PROPERTIES(gEquipmentAttributesShieldPropertyMap, CDivinityStats_Equipment_Attributes_Shield);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP(ArmorValue);
 			PROP(ArmorBoost);
@@ -320,7 +321,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gCharacterDynamicStatPropertyMap);
+			BEGIN_PROPERTIES(gCharacterDynamicStatPropertyMap, CharacterDynamicStat);
 			PROP(SummonLifelinkModifier);
 			PROP(Strength);
 			PROP(Memory);
@@ -387,7 +388,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gCharacterStatsPropertyMap);
+			BEGIN_PROPERTIES(gCharacterStatsPropertyMap, CDivinityStats_Character);
 			// CRPGStats_Object
 			PROP_RO(Level);
 			PROP_RO(Name);
@@ -428,7 +429,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gItemStatsPropertyMap);
+			BEGIN_PROPERTIES(gItemStatsPropertyMap, CDivinityStats_Item);
 			// CRPGStats_Object
 			PROP_RO(Level);
 			PROP_RO(Name);
@@ -455,7 +456,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gPlayerCustomDataPropertyMap);
+			BEGIN_PROPERTIES(gPlayerCustomDataPropertyMap, eoc::PlayerCustomData);
 			PROP_RO(CustomLookEnabled);
 			PROP(Name);
 			PROP(ClassType);
@@ -476,7 +477,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gCharacterPropertyMap);
+			BEGIN_PROPERTIES(gCharacterPropertyMap, esv::Character);
 			// EoCServerObject
 			PROP_RO(NetID);
 			PROP_RO(MyGuid);
@@ -507,7 +508,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gItemPropertyMap);
+			BEGIN_PROPERTIES(gItemPropertyMap, esv::Item);
 			// EoCServerObject
 			PROP_RO(NetID);
 			PROP_RO(MyGuid);
@@ -539,7 +540,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gProjectilePropertyMap);
+			BEGIN_PROPERTIES(gProjectilePropertyMap, esv::Projectile);
 			// EoCServerObject
 			PROP_RO(NetID);
 			PROP_RO(MyGuid);
@@ -585,7 +586,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gASPrepareSkillStatPropertyMap);
+			BEGIN_PROPERTIES(gASPrepareSkillStatPropertyMap, esv::ASPrepareSkill);
 			PROP_RO(SkillId);
 			PROP_RO(PrepareAnimationInit);
 			PROP_RO(PrepareAnimationLoop);
@@ -594,12 +595,12 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gASUseSkillStatPropertyMap);
+			BEGIN_PROPERTIES(gASUseSkillStatPropertyMap, esv::ASUseSkill);
 			// FIXME
 		}
 
 		{
-			BEGIN_PROPERTIES(gEclStatusPropertyMap);
+			BEGIN_PROPERTIES(gEclStatusPropertyMap, ecl::Status);
 			PROP_RO(NetID);
 			PROP_RO(OwnerHandle);
 			PROP_RO(StatusId);
@@ -611,7 +612,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEclCharacterPropertyMap);
+			BEGIN_PROPERTIES(gEclCharacterPropertyMap, ecl::Character);
 			// EoCClientObject
 			PROP_RO(NetID);
 			PROP_RO(MyGuid);
@@ -623,7 +624,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEclItemPropertyMap);
+			BEGIN_PROPERTIES(gEclItemPropertyMap, ecl::Item);
 			// EoCClientObject
 			PROP_RO(NetID);
 			PROP_RO(MyGuid);
@@ -655,7 +656,7 @@ namespace dse
 		}
 
 		if (!propertyName) {
-			OsiError("Property name '" << propertyNameStr << "' not valid!");
+			OsiError("Failed to get property '" << propertyNameStr << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
 		}
 
@@ -764,7 +765,7 @@ namespace dse
 		}
 
 		if (!propertyName) {
-			OsiError("Property name '" << propertyNameStr << "' not valid!");
+			OsiError("Failed to set property '" << propertyNameStr << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
 		}
 
@@ -839,7 +840,7 @@ namespace dse
 	{
 		auto propertyFS = ToFixedString(propertyName);
 		if (!propertyFS) {
-			OsiError("Property name '" << propertyName << "' not valid!");
+			OsiError("Failed to get property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
 		}
 
@@ -861,7 +862,7 @@ namespace dse
 			auto flag = propertyMap.findFlag(propertyName);
 			if (flag == nullptr) {
 				if (throwError) {
-					OsiError("Failed to get property '" << propertyName << "': Property does not exist");
+					OsiError("Failed to get property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 				}
 				return {};
 			} else {
@@ -970,7 +971,7 @@ namespace dse
 
 		auto propertyFS = ToFixedString(propertyName);
 		if (!propertyFS) {
-			OsiError("Property name '" << propertyName << "' not valid!");
+			OsiError("Failed to set property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
 		}
 
@@ -979,7 +980,7 @@ namespace dse
 			auto flag = propertyMap.findFlag(propertyFS);
 			if (flag == nullptr) {
 				if (throwError) {
-					OsiError("Failed to set property '" << propertyName << "': Property does not exist");
+					OsiError("Failed to set property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 				}
 				return {};
 			} else {
