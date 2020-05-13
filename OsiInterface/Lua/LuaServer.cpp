@@ -855,6 +855,7 @@ namespace dse::esv::lua
 			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
 			{"HandleToDouble", HandleToDouble},
+			{"DoubleToHandle", DoubleToHandle},
 
 			{"SaveFile", SaveFile},
 			{"LoadFile", LoadFile},

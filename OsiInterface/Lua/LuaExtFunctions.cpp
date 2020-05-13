@@ -325,6 +325,14 @@ namespace dse::lua
 		return 1;
 	}
 
+	int DoubleToHandle(lua_State* L)
+	{
+		double dbl = checked_get<double>(L, 1);
+		int64_t handle = *reinterpret_cast<int64_t*>(&dbl);
+		push(L, handle);
+		return 1;
+	}
+
 	int LoadFile(lua_State* L)
 	{
 		auto path = checked_get<char const*>(L, 1);

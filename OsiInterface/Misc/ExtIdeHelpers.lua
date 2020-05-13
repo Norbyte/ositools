@@ -2589,5 +2589,11 @@ Ext = {
     -- (Some of the builtin functions treat handles as double values)
     --- @param handle number Integer handle to cast
     --- @return number Double handle
-    HandleToDouble = function (handle) end
+    HandleToDouble = function (handle) end,
+
+    -- Double to handle conversion hack for use in Flash external interface calls
+    -- (Some of the builtin functions treat handles as double values)
+    --- @param handle number Double handle to cast
+    --- @return number Integer handle
+    DoubleToHandle = function (handle) end
 }
