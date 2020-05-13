@@ -734,6 +734,7 @@ char const * ClientGameStateNames[] =
 	"Running",
 	"Disconnect",
 	"Join",
+	"Save",
 	"StartLoading",
 	"StopLoading",
 	"StartServer",
