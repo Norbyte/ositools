@@ -834,7 +834,7 @@ namespace dse::esv::lua
 		auto characterGuid = luaL_checkstring(L, 1);
 
 		auto character = GetEntityWorld()->GetCharacter(characterGuid);
-		if (character == nullptr) return 0;
+		if (character == nullptr || character->UserID.Id == UserId::Unassigned) return 0;
 
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
 		bool hasExtender = networkMgr.ServerCanSendExtenderMessages(character->UserID.GetPeerId());
