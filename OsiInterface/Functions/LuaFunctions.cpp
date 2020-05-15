@@ -182,7 +182,7 @@ namespace dse::esv
 				});
 			}
 
-			return lua->Query(mod, func, nullptr, signature, *args.NextParam);
+			return lua->Query(mod, func, nullptr, signature, *args.NextParam->NextParam);
 		}
 	}
 
