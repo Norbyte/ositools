@@ -211,7 +211,7 @@ namespace dse
 			glm::vec3 WorldPos;
 			uint32_t _Pad2;
 			uint64_t Flags;
-			uint32_t Flags2;
+			uint8_t Flags2;
 			uint8_t _Pad3[7];
 			__int64 field_58;
 			__int64 field_60;
