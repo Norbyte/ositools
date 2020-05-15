@@ -8,9 +8,9 @@ Ext._WarnDeprecated = function (msg)
 	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v41-to-v42 for more info.")
 end
 
-Ext._Notify = function (event)
+Ext._Notify = function (event, ...)
     for i,callback in pairs(Ext._Listeners[event]) do
-        local status, err = xpcall(callback, debug.traceback)
+        local status, err = xpcall(callback, debug.traceback, ...)
         if not status then
             Ext.PrintError("Error during " .. event .. ": ", err)
         end

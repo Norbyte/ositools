@@ -2055,7 +2055,7 @@ local UIObject = {
     Destroy = function (self) end,
 }
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | "'BeforeCharacterApplyDamage'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
 
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
 --- @alias ExtGetSkillDamageCallback fun(skill: StatEntrySkillData, attacker: StatCharacter, isFromItem: boolean, stealthed: boolean, attackerPos: number[], targetPos: number[], level: number, noRandomization: boolean): DamageList, string
@@ -2582,11 +2582,39 @@ Ext = {
     --- @param handler function Lua handler
     RegisterUICall = function (object, name, handler) end,
 
+    --- Registers a listener that is called when the specified function is called from Flash.
+    --- The event is triggered for every UI element with the specified type ID.
+    --- @param typeId number Engine UI element type ID
+    --- @param name string ExternalInterface function name
+    --- @param handler function Lua handler
+    RegisterUITypeCall = function (typeId, name, handler) end,
+
+    --- Registers a listener that is called when the specified function is called from Flash.
+    --- The event is triggered regardless of which UI element it was called on.
+    --- (Function call capture must be enabled for every element type that needs to monitored!)
+    --- @param name string ExternalInterface function name
+    --- @param handler function Lua handler
+    RegisterUINameCall = function (name, handler) end,
+
     --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
     --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
     --- @param method string Flash method name
     --- @param handler function Lua handler
     RegisterUIInvokeListener = function (object, name, handler) end,
+
+    --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
+    --- The event is triggered for every UI element with the specified type ID.
+    --- @param typeId number Engine UI element type ID
+    --- @param method string Flash method name
+    --- @param handler function Lua handler
+    RegisterUITypeInvokeListener = function (typeId, name, handler) end,
+
+    --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
+    --- The event is triggered regardless of which UI element it was called on.
+    --- (Function call capture must be enabled for every element type that needs to monitored!)
+    --- @param method string Flash method name
+    --- @param handler function Lua handler
+    RegisterUINameInvokeListener = function (name, handler) end,
 
     --- Registers a listener that is called when a console command is entered in the dev console
     --- @param cmd string Console command
