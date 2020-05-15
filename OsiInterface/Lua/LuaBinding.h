@@ -287,6 +287,8 @@ namespace dse::lua
 	int SyncStat(lua_State* L);
 	int GetDeltaMod(lua_State* L);
 	int UpdateDeltaMod(lua_State* L);
+	int EnumIndexToLabel(lua_State* L);
+	int EnumLabelToIndex(lua_State* L);
 	int NewDamageList(lua_State* L);
 	int IsDeveloperMode(lua_State* L);
 	int AddPathOverride(lua_State* L);

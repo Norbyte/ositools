@@ -1185,6 +1185,8 @@ namespace dse::ecl::lua
 			{"GetStat", GetStat},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
+			{"EnumIndexToLabel", EnumIndexToLabel},
+			{"EnumLabelToIndex", EnumLabelToIndex},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

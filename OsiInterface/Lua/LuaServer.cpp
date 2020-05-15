@@ -990,6 +990,8 @@ namespace dse::esv::lua
 			{"SyncStat", SyncStat},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
+			{"EnumIndexToLabel", EnumIndexToLabel},
+			{"EnumLabelToIndex", EnumLabelToIndex},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

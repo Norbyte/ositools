@@ -1587,6 +1587,90 @@ namespace dse::lua
 		return 1;
 	}
 
+	template <class T>
+	int EnumIndexToLabel(lua_State* L, T index)
+	{
+		auto label = EnumInfo<T>::Find(index);
+		if (label) {
+			push(L, label);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	template <class T>
+	int EnumLabelToIndex(lua_State* L, char const* label)
+	{
+		auto index = EnumInfo<T>::Find(label);
+		if (index) {
+			push(L, *index);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+#define BEGIN_BITMASK_NS(NS, T, type)
+#define BEGIN_BITMASK(T, type)
+#define E(label)
+#define EV(label, value)
+#define END_ENUM_NS()
+#define END_ENUM()
+
+#define BEGIN_ENUM_NS(NS, T, type) \
+	if (enumName == GFS.str##T) { \
+		return EnumIndexToLabel<NS::T>(L, (NS::T)index); \
+	}
+#define BEGIN_ENUM(T, type) \
+	if (enumName == GFS.str##T) { \
+		return EnumIndexToLabel<T>(L, (T)index); \
+	}
+
+	int EnumIndexToLabel(lua_State* L)
+	{
+		auto enumName = checked_get<FixedString>(L, 1);
+		auto index = checked_get<int>(L, 2);
+
+#include <GameDefinitions/Enumerations.inl>
+
+		OsiError("No such enumeration: " << enumName);
+		return 0;
+	}
+
+#undef BEGIN_ENUM_NS
+#undef BEGIN_ENUM
+
+#define BEGIN_ENUM_NS(NS, T, type) \
+	if (enumName == GFS.str##T) { \
+		return EnumLabelToIndex<NS::T>(L, label); \
+	}
+#define BEGIN_ENUM(T, type) \
+	if (enumName == GFS.str##T) { \
+		return EnumLabelToIndex<T>(L, label); \
+	}
+
+
+	int EnumLabelToIndex(lua_State* L)
+	{
+		auto enumName = checked_get<FixedString>(L, 1);
+		auto label = checked_get<char const*>(L, 2);
+
+#include <GameDefinitions/Enumerations.inl>
+
+		OsiError("No such enumeration: " << enumName);
+		return 0;
+	}
+
+#undef BEGIN_BITMASK_NS
+#undef BEGIN_ENUM_NS
+#undef BEGIN_BITMASK
+#undef BEGIN_ENUM
+#undef E
+#undef EV
+#undef END_ENUM_NS
+#undef END_ENUM
+
 	int NewDamageList(lua_State * L)
 	{
 		DamageList::New(L);

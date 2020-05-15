@@ -2422,6 +2422,18 @@ Ext = {
     --- @param name string Stat entry name
     SyncStat = function (name) end,
 
+    --- Returns the textual label assigned to the specified enumeration value
+    --- @param enum string Engine enumeration name
+    --- @param index number Value index to look up
+    --- @return string|nil
+    EnumIndexToLabel = function (enum, index) end,
+
+    --- Returns the numeric index assigned to the specified enumeration label
+    --- @param enum string Engine enumeration name
+    --- @param label string Value name to look for
+    --- @return number|nil
+    EnumLabelToIndex = function (enum, label) end,
+
     --- Returns the property proxy of the specified character
     --- @param id string|integer Character GUID or handle or NetID
     --- @return EsvCharacter
