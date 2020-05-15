@@ -4,10 +4,17 @@
 
 namespace dse
 {
+	namespace eoc
+	{
+		struct AiGrid;
+	}
 
 #pragma pack(push, 1)
 	namespace esv
 	{
+		struct SurfaceManager;
+		struct GameActionManager;
+
 		struct LevelDesc
 		{
 			void * VMT;
@@ -37,14 +44,14 @@ namespace dse
 			void * field_90;
 #endif
 			void * EntityManager;
-			void * AiGrid;
+			eoc::AiGrid * AiGrid;
 			void * VisionGrid;
 			void * SightManager;
 			void * CharacterManager;
 			void * ItemManager;
 			void * ProjectileManager;
-			void * SurfaceManager;
-			esv::GameActionManager * GameActionManager;
+			SurfaceManager * SurfaceManager;
+			GameActionManager * GameActionManager;
 			void * EffectManager;
 			void * NoiseManager;
 			void * ShroudManager;

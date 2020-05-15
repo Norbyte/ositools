@@ -122,7 +122,7 @@ namespace dse
 			uint64_t U3[2];
 			glm::vec3 WorldVelocity; // Saved
 			uint32_t _Pad5;
-			void* AI;
+			eoc::Ai* AI;
 			void* CurrentTemplate; // Saved
 			uint64_t OriginalTemplateType; // Saved
 			STDWString CustomDisplayName; // Saved

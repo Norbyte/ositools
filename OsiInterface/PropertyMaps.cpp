@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <GameDefinitions/Projectile.h>
+#include <GameDefinitions/Surface.h>
 #include "PropertyMaps.h"
 
 namespace dse
@@ -25,6 +26,7 @@ namespace dse
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
+	PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 	PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 	PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
@@ -583,6 +585,22 @@ namespace dse
 			PROP_RO(Velocity);
 			PROP_RO(Scale);
 			PROP_RO(CurrentLevel);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvSurfacePropertyMap, esv::Surface);
+			PROP_RO(NetID);
+			PROP_RO(MyHandle);
+			PROP_ENUM(SurfaceType);
+			PROP_RO(Flags);
+			PROP_RO(TeamId);
+			PROP_RO(OwnerHandle);
+			PROP_RO(LifeTime);
+			PROP_RO(LifeTimeFromTemplate);
+			PROP_RO(StatusChance);
+			PROP_RO(Index);
+			PROP_RO(NeedsSplitEvaluation);
+			PROP_RO(OwnershipTimer);
 		}
 
 		{

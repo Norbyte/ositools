@@ -3,6 +3,7 @@
 #include <GameDefinitions/BaseTypes.h>
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/Ai.h>
 #include "OsirisProxy.h"
 #include <PropertyMaps.h>
 
@@ -884,5 +885,49 @@ namespace dse
 		{
 			GetStaticSymbols().EoCUI__ctor(this, path);
 		}
+	}
+
+	int16_t eoc::AiGrid::GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const
+	{
+		if (tile->SurfaceIndexAndMeta == -1) {
+			return -1;
+		}
+
+		int16_t surfaceIndex = -1;
+		if (tile->SurfaceIndexAndMeta & 1) {
+			uint64_t layerMask;
+			if (layer == 0) {
+				layerMask = AiGridTile::BaseSurfaceLayerMask;
+			} else if (layer == 1) {
+				layerMask = AiGridTile::CloudSurfaceLayerMask;
+			} else {
+				OsiError("Requested unknown surface layer!");
+				layerMask = 0;
+			}
+
+			if (layerMask & tile->AiFlags) {
+				surfaceIndex = tile->SurfaceIndexAndMeta >> 1;
+			}
+		} else {
+			auto metadata = Surfaces[tile->SurfaceIndexAndMeta >> 1];
+			if (layer == 0) {
+				surfaceIndex = metadata->BaseSurfaceIndex;
+			} else if (layer == 1) {
+				surfaceIndex = metadata->CloudSurfaceIndex;
+			} else {
+				OsiError("Requested unknown surface layer!");
+			}
+		}
+
+		return surfaceIndex;
+	}
+
+	eoc::AiMetaData* eoc::AiGrid::GetAiMetaData(AiGridTile* tile) const
+	{
+		if (tile->AiMetaDataIndex == -1) {
+			return nullptr;
+		}
+
+		return AiMetaData[tile->AiMetaDataIndex];
 	}
 }

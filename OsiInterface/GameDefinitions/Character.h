@@ -228,7 +228,7 @@ namespace dse
 			uint64_t U4[3];
 			float U41[3];
 			float U42[3];
-			void * AI;
+			eoc::Ai* AI;
 			FixedString AnimationOverride;
 			int32_t WalkSpeedOverride;
 			int32_t RunSpeedOverride;

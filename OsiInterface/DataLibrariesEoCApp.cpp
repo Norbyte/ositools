@@ -1117,6 +1117,7 @@ namespace dse
 		}
 
 		sym.EsvInventoryFactory = (esv::InventoryFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryFactory];
+		sym.EsvSurfaceActionFactory = (esv::SurfaceActionFactory**)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::SurfaceActionFactory];
 
 		if (sym.EsvInventoryFactory == nullptr) {
 			CriticalInitFailed = true;

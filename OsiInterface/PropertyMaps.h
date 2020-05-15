@@ -6,6 +6,11 @@
 
 namespace dse
 {
+	namespace esv
+	{
+		struct Surface;
+	}
+
 	extern PropertyMap<esv::Status, void> gStatusPropertyMap;
 	extern PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;
 	extern PropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
@@ -26,6 +31,7 @@ namespace dse
 	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 	extern PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
+	extern PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
 	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
 	extern PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
 	extern PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;

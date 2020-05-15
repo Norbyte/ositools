@@ -11,6 +11,7 @@
 #include <GameDefinitions/ActionMachine.h>
 #include <GameDefinitions/TurnManager.h>
 #include <GameDefinitions/UI.h>
+#include <GameDefinitions/Surface.h>
 
 namespace dse
 {
@@ -31,7 +32,28 @@ namespace dse
 		EsvItemFactory = 15,
 		EsvSkillFactory = 16,
 		EsvSkillStatePool = 17,
-		EsvInventoryFactory = 18
+		EsvInventoryFactory = 18,
+		EsvInventoryViewFactory = 19,
+		StoryImplementation = 20,
+		AlignmentFactory = 21,
+		AlignmentContainer = 22,
+		OsirisVariableHelper = 23,
+		// 24
+		OverheadTextFactory = 25,
+		SurfaceActionFactory = 26,
+		CustomBookManager = 27,
+		// 28
+		GameControl = 29,
+		// 30
+		CharacterCreationManager = 31,
+		MarkerManager = 32,
+		OsirisTaskFactory = 33,
+		EnvironmentalInfluencesPool = 34,
+		CombatFormationManager = 35,
+		DivinityStats = 36,
+		PlanManager = 37,
+		// 38
+		ActivationManager = 39
 	};
 
 	enum class EsvGlobalEoCPlugin {
@@ -53,7 +75,26 @@ namespace dse
 		EsvItemFactory = 19,
 		EsvSkillFactory = 20,
 		EsvSkillStatePool = 21,
-		EsvInventoryFactory = 22
+		EsvInventoryFactory = 22,
+		EsvInventoryViewFactory = 23,
+		StoryImplementation = 24,
+		AlignmentFactory = 25,
+		OsirisVariableHelper = 26,
+		// 27
+		OverheadTextFactory = 28,
+		SurfaceActionFactory = 29,
+		CustomBookManager = 30,
+		// 31
+		GameControl = 32,
+		// 33
+		CharacterCreationManager = 34,
+		MarkerManager = 35,
+		OsirisTaskFactory = 36,
+		EnvironmentalInfluencesPool = 37,
+		CombatFormationManager = 38,
+		DivinityStats = 39,
+		PlanManager = 40,
+		ActivationManager = 41
 	};
 
 	struct StaticSymbols
@@ -143,6 +184,7 @@ namespace dse
 
 		esv::LevelManager ** LevelManager{ nullptr };
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
+		esv::SurfaceActionFactory** EsvSurfaceActionFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
 #if defined(OSI_EOCAPP)
 		GlobalSwitches ** pGlobalSwitches{ nullptr };
@@ -205,6 +247,26 @@ namespace dse
 			} else {
 				return nullptr;
 			}
+		}
+
+		inline esv::LevelManager* GetLevelManager() const
+		{
+			if (LevelManager == nullptr
+				|| *LevelManager == nullptr) {
+				return nullptr;
+			}
+
+			return *LevelManager;
+		}
+
+		inline esv::Level* GetCurrentLevel() const
+		{
+			if (LevelManager == nullptr
+				|| *LevelManager == nullptr) {
+				return nullptr;
+			}
+
+			return (*LevelManager)->CurrentLevel;
 		}
 
 		inline esv::GameActionManager * GetGameActionManager() const

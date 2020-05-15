@@ -1,5 +1,7 @@
 #include <stdafx.h>
 #include <GameDefinitions/Projectile.h>
+#include <GameDefinitions/Ai.h>
+#include <GameDefinitions/Surface.h>
 #include <Lua/LuaBindingServer.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
@@ -270,6 +272,39 @@ namespace dse::lua
 	}
 
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported yet!");
+	}
+
+
+	char const* const ObjectProxy<esv::Surface>::MetatableName = "esv::Surface";
+
+	esv::Surface* ObjectProxy<esv::Surface>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+
+		auto level = GetStaticSymbols().GetCurrentLevel();
+		if (level) {
+			auto surface = level->SurfaceManager->Get(handle_);
+			if (surface == nullptr) luaL_error(L, "Surface handle invalid");
+			return surface;
+		} else {
+			return nullptr;
+		}
+	}
+
+	int ObjectProxy<esv::Surface>::Index(lua_State* L)
+	{
+		auto surface = Get(L);
+		if (!surface) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
+
+		return LuaPropertyMapGet(L, gEsvSurfacePropertyMap, surface, propFS, true) ? 1 : 0;
+	}
+
+	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
 		return luaL_error(L, "Not supported yet!");
 	}
@@ -763,6 +798,82 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int GetSurface(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve item handle in restricted context");
+		}
+
+		auto handle = checked_get<int64_t>(L, 1);
+
+		auto level = GetStaticSymbols().GetCurrentLevel();
+		if (!level || !level->SurfaceManager) {
+			OsiError("Current level not available yet!");
+			return 0;
+		}
+
+		auto surface = level->SurfaceManager->Get(ObjectHandle(handle));
+		if (surface != nullptr) {
+			ObjectProxy<esv::Surface>::New(L, ObjectHandle(handle));
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	int GetCellInfo(lua_State* L)
+	{
+		auto x = checked_get<float>(L, 1);
+		auto z = checked_get<float>(L, 2);
+
+		auto level = GetStaticSymbols().GetCurrentLevel();
+		if (!level || !level->AiGrid || !level->SurfaceManager) {
+			OsiError("Current level not available yet!");
+			return 0;
+		}
+
+		auto grid = level->AiGrid;
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			OsiError("Could not find AiGrid cell at " << x << ";" << z);
+			return 0;
+		}
+
+		auto groundIdx = grid->GetSurfaceIndex(cell, 0);
+		auto cloudIdx = grid->GetSurfaceIndex(cell, 1);
+		auto meta = grid->GetAiMetaData(cell);
+
+		auto height = cell->Height * 0.25f + grid->DataGrid.OffsetY;
+
+		lua_newtable(L);
+		settable(L, "Flags", cell->AiFlags);
+		settable(L, "Height", height);
+		if (groundIdx != -1) {
+			auto surface = level->SurfaceManager->Surfaces[groundIdx];
+			settable(L, "GroundSurface", surface->MyHandle.Handle);
+		}
+
+		if (cloudIdx != -1) {
+			auto surface = level->SurfaceManager->Surfaces[cloudIdx];
+			settable(L, "CloudSurface", surface->MyHandle.Handle);
+		}
+
+		lua_newtable(L);
+		if (meta != nullptr) {
+			int32_t aiIdx = 1;
+			for (auto ai : meta->Ai) {
+				ObjectHandle handle;
+				ai->GameObject->GetObjectHandle(handle);
+				settable(L, aiIdx++, handle.Handle);
+			}
+		}
+
+		lua_setfield(L, -2, "Objects");
+
+		return 1;
+	}
+
 	int OsirisIsCallable(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -885,6 +996,8 @@ namespace dse::esv::lua
 			{"GetGameObject", GetGameObject},
 			{"GetStatus", GetStatus},
 			{"GetCombat", GetCombat},
+			{"GetSurface", GetSurface},
+			{"GetCellInfo", GetCellInfo},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"IsDeveloperMode", IsDeveloperMode},

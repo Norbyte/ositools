@@ -282,6 +282,11 @@ namespace dse
 		}
 	};
 
+	namespace eoc
+	{
+		struct Ai;
+	}
+
 	struct IGameObject : public ProtectedGameObject<IGameObject>
 	{
 		virtual ~IGameObject() = 0;
@@ -337,7 +342,7 @@ namespace dse
 
 	struct IEocClientObject : public IGameObject
 	{
-		virtual void * GetAi() = 0;
+		virtual eoc::Ai * GetAi() = 0;
 		virtual void LoadAi() = 0;
 		virtual void UnloadAi() = 0;
 		virtual void Unknown0() = 0;
@@ -362,7 +367,7 @@ namespace dse
 		virtual void UNK1() = 0;
 		virtual void UNK2() = 0;
 		virtual void UNK3() = 0;
-		virtual void GetAi() = 0;
+		virtual eoc::Ai* GetAi() = 0;
 		virtual void LoadAi() = 0;
 		virtual void UnloadAi() = 0;
 		virtual TranslatedString* GetDisplayName(TranslatedString* name) = 0;
