@@ -390,6 +390,7 @@ namespace dse
 
 		struct Character : public IEocClientObject
 		{
+			Status* GetStatus(ObjectHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 
 			glm::vec3 WorldPos; // Saved

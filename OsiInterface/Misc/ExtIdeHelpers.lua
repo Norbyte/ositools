@@ -2439,7 +2439,7 @@ Ext = {
 
     --- Returns the property proxy of the specified status
     --- @param characterGuid string Character GUID or handle
-    --- @param handle integer Status handle
+    --- @param handle integer Status handle or NetID
     --- @return EsvStatus
     GetStatus = function (characterGuid, handle) end,
 

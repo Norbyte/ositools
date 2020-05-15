@@ -511,6 +511,14 @@ namespace dse
 		return StatusMachine->GetStatus(netId);
 	}
 
+	ecl::Status* ecl::Character::GetStatus(ObjectHandle statusHandle) const
+	{
+		if (StatusMachine == nullptr) {
+			return nullptr;
+		}
+
+		return StatusMachine->Get(statusHandle);
+	}
 
 	ecl::Status* ecl::Character::GetStatus(NetId netId) const
 	{

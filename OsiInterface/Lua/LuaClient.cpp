@@ -249,8 +249,9 @@ namespace dse::ecl::lua
 	void ExtensionLibraryClient::Register(lua_State * L)
 	{
 		ExtensionLibrary::Register(L);
+		StatusHandleProxy::RegisterMetatable(L);
 		ObjectProxy<Status>::RegisterMetatable(L);
-		ObjectProxy<ecl::PlayerCustomData>::RegisterMetatable(L);
+		ObjectProxy<PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<Character>::RegisterMetatable(L);
 		ObjectProxy<Item>::RegisterMetatable(L);
 		UIObjectProxy::RegisterMetatable(L);
@@ -363,18 +364,28 @@ namespace dse::ecl::lua
 		if (character == nullptr) return 0;
 
 		auto index = lua_tointeger(L, 2);
-		if (index > 0xffffffff) {
-			OsiError("Resolving statuses by Handle is not supported on the client");
-			return 0;
-		} 
 		
-		NetId statusNetId{ (uint32_t)index };
-		auto status = character->GetStatus(statusNetId);
-		if (status != nullptr) {
-			ObjectHandle characterHandle;
-			character->GetObjectHandle(characterHandle);
-			StatusHandleProxy::New(L, characterHandle, statusNetId);
-			return 1;
+		ecl::Status* status;
+		if (index > 0xffffffff) {
+			ObjectHandle statusHandle(index);
+			status = character->GetStatus(statusHandle);
+
+			if (status != nullptr) {
+				ObjectHandle characterHandle;
+				character->GetObjectHandle(characterHandle);
+				StatusHandleProxy::New(L, characterHandle, statusHandle);
+				return 1;
+			}
+		} else {
+			NetId statusNetId{ (uint32_t)index };
+			status = character->GetStatus(statusNetId);
+
+			if (status != nullptr) {
+				ObjectHandle characterHandle;
+				character->GetObjectHandle(characterHandle);
+				StatusHandleProxy::New(L, characterHandle, statusNetId);
+				return 1;
+			}
 		}
 
 		OsiError("Character has no status with NetId 0x" << std::hex << index);
@@ -410,13 +421,29 @@ namespace dse::ecl::lua
 
 	char const* const StatusHandleProxy::MetatableName = "ecl::HStatus";
 
-	int StatusHandleProxy::Index(lua_State* L)
+	ecl::Status* StatusHandleProxy::Get(lua_State* L)
 	{
 		auto character = GetEntityWorld()->GetCharacter(character_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		if (character == nullptr) {
+			luaL_error(L, "Character handle invalid");
+			return nullptr;
+		}
 
-		auto status = character->GetStatus(statusNetId_);
-		if (status == nullptr) return luaL_error(L, "Status handle invalid");
+		ecl::Status* status;
+		if (statusHandle_) {
+			status = character->GetStatus(statusHandle_);
+		} else {
+			status = character->GetStatus(statusNetId_);
+		}
+
+		if (status == nullptr) luaL_error(L, "Status handle invalid");
+
+		return status;
+	}
+
+	int StatusHandleProxy::Index(lua_State* L)
+	{
+		auto status = Get(L);
 
 		auto prop = luaL_checkstring(L, 2);
 		auto& propertyMap = ClientStatusToPropertyMap(status);

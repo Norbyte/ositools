@@ -29,11 +29,17 @@ namespace dse::ecl::lua
 			: character_(character), statusNetId_(status)
 		{}
 
+		inline StatusHandleProxy(ObjectHandle character, ObjectHandle status)
+			: character_(character), statusHandle_(status)
+		{}
+
+		ecl::Status* Get(lua_State* L);
 		int Index(lua_State* L);
 		int NewIndex(lua_State* L);
 
 	private:
 		ObjectHandle character_;
+		ObjectHandle statusHandle_;
 		NetId statusNetId_;
 	};
 
