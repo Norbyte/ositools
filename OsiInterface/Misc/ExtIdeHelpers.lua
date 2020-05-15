@@ -2036,9 +2036,20 @@ local UIObject = {
     --- @return number|boolean|string
     GetValue = function (self, property, type, arrayIndex) end,
     
+    --- Returns the engine UI type ID of the UI element
+    --- @param self UIObject
+    --- @return integer
+    GetTypeId = function (self) end,
+    
     --- @param self UIObject
     --- @return integer
     GetHandle = function (self) end,
+    
+    --- Returns the handle of the player that this UI element is assigned to.
+    --- (Only certain elements have a player assigned, like character sheet, inventory, etc.)
+    --- @param self UIObject
+    --- @return integer|nil
+    GetPlayerHandle = function (self) end,
     
     --- @param self UIObject
     Destroy = function (self) end,
@@ -2554,6 +2565,12 @@ Ext = {
     --- @param path string UI SWF path relative to Data\
     --- @return UIObject|nil
     GetBuiltinUI = function (path) end,
+
+    --- Retrieves an engine UI element with the specified engine type ID.
+    --- If no such element exists, the function returns nil.
+    --- @param typeId number Engine UI element type ID
+    --- @return UIObject|nil
+    GetUIByType = function (typeId) end,
 
     --- Destroys the specified UI element
     --- @param name string User-defined unique name that identifies the UI element

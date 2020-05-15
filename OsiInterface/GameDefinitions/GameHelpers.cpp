@@ -665,7 +665,16 @@ namespace dse
 
 	TempStrings gTempStrings;
 
+	UIObject* UIObjectManager::GetByType(int typeId) const
+	{
+		for (auto ui : UIObjects) {
+			if (ui->Type == typeId) {
+				return ui;
+			}
+		}
 
+		return nullptr;
+	}
 
 	void UIObject::OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3)
 	{

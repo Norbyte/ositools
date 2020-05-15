@@ -70,6 +70,8 @@ namespace dse::ecl::lua
 		static int GetValue(lua_State * L);
 		static int SetValue(lua_State * L);
 		static int GetHandle(lua_State * L);
+		static int GetPlayerHandle(lua_State * L);
+		static int GetTypeId(lua_State * L);
 		static int Destroy(lua_State * L);
 		static int ExternalInterfaceCall(lua_State * L);
 		static int CaptureExternalInterfaceCalls(lua_State * L);

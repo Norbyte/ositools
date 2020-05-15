@@ -473,6 +473,16 @@ namespace dse
 		uint8_t _Pad3[2];
 	};
 
+	struct CustomDrawStruct
+	{
+		void* VMT;
+		void* IconMesh;
+		FixedString IconName;
+		ObjectHandle CustomTextureHandle;
+		char DrawEffect;
+		uint8_t _Pad[7];
+	};
+
 
 	struct UIObjectFunctor
 	{
@@ -530,6 +540,8 @@ namespace dse
 		int field_21C;
 		int64_t field_220;
 		int64_t field_228;
+
+		UIObject* GetByType(int typeId) const;
 	};
 	
 	
@@ -554,6 +566,30 @@ namespace dse
 			uint64_t field_170;
 			STDString field_178;
 		};
+
+		struct UIExamine : public EoCUI
+		{
+			uint64_t UIStatusIconHelper[3];
+			void* NetEventManagerVMT;
+			uint64_t field_1B8;
+			void* GameEventManagerVMT;
+			CustomDrawStruct field_1C8;
+			CustomDrawStruct Icon;
+			uint64_t field_218;
+			uint64_t field_220;
+			int field_228;
+			char field_22C;
+			char field_22D;
+			char field_22E;
+			char field_22F;
+			uint64_t field_230;
+			UserId UserID;
+			uint8_t _Pad2[4];
+			ObjectHandle OH1;
+			ObjectHandle ObjectBeingExamined;
+			uint64_t field_250;
+		};
+
 	}
 
 

@@ -592,6 +592,12 @@ namespace dse::ecl::lua
 		lua_pushcfunction(L, &GetHandle);
 		lua_setfield(L, -2, "GetHandle");
 
+		lua_pushcfunction(L, &GetPlayerHandle);
+		lua_setfield(L, -2, "GetPlayerHandle");
+
+		lua_pushcfunction(L, &GetTypeId);
+		lua_setfield(L, -2, "GetTypeId");
+
 		lua_pushcfunction(L, &Destroy);
 		lua_setfield(L, -2, "Destroy");
 
@@ -777,6 +783,39 @@ namespace dse::ecl::lua
 		if (!ui) return 0;
 
 		push(L, ui->UIObjectHandle.Handle);
+		return 1;
+	}
+
+
+	int UIObjectProxy::GetPlayerHandle(lua_State* L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		ObjectHandle handle;
+		if (ui->Type == 104) {
+			// ecl::UIExamine (104) doesn't implement GetPlayerHandle(), but we need it
+			auto examine = reinterpret_cast<ecl::UIExamine*>(ui);
+			handle = examine->ObjectBeingExamined;
+		} else {
+			ui->GetPlayerHandle(&handle);
+		}
+
+		if (handle) {
+			push(L, handle.Handle);
+		} else {
+			lua_pushnil(L);
+		}
+		return 1;
+	}
+
+
+	int UIObjectProxy::GetTypeId(lua_State* L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		push(L, ui->Type);
 		return 1;
 	}
 
@@ -1114,6 +1153,24 @@ namespace dse::ecl::lua
 		}
 	}
 
+	int GetUIByType(lua_State* L)
+	{
+		auto typeId = checked_get<int>(L, 1);
+
+		UIObject* ui{ nullptr };
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		if (uiManager != nullptr) {
+			ui = uiManager->GetByType(typeId);
+		}
+
+		if (ui != nullptr) {
+			UIObjectProxy::New(L, ui->UIObjectHandle);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	int GetBuiltinUI(lua_State * L)
 	{
 		auto path = luaL_checkstring(L, 1);
@@ -1205,6 +1262,7 @@ namespace dse::ecl::lua
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},
 			{"GetUI", GetUI},
+			{"GetUIByType", GetUIByType},
 			{"GetBuiltinUI", GetBuiltinUI},
 			{"DestroyUI", DestroyUI},
 			{0,0}
