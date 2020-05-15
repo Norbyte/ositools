@@ -1292,6 +1292,7 @@ function CanTriggerTorturer(status)
     local statusType = status.StatusType
 
     return source ~= nil and 
+        source.Stats ~= nil and
         source.Stats.TALENT_Torturer and 
         causeType ~= "SurfaceMove" and causeType ~= "SurfaceCreate" and causeType ~= "SurfaceStatus" and
         (statusType == "DAMAGE" or statusType == "DAMAGE_ON_MOVE")
