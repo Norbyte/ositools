@@ -750,29 +750,40 @@ namespace dse::ecl::lua
 		if (!root) return 0;
 
 		auto path = luaL_checkstring(L, 2);
-		auto typeName = luaL_checkstring(L, 3);
+		auto typeName = lua_tostring(L, 3);
 		int arrayIndex = -1;
 		if (lua_gettop(L) >= 4) {
 			arrayIndex = (int)luaL_checkinteger(L, 4);
 		}
 
-		InvokeDataValueType type = IDV_NoneVal;
-		if (strcmp(typeName, "number") == 0) {
-			type = InvokeDataValueType::IDV_Double;
-		} else if (strcmp(typeName, "boolean") == 0) {
-			type = InvokeDataValueType::IDV_Bool;
-		} else if (strcmp(typeName, "string") == 0) {
-			type = InvokeDataValueType::IDV_String;
-		} else {
-			luaL_error(L, "Unknown value type for Flash fetch: %s", typeName);
-		}
-
 		InvokeDataValue value;
-		if (root->GetValue(path, type, value, arrayIndex)) {
-			InvokeDataValueToLua(L, value);
-			return 1;
+		if (typeName != nullptr) {
+			InvokeDataValueType type = IDV_NoneVal;
+			if (strcmp(typeName, "number") == 0) {
+				type = InvokeDataValueType::IDV_Double;
+			} else if (strcmp(typeName, "boolean") == 0) {
+				type = InvokeDataValueType::IDV_Bool;
+			} else if (strcmp(typeName, "string") == 0) {
+				type = InvokeDataValueType::IDV_String;
+			} else {
+				luaL_error(L, "Unknown value type for Flash fetch: %s", typeName);
+			}
+
+			if (root->GetValue(path, type, value, arrayIndex)) {
+				InvokeDataValueToLua(L, value);
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
-			return 0;
+			if (root->GetValue(path, IDV_Bool, value, arrayIndex)
+				|| root->GetValue(path, IDV_Double, value, arrayIndex)
+				|| root->GetValue(path, IDV_String, value, arrayIndex)) {
+				InvokeDataValueToLua(L, value);
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 	}
 

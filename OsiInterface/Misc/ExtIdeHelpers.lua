@@ -2031,7 +2031,7 @@ local UIObject = {
     --- "type" contains the type of value to retrieve and must be string, number or boolean.
     --- @param self UIObject
     --- @param property string Property path to set
-    --- @param type "'number'" | "'boolean'" | "'string'"
+    --- @param type "'number'" | "'boolean'" | "'string'" | nil
     --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
     --- @return number|boolean|string
     GetValue = function (self, property, type, arrayIndex) end,
