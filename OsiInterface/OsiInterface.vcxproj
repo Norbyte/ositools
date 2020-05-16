@@ -521,18 +521,19 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <None Include="..\APIDocs.md" />
     <None Include="..\LuaAPIDocs.md" />
     <None Include="..\Misc\ExtIdeHelpers.lua" />
-    <None Include="BuiltinLibrary.lua" />
-    <None Include="BuiltinLibraryClient.lua" />
-    <None Include="BuiltinLibraryServer.lua" />
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
-    <None Include="Game.Math.lua" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GlobalFixedStrings.inl" />
+    <None Include="LuaScripts\BuiltinLibrary.lua" />
+    <None Include="LuaScripts\BuiltinLibraryClient.lua" />
+    <None Include="LuaScripts\BuiltinLibraryServer.lua" />
+    <None Include="LuaScripts\Game.Math.lua" />
+    <None Include="LuaScripts\Game.Tooltip.lua" />
+    <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\LuaShared.inl" />
     <None Include="osidebug.proto" />
-    <None Include="SandboxStartup.lua" />
     <None Include="ScriptExtensions.proto" />
   </ItemGroup>
   <ItemGroup>

@@ -1294,6 +1294,8 @@ namespace dse::ecl::lua
 		LoadScript(clientLib, "BuiltinLibraryClient.lua");
 		auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
 		LoadScript(gameMathLib, "Game.Math.lua");
+		auto gameTooltipLib = GetBuiltinLibrary(IDR_LUA_GAME_TOOLTIP);
+		LoadScript(gameTooltipLib, "Game.Tooltip.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
 		StatsExtraDataProxy::New(L); // stack: Ext, ExtraDataProxy

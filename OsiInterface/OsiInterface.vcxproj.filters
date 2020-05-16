@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Lua">
       <UniqueIdentifier>{ffc471de-f963-4696-93ce-a6d744e8c6a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scripts">
+      <UniqueIdentifier>{a0a80cee-3cc1-4c6e-871a-a7d54cadf0b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -332,25 +335,10 @@
     <None Include="GameDefinitions\CharacterGetters.inl">
       <Filter>Header Files\GameDefinitions</Filter>
     </None>
-    <None Include="BuiltinLibrary.lua">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="SandboxStartup.lua">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="BuiltinLibraryServer.lua">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="BuiltinLibraryClient.lua">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="osidebug.proto">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ScriptExtensions.proto">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Game.Math.lua">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Misc\ExtIdeHelpers.lua">
@@ -370,6 +358,24 @@
     </None>
     <None Include="GameDefinitions\Enumerations.inl">
       <Filter>Header Files\GameDefinitions</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibrary.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibraryClient.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibraryServer.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="LuaScripts\Game.Math.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="LuaScripts\SandboxStartup.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="LuaScripts\Game.Tooltip.lua">
+      <Filter>Source Files\Scripts</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
