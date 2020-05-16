@@ -2611,7 +2611,6 @@ Ext = {
 
     --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
     --- The event is triggered regardless of which UI element it was called on.
-    --- (Function call capture must be enabled for every element type that needs to monitored!)
     --- @param method string Flash method name
     --- @param handler function Lua handler
     RegisterUINameInvokeListener = function (name, handler) end,

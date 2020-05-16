@@ -781,6 +781,19 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		InitCrashReporting();
 	}
 
+	// Check to make sure that startup is done even if the extender was loaded when the game was already in GameState::Init
+	if (toState != ecl::GameState::Unknown
+		&& toState != ecl::GameState::StartLoading
+		&& toState != ecl::GameState::InitMenu) {
+		// We need to initialize the function library here, as GlobalAllocator isn't available in Init().
+		Libraries.PostStartupFindLibraries();
+		if (!functionLibraryInitialized_) {
+			CustomInjector.Initialize();
+			FunctionLibrary.Register();
+			functionLibraryInitialized_ = true;
+		}
+	}
+
 	if (toState == ecl::GameState::LoadModule && config_.DisableModValidation) {
 		std::lock_guard _(globalStateLock_);
 		Libraries.PostStartupFindLibraries();
@@ -826,16 +839,6 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 	}
 
 	switch (toState) {
-	case ecl::GameState::Init:
-		// We need to initialize the function library here, as GlobalAllocator isn't available in Init()
-		Libraries.PostStartupFindLibraries();
-		if (!functionLibraryInitialized_) {
-			CustomInjector.Initialize();
-			FunctionLibrary.Register();
-			functionLibraryInitialized_ = true;
-		}
-		break;
-
 	case ecl::GameState::InitNetwork:
 	case ecl::GameState::Disconnect:
 		networkManager_.ClientReset();
