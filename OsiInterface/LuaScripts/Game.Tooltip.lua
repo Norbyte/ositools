@@ -120,7 +120,7 @@ TooltipSpecs = {
     WarningText = {_Label},
     RuneSlot = {_Label, _Value, _Unused},
     RuneEffect = {{"Unknown1", "number"}, {"Rune1", "string"}, {"Rune2", "string"}, {"Rune3", "string"}, _Label, {"Label2", "string"}},
-    Equipped = {{"EquippedBy", "string"}, _Label, _Warning},
+    Equipped = {{"EquippedBy", "string"}, _Label, {"Slot", "string"}},
     ShowSkillIcon = {_Unused},
     SkillbookSkill = {_Label, _Value, _Unused},
     EmptyRuneSlot = {_Label, _Value, _Unused},
@@ -341,7 +341,7 @@ function EncodeTooltipElement(tt, spec, element)
             table.insert(tt, "")
         else
             if fieldType ~= nil and type(val) ~= fieldType then
-                Ext.PrintWarning("Type of field " .. typeName .. "." .. name .. " differs: " .. type(val) .. " vs " .. fieldType .. ":", val)
+                Ext.PrintWarning("Type of field " .. element.Type .. "." .. name .. " differs: " .. type(val) .. " vs " .. fieldType .. ":", val)
                 val = nil
             end
 
@@ -592,29 +592,6 @@ function TooltipHooks:OnRenderTooltip(ui, method, ...)
     local params = ParseTooltipArray(tt)
     local req = self.NextRequest
     if params ~= nil then
-        Ext.Print("Req: ", self.NextRequest.Type)
-        if self.NextRequest.Skill ~= nil then
-            Ext.Print("Skill: ", self.NextRequest.Skill)
-        end
-        if self.NextRequest.Stat ~= nil then
-            Ext.Print("Stat: ", self.NextRequest.Stat)
-        end
-        if self.NextRequest.Ability ~= nil then
-            Ext.Print("Ability: ", self.NextRequest.Ability)
-        end
-        if self.NextRequest.Talent ~= nil then
-            Ext.Print("Talent: ", self.NextRequest.Talent)
-        end
-        if self.NextRequest.Character ~= nil then
-            Ext.Print("Character: ", self.NextRequest.Character.MyGuid)
-        end
-        if self.NextRequest.Item ~= nil then
-            Ext.Print("Item: ", self.NextRequest.Item.StatsId)
-        end
-        if self.NextRequest.Status ~= nil then
-            Ext.Print("Status: ", self.NextRequest.Status.Handle)
-        end
-
         local tooltip = TooltipData:Create(params)
         if req.Type == "Stat" then
             self:NotifyListeners("Stat", req.Stat, req, tooltip, req.Character, req.Stat)
