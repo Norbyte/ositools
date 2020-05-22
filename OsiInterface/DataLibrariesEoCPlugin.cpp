@@ -1074,7 +1074,7 @@ namespace dse
 
 		auto & serverGlobals = GetStaticSymbols().ServerGlobals;
 		GetStaticSymbols().EsvInventoryFactory = (esv::InventoryFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvInventoryFactory];
-		GetStaticSymbols().EsvSurfaceActionFactory = (esv::SurfaceActionFactory**)ServerGlobals[(unsigned)EsvGlobalEoCPlugin::SurfaceActionFactory];
+		GetStaticSymbols().EsvSurfaceActionFactory = (esv::SurfaceActionFactory**)serverGlobals[(unsigned)EsvGlobalEoCPlugin::SurfaceActionFactory];
 
 		if (GetStaticSymbols().EsvInventoryFactory == nullptr) {
 			CriticalInitFailed = true;
