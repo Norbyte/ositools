@@ -1203,14 +1203,14 @@ void OsirisProxy::LoadExtensionStateClient()
 void SavegameSerializer::SavegameVisit(ObjectVisitor* visitor)
 {
 	if (visitor->EnterRegion(GFS.strScriptExtenderSave)) {
-		uint32_t version = CurrentVersion;
+		uint32_t version = SavegameVersion;
 		visitor->VisitUInt32(GFS.strExtenderVersion, version, 0);
 		if (visitor->IsReading()) {
-			if (version > CurrentVersion) {
+			if (version > SavegameVersion) {
 				ERR("Savegame version too new! Extender version %d, savegame version %d; savegame data will not be loaded!");
 				std::wstringstream ss;
 				ss << "Could not load Script Extender save data - savegame is newer than the currently installed extender!<br>";
-				ss << "Extender version v" << CurrentVersion << ", savegame version v" << version;
+				ss << "Extender version v" << SavegameVersion << ", savegame version v" << version;
 				gOsirisProxy->GetLibraryManager().ShowStartupError(ss.str().c_str(), true, false);
 			}
 			else {
@@ -1218,7 +1218,7 @@ void SavegameSerializer::SavegameVisit(ObjectVisitor* visitor)
 			}
 		}
 		else {
-			Serialize(visitor, CurrentVersion);
+			Serialize(visitor, SavegameVersion);
 		}
 
 		visitor->ExitRegion(GFS.strScriptExtenderSave);
