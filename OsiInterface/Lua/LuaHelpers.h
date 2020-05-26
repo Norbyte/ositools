@@ -622,6 +622,9 @@ namespace dse::lua
 			lua_register(L, T::MetatableName, nullptr);
 			luaL_newmetatable(L, T::MetatableName); // stack: mt
 
+			push(L, T::MetatableName);
+			lua_setfield(L, -2, "__metatable");
+
 			if constexpr (std::is_base_of_v<Callable, T>) {
 				lua_pushcfunction(L, &CallProxy); // stack: mt, &LuaCall
 				lua_setfield(L, -2, "__call"); // mt.__call = &LuaCall; stack: mt
