@@ -1474,9 +1474,18 @@ namespace dse::lua
 			return 0;
 		}
 
+		bool persist = true;
+		if (lua_gettop(L) >= 2) {
+			persist = checked_get<bool>(L, 2);
+		}
+
 		stats->SyncWithPrototypeManager(object);
 		object->BroadcastSyncMessage();
-		gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+
+		if (persist) {
+			gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+		}
+
 		return 0;
 	}
 
