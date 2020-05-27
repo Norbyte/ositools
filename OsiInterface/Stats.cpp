@@ -49,7 +49,14 @@ namespace dse
 			return;
 		}
 
-		auto skillType = EnumInfo<SkillType>::Find(*skillTypeFs);
+		// Cone is an alias of Zone, but is not part of the SkillType enum
+		std::optional<SkillType> skillType;
+		if (strcmp(*skillTypeFs, "Cone") == 0) {
+			skillType = SkillType::Zone;
+		} else {
+			skillType = EnumInfo<SkillType>::Find(*skillTypeFs);
+		}
+
 		if (!skillType) {
 			OsiError("Unsupported SkillType: " << *skillTypeFs);
 			return;
