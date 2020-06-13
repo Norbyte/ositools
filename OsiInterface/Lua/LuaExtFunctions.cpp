@@ -1475,7 +1475,7 @@ namespace dse::lua
 		}
 
 		bool persist = true;
-		if (lua_gettop(L) >= 2) {
+		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 			persist = checked_get<bool>(L, 2);
 		}
 
@@ -1484,6 +1484,27 @@ namespace dse::lua
 
 		if (persist) {
 			gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+		}
+
+		return 0;
+	}
+
+	int StatSetPersistence(lua_State* L)
+	{
+		auto statName = luaL_checkstring(L, 1);
+		auto persist = checked_get<bool>(L, 2);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto object = stats->objects.Find(ToFixedString(statName));
+		if (!object) {
+			OsiError("Cannot set persistence for nonexistent stat: " << statName);
+			return 0;
+		}
+
+		if (persist) {
+			gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+		} else {
+			gOsirisProxy->GetServerExtensionState().UnmarkRuntimeModifiedStat(ToFixedString(statName));
 		}
 
 		return 0;

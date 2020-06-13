@@ -2713,7 +2713,7 @@ Ext = {
     GetStatEntries = function (type) end,
 
     --- Returns the list of stat entries that were loaded before the specified mod
-    --- @param modId string Mod ID to check
+    --- @param modGuid string Mod GUID to check
     --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
     --- @return string[]
     GetStatEntriesLoadedBefore = function (modId, type) end,
@@ -2778,7 +2778,13 @@ Ext = {
 
     --- Synchronizes all modifications of the specified stat to all clients
     --- @param name string Stat entry name
-    SyncStat = function (name) end,
+    --- @param persist boolean|nil Persist stats entry to savegame?
+    SyncStat = function (name, persist) end,
+
+    --- Toggles whether the specified stats entry should be persisted to savegames
+    --- @param name string Stat entry name
+    --- @param persist boolean Persist stats entry to savegame?
+    StatSetPersistence = function (name, persist) end,
 
     --- Returns the textual label assigned to the specified enumeration value
     --- @param enum string Engine enumeration name

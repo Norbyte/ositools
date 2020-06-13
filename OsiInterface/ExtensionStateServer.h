@@ -47,6 +47,7 @@ namespace dse::esv
 		}
 
 		void MarkRuntimeModifiedStat(FixedString const& statId);
+		void UnmarkRuntimeModifiedStat(FixedString const& statId);
 
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();

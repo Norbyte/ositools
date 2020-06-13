@@ -285,6 +285,7 @@ namespace dse::lua
 	int GetStat(lua_State* L);
 	int CreateStat(lua_State* L);
 	int SyncStat(lua_State* L);
+	int StatSetPersistence(lua_State* L);
 	int GetDeltaMod(lua_State* L);
 	int UpdateDeltaMod(lua_State* L);
 	int EnumIndexToLabel(lua_State* L);

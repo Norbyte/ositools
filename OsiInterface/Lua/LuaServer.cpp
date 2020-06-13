@@ -1004,6 +1004,7 @@ namespace dse::esv::lua
 			{"GetStat", GetStat},
 			{"CreateStat", CreateStat},
 			{"SyncStat", SyncStat},
+			{"StatSetPersistence", StatSetPersistence},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
@@ -1437,6 +1438,14 @@ namespace dse::esv
 	void ExtensionState::MarkRuntimeModifiedStat(FixedString const& statId)
 	{
 		runtimeModifiedStats_.insert(statId);
+	}
+
+	void ExtensionState::UnmarkRuntimeModifiedStat(FixedString const& statId)
+	{
+		auto it = runtimeModifiedStats_.find(statId);
+		if (it != runtimeModifiedStats_.end()) {
+			runtimeModifiedStats_.erase(it);
+		}
 	}
 
 	void ExtensionState::StoryLoaded()
