@@ -651,7 +651,7 @@ namespace dse::esv
 			},
 			&func::RootTemplateGet<OsiPropertyMapType::String>
 		);
-		functionMgr.Register(std::move(rootTemplateGetInt));
+		functionMgr.Register(std::move(rootTemplateGetString));
 	}
 
 }
