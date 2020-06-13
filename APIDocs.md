@@ -76,7 +76,7 @@ Meaning of configuration keys:
 | Key | Meaning |
 |--|--|
 | `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
-| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. RequiredExtensionVersion 43 or higher is required. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. Requires `RequiredExtensionVersion` 43 or higher. |
 | `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only keep features that are actually in use. |
 
 The following features are accepted in `FeatureFlags`:
@@ -1418,6 +1418,207 @@ CharacterGetHostCharacter(_Character)
 THEN
 ItemToInventory((ITEMGUID)_NewItem, _Character, 1, 1, 0);
 ```
+
+
+# Root Template functions
+
+### RootTemplateGet
+```
+query NRD_RootTemplateGetInt([in](GUIDSTRING)_Object, [in](STRING)_Property, [out](INTEGER)_Value)
+query NRD_RootTemplateGetReal([in](GUIDSTRING)_Object, [in](STRING)_Property, [out](REAL)_Value)
+query NRD_RootTemplateGetString([in](GUIDSTRING)_Object, [in](STRING)_Property, [out](STRING)_Value)
+```
+
+Returns the specified root template property of the specified game object (character or item). `_Property` must be one of the values listed below. If the game object or property does not exist, the query fails.
+
+Shared properties (can be fetched on characters, items, projectiles):
+
+| Attribute | Type | Notes |
+|--|--|--|
+| Id | String | |
+| Name | String | |
+| TemplateName | String | |
+| IsGlobal | Flag | |
+| IsDeleted | Flag | |
+| LevelName | String | |
+| ModFolder | String | |
+| GroupID | String | |
+| VisualTemplate | String | |
+| PhysicsTemplate | String | |
+| CastShadow | Flag | |
+| ReceiveDecal | Flag | |
+| AllowReceiveDecalWhenAnimated | Flag | |
+| IsReflecting | Flag | |
+| IsShadowProxy | Flag | |
+| RenderChannel | Int | |
+| CameraOffset | Vector3 | |
+| HasParentModRelation | Flag | |
+| HasGameplayValue | Flag | |
+| DevComment | String | |
+| AIBoundsRadius | Real | |
+| AIBoundsHeight | Real | |
+| DisplayName | String | |
+| Opacity | Real | |
+| Fadeable | Flag | |
+| FadeIn | Flag | |
+| SeeThrough | Flag | |
+| FadeGroup | String | |
+| GameMasterSpawnSection | String | |
+| GameMasterSpawnSubSection | String | |
+
+
+Character-only properties:
+
+| Attribute | Type | Notes |
+|--|--|--|
+| Icon | String | |
+| Stats | String | |
+| SkillSet | String | |
+| Equipment | String | |
+| LightID | String | |
+| HitFX | String | |
+| DefaultDialog | String | |
+| SpeakerGroup | String | |
+| GeneratePortrait | String | |
+| WalkSpeed | Real | |
+| RunSpeed | Real | |
+| ClimbAttachSpeed | Real | |
+| ClimbLoopSpeed | Real | |
+| ClimbDetachSpeed | Real | |
+| CanShootThrough | Flag | |
+| WalkThrough | Flag | |
+| CanClimbLadders | Flag | |
+| IsPlayer | Flag | |
+| Floating | Flag | |
+| SpotSneakers | Flag | |
+| CanOpenDoors | Flag | |
+| AvoidTraps | Flag | |
+| InfluenceTreasureLevel | Flag | |
+| HardcoreOnly | Flag | |
+| NotHardcore | Flag | |
+| JumpUpLadders | Flag | |
+| NoRotate | Flag | |
+| IsHuge | Flag | |
+| EquipmentClass | Int | |
+| ExplodedResourceID | String | |
+| ExplosionFX | String | |
+| VisualSetResourceID | String | |
+| VisualSetIndices | Int | |
+| TrophyID | String | |
+| SoundInitEvent | String | |
+| SoundAttachBone | String | |
+| SoundAttenuation | Int | |
+| CoverAmount | Int | |
+| LevelOverride | Int | |
+| ForceUnsheathSkills | Flag | |
+| CanBeTeleported | Flag | |
+| ActivationGroupId | String | |
+| SoftBodyCollisionTemplate | String | |
+| RagdollTemplate | String | |
+| DefaultState | Int | |
+| GhostTemplate | String | |
+| IsLootable | Flag | |
+| IsEquipmentLootable | Flag | |
+| InventoryType | Int | |
+| IsArenaChampion | Flag | |
+| FootstepWeight | String | |
+
+Item-only properties:
+
+| Attribute | Type | Notes |
+|--|--|--|
+| Icon | String | |
+| CanBePickedUp | Flag | |
+| CanBeMoved | Flag | |
+| CoverAmount | Int | |
+| CanShootThrough | Flag | |
+| CanClickThrough | Flag | |
+| Destroyed | Flag | |
+| WalkThrough | Flag | |
+| WalkOn | Flag | |
+| Wadable | Flag | |
+| IsInteractionDisabled | Flag | |
+| IsPinnedContainer | Flag | |
+| StoryItem | Flag | |
+| FreezeGravity | Flag | |
+| IsKey | Flag | |
+| IsTrap | Flag | |
+| IsSurfaceBlocker | Flag | |
+| IsSurfaceCloudBlocker | Flag | |
+| TreasureOnDestroy | Flag | |
+| IsHuge | Flag | |
+| HardcoreOnly | Flag | |
+| NotHardcore | Flag | |
+| UsePartyLevelForTreasureLevel | Flag | |
+| Unimportant | Flag | |
+| Hostile | Flag | |
+| UseOnDistance | Flag | |
+| UseRemotely | Flag | |
+| IsBlocker | Flag | |
+| IsPointerBlocker | Flag | |
+| UnknownDisplayName | Flag | |
+| Tooltip | Int | |
+| Stats | String | |
+| OnUseDescription | String | |
+| DefaultState | String | |
+| Owner | String | |
+| Key | String | |
+| HitFX | String | |
+| LockLevel | Int  | |
+| Amount | Int | |
+| MaxStackAmount | Int | |
+| TreasureLevel | Int | |
+| DropSound | String | |
+| PickupSound | String | |
+| UseSound | String | |
+| EquipSound | String | |
+| UnequipSound | String | |
+| InventoryMoveSound | String | |
+| LoopSound | String | |
+| SoundInitEvent | String | |
+| SoundAttachBone | String | |
+| SoundAttenuation | Int | |
+| Description | String | |
+| UnknownDescription | String | |
+| Speaker | String | |
+| AltSpeaker | String | |
+| SpeakerGroup | String | |
+| ActivationGroupId | String | |
+| Race | Int | |
+| IsWall | Flag | |
+| LevelOverride | Int | |
+| Floating | Flag | |
+| IsSourceContainer | Flag | |
+| MeshProxy | String | |
+| IsPublicDomain | Flag | |
+| AllowSummonTeleport | Flag | |
+
+Projectile-only properties:
+
+| Attribute | Type | Notes |
+|--|--|--|
+| LifeTime | Real | |
+| Speed | Real | |
+| Acceleration | Real | |
+| CastBone | String | |
+| ImpactFX | String | |
+| TrailFX | String | |
+| DestroyTrailFXOnImpact | Flag | |
+| BeamFX | String | |
+| PreviewPathMaterial | String | |
+| PreviewPathImpactFX | String | |
+| PreviewPathRadius | Real | |
+| ImpactFXSize | Real | |
+| RotateImpact | Flag | |
+| IgnoreRoof | Flag | |
+| DetachBeam | Flag | |
+| NeedsArrowImpactSFX | Flag | |
+| ProjectilePath | Flag | |
+| PathShift | String | |
+| PathRadius | Real | |
+| PathMinArcDist | Real | |
+| PathMaxArcDist | Real | |
+| PathRepeat | Int | |
 
 
 # Miscellaneous functions

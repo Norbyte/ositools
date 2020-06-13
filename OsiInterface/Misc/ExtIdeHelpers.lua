@@ -54,6 +54,193 @@ local DamageList = {
     ToTable = function (self) end,
 }
 
+
+--- @class EoCGameObjectTemplate
+--- @field public Id string
+--- @field public Name string
+--- @field public TemplateName string
+--- @field public IsGlobal boolean
+--- @field public IsDeleted boolean
+--- @field public LevelName string
+--- @field public ModFolder string
+--- @field public GroupID string
+--- @field public VisualTemplate string
+--- @field public PhysicsTemplate string
+--- @field public CastShadow boolean
+--- @field public ReceiveDecal boolean
+--- @field public AllowReceiveDecalWhenAnimated boolean
+--- @field public IsReflecting boolean
+--- @field public IsShadowProxy boolean
+--- @field public RenderChannel number
+--- @field public CameraOffset number[]
+--- @field public HasParentModRelation boolean
+--- @field public HasGameplayValue boolean
+--- @field public DevComment string
+--- @field public AIBoundsRadius number
+--- @field public AIBoundsHeight number
+--- @field public DisplayName string
+--- @field public Opacity number
+--- @field public Fadeable boolean
+--- @field public FadeIn boolean
+--- @field public SeeThrough boolean
+--- @field public FadeGroup string
+--- @field public GameMasterSpawnSection string
+--- @field public GameMasterSpawnSubSection string
+local EoCGameObjectTemplate = {}
+
+
+--- @class CharacterTemplate : EoCGameObjectTemplate
+--- @field public Icon string
+--- @field public Stats string
+--- @field public SkillSet string
+--- @field public Equipment string
+--- @field public LightID string
+--- @field public HitFX string
+--- @field public DefaultDialog string
+--- @field public SpeakerGroup string
+--- @field public GeneratePortrait string
+--- @field public WalkSpeed number
+--- @field public RunSpeed number
+--- @field public ClimbAttachSpeed number
+--- @field public ClimbLoopSpeed number
+--- @field public ClimbDetachSpeed number
+--- @field public CanShootThrough boolean
+--- @field public WalkThrough boolean
+--- @field public CanClimbLadders boolean
+--- @field public IsPlayer boolean
+--- @field public Floating boolean
+--- @field public SpotSneakers boolean
+--- @field public CanOpenDoors boolean
+--- @field public AvoidTraps boolean
+--- @field public InfluenceTreasureLevel boolean
+--- @field public HardcoreOnly boolean
+--- @field public NotHardcore boolean
+--- @field public JumpUpLadders boolean
+--- @field public NoRotate boolean
+--- @field public IsHuge boolean
+--- @field public EquipmentClass number
+--- @field public ExplodedResourceID string
+--- @field public ExplosionFX string
+--- @field public VisualSetResourceID string
+--- @field public VisualSetIndices number
+--- @field public TrophyID string
+--- @field public SoundInitEvent string
+--- @field public SoundAttachBone string
+--- @field public SoundAttenuation number
+--- @field public CoverAmount number
+--- @field public LevelOverride number
+--- @field public ForceUnsheathSkills boolean
+--- @field public CanBeTeleported boolean
+--- @field public ActivationGroupId string
+--- @field public SoftBodyCollisionTemplate string
+--- @field public RagdollTemplate string
+--- @field public DefaultState number
+--- @field public GhostTemplate string
+--- @field public IsLootable boolean
+--- @field public IsEquipmentLootable boolean
+--- @field public InventoryType number
+--- @field public IsArenaChampion boolean
+--- @field public FootstepWeight string
+local CharacterTemplate = {}
+
+
+--- @class ItemTemplate : EoCGameObjectTemplate
+--- @field public Icon string
+--- @field public CanBePickedUp boolean
+--- @field public CanBeMoved boolean
+--- @field public CoverAmount number
+--- @field public CanShootThrough boolean
+--- @field public CanClickThrough boolean
+--- @field public Destroyed boolean
+--- @field public WalkThrough boolean
+--- @field public WalkOn boolean
+--- @field public Wadable boolean
+--- @field public IsInteractionDisabled boolean
+--- @field public IsPinnedContainer boolean
+--- @field public StoryItem boolean
+--- @field public FreezeGravity boolean
+--- @field public IsKey boolean
+--- @field public IsTrap boolean
+--- @field public IsSurfaceBlocker boolean
+--- @field public IsSurfaceCloudBlocker boolean
+--- @field public TreasureOnDestroy boolean
+--- @field public IsHuge boolean
+--- @field public HardcoreOnly boolean
+--- @field public NotHardcore boolean
+--- @field public UsePartyLevelForTreasureLevel boolean
+--- @field public Unimportant boolean
+--- @field public Hostile boolean
+--- @field public UseOnDistance boolean
+--- @field public UseRemotely boolean
+--- @field public IsBlocker boolean
+--- @field public IsPointerBlocker boolean
+--- @field public UnknownDisplayName boolean
+--- @field public Tooltip number
+--- @field public Stats string
+--- @field public OnUseDescription string
+--- @field public DefaultState string
+--- @field public Owner string
+--- @field public Key string
+--- @field public HitFX string
+--- @field public LockLevel number 
+--- @field public Amount number
+--- @field public MaxStackAmount number
+--- @field public TreasureLevel number
+--- @field public DropSound string
+--- @field public PickupSound string
+--- @field public UseSound string
+--- @field public EquipSound string
+--- @field public UnequipSound string
+--- @field public InventoryMoveSound string
+--- @field public LoopSound string
+--- @field public SoundInitEvent string
+--- @field public SoundAttachBone string
+--- @field public SoundAttenuation number
+--- @field public Description string
+--- @field public UnknownDescription string
+--- @field public Speaker string
+--- @field public AltSpeaker string
+--- @field public SpeakerGroup string
+--- @field public ActivationGroupId string
+--- @field public Race number
+--- @field public IsWall boolean
+--- @field public LevelOverride number
+--- @field public Floating boolean
+--- @field public IsSourceContainer boolean
+--- @field public MeshProxy string
+--- @field public IsPublicDomain boolean
+--- @field public AllowSummonTeleport boolean
+local ItemTemplate = {}
+
+
+--- @class ProjectileTemplate : EoCGameObjectTemplate
+--- @field public LifeTime number
+--- @field public Speed number
+--- @field public Acceleration number
+--- @field public CastBone string
+--- @field public ImpactFX string
+--- @field public TrailFX string
+--- @field public DestroyTrailFXOnImpact boolean
+--- @field public BeamFX string
+--- @field public PreviewPathMaterial string
+--- @field public PreviewPathImpactFX string
+--- @field public PreviewPathRadius number
+--- @field public ImpactFXSize number
+--- @field public RotateImpact boolean
+--- @field public IgnoreRoof boolean
+--- @field public DetachBeam boolean
+--- @field public NeedsArrowImpactSFX boolean
+--- @field public ProjectilePath boolean
+--- @field public PathShift string
+--- @field public PathRadius number
+--- @field public PathMinArcDist number
+--- @field public PathMaxArcDist number
+--- @field public PathRepeat number
+local ProjectileTemplate = {}
+
+
+-- FIXME EclStatus
+
 --- @class EsvStatus
 --- @field public StatusType string Engine status type (HIT, DAMAGE, CONSUME, ...)
 --- @field public StatusId string
@@ -778,6 +965,97 @@ local StatItemDynamic = {}
 local StatItem = {}
 
 
+--- @class EclGameObject
+--- @field public NetID integer
+--- @field public MyGuid string
+-- TODO - Add more properties via virtual getters?
+-- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
+local EclGameObject = {}
+
+
+--- @class EclItem : EclGameObject
+--- @field public RootTemplate ItemTemplate
+--- @field public Stats StatItem
+--- @field public Handle integer
+---
+--- @field public WorldPos number[]
+--- @field public CurrentLevel string
+--- @field public Scale number
+--- @field public StatsId string
+--- @field public Weight integer
+--- @field public KeyName string
+--- @field public Level integer
+--- @field public ItemType string
+--- @field public GoldValueOverride integer
+--- @field public BaseWeightOverwrite integer
+--- @field public ItemColorOverride integer
+local EclItem = {
+    --- Returns whether the item has the specified tag
+    --- @param self EclItem
+    --- @param tag string
+    --- @return boolean
+    HasTag = function (self, tag) end,
+    --- Returns all tags on the item
+    --- @param self EclItem
+    --- @return string[]
+    GetTags = function (self) end,
+    --- Returns the first status with the specified status ID, if one exists.
+    --- @param self EclItem
+    --- @param statusId string Status ID
+    --- @return EclStatus|nil
+    GetStatus = function (self, statusId) end,
+    --- Returns the first status with the specified engine status type, if one exists.
+    --- @param self EclItem
+    --- @param type string Status type
+    --- @return EclStatus|nil
+    GetStatusByType = function (self, type) end,
+    --- Returns all statuses on the item
+    --- @param self EclItem
+    --- @return string[]
+    GetStatuses = function (self) end
+}
+
+
+--- @class EclCharacter : EclGameObject
+--- @field public RootTemplate CharacterTemplate
+--- @field public PlayerCustomData PlayerCustomData
+--- @field public Stats StatCharacter
+--- @field public Handle integer
+---
+--- @field public WorldPos number[]
+--- @field public CurrentLevel string
+--- @field public Scale number
+--- @field public AnimationOverride string
+--- @field public UserID integer
+local EclCharacter = {
+    --- Returns whether the character has the specified tag
+    --- @param self EclCharacter
+    --- @param tag string
+    --- @return boolean
+    HasTag = function (self, tag) end,
+    --- Returns all tags on the character
+    --- @param self EclCharacter
+    --- @return string[]
+    GetTags = function (self) end,
+    --- Returns the first status with the specified status ID, if one exists.
+    --- @param self EclCharacter
+    --- @param statusId string Status ID
+    --- @return EclStatus|nil
+    GetStatus = function (self, statusId) end,
+    --- Returns the first status with the specified engine status type, if one exists.
+    --- @param self EclCharacter
+    --- @param type string Status type
+    --- @return EclStatus|nil
+    GetStatusByType = function (self, type) end,
+    --- Returns all statuses on the character
+    --- @param self EclCharacter
+    --- @return string[]
+    GetStatuses = function (self) end
+}
+
+
+
+
 --- @class EsvGameObject
 --- @field public NetID integer
 --- @field public MyGuid string
@@ -787,6 +1065,7 @@ local EsvGameObject = {}
 
 
 --- @class EsvItem : EsvGameObject
+--- @field public RootTemplate ItemTemplate
 --- @field public WorldPos number[]
 --- @field public CurrentLevel string
 --- @field public Scale number
@@ -812,7 +1091,29 @@ local EsvGameObject = {}
 --- @field public ForceSynch boolean
 --- @field public Stats StatItem
 local EsvItem = {
-
+    --- Returns whether the item has the specified tag
+    --- @param self EsvItem
+    --- @param tag string
+    --- @return boolean
+    HasTag = function (self, tag) end,
+    --- Returns all tags on the item
+    --- @param self EsvItem
+    --- @return string[]
+    GetTags = function (self) end,
+    --- Returns the first status with the specified status ID, if one exists.
+    --- @param self EsvItem
+    --- @param statusId string Status ID
+    --- @return EsvStatus|nil
+    GetStatus = function (self, statusId) end,
+    --- Returns the first status with the specified engine status type, if one exists.
+    --- @param self EsvItem
+    --- @param type string Status type
+    --- @return EsvStatus|nil
+    GetStatusByType = function (self, type) end,
+    --- Returns all statuses on the item
+    --- @param self EsvItem
+    --- @return string[]
+    GetStatuses = function (self) end
 }
 
 
@@ -838,6 +1139,10 @@ local PlayerCustomData = {
 }
 
 --- @class EsvCharacter : EsvGameObject
+--- @field public RootTemplate CharacterTemplate
+--- @field public PlayerCustomData PlayerCustomData
+--- @field public Stats StatCharacter
+---
 --- @field public NetID integer
 --- @field public MyGuid string
 --- @field public WorldPos number[]
@@ -860,8 +1165,7 @@ local PlayerCustomData = {
 --- @field public CustomTradeTreasure string
 --- @field public Archetype string
 --- @field public EquipmentColor string
---- @field public PlayerCustomData PlayerCustomData
---- @field public Stats StatCharacter
+--- @field public UserID integer
 
 -- CharacterFlags 0
 --- @field public IsPlayer boolean
@@ -932,6 +1236,51 @@ local EsvCharacter = {
     --- @return string[]
     GetStatuses = function (self) end
 }
+
+
+--- @class EsvProjectile : EsvGameObject
+--- @field public RootTemplate ProjectileTemplate
+--- @field public NetID integer
+--- @field public MyGuid string
+--- @field public CasterHandle integer
+--- @field public SourceHandle integer
+--- @field public TargetObjectHandle integer
+--- @field public HitObjectHandle integer
+--- @field public SourcePosition number[]
+--- @field public TargetPosition number[]
+--- @field public DamageType string
+--- @field public DamageSourceType string
+--- @field public LifeTime number
+--- @field public HitInterpolation integer
+--- @field public ExplodeRadius0 number
+--- @field public ExplodeRadius1 number
+--- @field public DeathType string
+--- @field public SkillId string
+--- @field public WeaponHandle integer
+--- @field public MovingEffectHandle integer
+--- @field public SpawnEffect string
+--- @field public SpawnFXOverridesImpactFX boolean
+--- @field public EffectHandle string
+--- @field public RequestDelete boolean
+--- @field public Launched boolean
+--- @field public IsTrap boolean
+--- @field public UseCharacterStats boolean
+--- @field public ReduceDurability boolean
+--- @field public AlwaysDamage boolean
+--- @field public ForceTarget boolean
+--- @field public IsFromItem boolean
+--- @field public DivideDamage boolean
+--- @field public IgnoreRoof boolean
+--- @field public CanDeflect boolean
+--- @field public IgnoreObjects boolean
+--- @field public CleanseStatuses string
+--- @field public StatusClearChance integer
+--- @field public Position number[]
+--- @field public PrevPosition number[]
+--- @field public Velocity number[]
+--- @field public Scale number
+--- @field public CurrentLevel string
+local EsvProjectile = {}
 
 --- @class ModInfo
 --- @field public UUID string
@@ -1976,8 +2325,6 @@ local EsvCombat = {
     --- @return EsvCombatTeam[]
     GetAllTeams = function (self) end
 }
-
--- FIXME eclStatus, eclChar, eclItem, esvProjectile
 
 --- @class UIObject
 local UIObject = {

@@ -103,6 +103,11 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (prop == GFS.strRootTemplate) {
+			ObjectProxy<CharacterTemplate>::New(L, character->Template);
+			return 1;
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
 		return fetched ? 1 : 0;
 	}
@@ -220,6 +225,11 @@ namespace dse::lua
 
 		if (propFS == GFS.strHandle) {
 			push(L, item->Base.Component.Handle.Handle);
+			return 1;
+		}
+
+		if (propFS == GFS.strRootTemplate) {
+			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
 			return 1;
 		}
 

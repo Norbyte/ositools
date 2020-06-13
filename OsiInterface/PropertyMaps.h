@@ -6,6 +6,12 @@
 
 namespace dse
 {
+	struct GameObjectTemplate;
+	struct EoCGameObjectTemplate;
+	struct CharacterTemplate;
+	struct ItemTemplate;
+	struct ProjectileTemplate;
+
 	namespace esv
 	{
 		struct Surface;
@@ -37,6 +43,12 @@ namespace dse
 	extern PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
 	extern PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	extern PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
+
+	extern PropertyMap<GameObjectTemplate, void> gGameObjectTemplatePropertyMap;
+	extern PropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
+	extern PropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
+	extern PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
+	extern PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
 
 	void InitPropertyMaps();
 

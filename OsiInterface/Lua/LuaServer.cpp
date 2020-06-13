@@ -97,6 +97,11 @@ namespace dse::lua
 			}
 		}
 
+		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
+			ObjectProxy<CharacterTemplate>::New(L, character->CurrentTemplate);
+			return 1;
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
 		return fetched ? 1 : 0;
 	}
@@ -233,6 +238,11 @@ namespace dse::lua
 			}
 		}
 
+		if (propFS == GFS.strRootTemplate) {
+			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
+			return 1;
+		}
+
 		bool fetched = false;
 		if (item->StatsDynamic != nullptr) {
 			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, propFS, false);
@@ -267,6 +277,12 @@ namespace dse::lua
 		if (!projectile) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
+			ObjectProxy<ProjectileTemplate>::New(L, projectile->ProjectileTemplate);
+			return 1;
+		}
+
 		bool fetched = LuaPropertyMapGet(L, gProjectilePropertyMap, projectile, prop, true);
 		return fetched ? 1 : 0;
 	}

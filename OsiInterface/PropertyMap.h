@@ -25,6 +25,7 @@ namespace dse
 		kStringPtr,
 		kStdString,
 		kStdWString,
+		kTranslatedString,
 		kObjectHandle,
 		kVector3
 	};
@@ -64,6 +65,8 @@ namespace dse
 			return PropertyType::kStdString;
 		} else if constexpr (std::is_same<T, STDWString>::value) {
 			return PropertyType::kStdWString;
+		} else if constexpr (std::is_same<T, TranslatedString>::value) {
+			return PropertyType::kTranslatedString;
 		} else if constexpr (std::is_same<T, ObjectHandle>::value) {
 			return PropertyType::kObjectHandle;
 		} else if constexpr (std::is_same<T, Vector3>::value) {
@@ -348,6 +351,12 @@ namespace dse
 				return gTempStrings.Make(ToUTF8(*str));
 			}
 
+			case PropertyType::kTranslatedString:
+			{
+				auto str = reinterpret_cast<TranslatedString*>(ptr);
+				return gTempStrings.Make(ToUTF8(str->Str1.WStr));
+			}
+
 			case PropertyType::kObjectHandle:
 			{
 				auto handle = reinterpret_cast<ObjectHandle *>(ptr);
@@ -430,6 +439,10 @@ namespace dse
 			case PropertyType::kStdWString:
 				*reinterpret_cast<STDWString *>(ptr) = FromUTF8(value);
 				return true;
+
+			case PropertyType::kTranslatedString:
+				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Updating TranslatedString properties not supported");
+				return false;
 
 			default:
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a string");

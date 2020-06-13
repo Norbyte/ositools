@@ -457,6 +457,85 @@ namespace dse::lua
 
 
 
+
+	char const* const ObjectProxy<CharacterTemplate>::MetatableName = "eoc::CharacterTemplate";
+
+	CharacterTemplate* ObjectProxy<CharacterTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "CharacterTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<CharacterTemplate>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		if (!obj) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gCharacterTemplatePropertyMap, obj, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<CharacterTemplate>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
+
+
+
+	char const* const ObjectProxy<ItemTemplate>::MetatableName = "eoc::ItemTemplate";
+
+	ItemTemplate* ObjectProxy<ItemTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "ItemTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<ItemTemplate>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		if (!obj) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gItemTemplatePropertyMap, obj, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<ItemTemplate>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
+
+
+
+	char const* const ObjectProxy<ProjectileTemplate>::MetatableName = "eoc::ProjectileTemplate";
+
+	ProjectileTemplate* ObjectProxy<ProjectileTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "ProjectileTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<ProjectileTemplate>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		if (!obj) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gProjectileTemplatePropertyMap, obj, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
+
+
+
 	char const * const DamageList::MetatableName = "CDamageList";
 
 	void DamageList::PopulateMetatable(lua_State * L)
@@ -617,6 +696,9 @@ namespace dse::lua
 		ObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
+		ObjectProxy<CharacterTemplate>::RegisterMetatable(L);
+		ObjectProxy<ItemTemplate>::RegisterMetatable(L);
+		ObjectProxy<ProjectileTemplate>::RegisterMetatable(L);
 		StatsExtraDataProxy::RegisterMetatable(L);
 		StatsProxy::RegisterMetatable(L);
 		SkillPrototypeProxy::RegisterMetatable(L);

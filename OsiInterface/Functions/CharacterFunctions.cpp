@@ -375,6 +375,26 @@ namespace dse::esv
 				return;
 			}
 		}
+
+		template <OsiPropertyMapType Type>
+		bool RootTemplateGet(OsiArgumentDesc& args)
+		{
+			auto guid = args[0].String;
+			auto property = args[1].Int32;
+			auto& value = args[2];
+
+			auto character = GetEntityWorld()->GetCharacter(guid, false);
+			if (character != nullptr) {
+				return OsirisPropertyMapGet(gCharacterTemplatePropertyMap, character->CurrentTemplate, args, 1, Type);
+			}
+
+			auto item = GetEntityWorld()->GetItem(guid);
+			if (item != nullptr) {
+				return OsirisPropertyMapGet(gItemTemplatePropertyMap, item->CurrentTemplate, args, 1, Type);
+			} else {
+				return false;
+			}
+		}
 	}
 
 	void CustomFunctionLibrary::RegisterCharacterFunctions()
@@ -599,6 +619,39 @@ namespace dse::esv
 			&func::ObjectSetInternalFlag
 		);
 		functionMgr.Register(std::move(objectSetInternalFlag));
+
+		auto rootTemplateGetInt = std::make_unique<CustomQuery>(
+			"NRD_RootTemplateGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::RootTemplateGet<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(rootTemplateGetInt));
+
+		auto rootTemplateGetReal = std::make_unique<CustomQuery>(
+			"NRD_RootTemplateGetReal",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::RootTemplateGet<OsiPropertyMapType::Real>
+		);
+		functionMgr.Register(std::move(rootTemplateGetReal));
+
+		auto rootTemplateGetString = std::make_unique<CustomQuery>(
+			"NRD_RootTemplateGetString",
+			std::vector<CustomFunctionParam>{
+				{ "Object", ValueType::GuidString, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
+			},
+			&func::RootTemplateGet<OsiPropertyMapType::String>
+		);
+		functionMgr.Register(std::move(rootTemplateGetInt));
 	}
 
 }

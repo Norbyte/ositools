@@ -9,6 +9,7 @@
 
 namespace dse
 {
+    struct ProjectileTemplate;
 
 #pragma pack(push, 1)
 	namespace esv
@@ -69,7 +70,7 @@ namespace dse
             float Scale;
             uint8_t _Pad12[4];
             FixedString CurrentLevel;
-            void* ProjectileTemplate;
+            ProjectileTemplate* ProjectileTemplate;
             ObjectSet<int32_t> PrimSetPeerID;
         };
 

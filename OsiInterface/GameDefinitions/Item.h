@@ -8,6 +8,7 @@
 
 namespace dse
 {
+	struct ItemTemplate;
 
 #pragma pack(push, 1)
 	namespace eoc
@@ -123,7 +124,7 @@ namespace dse
 			glm::vec3 WorldVelocity; // Saved
 			uint32_t _Pad5;
 			eoc::Ai* AI;
-			void* CurrentTemplate; // Saved
+			ItemTemplate* CurrentTemplate; // Saved
 			uint64_t OriginalTemplateType; // Saved
 			STDWString CustomDisplayName; // Saved
 			STDWString CustomDescription; // Saved
@@ -223,7 +224,7 @@ namespace dse
 			uint8_t gap34[4];
 			void* PhysicsObject;
 			void* AiObject;
-			void* CurrentTemplate;
+			ItemTemplate* CurrentTemplate;
 			CDivinityStats_Item* Stats;
 			FixedString StatsId;
 			CRPGStats_Object* StatsFromName;

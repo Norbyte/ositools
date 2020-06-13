@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <GameDefinitions/Projectile.h>
+#include <GameDefinitions/RootTemplates.h>
 #include <GameDefinitions/Surface.h>
 #include "PropertyMaps.h"
 
@@ -33,15 +34,25 @@ namespace dse
 	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
+	PropertyMap<GameObjectTemplate, void> gGameObjectTemplatePropertyMap;
+	PropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
+	PropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
+	PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
+	PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
+
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
 	propertyMap.Name = #cls;
 
 #define PROP(name) AddProperty<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
+#define PROP_TY(name, type) AddPropertyRO<type>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_RO(name) AddPropertyRO<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<std::underlying_type_t<enum>, enum>(propertyMap, #name, offsetof(TObject, name), writeable)
 #define PROP_GUID(name, writeable) AddPropertyGuidString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), writeable)
+
+// For use with game object templates' OverrideableProperty type
+#define PROP_TPL(name) AddProperty<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 
 	void InitPropertyMaps()
 	{
@@ -507,6 +518,7 @@ namespace dse
 			PROP_RO(CustomTradeTreasure);
 			PROP_RO(Archetype);
 			PROP_RO(EquipmentColor);
+			PROP_TY(UserID, int32_t);
 		}
 
 		{
@@ -639,6 +651,7 @@ namespace dse
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
 			PROP_RO(AnimationSetOverride);
+			PROP_TY(UserID, int32_t);
 		}
 
 		{
@@ -658,6 +671,201 @@ namespace dse
 			PROP_RO(GoldValueOverride);
 			PROP_RO(BaseWeightOverwrite);
 			PROP_RO(ItemColorOverride);
+		}
+
+		{
+			BEGIN_PROPERTIES(gGameObjectTemplatePropertyMap, GameObjectTemplate);
+			// TODO Tags
+			PROP_RO(Id);
+			PROP(Name);
+			PROP_RO(TemplateName);
+			PROP_RO(IsGlobal);
+			PROP_RO(IsDeleted);
+			PROP_RO(LevelName);
+			PROP_RO(ModFolder);
+			PROP_RO(GroupID);
+			PROP_TPL(VisualTemplate);
+			PROP_TPL(PhysicsTemplate);
+			PROP_TPL(CastShadow);
+			PROP_TPL(ReceiveDecal);
+			PROP_TPL(AllowReceiveDecalWhenAnimated);
+			PROP_TPL(IsReflecting);
+			PROP_TPL(IsShadowProxy);
+			PROP_TPL(RenderChannel);
+			PROP_TPL(CameraOffset);
+			PROP_RO(HasParentModRelation);
+			PROP_TPL(HasGameplayValue);
+			PROP_RO(DevComment);
+			// TODO FileName
+		}
+
+		{
+			BEGIN_PROPERTIES(gEoCGameObjectTemplatePropertyMap, EoCGameObjectTemplate);
+			PROP_TPL(AIBoundsRadius);
+			PROP_TPL(AIBoundsHeight);
+			PROP_TPL(DisplayName);
+			PROP_TPL(Opacity);
+			PROP_TPL(Fadeable);
+			PROP_TPL(FadeIn);
+			PROP_TPL(SeeThrough);
+			PROP_TPL(FadeGroup);
+			PROP(GameMasterSpawnSection);
+			PROP_TPL(GameMasterSpawnSubSection);
+		}
+
+		{
+			BEGIN_PROPERTIES(gCharacterTemplatePropertyMap, CharacterTemplate);
+			PROP_TPL(Icon);
+			PROP_TPL(Stats);
+			PROP_TPL(SkillSet);
+			PROP_TPL(Equipment);
+			// TODO - Treasures
+			PROP_TPL(LightID);
+			PROP_TPL(HitFX);
+			PROP_TPL(DefaultDialog);
+			PROP_TPL(SpeakerGroup);
+			PROP_TPL(GeneratePortrait);
+			PROP_TPL(WalkSpeed);
+			PROP_TPL(RunSpeed);
+			PROP_TPL(ClimbAttachSpeed);
+			PROP_TPL(ClimbLoopSpeed);
+			PROP_TPL(ClimbDetachSpeed);
+			PROP_TPL(CanShootThrough);
+			PROP_TPL(WalkThrough);
+			PROP_TPL(CanClimbLadders);
+			PROP_TPL(IsPlayer);
+			PROP_TPL(Floating);
+			PROP_TPL(SpotSneakers);
+			PROP_TPL(CanOpenDoors);
+			PROP_TPL(AvoidTraps);
+			PROP_TPL(InfluenceTreasureLevel);
+			PROP_TPL(HardcoreOnly);
+			PROP_TPL(NotHardcore);
+			PROP_TPL(JumpUpLadders);
+			PROP_TPL(NoRotate);
+			PROP_TPL(IsHuge);
+			PROP_TPL(EquipmentClass);
+			// TODO - OnDeathActions
+			// TODO - PROP_TPL(BloodSurfaceType);
+			PROP_TPL(ExplodedResourceID);
+			PROP_TPL(ExplosionFX);
+			// TODO - Scripts, SkillList, ItemList
+			PROP_TPL(VisualSetResourceID);
+			PROP_TPL(VisualSetIndices);
+			PROP_TPL(TrophyID);
+			PROP_TPL(SoundInitEvent);
+			PROP_TPL(SoundAttachBone);
+			PROP_TPL(SoundAttenuation);
+			PROP_TPL(CoverAmount);
+			PROP_TPL(LevelOverride);
+			PROP_TPL(ForceUnsheathSkills);
+			PROP_TPL(CanBeTeleported);
+			PROP_TPL(ActivationGroupId);
+			PROP_TPL(SoftBodyCollisionTemplate);
+			PROP_TPL(RagdollTemplate);
+			PROP_TPL(DefaultState);
+			PROP_TPL(GhostTemplate);
+			PROP_TPL(IsLootable);
+			PROP_TPL(IsEquipmentLootable);
+			PROP_TPL(InventoryType);
+			PROP_TPL(IsArenaChampion);
+			PROP_TPL(FootstepWeight);
+		}
+
+		{
+			BEGIN_PROPERTIES(gItemTemplatePropertyMap, ItemTemplate);
+			PROP_TPL(Icon);
+			PROP_TPL(CanBePickedUp);
+			PROP_TPL(CanBeMoved);
+			PROP_TPL(CoverAmount);
+			PROP_TPL(CanShootThrough);
+			PROP_TPL(CanClickThrough);
+			PROP_TPL(Destroyed);
+			PROP_TPL(WalkThrough);
+			PROP_TPL(WalkOn);
+			PROP_TPL(Wadable);
+			PROP_TPL(IsInteractionDisabled);
+			PROP_TPL(IsPinnedContainer);
+			PROP_TPL(StoryItem);
+			PROP_TPL(FreezeGravity);
+			PROP_TPL(IsKey);
+			PROP_TPL(IsTrap);
+			PROP_TPL(IsSurfaceBlocker);
+			PROP_TPL(IsSurfaceCloudBlocker);
+			PROP_TPL(TreasureOnDestroy);
+			PROP_TPL(IsHuge);
+			PROP_TPL(HardcoreOnly);
+			PROP_TPL(NotHardcore);
+			PROP_TPL(UsePartyLevelForTreasureLevel);
+			PROP_TPL(Unimportant);
+			PROP_TPL(Hostile);
+			PROP_TPL(UseOnDistance);
+			PROP_TPL(UseRemotely);
+			PROP_TPL(IsBlocker);
+			PROP_TPL(IsPointerBlocker);
+			PROP_TPL(UnknownDisplayName);
+			PROP_TPL(Tooltip);
+			PROP_TPL(Stats);
+			PROP_TPL(OnUseDescription);
+			PROP_TPL(DefaultState);
+			PROP_TPL(Owner);
+			PROP_TPL(Key);
+			PROP_TPL(HitFX);
+			PROP_TPL(LockLevel);
+			PROP_TPL(Amount);
+			PROP_TPL(MaxStackAmount);
+			PROP_TPL(TreasureLevel);
+			PROP_TPL(DropSound);
+			PROP_TPL(PickupSound);
+			PROP_TPL(UseSound);
+			PROP_TPL(EquipSound);
+			PROP_TPL(UnequipSound);
+			PROP_TPL(InventoryMoveSound);
+			PROP_TPL(LoopSound);
+			PROP_TPL(SoundInitEvent);
+			PROP_TPL(SoundAttachBone);
+			PROP_TPL(SoundAttenuation);
+			PROP_TPL(BloodSurfaceType);
+			PROP_TPL(Description);
+			PROP_TPL(UnknownDescription);
+			PROP_TPL(Speaker);
+			PROP_TPL(AltSpeaker);
+			PROP_TPL(SpeakerGroup);
+			PROP_TPL(ActivationGroupId);
+			PROP_TPL(Race);
+			PROP_TPL(IsWall);
+			PROP_TPL(LevelOverride);
+			PROP_TPL(Floating);
+			PROP_TPL(IsSourceContainer);
+			PROP_TPL(MeshProxy);
+			PROP_TPL(IsPublicDomain);
+			PROP_TPL(AllowSummonTeleport);
+		}
+
+		{
+			BEGIN_PROPERTIES(gProjectileTemplatePropertyMap, ProjectileTemplate);
+			PROP(LifeTime);
+			PROP(Speed);
+			PROP(Acceleration);
+			PROP(CastBone);
+			PROP(ImpactFX);
+			PROP(TrailFX);
+			PROP(DestroyTrailFXOnImpact);
+			PROP(BeamFX);
+			PROP(PreviewPathMaterial);
+			PROP(PreviewPathImpactFX);
+			PROP(PreviewPathRadius);
+			PROP(ImpactFXSize);
+			PROP(RotateImpact);
+			PROP(IgnoreRoof);
+			PROP(DetachBeam);
+			PROP(NeedsArrowImpactSFX);
+			PROP(ProjectilePath);
+			PROP(PathShift);
+			PROP(PathRadius);
+			PROP(PathMinArcDist);
+			PROP(PathMaxArcDist);
+			PROP(PathRepeat);
 		}
 	}
 
@@ -945,6 +1153,7 @@ namespace dse
 		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
+		case PropertyType::kTranslatedString:
 		{
 			auto val = propertyMap.getString(obj, propertyName, false, throwError);
 			if (val) {
@@ -1045,6 +1254,7 @@ namespace dse
 		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:
 		case PropertyType::kStdWString:
+		case PropertyType::kTranslatedString:
 		{
 			auto val = luaL_checkstring(L, index);
 			return propertyMap.setString(obj, propertyFS, val, false, throwError);

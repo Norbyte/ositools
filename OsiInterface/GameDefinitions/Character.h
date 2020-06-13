@@ -9,6 +9,7 @@
 
 namespace dse
 {
+	struct CharacterTemplate;
 
 #pragma pack(push, 1)
 	namespace eoc
@@ -216,9 +217,9 @@ namespace dse
 			glm::mat3 WorldRot;
 			float Scale;
 			ObjectSet<void *> PeerIDClassNames;
-			void * CurrentTemplate;
-			void * OriginalTemplate;
-			void * TemplateUsedForSkills;
+			CharacterTemplate* CurrentTemplate;
+			CharacterTemplate* OriginalTemplate;
+			CharacterTemplate* TemplateUsedForSkills;
 			CharacterFlags2 Flags2;
 			CharacterFlags3 Flags3;
 			uint8_t FlagsEx;
@@ -261,7 +262,7 @@ namespace dse
 			Map<FixedString, void *> Attitudes; // Element type unknown
 			uint8_t _Pad61[4];
 			FixedString SkillBeingPrepared;
-			void* CurrentTemplate2;
+			CharacterTemplate* CurrentTemplate2;
 			uint32_t Dialog;
 			bool IsDialogAiControlled;
 			uint8_t U10[3];
@@ -412,13 +413,13 @@ namespace dse
 			void* Light;
 			void* AiObject;
 			int field_70;
-			int UserId;
-			int UserId2;
+			UserId UserID;
+			int32_t UserId2;
 			NetId NetID2;
 			NetId NetID3;
 			uint8_t gap84[4];
-			void* Template;
-			void* OriginalTemplate;
+			CharacterTemplate* Template;
+			CharacterTemplate* OriginalTemplate;
 			CDivinityStats_Character* Stats;
 			void* InventoryHandle;
 			void* MovementMachine;
