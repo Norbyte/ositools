@@ -1,7 +1,9 @@
-### Lua API v45 Documentation
+### Lua API v48 Documentation
 
 ### Table of Contents  
 
+ - [Migrating from v44 to v45](#migrating-from-v44-to-v45)
+ - [Migrating from v43 to v44](#migrating-from-v43-to-v44)
  - [Migrating from v42 to v43](#migrating-from-v42-to-v43)
  - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
  - [Client / Server States](#client-server)
@@ -132,15 +134,15 @@ Client/server context can be selected by typing `client` or `server`. This selec
 
 Typing `exit` returns to log mode.
 
-Commands prefixed by a `!` will trigger the `ConsoleCommand` Lua event.
+Commands prefixed by a `!` will trigger callbacks registered via the `RegisterConsoleCommand` function.
 Example:
 ```lua
-local function consoleCmd(cmd, a1, a2, ...)
+local function testCmd(cmd, a1, a2, ...)
     Ext.Print("Cmd: " .. cmd .. ", args: ", a1, ", ", a2);
 end
-Ext.RegisterListener("ConsoleCommand", consoleCmd);
+Ext.RegisterConsoleCommand("test", testCmd);
 ```
-The command `!test 123 456` will call `consoleCmd("test", 123, 456)` and prints `Cmd: test, args: 123, 456`.
+The command `!test 123 456` will call `testCmd("test", 123, 456)` and prints `Cmd: test, args: 123, 456`.
 
 Anything else typed in the console will be executed as Lua code in the current context. (eg. typing `Ext.Print(1234)` will print `123`). 
 The console has full access to the underlying Lua state, i.e. server console commands can also call builtin/custom Osiris functions, so Osiris calls like `CharacterGiveReward(CharacterGetHostCharacter(), "CheatShieldsAllRarities", 1)` are possible using the console.
@@ -530,8 +532,8 @@ local function onHelmetOptionChanged(ui, call, state)
     ...
 end
 
-local ui = Ext.GetBuiltinUI(...)
-Ext.RegisterUICall(ui, "setHelmetOptionState", onHelmetOptionChanged)
+local ui = Ext.GetBuiltinUI("Public/Game/GUI/characterSheet.swf")
+Ext.RegisterUICall(ui, "setHelmetOption", onHelmetOptionChanged)
 ```
 
 
@@ -567,10 +569,48 @@ UI:SetPosition(100, 100)
 
 ## Stats
 
+## TODO - stat creation workflow, stat update workflow, note about persistent properties in case of dynamic stat updates (AVOID!)
+
 ### GetStatEntries(type)
 
-Returns a table with the names of all loaded stat entries.
+Returns a table with the names of all stat entries.
 When the optional parameter `type` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+
+### GetStatEntriesLoadedBefore(modGuid, type)
+
+Returns a table with the names of all stat entries that were loaded before the specified mod.
+This function is useful for retrieving stats that can be overridden by a mod according to the module load order.
+When the optional parameter `type` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+
+### CreateStat(name, type, template) <sup>S</sup>
+
+Creates a new stats entry on the server. 
+If a stat object with the same name already exists, the specified modifier type is invalid or the specified template doesn't exist, the function returns `nil`.
+After all stat properties were initialized, the stats entry must be synchronized by calling `SyncStat()`. 
+
+ - `name` is the name of stats entry to create; it should be globally unique
+ - `type` is the stats entry type (eg. `SkillData`, `StatusData`, `Weapon`, etc.)
+ - If the `template` parameter is not null, stats properties are copied from the template entry to the newly created entry
+
+Example:
+```lua
+local stat = Ext.CreateStat("NRD_Dynamic_Skill", "SkillData", "Rain_Water")
+stat.RainEffect = "RS3_FX_Environment_Rain_Fire_01"
+stat.SurfaceType = "Fire"
+Ext.SyncStat("NRD_Dynamic_Skill")
+```
+
+### SyncStat(stat, persist) <sup>S</sup>
+
+Synchronizes the changes made to the specified stats entry to each client.
+`SyncStat` must be called each time a stats entry is modified dynamically (after `ModuleLoading`/`StatsLoaded`) to ensure that the host and all clients see the same properties.
+The optional `persist` attribute determines whether the stats entry is persistent, i.e. if it will be written to savegames. If not specified, the `persist` parameter defaults to `true`.
+
+### StatSetPersistence(stat, persist) <sup>S</sup>
+
+Toggles whether the specified stats entry should be persisted to savegames.
+Changes made to non-persistent stats will be lost the next time a game is reloaded. 
+If a dynamically created stats entry is marked as non-persistent, the entry will be deleted completely after the next reload. Make sure that you don't delete entries that are still in use as it could break the game in various ways.
 
 ### StatGetAttribute(stat, attribute)
 
@@ -579,7 +619,7 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 
 **Notes:**
  - For enumerations, the function will return the enumeration label (eg. `Corrosive`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
- - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`, `SkillProperties`, `WinBoost`, `LoseBoost`
+ - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`
 
 `Requirements` and `MemorizationRequirements` are returned in the following format:
 ```js
@@ -600,12 +640,11 @@ If the stat entry does not exist, the stat entry doesn't have an attribute named
 ### StatSetAttribute(stat, attribute, value) <sup>R</sup>
 
 Updates the specified `attribute` of the stat entry. This essentially allows on-the-fly patching of stat .txt files from script without having to override the while stat entry.
-This function can only be called from a `ModuleLoading` listener; calling it elsewhere throws a Lua error.
+If the function is called while the module is loading (i.e. from a `ModuleLoading`/`StatsLoaded` listener) no additional calls are needed. If the function is called after module load, the stats entry must be synchronized with the client via the `SyncStat` call. 
 
 **Notes:**
  - For enumerations, the function accepts both the enumeration label (a string value, eg. `Corrosive`) and the enumeration index (an integer value, eg, `7`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
  - Be aware that a lot of number-like attributes are in fact enums. eg. the `Strength`, `Finesse`, `Intelligence`, etc. attributes of `Potion` are enumerations and setting them by passing an integer value to this function will yield unexpected results. For example, calling `StatSetAttribute("SomePotion", "Strength", 5)` will set the `Strength` value to `-9.6`! The proper way to set these values is by passing the enumeration label as string, eg. `StatSetAttribute("SomePotion", "Strength", "5")`
- - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`, `SkillProperties`, `WinBoost`, `LoseBoost`
 
 Example:
 ```lua
@@ -616,6 +655,21 @@ for i,name in pairs(Ext.GetStatEntries("SkillData")) do
         Ext.StatSetAttribute(name, "DamageType", "Air")
     end
 end
+```
+
+When modifying stat attributes that contain tables (i.e. `Requirements`, `TargetConditions`, `SkillProperties` etc.) it is not sufficient to just modify the table, the modified table must be reassigned to the property:
+```lua
+local requirements = Ext.StatGetAttribute(name, "MemorizationRequirements")
+table.insert(requirements, {Name = "Intelligence", Param = 10, Not = false})
+Ext.StatSetAttribute(name, "Requirements", requirements)
+```
+
+Stat entries that are modified on the fly (i.e. after `ModuleLoading`/`StatsLoaded`) must be synchronized via `SyncStat()`. Neglecting to do this will cause the stat entry to be different on the client and the server.
+```lua
+local stat = Ext.GetStat(name)
+stat.DamageType = "Air"
+stat.Damage = 10
+Ext.SyncStat(name)
 ```
 
 ### GetStat(stat, [level])
@@ -1761,11 +1815,10 @@ For a reference implementation that replicates the ingame hit chance logic check
 
 
 ### TODO
- - Status chance overrides, Damage calc override, Skill/Status tooltip callbacks
+ - Game.Tooltip usage
+ - GameObject calls - HasTag, GetTags, GetStatus, GetStatusByType, GetStatuses + GetInventoryItems
  - GetCharacter, GetItem, GetProjectile, GetGameObject, GetStatus (client/server) + updated property maps
- - RegisterListener, RegisterConsoleCommand, RegisterNetListener
- - Lua state lifetime, Globals behavior (not saved)
+ - RegisterNetListener + networking concepts
+ - NetID, ObjectHandle, GUID concepts
  - File IO
- - Bootstrap phase
  - Reloading Lua and changing exports
- - Reloading Story
