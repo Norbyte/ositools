@@ -1756,11 +1756,33 @@ Computes the natural (base `e`) logarithm of `_In`.
 
 Computes the factorial of the value `_In`.
 
-### RandomReal
-`query NRD_RandomReal([in](REAL)_Min, [in](REAL)_Max, [out](REAL)_Result)`
+### Random
+```
+query NRD_Random([in](INTEGER)_Min, [in](INTEGER)_Max, [out](INTEGER)_Result)
+query NRD_RandomReal([in](REAL)_Min, [in](REAL)_Max, [out](REAL)_Result)
+```
 
 Returns uniformly distributed random numbers in the range [`_Min` ... `_Max`].
 
+### Min
+```
+query NRD_Min([in](INTEGER)_A, [in](INTEGER)_B, [in](INTEGER)_C, [out](INTEGER)_Result)
+query NRD_Min([in](INTEGER)_A, [in](INTEGER)_B, [in](INTEGER)_C, [in](INTEGER)_D, [out](INTEGER)_Result)
+query NRD_MinReal([in](REAL)_A, [in](REAL)_B, [in](REAL)_C, [out](REAL)_Result)
+query NRD_MinReal([in](REAL)_A, [in](REAL)_B, [in](REAL)_C, [in](REAL)_D, [out](REAL)_Result)
+```
+
+Returns the smallest input value (`_A`, `_B`, `_C` or `_D`).
+
+### Max
+```
+query NRD_Max([in](INTEGER)_A, [in](INTEGER)_B, [in](INTEGER)_C, [out](INTEGER)_Result)
+query NRD_Max([in](INTEGER)_A, [in](INTEGER)_B, [in](INTEGER)_C, [in](INTEGER)_D, [out](INTEGER)_Result)
+query NRD_MaxReal([in](REAL)_A, [in](REAL)_B, [in](REAL)_C, [out](REAL)_Result)
+query NRD_MaxReal([in](REAL)_A, [in](REAL)_B, [in](REAL)_C, [in](REAL)_D, [out](REAL)_Result)
+```
+
+Returns the greatest input value (`_A`, `_B`, `_C` or `_D`).
   
 # String functions
 
