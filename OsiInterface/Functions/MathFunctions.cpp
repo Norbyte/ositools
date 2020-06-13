@@ -6,6 +6,16 @@ namespace dse::esv
 {
 	namespace func
 	{
+		bool Random(OsiArgumentDesc & args)
+		{
+			auto min = args[0].Int32;
+			auto max = args[1].Int32;
+
+			std::uniform_int_distribution<int> dist(min, max);
+			args[2].Set(dist(ExtensionState::Get().OsiRng));
+			return true;
+		}
+
 		bool RandomReal(OsiArgumentDesc & args)
 		{
 			auto min = args[0].Float;
@@ -119,6 +129,98 @@ namespace dse::esv
 
 			return true;
 		}
+
+		bool Min2(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Int32;
+			auto b = args[1].Int32;
+
+			auto min = std::min({ a, b });
+			args[2].Set(min);
+
+			return true;
+		}
+
+		bool Min3(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Int32;
+			auto b = args[1].Int32;
+			auto c = args[1].Int32;
+
+			auto min = std::min({ a, b, c });
+			args[3].Set(min);
+
+			return true;
+		}
+
+		bool MinReal2(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Float;
+			auto b = args[1].Float;
+
+			auto min = std::min({ a, b });
+			args[2].Set(min);
+
+			return true;
+		}
+
+		bool MinReal3(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Float;
+			auto b = args[1].Float;
+			auto c = args[1].Float;
+
+			auto min = std::min({ a, b, c });
+			args[3].Set(min);
+
+			return true;
+		}
+
+		bool Max2(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Int32;
+			auto b = args[1].Int32;
+
+			auto max = std::max({ a, b });
+			args[2].Set(max);
+
+			return true;
+		}
+
+		bool Max3(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Int32;
+			auto b = args[1].Int32;
+			auto c = args[1].Int32;
+
+			auto max = std::max({ a, b, c });
+			args[3].Set(max);
+
+			return true;
+		}
+
+		bool MaxReal2(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Float;
+			auto b = args[1].Float;
+
+			auto max = std::max({ a, b });
+			args[2].Set(max);
+
+			return true;
+		}
+
+		bool MaxReal3(OsiArgumentDesc& args)
+		{
+			auto a = args[0].Float;
+			auto b = args[1].Float;
+			auto c = args[1].Float;
+
+			auto max = std::max({ a, b, c });
+			args[3].Set(max);
+
+			return true;
+		}
 	}
 
 #define MATH_QUERY1(funcName) { \
@@ -136,6 +238,17 @@ namespace dse::esv
 	void CustomFunctionLibrary::RegisterMathFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();
+
+		auto random = std::make_unique<CustomQuery>(
+			"NRD_Random",
+			std::vector<CustomFunctionParam>{
+				{ "Min", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Max", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Random
+		);
+		functionMgr.Register(std::move(random));
 
 		auto randomReal = std::make_unique<CustomQuery>(
 			"NRD_RandomReal",
@@ -190,6 +303,98 @@ namespace dse::esv
 			&func::IsDivisible
 		);
 		functionMgr.Register(std::move(isDivisible));
+
+		auto min2 = std::make_unique<CustomQuery>(
+			"NRD_Min",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "B", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Min2
+		);
+		functionMgr.Register(std::move(min2));
+
+		auto min3 = std::make_unique<CustomQuery>(
+			"NRD_Min",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "B", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "C", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Min3
+		);
+		functionMgr.Register(std::move(min3));
+
+		auto minReal2 = std::make_unique<CustomQuery>(
+			"NRD_MinReal",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Real, FunctionArgumentDirection::In },
+				{ "B", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::MinReal2
+		);
+		functionMgr.Register(std::move(minReal2));
+
+		auto minReal3 = std::make_unique<CustomQuery>(
+			"NRD_MinReal",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Real, FunctionArgumentDirection::In },
+				{ "B", ValueType::Real, FunctionArgumentDirection::In },
+				{ "C", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::MinReal3
+		);
+		functionMgr.Register(std::move(minReal3));
+
+		auto max2 = std::make_unique<CustomQuery>(
+			"NRD_Max",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "B", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Max2
+		);
+		functionMgr.Register(std::move(max2));
+
+		auto max3 = std::make_unique<CustomQuery>(
+			"NRD_Max",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "B", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "C", ValueType::Integer, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Integer, FunctionArgumentDirection::Out },
+			},
+			&func::Max3
+		);
+		functionMgr.Register(std::move(max3));
+
+		auto maxReal2 = std::make_unique<CustomQuery>(
+			"NRD_MaxReal",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Real, FunctionArgumentDirection::In },
+				{ "B", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::MaxReal2
+		);
+		functionMgr.Register(std::move(maxReal2));
+
+		auto maxReal3 = std::make_unique<CustomQuery>(
+			"NRD_MaxReal",
+			std::vector<CustomFunctionParam>{
+				{ "A", ValueType::Real, FunctionArgumentDirection::In },
+				{ "B", ValueType::Real, FunctionArgumentDirection::In },
+				{ "C", ValueType::Real, FunctionArgumentDirection::In },
+				{ "Result", ValueType::Real, FunctionArgumentDirection::Out },
+			},
+			&func::MaxReal3
+		);
+		functionMgr.Register(std::move(maxReal3));
 	}
 
 }
