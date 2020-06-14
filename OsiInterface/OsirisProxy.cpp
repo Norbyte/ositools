@@ -71,7 +71,7 @@ void OsirisProxy::Initialize()
 	Wrappers.RuleActionCall.SetWrapper(std::bind(&OsirisProxy::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
 #endif
 
-	if (Libraries.FindLibraries()) {
+	if (Libraries.FindLibraries(gameVersion.Revision)) {
 		if (extensionsEnabled_) {
 			ResetExtensionStateServer();
 			ResetExtensionStateClient();

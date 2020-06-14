@@ -248,6 +248,20 @@ namespace dse
 
 	bool LibraryManager::MapSymbol(SymbolMappingData const & mapping, uint8_t const * customStart, std::size_t customSize)
 	{
+		if (mapping.Version.Type != SymbolVersion::None) {
+			bool passed;
+			if (mapping.Version.Type == SymbolVersion::Below) {
+				passed = gameRevision_ < mapping.Version.Revision;
+			} else {
+				passed = gameRevision_ >= mapping.Version.Revision;
+			}
+
+			if (!passed) {
+				// Ignore mappings that aren't supported by the current game version
+				return true;
+			}
+		}
+
 		Pattern p;
 		p.FromString(mapping.Matcher);
 
@@ -343,8 +357,9 @@ namespace dse
 		moduleTextSize_ = moduleSize_;
 	}
 
-	bool LibraryManager::FindLibraries()
+	bool LibraryManager::FindLibraries(uint32_t gameRevision)
 	{
+		gameRevision_ = gameRevision;
 		memset(&GetStaticSymbols().CharStatsGetters, 0, sizeof(GetStaticSymbols().CharStatsGetters));
 
 #if defined(OSI_EOCAPP)

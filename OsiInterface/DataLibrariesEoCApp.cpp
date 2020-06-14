@@ -97,6 +97,16 @@ namespace dse
 		{"esv::StatusHit::__vftable", SymbolMappingTarget::kAbsolute, 0, nullptr, &FindStatusHitEoCApp2}
 	};
 
+	SymbolMappingData const sSymbolStatusHit64 = {
+		"esv::StatusHit::__vftable",
+		SymbolMappingData::kCustom, 0,
+		"40 55 " // push    rbp
+		"41 54 " // push    r12
+		"41 57 ", // push    r15
+		{},
+		{"esv::StatusHit::__vftable", SymbolMappingTarget::kAbsolute, 0, nullptr, &FindStatusHitEoCApp2}
+	};
+
 	SymbolMappingResult FindStatusHealEoCApp2(uint8_t const * match)
 	{
 		auto & library = gOsirisProxy->GetLibraryManager();
@@ -444,14 +454,27 @@ namespace dse
 		},
 
 		{
-			"esv::StatusHit::__vftable",
+			"esv::StatusHit::__vftable <64",
 			SymbolMappingData::kText, SymbolMappingData::kDeferred,
 			"4C 8D 0D XX XX XX XX " // lea     r9, fsx_Dummy_BodyFX
 			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
 			"E8 XX XX XX XX " // call    esv__EffectFactory__CreateEffectWrapper
 			"48 8B D8 ", // mov     rbx, rax
 			{SymbolMappingCondition::kFixedString, 7, "RS3_FX_GP_Status_Retaliation_Beam_01"},
-			{"esv::StatusHit::__vftable", SymbolMappingTarget::kAbsolute, -0xa00, nullptr, nullptr, &sSymbolStatusHit, 0xa00}
+			{"esv::StatusHit::__vftable", SymbolMappingTarget::kAbsolute, -0xa00, nullptr, nullptr, &sSymbolStatusHit, 0xa00}, {}, {},
+			{SymbolVersion::Below, 64} // Before GB5
+		},
+
+		{
+			"esv::StatusHit::__vftable >=64",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"4C 8D 0D XX XX XX XX " // lea     r9, fsx_Dummy_BodyFX
+			"48 8D 15 XX XX XX XX " // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
+			"E8 XX XX XX XX " // call    esv__EffectFactory__CreateEffectWrapper
+			"48 8B D8 ", // mov     rbx, rax
+			{SymbolMappingCondition::kFixedString, 7, "RS3_FX_GP_Status_Retaliation_Beam_01"},
+			{"esv::StatusHit::__vftable", SymbolMappingTarget::kAbsolute, -0x800, nullptr, nullptr, &sSymbolStatusHit64, 0x800}, {}, {},
+			{SymbolVersion::AboveOrEqual, 64} // After GB5
 		},
 
 		{
@@ -1012,7 +1035,7 @@ namespace dse
 		},
 
 		{
-			"esv::Character::ApplyDamage",
+			"esv::Character::ApplyDamage < 64",
 			SymbolMappingData::kText, 0,
 			"C7 45 CB 06 00 00 00 " // mov     [rbp+57h+hitDamageInfo.AttackDirection_Enum], 6
 			"44 89 75 07 " // mov     [rbp+57h+var_50], r14d
@@ -1020,7 +1043,22 @@ namespace dse
 			"44 89 75 0F " // mov     [rbp+57h+var_48], r14d
 			"E8 XX XX XX XX ", // call    esv__Character__ApplyDamage
 			{},
-			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 22, STATIC_SYM(esv__Character__ApplyDamage)}
+			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 22, STATIC_SYM(esv__Character__ApplyDamage)}, {}, {},
+			{SymbolVersion::Below, 64} // Before GB5
+		},
+
+		{
+			"esv::Character::ApplyDamage >= 64",
+			SymbolMappingData::kText, 0,
+			"48 89 44 24 20 " // mov     [rsp+0D0h+var_B0], rax
+			"C7 45 CB 06 00 00 00 " // mov     [rbp+57h+hitDamageInfo.AttackDirection_Enum], 6
+			"89 5D 07 " // mov     [rbp+57h+var_50], r14d
+			"C7 45 0B 00 00 80 BF " // mov     [rbp+57h+var_4C], 0BF800000h
+			"89 5D 0F " // mov     [rbp+57h+var_48], r14d
+			"E8 XX XX XX XX ", // call    esv__Character__ApplyDamage
+			{},
+			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 25, STATIC_SYM(esv__Character__ApplyDamage)}, {}, {},
+			{SymbolVersion::AboveOrEqual, 64} // After GB5
 		},
 	};
 

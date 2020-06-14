@@ -138,8 +138,21 @@ namespace dse {
 		int32_t NextSymbolSeekSize{ 0 };
 	};
 
+	enum class SymbolVersion
+	{
+		None,
+		Below,
+		AboveOrEqual
+	};
+
 	struct SymbolMappingData
 	{
+		struct VersionRequirement
+		{
+			SymbolVersion Type{ SymbolVersion::None };
+			uint32_t Revision{ 0 };
+		};
+
 		enum MatchScope
 		{
 			kBinary, // Full binary
@@ -162,11 +175,12 @@ namespace dse {
 		SymbolMappingTarget Target1;
 		SymbolMappingTarget Target2;
 		SymbolMappingTarget Target3;
+		VersionRequirement Version;
 	};
 
 	struct GameVersionInfo
 	{
-		uint16_t Major, Minor, Revision, Build;
+		uint16_t Major{ 0 }, Minor{ 0 }, Revision{ 0 }, Build{ 0 };
 
 		inline bool IsSupported() const
 		{
@@ -183,7 +197,7 @@ namespace dse {
 	class LibraryManager
 	{
 	public:
-		bool FindLibraries();
+		bool FindLibraries(uint32_t gameRevision);
 		bool PostStartupFindLibraries();
 		void EnableCustomStats();
 		void DisableItemFolding();
@@ -291,6 +305,7 @@ namespace dse {
 		size_t moduleSize_{ 0 };
 		uint8_t const * moduleTextStart_{ nullptr };
 		size_t moduleTextSize_{ 0 };
+		uint32_t gameRevision_;
 
 #if !defined(OSI_EOCAPP)
 		HMODULE coreLib_{ NULL };
