@@ -38,8 +38,11 @@ namespace dse
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 	extern PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	extern PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
-	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
-	extern PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
+
+	extern PropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
+	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
+	extern PropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
+
 	extern PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
 	extern PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	extern PropertyMap<ecl::Status, void> gEclStatusPropertyMap;

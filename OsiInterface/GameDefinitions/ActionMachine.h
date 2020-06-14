@@ -2,11 +2,11 @@
 
 #include "BaseTypes.h"
 #include "Enumerations.h"
+#include "Misc.h"
 
 namespace dse
 {
 
-#pragma pack(push, 1)
 	namespace esv
 	{
 		enum class ActionStateType
@@ -58,11 +58,86 @@ namespace dse
 
 			struct ActionMachine * Machine;
 			uint8_t Unknown1;
-			uint8_t _Pad1[3];
 			uint32_t Unknown2;
 
 			PropertyMapBase * GetPropertyMap();
 			char const * GetTypeName();
+		};
+
+		struct NumberDivider
+		{
+			float DamagePerHit;
+			int field_4;
+		};
+
+		struct NumberDividers
+		{
+			NumberDivider ArmorAbsorptionDivider;
+			ObjectSet<void*> DamageDividers; // DamageDivider::Damage ?
+		};
+
+		struct ASAttack : public ProtectedGameObject<ActionState>
+		{
+			ObjectHandle TargetHandle;
+			glm::vec3 TargetPosition;
+			ObjectSet<ObjectHandle> ObjectHandleSet;
+			bool IsFinished;
+			bool AlwaysHit;
+			__int64 AttackAnimation;
+			float TimeRemaining;
+			bool AnimationFinished;
+			int TotalHits;
+			int TotalHitOffHand;
+			int TotalShoots;
+			int TotalShootsOffHand;
+			int HitCount;
+			int HitCountOffHand;
+			int ShootCount;
+			int ShootCountOffHand;
+			ObjectHandle MainWeaponHandle;
+			ObjectHandle OffWeaponHandle;
+			RefMap<ObjectHandle, HitDamageInfo> MainWeaponDamageList;
+			RefMap<ObjectHandle, HitDamageInfo> OffHandDamageList;
+			RefMap<ObjectHandle, NumberDividers> MainWeaponNumberDividers;
+			RefMap<ObjectHandle, NumberDividers> OffHandNumberDividers;
+			ObjectSet<void*> DamageDividerDamage; // DamageDivider::Damage ?
+			ObjectSet<void*> DamageDividerDamage2; // DamageDivider::Damage ?
+			__int64 field_118;
+			__int64 field_120;
+			int MainHandHitType;
+			int OffHandHitType;
+			ShootProjectileHelperHitObject HitObject1;
+			ShootProjectileHelperHitObject HitObject2;
+			bool ProjectileUsesHitObject;
+			glm::vec3 ProjectileStartPosition;
+			glm::vec3 ProjectileTargetPosition;
+			bool DamageDurability;
+			ObjectSet<ObjectHandle> DelayDeathCharacterHandles;
+		};
+
+		struct SkillState
+		{
+			void* VMT;
+			int StateIndex;
+			int State;
+			FixedString SkillId;
+			ObjectHandle CharacterHandle;
+			ObjectHandle SourceItemHandle;
+			bool CanEnter;
+			bool IsFinished;
+			bool SkillStateOver6_2;
+			bool IgnoreChecks;
+			bool IsStealthed;
+			int field_30;
+			float PrepareTimerRemaining;
+			float Unkn_OnSkillCombatCommentEventCondition;
+			float SomeCombatCommentEventTimeoutValue;
+			bool field_40;
+			bool ShouldExit;
+			bool SkillStateOver6;
+			FixedString CleanseStatuses;
+			float StatusClearChance;
+			bool CharacterHasSkill;
 		};
 
 		struct ASPrepareSkill : public ActionState
@@ -77,13 +152,13 @@ namespace dse
 
 		struct ASUseSkill : public ActionState
 		{
-			void * OriginalSkill;
+			SkillState* OriginalSkill;
 			bool OwnsSkillStateOriginal;
-			uint8_t _Pad[7];
-			void * Skill;
+			SkillState* Skill;
 			bool OwnsSkillState;
 		};
 
+#pragma pack(push, 1)
 		struct ActionMachineLayer
 		{
 			ActionState * State;
@@ -106,7 +181,7 @@ namespace dse
 			uint16_t _Pad1;
 			ActionState * CachedActions[24];
 		};
-	}
 #pragma pack(pop)
+	}
 
 }

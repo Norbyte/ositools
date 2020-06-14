@@ -28,8 +28,11 @@ namespace dse
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
-	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillStatPropertyMap;
-	PropertyMap<esv::ASUseSkill, void> gASUseSkillStatPropertyMap;
+
+	PropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
+	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
+	PropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
+
 	PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
 	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
 	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
@@ -616,7 +619,33 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gASPrepareSkillStatPropertyMap, esv::ASPrepareSkill);
+			BEGIN_PROPERTIES(gASAttackPropertyMap, esv::ASAttack);
+			PROP_RO(TargetHandle);
+			PROP_RO(TargetPosition);
+			PROP_RO(IsFinished);
+			PROP_RO(AlwaysHit);
+			PROP_RO(TimeRemaining);
+			PROP_RO(AnimationFinished);
+			PROP_RO(TotalHits);
+			PROP_RO(TotalHitOffHand);
+			PROP_RO(TotalShoots);
+			PROP_RO(TotalShootsOffHand);
+			PROP_RO(HitCount);
+			PROP_RO(HitCountOffHand);
+			PROP_RO(ShootCount);
+			PROP_RO(ShootCountOffHand);
+			PROP_RO(MainWeaponHandle);
+			PROP_RO(OffWeaponHandle);
+			PROP_RO(MainHandHitType);
+			PROP_RO(OffHandHitType);
+			PROP_RO(ProjectileUsesHitObject);
+			PROP_RO(ProjectileStartPosition);
+			PROP_RO(ProjectileTargetPosition);
+			PROP_RO(DamageDurability);
+		}
+
+		{
+			BEGIN_PROPERTIES(gASPrepareSkillPropertyMap, esv::ASPrepareSkill);
 			PROP_RO(SkillId);
 			PROP_RO(PrepareAnimationInit);
 			PROP_RO(PrepareAnimationLoop);
@@ -625,8 +654,19 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gASUseSkillStatPropertyMap, esv::ASUseSkill);
-			// FIXME
+			BEGIN_PROPERTIES(gSkillStatePropertyMap, esv::SkillState);
+			PROP_RO(SkillId);
+			PROP_RO(CharacterHandle);
+			PROP_RO(SourceItemHandle);
+			PROP_RO(CanEnter);
+			PROP_RO(IsFinished);
+			PROP_RO(IgnoreChecks);
+			PROP_RO(IsStealthed);
+			PROP_RO(PrepareTimerRemaining);
+			PROP_RO(ShouldExit);
+			PROP_RO(CleanseStatuses);
+			PROP_RO(StatusClearChance);
+			PROP_RO(CharacterHasSkill);
 		}
 
 		{

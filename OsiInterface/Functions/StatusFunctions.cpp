@@ -527,10 +527,16 @@ namespace dse::esv
 			auto state = character->ActionMachine->Layers[0].State;
 			auto propertyMap = state->GetPropertyMap();
 
+			if (state->GetType() == ActionStateType::ASUseSkill) {
+				auto useSkill = static_cast<ASUseSkill*>(state);
+				if (useSkill->Skill != nullptr) {
+					if (OsirisPropertyMapGetRaw(gSkillStatePropertyMap, useSkill->Skill, args, 1, Type, false)) {
+						return true;
+					}
+				}
+			}
+
 			if (propertyMap != nullptr) {
-
-				// TODO - special for ASAttack, ASUseSkill?
-
 				return OsirisPropertyMapGetRaw(*propertyMap, state, args, 1, Type, true);
 			} else {
 				OsiError("No property map available for action type " << (unsigned)state->GetType() << " yet!");

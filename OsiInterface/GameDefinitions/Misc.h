@@ -193,7 +193,7 @@ namespace dse
 
 	struct ShootProjectileHelperHitObject
 	{
-		int Unknown{ 0 };
+		int HitInterpolation{ 0 };
 		uint8_t _Pad[4];
 		ObjectHandle Target;
 		glm::vec3 Position;

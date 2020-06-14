@@ -630,8 +630,11 @@ namespace dse
 		PropertyMapBase * ActionState::GetPropertyMap()
 		{
 			switch (GetType()) {
+			case ActionStateType::ASAttack:
+				return &gASAttackPropertyMap;
+
 			case ActionStateType::ASPrepareSkill:
-				return &gASPrepareSkillStatPropertyMap;
+				return &gASPrepareSkillPropertyMap;
 
 			default:
 				return nullptr;
