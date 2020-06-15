@@ -689,6 +689,14 @@ namespace dse
 				WriteAnchor code(p, 0x40);
 				p[0x0E] = 0x90;
 				p[0x0F] = 0xE9;
+
+				if (GetStaticSymbols().ModuleSettingsHasCustomModsGB5 != nullptr) {
+					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ModuleSettingsHasCustomModsGB5);
+					WriteAnchor code(p, 0x40);
+					p[0x32] = 0x90;
+					p[0x33] = 0xE9;
+				}
+
 				DEBUG("Modded achievements enabled.");
 			} else {
 				ERR("Could not enable achievements; symbol ls::ModuleSettings::HasCustomMods not mapped!");

@@ -193,6 +193,7 @@ namespace dse
 #endif
 		void * ItemFoldDynamicAttributes{ nullptr };
 		void * ModuleSettingsHasCustomMods{ nullptr };
+		void * ModuleSettingsHasCustomModsGB5{ nullptr };
 
 		void * DUMMY1{ nullptr };
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;

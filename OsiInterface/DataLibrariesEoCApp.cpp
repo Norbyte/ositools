@@ -875,6 +875,19 @@ namespace dse
 		},
 
 		{
+			"ls::ModuleSettings::HasCustomModsGB5",
+			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:xxx
+			"33 ED " // xor     ebp, ebp
+			"48 8B 88 A8 00 00 00 " // mov     rcx, [rax+0A8h]
+			"44 8B B9 A4 03 00 00 " // mov     r15d, [rcx+3A4h]
+			"4D 85 FF ", // test    r15, r15
+			{},
+			{"ls::ModuleSettings::HasCustomModsGB5", SymbolMappingTarget::kAbsolute, -0x18, STATIC_SYM(ModuleSettingsHasCustomModsGB5)}, {}, {},
+			{SymbolVersion::AboveOrEqual, 64} // After GB5
+		},
+
+		{
 			"esv::Inventory::Equip",
 			SymbolMappingData::kText, 0,
 			"48 89 54 24 10 " // mov     [rsp-8+arg_8], rdx
