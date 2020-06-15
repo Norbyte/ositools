@@ -225,37 +225,18 @@ namespace dse::esv
 		}
 
 		using namespace std::placeholders;
-		// FIXME - split to client c
 
 		osiris_.GetLibraryManager().StatusGetEnterChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
 		);
-		osiris_.GetLibraryManager().StatusHitEnter.SetPreHook(
-			std::bind(&CustomFunctionLibrary::OnStatusHitEnter, this, _1)
-		);
 		osiris_.GetLibraryManager().StatusHealEnter.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
-		);
-		osiris_.GetLibraryManager().CharacterHitHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnCharacterHit, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
-		);
-		osiris_.GetLibraryManager().CharacterHitInternalHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnCharacterHitInternal, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
-		);
-		osiris_.GetLibraryManager().CharacterApplyDamageHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnCharacterApplyDamage, this, _1, _2, _3, _4, _5, _6)
-		);
-		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnApplyStatus, this, _1, _2, _3)
 		);
 		osiris_.GetLibraryManager().ActionMachineSetStateHook.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
 		);
 		osiris_.GetLibraryManager().SkillPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
-		);
-		osiris_.GetLibraryManager().SkillPrototypeGetSkillDamageHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnGetSkillDamage, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
 		);
 		osiris_.GetLibraryManager().StatusPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)

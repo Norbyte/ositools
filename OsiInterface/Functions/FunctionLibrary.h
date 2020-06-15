@@ -43,32 +43,23 @@ namespace dse::esv
 			esv::Status * status, bool isEnterCheck);
 		int32_t OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance, 
 			CDivinityStats_Character * attacker, CDivinityStats_Character * target);
-		void OnStatusHitEnter(esv::Status * status);
 		void OnStatusHealEnter(esv::Status * status);
 
-		void OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
-			CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
-			HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGroundFlag,
-			bool procWindWalker, CriticalRoll criticalRoll);
-		void OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self, 
-			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
-			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
-			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
-		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit, 
-			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
-
-		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
 			CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 			float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * stdStringSet);
-		void OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype * self, DamagePairList * damageList,
-			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
-			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype, 
 			CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+
+		void ThrowStatusHitEnter(esv::Status* status);
+		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,
+			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
+			HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGround,
+			bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper);
+		void ThrowApplyStatus(esv::StatusMachine* self, esv::Status* status);
 
 	private:
 		OsirisProxy & osiris_;

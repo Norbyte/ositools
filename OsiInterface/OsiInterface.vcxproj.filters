@@ -192,6 +192,9 @@
     <ClInclude Include="GameDefinitions\RootTemplates.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="Hit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -327,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Stats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

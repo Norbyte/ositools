@@ -598,7 +598,7 @@ namespace dse::esv
 		return wrappedGetHitChance(attacker, target);
 	}
 
-	void CustomFunctionLibrary::OnStatusHitEnter(esv::Status * status)
+	void CustomFunctionLibrary::ThrowStatusHitEnter(esv::Status * status)
 	{
 		auto statusHit = static_cast<esv::StatusHit *>(status);
 		if ((bool)(statusHit->DamageInfo.EffectFlags & HitFlag::NoEvents)) {
@@ -662,15 +662,12 @@ namespace dse::esv
 	}
 
 
-	void CustomFunctionLibrary::OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character * self, CDivinityStats_Character * attackerStats,
+	void CustomFunctionLibrary::ThrowCharacterHit(esv::Character * self, CDivinityStats_Character * attackerStats,
 		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
-		bool procWindWalker, CriticalRoll criticalRoll)
+		bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper)
 	{
 		if ((bool)(damageInfo->EffectFlags & HitFlag::NoEvents)) {
-			wrappedHit(self, attackerStats, itemStats, damageList, hitType, noHitRoll,
-				damageInfo, forceReduceDurability, skillProperties, highGround,
-				procWindWalker, criticalRoll);
 			return;
 		}
 
@@ -685,81 +682,19 @@ namespace dse::esv
 			totalDamage += dmg.Amount;
 		}
 
-		auto helper = gOsirisProxy->GetServerExtensionState().DamageHelpers.Create();
-		helper->Type = DamageHelpers::HT_PrepareHitEvent;
-		helper->Target = self;
-		if (attackerStats != nullptr) {
-			helper->Source = static_cast<esv::Character*>(attackerStats->Character);
-		}
-
-		// TODO - allow disabling SimulateHit & not call the original func?
-		helper->SimulateHit = true;
-		helper->HitType = hitType;
-		helper->NoHitRoll = noHitRoll;
-		helper->ProcWindWalker = procWindWalker;
-		helper->HighGround = highGround;
-		helper->CriticalRoll = criticalRoll;
-		helper->ForceReduceDurability = (bool)forceReduceDurability;
-		helper->SetExternalDamageInfo(damageInfo, damageList);
-
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, self->GetGuid()->Str });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 		eventArgs->Add(OsiArgumentValue{ (int32_t)totalDamage });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)helper->Handle.Handle });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)helper.Handle.Handle });
 
 		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitPrepareEventHandle, eventArgs);
 
 		delete eventArgs;
-
-		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->NoHitRoll,
-			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround, 
-			helper->ProcWindWalker, helper->CriticalRoll);
-
-		gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
-	}
-
-	void CustomFunctionLibrary::OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character * self,
-		CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
-		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
-		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
-	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua) {
-			if (lua->ComputeCharacterHit(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
-				skillProperties, highGroundFlag, criticalRoll)) {
-				return;
-			}
-		}
-
-		next(self, attackerStats, item, damageList, hitType, noHitRoll, forceReduceDurability, damageInfo,
-			skillProperties, highGroundFlag, criticalRoll);
 	}
 
 
-	void CustomFunctionLibrary::OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit,
-		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
+	void CustomFunctionLibrary::ThrowApplyStatus(esv::StatusMachine * self, esv::Status * status)
 	{
-		HitDamageInfo luaHit = hit;
-
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua) {
-			if (lua->OnCharacterApplyDamage(self, luaHit, ObjectHandle(attackerHandle), causeType, impactDirection)) {
-				return;
-			}
-		}
-
-		next(self, luaHit, attackerHandle, causeType, impactDirection);
-	}
-
-	void CustomFunctionLibrary::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine * self, esv::Status * status)
-	{
-		// Don't throw events for inactive status machines, as those will get swallowed
-		// by Osiris during loading anyway.
-		if (!self->IsStatusMachineActive) {
-			wrappedApply(self, status);
-			return;
-		}
-
 		char const * targetGuid{ nullptr };
 		auto target = GetEntityWorld()->GetGameObject(self->OwnerObjectHandle);
 		if (target != nullptr) {
@@ -768,48 +703,26 @@ namespace dse::esv
 			OsiErrorS("Can't throw ApplyStatus event - target handle could not be resolved.");
 		}
 
-		bool eventThrown{ false };
-		if (targetGuid != nullptr) {
-			char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-			if (status->StatusSourceHandle) {
-				auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
-				if (source != nullptr) {
-					sourceGuid = source->GetGuid()->Str;
-				}
-			}
-
-			auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, targetGuid });
-			eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
-			eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-			eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-
-			ExtensionState::Get().PendingStatuses.Add(status);
-			eventThrown = true;
-			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
-
-			delete eventArgs;
+		if (targetGuid == nullptr) {
+			return;
 		}
 
-		bool previousPreventApplyState = self->PreventStatusApply;
-		if (eventThrown) {
-			ObjectHandle targetHandle;
-			target->GetObjectHandle(targetHandle);
-
-			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(targetHandle, status->StatusHandle);
-			if (pendingStatus != nullptr) {
-				self->PreventStatusApply = pendingStatus->PreventApply;
-			} else {
-				OsiErrorS("Status not found in pending status list during ApplyStatus ?!");
+		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
+		if (status->StatusSourceHandle) {
+			auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
+			if (source != nullptr) {
+				sourceGuid = source->GetGuid()->Str;
 			}
 		}
 
-		wrappedApply(self, status);
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, targetGuid });
+		eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
+		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 
-		self->PreventStatusApply = previousPreventApplyState;
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
 
-		if (eventThrown) {
-			ExtensionState::Get().PendingStatuses.Remove(status);
-		}
+		delete eventArgs;
 	}
 
 	void CustomFunctionLibrary::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
@@ -857,20 +770,6 @@ namespace dse::esv
 		}
 
 		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
-	}
-
-	void CustomFunctionLibrary::OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype * self, DamagePairList * damageList,
-		CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
-		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
-	{
-		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
-		if (lua) {
-			if (lua->GetSkillDamage(self, damageList, attackerStats, isFromItem, stealthed, attackerPosition, targetPosition, pDeathType, level, noRandomization)) {
-				return;
-			}
-		}
-
-		next(self, damageList, attackerStats, isFromItem, stealthed, attackerPosition, targetPosition, pDeathType, level, noRandomization);
 	}
 
 	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype,
