@@ -249,8 +249,8 @@ namespace dse
 			char Invoked_M;
 			char field_99;
 			uint8_t _Pad1[6];
-			ObjectSet<FlashInvoke *> QueuedInvokes; // <FlashInvoke *>
-			ObjectSet<FlashInvoke *> Invokes2; // <FlashInvoke *>
+			ObjectSet<FlashInvoke *> QueuedInvokes;
+			ObjectSet<FlashInvoke *> Invokes2;
 			ObjectSet<InvokeDataValue> InvokeValues;
 			ObjectSet<FlashPlayer *> FlashPlayers;
 			__int64 field_120;

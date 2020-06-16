@@ -259,15 +259,16 @@ function TableToFlash(ui, name, tbl)
 end
 
 --- @param ui UIObject Tooltip UI object
+--- @param propertyName string Flash property name (tooltip_array, tooltipCompare_array, etc.)
 --- @param tooltipArray table Tooltip array
 --- @param originalTooltipArray table Unmodified tooltip array
-function ReplaceTooltipArray(ui, tooltipArray, originalTooltipArray)
-    TableToFlash(ui, "tooltip_array", tooltipArray)
+function ReplaceTooltipArray(ui, propertyName, tooltipArray, originalTooltipArray)
+    TableToFlash(ui, propertyName, tooltipArray)
 
     if #tooltipArray < #originalTooltipArray then
         -- Pad out the tooltip array with dummy values
         for i=#tooltipArray,#originalTooltipArray do
-            ui:SetValue("tooltip_array", TooltipItemTypes.IsQuestItem, i)
+            ui:SetValue(propertyName, TooltipItemTypes.IsQuestItem, i)
         end
     end
 end
@@ -690,7 +691,21 @@ function TooltipHooks:OnRenderTooltip(ui, method, ...)
         return
     end
 
-    local tt = TableFromFlash(ui, "tooltip_array")
+    self:OnRenderSubTooltip(ui, "tooltip_array", method, ...)
+
+    if ui:GetValue("tooltipCompare_array", nil, 0) ~= nil then
+        self:OnRenderSubTooltip(ui, "tooltipCompare_array", method, ...)
+    end
+
+    if ui:GetValue("tooltipOffHand_array", nil, 0) ~= nil then
+        self:OnRenderSubTooltip(ui, "tooltipOffHand_array", method, ...)
+    end
+
+    self.NextRequest = nil
+end
+
+function TooltipHooks:OnRenderSubTooltip(ui, propertyName, method, ...)
+    local tt = TableFromFlash(ui, propertyName)
     local params = ParseTooltipArray(tt)
     local req = self.NextRequest
     if params ~= nil then
@@ -713,11 +728,9 @@ function TooltipHooks:OnRenderTooltip(ui, method, ...)
 
         newTooltip = EncodeTooltipArray(tooltip.Data)
         if newTooltip ~= nil then
-            ReplaceTooltipArray(ui, newTooltip, tt)
+            ReplaceTooltipArray(ui, propertyName, newTooltip, tt)
         end
     end
-
-    self.NextRequest = nil
 end
 
 function TooltipHooks:NotifyListeners(type, name, request, tooltip, ...)
