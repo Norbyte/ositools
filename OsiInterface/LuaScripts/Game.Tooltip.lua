@@ -14,7 +14,24 @@ if setfenv ~= nil then
     setfenv(1, Game.Tooltip)
 end
 
-TooltipItemIds = {"ItemName","ItemWeight","ItemGoldValue","ItemLevel","ItemDescription","ItemRarity","ItemUseAPCost","ItemAttackAPCost","StatBoost","ResistanceBoost","AbilityBoost","OtherStatBoost","VitalityBoost","ChanceToHitBoost","DamageBoost","APCostBoost","APMaximumBoost","APStartBoost","APRecoveryBoost","CritChanceBoost","ArmorBoost","ConsumableDuration","ConsumablePermanentDuration","ConsumableEffect","ConsumableDamage","ExtraProperties","Flags","ItemRequirement","WeaponDamage","WeaponDamagePenalty","WeaponCritMultiplier","WeaponCritChance","WeaponRange","Durability","CanBackstab","AccuracyBoost","DodgeBoost","EquipmentUnlockedSkill","WandSkill","WandCharges","ArmorValue","ArmorSlotType","Blocking","NeedsIdentifyLevel","IsQuestItem","PriceToIdentify","PriceToRepair","PickpocketInfo","Engraving","ContainerIsLocked","SkillName","SkillIcon","SkillSchool","SkillTier","SkillRequiredEquipment","SkillAPCost","SkillCooldown","SkillDescription","SkillProperties","SkillDamage","SkillRange","SkillExplodeRadius","SkillCanPierce","SkillCanFork","SkillStrikeCount","SkillProjectileCount","SkillCleansesStatus","SkillMultiStrikeAttacks","SkillWallDistance","SkillPathSurface","SkillPathDistance","SkillHealAmount","SkillDuration","ConsumableEffectUknown","Reflection","SkillAlreadyLearned","SkillOnCooldown","SkillAlreadyUsed","AbilityTitle","AbilityDescription","TalentTitle","TalentDescription","SkillMPCost","MagicArmorValue","WarningText","RuneSlot","RuneEffect","Equipped","ShowSkillIcon","SkillbookSkill","Tags","EmptyRuneSlot","StatName","StatsDescription","StatsDescriptionBoost","StatSTRWeight","StatMEMSlot","StatsPointValue","StatsTalentsBoost","StatsTalentsMalus","StatsBaseValue","StatsPercentageBoost","StatsPercentageMalus","StatsPercentageTotal","StatsGearBoostNormal","StatsATKAPCost","StatsCriticalInfos","StatsAPTitle","StatsAPDesc","StatsAPBase","StatsAPBonus","StatsAPMalus","StatsTotalDamage","TagDescription","StatusImmunity","StatusBonus","StatusMalus","StatusDescription"}
+TooltipItemIds = {
+    "ItemName","ItemWeight","ItemGoldValue","ItemLevel","ItemDescription","ItemRarity","ItemUseAPCost","ItemAttackAPCost","StatBoost",
+    "ResistanceBoost","AbilityBoost","OtherStatBoost","VitalityBoost","ChanceToHitBoost","DamageBoost","APCostBoost","APMaximumBoost",
+    "APStartBoost","APRecoveryBoost","CritChanceBoost","ArmorBoost","ConsumableDuration","ConsumablePermanentDuration","ConsumableEffect",
+    "ConsumableDamage","ExtraProperties","Flags","ItemRequirement","WeaponDamage","WeaponDamagePenalty","WeaponCritMultiplier","WeaponCritChance",
+    "WeaponRange","Durability","CanBackstab","AccuracyBoost","DodgeBoost","EquipmentUnlockedSkill","WandSkill","WandCharges","ArmorValue",
+    "ArmorSlotType","Blocking","NeedsIdentifyLevel","IsQuestItem","PriceToIdentify","PriceToRepair","PickpocketInfo","Engraving",
+    "ContainerIsLocked","SkillName","SkillIcon","SkillSchool","SkillTier","SkillRequiredEquipment","SkillAPCost","SkillCooldown",
+    "SkillDescription","SkillProperties","SkillDamage","SkillRange","SkillExplodeRadius","SkillCanPierce","SkillCanFork","SkillStrikeCount",
+    "SkillProjectileCount","SkillCleansesStatus","SkillMultiStrikeAttacks","SkillWallDistance","SkillPathSurface","SkillPathDistance",
+    "SkillHealAmount","SkillDuration","ConsumableEffectUknown","Reflection","SkillAlreadyLearned","SkillOnCooldown","SkillAlreadyUsed",
+    "AbilityTitle","AbilityDescription","TalentTitle","TalentDescription","SkillMPCost","MagicArmorValue","WarningText","RuneSlot",
+    "RuneEffect","Equipped","ShowSkillIcon","SkillbookSkill","Tags","EmptyRuneSlot","StatName","StatsDescription","StatsDescriptionBoost",
+    "StatSTRWeight","StatMEMSlot","StatsPointValue","StatsTalentsBoost","StatsTalentsMalus","StatsBaseValue","StatsPercentageBoost",
+    "StatsPercentageMalus","StatsPercentageTotal","StatsGearBoostNormal","StatsATKAPCost","StatsCriticalInfos","StatsAPTitle","StatsAPDesc",
+    "StatsAPBase","StatsAPBonus","StatsAPMalus","StatsTotalDamage","TagDescription","StatusImmunity","StatusBonus","StatusMalus","StatusDescription",
+    "Title","SurfaceDescription","Duration","Fire","Water","Earth","Air","Poison","Physical","Sulfur","Heal","Splitter","ArmorSet"
+}
 TooltipItemTypes = {}
 
 for i,type in pairs(TooltipItemIds) do
@@ -154,6 +171,21 @@ TooltipSpecs = {
     StatusBonus = {_Label},
     StatusMalus = {_Label},
     StatusDescription = {_Label},
+
+    Title = {_Label},
+    SurfaceDescription = {_Label},
+    Duration = {_Label},
+
+    Fire = {_Label},
+    Water = {_Label},
+    Earth = {_Label},
+    Air = {_Label},
+    Poison = {_Label},
+    Physical = {_Label},
+    Sulfur = {_Label},
+    Heal = {_Label},
+
+    Splitter = {}
 }
 
 TooltipStatAttributes = {
@@ -294,6 +326,44 @@ function ParseTooltipSkillProperties(tt, index)
     return index, element
 end
 
+function ParseTooltipArmorSet(tt, index)
+    local element = {
+        Type = "ArmorSet",
+        Skills = {},
+        Skills2 = {}
+    }
+
+    element.SetName = tt[index]
+    element.FoundPieces = tt[index + 1]
+    element.TotalPieces = tt[index + 2]
+    element.SetDescription = tt[index + 3]
+    local numStatuses = tt[index + 4]
+    index = index + 5
+
+    for i=1,numStatuses do
+        local prop = {
+            Label = tt[index],
+            IconIndex = tt[index + 1]
+        }
+        index = index + 2
+        table.insert(element.GrantedStatuses, prop)
+    end
+    
+    local numStatuses2 = tt[index]
+    index = index + 1
+
+    for i=1,numStatuses2 do
+        local resist = {
+            Label = tt[index],
+            IconIndex = tt[index + 1]
+        }
+        index = index + 2
+        table.insert(element.GrantedStatuses2, resist)
+    end
+
+    return index, element
+end
+
 --- @param tt table Flash tooltip array
 --- @return table
 function ParseTooltipArray(tt)
@@ -313,6 +383,8 @@ function ParseTooltipArray(tt)
         local typeName = TooltipItemIds[id]
         if typeName == "SkillProperties" then
             index, element = ParseTooltipSkillProperties(tt, index)
+        elseif typeName == "ArmorSet" then
+            index, element = ParseTooltipArmorSet(tt, index)
         else
             local spec = TooltipSpecs[typeName]
             if spec == nil then
@@ -377,6 +449,28 @@ function EncodeTooltipSkillProperties(tt, element)
     end
 end
 
+function EncodeTooltipArmorSet(tt, element)
+    local statuses = element.GrantedStatuses or {}
+    local statuses2 = element.GrantedStatuses2 or {}
+
+    table.insert(tt, element.SetName or "")
+    table.insert(tt, element.FoundPieces or 0)
+    table.insert(tt, element.TotalPieces or 0)
+    table.insert(tt, element.SetDescription or "")
+
+    table.insert(tt, #statuses)
+    for i,status in pairs(statuses) do
+        table.insert(tt, status.Label or "")
+        table.insert(tt, status.IconIndex or "")
+    end
+
+    table.insert(tt, #statuses2)
+    for i,status in pairs(statuses2) do
+        table.insert(tt, status.Label or "")
+        table.insert(tt, status.IconIndex or "")
+    end
+end
+
 --- @param tt table Flash tooltip array
 --- @return table
 function EncodeTooltipArray(elements)
@@ -389,6 +483,9 @@ function EncodeTooltipArray(elements)
             if element.Type == "SkillProperties" then
                 table.insert(tt, type)
                 EncodeTooltipSkillProperties(tt, element)
+            elseif element.Type == "ArmorSet" then
+                table.insert(tt, type)
+                EncodeTooltipArmorSet(tt, element)
             else
                 local spec = TooltipSpecs[element.Type]
                 if spec == nil then
