@@ -842,7 +842,7 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
     end
 
     if lifesteal > 0 then
-        hit.LifeSteal = math.max(math.ceil(lifesteal * attacker.Lifesteal / 100), 0)
+        hit.LifeSteal = math.max(math.ceil(lifesteal * attacker.LifeSteal / 100), 0)
     end
 end
 
