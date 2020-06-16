@@ -278,6 +278,9 @@ namespace dse {
 		enum class TurnManagerUpdateTurnOrderTag {};
 		PostHookableFunction<TurnManagerUpdateTurnOrderTag, void(esv::TurnManager * self, uint8_t combatId)> TurnManagerUpdateTurnOrderHook;
 
+		enum class UIObjectManagerCreateUIObjectHookTag {};
+		PostHookableFunction<UIObjectManagerCreateUIObjectHookTag, ObjectHandle* (UIObjectManager*, ObjectHandle*, unsigned int, unsigned int, int, uint64_t, uint16_t)> UIObjectManagerCreateUIObjectHook;
+
 	private:
 
 		void MapAllSymbols(bool deferred);

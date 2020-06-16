@@ -9,6 +9,7 @@ Ext._Listeners = {
 	StatusGetDescriptionParam = {},
 	GetSkillDamage = {},
 	GetHitChance = {},
+	UIObjectCreated = {},
 	UIInvoke = {},
 	UICall = {}
 }
@@ -76,12 +77,16 @@ Ext.EnableStatOverride = function ()
 	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
 end
 
+Ext._UIObjectCreated = function (uiObject)
+	Ext._Notify("UIObjectCreated", uiObject)
+end
+
 Ext._UIExternalInterfaceHandleListeners = {}
 Ext._UIExternalInterfaceTypeListeners = {}
 Ext._UIExternalInterfaceNameListeners = {}
 
-Ext.RegisterUICall = function (object, call, fn)
-	local handle = object:GetHandle()
+Ext.RegisterUICall = function (uiObject, call, fn)
+	local handle = uiObject:GetHandle()
 	if Ext._UIExternalInterfaceHandleListeners[handle] == nil then
 		Ext._UIExternalInterfaceHandleListeners[handle] = {}
 	end
@@ -91,7 +96,7 @@ Ext.RegisterUICall = function (object, call, fn)
 	end
 	
 	table.insert(Ext._UIExternalInterfaceHandleListeners[handle][call], fn)
-	object:CaptureExternalInterfaceCalls()
+	uiObject:CaptureExternalInterfaceCalls()
 end
 
 Ext.RegisterUITypeCall = function (typeId, call, fn)
@@ -114,21 +119,21 @@ Ext.RegisterUINameCall = function (call, fn)
 	table.insert(Ext._UIExternalInterfaceNameListeners[call], fn)
 end
 
-Ext._UICall = function (object, call, ...)
-    local listeners = Ext._UIExternalInterfaceHandleListeners[object:GetHandle()]
+Ext._UICall = function (uiObject, call, ...)
+    local listeners = Ext._UIExternalInterfaceHandleListeners[uiObject:GetHandle()]
 	if listeners ~= nil and listeners[call] ~= nil then
 		for i,callback in pairs(listeners[call]) do
-			local status, err = xpcall(callback, debug.traceback, object, call, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
 			if not status then
 				Ext.PrintError("Error in UI ExternalInterface handler for '" .. call .. "': ", err)
 			end
 		end
 	end
 
-    local listeners = Ext._UIExternalInterfaceTypeListeners[object:GetTypeId()]
+    local listeners = Ext._UIExternalInterfaceTypeListeners[uiObject:GetTypeId()]
 	if listeners ~= nil and listeners[call] ~= nil then
 		for i,callback in pairs(listeners[call]) do
-			local status, err = xpcall(callback, debug.traceback, object, call, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
 			if not status then
 				Ext.PrintError("Error in UI ExternalInterface handler for '" .. call .. "': ", err)
 			end
@@ -138,7 +143,7 @@ Ext._UICall = function (object, call, ...)
     local listeners = Ext._UIExternalInterfaceNameListeners[call]
 	if listeners ~= nil then
 		for i,callback in pairs(listeners) do
-			local status, err = xpcall(callback, debug.traceback, object, call, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
 			if not status then
 				Ext.PrintError("Error in UI ExternalInterface handler for '" .. call .. "': ", err)
 			end
@@ -152,8 +157,8 @@ Ext._UIInvokeHandleListeners = {}
 Ext._UIInvokeTypeListeners = {}
 Ext._UIInvokeNameListeners = {}
 
-Ext.RegisterUIInvokeListener = function (object, method, fn)
-	local handle = object:GetHandle()
+Ext.RegisterUIInvokeListener = function (uiObject, method, fn)
+	local handle = uiObject:GetHandle()
 	if Ext._UIInvokeHandleListeners[handle] == nil then
 		Ext._UIInvokeHandleListeners[handle] = {}
 	end
@@ -163,7 +168,7 @@ Ext.RegisterUIInvokeListener = function (object, method, fn)
 	end
 	
 	table.insert(Ext._UIInvokeHandleListeners[handle][method], fn)
-	object:CaptureInvokes()
+	uiObject:CaptureInvokes()
 end
 
 Ext.RegisterUITypeInvokeListener = function (typeId, method, fn)
@@ -186,21 +191,21 @@ Ext.RegisterUINameInvokeListener = function (method, fn)
 	table.insert(Ext._UIInvokeNameListeners[method], fn)
 end
 
-Ext._UIInvoke = function (object, method, ...)
-    local listenersByHandle = Ext._UIInvokeHandleListeners[object:GetHandle()]
+Ext._UIInvoke = function (uiObject, method, ...)
+    local listenersByHandle = Ext._UIInvokeHandleListeners[uiObject:GetHandle()]
 	if listenersByHandle ~= nil and listenersByHandle[method] ~= nil then
 		for i,callback in pairs(listenersByHandle[method]) do
-			local status, err = xpcall(callback, debug.traceback, object, method, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
 			if not status then
 				Ext.PrintError("Error in UI Invoke listener for '" .. method .. "': ", err)
 			end
 		end
 	end
 
-    local listenersByType = Ext._UIInvokeTypeListeners[object:GetTypeId()]
+    local listenersByType = Ext._UIInvokeTypeListeners[uiObject:GetTypeId()]
 	if listenersByType ~= nil and listenersByType[method] ~= nil then
 		for i,callback in pairs(listenersByType[method]) do
-			local status, err = xpcall(callback, debug.traceback, object, method, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
 			if not status then
 				Ext.PrintError("Error in UI Invoke listener for '" .. method .. "': ", err)
 			end
@@ -210,7 +215,7 @@ Ext._UIInvoke = function (object, method, ...)
     local listenersByName = Ext._UIInvokeNameListeners[method]
 	if listenersByName ~= nil then
 		for i,callback in pairs(listenersByName) do
-			local status, err = xpcall(callback, debug.traceback, object, method, ...)
+			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
 			if not status then
 				Ext.PrintError("Error in UI Invoke listener for '" .. method .. "': ", err)
 			end

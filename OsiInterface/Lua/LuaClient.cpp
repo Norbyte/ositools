@@ -1155,7 +1155,7 @@ namespace dse::ecl::lua
 			return 0;
 		}
 
-		pin->OnClientUIObjectCreated(name, handle);
+		pin->OnCustomClientUIObjectCreated(name, handle);
 		UIObjectProxy::New(L, handle);
 		return 1;
 	}
@@ -1326,6 +1326,16 @@ namespace dse::ecl::lua
 		}
 	}
 
+	void ClientState::OnCreateUIObject(ObjectHandle uiObjectHandle)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_UIObjectCreated");
+		UIObjectProxy::New(L, uiObjectHandle);
+		CheckedCall<>(L, 1, "Ext.UIObjectCreated");
+	}
+
 	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
 	{
 		std::lock_guard lock(mutex_);
@@ -1429,7 +1439,7 @@ namespace dse::ecl::lua
 	}
 
 
-	void ClientState::OnClientUIObjectCreated(char const * name, ObjectHandle handle)
+	void ClientState::OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle)
 	{
 		clientUI_.insert(std::make_pair(name, handle));
 	}
@@ -1494,9 +1504,6 @@ namespace dse::ecl
 				|| *gameState == GameState::Running
 				|| *gameState == GameState::GameMasterPause)) {
 			lua->OnModuleResume();
-			OsiWarn("Client resume -- state " << (unsigned)*gameState);
-		} else {
-			OsiWarn("Client NO resume -- state " << (unsigned)*gameState);
 		}
 	}
 

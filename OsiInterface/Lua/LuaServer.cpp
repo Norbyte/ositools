@@ -1429,9 +1429,6 @@ namespace dse::esv
 				|| *gameState == esv::GameState::Running
 				|| *gameState == esv::GameState::GameMasterPause)) {
 			lua->OnModuleResume();
-			OsiWarn("Server resume -- state " << (unsigned)*gameState);
-		} else {
-			OsiWarn("Server NO resume -- state " << (unsigned)*gameState);
 		}
 	}
 

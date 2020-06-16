@@ -797,6 +797,16 @@ namespace dse::esv
 	}
 
 
+	void CustomFunctionLibrary::OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex,
+		unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result)
+	{
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+		if (lua) {
+			lua->OnCreateUIObject(*result);
+		}
+	}
+
+
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();

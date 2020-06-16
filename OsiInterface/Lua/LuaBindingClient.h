@@ -85,6 +85,7 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
+		void OnCreateUIObject(ObjectHandle handle);
 		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
 		void OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
@@ -92,7 +93,7 @@ namespace dse::ecl::lua
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
 			CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
 
-		void OnClientUIObjectCreated(char const * name, ObjectHandle handle);
+		void OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle);
 		UIObject * GetUIObject(char const * name);
 
 	private:

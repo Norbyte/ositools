@@ -244,6 +244,9 @@ namespace dse::esv
 		osiris_.GetLibraryManager().TurnManagerUpdateTurnOrderHook.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnUpdateTurnOrder, this, _1, _2)
 		);
+		osiris_.GetLibraryManager().UIObjectManagerCreateUIObjectHook.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
+		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 		);

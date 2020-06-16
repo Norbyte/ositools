@@ -12,6 +12,7 @@
 namespace dse
 {
 	class OsirisProxy;
+	struct UIObjectManager;
 }
 
 namespace dse::esv
@@ -53,6 +54,8 @@ namespace dse::esv
 			CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+		void OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex, unsigned int creatorId, int flags, 
+			uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result);
 
 		void ThrowStatusHitEnter(esv::Status* status);
 		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,

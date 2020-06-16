@@ -565,6 +565,11 @@ function TooltipHooks:Init()
         self:OnRequestExamineUITooltip(...)
     end)
 
+    Ext.RegisterListener("UIObjectCreated", function (ui)
+        ui:CaptureExternalInterfaceCalls()
+        ui:CaptureInvokes()
+    end)
+
     self.Initialized = true
 end
 

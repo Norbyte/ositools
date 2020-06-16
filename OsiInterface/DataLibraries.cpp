@@ -24,6 +24,7 @@ namespace dse
 	decltype(LibraryManager::SkillPrototypeGetSkillDamageHook) * decltype(LibraryManager::SkillPrototypeGetSkillDamageHook)::gHook;
 	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
 	decltype(LibraryManager::TurnManagerUpdateTurnOrderHook) * decltype(LibraryManager::TurnManagerUpdateTurnOrderHook)::gHook;
+	decltype(LibraryManager::UIObjectManagerCreateUIObjectHook) * decltype(LibraryManager::UIObjectManagerCreateUIObjectHook)::gHook;
 
 	uint8_t CharToByte(char c)
 	{
@@ -423,60 +424,66 @@ namespace dse
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
 
-			if (GetStaticSymbols().StatusHitVMT != nullptr) {
-				StatusHitEnter.Wrap(GetStaticSymbols().StatusHitVMT->Enter);
+			auto& sym = GetStaticSymbols();
+
+			if (sym.StatusHitVMT != nullptr) {
+				StatusHitEnter.Wrap(sym.StatusHitVMT->Enter);
 			}
 
-			if (GetStaticSymbols().StatusHealVMT != nullptr) {
-				StatusHealEnter.Wrap(GetStaticSymbols().StatusHealVMT->Enter);
-				StatusGetEnterChance.Wrap(GetStaticSymbols().StatusHealVMT->GetEnterChance);
+			if (sym.StatusHealVMT != nullptr) {
+				StatusHealEnter.Wrap(sym.StatusHealVMT->Enter);
+				StatusGetEnterChance.Wrap(sym.StatusHealVMT->GetEnterChance);
 			}
 
-			if (GetStaticSymbols().CharacterHit != nullptr) {
-				CharacterHitHook.Wrap(GetStaticSymbols().CharacterHit);
+			if (sym.CharacterHit != nullptr) {
+				CharacterHitHook.Wrap(sym.CharacterHit);
 			}
 
-			if (GetStaticSymbols().CharacterHitInternal != nullptr) {
-				CharacterHitInternalHook.Wrap(GetStaticSymbols().CharacterHitInternal);
+			if (sym.CharacterHitInternal != nullptr) {
+				CharacterHitInternalHook.Wrap(sym.CharacterHitInternal);
 			}
 
-			if (GetStaticSymbols().esv__Character__ApplyDamage != nullptr) {
-				CharacterApplyDamageHook.Wrap(GetStaticSymbols().esv__Character__ApplyDamage);
+			if (sym.esv__Character__ApplyDamage != nullptr) {
+				CharacterApplyDamageHook.Wrap(sym.esv__Character__ApplyDamage);
 			}
 
-			if (GetStaticSymbols().StatusMachineApplyStatus != nullptr) {
-				ApplyStatusHook.Wrap(GetStaticSymbols().StatusMachineApplyStatus);
+			if (sym.StatusMachineApplyStatus != nullptr) {
+				ApplyStatusHook.Wrap(sym.StatusMachineApplyStatus);
 			}
 
-			if (GetStaticSymbols().EsvActionMachine__SetState != nullptr) {
-				ActionMachineSetStateHook.Wrap(GetStaticSymbols().EsvActionMachine__SetState);
+			if (sym.EsvActionMachine__SetState != nullptr) {
+				ActionMachineSetStateHook.Wrap(sym.EsvActionMachine__SetState);
 			}
 
-			if (GetStaticSymbols().SkillPrototypeFormatDescriptionParam != nullptr) {
-				SkillPrototypeFormatDescriptionParamHook.Wrap(GetStaticSymbols().SkillPrototypeFormatDescriptionParam);
+			if (sym.SkillPrototypeFormatDescriptionParam != nullptr) {
+				SkillPrototypeFormatDescriptionParamHook.Wrap(sym.SkillPrototypeFormatDescriptionParam);
 			}
 
-			if (GetStaticSymbols().SkillPrototypeGetSkillDamage != nullptr) {
-				SkillPrototypeGetSkillDamageHook.Wrap(GetStaticSymbols().SkillPrototypeGetSkillDamage);
+			if (sym.SkillPrototypeGetSkillDamage != nullptr) {
+				SkillPrototypeGetSkillDamageHook.Wrap(sym.SkillPrototypeGetSkillDamage);
 			}
 
-			if (GetStaticSymbols().StatusPrototypeFormatDescriptionParam != nullptr) {
-				StatusPrototypeFormatDescriptionParamHook.Wrap(GetStaticSymbols().StatusPrototypeFormatDescriptionParam);
+			if (sym.StatusPrototypeFormatDescriptionParam != nullptr) {
+				StatusPrototypeFormatDescriptionParamHook.Wrap(sym.StatusPrototypeFormatDescriptionParam);
 			}
 
-			if (GetStaticSymbols().TurnManagerUpdateTurnOrder != nullptr) {
-				TurnManagerUpdateTurnOrderHook.Wrap(GetStaticSymbols().TurnManagerUpdateTurnOrder);
+			if (sym.TurnManagerUpdateTurnOrder != nullptr) {
+				TurnManagerUpdateTurnOrderHook.Wrap(sym.TurnManagerUpdateTurnOrder);
 			}
 
-			GetStaticSymbols().CharStatsGetters.WrapAll();
+			if (sym.UIObjectManager__CreateUIObject != nullptr) {
+				UIObjectManagerCreateUIObjectHook.Wrap(sym.UIObjectManager__CreateUIObject);
+			}
+
+			sym.CharStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
 
 			// Temporary workaround for crash when GetMaxMP is wrapped
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
-			if (GetStaticSymbols().CharStatsGetters.GetMaxMp != nullptr) {
-				GetStaticSymbols().CharStatsGetters.WrapperMaxMp.Unwrap();
+			if (sym.CharStatsGetters.GetMaxMp != nullptr) {
+				sym.CharStatsGetters.WrapperMaxMp.Unwrap();
 			}
 			DetourTransactionCommit();
 		}
@@ -506,6 +513,7 @@ namespace dse
 		SkillPrototypeGetSkillDamageHook.Unwrap();
 		StatusPrototypeFormatDescriptionParamHook.Unwrap();
 		TurnManagerUpdateTurnOrderHook.Unwrap();
+		UIObjectManagerCreateUIObjectHook.Unwrap();
 
 		DetourTransactionCommit();
 	}
