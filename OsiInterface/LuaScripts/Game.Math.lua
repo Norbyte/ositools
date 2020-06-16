@@ -1007,7 +1007,7 @@ end
 function IsInFlankingPosition(target, attacker)
     local tPos = target.Position
     local aPos = attacker.Position
-    local rot = target.Rotation
+    local rotation = target.Rotation
 
     local dx, dy, dz = tPos[1] - aPos[1], tPos[2] - aPos[2], tPos[3] - aPos[3]
     local distanceSq = 1.0 / math.sqrt(dx^2 + dy^2 + dz^2)
