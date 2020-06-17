@@ -1145,6 +1145,49 @@ namespace dse::esv::lua
 		}
 	}
 
+	void PushPendingHit(lua_State* L, PendingHit const& hit)
+	{
+		lua_newtable(L);
+		if (hit.CapturedCharacterHit) {
+			ObjectProxy<CDivinityStats_Item>::New(L, hit.WeaponStats);
+			lua_setfield(L, -2, "Weapon");
+			PushHit(L, hit.CharacterHit);
+			lua_setfield(L, -2, "Hit");
+			setfield(L, "HitType", hit.HitType);
+			setfield(L, "NoHitRoll", hit.NoHitRoll);
+			setfield(L, "ProcWindWalker", hit.ProcWindWalker);
+			setfield(L, "ForceReduceDurability", hit.ForceReduceDurability);
+			setfield(L, "HighGround", hit.HighGround);
+			setfield(L, "CriticalRoll", hit.CriticalRoll);
+		}
+
+		if (hit.Status) {
+			StatusHandleProxy::New(L, hit.Status->TargetHandle, hit.Status->StatusHandle);
+			lua_setfield(L, -2, "HitStatus");
+		}
+	}
+
+	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictOsiris);
+
+		PushExtFunction(L, "_StatusHitEnter"); // stack: fn
+
+		StatusHandleProxy::New(L, hit->TargetHandle, hit->StatusHandle);
+
+		if (context) {
+			PushPendingHit(L, *context);
+		} else {
+			lua_newtable(L);
+		}
+
+		if (CallWithTraceback(L, 2, 1) != 0) { // stack: succeeded
+			OsiError("StatusHitEnter handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
 	bool ServerState::ComputeCharacterHit(CDivinityStats_Character * target,
 		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList,
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
@@ -1237,7 +1280,7 @@ namespace dse::esv::lua
 	}
 
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
-			CauseType causeType, glm::vec3& impactDirection)
+			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
 		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
@@ -1269,7 +1312,13 @@ namespace dse::esv::lua
 		push(L, causeType);
 		push(L, impactDirection); // stack: fn, target, attacker, hit, causeType, impactDirection
 
-		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
+		if (context) {
+			PushPendingHit(L, *context);
+		} else {
+			lua_newtable(L);
+		}
+
+		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
 			OsiError("BeforeCharacterApplyDamage handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;

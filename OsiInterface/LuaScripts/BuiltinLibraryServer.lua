@@ -10,6 +10,7 @@ Ext._Listeners = {
 	CalculateTurnOrder = {},
 	GetHitChance = {},
 	StatusGetEnterChance = {},
+	StatusHitEnter = {},
 	BeforeCharacterApplyDamage = {}
 }
 
@@ -36,6 +37,10 @@ end
 
 Ext._StatusGetEnterChance = function (...)
     return Ext._EngineCallback1("StatusGetEnterChance", ...)
+end
+
+Ext._StatusHitEnter = function (...)
+    return Ext._EngineCallback1("StatusHitEnter", ...)
 end
 
 Ext.RegisterListener = function (type, fn)
@@ -81,9 +86,9 @@ Ext._RestoreModPersistentVars = function (modTable, vars)
 	end
 end
 
-Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, impactDirection)
+Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, impactDirection, context)
     for i,callback in pairs(Ext._Listeners.BeforeCharacterApplyDamage) do
-        local status, result = xpcall(callback, debug.traceback, target, attacker, hit, causeType, impactDirection)
+        local status, result = xpcall(callback, debug.traceback, target, attacker, hit, causeType, impactDirection, context)
         if not status then
             Ext.PrintError("Error during BeforeCharacterApplyDamage: ", result)
         end

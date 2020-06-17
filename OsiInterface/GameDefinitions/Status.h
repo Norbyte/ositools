@@ -41,6 +41,7 @@ namespace dse
 		void ClearDamage();
 		void ClearDamage(dse::DamageType damageType);
 		void AddDamage(dse::DamageType damageType, int32_t amount);
+		void CopyFrom(HitDamageInfo const& src);
 	};
 
 	namespace esv
@@ -149,6 +150,8 @@ namespace dse
 
 		struct StatusHit : public Status
 		{
+			typedef void (*Setup)(StatusHit* self, HitDamageInfo* hit);
+
 			uint32_t Unk2;
 			uint8_t Unk3;
 			uint8_t _Pad4[3];

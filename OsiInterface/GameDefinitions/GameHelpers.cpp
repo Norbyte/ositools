@@ -553,6 +553,21 @@ namespace dse
 		DamageList.AddDamage(damageType, amount);
 	}
 
+	void HitDamageInfo::CopyFrom(HitDamageInfo const& src)
+	{
+		Equipment = src.Equipment;
+		TotalDamage = src.TotalDamage;
+		DamageDealt = src.DamageDealt;
+		DeathType = src.DeathType;
+		DamageType = src.DamageType;
+		AttackDirection = src.AttackDirection;
+		ArmorAbsorption = src.ArmorAbsorption;
+		LifeSteal = src.LifeSteal;
+		EffectFlags = src.EffectFlags;
+		HitWithWeapon = src.HitWithWeapon;
+		DamageList.CopyFrom(src.DamageList);
+	}
+
 
 	void DamagePairList::ClearDamage(dse::DamageType damageType)
 	{

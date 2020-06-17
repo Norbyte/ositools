@@ -15,6 +15,7 @@
 #include "NetProtocol.h"
 #include <GameDefinitions/Symbols.h>
 #include <GlobalFixedStrings.h>
+#include <Hit.h>
 
 #include <thread>
 #include <mutex>
@@ -247,6 +248,7 @@ private:
 	NetworkFixedStringSynchronizer networkFixedStrings_;
 	SavegameSerializer savegameSerializer_;
 	StatLoadOrderHelper statLoadOrderHelper_;
+	esv::HitProxy hitProxy_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };

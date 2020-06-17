@@ -8,6 +8,11 @@
 #include <ExtensionHelpers.h>
 #include <OsirisHelpers.h>
 
+namespace dse::esv
+{
+	struct PendingHit;
+}
+
 namespace dse::esv::lua
 {
 	using namespace dse::lua;
@@ -388,12 +393,13 @@ namespace dse::esv::lua
 
 		std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool isEnterCheck);
 		bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+		void OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context);
 		bool ComputeCharacterHit(CDivinityStats_Character * self,
 			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
-			CauseType causeType, glm::vec3& impactDirection);
+			CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
 
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);

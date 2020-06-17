@@ -16,6 +16,57 @@ namespace dse
 
 namespace dse::esv
 {
+	struct PendingHit
+	{
+		uint32_t Id;
+		ObjectHandle TargetHandle;
+		ObjectHandle AttackerHandle;
+
+		// Properties captured during esv::Character::Hit
+		bool CapturedCharacterHit{ false };
+		CDivinityStats_Item* WeaponStats{ nullptr };
+		HitDamageInfo* CharacterHitPointer{ nullptr };
+		DamagePairList CharacterHitDamageList;
+		HitDamageInfo CharacterHit;
+		HitType HitType{ HitType::Melee };
+		bool NoHitRoll{ false };
+		bool ProcWindWalker{ false };
+		bool ForceReduceDurability{ false };
+		HighGroundBonus HighGround{ HighGroundBonus::Unknown };
+		CriticalRoll CriticalRoll{ CriticalRoll::Roll };
+
+		// Captured during esv::StatusHit::Setup
+		bool CapturedStatusSetup{ false };
+		bool CapturedStatusApply{ false };
+		StatusHit* Status{ nullptr };
+
+		// Captured during esv::StatusHit::Enter
+		bool CapturedStatusEnter{ false };
+	};
+
+	class PendingHitManager
+	{
+	public:
+		PendingHit* OnCharacterHit(esv::Character* character, CDivinityStats_Character* attacker,
+			CDivinityStats_Item* weapon, DamagePairList* damageList, HitType hitType, bool noHitRoll,
+			HitDamageInfo* damageInfo, int forceReduceDurability, HighGroundBonus highGround,
+			bool procWindWalker, CriticalRoll criticalRoll);
+		PendingHit* OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit);
+		PendingHit* OnApplyHit(esv::StatusMachine* self, esv::StatusHit* status);
+		PendingHit* OnStatusHitEnter(esv::StatusHit* status);
+		void OnStatusHitDestroy(esv::StatusHit* status);
+		PendingHit* OnCharacterApplyDamage(HitDamageInfo* hit);
+
+		void DeleteHit(PendingHit* hit);
+
+	private:
+		uint32_t nextHitId_{ 1 };
+		std::unordered_map<uint32_t, std::unique_ptr<PendingHit>> hits_;
+		std::unordered_map<HitDamageInfo*, PendingHit*> characterHitMap_;
+		std::unordered_map<StatusHit*, PendingHit*> hitStatusMap_;
+		std::unordered_map<HitDamageInfo*, PendingHit*> hitStatusDamageMap_;
+	};
+
 	class HitProxy
 	{
 	public:
@@ -23,7 +74,8 @@ namespace dse::esv
 
 		void PostStartup();
 
-		void OnStatusHitEnter(esv::Status* status);
+		void OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit);
+		void OnStatusHitEnter(esv::StatusHit* status);
 
 		void OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
 			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,

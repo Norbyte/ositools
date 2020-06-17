@@ -92,9 +92,9 @@ namespace dse::lua
 		return 1;
 	}
 
-	Json::Value JsonStringify(lua_State * L, int index, int depth);
+	Json::Value JsonStringify(lua_State * L, int index, int depth, bool stringifyInternalTypes);
 
-	Json::Value JsonStringifyObject(lua_State * L, int index, int depth)
+	Json::Value JsonStringifyObject(lua_State * L, int index, int depth, bool stringifyInternalTypes)
 	{
 		Json::Value arr(Json::objectValue);
 		lua_pushnil(L);
@@ -102,7 +102,7 @@ namespace dse::lua
 		if (index < 0) index--;
 
 		while (lua_next(L, index) != 0) {
-			Json::Value val(JsonStringify(L, -1, depth + 1));
+			Json::Value val(JsonStringify(L, -1, depth + 1, stringifyInternalTypes));
 
 			if (lua_type(L, -2) == LUA_TSTRING) {
 				auto key = lua_tostring(L, -2);
@@ -122,7 +122,7 @@ namespace dse::lua
 		return arr;
 	}
 
-	Json::Value JsonStringifyArray(lua_State * L, int index, int depth)
+	Json::Value JsonStringifyArray(lua_State * L, int index, int depth, bool stringifyInternalTypes)
 	{
 		Json::Value arr(Json::arrayValue);
 		lua_pushnil(L);
@@ -130,7 +130,7 @@ namespace dse::lua
 		if (index < 0) index--;
 
 		while (lua_next(L, index) != 0) {
-			arr.append(JsonStringify(L, -1, depth + 1));
+			arr.append(JsonStringify(L, -1, depth + 1, stringifyInternalTypes));
 			lua_pop(L, 1);
 		}
 
@@ -173,17 +173,17 @@ namespace dse::lua
 		return isArray;
 	}
 
-	Json::Value JsonStringifyTable(lua_State * L, int index, int depth)
+	Json::Value JsonStringifyTable(lua_State * L, int index, int depth, bool stringifyInternalTypes)
 	{
 		if (JsonCanStringifyAsArray(L, index)) {
-			return JsonStringifyArray(L, index, depth);
+			return JsonStringifyArray(L, index, depth, stringifyInternalTypes);
 		} else {
-			return JsonStringifyObject(L, index, depth);
+			return JsonStringifyObject(L, index, depth, stringifyInternalTypes);
 		}
 	}
 
 
-	Json::Value JsonStringify(lua_State * L, int index, int depth)
+	Json::Value JsonStringify(lua_State * L, int index, int depth, bool stringifyInternalTypes)
 	{
 		if (depth > 64) {
 			throw std::runtime_error("Recursion depth exceeded while stringifying JSON");
@@ -211,14 +211,22 @@ namespace dse::lua
 			return Json::Value(lua_tostring(L, index));
 
 		case LUA_TTABLE:
-			return JsonStringifyTable(L, index, depth);
+			return JsonStringifyTable(L, index, depth, stringifyInternalTypes);
 
 		case LUA_TLIGHTUSERDATA:
 		case LUA_TFUNCTION:
 		case LUA_TUSERDATA:
 		case LUA_TTHREAD:
+			if (stringifyInternalTypes) {
+				auto val = Json::Value(luaL_tolstring(L, index, NULL));
+				lua_pop(L, 1);
+				return val;
+			} else {
+				throw std::runtime_error("Attempted to stringify a lightuserdata, userdata, function or thread value");
+			}
+
 		default:
-			throw std::runtime_error("Attempted to stringify a lightuserdata, userdata, function or thread value");
+			throw std::runtime_error("Attempted to stringify an unknown type");
 		}
 	}
 
@@ -230,8 +238,8 @@ namespace dse::lua
 			return luaL_error(L, "JsonStringify expects at least one parameter.");
 		}
 
-		if (nargs > 2) {
-			return luaL_error(L, "JsonStringify expects at most two parameters.");
+		if (nargs > 3) {
+			return luaL_error(L, "JsonStringify expects at most three parameters.");
 		}
 
 		bool beautify{ true };
@@ -239,9 +247,14 @@ namespace dse::lua
 			beautify = lua_toboolean(L, 2) == 1;
 		}
 
+		bool stringifyInternalTypes{ false };
+		if (nargs >= 3) {
+			stringifyInternalTypes = lua_toboolean(L, 3) == 1;
+		}
+
 		Json::Value root;
 		try {
-			root = JsonStringify(L, 1, 0);
+			root = JsonStringify(L, 1, 0, stringifyInternalTypes);
 		} catch (std::runtime_error & e) {
 			return luaL_error(L, "%s", e.what());
 		}

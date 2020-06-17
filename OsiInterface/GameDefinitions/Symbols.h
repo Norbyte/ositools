@@ -122,6 +122,7 @@ namespace dse
 		esv::Character::ApplyDamageProc esv__Character__ApplyDamage{ nullptr };
 		esv::StatusVMT const * StatusHealVMT{ nullptr };
 		esv::StatusVMT const * StatusHitVMT{ nullptr };
+		esv::StatusHit::Setup StatusHit__Setup{ nullptr };
 		esv::ParseItem ParseItem{ nullptr };
 		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg{ nullptr };

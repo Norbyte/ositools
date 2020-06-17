@@ -2,6 +2,7 @@
 
 #include "ExtensionState.h"
 #include <Lua/LuaBindingServer.h>
+#include <Hit.h>
 
 namespace Json { class Value; }
 
@@ -27,6 +28,7 @@ namespace dse::esv
 	{
 	public:
 		DamageHelperPool DamageHelpers;
+		PendingHitManager PendingHits;
 		PendingStatuses PendingStatuses;
 		std::unique_ptr<ObjectSet<eoc::ItemDefinition>> PendingItemClone;
 		std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;

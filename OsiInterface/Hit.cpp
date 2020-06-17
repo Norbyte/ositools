@@ -3,11 +3,199 @@
 #include <OsirisProxy.h>
 #include "PropertyMaps.h"
 
+// #define DEBUG_HIT DEBUG
+// #define WARN_HIT WARN
+#define DEBUG_HIT(...)
+#define WARN_HIT(...)
+
 namespace dse::esv
 {
 	extern FunctionHandle StatusAttemptEventHandle;
 	extern FunctionHandle HitPrepareEventHandle;
 	extern FunctionHandle HitEventHandle;
+
+
+	PendingHit* PendingHitManager::OnCharacterHit(esv::Character* character, CDivinityStats_Character* attacker,
+		CDivinityStats_Item* weapon, DamagePairList* damageList, HitType hitType, bool noHitRoll,
+		HitDamageInfo* damageInfo, int forceReduceDurability, HighGroundBonus highGround,
+		bool procWindWalker, CriticalRoll criticalRoll)
+	{
+		auto it = characterHitMap_.find(damageInfo);
+		if (it != characterHitMap_.end()) {
+			if (it->second->CapturedStatusSetup || it->second->CapturedStatusEnter) {
+				WARN_HIT("PendingHitManager::OnCharacterHit(Hit=%p): Hit pointer reuse on %d", damageInfo, it->second->Id);
+				it->second->CharacterHitPointer = nullptr;
+			} else {
+				WARN_HIT("PendingHitManager::OnCharacterHit(Hit=%p): Found duplicate hit with ID %d, deleting", damageInfo, it->second->Id);
+				DeleteHit(it->second);
+			}
+		}
+
+		auto hit = std::make_unique<PendingHit>();
+		hit->Id = nextHitId_++;
+
+		DEBUG_HIT("PendingHitManager::OnCharacterHit(Hit=%p): Constructing new hit %d", damageInfo, hit->Id);
+
+		ObjectHandle targetHandle, attackerHandle;
+		character->GetObjectHandle(targetHandle);
+		hit->TargetHandle = targetHandle;
+
+		if (attacker != nullptr && attacker->Character != nullptr) {
+			attacker->Character->GetObjectHandle(attackerHandle);
+			hit->AttackerHandle = attackerHandle;
+		}
+
+		hit->CapturedCharacterHit = true;
+		hit->WeaponStats = weapon;
+		hit->CharacterHitPointer = damageInfo;
+		hit->CharacterHitDamageList.CopyFrom(*damageList);
+		hit->CharacterHit.CopyFrom(*damageInfo);
+		hit->HitType = hitType;
+		hit->NoHitRoll = noHitRoll;
+		hit->ForceReduceDurability = forceReduceDurability;
+		hit->HighGround = highGround;
+		hit->ProcWindWalker = procWindWalker;
+		hit->CriticalRoll = criticalRoll;
+
+		auto pHit = hit.get();
+		hits_.insert(std::make_pair(hit->Id, std::move(hit)));
+		characterHitMap_.insert(std::make_pair(damageInfo, pHit));
+		return pHit;
+	}
+
+	PendingHit* PendingHitManager::OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* damageInfo)
+	{
+		PendingHit* pHit;
+		auto it = characterHitMap_.find(damageInfo);
+		if (it != characterHitMap_.end()) {
+			pHit = it->second;
+			DEBUG_HIT("PendingHitManager::OnStatusHitSetup(S=%p, Hit=%p): Mapped to existing %d", status, damageInfo, pHit->Id);
+		} else {
+			auto hit = std::make_unique<PendingHit>();
+			hit->Id = nextHitId_++;
+
+			pHit = hit.get();
+			hits_.insert(std::make_pair(hit->Id, std::move(hit)));
+			WARN_HIT("PendingHitManager::OnStatusHitSetup(S=%p, Hit=%p): Create new %d", status, damageInfo, pHit->Id);
+		}
+
+		pHit->CapturedStatusSetup = true;
+		pHit->Status = status;
+		hitStatusMap_.insert(std::make_pair(status, pHit));
+
+		// We no longer need to keep character hit mappings
+		if (pHit->CapturedCharacterHit && pHit->CharacterHitPointer != nullptr) {
+			auto it = characterHitMap_.find(pHit->CharacterHitPointer);
+			if (it != characterHitMap_.end() && it->second == pHit) {
+				characterHitMap_.erase(it);
+			}
+
+			pHit->CharacterHitPointer = nullptr;
+		}
+
+		return pHit;
+	}
+
+	PendingHit* PendingHitManager::OnApplyHit(esv::StatusMachine* self, esv::StatusHit* status)
+	{
+		PendingHit* pHit;
+		auto it = hitStatusMap_.find(status);
+		if (it != hitStatusMap_.end()) {
+			pHit = it->second;
+			DEBUG_HIT("PendingHitManager::OnApplyHit(S=%p): Mapped to existing %d", status, &status->DamageInfo, pHit->Id);
+		} else {
+			auto hit = std::make_unique<PendingHit>();
+			hit->Id = nextHitId_++;
+
+			pHit = hit.get();
+			hits_.insert(std::make_pair(hit->Id, std::move(hit)));
+			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p): Create new %d", status, &status->DamageInfo, pHit->Id);
+		}
+
+		pHit->CapturedStatusApply = true;
+		pHit->TargetHandle = self->OwnerObjectHandle;
+		pHit->Status = status;
+		hitStatusDamageMap_.insert(std::make_pair(&status->DamageInfo, pHit));
+
+		return pHit;
+	}
+
+	PendingHit* PendingHitManager::OnStatusHitEnter(esv::StatusHit* status)
+	{
+		PendingHit* pHit;
+		auto it = hitStatusMap_.find(status);
+		if (it != hitStatusMap_.end()) {
+			pHit = it->second;
+			DEBUG_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Mapped to existing %d", status, &status->DamageInfo, pHit->Id);
+		} else {
+			auto hit = std::make_unique<PendingHit>();
+			hit->Id = nextHitId_++;
+
+			pHit = hit.get();
+			hits_.insert(std::make_pair(hit->Id, std::move(hit)));
+			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Create new %d", status, &status->DamageInfo, pHit->Id);
+		}
+
+		pHit->CapturedStatusEnter = true;
+		pHit->Status = status;
+		hitStatusDamageMap_.insert(std::make_pair(&status->DamageInfo, pHit));
+
+		return pHit;
+	}
+
+	void PendingHitManager::OnStatusHitDestroy(esv::StatusHit* status)
+	{
+		auto it = hitStatusMap_.find(status);
+		if (it != hitStatusMap_.end()) {
+			DEBUG_HIT("PendingHitManager::OnStatusHitEnter(S=%p): Deleting hit %d", status, it->second->Id);
+			DeleteHit(it->second);
+		} else {
+			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p): Hit not tracked!", status);
+		}
+
+	}
+
+	PendingHit* PendingHitManager::OnCharacterApplyDamage(HitDamageInfo* hit)
+	{
+		auto it = hitStatusDamageMap_.find(hit);
+		if (it != hitStatusDamageMap_.end()) {
+			DEBUG_HIT("PendingHitManager::OnCharacterApplyDamage(Hit=%p): Mapped to existing %d", hit, it->second->Id);
+			return it->second;
+		} else {
+			DEBUG_HIT("PendingHitManager::OnCharacterApplyDamage(Hit=%p): No context record found!", hit);
+			return nullptr;
+		}
+	}
+
+	void PendingHitManager::DeleteHit(PendingHit* hit)
+	{
+		if (hit->CapturedStatusEnter) {
+			auto it = hitStatusDamageMap_.find(&hit->Status->DamageInfo);
+			if (it != hitStatusDamageMap_.end()) {
+				hitStatusDamageMap_.erase(it);
+			}
+		}
+
+		if (hit->CapturedStatusSetup) {
+			auto it = hitStatusMap_.find(hit->Status);
+			if (it != hitStatusMap_.end()) {
+				hitStatusMap_.erase(it);
+			}
+		}
+
+		if (hit->CapturedCharacterHit && hit->CharacterHitPointer != nullptr) {
+			auto it = characterHitMap_.find(hit->CharacterHitPointer);
+			if (it != characterHitMap_.end() && it->second == hit) {
+				characterHitMap_.erase(it);
+			}
+		}
+
+		auto it = hits_.find(hit->Id);
+		if (it != hits_.end()) {
+			// Hit deleted here by unique_ptr dtor
+			hits_.erase(it);
+		}
+	}
 	
 
 	HitProxy::HitProxy(OsirisProxy& osiris)
@@ -27,6 +215,9 @@ namespace dse::esv
 
 		using namespace std::placeholders;
 
+		osiris_.GetLibraryManager().StatusHitSetupHook.SetPreHook(
+			std::bind(&HitProxy::OnStatusHitSetup, this, _1, _2)
+		);
 		osiris_.GetLibraryManager().StatusHitEnter.SetPreHook(
 			std::bind(&HitProxy::OnStatusHitEnter, this, _1)
 		);
@@ -50,8 +241,21 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnStatusHitEnter(esv::Status* status)
+	void HitProxy::OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit)
 	{
+		gOsirisProxy->GetServerExtensionState().PendingHits.OnStatusHitSetup(status, hit);
+	}
+
+
+	void HitProxy::OnStatusHitEnter(esv::StatusHit* status)
+	{
+		auto context = gOsirisProxy->GetServerExtensionState().PendingHits.OnStatusHitEnter(status);
+
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnStatusHitEnter(status, context);
+		}
+
 		gOsirisProxy->GetFunctionLibrary().ThrowStatusHitEnter(status);
 	}
 
@@ -68,7 +272,6 @@ namespace dse::esv
 			helper->Source = static_cast<esv::Character*>(attackerStats->Character);
 		}
 
-		// TODO - allow disabling SimulateHit & not call the original func?
 		helper->SimulateHit = true;
 		helper->HitType = hitType;
 		helper->NoHitRoll = noHitRoll;
@@ -84,6 +287,9 @@ namespace dse::esv
 		wrappedHit(self, attackerStats, itemStats, damageList, helper->HitType, helper->NoHitRoll,
 			damageInfo, helper->ForceReduceDurability, skillProperties, helper->HighGround,
 			helper->ProcWindWalker, helper->CriticalRoll);
+
+		gOsirisProxy->GetServerExtensionState().PendingHits.OnCharacterHit(self, attackerStats, itemStats,
+			damageList, hitType, noHitRoll, damageInfo, forceReduceDurability, highGround, procWindWalker, criticalRoll);
 
 		gOsirisProxy->GetServerExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}
@@ -109,11 +315,13 @@ namespace dse::esv
 	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit,
 		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
 	{
+		auto context = gOsirisProxy->GetServerExtensionState().PendingHits.OnCharacterApplyDamage(&hit);
+
 		HitDamageInfo luaHit = hit;
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
-			if (lua->OnCharacterApplyDamage(self, luaHit, ObjectHandle(attackerHandle), causeType, impactDirection)) {
+			if (lua->OnCharacterApplyDamage(self, luaHit, ObjectHandle(attackerHandle), causeType, impactDirection, context)) {
 				return;
 			}
 		}

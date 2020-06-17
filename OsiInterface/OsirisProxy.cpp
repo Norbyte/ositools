@@ -24,7 +24,8 @@ std::unique_ptr<OsirisProxy> gOsirisProxy;
 
 OsirisProxy::OsirisProxy()
 	: CustomInjector(Wrappers, CustomFunctions),
-	FunctionLibrary(*this)
+	FunctionLibrary(*this),
+	hitProxy_(*this)
 {
 }
 
@@ -1108,6 +1109,7 @@ void OsirisProxy::PostInitLibraries()
 		if (Libraries.PostStartupFindLibraries()) {
 			Wrappers.InitializeDeferredExtensions();
 			FunctionLibrary.PostStartup();
+			hitProxy_.PostStartup();
 		}
 	}
 

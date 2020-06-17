@@ -15,6 +15,7 @@ namespace dse
 	decltype(LibraryManager::StatusGetEnterChance) * decltype(LibraryManager::StatusGetEnterChance)::gHook;
 	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
 	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
+	decltype(LibraryManager::StatusHitSetupHook)* decltype(LibraryManager::StatusHitSetupHook)::gHook;
 	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
 	decltype(LibraryManager::CharacterHitInternalHook) * decltype(LibraryManager::CharacterHitInternalHook)::gHook;
 	decltype(LibraryManager::CharacterApplyDamageHook) * decltype(LibraryManager::CharacterApplyDamageHook)::gHook;
@@ -435,6 +436,10 @@ namespace dse
 				StatusGetEnterChance.Wrap(sym.StatusHealVMT->GetEnterChance);
 			}
 
+			if (sym.StatusHit__Setup != nullptr) {
+				StatusHitSetupHook.Wrap(sym.StatusHit__Setup);
+			}
+
 			if (sym.CharacterHit != nullptr) {
 				CharacterHitHook.Wrap(sym.CharacterHit);
 			}
@@ -504,6 +509,7 @@ namespace dse
 		StatusGetEnterChance.Unwrap();
 		StatusHitEnter.Unwrap();
 		StatusHealEnter.Unwrap();
+		StatusHitSetupHook.Unwrap();
 		CharacterHitHook.Unwrap();
 		CharacterHitInternalHook.Unwrap();
 		CharacterApplyDamageHook.Unwrap();

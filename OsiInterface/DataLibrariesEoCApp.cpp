@@ -478,6 +478,22 @@ namespace dse
 		},
 
 		{
+			"esv::StatusHit::Setup",
+			SymbolMappingData::kText, 0,
+			"40 55 " // push    rbp
+			"41 54 " // push    r12
+			"48 83 EC 38 " // sub     rsp, 38h
+			"4C 89 74 24 28 " // mov     [rsp+48h+var_20], r14
+			"48 8B E9 " // mov     rbp, rcx
+			"4C 8D B1 A0 00 00 00 " // lea     r14, [rcx+0A0h]
+			"4C 89 7C 24 20 " // mov     [rsp+48h+var_28], r15
+			"49 8B CE " // mov     rcx, r14
+			"E8 ", // call    HitDamageInfo__Copy
+			{},
+			{"esv::StatusHit::Setup", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusHit__Setup)}
+		},
+
+		{
 			"esv::StatusHeal::__vftable",
 			SymbolMappingData::kText, SymbolMappingData::kDeferred,
 			"45 33 C9 " // xor     r9d, r9d

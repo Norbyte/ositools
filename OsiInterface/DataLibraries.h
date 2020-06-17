@@ -239,7 +239,10 @@ namespace dse {
 		PreHookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
 
 		enum class StatusHitEnterTag {};
-		PreHookableFunction<StatusHitEnterTag, bool (esv::Status *)> StatusHitEnter;
+		PreHookableFunction<StatusHitEnterTag, bool (esv::StatusHit *)> StatusHitEnter;
+
+		enum class StatusHitSetupTag {};
+		PreHookableFunction<StatusHitSetupTag, bool(esv::StatusHit*, HitDamageInfo*)> StatusHitSetupHook;
 
 		enum class CharacterHitTag {};
 		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
