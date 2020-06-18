@@ -260,6 +260,7 @@ namespace dse::lua
 
 
 	int GetExtensionVersion(lua_State* L);
+	int GetGameVersion(lua_State* L);
 	int MonotonicTime(lua_State* L);
 	int OsiPrint(lua_State* L);
 	int OsiPrintWarning(lua_State* L);

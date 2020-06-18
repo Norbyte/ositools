@@ -2646,7 +2646,11 @@ Ext = {
 
     --- Returns the version number of the Osiris Extender
     --- @return integer
-    GetExtensionVersion = function () end,
+    Version = function () end,
+
+    --- Returns the version number of the game
+    --- @return string
+    GameVersion = function () end,
 
     --- Loads the specified Lua file
     --- @param modGuid string GUID of the module containing the Lua file

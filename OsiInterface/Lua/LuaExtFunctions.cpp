@@ -296,6 +296,19 @@ namespace dse::lua
 		return 1;
 	}
 
+	int GetGameVersion(lua_State* L)
+	{
+		GameVersionInfo gameVersion;
+		if (gOsirisProxy->GetLibraryManager().GetGameVersion(gameVersion)) {
+			std::stringstream ss;
+			ss << "v" << gameVersion.Major << "." << gameVersion.Minor << "." << gameVersion.Revision << "." << gameVersion.Build;
+			push(L, ss.str());
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	int MonotonicTime(lua_State* L)
 	{
 		using namespace std::chrono;

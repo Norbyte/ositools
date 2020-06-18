@@ -973,6 +973,7 @@ namespace dse::esv::lua
 	{
 		static const luaL_Reg extLib[] = {
 			{"Version", GetExtensionVersion},
+			{"GameVersion", GetGameVersion},
 			{"MonotonicTime", MonotonicTime},
 			{"Include", Include},
 			{"NewCall", NewCall},
