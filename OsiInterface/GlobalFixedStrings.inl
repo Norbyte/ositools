@@ -37,6 +37,7 @@ FS(GetStatus);
 FS(GetStatusByType);
 FS(GetStatuses);
 FS(Stats);
+FS(SetScale);
 
 // Character stats
 FS(DynamicStats);

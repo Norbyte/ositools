@@ -159,6 +159,11 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (propFS == GFS.strSetScale) {
+			lua_pushcfunction(L, (&GameObjectSetScale<ecl::Character>));
+			return 1;
+		}
+
 		return ClientCharacterFetchProperty(L, character, propFS);
 	}
 

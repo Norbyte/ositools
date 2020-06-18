@@ -175,6 +175,11 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (strcmp(prop, "SetScale") == 0) {
+			lua_pushcfunction(L, (&GameObjectSetScale<esv::Character>));
+			return 1;
+		}
+
 		return ServerCharacterFetchProperty(L, character, prop);
 	}
 

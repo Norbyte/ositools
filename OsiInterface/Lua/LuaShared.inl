@@ -105,3 +105,23 @@ int GameObjectGetTags(lua_State* L)
 	return 1;
 }
 
+template <class TObject>
+int GameObjectSetScale(lua_State* L)
+{
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto character = self->Get(L);
+	if (!character) {
+		return 0;
+	}
+
+	auto scale = checked_get<float>(L, 2);
+	// Weird things happen if scale is too large/small
+	if (scale < 0.01f || scale > 100.0f) {
+		OsiError("Scale must be between 0.01 and 100")
+	} else {
+		character->SetScale(scale);
+	}
+
+	return 0;
+}
+
