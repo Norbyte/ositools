@@ -151,7 +151,7 @@ Ext._UICall = function (uiObject, call, ...)
 		end
 	end
 
-	Ext._Notify("UICall", ...)
+	Ext._Notify("UICall", uiObject, call, ...)
 end
 
 Ext._UIInvokeHandleListeners = {}
@@ -223,5 +223,5 @@ Ext._UIInvoke = function (uiObject, method, ...)
 		end
 	end
 	
-	Ext._Notify("UIInvoke", ...)
+	Ext._Notify("UIInvoke", uiObject, method, ...)
 end
