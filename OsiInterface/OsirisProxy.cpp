@@ -43,13 +43,16 @@ void OsirisProxy::Initialize()
 
 	GameVersionInfo gameVersion;
 	if (Libraries.GetGameVersion(gameVersion)) {
+		if (gameVersion.Major == 3 && gameVersion.Minor == 0) {
+			Fail(L"Script Extender doesn't support the Classic version of D:OS 2!");
+		}
+
 		if (gameVersion.IsSupported()) {
 			INFO("Game version v%d.%d.%d.%d OK", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
 		} else {
 			ERR("Game version v%d.%d.%d.%d is not supported, please upgrade!", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
-			// Disable extensions with old game versions; 
-			// we'd crash if we tried to init extensions in these versions
-			extensionsEnabled_ = false;
+			// Hard exit below a certain version as th EoCClient error display UI won't work anymore
+			Fail(L"Script Extender doesn't support game versions below v3.6.54, please upgrade!");
 		}
 	} else {
 		ERR("Failed to retrieve game version info.");
@@ -992,25 +995,21 @@ void OsirisProxy::RemoveServerThread(DWORD threadId)
 
 void OsirisProxy::OnClientGameStateWorkerStart(void * self)
 {
-	WARN("OnClientGameStateWorkerStart: %d", GetCurrentThreadId());
 	AddClientThread(GetCurrentThreadId());
 }
 
 void OsirisProxy::OnServerGameStateWorkerStart(void * self)
 {
-	WARN("OnServerGameStateWorkerStart: %d", GetCurrentThreadId());
 	AddServerThread(GetCurrentThreadId());
 }
 
 void OsirisProxy::OnClientGameStateWorkerExit(void* self)
 {
-	WARN("OnClientGameStateWorkerExit: %d", GetCurrentThreadId());
 	RemoveClientThread(GetCurrentThreadId());
 }
 
 void OsirisProxy::OnServerGameStateWorkerExit(void* self)
 {
-	WARN("OnServerGameStateWorkerExit: %d", GetCurrentThreadId());
 	RemoveServerThread(GetCurrentThreadId());
 }
 
