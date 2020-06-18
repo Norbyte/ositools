@@ -787,6 +787,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		&& toState != ecl::GameState::StartLoading
 		&& toState != ecl::GameState::InitMenu) {
 		// We need to initialize the function library here, as GlobalAllocator isn't available in Init().
+		std::lock_guard _(globalStateLock_);
 		Libraries.PostStartupFindLibraries();
 		if (!functionLibraryInitialized_) {
 			CustomInjector.Initialize();
