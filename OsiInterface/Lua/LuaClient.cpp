@@ -1439,6 +1439,18 @@ namespace dse::ecl::lua
 	}
 
 
+	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_GameStateChanged"); // stack: fn
+		push(L, fromState);
+		push(L, toState);
+		CheckedCall<>(L, 2, "Ext.GameStateChanged");
+	}
+
+
 	void ClientState::OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle)
 	{
 		clientUI_.insert(std::make_pair(name, handle));

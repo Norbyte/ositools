@@ -5,6 +5,7 @@ Ext._Listeners = {
 	ModuleResume = {},
 	SessionLoading = {},
 	SessionLoaded = {},
+	GameStateChanged = {},
 	GetSkillDamage = {},
 	ComputeCharacterHit = {},
 	CalculateTurnOrder = {},

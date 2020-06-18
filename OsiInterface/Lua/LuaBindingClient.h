@@ -92,6 +92,7 @@ namespace dse::ecl::lua
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
 			CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
+		void OnGameStateChanged(GameState fromState, GameState toState);
 
 		void OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle);
 		UIObject * GetUIObject(char const * name);

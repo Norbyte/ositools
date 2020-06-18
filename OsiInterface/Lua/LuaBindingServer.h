@@ -400,6 +400,7 @@ namespace dse::esv::lua
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
+		void OnGameStateChanged(GameState fromState, GameState toState);
 
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);

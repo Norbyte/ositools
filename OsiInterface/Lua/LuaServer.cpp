@@ -1338,6 +1338,18 @@ namespace dse::esv::lua
 	}
 
 
+	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
+	{
+		std::lock_guard lock(mutex_);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_GameStateChanged"); // stack: fn
+		push(L, fromState);
+		push(L, toState);
+		CheckedCall<>(L, 2, "Ext.GameStateChanged");
+	}
+
+
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		std::lock_guard lock(mutex_);

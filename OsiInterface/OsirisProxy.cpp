@@ -888,6 +888,11 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		}
 		break;
 	}
+
+	ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+	if (lua) {
+		lua->OnGameStateChanged(fromState, toState);
+	}
 }
 
 void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState)
@@ -947,7 +952,11 @@ void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState
 			ServerExtState->OnGameSessionLoading();
 		}
 		break;
+	}
 
+	esv::LuaServerPin lua(esv::ExtensionState::Get());
+	if (lua) {
+		lua->OnGameStateChanged(fromState, toState);
 	}
 }
 

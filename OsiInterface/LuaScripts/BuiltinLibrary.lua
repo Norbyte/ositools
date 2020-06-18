@@ -54,6 +54,10 @@ Ext._OnModuleResume = function ()
     Ext._Notify("ModuleResume")
 end
 
+Ext._GameStateChanged = function (...)
+    Ext._Notify("GameStateChanged", ...)
+end
+
 Ext._GetHitChance = function (...)
     return Ext._EngineCallback1("GetHitChance", ...)
 end
