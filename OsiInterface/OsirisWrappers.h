@@ -64,8 +64,8 @@ public:
 	POSTHOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
 	POSTHOOKABLE(void(void *, ecl::GameState, ecl::GameState), ClientGameStateChangedEvent);
 	POSTHOOKABLE(void(void *, esv::GameState, esv::GameState), ServerGameStateChangedEvent);
-	PREHOOKABLE(void(void *), ClientGameStateWorkerStart);
-	PREHOOKABLE(void(void *), ServerGameStateWorkerStart);
+	HOOKABLE(void(void *), ClientGameStateWorkerStart);
+	HOOKABLE(void(void *), ServerGameStateWorkerStart);
 	PREHOOKABLE(void(void *), SkillPrototypeManagerInit);
 	WRAPPABLE(FileReader * (FileReader *, Path *, unsigned int), FileReader__ctor);
 	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);

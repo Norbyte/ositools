@@ -90,8 +90,10 @@ void OsirisProxy::Initialize()
 	Wrappers.InitNetworkFixedStrings.SetPostHook(std::bind(&OsirisProxy::OnInitNetworkFixedStrings, this, _1, _2));
 	Wrappers.ClientGameStateChangedEvent.SetPostHook(std::bind(&OsirisProxy::OnClientGameStateChanged, this, _1, _2, _3));
 	Wrappers.ServerGameStateChangedEvent.SetPostHook(std::bind(&OsirisProxy::OnServerGameStateChanged, this, _1, _2, _3));
-	Wrappers.ClientGameStateWorkerStart.SetPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
-	Wrappers.ServerGameStateWorkerStart.SetPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
+	Wrappers.ClientGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnClientGameStateWorkerStart, this, _1));
+	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&OsirisProxy::OnServerGameStateWorkerStart, this, _1));
+	Wrappers.ClientGameStateWorkerStart.AddPostHook(std::bind(&OsirisProxy::OnClientGameStateWorkerExit, this, _1));
+	Wrappers.ServerGameStateWorkerStart.AddPostHook(std::bind(&OsirisProxy::OnServerGameStateWorkerExit, this, _1));
 	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&OsirisProxy::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.FileReader__ctor.SetWrapper(std::bind(&OsirisProxy::OnFileReaderCreate, this, _1, _2, _3, _4));
 	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&OsirisProxy::OnSavegameVisit, this, _1, _2));
@@ -948,46 +950,68 @@ void OsirisProxy::OnServerGameStateChanged(void * self, esv::GameState fromState
 
 void OsirisProxy::AddClientThread(DWORD threadId)
 {
-	if (ClientThreadIds.empty()) {
+	if (ClientThreadIds.find(threadId) == ClientThreadIds.end()) {
+#if defined(DEBUG_SERVER_CLIENT)
+		DEBUG("Registered client TID %d", threadId);
+#endif
 		ClientThreadIds.insert(threadId);
-#if defined(DEBUG_SERVER_CLIENT)
-		DEBUG("Initial client TID is %d", threadId);
-#endif
-	} else {
-		if (ClientThreadIds.find(threadId) == ClientThreadIds.end()) {
-#if defined(DEBUG_SERVER_CLIENT)
-			DEBUG("Registered client TID %d", threadId);
-#endif
-			ClientThreadIds.insert(threadId);
-		}
 	}
 }
 
 void OsirisProxy::AddServerThread(DWORD threadId)
 {
-	if (ServerThreadIds.empty()) {
+	if (ServerThreadIds.find(threadId) == ServerThreadIds.end()) {
+#if defined(DEBUG_SERVER_CLIENT)
+		DEBUG("Registered server TID %d", threadId);
+#endif
 		ServerThreadIds.insert(threadId);
+	}
+}
+
+void OsirisProxy::RemoveClientThread(DWORD threadId)
+{
+	auto it = ClientThreadIds.find(threadId);
+	if (it != ClientThreadIds.end()) {
 #if defined(DEBUG_SERVER_CLIENT)
-		DEBUG("Initial server TID is %d", threadId);
+		DEBUG("Unregistered client TID %d", threadId);
 #endif
-	} else {
-		if (ServerThreadIds.find(threadId) == ServerThreadIds.end()) {
+		ClientThreadIds.erase(it);
+	}
+}
+
+void OsirisProxy::RemoveServerThread(DWORD threadId)
+{
+	auto it = ServerThreadIds.find(threadId);
+	if (it != ServerThreadIds.end()) {
 #if defined(DEBUG_SERVER_CLIENT)
-			DEBUG("Registered server TID %d", threadId);
+		DEBUG("Unregistered server TID %d", threadId);
 #endif
-			ServerThreadIds.insert(threadId);
-		}
+		ServerThreadIds.erase(it);
 	}
 }
 
 void OsirisProxy::OnClientGameStateWorkerStart(void * self)
 {
+	WARN("OnClientGameStateWorkerStart: %d", GetCurrentThreadId());
 	AddClientThread(GetCurrentThreadId());
 }
 
 void OsirisProxy::OnServerGameStateWorkerStart(void * self)
 {
+	WARN("OnServerGameStateWorkerStart: %d", GetCurrentThreadId());
 	AddServerThread(GetCurrentThreadId());
+}
+
+void OsirisProxy::OnClientGameStateWorkerExit(void* self)
+{
+	WARN("OnClientGameStateWorkerExit: %d", GetCurrentThreadId());
+	RemoveClientThread(GetCurrentThreadId());
+}
+
+void OsirisProxy::OnServerGameStateWorkerExit(void* self)
+{
+	WARN("OnServerGameStateWorkerExit: %d", GetCurrentThreadId());
+	RemoveServerThread(GetCurrentThreadId());
 }
 
 void OsirisProxy::OnSkillPrototypeManagerInit(void * self)

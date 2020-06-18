@@ -295,6 +295,8 @@ private:
 	void OnServerGameStateChanged(void * self, esv::GameState fromState, esv::GameState toState);
 	void OnClientGameStateWorkerStart(void * self);
 	void OnServerGameStateWorkerStart(void * self);
+	void OnClientGameStateWorkerExit(void* self);
+	void OnServerGameStateWorkerExit(void* self);
 	void OnSkillPrototypeManagerInit(void * self);
 	FileReader * OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type);
 	void OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor);
@@ -309,6 +311,8 @@ private:
 
 	void AddClientThread(DWORD threadId);
 	void AddServerThread(DWORD threadId);
+	void RemoveClientThread(DWORD threadId);
+	void RemoveServerThread(DWORD threadId);
 	
 	static void FlashTraceCallback(void * ctx, void * player, char const * message);
 	static void FlashWarningCallback(void * ctx, void * player, int code, char const * message);
