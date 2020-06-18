@@ -225,3 +225,17 @@ Ext._UIInvoke = function (uiObject, method, ...)
 	
 	Ext._Notify("UIInvoke", uiObject, method, ...)
 end
+
+-- Update version label with Script Extender version number when the main menu is rendered
+Ext.RegisterUITypeInvokeListener(28, "openMenu", function (menu, ...)
+    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ")"
+    menu:Invoke("setDebugText", ver)
+end)
+
+-- Subscribe to main menu calls
+Ext.RegisterListener("UIObjectCreated", function (ui)
+    if ui:GetTypeId() == 28 then
+        ui:CaptureExternalInterfaceCalls()
+        ui:CaptureInvokes()
+    end
+end)
