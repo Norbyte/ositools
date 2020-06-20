@@ -327,6 +327,9 @@ namespace dse::esv
 		}
 
 		next(self, luaHit, attackerHandle, causeType, impactDirection);
+		// ApplyDamage() sets these two flags so we need to copy them
+		hit.EffectFlags = luaHit.EffectFlags;
+		hit.DamageDealt = luaHit.DamageDealt;
 	}
 
 	void HitProxy::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine* self, esv::Status* status)

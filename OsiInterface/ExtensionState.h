@@ -149,6 +149,9 @@ namespace dse
 			if (state_.Lua) state_.DecLuaRefs();
 		}
 
+		LuaStatePin(LuaStatePin const& state) = delete;
+		LuaStatePin& operator =(LuaStatePin const& state) = delete;
+
 		inline operator bool() const
 		{
 			return !state_.LuaPendingDelete
