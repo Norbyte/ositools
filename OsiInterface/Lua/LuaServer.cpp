@@ -1154,6 +1154,8 @@ namespace dse::esv::lua
 	void PushPendingHit(lua_State* L, PendingHit const& hit)
 	{
 		lua_newtable(L);
+		setfield(L, "HitId", hit.Id);
+
 		if (hit.CapturedCharacterHit) {
 			ObjectProxy<CDivinityStats_Item>::New(L, hit.WeaponStats);
 			lua_setfield(L, -2, "Weapon");
