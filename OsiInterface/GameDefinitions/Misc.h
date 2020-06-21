@@ -191,39 +191,6 @@ namespace dse
 	namespace esv
 	{
 
-	struct ShootProjectileHelperHitObject
-	{
-		int HitInterpolation{ 0 };
-		uint8_t _Pad[4];
-		ObjectHandle Target;
-		glm::vec3 Position;
-		uint8_t _Pad2[4];
-	};
-
-	struct ShootProjectileHelper
-	{
-		FixedString SkillId;
-		ObjectHandle Caster;
-		ObjectHandle Source;
-		ObjectHandle Target;
-		glm::vec3 StartPosition{ .0f };
-		glm::vec3 EndPosition{ .0f };
-		uint8_t Random{ 0 };
-		uint8_t _Pad[7];
-		DamagePairList * DamageList;
-		int32_t CasterLevel{ -1 };
-		uint32_t _Pad2;
-		ShootProjectileHelperHitObject * HitObject;
-		bool IsTrap{ false };
-		bool UnknownFlag1{ false };
-		uint8_t _Pad3[6];
-		FixedString CleanseStatuses;
-		float StatusClearChance{ 0.0f };
-		bool IsFromItem{ false };
-		bool IsStealthed{ false };
-		bool IgnoreObjects{ false };
-	};
-
 	struct SummonHelperResults
 	{
 		ObjectHandle SummonHandle;
@@ -245,7 +212,7 @@ namespace dse
 		bool MapToAiGrid{ true };
 	};
 
-	typedef void * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
+	typedef Projectile * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
 	typedef void(*GameStateThreaded__GameStateWorker__DoWork)(void * self);

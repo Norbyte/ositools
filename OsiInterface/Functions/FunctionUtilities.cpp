@@ -345,8 +345,14 @@ namespace dse
 				return false;
 			}
 
-			shoot(&Helper);
-			return true;
+			auto projectile = shoot(&Helper);
+			if (projectile) {
+				projectile->AlwaysDamage = AlwaysDamage;
+				projectile->CanDeflect = CanDeflect;
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 

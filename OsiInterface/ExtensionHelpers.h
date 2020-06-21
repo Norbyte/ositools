@@ -5,7 +5,7 @@
 #include <GameDefinitions/Character.h>
 #include <GameDefinitions/Item.h>
 #include <GameDefinitions/GameAction.h>
-#include <GameDefinitions/Misc.h>
+#include <GameDefinitions/Projectile.h>
 #include <GameDefinitions/TurnManager.h>
 
 namespace dse
@@ -32,14 +32,16 @@ namespace dse
 
 		struct ShootProjectileApiHelper
 		{
-			esv::ShootProjectileHelper Helper;
-			esv::ShootProjectileHelperHitObject HitObject;
+			ShootProjectileHelper Helper;
+			ShootProjectileHelperHitObject HitObject;
 			DamagePairList DamageList;
 			bool HasStartPosition{ false };
 			bool HasEndPosition{ false };
 			bool HasHitObject{ false };
 			bool HasHitObjectPosition{ false };
 			bool HasDamageList{ false };
+			bool AlwaysDamage{ false };
+			bool CanDeflect{ true };
 
 			ShootProjectileApiHelper();
 			void SetGuidString(FixedString const& prop, char const * value);

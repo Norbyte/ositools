@@ -636,6 +636,8 @@ Function signatures are final. Projectile parameters that are not documented are
 | IsFromItem | Flag |  |
 | IsStealthed | Flag |  |
 | IgnoreObjects | Flag |  |
+| AlwaysDamage | Flag |  |
+| CanDeflect | Flag |  |
 | SourcePosition | Vector3 | Launch projectile from the specified position |
 | SourcePosition | GuidString | Launch projectile from the position of the specified character/item |
 | TargetPosition | Vector3 | Launch projectile towards the specified position |

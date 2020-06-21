@@ -42,7 +42,13 @@ namespace dse::esv
 				return;
 			}
 
-			OsirisPropertyMapSet(gShootProjectileHelperPropertyMap, &helper->Helper, args, 0, Type);
+			if (strcmp(prop, "AlwaysDamage") == 0) {
+				helper->AlwaysDamage = value != 0;
+			} else if(strcmp(prop, "CanDeflect") == 0) {
+				helper->CanDeflect = value != 0;
+			} else {
+				OsirisPropertyMapSet(gShootProjectileHelperPropertyMap, &helper->Helper, args, 0, Type);
+			}
 		}
 
 		void ProjectileSetGuidString(OsiArgumentDesc const & args)
