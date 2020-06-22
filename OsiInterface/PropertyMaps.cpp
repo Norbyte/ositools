@@ -513,15 +513,31 @@ namespace dse
 			PROP_RO(InventoryHandle);
 			PROP_RO(SkillBeingPrepared);
 			PROP_RO(LifeTime);
+			PROP_RO(TurnTimer);
+			PROP_RO(TriggerTrapsTimer);
+			PROP_TY(UserID, int32_t);
 			PROP_RO(OwnerHandle);
+			PROP_RO(FollowCharacterHandle);
+			PROP_RO(SpiritCharacterHandle);
+			PROP_RO(CorpseCharacterHandle);
 			PROP_RO(PartialAP);
 			PROP_RO(AnimType);
 			PROP_RO(DelayDeathCount);
 			PROP_RO(AnimationSetOverride);
+			PROP_RO(OriginalTransformDisplayName);
+			PROP_RO(PartyHandle);
 			PROP_RO(CustomTradeTreasure);
+			PROP_RO(IsAlarmed);
+			PROP_RO(CrimeWarningsEnabled);
+			PROP_RO(CrimeInterrogationEnabled);
+			PROP_RO(MovingCasterHandle);
 			PROP_RO(Archetype);
 			PROP_RO(EquipmentColor);
-			PROP_TY(UserID, int32_t);
+			PROP_RO(ProjectileTemplate);
+			PROP_RO(ReadyCheckBlocked);
+			PROP_RO(CorpseLootable);
+			PROP_ENUM(CustomBloodSurface);
+			PROP_RO(PreviousLevel);
 		}
 
 		{

@@ -336,7 +336,8 @@ namespace dse
 			bool ReadyCheckBlocked;
 			bool CorpseLootable;
 			uint8_t NumConsumables;
-			uint8_t _Pad9[5];
+			uint8_t _Pad9;
+			SurfaceType CustomBloodSurface;
 			FixedString PreviousLevel;
 		};
 	}
