@@ -899,6 +899,71 @@ namespace dse
 		void MapVMTs();
 	};
 
+	struct CRPGStats_Treasure_SubTable_Description
+	{
+		struct Category
+		{
+			int Index;
+			int Frequency;
+			uint16_t Frequencies[7];
+			uint16_t Frequencies2[7];
+			bool IsTreasureTable;
+			bool IsTreasureTable2;
+		};
+
+		struct DropCount
+		{
+			int Chance;
+			int Amount;
+		};
+
+		ObjectSet<Category*> Categories;
+		ObjectSet<int> CategoryFrequencies;
+		int TotalFrequency;
+		uint8_t _Pad[4];
+		ObjectSet<DropCount> DropCounts;
+		ObjectSet<int> Amounts;
+		int TotalCount;
+		int StartLevel;
+		int EndLevel;
+	};
+
+
+	struct CRPGStats_Treasure_Table
+	{
+		FixedString Name;
+		int MinLevel;
+		int MaxLevel;
+		bool IgnoreLevelDiff;
+		bool UseTreasureGroupContainers;
+		bool CanMerge;
+		uint8_t _Pad[5];
+		ObjectSet<CRPGStats_Treasure_SubTable_Description*> SubTables;
+	};
+
+	struct CRPGStats_Treasure_Category
+	{
+		struct Item
+		{
+			FixedString Name;
+			int Priority;
+			int MinAmount;
+			int MaxAmount;
+			int ActPart;
+			int Unique;
+			int MinLevel;
+			int MaxLevel;
+			uint8_t _Pad[4];
+		};
+
+
+		FixedString Category;
+		Vector<Item*> Items;
+		uint64_t Unknown[3];
+	};
+
+
+
 	extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;
 
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
@@ -910,8 +975,8 @@ namespace dse
 		CNamedElementManager<CRPGStats_Object> objects;
 		CNamedElementManager<CRPGStats_LevelMap> LevelMaps;
 		CNamedElementManager<CRPGStats_DeltaModifier_List> DeltaMods;
-		CNamedElementManager<uint64_t> treasureSubtables;
-		CNamedElementManager<uint64_t> treasureTables;
+		CNamedElementManager<CRPGStats_Treasure_Category> TreasureCategories;
+		CNamedElementManager<CRPGStats_Treasure_Table> TreasureTables;
 		CRPGStats_ItemType_Manager itemTypes;
 		Map<FixedString, CRPGStats_Object_Property_List*> PropertyLists;
 		uint8_t _Pad1[4];
@@ -920,17 +985,17 @@ namespace dse
 		uint64_t Unkn1[5];
 		CRPGStats_ExtraData * ExtraData;
 		RefMap<FixedString, void *> RefMap1;
-		RefMap<FixedString, void *> RefMap2;
-		Map<FixedString, FixedString> FSMap1;
+		RefMap<FixedString, void *> ColorTable;
+		Map<FixedString, FixedString> TreasureCategoryMaps;
 		uint8_t _Pad2[4];
-		Map<FixedString, int> FSMapInt1;
+		Map<FixedString, int> TreasureWeaponCounters;
 		uint8_t _Pad3[4];
-		Map<FixedString, int> FSMapInt2;
+		Map<FixedString, int> TreasureArmorCounters;
 		uint8_t _Pad4[4];
-		Map<FixedString, int> FSMapInt3;
+		Map<FixedString, int> TreasureSkillbookCounters;
 		uint8_t _Pad5[4];
 		RefMap<FixedString, void *> FSMap2;
-		uint64_t Unkn2[7];
+		FixedString TreasureItemTypes[7];
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
 		ObjectSet<StatAttributeFlags> AttributeFlags;
 		uint64_t unknown2[140];

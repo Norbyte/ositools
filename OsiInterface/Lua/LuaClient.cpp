@@ -1262,6 +1262,8 @@ namespace dse::ecl::lua
 			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
 			{"GetSkillSet", GetSkillSet},
 			{"GetEquipmentSet", GetEquipmentSet},
+			{"GetTreasureTable", GetTreasureTable},
+			{"GetTreasureCategory", GetTreasureCategory},
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},

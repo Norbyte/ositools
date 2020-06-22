@@ -279,6 +279,8 @@ namespace dse::lua
 	int GetStatEntriesLoadedBefore(lua_State* L);
 	int GetSkillSet(lua_State* L);
 	int GetEquipmentSet(lua_State* L);
+	int GetTreasureTable(lua_State* L);
+	int GetTreasureCategory(lua_State* L);
 	int StatGetAttribute(lua_State* L);
 	int StatSetAttribute(lua_State* L);
 	int StatAddCustomDescription(lua_State* L);

@@ -467,6 +467,22 @@ namespace dse::lua
 		}
 	}
 
+	void FetchTreasureTableEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		for (auto treasureTable : stats->TreasureTables.Primitives) {
+			settable(L, index++, treasureTable->Name);
+		}
+	}
+
+	void FetchTreasureCategoryEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		for (auto treasureCategory : stats->TreasureCategories.Primitives) {
+			settable(L, index++, treasureCategory->Category);
+		}
+	}
+
 	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString const& statType)
 	{
 		int32_t index = 1;
@@ -517,6 +533,10 @@ namespace dse::lua
 			FetchSkillSetEntries(L, stats);
 		} else if (statType && strcmp(statType.Str, "EquipmentSet") == 0) {
 			FetchEquipmentSetEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "TreasureTable") == 0) {
+			FetchTreasureTableEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "TreasureCategory") == 0) {
+			FetchTreasureCategoryEntries(L, stats);
 		} else {
 			FetchStatEntries(L, stats, statType);
 		}
@@ -579,6 +599,112 @@ namespace dse::lua
 			for (auto const& equipment : group->Equipment) {
 				settable(L, index++, equipment);
 			}
+		}
+
+		return 1;
+	}
+
+	int GetTreasureTable(lua_State* L)
+	{
+		auto tableName = luaL_checkstring(L, 1);
+
+		auto const* stats = GetStaticSymbols().GetStats();
+		auto const& tables = stats->TreasureTables;
+		auto table = tables.Find(tableName);
+		if (table == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", table->Name);
+		setfield(L, "MinLevel", table->MinLevel);
+		setfield(L, "MaxLevel", table->MaxLevel);
+		setfield(L, "IgnoreLevelDiff", table->IgnoreLevelDiff);
+		setfield(L, "UseTreasureGroupContainers", table->UseTreasureGroupContainers);
+		setfield(L, "CanMerge", table->CanMerge);
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto subTable : table->SubTables) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "TotalFrequency", subTable->TotalFrequency);
+			setfield(L, "TotalCount", subTable->TotalCount);
+			setfield(L, "StartLevel", subTable->StartLevel);
+			setfield(L, "EndLevel", subTable->EndLevel);
+
+			lua_newtable(L);
+			int32_t categoryIndex = 1;
+			for (auto category : subTable->Categories) {
+				push(L, categoryIndex++);
+				lua_newtable(L);
+				setfield(L, "Frequency", category->Frequency);
+				if (category->IsTreasureTable) {
+					auto refTable = tables.Find(category->Index);
+					if (refTable) {
+						setfield(L, "TreasureTable", refTable->Name);
+					}
+				} else {
+					auto refCategory = stats->TreasureCategories.Find(category->Index);
+					if (refCategory) {
+						setfield(L, "TreasureCategory", refCategory->Category);
+					}
+				}
+
+				for (int i = 0; i < 7; i++) {
+					setfield(L, stats->TreasureItemTypes[i].Str, category->Frequencies[i]);
+				}
+				lua_settable(L, -3);
+			}
+
+			lua_setfield(L, -2, "Categories");
+
+			lua_newtable(L);
+			int32_t dropIndex = 1;
+			for (auto const& dropCount : subTable->DropCounts) {
+				push(L, dropIndex++);
+				lua_newtable(L);
+				setfield(L, "Chance", dropCount.Chance);
+				setfield(L, "Amount", dropCount.Amount);
+				lua_settable(L, -3);
+			}
+
+			lua_setfield(L, -2, "DropCounts");
+
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "SubTables");
+
+		return 1;
+	}
+
+	int GetTreasureCategory(lua_State* L)
+	{
+		auto categoryName = luaL_checkstring(L, 1);
+
+		auto const* stats = GetStaticSymbols().GetStats();
+		auto category = stats->TreasureCategories.Find(categoryName);
+		if (category == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto item : category->Items) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "Name", item->Name);
+			setfield(L, "Priority", item->Priority);
+			setfield(L, "MinAmount", item->MinAmount);
+			setfield(L, "MaxAmount", item->MaxAmount);
+			setfield(L, "ActPart", item->ActPart);
+			setfield(L, "Unique", item->Unique);
+			setfield(L, "MinLevel", item->MinLevel);
+			setfield(L, "MaxLevel", item->MaxLevel);
+			lua_settable(L, -3);
 		}
 
 		return 1;
