@@ -68,9 +68,9 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
 
-	int ServerCharacterFetchProperty(lua_State* L, esv::Character* character, char const* prop)
+	int ServerCharacterFetchProperty(lua_State* L, esv::Character* character, FixedString const& prop)
 	{
-		if (strcmp(prop, "PlayerCustomData") == 0) {
+		if (prop == GFS.strPlayerCustomData) {
 			if (character->PlayerData != nullptr
 				&& character->PlayerData->CustomData.Initialized) {
 				ObjectHandle handle;
@@ -84,7 +84,7 @@ namespace dse::lua
 			}
 		}
 
-		if (strcmp(prop, "Stats") == 0) {
+		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
 				ObjectHandle handle;
 				character->GetObjectHandle(handle);
@@ -97,7 +97,7 @@ namespace dse::lua
 			}
 		}
 
-		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
+		if (prop == GFS.strRootTemplate) {
 			ObjectProxy<CharacterTemplate>::New(L, character->CurrentTemplate);
 			return 1;
 		}
@@ -144,48 +144,88 @@ namespace dse::lua
 		if (!character) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
+		if (!propFS) {
+			OsiError("Illegal property name: " << prop);
+			lua_pushnil(L);
+			return 1;
+		}
 
-		if (strcmp(prop, "GetInventoryItems") == 0) {
+		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
 			return 1;
 		}
 
-		if (strcmp(prop, "HasTag") == 0) {
+		if (propFS == GFS.strHasTag) {
 			lua_pushcfunction(L, &GameObjectHasTag<esv::Character>);
 			return 1;
 		}
 
-		if (strcmp(prop, "GetTags") == 0) {
+		if (propFS == GFS.strGetTags) {
 			lua_pushcfunction(L, &GameObjectGetTags<esv::Character>);
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatus") == 0) {
+		if (propFS == GFS.strGetStatus) {
 			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Character, esv::Status>));
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatusByType") == 0) {
+		if (propFS == GFS.strGetStatusByType) {
 			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Character, esv::Status>));
 			return 1;
 		}
 
-		if (strcmp(prop, "GetStatuses") == 0) {
+		if (propFS == GFS.strGetStatuses) {
 			lua_pushcfunction(L, (&GameObjectGetStatuses<esv::Character>));
 			return 1;
 		}
 
-		if (strcmp(prop, "SetScale") == 0) {
+		if (propFS == GFS.strSetScale) {
 			lua_pushcfunction(L, (&GameObjectSetScale<esv::Character>));
 			return 1;
 		}
 
-		return ServerCharacterFetchProperty(L, character, prop);
+		return ServerCharacterFetchProperty(L, character, propFS);
 	}
 
 	int ObjectProxy<esv::Character>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		auto character = Get(L);
+		if (!character) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto propFS = ToFixedString(prop);
+		if (!propFS) {
+			OsiError("Illegal property name: " << prop);
+			lua_pushnil(L);
+			return 1;
+		}
+
+		if (propFS == GFS.strWalkSpeed) {
+			if (lua_isnil(L, 3)) {
+				character->WalkSpeedOverride = 0.0f;
+				character->Flags3 &= ~esv::CharacterFlags3::HasWalkSpeedOverride;
+			} else {
+				auto speed = checked_get<float>(L, 3);
+				character->WalkSpeedOverride = speed;
+				character->Flags3 |= esv::CharacterFlags3::HasWalkSpeedOverride;
+			}
+		} else if (propFS == GFS.strRunSpeed) {
+			if (lua_isnil(L, 3)) {
+				character->RunSpeedOverride = 0.0f;
+				character->Flags3 &= ~esv::CharacterFlags3::HasRunSpeedOverride;
+			}
+			else {
+				auto speed = checked_get<float>(L, 3);
+				character->RunSpeedOverride = speed;
+				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
+			}
+		} else {
+			OsiError("Cannot set unknown property '" << propFS << "' on esv::Character");
+		}
+
+		return 0;
 	}
 
 

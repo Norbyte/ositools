@@ -38,6 +38,9 @@ FS(GetStatusByType);
 FS(GetStatuses);
 FS(Stats);
 FS(SetScale);
+FS(GetInventoryItems);
+FS(WalkSpeed);
+FS(RunSpeed);
 
 // Character stats
 FS(DynamicStats);

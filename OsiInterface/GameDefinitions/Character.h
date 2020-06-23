@@ -231,8 +231,8 @@ namespace dse
 			float U42[3];
 			eoc::Ai* AI;
 			FixedString AnimationOverride;
-			int32_t WalkSpeedOverride;
-			int32_t RunSpeedOverride;
+			float WalkSpeedOverride;
+			float RunSpeedOverride;
 			ObjectSet<FixedString> VoiceSet;
 			uint8_t NeedsUpdateCount;
 			uint8_t ScriptForceUpdateCount;
