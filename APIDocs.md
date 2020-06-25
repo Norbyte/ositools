@@ -1009,15 +1009,20 @@ Details about the action can be queried using `NRD_ActionStateGetString*`.
 Retrieves the action the character is currently performing.
 If the character does not exist, the query fails. If the character is not performing any action, `_Action` will be returned as `""` (empty string).
 
-### ActionStateGetString
-`query NRD_ActionStateGetString([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](STRING)_Value)`
+### ActionStateGet
+```
+query NRD_ActionStateGetInt([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](INTEGER)_Value)
+query NRD_ActionStateGetReal([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](REAL)_Value)
+query NRD_ActionStateGetString([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](STRING)_Value)
+query NRD_ActionStateGetGuidString([in](CHARACTERGUID)_Character, [in](STRING)_Property, [out](GUIDSTRING)_Value)
+```
 
 Retrieves a property of the action the character is currently performing.
-This is currently only implemented for the `PrepareSkill` action state. If the character does not exist, the character is not performing any action, or the specified property does not exist for the current action type, the query fails.
+This is currently only implemented for the `PrepareSkill`, `UseSkill` and `Attack` action states. If the character does not exist, the character is not performing any action, or the specified property does not exist for the current action type, the query fails.
 
 The following property values can be retrieved:
 
-`PrepareSkill`:
+`PrepareSkill` action state:
 
 | Property | Type |
 |--|--|
@@ -1027,7 +1032,49 @@ The following property values can be retrieved:
 | IsFinished | Flag |
 | IsEntered | Flag |
 
-** TODO add support for other action types**
+`UseSkill` action state:
+
+| Property | Type |
+|--|--|
+| SkillId | String |
+| CharacterHandle | GuidString |
+| SourceItemHandle | GuidString |
+| CanEnter | Flag |
+| IsFinished | Flag |
+| IgnoreChecks | Flag |
+| IsStealthed | Flag |
+| PrepareTimerRemaining | Real |
+| ShouldExit | Flag |
+| CleanseStatuses | String |
+| StatusClearChance | Integer |
+| CharacterHasSkill | Flag |
+
+`Attack` action state:
+
+| Property | Type |
+|--|--|
+| TargetHandle | GuidString |
+| TargetPosition | Vector3 |
+| IsFinished | Flag |
+| AlwaysHit | Flag |
+| TimeRemaining | Real |
+| AnimationFinished | Flag |
+| TotalHits | Integer |
+| TotalHitOffHand | Integer |
+| TotalShoots | Integer |
+| TotalShootsOffHand | Integer |
+| HitCount | Integer |
+| HitCountOffHand | Integer |
+| ShootCount | Integer |
+| ShootCountOffHand | Integer |
+| MainWeaponHandle | GuidString |
+| OffWeaponHandle | GuidString |
+| MainHandHitType | Integer |
+| OffHandHitType | Integer |
+| ProjectileUsesHitObject | Flag |
+| ProjectileStartPosition | Vector3 |
+| ProjectileTargetPosition | Vector3 |
+| DamageDurability | Flag |
 
 
 ## Misc functions

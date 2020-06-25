@@ -1065,6 +1065,28 @@ namespace dse::esv
 		);
 		functionMgr.Register(std::move(characterGetCurrentAction));
 
+		auto actionStateGetInt = std::make_unique<CustomQuery>(
+			"NRD_ActionStateGetInt",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out }
+			},
+			&func::ActionStateGet<OsiPropertyMapType::Integer>
+		);
+		functionMgr.Register(std::move(actionStateGetInt));
+
+		auto actionStateGetReal = std::make_unique<CustomQuery>(
+			"NRD_ActionStateGetReal",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::Real, FunctionArgumentDirection::Out }
+			},
+			&func::ActionStateGet<OsiPropertyMapType::Real>
+		);
+		functionMgr.Register(std::move(actionStateGetReal));
+
 		auto actionStateGetString = std::make_unique<CustomQuery>(
 			"NRD_ActionStateGetString",
 			std::vector<CustomFunctionParam>{
@@ -1075,6 +1097,17 @@ namespace dse::esv
 			&func::ActionStateGet<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(actionStateGetString));
+
+		auto actionStateGetGuidString = std::make_unique<CustomQuery>(
+			"NRD_ActionStateGetGuidString",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Property", ValueType::String, FunctionArgumentDirection::In },
+				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out }
+			},
+			&func::ActionStateGet<OsiPropertyMapType::GuidStringHandle>
+		);
+		functionMgr.Register(std::move(actionStateGetGuidString));
 	}
 
 }
