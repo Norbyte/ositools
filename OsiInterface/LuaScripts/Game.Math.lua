@@ -1273,11 +1273,11 @@ MagicSavingThrows = {
 --- @param savingThrow string SavingThrow enumeration
 function GetSavingThrowChanceMultiplier(character, savingThrow)
     if savingThrow == "PhysicalArmor" then
-        if character.Stats.CurrentArmor > 0 and not character.TALENT_Raistlin then
+        if character.Stats.CurrentArmor > 0 and not character.Stats.TALENT_Raistlin then
             return 0.0
         end
     elseif MagicSavingThrows[savingThrow] ~= nil then
-        if character.Stats.CurrentMagicArmor > 0 and not character.TALENT_Raistlin then
+        if character.Stats.CurrentMagicArmor > 0 and not character.Stats.TALENT_Raistlin then
             return 0.0
         end
     end
