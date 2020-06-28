@@ -84,7 +84,8 @@ namespace dse::lua
 	{
 		lua_getglobal(L, "Mods"); // stack: Mods
 		lua_getfield(L, -1, mod); // stack: Mods, mod
-		lua_getfield(L, -1, func); // stack: Mods, fn
+		lua_remove(L, -2); // stack: mod
+		lua_getfield(L, -1, func); // stack: mod, fn
 		lua_remove(L, -2); // stack: fn
 	}
 
