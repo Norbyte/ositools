@@ -683,6 +683,52 @@ namespace dse
 
 	TempStrings gTempStrings;
 
+
+	bool ig::FlashObject::GetValueWorkaround(char const* path, InvokeDataValueType desiredType, InvokeDataValue& value, int arrayIndex)
+	{
+		switch (desiredType) {
+		case InvokeDataValueType::IDV_NoneVal:
+			return GetValueWorkaround(path, InvokeDataValueType::IDV_Bool, value, arrayIndex)
+				|| GetValueWorkaround(path, InvokeDataValueType::IDV_Double, value, arrayIndex)
+				|| GetValueWorkaround(path, InvokeDataValueType::IDV_String, value, arrayIndex);
+
+		// Bool and Double are implemented correctly in EoCApp
+		case InvokeDataValueType::IDV_Bool:
+		case InvokeDataValueType::IDV_Double:
+			return GetValue(path, desiredType, value, arrayIndex);
+
+		// Strings returned by the vanilla GetValue() are truncated at 512 bytes; for some use cases (status description etc.)
+		// this is too short, so we use a non-static buffer size instead
+		case InvokeDataValueType::IDV_String:
+		{
+			ig::IggyValue val;
+			auto const& sym = GetStaticSymbols();
+			if (!sym.IgValuePathMakeNameRef(&val, IggyValue, path)) {
+				return false;
+			}
+
+			if (arrayIndex >= 0) {
+				sym.IgValuePathSetArrayIndex(&val, arrayIndex);
+			}
+
+			int resultLength{ 0 };
+			// Get length of string
+			if (sym.IgValueGetStringUTF8(&val, 0, 0, 0x10000, nullptr, &resultLength)) {
+				return false;
+			}
+
+			// Fetch string directly to STDString buffer
+			value.TypeId = InvokeDataValueType::IDV_String;
+			value.StringVal.resize(resultLength);
+			return sym.IgValueGetStringUTF8(&val, 0, 0, resultLength, value.StringVal.data(), &resultLength) == 0;
+		}
+
+		default:
+			ERR("Attempted to fetch Flash value with unknown type %d", desiredType);
+			return false;
+		}
+	}
+
 	UIObject* UIObjectManager::GetByType(int typeId) const
 	{
 		for (auto ui : UIObjects) {

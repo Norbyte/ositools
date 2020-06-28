@@ -196,6 +196,10 @@ namespace dse
 		void * ModuleSettingsHasCustomMods{ nullptr };
 		void * ModuleSettingsHasCustomModsGB5{ nullptr };
 
+		ig::ValuePathMakeNameRefProc IgValuePathMakeNameRef{ nullptr };
+		ig::ValuePathSetArrayIndexProc IgValuePathSetArrayIndex{ nullptr };
+		ig::ValueGetStringUTF8Proc IgValueGetStringUTF8{ nullptr };
+
 		void * DUMMY1{ nullptr };
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
 

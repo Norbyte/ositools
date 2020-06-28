@@ -302,6 +302,8 @@ namespace dse {
 		void FindGlobalStringTableCoreLib();
 #endif
 
+		void FindExportsIggy();
+
 		bool IsConstStringRef(uint8_t const * ref, char const * str) const;
 		bool IsFixedStringRef(uint8_t const * ref, char const * str) const;
 		bool CanShowError();

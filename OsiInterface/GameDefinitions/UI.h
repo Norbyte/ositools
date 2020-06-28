@@ -8,7 +8,7 @@ namespace dse
 {
 
 #pragma pack(push, 1)
-	enum InvokeDataValueType : __int32
+	enum class InvokeDataValueType : int32_t
 	{
 		IDV_NoneVal = 0x1,
 		IDV_Bool = 0x3,
@@ -34,6 +34,15 @@ namespace dse
 
 	namespace ig
 	{
+		struct IggyValue
+		{
+			uint8_t Unknown[40];
+		};
+
+		using ValuePathMakeNameRefProc = int (*)(IggyValue* ref, IggyValue* parent, char const* path);
+		using ValuePathSetArrayIndexProc = void (*)(IggyValue* ref, int index);
+		using ValueGetStringUTF8Proc = int (*)(IggyValue* ref, int unknown1, int unknown2, int maxLength, char* result, int* resultLength);
+
 		struct FlashObject : ProtectedGameObject<FlashObject>
 		{
 			virtual void Destroy() = 0;
@@ -58,7 +67,7 @@ namespace dse
 			virtual bool GetVisible() = 0;
 			virtual bool GetValue(char const * path, InvokeDataValueType desiredType, InvokeDataValue & value, int arrayIndex = -1) = 0;
 
-			void * IggyValue;
+			IggyValue* IggyValue;
 			void * ValuePathRef2;
 			void * StrX;
 			void * StrY;
@@ -69,6 +78,8 @@ namespace dse
 			void * StrWidth;
 			void * StrHeight;
 			void * StrVisible;
+
+			bool GetValueWorkaround(char const* path, InvokeDataValueType desiredType, InvokeDataValue& value, int arrayIndex = -1);
 		};
 
 

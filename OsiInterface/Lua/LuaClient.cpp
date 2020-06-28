@@ -755,7 +755,6 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
-
 	int UIObjectProxy::GetValue(lua_State * L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
@@ -772,8 +771,8 @@ namespace dse::ecl::lua
 		}
 
 		InvokeDataValue value;
+		InvokeDataValueType type{ InvokeDataValueType::IDV_NoneVal };
 		if (typeName != nullptr) {
-			InvokeDataValueType type = IDV_NoneVal;
 			if (strcmp(typeName, "number") == 0) {
 				type = InvokeDataValueType::IDV_Double;
 			} else if (strcmp(typeName, "boolean") == 0) {
@@ -783,22 +782,13 @@ namespace dse::ecl::lua
 			} else {
 				luaL_error(L, "Unknown value type for Flash fetch: %s", typeName);
 			}
+		}
 
-			if (root->GetValue(path, type, value, arrayIndex)) {
-				InvokeDataValueToLua(L, value);
-				return 1;
-			} else {
-				return 0;
-			}
+		if (root->GetValueWorkaround(path, type, value, arrayIndex)) {
+			InvokeDataValueToLua(L, value);
+			return 1;
 		} else {
-			if (root->GetValue(path, IDV_Bool, value, arrayIndex)
-				|| root->GetValue(path, IDV_Double, value, arrayIndex)
-				|| root->GetValue(path, IDV_String, value, arrayIndex)) {
-				InvokeDataValueToLua(L, value);
-				return 1;
-			} else {
-				return 0;
-			}
+			return 0;
 		}
 	}
 

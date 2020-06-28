@@ -396,6 +396,8 @@ namespace dse
 			FindGlobalStringTableCoreLib();
 #endif
 
+			FindExportsIggy();
+
 			return !CriticalInitFailed;
 		} else {
 #if defined(OSI_EOCAPP)
@@ -404,6 +406,32 @@ namespace dse
 			ERR("LibraryManager::FindLibraries(): Unable to locate EoCPlugin module.");
 #endif
 			return false;
+		}
+	}
+
+	void LibraryManager::FindExportsIggy()
+	{
+		auto& sym = GetStaticSymbols();
+
+		HMODULE hIggy = LoadLibraryW(L"iggy_w64.dll");
+		if (hIggy == NULL) {
+			ERR("LibraryManager::FindExportsIggy(): Could not load Iggy library");
+			InitFailed = true;
+			return;
+		}
+
+		auto makeNameRefProc = GetProcAddress(hIggy, "IggyValue" "PathMakeNameRef");
+		auto setArrayIndexProc = GetProcAddress(hIggy, "IggyValue" "PathSetArrayIndex");
+		auto getStringUTF8Proc = GetProcAddress(hIggy, "IggyValue" "GetStringUTF8RS");
+		sym.IgValuePathMakeNameRef = (ig::ValuePathMakeNameRefProc)makeNameRefProc;
+		sym.IgValuePathSetArrayIndex = (ig::ValuePathSetArrayIndexProc)setArrayIndexProc;
+		sym.IgValueGetStringUTF8 = (ig::ValueGetStringUTF8Proc)getStringUTF8Proc;
+
+		if (sym.IgValuePathMakeNameRef == nullptr
+			|| sym.IgValuePathSetArrayIndex == nullptr
+			|| sym.IgValueGetStringUTF8 == nullptr) {
+			ERR("LibraryManager::FindExportsIggy(): Could not find Iggy functions");
+			InitFailed = true;
 		}
 	}
 
