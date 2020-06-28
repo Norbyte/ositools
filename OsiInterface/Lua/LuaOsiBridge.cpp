@@ -853,8 +853,6 @@ namespace dse::esv::lua
 	bool ServerState::Query(char const* mod, char const* name, RegistryEntry * func,
 		std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params)
 	{
-		std::lock_guard lock(mutex_);
-
 		auto L = GetState();
 		auto stackSize = lua_gettop(L);
 

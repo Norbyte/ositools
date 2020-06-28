@@ -197,11 +197,6 @@ namespace dse::lua
 			return startupDone_;
 		}
 
-		inline std::recursive_mutex & GetMutex()
-		{
-			return mutex_;
-		}
-
 		void FinishStartup();
 		void LoadBootstrap(STDString const& path, STDString const& modTable);
 		virtual void OnGameSessionLoading();
@@ -214,7 +209,6 @@ namespace dse::lua
 		template <class... Ret, class... Args>
 		auto CallExt(char const * func, uint32_t restrictions, ReturnType<Ret...>, Args... args)
 		{
-			std::lock_guard lock(mutex_);
 			Restriction restriction(*this, restrictions);
 			PushExtFunction(L, func);
 			auto _{ PushArguments(L, std::tuple{args...}) };
@@ -231,7 +225,6 @@ namespace dse::lua
 
 	protected:
 		lua_State * L;
-		std::recursive_mutex mutex_;
 		bool startupDone_{ false };
 
 		void OpenLibs();

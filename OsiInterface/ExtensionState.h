@@ -71,8 +71,8 @@ namespace dse
 		Module const* HighestVersionMod{ nullptr };
 		std::unordered_map<std::string, ExtensionModConfig> modConfigs_;
 
-
-		unsigned LuaRefs{ 0 };
+		std::recursive_mutex luaMutex_;
+		std::atomic<uint32_t> luaRefs_{ 0 };
 		bool LuaPendingDelete{ false };
 		bool LuaPendingStartup{ false };
 		bool StatLoadTriggered{ false };
@@ -96,12 +96,12 @@ namespace dse
 		inline LuaVirtualPin(ExtensionStateBase* state)
 			: state_(state)
 		{
-			if (state_ && state_->GetLua()) state_->IncLuaRefs();
+			if (state_) state_->IncLuaRefs();
 		}
 
 		inline ~LuaVirtualPin()
 		{
-			if (state_ && state_->GetLua()) state_->DecLuaRefs();
+			if (state_) state_->DecLuaRefs();
 		}
 
 		inline operator bool() const
@@ -141,12 +141,12 @@ namespace dse
 		inline LuaStatePin(T & state)
 			: state_(state)
 		{
-			if (state_.Lua) state_.IncLuaRefs();
+			state_.IncLuaRefs();
 		}
 
 		inline ~LuaStatePin()
 		{
-			if (state_.Lua) state_.DecLuaRefs();
+			state_.DecLuaRefs();
 		}
 
 		LuaStatePin(LuaStatePin const& state) = delete;

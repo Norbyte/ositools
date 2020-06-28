@@ -1326,7 +1326,6 @@ namespace dse::ecl::lua
 
 	void ClientState::OnCreateUIObject(ObjectHandle uiObjectHandle)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UIObjectCreated");
@@ -1336,7 +1335,6 @@ namespace dse::ecl::lua
 
 	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UICall"); // stack: fn
@@ -1352,7 +1350,6 @@ namespace dse::ecl::lua
 
 	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UIInvoke"); // stack: fn
@@ -1369,7 +1366,6 @@ namespace dse::ecl::lua
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		auto skill = prototype->GetStats();
@@ -1405,7 +1401,6 @@ namespace dse::ecl::lua
 	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
 		CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		auto status = prototype->GetStats();
@@ -1439,7 +1434,6 @@ namespace dse::ecl::lua
 
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn

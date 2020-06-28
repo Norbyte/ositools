@@ -354,8 +354,6 @@ namespace dse::esv::lua
 		template <class TArg>
 		void Call(char const* mod, char const* func, std::vector<TArg> const & args)
 		{
-			std::lock_guard lock(mutex_);
-
 			auto L = GetState();
 			lua_checkstack(L, (int)args.size() + 1);
 			auto stackSize = lua_gettop(L);

@@ -1124,7 +1124,6 @@ namespace dse::esv::lua
 
 	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool isEnterCheck)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
@@ -1219,7 +1218,6 @@ namespace dse::esv::lua
 
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_StatusHitEnter"); // stack: fn
@@ -1243,7 +1241,6 @@ namespace dse::esv::lua
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
@@ -1332,7 +1329,6 @@ namespace dse::esv::lua
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_BeforeCharacterApplyDamage"); // stack: fn
@@ -1390,7 +1386,6 @@ namespace dse::esv::lua
 
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
@@ -1402,7 +1397,6 @@ namespace dse::esv::lua
 
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictOsiris);
 
 		auto turnMgr = GetEntityWorld()->GetTurnManager();
@@ -1447,7 +1441,6 @@ namespace dse::esv::lua
 
 	std::optional<STDString> ServerState::GetModPersistentVars(STDString const& modTable)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GetModPersistentVars");
@@ -1464,7 +1457,6 @@ namespace dse::esv::lua
 
 	void ServerState::RestoreModPersistentVars(STDString const& modTable, STDString const& vars)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_RestoreModPersistentVars");

@@ -843,7 +843,6 @@ namespace dse::lua
 
 	std::optional<int> State::LoadScript(STDString const & script, STDString const & name, int globalsIdx)
 	{
-		std::lock_guard lock(mutex_);
 		int top = lua_gettop(L);
 
 		/* Load the file containing the script we are going to run */
@@ -874,7 +873,6 @@ namespace dse::lua
 
 	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GetHitChance"); // stack: fn
@@ -894,7 +892,6 @@ namespace dse::lua
 		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
-		std::lock_guard lock(mutex_);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GetSkillDamage"); // stack: fn

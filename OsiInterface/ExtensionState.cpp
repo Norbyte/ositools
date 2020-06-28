@@ -294,15 +294,17 @@ namespace dse
 
 	void ExtensionStateBase::IncLuaRefs()
 	{
-		assert(GetLua());
-		LuaRefs++;
+		luaMutex_.lock();
+		luaRefs_++;
 	}
 
 	void ExtensionStateBase::DecLuaRefs()
 	{
-		assert(LuaRefs > 0);
-		LuaRefs--;
-		if (LuaRefs == 0 && LuaPendingDelete) {
+		assert(luaRefs_ > 0);
+		luaRefs_--;
+		luaMutex_.unlock();
+
+		if (luaRefs_ == 0 && LuaPendingDelete) {
 			LuaResetInternal();
 		}
 	}
@@ -323,10 +325,10 @@ namespace dse
 			LuaPendingStartup = true;
 		}
 
-		if (LuaRefs == 0) {
+		if (luaRefs_ == 0) {
 			LuaResetInternal();
 		} else {
-			OsiWarn("Lua state deletion deferred (" << LuaRefs << " references still alive)");
+			OsiWarn("Lua state deletion deferred (" << luaRefs_ << " references still alive)");
 		}
 	}
 
@@ -427,8 +429,9 @@ namespace dse
 
 	void ExtensionStateBase::LuaResetInternal()
 	{
+		std::lock_guard _(luaMutex_);
 		assert(LuaPendingDelete);
-		assert(LuaRefs == 0);
+		assert(luaRefs_ == 0);
 
 		LuaPendingDelete = false;
 

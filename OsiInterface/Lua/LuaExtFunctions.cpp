@@ -1429,7 +1429,6 @@ namespace dse::lua
 			ecl::LuaClientPin pin(ecl::ExtensionState::Get());
 			if (!pin) return {};
 
-			std::lock_guard _(pin->GetMutex());
 			Restriction restriction(*pin, State::RestrictAll);
 
 			auto L = pin->GetState();
