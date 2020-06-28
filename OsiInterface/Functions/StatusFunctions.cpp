@@ -612,7 +612,7 @@ namespace dse::esv
 		}
 
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = GetEntityWorld()->GetCharacter(status->StatusSourceHandle);
+		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 		if (source != nullptr) {
 			sourceGuid = source->GetGuid()->Str;
 		}
@@ -646,7 +646,7 @@ namespace dse::esv
 		}
 
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = GetEntityWorld()->GetCharacter(status->StatusSourceHandle);
+		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 		if (source != nullptr) {
 			sourceGuid = source->GetGuid()->Str;
 		}
