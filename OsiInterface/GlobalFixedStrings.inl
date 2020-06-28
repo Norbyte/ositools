@@ -55,6 +55,7 @@ FS(NetID);
 FS(GetItemBySlot);
 FS(PlayerCustomData);
 FS(RootTemplate);
+FS(Sight);
 
 // Stat attributes
 FS(Level);

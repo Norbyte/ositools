@@ -135,6 +135,11 @@ namespace dse::lua
 
 	int CharacterFetchStat(lua_State * L, CDivinityStats_Character * stats, char const* propStr, FixedString const& prop)
 	{
+		if (prop == GFS.strSight) {
+			push(L, stats->Sight);
+			return 1;
+		}
+
 		std::optional<int32_t> dynamicStat;
 		if (!prop && strncmp(propStr, "Base", 4) == 0) {
 			dynamicStat = stats->GetStat(ToFixedString(propStr + 4), true);
