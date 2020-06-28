@@ -330,8 +330,8 @@ end
 function ParseTooltipArmorSet(tt, index)
     local element = {
         Type = "ArmorSet",
-        Skills = {},
-        Skills2 = {}
+        GrantedStatuses = {},
+        GrantedStatuses2 = {}
     }
 
     element.SetName = tt[index]
