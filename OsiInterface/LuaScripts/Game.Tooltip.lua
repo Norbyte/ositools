@@ -86,7 +86,7 @@ TooltipSpecs = {
     DodgeBoost = {_Label, _NumValue, _Unused},
     EquipmentUnlockedSkill = {_Label, _Value, {"Icon", "number"}},
     WandSkill = {_Label, _Value, _Icon, _Warning},
-    WandCharges = {_Label, _Value, {"MaxValue", "string"}, _Unused, _Unused},
+    WandCharges = {_Label, {"Value", "number"}, {"MaxValue", "number"}, _Unused, _Unused},
     ArmorValue = {_Label, _NumValue, _Unused, _Unused},
     ArmorSlotType = {_Label, _Unused, _Unused},
     Blocking = {_Label, _NumValue, _Unused, _Unused},
@@ -139,7 +139,7 @@ TooltipSpecs = {
     RuneEffect = {{"Unknown1", "number"}, {"Rune1", "string"}, {"Rune2", "string"}, {"Rune3", "string"}, _Label, {"Label2", "string"}},
     Equipped = {{"EquippedBy", "string"}, _Label, {"Slot", "string"}},
     ShowSkillIcon = {_Unused},
-    SkillbookSkill = {_Label, _Value, _Unused},
+    SkillbookSkill = {_Label, _Value, {"Icon", "number"}},
     EmptyRuneSlot = {_Label, _Value, _Unused},
 
     StatName = {_Label},
