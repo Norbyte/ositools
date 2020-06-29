@@ -1050,7 +1050,11 @@ local EclCharacter = {
     --- Returns all statuses on the character
     --- @param self EclCharacter
     --- @return string[]
-    GetStatuses = function (self) end
+    GetStatuses = function (self) end,
+    --- Update model scale of the character.
+    --- @param self EclCharacter
+    --- @param scale number 
+    SetScale = function (self, scale) end
 }
 
 
@@ -1157,15 +1161,31 @@ local PlayerCustomData = {
 --- @field public InventoryHandle integer Not useful yet as you can't use inventory handles for any API
 --- @field public SkillBeingPrepared string Set while preparing a skill, cleared afterwards
 --- @field public LifeTime number Used for summons to indicate remaining lifetime
+--- @field public TurnTimer number
+--- @field public TriggerTrapsTimer number
+--- @field public UserID integer
 --- @field public OwnerHandle integer Handle of owner character (in case of summons/followers)
+--- @field public FollowCharacterHandle integer
+--- @field public SpiritCharacterHandle integer
+--- @field public CorpseCharacterHandle integer
 --- @field public PartialAP number Movement AP
 --- @field public AnimType integer
 --- @field public DelayDeathCount integer
 --- @field public AnimationSetOverride string
+--- @field public OriginalTransformDisplayName string
+--- @field public PartyHandle integer
 --- @field public CustomTradeTreasure string
+--- @field public IsAlarmed boolean
+--- @field public CrimeWarningsEnabled boolean
+--- @field public CrimeInterrogationEnabled boolean
+--- @field public MovingCasterHandle integer
 --- @field public Archetype string
 --- @field public EquipmentColor string
---- @field public UserID integer
+--- @field public ProjectileTemplate string
+--- @field public ReadyCheckBlocked boolean
+--- @field public CorpseLootable boolean
+--- @field public CustomBloodSurface string
+--- @field public PreviousLevel string
 
 -- CharacterFlags 0
 --- @field public IsPlayer boolean
@@ -1234,7 +1254,12 @@ local EsvCharacter = {
     --- Returns all statuses on the character
     --- @param self EsvCharacter
     --- @return string[]
-    GetStatuses = function (self) end
+    GetStatuses = function (self) end,
+    --- Update model scale of the character.
+    --- NOTE: This change must be manually synchronized to the client!
+    --- @param self EsvCharacter
+    --- @param scale number 
+    SetScale = function (self, scale) end
 }
 
 
@@ -2273,6 +2298,21 @@ local StatEntryCrime = {}
 local HitRequest = {}
 
 
+--- @class HitContext
+--- Context information passed in StatusHitEnter/BeforeCharacterApplyDamage callbacks
+--- @field public HitId integer Unique hit identifier for hit tracking
+--- @field public Weapon StatItem
+--- @field public Hit HitRequest
+--- @field public HitType string See HitType enumeration
+--- @field public NoHitRoll boolean
+--- @field public ProcWindWalker boolean
+--- @field public ForceReduceDurability boolean
+--- @field public HighGround string
+--- @field public CriticalRoll string
+--- @field public HitStatus EsvStatus
+local HitContext = {}
+
+
 --- @class EsvCombatTeam
 --- @field public TeamId integer A number identifying the team instance
 --- @field public CombatId integer 	Identifies which combat the team is a participant of
@@ -2402,7 +2442,7 @@ local UIObject = {
     Destroy = function (self) end,
 }
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -2412,7 +2452,8 @@ local UIObject = {
 --- @alias ExtStatusGetEnterChanceCallback fun(status: EsvStatus, isEnterCheck: boolean): number
 --- @alias ExtSkillGetDescriptionParamCallback fun(skill: StatEntrySkillData, character: StatCharacter, isFromItem: boolean, ...): string
 --- @alias ExtStatusGetDescriptionParamCallback fun(status: EsvStatus, statusSource: EsvGameObject, character: StatCharacter, ...): string
---- @alias ExtBeforeCharacterApplyDamageCallback fun(target: EsvCharacter, attacker: StatCharacter|StatItem, hit: HitRequest, causeType: string, impactDirection: number[]): HitRequest
+--- @alias ExtBeforeCharacterApplyDamageCallback fun(target: EsvCharacter, attacker: StatCharacter|StatItem, hit: HitRequest, causeType: string, impactDirection: number[], context: HitContext): HitRequest
+--- @alias ExtStatusHitEnterCallback fun(status: EsvStatus, context: HitContext)
 
 --- @class Ext
 Ext = {
