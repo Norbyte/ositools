@@ -14,6 +14,9 @@
 
 ### Lua
 
+ - Contextual hit information (i.e. parameters when the hit was triggered; hit status; etc.) is now collected and is available in two Lua events:
+   - Passed as the last parameter (`context`) to `BeforeCharacterApplyDamage` event; new signature is `function (target, attacker, hit, causeType, impactDirection, context)`
+   - In new event `StatusHitEnter` (equivalent to `NRD_OnHit` in Osiris); signature is `function (status, context)`
  - Added `Ext.GetTreasureTable(name)` and `Ext.GetTreasureCategory(name)` for fetching treasure table data
  - Added `GameStateChanged(fromState, toState)` event that tracks game loading progress
  - Added `Ext.GameVersion()` function to fetch game version number
