@@ -1,6 +1,84 @@
 
 # Script Extender Changelogs
 
+## Changes in v49
+
+### UI
+
+ - Added support for Gift Bag 5 armor set tooltips
+ - Added tooltip support for dynamically created UI objects (trade window, etc.)
+ - Added support for main/offhand item comparison tooltips
+ - Fixed incorrect callback parameters in `UICall` and `UIInvoke`
+ - Fixed missing skillbook tooltip icons if tooltip library is used
+ - Fixed string truncation issue when reading Flash strings longer than 512 bytes
+
+### Lua
+
+ - Added `Ext.GetTreasureTable(name)` and `Ext.GetTreasureCategory(name)` for fetching treasure table data
+ - Added `GameStateChanged(fromState, toState)` event that tracks game loading progress
+ - Added `Ext.GameVersion()` function to fetch game version number
+ - Added `character.SetScale()`; it must be called on both the server and the client to take effect!
+ - `Sight` stat is now properly readable
+ - Fixed saving throw multiplier calculation in `Game.Math`
+ - Fixed erroneous return value handling (and possible crash) in `NRD_ModQuery`
+ - Several changes aimed at fixing crashes caused by concurrent Lua state use
+
+### General
+ 
+ - Expanded `esv::Character` property list: `TurnTimer`, `TriggerTrapsTimer`, `UserID`, ... (see IDE helpers for a full list)
+ - `WalkSpeed`/`RunSpeed` is now changeable on `esv::Character`
+ - Internal variables of `UseSkill` and `Attack` action states can now be queried as well
+ - Added Extender version number to main menu
+ - Fixed crash when client thread is mistakenly identified as a server thread (occurs more frequently with more savegame reloads)
+ - Fixed missing blood surfaces on hit; this was caused by the hit handler not copying hit flags properly after `ApplyDamage`
+ - `NRD_OnHit`/`NRD_OnHeal` now pass source item GUID properly; previously the GUID for items was always `NULL_00000000-0000-0000-0000-000000000000`
+
+
+## Changes in v48
+
+ - Added Gift Bag 5 support
+ - Added support for reading root templates properties; in Osiris via `NRD_RootTemplateGetXyz`, in Lua via `character.RootTemplate.Xyz`, `item.RootTemplate.Xyz`, `projectile.RootTemplate.xyz`
+ - Properties for action states `Attack`, and `UseSkill` are now readable via `NRD_ActionStateGetString`
+ - Add 3-4 argument `Min()` and `Max()`; integer `Random()` queries
+ - Track savegame version separately from extender version -- this means that a savegame compatibility warning will only be shown when the savegame format changes, not after each extender update
+ - Protect builtin Lua object metatables -- previously it was possible to inspect/edit metatables of built-in objects; this is no longer the case
+ - Make savegame persistence of synced stats optional -- `Ext.SyncStat()` now has an optional second argument that toggles persistence
+ - Add `Ext.StatSetPersistence(stat, persist)` call to toggle persistence of modified stats entries on/off; this means that they will no longer be saved in the savegame and will be lost after reload
+ - Fix syncing of `Cone`-type skills
+
+
+## Changes in v47
+
+### Major Changes
+
+ - Added `Game.Tooltip` tooltip library; this allows mods to customize item, skill, status and stat tooltips (add/replace/remove elements)
+
+### Stats
+
+ - Added `Ext.EnumIndexToLabel` and `Ext.EnumLabelToIndex` for converting `enumerations.xml` indexes to names (and vice versa)
+ - Added missing `Projectile` property to weapon stats
+ - Fixed `GetLevelScaledWeaponDamage` formula in `Game.Math`
+ - Fixed enter chance of statuses triggered by mines in `Game.Math`
+
+### UI
+
+ - Added `Ext.DoubleToHandle` function for converting Flash handle values to game handles
+ - Added `ui:GetTypeId`, `ui:GetPlayerHandle`, `Ext.GetUIByType`
+ - Added extended UI event subscriptions `Ext.RegisterUITypeInvokeListener`, `Ext.RegisterUINameCall` 
+ - Allow passing a nil type to `ui:GetValue()` (previously 3 calls had to be made to `GetValue` with each type to fetch values with an unknown type)
+
+### General
+
+ - Added experimental functions `Ext.GetSurface` and `Ext.GetCellInfo` for fetching surface data and inspecting surfaces on a given map coordinate
+ - Added support for fetching client statuses via handle
+ - Improved verbosity of property map error messages
+ - Handle unassigned characters properly in `Ext.PlayerHasExtender`
+ - Fixed incorrect peer info reset when unloading module
+ - Fixed crash when client entered an unmapped state ID
+ - Fixed alignment bug in `ecl::Item`
+ - Fixed parameter off by one in `ModQuery()`
+ - Fixed bug where custom function initialization could be skipped if the update check took too long
+
 ## Changes in v45
 
 ### Migrating from v44 to v45
