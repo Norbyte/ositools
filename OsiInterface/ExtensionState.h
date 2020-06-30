@@ -90,7 +90,7 @@ namespace dse
 		inline LuaVirtualPin(ExtensionStateBase& state)
 			: state_(&state)
 		{
-			if (state_->GetLua()) state_->IncLuaRefs();
+			if (state_) state_->IncLuaRefs();
 		}
 
 		inline LuaVirtualPin(ExtensionStateBase* state)
