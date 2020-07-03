@@ -851,6 +851,19 @@ namespace dse
 		},
 
 		{
+			"esv::TurnManager::UpdateTurnOrder",
+			SymbolMappingData::kText, 0,
+			"84 D2 " // test    dl, dl
+			"0F 84 0E 05 00 00 " // jz      xxx
+			"88 54 24 10 " // mov     [rsp+arg_8], dl
+			"41 57 " // push    r15
+			"48 83 EC 60 " // sub     rsp, 60h
+			"44 8B 81 C4 00 00 00 ", // mov     r8d, [rcx+0C4h]
+			{},
+			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(TurnManagerUpdateTurnOrder)}
+		},
+
+		{
 			"GlobalSwitches",
 			SymbolMappingData::kText, SymbolMappingData::kDeferred,
 			"48 83 EC 20 " // sub     rsp, 20h
