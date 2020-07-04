@@ -7,14 +7,12 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	struct CRPGStats_Requirement
 	{
 		RequirementType RequirementId;
 		int32_t IntParam;
 		FixedString StringParam;
 		bool Negate;
-		uint8_t _Pad[7];
 
 		void ToProtobuf(class StatRequirement* msg) const;
 		void FromProtobuf(StatRequirement const& msg);
@@ -26,7 +24,6 @@ namespace dse
 		void* VMT{ nullptr };
 		ObjectSet<T *> Primitives;
 		Map<FixedString, uint32_t> NameHashMap;
-		uint32_t Unused{ 0 };
 		uint32_t NextHandle{ 0 };
 		uint32_t NumSomeItems{ 0 };
 
@@ -87,28 +84,20 @@ namespace dse
 		}
 	};
 
-	struct CRPGStats_Object_Property : public Noncopyable<CRPGStats_Object_Property>
-	{
-		virtual ~CRPGStats_Object_Property() {}
-		virtual CRPGStats_Object_Property * Clone() = 0;
-
-		FixedString Name;
-		CRPGStats_Object_Property_Type TypeId;
-	};
-
 	struct CDivinityStats_Condition;
 
-	struct CDivinityStats_Object_Property_Data : public CRPGStats_Object_Property
+	struct CDivinityStats_Object_Property_Data
 	{
 		virtual ~CDivinityStats_Object_Property_Data() {}
-		virtual CRPGStats_Object_Property* Clone() { return nullptr; }
+		virtual CDivinityStats_Object_Property_Data* Clone() { return nullptr; }
 		virtual bool GetDescription(STDWString* Line1) { return false; }
 		virtual bool GetDescription(TranslatedString * Line1, TranslatedString * Line2) { return false; }
 		virtual bool GetDescription(TranslatedString * Line1) { return false; }
 		virtual uint64_t Unknown() { return 0; }
 
+		FixedString Name;
+		CRPGStats_Object_Property_Type TypeId;
 		CRPGStats_Object_PropertyContext PropertyContext;
-		uint8_t _Pad1[3];
 		CDivinityStats_Condition* Conditions;
 
 		void ToProtobuf(class StatProperty* msg) const;
@@ -129,7 +118,6 @@ namespace dse
 		int Argument4;
 		int Argument5;
 		bool HasBoost;
-		uint8_t _Pad1[7];
 		ObjectSet<int> SurfaceBoosts; // ESurfaceType
 	};
 
@@ -152,14 +140,12 @@ namespace dse
 		FixedString Template;
 		float Duration;
 		bool IsTotem;
-		char _Pad[3];
 		FixedString Skill;
 	};
 
 	struct CDivinityStats_Object_Property_Force : public CDivinityStats_Object_Property_Data
 	{
 		int Distance;
-		char _Pad[4];
 		FixedString Unknown;
 	};
 
@@ -168,7 +154,6 @@ namespace dse
 		int GameAction; // "Game Action" from ValueLists
 		float Arg1;
 		float Arg2;
-		uint8_t _Pad[4];
 		FixedString Arg3;
 		float Arg4;
 		float Arg5;
@@ -196,7 +181,7 @@ namespace dse
 			GameFree(ptr);
 		}
 
-		virtual CRPGStats_Object_Property * Clone()
+		virtual CDivinityStats_Object_Property_Data * Clone()
 		{
 			auto cl = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
 			cl->Name = Name;
@@ -237,10 +222,9 @@ namespace dse
 
 	struct CRPGStats_Object_Property_List
 	{
-		CNamedElementManager<CRPGStats_Object_Property> Properties;
+		CNamedElementManager<CDivinityStats_Object_Property_Data> Properties;
 		FixedString Name;
 		CRPGStats_Object_PropertyContext AllPropertyContexts{ 0 };
-		uint8_t _Pad[7];
 
 		void ToProtobuf(FixedString const& name, class StatPropertyList* msg) const;
 		void FromProtobuf(StatPropertyList const& msg);
@@ -256,7 +240,6 @@ namespace dse
 		int ModifierListIndex{ -1 };
 		int ModifierIndex{ -1 };
 		int RPGEnumerationIndex{ -1 };
-		uint8_t _Pad[4];
 		FixedString Name;
 	};
 
@@ -275,9 +258,7 @@ namespace dse
 		FixedString FS2;
 		struct CDivinityStats* DivStats{ nullptr };
 		Map<FixedString, CRPGStats_Object_Property_List *> PropertyList;
-		uint32_t Unused5{ 0 };
 		Map<FixedString, CDivinityStats_Condition *> ConditionList;
-		uint32_t Unused6{ 0 };
 		FixedString AIFlags;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> Requirements;
 		ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> MemorizationRequirements;
@@ -415,7 +396,6 @@ namespace dse
 
 	struct CDivinityStats_Item : public CRPGStats_ObjectInstance
 	{
-		uint32_t _Pad0;
 		uint32_t U1;
 		EquipmentStatsType ItemType;
 		uint32_t ItemSlot;
@@ -478,7 +458,6 @@ namespace dse
 	struct CharacterDynamicStat : public ProtectedGameObject<CharacterDynamicStat>
 	{
 		int32_t CharacterInstanceId;
-		uint8_t _Pad0[4];
 		CDivinityStats * DivStats;
 
 		int32_t SummonLifelinkModifier;
@@ -568,7 +547,6 @@ namespace dse
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
 
-		uint32_t _Pad0;
 		int32_t CurrentVitality;
 		int32_t CurrentArmor;
 		int32_t CurrentMagicArmor;
@@ -580,10 +558,8 @@ namespace dse
 		int32_t Experience; // Saved
 		int32_t Reputation;
 		uint8_t Flanked; // Saved
-		uint8_t _Pad1[3];
 		int32_t Karma; // Saved
 		StatCharacterFlags Flags;
-		uint8_t _Pad2[3];
 		uint32_t Unkn0;
 		ObjectSet<int> TraitOrder; // Saved
 		int32_t MaxResistance;
@@ -597,9 +573,7 @@ namespace dse
 		ObjectSet<void *> SurfacePathInfluences;
 		int32_t ActiveBoostConditions[16]; // Saved
 		EoCGameRandom DamageRng;
-		uint8_t _Pad4[3];
 		EoCGameRandom CriticalHitRng;
-		uint8_t _Pad5[3];
 		int32_t MaxVitality;
 		int32_t BaseMaxVitality;
 		int32_t MaxArmor;
@@ -612,7 +586,6 @@ namespace dse
 		StatAttributeFlags BaseAttributeFlags;
 		StatAttributeFlags ItemBoostedAttributeFlags;
 		bool AttributeFlagsUpdated;
-		uint8_t _Pad6[3];
 		int32_t MaxSummons;
 		int32_t BaseMaxSummons;
 		int32_t MaxMpOverride; // Saved
@@ -673,7 +646,6 @@ namespace dse
 	{
 		void * VMT;
 		bool SomeFlag;
-		uint8_t _Pad[7];
 		CDivinityStatsList<CDivinityStats_Item> * ItemList;
 		CDivinityStatsList<CDivinityStats_Character> * CharacterList;
 		char SomeBuf0x50b[80];
@@ -696,7 +668,6 @@ namespace dse
 		int32_t RPGEnumerationIndex;
 		int32_t LevelMapIndex;
 		int32_t UnknownZero;
-		uint32_t _Padding;
 		FixedString Name;
 	};
 
@@ -722,7 +693,6 @@ namespace dse
 	struct CRPGStats_Conditions_Manager
 	{
 		Map<FixedString, CDivinityStats_Condition *> Conditions;
-		uint8_t _Pad1[4];
 		ObjectSet<STDString> Variables;
 	};
 
@@ -775,7 +745,6 @@ namespace dse
 		SkillType SkillTypeId;
 		FixedString SkillId;
 		uint16_t Ability;
-		uint8_t _Pad[2];
 		uint32_t Tier;
 		uint32_t Requirement;
 		uint32_t Level;
@@ -788,7 +757,6 @@ namespace dse
 		STDWString DisplayName;
 		FixedString Icon;
 		AIFlags AiFlags;
-		uint8_t _Pad2[7];
 		SkillPrototype * RootSkillPrototype;
 		ObjectSet<SkillPrototype *> ChildPrototypes;
 
@@ -799,7 +767,6 @@ namespace dse
 	{
 		void* VMT;
 		Map<FixedString, SkillPrototype*> Prototypes;
-		uint8_t _Pad[4];
 		ObjectSet<FixedString> PrototypeNames;
 		bool Initialized;
 
@@ -820,7 +787,6 @@ namespace dse
 		TranslatedString DisplayName;
 		FixedString Icon;
 		bool HasStats{ false };
-		uint8_t _Pad[7];
 		ObjectSet<uint32_t> AbsorbSurfaceTypes{ nullptr }; // eoc::ESurfaceType
 
 		CRPGStats_Object * GetStats() const;
@@ -830,7 +796,6 @@ namespace dse
 	{
 	  void* VMT;
 	  Map<FixedString, StatusPrototype*> Prototypes;
-	  uint8_t _Pad[4];
 	  ObjectSet<FixedString> PrototypeNames;
 	  bool Initialized;
 
@@ -920,7 +885,6 @@ namespace dse
 		ObjectSet<Category*> Categories;
 		ObjectSet<int> CategoryFrequencies;
 		int TotalFrequency;
-		uint8_t _Pad[4];
 		ObjectSet<DropCount> DropCounts;
 		ObjectSet<int> Amounts;
 		int TotalCount;
@@ -937,7 +901,6 @@ namespace dse
 		bool IgnoreLevelDiff;
 		bool UseTreasureGroupContainers;
 		bool CanMerge;
-		uint8_t _Pad[5];
 		ObjectSet<CRPGStats_Treasure_SubTable_Description*> SubTables;
 	};
 
@@ -953,7 +916,6 @@ namespace dse
 			int Unique;
 			int MinLevel;
 			int MaxLevel;
-			uint8_t _Pad[4];
 		};
 
 
@@ -979,7 +941,6 @@ namespace dse
 		CNamedElementManager<CRPGStats_Treasure_Table> TreasureTables;
 		CRPGStats_ItemType_Manager itemTypes;
 		Map<FixedString, CRPGStats_Object_Property_List*> PropertyLists;
-		uint8_t _Pad1[4];
 		CRPGStats_Conditions_Manager ConditionsManager;
 		STDWString LoadingModName;
 		uint64_t Unkn1[5];
@@ -987,13 +948,9 @@ namespace dse
 		RefMap<FixedString, void *> RefMap1;
 		RefMap<FixedString, void *> ColorTable;
 		Map<FixedString, FixedString> TreasureCategoryMaps;
-		uint8_t _Pad2[4];
 		Map<FixedString, int> TreasureWeaponCounters;
-		uint8_t _Pad3[4];
 		Map<FixedString, int> TreasureArmorCounters;
-		uint8_t _Pad4[4];
 		Map<FixedString, int> TreasureSkillbookCounters;
-		uint8_t _Pad5[4];
 		RefMap<FixedString, void *> FSMap2;
 		FixedString TreasureItemTypes[7];
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
@@ -1007,7 +964,6 @@ namespace dse
 		ScratchBuffer* CurrentPreParseBuf;
 		FixedString CurrentStatsEntryName;
 		Map<FixedString, uint64_t> PreParsedDataBufferMap;
-		uint8_t _Pad6[4];
 		ObjectSet<void *> PreParsedDataBuffers;
 		CDivinityStats* DivinityStats;
 		CRITICAL_SECTION CritSection;
@@ -1042,7 +998,6 @@ namespace dse
 
 	CRPGStats_Object * StatFindObject(char const * name);
 	CRPGStats_Object * StatFindObject(int index);
-#pragma pack(pop)
 
 	template <class TTag>
 	std::optional<int32_t> CharacterStatGetter(CDivinityStats_Character__GetStat * getter,

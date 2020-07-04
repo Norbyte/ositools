@@ -10,7 +10,6 @@ namespace dse
 {
 	struct ItemTemplate;
 
-#pragma pack(push, 1)
 	namespace eoc
 	{
 		struct ItemDefinition : public Noncopyable<ItemDefinition>
@@ -18,12 +17,10 @@ namespace dse
 			uint32_t Version{ 0x36060000 };
 			NetId NetID{ -1 };
 			NetId ItemNetId{ -1 };
-			uint8_t _Pad0[4];
 			FixedString FS1;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
 			FixedString RootTemplate;
 			uint32_t Unkn1{ 6 };
-			uint8_t _Pad1[4];
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
 			FixedString OriginalRootTemplate;
 			uint32_t Unkn21{ 6 };
@@ -33,7 +30,6 @@ namespace dse
 			NetId InventoryNetID{ -1 };
 			NetId InventorySubContainerNetID{ -1 };
 			int16_t Slot{ 0 }; // -1 = Not in inventory
-			uint8_t _Pad3[2]{ 0 };
 			uint32_t Amount{ 1 };
 			int32_t GoldValueOverwrite{ -1 }; // -1 = Not overridden
 			int32_t WeightValueOverwrite{ -1 }; // -1 = Not overridden
@@ -52,28 +48,21 @@ namespace dse
 			FixedString GenerationItemType;
 			uint32_t GenerationRandom{ 0 };
 			uint16_t GenerationLevel{ 1 };
-			uint8_t _Pad4[2];
 			ObjectSet<FixedString> GenerationBoosts;
 			int8_t LevelGroupIndex{ -1 };
 			int16_t RootGroupIndex{ -1 };
 			int8_t NameIndex{ -1 };
 			uint8_t NameCool{ 0 };
-			uint8_t _Pad5[3];
 			uint32_t StatsLevel{ 0 };
-			uint8_t _Pad6[4];
 			FixedString Key;
 			uint32_t LockLevel{ 1 };
 			uint32_t Unkn11{ 0 };
 			// eg. "WPN_Shield"
 			FixedString StatsEntryName;
 			uint32_t EquipmentStatsType{ 3 };
-			uint8_t _Pad7[4];
 			ScratchBuffer PermanentBoostsBuf;
-			uint8_t _Pad8[4];
 			ScratchBuffer BaseStatsBuf;
-			uint8_t _Pad9[4];
 			bool HasModifiedSkills{ false };
-			uint8_t _Pad10[7];
 			FixedString Skills;
 			ObjectSet<FixedString> FSSet2;
 			ObjectSet<FixedString> RuneBoosts;
@@ -86,7 +75,6 @@ namespace dse
 			bool GMFolding{ false };
 			uint8_t Flags2{ 0 };
 			bool CanUseRemotely{ false };
-			uint8_t _Pad11[4]{ 0 };
 			uint64_t Unknown2[2]{ 0 };
 		};
 	}
@@ -100,7 +88,6 @@ namespace dse
 			FixedString ItemType; // Saved
 			uint32_t Random; // Saved
 			uint16_t Level; // Saved
-			uint16_t _Pad0;
 			CompactObjectSet<FixedString> Boosts; // Saved
 		};
 
@@ -113,16 +100,13 @@ namespace dse
 			uint32_t _Pad2;
 			uint64_t Flags; // Saved
 			uint32_t U2;
-			uint32_t _Pad3;
 			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved
 			uint8_t Flags3;
-			uint8_t _Pad4[7];
 			PrimitiveSet<uint16_t> PeerIDClassNames;
 			uint64_t U3[2];
 			glm::vec3 WorldVelocity; // Saved
-			uint32_t _Pad5;
 			eoc::Ai* AI;
 			ItemTemplate* CurrentTemplate; // Saved
 			uint64_t OriginalTemplateType; // Saved
@@ -136,7 +120,6 @@ namespace dse
 			ObjectHandle InventoryHandle; // Saved
 			ObjectHandle ParentInventoryHandle; // Saved
 			uint16_t Slot; // Saved
-			uint16_t _Pad6;
 			uint32_t Amount; // Saved
 			uint32_t Vitality; // Saved
 			uint32_t Armor; // Saved
@@ -145,7 +128,6 @@ namespace dse
 			uint32_t U50;
 			FixedString Key;
 			uint32_t LockLevel; // Saved
-			uint32_t _Pad7;
 			void * ItemMachine; // Saved
 			void * PlanMachine; // Saved
 			void * VariableManager; // Saved
@@ -166,7 +148,6 @@ namespace dse
 			int32_t TreasureLevel; // Saved // -1 = Not overridden
 			int32_t LevelOverride; // Saved
 			bool ForceSynch; // Saved
-			uint8_t _Pad8[3];
 			int32_t TeleportUseCount; // Saved
 			FixedString PreviousLevel; // Saved
 		};
@@ -184,18 +165,15 @@ namespace dse
 			void * VMT;
 			FixedString MyGuid;
 			NetId NetID;
-			uint8_t _Pad1[4];
 			PrimitiveSet<uint16_t> PeerIdClassNames;
-			uint64_t _Pad2[2];
+			uint64_t Unknown[2];
 			ObjectHandle MyHandle;
 			uint8_t EquipmentSlots;
-			uint8_t _Pad3[7];
 			ObjectHandle ParentHandle;
 			uint32_t _Pad4;
 			uint32_t WeightValueComputed;
 			bool IsGlobal;
 			bool UnknownFlag;
-			uint8_t _Pad5[6];
 			ObjectSet<ObjectHandle> ItemsBySlot;
 			void * Views;
 			ObjectSet<ObjectHandle> UpdateViews;
@@ -213,7 +191,6 @@ namespace dse
 			uint32_t _Pad2;
 			uint64_t Flags;
 			uint8_t Flags2;
-			uint8_t _Pad3[7];
 			__int64 field_58;
 			__int64 field_60;
 			__int64 field_68;
@@ -221,7 +198,6 @@ namespace dse
 			glm::mat3 WorldRot;
 			float Scale;
 			glm::vec3 Velocity;
-			uint8_t gap34[4];
 			void* PhysicsObject;
 			void* AiObject;
 			ItemTemplate* CurrentTemplate;
@@ -233,12 +209,10 @@ namespace dse
 			int field_78;
 			int Weight;
 			int field_80;
-			uint8_t gap84[4];
 			void* ItemMachine;
 			StatusMachine* StatusMachine;
 			ObjectHandle InUseByCharacterHandle;
 			int InUseByUserId;
-			uint8_t gapA4[4];
 			FixedString KeyName;
 			__int64 field_B0;
 			ObjectHandle OH5;
@@ -251,9 +225,7 @@ namespace dse
 			int field_108;
 			bool CachedDescriptionFlags;
 			char Flags3;
-			uint8_t gap10E[2];
 			int Level;
-			uint8_t gap114[4];
 			FixedString ItemType;
 			int GoldValueOverride;
 			int BaseWeightOverwrite;
@@ -267,5 +239,4 @@ namespace dse
 		};
 
 	}
-#pragma pack(pop)
 }

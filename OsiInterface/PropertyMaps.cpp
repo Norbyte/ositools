@@ -751,7 +751,6 @@ namespace dse
 			PROP_TPL(CameraOffset);
 			PROP_RO(HasParentModRelation);
 			PROP_TPL(HasGameplayValue);
-			PROP_RO(DevComment);
 			// TODO FileName
 		}
 

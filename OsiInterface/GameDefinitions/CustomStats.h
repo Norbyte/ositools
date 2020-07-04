@@ -7,7 +7,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	namespace eocnet
 	{
 		struct DummyMessage : public net::Message
@@ -22,7 +21,6 @@ namespace dse
 		struct CustomStatDefinitionSyncInfo
 		{
 			NetId NetId{ NetIdUnassigned };
-			uint8_t _Pad1[4];
 			uint64_t Unknown1{ 0 };
 			FixedString Id;
 			STDWString Name;
@@ -44,9 +42,7 @@ namespace dse
 		struct CustomStatsSyncInfo
 		{
 			NetId NetId{ NetIdUnassigned };
-			uint8_t _Pad1[4];
 			Map<FixedString, int> Stats;
-			uint8_t _Pad2[4];
 		};
 
 		struct CustomStatsSyncMessage : public DummyMessage
@@ -78,7 +74,6 @@ namespace dse
 			BaseComponent Base;
 			FixedString FixedStr1;
 			NetId NetID;
-			uint8_t _Pad[4];
 		};
 
 		struct CustomStatDefinitionComponent : public eoc::CustomStatDefinitionComponent
@@ -86,7 +81,6 @@ namespace dse
 			BaseComponent Base;
 			FixedString someStr;
 			NetId NetID;
-			uint8_t _Pad[4];
 			uint64_t Unkn1;
 		};
 
@@ -109,5 +103,4 @@ namespace dse
 
 		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, net::Message * msg);
 	}
-#pragma pack(pop)
 }

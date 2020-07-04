@@ -6,7 +6,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	namespace esv
 	{
 		struct GameAction : public ProtectedGameObject<GameAction>
@@ -14,16 +13,13 @@ namespace dse
 			void * VMT;
 			FixedString SomeFS;
 			NetId NetID;
-			uint8_t _Unk0[4];
 			PrimitiveSet<uint16_t> PeerIDClassNames;
 			uint64_t _Unk[2];
 			ObjectHandle MyHandle;
 			uint32_t GameActionType;
 			bool Active;
 			bool Dirty;
-			uint8_t _Pad1[2];
 			float ActivateTimer;
-			uint32_t _Pad2;
 		};
 
 		struct GameActionManager : public ProtectedGameObject<GameActionManager>
@@ -41,9 +37,7 @@ namespace dse
 			float TurnTimer;
 			bool Finished;
 			bool IsFromItem;
-			uint8_t _Pad3[2];
 			float HitRadius;
-			uint32_t _Pad4;
 			uint64_t _Unk2;
 			ObjectSet<Vector3> AnchorList;
 			uint64_t Anchor;
@@ -66,7 +60,6 @@ namespace dse
 			float StrikeTimer;
 			bool Finished;
 			bool IsFromItem;
-			uint8_t _Pad3[6];
 			uint64_t Unkn[3 * 5];
 			ObjectSet<FixedString> FSSet;
 			ObjectSet<void *> ProjectileTargetDescSet;
@@ -81,13 +74,11 @@ namespace dse
 			float LifeTime;
 			float Duration;
 			bool FirstTick;
-			uint8_t _Pad3[7];
 			FixedString SkillId;
 			float ConsequencesStartTime;
 			float TurnTimer;
 			bool Finished;
 			bool IsFromItem;
-			uint8_t _Pad4[2];
 			FixedString SkillProperties;
 		};
 
@@ -98,12 +89,10 @@ namespace dse
 			glm::vec3 Target;
 			glm::vec3 Source;
 			float LifeTime;
-			uint8_t _Pad3[4];
 			ObjectSet<void *> Walls;
 			float TurnTimer;
 			bool Finished;
 			bool IsFromItem;
-			uint8_t _Pad4[2];
 			uint64_t Unk1;
 			uint64_t Unk2;
 			uint32_t Unk3;
@@ -116,10 +105,8 @@ namespace dse
 			glm::vec3 Position;
 			uint8_t _Pad3[4];
 			float LifeTime;
-			uint8_t _Pad4[4];
 			FixedString SkillId;
 			bool Finished;
-			uint8_t _Pad5[7];
 			void * SkillStatusAura;
 		};
 
@@ -128,9 +115,7 @@ namespace dse
 			void * PathMover;
 			ObjectHandle ObjectToMove;
 			bool DoneMoving;
-			uint8_t _Pad3[3];
 			uint32_t U3[2];
-			uint8_t _Pad4[4];
 			ObjectHandle CasterCharacterHandle;
 			FixedString BeamEffectName;
 			ObjectHandle SomeHandle;
@@ -147,5 +132,4 @@ namespace dse
 		typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
 
 	}
-#pragma pack(pop)
 }

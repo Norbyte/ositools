@@ -9,7 +9,6 @@ namespace dse
 		struct AiGrid;
 	}
 
-#pragma pack(push, 1)
 	namespace esv
 	{
 		struct SurfaceManager;
@@ -31,7 +30,6 @@ namespace dse
 			LevelDesc * LevelDesc;
 			void * LocalTemplateManager;
 			char Unknown;
-			uint8_t _Pad[7];
 			void * DummyManager;
 			void * ReferenceManager;
 			void * Scene;
@@ -70,14 +68,11 @@ namespace dse
 #endif
 			Level * CurrentLevel;
 			Map<FixedString, Level *> Levels;
-			uint8_t _Pad[4];
 			ObjectSet<LevelDesc *> LevelDescs;
 			Map<FixedString, Level *> Levels2;
-			uint8_t _Pad2[4];
 			Map<FixedString, char> FSMapChar;
 		};
 
 	}
-#pragma pack(pop)
 
 }

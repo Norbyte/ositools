@@ -6,7 +6,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	struct TDamagePair
 	{
 		int32_t Amount;
@@ -27,14 +26,12 @@ namespace dse
 		// Damage dealt after ApplyDamage() call
 		int32_t DamageDealt{ 0 };
 		DeathType DeathType{ DeathType::Sentinel };
-		uint8_t _Pad1[3];
 		DamageType DamageType{ DamageType::None };
 		uint32_t AttackDirection{ 0 };
 		int32_t ArmorAbsorption{ 0 };
 		int32_t LifeSteal{ 0 };
 		HitFlag EffectFlags{ 0 };
 		bool HitWithWeapon{ false };
-		uint8_t _Pad2[3];
 		DamagePairList DamageList;
 
 		inline HitDamageInfo() {}
@@ -124,7 +121,6 @@ namespace dse
 			// void * VMT;
 			FixedString FS1;
 			NetId NetID;
-			uint32_t _Pad0;
 			uint64_t U1;
 			FixedString StatusId; // Saved
 			uint32_t CanEnterChance; // Saved
@@ -135,7 +131,6 @@ namespace dse
 			float Strength; // Saved
 			float StatsMultiplier; // Saved
 			CauseType DamageSourceType; // Saved
-			uint8_t _Pad1[3];
 			ObjectHandle StatusHandle;
 			ObjectHandle TargetHandle;
 			ObjectSet<ObjectHandle> StatusOwner; // Saved
@@ -144,8 +139,6 @@ namespace dse
 			StatusFlags2 Flags2; // Saved
 			StatusFlags0 Flags0; // Saved
 			StatusFlags1 Flags1; // Saved
-			uint8_t _Pad2;
-			uint32_t _Pad3;
 		};
 
 		struct StatusHit : public Status
@@ -154,7 +147,6 @@ namespace dse
 
 			uint32_t Unk2;
 			uint8_t Unk3;
-			uint8_t _Pad4[3];
 			void * RPGPropertyList;
 			HitDamageInfo DamageInfo;
 			ObjectHandle HitByHandle;
@@ -167,7 +159,6 @@ namespace dse
 			// 5 - InSurface
 			// 6 - SetHP, osi::ApplyDamage, StatusConsume
 			uint32_t HitReason;
-			uint8_t _Pad5[4];
 			FixedString SkillId;
 			bool Interruption;
 			bool AllowInterruptAction;
@@ -177,7 +168,6 @@ namespace dse
 			// Decrease characters' DelayDeathCount
 			bool DecDelayDeathCount;
 			uint8_t PropertyContext;
-			uint8_t _Pad7[3];
 			Vector3 ImpactPosition;
 			Vector3 ImpactOrigin;
 			Vector3 ImpactDirection;
@@ -189,14 +179,12 @@ namespace dse
 			float EffectTime;
 			uint32_t HealAmount;
 			HealEffect HealEffect;
-			uint8_t _Pad4[4];
 			FixedString HealEffectId;
 			StatusHealType HealType;
 			uint32_t AbsorbSurfaceRange;
 			ObjectSet<void *> AbsorbSurfaceTypes;
 			uint64_t Unkn2;
 			bool TargetDependentHeal;
-			uint8_t _Pad5[3];
 			uint32_t TargetDependentValue[3];
 			uint32_t TargetDependentHealAmount[3];
 			uint32_t Unkn3;
@@ -211,11 +199,9 @@ namespace dse
 			bool ResetOncePerCombat; // Saved
 			bool ScaleWithVitality; // Saved
 			bool LoseControl; // Saved
-			uint8_t _Pad10[4];
 			FixedString ApplyStatusOnTick;
 			ObjectSet<ObjectHandle> ItemHandles; // Saved
 			float EffectTime; // Saved
-			uint8_t _Pad11[4];
 			FixedString StatsId; // Saved
 			ObjectSet<void *> StatsIDs; // Set<StatsData>
 			FixedString StackId;
@@ -225,7 +211,6 @@ namespace dse
 			int AttributeHandle;
 			int SavingThrow; // TODO enum + enum prop!
 			Vector3 SourceDirection; // Saved
-			uint8_t _Pad12[4];
 			ObjectSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
 			int Turn; // Saved
 			int field_1AC;
@@ -242,10 +227,8 @@ namespace dse
 			uint32_t HealAmount; // Saved
 			float TimeElapsed; // Saved
 			HealEffect HealEffect; // Saved
-			uint8_t _Pad5[4];
 			FixedString HealEffectId; // Saved
 			bool SkipInitialEffect; // Saved
-			uint8_t _Pad6[3];
 			uint32_t HealingEvent; // Saved
 			StatusHealType HealStat; // Saved
 			uint32_t AbsorbSurfaceRange; // Saved
@@ -259,7 +242,6 @@ namespace dse
 			int DamageLevel; // Saved
 			FixedString DamageStats; // Saved
 			bool SpawnBlood; // Saved
-			uint8_t _Pad20[7];
 		};
 
 
@@ -292,7 +274,6 @@ namespace dse
 			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;
 			bool PreventStatusApply;
-			uint8_t _Pad1[6];
 			ObjectSet<Status *> Statuses;
 			ObjectHandle OwnerObjectHandle;
 			uint32_t References;
@@ -342,7 +323,6 @@ namespace dse
 
 			FixedString field_8;
 			NetId NetID;
-			uint8_t _Pad0[4];
 			ObjectHandle OwnerHandle;
 			__int64 field_20;
 			FixedString StatusId;
@@ -351,7 +331,6 @@ namespace dse
 			float CurrentLifeTime;
 			float StatsMultiplier;
 			StatusFlags Flags;
-			uint8_t _Pad1[7];
 			ObjectHandle StatusSourceHandle;
 		};
 
@@ -365,7 +344,6 @@ namespace dse
 			void* GameEventMgrVMT;
 			bool IsStatusMachineActive;
 			bool PreventStatusApply;
-			uint8_t _Pad10[6];
 			ObjectSet<Status*> Statuses;
 			ObjectHandle OwnerObjectHandle;
 			uint32_t References;
@@ -374,7 +352,6 @@ namespace dse
 		};
 
 	}
-#pragma pack(pop)
 
 	struct PendingStatus
 	{

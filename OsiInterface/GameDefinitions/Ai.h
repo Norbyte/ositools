@@ -15,7 +15,6 @@ namespace dse::esv
 
 namespace dse::eoc
 {
-#pragma pack(push, 1)
     struct AiGrid;
 
     struct Pool
@@ -58,18 +57,15 @@ namespace dse::eoc
         bool field_2;
         bool field_3;
         bool field_4;
-        uint8_t _Pad1[3];
         int field_8;
         int field_C;
         int field_10;
-        uint8_t _Pad2[4];
         uint64_t Flags;
         uint64_t Flags2;
         ObjectSet<int> SurfacePathInfluences; // Set<SurfacePathInfluence>
         int field_48;
         int field_4C;
         int field_50;
-        uint8_t _Pad3[4];
         ObjectHandle AiHandle;
         ObjectHandle TargetAiHandle_M;
         PathParams* PathParams;
@@ -82,17 +78,15 @@ namespace dse::eoc
         float TelekinesisRange;
         float StartingPosition[2];
         float TargetPosition[2];
-        float AiBounds_M[3];
+        glm::vec3 AiBounds_M;
         float Height_M;
         int Horizon;
         int field_B0;
         int field_B4;
         bool field_B8;
         bool field_B9;
-        uint8_t _Pad4[6];
         void* VisionGrid;
         int NetID;
-        uint8_t _Pad5[4];
         ObjectSet<void*> Checkpoints; // AiPathCheckpoint*
         ObjectSet<void*> Checkpoints2; // AiPathCheckpoint*
         ObjectSet<bool> UnknownSet;
@@ -109,26 +103,21 @@ namespace dse::eoc
         float AIBoundsHeight;
         float AIBoundsHeight2;
         float AIBoundsRadius;
-        float AIBoundsMin[3];
-        float AIBoundsMax[3];
+        glm::vec3 AIBoundsMin;
+        glm::vec3 AIBoundsMax;
         float AIBoundsSize;
         uint16_t MetaDataIndex;
         char field_46;
-        uint8_t _Pad0[1];
         float XZ[2];
         float Rotation[9];
-        uint8_t _Pad1[4];
         uint16_t AiCollidingRefCount;
         uint16_t Settings;
-        uint8_t _Pad2[4];
         uint64_t AiFlags;
         uint16_t AiFlags2;
         uint16_t AiFlags2Original;
         char field_8C;
-        uint8_t _Pad3[3];
         float XZ2[2];
         bool UseOnDistance;
-        uint8_t _Pad4[7];
         ObjectHandle MyHandle;
     };
 
@@ -272,8 +261,4 @@ namespace dse::eoc
         int16_t GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const;
         eoc::AiMetaData* GetAiMetaData(AiGridTile* tile) const;
     };
-
-
-
-#pragma pack(pop)
 }

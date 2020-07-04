@@ -5,13 +5,11 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	struct ModuleShortDesc : public ProtectedGameObject<ModuleShortDesc>
 	{
 		FixedString ModuleUUID;
 		STDWString Name;
 		uint32_t Version;
-		uint8_t _Pad[4];
 		STDString MD5;
 		STDWString Folder;
 	};
@@ -41,7 +39,6 @@ namespace dse
 		STDWString Description;
 		ObjectSet<STDWString, GameMemoryAllocator, true> Tags;
 		uint8_t NumPlayers{ 4 };
-		uint8_t _Pad1[7]{ 0 };
 		FixedString GMTemplate;
 		ObjectSet<FixedString, GameMemoryAllocator, true> TargetModes;
 		FixedString ModuleType;
@@ -60,10 +57,8 @@ namespace dse
 		bool HasValidHash{ true };
 		bool UsesLsfFormat{ false };
 		bool FinishedLoading{ false };
-		uint8_t _Pad1[5]{ 0 };
 		uint64_t DataHashList[4]{ 0 };
 		bool BFSReset_M{ false };
-		uint8_t _Pad2[7]{ 0 };
 	};
 
 	struct ModManager : public ProtectedGameObject<ModManager>
@@ -73,11 +68,9 @@ namespace dse
 		void * VMT;
 		Module BaseModule;
 		uint8_t Flag;
-		uint8_t _Pad1[7];
 		ObjectSet<Module, GameMemoryAllocator, true> AvailableMods;
 		ModuleSettings Settings;
 
 		Module const * FindModByNameGuid(char const * nameGuid) const;
 	};
-#pragma pack(pop)
 }

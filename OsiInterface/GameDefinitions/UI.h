@@ -7,7 +7,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	enum class InvokeDataValueType : int32_t
 	{
 		IDV_NoneVal = 0x1,
@@ -22,12 +21,10 @@ namespace dse
 	struct InvokeDataValue
 	{
 		InvokeDataValueType TypeId;
-		uint8_t _Pad[4];
 		STDString StringVal;
 		STDWString WStringVal;
 		bool BoolVal;
-		uint8_t _Pad2[7];
-		__int64 PointerVal;
+		void* PointerVal;
 		double DoubleVal;
 	};
 
@@ -247,7 +244,6 @@ namespace dse
 			int field_20;
 			int field_24;
 			__int16 field_28;
-			uint8_t _Pad0[6];
 			void * IggyPlayer;
 			void * IggyPlayerRootPath;
 			ObjectSet<FlashInvokeDefinition> Invokes;
@@ -259,7 +255,6 @@ namespace dse
 			CRITICAL_SECTION CriticalSection;
 			char Invoked_M;
 			char field_99;
-			uint8_t _Pad1[6];
 			ObjectSet<FlashInvoke *> QueuedInvokes;
 			ObjectSet<FlashInvoke *> Invokes2;
 			ObjectSet<InvokeDataValue> InvokeValues;
@@ -290,7 +285,6 @@ namespace dse
 			bool Initialized;
 			bool IsRendering;
 			bool FlashRenderFrameStarted;
-			bool _Pad1;
 			ObjectHandle RenderTargetTextureHandle;
 			uint64_t field_E0;
 			void * GDraw;
@@ -444,7 +438,6 @@ namespace dse
 		ig::FlashPlayer * FlashPlayer;
 		Path Path;
 		bool IsDragging;
-		uint8_t _Pad[7];
 		ObjectHandle ChildUIHandle;
 		ObjectHandle ParentUIHandle;
 		int Layer;
@@ -477,11 +470,9 @@ namespace dse
 		bool RenderDataPrepared;
 		bool InputFocused;
 		bool HasAnchorPos;
-		uint8_t _Pad2;
 		ObjectHandle UIObjectHandle;
 		int Type;
 		int16_t PlayerId;
-		uint8_t _Pad3[2];
 	};
 
 	struct CustomDrawStruct
@@ -491,7 +482,6 @@ namespace dse
 		FixedString IconName;
 		ObjectHandle CustomTextureHandle;
 		char DrawEffect;
-		uint8_t _Pad[7];
 	};
 
 
@@ -595,15 +585,10 @@ namespace dse
 			char field_22F;
 			uint64_t field_230;
 			UserId UserID;
-			uint8_t _Pad2[4];
 			ObjectHandle OH1;
 			ObjectHandle ObjectBeingExamined;
 			uint64_t field_250;
 		};
 
 	}
-
-
-#pragma pack(pop)
-
 }

@@ -36,6 +36,9 @@ namespace dse
         void * VMT;
         uint32_t Flags;
         uint8_t Flag;
+#if defined(OSI_EOCAPP)
+        uint32_t Type;
+#endif
         ObjectSet<FixedString> Tags;
         bool HasAnyTags;
         FixedString Id;
@@ -50,9 +53,11 @@ namespace dse
         bool Flag2;
         Transform Transform;
         bool NonUniformScale;
+#if defined(OSI_EOCAPP)
+        OverrideableProperty<FixedString> UnknownProperty;
+#endif
         OverrideableProperty<FixedString> VisualTemplate;
         OverrideableProperty<FixedString> PhysicsTemplate;
-        // uint8_t _Pad1[7];
         OverrideableProperty<bool> CastShadow;
         OverrideableProperty<bool> ReceiveDecal;
         OverrideableProperty<bool> AllowReceiveDecalWhenAnimated;
@@ -60,21 +65,24 @@ namespace dse
         OverrideableProperty<bool> IsShadowProxy;
         OverrideableProperty<uint8_t> RenderChannel;
         OverrideableProperty<glm::vec3> CameraOffset;
-        // uint8_t _Pad2[3];
         bool HasParentModRelation;
         bool Unknown;
         void* ContainingLevelTemplate; // ls::LevelTemplate*
         OverrideableProperty<bool> HasGameplayValue;
+#if !defined(OSI_EOCAPP)
         STDString DevComment;
         ObjectSet<FixedString> IsOverriddenFrom;
         RefMap<FixedString, void*> LayerLists; // LayerList*
+#endif
         Path FileName;
     };
 
     struct EoCGameObjectTemplate : public GameObjectTemplate
     {
-        float AIBoundsMin[3];
-        float AIBoundsMax[3];
+        Vector3 AIBoundsMin;
+        uint8_t _Pad0[4];
+        Vector3 AIBoundsMax;
+        uint8_t _Pad1[4];
         OverrideableProperty<float> AIBoundsRadius;
         OverrideableProperty<float> AIBoundsHeight;
         uint8_t AIBoundsAIType;

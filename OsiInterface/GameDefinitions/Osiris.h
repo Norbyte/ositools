@@ -13,7 +13,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 enum class ValueType : uint8_t
 {
 	None = 0,
@@ -33,7 +32,6 @@ enum class ValueType : uint8_t
 struct OsiArgumentValue
 {
 	ValueType TypeId;
-	uint8_t __Padding[7];
 	union {
 		char const * String;
 		int32_t Int32;
@@ -253,7 +251,6 @@ struct EoCFunctionArgument
 {
 	char const * Name;
 	ValueType Type;
-	uint8_t __Padding[3];
 	EoCFunctionArgumentType ArgType;
 };
 
@@ -285,12 +282,10 @@ struct BufferPool : public ProtectedGameObject<BufferPool>
 {
 	void * VMT;
 	uint8_t Unknown;
-	uint8_t __Padding[3];
 	uint32_t MaxSize;
 	uint32_t GrowCount;
 	uint32_t Unknown3;
 	uint32_t Capacity;
-	uint8_t __Padding2[4];
 	void * PoolMemoryVMT;
 	void * PoolMemory;
 	uint32_t CurrentSize;
@@ -327,7 +322,6 @@ struct FunctionArgument
 {
 	char const * Name;
 	ValueType Type;
-	uint8_t __Padding[3];
 	FunctionArgumentDirection Direction;
 };
 
@@ -369,13 +363,10 @@ struct OsirisFunction : public ProtectedGameObject<OsirisFunction>
 	char const * Name;
 	FunctionArgument * Arguments;
 	uint32_t NumArguments;
-	uint8_t __Padding[4];
 	uint64_t ArgumentSize;
 	OsirisFunctionHandle Handle;
-	uint8_t __Padding2[4];
 	OsirisManager * Manager;
 	uint32_t Unknown;
-	uint8_t __Padding3[4];
 	void * StoryImplementation;
 	void * HandlerProc;
 	uint64_t Unknown2;
@@ -385,7 +376,6 @@ struct TypeInfo : public ProtectedGameObject<TypeInfo>
 {
 	char const * Name;
 	ValueType Type;
-	uint8_t __Padding[1];
 	uint16_t Alias;
 	uint32_t Unknown;
 	uint64_t SizeInBytes;
@@ -454,7 +444,6 @@ struct VariableDb : public ProtectedGameObject<VariableDb>
 	uint32_t NumVariables;
 	uint8_t __Padding[4];
 	uint16_t b;
-	uint8_t padding[6];
 	VariableItem2 * VarsStart;
 	VariableItem2 * VarsPtr;
 	VariableItem2 * VarsEnd;
@@ -464,7 +453,6 @@ template <class T>
 struct TArray
 {
 	uint32_t Size;
-	uint32_t __Padding;
 	T * Start, *End, *BufEnd;
 };
 
@@ -536,35 +524,22 @@ struct List
 	}
 };
 
-template <class T, unsigned TPad>
-struct Padded
-{
-	uint8_t _Pad[TPad];
-	T Value;
-};
-
-template <class T>
-struct Padded<T, 0>
-{
-	T Value;
-};
-
-template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad>
+template <typename TKey, typename TVal>
 struct TMapNode
 {
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Left;
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Right;
+	TMapNode<TKey, TVal> * Left;
+	TMapNode<TKey, TVal> * Root;
+	TMapNode<TKey, TVal> * Right;
 	bool Color;
 	bool IsRoot;
-	Padded<TKey, TKeyPad> Key;
-	Padded<TVal, TValPad> Value;
+	TKey Key;
+	TVal Value;
 };
 
-template <typename TKey, typename TVal, unsigned TKeyPad, unsigned TValPad, class Pred = std::less<TKey>>
+template <typename TKey, typename TVal, class Pred = std::less<TKey>>
 struct TMap
 {
-	TMapNode<TKey, TVal, TKeyPad, TValPad> * Root;
+	TMapNode<TKey, TVal> * Root;
 
 	TVal * Find(TKey const & key)
 	{
@@ -572,7 +547,7 @@ struct TMap
 		auto currentTreeNode = Root->Root;
 		while (!currentTreeNode->IsRoot)
 		{
-			if (Pred()(currentTreeNode->Key.Value, key)) {
+			if (Pred()(currentTreeNode->Key, key)) {
 				currentTreeNode = currentTreeNode->Right;
 			} else {
 				finalTreeNode = currentTreeNode;
@@ -580,10 +555,10 @@ struct TMap
 			}
 		}
 
-		if (finalTreeNode == Root || Pred()(key, finalTreeNode->Key.Value))
+		if (finalTreeNode == Root || Pred()(key, finalTreeNode->Key))
 			return nullptr;
 		else
-			return &finalTreeNode->Value.Value;
+			return &finalTreeNode->Value;
 	}
 
 	template <class Visitor>
@@ -593,10 +568,10 @@ struct TMap
 	}
 
 	template <class Visitor>
-	void Iterate(TMapNode<TKey, TVal, TKeyPad, TValPad> * node, Visitor visitor)
+	void Iterate(TMapNode<TKey, TVal> * node, Visitor visitor)
 	{
 		if (!node->IsRoot) {
-			visitor(node->Key.Value, node->Value.Value);
+			visitor(node->Key, node->Value);
 			Iterate(node->Left, visitor);
 			Iterate(node->Right, visitor);
 		}
@@ -617,7 +592,7 @@ struct TypeDb : public ProtectedGameObject<TypeDb<TValue>>
 {
 	struct HashSlot
 	{
-		TMap<STDString, TValue, 6, 0, TypeDbLess> NodeMap;
+		TMap<STDString, TValue, TypeDbLess> NodeMap;
 		void * Unknown;
 	};
 
@@ -638,7 +613,6 @@ struct TypeDb : public ProtectedGameObject<TypeDb<TValue>>
 
 	HashSlot Hash[1023];
 	uint32_t NumItems;
-	uint32_t _Pad;
 	uint64_t b, c, d;
 };
 
@@ -674,7 +648,6 @@ struct TValue
 {
 	Value Val;
 	uint32_t Unknown{ 0 };
-	uint32_t __Padding;
 	String Str;
 };
 
@@ -700,7 +673,6 @@ public:
 	void * VMT{ nullptr };
 
 	uint32_t TypeId{ 0 };
-	uint32_t __Padding;
 	TValue Value;
 };
 
@@ -739,7 +711,6 @@ struct TupleLL
 	struct Item
 	{
 		uint8_t Index;
-		uint8_t __Padding[7];
 		TypedValue Value;
 	};
 
@@ -757,7 +728,6 @@ public:
 struct Database : public ProtectedGameObject<Database>
 {
 	uint32_t DatabaseId;
-	uint32_t __Padding;
 	uint64_t B;
 	SomeDbItem Items[16];
 	uint64_t C;
@@ -765,7 +735,6 @@ struct Database : public ProtectedGameObject<Database>
 	List<TupleVec> Facts;
 	Vector<uint32_t> ParamTypes;
 	uint8_t NumParams;
-	uint8_t __Padding2[7];
 	Vector<DatabaseParam> OrderedFacts;
 };
 
@@ -782,7 +751,6 @@ public:
 	const char * FunctionName;
 	RuleActionArguments * Arguments;
 	bool Not;
-	uint8_t __Padding[3];
 	int32_t GoalIdOrDebugHook;
 };
 
@@ -798,22 +766,18 @@ struct Goal : public ProtectedGameObject<Goal>
 	RuleActionList * InitCalls;
 	RuleActionList * ExitCalls;
 	uint32_t Id;
-	uint32_t __Padding1;
 	char const * Name;
 	uint32_t SubGoalCombination;
-	uint32_t __Padding2;
 	TArray<uint32_t> ParentGoals;
 	TArray<uint32_t> SubGoals;
 	uint8_t Flags;
-	uint8_t __Padding3[7];
 };
 
 struct GoalDb
 {
 	void * Unknown[2047];
 	uint32_t Count;
-	uint32_t __Padding;
-	TMap<uint32_t, Goal *, 6, 4> Goals;
+	TMap<uint32_t, Goal *> Goals;
 };
 
 template <class T>
@@ -828,9 +792,8 @@ class Node;
 struct Adapter : public ProtectedGameObject<Adapter>
 {
 	uint32_t Id;
-	uint32_t __Padding;
 	TypedDb<Adapter> * Db;
-	TMap<uint8_t, uint8_t, 0, 0> VarToColumnMaps;
+	TMap<uint8_t, uint8_t> VarToColumnMaps;
 	uint64_t VarToColumnMapCount;
 	Vector<int8_t> ColumnToVarMaps;
 	VirtTupleLL Constants;
@@ -844,7 +807,6 @@ template <typename T>
 struct Ref
 {
 	uint32_t Id;
-	uint32_t __Padding;
 	TypedDb<T> * Manager;
 
 	T * Get() const
@@ -949,7 +911,6 @@ struct Function : public ProtectedGameObject<Function>
 	uint32_t Line;
 	uint32_t Unknown1;
 	uint32_t Unknown2;
-	uint32_t __Padding;
 	FunctionSignature * Signature;
 	NodeRef Node;
 	FunctionType Type;
@@ -1052,7 +1013,6 @@ public:
 
 
 	uint32_t Id;
-	uint32_t __Padding0;
 	NodeDb * NodeDb;
 	Function * Function;
 	DatabaseRef Database;
@@ -1072,7 +1032,6 @@ public:
 	NodeRef RelDatabaseRef;
 	NodeEntryRef RelDatabase;
 	uint8_t RelDatabaseIndirection;
-	uint8_t __Padding[7];
 };
 
 class RelOpNode : public RelNode
@@ -1080,11 +1039,9 @@ class RelOpNode : public RelNode
 public:
 	uint8_t LeftValueIndex;
 	uint8_t RightValueIndex;
-	uint8_t __Padding2[6];
 	TypedValue LeftValue;
 	TypedValue RightValue;
 	uint32_t RelOp;
-	uint32_t __Padding3;
 
 	static inline void HookVMTs(NodeVMT * vmt) {}
 };
@@ -1094,7 +1051,6 @@ class RuleNode : public RelNode
 public:
 	uint32_t Line;
 	bool IsQuery;
-	uint8_t __Padding2[3];
 	void * Variables;
 	RuleActionList * Calls;
 
@@ -1112,11 +1068,9 @@ public:
 	NodeRef LeftDatabaseRef;
 	NodeEntryRef LeftDatabase;
 	uint8_t LeftDatabaseIndirection;
-	uint8_t __Padding1[7];
 	NodeRef RightDatabaseRef;
 	NodeEntryRef RightDatabase;
 	uint8_t RightDatabaseIndirection;
-	uint8_t __Padding2[7];
 };
 
 class AndNode : public JoinNode
@@ -1179,7 +1133,6 @@ class DivQueryNode : public QueryNode
 class InternalQueryNode : public QueryNode
 {
 };
-#pragma pack(pop)
 
 // Used by COsiris::Event()
 enum class ReturnCode

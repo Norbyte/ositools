@@ -7,7 +7,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	namespace net
 	{
 		struct Bitstream : ProtectedGameObject<Bitstream>
@@ -15,10 +14,8 @@ namespace dse
 			uint32_t NumBits;
 			uint32_t AllocatedBits;
 			uint32_t CurrentOffsetBits;
-			uint8_t _Pad[4];
 			uint8_t* Buf;
 			bool Unknown;
-			uint8_t _Pad1[7];
 		};
 
 		struct BitstreamSerializer : ProtectedGameObject<BitstreamSerializer>
@@ -27,7 +24,6 @@ namespace dse
 			virtual void ReadBytes(void* Buf, uint64_t Size) = 0;
 
 			bool IsWriting;
-			uint8_t _Pad[7];
 			Bitstream* Bitstream;
 		};
 
@@ -53,7 +49,6 @@ namespace dse
 			uint32_t MsgType{ 1 };
 			uint8_t Always0{ 0 };
 			uint8_t Unknown1{ 0 };
-			uint8_t _Pad1[2];
 			uint64_t ReceivedAtTime{ 0 };
 			uint32_t ReceiveTimeDelta{ 0 };
 			uint32_t Unknown4{ 0 };
@@ -82,7 +77,6 @@ namespace dse
 		struct MessageContext
 		{
 			UserId UserID;
-			uint8_t _Pad1[4];
 			ObjectSet<uint16_t> PeerIDClassNames;
 			ObjectSet<uint32_t> UserIDs;
 			Message * Msg;
@@ -135,7 +129,6 @@ namespace dse
 			int field_1C;
 			STDString stdString1;
 			uint16_t field_40;
-			uint8_t _Pad1[6];
 			STDString stdString2;
 			uint64_t field_68;
 			uint64_t field_70;
@@ -157,11 +150,9 @@ namespace dse
 			uint64_t field_210;
 			uint64_t field_218;
 			char field_220;
-			uint8_t _Pad2[7];
 			uint64_t field_228;
 			uint64_t field_230;
 			int field_238;
-			uint8_t _Pad3[4];
 			uint64_t GameTime;
 			uint64_t field_248;
 			int field_250;
@@ -173,10 +164,8 @@ namespace dse
 			int field_264;
 			STDString stdString3;
 			uint16_t field_288;
-			uint8_t _Pad4[6];
 			STDString stdString4;
 			char field_2B0;
-			uint8_t _Pad5[3];
 			int field_2B4;
 			uint64_t field_2B8;
 			uint64_t field_2C0;
@@ -219,7 +208,6 @@ namespace dse
 
 			void * VMT3;
 			PeerId ClientPeerId;
-			uint8_t _Pad5[4];
 			ObjectSet<void *> Protocols;
 		};
 
@@ -241,6 +229,4 @@ namespace dse
 			void * VoiceProtocol;
 		};
 	}
-#pragma pack(pop)
-
 }

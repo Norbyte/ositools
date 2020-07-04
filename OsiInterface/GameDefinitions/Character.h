@@ -11,7 +11,6 @@ namespace dse
 {
 	struct CharacterTemplate;
 
-#pragma pack(push, 1)
 	namespace eoc
 	{
 		struct PlayerUpgrade : public ProtectedGameObject<PlayerUpgrade>
@@ -22,7 +21,6 @@ namespace dse
 			uint32_t CivilAbilityPoints;
 			uint32_t TalentPoints;
 			uint32_t Unknown;
-			uint8_t _Pad[4];
 			ObjectSet<int> Attributes;
 			ObjectSet<int> Abilities;
 			BitArray<4> Talents;
@@ -35,7 +33,6 @@ namespace dse
 			void* VMT;
 			bool Initialized;
 			bool CustomLookEnabled;
-			uint8_t _Pad[6];
 			STDWString Name;
 			TranslatedString NameTranslated;
 			FixedString ClassType;
@@ -45,7 +42,6 @@ namespace dse
 			uint32_t ClothColor2;
 			uint32_t ClothColor3;
 			bool IsMale;
-			uint8_t _Pad2[3];
 			FixedString Race;
 			FixedString OriginName;
 			FixedString Icon;
@@ -55,7 +51,6 @@ namespace dse
 			FixedString AiPersonality;
 			FixedString Speaker;
 			ScratchBuffer CustomIconImg;
-			uint8_t _Pad3[4];
 		};
 	}
 
@@ -67,13 +62,11 @@ namespace dse
 		struct PlayerInfo
 		{
 			uint32_t PlayerId;
-			uint8_t _Pad[4];
 			void* RenderView;
 		};
 
 		void * VMT;
 		uint16_t NextPlayerId;
-		uint8_t _Pad0[6];
 		ObjectSet<PlayerId> FreePlayerIds;
 		ObjectSet<PlayerId> PlayerList;
 		RefMap<PlayerId, PlayerInfo> PlayerIds;
@@ -91,7 +84,6 @@ namespace dse
 			int32_t MaximumHealthPercentage;
 			bool HasNoPhysicalArmor;
 			bool HasNoMagicalArmor;
-			uint8_t _Pad[6];
 			ObjectSet<FixedString> Tags;
 		};
 
@@ -102,7 +94,6 @@ namespace dse
 			int32_t MinimumImpact;
 			bool OnlyCastOnSelf;
 			uint8_t AIFlags; // Enum
-			uint8_t _Pad[2];
 			SkillConditions SourceConditions;
 			SkillConditions TargetConditions;
 			bool CasualExplorer;
@@ -117,12 +108,10 @@ namespace dse
 			void * VMT;
 			FixedString UnknownFS;
 			NetId NetID;
-			uint8_t _Pad[4];
 			SkillInfo Info;
 			ObjectSet<ObjectHandle> CauseList;
 			ObjectHandle UnknownHandle;
 			uint32_t Unknown1;
-			uint8_t _Pad2[4];
 			ObjectHandle OwnerHandle;
 			FixedString SkillId;
 			float ActiveCooldown;
@@ -131,9 +120,7 @@ namespace dse
 			bool ZeroMemory;
 			bool OncePerCombat;
 			bool Unknown2;
-			uint8_t _Pad3[3];
 			int32_t NumCharges;
-			uint8_t _Pad4[4];
 			uint64_t Unknown3;
 		};
 
@@ -142,10 +129,8 @@ namespace dse
 			void * FreeSkillState;
 			ObjectHandle OwnerHandle;
 			Map<FixedString, Skill *> Skills;
-			uint8_t _Pad[4];
 			RefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
 			bool IsLoading;
-			uint8_t _Pad2[3];
 			uint32_t FreeMemorySlots;
 		};
 
@@ -159,7 +144,6 @@ namespace dse
 			};
 
 			ItemType Type;
-			uint32_t _Pad;
 			FixedString SkillOrStatId;
 			ObjectHandle ItemHandle;
 		};
@@ -172,12 +156,9 @@ namespace dse
 			ObjectSet<SkillBarItem> SkillBar;
 			ObjectSet<uint32_t> LockedAbility;
 			Map<FixedString, void *> ShapeShiftVariableManagers;
-			uint8_t _Pad1[4];
 			Map<FixedString, void *> ShapeShiftAttitudeMaps;
-			uint8_t _Pad2[4];
 			bool LevelUpMarker;
 			uint8_t SelectedSkillSetIndex;
-			uint8_t _Pad3[6];
 			FixedString QuestSelected;
 			PlayerCustomData CustomData;
 			void * PreviousPickpocketTargets;
@@ -186,12 +167,10 @@ namespace dse
 			uint32_t PreviousPositionId;
 			bool HelmetOption;
 			bool ShouldReevaluateSkillBar;
-			uint8_t _Pad4[2];
 			uint32_t Renown;
 			uint32_t CachedTension;
 			ObjectHandle SomeObjectHandle3;
 			uint8_t HomesteadKeyState;
-			uint8_t _Pad6[7];
 			ObjectHandle RecruiterHandle;
 			FixedString OriginalTemplate;
 			FixedString Region;
@@ -209,10 +188,8 @@ namespace dse
 			Status* GetStatus(NetId handle) const;
 
 			glm::vec3 WorldPos; // Saved
-			uint32_t _Pad2;
 			CharacterFlags Flags; // Saved
 			uint32_t U2;
-			uint32_t _Pad3;
 			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot;
 			float Scale;
@@ -225,7 +202,6 @@ namespace dse
 			uint8_t FlagsEx;
 			uint8_t Team;
 			uint8_t Color;
-			uint8_t _Pad4[3];
 			uint64_t U4[3];
 			float U41[3];
 			float U42[3];
@@ -238,7 +214,6 @@ namespace dse
 			uint8_t ScriptForceUpdateCount;
 			uint8_t ForceSynchCount;
 			bool U5;
-			uint8_t _Pad5[4];
 			CDivinityStats_Character * Stats;
 			ObjectHandle InventoryHandle;
 			void * MovementMachine;
@@ -260,7 +235,6 @@ namespace dse
 			void * VariableManager;
 			void * ShapeShiftVariableManager;
 			Map<FixedString, void *> Attitudes; // Element type unknown
-			uint8_t _Pad61[4];
 			FixedString SkillBeingPrepared;
 			CharacterTemplate* CurrentTemplate2;
 			uint32_t Dialog;
@@ -285,24 +259,20 @@ namespace dse
 			float PartialAP;
 			uint8_t AnimType;
 			uint8_t DelayDeathCount;
-			uint16_t _Pad6;
 			Status * DelayedDyingStatus;
 			ObjectSet<ObjectHandle> RegisteredTriggerHandles;
 			ObjectSet<FixedString> RegisteredTriggers;
 			PlayerData * PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
-			uint8_t _Pad62[7];
 			uint32_t ServerControlRefCount;
 			uint32_t U13;
 			float U131;
-			uint8_t _Pad63[4];
 			STDWString * CustomDisplayName;
 			void * StoryDisplayName;
 			TranslatedString OriginalTransformDisplayName;
 			int32_t MaxVitalityPatchCheck;
 			int32_t MaxArmorPatchCheck;
 			int32_t MaxMagicArmorPatchCheck;
-			float _Pad7;
 			FixedString AnimationSetOverride;
 			ObjectHandle PartyHandle;
 			ObjectSet<FixedString> CreatedTemplateItems;
@@ -316,7 +286,6 @@ namespace dse
 			bool IsAlarmed;
 			bool CrimeWarningsEnabled;
 			bool CrimeInterrogationEnabled;
-			bool _Pad8;
 			uint32_t InvestigationTimer;
 			ObjectSet<FixedString> DisabledCrime;
 			uint64_t DamageCounter;
@@ -327,7 +296,6 @@ namespace dse
 			FixedString EquipmentColor;
 			FixedString ProjectileTemplate;
 			uint32_t TimeElapsed;
-			uint8_t _Pad81[4];
 			ObjectSet<FixedString> PreferredAiTarget;
 			void* CharacterBody;
 			RefMap<FixedString, void *> U19;
@@ -336,7 +304,6 @@ namespace dse
 			bool ReadyCheckBlocked;
 			bool CorpseLootable;
 			uint8_t NumConsumables;
-			uint8_t _Pad9;
 			SurfaceType CustomBloodSurface;
 			FixedString PreviousLevel;
 		};
@@ -364,15 +331,11 @@ namespace dse
 			ObjectSet<void*> SkillBarItems; // ecl::SkillBarItem
 			ObjectSet<uint32_t> Abilities_EAbility;
 			Map<FixedString, void*> AttitudeOverrideMap; // ObjectHandleMap<int>*
-			uint8_t _Pad0[4];
 			char field_58;
-			uint8_t _Pad1[7];
 			__int64 field_60;
 			char field_68;
-			uint8_t _Pad2[7];
 			PlayerCustomData CustomData;
 			char field_1C8;
-			uint8_t _Pad3[7];
 			__int64 field_1D0;
 			int NetID1;
 			int NetID2;
@@ -383,7 +346,6 @@ namespace dse
 			char field_210;
 			char field_211;
 			int NetID3;
-			uint8_t _Pad4[2];
 			FixedString field_218;
 			FixedString field_220;
 		};
@@ -399,14 +361,12 @@ namespace dse
 			uint32_t _Pad2;
 			uint64_t Flags; // Saved
 			uint32_t U2;
-			uint32_t _Pad3;
 			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot;
 			float Scale;
 			glm::vec3 Velocity;
 			int field_34;
 			int field_38;
-			uint8_t gap3C[4];
 			uint64_t field_40;
 			__int64 field_48;
 			__int64 field_50;
@@ -418,7 +378,6 @@ namespace dse
 			int32_t UserId2;
 			NetId NetID2;
 			NetId NetID3;
-			uint8_t gap84[4];
 			CharacterTemplate* Template;
 			CharacterTemplate* OriginalTemplate;
 			CDivinityStats_Character* Stats;
@@ -435,7 +394,6 @@ namespace dse
 			StatusMachine* StatusMachine;
 			void* SkillManager;
 			int field_100;
-			uint8_t gap104[4];
 			__int64 field_108;
 			__int64 field_110;
 			__int64 OwnerCharacterHandle;
@@ -443,7 +401,6 @@ namespace dse
 			__int64 CorpseCharacterHandle;
 			__int64 OH5;
 			int field_138;
-			uint8_t gap13C[4];
 			__int64 OH6;
 			__int64 OH7;
 			__int64 ViewConeEffectHandle;
@@ -471,22 +428,18 @@ namespace dse
 			__int64 field_1F0;
 			__int64 field_1F8;
 			char field_200;
-			uint8_t gap201[7];
 			ObjectSet<void*> SurfacePathInfluences;
 			ObjectSet<FixedString> Tags;
 			__int64 field_248;
 			float field_250;
-			uint8_t gap254[4];
 			ObjectHandle SoundObjectHandles[3];
 			ObjectHandle OH9;
 			ObjectHandle OH10;
 			char PickpocketNLootingFlags;
 			char Flags2;
-			uint8_t gap282[2];
 			int Flags3;
 			char field_288;
 			char field_289;
-			uint8_t gap28A[6];
 			TranslatedString* DisplayNameOverride;
 			TranslatedString DisplayName1;
 			TranslatedString DisplayName2;
@@ -503,10 +456,8 @@ namespace dse
 			__int64 field_440;
 			void* ResourceTemplate2;
 			char Cloth;
-			uint8_t gap451[7];
 			void* ResourceTemplate1;
 			int field_460;
-			uint8_t gap464[4];
 			__int64 field_468;
 			__int64 field_470;
 			__int64 field_478;
@@ -515,10 +466,8 @@ namespace dse
 			FixedString FS3;
 			int field_498;
 			char field_49C;
-			uint8_t gap49D[3];
 			ObjectSet< ObjectHandle> ObjectHandles;
 			Map<FixedString, void*> field_4C0;
-			uint8_t gap4D4[4];
 			__int64 field_4D8;
 			__int64 field_4E0;
 			ObjectSet<FixedString> ItemTags;
@@ -527,5 +476,4 @@ namespace dse
 		};
 
 	}
-#pragma pack(pop)
 }

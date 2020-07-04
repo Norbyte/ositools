@@ -9,7 +9,6 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	struct GlobalSwitches
 	{
 		void * VMT;
@@ -146,7 +145,6 @@ namespace dse
 			float PathSpeed;
 			float PathAcceleration;
 			uint8_t PathType;
-			uint8_t _Pad1[3];
 			int PathRotationType;
 			float PathRadius;
 			float PathShift;
@@ -154,17 +152,14 @@ namespace dse
 			float PathMaxArcDist;
 			uint64_t PathRepeat;
 			uint8_t PathRandom;
-			uint8_t _Pad2[7];
 		};
 
 
 		struct NetworkFixedStrings : public ProtectedGameObject<NetworkFixedStrings>
 		{
 			uint16_t Initialized;
-			uint8_t _Pad[6];
 			ObjectSet<FixedString, GameMemoryAllocator, true> FixedStrSet;
 			Map<FixedString, int> FixedStrToNetIndexMap;
-			uint8_t _Pad2[4];
 			uint64_t Unkn1;
 			uint64_t Unkn2;
 		};
@@ -173,12 +168,9 @@ namespace dse
 		{
 			float Length;
 			bool IsRecorded;
-			uint8_t _Pad[3];
 			int Priority;
-			uint8_t _Pad1[4];
 			Path Source;
 			int CodecID;
-			uint8_t _Pad2[4];
 		};
 
 		struct SpeakerManager
@@ -222,7 +214,6 @@ namespace dse
 	struct FileReader : public Noncopyable<FileReader>
 	{
 		bool IsLoaded;
-		uint8_t _Pad0[7];
 		void * ScratchBufPtr;
 		void * MemBuffer;
 		uint64_t FileSize;
@@ -231,10 +222,8 @@ namespace dse
 		uint64_t ScratchBuffer;
 		uint64_t G;
 		int H;
-		uint8_t _Pad1[4];
 		uint64_t I;
 		int FileType;
-		uint8_t _Pad2[4];
 		void * FileObject;
 		uint64_t _Fill[16];
 	};
@@ -298,7 +287,6 @@ namespace dse
 	typedef FileReader * (* ls__FileReader__FileReader)(FileReader * self, Path * path, unsigned int type);
 	typedef void (* ls__FileReader__Dtor)(FileReader * self);
 	typedef StringView * (* ls__Path__GetPrefixForRoot)(StringView * path, unsigned int rootType);
-#pragma pack(pop)
 
 	class TempStrings
 	{

@@ -158,7 +158,6 @@ namespace dse
 			bool OwnsSkillState;
 		};
 
-#pragma pack(push, 1)
 		struct ActionMachineLayer
 		{
 			ActionState * State;
@@ -166,7 +165,6 @@ namespace dse
 			uint8_t Flags1;
 			uint8_t Flags2;
 			uint8_t Flags3;
-			uint8_t _Pad[5];
 		};
 
 		struct ActionMachine : public ProtectedGameObject<ActionMachine>
@@ -178,10 +176,8 @@ namespace dse
 			ActionMachineLayer Layers[3];
 			bool IsEntering[4];
 			uint16_t Unknown;
-			uint16_t _Pad1;
 			ActionState * CachedActions[24];
 		};
-#pragma pack(pop)
 	}
 
 }

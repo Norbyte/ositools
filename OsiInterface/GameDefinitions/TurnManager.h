@@ -6,10 +6,9 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	namespace eoc
 	{
-		struct alignas(4) CombatTeamId
+		struct CombatTeamId
 		{
 			union {
 				struct {
@@ -73,7 +72,6 @@ namespace dse
 			CombatTeamId CombatAndTeamIndex;
 			uint16_t Initiative;
 			bool HasAttackOfOpportunity;
-			uint8_t _Pad;
 			CombatComponentFlags Flags;
 		};
 	}
@@ -106,7 +104,6 @@ namespace dse
 				Character * Character;
 				struct Item * Item;
 				uint8_t Flags;
-				uint8_t _Pad[7];
 
 				esv::Character * GetCharacter() const
 				{
@@ -124,6 +121,14 @@ namespace dse
 				}
 			};
 
+			struct CombatGroup
+			{
+				ObjectSet<eoc::CombatTeamId> CombatTeamsOrdered;
+				uint16_t Initiative;
+				char Party;
+				uint64_t LastAddedTeamIndex;
+			};
+
 			struct CombatTeam
 			{
 				eoc::CombatTeamId TeamId;
@@ -131,19 +136,9 @@ namespace dse
 				uint16_t CombatTeamRound;
 				bool StillInCombat;
 				bool AddedNextTurnNotification;
-				uint8_t _Pad[6];
-				struct CombatGroup *CombatGroup;
+				CombatGroup *CombatGroup;
 				EntityWrapper EntityWrapper;
 				ComponentHandle ComponentHandle;
-			};
-
-			struct CombatGroup
-			{
-				ObjectSet<eoc::CombatTeamId> CombatTeamsOrdered;
-				uint16_t Initiative;
-				char Party;
-				uint8_t _Pad[5];
-				uint64_t LastAddedTeamIndex;
 			};
 
 			struct Combat
@@ -156,7 +151,6 @@ namespace dse
 				ObjectSet<void *> SummonDataSet;
 				RefMap<uint32_t, CombatTeam *> Teams;
 				uint32_t NextTeamId;
-				uint8_t _Pad[4];
 				ObjectSet<ObjectHandle> WaitingForCharComponents;
 				RefMap<FixedString, void *> ObjHKRefMap;
 				ObjectHandle InitialPlayerHandle;
@@ -189,21 +183,16 @@ namespace dse
 			ObjectSet<EntityWrapper> EntityWrapperSet;
 			ObjectSet<ObjectHandle> EntitesLeftCombatHandleSet;
 			int TeamMode;
-			uint8_t _Pad1[4];
 			RefMap<uint8_t, Combat> Combats;
 			ObjectSet<uint8_t> FreeIdSet;
 			uint8_t NextCombatId;
-			uint8_t _Pad2[7];
 			RefMap<uint8_t, TimeoutOverride> TimeoutOverrides;
 			Map<FixedString, CombatGroup> CombatGroupInfos;
-			uint8_t _Pad3[4];
 			ObjectSet<void *> WaypointDistSet;
 			ObjectSet<esv::Character *> CharacterPtrSet;
 		};
 
 	}
-#pragma pack(pop)
-
 }
 
 namespace std

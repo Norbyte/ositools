@@ -110,7 +110,6 @@ namespace dse
 	using Vector = std::vector<T, MSVCAllocator<T>>;
 #endif
 
-#pragma pack(push, 1)
 	using Vector3 = glm::vec3;
 
 	struct NetId
@@ -282,7 +281,6 @@ namespace dse
 			std::atomic<int64_t> RefCount;
 			uint16_t Length;
 			uint16_t HashKey;
-			uint8_t _Pad[4];
 		};
 
 	private:
@@ -352,12 +350,11 @@ namespace dse
 		struct Node
 		{
 			Node * Next{ nullptr };
-			alignas(8) TKey Key;
-			alignas(8) TValue Value;
+			TKey Key;
+			TValue Value;
 		};
 
 		uint32_t HashSize{ 0 };
-		uint32_t _Unused{ 0 };
 		Node** HashTable{ nullptr };
 		uint32_t ItemCount{ 0 };
 
@@ -497,8 +494,8 @@ namespace dse
 		struct Node
 		{
 			Node* Next{ nullptr };
-			alignas(8) TKey Key;
-			alignas(8) TValue Value;
+			TKey Key;
+			TValue Value;
 		};
 
 		uint32_t ItemCount{ 0 };
@@ -1055,7 +1052,6 @@ namespace dse
 		STDString Name;
 #if !defined(OSI_EOCAPP)
 		uint32_t Unknown{ 0 };
-		uint32_t _Pad;
 #endif
 	};
 
@@ -1288,7 +1284,6 @@ namespace dse
 		Set<void *> Unknown;
 		ObjectSet<T *> Primitives;
 		uint8_t Unknown2;
-		uint8_t _Pad1[3];
 		uint32_t Unknown3;
 
 		T * Get(ObjectHandle handle) const
@@ -1438,7 +1433,6 @@ namespace dse
 		virtual void VisitInt8(FixedString const&, int8_t&, int8_t) = 0;
 		virtual void VisitBuffer(FixedString const&, ScratchBuffer&) = 0;
 	};
-#pragma pack(pop)
 }
 
 

@@ -10,23 +10,17 @@
 namespace dse
 {
 
-#pragma pack(push, 1)
 	template <class T, uint32_t TypeIndex>
 	struct NetworkObjectFactory : public ObjectFactory<T, TypeIndex>
 	{
 		Map<FixedString, T *> ObjectMap;
-		uint32_t _Pad2;
 		Map<uint16_t, T *> NetIds;
-		uint32_t _Pad3;
 		Map<uint16_t, void *> FreeNetIdMap;
-		uint32_t _Pad4;
 		Set<uint32_t> Unknown4;
 		uint32_t NumFreeNetIDs;
-		uint8_t _Pad42[4];
 		Array<uint16_t> NetIdSalts;
 		uint16_t NextFreeNetIndex;
 		bool CanCreateNetIDs;
-		uint8_t _Pad5[5];
 
 		T* FindByNetId(NetId netId) const
 		{
@@ -70,11 +64,9 @@ namespace dse
 		void * System;
 		int64_t Unkn1;
 		uint32_t Unkn2;
-		uint8_t _Pad[4];
 		void * PrimitiveSetVMT;
 		PrimitiveSet<uint64_t> PSet;
 		uint8_t Unkn3;
-		uint8_t _Pad2[7];
 	};
 
 	struct EntityEntry
@@ -105,7 +97,6 @@ namespace dse
 		PrimitiveSet<EntityEntry *> EntityEntries2;
 		uint64_t Unkn2;
 		uint8_t Unkn3;
-		uint8_t _Pad3[3];
 		uint32_t Unkn4;
 		Array<ComponentTypeEntry> Components;
 		ObjectSet<void *> KeepAlives; // ObjectSet<ObjectHandleRefMap<ComponentKeepAliveDesc>>
@@ -337,7 +328,6 @@ namespace dse
 		FixedString MyGuid;
 
 		NetId NetID;
-		uint32_t _Pad1;
 	};
 
 	struct IEocClientObject : public IGameObject
@@ -525,7 +515,6 @@ namespace dse
 			void* VMT2;
 			void* VMT3;
 			Map<FixedString, void*> FSMap_ReloadComponent;
-			uint32_t _Pad4;
 			EntityWorld* Entities;
 			uint64_t Unkn8[2];
 		};
@@ -535,7 +524,6 @@ namespace dse
 			void* VMT2;
 			void* VMT3;
 			Map<FixedString, void*> FSMap_ReloadComponent;
-			uint32_t _Pad4;
 			EntityWorld* Entities;
 			uint64_t Unkn8[2];
 		};
@@ -548,10 +536,8 @@ namespace dse
 		struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 		{
 			uint8_t Unknown;
-			uint8_t _Pad1[7];
 			void * CurrentState;
 			GameState State;
-			uint8_t _Pad2[4];
 			void ** TargetStates;
 			uint32_t TargetStateBufSize;
 			uint32_t NumTargetStates;
@@ -562,13 +548,10 @@ namespace dse
 		struct EoCServer
 		{
 			bool Unknown1;
-			uint8_t _Pad1[7];
 			uint64_t EoC;
 			uint64_t GameTime_M;
 			ScratchBuffer ScratchBuffer1;
-			uint8_t _Pad2[4];
 			ScratchBuffer ScratchBuffer2;
-			uint8_t _Pad3[4];
 			FixedString FS1;
 			FixedString FS2;
 			FixedString FS3;
@@ -581,7 +564,6 @@ namespace dse
 			void * CombineManager;
 			ModManager * ModManagerServer;
 			bool ShutDown;
-			uint8_t _Pad4[7];
 			void * EntityWorldManager;
 			EntityWorld * EntityWorld;
 			void * EntityManager;
@@ -676,7 +658,6 @@ namespace dse
 		struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 		{
 			uint8_t Unknown;
-			uint8_t _Pad1[7];
 			void* CurrentState;
 			GameState State;
 		};
@@ -702,25 +683,20 @@ namespace dse
 			FixedString FS_CurrentSaveGameGUID;
 			bool IsLoading;
 			bool IsLoading2;
-			uint8_t _Pad1[6];
 			void* PrimitiveSetVMT;
 			PrimitiveSet<int> PrimitiveSetUnkn;
 			uint64_t field_A8;
 			uint16_t field_B0;
-			uint8_t _Pad2[6];
 			void* Random;
 			void* ItemCombinationManager;
 			char field_C8;
-			uint8_t _Pad3[7];
 			uint64_t ScratchStr[4];
 			ScratchBuffer ScratchBuf;
-			uint8_t _Pad4[4];
 			ModManager* ModManager;
 			void* ChatManager;
 			STDWString WStr_CurrentHost_M;
 			uint64_t SomeObject[16];
 			int field_1C0;
-			uint8_t _Pad5[4];
 			uint64_t field_1C8[2];
 			void* EntityWorldManager;
 			EntityWorld* EntityWorld;
@@ -733,5 +709,4 @@ namespace dse
 
 		EntityWorld* GetEntityWorld();
 	}
-#pragma pack(pop)
 }
