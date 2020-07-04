@@ -527,13 +527,18 @@ struct List
 template <typename TKey, typename TVal>
 struct TMapNode
 {
+	struct KeyValuePair
+	{
+		TKey Key;
+		TVal Value;
+	};
+
 	TMapNode<TKey, TVal> * Left;
 	TMapNode<TKey, TVal> * Root;
 	TMapNode<TKey, TVal> * Right;
 	bool Color;
 	bool IsRoot;
-	TKey Key;
-	TVal Value;
+	KeyValuePair KV;
 };
 
 template <typename TKey, typename TVal, class Pred = std::less<TKey>>
@@ -547,7 +552,7 @@ struct TMap
 		auto currentTreeNode = Root->Root;
 		while (!currentTreeNode->IsRoot)
 		{
-			if (Pred()(currentTreeNode->Key, key)) {
+			if (Pred()(currentTreeNode->KV.Key, key)) {
 				currentTreeNode = currentTreeNode->Right;
 			} else {
 				finalTreeNode = currentTreeNode;
@@ -555,10 +560,10 @@ struct TMap
 			}
 		}
 
-		if (finalTreeNode == Root || Pred()(key, finalTreeNode->Key))
+		if (finalTreeNode == Root || Pred()(key, finalTreeNode->KV.Key))
 			return nullptr;
 		else
-			return &finalTreeNode->Value;
+			return &finalTreeNode->KV.Value;
 	}
 
 	template <class Visitor>
@@ -571,7 +576,7 @@ struct TMap
 	void Iterate(TMapNode<TKey, TVal> * node, Visitor visitor)
 	{
 		if (!node->IsRoot) {
-			visitor(node->Key, node->Value);
+			visitor(node->KV.Key, node->KV.Value);
 			Iterate(node->Left, visitor);
 			Iterate(node->Right, visitor);
 		}
