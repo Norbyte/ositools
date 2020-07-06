@@ -1015,6 +1015,8 @@ public:
 	virtual char * DebugDump(char * Buffer) = 0;
 	virtual char * DebugDump2(char * Buffer) = 0;
 	virtual void SetLineNumber(int Line) = 0;
+	virtual bool CallQuery(OsiArgumentDesc* args) = 0;
+	virtual const char* GetQueryName() = 0;
 
 
 	uint32_t Id;

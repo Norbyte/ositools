@@ -243,7 +243,11 @@ namespace dse::esv::lua
 	{
 		if (func->Type == FunctionType::Query
 			|| func->Type == FunctionType::SysQuery
-			|| func->Type == FunctionType::UserQuery) {
+			|| func->Type == FunctionType::UserQuery
+			// User queries appear in the function table using the 'Database' type,
+			// however the node is a UserQueryNode, not a DatabaseNode.
+			// Catch this case by checking if the node is a descendant of a DataNode or not.
+			|| (func->Type == FunctionType::Database && func->Node.Get() && !func->Node.Get()->IsDataNode())) {
 
 			auto numArgs = func->Signature->Params->Params.Size;
 			auto adapter = state.GetIdentityAdapterMap().FindAdapter((uint8_t)numArgs);
@@ -288,10 +292,27 @@ namespace dse::esv::lua
 			return 0;
 
 		case FunctionType::Event:
-		case FunctionType::Database:
 		case FunctionType::Proc:
 			OsiInsert(L, false);
 			return 0;
+
+		case FunctionType::Database:
+		{
+			// User queries appear in the function table using the 'Database' type,
+			// however the node is a UserQueryNode, not a DatabaseNode.
+			// Catch this case by checking if the node is a descendant of a DataNode or not.
+			auto node = function_->Node.Get();
+			if (node) {
+				if (node->IsDataNode()) {
+					OsiInsert(L, false);
+					return 0;
+				} else {
+					return OsiUserQuery(L);
+				}
+			} else {
+				return luaL_error(L, "Function has no node!");
+			}
+		}
 
 		case FunctionType::Query:
 			return OsiQuery(L);
