@@ -17,7 +17,7 @@ namespace dse
 		std::unordered_set<STDString> FeatureFlags;
 	};
 
-	class ExtensionStateBase
+	class ExtensionStateBase : Noncopyable<ExtensionStateBase>
 	{
 	public:
 		std::mt19937_64 OsiRng;

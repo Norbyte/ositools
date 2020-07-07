@@ -224,6 +224,7 @@ public:
 	bool IsInServerThread() const;
 	bool IsInClientThread() const;
 	void AttachConsoleThread(bool server);
+	void HookNodeVMTs();
 
 	std::wstring MakeLogFilePath(std::wstring const& Type, std::wstring const& Extension);
 
@@ -284,7 +285,6 @@ private:
 
 	void ResolveNodeVMTs(NodeDb * Db);
 	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
-	void HookNodeVMTs();
 	void RestartLogging(std::wstring const & Type);
 
 	void OnBaseModuleLoaded(void * self);

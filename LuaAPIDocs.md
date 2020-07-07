@@ -1,4 +1,4 @@
-### Lua API v48 Documentation
+### Lua API v50 Documentation
 
 ### Table of Contents  
 
@@ -14,6 +14,7 @@
     * [Queries](#l2o_queries)
     * [Events](#l2o_events)
     * [Custom Calls](#l2o_custom_calls)
+    * [Capturing Events](#l2o_captures)
  - [Calling Osiris from Lua](#calling-osiris-from-lua)
     * [Calls](#o2l_calls)
     * [Queries](#o2l_queries)
@@ -343,6 +344,29 @@ AND
 NRD_ModQuery2("YourMod", "TestFunc2", "asdf", "ghjk", _Out1, _Out2)
 THEN
 DebugBreak(_Out1);
+```
+
+### Capturing Events/Calls
+<a id="l2o_captures"></a>
+
+Since extender version v50 it is possible to capture certain Osiris events from Lua without adding Osiris boilerplate code. The `Ext.RegisterOsirisListener(name, arity, event, handler)` function registers a listener that is called in response to Osiris events.
+It currently supports capturing events, built-in queries, databases, user-defined PROCs and user-defined QRYs. Capture support for built-in calls will be added in a later version.
+
+Parameters: 
+ - `name` is the function or database name
+ - `arity` is the number of columns for DBs or the number of parameters (both IN and OUT) for functions
+ - `event` is the type of event to capture; possible values:
+   - `before` - Trigger event before a call/DB insert is performed
+   - `after` - Trigger event after a call/DB insert is performed
+   - `beforeDelete` - Trigger event before a DB delete is performed (databases only!)
+   - `afterDelete` - Trigger event after a DB delete is performed (databases only!)
+ - `handler` is a Lua function that is called when the specified event is triggered. The function receives all parameters of the original DB/function.
+
+Example:
+```lua
+Ext.RegisterOsirisListener("ItemDropped", 1, "after", function (itemGuid)
+    Ext.Print("ItemDropped - " .. itemGuid)
+end)
 ```
 
 

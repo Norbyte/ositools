@@ -39,7 +39,7 @@ namespace dse::lua
 		return *this;
 	}
 
-	void RegistryEntry::Push()
+	void RegistryEntry::Push() const
 	{
 		assert(ref_ != -1);
 		lua_rawgeti(L_, LUA_REGISTRYINDEX, ref_);

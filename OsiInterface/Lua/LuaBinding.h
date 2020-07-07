@@ -154,7 +154,7 @@ namespace dse::lua
 		{}
 	};
 
-	class State
+	class State : Noncopyable<State>
 	{
 	public:
 		enum RestrictionFlag

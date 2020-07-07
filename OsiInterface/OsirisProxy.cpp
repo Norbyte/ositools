@@ -204,7 +204,11 @@ std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstrin
 
 void OsirisProxy::HookNodeVMTs()
 {
-	gNodeVMTWrappers = std::make_unique<NodeVMTWrappers>(NodeVMTs);
+	ResolveNodeVMTs(*Wrappers.Globals.Nodes);
+
+	if (ResolvedNodeVMTs && !gNodeVMTWrappers) {
+		gNodeVMTWrappers = std::make_unique<NodeVMTWrappers>(NodeVMTs);
+	}
 }
 
 #if !defined(OSI_NO_DEBUGGER)
@@ -367,9 +371,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	std::lock_guard _(storyLoadLock_);
 
 #if !defined(OSI_NO_DEBUGGER)
-	if (DebuggerThread != nullptr && !ResolvedNodeVMTs) {
-		ResolveNodeVMTs(*Wrappers.Globals.Nodes);
-		ResolvedNodeVMTs = true;
+	if (DebuggerThread != nullptr) {
 		HookNodeVMTs();
 	}
 #endif
@@ -503,6 +505,8 @@ void OsirisProxy::SaveNodeVMT(NodeType type, NodeVMT * vmt)
 
 void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 {
+	if (ResolvedNodeVMTs) return;
+
 #if 0
 	DEBUG("OsirisProxy::ResolveNodeVMTs");
 #endif
@@ -515,7 +519,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 	if (VMTs.size() != (unsigned)NodeType::Max) {
-		Fail("Could not locate all Osiris node VMT-s");
+		ERR("Could not locate all Osiris node VMT-s");
+		return;
 	}
 
 	// RuleNode has a different SetLineNumber implementation
@@ -539,7 +544,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	} else if (srvB.size() == 1) {
 		ruleNodeVMT = *srvB.begin();
 	} else {
-		Fail("Could not locate RuleNode::__vfptr");
+		ERR("Could not locate RuleNode::__vfptr");
+		return;
 	}
 
 #if 0
@@ -555,13 +561,15 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (relOpNodeVMT == nullptr) {
 				relOpNodeVMT = vmt;
 			} else {
-				Fail("RelOpNode::__vfptr pattern matches multiple VMT-s");
+				ERR("RelOpNode::__vfptr pattern matches multiple VMT-s");
+				return;
 			}
 		}
 	}
 
 	if (relOpNodeVMT == nullptr) {
-		Fail("Could not locate RelOpNode::__vfptr");
+		ERR("Could not locate RelOpNode::__vfptr");
+		return;
 	}
 
 #if 0
@@ -579,13 +587,15 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			} else if (and2VMT == nullptr) {
 				and2VMT = vmt;
 			} else {
-				Fail("AndNode::__vfptr pattern matches multiple VMT-s");
+				ERR("AndNode::__vfptr pattern matches multiple VMT-s");
+				return;
 			}
 		}
 	}
 
 	if (and1VMT == nullptr || and2VMT == nullptr) {
-		Fail("Could not locate AndNode::__vfptr");
+		ERR("Could not locate AndNode::__vfptr");
+		return;
 	}
 
 #if 0
@@ -621,7 +631,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 	}
 
 	if (queryVMTs == nullptr) {
-		Fail("Could not locate all Query node VMT-s");
+		ERR("Could not locate all Query node VMT-s");
+		return;
 	}
 
 	for (auto vmt : *queryVMTs) {
@@ -643,7 +654,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #endif
 			SaveNodeVMT(NodeType::UserQuery, vmt);
 		} else {
-			Fail("Unrecognized Query node VMT");
+			ERR("Unrecognized Query node VMT");
+			return;
 		}
 	}
 
@@ -655,7 +667,8 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (procNodeVMT == nullptr) {
 				procNodeVMT = vmt;
 			} else {
-				Fail("ProcNode::__vfptr pattern matches multiple VMT-s");
+				ERR("ProcNode::__vfptr pattern matches multiple VMT-s");
+				return;
 			}
 		}
 
@@ -664,17 +677,20 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 			if (databaseNodeVMT == nullptr) {
 				databaseNodeVMT = vmt;
 			} else {
-				Fail("DatabaseNode::__vfptr pattern matches multiple VMT-s");
+				ERR("DatabaseNode::__vfptr pattern matches multiple VMT-s");
+				return;
 			}
 		}
 	}
 
 	if (procNodeVMT == nullptr) {
-		Fail("Could not locate ProcNode::__vfptr");
+		ERR("Could not locate ProcNode::__vfptr");
+		return;
 	}
 
 	if (databaseNodeVMT == nullptr) {
-		Fail("Could not locate DatabaseNode::__vfptr");
+		ERR("Could not locate DatabaseNode::__vfptr");
+		return;
 	}
 
 #if 0
@@ -683,6 +699,7 @@ void OsirisProxy::ResolveNodeVMTs(NodeDb * Db)
 #endif
 	SaveNodeVMT(NodeType::Proc, procNodeVMT);
 	SaveNodeVMT(NodeType::Database, databaseNodeVMT);
+	ResolvedNodeVMTs = true;
 }
 
 bool OsirisProxy::HasFeatureFlag(char const * flag) const

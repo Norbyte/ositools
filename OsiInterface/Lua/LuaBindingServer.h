@@ -11,6 +11,44 @@
 namespace dse::esv
 {
 	struct PendingHit;
+	class ExtensionState;
+
+	struct OsirisHookSignature
+	{
+		enum HookType
+		{
+			BeforeTrigger,
+			AfterTrigger,
+			BeforeDeleteTrigger,
+			AfterDeleteTrigger
+		};
+
+		STDString name;
+		uint32_t arity;
+		HookType type;
+
+		inline bool operator == (OsirisHookSignature const& o) const
+		{
+			return name == o.name
+				&& arity == o.arity
+				&& type == o.type;
+		}
+	};
+
+}
+
+namespace std
+{
+	template<> struct hash<dse::esv::OsirisHookSignature>
+	{
+		typedef dse::esv::OsirisHookSignature argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& sig) const noexcept
+		{
+			return std::hash<dse::STDString>{}(sig.name) ^ std::hash<uint32_t>{}(sig.arity | ((uint32_t)sig.type << 6));
+		}
+	};
 }
 
 namespace dse::esv::lua
@@ -22,6 +60,7 @@ namespace dse::esv::lua
 	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false);
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg);
 	void OsiToLua(lua_State * L, TypedValue const & tv);
+	Function const* LookupOsiFunction(STDString const& name, uint32_t arity);
 
 	class OsiFunction
 	{
@@ -83,7 +122,6 @@ namespace dse::esv::lua
 		bool BeforeCall(lua_State * L);
 		OsiFunction * TryGetFunction(uint32_t arity);
 		OsiFunction * CreateFunctionMapping(uint32_t arity, Function const * func);
-		Function const * LookupOsiFunction(uint32_t arity);
 	};
 
 
@@ -305,10 +343,45 @@ namespace dse::esv::lua
 	};
 
 
+	class ServerState;
+	class OsirisCallbackManager : Noncopyable<OsirisCallbackManager>
+	{
+	public:
+		OsirisCallbackManager(ExtensionState& state);
+		~OsirisCallbackManager();
+
+		void Subscribe(STDString const& name, uint32_t arity, OsirisHookSignature::HookType type, RegistryEntry handler);
+		void StoryLoaded();
+
+	private:
+		static constexpr uint64_t AfterTriggerNodeRef = 0x8000000000000000ull;
+		static constexpr uint64_t DeleteTriggerNodeRef = 0x4000000000000000ull;
+
+		ExtensionState& state_;
+		std::vector<RegistryEntry> subscribers_;
+		std::unordered_multimap<OsirisHookSignature, std::size_t> nameSubscriberRefs_;
+		std::unordered_multimap<uint64_t, std::size_t> nodeSubscriberRefs_;
+		bool storyLoaded_{ false };
+		bool osirisHooked_{ false };
+
+		void RegisterNodeHandler(OsirisHookSignature const& sig, std::size_t handlerId);
+		void HookOsiris();
+
+		void InsertPreHook(Node* node, TuplePtrLL* tuple, bool deleted);
+		void InsertPostHook(Node* node, TuplePtrLL* tuple, bool deleted);
+		void CallQueryPreHook(Node* node, OsiArgumentDesc* args);
+		void CallQueryPostHook(Node* node, OsiArgumentDesc* args, bool succeeded);
+		void RunHandlers(uint64_t nodeRef, TuplePtrLL* tuple) const;
+		void RunHandler(lua_State* L, RegistryEntry const& func, TuplePtrLL* tuple) const;
+		void RunHandlers(uint64_t nodeRef, OsiArgumentDesc* tuple) const;
+		void RunHandler(lua_State* L, RegistryEntry const& func, OsiArgumentDesc* tuple) const;
+	};
+
+
 	class ServerState : public State
 	{
 	public:
-		ServerState();
+		ServerState(ExtensionState& state);
 		~ServerState();
 
 		ServerState(ServerState const &) = delete;
@@ -344,6 +417,11 @@ namespace dse::esv::lua
 		inline OsiArgumentPool<ListNode<TupleLL::Item>> & GetTupleNodePool()
 		{
 			return tupleNodePool_;
+		}
+
+		inline OsirisCallbackManager& GetOsirisCallbacks()
+		{
+			return osirisCallbacks_;
 		}
 
 		void OnGameSessionLoading() override;
@@ -413,6 +491,7 @@ namespace dse::esv::lua
 		// ID of current story instance.
 		// Used to invalidate function/node pointers in Lua userdata objects
 		uint32_t generationId_{ 0 };
+		OsirisCallbackManager osirisCallbacks_;
 
 		bool QueryInternal(char const* mod, char const* name, RegistryEntry * func,
 			std::vector<CustomFunctionParam> const & signature, OsiArgumentDesc & params);

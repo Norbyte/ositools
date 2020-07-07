@@ -238,6 +238,39 @@ namespace dse::esv::lua
 		}
 	}
 
+	uint32_t FunctionNameHash(char const * str)
+	{
+		uint32_t hash{ 0 };
+		while (*str) {
+			hash = (*str++ | 0x20) + 129 * (hash % 4294967);
+		}
+
+		return hash;
+	}
+
+	Function const* LookupOsiFunction(STDString const& name, uint32_t arity)
+	{
+		auto functions = gOsirisProxy->GetGlobals().Functions;
+		if (!functions) {
+			return nullptr;
+		}
+
+		STDString sig(name);
+		sig += "/";
+		sig += std::to_string(arity);
+
+		auto hash = FunctionNameHash(name.c_str()) + arity;
+		auto func = (*functions)->Find(hash, sig);
+		if (func == nullptr
+			|| ((*func)->Node.Id == 0
+				&& (*func)->Type != FunctionType::Call
+				&& (*func)->Type != FunctionType::Query)) {
+			return nullptr;
+		}
+
+		return *func;
+	};
+
 
 	bool OsiFunction::Bind(Function const * func, ServerState & state)
 	{
@@ -749,14 +782,14 @@ namespace dse::esv::lua
 		}
 
 		// Look for Call/Proc/Event/Query (number of OUT args == 0)
-		auto func = LookupOsiFunction(arity);
+		auto func = LookupOsiFunction(name_, arity);
 		if (func != nullptr && func->Signature->OutParamList.numOutParams() == 0) {
 			return CreateFunctionMapping(arity, func);
 		}
 
 		for (uint32_t args = arity + 1; args < arity + MaxQueryOutParams; args++) {
 			// Look for Query/UserQuery (number of OUT args > 0)
-			auto func = LookupOsiFunction(args);
+			auto func = LookupOsiFunction(name_, args);
 			if (func != nullptr) {
 				auto outParams = func->Signature->OutParamList.numOutParams();
 				auto params = func->Signature->Params->Params.Size - outParams;
@@ -780,36 +813,6 @@ namespace dse::esv::lua
 		} else {
 			return nullptr;
 		}
-	}
-
-	uint32_t FunctionNameHash(char const * str)
-	{
-		uint32_t hash{ 0 };
-		while (*str) {
-			hash = (*str++ | 0x20) + 129 * (hash % 4294967);
-		}
-
-		return hash;
-	}
-
-	Function const * OsiFunctionNameProxy::LookupOsiFunction(uint32_t arity)
-	{
-		auto functions = gOsirisProxy->GetGlobals().Functions;
-
-		STDString sig(name_);
-		sig += "/";
-		sig += std::to_string(arity);
-
-		auto hash = FunctionNameHash(name_.c_str()) + arity;
-		auto func = (*functions)->Find(hash, sig);
-		if (func == nullptr 
-			|| ((*func)->Node.Id == 0 
-				&& (*func)->Type != FunctionType::Call
-				&& (*func)->Type != FunctionType::Query)) {
-			return nullptr;
-		}
-
-		return *func;
 	}
 
 	ValueType StringToValueType(std::string_view s)
@@ -1186,6 +1189,8 @@ namespace dse::esv::lua
 		if (!identityAdapters_.HasAllAdapters()) {
 			OsiWarn("Not all identity adapters are available - some queries may not work!");
 		}
+
+		osirisCallbacks_.StoryLoaded();
 	}
 
 	void ServerState::StoryFunctionMappingsUpdated()

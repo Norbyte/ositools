@@ -541,7 +541,7 @@ namespace dse::lua
 		RegistryEntry & operator = (RegistryEntry const &) = delete;
 		RegistryEntry & operator = (RegistryEntry &&);
 
-		void Push();
+		void Push() const;
 
 	private:
 		lua_State * L_;

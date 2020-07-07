@@ -2703,6 +2703,14 @@ Ext = {
     --- @param callback function Lua function to run when the event fires
     RegisterListener = function (event, callback) end,
 
+    --- Registers a function that is called when certain Osiris functions are called.
+    --- Supports events, built-in queries, DBs, PROCs, QRYs (user queries).
+    --- @param name string Osiris function/database name
+    --- @param arity number Number of columns for DBs or the number of parameters (both IN and OUT) for functions
+    --- @param event string Event type ('before' - triggered before Osiris call; 'after' - after Osiris call; 'beforeDelete'/'afterDelete' - before/after delete from DB)
+    --- @param handler function Lua function to run when the event fires
+    RegisterOsirisListener = function (name, arity, event, handler) end,
+
     --- Registers a new call in Osiris
     --- @param func function Function to register
     --- @param funcName string Name of call to register
