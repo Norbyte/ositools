@@ -88,8 +88,8 @@ The following changes must be observed when migrating to v42:
  - The following functions are deleted in client contexts: `Ext.NewCall`, `Ext.NewQuery`, `Ext.NewEvent`, `Ext.GetCharacter`, `Ext.GetItem`, `Ext.GetStatus`, `Ext.GetCombat`, `Ext.GenerateIdeHelpers`
 
 
-## Client / Server States
 <a id="client-server"></a>
+## Client / Server States
 
 Internally the game is split into two components, a client and a server component. When a new game is started/loaded, a new server is created and client connect to this server. The server component is only created on the host; client components are created on both the host and all peers. Because of this, the game technically always runs in multiplayer. Single player is just a special form of multiplayer where only one local peer is connected to the server.
 
@@ -100,8 +100,8 @@ Because they run in different environments, server and client states can access 
  - **S** - The function is only available on the server
  - **R** - Restricted; the function is only callable in special contexts/locations
 
-### Persistent Variables
 <a id="persistent-vars"></a>
+### Persistent Variables
 
 The Lua state and all local variables are reset after each game reload. For keeping data through multiple play sessions it is possible to store them in the savegame by storing them in the mod-local table `Mods[ModTable].PersistentVars`. By default the table is `nil`, i.e. a mod should create the table and populate it with data it wishes to store in the savegame. The contents of `PersistentVars` is saved when a savegame is created, and restored before the `SessionLoaded` event is triggered.
 
@@ -150,16 +150,16 @@ The console has full access to the underlying Lua state, i.e. server console com
 Variables can be used just like in Lua, i.e. variable in one command can later on be used in another console command. Be careful, console code runs in global context, so make sure console variable names don't conflict with globals (i.e. `Mods`, `Ext`, etc.)! Don't use `local` for console variables, since the lifetime of the local will be one console command. (Each console command is technically a separate chunk).
 
 
-## Calling Lua from Osiris <sup>S</sup>
 <a id="calling-lua-from-osiris"></a>
+## Calling Lua from Osiris <sup>S</sup>
 
 By default, functions defined in Lua are not visible to Osiris. 
 During the Lua server bootstrap process, it is possible to declare new functions (calls/queries/events) that will be accessible to Osiris during compilation and execution. Since Osiris only runs on the server, Osiris functions are inaccessible in Lua client states.
 
 Lua functions are registered through the story header (`story_header.div`). This means that each time a function is added, changed or removed, the story header must be regenerated in the editor. (The game regenerates its own story header, so it is always up to date.)
 
-### Types
 <a id="l2o_types"></a>
+### Types
 
 The following table describes how Lua values are converted to Osiris values and vice versa.
 
@@ -174,8 +174,8 @@ The following table describes how Lua values are converted to Osiris values and 
 
 
 
-### Calls
 <a id="l2o_calls"></a>
+### Calls
 
 Calls can be registered using the `Ext.NewCall(name, parameters)` function. The first parameter is the name of the call to create. The second parameter is the argument list of the Osiris call; it should follow the same syntax that the Osiris story header uses.
 
@@ -205,8 +205,8 @@ NRD_EXT_TestLog("Test");
 NRD_EXT_Multiply(10, 5);
 ```
 
-### Queries
 <a id="l2o_queries"></a>
+### Queries
 
 Unlike `QRY`s defined in Osiris code, Lua queries can return values just like the built-in queries.
 Queries can be registered using the `Ext.NewQuery(name, parameters)` function. The first parameter is the name of the query. The second parameter is the argument list of the Osiris query; it should follow the same syntax that the Osiris story header uses.
@@ -248,8 +248,8 @@ THEN
 [...]
 ```
 
-### Events
 <a id="l2o_events"></a>
+### Events
 
 New Osiris events can be created by calling `Ext.NewEvent(name, parameters)`. The first parameter is the name of the event. The second parameter is the argument list of the Osiris event; it should follow the same syntax that the Osiris story header uses.
 
@@ -262,8 +262,8 @@ Custom events can be thrown by calling them like a function:
 NRD_EXT_TestEvent("Whatever");
 ```
 
-### Custom calls/queries
 <a id="l2o_custom_calls"></a>
+### Custom calls/queries
 
 It is possible to call Lua functions by name, without exporting them to the Osiris story header. For this purpose multiple polymorphic functions are provided, `NRD_LuaCall*`, `NRD_ModCall*`, `NRD_LuaQuery*` and `NRD_ModQuery*`.
 
@@ -346,8 +346,8 @@ THEN
 DebugBreak(_Out1);
 ```
 
-### Capturing Events/Calls
 <a id="l2o_captures"></a>
+### Capturing Events/Calls
 
 Since extender version v50 it is possible to capture certain Osiris events from Lua without adding Osiris boilerplate code. The `Ext.RegisterOsirisListener(name, arity, event, handler)` function registers a listener that is called in response to Osiris events.
 It currently supports capturing events, built-in queries, databases, user-defined PROCs and user-defined QRYs. Capture support for built-in calls will be added in a later version.
@@ -374,8 +374,8 @@ end)
 
 Lua server contexts have a special global table called `Osi` that contains every Osiris symbol. In addition, built-in functions (calls, queries, events), functions added by the Osiris extender and functions registered from Lua via `Ext.NewCall`, `Ext.NewQuery` and `Ext.NewEvent` are also added to the global table.
 
-### Calls
 <a id="o2l_calls"></a>
+### Calls
 
 Simply call the method from Lua with the same parameters:
 ```lua
@@ -387,8 +387,8 @@ Osi.CharacterResetCooldowns(player)
 
 Implementation detail: Technically, name resolution is only performed when the function is called, since Osiris allows multiple overloads of the same name and the function to call is resolved based on the number of arguments. Because of this, getting any key from the `Osi` table will return an object, even if no function with that name exists. Therefore, `Osi.Something ~= nil` and similar checks cannot be used to determine whether a given Osiris symbol exists.
 
-### Queries
 <a id="o2l_queries"></a>
+### Queries
 
 The query behavior is a mirror of the one described in the [Exporting Lua functions to Osiris](#exporting-lua-functions-to-osiris) chapter.
 
@@ -405,16 +405,16 @@ local player = CharacterGetHostCharacter()
 local x, y, z = GetPosition(player)
 ```
 
-### Events
 <a id="o2l_events"></a>
+### Events
 
 Osiris events can be triggered by calling them like a function. Events are not buffered and the event is triggered synchronously, i.e. the function call returns when every Osiris rule that handles the event has finished.
 ```lua
 StoryEvent(player, "event name")
 ```
 
-### PROCs
 <a id="o2l_procs"></a>
+### PROCs
 
 Calling PROCs is equivalent to built-in calls, however they are not added to the global table.
 
@@ -422,8 +422,8 @@ Calling PROCs is equivalent to built-in calls, however they are not added to the
 Osi.Proc_CharacterFullRestore(player)
 ```
 
-### User Queries
 <a id="o2l_qrys"></a>
+### User Queries
 
 User queries (`QRY`) behave just like built-in queries do. Since they can't have OUT arguments (i.e. can't return values), the function will just return a boolean indicating whether the query succeeded or not. User queries are not added to the global table.
 
@@ -431,8 +431,8 @@ User queries (`QRY`) behave just like built-in queries do. Since they can't have
 local succeeded = Osi.Qry_IsHealingStatus("DAMAGE")
 ```
 
-### Databases
 <a id="o2l_dbs"></a>
+### Databases
 
 Databases can be read using the `Get` method. The method checks its parameters against the database and only returns rows that match the query.
 
@@ -806,8 +806,8 @@ Output:
 }
 ```
 
-## Server Characters <sup>S</sup>
 <a id="server-characters"></a>
+## Server Characters <sup>S</sup>
 
 Characters in server contexts can be retrieved using the `Ext.GetCharacter(ref)` call. The function accepts a character GUID, a NetID or an ObjectHandle. If the character cannot be found, the return value is `nil`; otherwise a Character object is returned.
 
@@ -874,8 +874,8 @@ Player objects have the following properties:
 | IsPossessed | boolean |  |
 
 
-## Player Custom Data
 <a id="player-custom-data"></a>
+## Player Custom Data
 
 Contains player customization info. Properties:
 
@@ -900,8 +900,8 @@ Contains player customization info. Properties:
 | Speaker | string |
 
 
-## Character Stats
 <a id="character-stats"></a>
+## Character Stats
 
 Represents all stats of a character (both players and non-players). Unlike Character objects which are different on the server and the client, the same Character Stats objects are present on both ends.
 
@@ -955,8 +955,8 @@ Talents can be queried using the field name `TALENT_` + the talent name (e.g. `c
 Abilities can be queried using their name (e.g. `character.WarriorLore`). For a list of ability names see the `Ability` enumeration in `Enumerations.xml`.
 
 
-## Character Dynamic Stats
 <a id="character-dynamic-stats"></a>
+## Character Dynamic Stats
 
 Character stats are calculated from multiple different sources (base stats, potions, statuses, etc.). Each of these sources is stored as a dynamic stat.
 
@@ -1023,8 +1023,8 @@ Dynamic stat index `1` always contains character base stats, index `2` contains 
 | BonusWeapon | string | |
 
 
-## Server Items <sup>S</sup>
 <a id="server-items"></a>
+## Server Items <sup>S</sup>
 
 Items on the server can be retrieved using the `Ext.GetItem(ref)` call. The function accepts an item GUID or an ObjectHandle. If the item cannot be found, the return value is `nil`; otherwise an Item object is returned.
 
@@ -1060,8 +1060,8 @@ Items have the following properties:
 | ForceSynch | boolean | |
 
 
-## Item Stats
 <a id="item-stats"></a>
+## Item Stats
 
 Represents all stats of an item. Unlike Item objects which are different on the server and the client, the same Item Stats objects are present on both ends.
 
@@ -1088,8 +1088,8 @@ Represents all stats of an item. Unlike Item objects which are different on the 
 Immunity/attribute flags from the [AttributeFlags enumeration](#attributeflags) can be retrieved using their name (i.e. `stats.KnockdownImmunity`).
 
 
-## Item Dynamic Stats
 <a id="item-dynamic-stats"></a>
+## Item Dynamic Stats
 
 Item stats are calculated from multiple different sources (base stats, permanent boosts, runes, deltamods, etc.). Each of these sources is stored as a dynamic stat.
 
@@ -1176,8 +1176,8 @@ Armor-only properties:
 | MagicArmorBoost | integer | |
 
 
-## Projectiles <sup>S</sup>
 <a id="server-projectiles"></a>
+## Projectiles <sup>S</sup>
 
 Currently projectiles are only available when passed as parameters to event listeners (`GetSkillDamage`, `ComputeCharacterHit`, etc.), and are not retrievable otherwise.
 
@@ -1227,8 +1227,8 @@ They have the following properties:
 | CurrentLevel | string |  |
 
 
-## Server Statuses <sup>S</sup>
 <a id="server-statuses"></a>
+## Server Statuses <sup>S</sup>
 
 Properties available on all statuses:
 
@@ -1379,8 +1379,8 @@ Properties available on all statuses:
 | AbsorbSurfaceRange | integer |  |
 
 
-## Combat <sup>S</sup>
 <a id="combat"></a>
+## Combat <sup>S</sup>
 
 Each combat in-game is represented by a Combat object in Lua. 
 
@@ -1513,8 +1513,8 @@ for i,damage in pairs(list:ToTable()) do
 end
 ```
 
-## Utility functions
 <a id="ext-utility"></a>
+## Utility functions
 
 #### Ext.Require(path) <sup>R</sup>
 
@@ -1620,11 +1620,11 @@ ab
 ```
 
 
-# Engine Events
 <a id="engine-events"></a>
+# Engine Events
 
-## Load Events
 <a id="event-load-events"></a>
+## Load Events
 
 ### ModuleLoadStarted
 
@@ -1648,8 +1648,8 @@ The purpose of this event is to allow adding filesystem-level hooks using `Ext.A
 `SessionLoaded` is thrown when the game session was set up.
 
 
-## SkillGetDescriptionParam <sup>C</sup>
 <a id="event-skillgetdescriptionparam"></a>
+## SkillGetDescriptionParam <sup>C</sup>
 
 `SkillGetDescriptionParam` is called when the substitution value for a skill description parameter is being calculated. The function should return the parameter value if it wishes to override the built-in value, or return `nil` if the engine substitution logic should be used. Each part of the colon-separated description param is passed as a separate parameter; i.e. `"Stats:Stats_Slowed:MovementSpeedBoost"` is passed as `(skill, character, isFromItem, "Stats", "Stats_Slowed", "MovementSpeedBoost")`. 
 This event must only be registered on the client (since the server has no UI).
@@ -1665,8 +1665,8 @@ end
 Ext.RegisterListener("SkillGetDescriptionParam", skillGetDescriptionParam)
 ```
 
-## StatusGetDescriptionParam <sup>C</sup>
 <a id="event-statusgetdescriptionparam"></a>
+## StatusGetDescriptionParam <sup>C</sup>
 
 `StatusGetDescriptionParam`  is called when engine requests the value of a status description parameter. The function should return the parameter value if it wishes to override the built-in value, or return `nil` if the engine substitution logic should be used. Each part of the colon-separated description param is passed as a separate parameter; i.e. `"Stats:Stats_Slowed:MovementSpeedBoost"` is passed as `(status, statusSource, character, "Stats", "Stats_Slowed", "MovementSpeedBoost")`.
 This event must only be registered on the client (since the server has no UI).
@@ -1686,8 +1686,8 @@ end
 Ext.RegisterListener("StatusGetDescriptionParam", statusGetDescriptionParam)
 ```
 
-## GetSkillDamage
 <a id="event-getskilldamage"></a>
+## GetSkillDamage
 
 `GetSkillDamage` is called when the engine is calculating the amount of damage dealt by a specific skill.
 Note that this function only calculates the base damage amount without taking into account the stats of the target character/item.
@@ -1720,8 +1720,8 @@ The function should return a DamageList object and a DamageType string if it wis
 For a reference implementation that replicates the ingame skill damage calculation logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
 
 
-## ComputeCharacterHit <sup>S</sup>
 <a id="event-computecharacterhit"></a>
+## ComputeCharacterHit <sup>S</sup>
 
 `ComputeCharacterHit` is called when the engine is applying a hit on a specific character.
 Since hit logic is run entirely on the server this callback cannot be registered on the client.
@@ -1753,8 +1753,8 @@ The function should update and return the `hit` table if it wishes to override t
 For a reference implementation that replicates the ingame hit logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
 
 
-## BeforeCharacterApplyDamage <sup>S</sup>
 <a id="event-beforecharacterapplydamage"></a>
+## BeforeCharacterApplyDamage <sup>S</sup>
 
 The `BeforeCharacterApplyDamage` is called before a hit is applied on the character. The damage values passed to this function are final values (include resistances, bonuses, etc.).
 
@@ -1781,8 +1781,8 @@ Parameters:
 The function should update fields in the `hit` table directly if it wishes to override the built-in hit simulation formula. Please note that unlike other callbacks, changes performed in this function are always applied as it has no return value!
 
 
-## StatusGetEnterChance <sup>S</sup>
 <a id="event-statusgetenterchance"></a>
+## StatusGetEnterChance <sup>S</sup>
 
 The `StatusGetEnterChance` listener is called to fetch the chance of entering/ticking a status.
 When a status is first applied to a character or item, `StatusGetEnterChance` is called with `isEnterCheck = true`. If the status apply succeeds, `StatusGetEnterChance` is called at the end of each subsequent turn with `isEnterCheck = false`. If the status tick check fails, the status is removed.
@@ -1807,8 +1807,8 @@ The function should return an integer value between 0 and 100 representing the e
 For a reference implementation that replicates the ingame status enter chance logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
 
 
-## GetHitChance
 <a id="event-gethitchance"></a>
+## GetHitChance
 
 Each time the game calculates hit chance, the `GetHitChance` listener is called. If a Lua script listens to this event and returns a non-`nil` value from the listener function, the game will use the return value of the custom function as the hit chance. If the function returns `nil` or the function call fails, the game's own hit chance calculation is used.
 The function is used by the server to perform hit checks and by the client to display the hit chance tooltip.
