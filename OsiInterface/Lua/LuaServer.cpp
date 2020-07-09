@@ -374,6 +374,10 @@ namespace dse::lua
 
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
+		if (!propFS) {
+			OsiError("[esv::Item] has no property named '" << prop << "'");
+			return 0;
+		}
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ItemGetInventoryItems);
