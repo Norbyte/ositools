@@ -243,7 +243,7 @@ namespace dse::lua
 			}
 
 			if (prop == GFS.strMyGuid) {
-				push(L, stats->Character->GetGuid());
+				push(L, *stats->Character->GetGuid());
 				return 1;
 			}
 

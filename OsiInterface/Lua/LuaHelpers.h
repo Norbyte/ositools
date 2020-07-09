@@ -110,6 +110,12 @@ namespace dse::lua
 		}
 	}
 
+	template <class T>
+	inline typename std::enable_if_t<std::is_pointer_v<T>, std::enable_if_t<!std::is_same_v<T, char const*>, std::enable_if_t<!std::is_same_v<T, char*>, void>>> push(lua_State* L, T v)
+	{
+		static_assert(false, "Can't push pointers to Lua");
+	}
+
 
 	// Dummy pin class for values that need no special pinning/unpinning behavior
 	struct NullPin {};
