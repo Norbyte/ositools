@@ -332,6 +332,11 @@ namespace dse
 		}
 	}
 
+	void ExtensionStateBase::AddPostResetCallback(PostResetCallback callback)
+	{
+		luaPostResetCallbacks_.push_back(callback);
+	}
+
 	std::optional<STDString> ExtensionStateBase::ResolveModScriptPath(STDString const& modNameGuid, STDString const& fileName)
 	{
 		auto mod = GetModManager()->FindModByNameGuid(modNameGuid.c_str());
@@ -440,10 +445,27 @@ namespace dse
 		DoLuaReset();
 		OsiWarn("LUA VM reset.");
 
+		// Make sure that we won't get destroyed during startup
+		IncLuaRefs();
+
 		if (LuaPendingStartup) {
 			LuaPendingStartup = false;
 			LuaStartup();
 		}
+
+		for (auto const& cb : luaPostResetCallbacks_) {
+			cb();
+		}
+
+		luaPostResetCallbacks_.clear();
+
+		// Prevent Lua state deletion during startup; it would most likely lead to an infinite delete loop
+		if (LuaPendingDelete) {
+			LuaPendingDelete = false;
+			OsiError("Lua state deletion requested during startup? Weird");
+		}
+
+		DecLuaRefs();
 	}
 
 	void ExtensionStateBase::LuaStartup()

@@ -20,6 +20,7 @@ namespace dse
 	class ExtensionStateBase : Noncopyable<ExtensionStateBase>
 	{
 	public:
+		using PostResetCallback = std::function<void()>;
 		std::mt19937_64 OsiRng;
 
 		virtual void Reset();
@@ -47,6 +48,7 @@ namespace dse
 		void IncLuaRefs();
 		void DecLuaRefs();
 		void LuaReset(bool startup);
+		void AddPostResetCallback(PostResetCallback callback);
 
 		std::optional<STDString> ResolveModScriptPath(STDString const& modNameGuid, STDString const& fileName);
 		STDString ResolveModScriptPath(Module const& mod, STDString const& fileName);
@@ -73,6 +75,7 @@ namespace dse
 
 		std::recursive_mutex luaMutex_;
 		std::atomic<uint32_t> luaRefs_{ 0 };
+		std::vector<PostResetCallback> luaPostResetCallbacks_;
 		bool LuaPendingDelete{ false };
 		bool LuaPendingStartup{ false };
 		bool StatLoadTriggered{ false };

@@ -26,11 +26,13 @@ namespace dse::esv
 
 			if (resetServer) {
 				auto & ext = ExtensionState::Get();
+				ext.AddPostResetCallback([&ext]() {
+					ext.OnModuleResume();
+					ext.OnGameSessionLoading();
+					ext.OnGameSessionLoaded();
+					ext.StoryLoaded();
+				});
 				ext.LuaReset(bootstrapMods);
-				ext.OnModuleResume();
-				ext.OnGameSessionLoading();
-				ext.OnGameSessionLoaded();
-				ext.StoryLoaded();
 			}
 
 			if (resetClient) {
