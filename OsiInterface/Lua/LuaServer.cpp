@@ -159,6 +159,55 @@ namespace dse::lua
 		return 1;
 	}
 
+	int CharacterGetSkills(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+
+		lua_newtable(L);
+		int32_t index{ 1 };
+
+		auto skillMgr = self->Get(L)->SkillManager;
+		if (skillMgr != nullptr) {
+			skillMgr->Skills.Iterate([L, &index](FixedString const& skillId, esv::Skill* skill) {
+				settable(L, index++, skillId);
+			});
+		}
+
+		return 1;
+	}
+
+	int CharacterGetSkillInfo(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto skillId = checked_get<FixedString>(L, 2);
+
+		auto skillMgr = self->Get(L)->SkillManager;
+		if (skillMgr != nullptr) {
+			auto skill = skillMgr->Skills.Find(skillId);
+			if (skill != nullptr) {
+				auto& sk = **skill;
+				lua_newtable(L);
+				setfield(L, "ActiveCooldown", sk.ActiveCooldown);
+				setfield(L, "IsActivated", sk.IsActivated);
+				setfield(L, "IsLearned", sk.IsLearned);
+				setfield(L, "ZeroMemory", sk.ZeroMemory);
+				setfield(L, "OncePerCombat", sk.OncePerCombat);
+				setfield(L, "NumCharges", sk.NumCharges);
+
+				lua_newtable(L);
+				int32_t causeIdx{ 1 };
+				for (auto const& handle : sk.CauseList) {
+					settable(L, causeIdx++, handle.Handle);
+				}
+
+				lua_setfield(L, -2, "CauseList");
+				return 1;
+			}
+		}
+
+		return 0;
+	}
+
 #include <Lua/LuaShared.inl>
 
 	int ObjectProxy<esv::Character>::Index(lua_State* L)
@@ -176,6 +225,16 @@ namespace dse::lua
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetSkills) {
+			lua_pushcfunction(L, &CharacterGetSkills);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetSkillInfo) {
+			lua_pushcfunction(L, &CharacterGetSkillInfo);
 			return 1;
 		}
 

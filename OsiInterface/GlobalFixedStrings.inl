@@ -39,6 +39,8 @@ FS(GetStatuses);
 FS(Stats);
 FS(SetScale);
 FS(GetInventoryItems);
+FS(GetSkills);
+FS(GetSkillInfo);
 FS(GetNearbyCharacters);
 FS(GetDeltaMods);
 FS(GetGeneratedBoosts);

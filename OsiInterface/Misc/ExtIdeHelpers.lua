@@ -1162,6 +1162,17 @@ local EsvItem = {
 local PlayerCustomData = {
 }
 
+
+--- @class EsvSkillInfo
+--- @field public ActiveCooldown number
+--- @field public IsActivated boolean
+--- @field public IsLearned boolean
+--- @field public ZeroMemory boolean
+--- @field public OncePerCombat boolean
+--- @field public NumCharges number
+local EsvSkillInfo = {}
+
+
 --- @class EsvCharacter : EsvGameObject
 --- @field public RootTemplate CharacterTemplate
 --- @field public PlayerCustomData PlayerCustomData
@@ -1252,6 +1263,15 @@ local EsvCharacter = {
     --- @param self EsvCharacter
     --- @return string[]
     GetInventoryItems = function (self) end,
+    --- Returns detailed information about the specified skill
+    --- @param self EsvCharacter
+    --- @param skillId string
+    --- @return EsvSkillInfo
+    GetSkillInfo = function (self, skillId) end,
+    --- Returns the name of all skills available to the character
+    --- @param self EsvCharacter
+    --- @return string[]
+    GetSkills = function (self) end,
     --- Returns the GUID of all characters within the specified radius
     --- @param self EsvCharacter
     --- @return string[]
