@@ -2898,7 +2898,8 @@ Ext = {
     Round = function (n) end,
 
     --- Generate Lua IDE helpers for the currently loaded module
-    GenerateIdeHelpers = function () end,
+    --- @param builtin boolean|nil Only export built-in functions and names exported by Lua?
+    GenerateIdeHelpers = function (builtin) end,
 
     --- Returns whether the code is executing in a client context
     --- @return boolean

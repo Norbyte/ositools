@@ -2008,14 +2008,27 @@ namespace dse::lua
 		}
 	}
 
-	STDString GenerateIdeHelpers()
+	STDString GenerateIdeHelpers(bool builtinOnly)
 	{
 		STDString helpers;
 		helpers.reserve(0x20000);
 
+		STDString functionComment, functionDefn;
+
 		auto functions = gOsirisProxy->GetGlobals().Functions;
 
-		(*functions)->Iterate([&helpers](STDString const & key, Function const * func) {
+		(*functions)->Iterate([&helpers, &functionComment, &functionDefn, builtinOnly](STDString const & key, Function const * func) {
+			if (builtinOnly
+				&& func->Type != FunctionType::Event
+				&& func->Type != FunctionType::Call
+				&& func->Type != FunctionType::Query
+				&& func->Type != FunctionType::SysCall
+				&& func->Type != FunctionType::SysQuery) {
+				return;
+			}
+
+			functionComment.clear();
+			functionDefn.clear();
 			auto const & outParams = func->Signature->OutParamList;
 			auto numOutParams = outParams.numOutParams();
 
@@ -2024,11 +2037,11 @@ namespace dse::lua
 				types = types->Next;
 
 				if (!outParams.isOutParam(i)) {
-					helpers += "--- @param arg";
-					helpers += std::to_string(i + 1);
-					helpers += " ";
-					helpers += OsiToLuaTypeName((ValueType)types->Item.Type);
-					helpers += "\r\n";
+					functionComment += "--- @param arg";
+					functionComment += std::to_string(i + 1);
+					functionComment += " ";
+					functionComment += OsiToLuaTypeName((ValueType)types->Item.Type);
+					functionComment += "\r\n";
 				}
 			}
 
@@ -2038,35 +2051,48 @@ namespace dse::lua
 					types = types->Next;
 
 					if (outParams.isOutParam(i)) {
-						helpers += "--- @return ";
-						helpers += OsiToLuaTypeName((ValueType)types->Item.Type);
-						helpers += "\r\n";
+						functionComment += "--- @return ";
+						functionComment += OsiToLuaTypeName((ValueType)types->Item.Type);
+						functionComment += "\r\n";
 					}
 				}
 			} else {
 				if (func->Type == FunctionType::SysQuery
 					|| func->Type == FunctionType::Query
 					|| func->Type == FunctionType::UserQuery) {
-					helpers += "--- @return boolean Did the query succeed?\r\n";
+					functionComment += "--- @return boolean Did the query succeed?\r\n";
 				}
 			}
 
-			helpers += "Osi.";
-			helpers += func->Signature->Name;
-			helpers += " = function (";
+			functionDefn += func->Signature->Name;
+			functionDefn += " = function (";
 
 			auto pendingInParams = func->Signature->Params->Params.Size - numOutParams;
 			for (auto i = 0; i < func->Signature->Params->Params.Size; i++) {
 				if (!outParams.isOutParam(i)) {
-					helpers += "arg";
-					helpers += std::to_string(i + 1);
+					functionDefn += "arg";
+					functionDefn += std::to_string(i + 1);
 					if (--pendingInParams > 0) {
-						helpers += ", ";
+						functionDefn += ", ";
 					}
 				}
 			}
 
-			helpers += ") end\r\n\r\n";
+			functionDefn += ") end\r\n\r\n";
+
+			helpers += functionComment;
+			helpers += "Osi.";
+			helpers += functionDefn;
+
+			// Export global name if function is a builtin
+			if (func->Type == FunctionType::Event
+				|| func->Type == FunctionType::Call
+				|| func->Type == FunctionType::Query
+				|| func->Type == FunctionType::SysCall
+				|| func->Type == FunctionType::SysQuery) {
+				helpers += functionComment;
+				helpers += functionDefn;
+			}
 		});
 
 		return helpers;
@@ -2074,28 +2100,37 @@ namespace dse::lua
 
 	int GenerateIdeHelpers(lua_State * L)
 	{
-#if !defined(OSI_EOCAPP)
-		esv::LuaServerPin lua(esv::ExtensionState::Get());
-		if (lua->RestrictionFlags & State::RestrictOsiris) {
-			return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
+#if defined(OSI_EOCAPP)
+		if (gOsirisProxy->GetConfig().DeveloperMode) {
+#endif
+			esv::LuaServerPin lua(esv::ExtensionState::Get());
+			if (lua->RestrictionFlags & State::RestrictOsiris) {
+				return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
+			}
+
+			bool builtinOnly{ false };
+			if (lua_gettop(L) >= 1) {
+				builtinOnly = checked_get<bool>(L, 1);
+			}
+
+			auto helpers = GenerateIdeHelpers(builtinOnly);
+
+			auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
+			path += "Mods/";
+			path += ToUTF8(GetModManagerServer()->BaseModule.Info.Directory);
+			path += "/Story/RawFiles/Lua/OsiIdeHelpers.lua";
+
+			std::ofstream f(path.c_str(), std::ios::out | std::ios::binary);
+			if (!f.good()) {
+				OsiError("Could not open file to save IDE helpers: '" << path << "'");
+				return 0;
+			}
+
+			f.write(helpers.c_str(), helpers.size());
+#if defined(OSI_EOCAPP)
+		} else {
+			OsiError("GenerateIdeHelpers() only supported in developer mode");
 		}
-
-		auto helpers = GenerateIdeHelpers();
-
-		auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
-		path += "Mods/";
-		path += ToUTF8(GetModManagerServer()->BaseModule.Info.Directory);
-		path += "/Story/RawFiles/Lua/OsiIdeHelpers.lua";
-
-		std::ofstream f(path.c_str(), std::ios::out | std::ios::binary);
-		if (!f.good()) {
-			OsiError("Could not open file to save IDE helpers: '" << path << "'");
-			return 0;
-		}
-
-		f.write(helpers.c_str(), helpers.size());
-#else
-		OsiError("GenerateIdeHelpers() only supported in editor mode");
 #endif
 		return 0;
 	}
