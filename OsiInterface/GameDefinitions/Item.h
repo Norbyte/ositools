@@ -70,7 +70,10 @@ namespace dse
 			ObjectSet<FixedString> FSSet5;
 			uint8_t Flags0[2]{ 0 };
 			bool HasGeneratedStats{ false };
-			uint8_t Flags1[13]{ 0 };
+			uint8_t Flags1[12]{ 0 };
+#if !defined(OSI_EOCAPP)
+			uint8_t Flags11;
+#endif
 			bool IsIdentified{ false };
 			bool GMFolding{ false };
 			uint8_t Flags2{ 0 };
