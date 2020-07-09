@@ -1198,4 +1198,9 @@ namespace dse::esv::lua
 		auto helpers = library_.GenerateOsiHelpers();
 		LoadScript(helpers, "bootstrapper");
 	}
+
+	void ServerState::StorySetMerging(bool isMerging)
+	{
+		osirisCallbacks_.StorySetMerging(isMerging);
+	}
 }

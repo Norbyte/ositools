@@ -462,6 +462,10 @@ bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & N
 {
 	DEBUG("OsirisProxy::MergeWrapper() - Started merge");
 
+	if (ServerExtState) {
+		ServerExtState->StorySetMerging(true);
+	}
+
 #if !defined(OSI_NO_DEBUGGER)
 	if (debugger_ != nullptr) {
 		debugger_->MergeStarted();
@@ -475,6 +479,10 @@ bool OsirisProxy::MergeWrapper(std::function<bool (void *, wchar_t *)> const & N
 		debugger_->MergeFinished();
 	}
 #endif
+
+	if (ServerExtState) {
+		ServerExtState->StorySetMerging(false);
+	}
 
 	DEBUG("OsirisProxy::MergeWrapper() - Finished merge");
 	return retval;

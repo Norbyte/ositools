@@ -352,6 +352,7 @@ namespace dse::esv::lua
 
 		void Subscribe(STDString const& name, uint32_t arity, OsirisHookSignature::HookType type, RegistryEntry handler);
 		void StoryLoaded();
+		void StorySetMerging(bool isMerging);
 
 	private:
 		static constexpr uint64_t AfterTriggerNodeRef = 0x8000000000000000ull;
@@ -363,6 +364,10 @@ namespace dse::esv::lua
 		std::unordered_multimap<uint64_t, std::size_t> nodeSubscriberRefs_;
 		bool storyLoaded_{ false };
 		bool osirisHooked_{ false };
+		// Are we currently merging Osiris files (story)?
+		// If so, then we won't trigger events for calls/inserts that might occur during the merge,
+		// as those are not real inserts but byproducts of the merge process.
+		bool merging_{ false };
 
 		void RegisterNodeHandler(OsirisHookSignature const& sig, std::size_t handlerId);
 		void HookOsiris();
@@ -428,6 +433,7 @@ namespace dse::esv::lua
 
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
+		void StorySetMerging(bool isMerging);
 
 		template <class TArg>
 		void Call(char const* mod, char const* func, std::vector<TArg> const & args)

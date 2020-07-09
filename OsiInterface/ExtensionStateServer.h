@@ -53,6 +53,7 @@ namespace dse::esv
 
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
+		void StorySetMerging(bool isMerging);
 
 		static ExtensionState & Get();
 

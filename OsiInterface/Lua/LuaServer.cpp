@@ -1147,6 +1147,10 @@ namespace dse::esv::lua
 
 	void OsirisCallbackManager::RunHandlers(uint64_t nodeRef, TuplePtrLL* tuple) const
 	{
+		if (merging_) {
+			return;
+		}
+
 		auto it = nodeSubscriberRefs_.equal_range(nodeRef);
 		if (it.first == nodeSubscriberRefs_.end()) {
 			return;
@@ -1219,6 +1223,11 @@ namespace dse::esv::lua
 		for (auto const& it : nameSubscriberRefs_) {
 			RegisterNodeHandler(it.first, it.second);
 		}
+	}
+
+	void OsirisCallbackManager::StorySetMerging(bool isMerging)
+	{
+		merging_ = isMerging;
 	}
 
 	void OsirisCallbackManager::RegisterNodeHandler(OsirisHookSignature const& sig, std::size_t handlerId)
@@ -1774,15 +1783,25 @@ namespace dse::esv
 	void ExtensionState::StoryLoaded()
 	{
 		DEBUG("ExtensionStateServer::StoryLoaded()");
-		if (Lua) {
-			Lua->StoryLoaded();
+		LuaServerPin lua(*this);
+		if (lua) {
+			lua->StoryLoaded();
 		}
 	}
 
 	void ExtensionState::StoryFunctionMappingsUpdated()
 	{
-		if (Lua) {
-			Lua->StoryFunctionMappingsUpdated();
+		LuaServerPin lua(*this);
+		if (lua) {
+			lua->StoryFunctionMappingsUpdated();
+		}
+	}
+
+	void ExtensionState::StorySetMerging(bool isMerging)
+	{
+		LuaServerPin lua(*this);
+		if (lua) {
+			lua->StorySetMerging(isMerging);
 		}
 	}
 }
