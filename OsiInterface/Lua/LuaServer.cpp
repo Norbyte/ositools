@@ -1229,7 +1229,7 @@ namespace dse::esv::lua
 			return;
 		}
 
-		if (func->Type != FunctionType::Call) {
+		if (func->Type == FunctionType::Call) {
 			OsiWarn("Couldn't register Osiris subscriber for " << sig.name << "/" << sig.arity << ": Hooks on calls not supported yet!");
 			return;
 		}
@@ -1240,8 +1240,7 @@ namespace dse::esv::lua
 			|| (
 				func->Type != FunctionType::Event
 				&& func->Type != FunctionType::Query
-				// FIXME - Calls are not supported YET!
-				// && func->Type != FunctionType::Call
+				&& func->Type != FunctionType::Call
 				// User queries (QRY) are disguised as a database
 				&& func->Type != FunctionType::Database
 				&& func->Type != FunctionType::Proc

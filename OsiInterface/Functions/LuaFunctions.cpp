@@ -30,6 +30,7 @@ namespace dse::esv
 				ext.OnModuleResume();
 				ext.OnGameSessionLoading();
 				ext.OnGameSessionLoaded();
+				ext.StoryLoaded();
 			}
 
 			if (resetClient) {
