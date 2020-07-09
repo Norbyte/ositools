@@ -39,6 +39,9 @@ FS(GetStatuses);
 FS(Stats);
 FS(SetScale);
 FS(GetInventoryItems);
+FS(GetNearbyCharacters);
+FS(GetDeltaMods);
+FS(GetGeneratedBoosts);
 FS(WalkSpeed);
 FS(RunSpeed);
 

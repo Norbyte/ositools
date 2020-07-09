@@ -114,7 +114,7 @@ namespace dse
 			STDWString CustomDescription; // Saved
 			STDWString CustomBookContent; // Saved
 			FixedString StatsId; // Saved
-			CDivinityStats_Item * StatsDynamic;
+			CDivinityStats_Item * Stats;
 			CRPGStats_Object * StatsFromName;
 			ItemGeneration * Generation; // Saved
 			ObjectHandle InventoryHandle; // Saved

@@ -349,8 +349,8 @@ namespace dse::lua
 		if (obj_) return obj_;
 		auto item = esv::GetEntityWorld()->GetItem(handle_);
 		if (item == nullptr) luaL_error(L, "Item handle invalid");
-		if (item->StatsDynamic == nullptr) luaL_error(L, "Item has no stats!");
-		return item->StatsDynamic;
+		if (item->Stats == nullptr) luaL_error(L, "Item has no stats!");
+		return item->Stats;
 	}
 
 	int ObjectProxy<CDivinityStats_Item>::Index(lua_State * L)

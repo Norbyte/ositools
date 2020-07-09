@@ -8,6 +8,11 @@
 #include <NodeHooks.h>
 #include "resource.h"
 
+namespace dse::esv::lua
+{
+#include <Lua/LevelIteratorFunctions.inl>
+}
+
 namespace dse::lua
 {
 	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
@@ -66,6 +71,23 @@ namespace dse::lua
 		return luaL_error(L, "Not supported yet!");
 	}
 
+	void GetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
+	{
+		lua_newtable(L);
+
+		auto inventory = esv::FindInventoryByHandle(inventoryHandle);
+		if (inventory != nullptr) {
+			int32_t index = 1;
+			for (auto itemHandle : inventory->ItemsBySlot) {
+				if (itemHandle) {
+					auto item = esv::GetEntityWorld()->GetItem(itemHandle);
+					if (item != nullptr) {
+						settable(L, index++, item->MyGuid);
+					}
+				}
+			}
+		}
+	}
 
 	char const* const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
 
@@ -120,20 +142,20 @@ namespace dse::lua
 		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
 
 		lua_newtable(L);
+		GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
-		auto inventory = esv::FindInventoryByHandle(self->Get(L)->InventoryHandle);
-		if (inventory != nullptr) {
-			int32_t index = 1;
-			for (auto itemHandle : inventory->ItemsBySlot) {
-				if (itemHandle) {
-					auto item = esv::GetEntityWorld()->GetItem(itemHandle);
-					if (item != nullptr) {
-						settable(L, index++, item->MyGuid);
-					}
-				}
-			}
-		}
+		return 1;
+	}
 
+	int CharacterGetNearbyCharacters(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto pos = self->Get(L)->WorldPos;
+		auto distance = checked_get<float>(L, 2);
+
+		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
+			return abs(glm::length(pos - c->WorldPos)) < distance;
+		});
 		return 1;
 	}
 
@@ -154,6 +176,11 @@ namespace dse::lua
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetNearbyCharacters) {
+			lua_pushcfunction(L, &CharacterGetNearbyCharacters);
 			return 1;
 		}
 
@@ -240,6 +267,47 @@ namespace dse::lua
 		return item;
 	}
 
+	int ItemGetInventoryItems(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+
+		lua_newtable(L);
+		GetInventoryItems(L, self->Get(L)->InventoryHandle);
+
+		return 1;
+	}
+
+	int ItemGetNearbyCharacters(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto pos = self->Get(L)->WorldPos;
+		auto distance = checked_get<float>(L, 2);
+
+		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
+			return abs(glm::length(pos - c->WorldPos)) < distance;
+		});
+		return 1;
+	}
+
+	int ItemGetGeneratedBoosts(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto item = self->Get(L);
+		if (!item) {
+			return 0;
+		}
+
+		lua_newtable(L);
+		int32_t index{ 1 };
+		if (item->Generation != nullptr) {
+			for (auto const& boost : item->Generation->Boosts) {
+				settable(L, index++, boost);
+			}
+		}
+
+		return 1;
+	}
+
 	int ObjectProxy<esv::Item>::Index(lua_State* L)
 	{
 		auto item = Get(L);
@@ -247,6 +315,16 @@ namespace dse::lua
 
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
+
+		if (propFS == GFS.strGetInventoryItems) {
+			lua_pushcfunction(L, &ItemGetInventoryItems);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetNearbyCharacters) {
+			lua_pushcfunction(L, &ItemGetNearbyCharacters);
+			return 1;
+		}
 
 		if (propFS == GFS.strHasTag) {
 			lua_pushcfunction(L, &GameObjectHasTag<esv::Item>);
@@ -274,7 +352,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strStats) {
-			if (item->StatsDynamic != nullptr) {
+			if (item->Stats != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
 			}
@@ -290,8 +368,8 @@ namespace dse::lua
 		}
 
 		bool fetched = false;
-		if (item->StatsDynamic != nullptr) {
-			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->StatsDynamic, propFS, false);
+		if (item->Stats != nullptr) {
+			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, propFS, false);
 		}
 
 		if (!fetched) {
@@ -375,7 +453,6 @@ namespace dse::lua
 namespace dse::esv::lua
 {
 	using namespace dse::lua;
-
 
 	char const* const StatusHandleProxy::MetatableName = "esv::HStatus";
 
@@ -633,8 +710,7 @@ namespace dse::esv::lua
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
-
-
+	
 	esv::Character* GetCharacter(lua_State* L, int index)
 	{
 		esv::Character* character = nullptr;
@@ -1085,6 +1161,11 @@ namespace dse::esv::lua
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
 			{"EnumLabelToIndex", EnumLabelToIndex},
+
+			{"GetAllCharacters", GetAllCharacters},
+			{"GetCharactersAroundPosition", GetCharactersAroundPosition},
+			{"GetAllItems", GetAllItems},
+			{"GetItemsAroundPosition", GetItemsAroundPosition},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
@@ -1576,7 +1657,7 @@ namespace dse::esv::lua
 			} else {
 				auto attackerItem = GetEntityWorld()->GetItem(attackerHandle, false);
 				if (attackerItem) {
-					attacker = attackerItem->StatsDynamic;
+					attacker = attackerItem->Stats;
 				} else {
 					OsiError("Could not resolve attacker handle: " << std::hex << attackerHandle.Handle);
 				}

@@ -17,11 +17,11 @@ namespace dse
 		struct LevelDesc
 		{
 			void * VMT;
-			FixedString FS1;
-			FixedString FS2;
-			STDWString StdWStr;
-			ObjectSet<void *> ObjSet_Path;
-			char Unknown;
+			FixedString LevelName;
+			FixedString UniqueKey;
+			STDWString CustomDisplayLevelName;
+			ObjectSet<Path> Paths;
+			uint8_t Type;
 		};
 
 		struct Level
@@ -41,7 +41,7 @@ namespace dse
 #if !defined(OSI_EOCAPP)
 			void * field_90;
 #endif
-			void * EntityManager;
+			EntityManager * EntityManager;
 			eoc::AiGrid * AiGrid;
 			void * VisionGrid;
 			void * SightManager;

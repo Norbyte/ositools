@@ -86,28 +86,6 @@ namespace dse::esv
 
 		void DoExperiment(OsiArgumentDesc const & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
-			if (character) {
-				auto stats = character->Stats->DynamicStats[1];
-				stats->PoisonResistance += 50;
-				stats->APStart += 3;
-				stats->APRecovery += 3;
-
-				auto stats0 = character->Stats->DynamicStats[0];
-				stats0->PoisonResistance += 50;
-				OsiErrorS("DoExperiment(): Applied to character");
-			}
-
-			auto item = GetEntityWorld()->GetItem(args[1].String);
-			if (item) {
-				auto stats = item->StatsDynamic->DynamicAttributes[1];
-				stats->FireResistance += 50;
-
-				auto stats0 = item->StatsDynamic->DynamicAttributes[0];
-				stats0->FireResistance += 50;
-				OsiErrorS("DoExperiment(): Applied to item");
-			}
-
 			OsiErrorS("Nothing to see here");
 		}
 	}

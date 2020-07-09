@@ -83,8 +83,8 @@ namespace dse::esv
 			auto deltaMod = ToFixedString(args[1].String);
 
 			int32_t count = 0;
-			if (item->StatsDynamic != nullptr) {
-				for (auto const& boost : item->StatsDynamic->BoostNameSet) {
+			if (item->Stats != nullptr) {
+				for (auto const& boost : item->Stats->BoostNameSet) {
 					if (boost == deltaMod) {
 						count++;
 					}
@@ -123,8 +123,8 @@ namespace dse::esv
 				}
 			}
 
-			if (item->StatsDynamic != nullptr) {
-				for (auto const& boost : item->StatsDynamic->BoostNameSet) {
+			if (item->Stats != nullptr) {
+				for (auto const& boost : item->Stats->BoostNameSet) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
 					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });
@@ -144,12 +144,12 @@ namespace dse::esv
 				return;
 			}
 
-			if (item->StatsDynamic == nullptr) {
+			if (item->Stats == nullptr) {
 				OsiError("Item '" << itemGuid << "' has no dynamic stats!");
 				return;
 			}
 
-			item->StatsDynamic->IsIdentified = args[1].Int32 ? 1 : 0;
+			item->Stats->IsIdentified = args[1].Int32 ? 1 : 0;
 		}
 
 		bool ItemGetParent(OsiArgumentDesc & args)
@@ -187,18 +187,18 @@ namespace dse::esv
 
 		CDivinityStats_Equipment_Attributes * GetItemDynamicStat(esv::Item * item, uint32_t index)
 		{
-			if (item->StatsDynamic == nullptr) {
+			if (item->Stats == nullptr) {
 				OsiErrorS("Item has no dynamic stats!");
 				return nullptr;
 			}
 
-			auto numStats = item->StatsDynamic->DynamicAttributes.size();
+			auto numStats = item->Stats->DynamicAttributes.size();
 			if (numStats <= 1) {
 				OsiError("Tried to get dynamic stat " << index << ", item only has " << numStats);
 				return nullptr;
 			}
 
-			return item->StatsDynamic->DynamicAttributes[index];
+			return item->Stats->DynamicAttributes[index];
 		}
 
 		template <OsiPropertyMapType Type>
@@ -208,8 +208,8 @@ namespace dse::esv
 			if (item == nullptr) return false;
 
 			bool fetched = false;
-			if (item->StatsDynamic != nullptr) {
-				fetched = OsirisPropertyMapGet(gItemStatsPropertyMap, item->StatsDynamic, args, 1, Type, false);
+			if (item->Stats != nullptr) {
+				fetched = OsirisPropertyMapGet(gItemStatsPropertyMap, item->Stats, args, 1, Type, false);
 			}
 
 			if (!fetched) {

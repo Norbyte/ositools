@@ -367,6 +367,15 @@ namespace dse
 		virtual void SetOriginalTemplate_M() = 0;
 	};
 
+	template <class TWorld>
+	struct EntityManager
+	{
+		void* VMT;
+		RefMap<FixedString, void*> field_8;
+		TWorld* EntityWorld;
+		FixedString FS1;
+	};
+
 	namespace esv
 	{
 		struct CustomStatDefinitionComponent;
@@ -377,6 +386,67 @@ namespace dse
 		struct Inventory;
 		struct TurnManager;
 		struct Projectile;
+		struct EntityWorld;
+		struct EntityManager;
+		struct ItemFactory;
+		struct CharacterFactory;
+
+		struct ItemConversionHelpers : public ProtectedGameObject<ItemConversionHelpers>
+		{
+			EntityManager* EntityManager;
+			ItemFactory* ItemFactory;
+			RefMap<FixedString, ObjectSet<Item *> *> RegisteredItems;
+			RefMap<FixedString, ObjectSet<Item *> *> ActivatedItems;
+			FixedString CurrentLevel;
+			Map<FixedString, ObjectHandle> GlobalItemHandles;
+#if !defined(OSI_EOCAPP)
+			int field_4C;
+			RefMap<FixedString, void*> DebugItems;
+			__int64 field_88;
+#endif
+		};
+
+		struct CharacterConversionHelpers : public ProtectedGameObject<CharacterConversionHelpers>
+		{
+			EntityManager* EntityManager;
+			CharacterFactory* CharacterFactory;
+			RefMap<FixedString, ObjectSet<Character *> *> RegisteredCharacters;
+			RefMap<FixedString, ObjectSet<Character *> *> ActivatedCharacters;
+		};
+
+		struct TriggerConversionHelpers : public ProtectedGameObject<TriggerConversionHelpers>
+		{
+			esv::EntityManager* EntityManager;
+			void* TriggerFactory;
+			RefMap<FixedString, ObjectSet<void *>*> RegisteredTriggers;
+		};
+
+		struct ProjectileConversionHelpers : public ProtectedGameObject<ProjectileConversionHelpers>
+		{
+			esv::EntityManager* EntityManager;
+			void* ProjectileFactory;
+			RefMap<FixedString, ObjectSet<Projectile *> *> RegisteredProjectiles;
+		};
+
+
+		struct EntityManager : public dse::EntityManager<EntityWorld>
+		{
+			ItemConversionHelpers ItemConversionHelpers;
+			CharacterConversionHelpers CharacterConversionHelpers;
+			TriggerConversionHelpers TriggerConversionHelpers;
+			ProjectileConversionHelpers ProjectileConversionHelpers;
+			void* CharacterManagerSystem;
+			void* ItemManagerSystem;
+			void* TriggerManagerSystem;
+			void* ProjectileManagerSystem;
+			void* TurnManagerSystem;
+			void* SpiritObjectManager;
+			ObjectSet<FixedString> TriggerTypes;
+			bool field_150;
+			ObjectSet<void*> ComponentPrepares; // <esv::ComponentPrepare>
+			ObjectSet<void*> TemplateTraces; // <esv::TemplateTrace>
+		};
+
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
@@ -566,7 +636,7 @@ namespace dse
 			bool ShutDown;
 			void * EntityWorldManager;
 			EntityWorld * EntityWorld;
-			void * EntityManager;
+			EntityManager * EntityManager;
 			void * ArenaManager;
 			void * GameMasterLobbyManager;
 			void * LobbyManagerOrigins;

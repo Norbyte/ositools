@@ -535,6 +535,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <None Include="LuaScripts\Game.Math.lua" />
     <None Include="LuaScripts\Game.Tooltip.lua" />
     <None Include="LuaScripts\SandboxStartup.lua" />
+    <None Include="Lua\LevelIteratorFunctions.inl" />
     <None Include="Lua\LuaShared.inl" />
     <None Include="osidebug.proto" />
     <None Include="ScriptExtensions.proto" />

@@ -990,6 +990,10 @@ local EclGameObject = {}
 --- @field public BaseWeightOverwrite integer
 --- @field public ItemColorOverride integer
 local EclItem = {
+    --- Returns all delta mods on the item
+    --- @param self EclItem
+    --- @return string[]
+    GetDeltaMods = function (self) end,
     --- Returns whether the item has the specified tag
     --- @param self EclItem
     --- @param tag string
@@ -1095,6 +1099,22 @@ local EsvGameObject = {}
 --- @field public ForceSynch boolean
 --- @field public Stats StatItem
 local EsvItem = {
+    --- Returns all delta mods on the item
+    --- @param self EsvItem
+    --- @return string[]
+    GetDeltaMods = function (self) end,
+    --- Returns all boosts that were added during treasure generation
+    --- @param self EsvItem
+    --- @return string[]
+    GetGeneratedBoosts = function (self) end,
+    --- Returns the GUID of all items within the inventory of the item
+    --- @param self EsvItem
+    --- @return string[]
+    GetInventoryItems = function (self) end,
+    --- Returns the GUID of all characters within the specified radius
+    --- @param self EsvItem
+    --- @return string[]
+    GetNearbyCharacters = function (self, radius) end,
     --- Returns whether the item has the specified tag
     --- @param self EsvItem
     --- @param tag string
@@ -1232,6 +1252,10 @@ local EsvCharacter = {
     --- @param self EsvCharacter
     --- @return string[]
     GetInventoryItems = function (self) end,
+    --- Returns the GUID of all characters within the specified radius
+    --- @param self EsvCharacter
+    --- @return string[]
+    GetNearbyCharacters = function (self, radius) end,
     --- Returns whether the character has the specified tag
     --- @param self EsvCharacter
     --- @param tag string
@@ -2851,6 +2875,34 @@ Ext = {
     --- @param label string Value name to look for
     --- @return number|nil
     EnumLabelToIndex = function (enum, label) end,
+
+    --- Returns the GUID of all characters on the specified level. 
+    --- Uses the current level if no level name was specified.
+    --- @param level string|nil Optional level name
+    --- @return string[]
+    GetAllCharacters = function (level) end,
+
+    --- Returns the GUID of all characters within a radius around the specified point.
+    --- @param x number
+    --- @param y number
+    --- @param z number
+    --- @param distance number
+    --- @return string[]
+    GetCharactersAroundPosition = function (x, y, z, distance) end,
+
+    --- Returns the GUID of all items on the specified level. 
+    --- Uses the current level if no level name was specified.
+    --- @param level string|nil Optional level name
+    --- @return string[]
+    GetAllItems = function (level) end,
+
+    --- Returns the GUID of all items within a radius around the specified point.
+    --- @param x number
+    --- @param y number
+    --- @param z number
+    --- @param distance number
+    --- @return string[]
+    GetItemsAroundPosition = function (x, y, z, distance) end,
 
     --- Returns the property proxy of the specified character
     --- @param id string|integer Character GUID or handle or NetID
