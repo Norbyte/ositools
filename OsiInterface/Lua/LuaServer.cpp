@@ -326,6 +326,16 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (propFS == GFS.strGetDeltaMods) {
+			lua_pushcfunction(L, &ItemGetDeltaMods<esv::Item>);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetGeneratedBoosts) {
+			lua_pushcfunction(L, &ItemGetGeneratedBoosts);
+			return 1;
+		}
+
 		if (propFS == GFS.strHasTag) {
 			lua_pushcfunction(L, &GameObjectHasTag<esv::Item>);
 			return 1;

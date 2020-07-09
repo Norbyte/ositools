@@ -191,6 +191,11 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 
+		if (propFS == GFS.strGetDeltaMods) {
+			lua_pushcfunction(L, &ItemGetDeltaMods<ecl::Item>);
+			return 1;
+		}
+
 		if (propFS == GFS.strHasTag) {
 			lua_pushcfunction(L, &GameObjectHasTag<ecl::Item>);
 			return 1;
