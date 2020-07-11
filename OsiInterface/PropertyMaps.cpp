@@ -53,6 +53,7 @@ namespace dse
 #define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<std::underlying_type_t<enum>, enum>(propertyMap, #name, offsetof(TObject, name), writeable)
 #define PROP_GUID(name, writeable) AddPropertyGuidString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), writeable)
+#define PROP_DYN_FS(name) AddPropertyDynamicFixedString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), true)
 
 // For use with game object templates' OverrideableProperty type
 #define PROP_TPL(name) AddProperty<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
@@ -238,7 +239,7 @@ namespace dse
 			PROP(LockLevel);
 			PROP(StatsEntryName);
 			PROP(HasModifiedSkills);
-			PROP(Skills);
+			PROP_DYN_FS(Skills);
 			PROP(HasGeneratedStats);
 			PROP(IsIdentified);
 			PROP(GMFolding);
@@ -290,7 +291,7 @@ namespace dse
 			PROP(Value);
 			PROP(Weight);
 			// TODO - Reflection
-			PROP(Skills);
+			PROP_DYN_FS(Skills);
 			PROP(ItemColor);
 			PROP(ModifierType);
 			PROP(ObjectInstanceName);
@@ -1204,6 +1205,7 @@ namespace dse
 		}
 
 		case PropertyType::kFixedString:
+		case PropertyType::kDynamicFixedString:
 		case PropertyType::kFixedStringGuid:
 		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:
@@ -1305,6 +1307,7 @@ namespace dse
 		}
 
 		case PropertyType::kFixedString:
+		case PropertyType::kDynamicFixedString:
 		case PropertyType::kFixedStringGuid:
 		case PropertyType::kStringPtr:
 		case PropertyType::kStdString:

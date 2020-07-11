@@ -21,6 +21,7 @@ namespace dse
 		kUInt64,
 		kFloat,
 		kFixedString,
+		kDynamicFixedString,
 		kFixedStringGuid,
 		kStringPtr,
 		kStdString,
@@ -320,6 +321,7 @@ namespace dse
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
 			case PropertyType::kFixedString:
+			case PropertyType::kDynamicFixedString:
 			case PropertyType::kFixedStringGuid:
 			{
 				auto p = reinterpret_cast<FixedString *>(ptr)->Str;
@@ -415,6 +417,10 @@ namespace dse
 						return true;
 					}
 				}
+
+			case PropertyType::kDynamicFixedString:
+				*reinterpret_cast<FixedString*>(ptr) = MakeFixedString(value);
+				return true;
 
 			case PropertyType::kFixedStringGuid:
 				{
@@ -769,6 +775,18 @@ namespace dse
 		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString GUID values are supported");
 		PropertyMapBase::PropertyInfo info;
 		info.Type = PropertyType::kFixedStringGuid;
+		info.Offset = offset;
+		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
+		map.Properties.insert(std::make_pair(MakeFixedString(name), info));
+	}
+
+	template <class TValue>
+	typename void AddPropertyDynamicFixedString(PropertyMapBase& map, char const* name,
+		std::uintptr_t offset, bool canWrite)
+	{
+		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString values are supported");
+		PropertyMapBase::PropertyInfo info;
+		info.Type = PropertyType::kDynamicFixedString;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 		map.Properties.insert(std::make_pair(MakeFixedString(name), info));
