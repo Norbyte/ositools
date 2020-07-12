@@ -20,7 +20,8 @@ DamageTypeToDeathTypeMap = {
     Air = "Electrocution",
     Water = "FrozenShatter",
     Earth = "PetrifiedShatter",
-    Poison = "Acid"
+    Poison = "Acid",
+    Sulfuric = "Sulfur"
 }
 
 --- @param damageType string DamageType enumeration
@@ -30,7 +31,7 @@ function DamageTypeToDeathType(damageType)
     if deathType ~= nil then
         return deathType
     else
-        return "Sentinel"
+        return "DoT"
     end
 end
 
