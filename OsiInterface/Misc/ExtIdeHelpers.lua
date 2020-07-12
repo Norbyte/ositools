@@ -1399,6 +1399,96 @@ local DeltaModBoost = {}
 local DeltaMod = {}
 
 
+--- @class ItemComboIngredients
+--- @field public Object string
+--- @field public IngredientType string See IngredientType enumeration
+--- @field public Transform string See IngredientTransformType enumeration
+--- @field public ItemRarity string See ItemDataRarity enumeration (ValueLists.txt only!)
+local ItemComboIngredients = {}
+
+--- @class ItemComboResultElement
+--- @field public Result string
+--- @field public Boost string
+--- @field public ResultAmount number
+local ItemComboResultElement = {}
+
+--- @class ItemComboResult
+--- @field public Requirement string See Ability enum
+--- @field public ReqLevel number
+--- @field public PreviewStatsId string
+--- @field public PreviewIcon string
+--- @field public PreviewTooltip string
+--- @field public Name string
+--- @field public Results ItemComboResultElement[]
+local ItemComboResult = {}
+
+--- @class ItemCombo
+--- @field public Name string
+--- @field public RecipeCategory string See RecipeCategory enum
+--- @field public CraftingStation string See CraftingStationType enum
+--- @field public Ingredients ItemComboIngredients[]
+--- @field public Results ItemComboResult[]
+local ItemCombo = {}
+
+--- @class ItemComboPreviewData
+--- @field public Name string
+--- @field public Type string
+--- @field public StatsId string
+--- @field public Tooltip string
+--- @field public Icon string
+local ItemComboPreviewData = {}
+
+--- @class ItemComboPropertyElement
+--- @field public ObjectId string
+--- @field public IngredientType string See IngredientType enumeration
+--- @field public Result string
+local ItemComboPropertyElement = {}
+
+--- @class ItemComboProperty
+--- @field public Name string
+--- @field public PreviewIcon string
+--- @field public PreviewTooltip string
+--- @field public Entries ItemComboPropertyElement[]
+local ItemComboProperty = {}
+
+
+--- @class ItemNameGroupLink
+--- @field public NameGroup string
+--- @field public NoneCoolSuffix number
+--- @field public ItemName string
+local ItemNameGroupLink = {}
+
+--- @class ItemRootGroup
+--- @field public MinLevel number
+--- @field public MaxLevel number
+--- @field public RootGroup string
+--- @field public NameGroupLinks ItemNameGroupLink[]
+local ItemRootGroup = {}
+
+--- @class ItemLevelGroup
+--- @field public MinLevel number
+--- @field public MaxLevel number
+--- @field public Name string
+--- @field public RootGroups ItemRootGroup[]
+local ItemLevelGroup = {}
+
+--- @class ItemGroup
+--- @field public Name string
+--- @field public LevelGroups ItemLevelGroup[]
+local ItemGroup = {}
+
+--- @class ItemNameGroupName
+--- @field public Name string
+--- @field public Name2 string
+local ItemNameGroupName = {}
+
+--- @class ItemNameGroup
+--- @field public Name string
+--- @field public Names ItemNameGroupName[]
+--- @field public NamesCool ItemNameGroupName[]
+local ItemNameGroup = {}
+
+
 --- @class StatRequirement
 --- @field public Requirement string
 --- @field public Param string|integer
@@ -2864,6 +2954,31 @@ Ext = {
     --- @param name string Name of delta mod
     --- @return DeltaMod
     GetDeltaMod = function (name) end,
+
+    --- Returns the specified crafting item combination or nil on failure
+    --- @param name string Name of item combo
+    --- @return ItemCombo|nil
+    GetItemCombo = function (name) end,
+
+    --- Returns the specified crafting preview data or nil on failure
+    --- @param name string Name of item combo preview data
+    --- @return ItemComboPreviewData|nil
+    GetItemComboPreviewData = function (name) end,
+
+    --- Returns the specified crafting property or nil on failure
+    --- @param name string Name of item combo property
+    --- @return ItemComboProperty|nil
+    GetItemComboProperty = function (name) end,
+
+    --- Returns the specified item progression item group or nil on failure
+    --- @param name string Name of item group
+    --- @return ItemGroup|nil
+    GetItemGroup = function (name) end,
+
+    --- Returns the specified item progression name group or nil on failure
+    --- @param name string Name of name group
+    --- @return ItemNameGroup|nil
+    GetNameGroup = function (name) end,
 
     --- Updates all properties of the specified DeltaMod.
     --- The function expects a table in the same format as the one returned by GetDeltaMod.
