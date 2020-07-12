@@ -925,6 +925,145 @@ namespace dse
 	};
 
 
+	struct CNameGroupName
+	{
+		int field_0;
+		TranslatedString Name;
+		TranslatedString Name2;
+	};
+
+
+	struct CNameGroup
+	{
+		FixedString Name;
+		ObjectSet<CNameGroupName*> Names;
+		ObjectSet<CNameGroupName*> NamesCool;
+	};
+
+
+	struct CNameGroupLink
+	{
+		int field_0;
+		FixedString NameGroup;
+		int NoneCoolSuffix;
+		FixedString ItemName;
+	};
+
+
+	struct CRootGroup
+	{
+		int MinLevel;
+		int MaxLevel;
+		FixedString RootGroup;
+		FixedString field_10;
+		ObjectSet<CNameGroupLink*> NameGroupLinks;
+	};
+
+
+	struct CLevelGroup
+	{
+		int MinLevel;
+		int MaxLevel;
+		FixedString Name;
+		ObjectSet<CRootGroup*> RootGroups;
+	};
+
+
+	struct CItemGroup
+	{
+		FixedString Name;
+		ObjectSet<CLevelGroup*> LevelGroups;
+	};
+
+
+	struct CItemProgressionManager
+	{
+		Map<FixedString, CItemGroup*> ItemGroups;
+		Map<FixedString, CNameGroup*> NameGroups;
+		CItemGroup* CurrentItemGroup;
+		CLevelGroup* CurrentLevelGroup;
+		CRootGroup* CurrentRootGroup;
+		CNameGroup* CurrentNameGroup;
+	};
+
+
+	struct CItemCombinationProperty
+	{
+		struct ItemCombinationPropertyEntry
+		{
+			FixedString ObjectId;
+			IngredientType IngredientType;
+			FixedString Result;
+		};
+
+
+		FixedString Name;
+		FixedString PreviewIcon;
+		FixedString PreviewTooltip;
+		ObjectSet<ItemCombinationPropertyEntry> Entries;
+	};
+
+
+	struct CItemCombinationPreviewData
+	{
+		FixedString Name;
+		FixedString Type;
+		FixedString StatsId;
+		FixedString Tooltip;
+		FixedString Icon;
+	};
+
+
+	struct CItemCombinationIngredient
+	{
+		FixedString Object;
+		IngredientType IngredientType;
+		IngredientTransformType Transform;
+		ItemDataRarity ItemRarity;
+	};
+
+
+	struct CItemCombinationResult
+	{
+		struct CombinationResult
+		{
+			FixedString Result;
+			FixedString Boost;
+			int ResultAmount;
+		};
+
+
+		ObjectSet<CombinationResult> Results;
+		AbilityType Requirement;
+		int ReqLevel;
+		FixedString PreviewStatsId;
+		FixedString PreviewIcon;
+		FixedString PreviewTooltip;
+		FixedString Name;
+	};
+
+
+	struct CItemCombination
+	{
+		FixedString Name;
+		ObjectSet<CItemCombinationIngredient> Ingredients;
+		ObjectSet<CItemCombinationResult> Results;
+		RecipeCategory RecipeCategory;
+		CraftingStationType CraftingStation;
+		bool AutoLevel;
+	};
+
+
+	struct CItemCombinationManager : public CNamedElementManager<CItemCombination>
+	{
+		CItemCombination* CurrentItemCombo;
+		CItemCombinationPreviewData* CurrentPreviewData;
+		CItemCombinationProperty* CurrentComboProperties;
+		RefMap<FixedString, CItemCombinationPreviewData*> PreviewData;
+		RefMap<FixedString, CItemCombinationProperty*> ComboProperties;
+	};
+
+
 
 	extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;
 
@@ -958,8 +1097,8 @@ namespace dse
 		uint64_t unknown2[140];
 		CEquipmentSetManager * EquipmentSetManager;
 		CSkillSetManager * SkillSetManager;
-		void * ItemProgressionManager;
-		void * ItemCombinationManager;
+		CItemProgressionManager * ItemProgressionManager;
+		CItemCombinationManager * ItemCombinationManager;
 		void * ItemSetsManager;
 		ScratchBuffer* CurrentPreParseBuf;
 		FixedString CurrentStatsEntryName;

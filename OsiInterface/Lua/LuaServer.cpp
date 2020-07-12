@@ -1233,6 +1233,12 @@ namespace dse::esv::lua
 			{"GetEquipmentSet", GetEquipmentSet},
 			{"GetTreasureTable", GetTreasureTable},
 			{"GetTreasureCategory", GetTreasureCategory},
+			{"GetItemCombo", GetItemCombo},
+			{"GetItemComboPreviewData", GetItemComboPreviewData},
+			{"GetItemComboProperty", GetItemComboProperty},
+			{"GetItemGroup", GetItemGroup},
+			{"GetNameGroup", GetNameGroup},
+
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
 			{"StatAddCustomDescription", StatAddCustomDescription},

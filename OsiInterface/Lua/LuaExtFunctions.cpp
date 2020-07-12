@@ -459,6 +459,46 @@ namespace dse::lua
 		}
 	}
 
+	void FetchItemComboEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		for (auto itemCombo : stats->ItemCombinationManager->Primitives) {
+			settable(L, index++, itemCombo->Name);
+		}
+	}
+
+	void FetchItemComboPropertyEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		stats->ItemCombinationManager->ComboProperties.Iterate([L, &index](FixedString const& key, CItemCombinationProperty const*) {
+			settable(L, index++, key);
+		});
+	}
+
+	void FetchItemComboPreviewDataEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		stats->ItemCombinationManager->PreviewData.Iterate([L, &index](FixedString const& key, CItemCombinationPreviewData const*) {
+			settable(L, index++, key);
+		});
+	}
+
+	void FetchItemGroupEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		stats->ItemProgressionManager->ItemGroups.Iterate([L, &index](FixedString const& key, CItemGroup*) {
+			settable(L, index++, key);
+		});
+	}
+
+	void FetchItemNameGroupEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		stats->ItemProgressionManager->NameGroups.Iterate([L, &index](FixedString const& key, CNameGroup*) {
+			settable(L, index++, key);
+		});
+	}
+
 	void FetchEquipmentSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
 		int32_t index = 1;
@@ -537,6 +577,16 @@ namespace dse::lua
 			FetchTreasureTableEntries(L, stats);
 		} else if (statType && strcmp(statType.Str, "TreasureCategory") == 0) {
 			FetchTreasureCategoryEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "ItemCombination") == 0) {
+			FetchItemComboEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "ItemComboProperty") == 0) {
+			FetchItemComboPropertyEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "CraftingPreviewData") == 0) {
+			FetchItemComboPreviewDataEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "ItemGroup") == 0) {
+			FetchItemGroupEntries(L, stats);
+		} else if (statType && strcmp(statType.Str, "NameGroup") == 0) {
+			FetchItemNameGroupEntries(L, stats);
 		} else {
 			FetchStatEntries(L, stats, statType);
 		}
@@ -709,6 +759,223 @@ namespace dse::lua
 
 		return 1;
 	}
+
+	int GetItemCombo(lua_State* L)
+	{
+		auto comboName = luaL_checkstring(L, 1);
+
+		auto combo = GetStaticSymbols().GetStats()->ItemCombinationManager->Find(comboName);
+		if (combo == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", combo->Name);
+		setfield(L, "RecipeCategory", combo->RecipeCategory);
+		setfield(L, "CraftingStation", combo->CraftingStation);
+		setfield(L, "AutoLevel", combo->AutoLevel);
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto const& ingredient : combo->Ingredients) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "Object", ingredient.Object);
+			setfield(L, "IngredientType", ingredient.IngredientType);
+			setfield(L, "Transform", ingredient.Transform);
+			setfield(L, "ItemRarity", ingredient.ItemRarity);
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "Ingredients");
+
+		index = 1;
+		lua_newtable(L);
+		for (auto const& result : combo->Results) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "Requirement", result.Requirement);
+			setfield(L, "ReqLevel", result.ReqLevel);
+			setfield(L, "PreviewStatsId", result.PreviewStatsId);
+			setfield(L, "PreviewIcon", result.PreviewIcon);
+			setfield(L, "PreviewTooltip", result.PreviewTooltip);
+			setfield(L, "Name", result.Name);
+
+
+			int32_t resultIndex = 1;
+			lua_newtable(L);
+			for (auto const& comboResult : result.Results) {
+				push(L, resultIndex++);
+				lua_newtable(L);
+				setfield(L, "Result", comboResult.Result);
+				setfield(L, "Boost", comboResult.Boost);
+				setfield(L, "ResultAmount", comboResult.ResultAmount);
+				lua_settable(L, -3);
+			}
+
+			lua_setfield(L, -2, "Results");
+
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "Results");
+
+		return 1;
+	}
+
+
+	int GetItemComboPreviewData(lua_State* L)
+	{
+		auto comboName = ToFixedString(luaL_checkstring(L, 1));
+
+		auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
+		if (preview == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", (*preview)->Name);
+		setfield(L, "Type", (*preview)->Type);
+		setfield(L, "StatsId", (*preview)->StatsId);
+		setfield(L, "Tooltip", (*preview)->Tooltip);
+		setfield(L, "Icon", (*preview)->Icon);
+
+		return 1;
+	}
+
+
+	int GetItemComboProperty(lua_State* L)
+	{
+		auto propertyName = ToFixedString(luaL_checkstring(L, 1));
+
+		auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
+		if (prop == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", (*prop)->Name);
+		setfield(L, "PreviewIcon", (*prop)->PreviewIcon);
+		setfield(L, "PreviewTooltip", (*prop)->PreviewTooltip);
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto const& entry : (*prop)->Entries) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "ObjectId", entry.ObjectId);
+			setfield(L, "IngredientType", entry.IngredientType);
+			setfield(L, "Result", entry.Result);
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "Entries");
+
+		return 1;
+	}
+
+
+	int GetItemGroup(lua_State* L)
+	{
+		auto name = ToFixedString(luaL_checkstring(L, 1));
+		auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
+		if (group == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", (*group)->Name);
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto levelGroup : (*group)->LevelGroups) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "MinLevel", levelGroup->MinLevel);
+			setfield(L, "MaxLevel", levelGroup->MaxLevel);
+			setfield(L, "Name", levelGroup->Name);
+
+			int32_t rootGroupIdx = 1;
+			lua_newtable(L);
+			for (auto rootGroup : levelGroup->RootGroups) {
+				push(L, rootGroupIdx++);
+				lua_newtable(L);
+				setfield(L, "MinLevel", rootGroup->MinLevel);
+				setfield(L, "MaxLevel", rootGroup->MaxLevel);
+				setfield(L, "RootGroup", rootGroup->RootGroup);
+				setfield(L, "Unknown", rootGroup->field_10);
+
+
+				int32_t linkIdx = 1;
+				lua_newtable(L);
+				for (auto link : rootGroup->NameGroupLinks) {
+					push(L, linkIdx++);
+					lua_newtable(L);
+					setfield(L, "NameGroup", link->NameGroup);
+					setfield(L, "NoneCoolSuffix", link->NoneCoolSuffix);
+					setfield(L, "ItemName", link->ItemName);
+					setfield(L, "Unknown", link->field_0);
+					lua_settable(L, -3);
+				}
+
+				lua_setfield(L, -2, "NameGroupLinks");
+				lua_settable(L, -3);
+			}
+
+			lua_setfield(L, -2, "RootGroups");
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "LevelGroups");
+
+		return 1;
+	}
+
+
+	int GetNameGroup(lua_State* L)
+	{
+		auto name = ToFixedString(luaL_checkstring(L, 1));
+		auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
+		if (nameGroup == nullptr) {
+			lua_pushnil(L);
+			return 1;
+		}
+
+		lua_newtable(L);
+		setfield(L, "Name", (*nameGroup)->Name);
+
+		int32_t index = 1;
+		lua_newtable(L);
+		for (auto grpName : (*nameGroup)->Names) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "Name", grpName->Name.Str1.WStr);
+			setfield(L, "Name2", grpName->Name2.Str1.WStr);
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "Names");
+
+		
+		index = 1;
+		lua_newtable(L);
+		for (auto grpName : (*nameGroup)->NamesCool) {
+			push(L, index++);
+			lua_newtable(L);
+			setfield(L, "Name", grpName->Name.Str1.WStr);
+			setfield(L, "Name2", grpName->Name2.Str1.WStr);
+			lua_settable(L, -3);
+		}
+
+		lua_setfield(L, -2, "NamesCool");
+
+		return 1;
+	}
+
 
 	void RequirementToLua(lua_State * L, CRPGStats_Requirement const & requirement)
 	{

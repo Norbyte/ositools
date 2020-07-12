@@ -261,19 +261,29 @@ namespace dse::lua
 	int HandleToDouble(lua_State* L);
 	int DoubleToHandle(lua_State* L);
 	int GetCellInfo(lua_State* L);
+
 	int SaveFile(lua_State* L);
 	int LoadFile(lua_State* L);
+
 	int JsonParse(lua_State* L);
 	int JsonStringify(lua_State* L);
+
 	int IsModLoaded(lua_State* L);
 	int GetModLoadOrder(lua_State* L);
 	int GetModInfo(lua_State* L);
+
 	int GetStatEntries(lua_State* L);
 	int GetStatEntriesLoadedBefore(lua_State* L);
 	int GetSkillSet(lua_State* L);
 	int GetEquipmentSet(lua_State* L);
 	int GetTreasureTable(lua_State* L);
 	int GetTreasureCategory(lua_State* L);
+	int GetItemCombo(lua_State* L);
+	int GetItemComboPreviewData(lua_State* L);
+	int GetItemComboProperty(lua_State* L);
+	int GetItemGroup(lua_State* L);
+	int GetNameGroup(lua_State* L);
+
 	int StatGetAttribute(lua_State* L);
 	int StatSetAttribute(lua_State* L);
 	int StatAddCustomDescription(lua_State* L);
@@ -284,9 +294,11 @@ namespace dse::lua
 	int StatSetPersistence(lua_State* L);
 	int GetDeltaMod(lua_State* L);
 	int UpdateDeltaMod(lua_State* L);
+
 	int EnumIndexToLabel(lua_State* L);
 	int EnumLabelToIndex(lua_State* L);
 	int NewDamageList(lua_State* L);
+
 	int IsDeveloperMode(lua_State* L);
 	int AddPathOverride(lua_State* L);
 	int LuaRandom(lua_State* L);
