@@ -1,4 +1,4 @@
-### API v48 Documentation
+### API v50 Documentation
 
 ### Table of Contents  
 
@@ -1003,11 +1003,20 @@ This event is thrown when a character starts performing an action.
  `Attack`, `Die`, `Hit`, `PrepareSkill`, `UseSkill`, `PickUp`, `Drop`, `MoveItem`, `KnockedDown`, `Summoning`, `Polymorphing`, `UseItem`, `CombineItem`, `TeleportFall`, `Sheath`, `Unsheath`, `Identify`, `Repair`, `Lockpick`, `DisarmTrap`, `Incapacitated`, `JumpFlight`. For performance reasons no events are thrown for `Idle` and `Animation` actions.
 Details about the action can be queried using `NRD_ActionStateGetString*`.
 
+
+### OnActionStateExit
+`event NRD_OnActionStateExit((CHARACTERGUID)_Character, (STRING)_Action)`
+
+This event is thrown when a character finishes performing an action.
+The event supports the same action types as `OnActionStateEnter`.
+Details about the action can be queried using `NRD_ActionStateGetString*`.
+
+
 ### CharacterGetCurrentAction
 `query NRD_CharacterGetCurrentAction([in](CHARACTERGUID)_Character, [out](STRING)_Action`
 
 Retrieves the action the character is currently performing.
-If the character does not exist, the query fails. If the character is not performing any action, `_Action` will be returned as `""` (empty string).
+If the character does not exist, the query fails. If the character is not performing any action, `_Action` will be an empty string (`""`).
 
 ### ActionStateGet
 ```

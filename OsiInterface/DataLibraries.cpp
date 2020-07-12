@@ -21,6 +21,7 @@ namespace dse
 	decltype(LibraryManager::CharacterApplyDamageHook) * decltype(LibraryManager::CharacterApplyDamageHook)::gHook;
 	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
 	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
+	decltype(LibraryManager::ActionMachineResetStateHook)* decltype(LibraryManager::ActionMachineResetStateHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
 	decltype(LibraryManager::SkillPrototypeGetSkillDamageHook) * decltype(LibraryManager::SkillPrototypeGetSkillDamageHook)::gHook;
 	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
@@ -488,6 +489,10 @@ namespace dse
 				ActionMachineSetStateHook.Wrap(sym.EsvActionMachine__SetState);
 			}
 
+			if (sym.EsvActionMachine__ResetState != nullptr) {
+				ActionMachineResetStateHook.Wrap(sym.EsvActionMachine__ResetState);
+			}
+
 			if (sym.SkillPrototypeFormatDescriptionParam != nullptr) {
 				SkillPrototypeFormatDescriptionParamHook.Wrap(sym.SkillPrototypeFormatDescriptionParam);
 			}
@@ -543,6 +548,7 @@ namespace dse
 		CharacterApplyDamageHook.Unwrap();
 		ApplyStatusHook.Unwrap();
 		ActionMachineSetStateHook.Unwrap();
+		ActionMachineResetStateHook.Unwrap();
 		SkillPrototypeFormatDescriptionParamHook.Unwrap();
 		SkillPrototypeGetSkillDamageHook.Unwrap();
 		StatusPrototypeFormatDescriptionParamHook.Unwrap();

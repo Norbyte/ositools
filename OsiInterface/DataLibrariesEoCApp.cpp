@@ -261,6 +261,18 @@ namespace dse
 		}
 	}
 
+	SymbolMappingResult FindActionMachineResetState(uint8_t const* match)
+	{
+		if (GetStaticSymbols().EclActionMachine__ResetState == nullptr) {
+			GetStaticSymbols().EclActionMachine__ResetState = (esv::ActionMachine::ResetStateProc)match;
+			return SymbolMappingResult::TryNext;
+		}
+		else {
+			GetStaticSymbols().EsvActionMachine__ResetState = (esv::ActionMachine::ResetStateProc)match;
+			return SymbolMappingResult::Success;
+		}
+	}
+
 	SymbolMappingData const sSymbolSkillPrototypeFormatDescriptionParam = {
 		"eoc::SkillPrototype::FormatDescriptionParam2",
 		SymbolMappingData::kCustom, 0,
@@ -800,6 +812,21 @@ namespace dse
 			"E8 XX XX XX XX ", // call    xxx
 			{},
 			{"esv::ActionMachine::UpdateSyncState", SymbolMappingTarget::kIndirect, 29, nullptr, &FindActionMachineSetState}
+		},
+
+		{
+			"esv::ActionMachine::ResetState",
+			SymbolMappingData::kText, 0,
+			"48 83 EC 30 " // sub     rsp, 30h
+			"40 32 F6 " // xor     sil, sil
+			"4C 89 74 24 50 " // mov     [rsp+48h+arg_0], r14
+			"45 33 E4 " // xor     r12d, r12d
+			"48 8D 79 53 " // lea     rdi, [rcx+53h]
+			"0F B6 EA " // movzx   ebp, dl
+			"48 8D 59 18 " // lea     rbx, [rcx+18h]
+			"4C 8B F9 ", // mov     r15, rcx
+			{},
+			{"esv::ActionMachine::ResetState", SymbolMappingTarget::kAbsolute, -20, nullptr, &FindActionMachineResetState}
 		},
 
 		{

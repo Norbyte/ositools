@@ -210,8 +210,14 @@ namespace dse::esv
 		osiris_.GetLibraryManager().StatusHealEnter.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
 		);
-		osiris_.GetLibraryManager().ActionMachineSetStateHook.SetPostHook(
+		osiris_.GetLibraryManager().ActionMachineSetStateHook.AddPreHook(
+			std::bind(&CustomFunctionLibrary::OnBeforeActionMachineSetState, this, _1, _2, _3, _4, _5, _6)
+		);
+		osiris_.GetLibraryManager().ActionMachineSetStateHook.AddPostHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineSetState, this, _1, _2, _3, _4, _5, _6, _7)
+		);
+		osiris_.GetLibraryManager().ActionMachineResetStateHook.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnActionMachineResetState, this, _1, _2)
 		);
 		osiris_.GetLibraryManager().SkillPrototypeFormatDescriptionParamHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)

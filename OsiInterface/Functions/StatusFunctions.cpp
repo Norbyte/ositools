@@ -11,6 +11,7 @@ namespace dse::esv
 	FunctionHandle HitEventHandle;
 	FunctionHandle HealEventHandle;
 	FunctionHandle ActionStateEnterHandle;
+	FunctionHandle ActionStateExitHandle;
 
 	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid)
 	{
@@ -725,6 +726,66 @@ namespace dse::esv
 		delete eventArgs;
 	}
 
+	void CustomFunctionLibrary::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
+	{
+		if (actionLayer >= 3 || self->IsEntering[actionLayer]) return;
+
+		auto curState = self->Layers[actionLayer].State;
+		if (curState == nullptr || curState == actionState) return;
+
+		if (!curState->CanExit() && !force) return;
+
+		auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
+		if (character == nullptr) {
+			OsiErrorS("ActionMachine has no character?");
+			return;
+		}
+
+		auto type = curState->GetType();
+		auto typeName = curState->GetTypeName();
+		// Avoid event spam from idle/anim states
+		if (type == esv::ActionStateType::ASIdle
+			|| type == esv::ActionStateType::ASAnimation
+			|| typeName == nullptr) {
+			return;
+		}
+
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
+		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ActionStateExitHandle, eventArgs);
+		delete eventArgs;
+	}
+
+	void CustomFunctionLibrary::OnActionMachineResetState(esv::ActionMachine* self, bool force)
+	{
+		for (auto layer = 0; layer < 3; layer++) {
+			if (self->IsEntering[layer]) continue;
+
+			auto curState = self->Layers[layer].State;
+			if (curState == nullptr || (!curState->CanExit() && !force)) continue;
+
+			auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
+			if (character == nullptr) {
+				OsiErrorS("ActionMachine has no character?");
+				return;
+			}
+
+			auto type = curState->GetType();
+			auto typeName = curState->GetTypeName();
+			// Avoid event spam from idle/anim states
+			if (type == esv::ActionStateType::ASIdle
+				|| type == esv::ActionStateType::ASAnimation
+				|| typeName == nullptr) {
+				return;
+			}
+
+			auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+			eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
+			gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(ActionStateExitHandle, eventArgs);
+			delete eventArgs;
+		}
+	}
+
 	void CustomFunctionLibrary::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
 	{
 		if (!succeeded || actionState == nullptr || !setLayer) return;
@@ -1054,6 +1115,15 @@ namespace dse::esv
 			}
 		);
 		ActionStateEnterHandle = functionMgr.Register(std::move(actionStateEnterEvent));
+
+		auto actionStateExitEvent = std::make_unique<CustomEvent>(
+			"NRD_OnActionStateExit",
+			std::vector<CustomFunctionParam>{
+				{ "Character", ValueType::CharacterGuid, FunctionArgumentDirection::In },
+				{ "Action", ValueType::String, FunctionArgumentDirection::In }
+			}
+		);
+		ActionStateExitHandle = functionMgr.Register(std::move(actionStateExitEvent));
 
 		auto characterGetCurrentAction = std::make_unique<CustomQuery>(
 			"NRD_CharacterGetCurrentAction",

@@ -128,6 +128,8 @@ namespace dse
 		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg{ nullptr };
 		esv::ActionMachine::SetStateProc EclActionMachine__SetState{ nullptr };
 		esv::ActionMachine::SetStateProc EsvActionMachine__SetState{ nullptr };
+		esv::ActionMachine::ResetStateProc EclActionMachine__ResetState{ nullptr };
+		esv::ActionMachine::ResetStateProc EsvActionMachine__ResetState{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };

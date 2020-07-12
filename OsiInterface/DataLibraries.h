@@ -261,7 +261,8 @@ namespace dse {
 		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
 
 		enum class ActionMachineSetStateTag {};
-		PostHookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
+		HookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
+		PreHookableFunction<ActionMachineSetStateTag, bool(esv::ActionMachine* self, bool force)> ActionMachineResetStateHook;
 
 		enum class SkillPrototypeFormatDescriptionParamTag {};
 		WrappableFunction<SkillPrototypeFormatDescriptionParamTag, void(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats,
