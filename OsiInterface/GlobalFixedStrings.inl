@@ -36,6 +36,7 @@ FS(GetTags);
 FS(GetStatus);
 FS(GetStatusByType);
 FS(GetStatuses);
+FS(GetStatusObjects);
 FS(Stats);
 FS(SetScale);
 FS(GetInventoryItems);

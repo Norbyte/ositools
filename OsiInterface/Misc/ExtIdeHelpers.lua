@@ -1016,7 +1016,11 @@ local EclItem = {
     --- Returns all statuses on the item
     --- @param self EclItem
     --- @return string[]
-    GetStatuses = function (self) end
+    GetStatuses = function (self) end,
+    --- Returns all statuses on the item
+    --- @param self EsvItem
+    --- @return EsvStatus[]
+    GetStatusObjects = function (self) end
 }
 
 
@@ -1055,6 +1059,10 @@ local EclCharacter = {
     --- @param self EclCharacter
     --- @return string[]
     GetStatuses = function (self) end,
+    --- Returns all statuses on the character
+    --- @param self EclCharacter
+    --- @return EclStatus[]
+    GetStatusObjects = function (self) end,
     --- Update model scale of the character.
     --- @param self EclCharacter
     --- @param scale number 
@@ -1137,7 +1145,11 @@ local EsvItem = {
     --- Returns all statuses on the item
     --- @param self EsvItem
     --- @return string[]
-    GetStatuses = function (self) end
+    GetStatuses = function (self) end,
+    --- Returns all statuses on the character
+    --- @param self EclItem
+    --- @return EclStatus[]
+    GetStatusObjects = function (self) end
 }
 
 
@@ -1299,6 +1311,10 @@ local EsvCharacter = {
     --- @param self EsvCharacter
     --- @return string[]
     GetStatuses = function (self) end,
+    --- Returns all statuses on the character
+    --- @param self EsvCharacter
+    --- @return EsvStatus[]
+    GetStatusObjects = function (self) end,
     --- Update model scale of the character.
     --- NOTE: This change must be manually synchronized to the client!
     --- @param self EsvCharacter
