@@ -185,6 +185,10 @@ namespace dse::esv::lua
 	void OsiToLua(lua_State * L, OsiArgumentValue const & arg)
 	{
 		switch (arg.TypeId) {
+		case ValueType::None:
+			lua_pushnil(L);
+			break;
+
 		case ValueType::Integer:
 			push(L, arg.Int32);
 			break;
@@ -213,6 +217,10 @@ namespace dse::esv::lua
 	void OsiToLua(lua_State * L, TypedValue const & tv)
 	{
 		switch ((ValueType)tv.TypeId) {
+		case ValueType::None:
+			lua_pushnil(L);
+			break;
+
 		case ValueType::Integer:
 			push(L, tv.Value.Val.Int32);
 			break;

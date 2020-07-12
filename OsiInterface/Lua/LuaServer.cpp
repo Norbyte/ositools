@@ -1336,19 +1336,40 @@ namespace dse::esv::lua
 
 	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, TuplePtrLL* tuple) const
 	{
-		func.Push();
-
-		int32_t numArgs = 0;
+		int32_t stackArgs = 1;
 		auto node = tuple->Items.Head->Next;
 		while (node != tuple->Items.Head) {
-			OsiToLua(L, *node->Item);
 			node = node->Next;
-			numArgs++;
+			stackArgs++;
 		}
 
-		if (CallWithTraceback(L, numArgs, 1) != 0) {
-			OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
+		lua_checkstack(L, stackArgs);
+		auto stackSize = lua_gettop(L);
+
+		try {
+			func.Push();
+
+			int32_t numArgs = 0;
+			auto node = tuple->Items.Head->Next;
+			while (node != tuple->Items.Head) {
+				OsiToLua(L, *node->Item);
+				node = node->Next;
+				numArgs++;
+			}
+
+			if (CallWithTraceback(L, numArgs, 1) != 0) {
+				OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
+				lua_pop(L, 1);
+			}
+		}
+		catch (Exception& e) {
+			auto stackRemaining = lua_gettop(L) - stackSize;
+			if (stackRemaining > 0) {
+				OsiError("Osiris event callback failed: " << lua_tostring(L, -1));
+				lua_pop(L, stackRemaining);
+			} else {
+				OsiError("Internal error during call Osiris event callback: " << e.what());
+			}
 		}
 	}
 
@@ -1369,19 +1390,41 @@ namespace dse::esv::lua
 
 	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, OsiArgumentDesc* args) const
 	{
-		func.Push();
-
-		int32_t numArgs = 0;
+		int32_t stackArgs = 1;
 		auto node = args;
 		while (node) {
-			OsiToLua(L, node->Value);
 			node = node->NextParam;
-			numArgs++;
+			stackArgs++;
 		}
 
-		if (CallWithTraceback(L, numArgs, 1) != 0) {
-			OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
+		lua_checkstack(L, stackArgs);
+		auto stackSize = lua_gettop(L);
+
+		try {
+			func.Push();
+
+			int32_t numArgs = 0;
+			auto node = args;
+			while (node) {
+				OsiToLua(L, node->Value);
+				node = node->NextParam;
+				numArgs++;
+			}
+
+			if (CallWithTraceback(L, numArgs, 1) != 0) {
+				OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
+				lua_pop(L, 1);
+			}
+		}
+		catch (Exception& e) {
+			auto stackRemaining = lua_gettop(L) - stackSize;
+			if (stackRemaining > 0) {
+				OsiError("Osiris event callback failed: " << lua_tostring(L, -1));
+				lua_pop(L, stackRemaining);
+			}
+			else {
+				OsiError("Internal error during call Osiris event callback: " << e.what());
+			}
 		}
 	}
 
