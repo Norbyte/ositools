@@ -255,8 +255,8 @@ local ProjectileTemplate = {}
 --- @field public StatusHandle integer
 --- @field public TargetHandle integer Handle of game object this status was applied to
 --- @field public StatusSourceHandle integer Handle of game object that caused this status
-
--- StatusFlags0
+---
+--- StatusFlags0
 --- @field public KeepAlive boolean
 --- @field public IsOnSourceSurface boolean
 --- @field public IsFromItem boolean
@@ -264,12 +264,12 @@ local ProjectileTemplate = {}
 --- @field public IsLifeTimeSet boolean
 --- @field public InitiateCombat boolean
 --- @field public Influence boolean
--- StatusFlags1
+--- StatusFlags1
 --- @field public BringIntoCombat boolean
 --- @field public IsHostileAct boolean
 --- @field public IsInvulnerable boolean
 --- @field public IsResistingDeath boolean
--- StatusFlags2
+--- StatusFlags2
 --- @field public ForceStatus boolean
 --- @field public ForceFailStatus boolean
 --- @field public RequestDelete boolean
@@ -295,7 +295,7 @@ local EsvStatusHIT = {
 }
 
 --- @class EsvStatusCONSUME : EsvStatus
--- TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
+--- TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
 --- @field public ResetAllCooldowns boolean
 --- @field public ResetOncePerCombat boolean
 --- @field public ScaleWithVitality boolean
@@ -341,7 +341,7 @@ local EsvStatusHEAL = {
 
 
 --- @class StatCharacterDynamic
--- Properties from PropertyMap
+--- Properties from PropertyMap
 --- @field public SummonLifelinkModifier integer
 --- @field public Strength integer
 --- @field public Memory integer
@@ -406,8 +406,8 @@ local StatCharacterDynamic = {
 
 --- @class StatBase
 --- "Fake" base class to avoid declaring attribute flags/talents/abilities twice
-
--- StatAttributeFlags
+---
+--- StatAttributeFlags
 --- @field public FreezeImmunity boolean
 --- @field public BurnImmunity boolean
 --- @field public StunImmunity boolean
@@ -469,8 +469,8 @@ local StatCharacterDynamic = {
 --- @field public MagicalSulfur boolean
 --- @field public ThrownImmunity boolean
 --- @field public InvisibilityImmunity boolean
-
--- Talents (prefix TALENT_)
+---
+--- Talents (prefix TALENT_)
 --- @field public TALENT_None boolean
 --- @field public TALENT_ItemMovement boolean
 --- @field public TALENT_ItemCreation boolean
@@ -600,8 +600,8 @@ local StatCharacterDynamic = {
 --- @field public TALENT_MasterThief boolean
 --- @field public TALENT_GreedyVessel boolean
 --- @field public TALENT_MagicCycles boolean
-
--- Abilities
+---
+--- Abilities
 --- @field public WarriorLore integer
 --- @field public RangerLore integer
 --- @field public RogueLore integer
@@ -646,7 +646,7 @@ local StatBase = {}
 
 
 --- @class StatCharacter : StatBase
--- Properties from PropertyMap
+--- Properties from PropertyMap
 --- @field public Level integer
 --- @field public Name string
 --- @field public AIFlags integer
@@ -676,8 +676,8 @@ local StatBase = {}
 --- @field public MaxSummons integer
 --- @field public BaseMaxSummons integer
 --- @field public MaxMpOverride integer
-
--- StatCharacterFlags
+---
+--- StatCharacterFlags
 --- @field public IsPlayer boolean
 --- @field public InParty boolean
 --- @field public IsSneaking boolean
@@ -685,20 +685,20 @@ local StatBase = {}
 --- @field public Blind boolean
 --- @field public DrinkedPotion boolean
 --- @field public EquipmentValidated boolean
-
--- Properties from CDivinityStats_Character::GetStat
+---
+--- Properties from CDivinityStats_Character::GetStat
 --- @field public PhysicalResistance integer
 --- @field public PiercingResistance integer
 --- @field public CorrosiveResistance integer
 --- @field public MagicResistance integer
-
--- Base properties from CDivinityStats_Character::GetStat
+---
+--- Base properties from CDivinityStats_Character::GetStat
 --- @field public BasePhysicalResistance integer
 --- @field public BasePiercingResistance integer
 --- @field public BaseCorrosiveResistance integer
 --- @field public BaseMagicResistance integer
-
--- Properties from CharacterStatsGetters::GetStat
+---
+--- Properties from CharacterStatsGetters::GetStat
 --- @field public MaxMp integer
 --- @field public APStart integer
 --- @field public APRecovery integer
@@ -725,8 +725,8 @@ local StatBase = {}
 --- @field public Initiative integer
 --- @field public BlockChance integer
 --- @field public ChanceToHitBoost integer
-
--- Base properties from CharacterStatsGetters::GetStat
+---
+--- Base properties from CharacterStatsGetters::GetStat
 --- @field public BaseMaxMp integer
 --- @field public BaseAPStart integer
 --- @field public BaseAPRecovery integer
@@ -753,8 +753,8 @@ local StatBase = {}
 --- @field public BaseInitiative integer
 --- @field public BaseBlockChance integer
 --- @field public BaseChanceToHitBoost integer
-
--- Properties from CharacterFetchStat
+---
+--- Properties from CharacterFetchStat
 --- @field public DynamicStats StatCharacterDynamic[]
 --- @field public MainWeapon StatItem
 --- @field public OffHandWeapon StatItem
@@ -836,13 +836,13 @@ local StatCharacter = {
 --- @field public MagicArmorValue integer Shield/Armor only!
 --- @field public MagicArmorBoost integer Shield/Armor only!
 --- @field public Blocking integer Shield only!
--- TODO - add attribute flags object support
--- TODO - AbilityModifiers, Talents, Reflection
+--- TODO - add attribute flags object support
+--- TODO - AbilityModifiers, Talents, Reflection
 local StatItemDynamic = {}
 
 
 --- @class StatItem : StatBase
--- Properties from property map
+--- Properties from property map
 --- @field public Level integer
 --- @field public Name integer
 --- @field public InstanceId integer
@@ -862,11 +862,11 @@ local StatItemDynamic = {}
 --- @field public ItemTypeReal string
 --- @field public MaxCharges integer
 --- @field public Charges integer
-
--- Properties from ItemFetchStat
+---
+--- Properties from ItemFetchStat
 --- @field public DynamicStats StatItemDynamic[]
-
--- Indirect properties from StatEntryWeapon/Armor/Shield
+---
+--- Indirect properties from StatEntryWeapon/Armor/Shield
 --- @field public Using string
 --- @field public Damage integer
 --- @field public Act string See Act enumeration
@@ -968,8 +968,8 @@ local StatItem = {}
 --- @class EclGameObject
 --- @field public NetID integer
 --- @field public MyGuid string
--- TODO - Add more properties via virtual getters?
--- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
+--- TODO - Add more properties via virtual getters?
+--- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
 local EclGameObject = {}
 
 
@@ -1075,8 +1075,8 @@ local EclCharacter = {
 --- @class EsvGameObject
 --- @field public NetID integer
 --- @field public MyGuid string
--- TODO - Add more properties via virtual getters?
--- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
+--- TODO - Add more properties via virtual getters?
+--- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
 local EsvGameObject = {}
 
 
@@ -1229,8 +1229,8 @@ local EsvSkillInfo = {}
 --- @field public CorpseLootable boolean
 --- @field public CustomBloodSurface string
 --- @field public PreviousLevel string
-
--- CharacterFlags 0
+---
+--- CharacterFlags 0
 --- @field public IsPlayer boolean
 --- @field public Multiplayer boolean
 --- @field public InParty boolean
@@ -1253,16 +1253,16 @@ local EsvSkillInfo = {}
 --- @field public Totem boolean
 --- @field public NoRotate boolean
 --- @field public IsHuge boolean
-
--- CharacterFlags 2
+---
+--- CharacterFlags 2
 --- @field public Global boolean
 --- @field public HasOsirisDialog boolean
 --- @field public HasDefaultDialog boolean
 --- @field public TreasureGeneratedForTrader boolean
 --- @field public Trader boolean
 --- @field public Resurrected boolean
-
--- CharacterFlags 3
+---
+--- CharacterFlags 3
 --- @field public IsPet boolean
 --- @field public IsSpectating boolean
 --- @field public NoReptuationEffects boolean
@@ -3247,19 +3247,19 @@ Ext = {
     --- @return number Time
     MonotonicTime = function () end,
 
-    -- Returns whether the player has a compatible Script Extender version installed
+    --- Returns whether the player has a compatible Script Extender version installed
     --- @param playerGuid string GUID of player character
     --- @return boolean
     PlayerHasExtender = function (playerGuid) end,
 
-    -- Handle to double conversion hack for use in Flash external interface calls
-    -- (Some of the builtin functions treat handles as double values)
+    --- Handle to double conversion hack for use in Flash external interface calls
+    --- (Some of the builtin functions treat handles as double values)
     --- @param handle number Integer handle to cast
     --- @return number Double handle
     HandleToDouble = function (handle) end,
 
-    -- Double to handle conversion hack for use in Flash external interface calls
-    -- (Some of the builtin functions treat handles as double values)
+    --- Double to handle conversion hack for use in Flash external interface calls
+    --- (Some of the builtin functions treat handles as double values)
     --- @param handle number Double handle to cast
     --- @return number Integer handle
     DoubleToHandle = function (handle) end
