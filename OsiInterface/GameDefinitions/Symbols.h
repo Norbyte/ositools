@@ -185,6 +185,8 @@ namespace dse
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 		ScriptCheckBlock__Build ScriptCheckBlock__Build{ nullptr };
 
+		ecl::InventoryFactory ** EclInventoryFactory{ nullptr };
+
 		esv::LevelManager ** LevelManager{ nullptr };
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
 		esv::SurfaceActionFactory** EsvSurfaceActionFactory{ nullptr };
@@ -239,11 +241,21 @@ namespace dse
 		}
 
 
-		inline esv::InventoryFactory * GetInventoryFactory() const
+		inline esv::InventoryFactory * GetServerInventoryFactory() const
 		{
 			if (EsvInventoryFactory) {
 				return *EsvInventoryFactory;
 			} else {
+				return nullptr;
+			}
+		}
+
+		inline ecl::InventoryFactory* GetClientInventoryFactory() const
+		{
+			if (EclInventoryFactory) {
+				return *EclInventoryFactory;
+			}
+			else {
 				return nullptr;
 			}
 		}

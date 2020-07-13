@@ -1069,7 +1069,7 @@ Represents all stats of an item. Unlike Item objects which are different on the 
 |--|--|--|
 | DynamicStats | table | A table containing all dynamic stat entries for the item. See [ItemDynamicStats](#item-dynamic-stats) for details on what these are. |
 | ItemType | string | `EquipmentStatType` value |
-| ItemSlot | integer | |
+| ItemSlot | string | `ItemSlot` value |
 | WeaponType | string | `WeaponType` value |
 | AnimType | integer | |
 | WeaponRange | number | |

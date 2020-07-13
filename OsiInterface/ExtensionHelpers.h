@@ -112,4 +112,9 @@ namespace dse
 			std::unique_ptr<DamagePairList> MyDamageList;
 		};
 	}
+
+	namespace ecl
+	{
+		ecl::Inventory* FindInventoryByHandle(ObjectHandle const& handle, bool logError = true);
+	}
 }

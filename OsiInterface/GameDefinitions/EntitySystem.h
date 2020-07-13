@@ -650,6 +650,7 @@ namespace dse
 	{
 		struct Item;
 		struct Character;
+		struct Inventory;
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
@@ -723,6 +724,10 @@ namespace dse
 			{
 				return (eoc::CustomStatsComponent*)GetComponentByEntityHandle(ComponentType::CustomStats, entityHandle);
 			}
+		};
+
+		struct InventoryFactory : public NetworkObjectFactory<ecl::Inventory, (uint32_t)ObjectType::ClientInventory>
+		{
 		};
 
 		struct GameStateMachine : public ProtectedGameObject<GameStateMachine>

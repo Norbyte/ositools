@@ -40,6 +40,7 @@ FS(GetStatusObjects);
 FS(Stats);
 FS(SetScale);
 FS(GetInventoryItems);
+FS(GetOwnerCharacter);
 FS(GetSkills);
 FS(GetSkillInfo);
 FS(GetNearbyCharacters);

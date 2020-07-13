@@ -847,7 +847,7 @@ local StatItemDynamic = {}
 --- @field public Name integer
 --- @field public InstanceId integer
 --- @field public ItemType string See EquipmentStatsType enumeration
---- @field public ItemSlot integer
+--- @field public ItemSlot string See ItemSlot enumeration
 --- @field public WeaponType string See WeaponType enumeration
 --- @field public AnimType integer TODO maybe an enum?
 --- @field public WeaponRange integer
@@ -994,6 +994,14 @@ local EclItem = {
     --- @param self EclItem
     --- @return string[]
     GetDeltaMods = function (self) end,
+    --- Returns the GUID of all items within the inventory of the item
+    --- @param self EclItem
+    --- @return string[]
+    GetInventoryItems = function (self) end,
+    --- Returns the GUID of character that currently owns the item; nil if the item is not in a character inventory
+    --- @param self EclItem
+    --- @return string|nil
+    GetOwnerCharacter = function (self) end,
     --- Returns whether the item has the specified tag
     --- @param self EclItem
     --- @param tag string
@@ -1036,6 +1044,15 @@ local EclItem = {
 --- @field public AnimationOverride string
 --- @field public UserID integer
 local EclCharacter = {
+    --- Returns the GUID of all items within the inventory of the character
+    --- @param self EclCharacter
+    --- @return string[]
+    GetInventoryItems = function (self) end,
+    --- Returns the item equipped in the specified slot
+    --- @param self EclCharacter
+    --- @param slot string See ItemSlot enumeration
+    --- @return EclItem|nil
+    GetItemBySlot = function (self, slot) end,
     --- Returns whether the character has the specified tag
     --- @param self EclCharacter
     --- @param tag string

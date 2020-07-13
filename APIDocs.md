@@ -1263,7 +1263,7 @@ Stat properties (can only be fetched on items with a stats entry):
 | Attribute | Type | Description |
 |--|--|--|
 | ItemType | Enum | `EquipmentStatType` value |
-| ItemSlot | Integer | |
+| ItemSlot | String | `ItemSlot` value |
 | WeaponType | Enum | `WeaponType` value |
 | AnimType | Integer | |
 | WeaponRange | Real | |

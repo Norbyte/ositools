@@ -381,7 +381,7 @@ namespace dse
 			CharacterTemplate* Template;
 			CharacterTemplate* OriginalTemplate;
 			CDivinityStats_Character* Stats;
-			void* InventoryHandle;
+			ObjectHandle InventoryHandle;
 			void* MovementMachine;
 			void* ActionStateMachine;
 			void* SteeringMachine;

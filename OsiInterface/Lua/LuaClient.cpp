@@ -69,6 +69,24 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ecl::Character>::MetatableName = "ecl::Character";
 
+	void ClientGetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
+	{
+		lua_newtable(L);
+
+		auto inventory = ecl::FindInventoryByHandle(inventoryHandle);
+		if (inventory != nullptr) {
+			int32_t index = 1;
+			for (auto itemHandle : inventory->ItemsBySlot) {
+				if (itemHandle) {
+					auto item = ecl::GetEntityWorld()->GetItem(itemHandle);
+					if (item != nullptr) {
+						settable(L, index++, item->MyGuid);
+					}
+				}
+			}
+		}
+	}
+
 	int ClientCharacterFetchProperty(lua_State* L, ecl::Character* character, FixedString const& prop)
 	{
 		if (prop == GFS.strPlayerCustomData) {
@@ -120,6 +138,37 @@ namespace dse::lua
 		return character;
 	}
 
+	int ClientCharacterGetInventoryItems(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+
+		lua_newtable(L);
+		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
+
+		return 1;
+	}
+
+	int ClientCharacterGetItemBySlot(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto slot = (uint32_t)checked_get<ItemSlot>(L, 2);
+
+		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryHandle);
+		if (inventory != nullptr && slot < inventory->ItemsBySlot.Set.Size) {
+			auto itemHandle = inventory->ItemsBySlot[slot];
+			if (itemHandle) {
+				auto item = ecl::GetEntityWorld()->GetItem(itemHandle);
+				if (item != nullptr) {
+					push(L, item->MyGuid);
+					return 1;
+				}
+			}
+		}
+
+		lua_pushnil(L);
+		return 1;
+	}
+
 #include <Lua/LuaShared.inl>
 
 	int ObjectProxy<ecl::Character>::Index(lua_State* L)
@@ -132,6 +181,16 @@ namespace dse::lua
 		if (!propFS) {
 			OsiError("Illegal property name: " << prop);
 			return 0;
+		}
+
+		if (propFS == GFS.strGetInventoryItems) {
+			lua_pushcfunction(L, &ClientCharacterGetInventoryItems);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetItemBySlot) {
+			lua_pushcfunction(L, &ClientCharacterGetItemBySlot);
+			return 1;
 		}
 
 		if (propFS == GFS.strHasTag) {
@@ -188,6 +247,51 @@ namespace dse::lua
 		return item;
 	}
 
+	int ClientItemGetInventoryItems(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Item>*>(L, 1);
+
+		lua_newtable(L);
+		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
+
+		return 1;
+	}
+
+	int ItemGetOwnerCharacter(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<ecl::Item>*>(L, 1);
+
+		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryParentHandle);
+
+		for (;;) {
+			if (inventory == nullptr) {
+				break;
+			}
+
+			auto parent = inventory->ParentHandle;
+			if (parent.GetType() == (uint32_t)ObjectType::ClientItem) {
+				auto item = ecl::GetEntityWorld()->GetItem(parent);
+				if (item) {
+					inventory = ecl::FindInventoryByHandle(item->InventoryParentHandle);
+				} else {
+					break;
+				}
+			} else if (parent.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+				auto character = ecl::GetEntityWorld()->GetCharacter(parent);
+				if (character) {
+					push(L, character->MyGuid);
+					return 1;
+				}
+				else {
+					break;
+				}
+			}
+		}
+
+		lua_pushnil(L);
+		return 1;
+	}
+
 	int ObjectProxy<ecl::Item>::Index(lua_State* L)
 	{
 		auto item = Get(L);
@@ -195,6 +299,16 @@ namespace dse::lua
 
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
+
+		if (propFS == GFS.strGetInventoryItems) {
+			lua_pushcfunction(L, &ClientItemGetInventoryItems);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetOwnerCharacter) {
+			lua_pushcfunction(L, &ItemGetOwnerCharacter);
+			return 1;
+		}
 
 		if (propFS == GFS.strGetDeltaMods) {
 			lua_pushcfunction(L, &ItemGetDeltaMods<ecl::Item>);

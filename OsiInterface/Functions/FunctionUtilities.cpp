@@ -206,7 +206,7 @@ namespace dse
 
 		esv::Inventory * FindInventoryByHandle(ObjectHandle const & handle, bool logError)
 		{
-			auto inventoryMgr = GetStaticSymbols().GetInventoryFactory();
+			auto inventoryMgr = GetStaticSymbols().GetServerInventoryFactory();
 			if (inventoryMgr != nullptr) {
 				return inventoryMgr->Get(handle);
 			} else {
@@ -367,6 +367,17 @@ namespace dse
 			}
 			else {
 				return client->EntityWorld;
+			}
+		}
+
+		ecl::Inventory* FindInventoryByHandle(ObjectHandle const& handle, bool logError)
+		{
+			auto inventoryMgr = GetStaticSymbols().GetClientInventoryFactory();
+			if (inventoryMgr != nullptr) {
+				return inventoryMgr->Get(handle);
+			}
+			else {
+				return nullptr;
 			}
 		}
 	}

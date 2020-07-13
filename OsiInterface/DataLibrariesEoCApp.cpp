@@ -1129,6 +1129,26 @@ namespace dse
 			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 25, STATIC_SYM(esv__Character__ApplyDamage)}, {}, {},
 			{SymbolVersion::AboveOrEqual, 64} // After GB5
 		},
+
+		{
+			"ecl::InventoryFactory",
+			SymbolMappingData::kText, 0,
+			"48 8B 3D XX XX XX XX " // mov     rdi, cs:ecl__gInventoryFactory
+			"48 8D 8F XX XX XX XX " // lea     rcx, [rdi+88h]
+			"E8 XX XX XX XX " // call    xxx
+			"48 8D 54 24 28 " // lea     rdx, [rsp+98h+var_70]
+			"48 89 7C 24 28 " // mov     [rsp+98h+var_70], rdi
+			"48 8D 8F A0 00 00 00 " // lea     rcx, [rdi+0A0h]
+			"E8 XX XX XX XX " // call    sub_140379950
+			"48 8D 8F A0 00 00 00 " // lea     rcx, [rdi+0A0h]
+			"E8 XX XX XX XX " // call    sub_1403796E0
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    sub_140378F50
+			"48 8B 06 " // mov     rax, [rsi]
+			"4C 8D 05 XX XX XX XX ", // lea     r8, str_Triggers
+			{SymbolMappingCondition::kString, 64, "Triggers"},
+			{"ecl::InventoryFactory", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EclInventoryFactory)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

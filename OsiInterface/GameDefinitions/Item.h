@@ -209,7 +209,7 @@ namespace dse
 			CRPGStats_Object* StatsFromName;
 			ObjectHandle InventoryHandle;
 			ObjectHandle InventoryParentHandle;
-			int field_78;
+			int16_t CurrentSlot;
 			int Weight;
 			int field_80;
 			void* ItemMachine;
@@ -241,5 +241,30 @@ namespace dse
 			uint16_t UpdateRefCount;
 		};
 
+
+		struct Inventory
+		{
+			void* VMT;
+			FixedString GUID;
+			NetId NetID;
+			uint64_t field_18;
+			PrimitiveSet<uint16_t> PeerIDClassNames;
+			uint64_t field_28;
+			ObjectHandle OwnerCharacterHandleUI;
+			uint8_t field_40;
+			uint8_t field_41;
+			uint8_t EquipmentSlots;
+			ObjectHandle ParentHandle;
+			int field_50;
+			int field_54;
+			uint8_t Flags;
+			uint8_t field_59;
+			ObjectSet<ObjectHandle> ItemsBySlot;
+			RefMap<int, void*>* Views; // <int, InventoryView*>
+			ObjectSet<ObjectHandle> UpdateViews;
+			RefMap<int, void*>* OfferedAmounts;
+			RefMap<ObjectHandle, void*>* BuyBackAmounts;
+			ObjectSet<ObjectHandle> HandleSet3;
+		};
 	}
 }

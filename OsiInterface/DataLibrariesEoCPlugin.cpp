@@ -870,6 +870,17 @@ namespace dse
 			{},
 			{"esv::Character::ApplyDamage", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(esv__Character__ApplyDamage)}
 		},
+
+		{
+			"ecl::InventoryFactory",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:ecl__gInventoryFactory
+			"E8 XX XX XX XX " // call    sub_1804DB830
+			"48 8B 03 " // mov     rax, [rbx]
+			"4C 8D 05 XX XX XX XX ", // lea     r8, str_Triggers ; "Triggers"
+			{SymbolMappingCondition::kString, 15, "Triggers"},
+			{"ecl::InventoryFactory", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EclInventoryFactory)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

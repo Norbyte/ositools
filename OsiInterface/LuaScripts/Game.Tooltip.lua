@@ -588,6 +588,11 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
         request.Character = Ext.DoubleToHandle(arg1)
         request.Status = Ext.DoubleToHandle(arg2)
     elseif method == "showItemTooltip" then
+        if arg1 == nil then
+            -- Item handle will be nil when it's being dragged
+            return
+        end
+
         request.Type = 'Item'
         request.Item = Ext.DoubleToHandle(arg1)
     elseif method == "showStatTooltip" then
@@ -685,29 +690,83 @@ function TooltipHooks:OnRequestExamineUITooltip(ui, method, typeIndex, id, ...)
     self.NextRequest = request
 end
 
+--- @param ui UIObject
+--- @param item EclItem
+--- @param offHand boolean
+--- @return string|nil
+function TooltipHooks:GetCompareItem(ui, item, offHand)
+    local owner = ui:GetPlayerHandle()
+    if owner == nil then
+        owner = item:GetOwnerCharacter()
+    end
+
+    if owner == nil then
+        Ext.PrintError("Tooltip compare render failed: Couldn't find owner of item")
+        return nil
+    end
+
+    --- @type EclCharacter
+    local char = Ext.GetCharacter(owner)
+
+    if item.Stats.ItemSlot == "Weapon" then
+        if offHand then
+            return char:GetItemBySlot("Shield")
+        else
+            return char:GetItemBySlot("Weapon")
+        end
+    elseif item.Stats.ItemSlot == "Ring" or item.Stats.ItemSlot == "Ring2" then
+        if offHand then
+            return char:GetItemBySlot("Ring2")
+        else
+            return char:GetItemBySlot("Ring")
+        end
+    else
+        return char:GetItemBySlot(item.Stats.ItemSlot)
+    end
+end
+
+--- @param ui UIObject
 function TooltipHooks:OnRenderTooltip(ui, method, ...)
     if self.NextRequest == nil then
         Ext.PrintError("Got tooltip render request, but did not find original tooltip info!")
         return
     end
 
-    self:OnRenderSubTooltip(ui, "tooltip_array", method, ...)
+    local req = self.NextRequest
+    self:OnRenderSubTooltip(ui, "tooltip_array", req, method, ...)
 
-    if ui:GetValue("tooltipCompare_array", nil, 0) ~= nil then
-        self:OnRenderSubTooltip(ui, "tooltipCompare_array", method, ...)
-    end
+    if req.Type == "Item" then
+        local reqItem = req.Item
 
-    if ui:GetValue("tooltipOffHand_array", nil, 0) ~= nil then
-        self:OnRenderSubTooltip(ui, "tooltipOffHand_array", method, ...)
+        if ui:GetValue("tooltipCompare_array", nil, 0) ~= nil then
+            local compareItem = self:GetCompareItem(ui, reqItem, false)
+            if compareItem ~= nil then
+                req.Item = Ext.GetItem(compareItem)
+                self:OnRenderSubTooltip(ui, "tooltipCompare_array", req, method, ...)
+                req.Item = reqItem
+            else
+                Ext.PrintError("Tooltip compare render failed: Couldn't find item to compare")
+            end
+        end
+
+        if ui:GetValue("tooltipOffHand_array", nil, 0) ~= nil then
+            local compareItem = self:GetCompareItem(ui, reqItem, true)
+            if compareItem ~= nil then
+                req.Item = Ext.GetItem(compareItem)
+                self:OnRenderSubTooltip(ui, "tooltipOffHand_array", req, method, ...)
+                req.Item = reqItem
+            else
+                Ext.PrintError("Tooltip compare render failed: Couldn't find off-hand item to compare")
+            end
+        end
     end
 
     self.NextRequest = nil
 end
 
-function TooltipHooks:OnRenderSubTooltip(ui, propertyName, method, ...)
+function TooltipHooks:OnRenderSubTooltip(ui, propertyName, req, method, ...)
     local tt = TableFromFlash(ui, propertyName)
     local params = ParseTooltipArray(tt)
-    local req = self.NextRequest
     if params ~= nil then
         local tooltip = TooltipData:Create(params)
         if req.Type == "Stat" then
