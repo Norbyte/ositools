@@ -76,7 +76,10 @@ namespace dse::esv::lua
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
-		case ValueType::ItemGuid: // TODO ...
+		case ValueType::ItemGuid:
+		case ValueType::TriggerGuid:
+		case ValueType::SplineGuid:
+		case ValueType::LevelTemplateGuid:
 			if (type != LUA_TSTRING) {
 				luaL_error(L, "String expected for argument %d, got %s", i, lua_typename(L, type));
 			}
@@ -165,7 +168,10 @@ namespace dse::esv::lua
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
-		case ValueType::ItemGuid: // TODO ...
+		case ValueType::ItemGuid:
+		case ValueType::TriggerGuid:
+		case ValueType::SplineGuid:
+		case ValueType::LevelTemplateGuid:
 			if (type != LUA_TSTRING) {
 				luaL_error(L, "String expected for argument %d, got %s", i, lua_typename(L, type));
 			}
@@ -204,7 +210,10 @@ namespace dse::esv::lua
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
-		case ValueType::ItemGuid: // TODO ...
+		case ValueType::ItemGuid:
+		case ValueType::TriggerGuid:
+		case ValueType::SplineGuid:
+		case ValueType::LevelTemplateGuid:
 			push(L, arg.String);
 			break;
 
@@ -236,7 +245,10 @@ namespace dse::esv::lua
 		case ValueType::String:
 		case ValueType::GuidString:
 		case ValueType::CharacterGuid:
-		case ValueType::ItemGuid: // TODO ...
+		case ValueType::ItemGuid:
+		case ValueType::TriggerGuid:
+		case ValueType::SplineGuid:
+		case ValueType::LevelTemplateGuid:
 			push(L, tv.Value.Val.String);
 			break;
 
@@ -841,6 +853,12 @@ namespace dse::esv::lua
 			return ValueType::CharacterGuid;
 		} else if (s == "ITEMGUID") {
 			return ValueType::ItemGuid;
+		} else if (s == "TRIGGERGUID") {
+			return ValueType::TriggerGuid;
+		} else if (s == "SPLINEGUID") {
+			return ValueType::SplineGuid;
+		} else if (s == "LEVELTEMPLATEGUID") {
+			return ValueType::LevelTemplateGuid;
 		} else {
 			OsiError("Unknown Osiris value type: " << s.data());
 			return ValueType::None;
