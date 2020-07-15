@@ -39,6 +39,8 @@ namespace dse::lua
 	}
 
 
+#include <Lua/LuaShared.inl>
+
 	char const* const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
 
 	esv::PlayerCustomData* ObjectProxy<esv::PlayerCustomData>::Get(lua_State* L)
@@ -125,6 +127,10 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (prop == GFS.strDisplayName) {
+			return GameObjectGetDisplayName<esv::Character>(L, character);
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
 		return fetched ? 1 : 0;
 	}
@@ -207,8 +213,6 @@ namespace dse::lua
 
 		return 0;
 	}
-
-#include <Lua/LuaShared.inl>
 
 	int ObjectProxy<esv::Character>::Index(lua_State* L)
 	{
@@ -448,6 +452,10 @@ namespace dse::lua
 		if (propFS == GFS.strRootTemplate) {
 			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
 			return 1;
+		}
+
+		if (propFS == GFS.strDisplayName) {
+			return GameObjectGetDisplayName<esv::Item>(L, item);
 		}
 
 		bool fetched = false;

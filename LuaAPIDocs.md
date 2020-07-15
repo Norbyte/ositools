@@ -841,6 +841,7 @@ Player objects have the following properties:
 | Multiplayer | boolean |  |
 | InParty | boolean |  |
 | HostControl | boolean |  |
+| Activated | boolean |  |
 | OffStage | boolean |  |
 | Dead | boolean |  |
 | HasOwner | boolean  |  |

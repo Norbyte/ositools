@@ -149,6 +149,15 @@ int GameObjectSetScale(lua_State* L)
 }
 
 template <class TObject>
+int GameObjectGetDisplayName(lua_State* L, TObject* object)
+{
+	TranslatedString name;
+	object->GetDisplayName(&name);
+	push(L, name.Str1.WStr);
+	return 1;
+}
+
+template <class TObject>
 int ItemGetDeltaMods(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);

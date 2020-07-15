@@ -174,7 +174,7 @@ local CharacterTemplate = {}
 --- @field public UseRemotely boolean
 --- @field public IsBlocker boolean
 --- @field public IsPointerBlocker boolean
---- @field public UnknownDisplayName boolean
+--- @field public ItemDisplayName boolean
 --- @field public Tooltip number
 --- @field public Stats string
 --- @field public OnUseDescription string
@@ -197,7 +197,7 @@ local CharacterTemplate = {}
 --- @field public SoundAttachBone string
 --- @field public SoundAttenuation number
 --- @field public Description string
---- @field public UnknownDescription string
+--- @field public ItemDescription string
 --- @field public Speaker string
 --- @field public AltSpeaker string
 --- @field public SpeakerGroup string
@@ -989,6 +989,7 @@ local EclGameObject = {}
 --- @field public GoldValueOverride integer
 --- @field public BaseWeightOverwrite integer
 --- @field public ItemColorOverride integer
+--- @field public DisplayName string
 local EclItem = {}
 
 --- Returns all delta mods on the item
@@ -1052,6 +1053,7 @@ function EclItem.GetStatusObjects (self) end
 --- @field public Scale number
 --- @field public AnimationOverride string
 --- @field public UserID integer
+--- @field public DisplayName string
 local EclCharacter = {}
 
 --- Returns the GUID of all items within the inventory of the character
@@ -1138,6 +1140,7 @@ local EsvGameObject = {}
 --- @field public TreasureLevel integer
 --- @field public LevelOverride integer
 --- @field public ForceSynch boolean
+--- @field public DisplayName string
 --- @field public Stats StatItem
 local EsvItem = {}
 
@@ -1232,6 +1235,7 @@ local EsvSkillInfo = {}
 --- @field public RootTemplate CharacterTemplate
 --- @field public PlayerCustomData PlayerCustomData
 --- @field public Stats StatCharacter
+--- @field public DisplayName string
 ---
 --- @field public NetID integer
 --- @field public MyGuid string

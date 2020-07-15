@@ -771,6 +771,7 @@ Returns an attribute of the specified character. If `_Character` is not a valid 
 | EquipmentColor | String | Read |
 | IsPlayer | Flag | Read |
 | HostControl | Flag | Read |
+| Activated | Flag | Read |
 | OffStage | Flag | Read |
 | Dead | Flag | Read |
 | Charmed | Flag | Read |
