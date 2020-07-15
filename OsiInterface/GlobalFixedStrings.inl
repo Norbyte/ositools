@@ -76,6 +76,7 @@ FS(IngredientTransformType);
 FS(ItemDataRarity);
 FS(RecipeCategory);
 FS(CraftingStationType);
+FS(ShroudType);
 FS(ComboCategory);
 FS(SkillProperties);
 FS(ExtraProperties);

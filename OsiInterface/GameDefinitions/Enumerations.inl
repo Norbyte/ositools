@@ -1322,6 +1322,13 @@ BEGIN_ENUM(CraftingStationType, int)
 	EV(Misc4, 12)
 END_ENUM()
 
+BEGIN_ENUM(ShroudType, uint8_t)
+	EV(Shroud, 0)
+	EV(Sight, 1)
+	EV(Sneak, 2)
+	EV(RegionMask, 3)
+END_ENUM()
+
 BEGIN_ENUM(GameActionType, int)
 	EV(RainAction, 1)
 	EV(StormAction, 2)

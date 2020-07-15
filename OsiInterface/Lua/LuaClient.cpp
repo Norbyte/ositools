@@ -1361,6 +1361,18 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
+	int GetGameState(lua_State* L)
+	{
+		auto state = GetStaticSymbols().GetClientState();
+		if (state) {
+			push(L, *state);
+		} else {
+			lua_pushnil(L);
+		}
+
+		return 1;
+	}
+
 
 	void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	{
@@ -1416,6 +1428,7 @@ namespace dse::ecl::lua
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 
+			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},

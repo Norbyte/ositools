@@ -1182,6 +1182,18 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int GetGameState(lua_State* L)
+	{
+		auto state = GetStaticSymbols().GetServerState();
+		if (state) {
+			push(L, *state);
+		} else {
+			lua_pushnil(L);
+		}
+
+		return 1;
+	}
+
 	int RegisterOsirisListener(lua_State* L)
 	{
 		auto name = checked_get<char const*>(L, 1);
@@ -1278,6 +1290,7 @@ namespace dse::esv::lua
 			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
 
+			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverride},
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},

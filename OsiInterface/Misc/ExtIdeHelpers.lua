@@ -3178,6 +3178,10 @@ function Ext.IsServer () end
 --- @return boolean
 function Ext.IsDeveloperMode () end
 
+--- Returns the current client/server game state machine state.
+--- @return string
+function Ext.GetGameState () end
+
 --- Broadcast a message to all peers
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
