@@ -651,6 +651,42 @@ namespace dse
 		struct Item;
 		struct Character;
 		struct Inventory;
+		struct EntityManager;
+
+		struct ItemConversionHelpers
+		{
+			EntityManager* EntityManager;
+			void* ItemFactory;
+			RefMap<FixedString, ObjectSet<Item*>*> RegisteredItemsByLevel;
+			RefMap<FixedString, ObjectSet<Item*>*> ActivatedItemsByLevel;
+		};
+
+
+		struct CharacterConversionHelpers
+		{
+			EntityManager* EntityManager;
+			void* CharacterFactory;
+			RefMap<FixedString, ObjectSet<Character*>*> RegisteredCharactersByLevel;
+			RefMap<FixedString, ObjectSet<Character*>*> ActivatedCharactersByLevel;
+		};
+
+
+		struct TriggerConversionHelpers
+		{
+			void* VMT;
+			ecl::EntityManager* EntityManager;
+			void* TriggerFactory;
+			RefMap<FixedString, ObjectSet<void*>*> RegisteredTriggersByLevel;
+		};
+
+		
+		struct ProjectileConversionHelpers
+		{
+			EntityManager* EntityManager;
+			void* ProjectileFactory;
+			RefMap<FixedString, ObjectSet<void*>*> RegisteredProjectilesByLevel;
+		};
+
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
@@ -726,9 +762,44 @@ namespace dse
 			}
 		};
 
+
+		struct EntityManager : public dse::EntityManager<EntityWorld>
+		{
+			void* NetEventManagerVMT;
+			ItemConversionHelpers ItemConversionHelpers;
+			CharacterConversionHelpers CharacterConversionHelpers;
+			TriggerConversionHelpers TriggerConversionHelpers;
+			uint64_t Unknown[3];
+			ProjectileConversionHelpers ProjectileConversionHelpers;
+			void* WallManager;
+			ObjectSet<FixedString> TriggerTypes;
+			ObjectSet<FixedString> OS_FS2;
+		};
+
+
 		struct InventoryFactory : public NetworkObjectFactory<ecl::Inventory, (uint32_t)ObjectType::ClientInventory>
 		{
 		};
+
+		struct ActivationManager
+		{
+			struct ActivationGroup
+			{
+				ObjectSet<Item*> Items;
+				ObjectSet<Character*> Characters;
+			};
+
+			void* VMT;
+			__int64 field_8;
+			void* VMT2;
+			__int64 field_18;
+			RefMap<FixedString, ActivationGroup> ChangedGroups;
+			float ActivationRange1;
+			float DeactivationRange1;
+			float ActivationRange2;
+			float DeactivationRange2;
+		};
+
 
 		struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 		{
@@ -750,8 +821,8 @@ namespace dse
 			GameStateMachine** GameStateMachine;
 			net::Client* GameClient;
 			uint64_t field_50;
-			uint64_t field_58;
-			uint64_t field_60;
+			void* LobbyLogicManager;
+			void* ArenaManager;
 			FixedString FS1;
 			FixedString LevelName;
 			FixedString SomeGUID;
@@ -775,7 +846,7 @@ namespace dse
 			uint64_t field_1C8[2];
 			void* EntityWorldManager;
 			EntityWorld* EntityWorld;
-			void* EntityManager;
+			EntityManager* EntityManager;
 		};
 
 		typedef void (*EoCClient__HandleError)(void* self, STDWString const* message, bool exitGame, STDWString const* a4);

@@ -9,7 +9,7 @@
 namespace dse
 {
 	SymbolMappingData const sSymbolLevelManager = {
-		"LevelManager2",
+		"esv::LevelManager2",
 		SymbolMappingData::kCustom, 0,
 		"48 8B 05 XX XX XX XX " // mov     rax, cs:ls__gServerLevelAllocator
 		"4C 8D 44 24 60 " // lea     r8, [rsp+58h+arg_0]
@@ -31,7 +31,7 @@ namespace dse
 		"48 8D 54 24 60 " // lea     rdx, [rsp+58h+arg_0]
 		"E8 XX XX XX XX ", // call    esv__GameActionManager__AddAction
 		{},
-		{"LevelManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(LevelManager)},
+		{"esv::LevelManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EsvLevelManager)},
 		{"esv::GameObjectMoveAction::Setup", SymbolMappingTarget::kIndirect, 73, STATIC_SYM(GameObjectMoveActionSetup)},
 		{"esv::GameActionManager::AddAction", SymbolMappingTarget::kIndirect, 95, STATIC_SYM(AddGameAction)}
 	};
@@ -410,7 +410,7 @@ namespace dse
 		},
 
 		{
-			"LevelManager",
+			"esv::LevelManager",
 			SymbolMappingData::kText, SymbolMappingData::kDeferred,
 			"0F 84 XX 00 00 00 " // jz      xxx
 			"4C 8B 00 " // mov     r8, [rax]
@@ -420,7 +420,7 @@ namespace dse
 			"4D 8B 06 " // mov     r8, [r14]
 			"49 8B CE ", // mov     rcx, r14
 			{SymbolMappingCondition::kFixedString, 9, "ForceMove"},
-			{"LevelManager", SymbolMappingTarget::kAbsolute, 0, nullptr, nullptr, &sSymbolLevelManager, 0x100}
+			{"esv::LevelManager", SymbolMappingTarget::kAbsolute, 0, nullptr, nullptr, &sSymbolLevelManager, 0x100}
 		},
 
 		{
@@ -1148,6 +1148,19 @@ namespace dse
 			"4C 8D 05 XX XX XX XX ", // lea     r8, str_Triggers
 			{SymbolMappingCondition::kString, 64, "Triggers"},
 			{"ecl::InventoryFactory", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EclInventoryFactory)}
+		},
+
+		{
+			"ecl::LevelManager",
+			SymbolMappingData::kText, 0,
+			"4C 8D 05 XX XX XX XX " // lea     r8, "NetworkFixedStrings"
+			"BA 01 00 00 00 " // mov     edx, 1
+			"48 8B CF " // mov     rcx, rdi
+			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+			"48 8B 15 XX XX XX XX " // mov     rdx, cs:ecl__gLevelManager
+			"48 8B 0D XX XX XX XX ", // mov     rcx, cs:eoc__gNetworkFixedStrings
+			{SymbolMappingCondition::kString, 0, "NetworkFixedStrings"},
+			{"esv::LevelManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(EclLevelManager)}
 		},
 	};
 

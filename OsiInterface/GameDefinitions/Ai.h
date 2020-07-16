@@ -261,4 +261,123 @@ namespace dse::eoc
         int16_t GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const;
         eoc::AiMetaData* GetAiMetaData(AiGridTile* tile) const;
     };
+
+    struct ShroudObject
+    {
+        void* LevelAllocator;
+        ShroudType ShroudTypeId;
+        float Scale;
+        uint8_t* DataBuffer;
+        uint64_t field_18;
+        int Width;
+        int Height;
+        int IsFloatData;
+        char field_2C;
+        float field_30;
+        int field_34;
+
+        uint8_t GetByteAtPos(int x, int y)
+        {
+            if (x < 0 || y < 0 || x >= Width || y >= Height) {
+                ERR("Tried to get shroud data on out-of-bounds shroud coordinates (%d,%d); bounds are (%d,%d)", x, y, Width, Height);
+                return 0;
+            }
+
+            auto offset = x + y * Width;
+            return DataBuffer[offset];
+        }
+
+        void SetByteAtPos(int x, int y, uint8_t value)
+        {
+            if (x < 0 || y < 0 || x >= Width || y >= Height) {
+                ERR("Tried to set shroud data on out-of-bounds shroud coordinates (%d,%d); bounds are (%d,%d)", x, y, Width, Height);
+                return;
+            }
+
+            auto offset = x + y * Width;
+            DataBuffer[offset] = value;
+        }
+    };
+
+    struct ShroudData
+    {
+        void* LevelAllocator;
+        ObjectSet<glm::vec2> OS_Vector2f;
+        ObjectSet<glm::vec2> OS_Vector2f_2;
+        AiGrid* AiGrid;
+        ShroudObject* ShroudObjects[8];
+        float OffsetX;
+        float OffsetY;
+        float OffsetZ;
+        int GridWidth;
+        int GridHeight;
+        int GridWidth2;
+        int GridHeight2;
+        int field_AC;
+        int field_B0;
+
+
+        uint8_t GetByteAtPos(ShroudType type, int x, int y)
+        {
+            return ShroudObjects[(int)type * 2]->GetByteAtPos(x, y);
+        }
+
+        void SetByteAtPos(ShroudType type, int x, int y, uint8_t value)
+        {
+            ShroudObjects[(int)type * 2]->SetByteAtPos(x, y, value);
+        }
+    };
+
+}
+
+namespace dse::esv
+{
+    struct Level;
+
+    struct ShroudManager
+    {
+        void* VMT;
+        EntityWorld* EntityWorld;
+        ObjectSet<glm::vec2> OS_Vector2f;
+        eoc::AiGrid* AiGrid;
+        Level* Level;
+        eoc::ShroudData* ShroudData;
+        RefMap<int, int> field_48; // Unknown key/value type
+        float UpdateTimer;
+        bool IsEnabled;
+    };
+}
+
+namespace dse::ecl
+{
+    struct Level;
+
+    struct ShroudManager
+    {
+        void* VMT;
+        void* LevelAllocator;
+        ObjectSet<glm::vec2> OS_Vector2f;
+        Level* Level;
+        eoc::AiGrid* AiGrid;
+        __int64 field_40;
+        __int64 field_48;
+        eoc::ShroudData* ShroudData;
+        uint64_t SomeHandles[4];
+        char field_78;
+        char field_79;
+        char field_7A;
+        char RegionMaskTextureInitialized;
+        ObjectHandle OH1;
+        char field_88;
+        char field_89;
+        char field_8A;
+        int field_8C;
+        int field_90;
+        int field_94;
+        RefMap<int, FixedString> ShroudTriggers_int_FS;
+        ObjectSet<void*> OS_SightTileData;
+        ObjectSet<ObjectHandle> OS_ObjectHandle;
+        ObjectSet<ObjectHandle> OS_ObjectHandle2;
+        char field_108;
+    };
 }

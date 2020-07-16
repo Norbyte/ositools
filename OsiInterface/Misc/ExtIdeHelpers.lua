@@ -1067,6 +1067,12 @@ function EclItem.GetStatusObjects (self) end
 --- @field public AnimationOverride string
 --- @field public UserID integer
 --- @field public DisplayName string
+--- @field public StoryDisplayName string
+--- @field public OriginalDisplayName string
+--- @field public WalkSpeedOverride number
+--- @field public RunSpeedOverride number
+--- @field public Archetype string
+--- @field public CorpseLootable boolean
 local EclCharacter = {}
 
 --- Returns the GUID of all items within the inventory of the character

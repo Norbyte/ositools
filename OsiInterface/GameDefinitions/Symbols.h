@@ -185,9 +185,10 @@ namespace dse
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 		ScriptCheckBlock__Build ScriptCheckBlock__Build{ nullptr };
 
+		ecl::LevelManager ** EclLevelManager{ nullptr };
 		ecl::InventoryFactory ** EclInventoryFactory{ nullptr };
 
-		esv::LevelManager ** LevelManager{ nullptr };
+		esv::LevelManager ** EsvLevelManager{ nullptr };
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
 		esv::SurfaceActionFactory** EsvSurfaceActionFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
@@ -269,35 +270,54 @@ namespace dse
 			}
 		}
 
-		inline esv::LevelManager* GetLevelManager() const
+		inline esv::LevelManager* GetServerLevelManager() const
 		{
-			if (LevelManager == nullptr
-				|| *LevelManager == nullptr) {
+			if (EsvLevelManager == nullptr
+				|| *EsvLevelManager == nullptr) {
 				return nullptr;
 			}
 
-			return *LevelManager;
+			return *EsvLevelManager;
 		}
 
-		inline esv::Level* GetCurrentLevel() const
+		inline esv::Level* GetCurrentServerLevel() const
 		{
-			if (LevelManager == nullptr
-				|| *LevelManager == nullptr) {
+			auto levelMgr = GetServerLevelManager();
+			if (levelMgr == nullptr) {
 				return nullptr;
 			}
 
-			return (*LevelManager)->CurrentLevel;
+			return levelMgr->CurrentLevel;
 		}
 
 		inline esv::GameActionManager * GetGameActionManager() const
 		{
-			if (LevelManager == nullptr 
-				|| *LevelManager == nullptr
-				|| (*LevelManager)->CurrentLevel == nullptr) {
+			auto level = GetCurrentServerLevel();
+			if (level == nullptr) {
 				return nullptr;
 			}
 
-			return (*LevelManager)->CurrentLevel->GameActionManager;
+			return level->GameActionManager;
+		}
+
+		inline ecl::LevelManager* GetClientLevelManager() const
+		{
+			if (EclLevelManager == nullptr
+				|| *EclLevelManager == nullptr) {
+				return nullptr;
+			}
+
+			return *EclLevelManager;
+		}
+
+		inline ecl::Level* GetCurrentClientLevel() const
+		{
+			auto levelMgr = GetClientLevelManager();
+			if (levelMgr == nullptr) {
+				return nullptr;
+			}
+
+			return levelMgr->CurrentLevel;
 		}
 
 		inline CRPGStatsManager * GetStats() const

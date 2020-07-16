@@ -881,6 +881,19 @@ namespace dse
 			{SymbolMappingCondition::kString, 15, "Triggers"},
 			{"ecl::InventoryFactory", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EclInventoryFactory)}
 		},
+
+		{
+			"ecl::LevelManager",
+			SymbolMappingData::kText, 0,
+			"4C 8D 05 XX XX XX XX " // lea     r8, "NetworkFixedStrings"
+			"BA 01 00 00 00 " // mov     edx, 1
+			"48 8B CC " // mov     rcx, r12
+			"FF 90 80 00 00 00 " // call    qword ptr [rax+80h]
+			"48 8B 15 XX XX XX XX " // mov     rdx, cs:ecl__gLevelManager
+			"48 8B 0D XX XX XX XX ", // mov     rcx, cs:eoc__gNetworkFixedStrings
+			{SymbolMappingCondition::kString, 0, "NetworkFixedStrings"},
+			{"esv::LevelManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(EclLevelManager)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

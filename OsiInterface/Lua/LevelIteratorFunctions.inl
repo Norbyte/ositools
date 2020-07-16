@@ -8,7 +8,7 @@ void GetCharactersGeneric(lua_State* L, FixedString const& requestedLevel, Predi
 	lua_newtable(L);
 	FixedString levelName = requestedLevel;
 	if (!levelName) {
-		auto level = GetStaticSymbols().GetLevelManager()->CurrentLevel;
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
 			return;
@@ -65,7 +65,7 @@ void GetItemsGeneric(lua_State* L, FixedString const& requestedLevel, Predicate 
 	lua_newtable(L);
 	FixedString levelName = requestedLevel;
 	if (!levelName) {
-		auto level = GetStaticSymbols().GetLevelManager()->CurrentLevel;
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
 			return;

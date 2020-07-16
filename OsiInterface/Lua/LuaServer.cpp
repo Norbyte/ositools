@@ -514,7 +514,7 @@ namespace dse::lua
 	{
 		if (obj_) return obj_;
 
-		auto level = GetStaticSymbols().GetCurrentLevel();
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level) {
 			auto surface = level->SurfaceManager->Get(handle_);
 			if (surface == nullptr) luaL_error(L, "Surface handle invalid");
@@ -1036,7 +1036,7 @@ namespace dse::esv::lua
 
 		auto handle = checked_get<int64_t>(L, 1);
 
-		auto level = GetStaticSymbols().GetCurrentLevel();
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (!level || !level->SurfaceManager) {
 			OsiError("Current level not available yet!");
 			return 0;
@@ -1056,7 +1056,7 @@ namespace dse::esv::lua
 		auto x = checked_get<float>(L, 1);
 		auto z = checked_get<float>(L, 2);
 
-		auto level = GetStaticSymbols().GetCurrentLevel();
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (!level || !level->AiGrid || !level->SurfaceManager) {
 			OsiError("Current level not available yet!");
 			return 0;

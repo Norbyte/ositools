@@ -709,8 +709,18 @@ namespace dse
 			PROP_RO(WorldPos);
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
-			PROP_RO(AnimationSetOverride);
 			PROP_TY(UserID, int32_t);
+			PROP_RO(OwnerCharacterHandle);
+			PROP_RO(CorpseCharacterHandle);
+			PROP_RO(FollowCharacterHandle);
+			PROP_RO(OwnerCharacterHandle);
+			PROP_RO(StoryDisplayName);
+			PROP_RO(OriginalDisplayName);
+			PROP_RO(AnimationSetOverride);
+			PROP_RO(WalkSpeedOverride);
+			PROP_RO(RunSpeedOverride);
+			PROP_RO(Archetype);
+			PROP_RO(CorpseLootable);
 		}
 
 		{

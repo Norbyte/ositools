@@ -9,35 +9,40 @@ namespace dse
 		struct AiGrid;
 	}
 
+	struct LevelDesc
+	{
+		void* VMT;
+		FixedString LevelName;
+		FixedString UniqueKey;
+		STDWString CustomDisplayLevelName;
+		ObjectSet<Path> Paths;
+		uint8_t Type;
+	};
+
+	struct Level : public ProtectedGameObject<Level>
+	{
+		void* VMT;
+		LevelDesc* LevelDesc;
+		void* LocalTemplateManager;
+		char Unknown;
+		void* DummyManager;
+		void* ReferenceManager;
+		void* Scene;
+		void* PhysicsScene;
+		ObjectSet<void*> GameObjects;
+		void* Text3DManager;
+		ObjectSet<void*> ActivePersistentLevelTemplates;
+	};
+
 	namespace esv
 	{
 		struct SurfaceManager;
 		struct GameActionManager;
+		struct ShroudManager;
 
-		struct LevelDesc
+		struct Level : public dse::Level
 		{
-			void * VMT;
-			FixedString LevelName;
-			FixedString UniqueKey;
-			STDWString CustomDisplayLevelName;
-			ObjectSet<Path> Paths;
-			uint8_t Type;
-		};
-
-		struct Level
-		{
-			void * VMT;
-			LevelDesc * LevelDesc;
-			void * LocalTemplateManager;
-			char Unknown;
-			void * DummyManager;
-			void * ReferenceManager;
-			void * Scene;
-			void * PhysicsScene;
-			ObjectSet<void *> GameObjects;
-			void * Text3DManager;
-			ObjectSet<void *> ActivePersistentLevelTemplates;
-			void * LayerManager;
+			void* LayerManager;
 #if !defined(OSI_EOCAPP)
 			void * field_90;
 #endif
@@ -52,7 +57,7 @@ namespace dse
 			GameActionManager * GameActionManager;
 			void * EffectManager;
 			void * NoiseManager;
-			void * ShroudManager;
+			ShroudManager* ShroudManager;
 			void * field_F8;
 			void * EnvironmentalStatusManager;
 			ObjectSet<void *> TemplateTypeDescs;
@@ -75,4 +80,53 @@ namespace dse
 
 	}
 
+	namespace ecl
+	{
+		struct ShroudManager;
+
+		struct Level : public dse::Level
+		{
+			void* LevelAllocator;
+			eoc::AiGrid* AiGrid;
+			void* VisionGrid;
+			void* MaterialGrid;
+			void* CharacterManager;
+			void* GameMasterManager;
+			void* ItemManager;
+			void* TerrainManager;
+			void* WallManager;
+			void* ProjectileManager;
+			void* GameActionManager;
+			void* FadeManager;
+			void* PickingHelperManager;
+			void* SurfaceManager;
+			void* AtmosphereManager;
+			ShroudManager* ShroudManager;
+			void* SeeThroughManager;
+			void* field_118;
+			void* BulletDepThreadedUpdateManager;
+			void* VisionDepThreadedUpdateManager;
+			void* FootEffectManager;
+			EntityManager* EntityManager;
+			int field_140;
+			char field_144;
+			ObjectSet<void*> TemplateTypes; // ecl::Level::TemplateTypeDesc*
+			__int64 LevelCacheTemplateManager;
+		};
+
+
+		struct LevelManager
+		{
+			void* VMT;
+			Level* CurrentLevel;
+			Map<FixedString, Level*> Levels;
+			ObjectSet<LevelDesc*> LevelDescs;
+			Map<FixedString, Level*> Levels2;
+			Map<FixedString, char> FSMap_Char;
+			uint64_t Unknown[17];
+			ObjectSet<void*> OS_pResource; // Resource*
+			ObjectSet<FixedString> OS_FS;
+		};
+
+	}
 }

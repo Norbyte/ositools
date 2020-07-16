@@ -329,25 +329,26 @@ namespace dse
 		struct PlayerData : public ProtectedGameObject<PlayerData>
 		{
 			ObjectSet<void*> SkillBarItems; // ecl::SkillBarItem
-			ObjectSet<uint32_t> Abilities_EAbility;
+			ObjectSet<uint32_t> LockedAbilities;
 			Map<FixedString, void*> AttitudeOverrideMap; // ObjectHandleMap<int>*
-			char field_58;
+			uint8_t SelectedSkillSet;
 			__int64 field_60;
 			char field_68;
 			PlayerCustomData CustomData;
 			char field_1C8;
 			__int64 field_1D0;
-			int NetID1;
-			int NetID2;
-			int field_1E0;
-			int field_1E4;
-			FixedString field_1E8;
-			ObjectSet<FixedString> ObjSet_FS;
+			NetId PickpocketTargetNetID;
+			NetId CorpseLootTargetNetID;
+			bool HelmetOptionState;
+			bool ArmorOptionState;
+			int CachedTension;
+			FixedString QuestSelected;
+			ObjectSet<FixedString> MemorisedSkills;
 			char field_210;
 			char field_211;
 			int NetID3;
-			FixedString field_218;
-			FixedString field_220;
+			FixedString OriginalTemplate;
+			FixedString Region;
 		};
 
 
@@ -386,24 +387,24 @@ namespace dse
 			void* ActionStateMachine;
 			void* SteeringMachine;
 			void* BehaviourMachine;
-			__int64 field_C8;
-			__int64 field_D0;
-			__int64 field_D8;
-			__int64 field_E0;
-			__int64 field_E8;
+			void* InputController;
+			void* NetworkController;
+			void* StatusController;
+			void* DialogController;
+			void* CharacterSupervisir;
 			StatusMachine* StatusMachine;
 			void* SkillManager;
 			int field_100;
 			__int64 field_108;
-			__int64 field_110;
-			__int64 OwnerCharacterHandle;
-			__int64 OH3;
-			__int64 CorpseCharacterHandle;
-			__int64 OH5;
+			void* CharacterBody;
+			ObjectHandle OwnerCharacterHandle;
+			ObjectHandle OH3;
+			ObjectHandle CorpseCharacterHandle;
+			ObjectHandle OH5;
 			int field_138;
-			__int64 OH6;
-			__int64 OH7;
-			__int64 ViewConeEffectHandle;
+			ObjectHandle HighlightCircleEffect;
+			ObjectHandle OH7;
+			ObjectHandle ViewConeEffectHandle;
 			__int64 field_158;
 			__int64 field_160;
 			ecl::PlayerData* PlayerData;
@@ -434,23 +435,24 @@ namespace dse
 			float field_250;
 			ObjectHandle SoundObjectHandles[3];
 			ObjectHandle OH9;
-			ObjectHandle OH10;
+			ObjectHandle FollowCharacterHandle;
 			char PickpocketNLootingFlags;
 			char Flags2;
 			int Flags3;
 			char field_288;
 			char field_289;
 			TranslatedString* DisplayNameOverride;
-			TranslatedString DisplayName1;
-			TranslatedString DisplayName2;
-			ObjectHandle OH11;
+			TranslatedString StoryDisplayName;
+			TranslatedString OriginalDisplayName;
+			ObjectHandle TalkingIconEffect;
 			float field_3F0;
 			int SoundBoneIndex;
 			int field_3F8;
 			int field_3FC;
 			ObjectSet<FixedString> FixedStrings2;
 			FixedString AnimationSetOverride;
-			__int64 field_428;
+			float WalkSpeedOverride;
+			float RunSpeedOverride;
 			__int64 field_430;
 			__int64 OH12;
 			__int64 field_440;
@@ -462,17 +464,17 @@ namespace dse
 			__int64 field_470;
 			__int64 field_478;
 			ObjectHandle OH13;
-			FixedString FS_Base;
+			FixedString Archetype;
 			FixedString FS3;
 			int field_498;
 			char field_49C;
-			ObjectSet< ObjectHandle> ObjectHandles;
+			ObjectSet<ObjectHandle> ObjectHandles;
 			Map<FixedString, void*> field_4C0;
 			__int64 field_4D8;
 			__int64 field_4E0;
 			ObjectSet<FixedString> ItemTags;
 			void* VisualSetIndices;
-			char field_510;
+			bool CorpseLootable;
 		};
 
 	}
