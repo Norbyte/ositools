@@ -55,6 +55,17 @@ function DamageList.AggregateSameTypeDamages (self) end
 function DamageList.ToTable (self) end
 
 
+--- @class CombatComponentTemplate
+--- @field public Alignment string
+--- @field public CanFight boolean
+--- @field public CanJoinFight boolean
+--- @field public CombatGroupID string
+--- @field public IsBoss boolean
+--- @field public IsInspector boolean
+--- @field public StartCombatRange number
+local CombatComponentTemplate = {}
+
+
 --- @class EoCGameObjectTemplate
 --- @field public Id string
 --- @field public Name string
@@ -90,6 +101,7 @@ local EoCGameObjectTemplate = {}
 
 
 --- @class CharacterTemplate : EoCGameObjectTemplate
+--- @field public CombatTemplate CombatComponentTemplate
 --- @field public Icon string
 --- @field public Stats string
 --- @field public SkillSet string
@@ -145,6 +157,7 @@ local CharacterTemplate = {}
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
+--- @field public CombatTemplate CombatComponentTemplate
 --- @field public Icon string
 --- @field public CanBePickedUp boolean
 --- @field public CanBeMoved boolean

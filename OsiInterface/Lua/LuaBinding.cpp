@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
+#include <GameDefinitions/RootTemplates.h>
 #include "LuaBinding.h"
 #include "resource.h"
 #include <fstream>
@@ -464,6 +465,32 @@ namespace dse::lua
 
 
 
+	char const* const ObjectProxy<CombatComponentTemplate>::MetatableName = "eoc::CombatComponentTemplate";
+
+	CombatComponentTemplate* ObjectProxy<CombatComponentTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "CharacterTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<CombatComponentTemplate>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		if (!obj) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto fetched = LuaPropertyMapGet(L, gCombatComponentTemplatePropertyMap, obj, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<CombatComponentTemplate>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "Not supported!");
+	}
+
+
+
 	char const* const ObjectProxy<CharacterTemplate>::MetatableName = "eoc::CharacterTemplate";
 
 	CharacterTemplate* ObjectProxy<CharacterTemplate>::Get(lua_State* L)
@@ -479,6 +506,12 @@ namespace dse::lua
 		if (!obj) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "CombatTemplate") == 0) {
+			ObjectProxy<CombatComponentTemplate>::New(L, &obj->CombatComponent);
+			return 1;
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gCharacterTemplatePropertyMap, obj, prop, true);
 		return fetched ? 1 : 0;
 	}
@@ -505,6 +538,12 @@ namespace dse::lua
 		if (!obj) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "CombatTemplate") == 0) {
+			ObjectProxy<CombatComponentTemplate>::New(L, &obj->CombatComponent);
+			return 1;
+		}
+
 		auto fetched = LuaPropertyMapGet(L, gItemTemplatePropertyMap, obj, prop, true);
 		return fetched ? 1 : 0;
 	}
@@ -705,6 +744,7 @@ namespace dse::lua
 		ObjectProxy<CharacterTemplate>::RegisterMetatable(L);
 		ObjectProxy<ItemTemplate>::RegisterMetatable(L);
 		ObjectProxy<ProjectileTemplate>::RegisterMetatable(L);
+		ObjectProxy<CombatComponentTemplate>::RegisterMetatable(L);
 		StatsExtraDataProxy::RegisterMetatable(L);
 		StatsProxy::RegisterMetatable(L);
 		SkillPrototypeProxy::RegisterMetatable(L);

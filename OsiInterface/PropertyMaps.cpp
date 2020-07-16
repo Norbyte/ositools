@@ -42,6 +42,7 @@ namespace dse
 	PropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
 	PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
 	PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
+	PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
 
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
@@ -923,6 +924,17 @@ namespace dse
 			PROP(PathMinArcDist);
 			PROP(PathMaxArcDist);
 			PROP(PathRepeat);
+		}
+
+		{
+			BEGIN_PROPERTIES(gCombatComponentTemplatePropertyMap, CombatComponentTemplate);
+			PROP_TPL(Alignment);
+			PROP_TPL(CanFight);
+			PROP_TPL(CanJoinCombat);
+			PROP_TPL(CombatGroupID);
+			PROP_TPL(IsBoss);
+			PROP_TPL(IsInspector);
+			PROP_TPL(StartCombatRange);
 		}
 	}
 

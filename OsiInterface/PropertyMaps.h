@@ -11,6 +11,7 @@ namespace dse
 	struct CharacterTemplate;
 	struct ItemTemplate;
 	struct ProjectileTemplate;
+	struct CombatComponentTemplate;
 
 	namespace esv
 	{
@@ -52,6 +53,7 @@ namespace dse
 	extern PropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
 	extern PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
 	extern PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
+	extern PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
 
 	void InitPropertyMaps();
 

@@ -31,7 +31,7 @@ namespace dse
         bool IsOverridden;
     };
 
-    struct GameObjectTemplate
+    struct GameObjectTemplate : ProtectedGameObject<GameObjectTemplate>
     {
         void * VMT;
         uint32_t Flags;
@@ -96,9 +96,9 @@ namespace dse
         OverrideableProperty<TranslatedString> GameMasterSpawnSubSection;
     };
 
-    struct CombatComponentTemplate
+    struct CombatComponentTemplate : ProtectedGameObject<CombatComponentTemplate>
     {
-        void* field_0;
+        void* VMT;
         OverrideableProperty<FixedString> Alignment;
         OverrideableProperty<bool> CanFight;
         OverrideableProperty<bool> CanJoinCombat;
