@@ -21,7 +21,9 @@ namespace dse::eoc
     {
         int PoolSize;
         int MaxSize;
+#if !defined(OSI_EOCAPP)
         char* PoolName;
+#endif
     };
 
     struct AiGridPortal
@@ -268,7 +270,7 @@ namespace dse::eoc
         ShroudType ShroudTypeId;
         float Scale;
         uint8_t* DataBuffer;
-        uint64_t field_18;
+        uint64_t DataBufferSize;
         int Width;
         int Height;
         int IsFloatData;

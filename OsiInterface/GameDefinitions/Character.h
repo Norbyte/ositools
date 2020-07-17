@@ -265,7 +265,7 @@ namespace dse
 			PlayerData * PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
 			uint32_t ServerControlRefCount;
-			uint32_t U13;
+			float NoiseTimer;
 			float U131;
 			STDWString * CustomDisplayName;
 			void * StoryDisplayName;
@@ -298,7 +298,7 @@ namespace dse
 			uint32_t TimeElapsed;
 			ObjectSet<FixedString> PreferredAiTarget;
 			void* CharacterBody;
-			RefMap<FixedString, void *> U19;
+			RefMap<ObjectHandle, ObjectSet<CDivinityStats_Object_Property_Status const*>> StatusesFromItems;
 			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;

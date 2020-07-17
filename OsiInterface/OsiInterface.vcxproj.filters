@@ -389,6 +389,9 @@
     <None Include="Lua\LevelIteratorFunctions.inl">
       <Filter>Source Files\Lua</Filter>
     </None>
+    <None Include="Misc\ExtIdeHelpers.lua">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

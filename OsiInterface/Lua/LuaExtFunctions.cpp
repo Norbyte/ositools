@@ -525,11 +525,20 @@ namespace dse::lua
 
 	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString const& statType)
 	{
+		ModifierList* modifierList{ nullptr };
+		if (statType) {
+			modifierList = stats->modifierList.Find(statType);
+			if (modifierList == nullptr) {
+				OsiError("Unknown stats entry type: " << statType);
+				return;
+			}
+		}
+
 		int32_t index = 1;
 		for (auto object : stats->objects.Primitives) {
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
-				if (type == nullptr || type->Name != statType) {
+				if (modifierList != nullptr && type != modifierList) {
 					continue;
 				}
 			}
@@ -540,13 +549,22 @@ namespace dse::lua
 
 	void FetchStatEntriesBefore(lua_State* L, CRPGStatsManager* stats, FixedString const& modId, FixedString const& statType)
 	{
+		ModifierList* modifierList{ nullptr };
+		if (statType) {
+			modifierList = stats->modifierList.Find(statType);
+			if (modifierList == nullptr) {
+				OsiError("Unknown stats entry type: " << statType);
+				return;
+			}
+		}
+
 		auto entries = gOsirisProxy->GetStatLoadOrderHelper().GetStatsLoadedBefore(modId);
 
 		int32_t index = 1;
 		for (auto object : entries) {
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
-				if (type == nullptr || type->Name != statType) {
+				if (modifierList != nullptr && type != modifierList) {
 					continue;
 				}
 			}
@@ -569,23 +587,23 @@ namespace dse::lua
 		}
 
 		lua_newtable(L);
-		if (statType && strcmp(statType.Str, "SkillSet") == 0) {
+		if (statType == GFS.strSkillSet) {
 			FetchSkillSetEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "EquipmentSet") == 0) {
+		} else if (statType == GFS.strEquipmentSet) {
 			FetchEquipmentSetEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "TreasureTable") == 0) {
+		} else if (statType == GFS.strTreasureTable) {
 			FetchTreasureTableEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "TreasureCategory") == 0) {
+		} else if (statType == GFS.strTreasureCategory) {
 			FetchTreasureCategoryEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "ItemCombination") == 0) {
+		} else if (statType == GFS.strItemCombination) {
 			FetchItemComboEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "ItemComboProperty") == 0) {
+		} else if (statType == GFS.strItemComboProperty) {
 			FetchItemComboPropertyEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "CraftingPreviewData") == 0) {
+		} else if (statType == GFS.strCraftingPreviewData) {
 			FetchItemComboPreviewDataEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "ItemGroup") == 0) {
+		} else if (statType == GFS.strItemGroup) {
 			FetchItemGroupEntries(L, stats);
-		} else if (statType && strcmp(statType.Str, "NameGroup") == 0) {
+		} else if (statType == GFS.strNameGroup) {
 			FetchItemNameGroupEntries(L, stats);
 		} else {
 			FetchStatEntries(L, stats, statType);

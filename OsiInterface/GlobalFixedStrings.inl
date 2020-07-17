@@ -102,8 +102,18 @@ FS(StatusType);
 FS(StatusData);
 FS(HIT);
 
-
 // Stat modifier types
+FS(SkillSet);
+FS(EquipmentSet);
+FS(TreasureTable);
+FS(TreasureCategory);
+FS(ItemCombination);
+FS(ItemComboProperty);
+FS(CraftingPreviewData);
+FS(ItemGroup);
+FS(NameGroup);
+
+// Stat modifier value types
 FS(FixedString);
 FS(AttributeFlags);
 FS(ConstantInt);
