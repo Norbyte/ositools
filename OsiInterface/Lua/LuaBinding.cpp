@@ -299,7 +299,7 @@ namespace dse::lua
 
 	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gCharacterStatsPropertyMap);
 	}
 
 	int ItemFetchStat(lua_State * L, CDivinityStats_Item * item, char const * prop)
@@ -366,7 +366,7 @@ namespace dse::lua
 
 	int ObjectProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gItemStatsPropertyMap);
 	}
 
 
@@ -392,7 +392,11 @@ namespace dse::lua
 
 	int ObjectProxy<CDivinityStats_Equipment_Attributes>::NewIndex(lua_State * L)
 	{
-		return luaL_error(L, "Not supported!");
+		auto stats = Get(L);
+		if (!stats) return 0;
+
+		auto& propMap = obj_->GetPropertyMap();
+		return GenericSetter(L, propMap);
 	}
 
 
@@ -417,7 +421,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterDynamicStat>::NewIndex(lua_State * L)
 	{
-		return luaL_error(L, "Not supported!");
+		return GenericSetter(L, gCharacterDynamicStatPropertyMap);
 	}
 
 
@@ -486,7 +490,7 @@ namespace dse::lua
 
 	int ObjectProxy<CombatComponentTemplate>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported!");
+		return GenericSetter(L, gCombatComponentTemplatePropertyMap);
 	}
 
 
@@ -518,7 +522,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterTemplate>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported!");
+		return GenericSetter(L, gCharacterTemplatePropertyMap);
 	}
 
 
@@ -550,7 +554,7 @@ namespace dse::lua
 
 	int ObjectProxy<ItemTemplate>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported!");
+		return GenericSetter(L, gItemTemplatePropertyMap);
 	}
 
 
@@ -576,7 +580,7 @@ namespace dse::lua
 
 	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported!");
+		return GenericSetter(L, gProjectileTemplatePropertyMap);
 	}
 
 

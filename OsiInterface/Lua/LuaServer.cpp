@@ -17,6 +17,12 @@ namespace dse::lua
 {
 	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
+	esv::Status* ObjectProxy<esv::Status>::Get(lua_State* L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
+		return obj_;
+	}
+
 	int ObjectProxy<esv::Status>::Index(lua_State* L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
@@ -35,7 +41,8 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		auto& propertyMap = StatusToPropertyMap(obj_);
+		return GenericSetter(L, propertyMap);
 	}
 
 
@@ -70,7 +77,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 	void GetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
@@ -318,7 +325,7 @@ namespace dse::lua
 				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
 			}
 		} else {
-			OsiError("Cannot set unknown property '" << propFS << "' on esv::Character");
+			return GenericSetter(L, gCharacterPropertyMap);
 		}
 
 		return 0;
@@ -472,7 +479,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gItemPropertyMap);
 	}
 
 
@@ -504,7 +511,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gProjectilePropertyMap);
 	}
 
 
@@ -537,7 +544,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gEsvSurfacePropertyMap);
 	}
 }
 
@@ -547,10 +554,13 @@ namespace dse::esv::lua
 
 	char const* const StatusHandleProxy::MetatableName = "esv::HStatus";
 
-	int StatusHandleProxy::Index(lua_State* L)
+	esv::Status* StatusHandleProxy::Get(lua_State* L)
 	{
 		auto character = GetEntityWorld()->GetCharacter(character_);
-		if (character == nullptr) return luaL_error(L, "Character handle invalid");
+		if (character == nullptr) {
+			luaL_error(L, "Character handle invalid");
+			return nullptr;
+		}
 
 		esv::Status* status;
 		if (statusHandle_) {
@@ -559,7 +569,14 @@ namespace dse::esv::lua
 			status = character->GetStatus(statusNetId_);
 		}
 
-		if (status == nullptr) return luaL_error(L, "Status handle invalid");
+		if (status == nullptr) luaL_error(L, "Status handle invalid");
+		return status;
+	}
+
+	int StatusHandleProxy::Index(lua_State* L)
+	{
+		auto status = Get(L);
+		if (!status) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
 		auto& propertyMap = StatusToPropertyMap(status);
@@ -569,7 +586,13 @@ namespace dse::esv::lua
 
 	int StatusHandleProxy::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		auto status = Get(L);
+		if (!status) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto& propertyMap = StatusToPropertyMap(status);
+		LuaPropertyMapSet(L, 3, propertyMap, status, prop, true);
+		return 0;
 	}
 
 
@@ -1289,6 +1312,9 @@ namespace dse::esv::lua
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
 			{"GenerateIdeHelpers", GenerateIdeHelpers},
+
+			// EXPERIMENTAL FUNCTIONS
+			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWrites},
 
 			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverride},

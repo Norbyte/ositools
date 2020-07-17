@@ -170,6 +170,7 @@ namespace dse::esv::lua
 
 		int Index(lua_State * L);
 		int NewIndex(lua_State * L);
+		esv::Status* Get(lua_State* L);
 
 	private:
 		ObjectHandle character_;

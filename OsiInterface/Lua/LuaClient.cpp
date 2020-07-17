@@ -3,6 +3,7 @@
 #include <OsirisProxy.h>
 #include <ExtensionStateClient.h>
 #include <PropertyMaps.h>
+#include <GameDefinitions/Ai.h>
 #include "resource.h"
 
 namespace dse::lua
@@ -16,6 +17,11 @@ namespace dse::lua
 		return gEclStatusPropertyMap;
 	}
 
+	ecl::Status* ObjectProxy<ecl::Status>::Get(lua_State* L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
+		return obj_;
+	}
 
 	int ObjectProxy<ecl::Status>::Index(lua_State* L)
 	{
@@ -29,7 +35,10 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Status>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
+
+		auto& propertyMap = ClientStatusToPropertyMap(obj_);
+		return GenericSetter(L, propertyMap);
 	}
 
 
@@ -65,7 +74,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 
@@ -237,7 +246,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gEclCharacterPropertyMap);
 	}
 
 
@@ -390,7 +399,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		return GenericSetter(L, gEclItemPropertyMap);
 	}
 }
 
@@ -606,7 +615,13 @@ namespace dse::ecl::lua
 
 	int StatusHandleProxy::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "Not supported yet!");
+		auto status = Get(L);
+		if (!status) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto& propertyMap = ClientStatusToPropertyMap(status);
+		LuaPropertyMapSet(L, 3, propertyMap, status, prop, true);
+		return 0;
 	}
 
 
@@ -1374,6 +1389,28 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
+	int UpdateShroud(lua_State* L)
+	{
+		auto x = checked_get<float>(L, 1);
+		auto y = checked_get<float>(L, 2);
+		auto layer = checked_get<ShroudType>(L, 3);
+		auto value = checked_get<int>(L, 4);
+
+		if (value < 0 || value > 255) {
+			OsiError("Can only set shroud cell values between 0 and 255");
+			return 0;
+		}
+
+		auto level = GetStaticSymbols().GetCurrentClientLevel();
+		if (!level || !level->ShroudManager || !level->ShroudManager->ShroudData) {
+			OsiError("No ShroudManager for current level?");
+			return 0;
+		}
+
+		level->ShroudManager->ShroudData->SetByteAtPos(layer, x, y, (uint8_t)value);
+		return 0;
+	}
+
 
 	void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	{
@@ -1428,6 +1465,10 @@ namespace dse::ecl::lua
 			{"IsDeveloperMode", IsDeveloperMode},
 			{"Random", LuaRandom},
 			{"Round", LuaRound},
+
+			// EXPERIMENTAL FUNCTIONS
+			{"UpdateShroud", UpdateShroud},
+			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWrites},
 
 			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverride},

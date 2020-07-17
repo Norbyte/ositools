@@ -51,12 +51,14 @@ namespace dse
 #define PROP(name) AddProperty<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_TY(name, type) AddPropertyRO<type>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_RO(name) AddPropertyRO<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
-#define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name))
+#define PROP_ENUM(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), true)
+#define PROP_ENUM_RO(name) AddPropertyEnum<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), false)
 #define PROP_FLAGS(name, enum, writeable) AddPropertyFlags<std::underlying_type_t<enum>, enum>(propertyMap, #name, offsetof(TObject, name), writeable)
 #define PROP_GUID(name, writeable) AddPropertyGuidString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), writeable)
 #define PROP_DYN_FS(name) AddPropertyDynamicFixedString<decltype(TObject::name)>(propertyMap, #name, offsetof(TObject, name), true)
 
 // For use with game object templates' OverrideableProperty type
+#define PROP_TPL_RO(name) AddPropertyRO<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_TPL(name) AddProperty<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 
 	void InitPropertyMaps()
@@ -66,23 +68,24 @@ namespace dse
 			PROP_RO(NetID);
 			PROP_RO(StatusId);
 			PROP_RO(CanEnterChance);
-			PROP_RO(StartTimer);
-			PROP_RO(LifeTime);
-			PROP_RO(CurrentLifeTime);
-			PROP_RO(TurnTimer);
-			PROP_RO(Strength);
-			PROP_RO(StatsMultiplier);
+			PROP(StartTimer);
+			PROP(LifeTime);
+			PROP(CurrentLifeTime);
+			PROP(TurnTimer);
+			PROP(Strength);
+			PROP(StatsMultiplier);
 			PROP_ENUM(DamageSourceType);
 			PROP_RO(StatusHandle);
 			PROP_RO(TargetHandle);
-			PROP_RO(StatusSourceHandle);
+			PROP(StatusSourceHandle);
 			PROP_RO(SomeHandle);
-			PROP_FLAGS(Flags0, esv::StatusFlags0, false);
-			PROP_FLAGS(Flags1, esv::StatusFlags1, false);
+			PROP_FLAGS(Flags0, esv::StatusFlags0, true);
+			PROP_FLAGS(Flags1, esv::StatusFlags1, true);
 			PROP_FLAGS(Flags2, esv::StatusFlags2, false);
 
 			propertyMap.Flags[GFS.strForceStatus].Flags |= kPropWrite;
 			propertyMap.Flags[GFS.strForceFailStatus].Flags |= kPropWrite;
+			propertyMap.Flags[GFS.strRequestDeleteAtTurnEnd].Flags |= kPropWrite;
 
 			propertyMap.Properties[GFS.strLifeTime].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<esv::Status *>(st);
@@ -138,7 +141,7 @@ namespace dse
 			PROP(StackId);
 			PROP(OriginalWeaponStatsId);
 			PROP(OverrideWeaponStatsId);
-			PROP(OverrideWeaponHandle);
+			PROP_RO(OverrideWeaponHandle);
 			PROP(SavingThrow);
 			PROP(SourceDirection);
 			PROP(Turn);
@@ -174,8 +177,8 @@ namespace dse
 		{
 			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap, HitDamageInfo);
 			PROP(Equipment);
-			PROP_RO(TotalDamage);
-			PROP_RO(DamageDealt);
+			PROP(TotalDamage);
+			PROP(DamageDealt);
 			PROP_ENUM(DeathType);
 			PROP_ENUM(DamageType);
 			PROP(AttackDirection);
@@ -294,10 +297,10 @@ namespace dse
 			// TODO - Reflection
 			PROP_DYN_FS(Skills);
 			PROP(ItemColor);
-			PROP(ModifierType);
-			PROP(ObjectInstanceName);
-			PROP(BoostName);
-			PROP_ENUM(StatsType);
+			PROP_RO(ModifierType);
+			PROP_RO(ObjectInstanceName);
+			PROP_RO(BoostName);
+			PROP_ENUM_RO(StatsType);
 			// TODO - add attribute flags object support
 			// PROP_FLAGS(AttributeFlags, StatAttributeFlags, true);
 			// TODO - AbilityModifiers, Talents
@@ -417,17 +420,17 @@ namespace dse
 			PROP(CurrentVitality);
 			PROP(CurrentArmor);
 			PROP(CurrentMagicArmor);
-			PROP_RO(ArmorAfterHitCooldownMultiplier);
-			PROP_RO(MagicArmorAfterHitCooldownMultiplier);
+			PROP(ArmorAfterHitCooldownMultiplier);
+			PROP(MagicArmorAfterHitCooldownMultiplier);
 			PROP_RO(MPStart);
-			PROP_RO(CurrentAP);
-			PROP_RO(BonusActionPoints);
-			PROP_RO(Experience);
-			PROP_RO(Reputation);
+			PROP(CurrentAP);
+			PROP(BonusActionPoints);
+			PROP(Experience);
+			PROP(Reputation);
 			PROP_RO(Flanked);
-			PROP_RO(Karma);
+			PROP(Karma);
 			PROP_FLAGS(Flags, StatCharacterFlags, false);
-			PROP_RO(MaxResistance);
+			PROP(MaxResistance);
 			PROP_RO(HasTwoHandedWeapon);
 			PROP_RO(IsIncapacitatedRefCount);
 			PROP_RO(MaxVitality);
@@ -440,7 +443,7 @@ namespace dse
 			PROP_RO(BaseSight);
 			PROP_RO(MaxSummons);
 			PROP_RO(BaseMaxSummons);
-			PROP_RO(MaxMpOverride);
+			PROP(MaxMpOverride);
 			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
 
 			// TODO - DisabledTalents, TraitOrder?
@@ -454,24 +457,24 @@ namespace dse
 			PROP_RO(InstanceId);
 
 			// CDivinityStats_Item
-			PROP_ENUM(ItemType);
+			PROP_ENUM_RO(ItemType);
 			// ItemSlot is stored on 4 bytes, but the enum is only 1-byte, so we need to remap it
-			AddPropertyEnum<ItemSlot>(propertyMap, "ItemSlot", offsetof(CDivinityStats_Item, ItemSlot));
+			AddPropertyEnum<ItemSlot>(propertyMap, "ItemSlot", offsetof(CDivinityStats_Item, ItemSlot), false);
 			PROP_ENUM(WeaponType);
-			PROP_RO(AnimType);
-			PROP_RO(WeaponRange);
-			PROP_RO(IsIdentified);
+			PROP(AnimType);
+			PROP(WeaponRange);
+			PROP(IsIdentified);
 			PROP_RO(IsTwoHanded);
 			PROP_RO(ShouldSyncStats);
-			PROP_RO(HasModifiedSkills);
-			PROP_RO(Skills);
+			PROP(HasModifiedSkills);
+			PROP(Skills);
 			PROP_ENUM(DamageTypeOverwrite);
-			PROP_RO(Durability);
-			PROP_RO(DurabilityCounter);
-			PROP_RO(ItemTypeReal);
+			PROP(Durability);
+			PROP(DurabilityCounter);
+			PROP(ItemTypeReal);
 			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
-			PROP_RO(MaxCharges);
-			PROP_RO(Charges);
+			PROP(MaxCharges);
+			PROP(Charges);
 		}
 
 		{
@@ -507,38 +510,38 @@ namespace dse
 			PROP_FLAGS(Flags2, esv::CharacterFlags2, false);
 			PROP_FLAGS(Flags3, esv::CharacterFlags3, false);
 			PROP_RO(Scale);
-			PROP_RO(AnimationOverride);
-			PROP_RO(WalkSpeedOverride);
-			PROP_RO(RunSpeedOverride);
+			PROP(AnimationOverride);
+			PROP(WalkSpeedOverride);
+			PROP(RunSpeedOverride);
 			PROP_RO(NeedsUpdateCount);
 			PROP_RO(ScriptForceUpdateCount);
 			PROP_RO(ForceSynchCount);
 			PROP_RO(InventoryHandle);
 			PROP_RO(SkillBeingPrepared);
-			PROP_RO(LifeTime);
-			PROP_RO(TurnTimer);
+			PROP(LifeTime);
+			PROP(TurnTimer);
 			PROP_RO(TriggerTrapsTimer);
 			PROP_TY(UserID, int32_t);
 			PROP_RO(OwnerHandle);
 			PROP_RO(FollowCharacterHandle);
 			PROP_RO(SpiritCharacterHandle);
 			PROP_RO(CorpseCharacterHandle);
-			PROP_RO(PartialAP);
-			PROP_RO(AnimType);
+			PROP(PartialAP);
+			PROP(AnimType);
 			PROP_RO(DelayDeathCount);
-			PROP_RO(AnimationSetOverride);
+			PROP(AnimationSetOverride);
 			PROP_RO(OriginalTransformDisplayName);
 			PROP_RO(PartyHandle);
-			PROP_RO(CustomTradeTreasure);
-			PROP_RO(IsAlarmed);
-			PROP_RO(CrimeWarningsEnabled);
-			PROP_RO(CrimeInterrogationEnabled);
+			PROP(CustomTradeTreasure);
+			PROP(IsAlarmed);
+			PROP(CrimeWarningsEnabled);
+			PROP(CrimeInterrogationEnabled);
 			PROP_RO(MovingCasterHandle);
-			PROP_RO(Archetype);
-			PROP_RO(EquipmentColor);
-			PROP_RO(ProjectileTemplate);
+			PROP(Archetype);
+			PROP(EquipmentColor);
+			PROP(ProjectileTemplate);
 			PROP_RO(ReadyCheckBlocked);
-			PROP_RO(CorpseLootable);
+			PROP(CorpseLootable);
 			PROP_ENUM(CustomBloodSurface);
 			PROP_RO(PreviousLevel);
 		}
@@ -552,26 +555,26 @@ namespace dse
 			PROP_RO(WorldPos);
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
-			PROP_RO(CustomDisplayName);
-			PROP_RO(CustomDescription);
-			PROP_RO(CustomBookContent);
-			PROP_RO(StatsId);
+			PROP(CustomDisplayName);
+			PROP(CustomDescription);
+			PROP(CustomBookContent);
+			PROP(StatsId);
 			PROP_RO(InventoryHandle);
 			PROP_RO(ParentInventoryHandle);
 			PROP_RO(Slot);
-			PROP_RO(Amount);
-			PROP_RO(Vitality);
-			PROP_RO(Armor);
+			PROP(Amount);
+			PROP(Vitality);
+			PROP(Armor);
 			PROP_RO(InUseByCharacterHandle);
-			PROP_RO(Key);
-			PROP_RO(LockLevel);
+			PROP(Key);
+			PROP(LockLevel);
 			PROP_RO(OwnerHandle);
-			PROP_RO(ComputedVitality);
-			PROP_RO(ItemType);
-			PROP_RO(GoldValueOverwrite);
-			PROP_RO(WeightValueOverwrite);
-			PROP_RO(TreasureLevel);
-			PROP_RO(LevelOverride);
+			PROP(ComputedVitality);
+			PROP(ItemType);
+			PROP(GoldValueOverwrite);
+			PROP(WeightValueOverwrite);
+			PROP(TreasureLevel);
+			PROP(LevelOverride);
 			PROP_RO(ForceSynch);
 		}
 
@@ -585,35 +588,35 @@ namespace dse
 			PROP_RO(SourceHandle);
 			PROP_RO(TargetObjectHandle);
 			PROP_RO(HitObjectHandle);
-			PROP_RO(SourcePosition);
-			PROP_RO(TargetPosition);
+			PROP(SourcePosition);
+			PROP(TargetPosition);
 			PROP_ENUM(DamageType);
 			PROP_ENUM(DamageSourceType);
-			PROP_RO(LifeTime);
-			PROP_RO(HitInterpolation);
-			PROP_RO(ExplodeRadius0);
-			PROP_RO(ExplodeRadius1);
+			PROP(LifeTime);
+			PROP(HitInterpolation);
+			PROP(ExplodeRadius0);
+			PROP(ExplodeRadius1);
 			PROP_ENUM(DeathType);
-			PROP_RO(SkillId);
+			PROP(SkillId);
 			PROP_RO(WeaponHandle);
 			PROP_RO(MovingEffectHandle);
-			PROP_RO(SpawnEffect);
-			PROP_RO(SpawnFXOverridesImpactFX);
+			PROP(SpawnEffect);
+			PROP(SpawnFXOverridesImpactFX);
 			PROP_RO(EffectHandle);
-			PROP_RO(RequestDelete);
+			PROP(RequestDelete);
 			PROP_RO(Launched);
-			PROP_RO(IsTrap);
-			PROP_RO(UseCharacterStats);
-			PROP_RO(ReduceDurability);
-			PROP_RO(AlwaysDamage);
-			PROP_RO(ForceTarget);
-			PROP_RO(IsFromItem);
-			PROP_RO(DivideDamage);
-			PROP_RO(IgnoreRoof);
-			PROP_RO(CanDeflect);
-			PROP_RO(IgnoreObjects);
-			PROP_RO(CleanseStatuses);
-			PROP_RO(StatusClearChance);
+			PROP(IsTrap);
+			PROP(UseCharacterStats);
+			PROP(ReduceDurability);
+			PROP(AlwaysDamage);
+			PROP(ForceTarget);
+			PROP(IsFromItem);
+			PROP(DivideDamage);
+			PROP(IgnoreRoof);
+			PROP(CanDeflect);
+			PROP(IgnoreObjects);
+			PROP(CleanseStatuses);
+			PROP(StatusClearChance);
 			PROP_RO(Position);
 			PROP_RO(PrevPosition);
 			PROP_RO(Velocity);
@@ -625,13 +628,13 @@ namespace dse
 			BEGIN_PROPERTIES(gEsvSurfacePropertyMap, esv::Surface);
 			PROP_RO(NetID);
 			PROP_RO(MyHandle);
-			PROP_ENUM(SurfaceType);
+			PROP_ENUM_RO(SurfaceType);
 			PROP_RO(Flags);
 			PROP_RO(TeamId);
 			PROP_RO(OwnerHandle);
-			PROP_RO(LifeTime);
+			PROP(LifeTime);
 			PROP_RO(LifeTimeFromTemplate);
-			PROP_RO(StatusChance);
+			PROP(StatusChance);
 			PROP_RO(Index);
 			PROP_RO(NeedsSplitEvaluation);
 			PROP_RO(OwnershipTimer);

@@ -238,7 +238,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -280,7 +280,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set float property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set float property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -400,7 +400,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -507,7 +507,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set handle property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set handle property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -572,7 +572,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set vector property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set vector property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -636,7 +636,7 @@ namespace dse
 			}
 
 			if (!raw && !(flag->second.Flags & kPropWrite)) {
-				OsiError("Failed to set flag property '" << name << "' of [" << Name << "]: Property not writeable");
+				OsiError("Failed to set flag property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
 				return false;
 			}
 
@@ -697,13 +697,13 @@ namespace dse
 	}
 
 	template <class TEnum>
-	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, char const* name, std::uintptr_t offset)
+	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, char const* name, std::uintptr_t offset, bool writeable)
 	{
 		using TValue = std::underlying_type<TEnum>::type;
 		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
-		info.Flags = kPropRead | kPropWrite;
+		info.Flags = kPropRead | (writeable ? kPropWrite : 0);
 
 		info.GetInt = [offset](void * obj) -> std::optional<int64_t> {
 			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);

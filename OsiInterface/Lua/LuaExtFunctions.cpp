@@ -10,6 +10,8 @@
 
 namespace dse::lua
 {
+	bool gExperimentalPropertyWrites{ false };
+
 	void JsonParse(lua_State * L, Json::Value & val);
 
 	void JsonParseArray(lua_State * L, Json::Value & val)
@@ -2417,6 +2419,19 @@ namespace dse::lua
 			OsiError("GenerateIdeHelpers() only supported in developer mode");
 		}
 #endif
+		return 0;
+	}
+
+	int EnableExperimentalPropertyWrites(lua_State* L)
+	{
+		if (!gOsirisProxy->GetConfig().DeveloperMode) {
+			OsiError("Property writes are currently only available in developer mode!");
+			return 0;
+		}
+
+		gExperimentalPropertyWrites = true;
+		OsiWarn(" !!! EXPERIMENTAL LUA PROPERTY WRITES ENABLED !!! ");
+		OsiWarn("This is a beta feature meant for testing the usefulness/reliability of direct object property writes in Lua. When misused, the game will crash, things will go horribly wrong, etc. You were warned.");
 		return 0;
 	}
 }

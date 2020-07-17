@@ -4,6 +4,7 @@ FS(CurrentArmor);
 FS(CurrentMagicArmor);
 FS(ForceStatus);
 FS(ForceFailStatus);
+FS(RequestDeleteAtTurnEnd);
 FS(LifeTime);
 FS(CurrentLifeTime);
 FS(SimulateHit);
