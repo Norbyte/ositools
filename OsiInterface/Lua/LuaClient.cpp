@@ -285,10 +285,11 @@ namespace dse::lua
 				if (character) {
 					push(L, character->MyGuid);
 					return 1;
-				}
-				else {
+				} else {
 					break;
 				}
+			} else {
+				break;
 			}
 		}
 
