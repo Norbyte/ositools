@@ -180,9 +180,9 @@ namespace dse
 		struct Character : public IEoCServerObject
 		{
 
-			typedef void(*HitProc)(esv::Character* self, CDivinityStats_Character* attackerStats, CDivinityStats_Item* itemStats, DamagePairList* damageList,
+			using HitProc = void (esv::Character* self, CDivinityStats_Character* attackerStats, CDivinityStats_Item* itemStats, DamagePairList* damageList,
 				HitType hitType, bool noHitRoll, HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
-			typedef void(*ApplyDamageProc)(esv::Character* self, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+			using ApplyDamageProc = void (esv::Character* self, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
 
 			Status* GetStatus(ObjectHandle handle, bool returnPending) const;
 			Status* GetStatus(NetId handle) const;

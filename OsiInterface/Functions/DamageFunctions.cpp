@@ -127,7 +127,7 @@ namespace dse::esv
 			DamageList->SafeAdd(dummy);
 		}
 
-		auto characterHit = GetStaticSymbols().CharacterHit;
+		auto characterHit = GetStaticSymbols().esv__Character__Hit;
 		if (SimulateHit && characterHit == nullptr) {
 			OsiErrorS("esv::Character::Hit not found!");
 			return false;
@@ -139,8 +139,8 @@ namespace dse::esv
 			return false;
 		}
 
-		auto createStatus = GetStaticSymbols().StatusMachineCreateStatus;
-		auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
+		auto createStatus = GetStaticSymbols().esv__StatusMachine__CreateStatus;
+		auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
 		if (createStatus == nullptr || applyStatus == nullptr) {
 			OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 			return false;

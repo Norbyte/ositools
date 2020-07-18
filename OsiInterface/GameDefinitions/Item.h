@@ -159,7 +159,7 @@ namespace dse
 		typedef Item * (*CreateItemFromParsed)(ObjectSet<eoc::ItemDefinition> * ParsedItems, uint32_t Index);
 
 
-		struct Inventory
+		struct Inventory : public ProtectedGameObject<Inventory>
 		{
 			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
 				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
@@ -242,7 +242,7 @@ namespace dse
 		};
 
 
-		struct Inventory
+		struct Inventory : ProtectedGameObject<Inventory>
 		{
 			void* VMT;
 			FixedString GUID;

@@ -504,10 +504,10 @@ namespace dse
 			BYTE field_1A[6];
 		};
 
-		typedef void (* RegisterUIObjectCreator)(UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
-		typedef ObjectHandle * (* CreateUIObject)(UIObjectManager * self, ObjectHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
-		typedef void (* DestroyUIObject)(UIObjectManager * self, ObjectHandle * handle);
-		typedef UIObjectManager * (* GetInstance)();
+		using RegisterUIObjectCreatorProc = void (UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
+		using CreateUIObjectProc = ObjectHandle * (UIObjectManager * self, ObjectHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
+		using DestroyUIObjectProc = void (UIObjectManager * self, ObjectHandle * handle);
+		using GetInstanceProc = UIObjectManager * ();
 
 		void * InputEventListenerVMT;
 		void * InputDeviceListenerVMT;

@@ -95,7 +95,7 @@ namespace dse
 
 		struct TurnManager
 		{
-			typedef void (* UpdateTurnOrder)(esv::TurnManager * self, uint8_t combatId);
+			using UpdateTurnOrderProc = void (esv::TurnManager * self, uint8_t combatId);
 
 			struct EntityWrapper
 			{

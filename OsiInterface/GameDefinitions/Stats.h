@@ -542,7 +542,7 @@ namespace dse
 
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
 	{
-		typedef void (* HitInternalProc)(CDivinityStats_Character * self, CDivinityStats_Character *attackerStats,
+		using HitInternalProc = void (CDivinityStats_Character * self, CDivinityStats_Character *attackerStats,
 			CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
@@ -733,11 +733,11 @@ namespace dse
 
 	struct SkillPrototype
 	{
-		typedef void (* FormatDescriptionParam)(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats, 
+		using FormatDescriptionParamProc = void (SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats,
 			eoc::Text *eocText, int paramIndex, bool isFromItem, float xmm9_4_0, FixedString * paramText,
 			ObjectSet<STDString> * stdStringSet);
 
-		typedef void (* GetSkillDamage)(SkillPrototype * self, struct DamagePairList * damageList, 
+		using GetSkillDamageProc = void (SkillPrototype * self, struct DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 
@@ -776,7 +776,7 @@ namespace dse
 
 	struct StatusPrototype
 	{
-		typedef void (* FormatDescriptionParam)(StatusPrototype *prototype, CRPGStats_ObjectInstance* owner,
+		using FormatDescriptionParamProc = void (StatusPrototype *prototype, CRPGStats_ObjectInstance* owner,
 			CRPGStats_ObjectInstance* statusSource, float multiplier, eoc::Text * text, int paramIndex,
 			FixedString * param, ObjectSet<STDString> * paramSet);
 

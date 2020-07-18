@@ -12,21 +12,9 @@ namespace dse
 {
 	void InitPropertyMaps();
 
-	decltype(LibraryManager::StatusGetEnterChance) * decltype(LibraryManager::StatusGetEnterChance)::gHook;
-	decltype(LibraryManager::StatusHealEnter) * decltype(LibraryManager::StatusHealEnter)::gHook;
-	decltype(LibraryManager::StatusHitEnter) * decltype(LibraryManager::StatusHitEnter)::gHook;
-	decltype(LibraryManager::StatusHitSetupHook)* decltype(LibraryManager::StatusHitSetupHook)::gHook;
-	decltype(LibraryManager::CharacterHitHook) * decltype(LibraryManager::CharacterHitHook)::gHook;
-	decltype(LibraryManager::CharacterHitInternalHook) * decltype(LibraryManager::CharacterHitInternalHook)::gHook;
-	decltype(LibraryManager::CharacterApplyDamageHook) * decltype(LibraryManager::CharacterApplyDamageHook)::gHook;
-	decltype(LibraryManager::ApplyStatusHook) * decltype(LibraryManager::ApplyStatusHook)::gHook;
-	decltype(LibraryManager::ActionMachineSetStateHook) * decltype(LibraryManager::ActionMachineSetStateHook)::gHook;
-	decltype(LibraryManager::ActionMachineResetStateHook)* decltype(LibraryManager::ActionMachineResetStateHook)::gHook;
-	decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::SkillPrototypeFormatDescriptionParamHook)::gHook;
-	decltype(LibraryManager::SkillPrototypeGetSkillDamageHook) * decltype(LibraryManager::SkillPrototypeGetSkillDamageHook)::gHook;
-	decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook) * decltype(LibraryManager::StatusPrototypeFormatDescriptionParamHook)::gHook;
-	decltype(LibraryManager::TurnManagerUpdateTurnOrderHook) * decltype(LibraryManager::TurnManagerUpdateTurnOrderHook)::gHook;
-	decltype(LibraryManager::UIObjectManagerCreateUIObjectHook) * decltype(LibraryManager::UIObjectManagerCreateUIObjectHook)::gHook;
+#define HOOK_DEFN(name, sym, defn, hookType) decltype(LibraryManager::name) * decltype(LibraryManager::name)::gHook;
+#include <GameDefinitions/EngineHooks.inl>
+#undef HOOK_DEFN
 
 	uint8_t CharToByte(char c)
 	{
@@ -456,62 +444,18 @@ namespace dse
 
 			auto& sym = GetStaticSymbols();
 
-			if (sym.StatusHitVMT != nullptr) {
-				StatusHitEnter.Wrap(sym.StatusHitVMT->Enter);
-			}
-
 			if (sym.StatusHealVMT != nullptr) {
-				StatusHealEnter.Wrap(sym.StatusHealVMT->Enter);
-				StatusGetEnterChance.Wrap(sym.StatusHealVMT->GetEnterChance);
+				sym.esv__Status__GetEnterChance = sym.StatusHealVMT->GetEnterChance;
+				sym.esv__StatusHeal__Enter = sym.StatusHealVMT->Enter;
 			}
 
-			if (sym.StatusHit__Setup != nullptr) {
-				StatusHitSetupHook.Wrap(sym.StatusHit__Setup);
+			if (sym.StatusHitVMT != nullptr) {
+				sym.esv__StatusHit__Enter = sym.StatusHitVMT->Enter;
 			}
 
-			if (sym.CharacterHit != nullptr) {
-				CharacterHitHook.Wrap(sym.CharacterHit);
-			}
-
-			if (sym.CharacterHitInternal != nullptr) {
-				CharacterHitInternalHook.Wrap(sym.CharacterHitInternal);
-			}
-
-			if (sym.esv__Character__ApplyDamage != nullptr) {
-				CharacterApplyDamageHook.Wrap(sym.esv__Character__ApplyDamage);
-			}
-
-			if (sym.StatusMachineApplyStatus != nullptr) {
-				ApplyStatusHook.Wrap(sym.StatusMachineApplyStatus);
-			}
-
-			if (sym.EsvActionMachine__SetState != nullptr) {
-				ActionMachineSetStateHook.Wrap(sym.EsvActionMachine__SetState);
-			}
-
-			if (sym.EsvActionMachine__ResetState != nullptr) {
-				ActionMachineResetStateHook.Wrap(sym.EsvActionMachine__ResetState);
-			}
-
-			if (sym.SkillPrototypeFormatDescriptionParam != nullptr) {
-				SkillPrototypeFormatDescriptionParamHook.Wrap(sym.SkillPrototypeFormatDescriptionParam);
-			}
-
-			if (sym.SkillPrototypeGetSkillDamage != nullptr) {
-				SkillPrototypeGetSkillDamageHook.Wrap(sym.SkillPrototypeGetSkillDamage);
-			}
-
-			if (sym.StatusPrototypeFormatDescriptionParam != nullptr) {
-				StatusPrototypeFormatDescriptionParamHook.Wrap(sym.StatusPrototypeFormatDescriptionParam);
-			}
-
-			if (sym.TurnManagerUpdateTurnOrder != nullptr) {
-				TurnManagerUpdateTurnOrderHook.Wrap(sym.TurnManagerUpdateTurnOrder);
-			}
-
-			if (sym.UIObjectManager__CreateUIObject != nullptr) {
-				UIObjectManagerCreateUIObjectHook.Wrap(sym.UIObjectManager__CreateUIObject);
-			}
+#define HOOK_DEFN(name, sym, defn, hookType) if (GetStaticSymbols().sym != nullptr) { name.Wrap(GetStaticSymbols().sym); }
+#include <GameDefinitions/EngineHooks.inl>
+#undef HOOK_DEFN
 
 			sym.CharStatsGetters.WrapAll();
 
@@ -539,21 +483,9 @@ namespace dse
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
-		StatusGetEnterChance.Unwrap();
-		StatusHitEnter.Unwrap();
-		StatusHealEnter.Unwrap();
-		StatusHitSetupHook.Unwrap();
-		CharacterHitHook.Unwrap();
-		CharacterHitInternalHook.Unwrap();
-		CharacterApplyDamageHook.Unwrap();
-		ApplyStatusHook.Unwrap();
-		ActionMachineSetStateHook.Unwrap();
-		ActionMachineResetStateHook.Unwrap();
-		SkillPrototypeFormatDescriptionParamHook.Unwrap();
-		SkillPrototypeGetSkillDamageHook.Unwrap();
-		StatusPrototypeFormatDescriptionParamHook.Unwrap();
-		TurnManagerUpdateTurnOrderHook.Unwrap();
-		UIObjectManagerCreateUIObjectHook.Unwrap();
+#define HOOK_DEFN(name, sym, defn, hookType) name.Unwrap();
+#include <GameDefinitions/EngineHooks.inl>
+#undef HOOK_DEFN
 
 		DetourTransactionCommit();
 	}

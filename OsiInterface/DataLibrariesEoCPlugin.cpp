@@ -30,7 +30,7 @@ namespace dse
 		"48 8B CF " // mov     rcx, rdi
 		"E8 XX XX XX XX ", // call    esv__GameActionManager__AddAction
 		{},
-		{"LevelManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(LevelManager)},
+		{"LevelManager", SymbolMappingTarget::kIndirect, 0, STATIC_SYM(EsvLevelManager)},
 		{"esv::GameObjectMoveAction::Setup", SymbolMappingTarget::kIndirect, 57, STATIC_SYM(GameObjectMoveActionSetup)},
 		{"esv::GameActionManager::AddAction", SymbolMappingTarget::kIndirect, 68, STATIC_SYM(AddGameAction)}
 	};
@@ -75,7 +75,7 @@ namespace dse
 		"E8 XX XX XX XX " // call    esv__StatusMachine__ApplyStatus
 		"48 8B 7C 24 40 ", // mov     rdi, [rsp+28h+arg_10]
 		{},
-		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(StatusMachineApplyStatus)}
+		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(esv__StatusMachine__ApplyStatus)}
 	};
 
 	SymbolMappingResult FindStatusHitEoCApp2(uint8_t const * match)
@@ -215,11 +215,11 @@ namespace dse
 		"89 6C 24 20 " // mov     [rsp+0A8h+var_88], ebp
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
 		{},
-		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CharacterHitInternal)}
+		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CDivinityStats_Character__HitInternal)}
 	};
 
 	SymbolMappingData const sSymbolCharacterHit = {
-		"esv::Character::CharacterHit",
+		"esv::Character::Hit",
 		SymbolMappingData::kCustom, 0,
 		"48 89 44 24 30 " // mov     qword ptr [rsp+150h+a7], rax
 		"C6 44 24 28 00 " // mov     byte ptr [rsp+150h+a6], 0
@@ -228,7 +228,7 @@ namespace dse
 		"XX 8B XX B0 01 00 00 " // mov     r13, [r15+1B0h]
 		"EB 66 ", // jmp short xxx
 		{},
-		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirect, 18, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
+		{"esv::Character::Hit", SymbolMappingTarget::kIndirect, 18, STATIC_SYM(esv__Character__Hit), nullptr, &sSymbolCharacterHitInternal, 0x280}
 	};
 
 	SymbolMappingResult FindLibrariesEoCPlugin(uint8_t const * match)
@@ -253,11 +253,11 @@ namespace dse
 
 	SymbolMappingResult FindActionMachineSetState(uint8_t const * match)
 	{
-		if (GetStaticSymbols().EclActionMachine__SetState == nullptr) {
-			GetStaticSymbols().EclActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+		if (GetStaticSymbols().ecl__ActionMachine__SetState == nullptr) {
+			GetStaticSymbols().ecl__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
 			return SymbolMappingResult::TryNext;
 		} else {
-			GetStaticSymbols().EsvActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			GetStaticSymbols().esv__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
 			return SymbolMappingResult::Success;
 		}
 	}
@@ -269,7 +269,7 @@ namespace dse
 		"53 " // push    rbx
 		"56 ", // push    rsi
 		{},
-		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototypeFormatDescriptionParam)}
+		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototype__FormatDescriptionParam)}
 	};
 
 	SymbolMappingData const sSymbolSkillPrototypeGetSkillDamage = {
@@ -279,7 +279,7 @@ namespace dse
 		"55 " // push    rbp
 		"53 ", // push    rbx
 		{},
-		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototypeGetSkillDamage)}
+		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototype__GetSkillDamage)}
 	};
 
 	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
@@ -289,7 +289,7 @@ namespace dse
 		"55 " // push    rbp
 		"56 ", // push    rsi
 		{},
-		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusPrototypeFormatDescriptionParam)}
+		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusPrototype__FormatDescriptionParam)}
 	};
 
 	SymbolMappingData const sSymbolMappings[] = {
@@ -401,7 +401,7 @@ namespace dse
 			"48 8B CF " //  mov     rcx, rdi 
 			"E8 XX XX XX XX ", //  call    esv__StatusMachine__CreateStatus
 			{SymbolMappingCondition::kFixedString, 19, "LIFESTEAL"},
-			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirect, 49, STATIC_SYM(StatusMachineCreateStatus)},
+			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirect, 49, STATIC_SYM(esv__StatusMachine__CreateStatus)},
 			{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kAbsolute, 55, nullptr, nullptr, &sSymbolApplyStatus, 0x100},
 		},
 
@@ -441,7 +441,7 @@ namespace dse
 			"4C 89 74 24 48 " // mov     [rsp+28h+arg_18], r14
 			"E8 ", // call    HitDamageInfo__Copy
 			{},
-			{"esv::StatusHit::Setup", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusHit__Setup)}
+			{"esv::StatusHit::Setup", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__StatusHit__Setup)}
 		},
 
 		{
@@ -793,7 +793,7 @@ namespace dse
 			"48 81 EC 88 00 00 00 " //  sub     rsp, 88h
 			"3A 15 XX XX XX XX ", //  cmp     dl, cs:xxx
 			{},
-			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(TurnManagerUpdateTurnOrder)}
+			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__TurnManager__UpdateTurnOrder)}
 		},
 
 		{
@@ -995,10 +995,10 @@ namespace dse
 		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");
 		auto getUIObjectManagerProc = GetProcAddress(gameEngine_, "?GetInstance@?$Singleton@VUIObjectManager@ls@@@ls@@SAPEAVUIObjectManager@2@XZ");
 
-		sym.UIObjectManager__RegisterUIObjectCreator = (UIObjectManager::RegisterUIObjectCreator)registerUIObjectCreatorProc;
-		sym.UIObjectManager__CreateUIObject = (UIObjectManager::CreateUIObject)createUIObjectProc;
-		sym.UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObject)destroyUIObjectProc;
-		sym.UIObjectManager__GetInstance = (UIObjectManager::GetInstance)getUIObjectManagerProc;
+		sym.UIObjectManager__RegisterUIObjectCreator = (UIObjectManager::RegisterUIObjectCreatorProc*)registerUIObjectCreatorProc;
+		sym.UIObjectManager__CreateUIObject = (UIObjectManager::CreateUIObjectProc*)createUIObjectProc;
+		sym.UIObjectManager__DestroyUIObject = (UIObjectManager::DestroyUIObjectProc*)destroyUIObjectProc;
+		sym.UIObjectManager__GetInstance = (UIObjectManager::GetInstanceProc*)getUIObjectManagerProc;
 
 		if (sym.UIObjectManager__RegisterUIObjectCreator == nullptr
 			|| sym.UIObjectManager__CreateUIObject == nullptr

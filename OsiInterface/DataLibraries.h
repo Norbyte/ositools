@@ -232,58 +232,10 @@ namespace dse {
 			return InitFailed;
 		}
 
-		enum class StatusGetEnterChanceTag {};
-		WrappableFunction<StatusGetEnterChanceTag, int32_t(esv::Status *, bool)> StatusGetEnterChance;
-		
-		enum class StatusHealEnterTag {};
-		PreHookableFunction<StatusHealEnterTag, bool (esv::Status *)> StatusHealEnter;
-
-		enum class StatusHitEnterTag {};
-		PreHookableFunction<StatusHitEnterTag, bool (esv::StatusHit *)> StatusHitEnter;
-
-		enum class StatusHitSetupTag {};
-		PreHookableFunction<StatusHitSetupTag, bool(esv::StatusHit*, HitDamageInfo*)> StatusHitSetupHook;
-
-		enum class CharacterHitTag {};
-		WrappableFunction<CharacterHitTag, void (esv::Character * , CDivinityStats_Character *, CDivinityStats_Item *, DamagePairList *,
-			HitType, bool, HitDamageInfo *, int, CRPGStats_Object_Property_List *, HighGroundBonus, bool, CriticalRoll)> CharacterHitHook;
-
-		enum class CharacterHitInternalTag {};
-		WrappableFunction<CharacterHitInternalTag, void(CDivinityStats_Character *, CDivinityStats_Character *,
-			CDivinityStats_Item *, DamagePairList *, HitType, bool, bool, HitDamageInfo *, CRPGStats_Object_Property_List *,
-			HighGroundBonus, CriticalRoll)> CharacterHitInternalHook;
-
-		enum class CharacterApplyDamageTag {};
-		WrappableFunction<CharacterApplyDamageTag, void(esv::Character*, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType,
-			glm::vec3& impactDirection)> CharacterApplyDamageHook;
-
-		enum class ApplyStatusTag {};
-		WrappableFunction<ApplyStatusTag, void (esv::StatusMachine *, esv::Status *)> ApplyStatusHook;
-
-		enum class ActionMachineSetStateTag {};
-		HookableFunction<ActionMachineSetStateTag, bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer)> ActionMachineSetStateHook;
-		PreHookableFunction<ActionMachineSetStateTag, bool(esv::ActionMachine* self, bool force)> ActionMachineResetStateHook;
-
-		enum class SkillPrototypeFormatDescriptionParamTag {};
-		WrappableFunction<SkillPrototypeFormatDescriptionParamTag, void(SkillPrototype *skillPrototype, CDivinityStats_Character *tgtCharStats,
-			eoc::Text *eocText, int paramIndex, bool isFromItem, float xmm9_4_0, FixedString * paramText,
-			ObjectSet<STDString> * stdStringSet)> SkillPrototypeFormatDescriptionParamHook;
-
-		enum class SkillPrototypeGetSkillDamageTag {};
-		WrappableFunction<SkillPrototypeGetSkillDamageTag, void(SkillPrototype * self, DamagePairList * damageList,
-			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
-			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)> SkillPrototypeGetSkillDamageHook;
-
-		enum class StatusPrototypeFormatDescriptionParamTag {};
-		WrappableFunction<StatusPrototypeFormatDescriptionParamTag, void(StatusPrototype *prototype, CRPGStats_ObjectInstance* owner,
-			CRPGStats_ObjectInstance* statusSource, float multiplier, eoc::Text * text, int paramIndex,
-			FixedString * param, ObjectSet<STDString> * paramSet)> StatusPrototypeFormatDescriptionParamHook;
-
-		enum class TurnManagerUpdateTurnOrderTag {};
-		PostHookableFunction<TurnManagerUpdateTurnOrderTag, void(esv::TurnManager * self, uint8_t combatId)> TurnManagerUpdateTurnOrderHook;
-
-		enum class UIObjectManagerCreateUIObjectHookTag {};
-		PostHookableFunction<UIObjectManagerCreateUIObjectHookTag, ObjectHandle* (UIObjectManager*, ObjectHandle*, unsigned int, unsigned int, int, uint64_t, uint16_t)> UIObjectManagerCreateUIObjectHook;
+#define HOOK_DEFN(name, sym, defn, hookType) enum class name##Tag {}; \
+	hookType<name##Tag, defn> name;
+#include <GameDefinitions/EngineHooks.inl>
+#undef HOOK_DEFN
 
 	private:
 

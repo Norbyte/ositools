@@ -392,6 +392,9 @@
     <None Include="Misc\ExtIdeHelpers.lua">
       <Filter>Source Files\Scripts</Filter>
     </None>
+    <None Include="GameDefinitions\EngineHooks.inl">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

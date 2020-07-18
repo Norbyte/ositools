@@ -75,9 +75,9 @@ namespace dse::esv
 		void PostStartup();
 
 		void OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit);
-		void OnStatusHitEnter(esv::StatusHit* status);
+		void OnStatusHitEnter(esv::Status* status);
 
-		void OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
+		void OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
 			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
 			HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag,
 			bool procWindWalker, CriticalRoll criticalRoll);
@@ -85,11 +85,11 @@ namespace dse::esv
 			CDivinityStats_Character* attackerStats, CDivinityStats_Item* item, DamagePairList* damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo* damageInfo, CRPGStats_Object_Property_List* skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
-		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit,
+		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, HitDamageInfo& hit,
 			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
 
-		void OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine* self, esv::Status* status);
-		void OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype* self, DamagePairList* damageList,
+		void OnApplyStatus(esv::StatusMachine::ApplyStatusProc* wrappedApply, esv::StatusMachine* self, esv::Status* status);
+		void OnGetSkillDamage(SkillPrototype::GetSkillDamageProc* next, SkillPrototype* self, DamagePairList* damageList,
 			CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, float* attackerPosition,
 			float* targetPosition, DeathType* pDeathType, int level, bool noRandomization);
 

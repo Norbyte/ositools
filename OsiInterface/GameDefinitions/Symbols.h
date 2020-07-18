@@ -115,21 +115,23 @@ namespace dse
 		esv::TornadoAction__Setup WallActionCreateWall{ nullptr };
 		esv::SummonHelpers__Summon SummonHelpersSummon{ nullptr };
 		esv::GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
-		esv::StatusMachine__CreateStatus StatusMachineCreateStatus{ nullptr };
-		esv::StatusMachine__ApplyStatus StatusMachineApplyStatus{ nullptr };
-		esv::Character::HitProc CharacterHit{ nullptr };
-		CDivinityStats_Character::HitInternalProc CharacterHitInternal{ nullptr };
-		esv::Character::ApplyDamageProc esv__Character__ApplyDamage{ nullptr };
+		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
+		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
+		esv::Character::HitProc* esv__Character__Hit{ nullptr };
+		CDivinityStats_Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
+		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
 		esv::StatusVMT const * StatusHealVMT{ nullptr };
 		esv::StatusVMT const * StatusHitVMT{ nullptr };
-		esv::StatusHit::Setup StatusHit__Setup{ nullptr };
+		esv::StatusHeal::EnterProc* esv__StatusHeal__Enter{ nullptr };
+		esv::StatusHit::EnterProc* esv__StatusHit__Enter{ nullptr };
+		esv::StatusHit::SetupProc* esv__StatusHit__Setup{ nullptr };
 		esv::ParseItem ParseItem{ nullptr };
 		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
 		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg{ nullptr };
-		esv::ActionMachine::SetStateProc EclActionMachine__SetState{ nullptr };
-		esv::ActionMachine::SetStateProc EsvActionMachine__SetState{ nullptr };
-		esv::ActionMachine::ResetStateProc EclActionMachine__ResetState{ nullptr };
-		esv::ActionMachine::ResetStateProc EsvActionMachine__ResetState{ nullptr };
+		esv::ActionMachine::SetStateProc* ecl__ActionMachine__SetState{ nullptr };
+		esv::ActionMachine::SetStateProc* esv__ActionMachine__SetState{ nullptr };
+		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
+		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };
@@ -148,11 +150,12 @@ namespace dse
 		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };
 		net::MessageFactory::GetFreeMessage net__MessageFactory__GetFreeMessage{ nullptr };
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
-		SkillPrototype::FormatDescriptionParam SkillPrototypeFormatDescriptionParam{ nullptr };
-		SkillPrototype::GetSkillDamage SkillPrototypeGetSkillDamage{ nullptr };
-		StatusPrototype::FormatDescriptionParam StatusPrototypeFormatDescriptionParam{ nullptr };
-		esv::TurnManager::UpdateTurnOrder TurnManagerUpdateTurnOrder{ nullptr };
+		SkillPrototype::FormatDescriptionParamProc* SkillPrototype__FormatDescriptionParam{ nullptr };
+		SkillPrototype::GetSkillDamageProc* SkillPrototype__GetSkillDamage{ nullptr };
+		StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
+		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
 		esv::Inventory::Equip InventoryEquip{ nullptr };
+		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
@@ -160,10 +163,10 @@ namespace dse
 		ls__FileReader__Dtor FileReaderDtor{ nullptr };
 		STDString ** PathRoots{ nullptr };
 
-		UIObjectManager::RegisterUIObjectCreator UIObjectManager__RegisterUIObjectCreator{ nullptr };
-		UIObjectManager::CreateUIObject UIObjectManager__CreateUIObject{ nullptr };
-		UIObjectManager::DestroyUIObject UIObjectManager__DestroyUIObject{ nullptr };
-		UIObjectManager::GetInstance UIObjectManager__GetInstance{ nullptr };
+		UIObjectManager::RegisterUIObjectCreatorProc* UIObjectManager__RegisterUIObjectCreator{ nullptr };
+		UIObjectManager::CreateUIObjectProc* UIObjectManager__CreateUIObject{ nullptr };
+		UIObjectManager::DestroyUIObjectProc* UIObjectManager__DestroyUIObject{ nullptr };
+		UIObjectManager::GetInstanceProc* UIObjectManager__GetInstance{ nullptr };
 		UIObjectManager ** UIObjectManager__Instance{ nullptr };
 		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
 		UIObject::VMT * EoCUI__vftable{ nullptr };

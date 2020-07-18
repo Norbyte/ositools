@@ -65,7 +65,7 @@ namespace dse
 		"E8 XX XX XX XX " // call    esv__StatusMachine__ApplyStatus
 		"48 8B 7C 24 40 ", // mov     rdi, [rsp+28h+arg_10]
 		{},
-		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(StatusMachineApplyStatus)}
+		{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(esv__StatusMachine__ApplyStatus)}
 	};
 
 	SymbolMappingResult FindStatusHitEoCApp2(uint8_t const * match)
@@ -215,7 +215,7 @@ namespace dse
 		"89 7C 24 20 " // mov     [rsp+98h+hitType], edi
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
 		{},
-		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CharacterHitInternal)}
+		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CDivinityStats_Character__HitInternal)}
 	};
 
 	SymbolMappingData const sSymbolCharacterHit = {
@@ -227,7 +227,7 @@ namespace dse
 		"4C 8B AE A0 01 00 00 " // mov     r13, [rsi+1A0h]
 		"EB 5F ", // jmp short xxx
 		{},
-		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(CharacterHit), nullptr, &sSymbolCharacterHitInternal, 0x280}
+		{"esv::Character::CharacterHit", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(esv__Character__Hit), nullptr, &sSymbolCharacterHitInternal, 0x280}
 	};
 
 	SymbolMappingResult FindLibrariesEoCApp(uint8_t const * match)
@@ -252,23 +252,23 @@ namespace dse
 
 	SymbolMappingResult FindActionMachineSetState(uint8_t const * match)
 	{
-		if (GetStaticSymbols().EclActionMachine__SetState == nullptr) {
-			GetStaticSymbols().EclActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+		if (GetStaticSymbols().ecl__ActionMachine__SetState == nullptr) {
+			GetStaticSymbols().ecl__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
 			return SymbolMappingResult::TryNext;
 		} else {
-			GetStaticSymbols().EsvActionMachine__SetState = (esv::ActionMachine::SetStateProc)match;
+			GetStaticSymbols().esv__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
 			return SymbolMappingResult::Success;
 		}
 	}
 
 	SymbolMappingResult FindActionMachineResetState(uint8_t const* match)
 	{
-		if (GetStaticSymbols().EclActionMachine__ResetState == nullptr) {
-			GetStaticSymbols().EclActionMachine__ResetState = (esv::ActionMachine::ResetStateProc)match;
+		if (GetStaticSymbols().ecl__ActionMachine__ResetState == nullptr) {
+			GetStaticSymbols().ecl__ActionMachine__ResetState = (esv::ActionMachine::ResetStateProc*)match;
 			return SymbolMappingResult::TryNext;
 		}
 		else {
-			GetStaticSymbols().EsvActionMachine__ResetState = (esv::ActionMachine::ResetStateProc)match;
+			GetStaticSymbols().esv__ActionMachine__ResetState = (esv::ActionMachine::ResetStateProc*)match;
 			return SymbolMappingResult::Success;
 		}
 	}
@@ -280,7 +280,7 @@ namespace dse
 		"55 " // push    rbp
 		"53 ", // push    rbx
 		{},
-		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototypeFormatDescriptionParam)}
+		{"eoc::SkillPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototype__FormatDescriptionParam)}
 	};
 
 	SymbolMappingData const sSymbolSkillPrototypeGetSkillDamage = {
@@ -289,7 +289,7 @@ namespace dse
 		"44 88 4C 24 20 " // mov     byte ptr [rsp+arg_18], r9b
 		"48 89 54 24 10 ", // mov     [rsp+damageList], rdx
 		{},
-		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototypeGetSkillDamage)}
+		{"eoc::SkillPrototype::GetSkillDamage2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(SkillPrototype__GetSkillDamage)}
 	};
 
 	SymbolMappingData const sSymbolStatusPrototypeFormatDescriptionParam = {
@@ -299,7 +299,7 @@ namespace dse
 		"55 " // push    rbp
 		"56 ", // push    rsi
 		{},
-		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusPrototypeFormatDescriptionParam)}
+		{"eoc::StatusPrototype::FormatDescriptionParam2", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusPrototype__FormatDescriptionParam)}
 	};
 
 	SymbolMappingData const sSymbolEoCUIvftable = {
@@ -461,7 +461,7 @@ namespace dse
 			"48 8B CF " //  mov     rcx, rdi 
 			"E8 XX XX XX XX ", //  call    esv__StatusMachine__CreateStatus
 			{SymbolMappingCondition::kFixedString, 23, "LIFESTEAL"},
-			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirect, 50, STATIC_SYM(StatusMachineCreateStatus)},
+			{"esv::StatusMachine::CreateStatus", SymbolMappingTarget::kIndirect, 50, STATIC_SYM(esv__StatusMachine__CreateStatus)},
 			{"esv::StatusMachine::ApplyStatus", SymbolMappingTarget::kAbsolute, 55, nullptr, nullptr, &sSymbolApplyStatus, 0x100},
 		},
 
@@ -502,7 +502,7 @@ namespace dse
 			"49 8B CE " // mov     rcx, r14
 			"E8 ", // call    HitDamageInfo__Copy
 			{},
-			{"esv::StatusHit::Setup", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(StatusHit__Setup)}
+			{"esv::StatusHit::Setup", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__StatusHit__Setup)}
 		},
 
 		{
@@ -887,7 +887,7 @@ namespace dse
 			"48 83 EC 60 " // sub     rsp, 60h
 			"44 8B 81 C4 00 00 00 ", // mov     r8d, [rcx+0C4h]
 			{},
-			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(TurnManagerUpdateTurnOrder)}
+			{"esv::TurnManager::UpdateTurnOrder", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__TurnManager__UpdateTurnOrder)}
 		},
 
 		{

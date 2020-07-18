@@ -169,9 +169,9 @@ namespace dse
 
 		struct ActionMachine : public ProtectedGameObject<ActionMachine>
 		{
-			typedef void(*UpdateSyncStateProc)(ActionMachine * self, uint8_t actionLayer, ActionState * actionState, bool force, bool setLayer);
-			typedef bool(*SetStateProc)(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer);
-			typedef bool(*ResetStateProc)(esv::ActionMachine* self, bool force);
+			using UpdateSyncStateProc = void(ActionMachine * self, uint8_t actionLayer, ActionState * actionState, bool force, bool setLayer);
+			using SetStateProc = bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer);
+			using ResetStateProc = bool (esv::ActionMachine* self, bool force);
 
 			ObjectHandle CharacterHandle;
 			ActionMachineLayer Layers[3];

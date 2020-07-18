@@ -43,44 +43,11 @@ namespace dse
 
 	namespace esv
 	{
-		struct StatusVMT
-		{
-			void * Destroy;
-			void * SetObjectHandle;
-			void * GetObjectHandle;
-			void * GetStatusId;
-			void * GetTriggerBehavior_M;
-			void * AddStatsData2_Maybe;
-			void * GetStatsIdByIndex;
-			void * VMT38;
-			void * VMT40;
-			void * VMT48;
-			void * CanEnter;
-			void * Init;
-			void * Enter;
-			void * Resume;
-			void * Update;
-			void * Tick;
-			void * Exit;
-			void * VMT88;
-			void * ConsumeStatsId;
-			void * VMT98;
-			void * IsImmobilizingStatus;
-			void * VMTA8;
-			void * VMTB0;
-			void * GetSyncData;
-			void * VMTC0;
-			void * Serialize;
-			void * VMTD0;
-			void * CreateVisuals;
-			void * DestroyVisuals;
-			void * SetHostileFlagFromSavingThrow_M;
-			void * GetEnterChance;
-			void * AddStatsData_Maybe;
-		};
-
 		struct Status : public ProtectedGameObject<Status>
 		{
+			using GetEnterChanceProc = int32_t(Status* self, bool isEnterCheck);
+			using EnterProc = bool (Status* self);
+
 			virtual ~Status() = 0;
 			virtual void SetObjectHandle(ObjectHandle Handle) = 0;
 			virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
@@ -141,9 +108,45 @@ namespace dse
 			StatusFlags1 Flags1; // Saved
 		};
 
+		struct StatusVMT
+		{
+			void* Destroy;
+			void* SetObjectHandle;
+			void* GetObjectHandle;
+			void* GetStatusId;
+			void* GetTriggerBehavior_M;
+			void* AddStatsData2_Maybe;
+			void* GetStatsIdByIndex;
+			void* VMT38;
+			void* VMT40;
+			void* VMT48;
+			void* CanEnter;
+			void* Init;
+			Status::EnterProc* Enter;
+			void* Resume;
+			void* Update;
+			void* Tick;
+			void* Exit;
+			void* VMT88;
+			void* ConsumeStatsId;
+			void* VMT98;
+			void* IsImmobilizingStatus;
+			void* VMTA8;
+			void* VMTB0;
+			void* GetSyncData;
+			void* VMTC0;
+			void* Serialize;
+			void* VMTD0;
+			void* CreateVisuals;
+			void* DestroyVisuals;
+			void* SetHostileFlagFromSavingThrow_M;
+			Status::GetEnterChanceProc* GetEnterChance;
+			void* AddStatsData_Maybe;
+		};
+
 		struct StatusHit : public Status
 		{
-			typedef void (*Setup)(StatusHit* self, HitDamageInfo* hit);
+			using SetupProc = void (StatusHit* self, HitDamageInfo* hit);
 
 			uint32_t Unk2;
 			uint8_t Unk3;
@@ -267,6 +270,9 @@ namespace dse
 
 		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Unknown>
 		{
+			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString& StatusId, uint64_t ObjectHandle);
+			using ApplyStatusProc = void (esv::StatusMachine* StatusMachine, Status* Status);
+
 			Status * GetStatus(ObjectHandle handle) const;
 			Status* GetStatus(NetId netId) const;
 			Status* GetStatus(FixedString const& statusId) const;
@@ -278,12 +284,6 @@ namespace dse
 			ObjectHandle OwnerObjectHandle;
 			uint32_t References;
 		};
-
-		typedef Status * (*StatusMachine__CreateStatus)(esv::StatusMachine * StatusMachine, FixedString & StatusId, uint64_t ObjectHandle);
-		typedef void(*StatusMachine__ApplyStatus)(esv::StatusMachine * StatusMachine, Status * Status);
-		typedef bool(*Status__Enter)(Status * Status);
-		typedef int32_t(*Status__GetEnterChance)(Status * self, bool isEnterCheck);
-
 	}
 
 	namespace ecl

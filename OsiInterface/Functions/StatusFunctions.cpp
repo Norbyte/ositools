@@ -373,7 +373,7 @@ namespace dse::esv
 			auto statusIdFs = ToFixedString(statusId);
 			T * status{ nullptr };
 
-			auto createStatus = GetStaticSymbols().StatusMachineCreateStatus;
+			auto createStatus = GetStaticSymbols().esv__StatusMachine__CreateStatus;
 			if (createStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::CreateStatus not found!");
 				return nullptr;
@@ -416,7 +416,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
+			auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
@@ -473,7 +473,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto applyStatus = GetStaticSymbols().StatusMachineApplyStatus;
+			auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
 			if (applyStatus == nullptr) {
 				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
 				return false;
@@ -571,7 +571,7 @@ namespace dse::esv
 	}
 
 
-	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status__GetEnterChance wrappedGetEnterChance,
+	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status::GetEnterChanceProc* wrappedGetEnterChance,
 		esv::Status * status, bool isEnterCheck)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -813,7 +813,7 @@ namespace dse::esv
 		delete eventArgs;
 	}
 
-	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParam next, SkillPrototype *skillPrototype,
+	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParamProc* next, SkillPrototype *skillPrototype,
 		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
 	{
@@ -833,7 +833,7 @@ namespace dse::esv
 		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
 	}
 
-	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParam next, StatusPrototype *prototype,
+	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParamProc* next, StatusPrototype *prototype,
 		CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)
 	{

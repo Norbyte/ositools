@@ -527,6 +527,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <None Include="cpp.hint" />
     <None Include="Exports.def" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
+    <None Include="GameDefinitions\EngineHooks.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GlobalFixedStrings.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
@@ -537,6 +538,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\LevelIteratorFunctions.inl" />
     <None Include="Lua\LuaShared.inl" />
+    <None Include="Misc\ExtIdeHelpers.lua" />
     <None Include="osidebug.proto" />
     <None Include="ScriptExtensions.proto" />
   </ItemGroup>

@@ -215,25 +215,25 @@ namespace dse::esv
 
 		using namespace std::placeholders;
 
-		osiris_.GetLibraryManager().StatusHitSetupHook.SetPreHook(
+		osiris_.GetLibraryManager().esv__StatusHit__Setup.SetPreHook(
 			std::bind(&HitProxy::OnStatusHitSetup, this, _1, _2)
 		);
-		osiris_.GetLibraryManager().StatusHitEnter.SetPreHook(
+		osiris_.GetLibraryManager().esv__StatusHit__Enter.SetPreHook(
 			std::bind(&HitProxy::OnStatusHitEnter, this, _1)
 		);
-		osiris_.GetLibraryManager().CharacterHitHook.SetWrapper(
+		osiris_.GetLibraryManager().esv__Character_Hit.SetWrapper(
 			std::bind(&HitProxy::OnCharacterHit, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
 		);
-		osiris_.GetLibraryManager().CharacterHitInternalHook.SetWrapper(
+		osiris_.GetLibraryManager().CDivinityStats_Character__HitInternal.SetWrapper(
 			std::bind(&HitProxy::OnCharacterHitInternal, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
 		);
-		osiris_.GetLibraryManager().CharacterApplyDamageHook.SetWrapper(
+		osiris_.GetLibraryManager().esv__Character_ApplyDamageHook.SetWrapper(
 			std::bind(&HitProxy::OnCharacterApplyDamage, this, _1, _2, _3, _4, _5, _6)
 		);
-		osiris_.GetLibraryManager().ApplyStatusHook.SetWrapper(
+		osiris_.GetLibraryManager().esv__StatusMachine__ApplyStatus.SetWrapper(
 			std::bind(&HitProxy::OnApplyStatus, this, _1, _2, _3)
 		);
-		osiris_.GetLibraryManager().SkillPrototypeGetSkillDamageHook.SetWrapper(
+		osiris_.GetLibraryManager().SkillPrototype__GetSkillDamage.SetWrapper(
 			std::bind(&HitProxy::OnGetSkillDamage, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
 		);
 
@@ -247,20 +247,21 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnStatusHitEnter(esv::StatusHit* status)
+	void HitProxy::OnStatusHitEnter(esv::Status* status)
 	{
-		auto context = gOsirisProxy->GetServerExtensionState().PendingHits.OnStatusHitEnter(status);
+		auto hit = static_cast<esv::StatusHit*>(status);
+		auto context = gOsirisProxy->GetServerExtensionState().PendingHits.OnStatusHitEnter(hit);
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
-			lua->OnStatusHitEnter(status, context);
+			lua->OnStatusHitEnter(hit, context);
 		}
 
 		gOsirisProxy->GetFunctionLibrary().ThrowStatusHitEnter(status);
 	}
 
 
-	void HitProxy::OnCharacterHit(esv::Character::HitProc wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
+	void HitProxy::OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
 		CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
 		HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGround,
 		bool procWindWalker, CriticalRoll criticalRoll)
@@ -312,7 +313,7 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc next, esv::Character* self, HitDamageInfo& hit,
+	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, HitDamageInfo& hit,
 		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
 	{
 		auto context = gOsirisProxy->GetServerExtensionState().PendingHits.OnCharacterApplyDamage(&hit);
@@ -332,7 +333,7 @@ namespace dse::esv
 		hit.DamageDealt = luaHit.DamageDealt;
 	}
 
-	void HitProxy::OnApplyStatus(esv::StatusMachine__ApplyStatus wrappedApply, esv::StatusMachine* self, esv::Status* status)
+	void HitProxy::OnApplyStatus(esv::StatusMachine::ApplyStatusProc* wrappedApply, esv::StatusMachine* self, esv::Status* status)
 	{
 		// Don't throw events for inactive status machines, as those will get swallowed
 		// by Osiris during loading anyway.
@@ -366,7 +367,7 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnGetSkillDamage(SkillPrototype::GetSkillDamage next, SkillPrototype* self, DamagePairList* damageList,
+	void HitProxy::OnGetSkillDamage(SkillPrototype::GetSkillDamageProc* next, SkillPrototype* self, DamagePairList* damageList,
 		CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, float* attackerPosition,
 		float* targetPosition, DeathType* pDeathType, int level, bool noRandomization)
 	{
