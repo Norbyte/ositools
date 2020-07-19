@@ -184,6 +184,20 @@ namespace dse
 			RefMap<FixedString, uint32_t> BuyBackAmounts;
 			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
 		};
+
+		struct CombineManager : public ProtectedGameObject<CombineManager>
+		{
+			using ExecuteCombinationProc = bool (esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
+
+			void* VMT;
+			uint64_t field_8;
+			ObjectSet<CRPGStats_Object*> IngredientStats;
+			ObjectSet<Item*> Ingredients;
+			ObjectSet<ObjectHandle> ObjectHandles;
+			ObjectSet<Item*> Items2;
+		};
+
+		using ItemHelpers__GenerateTreasureItem = Item* (RPGStats_Treasure_Object_Info* treasureInfo, int level);
 	}
 
 	namespace ecl

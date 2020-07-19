@@ -156,6 +156,8 @@ namespace dse
 		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
 		esv::Inventory::Equip InventoryEquip{ nullptr };
 		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
+		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
+		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };

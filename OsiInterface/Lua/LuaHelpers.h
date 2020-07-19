@@ -221,6 +221,17 @@ namespace dse::lua
 		return lua_tostring(L, index);
 	}
 
+	template <>
+	inline FixedString get<FixedString>(lua_State* L, int index)
+	{
+		auto str = lua_tostring(L, index);
+		if (str) {
+			return ToFixedString(str);
+		} else {
+			return FixedString{};
+		}
+	}
+
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
 	inline bool checked_get(lua_State * L, int index)

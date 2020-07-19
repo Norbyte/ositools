@@ -924,6 +924,14 @@ namespace dse
 		uint64_t Unknown[3];
 	};
 
+	struct RPGStats_Treasure_Object_Info
+	{
+		FixedString ItemType;
+		FixedString StatsId;
+		__int64 field_10;
+		int field_18;
+		int Amount;
+	};
 
 	struct CNameGroupName
 	{

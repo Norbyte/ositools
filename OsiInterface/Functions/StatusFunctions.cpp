@@ -868,6 +868,43 @@ namespace dse::esv
 	}
 
 
+	esv::Item* CustomFunctionLibrary::OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next,
+		RPGStats_Treasure_Object_Info* treasureInfo, int level)
+	{
+		auto item = next(treasureInfo, level);
+
+		if (item) {
+			esv::LuaServerPin lua(esv::ExtensionState::Get());
+			if (lua) {
+				item = lua->OnGenerateTreasureItem(item);
+			}
+		}
+
+		return item;
+	}
+
+
+	bool CustomFunctionLibrary::OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next,
+		esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ObjectHandle>* ingredientHandles,
+		esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId)
+	{
+		auto newCombinationId = *combinationId;
+
+		esv::LuaServerPin lua(esv::ExtensionState::Get());
+		if (lua) {
+			newCombinationId = lua->OnBeforeCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, newCombinationId);
+		}
+
+		bool ok = next(self, craftingStation, ingredientHandles, character, quantity, openUI, &newCombinationId);
+
+		if (lua) {
+			lua->OnAfterCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, newCombinationId, ok);
+		}
+
+		return ok;
+	}
+
+
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();

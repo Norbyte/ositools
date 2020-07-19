@@ -12,7 +12,10 @@ Ext._Listeners = {
 	GetHitChance = {},
 	StatusGetEnterChance = {},
 	StatusHitEnter = {},
-	BeforeCharacterApplyDamage = {}
+	BeforeCharacterApplyDamage = {},
+	TreasureItemGenerated = {},
+	BeforeCraftingExecuteCombination = {},
+	AfterCraftingExecuteCombination = {}
 }
 
 Ext._GetSkillDamage = function (...)
@@ -96,4 +99,16 @@ Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, im
     end
 
 	return hit
+end
+
+Ext._TreasureItemGenerated = function (...)
+    return Ext._EngineCallback1("TreasureItemGenerated", ...)
+end
+
+Ext._BeforeCraftingExecuteCombination = function (...)
+    return Ext._EngineCallback1("BeforeCraftingExecuteCombination", ...)
+end
+
+Ext._AfterCraftingExecuteCombination = function (...)
+    return Ext._EngineCallback1("AfterCraftingExecuteCombination", ...)
 end

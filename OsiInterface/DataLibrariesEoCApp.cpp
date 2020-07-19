@@ -1162,6 +1162,34 @@ namespace dse
 			{SymbolMappingCondition::kString, 0, "NetworkFixedStrings"},
 			{"esv::LevelManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(EclLevelManager)}
 		},
+
+		{
+			"esv::ItemHelpers::GenerateTreasureItem",
+			SymbolMappingData::kText, 0,
+			"48 83 EC 30 " // sub     rsp, 30h
+			"48 8B 1D XX XX XX XX " // mov     rbx, cs:gRPGStats
+			"8B F2 " // mov     esi, edx
+			"4C 8B F1 " // mov     r14, rcx
+			"48 8D 51 08 " // lea     rdx, [rcx+8]
+			"33 FF " // xor     edi, edi
+			"33 ED " // xor     ebp, ebp
+			"48 8B 83 90 00 00 00 ", // mov     rax, [rbx+90h]
+			{},
+			{"esv::ItemHelpers::GenerateTreasureItem", SymbolMappingTarget::kAbsolute, -0x14, STATIC_SYM(esv__ItemHelpers__GenerateTreasureItem)}
+		},
+
+		{
+			"esv::CombineManager::ExecuteCombination",
+			SymbolMappingData::kText, 0,
+			"48 8D AC 24 18 FF FF FF " // lea     rbp, [rsp-0E8h]
+			"48 81 EC E8 01 00 00 " // sub     rsp, 1E8h	
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 B0 00 00 00 " // mov     [rbp+100h+var_50], rax
+			"4C 8B AD 40 01 00 00 ", // mov     r13, [rbp+100h+combinationId]
+			{},
+			{"esv::CombineManager::ExecuteCombination", SymbolMappingTarget::kAbsolute, -0x08, STATIC_SYM(esv__CombineManager__ExecuteCombination)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

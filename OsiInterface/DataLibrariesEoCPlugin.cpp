@@ -894,6 +894,34 @@ namespace dse
 			{SymbolMappingCondition::kString, 0, "NetworkFixedStrings"},
 			{"esv::LevelManager", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(EclLevelManager)}
 		},
+
+		{
+			"esv::ItemHelpers::GenerateTreasureItem",
+			SymbolMappingData::kText, 0,
+			"48 83 EC 50 " // sub     rsp, 50h
+			"4C 8B 3D XX XX XX XX " // mov     r15, cs:gRPGStats
+			"44 8B E2 " // mov     r12d, edx
+			"48 8B F1 " // mov     rsi, rcx
+			"48 8D 51 08 " // lea     rdx, [rcx+8]
+			"33 ED " // xor     ebp, ebp
+			"45 33 F6 " // xor     r14d, r14d
+			"49 8B 87 90 00 00 00 ", // mov     rax, [r15+90h]
+			{},
+			{"esv::ItemHelpers::GenerateTreasureItem", SymbolMappingTarget::kAbsolute, -0x18, STATIC_SYM(esv__ItemHelpers__GenerateTreasureItem)}
+		},
+
+		{
+			"esv::CombineManager::ExecuteCombination",
+			SymbolMappingData::kText, 0,
+			"48 8D AC 24 E8 FE FF FF " // lea     rbp, [rsp-118h]
+			"48 81 EC 18 02 00 00 " // sub     rsp, 218h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 00 01 00 00 " // mov     [rbp+150h+var_50], rax
+			"4C 8B B5 90 01 00 00 ", // mov     r14, [rbp+150h+combinationId]
+			{},
+			{"esv::CombineManager::ExecuteCombination", SymbolMappingTarget::kAbsolute, -0x0D, STATIC_SYM(esv__CombineManager__ExecuteCombination)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

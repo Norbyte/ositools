@@ -59,6 +59,10 @@ namespace dse::esv
 		void OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex, unsigned int creatorId, int flags, 
 			uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result);
 
+		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, RPGStats_Treasure_Object_Info* treasureInfo, int level);
+		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 
+			ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
+
 		void ThrowStatusHitEnter(esv::Status* status);
 		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,
 			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,

@@ -388,6 +388,7 @@ namespace dse
 		struct Projectile;
 		struct EntityWorld;
 		struct EntityManager;
+		struct CombineManager;
 		struct ItemFactory;
 		struct CharacterFactory;
 
@@ -631,7 +632,7 @@ namespace dse
 			void * field_88;
 			void * GlobalRandom;
 			void * ItemCombinationManager;
-			void * CombineManager;
+			CombineManager * CombineManager;
 			ModManager * ModManagerServer;
 			bool ShutDown;
 			void * EntityWorldManager;

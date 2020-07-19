@@ -1887,6 +1887,111 @@ namespace dse::esv::lua
 	}
 
 
+	esv::Item* ServerState::OnGenerateTreasureItem(esv::Item* item)
+	{
+		PushExtFunction(L, "_TreasureItemGenerated"); // stack: fn
+
+		ObjectHandle itemHandle;
+		item->GetObjectHandle(itemHandle);
+		ObjectProxy<esv::Item>::New(L, itemHandle);
+
+		if (CallWithTraceback(L, 1, 1) != 0) { // stack: succeeded
+			OsiError("TreasureItemGenerated handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return item;
+		}
+
+		auto returnItem = ObjectProxy<esv::Item>::AsUserData(L, -1);
+		if (!returnItem) {
+			return item;
+		}
+
+		auto returnObj = returnItem->Get(L);
+		if (!returnObj) {
+			return item;
+		}
+
+		if (returnObj->ParentInventoryHandle) {
+			OsiError("TreasureItemGenerated must return an item that's not already in an inventory");
+			return item;
+		}
+
+		if (!returnObj->CurrentLevel || returnObj->CurrentLevel.Str[0]) {
+			OsiError("TreasureItemGenerated must return an item that's not in the level");
+			return item;
+		}
+
+		return returnObj;
+	}
+
+
+	FixedString ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
+	{
+		PushExtFunction(L, "_BeforeCraftingExecuteCombination"); // stack: fn
+
+		ObjectProxy<esv::Character>::New(L, character);
+		push(L, craftingStation);
+
+		lua_newtable(L);
+		int32_t index = 1;
+		for (auto ingredientHandle : ingredients) {
+			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
+			if (ingredient) {
+				push(L, index);
+				ObjectProxy<esv::Item>::New(L, ingredient);
+				lua_settable(L, -3);
+			}
+		}
+
+		push(L, quantity);
+		push(L, combinationId);
+
+		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
+			OsiError("BeforeCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return combinationId;
+		}
+
+		auto returnCombination = get<FixedString>(L, -1);
+		if (returnCombination) {
+			return returnCombination;
+		} else {
+			return combinationId;
+		}
+	}
+
+
+	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+		esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded)
+	{
+		PushExtFunction(L, "_AfterCraftingExecuteCombination"); // stack: fn
+
+		ObjectProxy<esv::Character>::New(L, character);
+		push(L, craftingStation);
+
+		lua_newtable(L);
+		int32_t index = 1;
+		for (auto ingredientHandle : ingredients) {
+			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle, false);
+			if (ingredient) {
+				push(L, index);
+				ObjectProxy<esv::Item>::New(L, ingredient);
+				lua_settable(L, -3);
+			}
+		}
+
+		push(L, quantity);
+		push(L, combinationId);
+		push(L, succeeded);
+
+		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
+			OsiError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		Restriction restriction(*this, RestrictOsiris);

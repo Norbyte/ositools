@@ -484,6 +484,11 @@ namespace dse::esv::lua
 		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
 		void OnGameStateChanged(GameState fromState, GameState toState);
+		esv::Item* OnGenerateTreasureItem(esv::Item* item);
+		FixedString OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+			esv::Character* character, uint8_t quantity, FixedString const& combinationId);
+		void OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+			esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded);
 
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);
