@@ -471,10 +471,11 @@ namespace dse
 			Requirements.Set.Add(requirement);
 		}
 
+		MemorizationRequirements.Set.Clear();
 		for (auto const& reqmt : msg.memorization_requirements()) {
 			CRPGStats_Requirement requirement;
 			requirement.FromProtobuf(reqmt);
-			Requirements.Set.Add(requirement);
+			MemorizationRequirements.Set.Add(requirement);
 		}
 
 		ComboCategories.Set.Clear();
