@@ -373,7 +373,7 @@ namespace dse
 
 	void CRPGStats_Object_Property_List::ToProtobuf(FixedString const& name, StatPropertyList* msg) const
 	{
-		msg->set_name(name.Str);
+		msg->set_name(name ? name.Str : "<Unnamed>");
 		for (auto const& prop : Properties.Primitives) {
 			auto const& dataProp = (CDivinityStats_Object_Property_Data const*)prop;
 			dataProp->ToProtobuf(msg->add_properties());
