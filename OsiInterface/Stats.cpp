@@ -25,9 +25,13 @@ namespace dse
 		proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
 
 		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
-		TranslatedString displayName;
-		script::GetTranslatedStringFromKey(displayNameKey, displayName);
-		proto->DisplayName = displayName.Str1.WStr;
+		TranslatedString displayNameRef;
+		if (script::GetTranslatedStringFromKey(displayNameKey, displayNameRef)) {
+			STDWString displayName;
+			if (script::GetTranslatedString(displayNameRef.Str1.Handle.Str, displayName)) {
+				proto->DisplayName = displayName;
+			}
+		}
 
 		STDString aiFlags = object->AIFlags.Str;
 		proto->AiFlags = (AIFlags)0;
@@ -142,9 +146,15 @@ namespace dse
 		}
 
 		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
-		TranslatedString displayName;
-		script::GetTranslatedStringFromKey(displayNameKey, displayName);
-		proto->DisplayName = displayName;
+		TranslatedString displayNameRef;
+		if (script::GetTranslatedStringFromKey(displayNameKey, displayNameRef)) {
+			STDWString displayName;
+			if (script::GetTranslatedString(displayNameRef.Str1.Handle.Str, displayName)) {
+				displayNameRef.Str1.WStr = displayName;
+				proto->DisplayName = displayNameRef;
+			}
+		}
+
 		proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
 		// FIXME - AbsorbSurfaceType
 	}
