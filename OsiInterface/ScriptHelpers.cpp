@@ -125,9 +125,11 @@ bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& transl
 		return false;
 	}
 
-	getter(keyMgr, translated, key, true);
-
-	return translated.Str1.Handle != GFS.strNullStringHandle;
+	if (getter(keyMgr, translated, key, false)) {
+		return GetTranslatedString(translated.Str1.Handle.Str, translated.Str1.WStr);
+	} else {
+		return false;
+	}
 }
 
 }
