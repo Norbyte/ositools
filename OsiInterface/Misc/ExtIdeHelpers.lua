@@ -3207,11 +3207,17 @@ function Ext.GetGameState () end
 --- @param excludeCharacter string|nil Optional peer to exclude from broadcast
 function Ext.BroadcastMessage (channel, payload, excludeCharacter) end
 
---- Sends a message to the specified peer
---- @param characterGuid string Peer that will receive the message
+--- Sends a message to the peer that controls the specified character
+--- @param characterGuid string Character that will receive the message
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
 function Ext.PostMessageToClient (characterGuid, channel, payload) end
+
+--- Sends a message to the specified peer
+--- @param userId number User that will receive the message
+--- @param channel string Channel that will receive the message
+--- @param payload string Message payload
+function Ext.PostMessageToUser (userId, channel, payload) end
 
 --- Sends a message to the server
 --- @param channel string Channel that will receive the message

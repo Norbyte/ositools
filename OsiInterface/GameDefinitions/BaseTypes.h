@@ -167,6 +167,16 @@ namespace dse
 			return Id == Unassigned;
 		}
 
+		inline bool operator ==(UserId const& o) const
+		{
+			return Id == o.Id;
+		}
+
+		inline bool operator !=(UserId const& o) const
+		{
+			return Id != o.Id;
+		}
+
 		inline constexpr PeerId GetPeerId() const
 		{
 			return (PeerId)(Id >> 16);

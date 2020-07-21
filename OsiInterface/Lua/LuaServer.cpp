@@ -1164,6 +1164,21 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	void PostMessageToUserInternal(UserId userId, char const* channel, char const* payload)
+	{
+		auto& networkMgr = gOsirisProxy->GetNetworkManager();
+		auto msg = networkMgr.GetFreeServerMessage(userId);
+		if (msg != nullptr) {
+			auto postMsg = msg->GetMessage().mutable_post_lua();
+			postMsg->set_channel_name(channel);
+			postMsg->set_payload(payload);
+			networkMgr.ServerSend(msg, userId);
+		}
+		else {
+			OsiErrorS("Could not get free message!");
+		}
+	}
+
 	int PostMessageToClient(lua_State * L)
 	{
 		auto characterGuid = luaL_checkstring(L, 1);
@@ -1173,22 +1188,27 @@ namespace dse::esv::lua
 		auto character = GetEntityWorld()->GetCharacter(characterGuid);
 		if (character == nullptr) return 0;
 
-		if (character->UserID.Id == UserId::Unassigned) {
+		if (character->UserID == ReservedUserId) {
 			OsiError("Attempted to send message to character " << characterGuid << " that has no user assigned!");
 			return 0;
 		}
 
-		auto & networkMgr = gOsirisProxy->GetNetworkManager();
-		auto msg = networkMgr.GetFreeServerMessage(character->UserID);
-		if (msg != nullptr) {
-			auto postMsg = msg->GetMessage().mutable_post_lua();
-			postMsg->set_channel_name(channel);
-			postMsg->set_payload(payload);
-			networkMgr.ServerSend(msg, character->UserID);
-		} else {
-			OsiErrorS("Could not get free message!");
+		PostMessageToUserInternal(character->UserID, channel, payload);
+		return 0;
+	}
+
+	int PostMessageToUser(lua_State* L)
+	{
+		auto userId = checked_get<int>(L, 1);
+		auto channel = luaL_checkstring(L, 2);
+		auto payload = luaL_checkstring(L, 3);
+
+		if (UserId(userId) == ReservedUserId) {
+			OsiError("Attempted to send message to reserved user ID!");
+			return 0;
 		}
 
+		PostMessageToUserInternal(UserId(userId), channel, payload);
 		return 0;
 	}
 
@@ -1197,7 +1217,7 @@ namespace dse::esv::lua
 		auto characterGuid = luaL_checkstring(L, 1);
 
 		auto character = GetEntityWorld()->GetCharacter(characterGuid);
-		if (character == nullptr || character->UserID.Id == UserId::Unassigned) return 0;
+		if (character == nullptr || character->UserID == ReservedUserId) return 0;
 
 		auto& networkMgr = gOsirisProxy->GetNetworkManager();
 		bool hasExtender = networkMgr.ServerCanSendExtenderMessages(character->UserID.GetPeerId());
@@ -1324,6 +1344,7 @@ namespace dse::esv::lua
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},
+			{"PostMessageToUser", PostMessageToUser},
 			{"PlayerHasExtender", PlayerHasExtender},
 
 			{"RegisterOsirisListener", RegisterOsirisListener},
