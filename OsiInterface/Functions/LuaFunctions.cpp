@@ -37,11 +37,11 @@ namespace dse::esv
 
 			if (resetClient) {
 				auto & networkMgr = gOsirisProxy->GetNetworkManager();
-				auto msg = networkMgr.GetFreeServerMessage(-1);
+				auto msg = networkMgr.GetFreeServerMessage(ReservedUserId);
 				if (msg != nullptr) {
 					auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
 					resetMsg->set_bootstrap_scripts(bootstrapMods);
-					networkMgr.ServerBroadcast(msg, -1);
+					networkMgr.ServerBroadcast(msg, ReservedUserId);
 				} else {
 					OsiErrorS("Could not get free message!");
 				}

@@ -102,7 +102,7 @@ namespace dse
 			auto & postMsg = msg.post_lua();
 			ecl::LuaClientPin pin(ecl::ExtensionState::Get());
 			if (pin) {
-				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()), UserId::Unassigned);
+				pin->OnNetMessageReceived(STDString(postMsg.channel_name()), STDString(postMsg.payload()), ReservedUserId);
 			}
 			break;
 		}

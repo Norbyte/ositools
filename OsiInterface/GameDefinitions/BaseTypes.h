@@ -149,12 +149,12 @@ namespace dse
 
 	struct UserId
 	{
-		static constexpr int32_t Unassigned = -1;
+		static constexpr int32_t Unassigned = (int32_t)0xFFFF0000;
 
 		int32_t Id;
 
 		inline constexpr UserId() : Id(Unassigned) {}
-		inline constexpr UserId(int32_t id) : Id(id) {}
+		inline explicit constexpr UserId(int32_t id) : Id(id) {}
 		inline constexpr UserId(UserId const& id) : Id(id.Id) {}
 
 		inline operator bool() const
@@ -172,6 +172,8 @@ namespace dse
 			return (PeerId)(Id >> 16);
 		}
 	};
+
+	static constexpr UserId ReservedUserId{ UserId::Unassigned };
 
 	// Base class for game objects that cannot be copied.
 	template <class T>

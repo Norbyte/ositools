@@ -504,7 +504,7 @@ namespace dse
 
 	void CRPGStats_Object::BroadcastSyncMessage() const
 	{
-		auto msg = gOsirisProxy->GetNetworkManager().GetFreeServerMessage(UserId::Unassigned);
+		auto msg = gOsirisProxy->GetNetworkManager().GetFreeServerMessage(ReservedUserId);
 		if (!msg) {
 			OsiErrorS("Failed to get free message");
 			return;
@@ -512,7 +512,7 @@ namespace dse
 
 		auto& wrap = msg->GetMessage();
 		ToProtobuf(wrap.mutable_s2c_sync_stat());
-		gOsirisProxy->GetNetworkManager().ServerBroadcast(msg, UserId::Unassigned);
+		gOsirisProxy->GetNetworkManager().ServerBroadcast(msg, ReservedUserId);
 	}
 
 	bool RPGEnumeration::IsIndexedProperty() const
