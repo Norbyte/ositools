@@ -144,6 +144,11 @@ public:
 		return CustomInjector;
 	}
 
+	inline CustomFunctionInjector& GetCustomFunctionInjector()
+	{
+		return CustomInjector;
+	}
+
 	inline esv::CustomFunctionLibrary & GetFunctionLibrary()
 	{
 		return FunctionLibrary;

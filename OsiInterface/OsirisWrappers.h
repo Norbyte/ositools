@@ -21,6 +21,9 @@ uint8_t * ResolveRealFunctionAddress(uint8_t * Address);
 #define WRAPPABLE(ty, name) enum class name##Tag {}; \
 	WrappableFunction<name##Tag, ty> name
 
+#define FASTWRAPPABLE(ty, name) enum class name##Tag {}; \
+	FastWrappableFunction<name##Tag, ty> name
+
 class OsirisWrappers
 {
 public:
@@ -53,8 +56,8 @@ public:
 	RuleActionCallProc OriginalRuleActionCallProc;
 	WRAPPABLE(void(RuleActionNode *, void *, void *, void *, void *), RuleActionCall);
 
-	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Call);
-	WRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Query);
+	FASTWRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Call);
+	FASTWRAPPABLE(bool(uint32_t FunctionHandle, OsiArgumentDesc * Params), Query);
 	PREHOOKABLE(void(char const * Message), Error);
 	PREHOOKABLE(void(bool Successful, char const * Message, bool Unknown2), Assert);
 

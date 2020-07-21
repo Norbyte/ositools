@@ -306,6 +306,12 @@ namespace dse
 			return osiSymbols_;
 		}
 
+		static bool StaticCallWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params);
+		static bool StaticQueryWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params);
+
+		bool CallWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params);
+		bool QueryWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params);
+
 	private:
 		OsirisWrappers & wrappers_;
 		CustomFunctionManager & functions_;
@@ -318,8 +324,6 @@ namespace dse
 
 		void CreateOsirisSymbolMap(MappingInfo ** Mappings, uint32_t * MappingCount);
 		void OnAfterGetFunctionMappings(void * Osiris, MappingInfo ** Mappings, uint32_t * MappingCount);
-		bool CallWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);
-		bool QueryWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params);
 		void ExtendStoryHeader(std::wstring const & headerPath);
 		void OnCreateFile(LPCWSTR lpFileName,
 			DWORD dwDesiredAccess,

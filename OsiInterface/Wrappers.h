@@ -346,6 +346,83 @@ namespace dse {
 	};
 
 	template <class Tag, class T>
+	class FastWrappableFunction;
+
+	template <class Tag, class R, class... Params>
+	class FastWrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
+	{
+	public:
+		using WrapperHookType = R(FuncType *, Params...);
+		using WrapperHookFuncType = WrapperHookType*;
+
+		void Wrap(HMODULE Module, char * ProcName)
+		{
+			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Wrap(void * Function)
+		{
+			wrapped_.Wrap(Function, &CallToTrampoline);
+
+			if (gHook != nullptr) {
+				Fail("Hook already registered");
+			}
+
+			gHook = this;
+		}
+
+		void Unwrap()
+		{
+			wrapped_.Unwrap();
+			gHook = nullptr;
+		}
+
+		void SetWrapper(WrapperHookFuncType wrapper)
+		{
+			if (wrapperHook_ != nullptr) {
+				throw std::runtime_error("Function already wrapped");
+			}
+
+			wrapperHook_ = wrapper;
+		}
+
+		void ClearHook()
+		{
+			wrapperHook_ = nullptr;
+		}
+
+		inline bool IsHooked() const
+		{
+			return wrapperHook_ != nullptr;
+		}
+
+		inline R CallWithHooks(Params... Args) const
+		{
+			if (wrapperHook_) {
+				return wrapperHook_(wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+			} else {
+				return CallOriginal(std::forward<Params>(Args)...);
+			}
+		}
+
+		static R CallToTrampoline(Params... Args)
+		{
+			return gHook->CallWithHooks(std::forward<Params>(Args)...);
+		}
+
+	private:
+		WrapperHookFuncType wrapperHook_;
+
+		static FastWrappableFunction<Tag, R(Params...)> * gHook;
+	};
+
+	template <class Tag, class T>
 	class WrappableFunction;
 
 	template <class Tag, class R, class... Params>

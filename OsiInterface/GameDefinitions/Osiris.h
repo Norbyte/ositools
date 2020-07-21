@@ -267,7 +267,6 @@ struct EoCCallParam
 struct DivFunctions
 {
 	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
-	typedef bool (* CallProc)(uint32_t FunctionId, OsiArgumentDesc * Params);
 	typedef void (* ErrorMessageProc)(char const * Message);
 	typedef void (* AssertProc)(bool Successful, char const * Message, bool Unknown2);
 

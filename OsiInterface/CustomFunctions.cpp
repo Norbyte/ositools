@@ -476,8 +476,8 @@ void CustomFunctionInjector::Initialize()
 {
 	using namespace std::placeholders;
 	wrappers_.GetFunctionMappings.SetPostHook(std::bind(&CustomFunctionInjector::OnAfterGetFunctionMappings, this, _1, _2, _3));
-	wrappers_.Call.SetWrapper(std::bind(&CustomFunctionInjector::CallWrapper, this, _1, _2, _3));
-	wrappers_.Query.SetWrapper(std::bind(&CustomFunctionInjector::QueryWrapper, this, _1, _2, _3));
+	wrappers_.Call.SetWrapper(&CustomFunctionInjector::StaticCallWrapper);
+	wrappers_.Query.SetWrapper(&CustomFunctionInjector::StaticQueryWrapper);
 	wrappers_.CreateFileW.SetPostHook(std::bind(&CustomFunctionInjector::OnCreateFile, this, _1, _2, _3, _4, _5, _6, _7, _8));
 	wrappers_.CloseHandle.SetPostHook(std::bind(&CustomFunctionInjector::OnCloseHandle, this, _1, _2));
 }
@@ -598,7 +598,19 @@ void CustomFunctionInjector::OnAfterGetFunctionMappings(void * Osiris, MappingIn
 	esv::ExtensionState::Get().StoryFunctionMappingsUpdated();
 }
 
-bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
+bool CustomFunctionInjector::StaticCallWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params)
+{
+	auto& self = gOsirisProxy->GetCustomFunctionInjector();
+	return self.CallWrapper(next, handle, params);
+}
+
+bool CustomFunctionInjector::StaticQueryWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc* params)
+{
+	auto& self = gOsirisProxy->GetCustomFunctionInjector();
+	return self.QueryWrapper(next, handle, params);
+}
+
+bool CustomFunctionInjector::CallWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc * params)
 {
 	auto it = osiToDivMappings_.find(handle);
 	if (it != osiToDivMappings_.end()) {
@@ -608,7 +620,7 @@ bool CustomFunctionInjector::CallWrapper(std::function<bool (uint32_t, OsiArgume
 	}
 }
 
-bool CustomFunctionInjector::QueryWrapper(std::function<bool(uint32_t, OsiArgumentDesc *)> const & next, uint32_t handle, OsiArgumentDesc * params)
+bool CustomFunctionInjector::QueryWrapper(DivFunctions::CallProc next, uint32_t handle, OsiArgumentDesc * params)
 {
 	auto it = osiToDivMappings_.find(handle);
 	if (it != osiToDivMappings_.end()) {
