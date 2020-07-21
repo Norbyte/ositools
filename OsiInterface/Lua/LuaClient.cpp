@@ -1020,7 +1020,7 @@ namespace dse::ecl::lua
 	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
 	std::unordered_map<UIObject::VMT *, UIObject::OnFunctionCalledProc> OriginalUIObjectCallHandlers;
 
-	static void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args)
+	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {

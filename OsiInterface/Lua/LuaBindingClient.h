@@ -12,6 +12,8 @@ namespace dse::ecl::lua
 {
 	using namespace dse::lua;
 
+	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args);
+
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
 	public:

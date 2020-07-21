@@ -23,9 +23,13 @@ static const ExcludedSymbol ExcludedSymbols[] = {
 	{&decltype(dse::LibraryManager::esv__ActionMachine__ResetState)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::Event)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Call)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Query)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
+	{&dse::ecl::lua::UIObjectFunctionCallCapture, 0x120},
+	{&dse::CustomFunctionInjector::StaticCallWrapper, 0x120},
+	{&dse::CustomFunctionInjector::StaticQueryWrapper, 0x120}
 };
 
 class CrashReporter
