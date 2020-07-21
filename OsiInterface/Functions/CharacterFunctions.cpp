@@ -290,11 +290,11 @@ namespace dse::esv
 				if (flag < 64) {
 					value.Set(character->HasFlag(1ull << flag));
 				} else if (flag < 72) {
-					value.Set(((uint64_t)character->Flags2 | (1ull << (flag - 64))) != 0);
+					value.Set(((uint64_t)character->Flags2 & (1ull << (flag - 64))) != 0);
 				} else if (flag < 80) {
-					value.Set(((uint64_t)character->Flags3 | (1ull << (flag - 70))) != 0);
+					value.Set(((uint64_t)character->Flags3 & (1ull << (flag - 70))) != 0);
 				} else if (flag < 88) {
-					value.Set((character->FlagsEx | (1 << (flag - 78))) != 0);
+					value.Set((character->FlagsEx & (1 << (flag - 78))) != 0);
 				}
 
 				return true;
@@ -305,7 +305,7 @@ namespace dse::esv
 				if (flag < 64) {
 					value.Set(item->HasFlag(1ull << flag));
 				} else if (flag < 72) {
-					value.Set((item->Flags3 | (1 << (flag - 64))) != 0);
+					value.Set(((uint8_t)item->Flags2 & (1 << (flag - 64))) != 0);
 				}
 
 				return true;
@@ -366,9 +366,9 @@ namespace dse::esv
 					}
 				} else if (flag < 72) {
 					if (value) {
-						item->Flags3 |= (1 << (flag - 64));
+						item->Flags2 |= (esv::ItemFlags2)(1 << (flag - 64));
 					} else {
-						item->Flags3 &= ~(1 << (flag - 64));
+						item->Flags2 &= (esv::ItemFlags2)~(1 << (flag - 64));
 					}
 				}
 

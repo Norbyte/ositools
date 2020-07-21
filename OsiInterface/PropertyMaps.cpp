@@ -553,6 +553,8 @@ namespace dse
 			PROP_RO(MyGuid);
 			// Item
 			PROP_RO(WorldPos);
+			PROP_FLAGS(Flags, esv::ItemFlags, false);
+			PROP_FLAGS(Flags2, esv::ItemFlags2, false);
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
 			PROP(CustomDisplayName);

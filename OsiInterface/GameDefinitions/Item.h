@@ -101,12 +101,12 @@ namespace dse
 
 			glm::vec3 WorldPos; // Saved
 			uint32_t _Pad2;
-			uint64_t Flags; // Saved
+			ItemFlags Flags; // Saved
 			uint32_t U2;
 			FixedString CurrentLevel; // Saved
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved
-			uint8_t Flags3;
+			ItemFlags2 Flags2;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
 			uint64_t U3[2];
 			glm::vec3 WorldVelocity; // Saved

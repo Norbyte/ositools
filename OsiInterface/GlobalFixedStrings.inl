@@ -158,6 +158,8 @@ FS(HealEffect);
 FS(CharacterFlags);
 FS(CharacterFlags2);
 FS(CharacterFlags3);
+FS(ItemFlags);
+FS(ItemFlags2);
 FS(GameActionType);
 FS(StatAttributeFlags);
 FS(TalentType);
