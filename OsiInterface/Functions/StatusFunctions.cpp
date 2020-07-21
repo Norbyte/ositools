@@ -426,15 +426,10 @@ namespace dse::esv
 			if (status == nullptr) {
 				return false;
 			}
-			
-			if (lifeTime < 0.0f) {
-				status->Flags0 |= esv::StatusFlags0::KeepAlive;
-				status->CurrentLifeTime = 1.0f;
-			} else {
-				status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
-				status->LifeTime = lifeTime;
-				status->CurrentLifeTime = lifeTime;
-			}
+
+			status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
+			status->LifeTime = lifeTime;
+			status->CurrentLifeTime = lifeTime;
 
 			ObjectHandle handle;
 			character->GetObjectHandle(handle);
@@ -484,14 +479,9 @@ namespace dse::esv
 				return false;
 			}
 
-			if (lifeTime < 0.0f) {
-				status->Flags0 |= esv::StatusFlags0::KeepAlive;
-				status->CurrentLifeTime = 1.0f;
-			} else {
-				status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
-				status->LifeTime = lifeTime;
-				status->CurrentLifeTime = lifeTime;
-			}
+			status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
+			status->LifeTime = lifeTime;
+			status->CurrentLifeTime = lifeTime;
 
 			auto sourceCharacter = GetEntityWorld()->GetCharacter(sourceCharacterGuid);
 			if (sourceCharacter == nullptr) {
