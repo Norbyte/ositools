@@ -83,7 +83,7 @@ namespace dse
 
 					numConfigs++;
 
-					modConfigs_.insert(std::make_pair(mod.Info.ModuleUUID.Str, config));
+					modConfigs_.insert(std::make_pair(mod.Info.ModuleUUID, config));
 				}
 			}
 		}
@@ -484,7 +484,7 @@ namespace dse
 
 		lua::Restriction restriction(*lua, lua::State::RestrictAll);
 		for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
-			auto configIt = modConfigs_.find(mod.Info.ModuleUUID.Str);
+			auto configIt = modConfigs_.find(mod.Info.ModuleUUID);
 			if (configIt != modConfigs_.end()) {
 				auto const & config = configIt->second;
 				if (config.FeatureFlags.find("Lua") != config.FeatureFlags.end()) {

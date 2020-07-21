@@ -60,7 +60,7 @@ namespace dse
 		std::optional<int> LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, 
 			bool warnOnError = true, int globalsIdx = 0);
 
-		inline std::unordered_map<std::string, ExtensionModConfig> const& GetConfigs() const
+		inline std::unordered_map<FixedString, ExtensionModConfig> const& GetConfigs() const
 		{
 			return modConfigs_;
 		}
@@ -71,7 +71,7 @@ namespace dse
 
 		ExtensionModConfig MergedConfig;
 		Module const* HighestVersionMod{ nullptr };
-		std::unordered_map<std::string, ExtensionModConfig> modConfigs_;
+		std::unordered_map<FixedString, ExtensionModConfig> modConfigs_;
 
 		std::recursive_mutex luaMutex_;
 		std::atomic<uint32_t> luaRefs_{ 0 };

@@ -2118,6 +2118,7 @@ namespace dse::esv
 	void ExtensionState::OnGameSessionLoading()
 	{
 		runtimeModifiedStats_.clear();
+		cachedPersistentVars_.clear();
 		dse::ExtensionStateBase::OnGameSessionLoading();
 	}
 
@@ -2164,6 +2165,74 @@ namespace dse::esv
 		if (it != runtimeModifiedStats_.end()) {
 			runtimeModifiedStats_.erase(it);
 		}
+	}
+
+
+	std::optional<STDString> ExtensionState::GetModPersistentVars(FixedString const& mod)
+	{
+		auto modTable = GetModTable(mod);
+		if (modTable) {
+			LuaServerPin lua(*this);
+			if (lua) {
+				auto vars = lua->GetModPersistentVars(*modTable);
+				if (vars) {
+					return vars;
+				}
+			}
+		}
+
+		// If we failed to retrieve vars from the Lua state for some reason, 
+		// return the persistent vars we loaded from the savegame instead
+		auto cachedIt = cachedPersistentVars_.find(mod);
+		if (cachedIt != cachedPersistentVars_.end()) {
+			ERR("Persistent variables for mod %s could not be retrieved, saving cached values!", mod.Str);
+			return cachedIt->second;
+		} else {
+			return {};
+		}
+	}
+
+	void ExtensionState::RestoreModPersistentVars(FixedString const& mod, STDString const& vars)
+	{
+		cachedPersistentVars_.insert(std::make_pair(mod, vars));
+
+		auto modTable = GetModTable(mod);
+		if (modTable) {
+			DEBUG("Restoring persistent vars for mod %s (%ld bytes)", mod.Str, vars.size());
+			LuaServerPin lua(*this);
+			if (lua) {
+				lua->RestoreModPersistentVars(*modTable, vars);
+			}
+		} else {
+			ERR("Savegame has persistent variables for mod %s, but it is not loaded or has no ModTable! Variables may be lost on next save!", mod.Str);
+		}
+	}
+
+	std::optional<STDString> ExtensionState::GetModTable(FixedString const& mod)
+	{
+		auto const& configs = GetConfigs();
+		auto configIt = configs.find(mod);
+		if (configIt != configs.end() && !configIt->second.ModTable.empty()) {
+			return configIt->second.ModTable;
+		} else {
+			return {};
+		}
+	}
+
+	std::unordered_set<FixedString> ExtensionState::GetPersistentVarMods()
+	{
+		std::unordered_set<FixedString> names;
+		for (auto const& kv : cachedPersistentVars_) {
+			names.insert(kv.first);
+		}
+
+		for (auto const& config : GetConfigs()) {
+			if (config.second.MinimumVersion >= 43 && !config.second.ModTable.empty()) {
+				names.insert(config.first);
+			}
+		}
+
+		return names;
 	}
 
 	void ExtensionState::StoryLoaded()

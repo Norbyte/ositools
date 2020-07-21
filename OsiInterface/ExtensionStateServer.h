@@ -51,6 +51,11 @@ namespace dse::esv
 		void MarkRuntimeModifiedStat(FixedString const& statId);
 		void UnmarkRuntimeModifiedStat(FixedString const& statId);
 
+		std::optional<STDString> GetModPersistentVars(FixedString const& mod);
+		void RestoreModPersistentVars(FixedString const& mod, STDString const& vars);
+		std::unordered_set<FixedString> GetPersistentVarMods();
+		std::optional<STDString> GetModTable(FixedString const& mod);
+
 		void StoryLoaded();
 		void StoryFunctionMappingsUpdated();
 		void StorySetMerging(bool isMerging);
@@ -61,6 +66,7 @@ namespace dse::esv
 		friend LuaStatePin<ExtensionState, lua::ServerState>;
 		std::unique_ptr<lua::ServerState> Lua;
 		std::unordered_set<FixedString> runtimeModifiedStats_;
+		std::unordered_map<FixedString, STDString> cachedPersistentVars_;
 
 		void DoLuaReset() override;
 		void LuaStartup() override;

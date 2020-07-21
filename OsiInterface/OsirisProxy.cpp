@@ -1317,27 +1317,19 @@ void SavegameSerializer::SerializePersistentVariables(ObjectVisitor* visitor, ui
 			}
 
 			RestorePersistentVariables(variables);
-		}
-		else {
-			for (auto const& config : configs) {
-				if (config.second.MinimumVersion >= 43 && !config.second.ModTable.empty()) {
-					DEBUG("Getting persistent vars for mod %s", config.first.c_str());
-					esv::LuaServerPin lua(esv::ExtensionState::Get());
-					if (lua) {
-						auto vars = lua->GetModPersistentVars(config.second.ModTable);
-						if (vars) {
-							DEBUG("Saving persistent vars for mod %s (%ld bytes)", config.first.c_str(), vars->size());
-							if (visitor->EnterNode(GFS.strMod, GFS.strModId)) {
-								FixedString modId = MakeFixedString(config.first.c_str());
-								visitor->VisitFixedString(GFS.strModId, modId, GFS.strEmpty);
-								visitor->VisitSTDString(GFS.strLuaVariables, *vars, nullStr);
-								visitor->ExitNode(GFS.strMod);
-							}
-						}
+		} else {
+			auto& state = gOsirisProxy->GetServerExtensionState();
+			auto mods = state.GetPersistentVarMods();
+
+			for (auto const& modId : mods) {
+				auto vars = state.GetModPersistentVars(modId);
+				if (vars) {
+					if (visitor->EnterNode(GFS.strMod, GFS.strModId)) {
+						FixedString modIdTemp = modId;
+						visitor->VisitFixedString(GFS.strModId, modIdTemp, GFS.strEmpty);
+						visitor->VisitSTDString(GFS.strLuaVariables, *vars, nullStr);
+						visitor->ExitNode(GFS.strMod);
 					}
-				}
-				else {
-					WARN("Mod %s is targeting < v43, not saving persistent variables", config.first.c_str());
 				}
 			}
 		}
@@ -1348,25 +1340,9 @@ void SavegameSerializer::SerializePersistentVariables(ObjectVisitor* visitor, ui
 
 void SavegameSerializer::RestorePersistentVariables(std::unordered_map<FixedString, STDString> const& variables)
 {
-	auto const& configs = gOsirisProxy->GetServerExtensionState().GetConfigs();
-
+	auto& state = gOsirisProxy->GetServerExtensionState();
 	for (auto const& var : variables) {
-		auto configIt = configs.find(var.first.Str);
-		if (configIt != configs.end()) {
-			if (!configIt->second.ModTable.empty()) {
-				DEBUG("Restoring persistent vars for mod %s (%ld bytes)", var.first.Str, var.second.size());
-				esv::LuaServerPin lua(esv::ExtensionState::Get());
-				if (lua) {
-					lua->RestoreModPersistentVars(configIt->second.ModTable, var.second);
-				}
-			}
-			else {
-				WARN("Mod %s has no ModTable - persistent variables will not be restored!", var.first.Str);
-			}
-		}
-		else {
-			WARN("Savegame has variables for mod %s, but it is not loaded! Variables will be lost on next save!", var.first.Str);
-		}
+		state.RestoreModPersistentVars(var.first, var.second);
 	}
 }
 
