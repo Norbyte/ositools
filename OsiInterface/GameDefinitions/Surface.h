@@ -9,6 +9,22 @@ namespace dse
 	namespace eoc
 	{
 		struct AiGrid;
+
+        struct SurfaceTransformInteractions
+        {
+            struct Interaction
+            {
+                SurfaceTransformActionType ActionType;
+                ESurfaceFlag ActionableSurfaces[17];
+            };
+
+            struct InteractionSet
+            {
+                Interaction Interactions[5];
+            };
+
+            InteractionSet SurfaceTypes[0x4F];
+        };
 	}
 
 	namespace esv
@@ -243,7 +259,6 @@ namespace dse
 
         struct SurfaceActionFactory : public ObjectFactory<SurfaceAction, (uint32_t)ObjectType::ServerSurfaceAction>
         {};
-
 	}
 
 }

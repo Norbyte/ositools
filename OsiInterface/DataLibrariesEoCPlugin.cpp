@@ -922,6 +922,18 @@ namespace dse
 			{},
 			{"esv::CombineManager::ExecuteCombination", SymbolMappingTarget::kAbsolute, -0x0D, STATIC_SYM(esv__CombineManager__ExecuteCombination)}
 		},
+
+		{
+			"eoc::SurfaceTransformActionsFromType",
+			SymbolMappingData::kText, 0,
+			"48 63 D9 " // movsxd  rbx, ecx
+			"83 FB 4F " // cmp     ebx, 4Fh
+			"77 17 " // ja      short xxx
+			"48 69 C3 D0 02 00 00 " // imul    rax, rbx, 2D0h
+			"48 8D 0D XX XX XX XX ", // lea     rcx, eoc__SurfaceTransformActionsFromType
+			{},
+			{"eoc::SurfaceTransformActionsFromType", SymbolMappingTarget::kIndirect, 15, STATIC_SYM(eoc__SurfaceTransformActionsFromType)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

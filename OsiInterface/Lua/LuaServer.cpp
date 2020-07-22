@@ -1126,6 +1126,106 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int GetSurfaceTransformRules(lua_State* L)
+	{
+		auto rules = GetStaticSymbols().eoc__SurfaceTransformActionsFromType;
+		if (rules == nullptr) {
+			OsiError("Surface transform rules not available!");
+			return 0;
+		}
+
+		lua_newtable(L);
+
+		for (auto i = 0; i < std::size(rules->SurfaceTypes); i++) {
+			auto const& interactionSet = rules->SurfaceTypes[i].Interactions;
+
+			if ((uint64_t)interactionSet[0].ActionableSurfaces[0] == 0) continue;
+
+			lua_newtable(L);
+
+			auto interactionIdx = 1;
+			for (auto const& interaction : interactionSet) {
+				if ((uint64_t)interaction.ActionableSurfaces[0] == 0) break;
+
+				push(L, interactionIdx++);
+				lua_newtable(L);
+
+				setfield(L, "TransformType", interaction.ActionType);
+
+				lua_newtable(L);
+				int surfIdx = 1;
+				for (auto const& surface : interaction.ActionableSurfaces) {
+					if ((uint64_t)surface == 0) break;
+
+					push(L, surfIdx++);
+					push_flags(L, surface);
+					lua_settable(L, -3);
+				}
+
+				lua_setfield(L, -2, "ActionableSurfaces");
+
+				lua_settable(L, -3);
+			}
+
+			lua_setfield(L, -2, EnumInfo<SurfaceType>::Find((SurfaceType)i).Str);
+		}
+
+		return 1;
+	}
+
+	void UpdateSurfaceTransformInteraction(lua_State* L, int idx, eoc::SurfaceTransformInteractions::Interaction& interaction)
+	{
+		luaL_checktype(L, idx, LUA_TTABLE);
+		auto actionType = checked_getfield<SurfaceTransformActionType>(L, "TransformType", idx);
+		interaction.ActionType = actionType;
+
+		lua_getfield(L, idx, "ActionableSurfaces");
+		luaL_checktype(L, -1, LUA_TTABLE);
+		int curActionIdx = 0;
+		for (auto surfaceIdx : iterate(L, -1)) {
+			if (curActionIdx >= std::size(interaction.ActionableSurfaces) - 1) {
+				luaL_error(L, "At most %d actionable surfaces per transform type are supported", std::size(interaction.ActionableSurfaces) - 1);
+			}
+
+			auto surfaceFlags = checked_get_flags<ESurfaceFlag>(L, surfaceIdx);
+			interaction.ActionableSurfaces[curActionIdx++] = surfaceFlags;
+		}
+
+		lua_pop(L, 1);
+	}
+
+	int UpdateSurfaceTransformRules(lua_State* L)
+	{
+		auto rules = GetStaticSymbols().eoc__SurfaceTransformActionsFromType;
+		if (rules == nullptr) {
+			OsiError("Surface transform rules not available!");
+			return 0;
+		}
+
+		auto interactions = std::make_unique<eoc::SurfaceTransformInteractions>();
+		memset(interactions.get(), 0, sizeof(eoc::SurfaceTransformInteractions));
+
+		luaL_checktype(L, 1, LUA_TTABLE);
+		for (auto idx : iterate(L, 1)) {
+			auto surfaceType = checked_get<SurfaceType>(L, idx - 1);
+			auto& surfaceRules = interactions->SurfaceTypes[(unsigned)surfaceType].Interactions;
+
+			luaL_checktype(L, -1, LUA_TTABLE);
+			int curInteractionIdx = 0;
+			for (auto interactionIdx : iterate(L, -1)) {
+				if (curInteractionIdx >= std::size(surfaceRules) - 1) {
+					luaL_error(L, "At most %d rules per surface are supported", std::size(surfaceRules) - 1);
+				}
+
+				UpdateSurfaceTransformInteraction(L, interactionIdx, surfaceRules[curInteractionIdx++]);
+			}
+
+		}
+
+		*rules = *interactions;
+		return 0;
+	}
+
 	int OsirisIsCallable(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -1313,6 +1413,9 @@ namespace dse::esv::lua
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
 			{"EnumLabelToIndex", EnumLabelToIndex},
+
+			{"GetSurfaceTransformRules", GetSurfaceTransformRules},
+			{"UpdateSurfaceTransformRules", UpdateSurfaceTransformRules},
 
 			{"GetAllCharacters", GetAllCharacters},
 			{"GetCharactersAroundPosition", GetCharactersAroundPosition},

@@ -1190,6 +1190,17 @@ namespace dse
 			{},
 			{"esv::CombineManager::ExecuteCombination", SymbolMappingTarget::kAbsolute, -0x08, STATIC_SYM(esv__CombineManager__ExecuteCombination)}
 		},
+
+		{
+			"eoc::SurfaceTransformActionsFromType",
+			SymbolMappingData::kText, 0,
+			"83 F8 4F " // cmp     eax, 4Fh
+			"77 13 " // ja      short xxx
+			"4C 69 E8 D0 02 00 00 " // imul    r13, rax, 2D0h
+			"48 8D 05 XX XX XX XX ", // lea     rax, eoc__SurfaceTransformActionsFromType
+			{},
+			{"eoc::SurfaceTransformActionsFromType", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(eoc__SurfaceTransformActionsFromType)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

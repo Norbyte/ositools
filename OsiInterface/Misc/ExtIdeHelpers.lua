@@ -2565,7 +2565,7 @@ function EsvCombat.GetCurrentTurnOrder (self) end
 --- @param self EsvCombat
 --- @return EsvCombatTeam[]
 function EsvCombat.GetNextTurnOrder (self) end
-    
+
 --- Updates the turn order of the current round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetCurrentTurnOrder().
 --- Notes:
@@ -2670,6 +2670,11 @@ function UIObject.GetPlayerHandle (self) end
 --- @param self UIObject
 function UIObject.Destroy (self) end
 
+
+--- @class SurfaceInteractionSet
+--- @field public TransformType string Surface transform to apply (Bless, Curse, Ignite, ...)
+--- @field public ActionableSurfaces string[][] Surface types that this transform applies to
+local SurfaceInteractionSet = {}
 
 
 --- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
@@ -3107,6 +3112,14 @@ function Ext.EnumIndexToLabel (enum, index) end
 --- @param label string Value name to look for
 --- @return number|nil
 function Ext.EnumLabelToIndex (enum, label) end
+
+--- Returns the transformation rules that are applied when two neighbouring surfaces interact.
+--- @return SurfaceInteractionSet[][]
+function Ext.GetSurfaceTransformRules () end
+
+--- Updates the transformation rules that are applied when two neighbouring surfaces interact.
+--- @param rules SurfaceInteractionSet[][] New rules to apply
+function Ext.UpdateSurfaceTransformRules (rules) end
 
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.

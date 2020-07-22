@@ -116,6 +116,22 @@ namespace dse::lua
 		static_assert(false, "Can't push pointers to Lua");
 	}
 
+	template <class T>
+	inline void push_flags(lua_State* L, T value)
+	{
+		static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
+
+		lua_newtable(L);
+		int i = 1;
+		EnumInfo<T>::Values.Iterate([value, L, &i](auto const& k, auto const& v) {
+			if ((value & v) == v) {
+				push(L, i++);
+				push(L, k);
+				lua_settable(L, -3);
+			}
+		});
+	}
+
 
 	// Dummy pin class for values that need no special pinning/unpinning behavior
 	struct NullPin {};
@@ -764,5 +780,25 @@ namespace dse::lua
 		helper.L = L;
 		helper.Index = index;
 		return helper;
+	}
+
+	template <class T>
+	inline T checked_get_flags(lua_State* L, int index)
+	{
+		static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only fetch bitmask fields!");
+
+		luaL_checktype(L, index, LUA_TTABLE);
+		T flags = (T)0;
+		for (auto idx : iterate(L, index)) {
+			auto label = checked_get<FixedString>(L, idx);
+			auto val = EnumInfo<T>::Find(label);
+			if (val) {
+				flags |= *val;
+			} else {
+				luaL_error(L, "Label '%s' is not valid for enumeration '%s'", label.Str, EnumInfo<T>::Name);
+			}
+		}
+
+		return flags;
 	}
 }

@@ -158,6 +158,7 @@ namespace dse
 		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
 		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
 		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
+		eoc::SurfaceTransformInteractions* eoc__SurfaceTransformActionsFromType{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
 		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
