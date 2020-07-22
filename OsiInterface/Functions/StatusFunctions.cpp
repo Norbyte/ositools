@@ -878,17 +878,17 @@ namespace dse::esv
 		esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ObjectHandle>* ingredientHandles,
 		esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId)
 	{
-		auto newCombinationId = *combinationId;
-
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua) {
-			newCombinationId = lua->OnBeforeCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, newCombinationId);
+			if (lua->OnBeforeCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, *combinationId)) {
+				return true;
+			}
 		}
 
-		bool ok = next(self, craftingStation, ingredientHandles, character, quantity, openUI, &newCombinationId);
+		bool ok = next(self, craftingStation, ingredientHandles, character, quantity, openUI, combinationId);
 
 		if (lua) {
-			lua->OnAfterCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, newCombinationId, ok);
+			lua->OnAfterCraftingExecuteCombination(craftingStation, *ingredientHandles, character, quantity, *combinationId, ok);
 		}
 
 		return ok;

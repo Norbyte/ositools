@@ -106,7 +106,16 @@ Ext._TreasureItemGenerated = function (...)
 end
 
 Ext._BeforeCraftingExecuteCombination = function (...)
-    return Ext._EngineCallback1("BeforeCraftingExecuteCombination", ...)
+    for i,callback in pairs(Ext._Listeners["BeforeCraftingExecuteCombination"]) do
+        local status, result = xpcall(callback, debug.traceback, ...)
+        if status then
+			if result == true then
+				return result
+			end
+		else
+            Ext.PrintError("Error during BeforeCraftingExecuteCombination: ", result)
+        end
+    end
 end
 
 Ext._AfterCraftingExecuteCombination = function (...)

@@ -2049,7 +2049,7 @@ namespace dse::esv::lua
 	}
 
 
-	FixedString ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
 	{
 		PushExtFunction(L, "_BeforeCraftingExecuteCombination"); // stack: fn
@@ -2074,14 +2074,14 @@ namespace dse::esv::lua
 		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
 			OsiError("BeforeCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
-			return combinationId;
+			return false;
 		}
 
-		auto returnCombination = get<FixedString>(L, -1);
-		if (returnCombination) {
-			return returnCombination;
+		auto processed = get<bool>(L, -1);
+		if (processed) {
+			return processed;
 		} else {
-			return combinationId;
+			return false;
 		}
 	}
 
