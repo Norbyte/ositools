@@ -684,24 +684,24 @@ namespace dse
 	TempStrings gTempStrings;
 
 
-	bool ig::FlashObject::GetValueWorkaround(char const* path, InvokeDataValueType desiredType, InvokeDataValue& value, int arrayIndex)
+	bool ig::FlashObject::GetValueWorkaround(char const* path, ig::DataType desiredType, InvokeDataValue& value, int arrayIndex)
 	{
 		switch (desiredType) {
-		case InvokeDataValueType::IDV_NoneVal:
-			return GetValueWorkaround(path, InvokeDataValueType::IDV_Bool, value, arrayIndex)
-				|| GetValueWorkaround(path, InvokeDataValueType::IDV_Double, value, arrayIndex)
-				|| GetValueWorkaround(path, InvokeDataValueType::IDV_String, value, arrayIndex);
+		case ig::DataType::None:
+			return GetValueWorkaround(path, ig::DataType::Bool, value, arrayIndex)
+				|| GetValueWorkaround(path, ig::DataType::Double, value, arrayIndex)
+				|| GetValueWorkaround(path, ig::DataType::String, value, arrayIndex);
 
 		// Bool and Double are implemented correctly in EoCApp
-		case InvokeDataValueType::IDV_Bool:
-		case InvokeDataValueType::IDV_Double:
+		case ig::DataType::Bool:
+		case ig::DataType::Double:
 			return GetValue(path, desiredType, value, arrayIndex);
 
 		// Strings returned by the vanilla GetValue() are truncated at 512 bytes; for some use cases (status description etc.)
 		// this is too short, so we use a non-static buffer size instead
-		case InvokeDataValueType::IDV_String:
+		case ig::DataType::String:
 		{
-			ig::IggyValue val;
+			ig::IggyValuePath val;
 			auto const& sym = GetStaticSymbols();
 			if (!sym.IgValuePathMakeNameRef(&val, IggyValue, path)) {
 				return false;
@@ -718,7 +718,7 @@ namespace dse
 			}
 
 			// Fetch string directly to STDString buffer
-			value.TypeId = InvokeDataValueType::IDV_String;
+			value.TypeId = ig::DataType::String;
 			value.StringVal.resize(resultLength);
 			return sym.IgValueGetStringUTF8(&val, 0, 0, resultLength, value.StringVal.data(), &resultLength) == 0;
 		}
@@ -740,7 +740,7 @@ namespace dse
 		return nullptr;
 	}
 
-	void UIObject::OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3)
+	void UIObject::OnFunctionCalled(const char * a1, unsigned int a2, ig::InvokeDataValue * a3)
 	{
 		return GetStaticSymbols().EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
 	}

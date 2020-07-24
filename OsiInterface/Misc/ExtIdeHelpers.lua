@@ -2594,6 +2594,36 @@ function EsvCombat.UpdateNextTurnOrder (self, turnOrder) end
 function EsvCombat.GetAllTeams (self) end
 
 
+--- @class FlashObject
+--- Represents an object in Flash.
+--- Implements the __index and __newindex metamethods using string keys (i.e. allows table-like behavior):
+--- obj.field = 123 -- Can assign values to any object property
+--- Ext.Print(obj.field) -- Can read any object property
+---
+--- Field values are returned using the appropriate Lua type;
+--- Flash Boolean/Number/String = Lua boolean/number/string
+--- Flash Object = Lua engine class FlashObject
+--- Flash array = Lua engine class FlashArray
+--- Flash function = Lua engine class FlashFunction
+local FlashObject = {}
+
+
+--- @class FlashArray
+--- Represents an array in Flash.
+--- Implements the __index, __newindex and __len metamethods using integer keys (i.e. allows table-like behavior):
+--- arr[2] = 123 -- Can assign values to any array index
+--- Ext.Print(arr[2]) -- Can read any array index
+--- Ext.Print(#arr) -- Can query length of array
+local FlashArray = {}
+
+
+--- @class FlashFunction
+--- Represents a function or method in Flash.
+--- Implements the __call metamethod (i.e. can be called).
+--- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned.
+local FlashFunction = {}
+
+
 --- @class UIObject
 local UIObject = {}
 
@@ -2651,6 +2681,11 @@ function UIObject.SetValue (self, property, value, arrayIndex) end
 --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
 --- @return number|boolean|string
 function UIObject.GetValue (self, property, type, arrayIndex) end
+    
+--- Returns the root (MainTimeline) Flash object
+--- @param self UIObject
+--- @return FlashObject
+function UIObject.GetRoot (self) end
     
 --- Returns the engine UI type ID of the UI element
 --- @param self UIObject

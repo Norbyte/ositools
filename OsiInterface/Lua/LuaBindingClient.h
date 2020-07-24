@@ -4,15 +4,20 @@
 
 namespace dse
 {
-	struct InvokeDataValue;
 	struct UIObject;
+}
+
+namespace dse::ig
+{
+	struct InvokeDataValue;
+	struct IggyValuePath;
 }
 
 namespace dse::ecl::lua
 {
 	using namespace dse::lua;
 
-	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args);
+	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
 
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
@@ -74,10 +79,64 @@ namespace dse::ecl::lua
 		static int GetHandle(lua_State * L);
 		static int GetPlayerHandle(lua_State * L);
 		static int GetTypeId(lua_State * L);
+		static int GetRoot(lua_State* L);
 		static int Destroy(lua_State * L);
 		static int ExternalInterfaceCall(lua_State * L);
 		static int CaptureExternalInterfaceCalls(lua_State * L);
 		static int CaptureInvokes(lua_State* L);
+	};
+
+
+
+	struct UIFlashPath
+	{
+	public:
+		std::vector<ig::IggyValuePath> paths_;
+
+		UIFlashPath();
+		UIFlashPath(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		ig::IggyValuePath* Last();
+	};
+
+	class UIFlashObject : public Userdata<UIFlashObject>, public Indexable, public NewIndexable
+	{
+	public:
+		static char const* const MetatableName;
+
+		UIFlashObject(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		int Index(lua_State* L);
+		int NewIndex(lua_State* L);
+
+	private:
+		UIFlashPath path_;
+	};
+
+
+	class UIFlashArray : public Userdata<UIFlashArray>, public Indexable, public NewIndexable, public Lengthable
+	{
+	public:
+		static char const* const MetatableName;
+
+		UIFlashArray(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		int Index(lua_State* L);
+		int NewIndex(lua_State* L);
+		int Length(lua_State* L);
+
+	private:
+		UIFlashPath path_;
+	};
+
+
+	class UIFlashFunction : public Userdata<UIFlashFunction>, public Callable
+	{
+	public:
+		static char const* const MetatableName;
+
+		UIFlashFunction(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		int LuaCall(lua_State* L);
+
+	private:
+		UIFlashPath path_;
 	};
 
 
@@ -88,8 +147,8 @@ namespace dse::ecl::lua
 		~ClientState();
 
 		void OnCreateUIObject(ObjectHandle handle);
-		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args);
-		void OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args);
+		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
+		void OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,

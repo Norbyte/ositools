@@ -417,6 +417,9 @@ namespace dse::ecl::lua
 		ObjectProxy<Character>::RegisterMetatable(L);
 		ObjectProxy<Item>::RegisterMetatable(L);
 		UIObjectProxy::RegisterMetatable(L);
+		UIFlashObject::RegisterMetatable(L);
+		UIFlashArray::RegisterMetatable(L);
+		UIFlashFunction::RegisterMetatable(L);
 	}
 
 
@@ -631,7 +634,7 @@ namespace dse::ecl::lua
 			: EoCUI(path)
 		{}
 
-		void OnFunctionCalled(const char * func, unsigned int numArgs, InvokeDataValue * args)
+		void OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 		{
 			LuaClientPin lua(ExtensionState::Get());
 			if (lua) {
@@ -661,21 +664,21 @@ namespace dse::ecl::lua
 	};
 
 
-	void LuaToInvokeDataValue(lua_State * L, int index, InvokeDataValue & val)
+	void LuaToInvokeDataValue(lua_State * L, int index, ig::InvokeDataValue & val)
 	{
 		switch (lua_type(L, index)) {
 		case LUA_TNUMBER:
-			val.TypeId = InvokeDataValueType::IDV_Double;
+			val.TypeId = ig::DataType::Double;
 			val.DoubleVal = lua_tonumber(L, index);
 			break;
 
 		case LUA_TBOOLEAN:
-			val.TypeId = InvokeDataValueType::IDV_Bool;
+			val.TypeId = ig::DataType::Bool;
 			val.BoolVal = lua_toboolean(L, index);
 			break;
 
 		case LUA_TSTRING:
-			val.TypeId = InvokeDataValueType::IDV_String;
+			val.TypeId = ig::DataType::String;
 			val.StringVal = lua_tostring(L, index);
 			break;
 
@@ -685,26 +688,26 @@ namespace dse::ecl::lua
 	}
 
 
-	void InvokeDataValueToLua(lua_State * L, InvokeDataValue const & val)
+	void InvokeDataValueToLua(lua_State * L, ig::InvokeDataValue const & val)
 	{
 		switch (val.TypeId) {
-		case InvokeDataValueType::IDV_NoneVal:
+		case ig::DataType::None:
 			lua_pushnil(L);
 			break;
 
-		case InvokeDataValueType::IDV_Bool:
+		case ig::DataType::Bool:
 			push(L, val.BoolVal);
 			break;
 
-		case InvokeDataValueType::IDV_Double:
+		case ig::DataType::Double:
 			push(L, val.DoubleVal);
 			break;
 
-		case InvokeDataValueType::IDV_String:
+		case ig::DataType::String:
 			push(L, val.StringVal);
 			break;
 
-		case InvokeDataValueType::IDV_WString:
+		case ig::DataType::WString:
 			push(L, val.WStringVal);
 			break;
 
@@ -712,6 +715,317 @@ namespace dse::ecl::lua
 			OsiError("Flash value of type " << (unsigned)val.TypeId << " cannot be passed to Lua");
 			lua_pushnil(L);
 			break;
+		}
+	}
+
+
+	UIFlashPath::UIFlashPath() {}
+
+	UIFlashPath::UIFlashPath(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+		: paths_(parents)
+	{
+		paths_.push_back(*path);
+
+		for (auto i = 1; i < paths_.size(); i++) {
+			paths_[i].Parent = &paths_[i - 1];
+		}
+	}
+
+	ig::IggyValuePath* UIFlashPath::Last()
+	{
+		return &*paths_.rbegin();
+	}
+
+	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+	bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx);
+
+
+	char const* const UIFlashObject::MetatableName = "FlashObject";
+
+	UIFlashObject::UIFlashObject(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+		: path_(parents, path)
+	{}
+
+	int UIFlashObject::Index(lua_State* L)
+	{
+		ig::IggyValuePath path;
+		auto name = checked_get<char const*>(L, 2);
+		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
+			return PushFlashRef(L, path_.paths_, &path);
+		} else {
+			return 0;
+		}
+	}
+
+	int UIFlashObject::NewIndex(lua_State* L)
+	{
+		ig::IggyValuePath path;
+		auto name = checked_get<char const*>(L, 2);
+		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
+			SetFlashValue(L, &path, 3);
+		}
+
+		return 0;
+	}
+
+
+
+	char const* const UIFlashArray::MetatableName = "FlashArray";
+
+	UIFlashArray::UIFlashArray(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+		: path_(parents, path)
+	{}
+
+	int UIFlashArray::Index(lua_State * L)
+	{
+		ig::IggyValuePath path;
+		auto index = checked_get<int>(L, 2);
+		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
+			return PushFlashRef(L, path_.paths_, &path);
+		} else {
+			return 0;
+		}
+	}
+
+	int UIFlashArray::NewIndex(lua_State* L)
+	{
+		ig::IggyValuePath path;
+		auto index = checked_get<int>(L, 2);
+		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
+			SetFlashValue(L, &path, 3);
+		}
+
+		return 0;
+	}
+
+	int UIFlashArray::Length(lua_State* L)
+	{
+		uint32_t length;
+		if (GetStaticSymbols().IgValueGetArrayLength(path_.Last(), nullptr, nullptr, &length) == 0) {
+			push(L, length);
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+
+
+	char const* const UIFlashFunction::MetatableName = "FlashFunction";
+
+	UIFlashFunction::UIFlashFunction(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+		: path_(parents, path)
+	{}
+
+	bool LuaToFlashValue(lua_State * L, ig::IggyDataValue& value, int idx)
+	{
+		switch (lua_type(L, idx)) {
+		case LUA_TNIL:
+			value.TypeId = ig::DataType::None;
+			break;
+
+		case LUA_TBOOLEAN:
+			value.TypeId = ig::DataType::Bool;
+			value.Int64 = checked_get<bool>(L, idx) ? 1 : 0;
+			break;
+
+		case LUA_TNUMBER:
+			value.TypeId = ig::DataType::Double;
+			value.Double = checked_get<double>(L, idx);
+			break;
+
+		case LUA_TSTRING:
+		{
+			auto str = const_cast<char*>(checked_get<char const*>(L, idx));
+			value.TypeId = ig::DataType::String;
+			value.String = str;
+			value.StringLength = (int)strlen(str);
+			break;
+		}
+
+		default:
+			OsiError("Can't convert Lua type '" << lua_typename(L, lua_type(L, idx)) << "' to Flash parameter!");
+			return false;
+		}
+
+		return true;
+	}
+
+	int PushFlashValue(lua_State* L, ig::IggyDataValue const& value)
+	{
+		switch (value.TypeId) {
+		case ig::DataType::None:
+			lua_pushnil(L);
+			return 1;
+
+		case ig::DataType::Bool:
+			push(L, value.Int32 != 0);
+			return 1;
+
+		case ig::DataType::Double:
+			push(L, value.Double);
+			return 1;
+
+		case ig::DataType::String:
+			push(L, value.String);
+			return 1;
+
+		case ig::DataType::WString:
+			push(L, ToUTF8(value.WString));
+			return 1;
+
+		default:
+			OsiError("Don't know how to push Flash type " << (unsigned)value.TypeId << "!");
+			return 0;
+		}
+	}
+
+	int UIFlashFunction::LuaCall(lua_State* L)
+	{
+		int numArgs = lua_gettop(L) - 1;
+
+		auto object = &path_.paths_[path_.paths_.size() - 2];
+		auto method = path_.Last()->Name;
+
+		std::vector<ig::IggyDataValue> args;
+		args.resize(numArgs);
+
+		for (auto i = 0; i < numArgs; i++) {
+			LuaToFlashValue(L, args[i], i + 2);
+		}
+
+		ig::IggyDataValue result;
+		if (GetStaticSymbols().IgPlayerCallMethod(object->Iggy, &result, object, method, numArgs, args.data()) != 0) {
+			return 0;
+		}
+
+		return PushFlashValue(L, result);
+	}
+
+	bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx)
+	{
+		auto const& s = GetStaticSymbols();
+
+		switch (lua_type(L, idx)) {
+		case LUA_TBOOLEAN:
+		{
+			auto val = checked_get<bool>(L, idx);
+			return s.IgValueSetBoolean(path, nullptr, nullptr, val ? 1 : 0) == 0;
+		}
+
+		case LUA_TNUMBER:
+		{
+			auto val = checked_get<double>(L, idx);
+			return s.IgValueSetF64(path, nullptr, nullptr, val) == 0;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto val = checked_get<char const*>(L, idx);
+			return s.IgValueSetStringUTF8(path, nullptr, nullptr, val, (int)strlen(val)) == 0;
+		}
+
+		case LUA_TUSERDATA:
+		{
+			auto arr = UIFlashArray::AsUserData(L, idx);
+			if (arr != nullptr) {
+				OsiError("Assigning Flash arrays to values not supported yet!");
+				return false;
+			}
+
+			auto obj = UIFlashObject::AsUserData(L, idx);
+			if (obj != nullptr) {
+				OsiError("Assigning Flash objects to values not supported yet!");
+				return false;
+			}
+
+			auto fun = UIFlashFunction::AsUserData(L, idx);
+			if (fun != nullptr) {
+				OsiError("Assigning Flash functions to values not supported yet!");
+				return false;
+			}
+
+			OsiError("Only Flash array/object/function userdata types can be assigned to Flash values!");
+			return false;
+		}
+
+		default:
+			OsiError("Can't convert Lua type '" << lua_typename(L, lua_type(L, idx))  << "' to Flash!");
+			return false;
+		}
+	}
+
+	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	{
+		auto const& s = GetStaticSymbols();
+
+		ig::DataType type;
+		if (s.IgValueGetType(path, nullptr, nullptr, &type) != 0) {
+			return 0;
+		}
+
+		switch (type) {
+		case ig::DataType::None:
+			lua_pushnil(L);
+			return 1;
+
+		case ig::DataType::Bool:
+		{
+			uint32_t val;
+			if (s.IgValueGetBoolean(path, nullptr, nullptr, &val) == 0) {
+				push(L, val != 0);
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		case ig::DataType::Double:
+		{
+			double val;
+			if (s.IgValueGetF64(path, nullptr, nullptr, &val) == 0) {
+				push(L, val);
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		case ig::DataType::String:
+		case ig::DataType::WString:
+		{
+			int resultLength{ 0 };
+			if (s.IgValueGetStringUTF8(path, nullptr, nullptr, 0x10000, nullptr, &resultLength) != 0) {
+				return 0;
+			}
+
+			STDString str;
+			str.resize(resultLength);
+			if (s.IgValueGetStringUTF8(path, nullptr, nullptr, resultLength, str.data(), &resultLength) == 0) {
+				push(L, str);
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		case ig::DataType::Array:
+			UIFlashArray::New(L, parents, path);
+			return 1;
+
+		case ig::DataType::Object:
+			UIFlashObject::New(L, parents, path);
+			return 1;
+
+		case ig::DataType::Function:
+			UIFlashFunction::New(L, parents, path);
+			return 1;
+
+		default:
+			OsiError("Don't know how to handle Flash type " << (unsigned)type << "!");
+			return 0;
 		}
 	}
 
@@ -765,6 +1079,9 @@ namespace dse::ecl::lua
 
 		lua_pushcfunction(L, &GetTypeId);
 		lua_setfield(L, -2, "GetTypeId");
+
+		lua_pushcfunction(L, &GetRoot);
+		lua_setfield(L, -2, "GetRoot");
 
 		lua_pushcfunction(L, &Destroy);
 		lua_setfield(L, -2, "Destroy");
@@ -855,7 +1172,7 @@ namespace dse::ecl::lua
 		}
 
 		auto numArgs = lua_gettop(L) - 2;
-		std::vector<InvokeDataValue> args;
+		std::vector<ig::InvokeDataValue> args;
 		args.resize(numArgs);
 		for (auto i = 0; i < numArgs; i++) {
 			LuaToInvokeDataValue(L, i + 3, args[i]);
@@ -897,7 +1214,7 @@ namespace dse::ecl::lua
 		if (!root) return 0;
 
 		auto path = luaL_checkstring(L, 2);
-		InvokeDataValue value;
+		ig::InvokeDataValue value;
 		LuaToInvokeDataValue(L, 3, value);
 		int arrayIndex = -1;
 		if (lua_gettop(L) >= 4) {
@@ -923,15 +1240,15 @@ namespace dse::ecl::lua
 			arrayIndex = (int)luaL_checkinteger(L, 4);
 		}
 
-		InvokeDataValue value;
-		InvokeDataValueType type{ InvokeDataValueType::IDV_NoneVal };
+		ig::InvokeDataValue value;
+		ig::DataType type{ ig::DataType::None };
 		if (typeName != nullptr) {
 			if (strcmp(typeName, "number") == 0) {
-				type = InvokeDataValueType::IDV_Double;
+				type = ig::DataType::Double;
 			} else if (strcmp(typeName, "boolean") == 0) {
-				type = InvokeDataValueType::IDV_Bool;
+				type = ig::DataType::Bool;
 			} else if (strcmp(typeName, "string") == 0) {
-				type = InvokeDataValueType::IDV_String;
+				type = ig::DataType::String;
 			} else {
 				luaL_error(L, "Unknown value type for Flash fetch: %s", typeName);
 			}
@@ -988,6 +1305,15 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
+	int UIObjectProxy::GetRoot(lua_State* L)
+	{
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui || !ui->FlashPlayer) return 0;
+
+		std::vector<ig::IggyValuePath> path;
+		return PushFlashRef(L, path, ui->FlashPlayer->IggyPlayerRootPath);
+	}
+
 
 	int UIObjectProxy::Destroy(lua_State * L)
 	{
@@ -1006,7 +1332,7 @@ namespace dse::ecl::lua
 
 		auto function = luaL_checkstring(L, 2);
 		auto numArgs = lua_gettop(L) - 2;
-		std::vector<InvokeDataValue> args;
+		std::vector<ig::InvokeDataValue> args;
 		args.resize(numArgs);
 		for (auto i = 0; i < numArgs; i++) {
 			LuaToInvokeDataValue(L, i + 3, args[i]);
@@ -1020,7 +1346,7 @@ namespace dse::ecl::lua
 	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
 	std::unordered_map<UIObject::VMT *, UIObject::OnFunctionCalledProc> OriginalUIObjectCallHandlers;
 
-	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, InvokeDataValue* args)
+	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
@@ -1093,11 +1419,11 @@ namespace dse::ecl::lua
 	}
 
 	static bool FlashPlayerInvoke6Capture(ig::FlashPlayer* self, int64_t invokeId,
-		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5, InvokeDataValue* a6)
+		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4, ig::InvokeDataValue* a5, ig::InvokeDataValue* a6)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5, *a6 };
+			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5, *a6 };
 			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
 		}
 
@@ -1105,11 +1431,11 @@ namespace dse::ecl::lua
 	}
 
 	static bool FlashPlayerInvoke5Capture(ig::FlashPlayer* self, int64_t invokeId,
-		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4, InvokeDataValue* a5)
+		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4, ig::InvokeDataValue* a5)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5 };
+			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5 };
 			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
 		}
 
@@ -1117,11 +1443,11 @@ namespace dse::ecl::lua
 	}
 
 	static bool FlashPlayerInvoke4Capture(ig::FlashPlayer* self, int64_t invokeId,
-		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3, InvokeDataValue* a4)
+		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<InvokeDataValue> args{ *a1, *a2, *a3, *a4 };
+			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4 };
 			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
 		}
 
@@ -1129,29 +1455,29 @@ namespace dse::ecl::lua
 	}
 
 	static bool FlashPlayerInvoke3Capture(ig::FlashPlayer* self, int64_t invokeId,
-		InvokeDataValue* a1, InvokeDataValue* a2, InvokeDataValue* a3)
+		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<InvokeDataValue> args{ *a1, *a2, *a3 };
+			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3 };
 			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
 		}
 
 		return gFlashPlayerHooks.OriginalInvoke3(self, invokeId, a1, a2, a3);
 	}
 
-	static bool FlashPlayerInvoke2Capture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* a1, InvokeDataValue* a2)
+	static bool FlashPlayerInvoke2Capture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* a1, ig::InvokeDataValue* a2)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<InvokeDataValue> args{ *a1, *a2 };
+			std::vector<ig::InvokeDataValue> args{ *a1, *a2 };
 			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
 		}
 
 		return gFlashPlayerHooks.OriginalInvoke2(self, invokeId, a1, a2);
 	}
 
-	static bool FlashPlayerInvoke1Capture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* a1)
+	static bool FlashPlayerInvoke1Capture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* a1)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
@@ -1171,7 +1497,7 @@ namespace dse::ecl::lua
 		return gFlashPlayerHooks.OriginalInvoke0(self, invokeId);
 	}
 
-	static bool FlashPlayerInvokeArgsCapture(ig::FlashPlayer* self, int64_t invokeId, InvokeDataValue* args, unsigned numArgs)
+	static bool FlashPlayerInvokeArgsCapture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* args, unsigned numArgs)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
@@ -1531,7 +1857,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 1, "Ext.UIObjectCreated");
 	}
 
-	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, InvokeDataValue * args)
+	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 	{
 		Restriction restriction(*this, RestrictAll);
 
@@ -1546,7 +1872,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 2 + numArgs, "Ext.UICall");
 	}
 
-	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, InvokeDataValue* args)
+	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		Restriction restriction(*this, RestrictAll);
 

@@ -6,39 +6,77 @@
 
 namespace dse
 {
-
-	enum class InvokeDataValueType : int32_t
-	{
-		IDV_NoneVal = 0x1,
-		IDV_Bool = 0x3,
-		IDV_Double = 0x4,
-		IDV_String = 0x5,
-		IDV_WString = 0x6,
-		IDV_Pointer = 0x11,
-	};
-
-
-	struct InvokeDataValue
-	{
-		InvokeDataValueType TypeId;
-		STDString StringVal;
-		STDWString WStringVal;
-		bool BoolVal;
-		void* PointerVal;
-		double DoubleVal;
-	};
-
-
 	namespace ig
 	{
-		struct IggyValue
+		enum class DataType : int32_t
 		{
-			uint8_t Unknown[40];
+			None = 0x1,
+			Bool = 0x3,
+			Double = 0x4,
+			String = 0x5,
+			WString = 0x6,
+			Array = 0xA,
+			Object = 0xC,
+			Function = 0x10,
+			UserData = 0x11,
+			UserData2 = 0x12,
 		};
 
-		using ValuePathMakeNameRefProc = int (*)(IggyValue* ref, IggyValue* parent, char const* path);
-		using ValuePathSetArrayIndexProc = void (*)(IggyValue* ref, int index);
-		using ValueGetStringUTF8Proc = int (*)(IggyValue* ref, int unknown1, int unknown2, int maxLength, char* result, int* resultLength);
+		struct InvokeDataValue
+		{
+			DataType TypeId;
+			STDString StringVal;
+			STDWString WStringVal;
+			bool BoolVal;
+			void* PointerVal;
+			double DoubleVal;
+		};
+
+		struct IggyValuePath
+		{
+			void* Iggy;
+			void* Parent;
+			void* Name;
+			void* Ref;
+			int32_t ArrayIndex;
+			int32_t Type;
+		};
+
+		struct IggyDataValue
+		{
+			DataType TypeId;
+			int field_4;
+			int field_8;
+			int field_C;
+			union {
+				int32_t Int32;
+				int64_t Int64;
+				float Float;
+				double Double;
+				char* String;
+				wchar_t* WString;
+			};
+			int StringLength;
+			int field_1C;
+		};
+
+		using ValuePathMakeNameRefProc = int (*)(IggyValuePath* path, IggyValuePath* parent, char const* name);
+		using ValuePathMakeArrayRefProc = int (*)(IggyValuePath* path, IggyValuePath* parent, int index, void* iggy);
+		using ValuePathSetArrayIndexProc = void (*)(IggyValuePath* path, int index);
+
+		using ValueGetTypeProc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, DataType* type);
+		using ValueGetArrayLengthProc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, uint32_t* result);
+
+		using ValueGetBooleanProc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, uint32_t* result);
+		using ValueGetF64Proc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, double* result);
+		using ValueGetStringUTF8Proc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, int maxLength, char* result, int* resultLength);
+
+		using ValueSetBooleanProc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, uint32_t value);
+		using ValueSetF64Proc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, double value);
+		using ValueSetStringUTF8Proc = int (*)(IggyValuePath const* path, void* nameRef, char const* name, char const* value, int length);
+		
+		using PlayerCreateFastNameUTF8 = void* (*)(void* player, char const* name, int length);
+		using PlayerCallMethod = int (*)(void* player, IggyDataValue* retval, IggyValuePath const* objectPath, void* methodName, int numArgs, IggyDataValue const* args);
 
 		struct FlashObject : ProtectedGameObject<FlashObject>
 		{
@@ -62,9 +100,9 @@ namespace dse
 			virtual unsigned GetWidth() = 0;
 			virtual unsigned GetHeight() = 0;
 			virtual bool GetVisible() = 0;
-			virtual bool GetValue(char const * path, InvokeDataValueType desiredType, InvokeDataValue & value, int arrayIndex = -1) = 0;
+			virtual bool GetValue(char const * path, DataType desiredType, InvokeDataValue & value, int arrayIndex = -1) = 0;
 
-			IggyValue* IggyValue;
+			IggyValuePath* IggyValue;
 			void * ValuePathRef2;
 			void * StrX;
 			void * StrY;
@@ -76,7 +114,7 @@ namespace dse
 			void * StrHeight;
 			void * StrVisible;
 
-			bool GetValueWorkaround(char const* path, InvokeDataValueType desiredType, InvokeDataValue& value, int arrayIndex = -1);
+			bool GetValueWorkaround(char const* path, DataType desiredType, InvokeDataValue& value, int arrayIndex = -1);
 		};
 
 
@@ -245,7 +283,7 @@ namespace dse
 			int field_24;
 			__int16 field_28;
 			void * IggyPlayer;
-			void * IggyPlayerRootPath;
+			IggyValuePath * IggyPlayerRootPath;
 			ObjectSet<FlashInvokeDefinition> Invokes;
 			int FlashInvokePool;
 			int field_64;
@@ -334,7 +372,7 @@ namespace dse
 
 	struct UIObject : Noncopyable<UIObject>
 	{
-		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, InvokeDataValue *);
+		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
 
 		struct VMT
 		{
@@ -385,7 +423,7 @@ namespace dse
 		};
 
 
-		virtual void OnFunctionCalled(const char * a1, unsigned int a2, InvokeDataValue * a3);
+		virtual void OnFunctionCalled(const char * a1, unsigned int a2, ig::InvokeDataValue * a3);
 		virtual void OnCustomDrawCallback(void * a1);
 		virtual void Destroy(bool a1);
 		virtual void SetHandle(ObjectHandle * a1);

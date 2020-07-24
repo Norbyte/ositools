@@ -586,6 +586,7 @@ namespace dse::lua
 	class Callable {};
 	class Indexable {};
 	class NewIndexable {};
+	class Lengthable {};
 
 	template <class T>
 	class Userdata
@@ -645,6 +646,16 @@ namespace dse::lua
 			}
 		}
 
+		static int LengthProxy(lua_State * L)
+		{
+			if constexpr (std::is_base_of_v<Lengthable, T>) {
+				auto self = CheckUserData(L, 1);
+				return self->Length(L);
+			} else {
+				return luaL_error(L, "Not lengthable!");
+			}
+		}
+
 		static void PopulateMetatable(lua_State * L)
 		{
 			// Add custom metatable items by overriding this in subclasses
@@ -671,6 +682,11 @@ namespace dse::lua
 			if constexpr (std::is_base_of_v<NewIndexable, T>) {
 				lua_pushcfunction(L, &NewIndexProxy); // stack: mt, &NewIndex
 				lua_setfield(L, -2, "__newindex"); // mt.__index = &NewIndex; stack: mt
+			}
+
+			if constexpr (std::is_base_of_v<Lengthable, T>) {
+				lua_pushcfunction(L, &LengthProxy); // stack: mt, &Length
+				lua_setfield(L, -2, "__len"); // mt.__index = &Length; stack: mt
 			}
 
 			T::PopulateMetatable(L);

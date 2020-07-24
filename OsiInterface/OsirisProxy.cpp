@@ -871,6 +871,12 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 	}
 
 	switch (toState) {
+	case ecl::GameState::LoadModule:
+		if (config_.DeveloperMode) {
+			RegisterFlashTraceCallbacks();
+		}
+		break;
+
 	case ecl::GameState::InitNetwork:
 	case ecl::GameState::Disconnect:
 		networkManager_.ClientReset();

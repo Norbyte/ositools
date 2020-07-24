@@ -410,15 +410,58 @@ namespace dse
 		}
 
 		auto makeNameRefProc = GetProcAddress(hIggy, "IggyValue" "PathMakeNameRef");
+		auto makeArrayRefProc = GetProcAddress(hIggy, "IggyValue" "PathMakeArrayRef");
 		auto setArrayIndexProc = GetProcAddress(hIggy, "IggyValue" "PathSetArrayIndex");
+
+		auto getTypeProc = GetProcAddress(hIggy, "IggyValue" "GetTypeRS");
+		auto getArrayLengthProc = GetProcAddress(hIggy, "IggyValue" "GetArrayLengthRS");
+
+		auto getBooleanProc = GetProcAddress(hIggy, "IggyValue" "GetBooleanRS");
+		auto getF64Proc = GetProcAddress(hIggy, "IggyValue" "GetF64RS");
 		auto getStringUTF8Proc = GetProcAddress(hIggy, "IggyValue" "GetStringUTF8RS");
+
+		auto setBooleanProc = GetProcAddress(hIggy, "IggyValue" "SetBooleanRS");
+		auto setF64Proc = GetProcAddress(hIggy, "IggyValue" "SetF64RS");
+		auto setStringUTF8Proc = GetProcAddress(hIggy, "IggyValue" "SetStringUTF8RS");
+
+		auto createFastNameUTF8Proc = GetProcAddress(hIggy, "IggyPlayer" "CreateFastNameUTF8");
+		auto callMethodProc = GetProcAddress(hIggy, "IggyPlayer" "CallMethodRS");
+
 		sym.IgValuePathMakeNameRef = (ig::ValuePathMakeNameRefProc)makeNameRefProc;
+		sym.IgValuePathPathMakeArrayRef = (ig::ValuePathMakeArrayRefProc)makeArrayRefProc;
 		sym.IgValuePathSetArrayIndex = (ig::ValuePathSetArrayIndexProc)setArrayIndexProc;
+
+		sym.IgValueGetType = (ig::ValueGetTypeProc)getTypeProc;
+		sym.IgValueGetArrayLength = (ig::ValueGetArrayLengthProc)getArrayLengthProc;
+
+		sym.IgValueGetBoolean = (ig::ValueGetBooleanProc)getBooleanProc;
+		sym.IgValueGetF64 = (ig::ValueGetF64Proc)getF64Proc;
 		sym.IgValueGetStringUTF8 = (ig::ValueGetStringUTF8Proc)getStringUTF8Proc;
 
+		sym.IgValueSetBoolean = (ig::ValueSetBooleanProc)setBooleanProc;
+		sym.IgValueSetF64 = (ig::ValueSetF64Proc)setF64Proc;
+		sym.IgValueSetStringUTF8 = (ig::ValueSetStringUTF8Proc)setStringUTF8Proc;
+
+		sym.IgPlayerCreateFastNameUTF8 = (ig::PlayerCreateFastNameUTF8)createFastNameUTF8Proc;
+		sym.IgPlayerCallMethod = (ig::PlayerCallMethod)callMethodProc;
+
 		if (sym.IgValuePathMakeNameRef == nullptr
+			|| sym.IgValuePathPathMakeArrayRef == nullptr
 			|| sym.IgValuePathSetArrayIndex == nullptr
-			|| sym.IgValueGetStringUTF8 == nullptr) {
+
+			|| sym.IgValueGetType == nullptr
+			|| sym.IgValueGetArrayLength == nullptr
+
+			|| sym.IgValueGetBoolean == nullptr
+			|| sym.IgValueGetF64 == nullptr
+			|| sym.IgValueGetStringUTF8 == nullptr
+
+			|| sym.IgValueSetBoolean == nullptr
+			|| sym.IgValueSetF64 == nullptr
+			|| sym.IgValueSetStringUTF8 == nullptr
+
+			|| sym.IgPlayerCreateFastNameUTF8 == nullptr
+			|| sym.IgPlayerCallMethod == nullptr) {
 			ERR("LibraryManager::FindExportsIggy(): Could not find Iggy functions");
 			InitFailed = true;
 		}

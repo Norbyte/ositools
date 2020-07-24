@@ -208,8 +208,22 @@ namespace dse
 		void * ModuleSettingsHasCustomModsGB5{ nullptr };
 
 		ig::ValuePathMakeNameRefProc IgValuePathMakeNameRef{ nullptr };
+		ig::ValuePathMakeArrayRefProc IgValuePathPathMakeArrayRef{ nullptr };
 		ig::ValuePathSetArrayIndexProc IgValuePathSetArrayIndex{ nullptr };
+
+		ig::ValueGetTypeProc IgValueGetType{ nullptr };
+		ig::ValueGetArrayLengthProc IgValueGetArrayLength{ nullptr };
+
+		ig::ValueGetBooleanProc IgValueGetBoolean{ nullptr };
+		ig::ValueGetF64Proc IgValueGetF64{ nullptr };
 		ig::ValueGetStringUTF8Proc IgValueGetStringUTF8{ nullptr };
+
+		ig::ValueSetBooleanProc IgValueSetBoolean{ nullptr };
+		ig::ValueSetF64Proc IgValueSetF64{ nullptr };
+		ig::ValueSetStringUTF8Proc IgValueSetStringUTF8{ nullptr };
+
+		ig::PlayerCreateFastNameUTF8 IgPlayerCreateFastNameUTF8{ nullptr };
+		ig::PlayerCallMethod IgPlayerCallMethod{ nullptr };
 
 		void * DUMMY1{ nullptr };
 		std::map<uint8_t const *, EoCLibraryInfo> Libraries;
