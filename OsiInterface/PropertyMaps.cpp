@@ -67,7 +67,7 @@ namespace dse
 			BEGIN_PROPERTIES(gStatusPropertyMap, esv::Status);
 			PROP_RO(NetID);
 			PROP_RO(StatusId);
-			PROP_RO(CanEnterChance);
+			PROP(CanEnterChance);
 			PROP(StartTimer);
 			PROP(LifeTime);
 			PROP(CurrentLifeTime);
