@@ -133,6 +133,7 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 		esv::Character::HasMadnessProc* esv__Character__HasMadness{ nullptr };
+		ecl::Character::HasMadnessProc* ecl__Character__HasMadness{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };

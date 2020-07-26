@@ -243,6 +243,9 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__Character_HasMadnessHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::CharacterHasMadnessFix, this, _1, _2)
 		);
+		osiris_.GetLibraryManager().ecl__Character_HasMadnessHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::EclCharacterHasMadnessFix, this, _1, _2)
+		);
 
 		PostLoaded = true;
 	}

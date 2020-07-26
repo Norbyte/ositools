@@ -46,6 +46,7 @@ namespace dse::esv
 			CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		void OnStatusHealEnter(esv::Status * status);
 		bool CharacterHasMadnessFix(esv::Character::HasMadnessProc* wrapped, esv::Character* character);
+		bool EclCharacterHasMadnessFix(ecl::Character::HasMadnessProc* wrapped, ecl::Character* character);
 
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);

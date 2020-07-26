@@ -682,6 +682,37 @@ namespace dse::esv
 	}
 
 
+	bool CustomFunctionLibrary::EclCharacterHasMadnessFix(ecl::Character::HasMadnessProc* wrapped, ecl::Character* character)
+	{
+		auto parent = character;
+		for (;;) {
+			if (parent->HasFlag((uint64_t)CharacterFlags::HasOwner) && parent->OwnerCharacterHandle) {
+				auto owner = ecl::GetEntityWorld()->GetCharacter(parent->OwnerCharacterHandle);
+				if (owner) {
+					parent = owner;
+				}
+				else {
+					OsiError("Character has Owner flag set, but no owner? Weird.");
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+
+		for (auto status : parent->StatusMachine->Statuses) {
+			if (status->StatusId == GFS.strMADNESS
+				&& (unsigned)(status->Flags & ecl::StatusFlags::Started)
+				&& !(unsigned)(status->Flags & ecl::StatusFlags::RequestDelete)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
 	void CustomFunctionLibrary::ThrowCharacterHit(esv::Character * self, CDivinityStats_Character * attackerStats,
 		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
 		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,

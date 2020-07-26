@@ -356,6 +356,8 @@ namespace dse
 
 		struct Character : public IEocClientObject
 		{
+			using HasMadnessProc = bool(Character* self);
+
 			Status* GetStatus(ObjectHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 

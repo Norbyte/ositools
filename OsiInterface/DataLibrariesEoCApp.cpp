@@ -1216,6 +1216,21 @@ namespace dse
 			{},
 			{"esv::Character::HasMadness", SymbolMappingTarget::kAbsolute, -0xA, STATIC_SYM(esv__Character__HasMadness)}
 		},
+
+		{
+			"ecl::Character::HasMadness",
+			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
+			"48 8B 01 " // mov     rax, [rcx]
+			"BA 80 00 00 00 " // mov     edx, 80h
+			"48 8B D9 " // mov     rbx, rcx
+			"FF 90 90 00 00 00 " // call    qword ptr [rax+90h]
+			"84 C0 " // test    al, al
+			"74 37 " // jz      xxx
+			"0F 1F 44 00 00 " // nop     dword ptr [rax+rax+00h]
+			"48 8B 0D XX XX XX XX ", // mov     rcx, cs:ecl__gCharacterFactory
+			{},
+			{"ecl::Character::HasMadness", SymbolMappingTarget::kAbsolute, -0x6, STATIC_SYM(ecl__Character__HasMadness)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)
