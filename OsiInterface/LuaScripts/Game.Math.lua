@@ -1108,7 +1108,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
     local hitBlocked = false
 
     if not noHitRoll then
-        local hitChance = CalculateHitChance(target, attacker)
+        local hitChance = CalculateHitChance(attacker, target)
         local hitRoll = math.random(0, 99)
         if hitRoll >= hitChance then
             if target.TALENT_RangerLoreEvasionBonus and hitRoll < hitChance + 10 then
