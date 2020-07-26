@@ -300,7 +300,7 @@ function GetWeaponAbility(character, weapon)
     end
 
     local offHandWeapon = character.OffHandWeapon
-    if offHandWeapon ~= nil and IsRangedWeapon(weapon) and IsRangedWeapon(offHandWeapon) then
+    if offHandWeapon ~= nil and IsRangedWeapon(weapon) == IsRangedWeapon(offHandWeapon) then
         return "DualWielding"
     end
 
