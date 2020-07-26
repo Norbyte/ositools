@@ -1201,6 +1201,21 @@ namespace dse
 			{},
 			{"eoc::SurfaceTransformActionsFromType", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(eoc__SurfaceTransformActionsFromType)}
 		},
+
+		{
+			"esv::Character::HasMadness",
+			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
+			"48 8B 01 " // mov     rax, [rcx]
+			"BA 80 00 00 00 " // mov     edx, 80h
+			"48 8B D9 " // mov     rbx, rcx
+			"FF 90 90 00 00 00 " // call    qword ptr [rax+90h]
+			"84 C0 " // test    al, al
+			"74 33 " // jz      xxx
+			"90 " // nop
+			"48 8B 0D XX XX XX XX ", // mov     rcx, cs:esv__gCharacterFactory
+			{},
+			{"esv::Character::HasMadness", SymbolMappingTarget::kAbsolute, -0xA, STATIC_SYM(esv__Character__HasMadness)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

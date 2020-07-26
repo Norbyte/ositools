@@ -102,6 +102,7 @@ FS(DisplayName);
 FS(StatusType);
 FS(StatusData);
 FS(HIT);
+FS(MADNESS);
 
 // Stat modifier types
 FS(SkillSet);

@@ -240,6 +240,9 @@ namespace dse::esv
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 		);
+		osiris_.GetLibraryManager().esv__Character_HasMadnessHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::CharacterHasMadnessFix, this, _1, _2)
+		);
 
 		PostLoaded = true;
 	}
