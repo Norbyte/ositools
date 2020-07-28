@@ -1229,7 +1229,8 @@ namespace dse::esv::lua
 	int OsirisIsCallable(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
-		bool allowed = (lua->RestrictionFlags & State::RestrictOsiris) != 0;
+		bool allowed = gOsirisProxy->IsStoryLoaded()
+			&& ((lua->RestrictionFlags & State::RestrictOsiris) == 0);
 		push(L, allowed);
 		return 1;
 	}

@@ -223,6 +223,11 @@ public:
 		return statLoadOrderHelper_;
 	}
 
+	inline bool IsStoryLoaded() const
+	{
+		return StoryLoaded;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 
