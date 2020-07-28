@@ -97,7 +97,7 @@ namespace dse
 
 		FixedString Name;
 		CRPGStats_Object_Property_Type TypeId;
-		CRPGStats_Object_PropertyContext PropertyContext;
+		CRPGStats_Object_PropertyContext Context;
 		CDivinityStats_Condition* Conditions;
 
 		void ToProtobuf(class StatProperty* msg) const;
@@ -114,20 +114,20 @@ namespace dse
 		FixedString Status;
 		float StatusChance;
 		float Duration;
-		FixedString Argument3;
-		int Argument4;
-		int Argument5;
-		bool HasBoost;
-		ObjectSet<int> SurfaceBoosts; // ESurfaceType
+		FixedString StatsId;
+		int Arg4;
+		int Arg5;
+		bool SurfaceBoost;
+		ObjectSet<SurfaceType> SurfaceBoosts;
 	};
 
 	struct CDivinityStats_Object_Property_SurfaceChange : public CDivinityStats_Object_Property_Data
 	{
 		int SurfaceChange; // "Surface Change" from ValueLists
-		float Arg1;
-		float Arg2;
-		float Arg3;
-		float Arg4;
+		float SurfaceChance;
+		float Lifetime;
+		float StatusChance;
+		float Radius;
 	};
 	
 	struct CDivinityStats_Object_Property_Sabotage : public CDivinityStats_Object_Property_Data
@@ -186,7 +186,7 @@ namespace dse
 			auto cl = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
 			cl->Name = Name;
 			cl->TypeId = TypeId;
-			cl->PropertyContext = PropertyContext;
+			cl->Context = Context;
 			cl->Conditions = Conditions;
 			cl->TextLine1 = TextLine1;
 			return cl;
@@ -803,7 +803,7 @@ namespace dse
 	};
 
 
-	struct CSkillSet : public ProtectedGameObject<CSkillSet>
+	struct CSkillSet
 	{
 		FixedString Name;
 		ObjectSet<FixedString> Skills;
@@ -814,13 +814,13 @@ namespace dse
 		CSkillSet * ParsedSkillSet;
 	};
 
-	struct CEquipmentGroup : public ProtectedGameObject<CEquipmentGroup>
+	struct CEquipmentGroup
 	{
 		FixedString Name;
 		ObjectSet<FixedString> Equipment;
 	};
 
-	struct CEquipmentSet : public ProtectedGameObject<CEquipmentSet>
+	struct CEquipmentSet
 	{
 		FixedString Name;
 		Vector<CEquipmentGroup*> Groups;
@@ -831,7 +831,7 @@ namespace dse
 		CEquipmentSet * ParsedEquipmentSet;
 	};
 
-	struct CRPGStats_DeltaModifier : public Noncopyable<CRPGStats_DeltaModifier>
+	struct CRPGStats_DeltaModifier : Noncopyable<CRPGStats_DeltaModifier>
 	{
 		ObjectSet<int> BoostIndices;
 		ObjectSet<int> BoostCounts;
@@ -984,7 +984,7 @@ namespace dse
 	};
 
 
-	struct CItemProgressionManager
+	struct CItemProgressionManager : public ProtectedGameObject<CItemProgressionManager>
 	{
 		Map<FixedString, CItemGroup*> ItemGroups;
 		Map<FixedString, CNameGroup*> NameGroups;
@@ -1071,6 +1071,29 @@ namespace dse
 		RefMap<FixedString, CItemCombinationProperty*> ComboProperties;
 	};
 
+
+	MARK_ALLOCATABLE(CRPGStats_Object_Property_List);
+	MARK_ALLOCATABLE(CSkillSet);
+	MARK_ALLOCATABLE(CEquipmentGroup);
+	MARK_ALLOCATABLE(CEquipmentSet);
+	MARK_ALLOCATABLE(CRPGStats_DeltaModifier);
+	MARK_ALLOCATABLE(CRPGStats_Treasure_SubTable_Description);
+	MARK_ALLOCATABLE(CRPGStats_Treasure_SubTable_Description::Category);
+	MARK_ALLOCATABLE(CRPGStats_Treasure_Table);
+	MARK_ALLOCATABLE(CRPGStats_Treasure_Category);
+	MARK_ALLOCATABLE(CRPGStats_Treasure_Category::Item);
+	MARK_ALLOCATABLE(CNameGroupName);
+	MARK_ALLOCATABLE(CNameGroup);
+	MARK_ALLOCATABLE(CNameGroupLink);
+	MARK_ALLOCATABLE(CRootGroup);
+	MARK_ALLOCATABLE(CLevelGroup);
+	MARK_ALLOCATABLE(CItemGroup);
+	MARK_ALLOCATABLE(CItemCombinationProperty);
+	MARK_ALLOCATABLE(CItemCombinationPreviewData);
+	MARK_ALLOCATABLE(CItemCombinationIngredient);
+	MARK_ALLOCATABLE(CItemCombinationResult);
+	MARK_ALLOCATABLE(CItemCombinationResult::CombinationResult);
+	MARK_ALLOCATABLE(CItemCombination);
 
 
 	extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;

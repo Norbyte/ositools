@@ -102,6 +102,18 @@ namespace dse
 		return !(x == y);
 	}
 
+	// Identifies types that can be allocated by us (using the game allocator)
+	template <class>
+	std::false_type AllocatableImpl(...);
+
+	#define MARK_ALLOCATABLE(ty) template <class T> \
+		std::true_type AllocatableImpl(T*)
+
+	template <class T>
+	struct IsAllocatable : decltype(AllocatableImpl<T>(nullptr))
+	{};
+
+
 #if defined(OSI_EOCAPP)
 	template <class T>
 	using Vector = std::vector<T, GameAllocator<T>>;

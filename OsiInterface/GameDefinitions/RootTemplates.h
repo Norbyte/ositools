@@ -213,8 +213,7 @@ namespace dse
         OverrideableProperty<TranslatedString> UnknownDisplayName;
         OverrideableProperty<uint32_t> Tooltip;
         OverrideableProperty<FixedString> Stats;
-        ObjectSet<void*> field_510;
-        __int64 field_530;
+        OverrideableProperty<ObjectSet<FixedString>> Treasures;
         OverrideableProperty<ObjectSet<void*>> OnUsePeaceActions; // IActionData*
         OverrideableProperty<ObjectSet<void*>> OnDestroyActions; // IActionData*
         OverrideableProperty<TranslatedString> OnUseDescription;

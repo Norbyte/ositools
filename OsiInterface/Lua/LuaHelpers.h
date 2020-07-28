@@ -287,6 +287,19 @@ namespace dse::lua
 		}
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
+	inline STDString checked_get(lua_State* L, int index)
+	{
+		return STDString(luaL_checkstring(L, index));
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, STDWString>, int>* = nullptr>
+	inline STDWString checked_get(lua_State* L, int index)
+	{
+		auto str = luaL_checkstring(L, index);
+		return FromUTF8(str);
+	}
+
 
 	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
 	T checked_get(lua_State * L, int index)

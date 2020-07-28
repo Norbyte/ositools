@@ -3,6 +3,7 @@
 #include <PropertyMaps.h>
 #include <Version.h>
 #include <Lua/LuaBinding.h>
+#include <Lua/LuaSerializers.h>
 #include <ScriptHelpers.h>
 
 #include <fstream>
@@ -677,224 +678,41 @@ namespace dse::lua
 	int GetTreasureTable(lua_State* L)
 	{
 		auto tableName = luaL_checkstring(L, 1);
-
 		auto const* stats = GetStaticSymbols().GetStats();
 		auto const& tables = stats->TreasureTables;
 		auto table = tables.Find(tableName);
-		if (table == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", table->Name);
-		setfield(L, "MinLevel", table->MinLevel);
-		setfield(L, "MaxLevel", table->MaxLevel);
-		setfield(L, "IgnoreLevelDiff", table->IgnoreLevelDiff);
-		setfield(L, "UseTreasureGroupContainers", table->UseTreasureGroupContainers);
-		setfield(L, "CanMerge", table->CanMerge);
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto subTable : table->SubTables) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "TotalFrequency", subTable->TotalFrequency);
-			setfield(L, "TotalCount", subTable->TotalCount);
-			setfield(L, "StartLevel", subTable->StartLevel);
-			setfield(L, "EndLevel", subTable->EndLevel);
-
-			lua_newtable(L);
-			int32_t categoryIndex = 1;
-			for (auto category : subTable->Categories) {
-				push(L, categoryIndex++);
-				lua_newtable(L);
-				setfield(L, "Frequency", category->Frequency);
-				if (category->IsTreasureTable) {
-					auto refTable = tables.Find(category->Index);
-					if (refTable) {
-						setfield(L, "TreasureTable", refTable->Name);
-					}
-				} else {
-					auto refCategory = stats->TreasureCategories.Find(category->Index);
-					if (refCategory) {
-						setfield(L, "TreasureCategory", refCategory->Category);
-					}
-				}
-
-				for (int i = 0; i < 7; i++) {
-					setfield(L, stats->TreasureItemTypes[i].Str, category->Frequencies[i]);
-				}
-				lua_settable(L, -3);
-			}
-
-			lua_setfield(L, -2, "Categories");
-
-			lua_newtable(L);
-			int32_t dropIndex = 1;
-			for (auto const& dropCount : subTable->DropCounts) {
-				push(L, dropIndex++);
-				lua_newtable(L);
-				setfield(L, "Chance", dropCount.Chance);
-				setfield(L, "Amount", dropCount.Amount);
-				lua_settable(L, -3);
-			}
-
-			lua_setfield(L, -2, "DropCounts");
-
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "SubTables");
-
-		return 1;
+		return LuaWrite(L, table);
 	}
 
 	int GetTreasureCategory(lua_State* L)
 	{
 		auto categoryName = luaL_checkstring(L, 1);
-
 		auto const* stats = GetStaticSymbols().GetStats();
 		auto category = stats->TreasureCategories.Find(categoryName);
-		if (category == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto item : category->Items) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "Name", item->Name);
-			setfield(L, "Priority", item->Priority);
-			setfield(L, "MinAmount", item->MinAmount);
-			setfield(L, "MaxAmount", item->MaxAmount);
-			setfield(L, "ActPart", item->ActPart);
-			setfield(L, "Unique", item->Unique);
-			setfield(L, "MinLevel", item->MinLevel);
-			setfield(L, "MaxLevel", item->MaxLevel);
-			lua_settable(L, -3);
-		}
-
-		return 1;
+		return LuaWrite(L, category);
 	}
 
 	int GetItemCombo(lua_State* L)
 	{
 		auto comboName = luaL_checkstring(L, 1);
-
 		auto combo = GetStaticSymbols().GetStats()->ItemCombinationManager->Find(comboName);
-		if (combo == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", combo->Name);
-		setfield(L, "RecipeCategory", combo->RecipeCategory);
-		setfield(L, "CraftingStation", combo->CraftingStation);
-		setfield(L, "AutoLevel", combo->AutoLevel);
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto const& ingredient : combo->Ingredients) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "Object", ingredient.Object);
-			setfield(L, "IngredientType", ingredient.IngredientType);
-			setfield(L, "Transform", ingredient.Transform);
-			setfield(L, "ItemRarity", ingredient.ItemRarity);
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "Ingredients");
-
-		index = 1;
-		lua_newtable(L);
-		for (auto const& result : combo->Results) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "Requirement", result.Requirement);
-			setfield(L, "ReqLevel", result.ReqLevel);
-			setfield(L, "PreviewStatsId", result.PreviewStatsId);
-			setfield(L, "PreviewIcon", result.PreviewIcon);
-			setfield(L, "PreviewTooltip", result.PreviewTooltip);
-			setfield(L, "Name", result.Name);
-
-
-			int32_t resultIndex = 1;
-			lua_newtable(L);
-			for (auto const& comboResult : result.Results) {
-				push(L, resultIndex++);
-				lua_newtable(L);
-				setfield(L, "Result", comboResult.Result);
-				setfield(L, "Boost", comboResult.Boost);
-				setfield(L, "ResultAmount", comboResult.ResultAmount);
-				lua_settable(L, -3);
-			}
-
-			lua_setfield(L, -2, "Results");
-
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "Results");
-
-		return 1;
+		return LuaWrite(L, *combo);
 	}
 
 
 	int GetItemComboPreviewData(lua_State* L)
 	{
 		auto comboName = ToFixedString(luaL_checkstring(L, 1));
-
 		auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
-		if (preview == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", (*preview)->Name);
-		setfield(L, "Type", (*preview)->Type);
-		setfield(L, "StatsId", (*preview)->StatsId);
-		setfield(L, "Tooltip", (*preview)->Tooltip);
-		setfield(L, "Icon", (*preview)->Icon);
-
-		return 1;
+		return LuaWrite(L, *preview);
 	}
 
 
 	int GetItemComboProperty(lua_State* L)
 	{
 		auto propertyName = ToFixedString(luaL_checkstring(L, 1));
-
 		auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
-		if (prop == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", (*prop)->Name);
-		setfield(L, "PreviewIcon", (*prop)->PreviewIcon);
-		setfield(L, "PreviewTooltip", (*prop)->PreviewTooltip);
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto const& entry : (*prop)->Entries) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "ObjectId", entry.ObjectId);
-			setfield(L, "IngredientType", entry.IngredientType);
-			setfield(L, "Result", entry.Result);
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "Entries");
-
-		return 1;
+		return LuaWrite(L, *prop);
 	}
 
 
@@ -902,57 +720,7 @@ namespace dse::lua
 	{
 		auto name = ToFixedString(luaL_checkstring(L, 1));
 		auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
-		if (group == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", (*group)->Name);
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto levelGroup : (*group)->LevelGroups) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "MinLevel", levelGroup->MinLevel);
-			setfield(L, "MaxLevel", levelGroup->MaxLevel);
-			setfield(L, "Name", levelGroup->Name);
-
-			int32_t rootGroupIdx = 1;
-			lua_newtable(L);
-			for (auto rootGroup : levelGroup->RootGroups) {
-				push(L, rootGroupIdx++);
-				lua_newtable(L);
-				setfield(L, "MinLevel", rootGroup->MinLevel);
-				setfield(L, "MaxLevel", rootGroup->MaxLevel);
-				setfield(L, "RootGroup", rootGroup->RootGroup);
-				setfield(L, "Unknown", rootGroup->field_10);
-
-
-				int32_t linkIdx = 1;
-				lua_newtable(L);
-				for (auto link : rootGroup->NameGroupLinks) {
-					push(L, linkIdx++);
-					lua_newtable(L);
-					setfield(L, "NameGroup", link->NameGroup);
-					setfield(L, "NoneCoolSuffix", link->NoneCoolSuffix);
-					setfield(L, "ItemName", link->ItemName);
-					setfield(L, "Unknown", link->field_0);
-					lua_settable(L, -3);
-				}
-
-				lua_setfield(L, -2, "NameGroupLinks");
-				lua_settable(L, -3);
-			}
-
-			lua_setfield(L, -2, "RootGroups");
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "LevelGroups");
-
-		return 1;
+		return LuaWrite(L, *group);
 	}
 
 
@@ -960,446 +728,15 @@ namespace dse::lua
 	{
 		auto name = ToFixedString(luaL_checkstring(L, 1));
 		auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
-		if (nameGroup == nullptr) {
-			lua_pushnil(L);
-			return 1;
-		}
-
-		lua_newtable(L);
-		setfield(L, "Name", (*nameGroup)->Name);
-
-		int32_t index = 1;
-		lua_newtable(L);
-		for (auto grpName : (*nameGroup)->Names) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "Name", grpName->Name.Str1.WStr);
-			setfield(L, "Name2", grpName->Name2.Str1.WStr);
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "Names");
-
-		
-		index = 1;
-		lua_newtable(L);
-		for (auto grpName : (*nameGroup)->NamesCool) {
-			push(L, index++);
-			lua_newtable(L);
-			setfield(L, "Name", grpName->Name.Str1.WStr);
-			setfield(L, "Name2", grpName->Name2.Str1.WStr);
-			lua_settable(L, -3);
-		}
-
-		lua_setfield(L, -2, "NamesCool");
-
-		return 1;
+		return LuaWrite(L, *nameGroup);
 	}
 
-
-	void RequirementToLua(lua_State * L, CRPGStats_Requirement const & requirement)
-	{
-		lua_newtable(L);
-
-		setfield(L, "Requirement", requirement.RequirementId);
-		if (requirement.RequirementId == RequirementType::Tag) {
-			setfield(L, "Param", requirement.StringParam);
-		} else {
-			setfield(L, "Param", requirement.IntParam);
-		}
-		
-		setfield(L, "Not", requirement.Negate);
-	}
-
-	void RequirementsToLua(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> const & requirements)
-	{
-		lua_newtable(L);
-		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
-			push(L, i + 1);
-			RequirementToLua(L, requirements[i]);
-			lua_settable(L, -3);
-		}
-	}
-
-	void LuaToRequirement(lua_State * L, CRPGStats_Requirement & requirement)
-	{
-		auto requirementId = checked_getfield<RequirementType>(L, "Requirement");
-
-		requirement.RequirementId = requirementId;
-		if (requirementId == RequirementType::Tag) {
-			auto param = getfield<char const *>(L, "Param");
-			requirement.StringParam = MakeFixedString(param);
-			requirement.IntParam = -1;
-		} else {
-			auto param = getfield<int32_t>(L, "Param");
-			requirement.IntParam = param;
-		}
-
-		requirement.Negate = getfield<bool>(L, "Not");
-	}
-
-	void LuaToRequirements(lua_State * L, ObjectSet<CRPGStats_Requirement, GameMemoryAllocator, true> & requirements)
-	{
-#if LUA_VERSION_NUM > 501
-		lua_len(L, -1);
-		auto len = lua_tointeger(L, -1);
-		lua_pop(L, 1);
-#else
-		auto len = lua_objlen(L, -1);
-#endif
-
-		requirements.Set.Reallocate((uint32_t)len);
-		requirements.Set.Size = (uint32_t)len;
-
-		for (uint32_t i = 0; i < requirements.Set.Size; i++) {
-			push(L, i + 1);
-			lua_gettable(L, -2);
-			LuaToRequirement(L, requirements[i]);
-			lua_pop(L, 1);
-		}
-	}
-
-	void ObjectPropertyToLua(lua_State* L, CDivinityStats_Object_Property_Data const* property)
-	{
-		auto stats = GetStaticSymbols().GetStats();
-
-		lua_newtable(L);
-
-		push(L, "Context");
-		lua_newtable(L);
-		int ctxIndex = 1;
-		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::Target)) {
-			settable(L, ctxIndex++, "Target");
-		}
-		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::AoE)) {
-			settable(L, ctxIndex++, "AoE");
-		}
-		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::Self)) {
-			settable(L, ctxIndex++, "Self");
-		}
-		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::SelfOnHit)) {
-			settable(L, ctxIndex++, "SelfOnHit");
-		}
-		if ((bool)(property->PropertyContext & CRPGStats_Object_PropertyContext::SelfOnEquip)) {
-			settable(L, ctxIndex++, "SelfOnEquip");
-		}
-		lua_settable(L, -3);
-		
-		if (property->Conditions) {
-			STDString name(property->Name.Str);
-			if (name[name.length() - 1] == ')') {
-				auto ifPos = name.find("_IF(");
-				if (ifPos != std::string::npos) {
-					auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
-					setfield(L, "Condition", condition);
-				}
-			}
-		}
-
-		switch (property->TypeId) {
-		case CRPGStats_Object_Property_Type::Custom:
-		{
-			auto prop = (CDivinityStats_Object_Property_Custom*)property;
-			setfield(L, "Type", "Custom");
-			setfield(L, "Action", prop->Name);
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Status:
-		{
-			auto prop = (CDivinityStats_Object_Property_Status*)property;
-			setfield(L, "Type", "Status");
-			setfield(L, "Action", prop->Status);
-			setfield(L, "StatusChance", prop->StatusChance);
-			setfield(L, "Duration", prop->Duration);
-			setfield(L, "Arg3", prop->Argument3);
-			setfield(L, "Arg4", prop->Argument4);
-			setfield(L, "Arg5", prop->Argument5);
-			setfield(L, "SurfaceBoost", prop->HasBoost);
-			// FIXME - SurfaceBoosts
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::SurfaceChange:
-		{
-			auto prop = (CDivinityStats_Object_Property_SurfaceChange*)property;
-			auto surfaceChange = stats->EnumIndexToLabel(GFS.strSurfaceChange, prop->SurfaceChange);
-			setfield(L, "Type", "SurfaceChange");
-			setfield(L, "Action", surfaceChange);
-			setfield(L, "Arg1", prop->Arg1);
-			setfield(L, "Arg2", prop->Arg2);
-			setfield(L, "Arg3", prop->Arg3);
-			setfield(L, "Arg4", prop->Arg4);
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::GameAction:
-		{
-			auto prop = (CDivinityStats_Object_Property_GameAction*)property;
-			auto gameAction = stats->EnumIndexToLabel(GFS.strGameAction, prop->GameAction);
-			setfield(L, "Type", "GameAction");
-			setfield(L, "Action", gameAction);
-			setfield(L, "Arg1", prop->Arg1);
-			setfield(L, "Arg2", prop->Arg2);
-			setfield(L, "Arg3", prop->Arg3);
-			setfield(L, "Arg4", prop->Arg4);
-			setfield(L, "Arg5", prop->Arg5);
-			auto statusHealType = stats->EnumIndexToLabel(GFS.strStatusHealType, prop->StatusHealType);
-			if (statusHealType) {
-				setfield(L, "StatusHealType", statusHealType);
-			}
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::OsirisTask:
-		{
-			auto prop = (CDivinityStats_Object_Property_OsirisTask*)property;
-			setfield(L, "Type", "OsirisTask");
-			auto osirisTask = stats->EnumIndexToLabel(GFS.strOsirisTask, prop->OsirisTask);
-			setfield(L, "Action", osirisTask);
-			setfield(L, "Chance", prop->Chance);
-			setfield(L, "VitalityOnRevive", prop->VitalityOnRevive);
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Sabotage:
-		{
-			auto prop = (CDivinityStats_Object_Property_Sabotage*)property;
-			setfield(L, "Type", "Sabotage");
-			setfield(L, "Action", "Sabotage");
-			setfield(L, "Amount", prop->Amount);
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Summon:
-		{
-			auto prop = (CDivinityStats_Object_Property_Summon*)property;
-			setfield(L, "Type", "Summon");
-			setfield(L, "Template", prop->Template);
-			setfield(L, "Duration", prop->Duration);
-			setfield(L, "IsTotem", prop->IsTotem);
-			setfield(L, "Skill", prop->Skill);
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Force:
-		{
-			auto prop = (CDivinityStats_Object_Property_Force*)property;
-			setfield(L, "Type", "Force");
-			setfield(L, "Action", "Force");
-			setfield(L, "Distance", prop->Distance);
-			break;
-		}
-
-		default:
-			WARN("Couldn't convert unknown property type %d to Lua!", property->TypeId);
-		}
-	}
-
-	void ObjectPropertyListToLua(lua_State* L, CRPGStats_Object_Property_List const& properties)
-	{
-		lua_newtable(L);
-		for (uint32_t i = 0; i < properties.Properties.Primitives.Set.Size; i++) {
-			push(L, i + 1);
-			auto prop = static_cast<CDivinityStats_Object_Property_Data*>(properties.Properties.Primitives[i]);
-			ObjectPropertyToLua(L, prop);
-			lua_settable(L, -3);
-		}
-	}
-
-	CDivinityStats_Object_Property_Data* LuaToObjectProperty(lua_State* L, int index, FixedString const& propertyName)
-	{
-		auto stats = GetStaticSymbols().GetStats();
-		auto typeId = checked_getfield<CRPGStats_Object_Property_Type>(L, "Type");
-
-		auto prop = stats->ConstructProperty(typeId);
-		if (!prop) {
-			return nullptr;
-		}
-
-		switch (typeId) {
-		case CRPGStats_Object_Property_Type::Custom:
-		{
-			auto custom = (CDivinityStats_Object_Property_Custom*)prop;
-			auto actionStr = checked_getfield<char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex(GFS.strCustomProperties, actionStr);
-			if (!action) {
-				OsiError("Unknown Custom Properties value: " << actionStr);
-				return nullptr;
-			}
-			custom->CustomProperties = *action;
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Status:
-		{
-			auto status = (CDivinityStats_Object_Property_Status*)prop;
-			status->Status = MakeFixedString(checked_getfield<char const*>(L, "Action"));
-			status->StatusChance = checked_getfield<float>(L, "StatusChance");
-			status->Duration = checked_getfield<float>(L, "Duration");
-			status->Argument3 = MakeFixedString(checked_getfield<char const*>(L, "Arg3"));
-			status->Argument4 = checked_getfield<int>(L, "Arg4");
-			status->Argument5 = checked_getfield<int>(L, "Arg5");
-			status->HasBoost = checked_getfield<bool>(L, "SurfaceBoost");
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::SurfaceChange:
-		{
-			auto change = (CDivinityStats_Object_Property_SurfaceChange*)prop;
-			auto actionStr = checked_getfield<char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex(GFS.strSurfaceChange, actionStr);
-			if (!action) {
-				OsiError("Unknown Surface Change value: " << actionStr);
-				return nullptr;
-			}
-			change->SurfaceChange = *action;
-
-			change->Arg1 = checked_getfield<float>(L, "Arg1");
-			change->Arg2 = checked_getfield<float>(L, "Arg2");
-			change->Arg3 = checked_getfield<float>(L, "Arg3");
-			change->Arg4 = checked_getfield<float>(L, "Arg4");
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::GameAction:
-		{
-			auto gameAction = (CDivinityStats_Object_Property_GameAction*)prop;
-			auto actionStr = checked_getfield<char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex(GFS.strGameAction, actionStr);
-			if (!action) {
-				OsiError("Unknown Custom Properties value: " << actionStr);
-				return nullptr;
-			}
-			gameAction->GameAction = *action;
-
-			gameAction->Arg1 = checked_getfield<float>(L, "Arg1");
-			gameAction->Arg2 = checked_getfield<float>(L, "Arg2");
-			gameAction->Arg3 = MakeFixedString(checked_getfield<char const*>(L, "Arg3"));
-			gameAction->Arg4 = checked_getfield<float>(L, "Arg4");
-			gameAction->Arg5 = checked_getfield<float>(L, "Arg5");
-			auto statusHealType = getfield<char const*>(L, "StatusHealType");
-			if (statusHealType) {
-				auto healTypeIndex = stats->EnumLabelToIndex(GFS.strStatusHealType, statusHealType);
-				if (!healTypeIndex) {
-					OsiError("Unknown StatusHealType value: " << statusHealType);
-					return nullptr;
-				}
-
-				gameAction->StatusHealType = *healTypeIndex;
-			}
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::OsirisTask:
-		{
-			auto osirisTask = (CDivinityStats_Object_Property_OsirisTask*)prop;
-			auto actionStr = checked_getfield<char const*>(L, "Action");
-			auto action = stats->EnumLabelToIndex(GFS.strOsirisTask, actionStr);
-			if (!action) {
-				OsiError("Unknown Osiris Task value: " << actionStr);
-				return nullptr;
-			}
-			osirisTask->OsirisTask = *action;
-			osirisTask->Chance = checked_getfield<float>(L, "Chance");
-			osirisTask->VitalityOnRevive = checked_getfield<int>(L, "VitalityOnRevive");
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Sabotage:
-		{
-			auto sabotage = (CDivinityStats_Object_Property_Sabotage*)prop;
-			sabotage->Amount = checked_getfield<int>(L, "Amount");
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Summon:
-		{
-			auto summon = (CDivinityStats_Object_Property_Summon*)prop;
-			summon->Template = MakeFixedString(checked_getfield<char const*>(L, "Template"));
-			summon->Duration = checked_getfield<float>(L, "Duration");
-			summon->IsTotem = checked_getfield<bool>(L, "IsTotem");
-			summon->Skill = MakeFixedString(checked_getfield<char const*>(L, "Skill"));
-			break;
-		}
-
-		case CRPGStats_Object_Property_Type::Force:
-		{
-			auto force = (CDivinityStats_Object_Property_Force*)prop;
-			force->Distance = checked_getfield<int>(L, "Distance");
-			break;
-		}
-
-		default:
-			luaL_error(L, "Unhandled object property type!");
-			return nullptr;
-		}
-
-		STDString name = std::to_string(index).c_str();
-		prop->Name = MakeFixedString(name.c_str());
-
-		auto conditions = getfield<char const*>(L, "Condition");
-		if (conditions && *conditions) {
-			auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(conditions);
-			if (scriptCheckBlock) {
-				auto statConditions = GameAlloc<CDivinityStats_Condition>();
-				statConditions->ScriptCheckBlock = scriptCheckBlock;
-				statConditions->Name = propertyName;
-				prop->Conditions = statConditions;
-			} else {
-				OsiWarn("Failed to parse conditions: " << conditions);
-			}
-
-			name += "_IF(";
-			name += conditions;
-			name += ")";
-		}
-
-		push(L, "Context");
-		lua_gettable(L, -2);
-		luaL_checktype(L, -1, LUA_TTABLE);
-		for (auto idx : iterate(L, -1)) {
-			auto context = checked_get<char const*>(L, idx);
-			if (strcmp(context, "Target") == 0) {
-				prop->PropertyContext |= CRPGStats_Object_PropertyContext::Target;
-			} else if (strcmp(context, "AoE") == 0) {
-				prop->PropertyContext |= CRPGStats_Object_PropertyContext::AoE;
-			} else if (strcmp(context, "Self") == 0) {
-				prop->PropertyContext |= CRPGStats_Object_PropertyContext::Self;
-			} else if (strcmp(context, "SelfOnHit") == 0) {
-				prop->PropertyContext |= CRPGStats_Object_PropertyContext::SelfOnHit;
-			} else if (strcmp(context, "SelfOnEquip") == 0) {
-				prop->PropertyContext |= CRPGStats_Object_PropertyContext::SelfOnEquip;
-			} else {
-				OsiError("Unknown PropertyContext: " << context);
-			}
-		}
-		lua_pop(L, 1);
-
-		return prop;
-	}
 
 	CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L, FixedString const& propertyName)
 	{
-		if (lua_type(L, -1) != LUA_TTABLE) {
-			OsiError("Expected a table when setting property " << propertyName);
-			return nullptr;
-		}
-
 		auto properties = GetStaticSymbols().GetStats()->ConstructPropertyList(propertyName);
-		if (!properties) {
-			return nullptr;
-		}
-
-		auto index = 0;
-		for (auto idx : iterate(L, -1)) {
-			auto prop = LuaToObjectProperty(L, index++, propertyName);
-			if (prop) {
-				properties->Properties.Add(prop->Name, prop);
-				properties->AllPropertyContexts = prop->PropertyContext;
-			}
-		}
-
+		LuaSerializer s(L, false);
+		s << properties;
 		return properties;
 	}
 
@@ -1433,26 +770,18 @@ namespace dse::lua
 
 			return 0;
 		} else if (attributeFS == GFS.strRequirements) {
-			RequirementsToLua(L, object->Requirements);
-			return 1;
+			return LuaWrite(L, object->Requirements);
 		} else if (attributeFS == GFS.strMemorizationRequirements) {
-			RequirementsToLua(L, object->MemorizationRequirements);
-			return 1;
+			return LuaWrite(L, object->MemorizationRequirements);
 		} else if (attributeFS == GFS.strAIFlags) {
 			push(L, object->AIFlags);
 			return 1;
 		} else if (attributeFS == GFS.strComboCategory) {
-			lua_newtable(L);
-			auto index = 1;
-			for (auto const& category : object->ComboCategories) {
-				settable(L, index++, category);
-			}
-			return 1;
+			return LuaWrite(L, object->ComboCategories);
 		} else if (attributeFS == GFS.strSkillProperties || attributeFS == GFS.strExtraProperties) {
 			auto propertyList = object->PropertyList.Find(attributeFS);
 			if (propertyList) {
-				ObjectPropertyListToLua(L, **propertyList);
-				return 1;
+				return LuaWrite(L, *propertyList);
 			} else {
 				return 0;
 			}
@@ -1540,10 +869,10 @@ namespace dse::lua
 		}
 
 		if (attributeFS == GFS.strRequirements) {
-			LuaToRequirements(L, object->Requirements);
+			LuaRead(L, object->Requirements);
 			return 0;
 		} else if (attributeFS == GFS.strMemorizationRequirements) {
-			LuaToRequirements(L, object->MemorizationRequirements);
+			LuaRead(L, object->MemorizationRequirements);
 			return 0;
 		} else if (attributeFS == GFS.strAIFlags) {
 			object->AIFlags = MakeFixedString(lua_tostring(L, valueIdx));
@@ -1671,7 +1000,7 @@ namespace dse::lua
 
 		// FIXME - assign name + add to map properly
 		auto customProp = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
-		customProp->PropertyContext = (CRPGStats_Object_PropertyContext)0;
+		customProp->Context = (CRPGStats_Object_PropertyContext)0;
 		customProp->TypeId = CRPGStats_Object_Property_Type::CustomDescription;
 		customProp->Conditions = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
@@ -1966,37 +1295,7 @@ namespace dse::lua
 		}
 
 		auto deltaMod = deltaModType->Find(name);
-		if (deltaMod == nullptr) {
-			return 0;
-		}
-
-		lua_newtable(L);
-		setfield(L, "ModifierType", deltaMod->ModifierType);
-		setfield(L, "SlotType", EnumInfo<ItemSlot>::Find((ItemSlot)deltaMod->SlotType));
-		setfield(L, "WeaponType", deltaMod->WeaponType);
-		setfield(L, "ArmorType", deltaMod->ArmorType);
-		setfield(L, "Handedness", deltaMod->Handedness);
-		setfield(L, "Name", deltaMod->Name);
-		setfield(L, "BoostType", deltaMod->BoostType);
-		setfield(L, "MinLevel", deltaMod->MinLevel);
-		setfield(L, "MaxLevel", deltaMod->MaxLevel);
-		setfield(L, "Frequency", deltaMod->Frequency);
-
-		lua_newtable(L);
-		int index = 1;
-		for (uint32_t i = 0; i < deltaMod->BoostIndices.Set.Size; i++) {
-			auto boost = stats->objects.Find(deltaMod->BoostIndices[i]);
-			if (boost != nullptr) {
-				push(L, index++);
-				lua_newtable(L);
-				setfield(L, "Boost", boost->Name);
-				setfield(L, "Count", deltaMod->BoostCounts[i]);
-				lua_settable(L, -3);
-			}
-		}
-		lua_setfield(L, -2, "Boosts");
-
-		return 1;
+		return LuaWrite(L, deltaMod);
 	}
 
 	int UpdateDeltaMod(lua_State* L)

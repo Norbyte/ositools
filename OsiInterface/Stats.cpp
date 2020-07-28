@@ -178,7 +178,7 @@ namespace dse
 	{
 		msg->set_name(Name.Str);
 		msg->set_type((uint32_t)TypeId);
-		msg->set_property_context((uint32_t)PropertyContext);
+		msg->set_property_context((uint32_t)Context);
 		if (Conditions) {
 			STDString name(Name.Str);
 			if (name[name.length() - 1] == ')') {
@@ -200,12 +200,12 @@ namespace dse
 			msg->add_string_params(p.Status.Str);
 			msg->add_float_params(p.StatusChance);
 			msg->add_float_params(p.Duration);
-			msg->add_string_params(p.Argument3.Str);
-			msg->add_int_params(p.Argument4);
-			msg->add_int_params(p.Argument5);
-			msg->add_bool_params(p.HasBoost);
+			msg->add_string_params(p.StatsId.Str);
+			msg->add_int_params(p.Arg4);
+			msg->add_int_params(p.Arg5);
+			msg->add_bool_params(p.SurfaceBoost);
 			for (auto boost : p.SurfaceBoosts) {
-				msg->add_surface_boosts(boost);
+				msg->add_surface_boosts((int32_t)boost);
 			}
 			break;
 		}
@@ -214,10 +214,10 @@ namespace dse
 		{
 			auto const& p = (CDivinityStats_Object_Property_SurfaceChange const&)*this;
 			msg->add_int_params(p.SurfaceChange);
-			msg->add_float_params(p.Arg1);
-			msg->add_float_params(p.Arg2);
-			msg->add_float_params(p.Arg3);
-			msg->add_float_params(p.Arg4);
+			msg->add_float_params(p.SurfaceChance);
+			msg->add_float_params(p.Lifetime);
+			msg->add_float_params(p.StatusChance);
+			msg->add_float_params(p.Radius);
 			break;
 		}
 
@@ -277,7 +277,7 @@ namespace dse
 		auto stats = GetStaticSymbols().GetStats();
 
 		Name = MakeFixedString(msg.name().c_str());
-		PropertyContext = (CRPGStats_Object_PropertyContext)msg.property_context();
+		Context = (CRPGStats_Object_PropertyContext)msg.property_context();
 
 		if (!msg.conditions().empty()) {
 			STDString conditions(msg.conditions().c_str());
@@ -302,12 +302,12 @@ namespace dse
 			p.Status = MakeFixedString(msg.string_params()[0].c_str());
 			p.StatusChance = msg.float_params()[0];
 			p.Duration = msg.float_params()[1];
-			p.Argument3 = MakeFixedString(msg.string_params()[1].c_str());
-			p.Argument4 = msg.int_params()[0];
-			p.Argument5 = msg.int_params()[1];
-			p.HasBoost = msg.bool_params()[0];
+			p.StatsId = MakeFixedString(msg.string_params()[1].c_str());
+			p.Arg4 = msg.int_params()[0];
+			p.Arg5 = msg.int_params()[1];
+			p.SurfaceBoost = msg.bool_params()[0];
 			for (auto boost : msg.surface_boosts()) {
-				p.SurfaceBoosts.Set.Add(boost);
+				p.SurfaceBoosts.Set.Add((SurfaceType)boost);
 			}
 			break;
 		}
@@ -316,10 +316,10 @@ namespace dse
 		{
 			auto& p = (CDivinityStats_Object_Property_SurfaceChange&)*this;
 			p.SurfaceChange = msg.int_params()[0];
-			p.Arg1 = msg.float_params()[0];
-			p.Arg2 = msg.float_params()[1];
-			p.Arg3 = msg.float_params()[2];
-			p.Arg4 = msg.float_params()[3];
+			p.SurfaceChance = msg.float_params()[0];
+			p.Lifetime = msg.float_params()[1];
+			p.StatusChance = msg.float_params()[2];
+			p.Radius = msg.float_params()[3];
 			break;
 		}
 
@@ -391,7 +391,7 @@ namespace dse
 			if (property) {
 				property->FromProtobuf(prop);
 				Properties.Add(property->Name, property);
-				AllPropertyContexts |= property->PropertyContext;
+				AllPropertyContexts |= property->Context;
 			}
 		}
 	}
@@ -733,7 +733,7 @@ namespace dse
 
 		*(void**)prop = typeIt->second;
 		prop->TypeId = type;
-		prop->PropertyContext = (CRPGStats_Object_PropertyContext)0;
+		prop->Context = (CRPGStats_Object_PropertyContext)0;
 		prop->Conditions = nullptr;
 
 		return prop;
