@@ -328,6 +328,7 @@ namespace dse
 	};
 
 	FixedString ToFixedString(const char * s);
+	FixedString MakeFixedString(const char* s);
 
 
 	template <class T>

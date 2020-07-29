@@ -105,9 +105,7 @@ namespace dse
 	};
 
 	struct CDivinityStats_Object_Property_Custom : public CDivinityStats_Object_Property_Data
-	{
-		int CustomProperties; // "Custom Properties" from ValueLists
-	};
+	{};
 
 	struct CDivinityStats_Object_Property_Status : public CDivinityStats_Object_Property_Data
 	{

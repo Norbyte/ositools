@@ -39,6 +39,23 @@ namespace dse::lua
 			}
 		}
 
+		template <class T>
+		void VisitOptionalProperty(char const* key, T& val, T const& defaultValue)
+		{
+			if (IsWriting) {
+				*this << val;
+				lua_setfield(L, -2, key);
+			} else {
+				lua_getfield(L, -1, key);
+				if (lua_isnil(L, -1)) {
+					val = defaultValue;
+				} else {
+					*this << val;
+				}
+				lua_pop(L, 1);
+			}
+		}
+
 		inline void BeginObject()
 		{
 			if (IsWriting) {

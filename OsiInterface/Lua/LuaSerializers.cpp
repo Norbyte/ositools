@@ -5,6 +5,7 @@
 #include <ExtensionHelpers.h>
 
 #define P(name) s.VisitProperty(#name, v.name)
+#define PO(name, default) s.VisitOptionalProperty(#name, v.name, default)
 
 namespace dse::lua
 {
@@ -342,13 +343,18 @@ namespace dse::lua
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
 		s.VisitProperty("Action", v.Status);
-		P(StatusChance);
-		P(Duration);
-		P(StatsId);
-		P(Arg4);
-		P(Arg5);
-		P(SurfaceBoost);
-		P(SurfaceBoosts);
+		PO(StatusChance, 100.0f);
+		PO(Duration, 1.0f);
+		auto statsId = getfield<FixedString>(s.L, "Arg3");
+		if (statsId) {
+			v.StatsId = statsId;
+		} else {
+			PO(StatsId, GFS.strEmpty);
+		}
+		PO(Arg4, -1);
+		PO(Arg5, -1);
+		PO(SurfaceBoost, false);
+		PO(SurfaceBoosts, ObjectSet<SurfaceType>{});
 		return s;
 	}
 
@@ -356,10 +362,10 @@ namespace dse::lua
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strSurfaceChange, v.SurfaceChange);
-		P(SurfaceChance);
-		P(Lifetime);
-		P(StatusChance);
-		P(Radius);
+		PO(SurfaceChance, 1.0f);
+		PO(Lifetime, 0.0f);
+		PO(StatusChance, 0.0f);
+		PO(Radius, -1.0f);
 		return s;
 	}
 
@@ -367,11 +373,11 @@ namespace dse::lua
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strGameAction, v.GameAction);
-		P(Arg1);
-		P(Arg2);
-		P(Arg3);
-		P(Arg4);
-		P(Arg5);
+		PO(Arg1, -1.0f);
+		PO(Arg2, -1.0f);
+		PO(Arg3, GFS.strEmpty);
+		PO(Arg4, 1.0f);
+		PO(Arg5, 0.0f);
 		LuaSerializeStatsEnum(s, "StatusHealType", GFS.strStatusHealType, v.StatusHealType);
 		return s;
 	}
@@ -380,15 +386,15 @@ namespace dse::lua
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strOsirisTask, v.OsirisTask);
-		P(Chance);
-		P(VitalityOnRevive);
+		PO(Chance, 1.0f);
+		PO(VitalityOnRevive, -1);
 		return s;
 	}
 
 	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Sabotage& v)
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
-		P(Amount);
+		PO(Amount, 1);
 		return s;
 	}
 
@@ -396,9 +402,9 @@ namespace dse::lua
 	{
 		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
 		P(Template);
-		P(Duration);
-		P(IsTotem);
-		P(Skill);
+		PO(Duration, 6.0f);
+		PO(IsTotem, false);
+		PO(Skill, GFS.strEmpty);
 		return s;
 	}
 

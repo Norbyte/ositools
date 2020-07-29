@@ -242,7 +242,7 @@ namespace dse::lua
 	{
 		auto str = lua_tostring(L, index);
 		if (str) {
-			return ToFixedString(str);
+			return MakeFixedString(str);
 		} else {
 			return FixedString{};
 		}
@@ -278,7 +278,7 @@ namespace dse::lua
 	inline FixedString checked_get(lua_State* L, int index)
 	{
 		auto str = luaL_checkstring(L, index);
-		auto fs = ToFixedString(str);
+		auto fs = MakeFixedString(str);
 		if (!fs) {
 			luaL_error(L, "Argument %d: expected a valid FixedString value, got '%s'", index, str);
 			return {};
