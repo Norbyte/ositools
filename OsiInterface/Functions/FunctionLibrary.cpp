@@ -194,15 +194,22 @@ namespace dse::esv
 
 	void CustomFunctionLibrary::PostStartup()
 	{
-		if (!gOsirisProxy->HasFeatureFlag("OsirisExtensions")) {
-			return;
-		}
-
 		if (PostLoaded) {
 			return;
 		}
 
+		// Madness fix is enabled even when no extender-enabled mods are loaded
 		using namespace std::placeholders;
+		osiris_.GetLibraryManager().esv__Character_HasMadnessHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::CharacterHasMadnessFix, this, _1, _2)
+		);
+		osiris_.GetLibraryManager().ecl__Character_HasMadnessHook.SetWrapper(
+			std::bind(&CustomFunctionLibrary::EclCharacterHasMadnessFix, this, _1, _2)
+		);
+
+		if (!gOsirisProxy->HasFeatureFlag("OsirisExtensions")) {
+			return;
+		}
 
 		osiris_.GetLibraryManager().esv__Status__GetEnterChanceHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
@@ -239,12 +246,6 @@ namespace dse::esv
 		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
-		);
-		osiris_.GetLibraryManager().esv__Character_HasMadnessHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::CharacterHasMadnessFix, this, _1, _2)
-		);
-		osiris_.GetLibraryManager().ecl__Character_HasMadnessHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::EclCharacterHasMadnessFix, this, _1, _2)
 		);
 
 		PostLoaded = true;

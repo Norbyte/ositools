@@ -857,7 +857,7 @@ local StatItemDynamic = {}
 --- @class StatItem : StatBase
 --- Properties from property map
 --- @field public Level integer
---- @field public Name integer
+--- @field public Name string
 --- @field public InstanceId integer
 --- @field public ItemType string See EquipmentStatsType enumeration
 --- @field public ItemSlot string See ItemSlot enumeration
