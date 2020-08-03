@@ -337,8 +337,8 @@ function GetWeaponScalingRequirement(weapon)
     for i, requirement in pairs(weapon.Requirements) do
         local reqName = requirement.Requirement
         if not requirement.Not and requirement.Param > largestRequirement and
-            (reqName == "Strength" or reqName == "Finesse" or reqName == "Constitution" or
-            reqName == "Memory" or reqName == "Wits") then
+            (reqName == "Strength" or reqName == "Finesse" or reqName == "Intelligence" or
+            reqName == "Constitution" or reqName == "Memory" or reqName == "Wits") then
             requirementName = reqName
             largestRequirement = requirement.Param
         end
