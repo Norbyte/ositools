@@ -1207,13 +1207,19 @@ function GetSkillDamageRange(character, skill)
         local baseDamage = CalculateBaseDamage(skill.Damage, character, nil, level) * attrDamageScale * damageMultiplier
         local damageRange = skill['Damage Range'] * baseDamage * 0.005
 
-        local damageType = skill.DamageType
         local damageTypeBoost = 1.0 + GetDamageBoostByType(character, damageType)
         local damageBoost = 1.0 + (character.DamageBoost / 100.0)
+
+        local finalMin = math.ceil(math.ceil(Ext.Round(baseDamage - damageRange) * damageBoost) * damageTypeBoost)
+        local finalMax = math.ceil(math.ceil(Ext.Round(baseDamage + damageRange) * damageBoost) * damageTypeBoost)
+
+        if finalMin > 0 then
+            finalMax = math.max(finalMin + 1.0, finalMax)
+        end
+
         local damageRanges = {}
         damageRanges[damageType] = {
-            Min = math.ceil(math.ceil(Ext.Round(baseDamage - damageRange) * damageBoost) * damageTypeBoost),
-            Max = math.ceil(math.ceil(Ext.Round(baseDamage + damageRange) * damageBoost) * damageTypeBoost)
+            Min = finalMin, Max = finalMax
         }
         return damageRanges
     end
