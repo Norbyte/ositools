@@ -116,7 +116,7 @@ namespace dse::lua
 	SkillPrototypeProxy::SkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level)
 		: obj_(obj), level_(level)
 	{
-		stats_ = StatFindObject(obj->RPGStatsObjectIndex);
+		stats_ = obj->GetStats();
 	}
 
 	int SkillPrototypeProxy::Index(lua_State * L)

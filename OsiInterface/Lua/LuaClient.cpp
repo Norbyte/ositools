@@ -1900,7 +1900,7 @@ namespace dse::ecl::lua
 		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
 		auto _{ PushArguments(L,
-			std::tuple{Push<StatsProxy>(skill, std::optional<int32_t>()),
+			std::tuple{Push<SkillPrototypeProxy>(prototype, std::optional<int32_t>()),
 			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
 		push(L, isFromItem);
 

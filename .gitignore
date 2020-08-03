@@ -334,7 +334,7 @@ OsiInterface/osidebug.pb.cc
 OsiInterface/osidebug.pb.h
 Latest.zip
 LatestBuild
-LatestBuildPDB
+PDB
 OsiInterface/ScriptExtensions.pb.h
 OsiInterface/ScriptExtensions.pb.cc
 publish.bat
