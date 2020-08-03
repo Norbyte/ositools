@@ -369,6 +369,7 @@ function ComputeWeaponRequirementScaledDamage(character, weapon)
     end
 end
 
+-- from CDivinityStats_Item::ComputeDamage
 --- @param weapon StatItem
 function ComputeBaseWeaponDamage(weapon)
     local damages = {}
@@ -422,38 +423,66 @@ function ComputeBaseWeaponDamage(weapon)
     return damages, damageBoost
 end
 
--- from CDivinityStats_Character::CalculateWeaponDamageInner and CDivinityStats_Item::ComputeScaledDamage
+-- from CDivinityStats_Item::ComputeDamage
+--- @param weapon StatItem
+function CalculateWeaponDamageWithDamageBoost(weapon)
+    local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
+    local boost = 1.0 + damageBoost * 0.01
+
+    for damageType, damage in pairs(damages) do
+        if damageBoost ~= 0 then
+            damage.Min = math.ceil(damage.Min * boost)
+            damage.Max = math.ceil(damage.Max * boost)
+        else
+            damage.Min = Ext.Round(damage.Min)
+            damage.Max = Ext.Round(damage.Max)
+        end
+    end
+
+    return damages
+end
+
+-- from CDivinityStats_Item::ComputeScaledDamage
+--- @param character StatCharacter
+--- @param weapon StatItem
+function CalculateWeaponScaledDamageRanges(character, weapon)
+    local damages = CalculateWeaponDamageWithDamageBoost(weapon)
+
+    local boost = character.DamageBoost 
+        + ComputeWeaponCombatAbilityBoost(character, weapon)
+        + ComputeWeaponRequirementScaledDamage(character, weapon)
+    boost = boost / 100.0
+
+    if character.IsSneaking then
+        boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
+    end
+
+    local boostMin = math.max(-1.0, boost)
+
+    for damageType, damage in pairs(damages) do
+        damage.Min = damage.Min + math.ceil(damage.Min * boostMin)
+        damage.Max = damage.Max + math.ceil(damage.Max * boost)
+    end
+
+    return damages
+end
+
+-- from CDivinityStats_Character::CalculateWeaponDamageInner
 --- @param character StatCharacter
 --- @param weapon StatItem
 --- @param damageList DamageList
 --- @param noRandomization boolean
 function CalculateWeaponScaledDamage(character, weapon, damageList, noRandomization)
-    local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
-
-    local abilityBoosts = character.DamageBoost 
-        + ComputeWeaponCombatAbilityBoost(character, weapon)
-        + ComputeWeaponRequirementScaledDamage(character, weapon)
-    abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
-
-    local boost = 1.0 + damageBoost * 0.01
-    if character.IsSneaking then
-        boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
-    end
+    local damages = CalculateWeaponScaledDamageRanges(character, weapon)
 
     for damageType, damage in pairs(damages) do
-        local min = math.ceil(damage.Min * boost * abilityBoosts)
-        local max = math.ceil(damage.Max * boost * abilityBoosts)
-
-        local randRange = 1
-        if max - min >= 1 then
-            randRange = max - min
-        end
-
+        local randRange = math.max(1, damage.Max - damage.Min)
         local finalAmount
+
         if noRandomization then
-            finalAmount = min + math.floor(randRange / 2)
+            finalAmount = damage.Min + math.floor(randRange / 2)
         else
-            finalAmount = min + Ext.Random(0, randRange)
+            finalAmount = damage.Min + Ext.Random(0, randRange)
         end
 
         damageList:Add(damageType, finalAmount)
@@ -486,36 +515,6 @@ function CalculateWeaponDamage(attacker, weapon, noRandomization)
     end
 
     return damageList
-end
-
---- @param character StatCharacter
---- @param weapon StatItem
-function CalculateWeaponDamageRange(character, weapon)
-    local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
-
-    local abilityBoosts = character.DamageBoost 
-        + ComputeWeaponCombatAbilityBoost(character, weapon)
-        + ComputeWeaponRequirementScaledDamage(character, weapon)
-    abilityBoosts = math.max(abilityBoosts + 100.0, 0.0) / 100.0
-
-    local boost = 1.0 + damageBoost * 0.01
-    if character.IsSneaking then
-        boost = boost + Ext.ExtraData['Sneak Damage Multiplier']
-    end
-
-    local ranges = {}
-    for damageType, damage in pairs(damages) do
-        local min = math.ceil(damage.Min * boost * abilityBoosts)
-        local max = math.ceil(damage.Max * boost * abilityBoosts)
-
-        if min > max then
-            max = min
-        end
-
-        ranges[damageType] = {min, max}
-    end
-
-    return ranges
 end
 
 --- @param skill StatEntrySkillData
@@ -1145,16 +1144,16 @@ function GetSkillDamageRange(character, skill)
 
     if skill.UseWeaponDamage == "Yes" then
         local mainWeapon = character.MainWeapon
-        local mainDamageRange = CalculateWeaponDamageRange(character, mainWeapon)
+        local mainDamageRange = CalculateWeaponScaledDamageRanges(character, mainWeapon)
         local offHandWeapon = character.OffHandWeapon
 
         if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
-            local offHandDamageRange = CalculateWeaponDamageRange(character, offHandWeapon)
+            local offHandDamageRange = CalculateWeaponScaledDamageRanges(character, offHandWeapon)
 
             local dualWieldPenalty = Ext.ExtraData.DualWieldingDamagePenalty
             for damageType, range in pairs(offHandDamageRange) do
-                local min = range[1] * dualWieldPenalty
-                local max = range[2] * dualWieldPenalty
+                local min = range.Min * dualWieldPenalty
+                local max = range.Max * dualWieldPenalty
                 if mainDamageRange[damageType] ~= nil then
                     mainDamageRange[damageType][1] = mainDamageRange[damageType][1] + min
                     mainDamageRange[damageType][2] = mainDamageRange[damageType][2] + max
@@ -1165,18 +1164,18 @@ function GetSkillDamageRange(character, skill)
         end
 
         for damageType, range in pairs(mainDamageRange) do
-            local min = Ext.Round(range[1] * damageMultiplier)
-            local max = Ext.Round(range[2] * damageMultiplier)
-            range[1] = min + math.ceil(min * GetDamageBoostByType(character, damageType))
-            range[2] = max + math.ceil(max * GetDamageBoostByType(character, damageType))
+            local min = Ext.Round(range.Min * damageMultiplier)
+            local max = Ext.Round(range.Max * damageMultiplier)
+            range.Min = min + math.ceil(min * GetDamageBoostByType(character, damageType))
+            range.Max = max + math.ceil(max * GetDamageBoostByType(character, damageType))
         end
 
         local damageType = skill.DamageType
         if damageType ~= "None" and damageType ~= "Sentinel" then
             local min, max = 0, 0
             for _, range in pairs(mainDamageRange) do
-                min = min + range[1]
-                max = max + range[2]
+                min = min + range.Min
+                max = max + range.Max
             end
     
             mainDamageRange = {}
@@ -1211,8 +1210,8 @@ function GetSkillDamageRange(character, skill)
         local damageBoost = 1.0 + (character.DamageBoost / 100.0)
         local damageRanges = {}
         damageRanges[damageType] = {
-            math.ceil(math.ceil(Ext.Round(baseDamage - damageRange) * damageBoost) * damageTypeBoost),
-            math.ceil(math.ceil(Ext.Round(baseDamage + damageRange) * damageBoost) * damageTypeBoost)
+            Min = math.ceil(math.ceil(Ext.Round(baseDamage - damageRange) * damageBoost) * damageTypeBoost),
+            Max = math.ceil(math.ceil(Ext.Round(baseDamage + damageRange) * damageBoost) * damageTypeBoost)
         }
         return damageRanges
     end
