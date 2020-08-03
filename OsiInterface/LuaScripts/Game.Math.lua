@@ -220,13 +220,13 @@ end
 
 local DamageSourceCalcTable = {
     BaseLevelDamage = function (attacker, target, level)
-        return Ext.Round(GetLevelScaledDamage(level))
+        return math.max(0, Ext.Round(GetLevelScaledDamage(level)))
     end,
     AverageLevelDamge = function (attacker, target, level)
-        return Ext.Round(GetAverageLevelDamage(level))
+        return math.max(0, Ext.Round(GetAverageLevelDamage(level)))
     end,
     MonsterWeaponDamage = function (attacker, target, level)
-        return Ext.Round(GetLevelScaledMonsterWeaponDamage(level))
+        return math.max(0, Ext.Round(GetLevelScaledMonsterWeaponDamage(level)))
     end,
     SourceMaximumVitality = function (attacker, target, level)
         return attacker.MaxVitality
@@ -1146,16 +1146,22 @@ function GetSkillDamageRange(character, skill)
 
     if skill.UseWeaponDamage == "Yes" then
         local mainWeapon = character.MainWeapon
-        local mainDamageRange = CalculateWeaponScaledDamageRanges(character, mainWeapon)
         local offHandWeapon = character.OffHandWeapon
+        local mainDamageRange = CalculateWeaponScaledDamageRanges(character, mainWeapon)
 
         if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
             local offHandDamageRange = CalculateWeaponScaledDamageRanges(character, offHandWeapon)
 
+            -- Note: This differs from the way the game applies DualWieldingDamagePenalty.
+            -- In the original tooltip code, it is applied for the whole damage value,
+            -- not per damage type, so the result may differ from the original tooltip code
+            -- if DualWieldingDamagePenalty is not 1.0 or 0.5.
+            -- However, this formula is the correct one and the vanilla tooltip returns
+            -- buggy values if DualWieldingDamagePenalty ~= 1.0 and ~= 0.5
             local dualWieldPenalty = Ext.ExtraData.DualWieldingDamagePenalty
             for damageType, range in pairs(offHandDamageRange) do
-                local min = range.Min * dualWieldPenalty
-                local max = range.Max * dualWieldPenalty
+                local min = math.ceil(range.Min * dualWieldPenalty)
+                local max = math.ceil(range.Max * dualWieldPenalty)
                 local range = mainDamageRange[damageType]
                 if mainDamageRange[damageType] ~= nil then
                     range.Min = range.Min + min
@@ -1199,7 +1205,7 @@ function GetSkillDamageRange(character, skill)
 
         local skillDamageType = skill.Damage
         local attrDamageScale
-        if skillDamage == "BaseLevelDamage" or skillDamage == "AverageLevelDamge" or skillDamage == "MonsterWeaponDamage" then
+        if skillDamageType == "BaseLevelDamage" or skillDamageType == "AverageLevelDamge" or skillDamageType == "MonsterWeaponDamage" then
             attrDamageScale = GetSkillAttributeDamageScale(skill, character)
         else
             attrDamageScale = 1.0
