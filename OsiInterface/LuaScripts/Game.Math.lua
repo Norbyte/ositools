@@ -72,7 +72,7 @@ end
 --- @param skill StatEntrySkillData
 --- @param attacker StatCharacter
 function GetSkillAttributeDamageScale(skill, attacker)
-    if attacker == nil or skill.UseWeaponDamage == "Yes" or skill.Ability == 0 then
+    if attacker == nil or skill.UseWeaponDamage == "Yes" or skill.Ability == "None" then
         return 1.0
     else
         local primaryAttr = GetPrimaryAttributeAmount(skill, attacker)
