@@ -381,41 +381,43 @@ function ComputeBaseWeaponDamage(weapon)
     local damageBoost = 0
 
     for i, stat in pairs(stats) do
-        if stat.StatsType == "Weapon" and stat.DamageType ~= "None" then
-            local dmgType = stat.DamageType
-            local dmgFromBase = stat.DamageFromBase * 0.01
-            local minDamage = stat.MinDamage
-            local maxDamage = stat.MaxDamage
-
-            if dmgFromBase ~= 0 then
-                if stat == baseStat then
-                    if baseMinDamage ~= 0 then
-                        minDamage = math.max(dmgFromBase * baseMinDamage, 1)
-                    end
-                    if baseMaxDamage ~= 0 then
-                        maxDamage = math.max(dmgFromBase * baseMaxDamage, 1.0)
-                    end
-                else
-                    minDamage = math.max(baseDmgFromBase * dmgFromBase * baseMinDamage, 1.0)
-                    maxDamage = math.max(baseDmgFromBase * dmgFromBase * baseMaxDamage, 1.0)
-                end
-            end
-
-            if minDamage > 0 then
-                maxDamage = math.max(maxDamage, minDamage + 1.0)
-            end
-
+        if stat.StatsType == "Weapon" then
             damageBoost = damageBoost + stat.DamageBoost
 
-            if damages[dmgType] == nil then
-                damages[dmgType] = {
-                    Min = minDamage,
-                    Max = maxDamage
-                }
-            else
-                local damage = damages[dmgType]
-                damage.Min = damage.Min + minDamage
-                damage.Max = damage.Max + maxDamage
+            if stat.DamageType ~= "None" then
+                local dmgType = stat.DamageType
+                local dmgFromBase = stat.DamageFromBase * 0.01
+                local minDamage = stat.MinDamage
+                local maxDamage = stat.MaxDamage
+
+                if dmgFromBase ~= 0 then
+                    if stat == baseStat then
+                        if baseMinDamage ~= 0 then
+                            minDamage = math.max(dmgFromBase * baseMinDamage, 1.0)
+                        end
+                        if baseMaxDamage ~= 0 then
+                            maxDamage = math.max(dmgFromBase * baseMaxDamage, 1.0)
+                        end
+                    else
+                        minDamage = math.max(baseDmgFromBase * dmgFromBase * baseMinDamage, 1.0)
+                        maxDamage = math.max(baseDmgFromBase * dmgFromBase * baseMaxDamage, 1.0)
+                    end
+                end
+
+                if minDamage > 0 then
+                    maxDamage = math.max(maxDamage, minDamage + 1.0)
+                end
+
+                if damages[dmgType] == nil then
+                    damages[dmgType] = {
+                        Min = minDamage,
+                        Max = maxDamage
+                    }
+                else
+                    local damage = damages[dmgType]
+                    damage.Min = damage.Min + minDamage
+                    damage.Max = damage.Max + maxDamage
+                end
             end
         end
     end
