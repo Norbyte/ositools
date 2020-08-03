@@ -1558,7 +1558,7 @@ namespace dse::lua
 	int LuaRound(lua_State *L)
 	{
 		auto val = luaL_checknumber(L, 1);
-		push(L, round(val));
+		push(L, (int64_t)round(val));
 		return 1;
 	}
 
