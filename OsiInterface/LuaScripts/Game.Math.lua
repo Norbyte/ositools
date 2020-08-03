@@ -581,7 +581,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
     else
         local damageType = skill.DamageType
 
-        local baseDamage = CalculateBaseDamage(skill.Damage, attacker, 0, level)
+        local baseDamage = CalculateBaseDamage(skill.Damage, attacker, nil, level)
         local damageRange = skill['Damage Range']
         local randomMultiplier
         if noRandomization then
@@ -592,7 +592,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
 
         local attrDamageScale
         local skillDamage = skill.Damage
-        if skillDamage == "BaseLevelDamage" or skillDamage == "AverageLevelDamge" then
+        if skillDamage == "BaseLevelDamage" or skillDamage == "AverageLevelDamge" or skillDamage == "MonsterWeaponDamage" then
             attrDamageScale = GetSkillAttributeDamageScale(skill, attacker)
         else
             attrDamageScale = 1.0
@@ -1198,13 +1198,13 @@ function GetSkillDamageRange(character, skill)
 
         local skillDamageType = skill.Damage
         local attrDamageScale
-        if skillDamageType == "BaseLevelDamage" or skillDamageType == "AverageLevelDamge" then
+        if skillDamage == "BaseLevelDamage" or skillDamage == "AverageLevelDamge" or skillDamage == "MonsterWeaponDamage" then
             attrDamageScale = GetSkillAttributeDamageScale(skill, character)
         else
             attrDamageScale = 1.0
         end
 
-        local baseDamage = CalculateBaseDamage(skill.Damage, character, 0, level) * attrDamageScale * damageMultiplier
+        local baseDamage = CalculateBaseDamage(skill.Damage, character, nil, level) * attrDamageScale * damageMultiplier
         local damageRange = skill['Damage Range'] * baseDamage * 0.005
 
         local damageType = skill.DamageType
