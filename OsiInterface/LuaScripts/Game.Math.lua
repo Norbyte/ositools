@@ -1182,9 +1182,10 @@ function GetSkillDamageRange(character, skill)
         local damageType = skill.DamageType
         if damageType ~= "None" and damageType ~= "Sentinel" then
             local min, max = 0, 0
+            local boost = GetDamageBoostByType(character, damageType)
             for _, range in pairs(mainDamageRange) do
-                min = min + range.Min
-                max = max + range.Max
+                min = min + range.Min + math.ceil(range.Min * GetDamageBoostByType(character, damageType))
+                max = max + range.Max + math.ceil(range.Min * GetDamageBoostByType(character, damageType))
             end
     
             mainDamageRange = {}
