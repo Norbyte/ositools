@@ -1156,11 +1156,12 @@ function GetSkillDamageRange(character, skill)
             for damageType, range in pairs(offHandDamageRange) do
                 local min = range.Min * dualWieldPenalty
                 local max = range.Max * dualWieldPenalty
+                local range = mainDamageRange[damageType]
                 if mainDamageRange[damageType] ~= nil then
-                    mainDamageRange[damageType][1] = mainDamageRange[damageType][1] + min
-                    mainDamageRange[damageType][2] = mainDamageRange[damageType][2] + max
+                    range.Min = range.Min + min
+                    range.Max = range.Max + max
                 else
-                    mainDamageRange[damageType] = {min, max}
+                    mainDamageRange[damageType] = {Min = min, Min = max}
                 end
             end
         end
@@ -1181,7 +1182,7 @@ function GetSkillDamageRange(character, skill)
             end
     
             mainDamageRange = {}
-            mainDamageRange[damageType] = {min, max}
+            mainDamageRange[damageType] = {Min = min, Max = max}
         end
 
         return mainDamageRange
