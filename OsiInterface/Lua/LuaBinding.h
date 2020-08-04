@@ -9,6 +9,10 @@
 #include <unordered_set>
 #include <optional>
 
+namespace dse::eoc
+{
+	struct AiGrid;
+}
 
 namespace dse::lua
 {
@@ -239,6 +243,8 @@ namespace dse::lua
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+		std::optional<std::pair<int, bool>> GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
 	protected:

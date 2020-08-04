@@ -2712,7 +2712,7 @@ function UIObject.Destroy (self) end
 local SurfaceInteractionSet = {}
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -2722,6 +2722,7 @@ local SurfaceInteractionSet = {}
 --- @alias ExtStatusGetEnterChanceCallback fun(status: EsvStatus, isEnterCheck: boolean): number
 --- @alias ExtSkillGetDescriptionParamCallback fun(skill: StatEntrySkillData, character: StatCharacter, isFromItem: boolean, ...): string
 --- @alias ExtStatusGetDescriptionParamCallback fun(status: EsvStatus, statusSource: EsvGameObject, character: StatCharacter, ...): string
+--- @alias ExtGetSkillAPCostCallback fun(skill: StatEntrySkillData, character: StatCharacter, grid: AiGrid, position: number[]|nil, range: number|nil): number, boolean
 --- @alias ExtBeforeCharacterApplyDamageCallback fun(target: EsvCharacter, attacker: StatCharacter|StatItem, hit: HitRequest, causeType: string, impactDirection: number[], context: HitContext): HitRequest
 --- @alias ExtStatusHitEnterCallback fun(status: EsvStatus, context: HitContext)
 

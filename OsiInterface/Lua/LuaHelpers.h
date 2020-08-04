@@ -384,7 +384,7 @@ namespace dse::lua
 		}
 	}
 
-	template <class T, typename std::enable_if_t<std::is_integral_v<T>, int> * = nullptr>
+	template <class T, typename std::enable_if_t<std::is_integral_v<T>, std::enable_if_t<!std::is_same_v<T, bool>, int>> * = nullptr>
 	inline std::optional<T> safe_get(lua_State * L, int index)
 	{
 		if (lua_type(L, index) == LUA_TNUMBER) {

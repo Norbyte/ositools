@@ -584,6 +584,28 @@ namespace dse::lua
 	}
 
 
+	char const* const ObjectProxy<eoc::AiGrid>::MetatableName = "eoc::AiGrid";
+
+	eoc::AiGrid* ObjectProxy<eoc::AiGrid>::Get(lua_State* L)
+	{
+		return obj_;
+	}
+
+	int ObjectProxy<eoc::AiGrid>::Index(lua_State* L)
+	{
+		auto grid = Get(L);
+		if (!grid) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		// TODO - implement cell scan + game.math GetSkillAPCost logic!
+		return 0;
+	}
+
+	int ObjectProxy<eoc::AiGrid>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "__newindex not supported for eoc::AiGrid");
+	}
+
 
 	char const * const DamageList::MetatableName = "CDamageList";
 
@@ -986,6 +1008,49 @@ namespace dse::lua
 		}
 
 		return false;
+	}
+
+	std::optional<std::pair<int, bool>> State::GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+		glm::vec3* position, float* radius)
+	{
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_GetSkillAPCost");
+
+		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1);
+		UnbindablePin _(luaSkill);
+		auto luaChar = ObjectProxy<CDivinityStats_Character>::New(L, character);
+		UnbindablePin _2(luaChar);
+
+		if (aiGrid != nullptr) {
+			ObjectProxy<eoc::AiGrid>::New(L, aiGrid);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (position != nullptr) {
+			push(L, *position);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (radius != nullptr) {
+			push(L, *radius);
+		} else {
+			push(L, nullptr);
+		}
+
+		auto result = CheckedCall<std::optional<bool>, std::optional<int>>(L, 5, "Ext.GetSkillAPCost");
+		if (result) {
+			auto ap = std::get<1>(*result);
+			auto elementalAffinity = std::get<0>(*result);
+
+			if (ap && elementalAffinity) {
+				return std::make_pair(*ap, *elementalAffinity);
+			}
+		}
+
+		return {};
 	}
 
 	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId)

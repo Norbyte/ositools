@@ -7,6 +7,7 @@ Ext._Listeners = {
 	SessionLoaded = {},
 	GameStateChanged = {},
 	GetSkillDamage = {},
+	GetSkillAPCost = {},
 	ComputeCharacterHit = {},
 	CalculateTurnOrder = {},
 	GetHitChance = {},

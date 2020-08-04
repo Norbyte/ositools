@@ -9,6 +9,7 @@ Ext._Listeners = {
 	SkillGetDescriptionParam = {},
 	StatusGetDescriptionParam = {},
 	GetSkillDamage = {},
+	GetSkillAPCost = {},
 	GetHitChance = {},
 	UIObjectCreated = {},
 	UIInvoke = {},

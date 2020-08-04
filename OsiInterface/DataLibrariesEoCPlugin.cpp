@@ -934,6 +934,17 @@ namespace dse
 			{},
 			{"eoc::SurfaceTransformActionsFromType", SymbolMappingTarget::kIndirect, 15, STATIC_SYM(eoc__SurfaceTransformActionsFromType)}
 		},
+
+		{
+			"eoc::SkillPrototype::GetAttackAPCost",
+			SymbolMappingData::kText, 0,
+			"41 57 " // push    r15
+			"48 83 EC 40 " // sub     rsp, 40h
+			"8B 79 28 " // mov     edi, [rcx+28h]
+			"4D 8B E1 ", // mov     r12, r9
+			{},
+			{"eoc::SkillPrototype::GetAttackAPCost", SymbolMappingTarget::kAbsolute, -8, STATIC_SYM(SkillPrototype__GetAttackAPCost)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

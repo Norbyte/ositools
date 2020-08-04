@@ -54,6 +54,13 @@ namespace dse::esv
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParamProc* next, SkillPrototype *skillPrototype,
 			CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 			float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * stdStringSet);
+#if defined(OSI_EOCAPP)
+		int OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+			glm::vec3* position, float* radius, int* pElementalAffinity);
+#else
+		int OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+			glm::vec3* position, float* radius, bool unused, int* pElementalAffinity);
+#endif
 		void OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParamProc* next, StatusPrototype *prototype, 
 			CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);

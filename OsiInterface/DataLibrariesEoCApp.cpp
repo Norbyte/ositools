@@ -1231,6 +1231,17 @@ namespace dse
 			{},
 			{"ecl::Character::HasMadness", SymbolMappingTarget::kAbsolute, -0x6, STATIC_SYM(ecl__Character__HasMadness)}
 		},
+
+		{
+			"eoc::SkillPrototype::GetAttackAPCost",
+			SymbolMappingData::kText, 0,
+			"41 57 " // push    r15
+			"48 83 EC 48 " // sub     rsp, 48h
+			"8B 79 28 " // mov     edi, [rcx+28h]
+			"4D 8B F9 ", // mov     r15, r9
+			{},
+			{"eoc::SkillPrototype::GetAttackAPCost", SymbolMappingTarget::kAbsolute, -0x0C, STATIC_SYM(SkillPrototype__GetAttackAPCost)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

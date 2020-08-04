@@ -883,6 +883,33 @@ namespace dse::esv
 		next(skillPrototype, tgtCharStats, eocText, paramIndex, isFromItem, xmm9_4_0, paramText, paramTexts);
 	}
 
+#if defined(OSI_EOCAPP)
+	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+		glm::vec3* position, float* radius, int* pElementalAffinity)
+#else
+	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+		glm::vec3* position, float* radius, bool unused, int* pElementalAffinity)
+#endif
+	{
+		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
+		if (lua) {
+			auto ap = lua->GetSkillAPCost(self, character, aiGrid, position, radius);
+			if (ap) {
+				if (pElementalAffinity != nullptr) {
+					*pElementalAffinity = ap->second ? 1 : 0;
+				}
+
+				return ap->first;
+			}
+		}
+
+#if defined(OSI_EOCAPP)
+		return next(self, character, aiGrid, position, radius, pElementalAffinity);
+#else
+		return next(self, character, aiGrid, position, radius, unused, pElementalAffinity);
+#endif
+	}
+
 	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParamProc* next, StatusPrototype *prototype,
 		CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)

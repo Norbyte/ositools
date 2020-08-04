@@ -30,6 +30,19 @@ Ext._EngineCallback1 = function (event, ...)
     end
 end
 
+Ext._EngineCallback2 = function (event, ...)
+    for i,callback in pairs(Ext._Listeners[event]) do
+        local status, result1, result2 = xpcall(callback, debug.traceback, ...)
+        if status then
+			if result1 ~= nil then
+				return result1, result2
+			end
+		else
+            Ext.PrintError("Error during " .. event .. ": ", result)
+        end
+    end
+end
+
 Ext._OnGameSessionLoading = function ()
     Ext._Notify("SessionLoading")
 end
@@ -60,6 +73,10 @@ end
 
 Ext._GetHitChance = function (...)
     return Ext._EngineCallback1("GetHitChance", ...)
+end
+
+Ext._GetSkillAPCost = function (event, ...)
+    return Ext._EngineCallback2("GetSkillAPCost", ...)
 end
 
 Ext._NetListeners = {}

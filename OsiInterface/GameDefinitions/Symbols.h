@@ -154,6 +154,7 @@ namespace dse
 		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
 		SkillPrototype::FormatDescriptionParamProc* SkillPrototype__FormatDescriptionParam{ nullptr };
 		SkillPrototype::GetSkillDamageProc* SkillPrototype__GetSkillDamage{ nullptr };
+		SkillPrototype::GetAttackAPCostProc* SkillPrototype__GetAttackAPCost{ nullptr };
 		StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
 		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
 		esv::Inventory::Equip InventoryEquip{ nullptr };

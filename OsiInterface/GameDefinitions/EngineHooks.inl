@@ -9,6 +9,7 @@ HOOK_DEFN(esv__ActionMachine__ResetState, esv__ActionMachine__ResetState, esv::A
 
 HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescriptionParam, SkillPrototype::FormatDescriptionParamProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, SkillPrototype::GetSkillDamageProc, WrappableFunction)
+HOOK_DEFN(SkillPrototype__GetAttackAPCost, SkillPrototype__GetAttackAPCost, SkillPrototype::GetAttackAPCostProc, WrappableFunction)
 HOOK_DEFN(StatusPrototype__FormatDescriptionParam, StatusPrototype__FormatDescriptionParam, StatusPrototype::FormatDescriptionParamProc, WrappableFunction)
 
 

@@ -6,6 +6,10 @@
 
 namespace dse
 {
+	namespace eoc
+	{
+		struct AiGrid;
+	}
 
 	struct CRPGStats_Requirement
 	{
@@ -738,6 +742,11 @@ namespace dse
 		using GetSkillDamageProc = void (SkillPrototype * self, struct DamagePairList * damageList,
 			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
 			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+#if defined(OSI_EOCAPP)
+		using GetAttackAPCostProc = int(SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid, glm::vec3* position, float* radius, int* pEelementalAffinity);
+#else
+		using GetAttackAPCostProc = int(SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid, glm::vec3* position, float* radius, bool unused, int* pEelementalAffinity);
+#endif
 
 		int RPGStatsObjectIndex;
 		SkillType SkillTypeId;

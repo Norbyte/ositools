@@ -229,6 +229,15 @@ namespace dse::esv
 		osiris_.GetLibraryManager().SkillPrototype__FormatDescriptionParam.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
+#if defined(OSI_EOCAPP)
+		osiris_.GetLibraryManager().SkillPrototype__GetAttackAPCost.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnGetSkillAPCost, this, _1, _2, _3, _4, _5, _6, _7)
+		);
+#else
+		osiris_.GetLibraryManager().SkillPrototype__GetAttackAPCost.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnGetSkillAPCost, this, _1, _2, _3, _4, _5, _6, _7, _8)
+		);
+#endif
 		osiris_.GetLibraryManager().StatusPrototype__FormatDescriptionParam.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
