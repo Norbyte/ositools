@@ -44,6 +44,18 @@ namespace dse::lua
 		int NewIndex(lua_State * L);
 		T* Get(lua_State* L);
 
+		static T* CheckedGet(lua_State* L, int index)
+		{
+			auto self = CheckUserData(L, index);
+			auto obj = self->Get(L);
+			if (obj != nullptr) {
+				return obj;
+			} else {
+				luaL_error(L, "No object bound to object proxy of type '%s'", MetatableName);
+				return nullptr;
+			}
+		}
+
 	protected:
 		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap)
 		{

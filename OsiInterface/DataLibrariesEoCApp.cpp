@@ -1242,6 +1242,18 @@ namespace dse
 			{},
 			{"eoc::SkillPrototype::GetAttackAPCost", SymbolMappingTarget::kAbsolute, -0x0C, STATIC_SYM(SkillPrototype__GetAttackAPCost)}
 		},
+
+		{
+			"eoc::AiGrid::SearchForCell",
+			SymbolMappingData::kText, 0,
+			"4C 8B DC " // mov     r11, rsp
+			"41 56 " // push    r14
+			"48 81 EC 90 00 00 00 " // sub     rsp, 90h
+			"33 C0 " // xor     eax, eax
+			"F3 0F 11 54 24 4C ", // movss   dword ptr [rsp+98h+var_50+4], xmm2
+			{},
+			{"eoc::AiGrid::SearchForCell", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(eoc__AiGrid__SearchForCell)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

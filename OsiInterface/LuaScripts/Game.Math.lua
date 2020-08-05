@@ -1339,3 +1339,82 @@ function StatusGetEnterChance(status, isEnterCheck)
       
     return status.CanEnterChance
 end
+
+
+--- @param character StatCharacter
+--- @param weapon StatItem
+function GetWeaponAPCost(character, weapon)
+    if weapon.ItemType ~= "Weapon" then
+        return 0
+    end
+
+    local ap = weapon.AttackAPCost
+    if weapon.WeaponType == "Knife" and character.TALENT_RogueLoreDaggerAPBonus then
+        ap = ap - 1
+    end
+
+    return math.max(ap, 1)
+end
+
+
+--- @param character StatCharacter
+function GetCharacterWeaponAPCost(character)
+    local mainWeapon = character.MainWeapon
+    local offHandWeapon = character.OffHandWeapon
+
+    local ap = GetWeaponAPCost(character, mainWeapon)
+
+    if offHandWeapon ~= nil and Game.Math.IsRangedWeapon(mainWeapon) == Game.Math.IsRangedWeapon(offHandWeapon) then
+        ap = ap + GetWeaponAPCost(character, offHandWeapon) - Ext.ExtraData.DualWieldingAPPenalty
+    else
+        --- @type StatItem
+        local offHandItem = character:GetItemBySlot("Shield")
+        if offHandItem ~= nil and offHandItem.ItemType == "Shield" then
+            ap = ap + Ext.ExtraData.ShieldAPCost
+        end
+    end
+
+    return ap
+end
+
+
+local ElementalAffinityAiFlags = {
+    Fire = { "Lava", "Fire" },
+    Water = { "Water" },
+    Air = { "Electrified" },
+    Earth = { "Oil", "Poison" },
+    Death = { "Blood" },
+    Sulfurology = { "Sulfurium" }
+}
+
+--- @param skill StatEntrySkillData
+--- @param character StatCharacter
+--- @param grid AiGrid
+--- @param position number[]
+--- @param radius number
+function GetSkillAPCost(skill, character, grid, position, radius)
+    local baseAP = skill.ActionPoints
+    if character == nil or baseAP <= 0 then
+        return baseAP, false
+    end
+    
+    local ability = skill.Ability
+    local elementalAffinity = false
+    if ability ~= "None" and baseAP > 1 and character.TALENT_ElementalAffinity and grid ~= nil and position ~= nil and radius ~= nil then
+        local aiFlags = ElementalAffinityAiFlags[ability]
+        if aiFlags ~= nil then
+            elementalAffinity = grid:SearchForCell(position[1], position[3], radius, aiFlags, -1.0)
+            if elementalAffinity then
+                baseAP = baseAP - 1
+            end
+        end
+    end
+
+    local characterAP = 1
+    if skill.Requirement ~= "None" and skill.OverrideMinAP == "No" then
+        characterAP = GetCharacterWeaponAPCost(character)
+    end
+
+    return math.max(characterAP, baseAP), elementalAffinity
+end
+

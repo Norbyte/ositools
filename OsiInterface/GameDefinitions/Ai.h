@@ -192,8 +192,17 @@ namespace dse::eoc
         }
     };
 
+    struct SurfacePathInfluence
+    {
+        ESurfaceFlag MatchAiFlags;
+        uint64_t field_8;
+        ESurfaceFlag MaskAiFlags;
+    };
+
     struct AiGrid
     {
+        using SearchForCellProc = bool (eoc::AiGrid* self, float posX, float posZ, float radius, ESurfaceFlag aiFlags, ObjectSet<SurfacePathInfluence>* pathInfluences, float aiBoundsBias);
+
         void* VMT;
         uint64_t field_8;
         DataGrid DataGrid;
@@ -334,6 +343,7 @@ namespace dse::eoc
 
 namespace dse::esv
 {
+    struct EntityWorld;
     struct Level;
 
     struct ShroudManager

@@ -254,7 +254,7 @@ Thrown before a status is applied to the target character or item. Status attrib
 
 
 ### StatusPreventApply
-`call NRD_StatusPreventApply((CHARACTERGUID)_Character, (INTEGER64)_StatusHandle, (INTEGER)_PreventApply)`
+`call NRD_StatusPreventApply((GUIDSTRING)_Character, (INTEGER64)_StatusHandle, (INTEGER)_PreventApply)`
 
 Prevents a pending status from being applied to the character. 
 

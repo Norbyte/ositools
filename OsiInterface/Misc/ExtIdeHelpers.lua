@@ -55,6 +55,21 @@ function DamageList.AggregateSameTypeDamages (self) end
 function DamageList.ToTable (self) end
 
 
+--- @class AiGrid
+local AiGrid = {}
+
+--- Scans the vicinity of the specified points for surfaces that match the specified flags.
+--- Returns true if a surface was found, false otherwise.
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @param radius number Radius to search
+--- @param flags string[] AI flags to look for
+--- @param bias number Height bias
+--- @return boolean
+function AiGrid.SearchForCell (self, x, z, radius, flags, bias) end
+    
+
 --- @class CombatComponentTemplate
 --- @field public Alignment string
 --- @field public CanFight boolean

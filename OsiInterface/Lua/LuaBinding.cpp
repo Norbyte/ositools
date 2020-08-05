@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
+#include <GameDefinitions/Ai.h>
 #include <GameDefinitions/RootTemplates.h>
 #include "LuaBinding.h"
 #include "resource.h"
@@ -591,13 +592,39 @@ namespace dse::lua
 		return obj_;
 	}
 
+	int AiGridSearchForCell(lua_State* L)
+	{
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+		auto radius = checked_get<float>(L, 4);
+		auto flags = checked_get_flags<ESurfaceFlag>(L, 5);
+		auto bias = checked_get<float>(L, 6);
+
+		auto search = GetStaticSymbols().eoc__AiGrid__SearchForCell;
+		if (!search) {
+			OsiError("AiGrid::SearchForCell not mapped!");
+			return 0;
+		}
+
+		auto result = search(grid, x, z, radius, flags, nullptr, bias);
+		push(L, !result);
+		return 1;
+	}
+
 	int ObjectProxy<eoc::AiGrid>::Index(lua_State* L)
 	{
 		auto grid = Get(L);
 		if (!grid) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
-		// TODO - implement cell scan + game.math GetSkillAPCost logic!
+
+		if (strcmp(prop, "SearchForCell") == 0) {
+			lua_pushcfunction(L, &AiGridSearchForCell);
+			return 1;
+		}
+
+		OsiError("Unknown eoc::AiGrid property: " << prop);
 		return 0;
 	}
 
@@ -771,6 +798,7 @@ namespace dse::lua
 		ObjectProxy<ItemTemplate>::RegisterMetatable(L);
 		ObjectProxy<ProjectileTemplate>::RegisterMetatable(L);
 		ObjectProxy<CombatComponentTemplate>::RegisterMetatable(L);
+		ObjectProxy<eoc::AiGrid>::RegisterMetatable(L);
 		StatsExtraDataProxy::RegisterMetatable(L);
 		StatsProxy::RegisterMetatable(L);
 		SkillPrototypeProxy::RegisterMetatable(L);
@@ -1019,8 +1047,7 @@ namespace dse::lua
 
 		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1);
 		UnbindablePin _(luaSkill);
-		auto luaChar = ObjectProxy<CDivinityStats_Character>::New(L, character);
-		UnbindablePin _2(luaChar);
+		ItemOrCharacterPushPin _ch(L, character);
 
 		if (aiGrid != nullptr) {
 			ObjectProxy<eoc::AiGrid>::New(L, aiGrid);

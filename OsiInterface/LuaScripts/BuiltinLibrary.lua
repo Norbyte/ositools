@@ -38,7 +38,7 @@ Ext._EngineCallback2 = function (event, ...)
 				return result1, result2
 			end
 		else
-            Ext.PrintError("Error during " .. event .. ": ", result)
+            Ext.PrintError("Error during " .. event .. ": ", result1)
         end
     end
 end
@@ -75,7 +75,7 @@ Ext._GetHitChance = function (...)
     return Ext._EngineCallback1("GetHitChance", ...)
 end
 
-Ext._GetSkillAPCost = function (event, ...)
+Ext._GetSkillAPCost = function (...)
     return Ext._EngineCallback2("GetSkillAPCost", ...)
 end
 
