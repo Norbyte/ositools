@@ -3,6 +3,7 @@
 #include <DbgHelp.h>
 #include <psapi.h>
 #include <OsirisProxy.h>
+#include <NodeHooks.h>
 
 #include <vector>
 #include <string>
@@ -21,12 +22,19 @@ struct ExcludedSymbol
 static const ExcludedSymbol ExcludedSymbols[] = {
 	{&decltype(dse::LibraryManager::esv__ActionMachine__SetState)::CallToTrampoline, 0x120},
 	{&decltype(dse::LibraryManager::esv__ActionMachine__ResetState)::CallToTrampoline, 0x120},
+	{&decltype(dse::LibraryManager::esv__CombineManager__ExecuteCombination)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Event)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Call)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Query)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
+	{&dse::NodeVMTWrapper::s_WrappedIsValid, 0x100},
+	{&dse::NodeVMTWrapper::s_WrappedPushDownTuple, 0x100},
+	{&dse::NodeVMTWrapper::s_WrappedPushDownTupleDelete, 0x100},
+	{&dse::NodeVMTWrapper::s_WrappedInsertTuple, 0x100},
+	{&dse::NodeVMTWrapper::s_WrappedDeleteTuple, 0x100},
+	{&dse::NodeVMTWrapper::s_WrappedCallQuery, 0x100},
 	{&dse::ecl::lua::UIObjectFunctionCallCapture, 0x120},
 	{&dse::CustomFunctionInjector::StaticCallWrapper, 0x120},
 	{&dse::CustomFunctionInjector::StaticQueryWrapper, 0x120}

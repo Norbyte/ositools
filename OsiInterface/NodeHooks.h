@@ -29,17 +29,17 @@ namespace dse
 		void WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
 		bool WrappedCallQuery(Node * node, OsiArgumentDesc * args);
 
-	private:
-		NodeVMT * vmt_;
-		NodeWrapOptions & options_;
-		NodeVMT originalVmt_;
-
 		static bool s_WrappedIsValid(Node * node, VirtTupleLL * tuple, AdapterRef * adapter);
 		static void s_WrappedPushDownTuple(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which);
 		static void s_WrappedPushDownTupleDelete(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint which);
 		static void s_WrappedInsertTuple(Node * node, TuplePtrLL * tuple);
 		static void s_WrappedDeleteTuple(Node * node, TuplePtrLL * tuple);
 		static bool s_WrappedCallQuery(Node * node, OsiArgumentDesc * args);
+
+	private:
+		NodeVMT * vmt_;
+		NodeWrapOptions & options_;
+		NodeVMT originalVmt_;
 	};
 
 	class NodeVMTWrappers
