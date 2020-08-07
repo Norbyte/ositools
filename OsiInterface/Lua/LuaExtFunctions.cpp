@@ -1208,10 +1208,15 @@ namespace dse::lua
 		}
 
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
-			static bool syncWarningShown{ false };
-			if (!syncWarningShown) {
-				OsiWarn("Stats entres created after ModuleLoad must be synced manually; make sure that you call SyncStat() on it when you're finished!");
-				syncWarningShown = true;
+			if (gOsirisProxy->IsInServerThread()) {
+				static bool syncWarningShown{ false };
+				if (!syncWarningShown) {
+					OsiWarn("Stats entres created after ModuleLoad must be synced manually; make sure that you call SyncStat() on it when you're finished!");
+					syncWarningShown = true;
+				}
+			} else {
+				OsiError("Cannot call CreateStat() on client after module load!");
+				return 0;
 			}
 		}
 
@@ -1247,10 +1252,13 @@ namespace dse::lua
 		}
 
 		stats->SyncWithPrototypeManager(object);
-		object->BroadcastSyncMessage();
 
-		if (persist) {
-			gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+		if (gOsirisProxy->IsInServerThread()) {
+			object->BroadcastSyncMessage();
+
+			if (persist) {
+				gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+			}
 		}
 
 		return 0;

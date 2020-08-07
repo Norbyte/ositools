@@ -1778,6 +1778,8 @@ namespace dse::ecl::lua
 			{"StatAddCustomDescription", StatAddCustomDescription},
 			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
+			{"CreateStat", CreateStat},
+			{"SyncStat", SyncStat},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
