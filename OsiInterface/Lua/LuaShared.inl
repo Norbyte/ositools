@@ -58,10 +58,7 @@ int GameObjectGetStatuses(lua_State* L)
 
 	int32_t index = 1;
 	for (auto status : object->StatusMachine->Statuses) {
-		push(L, index++);
-		// FIXME - use handle based proxy
-		ObjectProxy<TStatus>::New(L, status);
-		lua_settable(L, -3);
+		settable(L, index++, status->StatusId);
 	}
 
 	return 1;
@@ -80,8 +77,10 @@ int GameObjectGetStatusObjects(lua_State* L)
 
 	int32_t index = 1;
 	for (auto status : object->StatusMachine->Statuses) {
-		
-		settable(L, index++, status->StatusId);
+		push(L, index++);
+		// FIXME - use handle based proxy
+		ObjectProxy<TStatus>::New(L, status);
+		lua_settable(L, -3);
 	}
 
 	return 1;
