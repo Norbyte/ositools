@@ -206,6 +206,10 @@ namespace dse::esv
 		osiris_.GetLibraryManager().ecl__Character_HasMadnessHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::EclCharacterHasMadnessFix, this, _1, _2)
 		);
+		// CreateUIObject always enabled for main menu version display
+		osiris_.GetLibraryManager().UIObjectManager__CreateUIObject.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
+		);
 
 		if (!gOsirisProxy->HasFeatureFlag("OsirisExtensions")) {
 			return;
@@ -243,9 +247,6 @@ namespace dse::esv
 		);
 		osiris_.GetLibraryManager().esv__TurnManager__UpdateTurnOrder.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnUpdateTurnOrder, this, _1, _2)
-		);
-		osiris_.GetLibraryManager().UIObjectManager__CreateUIObject.SetPostHook(
-			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
 		);
 		osiris_.GetLibraryManager().esv__ItemHelpers__GenerateTreasureItem.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGenerateTreasureItem, this, _1, _2, _3)

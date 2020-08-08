@@ -311,11 +311,6 @@ namespace dse
 
 	void ExtensionStateBase::LuaReset(bool startup)
 	{
-		if (!HasFeatureFlag("Lua")) {
-			OsiWarn("Lua extensions not enabled; not initializing Lua VM");
-			return;
-		}
-
 		if (LuaPendingDelete) {
 			OsiWarn("State delete is already pending!");
 		}
