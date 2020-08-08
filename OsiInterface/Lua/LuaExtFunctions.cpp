@@ -746,7 +746,7 @@ namespace dse::lua
 
 		auto attributeFS = ToFixedString(attributeName);
 		if (!attributeFS) {
-			OsiError("Invalid stats attribute name: " << object->Name);
+			OsiError("Invalid stats attribute name: " << attributeName);
 			return 0;
 		}
 
@@ -864,7 +864,7 @@ namespace dse::lua
 
 		auto attributeFS = ToFixedString(attributeName);
 		if (!attributeFS) {
-			OsiError("Invalid stats attribute name: " << object->Name);
+			OsiError("Invalid stats attribute name: " << attributeName);
 			return 0;
 		}
 

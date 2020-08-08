@@ -463,10 +463,18 @@ namespace dse::esv::lua
 			} catch (Exception &) {
 				auto stackRemaining = lua_gettop(L) - stackSize;
 				if (stackRemaining > 0) {
-					OsiError("Call '" << func << "' failed: " << lua_tostring(L, -1));
+					if (mod != nullptr) {
+						OsiError("Call to mod function '" << mod << "'.'" << func << "' failed: " << lua_tostring(L, -1));
+					} else {
+						OsiError("Call to mod function '" << func << "' failed: " << lua_tostring(L, -1));
+					}
 					lua_pop(L, stackRemaining);
 				} else {
-					OsiError("Internal error during call '" << func << "'");
+					if (mod != nullptr) {
+						OsiError("Internal error during call to mod function '" << mod << "'.'" << func << "'");
+					} else {
+						OsiError("Internal error during call to mod function '" << func << "'");
+					}
 				}
 			}
 		}

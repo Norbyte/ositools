@@ -891,7 +891,7 @@ namespace dse::esv::lua
 		}
 
 		if (CallWithTraceback(lua->GetState(), numParams, 0) != 0) {
-			OsiError("Handler for '" << Name() << "' failed: " << lua_tostring(L, -1));
+			OsiError("Handler for Osiris call '" << Name() << "' failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}
@@ -911,10 +911,18 @@ namespace dse::esv::lua
 		} catch (Exception &) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
 			if (stackRemaining > 0) {
-				OsiError("Query '" << name << "' failed: " << lua_tostring(L, -1));
+				if (mod != nullptr) {
+					OsiError("Call to mod query '" << mod << "'.'" << func << "' failed: " << lua_tostring(L, -1));
+				} else {
+					OsiError("Call to mod query '" << func << "' failed: " << lua_tostring(L, -1));
+				}
 				lua_pop(L, stackRemaining);
 			} else {
-				OsiError("Internal error during query '" << name << "'");
+				if (mod != nullptr) {
+					OsiError("Internal error during call to mod query '" << mod << "'.'" << func << "'");
+				} else {
+					OsiError("Internal error during call to mod query '" << func << "'");
+				}
 			}
 
 			return false;
