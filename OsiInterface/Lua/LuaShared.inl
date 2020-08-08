@@ -45,7 +45,7 @@ int GameObjectGetStatusByType(lua_State* L)
 	return 0;
 }
 
-template <class TObject, class TStatus>
+template <class TObject>
 int GameObjectGetStatuses(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
@@ -64,7 +64,7 @@ int GameObjectGetStatuses(lua_State* L)
 	return 1;
 }
 
-template <class TObject>
+template <class TObject, class TStatus>
 int GameObjectGetStatusObjects(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
@@ -97,8 +97,7 @@ int GameObjectHasTag(lua_State* L)
 
 	if (!object || !tagFs) {
 		push(L, false);
-	}
-	else {
+	} else {
 		push(L, object->IsTagged(tagFs));
 	}
 
@@ -152,7 +151,7 @@ int GameObjectGetDisplayName(lua_State* L, TObject* object)
 {
 	TranslatedString name;
 	object->GetDisplayName(&name);
-	push(L, name.Str1.WStr);
+	push(L, name.Handle.ReferenceString);
 	return 1;
 }
 
