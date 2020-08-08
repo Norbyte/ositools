@@ -73,16 +73,8 @@ bool SaveExternalFile(std::string_view path, std::string_view contents)
 
 bool GetTranslatedString(char const* handle, STDWString& translated)
 {
-	auto getRepoInstance = GetStaticSymbols().TranslatedStringRepository__GetInstance;
-	auto repoInstance = GetStaticSymbols().TranslatedStringRepository__Instance;
+	auto repo = GetStaticSymbols().GetTranslatedStringRepository();
 	auto getter = GetStaticSymbols().TranslatedStringRepository__Get;
-
-	TranslatedStringRepository* repo{ nullptr };
-	if (getRepoInstance) {
-		repo = getRepoInstance();
-	} else if (repoInstance) {
-		repo = *repoInstance;
-	}
 
 	if (repo == nullptr || getter == nullptr) {
 		OsiError("TranslatedStringRepository functions not mapped!");
@@ -109,16 +101,8 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 
 bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated)
 {
-	auto getKeyMgrInstance = GetStaticSymbols().TranslatedStringKeyManager__GetInstance;
-	auto keyMgrInstance = GetStaticSymbols().TranslatedStringKeyManager__Instance;
+	auto keyMgr = GetStaticSymbols().GetTranslatedStringKeyManager();
 	auto getter = GetStaticSymbols().TranslatedStringKeyManager__GetTranlatedStringFromKey;
-
-	TranslatedStringKeyManager* keyMgr{ nullptr };
-	if (getKeyMgrInstance) {
-		keyMgr = getKeyMgrInstance();
-	} else if (keyMgrInstance) {
-		keyMgr = *keyMgrInstance;
-	}
 
 	if (keyMgr == nullptr || getter == nullptr) {
 		OsiError("TranslatedStringKeyManager functions not mapped!");
@@ -126,10 +110,53 @@ bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& transl
 	}
 
 	if (getter(keyMgr, translated, key, false)) {
-		return GetTranslatedString(translated.Str1.Handle.Str, translated.Str1.WStr);
+		return GetTranslatedString(translated.Handle.Handle.Str, translated.Handle.ReferenceString);
 	} else {
 		return false;
 	}
+}
+
+bool CreateTranslatedStringKey(FixedString const& key, FixedString const& handle)
+{
+	auto keyMgr = GetStaticSymbols().GetTranslatedStringKeyManager();
+	if (keyMgr == nullptr) {
+		OsiError("TranslatedStringKeyManager not mapped!");
+		return false;
+	}
+
+	auto mapping = keyMgr->StringKeys.Find(key);
+	if (mapping) {
+		mapping->Handle.Handle = handle;
+	} else {
+		TranslatedString str;
+		str.Handle.Handle = handle;
+		keyMgr->StringKeys.Insert(key, str);
+	}
+
+	return true;
+}
+
+bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
+{
+	auto repo = GetStaticSymbols().GetTranslatedStringRepository();
+	auto getter = GetStaticSymbols().TranslatedStringRepository__Get;
+
+	if (repo == nullptr || getter == nullptr) {
+		OsiError("TranslatedStringRepository functions not mapped!");
+		return false;
+	}
+
+	EnterCriticalSection(&repo->CriticalSection);
+	auto str = repo->TranslatedStringOverrides[0]->Find(handle);
+	if (str) {
+		**str = string;
+	} else {
+		auto s = GameAlloc<STDWString>(string);
+		repo->TranslatedStringOverrides[0]->Insert(handle, s);
+	}
+	LeaveCriticalSection(&repo->CriticalSection);
+
+	return true;
 }
 
 }

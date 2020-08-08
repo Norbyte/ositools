@@ -342,6 +342,9 @@ namespace dse::lua
 	int AddVoiceMetaData(lua_State* L);
 	int GetTranslatedString(lua_State* L);
 	int GetTranslatedStringFromKey(lua_State* L);
+	int CreateTranslatedStringKey(lua_State* L);
+	int CreateTranslatedStringHandle(lua_State* L);
+	int CreateTranslatedString(lua_State* L);
 	int GenerateIdeHelpers(lua_State* L);
 
 	int EnableExperimentalPropertyWrites(lua_State* L);

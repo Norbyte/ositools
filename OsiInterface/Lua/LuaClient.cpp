@@ -1803,6 +1803,9 @@ namespace dse::ecl::lua
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},
 			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
+			{"CreateTranslatedString", CreateTranslatedString},
+			{"CreateTranslatedStringKey", CreateTranslatedStringKey},
+			{"CreateTranslatedStringHandle", CreateTranslatedStringHandle},
 
 			{"PostMessageToServer", PostMessageToServer},
 			{"CreateUI", CreateUI},

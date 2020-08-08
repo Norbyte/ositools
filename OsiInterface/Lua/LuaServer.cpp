@@ -1445,6 +1445,9 @@ namespace dse::esv::lua
 			{"AddVoiceMetaData", AddVoiceMetaData},
 			{"GetTranslatedString", GetTranslatedString},
 			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
+			{"CreateTranslatedString", CreateTranslatedString},
+			{"CreateTranslatedStringKey", CreateTranslatedStringKey},
+			{"CreateTranslatedStringHandle", CreateTranslatedStringHandle},
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},

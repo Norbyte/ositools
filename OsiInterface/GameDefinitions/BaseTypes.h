@@ -1082,17 +1082,17 @@ namespace dse
 
 	struct RuntimeStringHandle
 	{
-		void * VMT;
+		void * VMT{ nullptr };
 		FixedString Handle;
 		STDString Str;
-		STDWString WStr;
+		STDWString ReferenceString;
 	};
 
 	struct TranslatedString
 	{
-		void * VMT;
-		RuntimeStringHandle Str1;
-		RuntimeStringHandle Str2;
+		void* VMT{ nullptr };
+		RuntimeStringHandle Handle;
+		RuntimeStringHandle ArgumentString;
 	};
 
 	template <class T>

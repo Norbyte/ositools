@@ -27,7 +27,7 @@ namespace dse
 		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
 		TranslatedString displayName;
 		if (script::GetTranslatedStringFromKey(displayNameKey, displayName)) {
-			proto->DisplayName = displayName.Str1.WStr;
+			proto->DisplayName = displayName.Handle.ReferenceString;
 		}
 
 		STDString aiFlags = object->AIFlags.Str;

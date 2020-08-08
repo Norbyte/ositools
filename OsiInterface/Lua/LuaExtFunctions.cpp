@@ -1519,12 +1519,56 @@ namespace dse::lua
 
 		TranslatedString translated;
 		if (script::GetTranslatedStringFromKey(key, translated)) {
-			push(L, translated.Str1.WStr);
-			push(L, translated.Str1.Handle);
+			push(L, translated.Handle.ReferenceString);
+			push(L, translated.Handle.Handle);
 			return 2;
 		} else {
 			return 0;
 		}
+	}
+
+	unsigned NextDynamicStringHandleId{ 1 };
+
+	int CreateTranslatedString(lua_State* L)
+	{
+		auto key = MakeFixedString(luaL_checkstring(L, 1));
+		auto value = luaL_checkstring(L, 2);
+
+		STDString handleStr = "ExtStr_";
+		handleStr += std::to_string(NextDynamicStringHandleId++);
+		auto handle = MakeFixedString(handleStr.c_str());
+
+		if (script::CreateTranslatedStringKey(key, handle)) {
+			STDWString str(FromUTF8(value));
+			if (script::CreateTranslatedString(handle, str)) {
+				push(L, handleStr);
+				return 1;
+			}
+		}
+
+		push(L, nullptr);
+		return 1;
+	}
+
+	int CreateTranslatedStringKey(lua_State* L)
+	{
+		auto key = MakeFixedString(luaL_checkstring(L, 1));
+		auto handle = MakeFixedString(luaL_checkstring(L, 2));
+
+		auto ok = script::CreateTranslatedStringKey(key, handle);
+		push(L, ok);
+		return 1;
+	}
+
+	int CreateTranslatedStringHandle(lua_State* L)
+	{
+		auto handle = MakeFixedString(luaL_checkstring(L, 1));
+		auto value = luaL_checkstring(L, 2);
+
+		STDWString str(FromUTF8(value));
+		auto ok = script::CreateTranslatedString(handle, str);
+		push(L, ok);
+		return 1;
 	}
 
 	// Variation of Lua builtin math_random() with custom RNG

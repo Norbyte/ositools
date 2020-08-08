@@ -122,15 +122,31 @@ namespace dse
 		typedef TranslatedStringRepository* (*GetInstance)();
 		typedef STDWString * (*Get)(TranslatedStringRepository* self, RuntimeStringHandle* handle, uint64_t * length, char gender1, char gender2, bool unknown);
 		typedef void (*UnloadOverrides)(TranslatedStringRepository* self);
-	};
 
+		void* VMT;
+		int field_8;
+		Map<FixedString, STDWString*>* TranslatedStrings[4];
+		Map<FixedString, STDWString*>* TranslatedStringOverrides[4];
+		Map<FixedString, void*> TranslatedArgumentStrings;
+		Map<FixedString, RuntimeStringHandle> StringHandles;
+		CRITICAL_SECTION CriticalSection;
+		ScratchBuffer ScratchBuf;
+		bool DoDecoration;
+		bool IsLoaded;
+		STDWString NotFoundStr;
+	};
 
 	struct TranslatedStringKeyManager
 	{
 		typedef TranslatedStringKeyManager* (*GetInstance)();
 		typedef TranslatedString * (*GetTranlatedStringFromKey)(TranslatedStringKeyManager* self, TranslatedString& string, FixedString const& handle, bool unknown);
-	};
 
+		void* VMT;
+		ObjectSet<Path> Paths;
+		Map<FixedString, TranslatedString> StringKeys;
+		Map<FixedString, FixedString> StringSpeakers;
+		bool Unknown;
+	};
 
 	namespace eoc
 	{

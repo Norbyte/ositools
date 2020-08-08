@@ -233,8 +233,8 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, CNameGroupName& v)
 	{
 		s.BeginObject();
-		s.VisitProperty("Name", v.Name.Str1.WStr);
-		s.VisitProperty("Name2", v.Name2.Str1.WStr);
+		s.VisitProperty("Name", v.Name.Handle.ReferenceString);
+		s.VisitProperty("Name2", v.Name2.Handle.ReferenceString);
 		s.EndObject();
 		return s;
 	}

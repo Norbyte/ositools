@@ -3309,6 +3309,21 @@ function Ext.GetTranslatedString (handle, fallback) end
 --- @return string,string Translated string and handle
 function Ext.GetTranslatedStringFromKey (key) end
 
+--- @param key string Translated string key
+--- @param handle string Translated string handle
+--- @return bool
+function Ext.CreateTranslatedStringKey (key, handle) end
+
+--- @param handle string Translated string handle
+--- @param text string Display text
+--- @return bool
+function Ext.CreateTranslatedStringHandle (handle, text) end
+
+--- @param key string Translated string key
+--- @param text string Display text
+--- @return string|nil Created string handle
+function Ext.CreateTranslatedString (key, text) end
+
 --- Redirects all file accesses to the specified path to another file.
 --- @param path string Original path
 --- @param newPath string New (redirected) path

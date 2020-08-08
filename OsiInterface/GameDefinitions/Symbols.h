@@ -388,6 +388,37 @@ namespace dse
 			}
 		}
 
+		inline TranslatedStringKeyManager* GetTranslatedStringKeyManager() const
+		{
+			auto getKeyMgrInstance = TranslatedStringKeyManager__GetInstance;
+			auto keyMgrInstance = TranslatedStringKeyManager__Instance;
+
+			TranslatedStringKeyManager* keyMgr{ nullptr };
+			if (getKeyMgrInstance) {
+				keyMgr = getKeyMgrInstance();
+			} else if (keyMgrInstance) {
+				keyMgr = *keyMgrInstance;
+			}
+
+			return keyMgr;
+		}
+
+		inline TranslatedStringRepository* GetTranslatedStringRepository() const
+		{
+			auto getRepoInstance = TranslatedStringRepository__GetInstance;
+			auto repoInstance = TranslatedStringRepository__Instance;
+
+			TranslatedStringRepository* repo{ nullptr };
+			if (getRepoInstance) {
+				repo = getRepoInstance();
+			} else if (repoInstance) {
+				repo = *repoInstance;
+			}
+
+			return repo;
+		}
+
+
 		inline void RegisterUIObjectCreator(UIObjectManager * self, unsigned int index, UIObjectFunctor * creator)
 		{
 #if defined(OSI_EOCAPP)

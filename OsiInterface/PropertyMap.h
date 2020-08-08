@@ -356,7 +356,7 @@ namespace dse
 			case PropertyType::kTranslatedString:
 			{
 				auto str = reinterpret_cast<TranslatedString*>(ptr);
-				return gTempStrings.Make(ToUTF8(str->Str1.WStr));
+				return gTempStrings.Make(ToUTF8(str->Handle.ReferenceString));
 			}
 
 			case PropertyType::kObjectHandle:

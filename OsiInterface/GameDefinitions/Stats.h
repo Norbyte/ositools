@@ -209,7 +209,7 @@ namespace dse
 
 		virtual bool GetDescription(TranslatedString * Line1)
 		{
-			GetDescription(&Line1->Str1.WStr);
+			GetDescription(&Line1->Handle.ReferenceString);
 			return true;
 		}
 
