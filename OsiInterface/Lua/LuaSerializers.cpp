@@ -9,15 +9,43 @@
 
 namespace dse::lua
 {
+	LuaSerializer& operator << (LuaSerializer& s, CEquipmentSet& v)
+	{
+		s.BeginObject();
+		P(Name);
+		P(Groups);
+		s.EndObject();
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, CEquipmentGroup& v)
+	{
+		s.BeginObject();
+		// Name property is unused
+		// P(Name);
+		P(Equipment);
+		s.EndObject();
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, CSkillSet& v)
+	{
+		s.BeginObject();
+		P(Name);
+		P(Skills);
+		s.EndObject();
+		return s;
+	}
+
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_Table& v)
 	{
 		s.BeginObject();
 		P(Name);
-		P(MinLevel);
-		P(MaxLevel);
-		P(IgnoreLevelDiff);
-		P(UseTreasureGroupContainers);
-		P(CanMerge);
+		PO(MinLevel, 0);
+		PO(MaxLevel, 0);
+		PO(IgnoreLevelDiff, false);
+		PO(UseTreasureGroupContainers, false);
+		PO(CanMerge, false);
 		P(SubTables);
 		s.EndObject();
 		return s;
@@ -28,8 +56,8 @@ namespace dse::lua
 		s.BeginObject();
 		P(TotalFrequency);
 		P(TotalCount);
-		P(StartLevel);
-		P(EndLevel);
+		PO(StartLevel, 0);
+		PO(EndLevel, 0);
 		P(Categories);
 		P(DropCounts);
 		s.EndObject();
@@ -41,22 +69,50 @@ namespace dse::lua
 		auto stats = GetStaticSymbols().GetStats();
 
 		s.BeginObject();
-		P(Frequency);
+		PO(Frequency, 1);
 
-		if (v.IsTreasureTable) {
-			auto refTable = stats->TreasureTables.Find(v.Index);
-			if (refTable) {
-				s.VisitProperty("TreasureTable", refTable->Name);
+		if (s.IsWriting) {
+			if (v.IsTreasureTable) {
+				auto refTable = stats->TreasureTables.Find(v.Index);
+				if (refTable) {
+					s.VisitProperty("TreasureTable", refTable->Name);
+				}
+			} else {
+				auto refCategory = stats->TreasureCategories.Find(v.Index);
+				if (refCategory) {
+					s.VisitProperty("TreasureCategory", refCategory->Category);
+				}
 			}
 		} else {
-			auto refCategory = stats->TreasureCategories.Find(v.Index);
-			if (refCategory) {
-				s.VisitProperty("TreasureCategory", refCategory->Category);
+			FixedString treasureTable, treasureCategory;
+			s.VisitOptionalProperty("TreasureTable", treasureTable, GFS.strEmpty);
+			s.VisitOptionalProperty("TreasureCategory", treasureCategory, GFS.strEmpty);
+
+			if (treasureTable && treasureTable != GFS.strEmpty) {
+				auto idx = stats->TreasureTables.FindIndex(treasureTable);
+				if (idx) {
+					v.Index = *idx;
+				} else {
+					luaL_error(s.L, "Treasure table '%s' does not exist!", treasureTable.Str);
+				}
+
+				v.IsTreasureTable = true;
+				v.IsTreasureTable2 = true;
+			} else {
+				auto idx = stats->TreasureCategories.FindIndex(treasureCategory);
+				if (idx) {
+					v.Index = *idx;
+				} else {
+					luaL_error(s.L, "Treasure category '%s' does not exist!", treasureCategory.Str);
+				}
+
+				v.IsTreasureTable = false;
+				v.IsTreasureTable2 = false;
 			}
 		}
 
 		for (int i = 0; i < 7; i++) {
-			s.VisitProperty(stats->TreasureItemTypes[i].Str, v.Frequencies[i]);
+			s.VisitOptionalProperty(stats->TreasureItemTypes[i].Str, v.Frequencies[i], (uint16_t)0);
 		}
 
 		s.EndObject();
@@ -85,13 +141,13 @@ namespace dse::lua
 	{
 		s.BeginObject();
 		P(Name);
-		P(Priority);
-		P(MinAmount);
-		P(MaxAmount);
+		PO(Priority, 1);
+		PO(MinAmount, 1);
+		PO(MaxAmount, 1);
 		P(ActPart);
-		P(Unique);
-		P(MinLevel);
-		P(MaxLevel);
+		PO(Unique, 0);
+		PO(MinLevel, 0);
+		PO(MaxLevel, 0);
 		s.EndObject();
 		return s;
 	}
@@ -101,8 +157,8 @@ namespace dse::lua
 		s.BeginObject();
 		P(Name);
 		P(RecipeCategory);
-		P(CraftingStation);
-		P(AutoLevel);
+		PO(CraftingStation, CraftingStationType::None);
+		PO(AutoLevel, false);
 		P(Ingredients);
 		P(Results);
 		s.EndObject();
@@ -114,8 +170,8 @@ namespace dse::lua
 		s.BeginObject();
 		P(Object);
 		P(IngredientType);
-		P(Transform);
-		P(ItemRarity);
+		PO(Transform, IngredientTransformType::None);
+		PO(ItemRarity, ItemDataRarity::Sentinel);
 		s.EndObject();
 		return s;
 	}
@@ -123,11 +179,11 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationResult& v)
 	{
 		s.BeginObject();
-		P(Requirement);
-		P(ReqLevel);
+		PO(Requirement, AbilityType::Sentinel);
+		PO(ReqLevel, 0);
 		P(PreviewStatsId);
-		P(PreviewIcon);
-		P(PreviewTooltip);
+		PO(PreviewIcon, GFS.strEmpty);
+		PO(PreviewTooltip, GFS.strEmpty);
 		P(Name);
 		P(Results);
 		s.EndObject();
@@ -138,8 +194,8 @@ namespace dse::lua
 	{
 		s.BeginObject();
 		P(Result);
-		P(Boost);
-		P(ResultAmount);
+		PO(Boost, GFS.strEmpty);
+		PO(ResultAmount, 1);
 		s.EndObject();
 		return s;
 	}
@@ -204,7 +260,7 @@ namespace dse::lua
 		P(MaxLevel);
 		P(RootGroup);
 		P(NameGroupLinks);
-		s.VisitProperty("Unknown", v.field_10);
+		s.VisitOptionalProperty("Unknown", v.field_10, GFS.strEmpty);
 		s.EndObject();
 		return s;
 	}
@@ -215,7 +271,7 @@ namespace dse::lua
 		P(NameGroup);
 		P(NoneCoolSuffix);
 		P(ItemName);
-		s.VisitProperty("Unknown", v.field_0);
+		s.VisitOptionalProperty("Unknown", v.field_0, 0);
 		s.EndObject();
 		return s;
 	}
@@ -540,8 +596,8 @@ namespace dse::lua
 				s.VisitProperty("Count", count);
 
 				auto object = stats->objects.FindIndex(boost);
-				if (object != -1) {
-					v.BoostIndices.Set.Add(object);
+				if (object) {
+					v.BoostIndices.Set.Add(*object);
 					v.BoostCounts.Set.Add(count);
 				} else {
 					OsiError("DeltaMod references nonexistent boost '" << boost << "'");

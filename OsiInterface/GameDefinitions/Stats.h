@@ -38,23 +38,23 @@ namespace dse
 			NextHandle++;
 		}
 
-		int FindIndex(char const * str) const
+		std::optional<int> FindIndex(char const * str) const
 		{
 			auto fs = ToFixedString(str);
 			if (fs) {
 				return FindIndex(fs);
 			} else {
-				return -1;
+				return {};
 			}
 		}
 
-		int FindIndex(FixedString const& str) const
+		std::optional<int> FindIndex(FixedString const& str) const
 		{
 			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
 				return (int)*ptr;
 			} else {
-				return -1;
+				return {};
 			}
 		}
 

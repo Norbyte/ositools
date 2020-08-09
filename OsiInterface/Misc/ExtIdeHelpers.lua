@@ -3061,13 +3061,23 @@ function Ext.GetStatEntriesLoadedBefore (modId, type) end
 
 --- Returns all skills from the specified skill set
 --- @param name string Name of skill set entry
---- @return string[]
+--- @return StatSkillSet|nil
 function Ext.GetSkillSet (name) end
+
+--- Updates all properties of the specified skill set.
+--- The function expects a table in the same format as the one returned by GetSkillSet.
+--- @param skillSet StatSkillSet
+function Ext.UpdateSkillSet (skillSet) end
 
 --- Returns all equipment from the specified equipment set
 --- @param name string Name of equipment set entry
---- @return string[]
+--- @return StatEquipmentSet|nil
 function Ext.GetEquipmentSet (name) end
+
+--- Updates all properties of the specified equipment set.
+--- The function expects a table in the same format as the one returned by GetEquipmentSet.
+--- @param equipmentSet StatEquipmentSet
+function Ext.UpdateEquipmentSet (equipmentSet) end
 
 --- Returns an attribute of the specified stat entry
 --- @param stat string Stat entry name
@@ -3093,20 +3103,61 @@ function Ext.StatAddCustomDescription (stat, attribute, description) end
 --- @return DeltaMod
 function Ext.GetDeltaMod (name, modifierType) end
 
+--- Updates all properties of the specified DeltaMod.
+--- The function expects a table in the same format as the one returned by GetDeltaMod.
+--- @param deltaMod DeltaMod Name of delta mod
+function Ext.UpdateDeltaMod (deltaMod) end
+
 --- Returns the specified crafting item combination or nil on failure
 --- @param name string Name of item combo
 --- @return ItemCombo|nil
 function Ext.GetItemCombo (name) end
+
+--- Updates all properties of the specified item combination.
+--- The function expects a table in the same format as the one returned by GetItemCombo.
+--- @param itemCombo ItemCombo
+function Ext.UpdateItemCombo (itemCombo) end
 
 --- Returns the specified crafting preview data or nil on failure
 --- @param name string Name of item combo preview data
 --- @return ItemComboPreviewData|nil
 function Ext.GetItemComboPreviewData (name) end
 
+--- Updates all properties of the specified item combo preview.
+--- The function expects a table in the same format as the one returned by GetItemComboPreviewData.
+--- @param previewData ItemComboPreviewData
+function Ext.UpdateItemComboPreviewData (previewData) end
+
 --- Returns the specified crafting property or nil on failure
 --- @param name string Name of item combo property
 --- @return ItemComboProperty|nil
 function Ext.GetItemComboProperty (name) end
+
+--- Updates all properties of the specified item combo property.
+--- The function expects a table in the same format as the one returned by GetItemComboProperty.
+--- @param itemComboProperty ItemComboProperty
+function Ext.UpdateItemComboProperty (itemComboProperty) end
+
+--- Returns the specified treasure table or nil on failure
+--- @param name string Name of treasure table
+--- @return StatTreasureTable|nil
+function Ext.GetTreasureTable (name) end
+
+--- Updates all properties of the specified treasure table.
+--- The function expects a table in the same format as the one returned by GetTreasureTable.
+--- @param treasureTable StatTreasureTable
+function Ext.UpdateTreasureTable (treasureTable) end
+
+--- Returns the specified treasure category or nil on failure
+--- @param name string Name of treasure category
+--- @return StatTreasureCategory|nil
+function Ext.GetTreasureCategory (name) end
+
+--- Updates all properties of the specified treasure category.
+--- The function expects a table in the same format as the one returned by GetTreasureCategory.
+--- @param name string Name of treasure category
+--- @param treasureCategory StatTreasureCategory
+function Ext.UpdateTreasureCategory (name, treasureCategory) end
 
 --- Returns the specified item progression item group or nil on failure
 --- @param name string Name of item group
@@ -3117,11 +3168,6 @@ function Ext.GetItemGroup (name) end
 --- @param name string Name of name group
 --- @return ItemNameGroup|nil
 function Ext.GetNameGroup (name) end
-
---- Updates all properties of the specified DeltaMod.
---- The function expects a table in the same format as the one returned by GetDeltaMod.
---- @param deltaMod DeltaMod Name of delta mod
-function Ext.UpdateDeltaMod (deltaMod) end
 
 --- Replaces level scaling formula for the specified stat
 --- @param statType string Stat entry type

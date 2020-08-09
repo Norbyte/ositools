@@ -114,6 +114,7 @@ FS(ItemComboProperty);
 FS(CraftingPreviewData);
 FS(ItemGroup);
 FS(NameGroup);
+FS(DeltaMod);
 
 // Stat modifier value types
 FS(FixedString);

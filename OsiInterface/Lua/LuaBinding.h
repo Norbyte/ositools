@@ -311,12 +311,19 @@ namespace dse::lua
 	int GetStatEntries(lua_State* L);
 	int GetStatEntriesLoadedBefore(lua_State* L);
 	int GetSkillSet(lua_State* L);
+	int UpdateSkillSet(lua_State* L);
 	int GetEquipmentSet(lua_State* L);
+	int UpdateEquipmentSet(lua_State* L);
 	int GetTreasureTable(lua_State* L);
+	int UpdateTreasureTable(lua_State* L);
 	int GetTreasureCategory(lua_State* L);
+	int UpdateTreasureCategory(lua_State* L);
 	int GetItemCombo(lua_State* L);
+	int UpdateItemCombo(lua_State* L);
 	int GetItemComboPreviewData(lua_State* L);
+	int UpdateItemComboPreviewData(lua_State* L);
 	int GetItemComboProperty(lua_State* L);
+	int UpdateItemComboProperty(lua_State* L);
 	int GetItemGroup(lua_State* L);
 	int GetNameGroup(lua_State* L);
 

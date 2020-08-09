@@ -576,6 +576,13 @@ namespace dse
 			return nullptr;
 		}
 
+		TValue* Insert(TKey const& key, TValue const& value)
+		{
+			auto nodeValue = Insert(key);
+			*nodeValue = value;
+			return nodeValue;
+		}
+
 		TValue* Insert(TKey const& key)
 		{
 			auto item = HashTable[Hash(key) % HashSize];

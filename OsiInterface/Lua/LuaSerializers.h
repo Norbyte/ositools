@@ -4,6 +4,34 @@
 
 namespace dse::lua
 {
+#if !defined(NDEBUG)
+	struct StackCheck
+	{
+		inline StackCheck(lua_State* state, int delta = 0)
+			: L(state)
+		{
+			expectedTop = lua_gettop(L) + delta;
+		}
+
+		~StackCheck()
+		{
+			int newTop = lua_gettop(L);
+			if (newTop != expectedTop) {
+				DebugBreak();
+			}
+		}
+
+		lua_State* L;
+		int expectedTop;
+	};
+#else
+	struct StackCheck
+	{
+		inline StackCheck(lua_State* state, int delta = 0)
+		{}
+	};
+#endif
+
 	class LuaSerializer : Noncopyable<LuaSerializer>
 	{
 	public:
@@ -18,8 +46,10 @@ namespace dse::lua
 		LuaSerializer& Visit(T& v)
 		{
 			if (IsWriting) {
+				StackCheck _(L, 1);
 				push(L, v);
 			} else {
+				StackCheck _(L);
 				v = checked_get<T>(L, -1);
 			}
 
@@ -29,6 +59,7 @@ namespace dse::lua
 		template <class T>
 		void VisitProperty(char const* key, T& val)
 		{
+			StackCheck _(L);
 			if (IsWriting) {
 				*this << val;
 				lua_setfield(L, -2, key);
@@ -42,6 +73,7 @@ namespace dse::lua
 		template <class T>
 		void VisitOptionalProperty(char const* key, T& val, T const& defaultValue)
 		{
+			StackCheck _(L);
 			if (IsWriting) {
 				*this << val;
 				lua_setfield(L, -2, key);
@@ -71,6 +103,7 @@ namespace dse::lua
 	template <class T>
 	int LuaWrite(lua_State* L, T const& val)
 	{
+		StackCheck _(L, 1);
 		LuaSerializer serializer(L, true);
 		serializer << const_cast<T&>(val);
 		return 1;
@@ -79,6 +112,7 @@ namespace dse::lua
 	template <class T>
 	void LuaRead(lua_State* L, T& val)
 	{
+		StackCheck _(L);
 		LuaSerializer serializer(L, false);
 		serializer << val;
 	}
@@ -105,6 +139,7 @@ namespace dse::lua
 		if (s.IsWriting) {
 			int i = 1;
 			for (auto& val : v) {
+				StackCheck _(s.L);
 				push(s.L, i++);
 				s << val;
 				lua_settable(s.L, -3);
@@ -112,7 +147,8 @@ namespace dse::lua
 		} else {
 			v.Set.Clear();
 			for (auto idx : iterate(s.L, -1)) {
-				T temp;
+				StackCheck _(s.L);
+				T temp{};
 				s << temp;
 				v.Set.Add(temp);
 			}
@@ -128,6 +164,7 @@ namespace dse::lua
 		if (s.IsWriting) {
 			int i = 1;
 			for (auto& val : v) {
+				StackCheck _(s.L);
 				push(s.L, i++);
 				s << val;
 				lua_settable(s.L, -3);
@@ -135,7 +172,8 @@ namespace dse::lua
 		} else {
 			v.clear();
 			for (auto idx : iterate(s.L, -1)) {
-				T temp;
+				StackCheck _(s.L);
+				T temp{};
 				s << temp;
 				v.push_back(temp);
 			}
@@ -190,6 +228,9 @@ namespace dse::lua
 
 	void LuaSerializeStatsEnum(LuaSerializer& s, char const* key, FixedString const& enumName, int& v);
 
+	LuaSerializer& operator << (LuaSerializer& s, CEquipmentSet& v);
+	LuaSerializer& operator << (LuaSerializer& s, CEquipmentGroup& v);
+	LuaSerializer& operator << (LuaSerializer& s, CSkillSet& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_Table& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_SubTable_Description& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_SubTable_Description::Category& v);

@@ -1336,6 +1336,7 @@ BEGIN_ENUM(ItemDataRarity, uint8_t)
 	EV(Epic, 4)
 	EV(Legendary, 5)
 	EV(Divine, 6)
+	EV(Sentinel, 7)
 END_ENUM()
 
 BEGIN_ENUM(RecipeCategory, int)

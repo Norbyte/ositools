@@ -525,12 +525,11 @@ namespace dse
 	CRPGStats_Modifier * ModifierList::GetAttributeInfo(FixedString const& name, int * attributeIndex) const
 	{
 		auto index = Attributes.FindIndex(name);
-		if (index == -1) {
+		if (!index) {
 			return nullptr;
-		}
-		else {
-			*attributeIndex = index;
-			return Attributes.Find(index);
+		} else {
+			*attributeIndex = *index;
+			return Attributes.Find(*index);
 		}
 	}
 
@@ -588,12 +587,12 @@ namespace dse
 	std::optional<CRPGStats_Object*> CRPGStatsManager::CreateObject(FixedString const& name, FixedString const& type)
 	{
 		auto modifierIdx = modifierList.FindIndex(type);
-		if (modifierIdx == -1) {
+		if (!modifierIdx) {
 			OsiError("Unknown modifier list type: " << type);
 			return {};
 		}
 
-		return CreateObject(name, modifierIdx);
+		return CreateObject(name, *modifierIdx);
 	}
 
 	std::optional<CRPGStats_Object*> CRPGStatsManager::CreateObject(FixedString const& name, int32_t modifierListIndex)

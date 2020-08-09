@@ -502,6 +502,20 @@ namespace dse::lua
 		});
 	}
 
+	void FetchDeltaModEntries(lua_State* L, CRPGStatsManager* stats)
+	{
+		int32_t index = 1;
+		for (auto deltaModList : stats->DeltaMods.Primitives) {
+			for (auto deltaMod : deltaModList->Primitives) {
+				push(L, index++);
+				lua_newtable(L);
+				setfield(L, "Name", deltaMod->Name);
+				setfield(L, "ModifierType", deltaMod->ModifierType);
+				lua_settable(L, -3);
+			}
+		}
+	}
+
 	void FetchEquipmentSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
 		int32_t index = 1;
@@ -608,6 +622,8 @@ namespace dse::lua
 			FetchItemGroupEntries(L, stats);
 		} else if (statType == GFS.strNameGroup) {
 			FetchItemNameGroupEntries(L, stats);
+		} else if (statType == GFS.strDeltaMod) {
+			FetchDeltaModEntries(L, stats);
 		} else {
 			FetchStatEntries(L, stats, statType);
 		}
@@ -638,50 +654,85 @@ namespace dse::lua
 	int GetSkillSet(lua_State * L)
 	{
 		auto skillSetName = luaL_checkstring(L, 1);
+		auto stats = GetStaticSymbols().GetStats();
+		auto skillSet = stats->SkillSetManager->Find(skillSetName);
+		return LuaWrite(L, skillSet);
+	}
 
-		auto skillSets = GetStaticSymbols().GetStats()->SkillSetManager;
-		auto skillSet = skillSets->Find(skillSetName);
-		if (skillSet == nullptr) {
-			return 0;
+	int UpdateSkillSet(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto skillSet = stats->SkillSetManager->Find(name);
+		bool isNew = (skillSet == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, skillSet);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->SkillSetManager->Add(name, skillSet);
 		}
 
-		lua_newtable(L);
-		int32_t index = 1;
-		for (auto const& skill : skillSet->Skills) {
-			settable(L, index++, skill);
-		}
-
-		return 1;
+		return 0;
 	}
 
 	int GetEquipmentSet(lua_State * L)
 	{
 		auto equipmentSetName = luaL_checkstring(L, 1);
+		auto stats = GetStaticSymbols().GetStats();
+		auto equipmentSet = stats->EquipmentSetManager->Find(equipmentSetName);
+		return LuaWrite(L, equipmentSet);
+	}
 
-		auto equipmentSets = GetStaticSymbols().GetStats()->EquipmentSetManager;
-		auto equipmentSet = equipmentSets->Find(equipmentSetName);
-		if (equipmentSet == nullptr) {
-			return 0;
+	int UpdateEquipmentSet(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto equipmentSet = stats->EquipmentSetManager->Find(name);
+		bool isNew = (equipmentSet == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, equipmentSet);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->EquipmentSetManager->Add(name, equipmentSet);
 		}
 
-		lua_newtable(L);
-		int32_t index = 1;
-		for (auto group : equipmentSet->Groups) {
-			for (auto const& equipment : group->Equipment) {
-				settable(L, index++, equipment);
-			}
-		}
-
-		return 1;
+		return 0;
 	}
 
 	int GetTreasureTable(lua_State* L)
 	{
 		auto tableName = luaL_checkstring(L, 1);
-		auto const* stats = GetStaticSymbols().GetStats();
-		auto const& tables = stats->TreasureTables;
-		auto table = tables.Find(tableName);
+		auto stats = GetStaticSymbols().GetStats();
+		auto table = stats->TreasureTables.Find(tableName);
 		return LuaWrite(L, table);
+	}
+
+	int UpdateTreasureTable(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto table = stats->TreasureTables.Find(name);
+		bool isNew = (table == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, table);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->TreasureTables.Add(name, table);
+		}
+
+		return 0;
 	}
 
 	int GetTreasureCategory(lua_State* L)
@@ -692,6 +743,26 @@ namespace dse::lua
 		return LuaWrite(L, category);
 	}
 
+	int UpdateTreasureCategory(lua_State* L)
+	{
+		auto name = checked_get<FixedString>(L, 1);
+		luaL_checktype(L, 2, LUA_TTABLE);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto category = stats->TreasureCategories.Find(name);
+		bool isNew = (category == nullptr);
+
+		lua_pushvalue(L, 2);
+		LuaRead(L, category);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->TreasureCategories.Add(name, category);
+		}
+
+		return 0;
+	}
+
 	int GetItemCombo(lua_State* L)
 	{
 		auto comboName = luaL_checkstring(L, 1);
@@ -699,6 +770,25 @@ namespace dse::lua
 		return LuaWrite(L, *combo);
 	}
 
+	int UpdateItemCombo(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto combo = stats->ItemCombinationManager->Find(name);
+		bool isNew = (combo == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, combo);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->ItemCombinationManager->Add(name, combo);
+		}
+
+		return 0;
+	}
 
 	int GetItemComboPreviewData(lua_State* L)
 	{
@@ -707,12 +797,53 @@ namespace dse::lua
 		return LuaWrite(L, *preview);
 	}
 
+	int UpdateItemComboPreviewData(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto existing = stats->ItemCombinationManager->PreviewData.Find(name);
+		CItemCombinationPreviewData* previewData = existing ? *existing : nullptr;
+		bool isNew = (previewData == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, previewData);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->ItemCombinationManager->PreviewData.Insert(name, previewData);
+		}
+
+		return 0;
+	}
 
 	int GetItemComboProperty(lua_State* L)
 	{
 		auto propertyName = ToFixedString(luaL_checkstring(L, 1));
 		auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
 		return LuaWrite(L, *prop);
+	}
+
+	int UpdateItemComboProperty(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TTABLE);
+		auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+		auto stats = GetStaticSymbols().GetStats();
+		auto existing = stats->ItemCombinationManager->ComboProperties.Find(name);
+		CItemCombinationProperty* comboProperty = existing ? *existing : nullptr;
+		bool isNew = (comboProperty == nullptr);
+
+		lua_pushvalue(L, 1);
+		LuaRead(L, comboProperty);
+		lua_pop(L, 1);
+
+		if (isNew) {
+			stats->ItemCombinationManager->ComboProperties.Insert(name, comboProperty);
+		}
+
+		return 0;
 	}
 
 
