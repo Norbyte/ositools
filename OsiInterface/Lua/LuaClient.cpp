@@ -1970,8 +1970,6 @@ namespace dse::ecl::lua
 
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		Restriction restriction(*this, RestrictAll);
-
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);

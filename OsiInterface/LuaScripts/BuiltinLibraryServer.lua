@@ -16,7 +16,9 @@ Ext._Listeners = {
 	BeforeCharacterApplyDamage = {},
 	TreasureItemGenerated = {},
 	BeforeCraftingExecuteCombination = {},
-	AfterCraftingExecuteCombination = {}
+	AfterCraftingExecuteCombination = {},
+	ShootProjectile = {},
+	ProjectileHit = {}
 }
 
 Ext._GetSkillDamage = function (...)
@@ -45,7 +47,7 @@ Ext._StatusGetEnterChance = function (...)
 end
 
 Ext._StatusHitEnter = function (...)
-    return Ext._EngineCallback1("StatusHitEnter", ...)
+    return Ext._Notify("StatusHitEnter", ...)
 end
 
 Ext.RegisterListener = function (type, fn)
@@ -120,5 +122,13 @@ Ext._BeforeCraftingExecuteCombination = function (...)
 end
 
 Ext._AfterCraftingExecuteCombination = function (...)
-    return Ext._EngineCallback1("AfterCraftingExecuteCombination", ...)
+    return Ext._Notify("AfterCraftingExecuteCombination", ...)
+end
+
+Ext._OnShootProjectile = function (...)
+    return Ext._Notify("ShootProjectile", ...)
+end
+
+Ext._OnProjectileHit = function (...)
+    return Ext._Notify("ProjectileHit", ...)
 end

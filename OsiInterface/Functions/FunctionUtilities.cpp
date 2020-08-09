@@ -339,7 +339,7 @@ namespace dse
 				Helper.DamageList = &DamageList;
 			}
 
-			auto shoot = GetStaticSymbols().ShootProjectile;
+			auto shoot = GetStaticSymbols().esv__ProjectileHelpers__ShootProjectile;
 			if (shoot == nullptr) {
 				OsiErrorS("ShootProjectile helper not found!");
 				return false;

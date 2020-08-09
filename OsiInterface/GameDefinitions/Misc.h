@@ -230,7 +230,6 @@ namespace dse
 		bool MapToAiGrid{ true };
 	};
 
-	typedef Projectile * (*ProjectileHelpers_ShootProjectile)(void * ShootProjectileHelper);
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
 	typedef void(*GameStateThreaded__GameStateWorker__DoWork)(void * self);

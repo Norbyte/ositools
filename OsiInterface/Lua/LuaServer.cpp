@@ -2013,8 +2013,6 @@ namespace dse::esv::lua
 
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		Restriction restriction(*this, RestrictAll);
-
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);
@@ -2122,6 +2120,40 @@ namespace dse::esv::lua
 
 		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
 			OsiError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
+	void ServerState::OnShootProjectile(Projectile* projectile)
+	{
+		PushExtFunction(L, "_OnShootProjectile");
+		UnbindablePin _(ObjectProxy<esv::Projectile>::New(L, projectile));
+
+		if (CallWithTraceback(L, 1, 1) != 0) {
+			OsiError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
+	void ServerState::OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position)
+	{
+		PushExtFunction(L, "_OnProjectileHit");
+		UnbindablePin _(ObjectProxy<esv::Projectile>::New(L, projectile));
+
+		if (hitObject.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+			ObjectProxy<esv::Character>::New(L, hitObject);
+		} else if (hitObject.GetType() == (uint32_t)ObjectType::ServerItem) {
+			ObjectProxy<esv::Item>::New(L, hitObject);
+		} else {
+			push(L, nullptr);
+		}
+
+		push(L, position);
+
+		if (CallWithTraceback(L, 3, 1) != 0) {
+			OsiError("OnProjectileHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}

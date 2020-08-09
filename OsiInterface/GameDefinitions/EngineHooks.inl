@@ -4,6 +4,8 @@ HOOK_DEFN(esv__StatusHit__Setup, esv__StatusHit__Setup, esv::StatusHit::SetupPro
 HOOK_DEFN(esv__StatusHeal__Enter, esv__StatusHeal__Enter, esv::Status::EnterProc, PreHookableFunction)
 HOOK_DEFN(esv__StatusMachine__ApplyStatus, esv__StatusMachine__ApplyStatus, esv::StatusMachine::ApplyStatusProc, WrappableFunction)
 
+HOOK_DEFN(esv__ProjectileHelpers__ShootProjectile, esv__ProjectileHelpers__ShootProjectile, esv::ProjectileHelpers__ShootProjectile, PostHookableFunction)
+HOOK_DEFN(esv__Projectile__Explode, esv__Projectile__Explode, esv::Projectile::ExplodeProc, PreHookableFunction)
 HOOK_DEFN(esv__ActionMachine__SetState, esv__ActionMachine__SetState, esv::ActionMachine::SetStateProc, HookableFunction)
 HOOK_DEFN(esv__ActionMachine__ResetState, esv__ActionMachine__ResetState, esv::ActionMachine::ResetStateProc, PreHookableFunction)
 

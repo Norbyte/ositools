@@ -109,7 +109,8 @@ namespace dse
 
 		ls__FixedString__Create CreateFixedString{ nullptr };
 
-		esv::ProjectileHelpers_ShootProjectile ShootProjectile{ nullptr };
+		esv::ProjectileHelpers__ShootProjectile* esv__ProjectileHelpers__ShootProjectile{ nullptr };
+		esv::Projectile::ExplodeProc* esv__Projectile__Explode{ nullptr };
 		esv::GameActionManager__CreateAction CreateGameAction{ nullptr };
 		esv::GameActionManager__AddAction AddGameAction{ nullptr };
 		esv::TornadoAction__Setup TornadoActionSetup{ nullptr };

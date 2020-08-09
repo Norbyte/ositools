@@ -13,8 +13,33 @@ namespace dse
 
 	namespace esv
 	{
+        struct DefaultProjectileHit : Noncopyable<DefaultProjectileHit>
+        {
+            virtual void Destroy(bool b) = 0;
+            virtual void OnHit(glm::vec3 const& position, ObjectHandle const& objectHandle, Projectile* projectile) = 0;
+            virtual void Visit(ObjectVisitor* visitor) = 0;
+            virtual int GetTypeId() = 0;
+
+            ObjectHandle CasterHandle;
+            int Level{ -1 };
+            bool IsFromItem{ false };
+            FixedString SkillId;
+        };
+
+        struct ProxyProjectileHit : DefaultProjectileHit
+        {
+            void Destroy(bool b) override;
+            void OnHit(glm::vec3 const& position, ObjectHandle const& objectHandle, Projectile* projectile) override;
+            void Visit(ObjectVisitor* visitor) override;
+            int GetTypeId() override;
+
+            DefaultProjectileHit* WrappedHit{ nullptr };
+        };
+
 		struct Projectile : public IEoCServerObject
 		{
+            using ExplodeProc = void (Projectile*);
+
             ObjectHandle CasterHandle;
             ObjectHandle SourceHandle;
             ObjectHandle TargetObjectHandle;
@@ -52,7 +77,7 @@ namespace dse
             bool IgnoreRoof;
             bool CanDeflect;
             bool IgnoreObjects;
-            void* OnHitAction;
+            DefaultProjectileHit* OnHitAction;
             FixedString CleanseStatuses;
             float StatusClearChance;
             uint64_t Flags;
@@ -94,5 +119,6 @@ namespace dse
 		    bool IgnoreObjects{ false };
 	    };
 
+        using ProjectileHelpers__ShootProjectile = Projectile* (ShootProjectileHelper* ShootProjectileHelper);
 	}
 }

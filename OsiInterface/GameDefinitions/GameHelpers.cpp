@@ -365,6 +365,47 @@ namespace dse
 	}
 
 
+	void esv::ProxyProjectileHit::Destroy(bool b)
+	{
+		if (WrappedHit) {
+			WrappedHit->Destroy(b);
+		}
+
+		this->~ProxyProjectileHit();
+		GameDelete(this);
+	}
+
+	void esv::ProxyProjectileHit::OnHit(glm::vec3 const& position, ObjectHandle const& hitObject, Projectile* projectile)
+	{
+		if (WrappedHit) {
+			WrappedHit->OnHit(position, hitObject, projectile);
+		}
+
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnProjectileHit(projectile, hitObject, position);
+		}
+	}
+
+	void esv::ProxyProjectileHit::Visit(ObjectVisitor* visitor)
+	{
+		if (WrappedHit) {
+			WrappedHit->Visit(visitor);
+		}
+	}
+
+	int esv::ProxyProjectileHit::GetTypeId()
+	{
+		if (WrappedHit) {
+			return WrappedHit->GetTypeId();
+		} else {
+			// Use nonexistent ID to prevent instantiation after reload if our hook
+			// somehow got into a savegame.
+			return 255;
+		}
+	}
+
+
 	void PendingStatuses::Add(esv::Status * status)
 	{
 		PendingStatus pend { status, false };

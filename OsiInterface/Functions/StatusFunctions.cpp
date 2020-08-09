@@ -836,6 +836,33 @@ namespace dse::esv
 		}
 	}
 
+	void CustomFunctionLibrary::OnShootProjectile(ShootProjectileHelper* helper, Projectile* projectile)
+	{
+		if (!projectile) return;
+
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnShootProjectile(projectile);
+		}
+	}
+
+	void CustomFunctionLibrary::OnProjectileExplode(Projectile* projectile)
+	{
+		// We're not sure yet whether the projectile exploded or was deflected, 
+		// so install an OnHit hook to detect the actual hit event
+		auto hitProxy = GameAlloc<ProxyProjectileHit>();
+
+		// If the hit action has a ProxyProjectileHit VMT, don't hook the hit again.
+		if (projectile->OnHitAction != nullptr &&
+			*(void**)projectile->OnHitAction == *(void**)hitProxy) {
+			GameDelete(hitProxy);
+			return;
+		}
+
+		hitProxy->WrappedHit = projectile->OnHitAction;
+		projectile->OnHitAction = hitProxy;
+	}
+
 	void CustomFunctionLibrary::OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded)
 	{
 		if (!succeeded || actionState == nullptr || !setLayer) return;

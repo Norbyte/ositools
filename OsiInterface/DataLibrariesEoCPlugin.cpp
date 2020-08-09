@@ -329,7 +329,17 @@ namespace dse
 			"89 BC 24 B8 00 00 00 " // mov     [rsp+0F8h+shootProjectile.CasterLevel], edi
 			"E8 XX XX XX XX ", // call    esv__ProjectileHelpers__ShootProjectile
 			{},
-			{"esv::ProjectileHelpers::ShootProjectile", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(ShootProjectile)}
+			{"esv::ProjectileHelpers::ShootProjectile", SymbolMappingTarget::kIndirect, 27, STATIC_SYM(esv__ProjectileHelpers__ShootProjectile)}
+		},
+
+		{
+			"esv::Projectile::Explode",
+			SymbolMappingData::kText, 0,
+			"48 8D AC 24 30 FE FF FF " // lea     rbp, [rsp-1D0h]
+			"48 81 EC D0 02 00 00 " // sub     rsp, 2D0h
+			"44 0F 29 BC 24 30 02 00 00 ", // movaps  [rsp+2F0h+var_C0], xmm15
+			{},
+			{"esv::Projectile::Explode", SymbolMappingTarget::kAbsolute, -0x0E, STATIC_SYM(esv__Projectile__Explode)}
 		},
 
 		{

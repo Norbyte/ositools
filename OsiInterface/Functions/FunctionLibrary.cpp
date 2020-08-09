@@ -230,6 +230,12 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__ActionMachine__ResetState.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineResetState, this, _1, _2)
 		);
+		osiris_.GetLibraryManager().esv__ProjectileHelpers__ShootProjectile.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnShootProjectile, this, _1, _2)
+		);
+		osiris_.GetLibraryManager().esv__Projectile__Explode.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnProjectileExplode, this, _1)
+		);
 		osiris_.GetLibraryManager().SkillPrototype__FormatDescriptionParam.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
