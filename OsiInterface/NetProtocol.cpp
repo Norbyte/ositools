@@ -111,10 +111,12 @@ namespace dse
 		{
 			auto & resetMsg = msg.s2c_reset_lua();
 			auto & ext = ecl::ExtensionState::Get();
+			ext.AddPostResetCallback([&ext]() {
+				ext.OnModuleResume();
+				ext.OnGameSessionLoading();
+				ext.OnGameSessionLoaded();
+			});
 			ext.LuaReset(resetMsg.bootstrap_scripts());
-			ext.OnModuleResume();
-			ext.OnGameSessionLoading();
-			ext.OnGameSessionLoaded();
 			break;
 		}
 

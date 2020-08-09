@@ -1145,6 +1145,57 @@ void OsirisProxy::AttachConsoleThread(bool server)
 	}
 }
 
+void OsirisProxy::ResetLuaState(bool resetServer, bool resetClient)
+{
+	if (resetServer && ServerExtState && ServerExtState->GetLua()) {
+		auto& ext = *ServerExtState;
+		ext.AddPostResetCallback([&ext]() {
+			ext.OnModuleResume();
+			auto state = GetStaticSymbols().GetServerState();
+			if (state && (state == esv::GameState::Paused || state == esv::GameState::Running || state == esv::GameState::GameMasterPause)) {
+				ext.OnGameSessionLoading();
+				ext.OnGameSessionLoaded();
+				ext.StoryLoaded();
+			}
+		});
+		ext.LuaReset(true);
+	}
+
+	if (resetClient) {
+		auto server = GetStaticSymbols().EoCServer;
+		if (server && *server && (*server)->GameServer) {
+			// Reset clients via a network message if the server is running
+			auto& networkMgr = gOsirisProxy->GetNetworkManager();
+			auto msg = networkMgr.GetFreeServerMessage(ReservedUserId);
+			if (msg != nullptr) {
+				auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
+				resetMsg->set_bootstrap_scripts(true);
+				networkMgr.ServerBroadcast(msg, ReservedUserId);
+			} else {
+				OsiErrorS("Could not get free message!");
+			}
+
+		} else if (ClientExtState && ClientExtState->GetLua()) {
+			bool serverThread = IsInServerThread();
+			AttachConsoleThread(false);
+
+			// Do a direct (local) reset if server is not available (main menu, etc.)
+			auto& ext = *ClientExtState;
+			ext.AddPostResetCallback([&ext]() {
+				ext.OnModuleResume();
+				auto state = GetStaticSymbols().GetClientState();
+				if (state && (state == ecl::GameState::Paused || state == ecl::GameState::Running || state == ecl::GameState::GameMasterPause)) {
+					ext.OnGameSessionLoading();
+					ext.OnGameSessionLoaded();
+				}
+			});
+			ext.LuaReset(true);
+
+			AttachConsoleThread(serverThread);
+		}
+	}
+}
+
 FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type)
 {
 	if (!pathOverrides_.empty()) {

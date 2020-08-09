@@ -166,13 +166,16 @@ void DebugConsole::ConsoleThread()
 
 			if (line.empty()) {
 			} else if (line == "server") {
-				DEBUG("Switching to sever context.");
+				DEBUG("Switching to server context.");
 				serverContext_ = true;
 				dse::gOsirisProxy->AttachConsoleThread(true);
 			} else if (line == "client") {
 				DEBUG("Switching to client context.");
 				serverContext_ = false;
 				dse::gOsirisProxy->AttachConsoleThread(false);
+			} else if (line == "reset") {
+				DEBUG("Resetting Lua states.");
+				dse::gOsirisProxy->ResetLuaState(true, true);
 			} else if (line == "silence on") {
 				DEBUG("Silent mode ON");
 				silence = true;
@@ -183,6 +186,7 @@ void DebugConsole::ConsoleThread()
 				DEBUG("Anything typed in will be executed as Lua code except the following special commands:");
 				DEBUG("  server - Switch to server context");
 				DEBUG("  client - Switch to client context");
+				DEBUG("  reset - Reset client and server Lua states");
 				DEBUG("  silence <on|off> - Enable/disable silent mode (log output when in input mode)");
 				DEBUG("  exit - Leave console mode");
 				DEBUG("  !<cmd> <arg1> ... <argN> - Trigger Lua \"ConsoleCommand\" event with arguments cmd, arg1, ..., argN");

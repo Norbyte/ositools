@@ -239,6 +239,7 @@ public:
 	void HookNodeVMTs();
 
 	std::wstring MakeLogFilePath(std::wstring const& Type, std::wstring const& Extension);
+	void ResetLuaState(bool resetServer, bool resetClient);
 
 private:
 	OsirisWrappers Wrappers;

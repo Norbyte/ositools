@@ -9,7 +9,7 @@ namespace dse::esv
 	{
 		void OsiLuaReset(OsiArgumentDesc const & args)
 		{
-			auto bootstrapMods = args[0].Int32 == 1;
+			// _BootstrapMods parameter not used anymore
 			bool resetServer = true;
 			bool resetClient = true;
 			if (args.Count() == 3) {
@@ -24,28 +24,7 @@ namespace dse::esv
 			}
 #endif
 
-			if (resetServer) {
-				auto & ext = ExtensionState::Get();
-				ext.AddPostResetCallback([&ext]() {
-					ext.OnModuleResume();
-					ext.OnGameSessionLoading();
-					ext.OnGameSessionLoaded();
-					ext.StoryLoaded();
-				});
-				ext.LuaReset(bootstrapMods);
-			}
-
-			if (resetClient) {
-				auto & networkMgr = gOsirisProxy->GetNetworkManager();
-				auto msg = networkMgr.GetFreeServerMessage(ReservedUserId);
-				if (msg != nullptr) {
-					auto resetMsg = msg->GetMessage().mutable_s2c_reset_lua();
-					resetMsg->set_bootstrap_scripts(bootstrapMods);
-					networkMgr.ServerBroadcast(msg, ReservedUserId);
-				} else {
-					OsiErrorS("Could not get free message!");
-				}
-			}
+			gOsirisProxy->ResetLuaState(resetServer, resetClient);
 		}
 
 		void OsiLuaLoad(OsiArgumentDesc const & args)
