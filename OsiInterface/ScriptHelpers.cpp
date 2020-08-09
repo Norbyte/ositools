@@ -155,16 +155,6 @@ bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
 		repo->TranslatedStringOverrides[0]->Insert(handle, s);
 	}
 
-	auto argStr = repo->TranslatedArgumentStrings.Find(handle);
-	if (argStr != nullptr) {
-		(*argStr)->TranslatedStr.Handle.ReferenceString = string;
-	} else {
-		auto arg = GameAlloc<TranslatedArgumentString>();
-		arg->TranslatedStr.Handle.Handle = handle;
-		arg->TranslatedStr.Handle.ReferenceString = string;
-		repo->TranslatedArgumentStrings.Insert(handle, arg);
-	}
-
 	LeaveCriticalSection(&repo->CriticalSection);
 
 	return true;

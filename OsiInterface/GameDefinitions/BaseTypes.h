@@ -1082,6 +1082,8 @@ namespace dse
 
 	struct RuntimeStringHandle
 	{
+		RuntimeStringHandle();
+
 		void * VMT{ nullptr };
 		FixedString Handle;
 		STDString Str;

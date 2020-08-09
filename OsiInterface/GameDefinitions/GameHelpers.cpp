@@ -96,6 +96,11 @@ namespace dse
 		return Primes[start];
 	}
 
+	RuntimeStringHandle::RuntimeStringHandle()
+	{
+		Handle = GFS.strNullStringHandle;
+	}
+
 	void StaticSymbols::CanonicalizePath(STDString & path) const
 	{
 		if (path.find('\\') != std::string::npos) {
