@@ -55,6 +55,7 @@ namespace dse
 				double Double;
 				char* String;
 				wchar_t* WString;
+				void* Object;
 			};
 			int StringLength;
 			int field_1C;

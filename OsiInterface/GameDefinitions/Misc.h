@@ -116,8 +116,18 @@ namespace dse
 		// Rest of structure not properly mapped yet
 	};
 
+	struct TranslatedArgumentString
+	{
+		void* VMT{ nullptr };
+		ObjectSet<void*>* ArgumentObjectSet{ nullptr };
+		bool HasArgumentSet{ false };
+		void* ArgumentBuf{ nullptr };
+		STDWString Unknown;
+		uint32_t ArgumentBufSize{ 0 };
+		TranslatedString TranslatedStr;
+	};
 
-	struct TranslatedStringRepository
+	struct TranslatedStringRepository : public ProtectedGameObject<TranslatedStringRepository>
 	{
 		typedef TranslatedStringRepository* (*GetInstance)();
 		typedef STDWString * (*Get)(TranslatedStringRepository* self, RuntimeStringHandle* handle, uint64_t * length, char gender1, char gender2, bool unknown);
@@ -127,7 +137,7 @@ namespace dse
 		int field_8;
 		Map<FixedString, STDWString*>* TranslatedStrings[4];
 		Map<FixedString, STDWString*>* TranslatedStringOverrides[4];
-		Map<FixedString, void*> TranslatedArgumentStrings;
+		Map<FixedString, TranslatedArgumentString*> TranslatedArgumentStrings;
 		Map<FixedString, RuntimeStringHandle> StringHandles;
 		CRITICAL_SECTION CriticalSection;
 		ScratchBuffer ScratchBuf;
@@ -136,7 +146,7 @@ namespace dse
 		STDWString NotFoundStr;
 	};
 
-	struct TranslatedStringKeyManager
+	struct TranslatedStringKeyManager : public ProtectedGameObject<TranslatedStringKeyManager>
 	{
 		typedef TranslatedStringKeyManager* (*GetInstance)();
 		typedef TranslatedString * (*GetTranlatedStringFromKey)(TranslatedStringKeyManager* self, TranslatedString& string, FixedString const& handle, bool unknown);
