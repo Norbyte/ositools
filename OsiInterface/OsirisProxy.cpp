@@ -35,10 +35,6 @@ void OsirisProxy::Initialize()
 		InitCrashReporting();
 	}
 
-	if (config_.EnableLogging || config_.LogCompile) {
-		DEBUG(L"Osiris logs will be written to %s", config_.LogDirectory.c_str());
-	}
-
 	extensionsEnabled_ = config_.EnableExtensions;
 
 	GameVersionInfo gameVersion;
@@ -172,15 +168,21 @@ void OsirisProxy::RestartLogging(std::wstring const & Type)
 
 std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
 {
+	if (config_.LogDirectory.empty()) {
+		config_.LogDirectory = FromUTF8(GetStaticSymbols().ToPath("/Extender Logs", PathRootType::GameStorage));
+	}
+
+	if (config_.LogDirectory.empty()) {
+		return L"";
+	}
+
 	BOOL created = CreateDirectoryW(config_.LogDirectory.c_str(), NULL);
-	if (created == FALSE)
-	{
+	if (created == FALSE) {
 		DWORD lastError = GetLastError();
-		if (lastError != ERROR_ALREADY_EXISTS)
-		{
+		if (lastError != ERROR_ALREADY_EXISTS) {
 			std::wstringstream err;
 			err << L"Could not create log directory '" << config_.LogDirectory << "': Error " << lastError;
-			Fail(err.str().c_str());
+			return L"";
 		}
 	}
 
@@ -338,11 +340,17 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 		CustomFunctions.PreProcessStory(Path);
 	}
 
-	if (config_.LogCompile) {
-		storyPath = MakeLogFilePath(L"Compile", L"div");
-		*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
-		CopyFileW(Path, storyPath.c_str(), TRUE);
+	if (config_.LogCompile || config_.LogFailedCompile) {
+		if (!config_.LogCompile) {
+			*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
+		}
+
 		RestartLogging(L"Compile");
+
+		if (config_.LogCompile) {
+			storyPath = MakeLogFilePath(L"Compile", L"div");
+			CopyFileW(Path, storyPath.c_str(), TRUE);
+		}
 	}
 
 	auto ret = Next(Osiris, Path, Mode);
@@ -353,13 +361,16 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 		ERR("OsirisProxy::CompileWrapper: Compilation FAILED.");
 	}
 
-	if (config_.LogCompile) {
+	if (config_.LogCompile || config_.LogFailedCompile) {
 		*Wrappers.Globals.DebugFlags = OriginalFlags;
 		Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
 
 		if (ret) {
-			DeleteFileW(storyPath.c_str());
-			DeleteFileW(LogFilename.c_str());
+			if (config_.LogCompile) {
+				DeleteFileW(storyPath.c_str());
+			} else {
+				DeleteFileW(LogFilename.c_str());
+			}
 		}
 	}
 

@@ -124,6 +124,10 @@ namespace dse
 		}
 
 		auto rootPath = PathRoots[(unsigned)root];
+		if (rootPath == nullptr) {
+			ERR("LibraryManager::ToPath(): Path roots not initialized!");
+			return "";
+		}
 
 		STDString absolutePath(*rootPath);
 		absolutePath += "/" + canonicalPath;

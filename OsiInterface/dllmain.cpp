@@ -37,6 +37,7 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "CreateConsole", config.CreateConsole);
 	ConfigGetBool(root, "EnableLogging", config.EnableLogging);
 	ConfigGetBool(root, "LogCompile", config.LogCompile);
+	ConfigGetBool(root, "LogFailedCompile", config.LogFailedCompile);
 	ConfigGetBool(root, "EnableExtensions", config.EnableExtensions);
 	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
@@ -89,17 +90,6 @@ void SetupOsirisProxy(HMODULE hModule)
 	if (config.DebugFlags == 0) {
 		// Disabled: DF_FunctionList, DF_NodeList ,DF_LogSuccessfulFacts, DF_LogFailedFacts, DB_LogFactFailures, DF_DumpDatabases, DF_DebugFacts, DF_LogRuleFailures
 		config.DebugFlags = dse::DF_DebugTrace | dse::DF_SuppressInitLog;
-	}
-
-	if (config.LogDirectory.empty()) {
-		TCHAR * DocumentsPath;
-		if (SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_SIMPLE_IDLIST, NULL, &DocumentsPath) != S_OK) {
-			Fail("Could not get user documents path.");
-		}
-
-		std::wstring logDir = DocumentsPath;
-		logDir += L"\\OsirisLogs";
-		config.LogDirectory = logDir;
 	}
 
 	dse::gOsirisProxy->Initialize();

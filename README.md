@@ -19,7 +19,8 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 |--|--|--|
 | CreateConsole | Boolean | Creates a console window that logs extender internals. Mainly useful for debugging. |
 | EnableLogging | Boolean | Enable logging of Osiris activity (rule evaluation, queries, etc.) to a log file. |
-| LogCompile | Boolean | Log errors during Osiris story compilation to a log file. |
+| LogCompile | Boolean | Log Osiris story compilation to a log file. |
+| LogFailedCompile | Boolean | Log errors during Osiris story compilation to a log file. |
 | LogDirectory | String | Directory where the generated Osiris logs will be stored. Default is `My Documents\OsirisLogs` |
 | EnableExtensions | Boolean | Make the Osiris extension functionality available ingame or in the editor. |
 | SendCrashReports | Boolean | Upload minidumps to the crash report collection server after a game crash. |

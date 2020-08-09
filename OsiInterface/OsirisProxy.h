@@ -30,12 +30,14 @@ struct ToolConfig
 	bool CreateConsole{ false };
 	bool EnableLogging{ false };
 	bool LogCompile{ false };
+	bool LogFailedCompile{ true };
 	bool EnableExtensions{ true };
 	bool EnableDebugger{ false };
 #else
 	bool CreateConsole{ true };
 	bool EnableLogging{ false };
 	bool LogCompile{ false };
+	bool LogFailedCompile{ true };
 	bool EnableExtensions{ true };
 	bool EnableDebugger{ true };
 #endif
