@@ -1325,16 +1325,17 @@ namespace dse::lua
 		}
 
 		auto deltaMod = deltaModType->Find(name);
-		if (deltaMod == nullptr) {
-			OsiError("Cannot update nonexistent DeltaMod: " << name);
-			return 0;
-		}
+		bool isNew = (deltaMod == nullptr);
 
 		lua_pushvalue(L, 1);
 		LuaRead(L, deltaMod);
 		lua_pop(L, 1);
 
-		return 1;
+		if (isNew) {
+			deltaModType->Add(MakeFixedString(name), deltaMod);
+		}
+
+		return 0;
 	}
 
 	template <class T>

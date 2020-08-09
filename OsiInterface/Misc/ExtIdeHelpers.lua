@@ -3089,8 +3089,9 @@ function Ext.StatAddCustomDescription (stat, attribute, description) end
 
 --- Returns the specified DeltaMod or nil on failure
 --- @param name string Name of delta mod
+--- @param modifierType string Modifier type (Armor/Weapon)
 --- @return DeltaMod
-function Ext.GetDeltaMod (name) end
+function Ext.GetDeltaMod (name, modifierType) end
 
 --- Returns the specified crafting item combination or nil on failure
 --- @param name string Name of item combo
