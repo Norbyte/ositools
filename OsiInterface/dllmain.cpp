@@ -38,6 +38,7 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "EnableLogging", config.EnableLogging);
 	ConfigGetBool(root, "LogCompile", config.LogCompile);
 	ConfigGetBool(root, "LogFailedCompile", config.LogFailedCompile);
+	ConfigGetBool(root, "LogRuntime", config.LogRuntime);
 	ConfigGetBool(root, "EnableExtensions", config.EnableExtensions);
 	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);

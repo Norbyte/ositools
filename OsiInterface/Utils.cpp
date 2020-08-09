@@ -114,26 +114,39 @@ void DebugConsole::SetColor(DebugMessageType type)
 
 void DebugConsole::Debug(DebugMessageType type, char const* msg)
 {
-	if (!consoleRunning_ || silence_) return;
+	if (consoleRunning_ && !silence_) {
+		SetColor(type);
+		OutputDebugStringA(msg);
+		OutputDebugStringA("\r\n");
+		std::cout << msg << std::endl;
+		std::cout.flush();
+		SetColor(DebugMessageType::Debug);
+	}
 
-	SetColor(type);
-	OutputDebugStringA(msg);
-	OutputDebugStringA("\r\n");
-	std::cout << msg << std::endl;
-	std::cout.flush();
-	SetColor(DebugMessageType::Debug);
+	if (logToFile_) {
+		logFile_.write(msg, strlen(msg));
+		logFile_.write("\r\n", 2);
+		logFile_.flush();
+	}
 }
 
 void DebugConsole::Debug(DebugMessageType type, wchar_t const* msg)
 {
-	if (!consoleRunning_ || silence_) return;
+	if (consoleRunning_ && !silence_) {
+		SetColor(type);
+		OutputDebugStringW(msg);
+		OutputDebugStringW(L"\r\n");
+		std::wcout << msg << std::endl;
+		std::wcout.flush();
+		SetColor(DebugMessageType::Debug);
+	}
 
-	SetColor(type);
-	OutputDebugStringW(msg);
-	OutputDebugStringW(L"\r\n");
-	std::wcout << msg << std::endl;
-	std::wcout.flush();
-	SetColor(DebugMessageType::Debug);
+	if (logToFile_) {
+		auto utf = ToUTF8(msg);
+		logFile_.write(utf.c_str(), utf.size());
+		logFile_.write("\r\n", 2);
+		logFile_.flush();
+	}
 }
 
 void DebugConsole::ConsoleThread()
@@ -255,3 +268,25 @@ void DebugConsole::Create()
 	created_ = true;
 }
 
+void DebugConsole::OpenLogFile(std::wstring const& path)
+{
+	if (logToFile_) {
+		CloseLogFile();
+	}
+
+	logFile_.rdbuf()->pubsetbuf(0, 0);
+	logFile_.open(path.c_str(), std::ios::binary | std::ios::out | std::ios::app);
+	if (!logFile_.good()) {
+		ERR(L"Failed to open log file '%s'", path.c_str());
+	} else {
+		logToFile_ = true;
+	}
+}
+
+void DebugConsole::CloseLogFile()
+{
+	if (!logToFile_) return;
+
+	logFile_.close();
+	logToFile_ = false;
+}

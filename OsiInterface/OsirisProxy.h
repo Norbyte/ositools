@@ -28,20 +28,17 @@ struct ToolConfig
 {
 #if defined(OSI_EXTENSION_BUILD)
 	bool CreateConsole{ false };
-	bool EnableLogging{ false };
-	bool LogCompile{ false };
-	bool LogFailedCompile{ true };
-	bool EnableExtensions{ true };
 	bool EnableDebugger{ false };
 #else
 	bool CreateConsole{ true };
-	bool EnableLogging{ false };
-	bool LogCompile{ false };
-	bool LogFailedCompile{ true };
-	bool EnableExtensions{ true };
 	bool EnableDebugger{ true };
 #endif
 
+	bool EnableExtensions{ true };
+	bool LogFailedCompile{ true };
+	bool EnableLogging{ false };
+	bool LogCompile{ false };
+	bool LogRuntime{ false };
 	bool SendCrashReports{ true };
 	bool EnableAchievements{ true };
 
@@ -314,6 +311,7 @@ private:
 	FileReader * OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type);
 	void OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor);
 	void PostInitLibraries();
+	void InitRuntimeLogging();
 	void ResetExtensionStateServer();
 	void LoadExtensionStateServer();
 	void ResetExtensionStateClient();

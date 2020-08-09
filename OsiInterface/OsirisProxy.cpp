@@ -267,7 +267,7 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 	}
 
 	if (config_.EnableLogging) {
-		RestartLogging(L"Runtime");
+		RestartLogging(L"Osiris Runtime");
 	}
 
 #if 0
@@ -883,6 +883,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 
 	switch (toState) {
 	case ecl::GameState::LoadModule:
+		InitRuntimeLogging();
 		if (config_.DeveloperMode) {
 			RegisterFlashTraceCallbacks();
 		}
@@ -1252,6 +1253,15 @@ void OsirisProxy::PostInitLibraries()
 	}
 
 	LibrariesPostInitialized = true;
+}
+
+void OsirisProxy::InitRuntimeLogging()
+{
+	if (!config_.LogRuntime) return;
+
+	auto path = MakeLogFilePath(L"Extender Runtime", L"log");
+	gConsole.OpenLogFile(path);
+	DEBUG(L"Extender runtime log written to '%s'", path.c_str());
 }
 
 void OsirisProxy::ResetExtensionStateServer()
