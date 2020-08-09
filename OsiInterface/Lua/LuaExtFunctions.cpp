@@ -1330,34 +1330,9 @@ namespace dse::lua
 			return 0;
 		}
 
-		deltaMod->ModifierType = MakeFixedString(modifierType);
-		deltaMod->SlotType = (int)checked_getfield<ItemSlot>(L, "SlotType", 1);
-		deltaMod->WeaponType = checked_getfield<WeaponType>(L, "WeaponType", 1);
-		deltaMod->ArmorType = checked_getfield<ArmorType>(L, "ArmorType", 1);
-		deltaMod->Handedness = checked_getfield<HandednessType>(L, "Handedness", 1);
-		deltaMod->Name = MakeFixedString(name);
-		deltaMod->BoostType = MakeFixedString(checked_getfield<char const*>(L, "BoostType", 1));
-		deltaMod->MinLevel = checked_getfield<int>(L, "MinLevel", 1);
-		deltaMod->MaxLevel = checked_getfield<int>(L, "MaxLevel", 1);
-		deltaMod->MinLevelBoosted = deltaMod->MinLevel;
-		deltaMod->MaxLevelBoosted = deltaMod->MaxLevel;
-		deltaMod->Frequency = checked_getfield<int>(L, "Frequency", 1);
-
-		deltaMod->BoostCounts.Set.Clear();
-		deltaMod->BoostIndices.Set.Clear();
-		push(L, "Boosts");
-		lua_gettable(L, 1);
-
-		luaL_checktype(L, -1, LUA_TTABLE);
-		for (auto valueIndex : iterate(L, -1)) {
-			auto boost = MakeFixedString(checked_getfield<char const*>(L, "Boost", valueIndex));
-			auto flag = checked_getfield<int>(L, "Count", valueIndex);
-			auto object = stats->objects.FindIndex(boost);
-			if (object != -1) {
-				deltaMod->BoostIndices.Set.Add(object);
-				deltaMod->BoostCounts.Set.Add(flag);
-			}
-		}
+		lua_pushvalue(L, 1);
+		LuaRead(L, deltaMod);
+		lua_pop(L, 1);
 
 		return 1;
 	}

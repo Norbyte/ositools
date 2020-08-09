@@ -500,6 +500,8 @@ namespace dse::lua
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
+		s.BeginObject();
+
 		P(ModifierType);
 		P(SlotType);
 		P(WeaponType);
@@ -547,6 +549,7 @@ namespace dse::lua
 			}
 		}
 
+		s.EndObject();
 		return s;
 	}
 }
