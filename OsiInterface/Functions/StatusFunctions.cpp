@@ -836,14 +836,25 @@ namespace dse::esv
 		}
 	}
 
-	void CustomFunctionLibrary::OnShootProjectile(ShootProjectileHelper* helper, Projectile* projectile)
+	Projectile* CustomFunctionLibrary::OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper)
 	{
-		if (!projectile) return;
-
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnShootProjectile(projectile);
+		{
+			LuaServerPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnBeforeShootProjectile(helper);
+			}
 		}
+
+		auto projectile = next(helper);
+
+		if (projectile) {
+			LuaServerPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnShootProjectile(projectile);
+			}
+		}
+
+		return projectile;
 	}
 
 	void CustomFunctionLibrary::OnProjectileExplode(Projectile* projectile)

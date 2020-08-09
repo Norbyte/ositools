@@ -1264,6 +1264,17 @@ namespace dse
 			}
 		}
 
+		case PropertyType::kVector3:
+		{
+			auto val = propertyMap.getVector3(obj, propertyName, false, throwError);
+			if (val) {
+				lua::push(L, *val);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		default:
 			OsiError("Failed to get property '" << propertyName << "': Unsupported property type for Lua fetch!");
 			return false;
@@ -1352,8 +1363,14 @@ namespace dse
 			return propertyMap.setHandle(obj, propertyFS, ObjectHandle(val), false, throwError);
 		}
 
+		case PropertyType::kVector3:
+		{
+			auto val = lua::checked_get<glm::vec3>(L, index);
+			return propertyMap.setVector3(obj, propertyFS, val, false, throwError);
+		}
+
 		default:
-			OsiError("Failed to set property '" << propertyName << "': Unsupported property type for Lua fetch!");
+			OsiError("Failed to set property '" << propertyName << "': Unsupported property type for Lua update!");
 			return false;
 		}
 	}

@@ -497,6 +497,7 @@ namespace dse::esv::lua
 			esv::Character* character, uint8_t quantity, FixedString const& combinationId);
 		void OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
 			esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded);
+		void OnBeforeShootProjectile(ShootProjectileHelper* helper);
 		void OnShootProjectile(Projectile* projectile);
 		void OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position);
 

@@ -287,6 +287,27 @@ namespace dse::lua
 		}
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec3>, int>* = nullptr>
+	inline glm::vec3 checked_get(lua_State* L, int index)
+	{
+		glm::vec3 val;
+		luaL_checktype(L, index, LUA_TTABLE);
+		push(L, 1);
+		lua_rawget(L, index);
+		val.x = checked_get<float>(L, -1);
+		lua_pop(L, 1);
+		push(L, 2);
+		lua_rawget(L, index);
+		val.x = checked_get<float>(L, -1);
+		lua_pop(L, 1);
+		push(L, 3);
+		lua_rawget(L, index);
+		val.x = checked_get<float>(L, -1);
+		lua_pop(L, 1);
+
+		return val;
+	}
+
 	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
 	inline STDString checked_get(lua_State* L, int index)
 	{

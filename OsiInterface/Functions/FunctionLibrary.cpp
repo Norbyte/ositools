@@ -230,7 +230,7 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__ActionMachine__ResetState.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnActionMachineResetState, this, _1, _2)
 		);
-		osiris_.GetLibraryManager().esv__ProjectileHelpers__ShootProjectile.SetPostHook(
+		osiris_.GetLibraryManager().esv__ProjectileHelpers__ShootProjectile.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnShootProjectile, this, _1, _2)
 		);
 		osiris_.GetLibraryManager().esv__Projectile__Explode.SetPreHook(

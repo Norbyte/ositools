@@ -17,6 +17,7 @@ Ext._Listeners = {
 	TreasureItemGenerated = {},
 	BeforeCraftingExecuteCombination = {},
 	AfterCraftingExecuteCombination = {},
+	BeforeShootProjectile = {},
 	ShootProjectile = {},
 	ProjectileHit = {}
 }
@@ -123,6 +124,10 @@ end
 
 Ext._AfterCraftingExecuteCombination = function (...)
     return Ext._Notify("AfterCraftingExecuteCombination", ...)
+end
+
+Ext._OnBeforeShootProjectile = function (...)
+    return Ext._Notify("BeforeShootProjectile", ...)
 end
 
 Ext._OnShootProjectile = function (...)

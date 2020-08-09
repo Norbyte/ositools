@@ -1415,6 +1415,26 @@ function EsvCharacter.SetScale (self, scale) end
 
 
 
+--- @class EsvShootProjectileRequest
+--- @field public SkillId string
+--- @field public Caster integer
+--- @field public Source integer
+--- @field public Target integer
+--- @field public StartPosition number[]
+--- @field public EndPosition number[]
+--- @field public Random integer
+--- @field public CasterLevel integer
+--- @field public IsTrap boolean
+--- @field public UnknownFlag1 boolean
+--- @field public CleanseStatuses string
+--- @field public StatusClearChance integer
+--- @field public IsFromItem boolean
+--- @field public IsStealthed boolean
+--- @field public IgnoreObjects boolean
+--- TODO - DamageList, HitObject
+local EsvShootProjectileRequest = {}
+
+
 --- @class EsvProjectile : EsvGameObject
 --- @field public RootTemplate ProjectileTemplate
 --- @field public NetID integer
@@ -2727,7 +2747,7 @@ function UIObject.Destroy (self) end
 local SurfaceInteractionSet = {}
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'ShootProjectile'" | "'ProjectileHit'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -2740,6 +2760,7 @@ local SurfaceInteractionSet = {}
 --- @alias ExtGetSkillAPCostCallback fun(skill: StatEntrySkillData, character: StatCharacter, grid: AiGrid, position: number[]|nil, range: number|nil): number, boolean
 --- @alias ExtBeforeCharacterApplyDamageCallback fun(target: EsvCharacter, attacker: StatCharacter|StatItem, hit: HitRequest, causeType: string, impactDirection: number[], context: HitContext): HitRequest
 --- @alias ExtStatusHitEnterCallback fun(status: EsvStatus, context: HitContext)
+--- @alias ExtBeforeShootProjectileCallback fun(projectile: EsvShootProjectileRequest)
 --- @alias ExtShootProjectileCallback fun(projectile: EsvProjectile)
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
 

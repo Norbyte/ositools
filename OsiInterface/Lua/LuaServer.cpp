@@ -483,6 +483,31 @@ namespace dse::lua
 	}
 
 
+	char const* const ObjectProxy<esv::ShootProjectileHelper>::MetatableName = "esv::ShootProjectileRequest";
+
+	esv::ShootProjectileHelper* ObjectProxy<esv::ShootProjectileHelper>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "ShootProjectileRequest object has expired!");
+		return nullptr;
+	}
+
+	int ObjectProxy<esv::ShootProjectileHelper>::Index(lua_State* L)
+	{
+		auto request = Get(L);
+		if (!request) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		bool fetched = LuaPropertyMapGet(L, gShootProjectileHelperPropertyMap, request, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
+	{
+		return GenericSetter(L, gShootProjectileHelperPropertyMap);
+	}
+
+
 	char const* const ObjectProxy<esv::Projectile>::MetatableName = "esv::Projectile";
 
 	esv::Projectile* ObjectProxy<esv::Projectile>::Get(lua_State* L)
@@ -816,6 +841,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
+		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
 		StatusHandleProxy::RegisterMetatable(L);
@@ -2120,6 +2146,18 @@ namespace dse::esv::lua
 
 		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
 			OsiError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
+	void ServerState::OnBeforeShootProjectile(ShootProjectileHelper* helper)
+	{
+		PushExtFunction(L, "_OnBeforeShootProjectile");
+		UnbindablePin _(ObjectProxy<ShootProjectileHelper>::New(L, helper));
+
+		if (CallWithTraceback(L, 1, 1) != 0) {
+			OsiError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}

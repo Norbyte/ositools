@@ -48,7 +48,7 @@ namespace dse::esv
 		bool CharacterHasMadnessFix(esv::Character::HasMadnessProc* wrapped, esv::Character* character);
 		bool EclCharacterHasMadnessFix(ecl::Character::HasMadnessProc* wrapped, ecl::Character* character);
 
-		void OnShootProjectile(ShootProjectileHelper* helper, Projectile* projectile);
+		Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper);
 		void OnProjectileExplode(Projectile* projectile);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
