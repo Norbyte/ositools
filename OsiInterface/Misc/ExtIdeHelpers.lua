@@ -1175,6 +1175,47 @@ local EsvGameObject = {}
 --- @field public LevelOverride integer
 --- @field public ForceSynch boolean
 --- @field public DisplayName string
+--- From ItemFlags
+--- @field public Activated boolean
+--- @field public OffStage boolean
+--- @field public CanBePickedUp boolean
+--- @field public CanBeMoved boolean
+--- @field public WalkOn boolean
+--- @field public WalkThrough boolean
+--- @field public NoCover boolean
+--- @field public CanShootThrough boolean
+--- @field public CanUse boolean
+--- @field public InteractionDisabled boolean
+--- @field public Destroyed boolean
+--- @field public LoadedTemplate boolean
+--- @field public IsDoor boolean
+--- @field public StoryItem boolean
+--- @field public Summon boolean
+--- @field public FreezeGravity boolean
+--- @field public ForceSync boolean
+--- @field public IsLadder boolean
+--- @field public PositionChanged boolean
+--- @field public Totem boolean
+--- @field public Destroy boolean
+--- @field public GMFolding boolean
+--- @field public Sticky boolean
+--- @field public DoorFlag boolean
+--- @field public Floating boolean
+--- @field public IsSurfaceBlocker boolean
+--- @field public IsSurfaceCloudBlocker boolean
+--- @field public SourceContainer boolean
+--- @field public Frozen boolean
+--- @field public TeleportOnUse boolean
+--- @field public PinnedContainer boolean
+--- From ItemFlags2
+--- @field public UnsoldGenerated boolean
+--- @field public IsKey boolean
+--- @field public Global boolean
+--- @field public CanConsume boolean
+--- @field public TreasureGenerated boolean
+--- @field public UnEquipLocked boolean
+--- @field public UseRemotely boolean
+--- 
 --- @field public Stats StatItem
 local EsvItem = {}
 
@@ -1316,6 +1357,7 @@ local EsvSkillInfo = {}
 --- @field public Multiplayer boolean
 --- @field public InParty boolean
 --- @field public HostControl boolean
+--- @field public Activated boolean
 --- @field public OffStage boolean
 --- @field public Dead boolean
 --- @field public HasOwner boolean
@@ -1327,6 +1369,7 @@ local EsvSkillInfo = {}
 --- @field public CharacterCreationFinished boolean
 --- @field public Floating boolean
 --- @field public SpotSneakers boolean
+--- @field public Temporary boolean
 --- @field public WalkThrough boolean
 --- @field public CoverAmount boolean
 --- @field public CanShootThrough boolean
@@ -1334,6 +1377,9 @@ local EsvSkillInfo = {}
 --- @field public Totem boolean
 --- @field public NoRotate boolean
 --- @field public IsHuge boolean
+--- @field public MadePlayer boolean
+--- @field public LevelTransitionPending boolean
+--- @field public RegisteredForAutomatedDialog boolean
 ---
 --- CharacterFlags 2
 --- @field public Global boolean
@@ -1351,6 +1397,7 @@ local EsvSkillInfo = {}
 --- @field public HasRunSpeedOverride boolean
 --- @field public IsGameMaster boolean
 --- @field public IsPossessed boolean
+--- @field public ManuallyLeveled boolean
 local EsvCharacter = {}
 
 --- Returns the GUID of all items in the characters inventory
