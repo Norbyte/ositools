@@ -298,11 +298,11 @@ namespace dse::lua
 		lua_pop(L, 1);
 		push(L, 2);
 		lua_rawget(L, index);
-		val.x = checked_get<float>(L, -1);
+		val.y = checked_get<float>(L, -1);
 		lua_pop(L, 1);
 		push(L, 3);
 		lua_rawget(L, index);
-		val.x = checked_get<float>(L, -1);
+		val.z = checked_get<float>(L, -1);
 		lua_pop(L, 1);
 
 		return val;
