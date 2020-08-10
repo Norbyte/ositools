@@ -129,6 +129,11 @@ namespace dse::lua
 			}
 		}
 
+		if (prop == GFS.strHandle) {
+			push(L, character->Base.Component.Handle.Handle);
+			return 1;
+		}
+
 		if (prop == GFS.strRootTemplate) {
 			ObjectProxy<CharacterTemplate>::New(L, character->CurrentTemplate);
 			return 1;
@@ -456,6 +461,11 @@ namespace dse::lua
 			}
 		}
 
+		if (propFS == GFS.strHandle) {
+			push(L, item->Base.Component.Handle.Handle);
+			return 1;
+		}
+
 		if (propFS == GFS.strRootTemplate) {
 			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
 			return 1;
@@ -570,6 +580,60 @@ namespace dse::lua
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
 		return GenericSetter(L, gEsvSurfacePropertyMap);
+	}
+
+
+	char const* const ObjectProxy<esv::SurfaceAction>::MetatableName = "esv::SurfaceAction";
+
+	esv::SurfaceAction* ObjectProxy<esv::SurfaceAction>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "SurfaceAction object not bound (maybe it was executed already?)");
+		return nullptr;
+	}
+
+	PropertyMapBase* GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
+	{
+		switch (action->VMT->GetTypeId(action)) {
+		case SurfaceActionType::CreateSurfaceAction:
+			return &gEsvCreateSurfaceActionPropertyMap;
+		case SurfaceActionType::CreatePuddleAction:
+			return &gEsvCreatePuddleActionPropertyMap;
+		case SurfaceActionType::ExtinguishFireAction:
+			return &gEsvExtinguishFireActionPropertyMap;
+		case SurfaceActionType::ZoneAction:
+			return &gEsvZoneActionPropertyMap;
+		case SurfaceActionType::TransformSurfaceAction:
+			return &gEsvTransformSurfaceActionPropertyMap;
+		case SurfaceActionType::ChangeSurfaceOnPathAction:
+			return &gEsvChangeSurfaceOnPathActionPropertyMap;
+		case SurfaceActionType::RectangleSurfaceAction:
+			return &gEsvRectangleSurfaceActionPropertyMap;
+		case SurfaceActionType::PolygonSurfaceAction:
+			return &gEsvPolygonSurfaceActionPropertyMap;
+		case SurfaceActionType::SwapSurfaceAction:
+			return &gEsvSwapSurfaceActionPropertyMap;
+		default:
+			OsiError("No property map found for this surface type!");
+			return &gEsvSurfaceActionPropertyMap;
+		}
+	}
+
+	int ObjectProxy<esv::SurfaceAction>::Index(lua_State* L)
+	{
+		auto action = Get(L);
+		if (!action) return 0;
+
+		auto prop = luaL_checkstring(L, 2);
+		auto propertyMap = GetSurfaceActionPropertyMap(action);
+		bool fetched = LuaPropertyMapGet(L, *propertyMap, action, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
+	{
+		auto propertyMap = GetSurfaceActionPropertyMap(Get(L));
+		return GenericSetter(L, *propertyMap);
 	}
 }
 
@@ -842,6 +906,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
 		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
+		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
 		StatusHandleProxy::RegisterMetatable(L);
@@ -1252,6 +1317,49 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	int CreateSurfaceAction(lua_State* L)
+	{
+		auto type = checked_get<SurfaceActionType>(L, 1);
+
+		auto const& sym = GetStaticSymbols();
+		if (!sym.esv__SurfaceActionFactory || !*sym.esv__SurfaceActionFactory || !sym.esv__SurfaceActionFactory__CreateAction) {
+			OsiError("esv::SurfaceActionFactory not mapped!");
+			return 0;
+		}
+
+		auto action = sym.esv__SurfaceActionFactory__CreateAction(*sym.esv__SurfaceActionFactory, type, 0);
+		if (!action) {
+			OsiError("Couldn't create surface action for some reason.");
+			return 0;
+		}
+
+		ObjectProxy<SurfaceAction>::New(L, action);
+		return 1;
+	}
+
+	int ExecuteSurfaceAction(lua_State* L)
+	{
+		auto action = ObjectProxy<SurfaceAction>::CheckUserData(L, 1);
+		if (!action->Get(L)) {
+			OsiError("Attempted to execute surface action more than once!");
+			return 0;
+		}
+
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
+		if (!level) {
+			OsiError("Attempted to execute surface action while no level is loaded!");
+			return 0;
+		}
+
+		auto surfaceAction = action->Get(L);
+		surfaceAction->Level = level;
+		surfaceAction->VMT->Enter(surfaceAction);
+		level->SurfaceManager->SurfaceActions.Set.Add(surfaceAction);
+		action->Unbind();
+
+		return 0;
+	}
+
 	int OsirisIsCallable(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -1450,6 +1558,8 @@ namespace dse::esv::lua
 
 			{"GetSurfaceTransformRules", GetSurfaceTransformRules},
 			{"UpdateSurfaceTransformRules", UpdateSurfaceTransformRules},
+			{"CreateSurfaceAction", CreateSurfaceAction},
+			{"ExecuteSurfaceAction", ExecuteSurfaceAction},
 
 			{"GetAllCharacters", GetAllCharacters},
 			{"GetCharactersAroundPosition", GetCharactersAroundPosition},

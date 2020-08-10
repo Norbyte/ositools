@@ -29,6 +29,18 @@ namespace dse
 	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
 
+	PropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
+	PropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
+	PropertyMap<esv::CreateSurfaceActionBase, esv::SurfaceAction> gEsvCreateSurfaceActionBasePropertyMap;
+	PropertyMap<esv::CreateSurfaceAction, esv::CreateSurfaceActionBase> gEsvCreateSurfaceActionPropertyMap;
+	PropertyMap<esv::ChangeSurfaceOnPathAction, esv::CreateSurfaceActionBase> gEsvChangeSurfaceOnPathActionPropertyMap;
+	PropertyMap<esv::CreatePuddleAction, esv::CreateSurfaceActionBase> gEsvCreatePuddleActionPropertyMap;
+	PropertyMap<esv::ExtinguishFireAction, esv::CreateSurfaceActionBase> gEsvExtinguishFireActionPropertyMap;
+	PropertyMap<esv::RectangleSurfaceAction, esv::CreateSurfaceActionBase> gEsvRectangleSurfaceActionPropertyMap;
+	PropertyMap<esv::PolygonSurfaceAction, esv::CreateSurfaceActionBase> gEsvPolygonSurfaceActionPropertyMap;
+	PropertyMap<esv::SwapSurfaceAction, esv::CreateSurfaceActionBase> gEsvSwapSurfaceActionPropertyMap;
+	PropertyMap<esv::ZoneAction, esv::CreateSurfaceActionBase> gEsvZoneActionPropertyMap;
+
 	PropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
 	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
 	PropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
@@ -640,6 +652,155 @@ namespace dse
 			PROP_RO(Index);
 			PROP_RO(NeedsSplitEvaluation);
 			PROP_RO(OwnershipTimer);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvSurfaceActionPropertyMap, esv::SurfaceAction);
+			PROP_RO(MyHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvCreateSurfaceActionBasePropertyMap, esv::CreateSurfaceActionBase);
+			propertyMap.Parent = &gEsvSurfaceActionPropertyMap;
+			PROP(OwnerHandle);
+			PROP(Duration);
+			PROP(StatusChance);
+			PROP(Position);
+			PROP_ENUM(SurfaceType);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvCreateSurfaceActionPropertyMap, esv::CreateSurfaceAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(Radius);
+			PROP(ExcludeRadius);
+			PROP(MaxHeight);
+			PROP(IgnoreIrreplacableSurfaces);
+			PROP(CheckExistingSurfaces);
+			PROP(SurfaceCollisionFlags);
+			PROP(SurfaceCollisionNotOnFlags);
+			PROP(Timer);
+			PROP(GrowTimer);
+			PROP(CurrentCellCount);
+			PROP(GrowStep);
+			PROP(SurfaceLayer);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvChangeSurfaceOnPathActionPropertyMap, esv::ChangeSurfaceOnPathAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(FollowObject);
+			PROP(Radius);
+			PROP_RO(IsFinished);
+			PROP(IgnoreIrreplacableSurfaces);
+			PROP(CheckExistingSurfaces);
+			PROP(SurfaceCollisionFlags);
+			PROP(SurfaceCollisionNotOnFlags);
+			PROP(IgnoreOwnerCells);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvCreatePuddleActionPropertyMap, esv::CreatePuddleAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(SurfaceCells);
+			PROP(Step);
+			PROP(GrowSpeed);
+			PROP_RO(IsFinished);
+			PROP(IgnoreIrreplacableSurfaces);
+			PROP(GrowTimer);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvExtinguishFireActionPropertyMap, esv::ExtinguishFireAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(Position);
+			PROP(Radius);
+			PROP(Percentage);
+			PROP(GrowTimer);
+			PROP(Step);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvRectangleSurfaceActionPropertyMap, esv::RectangleSurfaceAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(Target);
+			PROP(SurfaceArea);
+			PROP(Width);
+			PROP(Length);
+			PROP(GrowTimer);
+			PROP(MaxHeight);
+			PROP(GrowStep);
+			PROP(AiFlags);
+			// TODO - DamageList
+			PROP_ENUM(DeathType);
+			// TODO - SkillProperties
+			PROP(LineCheckBlock);
+			PROP(CurrentGrowTimer);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvPolygonSurfaceActionPropertyMap, esv::PolygonSurfaceAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			// TODO - PolygonVertices
+			// TODO - DamageList
+			// TODO - PositionXZ
+			PROP(CurrentGrowTimer);
+			PROP(GrowTimer);
+			PROP(GrowStep);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvSwapSurfaceActionPropertyMap, esv::SwapSurfaceAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(Radius);
+			PROP(ExcludeRadius);
+			PROP(MaxHeight);
+			PROP(Target);
+			PROP(IgnoreIrreplacableSurfaces);
+			PROP(CheckExistingSurfaces);
+			PROP(SurfaceCollisionFlags);
+			PROP(SurfaceCollisionNotOnFlags);
+			PROP(LineCheckBlock);
+			PROP(Timer);
+			PROP(GrowTimer);
+			PROP(GrowStep);
+			PROP(CurrentCellCount);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvZoneActionPropertyMap, esv::ZoneAction);
+			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
+			PROP(SkillId);
+			PROP(Target);
+			PROP(Shape);
+			PROP(Radius);
+			PROP(AngleOrBase);
+			PROP(BackStart);
+			PROP(FrontOffset);
+			PROP(MaxHeight);
+			PROP(GrowTimer);
+			PROP(GrowStep);
+			PROP(AiFlags);
+			// TODO - DamageList
+			// TODO - SkillProperties
+			PROP_ENUM(DeathType);
+			PROP(GrowTimerStart);
+			PROP(IsFromItem);
+		}
+
+		{
+			BEGIN_PROPERTIES(gEsvTransformSurfaceActionPropertyMap, esv::TransformSurfaceAction);
+			propertyMap.Parent = &gEsvSurfaceActionPropertyMap;
+			PROP(Timer);
+			PROP_ENUM(SurfaceTransformAction);
+			PROP_ENUM(OriginSurface);
+			PROP(SurfaceLayer);
+			PROP(GrowCellPerSecond);
+			PROP_RO(Finished);
+			PROP(OwnerHandle2);
+			PROP(Position);
+			PROP(SurfaceLifetime);
+			PROP(SurfaceStatusChance);
 		}
 
 		{

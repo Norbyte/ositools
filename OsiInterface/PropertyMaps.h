@@ -40,6 +40,19 @@ namespace dse
 	extern PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	extern PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
 
+	extern PropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
+	extern PropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
+	extern PropertyMap<esv::CreateSurfaceActionBase, esv::SurfaceAction> gEsvCreateSurfaceActionBasePropertyMap;
+	extern PropertyMap<esv::CreateSurfaceAction, esv::CreateSurfaceActionBase> gEsvCreateSurfaceActionPropertyMap;
+	extern PropertyMap<esv::ChangeSurfaceOnPathAction, esv::CreateSurfaceActionBase> gEsvChangeSurfaceOnPathActionPropertyMap;
+	extern PropertyMap<esv::CreatePuddleAction, esv::CreateSurfaceActionBase> gEsvCreatePuddleActionPropertyMap;
+	extern PropertyMap<esv::ExtinguishFireAction, esv::CreateSurfaceActionBase> gEsvExtinguishFireActionPropertyMap;
+	extern PropertyMap<esv::RectangleSurfaceAction, esv::CreateSurfaceActionBase> gEsvRectangleSurfaceActionPropertyMap;
+	extern PropertyMap<esv::PolygonSurfaceAction, esv::CreateSurfaceActionBase> gEsvPolygonSurfaceActionPropertyMap;
+	extern PropertyMap<esv::SwapSurfaceAction, esv::CreateSurfaceActionBase> gEsvSwapSurfaceActionPropertyMap;
+	extern PropertyMap<esv::ZoneAction, esv::CreateSurfaceActionBase> gEsvZoneActionPropertyMap;
+
+
 	extern PropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
 	extern PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
 	extern PropertyMap<esv::SkillState, void> gSkillStatePropertyMap;

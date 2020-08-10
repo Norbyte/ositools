@@ -98,7 +98,7 @@ namespace dse
 		ActivationManager = 41
 	};
 
-	struct StaticSymbols
+	struct StaticSymbols : Noncopyable<StaticSymbols>
 	{
 		struct EoCLibraryInfo
 		{
@@ -136,6 +136,9 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 		esv::Character::HasMadnessProc* esv__Character__HasMadness{ nullptr };
 		ecl::Character::HasMadnessProc* ecl__Character__HasMadness{ nullptr };
+
+		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
+		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };

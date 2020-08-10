@@ -1214,6 +1214,20 @@ namespace dse
 		},
 
 		{
+			"esv::SurfaceActionFactory",
+			SymbolMappingData::kText, 0,
+			"BA 01 00 00 00 " // mov     edx, 1
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:esv__gSurfaceActionFactory
+			"E8 XX XX XX XX " // call    esv__SurfaceActionFactory__CreateAction
+			"48 8B F8 " // mov     rdi, rax
+			"49 8B CF " // mov     rcx, r15
+			"8B 45 18 ", // mov     eax, [rbp+18h]
+			{},
+			{"esv::SurfaceActionFactory", SymbolMappingTarget::kIndirect, 5, STATIC_SYM(esv__SurfaceActionFactory)},
+			{"esv::SurfaceActionFactory::CreateAction", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(esv__SurfaceActionFactory__CreateAction)},
+		},
+
+		{
 			"esv::Character::HasMadness",
 			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
 			"48 8B 01 " // mov     rax, [rcx]

@@ -1150,6 +1150,7 @@ local EsvGameObject = {}
 
 
 --- @class EsvItem : EsvGameObject
+--- @field public Handle integer
 --- @field public RootTemplate ItemTemplate
 --- @field public WorldPos number[]
 --- @field public CurrentLevel string
@@ -1311,6 +1312,7 @@ local EsvSkillInfo = {}
 --- @field public PlayerCustomData PlayerCustomData
 --- @field public Stats StatCharacter
 --- @field public DisplayName string
+--- @field public Handle integer
 ---
 --- @field public NetID integer
 --- @field public MyGuid string
@@ -1525,6 +1527,127 @@ local EsvShootProjectileRequest = {}
 --- @field public Scale number
 --- @field public CurrentLevel string
 local EsvProjectile = {}
+
+
+--- @class EsvSurfaceAction
+--- @field public MyHandle integer
+local EsvSurfaceAction = {}
+
+
+--- @class EsvCreateSurfaceActionBase : EsvSurfaceAction
+--- @field public OwnerHandle integer
+--- @field public Duration number
+--- @field public StatusChance number
+--- @field public Position number[]
+local EsvCreateSurfaceActionBase = {}
+
+
+--- @class EsvCreateSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public Radius number
+--- @field public ExcludeRadius number
+--- @field public MaxHeight number
+--- @field public IgnoreIrreplacableSurfaces boolean
+--- @field public CheckExistingSurfaces boolean
+--- @field public SurfaceCollisionFlags integer
+--- @field public SurfaceCollisionNotOnFlags integer
+--- @field public Timer number
+--- @field public GrowTimer number
+--- @field public GrowStep integer
+--- @field public SurfaceLayer integer
+local EsvCreateSurfaceAction = {}
+
+
+--- @class EsvChangeSurfaceOnPathAction : EsvCreateSurfaceActionBase
+--- @field public FollowObject integer
+--- @field public Radius number
+--- @field public IgnoreIrreplacableSurfaces boolean
+--- @field public CheckExistingSurfaces boolean
+--- @field public SurfaceCollisionFlags integer
+--- @field public SurfaceCollisionNotOnFlags integer
+--- @field public IgnoreOwnerCells boolean
+local EsvChangeSurfaceOnPathAction = {}
+
+
+--- @class EsvCreatePuddleAction : EsvCreateSurfaceActionBase
+--- @field public SurfaceCells integer
+--- @field public Step integer
+--- @field public GrowSpeed number
+--- @field public IgnoreIrreplacableSurfaces boolean
+--- @field public GrowTimer number
+local EsvCreatePuddleAction = {}
+
+
+--- @class EsvExtinguishFireAction : EsvCreateSurfaceActionBase
+--- @field public Position number[]
+--- @field public Radius number
+--- @field public Percentage number
+--- @field public GrowTimer number
+--- @field public Step number
+local EsvExtinguishFireAction = {}
+
+
+--- @class EsvRectangleSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public Target number[]
+--- @field public SurfaceArea number
+--- @field public Width number
+--- @field public Length number
+--- @field public GrowTimer number
+--- @field public MaxHeight number
+--- @field public GrowStep integer
+--- @field public AiFlags integer
+--- @field public DeathType string
+--- @field public LineCheckBlock integer
+local EsvRectangleSurfaceAction = {}
+
+
+--- @class EsvPolygonSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public GrowTimer number
+--- @field public GrowStep integer
+local EsvPolygonSurfaceAction = {}
+
+
+--- @class EsvSwapSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public Radius number
+--- @field public ExcludeRadius number
+--- @field public MaxHeight number
+--- @field public Target number[]
+--- @field public IgnoreIrreplacableSurfaces boolean
+--- @field public CheckExistingSurfaces boolean
+--- @field public SurfaceCollisionFlags integer
+--- @field public SurfaceCollisionNotOnFlags integer
+--- @field public LineCheckBlock integer
+--- @field public GrowTimer number
+--- @field public GrowStep integer
+local EsvSwapSurfaceAction = {}
+
+
+--- @class EsvZoneAction : EsvCreateSurfaceActionBase
+--- @field public SkillId string
+--- @field public Target number[]
+--- @field public Shape integer
+--- @field public Radius number
+--- @field public AngleOrBase number
+--- @field public BackStart number
+--- @field public FrontOffset number
+--- @field public MaxHeight number
+--- @field public GrowTimer number
+--- @field public GrowStep integer
+--- @field public GrowStep AiFlags
+--- @field public DeathType string
+local EsvZoneAction = {}
+
+
+--- @class EsvTransformSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public SurfaceTransformAction string
+--- @field public OriginSurface string
+--- @field public SurfaceLayer integer
+--- @field public GrowCellPerSecond number
+--- @field public OwnerHandle2 integer
+--- @field public Position number[]
+--- @field public SurfaceLifetime number
+--- @field public SurfaceStatusChance number
+local EsvTransformSurfaceAction = {}
+
 
 --- @class ModInfo
 --- @field public UUID string
@@ -3288,6 +3411,15 @@ function Ext.GetSurfaceTransformRules () end
 --- Updates the transformation rules that are applied when two neighbouring surfaces interact.
 --- @param rules SurfaceInteractionSet[][] New rules to apply
 function Ext.UpdateSurfaceTransformRules (rules) end
+
+--- Prepares a new surface action for execution
+--- @param type string Surface action type
+--- @return EsvSurfaceAction
+function Ext.CreateSurfaceAction (type) end
+
+--- Executes a surface action
+--- @param action EsvSurfaceAction Action to execute
+function Ext.ExecuteSurfaceAction (action) end
 
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.

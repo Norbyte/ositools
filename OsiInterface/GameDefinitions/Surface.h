@@ -101,9 +101,23 @@ namespace dse
             RefMap<uint64_t, uint64_t> field_158;
         };
 
+        struct SurfaceActionVMT
+        {
+            void (*Destroy)(SurfaceAction*, bool);
+            SurfaceActionType (*GetTypeId)(SurfaceAction*);
+            bool (*Visit)(SurfaceAction* self, ObjectVisitor* visitor);
+            int* (*Unknown)(SurfaceAction* self, int*, bool);
+            void (*Enter)(SurfaceAction* self);
+            void (*Update)(SurfaceAction* self, void* time);
+            void (*Unknown2)(SurfaceAction* self);
+            void (*Reset)(SurfaceAction* self);
+            bool (*IsFinished)(SurfaceAction* self);
+            bool (*Unknown3)(SurfaceAction* self);
+        };
+
         struct SurfaceAction : ProtectedGameObject<SurfaceAction>
         {
-            void* VMT;
+            SurfaceActionVMT* VMT;
             Level* Level;
             ObjectHandle MyHandle;
         };
@@ -135,13 +149,13 @@ namespace dse
             int GrowStep;
             int CurrentCellCount;
             PrimitiveSet<SurfaceCell> SurfaceCells;
-            uint32_t SurfaceLayer;
+            uint32_t SurfaceLayer; // Init param
         };
 
         struct ChangeSurfaceOnPathAction : public CreateSurfaceActionBase
         {
-            ObjectHandle OH;
-            int Radius;
+            ObjectHandle FollowObject; // Init param
+            int Radius; // Init param
             bool IsFinished;
             PrimitiveSet<SurfaceCell> SurfaceCells;
             bool IgnoreIrreplacableSurfaces;
@@ -167,10 +181,10 @@ namespace dse
         struct ExtinguishFireAction : public CreateSurfaceActionBase
         {
             glm::vec3 Position;
-            int Radius;
-            int Percentage;
-            int GrowTimer;
-            int Step;
+            float Radius;
+            float Percentage;
+            float GrowTimer;
+            float Step;
             PrimitiveSet<SurfaceCell> field_558;
             PrimitiveSet<SurfaceCell> field_570;
         };
@@ -184,7 +198,7 @@ namespace dse
             float GrowCellPerSecond;
             bool Finished;
             void* CellSearcher;
-            ObjectHandle OwnerHandle; // Init param
+            ObjectHandle OwnerHandle2; // Init param
             glm::vec3 Position; // Init param
             float SurfaceLifetime; // Init param
             float SurfaceStatusChance; // Init param
@@ -196,20 +210,20 @@ namespace dse
 
         struct RectangleSurfaceAction : public CreateSurfaceActionBase
         {
-            glm::vec3 Target;
+            glm::vec3 Target; // Init param
             uint8_t _Pad1[4];
             int field_548;
-            float SurfaceArea_M;
-            float Width;
-            float Length;
-            float GrowTimer;
-            float MaxHeight;
-            int GrowStep;
-            uint64_t Flags;
-            DamagePairList DamageList;
-            bool field_590;
+            float SurfaceArea;
+            float Width; // Init param
+            float Length; // Init param
+            float GrowTimer; // Init param
+            float MaxHeight; // Init param
+            int GrowStep; // Init param
+            uint64_t AiFlags; // Init param
+            DamagePairList DamageList; // Init param
+            DeathType DeathType; // Init param
             uint64_t LineCheckBlock;
-            uint64_t field_5A0;
+            CRPGStats_Object_Property_List* SkillProperties;
             float CurrentGrowTimer;
             PrimitiveSet<SurfaceCell> SurfaceCells;
             ObjectSet<ObjectHandle> Characters;
@@ -257,8 +271,37 @@ namespace dse
             RefMap<dse::SurfaceType, PrimitiveSet<SurfaceCell>> TargetCellMap;
         };
 
+        struct ZoneAction : public CreateSurfaceActionBase
+        {
+            FixedString SkillId;
+            glm::vec3 Target; // Init param
+            int Shape; // Init param
+            float Radius; // Init param
+            float AngleOrBase; // Init param
+            float BackStart; // Init param
+            float FrontOffset; // Init param
+            float MaxHeight; // Init param
+            float GrowTimer; // Init param
+            uint32_t GrowStep; // Init param
+            int field_56C;
+            uint64_t AiFlags;
+            DamagePairList DamageList;
+            DeathType DeathType;
+            CRPGStats_Object_Property_List* SkillProperties;
+            float GrowTimerStart;
+            int field_5AC;
+            PrimitiveSet<SurfaceCell> SurfaceCells;
+            ObjectSet<ObjectHandle> Characters;
+            ObjectSet<ObjectHandle> Items;
+            uint64_t CurrentCellCount;
+            bool IsFromItem;
+        };
+
+
         struct SurfaceActionFactory : public ObjectFactory<SurfaceAction, (uint32_t)ObjectType::ServerSurfaceAction>
-        {};
+        {
+            using CreateActionProc = esv::SurfaceAction* (esv::SurfaceActionFactory* self, SurfaceActionType actionId, uint64_t handle);
+        };
 	}
 
 }

@@ -946,6 +946,19 @@ namespace dse
 		},
 
 		{
+			"esv::SurfaceActionFactory",
+			SymbolMappingData::kText, 0,
+			"BA 04 00 00 00 " // mov     edx, 4
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:esv__gSurfaceActionFactory
+			"48 89 44 24 58 " // mov     [rsp+140h+surfaceMgr], rax
+			"4D 8B 00 " // mov     r8, [r8]
+			"E8 XX XX XX XX ", // call    esv__SurfaceActionFactory__CreateAction
+			{},
+			{"esv::SurfaceActionFactory", SymbolMappingTarget::kIndirect, 5, STATIC_SYM(esv__SurfaceActionFactory)},
+			{"esv::SurfaceActionFactory::CreateAction", SymbolMappingTarget::kIndirect, 20, STATIC_SYM(esv__SurfaceActionFactory__CreateAction)},
+		},
+
+		{
 			"eoc::SkillPrototype::GetAttackAPCost",
 			SymbolMappingData::kText, 0,
 			"41 57 " // push    r15
