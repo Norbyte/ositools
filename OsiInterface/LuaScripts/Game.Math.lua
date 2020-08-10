@@ -1167,7 +1167,7 @@ function GetSkillDamageRange(character, skill)
                     range.Min = range.Min + min
                     range.Max = range.Max + max
                 else
-                    mainDamageRange[damageType] = {Min = min, Min = max}
+                    mainDamageRange[damageType] = {Min = min, Max = max}
                 end
             end
         end
