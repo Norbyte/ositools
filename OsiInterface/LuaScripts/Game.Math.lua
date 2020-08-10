@@ -527,7 +527,9 @@ end
 --- @param targetPos number[]
 --- @param level integer
 --- @param noRandomization boolean
-function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization)
+--- @param mainWeapon StatItem  Optional mainhand weapon to use in place of the attacker's.
+--- @param offHandWeapon StatItem   Optional offhand weapon to use in place of the attacker's.
+function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, targetPos, level, noRandomization, mainWeapon, offHandWeapon)
     if attacker ~= nil and level < 0 then
         level = attacker.Level
     end
@@ -555,8 +557,8 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
             damageType = nil
         end
 
-        local weapon = attacker.MainWeapon
-        local offHand = attacker.OffHandWeapon
+        local weapon = mainWeapon or attacker.MainWeapon
+        local offHand = offHandWeapon or attacker.OffHandWeapon
 
         if weapon ~= nil then
             local mainDmgs = CalculateWeaponDamage(attacker, weapon, noRandomization)
@@ -604,7 +606,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
         else
             damageBoost = 1.0
         end
-		
+        
         local finalDamage = baseDamage * randomMultiplier * attrDamageScale * damageMultipliers
         finalDamage = math.max(Ext.Round(finalDamage), 1)
         finalDamage = math.ceil(finalDamage * damageBoost)
@@ -1141,12 +1143,14 @@ end
 
 --- @param character StatCharacter
 --- @param skill StatEntrySkillData
-function GetSkillDamageRange(character, skill)
+--- @param mainWeapon StatItem  Optional mainhand weapon to use in place of the character's.
+--- @param offHandWeapon StatItem   Optional offhand weapon to use in place of the character's.
+function GetSkillDamageRange(character, skill, mainWeapon, offHandWeapon)
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
 
     if skill.UseWeaponDamage == "Yes" then
-        local mainWeapon = character.MainWeapon
-        local offHandWeapon = character.OffHandWeapon
+        local mainWeapon = mainWeapon or character.MainWeapon
+        local offHandWeapon = offHandWeapon or character.OffHandWeapon
         local mainDamageRange = CalculateWeaponScaledDamageRanges(character, mainWeapon)
 
         if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
@@ -1167,7 +1171,7 @@ function GetSkillDamageRange(character, skill)
                     range.Min = range.Min + min
                     range.Max = range.Max + max
                 else
-                    mainDamageRange[damageType] = {Min = min, Min = max}
+                    mainDamageRange[damageType] = {Min = min, Max = max}
                 end
             end
         end
