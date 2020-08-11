@@ -1555,6 +1555,7 @@ local EsvShootProjectileRequest = {}
 
 --- @class EsvProjectile : EsvGameObject
 --- @field public RootTemplate ProjectileTemplate
+--- @field public Handle integer
 --- @field public NetID integer
 --- @field public MyGuid string
 --- @field public CasterHandle integer
@@ -1608,6 +1609,7 @@ local EsvSurfaceAction = {}
 --- @field public Duration number
 --- @field public StatusChance number
 --- @field public Position number[]
+--- @field public SurfaceType string
 local EsvCreateSurfaceActionBase = {}
 
 

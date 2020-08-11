@@ -535,6 +535,11 @@ namespace dse::lua
 
 		auto prop = luaL_checkstring(L, 2);
 
+		if (strcmp(prop, GFS.strHandle.Str) == 0) {
+			push(L, projectile->Base.Component.Handle.Handle);
+			return 1;
+		}
+
 		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
 			ObjectProxy<ProjectileTemplate>::New(L, projectile->ProjectileTemplate);
 			return 1;
