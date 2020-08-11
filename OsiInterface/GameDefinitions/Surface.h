@@ -240,7 +240,8 @@ namespace dse
             __int64 field_590;
             float CurrentGrowTimer;
             float GrowTimer; // Init param
-            float PositionXZ[2];
+            float PositionX;
+            float PositionZ;
             int GrowStep; // Init param
             int LastSurfaceCellCount;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;

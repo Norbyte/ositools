@@ -731,7 +731,6 @@ namespace dse
 			PROP(MaxHeight);
 			PROP(GrowStep);
 			PROP(AiFlags);
-			// TODO - DamageList
 			PROP_ENUM(DeathType);
 			// TODO - SkillProperties
 			PROP(LineCheckBlock);
@@ -741,9 +740,8 @@ namespace dse
 		{
 			BEGIN_PROPERTIES(gEsvPolygonSurfaceActionPropertyMap, esv::PolygonSurfaceAction);
 			propertyMap.Parent = &gEsvCreateSurfaceActionBasePropertyMap;
-			// TODO - PolygonVertices
-			// TODO - DamageList
-			// TODO - PositionXZ
+			PROP(PositionX);
+			PROP(PositionZ);
 			PROP(CurrentGrowTimer);
 			PROP(GrowTimer);
 			PROP(GrowStep);
@@ -781,7 +779,6 @@ namespace dse
 			PROP(GrowTimer);
 			PROP(GrowStep);
 			PROP(AiFlags);
-			// TODO - DamageList
 			// TODO - SkillProperties
 			PROP_ENUM(DeathType);
 			PROP(GrowTimerStart);

@@ -6,8 +6,7 @@ Osi = {}
 --- @class DamageItem
 --- @field public DamageType string
 --- @field public Amount integer
-local DamageItem = {
-}
+local DamageItem = {}
 
 --- @class DamageList
 local DamageList = {}
@@ -1658,6 +1657,7 @@ local EsvExtinguishFireAction = {}
 
 
 --- @class EsvRectangleSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public DamageList DamageList
 --- @field public Target number[]
 --- @field public SurfaceArea number
 --- @field public Width number
@@ -1672,6 +1672,10 @@ local EsvRectangleSurfaceAction = {}
 
 
 --- @class EsvPolygonSurfaceAction : EsvCreateSurfaceActionBase
+--- @field public DamageList DamageList
+--- @field public Vertices number[][]
+--- @field public PositionX number
+--- @field public PositionZ number
 --- @field public GrowTimer number
 --- @field public GrowStep integer
 local EsvPolygonSurfaceAction = {}
@@ -1694,6 +1698,7 @@ local EsvSwapSurfaceAction = {}
 
 --- @class EsvZoneAction : EsvCreateSurfaceActionBase
 --- @field public SkillId string
+--- @field public DamageList DamageList
 --- @field public Target number[]
 --- @field public Shape integer
 --- @field public Radius number

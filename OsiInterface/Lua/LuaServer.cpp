@@ -637,7 +637,58 @@ namespace dse::lua
 
 	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
 	{
-		auto propertyMap = GetSurfaceActionPropertyMap(Get(L));
+		auto action = Get(L);
+
+		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "DamageList") == 0) {
+			auto& damageList = DamageList::CheckUserData(L, 3)->Get();
+			switch (action->VMT->GetTypeId(action)) {
+			case SurfaceActionType::RectangleSurfaceAction:
+			{
+				auto act = static_cast<esv::RectangleSurfaceAction*>(action);
+				act->DamageList.CopyFrom(damageList);
+				break;
+			}
+
+			case SurfaceActionType::PolygonSurfaceAction:
+			{
+				auto act = static_cast<esv::PolygonSurfaceAction*>(action);
+				act->DamageList.CopyFrom(damageList);
+				break;
+			}
+
+			case SurfaceActionType::ZoneAction:
+			{
+				auto act = static_cast<esv::ZoneAction*>(action);
+				act->DamageList.CopyFrom(damageList);
+				break;
+			}
+
+			default:
+				OsiError("This surface action type doesn't have a DamageList!");
+			}
+
+			return 0;
+		}
+
+		if (strcmp(prop, "Vertices") == 0) {
+			if (action->VMT->GetTypeId(action) == SurfaceActionType::PolygonSurfaceAction) {
+				auto act = static_cast<esv::PolygonSurfaceAction*>(action);
+				act->PolygonVertices.Clear();
+				luaL_checktype(L, 3, LUA_TTABLE);
+				for (auto idx : iterate(L, 3)) {
+					auto vec2 = checked_get<glm::vec2>(L, idx);
+					act->PolygonVertices.Add(vec2);
+				}
+			} else {
+				OsiError("Vertices only supported for surface action type PolygonSurfaceAction!");
+			}
+
+			return 0;
+		}
+
+		auto propertyMap = GetSurfaceActionPropertyMap(action);
 		return GenericSetter(L, *propertyMap, false);
 	}
 }
