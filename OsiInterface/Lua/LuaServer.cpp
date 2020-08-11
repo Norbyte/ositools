@@ -42,7 +42,7 @@ namespace dse::lua
 	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
 	{
 		auto& propertyMap = StatusToPropertyMap(obj_);
-		return GenericSetter(L, propertyMap);
+		return GenericSetter(L, propertyMap, true);
 	}
 
 
@@ -77,7 +77,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gPlayerCustomDataPropertyMap);
+		return GenericSetter(L, gPlayerCustomDataPropertyMap, false);
 	}
 
 	void GetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
@@ -330,7 +330,7 @@ namespace dse::lua
 				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
 			}
 		} else {
-			return GenericSetter(L, gCharacterPropertyMap);
+			return GenericSetter(L, gCharacterPropertyMap, true);
 		}
 
 		return 0;
@@ -489,7 +489,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gItemPropertyMap);
+		return GenericSetter(L, gItemPropertyMap, true);
 	}
 
 
@@ -514,7 +514,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gShootProjectileHelperPropertyMap);
+		return GenericSetter(L, gShootProjectileHelperPropertyMap, false);
 	}
 
 
@@ -546,7 +546,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gProjectilePropertyMap);
+		return GenericSetter(L, gProjectilePropertyMap, true);
 	}
 
 
@@ -579,7 +579,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gEsvSurfacePropertyMap);
+		return GenericSetter(L, gEsvSurfacePropertyMap, true);
 	}
 
 
@@ -633,7 +633,7 @@ namespace dse::lua
 	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
 	{
 		auto propertyMap = GetSurfaceActionPropertyMap(Get(L));
-		return GenericSetter(L, *propertyMap);
+		return GenericSetter(L, *propertyMap, false);
 	}
 }
 

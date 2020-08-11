@@ -57,13 +57,13 @@ namespace dse::lua
 		}
 
 	protected:
-		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap)
+		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap, bool isExperimental)
 		{
 			auto obj = Get(L);
 			if (!obj) return 0;
 
 			auto prop = luaL_checkstring(L, 2);
-			if (gExperimentalPropertyWrites) {
+			if (!isExperimental || gExperimentalPropertyWrites) {
 				LuaPropertyMapSet(L, 3, propertyMap, obj, prop, true);
 			} else {
 				OsiError("Property writes on Lua objects not enabled; contact Norbyte on Discord if you have a legitimate use case for this.");

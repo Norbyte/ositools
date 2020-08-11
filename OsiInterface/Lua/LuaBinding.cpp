@@ -300,7 +300,7 @@ namespace dse::lua
 
 	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State * L)
 	{
-		return GenericSetter(L, gCharacterStatsPropertyMap);
+		return GenericSetter(L, gCharacterStatsPropertyMap, true);
 	}
 
 	int ItemFetchStat(lua_State * L, CDivinityStats_Item * item, char const * prop)
@@ -367,7 +367,7 @@ namespace dse::lua
 
 	int ObjectProxy<CDivinityStats_Item>::NewIndex(lua_State * L)
 	{
-		return GenericSetter(L, gItemStatsPropertyMap);
+		return GenericSetter(L, gItemStatsPropertyMap, true);
 	}
 
 
@@ -397,7 +397,7 @@ namespace dse::lua
 		if (!stats) return 0;
 
 		auto& propMap = obj_->GetPropertyMap();
-		return GenericSetter(L, propMap);
+		return GenericSetter(L, propMap, true);
 	}
 
 
@@ -422,7 +422,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterDynamicStat>::NewIndex(lua_State * L)
 	{
-		return GenericSetter(L, gCharacterDynamicStatPropertyMap);
+		return GenericSetter(L, gCharacterDynamicStatPropertyMap, true);
 	}
 
 
@@ -491,7 +491,7 @@ namespace dse::lua
 
 	int ObjectProxy<CombatComponentTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gCombatComponentTemplatePropertyMap);
+		return GenericSetter(L, gCombatComponentTemplatePropertyMap, true);
 	}
 
 
@@ -523,7 +523,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gCharacterTemplatePropertyMap);
+		return GenericSetter(L, gCharacterTemplatePropertyMap, true);
 	}
 
 
@@ -555,7 +555,7 @@ namespace dse::lua
 
 	int ObjectProxy<ItemTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gItemTemplatePropertyMap);
+		return GenericSetter(L, gItemTemplatePropertyMap, true);
 	}
 
 
@@ -581,7 +581,7 @@ namespace dse::lua
 
 	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gProjectileTemplatePropertyMap);
+		return GenericSetter(L, gProjectileTemplatePropertyMap, true);
 	}
 
 

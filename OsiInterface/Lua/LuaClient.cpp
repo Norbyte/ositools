@@ -38,7 +38,7 @@ namespace dse::lua
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
 		auto& propertyMap = ClientStatusToPropertyMap(obj_);
-		return GenericSetter(L, propertyMap);
+		return GenericSetter(L, propertyMap, true);
 	}
 
 
@@ -74,7 +74,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gPlayerCustomDataPropertyMap);
+		return GenericSetter(L, gPlayerCustomDataPropertyMap, true);
 	}
 
 
@@ -246,7 +246,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gEclCharacterPropertyMap);
+		return GenericSetter(L, gEclCharacterPropertyMap, true);
 	}
 
 
@@ -399,7 +399,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gEclItemPropertyMap);
+		return GenericSetter(L, gEclItemPropertyMap, true);
 	}
 }
 
