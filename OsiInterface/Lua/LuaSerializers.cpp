@@ -572,7 +572,7 @@ namespace dse::lua
 		if (s.IsWriting) {
 			lua_newtable(s.L);
 			int index = 1;
-			for (uint32_t i = 0; i < v.BoostIndices.Set.Size; i++) {
+			for (uint32_t i = 0; i < v.BoostIndices.Size; i++) {
 				auto boost = stats->objects.Find(v.BoostIndices[i]);
 				if (boost != nullptr) {
 					push(s.L, index++);
@@ -584,8 +584,8 @@ namespace dse::lua
 			}
 			lua_setfield(s.L, -2, "Boosts");
 		} else {
-			v.BoostCounts.Set.Clear();
-			v.BoostIndices.Set.Clear();
+			v.BoostCounts.Clear();
+			v.BoostIndices.Clear();
 			lua_getfield(s.L, 1, "Boosts");
 
 			luaL_checktype(s.L, -1, LUA_TTABLE);
@@ -597,8 +597,8 @@ namespace dse::lua
 
 				auto object = stats->objects.FindIndex(boost);
 				if (object) {
-					v.BoostIndices.Set.Add(*object);
-					v.BoostCounts.Set.Add(count);
+					v.BoostIndices.Add(*object);
+					v.BoostCounts.Add(count);
 				} else {
 					OsiError("DeltaMod references nonexistent boost '" << boost << "'");
 				}

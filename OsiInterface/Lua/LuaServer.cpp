@@ -751,7 +751,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
-		CombatTeamListToLua(L, combat->CurrentRoundTeams.Set);
+		CombatTeamListToLua(L, combat->CurrentRoundTeams);
 		return 1;
 	}
 
@@ -761,7 +761,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
-		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
+		CombatTeamListToLua(L, combat->NextRoundTeams);
 		return 1;
 	}
 
@@ -801,20 +801,20 @@ namespace dse::esv::lua
 			notifies.insert(notify);
 		}
 
-		combatTeams.Set.Size = 0;
+		combatTeams.Size = 0;
 		for (auto const & team : teams) {
-			combatTeams.Set.Add(team);
+			combatTeams.Add(team);
 		}
 
-		combatNotifies.Set.Size = 0;
+		combatNotifies.Size = 0;
 		for (auto const & teamId : notifies) {
-			combatNotifies.Set.Add(teamId);
+			combatNotifies.Add(teamId);
 		}
 
 		auto protocol = GetTurnBasedProtocol();
 		if (protocol != nullptr) {
 			// FIXME - filter duplicates
-			protocol->UpdatedTurnOrderCombatIds.Set.Add(combatId);
+			protocol->UpdatedTurnOrderCombatIds.Add(combatId);
 		}
 	}
 
@@ -1359,7 +1359,7 @@ namespace dse::esv::lua
 		auto surfaceAction = action->Get(L);
 		surfaceAction->Level = level;
 		surfaceAction->VMT->Enter(surfaceAction);
-		level->SurfaceManager->SurfaceActions.Set.Add(surfaceAction);
+		level->SurfaceManager->SurfaceActions.Add(surfaceAction);
 		action->Unbind();
 
 		return 0;
@@ -2415,7 +2415,7 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_CalculateTurnOrder"); // stack: fn
 
 		TurnManagerCombatProxy::New(L, combatId); // stack: fn, combat
-		CombatTeamListToLua(L, combat->NextRoundTeams.Set);
+		CombatTeamListToLua(L, combat->NextRoundTeams);
 
 		if (CallWithTraceback(L, 2, 1) != 0) { // stack: retval
 			OsiError("OnUpdateTurnOrder handler failed: " << lua_tostring(L, -1));

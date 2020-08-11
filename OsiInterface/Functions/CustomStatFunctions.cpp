@@ -122,14 +122,14 @@ namespace dse::esv
 			}
 
 			// FIXME - memory leak!
-			statSyncMsg.Stats.Set.Buf = GameAllocArray<eocnet::CustomStatsSyncInfo>(1);
-			statSyncMsg.Stats.Set.Capacity = 1;
-			statSyncMsg.Stats.Set.Size = 1;
+			statSyncMsg.Stats.Buf = GameAllocArray<eocnet::CustomStatsSyncInfo>(1);
+			statSyncMsg.Stats.Capacity = 1;
+			statSyncMsg.Stats.Size = 1;
 
 			auto entityWorld = GetEntityWorld();
 			auto netComponent = entityWorld->GetNetComponentByEntityHandle(character->Base.EntityObjectHandle);
 
-			auto & stat = statSyncMsg.Stats.Set.Buf[0];
+			auto & stat = statSyncMsg.Stats[0];
 			stat.NetId = netComponent->NetID;
 			stat.Stats.Init(0x25);
 
@@ -167,11 +167,11 @@ namespace dse::esv
 			msg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
 
 			// FIXME - memory leak!
-			msg.StatDefns.Set.Buf = GameAllocArray<eocnet::CustomStatDefinitionSyncInfo>(1);
-			msg.StatDefns.Set.Capacity = 1;
-			msg.StatDefns.Set.Size = 1;
+			msg.StatDefns.Buf = GameAllocArray<eocnet::CustomStatDefinitionSyncInfo>(1);
+			msg.StatDefns.Capacity = 1;
+			msg.StatDefns.Size = 1;
 
-			auto & defn = msg.StatDefns.Set.Buf[0];
+			auto & defn = msg.StatDefns[0];
 			defn.Name = FromUTF8(name);
 			defn.Description = FromUTF8(description);
 

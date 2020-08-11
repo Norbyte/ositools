@@ -34,6 +34,16 @@ namespace dse
 		GetStaticSymbols().EoCFree(nullptr, ptr);
 	}
 
+	void* CrtAllocRaw(std::size_t size)
+	{
+		return GetStaticSymbols().CrtAlloc(size);
+	}
+
+	void CrtFree(void* ptr)
+	{
+		GetStaticSymbols().CrtFree(ptr);
+	}
+
 	unsigned int Primes[290] = {
 		2, 3, 5, 7, 0x0B, 0x0D, 0x11, 0x13, 0x17, 0x1D, 0x1F, 0x25,
 		0x29, 0x2B, 0x2F, 0x35, 0x3B, 0x3D, 0x43, 0x47, 0x49, 0x4F, 0x53,

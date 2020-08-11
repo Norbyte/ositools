@@ -22,6 +22,8 @@ namespace dse
 
 	void * GameAllocRaw(std::size_t size);
 	void GameFree(void *);
+	void* CrtAllocRaw(std::size_t size);
+	void CrtFree(void*);
 
 	template <class T, class ...Args>
 	T * GameAlloc(Args... args)
@@ -81,12 +83,12 @@ namespace dse
 
 		inline T* allocate(std::size_t cnt)
 		{
-			return (T*)GetStaticSymbols().CrtAlloc(cnt * sizeof(T));
+			return (T*)CrtAllocRaw(cnt * sizeof(T));
 		}
 
 		inline void deallocate(T* p, std::size_t cnt) noexcept
 		{
-			GetStaticSymbols().CrtFree(p);
+			CrtFree(p);
 		}
 	};
 
@@ -662,25 +664,25 @@ namespace dse
 		template <class T>
 		static T * New()
 		{
-			return (T *)GetStaticSymbols().CrtAlloc(sizeof(T));
+			return (T *)CrtAllocRaw(sizeof(T));
 		}
 
 		template <class T>
 		static T * New(std::size_t count)
 		{
-			return (T *)GetStaticSymbols().CrtAlloc(sizeof(T) * count);
+			return (T *)CrtAllocRaw(sizeof(T) * count);
 		}
 
 		template <class T>
 		static void Free(T * ptr)
 		{
-			GetStaticSymbols().CrtFree(ptr);
+			CrtFree(ptr);
 		}
 
 		template <class T>
 		static void FreeArray(T * ptr)
 		{
-			GetStaticSymbols().CrtFree(ptr);
+			CrtFree(ptr);
 		}
 	};
 
@@ -908,28 +910,6 @@ namespace dse
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator>
-	struct PrimitiveSet : public CompactSet<T, Allocator, false>
-	{
-		uint32_t CapacityIncrement() const
-		{
-			if (Capacity > 0) {
-				return 2 * Capacity;
-			} else {
-				return 1;
-			}
-		}
-
-		void Add(T const & value)
-		{
-			if (Capacity <= Size) {
-				Reallocate(CapacityIncrement());
-			}
-
-			Buf[Size++] = value;
-		}
-	};
-
 	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
 	struct Set : public CompactSet<T, Allocator, StoreSize>
 	{
@@ -970,78 +950,39 @@ namespace dse
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
-	struct ObjectSet
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct PrimitiveSmallSet : public CompactSet<T, Allocator, false>
 	{
-		void * VMT{ nullptr };
-		Set<T, Allocator, StoreSize> Set;
+		virtual ~PrimitiveSmallSet() {}
 
-		inline T const & operator [] (uint32_t index) const
+		uint32_t CapacityIncrement() const
 		{
-			return Set[index];
+			if (Capacity > 0) {
+				return 2 * Capacity;
+			} else {
+				return 1;
+			}
 		}
 
-		inline T & operator [] (uint32_t index)
+		void Add(T const& value)
 		{
-			return Set[index];
-		}
+			if (Capacity <= Size) {
+				Reallocate(CapacityIncrement());
+			}
 
-		ContiguousIterator<T> begin()
-		{
-			return Set.begin();
-		}
-
-		ContiguousConstIterator<T> begin() const
-		{
-			return Set.begin();
-		}
-
-		ContiguousIterator<T> end()
-		{
-			return Set.end();
-		}
-
-		ContiguousConstIterator<T> end() const
-		{
-			return Set.end();
+			Buf[Size++] = value;
 		}
 	};
 
-	template <class T, class Allocator = GameMemoryAllocator>
-	struct CompactObjectSet
+	template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
+	struct ObjectSet : public Set<T, Allocator, StoreSize>
 	{
-		void * VMT{ nullptr };
-		CompactSet<T, Allocator> Set;
+		virtual ~ObjectSet() {}
+	};
 
-		inline T const & operator [] (uint32_t index) const
-		{
-			return Set[index];
-		}
-
-		inline T & operator [] (uint32_t index)
-		{
-			return Set[index];
-		}
-
-		ContiguousIterator<T> begin()
-		{
-			return Set.begin();
-		}
-
-		ContiguousConstIterator<T> begin() const
-		{
-			return Set.begin();
-		}
-
-		ContiguousIterator<T> end()
-		{
-			return Set.end();
-		}
-
-		ContiguousConstIterator<T> end() const
-		{
-			return Set.end();
-		}
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct PrimitiveSet : public ObjectSet<T, Allocator, false>
+	{
 	};
 
 	template <unsigned TDWords>

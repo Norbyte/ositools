@@ -350,11 +350,11 @@ namespace dse::esv
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
-			clone->Set.RawReallocate(1);
-			clone->Set.Size = 1;
+			clone->RawReallocate(1);
+			clone->Size = 1;
 
 			auto emptyFs = ToFixedString("");
-			eoc::ItemDefinition & item = clone->Set.Buf[0];
+			eoc::ItemDefinition & item = clone->Buf[0];
 			new (&item) eoc::ItemDefinition();
 			item.FS1 = emptyFs;
 			item.RootTemplate = templateGuidFs;
@@ -393,8 +393,8 @@ namespace dse::esv
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			parseItem(item, clone.get(), false, false);
 
-			if (clone->Set.Size != 1) {
-				OsiError("Something went wrong during item parsing. Item set size: " << clone->Set.Size);
+			if (clone->Size != 1) {
+				OsiError("Something went wrong during item parsing. Item set size: " << clone->Size);
 				clone.reset();
 				return;
 			}
@@ -444,7 +444,7 @@ namespace dse::esv
 				return;
 			}
 
-			auto & item = clone->Set[0];
+			auto & item = (*clone)[0];
 			item.LevelGroupIndex = -1;
 			item.RootGroupIndex = -1;
 			item.NameIndex = -1;
@@ -470,9 +470,9 @@ namespace dse::esv
 
 			auto & defn = (*clone)[0];
 			if (strcmp(boostType, "Generation") == 0) {
-				defn.GenerationBoosts.Set.Add(boostName);
+				defn.GenerationBoosts.Add(boostName);
 			} else if (strcmp(boostType, "DeltaMod") == 0) {
-				defn.DeltaMods.Set.Add(boostName);
+				defn.DeltaMods.Add(boostName);
 			} else if (strcmp(boostType, "Rune") == 0) {
 				for (auto& boost : defn.RuneBoosts) {
 					if (!boost) {

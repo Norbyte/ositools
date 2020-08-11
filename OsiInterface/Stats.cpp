@@ -73,7 +73,7 @@ namespace dse
 			SyncSkillStat(object, proto);
 
 			Prototypes.Insert(proto->SkillId, proto);
-			PrototypeNames.Set.Add(proto->SkillId);
+			PrototypeNames.Add(proto->SkillId);
 
 			auto lv1Proto = GameAlloc<SkillPrototype>();
 			*lv1Proto = *proto;
@@ -83,11 +83,11 @@ namespace dse
 			lv1Proto->SkillId = MakeFixedString(lv1Name.c_str());
 			lv1Proto->Level = -1;
 
-			proto->ChildPrototypes.Set.Add(lv1Proto);
+			proto->ChildPrototypes.Add(lv1Proto);
 			lv1Proto->RootSkillPrototype = proto;
 
 			Prototypes.Insert(lv1Proto->SkillId, lv1Proto);
-			PrototypeNames.Set.Add(lv1Proto->SkillId);
+			PrototypeNames.Add(lv1Proto->SkillId);
 		} else {
 			SyncSkillStat(object, *pProto);
 
@@ -132,7 +132,7 @@ namespace dse
 			proto->HasStats = false;
 
 			Prototypes.Insert(proto->StatusName, proto);
-			PrototypeNames.Set.Add(proto->StatusName);
+			PrototypeNames.Add(proto->StatusName);
 		} else {
 			proto = *pProto;
 		}
@@ -307,7 +307,7 @@ namespace dse
 			p.Arg5 = msg.int_params()[1];
 			p.SurfaceBoost = msg.bool_params()[0];
 			for (auto boost : msg.surface_boosts()) {
-				p.SurfaceBoosts.Set.Add((SurfaceType)boost);
+				p.SurfaceBoosts.Add((SurfaceType)boost);
 			}
 			break;
 		}
@@ -467,23 +467,23 @@ namespace dse
 
 		AIFlags = MakeFixedString(msg.ai_flags().c_str());
 
-		Requirements.Set.Clear();
+		Requirements.Clear();
 		for (auto const& reqmt : msg.requirements()) {
 			CRPGStats_Requirement requirement;
 			requirement.FromProtobuf(reqmt);
-			Requirements.Set.Add(requirement);
+			Requirements.Add(requirement);
 		}
 
-		MemorizationRequirements.Set.Clear();
+		MemorizationRequirements.Clear();
 		for (auto const& reqmt : msg.memorization_requirements()) {
 			CRPGStats_Requirement requirement;
 			requirement.FromProtobuf(reqmt);
-			MemorizationRequirements.Set.Add(requirement);
+			MemorizationRequirements.Add(requirement);
 		}
 
-		ComboCategories.Set.Clear();
+		ComboCategories.Clear();
 		for (auto const& category : msg.combo_categories()) {
-			ComboCategories.Set.Add(MakeFixedString(category.c_str()));
+			ComboCategories.Add(MakeFixedString(category.c_str()));
 		}
 
 		PropertyList.Clear();
@@ -554,7 +554,7 @@ namespace dse
 		if (VMTsMapped) return;
 		auto stats = GetStaticSymbols().GetStats();
 
-		if (stats->objects.Primitives.Set.Size > 0) {
+		if (stats->objects.Primitives.Size > 0) {
 			ObjectVMT = stats->objects.Primitives[0]->VMT;
 		}
 
@@ -614,13 +614,13 @@ namespace dse
 		object = GameAlloc<CRPGStats_Object>();
 		object->VMT = gCRPGStatsVMTMappings.ObjectVMT;
 		object->ModifierListIndex = modifierListIndex;
-		object->IndexedProperties.resize(modifier->Attributes.Primitives.Set.Size, 0);
+		object->IndexedProperties.resize(modifier->Attributes.Primitives.Size, 0);
 		object->DivStats = DivinityStats;
 		object->Name = name;
 		object->PropertyList.Init(3);
 		object->ConditionList.Init(3);
 
-		object->Handle = objects.Primitives.Set.Size;
+		object->Handle = objects.Primitives.Size;
 		objects.Add(name, object);
 
 		return object;
@@ -893,7 +893,7 @@ namespace dse
 		auto fs = MakeFixedString(value);
 		if (!fs) return -1;
 
-		auto & strings = ModifierFSSet.Set;
+		auto & strings = ModifierFSSet;
 		for (uint32_t i = 0; i < strings.Size; i++) {
 			if (strings[i] == fs) {
 				return i;

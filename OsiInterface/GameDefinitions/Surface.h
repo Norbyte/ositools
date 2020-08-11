@@ -43,8 +43,8 @@ namespace dse
         {
             Surface* Surface;
             uint64_t SurfaceStateFlags;
-            CompactObjectSet<SurfaceCell> SurfaceCells1;
-            CompactObjectSet<SurfaceCell> SurfaceCells2;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells1;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells2;
             uint16_t SurfaceIndex;
             uint8_t Position[2];
             int field_44;
@@ -85,7 +85,7 @@ namespace dse
             __int64 field_18;
             __int64 field_20;
             __int64 field_28;
-            PrimitiveSet<SurfaceCell> Cells;
+            PrimitiveSmallSet<SurfaceCell> Cells;
         };
 
         struct SurfaceManager : public ObjectFactory<Surface, (uint32_t)ObjectType::Unknown>
@@ -94,10 +94,9 @@ namespace dse
             uint64_t field_98;
             ObjectSet<SurfaceAction*> SurfaceActions;
             Array<Surface*> Surfaces;
-            uint64_t field_E0;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             SurfaceCollectCellsFlood CollectCellsFlood;
-            ObjectSet<PrimitiveSet<SurfaceCell>> SurfaceCellSetsByLayer;
+            ObjectSet<PrimitiveSmallSet<SurfaceCell>> SurfaceCellSetsByLayer;
             RefMap<uint64_t, uint64_t> field_158;
         };
 
@@ -130,8 +129,8 @@ namespace dse
             glm::vec3 Position; // Init param
             SurfaceType SurfaceType; // Init param
             ObjectHandle SurfaceHandlesByType[79];
-            PrimitiveSet<SurfaceCell>* SurfaceChanges[79];
-            PrimitiveSet<SurfaceCell>* SurfaceCellsByLayer[2];
+            PrimitiveSmallSet<SurfaceCell>* SurfaceChanges[79];
+            PrimitiveSmallSet<SurfaceCell>* SurfaceCellsByLayer[2];
         };
 
         struct CreateSurfaceAction : public CreateSurfaceActionBase
@@ -148,7 +147,7 @@ namespace dse
             float GrowTimer;
             int GrowStep;
             int CurrentCellCount;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             uint32_t SurfaceLayer; // Init param
         };
 
@@ -157,7 +156,7 @@ namespace dse
             ObjectHandle FollowObject; // Init param
             int Radius; // Init param
             bool IsFinished;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             bool IgnoreIrreplacableSurfaces;
             bool CheckExistingSurfaces;
             uint32_t SurfaceCollisionFlags;
@@ -173,8 +172,8 @@ namespace dse
             uint8_t _Pad1[4];
             bool IsFinished;
             bool IgnoreIrreplacableSurfaces; // Init param
-            PrimitiveSet<SurfaceCell> CellAtGrow;
-            PrimitiveSet<SurfaceCell> ClosedCells;
+            PrimitiveSmallSet<SurfaceCell> CellAtGrow;
+            PrimitiveSmallSet<SurfaceCell> ClosedCells;
             float GrowTimer;
         };
 
@@ -185,8 +184,8 @@ namespace dse
             float Percentage;
             float GrowTimer;
             float Step;
-            PrimitiveSet<SurfaceCell> field_558;
-            PrimitiveSet<SurfaceCell> field_570;
+            PrimitiveSmallSet<SurfaceCell> field_558;
+            PrimitiveSmallSet<SurfaceCell> field_570;
         };
 
         struct TransformSurfaceAction : public SurfaceAction
@@ -204,8 +203,8 @@ namespace dse
             float SurfaceStatusChance; // Init param
             RefMap<SurfaceType, ObjectHandle> SurfaceMap;
             RefMap<SurfaceType, PrimitiveSet<SurfaceCell>> SurfaceCellMap;
-            PrimitiveSet<SurfaceCell> SurfaceRemoveGroundCellMap;
-            PrimitiveSet<SurfaceCell> SurfaceRemoveCloudCellMap;
+            PrimitiveSmallSet<SurfaceCell> SurfaceRemoveGroundCellMap;
+            PrimitiveSmallSet<SurfaceCell> SurfaceRemoveCloudCellMap;
         };
 
         struct RectangleSurfaceAction : public CreateSurfaceActionBase
@@ -225,7 +224,7 @@ namespace dse
             uint64_t LineCheckBlock;
             CRPGStats_Object_Property_List* SkillProperties;
             float CurrentGrowTimer;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             ObjectSet<ObjectHandle> Characters;
             ObjectSet<ObjectHandle> Items;
             uint64_t CurrentCellCount;
@@ -244,7 +243,7 @@ namespace dse
             float PositionXZ[2];
             int GrowStep; // Init param
             int LastSurfaceCellCount;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             ObjectSet<ObjectHandle> Characters;
             ObjectSet<ObjectHandle> Items;
             char field_608;
@@ -265,10 +264,10 @@ namespace dse
             float GrowTimer;
             int GrowStep;
             int CurrentCellCount;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
-            PrimitiveSet<SurfaceCell> TargetCells;
-            RefMap<dse::SurfaceType, PrimitiveSet<SurfaceCell>> SurfaceCellMap;
-            RefMap<dse::SurfaceType, PrimitiveSet<SurfaceCell>> TargetCellMap;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> TargetCells;
+            RefMap<dse::SurfaceType, PrimitiveSmallSet<SurfaceCell>> SurfaceCellMap;
+            RefMap<dse::SurfaceType, PrimitiveSmallSet<SurfaceCell>> TargetCellMap;
         };
 
         struct ZoneAction : public CreateSurfaceActionBase
@@ -290,7 +289,7 @@ namespace dse
             CRPGStats_Object_Property_List* SkillProperties;
             float GrowTimerStart;
             int field_5AC;
-            PrimitiveSet<SurfaceCell> SurfaceCells;
+            PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             ObjectSet<ObjectHandle> Characters;
             ObjectSet<ObjectHandle> Items;
             uint64_t CurrentCellCount;

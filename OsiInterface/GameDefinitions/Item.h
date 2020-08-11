@@ -91,7 +91,7 @@ namespace dse
 			FixedString ItemType; // Saved
 			uint32_t Random; // Saved
 			uint16_t Level; // Saved
-			CompactObjectSet<FixedString> Boosts; // Saved
+			PrimitiveSet<FixedString> Boosts; // Saved
 		};
 
 		struct Item : public IEoCServerObject
@@ -108,7 +108,6 @@ namespace dse
 			float Scale; // Saved
 			ItemFlags2 Flags2;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
-			uint64_t U3[2];
 			glm::vec3 WorldVelocity; // Saved
 			eoc::Ai* AI;
 			ItemTemplate* CurrentTemplate; // Saved
@@ -169,7 +168,6 @@ namespace dse
 			FixedString MyGuid;
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIdClassNames;
-			uint64_t Unknown[2];
 			ObjectHandle MyHandle;
 			uint8_t EquipmentSlots;
 			ObjectHandle ParentHandle;
@@ -261,9 +259,7 @@ namespace dse
 			void* VMT;
 			FixedString GUID;
 			NetId NetID;
-			uint64_t field_18;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
-			uint64_t field_28;
 			ObjectHandle OwnerCharacterHandleUI;
 			uint8_t field_40;
 			uint8_t field_41;

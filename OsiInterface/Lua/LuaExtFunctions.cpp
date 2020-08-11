@@ -406,7 +406,7 @@ namespace dse::lua
 		lua_newtable(L);
 
 		auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
-		auto & mods = modManager->BaseModule.LoadOrderedModules.Set;
+		auto & mods = modManager->BaseModule.LoadOrderedModules;
 		for (uint32_t i = 0; i < mods.Size; i++) {
 			auto const & mod = mods[i];
 			settable(L, i + 1, mod.Info.ModuleUUID.Str);
@@ -441,7 +441,7 @@ namespace dse::lua
 			setfield(L, "ModuleType", module->Info.ModuleType);
 			
 			lua_newtable(L);
-			auto & dependents = module->DependentModules.Set;
+			auto & dependents = module->DependentModules;
 			for (uint32_t i = 0; i < dependents.Size; i++) {
 				auto const & mod = dependents[i];
 				settable(L, i + 1, mod.Info.ModuleUUID);
@@ -1009,7 +1009,7 @@ namespace dse::lua
 			object->AIFlags = MakeFixedString(lua_tostring(L, valueIdx));
 			return 0;
 		} else if (attributeFS == GFS.strComboCategory) {
-			object->ComboCategories.Set.Clear();
+			object->ComboCategories.Clear();
 			if (lua_type(L, valueIdx) != LUA_TTABLE) {
 				OsiError("Must pass a table when setting ComboCategory");
 				return 0;
@@ -1017,7 +1017,7 @@ namespace dse::lua
 
 			for (auto category : iterate(L, valueIdx)) {
 				auto categoryName = checked_get<char const*>(L, category);
-				object->ComboCategories.Set.Add(MakeFixedString(categoryName));
+				object->ComboCategories.Add(MakeFixedString(categoryName));
 			}
 
 			return 0;
@@ -1135,7 +1135,7 @@ namespace dse::lua
 		customProp->TypeId = CRPGStats_Object_Property_Type::CustomDescription;
 		customProp->Conditions = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
-		(*props)->Properties.Primitives.Set.Add(customProp);
+		(*props)->Properties.Primitives.Add(customProp);
 
 		return 0;
 	}
@@ -1203,7 +1203,7 @@ namespace dse::lua
 
 	void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
 	{
-		auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives.Set;
+		auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives;
 		for (auto levelMapIndex : levelMapIds) {
 			auto levelMap = static_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
 			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
@@ -1260,7 +1260,7 @@ namespace dse::lua
 		levelMap->Function = RegistryEntry(L, 3);
 		levelMap->OriginalLevelMap = originalLevelMap;
 
-		stats->LevelMaps.Primitives.Set.Buf[modifier->LevelMapIndex] = levelMap;
+		stats->LevelMaps.Primitives.Buf[modifier->LevelMapIndex] = levelMap;
 		lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 
 		return 0;

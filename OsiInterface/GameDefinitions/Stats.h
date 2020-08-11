@@ -33,8 +33,8 @@ namespace dse
 
 		void Add(FixedString const& name, T* elem)
 		{
-			NameHashMap.Insert(name, Primitives.Set.Size);
-			Primitives.Set.Add(elem);
+			NameHashMap.Insert(name, Primitives.Size);
+			Primitives.Add(elem);
 			NextHandle++;
 		}
 
@@ -60,10 +60,10 @@ namespace dse
 
 		T * Find(int index) const
 		{
-			if (index < 0 || index >= (int)Primitives.Set.Size) {
+			if (index < 0 || index >= (int)Primitives.Size) {
 				return nullptr;
 			} else {
-				return Primitives.Set.Buf[index];
+				return Primitives.Buf[index];
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace dse
 		{
 			auto ptr = NameHashMap.Find(str);
 			if (ptr != nullptr) {
-				return Primitives.Set.Buf[*ptr];
+				return Primitives.Buf[*ptr];
 			} else {
 				return nullptr;
 			}
@@ -794,7 +794,7 @@ namespace dse
 		TranslatedString DisplayName;
 		FixedString Icon;
 		bool HasStats{ false };
-		ObjectSet<uint32_t> AbsorbSurfaceTypes{ nullptr }; // eoc::ESurfaceType
+		ObjectSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
 
 		CRPGStats_Object * GetStats() const;
 	};

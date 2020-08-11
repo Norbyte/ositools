@@ -100,7 +100,7 @@ namespace dse::esv
 			}
 
 			if (character->PlayerData == nullptr
-				|| character->PlayerData->SkillBar.Set.Size == 0) {
+				|| character->PlayerData->SkillBar.Size == 0) {
 				OsiError("Character '" << characterGuid << "' has no skill bar!");
 				return nullptr;
 			}
@@ -113,7 +113,7 @@ namespace dse::esv
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return nullptr;
 
-			if (slot < 0 || slot >= (int)skillBar->Set.Size) {
+			if (slot < 0 || slot >= (int)skillBar->Size) {
 				OsiError("Invalid skill bar slot index: " << slot);
 				return nullptr;
 			}
@@ -163,7 +163,7 @@ namespace dse::esv
 			if (skillBar == nullptr) return false;
 
 			auto skillId = ToFixedString(args[1].String);
-			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
+			for (uint32_t i = 0; i < skillBar->Size; i++) {
 				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kSkill
 					&& skill.SkillOrStatId == skillId) {
@@ -191,7 +191,7 @@ namespace dse::esv
 			ObjectHandle handle;
 			item->GetObjectHandle(handle);
 
-			for (uint32_t i = 0; i < skillBar->Set.Size; i++) {
+			for (uint32_t i = 0; i < skillBar->Size; i++) {
 				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kItem
 					&& skill.ItemHandle == handle) {

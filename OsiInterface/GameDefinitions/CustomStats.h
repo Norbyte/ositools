@@ -97,8 +97,6 @@ namespace dse
 			ObjectSet<ComponentHandle> UpdatedDefinitions;
 			ObjectSet<ComponentHandle> CustomStatComponents;
 			PrimitiveSet<short> PeerIDClassnames;
-			uint64_t Unkn2;
-			uint64_t Unkn3;
 		};
 
 		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, net::Message * msg);

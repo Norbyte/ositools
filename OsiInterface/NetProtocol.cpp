@@ -438,7 +438,7 @@ namespace dse
 			ObjectSet<PeerId> peerIds;
 			for (auto peerId : server->ActivePeerIds) {
 				if (ServerCanSendExtenderMessages(peerId)) {
-					peerIds.Set.Add(peerId);
+					peerIds.Add(peerId);
 				} else {
 					WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
 				}
@@ -453,9 +453,9 @@ namespace dse
 		auto server = GetServer();
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
-			peerIds.Set.Reallocate(server->ConnectedPeerIds.Set.Size);
+			peerIds.Reallocate(server->ConnectedPeerIds.Size);
 			for (auto peerId : server->ConnectedPeerIds) {
-				peerIds.Set.Add(peerId);
+				peerIds.Add(peerId);
 			}
 			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludeUserId.Id);
 		}
@@ -466,7 +466,7 @@ namespace dse
 	{
 		auto nfs = GetStaticSymbols().NetworkFixedStrings;
 		if (nfs != nullptr && (*nfs)->Initialized) {
-			auto const& strings = (*nfs)->FixedStrSet.Set;
+			auto const& strings = (*nfs)->FixedStrSet;
 
 			auto nfsLogPath = gOsirisProxy->MakeLogFilePath(L"NetworkFixedStrings", L"log");
 			std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
@@ -538,7 +538,7 @@ namespace dse
 		auto msg = networkMgr.GetFreeServerMessage(userId);
 		if (msg != nullptr) {
 			auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
-			auto numStrings = nfs.FixedStrSet.Set.Size;
+			auto numStrings = nfs.FixedStrSet.Size;
 			for (uint32_t i = 1; i < numStrings; i++) {
 				syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
 			}
@@ -556,7 +556,7 @@ namespace dse
 		if (updatedStrings_.empty()
 			|| fixedStrs == nullptr
 			|| *fixedStrs == nullptr
-			|| (*fixedStrs)->FixedStrSet.Set.Size == 0) {
+			|| (*fixedStrs)->FixedStrSet.Size == 0) {
 			return;
 		}
 
@@ -564,7 +564,7 @@ namespace dse
 		auto& fs = **fixedStrs;
 		auto numStrings = (uint32_t)updatedStrings_.size();
 
-		auto sizeMin = std::min(fs.FixedStrSet.Set.Size - 1, numStrings);
+		auto sizeMin = std::min(fs.FixedStrSet.Size - 1, numStrings);
 		uint32_t brokenNum = 0;
 		for (uint32_t i = 0; i < sizeMin; i++) {
 			auto const& serverString = updatedStrings_[i];
@@ -592,17 +592,17 @@ namespace dse
 		}
 
 		if (notInSync_) {
-			fs.FixedStrSet.Set.Clear();
+			fs.FixedStrSet.Clear();
 			fs.FixedStrToNetIndexMap.Clear();
 
-			fs.FixedStrSet.Set.Reallocate(numStrings + 1);
+			fs.FixedStrSet.Reallocate(numStrings + 1);
 
-			fs.FixedStrSet.Set.Add(FixedString{});
+			fs.FixedStrSet.Add(FixedString{});
 			fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
 
 			for (uint32_t i = 0; i < numStrings; i++) {
 				auto fixedStr = MakeFixedString(updatedStrings_[i].c_str());
-				fs.FixedStrSet.Set.Add(fixedStr);
+				fs.FixedStrSet.Add(fixedStr);
 				fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
 			}
 		}

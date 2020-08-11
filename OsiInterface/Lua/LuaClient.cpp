@@ -169,7 +169,7 @@ namespace dse::lua
 		auto slot = (uint32_t)checked_get<ItemSlot>(L, 2);
 
 		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryHandle);
-		if (inventory != nullptr && slot < inventory->ItemsBySlot.Set.Size) {
+		if (inventory != nullptr && slot < inventory->ItemsBySlot.Size) {
 			auto itemHandle = inventory->ItemsBySlot[slot];
 			if (itemHandle) {
 				auto item = ecl::GetEntityWorld()->GetItem(itemHandle);
@@ -1157,7 +1157,7 @@ namespace dse::ecl::lua
 
 		auto name = luaL_checkstring(L, 2);
 
-		auto & invokes = ui->FlashPlayer->Invokes.Set;
+		auto & invokes = ui->FlashPlayer->Invokes;
 		std::optional<uint32_t> invokeId;
 		for (uint32_t i = 0; i < invokes.Size; i++) {
 			if (strcmp(name, invokes[i].Name) == 0) {
@@ -1167,7 +1167,7 @@ namespace dse::ecl::lua
 		}
 
 		if (!invokeId) {
-			invokeId = ui->FlashPlayer->Invokes.Set.Size;
+			invokeId = ui->FlashPlayer->Invokes.Size;
 			ui->FlashPlayer->AddInvokeName(*invokeId, name);
 		}
 
@@ -1920,7 +1920,7 @@ namespace dse::ecl::lua
 			push(L, paramText); // stack: fn, skill, character, params...
 		}
 
-		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.SkillGetDescriptionParam");
+		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.SkillGetDescriptionParam");
 		if (result) {
 			auto description = std::get<0>(*result);
 			if (description) {
@@ -1954,7 +1954,7 @@ namespace dse::ecl::lua
 			push(L, paramText); // stack: fn, status, srcCharacter, character, params...
 		}
 
-		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Set.Size, "Ext.StatusGetDescriptionParam");
+		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.StatusGetDescriptionParam");
 		if (result) {
 			auto description = std::get<0>(*result);
 			if (description) {

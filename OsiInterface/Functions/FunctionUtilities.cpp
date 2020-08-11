@@ -200,7 +200,7 @@ namespace dse
 			auto gameServer = (*server)->GameServer;
 			if (gameServer == nullptr) return nullptr;
 
-			if (gameServer->Protocols.Set.Size <= 22) return nullptr;
+			if (gameServer->Protocols.Size <= 22) return nullptr;
 			return (esv::TurnBasedProtocol *)gameServer->Protocols[22];
 		}
 

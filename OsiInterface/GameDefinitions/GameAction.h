@@ -14,7 +14,6 @@ namespace dse
 			FixedString SomeFS;
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
-			uint64_t _Unk[2];
 			ObjectHandle MyHandle;
 			uint32_t GameActionType;
 			bool Active;

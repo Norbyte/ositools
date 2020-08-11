@@ -64,9 +64,7 @@ namespace dse
 		void * System;
 		int64_t Unkn1;
 		uint32_t Unkn2;
-		void * PrimitiveSetVMT;
 		PrimitiveSet<uint64_t> PSet;
-		uint8_t Unkn3;
 	};
 
 	struct EntityEntry
@@ -93,9 +91,8 @@ namespace dse
 		void * VMT;
 		Array<EntityEntry *> EntityEntries;
 		Array<uint32_t> EntitySalts;
-		uint64_t Unkn1[4];
+		uint64_t Unkn1[3];
 		PrimitiveSet<EntityEntry *> EntityEntries2;
-		uint64_t Unkn2;
 		uint8_t Unkn3;
 		uint32_t Unkn4;
 		Array<ComponentTypeEntry> Components;
@@ -103,9 +100,7 @@ namespace dse
 		Array<SystemTypeEntry> SystemTypes;
 		Array<void *> EventTypes; // Array<EventTypeEntry>
 		void * EntityWorldManager;
-		void * SystemTypeEntry_PrimSetVMT;
 		PrimitiveSet<SystemTypeEntry> SystemTypes2;
-		uint64_t Unkn5;
 		ObjectSet<void *> Funcs; // ObjectSet<function>
 		RefMap<FixedString, int> RefMap; // ???
 
@@ -830,9 +825,7 @@ namespace dse
 			FixedString FS_CurrentSaveGameGUID;
 			bool IsLoading;
 			bool IsLoading2;
-			void* PrimitiveSetVMT;
 			PrimitiveSet<int> PrimitiveSetUnkn;
-			uint64_t field_A8;
 			uint16_t field_B0;
 			void* Random;
 			void* ItemCombinationManager;
