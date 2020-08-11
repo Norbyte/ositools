@@ -3492,6 +3492,10 @@ function Ext.CreateSurfaceAction (type) end
 --- @param action EsvSurfaceAction Action to execute
 function Ext.ExecuteSurfaceAction (action) end
 
+--- CAncels a surface action
+--- @param actionHandle integer Action to cancel
+function Ext.CancelSurfaceAction (actionHandle) end
+
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name

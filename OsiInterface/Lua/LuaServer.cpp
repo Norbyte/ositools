@@ -1365,6 +1365,89 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	int CancelSurfaceAction(lua_State* L)
+	{
+		ObjectHandle handle{ checked_get<uint64_t>(L, 1) };
+		
+		if (handle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
+			OsiError("Expected a surface action handle, got type " << handle.GetType());
+			return 0;
+		}
+
+		auto factory = GetStaticSymbols().esv__SurfaceActionFactory;
+		if (!factory || !*factory) {
+			OsiError("SurfaceActionFactory not mapped!");
+			return 0;
+		}
+
+		auto action = (*factory)->Get(handle);
+		if (!action) {
+			OsiWarn("No surface action found with handle " << std::hex << handle.Handle << "; maybe it already expired?");
+			return 0;
+		}
+
+		switch (action->VMT->GetTypeId(action)) {
+		case SurfaceActionType::CreateSurfaceAction:
+		{
+			auto act = static_cast<esv::CreateSurfaceAction*>(action);
+			act->CurrentCellCount = act->SurfaceCells.Size;
+			break;
+		}
+		case SurfaceActionType::CreatePuddleAction:
+		{
+			auto act = static_cast<esv::CreatePuddleAction*>(action);
+			act->IsFinished = true;
+			break;
+		}
+		case SurfaceActionType::ExtinguishFireAction:
+		{
+			auto act = static_cast<esv::ExtinguishFireAction*>(action);
+			act->Percentage = 0.0f;
+			break;
+		}
+		case SurfaceActionType::ZoneAction:
+		{
+			auto act = static_cast<esv::ZoneAction*>(action);
+			act->CurrentCellCount = act->SurfaceCells.Size;
+			break;
+		}
+		case SurfaceActionType::ChangeSurfaceOnPathAction:
+		{
+			auto act = static_cast<esv::ChangeSurfaceOnPathAction*>(action);
+			act->IsFinished = true;
+			break;
+		}
+		case SurfaceActionType::RectangleSurfaceAction:
+		{
+			auto act = static_cast<esv::RectangleSurfaceAction*>(action);
+			act->CurrentCellCount = act->SurfaceCells.Size;
+			break;
+		}
+		case SurfaceActionType::PolygonSurfaceAction:
+		{
+			auto act = static_cast<esv::PolygonSurfaceAction*>(action);
+			act->LastSurfaceCellCount = act->SurfaceCells.Size;
+			break;
+		}
+		case SurfaceActionType::SwapSurfaceAction:
+		{
+			auto act = static_cast<esv::SwapSurfaceAction*>(action);
+			act->CurrentCellCount = act->SurfaceCells.Size;
+			break;
+		}
+		case SurfaceActionType::TransformSurfaceAction:
+		{
+			auto act = static_cast<esv::TransformSurfaceAction*>(action);
+			act->Finished = true;
+			break;
+		}
+		default:
+			OsiError("CancelSurfaceAction() not implemented for this surface action type!");
+		}
+
+		return 0;
+	}
+
 	int OsirisIsCallable(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -1565,6 +1648,7 @@ namespace dse::esv::lua
 			{"UpdateSurfaceTransformRules", UpdateSurfaceTransformRules},
 			{"CreateSurfaceAction", CreateSurfaceAction},
 			{"ExecuteSurfaceAction", ExecuteSurfaceAction},
+			{"CancelSurfaceAction", CancelSurfaceAction},
 
 			{"GetAllCharacters", GetAllCharacters},
 			{"GetCharactersAroundPosition", GetCharactersAroundPosition},
