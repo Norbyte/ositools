@@ -1485,7 +1485,7 @@ namespace dse
 		{
 			luaL_checktype(L, index, LUA_TBOOLEAN);
 			auto val = lua_toboolean(L, index);
-			return propertyMap.setFlag(obj, propertyFS, val == 1, false, throwError);
+			return propertyMap.setInt(obj, propertyFS, val, false, throwError);
 		}
 
 		case PropertyType::kUInt8:
