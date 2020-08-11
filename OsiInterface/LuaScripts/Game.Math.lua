@@ -1038,12 +1038,12 @@ function CanBackstab(target, attacker)
     end
 
     local targetRot = target.Rotation
-    angle = math.deg(math.atan(-targetRot[1], targetRot[3]))
+    local angle = math.deg(math.atan(-targetRot[1], targetRot[3]))
     if angle < 0 then
         angle = 360 + angle
     end
 
-    relAngle = atkAngle - angle
+    local relAngle = atkAngle - angle
     if relAngle < 0 then
         relAngle = 360 + relAngle
     end
