@@ -869,6 +869,75 @@ local StatCharacter = {
 local StatItemDynamic = {}
 
 
+--- @class StatProperty
+--- @field Context string[] Target|Self|AoE|SelfOnHit|SelfOnEquip
+--- @field Type string Custom|Status|SurfaceChange|GameAction|OsirisTask|Sabotage|Summon|Force
+--- @field Condition string|nil
+local StatProperty = {}
+
+--- @class StatPropertyCustom : StatProperty
+--- @field Type string Custom
+--- @field Action string
+local StatPropertyStatus = {}
+
+--- @class StatPropertyStatus : StatProperty
+--- @field Type string Status
+--- @field Action string Status name
+--- @field StatusChance number
+--- @field Duration number
+--- @field StatsId string
+--- @field Arg4 integer
+--- @field Arg5 integer
+--- @field SurfaceBoost boolean
+--- @field SurfaceBoosts string[] Labels from "Surface Type" enumeration
+local StatPropertyStatus = {}
+
+--- @class StatPropertySurfaceChange : StatProperty
+--- @field Type string SurfaceChange
+--- @field Action string Label from "Surface Change" enumeration
+--- @field SurfaceChance number
+--- @field Lifetime number
+--- @field StatusChance number
+--- @field Radius number
+local StatPropertySurfaceChange = {}
+
+--- @class StatPropertySabotage : StatProperty
+--- @field Type string Sabotage
+--- @field Amount integer
+local StatPropertySabotage = {}
+
+--- @class StatPropertySummon : StatProperty
+--- @field Type string Summon
+--- @field Template string
+--- @field Duration number
+--- @field IsTotem boolean
+--- @field Skill string
+local StatPropertySummon = {}
+
+--- @class StatPropertyForce : StatProperty
+--- @field Type string Force
+--- @field Distance integer
+local StatPropertyForce = {}
+
+--- @class StatPropertyGameAction : StatProperty
+--- @field Type string GameAction
+--- @field Action string Label from "Game Action" enumeration
+--- @field Arg1 number
+--- @field Arg2 number
+--- @field Arg3 string
+--- @field Arg4 number
+--- @field Arg5 number
+--- @field StatusHealType string Label from "StatusHealType" enumeration
+local StatPropertyGameAction = {}
+
+--- @class StatPropertyOsirisTask : StatProperty
+--- @field Type string OsirisTask
+--- @field Action string Label from "Osiris Task" enumeration
+--- @field Chance number
+--- @field VitalityOnRevive integer
+local StatPropertyOsirisTask = {}
+
+
 --- @class StatItem : StatBase
 --- Properties from property map
 --- @field public Level integer
