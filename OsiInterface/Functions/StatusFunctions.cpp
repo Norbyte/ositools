@@ -197,6 +197,16 @@ namespace dse::esv
 				return false;
 			}
 
+			if constexpr (Type == OsiPropertyMapType::String) {
+				if (strcmp(args[2].String, "StatusType") == 0) {
+					auto type = EnumInfo<StatusType>::Find(status->GetStatusId());
+					if (type) {
+						args[3].Set(type.Str);
+						return true;
+					}
+				}
+			}
+
 			switch (status->GetStatusId()) {
 				case StatusType::HIT:
 				{
