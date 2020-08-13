@@ -993,6 +993,17 @@ namespace dse::esv
 	}
 
 
+
+	void CustomFunctionLibrary::OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle,
+		DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList, DamageType damageType)
+	{
+		esv::LuaServerPin lua(esv::ExtensionState::Get());
+		if (position && lua) {
+			lua->OnExecutePropertyDataOnGroundHit(*position, ObjectHandle(casterHandle), damageList);
+		}
+	}
+
+
 	esv::Item* CustomFunctionLibrary::OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next,
 		RPGStats_Treasure_Object_Info* treasureInfo, int level)
 	{

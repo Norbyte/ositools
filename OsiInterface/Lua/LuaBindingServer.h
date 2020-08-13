@@ -500,6 +500,7 @@ namespace dse::esv::lua
 		void OnBeforeShootProjectile(ShootProjectileHelper* helper);
 		void OnShootProjectile(Projectile* projectile);
 		void OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position);
+		void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList);
 
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);

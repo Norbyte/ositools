@@ -2447,6 +2447,32 @@ namespace dse::esv::lua
 	}
 
 
+	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList)
+	{
+		PushExtFunction(L, "_OnGroundHit");
+		
+		if (casterHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+			ObjectProxy<esv::Character>::New(L, casterHandle);
+		} else if (casterHandle.GetType() == (uint32_t)ObjectType::ServerItem) {
+			ObjectProxy<esv::Item>::New(L, casterHandle);
+		} else {
+			OsiError("Cannot push caster handle of type " << casterHandle.GetType());
+			push(L, nullptr);
+		}
+
+		push(L, position);
+		auto dmgList = DamageList::New(L);
+		if (damageList) {
+			dmgList->Get().CopyFrom(*damageList);
+		}
+
+		if (CallWithTraceback(L, 3, 1) != 0) {
+			OsiError("GroundHit handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		Restriction restriction(*this, RestrictOsiris);

@@ -69,6 +69,8 @@ namespace dse::esv
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 		void OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex, unsigned int creatorId, int flags, 
 			uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result);
+		void OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle, DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList,
+			DamageType damageType);
 
 		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, RPGStats_Treasure_Object_Info* treasureInfo, int level);
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 

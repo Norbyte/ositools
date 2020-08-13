@@ -980,6 +980,18 @@ namespace dse
 			{},
 			{"eoc::AiGrid::SearchForCell", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(eoc__AiGrid__SearchForCell)}
 		},
+
+		{
+			"esv::ExecutePropertyDataOnGroundHit",
+			SymbolMappingData::kText, 0,
+			"48 81 EC F8 00 00 00 " // sub     rsp, 0F8h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:esv__gLevelManager
+			"4D 8B E1 " // mov     r12, r9
+			"49 8B F0 " // mov     rsi, r8
+			"48 8B F9 ", // mov     rdi, rcx
+			{},
+			{"esv::ExecutePropertyDataOnGroundHit", SymbolMappingTarget::kAbsolute, -0x0D, STATIC_SYM(esv__ExecutePropertyDataOnGroundHit)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)

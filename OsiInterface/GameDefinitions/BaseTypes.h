@@ -1179,11 +1179,11 @@ namespace dse
 			: Handle(0)
 		{}
 
-		inline ObjectHandle(uint64_t handle)
+		explicit inline ObjectHandle(uint64_t handle)
 			: Handle(handle)
 		{}
 
-		inline ObjectHandle(int64_t handle)
+		explicit inline ObjectHandle(int64_t handle)
 			: Handle((uint64_t)handle)
 		{}
 

@@ -2993,7 +2993,7 @@ function UIObject.Destroy (self) end
 local SurfaceInteractionSet = {}
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -3009,6 +3009,7 @@ local SurfaceInteractionSet = {}
 --- @alias ExtBeforeShootProjectileCallback fun(projectile: EsvShootProjectileRequest)
 --- @alias ExtShootProjectileCallback fun(projectile: EsvProjectile)
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
+--- @alias ExtGroundHitCallback fun(caster: EsvGameObject, position: number[], damageList: DamageList)
 
 --- @class Ext
 Ext = {

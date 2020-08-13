@@ -13,6 +13,7 @@ HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescript
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, SkillPrototype::GetSkillDamageProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetAttackAPCost, SkillPrototype__GetAttackAPCost, SkillPrototype::GetAttackAPCostProc, WrappableFunction)
 HOOK_DEFN(StatusPrototype__FormatDescriptionParam, StatusPrototype__FormatDescriptionParam, StatusPrototype::FormatDescriptionParamProc, WrappableFunction)
+HOOK_DEFN(esv__ExecutePropertyDataOnGroundHit, esv__ExecutePropertyDataOnGroundHit, esv::ExecutePropertyDataOnGroundHitProc, PostHookableFunction)
 
 
 HOOK_DEFN(esv__TurnManager__UpdateTurnOrder, esv__TurnManager__UpdateTurnOrder, esv::TurnManager::UpdateTurnOrderProc, PostHookableFunction)

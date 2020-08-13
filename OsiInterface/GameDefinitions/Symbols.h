@@ -136,6 +136,7 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 		esv::Character::HasMadnessProc* esv__Character__HasMadness{ nullptr };
 		ecl::Character::HasMadnessProc* ecl__Character__HasMadness{ nullptr };
+		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
 
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };

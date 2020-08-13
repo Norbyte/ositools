@@ -19,7 +19,8 @@ Ext._Listeners = {
 	AfterCraftingExecuteCombination = {},
 	BeforeShootProjectile = {},
 	ShootProjectile = {},
-	ProjectileHit = {}
+	ProjectileHit = {},
+	GroundHit = {}
 }
 
 Ext._GetSkillDamage = function (...)
@@ -136,4 +137,8 @@ end
 
 Ext._OnProjectileHit = function (...)
     return Ext._Notify("ProjectileHit", ...)
+end
+
+Ext._OnGroundHit = function (...)
+    return Ext._Notify("GroundHit", ...)
 end

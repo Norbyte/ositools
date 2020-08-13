@@ -1290,4 +1290,9 @@ namespace dse
 		std::optional<int32_t> GetStat(CDivinityStats_Character * character, FixedString const& name, 
 			bool original, bool baseValues);
 	};
+
+	namespace esv
+	{
+		using ExecutePropertyDataOnGroundHitProc = void(glm::vec3* position, uint64_t casterHandle, DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList, DamageType damageType);
+	}
 }

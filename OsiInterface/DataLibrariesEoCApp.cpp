@@ -1279,6 +1279,19 @@ namespace dse
 			{},
 			{"eoc::AiGrid::SearchForCell", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(eoc__AiGrid__SearchForCell)}
 		},
+
+		{
+			"esv::ExecutePropertyDataOnGroundHit",
+			SymbolMappingData::kText, 0,
+			"49 8D 6B C8 " // lea     rbp, [r11-38h]
+			"48 81 EC 18 01 00 00 " // sub     rsp, 118h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:esv__gLevelManager
+			"4D 8B E8 " // mov     r13, r8
+			"4C 8B F1 " // mov     r14, rcx
+			"4C 8B A0 80 00 00 00 ", // mov     r12, [rax+80h]
+			{},
+			{"esv::ExecutePropertyDataOnGroundHit", SymbolMappingTarget::kAbsolute, -0x12, STATIC_SYM(esv__ExecutePropertyDataOnGroundHit)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

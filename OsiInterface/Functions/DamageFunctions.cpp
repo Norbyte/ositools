@@ -255,8 +255,9 @@ namespace dse::esv
 			return true;
 		}
 
-		DamageHelpers * HelperHandleToHelper(ObjectHandle handle)
+		DamageHelpers * HelperHandleToHelper(int64_t handleInt)
 		{
+			ObjectHandle handle{ handleInt };
 			if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
 				OsiError("Attempted to use handle of type " << handle.GetType() << " in a hit function.");
 				OsiError("For HIT statuses and handles received from NRD_OnHit use the NRD_StatusGet... functions instead!");

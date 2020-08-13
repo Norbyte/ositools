@@ -260,6 +260,9 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__CombineManager__ExecuteCombination.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnCraftingExecuteCombination, this, _1, _2, _3, _4, _5, _6, _7, _8)
 		);
+		osiris_.GetLibraryManager().esv__ExecutePropertyDataOnGroundHit.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnGroundHit, this, _1, _2, _3, _4, _5)
+		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 		);
