@@ -1147,6 +1147,7 @@ end
 --- @param offHandWeapon StatItem   Optional offhand weapon to use in place of the character's.
 function GetSkillDamageRange(character, skill, mainWeapon, offHandWeapon)
     local damageMultiplier = skill['Damage Multiplier'] * 0.01
+    local result
 
     if skill.UseWeaponDamage == "Yes" then
         local mainWeapon = mainWeapon or character.MainWeapon
@@ -1196,7 +1197,7 @@ function GetSkillDamageRange(character, skill, mainWeapon, offHandWeapon)
             mainDamageRange[damageType] = {Min = min, Max = max}
         end
 
-        return mainDamageRange
+        result = mainDamageRange
     else
         local damageType = skill.DamageType
         if damageMultiplier <= 0 then
@@ -1233,8 +1234,16 @@ function GetSkillDamageRange(character, skill, mainWeapon, offHandWeapon)
         damageRanges[damageType] = {
             Min = finalMin, Max = finalMax
         }
-        return damageRanges
+        result = damageRanges
     end
+
+    -- Compatibility hack for old (v50) table format
+    for i,range in pairs(result) do
+        range[1] = range.Min
+        range[2] = range.Max
+    end
+
+    return result
 end
 
 
