@@ -135,7 +135,7 @@ namespace dse
 
 		auto rootPath = PathRoots[(unsigned)root];
 		if (rootPath == nullptr) {
-			ERR("LibraryManager::ToPath(): Path roots not initialized!");
+			ERR("StaticSymbols::ToPath(): Path roots not initialized!");
 			return "";
 		}
 
@@ -147,7 +147,7 @@ namespace dse
 	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
-			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
+			ERR("StaticSymbols::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 
@@ -176,6 +176,11 @@ namespace dse
 		StringView rootPath;
 		GetPrefixForRoot(&rootPath, (unsigned)root);
 
+		if (rootPath.empty()) {
+			ERR("StaticSymbols::ToPath(): Path roots not initialized!");
+			return STDString();
+		}
+
 		STDString absolutePath(rootPath);
 		absolutePath += "/";
 		absolutePath += canonicalPath;
@@ -185,7 +190,7 @@ namespace dse
 	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
 		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
-			ERR("LibraryManager::MakeFileReader(): File reader API not available!");
+			ERR("StaticSymbols::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
 

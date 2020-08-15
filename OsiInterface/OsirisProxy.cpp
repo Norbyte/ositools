@@ -151,19 +151,22 @@ void OsirisProxy::RestartLogging(std::wstring const & Type)
 {
 	DebugFlag NewFlags = (DebugFlag)((config_.DebugFlags & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));
 
-	if (LogFilename.empty() || LogType != Type)
-	{
+	if (LogFilename.empty() || LogType != Type) {
 		LogFilename = MakeLogFilePath(Type, L"log");
 		LogType = Type;
 
-		DEBUG(L"OsirisProxy::RestartLogging: Starting %s debug logging.\r\n"
-			"\tPath=%s", 
-			Type.c_str(), LogFilename.c_str());
+		if (!LogFilename.empty()) {
+			DEBUG(L"OsirisProxy::RestartLogging: Starting %s debug logging.\r\n"
+				"\tPath=%s", Type.c_str(), LogFilename.c_str());
+		}
 	}
 
 	Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
-	*Wrappers.Globals.DebugFlags = NewFlags;
-	Wrappers.OpenLogFile.CallOriginal(DynGlobals.OsirisObject, LogFilename.c_str(), L"ab+");
+
+	if (!LogFilename.empty()) {
+		*Wrappers.Globals.DebugFlags = NewFlags;
+		Wrappers.OpenLogFile.CallOriginal(DynGlobals.OsirisObject, LogFilename.c_str(), L"ab+");
+	}
 }
 
 std::wstring OsirisProxy::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
@@ -368,7 +371,7 @@ bool OsirisProxy::CompileWrapper(std::function<bool(void *, wchar_t const *, wch
 		if (ret) {
 			if (config_.LogCompile) {
 				DeleteFileW(storyPath.c_str());
-			} else {
+			} else if (!LogFilename.empty()) {
 				DeleteFileW(LogFilename.c_str());
 			}
 		}
