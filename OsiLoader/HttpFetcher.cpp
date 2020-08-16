@@ -6,7 +6,9 @@
 
 
 HttpFetcher::HttpFetcher(wchar_t const * host)
+	: host_(host)
 {
+#if !defined(HTTP_CURL)
 	DEBUG("Updater - connecting to update host %s", ToUTF8(host).c_str());
 	session_ = WinHttpOpen(L"OsiLoader/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
@@ -20,16 +22,28 @@ HttpFetcher::HttpFetcher(wchar_t const * host)
 		LogError("WinHttpConnect");
 		return;
 	}
+#endif
 }
 
 HttpFetcher::~HttpFetcher()
 {
+#if !defined(HTTP_CURL)
 	if (httpSession_ != NULL) WinHttpCloseHandle(httpSession_);
 	if (session_ != NULL) WinHttpCloseHandle(session_);
+#endif
 }
 
 
-void HttpFetcher::LogError(char const * activity)
+#if defined(HTTP_CURL)
+void HttpFetcher::LogError(CURLcode result)
+{
+	std::stringstream ss;
+	ss << "(" << result << ") " << curl_easy_strerror(result);
+	lastError_ = ss.str();
+	DEBUG("Updater error: %s", lastError_.c_str());
+}
+#else
+void HttpFetcher::LogError(char const* activity)
 {
 	auto lastError = ::GetLastError();
 	std::stringstream ss;
@@ -38,9 +52,35 @@ void HttpFetcher::LogError(char const * activity)
 	lastError_ = ss.str();
 	DEBUG("Updater error: %s", lastError_.c_str());
 }
+#endif
 
 bool HttpFetcher::Fetch(wchar_t const * path, std::vector<uint8_t> & response)
 {
+#if defined(HTTP_CURL)
+	auto curl = curl_easy_init();
+	std::wstring url = L"https://";
+	url += host_;
+	url += path;
+	curl_easy_setopt(curl, CURLOPT_URL, ToUTF8(url).c_str());
+	curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteFunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+	lastResponse_.clear();
+
+	auto result = curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	if (result != CURLE_OK) {
+		LogError(result);
+		return false;
+	}
+
+	response = lastResponse_;
+	return true;
+#else
 	if (httpSession_ == NULL) {
 		return false;
 	}
@@ -60,10 +100,61 @@ bool HttpFetcher::Fetch(wchar_t const * path, std::vector<uint8_t> & response)
 
 	WinHttpCloseHandle(request);
 	return result;
+#endif
+}
+
+size_t HttpFetcher::WriteFunc(char* contents, size_t size, size_t nmemb, HttpFetcher* self)
+{
+	auto pos = self->lastResponse_.size();
+	self->lastResponse_.resize(self->lastResponse_.size() + size * nmemb);
+	memcpy(self->lastResponse_.data() + pos, contents, size * nmemb);
+	return size * nmemb;
 }
 
 bool HttpFetcher::FetchETag(wchar_t const * path, std::string & etag)
 {
+#if defined(HTTP_CURL)
+	auto curl = curl_easy_init();
+	std::wstring url = L"https://";
+	url += host_;
+	url += path;
+	curl_easy_setopt(curl, CURLOPT_URL, ToUTF8(url).c_str());
+	curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 1);
+	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteFunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+	lastResponse_.clear();
+
+	auto result = curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	if (result != CURLE_OK) {
+		LogError(result);
+		return false;
+	}
+
+	std::string responseStr;
+	responseStr.resize(lastResponse_.size());
+	memcpy(responseStr.data(), lastResponse_.data(), lastResponse_.size());
+
+	auto etagPos = responseStr.find("\r\nETag: ");
+	if (etagPos == std::string::npos) {
+		lastError_ = "Couldn't find ETag header in HTTP response.";
+		return false;
+	}
+
+	auto etagEnd = responseStr.find("\r\n", etagPos + 8);
+	if (etagEnd == std::string::npos) {
+		lastError_ = "Couldn't find ETag header in HTTP response.";
+		return false;
+	}
+
+	etag = responseStr.substr(etagPos + 8, etagEnd - etagPos - 8);
+
+	return true;
+#else
 	if (httpSession_ == NULL) {
 		return false;
 	}
@@ -83,8 +174,10 @@ bool HttpFetcher::FetchETag(wchar_t const * path, std::string & etag)
 
 	WinHttpCloseHandle(request);
 	return result;
+#endif
 }
 
+#if !defined(HTTP_CURL)
 bool HttpFetcher::SendRequest(HINTERNET request, wchar_t const * path)
 {
 	auto sent = WinHttpSendRequest(request, WINHTTP_NO_ADDITIONAL_HEADERS, -1l,
@@ -172,3 +265,4 @@ bool HttpFetcher::FetchETag(HINTERNET request, std::string & etag)
 
 	return true;
 }
+#endif

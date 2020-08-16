@@ -80,7 +80,7 @@ public:
 		std::string etag;
 		DEBUG("Fetching ETag");
 		if (!fetcher.FetchETag(packageUri.c_str(), etag)) {
-			reason = "Something went wrong while checking for Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
+			reason = "Failed to check for for Script Extender updates. Make sure you're connected to the internet and try again\r\n";
 			reason += fetcher.GetLastError();
 			return false;
 		}
@@ -94,7 +94,7 @@ public:
 		DEBUG("Fetching update package: %s", ToUTF8(packageUri).c_str());
 		std::vector<uint8_t> response;
 		if (!fetcher.Fetch(packageUri.c_str(), response)) {
-			reason = "Something went wrong while downloading Script Extender updates. Please make sure you're connected to the internet and try again\r\n";
+			reason = "Failed to download Script Extender updates. Make sure you're connected to the internet and try again\r\n";
 			reason += fetcher.GetLastError();
 			return false;
 		}
