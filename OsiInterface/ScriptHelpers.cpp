@@ -7,7 +7,7 @@ namespace dse::script {
 
 #define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
 
-std::optional<STDString> GetPathForExternalIo(std::string_view scriptPath)
+std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath)
 {
 	STDString path(scriptPath);
 
@@ -33,7 +33,7 @@ std::optional<STDString> GetPathForExternalIo(std::string_view scriptPath)
 		}
 	}
 
-	return storageRoot + "/" + path;
+	return FromUTF8(storageRoot + "/" + path);
 }
 
 std::optional<STDString> LoadExternalFile(std::string_view path)
