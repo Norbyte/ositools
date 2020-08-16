@@ -2456,7 +2456,9 @@ namespace dse::esv::lua
 		} else if (casterHandle.GetType() == (uint32_t)ObjectType::ServerItem) {
 			ObjectProxy<esv::Item>::New(L, casterHandle);
 		} else {
-			OsiError("Cannot push caster handle of type " << casterHandle.GetType());
+			if (casterHandle) {
+				OsiError("Cannot push caster handle of type " << casterHandle.GetType());
+			}
 			push(L, nullptr);
 		}
 
