@@ -111,9 +111,10 @@ public:
 			return false;
 		}
 
-		DEBUG("Checking currently downloaded ETag");
+		DEBUG("Server returned ETag %s", etag.c_str());
 		std::string currentETag = ReadETag();
 		if (currentETag == etag) {
+			DEBUG("Package is already up to date, nothing to do.");
 			return true;
 		}
 
@@ -295,9 +296,15 @@ DWORD WINAPI ClientWorkerSuspenderThread(LPVOID param)
 				suspended = true;
 			}
 
-			if (completed || *state == GameState::Menu) {
-				DEBUG("Resuming client thread");
-				gErrorUtils->ResumeClientThread();
+			if (completed) {
+				if (suspended) {
+					DEBUG("Resuming client thread");
+					gErrorUtils->ResumeClientThread();
+				}
+				break;
+			}
+
+			if (*state == GameState::Menu) {
 				// No update takes place once we reach the menu, exit thread
 				break;
 			}

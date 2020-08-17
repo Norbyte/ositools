@@ -167,6 +167,8 @@ void ErrorUtils::SuspendClientThread() const
 			// The error handler only displays a status message during the loading screen
 			ClientHandleError(L"Checking for Script Extender updates", false);
 		}
+	} else {
+		DEBUG("Could not suspend client thread (thread not found!)");
 	}
 }
 
@@ -179,6 +181,8 @@ void ErrorUtils::ResumeClientThread() const
 			ResumeThread(hThread);
 			CloseHandle(hThread);
 		}
+	} else {
+		DEBUG("Could not resume client thread (thread not found!)");
 	}
 }
 
