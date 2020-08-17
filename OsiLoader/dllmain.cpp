@@ -71,6 +71,32 @@ public:
 		}
 	}
 
+	bool AreDllsWriteable()
+	{
+		auto eocAppPath = extensionPath_ + L"\\OsiExtenderEoCApp.dll";
+		if (PathFileExistsW(eocAppPath.c_str())) {
+			std::ofstream f;
+			f.open(eocAppPath.c_str(), std::ios::out, _SH_DENYRW);
+			if (!f.good()) {
+				DEBUG("OsiExtenderEoCApp.dll not writeable, skipping update.");
+				return false;
+			}
+		}
+
+		auto eocPluginPath = extensionPath_ + L"\\OsiExtenderEoCPlugin.dll";
+		if (PathFileExistsW(eocPluginPath.c_str())) {
+			std::ofstream f;
+			f.open(eocPluginPath.c_str(), std::ios::out, _SH_DENYRW);
+			if (!f.good()) {
+				DEBUG("OsiExtenderEoCPlugin.dll not writeable, skipping update.");
+				return false;
+			}
+		}
+
+		DEBUG("DLL write check OK");
+		return true;
+	}
+
 	bool TryToUpdate(std::string & reason)
 	{
 		HttpFetcher fetcher(UPDATER_HOST);
@@ -102,6 +128,13 @@ public:
 		auto zipPath = extensionPath_ + L"\\Update.zip";
 		DEBUG("Saving update to: %s", ToUTF8(zipPath).c_str());
 		SaveFile(zipPath, response);
+
+		// Check if any of the files are currently in use by the game.
+		// The Zip API won't tell us if it failed to overwrite one of the files, so we need to 
+		// check beforehand that the files are writeable.
+		if (!AreDllsWriteable()) {
+			return true;
+		}
 		
 		std::string unzipReason;
 		DEBUG("Unpacking update to %s", ToUTF8(extensionPath_).c_str());
