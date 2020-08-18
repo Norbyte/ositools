@@ -339,3 +339,4 @@ OsiInterface/ScriptExtensions.pb.h
 OsiInterface/ScriptExtensions.pb.cc
 publish.bat
 publish-release.bat
+package-signer.key

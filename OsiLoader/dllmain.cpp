@@ -3,6 +3,7 @@
 #include "DxgiWrapper.h"
 #include "HttpFetcher.h"
 #include "ErrorUtils.h"
+#include "Crypto.h"
 #include <ZipLib/ZipArchive.h>
 #include <ZipLib/ZipFile.h>
 
@@ -27,6 +28,15 @@ HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder, std::string & rea
 // Switch to toggle between ZipLib and Shell Zip API
 #define USE_ZIPLIB
 
+extern "C" {
+
+int default_CSPRNG(uint8_t* dest, unsigned int size)
+{
+	Fail("Signature verifier should not call CSPRNG");
+}
+
+}
+
 std::string trim(std::string const & s)
 {
 	size_t first = s.find_first_not_of(" \t\r\n");
@@ -37,6 +47,17 @@ std::string trim(std::string const & s)
 	size_t last = s.find_last_not_of(" \t\r\n");
 	return s.substr(first, (last - first + 1));
 }
+
+#pragma pack(push, 1)
+struct PackageSignature
+{
+	static constexpr uint32_t MAGIC_V1 = 'NSE1';
+
+	uint32_t Magic;
+	uint8_t EccSignature[64];
+	uint8_t Unused[192];
+};
+#pragma pack(pop)
 
 class OsiLoader
 {
@@ -107,7 +128,7 @@ public:
 #if defined(USE_ZIPLIB)
 		auto archive = ZipFile::Open(zipPath);
 		if (!archive) {
-			reason = "Unable to open Zip archive, possibly corrupted?";
+			reason = "Script Extender update failed:\r\nUnable to open update package, file possibly corrupted?";
 			return false;
 		}
 
@@ -121,14 +142,16 @@ public:
 			std::ofstream f(outPath.c_str(), std::ios::out | std::ios::binary);
 			if (!f.good()) {
 				DEBUG("Failed to open %s for extraction", entry->GetFullName().c_str());
-				reason = std::string("Failed to open ") + entry->GetFullName() + " for extraction";
+				reason = "Script Extender update failed:\r\n";
+				reason += std::string("Failed to open update package ") + entry->GetFullName() + " for extraction";
 				break;
 			}
 
 			auto stream = entry->GetDecompressionStream();
 			if (!stream) {
 				DEBUG("Failed to decompress %s", entry->GetFullName().c_str());
-				reason = std::string("Failed to decompress ") + entry->GetFullName();
+				reason = "Script Extender update failed:\r\n";
+				reason += std::string("Failed to decompress update package ") + entry->GetFullName();
 				break;
 			}
 
@@ -213,6 +236,11 @@ public:
 		// check beforehand that the files are writeable.
 		if (!AreDllsWriteable()) {
 			return true;
+		}
+
+		if (!CryptoUtils::VerifySignedFile(zipPath, reason)) {
+			DEBUG("Unable to verify package signature: %s", reason.c_str());
+			return false;
 		}
 		
 		std::string unzipReason;
