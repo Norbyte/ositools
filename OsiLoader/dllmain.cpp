@@ -3,6 +3,8 @@
 #include "DxgiWrapper.h"
 #include "HttpFetcher.h"
 #include "ErrorUtils.h"
+#include <ZipLib/ZipArchive.h>
+#include <ZipLib/ZipFile.h>
 
 #include <Shlwapi.h>
 #include <Shlobj.h>
@@ -21,6 +23,9 @@ HRESULT UnzipToFolder(PCWSTR pszZipFile, PCWSTR pszDestFolder, std::string & rea
 #define UPDATER_HOST L"d1ov7wr93ghrd7.cloudfront.net"
 #define UPDATER_PATH_PREFIX L"/"
 #define UPDATER_PATH_POSTFIX L"/Latest.zip"
+
+// Switch to toggle between ZipLib and Shell Zip API
+#define USE_ZIPLIB
 
 std::string trim(std::string const & s)
 {
@@ -97,6 +102,79 @@ public:
 		return true;
 	}
 
+	bool UnzipPackage(std::wstring const& zipPath, std::wstring const& extensionPath, std::string& reason)
+	{
+#if defined(USE_ZIPLIB)
+		auto archive = ZipFile::Open(zipPath);
+		if (!archive) {
+			reason = "Unable to open Zip archive, possibly corrupted?";
+			return false;
+		}
+
+		auto entries = archive->GetEntriesCount();
+		for (auto i = 0; i < entries; i++) {
+			auto entry = archive->GetEntry(i);
+
+			DEBUG("Extracting: %s", entry->GetFullName().c_str());
+
+			auto outPath = extensionPath + L"\\" + FromUTF8(entry->GetFullName());
+			std::ofstream f(outPath.c_str(), std::ios::out | std::ios::binary);
+			if (!f.good()) {
+				DEBUG("Failed to open %s for extraction", entry->GetFullName().c_str());
+				reason = std::string("Failed to open ") + entry->GetFullName() + " for extraction";
+				break;
+			}
+
+			auto stream = entry->GetDecompressionStream();
+			if (!stream) {
+				DEBUG("Failed to decompress %s", entry->GetFullName().c_str());
+				reason = std::string("Failed to decompress ") + entry->GetFullName();
+				break;
+			}
+
+			auto len = entry->GetSize();
+
+			char buf[4096];
+			while (len) {
+				auto chunkSize = std::min(len, std::size(buf));
+				stream->read(buf, chunkSize);
+				f.write(buf, chunkSize);
+				len -= chunkSize;
+			}
+
+			entry->CloseDecompressionStream();
+		}
+
+		return true;
+#else
+		std::string unzipReason;
+		HRESULT hr = UnzipToFolder(zipPath.c_str(), extensionPath_.c_str(), unzipReason);
+		if (hr == S_OK) {
+			return true;
+		}
+
+		if (hr == S_FALSE) {
+			reason = "Unable to extract Script Extender update package.\r\n";
+			reason += unzipReason;
+		} else {
+			_com_error err(hr);
+			LPCTSTR errMsg = err.ErrorMessage();
+
+			std::stringstream ss;
+			ss << "Unable to extract Script Extender update package.\r\n"
+				<< "HRESULT 0x"
+				<< std::hex << std::setw(8) << std::setfill('0') << hr;
+			if (errMsg != nullptr) {
+				ss << ": " << ToUTF8(errMsg);
+			}
+
+			reason = ss.str();
+		}
+
+		return false;
+#endif
+	}
+
 	bool TryToUpdate(std::string & reason)
 	{
 		HttpFetcher fetcher(UPDATER_HOST);
@@ -131,7 +209,7 @@ public:
 		SaveFile(zipPath, response);
 
 		// Check if any of the files are currently in use by the game.
-		// The Zip API won't tell us if it failed to overwrite one of the files, so we need to 
+		// The shell Zip API won't tell us if it failed to overwrite one of the files, so we need to 
 		// check beforehand that the files are writeable.
 		if (!AreDllsWriteable()) {
 			return true;
@@ -139,30 +217,12 @@ public:
 		
 		std::string unzipReason;
 		DEBUG("Unpacking update to %s", ToUTF8(extensionPath_).c_str());
-		HRESULT hr = UnzipToFolder(zipPath.c_str(), extensionPath_.c_str(), unzipReason);
-		if (hr == S_OK) {
+		if (UnzipPackage(zipPath, extensionPath_, reason)) {
 			DEBUG("Saving updated ETag");
 			SaveETag(etag);
 			return true;
 		} else {
-			if (hr == S_FALSE) {
-				reason = "Unable to extract Script Extender update package.\r\n";
-				reason += unzipReason;
-			} else {
-				_com_error err(hr);
-				LPCTSTR errMsg = err.ErrorMessage();
-
-				std::stringstream ss;
-				ss << "Unable to extract Script Extender update package.\r\n"
-					<< "HRESULT 0x"
-					<< std::hex << std::setw(8) << std::setfill('0') << hr;
-				if (errMsg != nullptr) {
-					ss << ": " << ToUTF8(errMsg);
-				}
-
-				reason = ss.str();
-			}
-
+			DEBUG("Unzipping failed: %s", reason.c_str());
 			return false;
 		}
 	}

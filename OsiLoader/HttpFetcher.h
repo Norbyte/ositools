@@ -5,6 +5,7 @@
 #include <string>
 #include <curl/curl.h>
 
+// Switch to toggle between WinHTTP and cURL engines
 #define HTTP_CURL
 
 class HttpFetcher
