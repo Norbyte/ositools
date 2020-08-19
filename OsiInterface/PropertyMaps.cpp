@@ -8,10 +8,49 @@
 namespace dse
 {
 	PropertyMap<esv::Status, void> gStatusPropertyMap;
-	PropertyMap<esv::StatusConsume, esv::Status> gStatusConsumePropertyMap;
+	PropertyMap<esv::StatusConsumeBase, esv::Status> gStatusConsumeBasePropertyMap;
 	PropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
+	PropertyMap<esv::StatusDying, esv::Status> gStatusDyingPropertyMap;
 	PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
+	PropertyMap<esv::StatusCharmed, esv::Status> gStatusCharmedPropertyMap;
+	PropertyMap<esv::StatusKnockedDown, esv::Status> gStatusKnockedDownPropertyMap;
+	PropertyMap<esv::StatusSummoning, esv::Status> gStatusSummoningPropertyMap;
 	PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
+	PropertyMap<esv::StatusThrown, esv::Status> gStatusThrownPropertyMap;
+	PropertyMap<esv::StatusTeleportFall, esv::Status> gStatusTeleportFallPropertyMap;
+	PropertyMap<esv::StatusCombat, esv::Status> gStatusCombatPropertyMap;
+	PropertyMap<esv::StatusAoO, esv::Status> gStatusAoOPropertyMap;
+	PropertyMap<esv::StatusSneaking, esv::Status> gStatusSneakingPropertyMap;
+	PropertyMap<esv::StatusUnlock, esv::Status> gStatusUnlockPropertyMap;
+	PropertyMap<esv::StatusBoost, esv::Status> gStatusBoostPropertyMap;
+	PropertyMap<esv::StatusUnsheathed, esv::Status> gStatusUnsheathedPropertyMap;
+	PropertyMap<esv::StatusStance, esv::StatusConsumeBase> gStatusStancePropertyMap;
+	PropertyMap<esv::StatusLying, esv::Status> gStatusLyingPropertyMap;
+	PropertyMap<esv::StatusInfectiousDiseased, esv::StatusConsumeBase> gStatusInfectiousDiseasedPropertyMap;
+	PropertyMap<esv::StatusInvisible, esv::StatusConsumeBase> gStatusInvisiblePropertyMap;
+	PropertyMap<esv::StatusRotate, esv::Status> gStatusRotatePropertyMap;
+	PropertyMap<esv::StatusIdentify, esv::Status> gStatusIdentifyPropertyMap;
+	PropertyMap<esv::StatusRepair, esv::Status> gStatusRepairPropertyMap;
+	PropertyMap<esv::StatusMaterial, esv::Status> gStatusMaterialPropertyMap;
+	PropertyMap<esv::StatusExplode, esv::Status> gStatusExplodePropertyMap;
+	PropertyMap<esv::StatusAdrenaline, esv::StatusConsumeBase> gStatusAdrenalinePropertyMap;
+	PropertyMap<esv::StatusShacklesOfPain, esv::StatusConsumeBase> gStatusShacklesOfPainPropertyMap;
+	PropertyMap<esv::StatusShacklesOfPainCaster, esv::StatusConsumeBase> gStatusShacklesOfPainCasterPropertyMap;
+	PropertyMap<esv::StatusDrain, esv::Status> gStatusDrainPropertyMap;
+	PropertyMap<esv::StatusSpiritVision, esv::StatusConsumeBase> gStatusSpiritVisionPropertyMap;
+	PropertyMap<esv::StatusSpirit, esv::Status> gStatusSpiritPropertyMap;
+	PropertyMap<esv::StatusDamage, esv::StatusConsumeBase> gStatusDamagePropertyMap;
+	PropertyMap<esv::StatusClimbing, esv::Status> gStatusClimbingPropertyMap;
+	PropertyMap<esv::StatusIncapacitated, esv::StatusConsumeBase> gStatusIncapacitatedPropertyMap;
+	PropertyMap<esv::StatusInSurface, esv::Status> gStatusInSurfacePropertyMap;
+	PropertyMap<esv::StatusPolymorphed, esv::StatusConsumeBase> gStatusPolymorphedPropertyMap;
+	PropertyMap<esv::StatusDamageOnMove, esv::StatusDamage> gStatusDamageOnMovePropertyMap;
+	PropertyMap<esv::StatusChallenge, esv::StatusConsumeBase> gStatusChallengePropertyMap;
+	PropertyMap<esv::StatusHealSharing, esv::StatusConsumeBase> gStatusHealSharingPropertyMap;
+	PropertyMap<esv::StatusHealSharingCaster, esv::StatusConsumeBase> gStatusHealSharingCasterPropertyMap;
+	PropertyMap<esv::StatusActiveDefense, esv::StatusConsume> gStatusActiveDefensePropertyMap;
+	PropertyMap<esv::StatusSpark, esv::StatusConsume> gStatusSparkPropertyMap;
+
 	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
 	PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
 	PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
@@ -123,24 +162,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusHitPropertyMap, esv::StatusHit);
-			propertyMap.Parent = &gStatusPropertyMap;
-			PROP_RO(HitByHandle);
-			PROP_RO(HitWithHandle);
-			PROP_RO(WeaponHandle);
-			PROP(HitReason);
-			PROP(SkillId);
-			PROP(Interruption);
-			PROP(AllowInterruptAction);
-			PROP(ForceInterrupt);
-			PROP_RO(DecDelayDeathCount);
-			PROP(ImpactPosition);
-			PROP(ImpactOrigin);
-			PROP(ImpactDirection);
-		}
-
-		{
-			BEGIN_PROPERTIES(gStatusConsumePropertyMap, esv::StatusConsume);
+			BEGIN_PROPERTIES(gStatusConsumeBasePropertyMap, esv::StatusConsumeBase);
 			propertyMap.Parent = &gStatusPropertyMap;
 			// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
 			PROP(ResetAllCooldowns);
@@ -162,16 +184,39 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusHealingPropertyMap, esv::StatusHeal);
-			propertyMap.Parent = &gStatusConsumePropertyMap;
-			PROP(HealAmount);
-			PROP(TimeElapsed);
-			PROP_ENUM(HealEffect);
-			PROP(HealEffectId);
-			PROP(SkipInitialEffect);
-			PROP(HealingEvent);
-			PROP_ENUM(HealStat);
-			PROP(AbsorbSurfaceRange);
+			BEGIN_PROPERTIES(gStatusHitPropertyMap, esv::StatusHit);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP_RO(HitByHandle);
+			PROP_RO(HitWithHandle);
+			PROP_RO(WeaponHandle);
+			PROP(HitReason);
+			PROP(SkillId);
+			PROP(Interruption);
+			PROP(AllowInterruptAction);
+			PROP(ForceInterrupt);
+			PROP_RO(DecDelayDeathCount);
+			PROP(ImpactPosition);
+			PROP(ImpactOrigin);
+			PROP(ImpactDirection);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusDyingPropertyMap, esv::StatusDying);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(SourceHandle);
+			PROP(SourceType);
+			PROP_ENUM(DeathType);
+			PROP(AttackDirection);
+			PROP(ImpactDirection);
+			PROP(IsAlreadyDead);
+			PROP(DieActionsCompleted);
+			PROP(ForceNoGhost);
+			PROP(SkipAnimation);
+			PROP(DontThrowDeathEvent);
+			PROP(InflicterHandle);
+			PROP(DisputeTargetHandle);
+			PROP_RO(CombatId);
+			PROP(IgnoreGodMode);
 		}
 
 		{
@@ -184,6 +229,318 @@ namespace dse
 			PROP_ENUM(HealType);
 			PROP(AbsorbSurfaceRange);
 			PROP(TargetDependentHeal);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusCharmedPropertyMap, esv::StatusCharmed);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP_RO(UserId);
+			PROP_RO(OriginalOwnerCharacterHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusKnockedDownPropertyMap, esv::StatusKnockedDown);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP_RO(KnockedDownState);
+			PROP(IsInstant);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusSummoningPropertyMap, esv::StatusSummoning);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP_RO(AnimationDuration);
+			PROP(SummonLevel);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusHealingPropertyMap, esv::StatusHeal);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(HealAmount);
+			PROP(TimeElapsed);
+			PROP_ENUM(HealEffect);
+			PROP(HealEffectId);
+			PROP(SkipInitialEffect);
+			PROP(HealingEvent);
+			PROP_ENUM(HealStat);
+			PROP(AbsorbSurfaceRange);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusThrownPropertyMap, esv::StatusThrown);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Level);
+			PROP(CasterHandle);
+			PROP_RO(AnimationDuration);
+			PROP(IsThrowingSelf);
+			PROP(LandingEstimate);
+			PROP(Landed);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusTeleportFallPropertyMap, esv::StatusTeleportFall);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Target);
+			PROP(ReappearTime);
+			PROP(SkillId);
+			PROP(HasDamage);
+			PROP(HasDamageBeenApplied);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusCombatPropertyMap, esv::StatusCombat);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP_RO(ReadyForCombat);
+			PROP_RO(OwnerTeamId);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusAoOPropertyMap, esv::StatusAoO);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(SourceHandle);
+			PROP(TargetHandle);
+			PROP(PartnerHandle);
+			PROP(ActivateAoOBoost);
+			PROP(ShowOverhead);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusSneakingPropertyMap, esv::StatusSneaking);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(ClientRequestStop);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusUnlockPropertyMap, esv::StatusUnlock);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(SourceHandle);
+			PROP(Key);
+			PROP(Level);
+			PROP(Unlocked);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusBoostPropertyMap, esv::StatusBoost);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(EffectTime);
+			PROP(BoostId);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusUnsheathedPropertyMap, esv::StatusUnsheathed);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Force);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusStancePropertyMap, esv::StatusStance);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(SkillId);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusLyingPropertyMap, esv::StatusLying);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(ItemHandle);
+			PROP(Position);
+			PROP(Index);
+			PROP(TimeElapsed);
+			PROP(Heal);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusInfectiousDiseasedPropertyMap, esv::StatusInfectiousDiseased);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(Infections);
+			PROP(InfectTimer);
+			PROP(Radius);
+			PROP(TargetHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusInvisiblePropertyMap, esv::StatusInvisible);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(InvisiblePosition);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusRotatePropertyMap, esv::StatusRotate);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Yaw);
+			PROP(RotationSpeed);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusIdentifyPropertyMap, esv::StatusIdentify);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Level);
+			PROP(Identified);
+			PROP(IdentifierHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusRepairPropertyMap, esv::StatusRepair);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Level);
+			PROP(Repaired);
+			PROP(RepairerHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusMaterialPropertyMap, esv::StatusMaterial);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(MaterialUUID);
+			PROP_FLAGS(ApplyFlags, esv::StatusMaterialApplyFlags, true);
+			PROP(IsOverlayMaterial);
+			PROP(Fading);
+			PROP(ApplyNormalMap);
+			PROP(Force);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusExplodePropertyMap, esv::StatusExplode);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Projectile);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusAdrenalinePropertyMap, esv::StatusAdrenaline);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(InitialAPMod);
+			PROP(SecondaryAPMod);
+			PROP(CombatTurn);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusShacklesOfPainPropertyMap, esv::StatusShacklesOfPain);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(CasterHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusShacklesOfPainCasterPropertyMap, esv::StatusShacklesOfPainCaster);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(VictimHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusAdrenalinePropertyMap, esv::StatusAdrenaline);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(InitialAPMod);
+			PROP(SecondaryAPMod);
+			PROP(CombatTurn);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusDrainPropertyMap, esv::StatusDrain);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(Infused);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusSpiritVisionPropertyMap, esv::StatusSpiritVision);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(SpiritVisionSkillId);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusSpiritPropertyMap, esv::StatusSpirit);
+			propertyMap.Parent = &gStatusPropertyMap;
+			// TODO - Characters
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusDamagePropertyMap, esv::StatusDamage);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(DamageEvent);
+			PROP(HitTimer);
+			PROP(TimeElapsed);
+			PROP(DamageLevel);
+			PROP(DamageStats);
+			PROP(SpawnBlood);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusClimbingPropertyMap, esv::StatusClimbing);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(MoveDirection);
+			PROP(LadderHandle);
+			PROP(Level);
+			PROP(Status);
+			PROP(Direction);
+			PROP(JumpUpLadders);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusIncapacitatedPropertyMap, esv::StatusIncapacitated);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(CurrentFreezeTime);
+			PROP(FreezeTime);
+			PROP(FrozenFlag);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusInSurfacePropertyMap, esv::StatusInSurface);
+			propertyMap.Parent = &gStatusPropertyMap;
+			PROP(SurfaceTimerCheck);
+			PROP(SurfaceDistanceCheck);
+			PROP(Translate);
+			PROP(Force);
+			PROP_FLAGS(Layers, ESurfaceFlag, true);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusPolymorphedPropertyMap, esv::StatusPolymorphed);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(OriginalTemplate);
+			PROP(TransformedRace);
+			PROP(OriginalTemplateType);
+			PROP(PolymorphResult);
+			PROP(DisableInteractions);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusDamageOnMovePropertyMap, esv::StatusDamageOnMove);
+			propertyMap.Parent = &gStatusDamagePropertyMap;
+			PROP(DistancePerDamage);
+			PROP(DistanceTraveled);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusChallengePropertyMap, esv::StatusChallenge);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(SourceHandle);
+			PROP(Target);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusHealSharingPropertyMap, esv::StatusHealSharing);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(CasterHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusHealSharingCasterPropertyMap, esv::StatusHealSharingCaster);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(TargetHandle);
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusActiveDefensePropertyMap, esv::StatusActiveDefense);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(Charges);
+			PROP(TargetPos);
+			PROP(TargetHandle);
+			PROP(Radius);
+			PROP(Projectile);
+			// TODO - Conditions, PreviousTargets
+		}
+
+		{
+			BEGIN_PROPERTIES(gStatusSparkPropertyMap, esv::StatusSpark);
+			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
+			PROP(Charges);
+			PROP(Radius);
+			PROP(Projectile);
 		}
 
 		{

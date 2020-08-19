@@ -108,6 +108,38 @@ namespace dse
 			StatusFlags1 Flags1; // Saved
 		};
 
+		struct StatusConsumeBase : public Status
+		{
+			ObjectSet<FixedString> Skill; // Saved
+			ObjectSet<FixedString> Items; // Saved
+			ObjectSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
+			bool ResetAllCooldowns; // Saved
+			bool ResetOncePerCombat; // Saved
+			bool ScaleWithVitality; // Saved
+			bool LoseControl; // Saved
+			FixedString ApplyStatusOnTick;
+			ObjectSet<ObjectHandle> ItemHandles; // Saved
+			float EffectTime; // Saved
+			FixedString StatsId; // Saved
+			ObjectSet<void*> StatsIDs; // Set<StatsData>
+			FixedString StackId;
+			FixedString OriginalWeaponStatsId;
+			FixedString OverrideWeaponStatsId;
+			ObjectHandle OverrideWeaponHandle;
+			int AttributeHandle;
+			int SavingThrow; // TODO enum + enum prop!
+			Vector3 SourceDirection; // Saved
+			ObjectSet<void*> SurfaceChangeSet; // Set<SurfaceChange>
+			int Turn; // Saved
+			int field_1AC;
+			Status* AuraStatus; // Saved
+			HealEffect HealEffectOverride; // Saved
+			bool Poisoned;
+			char field_1BD;
+			char field_1BE;
+			char field_1BF;
+		};
+
 		struct StatusVMT
 		{
 			void* Destroy;
@@ -177,6 +209,26 @@ namespace dse
 			uint32_t Unk4;
 		};
 
+		struct StatusDying : public Status
+		{
+			ObjectHandle SourceHandle;
+			int SourceType;
+			DeathType DeathType;
+			int AttackDirection;
+			glm::vec3 ImpactDirection;
+			bool IsAlreadyDead;
+			bool DieActionsCompleted;
+			bool field_B2;
+			bool ForceNoGhost;
+			bool SkipAnimation;
+			bool DontThrowDeathEvent;
+			ObjectHandle InflicterHandle;
+			ObjectHandle DisputeTargetHandle;
+			ObjectHandle OH4;
+			uint8_t CombatId;
+			bool IgnoreGodMode;
+		};
+
 		struct StatusHeal : public Status
 		{
 			float EffectTime;
@@ -193,39 +245,27 @@ namespace dse
 			uint32_t Unkn3;
 		};
 
-		struct StatusConsume : public Status
+		struct StatusMuted : public StatusConsumeBase {};
+
+		struct StatusCharmed : public StatusConsumeBase
 		{
-			ObjectSet<FixedString> Skill; // Saved
-			ObjectSet<FixedString> Items; // Saved
-			ObjectSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
-			bool ResetAllCooldowns; // Saved
-			bool ResetOncePerCombat; // Saved
-			bool ScaleWithVitality; // Saved
-			bool LoseControl; // Saved
-			FixedString ApplyStatusOnTick;
-			ObjectSet<ObjectHandle> ItemHandles; // Saved
-			float EffectTime; // Saved
-			FixedString StatsId; // Saved
-			ObjectSet<void *> StatsIDs; // Set<StatsData>
-			FixedString StackId;
-			FixedString OriginalWeaponStatsId;
-			FixedString OverrideWeaponStatsId;
-			ObjectHandle OverrideWeaponHandle;
-			int AttributeHandle;
-			int SavingThrow; // TODO enum + enum prop!
-			Vector3 SourceDirection; // Saved
-			ObjectSet<void *> SurfaceChangeSet; // Set<SurfaceChange>
-			int Turn; // Saved
-			int field_1AC;
-			Status * AuraStatus; // Saved
-			HealEffect HealEffectOverride; // Saved
-			bool Poisoned;
-			char field_1BD;
-			char field_1BE;
-			char field_1BF;
+			uint32_t UserId;
+			ObjectHandle OriginalOwnerCharacterHandle;
 		};
 
-		struct StatusHealing : public StatusConsume
+		struct StatusKnockedDown : public Status
+		{
+			int KnockedDownState; // Saved
+			bool IsInstant; // Saved
+		};
+
+		struct StatusSummoning : public Status
+		{
+			float AnimationDuration;
+			int SummonLevel; // Saved
+		};
+
+		struct StatusHealing : public StatusConsumeBase
 		{
 			uint32_t HealAmount; // Saved
 			float TimeElapsed; // Saved
@@ -237,7 +277,196 @@ namespace dse
 			uint32_t AbsorbSurfaceRange; // Saved
 		};
 
-		struct StatusDamage : public StatusConsume
+		struct StatusThrown : public Status
+		{
+			int Level;
+			ObjectHandle CasterHandle;
+			float AnimationDuration;
+			bool IsThrowingSelf; // Saved
+			float LandingEstimate; // Saved
+			bool Landed; // Saved
+		};
+
+		struct StatusTeleportFall : public Status
+		{
+			glm::vec3 Target; // Saved
+			float ReappearTime; // Saved
+			FixedString SkillId; // Saved
+			bool HasDamage; // Saved
+			bool HasDamageBeenApplied; // Saved
+		};
+
+		struct StatusConsume : public StatusConsumeBase {};
+
+		struct StatusCombat : public Status
+		{
+			bool ReadyForCombat; // Saved
+			float field_94;
+			int OwnerTeamId; // Saved
+			__int64 field_A0;
+		};
+
+		struct StatusAoO : public Status
+		{
+			ObjectHandle SourceHandle; // Saved
+			ObjectHandle TargetHandle; // Saved
+			ObjectHandle PartnerHandle; // Saved
+			bool ActivateAoOBoost; // Saved
+			bool ShowOverhead; // Saved
+		};
+
+		struct StatusStoryFrozen : public Status {};
+
+		struct StatusSneaking : public Status
+		{
+			bool ClientRequestStop; // Saved
+		};
+
+		struct StatusUnlock : public Status
+		{
+			ObjectHandle SourceHandle; // Saved
+			FixedString Key;
+			int Level; // Saved
+			int Unlocked; // Saved
+		};
+
+		struct StatusFear : public StatusConsumeBase {};
+
+		struct StatusBoost : public Status
+		{
+			float EffectTime; // Saved
+			FixedString BoostId; // Saved
+		};
+
+		struct StatusUnsheathed : public Status
+		{
+			bool Force; // Saved
+		};
+
+		struct StatusStance : public StatusConsumeBase
+		{
+			FixedString SkillId; // Saved
+		};
+
+		struct StatusLying : public Status
+		{
+			ObjectHandle ItemHandle; // Saved
+			glm::vec3 Position; // Saved
+			int Index; // Saved
+			int field_A8;
+			float TimeElapsed; // Saved
+			float Heal; // Saved
+		};
+
+		struct StatusBlind : public StatusConsumeBase {};
+
+		struct StatusSmelly : public Status {};
+
+		struct StatusClean : public Status {};
+
+		struct StatusInfectiousDiseased : public StatusConsumeBase
+		{
+			int Infections; // Saved
+			float InfectTimer; // Saved
+			float Radius;
+			ObjectHandle TargetHandle; // Saved
+		};
+
+		struct StatusInvisible : public StatusConsumeBase
+		{
+			glm::vec3 InvisiblePosition; // Saved
+		};
+
+		struct StatusRotate : public Status
+		{
+			float Yaw; // Saved
+			float RotationSpeed; // Saved
+		};
+
+		struct StatusEncumbered : public StatusConsumeBase {};
+
+		struct StatusIdentify : public Status
+		{
+			int Level; // Saved
+			int Identified; // Saved
+			ObjectHandle IdentifierHandle; // Saved
+		};
+
+		struct StatusRepair : public Status
+		{
+			int Level; // Saved
+			int Repaired; // Saved
+			ObjectHandle RepairerHandle; // Saved
+		};
+
+		struct StatusMaterial : public Status
+		{
+			FixedString MaterialUUID; // Saved
+			StatusMaterialApplyFlags ApplyFlags; // Saved
+			bool IsOverlayMaterial; // Saved
+			bool Fading; // Saved
+			bool ApplyNormalMap; // Saved
+			bool Force; // Saved
+		};
+
+		struct StatusLeadership : public StatusConsumeBase {}; 
+		
+		struct StatusExplode : public Status
+		{
+			FixedString Projectile; // Saved
+		};
+
+		struct StatusAdrenaline : public StatusConsumeBase
+		{
+			int InitialAPMod; // Saved
+			int SecondaryAPMod; // Saved
+			int CombatTurn; // Saved
+		};
+
+		struct StatusShacklesOfPain : public StatusConsumeBase
+		{
+			ObjectHandle CasterHandle; // Saved
+		};
+
+		struct StatusShacklesOfPainCaster : public StatusConsumeBase
+		{
+			ObjectHandle VictimHandle; // Saved
+		};
+
+		struct StatusWindWalker : public StatusConsumeBase {};
+
+		struct StatusDarkAvenger : public StatusConsumeBase {};
+
+		struct StatusRemorse : public StatusConsumeBase {};
+
+		struct StatusDecayingTouch : public StatusConsumeBase {};
+
+		struct StatusUnhealable : public Status {};
+
+		struct StatusFlanked : public Status {};
+
+		struct StatusChanneling : public StatusStance {};
+
+		struct StatusDrain : public Status
+		{
+			int Infused; // Saved
+		};
+
+		struct StatusLingeringWounds : public StatusConsumeBase {};
+
+		struct StatusInfused : public Status {};
+
+		struct StatusSpiritVision : public StatusConsumeBase
+		{
+			FixedString SpiritVisionSkillId; // Saved
+		};
+
+		struct StatusSpirit : public Status
+		{
+			ObjectSet<ObjectHandle> Characters; // Saved
+		};
+
+		struct StatusDamage : public StatusConsumeBase
 		{
 			int32_t DamageEvent; // Saved
 			float HitTimer; // Saved
@@ -247,25 +476,115 @@ namespace dse
 			bool SpawnBlood; // Saved
 		};
 
+		struct StatusForceMove : public StatusConsumeBase {};
+
+		struct StatusClimbing : public Status
+		{
+			void* LadderData;
+			int LadderData2;
+			glm::vec3 MoveDirection;
+			ObjectHandle LadderHandle; // Saved
+			FixedString Level; // Saved
+			int Status; // Saved
+			bool Direction; // Saved
+			bool JumpUpLadders;
+			bool Incapacitated;
+			bool Started;
+		};
+		
+		struct StatusIncapacitated : public StatusConsumeBase
+		{
+			float CurrentFreezeTime;
+			float FreezeTime;
+			uint8_t FrozenFlag;
+		};
+
+		struct StatusInSurface : public Status
+		{
+			float SurfaceTimerCheck; // Saved
+			float SurfaceDistanceCheck; // Saved
+			glm::vec3 Translate; // Saved
+			bool Force; // Saved
+			ESurfaceFlag Layers; // Saved
+		};
+
+		struct StatusSourceMuted : public Status {};
+
+		struct StatusOverpowered : public StatusConsumeBase {};
+
+		struct StatusCombustion : public StatusConsumeBase {};
+
+		struct StatusPolymorphed : public StatusConsumeBase
+		{
+			FixedString OriginalTemplate; // Saved
+			FixedString TransformedRace; // Saved
+			int OriginalTemplateType; // Saved
+			FixedString PolymorphResult; // Saved
+			bool DisableInteractions; // Saved
+		};
 
 		struct StatusDamageOnMove : public StatusDamage
 		{
 			float DistancePerDamage; // Saved
 			float DistanceTraveled; // Saved
-			FixedString _Unknown;
 		};
-			
-		struct StatusActiveDefense : public StatusConsume
+
+		struct StatusDemonicBargain : public Status {};
+
+		struct StatusGuardianAngel : public StatusConsumeBase {};
+
+		struct StatusFloating : public StatusConsumeBase {};
+
+		struct StatusChallenge : public StatusConsumeBase
 		{
-			int Charges;
-			Vector3 TargetPos;
-			ObjectHandle TargetHandle;
-			int _Unkn10;
-			FixedString FixedStr;
-			uint64_t _Unkn1011;
-			ObjectSet<void *> Targets; // ObjectSet<StatusActiveDefenseTargetData>
-			ObjectSet<ObjectHandle> PreviousTargets;
+			ObjectHandle SourceHandle; // Saved
+			bool Target; // Saved
 		};
+
+		struct StatusDisarmed : public StatusConsumeBase {};
+
+		struct StatusHealSharing : public StatusConsumeBase
+		{
+			ObjectHandle CasterHandle; // Saved
+		};
+
+		struct StatusHealSharingCaster : public StatusConsumeBase
+		{
+			ObjectHandle TargetHandle; // Saved
+		};
+
+		struct StatusExtraTurn : public StatusConsumeBase {};
+
+		struct StatusActiveDefense : public StatusConsumeBase
+		{
+			int Charges; // Saved
+			Vector3 TargetPos; // Saved
+			ObjectHandle TargetHandle; // Saved
+			float Radius;
+			FixedString Projectile;
+			CDivinityStats_Condition* TargetConditions;
+			ObjectSet<void *> Targets; // ObjectSet<StatusActiveDefenseTargetData>
+			ObjectSet<ObjectHandle> PreviousTargets; // Saved
+		};
+
+		struct StatusSpark : public StatusConsumeBase
+		{
+			int Charges; // Saved
+			float Radius;
+			FixedString Projectile;
+			CDivinityStats_Condition* TargetConditions;
+			ObjectSet<void*> SparkTargetData;
+		};
+
+		struct StatusPlayDead : public StatusConsumeBase {};
+
+		struct StatusConstrained : public StatusLying {};
+
+		struct StatusEffect : public Status {};
+
+		struct StatusDeactivated : public StatusConsumeBase {};
+
+		struct StatusTutorialBed : public Status {};
 
 
 		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Unknown>
