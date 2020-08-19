@@ -299,13 +299,13 @@ local ProjectileTemplate = {}
 --- StatusFlags2
 --- @field public ForceStatus boolean
 --- @field public ForceFailStatus boolean
+--- @field public RequestClientUpdate boolean
 --- @field public RequestDelete boolean
 --- @field public RequestDeleteAtTurnEnd boolean
 --- @field public Started boolean
-local EsvStatus = {
-}
+local EsvStatus = {}
 
---- @class EsvStatusHIT : EsvStatus
+--- @class EsvStatusHit : EsvStatus
 --- @field public HitByHandle integer
 --- @field public HitWithHandle integer
 --- @field public WeaponHandle integer
@@ -318,10 +318,9 @@ local EsvStatus = {
 --- @field public ImpactPosition number[]
 --- @field public ImpactOrigin number[]
 --- @field public ImpactDirection number[]
-local EsvStatusHIT = {
-}
+local EsvStatusHit = {}
 
---- @class EsvStatusCONSUME : EsvStatus
+--- @class EsvStatusConsumeBase : EsvStatus
 --- TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
 --- @field public ResetAllCooldowns boolean
 --- @field public ResetOncePerCombat boolean
@@ -339,10 +338,53 @@ local EsvStatusHIT = {
 --- @field public Turn integer
 --- @field public HealEffectOverride string See HealEffect enumeration
 --- @field public Poisoned boolean
-local EsvStatusCONSUME = {
-}
+local EsvStatusConsumeBase = {}
 
---- @class EsvStatusHEALING : EsvStatus
+--- @class EsvStatusDying : EsvStatus
+--- @field public SourceHandle integer
+--- @field public SourceType integer
+--- @field public DeathType string See DeathType enumeration
+--- @field public AttackDirection integer
+--- @field public ImpactDirection number[]
+--- @field public IsAlreadyDead boolean
+--- @field public DieActionsCompleted boolean
+--- @field public ForceNoGhost boolean
+--- @field public SkipAnimation boolean
+--- @field public DontThrowDeathEvent boolean
+--- @field public InflicterHandle integer
+--- @field public DisputeTargetHandle integer
+--- @field public CombatId integer
+--- @field public IgnoreGodMode boolean
+local EsvStatusDying = {}
+
+--- @class EsvStatusHeal : EsvStatus
+--- @field public EffectTime number
+--- @field public HealAmount integer
+--- @field public HealEffect string See HealEffect enumeration
+--- @field public HealEffectId string
+--- @field public HealType string See StatusHealType enumeration
+--- @field public AbsorbSurfaceRange integer
+--- @field public TargetDependentHeal boolean
+local EsvStatusHeal = {}
+
+--- @class EsvStatusMuted : EsvStatusConsumeBase
+
+--- @class EsvStatusCharmed : EsvStatusConsumeBase
+--- @field public UserId integer
+--- @field public OriginalOwnerCharacterHandle integer
+local EsvStatusCharmed = {}
+
+--- @class EsvStatusKnockedDown : EsvStatus
+--- @field public KnockedDownState integer
+--- @field public IsInstant boolean
+local EsvStatusKnockedDown = {}
+
+--- @class EsvStatusSummoning : EsvStatus
+--- @field public AnimationDuration number
+--- @field public SummonLevel integer
+local EsvStatusSummoning = {}
+
+--- @class EsvStatusHealing : EsvStatus
 --- @field public HealAmount integer
 --- @field public TimeElapsed number
 --- @field public HealEffect string See HealEffect enumeration
@@ -351,19 +393,273 @@ local EsvStatusCONSUME = {
 --- @field public HealingEvent number
 --- @field public HealStat string See StatusHealType enumeration
 --- @field public AbsorbSurfaceRange integer
-local EsvStatusHEALING = {
-}
+local EsvStatusHealing = {}
 
---- @class EsvStatusHEAL : EsvStatus
+--- @class EsvStatusThrown : EsvStatus
+--- @field public Level integer
+--- @field public CasterHandle integer
+--- @field public AnimationDuration number
+--- @field public IsThrowingSelf boolean
+--- @field public LandingEstimate number
+--- @field public Landed boolean
+local EsvStatusThrown = {}
+
+--- @class EsvStatusTeleportFall : EsvStatus
+--- @field public Target number[]
+--- @field public ReappearTime number
+--- @field public SkillId string
+--- @field public HasDamage boolean
+--- @field public HasDamageBeenApplied boolean
+local EsvStatusTeleportFall = {}
+
+--- @class EsvStatusConsume : EsvStatusConsumeBase
+
+--- @class EsvStatusCombat : EsvStatus
+--- @field public ReadyForCombat boolean
+--- @field public OwnerTeamId integer
+local EsvStatusCombat = {}
+
+--- @class EsvStatusAoO : EsvStatus
+--- @field public SourceHandle integer
+--- @field public TargetHandle integer
+--- @field public PartnerHandle integer
+--- @field public ActivateAoOBoost boolean
+--- @field public ShowOverhead boolean
+local EsvStatusAoO = {}
+
+--- @class EsvStatusStoryFrozen : EsvStatus
+
+--- @class EsvStatusSneaking : EsvStatus
+--- @field public ClientRequestStop boolean
+local EsvStatusSneaking = {}
+
+--- @class EsvStatusUnlock : EsvStatus
+--- @field public SourceHandle integer
+--- @field public Key string
+--- @field public Level integer
+--- @field public Unlocked integer
+local EsvStatusUnlock = {}
+
+--- @class EsvStatusFear : EsvStatus
+
+--- @class EsvStatusBoost : EsvStatus
 --- @field public EffectTime number
---- @field public HealAmount integer
---- @field public HealEffect string See HealEffect enumeration
---- @field public HealEffectId string
---- @field public HealType string See StatusHealType enumeration
---- @field public AbsorbSurfaceRange integer
---- @field public TargetDependentHeal boolean
-local EsvStatusHEAL = {
-}
+--- @field public BoostId string
+local EsvStatusBoost = {}
+
+--- @class EsvStatusUnsheathed : EsvStatus
+--- @field public Force boolean
+local EsvStatusUnsheathed = {}
+
+--- @class EsvStatusStance : EsvStatusConsumeBase
+--- @field public SkillId string
+local EsvStatusStance = {}
+
+--- @class EsvStatusLying : EsvStatus
+--- @field public ItemHandle integer
+--- @field public Position number[]
+--- @field public Index integer
+--- @field public TimeElapsed number
+--- @field public Heal number
+local EsvStatusLying = {}
+
+--- @class EsvStatusBlind : EsvStatusConsumeBase
+
+--- @class EsvStatusSmelly : EsvStatus
+
+--- @class EsvStatusClean : EsvStatus
+
+--- @class EsvStatusInfectiousDiseased : EsvStatusConsumeBase
+--- @field public Infections integer
+--- @field public InfectTimer number
+--- @field public Radius number
+--- @field public TargetHandle integer
+local EsvStatusInfectiousDiseased = {}
+
+--- @class EsvStatusInvisible : EsvStatusConsumeBase
+--- @field public InvisiblePosition number[]
+local EsvStatusInvisible = {}
+
+--- @class EsvStatusRotate : EsvStatus
+--- @field public Yaw number
+--- @field public RotationSpeed number
+local EsvStatusRotate = {}
+
+--- @class EsvStatusEncumbered : EsvStatusConsumeBase
+
+--- @class EsvStatusIdentify : EsvStatus
+--- @field public Level integer
+--- @field public Identified integer
+--- @field public IdentifierHandle integer
+local EsvStatusIdentify = {}
+
+--- @class EsvStatusRepair : EsvStatus
+--- @field public Level integer
+--- @field public Repaired integer
+--- @field public RepairerHandle integer
+local EsvStatusRepair = {}
+
+--- @class EsvStatusMaterial : EsvStatus
+--- @field public MaterialUUID string
+--- @field public ApplyOnBody boolean
+--- @field public ApplyOnArmor boolean
+--- @field public ApplyOnWeapon boolean
+--- @field public ApplyOnWings boolean
+--- @field public ApplyOnHorns boolean
+--- @field public ApplyOnOverhead boolean
+--- @field public IsOverlayMaterial boolean
+--- @field public Fading boolean
+--- @field public ApplyNormalMap boolean
+--- @field public Force boolean
+local EsvStatusMaterial = {}
+
+--- @class EsvStatusLeadership : EsvStatusConsumeBase
+
+--- @class EsvStatusExplode : EsvStatus
+--- @field public Projectile string
+local EsvStatusExplode = {}
+
+--- @class EsvStatusAdrenaline : EsvStatusConsumeBase
+--- @field public InitialAPMod integer
+--- @field public SecondaryAPMod integer
+--- @field public CombatTurn integer
+local EsvStatusAdrenaline = {}
+
+--- @class EsvStatusShacklesOfPain : EsvStatusConsumeBase
+--- @field public CasterHandle integer
+local EsvStatusShacklesOfPain = {}
+
+--- @class EsvStatusShacklesOfPainCaster : EsvStatusConsumeBase
+--- @field public VictimHandle integer
+local EsvStatusShacklesOfPainCaster = {}
+
+--- @class EsvStatusWindWalker : EsvStatusConsumeBase
+
+--- @class EsvStatusDarkAvenger : EsvStatusConsumeBase
+
+--- @class EsvStatusRemorse : EsvStatusConsumeBase
+
+--- @class EsvStatusDecayingTouch : EsvStatusConsumeBase
+
+--- @class EsvStatusUnhealable : EsvStatus
+
+--- @class EsvStatusFlanked : EsvStatus
+
+--- @class EsvStatusChanneling : EsvStatusStance
+
+--- @class EsvStatusDrain : EsvStatus
+--- @field public Infused integer
+local EsvStatusDrain = {}
+
+--- @class EsvStatusLingeringWounds : EsvStatusConsumeBase
+
+--- @class EsvStatusInfused : EsvStatus
+
+--- @class EsvStatusSpiritVision : EsvStatusConsumeBase
+--- @field public SpiritVisionSkillId string
+local EsvStatusSpiritVision = {}
+
+--- @class EsvStatusSpirit : EsvStatus
+local EsvStatusSpirit = {}
+
+--- @class EsvStatusDamage : EsvStatusConsumeBase
+--- @field public DamageEvent integer
+--- @field public HitTimer number
+--- @field public TimeElapsed number
+--- @field public DamageLevel integer
+--- @field public DamageStats string
+--- @field public SpawnBlood boolean
+local EsvStatusDamage = {}
+
+--- @class EsvStatusForceMove : EsvStatusConsumeBase
+
+--- @class EsvStatusClimbing : EsvStatus
+--- @field public MoveDirection number[]
+--- @field public LadderHandle integer
+--- @field public Level string
+--- @field public Status integer
+--- @field public Direction boolean
+local EsvStatusClimbing = {}
+
+--- @class EsvStatusIncapacitated : EsvStatusConsumeBase
+--- @field public CurrentFreezeTime number
+--- @field public FreezeTime number
+--- @field public FrozenFlag integer
+local EsvStatusIncapacitated = {}
+
+--- @class EsvStatusInSurface : EsvStatus
+--- @field public SurfaceTimerCheck number
+--- @field public SurfaceDistanceCheck number
+--- @field public Translate number[]
+--- @field public Force boolean
+--- TODO -- document surface layer flags!
+local EsvStatusInSurface = {}
+
+--- @class EsvStatusSourceMuted : EsvStatus
+
+--- @class EsvStatusOverpowered : EsvStatusConsumeBase
+
+--- @class EsvStatusCombustion : EsvStatusConsumeBase
+
+--- @class EsvStatusPolymorphed : EsvStatusConsumeBase
+--- @field public OriginalTemplate string
+--- @field public TransformedRace string
+--- @field public OriginalTemplateType integer
+--- @field public PolymorphResult string
+--- @field public DisableInteractions boolean
+local EsvStatusPolymorphed = {}
+
+--- @class EsvStatusDamageOnMove : EsvStatusDamage
+--- @field public DistancePerDamage number
+--- @field public DistanceTraveled number
+local EsvStatusDamageOnMove = {}
+
+--- @class EsvStatusDemonicBargain : EsvStatus
+
+--- @class EsvStatusGuardianAngel : EsvStatusConsumeBase
+
+--- @class EsvStatusFloating : EsvStatusConsumeBase
+
+--- @class EsvStatusChallenge : EsvStatusConsumeBase
+--- @field public SourceHandle integer
+--- @field public Target boolean
+local EsvStatusChallenge = {}
+
+--- @class EsvStatusDisarmed : EsvStatusConsumeBase
+
+--- @class EsvStatusHealSharing : EsvStatusConsumeBase
+--- @field public CasterHandle integer
+local EsvStatusHealSharing = {}
+
+--- @class EsvStatusHealSharingCaster : EsvStatusConsumeBase
+--- @field public TargetHandle integer
+local EsvStatusHealSharingCaster = {}
+
+--- @class EsvStatusExtraTurn : EsvStatusConsumeBase
+
+--- @class EsvStatusActiveDefense : EsvStatusConsumeBase
+--- @field public Charges integer
+--- @field public TargetPos number[]
+--- @field public TargetHandle integer
+--- @field public Radius number
+--- @field public Projectile string
+local EsvStatusActiveDefense = {}
+
+--- @class EsvStatusSpark : EsvStatusConsumeBase
+--- @field public Charges integer
+--- @field public Radius number
+--- @field public Projectile string
+local EsvStatusSpark = {}
+
+--- @class EsvStatusPlayDead : EsvStatusConsumeBase
+
+--- @class EsvStatusConstrained : EsvStatusLying
+
+--- @class EsvStatusEffect : EsvStatus
+
+--- @class EsvStatusDeactivated : EsvStatusConsumeBase
+
+--- @class EsvStatusTutorialBed : EsvStatus
 
 
 
@@ -1433,6 +1729,7 @@ local EsvSkillInfo = {}
 --- @field public HasOwner boolean
 --- @field public InDialog boolean
 --- @field public Summon boolean
+--- @field public CannotDie boolean
 --- @field public CharacterControl boolean
 --- @field public Loaded boolean
 --- @field public InArena boolean
@@ -1446,6 +1743,7 @@ local EsvSkillInfo = {}
 --- @field public PartyFollower boolean
 --- @field public Totem boolean
 --- @field public NoRotate boolean
+--- @field public Deactivated boolean
 --- @field public IsHuge boolean
 --- @field public MadePlayer boolean
 --- @field public LevelTransitionPending boolean
