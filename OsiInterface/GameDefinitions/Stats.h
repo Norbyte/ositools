@@ -794,7 +794,7 @@ namespace dse
 		TranslatedString DisplayName;
 		FixedString Icon;
 		bool HasStats{ false };
-		ObjectSet<uint32_t> AbsorbSurfaceTypes; // eoc::ESurfaceType
+		ObjectSet<uint32_t>* AbsorbSurfaceTypes{ nullptr }; // eoc::ESurfaceType
 
 		CRPGStats_Object * GetStats() const;
 	};
