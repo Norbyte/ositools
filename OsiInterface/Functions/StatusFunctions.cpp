@@ -33,7 +33,7 @@ namespace dse::esv
 	{
 		switch (status->GetStatusId()) {
 		case StatusType::HIT: return gStatusHitPropertyMap;
-		case StatusType::DYING: return gStatusHealPropertyMap;
+		case StatusType::DYING: return gStatusDyingPropertyMap;
 		case StatusType::HEAL: return gStatusHealPropertyMap;
 		case StatusType::CHARMED: return gStatusCharmedPropertyMap;
 		case StatusType::KNOCKED_DOWN: return gStatusKnockedDownPropertyMap;
