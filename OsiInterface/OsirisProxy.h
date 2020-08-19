@@ -35,7 +35,11 @@ struct ToolConfig
 #endif
 
 	bool EnableExtensions{ true };
+#if defined(OSI_EOCAPP)
 	bool LogFailedCompile{ true };
+#else
+	bool LogFailedCompile{ false };
+#endif
 	bool EnableLogging{ false };
 	bool LogCompile{ false };
 	bool LogRuntime{ false };

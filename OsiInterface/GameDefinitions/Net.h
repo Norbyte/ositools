@@ -6,6 +6,7 @@
 
 namespace dse
 {
+	struct GameTime;
 
 	namespace net
 	{
@@ -97,8 +98,8 @@ namespace dse
 			inline virtual ~Protocol() {}
 			virtual MessageStatus ProcessMsg(void * Unused, MessageContext * Unknown, Message * Msg) = 0;
 			virtual void Unknown1() = 0;
-			virtual int PreUpdate(void * Unknown) = 0;
-			virtual int PostUpdate(void * Unknown) = 0;
+			virtual int PreUpdate(GameTime* Time) = 0;
+			virtual int PostUpdate(GameTime* Time) = 0;
 			virtual void * OnAddedToHost() = 0;
 			virtual void * OnRemovedFromHost() = 0;
 			virtual void * Unknown2() = 0;

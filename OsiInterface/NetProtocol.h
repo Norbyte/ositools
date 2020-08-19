@@ -49,8 +49,8 @@ namespace dse
 
 		net::MessageStatus ProcessMsg(void * Unused, net::MessageContext * Unknown, net::Message * Msg) override;
 		void Unknown1() override;
-		int PreUpdate(void * Unknown) override;
-		int PostUpdate(void * Unknown) override;
+		int PreUpdate(GameTime* Time) override;
+		int PostUpdate(GameTime* Time) override;
 		void * OnAddedToHost() override;
 		void * OnRemovedFromHost() override;
 		void * Unknown2() override;

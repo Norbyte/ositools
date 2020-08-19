@@ -35,12 +35,12 @@ namespace dse
 
 	void ExtenderProtocol::Unknown1() {}
 
-	int ExtenderProtocol::PreUpdate(void * Unknown)
+	int ExtenderProtocol::PreUpdate(GameTime* Time)
 	{
 		return 0;
 	}
 
-	int ExtenderProtocol::PostUpdate(void * Unknown)
+	int ExtenderProtocol::PostUpdate(GameTime* Time)
 	{
 		return 0;
 	}

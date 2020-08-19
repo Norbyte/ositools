@@ -116,6 +116,13 @@ namespace dse
 		// Rest of structure not properly mapped yet
 	};
 
+	struct GameTime
+	{
+		double Time;
+		float DeltaTime;
+		int32_t Ticks;
+	};
+
 	struct TranslatedArgumentString
 	{
 		void* VMT{ nullptr };
