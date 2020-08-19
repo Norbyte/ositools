@@ -10,6 +10,8 @@
 #include <iostream>
 #include <fstream>
 
+std::atomic<uint32_t> gDisableCrashReportingCount{ 0 };
+
 struct ExcludedSymbol
 {
 	void * Ptr;
@@ -25,12 +27,14 @@ static const ExcludedSymbol ExcludedSymbols[] = {
 	{&decltype(dse::LibraryManager::esv__CombineManager__ExecuteCombination)::CallToTrampoline, 0x120},
 	{&decltype(dse::LibraryManager::esv__ProjectileHelpers__ShootProjectile)::CallToTrampoline, 0x120},
 	{&decltype(dse::LibraryManager::esv__Projectile__Explode)::CallToTrampoline, 0x120},
+	{&decltype(dse::OsirisWrappers::FileReader__ctor)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Event)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Call)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Query)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
+	{&dse::esv::CustomFunctionLibrary::OnShootProjectile, 0x120},
 	{&dse::NodeVMTWrapper::s_WrappedIsValid, 0x100},
 	{&dse::NodeVMTWrapper::s_WrappedPushDownTuple, 0x100},
 	{&dse::NodeVMTWrapper::s_WrappedPushDownTupleDelete, 0x100},
@@ -156,6 +160,10 @@ public:
 	// noinline needed to ensure that the error handler stack is always 2 levels deep
 	static __declspec(noinline) bool IsExtensionRelatedCrash()
 	{
+		if (gDisableCrashReportingCount > 0) {
+			return false;
+		}
+
 		void * moduleStart, * moduleEnd;
 		MODULEINFO moduleInfo;
 		if (!GetModuleInformation(GetCurrentProcess(), gThisModule, &moduleInfo, sizeof(moduleInfo))) {

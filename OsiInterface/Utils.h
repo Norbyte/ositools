@@ -113,3 +113,22 @@ void Fail(char const * reason);
 void LogOsirisError(std::string_view msg);
 void LogOsirisWarning(std::string_view msg);
 void LogOsirisMsg(std::string_view msg);
+
+
+extern std::atomic<uint32_t> gDisableCrashReportingCount;
+
+struct DisableCrashReporting
+{
+	inline DisableCrashReporting()
+	{
+		++gDisableCrashReportingCount;
+	}
+
+	inline ~DisableCrashReporting()
+	{
+		--gDisableCrashReportingCount;
+	}
+
+	DisableCrashReporting(DisableCrashReporting const&) = delete;
+	DisableCrashReporting& operator = (DisableCrashReporting const&) = delete;
+};

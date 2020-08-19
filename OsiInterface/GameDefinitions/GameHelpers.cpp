@@ -393,6 +393,7 @@ namespace dse
 	void esv::ProxyProjectileHit::OnHit(glm::vec3 const& position, ObjectHandle const& hitObject, Projectile* projectile)
 	{
 		if (WrappedHit) {
+			DisableCrashReporting _;
 			WrappedHit->OnHit(position, hitObject, projectile);
 		}
 
@@ -405,6 +406,7 @@ namespace dse
 	void esv::ProxyProjectileHit::Visit(ObjectVisitor* visitor)
 	{
 		if (WrappedHit) {
+			DisableCrashReporting _;
 			WrappedHit->Visit(visitor);
 		}
 	}

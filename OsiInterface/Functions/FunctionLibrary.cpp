@@ -231,7 +231,7 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnActionMachineResetState, this, _1, _2)
 		);
 		osiris_.GetLibraryManager().esv__ProjectileHelpers__ShootProjectile.SetWrapper(
-			std::bind(&CustomFunctionLibrary::OnShootProjectile, this, _1, _2)
+			std::bind(&CustomFunctionLibrary::OnShootProjectile, _1, _2)
 		);
 		osiris_.GetLibraryManager().esv__Projectile__Explode.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnProjectileExplode, this, _1)
