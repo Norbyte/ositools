@@ -48,6 +48,7 @@ namespace dse::esv
 		case StatusType::BOOST: return gStatusBoostPropertyMap;
 		case StatusType::UNSHEATHED: return gStatusUnsheathedPropertyMap;
 		case StatusType::STANCE: return gStatusStancePropertyMap;
+		case StatusType::SITTING: return gStatusLyingPropertyMap;
 		case StatusType::LYING: return gStatusLyingPropertyMap;
 		case StatusType::INFECTIOUS_DISEASED: return gStatusInfectiousDiseasedPropertyMap;
 		case StatusType::INVISIBLE: return gStatusInvisiblePropertyMap;

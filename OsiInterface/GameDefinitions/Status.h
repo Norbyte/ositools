@@ -358,6 +358,8 @@ namespace dse
 			float Heal; // Saved
 		};
 
+		struct StatusSitting : public StatusLying {};
+
 		struct StatusBlind : public StatusConsumeBase {};
 
 		struct StatusSmelly : public Status {};
