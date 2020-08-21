@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "FunctionLibrary.h"
 #include <OsirisProxy.h>
+#include <ScriptHelpers.h>
 #include <GameDefinitions/Symbols.h>
 #include "PropertyMaps.h"
 
@@ -342,31 +343,9 @@ namespace dse::esv
 
 			ExtensionState::Get().PendingItemClone.reset();
 
-			auto templateGuidFs = NameGuidToFixedString(templateGuid);
-			if (!IsValidGuidString(templateGuid) || !templateGuidFs) {
-				OsiError("Invalid template GUID passed to ItemConstructBegin: " << templateGuid);
-				return;
-			}
-
 			auto & clone = ExtensionState::Get().PendingItemClone;
 			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
-			clone->RawReallocate(1);
-			clone->Size = 1;
-
-			auto emptyFs = ToFixedString("");
-			eoc::ItemDefinition & item = clone->Buf[0];
-			new (&item) eoc::ItemDefinition();
-			item.FS1 = emptyFs;
-			item.RootTemplate = templateGuidFs;
-			item.OriginalRootTemplate = templateGuidFs;
-			item.WorldRot = glm::mat3x3(1.0f);
-			item.FS4 = emptyFs;
-			item.ItemType = emptyFs;
-			item.GenerationStatsId = emptyFs;
-			item.GenerationItemType = emptyFs;
-			item.Key = emptyFs;
-			item.StatsEntryName = emptyFs;
-			item.Skills = emptyFs;
+			script::CreateItemDefinition(templateGuid, *clone);
 		}
 
 
@@ -374,13 +353,6 @@ namespace dse::esv
 		{
 			if (ExtensionState::Get().PendingItemClone) {
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
-			}
-
-			auto parseItem = GetStaticSymbols().ParseItem;
-			auto createItemFromParsed = GetStaticSymbols().CreateItemFromParsed;
-			if (parseItem == nullptr || createItemFromParsed == nullptr) {
-				OsiErrorS("esv::ParseItem not found!");
-				return;
 			}
 			
 			ExtensionState::Get().PendingItemClone.reset();
@@ -390,14 +362,7 @@ namespace dse::esv
 			if (item == nullptr) return;
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
-			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
-			parseItem(item, clone.get(), false, false);
-
-			if (clone->Size != 1) {
-				OsiError("Something went wrong during item parsing. Item set size: " << clone->Size);
-				clone.reset();
-				return;
-			}
+			script::ParseItem(item, *clone, false);
 		}
 
 

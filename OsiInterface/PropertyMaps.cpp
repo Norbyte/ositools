@@ -594,8 +594,8 @@ namespace dse
 			BEGIN_PROPERTIES(gEoCItemDefinitionPropertyMap, eoc::ItemDefinition);
 			PROP_GUID(RootTemplate, true);
 			PROP_GUID(OriginalRootTemplate, true);
-			PROP(Amount);
 			PROP(Slot);
+			PROP(Amount);
 			PROP(GoldValueOverwrite);
 			PROP(WeightValueOverwrite);
 			PROP_ENUM(DamageTypeOverwrite);
@@ -611,6 +611,7 @@ namespace dse
 			PROP(Key);
 			PROP(LockLevel);
 			PROP(StatsEntryName);
+			PROP(EquipmentStatsType);
 			PROP(HasModifiedSkills);
 			PROP_DYN_FS(Skills);
 			PROP(HasGeneratedStats);

@@ -1222,6 +1222,7 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 		statLoadOrderHelper_.OnStatFileOpened(*path);
 	}
 
+	DisableCrashReporting _;
 	return next(self, path, type);
 }
 

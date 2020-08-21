@@ -1428,8 +1428,8 @@ function EclItem.GetStatusByType (self, type) end
 function EclItem.GetStatuses (self) end
 
 --- Returns all statuses on the item
---- @param self EsvItem
---- @return EsvStatus[]
+--- @param self EclItem
+--- @return EclStatus[]
 function EclItem.GetStatusObjects (self) end
 
 
@@ -1636,6 +1636,60 @@ function EsvItem.GetStatuses (self) end
 --- @param self EclItem
 --- @return EsvStatus[]
 function EsvItem.GetStatusObjects (self) end
+
+
+
+
+--- @class ItemDefinition
+--- @field public RootTemplate string
+--- @field public OriginalRootTemplate string
+--- @field public Slot integer
+--- @field public Amount integer
+--- @field public GoldValueOverwrite integer
+--- @field public WeightValueOverwrite integer
+--- @field public DamageTypeOverwrite string DamageType enumeration
+--- @field public ItemType string
+--- @field public CustomDisplayName string
+--- @field public CustomDescription string
+--- @field public CustomBookContent string
+--- @field public GenerationStatsId string
+--- @field public GenerationItemType string
+--- @field public GenerationRandom integer
+--- @field public GenerationLevel integer
+--- @field public StatsLevel integer
+--- @field public Key string
+--- @field public LockLevel integer
+--- @field public EquipmentStatsType integer
+--- @field public HasModifiedSkills boolean
+--- @field public Skills string
+--- @field public HasGeneratedStats boolean
+--- @field public IsIdentified boolean
+--- @field public GMFolding boolean
+--- @field public CanUseRemotely boolean
+--- @field public GenerationBoosts string[]
+--- @field public RuneBoosts string[]
+--- @field public DeltaMods string[]
+local ItemDefinition = {}
+
+--- Clears item progression data (name group, level group, etc.)
+--- @param self ItemDefinition
+function ItemDefinition.ResetProgression (self) end
+
+
+
+--- @class ItemConstructor
+--- Creates an item based on a parsed item or newly created item definition.
+--- Should be initialized using Ext.CreateItemConstructor(item/template) first.
+--- Item definitions can be accessed using c[1], c[2], etc.
+--- For non-recursive item cloning (i.e. creating a single item), there is only one item (c[1]).
+--- For container cloning, the contained items are accessible using c[2], c[3], etc.
+local ItemConstructor = {}
+
+--- Constructs an instance of the item contained in the constructor definition.
+--- The definition is cleared after the item is created.
+--- @param self ItemConstructor
+--- @return EsvItem|nil
+function ItemConstructor.Construct (self) end
 
 
 
@@ -3799,6 +3853,12 @@ function Ext.ExecuteSurfaceAction (action) end
 --- CAncels a surface action
 --- @param actionHandle integer Action to cancel
 function Ext.CancelSurfaceAction (actionHandle) end
+
+--- Starts creating a new item using template GUID or cloning an existing item.
+--- @param from EsvItem|string Template GUID or item to clone
+--- @param recursive boolean|nil Copy items in container? (cloning only)
+--- @return ItemConstructor
+function Ext.CreateItemConstructor (from, recursive) end
 
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.

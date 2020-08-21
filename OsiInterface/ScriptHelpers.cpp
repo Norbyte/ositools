@@ -165,4 +165,50 @@ bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
 	return true;
 }
 
+bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinition>& definition)
+{
+	auto templateGuidFs = NameGuidToFixedString(templateGuid);
+	if (!IsValidGuidString(templateGuid) || !templateGuidFs) {
+		OsiError("Invalid template GUID passed to ItemConstructBegin: " << templateGuid);
+		return false;
+	}
+
+	definition.RawReallocate(1);
+	definition.Size = 1;
+
+	eoc::ItemDefinition& item = definition.Buf[0];
+	new (&item) eoc::ItemDefinition();
+	item.FS1 = GFS.strEmpty;
+	item.RootTemplate = templateGuidFs;
+	item.OriginalRootTemplate = templateGuidFs;
+	item.WorldRot = glm::mat3x3(1.0f);
+	item.FS4 = GFS.strEmpty;
+	item.ItemType = GFS.strEmpty;
+	item.GenerationStatsId = GFS.strEmpty;
+	item.GenerationItemType = GFS.strEmpty;
+	item.Key = GFS.strEmpty;
+	item.StatsEntryName = GFS.strEmpty;
+	item.Skills = GFS.strEmpty;
+	return true;
+}
+
+bool ParseItem(esv::Item* item, ObjectSet<eoc::ItemDefinition>& definition, bool recursive)
+{
+	auto parseItem = GetStaticSymbols().ParseItem;
+	if (parseItem == nullptr) {
+		OsiErrorS("esv::ParseItem not found!");
+		return false;
+	}
+
+	definition.Clear();
+	parseItem(item, &definition, false, false);
+
+	if (!definition.Size || (!recursive && definition.Size != 1)) {
+		OsiError("Something went wrong during item parsing. Item set size: " << definition.Size);
+		return false;
+	}
+
+	return true;
+}
+
 }

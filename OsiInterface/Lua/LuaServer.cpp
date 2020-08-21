@@ -3,9 +3,11 @@
 #include <GameDefinitions/Ai.h>
 #include <GameDefinitions/Surface.h>
 #include <Lua/LuaBindingServer.h>
+#include <Lua/LuaSerializers.h>
 #include <OsirisProxy.h>
 #include <PropertyMaps.h>
 #include <NodeHooks.h>
+#include <ScriptHelpers.h>
 #include "resource.h"
 
 namespace dse::esv::lua
@@ -493,6 +495,84 @@ namespace dse::lua
 	}
 
 
+	char const* const ObjectProxy<eoc::ItemDefinition>::MetatableName = "eoc::ItemDefinition";
+
+	eoc::ItemDefinition* ObjectProxy<eoc::ItemDefinition>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "ItemDefinition object has expired!");
+		return nullptr;
+	}
+
+	int ItemDefinitionResetProgression(lua_State* L)
+	{
+		auto self = ObjectProxy<eoc::ItemDefinition>::CheckedGet(L, 2);
+		self->LevelGroupIndex = -1;
+		self->RootGroupIndex = -1;
+		self->NameIndex = -1;
+		self->NameCool = 0;
+		return 0;
+	}
+
+	int ObjectProxy<eoc::ItemDefinition>::Index(lua_State* L)
+	{
+		auto request = Get(L);
+		if (!request) return 0;
+
+		auto prop = checked_get<FixedString>(L, 2);
+		if (prop == GFS.strResetProgression) {
+			lua_pushcfunction(L, &ItemDefinitionResetProgression);
+			return 1;
+		}
+
+		if (prop == GFS.strGenerationBoosts) {
+			LuaWrite(L, Get(L)->GenerationBoosts);
+			return 1;
+		}
+
+		if (prop == GFS.strRuneBoosts) {
+			LuaWrite(L, Get(L)->RuneBoosts);
+			return 1;
+		}
+
+		if (prop == GFS.strDeltaMods) {
+			LuaWrite(L, Get(L)->DeltaMods);
+			return 1;
+		}
+
+		bool fetched = LuaPropertyMapGet(L, gEoCItemDefinitionPropertyMap, request, prop, true);
+		return fetched ? 1 : 0;
+	}
+
+	int ObjectProxy<eoc::ItemDefinition>::NewIndex(lua_State* L)
+	{
+		auto prop = checked_get<FixedString>(L, 2);
+		if (prop == GFS.strGenerationBoosts) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, Get(L)->GenerationBoosts);
+			lua_pop(L, 1);
+			return 0;
+		}
+
+		if (prop == GFS.strRuneBoosts) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, Get(L)->RuneBoosts);
+			lua_pop(L, 1);
+			return 0;
+		}
+
+		if (prop == GFS.strDeltaMods) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, Get(L)->DeltaMods);
+			lua_pop(L, 1);
+			return 0;
+		}
+
+		return GenericSetter(L, gEoCItemDefinitionPropertyMap, false);
+	}
+
+
+
 	char const* const ObjectProxy<esv::ShootProjectileHelper>::MetatableName = "esv::ShootProjectileRequest";
 
 	esv::ShootProjectileHelper* ObjectProxy<esv::ShootProjectileHelper>::Get(lua_State* L)
@@ -952,6 +1032,45 @@ namespace dse::esv::lua
 	}
 
 
+	char const* const ItemConstructor::MetatableName = "ItemConstructor";
+
+	int ItemConstructorConstructItem(lua_State* L)
+	{
+		auto self = ItemConstructor::CheckUserData(L, 1);
+
+		auto item = GetStaticSymbols().CreateItemFromParsed(&self->Get(), 0);
+		if (item == nullptr) {
+			OsiErrorS("Failed to create parsed item.");
+			return 0;
+		}
+
+		ObjectProxy<esv::Item>::New(L, item);
+		return 1;
+	}
+
+	int ItemConstructor::Index(lua_State* L)
+	{
+		if (lua_type(L, 2) == LUA_TSTRING) {
+			auto func = checked_get<FixedString>(L, 2);
+			if (func == GFS.strConstruct) {
+				lua_pushcfunction(L, &ItemConstructorConstructItem);
+				return 1;
+			}
+
+			OsiError("ItemConstructor has no property named " << func.Str);
+			return 0;
+		} else {
+			auto idx = checked_get<int>(L, 2);
+			if (idx < 1 || idx > (int)definition_.Size) {
+				return luaL_error(L, "Clone set only has %d elements", definition_.Size);
+			}
+
+			ObjectProxy<eoc::ItemDefinition>::New(L, &definition_[idx - 1]);
+			return 1;
+		}
+	}
+
+
 	void ExtensionLibraryServer::Register(lua_State * L)
 	{
 		ExtensionLibrary::Register(L);
@@ -960,6 +1079,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Character>::RegisterMetatable(L);
 		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
+		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
 		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
 		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
 		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
@@ -968,6 +1088,7 @@ namespace dse::esv::lua
 		StatusHandleProxy::RegisterMetatable(L);
 		TurnManagerCombatProxy::RegisterMetatable(L);
 		TurnManagerTeamProxy::RegisterMetatable(L);
+		ItemConstructor::RegisterMetatable(L);
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
@@ -1638,6 +1759,34 @@ namespace dse::esv::lua
 	}
 
 
+	int CreateItemConstructor(lua_State* L)
+	{
+		auto type = lua_type(L, 1);
+		if (type == LUA_TSTRING) {
+			auto templateGuid = checked_get<char const*>(L, 1);
+			auto constructor = ItemConstructor::New(L);
+			if (!script::CreateItemDefinition(templateGuid, constructor->Get())) {
+				lua_pop(L, 1);
+				push(L, nullptr);
+			}
+		} else {
+			auto item = ObjectProxy<esv::Item>::CheckedGet(L, 1);
+			bool recursive{ false };
+			if (lua_gettop(L) > 1) {
+				recursive = checked_get<bool>(L, 2);
+			}
+
+			auto constructor = ItemConstructor::New(L);
+			if (!script::ParseItem(item, constructor->Get(), recursive)) {
+				lua_pop(L, 1);
+				push(L, nullptr);
+			}
+		}
+
+		return 1;
+	}
+
+
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
@@ -1705,6 +1854,7 @@ namespace dse::esv::lua
 			{"GetCharactersAroundPosition", GetCharactersAroundPosition},
 			{"GetAllItems", GetAllItems},
 			{"GetItemsAroundPosition", GetItemsAroundPosition},
+			{"CreateItemConstructor", CreateItemConstructor},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

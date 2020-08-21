@@ -49,6 +49,11 @@ FS(GetDeltaMods);
 FS(GetGeneratedBoosts);
 FS(WalkSpeed);
 FS(RunSpeed);
+FS(Construct);
+FS(ResetProgression);
+FS(GenerationBoosts);
+FS(RuneBoosts);
+FS(DeltaMods);
 
 // Character stats
 FS(DynamicStats);

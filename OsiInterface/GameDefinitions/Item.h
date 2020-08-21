@@ -72,7 +72,7 @@ namespace dse
 			bool HasGeneratedStats{ false };
 			uint8_t Flags1[12]{ 0 };
 #if !defined(OSI_EOCAPP)
-			uint8_t Flags11;
+			uint8_t Flags11{ 0 };
 #endif
 			bool IsIdentified{ false };
 			bool GMFolding{ false };

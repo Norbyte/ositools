@@ -243,6 +243,26 @@ namespace dse::esv::lua
 	};
 
 
+	class ItemConstructor : public Userdata<ItemConstructor>, public Indexable, public Pushable<PushPolicy::None>
+	{
+	public:
+		static char const* const MetatableName;
+
+		inline ItemConstructor()
+		{}
+
+		inline ObjectSet<eoc::ItemDefinition>& Get()
+		{
+			return definition_;
+		}
+
+		int Index(lua_State* L);
+
+	private:
+		ObjectSet<eoc::ItemDefinition> definition_;
+	};
+
+
 	class ExtensionLibraryServer : public ExtensionLibrary
 	{
 	public:

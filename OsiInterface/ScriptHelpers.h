@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameDefinitions/BaseTypes.h>
+#include <GameDefinitions/Item.h>
 
 namespace dse::script {
 
@@ -12,4 +13,7 @@ namespace dse::script {
 	bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated);
 	bool CreateTranslatedStringKey(FixedString const& key, FixedString const& handle);
 	bool CreateTranslatedString(FixedString const& handle, STDWString const& string);
+
+	bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinition>& definition);
+	bool ParseItem(esv::Item* item, ObjectSet<eoc::ItemDefinition>& definition, bool recursive);
 }
