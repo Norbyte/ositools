@@ -139,11 +139,12 @@ public:
 			DEBUG("Extracting: %s", entry->GetFullName().c_str());
 
 			auto outPath = extensionPath + L"\\" + FromUTF8(entry->GetFullName());
-			std::ofstream f(outPath.c_str(), std::ios::out | std::ios::binary);
+			auto tempPath = extensionPath + L"\\extract.tmp";
+			std::ofstream f(tempPath.c_str(), std::ios::out | std::ios::binary);
 			if (!f.good()) {
 				DEBUG("Failed to open %s for extraction", entry->GetFullName().c_str());
 				reason = "Script Extender update failed:\r\n";
-				reason += std::string("Failed to open update package ") + entry->GetFullName() + " for extraction";
+				reason += std::string("Failed to open file ") + entry->GetFullName() + " for extraction";
 				break;
 			}
 
@@ -151,7 +152,7 @@ public:
 			if (!stream) {
 				DEBUG("Failed to decompress %s", entry->GetFullName().c_str());
 				reason = "Script Extender update failed:\r\n";
-				reason += std::string("Failed to decompress update package ") + entry->GetFullName();
+				reason += std::string("Failed to decompress file ") + entry->GetFullName();
 				break;
 			}
 
@@ -166,6 +167,14 @@ public:
 			}
 
 			entry->CloseDecompressionStream();
+			f.close();
+
+			if (!MoveFileExW(tempPath.c_str(), outPath.c_str(), MOVEFILE_REPLACE_EXISTING)) {
+				DEBUG("Failed to write file %s", entry->GetFullName().c_str());
+				reason = "Script Extender update failed:\r\n";
+				reason += std::string("Failed to update file ") + entry->GetFullName();
+				break;
+			}
 		}
 
 		return true;
