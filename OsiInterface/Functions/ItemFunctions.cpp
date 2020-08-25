@@ -355,13 +355,13 @@ namespace dse::esv
 				OsiWarn("ItemCloneBegin() called when a clone is already in progress. Previous clone state will be discarded.");
 			}
 			
-			ExtensionState::Get().PendingItemClone.reset();
 
 			auto itemGuid = args[0].String;
 			auto item = GetEntityWorld()->GetItem(itemGuid);
 			if (item == nullptr) return;
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
+			clone = std::make_unique<ObjectSet<eoc::ItemDefinition>>();
 			script::ParseItem(item, *clone, false);
 		}
 
