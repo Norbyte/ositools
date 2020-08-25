@@ -94,7 +94,7 @@ The following features are accepted in `FeatureFlags`:
 ## Preprocessor
 
 To support mods that may not want to depend on the extender but want to take advantages of its features when available, two "preprocessor" constructs are provided that allow conditional compilation of code when the extender is present / not present.
-To make use of this feature, enable the `PreprocessStory` variable in [your extension config](#extension-setup).
+To make use of this feature, add the `Preprocessor` feature flag in [your extension config](#extension-setup).
 
 The first construct allows defining code that only runs when the extender is loaded. To achieve this, the block comment `/* ... */` is tagged so the extender can uncomment the code during compilation if it is present.
 Syntax:

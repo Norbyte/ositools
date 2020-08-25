@@ -129,10 +129,10 @@ namespace dse
 			PROP_RO(StatusHandle);
 			PROP_RO(TargetHandle);
 			PROP(StatusSourceHandle);
-			PROP_RO(SomeHandle);
+			PROP_RO(CleansedByHandle);
 			PROP_FLAGS(Flags0, esv::StatusFlags0, true);
 			PROP_FLAGS(Flags1, esv::StatusFlags1, true);
-			PROP_FLAGS(Flags2, esv::StatusFlags2, false);
+			PROP_FLAGS(Flags2, esv::StatusFlags2, true);
 
 			propertyMap.Flags[GFS.strForceStatus].Flags |= kPropWrite;
 			propertyMap.Flags[GFS.strForceFailStatus].Flags |= kPropWrite;

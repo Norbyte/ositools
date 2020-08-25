@@ -299,7 +299,7 @@ local ProjectileTemplate = {}
 --- StatusFlags2
 --- @field public ForceStatus boolean
 --- @field public ForceFailStatus boolean
---- @field public RequestClientUpdate boolean
+--- @field public RequestClientSync boolean
 --- @field public RequestDelete boolean
 --- @field public RequestDeleteAtTurnEnd boolean
 --- @field public Started boolean

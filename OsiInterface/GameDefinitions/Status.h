@@ -102,7 +102,7 @@ namespace dse
 			ObjectHandle TargetHandle;
 			ObjectSet<ObjectHandle> StatusOwner; // Saved
 			ObjectHandle StatusSourceHandle; // Saved
-			ObjectHandle SomeHandle;
+			ObjectHandle CleansedByHandle;
 			StatusFlags2 Flags2; // Saved
 			StatusFlags0 Flags0; // Saved
 			StatusFlags1 Flags1; // Saved
