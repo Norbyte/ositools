@@ -1770,7 +1770,7 @@ namespace dse
 			auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
 			if (val) {
 				if (*val) {
-					lua::push(L, val->Handle);
+					lua::push(L, *val);
 				} else {
 					lua_pushnil(L);
 				}
@@ -1875,8 +1875,8 @@ namespace dse
 
 		case PropertyType::kObjectHandle:
 		{
-			auto val = luaL_checkinteger(L, index);
-			return propertyMap.setHandle(obj, propertyFS, ObjectHandle(val), false, throwError);
+			auto handle = lua::checked_get<ObjectHandle>(L, index);
+			return propertyMap.setHandle(obj, propertyFS, handle, false, throwError);
 		}
 
 		case PropertyType::kVector3:

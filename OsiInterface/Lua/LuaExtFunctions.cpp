@@ -348,7 +348,7 @@ namespace dse::lua
 	// (Some of the builtin functions treat handles as double values)
 	int HandleToDouble(lua_State* L)
 	{
-		int64_t handle = checked_get<int64_t>(L, 1);
+		auto handle = checked_get<ObjectHandle>(L, 1);
 		double dbl = *reinterpret_cast<double*>(&handle);
 		push(L, dbl);
 		return 1;
@@ -357,7 +357,7 @@ namespace dse::lua
 	int DoubleToHandle(lua_State* L)
 	{
 		double dbl = checked_get<double>(L, 1);
-		int64_t handle = *reinterpret_cast<int64_t*>(&dbl);
+		ObjectHandle handle(*reinterpret_cast<int64_t*>(&dbl));
 		push(L, handle);
 		return 1;
 	}

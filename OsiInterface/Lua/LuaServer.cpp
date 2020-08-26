@@ -132,7 +132,7 @@ namespace dse::lua
 		}
 
 		if (prop == GFS.strHandle) {
-			push(L, character->Base.Component.Handle.Handle);
+			push(L, character->Base.Component.Handle);
 			return 1;
 		}
 
@@ -217,7 +217,7 @@ namespace dse::lua
 				lua_newtable(L);
 				int32_t causeIdx{ 1 };
 				for (auto const& handle : sk.CauseList) {
-					settable(L, causeIdx++, handle.Handle);
+					settable(L, causeIdx++, handle);
 				}
 
 				lua_setfield(L, -2, "CauseList");
@@ -464,7 +464,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strHandle) {
-			push(L, item->Base.Component.Handle.Handle);
+			push(L, item->Base.Component.Handle);
 			return 1;
 		}
 
@@ -616,7 +616,7 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, GFS.strHandle.Str) == 0) {
-			push(L, projectile->Base.Component.Handle.Handle);
+			push(L, projectile->Base.Component.Handle);
 			return 1;
 		}
 
@@ -1097,10 +1097,22 @@ namespace dse::esv::lua
 	{
 		esv::Character* character = nullptr;
 		switch (lua_type(L, index)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, index);
+			if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+				OsiError("Attempted to resolve client ObjectHandle on the server");
+			} else {
+				character = GetEntityWorld()->GetCharacter(handle);
+			}
+			break;
+		}
+
 		case LUA_TNUMBER:
 		{
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
+				OsiError("Resolving integer object handles is deprecated since v52!")
 				ObjectHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 					OsiError("Attempted to resolve client ObjectHandle on the server");
@@ -1143,8 +1155,7 @@ namespace dse::esv::lua
 			character->GetObjectHandle(handle);
 			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
-		}
-		else {
+		} else {
 			return 0;
 		}
 	}
@@ -1158,8 +1169,16 @@ namespace dse::esv::lua
 
 		esv::Item* item = nullptr;
 		switch (lua_type(L, 1)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, 1);
+			item = GetEntityWorld()->GetItem(handle);
+			break;
+		}
+
 		case LUA_TNUMBER:
 		{
+			OsiError("Resolving integer object handles is deprecated since v52!")
 			auto handle = ObjectHandle(lua_tointeger(L, 1));
 			item = GetEntityWorld()->GetItem(handle);
 			break;
@@ -1182,8 +1201,7 @@ namespace dse::esv::lua
 			item->GetObjectHandle(handle);
 			ObjectProxy<esv::Item>::New(L, handle);
 			return 1;
-		}
-		else {
+		} else {
 			return 0;
 		}
 	}
@@ -1199,8 +1217,36 @@ namespace dse::esv::lua
 		esv::Character* character = nullptr;
 		esv::Projectile* projectile = nullptr;
 		switch (lua_type(L, 1)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			OsiError("Resolving integer object handles is deprecated since v52!");
+			auto handle = checked_get<ObjectHandle>(L, 1);
+			if (handle) {
+				switch ((ObjectType)handle.GetType()) {
+				case ObjectType::ServerCharacter:
+					character = GetEntityWorld()->GetCharacter(handle);
+					break;
+
+				case ObjectType::ServerItem:
+					item = GetEntityWorld()->GetItem(handle);
+					break;
+
+				case ObjectType::ServerProjectile:
+					projectile = GetEntityWorld()->GetProjectile(handle);
+					break;
+
+				default:
+					OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
+					break;
+				}
+			}
+
+			break;
+		}
+
 		case LUA_TNUMBER:
 		{
+			OsiError("Resolving integer object handles is deprecated since v52!")
 			auto handle = ObjectHandle(lua_tointeger(L, 1));
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
@@ -1268,10 +1314,9 @@ namespace dse::esv::lua
 		esv::Character* character = GetCharacter(L, 1);
 		if (character == nullptr) return 0;
 
-		auto index = lua_tointeger(L, 2);
 		esv::Status* status;
-		if (index > 0xffffffff) {
-			ObjectHandle statusHandle{ index };
+		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
+			auto statusHandle = checked_get<ObjectHandle>(L, 2);
 			status = character->GetStatus(statusHandle, true);
 			if (status != nullptr) {
 				ObjectHandle characterHandle;
@@ -1279,18 +1324,38 @@ namespace dse::esv::lua
 				StatusHandleProxy::New(L, characterHandle, statusHandle);
 				return 1;
 			}
+
+			OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
 		} else {
-			NetId statusNetId{ (uint32_t)index };
-			status = character->GetStatus(statusNetId);
-			if (status != nullptr) {
-				ObjectHandle characterHandle;
-				character->GetObjectHandle(characterHandle);
-				StatusHandleProxy::New(L, characterHandle, statusNetId);
-				return 1;
+			auto index = lua_tointeger(L, 2);
+
+			// We need to keep integer status handle support since some extender Osiris events
+			// (eg. NRD_OnHit, NRD_OnPrepareHit, etc.) use these handles and Osiris doesn't support lightuserdata
+			if (index > 0xffffffff) {
+				ObjectHandle statusHandle{ index };
+				status = character->GetStatus(statusHandle, true);
+				if (status != nullptr) {
+					ObjectHandle characterHandle;
+					character->GetObjectHandle(characterHandle);
+					StatusHandleProxy::New(L, characterHandle, statusHandle);
+					return 1;
+				}
+
+				OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
+			} else {
+				NetId statusNetId{ (uint32_t)index };
+				status = character->GetStatus(statusNetId);
+				if (status != nullptr) {
+					ObjectHandle characterHandle;
+					character->GetObjectHandle(characterHandle);
+					StatusHandleProxy::New(L, characterHandle, statusNetId);
+					return 1;
+				}
+
+				OsiError("Character has no status with NetId 0x" << std::hex << index);
 			}
 		}
 
-		OsiError("Character has no status with ObjectHandle/NetId 0x" << std::hex << index);
 		return 0;
 	}
 
@@ -1325,7 +1390,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
 
-		auto handle = checked_get<int64_t>(L, 1);
+		auto handle = checked_get<ObjectHandle>(L, 1);
 
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (!level || !level->SurfaceManager) {
@@ -1333,9 +1398,9 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		auto surface = level->SurfaceManager->Get(ObjectHandle(handle));
+		auto surface = level->SurfaceManager->Get(handle);
 		if (surface != nullptr) {
-			ObjectProxy<esv::Surface>::New(L, ObjectHandle(handle));
+			ObjectProxy<esv::Surface>::New(L, handle);
 			return 1;
 		} else {
 			return 0;
@@ -1371,12 +1436,12 @@ namespace dse::esv::lua
 		settable(L, "Height", height);
 		if (groundIdx != -1) {
 			auto surface = level->SurfaceManager->Surfaces[groundIdx];
-			settable(L, "GroundSurface", surface->MyHandle.Handle);
+			settable(L, "GroundSurface", surface->MyHandle);
 		}
 
 		if (cloudIdx != -1) {
 			auto surface = level->SurfaceManager->Surfaces[cloudIdx];
-			settable(L, "CloudSurface", surface->MyHandle.Handle);
+			settable(L, "CloudSurface", surface->MyHandle);
 		}
 
 		lua_newtable(L);
@@ -1385,7 +1450,7 @@ namespace dse::esv::lua
 			for (auto ai : meta->Ai) {
 				ObjectHandle handle;
 				ai->GameObject->GetObjectHandle(handle);
-				settable(L, aiIdx++, handle.Handle);
+				settable(L, aiIdx++, handle);
 			}
 		}
 
@@ -1539,7 +1604,7 @@ namespace dse::esv::lua
 
 	int CancelSurfaceAction(lua_State* L)
 	{
-		ObjectHandle handle{ checked_get<uint64_t>(L, 1) };
+		auto handle = checked_get<ObjectHandle>(L, 1);
 		
 		if (handle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
 			OsiError("Expected a surface action handle, got type " << handle.GetType());

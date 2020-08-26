@@ -83,6 +83,11 @@ namespace dse::lua
 		push(L, ToUTF8(v));
 	}
 
+	inline void push(lua_State* L, ObjectHandle const& h)
+	{
+		lua_pushlightuserdata(L, (void*)h.Handle);
+	}
+
 	inline void push(lua_State* L, glm::vec3 const& v)
 	{
 		lua_newtable(L);
@@ -248,6 +253,12 @@ namespace dse::lua
 		}
 	}
 
+	template <>
+	inline ObjectHandle get<ObjectHandle>(lua_State* L, int index)
+	{
+		return ObjectHandle{ (uint64_t)lua_touserdata(L, index) };
+	}
+
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
 	inline bool checked_get(lua_State * L, int index)
@@ -285,6 +296,13 @@ namespace dse::lua
 		} else {
 			return fs;
 		}
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, ObjectHandle>, int>* = nullptr>
+	inline ObjectHandle checked_get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
+		return ObjectHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec2>, int>* = nullptr>

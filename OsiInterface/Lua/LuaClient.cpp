@@ -134,7 +134,7 @@ namespace dse::lua
 		}
 
 		if (prop == GFS.strHandle) {
-			push(L, character->Base.Component.Handle.Handle);
+			push(L, character->Base.Component.Handle);
 			return 1;
 		}
 
@@ -378,7 +378,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strHandle) {
-			push(L, item->Base.Component.Handle.Handle);
+			push(L, item->Base.Component.Handle);
 			return 1;
 		}
 
@@ -433,10 +433,23 @@ namespace dse::ecl::lua
 	{
 		ecl::Character* character = nullptr;
 		switch (lua_type(L, index)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, index);
+			if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+				OsiError("Attempted to resolve server ObjectHandle on the client");
+			}
+			else {
+				character = GetEntityWorld()->GetCharacter(handle);
+			}
+			break;
+		}
+
 		case LUA_TNUMBER:
 		{
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
+				OsiError("Resolving integer object handles is deprecated since v52!")
 				ObjectHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
 					OsiError("Attempted to resolve server ObjectHandle on the client");
@@ -476,8 +489,7 @@ namespace dse::ecl::lua
 			character->GetObjectHandle(handle);
 			ObjectProxy<ecl::Character>::New(L, handle);
 			return 1;
-		}
-		else {
+		} else {
 			return 0;
 		}
 	}
@@ -488,6 +500,17 @@ namespace dse::ecl::lua
 
 		ecl::Item* item = nullptr;
 		switch (lua_type(L, 1)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, 1);
+			if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
+				OsiError("Attempted to resolve server ObjectHandle on the client");
+			} else {
+				item = GetEntityWorld()->GetItem(handle);
+			}
+			break;
+		}
+
 		case LUA_TNUMBER:
 		{
 			auto value = lua_tointeger(L, 1);
@@ -534,11 +557,9 @@ namespace dse::ecl::lua
 		auto character = GetCharacter(L, 1);
 		if (character == nullptr) return 0;
 
-		auto index = lua_tointeger(L, 2);
-		
 		ecl::Status* status;
-		if (index > 0xffffffff) {
-			ObjectHandle statusHandle(index);
+		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
+			auto statusHandle = checked_get<ObjectHandle>(L, 2);
 			status = character->GetStatus(statusHandle);
 
 			if (status != nullptr) {
@@ -547,7 +568,10 @@ namespace dse::ecl::lua
 				StatusHandleProxy::New(L, characterHandle, statusHandle);
 				return 1;
 			}
+
+			OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
 		} else {
+			auto index = lua_tointeger(L, 2);
 			NetId statusNetId{ (uint32_t)index };
 			status = character->GetStatus(statusNetId);
 
@@ -557,9 +581,10 @@ namespace dse::ecl::lua
 				StatusHandleProxy::New(L, characterHandle, statusNetId);
 				return 1;
 			}
+
+			OsiError("Character has no status with NetId 0x" << std::hex << index);
 		}
 
-		OsiError("Character has no status with NetId 0x" << std::hex << index);
 		return 0;
 	}
 
@@ -1274,7 +1299,7 @@ namespace dse::ecl::lua
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
-		push(L, ui->UIObjectHandle.Handle);
+		push(L, ui->UIObjectHandle);
 		return 1;
 	}
 
@@ -1294,7 +1319,7 @@ namespace dse::ecl::lua
 		}
 
 		if (handle) {
-			push(L, handle.Handle);
+			push(L, handle);
 		} else {
 			lua_pushnil(L);
 		}
