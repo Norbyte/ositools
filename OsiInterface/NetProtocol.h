@@ -72,6 +72,7 @@ namespace dse
 	{
 	protected:
 		void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper & msg) override;
+		int PostUpdate(GameTime* Time) override;
 	};
 
 
