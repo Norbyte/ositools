@@ -1219,7 +1219,6 @@ namespace dse::esv::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			OsiError("Resolving integer object handles is deprecated since v52!");
 			auto handle = checked_get<ObjectHandle>(L, 1);
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
@@ -1280,7 +1279,7 @@ namespace dse::esv::lua
 		}
 
 		default:
-			OsiError("Expected object GUID or handle, got ");
+			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
 			return 0;
 		}
 
