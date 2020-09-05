@@ -1773,11 +1773,7 @@ namespace dse
 		{
 			auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
 			if (val) {
-				if (*val) {
-					lua::push(L, *val);
-				} else {
-					lua_pushnil(L);
-				}
+				lua::push(L, *val);
 				return true;
 			} else {
 				return false;
