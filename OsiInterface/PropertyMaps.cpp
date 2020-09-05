@@ -1290,6 +1290,7 @@ namespace dse
 
 		{
 			BEGIN_PROPERTIES(gEoCGameObjectTemplatePropertyMap, EoCGameObjectTemplate);
+			propertyMap.Parent = &gGameObjectTemplatePropertyMap;
 			PROP_TPL(AIBoundsRadius);
 			PROP_TPL(AIBoundsHeight);
 			PROP_TPL(DisplayName);
@@ -1304,6 +1305,7 @@ namespace dse
 
 		{
 			BEGIN_PROPERTIES(gCharacterTemplatePropertyMap, CharacterTemplate);
+			propertyMap.Parent = &gEoCGameObjectTemplatePropertyMap;
 			PROP_TPL(Icon);
 			PROP_TPL(Stats);
 			PROP_TPL(SkillSet);
@@ -1363,6 +1365,7 @@ namespace dse
 
 		{
 			BEGIN_PROPERTIES(gItemTemplatePropertyMap, ItemTemplate);
+			propertyMap.Parent = &gEoCGameObjectTemplatePropertyMap;
 			PROP_TPL(Icon);
 			PROP_TPL(CanBePickedUp);
 			PROP_TPL(CanBeMoved);
@@ -1433,6 +1436,7 @@ namespace dse
 
 		{
 			BEGIN_PROPERTIES(gProjectileTemplatePropertyMap, ProjectileTemplate);
+			propertyMap.Parent = &gEoCGameObjectTemplatePropertyMap;
 			PROP(LifeTime);
 			PROP(Speed);
 			PROP(Acceleration);
