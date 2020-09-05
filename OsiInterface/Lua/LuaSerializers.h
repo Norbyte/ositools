@@ -17,7 +17,9 @@ namespace dse::lua
 		{
 			int newTop = lua_gettop(L);
 			if (newTop != expectedTop) {
-				DebugBreak();
+				if (IsDebuggerPresent()) {
+					DebugBreak();
+				}
 			}
 		}
 
