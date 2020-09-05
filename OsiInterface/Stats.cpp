@@ -176,7 +176,7 @@ namespace dse
 
 	void CDivinityStats_Object_Property_Data::ToProtobuf(StatProperty* msg) const
 	{
-		msg->set_name(Name.Str);
+		msg->set_name(Name.Str ? Name.Str : "<Unnamed>");
 		msg->set_type((uint32_t)TypeId);
 		msg->set_property_context((uint32_t)Context);
 		if (Conditions) {
