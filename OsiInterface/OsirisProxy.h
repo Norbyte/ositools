@@ -7,6 +7,8 @@
 #include "DebugInterface.h"
 #include "DebugMessages.h"
 #include "Debugger.h"
+#include "Lua/LuaDebugger.h"
+#include "Lua/LuaDebugMessages.h"
 #endif
 #include "OsirisWrappers.h"
 #include "CustomFunctions.h"
@@ -29,9 +31,11 @@ struct ToolConfig
 #if defined(OSI_EXTENSION_BUILD)
 	bool CreateConsole{ false };
 	bool EnableDebugger{ false };
+	bool EnableLuaDebugger{ false };
 #else
 	bool CreateConsole{ true };
 	bool EnableDebugger{ true };
+	bool EnableLuaDebugger{ true };
 #endif
 
 	bool EnableExtensions{ true };
@@ -64,7 +68,8 @@ struct ToolConfig
 #else
 	bool SyncNetworkStrings{ false };
 #endif
-	uint16_t DebuggerPort{ 9999 };
+	uint32_t DebuggerPort{ 9999 };
+	uint32_t LuaDebuggerPort{ 9998 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
 };
@@ -166,6 +171,13 @@ public:
 	{
 		return Libraries;
 	}
+
+#if !defined(OSI_NO_DEBUGGER)
+	inline lua::dbg::Debugger* GetLuaDebugger()
+	{
+		return luaDebugger_.get();
+	}
+#endif
 
 	ExtensionStateBase* GetCurrentExtensionState();
 
@@ -290,11 +302,15 @@ private:
 	std::recursive_mutex storyLoadLock_;
 
 #if !defined(OSI_NO_DEBUGGER)
-	std::thread * DebuggerThread{ nullptr };
-	std::unique_ptr<DebugInterface> debugInterface_;
-	std::unique_ptr<DebugMessageHandler> debugMsgHandler_;
-	std::unique_ptr<Debugger> debugger_;
-	bool DebugDisableLogged{ false };
+	std::thread * debuggerThread_{ nullptr };
+	std::unique_ptr<OsirisDebugInterface> debugInterface_;
+	std::unique_ptr<osidbg::DebugMessageHandler> debugMsgHandler_;
+	std::unique_ptr<osidbg::Debugger> debugger_;
+
+	std::thread* luaDebuggerThread_{ nullptr };
+	std::unique_ptr<LuaDebugInterface> luaDebugInterface_;
+	std::unique_ptr<lua::dbg::DebugMessageHandler> luaDebugMsgHandler_;
+	std::unique_ptr<lua::dbg::Debugger> luaDebugger_;
 #endif
 
 	void ResolveNodeVMTs(NodeDb * Db);

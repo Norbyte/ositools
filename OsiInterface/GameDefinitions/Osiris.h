@@ -648,7 +648,7 @@ struct String
 	{}
 };
 
-struct TValue
+struct RawValue
 {
 	Value Val;
 	uint32_t Unknown{ 0 };
@@ -677,7 +677,7 @@ public:
 	void * VMT{ nullptr };
 
 	uint32_t TypeId{ 0 };
-	TValue Value;
+	RawValue Value;
 };
 
 struct DatabaseParam

@@ -15,11 +15,16 @@ namespace dse::lua
 
 		~StackCheck()
 		{
+			// During stack unwinding the topmost frame will clean up the stack,
+			// so frames where we didn't reach the catch{} handler yet may see incorrect results
+			if (std::uncaught_exceptions() > 0) return;
+
+			// DebugBreak() crashes without a debugger
+			if (!IsDebuggerPresent()) return;
+
 			int newTop = lua_gettop(L);
 			if (newTop != expectedTop) {
-				if (IsDebuggerPresent()) {
-					DebugBreak();
-				}
+				DebugBreak();
 			}
 		}
 

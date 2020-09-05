@@ -28,6 +28,12 @@
     <Filter Include="Source Files\Scripts">
       <UniqueIdentifier>{a0a80cee-3cc1-4c6e-871a-a7d54cadf0b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Osiris">
+      <UniqueIdentifier>{9414cb79-d5db-47b2-869d-d33933d01a7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Osiris">
+      <UniqueIdentifier>{a5b7cc5e-1905-44af-9c41-b38a910d1a5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -57,19 +63,10 @@
     <ClInclude Include="DebugInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DebugMessages.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Debugger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CustomFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Wrappers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OsirisWrappers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataLibraries.h">
@@ -124,9 +121,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OsirisHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PropertyMaps.h">
@@ -198,6 +192,27 @@
     <ClInclude Include="Lua\LuaSerializers.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\LuaDebugMessages.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\LuaDebugger.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Debugger.h">
+      <Filter>Header Files\Osiris</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMessages.h">
+      <Filter>Header Files\Osiris</Filter>
+    </ClInclude>
+    <ClInclude Include="OsirisHelpers.h">
+      <Filter>Header Files\Osiris</Filter>
+    </ClInclude>
+    <ClInclude Include="OsirisWrappers.h">
+      <Filter>Header Files\Osiris</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaDebug.pb.h">
+      <Filter>Header Files\Lua</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -218,19 +233,7 @@
     <ClCompile Include="NodeHooks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="osidebug.pb.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DebugInterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugMessages.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Debugger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OsirisWrappers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CustomFunctions.cpp">
@@ -290,9 +293,6 @@
     <ClCompile Include="GameDefinitions\GameHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OsirisHelpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Functions\LuaFunctions.cpp">
       <Filter>Source Files\Functions</Filter>
     </ClCompile>
@@ -339,6 +339,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Lua\LuaSerializers.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\LuaDebugMessages.cpp">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="OsirisHelpers.cpp">
+      <Filter>Source Files\Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugger.cpp">
+      <Filter>Source Files\Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMessages.cpp">
+      <Filter>Source Files\Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="OsirisWrappers.cpp">
+      <Filter>Source Files\Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="osidebug.pb.cc">
+      <Filter>Source Files\Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaDebug.pb.cc">
+      <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\LuaDebugger.cpp">
       <Filter>Source Files\Lua</Filter>
     </ClCompile>
   </ItemGroup>
@@ -400,6 +424,9 @@
     </None>
     <None Include="GameDefinitions\EngineHooks.inl">
       <Filter>Header Files\GameDefinitions</Filter>
+    </None>
+    <None Include="LuaDebug.proto">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

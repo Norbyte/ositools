@@ -7,7 +7,7 @@
 #include <GameDefinitions/Osiris.h>
 #include "DebugInterface.h"
 
-namespace dse
+namespace dse::osidbg
 {
 	enum class GlobalBreakpointReason
 	{
@@ -85,7 +85,7 @@ namespace dse
 	public:
 		static const uint32_t ProtocolVersion = 8;
 
-		DebugMessageHandler(DebugInterface & intf);
+		DebugMessageHandler(OsirisDebugInterface& intf);
 
 		inline bool IsConnected() const
 		{
@@ -110,7 +110,7 @@ namespace dse
 		void SendEvaluateFinished(uint32_t seq, ResultCode rc, bool querySucceeded);
 
 	private:
-		DebugInterface & intf_;
+		OsirisDebugInterface& intf_;
 		Debugger * debugger_{ nullptr };
 		uint32_t inboundSeq_{ 1 };
 		uint32_t outboundSeq_{ 1 };

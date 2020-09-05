@@ -2229,11 +2229,25 @@ namespace dse::esv::lua
 		// Ext is not writeable after loading SandboxStartup!
 		auto sandbox = GetBuiltinLibrary(IDR_LUA_SANDBOX_STARTUP);
 		LoadScript(sandbox, "SandboxStartup.lua");
+
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gOsirisProxy->GetLuaDebugger();
+		if (debugger) {
+			debugger->ServerStateCreated(this);
+		}
+#endif
 	}
 
 	ServerState::~ServerState()
 	{
 		if (gOsirisProxy) {
+#if !defined(OSI_NO_DEBUGGER)
+			auto debugger = gOsirisProxy->GetLuaDebugger();
+			if (debugger) {
+				debugger->ServerStateDeleted();
+			}
+#endif
+
 			gOsirisProxy->GetCustomFunctionManager().ClearDynamicEntries();
 		}
 	}

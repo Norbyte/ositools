@@ -1880,6 +1880,13 @@ namespace dse::ecl::lua
 		// Ext is not writeable after loading SandboxStartup!
 		auto sandbox = GetBuiltinLibrary(IDR_LUA_SANDBOX_STARTUP);
 		LoadScript(sandbox, "SandboxStartup.lua");
+
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gOsirisProxy->GetLuaDebugger();
+		if (debugger) {
+			debugger->ClientStateCreated(this);
+		}
+#endif
 	}
 
 	ClientState::~ClientState()
@@ -1889,6 +1896,15 @@ namespace dse::ecl::lua
 		for (auto & obj : clientUI_) {
 			sym.UIObjectManager__DestroyUIObject(uiManager, &obj.second);
 		}
+
+#if !defined(OSI_NO_DEBUGGER)
+		if (gOsirisProxy) {
+			auto debugger = gOsirisProxy->GetLuaDebugger();
+			if (debugger) {
+				debugger->ClientStateDeleted();
+			}
+		}
+#endif
 	}
 
 	void ClientState::OnCreateUIObject(ObjectHandle uiObjectHandle)

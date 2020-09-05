@@ -13,7 +13,7 @@
 
 namespace dse
 {
-	DebugInterface::DebugInterface(uint16_t port)
+	SocketInterface::SocketInterface(uint16_t port)
 		: port_(port)
 	{
 		WSADATA wsaData;
@@ -35,62 +35,39 @@ namespace dse
 			ERR("Could not listen on server socket: %d", WSAGetLastError());
 			throw std::runtime_error("Debug server start failed");
 		}
-
-		DEBUG("Debug interface listening on 127.0.0.1:%d; DBG protocol version %d", port_, DebugMessageHandler::ProtocolVersion);
 	}
 
-	DebugInterface::~DebugInterface()
+	SocketInterface::~SocketInterface()
 	{
 		closesocket(socket_);
 	}
 
-	void DebugInterface::SetMessageHandler(
-		std::function<bool(DebuggerToBackend const *)> messageHandler,
+	void SocketInterface::SetConnectHandler(
 		std::function<void()> connectHandler,
 		std::function<void()> disconnectHandler)
 	{
-		messageHandler_ = messageHandler;
 		connectHandler_ = connectHandler;
 		disconnectHandler_ = disconnectHandler;
 	}
 
-	bool DebugInterface::IsConnected() const
+	bool SocketInterface::IsConnected() const
 	{
 		return clientSocket_ != 0;
 	}
 
-	void DebugInterface::Send(BackendToDebugger const & msg)
+	void SocketInterface::SendProtobufMessage(uint8_t* buf, uint32_t length)
 	{
 		if (clientSocket_ == 0) {
-			DEBUG("DebugInterface::Send(): Not connected to debugger frontend");
+			DEBUG("ProtobufSocketInterface::Send(): Not connected to debugger frontend");
 			return;
 		}
 
-		uint32_t size = (uint32_t)msg.ByteSizeLong();
-		uint32_t packetSize = size + 4;
-		Send((uint8_t *)&packetSize, 4);
-
-		if (size < 0x100) {
-			uint8_t buf[0x100];
-			if (!msg.SerializeToArray(buf, size)) {
-				Fail("Unable to serialize message");
-			}
-
-			Send(buf, size);
-		}
-		else
-		{
-			uint8_t * buf = new uint8_t[size];
-			if (!msg.SerializeToArray(buf, size)) {
-				Fail("Unable to serialize message");
-			}
-
-			Send(buf, size);
-			delete[] buf;
-		}
+		uint32_t packetSize = length + 4;
+		Send((uint8_t*)&packetSize, 4);
+		Send(buf, length);
 	}
 
-	void DebugInterface::Send(uint8_t * buf, uint32_t length)
+	void SocketInterface::Send(uint8_t * buf, uint32_t length)
 	{
 		while (length > 0) {
 			int sent = send(clientSocket_, (char *)buf, (int)length, 0);
@@ -105,20 +82,7 @@ namespace dse
 		}
 	}
 
-	bool DebugInterface::ProcessMessage(uint8_t * buf, uint32_t length)
-	{
-		google::protobuf::io::ArrayInputStream ais(buf, length);
-		google::protobuf::io::CodedInputStream is(&ais);
-		DebuggerToBackend msg;
-		if (!msg.ParseFromCodedStream(&is)) {
-			ERR("Unable to decode protobuf message from coded stream.");
-			return false;
-		}
-
-		return messageHandler_(&msg);
-	}
-
-	void DebugInterface::Disconnect()
+	void SocketInterface::Disconnect()
 	{
 		if (!IsConnected()) return;
 
@@ -130,7 +94,7 @@ namespace dse
 		}
 	}
 
-	void DebugInterface::MessageLoop(SOCKET sock)
+	void SocketInterface::MessageLoop(SOCKET sock)
 	{
 		receivePos_ = 0;
 		for (;;) {
@@ -165,7 +129,7 @@ namespace dse
 		}
 	}
 
-	void DebugInterface::Run()
+	void SocketInterface::Run()
 	{
 		for (;;) {
 			sockaddr_in addr;

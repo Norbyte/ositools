@@ -22,6 +22,18 @@ namespace dse
 std::unique_ptr<OsirisProxy> gOsirisProxy;
 
 
+#if !defined(OSI_NO_DEBUGGER)
+void OsirisDebugThreadRunner(OsirisDebugInterface & intf)
+{
+	intf.Run();
+}
+
+void LuaDebugThreadRunner(LuaDebugInterface& intf)
+{
+	intf.Run();
+}
+#endif
+
 OsirisProxy::OsirisProxy()
 	: CustomInjector(Wrappers, CustomFunctions),
 	FunctionLibrary(*this),
@@ -99,6 +111,22 @@ void OsirisProxy::Initialize()
 	Wrappers.TranslatedStringRepository__UnloadOverrides.SetPreHook(std::bind(&OsirisProxy::OnModuleLoadStarted, this, _1));
 	Wrappers.RPGStats__Load.AddPreHook(std::bind(&OsirisProxy::OnStatsLoadStarted, this, _1));
 	Wrappers.RPGStats__Load.AddPostHook(std::bind(&OsirisProxy::OnStatsLoadFinished, this, _1));
+
+#if !defined(OSI_NO_DEBUGGER)
+	if (config_.EnableLuaDebugger && luaDebuggerThread_ == nullptr) {
+		DEBUG("Starting Lua debugger server");
+		try {
+			luaDebugInterface_ = std::make_unique<LuaDebugInterface>(config_.LuaDebuggerPort);
+			luaDebugMsgHandler_ = std::make_unique<lua::dbg::DebugMessageHandler>(std::ref(*luaDebugInterface_));
+			luaDebuggerThread_ = new std::thread(std::bind(LuaDebugThreadRunner, std::ref(*luaDebugInterface_)));
+			luaDebugger_ = std::make_unique<lua::dbg::Debugger>(std::ref(*luaDebugMsgHandler_));
+			DEBUG("Lua debugger listening on 127.0.0.1:%d; DBG protocol version %d",
+				config_.LuaDebuggerPort, lua::dbg::DebugMessageHandler::ProtocolVersion);
+		} catch (std::exception& e) {
+			ERR("Lua debugger startup failed: %s", e.what());
+		}
+	}
+#endif
 
 	auto initEnd = std::chrono::high_resolution_clock::now();
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(initEnd - initStart).count();
@@ -216,13 +244,6 @@ void OsirisProxy::HookNodeVMTs()
 	}
 }
 
-#if !defined(OSI_NO_DEBUGGER)
-void DebugThreadRunner(DebugInterface & intf)
-{
-	intf.Run();
-}
-#endif
-
 void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
 {
 	// FIXME - register before OsirisWrappers!
@@ -283,19 +304,18 @@ void OsirisProxy::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions
 #if !defined(OSI_NO_DEBUGGER)
 	// FIXME - move to DebuggerHooks
 	if (config_.EnableDebugger) {
-		if (DebuggerThread == nullptr) {
+		if (debuggerThread_ == nullptr) {
 			DEBUG("Starting debugger server");
 			try {
-				debugInterface_ = std::make_unique<DebugInterface>(config_.DebuggerPort);
-				debugMsgHandler_ = std::make_unique<DebugMessageHandler>(std::ref(*debugInterface_));
-				DebuggerThread = new std::thread(std::bind(DebugThreadRunner, std::ref(*debugInterface_)));
+				debugInterface_ = std::make_unique<OsirisDebugInterface>(config_.DebuggerPort);
+				debugMsgHandler_ = std::make_unique<osidbg::DebugMessageHandler>(std::ref(*debugInterface_));
+				debuggerThread_ = new std::thread(std::bind(OsirisDebugThreadRunner, std::ref(*debugInterface_)));
+				DEBUG("Osiris debugger listening on 127.0.0.1:%d; DBG protocol version %d", 
+					config_.DebuggerPort, osidbg::DebugMessageHandler::ProtocolVersion);
 			} catch (std::exception & e) {
-				ERR("Debugger start failed: %s", e.what());
+				ERR("Osiris debugger start failed: %s", e.what());
 			}
 		}
-	} else if (!DebugDisableLogged) {
-		DEBUG("Debugging not enabled; not starting debugger server thread.");
-		DebugDisableLogged = true;
 	}
 #endif
 }
@@ -385,7 +405,7 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	std::lock_guard _(storyLoadLock_);
 
 #if !defined(OSI_NO_DEBUGGER)
-	if (DebuggerThread != nullptr) {
+	if (debuggerThread_ != nullptr) {
 		HookNodeVMTs();
 	}
 #endif
@@ -394,9 +414,9 @@ void OsirisProxy::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
 	DEBUG("OsirisProxy::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
 
 #if !defined(OSI_NO_DEBUGGER)
-	if (DebuggerThread != nullptr && gNodeVMTWrappers) {
+	if (debuggerThread_ != nullptr && gNodeVMTWrappers) {
 		debugger_.reset();
-		debugger_ = std::make_unique<Debugger>(Wrappers.Globals, std::ref(*debugMsgHandler_));
+		debugger_ = std::make_unique<osidbg::Debugger>(Wrappers.Globals, std::ref(*debugMsgHandler_));
 		debugger_->StoryLoaded();
 	}
 #endif

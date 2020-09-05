@@ -52,8 +52,7 @@ template <typename... Args>
 void Debug(DebugMessageType type, wchar_t const * fmt, Args... args)
 {
 	wchar_t buf[1024];
-	int length = swprintf_s(buf, 1024 - 1, fmt, args...);
-	buf[length++] = 0;
+	_snwprintf_s(buf, std::size(buf), _TRUNCATE, fmt, args...);
 	gConsole.Debug(type, buf);
 }
 
@@ -61,8 +60,7 @@ template <typename... Args>
 void Debug(DebugMessageType type, char const * fmt, Args... args)
 {
 	char buf[1024];
-	int length = sprintf_s(buf, 1024 - 1, fmt, args...);
-	buf[length++] = 0;
+	_snprintf_s(buf, std::size(buf), _TRUNCATE, fmt, args...);
 	gConsole.Debug(type, buf);
 }
 

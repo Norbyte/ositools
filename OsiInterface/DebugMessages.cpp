@@ -6,15 +6,15 @@
 
 #if !defined(OSI_NO_DEBUGGER)
 
-namespace dse
+namespace dse::osidbg
 {
-	DebugMessageHandler::DebugMessageHandler(DebugInterface & intf)
+	DebugMessageHandler::DebugMessageHandler(OsirisDebugInterface& intf)
 		: intf_(intf)
 	{
-		intf_.SetMessageHandler(
-			std::bind(&DebugMessageHandler::HandleMessage, this, std::placeholders::_1),
+		intf_.SetConnectHandler(
 			std::bind(&DebugMessageHandler::HandleConnect, this),
 			std::bind(&DebugMessageHandler::HandleDisconnect, this));
+		intf_.SetMessageHandler(std::bind(&DebugMessageHandler::HandleMessage, this, std::placeholders::_1));
 	}
 
 	void MakeMsgColumn(MsgTypedValue & msgTv, TypedValue const & tv)

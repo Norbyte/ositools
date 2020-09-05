@@ -403,7 +403,17 @@ namespace dse
 			return {};
 		}
 
-		return LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName, globalsIdx);
+		auto result = LuaLoadGameFile(reader, scriptName.empty() ? path : scriptName, globalsIdx);
+		if (result) {
+			loadedFiles_.insert(std::make_pair(scriptName, path));
+			auto fullPath = GetStaticSymbols().ToPath(path, PathRootType::Data);
+			if (!fullPath.empty()) {
+				fullPath[0] = std::tolower(fullPath[0]);
+			}
+			loadedFileFullPaths_.insert(std::make_pair(scriptName, fullPath));
+		}
+
+		return result;
 	}
 
 	std::optional<int> ExtensionStateBase::LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, 

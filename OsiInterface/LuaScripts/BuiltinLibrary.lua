@@ -1,6 +1,8 @@
 local _G = _G
 
 Ext._LoadedFiles = {}
+-- Table to hold debugger expression evaluation results
+Ext._EVAL_ROOTS_ = {}
 Mods = {}
 
 Ext._WarnDeprecated = function (msg)
@@ -189,4 +191,14 @@ Ext.RegisterConsoleCommand = function (cmd, fn)
 	end
 
 	table.insert(Ext._ConsoleCommandListeners[cmd], fn)
+end
+
+Ext.DebugEvaluate = function (retval)
+	if type(retval) ~= "table" then
+		return retval
+	else
+		local idx = #Ext._EVAL_ROOTS_ + 1
+		Ext._EVAL_ROOTS_[idx] = retval
+		return retval, idx
+	end
 end

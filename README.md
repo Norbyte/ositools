@@ -29,5 +29,7 @@ The following configuration variables can be set in the `OsirisExtenderSettings.
 | DeveloperMode | Boolean | Enables various debug functionality for development purposes. |
 | DisableModValidation | Boolean | Disable module hashing when loading modules. |
 | EnableAchievements | Boolean | Re-enable achievements for modded games. |
-| EnableDebugger | Boolean | Enables the debugger interface |
-| DebuggerPort | Integer | Port number the debugger will listen on (default 9999) |
+| EnableDebugger | Boolean | Enables the Osiris debugger interface |
+| DebuggerPort | Integer | Port number the Osiris debugger will listen on (default 9999) |
+| EnableLuaDebugger | Boolean | Enables the Lua debugger interface |
+| LuaDebuggerPort | Integer | Port number the Lua debugger will listen on (default 9998) |

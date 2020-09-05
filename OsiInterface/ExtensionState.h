@@ -65,6 +65,16 @@ namespace dse
 			return modConfigs_;
 		}
 
+		inline std::unordered_map<STDString, STDString> const& GetLoadedFiles() const
+		{
+			return loadedFiles_;
+		}
+
+		inline std::unordered_map<STDString, STDString> const& GetLoadedFileFullPaths() const
+		{
+			return loadedFileFullPaths_;
+		}
+
 	protected:
 		friend class LuaVirtualPin;
 		static std::unordered_set<std::string_view> sAllFeatureFlags;
@@ -79,6 +89,10 @@ namespace dse
 		bool LuaPendingDelete{ false };
 		bool LuaPendingStartup{ false };
 		bool StatLoadTriggered{ false };
+
+		// Keep track of the list of loaded files so we can pass them to the debugger
+		std::unordered_map<STDString, STDString> loadedFiles_;
+		std::unordered_map<STDString, STDString> loadedFileFullPaths_;
 
 		void LuaResetInternal();
 		virtual void DoLuaReset() = 0;

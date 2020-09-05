@@ -128,6 +128,13 @@ void DebugConsole::Debug(DebugMessageType type, char const* msg)
 		logFile_.write("\r\n", 2);
 		logFile_.flush();
 	}
+
+	if (dse::gOsirisProxy) {
+		auto debugger = dse::gOsirisProxy->GetLuaDebugger();
+		if (debugger && debugger->IsDebuggerReady()) {
+			debugger->OnLogMessage(type, msg);
+		}
+	}
 }
 
 void DebugConsole::Debug(DebugMessageType type, wchar_t const* msg)
@@ -146,6 +153,13 @@ void DebugConsole::Debug(DebugMessageType type, wchar_t const* msg)
 		logFile_.write(utf.c_str(), utf.size());
 		logFile_.write("\r\n", 2);
 		logFile_.flush();
+	}
+
+	if (dse::gOsirisProxy) {
+		auto debugger = dse::gOsirisProxy->GetLuaDebugger();
+		if (debugger && debugger->IsDebuggerReady()) {
+			debugger->OnLogMessage(type, dse::ToUTF8(msg));
+		}
 	}
 }
 

@@ -340,3 +340,6 @@ OsiInterface/ScriptExtensions.pb.cc
 publish.bat
 publish-release.bat
 package-signer.key
+OsiInterface/LuaDebug.pb.h
+OsiInterface/LuaDebug.pb.cc
+LuaDebugger/DbgProtocol.cs

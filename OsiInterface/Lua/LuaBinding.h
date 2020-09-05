@@ -259,13 +259,13 @@ namespace dse::lua
 			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
+		static STDString GetBuiltinLibrary(int resourceId);
+
 	protected:
 		lua_State * L;
 		bool startupDone_{ false };
 
 		void OpenLibs();
-
-		static STDString GetBuiltinLibrary(int resourceId);
 	};
 
 	class Restriction

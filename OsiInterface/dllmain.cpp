@@ -16,6 +16,14 @@ void ConfigGetBool(Json::Value & node, char const * key, bool & value)
 	}
 }
 
+void ConfigGetInt(Json::Value& node, char const* key, uint32_t& value)
+{
+	auto configVar = node[key];
+	if (!configVar.isNull() && configVar.isUInt()) {
+		value = configVar.asUInt();
+	}
+}
+
 void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 {
 	std::ifstream f(configPath, std::ios::in);
@@ -44,27 +52,14 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
 	ConfigGetBool(root, "SyncNetworkStrings", config.SyncNetworkStrings);
 	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
+	ConfigGetBool(root, "EnableLuaDebugger", config.EnableLuaDebugger);
 	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
 	ConfigGetBool(root, "DeveloperMode", config.DeveloperMode);
 	ConfigGetBool(root, "EnableAchievements", config.EnableAchievements);
 
-	auto debuggerPort = root["DebuggerPort"];
-	if (!debuggerPort.isNull()) {
-		if (debuggerPort.isUInt()) {
-			config.DebuggerPort = debuggerPort.asUInt();
-		} else {
-			Fail("Config option 'DebuggerPort' should be an integer.");
-		}
-	}
-
-	auto flags = root["DebugFlags"];
-	if (!flags.isNull()) {
-		if (flags.isUInt()) {
-			config.DebugFlags = flags.asUInt();
-		} else {
-			Fail("Config option 'DebugFlags' should be an integer.");
-		}
-	}
+	ConfigGetInt(root, "DebuggerPort", config.DebuggerPort);
+	ConfigGetInt(root, "LuaDebuggerPort", config.LuaDebuggerPort);
+	ConfigGetInt(root, "DebugFlags", config.DebugFlags);
 
 	auto logDir = root["LogDirectory"];
 	if (!logDir.isNull()) {

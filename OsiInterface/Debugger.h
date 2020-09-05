@@ -9,7 +9,7 @@
 #include "DebugMessages.h"
 #include "OsirisHelpers.h"
 
-namespace dse
+namespace dse::osidbg
 {
 	enum BreakpointType
 	{
