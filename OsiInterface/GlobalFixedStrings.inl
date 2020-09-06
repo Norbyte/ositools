@@ -55,6 +55,18 @@ FS(GenerationBoosts);
 FS(RuneBoosts);
 FS(DeltaMods);
 
+// AI grid funcs
+FS(SearchForCell);
+FS(GetCellInfo);
+FS(GetAiFlags);
+FS(SetAiFlags);
+FS(OffsetX);
+FS(OffsetY);
+FS(OffsetZ);
+FS(GridScale);
+FS(Width);
+FS(Height);
+
 // Character stats
 FS(DynamicStats);
 FS(MainWeapon);

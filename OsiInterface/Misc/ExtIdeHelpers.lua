@@ -55,6 +55,12 @@ function DamageList.ToTable (self) end
 
 
 --- @class AiGrid
+--- @field public OffsetX number X coordinate the grid starts at
+--- @field public OffsetY number Y coordinate the grid starts at
+--- @field public OffsetZ number Z coordinate the grid starts at
+--- @field public GridScale number Size of each cell in the grid
+--- @field public Width number Total width of the grid
+--- @field public Height number Total height of the grid
 local AiGrid = {}
 
 --- Scans the vicinity of the specified points for surfaces that match the specified flags.
@@ -67,7 +73,28 @@ local AiGrid = {}
 --- @param bias number Height bias
 --- @return boolean
 function AiGrid.SearchForCell (self, x, z, radius, flags, bias) end
-    
+
+--- Returns the contents (game objects, surfaces, etc.) of the specified cell
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @return table
+function AiGrid.GetCellInfo (self, x, z) end
+
+--- Returns the AI flags (navigation info, surface flags) of the specified cell
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @return integer
+function AiGrid.GetAiFlags (self, x, z) end
+
+--- Updates the AI flags (navigation info) of the specified cell
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @param flags integer AI flags
+function AiGrid.SetAiFlags (self, x, z, flags) end
+
 
 --- @class CombatComponentTemplate
 --- @field public Alignment string

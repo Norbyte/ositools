@@ -392,9 +392,6 @@
     <None Include="Lua\LuaShared.inl">
       <Filter>Source Files\Lua</Filter>
     </None>
-    <None Include="GlobalFixedStrings.inl">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="GameDefinitions\Enumerations.inl">
       <Filter>Header Files\GameDefinitions</Filter>
     </None>
@@ -427,6 +424,9 @@
     </None>
     <None Include="LuaDebug.proto">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="GlobalFixedStrings.inl">
+      <Filter>Header Files\GameDefinitions</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

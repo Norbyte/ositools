@@ -612,15 +612,150 @@ namespace dse::lua
 		return 1;
 	}
 
+	int AiGridGetCellInfo(lua_State* L)
+	{
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			OsiError("Could not find AiGrid cell at " << x << ";" << z);
+			return 0;
+		}
+
+		auto groundIdx = grid->GetSurfaceIndex(cell, 0);
+		auto cloudIdx = grid->GetSurfaceIndex(cell, 1);
+		auto meta = grid->GetAiMetaData(cell);
+
+		auto height = cell->Height * 0.25f + grid->DataGrid.OffsetY;
+
+		lua_newtable(L);
+		settable(L, "Flags", cell->AiFlags);
+		settable(L, "Height", height);
+
+		lua_newtable(L);
+		if (meta != nullptr) {
+			int32_t aiIdx = 1;
+			for (auto ai : meta->Ai) {
+				ObjectHandle handle;
+				ai->GameObject->GetObjectHandle(handle);
+				settable(L, aiIdx++, handle);
+			}
+		}
+
+		lua_setfield(L, -2, "Objects");
+
+		if (gOsirisProxy->IsInServerThread()) {
+			auto level = GetStaticSymbols().GetCurrentServerLevel();
+			if (!level || level->AiGrid != grid || !level->SurfaceManager) {
+				OsiError("Current level not available yet!");
+			} else {
+				if (groundIdx != -1) {
+					auto surface = level->SurfaceManager->Surfaces[groundIdx];
+					settable(L, "GroundSurface", surface->MyHandle);
+				}
+
+				if (cloudIdx != -1) {
+					auto surface = level->SurfaceManager->Surfaces[cloudIdx];
+					settable(L, "CloudSurface", surface->MyHandle);
+				}
+			}
+		}
+
+		return 1;
+	}
+
+	int AiGridGetAiFlags(lua_State* L)
+	{
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			OsiError("Could not find AiGrid cell at " << x << ";" << z);
+			return 0;
+		}
+
+		push(L, cell->AiFlags);
+		return 1;
+	}
+
+	int AiGridSetAiFlags(lua_State* L)
+	{
+		// Only allow updating Walkable/Reachable flags for now
+		constexpr uint64_t UpdateFlags = 5;
+
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+		auto flags = checked_get<uint64_t>(L, 4);
+
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			OsiError("Could not find AiGrid cell at " << x << ";" << z);
+			return 0;
+		}
+
+		cell->AiFlags = (flags & UpdateFlags) | (cell->AiFlags & ~UpdateFlags);
+		return 0;
+	}
+
 	int ObjectProxy<eoc::AiGrid>::Index(lua_State* L)
 	{
 		auto grid = Get(L);
 		if (!grid) return 0;
 
-		auto prop = luaL_checkstring(L, 2);
+		auto prop = checked_get<FixedString>(L, 2);
 
-		if (strcmp(prop, "SearchForCell") == 0) {
+		if (prop == GFS.strSearchForCell) {
 			lua_pushcfunction(L, &AiGridSearchForCell);
+			return 1;
+		}
+
+		if (prop == GFS.strGetCellInfo) {
+			lua_pushcfunction(L, &AiGridGetCellInfo);
+			return 1;
+		}
+
+		if (prop == GFS.strGetAiFlags) {
+			lua_pushcfunction(L, &AiGridGetAiFlags);
+			return 1;
+		}
+
+		if (prop == GFS.strSetAiFlags) {
+			lua_pushcfunction(L, &AiGridSetAiFlags);
+			return 1;
+		}
+
+		if (prop == GFS.strOffsetX) {
+			push(L, grid->DataGrid.OffsetX);
+			return 1;
+		}
+
+		if (prop == GFS.strOffsetY) {
+			push(L, grid->DataGrid.OffsetY);
+			return 1;
+		}
+
+		if (prop == GFS.strOffsetZ) {
+			push(L, grid->DataGrid.OffsetZ);
+			return 1;
+		}
+
+		if (prop == GFS.strGridScale) {
+			push(L, grid->DataGrid.GridScale);
+			return 1;
+		}
+
+		if (prop == GFS.strWidth) {
+			push(L, (double)grid->DataGrid.Width * grid->DataGrid.GridScale);
+			return 1;
+		}
+
+		if (prop == GFS.strHeight) {
+			push(L, (double)grid->DataGrid.Height * grid->DataGrid.GridScale);
 			return 1;
 		}
 

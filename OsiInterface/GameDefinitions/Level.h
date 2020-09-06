@@ -40,6 +40,50 @@ namespace dse
 		struct GameActionManager;
 		struct ShroudManager;
 
+		struct EnvironmentalInfluences
+		{
+			struct Status
+			{
+				ObjectHandle Handle;
+				bool FirstAttempt;
+				bool IsForced;
+			};
+
+			struct PermanentInfluence
+			{
+				float Strength;
+				float WeatherStrength;
+			};
+
+			struct TemporaryStatus
+			{
+				ObjectHandle Handle;
+				float Strength;
+				float WeatherStrength;
+				float LifeTime;
+				bool IsForced;
+			};
+
+			ObjectSet<FixedString> Unknown;
+			ObjectHandle OwnerHandle;
+			Map<FixedString, PermanentInfluence> PermanetInfluences;
+			Map<FixedString, TemporaryStatus> TemporaryStatuses;
+			Map<FixedString, Status> Statuses;
+			bool HasWeatherProofTalent;
+		};
+
+
+		struct EnvironmentalStatusManager
+		{
+			void* VMT;
+			__int64 field_8;
+			float Timer;
+			int field_14;
+			Map<ObjectHandle, EnvironmentalInfluences> EnvironmentalInfluences;
+			ObjectSet<ObjectHandle> UnknownHandles;
+		};
+
+
 		struct Level : public dse::Level
 		{
 			void* LayerManager;
@@ -59,7 +103,7 @@ namespace dse
 			void * NoiseManager;
 			ShroudManager* ShroudManager;
 			void * field_F8;
-			void * EnvironmentalStatusManager;
+			EnvironmentalStatusManager* EnvironmentalStatusManager;
 			ObjectSet<void *> TemplateTypeDescs;
 			void * LevelCacheTemplateManager;
 			ObjectSet<void *> TemplateTraceSet;

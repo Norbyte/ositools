@@ -588,6 +588,17 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
+	int GetAiGrid(lua_State* L)
+	{
+		auto level = GetStaticSymbols().GetCurrentClientLevel();
+		if (!level || !level->AiGrid) {
+			OsiError("Current level not available yet!");
+			return 0;
+		}
+
+		ObjectProxy<eoc::AiGrid>::New(L, level->AiGrid);
+		return 1;
+	}
 
 	int OsirisIsCallableClient(lua_State* L)
 	{
@@ -1826,6 +1837,7 @@ namespace dse::ecl::lua
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
+			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallableClient},
 			{"IsDeveloperMode", IsDeveloperMode},

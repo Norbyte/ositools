@@ -1406,55 +1406,15 @@ namespace dse::esv::lua
 		}
 	}
 
-	int GetCellInfo(lua_State* L)
+	int GetAiGrid(lua_State* L)
 	{
-		auto x = checked_get<float>(L, 1);
-		auto z = checked_get<float>(L, 2);
-
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
-		if (!level || !level->AiGrid || !level->SurfaceManager) {
+		if (!level || !level->AiGrid) {
 			OsiError("Current level not available yet!");
 			return 0;
 		}
 
-		auto grid = level->AiGrid;
-		auto cell = grid->GetCell(glm::vec2(x, z));
-		if (!cell) {
-			OsiError("Could not find AiGrid cell at " << x << ";" << z);
-			return 0;
-		}
-
-		auto groundIdx = grid->GetSurfaceIndex(cell, 0);
-		auto cloudIdx = grid->GetSurfaceIndex(cell, 1);
-		auto meta = grid->GetAiMetaData(cell);
-
-		auto height = cell->Height * 0.25f + grid->DataGrid.OffsetY;
-
-		lua_newtable(L);
-		settable(L, "Flags", cell->AiFlags);
-		settable(L, "Height", height);
-		if (groundIdx != -1) {
-			auto surface = level->SurfaceManager->Surfaces[groundIdx];
-			settable(L, "GroundSurface", surface->MyHandle);
-		}
-
-		if (cloudIdx != -1) {
-			auto surface = level->SurfaceManager->Surfaces[cloudIdx];
-			settable(L, "CloudSurface", surface->MyHandle);
-		}
-
-		lua_newtable(L);
-		if (meta != nullptr) {
-			int32_t aiIdx = 1;
-			for (auto ai : meta->Ai) {
-				ObjectHandle handle;
-				ai->GameObject->GetObjectHandle(handle);
-				settable(L, aiIdx++, handle);
-			}
-		}
-
-		lua_setfield(L, -2, "Objects");
-
+		ObjectProxy<eoc::AiGrid>::New(L, level->AiGrid);
 		return 1;
 	}
 
@@ -1926,7 +1886,7 @@ namespace dse::esv::lua
 			{"GetStatus", GetStatus},
 			{"GetCombat", GetCombat},
 			{"GetSurface", GetSurface},
-			{"GetCellInfo", GetCellInfo},
+			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"IsDeveloperMode", IsDeveloperMode},

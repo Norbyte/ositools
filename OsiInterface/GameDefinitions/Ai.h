@@ -327,20 +327,26 @@ namespace dse::eoc
         float OffsetZ;
         int GridWidth;
         int GridHeight;
-        int GridWidth2;
-        int GridHeight2;
-        int field_AC;
-        int field_B0;
+        int GridMinX;
+        int GridMinZ;
+        int GridMaxX;
+        int GridMaxZ;
 
 
-        uint8_t GetByteAtPos(ShroudType type, int x, int y)
+        uint8_t GetByteAtPos(ShroudType type, float x, float z)
         {
-            return ShroudObjects[(int)type * 2]->GetByteAtPos(x, y);
+            auto& shroudObj = ShroudObjects[(int)type * 2];
+            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale);
+            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale);
+            return shroudObj->GetByteAtPos(gridX, gridZ);
         }
 
-        void SetByteAtPos(ShroudType type, int x, int y, uint8_t value)
+        void SetByteAtPos(ShroudType type, float x, float z, uint8_t value)
         {
-            ShroudObjects[(int)type * 2]->SetByteAtPos(x, y, value);
+            auto& shroudObj = ShroudObjects[(int)type * 2];
+            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale);
+            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale);
+            shroudObj->SetByteAtPos(gridX, gridZ, value);
         }
     };
 
