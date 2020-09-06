@@ -3,6 +3,10 @@ ModuleUUID = "UUID"
 
 Osi = {}
 
+--- From v52 onwards object handles are a type of userdata (lightuserdata) 
+--- instead of integers.
+--- @class ObjectHandle
+
 --- @class DamageItem
 --- @field public DamageType string
 --- @field public Amount integer
@@ -306,9 +310,9 @@ local ProjectileTemplate = {}
 --- @field public Strength number
 --- @field public StatsMultiplier number
 --- @field public DamageSourceType string See CauseType enumeration
---- @field public StatusHandle integer
---- @field public TargetHandle integer Handle of game object this status was applied to
---- @field public StatusSourceHandle integer Handle of game object that caused this status
+--- @field public StatusHandle ObjectHandle
+--- @field public TargetHandle ObjectHandle Handle of game object this status was applied to
+--- @field public StatusSourceHandle ObjectHandle Handle of game object that caused this status
 ---
 --- StatusFlags0
 --- @field public KeepAlive boolean
@@ -333,9 +337,9 @@ local ProjectileTemplate = {}
 local EsvStatus = {}
 
 --- @class EsvStatusHit : EsvStatus
---- @field public HitByHandle integer
---- @field public HitWithHandle integer
---- @field public WeaponHandle integer
+--- @field public HitByHandle ObjectHandle
+--- @field public HitWithHandle ObjectHandle
+--- @field public WeaponHandle ObjectHandle
 --- @field public HitReason string
 --- @field public SkillId string
 --- @field public Interruption boolean
@@ -359,7 +363,7 @@ local EsvStatusHit = {}
 --- @field public StackId string
 --- @field public OriginalWeaponStatsId string
 --- @field public OverrideWeaponStatsId string
---- @field public OverrideWeaponHandle integer
+--- @field public OverrideWeaponHandle ObjectHandle
 --- @field public SavingThrow integer TODO enum + enum prop!
 --- @field public SourceDirection number[]
 --- @field public Turn integer
@@ -368,7 +372,7 @@ local EsvStatusHit = {}
 local EsvStatusConsumeBase = {}
 
 --- @class EsvStatusDying : EsvStatus
---- @field public SourceHandle integer
+--- @field public SourceHandle ObjectHandle
 --- @field public SourceType integer
 --- @field public DeathType string See DeathType enumeration
 --- @field public AttackDirection integer
@@ -378,8 +382,8 @@ local EsvStatusConsumeBase = {}
 --- @field public ForceNoGhost boolean
 --- @field public SkipAnimation boolean
 --- @field public DontThrowDeathEvent boolean
---- @field public InflicterHandle integer
---- @field public DisputeTargetHandle integer
+--- @field public InflicterHandle ObjectHandle
+--- @field public DisputeTargetHandle ObjectHandle
 --- @field public CombatId integer
 --- @field public IgnoreGodMode boolean
 local EsvStatusDying = {}
@@ -398,7 +402,7 @@ local EsvStatusHeal = {}
 
 --- @class EsvStatusCharmed : EsvStatusConsumeBase
 --- @field public UserId integer
---- @field public OriginalOwnerCharacterHandle integer
+--- @field public OriginalOwnerCharacterHandle ObjectHandle
 local EsvStatusCharmed = {}
 
 --- @class EsvStatusKnockedDown : EsvStatus
@@ -424,7 +428,7 @@ local EsvStatusHealing = {}
 
 --- @class EsvStatusThrown : EsvStatus
 --- @field public Level integer
---- @field public CasterHandle integer
+--- @field public CasterHandle ObjectHandle
 --- @field public AnimationDuration number
 --- @field public IsThrowingSelf boolean
 --- @field public LandingEstimate number
@@ -447,9 +451,9 @@ local EsvStatusTeleportFall = {}
 local EsvStatusCombat = {}
 
 --- @class EsvStatusAoO : EsvStatus
---- @field public SourceHandle integer
---- @field public TargetHandle integer
---- @field public PartnerHandle integer
+--- @field public SourceHandle ObjectHandle
+--- @field public TargetHandle ObjectHandle
+--- @field public PartnerHandle ObjectHandle
 --- @field public ActivateAoOBoost boolean
 --- @field public ShowOverhead boolean
 local EsvStatusAoO = {}
@@ -461,7 +465,7 @@ local EsvStatusAoO = {}
 local EsvStatusSneaking = {}
 
 --- @class EsvStatusUnlock : EsvStatus
---- @field public SourceHandle integer
+--- @field public SourceHandle ObjectHandle
 --- @field public Key string
 --- @field public Level integer
 --- @field public Unlocked integer
@@ -483,7 +487,7 @@ local EsvStatusUnsheathed = {}
 local EsvStatusStance = {}
 
 --- @class EsvStatusLying : EsvStatus
---- @field public ItemHandle integer
+--- @field public ItemHandle ObjectHandle
 --- @field public Position number[]
 --- @field public Index integer
 --- @field public TimeElapsed number
@@ -500,7 +504,7 @@ local EsvStatusLying = {}
 --- @field public Infections integer
 --- @field public InfectTimer number
 --- @field public Radius number
---- @field public TargetHandle integer
+--- @field public TargetHandle ObjectHandle
 local EsvStatusInfectiousDiseased = {}
 
 --- @class EsvStatusInvisible : EsvStatusConsumeBase
@@ -517,13 +521,13 @@ local EsvStatusRotate = {}
 --- @class EsvStatusIdentify : EsvStatus
 --- @field public Level integer
 --- @field public Identified integer
---- @field public IdentifierHandle integer
+--- @field public IdentifierHandle ObjectHandle
 local EsvStatusIdentify = {}
 
 --- @class EsvStatusRepair : EsvStatus
 --- @field public Level integer
 --- @field public Repaired integer
---- @field public RepairerHandle integer
+--- @field public RepairerHandle ObjectHandle
 local EsvStatusRepair = {}
 
 --- @class EsvStatusMaterial : EsvStatus
@@ -553,11 +557,11 @@ local EsvStatusExplode = {}
 local EsvStatusAdrenaline = {}
 
 --- @class EsvStatusShacklesOfPain : EsvStatusConsumeBase
---- @field public CasterHandle integer
+--- @field public CasterHandle ObjectHandle
 local EsvStatusShacklesOfPain = {}
 
 --- @class EsvStatusShacklesOfPainCaster : EsvStatusConsumeBase
---- @field public VictimHandle integer
+--- @field public VictimHandle ObjectHandle
 local EsvStatusShacklesOfPainCaster = {}
 
 --- @class EsvStatusWindWalker : EsvStatusConsumeBase
@@ -602,7 +606,7 @@ local EsvStatusDamage = {}
 
 --- @class EsvStatusClimbing : EsvStatus
 --- @field public MoveDirection number[]
---- @field public LadderHandle integer
+--- @field public LadderHandle ObjectHandle
 --- @field public Level string
 --- @field public Status integer
 --- @field public Direction boolean
@@ -648,18 +652,18 @@ local EsvStatusDamageOnMove = {}
 --- @class EsvStatusFloating : EsvStatusConsumeBase
 
 --- @class EsvStatusChallenge : EsvStatusConsumeBase
---- @field public SourceHandle integer
+--- @field public SourceHandle ObjectHandle
 --- @field public Target boolean
 local EsvStatusChallenge = {}
 
 --- @class EsvStatusDisarmed : EsvStatusConsumeBase
 
 --- @class EsvStatusHealSharing : EsvStatusConsumeBase
---- @field public CasterHandle integer
+--- @field public CasterHandle ObjectHandle
 local EsvStatusHealSharing = {}
 
 --- @class EsvStatusHealSharingCaster : EsvStatusConsumeBase
---- @field public TargetHandle integer
+--- @field public TargetHandle ObjectHandle
 local EsvStatusHealSharingCaster = {}
 
 --- @class EsvStatusExtraTurn : EsvStatusConsumeBase
@@ -667,7 +671,7 @@ local EsvStatusHealSharingCaster = {}
 --- @class EsvStatusActiveDefense : EsvStatusConsumeBase
 --- @field public Charges integer
 --- @field public TargetPos number[]
---- @field public TargetHandle integer
+--- @field public TargetHandle ObjectHandle
 --- @field public Radius number
 --- @field public Projectile string
 local EsvStatusActiveDefense = {}
@@ -1395,7 +1399,7 @@ local EclGameObject = {}
 --- @class EclItem : EclGameObject
 --- @field public RootTemplate ItemTemplate
 --- @field public Stats StatItem
---- @field public Handle integer
+--- @field public Handle ObjectHandle
 ---
 --- @field public WorldPos number[]
 --- @field public CurrentLevel string
@@ -1465,7 +1469,7 @@ function EclItem.GetStatusObjects (self) end
 --- @field public RootTemplate CharacterTemplate
 --- @field public PlayerCustomData PlayerCustomData
 --- @field public Stats StatCharacter
---- @field public Handle integer
+--- @field public Handle ObjectHandle
 ---
 --- @field public WorldPos number[]
 --- @field public CurrentLevel string
@@ -1541,7 +1545,7 @@ local EsvGameObject = {}
 
 
 --- @class EsvItem : EsvGameObject
---- @field public Handle integer
+--- @field public Handle ObjectHandle
 --- @field public RootTemplate ItemTemplate
 --- @field public WorldPos number[]
 --- @field public CurrentLevel string
@@ -1550,16 +1554,16 @@ local EsvGameObject = {}
 --- @field public CustomDescription string
 --- @field public CustomBookContent string
 --- @field public StatsId string
---- @field public InventoryHandle integer
---- @field public ParentInventoryHandle integer
+--- @field public InventoryHandle ObjectHandle
+--- @field public ParentInventoryHandle ObjectHandle
 --- @field public Slot integer
 --- @field public Amount integer
 --- @field public Vitality integer
 --- @field public Armor integer
---- @field public InUseByCharacterHandle integer
+--- @field public InUseByCharacterHandle ObjectHandle
 --- @field public Key string
 --- @field public LockLevel integer
---- @field public OwnerHandle integer
+--- @field public OwnerHandle ObjectHandle
 --- @field public ItemType string
 --- @field public GoldValueOverwrite integer
 --- @field public WeightValueOverwrite integer
@@ -1757,7 +1761,7 @@ local EsvSkillInfo = {}
 --- @field public PlayerCustomData PlayerCustomData
 --- @field public Stats StatCharacter
 --- @field public DisplayName string
---- @field public Handle integer
+--- @field public Handle ObjectHandle
 ---
 --- @field public NetID integer
 --- @field public MyGuid string
@@ -1770,27 +1774,27 @@ local EsvSkillInfo = {}
 --- @field public NeedsUpdateCount integer
 --- @field public ScriptForceUpdateCount integer
 --- @field public ForceSynchCount integer
---- @field public InventoryHandle integer Not useful yet as you can't use inventory handles for any API
+--- @field public InventoryHandle ObjectHandle Not useful yet as you can't use inventory handles for any API
 --- @field public SkillBeingPrepared string Set while preparing a skill, cleared afterwards
 --- @field public LifeTime number Used for summons to indicate remaining lifetime
 --- @field public TurnTimer number
 --- @field public TriggerTrapsTimer number
 --- @field public UserID integer
---- @field public OwnerHandle integer Handle of owner character (in case of summons/followers)
---- @field public FollowCharacterHandle integer
---- @field public SpiritCharacterHandle integer
---- @field public CorpseCharacterHandle integer
+--- @field public OwnerHandle ObjectHandle Handle of owner character (in case of summons/followers)
+--- @field public FollowCharacterHandle ObjectHandle
+--- @field public SpiritCharacterHandle ObjectHandle
+--- @field public CorpseCharacterHandle ObjectHandle
 --- @field public PartialAP number Movement AP
 --- @field public AnimType integer
 --- @field public DelayDeathCount integer
 --- @field public AnimationSetOverride string
 --- @field public OriginalTransformDisplayName string
---- @field public PartyHandle integer
+--- @field public PartyHandle ObjectHandle
 --- @field public CustomTradeTreasure string
 --- @field public IsAlarmed boolean
 --- @field public CrimeWarningsEnabled boolean
 --- @field public CrimeInterrogationEnabled boolean
---- @field public MovingCasterHandle integer
+--- @field public MovingCasterHandle ObjectHandle
 --- @field public Archetype string
 --- @field public EquipmentColor string
 --- @field public ProjectileTemplate string
@@ -1913,9 +1917,9 @@ function EsvCharacter.SetScale (self, scale) end
 
 --- @class EsvShootProjectileRequest
 --- @field public SkillId string
---- @field public Caster integer
---- @field public Source integer
---- @field public Target integer
+--- @field public Caster ObjectHandle
+--- @field public Source ObjectHandle
+--- @field public Target ObjectHandle
 --- @field public StartPosition number[]
 --- @field public EndPosition number[]
 --- @field public Random integer
@@ -1933,13 +1937,13 @@ local EsvShootProjectileRequest = {}
 
 --- @class EsvProjectile : EsvGameObject
 --- @field public RootTemplate ProjectileTemplate
---- @field public Handle integer
+--- @field public Handle ObjectHandle
 --- @field public NetID integer
 --- @field public MyGuid string
---- @field public CasterHandle integer
---- @field public SourceHandle integer
---- @field public TargetObjectHandle integer
---- @field public HitObjectHandle integer
+--- @field public CasterHandle ObjectHandle
+--- @field public SourceHandle ObjectHandle
+--- @field public TargetObjectHandle ObjectHandle
+--- @field public HitObjectHandle ObjectHandle
 --- @field public SourcePosition number[]
 --- @field public TargetPosition number[]
 --- @field public DamageType string
@@ -1950,8 +1954,8 @@ local EsvShootProjectileRequest = {}
 --- @field public ExplodeRadius1 number
 --- @field public DeathType string
 --- @field public SkillId string
---- @field public WeaponHandle integer
---- @field public MovingEffectHandle integer
+--- @field public WeaponHandle ObjectHandle
+--- @field public MovingEffectHandle ObjectHandle
 --- @field public SpawnEffect string
 --- @field public SpawnFXOverridesImpactFX boolean
 --- @field public EffectHandle string
@@ -1978,12 +1982,12 @@ local EsvProjectile = {}
 
 
 --- @class EsvSurfaceAction
---- @field public MyHandle integer
+--- @field public MyHandle ObjectHandle
 local EsvSurfaceAction = {}
 
 
 --- @class EsvCreateSurfaceActionBase : EsvSurfaceAction
---- @field public OwnerHandle integer
+--- @field public OwnerHandle ObjectHandle
 --- @field public Duration number
 --- @field public StatusChance number
 --- @field public Position number[]
@@ -2007,7 +2011,7 @@ local EsvCreateSurfaceAction = {}
 
 
 --- @class EsvChangeSurfaceOnPathAction : EsvCreateSurfaceActionBase
---- @field public FollowObject integer
+--- @field public FollowObject ObjectHandle
 --- @field public Radius number
 --- @field public IgnoreIrreplacableSurfaces boolean
 --- @field public CheckExistingSurfaces boolean
@@ -2097,7 +2101,7 @@ local EsvZoneAction = {}
 --- @field public OriginSurface string
 --- @field public SurfaceLayer integer
 --- @field public GrowCellPerSecond number
---- @field public OwnerHandle2 integer
+--- @field public OwnerHandle2 ObjectHandle
 --- @field public Position number[]
 --- @field public SurfaceLifetime number
 --- @field public SurfaceStatusChance number
@@ -3353,13 +3357,13 @@ function UIObject.GetRoot (self) end
 function UIObject.GetTypeId (self) end
     
 --- @param self UIObject
---- @return integer
+--- @return ObjectHandle
 function UIObject.GetHandle (self) end
     
 --- Returns the handle of the player that this UI element is assigned to.
 --- (Only certain elements have a player assigned, like character sheet, inventory, etc.)
 --- @param self UIObject
---- @return integer|nil
+--- @return ObjectHandle|nil
 function UIObject.GetPlayerHandle (self) end
     
 --- @param self UIObject
@@ -3916,23 +3920,23 @@ function Ext.GetAllItems (level) end
 function Ext.GetItemsAroundPosition (x, y, z, distance) end
 
 --- Returns the property proxy of the specified character
---- @param id string|integer Character GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Character GUID or handle or NetID
 --- @return EsvCharacter|EclCharacter
 function Ext.GetCharacter (id) end
 
 --- Returns the property proxy of the specified item
---- @param id string|integer Item GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Item GUID or handle or NetID
 --- @return EsvItem|EclCharacter
 function Ext.GetItem (id) end
 
 --- Returns the property proxy of the specified item
---- @param handle integer Game object handle
+--- @param handle ObjectHandle Game object handle
 --- @return EsvGameObject|EclGameObject
 function Ext.GetGameObject (handle) end
 
 --- Returns the property proxy of the specified status
 --- @param characterGuid string Character GUID or handle
---- @param handle integer Status handle or NetID
+--- @param handle integer|ObjectHandle Status handle or NetID
 --- @return EsvStatus
 function Ext.GetStatus (characterGuid, handle) end
 
@@ -4139,12 +4143,12 @@ function Ext.PlayerHasExtender (playerGuid) end
 
 --- Handle to double conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
---- @param handle number Integer handle to cast
+--- @param handle ObjectHandle Handle to cast
 --- @return number Double handle
 function Ext.HandleToDouble (handle) end
 
 --- Double to handle conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
 --- @param handle number Double handle to cast
---- @return number Integer handle
+--- @return ObjectHandle Handle
 function Ext.DoubleToHandle (handle) end
