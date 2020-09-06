@@ -2309,8 +2309,6 @@ namespace dse::esv::lua
 
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
-		Restriction restriction(*this, RestrictOsiris);
-
 		PushExtFunction(L, "_StatusHitEnter"); // stack: fn
 
 		StatusHandleProxy::New(L, hit->TargetHandle, hit->StatusHandle);
