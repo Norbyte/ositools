@@ -961,7 +961,7 @@ function DamageItemDurability(character, item)
     if degradeSpeed > 0 then
         local durability = math.max(0, item.Durability)
         item.Durability = durability
-        item.ShouldSyncStats = 1
+        item.ShouldSyncStats = true
 
         if durability == 0 then
             -- FIXME not implemented yet

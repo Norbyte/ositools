@@ -835,7 +835,7 @@ namespace dse
 			PROP(WeaponRange);
 			PROP(IsIdentified);
 			PROP_RO(IsTwoHanded);
-			PROP_RO(ShouldSyncStats);
+			PROP(ShouldSyncStats);
 			PROP(HasModifiedSkills);
 			PROP(Skills);
 			PROP_ENUM(DamageTypeOverwrite);
