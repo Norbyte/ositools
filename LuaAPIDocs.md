@@ -1,7 +1,9 @@
-### Lua API v50 Documentation
+
+### Lua API v52 Documentation
 
 ### Table of Contents  
 
+ - [Migrating from v51 to v52](#migrating-from-v51-to-v52)
  - [Migrating from v44 to v45](#migrating-from-v44-to-v45)
  - [Migrating from v43 to v44](#migrating-from-v43-to-v44)
  - [Migrating from v42 to v43](#migrating-from-v42-to-v43)
@@ -50,6 +52,14 @@
     * [GetHitChance](#event-gethitchance)
 
 ## Upgrading
+
+### Migrating from v51 to v52
+
+Object handles were converted from `integer` to `lightuserdata` in v52. This means that APIs that returned or accepted object handles now expect `lightuserdata` parameters. The usage of these APIs and the way parameters should be passed remains unchanged, so this change should not affect most users.
+
+Additional notes:
+ - Since both `NetID`s and `ObjectHandle`s are integers, it was previously impossible or very hard to distinguish between the two in APIs that accept both (eg. `Ext.GetItem`, `Ext.GetCharacter`, etc.). `Ext.GetItem` and `Ext.GetCharacter` still accept integer parameters, but will always treat an int parameter as a `NetID` from now on.
+ - It is no longer possible to pass handles between the client and the server. Since client handles are useless on the server (and vice versa), this should only be an issue if handles were passed accidentally in network messages.
 
 ### Migrating from v44 to v45
 
@@ -132,6 +142,7 @@ Extender versions v44 and above allow commands to be entered to the console wind
 Press `<enter>` to enter console mode; in this mode the normal log output is disabled to avoid log spam while typing commands.
 
 Client/server context can be selected by typing `client` or `server`. This selects in which Lua environment the console commands will execute. By default the console uses the server context.
+The `reset` command reinitializes the server and client Lua VM.
 
 Typing `exit` returns to log mode.
 
@@ -527,8 +538,6 @@ The `Ext.RegisterUICall` function registers a listener that is called when the `
  - `name` is the ExternalInterface function name
  - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
 
-Support for capturing ExternalInterface calls on builtin UI elements is available in version v43 (and above).
-
 Example:
 ```lua
 local function handleTextEvent(ui, call, arg1, arg2)
@@ -542,6 +551,19 @@ Ext.RegisterUICall(ui, "sendTextEvent", handleTextEvent)
 ```actionscript
 ExternalInterface.call("sendTextEvent", "argument 1", "argument 2");
 ```
+
+#### Ext.RegisterUITypeCall(typeId, name, handler) <sup>C</sup>
+
+The `Ext.RegisterUITypeCall` function registers a listener that is called when the `ExternalInterface.call` function is invoked from ActionScript. It is similar to `Ext.RegisterUICall`, but registers the listener for all UI objects of the same type, not just one object. It can also be called before an UI object was created (i.e. there is no need to poll for an UI object or use the `UIObjectCreated` event).
+ - `typeId` is the engine type ID of the UI object
+ - `name` is the ExternalInterface function name
+ - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
+
+#### Ext.RegisterUINameCall(name, handler) <sup>C</sup>
+
+The `Ext.RegisterUINameCall` function registers a listener that is called when the `ExternalInterface.call` function is invoked from ActionScript. It is similar to `Ext.RegisterUICall`, but registers the listener for all UI objects, not just one object or one object type. It can also be called before an UI object was created (i.e. there is no need to poll for an UI object or use the `UIObjectCreated` event).
+ - `name` is the ExternalInterface function name
+ - `handler` is a Lua function that is called when the call is fired from Flash. The function receives the UI object and the function name as parameters followed by the arguments passed to the `ExternalInterface.call` call.
 
 #### Ext.RegisterUIInvokeListener(object, name, handler) <sup>C</sup>
 
@@ -559,6 +581,19 @@ end
 local ui = Ext.GetBuiltinUI("Public/Game/GUI/characterSheet.swf")
 Ext.RegisterUICall(ui, "setHelmetOption", onHelmetOptionChanged)
 ```
+
+#### Ext.RegisterUITypeInvokeListener(typeId, name, handler) <sup>C</sup>
+
+The `Ext.RegisterUITypeInvokeListener` function registers a listener that is called when the engine invokes a method on the Flash main timeline object. It is similar to `Ext.RegisterUIInvokeListener`, but registers the listener for all UI objects of the same type, not just one object. It can also be called before an UI object was created (i.e. there is no need to poll for an UI object or use the `UIObjectCreated` event).
+ - `typeId` is the engine type ID of the UI object
+ - `name` is the Flash method name
+ - `handler` is a Lua function that is called when the call is fired. The function receives the UI object and the method name as parameters followed by the arguments passed to the Flash method.
+
+#### Ext.RegisterUINameInvokeListener(name, handler) <sup>C</sup>
+
+The `Ext.RegisterUINameInvokeListener` function registers a listener that is called when the engine invokes a method on the Flash main timeline object. It is similar to `Ext.RegisterUIInvokeListener`, but registers the listener for all UI objects, not just one object or one object type. It can also be called before an UI object was created (i.e. there is no need to poll for an UI object or use the `UIObjectCreated` event).
+ - `name` is the Flash method name
+ - `handler` is a Lua function that is called when the call is fired. The function receives the UI object and the method name as parameters followed by the arguments passed to the Flash method.
 
 
 #### UIObject:SetValue(name, value, [arrayIndex]) <sup>C</sup>
@@ -590,6 +625,39 @@ local ui = Ext.GetUI(...)
 UI:SetPosition(100, 100)
 ```
 
+#### UIObject:GetTypeId() <sup>C</sup>
+
+Returns the engine UI type ID of the UI element. Useful for determining what type ID should be passed to the `Ext.RegisterUITypeInvokeListener` and `Ext.RegisterUITypeCall` functions.
+
+#### UIObject:GetPlayerHandle() <sup>C</sup>
+
+Attempts to determine the handle of the player that this UI element is assigned to. If the element is not assigned to a player, the function returns `nil`.
+Only certain elements have a player assigned, like character sheet, inventory; others don't have player handles at all.
+
+#### UIObject:GetRoot() <sup>C</sup>
+
+Returns the Flash root object (main timeline object). This allows navigation of the Flash object hierarchy from Lua.
+Unlike the `SetValue` and `GetValue` methods, this provides full access to all properties and sub-properties in Flash.
+
+Examples:
+```lua
+local root = Ext.GetBuiltinUI("Public/Game/GUI/mainMenu.swf"):GetRoot()
+-- Object properties on the main timeline and all child objects are readable
+Ext.Print(root.mainMenu_mc.debugText_txt.htmlText)
+-- ... and writeable
+root.mainMenu_mc.debugText_txt.htmlText = "TEST TEST TEST"
+
+-- Fetching array length supported via the # operator
+Ext.Print(#root.events)
+-- Indexed access to arrays supported
+Ext.Print(root.events[2])
+-- Array write support
+root.events[2] = "TEST"
+
+-- Method call support
+root.mainMenu_mc.addMenuLabel("TEST LABEL")
+Ext.Print(root.getHeight())
+```
 
 ## Stats
 
