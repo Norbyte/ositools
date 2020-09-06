@@ -203,6 +203,11 @@ namespace dse::eoc
     {
         using SearchForCellProc = bool (eoc::AiGrid* self, float posX, float posZ, float radius, ESurfaceFlag aiFlags, ObjectSet<SurfacePathInfluence>* pathInfluences, float aiBoundsBias);
 
+        // Surface type indicator flags (Fire, Poison, etc.) -- see ESurfaceFlag enumeration
+        static constexpr uint64_t SurfaceFlags = 0xFFFFFFFFF000000ull;
+        // Base Ai flags (passability, etc.)
+        static constexpr uint64_t BaseFlags = 0xFFFFFFull;
+
         void* VMT;
         uint64_t field_8;
         DataGrid DataGrid;
