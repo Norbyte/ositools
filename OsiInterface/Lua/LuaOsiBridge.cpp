@@ -42,19 +42,22 @@ namespace dse::esv::lua
 			break;
 
 		case ValueType::Integer64:
-			if (type != LUA_TNUMBER) {
+			if (type == LUA_TNUMBER) {
+#if LUA_VERSION_NUM > 501
+				if (lua_isinteger(L, i)) {
+					tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
+				} else {
+					tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
+				}
+#else
+				tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
+#endif
+			} else if (type == LUA_TLIGHTUSERDATA) {
+				auto handle = get<ObjectHandle>(L, i);
+				tv.Value.Val.Int64 = (int64_t)handle.Handle;
+			} else {
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
-
-#if LUA_VERSION_NUM > 501
-			if (lua_isinteger(L, i)) {
-				tv.Value.Val.Int64 = (int64_t)lua_tointeger(L, i);
-			} else {
-				tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
-			}
-#else
-			tv.Value.Val.Int64 = (int64_t)lua_tonumber(L, i);
-#endif
 			break;
 
 		case ValueType::Real:
@@ -134,19 +137,24 @@ namespace dse::esv::lua
 			break;
 
 		case ValueType::Integer64:
-			if (type != LUA_TNUMBER) {
+			if (type == LUA_TNUMBER) {
+#if LUA_VERSION_NUM > 501
+				if (lua_isinteger(L, i)) {
+					arg.Int64 = (int64_t)lua_tointeger(L, i);
+				} else {
+					arg.Int64 = (int64_t)lua_tonumber(L, i);
+				}
+#else
+				arg.Int64 = (int64_t)lua_tonumber(L, i);
+#endif
+
+			} else if (type == LUA_TLIGHTUSERDATA) {
+				auto handle = get<ObjectHandle>(L, i);
+				arg.Int64 = (int64_t)handle.Handle;
+			} else {
 				luaL_error(L, "Number expected for argument %d, got %s", i, lua_typename(L, type));
 			}
 
-#if LUA_VERSION_NUM > 501
-			if (lua_isinteger(L, i)) {
-				arg.Int64 = (int64_t)lua_tointeger(L, i);
-			} else {
-				arg.Int64 = (int64_t)lua_tonumber(L, i);
-			}
-#else
-			arg.Int64 = (int64_t)lua_tonumber(L, i);
-#endif
 			break;
 
 		case ValueType::Real:
