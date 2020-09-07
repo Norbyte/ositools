@@ -102,7 +102,7 @@ public:
 		auto eocAppPath = extensionPath_ + L"\\OsiExtenderEoCApp.dll";
 		if (PathFileExistsW(eocAppPath.c_str())) {
 			std::ofstream f;
-			f.open(eocAppPath.c_str(), std::ios::out, _SH_DENYRW);
+			f.open(eocAppPath.c_str(), std::ios::out | std::ios::app, _SH_DENYRW);
 			if (!f.good()) {
 				DEBUG("OsiExtenderEoCApp.dll not writeable, skipping update.");
 				return false;
@@ -112,7 +112,7 @@ public:
 		auto eocPluginPath = extensionPath_ + L"\\OsiExtenderEoCPlugin.dll";
 		if (PathFileExistsW(eocPluginPath.c_str())) {
 			std::ofstream f;
-			f.open(eocPluginPath.c_str(), std::ios::out, _SH_DENYRW);
+			f.open(eocPluginPath.c_str(), std::ios::out | std::ios::app, _SH_DENYRW);
 			if (!f.good()) {
 				DEBUG("OsiExtenderEoCPlugin.dll not writeable, skipping update.");
 				return false;
