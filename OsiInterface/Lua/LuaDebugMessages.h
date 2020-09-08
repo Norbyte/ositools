@@ -32,7 +32,7 @@ namespace dse::lua::dbg
 	class DebugMessageHandler
 	{
 	public:
-		static const uint32_t ProtocolVersion = 1;
+		static const uint32_t ProtocolVersion = 2;
 
 		DebugMessageHandler(LuaDebugInterface& intf);
 
@@ -49,7 +49,8 @@ namespace dse::lua::dbg
 		void SetDebugger(Debugger* debugger);
 
 		void SendConnectResponse(uint32_t seq);
-		void SendBreakpointTriggered(DbgContext context, BkBreakpointTriggered_Reason reason, lua_State* L);
+		void SendBreakpointTriggered(DbgContext context, BkBreakpointTriggered_Reason reason, 
+			lua_State* L, char const* msg);
 		void SendEvaluateResponse(DebuggerEvaluateRequest const& req);
 		void SendLuaStateUpdate(bool server, bool loaded);
 		void SendDebugOutput(DebugMessageType type, char const* message);

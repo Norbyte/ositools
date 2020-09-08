@@ -63,7 +63,7 @@ namespace NSE.DebuggerFrontend
     public class DAPMessageHandler
     {
         // DBG protocol version (game/editor backend to debugger frontend communication)
-        private const UInt32 DBGProtocolVersion = 1;
+        private const UInt32 DBGProtocolVersion = 2;
 
         // DAP protocol version (VS Code to debugger frontend communication)
         private const int DAPProtocolVersion = 1;
@@ -268,9 +268,34 @@ namespace NSE.DebuggerFrontend
 
             var stopped = new DAPStoppedEvent
             {
-                reason = "breakpoint",
                 threadId = GetThreadId(bp.Context)
             };
+
+            switch (bp.Reason)
+            {
+                case BkBreakpointTriggered.Types.Reason.Breakpoint:
+                    stopped.reason = "breakpoint";
+                    break;
+
+                case BkBreakpointTriggered.Types.Reason.Exception:
+                    stopped.reason = "exception";
+                    stopped.description = "Paused on exception";
+                    stopped.text = bp.Message;
+                    break;
+
+                case BkBreakpointTriggered.Types.Reason.Pause:
+                    stopped.reason = "pause";
+                    break;
+
+                case BkBreakpointTriggered.Types.Reason.Step:
+                    stopped.reason = "step";
+                    break;
+
+                default:
+                    stopped.reason = "breakpoint";
+                    break;
+            }
+
             Stream.SendEvent("stopped", stopped);
         }
 

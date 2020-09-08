@@ -273,7 +273,7 @@ namespace dse::lua::dbg
 		}
 	}
 
-	bool ContextDebugger::IsBreakpoint(lua_State* L, lua_Debug* ar)
+	bool ContextDebugger::IsBreakpoint(lua_State* L, lua_Debug* ar, BkBreakpointTriggered::Reason& reason)
 	{
 		// Fast-path to avoid expensive lookups if we can't break anyway
 		if (!requestPause_ && !breakpoints_) {
@@ -291,6 +291,12 @@ namespace dse::lua::dbg
 		if (requestPause_) {
 			auto stackSize = LuaGetStackDepth(L);
 			if (stackSize <= pauseMaxStackDepth_) {
+				if (pauseMaxStackDepth_ == 0x7fffffff) {
+					reason = BkBreakpointTriggered::PAUSE;
+				} else {
+					reason = BkBreakpointTriggered::STEP;
+				}
+
 				return true;
 			}
 		}
@@ -319,6 +325,7 @@ namespace dse::lua::dbg
 				if (fileIt != breakpoints_->breakpoints.end()) {
 					auto lineIt = fileIt->second.find(line);
 					if (lineIt != fileIt->second.end()) {
+						reason = BkBreakpointTriggered::BREAKPOINT;
 						return true;
 					}
 				}
@@ -328,7 +335,7 @@ namespace dse::lua::dbg
 		return false;
 	}
 
-	void ContextDebugger::TriggerBreakpoint(lua_State* L, BkBreakpointTriggered_Reason reason)
+	void ContextDebugger::TriggerBreakpoint(lua_State* L, BkBreakpointTriggered_Reason reason, char const* msg)
 	{
 		DEBUG("Debugger::TriggerBreakpoint()");
 
@@ -338,7 +345,12 @@ namespace dse::lua::dbg
 			currentStackDepth_ = LuaGetStackDepth(L);
 		}
 
-		messageHandler_.SendBreakpointTriggered(context_, reason, L);
+		if (requestPause_) {
+			requestPause_ = false;
+			pauseMaxStackDepth_ = -1;
+		}
+
+		messageHandler_.SendBreakpointTriggered(context_, reason, L, msg);
 
 		{
 			std::unique_lock<std::mutex> lk(breakpointMutex_);
@@ -352,13 +364,12 @@ namespace dse::lua::dbg
 	{
 		ExecuteQueuedActions();
 		
-		if (IsBreakpoint(L, ar)) {
-			if (requestPause_) {
-				requestPause_ = false;
-				pauseMaxStackDepth_ = -1;
-			}
+		BkBreakpointTriggered::Reason reason = BkBreakpointTriggered::BREAKPOINT;
+		if (IsBreakpoint(L, ar, reason)) {
+			TriggerBreakpoint(L, reason, nullptr);
+		}
+	}
 
-			TriggerBreakpoint(L, BkBreakpointTriggered_Reason_BREAKPOINT);
 		}
 	}
 
@@ -478,7 +489,7 @@ namespace dse::lua::dbg
 		case DbgContinue_Action_STEP_INTO:
 			// Step into the current frame; max depth is unlimited
 			requestPause_ = true;
-			pauseMaxStackDepth_ = 0x7fffffff;
+			pauseMaxStackDepth_ = 0x7ffffffe;
 			break;
 
 		case DbgContinue_Action_STEP_OUT:
@@ -797,6 +808,8 @@ namespace dse::lua::dbg
 
 	void Debugger::OnLuaHook(lua_State* L, lua_Debug* ar)
 	{
+		if (!IsDebuggerReady()) return;
+
 		if (gOsirisProxy->IsInServerThread()) {
 			server_.OnLuaHook(L, ar);
 		} else {

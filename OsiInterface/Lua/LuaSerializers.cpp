@@ -63,7 +63,7 @@ namespace dse::lua
 		if (!s.IsWriting) {
 			v.TotalFrequency = 0;
 			v.CategoryFrequencies.Reallocate(v.Categories.Size);
-			for (auto i = 0; i < v.Categories.Size; i++) {
+			for (uint32_t i = 0; i < v.Categories.Size; i++) {
 				v.CategoryFrequencies[i] = v.Categories[i]->Frequency;
 				v.TotalFrequency += v.Categories[i]->Frequency;
 			}
@@ -71,13 +71,13 @@ namespace dse::lua
 			// Allow negative TotalCount if there are no DropCounts, since a negative value indicates a "guaranteed" drop
 			if (v.DropCounts.Size > 0 || v.TotalCount > 0) {
 				v.TotalCount = 0;
-				for (auto i = 0; i < v.DropCounts.Size; i++) {
+				for (uint32_t i = 0; i < v.DropCounts.Size; i++) {
 					v.TotalCount += v.DropCounts[i].Amount;
 				}
 			}
 
 			v.Amounts.Reallocate(v.DropCounts.Size);
-			for (auto i = 0; i < v.DropCounts.Size; i++) {
+			for (uint32_t i = 0; i < v.DropCounts.Size; i++) {
 				v.Amounts[i] = v.DropCounts[i].Amount;
 			}
 		}

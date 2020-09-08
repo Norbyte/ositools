@@ -496,9 +496,19 @@ namespace NSE.DebuggerFrontend
         public String reason { get; set; }
 
         /**
+         * The full reason for the event, e.g. 'Paused on exception'. This string is shown in the UI as is and must be translated.
+         */
+        public String description { get; set; }
+
+        /**
          * The thread which was stopped.
          */
         public int threadId { get; set; }
+
+        /**
+         * Additional information. E.g. if reason is 'exception', text contains the exception name. This string is shown in the UI.
+         */
+        public String text { get; set; }
     }
 
     /**

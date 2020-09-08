@@ -4013,7 +4013,7 @@ function Ext.PostMessageToServer (channel, payload) end
 function Ext.RegisterNetListener (channel, handler) end
 
 --- Registers a new dialog voice line for the specified speaker.
---- @param speakerGuid string Original path
+--- @param speakerGuid string Speaker character UUID
 --- @param textKey string Translated string key of text line
 --- @param path string Path to audio .WEM
 --- @param length number Length of audio in seconds

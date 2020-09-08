@@ -110,12 +110,15 @@ message DbgSetBreakpoints {
 message BkBreakpointTriggered {
   enum Reason {
     BREAKPOINT = 0;
-    ERROR_BREAK = 1;
+    EXCEPTION = 1;
+    PAUSE = 2;
+    STEP = 3;
   };
   
   Reason reason = 1;
   repeated MsgStackFrame stack = 2;
   DbgContext context = 3;
+  string message = 4;
 }
 
 message DbgContinue {

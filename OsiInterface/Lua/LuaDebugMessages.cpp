@@ -64,7 +64,8 @@ namespace dse::lua::dbg
 		return {};
 	}
 
-	void DebugMessageHandler::SendBreakpointTriggered(DbgContext context, BkBreakpointTriggered_Reason reason, lua_State* L)
+	void DebugMessageHandler::SendBreakpointTriggered(DbgContext context, BkBreakpointTriggered_Reason reason, 
+		lua_State* L, char const* message)
 	{
 		lua_Debug ar;
 		memset(&ar, 0, sizeof(ar));
@@ -73,6 +74,9 @@ namespace dse::lua::dbg
 		auto bkpt = msg.mutable_breakpointtriggered();
 		bkpt->set_reason(reason);
 		bkpt->set_context(context);
+		if (message != nullptr) {
+			bkpt->set_message(message);
+		}
 
 		for (int i = 0;; i++) {
 			if (lua_getstack(L, i, &ar) == 0) {

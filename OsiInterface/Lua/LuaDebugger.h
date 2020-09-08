@@ -117,8 +117,8 @@ namespace dse::lua::dbg
 
 		ExtensionStateBase& GetExtensionState();
 		void ExecuteQueuedActions();
-		bool IsBreakpoint(lua_State* L, lua_Debug* ar);
-		void TriggerBreakpoint(lua_State* L, BkBreakpointTriggered_Reason reason);
+		bool IsBreakpoint(lua_State* L, lua_Debug* ar, BkBreakpointTriggered::Reason& reason);
+		void TriggerBreakpoint(lua_State* L, BkBreakpointTriggered_Reason reason, char const* msg);
 
 		ResultCode EvaluateInContext(DebuggerEvaluateRequest const& req);
 		bool PushVariableContext(lua_State* L, DebuggerGetVariablesRequest const& req);
