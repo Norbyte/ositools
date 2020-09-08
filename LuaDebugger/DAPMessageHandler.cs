@@ -83,8 +83,6 @@ namespace NSE.DebuggerFrontend
         private DAPCustomConfiguration Config;
         // Is the backend debugger initialized? (i.e. did we leave the configuration phase?)
         private bool Initialized = false;
-        // Mod/project UUID we'll send to the debugger instead of the packaged path
-        public string ModUuid;
         private ThreadState ServerState;
         private ThreadState ClientState;
         private List<ModuleInfo> Modules;
@@ -368,7 +366,9 @@ namespace NSE.DebuggerFrontend
 
         private void OnDebuggerReady(BkDebuggerReady msg)
         {
-            SendOutput("console", "Debugger initialized\r\n");
+            DbgCli.SendUpdateSettings(Config.breakOnError);
+
+            SendOutput("console", "Debugger backend ready\r\n");
             Initialized = true;
 
             var initializedEvt = new DAPInitializedEvent();
@@ -391,7 +391,8 @@ namespace NSE.DebuggerFrontend
             var reply = new DAPCapabilities
             {
                 supportsConfigurationDoneRequest = true,
-                supportsEvaluateForHovers = true
+                supportsEvaluateForHovers = true,
+                supportsModulesRequest = true
             };
             Stream.SendReply(request, reply);
 
@@ -418,11 +419,20 @@ namespace NSE.DebuggerFrontend
         private void HandleLaunchRequest(DAPRequest request, DAPLaunchRequest launch)
         {
             Config = launch.dbgOptions;
-            ModUuid = launch.modUuid;
 
             if (launch.backendHost == null || launch.backendPort == 0)
             {
                 throw new RequestFailedException("'backendHost' and 'backendPort' launch configuration variables must be set!");
+            }
+
+            if (Config == null)
+            {
+                Config = new DAPCustomConfiguration();
+            }
+
+            if (launch.noDebug)
+            {
+                throw new RequestFailedException("Cannot attach to game with debugging disabled");
             }
 
             try

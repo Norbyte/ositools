@@ -306,7 +306,7 @@ namespace dse::lua::dbg
 	void DebugMessageHandler::HandleUpdateSettings(uint32_t seq, DbgUpdateSettings const& req)
 	{
 		DEBUG(" --> DbgUpdateSettings(%d)", req.break_on_error());
-		// TODO - breakOnError_ = req.break_on_error();
+		debugger_->UpdateSettings(req.break_on_error());
 		SendResult(seq, ResultCode::Success);
 	}
 
@@ -314,24 +314,18 @@ namespace dse::lua::dbg
 	{
 		DEBUG(" --> DbgSetBreakpoints()");
 
-		ResultCode rc;
-		if (!debugger_) {
-			WARN("SetBreakpoint: Not attached to story debugger!");
-			rc = ResultCode::NoDebuggee;
-		} else {
-			rc = ResultCode::Success;
+		ResultCode rc = ResultCode::Success;
 
-			debugger_->BeginUpdatingBreakpoints();
-			for (auto const& bp : req.breakpoint()) {
-				DEBUG("AddBreakpoint(%s:%d)", bp.path().c_str(), bp.line());
-				rc = debugger_->AddBreakpoint(bp.path().c_str(), bp.line());
-				if (rc != ResultCode::Success) {
-					break;
-				}
+		debugger_->BeginUpdatingBreakpoints();
+		for (auto const& bp : req.breakpoint()) {
+			DEBUG("AddBreakpoint(%s:%d)", bp.path().c_str(), bp.line());
+			rc = debugger_->AddBreakpoint(bp.path().c_str(), bp.line());
+			if (rc != ResultCode::Success) {
+				break;
 			}
-
-			debugger_->FinishUpdatingBreakpoints();
 		}
+
+		debugger_->FinishUpdatingBreakpoints();
 
 		SendResult(seq, rc);
 	}
@@ -340,14 +334,7 @@ namespace dse::lua::dbg
 	{
 		DEBUG(" --> DbgContinue()");
 
-		ResultCode rc;
-		if (!debugger_) {
-			WARN("Continue: Not attached to story debugger!");
-			rc = ResultCode::NoDebuggee;
-		} else {
-			rc = debugger_->ContinueExecution(req.context(), req.action());
-		}
-
+		ResultCode rc = debugger_->ContinueExecution(req.context(), req.action());
 		SendResult(seq, rc);
 	}
 

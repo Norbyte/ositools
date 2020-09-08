@@ -172,14 +172,24 @@ namespace NSE.DebuggerFrontend
         // TODO - public bool supportsSetVariable { get; set; }
 
         /**
-         * The debug adapter supports the 'stepInTargets' request.
-         */
-        // TODO - public bool supportsStepInTargetsRequest { get; set; }
-
-        /**
          * The debug adapter supports the 'setExpression' request.
          */
         // TODO - public bool supportsSetExpression { get; set; }
+
+        /**
+         * The debug adapter supports the 'modules' request.
+         */
+        public bool supportsModulesRequest { get; set; }
+
+        /**
+         * The debug adapter supports the 'restart' request. In this case a client should not implement 'restart' by terminating and relaunching the adapter but by calling the RestartRequest.
+         */
+        // TODO - public bool supportsRestartRequest { get; set; }
+
+        /**
+         * The debug adapter supports the 'loadedSources' request.
+         */
+        // TODO - public bool supportsLoadedSourcesRequest { get; set; }
     }
 
     /**
@@ -188,25 +198,9 @@ namespace NSE.DebuggerFrontend
     public class DAPCustomConfiguration
     {
         /**
-         * Requests the debugger to return raw call frames from the backend instead of
-         * merging and pretty printing the frames.
+         * Trigger a breakpoint when a Lua error is thrown.
          */
-        public bool rawFrames { get; set; }
-
-        /**
-         * Stop on all frames during single-stepping instead of meaningful frames.
-         */
-        public bool stopOnAllFrames { get; set; }
-
-        /**
-         * Stop inside database propagation calls during single-stepping.
-         */
-        public bool stopOnDbPropagation { get; set; }
-
-        /**
-         * Stop when a query inside an IF block fails.
-         */
-        public bool stopOnFailedQueries { get; set; }
+        public bool breakOnError { get; set; }
     }
 
     /**
@@ -227,11 +221,6 @@ namespace NSE.DebuggerFrontend
         public object __restart { get; set; }
 
         /**
-         * Location of story debug symbol file
-         */
-        public string debugInfoPath { get; set; }
-
-        /**
          * IP address of debugger backend server
          */
         public string backendHost { get; set; }
@@ -240,11 +229,6 @@ namespace NSE.DebuggerFrontend
          * Port of debugger backend server
          */
         public int backendPort { get; set; }
-
-        /**
-         * UUID of the mod we're debugging
-         */
-        public string modUuid { get; set; }
 
         /**
          * Additional debugger configuration

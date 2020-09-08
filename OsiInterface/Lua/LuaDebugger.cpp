@@ -370,6 +370,10 @@ namespace dse::lua::dbg
 		}
 	}
 
+	void ContextDebugger::OnLuaError(lua_State* L, char const* msg)
+	{
+		if (breakOnError_) {
+			TriggerBreakpoint(L, BkBreakpointTriggered::EXCEPTION, msg);
 		}
 	}
 
@@ -401,6 +405,7 @@ namespace dse::lua::dbg
 			newBreakpoints_.reset();
 			requestPause_ = false;
 			pauseMaxStackDepth_ = -1;
+			breakOnError_ = false;
 			if (isPaused_) {
 				ContinueExecution(DbgContinue_Action_CONTINUE);
 			}
@@ -452,6 +457,11 @@ namespace dse::lua::dbg
 			breakpoints_.reset(bps);
 		});
 		breakpointCv_.notify_one();
+	}
+
+	void ContextDebugger::UpdateSettings(bool breakOnError)
+	{
+		breakOnError_ = breakOnError;
 	}
 
 	ResultCode ContextDebugger::ContinueExecution(DbgContinue_Action action)
@@ -822,6 +832,17 @@ namespace dse::lua::dbg
 		}
 	}
 
+	void Debugger::OnLuaError(lua_State* L, char const* msg)
+	{
+		if (!IsDebuggerReady()) return;
+
+		if (gOsirisProxy->IsInServerThread()) {
+			server_.OnLuaError(L, msg);
+		} else {
+			client_.OnLuaError(L, msg);
+		}
+	}
+
 	void Debugger::DebugBreak(lua_State* L)
 	{
 		if (!IsDebuggerReady()) return;
@@ -878,6 +899,12 @@ namespace dse::lua::dbg
 	{
 		server_.FinishUpdatingBreakpoints();
 		client_.FinishUpdatingBreakpoints();
+	}
+
+	void Debugger::UpdateSettings(bool breakOnError)
+	{
+		server_.UpdateSettings(breakOnError);
+		client_.UpdateSettings(breakOnError);
 	}
 
 	ResultCode Debugger::ContinueExecution(DbgContext ctx, DbgContinue_Action action)

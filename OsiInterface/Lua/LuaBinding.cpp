@@ -7,6 +7,34 @@
 #include "resource.h"
 #include <fstream>
 
+// Callback from the Lua runtime when a handled (i.e. pcall/xpcall'd) error was thrown.
+// This is needed to capture errors for the Lua debugger, as there is no
+// built-in mechanism to capture handled errors.
+//
+// Lua ldebug.c (line ~639) must be patched like this:
+//
+// void nse_lua_report_handled_error(lua_State* L);
+// 
+// l_noret luaG_errormsg(lua_State* L) {
+// 	if (L->errfunc != 0) {  /* is there an error handling function? */
+// 	  nse_lua_report_handled_error(L);
+//    StkId errfunc = restorestack(L, L->errfunc);
+//
+void nse_lua_report_handled_error(lua_State* L)
+{
+#if !defined(OSI_NO_DEBUGGER)
+	char const* err = "(Unknown)";
+	if (lua_type(L, -1) == LUA_TSTRING) {
+		err = lua_tostring(L, -1);
+	}
+
+	auto debugger = dse::gOsirisProxy->GetLuaDebugger();
+	if (debugger) {
+		debugger->OnLuaError(L, err);
+	}
+#endif
+}
+
 namespace dse::lua
 {
 	RegistryEntry::RegistryEntry()
@@ -1016,6 +1044,13 @@ namespace dse::lua
 		if (lua_type(L, -1) == LUA_TSTRING) {
 			err = lua_tostring(L, -1);
 		}
+
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gOsirisProxy->GetLuaDebugger();
+		if (debugger) {
+			debugger->OnLuaError(L, err);
+		}
+#endif
 
 		throw Exception(err);
 	}
