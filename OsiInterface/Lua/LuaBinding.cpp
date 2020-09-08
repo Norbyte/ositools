@@ -1082,6 +1082,13 @@ namespace dse::lua
 	{
 		assert(!startupDone_);
 		startupDone_ = true;
+
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gOsirisProxy->GetLuaDebugMessageHandler();
+		if (debugger && debugger->IsDebuggerReady()) {
+			debugger->SendModInfo();
+		}
+#endif
 	}
 		
 	void State::OpenLibs()

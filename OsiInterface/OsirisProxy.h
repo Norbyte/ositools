@@ -177,6 +177,11 @@ public:
 	{
 		return luaDebugger_.get();
 	}
+
+	inline lua::dbg::DebugMessageHandler* GetLuaDebugMessageHandler()
+	{
+		return luaDebugMsgHandler_.get();
+	}
 #endif
 
 	ExtensionStateBase* GetCurrentExtensionState();

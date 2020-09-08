@@ -392,7 +392,8 @@ namespace NSE.DebuggerFrontend
             {
                 supportsConfigurationDoneRequest = true,
                 supportsEvaluateForHovers = true,
-                supportsModulesRequest = true
+                supportsModulesRequest = true,
+                supportsLoadedSourcesRequest = true
             };
             Stream.SendReply(request, reply);
 
@@ -702,6 +703,51 @@ namespace NSE.DebuggerFrontend
             PendingSourceRequests.Add(seqId, request);
         }
 
+        private void HandleLoadedSourcesRequest(DAPRequest request, DAPLoadedSourcesRequest req)
+        {
+            var reply = new DAPLoadedSourcesResponse
+            {
+                sources = SourceFiles.Select(source => new DAPSource
+                {
+                    path = source
+                }).ToList()
+            };
+            Stream.SendReply(request, reply);
+        }
+
+        private void HandleModulesRequest(DAPRequest request, DAPModulesRequest req)
+        {
+            int startIdx = req.startModule;
+            int lastIdx;
+            if (req.moduleCount == 0)
+            {
+                lastIdx = Modules.Count;
+            } 
+            else
+            {
+                lastIdx = Math.Min(startIdx + req.moduleCount, Modules.Count);
+            }
+
+            var reply = new DAPModulesResponse
+            {
+                modules = new List<DAPModule>(),
+                totalModules = Modules.Count
+            };
+
+            for (int i = startIdx; i < lastIdx; i++)
+            {
+                var mod = Modules[i];
+                reply.modules.Add(new DAPModule
+                {
+                    id = mod.UUID,
+                    name = mod.Name,
+                    path = mod.Path
+                });
+            }
+
+            Stream.SendReply(request, reply);
+        }
+
         private void HandleDisconnectRequest(DAPRequest request, DAPDisconnectRequest msg)
         {
             var reply = new DAPEmptyPayload();
@@ -776,6 +822,14 @@ namespace NSE.DebuggerFrontend
 
                 case "source":
                     HandleSourceRequest(request, request.arguments as DAPSourceRequest);
+                    break;
+
+                case "modules":
+                    HandleModulesRequest(request, request.arguments as DAPModulesRequest);
+                    break;
+
+                case "loadedSources":
+                    HandleLoadedSourcesRequest(request, request.arguments as DAPLoadedSourcesRequest);
                     break;
 
                 case "disconnect":

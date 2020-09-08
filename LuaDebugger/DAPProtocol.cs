@@ -189,7 +189,7 @@ namespace NSE.DebuggerFrontend
         /**
          * The debug adapter supports the 'loadedSources' request.
          */
-        // TODO - public bool supportsLoadedSourcesRequest { get; set; }
+        public bool supportsLoadedSourcesRequest { get; set; }
     }
 
     /**
@@ -925,6 +925,83 @@ namespace NSE.DebuggerFrontend
          * The breakpoint.
          */
         public DAPBreakpoint breakpoint;
+    }
+
+    /**
+     * Modules can be retrieved from the debug adapter with this request which can either 
+     * return all modules or a range of modules to support paging.
+     * 
+     * Clients should only call this request if the capability ‘supportsModulesRequest’ is true.
+     */
+    public class DAPModulesRequest : IDAPMessagePayload
+    {
+        /**
+         * The index of the first module to return; if omitted modules start at 0.
+         */
+        public int startModule { get; set; }
+
+        /**
+         * The number of modules to return. If moduleCount is not specified or 0, all modules are returned.
+         */
+        public int moduleCount { get; set; }
+    }
+
+    /**
+     * A Module object represents a row in the modules view.
+     */
+    public class DAPModule
+    {
+        /**
+         * Unique identifier for the module.
+         */
+        public string id { get; set; }
+
+        /**
+         * A name of the module.
+         */
+        public string name { get; set; }
+
+        /**
+         * Logical full path to the module. The exact definition is implementation defined, but usually 
+         * this would be a full path to the on-disk file for the module.
+         */
+        public string path { get; set; }
+    }
+
+    /**
+     * Response to ‘modules’ request.
+     */
+    public class DAPModulesResponse : IDAPMessagePayload
+    {
+        /**
+         * All modules or range of modules.
+         */
+        public IList<DAPModule> modules { get; set; }
+
+        /**
+         * The total number of modules available.
+         */
+        public int totalModules { get; set; }
+    }
+
+    /**
+     * Retrieves the set of all sources currently loaded by the debugged process.
+     * 
+     * Clients should only call this request if the capability ‘supportsLoadedSourcesRequest’ is true.
+     */
+    public class DAPLoadedSourcesRequest : IDAPMessagePayload
+    {
+    }
+
+    /**
+     * Response to ‘loadedSources’ request.
+     */
+    public class DAPLoadedSourcesResponse : IDAPMessagePayload
+    {
+        /**
+         * Set of loaded sources.
+         */
+        public IList<DAPSource> sources { get; set; }
     }
 
     /**
