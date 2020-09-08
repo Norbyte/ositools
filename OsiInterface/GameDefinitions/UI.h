@@ -11,12 +11,14 @@ namespace dse
 		enum class DataType : int32_t
 		{
 			None = 0x1,
+			Null = 0x2,
 			Bool = 0x3,
 			Double = 0x4,
 			String = 0x5,
 			WString = 0x6,
 			Array = 0xA,
-			Object = 0xC,
+			Object = 0xB,
+			Object2 = 0xC,
 			Function = 0x10,
 			UserData = 0x11,
 			UserData2 = 0x12,

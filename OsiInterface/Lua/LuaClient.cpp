@@ -897,6 +897,7 @@ namespace dse::ecl::lua
 	{
 		switch (value.TypeId) {
 		case ig::DataType::None:
+		case ig::DataType::Null:
 			lua_pushnil(L);
 			return 1;
 
@@ -1008,6 +1009,7 @@ namespace dse::ecl::lua
 
 		switch (type) {
 		case ig::DataType::None:
+		case ig::DataType::Null:
 			lua_pushnil(L);
 			return 1;
 
@@ -1058,6 +1060,7 @@ namespace dse::ecl::lua
 			return 1;
 
 		case ig::DataType::Object:
+		case ig::DataType::Object2:
 			UIFlashObject::New(L, parents, path);
 			return 1;
 
