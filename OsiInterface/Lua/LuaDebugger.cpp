@@ -382,6 +382,7 @@ namespace dse::lua::dbg
 
 		if (!enabled) {
 			breakpoints_.reset();
+			newBreakpoints_.reset();
 			requestPause_ = false;
 			pauseMaxStackDepth_ = -1;
 			if (isPaused_) {
@@ -429,10 +430,10 @@ namespace dse::lua::dbg
 			newBreakpoints_.reset();
 		}
 
+		auto bps = newBreakpoints_.release();
+
 		pendingActions_.push([=]() {
-			std::unique_ptr<BreakpointSet> pendingBps;
-			pendingBps.swap(newBreakpoints_);
-			breakpoints_.swap(pendingBps);
+			breakpoints_.reset(bps);
 		});
 		breakpointCv_.notify_one();
 	}
