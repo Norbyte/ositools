@@ -66,6 +66,26 @@ namespace NSE.DebuggerFrontend
                 IncomingSeq++;
                 return;
             }
+            catch (Exception e)
+            {
+                if (LogStream != null)
+                {
+                    using (var writer = new StreamWriter(LogStream, Encoding.UTF8, 0x1000, true))
+                    {
+                        writer.WriteLine(" DAP !!! Internal decoding error: " + e.ToString());
+                    }
+                }
+
+                var outputMsg = new DAPOutputMessage
+                {
+                    category = "stderr",
+                    output = e.ToString()
+                };
+                SendEvent("output", outputMsg);
+
+                IncomingSeq++;
+                return;
+            }
 
             if (message.seq != IncomingSeq)
             {
