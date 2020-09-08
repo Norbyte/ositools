@@ -65,6 +65,11 @@ void Fail(char const * reason)
 	TerminateProcess(GetCurrentProcess(), 1);
 }
 
+void LogLuaError(std::string_view msg)
+{
+	dse::gOsirisProxy->LogLuaError(msg);
+}
+
 void LogOsirisError(std::string_view msg)
 {
 	dse::gOsirisProxy->LogOsirisError(msg);

@@ -128,6 +128,7 @@ public:
 		return config_;
 	}
 
+	void LogLuaError(std::string_view msg);
 	void LogOsirisError(std::string_view msg);
 	void LogOsirisWarning(std::string_view msg);
 	void LogOsirisMsg(std::string_view msg);

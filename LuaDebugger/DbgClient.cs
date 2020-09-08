@@ -194,13 +194,14 @@ namespace NSE.DebuggerFrontend
             Send(msg);
         }
 
-        public void SendUpdateSettings(bool breakOnError)
+        public void SendUpdateSettings(bool breakOnError, bool breakOnGenericError)
         {
             var msg = new DebuggerToBackend
             {
                 UpdateSettings = new DbgUpdateSettings
                 {
-                    BreakOnError = breakOnError
+                    BreakOnError = breakOnError,
+                    BreakOnGenericError = breakOnGenericError
                 }
             };
             Send(msg);

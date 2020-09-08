@@ -68,6 +68,7 @@ namespace dse::lua::dbg
 		void OnContextCreated(lua_State* L);
 		void OnLuaHook(lua_State* L, lua_Debug* ar);
 		void OnLuaError(lua_State* L, char const* msg);
+		void OnGenericError(char const* msg);
 		void EnableDebugging(bool enabled);
 		void DebugBreak(lua_State* L);
 
@@ -80,7 +81,7 @@ namespace dse::lua::dbg
 		void AddBreakpoint(STDString const& path, int line);
 		void FinishUpdatingBreakpoints();
 
-		void UpdateSettings(bool breakOnError);
+		void UpdateSettings(bool breakOnError, bool breakOnGenericError);
 		ResultCode ContinueExecution(DbgContinue_Action action);
 		void Evaluate(DebuggerEvaluateRequest const& req);
 		void GetVariables(DebuggerGetVariablesRequest const& req);
@@ -114,6 +115,8 @@ namespace dse::lua::dbg
 		int currentStackDepth_{ 0 };
 		// Trigger breakpoint on Lua errors
 		bool breakOnError_{ false };
+		// Trigger breakpoint on non-Lua error message if we're running Lua code
+		bool breakOnGenericError_{ false };
 
 		// Breakpoint set currently in use by the debugger
 		std::unique_ptr<BreakpointSet> breakpoints_;
@@ -143,6 +146,7 @@ namespace dse::lua::dbg
 		void OnLogMessage(DebugMessageType type, STDString const& message);
 		void OnLuaHook(lua_State* L, lua_Debug* ar);
 		void OnLuaError(lua_State* L, char const* msg);
+		void OnGenericError(char const* msg);
 		void DebugBreak(lua_State* L);
 
 		void ServerStateCreated(esv::lua::ServerState* state);
@@ -155,7 +159,7 @@ namespace dse::lua::dbg
 		ResultCode AddBreakpoint(STDString const& path, int line);
 		void FinishUpdatingBreakpoints();
 
-		void UpdateSettings(bool breakOnError);
+		void UpdateSettings(bool breakOnError, bool breakOnGenericError);
 		ResultCode ContinueExecution(DbgContext ctx, DbgContinue_Action action);
 		void Evaluate(DebuggerEvaluateRequest const& req);
 		void GetVariables(DebuggerGetVariablesRequest const& req);

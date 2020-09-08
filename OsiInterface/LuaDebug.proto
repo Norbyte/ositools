@@ -96,6 +96,7 @@ message BkConnectResponse {
 
 message DbgUpdateSettings {
   bool break_on_error = 1;
+  bool break_on_generic_error = 2;
 }
 
 message MsgBreakpoint {

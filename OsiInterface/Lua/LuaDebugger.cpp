@@ -377,6 +377,16 @@ namespace dse::lua::dbg
 		}
 	}
 
+	void ContextDebugger::OnGenericError(char const* msg)
+	{
+		if (breakOnGenericError_) {
+			LuaVirtualPin lua(GetExtensionState());
+			if (lua) {
+				TriggerBreakpoint(lua->GetState(), BkBreakpointTriggered::EXCEPTION, msg);
+			}
+		}
+	}
+
 	void ContextDebugger::DebugBreak(lua_State* L)
 	{
 		TriggerBreakpoint(L, BkBreakpointTriggered::EXCEPTION, "Ext.DebugBreak() called");
@@ -393,13 +403,6 @@ namespace dse::lua::dbg
 	{
 		enabled_ = enabled;
 
-		ExtensionStateBase* state{ nullptr };
-		if (context_ == DbgContext::SERVER) {
-			state = &gOsirisProxy->GetServerExtensionState();
-		} else {
-			state = &gOsirisProxy->GetClientExtensionState();
-		}
-
 		if (!enabled) {
 			breakpoints_.reset();
 			newBreakpoints_.reset();
@@ -411,7 +414,7 @@ namespace dse::lua::dbg
 			}
 		}
 
-		LuaVirtualPin lua(state);
+		LuaVirtualPin lua(GetExtensionState());
 		if (lua) {
 			if (enabled) {
 				lua_sethook(lua->GetState(), LuaHook, LUA_MASKLINE, 0);
@@ -459,9 +462,10 @@ namespace dse::lua::dbg
 		breakpointCv_.notify_one();
 	}
 
-	void ContextDebugger::UpdateSettings(bool breakOnError)
+	void ContextDebugger::UpdateSettings(bool breakOnError, bool breakOnGenericError)
 	{
 		breakOnError_ = breakOnError;
+		breakOnGenericError_ = breakOnGenericError;
 	}
 
 	ResultCode ContextDebugger::ContinueExecution(DbgContinue_Action action)
@@ -843,6 +847,17 @@ namespace dse::lua::dbg
 		}
 	}
 
+	void Debugger::OnGenericError(char const* msg)
+	{
+		if (!IsDebuggerReady()) return;
+
+		if (gOsirisProxy->IsInServerThread()) {
+			server_.OnGenericError(msg);
+		} else {
+			client_.OnGenericError(msg);
+		}
+	}
+
 	void Debugger::DebugBreak(lua_State* L)
 	{
 		if (!IsDebuggerReady()) return;
@@ -901,10 +916,10 @@ namespace dse::lua::dbg
 		client_.FinishUpdatingBreakpoints();
 	}
 
-	void Debugger::UpdateSettings(bool breakOnError)
+	void Debugger::UpdateSettings(bool breakOnError, bool breakOnGenericError)
 	{
-		server_.UpdateSettings(breakOnError);
-		client_.UpdateSettings(breakOnError);
+		server_.UpdateSettings(breakOnError, breakOnGenericError);
+		client_.UpdateSettings(breakOnError, breakOnGenericError);
 	}
 
 	ResultCode Debugger::ContinueExecution(DbgContext ctx, DbgContinue_Action action)

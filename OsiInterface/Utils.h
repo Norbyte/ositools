@@ -77,6 +77,12 @@ void Fail(char const * reason);
 
 
 #if !defined(OSI_NO_DEBUG_LOG)
+#define LuaError(msg) { \
+	std::stringstream ss; \
+	ss << __FUNCTION__ "(): " msg; \
+	LogLuaError(ss.str()); \
+}
+
 #define OsiError(msg) { \
 	std::stringstream ss; \
 	ss << __FUNCTION__ "(): " msg; \
@@ -99,6 +105,7 @@ void Fail(char const * reason);
 #define OsiWarnS(msg) LogOsirisWarning(__FUNCTION__ "(): " msg)
 #define OsiMsgS(msg) LogOsirisMsg(__FUNCTION__ "(): " msg)
 #else
+#define LuaError(msg) (void)0
 #define OsiError(msg) (void)0
 #define OsiWarn(msg) (void)0
 #define OsiMsg(msg) (void)0
@@ -108,6 +115,7 @@ void Fail(char const * reason);
 #endif
 
 
+void LogLuaError(std::string_view msg);
 void LogOsirisError(std::string_view msg);
 void LogOsirisWarning(std::string_view msg);
 void LogOsirisMsg(std::string_view msg);

@@ -305,8 +305,8 @@ namespace dse::lua::dbg
 
 	void DebugMessageHandler::HandleUpdateSettings(uint32_t seq, DbgUpdateSettings const& req)
 	{
-		DEBUG(" --> DbgUpdateSettings(%d)", req.break_on_error());
-		debugger_->UpdateSettings(req.break_on_error());
+		DEBUG(" --> DbgUpdateSettings(%d, %d)", req.break_on_error(), req.break_on_generic_error());
+		debugger_->UpdateSettings(req.break_on_error(), req.break_on_generic_error());
 		SendResult(seq, ResultCode::Success);
 	}
 
@@ -382,7 +382,7 @@ namespace dse::lua::dbg
 		if (path) {
 			auto reader = GetStaticSymbols().MakeFileReader(*path);
 			if (!reader.IsLoaded()) {
-				OsiError("Script file could not be opened: " << *path);
+				LuaError("Script file could not be opened: " << *path);
 			} else {
 				SendSourceResponse(seq, req.name().c_str(), reader.ToString());
 				return;

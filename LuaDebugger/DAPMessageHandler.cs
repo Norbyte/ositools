@@ -366,7 +366,7 @@ namespace NSE.DebuggerFrontend
 
         private void OnDebuggerReady(BkDebuggerReady msg)
         {
-            DbgCli.SendUpdateSettings(Config.breakOnError);
+            DbgCli.SendUpdateSettings(Config.breakOnError, Config.breakOnGenericError);
 
             SendOutput("console", "Debugger backend ready\r\n");
             Initialized = true;
@@ -558,10 +558,25 @@ namespace NSE.DebuggerFrontend
             int levels = (msg.levels == null || msg.levels == 0) ? state.Stack.Count : (int)msg.levels;
             int lastFrame = Math.Min(startFrame + levels, state.Stack.Count);
 
+            // Count total sendable frames
+            int numFrames = 0;
+            foreach (var frame in state.Stack)
+            {
+                if (!Config.omitCppFrames || frame.Path != null)
+                {
+                    numFrames++;
+                }
+            }
+
             var frames = new List<DAPStackFrame>();
             for (var i = startFrame; i < lastFrame; i++)
             {
                 var frame = state.Stack[i];
+                if (Config.omitCppFrames && frame.Path == null)
+                {
+                    continue;
+                }
+
                 var dapFrame = new DAPStackFrame();
                 dapFrame.id = (msg.threadId << 16) | i;
                 // TODO DAPStackFrameFormat for name formatting
@@ -584,7 +599,7 @@ namespace NSE.DebuggerFrontend
             var reply = new DAPStackFramesResponse
             {
                 stackFrames = frames,
-                totalFrames = state.Stack.Count
+                totalFrames = numFrames
             };
             Stream.SendReply(request, reply);
         }

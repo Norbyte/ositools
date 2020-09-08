@@ -1992,17 +1992,17 @@ namespace dse::esv::lua
 			}
 
 			if (CallWithTraceback(L, numArgs, 1) != 0) {
-				OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
+				LuaError("Osiris event handler failed: " << lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
 		}
 		catch (Exception& e) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
 			if (stackRemaining > 0) {
-				OsiError("Osiris event callback failed: " << lua_tostring(L, -1));
+				LuaError("Osiris event callback failed: " << lua_tostring(L, -1));
 				lua_pop(L, stackRemaining);
 			} else {
-				OsiError("Internal error during call Osiris event callback: " << e.what());
+				LuaError("Internal error during call Osiris event callback: " << e.what());
 			}
 		}
 	}
@@ -2046,18 +2046,18 @@ namespace dse::esv::lua
 			}
 
 			if (CallWithTraceback(L, numArgs, 1) != 0) {
-				OsiError("Osiris event handler failed: " << lua_tostring(L, -1));
+				LuaError("Osiris event handler failed: " << lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
 		}
 		catch (Exception& e) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
 			if (stackRemaining > 0) {
-				OsiError("Osiris event callback failed: " << lua_tostring(L, -1));
+				LuaError("Osiris event callback failed: " << lua_tostring(L, -1));
 				lua_pop(L, stackRemaining);
 			}
 			else {
-				OsiError("Internal error during call Osiris event callback: " << e.what());
+				LuaError("Internal error during call Osiris event callback: " << e.what());
 			}
 		}
 	}
@@ -2322,7 +2322,7 @@ namespace dse::esv::lua
 		}
 
 		if (CallWithTraceback(L, 2, 1) != 0) { // stack: succeeded
-			OsiError("StatusHitEnter handler failed: " << lua_tostring(L, -1));
+			LuaError("StatusHitEnter handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2367,7 +2367,7 @@ namespace dse::esv::lua
 		push(L, criticalRoll);
 
 		if (CallWithTraceback(L, 11, 1) != 0) { // stack: succeeded
-			OsiError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
+			LuaError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}
@@ -2456,7 +2456,7 @@ namespace dse::esv::lua
 		}
 
 		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
-			OsiError("BeforeCharacterApplyDamage handler failed: " << lua_tostring(L, -1));
+			LuaError("BeforeCharacterApplyDamage handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}
@@ -2493,7 +2493,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Item>::New(L, itemHandle);
 
 		if (CallWithTraceback(L, 1, 1) != 0) { // stack: succeeded
-			OsiError("TreasureItemGenerated handler failed: " << lua_tostring(L, -1));
+			LuaError("TreasureItemGenerated handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return item;
 		}
@@ -2545,7 +2545,7 @@ namespace dse::esv::lua
 		push(L, combinationId);
 
 		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
-			OsiError("BeforeCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			LuaError("BeforeCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}
@@ -2583,7 +2583,7 @@ namespace dse::esv::lua
 		push(L, succeeded);
 
 		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
-			OsiError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
+			LuaError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2595,7 +2595,7 @@ namespace dse::esv::lua
 		UnbindablePin _(ObjectProxy<ShootProjectileHelper>::New(L, helper));
 
 		if (CallWithTraceback(L, 1, 1) != 0) {
-			OsiError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
+			LuaError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2607,7 +2607,7 @@ namespace dse::esv::lua
 		UnbindablePin _(ObjectProxy<esv::Projectile>::New(L, projectile));
 
 		if (CallWithTraceback(L, 1, 1) != 0) {
-			OsiError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
+			LuaError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2629,7 +2629,7 @@ namespace dse::esv::lua
 		push(L, position);
 
 		if (CallWithTraceback(L, 3, 1) != 0) {
-			OsiError("OnProjectileHit handler failed: " << lua_tostring(L, -1));
+			LuaError("OnProjectileHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2657,7 +2657,7 @@ namespace dse::esv::lua
 		}
 
 		if (CallWithTraceback(L, 3, 1) != 0) {
-			OsiError("GroundHit handler failed: " << lua_tostring(L, -1));
+			LuaError("GroundHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}
@@ -2685,7 +2685,7 @@ namespace dse::esv::lua
 		CombatTeamListToLua(L, combat->NextRoundTeams);
 
 		if (CallWithTraceback(L, 2, 1) != 0) { // stack: retval
-			OsiError("OnUpdateTurnOrder handler failed: " << lua_tostring(L, -1));
+			LuaError("OnUpdateTurnOrder handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return false;
 		}

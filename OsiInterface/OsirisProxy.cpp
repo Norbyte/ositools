@@ -145,6 +145,16 @@ void OsirisProxy::Shutdown()
 	Wrappers.Shutdown();
 }
 
+void OsirisProxy::LogLuaError(std::string_view msg)
+{
+	std::string log = "[Osiris] {E} ";
+	log += msg;
+	gConsole.Debug(DebugMessageType::Error, log.c_str());
+	if (StoryLoaded) {
+		Wrappers.AssertOriginal(false, log.c_str(), false);
+	}
+}
+
 void OsirisProxy::LogOsirisError(std::string_view msg)
 {
 	std::string log = "[Osiris] {E} ";
@@ -153,6 +163,12 @@ void OsirisProxy::LogOsirisError(std::string_view msg)
 	if (StoryLoaded) {
 		Wrappers.AssertOriginal(false, log.c_str(), false);
 	}
+
+#if !defined(OSI_NO_DEBUGGER)
+	if (luaDebugger_) {
+		luaDebugger_->OnGenericError(msg.data());
+	}
+#endif
 }
 
 void OsirisProxy::LogOsirisWarning(std::string_view msg)

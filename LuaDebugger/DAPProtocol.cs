@@ -201,6 +201,17 @@ namespace NSE.DebuggerFrontend
          * Trigger a breakpoint when a Lua error is thrown.
          */
         public bool breakOnError { get; set; }
+
+        /**
+         * Trigger a breakpoint when an error-level message is logged in the console
+         * and we've entered the Lua state in the current thread (i.e. Lua code is running).
+         */
+        public bool breakOnGenericError { get; set; }
+
+        /**
+         * Omit C++ frames from stack traces
+         */
+        public bool omitCppFrames { get; set; }
     }
 
     /**

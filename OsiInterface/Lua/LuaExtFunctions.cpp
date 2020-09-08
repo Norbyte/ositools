@@ -340,7 +340,7 @@ namespace dse::lua
 	{
 		std::stringstream ss;
 		OsiArgsToStream(L, ss);
-		gOsirisProxy->LogOsirisError(ss.str());
+		gOsirisProxy->LogLuaError(ss.str());
 		return 0;
 	}
 

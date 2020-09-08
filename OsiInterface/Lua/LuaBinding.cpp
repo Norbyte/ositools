@@ -1124,7 +1124,7 @@ namespace dse::lua
 		/* Load the file containing the script we are going to run */
 		int status = luaL_loadbufferx(L, script.c_str(), script.size(), name.c_str(), "text");
 		if (status != LUA_OK) {
-			OsiError("Failed to parse script: " << lua_tostring(L, -1));
+			LuaError("Failed to parse script: " << lua_tostring(L, -1));
 			lua_pop(L, 1);  /* pop error message from the stack */
 			return {};
 		}
@@ -1139,7 +1139,7 @@ namespace dse::lua
 		/* Ask Lua to run our little script */
 		status = CallWithTraceback(L, 0, LUA_MULTRET);
 		if (status != LUA_OK) {
-			OsiError("Failed to execute script: " << lua_tostring(L, -1));
+			LuaError("Failed to execute script: " << lua_tostring(L, -1));
 			lua_pop(L, 1); // pop error message from the stack
 			return {};
 		}

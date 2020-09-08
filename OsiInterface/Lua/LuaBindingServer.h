@@ -476,7 +476,7 @@ namespace dse::esv::lua
 
 				auto status = CallWithTraceback(L, (int)args.size(), 0);
 				if (status != LUA_OK) {
-					OsiError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
+					LuaError("Failed to call function '" << func << "': " << lua_tostring(L, -1));
 					// stack: errmsg
 					lua_pop(L, 1); // stack: -
 				}
@@ -484,16 +484,16 @@ namespace dse::esv::lua
 				auto stackRemaining = lua_gettop(L) - stackSize;
 				if (stackRemaining > 0) {
 					if (mod != nullptr) {
-						OsiError("Call to mod function '" << mod << "'.'" << func << "' failed: " << lua_tostring(L, -1));
+						LuaError("Call to mod function '" << mod << "'.'" << func << "' failed: " << lua_tostring(L, -1));
 					} else {
-						OsiError("Call to mod function '" << func << "' failed: " << lua_tostring(L, -1));
+						LuaError("Call to mod function '" << func << "' failed: " << lua_tostring(L, -1));
 					}
 					lua_pop(L, stackRemaining);
 				} else {
 					if (mod != nullptr) {
-						OsiError("Internal error during call to mod function '" << mod << "'.'" << func << "'");
+						LuaError("Internal error during call to mod function '" << mod << "'.'" << func << "'");
 					} else {
-						OsiError("Internal error during call to mod function '" << func << "'");
+						LuaError("Internal error during call to mod function '" << func << "'");
 					}
 				}
 			}
