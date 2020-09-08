@@ -307,6 +307,7 @@ namespace dse::lua
 	int IsModLoaded(lua_State* L);
 	int GetModLoadOrder(lua_State* L);
 	int GetModInfo(lua_State* L);
+	int LuaDebugBreak(lua_State* L);
 
 	int GetStatEntries(lua_State* L);
 	int GetStatEntriesLoadedBefore(lua_State* L);

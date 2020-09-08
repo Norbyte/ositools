@@ -454,6 +454,17 @@ namespace dse::lua
 		}
 	}
 
+	int LuaDebugBreak(lua_State* L)
+	{
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gOsirisProxy->GetLuaDebugger();
+		if (debugger) {
+			debugger->DebugBreak(L);
+		}
+#endif
+		return 0;
+	}
+
 	void FetchSkillSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
 		int32_t index = 1;

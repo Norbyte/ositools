@@ -1806,6 +1806,8 @@ namespace dse::ecl::lua
 			{"GetModLoadOrder", GetModLoadOrder},
 			{"GetModInfo", GetModInfo},
 
+			{"DebugBreak", LuaDebugBreak},
+
 			{"GetStatEntries", GetStatEntries},
 			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
 			{"GetSkillSet", GetSkillSet},

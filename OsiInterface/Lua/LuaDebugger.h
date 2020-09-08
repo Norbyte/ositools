@@ -68,6 +68,7 @@ namespace dse::lua::dbg
 		void OnContextCreated(lua_State* L);
 		void OnLuaHook(lua_State* L, lua_Debug* ar);
 		void EnableDebugging(bool enabled);
+		void DebugBreak(lua_State* L);
 
 		inline bool IsPaused() const
 		{
@@ -137,6 +138,7 @@ namespace dse::lua::dbg
 		bool IsDebuggerReady() const;
 		void OnLogMessage(DebugMessageType type, STDString const& message);
 		void OnLuaHook(lua_State* L, lua_Debug* ar);
+		void DebugBreak(lua_State* L);
 
 		void ServerStateCreated(esv::lua::ServerState* state);
 		void ClientStateCreated(ecl::lua::ClientState* state);

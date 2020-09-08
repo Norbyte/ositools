@@ -373,6 +373,11 @@ namespace dse::lua::dbg
 		}
 	}
 
+	void ContextDebugger::DebugBreak(lua_State* L)
+	{
+		TriggerBreakpoint(L, BkBreakpointTriggered::EXCEPTION, "Ext.DebugBreak() called");
+	}
+
 	void ContextDebugger::OnContextCreated(lua_State* L)
 	{
 		if (enabled_) {
@@ -814,6 +819,17 @@ namespace dse::lua::dbg
 			server_.OnLuaHook(L, ar);
 		} else {
 			client_.OnLuaHook(L, ar);
+		}
+	}
+
+	void Debugger::DebugBreak(lua_State* L)
+	{
+		if (!IsDebuggerReady()) return;
+
+		if (gOsirisProxy->IsInServerThread()) {
+			server_.DebugBreak(L);
+		} else {
+			client_.DebugBreak(L);
 		}
 	}
 

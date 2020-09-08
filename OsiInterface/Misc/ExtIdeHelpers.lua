@@ -4141,6 +4141,10 @@ function Ext.MonotonicTime () end
 --- @return boolean
 function Ext.PlayerHasExtender (playerGuid) end
 
+--- Triggers a breakpoint in the Lua debugger.
+--- If no debugger is connected, the function does nothing.
+function Ext.DebugBreak () end
+
 --- Handle to double conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
 --- @param handle ObjectHandle Handle to cast
