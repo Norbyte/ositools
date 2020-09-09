@@ -678,12 +678,21 @@ namespace dse::ecl::lua
 
 		void OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 		{
-			LuaClientPin lua(ExtensionState::Get());
-			if (lua) {
-				lua->OnUICall(UIObjectHandle, func, numArgs, args);
+			{
+				LuaClientPin lua(ExtensionState::Get());
+				if (lua) {
+					lua->OnUICall(UIObjectHandle, func, numArgs, args);
+				}
 			}
 
 			EoCUI::OnFunctionCalled(func, numArgs, args);
+
+			{
+				LuaClientPin lua(ExtensionState::Get());
+				if (lua) {
+					lua->OnAfterUICall(UIObjectHandle, func, numArgs, args);
+				}
+			}
 		}
 
 		void Destroy(bool free)
@@ -1393,18 +1402,26 @@ namespace dse::ecl::lua
 
 	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
+		{
+			LuaClientPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
+			}
 		}
 
 		auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
 		auto handler = OriginalUIObjectCallHandlers.find(vmt);
 		if (handler != OriginalUIObjectCallHandlers.end()) {
 			handler->second(self, function, numArgs, args);
-		}
-		else {
+		} else {
 			OsiError("Couldn't find original OnFunctionCalled handler for UI object");
+		}
+
+		{
+			LuaClientPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnAfterUICall(self->UIObjectHandle, function, numArgs, args);
+			}
 		}
 	}
 
@@ -1463,93 +1480,107 @@ namespace dse::ecl::lua
 		return {};
 	}
 
-	static bool FlashPlayerInvoke6Capture(ig::FlashPlayer* self, int64_t invokeId,
-		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4, ig::InvokeDataValue* a5, ig::InvokeDataValue* a6)
+	template <class ...Args>
+	void OnFlashPlayerPreInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
 		if (lua) {
-			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5, *a6 };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
+			std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
+			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 
+				(uint32_t)invokeArgs.size(), invokeArgs.data());
 		}
+	}
 
-		return gFlashPlayerHooks.OriginalInvoke6(self, invokeId, a1, a2, a3, a4, a5, a6);
+	template <class ...Args>
+	void OnFlashPlayerPostInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... args)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
+			lua->OnAfterUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 
+				(uint32_t)invokeArgs.size(), invokeArgs.data());
+		}
+	}
+
+	static bool FlashPlayerInvoke6Capture(ig::FlashPlayer* self, int64_t invokeId,
+		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4, ig::InvokeDataValue* a5, ig::InvokeDataValue* a6)
+	{
+		OnFlashPlayerPreInvoke(self, invokeId, a1, a2, a3, a4, a5, a6);
+		auto result = gFlashPlayerHooks.OriginalInvoke6(self, invokeId, a1, a2, a3, a4, a5, a6);
+		OnFlashPlayerPostInvoke(self, invokeId, a1, a2, a3, a4, a5, a6);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke5Capture(ig::FlashPlayer* self, int64_t invokeId,
 		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4, ig::InvokeDataValue* a5)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4, *a5 };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke5(self, invokeId, a1, a2, a3, a4, a5);
+		OnFlashPlayerPreInvoke(self, invokeId, a1, a2, a3, a4, a5);
+		auto result = gFlashPlayerHooks.OriginalInvoke5(self, invokeId, a1, a2, a3, a4, a5);
+		OnFlashPlayerPostInvoke(self, invokeId, a1, a2, a3, a4, a5);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke4Capture(ig::FlashPlayer* self, int64_t invokeId,
 		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3, ig::InvokeDataValue* a4)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3, *a4 };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke4(self, invokeId, a1, a2, a3, a4);
+		OnFlashPlayerPreInvoke(self, invokeId, a1, a2, a3, a4);
+		auto result = gFlashPlayerHooks.OriginalInvoke4(self, invokeId, a1, a2, a3, a4);
+		OnFlashPlayerPostInvoke(self, invokeId, a1, a2, a3, a4);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke3Capture(ig::FlashPlayer* self, int64_t invokeId,
 		ig::InvokeDataValue* a1, ig::InvokeDataValue* a2, ig::InvokeDataValue* a3)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			std::vector<ig::InvokeDataValue> args{ *a1, *a2, *a3 };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke3(self, invokeId, a1, a2, a3);
+		OnFlashPlayerPreInvoke(self, invokeId, a1, a2, a3);
+		auto result = gFlashPlayerHooks.OriginalInvoke3(self, invokeId, a1, a2, a3);
+		OnFlashPlayerPostInvoke(self, invokeId, a1, a2, a3);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke2Capture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* a1, ig::InvokeDataValue* a2)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			std::vector<ig::InvokeDataValue> args{ *a1, *a2 };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, (uint32_t)args.size(), args.data());
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke2(self, invokeId, a1, a2);
+		OnFlashPlayerPreInvoke(self, invokeId, a1, a2);
+		auto result = gFlashPlayerHooks.OriginalInvoke2(self, invokeId, a1, a2);
+		OnFlashPlayerPostInvoke(self, invokeId, a1, a2);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke1Capture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* a1)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 1, a1);
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke1(self, invokeId, a1);
+		OnFlashPlayerPreInvoke(self, invokeId, a1);
+		auto result = gFlashPlayerHooks.OriginalInvoke1(self, invokeId, a1);
+		OnFlashPlayerPostInvoke(self, invokeId, a1);
+		return result;
 	}
 
 	static bool FlashPlayerInvoke0Capture(ig::FlashPlayer* self, int64_t invokeId)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 0, nullptr);
-		}
-
-		return gFlashPlayerHooks.OriginalInvoke0(self, invokeId);
+		OnFlashPlayerPreInvoke(self, invokeId);
+		auto result = gFlashPlayerHooks.OriginalInvoke0(self, invokeId);
+		OnFlashPlayerPostInvoke(self, invokeId);
+		return result;
 	}
 
 	static bool FlashPlayerInvokeArgsCapture(ig::FlashPlayer* self, int64_t invokeId, ig::InvokeDataValue* args, unsigned numArgs)
 	{
-		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+		{
+			LuaClientPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+			}
 		}
 
-		return gFlashPlayerHooks.OriginalInvokeArgs(self, invokeId, args, numArgs);
+		auto result = gFlashPlayerHooks.OriginalInvokeArgs(self, invokeId, args, numArgs);
+
+		{
+			LuaClientPin lua(ExtensionState::Get());
+			if (lua) {
+				lua->OnAfterUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+			}
+		}
+
+		return result;
 	}
 
 	void FlashPlayerHooks::Hook(ig::FlashPlayer::VMT* vmt)
@@ -1941,11 +1972,28 @@ namespace dse::ecl::lua
 
 		UIObjectProxy::New(L, uiObjectHandle);
 		push(L, func);
+		push(L, "Before");
 		for (uint32_t i = 0; i < numArgs; i++) {
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 2 + numArgs, "Ext.UICall");
+		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
+	}
+
+	void ClientState::OnAfterUICall(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	{
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_UICall"); // stack: fn
+
+		UIObjectProxy::New(L, uiObjectHandle);
+		push(L, func);
+		push(L, "After");
+		for (uint32_t i = 0; i < numArgs; i++) {
+			InvokeDataValueToLua(L, args[i]);
+		}
+
+		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
 	}
 
 	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
@@ -1956,11 +2004,28 @@ namespace dse::ecl::lua
 
 		UIObjectProxy::New(L, uiObjectHandle);
 		push(L, func);
+		push(L, "Before");
 		for (uint32_t i = 0; i < numArgs; i++) {
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 2 + numArgs, "Ext.UIInvoke");
+		CheckedCall<>(L, 3 + numArgs, "Ext.UIInvoke");
+	}
+
+	void ClientState::OnAfterUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	{
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_UIInvoke"); // stack: fn
+
+		UIObjectProxy::New(L, uiObjectHandle);
+		push(L, func);
+		push(L, "After");
+		for (uint32_t i = 0; i < numArgs; i++) {
+			InvokeDataValueToLua(L, args[i]);
+		}
+
+		CheckedCall<>(L, 3 + numArgs, "Ext.UIInvoke");
 	}
 
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,

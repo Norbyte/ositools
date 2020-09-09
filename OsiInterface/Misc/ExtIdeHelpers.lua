@@ -3376,7 +3376,7 @@ function UIObject.Destroy (self) end
 local SurfaceInteractionSet = {}
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -4080,40 +4080,46 @@ function Ext.DestroyUI (name) end
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param name string ExternalInterface function name
 --- @param handler function Lua handler
-function Ext.RegisterUICall (object, name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUICall (object, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered for every UI element with the specified type ID.
 --- @param typeId number Engine UI element type ID
 --- @param name string ExternalInterface function name
 --- @param handler function Lua handler
-function Ext.RegisterUITypeCall (typeId, name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUITypeCall (typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered regardless of which UI element it was called on.
 --- (Function call capture must be enabled for every element type that needs to monitored!)
 --- @param name string ExternalInterface function name
 --- @param handler function Lua handler
-function Ext.RegisterUINameCall (name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUINameCall (name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param method string Flash method name
 --- @param handler function Lua handler
-function Ext.RegisterUIInvokeListener (object, name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUIInvokeListener (object, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered for every UI element with the specified type ID.
 --- @param typeId number Engine UI element type ID
 --- @param method string Flash method name
 --- @param handler function Lua handler
-function Ext.RegisterUITypeInvokeListener (typeId, name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUITypeInvokeListener (typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered regardless of which UI element it was called on.
 --- @param method string Flash method name
 --- @param handler function Lua handler
-function Ext.RegisterUINameInvokeListener (name, handler) end
+--- @param type string|nil Event type - 'Before' or 'After'
+function Ext.RegisterUINameInvokeListener (name, handler, type) end
 
 --- Registers a listener that is called when a console command is entered in the dev console
 --- @param cmd string Console command

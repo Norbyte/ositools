@@ -13,7 +13,9 @@ Ext._Listeners = {
 	GetHitChance = {},
 	UIObjectCreated = {},
 	UIInvoke = {},
-	UICall = {}
+	UICall = {},
+	AfterUIInvoke = {},
+	AfterUICall = {}
 }
 
 Ext._SkillGetDescriptionParam = function (...)
@@ -83,46 +85,49 @@ Ext._UIObjectCreated = function (uiObject)
 	Ext._Notify("UIObjectCreated", uiObject)
 end
 
-Ext._UIExternalInterfaceHandleListeners = {}
-Ext._UIExternalInterfaceTypeListeners = {}
-Ext._UIExternalInterfaceNameListeners = {}
+Ext._UIExternalInterfaceHandleListeners = { Before = {}, After = {} }
+Ext._UIExternalInterfaceTypeListeners = { Before = {}, After = {} }
+Ext._UIExternalInterfaceNameListeners = { Before = {}, After = {} }
 
-Ext.RegisterUICall = function (uiObject, call, fn)
+Ext.RegisterUICall = function (uiObject, call, fn, type)
+	type = type or "Before"
 	local handle = uiObject:GetHandle()
-	if Ext._UIExternalInterfaceHandleListeners[handle] == nil then
-		Ext._UIExternalInterfaceHandleListeners[handle] = {}
+	if Ext._UIExternalInterfaceHandleListeners[type][handle] == nil then
+		Ext._UIExternalInterfaceHandleListeners[type][handle] = {}
 	end
 	
-	if Ext._UIExternalInterfaceHandleListeners[handle][call] == nil then
-		Ext._UIExternalInterfaceHandleListeners[handle][call] = {}
+	if Ext._UIExternalInterfaceHandleListeners[type][handle][call] == nil then
+		Ext._UIExternalInterfaceHandleListeners[type][handle][call] = {}
 	end
 	
-	table.insert(Ext._UIExternalInterfaceHandleListeners[handle][call], fn)
+	table.insert(Ext._UIExternalInterfaceHandleListeners[type][handle][call], fn)
 	uiObject:CaptureExternalInterfaceCalls()
 end
 
-Ext.RegisterUITypeCall = function (typeId, call, fn)
-	if Ext._UIExternalInterfaceTypeListeners[typeId] == nil then
-		Ext._UIExternalInterfaceTypeListeners[typeId] = {}
+Ext.RegisterUITypeCall = function (typeId, call, fn, type)
+	type = type or "Before"
+	if Ext._UIExternalInterfaceTypeListeners[type][typeId] == nil then
+		Ext._UIExternalInterfaceTypeListeners[type][typeId] = {}
 	end
 	
-	if Ext._UIExternalInterfaceTypeListeners[typeId][call] == nil then
-		Ext._UIExternalInterfaceTypeListeners[typeId][call] = {}
+	if Ext._UIExternalInterfaceTypeListeners[type][typeId][call] == nil then
+		Ext._UIExternalInterfaceTypeListeners[type][typeId][call] = {}
 	end
 	
-	table.insert(Ext._UIExternalInterfaceTypeListeners[typeId][call], fn)
+	table.insert(Ext._UIExternalInterfaceTypeListeners[type][typeId][call], fn)
 end
 
-Ext.RegisterUINameCall = function (call, fn)
-	if Ext._UIExternalInterfaceNameListeners[call] == nil then
-		Ext._UIExternalInterfaceNameListeners[call] = {}
+Ext.RegisterUINameCall = function (call, fn, type)
+	type = type or "Before"
+	if Ext._UIExternalInterfaceNameListeners[type][call] == nil then
+		Ext._UIExternalInterfaceNameListeners[type][call] = {}
 	end
 	
-	table.insert(Ext._UIExternalInterfaceNameListeners[call], fn)
+	table.insert(Ext._UIExternalInterfaceNameListeners[type][call], fn)
 end
 
-Ext._UICall = function (uiObject, call, ...)
-    local listeners = Ext._UIExternalInterfaceHandleListeners[uiObject:GetHandle()]
+Ext._UICall = function (uiObject, call, type, ...)
+    local listeners = Ext._UIExternalInterfaceHandleListeners[type][uiObject:GetHandle()]
 	if listeners ~= nil and listeners[call] ~= nil then
 		for i,callback in pairs(listeners[call]) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
@@ -132,7 +137,7 @@ Ext._UICall = function (uiObject, call, ...)
 		end
 	end
 
-    local listeners = Ext._UIExternalInterfaceTypeListeners[uiObject:GetTypeId()]
+    local listeners = Ext._UIExternalInterfaceTypeListeners[type][uiObject:GetTypeId()]
 	if listeners ~= nil and listeners[call] ~= nil then
 		for i,callback in pairs(listeners[call]) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
@@ -142,7 +147,7 @@ Ext._UICall = function (uiObject, call, ...)
 		end
 	end
 
-    local listeners = Ext._UIExternalInterfaceNameListeners[call]
+    local listeners = Ext._UIExternalInterfaceNameListeners[type][call]
 	if listeners ~= nil then
 		for i,callback in pairs(listeners) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, call, ...)
@@ -152,49 +157,56 @@ Ext._UICall = function (uiObject, call, ...)
 		end
 	end
 
-	Ext._Notify("UICall", uiObject, call, ...)
+	if type == "Before" then
+		Ext._Notify("UICall", uiObject, call, ...)
+	else
+		Ext._Notify("AfterUICall", uiObject, call, ...)
+	end
 end
 
-Ext._UIInvokeHandleListeners = {}
-Ext._UIInvokeTypeListeners = {}
-Ext._UIInvokeNameListeners = {}
+Ext._UIInvokeHandleListeners = { Before = {}, After = {} }
+Ext._UIInvokeTypeListeners = { Before = {}, After = {} }
+Ext._UIInvokeNameListeners = { Before = {}, After = {} }
 
-Ext.RegisterUIInvokeListener = function (uiObject, method, fn)
+Ext.RegisterUIInvokeListener = function (uiObject, method, fn, type)
+	type = type or "Before"
 	local handle = uiObject:GetHandle()
-	if Ext._UIInvokeHandleListeners[handle] == nil then
-		Ext._UIInvokeHandleListeners[handle] = {}
+	if Ext._UIInvokeHandleListeners[type][handle] == nil then
+		Ext._UIInvokeHandleListeners[type][handle] = {}
 	end
 	
-	if Ext._UIInvokeHandleListeners[handle][method] == nil then
-		Ext._UIInvokeHandleListeners[handle][method] = {}
+	if Ext._UIInvokeHandleListeners[type][handle][method] == nil then
+		Ext._UIInvokeHandleListeners[type][handle][method] = {}
 	end
 	
-	table.insert(Ext._UIInvokeHandleListeners[handle][method], fn)
+	table.insert(Ext._UIInvokeHandleListeners[type][handle][method], fn)
 	uiObject:CaptureInvokes()
 end
 
-Ext.RegisterUITypeInvokeListener = function (typeId, method, fn)
-	if Ext._UIInvokeTypeListeners[typeId] == nil then
-		Ext._UIInvokeTypeListeners[typeId] = {}
+Ext.RegisterUITypeInvokeListener = function (typeId, method, fn, type)
+	type = type or "Before"
+	if Ext._UIInvokeTypeListeners[type][typeId] == nil then
+		Ext._UIInvokeTypeListeners[type][typeId] = {}
 	end
 	
-	if Ext._UIInvokeTypeListeners[typeId][method] == nil then
-		Ext._UIInvokeTypeListeners[typeId][method] = {}
+	if Ext._UIInvokeTypeListeners[type][typeId][method] == nil then
+		Ext._UIInvokeTypeListeners[type][typeId][method] = {}
 	end
 	
-	table.insert(Ext._UIInvokeTypeListeners[typeId][method], fn)
+	table.insert(Ext._UIInvokeTypeListeners[type][typeId][method], fn)
 end
 
-Ext.RegisterUINameInvokeListener = function (method, fn)
-	if Ext._UIInvokeNameListeners[method] == nil then
-		Ext._UIInvokeNameListeners[method] = {}
+Ext.RegisterUINameInvokeListener = function (method, fn, type)
+	type = type or "Before"
+	if Ext._UIInvokeNameListeners[type][method] == nil then
+		Ext._UIInvokeNameListeners[type][method] = {}
 	end
 	
-	table.insert(Ext._UIInvokeNameListeners[method], fn)
+	table.insert(Ext._UIInvokeNameListeners[type][method], fn)
 end
 
-Ext._UIInvoke = function (uiObject, method, ...)
-    local listenersByHandle = Ext._UIInvokeHandleListeners[uiObject:GetHandle()]
+Ext._UIInvoke = function (uiObject, method, type, ...)
+    local listenersByHandle = Ext._UIInvokeHandleListeners[type][uiObject:GetHandle()]
 	if listenersByHandle ~= nil and listenersByHandle[method] ~= nil then
 		for i,callback in pairs(listenersByHandle[method]) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
@@ -204,7 +216,7 @@ Ext._UIInvoke = function (uiObject, method, ...)
 		end
 	end
 
-    local listenersByType = Ext._UIInvokeTypeListeners[uiObject:GetTypeId()]
+    local listenersByType = Ext._UIInvokeTypeListeners[type][uiObject:GetTypeId()]
 	if listenersByType ~= nil and listenersByType[method] ~= nil then
 		for i,callback in pairs(listenersByType[method]) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
@@ -214,7 +226,7 @@ Ext._UIInvoke = function (uiObject, method, ...)
 		end
 	end
 
-    local listenersByName = Ext._UIInvokeNameListeners[method]
+    local listenersByName = Ext._UIInvokeNameListeners[type][method]
 	if listenersByName ~= nil then
 		for i,callback in pairs(listenersByName) do
 			local status, err = xpcall(callback, debug.traceback, uiObject, method, ...)
@@ -224,7 +236,11 @@ Ext._UIInvoke = function (uiObject, method, ...)
 		end
 	end
 	
-	Ext._Notify("UIInvoke", uiObject, method, ...)
+	if type == "Before" then
+		Ext._Notify("UIInvoke", uiObject, method, ...)
+	else
+		Ext._Notify("AfterUIInvoke", uiObject, method, ...)
+	end
 end
 
 -- Update version label with Script Extender version number when the main menu is rendered
