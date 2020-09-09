@@ -213,6 +213,9 @@
     <ClInclude Include="LuaDebug.pb.h">
       <Filter>Header Files\Lua</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Party.h">
+      <Filter>Header Files\GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
