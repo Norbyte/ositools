@@ -78,7 +78,7 @@ namespace dse::esv
 		bool Pow(OsiArgumentDesc & args)
 		{
 			auto base = args[0].Float;
-			auto exp = args[1].Float;
+			auto exp = args[1].Int32;
 			args[2].Set(pow(base, exp));
 			return true;
 		}
