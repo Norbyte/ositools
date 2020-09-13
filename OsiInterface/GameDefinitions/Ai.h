@@ -335,17 +335,17 @@ namespace dse::eoc
 
         uint8_t GetByteAtPos(ShroudType type, float x, float z)
         {
-            auto& shroudObj = ShroudObjects[(int)type * 2];
-            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale);
-            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale);
+            auto shroudObj = ShroudObjects[(int)type * 2];
+            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale * shroudObj->Scale);
+            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale * shroudObj->Scale);
             return shroudObj->GetByteAtPos(gridX, gridZ);
         }
 
         void SetByteAtPos(ShroudType type, float x, float z, uint8_t value)
         {
-            auto& shroudObj = ShroudObjects[(int)type * 2];
-            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale);
-            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale);
+            auto shroudObj = ShroudObjects[(int)type * 2];
+            int gridX = (int)floor((x - OffsetX) / AiGrid->DataGrid.GridScale * shroudObj->Scale);
+            int gridZ = (int)floor((z - OffsetZ) / AiGrid->DataGrid.GridScale * shroudObj->Scale);
             shroudObj->SetByteAtPos(gridX, gridZ, value);
         }
     };
