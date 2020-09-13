@@ -216,7 +216,7 @@ namespace dse
 			return componentMgr->FindComponentByNetId(netId, true);
 		}
 
-		void* GetComponentByEntityHandle(TComponentType type, ObjectHandle entityHandle)
+		void* GetComponentByEntityHandle(TComponentType type, ObjectHandle entityHandle, bool logError = true)
 		{
 			if (this == nullptr) {
 				OsiError("Tried to find component on null EntityWorld!");
@@ -230,25 +230,33 @@ namespace dse
 
 			auto index = entityHandle.GetIndex();
 			if (index >= EntityEntries.Size) {
-				OsiError("Entity index " << index << " too large!");
+				if (logError) {
+					OsiError("Entity index " << index << " too large!");
+				}
 				return nullptr;
 			}
 
 			auto salt = entityHandle.GetSalt();
 			if (salt != EntitySalts[index]) {
-				OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts[index]);
+				if (logError) {
+					OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntitySalts[index]);
+				}
 				return nullptr;
 			}
 
 			auto entity = EntityEntries[index];
 			if ((uint32_t)type >= entity->Layout.Entries.Size) {
-				OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
+				if (logError) {
+					OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
+				}
 				return nullptr;
 			}
 
 			auto const& layoutEntry = entity->Layout.Entries[(uint32_t)type];
 			if (!layoutEntry.Handle.IsValid()) {
-				OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
+				if (logError) {
+					OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
+				}
 				return nullptr;
 			}
 
@@ -446,9 +454,10 @@ namespace dse
 
 		struct EntityWorld : public EntityWorldBase<ComponentType>
 		{
-			inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ObjectHandle componentHandle)
+			inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ObjectHandle componentHandle, bool logError = true)
 			{
-				auto component = GetComponent(ComponentType::CustomStatDefinition, ObjectType::ServerCustomStatDefinitionComponent, componentHandle);
+				auto component = GetComponent(ComponentType::CustomStatDefinition, ObjectType::ServerCustomStatDefinitionComponent, 
+					componentHandle, logError);
 				if (component != nullptr) {
 					return (CustomStatDefinitionComponent*)((uint8_t*)component - 80);
 				}
@@ -457,9 +466,9 @@ namespace dse
 				}
 			}
 
-			inline Character* GetCharacterComponentByEntityHandle(ObjectHandle entityHandle)
+			inline Character* GetCharacterComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
 			{
-				auto ptr = GetComponentByEntityHandle(ComponentType::Character, entityHandle);
+				auto ptr = GetComponentByEntityHandle(ComponentType::Character, entityHandle, logError);
 				if (ptr != nullptr) {
 					return (Character*)((uint8_t*)ptr - 8);
 				}
@@ -468,9 +477,9 @@ namespace dse
 				}
 			}
 
-			inline Item* GetItemComponentByEntityHandle(ObjectHandle entityHandle)
+			inline Item* GetItemComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
 			{
-				auto ptr = GetComponentByEntityHandle(ComponentType::Item, entityHandle);
+				auto ptr = GetComponentByEntityHandle(ComponentType::Item, entityHandle, logError);
 				if (ptr != nullptr) {
 					return (Item*)((uint8_t*)ptr - 8);
 				}
@@ -479,19 +488,19 @@ namespace dse
 				}
 			}
 
-			inline eoc::CombatComponent* GetCombatComponentByEntityHandle(ObjectHandle entityHandle)
+			inline eoc::CombatComponent* GetCombatComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
 			{
-				return (eoc::CombatComponent*)GetComponentByEntityHandle(ComponentType::Combat, entityHandle);
+				return (eoc::CombatComponent*)GetComponentByEntityHandle(ComponentType::Combat, entityHandle, logError);
 			}
 
-			inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle)
+			inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
 			{
-				return (eoc::CustomStatsComponent*)GetComponentByEntityHandle(ComponentType::CustomStats, entityHandle);
+				return (eoc::CustomStatsComponent*)GetComponentByEntityHandle(ComponentType::CustomStats, entityHandle, logError);
 			}
 
-			inline NetComponent* GetNetComponentByEntityHandle(ObjectHandle entityHandle)
+			inline NetComponent* GetNetComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
 			{
-				return (NetComponent*)GetComponentByEntityHandle(ComponentType::Net, entityHandle);
+				return (NetComponent*)GetComponentByEntityHandle(ComponentType::Net, entityHandle, logError);
 			}
 
 			inline CustomStatSystem* GetCustomStatSystem()

@@ -93,7 +93,7 @@ namespace dse::esv
 			if (statDefn == nullptr) return false;
 
 			auto entityWorld = GetEntityWorld();
-			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle);
+			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle, false);
 			if (statsComponent == nullptr) {
 				// The game UI displays nonexistent stat entries as zero, 
 				// so we'll do the same in the API
@@ -156,7 +156,7 @@ namespace dse::esv
 			if (statDefn == nullptr) return;
 
 			auto entityWorld = GetEntityWorld();
-			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle);
+			auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle, false);
 
 			CharacterSyncCustomStats(character, statsComponent, statDefn->Id, statValue);
 		}
