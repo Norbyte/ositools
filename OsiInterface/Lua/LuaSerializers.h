@@ -19,12 +19,14 @@ namespace dse::lua
 			// so frames where we didn't reach the catch{} handler yet may see incorrect results
 			if (std::uncaught_exceptions() > 0) return;
 
-			// DebugBreak() crashes without a debugger
-			if (!IsDebuggerPresent()) return;
-
 			int newTop = lua_gettop(L);
 			if (newTop != expectedTop) {
-				DebugBreak();
+				// DebugBreak() crashes without a debugger
+				if (IsDebuggerPresent()) {
+					DebugBreak();
+				} else {
+					luaL_error(L, "Stack check failed! Top is %d, expected %d", newTop, expectedTop);
+				}
 			}
 		}
 

@@ -122,6 +122,16 @@ namespace dse::lua
 	}
 
 	template <class T>
+	inline void push(lua_State* L, std::optional<T> const& v)
+	{
+		if (v) {
+			push(L, *v);
+		} else {
+			lua_pushnil(L);
+		}
+	}
+
+	template <class T>
 	inline void push_flags(lua_State* L, T value)
 	{
 		static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
@@ -629,6 +639,79 @@ namespace dse::lua
 		}
 
 		return result;
+	}
+
+	// Overload helper for fetching a parameter for a Lua -> C++ function call
+	template <class T>
+	T CheckedGetParam(lua_State* L, int i, Overload<T>)
+	{
+		return checked_get<T>(L, i);
+	}
+
+	// Overload helper for fetching a parameter for a Lua -> C++ function call
+	template <class T>
+	std::optional<T> CheckedGetParam(lua_State* L, int i, Overload<std::optional<T>>)
+	{
+		if (lua_gettop(L) < i || lua_isnil(L, i)) {
+			return {};
+		} else {
+			return checked_get<T>(L, i);
+		}
+	}
+
+	template <class... Args, size_t... Is>
+	inline void PushReturnTupleInner(lua_State* L, std::tuple<Args...> t, std::index_sequence<Is...>)
+	{
+		(push(L, std::get<Is>(t)), ...);
+	}
+
+	// Pushes all elements of a tuple (in order) to the Lua stack
+	template <class... Args>
+	inline void PushReturnTuple(lua_State* L, std::tuple<Args...> t)
+	{
+		PushReturnTupleInner(L, std::move(t), std::index_sequence_for<Args...>{});
+	}
+
+	// Lua -> C++ wrapper -- no return case
+	template <class... Args, size_t... Is>
+	inline int LuaCallWrapper2(lua_State* L, void(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
+	{
+		StackCheck _(L, 0);
+		fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		return 0;
+	}
+
+	// Lua -> C++ wrapper -- single return value case
+	template <class R, class... Args, size_t... Is>
+	inline int LuaCallWrapper2(lua_State* L, R(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
+	{
+		StackCheck _(L, 1);
+		auto retval = fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		push(L, retval);
+		return 1;
+	}
+
+	// Lua -> C++ wrapper -- multiple return values case
+	template <class... R, class... Args, size_t... Is>
+	inline int LuaCallWrapper2(lua_State* L, std::tuple<R...>(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
+	{
+		StackCheck _(L, sizeof...(R));
+		auto retval = fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		PushReturnTuple(L, std::move(retval));
+		return sizeof...(R);
+	}
+
+	// Untyped wrapper function for calling C++ functions with a typed signature
+	template <class R, class... Args>
+	int LuaCallWrapper(lua_State* L, R(*fun)(lua_State* L, Args... args))
+	{
+		return LuaCallWrapper2(L, fun, std::index_sequence_for<Args...>{});
+	}
+
+#define WrapLuaFunction(fun) \
+	int fun##Wrapper(lua_State* L) \
+	{ \
+		return LuaCallWrapper(L, fun); \
 	}
 
 

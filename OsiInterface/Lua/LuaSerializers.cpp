@@ -625,6 +625,8 @@ namespace dse::lua
 					OsiError("DeltaMod references nonexistent boost '" << boost << "'");
 				}
 			}
+
+			lua_pop(s.L, 1);
 		}
 
 		s.EndObject();

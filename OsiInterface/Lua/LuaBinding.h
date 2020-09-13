@@ -288,26 +288,26 @@ namespace dse::lua
 	};
 
 
-	int GetExtensionVersion(lua_State* L);
-	int GetGameVersion(lua_State* L);
-	int MonotonicTime(lua_State* L);
+	int GetExtensionVersionWrapper(lua_State* L);
+	int GetGameVersionWrapper(lua_State* L);
+	int MonotonicTimeWrapper(lua_State* L);
 	int OsiPrint(lua_State* L);
 	int OsiPrintWarning(lua_State* L);
 	int OsiPrintError(lua_State* L);
-	int HandleToDouble(lua_State* L);
-	int DoubleToHandle(lua_State* L);
+	int HandleToDoubleWrapper(lua_State* L);
+	int DoubleToHandleWrapper(lua_State* L);
 	int GetCellInfo(lua_State* L);
 
-	int SaveFile(lua_State* L);
-	int LoadFile(lua_State* L);
+	int SaveFileWrapper(lua_State* L);
+	int LoadFileWrapper(lua_State* L);
 
 	int JsonParse(lua_State* L);
 	int JsonStringify(lua_State* L);
 
-	int IsModLoaded(lua_State* L);
+	int IsModLoadedWrapper(lua_State* L);
 	int GetModLoadOrder(lua_State* L);
 	int GetModInfo(lua_State* L);
-	int LuaDebugBreak(lua_State* L);
+	int LuaDebugBreakWrapper(lua_State* L);
 
 	int GetStatEntries(lua_State* L);
 	int GetStatEntriesLoadedBefore(lua_State* L);
@@ -330,12 +330,12 @@ namespace dse::lua
 
 	int StatGetAttribute(lua_State* L);
 	int StatSetAttribute(lua_State* L);
-	int StatAddCustomDescription(lua_State* L);
+	int StatAddCustomDescriptionWrapper(lua_State* L);
 	int StatSetLevelScaling(lua_State* L);
 	int GetStat(lua_State* L);
 	int CreateStat(lua_State* L);
-	int SyncStat(lua_State* L);
-	int StatSetPersistence(lua_State* L);
+	int SyncStatWrapper(lua_State* L);
+	int StatSetPersistenceWrapper(lua_State* L);
 	int GetDeltaMod(lua_State* L);
 	int UpdateDeltaMod(lua_State* L);
 
@@ -343,17 +343,18 @@ namespace dse::lua
 	int EnumLabelToIndex(lua_State* L);
 	int NewDamageList(lua_State* L);
 
-	int IsDeveloperMode(lua_State* L);
-	int AddPathOverride(lua_State* L);
+	int IsDeveloperModeWrapper(lua_State* L);
+	int AddPathOverrideWrapper(lua_State* L);
 	int LuaRandom(lua_State* L);
-	int LuaRound(lua_State* L);
-	int AddVoiceMetaData(lua_State* L);
-	int GetTranslatedString(lua_State* L);
-	int GetTranslatedStringFromKey(lua_State* L);
-	int CreateTranslatedStringKey(lua_State* L);
-	int CreateTranslatedStringHandle(lua_State* L);
-	int CreateTranslatedString(lua_State* L);
-	int GenerateIdeHelpers(lua_State* L);
+	int LuaRoundWrapper(lua_State* L);
+	int AddVoiceMetaDataWrapper(lua_State* L);
+	int GetTranslatedStringWrapper(lua_State* L);
+	int GetTranslatedStringFromKeyWrapper(lua_State* L);
+	int CreateTranslatedStringKeyWrapper(lua_State* L);
+	int CreateTranslatedStringHandleWrapper(lua_State* L);
+	int CreateTranslatedStringWrapper(lua_State* L);
+	int GenerateIdeHelpersWrapper(lua_State* L);
 
-	int EnableExperimentalPropertyWrites(lua_State* L);
+	int EnableExperimentalPropertyWritesWrapper(lua_State* L);
+	int DumpStackWrapper(lua_State* L);
 }

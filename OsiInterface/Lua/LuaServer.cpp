@@ -29,6 +29,7 @@ namespace dse::lua
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "StatusType") == 0) {
@@ -38,11 +39,13 @@ namespace dse::lua
 
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		return GenericSetter(L, propertyMap, true);
 	}
@@ -72,13 +75,16 @@ namespace dse::lua
 		auto customData = Get(L);
 		if (!customData) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gPlayerCustomDataPropertyMap, false);
 	}
 
@@ -111,10 +117,10 @@ namespace dse::lua
 				character->GetObjectHandle(handle);
 				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
 				return 1;
-			}
-			else {
+			} else {
 				OsiError("Character has no player data, or custom data was not initialized.");
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -124,10 +130,10 @@ namespace dse::lua
 				character->GetObjectHandle(handle);
 				ObjectProxy<CDivinityStats_Character>::New(L, handle);
 				return 1;
-			}
-			else {
+			} else {
 				OsiError("Character has no stats.");
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -146,7 +152,8 @@ namespace dse::lua
 		}
 
 		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	esv::Character* ObjectProxy<esv::Character>::Get(lua_State* L)
@@ -159,9 +166,9 @@ namespace dse::lua
 
 	int CharacterGetInventoryItems(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
 
-		lua_newtable(L);
 		GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
@@ -169,6 +176,7 @@ namespace dse::lua
 
 	int CharacterGetNearbyCharacters(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
 		auto pos = self->Get(L)->WorldPos;
 		auto distance = checked_get<float>(L, 2);
@@ -181,6 +189,7 @@ namespace dse::lua
 
 	int CharacterGetSkills(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
 
 		lua_newtable(L);
@@ -198,6 +207,7 @@ namespace dse::lua
 
 	int CharacterGetSkillInfo(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
 		auto skillId = checked_get<FixedString>(L, 2);
 
@@ -225,7 +235,8 @@ namespace dse::lua
 			}
 		}
 
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::Character>::Index(lua_State* L)
@@ -233,6 +244,7 @@ namespace dse::lua
 		auto character = Get(L);
 		if (!character) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 		if (!propFS) {
@@ -304,12 +316,12 @@ namespace dse::lua
 		auto character = Get(L);
 		if (!character) return 0;
 
+		StackCheck _(L, 0);
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 		if (!propFS) {
 			OsiError("Illegal property name: " << prop);
-			lua_pushnil(L);
-			return 1;
+			return 0;
 		}
 
 		if (propFS == GFS.strWalkSpeed) {
@@ -351,9 +363,9 @@ namespace dse::lua
 
 	int ItemGetInventoryItems(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
 
-		lua_newtable(L);
 		GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
@@ -361,6 +373,7 @@ namespace dse::lua
 
 	int ItemGetNearbyCharacters(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
 		auto pos = self->Get(L)->WorldPos;
 		auto distance = checked_get<float>(L, 2);
@@ -375,10 +388,9 @@ namespace dse::lua
 	{
 		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
 		auto item = self->Get(L);
-		if (!item) {
-			return 0;
-		}
+		if (!item) return 0;
 
+		StackCheck _(L, 1);
 		lua_newtable(L);
 		int32_t index{ 1 };
 		if (item->Generation != nullptr) {
@@ -395,11 +407,13 @@ namespace dse::lua
 		auto item = Get(L);
 		if (!item) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 		if (!propFS) {
 			OsiError("[esv::Item] has no property named '" << prop << "'");
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		if (propFS == GFS.strGetInventoryItems) {
@@ -456,10 +470,10 @@ namespace dse::lua
 			if (item->Stats != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
-			}
-			else {
+			} else {
 				OsiError("Item has no stats.");
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -486,7 +500,8 @@ namespace dse::lua
 			fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, propFS, true);
 		}
 
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
@@ -506,6 +521,7 @@ namespace dse::lua
 
 	int ItemDefinitionResetProgression(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto self = ObjectProxy<eoc::ItemDefinition>::CheckedGet(L, 2);
 		self->LevelGroupIndex = -1;
 		self->RootGroupIndex = -1;
@@ -519,6 +535,7 @@ namespace dse::lua
 		auto request = Get(L);
 		if (!request) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = checked_get<FixedString>(L, 2);
 		if (prop == GFS.strResetProgression) {
 			lua_pushcfunction(L, &ItemDefinitionResetProgression);
@@ -541,11 +558,13 @@ namespace dse::lua
 		}
 
 		bool fetched = LuaPropertyMapGet(L, gEoCItemDefinitionPropertyMap, request, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<eoc::ItemDefinition>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto prop = checked_get<FixedString>(L, 2);
 		if (prop == GFS.strGenerationBoosts) {
 			lua_pushvalue(L, 3);
@@ -587,13 +606,16 @@ namespace dse::lua
 		auto request = Get(L);
 		if (!request) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		bool fetched = LuaPropertyMapGet(L, gShootProjectileHelperPropertyMap, request, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gShootProjectileHelperPropertyMap, false);
 	}
 
@@ -613,6 +635,7 @@ namespace dse::lua
 		auto projectile = Get(L);
 		if (!projectile) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, GFS.strHandle.Str) == 0) {
@@ -626,11 +649,13 @@ namespace dse::lua
 		}
 
 		bool fetched = LuaPropertyMapGet(L, gProjectilePropertyMap, projectile, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gProjectilePropertyMap, true);
 	}
 
@@ -656,14 +681,18 @@ namespace dse::lua
 		auto surface = Get(L);
 		if (!surface) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 
-		return LuaPropertyMapGet(L, gEsvSurfacePropertyMap, surface, propFS, true) ? 1 : 0;
+		auto fetched = LuaPropertyMapGet(L, gEsvSurfacePropertyMap, surface, propFS, true);
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gEsvSurfacePropertyMap, true);
 	}
 
@@ -709,14 +738,17 @@ namespace dse::lua
 		auto action = Get(L);
 		if (!action) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto propertyMap = GetSurfaceActionPropertyMap(action);
 		bool fetched = LuaPropertyMapGet(L, *propertyMap, action, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto action = Get(L);
 
 		auto prop = luaL_checkstring(L, 2);
@@ -803,14 +835,17 @@ namespace dse::esv::lua
 		auto status = Get(L);
 		if (!status) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto& propertyMap = StatusToPropertyMap(status);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int StatusHandleProxy::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto status = Get(L);
 		if (!status) return 0;
 
@@ -861,6 +896,7 @@ namespace dse::esv::lua
 		auto combat = Get();
 		if (combat == nullptr) return luaL_error(L, "Combat no longer available");
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		if (strcmp(prop, "CombatId") == 0) {
 			push(L, combatId_);
@@ -870,7 +906,7 @@ namespace dse::esv::lua
 			push(L, combat->IsActive);
 		} else {
 			OsiError("Combat has no attribute named " << prop);
-			return 0;
+			push(L, nullptr);
 		}
 
 		return 1;
@@ -882,6 +918,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
+		StackCheck _(L, 1);
 		CombatTeamListToLua(L, combat->CurrentRoundTeams);
 		return 1;
 	}
@@ -892,6 +929,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
+		StackCheck _(L, 1);
 		CombatTeamListToLua(L, combat->NextRoundTeams);
 		return 1;
 	}
@@ -955,6 +993,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
+		StackCheck _(L, 0);
 		UpdateTurnOrder(L, self->combatId_, 2, combat->CurrentRoundTeams, combat->CurrentTurnChangeNotificationTeamIds);
 		return 0;
 	}
@@ -965,6 +1004,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
+		StackCheck _(L, 0);
 		UpdateTurnOrder(L, self->combatId_, 2, combat->NextRoundTeams, combat->NextTurnChangeNotificationTeamIds);
 		return 0;
 	}
@@ -975,6 +1015,7 @@ namespace dse::esv::lua
 		auto combat = self->Get();
 		if (!combat) return 0;
 
+		StackCheck _(L, 1);
 		lua_newtable(L);
 
 		uint32_t i = 1;
@@ -995,6 +1036,7 @@ namespace dse::esv::lua
 		auto team = Get();
 		if (team == nullptr) return luaL_error(L, "Team no longer available");
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		if (strcmp(prop, "TeamId") == 0) {
 			push(L, (uint32_t)team->TeamId);
@@ -1012,7 +1054,7 @@ namespace dse::esv::lua
 				character->GetObjectHandle(handle);
 				ObjectProxy<esv::Character>::New(L, handle);
 			} else {
-				return 0;
+				push(L, nullptr);
 			}
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
@@ -1021,11 +1063,11 @@ namespace dse::esv::lua
 				item->GetObjectHandle(handle);
 				ObjectProxy<esv::Item>::New(L, handle);
 			} else {
-				return 0;
+				push(L, nullptr);
 			}
 		} else {
 			OsiError("Combat team has no attribute named " << prop);
-			return 0;
+			push(L, nullptr);
 		}
 
 		return 1;
@@ -1050,6 +1092,7 @@ namespace dse::esv::lua
 
 	int ItemConstructor::Index(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		if (lua_type(L, 2) == LUA_TSTRING) {
 			auto func = checked_get<FixedString>(L, 2);
 			if (func == GFS.strConstruct) {
@@ -1058,7 +1101,8 @@ namespace dse::esv::lua
 			}
 
 			OsiError("ItemConstructor has no property named " << func.Str);
-			return 0;
+			push(L, nullptr);
+			return 1;
 		} else {
 			auto idx = checked_get<int>(L, 2);
 			if (idx < 1 || idx > (int)definition_.Size) {
@@ -1148,6 +1192,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve character handle in restricted context");
 		}
 
+		StackCheck _(L, 1);
 		esv::Character* character = GetCharacter(L, 1);
 
 		if (character != nullptr) {
@@ -1156,7 +1201,8 @@ namespace dse::esv::lua
 			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
@@ -1167,6 +1213,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
 
+		StackCheck _(L, 1);
 		esv::Item* item = nullptr;
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
@@ -1193,17 +1240,19 @@ namespace dse::esv::lua
 
 		default:
 			OsiError("Expected item GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		if (item != nullptr) {
 			ObjectHandle handle;
 			item->GetObjectHandle(handle);
 			ObjectProxy<esv::Item>::New(L, handle);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	int GetGameObject(lua_State* L)
@@ -1213,6 +1262,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
 		}
 
+		StackCheck _(L, 1);
 		esv::Item* item = nullptr;
 		esv::Character* character = nullptr;
 		esv::Projectile* projectile = nullptr;
@@ -1280,7 +1330,8 @@ namespace dse::esv::lua
 
 		default:
 			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		if (item != nullptr) {
@@ -1299,7 +1350,8 @@ namespace dse::esv::lua
 			ObjectProxy<esv::Projectile>::New(L, handle);
 			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
@@ -1313,6 +1365,7 @@ namespace dse::esv::lua
 		esv::Character* character = GetCharacter(L, 1);
 		if (character == nullptr) return 0;
 
+		StackCheck _(L, 1);
 		esv::Status* status;
 		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
 			auto statusHandle = checked_get<ObjectHandle>(L, 2);
@@ -1355,7 +1408,8 @@ namespace dse::esv::lua
 			}
 		}
 
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 	int GetCombat(lua_State* L)
@@ -1426,6 +1480,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
+		StackCheck _(L, 1);
 		lua_newtable(L);
 
 		for (auto i = 0; i < std::size(rules->SurfaceTypes); i++) {
@@ -1488,6 +1543,7 @@ namespace dse::esv::lua
 
 	int UpdateSurfaceTransformRules(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto rules = GetStaticSymbols().eoc__SurfaceTransformActionsFromType;
 		if (rules == nullptr) {
 			OsiError("Surface transform rules not available!");
@@ -1540,6 +1596,7 @@ namespace dse::esv::lua
 
 	int ExecuteSurfaceAction(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto action = ObjectProxy<SurfaceAction>::CheckUserData(L, 1);
 		if (!action->Get(L)) {
 			OsiError("Attempted to execute surface action more than once!");
@@ -1563,6 +1620,7 @@ namespace dse::esv::lua
 
 	int CancelSurfaceAction(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto handle = checked_get<ObjectHandle>(L, 1);
 		
 		if (handle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
@@ -1646,6 +1704,7 @@ namespace dse::esv::lua
 
 	int OsirisIsCallable(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		LuaServerPin lua(ExtensionState::Get());
 		bool allowed = gOsirisProxy->IsStoryLoaded()
 			&& ((lua->RestrictionFlags & State::RestrictOsiris) == 0);
@@ -1655,6 +1714,7 @@ namespace dse::esv::lua
 
 	int BroadcastMessage(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto channel = luaL_checkstring(L, 1);
 		auto payload = luaL_checkstring(L, 2);
 
@@ -1700,6 +1760,7 @@ namespace dse::esv::lua
 
 	int PostMessageToClient(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto characterGuid = luaL_checkstring(L, 1);
 		auto channel = luaL_checkstring(L, 2);
 		auto payload = luaL_checkstring(L, 3);
@@ -1718,6 +1779,7 @@ namespace dse::esv::lua
 
 	int PostMessageToUser(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto userId = checked_get<int>(L, 1);
 		auto channel = luaL_checkstring(L, 2);
 		auto payload = luaL_checkstring(L, 3);
@@ -1758,6 +1820,7 @@ namespace dse::esv::lua
 
 	int RegisterOsirisListener(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto name = checked_get<char const*>(L, 1);
 		auto arity = checked_get<int>(L, 2);
 		auto typeName = checked_get<char const*>(L, 3);
@@ -1785,6 +1848,7 @@ namespace dse::esv::lua
 
 	int CreateItemConstructor(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto type = lua_type(L, 1);
 		if (type == LUA_TSTRING) {
 			auto templateGuid = checked_get<char const*>(L, 1);
@@ -1814,9 +1878,9 @@ namespace dse::esv::lua
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
-			{"Version", GetExtensionVersion},
-			{"GameVersion", GetGameVersion},
-			{"MonotonicTime", MonotonicTime},
+			{"Version", GetExtensionVersionWrapper},
+			{"GameVersion", GetGameVersionWrapper},
+			{"MonotonicTime", MonotonicTimeWrapper},
 			{"Include", Include},
 			{"NewCall", NewCall},
 			{"NewQuery", NewQuery},
@@ -1824,20 +1888,20 @@ namespace dse::esv::lua
 			{"Print", OsiPrint},
 			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
-			{"HandleToDouble", HandleToDouble},
-			{"DoubleToHandle", DoubleToHandle},
+			{"HandleToDouble", HandleToDoubleWrapper},
+			{"DoubleToHandle", DoubleToHandleWrapper},
 
-			{"SaveFile", SaveFile},
-			{"LoadFile", LoadFile},
+			{"SaveFile", SaveFileWrapper},
+			{"LoadFile", LoadFileWrapper},
 
 			{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},
 
-			{"IsModLoaded", IsModLoaded},
+			{"IsModLoaded", IsModLoadedWrapper},
 			{"GetModLoadOrder", GetModLoadOrder},
 			{"GetModInfo", GetModInfo},
 
-			{"DebugBreak", LuaDebugBreak},
+			{"DebugBreak", LuaDebugBreakWrapper},
 
 			{"GetStatEntries", GetStatEntries},
 			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
@@ -1860,11 +1924,11 @@ namespace dse::esv::lua
 
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
-			{"StatAddCustomDescription", StatAddCustomDescription},
+			{"StatAddCustomDescription", StatAddCustomDescriptionWrapper},
 			{"GetStat", GetStat},
 			{"CreateStat", CreateStat},
-			{"SyncStat", SyncStat},
-			{"StatSetPersistence", StatSetPersistence},
+			{"SyncStat", SyncStatWrapper},
+			{"StatSetPersistence", StatSetPersistenceWrapper},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
@@ -1891,22 +1955,23 @@ namespace dse::esv::lua
 			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
 			{"OsirisIsCallable", OsirisIsCallable},
-			{"IsDeveloperMode", IsDeveloperMode},
+			{"IsDeveloperMode", IsDeveloperModeWrapper},
 			{"Random", LuaRandom},
-			{"Round", LuaRound},
-			{"GenerateIdeHelpers", GenerateIdeHelpers},
+			{"Round", LuaRoundWrapper},
+			{"GenerateIdeHelpers", GenerateIdeHelpersWrapper},
 
 			// EXPERIMENTAL FUNCTIONS
-			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWrites},
+			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
+			{"DumpStack", DumpStackWrapper},
 
 			{"GetGameState", GetGameState},
-			{"AddPathOverride", AddPathOverride},
-			{"AddVoiceMetaData", AddVoiceMetaData},
-			{"GetTranslatedString", GetTranslatedString},
-			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
-			{"CreateTranslatedString", CreateTranslatedString},
-			{"CreateTranslatedStringKey", CreateTranslatedStringKey},
-			{"CreateTranslatedStringHandle", CreateTranslatedStringHandle},
+			{"AddPathOverride", AddPathOverrideWrapper},
+			{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
+			{"GetTranslatedString", GetTranslatedStringWrapper},
+			{"GetTranslatedStringFromKey", GetTranslatedStringFromKeyWrapper},
+			{"CreateTranslatedString", CreateTranslatedStringWrapper},
+			{"CreateTranslatedStringKey", CreateTranslatedStringKeyWrapper},
+			{"CreateTranslatedStringHandle", CreateTranslatedStringHandleWrapper},
 
 			{"BroadcastMessage", BroadcastMessage},
 			{"PostMessageToClient", PostMessageToClient},
@@ -1970,6 +2035,7 @@ namespace dse::esv::lua
 
 	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, TuplePtrLL* tuple) const
 	{
+		StackCheck _(L, 0);
 		int32_t stackArgs = 1;
 		auto node = tuple->Items.Head->Next;
 		while (node != tuple->Items.Head) {
@@ -1991,7 +2057,7 @@ namespace dse::esv::lua
 				numArgs++;
 			}
 
-			if (CallWithTraceback(L, numArgs, 1) != 0) {
+			if (CallWithTraceback(L, numArgs, 0) != 0) {
 				LuaError("Osiris event handler failed: " << lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
@@ -2024,6 +2090,7 @@ namespace dse::esv::lua
 
 	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, OsiArgumentDesc* args) const
 	{
+		StackCheck _(L, 0);
 		int32_t stackArgs = 1;
 		auto node = args;
 		while (node) {
@@ -2045,7 +2112,7 @@ namespace dse::esv::lua
 				numArgs++;
 			}
 
-			if (CallWithTraceback(L, numArgs, 1) != 0) {
+			if (CallWithTraceback(L, numArgs, 0) != 0) {
 				LuaError("Osiris event handler failed: " << lua_tostring(L, -1));
 				lua_pop(L, 1);
 			}
@@ -2170,6 +2237,7 @@ namespace dse::esv::lua
 		: identityAdapters_(gOsirisProxy->GetGlobals()),
 		osirisCallbacks_(state)
 	{
+		StackCheck _(L, 0);
 		identityAdapters_.UpdateAdapters();
 
 		library_.Register(L);
@@ -2311,6 +2379,7 @@ namespace dse::esv::lua
 
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_StatusHitEnter"); // stack: fn
 
 		StatusHandleProxy::New(L, hit->TargetHandle, hit->StatusHandle);
@@ -2321,7 +2390,7 @@ namespace dse::esv::lua
 			lua_newtable(L);
 		}
 
-		if (CallWithTraceback(L, 2, 1) != 0) { // stack: succeeded
+		if (CallWithTraceback(L, 2, 0) != 0) { // stack: succeeded
 			LuaError("StatusHitEnter handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2332,12 +2401,13 @@ namespace dse::esv::lua
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
 		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target);
-		UnbindablePin _(luaTarget);
+		UnbindablePin _t(luaTarget);
 		ItemOrCharacterPushPin luaAttacker(L, attacker);
 
 		ObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
@@ -2420,12 +2490,13 @@ namespace dse::esv::lua
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_BeforeCharacterApplyDamage"); // stack: fn
 
 		auto luaTarget = ObjectProxy<esv::Character>::New(L, target);
-		UnbindablePin _(luaTarget);
+		UnbindablePin _t(luaTarget);
 
 		CRPGStats_Object* attacker{ nullptr };
 		if (attackerHandle) {
@@ -2477,6 +2548,7 @@ namespace dse::esv::lua
 
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);
@@ -2486,6 +2558,7 @@ namespace dse::esv::lua
 
 	esv::Item* ServerState::OnGenerateTreasureItem(esv::Item* item)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_TreasureItemGenerated"); // stack: fn
 
 		ObjectHandle itemHandle;
@@ -2499,6 +2572,8 @@ namespace dse::esv::lua
 		}
 
 		auto returnItem = ObjectProxy<esv::Item>::AsUserData(L, -1);
+		lua_pop(L, 1);
+
 		if (!returnItem) {
 			return item;
 		}
@@ -2525,6 +2600,7 @@ namespace dse::esv::lua
 	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_BeforeCraftingExecuteCombination"); // stack: fn
 
 		ObjectProxy<esv::Character>::New(L, character);
@@ -2551,6 +2627,7 @@ namespace dse::esv::lua
 		}
 
 		auto processed = get<bool>(L, -1);
+		lua_pop(L, 1);
 		if (processed) {
 			return processed;
 		} else {
@@ -2562,6 +2639,7 @@ namespace dse::esv::lua
 	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_AfterCraftingExecuteCombination"); // stack: fn
 
 		ObjectProxy<esv::Character>::New(L, character);
@@ -2582,7 +2660,7 @@ namespace dse::esv::lua
 		push(L, combinationId);
 		push(L, succeeded);
 
-		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
+		if (CallWithTraceback(L, 6, 0) != 0) { // stack: succeeded
 			LuaError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2591,10 +2669,11 @@ namespace dse::esv::lua
 
 	void ServerState::OnBeforeShootProjectile(ShootProjectileHelper* helper)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnBeforeShootProjectile");
-		UnbindablePin _(ObjectProxy<ShootProjectileHelper>::New(L, helper));
+		UnbindablePin _h(ObjectProxy<ShootProjectileHelper>::New(L, helper));
 
-		if (CallWithTraceback(L, 1, 1) != 0) {
+		if (CallWithTraceback(L, 1, 0) != 0) {
 			LuaError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2603,10 +2682,11 @@ namespace dse::esv::lua
 
 	void ServerState::OnShootProjectile(Projectile* projectile)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnShootProjectile");
-		UnbindablePin _(ObjectProxy<esv::Projectile>::New(L, projectile));
+		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, projectile));
 
-		if (CallWithTraceback(L, 1, 1) != 0) {
+		if (CallWithTraceback(L, 1, 0) != 0) {
 			LuaError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2615,8 +2695,9 @@ namespace dse::esv::lua
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnProjectileHit");
-		UnbindablePin _(ObjectProxy<esv::Projectile>::New(L, projectile));
+		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, projectile));
 
 		if (hitObject.GetType() == (uint32_t)ObjectType::ServerCharacter) {
 			ObjectProxy<esv::Character>::New(L, hitObject);
@@ -2628,7 +2709,7 @@ namespace dse::esv::lua
 
 		push(L, position);
 
-		if (CallWithTraceback(L, 3, 1) != 0) {
+		if (CallWithTraceback(L, 3, 0) != 0) {
 			LuaError("OnProjectileHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2637,6 +2718,7 @@ namespace dse::esv::lua
 
 	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnGroundHit");
 		
 		if (casterHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
@@ -2656,7 +2738,7 @@ namespace dse::esv::lua
 			dmgList->Get().CopyFrom(*damageList);
 		}
 
-		if (CallWithTraceback(L, 3, 1) != 0) {
+		if (CallWithTraceback(L, 3, 0) != 0) {
 			LuaError("GroundHit handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
@@ -2665,6 +2747,7 @@ namespace dse::esv::lua
 
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 
 		auto turnMgr = GetEntityWorld()->GetTurnManager();
@@ -2709,6 +2792,7 @@ namespace dse::esv::lua
 
 	std::optional<STDString> ServerState::GetModPersistentVars(STDString const& modTable)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_GetModPersistentVars");
@@ -2725,6 +2809,7 @@ namespace dse::esv::lua
 
 	void ServerState::RestoreModPersistentVars(STDString const& modTable, STDString const& vars)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_RestoreModPersistentVars");

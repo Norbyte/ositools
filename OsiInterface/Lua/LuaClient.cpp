@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <Lua/LuaBindingClient.h>
+#include <Lua/LuaSerializers.h>
 #include <OsirisProxy.h>
 #include <ExtensionStateClient.h>
 #include <PropertyMaps.h>
@@ -27,6 +28,7 @@ namespace dse::lua
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "StatusType") == 0) {
@@ -36,13 +38,15 @@ namespace dse::lua
 
 		auto& propertyMap = ClientStatusToPropertyMap(obj_);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<ecl::Status>::NewIndex(lua_State* L)
 	{
 		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
 
+		StackCheck _(L, 0);
 		auto& propertyMap = ClientStatusToPropertyMap(obj_);
 		return GenericSetter(L, propertyMap, true);
 	}
@@ -73,13 +77,16 @@ namespace dse::lua
 		auto customData = Get(L);
 		if (!customData) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gPlayerCustomDataPropertyMap, true);
 	}
 
@@ -113,24 +120,22 @@ namespace dse::lua
 				ObjectHandle handle;
 				character->GetObjectHandle(handle);
 				ObjectProxy<ecl::PlayerCustomData>::New(L, handle);
-				return 1;
-			}
-			else {
+			} else {
 				OsiError("Character has no player data, or custom data was not initialized.");
-				return 0;
+				push(L, nullptr);
 			}
+			return 1;
 		}
 
 		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
 				// FIXME - use handle based proxy
 				ObjectProxy<CDivinityStats_Character>::New(L, character->Stats);
-				return 1;
-			}
-			else {
+			} else {
 				OsiError("Character has no stats.");
-				return 0;
+				push(L, nullptr);
 			}
+			return 1;
 		}
 
 		if (prop == GFS.strHandle) {
@@ -148,7 +153,8 @@ namespace dse::lua
 		}
 
 		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	ecl::Character* ObjectProxy<ecl::Character>::Get(lua_State* L)
@@ -161,9 +167,9 @@ namespace dse::lua
 
 	int ClientCharacterGetInventoryItems(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
 
-		lua_newtable(L);
 		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
@@ -171,6 +177,7 @@ namespace dse::lua
 
 	int ClientCharacterGetItemBySlot(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
 		auto slot = (uint32_t)checked_get<ItemSlot>(L, 2);
 
@@ -202,6 +209,7 @@ namespace dse::lua
 			return 0;
 		}
 
+		StackCheck _(L, 1);
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ClientCharacterGetInventoryItems);
 			return 1;
@@ -268,9 +276,9 @@ namespace dse::lua
 
 	int ClientItemGetInventoryItems(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<ecl::Item>*>(L, 1);
 
-		lua_newtable(L);
 		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
@@ -278,6 +286,7 @@ namespace dse::lua
 
 	int ItemGetOwnerCharacter(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<ecl::Item>*>(L, 1);
 
 		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryParentHandle);
@@ -317,6 +326,7 @@ namespace dse::lua
 		auto item = Get(L);
 		if (!item) return 0;
 
+		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
 		auto propFS = ToFixedString(prop);
 
@@ -370,10 +380,10 @@ namespace dse::lua
 				// FIXME - use handle based proxy
 				ObjectProxy<CDivinityStats_Item>::New(L, item->Stats);
 				return 1;
-			}
-			else {
+			} else {
 				OsiError("Item has no stats.");
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -400,11 +410,13 @@ namespace dse::lua
 			fetched = LuaPropertyMapGet(L, gEclItemPropertyMap, item, propFS, true);
 		}
 
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		return GenericSetter(L, gEclItemPropertyMap, true);
 	}
 }
@@ -480,6 +492,7 @@ namespace dse::ecl::lua
 
 	int GetCharacter(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		LuaClientPin lua(ExtensionState::Get());
 
 		ecl::Character* character = GetCharacter(L, 1);
@@ -488,14 +501,16 @@ namespace dse::ecl::lua
 			ObjectHandle handle;
 			character->GetObjectHandle(handle);
 			ObjectProxy<ecl::Character>::New(L, handle);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	int GetItem(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		LuaClientPin lua(ExtensionState::Get());
 
 		ecl::Item* item = nullptr;
@@ -544,14 +559,16 @@ namespace dse::ecl::lua
 			ObjectHandle handle;
 			item->GetObjectHandle(handle);
 			ObjectProxy<ecl::Item>::New(L, handle);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	int GetStatus(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		LuaClientPin lua(ExtensionState::Get());
 
 		auto character = GetCharacter(L, 1);
@@ -585,7 +602,8 @@ namespace dse::ecl::lua
 			OsiError("Character has no status with NetId 0x" << std::hex << index);
 		}
 
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 	int GetAiGrid(lua_State* L)
@@ -600,17 +618,14 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
-	int OsirisIsCallableClient(lua_State* L)
+	bool OsirisIsCallableClient(lua_State* L)
 	{
-		push(L, false);
-		return 1;
+		return false;
 	}
 
-	int PostMessageToServer(lua_State * L)
-	{
-		auto channel = luaL_checkstring(L, 1);
-		auto payload = luaL_checkstring(L, 2);
 
+	void PostMessageToServer(lua_State * L, char const* channel, char const* payload)
+	{
 		auto & networkMgr = gOsirisProxy->GetNetworkManager();
 		auto msg = networkMgr.GetFreeClientMessage();
 		if (msg != nullptr) {
@@ -621,10 +636,7 @@ namespace dse::ecl::lua
 		} else {
 			OsiErrorS("Could not get free message!");
 		}
-
-		return 0;
 	}
-
 
 	char const* const StatusHandleProxy::MetatableName = "ecl::HStatus";
 
@@ -650,16 +662,19 @@ namespace dse::ecl::lua
 
 	int StatusHandleProxy::Index(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto status = Get(L);
 
 		auto prop = luaL_checkstring(L, 2);
 		auto& propertyMap = ClientStatusToPropertyMap(status);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
-		return fetched ? 1 : 0;
+		if (!fetched) push(L, nullptr);
+		return 1;
 	}
 
 	int StatusHandleProxy::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto status = Get(L);
 		if (!status) return 0;
 
@@ -799,17 +814,20 @@ namespace dse::ecl::lua
 
 	int UIFlashObject::Index(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		ig::IggyValuePath path;
 		auto name = checked_get<char const*>(L, 2);
 		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
 			return PushFlashRef(L, path_.paths_, &path);
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
 	int UIFlashObject::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		ig::IggyValuePath path;
 		auto name = checked_get<char const*>(L, 2);
 		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
@@ -829,17 +847,20 @@ namespace dse::ecl::lua
 
 	int UIFlashArray::Index(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		ig::IggyValuePath path;
 		auto index = checked_get<int>(L, 2);
 		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
 			return PushFlashRef(L, path_.paths_, &path);
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
 	int UIFlashArray::NewIndex(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		ig::IggyValuePath path;
 		auto index = checked_get<int>(L, 2);
 		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
@@ -851,12 +872,14 @@ namespace dse::ecl::lua
 
 	int UIFlashArray::Length(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		uint32_t length;
 		if (GetStaticSymbols().IgValueGetArrayLength(path_.Last(), nullptr, nullptr, &length) == 0) {
 			push(L, length);
 			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
@@ -928,12 +951,14 @@ namespace dse::ecl::lua
 
 		default:
 			OsiError("Don't know how to push Flash type " << (unsigned)value.TypeId << "!");
-			return 0;
+			lua_pushnil(L);
+			return 1;
 		}
 	}
 
 	int UIFlashFunction::LuaCall(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		int numArgs = lua_gettop(L) - 1;
 
 		auto object = &path_.paths_[path_.paths_.size() - 2];
@@ -948,7 +973,8 @@ namespace dse::ecl::lua
 
 		ig::IggyDataValue result;
 		if (GetStaticSymbols().IgPlayerCallMethod(object->Iggy, &result, object, method, numArgs, args.data()) != 0) {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		return PushFlashValue(L, result);
@@ -1155,6 +1181,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::SetPosition(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1169,6 +1196,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::Resize(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
 
@@ -1183,6 +1211,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::Show(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1193,6 +1222,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::Hide(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1209,6 +1239,7 @@ namespace dse::ecl::lua
 		auto root = ui->FlashPlayer->GetRootObject();
 		if (!root) return 0;
 
+		StackCheck _(L, 1);
 		auto name = luaL_checkstring(L, 2);
 
 		auto & invokes = ui->FlashPlayer->Invokes;
@@ -1240,6 +1271,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::GotoFrame(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
 
@@ -1261,6 +1293,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::SetValue(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
 
@@ -1287,6 +1320,7 @@ namespace dse::ecl::lua
 		auto root = ui->FlashPlayer->GetRootObject();
 		if (!root) return 0;
 
+		StackCheck _(L, 1);
 		auto path = luaL_checkstring(L, 2);
 		auto typeName = lua_tostring(L, 3);
 		int arrayIndex = -1;
@@ -1312,7 +1346,8 @@ namespace dse::ecl::lua
 			InvokeDataValueToLua(L, value);
 			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
@@ -1364,6 +1399,7 @@ namespace dse::ecl::lua
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui || !ui->FlashPlayer) return 0;
 
+		StackCheck _(L, 1);
 		std::vector<ig::IggyValuePath> path;
 		return PushFlashRef(L, path, ui->FlashPlayer->IggyPlayerRootPath);
 	}
@@ -1381,6 +1417,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::ExternalInterfaceCall(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1427,6 +1464,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::CaptureExternalInterfaceCalls(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1436,7 +1474,7 @@ namespace dse::ecl::lua
 		auto vmt = *reinterpret_cast<UIObject::VMT**>(ui);
 		if (vmt->OnFunctionCalled == &UIObjectFunctionCallCapture) return 0;
 
-		WriteAnchor _((uint8_t*)vmt, sizeof(*vmt));
+		WriteAnchor _w((uint8_t*)vmt, sizeof(*vmt));
 		OriginalUIObjectCallHandlers.insert(std::make_pair(vmt, vmt->OnFunctionCalled));
 		vmt->OnFunctionCalled = &UIObjectFunctionCallCapture;
 
@@ -1613,6 +1651,7 @@ namespace dse::ecl::lua
 
 	int UIObjectProxy::CaptureInvokes(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
@@ -1712,20 +1751,23 @@ namespace dse::ecl::lua
 
 	int GetUI(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		auto name = luaL_checkstring(L, 1);
 
 		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			UIObjectProxy::New(L, ui->UIObjectHandle);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	int GetUIByType(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto typeId = checked_get<int>(L, 1);
 
 		UIObject* ui{ nullptr };
@@ -1736,10 +1778,11 @@ namespace dse::ecl::lua
 
 		if (ui != nullptr) {
 			UIObjectProxy::New(L, ui->UIObjectHandle);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	int GetBuiltinUI(lua_State * L)
@@ -1753,6 +1796,7 @@ namespace dse::ecl::lua
 			return 0;
 		}
 
+		StackCheck _(L, 1);
 		for (auto ui : uiManager->Objects) {
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.c_str()) {
@@ -1761,11 +1805,13 @@ namespace dse::ecl::lua
 			}
 		}
 
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 	int DestroyUI(lua_State * L)
 	{
+		StackCheck _(L, 0);
 		auto name = luaL_checkstring(L, 1);
 
 		LuaClientPin pin(ExtensionState::Get());
@@ -1781,6 +1827,7 @@ namespace dse::ecl::lua
 
 	int GetGameState(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto state = GetStaticSymbols().GetClientState();
 		if (state) {
 			push(L, *state);
@@ -1793,6 +1840,7 @@ namespace dse::ecl::lua
 
 	int UpdateShroud(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		auto x = checked_get<float>(L, 1);
 		auto y = checked_get<float>(L, 2);
 		auto layer = checked_get<ShroudType>(L, 3);
@@ -1810,34 +1858,37 @@ namespace dse::ecl::lua
 		}
 
 		level->ShroudManager->ShroudData->SetByteAtPos(layer, x, y, (uint8_t)value);
-		return 0;
+		return 0; 
 	}
 
+
+	WrapLuaFunction(OsirisIsCallableClient)
+	WrapLuaFunction(PostMessageToServer)
 
 	void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
-			{"Version", GetExtensionVersion},
-			{"GameVersion", GetGameVersion},
-			{"MonotonicTime", MonotonicTime},
+			{"Version", GetExtensionVersionWrapper},
+			{"GameVersion", GetGameVersionWrapper},
+			{"MonotonicTime", MonotonicTimeWrapper},
 			{"Include", Include},
 			{"Print", OsiPrint},
 			{"PrintWarning", OsiPrintWarning},
 			{"PrintError", OsiPrintError},
-			{"HandleToDouble", HandleToDouble},
-			{"DoubleToHandle", DoubleToHandle},
+			{"HandleToDouble", HandleToDoubleWrapper},
+			{"DoubleToHandle", DoubleToHandleWrapper},
 
-			{"SaveFile", SaveFile},
-			{"LoadFile", LoadFile},
+			{"SaveFile", SaveFileWrapper},
+			{"LoadFile", LoadFileWrapper},
 
 			{"JsonParse", JsonParse},
 			{"JsonStringify", JsonStringify},
 
-			{"IsModLoaded", IsModLoaded},
+			{"IsModLoaded", IsModLoadedWrapper},
 			{"GetModLoadOrder", GetModLoadOrder},
 			{"GetModInfo", GetModInfo},
 
-			{"DebugBreak", LuaDebugBreak},
+			{"DebugBreak", LuaDebugBreakWrapper},
 
 			{"GetStatEntries", GetStatEntries},
 			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
@@ -1860,11 +1911,11 @@ namespace dse::ecl::lua
 
 			{"StatGetAttribute", StatGetAttribute},
 			{"StatSetAttribute", StatSetAttribute},
-			{"StatAddCustomDescription", StatAddCustomDescription},
+			{"StatAddCustomDescription", StatAddCustomDescriptionWrapper},
 			{"StatSetLevelScaling", StatSetLevelScaling},
 			{"GetStat", GetStat},
 			{"CreateStat", CreateStat},
-			{"SyncStat", SyncStat},
+			{"SyncStat", SyncStatWrapper},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
@@ -1875,25 +1926,26 @@ namespace dse::ecl::lua
 			{"GetStatus", GetStatus},
 			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
-			{"OsirisIsCallable", OsirisIsCallableClient},
-			{"IsDeveloperMode", IsDeveloperMode},
+			{"OsirisIsCallable", OsirisIsCallableClientWrapper},
+			{"IsDeveloperMode", IsDeveloperModeWrapper},
 			{"Random", LuaRandom},
-			{"Round", LuaRound},
+			{"Round", LuaRoundWrapper},
 
 			// EXPERIMENTAL FUNCTIONS
 			{"UpdateShroud", UpdateShroud},
-			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWrites},
+			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
+			{"DumpStack", DumpStackWrapper},
 
 			{"GetGameState", GetGameState},
-			{"AddPathOverride", AddPathOverride},
-			{"AddVoiceMetaData", AddVoiceMetaData},
-			{"GetTranslatedString", GetTranslatedString},
-			{"GetTranslatedStringFromKey", GetTranslatedStringFromKey},
-			{"CreateTranslatedString", CreateTranslatedString},
-			{"CreateTranslatedStringKey", CreateTranslatedStringKey},
-			{"CreateTranslatedStringHandle", CreateTranslatedStringHandle},
+			{"AddPathOverride", AddPathOverrideWrapper},
+			{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
+			{"GetTranslatedString", GetTranslatedStringWrapper},
+			{"GetTranslatedStringFromKey", GetTranslatedStringFromKeyWrapper},
+			{"CreateTranslatedString", CreateTranslatedStringWrapper},
+			{"CreateTranslatedStringKey", CreateTranslatedStringKeyWrapper},
+			{"CreateTranslatedStringHandle", CreateTranslatedStringHandleWrapper},
 
-			{"PostMessageToServer", PostMessageToServer},
+			{"PostMessageToServer", PostMessageToServerWrapper},
 			{"CreateUI", CreateUI},
 			{"GetUI", GetUI},
 			{"GetUIByType", GetUIByType},
@@ -1909,6 +1961,7 @@ namespace dse::ecl::lua
 
 	ClientState::ClientState()
 	{
+		StackCheck _(L, 0);
 		library_.Register(L);
 
 		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
@@ -1957,6 +2010,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnCreateUIObject(ObjectHandle uiObjectHandle)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UIObjectCreated");
@@ -1966,6 +2020,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UICall"); // stack: fn
@@ -1982,6 +2037,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnAfterUICall(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UICall"); // stack: fn
@@ -1998,6 +2054,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UIInvoke"); // stack: fn
@@ -2014,6 +2071,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnAfterUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		PushExtFunction(L, "_UIInvoke"); // stack: fn
@@ -2031,6 +2089,7 @@ namespace dse::ecl::lua
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		auto skill = prototype->GetStats();
@@ -2040,7 +2099,7 @@ namespace dse::ecl::lua
 
 		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
-		auto _{ PushArguments(L,
+		auto _a{ PushArguments(L,
 			std::tuple{Push<SkillPrototypeProxy>(prototype, std::optional<int32_t>()),
 			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
 		push(L, isFromItem);
@@ -2066,6 +2125,7 @@ namespace dse::ecl::lua
 	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
 		CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 	{
+		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
 
 		auto status = prototype->GetStats();
@@ -2099,6 +2159,7 @@ namespace dse::ecl::lua
 
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
+		StackCheck _(L, 0);
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);

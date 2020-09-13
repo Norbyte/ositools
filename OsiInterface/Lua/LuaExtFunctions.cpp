@@ -79,6 +79,7 @@ namespace dse::lua
 
 	int JsonParse(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		size_t length;
 		auto json = luaL_checklstring(L, 1, &length);
 
@@ -236,6 +237,7 @@ namespace dse::lua
 
 	int JsonStringify(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		int nargs = lua_gettop(L);
 		if (nargs < 1) {
 			return luaL_error(L, "JsonStringify expects at least one parameter.");
@@ -295,30 +297,32 @@ namespace dse::lua
 
 	int GetExtensionVersion(lua_State* L)
 	{
-		push(L, CurrentVersion);
-		return 1;
+		return CurrentVersion;
 	}
 
-	int GetGameVersion(lua_State* L)
+	WrapLuaFunction(GetExtensionVersion)
+
+	std::optional<STDString> GetGameVersion(lua_State* L)
 	{
 		GameVersionInfo gameVersion;
 		if (gOsirisProxy->GetLibraryManager().GetGameVersion(gameVersion)) {
 			std::stringstream ss;
 			ss << "v" << gameVersion.Major << "." << gameVersion.Minor << "." << gameVersion.Revision << "." << gameVersion.Build;
-			push(L, ss.str());
-			return 1;
+			return ss.str().c_str();
 		} else {
-			return 0;
+			return {};
 		}
 	}
+
+	WrapLuaFunction(GetGameVersion)
 
 	int MonotonicTime(lua_State* L)
 	{
 		using namespace std::chrono;
-		auto now = time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
-		push(L, now);
-		return 1;
+		return (int)time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
 	}
+
+	WrapLuaFunction(MonotonicTime)
 
 	int OsiPrint(lua_State* L)
 	{
@@ -346,63 +350,54 @@ namespace dse::lua
 
 	// int64 handle to double conversion hack for use in Flash external interface calls
 	// (Some of the builtin functions treat handles as double values)
-	int HandleToDouble(lua_State* L)
+	double HandleToDouble(lua_State* L, ObjectHandle handle)
 	{
-		auto handle = checked_get<ObjectHandle>(L, 1);
-		double dbl = *reinterpret_cast<double*>(&handle);
-		push(L, dbl);
-		return 1;
+		return *reinterpret_cast<double*>(&handle);
 	}
 
-	int DoubleToHandle(lua_State* L)
+	WrapLuaFunction(HandleToDouble)
+
+	ObjectHandle DoubleToHandle(lua_State* L, double dbl)
 	{
-		double dbl = checked_get<double>(L, 1);
-		ObjectHandle handle(*reinterpret_cast<int64_t*>(&dbl));
-		push(L, handle);
-		return 1;
+		return ObjectHandle(*reinterpret_cast<int64_t*>(&dbl));
 	}
 
-	int LoadFile(lua_State* L)
-	{
-		auto path = checked_get<char const*>(L, 1);
+	WrapLuaFunction(DoubleToHandle)
 
-		auto loaded = script::LoadExternalFile(path);
-		if (loaded) {
-			push(L, *loaded);
-			return 1;
-		} else {
-			return 0;
-		}
+	std::optional<STDString> LoadFile(lua_State* L, char const* path)
+	{
+		return script::LoadExternalFile(path);
 	}
 
-	int SaveFile(lua_State* L)
-	{
-		auto path = checked_get<char const*>(L, 1);
-		auto contents = checked_get<char const*>(L, 2);
+	WrapLuaFunction(LoadFile)
 
-		push(L, script::SaveExternalFile(path, contents));
-		return 1;
+	int SaveFile(lua_State* L, char const* path, char const* contents)
+	{
+		return script::SaveExternalFile(path, contents);
 	}
 
-	int IsModLoaded(lua_State* L)
+	WrapLuaFunction(SaveFile)
+
+	bool IsModLoaded(lua_State* L, char const* modNameGuid)
 	{
-		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
+		auto modUuid = NameGuidToFixedString(modNameGuid);
 		if (modUuid) {
 			auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
 			for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
 				if (mod.Info.ModuleUUID == modUuid) {
-					push(L, true);
-					return 1;
+					return true;
 				}
 			}
 		}
 
-		push(L, false);
-		return 1;
+		return false;
 	}
+
+	WrapLuaFunction(IsModLoaded)
 
 	int GetModLoadOrder(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		lua_newtable(L);
 
 		auto modManager = gOsirisProxy->GetCurrentExtensionState()->GetModManager();
@@ -417,6 +412,7 @@ namespace dse::lua
 
 	int GetModInfo(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		Module const * module{ nullptr };
 		auto modUuid = NameGuidToFixedString(luaL_checkstring(L, 1));
 		if (modUuid) {
@@ -447,14 +443,14 @@ namespace dse::lua
 				settable(L, i + 1, mod.Info.ModuleUUID);
 			}
 			lua_setfield(L, -2, "Dependencies");
-
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
-	int LuaDebugBreak(lua_State* L)
+	void LuaDebugBreak(lua_State* L)
 	{
 #if !defined(OSI_NO_DEBUGGER)
 		auto debugger = gOsirisProxy->GetLuaDebugger();
@@ -462,8 +458,9 @@ namespace dse::lua
 			debugger->DebugBreak(L);
 		}
 #endif
-		return 0;
 	}
+
+	WrapLuaFunction(LuaDebugBreak)
 
 	void FetchSkillSetEntries(lua_State * L, CRPGStatsManager * stats)
 	{
@@ -603,18 +600,19 @@ namespace dse::lua
 
 	int GetStatEntries(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		FixedString statType;
 		if (lua_gettop(L) >= 1 && !lua_isnil(L, 1)) {
 			statType = checked_get<FixedString>(L, 1);
 		}
 		
+		lua_newtable(L);
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
-			return 0;
+			return 1;
 		}
 
-		lua_newtable(L);
 		if (statType == GFS.strSkillSet) {
 			FetchSkillSetEntries(L, stats);
 		} else if (statType == GFS.strEquipmentSet) {
@@ -644,19 +642,20 @@ namespace dse::lua
 
 	int GetStatEntriesLoadedBefore(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto modId = checked_get<FixedString>(L, 1);
 		FixedString statType;
 		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 			statType = checked_get<FixedString>(L, 2);
 		}
 
+		lua_newtable(L);
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
-			return 0;
+			return 1;
 		}
 
-		lua_newtable(L);
 		FetchStatEntriesBefore(L, stats, modId, statType);
 
 		return 1;
@@ -672,6 +671,7 @@ namespace dse::lua
 
 	int UpdateSkillSet(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -700,6 +700,7 @@ namespace dse::lua
 
 	int UpdateEquipmentSet(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -728,6 +729,7 @@ namespace dse::lua
 
 	int UpdateTreasureTable(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -756,6 +758,7 @@ namespace dse::lua
 
 	int UpdateTreasureCategory(lua_State* L)
 	{
+		StackCheck _(L);
 		auto name = checked_get<FixedString>(L, 1);
 		luaL_checktype(L, 2, LUA_TTABLE);
 
@@ -783,6 +786,7 @@ namespace dse::lua
 
 	int UpdateItemCombo(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -810,6 +814,7 @@ namespace dse::lua
 
 	int UpdateItemComboPreviewData(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -838,6 +843,7 @@ namespace dse::lua
 
 	int UpdateItemComboProperty(lua_State* L)
 	{
+		StackCheck _(L);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -884,12 +890,14 @@ namespace dse::lua
 
 	int LuaStatGetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, std::optional<int> level)
 	{
+		StackCheck _(L, 1);
 		auto stats = GetStaticSymbols().GetStats();
 
 		auto attributeFS = ToFixedString(attributeName);
 		if (!attributeFS) {
 			OsiError("Invalid stats attribute name: " << attributeName);
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		if (attributeFS == GFS.strLevel) {
@@ -910,7 +918,8 @@ namespace dse::lua
 				}
 			}
 
-			return 0;
+			push(L, nullptr);
+			return 1;
 		} else if (attributeFS == GFS.strRequirements) {
 			return LuaWrite(L, object->Requirements);
 		} else if (attributeFS == GFS.strMemorizationRequirements) {
@@ -925,7 +934,8 @@ namespace dse::lua
 			if (propertyList) {
 				return LuaWrite(L, *propertyList);
 			} else {
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -935,10 +945,10 @@ namespace dse::lua
 			auto conditions = object->ConditionList.Find(attributeFS);
 			if (conditions) {
 				OsiError("Conditions property '" << attributeFS << "' is not readable");
-				return 1;
-			} else {
-				return 0;
 			}
+
+			push(L, nullptr);
+			return 1;
 		}
 
 		auto value = stats->GetAttributeString(object, attributeFS);
@@ -956,7 +966,7 @@ namespace dse::lua
 
 			if (!intval) {
 				OsiError("Stat object '" << object->Name << "' has no attribute named '" << attributeFS << "'");
-				return 0;
+				push(L, nullptr);
 			} else {
 				push(L, *intval);
 			}
@@ -973,7 +983,10 @@ namespace dse::lua
 		auto attributeName = luaL_checkstring(L, 2);
 
 		auto object = StatFindObject(statName);
-		if (!object) return 0;
+		if (!object) {
+			push(L, nullptr);
+			return 1;
+		}
 
 		return LuaStatGetAttribute(L, object, attributeName, {});
 	}
@@ -984,13 +997,17 @@ namespace dse::lua
 		auto attributeName = luaL_checkstring(L, 2);
 
 		auto object = StatFindObject(statName);
-		if (!object) return 0;
+		if (!object) {
+			push(L, nullptr);
+			return 1;
+		}
 
 		return LuaStatGetAttribute(L, object, attributeName, {});
 	}
 
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
+		StackCheck _(L);
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 			return luaL_error(L, "Stat functions unavailable during module preload");
@@ -1081,19 +1098,18 @@ namespace dse::lua
 			return 0;
 		}
 
-		bool ok{ false };
 		switch (lua_type(L, valueIdx)) {
 		case LUA_TSTRING:
 		{
 			auto value = luaL_checkstring(L, valueIdx);
-			ok = stats->SetAttributeString(object, attributeFS, value);
+			stats->SetAttributeString(object, attributeFS, value);
 			break;
 		}
 
 		case LUA_TNUMBER:
 		{
 			auto value = (int32_t)luaL_checkinteger(L, valueIdx);
-			ok = stats->SetAttributeInt(object, attributeFS, value);
+			stats->SetAttributeInt(object, attributeFS, value);
 			break;
 		}
 
@@ -1101,8 +1117,7 @@ namespace dse::lua
 			return luaL_error(L, "Expected a string or integer attribute value.");
 		}
 
-		push(L, ok);
-		return 1;
+		return 0;
 	}
 
 	int StatSetAttribute(lua_State * L)
@@ -1116,28 +1131,24 @@ namespace dse::lua
 		return LuaStatSetAttribute(L, object, attributeName, 3);
 	}
 
-	int StatAddCustomDescription(lua_State * L)
+	void StatAddCustomDescription(lua_State * L, const char* statName, const char* attributeName, const char* description)
 	{
-		auto statName = luaL_checkstring(L, 1);
-		auto attributeName = luaL_checkstring(L, 2);
-		auto description = luaL_checkstring(L, 3);
-
 		LuaVirtualPin lua(gOsirisProxy->GetCurrentExtensionState());
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
-			return luaL_error(L, "Stat functions unavailable during module preload");
+			luaL_error(L, "Stat functions unavailable during module preload");
 		}
 
 		if (!(lua->RestrictionFlags & State::ScopeModuleLoad)) {
-			return luaL_error(L, "StatAddCustomDescription() can only be called during module load");
+			luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
 
 		auto object = StatFindObject(statName);
-		if (!object) return 0;
+		if (!object) return;
 
 		auto props = object->PropertyList.Find(ToFixedString(attributeName));
 		if (props == nullptr || *props == nullptr) {
 			OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
-			return 0;
+			return;
 		}
 
 		// FIXME - assign name + add to map properly
@@ -1147,9 +1158,9 @@ namespace dse::lua
 		customProp->Conditions = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
 		(*props)->Properties.Primitives.Add(customProp);
-
-		return 0;
 	}
+
+	WrapLuaFunction(StatAddCustomDescription)
 
 
 	struct CRPGStats_CustomLevelMap : public CRPGStats_LevelMap
@@ -1227,6 +1238,7 @@ namespace dse::lua
 
 	int StatSetLevelScaling(lua_State * L)
 	{
+		StackCheck _(L);
 		auto modifierListName = luaL_checkstring(L, 1);
 		auto modifierName = luaL_checkstring(L, 2);
 		luaL_checktype(L, 3, LUA_TFUNCTION);
@@ -1279,6 +1291,7 @@ namespace dse::lua
 
 	int GetStat(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		auto statName = luaL_checkstring(L, 1);
 		std::optional<int> level;
 		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
@@ -1290,7 +1303,8 @@ namespace dse::lua
 			StatsProxy::New(L, object, level);
 			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 	}
 
@@ -1337,6 +1351,7 @@ namespace dse::lua
 
 	int CreateStat(lua_State * L)
 	{
+		StackCheck _(L, 1);
 		auto statName = luaL_checkstring(L, 1);
 		auto modifierName = luaL_checkstring(L, 2);
 		char const* copyFrom{ nullptr };
@@ -1358,19 +1373,22 @@ namespace dse::lua
 				}
 			} else {
 				OsiError("Cannot call CreateStat() on client after module load!");
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
 		auto stats = GetStaticSymbols().GetStats();
 		auto object = stats->CreateObject(MakeFixedString(statName), MakeFixedString(modifierName));
 		if (!object) {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		if (copyFrom != nullptr) {
 			if (!CopyStats(*object, copyFrom)) {
-				return 0;
+				push(L, nullptr);
+				return 1;
 			}
 		}
 
@@ -1378,19 +1396,13 @@ namespace dse::lua
 		return 1;
 	}
 
-	int SyncStat(lua_State* L)
+	void SyncStat(lua_State* L, char const* statName, std::optional<bool> persist)
 	{
-		auto statName = luaL_checkstring(L, 1);
 		auto stats = GetStaticSymbols().GetStats();
 		auto object = stats->objects.Find(ToFixedString(statName));
 		if (!object) {
 			OsiError("Cannot sync nonexistent stat: " << statName);
-			return 0;
-		}
-
-		bool persist = true;
-		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
-			persist = checked_get<bool>(L, 2);
+			return;
 		}
 
 		stats->SyncWithPrototypeManager(object);
@@ -1398,24 +1410,21 @@ namespace dse::lua
 		if (gOsirisProxy->IsInServerThread()) {
 			object->BroadcastSyncMessage();
 
-			if (persist) {
+			if (persist && *persist) {
 				gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
 			}
 		}
-
-		return 0;
 	}
 
-	int StatSetPersistence(lua_State* L)
-	{
-		auto statName = luaL_checkstring(L, 1);
-		auto persist = checked_get<bool>(L, 2);
+	WrapLuaFunction(SyncStat)
 
+	void StatSetPersistence(lua_State* L, char const* statName, bool persist)
+	{
 		auto stats = GetStaticSymbols().GetStats();
 		auto object = stats->objects.Find(ToFixedString(statName));
 		if (!object) {
 			OsiError("Cannot set persistence for nonexistent stat: " << statName);
-			return 0;
+			return;
 		}
 
 		if (persist) {
@@ -1423,25 +1432,28 @@ namespace dse::lua
 		} else {
 			gOsirisProxy->GetServerExtensionState().UnmarkRuntimeModifiedStat(ToFixedString(statName));
 		}
-
-		return 0;
 	}
+
+	WrapLuaFunction(StatSetPersistence)
 
 	int GetDeltaMod(lua_State* L)
 	{
+		StackCheck _(L, 1);
 		auto name = checked_get<char const *>(L, 1);
 		auto modifierType = checked_get<char const*>(L, 2);
 
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
 			OsiError("CRPGStatsManager not available");
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		auto deltaModType = stats->DeltaMods.Find(modifierType);
 		if (deltaModType == nullptr) {
 			OsiError("Unknown DeltaMod ModifierType: " << modifierType);
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		auto deltaMod = deltaModType->Find(name);
@@ -1450,6 +1462,7 @@ namespace dse::lua
 
 	int UpdateDeltaMod(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		luaL_checktype(L, 1, LUA_TTABLE);
 		auto name = checked_getfield<char const*>(L, "Name", 1);
 		auto modifierType = checked_getfield<char const*>(L, "ModifierType", 1);
@@ -1570,35 +1583,27 @@ namespace dse::lua
 		return 1;
 	}
 
-	int IsDeveloperMode(lua_State * L)
+	bool IsDeveloperMode(lua_State * L)
 	{
-		push(L, gOsirisProxy->GetConfig().DeveloperMode);
-		return 1;
+		return gOsirisProxy->GetConfig().DeveloperMode;
 	}
 
-	int AddPathOverride(lua_State * L)
+	WrapLuaFunction(IsDeveloperMode)
+
+	void AddPathOverride(lua_State * L, char const* path, char const* overridePath)
 	{
-		auto path = luaL_checkstring(L, 1);
-		auto overridePath = luaL_checkstring(L, 2);
 		gOsirisProxy->AddPathOverride(path, overridePath);
-		return 0;
 	}
 
-	int AddVoiceMetaData(lua_State * L)
-	{
-		auto speakerGuid = luaL_checkstring(L, 1);
-		auto translatedStringKey = luaL_checkstring(L, 2);
-		auto source = luaL_checkstring(L, 3);
-		auto length = checked_get<float>(L, 4);
-		int32_t priority = 0;
-		if (lua_gettop(L) > 4) {
-			priority = checked_get<int>(L, 5);
-		}
+	WrapLuaFunction(AddPathOverride)
 
+	void AddVoiceMetaData(lua_State * L, char const* speakerGuid, char const* translatedStringKey, char const* source, 
+		float length, std::optional<int> priority)
+	{
 		auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
 		if (speakerMgr == nullptr || *speakerMgr == nullptr) {
 			OsiError("Speaker manager not initialized!");
-			return 0;
+			return;
 		}
 
 		auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(MakeFixedString(speakerGuid));
@@ -1606,51 +1611,43 @@ namespace dse::lua
 		voiceMeta->CodecID = 4;
 		voiceMeta->IsRecorded = true;
 		voiceMeta->Length = (float)length;
-		voiceMeta->Priority = priority;
+		voiceMeta->Priority = priority ? *priority : 0;
 
 		auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
 		voiceMeta->Source.Name = path;
-		return 0;
 	}
 
-	int GetTranslatedString(lua_State* L)
-	{
-		auto translatedStringKey = luaL_checkstring(L, 1);
-		char const* fallbackText = "";
-		if (lua_gettop(L) > 1) {
-			fallbackText = luaL_checkstring(L, 2);
-		}
+	WrapLuaFunction(AddVoiceMetaData)
 
+	STDString GetTranslatedString(lua_State* L, char const* translatedStringKey, std::optional<char const*> fallbackText)
+	{
 		STDWString translated;
 		if (script::GetTranslatedString(translatedStringKey, translated)) {
-			push(L, translated);
+			return ToUTF8(translated);
 		} else {
-			push(L, fallbackText);
+			return fallbackText ? *fallbackText : "";
 		}
-
-		return 1;
 	}
 
-	int GetTranslatedStringFromKey(lua_State* L)
-	{
-		auto key = ToFixedString(luaL_checkstring(L, 1));
+	WrapLuaFunction(GetTranslatedString)
 
+	std::tuple<STDString, FixedString> GetTranslatedStringFromKey(lua_State* L, FixedString key)
+	{
 		TranslatedString translated;
 		if (script::GetTranslatedStringFromKey(key, translated)) {
-			push(L, translated.Handle.ReferenceString);
-			push(L, translated.Handle.Handle);
-			return 2;
+			return { ToUTF8(translated.Handle.ReferenceString), translated.Handle.Handle };
 		} else {
-			return 0;
+			return {};
 		}
 	}
+
+	WrapLuaFunction(GetTranslatedStringFromKey)
 
 	unsigned NextDynamicStringHandleId{ 1 };
 
-	int CreateTranslatedString(lua_State* L)
+	std::optional<STDString> CreateTranslatedString(lua_State* L, char const* keyStr, char const* value)
 	{
-		auto key = MakeFixedString(luaL_checkstring(L, 1));
-		auto value = luaL_checkstring(L, 2);
+		auto key = MakeFixedString(keyStr);
 
 		STDString handleStr = "ExtStr_";
 		handleStr += std::to_string(NextDynamicStringHandleId++);
@@ -1659,35 +1656,33 @@ namespace dse::lua
 		if (script::CreateTranslatedStringKey(key, handle)) {
 			STDWString str(FromUTF8(value));
 			if (script::CreateTranslatedString(handle, str)) {
-				push(L, handleStr);
-				return 1;
+				return handleStr;
 			}
 		}
 
-		push(L, nullptr);
-		return 1;
+		return {};
 	}
 
-	int CreateTranslatedStringKey(lua_State* L)
-	{
-		auto key = MakeFixedString(luaL_checkstring(L, 1));
-		auto handle = MakeFixedString(luaL_checkstring(L, 2));
+	WrapLuaFunction(CreateTranslatedString)
 
-		auto ok = script::CreateTranslatedStringKey(key, handle);
-		push(L, ok);
-		return 1;
+	bool CreateTranslatedStringKey(lua_State* L, char const* keyStr, char const* handleStr)
+	{
+		auto key = MakeFixedString(keyStr);
+		auto handle = MakeFixedString(handleStr);
+		return script::CreateTranslatedStringKey(key, handle);
 	}
 
-	int CreateTranslatedStringHandle(lua_State* L)
+	WrapLuaFunction(CreateTranslatedStringKey)
+
+	bool CreateTranslatedStringHandle(lua_State* L, char const* handleStr, char const* value)
 	{
-		auto handle = MakeFixedString(luaL_checkstring(L, 1));
-		auto value = luaL_checkstring(L, 2);
+		auto handle = MakeFixedString(handleStr);
 
 		STDWString str(FromUTF8(value));
-		auto ok = script::CreateTranslatedString(handle, str);
-		push(L, ok);
-		return 1;
+		return script::CreateTranslatedString(handle, str);
 	}
+
+	WrapLuaFunction(CreateTranslatedStringHandle)
 
 	// Variation of Lua builtin math_random() with custom RNG
 	int LuaRandom(lua_State *L)
@@ -1725,12 +1720,12 @@ namespace dse::lua
 		return 1;
 	}
 
-	int LuaRound(lua_State *L)
+	int64_t LuaRound(lua_State *L, double val)
 	{
-		auto val = luaL_checknumber(L, 1);
-		push(L, (int64_t)round(val));
-		return 1;
+		return (int64_t)round(val);
 	}
+
+	WrapLuaFunction(LuaRound)
 
 	char const * OsiToLuaTypeName(ValueType type)
 	{
@@ -1854,22 +1849,17 @@ namespace dse::lua
 		return helpers;
 	}
 
-	int GenerateIdeHelpers(lua_State * L)
+	void GenerateIdeHelpers(lua_State * L, std::optional<bool> builtinOnly)
 	{
 #if defined(OSI_EOCAPP)
 		if (gOsirisProxy->GetConfig().DeveloperMode) {
 #endif
 			esv::LuaServerPin lua(esv::ExtensionState::Get());
 			if (lua->RestrictionFlags & State::RestrictOsiris) {
-				return luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
+				luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 			}
 
-			bool builtinOnly{ false };
-			if (lua_gettop(L) >= 1) {
-				builtinOnly = checked_get<bool>(L, 1);
-			}
-
-			auto helpers = GenerateIdeHelpers(builtinOnly);
+			auto helpers = GenerateIdeHelpers(builtinOnly && *builtinOnly);
 
 			auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
 			path += "Mods/";
@@ -1879,7 +1869,7 @@ namespace dse::lua
 			std::ofstream f(path.c_str(), std::ios::out | std::ios::binary);
 			if (!f.good()) {
 				OsiError("Could not open file to save IDE helpers: '" << path << "'");
-				return 0;
+				return;
 			}
 
 			f.write(helpers.c_str(), helpers.size());
@@ -1888,19 +1878,56 @@ namespace dse::lua
 			OsiError("GenerateIdeHelpers() only supported in developer mode");
 		}
 #endif
-		return 0;
 	}
 
-	int EnableExperimentalPropertyWrites(lua_State* L)
+	WrapLuaFunction(GenerateIdeHelpers)
+
+	void EnableExperimentalPropertyWrites(lua_State* L)
 	{
 		if (!gOsirisProxy->GetConfig().DeveloperMode) {
 			OsiError("Property writes are currently only available in developer mode!");
-			return 0;
+			return;
 		}
 
 		gExperimentalPropertyWrites = true;
 		OsiWarn(" !!! EXPERIMENTAL LUA PROPERTY WRITES ENABLED !!! ");
 		OsiWarn("This is a beta feature meant for testing the usefulness/reliability of direct object property writes in Lua. When misused, the game will crash, things will go horribly wrong, etc. You were warned.");
-		return 0;
+		return;
 	}
+
+	WrapLuaFunction(EnableExperimentalPropertyWrites)
+
+	void DumpStack(lua_State* L)
+	{
+		auto top = lua_gettop(L);
+		for (int idx = 1; idx <= top; idx++) {
+			switch (lua_type(L, idx)) {
+			case LUA_TNIL:
+				INFO("<%d> nil");
+				break;
+
+			case LUA_TBOOLEAN:
+				INFO("<%d> %s", idx, lua_toboolean(L, idx) ? "true" : "false");
+				break;
+
+			case LUA_TLIGHTUSERDATA:
+				INFO("<%d> Handle %ull", idx, (uint64_t)lua_touserdata(L, idx));
+				break;
+
+			case LUA_TNUMBER:
+				INFO("<%d> %f", idx, (float)lua_tonumber(L, idx));
+				break;
+
+			case LUA_TSTRING:
+				INFO("<%d> String '%s'", idx, lua_tostring(L, idx));
+				break;
+
+			default:
+				INFO("<%d> %s", idx, lua_typename(L, lua_type(L, idx)));
+				break;
+			}
+		}
+	}
+
+	WrapLuaFunction(DumpStack)
 }
