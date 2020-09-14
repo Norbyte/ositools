@@ -11,6 +11,10 @@ namespace dse
 		static constexpr NetMessage MessageId = NetMessage::NETMSG_SCRIPT_EXTENDER;
 		static constexpr uint32_t MaxPayloadLength = 0xfffff;
 
+		static constexpr uint32_t VerAddedKickMessage = 1;
+		// Version of protocol, increment each time the protobuf changes
+		static constexpr uint32_t ProtoVersion = 1;
+
 		ScriptExtenderMessage();
 		~ScriptExtenderMessage() override;
 
@@ -84,8 +88,9 @@ namespace dse
 
 		bool ClientCanSendExtenderMessages() const;
 		bool ServerCanSendExtenderMessages(PeerId peerId) const;
+		std::optional<uint32_t> ServerGetPeerVersion(PeerId peerId) const;
 		void ClientAllowExtenderMessages();
-		void ServerAllowExtenderMessages(PeerId peerId);
+		void ServerAllowExtenderMessages(PeerId peerId, uint32_t version);
 
 		void ExtendNetworkingClient();
 		void ExtendNetworkingServer();
@@ -106,7 +111,7 @@ namespace dse
 		// (i.e. the server supports the message ID and won't crash)
 		bool clientExtenderSupport_{ false };
 		// List of clients that support the extender protocol
-		std::unordered_set<PeerId> serverExtenderPeerIds_;
+		std::unordered_map<PeerId, uint32_t> serverExtenderPeerVersions_;
 
 		net::GameServer * GetServer() const;
 		net::Client * GetClient() const;

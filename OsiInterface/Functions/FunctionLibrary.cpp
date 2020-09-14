@@ -266,6 +266,9 @@ namespace dse::esv
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 		);
+		osiris_.GetLibraryManager().esv__LoadProtocol__HandleModuleLoaded.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnPeerModuleLoaded, this, _1, _2, _3, _4)
+		);
 
 		PostLoaded = true;
 	}

@@ -8,7 +8,6 @@
 
 namespace dse
 {
-
 	struct GlobalSwitches
 	{
 		void * VMT;

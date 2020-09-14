@@ -876,17 +876,6 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		}
 	}
 
-	if (toState == ecl::GameState::LoadModule && config_.DisableModValidation) {
-		std::lock_guard _(globalStateLock_);
-		Libraries.PostStartupFindLibraries();
-		if (GetStaticSymbols().GetGlobalSwitches()) {
-			GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
-			INFO("Disabled module hashing");
-		} else {
-			WARN("Could not disable mod hashing - GlobalSwitches not mapped");
-		}
-	}
-
 	if (toState == ecl::GameState::Menu && Libraries.InitializationFailed()) {
 		PostInitLibraries();
 	}
@@ -1277,6 +1266,7 @@ void OsirisProxy::PostInitLibraries()
 			Wrappers.InitializeDeferredExtensions();
 			FunctionLibrary.PostStartup();
 			hitProxy_.PostStartup();
+			hasher_.PostStartup();
 		}
 	}
 
@@ -1675,6 +1665,67 @@ std::vector<CRPGStats_Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedSt
 	}
 
 	return statsLoadedBefore;
+}
+
+
+void ModuleHasher::PostStartup()
+{
+	using namespace std::placeholders;
+	gOsirisProxy->GetLibraryManager().Module__Hash.SetWrapper(
+		std::bind(&ModuleHasher::OnModuleHash, this, _1, _2)
+	);
+}
+
+bool ModuleHasher::FetchHashFromCache(Module& mod)
+{
+	auto it = hashCache_.find(mod.Info.ModuleUUID);
+	if (it != hashCache_.end()) {
+		mod.Info.Hash = it->second;
+		mod.HasValidHash = true;
+		UpdateDependencyHashes(mod);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void ModuleHasher::UpdateDependencyHashes(Module& mod)
+{
+	for (auto& dependency : mod.DependentModules) {
+		if (!FetchHashFromCache(dependency)) {
+			GetStaticSymbols().Module__Hash(&dependency);
+		}
+	}
+
+	for (auto& addon : mod.AddonModules) {
+		if (!FetchHashFromCache(addon)) {
+			GetStaticSymbols().Module__Hash(&addon);
+		}
+	}
+}
+
+bool ModuleHasher::OnModuleHash(Module::HashProc* next, Module* self)
+{
+	if (FetchHashFromCache(*self)) {
+		return true;
+	}
+
+	if (!hashStack_.empty()) {
+		auto mod = *hashStack_.rbegin();
+		if (!mod->Info.Hash.empty()) {
+			hashCache_.insert(std::make_pair(mod->Info.ModuleUUID, mod->Info.Hash));
+		}
+	}
+
+	hashStack_.push_back(self);
+
+	auto ok = next(self);
+	if (!self->Info.Hash.empty()) {
+		hashCache_.insert(std::make_pair(self->Info.ModuleUUID, self->Info.Hash));
+	}
+
+	hashStack_.pop_back();
+	return ok;
 }
 
 }

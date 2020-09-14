@@ -133,6 +133,12 @@ namespace dse
 			break;
 		}
 
+		case MessageWrapper::kS2CKick:
+		{
+			gOsirisProxy->GetLibraryManager().ShowStartupMessage(FromUTF8(msg.s2c_kick().message()), true);
+			break;
+		}
+
 		default:
 			OsiErrorS("Unknown extension message type received!");
 		}
@@ -161,8 +167,10 @@ namespace dse
 
 		case MessageWrapper::kC2SExtenderHello:
 		{
-			DEBUG("Got extender support notification from user %d", context.UserID.Id);
-			gOsirisProxy->GetNetworkManager().ServerAllowExtenderMessages(context.UserID.GetPeerId());
+			auto const& hello = msg.c2s_extender_hello();
+			// The version is missing in old extender messages, so it'll default to 0.
+			DEBUG("Got extender support notification from user %d (version %d)", context.UserID.Id, hello.version());
+			gOsirisProxy->GetNetworkManager().ServerAllowExtenderMessages(context.UserID.GetPeerId(), hello.version());
 			break;
 		}
 
@@ -267,7 +275,7 @@ namespace dse
 
 	void NetworkManager::ServerReset()
 	{
-		serverExtenderPeerIds_.clear();
+		serverExtenderPeerVersions_.clear();
 	}
 
 	bool NetworkManager::ClientCanSendExtenderMessages() const
@@ -282,12 +290,22 @@ namespace dse
 
 	bool NetworkManager::ServerCanSendExtenderMessages(PeerId peerId) const
 	{
-		return serverExtenderPeerIds_.find(peerId) != serverExtenderPeerIds_.end();
+		return serverExtenderPeerVersions_.find(peerId) != serverExtenderPeerVersions_.end();
 	}
 
-	void NetworkManager::ServerAllowExtenderMessages(PeerId peerId)
+	std::optional<uint32_t> NetworkManager::ServerGetPeerVersion(PeerId peerId) const
 	{
-		serverExtenderPeerIds_.insert(peerId);
+		auto it = serverExtenderPeerVersions_.find(peerId);
+		if (it != serverExtenderPeerVersions_.end()) {
+			return it->second;
+		} else {
+			return {};
+		}
+	}
+
+	void NetworkManager::ServerAllowExtenderMessages(PeerId peerId, uint32_t version)
+	{
+		serverExtenderPeerVersions_.insert(std::make_pair(peerId, version));
 	}
 
 
@@ -398,7 +416,8 @@ namespace dse
 				gOsirisProxy->GetNetworkManager().ExtendNetworkingClient();
 				auto helloMsg = GetFreeClientMessage();
 				if (helloMsg != nullptr) {
-					helloMsg->GetMessage().mutable_c2s_extender_hello();
+					auto hello = helloMsg->GetMessage().mutable_c2s_extender_hello();
+					hello->set_version(ScriptExtenderMessage::ProtoVersion);
 					ClientSend(helloMsg);
 				}
 				else {

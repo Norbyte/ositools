@@ -216,6 +216,9 @@ namespace dse
 		void * ItemFoldDynamicAttributes{ nullptr };
 		void * ModuleSettingsHasCustomMods{ nullptr };
 		void * ModuleSettingsHasCustomModsGB5{ nullptr };
+		ModuleSettings::ValidateProc* ModuleSettings__Validate{ nullptr };
+		Module::HashProc* Module__Hash{ nullptr };
+		esv::LoadProtocol::HandleModuleLoadedProc* esv__LoadProtocol__HandleModuleLoaded{ nullptr };
 
 		ig::ValuePathMakeNameRefProc IgValuePathMakeNameRef{ nullptr };
 		ig::ValuePathMakeArrayRefProc IgValuePathPathMakeArrayRef{ nullptr };

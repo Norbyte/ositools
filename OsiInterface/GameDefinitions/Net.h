@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "BaseTypes.h"
 #include "Enumerations.h"
+#include "Module.h"
 
 namespace dse
 {
@@ -214,6 +215,32 @@ namespace dse
 
 		struct GameServer : public Host
 		{
+			struct UserInfo
+			{
+				int Flags;
+				int field_4;
+				FixedString ProfileID;
+				FixedString KickstarterId;
+				STDWString UserName;
+				int field_38;
+				char field_3C;
+				__int64 field_40;
+				__int64 field_48;
+				__int64 field_50;
+				__int64 field_58;
+				__int64 field_60;
+			};
+
+
+			struct PeerInfo
+			{
+				int field_0;
+				RefMap<uint16_t, UserInfo> Users;
+				int Flags;
+				STDWString BuildConfiguration;
+			};
+
+
 			void * EventListenerVMT;
 			void * field_348;
 			void * EventListenerVMT2;
@@ -224,10 +251,105 @@ namespace dse
 			ObjectSet<PeerId> UnknownSet1;
 			ObjectSet<PeerId> UnknownSet2;
 			ObjectSet<PeerId> ConnectedPeerIds2;
-			RefMap<PeerId, void *> UserIdToUserInfo;
+			RefMap<PeerId, PeerInfo> Peers;
 			RefMap<NetId, PeerId> CharacterNetIdToUserId;
 			int Unknown[2];
 			void * VoiceProtocol;
+		}; 
+		
+
+		class HostRefuseMessage : public net::Message
+		{
+		public:
+			static constexpr NetMessage MessageId = NetMessage::NETMSG_HOST_REFUSE;
+
+			int ReasonCode;
+			ModuleSettings Settings;
+		};
+	}
+
+	namespace esv
+	{
+		struct LoadProtocol : public net::Protocol
+		{
+			struct PeerModSettings
+			{
+				PeerId peerId;
+				ModuleSettings modSettings;
+			};
+
+			using HandleModuleLoadedProc = bool(LoadProtocol* self, PeerModSettings& peerModSettings, ModuleSettings& hostModSettings);
+
+			struct ModInfo
+			{
+				FixedString field_0;
+				STDWString WStr;
+				ModuleSettings ModuleSettings;
+				FixedString SessionGuid;
+				FixedString field_78;
+				FixedString LevelName;
+				FixedString DescLevelName;
+				FixedString field_90;
+				BYTE field_98;
+				char SomeMapFlag;
+				char field_9A;
+				char field_9B;
+				char field_9C;
+			};
+
+
+			struct ModuleLoaded
+			{
+				int PeerId;
+				ModuleSettings Settings;
+			};
+
+
+			struct SessionLoaded
+			{
+				int PeerId;
+				FixedString field_8;
+			};
+
+
+			struct LevelLoaded
+			{
+				int PeerId;
+				FixedString field_8;
+			};
+
+
+			struct FileTransferOutboxItem
+			{
+				int PeerId;
+				__int16 UserId_M;
+				ObjectSet<FixedString> OS_FixedString;
+				ObjectSet<Path> OS_Path;
+			};
+
+
+			void* EventManagerVMT;
+			int State;
+			bool field_1C;
+			ModInfo CurrentModInfo;
+			RefMap<FixedString, void*> field_C0;
+			void* field_D0;
+			int NumSwapReadyPeers;
+			int NumLevelStartPlayers;
+			void* ModInfo2;
+			int field_E8;
+			FixedString SessionGuid;
+			FixedString SomeGuid;
+			bool field_100;
+			bool field_101;
+			bool field_102;
+			ObjectSet<LevelLoaded> OS_LevelLoaded;
+			ObjectSet<SessionLoaded> OS_SessionLoaded;
+			ObjectSet<ModuleLoaded> OS_ModuleLoaded;
+			ObjectSet<void*> OS_pILevelStartCheck;
+			uint16_t Flags;
+			ObjectSet<FileTransferOutboxItem> OS_FileTransferOutbox;
+			void* ModulePacker;
 		};
 	}
 }

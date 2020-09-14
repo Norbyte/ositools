@@ -76,6 +76,9 @@ namespace dse::esv
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 
 			ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
 
+		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
+			ModuleSettings& hostModSettings);
+
 		void ThrowStatusHitEnter(esv::Status* status);
 		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,
 			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,

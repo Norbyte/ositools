@@ -429,8 +429,8 @@ namespace dse::lua
 			lua_newtable(L);
 			setfield(L, "UUID", module->Info.ModuleUUID);
 			setfield(L, "Name", module->Info.Name);
-			setfield(L, "Version", module->Info.Version);
-			setfield(L, "PublishVersion", module->Info.PublishVersion);
+			setfield(L, "Version", module->Info.ModVersion.Ver);
+			setfield(L, "PublishVersion", module->Info.PublishVersion.Ver);
 			setfield(L, "Directory", module->Info.Directory);
 			setfield(L, "Author", module->Info.Author);
 			setfield(L, "Description", module->Info.Description);

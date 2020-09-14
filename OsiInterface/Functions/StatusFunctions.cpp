@@ -957,6 +957,92 @@ namespace dse::esv
 	}
 
 
+	bool CustomFunctionLibrary::OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self,
+		LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)
+	{
+		auto validate = GetStaticSymbols().ModuleSettings__Validate;
+		if (validate != nullptr) {
+			ObjectSet<ModuleShortDesc> mismatches;
+
+			// Hashes work differently in vanilla / old extender, so ignore them if the peer has an old version
+			auto peerVersion = gOsirisProxy->GetNetworkManager().ServerGetPeerVersion(peerModSettings.peerId);
+			if (!peerVersion || *peerVersion < ScriptExtenderMessage::VerAddedKickMessage) {
+				for (auto& mod : peerModSettings.modSettings.Mods) {
+					mod.MD5 = "";
+				}
+
+				for (auto& mod : hostModSettings.Mods) {
+					mod.MD5 = "";
+				}
+			}
+
+			auto result = validate(hostModSettings, peerModSettings.modSettings, mismatches);
+
+			if (result != 0) {
+				STDWString userName = L"(Unknown)";
+				auto gameServer = (*GetStaticSymbols().EoCServer)->GameServer;
+				auto peer = gameServer->Peers.Find(peerModSettings.peerId);
+				if (peer != nullptr) {
+					peer->Users.Iterate([&userName](uint16_t const&, net::GameServer::UserInfo const& user) {
+						userName = user.UserName;
+					});
+				}
+
+				std::stringstream ss;
+				switch (result) {
+				case 2:
+				{
+					auto v0 = mismatches[0].Version;
+					auto v1 = mismatches[1].Version;
+					ss << "Client (" << ToUTF8(userName) << ") mod version of " << ToUTF8(mismatches[0].Name) << " (v"
+						<< v1.Major() << "." << v1.Minor() << "." << v1.Revision() << "." << v1.Build()
+						<< ") doesn't match servers (v" 
+						<< v0.Major() << "." << v0.Minor() << "." << v0.Revision() << "." << v0.Build()
+						<< ")";
+					break;
+				}
+
+				case 3:
+					ss << "Client (" << ToUTF8(userName) << ") mod hash of " << ToUTF8(mismatches[0].Name) << " (" << mismatches[1].MD5
+						<< ") doesn't match servers (" << mismatches[0].MD5 << ")";
+					break;
+
+				case 1:
+				default:
+					ss << "Client (" << ToUTF8(userName) << ") mod settings doesn't match servers";
+					break;
+				}
+
+				auto server = GetStaticSymbols().EoCServer;
+				if (server != nullptr) {
+					int32_t userId = peerModSettings.peerId << 16;
+					// We use the vanilla HostRefuse message for non-extender clients or old extender
+					// versions that don't support the kick message
+					if (peerVersion && *peerVersion >= ScriptExtenderMessage::VerAddedKickMessage) {
+						auto msg = gOsirisProxy->GetNetworkManager().GetFreeServerMessage(UserId(userId));
+						if (msg != nullptr) {
+							auto postMsg = msg->GetMessage().mutable_s2c_kick();
+							postMsg->set_message(ss.str().c_str());
+							gOsirisProxy->GetNetworkManager().ServerSend(msg, UserId(userId));
+						} else {
+							OsiErrorS("Could not get free message!");
+						}
+					} else {
+						auto host = (*server)->GameServer;
+						auto msg = host->GetFreeMessage<net::HostRefuseMessage>();
+						msg->ReasonCode = 4;
+						host->VMT->SendToPeer(host, &userId, msg);
+					}
+				}
+
+				gOsirisProxy->GetLibraryManager().ShowStartupError(FromUTF8(ss.str().c_str()), false);
+			}
+		}
+
+		return next(self, peerModSettings, hostModSettings);
+	}
+
+
 	void CustomFunctionLibrary::RegisterStatusFunctions()
 	{
 		auto & functionMgr = osiris_.GetCustomFunctionManager();

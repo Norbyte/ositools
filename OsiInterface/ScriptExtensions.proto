@@ -28,6 +28,7 @@ message MsgC2SRequestNetworkFixedStrings {
 
 // Notifies the server that the client supports extender messages
 message MsgC2SExtenderHello {
+  uint32 version = 1;
 }
 
 message StatRequirement {
@@ -72,6 +73,11 @@ message MsgS2CSyncStat {
   repeated StatPropertyList property_lists = 9;
 }
 
+// Disconnects a client with a server-defined message
+message MsgS2CKick {
+  string message = 1;
+}
+
 message MessageWrapper {
   oneof msg {
     MsgPostLuaMessage post_lua = 1;
@@ -80,5 +86,6 @@ message MessageWrapper {
     MsgC2SRequestNetworkFixedStrings c2s_request_strings = 4;
     MsgC2SExtenderHello c2s_extender_hello = 5;
     MsgS2CSyncStat s2c_sync_stat = 6;
+    MsgS2CKick s2c_kick = 7;
   }
 }

@@ -115,6 +115,20 @@ private:
 	bool loadingStats_{ false };
 };
 
+class ModuleHasher
+{
+public:
+	void PostStartup();
+
+private:
+	std::vector<Module*> hashStack_;
+	std::unordered_map<FixedString, STDString> hashCache_;
+
+	bool FetchHashFromCache(Module& mod);
+	void UpdateDependencyHashes(Module& mod);
+	bool OnModuleHash(Module::HashProc* next, Module* self);
+};
+
 class OsirisProxy
 {
 public:
@@ -282,6 +296,7 @@ private:
 	SavegameSerializer savegameSerializer_;
 	StatLoadOrderHelper statLoadOrderHelper_;
 	esv::HitProxy hitProxy_;
+	ModuleHasher hasher_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };

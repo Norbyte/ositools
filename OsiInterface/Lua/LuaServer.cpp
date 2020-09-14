@@ -1818,6 +1818,45 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int DumpNetworking(lua_State* L)
+	{
+		auto server = (*GetStaticSymbols().EoCServer)->GameServer;
+		auto loadProto = (esv::LoadProtocol*)server->Protocols[4];
+
+		INFO(" === NETWORK DUMP === ");
+		INFO("LoadProtocol state: %d", loadProto->State);
+		INFO("Received LEVEL_START: %d", loadProto->NumLevelStartPlayers);
+		INFO("Received SWAP_READY: %d", loadProto->NumSwapReadyPeers);
+
+		INFO("ModuleLoaded responses:");
+		for (auto const& load : loadProto->OS_ModuleLoaded) {
+			INFO("    Peer %d", load.PeerId);
+		}
+
+		INFO("SessionLoaded responses:");
+		for (auto const& load : loadProto->OS_SessionLoaded) {
+			INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
+		}
+
+		INFO("LevelLoaded responses:");
+		for (auto const& load : loadProto->OS_LevelLoaded) {
+			INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
+		}
+
+		INFO("FileTransferOutbox items:");
+		for (auto const& item : loadProto->OS_FileTransferOutbox) {
+			INFO("    Peer %d, user %d", item.PeerId, item.UserId_M);
+			for (auto const& path : item.OS_FixedString) {
+				INFO("        FS %s", path.Str);
+			}
+			for (auto const& path : item.OS_Path) {
+				INFO("        Path %s", path.Name.c_str());
+			}
+		}
+
+		return 0;
+	}
+
 	int RegisterOsirisListener(lua_State* L)
 	{
 		StackCheck _(L, 0);
@@ -1963,6 +2002,7 @@ namespace dse::esv::lua
 			// EXPERIMENTAL FUNCTIONS
 			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
 			{"DumpStack", DumpStackWrapper},
+			{"DumpNetworking", DumpNetworking},
 
 			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverrideWrapper},

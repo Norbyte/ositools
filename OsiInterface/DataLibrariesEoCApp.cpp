@@ -955,6 +955,46 @@ namespace dse
 		},
 
 		{
+			"ls::ModuleSettings::Validate",
+			SymbolMappingData::kText, 0,
+			"41 54 " // push    r12
+			"41 55 " // push    r13
+			"41 57 " // push    r15
+			"48 83 EC 40 " // sub     rsp, 40h
+			"44 8B 79 1C " // mov     r15d, [rcx+1Ch]
+			"4D 8B E8 " // mov     r13, r8
+			"8B 42 1C " // mov     eax, [rdx+1Ch]
+			"4C 8B E2 ", // mov     r12, rdx
+			{},
+			{"ls::ModuleSettings::Validate", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(ModuleSettings__Validate)}
+		},
+
+		{
+			"ls::Module::Hash",
+			SymbolMappingData::kText, 0,
+			"48 89 5C 24 20 " // mov     [rsp+arg_18], rbx
+			"57 " // push    rdi
+			"48 81 EC C0 00 00 00 " // sub     rsp, 0C0h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 84 24 B0 00 00 00 " // mov     [rsp+0C8h+var_18], rax
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:gEngine
+			"33 FF ", // xor     edi, edi
+			{},
+			{"ls::Module::Hash", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(Module__Hash)}
+		},
+
+		{
+			"esv::LoadProtocol::HandleModuleLoaded",
+			SymbolMappingData::kText, 0,
+			"48 8B 0D XX XX XX XX " // mov     rcx, cs:xxx
+			"4C 8D 3D XX XX XX XX " // lea     r15, "esv::LoadProtocol::HandleModuleLoaded"
+			"49 8B D8 ", // mov     rbx, r8
+			{SymbolMappingCondition::kString, 7, "esv::LoadProtocol::HandleModuleLoaded"},
+			{"esv::LoadProtocol::HandleModuleLoaded", SymbolMappingTarget::kAbsolute, -0x24, STATIC_SYM(esv__LoadProtocol__HandleModuleLoaded)}
+		},
+
+		{
 			"esv::Inventory::Equip",
 			SymbolMappingData::kText, 0,
 			"48 89 54 24 10 " // mov     [rsp-8+arg_8], rdx
