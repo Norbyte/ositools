@@ -1,6 +1,117 @@
 
 # Script Extender Changelogs
 
+## Changes in v52
+
+### Backwards incompatible changes
+
+Object handles were converted from `integer` to `lightuserdata` in v52. 
+This means that APIs that returned or accepted object handles now use `lightuserdata` parameters. 
+The usage of these APIs and the way parameters should be passed remains unchanged. 
+Since it is not possible construct object handles in code or manipulate object handles in any way apart from passing them to Ext APIs, this change is rather unlikely to break existing code.
+
+### Lua Debugger
+
+ - **Added support for debugging Lua code via the VS Code DAP**
+ - Added `Ext.DebugBreak()` function to trigger breakpoints from code
+ - Added "break on error" (trigger breakpoint if a Lua error is thrown)
+ - Added "break on error message" (trigger breakpoint if an error is logged from C++); useful for tracking down issues where there is an error message in the console but it is not possible to determine what causes it
+
+### Lua
+
+ - Added complete support for all engine statuses in `NRD_StatusGet*`, `NRD_StatusSet*`, `char:GetStatus()` and `char:GetStatusObject()`. (i.e. it's now possible to get/set fields like `DistancePerDamage` for `DAMAGE_ON_MOVE`, `TargetHandle` for `AoO`, etc.). The full list of properties is available here: https://github.com/Norbyte/ositools/blob/master/OsiInterface/Misc/ExtIdeHelpers.lua#L271
+ - Added Lua item cloning/construction. This is similar to the Osiris API but with a bit more features.
+ - Added better AI grid support via Ext.GetAiGrid(), grid:GetCellInfo(), grid:GetAiFlags(), grid:SetAiFlags()
+ - Remove Osiris call restriction in `StatusHitEnter` event
+ - Fix `Ext.UpdateShroud` coordinate handling
+ - Fix handling of flash reference types 2 and 11 (they were previously mapped as unknown; now Null and Object)
+
+### General
+
+ - Allow passing object handles as INTEGER64 to Osiris
+ - Character/Item/Projectile root templates now properly inherit properties from their parent classes
+ - Fixed crash during item cloning
+ - Log slow server ticks in console when in developer mode
+ - Fix crash during SkillProperties sync
+ - Make item property ShouldSyncStats writeable
+ - Fix bug where DLL files may get truncation during update if package verification or extraction fails
+ - Fix crash caused by incomplete treasure table update
+
+
+## Changes in v51
+
+### Lua
+
+ - Added `GetSkillAPCost` event; this event is triggered each time the AP use cost of a skill is being calculated and can be used to override the calculated value
+ - Added reference implementation for `GetSkillAPCost` to `Game.Math` library
+ - Added dynamic translated string support, i.e. creating/updating string keys or string handles on the fly via `Ext.CreateTranslatedStringKey`, `Ext.CreateTranslatedStringHandle`, `Ext.CreateTranslatedString`
+ - Added `BeforeShootProjectile`, `ShootProjectile` and `ProjectileHit` events
+ - Added `GroundHit` event; it is triggered when a character attacks the ground or a projectile hits the ground
+ - It is now possible to execute surface actions via the `Ext.CreateSurfaceAction` and `Ext.ExecuteSurfaceAction` functions; supported action types: `CreateSurfaceAction`, `CreatePuddleAction`, `ExtinguishFireAction`, `ZoneAction`, `TransformSurfaceAction`, `ChangeSurfaceOnPathAction`, `RectangleSurfaceAction`, `PolygonSurfaceAction`, `SwapSurfaceAction`. (Detailed type info about surface actions is in `ExtIdeHelpers`)
+ - The list of updateable stat types was expanded. Skill sets, equipment sets, treasure tables and item combos can now be created and updated using the Lua APIs `Ext.UpdateSkillSet`, `Ext.UpdateEquipmentSet`, `Ext.UpdateTreasureTable`, `Ext.UpdateTreasureCategory`, `Ext.UpdateItemCombo`, `Ext.UpdateItemComboPreviewData`, `Ext.UpdateItemComboProperty`
+ - Added `StatusType` property to statuses
+ - Setting boolean properties from Lua will no longer throw a nonexistent property error
+ - Add backwards compatibility with old table versions to `GetSkillDamageRange`
+
+ 
+### General
+
+ - Added the `LogFailedCompile` config option (enabled by default), that creates logfiles for story compilation at `Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Extender Logs`. In addition, the default path for story logs also changed to this directory from `My Documents\OsirisLogs`.
+ - Fix editor crash during logging initialization
+ - Fix unicode filename handling
+ - Fix backstab checks for skills where the engine doesn't specify a weapon
+
+
+## Changes in v50
+
+### Lua
+
+ - Added experimental property write support; this means that the properties of many Lua objects can now be written directly instead of relying on Osiris APIs
+ - Added support for capturing Osiris events via `Ext.RegisterOsirisListener`. It is currently possible to capture events, queries, DB inserts, PROCs and QRYs (user queries).
+ - Added `character:GetSkillInfo()` method to fetch character skill properties (similar to `NRD_SkillGetInt` in Osiris)
+ - Added `character:GetStatusObjects()` to handle statuses with multiple stacks (returns a separate object for each status instance)
+ - Added `item:GetInventoryItems()`, `item:GetOwnerCharacter()`, `character:GetInventoryItems()`, `character:GetItemBySlot()` methods to Lua client objects
+ - Added new character/item iterator functions (essentially the equivalents of common Osiris iterator functions):
+    - `CharacterLaunchIterator` --> `Ext.GetAllCharacters()`
+    - `CharacterLaunchIteratorAroundObject` --> `character:GetNearbyCharacters(radius)` or `item:GetNearbyCharacters(radius)`
+    - `ItemLaunchIterator` --> `Ext.GetAllItems()`
+    - `InventoryLaunchIterator` --> `character:GetInventoryItems()` or `item:GetInventoryItems()`
+    - `NRD_IterateStatuses` --> `character:GetStatuses()` or `item:GetStatuses()`
+    - `NRD_ItemIterateDeltaModifiers` --> `item:GetDeltaMods()` and `item:GetGeneratedBoosts()`
+    - `NRD_CharacterIterateSkills` --> `character:GetSkills()`
+ - Add `Ext.GetSurfaceTransformRules` and `Ext.UpdateSurfaceTransformRules`
+
+ - Fixed `Ext.GetTranslatedStringFromKey` to return the proper translated string
+ - Persistent variables will no longer be lost if a game is loaded and resaved without the mod being loaded
+ - Added `Ext.PostMessageToUser()` for sending messages directly using the UserID
+
+### Stats
+
+ - Added new functions for fetching crafting and item progression data: `Ext.GetItemCombo`, `Ext.GetItemComboPreviewData`, `Ext.GetItemComboProperty`, `Ext.GetItemGroup`, `Ext.GetNameGroup`
+ - Added `BeforeCraftingExecuteCombination` and `AfterCraftingExecuteCombination` events. These are triggered before/after a player crafts an item
+ - Added `TreasureItemGenerated` event. This is triggered when items are generated using the treasure table (quest rewards, containers, etc.)
+ - Fixed bug where the display name of skills/statuses changed to the translated string key after a call to `Ext.SyncStat()`
+ - Fixed bug where Requirements/MemorizationRequirements were duplicated after `Ext.SyncStat()`
+ - Fix crash when serializing unnamed property list
+ - Fix `Ext.GetStatEntries()`; calling it with a type that's not registered in the global fixed string pool didn't work
+ - Fixed bug where the `MyGuid` property of stats objects couldn't be read
+ 
+### UI
+
+A new UI function, `UIElement:GetRoot()` was added which provides direct access to the Flash main timeline object.
+Unlike the `SetValue` and `GetValue` functions, this provides full access to all properties and sub-properties in Flash.
+
+### General
+
+ - New properties added to `esv::Item` objects: Activated, OffStage, CanBePickedUp, CanBeMoved, WalkOn, WalkThrough, NoCover, CanShootThrough, CanUse, InteractionDisabled, Destroyed, LoadedTemplate, IsDoor, StoryItem, Summon, FreezeGravity, ForceSync, IsLadder, PositionChanged, Totem, Destroy, GMFolding, Sticky, DoorFlag, Floating, IsSurfaceBlocker, IsSurfaceCloudBlocker, SourceContainer, Frozen, TeleportOnUse, PinnedContainer, UnsoldGenerated, IsKey, Global, CanConsume, TreasureGenerated, UnEquipLocked, UseRemotely
+ - Added a fix to the MADNESS crash (aka cake crash, aka summon of summon crash, aka ...)
+ - Fixed incorrect handling of negative status durations
+ - Fixed bug where reserved User IDs were incorrectly treated as being assigned
+ - Fixed incorrect LevelManager mapping for the editor
+ - Fixed incorrect dual wielding check in Game.Math
+ - Fixed hit chance calculation in Game.Math
+ 
+
 ## Changes in v49
 
 ### UI
@@ -300,5 +411,3 @@ The following changes must be observed when migrating to v42:
  - Fix crash on failed module initialization
  - Fixed possible race condition during story definition generation
 
- 
- 
