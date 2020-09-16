@@ -332,7 +332,8 @@ end
 --- @param weapon StatItem
 function GetWeaponScalingRequirement(weapon)
     local requirementName
-    local largestRequirement = -1
+    -- Stat requirements without points (i.e. just "Strength") get -1 as their Param value, so we need a -2 minimum to capture them
+    local largestRequirement = -2
 
     for i, requirement in pairs(weapon.Requirements) do
         local reqName = requirement.Requirement
