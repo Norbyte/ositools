@@ -959,6 +959,16 @@ namespace dse
 		},
 
 		{
+			"esv::TransformSurfaceAction::Init",
+			SymbolMappingData::kText, 0,
+			"44 8B 47 24 " // mov     r8d, [rdi+24h]
+			"48 8D 0D XX XX XX XX " // lea     rcx, "TransformSurfaceAction Created! action: %u (%d:%s)"
+			"8B D0 ", // mov     edx, eax
+			{SymbolMappingCondition::kString, 4, "TransformSurfaceAction Created! action: %u (%d:%s)\n"},
+			{"esv::TransformSurfaceAction::Init", SymbolMappingTarget::kAbsolute, -0x46, STATIC_SYM(esv__TransformSurfaceAction__Init)},
+		},
+
+		{
 			"eoc::SkillPrototype::GetAttackAPCost",
 			SymbolMappingData::kText, 0,
 			"41 57 " // push    r15

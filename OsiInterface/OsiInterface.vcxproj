@@ -536,6 +536,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
   </ItemGroup>
   <ItemGroup>
     <None Include="..\APIDocs.md" />
+    <None Include="..\CHANGELOG.md" />
     <None Include="..\LuaAPIDocs.md" />
     <None Include="..\Misc\ExtIdeHelpers.lua" />
     <None Include="cpp.hint" />

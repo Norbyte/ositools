@@ -140,6 +140,7 @@ namespace dse
 
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };
+		esv::TransformSurfaceAction::InitProc* esv__TransformSurfaceAction__Init{ nullptr };
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };

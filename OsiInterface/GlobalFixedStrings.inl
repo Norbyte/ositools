@@ -183,6 +183,7 @@ FS(GameActionType);
 FS(StatAttributeFlags);
 FS(TalentType);
 FS(SurfaceType);
+FS(SurfaceLayer);
 FS(SurfaceActionType);
 FS(SurfaceTransformActionType);
 FS(ESurfaceFlag);

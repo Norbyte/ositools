@@ -1268,6 +1268,16 @@ namespace dse
 		},
 
 		{
+			"esv::TransformSurfaceAction::Init",
+			SymbolMappingData::kText, 0,
+			"4C 8D 0D XX XX XX XX " // lea     r9, xxx
+			"48 8D 0D XX XX XX XX " // lea     rcx, "TransformSurfaceAction Created! action: %u (%d:%s)"
+			"4C 8B 10 ", // mov     r10, [rax]
+			{SymbolMappingCondition::kString, 7, "TransformSurfaceAction Created! action: %u (%d:%s)\n"},
+			{"esv::TransformSurfaceAction::Init", SymbolMappingTarget::kAbsolute, -0x2A, STATIC_SYM(esv__TransformSurfaceAction__Init)},
+		},
+
+		{
 			"esv::Character::HasMadness",
 			SymbolMappingData::kText, SymbolMappingData::kAllowFail,
 			"48 8B 01 " // mov     rax, [rcx]

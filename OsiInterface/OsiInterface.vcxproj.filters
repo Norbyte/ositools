@@ -431,6 +431,9 @@
     <None Include="GlobalFixedStrings.inl">
       <Filter>Header Files\GameDefinitions</Filter>
     </None>
+    <None Include="..\CHANGELOG.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OsiInterface.rc">

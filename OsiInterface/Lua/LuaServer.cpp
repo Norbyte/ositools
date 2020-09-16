@@ -1611,6 +1611,14 @@ namespace dse::esv::lua
 
 		auto surfaceAction = action->Get(L);
 		surfaceAction->Level = level;
+
+		if (surfaceAction->VMT->GetTypeId(surfaceAction) == SurfaceActionType::TransformSurfaceAction) {
+			auto transform = reinterpret_cast<TransformSurfaceAction*>(surfaceAction);
+			GetStaticSymbols().esv__TransformSurfaceAction__Init(
+				transform, transform->SurfaceTransformAction, transform->SurfaceLayer, transform->OriginSurface
+			);
+		}
+
 		surfaceAction->VMT->Enter(surfaceAction);
 		level->SurfaceManager->SurfaceActions.Add(surfaceAction);
 		action->Unbind();

@@ -1041,7 +1041,7 @@ namespace dse
 			PROP(GrowTimer);
 			PROP(CurrentCellCount);
 			PROP(GrowStep);
-			PROP(SurfaceLayer);
+			PROP_ENUM(SurfaceLayer);
 		}
 
 		{
@@ -1149,10 +1149,10 @@ namespace dse
 			PROP(Timer);
 			PROP_ENUM(SurfaceTransformAction);
 			PROP_ENUM(OriginSurface);
-			PROP(SurfaceLayer);
+			PROP_ENUM(SurfaceLayer);
 			PROP(GrowCellPerSecond);
 			PROP_RO(Finished);
-			PROP(OwnerHandle2);
+			PROP(OwnerHandle);
 			PROP(Position);
 			PROP(SurfaceLifetime);
 			PROP(SurfaceStatusChance);

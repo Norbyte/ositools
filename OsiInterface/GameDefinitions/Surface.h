@@ -148,7 +148,7 @@ namespace dse
             int GrowStep;
             int CurrentCellCount;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
-            uint32_t SurfaceLayer; // Init param
+            SurfaceLayer SurfaceLayer; // Init param
         };
 
         struct ChangeSurfaceOnPathAction : public CreateSurfaceActionBase
@@ -190,14 +190,16 @@ namespace dse
 
         struct TransformSurfaceAction : public SurfaceAction
         {
+            using InitProc = void (TransformSurfaceAction* self, SurfaceTransformActionType, SurfaceLayer, SurfaceType);
+
             float Timer;
             SurfaceTransformActionType SurfaceTransformAction; // Init param
             SurfaceType OriginSurface; // Init param
-            int SurfaceLayer; // Init param
+            SurfaceLayer SurfaceLayer; // Init param
             float GrowCellPerSecond;
             bool Finished;
             void* CellSearcher;
-            ObjectHandle OwnerHandle2; // Init param
+            ObjectHandle OwnerHandle; // Init param
             glm::vec3 Position; // Init param
             float SurfaceLifetime; // Init param
             float SurfaceStatusChance; // Init param
