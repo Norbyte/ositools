@@ -1131,7 +1131,7 @@ namespace dse
 		RefMap<FixedString, void *> FSMap2;
 		FixedString TreasureItemTypes[7];
 		ObjectSet<FixedString, GameMemoryAllocator, true> ModifierFSSet;
-		ObjectSet<StatAttributeFlags> AttributeFlags;
+		ObjectSet<StatAttributeFlags*> AttributeFlags;
 		uint64_t unknown2[140];
 		CEquipmentSetManager * EquipmentSetManager;
 		CSkillSetManager * SkillSetManager;

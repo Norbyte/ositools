@@ -814,9 +814,10 @@ namespace dse
 		if (typeInfo->Name == GFS.strFixedString) {
 			return ModifierFSSet[index].Str;
 		} else if (typeInfo->Name == GFS.strAttributeFlags) {
-			if (index != -1) {
-				auto attrFlags = (uint64_t)AttributeFlags[index];
+			if (index > 0) {
+				auto attrFlags = (uint64_t)*AttributeFlags[index];
 				STDString flagsStr;
+
 				for (auto i = 0; i < 64; i++) {
 					if (attrFlags & (1ull << i)) {
 						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1ull << i));
@@ -962,11 +963,11 @@ namespace dse
 			}
 		} else if (typeInfo->Name == GFS.strAttributeFlags) {
 			auto attrFlagsIndex = object->IndexedProperties[attributeIndex];
-			if (attrFlagsIndex != -1) {
+			if (attrFlagsIndex > 0) {
 				auto & attrFlags = AttributeFlags[attrFlagsIndex];
 				auto flags = StringToAttributeFlags(value);
 				if (flags) {
-					attrFlags = *flags;
+					*attrFlags = *flags;
 				}
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Stats entry has no AttributeFlags");
