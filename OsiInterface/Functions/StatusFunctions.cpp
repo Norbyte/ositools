@@ -961,7 +961,9 @@ namespace dse::esv
 		LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)
 	{
 		auto validate = GetStaticSymbols().ModuleSettings__Validate;
-		if (validate != nullptr) {
+		if (validate != nullptr
+			// Don't validate local peer settings, as they can be wrong because of a bug with ArmorSets
+			&& peerModSettings.peerId != 1) {
 			ObjectSet<ModuleShortDesc> mismatches;
 
 			// Hashes work differently in vanilla / old extender, so ignore them if the peer has an old version
@@ -986,6 +988,18 @@ namespace dse::esv
 					peer->Users.Iterate([&userName](uint16_t const&, net::GameServer::UserInfo const& user) {
 						userName = user.UserName;
 					});
+				}
+
+				ERR("Validation rc = %d", result);
+				INFO("Server modlist:");
+				for (auto const& mod : hostModSettings.Mods) {
+					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
+				}
+
+				INFO("Server modlist:");
+				INFO("Client modlist:");
+				for (auto const& mod : peerModSettings.modSettings.Mods) {
+					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
 				}
 
 				std::stringstream ss;
