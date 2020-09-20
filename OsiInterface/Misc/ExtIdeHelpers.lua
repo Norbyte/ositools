@@ -1915,6 +1915,20 @@ function EsvCharacter.SetScale (self, scale) end
 
 
 
+--- @class EsvSurface
+--- @field public NetId integer
+--- @field public MyHandle ObjectHandle
+--- @field public SurfaceType string See SurfaceType enumeration
+--- @field public Flags integer
+--- @field public TeamId integer
+--- @field public OwnerHandle ObjectHandle
+--- @field public LifeTime number
+--- @field public LifeTimeFromTemplate boolean
+--- @field public StatusChance number
+--- @field public Index integer
+--- @field public OwnershipTimer number
+
+
 --- @class EsvShootProjectileRequest
 --- @field public SkillId string
 --- @field public Caster ObjectHandle
@@ -3933,6 +3947,11 @@ function Ext.GetItem (id) end
 --- @param handle ObjectHandle Game object handle
 --- @return EsvGameObject|EclGameObject
 function Ext.GetGameObject (handle) end
+
+--- Returns the property proxy of the specified surface
+--- @param handle ObjectHandle Surface handle
+--- @return EsvSurface
+function Ext.GetSurface (handle) end
 
 --- Returns the property proxy of the specified status
 --- @param characterGuid string Character GUID or handle
