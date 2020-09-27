@@ -1918,6 +1918,7 @@ namespace dse::ecl::lua
 			{"GetStatus", GetStatus},
 			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
+			{"GetSurfaceTemplate", GetSurfaceTemplate},
 			{"OsirisIsCallable", OsirisIsCallableClientWrapper},
 			{"IsDeveloperMode", IsDeveloperModeWrapper},
 			{"Random", LuaRandom},

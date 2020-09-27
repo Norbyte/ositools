@@ -297,6 +297,43 @@ local ItemTemplate = {}
 local ProjectileTemplate = {}
 
 
+--- @class SurfaceTemplateStatus
+--- @field public StatusId string
+--- @field public Chance number
+--- @field public Duration number
+--- @field public RemoveStatus boolean
+--- @field public OnlyWhileMoving boolean
+--- @field public ApplyToCharacters boolean
+--- @field public ApplyToItems boolean
+--- @field public KeepAlive boolean
+--- @field public VanishOnReapply boolean
+--- @field public ForceStatus boolean
+
+
+--- @class SurfaceTemplate : GameObjectTemplate
+--- @field public SurfaceTypeId integer
+--- @field public SurfaceType string
+--- @field public DisplayName string
+--- @field public Description string
+--- @field public DecalMaterial string
+--- @field public CanEnterCombat boolean
+--- @field public AlwaysUseDefaultLifeTime boolean
+--- @field public DefaultLifeTime number
+--- @field public SurfaceGrowTimer number
+--- @field public FadeInSpeed number
+--- @field public FadeOutSpeed number
+--- @field public Seed integer
+--- @field public Statuses SurfaceTemplateStatus[]
+--- @field public DamageWeapon string
+--- @field public Summon string
+--- @field public DamageCharacters boolean
+--- @field public DamageItems boolean
+--- @field public DamageTorches boolean
+--- @field public RemoveDestroyedItems boolean
+--- @field public CanSeeThrough boolean
+--- @field public CanShootThrough boolean
+
+
 -- FIXME EclStatus
 
 --- @class EsvStatus
@@ -1919,6 +1956,7 @@ function EsvCharacter.SetScale (self, scale) end
 --- @field public NetId integer
 --- @field public MyHandle ObjectHandle
 --- @field public SurfaceType string See SurfaceType enumeration
+--- @field public RootTemplate SurfaceTemplate
 --- @field public Flags integer
 --- @field public TeamId integer
 --- @field public OwnerHandle ObjectHandle

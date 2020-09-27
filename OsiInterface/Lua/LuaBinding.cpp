@@ -3,7 +3,8 @@
 #include <PropertyMaps.h>
 #include <GameDefinitions/Ai.h>
 #include <GameDefinitions/RootTemplates.h>
-#include "LuaBinding.h"
+#include <Lua/LuaSerializers.h>
+#include <Lua/LuaBinding.h>
 #include "resource.h"
 #include <fstream>
 
@@ -223,6 +224,43 @@ namespace dse::lua
 	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)
 	{
 		return GenericSetter(L, gProjectileTemplatePropertyMap);
+	}
+
+
+	char const* const ObjectProxy<SurfaceTemplate>::MetatableName = "eoc::SurfaceTemplate";
+
+	SurfaceTemplate* ObjectProxy<SurfaceTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "SurfaceTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<SurfaceTemplate>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		auto prop = checked_get<char const*>(L, 2);
+
+		if (strcmp(prop, "Statuses") == 0) {
+			return LuaWrite(L, obj->Statuses.Value);
+		}
+
+		return GenericGetter(L, gSurfaceTemplatePropertyMap);
+	}
+
+	int ObjectProxy<SurfaceTemplate>::NewIndex(lua_State* L)
+	{
+		auto obj = Get(L);
+		auto prop = checked_get<char const*>(L, 2);
+
+		if (strcmp(prop, "Statuses") == 0) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, obj->Statuses.Value);
+			lua_pop(L, 1);
+			return 0;
+		}
+
+		return GenericSetter(L, gSurfaceTemplatePropertyMap);
 	}
 
 
@@ -571,6 +609,7 @@ namespace dse::lua
 		ObjectProxy<ItemTemplate>::RegisterMetatable(L);
 		ObjectProxy<ProjectileTemplate>::RegisterMetatable(L);
 		ObjectProxy<CombatComponentTemplate>::RegisterMetatable(L);
+		ObjectProxy<SurfaceTemplate>::RegisterMetatable(L);
 		ObjectProxy<eoc::AiGrid>::RegisterMetatable(L);
 		DamageList::RegisterMetatable(L);
 	}

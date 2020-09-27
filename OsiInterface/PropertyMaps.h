@@ -106,6 +106,7 @@ namespace dse
 	extern PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
 	extern PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
 	extern PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
+	extern PropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
 
 	void InitPropertyMaps();
 

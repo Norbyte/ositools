@@ -358,6 +358,7 @@ namespace dse::lua
 	int EnumIndexToLabel(lua_State* L);
 	int EnumLabelToIndex(lua_State* L);
 	int NewDamageList(lua_State* L);
+	int GetSurfaceTemplate(lua_State* L);
 
 	int IsDeveloperModeWrapper(lua_State* L);
 	int AddPathOverrideWrapper(lua_State* L);

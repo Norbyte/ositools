@@ -632,6 +632,23 @@ namespace dse::lua
 		s.EndObject();
 		return s;
 	}
+
+	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v)
+	{
+		s.BeginObject();
+		P(StatusId);
+		PO(Chance, 1.0f);
+		P(Duration);
+		PO(RemoveStatus, false);
+		PO(OnlyWhileMoving, false);
+		PO(ApplyToCharacters, true);
+		PO(ApplyToItems, true);
+		PO(KeepAlive, true);
+		PO(VanishOnReapply, false);
+		PO(ForceStatus, false);
+		s.EndObject();
+		return s;
+	}
 }
 
 #undef P

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Lua/LuaBinding.h>
+#include <GameDefinitions/RootTemplates.h>
 
 namespace dse::lua
 {
@@ -236,4 +237,5 @@ namespace dse::lua
 	void SerializeObjectProperty(LuaSerializer& s, CDivinityStats_Object_Property_Data*& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_List& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_DeltaModifier& v);
+	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v);
 }

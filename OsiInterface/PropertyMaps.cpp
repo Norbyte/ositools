@@ -94,6 +94,7 @@ namespace dse
 	PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
 	PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
 	PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
+	PropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
 
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
@@ -1470,6 +1471,32 @@ namespace dse
 			PROP_TPL(IsBoss);
 			PROP_TPL(IsInspector);
 			PROP_TPL(StartCombatRange);
+		}
+
+		{
+			BEGIN_PROPERTIES(gSurfaceTemplatePropertyMap, SurfaceTemplate);
+			propertyMap.Parent = &gGameObjectTemplatePropertyMap;
+			PROP_RO(SurfaceTypeId);
+			PROP_RO(SurfaceType);
+			PROP_TPL(DisplayName);
+			PROP_TPL(Description);
+			PROP_TPL(DecalMaterial);
+			PROP_TPL(CanEnterCombat);
+			PROP_TPL(AlwaysUseDefaultLifeTime);
+			PROP_TPL(DefaultLifeTime);
+			PROP_TPL(SurfaceGrowTimer);
+			PROP_TPL(FadeInSpeed);
+			PROP_TPL(FadeOutSpeed);
+			PROP_TPL(Seed);
+			// TODO - InstanceVisual, IntroFX, FX, StatusData
+			PROP_TPL(DamageWeapon);
+			PROP_TPL(Summon);
+			PROP_TPL(DamageCharacters);
+			PROP_TPL(DamageItems);
+			PROP_TPL(DamageTorches);
+			PROP_TPL(RemoveDestroyedItems);
+			PROP_TPL(CanSeeThrough);
+			PROP_TPL(CanShootThrough);
 		}
 	}
 

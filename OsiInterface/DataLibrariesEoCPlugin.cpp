@@ -946,6 +946,18 @@ namespace dse
 		},
 
 		{
+			"eoc::SurfaceTemplates",
+			SymbolMappingData::kText, 0,
+			"48 83 EC 50 " // sub     rsp, 50h
+			"48 63 F9 " // movsxd  rdi, ecx
+			"48 8D 35 XX XX XX XX " // lea     rsi, esv__gSurfaceTemplates
+			"83 FF 4E " // cmp     edi, 4Eh
+			"77 XX ", // ja      short xxx
+			{},
+			{"eoc::SurfaceTemplates", SymbolMappingTarget::kIndirect, 7, STATIC_SYM(eoc__SurfaceTemplates)}
+		},
+
+		{
 			"esv::SurfaceActionFactory",
 			SymbolMappingData::kText, 0,
 			"BA 04 00 00 00 " // mov     edx, 4

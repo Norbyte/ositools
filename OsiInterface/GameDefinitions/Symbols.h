@@ -13,6 +13,7 @@
 #include <GameDefinitions/TurnManager.h>
 #include <GameDefinitions/UI.h>
 #include <GameDefinitions/Surface.h>
+#include <GameDefinitions/RootTemplates.h>
 
 namespace dse
 {
@@ -171,6 +172,7 @@ namespace dse
 		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
 		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
 		eoc::SurfaceTransformInteractions* eoc__SurfaceTransformActionsFromType{ nullptr };
+		SurfaceTemplate** eoc__SurfaceTemplates{ nullptr };
 		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
 
 		GlobalStringTable const ** GlobalStrings{ nullptr };
@@ -427,6 +429,15 @@ namespace dse
 			}
 
 			return repo;
+		}
+
+		inline SurfaceTemplate* GetSurfaceTemplate(SurfaceType type) const
+		{
+			if (eoc__SurfaceTemplates != nullptr && type <= SurfaceType::Sentinel) {
+				return eoc__SurfaceTemplates[(unsigned)type];
+			} else {
+				return nullptr;
+			}
 		}
 
 

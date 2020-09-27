@@ -466,6 +466,19 @@ namespace dse::lua
 		return 1;
 	}
 
+	int GetSurfaceTemplate(lua_State* L)
+	{
+		auto surfaceType = checked_get<SurfaceType>(L, 1);
+		auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surfaceType);
+		if (tmpl != nullptr) {
+			ObjectProxy<SurfaceTemplate>::New(L, tmpl);
+		} else {
+			LuaError("Couldn't fetch surface template of type " << (unsigned)surfaceType);
+			push(L, nullptr);
+		}
+		return 1;
+	}
+
 	bool IsDeveloperMode(lua_State * L)
 	{
 		return gOsirisProxy->GetConfig().DeveloperMode;

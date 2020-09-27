@@ -656,6 +656,20 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Surface>::Index(lua_State* L)
 	{
+		auto surface = Get(L);
+		auto prop = checked_get<char const*>(L, 2);
+
+		if (strcmp(prop, "RootTemplate") == 0) {
+			auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surface->SurfaceType);
+			if (tmpl != nullptr) {
+				ObjectProxy<SurfaceTemplate>::New(L, tmpl);
+			} else {
+				LuaError("Couldn't fetch surface template of type " << (unsigned)surface->SurfaceType);
+				push(L, nullptr);
+			}
+			return 1;
+		}
+
 		return GenericGetter(L, gEsvSurfacePropertyMap);
 	}
 
@@ -1964,6 +1978,7 @@ namespace dse::esv::lua
 			{"GetSurface", GetSurface},
 			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
+			{"GetSurfaceTemplate", GetSurfaceTemplate},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"IsDeveloperMode", IsDeveloperModeWrapper},
 			{"Random", LuaRandom},

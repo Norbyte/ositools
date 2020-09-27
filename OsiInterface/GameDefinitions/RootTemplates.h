@@ -257,6 +257,64 @@ namespace dse
         OverrideableProperty<bool> AllowSummonTeleport;
     };
 
+    struct SurfaceTemplate : public GameObjectTemplate
+    {
+        struct VisualData
+        {
+            FixedString Visual;
+            float Height;
+            uint8_t gapC[4];
+            int Rotation[2];
+            float Scale[2];
+            float GridSize;
+            int SpawnCell;
+            float RandomPlacement;
+            float SurfaceNeeded;
+            float SurfaceRadiusMax;
+        };
+
+
+        struct StatusData
+        {
+            FixedString StatusId;
+            float Chance;
+            float Duration;
+            bool RemoveStatus;
+            bool OnlyWhileMoving;
+            bool ApplyToCharacters;
+            bool ApplyToItems;
+            bool KeepAlive;
+            bool VanishOnReapply;
+            bool ForceStatus;
+        };
+
+
+        int SurfaceTypeId;
+        FixedString SurfaceType;
+        OverrideableProperty<TranslatedString> DisplayName;
+        OverrideableProperty<TranslatedString> Description;
+        OverrideableProperty<FixedString> DecalMaterial;
+        OverrideableProperty<bool> CanEnterCombat;
+        OverrideableProperty<bool> AlwaysUseDefaultLifeTime;
+        OverrideableProperty<float> DefaultLifeTime;
+        OverrideableProperty<float> SurfaceGrowTimer;
+        OverrideableProperty<float> FadeInSpeed;
+        OverrideableProperty<float> FadeOutSpeed;
+        OverrideableProperty<int> Seed;
+        OverrideableProperty<ObjectSet<VisualData>> InstanceVisual;
+        OverrideableProperty<ObjectSet<VisualData>> IntroFX;
+        OverrideableProperty<ObjectSet<VisualData>> FX;
+        OverrideableProperty<ObjectSet<StatusData>> Statuses;
+        OverrideableProperty<FixedString> DamageWeapon;
+        OverrideableProperty<FixedString> Summon;
+        OverrideableProperty<bool> DamageCharacters;
+        OverrideableProperty<bool> DamageItems;
+        OverrideableProperty<bool> DamageTorches;
+        OverrideableProperty<bool> RemoveDestroyedItems;
+        OverrideableProperty<bool> CanSeeThrough;
+        OverrideableProperty<bool> CanShootThrough;
+    };
+
     struct ProjectileTemplate : public EoCGameObjectTemplate
     {
         float LifeTime;
