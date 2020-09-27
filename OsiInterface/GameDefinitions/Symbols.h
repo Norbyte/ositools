@@ -144,6 +144,8 @@ namespace dse
 
 		ecl::EoCClient ** EoCClient{ nullptr };
 		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };
+		App** AppInstance{ nullptr };
+		App::VMT::OnInputEventProc* App__OnInputEvent{ nullptr };
 
 		uint8_t const * UICharacterSheetHook{ nullptr };
 		uint8_t const * ActivateClientSystemsHook{ nullptr };

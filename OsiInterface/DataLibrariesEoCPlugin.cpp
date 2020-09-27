@@ -1098,6 +1098,14 @@ namespace dse
 			CriticalInitFailed = true;
 		}
 
+		auto appInstance = GetProcAddress(gameEngine_, "?s_AppInstance@BaseApp@@1PEAV1@EA");
+		sym.AppInstance = (App**)appInstance;
+
+		if (sym.AppInstance == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find App instance");
+			InitFailed = true;
+		}
+
 		auto registerUIObjectCreatorProc = GetProcAddress(gameEngine_, "?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z");
 		auto createUIObjectProc = GetProcAddress(gameEngine_, "?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z");
 		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");

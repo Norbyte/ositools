@@ -122,6 +122,25 @@ namespace dse
 		int32_t Ticks;
 	};
 
+	struct InputValue
+	{
+		int field_0;
+		int field_4;
+		bool field_8;
+	};
+
+	struct InputEvent
+	{
+		int EventId;
+		int InputPlayerIndex;
+		int16_t InputDeviceId;
+		InputValue OldValue;
+		InputValue NewValue;
+		InputType Type;
+		bool WasPreferred;
+	};
+
+
 	struct TranslatedArgumentString
 	{
 		void* VMT{ nullptr };
@@ -330,4 +349,29 @@ namespace dse
 	};
 
 	extern TempStrings gTempStrings;
+
+	struct App
+	{
+	public:
+		struct VMT
+		{
+			using OnInputEventProc = void (App* self, uint16_t& retval, InputEvent const& inputEvent);
+
+			void* Destroy;
+			void* GetInputListenerPriority;
+			void* GetInputListenerFilter;
+			void* GetInputListenerName;
+			void* IsModal;
+			void* InTextInput;
+			OnInputEventProc* OnInputEvent;
+			void* OnInputModifierChangedEvent;
+			void* OnInputEventText;
+			void* OnUnlinkedInput;
+		};
+
+		VMT* __vftable;
+		void* InputDeviceListenerVMT;
+		void* WindowEventListenerVMT;
+		void* API;
+	};
 }

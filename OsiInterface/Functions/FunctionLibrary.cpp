@@ -269,6 +269,9 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__LoadProtocol__HandleModuleLoaded.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnPeerModuleLoaded, this, _1, _2, _3, _4)
 		);
+		osiris_.GetLibraryManager().App__OnInputEvent.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnAppInputEvent, this, _1, _2, _3)
+		);
 
 		PostLoaded = true;
 	}

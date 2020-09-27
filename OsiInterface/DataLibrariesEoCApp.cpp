@@ -1342,6 +1342,19 @@ namespace dse
 			{},
 			{"esv::ExecutePropertyDataOnGroundHit", SymbolMappingTarget::kAbsolute, -0x12, STATIC_SYM(esv__ExecutePropertyDataOnGroundHit)}
 		},
+
+		{
+			"App::Instance",
+			SymbolMappingData::kText, 0,
+			"48 89 45 2F " // mov     [rbp+57h+var_28], rax
+			"48 8B F1 " // mov     rsi, rcx
+			"BA 02 00 00 00 " // mov     edx, 2
+			"48 8B 0D XX XX XX XX " //  mov     rcx, cs:qword_142959A50
+			"48 8B 01 " // mov     rax, [rcx]
+			"FF 90 40 02 00 00 ", // call    qword ptr [rax+240h]
+			{},
+			{"App::Instance", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(AppInstance)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

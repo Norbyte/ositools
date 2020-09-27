@@ -423,8 +423,8 @@ namespace dse
 		Vector<CDivinityStats_Equipment_Attributes *> DynamicAttributes;
 		uint64_t U9[1];
 		StatAttributeFlags AttributeFlags;
-		int32_t MaxCharges; // -1 = Not overridden
-		int32_t Charges; // -1 = Not overridden
+		int32_t MaxCharges; // Saved; -1 = Not overridden
+		int32_t Charges; // Saved; -1 = Not overridden
 		uint8_t LevelGroupIndex;
 		uint8_t RootGroupIndex;
 		uint8_t NameGroupIndex;

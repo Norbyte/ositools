@@ -487,6 +487,10 @@ namespace dse
 
 			auto& sym = GetStaticSymbols();
 
+			if (sym.AppInstance != nullptr && *sym.AppInstance != nullptr) {
+				sym.App__OnInputEvent = (*sym.AppInstance)->__vftable->OnInputEvent;
+			}
+
 			if (sym.StatusHealVMT != nullptr) {
 				sym.esv__Status__GetEnterChance = sym.StatusHealVMT->GetEnterChance;
 				sym.esv__StatusHeal__Enter = sym.StatusHealVMT->Enter;

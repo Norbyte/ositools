@@ -76,6 +76,8 @@ namespace dse::esv
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 
 			ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
 
+
+		void OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent);
 		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
 			ModuleSettings& hostModSettings);
 

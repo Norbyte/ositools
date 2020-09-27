@@ -30,3 +30,4 @@ HOOK_DEFN(esv__ItemHelpers__GenerateTreasureItem, esv__ItemHelpers__GenerateTrea
 HOOK_DEFN(esv__CombineManager__ExecuteCombination, esv__CombineManager__ExecuteCombination, esv::CombineManager::ExecuteCombinationProc, WrappableFunction)
 HOOK_DEFN(esv__LoadProtocol__HandleModuleLoaded, esv__LoadProtocol__HandleModuleLoaded, esv::LoadProtocol::HandleModuleLoadedProc, WrappableFunction)
 HOOK_DEFN(Module__Hash, Module__Hash, Module::HashProc, WrappableFunction)
+HOOK_DEFN(App__OnInputEvent, App__OnInputEvent, App::VMT::OnInputEventProc, PreHookableFunction)
