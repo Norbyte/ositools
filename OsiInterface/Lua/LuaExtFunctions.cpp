@@ -1027,7 +1027,10 @@ namespace dse::lua
 			return 0;
 		}
 
-		if (attributeFS == GFS.strRequirements) {
+		if (attributeFS == GFS.strLevel) {
+			object->Level = (int32_t)luaL_checkinteger(L, valueIdx);
+			return 0;
+		} else if (attributeFS == GFS.strRequirements) {
 			LuaRead(L, object->Requirements);
 			return 0;
 		} else if (attributeFS == GFS.strMemorizationRequirements) {
