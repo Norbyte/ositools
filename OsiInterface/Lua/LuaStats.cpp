@@ -307,10 +307,7 @@ namespace dse::lua
 		auto stats = Get(L);
 		if (!stats) return 0;
 
-		auto prop = luaL_checkstring(L, 2);
-		auto& propMap = obj_->GetPropertyMap();
-		auto fetched = LuaPropertyMapGet(L, propMap, stats, prop, true);
-		return fetched ? 1 : 0;
+		return GenericGetter(L, stats->GetPropertyMap());
 	}
 
 	int ObjectProxy<CDivinityStats_Equipment_Attributes>::NewIndex(lua_State* L)
@@ -318,8 +315,7 @@ namespace dse::lua
 		auto stats = Get(L);
 		if (!stats) return 0;
 
-		auto& propMap = obj_->GetPropertyMap();
-		return GenericSetter(L, propMap);
+		return GenericSetter(L, stats->GetPropertyMap());
 	}
 
 
@@ -334,12 +330,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterDynamicStat>::Index(lua_State* L)
 	{
-		auto stats = Get(L);
-		if (!stats) return 0;
-
-		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gCharacterDynamicStatPropertyMap, stats, prop, true);
-		return fetched ? 1 : 0;
+		return GenericGetter(L, gCharacterDynamicStatPropertyMap);
 	}
 
 	int ObjectProxy<CharacterDynamicStat>::NewIndex(lua_State* L)

@@ -4,43 +4,6 @@
 
 namespace dse::lua
 {
-#if !defined(NDEBUG)
-	struct StackCheck
-	{
-		inline StackCheck(lua_State* state, int delta = 0)
-			: L(state)
-		{
-			expectedTop = lua_gettop(L) + delta;
-		}
-
-		~StackCheck()
-		{
-			// During stack unwinding the topmost frame will clean up the stack,
-			// so frames where we didn't reach the catch{} handler yet may see incorrect results
-			if (std::uncaught_exceptions() > 0) return;
-
-			int newTop = lua_gettop(L);
-			if (newTop != expectedTop) {
-				// DebugBreak() crashes without a debugger
-				if (IsDebuggerPresent()) {
-					DebugBreak();
-				} else {
-					luaL_error(L, "Stack check failed! Top is %d, expected %d", newTop, expectedTop);
-				}
-			}
-		}
-
-		lua_State* L;
-		int expectedTop;
-	};
-#else
-	struct StackCheck
-	{
-		inline StackCheck(lua_State* state, int delta = 0)
-		{}
-	};
-#endif
-
 	class LuaSerializer : Noncopyable<LuaSerializer>
 	{
 	public:

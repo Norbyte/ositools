@@ -8,6 +8,46 @@
 
 namespace dse::lua
 {
+#if !defined(NDEBUG)
+	// Ensures that the size of the Lua stack matches the expected value.
+	// Since there are no built-in checks in Lua function boundaries, an incorrect push
+	// may keep populating the stack with unused items and cause a stack overflow after some time.
+	struct StackCheck
+	{
+		inline StackCheck(lua_State* state, int delta = 0)
+			: L(state)
+		{
+			expectedTop = lua_gettop(L) + delta;
+		}
+
+		~StackCheck()
+		{
+			// During stack unwinding the topmost frame will clean up the stack,
+			// so frames where we didn't reach the catch{} handler yet may see incorrect results
+			if (std::uncaught_exceptions() > 0) return;
+
+			int newTop = lua_gettop(L);
+			if (newTop != expectedTop) {
+				// DebugBreak() crashes without a debugger
+				if (IsDebuggerPresent()) {
+					DebugBreak();
+				} else {
+					luaL_error(L, "Stack check failed! Top is %d, expected %d", newTop, expectedTop);
+				}
+			}
+		}
+
+		lua_State* L;
+		int expectedTop;
+	};
+#else
+	struct StackCheck
+	{
+		inline StackCheck(lua_State* state, int delta = 0)
+		{}
+	};
+#endif
+
 	template <class TValue>
 	inline void setfield(lua_State* L, char const* k, TValue const& v, int index = -2)
 	{

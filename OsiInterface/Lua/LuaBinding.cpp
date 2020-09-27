@@ -132,12 +132,7 @@ namespace dse::lua
 
 	int ObjectProxy<CombatComponentTemplate>::Index(lua_State* L)
 	{
-		auto obj = Get(L);
-		if (!obj) return 0;
-
-		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gCombatComponentTemplatePropertyMap, obj, prop, true);
-		return fetched ? 1 : 0;
+		return GenericGetter(L, gCombatComponentTemplatePropertyMap);
 	}
 
 	int ObjectProxy<CombatComponentTemplate>::NewIndex(lua_State* L)
@@ -222,12 +217,7 @@ namespace dse::lua
 
 	int ObjectProxy<ProjectileTemplate>::Index(lua_State* L)
 	{
-		auto obj = Get(L);
-		if (!obj) return 0;
-
-		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gProjectileTemplatePropertyMap, obj, prop, true);
-		return fetched ? 1 : 0;
+		return GenericGetter(L, gProjectileTemplatePropertyMap);
 	}
 
 	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)

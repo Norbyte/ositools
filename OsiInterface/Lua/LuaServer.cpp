@@ -72,19 +72,11 @@ namespace dse::lua
 
 	int ObjectProxy<esv::PlayerCustomData>::Index(lua_State* L)
 	{
-		auto customData = Get(L);
-		if (!customData) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		StackCheck _(L, 0);
 		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
@@ -532,9 +524,6 @@ namespace dse::lua
 
 	int ObjectProxy<eoc::ItemDefinition>::Index(lua_State* L)
 	{
-		auto request = Get(L);
-		if (!request) return 0;
-
 		StackCheck _(L, 1);
 		auto prop = checked_get<FixedString>(L, 2);
 		if (prop == GFS.strResetProgression) {
@@ -557,9 +546,7 @@ namespace dse::lua
 			return 1;
 		}
 
-		bool fetched = LuaPropertyMapGet(L, gEoCItemDefinitionPropertyMap, request, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, gEoCItemDefinitionPropertyMap);
 	}
 
 	int ObjectProxy<eoc::ItemDefinition>::NewIndex(lua_State* L)
@@ -603,19 +590,11 @@ namespace dse::lua
 
 	int ObjectProxy<esv::ShootProjectileHelper>::Index(lua_State* L)
 	{
-		auto request = Get(L);
-		if (!request) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		bool fetched = LuaPropertyMapGet(L, gShootProjectileHelperPropertyMap, request, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, gShootProjectileHelperPropertyMap);
 	}
 
 	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
 	{
-		StackCheck _(L, 0);
 		return GenericSetter(L, gShootProjectileHelperPropertyMap);
 	}
 
@@ -655,7 +634,6 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
-		StackCheck _(L, 0);
 		return GenericSetter(L, gProjectilePropertyMap);
 	}
 
@@ -678,21 +656,11 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Surface>::Index(lua_State* L)
 	{
-		auto surface = Get(L);
-		if (!surface) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
-
-		auto fetched = LuaPropertyMapGet(L, gEsvSurfacePropertyMap, surface, propFS, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, gEsvSurfacePropertyMap);
 	}
 
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
-		StackCheck _(L, 0);
 		return GenericSetter(L, gEsvSurfacePropertyMap);
 	}
 
@@ -706,30 +674,30 @@ namespace dse::lua
 		return nullptr;
 	}
 
-	PropertyMapBase* GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
+	PropertyMapBase& GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
 	{
 		switch (action->VMT->GetTypeId(action)) {
 		case SurfaceActionType::CreateSurfaceAction:
-			return &gEsvCreateSurfaceActionPropertyMap;
+			return gEsvCreateSurfaceActionPropertyMap;
 		case SurfaceActionType::CreatePuddleAction:
-			return &gEsvCreatePuddleActionPropertyMap;
+			return gEsvCreatePuddleActionPropertyMap;
 		case SurfaceActionType::ExtinguishFireAction:
-			return &gEsvExtinguishFireActionPropertyMap;
+			return gEsvExtinguishFireActionPropertyMap;
 		case SurfaceActionType::ZoneAction:
-			return &gEsvZoneActionPropertyMap;
+			return gEsvZoneActionPropertyMap;
 		case SurfaceActionType::TransformSurfaceAction:
-			return &gEsvTransformSurfaceActionPropertyMap;
+			return gEsvTransformSurfaceActionPropertyMap;
 		case SurfaceActionType::ChangeSurfaceOnPathAction:
-			return &gEsvChangeSurfaceOnPathActionPropertyMap;
+			return gEsvChangeSurfaceOnPathActionPropertyMap;
 		case SurfaceActionType::RectangleSurfaceAction:
-			return &gEsvRectangleSurfaceActionPropertyMap;
+			return gEsvRectangleSurfaceActionPropertyMap;
 		case SurfaceActionType::PolygonSurfaceAction:
-			return &gEsvPolygonSurfaceActionPropertyMap;
+			return gEsvPolygonSurfaceActionPropertyMap;
 		case SurfaceActionType::SwapSurfaceAction:
-			return &gEsvSwapSurfaceActionPropertyMap;
+			return gEsvSwapSurfaceActionPropertyMap;
 		default:
 			OsiError("No property map found for this surface type!");
-			return &gEsvSurfaceActionPropertyMap;
+			return gEsvSurfaceActionPropertyMap;
 		}
 	}
 
@@ -738,12 +706,7 @@ namespace dse::lua
 		auto action = Get(L);
 		if (!action) return 0;
 
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		auto propertyMap = GetSurfaceActionPropertyMap(action);
-		bool fetched = LuaPropertyMapGet(L, *propertyMap, action, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, GetSurfaceActionPropertyMap(action));
 	}
 
 	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
@@ -800,8 +763,8 @@ namespace dse::lua
 			return 0;
 		}
 
-		auto propertyMap = GetSurfaceActionPropertyMap(action);
-		return GenericSetter(L, *propertyMap);
+		auto const& propertyMap = GetSurfaceActionPropertyMap(action);
+		return GenericSetter(L, propertyMap);
 	}
 }
 

@@ -55,8 +55,27 @@ namespace dse::lua
 		}
 
 	protected:
+		int GenericGetter(lua_State* L, PropertyMapBase const& propertyMap)
+		{
+			StackCheck _(L, 1);
+			auto obj = Get(L);
+			if (!obj) {
+				push(L, nullptr);
+				return 1;
+			}
+
+			auto prop = luaL_checkstring(L, 2);
+			auto fetched = LuaPropertyMapGet(L, propertyMap, obj, prop, true);
+			if (!fetched) {
+				push(L, nullptr);
+			}
+
+			return 1;
+		}
+
 		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap)
 		{
+			StackCheck _(L, 0);
 			auto obj = Get(L);
 			if (!obj) return 0;
 

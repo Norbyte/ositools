@@ -74,19 +74,11 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::PlayerCustomData>::Index(lua_State* L)
 	{
-		auto customData = Get(L);
-		if (!customData) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		auto fetched = LuaPropertyMapGet(L, gPlayerCustomDataPropertyMap, customData, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
+		return GenericGetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	{
-		StackCheck _(L, 0);
 		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
