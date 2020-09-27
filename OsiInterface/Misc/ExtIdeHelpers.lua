@@ -2172,6 +2172,18 @@ local EsvTransformSurfaceAction = {}
 --- @field public Dependencies string[] Dependency mod UUID-s
 local ModInfo = {}
 
+--- @class StatSkillSet
+--- @field public Name string
+--- @field public Skills string[]
+
+--- @class StatEquipmentGroup
+--- @field public Name string
+--- @field public Equipment string[]
+
+--- @class StatEquipmentSet
+--- @field public Name string
+--- @field public Groups StatEquipmentGroup[]
+
 --- @class DeltaModBoost
 --- @field public Boost string
 --- @field public Count integer
@@ -3764,6 +3776,24 @@ function Ext.GetStatEntries (type) end
 --- @return string[]
 function Ext.GetStatEntriesLoadedBefore (modId, type) end
 
+--- Returns an attribute of the specified stat entry
+--- @param stat string Stat entry name
+--- @param attribute string Stat attribute name
+--- @return any
+function Ext.StatGetAttribute (stat, attribute) end
+
+--- Updates an attribute of the specified stat entry
+--- @param stat string Stat entry name
+--- @param attribute string Stat attribute name
+--- @param value any New stat value
+function Ext.StatSetAttribute (stat, attribute, value) end
+
+--- Adds a property description to the specified stat entry
+--- @param stat string Stat entry name
+--- @param attribute string Property list attribute name
+--- @param description any Description to add
+function Ext.StatAddCustomDescription (stat, attribute, description) end
+
 --- Returns all skills from the specified skill set
 --- @param name string Name of skill set entry
 --- @return StatSkillSet|nil
@@ -3783,24 +3813,6 @@ function Ext.GetEquipmentSet (name) end
 --- The function expects a table in the same format as the one returned by GetEquipmentSet.
 --- @param equipmentSet StatEquipmentSet
 function Ext.UpdateEquipmentSet (equipmentSet) end
-
---- Returns an attribute of the specified stat entry
---- @param stat string Stat entry name
---- @param attribute string Stat attribute name
---- @return any
-function Ext.StatGetAttribute (stat, attribute) end
-
---- Updates an attribute of the specified stat entry
---- @param stat string Stat entry name
---- @param attribute string Stat attribute name
---- @param value any New stat value
-function Ext.StatSetAttribute (stat, attribute, value) end
-
---- Adds a property description to the specified stat entry
---- @param stat string Stat entry name
---- @param attribute string Property list attribute name
---- @param description any Description to add
-function Ext.StatAddCustomDescription (stat, attribute, description) end
 
 --- Returns the specified DeltaMod or nil on failure
 --- @param name string Name of delta mod
@@ -3919,6 +3931,11 @@ function Ext.EnumLabelToIndex (enum, label) end
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
 function Ext.GetSurfaceTransformRules () end
+
+--- Returns the surface template for the specified surface type
+--- @param type string See SurfaceType enumeration
+--- @return SurfaceTemplate
+function Ext.GetSurfaceTemplate (type) end
 
 --- Updates the transformation rules that are applied when two neighbouring surfaces interact.
 --- @param rules SurfaceInteractionSet[][] New rules to apply
