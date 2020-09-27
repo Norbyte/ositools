@@ -48,7 +48,7 @@ namespace dse::lua
 
 		StackCheck _(L, 0);
 		auto& propertyMap = ClientStatusToPropertyMap(obj_);
-		return GenericSetter(L, propertyMap, true);
+		return GenericSetter(L, propertyMap);
 	}
 
 
@@ -87,7 +87,7 @@ namespace dse::lua
 	int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gPlayerCustomDataPropertyMap, true);
+		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 
@@ -260,7 +260,7 @@ namespace dse::lua
 
 	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gEclCharacterPropertyMap, true);
+		return GenericSetter(L, gEclCharacterPropertyMap);
 	}
 
 
@@ -417,7 +417,7 @@ namespace dse::lua
 	int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gEclItemPropertyMap, true);
+		return GenericSetter(L, gEclItemPropertyMap);
 	}
 }
 

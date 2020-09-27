@@ -19,8 +19,6 @@ namespace dse::lua
 	void PushExtFunction(lua_State * L, char const * func);
 	void PushModFunction(lua_State* L, char const* mod, char const* func);
 
-	extern bool gExperimentalPropertyWrites;
-
 	template <class T>
 	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>
 	{
@@ -57,17 +55,13 @@ namespace dse::lua
 		}
 
 	protected:
-		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap, bool isExperimental)
+		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap)
 		{
 			auto obj = Get(L);
 			if (!obj) return 0;
 
 			auto prop = luaL_checkstring(L, 2);
-			if (!isExperimental || gExperimentalPropertyWrites) {
-				LuaPropertyMapSet(L, 3, propertyMap, obj, prop, true);
-			} else {
-				OsiError("Property writes on Lua objects not enabled; contact Norbyte on Discord if you have a legitimate use case for this.");
-			}
+			LuaPropertyMapSet(L, 3, propertyMap, obj, prop, true);
 
 			return 0;
 		}

@@ -47,7 +47,7 @@ namespace dse::lua
 	{
 		StackCheck _(L, 0);
 		auto& propertyMap = StatusToPropertyMap(obj_);
-		return GenericSetter(L, propertyMap, true);
+		return GenericSetter(L, propertyMap);
 	}
 
 
@@ -85,7 +85,7 @@ namespace dse::lua
 	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gPlayerCustomDataPropertyMap, false);
+		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
 	void GetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
@@ -344,7 +344,7 @@ namespace dse::lua
 				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
 			}
 		} else {
-			return GenericSetter(L, gCharacterPropertyMap, true);
+			return GenericSetter(L, gCharacterPropertyMap);
 		}
 
 		return 0;
@@ -506,7 +506,7 @@ namespace dse::lua
 
 	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gItemPropertyMap, true);
+		return GenericSetter(L, gItemPropertyMap);
 	}
 
 
@@ -587,7 +587,7 @@ namespace dse::lua
 			return 0;
 		}
 
-		return GenericSetter(L, gEoCItemDefinitionPropertyMap, false);
+		return GenericSetter(L, gEoCItemDefinitionPropertyMap);
 	}
 
 
@@ -616,7 +616,7 @@ namespace dse::lua
 	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gShootProjectileHelperPropertyMap, false);
+		return GenericSetter(L, gShootProjectileHelperPropertyMap);
 	}
 
 
@@ -656,7 +656,7 @@ namespace dse::lua
 	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gProjectilePropertyMap, true);
+		return GenericSetter(L, gProjectilePropertyMap);
 	}
 
 
@@ -693,7 +693,7 @@ namespace dse::lua
 	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		return GenericSetter(L, gEsvSurfacePropertyMap, true);
+		return GenericSetter(L, gEsvSurfacePropertyMap);
 	}
 
 
@@ -801,7 +801,7 @@ namespace dse::lua
 		}
 
 		auto propertyMap = GetSurfaceActionPropertyMap(action);
-		return GenericSetter(L, *propertyMap, false);
+		return GenericSetter(L, *propertyMap);
 	}
 }
 

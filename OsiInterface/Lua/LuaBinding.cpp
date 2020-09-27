@@ -142,7 +142,7 @@ namespace dse::lua
 
 	int ObjectProxy<CombatComponentTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gCombatComponentTemplatePropertyMap, true);
+		return GenericSetter(L, gCombatComponentTemplatePropertyMap);
 	}
 
 
@@ -174,7 +174,7 @@ namespace dse::lua
 
 	int ObjectProxy<CharacterTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gCharacterTemplatePropertyMap, true);
+		return GenericSetter(L, gCharacterTemplatePropertyMap);
 	}
 
 
@@ -206,7 +206,7 @@ namespace dse::lua
 
 	int ObjectProxy<ItemTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gItemTemplatePropertyMap, true);
+		return GenericSetter(L, gItemTemplatePropertyMap);
 	}
 
 
@@ -232,7 +232,7 @@ namespace dse::lua
 
 	int ObjectProxy<ProjectileTemplate>::NewIndex(lua_State* L)
 	{
-		return GenericSetter(L, gProjectileTemplatePropertyMap, true);
+		return GenericSetter(L, gProjectileTemplatePropertyMap);
 	}
 
 
