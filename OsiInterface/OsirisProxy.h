@@ -62,6 +62,7 @@ struct ToolConfig
 	bool DeveloperMode{ true };
 #endif // defined(OSI_EXTENSION_BUILD)
 
+	bool ShowPerfWarnings{ false };
 	bool DumpNetworkStrings{ false };
 #if defined(OSI_EXTENSION_BUILD)
 	bool SyncNetworkStrings{ true };

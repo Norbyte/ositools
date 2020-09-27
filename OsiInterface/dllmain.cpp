@@ -55,6 +55,7 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "EnableLuaDebugger", config.EnableLuaDebugger);
 	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
 	ConfigGetBool(root, "DeveloperMode", config.DeveloperMode);
+	ConfigGetBool(root, "ShowPerfWarnings", config.ShowPerfWarnings);
 	ConfigGetBool(root, "EnableAchievements", config.EnableAchievements);
 
 	ConfigGetInt(root, "DebuggerPort", config.DebuggerPort);

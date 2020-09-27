@@ -184,7 +184,7 @@ namespace dse
 	int ExtenderProtocolServer::PostUpdate(GameTime* Time)
 	{
 #if defined(OSI_EOCAPP)
-		if (gOsirisProxy->GetConfig().DeveloperMode) {
+		if (gOsirisProxy->GetConfig().ShowPerfWarnings) {
 			auto currentTick = std::chrono::steady_clock::now();
 			auto realTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTick - LastTick).count();
 
