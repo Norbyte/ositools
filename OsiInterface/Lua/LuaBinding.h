@@ -135,12 +135,14 @@ namespace dse::lua
 	};
 
 
-	class StatsExtraDataProxy : public Userdata<StatsExtraDataProxy>, public Indexable, public Pushable<PushPolicy::None>
+	class StatsExtraDataProxy : public Userdata<StatsExtraDataProxy>, public Indexable, 
+		public NewIndexable, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
 
 		int Index(lua_State * L);
+		int NewIndex(lua_State * L);
 	};
 
 

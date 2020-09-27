@@ -489,10 +489,28 @@ namespace dse::lua
 		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
 		if (extraData != nullptr) {
 			push(L, *extraData);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
+	}
+
+	int StatsExtraDataProxy::NewIndex(lua_State* L)
+	{
+		auto stats = GetStaticSymbols().GetStats();
+		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
+
+		auto key = luaL_checkstring(L, 2);
+		auto value = checked_get<float>(L, 3);
+		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
+		if (extraData != nullptr) {
+			*extraData = value;
+		} else {
+			LuaError("Cannot set nonexistent ExtraData value '" << key << "'");
+		}
+
+		return 0;
 	}
 
 
