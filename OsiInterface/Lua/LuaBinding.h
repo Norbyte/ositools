@@ -289,6 +289,7 @@ namespace dse::lua
 		uint32_t oldFlags_;
 	};
 
+	void RegisterStatsObjects(lua_State* L);
 
 	int GetExtensionVersionWrapper(lua_State* L);
 	int GetGameVersionWrapper(lua_State* L);

@@ -501,6 +501,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <ClCompile Include="Lua\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\LuaSerializers.cpp" />
     <ClCompile Include="Lua\LuaServer.cpp" />
+    <ClCompile Include="Lua\LuaStats.cpp" />
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="NodeHooks.cpp" />
     <ClCompile Include="osidebug.pb.cc">
