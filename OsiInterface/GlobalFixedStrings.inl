@@ -29,6 +29,24 @@ FS(Source);
 FS(Target);
 FS(HitObject);
 FS(Handle);
+FS(Activated);
+FS(OffStage);
+FS(Destroyed);
+FS(Global);
+FS(IsPlayer);
+FS(Multiplayer);
+FS(InParty);
+FS(HostControl);
+FS(Dead);
+FS(HasOwner);
+FS(InDialog);
+FS(Summon);
+FS(CharacterControl);
+FS(InArena);
+FS(Deactivated);
+FS(MadePlayer);
+FS(IsGameMaster);
+FS(IsPossessed);
 FS_NAME(NullStringHandle, "ls::TranslatedStringRepository::s_HandleUnknown");
 
 // Game object funcs

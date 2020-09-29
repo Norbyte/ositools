@@ -877,9 +877,30 @@ namespace dse
 			// Character
 			PROP_RO(WorldPos);
 			PROP_RO(CurrentLevel);
-			PROP_FLAGS(Flags, esv::CharacterFlags, false);
-			PROP_FLAGS(Flags2, esv::CharacterFlags2, false);
-			PROP_FLAGS(Flags3, esv::CharacterFlags3, false);
+			PROP_FLAGS(Flags, esv::CharacterFlags, true);
+			PROP_FLAGS(Flags2, esv::CharacterFlags2, true);
+			PROP_FLAGS(Flags3, esv::CharacterFlags3, true);
+
+			// Make dangerous flags read-only
+			propertyMap.Flags[GFS.strIsPlayer].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strMultiplayer].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strInParty].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strHostControl].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strActivated].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strOffStage].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strDead].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strHasOwner].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strInDialog].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strSummon].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strCharacterControl].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strInArena].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strDeactivated].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strMadePlayer].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strMadePlayer].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strIsPossessed].Flags &= ~kPropWrite;
+
 			PROP_RO(Scale);
 			PROP(AnimationOverride);
 			PROP(WalkSpeedOverride);
@@ -924,8 +945,15 @@ namespace dse
 			PROP_RO(MyGuid);
 			// Item
 			PROP_RO(WorldPos);
-			PROP_FLAGS(Flags, esv::ItemFlags, false);
-			PROP_FLAGS(Flags2, esv::ItemFlags2, false);
+			PROP_FLAGS(Flags, esv::ItemFlags, true);
+			PROP_FLAGS(Flags2, esv::ItemFlags2, true);
+
+			// Make dangerous flags read-only
+			propertyMap.Flags[GFS.strActivated].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strOffStage].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
+			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
+
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
 			PROP(CustomDisplayName);
