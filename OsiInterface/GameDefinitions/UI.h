@@ -567,8 +567,8 @@ namespace dse
 		bool field_115;
 		int UIDesignedHeight;
 		int UIDesignedWidth;
-		RefMap<uint32_t, uint32_t> *field_120;
-		RefMap<uint32_t, uint32_t> *field_128;
+		Map<ObjectHandle, uint64_t> *LastFrameDirtyFlags;
+		Map<ObjectHandle, uint64_t> *CharacterDirtyFlags;
 		CRITICAL_SECTION CriticalSection;
 		SomeObject SomeObjects[4];
 		int64_t field_1D8;

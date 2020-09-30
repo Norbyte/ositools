@@ -1242,6 +1242,12 @@ namespace dse
 		}
 	};
 
+	template <>
+	inline uint64_t Hash<ObjectHandle>(ObjectHandle const& h)
+	{
+		return h.Handle;
+	}
+
 	template <class T, uint32_t TypeIndex>
 	struct ObjectFactory : public ProtectedGameObject<ObjectFactory<T, TypeIndex>>
 	{

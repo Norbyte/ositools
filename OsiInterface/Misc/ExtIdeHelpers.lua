@@ -4150,6 +4150,11 @@ function Ext.GetUIByType (typeId) end
 --- @param name string User-defined unique name that identifies the UI element
 function Ext.DestroyUI (name) end
 
+--- Refresh the UI of the specified character
+--- @param character ObjectHandle Handle of character
+--- @param flags integer UI elements to refresh
+function Ext.UISetDirty (character, flags) end
+
 --- Registers a listener that is called when the specified function is called from Flash
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param name string ExternalInterface function name

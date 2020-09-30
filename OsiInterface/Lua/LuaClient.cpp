@@ -1817,6 +1817,27 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
+	int UISetDirty(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		auto handle = checked_get<ObjectHandle>(L, 1);
+		auto flags = checked_get<uint64_t>(L, 2);
+
+		auto ui = GetStaticSymbols().GetUIObjectManager();
+		if (ui && ui->CharacterDirtyFlags) {
+			EnterCriticalSection(&ui->CriticalSection);
+			auto curFlags = ui->CharacterDirtyFlags->Find(handle);
+			if (curFlags != nullptr) {
+				*curFlags |= flags;
+			} else {
+				*ui->CharacterDirtyFlags->Insert(handle) = flags;
+			}
+			LeaveCriticalSection(&ui->CriticalSection);
+		}
+
+		return 0;
+	}
+
 	int GetGameState(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -1944,6 +1965,7 @@ namespace dse::ecl::lua
 			{"GetUIByType", GetUIByType},
 			{"GetBuiltinUI", GetBuiltinUI},
 			{"DestroyUI", DestroyUI},
+			{"UISetDirty", UISetDirty},
 			{0,0}
 		};
 

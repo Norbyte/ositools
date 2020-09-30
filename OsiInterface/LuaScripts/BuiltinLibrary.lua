@@ -193,6 +193,8 @@ Ext.RegisterConsoleCommand = function (cmd, fn)
 	table.insert(Ext._ConsoleCommandListeners[cmd], fn)
 end
 
+-- Used by the Lua debug adapter to store intermediate evaluation results.
+-- Should not be used manually!
 Ext.DebugEvaluate = function (retval)
 	if type(retval) ~= "table" then
 		return retval
@@ -201,4 +203,9 @@ Ext.DebugEvaluate = function (retval)
 		Ext._EVAL_ROOTS_[idx] = retval
 		return retval, idx
 	end
+end
+
+-- Helper for dumping variables in console
+Ext.Dump = function (val)
+	Ext.Print(Ext.JsonStringify(val, true, true))
 end
