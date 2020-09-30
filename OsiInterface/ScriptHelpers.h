@@ -5,9 +5,9 @@
 
 namespace dse::script {
 
-	std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath);
-	std::optional<STDString> LoadExternalFile(std::string_view path);
-	bool SaveExternalFile(std::string_view path, std::string_view contents);
+	std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath, PathRootType root);
+	std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root);
+	bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view contents);
 
 	bool GetTranslatedString(char const* handle, STDWString& translated);
 	bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& translated);

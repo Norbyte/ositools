@@ -55,7 +55,7 @@ namespace dse::esv
 			auto path = args[0].String;
 			auto & contents = args[1];
 
-			auto loaded = script::LoadExternalFile(path);
+			auto loaded = script::LoadExternalFile(path, PathRootType::GameStorage);
 			if (loaded) {
 				contents.Set(gTempStrings.Make(*loaded));
 				return true;
@@ -69,7 +69,7 @@ namespace dse::esv
 			auto path = args[0].String;
 			auto contents = args[1].String;
 
-			script::SaveExternalFile(path, contents);
+			script::SaveExternalFile(path, PathRootType::GameStorage, contents);
 		}
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)

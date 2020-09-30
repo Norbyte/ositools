@@ -5,19 +5,28 @@
 
 namespace dse::script {
 
-#define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."
+#define SAFE_PATH_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_./"
 
-std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath)
+bool IsSafeRelativePath(STDString const& path)
 {
-	STDString path(scriptPath);
-
 	if (path.find_first_not_of(SAFE_PATH_CHARS) != STDString::npos
 		|| path.find("..") != STDString::npos) {
 		OsiError("Illegal file name for external file access: '" << path << "'");
+		return false;
+	} else {
+		return true;
+	}
+}
+
+std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath, PathRootType root)
+{
+	STDString path(scriptPath);
+
+	if (!IsSafeRelativePath(path)) {
 		return {};
 	}
 
-	auto storageRoot = GetStaticSymbols().ToPath("/Osiris Data", PathRootType::GameStorage);
+	auto storageRoot = GetStaticSymbols().ToPath("/Osiris Data", root);
 	if (storageRoot.empty()) {
 		OsiErrorS("Could not fetch game storage path");
 		return {};
@@ -36,29 +45,23 @@ std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath)
 	return FromUTF8(storageRoot + "/" + path);
 }
 
-std::optional<STDString> LoadExternalFile(std::string_view path)
+std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType root)
 {
-	auto absolutePath = GetPathForExternalIo(path);
-	if (!absolutePath) return {};
-
-	std::ifstream f(absolutePath->c_str(), std::ios::in | std::ios::binary);
-	if (!f.good()) {
-		OsiError("Could not open file: '" << path << "'");
+	if (!IsSafeRelativePath(STDString(path))) {
 		return {};
 	}
 
-	STDString body;
-	f.seekg(0, std::ios::end);
-	body.resize(f.tellg());
-	f.seekg(0, std::ios::beg);
-	f.read(body.data(), body.size());
+	auto reader = GetStaticSymbols().MakeFileReader(path, root);
+	if (reader.IsLoaded()) {
+		return reader.ToString();
+	}
 
-	return body;
+	return {};
 }
 
-bool SaveExternalFile(std::string_view path, std::string_view contents)
+bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view contents)
 {
-	auto absolutePath = GetPathForExternalIo(path);
+	auto absolutePath = GetPathForExternalIo(path, root);
 	if (!absolutePath) return false;
 
 	std::ofstream f(absolutePath->c_str(), std::ios::out | std::ios::binary);

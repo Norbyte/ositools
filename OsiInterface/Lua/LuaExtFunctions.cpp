@@ -361,16 +361,23 @@ namespace dse::lua
 
 	WrapLuaFunction(DoubleToHandle)
 
-	std::optional<STDString> LoadFile(lua_State* L, char const* path)
+	std::optional<STDString> LoadFile(lua_State* L, char const* path, std::optional<char const*> context)
 	{
-		return script::LoadExternalFile(path);
+		if (!context || strcmp(*context, "user") == 0) {
+			return script::LoadExternalFile(path, PathRootType::GameStorage);
+		} else if (strcmp(*context, "data") == 0) {
+			return script::LoadExternalFile(path, PathRootType::Data);
+		} else {
+			LuaError("Unknown file loading context: " << *context);
+			return {};
+		}
 	}
 
 	WrapLuaFunction(LoadFile)
 
 	int SaveFile(lua_State* L, char const* path, char const* contents)
 	{
-		return script::SaveExternalFile(path, contents);
+		return script::SaveExternalFile(path, PathRootType::GameStorage, contents);
 	}
 
 	WrapLuaFunction(SaveFile)

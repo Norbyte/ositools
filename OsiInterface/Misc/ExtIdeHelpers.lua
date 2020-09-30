@@ -4212,8 +4212,9 @@ function Ext.SaveFile (path, contents) end
 
 --- Read data from an external (persistent) file
 --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
+--- @param context string|nil Path context (nil or "user" means relative to the Osiris Data directory; "data" means relative to game data path)
 --- @return string File contents
-function Ext.LoadFile (path) end
+function Ext.LoadFile (path, context) end
 
 --- Returns a monotonic value representing the current time in milliseconds.
 --- Useful for performance measurements / measuring real world time.
