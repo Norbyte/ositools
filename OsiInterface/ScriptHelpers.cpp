@@ -51,9 +51,24 @@ std::optional<STDString> LoadExternalFile(std::string_view path, PathRootType ro
 		return {};
 	}
 
-	auto reader = GetStaticSymbols().MakeFileReader(path, root);
-	if (reader.IsLoaded()) {
-		return reader.ToString();
+	if (root == PathRootType::Data) {
+		auto reader = GetStaticSymbols().MakeFileReader(path, root);
+		if (reader.IsLoaded()) {
+			return reader.ToString();
+		}
+	} else {
+		auto absolutePath = GetPathForExternalIo(path, root);
+		if (!absolutePath) return {};
+
+		std::ifstream f(absolutePath->c_str(), std::ios::in | std::ios::binary);
+		if (f.good()) {
+			STDString body;
+			f.seekg(0, std::ios::end);
+			body.resize(f.tellg());
+			f.seekg(0, std::ios::beg);
+			f.read(body.data(), body.size());
+			return body;
+		}
 	}
 
 	return {};
