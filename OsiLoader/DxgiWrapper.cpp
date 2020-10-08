@@ -13,7 +13,7 @@ DxgiWrapper::DxgiWrapper()
 		Fail("Could not get system directory path");
 	}
 
-	wcscpy_s(dxgiPath + dxgiPathSize, 1024 + 64 - dxgiPathSize, L"\\dxgi.dll");
+	wcscpy_s(dxgiPath + dxgiPathSize, std::size(dxgiPath) - dxgiPathSize, L"\\dxgi.dll");
 
 	dxgiHandle = LoadLibrary(dxgiPath);
 	if (dxgiHandle == NULL)

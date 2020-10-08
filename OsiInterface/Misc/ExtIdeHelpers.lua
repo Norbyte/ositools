@@ -4009,10 +4009,10 @@ function Ext.GetGameObject (handle) end
 function Ext.GetSurface (handle) end
 
 --- Returns the property proxy of the specified status
---- @param characterGuid string Character GUID or handle
+--- @param character string|integer|ObjectHandle Character GUID or handle or NetID
 --- @param handle integer|ObjectHandle Status handle or NetID
 --- @return EsvStatus
-function Ext.GetStatus (characterGuid, handle) end
+function Ext.GetStatus (character, handle) end
 
 --- Returns the specified turn-based combat
 --- @param combatId integer Combat ID
@@ -4242,3 +4242,61 @@ function Ext.HandleToDouble (handle) end
 --- @param handle number Double handle to cast
 --- @return ObjectHandle Handle
 function Ext.DoubleToHandle (handle) end
+
+Ext.Audio = {}
+
+--- Set audio state switch
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param switchGroup string Switch group name
+--- @param state string Switch state
+--- @return boolean
+function Ext.Audio.SetSwitch (gameObject, switchGroup, state) end
+
+--- Set audio state
+--- @param stateGroup string State group name
+--- @param state string State
+--- @return boolean
+function Ext.Audio.SetState (stateGroup, state) end
+
+--- Set real-time parameter (RTPC) value
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param rtpc string Parameter name
+--- @param value number Parameter value
+--- @return boolean
+function Ext.Audio.SetRTPC (gameObject, rtpc, value) end
+
+--- Reset real-time parameter (RTPC) value
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param rtpc string Parameter Name
+--- @return boolean
+function Ext.Audio.ResetRTPC (gameObject, rtpc) end
+
+--- Get real-time parameter (RTPC) value
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param rtpc string Parameter name
+--- @return number
+function Ext.Audio.GetRTPC (gameObject, rtpc) end
+
+--- Stop all audio
+function Ext.Audio.StopAll () end
+
+--- Pause audio playback
+function Ext.Audio.PauseAllSounds () end
+
+--- Resume audio playback
+function Ext.Audio.ResumeAllSounds () end
+
+--- Trigger an audio event
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param eventName string Event to trigger
+--- @param positionSec number|nil Position in audio track
+--- @return boolean
+function Ext.Audio.PostEvent (gameObject, eventName, positionSec) end
+
+--- Trigger an audio event using an external audio file
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+--- @param eventName string Event to trigger
+--- @param path string Audio file path (relative to data directory)
+--- @param codecId integer Codec ID
+--- @return boolean
+function Ext.Audio.PlayExternalSound (gameObject, eventName, path, codecId) end

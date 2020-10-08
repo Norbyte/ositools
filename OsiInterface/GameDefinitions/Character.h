@@ -6,6 +6,7 @@
 #include "Stats.h"
 #include "Status.h"
 #include "ActionMachine.h"
+#include "Sound.h"
 
 namespace dse
 {
@@ -436,7 +437,7 @@ namespace dse
 			ObjectSet<FixedString> Tags;
 			__int64 field_248;
 			float field_250;
-			ObjectHandle SoundObjectHandles[3];
+			SoundObjectId SoundObjectHandles[3];
 			ObjectHandle OH9;
 			ObjectHandle FollowCharacterHandle;
 			char PickpocketNLootingFlags;

@@ -1118,6 +1118,14 @@ namespace dse
 			InitFailed = true;
 		}
 
+		auto getResourceManagerProc = GetProcAddress(gameEngine_, "?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ");
+		sym.ResourceManager__GetInstance = (ResourceManager::GetInstanceProc*)getResourceManagerProc;
+
+		if (sym.ResourceManager__GetInstance == nullptr) {
+			ERR("LibraryManager::FindExportsEoCPlugin(): Could not find ResourceManager functions");
+			InitFailed = true;
+		}
+
 		auto registerUIObjectCreatorProc = GetProcAddress(gameEngine_, "?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z");
 		auto createUIObjectProc = GetProcAddress(gameEngine_, "?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z");
 		auto destroyUIObjectProc = GetProcAddress(gameEngine_, "?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z");

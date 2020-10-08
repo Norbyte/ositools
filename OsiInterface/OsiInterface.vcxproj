@@ -393,6 +393,7 @@ $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDi
     <ClInclude Include="GameDefinitions\Party.h" />
     <ClInclude Include="GameDefinitions\Projectile.h" />
     <ClInclude Include="GameDefinitions\RootTemplates.h" />
+    <ClInclude Include="GameDefinitions\Sound.h" />
     <ClInclude Include="GameDefinitions\Stats.h" />
     <ClInclude Include="GameDefinitions\Status.h" />
     <ClInclude Include="GameDefinitions\Surface.h" />

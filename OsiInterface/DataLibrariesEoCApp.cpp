@@ -1367,6 +1367,17 @@ namespace dse
 			{},
 			{"App::Instance", SymbolMappingTarget::kIndirect, 12, STATIC_SYM(AppInstance)}
 		},
+
+		{
+			"ls::ResourceManager::Instance",
+			SymbolMappingData::kText, 0,
+			"48 3B 9F C0 00 00 00 " // cmp     rbx, [rdi+0C0h]
+			"7C XX " // jl      short xxx
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:xxx
+			"45 33 C9 ", //  xor     r9d, r9d
+			{},
+			{"ls::ResourceManager::Instance", SymbolMappingTarget::kIndirect, 9, STATIC_SYM(ResourceManager__Instance)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

@@ -1414,6 +1414,15 @@ namespace dse
 		virtual void VisitInt8(FixedString const&, int8_t&, int8_t) = 0;
 		virtual void VisitBuffer(FixedString const&, ScratchBuffer&) = 0;
 	};
+
+	struct Pool
+	{
+		int PoolSize;
+		int MaxSize;
+#if !defined(OSI_EOCAPP)
+		char* PoolName;
+#endif
+	};
 }
 
 

@@ -14,6 +14,7 @@
 #include <GameDefinitions/UI.h>
 #include <GameDefinitions/Surface.h>
 #include <GameDefinitions/RootTemplates.h>
+#include <GameDefinitions/Sound.h>
 
 namespace dse
 {
@@ -213,6 +214,8 @@ namespace dse
 		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
 		esv::SurfaceActionFactory** EsvSurfaceActionFactory{ nullptr };
 		esv::EoCServer ** EoCServer{ nullptr };
+		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
+		ResourceManager ** ResourceManager__Instance{ nullptr };
 #if defined(OSI_EOCAPP)
 		GlobalSwitches ** pGlobalSwitches{ nullptr };
 #else
@@ -396,6 +399,17 @@ namespace dse
 				return *UIObjectManager__Instance;
 			} else if (UIObjectManager__GetInstance != nullptr) {
 				return UIObjectManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline ResourceManager * GetResourceManager() const
+		{
+			if (ResourceManager__Instance != nullptr) {
+				return *ResourceManager__Instance;
+			} else if (ResourceManager__GetInstance != nullptr) {
+				return ResourceManager__GetInstance();
 			} else {
 				return nullptr;
 			}

@@ -17,15 +17,6 @@ namespace dse::eoc
 {
     struct AiGrid;
 
-    struct Pool
-    {
-        int PoolSize;
-        int MaxSize;
-#if !defined(OSI_EOCAPP)
-        char* PoolName;
-#endif
-    };
-
     struct AiGridPortal
     {
         uint64_t field_0;
