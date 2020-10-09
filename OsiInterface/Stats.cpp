@@ -983,14 +983,10 @@ namespace dse
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Unable to allocate pooled string");
 			}
 		} else if (typeInfo->Name == GFS.strAttributeFlags) {
-			auto attrFlags = GetAttributeFlags(object->IndexedProperties[attributeIndex]);
-			if (attrFlags) {
-				auto flags = StringToAttributeFlags(value);
-				if (flags) {
-					**attrFlags = *flags;
-				}
-			} else {
-				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Stats entry has no AttributeFlags");
+			auto attrFlags = GetOrCreateAttributeFlags(object->IndexedProperties[attributeIndex]);
+			auto flags = StringToAttributeFlags(value);
+			if (flags) {
+				*attrFlags = *flags;
 			}
 		} else if (typeInfo->Values.ItemCount > 0) {
 			auto enumIndex = typeInfo->Values.Find(ToFixedString(value));
