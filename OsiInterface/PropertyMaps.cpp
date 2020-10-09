@@ -1002,6 +1002,7 @@ namespace dse
 			PROP(TurnTimer);
 			PROP_RO(TriggerTrapsTimer);
 			PROP_TY(UserID, int32_t);
+			PROP_TY(ReservedUserID, int32_t);
 			PROP_RO(OwnerHandle);
 			PROP_RO(FollowCharacterHandle);
 			PROP_RO(SpiritCharacterHandle);

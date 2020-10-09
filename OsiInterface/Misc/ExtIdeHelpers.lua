@@ -1817,6 +1817,7 @@ local EsvSkillInfo = {}
 --- @field public TurnTimer number
 --- @field public TriggerTrapsTimer number
 --- @field public UserID integer
+--- @field public ReservedUserID integer
 --- @field public OwnerHandle ObjectHandle Handle of owner character (in case of summons/followers)
 --- @field public FollowCharacterHandle ObjectHandle
 --- @field public SpiritCharacterHandle ObjectHandle

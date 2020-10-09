@@ -246,7 +246,7 @@ namespace dse
 			float TurnTimer;
 			float TriggerTrapsTimer;
 			UserId UserID;
-			uint32_t UserID2;
+			UserId ReservedUserID;
 			uint32_t U12;
 			ObjectHandle OwnerHandle;
 			ObjectHandle FollowCharacterHandle;

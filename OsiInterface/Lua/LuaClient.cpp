@@ -1651,7 +1651,7 @@ namespace dse::ecl::lua
 		if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return 0;
 
 		if (ui->FlashPlayer == nullptr) {
-			OsiError("Cannot capture UI invokes - UI element '" << ui->Path.Name << "' has no flash player!");
+			OsiWarn("Cannot capture UI invokes - UI element '" << ui->Path.Name << "' has no flash player!");
 			return 0;
 		}
 
