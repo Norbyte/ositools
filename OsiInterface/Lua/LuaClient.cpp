@@ -2027,7 +2027,7 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
-	int StopAll(lua_State* L)
+	int Stop(lua_State* L)
 	{
 		auto snd = GetSoundManager();
 		if (!snd) {
@@ -2211,7 +2211,7 @@ namespace dse::ecl::lua
 			{"SetRTPC", audio::SetRTPC},
 			{"GetRTPC", audio::GetRTPC},
 			{"ResetRTPC", audio::ResetRTPC},
-			{"StopAll", audio::StopAll},
+			{"Stop", audio::Stop},
 			{"PauseAllSounds", audio::PauseAllSounds},
 			{"ResumeAllSounds", audio::ResumeAllSounds},
 			{"PostEvent", audio::PostEvent},

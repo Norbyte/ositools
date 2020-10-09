@@ -359,7 +359,7 @@ namespace dse
 		EquipmentStatsType StatsType;
 		TalentArray Talents;
 		uint32_t Unkn4;
-		uint64_t AttributeFlagsObjectId;
+		int64_t AttributeFlagsObjectId;
 
 		struct PropertyMapBase & GetPropertyMap() const;
 	};
@@ -531,7 +531,7 @@ namespace dse
 		uint64_t Reflection;
 		uint32_t AttributeHandle;
 		uint32_t StepsType;
-		uint64_t AttributeFlagsObjectId;
+		int64_t AttributeFlagsObjectId;
 		uint32_t Unkn4;
 	};
 
@@ -1159,6 +1159,9 @@ namespace dse
 		std::optional<CRPGStats_Object*> CreateObject(FixedString const& name, int32_t modifierListIndex);
 		void SyncObjectFromServer(MsgS2CSyncStat const& msg);
 		void SyncWithPrototypeManager(CRPGStats_Object* object);
+
+		std::optional<StatAttributeFlags*> GetAttributeFlags(int attributeFlagsId);
+		StatAttributeFlags* GetOrCreateAttributeFlags(int& attributeFlagsId);
 
 		CRPGStats_Object_Property_List* ConstructPropertyList(FixedString const& propertyName);
 		CDivinityStats_Object_Property_Data* ConstructProperty(CRPGStats_Object_Property_Type type);

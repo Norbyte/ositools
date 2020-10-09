@@ -86,7 +86,7 @@ namespace dse
         virtual void GetSpeakerConfiguration() = 0;
         virtual void SetObjectObstructionAndOcclusion() = 0;
         virtual void field_108() = 0;
-        virtual uint64_t GetIDFromString(char const* string) = 0;
+        virtual uint32_t GetIDFromString(char const* string) = 0;
         virtual void Suspend() = 0;
         virtual void WakeupFromSuspend() = 0;
         virtual void Initialize() = 0;

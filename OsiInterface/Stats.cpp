@@ -660,6 +660,27 @@ namespace dse
 		}
 	}
 
+	std::optional<StatAttributeFlags*> CRPGStatsManager::GetAttributeFlags(int attributeFlagsId)
+	{
+		if (attributeFlagsId > 0) {
+			return AttributeFlags[attributeFlagsId];
+		} else {
+			return {};
+		}
+	}
+
+	StatAttributeFlags* CRPGStatsManager::GetOrCreateAttributeFlags(int& attributeFlagsId)
+	{
+		if (attributeFlagsId <= 0) {
+			attributeFlagsId = (int)AttributeFlags.Size;
+			auto flags = GameAlloc<StatAttributeFlags>();
+			*flags = (StatAttributeFlags)0;
+			AttributeFlags.Add(flags);
+		}
+
+		return AttributeFlags[attributeFlagsId];
+	}
+
 	CRPGStats_Object_Property_List* CRPGStatsManager::ConstructPropertyList(FixedString const& propertyName)
 	{
 		gCRPGStatsVMTMappings.MapVMTs();
@@ -814,12 +835,12 @@ namespace dse
 		if (typeInfo->Name == GFS.strFixedString) {
 			return ModifierFSSet[index].Str;
 		} else if (typeInfo->Name == GFS.strAttributeFlags) {
-			if (index > 0) {
-				auto attrFlags = (uint64_t)*AttributeFlags[index];
+			auto attrFlags = GetAttributeFlags(index);
+			if (attrFlags) {
 				STDString flagsStr;
 
 				for (auto i = 0; i < 64; i++) {
-					if (attrFlags & (1ull << i)) {
+					if ((uint64_t)**attrFlags & (1ull << i)) {
 						auto label = EnumInfo<StatAttributeFlags>::Find((StatAttributeFlags)(1ull << i));
 						if (label) {
 							if (!flagsStr.empty()) {
@@ -962,12 +983,11 @@ namespace dse
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Unable to allocate pooled string");
 			}
 		} else if (typeInfo->Name == GFS.strAttributeFlags) {
-			auto attrFlagsIndex = object->IndexedProperties[attributeIndex];
-			if (attrFlagsIndex > 0) {
-				auto & attrFlags = AttributeFlags[attrFlagsIndex];
+			auto attrFlags = GetAttributeFlags(object->IndexedProperties[attributeIndex]);
+			if (attrFlags) {
 				auto flags = StringToAttributeFlags(value);
 				if (flags) {
-					*attrFlags = *flags;
+					**attrFlags = *flags;
 				}
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Stats entry has no AttributeFlags");

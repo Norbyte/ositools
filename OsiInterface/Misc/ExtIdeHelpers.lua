@@ -731,7 +731,7 @@ local EsvStatusSpark = {}
 
 
 
---- @class StatCharacterDynamic
+--- @class StatCharacterDynamic : StatBase
 --- Properties from PropertyMap
 --- @field public SummonLifelinkModifier integer
 --- @field public Strength integer
@@ -1164,7 +1164,7 @@ local StatCharacter = {
 }
 
 
---- @class StatItemDynamic
+--- @class StatItemDynamic : StatBase
 --- @field public Durability integer
 --- @field public DurabilityDegradeSpeed integer
 --- @field public StrengthBoost integer
@@ -4277,8 +4277,9 @@ function Ext.Audio.ResetRTPC (gameObject, rtpc) end
 --- @return number
 function Ext.Audio.GetRTPC (gameObject, rtpc) end
 
---- Stop all audio
-function Ext.Audio.StopAll () end
+--- Stop audio
+--- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
+function Ext.Audio.Stop (gameObject) end
 
 --- Pause audio playback
 function Ext.Audio.PauseAllSounds () end

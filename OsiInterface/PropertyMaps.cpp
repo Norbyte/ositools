@@ -113,6 +113,27 @@ namespace dse
 #define PROP_TPL_RO(name) AddPropertyRO<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 #define PROP_TPL(name) AddProperty<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 
+	template <class T, class TalentArrayFetcher>
+	void AddTalentArray(PropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
+	{
+		EnumInfo<TalentType>::Values.Iterate([&propertyMap, prefix, f](auto const& name, auto const& id) {
+			auto talentName = prefix + name.Str;
+			auto talentFS = MakeFixedString(talentName.c_str());
+			AddProperty<bool>(propertyMap, talentFS.Str, 0);
+
+			propertyMap.Properties[talentFS].GetInt = [id, f](void* obj) -> std::optional<int64_t> {
+				auto attrs = reinterpret_cast<T*>(obj);
+				return f(attrs).HasTalent(id) ? 1 : 0;
+			};
+
+			propertyMap.Properties[talentFS].SetInt = [id, f](void* obj, int64_t value) -> bool {
+				auto attrs = reinterpret_cast<T*>(obj);
+				f(attrs).Toggle(id, value != 0);
+				return true;
+			};
+		});
+	}
+
 	void InitPropertyMaps()
 	{
 		{
@@ -424,14 +445,6 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gStatusAdrenalinePropertyMap, esv::StatusAdrenaline);
-			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
-			PROP(InitialAPMod);
-			PROP(SecondaryAPMod);
-			PROP(CombatTurn);
-		}
-
-		{
 			BEGIN_PROPERTIES(gStatusDrainPropertyMap, esv::StatusDrain);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(Infused);
@@ -672,9 +685,42 @@ namespace dse
 			PROP_RO(ObjectInstanceName);
 			PROP_RO(BoostName);
 			PROP_ENUM_RO(StatsType);
-			// TODO - add attribute flags object support
-			// PROP_FLAGS(AttributeFlags, StatAttributeFlags, true);
-			// TODO - AbilityModifiers, Talents
+
+			EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				AddProperty<bool>(propertyMap, name.Str, 0);
+
+				propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+					if (attrFlags) {
+						return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+					} else {
+						return 0;
+					}
+				};
+
+				propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+					int flagsId = (int)attrs->AttributeFlagsObjectId;
+					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+					attrs->AttributeFlagsObjectId = flagsId;
+
+					if (value) {
+						*attrFlags |= id;
+					} else {
+						*attrFlags &= ~id;
+					}
+					return true;
+				};
+			});
+
+			EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, AbilityModifiers) + (unsigned)id * sizeof(int32_t));
+			});
+
+			AddTalentArray<CDivinityStats_Equipment_Attributes>(propertyMap, "TALENT_", [](CDivinityStats_Equipment_Attributes* obj) {
+				return obj->Talents;
+			});
 		}
 
 		{
@@ -776,7 +822,46 @@ namespace dse
 			PROP(TranslationKey);
 			PROP(BonusWeapon);
 			PROP(StepsType);
-			// TODO Abilities, Talents, RemovedTalents, Traits
+
+			EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				AddProperty<bool>(propertyMap, name.Str, 0);
+
+				propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+					if (attrFlags) {
+						return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+					} else {
+						return 0;
+					}
+				};
+
+				propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
+					int flagsId = (int)attrs->AttributeFlagsObjectId;
+					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+					attrs->AttributeFlagsObjectId = flagsId;
+
+					if (value) {
+						*attrFlags |= id;
+					} else {
+						*attrFlags &= ~id;
+					}
+					return true;
+				};
+			});
+
+			EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, Abilities) + (unsigned)id * sizeof(int32_t));
+			});
+
+			AddTalentArray<CharacterDynamicStat>(propertyMap, "TALENT_", [](CharacterDynamicStat* obj) {
+				return obj->Talents;
+			});
+
+			AddTalentArray<CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](CharacterDynamicStat* obj) {
+				return obj->RemovedTalents;
+			});
 		}
 
 		{
@@ -817,7 +902,10 @@ namespace dse
 			PROP(MaxMpOverride);
 			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
 
-			// TODO - DisabledTalents, TraitOrder?
+			AddTalentArray<CDivinityStats_Character>(propertyMap, "DISABLED_ALENT_", [](CDivinityStats_Character* obj) {
+				return obj->DisabledTalents;
+			});
+			// TODO - TraitOrder?
 		}
 
 		{
@@ -1263,7 +1351,6 @@ namespace dse
 			PROP_RO(OwnerCharacterHandle);
 			PROP_RO(CorpseCharacterHandle);
 			PROP_RO(FollowCharacterHandle);
-			PROP_RO(OwnerCharacterHandle);
 			PROP_RO(StoryDisplayName);
 			PROP_RO(OriginalDisplayName);
 			PROP_RO(AnimationSetOverride);

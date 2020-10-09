@@ -674,6 +674,19 @@ namespace dse
 		}
 	};
 
+	inline PropertyMapBase::PropertyInfo& AddPropertyInternal(PropertyMapBase& map, char const* name, PropertyMapBase::PropertyInfo const& info)
+	{
+#if !defined(NDEBUG)
+		if (map.Properties.find(MakeFixedString(name)) != map.Properties.end()
+			|| map.Flags.find(MakeFixedString(name)) != map.Flags.end()) {
+			throw std::runtime_error("Tried to add duplicate property!");
+		}
+#endif
+
+		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
+		return it.first->second;
+	}
+
 	template <class TValue>
 	typename PropertyMapBase::PropertyInfo & AddProperty(PropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
@@ -681,8 +694,7 @@ namespace dse
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | kPropWrite;
-		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
-		return it.first->second;
+		return AddPropertyInternal(map, name, info);
 	}
 
 	template <class TValue>
@@ -692,8 +704,7 @@ namespace dse
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead;
-		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
-		return it.first->second;
+		return AddPropertyInternal(map, name, info);
 	}
 
 	template <class TEnum>
@@ -742,8 +753,7 @@ namespace dse
 			return true;
 		};
 
-		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
-		return it.first->second;
+		return AddPropertyInternal(map, name, info);
 	}
 
 	template <class TValue, class TEnum>
@@ -757,13 +767,21 @@ namespace dse
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = 0;
-		map.Properties.insert(std::make_pair(fieldName, info));
+		AddPropertyInternal(map, name, info);
 
 		Enum::Values.Iterate([&map, canWrite, fieldName](auto const& k, auto v) {
 			PropertyMapBase::FlagInfo flag;
 			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 			flag.Mask = (int64_t)v;
+
+#if !defined(NDEBUG)
+			if (map.Properties.find(k) != map.Properties.end()
+				|| map.Flags.find(k) != map.Flags.end()) {
+				throw std::runtime_error("Tried to add duplicate property!");
+			}
+#endif
+
 			map.Flags.insert(std::make_pair(k, flag));
 		});
 	}
@@ -777,7 +795,7 @@ namespace dse
 		info.Type = PropertyType::kFixedStringGuid;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
-		map.Properties.insert(std::make_pair(MakeFixedString(name), info));
+		AddPropertyInternal(map, name, info);
 	}
 
 	template <class TValue>
@@ -789,6 +807,6 @@ namespace dse
 		info.Type = PropertyType::kDynamicFixedString;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
-		map.Properties.insert(std::make_pair(MakeFixedString(name), info));
+		AddPropertyInternal(map, name, info);
 	}
 }
