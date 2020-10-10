@@ -171,7 +171,7 @@ namespace dse::lua
 	{
 		StackCheck _(L, 1);
 		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto slot = (uint32_t)checked_get<ItemSlot>(L, 2);
+		auto slot = (uint32_t)checked_get<ItemSlot32>(L, 2);
 
 		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryHandle);
 		if (inventory != nullptr && slot < inventory->ItemsBySlot.Size) {

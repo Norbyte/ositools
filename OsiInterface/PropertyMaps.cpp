@@ -917,8 +917,7 @@ namespace dse
 
 			// CDivinityStats_Item
 			PROP_ENUM_RO(ItemType);
-			// ItemSlot is stored on 4 bytes, but the enum is only 1-byte, so we need to remap it
-			AddPropertyEnum<ItemSlot>(propertyMap, "ItemSlot", offsetof(CDivinityStats_Item, ItemSlot), false);
+			PROP_ENUM_RO(ItemSlot);
 			PROP_ENUM(WeaponType);
 			PROP(AnimType);
 			PROP(WeaponRange);

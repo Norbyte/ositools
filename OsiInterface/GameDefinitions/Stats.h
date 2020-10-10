@@ -400,7 +400,7 @@ namespace dse
 	{
 		uint32_t U1;
 		EquipmentStatsType ItemType;
-		uint32_t ItemSlot;
+		ItemSlot32 ItemSlot;
 		WeaponType WeaponType;
 		int32_t AnimType; // -1 = Not overridden
 		uint32_t WeaponRange;
@@ -843,7 +843,7 @@ namespace dse
 		ObjectSet<int> BoostIndices;
 		ObjectSet<int> BoostCounts;
 		FixedString ModifierType;
-		int SlotType{ (int)ItemSlot::Sentinel };
+		ItemSlot32 SlotType{ ItemSlot32::Sentinel };
 		WeaponType WeaponType{ WeaponType::Sentinel };
 		ArmorType ArmorType{ ArmorType::Sentinel };
 		HandednessType Handedness{ HandednessType::Any };

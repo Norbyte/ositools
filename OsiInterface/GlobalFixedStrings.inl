@@ -189,6 +189,7 @@ FS(CauseType);
 FS(DeathType);
 FS(DamageType);
 FS(ItemSlot);
+FS(ItemSlot32);
 FS(StatCharacterFlags);
 FS(HitFlag);
 FS(HealEffect);
