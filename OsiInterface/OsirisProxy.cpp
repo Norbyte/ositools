@@ -869,6 +869,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		// We need to initialize the function library here, as GlobalAllocator isn't available in Init().
 		std::lock_guard _(globalStateLock_);
 		Libraries.PostStartupFindLibraries();
+
 		if (!functionLibraryInitialized_) {
 			CustomInjector.Initialize();
 			FunctionLibrary.Register();
@@ -1308,7 +1309,11 @@ void OsirisProxy::LoadExtensionStateServer()
 	if (ServerExtensionLoaded) return;
 
 	if (extensionsEnabled_) {
-		Libraries.PostStartupFindLibraries();
+		if (Libraries.PostStartupFindLibraries()) {
+			FunctionLibrary.PostStartup();
+			hitProxy_.PostStartup();
+		}
+
 		if (!ServerExtState) {
 			ResetExtensionStateServer();
 		}
@@ -1345,7 +1350,11 @@ void OsirisProxy::LoadExtensionStateClient()
 	if (ClientExtensionLoaded) return;
 
 	if (extensionsEnabled_) {
-		Libraries.PostStartupFindLibraries();
+		if (Libraries.PostStartupFindLibraries()) {
+			FunctionLibrary.PostStartup();
+			hitProxy_.PostStartup();
+		}
+
 		if (!ClientExtState) {
 			ResetExtensionStateClient();
 		}
