@@ -140,7 +140,7 @@ local CombatComponentTemplate = {}
 --- @field public FadeIn boolean
 --- @field public SeeThrough boolean
 --- @field public FadeGroup string
---- @field public GameMasterSpawnSection string
+--- @field public GameMasterSpawnSection integer
 --- @field public GameMasterSpawnSubSection string
 local EoCGameObjectTemplate = {}
 

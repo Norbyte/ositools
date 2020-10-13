@@ -1522,7 +1522,7 @@ Shared properties (can be fetched on characters, items, projectiles):
 | FadeIn | Flag | |
 | SeeThrough | Flag | |
 | FadeGroup | String | |
-| GameMasterSpawnSection | String | |
+| GameMasterSpawnSection | Integer | |
 | GameMasterSpawnSubSection | String | |
 
 

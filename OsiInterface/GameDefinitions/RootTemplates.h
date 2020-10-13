@@ -92,7 +92,7 @@ namespace dse
         OverrideableProperty<bool> FadeIn;
         OverrideableProperty<bool> SeeThrough;
         OverrideableProperty<FixedString> FadeGroup;
-        FixedString GameMasterSpawnSection;
+        int32_t GameMasterSpawnSection;
         OverrideableProperty<TranslatedString> GameMasterSpawnSubSection;
     };
 
