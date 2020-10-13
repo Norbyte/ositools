@@ -51,6 +51,7 @@ namespace dse::esv
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
 		void OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer);
 		void OnActionMachineResetState(esv::ActionMachine* self, bool force);
+		CDivinityStats_Object_Property_Data* OnParseSkillProperties(CRPGStatsManager::ParsePropertiesProc* next, CRPGStatsManager* self, STDString* str);
 		void OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParamProc* next, SkillPrototype *skillPrototype,
 			CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 			float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * stdStringSet);
@@ -69,6 +70,13 @@ namespace dse::esv
 			uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result);
 		void OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle, DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList,
 			DamageType damageType);
+		void OnExecuteCharacterSetExtraProperties(CRPGStats_Object_Property_List* extraProperties, uint64_t attackerHandle,
+			ObjectSet<esv::Character*> const& targets, glm::vec3 const& impactOrigin, CRPGStats_Object_PropertyContext propertyContext,
+			bool isFromItem, SkillPrototype* skillProto, HitDamageInfo* damageInfo, float statusStartTimer, esv::Character* refTarget,
+			bool statusFlag0x40, float a12);
+		void OnExecutePropertyDataOnPositionOnly(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
+			glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem,
+			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo);
 
 		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, RPGStats_Treasure_Object_Info* treasureInfo, int level);
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 

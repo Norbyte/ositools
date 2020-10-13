@@ -493,6 +493,31 @@ namespace dse::lua
 		return s;
 	}
 
+	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_CustomDescription& v)
+	{
+		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s.VisitProperty("TextLine1", v.TextLine1);
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_Extender& v)
+	{
+		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s.VisitProperty("Action", v.PropertyName);
+		PO(Arg1, 100.0f);
+		PO(Arg2, 1.0f);
+		auto arg3 = getfield<FixedString>(s.L, "Arg3");
+		if (arg3) {
+			v.Arg3 = arg3;
+		}
+		else {
+			PO(Arg3, GFS.strEmpty);
+		}
+		PO(Arg4, -1);
+		PO(Arg5, -1);
+		return s;
+	}
+
 	void SerializeObjectProperty(LuaSerializer& s, CDivinityStats_Object_Property_Data*& v)
 	{
 		s.BeginObject();
@@ -513,6 +538,8 @@ namespace dse::lua
 					V(Sabotage, CDivinityStats_Object_Property_Sabotage)
 					V(Summon, CDivinityStats_Object_Property_Summon)
 					V(Force, CDivinityStats_Object_Property_Force)
+					V(CustomDescription, CRPGStats_Object_Property_CustomDescription)
+					V(Extender, CRPGStats_Object_Property_Extender)
 
 					default:
 						ERR("Unable to serialize unknown object property type %d to Lua!", v->TypeId);
@@ -540,6 +567,8 @@ namespace dse::lua
 					V(Sabotage, CDivinityStats_Object_Property_Sabotage)
 					V(Summon, CDivinityStats_Object_Property_Summon)
 					V(Force, CDivinityStats_Object_Property_Force)
+					V(CustomDescription, CRPGStats_Object_Property_CustomDescription)
+					V(Extender, CRPGStats_Object_Property_Extender)
 
 					default:
 						ERR("Unable to serialize unknown object property type %d to Lua!", v->TypeId);
@@ -566,7 +595,7 @@ namespace dse::lua
 				SerializeObjectProperty(s, prop);
 				if (prop) {
 					v.Properties.Add(prop->Name, prop);
-					v.AllPropertyContexts = prop->Context;
+					v.AllPropertyContexts |= prop->Context;
 				}
 			}
 		}

@@ -267,6 +267,25 @@ namespace dse
 			break;
 		}
 
+		case CRPGStats_Object_Property_Type::CustomDescription:
+		{
+			auto const& p = (CRPGStats_Object_Property_CustomDescription const&)*this;
+			msg->add_string_params(ToUTF8(p.TextLine1).c_str());
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Extender:
+		{
+			auto const& p = (CRPGStats_Object_Property_Extender const&)*this;
+			msg->add_string_params(p.PropertyName.Str);
+			msg->add_float_params(p.Arg1);
+			msg->add_float_params(p.Arg2);
+			msg->add_string_params(p.Arg3.Str);
+			msg->add_int_params(p.Arg4);
+			msg->add_int_params(p.Arg5);
+			break;
+		}
+
 		default:
 			WARN("Couldn't convert unknown property type %d to protobuf!", TypeId);
 		}
@@ -366,6 +385,25 @@ namespace dse
 		{
 			auto& p = (CDivinityStats_Object_Property_Force&)*this;
 			p.Distance = msg.int_params()[0];
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::CustomDescription:
+		{
+			auto& p = (CRPGStats_Object_Property_CustomDescription&)*this;
+			p.TextLine1 = FromUTF8(msg.string_params()[0]);
+			break;
+		}
+
+		case CRPGStats_Object_Property_Type::Extender:
+		{
+			auto& p = (CRPGStats_Object_Property_Extender&)*this;
+			p.PropertyName = MakeFixedString(msg.string_params()[0].c_str());
+			p.Arg1 = msg.float_params()[0];
+			p.Arg2 = msg.float_params()[1];
+			p.Arg3 = MakeFixedString(msg.string_params()[1].c_str());
+			p.Arg4 = msg.int_params()[0];
+			p.Arg5 = msg.int_params()[1];
 			break;
 		}
 
@@ -744,6 +782,14 @@ namespace dse
 
 		case CRPGStats_Object_Property_Type::Force:
 			prop = GameAlloc<CDivinityStats_Object_Property_Force>();
+			break;
+
+		case CRPGStats_Object_Property_Type::CustomDescription:
+			prop = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
+			break;
+
+		case CRPGStats_Object_Property_Type::Extender:
+			prop = GameAlloc<CRPGStats_Object_Property_Extender>();
 			break;
 
 		default:
@@ -1406,6 +1452,22 @@ namespace dse
 		}
 
 		return points;
+	}
+
+
+	bool CRPGStats_Object_Property_Extender::GetDescription(STDWString* Line1)
+	{
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+		if (lua) {
+			auto desc = lua->GetSkillPropertyDescription(this);
+			if (desc) {
+				*Line1 = FromUTF8(*desc);
+				return true;
+			}
+		}
+
+		*Line1 = L"";
+		return true;
 	}
 
 

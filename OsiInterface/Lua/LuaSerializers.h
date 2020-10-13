@@ -234,6 +234,8 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Sabotage& v);
 	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Summon& v);
 	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Force& v);
+	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_CustomDescription& v);
+	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_Extender& v);
 	void SerializeObjectProperty(LuaSerializer& s, CDivinityStats_Object_Property_Data*& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_List& v);
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_DeltaModifier& v);

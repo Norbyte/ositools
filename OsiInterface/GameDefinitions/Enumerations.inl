@@ -677,6 +677,7 @@ BEGIN_ENUM(CRPGStats_Object_Property_Type, uint32_t)
 	EV(Summon, 0x6)
 	EV(Force, 0x7)
 	EV(CustomDescription, 0x10)
+	EV(Extender, 0x11)
 END_ENUM()
 
 BEGIN_BITMASK(CRPGStats_Object_PropertyContext, uint8_t)

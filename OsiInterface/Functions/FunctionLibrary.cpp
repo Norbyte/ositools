@@ -229,6 +229,10 @@ namespace dse::esv
 		osiris_.GetLibraryManager().esv__Projectile__Explode.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnProjectileExplode, this, _1)
 		);
+
+		osiris_.GetLibraryManager().RPGStats__ParseProperties.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnParseSkillProperties, this, _1, _2, _3)
+		);
 		osiris_.GetLibraryManager().SkillPrototype__FormatDescriptionParam.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnSkillFormatDescriptionParam, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
@@ -255,6 +259,12 @@ namespace dse::esv
 		);
 		osiris_.GetLibraryManager().esv__ExecutePropertyDataOnGroundHit.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnGroundHit, this, _1, _2, _3, _4, _5)
+		);
+		osiris_.GetLibraryManager().esv__ExecutePropertyDataOnPositionOnly.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly, this, _1, _2, _3, _4, _5, _6, _7, _8)
+		);
+		osiris_.GetLibraryManager().esv__ExecuteCharacterSetExtraProperties.SetPostHook(
+			std::bind(&CustomFunctionLibrary::OnExecuteCharacterSetExtraProperties, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
 		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)

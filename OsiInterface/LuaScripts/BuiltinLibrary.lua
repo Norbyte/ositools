@@ -209,3 +209,10 @@ end
 Ext.Dump = function (val)
 	Ext.Print(Ext.JsonStringify(val, true, true))
 end
+
+-- Custom skill property registration
+Ext._SkillPropertyTypes = {}
+
+Ext.RegisterSkillProperty = function (name, proto)
+	Ext._SkillPropertyTypes[name] = proto
+end

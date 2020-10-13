@@ -137,6 +137,8 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
+		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
+		esv::ExecuteCharacterSetExtraPropertiesProc* esv__ExecuteCharacterSetExtraProperties{ nullptr };
 
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };
@@ -198,6 +200,7 @@ namespace dse
 		TranslatedStringKeyManager::GetTranlatedStringFromKey TranslatedStringKeyManager__GetTranlatedStringFromKey{ nullptr };
 
 		CRPGStatsManager::LoadProc RPGStats__Load{ nullptr };
+		CRPGStatsManager::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
 		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };

@@ -256,3 +256,10 @@ Ext.RegisterListener("UIObjectCreated", function (ui)
         ui:CaptureInvokes()
     end
 end)
+
+Ext._GetSkillPropertyDescription = function (prop)
+	local propType = Ext._SkillPropertyTypes[prop.Action]
+	if propType ~= nil and propType.GetDescription ~= nil then
+		return propType.GetDescription(prop)
+	end
+end

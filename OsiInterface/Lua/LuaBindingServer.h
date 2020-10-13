@@ -522,6 +522,13 @@ namespace dse::esv::lua
 		void OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position);
 		void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList);
 
+		void ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
+			ObjectHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype* skillProto,
+			HitDamageInfo const* damageInfo);
+		void ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle, 
+			glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype* skillPrototype,
+			HitDamageInfo const* damageInfo);
+
 		std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 		void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);
 

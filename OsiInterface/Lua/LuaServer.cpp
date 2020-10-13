@@ -2718,6 +2718,33 @@ namespace dse::esv::lua
 		}
 	}
 
+	void PushGameObject(lua_State* L, ObjectHandle handle)
+	{
+		if (!handle) {
+			push(L, nullptr);
+			return;
+		}
+
+		switch (handle.GetType()) {
+		case (uint32_t)ObjectType::ServerCharacter:
+			ObjectProxy<esv::Character>::New(L, handle);
+			break;
+
+		case (uint32_t)ObjectType::ServerItem:
+			ObjectProxy<esv::Item>::New(L, handle);
+			break;
+
+		case (uint32_t)ObjectType::ServerProjectile:
+			ObjectProxy<esv::Projectile>::New(L, handle);
+			break;
+
+		default:
+			push(L, nullptr);
+			LuaError("Don't know how to push handle of type " << handle.GetType());
+			break;
+		}
+	}
+
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position)
 	{
@@ -2725,14 +2752,7 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_OnProjectileHit");
 		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, projectile));
 
-		if (hitObject.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-			ObjectProxy<esv::Character>::New(L, hitObject);
-		} else if (hitObject.GetType() == (uint32_t)ObjectType::ServerItem) {
-			ObjectProxy<esv::Item>::New(L, hitObject);
-		} else {
-			push(L, nullptr);
-		}
-
+		PushGameObject(L, hitObject);
 		push(L, position);
 
 		if (CallWithTraceback(L, 3, 0) != 0) {
@@ -2746,18 +2766,8 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnGroundHit");
-		
-		if (casterHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-			ObjectProxy<esv::Character>::New(L, casterHandle);
-		} else if (casterHandle.GetType() == (uint32_t)ObjectType::ServerItem) {
-			ObjectProxy<esv::Item>::New(L, casterHandle);
-		} else {
-			if (casterHandle) {
-				OsiError("Cannot push caster handle of type " << casterHandle.GetType());
-			}
-			push(L, nullptr);
-		}
 
+		PushGameObject(L, casterHandle);
 		push(L, position);
 		auto dmgList = DamageList::New(L);
 		if (damageList) {
@@ -2766,6 +2776,74 @@ namespace dse::esv::lua
 
 		if (CallWithTraceback(L, 3, 0) != 0) {
 			LuaError("GroundHit handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
+	void ServerState::ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
+		ObjectHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype * skillProto,
+		HitDamageInfo const* damageInfo)
+	{
+		StackCheck _(L, 0);
+		PushExtFunction(L, "_ExecutePropertyDataOnTarget");
+
+		LuaSerializer serializer(L, true);
+		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
+		SerializeObjectProperty(serializer, propRef);
+		PushGameObject(L, attackerHandle);
+		PushGameObject(L, target);
+		push(L, impactOrigin);
+		push(L, isFromItem);
+
+		if (skillProto) {
+			SkillPrototypeProxy::New(L, skillProto, -1);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (damageInfo) {
+			PushHit(L, *damageInfo);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (CallWithTraceback(L, 7, 0) != 0) {
+			LuaError("ExecutePropertyDataOnTarget handler failed: " << lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+
+
+	void ServerState::ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
+		glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype * skillPrototype,
+		HitDamageInfo const* damageInfo)
+	{
+		StackCheck _(L, 0);
+		PushExtFunction(L, "_ExecutePropertyDataOnPosition");
+
+		LuaSerializer serializer(L, true);
+		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
+		SerializeObjectProperty(serializer, propRef);
+		PushGameObject(L, attackerHandle);
+		push(L, position);
+		push(L, areaRadius);
+		push(L, isFromItem);
+
+		if (skillPrototype) {
+			SkillPrototypeProxy::New(L, skillPrototype, -1);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (damageInfo) {
+			PushHit(L, *damageInfo);
+		} else {
+			push(L, nullptr);
+		}
+
+		if (CallWithTraceback(L, 7, 0) != 0) {
+			LuaError("ExecutePropertyDataOnPosition handler failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}

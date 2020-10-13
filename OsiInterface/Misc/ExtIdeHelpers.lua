@@ -1300,6 +1300,16 @@ local StatPropertyGameAction = {}
 --- @field VitalityOnRevive integer
 local StatPropertyOsirisTask = {}
 
+--- @class StatPropertyExtender : StatProperty
+--- @field Type string Extender
+--- @field Action string Custom SkillProperties action name
+--- @field Arg1 number
+--- @field Arg2 number
+--- @field Arg3 string
+--- @field Arg4 integer
+--- @field Arg5 integer
+local StatPropertyExtender = {}
+
 
 --- @class StatItem : StatBase
 --- Properties from property map
@@ -2172,6 +2182,13 @@ local EsvTransformSurfaceAction = {}
 --- @field public ModuleType string
 --- @field public Dependencies string[] Dependency mod UUID-s
 local ModInfo = {}
+
+
+--- @class CustomSkillProperty
+--- @field public GetDescription fun(property:StatPropertyExtender):string|nil
+--- @field public ExecuteOnPosition fun(property:StatPropertyExtender, attacker: EsvGameObject, position: number[], areaRadius: number, isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
+--- @field public ExecuteOnTarget fun(property:StatPropertyExtender, attacker: EsvGameObject, target: EsvGameObject, position: number[], isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
+
 
 --- @class StatSkillSet
 --- @field public Name string
@@ -3886,6 +3903,15 @@ function Ext.GetItemGroup (name) end
 --- @param name string Name of name group
 --- @return ItemNameGroup|nil
 function Ext.GetNameGroup (name) end
+
+--- Registers a new skill property that can be triggered via SkillProperties
+--- Stat syntax: data "SkillProperties" "EXT:<PROPERTY_NAME>[,<int>,<int>,<string>,<int>,<int>]"
+--- The property name must always be preceded by the string "EXT:". 
+--- Target contexts (SELF:, TARGET:, ...) and useing multiple actions in the same SkillProperties are supported.
+--- Conditions for EXT: properties (i.e. "IF(COND):") are _NOT YET_ supported.
+--- @param channel string Skill property name
+--- @param defn CustomSkillProperty Event handlers for the skill property
+function Ext.RegisterSkillProperty (name, defn) end
 
 --- Replaces level scaling formula for the specified stat
 --- @param statType string Stat entry type

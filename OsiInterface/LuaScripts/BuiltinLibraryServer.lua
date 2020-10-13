@@ -142,3 +142,17 @@ end
 Ext._OnGroundHit = function (...)
     return Ext._Notify("GroundHit", ...)
 end
+
+Ext._ExecutePropertyDataOnPosition = function (prop, ...)
+	local propType = Ext._SkillPropertyTypes[prop.Action]
+	if propType ~= nil and propType.ExecuteOnPosition ~= nil then
+		propType.ExecuteOnPosition(prop, ...)
+	end
+end
+
+Ext._ExecutePropertyDataOnTarget = function (prop, ...)
+	local propType = Ext._SkillPropertyTypes[prop.Action]
+	if propType ~= nil and propType.ExecuteOnTarget ~= nil then
+		propType.ExecuteOnTarget(prop, ...)
+	end
+end

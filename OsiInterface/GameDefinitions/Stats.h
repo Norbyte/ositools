@@ -6,9 +6,18 @@
 
 namespace dse
 {
+	struct SkillPrototype;
+	struct DamagePairList;
+	struct HitDamageInfo;
+
 	namespace eoc
 	{
 		struct AiGrid;
+	}
+
+	namespace esv
+	{
+		struct Character;
 	}
 
 	struct CRPGStats_Requirement
@@ -169,7 +178,60 @@ namespace dse
 		int VitalityOnRevive;
 	};
 
+	struct CRPGStats_Object_Property_Extender : public CDivinityStats_Object_Property_Data
+	{
+		CRPGStats_Object_Property_Extender()
+		{}
 
+		~CRPGStats_Object_Property_Extender() override {}
+
+		inline static void operator delete (void* ptr, size_t sz)
+		{
+			GameFree(ptr);
+		}
+
+		CDivinityStats_Object_Property_Data* Clone() override
+		{
+			auto cl = GameAlloc<CRPGStats_Object_Property_Extender>();
+			cl->Name = Name;
+			cl->TypeId = TypeId;
+			cl->Context = Context;
+			cl->Conditions = Conditions;
+			cl->PropertyName = PropertyName;
+			cl->Arg1 = Arg1;
+			cl->Arg2 = Arg2;
+			cl->Arg3 = Arg3;
+			cl->Arg4 = Arg4;
+			cl->Arg5 = Arg5;
+			return cl;
+		}
+
+		bool GetDescription(STDWString* Line1) override;
+
+		bool GetDescription(TranslatedString* Line1, TranslatedString* Line2) override
+		{
+			GetDescription(Line1);
+			return true;
+		}
+
+		bool GetDescription(TranslatedString* Line1) override
+		{
+			GetDescription(&Line1->Handle.ReferenceString);
+			return true;
+		}
+
+		uint64_t Unknown() override
+		{
+			return 0;
+		}
+
+		FixedString PropertyName;
+		float Arg1;
+		float Arg2;
+		FixedString Arg3;
+		int Arg4;
+		int Arg5;
+	};
 
 	struct CRPGStats_Object_Property_CustomDescription : public CDivinityStats_Object_Property_Data
 	{
@@ -537,9 +599,6 @@ namespace dse
 
 	namespace esv { struct Character; }
 
-	struct DamagePairList;
-	struct HitDamageInfo;
-	struct SkillPrototype;
 	struct IGameObject;
 
 	struct CDivinityStats_Character : public CRPGStats_ObjectInstance
@@ -1108,6 +1167,7 @@ namespace dse
 	struct CRPGStatsManager : public ProtectedGameObject<CRPGStatsManager>
 	{
 		typedef void (*LoadProc)(CRPGStatsManager* self);
+		typedef CDivinityStats_Object_Property_Data* (ParsePropertiesProc)(CRPGStatsManager* self, STDString* str);
 
 		CNamedElementManager<RPGEnumeration> modifierValueList;
 		CNamedElementManager<ModifierList> modifierList;
@@ -1297,5 +1357,12 @@ namespace dse
 	namespace esv
 	{
 		using ExecutePropertyDataOnGroundHitProc = void(glm::vec3* position, uint64_t casterHandle, DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList, DamageType damageType);
+		using ExecuteCharacterSetExtraPropertiesProc = void(CRPGStats_Object_Property_List* extraProperties, uint64_t attackerHandle,
+			ObjectSet<esv::Character*> const& targets, glm::vec3 const& impactOrigin, CRPGStats_Object_PropertyContext propertyContext,
+			bool isFromItem, SkillPrototype* skillProto, HitDamageInfo* damageInfo, float statusStartTimer, esv::Character* refTarget, 
+			bool statusFlag0x40, float a12);
+		using ExecutePropertyDataOnPositionOnlyProc = void(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
+			glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem, 
+			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo);
 	}
 }

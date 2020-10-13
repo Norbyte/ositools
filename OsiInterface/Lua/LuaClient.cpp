@@ -2423,7 +2423,6 @@ namespace dse::ecl::lua
 		}
 	}
 
-
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
 		StackCheck _(L, 0);
@@ -2437,6 +2436,25 @@ namespace dse::ecl::lua
 	void ClientState::OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle)
 	{
 		clientUI_.insert(std::make_pair(name, handle));
+	}
+
+
+	std::optional<STDString> ClientState::GetSkillPropertyDescription(CRPGStats_Object_Property_Extender* prop)
+	{
+		StackCheck _(L, 0);
+		Restriction restriction(*this, RestrictAll);
+
+		PushExtFunction(L, "_GetSkillPropertyDescription"); // stack: fn
+		LuaSerializer serializer(L, true);
+		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
+		SerializeObjectProperty(serializer, propRef);
+
+		auto result = CheckedCall<std::optional<char const*>>(L, 1, "Ext.GetSkillPropertyDescription");
+		if (result) {
+			return std::get<0>(*result);
+		} else {
+			return {};
+		}
 	}
 
 

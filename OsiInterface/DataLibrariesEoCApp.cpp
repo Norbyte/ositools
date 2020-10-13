@@ -1348,6 +1348,41 @@ namespace dse
 			{},
 			{"ls::ResourceManager::Instance", SymbolMappingTarget::kIndirect, 9, STATIC_SYM(ResourceManager__Instance)}
 		},
+
+		{
+			"RPGStats::ParseProperties",
+			SymbolMappingData::kText, 0,
+			"41 57 " // push    r15
+			"48 8D AC 24 20 FD FF FF " // lea     rbp, [rsp-2E0h]
+			"48 81 EC E0 03 00 00 " // sub     rsp, 3E0h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 D8 02 00 00 ", // mov     [rbp+310h+var_38], rax
+			{},
+			{"RPGStats::ParseProperties", SymbolMappingTarget::kAbsolute, -0x0E, STATIC_SYM(RPGStats__ParseProperties)}
+		},
+
+		{
+			"esv::ExecutePropertyDataOnPositionOnly",
+			SymbolMappingData::kText, 0,
+			"48 8B C4 " // mov     rax, rsp
+			"F3 0F 11 58 20 " // movss   dword ptr [rax+20h], xmm3
+			"4C 89 40 18 " //  mov     [rax+18h], r8
+			"48 89 50 10 ", // mov     [rax+10h], rdx
+			{},
+			{"esv::ExecutePropertyDataOnPositionOnly", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__ExecutePropertyDataOnPositionOnly)}
+		},
+
+		{
+			"esv::ExecuteCharacterExtraProperties",
+			SymbolMappingData::kText, 0,
+			"41 57 " // push    r15
+			"48 8D AC 24 C8 FC FF FF " // lea     rbp, [rsp-338h]
+			"48 81 EC 38 04 00 00 " // sub     rsp, 438h
+			"48 8B 85 98 03 00 00 ", // mov     rax, [rbp+350h+damageInfo]
+			{},
+			{"esv::ExecuteCharacterExtraProperties", SymbolMappingTarget::kAbsolute, -0x18, STATIC_SYM(esv__ExecuteCharacterSetExtraProperties)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)

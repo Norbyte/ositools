@@ -1014,6 +1014,41 @@ namespace dse
 			{},
 			{"esv::ExecutePropertyDataOnGroundHit", SymbolMappingTarget::kAbsolute, -0x0D, STATIC_SYM(esv__ExecutePropertyDataOnGroundHit)}
 		},
+
+		{
+			"RPGStats::ParseProperties",
+			SymbolMappingData::kText, 0,
+			"41 56 " // push    r14
+			"49 8D AB F8 FE FF FF " // lea     rbp, [r11-108h]
+			"48 81 EC E0 01 00 00 " // sub     rsp, 1E0h
+			"48 8B 05 XX XX XX XX " // mov     rax, cs:__security_cookie
+			"48 33 C4 " // xor     rax, rsp
+			"48 89 85 B0 00 00 00 ", // mov     [rbp+0B0h], rax
+			{},
+			{"RPGStats::ParseProperties", SymbolMappingTarget::kAbsolute, -0x07, STATIC_SYM(RPGStats__ParseProperties)}
+		},
+
+		{
+			"esv::ExecutePropertyDataOnPositionOnly",
+			SymbolMappingData::kText, 0,
+			"48 8B C4 " // mov     rax, rsp
+			"F3 0F 11 58 20 " // movss   dword ptr [rax+20h], xmm3
+			"4C 89 40 18 " //  mov     [rax+18h], r8
+			"48 89 50 10 ", // mov     [rax+10h], rdx
+			{},
+			{"esv::ExecutePropertyDataOnPositionOnly", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__ExecutePropertyDataOnPositionOnly)}
+		},
+
+		{
+			"esv::ExecuteCharacterExtraProperties",
+			SymbolMappingData::kText, 0,
+			"41 57 " // push    r15
+			"48 8D AC 24 68 FD FF FF " // lea     rbp, [rsp-298h]
+			"48 81 EC 98 03 00 00 " // sub     rsp, 398h
+			"48 8B 85 F8 02 00 00 ", // mov     rax, [rbp+2B0h+damageInfo]
+			{},
+			{"esv::ExecuteCharacterExtraProperties", SymbolMappingTarget::kAbsolute, -0x18, STATIC_SYM(esv__ExecuteCharacterSetExtraProperties)}
+		},
 	};
 
 	void LibraryManager::MapAllSymbols(bool deferred)
