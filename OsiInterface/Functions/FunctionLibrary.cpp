@@ -198,14 +198,7 @@ namespace dse::esv
 			return;
 		}
 
-		// Madness fix is enabled even when no extender-enabled mods are loaded
 		using namespace std::placeholders;
-		osiris_.GetLibraryManager().esv__Character_HasMadnessHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::CharacterHasMadnessFix, this, _1, _2)
-		);
-		osiris_.GetLibraryManager().ecl__Character_HasMadnessHook.SetWrapper(
-			std::bind(&CustomFunctionLibrary::EclCharacterHasMadnessFix, this, _1, _2)
-		);
 		// CreateUIObject always enabled for main menu version display
 		osiris_.GetLibraryManager().UIObjectManager__CreateUIObject.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)

@@ -184,7 +184,6 @@ namespace dse
 			using HitProc = void (esv::Character* self, CDivinityStats_Character* attackerStats, CDivinityStats_Item* itemStats, DamagePairList* damageList,
 				HitType hitType, bool noHitRoll, HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 			using ApplyDamageProc = void (esv::Character* self, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
-			using HasMadnessProc = bool(esv::Character* self);
 
 			Status* GetStatus(ObjectHandle handle, bool returnPending) const;
 			Status* GetStatus(NetId handle) const;
@@ -357,8 +356,6 @@ namespace dse
 
 		struct Character : public IEocClientObject
 		{
-			using HasMadnessProc = bool(Character* self);
-
 			Status* GetStatus(ObjectHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 
