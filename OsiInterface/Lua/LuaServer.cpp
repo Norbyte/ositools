@@ -2063,10 +2063,12 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		int32_t stackArgs = 1;
-		auto node = tuple->Items.Head->Next;
-		while (node != tuple->Items.Head) {
-			node = node->Next;
-			stackArgs++;
+		if (tuple != nullptr) {
+			auto node = tuple->Items.Head->Next;
+			while (node != tuple->Items.Head) {
+				node = node->Next;
+				stackArgs++;
+			}
 		}
 
 		lua_checkstack(L, stackArgs);
@@ -2076,11 +2078,13 @@ namespace dse::esv::lua
 			func.Push();
 
 			int32_t numArgs = 0;
-			auto node = tuple->Items.Head->Next;
-			while (node != tuple->Items.Head) {
-				OsiToLua(L, *node->Item);
-				node = node->Next;
-				numArgs++;
+			if (tuple != nullptr) {
+				auto node = tuple->Items.Head->Next;
+				while (node != tuple->Items.Head) {
+					OsiToLua(L, *node->Item);
+					node = node->Next;
+					numArgs++;
+				}
 			}
 
 			if (CallWithTraceback(L, numArgs, 0) != 0) {
