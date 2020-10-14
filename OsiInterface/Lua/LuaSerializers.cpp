@@ -610,15 +610,15 @@ namespace dse::lua
 		s.BeginObject();
 
 		P(ModifierType);
-		P(SlotType);
-		P(WeaponType);
-		P(ArmorType);
-		P(Handedness);
+		PO(SlotType, ItemSlot32::Sentinel);
+		PO(WeaponType, WeaponType::Sentinel);
+		PO(ArmorType, ArmorType::Sentinel);
+		PO(Handedness, HandednessType::Any);
 		P(Name);
 		P(BoostType);
-		P(MinLevel);
-		P(MinLevel);
-		P(Frequency);
+		PO(MinLevel, -1);
+		PO(MaxLevel, -1);
+		PO(Frequency, 1);
 
 		if (s.IsWriting) {
 			lua_newtable(s.L);
@@ -644,7 +644,7 @@ namespace dse::lua
 				FixedString boost;
 				int count;
 				s.VisitProperty("Boost", boost);
-				s.VisitProperty("Count", count);
+				s.VisitOptionalProperty("Count", count, 1);
 
 				auto object = stats->objects.FindIndex(boost);
 				if (object) {

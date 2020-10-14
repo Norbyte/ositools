@@ -1,9 +1,9 @@
-### API v50 Documentation
+### API v53 Documentation
 
 ### Table of Contents  
 
- - [Foreword](#notes-on-api-stability)
- - [Extension Setup](#extension-setup)
+ - [Getting Started](#getting-started)
+ - [Notes on API Stability](#notes-on-api-stability)
  - [Preprocessor](#preprocessor)
  - [Data Types](#data-types)
  - [Stats](#stat-functions)
@@ -51,22 +51,17 @@
    * [AttributeFlags](#attributeflags)
 
 
-## Notes on API stability
-Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
-Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
-
-## Extension Setup
+## Getting Started
 
 To start using the extension in your mod, a configuration file must be created that describes what features are utilized by your mod.
 
 Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the following contents, then tweak the values as desired:
 ```json
 {
-    "RequiredExtensionVersion": 45,
+    "RequiredExtensionVersion": 52,
     "FeatureFlags": [
         "OsirisExtensions",
-        "Lua",
-        "Preprocessor"
+        "Lua"
     ]
 }
 ```
@@ -76,25 +71,31 @@ Meaning of configuration keys:
 | Key | Meaning |
 |--|--|
 | `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
-| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. Requires `RequiredExtensionVersion` 43 or higher. |
-| `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only keep features that are actually in use. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. |
+| `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only list features that are actually in use. |
 
 The following features are accepted in `FeatureFlags`:
 
 | Value| Meaning |
 |--|--|
 | `OsirisExtensions` | Enables the Osiris extension functions described here (functions with the prefix `NRD_`) |
-| `Lua` | Enables scripting via the Lua runtime |
+| `Lua` | Enables scripting via the Lua runtime (see [Lua API Documentation](https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md)) |
 | `Preprocessor` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](#preprocessor)) |
 | `DisableFolding` | Disable folding of dynamic item stats |
 | `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](#custom-stats) for more details). Custom stats are always enabled in GM mode. |
 | `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
 
 
+## Notes on API stability
+
+Functions without any *TODO* or *Stability* comments are considered to be final and will not change. (Minor behavior changes or bugfixes may happen, but the API will not break.)
+Functions marked *Experimental* might be removed in future versions, or may change without any restriction.
+
+
 ## Preprocessor
 
 To support mods that may not want to depend on the extender but want to take advantages of its features when available, two "preprocessor" constructs are provided that allow conditional compilation of code when the extender is present / not present.
-To make use of this feature, add the `Preprocessor` feature flag in [your extension config](#extension-setup).
+To make use of this feature, enable the `PreprocessStory` variable in [your extension config](#extension-setup).
 
 The first construct allows defining code that only runs when the extender is loaded. To achieve this, the block comment `/* ... */` is tagged so the extender can uncomment the code during compilation if it is present.
 Syntax:

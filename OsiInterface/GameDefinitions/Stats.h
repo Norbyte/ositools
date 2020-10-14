@@ -912,8 +912,8 @@ namespace dse
 		int MaxLevel{ -1 };
 		int MinLevelBoosted{ -1 };
 		int MaxLevelBoosted{ -1 };
-		int Frequency{ 0 };
-		int Frequency2{ 0 };
+		int Frequency{ 1 };
+		int Frequency2{ 1 };
 	};
 
 	struct CRPGStats_DeltaModifier_List : public CNamedElementManager<CRPGStats_DeltaModifier>

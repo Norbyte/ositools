@@ -1,13 +1,8 @@
 
-### Lua API v52 Documentation
+### Lua API v53 Documentation
 
 ### Table of Contents  
 
- - [Migrating from v51 to v52](#migrating-from-v51-to-v52)
- - [Migrating from v44 to v45](#migrating-from-v44-to-v45)
- - [Migrating from v43 to v44](#migrating-from-v43-to-v44)
- - [Migrating from v42 to v43](#migrating-from-v42-to-v43)
- - [Migrating from v41 to v42](#migrating-from-v41-to-v42)
  - [Client / Server States](#client-server)
     - [Persistent Variables](#persistent-vars)
  - [Console](#console)
@@ -16,7 +11,7 @@
     * [Queries](#l2o_queries)
     * [Events](#l2o_events)
     * [Custom Calls](#l2o_custom_calls)
-    * [Capturing Events](#l2o_captures)
+    * [Capturing Events/Calls](#l2o_captures)
  - [Calling Osiris from Lua](#calling-osiris-from-lua)
     * [Calls](#o2l_calls)
     * [Queries](#o2l_queries)
@@ -24,23 +19,26 @@
     * [PROCs](#o2l_procs)
     * [User Queries](#o2l_qrys)
     * [Databases](#o2l_dbs)
- - [The Ext Library](#the-ext-library)
-    * [UI](#ui)
-    * [Stats](#stats)
-    * [Mod Info](#mod-info)
-    * [Server Characters](#server-characters)
-    * [Player Custom Data](#player-custom-data)
+ - [UI](#ui)
+ - [Stats](#stats)
+    * [Stats Objects](#stats-objects)
+    * [Custom Skill Properties](#stats-custom-skill-properties)
+    * [Additional Types](#stats-additional-types)
     * [Character Stats](#character-stats)
     * [Character Dynamic Stats](#character-dynamic-stats)
-    * [Server Items](#server-items)
     * [Item Stats](#item-stats)
     * [Item Dynamic Stats](#item-dynamic-stats)
-    * [Server Projectiles](#server-projectiles)
-    * [Server Statuses](#server-statuses)
-    * [Combat](#combat)
-    * [Damage lists](#damage-lists)
-    * [Utility functions](#ext-utility)
-    * [JSON Support](#json-support)
+ - [Mod Info](#mod-info)
+ - [Server Objects](#server-objects)
+    * [Characters](#server-characters)
+    * [Player Custom Data](#player-custom-data)
+    * [Items](#server-items)
+    * [Projectiles](#server-projectiles)
+    * [Statuses](#server-statuses)
+    * [Combat](#server-combat)
+ - [Damage lists](#damage-lists)
+ - [Utility functions](#ext-utility)
+ - [JSON Support](#json-support)
  - [Engine Events](#engine-events)
     * [Load Events](#event-load-events)
     * [SkillGetDescriptionParam](#event-skillgetdescriptionparam)
@@ -50,52 +48,48 @@
     * [BeforeCharacterApplyDamage](#event-beforecharacterapplydamage)
     * [StatusGetEnterChance](#event-statusgetenterchance)
     * [GetHitChance](#event-gethitchance)
+ - [Upgrading](#upgrading)
+   * [Migrating from v51 to v52](#migrating-from-v51-to-v52)
+   * [Migrating from v44 to v45](#migrating-from-v44-to-v45)
+   * [Migrating from v43 to v44](#migrating-from-v43-to-v44)
+   * [Migrating from v42 to v43](#migrating-from-v42-to-v43)
+   * [Migrating from v41 to v42](#migrating-from-v41-to-v42)
 
-## Upgrading
+<a id="getting-started"></a>
+## Getting Started
 
-### Migrating from v51 to v52
+To start using the extension in your mod, a configuration file must be created that describes what features are utilized by your mod.
 
-Object handles were converted from `integer` to `lightuserdata` in v52. This means that APIs that returned or accepted object handles now expect `lightuserdata` parameters. The usage of these APIs and the way parameters should be passed remains unchanged, so this change should not affect most users.
+Create a file at `Mods\YourMod_11111111-2222-...\OsiToolsConfig.json` with the following contents, then tweak the values as desired:
+```json
+{
+    "RequiredExtensionVersion": 52,
+    "ModTable": "YOUR_MOD_NAME_HERE",
+    "FeatureFlags": [
+        "OsirisExtensions",
+        "Lua"
+    ]
+}
+```
 
-Additional notes:
- - Since both `NetID`s and `ObjectHandle`s are integers, it was previously impossible or very hard to distinguish between the two in APIs that accept both (eg. `Ext.GetItem`, `Ext.GetCharacter`, etc.). `Ext.GetItem` and `Ext.GetCharacter` still accept integer parameters, but will always treat an int parameter as a `NetID` from now on.
- - It is no longer possible to pass handles between the client and the server. Since client handles are useless on the server (and vice versa), this should only be an issue if handles were passed accidentally in network messages.
+Meaning of configuration keys:
 
-### Migrating from v44 to v45
+| Key | Meaning |
+|--|--|
+| `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. |
+| `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only list features that are actually in use. |
 
-It was discovered that there are situations when `ModuleLoading` is not triggered even though the stats were reloaded (this occurs during certain client-server sync situations and when stats were reloaded from the editor console); this causes stats to revert to their original values. A new event (`StatsLoaded`) was added to fix these shortcomings. The `StatsLoaded` event is meant to replace the use of `ModuleLoading` for stat override purposes, i.e. all stats should be edited when `StatsLoaded` is triggered. (The `ModuleLoading` event will be kept for backwards compatibility.)
-```lua
-local function statsLoaded()
-    -- Edit stats here!
-end
+The following features are accepted in `FeatureFlags`:
 
-Ext.RegisterListener("StatsLoaded", statsLoaded)
-``` 
-
-### Migrating from v43 to v44
-
-There are no backwards incompatible changes in v44.
-
-### Migrating from v42 to v43
-
-The following changes must be observed when migrating to v43:
-- Since it is very easy to accidentally pollute the global table, the global Lua table is changed for mods targeting v43 (i.e. `RequiredExtensionVersion` >= 43). A new config option in `OsiToolsConfig.json`, `ModTable` specifies the name of the mod in the global mod table. Each mod has an isolated mod-specific global table at `Mods[ModTable]`. This table contains all of the symbols from the original global table (`Ext`, `Osi`, ...) and built-in libraries (`math`, `table`, ...), but is otherwise separate. (i.e. declaring `function xyz()` is equivalent to setting `Mods[ModTable].xyz = function () ...`).
-- `Ext.Require` is only callable during bootstrap to avoid lag when loading files / doing startup stuff from the server loop
-- `Ext.Require` got a one-argument form; i.e. it is sufficient to call `Ext.Require("wtf.lua")` instead of `Ext.Require("SomeUUID_1111-2222-...", "wtf.lua")` (old version will still work) 
-
-
-### Migrating from v41 to v42
-
-The client and server Lua contexts were previously unified, i.e. both the server and the client used the same Lua state. After v42 server and client contexts are separated.
-
-The following changes must be observed when migrating to v42:
- - `Bootstrap.lua` is deprecated. The server will load `BootstrapServer.lua`, the client will try to load `BootstrapClient.lua`. If these files cannot be found, `Bootstrap.lua` will be loaded as a fallback. In addition, care must be taken to ensure that `BootstrapServer.lua` only contains code that should be run on the server and `BootstrapClient.lua` only contains code for the client.
- - `Ext.GetHitChance` and `Ext.StatusGetEnterChance` are now events; instead of assigning a single function to them as before (i.e. `Ext.GetHitChance = func`), a listener should be registered (`Ext.RegisterListener("GetHitChance", func)`). For backwards compatibility, during the deprecation period assigning a function to `Ext.GetHitChance` is equivalent to registering that function as a listener.
- - Server-side scripts now only allow registering server-side listeners and vice versa
-     - Listeners allowed on the server: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `ComputeCharacterHit`, `CalculateTurnOrder`, `GetHitChance`, `StatusGetEnterChance`
-     - Listeners allowed on the client: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `SkillGetDescriptionParam`, `StatusGetDescriptionParam`, `GetHitChance`
- - Calling `Ext.EnableStatOverride` is no longer necessary; any calls to this function should be removed
- - The following functions are deleted in client contexts: `Ext.NewCall`, `Ext.NewQuery`, `Ext.NewEvent`, `Ext.GetCharacter`, `Ext.GetItem`, `Ext.GetStatus`, `Ext.GetCombat`, `Ext.GenerateIdeHelpers`
+| Value| Meaning |
+|--|--|
+| `Lua` | Enables Lua scripting |
+| `OsirisExtensions` | Enables Osiris (Story) extension functions (see [Osiris API Documentation](https://github.com/Norbyte/ositools/blob/master/APIDocs.md)) |
+| `Preprocessor` | Enables the use of preprocessor definitions in Story scripts. (See [Preprocessor](https://github.com/Norbyte/ositools/blob/master/APIDocs.md#preprocessor)) |
+| `DisableFolding` | Disable folding of dynamic item stats |
+| `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](https://github.com/Norbyte/ositools/blob/master/APIDocs.md#custom-stats) for more details). Custom stats are always enabled in GM mode. |
+| `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
 
 
 <a id="client-server"></a>
@@ -476,9 +470,7 @@ Osi.DB_GiveTemplateFromNpcToPlayerDialogEvent:Delete("CON_Drink_Cup_A_Tea_080d0e
 ```
 
 
-# The `Ext` library
-
-## UI
+# UI
 
 #### Ext.CreateUI(name, path, layer) <sup>C</sup>
 
@@ -499,6 +491,18 @@ Retrieves a built-in UI element at the specified path. If no such element exists
 
 Destroys the specified UI element.
 
+#### Ext.UISetDirty (character: ObjectHandle, flags: integer) <sup>C</sup>
+
+**Experimental!** Forces an UI refresh for the specified character.
+Supported flag values: 
+ - 0x1 - AP
+ - 0x10 - Abilities
+ - 0x60 - Status icons
+ - 0x40000 - Health
+ - 0x80000 - Skill set
+ - 0x1000000 - Inventory
+ - 0x10000000 - Character transform
+ - 0x80000000 - Relations
 
 ### Interacting with the UI Element
 
@@ -659,30 +663,40 @@ root.mainMenu_mc.addMenuLabel("TEST LABEL")
 Ext.Print(root.getHeight())
 ```
 
-## Stats
+# Stats
 
 ## TODO - stat creation workflow, stat update workflow, note about persistent properties in case of dynamic stat updates (AVOID!)
 
-### GetStatEntries(type)
+<a id="stats-GetStatEntries"></a>
+### GetStatEntries(type: string): string[]
 
 Returns a table with the names of all stat entries.
-When the optional parameter `type` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+When the optional parameter `type` is specified, it'll only return stats with the specified type.
+The following types are supported: `StatusData`, `SkillData`, `Armor`, `Shield`, `Weapon`, `Potion`, `Character`, `Object`, `SkillSet`, `EquipmentSet`, `TreasureTable`, `ItemCombination`, `ItemComboProperty`, `CraftingPreviewData`, `ItemGroup`, `NameGroup`, `DeltaMod`
 
-### GetStatEntriesLoadedBefore(modGuid, type)
+
+<a id="stats-objects"></a>
+## Stats Objects
+
+The following functions are only usable for Skill and Status, Armor, Shield, Weapon, Potion, Character and Object stats entries. Other stats types (eg. DeltaMods, TreasureTables) have their own separate sections in the docs and cannot be manipulated using these functions.
+
+
+### GetStatEntriesLoadedBefore(modGuid: string, type: string): string[]
 
 Returns a table with the names of all stat entries that were loaded before the specified mod.
 This function is useful for retrieving stats that can be overridden by a mod according to the module load order.
 When the optional parameter `type` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
 
-### CreateStat(name, type, template) <sup>S</sup>
+### CreateStat(name: string, type: string, template: string|nil): StatEntry
 
-Creates a new stats entry on the server. 
+Creates a new stats entry. 
 If a stat object with the same name already exists, the specified modifier type is invalid or the specified template doesn't exist, the function returns `nil`.
 After all stat properties were initialized, the stats entry must be synchronized by calling `SyncStat()`. 
 
  - `name` is the name of stats entry to create; it should be globally unique
  - `type` is the stats entry type (eg. `SkillData`, `StatusData`, `Weapon`, etc.)
  - If the `template` parameter is not null, stats properties are copied from the template entry to the newly created entry
+ - If the entry was created on the server, `SyncStat()` will replicate the stats entry to all clients. If the entry was created on the client, `SyncStat()` will only update it locally.
 
 Example:
 ```lua
@@ -692,13 +706,13 @@ stat.SurfaceType = "Fire"
 Ext.SyncStat("NRD_Dynamic_Skill")
 ```
 
-### SyncStat(stat, persist) <sup>S</sup>
+### SyncStat(statId: string, persist: bool)
 
 Synchronizes the changes made to the specified stats entry to each client.
 `SyncStat` must be called each time a stats entry is modified dynamically (after `ModuleLoading`/`StatsLoaded`) to ensure that the host and all clients see the same properties.
 The optional `persist` attribute determines whether the stats entry is persistent, i.e. if it will be written to savegames. If not specified, the `persist` parameter defaults to `true`.
 
-### StatSetPersistence(stat, persist) <sup>S</sup>
+### StatSetPersistence(statId: string, persist: bool) <sup>S</sup>
 
 Toggles whether the specified stats entry should be persisted to savegames.
 Changes made to non-persistent stats will be lost the next time a game is reloaded. 
@@ -813,6 +827,73 @@ Returns a table with the names of skills contained within the specified SkillSet
 
 Returns a table with the names of equipment entries contained within the specified EquipmentSet.
 
+<a id="stats-custom-skill-properties"></a>
+## Custom Skill Properties
+
+It is possible to create custom `SkillProperties` actions that will fire when the game executes the `SkillProperties` of a skill. A handler should be registered for the action on both the client and the server.
+
+The client side needs to implement the `GetDescription` function that'll return the description of the skill property (used in tooltips). If the function returns `nil`, no description is displayed.
+
+Example:
+```lua
+Ext.RegisterSkillProperty("MY_CUSTOM_SKILL", {
+    GetDescription = function (property)
+        return "Test SkillProperty description"
+    end
+})
+```
+
+The server side needs to implement the `ExecuteOnTarget` method for executing the property on a target character and the `ExecuteOnPosition` for executing the property on the ground.
+
+Example:
+```lua
+Ext.RegisterSkillProperty("MY_CUSTOM_SKILL", {
+    ExecuteOnTarget = function (property, attacker, target, position, isFromItem, skill, hit)
+        Ext.PrintWarning("SKILLPROPERTY ExecuteOnTarget!")
+        Ext.PrintWarning(property, attacker, target, position, isFromItem, skill, hit)
+    end,
+    ExecuteOnPosition = function (property, attacker, position, areaRadius, isFromItem, skill, hit)
+        Ext.PrintWarning("SKILLPROPERTY ExecuteOnPosition!")
+        Ext.PrintWarning(property, attacker, position, areaRadius, isFromItem, skill, hit)
+    end
+})
+```
+
+The stats entry uses the same basic format as statuses, but the action should be prefixed with `EXT:`. You can pass up to 5 (optional) parameters in `EXT:name,int,int,string,int,int` format.
+Property contexts are supported (i.e. `SELF:`, `TARGET:`, `AOE:`, etc.).
+Conditions (i.e. `IF(whatever):`) are not _yet_ supported.
+
+Examples:
+`data "SkillProperties" "SELF:EXT:MY_CUSTOM_SKILL"`
+`data "SkillProperties" "EXT:MY_CUSTOM_SKILL,100,1,TEST TEST TEST,1,2"`
+
+### Executing Skill Properties
+
+It is possible to execute the `SkillProperties` of a skill manually (without actually using the skill) using the following functions:
+
+```lua
+Ext.ExecuteSkillPropertiesOnPosition(skillId: string, attacker: ObjectHandle|int|string, target: ObjectHandle|int|string, position: number[], propertyContext: string, isFromItem: boolean)
+Ext.ExecuteSkillPropertiesOnTarget(skillId: string, attacker: ObjectHandle|int|string, position: number[], radius: number, propertyContext: string, isFromItem: boolean)
+```
+
+ - `skillId` is the stats entry name of the skill to use
+ - `attacker` and `target` are the server-side object handles, GUIDs or NetID-s of the attacker and target character
+ - `position` is the position of the hit
+ - `radius` is the radius of the effect (when targeting the ground)
+ - `propertyContext` contains the type of properties to execute; it should be one of `Target`, `AoE`, `Self`, `SelfOnHit`, `SelfOnEquip`
+ - `isFromItem` determines whether the skill was granted by an item
+
+Example:
+```lua
+local char = CharacterGetHostCharacter()
+local position = Ext.GetCharacter(char).WorldPos
+
+-- Exec on ground
+Ext.ExecuteSkillPropertiesOnPosition("Projectile_AcidSpores", char, position, 3.0, "AoE", false)
+-- Exec on a target character
+Ext.ExecuteSkillPropertiesOnTarget("Shout_CatSwapPlaces", char, ch2, position, "Target", false)
+```
+
 ### ExtraData
 
 `Ext.ExtraData` is an object containing all entries from `Data.txt`.
@@ -824,149 +905,47 @@ Example:
 Ext.Print(Ext.ExtraData.DamageBoostFromAttribute)
 ```
 
+<a id="stats-additional-types"></a>
+## Additional Types
 
-## Mod Info
+The following functions can be used to edit stats that don't use the object format (described above).
 
-### IsModLoaded(modGuid)
+Getter functions can be used to retrieve the stats entry by name. They return a table that contains every property of the specified stats entry. 
+Setter functions expect the same table as a parameter, and will update the stats entry. If the stats entry passed to the setter function doesn't exist, a new entry will be created.
 
-Returns whether the module with the specified GUID is loaded.
-This is equivalent to Osiris `NRD_IsModLoaded`, but is callable when the Osiris scripting runtime is not yet available (i.e. `ModuleLoading˙, etc events).
-
-Example:
-```lua
-if (Ext.IsModLoaded("5cc23efe-f451-c414-117d-b68fbc53d32d"))
-    Ext.Print("Mod loaded")
-end
-```
-
-### GetModLoadOrder()
-
-Returns the list of loaded module UUIDs in the order they're loaded in.
-
-### GetModInfo(modGuid)
-
-Returns detailed information about the specified (loaded) module.
-Example:
-```lua
-local loadOrder = Ext.GetModLoadOrder()
-for k,uuid in pairs(loadOrder) do
-    local mod = Ext.GetModInfo(uuid)
-    Ext.Print(Ext.JsonStringify(mod))
-end
-```
-
-Output:
-```json
-{
-    "Author" : "Larian Studios",
-    "Dependencies" :
-    [
-        "2bd9bdbe-22ae-4aa2-9c93-205880fc6564",
-        "eedf7638-36ff-4f26-a50a-076b87d53ba0"
-    ],
-    "Description" : "",
-    "Directory" : "DivinityOrigins_1301db3d-1f54-4e98-9be5-5094030916e4",
-    "ModuleType" : "Adventure",
-    "Name" : "Divinity: Original Sin 2",
-    "PublishVersion" : 905969667,
-    "UUID" : "1301db3d-1f54-4e98-9be5-5094030916e4",
-    "Version" : 372645092
-}
-```
-
-<a id="server-characters"></a>
-## Server Characters <sup>S</sup>
-
-Characters in server contexts can be retrieved using the `Ext.GetCharacter(ref)` call. The function accepts a character GUID, a NetID or an ObjectHandle. If the character cannot be found, the return value is `nil`; otherwise a Character object is returned.
-
-Player objects have the following properties:
-
-| Name | Type | Notes |
+| Stat File | Getter Function | Setter Function |
 |--|--|--|
-| Stats | userdata | See [CharacterStats](#character-stats) |
-| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
-| NetID | integer | Network ID of the character |
-| MyGuid | string | GUID of the character |
-| WorldPos | number[3] | Position of the character |
-| CurrentLevel | String | Name of level (map) the character is currently on |
-| Scale | number |  |
-| AnimationOverride | string |  |
-| WalkSpeedOverride | integer |  |
-| RunSpeedOverride | integer |  |
-| NeedsUpdateCount | integer |  |
-| ScriptForceUpdateCount | integer |  |
-| ForceSynchCount | integer |  |
-| SkillBeingPrepared | string |  |
-| LifeTime | number | Used for summons to indicate lifetime |
-| PartialAP | number | Movement AP |
-| AnimType | integer |  |
-| DelayDeathCount | integer |  |
-| AnimationSetOverride | string |  |
-| CustomTradeTreasure | string |  |
-| Archetype | string |  |
-| EquipmentColor | string |  |
-| IsPlayer | boolean |  |
-| Multiplayer | boolean |  |
-| InParty | boolean |  |
-| HostControl | boolean |  |
-| Activated | boolean |  |
-| OffStage | boolean |  |
-| Dead | boolean |  |
-| HasOwner | boolean  |  |
-| InDialog | boolean |  |
-| Summon | boolean  |  |
-| CharacterControl | boolean |  |
-| Loaded | boolean  |  |
-| InArena | boolean |  |
-| CharacterCreationFinished | boolean |  |
-| Floating | boolean |  |
-| SpotSneakers | boolean |  |
-| WalkThrough | boolean |  |
-| CoverAmount | boolean |  |
-| CanShootThrough | boolean |  |
-| PartyFollower | boolean |  |
-| Totem | boolean  |  |
-| NoRotate | boolean  |  |
-| IsHuge | boolean  |  |
-| Global | boolean |  |
-| HasOsirisDialog | boolean |  |
-| HasDefaultDialog | boolean |  |
-| TreasureGeneratedForTrader | boolean |  |
-| Trader | boolean |  |
-| Resurrected | boolean |  |
-| IsPet | boolean |  |
-| IsSpectating | boolean |  |
-| NoReptuationEffects | boolean |  |
-| HasWalkSpeedOverride | boolean |  |
-| HasRunSpeedOverride | boolean |  |
-| IsGameMaster | boolean  |  |
-| IsPossessed | boolean |  |
+| `CraftingStationsItemComboPreviewData.txt` | `Ext.GetItemComboPreviewData(name)`| `Ext.UpdateItemComboPreviewData(previewData)` |
+| `DeltaModifier.txt` | `Ext.GetDeltaMod(name, modifierType)`| `Ext.UpdateDeltaMod(deltaMod)` |
+| `Equipment.txt` | `Ext.GetEquipmentSet(name)`| `Ext.UpdateEquipmentSet(equipmentSet)` |
+| `ItemComboProperties.txt` | `Ext.GetItemComboProperty(name)`| `Ext.UpdateItemComboProperty(itemComboProperty)` |
+| `ItemCombos.txt` | `Ext.GetItemCombo(name)`| `Ext.UpdateItemCombo(itemCombo)` |
+| `ObjectCategoriesItemComboPreviewData.txt` | `Ext.GetItemComboPreviewData(name)`| `Ext.UpdateItemComboPreviewData(previewData)` |
+| `SkillSet.txt` | `Ext.GetSkillSet(name)`| `Ext.UpdateSkillSet(skillSet)` |
+| `TreasureGroups.txt` | `Ext.GetTreasureCategory(name)`| `Ext.UpdateTreasureCategory(name, treasureCategory)` |
+| `TreasureTable.txt` | `Ext.GetTreasureTable(name)`| `Ext.UpdateTreasureTable(treasureTable)` |
 
+Example usage:
+```lua
+-- Adding a new boost to an existing DeltaMod
+local deltaMod = Ext.GetDeltaMod("Boost_Armor_Gloves_Primary_Strength_Medium", "Armor")
+table.insert(deltaMod.Boosts, {"Boost" : "_Boost_Armor_Gloves_Primary_Wits", "Count": 1})
+Ext.UpdateDeltaMod(deltaMod)
 
-<a id="player-custom-data"></a>
-## Player Custom Data
+-- Creating a new DeltaMod from scratch
+local deltaMod = {
+    "Name" : "Boost_Armor_Gloves_Primary_Strength_Medium",
+    "BoostType" : "ItemCombo",
+    "ModifierType" : "Armor",
+    "SlotType" : "Gloves",
+    "Boosts" : [{
+        "Boost" : "_Boost_Armor_Gloves_Primary_Strength_Medium",
+        "Count" : 1
+    }]
+}
+Ext.UpdateDeltaMod(deltaMod)
+```
 
-Contains player customization info. Properties:
-
-| Name | Type | 
-|--|--|
-| CustomLookEnabled | boolean |
-| Name | string |
-| ClassType | string |
-| SkinColor | integer |
-| HairColor | integer |
-| ClothColor1 | integer |
-| ClothColor2 | integer |
-| ClothColor3 | integer |
-| IsMale | boolean |
-| Race | string |
-| OriginName | string |
-| Icon | string |
-| MusicInstrument | string |
-| OwnerProfileID | string |
-| ReservedProfileID | string |
-| AiPersonality | string |
-| Speaker | string |
 
 
 <a id="character-stats"></a>
@@ -1092,43 +1071,6 @@ Dynamic stat index `1` always contains character base stats, index `2` contains 
 | BonusWeapon | string | |
 
 
-<a id="server-items"></a>
-## Server Items <sup>S</sup>
-
-Items on the server can be retrieved using the `Ext.GetItem(ref)` call. The function accepts an item GUID or an ObjectHandle. If the item cannot be found, the return value is `nil`; otherwise an Item object is returned.
-
-Items have the following properties:
-
-| Name | Type | Notes |
-|--|--|--|
-| Stats | userdata | See [ItemStats](#item-stats) |
-| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
-| NetID | integer | Network ID of the item |
-| MyGuid | string | GUID of the item |
-| WorldPos | vec3 | Position of the item |
-| CurrentLevel | String | Name of level (map) the item is currently on |
-| Scale | number |  |
-| CustomDisplayName | string | |
-| CustomDescription | string | |
-| CustomBookContent | string | |
-| StatsId | string | Stats entry (eg. `WPN_Dagger`) |
-| Slot | integer | |
-| Amount | integer | |
-| Vitality | integer | |
-| Armor | integer | |
-| InUseByCharacterHandle | integer | Character currently using the item |
-| Key | string | Key used to open the container |
-| LockLevel | integer | |
-| OwnerHandle | integer | ObjectHandle to the owner of this item |
-| ComputedVitality | integer | |
-| ItemType | integer | |
-| GoldValueOverwrite | integer | |
-| WeightValueOverwrite | integer | |
-| TreasureLevel | integer | |
-| LevelOverride | integer | |
-| ForceSynch | boolean | |
-
-
 <a id="item-stats"></a>
 ## Item Stats
 
@@ -1245,8 +1187,191 @@ Armor-only properties:
 | MagicArmorBoost | integer | |
 
 
+# Mod Info
+
+### IsModLoaded(modGuid)
+
+Returns whether the module with the specified GUID is loaded.
+This is equivalent to Osiris `NRD_IsModLoaded`, but is callable when the Osiris scripting runtime is not yet available (i.e. `ModuleLoading˙, etc events).
+
+Example:
+```lua
+if (Ext.IsModLoaded("5cc23efe-f451-c414-117d-b68fbc53d32d"))
+    Ext.Print("Mod loaded")
+end
+```
+
+### GetModLoadOrder()
+
+Returns the list of loaded module UUIDs in the order they're loaded in.
+
+### GetModInfo(modGuid)
+
+Returns detailed information about the specified (loaded) module.
+Example:
+```lua
+local loadOrder = Ext.GetModLoadOrder()
+for k,uuid in pairs(loadOrder) do
+    local mod = Ext.GetModInfo(uuid)
+    Ext.Print(Ext.JsonStringify(mod))
+end
+```
+
+Output:
+```json
+{
+    "Author" : "Larian Studios",
+    "Dependencies" :
+    [
+        "2bd9bdbe-22ae-4aa2-9c93-205880fc6564",
+        "eedf7638-36ff-4f26-a50a-076b87d53ba0"
+    ],
+    "Description" : "",
+    "Directory" : "DivinityOrigins_1301db3d-1f54-4e98-9be5-5094030916e4",
+    "ModuleType" : "Adventure",
+    "Name" : "Divinity: Original Sin 2",
+    "PublishVersion" : 905969667,
+    "UUID" : "1301db3d-1f54-4e98-9be5-5094030916e4",
+    "Version" : 372645092
+}
+```
+
+# Server Objects
+
+<a id="server-characters"></a>
+## Server Characters <sup>S</sup>
+
+Characters in server contexts can be retrieved using the `Ext.GetCharacter(ref)` call. The function accepts a character GUID, a NetID or an ObjectHandle. If the character cannot be found, the return value is `nil`; otherwise a Character object is returned.
+
+Player objects have the following properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| Stats | userdata | See [CharacterStats](#character-stats) |
+| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
+| NetID | integer | Network ID of the character |
+| MyGuid | string | GUID of the character |
+| WorldPos | number[3] | Position of the character |
+| CurrentLevel | String | Name of level (map) the character is currently on |
+| Scale | number |  |
+| AnimationOverride | string |  |
+| WalkSpeedOverride | integer |  |
+| RunSpeedOverride | integer |  |
+| NeedsUpdateCount | integer |  |
+| ScriptForceUpdateCount | integer |  |
+| ForceSynchCount | integer |  |
+| SkillBeingPrepared | string |  |
+| LifeTime | number | Used for summons to indicate lifetime |
+| PartialAP | number | Movement AP |
+| AnimType | integer |  |
+| DelayDeathCount | integer |  |
+| AnimationSetOverride | string |  |
+| CustomTradeTreasure | string |  |
+| Archetype | string |  |
+| EquipmentColor | string |  |
+| IsPlayer | boolean |  |
+| Multiplayer | boolean |  |
+| InParty | boolean |  |
+| HostControl | boolean |  |
+| Activated | boolean |  |
+| OffStage | boolean |  |
+| Dead | boolean |  |
+| HasOwner | boolean  |  |
+| InDialog | boolean |  |
+| Summon | boolean  |  |
+| CharacterControl | boolean |  |
+| Loaded | boolean  |  |
+| InArena | boolean |  |
+| CharacterCreationFinished | boolean |  |
+| Floating | boolean |  |
+| SpotSneakers | boolean |  |
+| WalkThrough | boolean |  |
+| CoverAmount | boolean |  |
+| CanShootThrough | boolean |  |
+| PartyFollower | boolean |  |
+| Totem | boolean  |  |
+| NoRotate | boolean  |  |
+| IsHuge | boolean  |  |
+| Global | boolean |  |
+| HasOsirisDialog | boolean |  |
+| HasDefaultDialog | boolean |  |
+| TreasureGeneratedForTrader | boolean |  |
+| Trader | boolean |  |
+| Resurrected | boolean |  |
+| IsPet | boolean |  |
+| IsSpectating | boolean |  |
+| NoReptuationEffects | boolean |  |
+| HasWalkSpeedOverride | boolean |  |
+| HasRunSpeedOverride | boolean |  |
+| IsGameMaster | boolean  |  |
+| IsPossessed | boolean |  |
+
+
+<a id="player-custom-data"></a>
+## Player Custom Data
+
+Contains player customization info. Properties:
+
+| Name | Type | 
+|--|--|
+| CustomLookEnabled | boolean |
+| Name | string |
+| ClassType | string |
+| SkinColor | integer |
+| HairColor | integer |
+| ClothColor1 | integer |
+| ClothColor2 | integer |
+| ClothColor3 | integer |
+| IsMale | boolean |
+| Race | string |
+| OriginName | string |
+| Icon | string |
+| MusicInstrument | string |
+| OwnerProfileID | string |
+| ReservedProfileID | string |
+| AiPersonality | string |
+| Speaker | string |
+
+
+<a id="server-items"></a>
+## Server Items <sup>S</sup>
+
+Items on the server can be retrieved using the `Ext.GetItem(ref)` call. The function accepts an item GUID or an ObjectHandle. If the item cannot be found, the return value is `nil`; otherwise an Item object is returned.
+
+Items have the following properties:
+
+| Name | Type | Notes |
+|--|--|--|
+| Stats | userdata | See [ItemStats](#item-stats) |
+| PlayerCustomData | userdata | See [PlayerCustomData](#player-custom-data) |
+| NetID | integer | Network ID of the item |
+| MyGuid | string | GUID of the item |
+| WorldPos | vec3 | Position of the item |
+| CurrentLevel | String | Name of level (map) the item is currently on |
+| Scale | number |  |
+| CustomDisplayName | string | |
+| CustomDescription | string | |
+| CustomBookContent | string | |
+| StatsId | string | Stats entry (eg. `WPN_Dagger`) |
+| Slot | integer | |
+| Amount | integer | |
+| Vitality | integer | |
+| Armor | integer | |
+| InUseByCharacterHandle | integer | Character currently using the item |
+| Key | string | Key used to open the container |
+| LockLevel | integer | |
+| OwnerHandle | integer | ObjectHandle to the owner of this item |
+| ComputedVitality | integer | |
+| ItemType | integer | |
+| GoldValueOverwrite | integer | |
+| WeightValueOverwrite | integer | |
+| TreasureLevel | integer | |
+| LevelOverride | integer | |
+| ForceSynch | boolean | |
+
+
 <a id="server-projectiles"></a>
-## Projectiles <sup>S</sup>
+## Server Projectiles <sup>S</sup>
 
 Currently projectiles are only available when passed as parameters to event listeners (`GetSkillDamage`, `ComputeCharacterHit`, etc.), and are not retrievable otherwise.
 
@@ -1448,7 +1573,7 @@ Properties available on all statuses:
 | AbsorbSurfaceRange | integer |  |
 
 
-<a id="combat"></a>
+<a id="server-combat"></a>
 ## Combat <sup>S</sup>
 
 Each combat in-game is represented by a Combat object in Lua. 
@@ -1511,7 +1636,7 @@ end
 Ext.RegisterListener("CalculateTurnOrder", CalcInitiativeTurnOrder)
 ```
 
-### Team <sup>S</sup>
+### Combat Team <sup>S</sup>
 
 A `Team` is a combat participant (either a character or an item).
 
@@ -1904,6 +2029,52 @@ Be aware that the Hit Chance Calculation considers a lot of variables, including
 
 For a reference implementation that replicates the ingame hit chance logic check out the [Game.Math](https://github.com/Norbyte/ositools/blob/master/OsiInterface/Game.Math.lua) library.
 
+
+## Upgrading
+
+### Migrating from v51 to v52
+
+Object handles were converted from `integer` to `lightuserdata` in v52. This means that APIs that returned or accepted object handles now expect `lightuserdata` parameters. The usage of these APIs and the way parameters should be passed remains unchanged, so this change should not affect most users.
+
+Additional notes:
+ - Since both `NetID`s and `ObjectHandle`s are integers, it was previously impossible or very hard to distinguish between the two in APIs that accept both (eg. `Ext.GetItem`, `Ext.GetCharacter`, etc.). `Ext.GetItem` and `Ext.GetCharacter` still accept integer parameters, but will always treat an int parameter as a `NetID` from now on.
+ - It is no longer possible to pass handles between the client and the server. Since client handles are useless on the server (and vice versa), this should only be an issue if handles were passed accidentally in network messages.
+
+### Migrating from v44 to v45
+
+It was discovered that there are situations when `ModuleLoading` is not triggered even though the stats were reloaded (this occurs during certain client-server sync situations and when stats were reloaded from the editor console); this causes stats to revert to their original values. A new event (`StatsLoaded`) was added to fix these shortcomings. The `StatsLoaded` event is meant to replace the use of `ModuleLoading` for stat override purposes, i.e. all stats should be edited when `StatsLoaded` is triggered. (The `ModuleLoading` event will be kept for backwards compatibility.)
+```lua
+local function statsLoaded()
+    -- Edit stats here!
+end
+
+Ext.RegisterListener("StatsLoaded", statsLoaded)
+``` 
+
+### Migrating from v43 to v44
+
+There are no backwards incompatible changes in v44.
+
+### Migrating from v42 to v43
+
+The following changes must be observed when migrating to v43:
+- Since it is very easy to accidentally pollute the global table, the global Lua table is changed for mods targeting v43 (i.e. `RequiredExtensionVersion` >= 43). A new config option in `OsiToolsConfig.json`, `ModTable` specifies the name of the mod in the global mod table. Each mod has an isolated mod-specific global table at `Mods[ModTable]`. This table contains all of the symbols from the original global table (`Ext`, `Osi`, ...) and built-in libraries (`math`, `table`, ...), but is otherwise separate. (i.e. declaring `function xyz()` is equivalent to setting `Mods[ModTable].xyz = function () ...`).
+- `Ext.Require` is only callable during bootstrap to avoid lag when loading files / doing startup stuff from the server loop
+- `Ext.Require` got a one-argument form; i.e. it is sufficient to call `Ext.Require("wtf.lua")` instead of `Ext.Require("SomeUUID_1111-2222-...", "wtf.lua")` (old version will still work) 
+
+
+### Migrating from v41 to v42
+
+The client and server Lua contexts were previously unified, i.e. both the server and the client used the same Lua state. After v42 server and client contexts are separated.
+
+The following changes must be observed when migrating to v42:
+ - `Bootstrap.lua` is deprecated. The server will load `BootstrapServer.lua`, the client will try to load `BootstrapClient.lua`. If these files cannot be found, `Bootstrap.lua` will be loaded as a fallback. In addition, care must be taken to ensure that `BootstrapServer.lua` only contains code that should be run on the server and `BootstrapClient.lua` only contains code for the client.
+ - `Ext.GetHitChance` and `Ext.StatusGetEnterChance` are now events; instead of assigning a single function to them as before (i.e. `Ext.GetHitChance = func`), a listener should be registered (`Ext.RegisterListener("GetHitChance", func)`). For backwards compatibility, during the deprecation period assigning a function to `Ext.GetHitChance` is equivalent to registering that function as a listener.
+ - Server-side scripts now only allow registering server-side listeners and vice versa
+     - Listeners allowed on the server: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `ComputeCharacterHit`, `CalculateTurnOrder`, `GetHitChance`, `StatusGetEnterChance`
+     - Listeners allowed on the client: 	`SessionLoading`, `ModuleLoading`, `ModuleResume`, `GetSkillDamage`, `SkillGetDescriptionParam`, `StatusGetDescriptionParam`, `GetHitChance`
+ - Calling `Ext.EnableStatOverride` is no longer necessary; any calls to this function should be removed
+ - The following functions are deleted in client contexts: `Ext.NewCall`, `Ext.NewQuery`, `Ext.NewEvent`, `Ext.GetCharacter`, `Ext.GetItem`, `Ext.GetStatus`, `Ext.GetCombat`, `Ext.GenerateIdeHelpers`
 
 
 
