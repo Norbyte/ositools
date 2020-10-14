@@ -6,6 +6,7 @@
  - [Client / Server States](#client-server)
     - [Persistent Variables](#persistent-vars)
  - [Console](#console)
+ - [Object Identifiers](#object-identifiers)
  - [Calling Lua from Osiris](#calling-lua-from-osiris)
     * [Calls](#l2o_calls)
     * [Queries](#l2o_queries)
@@ -153,6 +154,68 @@ The command `!test 123 456` will call `testCmd("test", 123, 456)` and prints `Cm
 Anything else typed in the console will be executed as Lua code in the current context. (eg. typing `Ext.Print(1234)` will print `123`). 
 The console has full access to the underlying Lua state, i.e. server console commands can also call builtin/custom Osiris functions, so Osiris calls like `CharacterGiveReward(CharacterGetHostCharacter(), "CheatShieldsAllRarities", 1)` are possible using the console.
 Variables can be used just like in Lua, i.e. variable in one command can later on be used in another console command. Be careful, console code runs in global context, so make sure console variable names don't conflict with globals (i.e. `Mods`, `Ext`, etc.)! Don't use `local` for console variables, since the lifetime of the local will be one console command. (Each console command is technically a separate chunk).
+
+<a id="object-identifiers"></a>
+## Object Identifiers
+
+Game objects have multiple identifiers that are used for different purposes.
+
+### GUID
+
+The UUID or GUID (Globally Unique IDentifier) is a unique textual identifier (e.g. `123e4567-e89b-12d3-a456-426614174000`). It can reference any character or item. 
+
+Use GUIDs to hardcode references to pre-made characters/items in scripts or to reference newly created characters/items on the server.
+
+Usage Notes:
+ - For objects that are created in the editor, the GUID is guaranteed to stay the same in all playthroughs, i.e. it is safe to hardcode the GUID in scripts. This is the identifier Osiris functions use (using the types `GUIDSTRING`, `ITEMGUID`, etc.)
+ - Objects that are created during the game are assigned a randomly generated GUID. This GUID will not change during the lifetime of the object, i.e. it's safe to store it to reference the object later on.
+ - Some object types (eg. projectiles, statuses, etc.) have no GUID, so they must be referenced using their object handle or NetID. Usually if an object is global (i.e. can appear anywhere in any context), it has a GUID. If it is local (i.e. it can only be assigned to a specific character etc.) it won't have a GUID.
+ - GUIDs should not be used to reference objects on the client side (it is safe to use GUIDs on the server), as there are bugs on the client that cause the GUID to not replicate properly or it may be missing entirely. Use object handles (in client-only code) or NetID-s (when communicating with the server) to reference client objects instead.
+
+
+### Object Handle
+
+Object handles are used by the game engine internally; they're 64-bit numbers. They're used for performance reasons, i.e. it's significantly faster for the engine to find objects using a handle than by a GUID (it's also smaller). Most references in the savegame are also handles, not GUIDs. eg. the parent inventory, child items, etc. are all saved using their handle, not their GUID.
+
+Since everything has an object handle, you can use it to reference any object on both the server and the client.
+
+Usage Notes:
+ - This is a very commonly used identifier in Lua; most Lua game objects refer to others using object handles.
+ - Each object is assigned a new handle when it is created. Unlike GUIDs, handles for objects that are created in the editor will _not_ be the same in different playthroughs, so handles cannot be hardcoded in scripts.
+ - Unlike GUIDs, the client and server use different handles to reference the same object. (Technically, client and server characters are different objects altogether.)
+ - After an object was created, the _server_ handle will not change during the lifetime of the object, i.e. it's safe to store it to reference the object later on. If a savegame is reloaded, the server handle will stay the same.
+ - Client handles can change between play sessions (i.e. after a savegame reload), but they'll remain the same during the play session. They can safely be kept in temporary structures (eg. Lua variables that get reset after a savegame load), but should not be persisted in Osiris databases or via `PersistentVariables`.
+
+### NetID
+
+The NetID (Network Identifier) is a number the game uses in client-server communication to reference objects. Since object handles differ on the server and the client and not every object type has a GUID, NetID is the only identifier that can be reliably used to identify objects on both sides.
+
+Usage:
+ - Each object is assigned a new NetID at the start of every play session. If a savegame is reloaded, the NetID may change.
+ - Unlike object handles, both the server and the client use the same NetID to reference the same object.
+ - Since they're only valid for the duration of the session, they can safely be kept in temporary structures (eg. Lua variables that get reset after a savegame load), but should not be persisted in Osiris databases or via `PersistentVariables`.
+
+
+### Identifier Matrix
+
+This table describes which identifiers are present/can be used for which object.
+
+| Object | GUID | Object Handle | NetID |
+|--|--|--|--|
+| Server Character | ✔ | ✔ | ✔ |
+| Server Item | ✔ | ✔ | ✔ |
+| Server Projectile | | ✔ | ✔ |
+| Server Status | | ✔ | ✔ |
+| Server Surface | | ✔ | ✔ |
+| Server Surface Action | | ✔ | |
+| Server Game Action | | ✔ | |
+| Client Character | * | ✔ | ✔ |
+| Client Item | * | ✔ | ✔ |
+| Client Projectile | | ✔ | ✔ |
+| Client Status | | ✔ | ✔ |
+| Client UI Object | | ✔ | |
+
+\* Although client characters/items have a GUID, it cannot be used reliably.
 
 
 <a id="calling-lua-from-osiris"></a>
