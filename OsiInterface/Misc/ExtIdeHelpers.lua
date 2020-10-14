@@ -3955,6 +3955,24 @@ function Ext.EnumIndexToLabel (enum, index) end
 --- @return number|nil
 function Ext.EnumLabelToIndex (enum, label) end
 
+-- Execute the SkillProperties of the specified skill on a target character.
+--- @param skillId string Stats skill ID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
+--- @param target ObjectHandle|int|string Target character handle/NetID/GUID
+--- @param position number[]
+--- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
+--- @param isFromItem boolean
+function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position, propertyContext, isFromItem)
+
+-- Execute the SkillProperties of the specified skill on a position.
+--- @param skillId string Stats skill ID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
+--- @param position number[]
+--- @param radius number
+--- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
+--- @param isFromItem boolean
+function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radius, propertyContext, isFromItem)
+
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
 function Ext.GetSurfaceTransformRules () end
