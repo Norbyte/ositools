@@ -1922,6 +1922,11 @@ function EsvCharacter.GetSkills (self) end
 --- @return string[]
 function EsvCharacter.GetNearbyCharacters (self, radius) end
 
+--- Returns the GUID of all summons owned by the character
+--- @param self EsvCharacter
+--- @return string[]
+function EsvCharacter.GetSummons (self) end
+
 --- Returns whether the character has the specified tag
 --- @param self EsvCharacter
 --- @param tag string

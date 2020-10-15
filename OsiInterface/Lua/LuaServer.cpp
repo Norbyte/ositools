@@ -179,6 +179,24 @@ namespace dse::lua
 		return 1;
 	}
 
+	int CharacterGetSummons(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		
+		lua_newtable(L);
+		int32_t index{ 1 };
+
+		for (auto const& handle : self->Get(L)->SummonHandles) {
+			auto summon = esv::GetEntityWorld()->GetCharacter(handle);
+			if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
+				settable(L, index++, summon->MyGuid);;
+			}
+		}
+
+		return 1;
+	}
+
 	int CharacterGetSkills(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -262,6 +280,11 @@ namespace dse::lua
 
 		if (propFS == GFS.strGetNearbyCharacters) {
 			lua_pushcfunction(L, &CharacterGetNearbyCharacters);
+			return 1;
+		}
+
+		if (propFS == GFS.strGetSummons) {
+			lua_pushcfunction(L, &CharacterGetSummons);
 			return 1;
 		}
 

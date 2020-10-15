@@ -63,6 +63,7 @@ FS(GetOwnerCharacter);
 FS(GetSkills);
 FS(GetSkillInfo);
 FS(GetNearbyCharacters);
+FS(GetSummons);
 FS(GetDeltaMods);
 FS(GetGeneratedBoosts);
 FS(WalkSpeed);
