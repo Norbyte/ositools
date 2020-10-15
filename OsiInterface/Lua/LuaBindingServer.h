@@ -155,7 +155,7 @@ namespace dse::esv::lua
 	};
 
 
-	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public Pushable<PushPolicy::None>
+	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public NewIndexable, public Pushable<PushPolicy::None>
 	{
 	public:
 		static char const * const MetatableName;
