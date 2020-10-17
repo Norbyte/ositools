@@ -32,16 +32,6 @@ std::optional<STDWString> GetPathForExternalIo(std::string_view scriptPath, Path
 		return {};
 	}
 
-	auto storageRootWstr = FromUTF8(storageRoot);
-	BOOL created = CreateDirectory(storageRootWstr.c_str(), NULL);
-	if (created == FALSE) {
-		DWORD lastError = GetLastError();
-		if (lastError != ERROR_ALREADY_EXISTS) {
-			OsiError("Could not create storage root directory: " << storageRoot);
-			return {};
-		}
-	}
-
 	return FromUTF8(storageRoot + "/" + path);
 }
 
@@ -78,6 +68,19 @@ bool SaveExternalFile(std::string_view path, PathRootType root, std::string_view
 {
 	auto absolutePath = GetPathForExternalIo(path, root);
 	if (!absolutePath) return false;
+
+	auto dirEnd = absolutePath->find_last_of('/');
+	if (dirEnd == std::string::npos) return false;
+
+	auto storageDir = absolutePath->substr(0, dirEnd);
+	BOOL created = CreateDirectoryW(storageDir.c_str(), NULL);
+	if (created == FALSE) {
+		DWORD lastError = GetLastError();
+		if (lastError != ERROR_ALREADY_EXISTS) {
+			OsiError("Could not create storage directory: " << ToUTF8(storageDir));
+			return {};
+		}
+	}
 
 	std::ofstream f(absolutePath->c_str(), std::ios::out | std::ios::binary);
 	if (!f.good()) {
