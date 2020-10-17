@@ -985,9 +985,22 @@ namespace dse::esv
 			&& peerModSettings.peerId != 1) {
 			ObjectSet<ModuleShortDesc> mismatches;
 
+			bool hasEmptyHashes = false;
+			for (auto const& mod : hostModSettings.Mods) {
+				if (mod.MD5.empty()) {
+					hasEmptyHashes = true;
+				}
+			}
+
+			for (auto const& mod : peerModSettings.modSettings.Mods) {
+				if (mod.MD5.empty()) {
+					hasEmptyHashes = true;
+				}
+			}
+
 			// Hashes work differently in vanilla / old extender, so ignore them if the peer has an old version
 			auto peerVersion = gOsirisProxy->GetNetworkManager().ServerGetPeerVersion(peerModSettings.peerId);
-			if (!peerVersion || *peerVersion < ScriptExtenderMessage::VerAddedKickMessage) {
+			if (!peerVersion || *peerVersion < ScriptExtenderMessage::VerAddedKickMessage || hasEmptyHashes) {
 				for (auto& mod : peerModSettings.modSettings.Mods) {
 					mod.MD5 = "";
 				}
@@ -1010,12 +1023,12 @@ namespace dse::esv
 				}
 
 				ERR("Validation rc = %d", result);
+
 				INFO("Server modlist:");
 				for (auto const& mod : hostModSettings.Mods) {
 					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
 				}
 
-				INFO("Server modlist:");
 				INFO("Client modlist:");
 				for (auto const& mod : peerModSettings.modSettings.Mods) {
 					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
