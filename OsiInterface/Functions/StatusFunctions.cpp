@@ -1009,33 +1009,16 @@ namespace dse::esv
 					});
 				}
 
-				bool hasEmptyHashes = false;
 				ERR("Validation rc = %d", result);
 				INFO("Server modlist:");
 				for (auto const& mod : hostModSettings.Mods) {
 					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
-					if (mod.MD5.empty()) {
-						hasEmptyHashes = true;
-					}
 				}
 
+				INFO("Server modlist:");
 				INFO("Client modlist:");
 				for (auto const& mod : peerModSettings.modSettings.Mods) {
 					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
-					if (mod.MD5.empty()) {
-						hasEmptyHashes = true;
-					}
-				}
-
-				// If the client or server didn't compute mod hashes, skip hash verification altogether
-				if (hasEmptyHashes) {
-					for (auto & mod : hostModSettings.Mods) {
-						mod.MD5 = "";
-					}
-
-					for (auto & mod : peerModSettings.modSettings.Mods) {
-						mod.MD5 = "";
-					}
 				}
 
 				std::stringstream ss;
