@@ -100,8 +100,8 @@ namespace dse
 
 		void ClientSend(ScriptExtenderMessage * msg);
 		void ServerSend(ScriptExtenderMessage * msg, UserId userId);
-		void ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId);
-		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId);
+		void ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId, bool excludeLocalPeer = false);
+		void ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId, bool excludeLocalPeer = false);
 
 	private:
 		ExtenderProtocolClient * clientProtocol_{ nullptr };

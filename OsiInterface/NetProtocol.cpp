@@ -480,14 +480,16 @@ namespace dse
 		}
 	}
 
-	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId)
+	void NetworkManager::ServerBroadcast(ScriptExtenderMessage * msg, UserId excludeUserId, bool excludeLocalPeer)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
 			for (auto peerId : server->ActivePeerIds) {
 				if (ServerCanSendExtenderMessages(peerId)) {
-					peerIds.Add(peerId);
+					if (peerId != 1 || !excludeLocalPeer) {
+						peerIds.Add(peerId);
+					}
 				} else {
 					WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
 				}
@@ -497,14 +499,20 @@ namespace dse
 		}
 	}
 
-	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId)
+	void NetworkManager::ServerBroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserId excludeUserId, bool excludeLocalPeer)
 	{
 		auto server = GetServer();
 		if (server != nullptr) {
 			ObjectSet<PeerId> peerIds;
 			peerIds.Reallocate(server->ConnectedPeerIds.Size);
 			for (auto peerId : server->ConnectedPeerIds) {
-				peerIds.Add(peerId);
+				if (ServerCanSendExtenderMessages(peerId)) {
+					if (peerId != 1 || !excludeLocalPeer) {
+						peerIds.Add(peerId);
+					}
+				} else {
+					WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
+				}
 			}
 			server->VMT->SendToMultiplePeers(server, &peerIds, msg, excludeUserId.Id);
 		}

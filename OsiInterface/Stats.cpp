@@ -533,7 +533,7 @@ namespace dse
 		}
 	}
 
-	void CRPGStats_Object::BroadcastSyncMessage() const
+	void CRPGStats_Object::BroadcastSyncMessage(bool syncDuringLoading) const
 	{
 		auto msg = gOsirisProxy->GetNetworkManager().GetFreeServerMessage(ReservedUserId);
 		if (!msg) {
@@ -543,7 +543,11 @@ namespace dse
 
 		auto& wrap = msg->GetMessage();
 		ToProtobuf(wrap.mutable_s2c_sync_stat());
-		gOsirisProxy->GetNetworkManager().ServerBroadcast(msg, ReservedUserId);
+		if (syncDuringLoading) {
+			gOsirisProxy->GetNetworkManager().ServerBroadcastToConnectedPeers(msg, ReservedUserId, true);
+		} else {
+			gOsirisProxy->GetNetworkManager().ServerBroadcast(msg, ReservedUserId, true);
+		}
 	}
 
 	bool RPGEnumeration::IsIndexedProperty() const
@@ -694,6 +698,18 @@ namespace dse
 			auto statusProtoMgr = GetStaticSymbols().eoc__StatusPrototypeManager;
 			if (statusProtoMgr && *statusProtoMgr) {
 				(*statusProtoMgr)->SyncStatusStat(object);
+			}
+		}
+	}
+
+	void CRPGStatsManager::BroadcastSyncAll()
+	{
+		for (auto const& statsId : gOsirisProxy->GetServerExtensionState().GetDynamicStats()) {
+			auto object = objects.Find(statsId);
+			if (!object) {
+				OsiError("Stat entry '" << statsId << "' is marked as dynamic but cannot be found! It will not be synced to the client!");
+			} else {
+				object->BroadcastSyncMessage(true);
 			}
 		}
 	}

@@ -1485,7 +1485,7 @@ void SavegameSerializer::SerializeStatObjects(ObjectVisitor* visitor, uint32_t v
 				}
 			}
 		} else {
-			auto const& statIds = gOsirisProxy->GetServerExtensionState().GetRuntimeModifiedStats();
+			auto const& statIds = gOsirisProxy->GetServerExtensionState().GetPersistentStats();
 
 			for (auto statId : statIds) {
 				FixedString statType;
@@ -1540,8 +1540,9 @@ void SavegameSerializer::RestoreStatObject(FixedString const& statId, FixedStrin
 
 	object->FromProtobuf(msg);
 	stats->SyncWithPrototypeManager(object);
-	object->BroadcastSyncMessage();
-	gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(statId);
+	object->BroadcastSyncMessage(true);
+	gOsirisProxy->GetServerExtensionState().MarkDynamicStat(statId);
+	gOsirisProxy->GetServerExtensionState().MarkPersistentStat(statId);
 }
 
 bool SavegameSerializer::SerializeStatObject(FixedString const& statId, FixedString& statType, ScratchBuffer& blob)

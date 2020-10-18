@@ -3074,7 +3074,8 @@ namespace dse::esv
 
 	void ExtensionState::OnGameSessionLoading()
 	{
-		runtimeModifiedStats_.clear();
+		dynamicStats_.clear();
+		persistentStats_.clear();
 		cachedPersistentVars_.clear();
 		dse::ExtensionStateBase::OnGameSessionLoading();
 	}
@@ -3111,17 +3112,22 @@ namespace dse::esv
 		}
 	}
 
-	void ExtensionState::MarkRuntimeModifiedStat(FixedString const& statId)
+	void ExtensionState::MarkPersistentStat(FixedString const& statId)
 	{
-		runtimeModifiedStats_.insert(statId);
+		persistentStats_.insert(statId);
 	}
 
-	void ExtensionState::UnmarkRuntimeModifiedStat(FixedString const& statId)
+	void ExtensionState::UnmarkPersistentStat(FixedString const& statId)
 	{
-		auto it = runtimeModifiedStats_.find(statId);
-		if (it != runtimeModifiedStats_.end()) {
-			runtimeModifiedStats_.erase(it);
+		auto it = persistentStats_.find(statId);
+		if (it != persistentStats_.end()) {
+			persistentStats_.erase(it);
 		}
+	}
+
+	void ExtensionState::MarkDynamicStat(FixedString const& statId)
+	{
+		dynamicStats_.insert(statId);
 	}
 
 

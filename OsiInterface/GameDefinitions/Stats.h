@@ -337,7 +337,7 @@ namespace dse
 
 		void ToProtobuf(class MsgS2CSyncStat* msg) const;
 		void FromProtobuf(MsgS2CSyncStat const& msg);
-		void BroadcastSyncMessage() const;
+		void BroadcastSyncMessage(bool syncDuringLoading) const;
 	};
 
 	struct CRPGStats_ObjectInstance : public CRPGStats_Object
@@ -1219,6 +1219,7 @@ namespace dse
 		std::optional<CRPGStats_Object*> CreateObject(FixedString const& name, int32_t modifierListIndex);
 		void SyncObjectFromServer(MsgS2CSyncStat const& msg);
 		void SyncWithPrototypeManager(CRPGStats_Object* object);
+		void BroadcastSyncAll();
 
 		std::optional<StatAttributeFlags*> GetAttributeFlags(int attributeFlagsId);
 		StatAttributeFlags* GetOrCreateAttributeFlags(int& attributeFlagsId);

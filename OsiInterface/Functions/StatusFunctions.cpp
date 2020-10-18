@@ -1085,6 +1085,9 @@ namespace dse::esv
 			}
 		}
 
+		// Sync all dynamic stats to new peer as we didn't do so during savegame loading
+		GetStaticSymbols().GetStats()->BroadcastSyncAll();
+
 		return next(self, peerModSettings, hostModSettings);
 	}
 

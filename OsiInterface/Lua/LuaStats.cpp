@@ -1365,10 +1365,11 @@ namespace dse::lua
 		stats->SyncWithPrototypeManager(object);
 
 		if (gOsirisProxy->IsInServerThread()) {
-			object->BroadcastSyncMessage();
+			object->BroadcastSyncMessage(false);
 
+			gOsirisProxy->GetServerExtensionState().MarkDynamicStat(ToFixedString(statName));
 			if (persist && *persist) {
-				gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+				gOsirisProxy->GetServerExtensionState().MarkPersistentStat(ToFixedString(statName));
 			}
 		}
 	}
@@ -1385,9 +1386,9 @@ namespace dse::lua
 		}
 
 		if (persist) {
-			gOsirisProxy->GetServerExtensionState().MarkRuntimeModifiedStat(ToFixedString(statName));
+			gOsirisProxy->GetServerExtensionState().MarkPersistentStat(ToFixedString(statName));
 		} else {
-			gOsirisProxy->GetServerExtensionState().UnmarkRuntimeModifiedStat(ToFixedString(statName));
+			gOsirisProxy->GetServerExtensionState().UnmarkPersistentStat(ToFixedString(statName));
 		}
 	}
 
