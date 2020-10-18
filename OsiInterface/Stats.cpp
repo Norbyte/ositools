@@ -640,6 +640,10 @@ namespace dse
 	std::optional<CRPGStats_Object*> CRPGStatsManager::CreateObject(FixedString const& name, int32_t modifierListIndex)
 	{
 		auto modifier = modifierList.Find(modifierListIndex);
+		if (!modifier) {
+			OsiError("Modifier list doesn't exist: " << name);
+			return {};
+		}
 
 		auto object = objects.Find(name);
 		if (object) {
