@@ -35,8 +35,12 @@
     * [Player Custom Data](#player-custom-data)
     * [Items](#server-items)
     * [Projectiles](#server-projectiles)
+    * [Surfaces](#server-surfaces)
     * [Statuses](#server-statuses)
     * [Combat](#server-combat)
+ - [Surface Actions](#surface-actions)
+ - [Root Templates](#root-templates)
+     * [Surface](#surface-templates)
  - [Damage lists](#damage-lists)
  - [Utility functions](#ext-utility)
  - [JSON Support](#json-support)
@@ -1484,6 +1488,25 @@ They have the following properties:
 | CurrentLevel | string |  |
 
 
+<a id="server-surfaces"></a>
+## Server Surfaces <sup>S</sup>
+
+**WIP**
+
+| Property | Type | Writeable | Notes |
+|--|--|--|--|
+| NetId | integer | | |
+| MyHandle | ObjectHandle | | |
+| SurfaceType | string | | |
+| RootTemplate | [SurfaceTemplate](#surface-templates) | | |
+| Flags | integer | | |
+| TeamId | integer | | Combat team ID (see [Combat Team](#server-combat-team)) |
+| OwnerHandle | ObjectHandle| | Character/item that created this surface |
+| LifeTime | number | ✓ | Surface lifetime in seconds |
+| LifeTimeFromTemplate | boolean | | |
+| StatusChance | number | ✓ | |
+
+
 <a id="server-statuses"></a>
 ## Server Statuses <sup>S</sup>
 
@@ -1699,6 +1722,7 @@ end
 Ext.RegisterListener("CalculateTurnOrder", CalcInitiativeTurnOrder)
 ```
 
+<a id="server-combat-team"></a>
 ### Combat Team <sup>S</sup>
 
 A `Team` is a combat participant (either a character or an item).
@@ -1713,6 +1737,313 @@ Properties:
 | StillInCombat | boolean | Can the team currently fight, or is it temporarily out of combat? |
 | Character | esv::Character | Character object if the team is a character; `nil` otherwise |
 | Item | esv::Item | Item object if the team is an item; `nil` otherwise |
+
+
+<a id="surface-actions"></a>
+# Surface Actions <sup>S</sup>
+
+The surface action API allows creation and manipulation of surfaces.
+To perform an action, the following steps must be performed:
+ - Create the appropriate action using `Ext.CreateSurfaceAction(type)`
+ - Set the required properties on the action object (see below for what settings are available for each action)
+ - Launch the action using `Ext.ExecuteSurfaceAction(action)`
+
+To cancel an action before its completed, `Ext.CancelSurfaceAction(handle)` can be used.
+
+Shared properties on all surface actions:
+
+| Property | Type | Notes |
+|--|--|--|
+| OwnerHandle | ObjectHandle| Character/item that created the surface |
+| Duration | number | Surface duration in seconds |
+| StatusChance | number | |
+| Position | vec3 | |
+| SurfaceType | string | Surface type name (eg. `Fire`, `FireBlessed`, etc.) |
+| StatusChance | number | |
+
+
+## ChangeSurfaceOnPath
+
+Transforms surfaces in a path that follows the specified character or item.
+
+Example:
+```lua
+local objectToFollow = Ext.GetCharacter(CharacterGetHostCharacter())
+local surf = Ext.CreateSurfaceAction("ChangeSurfaceOnPathAction")
+surf.SurfaceType = "Water"
+surf.FollowObject = objectToFollow.Handle
+surf.Radius = 3.0
+local handle = surf.MyHandle
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Unlike other actions, `ChangeSurfaceOnPathAction` never expires and must be canceled by script to stop its effects:
+```lua
+Ext.CancelSurfaceAction(handle)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| FollowObject | ObjectHandle | Character/item the transform will follow |
+| Radius | number | Radius around the follow object that will be transformed |
+| IgnoreIrreplacableSurfaces | boolean | |
+| CheckExistingSurfaces | boolean | |
+| SurfaceCollisionFlags | integer | When specified, AI grid cells that don't have any of the flags in `SurfaceCollisionFlags` will be ignored |
+| SurfaceCollisionNotOnFlags | integer | When specified, AI grid cells that have any of the flags in `SurfaceCollisionNotOnFlags` will be ignored |
+| IgnoreOwnerCells | boolean | Don't transform surfaces that are owned by the owner of this action |
+
+
+## CreatePuddle
+
+Creates a circular surface.
+Example:
+```lua
+local pos = Ext.GetCharacter(CharacterGetHostCharacter()).WorldPos
+local surf = Ext.CreateSurfaceAction("CreatePuddleAction")
+surf.Duration = 6.0
+surf.SurfaceType = "Fire"
+surf.Position = {pos[1] + 10.0, pos[2], pos[3]}
+surf.SurfaceCells = 100
+surf.GrowSpeed = 0.1
+surf.Step = 100
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| SurfaceCells | integer | Number of AI grid cells to cover with the surface |
+| Step | number | How many cells the surface grows on each tick |
+| GrowSpeed | number | Determines the time between grow steps during surface creation |
+| IgnoreIrreplacableSurfaces | boolean | |
+| GrowTimer | number| |
+
+
+## ExtinguishFire
+
+Extinguishes fire surfaces in a radius around the target.
+Example:
+```lua
+local surf = Ext.CreateSurfaceAction("ExtinguishFireAction")
+surf.Position = {pos[1] + 2.0, pos[2], pos[3]}
+surf.Radius = 2.0
+surf.Percentage = 1.0
+surf.GrowTimer = 0.1
+surf.Step = 100
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| DamageList | DamageList | Damage that gets applied when a character enters the surface |
+| Position | vec3 | Position of surface to extinguish |
+| Radius | number | Extinguish radius |
+| Percentage | number | % of surface cells to remove (0..1) |
+| GrowTimer | number | Time between grow steps |
+| Step | number | Number of cells the action processes on each tick |
+
+
+## RectangleSurface
+
+Creates a rectangular surface.
+Example:
+```lua
+local pos = Ext.GetCharacter(CharacterGetHostCharacter()).WorldPos
+local surf = Ext.CreateSurfaceAction("RectangleSurfaceAction")
+surf.Duration = 6.0
+surf.SurfaceType = "Fire"
+surf.Position = {pos[1] + 1.0, pos[2], pos[3]}
+surf.Target = {pos[1] + 10.0, pos[2], pos[3]}
+surf.Width = 2
+surf.Length = 10
+surf.GrowTimer = 0.1
+surf.GrowStep = 100
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| DamageList | DamageList | Damage that gets applied when a character enters the surface |
+| Target | vec3 | Position that the surface grows towards |
+| SurfaceArea | number | |
+| Width | number | Width of rectangle |
+| Length | number | Length of rectangle |
+| GrowTimer | number | Determines the time between grow steps during surface creation |
+| GrowStep | number | How many cells the surface grows on each tick |
+| MaxHeight | number | |
+| AiFlags | integer | |
+| DeathType | string | |
+| LineCheckBlock | integer | |
+
+
+## PolygonSurface
+
+Creates a surface defined by a polygon.
+
+Example:
+```lua
+local pos = Ext.GetCharacter(CharacterGetHostCharacter()).WorldPos
+local surf = Ext.CreateSurfaceAction("PolygonSurfaceAction")
+surf.Duration = 12.0
+surf.SurfaceType = "Oil"
+surf.Vertices = { -- Triangle shape
+    {pos[1], pos[3]},
+    {pos[1] + 10.0, pos[3]},
+    {pos[1] + 10.0, pos[3] + 10.0}
+}
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| DamageList | DamageList | Damage that gets applied when a character enters the surface |
+| Vertices | vec2[] | List of 2D (X,Z) vertices of the polygon |
+| GrowTimer | number | Determines the time between grow steps during surface creation |
+| GrowStep | number | How many cells the surface grows on each tick |
+
+
+## SwapSurface
+
+Swaps surfaces between the specified positions.
+
+Example:
+```lua
+local pos = Ext.GetCharacter(CharacterGetHostCharacter()).WorldPos
+local surf = Ext.CreateSurfaceAction("SwapSurfaceAction")
+surf.Position = {pos[1] + 10.0, pos[2], pos[3]}
+surf.Target = {pos[1] + 5.0, pos[2], pos[3]}
+surf.Radius = 5.0
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| Radius | number | |
+| ExcludeRadius | number | |
+| MaxHeight | number | |
+| Target | vec3 | Position of second surface that'll be swapped (first position is set using the `Position` property) |
+| IgnoreIrreplacableSurfaces | boolean | |
+| CheckExistingSurfaces | boolean | |
+| SurfaceCollisionFlags | integer | When specified, AI grid cells that don't have any of the flags in `SurfaceCollisionFlags` will be ignored |
+| SurfaceCollisionNotOnFlags | integer | When specified, AI grid cells that have any of the flags in `SurfaceCollisionNotOnFlags` will be ignored |
+| LineCheckBlock | integer | |
+| GrowTimer | number | Determines the time between grow steps during surface swap |
+| GrowStep | number | How many cells to swap on each tick |
+
+
+## Zone
+
+Creates a cone-shaped surface.
+Example:
+
+```lua
+local pos = Ext.GetCharacter(CharacterGetHostCharacter()).WorldPos
+local surf = Ext.CreateSurfaceAction("ZoneAction")
+surf.Duration = 6.0
+surf.SurfaceType = "Oil"
+surf.Position = pos
+surf.Target = {pos[1] + 5.0, pos[2], pos[3]}
+surf.GrowTimer = 0.02
+surf.GrowStep = 10
+surf.Shape = 0 -- 0=Cone, 1=Square
+surf.Radius = 7.0
+surf.AngleOrBase = 60.0
+surf.MaxHeight = 2.4
+Ext.ExecuteSurfaceAction(surf)
+```
+
+Properties:
+
+| Property | Type | Notes |
+|--|--|--|
+| SkillId | string | Skill to use for `TargetConditions` checks and for executing `SkillProperties` when a target is hit by the surface |
+| DamageList | DamageList | |
+| Target | vec3 | Direction towards which the cone will be shot |
+| Shape | integer | Surface shape (0 = Cone, 1 = Square) |
+| Radius | number| Cone range |
+| AngleOrBase | number | Cone angle or square base (depending on surface shape) |
+| BackStart | number | |
+| FrontOffset | number | |
+| MaxHeight | number | |
+| GrowTimer | number | Determines the time between grow steps during surface creation |
+| GrowStep | integer | How many cells to add on each tick |
+| AiFlags | integer | |
+| DeathType | string | |
+
+
+<a id="root-templates"></a>
+# Root Templates
+
+**Note:** When editing root templates from Lua make sure that the templates are updated on both the server and all clients; otherwise what the client sees may be out of sync with what's actually happening on the server.
+
+<a id="surface-templates"></a>
+## Surface Templates
+
+Surface templates can be retrieved using the `Ext.GetSurfaceTemplate(type)` function. The `type` parameter is the name of the surface to fetch (eg. `Fire`, `OilCursed`). If the specified surface type exists, a surface template object is returned with the properties described below.
+
+The properties of surface templates can be changed during module load as well as in runtime.
+Example to replace `BURNING` status with `WET` when fire is applied:
+```lua
+Ext.GetSurfaceTemplate("Fire").Statuses = {{
+    Duration = 12.0,
+    KeepAlive = true,
+    StatusId = "WET"
+}}
+```
+
+| Property | Type | Writeable | Notes |
+|--|--|--|--|
+| SurfaceTypeId | integer | | Engine type ID of the surface |
+| SurfaceType | string | | Surface name (eg. `Fire`, `FireBlessed`, etc.) |
+| DisplayName | string | ✓ | |
+| Description | string | ✓ | |
+| DecalMaterial | string | ✓ | |
+| CanEnterCombat | boolean | ✓ | |
+| AlwaysUseDefaultLifeTime | boolean | ✓ | |
+| DefaultLifeTime | number | ✓ | |
+| SurfaceGrowTimer | number | ✓ | |
+| FadeInSpeed | number | ✓ | |
+| FadeOutSpeed | number | ✓ | |
+| Seed | integer | ✓ | |
+| Statuses | [SurfaceTemplateStatus](#surface-template-status)[] | ✓ | List of statuses that the surface applies when it comes in contact with a character |
+| DamageWeapon | string | ✓ | |
+| Summon | string | ✓ | |
+| DamageCharacters | boolean | ✓ | |
+| DamageItems | boolean | ✓ | |
+| DamageTorches | boolean | ✓ | |
+| RemoveDestroyedItems | boolean | ✓ | |
+| CanSeeThrough | boolean | ✓ | |
+| CanShootThrough | boolean | ✓ | |
+
+
+<a id="surface-template-status"></a>
+### Surface Template Status
+
+This type describes a status that is either applied or removed when a character comes in contact with the surface. Each surface type may apply/remove multiple statuses.
+
+| Property | Type | Writeable | Notes |
+|--|--|--|--|
+| StatusId | string | ✓ | Stats ID of the status that the surface applies |
+| Chance | number | ✓ | Status apply chance (0..1) |
+| Duration | string | ✓ | Duration of status in seconds |
+| RemoveStatus | boolean | ✓ | Should the surface remove this status instead of apply? |
+| OnlyWhileMoving | boolean | ✓ | |
+| ApplyToCharacters | boolean | ✓ | |
+| ApplyToItems | boolean | ✓ | |
+| KeepAlive | boolean  | ✓ | Characters lose the status if they're no longer in the surface |
+| VanishOnReapply | boolean | ✓ | Decay the surface when the status is already applied to the character |
+| ForceStatus | boolean | ✓ | Equivalent to the `_Force` parameter to `ApplyStatus()` |
 
 
 ## Damage Lists

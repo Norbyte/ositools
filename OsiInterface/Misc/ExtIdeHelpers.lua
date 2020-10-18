@@ -2159,12 +2159,12 @@ local EsvSwapSurfaceAction = {}
 --- @field public MaxHeight number
 --- @field public GrowTimer number
 --- @field public GrowStep integer
---- @field public GrowStep AiFlags
+--- @field public AiFlags integer
 --- @field public DeathType string
 local EsvZoneAction = {}
 
 
---- @class EsvTransformSurfaceAction : EsvCreateSurfaceActionBase
+--- @class EsvTransformSurfaceAction : EsvSurfaceAction
 --- @field public SurfaceTransformAction string
 --- @field public OriginSurface string
 --- @field public SurfaceLayer integer

@@ -1603,7 +1603,8 @@ namespace dse
 			PROP_TPL(FadeInSpeed);
 			PROP_TPL(FadeOutSpeed);
 			PROP_TPL(Seed);
-			// TODO - InstanceVisual, IntroFX, FX, StatusData
+			// StatusData handled in the Lua proxy object
+			// TODO - InstanceVisual, IntroFX, FX
 			PROP_TPL(DamageWeapon);
 			PROP_TPL(Summon);
 			PROP_TPL(DamageCharacters);

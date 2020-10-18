@@ -154,7 +154,7 @@ namespace dse
         struct ChangeSurfaceOnPathAction : public CreateSurfaceActionBase
         {
             ObjectHandle FollowObject; // Init param
-            int Radius; // Init param
+            float Radius; // Init param
             bool IsFinished;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             bool IgnoreIrreplacableSurfaces;
