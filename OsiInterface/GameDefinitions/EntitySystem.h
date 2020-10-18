@@ -404,7 +404,6 @@ namespace dse
 			FixedString CurrentLevel;
 			Map<FixedString, ObjectHandle> GlobalItemHandles;
 #if !defined(OSI_EOCAPP)
-			int field_4C;
 			RefMap<FixedString, void*> DebugItems;
 			__int64 field_88;
 #endif
