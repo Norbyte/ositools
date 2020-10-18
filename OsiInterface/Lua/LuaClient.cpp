@@ -1031,7 +1031,8 @@ namespace dse::ecl::lua
 
 		ig::DataType type;
 		if (s.IgValueGetType(path, nullptr, nullptr, &type) != 0) {
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		switch (type) {
@@ -1047,9 +1048,7 @@ namespace dse::ecl::lua
 				push(L, val != 0);
 				return 1;
 			}
-			else {
-				return 0;
-			}
+			break;
 		}
 
 		case ig::DataType::Double:
@@ -1059,27 +1058,22 @@ namespace dse::ecl::lua
 				push(L, val);
 				return 1;
 			}
-			else {
-				return 0;
-			}
+			break;
 		}
 
 		case ig::DataType::String:
 		case ig::DataType::WString:
 		{
 			int resultLength{ 0 };
-			if (s.IgValueGetStringUTF8(path, nullptr, nullptr, 0x10000, nullptr, &resultLength) != 0) {
-				return 0;
+			if (s.IgValueGetStringUTF8(path, nullptr, nullptr, 0x10000, nullptr, &resultLength) == 0) {
+				STDString str;
+				str.resize(resultLength);
+				if (s.IgValueGetStringUTF8(path, nullptr, nullptr, resultLength, str.data(), &resultLength) == 0) {
+					push(L, str);
+					return 1;
+				}
 			}
-
-			STDString str;
-			str.resize(resultLength);
-			if (s.IgValueGetStringUTF8(path, nullptr, nullptr, resultLength, str.data(), &resultLength) == 0) {
-				push(L, str);
-				return 1;
-			} else {
-				return 0;
-			}
+			break;
 		}
 
 		case ig::DataType::Array:
@@ -1097,8 +1091,11 @@ namespace dse::ecl::lua
 
 		default:
 			OsiError("Don't know how to handle Flash type " << (unsigned)type << "!");
-			return 0;
+			break;
 		}
+
+		push(L, nullptr);
+		return 1;
 	}
 
 
