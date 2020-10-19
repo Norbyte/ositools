@@ -321,7 +321,10 @@ namespace dse::osidbg
 		auto debugMsg = msg.mutable_debugoutput();
 		debugMsg->set_message(message);
 		Send(msg);
-		DEBUG(" <-- BkDebugOutput(): \"%s\"", message);
+
+		if (IsConnected()) {
+			DEBUG(" <-- BkDebugOutput(): \"%s\"", message);
+		}
 	}
 
 	void DebugMessageHandler::SetDebugger(Debugger * debugger)

@@ -1789,6 +1789,19 @@ END_ENUM()
 
 
 BEGIN_BITMASK(ESurfaceFlag, uint64_t)
+	// AI grid painted flags
+	EV(MovementBlock, 0x1)
+	EV(ProjectileBlock, 0x4)
+
+	// Guessed flags
+	EV(HasCharacter, 0x10)
+	EV(HasItem, 0x80)
+	EV(HasInteractableObject, 0x100)
+	EV(GroundSurfaceBlock, 0x200)
+	EV(CloudSurfaceBlock, 0x400)
+	EV(Occupied, 0x1000)
+	EV(SurfaceExclude, 0x10000)
+
 	// --- BASE TYPE START
 	EV(Fire, 0x1000000)
 	EV(Water, 0x2000000)
@@ -1841,4 +1854,8 @@ BEGIN_BITMASK(ESurfaceFlag, uint64_t)
 	EV(SomeDecay, 0x400000000000000)
 	// UNUSED = 0x800000000000000
 	// --- CLOUD MOD END
+
+	// AI grid painted flags
+	EV(Irreplaceable, 0x4000000000000000)
+	EV(IrreplaceableCloud, 0x800000000000000)
 END_ENUM()
