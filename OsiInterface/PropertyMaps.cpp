@@ -988,6 +988,21 @@ namespace dse
 			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strIsPossessed].Flags &= ~kPropWrite;
 
+			EnumInfo<esv::CharacterFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				auto& flag = propertyMap.Flags[name];
+				if (flag.Flags & kPropWrite) {
+					flag.Set = [id](void* obj, bool value) -> bool {
+						auto ch = reinterpret_cast<esv::Character*>(obj);
+						if (value) {
+							ch->SetFlags((uint64_t)id);
+						} else {
+							ch->ClearFlags((uint64_t)id);
+						}
+						return true;
+					};
+				}
+			});
+
 			PROP_RO(Scale);
 			PROP(AnimationOverride);
 			PROP(WalkSpeedOverride);
@@ -1041,6 +1056,21 @@ namespace dse
 			propertyMap.Flags[GFS.strOffStage].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
+
+			EnumInfo<esv::ItemFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+				auto& flag = propertyMap.Flags[name];
+				if (flag.Flags & kPropWrite) {
+					flag.Set = [id](void* obj, bool value) -> bool {
+						auto ch = reinterpret_cast<esv::Item*>(obj);
+						if (value) {
+							ch->SetFlags((uint64_t)id);
+						} else {
+							ch->ClearFlags((uint64_t)id);
+						}
+						return true;
+					};
+				}
+			});
 
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);
