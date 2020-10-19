@@ -928,6 +928,7 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
 		networkFixedStrings_.ClientReset();
+		hasher_.ClearCaches();
 		break;
 
 	case ecl::GameState::UnloadSession:
@@ -1231,7 +1232,7 @@ FileReader * OsirisProxy::OnFileReaderCreate(ls__FileReader__FileReader next, Fi
 	if (!pathOverrides_.empty()) {
 		std::shared_lock lock(pathOverrideMutex_);
 		auto it = pathOverrides_.find(path->Name);
-		if (it != pathOverrides_.end()) {
+		if (it != pathOverrides_.end() && !hasher_.isHashing()) {
 			DEBUG("FileReader path override: %s -> %s", path->Name.c_str(), it->second.c_str());
 			Path overriddenPath;
 			overriddenPath.Name = it->second;
@@ -1677,6 +1678,7 @@ std::vector<CRPGStats_Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedSt
 	return statsLoadedBefore;
 }
 
+__declspec(thread) unsigned ModuleHasher::hashDepth_{ 0 };
 
 void ModuleHasher::PostStartup()
 {
@@ -1684,6 +1686,12 @@ void ModuleHasher::PostStartup()
 	gOsirisProxy->GetLibraryManager().Module__Hash.SetWrapper(
 		std::bind(&ModuleHasher::OnModuleHash, this, _1, _2)
 	);
+}
+
+void ModuleHasher::ClearCaches()
+{
+	std::lock_guard _(mutex_);
+	hashCache_.clear();
 }
 
 bool ModuleHasher::FetchHashFromCache(Module& mod)
@@ -1716,6 +1724,8 @@ void ModuleHasher::UpdateDependencyHashes(Module& mod)
 
 bool ModuleHasher::OnModuleHash(Module::HashProc* next, Module* self)
 {
+	std::lock_guard _(mutex_);
+	
 	if (FetchHashFromCache(*self)) {
 		return true;
 	}
@@ -1729,7 +1739,9 @@ bool ModuleHasher::OnModuleHash(Module::HashProc* next, Module* self)
 
 	hashStack_.push_back(self);
 
+	hashDepth_++;
 	auto ok = next(self);
+	hashDepth_--;
 	if (!self->Info.Hash.empty()) {
 		hashCache_.insert(std::make_pair(self->Info.ModuleUUID, self->Info.Hash));
 	}
