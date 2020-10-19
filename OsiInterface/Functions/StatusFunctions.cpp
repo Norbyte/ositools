@@ -1000,7 +1000,7 @@ namespace dse::esv
 
 			// Hashes work differently in vanilla / old extender, so ignore them if the peer has an old version
 			auto peerVersion = gOsirisProxy->GetNetworkManager().ServerGetPeerVersion(peerModSettings.peerId);
-			if (!peerVersion || *peerVersion < ScriptExtenderMessage::VerAddedKickMessage || hasEmptyHashes) {
+			if (!peerVersion || *peerVersion < ScriptExtenderMessage::VerCorrectedHashes || hasEmptyHashes) {
 				for (auto& mod : peerModSettings.modSettings.Mods) {
 					mod.MD5 = "";
 				}
