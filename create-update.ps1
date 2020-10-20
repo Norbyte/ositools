@@ -1,6 +1,11 @@
 # Force a build date refresh
 (gci OsiInterface/Utils.cpp).LastWriteTime = Get-Date
 
+# MSVC is broken and reuses old structure definitions from previous compilations.
+# Force a full recompile each time
+Remove-Item x64\Release -Recurse -ErrorAction SilentlyContinue
+Remove-Item x64\ReleaseExtensionsOnly -Recurse -ErrorAction SilentlyContinue
+
 msbuild OsiTools.sln /p:Configuration=Release /t:Build /m
 msbuild OsiTools.sln /p:Configuration=ReleaseExtensionsOnly /t:Build /m
 
