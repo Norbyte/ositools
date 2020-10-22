@@ -18,7 +18,7 @@ git show -s --format="OsiTools Version: Commit %H, %cD" > LatestBuild\version.tx
 Copy-Item x64\Release\CrashReporter.exe -Destination LatestBuild\CrashReporter.exe
 Copy-Item x64\Release\OsiExtenderEoCApp.dll -Destination LatestBuild\OsiExtenderEoCApp.dll
 Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.dll -Destination LatestBuild\OsiExtenderEoCPlugin.dll
-Copy-Item x64\ReleaseExtensionsOnly\libprotobuf-lite.dll -Destination LatestBuild\libprotobuf-lite.dll
+Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination LatestBuild\libprotobuf-lite.dll
 
 Copy-Item x64\Release\CrashReporter.pdb -Destination PDB\Latest\CrashReporter.pdb
 Copy-Item x64\Release\OsiExtenderEoCApp.pdb -Destination PDB\Latest\OsiExtenderEoCApp.pdb
@@ -26,7 +26,7 @@ Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.pdb -Destination PDB\La
 Copy-Item x64\Release\CrashReporter.exe -Destination PDB\Latest\CrashReporter.exe
 Copy-Item x64\Release\OsiExtenderEoCApp.dll -Destination PDB\Latest\OsiExtenderEoCApp.dll
 Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.dll -Destination PDB\Latest\OsiExtenderEoCPlugin.dll
-Copy-Item x64\ReleaseExtensionsOnly\libprotobuf-lite.dll -Destination PDB\Latest\libprotobuf-lite.dll
+Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination PDB\Latest\libprotobuf-lite.dll
 
 Remove-Item Latest.zip -ErrorAction SilentlyContinue
 Compress-Archive -Path LatestBuild\* -DestinationPath Latest.zip -CompressionLevel Optimal

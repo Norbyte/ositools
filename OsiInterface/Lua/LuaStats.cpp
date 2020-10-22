@@ -1457,10 +1457,11 @@ namespace dse::lua
 		auto label = EnumInfo<T>::Find(index);
 		if (label) {
 			push(L, label);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 	template <class T>
@@ -1469,10 +1470,11 @@ namespace dse::lua
 		auto index = EnumInfo<T>::Find(label);
 		if (index) {
 			push(L, *index);
-			return 1;
 		} else {
-			return 0;
+			push(L, nullptr);
 		}
+
+		return 1;
 	}
 
 #define BEGIN_BITMASK_NS(NS, T, type)
@@ -1498,8 +1500,28 @@ namespace dse::lua
 
 #include <GameDefinitions/Enumerations.inl>
 
+		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
+		if (valueList) {
+			std::optional<FixedString> value;
+			valueList->Values.Iterate([&value, index](auto const& k, auto const& idx) {
+				if (idx == index) {
+					value = k;
+				}
+			});
+
+			if (value) {
+				push(L, *value);
+				return 1;
+			} else {
+				OsiError("Enumeration '" << enumName << "' has no label with index " << index);
+				push(L, nullptr);
+				return 1;
+			}
+		}
+
 		OsiError("No such enumeration: " << enumName);
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 #undef BEGIN_ENUM_NS
@@ -1522,8 +1544,23 @@ namespace dse::lua
 
 #include <GameDefinitions/Enumerations.inl>
 
+		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
+		if (valueList) {
+			auto value = valueList->Values.Find(ToFixedString(label));
+
+			if (value) {
+				push(L, *value);
+				return 1;
+			} else {
+				OsiError("Enumeration '" << enumName << "' has no label named '" << label << "'");
+				push(L, nullptr);
+				return 1;
+			}
+		}
+
 		OsiError("No such enumeration: " << enumName);
-		return 0;
+		push(L, nullptr);
+		return 1;
 	}
 
 #undef BEGIN_BITMASK_NS
