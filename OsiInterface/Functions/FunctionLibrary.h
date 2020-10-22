@@ -76,7 +76,7 @@ namespace dse::esv
 			bool statusFlag0x40, float a12);
 		void OnExecutePropertyDataOnPositionOnly(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
 			glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem,
-			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo);
+			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo, float unkn);
 
 		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, RPGStats_Treasure_Object_Info* treasureInfo, int level);
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 

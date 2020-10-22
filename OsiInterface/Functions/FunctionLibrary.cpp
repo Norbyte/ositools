@@ -261,7 +261,7 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnGroundHit, this, _1, _2, _3, _4, _5)
 		);
 		osiris_.GetLibraryManager().esv__ExecutePropertyDataOnPositionOnly.SetPostHook(
-			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly, this, _1, _2, _3, _4, _5, _6, _7, _8)
+			std::bind(&CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly, this, _1, _2, _3, _4, _5, _6, _7, _8, _9)
 		);
 		osiris_.GetLibraryManager().esv__ExecuteCharacterSetExtraProperties.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnExecuteCharacterSetExtraProperties, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)

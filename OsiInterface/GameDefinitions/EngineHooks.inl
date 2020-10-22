@@ -8,7 +8,6 @@ HOOK_DEFN(esv__ProjectileHelpers__ShootProjectile, esv__ProjectileHelpers__Shoot
 HOOK_DEFN(esv__Projectile__Explode, esv__Projectile__Explode, esv::Projectile::ExplodeProc, PreHookableFunction)
 HOOK_DEFN(esv__ActionMachine__SetState, esv__ActionMachine__SetState, esv::ActionMachine::SetStateProc, HookableFunction)
 HOOK_DEFN(esv__ActionMachine__ResetState, esv__ActionMachine__ResetState, esv::ActionMachine::ResetStateProc, PreHookableFunction)
-
 HOOK_DEFN(RPGStats__ParseProperties, RPGStats__ParseProperties, CRPGStatsManager::ParsePropertiesProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__FormatDescriptionParam, SkillPrototype__FormatDescriptionParam, SkillPrototype::FormatDescriptionParamProc, WrappableFunction)
 HOOK_DEFN(SkillPrototype__GetSkillDamage, SkillPrototype__GetSkillDamage, SkillPrototype::GetSkillDamageProc, WrappableFunction)

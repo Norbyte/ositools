@@ -1795,7 +1795,7 @@ namespace dse::esv::lua
 		ObjectHandle attackerHandle;
 		attacker->GetObjectHandle(attackerHandle);
 
-		exec(*skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr);
+		exec(*skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr, 2.4f);
 		return 0;
 	}
 

@@ -912,7 +912,7 @@ namespace dse::esv
 
 	void CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
 		glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem,
-		SkillPrototype* skillPrototype, HitDamageInfo* damageInfo)
+		SkillPrototype* skillPrototype, HitDamageInfo* damageInfo, float unkn)
 	{
 		if (!properties || !position || (unsigned)properties->AllPropertyContexts == 0 
 			|| properties->Properties.Primitives.Size == 0) {

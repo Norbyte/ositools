@@ -1364,6 +1364,6 @@ namespace dse
 			bool statusFlag0x40, float a12);
 		using ExecutePropertyDataOnPositionOnlyProc = void(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
 			glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem, 
-			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo);
+			SkillPrototype* skillPrototype, HitDamageInfo* damageInfo, float unkn);
 	}
 }
