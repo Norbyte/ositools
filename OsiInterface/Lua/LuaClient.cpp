@@ -2172,6 +2172,8 @@ namespace dse::ecl::lua
 			{"GetSurfaceTemplate", GetSurfaceTemplate},
 			{"OsirisIsCallable", OsirisIsCallableClientWrapper},
 			{"IsDeveloperMode", IsDeveloperModeWrapper},
+			{"GetGameMode", GetGameModeWrapper},
+			{"GetDifficulty", GetDifficultyWrapper},
 			{"Random", LuaRandom},
 			{"Round", LuaRoundWrapper},
 

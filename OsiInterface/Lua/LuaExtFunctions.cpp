@@ -486,6 +486,26 @@ namespace dse::lua
 		return 1;
 	}
 
+	unsigned GetDifficulty(lua_State * L)
+	{
+		return GetStaticSymbols().GetGlobalSwitches()->Difficulty;
+	}
+
+	WrapLuaFunction(GetDifficulty)
+
+	STDString GetGameMode(lua_State * L)
+	{
+		auto gameMode = GetStaticSymbols().GetGlobalSwitches()->GameMode;
+		switch (gameMode) {
+		case 0: return "Campaign";
+		case 1: return "GameMaster";
+		case 2: return "Arena";
+		default: return "";
+		}
+	}
+
+	WrapLuaFunction(GetGameMode)
+
 	bool IsDeveloperMode(lua_State * L)
 	{
 		return gOsirisProxy->GetConfig().DeveloperMode;

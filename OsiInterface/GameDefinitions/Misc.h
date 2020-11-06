@@ -112,6 +112,9 @@ namespace dse
 		bool ShowOverheadDamage;
 		bool ShowOverheadText;
 		bool ShowOverheadDialog;
+		bool Unknown[0xB0A];
+		uint8_t Difficulty;
+		uint8_t GameMode;
 		// Rest of structure not properly mapped yet
 	};
 

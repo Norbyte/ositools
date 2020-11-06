@@ -361,6 +361,8 @@ namespace dse::lua
 	int GetSurfaceTemplate(lua_State* L);
 
 	int IsDeveloperModeWrapper(lua_State* L);
+	int GetDifficultyWrapper(lua_State* L);
+	int GetGameModeWrapper(lua_State* L);
 	int AddPathOverrideWrapper(lua_State* L);
 	int LuaRandom(lua_State* L);
 	int LuaRoundWrapper(lua_State* L);

@@ -2095,6 +2095,8 @@ namespace dse::esv::lua
 			{"GetSurfaceTemplate", GetSurfaceTemplate},
 			{"OsirisIsCallable", OsirisIsCallable},
 			{"IsDeveloperMode", IsDeveloperModeWrapper},
+			{"GetGameMode", GetGameModeWrapper},
+			{"GetDifficulty", GetDifficultyWrapper},
 			{"Random", LuaRandom},
 			{"Round", LuaRoundWrapper},
 			{"GenerateIdeHelpers", GenerateIdeHelpersWrapper},
