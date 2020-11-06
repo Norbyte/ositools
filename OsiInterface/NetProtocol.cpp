@@ -180,6 +180,7 @@ namespace dse
 	}
 
 	std::chrono::steady_clock::time_point LastTick;
+	long long LastRealTimeMs{ 0 };
 
 	int ExtenderProtocolServer::PostUpdate(GameTime* Time)
 	{
@@ -192,8 +193,8 @@ namespace dse
 			// (the time between two server frames cannot be greater than ~200ms), which means that
 			// animation timings, etc. will be out of sync with the client
 			if (Time->DeltaTime >= 0.2f) {
-				ERR("CLIENT/SERVER DESYNC! Server tick took %.2f ms (frame time exceeded by %.2f ms), wall time %d ms!",
-					Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f, realTimeMs);
+				ERR("CLIENT/SERVER DESYNC! Server tick took %.2f ms (frame time exceeded by %.2f ms), wall time %ld ms cur, %ld ms last!",
+					Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f, realTimeMs, LastRealTimeMs);
 			} else if (Time->DeltaTime > 0.13f) {
 				ERR("Server tick took %.2f ms (frame time exceeded by %.2f ms)!",
 					Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f);
@@ -203,6 +204,7 @@ namespace dse
 			}
 
 			LastTick = currentTick;
+			LastRealTimeMs = realTimeMs;
 		}
 #endif
 
