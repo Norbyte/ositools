@@ -735,7 +735,7 @@ namespace dse::lua
 	{
 		auto comboName = luaL_checkstring(L, 1);
 		auto combo = GetStaticSymbols().GetStats()->ItemCombinationManager->Find(comboName);
-		return LuaWrite(L, *combo);
+		return LuaWrite(L, combo);
 	}
 
 	int UpdateItemCombo(lua_State* L)
@@ -763,7 +763,7 @@ namespace dse::lua
 	{
 		auto comboName = ToFixedString(luaL_checkstring(L, 1));
 		auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
-		return LuaWrite(L, *preview);
+		return LuaWrite(L, preview);
 	}
 
 	int UpdateItemComboPreviewData(lua_State* L)
@@ -792,7 +792,7 @@ namespace dse::lua
 	{
 		auto propertyName = ToFixedString(luaL_checkstring(L, 1));
 		auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
-		return LuaWrite(L, *prop);
+		return LuaWrite(L, prop);
 	}
 
 	int UpdateItemComboProperty(lua_State* L)
@@ -822,7 +822,7 @@ namespace dse::lua
 	{
 		auto name = ToFixedString(luaL_checkstring(L, 1));
 		auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
-		return LuaWrite(L, *group);
+		return LuaWrite(L, group);
 	}
 
 
@@ -830,7 +830,7 @@ namespace dse::lua
 	{
 		auto name = ToFixedString(luaL_checkstring(L, 1));
 		auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
-		return LuaWrite(L, *nameGroup);
+		return LuaWrite(L, nameGroup);
 	}
 
 
