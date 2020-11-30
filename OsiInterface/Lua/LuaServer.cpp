@@ -417,6 +417,23 @@ namespace dse::lua
 		return 1;
 	}
 
+	int ItemSetGeneratedBoosts(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto item = self->Get(L);
+		if (!item) return 0;
+
+		PrimitiveSet<FixedString> boosts;
+		LuaRead(L, boosts);
+
+		if (item->Generation != nullptr) {
+			item->Generation->Boosts = boosts;
+		}
+
+		return 0;
+	}
+
 	int ObjectProxy<esv::Item>::Index(lua_State* L)
 	{
 		auto item = Get(L);
@@ -446,8 +463,18 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (propFS == GFS.strSetDeltaMods) {
+			lua_pushcfunction(L, &ItemSetDeltaMods<esv::Item>);
+			return 1;
+		}
+
 		if (propFS == GFS.strGetGeneratedBoosts) {
 			lua_pushcfunction(L, &ItemGetGeneratedBoosts);
+			return 1;
+		}
+
+		if (propFS == GFS.strSetGeneratedBoosts) {
+			lua_pushcfunction(L, &ItemSetGeneratedBoosts);
 			return 1;
 		}
 

@@ -1667,10 +1667,22 @@ local EsvItem = {}
 --- @return string[]
 function EsvItem.GetDeltaMods (self) end
 
+--- Updates the delta mod list on the item.
+--- The new deltamods will only be applied after a save/reload!
+--- @param self EsvItem
+--- @param boosts string[]
+function EsvItem.SetDeltaMods (self) end
+
 --- Returns all boosts that were added during treasure generation
 --- @param self EsvItem
 --- @return string[]
 function EsvItem.GetGeneratedBoosts (self) end
+
+--- Updates the list of boosts that were added during treasure generation.
+--- The new boosts will only be applied after a save/reload!
+--- @param self EsvItem
+--- @param boosts string[]
+function EsvItem.SetGeneratedBoosts (self) end
 
 --- Returns the GUID of all items within the inventory of the item
 --- @param self EsvItem

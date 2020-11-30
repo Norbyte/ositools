@@ -24,7 +24,7 @@ namespace dse
 			uint32_t Unknown;
 			ObjectSet<int> Attributes;
 			ObjectSet<int> Abilities;
-			BitArray<4> Talents;
+			TalentArray Talents;
 			ObjectSet<uint16_t> Traits;
 			bool IsCustom;
 		};

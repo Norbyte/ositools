@@ -175,3 +175,21 @@ int ItemGetDeltaMods(lua_State* L)
 	return 1;
 }
 
+template <class TObject>
+int ItemSetDeltaMods(lua_State* L)
+{
+	StackCheck _(L, 0);
+	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto item = self->Get(L);
+	if (!item) return 0;
+
+	ObjectSet<FixedString> deltaMods;
+	LuaRead(L, deltaMods);
+
+	if (item->Stats != nullptr) {
+		item->Stats->BoostNameSet = deltaMods;
+	}
+
+	return 0;
+}
+
