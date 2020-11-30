@@ -328,8 +328,7 @@ namespace dse
 				if (p != nullptr) {
 					return p;
 				} else {
-					OsiError("Failed to get FixedString property '" << name << "' of [" << Name << "]: String is null!");
-					return {};
+					return "";
 				}
 			}
 
@@ -339,8 +338,7 @@ namespace dse
 				if (p != nullptr) {
 					return p;
 				} else {
-					OsiError("Failed to get raw string property '" << name << "' of [" << Name << "]: String is null!");
-					return {};
+					return "";
 				}
 			}
 
