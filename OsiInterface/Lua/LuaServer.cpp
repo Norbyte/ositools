@@ -424,7 +424,7 @@ namespace dse::lua
 		auto item = self->Get(L);
 		if (!item) return 0;
 
-		PrimitiveSet<FixedString> boosts;
+		CompactObjectSet<FixedString> boosts;
 		LuaRead(L, boosts);
 
 		if (item->Generation != nullptr) {
