@@ -199,6 +199,18 @@ local EoCGameObjectTemplate = {}
 --- @field public IsArenaChampion boolean
 --- @field public FootstepWeight string
 local CharacterTemplate = {}
+    
+--- Returns the list of visuals that can be selected for the specified slot
+--- @param self CharacterTemplate
+--- @param slot string Slot name (HairHelmet, Head, Torso, Arms, Trousers, Boots, Beard, Visual8, Visual9)
+--- @return string[]
+function CharacterTemplate.GetVisualChoices (self, slot) end
+    
+--- Returns the list of colors that can be selected for the specified slot
+--- @param self CharacterTemplate
+--- @param slot string Slot name (Skin, Hair, Cloth)
+--- @return number[]
+function CharacterTemplate.GetColorChoices (self, slot) end
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
