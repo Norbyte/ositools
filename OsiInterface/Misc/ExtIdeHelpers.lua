@@ -3991,7 +3991,7 @@ function Ext.EnumLabelToIndex (enum, label) end
 --- @param position number[]
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
-function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position, propertyContext, isFromItem)
+function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position, propertyContext, isFromItem) end
 
 -- Execute the SkillProperties of the specified skill on a position.
 --- @param skillId string Stats skill ID
@@ -4000,7 +4000,7 @@ function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position,
 --- @param radius number
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
-function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radius, propertyContext, isFromItem)
+function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radius, propertyContext, isFromItem) end
 
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
