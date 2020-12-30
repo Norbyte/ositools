@@ -840,17 +840,31 @@ namespace dse::esv::lua
 
 	esv::Status* StatusHandleProxy::Get(lua_State* L)
 	{
-		auto character = GetEntityWorld()->GetCharacter(character_);
-		if (character == nullptr) {
-			luaL_error(L, "Character handle invalid");
-			return nullptr;
-		}
+		esv::Status* status{ nullptr };
+		if (owner_.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+			auto character = GetEntityWorld()->GetCharacter(owner_);
+			if (character == nullptr) {
+				luaL_error(L, "Character handle invalid");
+				return nullptr;
+			}
 
-		esv::Status* status;
-		if (statusHandle_) {
-			status = character->GetStatus(statusHandle_, true);
+			if (statusHandle_) {
+				status = character->GetStatus(statusHandle_, true);
+			} else {
+				status = character->GetStatus(statusNetId_);
+			}
 		} else {
-			status = character->GetStatus(statusNetId_);
+			auto item = GetEntityWorld()->GetItem(owner_);
+			if (item == nullptr) {
+				luaL_error(L, "Item handle invalid");
+				return nullptr;
+			}
+
+			if (statusHandle_) {
+				status = item->GetStatus(statusHandle_, true);
+			} else {
+				status = item->GetStatus(statusNetId_);
+			}
 		}
 
 		if (status == nullptr) luaL_error(L, "Status handle invalid");
