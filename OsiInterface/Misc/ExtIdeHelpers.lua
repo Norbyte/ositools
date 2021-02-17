@@ -114,6 +114,13 @@ function AiGrid.GetHeight (self, x, z) end
 function AiGrid.SetHeight (self, x, z, height) end
 
 
+--- @class LevelDesc
+--- @field public LevelName string
+--- @field public UniqueKey string
+--- @field public CustomDisplayLevelName string
+--- @field public Type integer
+
+
 --- @class CombatComponentTemplate
 --- @field public Alignment string
 --- @field public CanFight boolean
@@ -4149,6 +4156,14 @@ function Ext.GetStatus (character, handle) end
 --- @param combatId integer Combat ID
 --- @return EsvCombat
 function Ext.GetCombat (combatId) end
+
+--- Returns the AI grid for the currently active level
+--- @return AiGrid
+function Ext.GetAiGrid () end
+
+--- Returns information about the currently active level
+--- @return LevelDesc
+function Ext.GetCurrentLevelData () end
 
 --- Creates a new damage list object
 --- @return DamageList

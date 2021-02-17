@@ -1727,6 +1727,22 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int GetCurrentLevelData(lua_State* L)
+	{
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
+		if (!level || !level->LevelDesc) {
+			OsiError("Current level not available yet!");
+			return 0;
+		}
+
+		lua_newtable(L);
+		settable(L, "LevelName", level->LevelDesc->LevelName);
+		settable(L, "UniqueKey", level->LevelDesc->UniqueKey);
+		settable(L, "CustomDisplayLevelName", level->LevelDesc->CustomDisplayLevelName);
+		settable(L, "Type", level->LevelDesc->Type);
+		return 1;
+	}
+
 	int GetSurfaceTransformRules(lua_State* L)
 	{
 		auto rules = GetStaticSymbols().eoc__SurfaceTransformActionsFromType;
@@ -2320,6 +2336,7 @@ namespace dse::esv::lua
 			{"CreateStat", CreateStat},
 			{"SyncStat", SyncStatWrapper},
 			{"StatSetPersistence", StatSetPersistenceWrapper},
+			{"StatSetPersistence", StatSetPersistenceWrapper},
 			{"GetDeltaMod", GetDeltaMod},
 			{"UpdateDeltaMod", UpdateDeltaMod},
 			{"EnumIndexToLabel", EnumIndexToLabel},
@@ -2348,6 +2365,7 @@ namespace dse::esv::lua
 			{"GetCombat", GetCombat},
 			{"GetSurface", GetSurface},
 			{"GetAiGrid", GetAiGrid},
+			{"GetCurrentLevelData", GetCurrentLevelData},
 			{"NewDamageList", NewDamageList},
 			{"GetSurfaceTemplate", GetSurfaceTemplate},
 			{"OsirisIsCallable", OsirisIsCallable},
