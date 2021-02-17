@@ -91,7 +91,7 @@ namespace dse
 			FixedString ItemType; // Saved
 			uint32_t Random; // Saved
 			uint16_t Level; // Saved
-			PrimitiveSet<FixedString> Boosts; // Saved
+			CompactObjectSet<FixedString> Boosts; // Saved
 		};
 
 		struct Item : public IEoCServerObject

@@ -985,6 +985,11 @@ namespace dse
 	{
 	};
 
+	template <class T, class Allocator = GameMemoryAllocator>
+	struct CompactObjectSet : public ObjectSet<T, Allocator, true>
+	{
+	};
+
 	template <unsigned TDWords>
 	struct BitArray
 	{
