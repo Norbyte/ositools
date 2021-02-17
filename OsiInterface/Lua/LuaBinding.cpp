@@ -264,6 +264,27 @@ namespace dse::lua
 	}
 
 
+
+	char const* const ObjectProxy<TriggerTemplate>::MetatableName = "eoc::TriggerTemplate";
+
+	TriggerTemplate* ObjectProxy<TriggerTemplate>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		luaL_error(L, "TriggerTemplate not bound!");
+		return nullptr;
+	}
+
+	int ObjectProxy<TriggerTemplate>::Index(lua_State* L)
+	{
+		return GenericGetter(L, gTriggerTemplatePropertyMap);
+	}
+
+	int ObjectProxy<TriggerTemplate>::NewIndex(lua_State* L)
+	{
+		return GenericSetter(L, gTriggerTemplatePropertyMap);
+	}
+
+
 	char const* const ObjectProxy<eoc::AiGrid>::MetatableName = "eoc::AiGrid";
 
 	eoc::AiGrid* ObjectProxy<eoc::AiGrid>::Get(lua_State* L)
@@ -608,6 +629,7 @@ namespace dse::lua
 		ObjectProxy<CharacterTemplate>::RegisterMetatable(L);
 		ObjectProxy<ItemTemplate>::RegisterMetatable(L);
 		ObjectProxy<ProjectileTemplate>::RegisterMetatable(L);
+		ObjectProxy<TriggerTemplate>::RegisterMetatable(L);
 		ObjectProxy<CombatComponentTemplate>::RegisterMetatable(L);
 		ObjectProxy<SurfaceTemplate>::RegisterMetatable(L);
 		ObjectProxy<eoc::AiGrid>::RegisterMetatable(L);

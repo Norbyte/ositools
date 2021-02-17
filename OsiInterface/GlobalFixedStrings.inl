@@ -103,6 +103,12 @@ FS(PlayerCustomData);
 FS(RootTemplate);
 FS(Sight);
 
+// Trigger stats
+FS(TriggerData);
+FS(TriggerAtmosphere);
+FS(Atmospheres);
+FS(FadeTime);
+
 // Stat attributes
 FS(Level);
 FS(Name);

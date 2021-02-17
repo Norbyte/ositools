@@ -2,6 +2,7 @@
 #include <GameDefinitions/Projectile.h>
 #include <GameDefinitions/Ai.h>
 #include <GameDefinitions/Surface.h>
+#include <GameDefinitions/Trigger.h>
 #include <Lua/LuaBindingServer.h>
 #include <Lua/LuaSerializers.h>
 #include <OsirisProxy.h>
@@ -13,6 +14,51 @@
 namespace dse::esv::lua
 {
 #include <Lua/LevelIteratorFunctions.inl>
+
+	template <class Predicate>
+	void GetTriggersGeneric(lua_State* L, FixedString const& requestedLevel, Predicate pred)
+	{
+		int index{ 1 };
+
+		lua_newtable(L);
+		FixedString levelName = requestedLevel;
+		if (!levelName) {
+			auto level = GetStaticSymbols().GetCurrentServerLevel();
+			if (level == nullptr) {
+				OsiError("No current level!");
+				return;
+			}
+
+			levelName = level->LevelDesc->LevelName;
+		}
+
+		auto& helpers = GetEoCServer()->EntityManager->TriggerConversionHelpers;
+		auto triggers = helpers.RegisteredTriggers.Find(levelName);
+		if (triggers == nullptr) {
+			OsiError("No triggers registered for level: " << levelName);
+			return;
+		}
+
+		for (auto trigger : **triggers) {
+			if (pred(trigger)) {
+				auto guid = trigger->GetGuid();
+				if (guid && *guid) {
+					settable(L, index++, *guid);
+				}
+			}
+		}
+	}
+
+	int GetAllTriggers(lua_State* L)
+	{
+		FixedString levelName;
+		if (lua_gettop(L) >= 1) {
+			levelName = checked_get<FixedString>(L, 1);
+		}
+
+		GetTriggersGeneric(L, levelName, [](Trigger*) { return true; });
+		return 1;
+	}
 }
 
 namespace dse::lua
@@ -48,6 +94,105 @@ namespace dse::lua
 		StackCheck _(L, 0);
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		return GenericSetter(L, propertyMap);
+	}
+
+
+	char const* const ObjectProxy<esv::EsvTrigger>::MetatableName = "esv::Trigger";
+
+	esv::EsvTrigger* ObjectProxy<esv::EsvTrigger>::Get(lua_State* L)
+	{
+		if (obj_) return obj_;
+		auto trigger = esv::GetEntityWorld()->GetTrigger(handle_);
+		if (trigger == nullptr) luaL_error(L, "Trigger handle invalid");
+		return static_cast<esv::EsvTrigger*>(trigger);
+	}
+
+	int ObjectProxy<esv::EsvTrigger>::Index(lua_State* L)
+	{
+		auto obj = Get(L);
+		if (obj == nullptr) return luaL_error(L, "Trigger object no longer available");
+
+		StackCheck _(L, 1);
+		auto prop = checked_get<FixedString>(L, 2);
+
+		if (prop == GFS.strRootTemplate) {
+			ObjectProxy<TriggerTemplate>::New(L, obj->Template);
+			return 1;
+		}
+
+		if (prop == GFS.strTriggerData) {
+			auto atm = reinterpret_cast<esv::AtmosphereTrigger*>(obj);
+			if (!obj->Template || !obj->Template->TriggerTypeData) {
+				push(L, nullptr);
+			} else if (obj->TriggerType == GFS.strTriggerAtmosphere) {
+				auto triggerData = static_cast<AtmosphereTriggerData*>(obj->Template->TriggerTypeData);
+				ObjectProxy<AtmosphereTriggerData>::New(L, triggerData);
+			} else {
+				LuaError("TriggerData for trigger type '" << obj->TriggerType << "' not supported yet!");
+				push(L, nullptr);
+			}
+
+			return 1;
+		}
+
+		return GenericGetter(L, gTriggerPropertyMap);
+	}
+
+	int ObjectProxy<esv::EsvTrigger>::NewIndex(lua_State* L)
+	{
+		return GenericSetter(L, gTriggerPropertyMap);
+	}
+
+
+	char const* const ObjectProxy<AtmosphereTriggerData>::MetatableName = "ls::AtmosphereTriggerData";
+
+	AtmosphereTriggerData* ObjectProxy<AtmosphereTriggerData>::Get(lua_State* L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "AtmosphereTriggerData object no longer available");
+		return obj_;
+	}
+
+	int ObjectProxy<AtmosphereTriggerData>::Index(lua_State* L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "AtmosphereTriggerData object no longer available");
+
+		StackCheck _(L, 1);
+		auto prop = checked_get<FixedString>(L, 2);
+
+		if (prop == GFS.strAtmospheres) {
+			return LuaWrite(L, obj_->Atmospheres);
+		} else if (prop == GFS.strFadeTime) {
+			return LuaWrite(L, obj_->FadeTime);
+		} else {
+			push(L, nullptr);
+			return 1;
+		}
+	}
+
+	int ObjectProxy<AtmosphereTriggerData>::NewIndex(lua_State* L)
+	{
+		return luaL_error(L, "AtmosphereTriggerData __newindex not supported!");
+	}
+
+
+	char const* const ObjectProxy<SoundVolumeTriggerData>::MetatableName = "esv::SoundVolumeTriggerData";
+
+	SoundVolumeTriggerData* ObjectProxy<SoundVolumeTriggerData>::Get(lua_State* L)
+	{
+		if (obj_ == nullptr) luaL_error(L, "SoundVolumeTriggerData object no longer available");
+		return obj_;
+	}
+
+	int ObjectProxy<SoundVolumeTriggerData>::Index(lua_State* L)
+	{
+		if (obj_ == nullptr) return luaL_error(L, "SoundVolumeTriggerData object no longer available");
+
+		return GenericGetter(L, gSoundVolumeTriggerDataPropertyMap);
+	}
+
+	int ObjectProxy<SoundVolumeTriggerData>::NewIndex(lua_State* L)
+	{
+		return GenericSetter(L, gSoundVolumeTriggerDataPropertyMap);
 	}
 
 
@@ -424,7 +569,7 @@ namespace dse::lua
 		auto item = self->Get(L);
 		if (!item) return 0;
 
-		PrimitiveSet<FixedString> boosts;
+		CompactObjectSet<FixedString> boosts;
 		LuaRead(L, boosts);
 
 		if (item->Generation != nullptr) {
@@ -1152,6 +1297,9 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
 		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
+		ObjectProxy<esv::EsvTrigger>::RegisterMetatable(L);
+		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
+		ObjectProxy<SoundVolumeTriggerData>::RegisterMetatable(L);
 		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
 		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
 
@@ -1282,6 +1430,47 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int GetTrigger(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve trigger handle in restricted context");
+		}
+
+		StackCheck _(L, 1);
+		Trigger* trigger = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, 1);
+			trigger = GetEntityWorld()->GetTrigger(handle);
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 1);
+			trigger = GetEntityWorld()->GetTrigger(guid);
+			break;
+		}
+
+		default:
+			OsiError("Expected trigger GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
+			push(L, nullptr);
+			return 1;
+		}
+
+		if (trigger != nullptr) {
+			ObjectHandle handle;
+			trigger->GetObjectHandle(handle);
+			ObjectProxy<esv::EsvTrigger>::New(L, handle);
+		} else {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
 	int GetGameObject(lua_State* L)
 	{
 		LuaServerPin lua(ExtensionState::Get());
@@ -1293,6 +1482,7 @@ namespace dse::esv::lua
 		esv::Item* item = nullptr;
 		esv::Character* character = nullptr;
 		esv::Projectile* projectile = nullptr;
+		Trigger* trigger = nullptr;
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
@@ -1309,6 +1499,24 @@ namespace dse::esv::lua
 
 				case ObjectType::ServerProjectile:
 					projectile = GetEntityWorld()->GetProjectile(handle);
+					break;
+
+				case ObjectType::ServerEocPointTrigger:
+				case ObjectType::ServerEocAreaTrigger:
+				case ObjectType::ServerStartTrigger:
+				case ObjectType::ServerTeleportTrigger:
+				case ObjectType::ServerEventTrigger:
+				case ObjectType::ServerCrimeAreaTrigger:
+				case ObjectType::ServerCrimeRegionTrigger:
+				case ObjectType::ServerAtmosphereTrigger:
+				case ObjectType::ServerAIHintAreaTrigger:
+				case ObjectType::ServerMusicVolumeTrigger:
+				case ObjectType::ServerSecretRegionTrigger:
+				case ObjectType::ServerStatsAreaTrigger:
+				case ObjectType::ServerSoundVolumeTrigger:
+				case ObjectType::ServerRegionTrigger:
+				case ObjectType::ServerExplorationTrigger:
+					trigger = GetEntityWorld()->GetTrigger(handle);
 					break;
 
 				default:
@@ -1352,6 +1560,7 @@ namespace dse::esv::lua
 			auto guid = lua_tostring(L, 1);
 			character = GetEntityWorld()->GetCharacter(guid, false);
 			item = GetEntityWorld()->GetItem(guid, false);
+			trigger = GetEntityWorld()->GetTrigger(guid, false);
 			break;
 		}
 
@@ -1375,6 +1584,11 @@ namespace dse::esv::lua
 			ObjectHandle handle;
 			projectile->GetObjectHandle(handle);
 			ObjectProxy<esv::Projectile>::New(L, handle);
+			return 1;
+		} else if (trigger != nullptr) {
+			ObjectHandle handle;
+			trigger->GetObjectHandle(handle);
+			ObjectProxy<esv::EsvTrigger>::New(L, handle);
 			return 1;
 		} else {
 			push(L, nullptr);
@@ -2110,9 +2324,11 @@ namespace dse::esv::lua
 			{"GetAllItems", GetAllItems},
 			{"GetItemsAroundPosition", GetItemsAroundPosition},
 			{"CreateItemConstructor", CreateItemConstructor},
+			{"GetAllTriggers", GetAllTriggers},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
+			{"GetTrigger", GetTrigger},
 			{"GetGameObject", GetGameObject},
 			{"GetStatus", GetStatus},
 			{"GetCombat", GetCombat},

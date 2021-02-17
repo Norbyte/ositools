@@ -12,6 +12,8 @@ namespace dse
 	struct ItemTemplate;
 	struct ProjectileTemplate;
 	struct CombatComponentTemplate;
+	struct Trigger;
+	struct SoundVolumeTriggerData;
 
 	namespace esv
 	{
@@ -78,6 +80,8 @@ namespace dse
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;
 	extern PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	extern PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
+	extern PropertyMap<Trigger, void> gTriggerPropertyMap;
+	extern PropertyMap<SoundVolumeTriggerData, void> gSoundVolumeTriggerDataPropertyMap;
 
 	extern PropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
 	extern PropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
@@ -107,6 +111,7 @@ namespace dse
 	extern PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
 	extern PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
 	extern PropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
+	extern PropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
 
 	void InitPropertyMaps();
 

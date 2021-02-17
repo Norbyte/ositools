@@ -340,4 +340,15 @@ namespace dse
         float PathMaxArcDist;
         int PathRepeat;
     };
+
+    struct TriggerTemplate : public GameObjectTemplate
+    {
+        void* TriggerTypeData;
+        void* PhysicsTypeData;
+        OverrideableProperty<FixedString> TriggerType;
+        OverrideableProperty<uint32_t> PhysicsType;
+        OverrideableProperty<glm::vec4> Color4;
+        OverrideableProperty<FixedString> TriggerGizmoOverride;
+    };
+
 }

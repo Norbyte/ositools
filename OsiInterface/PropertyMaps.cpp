@@ -3,6 +3,7 @@
 #include <GameDefinitions/Projectile.h>
 #include <GameDefinitions/RootTemplates.h>
 #include <GameDefinitions/Surface.h>
+#include <GameDefinitions/Trigger.h>
 #include "PropertyMaps.h"
 
 namespace dse
@@ -67,6 +68,8 @@ namespace dse
 	PropertyMap<esv::Item, void> gItemPropertyMap;
 	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
 	PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
+	PropertyMap<Trigger, void> gTriggerPropertyMap;
+	PropertyMap<SoundVolumeTriggerData, void> gSoundVolumeTriggerDataPropertyMap;
 
 	PropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
 	PropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
@@ -95,6 +98,7 @@ namespace dse
 	PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
 	PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
 	PropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
+	PropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
 
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
@@ -1160,6 +1164,27 @@ namespace dse
 		}
 
 		{
+			BEGIN_PROPERTIES(gTriggerPropertyMap, Trigger);
+			// PROP_RO(Handle); // Defunct, use GetObjectHandle() instead
+			// PROP_RO(UUID); // Defunct, use GetGuid() instead
+			PROP_RO(SyncFlags);
+			PROP_RO(Translate);
+			PROP_RO(TriggerType);
+			PROP_RO(IsGlobal);
+			PROP_RO(Level);
+		}
+
+		{
+			BEGIN_PROPERTIES(gSoundVolumeTriggerDataPropertyMap, SoundVolumeTriggerData);
+			PROP_RO(AmbientSound);
+			PROP_RO(Occlusion);
+			PROP_RO(AuxBus1);
+			PROP_RO(AuxBus2);
+			PROP_RO(AuxBus3);
+			PROP_RO(AuxBus4);
+		}
+
+		{
 			BEGIN_PROPERTIES(gEsvSurfaceActionPropertyMap, esv::SurfaceAction);
 			PROP_RO(MyHandle);
 		}
@@ -1643,6 +1668,14 @@ namespace dse
 			PROP_TPL(RemoveDestroyedItems);
 			PROP_TPL(CanSeeThrough);
 			PROP_TPL(CanShootThrough);
+		}
+
+		{
+			BEGIN_PROPERTIES(gTriggerTemplatePropertyMap, TriggerTemplate);
+			propertyMap.Parent = &gGameObjectTemplatePropertyMap;
+			PROP_TPL(TriggerType);
+			PROP_TPL(PhysicsType);
+			PROP_TPL(TriggerGizmoOverride);
 		}
 	}
 

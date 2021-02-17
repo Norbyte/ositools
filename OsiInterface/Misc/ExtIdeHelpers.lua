@@ -297,6 +297,12 @@ local ItemTemplate = {}
 local ProjectileTemplate = {}
 
 
+--- @class TriggerTemplate : EoCGameObjectTemplate
+--- @field public TriggerType string
+--- @field public PhysicsType string
+--- @field public TriggerGizmoOverride string
+
+
 --- @class SurfaceTemplateStatus
 --- @field public StatusId string
 --- @field public Chance number
@@ -2059,6 +2065,32 @@ local EsvShootProjectileRequest = {}
 --- @field public Scale number
 --- @field public CurrentLevel string
 local EsvProjectile = {}
+
+
+--- @class EsvSoundVolumeTriggerData
+--- @field public AmbientSound string
+--- @field public Occlusion number
+--- @field public AuxBus1 integer
+--- @field public AuxBus2 integer
+--- @field public AuxBus3 integer
+--- @field public AuxBus4 integer
+
+
+--- @class EsvAtmosphereTriggerData
+--- @field public Atmospheres string[]
+--- @field public FadeTime number
+
+
+--- @class EsvTrigger : EsvGameObject
+--- @field public RootTemplate TriggerTemplate
+--- @field public Handle ObjectHandle
+--- @field public UUID string
+--- @field public SyncFlags integer
+--- @field public Translate number[]
+--- @field public TriggerType string
+--- @field public IsGlobal boolean
+--- @field public Level string
+--- @field public TriggerData EsvAtmosphereTriggerData|EsvSoundVolumeTriggerData
 
 
 --- @class EsvSurfaceAction
@@ -4050,6 +4082,12 @@ function Ext.GetAllItems (level) end
 --- @return string[]
 function Ext.GetItemsAroundPosition (x, y, z, distance) end
 
+--- Returns the GUID of all triggers on the specified level. 
+--- Uses the current level if no level name was specified.
+--- @param level string|nil Optional level name
+--- @return string[]
+function Ext.GetAllTriggers (level) end
+
 --- Returns the property proxy of the specified character
 --- @param id string|integer|ObjectHandle Character GUID or handle or NetID
 --- @return EsvCharacter|EclCharacter
@@ -4060,7 +4098,12 @@ function Ext.GetCharacter (id) end
 --- @return EsvItem|EclCharacter
 function Ext.GetItem (id) end
 
---- Returns the property proxy of the specified item
+--- Returns the property proxy of the specified trigger (server only)
+--- @param id string|ObjectHandle Trigger GUID or handle
+--- @return EsvTrigger
+function Ext.GetTrigger (id) end
+
+--- Returns the property proxy of the specified character, item, projectile or trigger
 --- @param handle ObjectHandle Game object handle
 --- @return EsvGameObject|EclGameObject
 function Ext.GetGameObject (handle) end

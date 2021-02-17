@@ -182,8 +182,7 @@ namespace dse
 			auto component = Components[(uint32_t)componentType].component->FindComponentByGuid(&fs);
 			if (component != nullptr) {
 				return component;
-			}
-			else {
+			} else {
 				if (logError) {
 					OsiError("No " << ComponentTypeToName(componentType).Str << " component found with GUID '" << nameGuid << "'");
 				}
@@ -281,9 +280,9 @@ namespace dse
 		struct Ai;
 	}
 
-	struct IGameObject : public ProtectedGameObject<IGameObject>
+	struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	{
-		virtual ~IGameObject() = 0;
+		virtual ~IGameObjectBase() = 0;
 		virtual void HandleTextKeyEvent() = 0;
 		virtual uint64_t Ret5() = 0;
 		virtual void SetObjectHandle(ObjectHandle Handle) = 0;
@@ -326,7 +325,10 @@ namespace dse
 		virtual void GetParentUUID() = 0;
 		virtual FixedString* GetCurrentLevel() const = 0;
 		virtual void SetCurrentLevel(FixedString const& level) = 0;
+	};
 
+	struct IGameObject : public IGameObjectBase
+	{
 		BaseComponent Base;
 		FixedString MyGuid;
 
@@ -379,6 +381,8 @@ namespace dse
 		FixedString FS1;
 	};
 
+	struct Trigger;
+
 	namespace esv
 	{
 		struct CustomStatDefinitionComponent;
@@ -421,7 +425,7 @@ namespace dse
 		{
 			esv::EntityManager* EntityManager;
 			void* TriggerFactory;
-			RefMap<FixedString, ObjectSet<void *>*> RegisteredTriggers;
+			RefMap<FixedString, ObjectSet<Trigger*>*> RegisteredTriggers;
 		};
 
 		struct ProjectileConversionHelpers : public ProtectedGameObject<ProjectileConversionHelpers>
@@ -576,6 +580,87 @@ namespace dse
 					return (Projectile*)((uint8_t*)component - 8);
 				}
 				else {
+					return nullptr;
+				}
+			}
+
+			static constexpr int32_t TriggerOffsets[] = {
+				168, // EoCPointTrigger
+				208, // EoCAreaTrigger
+				168, // StartTrigger
+				168, // TeleportTrigger
+				208, // EventTrigger
+				208, // CrimeAreaTrigger
+				208, // CrimeRegionTrigger
+				256, // AtmosphereTrigger
+				208, // AIHintAreaTrigger
+				208, // MusicVolumeTrigger
+				208, // SecretRegionTrigger
+				208, // StatsAreaTrigger
+				296, // SoundVolumeTrigger
+				208, // RegionTrigger
+				208 // ExplorationTrigger
+			};
+
+
+			inline Trigger* GetTrigger(char const* nameGuid, bool logError = true)
+			{
+				static constexpr ComponentType triggerTypes[] = {
+					ComponentType::EoCPointTrigger,
+					ComponentType::EoCAreaTrigger,
+					ComponentType::StartTrigger,
+					ComponentType::TeleportTrigger,
+					ComponentType::EventTrigger,
+					ComponentType::CrimeAreaTrigger,
+					ComponentType::CrimeRegionTrigger,
+					ComponentType::AtmosphereTrigger,
+					ComponentType::AIHintAreaTrigger,
+					ComponentType::MusicVolumeTrigger,
+					ComponentType::SecretRegionTrigger,
+					ComponentType::StatsAreaTrigger,
+					ComponentType::SoundVolumeTrigger,
+					ComponentType::RegionTrigger,
+					ComponentType::ExplorationTrigger
+				};
+
+				for (auto i = 0; i < std::size(triggerTypes); i++) {
+					auto component = GetComponent(triggerTypes[i], nameGuid, false);
+					if (component != nullptr) {
+						return (Trigger*)((uintptr_t)component - TriggerOffsets[i]);
+					}
+				}
+
+				return nullptr;
+			}
+
+			inline Trigger* GetTrigger(ObjectHandle handle, bool logError = true)
+			{
+				auto type = (ObjectType)handle.GetType();
+				if (type != ObjectType::ServerEocPointTrigger
+					&& type != ObjectType::ServerEocAreaTrigger
+					&& type != ObjectType::ServerStartTrigger
+					&& type != ObjectType::ServerTeleportTrigger
+					&& type != ObjectType::ServerEventTrigger
+					&& type != ObjectType::ServerCrimeAreaTrigger
+					&& type != ObjectType::ServerCrimeRegionTrigger
+					&& type != ObjectType::ServerAtmosphereTrigger
+					&& type != ObjectType::ServerAIHintAreaTrigger
+					&& type != ObjectType::ServerMusicVolumeTrigger
+					&& type != ObjectType::ServerSecretRegionTrigger
+					&& type != ObjectType::ServerStatsAreaTrigger
+					&& type != ObjectType::ServerSoundVolumeTrigger
+					&& type != ObjectType::ServerRegionTrigger
+					&& type != ObjectType::ServerExplorationTrigger) {
+					return nullptr;
+				}
+
+				auto typeIdx = (unsigned)type - (unsigned)ObjectType::ServerEocPointTrigger;
+				auto componentType = (ComponentType)((unsigned)ComponentType::EoCPointTrigger + typeIdx);
+
+				auto component = GetComponent(componentType, type, handle, logError);
+				if (component != nullptr) {
+					return (Trigger*)((uintptr_t)component - TriggerOffsets[typeIdx]);
+				} else {
 					return nullptr;
 				}
 			}
