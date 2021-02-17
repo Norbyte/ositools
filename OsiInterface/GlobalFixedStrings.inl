@@ -79,6 +79,8 @@ FS(DeltaMods);
 // AI grid funcs
 FS(SearchForCell);
 FS(GetCellInfo);
+FS(GetHeight);
+FS(SetHeight);
 FS(GetAiFlags);
 FS(SetAiFlags);
 FS(OffsetX);

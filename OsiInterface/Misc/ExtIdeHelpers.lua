@@ -99,6 +99,20 @@ function AiGrid.GetAiFlags (self, x, z) end
 --- @param flags integer AI flags
 function AiGrid.SetAiFlags (self, x, z, flags) end
 
+--- Returns the height of the specified cell
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @return number
+function AiGrid.GetHeight (self, x, z) end
+
+--- Updates the height of the specified cell
+--- @param self AiGrid
+--- @param x number X coordinate of point to search
+--- @param z number Z coordinate of point to search
+--- @param height number Cell height
+function AiGrid.SetHeight (self, x, z, height) end
+
 
 --- @class CombatComponentTemplate
 --- @field public Alignment string

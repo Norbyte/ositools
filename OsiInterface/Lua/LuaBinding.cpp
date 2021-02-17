@@ -304,7 +304,8 @@ namespace dse::lua
 		auto search = GetStaticSymbols().eoc__AiGrid__SearchForCell;
 		if (!search) {
 			OsiError("AiGrid::SearchForCell not mapped!");
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		auto result = search(grid, x, z, radius, flags, nullptr, bias);
@@ -321,7 +322,8 @@ namespace dse::lua
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
 			OsiError("Could not find AiGrid cell at " << x << ";" << z);
-			return 0;
+			push(L, nullptr);
+			return 1;
 		}
 
 		auto groundIdx = grid->GetSurfaceIndex(cell, 0);
@@ -366,6 +368,25 @@ namespace dse::lua
 		return 1;
 	}
 
+	int AiGridGetHeight(lua_State* L)
+	{
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			OsiError("Could not find AiGrid cell at " << x << ";" << z);
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto meta = grid->GetAiMetaData(cell);
+		auto height = cell->Height * 0.25f + grid->DataGrid.OffsetY;
+		push(L, height);
+		return 1;
+	}
+
 	int AiGridGetAiFlags(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
@@ -402,6 +423,29 @@ namespace dse::lua
 		return 0;
 	}
 
+	int AiGridSetHeight(lua_State* L)
+	{
+		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
+		auto x = checked_get<float>(L, 2);
+		auto z = checked_get<float>(L, 3);
+		auto height = checked_get<float>(L, 4);
+
+		auto cell = grid->GetCell(glm::vec2(x, z));
+		if (!cell) {
+			LuaError("Could not find AiGrid cell at " << x << ";" << z);
+			return 0;
+		}
+
+		float cellHeight = (height - grid->DataGrid.OffsetY) / 0.25f;
+		if (cellHeight <= -32767.0f || cellHeight >= 32767.0f) {
+			LuaError("Cell height value out of bounds: " << height);
+			return 0;
+		}
+
+		cell->Height = (int16_t)cellHeight;
+		return 0;
+	}
+
 	int ObjectProxy<eoc::AiGrid>::Index(lua_State* L)
 	{
 		auto grid = Get(L);
@@ -416,6 +460,16 @@ namespace dse::lua
 
 		if (prop == GFS.strGetCellInfo) {
 			lua_pushcfunction(L, &AiGridGetCellInfo);
+			return 1;
+		}
+
+		if (prop == GFS.strGetHeight) {
+			lua_pushcfunction(L, &AiGridGetHeight);
+			return 1;
+		}
+
+		if (prop == GFS.strSetHeight) {
+			lua_pushcfunction(L, &AiGridSetHeight);
 			return 1;
 		}
 
