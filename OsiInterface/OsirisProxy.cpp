@@ -1559,7 +1559,12 @@ bool SavegameSerializer::SerializeStatObject(FixedString const& statId, FixedStr
 	auto modifier = stats->modifierList.Find(object->ModifierListIndex);
 	statType = modifier->Name;
 
+#if defined(NDEBUG)
 	MsgS2CSyncStat msg;
+#else
+	// Workaround for different debug/release CRT runtimes between protobuf and the extender in debug mode
+	MsgS2CSyncStat& msg = *GameAlloc<MsgS2CSyncStat>();
+#endif
 	object->ToProtobuf(&msg);
 	uint32_t size = (uint32_t)msg.ByteSizeLong();
 	blob.Size = size;
