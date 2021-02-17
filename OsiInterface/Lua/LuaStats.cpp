@@ -49,31 +49,46 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
 
-	int CharacterFetchStat(lua_State* L, CDivinityStats_Character* stats, char const* propStr, FixedString const& prop)
+	bool CharacterFetchStat(lua_State* L, CDivinityStats_Character* stats, FixedString const& prop, bool excludeBoosts)
 	{
+		if (!prop) return false;
+
 		if (prop == GFS.strSight) {
-			push(L, stats->Sight);
-			return 1;
+			if (excludeBoosts) {
+				push(L, stats->BaseSight);
+			} else {
+				push(L, stats->Sight);
+			}
+			return true;
 		}
 
-		std::optional<int32_t> dynamicStat;
-		if (!prop && strncmp(propStr, "Base", 4) == 0) {
-			dynamicStat = stats->GetStat(ToFixedString(propStr + 4), true);
-		}
-		else {
-			dynamicStat = stats->GetStat(prop, false);
-		}
-
+		auto dynamicStat = stats->GetStat(prop, excludeBoosts);
 		if (dynamicStat) {
 			push(L, *dynamicStat);
-			return 1;
+			return true;
 		}
 
-		if (prop == GFS.strModId) {
-			push(L, gOsirisProxy->GetStatLoadOrderHelper().GetStatsEntryMod(stats->Name));
-			return 1;
+		auto abilityId = EnumInfo<AbilityType>::Find(prop);
+		if (abilityId) {
+			int abilityLevel = stats->GetAbility(*abilityId, excludeBoosts);
+			push(L, abilityLevel);
+			return true;
 		}
 
+		if (strncmp(prop.Str, "TALENT_", 7) == 0) {
+			auto talentId = EnumInfo<TalentType>::Find(prop.Str + 7);
+			if (talentId) {
+				bool hasTalent = stats->HasTalent(*talentId, false);
+				push(L, hasTalent);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	int CharacterFetchStat(lua_State* L, CDivinityStats_Character* stats, char const* propStr, FixedString const& prop)
+	{
 		if (prop == GFS.strDynamicStats) {
 			lua_newtable(L);
 			unsigned statIdx = 1;
@@ -91,8 +106,7 @@ namespace dse::lua
 			if (weapon != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
 				return 1;
-			}
-			else {
+			} else {
 				return 0;
 			}
 		}
@@ -102,38 +116,18 @@ namespace dse::lua
 			if (weapon != nullptr) {
 				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
 				return 1;
-			}
-			else {
+			} else {
 				return 0;
 			}
 		}
 
-		if (strncmp(propStr, "TALENT_", 7) == 0) {
-			auto talentId = EnumInfo<TalentType>::Find(propStr + 7);
-			if (talentId) {
-				bool hasTalent = stats->HasTalent(*talentId, false);
-				push(L, hasTalent);
-				return 1;
-			}
-			else {
-				return 0;
-			}
+		if (prop == GFS.strModId) {
+			push(L, gOsirisProxy->GetStatLoadOrderHelper().GetStatsEntryMod(stats->Name));
+			return 1;
 		}
 
 		if (prop == GFS.strNotSneaking) {
 			push(L, (bool)(stats->Flags & StatCharacterFlags::IsSneaking));
-			return 1;
-		}
-
-		auto abilityId = EnumInfo<AbilityType>::Find(prop);
-		if (abilityId) {
-			int abilityLevel = stats->GetAbility(*abilityId, false);
-			push(L, abilityLevel);
-			return 1;
-		}
-
-		auto fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, false);
-		if (fetched) {
 			return 1;
 		}
 
@@ -143,11 +137,9 @@ namespace dse::lua
 				stats->Character->GetObjectHandle(handle);
 				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 					ObjectProxy<ecl::Character>::New(L, handle);
-				}
-				else if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+				} else if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
 					ObjectProxy<esv::Character>::New(L, handle);
-				}
-				else {
+				} else {
 					ERR("Unknown character handle type: %d", handle.GetType());
 					push(L, nullptr);
 				}
@@ -175,7 +167,23 @@ namespace dse::lua
 			}
 		}
 
-		OsiError("Unknown character stats property: " << prop);
+		bool fetched;
+		if (!prop && strncmp(propStr, "Base", 4) == 0) {
+			auto baseStatName = ToFixedString(propStr + 4);
+			fetched = CharacterFetchStat(L, stats, baseStatName, true);
+		} else {
+			fetched = CharacterFetchStat(L, stats, prop, false);
+		}
+
+		if (!fetched) {
+			fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, false);
+		}
+
+		if (fetched) {
+			return 1;
+		}
+
+		OsiError("Unknown character stats property: " << propStr);
 		return 0;
 	}
 
