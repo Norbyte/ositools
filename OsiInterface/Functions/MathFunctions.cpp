@@ -79,7 +79,7 @@ namespace dse::esv
 		{
 			auto base = args[0].Float;
 			auto exp = args[1].Int32;
-			args[2].Set(pow(base, exp));
+			args[2].Set(pow(base, (float)exp));
 			return true;
 		}
 
