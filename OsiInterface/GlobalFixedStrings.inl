@@ -217,6 +217,8 @@ FS(SurfaceLayer);
 FS(SurfaceActionType);
 FS(SurfaceTransformActionType);
 FS(ESurfaceFlag);
+FS(VisualTemplateVisualIndex);
+FS(VisualTemplateColorIndex);
 
 // Savegames
 FS(ScriptExtenderSave);

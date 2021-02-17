@@ -109,6 +109,13 @@ namespace dse
         bool CanFight2;
     };
 
+    struct VisualSet
+    {
+        void* VMT;
+        ObjectSet<FixedString> Visuals[9];
+        ObjectSet<uint32_t> Colors[3];
+    };
+
     struct CharacterTemplate : public EoCGameObjectTemplate
     {
         CombatComponentTemplate CombatComponent;
@@ -174,7 +181,7 @@ namespace dse
         OverrideableProperty<uint32_t> FootstepWeight;
         char field_700;
         bool EmptyVisualSet;
-        void* VisualSetObject;
+        VisualSet* VisualSetObject;
     };
 
     struct ItemTemplate : public EoCGameObjectTemplate

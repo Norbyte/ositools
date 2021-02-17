@@ -160,12 +160,12 @@ namespace dse::esv::lua
 	public:
 		static char const * const MetatableName;
 
-		inline StatusHandleProxy(ObjectHandle character, ObjectHandle status)
-			: character_(character), statusHandle_(status)
+		inline StatusHandleProxy(ObjectHandle owner, ObjectHandle status)
+			: owner_(owner), statusHandle_(status)
 		{}
 
-		inline StatusHandleProxy(ObjectHandle character, NetId status)
-			: character_(character), statusNetId_(status)
+		inline StatusHandleProxy(ObjectHandle owner, NetId status)
+			: owner_(owner), statusNetId_(status)
 		{}
 
 		int Index(lua_State * L);
@@ -173,7 +173,7 @@ namespace dse::esv::lua
 		esv::Status* Get(lua_State* L);
 
 	private:
-		ObjectHandle character_;
+		ObjectHandle owner_;
 		ObjectHandle statusHandle_;
 		NetId statusNetId_;
 	};

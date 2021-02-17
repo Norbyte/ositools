@@ -1074,7 +1074,7 @@ namespace dse
 		FixedString Name;
 		FixedString PreviewIcon;
 		FixedString PreviewTooltip;
-		ObjectSet<ItemCombinationPropertyEntry> Entries;
+		ObjectSet<ItemCombinationPropertyEntry, GameMemoryAllocator, true> Entries;
 	};
 
 
@@ -1107,7 +1107,7 @@ namespace dse
 		};
 
 
-		ObjectSet<CombinationResult> Results;
+		ObjectSet<CombinationResult, GameMemoryAllocator, true> Results;
 		AbilityType Requirement;
 		int ReqLevel;
 		FixedString PreviewStatsId;
@@ -1120,8 +1120,8 @@ namespace dse
 	struct CItemCombination
 	{
 		FixedString Name;
-		ObjectSet<CItemCombinationIngredient> Ingredients;
-		ObjectSet<CItemCombinationResult> Results;
+		ObjectSet<CItemCombinationIngredient, GameMemoryAllocator, true> Ingredients;
+		ObjectSet<CItemCombinationResult, GameMemoryAllocator, true> Results;
 		RecipeCategory RecipeCategory;
 		CraftingStationType CraftingStation;
 		bool AutoLevel;

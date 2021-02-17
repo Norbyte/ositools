@@ -152,12 +152,56 @@ namespace dse::lua
 		return nullptr;
 	}
 
+	int CharacterTemplateGetVisualChoices(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<CharacterTemplate>*>(L, 1);
+		auto slot = checked_get<VisualTemplateVisualIndex>(L, 2);
+
+		auto obj = self->Get(L);
+		auto visualSet = obj->VisualSetObject;
+
+		if (!visualSet) {
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto const& choices = visualSet->Visuals[(unsigned)slot];
+		return LuaWrite(L, choices);
+	}
+
+	int CharacterTemplateGetColorChoices(lua_State* L)
+	{
+		auto self = checked_get<ObjectProxy<CharacterTemplate>*>(L, 1);
+		auto slot = checked_get<VisualTemplateColorIndex>(L, 2);
+
+		auto obj = self->Get(L);
+		auto visualSet = obj->VisualSetObject;
+
+		if (!visualSet) {
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto const& choices = visualSet->Colors[(unsigned)slot];
+		return LuaWrite(L, choices);
+	}
+
 	int ObjectProxy<CharacterTemplate>::Index(lua_State* L)
 	{
 		auto obj = Get(L);
 		if (!obj) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (strcmp(prop, "GetVisualChoices") == 0) {
+			lua_pushcfunction(L, &CharacterTemplateGetVisualChoices);
+			return 1;
+		}
+
+		if (strcmp(prop, "GetColorChoices") == 0) {
+			lua_pushcfunction(L, &CharacterTemplateGetColorChoices);
+			return 1;
+		}
 
 		if (strcmp(prop, "CombatTemplate") == 0) {
 			ObjectProxy<CombatComponentTemplate>::New(L, &obj->CombatComponent);

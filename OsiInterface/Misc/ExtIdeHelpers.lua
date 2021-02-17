@@ -213,6 +213,18 @@ local EoCGameObjectTemplate = {}
 --- @field public IsArenaChampion boolean
 --- @field public FootstepWeight string
 local CharacterTemplate = {}
+    
+--- Returns the list of visuals that can be selected for the specified slot
+--- @param self CharacterTemplate
+--- @param slot string Slot name (HairHelmet, Head, Torso, Arms, Trousers, Boots, Beard, Visual8, Visual9)
+--- @return string[]
+function CharacterTemplate.GetVisualChoices (self, slot) end
+    
+--- Returns the list of colors that can be selected for the specified slot
+--- @param self CharacterTemplate
+--- @param slot string Slot name (Skin, Hair, Cloth)
+--- @return number[]
+function CharacterTemplate.GetColorChoices (self, slot) end
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
@@ -4025,7 +4037,7 @@ function Ext.EnumLabelToIndex (enum, label) end
 --- @param position number[]
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
-function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position, propertyContext, isFromItem)
+function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position, propertyContext, isFromItem) end
 
 -- Execute the SkillProperties of the specified skill on a position.
 --- @param skillId string Stats skill ID
@@ -4034,7 +4046,7 @@ function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position,
 --- @param radius number
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
-function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radius, propertyContext, isFromItem)
+function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radius, propertyContext, isFromItem) end
 
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
