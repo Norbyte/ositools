@@ -2457,6 +2457,26 @@ namespace dse::ecl::lua
 	}
 
 
+	void ClientState::OnAppInputEvent(InputEvent const& inputEvent)
+	{
+		StackCheck _(L, 0);
+
+		PushExtFunction(L, "_OnInputEvent"); // stack: fn
+		lua_newtable(L);
+		settable(L, "EventId", inputEvent.EventId);
+		settable(L, "InputDeviceId", inputEvent.InputDeviceId);
+		settable(L, "InputPlayerIndex", inputEvent.InputPlayerIndex);
+		settable(L, "Press", (inputEvent.Type & InputType::Press) == InputType::Press);
+		settable(L, "Release", (inputEvent.Type & InputType::Release) == InputType::Release);
+		settable(L, "ValueChange", (inputEvent.Type & InputType::ValueChange) == InputType::ValueChange);
+		settable(L, "Hold", (inputEvent.Type & InputType::Hold) == InputType::Hold);
+		settable(L, "Repeat", (inputEvent.Type & InputType::Repeat) == InputType::Repeat);
+		settable(L, "AcceleratedRepeat", (inputEvent.Type & InputType::AcceleratedRepeat) == InputType::AcceleratedRepeat);
+
+		CheckedCall<>(L, 1, "Ext.OnInputEvent");
+	}
+
+
 	UIObject * ClientState::GetUIObject(char const * name)
 	{
 		auto it = clientUI_.find(name);

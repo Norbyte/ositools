@@ -15,7 +15,8 @@ Ext._Listeners = {
 	UIInvoke = {},
 	UICall = {},
 	AfterUIInvoke = {},
-	AfterUICall = {}
+	AfterUICall = {},
+	InputEvent = {}
 }
 
 Ext._SkillGetDescriptionParam = function (...)
@@ -83,6 +84,10 @@ end
 
 Ext._UIObjectCreated = function (uiObject)
 	Ext._Notify("UIObjectCreated", uiObject)
+end
+
+Ext._OnInputEvent = function (event)
+	Ext._Notify("InputEvent", event)
 end
 
 Ext._UIExternalInterfaceHandleListeners = { Before = {}, After = {} }

@@ -58,6 +58,18 @@ function DamageList.AggregateSameTypeDamages (self) end
 function DamageList.ToTable (self) end
 
 
+--- @class InputEvent
+--- @field public EventId integer
+--- @field public InputDeviceId integer
+--- @field public InputPlayerIndex integer
+--- @field public Press boolean
+--- @field public Release boolean
+--- @field public ValueChange boolean
+--- @field public Hold boolean
+--- @field public Repeat boolean
+--- @field public AcceleratedRepeat boolean
+
+
 --- @class AiGrid
 --- @field public OffsetX number X coordinate the grid starts at
 --- @field public OffsetY number Y coordinate the grid starts at
@@ -3540,7 +3552,7 @@ function UIObject.Destroy (self) end
 local SurfaceInteractionSet = {}
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'"
+--- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'" | "'InputEvent'"
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -3557,6 +3569,7 @@ local SurfaceInteractionSet = {}
 --- @alias ExtShootProjectileCallback fun(projectile: EsvProjectile)
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
 --- @alias ExtGroundHitCallback fun(caster: EsvGameObject, position: number[], damageList: DamageList)
+--- @alias ExtInputEventCallback fun(event: InputEvent)
 
 --- @class Ext
 Ext = {

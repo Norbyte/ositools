@@ -970,10 +970,10 @@ namespace dse::esv
 
 	void CustomFunctionLibrary::OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent)
 	{
-		/*DEBUG("OnInputEvent: EventId=%d, Player=%d, DevId=%d, NewVal=%d,%d,%d, Type=%d",
-			inputEvent.EventId, inputEvent.InputPlayerIndex, inputEvent.InputDeviceId,
-			inputEvent.NewValue.field_0, inputEvent.NewValue.field_4, inputEvent.NewValue.field_8,
-			inputEvent.Type);*/
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+		if (lua) {
+			lua->OnAppInputEvent(inputEvent);
+		}
 	}
 
 	bool CustomFunctionLibrary::OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self,

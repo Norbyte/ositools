@@ -157,6 +157,7 @@ namespace dse::ecl::lua
 			CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
 		void OnGameStateChanged(GameState fromState, GameState toState);
 		std::optional<STDString> GetSkillPropertyDescription(CRPGStats_Object_Property_Extender*);
+		void OnAppInputEvent(InputEvent const& inputEvent);
 
 		void OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle);
 		UIObject * GetUIObject(char const * name);
