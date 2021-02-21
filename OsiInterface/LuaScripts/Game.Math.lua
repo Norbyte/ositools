@@ -869,14 +869,14 @@ end
 
 --- @param damageList DamageList
 --- @param armor integer
-local function ComputeArmorDamage(damageList, armor)
+function ComputeArmorDamage(damageList, armor)
     local damage = damageList:GetByType("Corrosive") + damageList:GetByType("Physical") + damageList:GetByType("Sulfuric")
     return math.min(armor, damage)
 end
 
 --- @param damageList DamageList
 --- @param magicArmor integer
-local function ComputeMagicArmorDamage(damageList, magicArmor)
+function ComputeMagicArmorDamage(damageList, magicArmor)
     local damage = damageList:GetByType("Magic") 
         + damageList:GetByType("Fire") 
         + damageList:GetByType("Water")
@@ -1382,7 +1382,7 @@ function GetCharacterWeaponAPCost(character)
 
     local ap = GetWeaponAPCost(character, mainWeapon)
 
-    if offHandWeapon ~= nil and Game.Math.IsRangedWeapon(mainWeapon) == Game.Math.IsRangedWeapon(offHandWeapon) then
+    if offHandWeapon ~= nil and IsRangedWeapon(mainWeapon) == IsRangedWeapon(offHandWeapon) then
         ap = ap + GetWeaponAPCost(character, offHandWeapon) - Ext.ExtraData.DualWieldingAPPenalty
     else
         --- @type StatItem
