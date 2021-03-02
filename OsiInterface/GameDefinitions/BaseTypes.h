@@ -790,7 +790,7 @@ namespace dse
 			Reallocate(other.Size);
 			Size = other.Size;
 			for (uint32_t i = 0; i < other.Size; i++) {
-				Buf[i] = other.Buf[i];
+				new (Buf + i) T(other.Buf[i]);
 			}
 		}
 
@@ -810,7 +810,7 @@ namespace dse
 			Reallocate(other.Size);
 			Size = other.Size;
 			for (uint32_t i = 0; i < other.Size; i++) {
-				Buf[i] = other.Buf[i];
+				new (Buf + i) T(other.Buf[i]);
 			}
 			return *this;
 		}
@@ -865,8 +865,10 @@ namespace dse
 			auto oldBuf = Buf;
 			RawReallocate(newCapacity);
 			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-				Buf[i] = oldBuf[i];
+				new (Buf + i) T(oldBuf[i]);
+				oldBuf[i].~T();
 			}
+
 			FreeBuffer(oldBuf);
 		}
 
@@ -881,11 +883,16 @@ namespace dse
 				Buf[i] = Buf[i + 1];
 			}
 
+			Buf[Size - 1].~T();
 			Size--;
 		}
 
 		void Clear()
 		{
+			for (uint32_t i = 0; i < Size; i++) {
+				Buf[i].~T();
+			}
+
 			Size = 0;
 		}
 
@@ -932,7 +939,7 @@ namespace dse
 				Reallocate(CapacityIncrement());
 			}
 
-			Buf[Size++] = value;
+			new (&Buf[Size++]) T(value);
 		}
 
 		void InsertAt(uint32_t index, T const & value)
@@ -970,7 +977,7 @@ namespace dse
 				Reallocate(CapacityIncrement());
 			}
 
-			Buf[Size++] = value;
+			new (&Buf[Size++]) T(value);
 		}
 	};
 
@@ -1083,7 +1090,7 @@ namespace dse
 				Reallocate(a.Size);
 				Size = a.Size;
 				for (uint32_t i = 0; i < Size; i++) {
-					Buf[i] = a[i];
+					new (Buf + i) T(a[i]);
 				}
 			}
 		}
@@ -1109,6 +1116,10 @@ namespace dse
 
 		void Clear()
 		{
+			for (uint32_t i = 0; i < Size; i++) {
+				Buf[i].~T();
+			}
+
 			Size = 0;
 		}
 
@@ -1116,7 +1127,7 @@ namespace dse
 		{
 			auto newBuf = GameAllocArray<T>(newCapacity);
 			for (uint32_t i = 0; i < std::min(Size, newCapacity); i++) {
-				newBuf[i] = Buf[i];
+				new (newBuf + i) T(Buf[i]);
 			}
 
 			if (Buf != nullptr) {
@@ -1134,7 +1145,7 @@ namespace dse
 			}
 
 			if (Size < Capacity) {
-				Buf[Size++] = val;
+				new (&Buf[Size++]) T(val);
 				return true;
 			} else {
 				return false;
