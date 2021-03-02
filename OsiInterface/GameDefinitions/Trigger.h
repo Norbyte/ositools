@@ -26,7 +26,7 @@ namespace dse
 
 	struct AtmosphereTriggerData : public ITriggerData
 	{
-		ObjectSet<FixedString> Atmospheres;
+		ObjectSet<FixedString, GameMemoryAllocator, true> Atmospheres;
 		float FadeTime;
 	};
 
