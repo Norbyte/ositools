@@ -115,8 +115,15 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto prop = checked_get<FixedString>(L, 2);
 
-		if (prop == GFS.strRootTemplate) {
-			ObjectProxy<TriggerTemplate>::New(L, obj->Template);
+		if (prop == GFS.strHandle) {
+			ObjectHandle handle;
+			obj->GetObjectHandle(handle);
+			push(L, handle);
+			return 1;
+		}
+
+		if (prop == GFS.strUUID) {
+			push(L, *obj->GetGuid());
 			return 1;
 		}
 
@@ -171,7 +178,22 @@ namespace dse::lua
 
 	int ObjectProxy<AtmosphereTriggerData>::NewIndex(lua_State* L)
 	{
-		return luaL_error(L, "AtmosphereTriggerData __newindex not supported!");
+		StackCheck _(L, 0);
+		auto prop = checked_get<FixedString>(L, 2);
+
+		if (prop == GFS.strAtmospheres) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, obj_->Atmospheres);
+			lua_pop(L, 1);
+		} else if (prop == GFS.strFadeTime) {
+			lua_pushvalue(L, 3);
+			LuaRead(L, obj_->FadeTime);
+			lua_pop(L, 1);
+		} else {
+			LuaError("Unsupported atmosphere property: " << prop);
+		}
+
+		return 0;
 	}
 
 

@@ -29,6 +29,7 @@ FS(Source);
 FS(Target);
 FS(HitObject);
 FS(Handle);
+FS(UUID);
 FS(Activated);
 FS(OffStage);
 FS(Destroyed);
