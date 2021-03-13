@@ -1436,9 +1436,19 @@ namespace dse::esv::lua
 
 		case LUA_TNUMBER:
 		{
-			OsiError("Resolving integer object handles is deprecated since v52!")
-			auto handle = ObjectHandle(lua_tointeger(L, 1));
-			item = GetEntityWorld()->GetItem(handle);
+			auto value = lua_tointeger(L, 1);
+			if (value > 0xffffffff) {
+				OsiError("Resolving integer object handles is deprecated since v52!")
+				ObjectHandle handle{ value };
+				if (handle.GetType() == (uint32_t)ObjectType::ClientItem) {
+					OsiError("Attempted to resolve client ObjectHandle on the server");
+				} else {
+					item = GetEntityWorld()->GetItem(handle);
+				}
+			} else {
+				NetId netId{ (uint32_t)value };
+				item = GetEntityWorld()->GetItem(netId);
+			}
 			break;
 		}
 

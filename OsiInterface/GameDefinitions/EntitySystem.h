@@ -573,6 +573,17 @@ namespace dse
 				}
 			}
 
+			inline Item* GetItem(NetId netId, bool logError = true)
+			{
+				auto component = GetComponent(ComponentType::Item, netId, logError);
+				if (component != nullptr) {
+					return (Item*)((uint8_t*)component - 8);
+				}
+				else {
+					return nullptr;
+				}
+			}
+
 			inline Projectile* GetProjectile(ObjectHandle handle, bool logError = true)
 			{
 				auto component = GetComponent(ComponentType::Item, ObjectType::ServerProjectile, handle, logError);
