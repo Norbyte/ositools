@@ -990,7 +990,6 @@ namespace dse
 			propertyMap.Flags[GFS.strMadePlayer].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
-			propertyMap.Flags[GFS.strIsPossessed].Flags &= ~kPropWrite;
 
 			EnumInfo<esv::CharacterFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
 				auto& flag = propertyMap.Flags[name];
