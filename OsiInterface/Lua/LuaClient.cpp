@@ -1386,7 +1386,10 @@ namespace dse::ecl::lua
 	int UIObjectProxy::GetRoot(lua_State* L)
 	{
 		auto ui = CheckUserData(L, 1)->Get();
-		if (!ui || !ui->FlashPlayer) return 0;
+		if (!ui || !ui->FlashPlayer || !ui->FlashPlayer->IggyPlayerRootPath) {
+			push(L, nullptr);
+			return 0;
+		}
 
 		StackCheck _(L, 1);
 		std::vector<ig::IggyValuePath> path;
