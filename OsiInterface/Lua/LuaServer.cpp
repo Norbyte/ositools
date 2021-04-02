@@ -1337,6 +1337,7 @@ namespace dse::esv::lua
 		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
 		ObjectProxy<SoundVolumeTriggerData>::RegisterMetatable(L);
 		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
+		ObjectProxy<esv::Surface>::RegisterMetatable(L);
 		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
