@@ -63,6 +63,58 @@ namespace dse::esv::lua
 
 namespace dse::lua
 {
+	void PushHit(lua_State* L, HitDamageInfo const& hit)
+	{
+		lua_newtable(L);
+		setfield(L, "Equipment", hit.Equipment);
+		setfield(L, "TotalDamageDone", hit.TotalDamage);
+		setfield(L, "DamageDealt", hit.DamageDealt);
+		setfield(L, "DeathType", hit.DeathType);
+		setfield(L, "DamageType", hit.DamageType);
+		setfield(L, "AttackDirection", hit.AttackDirection);
+		setfield(L, "ArmorAbsorption", hit.ArmorAbsorption);
+		setfield(L, "LifeSteal", hit.LifeSteal);
+		setfield(L, "EffectFlags", (int64_t)hit.EffectFlags);
+		setfield(L, "HitWithWeapon", hit.HitWithWeapon);
+
+		auto luaDamageList = DamageList::New(L);
+		for (auto const& dmg : hit.DamageList) {
+			luaDamageList->Get().SafeAdd(dmg);
+		}
+		
+		lua_setfield(L, -2, "DamageList");
+	}
+
+	bool PopHit(lua_State* L, HitDamageInfo& hit, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		hit.Equipment = checked_getfield<uint32_t>(L, "Equipment", index);
+		hit.TotalDamage = checked_getfield<int32_t>(L, "TotalDamageDone", index);
+		hit.DamageDealt = checked_getfield<int32_t>(L, "DamageDealt", index);
+		hit.DeathType = checked_getfield<DeathType>(L, "DeathType", index);
+		hit.DamageType = checked_getfield<DamageType>(L, "DamageType", index);
+		hit.AttackDirection = checked_getfield<uint32_t>(L, "AttackDirection", index);
+		hit.ArmorAbsorption = checked_getfield<int32_t>(L, "ArmorAbsorption", index);
+		hit.LifeSteal = checked_getfield<int32_t>(L, "LifeSteal", index);
+		hit.HitWithWeapon = checked_getfield<bool>(L, "HitWithWeapon", index);
+		hit.EffectFlags = (HitFlag)checked_getfield<uint32_t>(L, "EffectFlags", index);
+
+		lua_getfield(L, index, "DamageList");
+		auto damageList = DamageList::AsUserData(L, -1);
+		lua_pop(L, 1);
+
+		if (damageList == nullptr) {
+			OsiErrorS("Missing 'DamageList' in Hit table");
+			return false;
+		} else {
+			hit.DamageList.Clear();
+			for (auto const& dmg : damageList->Get()) {
+				hit.DamageList.AddDamage(dmg.DamageType, dmg.Amount);
+			}
+			return true;
+		}
+	}
+
 	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
 	esv::Status* ObjectProxy<esv::Status>::Get(lua_State* L)
@@ -83,6 +135,12 @@ namespace dse::lua
 			return 1;
 		}
 
+		if (obj_->GetStatusId() == StatusType::HIT && strcmp(prop, "Hit") == 0) {
+			auto hit = static_cast<esv::StatusHit*>(obj_);
+			PushHit(L, hit->DamageInfo);
+			return 1;
+		}
+
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
 		if (!fetched) push(L, nullptr);
@@ -92,6 +150,16 @@ namespace dse::lua
 	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
+
+		if (obj_->GetStatusId() == StatusType::HIT
+			&& strcmp(luaL_checkstring(L, 2), "Hit") == 0) {
+			auto hit = static_cast<esv::StatusHit*>(obj_);
+			HitDamageInfo damageInfo;
+			PopHit(L, damageInfo, 3);
+			hit->DamageInfo = damageInfo;
+			return 0;
+		}
+
 		auto& propertyMap = StatusToPropertyMap(obj_);
 		return GenericSetter(L, propertyMap);
 	}
@@ -1045,6 +1113,13 @@ namespace dse::esv::lua
 
 		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
+
+		if (status->GetStatusId() == StatusType::HIT && strcmp(prop, "Hit") == 0) {
+			auto hit = static_cast<esv::StatusHit*>(status);
+			PushHit(L, hit->DamageInfo);
+			return 1;
+		}
+
 		auto& propertyMap = StatusToPropertyMap(status);
 		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
 		if (!fetched) push(L, nullptr);
@@ -1058,6 +1133,16 @@ namespace dse::esv::lua
 		if (!status) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
+
+		if (status->GetStatusId() == StatusType::HIT
+			&& strcmp(luaL_checkstring(L, 2), "Hit") == 0) {
+			auto hit = static_cast<esv::StatusHit*>(status);
+			HitDamageInfo damageInfo;
+			PopHit(L, damageInfo, 3);
+			hit->DamageInfo = damageInfo;
+			return 0;
+		}
+
 		auto& propertyMap = StatusToPropertyMap(status);
 		LuaPropertyMapSet(L, 3, propertyMap, status, prop, true);
 		return 0;
@@ -2751,59 +2836,6 @@ namespace dse::esv::lua
 			return std::get<0>(*result);
 		} else {
 			return {};
-		}
-	}
-
-
-	void PushHit(lua_State* L, HitDamageInfo const& hit)
-	{
-		lua_newtable(L);
-		setfield(L, "Equipment", hit.Equipment);
-		setfield(L, "TotalDamageDone", hit.TotalDamage);
-		setfield(L, "DamageDealt", hit.DamageDealt);
-		setfield(L, "DeathType", hit.DeathType);
-		setfield(L, "DamageType", hit.DamageType);
-		setfield(L, "AttackDirection", hit.AttackDirection);
-		setfield(L, "ArmorAbsorption", hit.ArmorAbsorption);
-		setfield(L, "LifeSteal", hit.LifeSteal);
-		setfield(L, "EffectFlags", (int64_t)hit.EffectFlags);
-		setfield(L, "HitWithWeapon", hit.HitWithWeapon);
-
-		auto luaDamageList = DamageList::New(L);
-		for (auto const& dmg : hit.DamageList) {
-			luaDamageList->Get().SafeAdd(dmg);
-		}
-		
-		lua_setfield(L, -2, "DamageList");
-	}
-
-	bool PopHit(lua_State* L, HitDamageInfo& hit, int index)
-	{
-		luaL_checktype(L, index, LUA_TTABLE);
-		hit.Equipment = checked_getfield<uint32_t>(L, "Equipment", index);
-		hit.TotalDamage = checked_getfield<int32_t>(L, "TotalDamageDone", index);
-		hit.DamageDealt = checked_getfield<int32_t>(L, "DamageDealt", index);
-		hit.DeathType = checked_getfield<DeathType>(L, "DeathType", index);
-		hit.DamageType = checked_getfield<DamageType>(L, "DamageType", index);
-		hit.AttackDirection = checked_getfield<uint32_t>(L, "AttackDirection", index);
-		hit.ArmorAbsorption = checked_getfield<int32_t>(L, "ArmorAbsorption", index);
-		hit.LifeSteal = checked_getfield<int32_t>(L, "LifeSteal", index);
-		hit.HitWithWeapon = checked_getfield<bool>(L, "HitWithWeapon", index);
-		hit.EffectFlags = (HitFlag)checked_getfield<uint32_t>(L, "EffectFlags", index);
-
-		lua_getfield(L, index, "DamageList");
-		auto damageList = DamageList::AsUserData(L, -1);
-		lua_pop(L, 1);
-
-		if (damageList == nullptr) {
-			OsiErrorS("Missing 'DamageList' in Hit table");
-			return false;
-		} else {
-			hit.DamageList.Clear();
-			for (auto const& dmg : damageList->Get()) {
-				hit.DamageList.AddDamage(dmg.DamageType, dmg.Amount);
-			}
-			return true;
 		}
 	}
 

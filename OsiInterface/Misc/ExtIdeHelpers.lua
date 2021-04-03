@@ -425,6 +425,7 @@ local ProjectileTemplate = {}
 local EsvStatus = {}
 
 --- @class EsvStatusHit : EsvStatus
+--- @field public Hit HitRequest
 --- @field public HitByHandle ObjectHandle
 --- @field public HitWithHandle ObjectHandle
 --- @field public WeaponHandle ObjectHandle
