@@ -94,6 +94,11 @@ namespace dse::lua
 		lua_pushinteger(L, (lua_Integer)v);
 	}
 
+	inline void push(lua_State * L, NetId v)
+	{
+		push(L, v.Id);
+	}
+
 	inline void push(lua_State * L, double v)
 	{
 		lua_pushnumber(L, v);

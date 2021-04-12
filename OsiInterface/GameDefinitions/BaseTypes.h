@@ -136,7 +136,7 @@ namespace dse
 		inline constexpr NetId(uint32_t id) : Id(id) {}
 		inline constexpr NetId(NetId const & id) : Id(id.Id) {}
 
-		inline operator bool() const
+		inline explicit operator bool() const
 		{
 			return Id != Unassigned;
 		}
