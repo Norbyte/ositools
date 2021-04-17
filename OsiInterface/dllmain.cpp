@@ -53,6 +53,7 @@ void LoadConfig(std::wstring const & configPath, dse::ToolConfig & config)
 	ConfigGetBool(root, "SyncNetworkStrings", config.SyncNetworkStrings);
 	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
 	ConfigGetBool(root, "EnableLuaDebugger", config.EnableLuaDebugger);
+	ConfigGetBool(root, "OptimizeHashing", config.OptimizeHashing);
 	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
 	ConfigGetBool(root, "DeveloperMode", config.DeveloperMode);
 	ConfigGetBool(root, "ShowPerfWarnings", config.ShowPerfWarnings);

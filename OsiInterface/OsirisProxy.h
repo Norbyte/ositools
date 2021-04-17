@@ -50,6 +50,7 @@ struct ToolConfig
 	bool SendCrashReports{ true };
 	bool EnableAchievements{ true };
 
+	bool OptimizeHashing{ true };
 #if defined(OSI_EXTENSION_BUILD)
 	bool DisableModValidation{ true };
 #if defined(_DEBUG)

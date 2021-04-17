@@ -877,6 +877,17 @@ void OsirisProxy::OnClientGameStateChanged(void * self, ecl::GameState fromState
 		}
 	}
 
+	if (toState == ecl::GameState::LoadModule && config_.DisableModValidation) {
+		std::lock_guard _(globalStateLock_);
+		Libraries.PostStartupFindLibraries();
+		if (GetStaticSymbols().GetGlobalSwitches()) {
+			GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
+			INFO("Disabled module hashing");
+		} else {
+			WARN("Could not disable mod hashing - GlobalSwitches not mapped");
+		}
+	}
+
 	if (toState == ecl::GameState::Menu && Libraries.InitializationFailed()) {
 		PostInitLibraries();
 	}
@@ -1729,6 +1740,10 @@ void ModuleHasher::UpdateDependencyHashes(Module& mod)
 
 bool ModuleHasher::OnModuleHash(Module::HashProc* next, Module* self)
 {
+	if (!gOsirisProxy->GetConfig().OptimizeHashing) {
+		return next(self);
+	}
+
 	std::lock_guard _(mutex_);
 	
 	if (FetchHashFromCache(*self)) {
