@@ -127,6 +127,7 @@ namespace dse
 	namespace ecl
 	{
 		struct ShroudManager;
+		struct PickingHelperManager;
 
 		struct Level : public dse::Level
 		{
@@ -142,7 +143,7 @@ namespace dse
 			void* ProjectileManager;
 			void* GameActionManager;
 			void* FadeManager;
-			void* PickingHelperManager;
+			PickingHelperManager* PickingHelperManager;
 			void* SurfaceManager;
 			void* AtmosphereManager;
 			ShroudManager* ShroudManager;

@@ -1851,6 +1851,62 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
+	int GetPickingState(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto level = GetStaticSymbols().GetCurrentClientLevel();
+		if (level == nullptr || level->PickingHelperManager == nullptr) {
+			OsiError("No current level!");
+			push(L, nullptr);
+			return 1;
+		}
+
+		int playerIndex{ 1 };
+		if (lua_gettop(L) >= 1) {
+			playerIndex = checked_get<int>(L, 1);
+		}
+
+		auto helper = level->PickingHelperManager->PlayerHelpers.Find(playerIndex);
+		if (helper == nullptr) {
+			OsiError("No picking helper available for player!");
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto const& base = (*helper)->b;
+		lua_newtable(L);
+		if ((*helper)->GameObjectPick) {
+			setfield(L, "WorldPosition", (*helper)->GameObjectPick->WorldPos.Position);
+		}
+
+		setfield(L, "WalkablePosition", base.WalkablePickPos.Position);
+
+		if (base.HoverCharacterHandle2) {
+			setfield(L, "HoverCharacter", base.HoverCharacterHandle2);
+			setfield(L, "HoverCharacterPosition", base.HoverCharacterPickPos.Position);
+		}
+
+		if (base.HoverCharacterHandle) {
+			setfield(L, "HoverCharacter2", base.HoverCharacterHandle);
+		}
+
+		if (base.HoverItemHandle) {
+			setfield(L, "HoverItem", base.HoverItemHandle);
+			setfield(L, "HoverItemPosition", base.HoverItemPickPos.Position);
+		}
+
+		if (base.HoverCharacterOrItemHandle) {
+			setfield(L, "HoverEntity", base.HoverCharacterOrItemHandle);
+		}
+
+		if (base.PlaceablePickHandle) {
+			setfield(L, "PlaceableEntity", base.PlaceablePickHandle);
+			setfield(L, "PlaceablePosition", base.PlaceablePickInfo.Position);
+		}
+
+		return 1;
+	}
+
 	int UpdateShroud(lua_State* L)
 	{
 		StackCheck _(L, 0);
@@ -2186,6 +2242,7 @@ namespace dse::ecl::lua
 			{"DumpStack", DumpStackWrapper},
 
 			{"GetGameState", GetGameState},
+			{"GetPickingState", GetPickingState},
 			{"AddPathOverride", AddPathOverrideWrapper},
 			{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
 			{"GetTranslatedString", GetTranslatedStringWrapper},

@@ -631,5 +631,63 @@ namespace dse
 			uint64_t field_250;
 		};
 
+		struct PickPosition
+		{
+			glm::vec3 Position;
+			int field_C;
+			int field_10;
+			int field_14;
+		};
+
+		struct PickingHelperBase
+		{
+			PickPosition PlaceablePickInfo;
+			PickPosition HoverCharacterPickPos;
+			PickPosition HoverItemPickPos;
+			PickPosition WalkablePickPos;
+			ObjectHandle HoverCharacterHandle2;
+			ObjectHandle HoverCharacterHandle;
+			ObjectHandle HoverItemHandle;
+			ObjectHandle HoverCharacterOrItemHandle;
+			ObjectHandle PlaceablePickHandle;
+			ObjectHandle OH6;
+			uint64_t WalkablePickInfo1;
+			char WalkablePickInfo2;
+			char GameObjectPickFlags;
+		};
+
+		struct PickingHelper
+		{
+			struct GameObjectPicker
+			{
+				void* VMT;
+				void* field_8;
+				PickPosition WorldPos;
+			};
+
+			void* VMT;
+			PickingHelperBase b;
+			Level* Level;
+			int16_t PlayerId;
+			ObjectHandle OH7;
+			ObjectSet<ObjectHandle> OS_OH;
+			void* field_E0;
+			int field_E8;
+			float ScreenPos[2];
+			GameObjectPicker* GameObjectPick;
+			void* PlaceablePick;
+			void* WalkablePick;
+			void* ControllerPointerManager;
+		};
+
+		struct PickingHelperManager
+		{
+			void* VMT;
+			void* field_8;
+			RefMap<uint16_t, PickingHelper*> PlayerHelpers;
+			void* field_20;
+			void* field_28;
+		};
+
 	}
 }

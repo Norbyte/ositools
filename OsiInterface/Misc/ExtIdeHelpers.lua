@@ -3547,6 +3547,18 @@ function UIObject.GetPlayerHandle (self) end
 function UIObject.Destroy (self) end
 
 
+--- @class EclPickingState
+--- @field public WorldPosition number[] Position of cursor in world coordinates
+--- @field public WalkablePosition number[] Closest walkable position to cursor in world coordinates
+--- @field public HoverCharacter ObjectHandle Character hovered by cursor
+--- @field public HoverCharacter2 ObjectHandle Character hovered by cursor (???)
+--- @field public HoverCharacterPosition number[] Position of character hovered by cursor
+--- @field public HoverItem ObjectHandle Item hovered by cursor
+--- @field public HoverItemPosition number[] Position of item hovered by cursor
+--- @field public PlaceableEntity ObjectHandle Placeable game object hovered by cursor
+--- @field public PlaceablePosition number[] Position of placeable game object hovered by cursor
+
+
 --- @class SurfaceInteractionSet
 --- @field public TransformType string Surface transform to apply (Bless, Curse, Ignite, ...)
 --- @field public ActionableSurfaces string[][] Surface types that this transform applies to
@@ -4386,6 +4398,10 @@ function Ext.MonotonicTime () end
 --- @param playerGuid string GUID of player character
 --- @return boolean
 function Ext.PlayerHasExtender (playerGuid) end
+
+--- Returns information about current mouse position and hovered objects
+--- @return EclPickingState
+function Ext.GetPickingState () end
 
 --- Triggers a breakpoint in the Lua debugger.
 --- If no debugger is connected, the function does nothing.
