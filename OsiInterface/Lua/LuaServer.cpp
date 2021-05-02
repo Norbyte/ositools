@@ -2415,6 +2415,7 @@ namespace dse::esv::lua
 			{"PrintError", OsiPrintError},
 			{"HandleToDouble", HandleToDoubleWrapper},
 			{"DoubleToHandle", DoubleToHandleWrapper},
+			{"GetHandleType", GetHandleTypeWrapper},
 
 			{"SaveFile", SaveFileWrapper},
 			{"LoadFile", LoadFileWrapper},

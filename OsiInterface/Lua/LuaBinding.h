@@ -312,6 +312,7 @@ namespace dse::lua
 	int OsiPrintError(lua_State* L);
 	int HandleToDoubleWrapper(lua_State* L);
 	int DoubleToHandleWrapper(lua_State* L);
+	int GetHandleTypeWrapper(lua_State* L);
 	int GetCellInfo(lua_State* L);
 
 	int SaveFileWrapper(lua_State* L);

@@ -598,6 +598,70 @@ namespace dse::ecl::lua
 		return 1;
 	}
 
+	int GetGameObject(lua_State* L)
+	{
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
+		}
+
+		StackCheck _(L, 1);
+		Item* item = nullptr;
+		Character* character = nullptr;
+		Trigger* trigger = nullptr;
+		switch (lua_type(L, 1)) {
+		case LUA_TLIGHTUSERDATA:
+		{
+			auto handle = checked_get<ObjectHandle>(L, 1);
+			if (handle) {
+				switch ((ObjectType)handle.GetType()) {
+				case ObjectType::ClientCharacter:
+					character = GetEntityWorld()->GetCharacter(handle);
+					break;
+
+				case ObjectType::ClientItem:
+					item = GetEntityWorld()->GetItem(handle);
+					break;
+
+				default:
+					OsiError("Cannot resolve unsupported client handle type: " << handle.GetType());
+					break;
+				}
+			}
+
+			break;
+		}
+
+		case LUA_TSTRING:
+		{
+			auto guid = lua_tostring(L, 1);
+			character = GetEntityWorld()->GetCharacter(guid, false);
+			item = GetEntityWorld()->GetItem(guid, false);
+			break;
+		}
+
+		default:
+			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
+			push(L, nullptr);
+			return 1;
+		}
+
+		if (item != nullptr) {
+			ObjectHandle handle;
+			item->GetObjectHandle(handle);
+			ObjectProxy<Item>::New(L, handle);
+			return 1;
+		} else if (character != nullptr) {
+			ObjectHandle handle;
+			character->GetObjectHandle(handle);
+			ObjectProxy<Character>::New(L, handle);
+			return 1;
+		} else {
+			push(L, nullptr);
+			return 1;
+		}
+	}
+
 	int GetAiGrid(lua_State* L)
 	{
 		auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -2179,6 +2243,7 @@ namespace dse::ecl::lua
 			{"PrintError", OsiPrintError},
 			{"HandleToDouble", HandleToDoubleWrapper},
 			{"DoubleToHandle", DoubleToHandleWrapper},
+			{"GetHandleType", GetHandleTypeWrapper},
 
 			{"SaveFile", SaveFileWrapper},
 			{"LoadFile", LoadFileWrapper},
@@ -2226,6 +2291,7 @@ namespace dse::ecl::lua
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetStatus", GetStatus},
+			{"GetGameObject", GetGameObject},
 			{"GetAiGrid", GetAiGrid},
 			{"NewDamageList", NewDamageList},
 			{"GetSurfaceTemplate", GetSurfaceTemplate},

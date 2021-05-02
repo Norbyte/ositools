@@ -90,7 +90,7 @@ namespace dse {
 
 	struct StaticSymbolRef
 	{
-		std::ptrdiff_t Offset;
+		std::size_t Offset;
 		void ** TargetPtr;
 
 		inline StaticSymbolRef()
@@ -101,7 +101,7 @@ namespace dse {
 			: Offset(-1), TargetPtr(ptr)
 		{}
 
-		explicit inline StaticSymbolRef(std::ptrdiff_t offset)
+		explicit inline StaticSymbolRef(std::size_t offset)
 			: Offset(offset), TargetPtr(nullptr)
 		{}
 
