@@ -361,6 +361,18 @@ namespace dse::lua
 
 	WrapLuaFunction(DoubleToHandle)
 
+	STDString GetHandleType(lua_State* L, ObjectHandle handle)
+	{
+		auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
+		if (type) {
+			return type.Str;
+		} else {
+			return "Unknown";
+		}
+	}
+
+	WrapLuaFunction(GetHandleType)
+
 	std::optional<STDString> LoadFile(lua_State* L, char const* path, std::optional<char const*> context)
 	{
 		if (!context || strcmp(*context, "user") == 0) {
@@ -524,7 +536,7 @@ namespace dse::lua
 		float length, std::optional<int> priority)
 	{
 		auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
-		if (speakerMgr == nullptr || *speakerMgr == nullptr) {
+		if (speakerMgr == nullptr || *speakerMgr == nullptr || (*speakerMgr)->SpeakerMetaDataHashMap == nullptr) {
 			OsiError("Speaker manager not initialized!");
 			return;
 		}
