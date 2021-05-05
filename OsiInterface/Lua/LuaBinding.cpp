@@ -777,6 +777,7 @@ namespace dse::lua
 	  {LUA_TABLIBNAME, luaopen_table},
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
+	  {LUA_COLIBNAME, luaopen_coroutine},
 	  // debug table is stripped in the sandbox startup script
 	  {LUA_DBLIBNAME, luaopen_debug},
 	  {NULL, NULL}
@@ -790,6 +791,7 @@ namespace dse::lua
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
 	  {LUA_BITLIBNAME, luaopen_bit},
+	  {LUA_COLIBNAME, luaopen_coroutine},
 	  // debug table is stripped in the sandbox startup script
 	  {LUA_DBLIBNAME, luaopen_debug},
 	  {NULL, NULL}
