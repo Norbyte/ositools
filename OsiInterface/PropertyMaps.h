@@ -3,6 +3,8 @@
 #include "CustomFunctions.h"
 #include "Functions/FunctionLibrary.h"
 #include "PropertyMap.h"
+#include <GameDefinitions/Surface.h>
+#include <GameDefinitions/RootTemplates.h>
 
 namespace dse
 {

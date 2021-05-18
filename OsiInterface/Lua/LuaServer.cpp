@@ -1603,34 +1603,33 @@ namespace dse::esv::lua
 		return 1;
 	}
 
-	int GetGameObject(lua_State* L)
+	struct GetGameObjectResult
 	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
-		}
-
-		StackCheck _(L, 1);
 		esv::Item* item = nullptr;
 		esv::Character* character = nullptr;
 		esv::Projectile* projectile = nullptr;
 		Trigger* trigger = nullptr;
-		switch (lua_type(L, 1)) {
+	};
+
+	GetGameObjectResult GetGameObjectInternal(lua_State* L, int idx)
+	{
+		GetGameObjectResult result;
+		switch (lua_type(L, idx)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, 1);
+			auto handle = checked_get<ObjectHandle>(L, idx);
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ServerCharacter:
-					character = GetEntityWorld()->GetCharacter(handle);
+					result.character = GetEntityWorld()->GetCharacter(handle);
 					break;
 
 				case ObjectType::ServerItem:
-					item = GetEntityWorld()->GetItem(handle);
+					result.item = GetEntityWorld()->GetItem(handle);
 					break;
 
 				case ObjectType::ServerProjectile:
-					projectile = GetEntityWorld()->GetProjectile(handle);
+					result.projectile = GetEntityWorld()->GetProjectile(handle);
 					break;
 
 				case ObjectType::ServerEocPointTrigger:
@@ -1648,7 +1647,7 @@ namespace dse::esv::lua
 				case ObjectType::ServerSoundVolumeTrigger:
 				case ObjectType::ServerRegionTrigger:
 				case ObjectType::ServerExplorationTrigger:
-					trigger = GetEntityWorld()->GetTrigger(handle);
+					result.trigger = GetEntityWorld()->GetTrigger(handle);
 					break;
 
 				default:
@@ -1663,19 +1662,19 @@ namespace dse::esv::lua
 		case LUA_TNUMBER:
 		{
 			OsiError("Resolving integer object handles is deprecated since v52!")
-			auto handle = ObjectHandle(lua_tointeger(L, 1));
+			auto handle = ObjectHandle(lua_tointeger(L, idx));
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ServerCharacter:
-					character = GetEntityWorld()->GetCharacter(handle);
+					result.character = GetEntityWorld()->GetCharacter(handle);
 					break;
 
 				case ObjectType::ServerItem:
-					item = GetEntityWorld()->GetItem(handle);
+					result.item = GetEntityWorld()->GetItem(handle);
 					break;
 
 				case ObjectType::ServerProjectile:
-					projectile = GetEntityWorld()->GetProjectile(handle);
+					result.projectile = GetEntityWorld()->GetProjectile(handle);
 					break;
 
 				default:
@@ -1689,37 +1688,49 @@ namespace dse::esv::lua
 
 		case LUA_TSTRING:
 		{
-			auto guid = lua_tostring(L, 1);
-			character = GetEntityWorld()->GetCharacter(guid, false);
-			item = GetEntityWorld()->GetItem(guid, false);
-			trigger = GetEntityWorld()->GetTrigger(guid, false);
+			auto guid = lua_tostring(L, idx);
+			result.character = GetEntityWorld()->GetCharacter(guid, false);
+			result.item = GetEntityWorld()->GetItem(guid, false);
+			result.trigger = GetEntityWorld()->GetTrigger(guid, false);
 			break;
 		}
 
 		default:
-			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-			push(L, nullptr);
-			return 1;
+			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, idx)));
+			break;
 		}
 
-		if (item != nullptr) {
+		return result;
+	}
+
+	int GetGameObject(lua_State* L)
+	{
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
+		}
+
+		StackCheck _(L, 1);
+		auto result = GetGameObjectInternal(L, 1);
+
+		if (result.item != nullptr) {
 			ObjectHandle handle;
-			item->GetObjectHandle(handle);
+			result.item->GetObjectHandle(handle);
 			ObjectProxy<esv::Item>::New(L, handle);
 			return 1;
-		} else if (character != nullptr) {
+		} else if (result.character != nullptr) {
 			ObjectHandle handle;
-			character->GetObjectHandle(handle);
+			result.character->GetObjectHandle(handle);
 			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
-		} else if (projectile != nullptr) {
+		} else if (result.projectile != nullptr) {
 			ObjectHandle handle;
-			projectile->GetObjectHandle(handle);
+			result.projectile->GetObjectHandle(handle);
 			ObjectProxy<esv::Projectile>::New(L, handle);
 			return 1;
-		} else if (trigger != nullptr) {
+		} else if (result.trigger != nullptr) {
 			ObjectHandle handle;
-			trigger->GetObjectHandle(handle);
+			result.trigger->GetObjectHandle(handle);
 			ObjectProxy<esv::EsvTrigger>::New(L, handle);
 			return 1;
 		} else {
@@ -2399,6 +2410,82 @@ namespace dse::esv::lua
 		return 1;
 	}
 
+	int PrepareStatus(lua_State* L)
+	{
+		StackCheck _(L, 1);
+
+		auto gameObj = GetGameObjectInternal(L, 1);
+		auto statusId = checked_get<FixedString>(L, 2);
+		float lifeTime = checked_get<float>(L, 3);
+
+		StatusMachine* statusMachine{ nullptr };
+		ObjectHandle ownerHandle;
+		if (gameObj.character != nullptr) {
+			statusMachine = gameObj.character->StatusMachine;
+			gameObj.character->GetObjectHandle(ownerHandle);
+		} else if (gameObj.item != nullptr) {
+			statusMachine = gameObj.item->StatusMachine;
+			gameObj.item->GetObjectHandle(ownerHandle);
+		} else if (gameObj.trigger != nullptr || gameObj.projectile != nullptr) {
+			OsiError("Attempted to send message to reserved user ID!");
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto status = gOsirisProxy->GetStatusHelpers().PrepareStatus(statusMachine, statusId, lifeTime);
+		if (!status) {
+			push(L, nullptr);
+			return 1;
+		}
+
+		StatusHandleProxy::New(L, ownerHandle, status->StatusHandle);
+		return 1;
+	}
+
+	int ApplyStatus(lua_State* L)
+	{
+		auto status = StatusHandleProxy::CheckUserData(L, 1);
+		StatusMachine* statusMachine{ nullptr };
+
+		auto ownerHandle = status->OwnerHandle();
+		if (ownerHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+			auto character = GetEntityWorld()->GetCharacter(ownerHandle);
+			if (character) {
+				statusMachine = character->StatusMachine;
+			}
+		} else if (ownerHandle.GetType() == (uint32_t)ObjectType::ServerItem) {
+			auto item = GetEntityWorld()->GetItem(ownerHandle);
+			if (item) {
+				statusMachine = item->StatusMachine;
+			}
+		}
+
+		if (statusMachine == nullptr) {
+			OsiError("No StatusMachine found for this status!");
+			return 0;
+		}
+
+		auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
+		if (applyStatus == nullptr) {
+			OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
+			return 0;
+		}
+
+		auto statusObj = statusMachine->Get(status->StatusHandle());
+		if (!statusObj) {
+			OsiError("No status found with this handle!");
+			return 0;
+		}
+
+		if ((statusObj->Flags2 & StatusFlags2::Started) == StatusFlags2::Started) {
+			OsiError("Trying to apply status that was already started!");
+			return 0;
+		}
+
+		applyStatus(statusMachine, statusObj);
+		return 0;
+	}
+
 
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
@@ -2475,6 +2562,9 @@ namespace dse::esv::lua
 			{"GetItemsAroundPosition", GetItemsAroundPosition},
 			{"CreateItemConstructor", CreateItemConstructor},
 			{"GetAllTriggers", GetAllTriggers},
+
+			{"PrepareStatus", PrepareStatus},
+			{"ApplyStatus", ApplyStatus},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},

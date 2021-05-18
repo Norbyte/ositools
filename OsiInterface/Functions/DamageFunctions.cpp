@@ -6,6 +6,8 @@
 
 namespace dse::esv
 {
+	esv::Status* GetStatusHelper(OsiArgumentDesc const& args);
+
 	void DamageHelperPool::Clear()
 	{
 		helpers_.clear();
@@ -415,8 +417,6 @@ namespace dse::esv
 
 			helper->AddDamage(*damageType, amount);
 		}
-
-		esv::Status * GetStatusHelper(OsiArgumentDesc const & args);
 
 		esv::StatusHit * HitStatusGet(OsiArgumentDesc const & args)
 		{

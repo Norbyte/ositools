@@ -591,7 +591,7 @@ namespace dse
 
 		struct StatusMachine : public NetworkObjectFactory<Status, (uint32_t)ObjectType::Unknown>
 		{
-			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString& StatusId, uint64_t ObjectHandle);
+			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ObjectHandle);
 			using ApplyStatusProc = void (esv::StatusMachine* StatusMachine, Status* Status);
 
 			Status * GetStatus(ObjectHandle handle) const;

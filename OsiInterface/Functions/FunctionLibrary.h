@@ -87,13 +87,6 @@ namespace dse::esv
 		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
 			ModuleSettings& hostModSettings);
 
-		void ThrowStatusHitEnter(esv::Status* status);
-		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,
-			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-			HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGround,
-			bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper);
-		void ThrowApplyStatus(esv::StatusMachine* self, esv::Status* status);
-
 	private:
 		OsirisProxy & osiris_;
 		bool PostLoaded{ false };

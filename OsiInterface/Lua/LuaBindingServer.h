@@ -172,6 +172,16 @@ namespace dse::esv::lua
 		int NewIndex(lua_State * L);
 		esv::Status* Get(lua_State* L);
 
+		inline ObjectHandle OwnerHandle() const
+		{
+			return owner_;
+		}
+
+		inline ObjectHandle StatusHandle() const
+		{
+			return statusHandle_;
+		}
+
 	private:
 		ObjectHandle owner_;
 		ObjectHandle statusHandle_;

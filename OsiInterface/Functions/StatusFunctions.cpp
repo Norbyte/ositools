@@ -29,93 +29,6 @@ namespace dse::esv
 		return nullptr;
 	}
 
-	PropertyMapBase & StatusToPropertyMap(esv::Status * status)
-	{
-		switch (status->GetStatusId()) {
-		case StatusType::HIT: return gStatusHitPropertyMap;
-		case StatusType::DYING: return gStatusDyingPropertyMap;
-		case StatusType::HEAL: return gStatusHealPropertyMap;
-		case StatusType::CHARMED: return gStatusCharmedPropertyMap;
-		case StatusType::KNOCKED_DOWN: return gStatusKnockedDownPropertyMap;
-		case StatusType::SUMMONING: return gStatusSummoningPropertyMap;
-		case StatusType::HEALING: return gStatusHealingPropertyMap;
-		case StatusType::THROWN: return gStatusThrownPropertyMap;
-		case StatusType::TELEPORT_FALLING: return gStatusTeleportFallPropertyMap;
-		case StatusType::COMBAT: return gStatusCombatPropertyMap;
-		case StatusType::AOO: return gStatusAoOPropertyMap;
-		case StatusType::SNEAKING: return gStatusSneakingPropertyMap;
-		case StatusType::UNLOCK: return gStatusUnlockPropertyMap;
-		case StatusType::BOOST: return gStatusBoostPropertyMap;
-		case StatusType::UNSHEATHED: return gStatusUnsheathedPropertyMap;
-		case StatusType::STANCE: return gStatusStancePropertyMap;
-		case StatusType::SITTING: return gStatusLyingPropertyMap;
-		case StatusType::LYING: return gStatusLyingPropertyMap;
-		case StatusType::INFECTIOUS_DISEASED: return gStatusInfectiousDiseasedPropertyMap;
-		case StatusType::INVISIBLE: return gStatusInvisiblePropertyMap;
-		case StatusType::ROTATE: return gStatusRotatePropertyMap;
-		case StatusType::IDENTIFY: return gStatusIdentifyPropertyMap;
-		case StatusType::REPAIR: return gStatusRepairPropertyMap;
-		case StatusType::MATERIAL: return gStatusMaterialPropertyMap;
-		case StatusType::EXPLODE: return gStatusExplodePropertyMap;
-		case StatusType::ADRENALINE: return gStatusAdrenalinePropertyMap;
-		case StatusType::SHACKLES_OF_PAIN: return gStatusShacklesOfPainPropertyMap;
-		case StatusType::SHACKLES_OF_PAIN_CASTER: return gStatusShacklesOfPainCasterPropertyMap;
-		case StatusType::DRAIN: return gStatusDrainPropertyMap;
-		case StatusType::SPIRIT_VISION: return gStatusSpiritVisionPropertyMap;
-		case StatusType::SPIRIT: return gStatusSpiritPropertyMap;
-		case StatusType::DAMAGE: return gStatusDamagePropertyMap;
-		case StatusType::CLIMBING: return gStatusClimbingPropertyMap;
-		case StatusType::INCAPACITATED: return gStatusIncapacitatedPropertyMap;
-		case StatusType::INSURFACE: return gStatusInSurfacePropertyMap;
-		case StatusType::POLYMORPHED: return gStatusPolymorphedPropertyMap;
-		case StatusType::DAMAGE_ON_MOVE: return gStatusDamageOnMovePropertyMap;
-		case StatusType::CHALLENGE: return gStatusChallengePropertyMap;
-		case StatusType::HEAL_SHARING: return gStatusHealSharingPropertyMap;
-		case StatusType::HEAL_SHARING_CASTER: return gStatusHealSharingCasterPropertyMap;
-		case StatusType::ACTIVE_DEFENSE: return gStatusActiveDefensePropertyMap;
-		case StatusType::SPARK: return gStatusSparkPropertyMap;
-		case StatusType::CONSTRAINED: return gStatusLyingPropertyMap;
-
-		case StatusType::STORY_FROZEN:
-		case StatusType::SMELLY:
-		case StatusType::CLEAN:
-		case StatusType::UNHEALABLE:
-		case StatusType::FLANKED:
-		case StatusType::INFUSED:
-		case StatusType::SOURCE_MUTED:
-		case StatusType::DEMONIC_BARGAIN:
-		case StatusType::EFFECT:
-		case StatusType::TUTORIAL_BED:
-			return gStatusPropertyMap;
-
-		case StatusType::MUTED:
-		case StatusType::CONSUME:
-		case StatusType::FEAR:
-		case StatusType::BLIND:
-		case StatusType::ENCUMBERED:
-		case StatusType::LEADERSHIP:
-		case StatusType::WIND_WALKER:
-		case StatusType::DARK_AVENGER:
-		case StatusType::REMORSE:
-		case StatusType::DECAYING_TOUCH:
-		case StatusType::CHANNELING:
-		case StatusType::FORCE_MOVE:
-		case StatusType::OVERPOWER:
-		case StatusType::COMBUSTION:
-		case StatusType::GUARDIAN_ANGEL:
-		case StatusType::FLOATING:
-		case StatusType::DISARMED:
-		case StatusType::EXTRA_TURN:
-		case StatusType::PLAY_DEAD:
-		case StatusType::DEACTIVATED:
-			return gStatusConsumeBasePropertyMap;
-
-		default:
-			OsiWarn("No property map available for unknown status type " << (unsigned)status->GetStatusId());
-			return gStatusPropertyMap;
-		}
-	}
-
 	namespace func
 	{
 		void IterateStatuses(OsiArgumentDesc const & args)
@@ -136,39 +49,6 @@ namespace dse::esv
 
 				delete eventArgs;
 			}
-		}
-
-		esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
-		{
-			auto gameObjectGuid = args[0].String;
-			ObjectHandle statusHandle{ args[1].Int64 };
-
-			if (statusHandle.GetType() == DamageHelpers::HitHandleTypeId) {
-				OsiError("Attempted to use a hit handle in a status function.");
-				OsiError("For handles received from NRD_OnPrepareHit/NRD_PrepareHit use the NRD_HitGet... functions instead!");
-				return nullptr;
-			}
-
-			esv::Status * status{ nullptr };
-			auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
-			if (character != nullptr) {
-				status = character->GetStatus(statusHandle, true);
-			} else {
-				auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
-				if (item != nullptr) {
-					status = item->GetStatus(statusHandle, true);
-				} else {
-					OsiError("Character or item " << gameObjectGuid << " does not exist!");
-					return nullptr;
-				}
-			}
-
-			if (status == nullptr) {
-				OsiError("No status found with handle " << (int64_t)statusHandle);
-				return nullptr;
-			}
-
-			return status;
 		}
 
 		bool ObjectHasStatusType(OsiArgumentDesc& args)
@@ -222,54 +102,6 @@ namespace dse::esv
 			return false;
 		}
 
-		template <OsiPropertyMapType Type>
-		bool StatusGetAttribute(OsiArgumentDesc & args)
-		{
-			auto status = GetStatusHelper(args);
-			if (status == nullptr) {
-				return false;
-			}
-
-			if constexpr (Type == OsiPropertyMapType::String) {
-				if (strcmp(args[2].String, "StatusType") == 0) {
-					auto type = EnumInfo<StatusType>::Find(status->GetStatusId());
-					if (type) {
-						args[3].Set(type.Str);
-						return true;
-					}
-				}
-			}
-
-			if (status->GetStatusId() == StatusType::HIT) {
-				auto hit = static_cast<esv::StatusHit*>(status);
-				if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
-					return true;
-				}
-			}
-
-			auto& propertyMap = StatusToPropertyMap(status);
-			return OsirisPropertyMapGetRaw(propertyMap, status, args, 2, Type);
-		}
-
-		template <OsiPropertyMapType Type>
-		void StatusSetAttribute(OsiArgumentDesc const & args)
-		{
-			auto status = GetStatusHelper(args);
-			if (status == nullptr) {
-				return;
-			}
-
-			if (status->GetStatusId() == StatusType::HIT) {
-				auto hit = static_cast<esv::StatusHit*>(status);
-				if (OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
-					return;
-				}
-			}
-
-			auto& propertyMap = StatusToPropertyMap(status);
-			OsirisPropertyMapSetRaw(propertyMap, status, args, 2, Type);
-		}
-
 		void StatusPreventApply(OsiArgumentDesc const & args)
 		{
 			auto gameObject = GetEntityWorld()->GetGameObject(args[0].String);
@@ -281,46 +113,7 @@ namespace dse::esv
 				return;
 			}
 
-			ObjectHandle gameObjectHandle;
-			gameObject->GetObjectHandle(gameObjectHandle);
-
-			auto status = ExtensionState::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
-			if (status == nullptr) {
-				OsiError("No pending status found with handle " << (int64_t)statusHandle);
-				return;
-			}
-
-			status->PreventApply = (preventApply != 0);
-		}
-
-		template <class T>
-		T * ConstructStatus(esv::StatusMachine * statusMachine, char const * statusId, StatusType type)
-		{
-			auto statusIdFs = ToFixedString(statusId);
-			T * status{ nullptr };
-
-			auto createStatus = GetStaticSymbols().esv__StatusMachine__CreateStatus;
-			if (createStatus == nullptr) {
-				OsiErrorS("esv::StatusMachine::CreateStatus not found!");
-				return nullptr;
-			}
-
-			if (statusIdFs) {
-				status = (T *)createStatus(statusMachine, statusIdFs, 0);
-			}
-
-			if (status == nullptr) {
-				OsiError("Status does not exist: " << statusId);
-				return nullptr;
-			}
-
-			if (status->GetStatusId() != type) {
-				// TODO - dangling status ptr!
-				OsiError("Status has incorrect type: " << statusId);
-				return nullptr;
-			}
-
-			return status;
+			gOsirisProxy->GetStatusHelpers().PreventApply(gameObject, statusHandle, preventApply != 0);
 		}
 
 
@@ -336,36 +129,13 @@ namespace dse::esv
 				return false;
 			}
 
-			auto statusMachine = character->StatusMachine;
-			if (!statusMachine) {
-				OsiErrorS("Character has no StatusMachine!");
+			auto statusHandle = gOsirisProxy->GetStatusHelpers().ApplyActiveDefense(character, MakeFixedString(statusId), lifeTime);
+			if (statusHandle) {
+				args[3].Set((int64_t)*statusHandle);
+				return true;
+			} else {
 				return false;
 			}
-
-			auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
-			if (applyStatus == nullptr) {
-				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
-				return false;
-			}
-
-			auto status = ConstructStatus<esv::StatusActiveDefense>(statusMachine, statusId, StatusType::ACTIVE_DEFENSE);
-			if (status == nullptr) {
-				return false;
-			}
-
-			status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
-			status->LifeTime = lifeTime;
-			status->CurrentLifeTime = lifeTime;
-
-			ObjectHandle handle;
-			character->GetObjectHandle(handle);
-
-			status->TargetHandle = handle;
-			status->TargetPos = *character->GetTranslate();
-
-			applyStatus(statusMachine, status);
-			args[3].Set((int64_t)status->StatusHandle);
-			return true;
 		}
 
 
@@ -383,48 +153,14 @@ namespace dse::esv
 				return false;
 			}
 
-			auto statusMachine = character->StatusMachine;
-			if (!statusMachine) {
-				OsiErrorS("Character has no StatusMachine!");
-				return false;
-			}
-
-			if (distancePerDamage <= 0.01) {
-				OsiErrorS("DistancePerDamage must be a positive value!");
-				return false;
-			}
-
-			auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
-			if (applyStatus == nullptr) {
-				OsiErrorS("esv::StatusMachine::ApplyStatus not found!");
-				return false;
-			}
-
-			auto status = ConstructStatus<esv::StatusDamageOnMove>(statusMachine, statusId, StatusType::DAMAGE_ON_MOVE);
-			if (status == nullptr) {
-				return false;
-			}
-
-			status->Flags0 |= esv::StatusFlags0::IsLifeTimeSet;
-			status->LifeTime = lifeTime;
-			status->CurrentLifeTime = lifeTime;
-
 			auto sourceCharacter = GetEntityWorld()->GetCharacter(sourceCharacterGuid);
-			if (sourceCharacter == nullptr) {
-				status->StatusSourceHandle = ObjectHandle{};
+			auto statusHandle = gOsirisProxy->GetStatusHelpers().ApplyDamageOnMove(character, MakeFixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
+			if (statusHandle) {
+				args[5].Set((int64_t)*statusHandle);
+				return true;
 			} else {
-				ObjectHandle sourceHandle;
-				sourceCharacter->GetObjectHandle(sourceHandle);
-				status->StatusSourceHandle = sourceHandle;
+				return false;
 			}
-
-			status->StartTimer = 0.0f;
-			status->StatsMultiplier = 1.0f;
-			status->DistancePerDamage = distancePerDamage;
-
-			applyStatus(statusMachine, status);
-			args[5].Set((int64_t)status->StatusHandle);
-			return true;
 		}
 
 
@@ -442,17 +178,18 @@ namespace dse::esv
 			}
 
 			auto state = character->ActionMachine->Layers[0].State;
-			auto propertyMap = state->GetPropertyMap();
 
 			if (state->GetType() == ActionStateType::ASUseSkill) {
 				auto useSkill = static_cast<ASUseSkill*>(state);
 				if (useSkill->Skill != nullptr) {
-					if (OsirisPropertyMapGetRaw(gSkillStatePropertyMap, useSkill->Skill, args, 1, Type, false)) {
-						return true;
-					}
+					return OsirisPropertyMapGetRaw(gSkillStatePropertyMap, useSkill->Skill, args, 1, Type);
+				} else {
+					OsiError("No skill bound to ASUseSkill!");
+					return false;
 				}
 			}
 
+			auto propertyMap = state->GetPropertyMap();
 			if (propertyMap != nullptr) {
 				return OsirisPropertyMapGetRaw(*propertyMap, state, args, 1, Type, true);
 			} else {
@@ -486,6 +223,38 @@ namespace dse::esv
 		}
 	}
 
+	esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
+	{
+		auto gameObjectGuid = args[0].String;
+		ObjectHandle statusHandle{ args[1].Int64 };
+
+		if (statusHandle.GetType() == DamageHelpers::HitHandleTypeId) {
+			OsiError("Attempted to use a hit handle in a status function.");
+			OsiError("For handles received from NRD_OnPrepareHit/NRD_PrepareHit use the NRD_HitGet... functions instead!");
+			return nullptr;
+		}
+
+		esv::Status * status{ nullptr };
+		auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
+		if (character != nullptr) {
+			status = character->GetStatus(statusHandle, true);
+		} else {
+			auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
+			if (item != nullptr) {
+				status = item->GetStatus(statusHandle, true);
+			} else {
+				OsiError("Character or item " << gameObjectGuid << " does not exist!");
+				return nullptr;
+			}
+		}
+
+		if (status == nullptr) {
+			OsiError("No status found with handle " << (int64_t)statusHandle);
+			return nullptr;
+		}
+
+		return status;
+	}
 
 	int32_t CustomFunctionLibrary::OnStatusGetEnterChance(esv::Status::GetEnterChanceProc* wrappedGetEnterChance,
 		esv::Status * status, bool isEnterCheck)
@@ -515,131 +284,10 @@ namespace dse::esv
 		return wrappedGetHitChance(attacker, target);
 	}
 
-	void CustomFunctionLibrary::ThrowStatusHitEnter(esv::Status * status)
-	{
-		auto statusHit = static_cast<esv::StatusHit *>(status);
-		if ((bool)(statusHit->DamageInfo.EffectFlags & HitFlag::NoEvents)) {
-			return;
-		}
-
-		auto target = GetEntityWorld()->GetGameObject(status->TargetHandle);
-		if (target == nullptr) {
-			OsiErrorS("Status has no target?");
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
-		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamage });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
-
-		delete eventArgs;
-
-		if (statusHit->DamageInfo.DamageList.Size == 0) {
-			TDamagePair dummy;
-			dummy.Amount = 0;
-			dummy.DamageType = DamageType::Physical;
-			statusHit->DamageInfo.DamageList.SafeAdd(dummy);
-		}
-	}
-
-
 	void CustomFunctionLibrary::OnStatusHealEnter(esv::Status * status)
 	{
 		auto statusHeal = static_cast<esv::StatusHeal *>(status);
-
-		auto target = GetEntityWorld()->GetCharacter(status->TargetHandle);
-		if (target == nullptr) {
-			OsiErrorS("Status has no target?");
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
-		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHeal->HealAmount });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HealEventHandle, eventArgs);
-
-		delete eventArgs;
-	}
-
-
-	void CustomFunctionLibrary::ThrowCharacterHit(esv::Character * self, CDivinityStats_Character * attackerStats,
-		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
-		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
-		bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper)
-	{
-		if ((bool)(damageInfo->EffectFlags & HitFlag::NoEvents)) {
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		if (attackerStats != nullptr
-			&& attackerStats->Character != nullptr) {
-			sourceGuid = attackerStats->Character->GetGuid()->Str;
-		}
-
-		int32_t totalDamage{ 0 };
-		for (auto const& dmg : *damageList) {
-			totalDamage += dmg.Amount;
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, self->GetGuid()->Str });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)totalDamage });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)helper.Handle.Handle });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(HitPrepareEventHandle, eventArgs);
-
-		delete eventArgs;
-	}
-
-
-	void CustomFunctionLibrary::ThrowApplyStatus(esv::StatusMachine * self, esv::Status * status)
-	{
-		char const * targetGuid{ nullptr };
-		auto target = GetEntityWorld()->GetGameObject(self->OwnerObjectHandle);
-		if (target != nullptr) {
-			targetGuid = target->GetGuid()->Str;
-		} else {
-			OsiErrorS("Can't throw ApplyStatus event - target handle could not be resolved.");
-		}
-
-		if (targetGuid == nullptr) {
-			return;
-		}
-
-		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
-		if (status->StatusSourceHandle) {
-			auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
-			if (source != nullptr) {
-				sourceGuid = source->GetGuid()->Str;
-			}
-		}
-
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, targetGuid });
-		eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
-		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
-		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-
-		gOsirisProxy->GetCustomFunctionInjector().ThrowEvent(StatusAttemptEventHandle, eventArgs);
-
-		delete eventArgs;
+		gOsirisProxy->GetStatusHelpers().ThrowStatusHealEnter(statusHeal);
 	}
 
 	void CustomFunctionLibrary::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
@@ -1137,7 +785,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttribute<OsiPropertyMapType::Integer>
+			&StatusGetAttribute<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(getStatusAttributeInt));
 
@@ -1149,7 +797,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttribute<OsiPropertyMapType::Real>
+			&StatusGetAttribute<OsiPropertyMapType::Real>
 		);
 		functionMgr.Register(std::move(getStatusAttributeReal));
 
@@ -1161,7 +809,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttribute<OsiPropertyMapType::String>
+			&StatusGetAttribute<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(getStatusAttributeString));
 
@@ -1173,7 +821,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::Out },
 			},
-			&func::StatusGetAttribute<OsiPropertyMapType::GuidStringHandle>
+			&StatusGetAttribute<OsiPropertyMapType::GuidStringHandle>
 		);
 		functionMgr.Register(std::move(getStatusAttributeGuidString));
 
@@ -1185,7 +833,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Integer, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttribute<OsiPropertyMapType::Integer>
+			&StatusSetAttribute<OsiPropertyMapType::Integer>
 		);
 		functionMgr.Register(std::move(setStatusAttributeInt));
 
@@ -1197,7 +845,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::Real, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttribute<OsiPropertyMapType::Real>
+			&StatusSetAttribute<OsiPropertyMapType::Real>
 		);
 		functionMgr.Register(std::move(setStatusAttributeReal));
 
@@ -1209,7 +857,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::String, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttribute<OsiPropertyMapType::String>
+			&StatusSetAttribute<OsiPropertyMapType::String>
 		);
 		functionMgr.Register(std::move(setStatusAttributeString));
 
@@ -1221,7 +869,7 @@ namespace dse::esv
 				{ "Attribute", ValueType::String, FunctionArgumentDirection::In },
 				{ "Value", ValueType::GuidString, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttribute<OsiPropertyMapType::GuidStringHandle>
+			&StatusSetAttribute<OsiPropertyMapType::GuidStringHandle>
 		);
 		functionMgr.Register(std::move(setStatusAttributeGuidString));
 
@@ -1235,7 +883,7 @@ namespace dse::esv
 				{ "Y", ValueType::Real, FunctionArgumentDirection::In },
 				{ "Z", ValueType::Real, FunctionArgumentDirection::In },
 			},
-			&func::StatusSetAttribute<OsiPropertyMapType::Vector3>
+			&StatusSetAttribute<OsiPropertyMapType::Vector3>
 		);
 		functionMgr.Register(std::move(setStatusAttributeVector3));
 

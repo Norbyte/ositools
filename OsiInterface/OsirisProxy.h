@@ -18,6 +18,7 @@
 #include <GameDefinitions/Symbols.h>
 #include <GlobalFixedStrings.h>
 #include <Hit.h>
+#include <StatusHelpers.h>
 
 #include <thread>
 #include <mutex>
@@ -268,6 +269,11 @@ public:
 		return statLoadOrderHelper_;
 	}
 
+	inline esv::StatusHelpers& GetStatusHelpers()
+	{
+		return statusHelpers_;
+	}
+
 	inline bool IsStoryLoaded() const
 	{
 		return StoryLoaded;
@@ -307,6 +313,7 @@ private:
 	StatLoadOrderHelper statLoadOrderHelper_;
 	esv::HitProxy hitProxy_;
 	ModuleHasher hasher_;
+	esv::StatusHelpers statusHelpers_;
 
 	NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
 	bool ResolvedNodeVMTs{ false };

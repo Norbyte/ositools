@@ -222,6 +222,9 @@
     <ClInclude Include="GameDefinitions\Trigger.h">
       <Filter>Header Files\GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="StatusHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -376,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="Lua\LuaStats.cpp">
       <Filter>Source Files\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusHelpers.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

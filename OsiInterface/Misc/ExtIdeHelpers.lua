@@ -4113,6 +4113,17 @@ function Ext.CancelSurfaceAction (actionHandle) end
 --- @return ItemConstructor
 function Ext.CreateItemConstructor (from, recursive) end
 
+--- Begin applying a status on the specified character or item.
+--- @param target string|ObjectHandle Target character/item
+--- @param statusId string Status ID to apply
+--- @param lifeTime number Status lifetime (-1 = infinite, -2 = keep alive)
+--- @return EsvStatus|nil
+function Ext.PrepareStatus (target, statusId, lifeTime) end
+
+--- Finish applying a status on the specified character or item.
+--- @param EsvStatus Status to apply
+function Ext.ApplyStatus (status) end
+
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
