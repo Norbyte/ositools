@@ -1633,6 +1633,12 @@ function EclCharacter.GetStatusObjects (self) end
 --- @param scale number 
 function EclCharacter.SetScale (self, scale) end
 
+--- Returns the value of the specified custom stat
+--- @param self EclCharacter
+--- @param statId string Custom stat UUID
+--- @return number Stat value
+function EclCharacter.GetCustomStat (self, statId) end
+
 
 
 --- @class EsvGameObject
