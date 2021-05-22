@@ -189,6 +189,36 @@ namespace dse::lua
 		return 1;
 	}
 
+	int ClientCharacterGetCustomStatValue(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto self = checked_get<ObjectProxy<ecl::Character>*>(L, 1);
+		auto statId = checked_get<char const*>(L, 2);
+
+		auto character = self->Get(L);
+		if (character == nullptr) {
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto entityWorld = ecl::GetEntityWorld();
+		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle, false);
+		if (statsComponent == nullptr) {
+			// The game UI displays nonexistent stat entries as zero, 
+			// so we'll do the same in the API
+			return 0;
+		}
+
+		auto value = statsComponent->StatValues.Find(ToFixedString(statId));
+		if (value) {
+			push(L, *value);
+		} else {
+			push(L, 0);
+		}
+
+		return 1;
+	}
+
 	int ObjectProxy<ecl::Character>::Index(lua_State* L)
 	{
 		auto character = Get(L);
@@ -244,6 +274,11 @@ namespace dse::lua
 
 		if (propFS == GFS.strSetScale) {
 			lua_pushcfunction(L, (&GameObjectSetScale<ecl::Character>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetCustomStat) {
+			lua_pushcfunction(L, &ClientCharacterGetCustomStatValue);
 			return 1;
 		}
 
