@@ -59,6 +59,8 @@ FS(GetStatuses);
 FS(GetStatusObjects);
 FS(Stats);
 FS(SetScale);
+FS(GetCustomStat);
+FS(SetCustomStat);
 FS(GetInventoryItems);
 FS(GetOwnerCharacter);
 FS(GetSkills);

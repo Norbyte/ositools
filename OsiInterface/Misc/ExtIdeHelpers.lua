@@ -2030,6 +2030,18 @@ function EsvCharacter.GetStatusObjects (self) end
 --- @param scale number 
 function EsvCharacter.SetScale (self, scale) end
 
+--- Returns the value of the specified custom stat
+--- @param self EsvCharacter
+--- @param statId string Custom stat UUID
+--- @return number Stat value
+function EsvCharacter.GetCustomStat (self, statId) end
+
+--- Updates the value of the specified custom stat
+--- @param self EsvCharacter
+--- @param statId string Custom stat UUID
+--- @param statValue number Stat value
+function EsvCharacter.GetCustomStat (self, statId, statValue) end
+
 
 
 --- @class EsvSurface
@@ -4121,8 +4133,28 @@ function Ext.CreateItemConstructor (from, recursive) end
 function Ext.PrepareStatus (target, statusId, lifeTime) end
 
 --- Finish applying a status on the specified character or item.
---- @param EsvStatus Status to apply
+--- @param status EsvStatus Status to apply
 function Ext.ApplyStatus (status) end
+
+--- Returns a table containing the UUID of all registered custom stat definitions
+--- @return string[]
+function Ext.GetAllCustomStats () end
+
+--- Retrieve a custom stat definition by name
+--- @param statName string Custom stat name to look for
+--- @return CustomStatDefinition|nil
+function Ext.GetCustomStatByName (statName) end
+
+--- Retrieve a custom stat definition by id
+--- @param statId string Custom stat UUID to look for
+--- @return CustomStatDefinition|nil
+function Ext.GetCustomStatById (statId) end
+
+--- Create a new custom stat definition
+--- @param name string Custom stat name
+--- @param description string Custom stat description
+--- @return string|nil Custom stat UUID
+function Ext.CreateCustomStat (name, description) end
 
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.

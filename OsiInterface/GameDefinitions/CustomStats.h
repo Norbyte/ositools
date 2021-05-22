@@ -100,5 +100,23 @@ namespace dse
 		};
 
 		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, net::Message * msg);
+
+		
+		class CustomStatHelpers
+		{
+		public:
+			static std::optional<FixedString> CreateStat(char const* name, char const* description);
+			static CustomStatDefinitionComponent* FindStatDefinitionByName(char const* name);
+			static CustomStatDefinitionComponent* FindStatDefinitionById(char const* id);
+
+			static void SyncCharacterStats(ObjectHandle entityHandle, eoc::CustomStatsComponent* stats,
+				FixedString statKey, int statValue);
+			static std::optional<int> GetCharacterStat(ObjectHandle entityHandle, char const* statId);
+			static bool SetCharacterStat(ObjectHandle entityHandle, char const* statId, int value);
+
+		private:
+			static void ProcessMessage(net::Message* msg);
+			static void CreateStatInternal(char const* name, char const* description);
+		};
 	}
 }

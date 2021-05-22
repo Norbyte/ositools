@@ -3,6 +3,7 @@
 #include <GameDefinitions/Ai.h>
 #include <GameDefinitions/Surface.h>
 #include <GameDefinitions/Trigger.h>
+#include <GameDefinitions/CustomStats.h>
 #include <Lua/LuaBindingServer.h>
 #include <Lua/LuaSerializers.h>
 #include <OsirisProxy.h>
@@ -484,6 +485,46 @@ namespace dse::lua
 		return 1;
 	}
 
+	int CharacterGetCustomStatValue(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto statId = checked_get<char const*>(L, 2);
+
+		auto character = self->Get(L);
+		if (character == nullptr) {
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto value = esv::CustomStatHelpers::GetCharacterStat(character->Base.EntityObjectHandle, statId);
+		if (value) {
+			push(L, *value);
+		} else {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
+	int CharacterSetCustomStatValue(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto statId = checked_get<char const*>(L, 2);
+		auto value = checked_get<int>(L, 3);
+
+		auto character = self->Get(L);
+		if (character == nullptr) {
+			push(L, false);
+			return 1;
+		}
+
+		auto set = esv::CustomStatHelpers::SetCharacterStat(character->Base.EntityObjectHandle, statId, value);
+		push(L, set);
+		return 1;
+	}
+
 	int ObjectProxy<esv::Character>::Index(lua_State* L)
 	{
 		auto character = Get(L);
@@ -555,6 +596,16 @@ namespace dse::lua
 
 		if (propFS == GFS.strSetScale) {
 			lua_pushcfunction(L, (&GameObjectSetScale<esv::Character>));
+			return 1;
+		}
+
+		if (propFS == GFS.strGetCustomStat) {
+			lua_pushcfunction(L, &CharacterGetCustomStatValue);
+			return 1;
+		}
+
+		if (propFS == GFS.strSetCustomStat) {
+			lua_pushcfunction(L, &CharacterSetCustomStatValue);
 			return 1;
 		}
 
@@ -2486,6 +2537,79 @@ namespace dse::esv::lua
 		return 0;
 	}
 
+	int CreateCustomStat(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto statName = checked_get<char const*>(L, 1);
+		auto statDescription = checked_get<char const*>(L, 2);
+
+		auto statsId = CustomStatHelpers::CreateStat(statName, statDescription);
+		if (statsId) {
+			push(L, *statsId);
+		} else {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
+	int GetCustomStatById(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto statId = checked_get<char const*>(L, 1);
+
+		auto statDefn = CustomStatHelpers::FindStatDefinitionById(statId);
+		if (statDefn) {
+			lua_newtable(L);
+			settable(L, "Id", statDefn->Id);
+			settable(L, "Name", statDefn->Name);
+			settable(L, "Description", statDefn->Description);
+		}
+		else {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
+	int GetAllCustomStats(lua_State* L)
+	{
+		StackCheck _(L, 1);
+
+		auto entityWorld = GetEntityWorld();
+		auto statSystem = entityWorld->GetCustomStatSystem();
+
+		lua_newtable(L);
+		int idx{ 1 };
+		for (auto const& defn : statSystem->CreatedDefinitions) {
+			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			if (statDefn != nullptr) {
+				settable(L, idx++, statDefn->Id);
+			}
+		}
+
+		return 1;
+	}
+
+	int GetCustomStatByName(lua_State* L)
+	{
+		StackCheck _(L, 1);
+		auto statName = checked_get<char const*>(L, 1);
+
+		auto statDefn = CustomStatHelpers::FindStatDefinitionByName(statName);
+		if (statDefn) {
+			lua_newtable(L);
+			settable(L, "Id", statDefn->Id);
+			settable(L, "Name", statDefn->Name);
+			settable(L, "Description", statDefn->Description);
+		}
+		else {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
 
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
@@ -2565,6 +2689,11 @@ namespace dse::esv::lua
 
 			{"PrepareStatus", PrepareStatus},
 			{"ApplyStatus", ApplyStatus},
+
+			{"GetAllCustomStats", GetAllCustomStats},
+			{"GetCustomStatByName", GetCustomStatByName},
+			{"GetCustomStatById", GetCustomStatById},
+			{"CreateCustomStat", CreateCustomStat},
 
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
