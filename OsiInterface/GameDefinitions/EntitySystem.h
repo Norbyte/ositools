@@ -340,12 +340,13 @@ namespace dse
 		virtual eoc::Ai * GetAi() = 0;
 		virtual void LoadAi() = 0;
 		virtual void UnloadAi() = 0;
-		virtual void Unknown0() = 0;
-		virtual void Unknown1() = 0;
-		virtual void Unknown2() = 0;
-		virtual void Unknown3() = 0;
+		virtual bool Unknown0() = 0;
+		virtual bool Unknown1() = 0;
+		virtual bool Unknown2() = 0;
+		virtual float Unknown3() = 0;
 		virtual FixedString * Unknown4() = 0;
 		virtual bool Unknown5() = 0;
+		virtual float GetHeight2() = 0;
 		virtual TranslatedString* GetDisplayName(TranslatedString* name) = 0;
 		virtual float Unknown6() = 0;
 		virtual void SavegameVisit() = 0;
