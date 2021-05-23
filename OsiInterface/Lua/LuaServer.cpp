@@ -2588,6 +2588,13 @@ namespace dse::esv::lua
 			}
 		}
 
+		for (auto const& defn : statSystem->InSyncDefinitions) {
+			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			if (statDefn != nullptr) {
+				settable(L, idx++, statDefn->Id);
+			}
+		}
+
 		return 1;
 	}
 
