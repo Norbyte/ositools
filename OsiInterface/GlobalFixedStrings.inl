@@ -146,6 +146,7 @@ FS(Cooldown);
 FS(CooldownReduction);
 FS(ChargeDuration);
 FS(DisplayName);
+FS(DisplayNameOverride);
 
 // Status stat properties
 FS(StatusType);

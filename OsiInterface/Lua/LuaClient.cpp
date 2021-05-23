@@ -113,7 +113,6 @@ namespace dse::lua
 				character->GetObjectHandle(handle);
 				ObjectProxy<ecl::PlayerCustomData>::New(L, handle);
 			} else {
-				OsiError("Character has no player data, or custom data was not initialized.");
 				push(L, nullptr);
 			}
 			return 1;
@@ -142,6 +141,17 @@ namespace dse::lua
 
 		if (prop == GFS.strDisplayName) {
 			return GameObjectGetDisplayName<ecl::Character>(L, character);
+		}
+
+		if (prop == GFS.strDisplayNameOverride) {
+			if (character->DisplayNameOverride != nullptr) {
+				auto const& reference = character->DisplayNameOverride->Handle.ReferenceString;
+				auto name = gTempStrings.Make(ToUTF8(reference));
+				push(L, name);
+			} else {
+				push(L, nullptr);
+			}
+			return 1;
 		}
 
 		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
