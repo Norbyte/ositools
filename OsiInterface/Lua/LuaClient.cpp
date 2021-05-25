@@ -785,6 +785,7 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
+	bool CustomDrawIcon(UIObject* self, FlashCustomDrawCallback* callback);
 
 	struct CustomUI : public ecl::EoCUI
 	{
@@ -792,7 +793,7 @@ namespace dse::ecl::lua
 			: EoCUI(path)
 		{}
 
-		void OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
+		void OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args) override
 		{
 			{
 				LuaClientPin lua(ExtensionState::Get());
@@ -811,7 +812,17 @@ namespace dse::ecl::lua
 			}
 		}
 
-		void Destroy(bool free)
+		void CustomDrawCallback(void* callback) override
+		{
+			auto cb = reinterpret_cast<FlashCustomDrawCallback*>(callback);
+			if (CustomDrawIcon(this, cb)) {
+				return;
+			}
+
+			EoCUI::CustomDrawCallback(callback);
+		}
+
+		void Destroy(bool free) override
 		{
 			EoCUI::Destroy(false);
 			if (free) {
@@ -819,7 +830,7 @@ namespace dse::ecl::lua
 			}
 		}
 
-		const char * GetDebugName()
+		const char * GetDebugName() override
 		{
 			return "extender::CustomUI";
 		}
@@ -1273,6 +1284,15 @@ namespace dse::ecl::lua
 		lua_pushcfunction(L, &CaptureInvokes);
 		lua_setfield(L, -2, "CaptureInvokes");
 
+		lua_pushcfunction(L, &EnableCustomDraw);
+		lua_setfield(L, -2, "EnableCustomDraw");
+
+		lua_pushcfunction(L, &SetCustomIcon);
+		lua_setfield(L, -2, "SetCustomIcon");
+
+		lua_pushcfunction(L, &ClearCustomIcon);
+		lua_setfield(L, -2, "ClearCustomIcon");
+
 		lua_setfield(L, -2, "__index");
 	}
 
@@ -1578,6 +1598,146 @@ namespace dse::ecl::lua
 		WriteAnchor _w((uint8_t*)vmt, sizeof(*vmt));
 		OriginalUIObjectCallHandlers.insert(std::make_pair(vmt, vmt->OnFunctionCalled));
 		vmt->OnFunctionCalled = &UIObjectFunctionCallCapture;
+
+		return 0;
+	}
+
+
+	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
+	std::unordered_map<UIObject::VMT *, UIObject::CustomDrawCallbackProc> OriginalCustomDrawHandlers;
+
+	std::unordered_map<ObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> UICustomIcons;
+
+	bool CustomDrawIcon(UIObject* self, FlashCustomDrawCallback* callback)
+	{
+		auto customIcons = UICustomIcons.find(self->UIObjectHandle);
+		if (customIcons != UICustomIcons.end()) {
+			auto icon = customIcons->second.find(callback->Name);
+			if (icon != customIcons->second.end() && icon->second->IconMesh != nullptr) {
+				auto draw = GetStaticSymbols().ls__UIHelper__CustomDrawObject;
+				draw(callback, icon->second->IconMesh);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void UIObjectCustomDrawCallback(UIObject* self, void* callback)
+	{
+		auto cb = reinterpret_cast<FlashCustomDrawCallback*>(callback);
+		if (CustomDrawIcon(self, cb)) {
+			return;
+		}
+
+		auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
+		auto handler = OriginalCustomDrawHandlers.find(vmt);
+		if (handler != OriginalCustomDrawHandlers.end()) {
+			INFO(L"Custom draw callback: %s", cb->Name);
+			handler->second(self, callback);
+		} else {
+			OsiError("Couldn't find original CustomDrawCallback handler for UI object");
+		}
+	}
+
+	void DoEnableCustomDraw(UIObject* ui)
+	{
+		auto vmt = *reinterpret_cast<UIObject::VMT**>(ui);
+		if (vmt->CustomDrawCallback == &UIObjectCustomDrawCallback) return;
+
+		// Custom UI element draw calls are already handled, no need to hook them
+		if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return;
+
+		WriteAnchor _w((uint8_t*)vmt, sizeof(*vmt));
+		OriginalCustomDrawHandlers.insert(std::make_pair(vmt, vmt->CustomDrawCallback));
+		vmt->CustomDrawCallback = &UIObjectCustomDrawCallback;
+	}
+
+	int UIObjectProxy::EnableCustomDraw(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		DoEnableCustomDraw(ui);
+		return 0;
+	}
+
+	int UIObjectProxy::SetCustomIcon(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		auto element = FromUTF8(checked_get<char const*>(L, 2));
+		auto icon = checked_get<char const*>(L, 3);
+		auto width = checked_get<int>(L, 4);
+		auto height = checked_get<int>(L, 5);
+
+		char const* materialGuid = "9169b076-6e8d-44a4-bb52-95eedf9eab63";
+		if (lua_gettop(L) >= 6) {
+			materialGuid = checked_get<char const*>(L, 6);
+		}
+
+		if (width < 1 || height < 1 || width > 1024 || height > 1024) {
+			OsiError("Invalid icon size");
+			return 0;
+		}
+
+		auto const& sym = GetStaticSymbols();
+		auto vmt = sym.ls__CustomDrawStruct__VMT;
+		auto clear = sym.ls__UIHelper__UIClearIcon;
+		auto create = sym.ls__UIHelper__UICreateIconMesh;
+		auto draw = sym.ls__UIHelper__CustomDrawObject;
+
+		if (!vmt || !clear || !create || !draw) {
+			OsiError("Not all UIHelper symbols are available");
+			return 0;
+		}
+
+		auto customIcons = UICustomIcons.find(ui->UIObjectHandle);
+		if (customIcons == UICustomIcons.end()) {
+			UICustomIcons.insert(std::make_pair(ui->UIObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>()));
+		}
+
+		customIcons = UICustomIcons.find(ui->UIObjectHandle);
+		auto curIcon = customIcons->second.find(element);
+		if (curIcon != customIcons->second.end()) {
+			clear(curIcon->second.get());
+			customIcons->second.erase(curIcon);
+		}
+
+		auto newIcon = std::make_unique<CustomDrawStruct>();
+		newIcon->VMT = vmt;
+		create(MakeFixedString(icon), newIcon.get(), width, height, MakeFixedString(materialGuid));
+
+		if (newIcon->IconMesh) {
+			customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
+			DoEnableCustomDraw(ui);
+		} else {
+			OsiError("Failed to load icon: " << icon);
+		}
+
+		return 0;
+	}
+
+	int UIObjectProxy::ClearCustomIcon(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		auto ui = CheckUserData(L, 1)->Get();
+		if (!ui) return 0;
+
+		auto element = FromUTF8(checked_get<char const*>(L, 2));
+
+		auto customIcons = UICustomIcons.find(ui->UIObjectHandle);
+		if (customIcons != UICustomIcons.end()) {
+			auto curIcon = customIcons->second.find(element);
+			if (curIcon != customIcons->second.end()) {
+				auto clear = GetStaticSymbols().ls__UIHelper__UIClearIcon;
+				clear(curIcon->second.get());
+				customIcons->second.erase(curIcon);
+			}
+		}
 
 		return 0;
 	}

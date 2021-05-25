@@ -3563,6 +3563,19 @@ function UIObject.GetPlayerHandle (self) end
     
 --- @param self UIObject
 function UIObject.Destroy (self) end
+    
+--- Binds a texture atlas icon to a Flash custom draw element.
+--- @param self UIObject
+--- @param element string Name of custom draw object
+--- @param icon string Icon name from texture atlas
+--- @param width number Draw width
+--- @param height number Draw height
+function UIObject.SetCustomIcon (self, element, icon, width, height) end
+    
+--- Removes the Flash custom draw element override applied by SetCustomIcon().
+--- @param self UIObject
+--- @param element string Name of custom draw object
+function UIObject.ClearCustomIcon (self, element) end
 
 
 --- @class EclPickingState

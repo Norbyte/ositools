@@ -264,6 +264,7 @@ namespace dse
 
 	}
 
+
 	struct FileReader : public Noncopyable<FileReader>
 	{
 		bool IsLoaded;

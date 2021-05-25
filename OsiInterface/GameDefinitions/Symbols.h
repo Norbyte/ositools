@@ -190,6 +190,11 @@ namespace dse
 		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
 		UIObject::VMT * EoCUI__vftable{ nullptr };
 
+		void* ls__CustomDrawStruct__VMT{ nullptr };
+		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };
+		CustomDrawStruct::UICreateIconMesh* ls__UIHelper__UICreateIconMesh{ nullptr };
+		ecl::FlashCustomDrawCallback::CustomDrawObject* ls__UIHelper__CustomDrawObject{ nullptr };
+
 		TranslatedStringRepository ** TranslatedStringRepository__Instance{ nullptr };
 		TranslatedStringRepository::GetInstance TranslatedStringRepository__GetInstance{ nullptr };
 		TranslatedStringRepository::Get TranslatedStringRepository__Get{ nullptr };

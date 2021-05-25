@@ -812,9 +812,9 @@ namespace dse
 		return GetStaticSymbols().EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
 	}
 
-	void UIObject::OnCustomDrawCallback(void * a1)
+	void UIObject::CustomDrawCallback(void * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnCustomDrawCallback(this, a1);
+		return GetStaticSymbols().EoCUI__vftable->CustomDrawCallback(this, a1);
 	}
 
 	void UIObject::Destroy(bool a1)

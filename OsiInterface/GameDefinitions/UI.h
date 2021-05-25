@@ -376,11 +376,12 @@ namespace dse
 	struct UIObject : Noncopyable<UIObject>
 	{
 		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
+		typedef void(* CustomDrawCallbackProc)(UIObject * self, void *);
 
 		struct VMT
 		{
 			OnFunctionCalledProc OnFunctionCalled;
-			void(* OnCustomDrawCallback)(UIObject * self, void *);
+			CustomDrawCallbackProc CustomDrawCallback;
 			void (* Destroy)(UIObject * self, bool);
 			void(* SetHandle)(UIObject * self, ObjectHandle *);
 			ObjectHandle * (* GetHandle)(UIObject * self, ObjectHandle *);
@@ -427,7 +428,7 @@ namespace dse
 
 
 		virtual void OnFunctionCalled(const char * a1, unsigned int a2, ig::InvokeDataValue * a3);
-		virtual void OnCustomDrawCallback(void * a1);
+		virtual void CustomDrawCallback(void * a1);
 		virtual void Destroy(bool a1);
 		virtual void SetHandle(ObjectHandle * a1);
 		virtual ObjectHandle * GetHandle(ObjectHandle *);
@@ -518,11 +519,14 @@ namespace dse
 
 	struct CustomDrawStruct
 	{
-		void* VMT;
-		void* IconMesh;
+		using UIClearIcon = void (CustomDrawStruct* drawStruct);
+		using UICreateIconMesh = void (FixedString const& iconName, CustomDrawStruct* drawStruct, int width, int height, FixedString const& materialGuid);
+
+		void* VMT{ nullptr };
+		void* IconMesh{ nullptr };
 		FixedString IconName;
 		ObjectHandle CustomTextureHandle;
-		char DrawEffect;
+		uint8_t DrawEffect{ 0 };
 	};
 
 
@@ -607,6 +611,28 @@ namespace dse
 			uint64_t field_168;
 			uint64_t field_170;
 			STDString field_178;
+		};
+
+		struct FlashCustomDrawCallback
+		{
+			using CustomDrawObject = void (FlashCustomDrawCallback* callback, void* mesh);
+
+			wchar_t* Name;
+			uint64_t field_8;
+			uint64_t field_10;
+			uint64_t field_18;
+			int field_20;
+			float OpacityFade;
+			uint64_t field_28;
+			uint64_t field_30;
+			float DrawRect[4];
+			bool HasRect;
+			bool SomeClippingFlag;
+			bool SomeClippingFlag2;
+			bool field_4B;
+			glm::ivec2 TextureDimensions;
+			glm::mat4 TransformMatrix;
+			uint64_t field_98;
 		};
 
 		struct UIExamine : public EoCUI

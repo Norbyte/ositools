@@ -314,7 +314,7 @@ namespace dse
 	uint8_t const * AsmResolveInstructionRef(uint8_t const * insn)
 	{
 		// Call (4b operand) instruction
-		if (insn[0] == 0xE8) {
+		if (insn[0] == 0xE8 || insn[0] == 0xE9) {
 			int32_t rel = *(int32_t const *)(insn + 1);
 			return insn + rel + 5;
 		}

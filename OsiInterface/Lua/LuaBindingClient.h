@@ -84,6 +84,9 @@ namespace dse::ecl::lua
 		static int ExternalInterfaceCall(lua_State * L);
 		static int CaptureExternalInterfaceCalls(lua_State * L);
 		static int CaptureInvokes(lua_State* L);
+		static int EnableCustomDraw(lua_State* L);
+		static int SetCustomIcon(lua_State* L);
+		static int ClearCustomIcon(lua_State* L);
 	};
 
 

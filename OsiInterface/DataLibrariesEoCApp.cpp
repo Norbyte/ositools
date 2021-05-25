@@ -1383,6 +1383,46 @@ namespace dse
 			{},
 			{"esv::ExecuteCharacterExtraProperties", SymbolMappingTarget::kAbsolute, -0x18, STATIC_SYM(esv__ExecuteCharacterSetExtraProperties)}
 		},
+
+		{
+			"ls::UIHelper::CustomDrawObject",
+			SymbolMappingData::kText, 0,
+			"5F " // pop     rdi
+			"E9 XX XX XX XX " // jmp     ls__UIHelper__CustomDrawObject
+			"41 B8 02 00 00 00 " // mov     r8d, 2
+			"48 8D 15 XX XX XX XX " // lea     rdx, aTt_0
+			"FF 15 XX XX XX XX ", // call    cs:wcsncmp
+			{SymbolMappingCondition::kString, 12, "t"},
+			{"ls::UIHelper::CustomDrawObject", SymbolMappingTarget::kIndirect, 1, STATIC_SYM(ls__UIHelper__CustomDrawObject)}
+		},
+
+		{
+			"ls::UIHelper::UIClearIcon",
+			SymbolMappingData::kText, 0,
+			"48 8B CF " // mov     rcx, rdi
+			"E8 XX XX XX XX " // call    ls__UIHelper__UIClearIcon
+			"48 8D 4B 30 " // lea     rcx, [rbx+30h]
+			"E8 XX XX XX XX " // call    ls__UIHelper__UIClearIcon
+			"48 8D 35 XX XX XX XX " // lea     rsi, ls__CustomDrawStruct__VMT
+			"48 8D 4B 30 " // lea     rcx, [rbx+30h]
+			"48 89 73 30 ", // mov     [rbx+30h], rsi
+			{},
+			{"ls::UIHelper::UIClearIcon", SymbolMappingTarget::kIndirect, 3, STATIC_SYM(ls__UIHelper__UIClearIcon)},
+			{"ls::CustomDrawStruct::VMT", SymbolMappingTarget::kIndirect, 17, STATIC_SYM(ls__CustomDrawStruct__VMT)}
+		},
+
+		{
+			"ls::UIHelper::UICreateIconMesh",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"48 8D 0D XX XX XX XX " // lea     rcx, GEFS__strUIBaseMaterialUUID
+			"48 89 4C 24 20 " // mov     [rsp+38h+var_18], rcx
+			"49 8B CA " // mov     rcx, r10
+			"44 8B C8 " // mov     r9d, eax
+			"44 8B C0 " // mov     r8d, eax
+			"E8 XX XX XX XX ", // call    ls__UIHelper__UICreateIconMesh
+			{SymbolMappingCondition::kFixedString, 0, "9169b076-6e8d-44a4-bb52-95eedf9eab63"},
+			{"ls::UIHelper::UICreateIconMesh", SymbolMappingTarget::kIndirect, 21, STATIC_SYM(ls__UIHelper__UICreateIconMesh)}
+		},
 	};
 
 	bool LibraryManager::FindEoCApp(uint8_t const * & start, size_t & size)
