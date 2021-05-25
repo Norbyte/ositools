@@ -2387,6 +2387,39 @@ local ItemComboPropertyElement = {}
 --- @field public Entries ItemComboPropertyElement[]
 local ItemComboProperty = {}
 
+---@class StatTreasureCategory
+---@field Frequency integer
+---@field TreasureTable string|nil
+---@field TreasureCategory string|nil
+---@field Common integer
+---@field Uncommon integer
+---@field Rare integer
+---@field Epic integer
+---@field Legendary integer
+---@field Divine integer
+---@field Unique integer
+
+---@class StatTreasureDropCount
+---@field Chance integer
+---@field Amount integer
+
+---@class StatTreasureSubTable
+---@field Categories StatTreasureCategory[]
+---@field DropCounts StatTreasureDropCount[]
+---@field Amounts integer[]
+---@field StartLevel integer
+---@field EndLevel integer
+---@field TotalCount integer
+---@field TotalFrequency integer
+
+---@class StatTreasureTable
+---@field Name string
+---@field MinLevel integer
+---@field MaxLevel integer
+---@field IgnoreLevelDiff boolean
+---@field UseTreasureGroupContainers boolean
+---@field CanMerge boolean
+---@field SubTables StatTreasureSubTable[]
 
 --- @class ItemNameGroupLink
 --- @field public NameGroup string
@@ -3466,7 +3499,6 @@ function EsvCombat.GetAllTeams (self) end
 --- Flash function = Lua engine class FlashFunction
 local FlashObject = {}
 
-
 --- @class FlashArray
 --- Represents an array in Flash.
 --- Implements the __index, __newindex and __len metamethods using integer keys (i.e. allows table-like behavior):
@@ -3481,6 +3513,67 @@ local FlashArray = {}
 --- Implements the __call metamethod (i.e. can be called).
 --- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned.
 local FlashFunction = {}
+
+---@class FlashInteractiveObject:FlashObject
+---@field doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
+---@field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
+---@field tabEnabled boolean Specifies whether this object is in the tab order.
+---@field tabIndex integer Specifies the tab ordering of objects in a SWF file.
+
+
+---@class FlashGraphics:FlashObject
+---@field beginBitmapFill fun(bitmap:BitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean):void Fills a drawing area with a bitmap image.
+---@field beginFill fun(color:integer, alpha:number):void Specifies a simple one-color fill that subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) use when drawing.
+---@field beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient fill used by subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) for the object.
+---@field clear fun():void Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
+---@field curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number):void Draws a quadratic Bezier curve using the current line style from the current drawing position to  fun(anchorX, anchorY) and using the control point that  fun(controlX, controlY) specifies.
+---@field drawCircle fun(x:number, y:number, radius:number):void Draws a circle.
+---@field drawEllipse fun(x:number, y:number, width:number, height:number):void Draws an ellipse.
+---@field drawPath fun(commands:Vector.<int>, data:FlashVector, winding:string):void Submits a series of commands for drawing.
+---@field drawRect fun(x:number, y:number, width:number, height:number):void Draws a rectangle.
+---@field drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number):void Draws a rounded rectangle.
+---@field endFill fun():void Applies a fill to the lines and curves that were added since the last call to the beginFill fun(), beginGradientFill fun(), or beginBitmapFill fun() method.
+---@field lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient to use for the stroke when drawing lines.
+---@field lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number):void Specifies a line style used for subsequent calls to Graphics methods such as the lineTo fun() method or the drawCircle fun() method.
+---@field lineTo fun(x:number, y:number):void Draws a line using the current line style from the current drawing position to  fun(x, y); the current drawing position is then set to  fun(x, y).
+---@field moveTo fun(x:number, y:number):void Moves the current drawing position to  fun(x, y).
+
+
+---@class FlashSprite:FlashInteractiveObject
+---@field buttonMode boolean Specifies the button mode of this sprite.
+---@field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
+---@field soundTransform number Controls sound within this sprite.
+---@field useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true.
+
+
+---@class FlashMovieClip:FlashSprite
+---@field currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
+---@field currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
+---@field currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
+---@field enabled boolean A Boolean value that indicates whether a movie clip is enabled.
+---@field framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
+---@field isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
+---@field totalFrames integer The total number of frames in the MovieClip instance. [read-only]
+---@field trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events.
+---@field gotoAndPlay fun(frame:FlashObject, scene:string):void Starts playing the SWF file at the specified frame.
+---@field gotoAndStop fun(frame:FlashObject, scene:string):void Brings the playhead to the specified frame of the movie clip and stops it there.
+---@field nextFrame fun():void Sends the playhead to the next frame and stops it.
+---@field nextScene fun():void Moves the playhead to the next scene of the MovieClip instance.
+---@field play fun():void Moves the playhead in the timeline of the movie clip.
+---@field prevFrame fun():void Sends the playhead to the previous frame and stops it.
+---@field prevScene fun():void Moves the playhead to the previous scene of the MovieClip instance.
+---@field stop fun():void Stops the playhead in the movie clip.
+
+
+---@class FlashMainTimeline:FlashMovieClip
+---@field events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled.
+---@field onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is "handled" and won't send events to other UI objects.
+---@field onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is "handled" and won't send events to other UI objects.
+---@field onEventResolution fun(width:number, height:number):void Invoked by the engine when the screen is resized.
+---@field onEventInit fun():void Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call.
 
 
 --- @class UIObject
@@ -3543,7 +3636,7 @@ function UIObject.GetValue (self, property, type, arrayIndex) end
     
 --- Returns the root (MainTimeline) Flash object
 --- @param self UIObject
---- @return FlashObject
+--- @return FlashMainTimeline
 function UIObject.GetRoot (self) end
     
 --- Returns the engine UI type ID of the UI element
@@ -3618,6 +3711,7 @@ local SurfaceInteractionSet = {}
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
 --- @alias ExtGroundHitCallback fun(caster: EsvGameObject, position: number[], damageList: DamageList)
 --- @alias ExtInputEventCallback fun(event: InputEvent)
+--- @alias UICallbackHandler fun(ui:UIObject, event:string):void
 
 --- @class Ext
 Ext = {
@@ -4397,11 +4491,10 @@ function Ext.UISetDirty (character, flags) end
 --- @param enable bool
 function Ext.UIEnableCustomDrawCallDebugging (enable) end
 
-
 --- Registers a listener that is called when the specified function is called from Flash
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param name string ExternalInterface function name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUICall (object, name, handler, type) end
 
@@ -4409,7 +4502,7 @@ function Ext.RegisterUICall (object, name, handler, type) end
 --- The event is triggered for every UI element with the specified type ID.
 --- @param typeId number Engine UI element type ID
 --- @param name string ExternalInterface function name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUITypeCall (typeId, name, handler, type) end
 
@@ -4417,14 +4510,14 @@ function Ext.RegisterUITypeCall (typeId, name, handler, type) end
 --- The event is triggered regardless of which UI element it was called on.
 --- (Function call capture must be enabled for every element type that needs to monitored!)
 --- @param name string ExternalInterface function name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUINameCall (name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param method string Flash method name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUIInvokeListener (object, name, handler, type) end
 
@@ -4432,14 +4525,14 @@ function Ext.RegisterUIInvokeListener (object, name, handler, type) end
 --- The event is triggered for every UI element with the specified type ID.
 --- @param typeId number Engine UI element type ID
 --- @param method string Flash method name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUITypeInvokeListener (typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered regardless of which UI element it was called on.
 --- @param method string Flash method name
---- @param handler function Lua handler
+--- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
 function Ext.RegisterUINameInvokeListener (name, handler, type) end
 
