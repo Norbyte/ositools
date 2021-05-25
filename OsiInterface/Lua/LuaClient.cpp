@@ -1608,6 +1608,8 @@ namespace dse::ecl::lua
 
 	std::unordered_map<ObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> UICustomIcons;
 
+	bool UIDebugCustomDrawCalls{ false };
+
 	bool CustomDrawIcon(UIObject* self, FlashCustomDrawCallback* callback)
 	{
 		auto customIcons = UICustomIcons.find(self->UIObjectHandle);
@@ -1616,6 +1618,11 @@ namespace dse::ecl::lua
 			if (icon != customIcons->second.end() && icon->second->IconMesh != nullptr) {
 				auto draw = GetStaticSymbols().ls__UIHelper__CustomDrawObject;
 				draw(callback, icon->second->IconMesh);
+
+				if (UIDebugCustomDrawCalls) {
+					INFO("Custom draw callback handled: %s -> %s", ToUTF8(callback->Name).c_str(), icon->second->IconName.Str);
+				}
+
 				return true;
 			}
 		}
@@ -1633,7 +1640,9 @@ namespace dse::ecl::lua
 		auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
 		auto handler = OriginalCustomDrawHandlers.find(vmt);
 		if (handler != OriginalCustomDrawHandlers.end()) {
-			INFO(L"Custom draw callback: %s", cb->Name);
+			if (UIDebugCustomDrawCalls) {
+				INFO(L"Custom draw callback unhandled: %s", cb->Name);
+			}
 			handler->second(self, callback);
 		} else {
 			OsiError("Couldn't find original CustomDrawCallback handler for UI object");
@@ -2107,6 +2116,13 @@ namespace dse::ecl::lua
 		return 0;
 	}
 
+	int UIEnableCustomDrawCallDebugging(lua_State* L)
+	{
+		StackCheck _(L, 0);
+		UIDebugCustomDrawCalls = checked_get<bool>(L, 1);
+		return 0;
+	}
+
 	int GetGameState(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -2529,6 +2545,7 @@ namespace dse::ecl::lua
 			{"GetBuiltinUI", GetBuiltinUI},
 			{"DestroyUI", DestroyUI},
 			{"UISetDirty", UISetDirty},
+			{"UIEnableCustomDrawCallDebugging", UIEnableCustomDrawCallDebugging},
 			{0,0}
 		};
 

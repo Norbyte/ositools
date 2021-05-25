@@ -3563,6 +3563,10 @@ function UIObject.GetPlayerHandle (self) end
     
 --- @param self UIObject
 function UIObject.Destroy (self) end
+
+--- Enables custom icon draw capture hooks.
+--- @param self UIObject
+function UIObject.EnableCustomDraw (self) end
     
 --- Binds a texture atlas icon to a Flash custom draw element.
 --- @param self UIObject
@@ -4388,6 +4392,11 @@ function Ext.DestroyUI (name) end
 --- @param character ObjectHandle Handle of character
 --- @param flags integer UI elements to refresh
 function Ext.UISetDirty (character, flags) end
+
+--- Enable/disable debug prints on Flash custom draw callbacks
+--- @param enable bool
+function Ext.UIEnableCustomDrawCallDebugging (enable) end
+
 
 --- Registers a listener that is called when the specified function is called from Flash
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
