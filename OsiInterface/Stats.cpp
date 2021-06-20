@@ -1096,7 +1096,7 @@ namespace dse
 		return true;
 	}
 
-	CRPGStats_Object * StatFindObject(char const * name)
+	CRPGStats_Object * StatFindObject(char const * name, bool warnOnError)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
@@ -1106,7 +1106,9 @@ namespace dse
 
 		auto object = stats->objects.Find(name);
 		if (object == nullptr) {
-			OsiError("Stat object '" << name << "' does not exist");
+			if (warnOnError) {
+				OsiError("Stat object '" << name << "' does not exist");
+			}
 			return nullptr;
 		}
 

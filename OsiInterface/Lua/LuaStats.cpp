@@ -1259,11 +1259,15 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto statName = luaL_checkstring(L, 1);
 		std::optional<int> level;
+		bool warnOnError{ true };
 		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 			level = (int32_t)luaL_checkinteger(L, 2);
 		}
+		if (lua_gettop(L) >= 3) {
+			warnOnError = checked_get<bool>(L, 3);
+		}
 		
-		auto object = StatFindObject(statName);
+		auto object = StatFindObject(statName, warnOnError);
 		if (object != nullptr) {
 			StatsProxy::New(L, object, level);
 			return 1;

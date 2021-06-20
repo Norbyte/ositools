@@ -799,7 +799,6 @@ namespace dse::lua
 				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
 				return 1;
 			} else {
-				OsiError("Item has no stats.");
 				push(L, nullptr);
 				return 1;
 			}
