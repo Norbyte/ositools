@@ -166,7 +166,7 @@ namespace dse
 
 			propertyMap.Properties[GFS.strLifeTime].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<esv::Status *>(st);
-				if (value < 0.0f) return false;
+				if (value < 0.0f && value != -1.0f) return false;
 				status->LifeTime = value;
 				if (status->CurrentLifeTime > status->LifeTime) {
 					status->CurrentLifeTime = status->LifeTime;
@@ -177,7 +177,7 @@ namespace dse
 
 			propertyMap.Properties[GFS.strCurrentLifeTime].SetFloat = [](void * st, float value) -> bool {
 				auto status = reinterpret_cast<esv::Status *>(st);
-				if (value < 0.0f) return false;
+				if (value < 0.0f && value != -1.0f) return false;
 				status->CurrentLifeTime = value;
 				if (status->LifeTime < status->CurrentLifeTime) {
 					status->LifeTime = status->CurrentLifeTime;
