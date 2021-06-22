@@ -1134,7 +1134,7 @@ namespace dse::esv::lua
 			}
 
 			if (statusHandle_) {
-				status = character->GetStatus(statusHandle_, true);
+				status = character->GetStatus(statusHandle_, true, isUnapplied_);
 			} else {
 				status = character->GetStatus(statusNetId_);
 			}
@@ -1146,7 +1146,7 @@ namespace dse::esv::lua
 			}
 
 			if (statusHandle_) {
-				status = item->GetStatus(statusHandle_, true);
+				status = item->GetStatus(statusHandle_, true, isUnapplied_);
 			} else {
 				status = item->GetStatus(statusNetId_);
 			}
@@ -2488,7 +2488,7 @@ namespace dse::esv::lua
 			return 1;
 		}
 
-		StatusHandleProxy::New(L, ownerHandle, status->StatusHandle);
+		StatusHandleProxy::New(L, ownerHandle, status->StatusHandle, true);
 		return 1;
 	}
 

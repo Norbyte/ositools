@@ -594,7 +594,7 @@ namespace dse
 			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ObjectHandle);
 			using ApplyStatusProc = void (esv::StatusMachine* StatusMachine, Status* Status);
 
-			Status * GetStatus(ObjectHandle handle) const;
+			Status * GetStatus(ObjectHandle handle, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
 			Status* GetStatus(FixedString const& statusId) const;
 

@@ -456,11 +456,19 @@ namespace dse
 		}
 	}
 
-	esv::Status * esv::StatusMachine::GetStatus(ObjectHandle handle) const
+	esv::Status * esv::StatusMachine::GetStatus(ObjectHandle handle, bool returnUnapplied) const
 	{
-		for (auto status : Statuses) {
-			if (status->StatusHandle == handle) {
-				return status;
+		if (returnUnapplied) {
+			for (auto status : Primitives) {
+				if (status->StatusHandle == handle) {
+					return status;
+				}
+			}
+		} else {
+			for (auto status : Statuses) {
+				if (status->StatusHandle == handle) {
+					return status;
+				}
 			}
 		}
 
@@ -511,13 +519,13 @@ namespace dse
 	}
 
 
-	esv::Status * esv::Character::GetStatus(ObjectHandle statusHandle, bool returnPending) const
+	esv::Status * esv::Character::GetStatus(ObjectHandle statusHandle, bool returnPending, bool returnUnapplied) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatus(statusHandle);
+		auto status = StatusMachine->GetStatus(statusHandle, returnUnapplied);
 		if (status != nullptr) {
 			return status;
 		}
@@ -545,13 +553,13 @@ namespace dse
 		return StatusMachine->GetStatus(netId);
 	}
 
-	esv::Status * esv::Item::GetStatus(ObjectHandle statusHandle, bool returnPending) const
+	esv::Status * esv::Item::GetStatus(ObjectHandle statusHandle, bool returnPending, bool returnUnapplied) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatus(statusHandle);
+		auto status = StatusMachine->GetStatus(statusHandle, returnUnapplied);
 		if (status != nullptr) {
 			return status;
 		}

@@ -96,7 +96,7 @@ namespace dse
 
 		struct Item : public IEoCServerObject
 		{
-			Status * GetStatus(ObjectHandle handle, bool returnPending) const;
+			Status * GetStatus(ObjectHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
 
 			glm::vec3 WorldPos; // Saved
