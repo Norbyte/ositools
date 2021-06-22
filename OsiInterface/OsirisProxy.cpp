@@ -147,7 +147,11 @@ void OsirisProxy::Shutdown()
 
 void OsirisProxy::LogLuaError(std::string_view msg)
 {
+#if !defined(OSI_EOCAPP)
 	std::string log = "[Osiris] {E} ";
+#else
+	std::string log;
+#endif
 	log += msg;
 	gConsole.Debug(DebugMessageType::Error, log.c_str());
 	if (StoryLoaded) {
@@ -157,7 +161,11 @@ void OsirisProxy::LogLuaError(std::string_view msg)
 
 void OsirisProxy::LogOsirisError(std::string_view msg)
 {
+#if !defined(OSI_EOCAPP)
 	std::string log = "[Osiris] {E} ";
+#else
+	std::string log;
+#endif
 	log += msg;
 	gConsole.Debug(DebugMessageType::Error, log.c_str());
 	if (StoryLoaded) {
@@ -173,7 +181,11 @@ void OsirisProxy::LogOsirisError(std::string_view msg)
 
 void OsirisProxy::LogOsirisWarning(std::string_view msg)
 {
+#if !defined(OSI_EOCAPP)
 	std::string log = "[Osiris] {W} ";
+#else
+	std::string log;
+#endif
 	log += msg;
 	gConsole.Debug(DebugMessageType::Warning, log.c_str());
 	if (StoryLoaded) {
@@ -183,7 +195,11 @@ void OsirisProxy::LogOsirisWarning(std::string_view msg)
 
 void OsirisProxy::LogOsirisMsg(std::string_view msg)
 {
+#if !defined(OSI_EOCAPP)
 	std::string log = "[Osiris] ";
+#else
+	std::string log;
+#endif
 	log += msg;
 	gConsole.Debug(DebugMessageType::Osiris, log.c_str());
 	if (StoryLoaded) {
