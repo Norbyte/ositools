@@ -796,7 +796,7 @@ namespace dse::lua
 
 		if (propFS == GFS.strStats) {
 			if (item->Stats != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, handle_);
+				ObjectProxy<CDivinityStats_Item>::New(L, item->Base.Component.Handle);
 				return 1;
 			} else {
 				push(L, nullptr);
