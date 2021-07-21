@@ -2528,6 +2528,7 @@ namespace dse::ecl::lua
 			{"GetGameState", GetGameState},
 			{"GetPickingState", GetPickingState},
 			{"AddPathOverride", AddPathOverrideWrapper},
+			{"GetPathOverride", GetPathOverrideWrapper},
 			{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
 			{"GetTranslatedString", GetTranslatedStringWrapper},
 			{"GetTranslatedStringFromKey", GetTranslatedStringFromKeyWrapper},

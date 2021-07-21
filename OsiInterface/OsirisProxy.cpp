@@ -1173,6 +1173,19 @@ void OsirisProxy::AddPathOverride(STDString const & path, STDString const & over
 	pathOverrides_.insert(std::make_pair(absolutePath, absoluteOverriddenPath));
 }
 
+std::optional<STDString> OsirisProxy::GetPathOverride(STDString const & path)
+{
+	auto absolutePath = GetStaticSymbols().ToPath(path, PathRootType::Data);
+
+	std::unique_lock lock(pathOverrideMutex_);
+	auto it = pathOverrides_.find(absolutePath);
+	if (it != pathOverrides_.end()) {
+		return it->second;
+	} else {
+		return {};
+	}
+}
+
 bool OsirisProxy::IsInServerThread() const
 {
 	auto tid = GetCurrentThreadId();

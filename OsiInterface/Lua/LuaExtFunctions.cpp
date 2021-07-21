@@ -532,6 +532,13 @@ namespace dse::lua
 
 	WrapLuaFunction(AddPathOverride)
 
+	std::optional<STDString> GetPathOverride(lua_State * L, char const* path)
+	{
+		return gOsirisProxy->GetPathOverride(path);
+	}
+
+	WrapLuaFunction(GetPathOverride)
+
 	void AddVoiceMetaData(lua_State * L, char const* speakerGuid, char const* translatedStringKey, char const* source, 
 		float length, std::optional<int> priority)
 	{

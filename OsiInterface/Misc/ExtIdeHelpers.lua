@@ -4454,6 +4454,11 @@ function Ext.CreateTranslatedString (key, text) end
 --- @param newPath string New (redirected) path
 function Ext.AddPathOverride (path, newPath) end
 
+--- Returns whether the specified path is currently redirected to another path.
+--- @param path string Original path
+--- @return string|nil Overridden path
+function Ext.GetPathOverride (path) end
+
 --- Constructs a new Flash UI element
 --- @param name string User-defined unique name that identifies the UI element
 --- @param path string Path of the SWF file relative to the data directory

@@ -281,6 +281,7 @@ public:
 
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
+	std::optional<STDString> GetPathOverride(STDString const& path);
 
 	bool IsInServerThread() const;
 	bool IsInClientThread() const;
