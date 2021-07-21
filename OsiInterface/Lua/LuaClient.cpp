@@ -2140,7 +2140,6 @@ namespace dse::ecl::lua
 		StackCheck _(L, 1);
 		auto level = GetStaticSymbols().GetCurrentClientLevel();
 		if (level == nullptr || level->PickingHelperManager == nullptr) {
-			OsiError("No current level!");
 			push(L, nullptr);
 			return 1;
 		}
@@ -2152,7 +2151,6 @@ namespace dse::ecl::lua
 
 		auto helper = level->PickingHelperManager->PlayerHelpers.Find(playerIndex);
 		if (helper == nullptr) {
-			OsiError("No picking helper available for player!");
 			push(L, nullptr);
 			return 1;
 		}
