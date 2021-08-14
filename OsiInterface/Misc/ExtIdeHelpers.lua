@@ -3577,7 +3577,7 @@ function UIObject:ClearCustomIcon(element) end
 --- @field ActionableSurfaces string[][] Surface types that this transform applies to
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'" | "'InputEvent'"
+--- @alias ExtEngineEvent string | '"SessionLoading"' | '"SessionLoaded"' | '"ModuleLoading"' | '"ModuleLoadStarted"' | '"ModuleResume"' | '"GameStateChanged"' | '"SkillGetDescriptionParam"' | '"StatusGetDescriptionParam"' | '"GetSkillDamage"' | '"GetSkillAPCost"' | '"ComputeCharacterHit"' | '"CalculateTurnOrder"' | '"GetHitChance"' | '"StatusGetEnterChance"' | '"StatusHitEnter"' | '"BeforeCharacterApplyDamage"' | '"UIInvoke"' | '"UICall"' | '"AfterUIInvoke"' | '"AfterUICall"' | '"BeforeShootProjectile"' | '"ShootProjectile"' | '"ProjectileHit"' | '"GroundHit"' | '"InputEvent"'
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -4478,6 +4478,7 @@ function Ext.HandleToDouble(handle) end
 --- @return ObjectHandle|StatusHandle
 function Ext.DoubleToHandle(handle) end
 
+---Client-side audio functions.
 Ext.Audio = {}
 
 --- Set audio state switch
