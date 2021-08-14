@@ -5,7 +5,7 @@ Osi = {}
 
 --- From v52 onwards object handles are a type of userdata (lightuserdata) 
 --- instead of integers.
---- @class ObjectHandle
+--- @alias ObjectHandle userdata
 
 --- @class DamageItem
 --- @field public DamageType string
@@ -16,47 +16,38 @@ local DamageItem = {}
 local DamageList = {}
 
 --- Returns the amount of damage with the specified type
---- @param self DamageList
 --- @param damageType string DamageType enumeration
 --- @return integer
-function DamageList.GetByType (self, damageType) end
+function DamageList:GetByType (damageType) end
     
 --- Add damage
---- @param self DamageList
 --- @param damageType string DamageType enumeration
 --- @param amount integer
-function DamageList.Add (self, damageType, amount) end
+function DamageList:Add (damageType, amount) end
     
 --- Clear damage list.
 --- If damageType is specified it only removes damage items with the specified type.
---- @param self DamageList
 --- @param damageType string|nil DamageType enumeration
-function DamageList.Clear (self, damageType) end
+function DamageList:Clear (damageType) end
     
 --- Multiply every damage item with the specified value
---- @param self DamageList
 --- @param multiplier number
-function DamageList.Multiply (self, multiplier) end
+function DamageList:Multiply (multiplier) end
     
 --- Merge another DamageList into this list
---- @param self DamageList
 --- @param list DamageList List to merge
-function DamageList.Merge (self, list) end
+function DamageList:Merge (list) end
     
 --- Converts all damages to the specified type
---- @param self DamageList
 --- @param damageType string DamageType enumeration
-function DamageList.ConvertDamageType (self, damageType) end
+function DamageList:ConvertDamageType (damageType) end
     
 --- Aggregate all damage items with the same type
---- @param self DamageList
-function DamageList.AggregateSameTypeDamages (self) end
+function DamageList:AggregateSameTypeDamages () end
     
 --- Returns all damage items as a table
---- @param self DamageList
 --- @return DamageItem[]
-function DamageList.ToTable (self) end
-
+function DamageList:ToTable() end
 
 --- @class InputEvent
 --- @field public EventId integer
@@ -81,49 +72,43 @@ local AiGrid = {}
 
 --- Scans the vicinity of the specified points for surfaces that match the specified flags.
 --- Returns true if a surface was found, false otherwise.
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param radius number Radius to search
 --- @param flags string[] AI flags to look for
 --- @param bias number Height bias
 --- @return boolean
-function AiGrid.SearchForCell (self, x, z, radius, flags, bias) end
+function AiGrid:SearchForCell (x, z, radius, flags, bias) end
 
 --- Returns the contents (game objects, surfaces, etc.) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return table
-function AiGrid.GetCellInfo (self, x, z) end
+function AiGrid:GetCellInfo (x, z) end
 
 --- Returns the AI flags (navigation info, surface flags) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return integer
-function AiGrid.GetAiFlags (self, x, z) end
+function AiGrid:GetAiFlags (x, z) end
 
 --- Updates the AI flags (navigation info) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param flags integer AI flags
-function AiGrid.SetAiFlags (self, x, z, flags) end
+function AiGrid:SetAiFlags (x, z, flags) end
 
 --- Returns the height of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return number
-function AiGrid.GetHeight (self, x, z) end
+function AiGrid:GetHeight (x, z) end
 
 --- Updates the height of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param height number Cell height
-function AiGrid.SetHeight (self, x, z, height) end
+function AiGrid:SetHeight (x, z, height) end
 
 
 --- @class LevelDesc
@@ -136,12 +121,11 @@ function AiGrid.SetHeight (self, x, z, height) end
 --- @class CombatComponentTemplate
 --- @field public Alignment string
 --- @field public CanFight boolean
---- @field public CanJoinFight boolean
+--- @field public CanJoinCombat boolean
 --- @field public CombatGroupID string
 --- @field public IsBoss boolean
 --- @field public IsInspector boolean
 --- @field public StartCombatRange number
-local CombatComponentTemplate = {}
 
 
 --- @class EoCGameObjectTemplate
@@ -175,7 +159,6 @@ local CombatComponentTemplate = {}
 --- @field public FadeGroup string
 --- @field public GameMasterSpawnSection integer
 --- @field public GameMasterSpawnSubSection string
-local EoCGameObjectTemplate = {}
 
 
 --- @class CharacterTemplate : EoCGameObjectTemplate
@@ -234,16 +217,14 @@ local EoCGameObjectTemplate = {}
 local CharacterTemplate = {}
     
 --- Returns the list of visuals that can be selected for the specified slot
---- @param self CharacterTemplate
 --- @param slot string Slot name (HairHelmet, Head, Torso, Arms, Trousers, Boots, Beard, Visual8, Visual9)
 --- @return string[]
-function CharacterTemplate.GetVisualChoices (self, slot) end
+function CharacterTemplate:GetVisualChoices (slot) end
     
 --- Returns the list of colors that can be selected for the specified slot
---- @param self CharacterTemplate
 --- @param slot string Slot name (Skin, Hair, Cloth)
 --- @return number[]
-function CharacterTemplate.GetColorChoices (self, slot) end
+function CharacterTemplate:GetColorChoices (slot) end
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
@@ -313,7 +294,6 @@ function CharacterTemplate.GetColorChoices (self, slot) end
 --- @field public MeshProxy string
 --- @field public IsPublicDomain boolean
 --- @field public AllowSummonTeleport boolean
-local ItemTemplate = {}
 
 
 --- @class ProjectileTemplate : EoCGameObjectTemplate
@@ -339,7 +319,6 @@ local ItemTemplate = {}
 --- @field public PathMinArcDist number
 --- @field public PathMaxArcDist number
 --- @field public PathRepeat number
-local ProjectileTemplate = {}
 
 
 --- @class TriggerTemplate : EoCGameObjectTemplate
@@ -384,8 +363,9 @@ local ProjectileTemplate = {}
 --- @field public CanSeeThrough boolean
 --- @field public CanShootThrough boolean
 
-
--- FIXME EclStatus
+--TODO
+--- @class EclStatus
+--- @field public StatusId string
 
 --- @class EsvStatus
 --- @field public StatusType string Engine status type (HIT, DAMAGE, CONSUME, ...)
@@ -422,7 +402,7 @@ local ProjectileTemplate = {}
 --- @field public RequestDelete boolean
 --- @field public RequestDeleteAtTurnEnd boolean
 --- @field public Started boolean
-local EsvStatus = {}
+
 
 --- @class EsvStatusHit : EsvStatus
 --- @field public Hit HitRequest
@@ -438,7 +418,7 @@ local EsvStatus = {}
 --- @field public ImpactPosition number[]
 --- @field public ImpactOrigin number[]
 --- @field public ImpactDirection number[]
-local EsvStatusHit = {}
+
 
 --- @class EsvStatusConsumeBase : EsvStatus
 --- TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
@@ -458,7 +438,7 @@ local EsvStatusHit = {}
 --- @field public Turn integer
 --- @field public HealEffectOverride string See HealEffect enumeration
 --- @field public Poisoned boolean
-local EsvStatusConsumeBase = {}
+
 
 --- @class EsvStatusDying : EsvStatus
 --- @field public SourceHandle ObjectHandle
@@ -475,7 +455,6 @@ local EsvStatusConsumeBase = {}
 --- @field public DisputeTargetHandle ObjectHandle
 --- @field public CombatId integer
 --- @field public IgnoreGodMode boolean
-local EsvStatusDying = {}
 
 --- @class EsvStatusHeal : EsvStatus
 --- @field public EffectTime number
@@ -485,24 +464,24 @@ local EsvStatusDying = {}
 --- @field public HealType string See StatusHealType enumeration
 --- @field public AbsorbSurfaceRange integer
 --- @field public TargetDependentHeal boolean
-local EsvStatusHeal = {}
+
 
 --- @class EsvStatusMuted : EsvStatusConsumeBase
 
 --- @class EsvStatusCharmed : EsvStatusConsumeBase
 --- @field public UserId integer
 --- @field public OriginalOwnerCharacterHandle ObjectHandle
-local EsvStatusCharmed = {}
+
 
 --- @class EsvStatusKnockedDown : EsvStatus
 --- @field public KnockedDownState integer
 --- @field public IsInstant boolean
-local EsvStatusKnockedDown = {}
+
 
 --- @class EsvStatusSummoning : EsvStatus
 --- @field public AnimationDuration number
 --- @field public SummonLevel integer
-local EsvStatusSummoning = {}
+
 
 --- @class EsvStatusHealing : EsvStatus
 --- @field public HealAmount integer
@@ -513,7 +492,7 @@ local EsvStatusSummoning = {}
 --- @field public HealingEvent number
 --- @field public HealStat string See StatusHealType enumeration
 --- @field public AbsorbSurfaceRange integer
-local EsvStatusHealing = {}
+
 
 --- @class EsvStatusThrown : EsvStatus
 --- @field public Level integer
@@ -522,7 +501,7 @@ local EsvStatusHealing = {}
 --- @field public IsThrowingSelf boolean
 --- @field public LandingEstimate number
 --- @field public Landed boolean
-local EsvStatusThrown = {}
+
 
 --- @class EsvStatusTeleportFall : EsvStatus
 --- @field public Target number[]
@@ -530,14 +509,14 @@ local EsvStatusThrown = {}
 --- @field public SkillId string
 --- @field public HasDamage boolean
 --- @field public HasDamageBeenApplied boolean
-local EsvStatusTeleportFall = {}
+
 
 --- @class EsvStatusConsume : EsvStatusConsumeBase
 
 --- @class EsvStatusCombat : EsvStatus
 --- @field public ReadyForCombat boolean
 --- @field public OwnerTeamId integer
-local EsvStatusCombat = {}
+
 
 --- @class EsvStatusAoO : EsvStatus
 --- @field public SourceHandle ObjectHandle
@@ -545,35 +524,35 @@ local EsvStatusCombat = {}
 --- @field public PartnerHandle ObjectHandle
 --- @field public ActivateAoOBoost boolean
 --- @field public ShowOverhead boolean
-local EsvStatusAoO = {}
+
 
 --- @class EsvStatusStoryFrozen : EsvStatus
 
 --- @class EsvStatusSneaking : EsvStatus
 --- @field public ClientRequestStop boolean
-local EsvStatusSneaking = {}
+
 
 --- @class EsvStatusUnlock : EsvStatus
 --- @field public SourceHandle ObjectHandle
 --- @field public Key string
 --- @field public Level integer
 --- @field public Unlocked integer
-local EsvStatusUnlock = {}
+
 
 --- @class EsvStatusFear : EsvStatus
 
 --- @class EsvStatusBoost : EsvStatus
 --- @field public EffectTime number
 --- @field public BoostId string
-local EsvStatusBoost = {}
+
 
 --- @class EsvStatusUnsheathed : EsvStatus
 --- @field public Force boolean
-local EsvStatusUnsheathed = {}
+
 
 --- @class EsvStatusStance : EsvStatusConsumeBase
 --- @field public SkillId string
-local EsvStatusStance = {}
+
 
 --- @class EsvStatusLying : EsvStatus
 --- @field public ItemHandle ObjectHandle
@@ -581,7 +560,7 @@ local EsvStatusStance = {}
 --- @field public Index integer
 --- @field public TimeElapsed number
 --- @field public Heal number
-local EsvStatusLying = {}
+
 
 --- @class EsvStatusBlind : EsvStatusConsumeBase
 
@@ -594,16 +573,13 @@ local EsvStatusLying = {}
 --- @field public InfectTimer number
 --- @field public Radius number
 --- @field public TargetHandle ObjectHandle
-local EsvStatusInfectiousDiseased = {}
 
 --- @class EsvStatusInvisible : EsvStatusConsumeBase
 --- @field public InvisiblePosition number[]
-local EsvStatusInvisible = {}
 
 --- @class EsvStatusRotate : EsvStatus
 --- @field public Yaw number
 --- @field public RotationSpeed number
-local EsvStatusRotate = {}
 
 --- @class EsvStatusEncumbered : EsvStatusConsumeBase
 
@@ -611,13 +587,11 @@ local EsvStatusRotate = {}
 --- @field public Level integer
 --- @field public Identified integer
 --- @field public IdentifierHandle ObjectHandle
-local EsvStatusIdentify = {}
 
 --- @class EsvStatusRepair : EsvStatus
 --- @field public Level integer
 --- @field public Repaired integer
 --- @field public RepairerHandle ObjectHandle
-local EsvStatusRepair = {}
 
 --- @class EsvStatusMaterial : EsvStatus
 --- @field public MaterialUUID string
@@ -631,27 +605,22 @@ local EsvStatusRepair = {}
 --- @field public Fading boolean
 --- @field public ApplyNormalMap boolean
 --- @field public Force boolean
-local EsvStatusMaterial = {}
 
 --- @class EsvStatusLeadership : EsvStatusConsumeBase
 
 --- @class EsvStatusExplode : EsvStatus
 --- @field public Projectile string
-local EsvStatusExplode = {}
 
 --- @class EsvStatusAdrenaline : EsvStatusConsumeBase
 --- @field public InitialAPMod integer
 --- @field public SecondaryAPMod integer
 --- @field public CombatTurn integer
-local EsvStatusAdrenaline = {}
 
 --- @class EsvStatusShacklesOfPain : EsvStatusConsumeBase
 --- @field public CasterHandle ObjectHandle
-local EsvStatusShacklesOfPain = {}
 
 --- @class EsvStatusShacklesOfPainCaster : EsvStatusConsumeBase
 --- @field public VictimHandle ObjectHandle
-local EsvStatusShacklesOfPainCaster = {}
 
 --- @class EsvStatusWindWalker : EsvStatusConsumeBase
 
@@ -669,7 +638,6 @@ local EsvStatusShacklesOfPainCaster = {}
 
 --- @class EsvStatusDrain : EsvStatus
 --- @field public Infused integer
-local EsvStatusDrain = {}
 
 --- @class EsvStatusLingeringWounds : EsvStatusConsumeBase
 
@@ -677,10 +645,8 @@ local EsvStatusDrain = {}
 
 --- @class EsvStatusSpiritVision : EsvStatusConsumeBase
 --- @field public SpiritVisionSkillId string
-local EsvStatusSpiritVision = {}
 
 --- @class EsvStatusSpirit : EsvStatus
-local EsvStatusSpirit = {}
 
 --- @class EsvStatusDamage : EsvStatusConsumeBase
 --- @field public DamageEvent integer
@@ -689,7 +655,6 @@ local EsvStatusSpirit = {}
 --- @field public DamageLevel integer
 --- @field public DamageStats string
 --- @field public SpawnBlood boolean
-local EsvStatusDamage = {}
 
 --- @class EsvStatusForceMove : EsvStatusConsumeBase
 
@@ -699,13 +664,11 @@ local EsvStatusDamage = {}
 --- @field public Level string
 --- @field public Status integer
 --- @field public Direction boolean
-local EsvStatusClimbing = {}
 
 --- @class EsvStatusIncapacitated : EsvStatusConsumeBase
 --- @field public CurrentFreezeTime number
 --- @field public FreezeTime number
 --- @field public FrozenFlag integer
-local EsvStatusIncapacitated = {}
 
 --- @class EsvStatusInSurface : EsvStatus
 --- @field public SurfaceTimerCheck number
@@ -713,7 +676,6 @@ local EsvStatusIncapacitated = {}
 --- @field public Translate number[]
 --- @field public Force boolean
 --- TODO -- document surface layer flags!
-local EsvStatusInSurface = {}
 
 --- @class EsvStatusSourceMuted : EsvStatus
 
@@ -727,12 +689,10 @@ local EsvStatusInSurface = {}
 --- @field public OriginalTemplateType integer
 --- @field public PolymorphResult string
 --- @field public DisableInteractions boolean
-local EsvStatusPolymorphed = {}
 
 --- @class EsvStatusDamageOnMove : EsvStatusDamage
 --- @field public DistancePerDamage number
 --- @field public DistanceTraveled number
-local EsvStatusDamageOnMove = {}
 
 --- @class EsvStatusDemonicBargain : EsvStatus
 
@@ -743,17 +703,14 @@ local EsvStatusDamageOnMove = {}
 --- @class EsvStatusChallenge : EsvStatusConsumeBase
 --- @field public SourceHandle ObjectHandle
 --- @field public Target boolean
-local EsvStatusChallenge = {}
 
 --- @class EsvStatusDisarmed : EsvStatusConsumeBase
 
 --- @class EsvStatusHealSharing : EsvStatusConsumeBase
 --- @field public CasterHandle ObjectHandle
-local EsvStatusHealSharing = {}
 
 --- @class EsvStatusHealSharingCaster : EsvStatusConsumeBase
 --- @field public TargetHandle ObjectHandle
-local EsvStatusHealSharingCaster = {}
 
 --- @class EsvStatusExtraTurn : EsvStatusConsumeBase
 
@@ -763,13 +720,11 @@ local EsvStatusHealSharingCaster = {}
 --- @field public TargetHandle ObjectHandle
 --- @field public Radius number
 --- @field public Projectile string
-local EsvStatusActiveDefense = {}
 
 --- @class EsvStatusSpark : EsvStatusConsumeBase
 --- @field public Charges integer
 --- @field public Radius number
 --- @field public Projectile string
-local EsvStatusSpark = {}
 
 --- @class EsvStatusPlayDead : EsvStatusConsumeBase
 
@@ -843,8 +798,6 @@ local EsvStatusSpark = {}
 --- @field public BonusWeapon integer
 --- @field public StepsType integer
 -- TODO Abilities, Talents, RemovedTalents, Traits
-local StatCharacterDynamic = {
-}
 
 
 --- @class StatBase
@@ -1085,7 +1038,6 @@ local StatCharacterDynamic = {
 --- @field public Runecrafting integer
 --- @field public Brewmaster integer
 --- @field public Sulfurology integer
-local StatBase = {}
 
 
 --- @class StatCharacter : StatBase
@@ -1119,7 +1071,6 @@ local StatBase = {}
 --- @field public MaxSummons integer
 --- @field public BaseMaxSummons integer
 --- @field public MaxMpOverride integer
----
 --- StatCharacterFlags
 --- @field public IsPlayer boolean
 --- @field public InParty boolean
@@ -1128,19 +1079,16 @@ local StatBase = {}
 --- @field public Blind boolean
 --- @field public DrinkedPotion boolean
 --- @field public EquipmentValidated boolean
----
 --- Properties from CDivinityStats_Character::GetStat
 --- @field public PhysicalResistance integer
 --- @field public PiercingResistance integer
 --- @field public CorrosiveResistance integer
 --- @field public MagicResistance integer
----
 --- Base properties from CDivinityStats_Character::GetStat
 --- @field public BasePhysicalResistance integer
 --- @field public BasePiercingResistance integer
 --- @field public BaseCorrosiveResistance integer
 --- @field public BaseMagicResistance integer
----
 --- Properties from CharacterStatsGetters::GetStat
 --- @field public MaxMp integer
 --- @field public APStart integer
@@ -1168,7 +1116,6 @@ local StatBase = {}
 --- @field public Initiative integer
 --- @field public BlockChance integer
 --- @field public ChanceToHitBoost integer
----
 --- Base properties from CharacterStatsGetters::GetStat
 --- @field public BaseMaxMp integer
 --- @field public BaseAPStart integer
@@ -1196,7 +1143,6 @@ local StatBase = {}
 --- @field public BaseInitiative integer
 --- @field public BaseBlockChance integer
 --- @field public BaseChanceToHitBoost integer
----
 --- Properties from CharacterFetchStat
 --- @field public DynamicStats StatCharacterDynamic[]
 --- @field public MainWeapon StatItem
@@ -1207,14 +1153,12 @@ local StatBase = {}
 --- @field public Position number[]
 --- @field public MyGuid string
 --- @field public NetID integer
-local StatCharacter = {
-    --- Returns the item equipped in the specified slot
-    --- @param self StatCharacter
-    --- @param slot string See Itemslot enumeration
-    --- @return StatItem|nil
-    GetItemBySlot = function (self, slot) end
-}
+local StatCharacter = {}
 
+--- Returns the item equipped in the specified slot
+--- @param slot string See Itemslot enumeration
+--- @return StatItem|nil
+function StatCharacter:GetItemBySlot(slot) end
 
 --- @class StatItemDynamic : StatBase
 --- @field public Durability integer
@@ -1281,87 +1225,74 @@ local StatCharacter = {
 --- @field public Blocking integer Shield only!
 --- TODO - add attribute flags object support
 --- TODO - AbilityModifiers, Talents, Reflection
-local StatItemDynamic = {}
-
 
 --- @class StatProperty
---- @field Context string[] Target|Self|AoE|SelfOnHit|SelfOnEquip
---- @field Type string Custom|Status|SurfaceChange|GameAction|OsirisTask|Sabotage|Summon|Force
---- @field Condition string|nil
-local StatProperty = {}
+--- @field public Context string[] Target|Self|AoE|SelfOnHit|SelfOnEquip
+--- @field public Type string Custom|Status|SurfaceChange|GameAction|OsirisTask|Sabotage|Summon|Force
+--- @field public Condition string|nil
 
 --- @class StatPropertyCustom : StatProperty
---- @field Type string Custom
---- @field Action string
-local StatPropertyStatus = {}
+--- @field public Type string Custom
+--- @field public Action string
 
 --- @class StatPropertyStatus : StatProperty
---- @field Type string Status
---- @field Action string Status name
---- @field StatusChance number
---- @field Duration number
---- @field StatsId string
---- @field Arg4 integer
---- @field Arg5 integer
---- @field SurfaceBoost boolean
---- @field SurfaceBoosts string[] Labels from "Surface Type" enumeration
-local StatPropertyStatus = {}
+--- @field public Type string Status
+--- @field public Action string Status name
+--- @field public StatusChance number
+--- @field public Duration number
+--- @field public StatsId string
+--- @field public Arg4 integer
+--- @field public Arg5 integer
+--- @field public SurfaceBoost boolean
+--- @field public SurfaceBoosts string[] Labels from "Surface Type" enumeration
 
 --- @class StatPropertySurfaceChange : StatProperty
---- @field Type string SurfaceChange
---- @field Action string Label from "Surface Change" enumeration
---- @field SurfaceChance number
---- @field Lifetime number
---- @field StatusChance number
---- @field Radius number
-local StatPropertySurfaceChange = {}
+--- @field public Type string SurfaceChange
+--- @field public Action string Label from "Surface Change" enumeration
+--- @field public SurfaceChance number
+--- @field public Lifetime number
+--- @field public StatusChance number
+--- @field public Radius number
 
 --- @class StatPropertySabotage : StatProperty
---- @field Type string Sabotage
---- @field Amount integer
-local StatPropertySabotage = {}
+--- @field public Type string Sabotage
+--- @field public Amount integer
 
 --- @class StatPropertySummon : StatProperty
---- @field Type string Summon
---- @field Template string
---- @field Duration number
---- @field IsTotem boolean
---- @field Skill string
-local StatPropertySummon = {}
+--- @field public Type string Summon
+--- @field public Template string
+--- @field public Duration number
+--- @field public IsTotem boolean
+--- @field public Skill string
 
 --- @class StatPropertyForce : StatProperty
---- @field Type string Force
---- @field Distance integer
-local StatPropertyForce = {}
+--- @field public Type string Force
+--- @field public Distance integer
 
 --- @class StatPropertyGameAction : StatProperty
---- @field Type string GameAction
---- @field Action string Label from "Game Action" enumeration
---- @field Arg1 number
---- @field Arg2 number
---- @field Arg3 string
---- @field Arg4 number
---- @field Arg5 number
---- @field StatusHealType string Label from "StatusHealType" enumeration
-local StatPropertyGameAction = {}
+--- @field public Type string GameAction
+--- @field public Action string Label from "Game Action" enumeration
+--- @field public Arg1 number
+--- @field public Arg2 number
+--- @field public Arg3 string
+--- @field public Arg4 number
+--- @field public Arg5 number
+--- @field public StatusHealType string Label from "StatusHealType" enumeration
 
 --- @class StatPropertyOsirisTask : StatProperty
---- @field Type string OsirisTask
---- @field Action string Label from "Osiris Task" enumeration
---- @field Chance number
---- @field VitalityOnRevive integer
-local StatPropertyOsirisTask = {}
+--- @field public Type string OsirisTask
+--- @field public Action string Label from "Osiris Task" enumeration
+--- @field public Chance number
+--- @field public VitalityOnRevive integer
 
 --- @class StatPropertyExtender : StatProperty
---- @field Type string Extender
---- @field Action string Custom SkillProperties action name
---- @field Arg1 number
---- @field Arg2 number
---- @field Arg3 string
---- @field Arg4 integer
---- @field Arg5 integer
-local StatPropertyExtender = {}
-
+--- @field public Type string Extender
+--- @field public Action string Custom SkillProperties action name
+--- @field public Arg1 number
+--- @field public Arg2 number
+--- @field public Arg3 string
+--- @field public Arg4 integer
+--- @field public Arg5 integer
 
 --- @class StatItem : StatBase
 --- Properties from property map
@@ -1515,52 +1446,43 @@ local EclGameObject = {}
 local EclItem = {}
 
 --- Returns all delta mods on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetDeltaMods (self) end
+function EclItem:GetDeltaMods () end
 
 --- Returns the GUID of all items within the inventory of the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetInventoryItems (self) end
+function EclItem:GetInventoryItems () end
 
 --- Returns the GUID of character that currently owns the item; nil if the item is not in a character inventory
---- @param self EclItem
 --- @return string|nil
-function EclItem.GetOwnerCharacter (self) end
+function EclItem:GetOwnerCharacter () end
 
 --- Returns whether the item has the specified tag
---- @param self EclItem
 --- @param tag string
 --- @return boolean
-function EclItem.HasTag (self, tag) end
+function EclItem:HasTag (tag) end
 
 --- Returns all tags on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetTags (self) end
+function EclItem:GetTags () end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EclItem
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclItem.GetStatus (self, statusId) end
+function EclItem:GetStatus (statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EclItem
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclItem.GetStatusByType (self, type) end
+function EclItem:GetStatusByType (type) end
 
 --- Returns all statuses on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetStatuses (self) end
+function EclItem:GetStatuses () end
 
 --- Returns all statuses on the item
---- @param self EclItem
 --- @return EclStatus[]
-function EclItem.GetStatusObjects (self) end
+function EclItem:GetStatusObjects () end
 
 
 
@@ -1585,59 +1507,49 @@ function EclItem.GetStatusObjects (self) end
 local EclCharacter = {}
 
 --- Returns the GUID of all items within the inventory of the character
---- @param self EclCharacter
 --- @return string[]
-function EclCharacter.GetInventoryItems (self) end
+function EclCharacter:GetInventoryItems () end
 
 --- Returns the item equipped in the specified slot
---- @param self EclCharacter
 --- @param slot string See ItemSlot enumeration
 --- @return EclItem|nil
-function EclCharacter.GetItemBySlot (self, slot) end
+function EclCharacter:GetItemBySlot (slot) end
 
 --- Returns whether the character has the specified tag
---- @param self EclCharacter
 --- @param tag string
 --- @return boolean
-function EclCharacter.HasTag (self, tag) end
+function EclCharacter:HasTag (tag) end
 
 --- Returns all tags on the character
---- @param self EclCharacter
 --- @return string[]
-function EclCharacter.GetTags (self) end
+function EclCharacter:GetTags () end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EclCharacter
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclCharacter.GetStatus (self, statusId) end
+function EclCharacter:GetStatus (statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EclCharacter
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclCharacter.GetStatusByType (self, type) end
+function EclCharacter:GetStatusByType (type) end
 
 --- Returns all statuses on the character
---- @param self EclCharacter
 --- @return string[]
-function EclCharacter.GetStatuses (self) end
+function EclCharacter:GetStatuses () end
 
 --- Returns all statuses on the character
---- @param self EclCharacter
 --- @return EclStatus[]
-function EclCharacter.GetStatusObjects (self) end
+function EclCharacter:GetStatusObjects () end
 
 --- Update model scale of the character.
---- @param self EclCharacter
 --- @param scale number 
-function EclCharacter.SetScale (self, scale) end
+function EclCharacter:SetScale (scale) end
 
 --- Returns the value of the specified custom stat
---- @param self EclCharacter
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EclCharacter.GetCustomStat (self, statId) end
+function EclCharacter:GetCustomStat (statId) end
 
 
 
@@ -1721,69 +1633,58 @@ local EsvGameObject = {}
 local EsvItem = {}
 
 --- Returns all delta mods on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetDeltaMods (self) end
+function EsvItem:GetDeltaMods() end
 
 --- Updates the delta mod list on the item.
 --- The new deltamods will only be applied after a save/reload!
---- @param self EsvItem
---- @param boosts string[]
-function EsvItem.SetDeltaMods (self) end
+--- @param deltamods string[]
+function EsvItem:SetDeltaMods(deltamods) end
 
 --- Returns all boosts that were added during treasure generation
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetGeneratedBoosts (self) end
+function EsvItem:GetGeneratedBoosts() end
 
 --- Updates the list of boosts that were added during treasure generation.
 --- The new boosts will only be applied after a save/reload!
---- @param self EsvItem
 --- @param boosts string[]
-function EsvItem.SetGeneratedBoosts (self) end
+function EsvItem:SetGeneratedBoosts (boosts) end
 
 --- Returns the GUID of all items within the inventory of the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetInventoryItems (self) end
+function EsvItem:GetInventoryItems () end
 
 --- Returns the GUID of all characters within the specified radius
---- @param self EsvItem
+--- @param radius number
 --- @return string[]
-function EsvItem.GetNearbyCharacters (self, radius) end
+function EsvItem:GetNearbyCharacters (radius) end
 
 --- Returns whether the item has the specified tag
---- @param self EsvItem
 --- @param tag string
 --- @return boolean
-function EsvItem.HasTag (self, tag) end
+function EsvItem:HasTag (tag) end
 
 --- Returns all tags on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetTags (self) end
+function EsvItem:GetTags () end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EsvItem
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvItem.GetStatus (self, statusId) end
+function EsvItem:GetStatus (statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EsvItem
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvItem.GetStatusByType (self, type) end
+function EsvItem:GetStatusByType (type) end
 
 --- Returns all statuses on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetStatuses (self) end
+function EsvItem:GetStatuses () end
 
 --- Returns all statuses on the character
---- @param self EclItem
 --- @return EsvStatus[]
-function EsvItem.GetStatusObjects (self) end
+function EsvItem:GetStatusObjects () end
 
 
 
@@ -1820,8 +1721,7 @@ function EsvItem.GetStatusObjects (self) end
 local ItemDefinition = {}
 
 --- Clears item progression data (name group, level group, etc.)
---- @param self ItemDefinition
-function ItemDefinition.ResetProgression (self) end
+function ItemDefinition:ResetProgression () end
 
 
 
@@ -1835,9 +1735,8 @@ local ItemConstructor = {}
 
 --- Constructs an instance of the item contained in the constructor definition.
 --- The definition is cleared after the item is created.
---- @param self ItemConstructor
 --- @return EsvItem|nil
-function ItemConstructor.Construct (self) end
+function ItemConstructor:Construct () end
 
 
 
@@ -1972,81 +1871,67 @@ local EsvSkillInfo = {}
 local EsvCharacter = {}
 
 --- Returns the GUID of all items in the characters inventory
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetInventoryItems (self) end
+function EsvCharacter:GetInventoryItems () end
 
 --- Returns detailed information about the specified skill
---- @param self EsvCharacter
 --- @param skillId string
 --- @return EsvSkillInfo
-function EsvCharacter.GetSkillInfo (self, skillId) end
+function EsvCharacter:GetSkillInfo (skillId) end
 
 --- Returns the name of all skills available to the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetSkills (self) end
+function EsvCharacter:GetSkills () end
 
 --- Returns the GUID of all characters within the specified radius
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetNearbyCharacters (self, radius) end
+function EsvCharacter:GetNearbyCharacters (radius) end
 
 --- Returns the GUID of all summons owned by the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetSummons (self) end
+function EsvCharacter:GetSummons () end
 
 --- Returns whether the character has the specified tag
---- @param self EsvCharacter
 --- @param tag string
 --- @return boolean
-function EsvCharacter.HasTag (self, tag) end
+function EsvCharacter:HasTag (tag) end
 
 --- Returns all tags on the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetTags (self) end
+function EsvCharacter:GetTags () end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EsvCharacter
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvCharacter.GetStatus (self, statusId) end
+function EsvCharacter:GetStatus (statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EsvCharacter
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvCharacter.GetStatusByType (self, type) end
+function EsvCharacter:GetStatusByType (type) end
 
 --- Returns all statuses on the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetStatuses (self) end
+function EsvCharacter:GetStatuses () end
 
 --- Returns all statuses on the character
---- @param self EsvCharacter
 --- @return EsvStatus[]
-function EsvCharacter.GetStatusObjects (self) end
+function EsvCharacter:GetStatusObjects () end
 
 --- Update model scale of the character.
 --- NOTE: This change must be manually synchronized to the client!
---- @param self EsvCharacter
 --- @param scale number 
-function EsvCharacter.SetScale (self, scale) end
+function EsvCharacter:SetScale (scale) end
 
 --- Returns the value of the specified custom stat
---- @param self EsvCharacter
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EsvCharacter.GetCustomStat (self, statId) end
+function EsvCharacter:GetCustomStat (statId) end
 
 --- Updates the value of the specified custom stat
---- @param self EsvCharacter
 --- @param statId string Custom stat UUID
 --- @param statValue number Stat value
-function EsvCharacter.GetCustomStat (self, statId, statValue) end
+function EsvCharacter:SetCustomStat (statId, statValue) end
 
 
 
@@ -2334,6 +2219,9 @@ local DeltaModBoost = {}
 --- @field public Boosts DeltaModBoost[]
 local DeltaMod = {}
 
+---@class DeltaModStatEntry
+---@field public Name string
+---@field public ModifierType string
 
 --- @class ItemComboIngredients
 --- @field public Object string
@@ -2388,38 +2276,38 @@ local ItemComboPropertyElement = {}
 local ItemComboProperty = {}
 
 ---@class StatTreasureCategory
----@field Frequency integer
----@field TreasureTable string|nil
----@field TreasureCategory string|nil
----@field Common integer
----@field Uncommon integer
----@field Rare integer
----@field Epic integer
----@field Legendary integer
----@field Divine integer
----@field Unique integer
+---@field public Frequency integer
+---@field public TreasureTable string|nil
+---@field public TreasureCategory string|nil
+---@field public Common integer
+---@field public Uncommon integer
+---@field public Rare integer
+---@field public Epic integer
+---@field public Legendary integer
+---@field public Divine integer
+---@field public Unique integer
 
 ---@class StatTreasureDropCount
----@field Chance integer
----@field Amount integer
+---@field public Chance integer
+---@field public Amount integer
 
 ---@class StatTreasureSubTable
----@field Categories StatTreasureCategory[]
----@field DropCounts StatTreasureDropCount[]
----@field Amounts integer[]
----@field StartLevel integer
----@field EndLevel integer
----@field TotalCount integer
----@field TotalFrequency integer
+---@field public Categories StatTreasureCategory[]
+---@field public DropCounts StatTreasureDropCount[]
+---@field public Amounts integer[]
+---@field public StartLevel integer
+---@field public EndLevel integer
+---@field public TotalCount integer
+---@field public TotalFrequency integer
 
 ---@class StatTreasureTable
----@field Name string
----@field MinLevel integer
----@field MaxLevel integer
----@field IgnoreLevelDiff boolean
----@field UseTreasureGroupContainers boolean
----@field CanMerge boolean
----@field SubTables StatTreasureSubTable[]
+---@field public Name string
+---@field public MinLevel integer
+---@field public MaxLevel integer
+---@field public IgnoreLevelDiff boolean
+---@field public UseTreasureGroupContainers boolean
+---@field public CanMerge boolean
+---@field public SubTables StatTreasureSubTable[]
 
 --- @class ItemNameGroupLink
 --- @field public NameGroup string
@@ -3428,7 +3316,7 @@ local HitRequest = {}
 --- @field public ForceReduceDurability boolean
 --- @field public HighGround string
 --- @field public CriticalRoll string
---- @field public HitStatus EsvStatus
+--- @field public HitStatus EsvStatusHit
 local HitContext = {}
 
 
@@ -3449,14 +3337,12 @@ local EsvCombatTeam = {}
 local EsvCombat = {}
 
 --- Retrieves the turn order of the current round.
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetCurrentTurnOrder (self) end
+function EsvCombat:GetCurrentTurnOrder () end
     
 --- Retrieves the turn order of the next round.
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetNextTurnOrder (self) end
+function EsvCombat:GetNextTurnOrder () end
 
 --- Updates the turn order of the current round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetCurrentTurnOrder().
@@ -3466,9 +3352,8 @@ function EsvCombat.GetNextTurnOrder (self) end
 ---  The character whose turn is currently active (the very first item) should not be removed or reordered. 
 ---    This only applies for GetCurrentTurnOrder, the first item can be freely reordered in GetNextTurnOrder.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
---- @param self EsvCombat
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat.UpdateCurrentTurnOrder (self, turnOrder) end
+function EsvCombat:UpdateCurrentTurnOrder (turnOrder) end
     
 --- Updates the turn order of the next round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetNextTurnOrder().
@@ -3476,14 +3361,12 @@ function EsvCombat.UpdateCurrentTurnOrder (self, turnOrder) end
 ---  It is possible to remove or add characters to the next turn by adding/removing their Team object from the table.
 ---  It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
---- @param self EsvCombat
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat.UpdateNextTurnOrder (self, turnOrder) end
+function EsvCombat:UpdateNextTurnOrder (turnOrder) end
     
 --- Retrieves all participants of the combat
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetAllTeams (self) end
+function EsvCombat:GetAllTeams () end
 
 
 --- @class FlashObject
@@ -3514,166 +3397,168 @@ local FlashArray = {}
 --- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned.
 local FlashFunction = {}
 
----@class FlashInteractiveObject:FlashObject
----@field doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
----@field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
----@field tabEnabled boolean Specifies whether this object is in the tab order.
----@field tabIndex integer Specifies the tab ordering of objects in a SWF file.
+---@class FlashEventDispatcher:FlashObject
+
+---Currently unsupported type 12.
+---@class FlashDisplayObject:FlashEventDispatcher
+
+---@class FlashInteractiveObject:FlashDisplayObject
+---@field public doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
+---@field public mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
+---@field public tabEnabled boolean Specifies whether this object is in the tab order.
+---@field public tabIndex integer Specifies the tab ordering of objects in a SWF file.
 
 
 ---@class FlashGraphics:FlashObject
----@field beginBitmapFill fun(bitmap:BitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean):void Fills a drawing area with a bitmap image.
----@field beginFill fun(color:integer, alpha:number):void Specifies a simple one-color fill that subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) use when drawing.
----@field beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient fill used by subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) for the object.
----@field clear fun():void Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
----@field curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number):void Draws a quadratic Bezier curve using the current line style from the current drawing position to  fun(anchorX, anchorY) and using the control point that  fun(controlX, controlY) specifies.
----@field drawCircle fun(x:number, y:number, radius:number):void Draws a circle.
----@field drawEllipse fun(x:number, y:number, width:number, height:number):void Draws an ellipse.
----@field drawPath fun(commands:Vector.<int>, data:FlashVector, winding:string):void Submits a series of commands for drawing.
----@field drawRect fun(x:number, y:number, width:number, height:number):void Draws a rectangle.
----@field drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number):void Draws a rounded rectangle.
----@field endFill fun():void Applies a fill to the lines and curves that were added since the last call to the beginFill fun(), beginGradientFill fun(), or beginBitmapFill fun() method.
----@field lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient to use for the stroke when drawing lines.
----@field lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number):void Specifies a line style used for subsequent calls to Graphics methods such as the lineTo fun() method or the drawCircle fun() method.
----@field lineTo fun(x:number, y:number):void Draws a line using the current line style from the current drawing position to  fun(x, y); the current drawing position is then set to  fun(x, y).
----@field moveTo fun(x:number, y:number):void Moves the current drawing position to  fun(x, y).
+---@field public beginBitmapFill fun(bitmap:BitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean):void Fills a drawing area with a bitmap image.
+---@field public beginFill fun(color:integer, alpha:number):void Specifies a simple one-color fill that subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) use when drawing.
+---@field public beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient fill used by subsequent calls to other Graphics methods  fun(such as lineTo fun() or drawCircle fun()) for the object.
+---@field public clear fun():void Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
+---@field public curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number):void Draws a quadratic Bezier curve using the current line style from the current drawing position to  fun(anchorX, anchorY) and using the control point that  fun(controlX, controlY) specifies.
+---@field public drawCircle fun(x:number, y:number, radius:number):void Draws a circle.
+---@field public drawEllipse fun(x:number, y:number, width:number, height:number):void Draws an ellipse.
+---@field public drawPath fun(commands:Vector.<int>, data:FlashVector, winding:string):void Submits a series of commands for drawing.
+---@field public drawRect fun(x:number, y:number, width:number, height:number):void Draws a rectangle.
+---@field public drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number):void Draws a rounded rectangle.
+---@field public endFill fun():void Applies a fill to the lines and curves that were added since the last call to the beginFill fun(), beginGradientFill fun(), or beginBitmapFill fun() method.
+---@field public lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number):void Specifies a gradient to use for the stroke when drawing lines.
+---@field public lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number):void Specifies a line style used for subsequent calls to Graphics methods such as the lineTo fun() method or the drawCircle fun() method.
+---@field public lineTo fun(x:number, y:number):void Draws a line using the current line style from the current drawing position to  fun(x, y); the current drawing position is then set to  fun(x, y).
+---@field public moveTo fun(x:number, y:number):void Moves the current drawing position to  fun(x, y).
 
+---@class FlashDisplayObjectContainer:FlashInteractiveObject
+---@field public mouseChildren boolean Determines whether or not the children of the object are mouse, or user input device, enabled.
+---@field public numChildren integer Returns the number of children of this object. [read-only]
+---@field public tabChildren boolean Determines whether the children of the object are tab enabled.
+---@field public textSnapshot FlashTextSnapshot Returns a TextSnapshot object for this DisplayObjectContainer instance. [read-only]
+---@field public addChild fun(child:FlashDisplayObject):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+---@field public addChildAt fun(child:FlashDisplayObject, index:integer):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+---@field public areInaccessibleObjectsUnderPoint fun(point:Point):boolean Indicates whether the security restrictions would cause any display objects to be omitted from the list returned by calling the DisplayObjectContainer.getObjectsUnderPoint() method with the specified point point.
+---@field public contains fun(child:FlashDisplayObject):boolean Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself.
+---@field public getChildAt fun(index:integer):FlashDisplayObject Returns the child display object instance that exists at the specified index.
+---@field public getChildByName fun(name:String):FlashDisplayObject Returns the child display object that exists with the specified name.
+---@field public getChildIndex fun(child:FlashDisplayObject):integer Returns the index position of a child DisplayObject instance.
+---@field public getObjectsUnderPoint fun(point:Point):Array Returns an array of objects that lie under the specified point and are children (or grandchildren, and so on) of this DisplayObjectContainer instance.
+---@field public removeChild fun(child:FlashDisplayObject):FlashDisplayObject Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance.
+---@field public removeChildAt fun(index:integer):FlashDisplayObject Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer.
+---@field public removeChildren fun(beginIndex:integer, endIndex:integer):void Removes all child DisplayObject instances from the child list of the DisplayObjectContainer instance.
+---@field public setChildIndex fun(child:FlashDisplayObject, index:integer):void Changes the position of an existing child in the display object container.
+---@field public swapChildren fun(child1:FlashDisplayObject, child2:FlashDisplayObject):void Swaps the z-order (front-to-back order) of the two specified child objects.
+---@field public swapChildrenAt fun(index1:integer, index2:integer):void Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list.
 
----@class FlashSprite:FlashInteractiveObject
----@field buttonMode boolean Specifies the button mode of this sprite.
----@field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
----@field soundTransform number Controls sound within this sprite.
----@field useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true.
+---@class FlashSprite:FlashDisplayObjectContainer
+---@field public buttonMode boolean Specifies the button mode of this sprite.
+---@field public graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
+---@field public soundTransform number Controls sound within this sprite.
+---@field public useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true.
 
 
 ---@class FlashMovieClip:FlashSprite
----@field currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
----@field currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
----@field currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
----@field enabled boolean A Boolean value that indicates whether a movie clip is enabled.
----@field framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
----@field isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
----@field totalFrames integer The total number of frames in the MovieClip instance. [read-only]
----@field trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events.
----@field gotoAndPlay fun(frame:FlashObject, scene:string):void Starts playing the SWF file at the specified frame.
----@field gotoAndStop fun(frame:FlashObject, scene:string):void Brings the playhead to the specified frame of the movie clip and stops it there.
----@field nextFrame fun():void Sends the playhead to the next frame and stops it.
----@field nextScene fun():void Moves the playhead to the next scene of the MovieClip instance.
----@field play fun():void Moves the playhead in the timeline of the movie clip.
----@field prevFrame fun():void Sends the playhead to the previous frame and stops it.
----@field prevScene fun():void Moves the playhead to the previous scene of the MovieClip instance.
----@field stop fun():void Stops the playhead in the movie clip.
+---@field public currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field public currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
+---@field public currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field public currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
+---@field public currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+---@field public scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
+---@field public enabled boolean A Boolean value that indicates whether a movie clip is enabled.
+---@field public framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
+---@field public isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
+---@field public totalFrames integer The total number of frames in the MovieClip instance. [read-only]
+---@field public trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events.
+---@field public gotoAndPlay fun(frame:FlashObject, scene:string):void Starts playing the SWF file at the specified frame.
+---@field public gotoAndStop fun(frame:FlashObject, scene:string):void Brings the playhead to the specified frame of the movie clip and stops it there.
+---@field public nextFrame fun():void Sends the playhead to the next frame and stops it.
+---@field public nextScene fun():void Moves the playhead to the next scene of the MovieClip instance.
+---@field public play fun():void Moves the playhead in the timeline of the movie clip.
+---@field public prevFrame fun():void Sends the playhead to the previous frame and stops it.
+---@field public prevScene fun():void Moves the playhead to the previous scene of the MovieClip instance.
+---@field public stop fun():void Stops the playhead in the movie clip.
 
 
 ---@class FlashMainTimeline:FlashMovieClip
----@field events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled.
----@field onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is "handled" and won't send events to other UI objects.
----@field onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is "handled" and won't send events to other UI objects.
----@field onEventResolution fun(width:number, height:number):void Invoked by the engine when the screen is resized.
----@field onEventInit fun():void Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call.
+---@field public events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled.
+---@field public onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is "handled" and won't send events to other UI objects.
+---@field public onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is "handled" and won't send events to other UI objects.
+---@field public onEventResolution fun(width:number, height:number):void Invoked by the engine when the screen is resized.
+---@field public onEventInit fun():void Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call.
 
 
 --- @class UIObject
 local UIObject = {}
 
---- @param self UIObject
 --- @param x integer
 --- @param y integer
-function UIObject.SetPosition (self, x, y) end
+function UIObject:SetPosition(x, y) end
     
---- @param self UIObject
 --- @param width integer
 --- @param height integer
-function UIObject.Resize (self, width, height) end
+function UIObject:Resize(width, height) end
     
---- @param self UIObject
-function UIObject.Show (self) end
+function UIObject:Show() end
     
---- @param self UIObject
-function UIObject.Hide (self) end
+function UIObject:Hide() end
     
 --- Calls a method on the main timeline object of the UI element. 
---- The first argument (func) is the name of the ActionScript function to call; 
+--- The first argument(func) is the name of the ActionScript function to call; 
 --- all subsequent arguments are passed to the ActionScript function as parameters. 
 --- Only string, number and boolean arguments are supported.
---- @param self UIObject
 --- @param method string Method to call
 --- @vararg any
-function UIObject.Invoke (self, method, ...) end
+function UIObject:Invoke(method, ...) end
     
 --- Simulates an ExternalInterface.call(...) call from Flash, 
 --- i.e. it calls an UI handler function in the game engine. 
---- The first argument (func) is the name of the UI function to call; 
+--- The first argument(func) is the name of the UI function to call; 
 --- all subsequent arguments are passed to the engine as parameters. 
 --- Only string, number and boolean arguments are supported.
---- @param self UIObject
 --- @param func string ExternalInterface function to call
 --- @vararg any
-function UIObject.ExternalInterfaceCall (self, func, ...) end
+function UIObject:ExternalInterfaceCall(func, ...) end
     
---- @param self UIObject
 --- @param frame integer
-function UIObject.GotoFrame (self, frame) end
+function UIObject:GotoFrame(frame) end
     
 --- Updates the specified public property of the main timeline object.
---- @param self UIObject
 --- @param property string Property path to set
 --- @param value number|boolean|string Value
 --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
-function UIObject.SetValue (self, property, value, arrayIndex) end
+function UIObject:SetValue(property, value, arrayIndex) end
     
 --- Retrieves the specified public property of the main timeline object. 
 --- "type" contains the type of value to retrieve and must be string, number or boolean.
---- @param self UIObject
 --- @param property string Property path to set
 --- @param type "'number'" | "'boolean'" | "'string'" | nil
 --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
 --- @return number|boolean|string
-function UIObject.GetValue (self, property, type, arrayIndex) end
+function UIObject:GetValue(property, type, arrayIndex) end
     
---- Returns the root (MainTimeline) Flash object
---- @param self UIObject
+--- Returns the root(MainTimeline) Flash object
 --- @return FlashMainTimeline
-function UIObject.GetRoot (self) end
+function UIObject:GetRoot() end
     
 --- Returns the engine UI type ID of the UI element
---- @param self UIObject
 --- @return integer
-function UIObject.GetTypeId (self) end
+function UIObject:GetTypeId() end
     
---- @param self UIObject
 --- @return ObjectHandle
-function UIObject.GetHandle (self) end
+function UIObject:GetHandle() end
     
 --- Returns the handle of the player that this UI element is assigned to.
---- (Only certain elements have a player assigned, like character sheet, inventory, etc.)
---- @param self UIObject
+---(Only certain elements have a player assigned, like character sheet, inventory, etc.)
 --- @return ObjectHandle|nil
-function UIObject.GetPlayerHandle (self) end
+function UIObject:GetPlayerHandle() end
     
---- @param self UIObject
-function UIObject.Destroy (self) end
+function UIObject:Destroy() end
 
---- Enables custom icon draw capture hooks.
---- @param self UIObject
-function UIObject.EnableCustomDraw (self) end
-    
---- Binds a texture atlas icon to a Flash custom draw element.
---- @param self UIObject
---- @param element string Name of custom draw object
---- @param icon string Icon name from texture atlas
---- @param width number Draw width
---- @param height number Draw height
-function UIObject.SetCustomIcon (self, element, icon, width, height) end
-    
+--- @param name string The draw call name for the movieclip. For instance, if the movieclip is iggy_luck, the name would be luck.
+--- @param icon string The icon atlas entry to use, such as statIcons_Lucky.
+--- @param width number The movieclip width.
+--- @param height number The movieclip height.
+function UIObject:SetCustomIcon(name, icon, width, height) end
+
 --- Removes the Flash custom draw element override applied by SetCustomIcon().
---- @param self UIObject
 --- @param element string Name of custom draw object
-function UIObject.ClearCustomIcon (self, element) end
-
+function UIObject:ClearCustomIcon (element) end
 
 --- @class EclPickingState
 --- @field public WorldPosition number[] Position of cursor in world coordinates
@@ -3711,7 +3596,6 @@ local SurfaceInteractionSet = {}
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
 --- @alias ExtGroundHitCallback fun(caster: EsvGameObject, position: number[], damageList: DamageList)
 --- @alias ExtInputEventCallback fun(event: InputEvent)
---- @alias UICallbackHandler fun(ui:UIObject, event:string):void
 
 --- @class Ext
 Ext = {
@@ -4413,9 +4297,11 @@ function Ext.PostMessageToUser (userId, channel, payload) end
 --- @param payload string Message payload
 function Ext.PostMessageToServer (channel, payload) end
 
+---@alias NetListenerCallback fun(channel:string, payload:string, user:integer|nil):void
+
 --- Registers a listener that is called when a network message is received on the specified channel
 --- @param channel string Network channel name
---- @param handler function Lua handler
+--- @param handler NetListenerCallback Lua handler
 function Ext.RegisterNetListener (channel, handler) end
 
 --- Registers a new dialog voice line for the specified speaker.
@@ -4492,9 +4378,11 @@ function Ext.DestroyUI (name) end
 --- @param flags integer UI elements to refresh
 function Ext.UISetDirty (character, flags) end
 
---- Enable/disable debug prints on Flash custom draw callbacks
---- @param enable bool
+--- Enable/disable debug prints on Flash custom draw callbacks. Useful if you need to see what icon names a UI is handling, for usage with UIObject:SetCustomIcon.
+--- @param enable boolean
 function Ext.UIEnableCustomDrawCallDebugging (enable) end
+
+---@alias UICallbackHandler fun(ui:UIObject, event:string, vararg any):void
 
 --- Registers a listener that is called when the specified function is called from Flash
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
