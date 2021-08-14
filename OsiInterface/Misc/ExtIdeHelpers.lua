@@ -6,6 +6,7 @@ Osi = {}
 --- From v52 onwards object handles are a type of userdata (lightuserdata) 
 --- instead of integers.
 --- @alias ObjectHandle userdata
+--- @alias StatusHandle userdata
 
 --- @class DamageItem
 --- @field DamageType string
@@ -18,32 +19,32 @@ local DamageList = {}
 --- Returns the amount of damage with the specified type
 --- @param damageType string DamageType enumeration
 --- @return integer
-function DamageList:GetByType (damageType) end
+function DamageList:GetByType(damageType) end
     
 --- Add damage
 --- @param damageType string DamageType enumeration
 --- @param amount integer
-function DamageList:Add (damageType, amount) end
+function DamageList:Add(damageType, amount) end
     
 --- Clear damage list.
 --- If damageType is specified it only removes damage items with the specified type.
 --- @param damageType string|nil DamageType enumeration
-function DamageList:Clear (damageType) end
+function DamageList:Clear(damageType) end
     
 --- Multiply every damage item with the specified value
 --- @param multiplier number
-function DamageList:Multiply (multiplier) end
+function DamageList:Multiply(multiplier) end
     
 --- Merge another DamageList into this list
 --- @param list DamageList List to merge
-function DamageList:Merge (list) end
+function DamageList:Merge(list) end
     
 --- Converts all damages to the specified type
 --- @param damageType string DamageType enumeration
-function DamageList:ConvertDamageType (damageType) end
+function DamageList:ConvertDamageType(damageType) end
     
 --- Aggregate all damage items with the same type
-function DamageList:AggregateSameTypeDamages () end
+function DamageList:AggregateSameTypeDamages() end
     
 --- Returns all damage items as a table
 --- @return DamageItem[]
@@ -78,37 +79,37 @@ local AiGrid = {}
 --- @param flags string[] AI flags to look for
 --- @param bias number Height bias
 --- @return boolean
-function AiGrid:SearchForCell (x, z, radius, flags, bias) end
+function AiGrid:SearchForCell(x, z, radius, flags, bias) end
 
 --- Returns the contents (game objects, surfaces, etc.) of the specified cell
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return table
-function AiGrid:GetCellInfo (x, z) end
+function AiGrid:GetCellInfo(x, z) end
 
 --- Returns the AI flags (navigation info, surface flags) of the specified cell
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return integer
-function AiGrid:GetAiFlags (x, z) end
+function AiGrid:GetAiFlags(x, z) end
 
 --- Updates the AI flags (navigation info) of the specified cell
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param flags integer AI flags
-function AiGrid:SetAiFlags (x, z, flags) end
+function AiGrid:SetAiFlags(x, z, flags) end
 
 --- Returns the height of the specified cell
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return number
-function AiGrid:GetHeight (x, z) end
+function AiGrid:GetHeight(x, z) end
 
 --- Updates the height of the specified cell
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param height number Cell height
-function AiGrid:SetHeight (x, z, height) end
+function AiGrid:SetHeight(x, z, height) end
 
 
 --- @class LevelDesc
@@ -219,12 +220,12 @@ local CharacterTemplate = {}
 --- Returns the list of visuals that can be selected for the specified slot
 --- @param slot string Slot name (HairHelmet, Head, Torso, Arms, Trousers, Boots, Beard, Visual8, Visual9)
 --- @return string[]
-function CharacterTemplate:GetVisualChoices (slot) end
+function CharacterTemplate:GetVisualChoices(slot) end
     
 --- Returns the list of colors that can be selected for the specified slot
 --- @param slot string Slot name (Skin, Hair, Cloth)
 --- @return number[]
-function CharacterTemplate:GetColorChoices (slot) end
+function CharacterTemplate:GetColorChoices(slot) end
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
@@ -378,7 +379,7 @@ function CharacterTemplate:GetColorChoices (slot) end
 --- @field Strength number
 --- @field StatsMultiplier number
 --- @field DamageSourceType string See CauseType enumeration
---- @field StatusHandle ObjectHandle
+--- @field StatusHandle StatusHandle
 --- @field TargetHandle ObjectHandle Handle of game object this status was applied to
 --- @field StatusSourceHandle ObjectHandle Handle of game object that caused this status
 ---
@@ -1447,42 +1448,42 @@ local EclItem = {}
 
 --- Returns all delta mods on the item
 --- @return string[]
-function EclItem:GetDeltaMods () end
+function EclItem:GetDeltaMods() end
 
 --- Returns the GUID of all items within the inventory of the item
 --- @return string[]
-function EclItem:GetInventoryItems () end
+function EclItem:GetInventoryItems() end
 
 --- Returns the GUID of character that currently owns the item; nil if the item is not in a character inventory
 --- @return string|nil
-function EclItem:GetOwnerCharacter () end
+function EclItem:GetOwnerCharacter() end
 
 --- Returns whether the item has the specified tag
 --- @param tag string
 --- @return boolean
-function EclItem:HasTag (tag) end
+function EclItem:HasTag(tag) end
 
 --- Returns all tags on the item
 --- @return string[]
-function EclItem:GetTags () end
+function EclItem:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclItem:GetStatus (statusId) end
+function EclItem:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclItem:GetStatusByType (type) end
+function EclItem:GetStatusByType(type) end
 
 --- Returns all statuses on the item
 --- @return string[]
-function EclItem:GetStatuses () end
+function EclItem:GetStatuses() end
 
 --- Returns all statuses on the item
 --- @return EclStatus[]
-function EclItem:GetStatusObjects () end
+function EclItem:GetStatusObjects() end
 
 
 
@@ -1508,48 +1509,48 @@ local EclCharacter = {}
 
 --- Returns the GUID of all items within the inventory of the character
 --- @return string[]
-function EclCharacter:GetInventoryItems () end
+function EclCharacter:GetInventoryItems() end
 
 --- Returns the item equipped in the specified slot
 --- @param slot string See ItemSlot enumeration
 --- @return EclItem|nil
-function EclCharacter:GetItemBySlot (slot) end
+function EclCharacter:GetItemBySlot(slot) end
 
 --- Returns whether the character has the specified tag
 --- @param tag string
 --- @return boolean
-function EclCharacter:HasTag (tag) end
+function EclCharacter:HasTag(tag) end
 
 --- Returns all tags on the character
 --- @return string[]
-function EclCharacter:GetTags () end
+function EclCharacter:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclCharacter:GetStatus (statusId) end
+function EclCharacter:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclCharacter:GetStatusByType (type) end
+function EclCharacter:GetStatusByType(type) end
 
 --- Returns all statuses on the character
 --- @return string[]
-function EclCharacter:GetStatuses () end
+function EclCharacter:GetStatuses() end
 
 --- Returns all statuses on the character
 --- @return EclStatus[]
-function EclCharacter:GetStatusObjects () end
+function EclCharacter:GetStatusObjects() end
 
 --- Update model scale of the character.
 --- @param scale number 
-function EclCharacter:SetScale (scale) end
+function EclCharacter:SetScale(scale) end
 
 --- Returns the value of the specified custom stat
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EclCharacter:GetCustomStat (statId) end
+function EclCharacter:GetCustomStat(statId) end
 
 
 
@@ -1648,43 +1649,43 @@ function EsvItem:GetGeneratedBoosts() end
 --- Updates the list of boosts that were added during treasure generation.
 --- The new boosts will only be applied after a save/reload!
 --- @param boosts string[]
-function EsvItem:SetGeneratedBoosts (boosts) end
+function EsvItem:SetGeneratedBoosts(boosts) end
 
 --- Returns the GUID of all items within the inventory of the item
 --- @return string[]
-function EsvItem:GetInventoryItems () end
+function EsvItem:GetInventoryItems() end
 
 --- Returns the GUID of all characters within the specified radius
 --- @param radius number
 --- @return string[]
-function EsvItem:GetNearbyCharacters (radius) end
+function EsvItem:GetNearbyCharacters(radius) end
 
 --- Returns whether the item has the specified tag
 --- @param tag string
 --- @return boolean
-function EsvItem:HasTag (tag) end
+function EsvItem:HasTag(tag) end
 
 --- Returns all tags on the item
 --- @return string[]
-function EsvItem:GetTags () end
+function EsvItem:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvItem:GetStatus (statusId) end
+function EsvItem:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvItem:GetStatusByType (type) end
+function EsvItem:GetStatusByType(type) end
 
 --- Returns all statuses on the item
 --- @return string[]
-function EsvItem:GetStatuses () end
+function EsvItem:GetStatuses() end
 
 --- Returns all statuses on the character
 --- @return EsvStatus[]
-function EsvItem:GetStatusObjects () end
+function EsvItem:GetStatusObjects() end
 
 
 
@@ -1721,7 +1722,7 @@ function EsvItem:GetStatusObjects () end
 local ItemDefinition = {}
 
 --- Clears item progression data (name group, level group, etc.)
-function ItemDefinition:ResetProgression () end
+function ItemDefinition:ResetProgression() end
 
 
 
@@ -1736,7 +1737,7 @@ local ItemConstructor = {}
 --- Constructs an instance of the item contained in the constructor definition.
 --- The definition is cleared after the item is created.
 --- @return EsvItem|nil
-function ItemConstructor:Construct () end
+function ItemConstructor:Construct() end
 
 
 
@@ -1758,19 +1759,18 @@ function ItemConstructor:Construct () end
 --- @field ReservedProfileID string
 --- @field AiPersonality string
 --- @field Speaker string
-local PlayerCustomData = {
-}
-
+local PlayerCustomData = {}
 
 --- @class EsvSkillInfo
 --- @field ActiveCooldown number
+--- @field CauseList StatusHandle[] Array of statuses handles granting this skill, if any. Use individual entries together with Ext.GetStatus.
 --- @field IsActivated boolean
 --- @field IsLearned boolean
 --- @field ZeroMemory boolean
 --- @field OncePerCombat boolean
 --- @field NumCharges number
+--- @see EsvCharacter#GetSkillInfo
 local EsvSkillInfo = {}
-
 
 --- @class EsvCharacter : EsvGameObject
 --- @field RootTemplate CharacterTemplate
@@ -1872,66 +1872,66 @@ local EsvCharacter = {}
 
 --- Returns the GUID of all items in the characters inventory
 --- @return string[]
-function EsvCharacter:GetInventoryItems () end
+function EsvCharacter:GetInventoryItems() end
 
 --- Returns detailed information about the specified skill
 --- @param skillId string
 --- @return EsvSkillInfo
-function EsvCharacter:GetSkillInfo (skillId) end
+function EsvCharacter:GetSkillInfo(skillId) end
 
 --- Returns the name of all skills available to the character
 --- @return string[]
-function EsvCharacter:GetSkills () end
+function EsvCharacter:GetSkills() end
 
 --- Returns the GUID of all characters within the specified radius
 --- @return string[]
-function EsvCharacter:GetNearbyCharacters (radius) end
+function EsvCharacter:GetNearbyCharacters(radius) end
 
 --- Returns the GUID of all summons owned by the character
 --- @return string[]
-function EsvCharacter:GetSummons () end
+function EsvCharacter:GetSummons() end
 
 --- Returns whether the character has the specified tag
 --- @param tag string
 --- @return boolean
-function EsvCharacter:HasTag (tag) end
+function EsvCharacter:HasTag(tag) end
 
 --- Returns all tags on the character
 --- @return string[]
-function EsvCharacter:GetTags () end
+function EsvCharacter:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvCharacter:GetStatus (statusId) end
+function EsvCharacter:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvCharacter:GetStatusByType (type) end
+function EsvCharacter:GetStatusByType(type) end
 
 --- Returns all statuses on the character
 --- @return string[]
-function EsvCharacter:GetStatuses () end
+function EsvCharacter:GetStatuses() end
 
 --- Returns all statuses on the character
 --- @return EsvStatus[]
-function EsvCharacter:GetStatusObjects () end
+function EsvCharacter:GetStatusObjects() end
 
 --- Update model scale of the character.
 --- NOTE: This change must be manually synchronized to the client!
 --- @param scale number 
-function EsvCharacter:SetScale (scale) end
+function EsvCharacter:SetScale(scale) end
 
 --- Returns the value of the specified custom stat
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EsvCharacter:GetCustomStat (statId) end
+function EsvCharacter:GetCustomStat(statId) end
 
 --- Updates the value of the specified custom stat
 --- @param statId string Custom stat UUID
 --- @param statValue number Stat value
-function EsvCharacter:SetCustomStat (statId, statValue) end
+function EsvCharacter:SetCustomStat(statId, statValue) end
 
 
 
@@ -3338,11 +3338,11 @@ local EsvCombat = {}
 
 --- Retrieves the turn order of the current round.
 --- @return EsvCombatTeam[]
-function EsvCombat:GetCurrentTurnOrder () end
+function EsvCombat:GetCurrentTurnOrder() end
     
 --- Retrieves the turn order of the next round.
 --- @return EsvCombatTeam[]
-function EsvCombat:GetNextTurnOrder () end
+function EsvCombat:GetNextTurnOrder() end
 
 --- Updates the turn order of the current round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetCurrentTurnOrder().
@@ -3353,7 +3353,7 @@ function EsvCombat:GetNextTurnOrder () end
 ---    This only applies for GetCurrentTurnOrder, the first item can be freely reordered in GetNextTurnOrder.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat:UpdateCurrentTurnOrder (turnOrder) end
+function EsvCombat:UpdateCurrentTurnOrder(turnOrder) end
     
 --- Updates the turn order of the next round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetNextTurnOrder().
@@ -3362,11 +3362,11 @@ function EsvCombat:UpdateCurrentTurnOrder (turnOrder) end
 ---  It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat:UpdateNextTurnOrder (turnOrder) end
+function EsvCombat:UpdateNextTurnOrder(turnOrder) end
     
 --- Retrieves all participants of the combat
 --- @return EsvCombatTeam[]
-function EsvCombat:GetAllTeams () end
+function EsvCombat:GetAllTeams() end
 
 
 --- @class FlashObject
@@ -3558,7 +3558,7 @@ function UIObject:SetCustomIcon(name, icon, width, height) end
 
 --- Removes the Flash custom draw element override applied by SetCustomIcon().
 --- @param element string Name of custom draw object
-function UIObject:ClearCustomIcon (element) end
+function UIObject:ClearCustomIcon(element) end
 
 --- @class EclPickingState
 --- @field WorldPosition number[] Position of cursor in world coordinates
@@ -3575,7 +3575,6 @@ function UIObject:ClearCustomIcon (element) end
 --- @class SurfaceInteractionSet
 --- @field TransformType string Surface transform to apply (Bless, Curse, Ignite, ...)
 --- @field ActionableSurfaces string[][] Surface types that this transform applies to
-local SurfaceInteractionSet = {}
 
 
 --- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'" | "'InputEvent'"
@@ -3830,21 +3829,21 @@ Ext = {
 
 --- Returns the version number of the Osiris Extender
 --- @return integer
-function Ext.Version () end
+function Ext.Version() end
 
 --- Returns the version number of the game
 --- @return string
-function Ext.GameVersion () end
+function Ext.GameVersion() end
 
 --- Loads the specified Lua file
 --- @param modGuid string GUID of the module containing the Lua file
 --- @param fileName string Path of Lua file, relative to Mods/<Mod>/Story/RawFiles/Lua
-function Ext.Require (modGuid, fileName) end
+function Ext.Require(modGuid, fileName) end
 
 --- Registers a function to call when an extender event is thrown
 --- @param event ExtEngineEvent Event to listen for
 --- @param callback function Lua function to run when the event fires
-function Ext.RegisterListener (event, callback) end
+function Ext.RegisterListener(event, callback) end
 
 --- Registers a function that is called when certain Osiris functions are called.
 --- Supports events, built-in queries, DBs, PROCs, QRYs (user queries).
@@ -3852,178 +3851,181 @@ function Ext.RegisterListener (event, callback) end
 --- @param arity number Number of columns for DBs or the number of parameters (both IN and OUT) for functions
 --- @param event string Event type ('before' - triggered before Osiris call; 'after' - after Osiris call; 'beforeDelete'/'afterDelete' - before/after delete from DB)
 --- @param handler function Lua function to run when the event fires
-function Ext.RegisterOsirisListener (name, arity, event, handler) end
+function Ext.RegisterOsirisListener(name, arity, event, handler) end
 
 --- Registers a new call in Osiris
 --- @param func function Function to register
 --- @param funcName string Name of call to register
 --- @param arguments string Call argument list
-function Ext.NewCall (func, funcName, arguments) end
+function Ext.NewCall(func, funcName, arguments) end
 
 --- Registers a new query in Osiris
 --- @param func function Function to register
 --- @param funcName string Name of query to register
 --- @param arguments string Query argument list
-function Ext.NewQuery (func, funcName, arguments) end
+function Ext.NewQuery(func, funcName, arguments) end
 
 --- Registers a new event in Osiris
 --- @param funcName string Name of event to register
 --- @param arguments string Event argument list
-function Ext.NewEvent (funcName, arguments) end
+function Ext.NewEvent(funcName, arguments) end
 
 --- Print to console window and editor messages pane
-function Ext.Print (...) end
+--- @vararg any
+function Ext.Print(...) end
 
 --- Print warning to console window and editor messages pane
-function Ext.PrintWarning (...) end
+--- @vararg any
+function Ext.PrintWarning(...) end
 
 --- Print error to console window and editor messages pane
-function Ext.PrintError (...) end
+--- @vararg any
+function Ext.PrintError(...) end
 
 --- Parse a JSON document into a Lua object
 --- @param json string JSON string to parse
 --- @return any
-function Ext.JsonParse (json) end
+function Ext.JsonParse(json) end
 
 --- Converts a Lua value into a JSON document
 --- @param val any Value to serialize
 --- @return string JSON document
-function Ext.JsonStringify (val) end
+function Ext.JsonStringify(val) end
 
 --- Returns whether the specified mod is loaded
 --- @param modGuid string GUID of the module
 --- @return boolean
-function Ext.IsModLoaded (modGuid) end
+function Ext.IsModLoaded(modGuid) end
 
 --- Returns the list of loaded modules in load order
 --- @return string[]
-function Ext.GetModLoadOrder () end
+function Ext.GetModLoadOrder() end
 
 --- Returns detailed information about the specified (loaded) module
 --- @param modGuid string GUID of the module
 --- @return ModInfo
-function Ext.GetModInfo (modGuid) end
+function Ext.GetModInfo(modGuid) end
 
 --- Returns the list of loaded stat entries
 --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
 --- @return string[]
-function Ext.GetStatEntries (type) end
+function Ext.GetStatEntries(type) end
 
 --- Returns the list of stat entries that were loaded before the specified mod
 --- @param modGuid string Mod GUID to check
 --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
 --- @return string[]
-function Ext.GetStatEntriesLoadedBefore (modId, type) end
+function Ext.GetStatEntriesLoadedBefore(modId, type) end
 
 --- Returns an attribute of the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Stat attribute name
 --- @return any
-function Ext.StatGetAttribute (stat, attribute) end
+function Ext.StatGetAttribute(stat, attribute) end
 
 --- Updates an attribute of the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Stat attribute name
 --- @param value any New stat value
-function Ext.StatSetAttribute (stat, attribute, value) end
+function Ext.StatSetAttribute(stat, attribute, value) end
 
 --- Adds a property description to the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Property list attribute name
 --- @param description any Description to add
-function Ext.StatAddCustomDescription (stat, attribute, description) end
+function Ext.StatAddCustomDescription(stat, attribute, description) end
 
 --- Returns all skills from the specified skill set
 --- @param name string Name of skill set entry
 --- @return StatSkillSet|nil
-function Ext.GetSkillSet (name) end
+function Ext.GetSkillSet(name) end
 
 --- Updates all properties of the specified skill set.
 --- The function expects a table in the same format as the one returned by GetSkillSet.
 --- @param skillSet StatSkillSet
-function Ext.UpdateSkillSet (skillSet) end
+function Ext.UpdateSkillSet(skillSet) end
 
 --- Returns all equipment from the specified equipment set
 --- @param name string Name of equipment set entry
 --- @return StatEquipmentSet|nil
-function Ext.GetEquipmentSet (name) end
+function Ext.GetEquipmentSet(name) end
 
 --- Updates all properties of the specified equipment set.
 --- The function expects a table in the same format as the one returned by GetEquipmentSet.
 --- @param equipmentSet StatEquipmentSet
-function Ext.UpdateEquipmentSet (equipmentSet) end
+function Ext.UpdateEquipmentSet(equipmentSet) end
 
 --- Returns the specified DeltaMod or nil on failure
 --- @param name string Name of delta mod
 --- @param modifierType string Modifier type (Armor/Weapon)
 --- @return DeltaMod
-function Ext.GetDeltaMod (name, modifierType) end
+function Ext.GetDeltaMod(name, modifierType) end
 
 --- Updates all properties of the specified DeltaMod.
 --- The function expects a table in the same format as the one returned by GetDeltaMod.
 --- @param deltaMod DeltaMod Name of delta mod
-function Ext.UpdateDeltaMod (deltaMod) end
+function Ext.UpdateDeltaMod(deltaMod) end
 
 --- Returns the specified crafting item combination or nil on failure
 --- @param name string Name of item combo
 --- @return ItemCombo|nil
-function Ext.GetItemCombo (name) end
+function Ext.GetItemCombo(name) end
 
 --- Updates all properties of the specified item combination.
 --- The function expects a table in the same format as the one returned by GetItemCombo.
 --- @param itemCombo ItemCombo
-function Ext.UpdateItemCombo (itemCombo) end
+function Ext.UpdateItemCombo(itemCombo) end
 
 --- Returns the specified crafting preview data or nil on failure
 --- @param name string Name of item combo preview data
 --- @return ItemComboPreviewData|nil
-function Ext.GetItemComboPreviewData (name) end
+function Ext.GetItemComboPreviewData(name) end
 
 --- Updates all properties of the specified item combo preview.
 --- The function expects a table in the same format as the one returned by GetItemComboPreviewData.
 --- @param previewData ItemComboPreviewData
-function Ext.UpdateItemComboPreviewData (previewData) end
+function Ext.UpdateItemComboPreviewData(previewData) end
 
 --- Returns the specified crafting property or nil on failure
 --- @param name string Name of item combo property
 --- @return ItemComboProperty|nil
-function Ext.GetItemComboProperty (name) end
+function Ext.GetItemComboProperty(name) end
 
 --- Updates all properties of the specified item combo property.
 --- The function expects a table in the same format as the one returned by GetItemComboProperty.
 --- @param itemComboProperty ItemComboProperty
-function Ext.UpdateItemComboProperty (itemComboProperty) end
+function Ext.UpdateItemComboProperty(itemComboProperty) end
 
 --- Returns the specified treasure table or nil on failure
 --- @param name string Name of treasure table
 --- @return StatTreasureTable|nil
-function Ext.GetTreasureTable (name) end
+function Ext.GetTreasureTable(name) end
 
 --- Updates all properties of the specified treasure table.
 --- The function expects a table in the same format as the one returned by GetTreasureTable.
 --- @param treasureTable StatTreasureTable
-function Ext.UpdateTreasureTable (treasureTable) end
+function Ext.UpdateTreasureTable(treasureTable) end
 
 --- Returns the specified treasure category or nil on failure
 --- @param name string Name of treasure category
 --- @return StatTreasureCategory|nil
-function Ext.GetTreasureCategory (name) end
+function Ext.GetTreasureCategory(name) end
 
 --- Updates all properties of the specified treasure category.
 --- The function expects a table in the same format as the one returned by GetTreasureCategory.
 --- @param name string Name of treasure category
 --- @param treasureCategory StatTreasureCategory
-function Ext.UpdateTreasureCategory (name, treasureCategory) end
+function Ext.UpdateTreasureCategory(name, treasureCategory) end
 
 --- Returns the specified item progression item group or nil on failure
 --- @param name string Name of item group
 --- @return ItemGroup|nil
-function Ext.GetItemGroup (name) end
+function Ext.GetItemGroup(name) end
 
 --- Returns the specified item progression name group or nil on failure
 --- @param name string Name of name group
 --- @return ItemNameGroup|nil
-function Ext.GetNameGroup (name) end
+function Ext.GetNameGroup(name) end
 
 --- Registers a new skill property that can be triggered via SkillProperties
 --- Stat syntax: data "SkillProperties" "EXT:<PROPERTY_NAME>[,<int>,<int>,<string>,<int>,<int>]"
@@ -4032,49 +4034,49 @@ function Ext.GetNameGroup (name) end
 --- Conditions for EXT: properties (i.e. "IF(COND):") are _NOT YET_ supported.
 --- @param channel string Skill property name
 --- @param defn CustomSkillProperty Event handlers for the skill property
-function Ext.RegisterSkillProperty (name, defn) end
+function Ext.RegisterSkillProperty(name, defn) end
 
 --- Replaces level scaling formula for the specified stat
 --- @param statType string Stat entry type
 --- @param attribute string Stat attribute name
 --- @param func function Replacement scaling function
-function Ext.StatSetLevelScaling (statType, attribute, func) end
+function Ext.StatSetLevelScaling(statType, attribute, func) end
 
 --- Returns the property proxy of the specified stats entry
 --- Returns level scaled values if the level parameter is not nil.
 --- @param stat string Stat entry name
 --- @param level integer|nil Level scaling level
 --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
-function Ext.GetStat (stat, level) end
+function Ext.GetStat(stat, level) end
 
 --- Creates a new stats entry on the server
 --- @param name string Stat entry name
 --- @param type string Stat entry type (i.e. SkillData, StatusData, etc.)
 --- @param template string|nil When not nil, all properties are copied from the specified stats entry
 --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
-function Ext.CreateStat (name, type, template) end
+function Ext.CreateStat(name, type, template) end
 
 --- Synchronizes all modifications of the specified stat to all clients
 --- @param name string Stat entry name
 --- @param persist boolean|nil Persist stats entry to savegame?
-function Ext.SyncStat (name, persist) end
+function Ext.SyncStat(name, persist) end
 
 --- Toggles whether the specified stats entry should be persisted to savegames
 --- @param name string Stat entry name
 --- @param persist boolean Persist stats entry to savegame?
-function Ext.StatSetPersistence (name, persist) end
+function Ext.StatSetPersistence(name, persist) end
 
 --- Returns the textual label assigned to the specified enumeration value
 --- @param enum string Engine enumeration name
 --- @param index number Value index to look up
 --- @return string|nil
-function Ext.EnumIndexToLabel (enum, index) end
+function Ext.EnumIndexToLabel(enum, index) end
 
 --- Returns the numeric index assigned to the specified enumeration label
 --- @param enum string Engine enumeration name
 --- @param label string Value name to look for
 --- @return number|nil
-function Ext.EnumLabelToIndex (enum, label) end
+function Ext.EnumLabelToIndex(enum, label) end
 
 -- Execute the SkillProperties of the specified skill on a target character.
 --- @param skillId string Stats skill ID
@@ -4096,72 +4098,72 @@ function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radiu
 
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
-function Ext.GetSurfaceTransformRules () end
+function Ext.GetSurfaceTransformRules() end
 
 --- Returns the surface template for the specified surface type
 --- @param type string See SurfaceType enumeration
 --- @return SurfaceTemplate
-function Ext.GetSurfaceTemplate (type) end
+function Ext.GetSurfaceTemplate(type) end
 
 --- Updates the transformation rules that are applied when two neighbouring surfaces interact.
 --- @param rules SurfaceInteractionSet[][] New rules to apply
-function Ext.UpdateSurfaceTransformRules (rules) end
+function Ext.UpdateSurfaceTransformRules(rules) end
 
 --- Prepares a new surface action for execution
 --- @param type string Surface action type
 --- @return EsvSurfaceAction
-function Ext.CreateSurfaceAction (type) end
+function Ext.CreateSurfaceAction(type) end
 
 --- Executes a surface action
 --- @param action EsvSurfaceAction Action to execute
-function Ext.ExecuteSurfaceAction (action) end
+function Ext.ExecuteSurfaceAction(action) end
 
 --- CAncels a surface action
 --- @param actionHandle integer Action to cancel
-function Ext.CancelSurfaceAction (actionHandle) end
+function Ext.CancelSurfaceAction(actionHandle) end
 
 --- Starts creating a new item using template GUID or cloning an existing item.
 --- @param from EsvItem|string Template GUID or item to clone
 --- @param recursive boolean|nil Copy items in container? (cloning only)
 --- @return ItemConstructor
-function Ext.CreateItemConstructor (from, recursive) end
+function Ext.CreateItemConstructor(from, recursive) end
 
 --- Begin applying a status on the specified character or item.
 --- @param target string|ObjectHandle Target character/item
 --- @param statusId string Status ID to apply
 --- @param lifeTime number Status lifetime (-1 = infinite, -2 = keep alive)
 --- @return EsvStatus|nil
-function Ext.PrepareStatus (target, statusId, lifeTime) end
+function Ext.PrepareStatus(target, statusId, lifeTime) end
 
 --- Finish applying a status on the specified character or item.
 --- @param status EsvStatus Status to apply
-function Ext.ApplyStatus (status) end
+function Ext.ApplyStatus(status) end
 
 --- Returns a table containing the UUID of all registered custom stat definitions
 --- @return string[]
-function Ext.GetAllCustomStats () end
+function Ext.GetAllCustomStats() end
 
 --- Retrieve a custom stat definition by name
 --- @param statName string Custom stat name to look for
 --- @return CustomStatDefinition|nil
-function Ext.GetCustomStatByName (statName) end
+function Ext.GetCustomStatByName(statName) end
 
 --- Retrieve a custom stat definition by id
 --- @param statId string Custom stat UUID to look for
 --- @return CustomStatDefinition|nil
-function Ext.GetCustomStatById (statId) end
+function Ext.GetCustomStatById(statId) end
 
 --- Create a new custom stat definition
 --- @param name string Custom stat name
 --- @param description string Custom stat description
 --- @return string|nil Custom stat UUID
-function Ext.CreateCustomStat (name, description) end
+function Ext.CreateCustomStat(name, description) end
 
 --- Returns the GUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllCharacters (level) end
+function Ext.GetAllCharacters(level) end
 
 --- Returns the GUID of all characters within a radius around the specified point.
 --- @param x number
@@ -4169,13 +4171,13 @@ function Ext.GetAllCharacters (level) end
 --- @param z number
 --- @param distance number
 --- @return string[]
-function Ext.GetCharactersAroundPosition (x, y, z, distance) end
+function Ext.GetCharactersAroundPosition(x, y, z, distance) end
 
 --- Returns the GUID of all items on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllItems (level) end
+function Ext.GetAllItems(level) end
 
 --- Returns the GUID of all items within a radius around the specified point.
 --- @param x number
@@ -4183,204 +4185,204 @@ function Ext.GetAllItems (level) end
 --- @param z number
 --- @param distance number
 --- @return string[]
-function Ext.GetItemsAroundPosition (x, y, z, distance) end
+function Ext.GetItemsAroundPosition(x, y, z, distance) end
 
 --- Returns the GUID of all triggers on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllTriggers (level) end
+function Ext.GetAllTriggers(level) end
 
 --- Returns the property proxy of the specified character
 --- @param id string|integer|ObjectHandle Character GUID or handle or NetID
 --- @return EsvCharacter|EclCharacter
-function Ext.GetCharacter (id) end
+function Ext.GetCharacter(id) end
 
 --- Returns the property proxy of the specified item
 --- @param id string|integer|ObjectHandle Item GUID or handle or NetID
 --- @return EsvItem|EclCharacter
-function Ext.GetItem (id) end
+function Ext.GetItem(id) end
 
 --- Returns the property proxy of the specified trigger (server only)
 --- @param id string|ObjectHandle Trigger GUID or handle
 --- @return EsvTrigger
-function Ext.GetTrigger (id) end
+function Ext.GetTrigger(id) end
 
 --- Returns the property proxy of the specified character, item, projectile or trigger
 --- @param handle ObjectHandle Game object handle
 --- @return EsvGameObject|EclGameObject
-function Ext.GetGameObject (handle) end
+function Ext.GetGameObject(handle) end
 
 --- Returns the property proxy of the specified surface
 --- @param handle ObjectHandle Surface handle
 --- @return EsvSurface
-function Ext.GetSurface (handle) end
+function Ext.GetSurface(handle) end
 
 --- Returns the property proxy of the specified status
 --- @param character string|integer|ObjectHandle Character GUID or handle or NetID
---- @param handle integer|ObjectHandle Status handle or NetID
+--- @param handle integer|StatusHandle Status handle or NetID
 --- @return EsvStatus
-function Ext.GetStatus (character, handle) end
+function Ext.GetStatus(character, handle) end
 
 --- Returns the specified turn-based combat
 --- @param combatId integer Combat ID
 --- @return EsvCombat
-function Ext.GetCombat (combatId) end
+function Ext.GetCombat(combatId) end
 
 --- Returns the AI grid for the currently active level
 --- @return AiGrid
-function Ext.GetAiGrid () end
+function Ext.GetAiGrid() end
 
 --- Returns information about the currently active level
 --- @return LevelDesc
-function Ext.GetCurrentLevelData () end
+function Ext.GetCurrentLevelData() end
 
 --- Creates a new damage list object
 --- @return DamageList
-function Ext.NewDamageList () end
+function Ext.NewDamageList() end
 
 --- Returns whether Osiris is currently accessible or not.
 --- @return boolean
-function Ext.OsirisIsCallable () end
+function Ext.OsirisIsCallable() end
 
 --- Returns a random number; equivalent to Lua random
 --- @param low integer
 --- @param up integer
 --- @return integer|number
-function Ext.Random (low, up) end
+function Ext.Random(low, up) end
 
 --- Rounds the specified number
 --- @param n number
 --- @return number
-function Ext.Round (n) end
+function Ext.Round(n) end
 
 --- Generate Lua IDE helpers for the currently loaded module
 --- @param builtin boolean|nil Only export built-in functions and names exported by Lua?
-function Ext.GenerateIdeHelpers (builtin) end
+function Ext.GenerateIdeHelpers(builtin) end
 
 --- Returns whether the code is executing in a client context
 --- @return boolean
-function Ext.IsClient () end
+function Ext.IsClient() end
 
 --- Returns whether the code is executing in a server context
 --- @return boolean
-function Ext.IsServer () end
+function Ext.IsServer() end
 
 --- Returns whether the Developer Mode switch is enabled
 --- @return boolean
-function Ext.IsDeveloperMode () end
+function Ext.IsDeveloperMode() end
 
 --- Returns the current client/server game state machine state.
 --- @return string
-function Ext.GetGameState () end
+function Ext.GetGameState() end
 
 --- Broadcast a message to all peers
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
 --- @param excludeCharacter string|nil Optional peer to exclude from broadcast
-function Ext.BroadcastMessage (channel, payload, excludeCharacter) end
+function Ext.BroadcastMessage(channel, payload, excludeCharacter) end
 
 --- Sends a message to the peer that controls the specified character
 --- @param characterGuid string Character that will receive the message
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToClient (characterGuid, channel, payload) end
+function Ext.PostMessageToClient(characterGuid, channel, payload) end
 
 --- Sends a message to the specified peer
 --- @param userId number User that will receive the message
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToUser (userId, channel, payload) end
+function Ext.PostMessageToUser(userId, channel, payload) end
 
 --- Sends a message to the server
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToServer (channel, payload) end
+function Ext.PostMessageToServer(channel, payload) end
 
 ---@alias NetListenerCallback fun(channel:string, payload:string, user:integer|nil):void
 
 --- Registers a listener that is called when a network message is received on the specified channel
 --- @param channel string Network channel name
 --- @param handler NetListenerCallback Lua handler
-function Ext.RegisterNetListener (channel, handler) end
+function Ext.RegisterNetListener(channel, handler) end
 
 --- Registers a new dialog voice line for the specified speaker.
 --- @param speakerGuid string Speaker character UUID
 --- @param textKey string Translated string key of text line
 --- @param path string Path to audio .WEM
 --- @param length number Length of audio in seconds
-function Ext.AddVoiceMetaData (speakerGuid, textKey, path, length) end
+function Ext.AddVoiceMetaData(speakerGuid, textKey, path, length) end
 
 --- @param handle string Translated string handle
 --- @param fallback string Fallback string if the specified handle is not found
 --- @return string Translated string
-function Ext.GetTranslatedString (handle, fallback) end
+function Ext.GetTranslatedString(handle, fallback) end
 
 --- @param key string Translated string key
 --- @return string,string Translated string and handle
-function Ext.GetTranslatedStringFromKey (key) end
+function Ext.GetTranslatedStringFromKey(key) end
 
 --- @param key string Translated string key
 --- @param handle string Translated string handle
 --- @return boolean
-function Ext.CreateTranslatedStringKey (key, handle) end
+function Ext.CreateTranslatedStringKey(key, handle) end
 
 --- @param handle string Translated string handle
 --- @param text string Display text
 --- @return boolean
-function Ext.CreateTranslatedStringHandle (handle, text) end
+function Ext.CreateTranslatedStringHandle(handle, text) end
 
 --- @param key string Translated string key
 --- @param text string Display text
 --- @return string|nil Created string handle
-function Ext.CreateTranslatedString (key, text) end
+function Ext.CreateTranslatedString(key, text) end
 
 --- Redirects all file accesses to the specified path to another file.
 --- @param path string Original path
 --- @param newPath string New (redirected) path
-function Ext.AddPathOverride (path, newPath) end
+function Ext.AddPathOverride(path, newPath) end
 
 --- Returns whether the specified path is currently redirected to another path.
 --- @param path string Original path
 --- @return string|nil Overridden path
-function Ext.GetPathOverride (path) end
+function Ext.GetPathOverride(path) end
 
 --- Constructs a new Flash UI element
 --- @param name string User-defined unique name that identifies the UI element
 --- @param path string Path of the SWF file relative to the data directory
 --- @param layer integer Stack order of the UI element
 --- @return UIObject|nil
-function Ext.CreateUI (name, path, layer) end
+function Ext.CreateUI(name, path, layer) end
 
 --- Retrieves an UI element with the specified name
 --- @param name string User-defined unique name that identifies the UI element
 --- @return UIObject|nil
-function Ext.GetUI (name) end
+function Ext.GetUI(name) end
 
 --- Retrieves a built-in UI element at the specified path.
 --- If no such element exists, the function returns nil.
 --- @param path string UI SWF path relative to Data\
 --- @return UIObject|nil
-function Ext.GetBuiltinUI (path) end
+function Ext.GetBuiltinUI(path) end
 
 --- Retrieves an engine UI element with the specified engine type ID.
 --- If no such element exists, the function returns nil.
 --- @param typeId number Engine UI element type ID
 --- @return UIObject|nil
-function Ext.GetUIByType (typeId) end
+function Ext.GetUIByType(typeId) end
 
 --- Destroys the specified UI element
 --- @param name string User-defined unique name that identifies the UI element
-function Ext.DestroyUI (name) end
+function Ext.DestroyUI(name) end
 
 --- Refresh the UI of the specified character
 --- @param character ObjectHandle Handle of character
 --- @param flags integer UI elements to refresh
-function Ext.UISetDirty (character, flags) end
+function Ext.UISetDirty(character, flags) end
 
 --- Enable/disable debug prints on Flash custom draw callbacks. Useful if you need to see what icon names a UI is handling, for usage with UIObject:SetCustomIcon.
 --- @param enable boolean
-function Ext.UIEnableCustomDrawCallDebugging (enable) end
+function Ext.UIEnableCustomDrawCallDebugging(enable) end
 
 ---@alias UICallbackHandler fun(ui:UIObject, event:string, vararg any):void
 
@@ -4389,7 +4391,7 @@ function Ext.UIEnableCustomDrawCallDebugging (enable) end
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUICall (object, name, handler, type) end
+function Ext.RegisterUICall(object, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered for every UI element with the specified type ID.
@@ -4397,7 +4399,7 @@ function Ext.RegisterUICall (object, name, handler, type) end
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUITypeCall (typeId, name, handler, type) end
+function Ext.RegisterUITypeCall(typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered regardless of which UI element it was called on.
@@ -4405,14 +4407,14 @@ function Ext.RegisterUITypeCall (typeId, name, handler, type) end
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUINameCall (name, handler, type) end
+function Ext.RegisterUINameCall(name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUIInvokeListener (object, name, handler, type) end
+function Ext.RegisterUIInvokeListener(object, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered for every UI element with the specified type ID.
@@ -4420,61 +4422,61 @@ function Ext.RegisterUIInvokeListener (object, name, handler, type) end
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUITypeInvokeListener (typeId, name, handler, type) end
+function Ext.RegisterUITypeInvokeListener(typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered regardless of which UI element it was called on.
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUINameInvokeListener (name, handler, type) end
+function Ext.RegisterUINameInvokeListener(name, handler, type) end
 
 --- Registers a listener that is called when a console command is entered in the dev console
 --- @param cmd string Console command
 --- @param handler function Lua handler
-function Ext.RegisterConsoleCommand (cmd, handler) end
+function Ext.RegisterConsoleCommand(cmd, handler) end
 
 --- Write data to an external (persistent) file
 --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
 --- @param contents string File contents to write
-function Ext.SaveFile (path, contents) end
+function Ext.SaveFile(path, contents) end
 
 --- Read data from an external (persistent) file
 --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
 --- @param context string|nil Path context (nil or "user" means relative to the Osiris Data directory; "data" means relative to game data path)
 --- @return string File contents
-function Ext.LoadFile (path, context) end
+function Ext.LoadFile(path, context) end
 
 --- Returns a monotonic value representing the current time in milliseconds.
 --- Useful for performance measurements / measuring real world time.
 --- (Note: This value is not synchronized between peers and different clients may report different time values!)
 --- @return number Time
-function Ext.MonotonicTime () end
+function Ext.MonotonicTime() end
 
 --- Returns whether the player has a compatible Script Extender version installed
 --- @param playerGuid string GUID of player character
 --- @return boolean
-function Ext.PlayerHasExtender (playerGuid) end
+function Ext.PlayerHasExtender(playerGuid) end
 
 --- Returns information about current mouse position and hovered objects
 --- @return EclPickingState
-function Ext.GetPickingState () end
+function Ext.GetPickingState() end
 
 --- Triggers a breakpoint in the Lua debugger.
 --- If no debugger is connected, the function does nothing.
-function Ext.DebugBreak () end
+function Ext.DebugBreak() end
 
 --- Handle to double conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
---- @param handle ObjectHandle Handle to cast
+--- @param handle ObjectHandle|StatusHandle Handle to cast
 --- @return number Double handle
-function Ext.HandleToDouble (handle) end
+function Ext.HandleToDouble(handle) end
 
 --- Double to handle conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
 --- @param handle number Double handle to cast
---- @return ObjectHandle Handle
-function Ext.DoubleToHandle (handle) end
+--- @return ObjectHandle|StatusHandle
+function Ext.DoubleToHandle(handle) end
 
 Ext.Audio = {}
 
@@ -4483,49 +4485,49 @@ Ext.Audio = {}
 --- @param switchGroup string Switch group name
 --- @param state string Switch state
 --- @return boolean
-function Ext.Audio.SetSwitch (gameObject, switchGroup, state) end
+function Ext.Audio.SetSwitch(gameObject, switchGroup, state) end
 
 --- Set audio state
 --- @param stateGroup string State group name
 --- @param state string State
 --- @return boolean
-function Ext.Audio.SetState (stateGroup, state) end
+function Ext.Audio.SetState(stateGroup, state) end
 
 --- Set real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter name
 --- @param value number Parameter value
 --- @return boolean
-function Ext.Audio.SetRTPC (gameObject, rtpc, value) end
+function Ext.Audio.SetRTPC(gameObject, rtpc, value) end
 
 --- Reset real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter Name
 --- @return boolean
-function Ext.Audio.ResetRTPC (gameObject, rtpc) end
+function Ext.Audio.ResetRTPC(gameObject, rtpc) end
 
 --- Get real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter name
 --- @return number
-function Ext.Audio.GetRTPC (gameObject, rtpc) end
+function Ext.Audio.GetRTPC(gameObject, rtpc) end
 
 --- Stop audio
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
-function Ext.Audio.Stop (gameObject) end
+function Ext.Audio.Stop(gameObject) end
 
 --- Pause audio playback
-function Ext.Audio.PauseAllSounds () end
+function Ext.Audio.PauseAllSounds() end
 
 --- Resume audio playback
-function Ext.Audio.ResumeAllSounds () end
+function Ext.Audio.ResumeAllSounds() end
 
 --- Trigger an audio event
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param eventName string Event to trigger
 --- @param positionSec number|nil Position in audio track
 --- @return boolean
-function Ext.Audio.PostEvent (gameObject, eventName, positionSec) end
+function Ext.Audio.PostEvent(gameObject, eventName, positionSec) end
 
 --- Trigger an audio event using an external audio file
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
@@ -4533,4 +4535,4 @@ function Ext.Audio.PostEvent (gameObject, eventName, positionSec) end
 --- @param path string Audio file path (relative to data directory)
 --- @param codecId integer Codec ID
 --- @return boolean
-function Ext.Audio.PlayExternalSound (gameObject, eventName, path, codecId) end
+function Ext.Audio.PlayExternalSound(gameObject, eventName, path, codecId) end
