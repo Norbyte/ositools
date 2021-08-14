@@ -4322,12 +4322,12 @@ function Ext.GetTranslatedStringFromKey (key) end
 
 --- @param key string Translated string key
 --- @param handle string Translated string handle
---- @return bool
+--- @return boolean
 function Ext.CreateTranslatedStringKey (key, handle) end
 
 --- @param handle string Translated string handle
 --- @param text string Display text
---- @return bool
+--- @return boolean
 function Ext.CreateTranslatedStringHandle (handle, text) end
 
 --- @param key string Translated string key
