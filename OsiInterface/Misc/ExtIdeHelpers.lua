@@ -1552,15 +1552,12 @@ function EclCharacter:SetScale(scale) end
 --- @return number Stat value
 function EclCharacter:GetCustomStat(statId) end
 
-
-
 --- @class EsvGameObject
 --- @field NetID integer
 --- @field MyGuid string
 --- TODO - Add more properties via virtual getters?
 --- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
 local EsvGameObject = {}
-
 
 --- @class EsvItem : EsvGameObject
 --- @field Handle ObjectHandle
@@ -4209,7 +4206,7 @@ function Ext.GetItem(id) end
 function Ext.GetTrigger(id) end
 
 --- Returns the property proxy of the specified character, item, projectile or trigger
---- @param handle ObjectHandle Game object handle
+--- @param handle ObjectHandle|string Game object handle or UUID. NetID will fail since it has no type information (an item and a character could have the same NetID).
 --- @return EsvGameObject|EclGameObject
 function Ext.GetGameObject(handle) end
 
