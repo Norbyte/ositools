@@ -1450,11 +1450,11 @@ local EclItem = {}
 --- @return string[]
 function EclItem:GetDeltaMods() end
 
---- Returns the GUID of all items within the inventory of the item
+--- Returns the UUID of all items within the inventory of the item
 --- @return string[]
 function EclItem:GetInventoryItems() end
 
---- Returns the GUID of character that currently owns the item; nil if the item is not in a character inventory
+--- Returns the UUID of character that currently owns the item; nil if the item is not in a character inventory
 --- @return string|nil
 function EclItem:GetOwnerCharacter() end
 
@@ -1507,7 +1507,7 @@ function EclItem:GetStatusObjects() end
 --- @field CorpseLootable boolean
 local EclCharacter = {}
 
---- Returns the GUID of all items within the inventory of the character
+--- Returns the UUID of all items within the inventory of the character
 --- @return string[]
 function EclCharacter:GetInventoryItems() end
 
@@ -1648,11 +1648,11 @@ function EsvItem:GetGeneratedBoosts() end
 --- @param boosts string[]
 function EsvItem:SetGeneratedBoosts(boosts) end
 
---- Returns the GUID of all items within the inventory of the item
+--- Returns the UUID of all items within the inventory of the item
 --- @return string[]
 function EsvItem:GetInventoryItems() end
 
---- Returns the GUID of all characters within the specified radius
+--- Returns the UUID of all characters within the specified radius
 --- @param radius number
 --- @return string[]
 function EsvItem:GetNearbyCharacters(radius) end
@@ -1867,7 +1867,7 @@ local EsvSkillInfo = {}
 --- @field ManuallyLeveled boolean
 local EsvCharacter = {}
 
---- Returns the GUID of all items in the characters inventory
+--- Returns the UUID of all items in the characters inventory
 --- @return string[]
 function EsvCharacter:GetInventoryItems() end
 
@@ -1880,11 +1880,11 @@ function EsvCharacter:GetSkillInfo(skillId) end
 --- @return string[]
 function EsvCharacter:GetSkills() end
 
---- Returns the GUID of all characters within the specified radius
+--- Returns the UUID of all characters within the specified radius
 --- @return string[]
 function EsvCharacter:GetNearbyCharacters(radius) end
 
---- Returns the GUID of all summons owned by the character
+--- Returns the UUID of all summons owned by the character
 --- @return string[]
 function EsvCharacter:GetSummons() end
 
@@ -3833,7 +3833,7 @@ function Ext.Version() end
 function Ext.GameVersion() end
 
 --- Loads the specified Lua file
---- @param modGuid string GUID of the module containing the Lua file
+--- @param modGuid string UUID of the module containing the Lua file
 --- @param fileName string Path of Lua file, relative to Mods/<Mod>/Story/RawFiles/Lua
 function Ext.Require(modGuid, fileName) end
 
@@ -3890,7 +3890,7 @@ function Ext.JsonParse(json) end
 function Ext.JsonStringify(val) end
 
 --- Returns whether the specified mod is loaded
---- @param modGuid string GUID of the module
+--- @param modGuid string UUID of the module
 --- @return boolean
 function Ext.IsModLoaded(modGuid) end
 
@@ -3899,7 +3899,7 @@ function Ext.IsModLoaded(modGuid) end
 function Ext.GetModLoadOrder() end
 
 --- Returns detailed information about the specified (loaded) module
---- @param modGuid string GUID of the module
+--- @param modGuid string UUID of the module
 --- @return ModInfo
 function Ext.GetModInfo(modGuid) end
 
@@ -3909,7 +3909,7 @@ function Ext.GetModInfo(modGuid) end
 function Ext.GetStatEntries(type) end
 
 --- Returns the list of stat entries that were loaded before the specified mod
---- @param modGuid string Mod GUID to check
+--- @param modGuid string Mod UUID to check
 --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
 --- @return string[]
 function Ext.GetStatEntriesLoadedBefore(modId, type) end
@@ -4077,8 +4077,8 @@ function Ext.EnumLabelToIndex(enum, label) end
 
 -- Execute the SkillProperties of the specified skill on a target character.
 --- @param skillId string Stats skill ID
---- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
---- @param target ObjectHandle|int|string Target character handle/NetID/GUID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/UUID
+--- @param target ObjectHandle|int|string Target character handle/NetID/UUID
 --- @param position number[]
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
@@ -4086,7 +4086,7 @@ function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position,
 
 -- Execute the SkillProperties of the specified skill on a position.
 --- @param skillId string Stats skill ID
---- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/UUID
 --- @param position number[]
 --- @param radius number
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
@@ -4119,8 +4119,8 @@ function Ext.ExecuteSurfaceAction(action) end
 --- @param actionHandle integer Action to cancel
 function Ext.CancelSurfaceAction(actionHandle) end
 
---- Starts creating a new item using template GUID or cloning an existing item.
---- @param from EsvItem|string Template GUID or item to clone
+--- Starts creating a new item using template UUID or cloning an existing item.
+--- @param from EsvItem|string Template UUID or item to clone
 --- @param recursive boolean|nil Copy items in container? (cloning only)
 --- @return ItemConstructor
 function Ext.CreateItemConstructor(from, recursive) end
@@ -4156,13 +4156,13 @@ function Ext.GetCustomStatById(statId) end
 --- @return string|nil Custom stat UUID
 function Ext.CreateCustomStat(name, description) end
 
---- Returns the GUID of all characters on the specified level. 
+--- Returns the UUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
 function Ext.GetAllCharacters(level) end
 
---- Returns the GUID of all characters within a radius around the specified point.
+--- Returns the UUID of all characters within a radius around the specified point.
 --- @param x number
 --- @param y number
 --- @param z number
@@ -4170,13 +4170,13 @@ function Ext.GetAllCharacters(level) end
 --- @return string[]
 function Ext.GetCharactersAroundPosition(x, y, z, distance) end
 
---- Returns the GUID of all items on the specified level. 
+--- Returns the UUID of all items on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
 function Ext.GetAllItems(level) end
 
---- Returns the GUID of all items within a radius around the specified point.
+--- Returns the UUID of all items within a radius around the specified point.
 --- @param x number
 --- @param y number
 --- @param z number
@@ -4184,24 +4184,24 @@ function Ext.GetAllItems(level) end
 --- @return string[]
 function Ext.GetItemsAroundPosition(x, y, z, distance) end
 
---- Returns the GUID of all triggers on the specified level. 
+--- Returns the UUID of all triggers on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
 function Ext.GetAllTriggers(level) end
 
 --- Returns the property proxy of the specified character
---- @param id string|integer|ObjectHandle Character GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Character UUID or handle or NetID
 --- @return EsvCharacter|EclCharacter
 function Ext.GetCharacter(id) end
 
 --- Returns the property proxy of the specified item
---- @param id string|integer|ObjectHandle Item GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Item UUID or handle or NetID
 --- @return EsvItem|EclCharacter
 function Ext.GetItem(id) end
 
 --- Returns the property proxy of the specified trigger (server only)
---- @param id string|ObjectHandle Trigger GUID or handle
+--- @param id string|ObjectHandle Trigger UUID or handle
 --- @return EsvTrigger
 function Ext.GetTrigger(id) end
 
@@ -4216,7 +4216,7 @@ function Ext.GetGameObject(handle) end
 function Ext.GetSurface(handle) end
 
 --- Returns the property proxy of the specified status
---- @param character string|integer|ObjectHandle Character GUID or handle or NetID
+--- @param character string|integer|ObjectHandle Character UUID or handle or NetID
 --- @param handle integer|StatusHandle Status handle or NetID
 --- @return EsvStatus
 function Ext.GetStatus(character, handle) end
@@ -4451,7 +4451,7 @@ function Ext.LoadFile(path, context) end
 function Ext.MonotonicTime() end
 
 --- Returns whether the player has a compatible Script Extender version installed
---- @param playerGuid string GUID of player character
+--- @param playerGuid string UUID of player character
 --- @return boolean
 function Ext.PlayerHasExtender(playerGuid) end
 
