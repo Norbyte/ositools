@@ -404,7 +404,6 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field RequestDeleteAtTurnEnd boolean
 --- @field Started boolean
 
-
 --- @class EsvStatusHit : EsvStatus
 --- @field Hit HitRequest
 --- @field HitByHandle ObjectHandle
@@ -440,7 +439,6 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field HealEffectOverride string See HealEffect enumeration
 --- @field Poisoned boolean
 
-
 --- @class EsvStatusDying : EsvStatus
 --- @field SourceHandle ObjectHandle
 --- @field SourceType integer
@@ -466,23 +464,19 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field AbsorbSurfaceRange integer
 --- @field TargetDependentHeal boolean
 
-
 --- @class EsvStatusMuted : EsvStatusConsumeBase
 
 --- @class EsvStatusCharmed : EsvStatusConsumeBase
 --- @field UserId integer
 --- @field OriginalOwnerCharacterHandle ObjectHandle
 
-
 --- @class EsvStatusKnockedDown : EsvStatus
 --- @field KnockedDownState integer
 --- @field IsInstant boolean
 
-
 --- @class EsvStatusSummoning : EsvStatus
 --- @field AnimationDuration number
 --- @field SummonLevel integer
-
 
 --- @class EsvStatusHealing : EsvStatus
 --- @field HealAmount integer
@@ -494,7 +488,6 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field HealStat string See StatusHealType enumeration
 --- @field AbsorbSurfaceRange integer
 
-
 --- @class EsvStatusThrown : EsvStatus
 --- @field Level integer
 --- @field CasterHandle ObjectHandle
@@ -503,7 +496,6 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field LandingEstimate number
 --- @field Landed boolean
 
-
 --- @class EsvStatusTeleportFall : EsvStatus
 --- @field Target number[]
 --- @field ReappearTime number
@@ -511,13 +503,11 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field HasDamage boolean
 --- @field HasDamageBeenApplied boolean
 
-
 --- @class EsvStatusConsume : EsvStatusConsumeBase
 
 --- @class EsvStatusCombat : EsvStatus
 --- @field ReadyForCombat boolean
 --- @field OwnerTeamId integer
-
 
 --- @class EsvStatusAoO : EsvStatus
 --- @field SourceHandle ObjectHandle
@@ -526,12 +516,10 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field ActivateAoOBoost boolean
 --- @field ShowOverhead boolean
 
-
 --- @class EsvStatusStoryFrozen : EsvStatus
 
 --- @class EsvStatusSneaking : EsvStatus
 --- @field ClientRequestStop boolean
-
 
 --- @class EsvStatusUnlock : EsvStatus
 --- @field SourceHandle ObjectHandle
@@ -539,21 +527,17 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field Level integer
 --- @field Unlocked integer
 
-
 --- @class EsvStatusFear : EsvStatus
 
 --- @class EsvStatusBoost : EsvStatus
 --- @field EffectTime number
 --- @field BoostId string
 
-
 --- @class EsvStatusUnsheathed : EsvStatus
 --- @field Force boolean
 
-
 --- @class EsvStatusStance : EsvStatusConsumeBase
 --- @field SkillId string
-
 
 --- @class EsvStatusLying : EsvStatus
 --- @field ItemHandle ObjectHandle
@@ -561,7 +545,6 @@ function CharacterTemplate:GetColorChoices(slot) end
 --- @field Index integer
 --- @field TimeElapsed number
 --- @field Heal number
-
 
 --- @class EsvStatusBlind : EsvStatusConsumeBase
 
