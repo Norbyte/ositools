@@ -1743,14 +1743,13 @@ local PlayerCustomData = {}
 
 --- @class EsvSkillInfo
 --- @field ActiveCooldown number
---- @field CauseList StatusHandle[] Array of statuses handles granting this skill, if any. Use individual entries together with Ext.GetStatus.
+--- @field CauseList StatusHandle|ObjectHandle[] Array of statuses and item handles granting this skill, if any. Use individual entries together with Ext.GetStatus/Ext.GetItem.
 --- @field IsActivated boolean
 --- @field IsLearned boolean
 --- @field ZeroMemory boolean
 --- @field OncePerCombat boolean
 --- @field NumCharges number
 --- @see EsvCharacter#GetSkillInfo
-local EsvSkillInfo = {}
 
 --- @class EsvCharacter : EsvGameObject
 --- @field RootTemplate CharacterTemplate
