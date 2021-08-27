@@ -831,6 +831,13 @@ namespace dse::lua
 
 	WrapLuaFunction(EnableExperimentalPropertyWrites)
 
+	void ShowErrorAndExitGame(lua_State* L, STDWString message)
+	{
+		gOsirisProxy->GetLibraryManager().ShowStartupError(message, true);
+	}
+
+	WrapLuaFunction(ShowErrorAndExitGame)
+
 	void DumpStack(lua_State* L)
 	{
 		auto top = lua_gettop(L);

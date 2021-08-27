@@ -2724,6 +2724,7 @@ namespace dse::esv::lua
 			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
 			{"DumpStack", DumpStackWrapper},
 			{"DumpNetworking", DumpNetworking},
+			{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
 
 			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverrideWrapper},

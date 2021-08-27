@@ -378,4 +378,5 @@ namespace dse::lua
 
 	int EnableExperimentalPropertyWritesWrapper(lua_State* L);
 	int DumpStackWrapper(lua_State* L);
+	int ShowErrorAndExitGameWrapper(lua_State* L);
 }

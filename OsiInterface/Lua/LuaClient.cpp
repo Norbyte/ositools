@@ -2524,6 +2524,7 @@ namespace dse::ecl::lua
 			{"UpdateShroud", UpdateShroud},
 			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
 			{"DumpStack", DumpStackWrapper},
+			{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
 
 			{"GetGameState", GetGameState},
 			{"GetPickingState", GetPickingState},
