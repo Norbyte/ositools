@@ -5,583 +5,546 @@ Osi = {}
 
 --- From v52 onwards object handles are a type of userdata (lightuserdata) 
 --- instead of integers.
---- @class ObjectHandle
+--- @alias ObjectHandle userdata
+--- @alias StatusHandle userdata
 
 --- @class DamageItem
---- @field public DamageType string
---- @field public Amount integer
+--- @field DamageType string
+--- @field Amount integer
 local DamageItem = {}
 
 --- @class DamageList
 local DamageList = {}
 
 --- Returns the amount of damage with the specified type
---- @param self DamageList
 --- @param damageType string DamageType enumeration
 --- @return integer
-function DamageList.GetByType (self, damageType) end
+function DamageList:GetByType(damageType) end
     
 --- Add damage
---- @param self DamageList
 --- @param damageType string DamageType enumeration
 --- @param amount integer
-function DamageList.Add (self, damageType, amount) end
+function DamageList:Add(damageType, amount) end
     
 --- Clear damage list.
 --- If damageType is specified it only removes damage items with the specified type.
---- @param self DamageList
 --- @param damageType string|nil DamageType enumeration
-function DamageList.Clear (self, damageType) end
+function DamageList:Clear(damageType) end
     
 --- Multiply every damage item with the specified value
---- @param self DamageList
 --- @param multiplier number
-function DamageList.Multiply (self, multiplier) end
+function DamageList:Multiply(multiplier) end
     
 --- Merge another DamageList into this list
---- @param self DamageList
 --- @param list DamageList List to merge
-function DamageList.Merge (self, list) end
+function DamageList:Merge(list) end
     
 --- Converts all damages to the specified type
---- @param self DamageList
 --- @param damageType string DamageType enumeration
-function DamageList.ConvertDamageType (self, damageType) end
+function DamageList:ConvertDamageType(damageType) end
     
 --- Aggregate all damage items with the same type
---- @param self DamageList
-function DamageList.AggregateSameTypeDamages (self) end
+function DamageList:AggregateSameTypeDamages() end
     
 --- Returns all damage items as a table
---- @param self DamageList
 --- @return DamageItem[]
-function DamageList.ToTable (self) end
-
+function DamageList:ToTable() end
 
 --- @class InputEvent
---- @field public EventId integer
---- @field public InputDeviceId integer
---- @field public InputPlayerIndex integer
---- @field public Press boolean
---- @field public Release boolean
---- @field public ValueChange boolean
---- @field public Hold boolean
---- @field public Repeat boolean
---- @field public AcceleratedRepeat boolean
+--- @field EventId integer
+--- @field InputDeviceId integer
+--- @field InputPlayerIndex integer
+--- @field Press boolean
+--- @field Release boolean
+--- @field ValueChange boolean
+--- @field Hold boolean
+--- @field Repeat boolean
+--- @field AcceleratedRepeat boolean
 
 
 --- @class AiGrid
---- @field public OffsetX number X coordinate the grid starts at
---- @field public OffsetY number Y coordinate the grid starts at
---- @field public OffsetZ number Z coordinate the grid starts at
---- @field public GridScale number Size of each cell in the grid
---- @field public Width number Total width of the grid
---- @field public Height number Total height of the grid
+--- @field OffsetX number X coordinate the grid starts at
+--- @field OffsetY number Y coordinate the grid starts at
+--- @field OffsetZ number Z coordinate the grid starts at
+--- @field GridScale number Size of each cell in the grid
+--- @field Width number Total width of the grid
+--- @field Height number Total height of the grid
 local AiGrid = {}
 
 --- Scans the vicinity of the specified points for surfaces that match the specified flags.
 --- Returns true if a surface was found, false otherwise.
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param radius number Radius to search
 --- @param flags string[] AI flags to look for
 --- @param bias number Height bias
 --- @return boolean
-function AiGrid.SearchForCell (self, x, z, radius, flags, bias) end
+function AiGrid:SearchForCell(x, z, radius, flags, bias) end
 
 --- Returns the contents (game objects, surfaces, etc.) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return table
-function AiGrid.GetCellInfo (self, x, z) end
+function AiGrid:GetCellInfo(x, z) end
 
 --- Returns the AI flags (navigation info, surface flags) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return integer
-function AiGrid.GetAiFlags (self, x, z) end
+function AiGrid:GetAiFlags(x, z) end
 
 --- Updates the AI flags (navigation info) of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param flags integer AI flags
-function AiGrid.SetAiFlags (self, x, z, flags) end
+function AiGrid:SetAiFlags(x, z, flags) end
 
 --- Returns the height of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @return number
-function AiGrid.GetHeight (self, x, z) end
+function AiGrid:GetHeight(x, z) end
 
 --- Updates the height of the specified cell
---- @param self AiGrid
 --- @param x number X coordinate of point to search
 --- @param z number Z coordinate of point to search
 --- @param height number Cell height
-function AiGrid.SetHeight (self, x, z, height) end
+function AiGrid:SetHeight(x, z, height) end
 
 
 --- @class LevelDesc
---- @field public LevelName string
---- @field public UniqueKey string
---- @field public CustomDisplayLevelName string
---- @field public Type integer
+--- @field LevelName string
+--- @field UniqueKey string
+--- @field CustomDisplayLevelName string
+--- @field Type integer
 
 
 --- @class CombatComponentTemplate
---- @field public Alignment string
---- @field public CanFight boolean
---- @field public CanJoinFight boolean
---- @field public CombatGroupID string
---- @field public IsBoss boolean
---- @field public IsInspector boolean
---- @field public StartCombatRange number
-local CombatComponentTemplate = {}
+--- @field Alignment string
+--- @field CanFight boolean
+--- @field CanJoinCombat boolean
+--- @field CombatGroupID string
+--- @field IsBoss boolean
+--- @field IsInspector boolean
+--- @field StartCombatRange number
 
 
 --- @class EoCGameObjectTemplate
---- @field public Id string
---- @field public Name string
---- @field public TemplateName string
---- @field public IsGlobal boolean
---- @field public IsDeleted boolean
---- @field public LevelName string
---- @field public ModFolder string
---- @field public GroupID string
---- @field public VisualTemplate string
---- @field public PhysicsTemplate string
---- @field public CastShadow boolean
---- @field public ReceiveDecal boolean
---- @field public AllowReceiveDecalWhenAnimated boolean
---- @field public IsReflecting boolean
---- @field public IsShadowProxy boolean
---- @field public RenderChannel number
---- @field public CameraOffset number[]
---- @field public HasParentModRelation boolean
---- @field public HasGameplayValue boolean
---- @field public DevComment string
---- @field public AIBoundsRadius number
---- @field public AIBoundsHeight number
---- @field public DisplayName string
---- @field public Opacity number
---- @field public Fadeable boolean
---- @field public FadeIn boolean
---- @field public SeeThrough boolean
---- @field public FadeGroup string
---- @field public GameMasterSpawnSection integer
---- @field public GameMasterSpawnSubSection string
-local EoCGameObjectTemplate = {}
+--- @field Id string
+--- @field Name string
+--- @field TemplateName string
+--- @field IsGlobal boolean
+--- @field IsDeleted boolean
+--- @field LevelName string
+--- @field ModFolder string
+--- @field GroupID string
+--- @field VisualTemplate string
+--- @field PhysicsTemplate string
+--- @field CastShadow boolean
+--- @field ReceiveDecal boolean
+--- @field AllowReceiveDecalWhenAnimated boolean
+--- @field IsReflecting boolean
+--- @field IsShadowProxy boolean
+--- @field RenderChannel number
+--- @field CameraOffset number[]
+--- @field HasParentModRelation boolean
+--- @field HasGameplayValue boolean
+--- @field DevComment string
+--- @field AIBoundsRadius number
+--- @field AIBoundsHeight number
+--- @field DisplayName string
+--- @field Opacity number
+--- @field Fadeable boolean
+--- @field FadeIn boolean
+--- @field SeeThrough boolean
+--- @field FadeGroup string
+--- @field GameMasterSpawnSection integer
+--- @field GameMasterSpawnSubSection string
 
 
 --- @class CharacterTemplate : EoCGameObjectTemplate
---- @field public CombatTemplate CombatComponentTemplate
---- @field public Icon string
---- @field public Stats string
---- @field public SkillSet string
---- @field public Equipment string
---- @field public LightID string
---- @field public HitFX string
---- @field public DefaultDialog string
---- @field public SpeakerGroup string
---- @field public GeneratePortrait string
---- @field public WalkSpeed number
---- @field public RunSpeed number
---- @field public ClimbAttachSpeed number
---- @field public ClimbLoopSpeed number
---- @field public ClimbDetachSpeed number
---- @field public CanShootThrough boolean
---- @field public WalkThrough boolean
---- @field public CanClimbLadders boolean
---- @field public IsPlayer boolean
---- @field public Floating boolean
---- @field public SpotSneakers boolean
---- @field public CanOpenDoors boolean
---- @field public AvoidTraps boolean
---- @field public InfluenceTreasureLevel boolean
---- @field public HardcoreOnly boolean
---- @field public NotHardcore boolean
---- @field public JumpUpLadders boolean
---- @field public NoRotate boolean
---- @field public IsHuge boolean
---- @field public EquipmentClass number
---- @field public ExplodedResourceID string
---- @field public ExplosionFX string
---- @field public VisualSetResourceID string
---- @field public VisualSetIndices number
---- @field public TrophyID string
---- @field public SoundInitEvent string
---- @field public SoundAttachBone string
---- @field public SoundAttenuation number
---- @field public CoverAmount number
---- @field public LevelOverride number
---- @field public ForceUnsheathSkills boolean
---- @field public CanBeTeleported boolean
---- @field public ActivationGroupId string
---- @field public SoftBodyCollisionTemplate string
---- @field public RagdollTemplate string
---- @field public DefaultState number
---- @field public GhostTemplate string
---- @field public IsLootable boolean
---- @field public IsEquipmentLootable boolean
---- @field public InventoryType number
---- @field public IsArenaChampion boolean
---- @field public FootstepWeight string
+--- @field CombatTemplate CombatComponentTemplate
+--- @field Icon string
+--- @field Stats string
+--- @field SkillSet string
+--- @field Equipment string
+--- @field LightID string
+--- @field HitFX string
+--- @field DefaultDialog string
+--- @field SpeakerGroup string
+--- @field GeneratePortrait string
+--- @field WalkSpeed number
+--- @field RunSpeed number
+--- @field ClimbAttachSpeed number
+--- @field ClimbLoopSpeed number
+--- @field ClimbDetachSpeed number
+--- @field CanShootThrough boolean
+--- @field WalkThrough boolean
+--- @field CanClimbLadders boolean
+--- @field IsPlayer boolean
+--- @field Floating boolean
+--- @field SpotSneakers boolean
+--- @field CanOpenDoors boolean
+--- @field AvoidTraps boolean
+--- @field InfluenceTreasureLevel boolean
+--- @field HardcoreOnly boolean
+--- @field NotHardcore boolean
+--- @field JumpUpLadders boolean
+--- @field NoRotate boolean
+--- @field IsHuge boolean
+--- @field EquipmentClass number
+--- @field ExplodedResourceID string
+--- @field ExplosionFX string
+--- @field VisualSetResourceID string
+--- @field VisualSetIndices number
+--- @field TrophyID string
+--- @field SoundInitEvent string
+--- @field SoundAttachBone string
+--- @field SoundAttenuation number
+--- @field CoverAmount number
+--- @field LevelOverride number
+--- @field ForceUnsheathSkills boolean
+--- @field CanBeTeleported boolean
+--- @field ActivationGroupId string
+--- @field SoftBodyCollisionTemplate string
+--- @field RagdollTemplate string
+--- @field DefaultState number
+--- @field GhostTemplate string
+--- @field IsLootable boolean
+--- @field IsEquipmentLootable boolean
+--- @field InventoryType number
+--- @field IsArenaChampion boolean
+--- @field FootstepWeight string
 local CharacterTemplate = {}
     
 --- Returns the list of visuals that can be selected for the specified slot
---- @param self CharacterTemplate
 --- @param slot string Slot name (HairHelmet, Head, Torso, Arms, Trousers, Boots, Beard, Visual8, Visual9)
 --- @return string[]
-function CharacterTemplate.GetVisualChoices (self, slot) end
+function CharacterTemplate:GetVisualChoices(slot) end
     
 --- Returns the list of colors that can be selected for the specified slot
---- @param self CharacterTemplate
 --- @param slot string Slot name (Skin, Hair, Cloth)
 --- @return number[]
-function CharacterTemplate.GetColorChoices (self, slot) end
+function CharacterTemplate:GetColorChoices(slot) end
 
 
 --- @class ItemTemplate : EoCGameObjectTemplate
---- @field public CombatTemplate CombatComponentTemplate
---- @field public Icon string
---- @field public CanBePickedUp boolean
---- @field public CanBeMoved boolean
---- @field public CoverAmount number
---- @field public CanShootThrough boolean
---- @field public CanClickThrough boolean
---- @field public Destroyed boolean
---- @field public WalkThrough boolean
---- @field public WalkOn boolean
---- @field public Wadable boolean
---- @field public IsInteractionDisabled boolean
---- @field public IsPinnedContainer boolean
---- @field public StoryItem boolean
---- @field public FreezeGravity boolean
---- @field public IsKey boolean
---- @field public IsTrap boolean
---- @field public IsSurfaceBlocker boolean
---- @field public IsSurfaceCloudBlocker boolean
---- @field public TreasureOnDestroy boolean
---- @field public IsHuge boolean
---- @field public HardcoreOnly boolean
---- @field public NotHardcore boolean
---- @field public UsePartyLevelForTreasureLevel boolean
---- @field public Unimportant boolean
---- @field public Hostile boolean
---- @field public UseOnDistance boolean
---- @field public UseRemotely boolean
---- @field public IsBlocker boolean
---- @field public IsPointerBlocker boolean
---- @field public ItemDisplayName boolean
---- @field public Tooltip number
---- @field public Stats string
---- @field public OnUseDescription string
---- @field public DefaultState string
---- @field public Owner string
---- @field public Key string
---- @field public HitFX string
---- @field public LockLevel number 
---- @field public Amount number
---- @field public MaxStackAmount number
---- @field public TreasureLevel number
---- @field public DropSound string
---- @field public PickupSound string
---- @field public UseSound string
---- @field public EquipSound string
---- @field public UnequipSound string
---- @field public InventoryMoveSound string
---- @field public LoopSound string
---- @field public SoundInitEvent string
---- @field public SoundAttachBone string
---- @field public SoundAttenuation number
---- @field public Description string
---- @field public ItemDescription string
---- @field public Speaker string
---- @field public AltSpeaker string
---- @field public SpeakerGroup string
---- @field public ActivationGroupId string
---- @field public Race number
---- @field public IsWall boolean
---- @field public LevelOverride number
---- @field public Floating boolean
---- @field public IsSourceContainer boolean
---- @field public MeshProxy string
---- @field public IsPublicDomain boolean
---- @field public AllowSummonTeleport boolean
-local ItemTemplate = {}
+--- @field CombatTemplate CombatComponentTemplate
+--- @field Icon string
+--- @field CanBePickedUp boolean
+--- @field CanBeMoved boolean
+--- @field CoverAmount number
+--- @field CanShootThrough boolean
+--- @field CanClickThrough boolean
+--- @field Destroyed boolean
+--- @field WalkThrough boolean
+--- @field WalkOn boolean
+--- @field Wadable boolean
+--- @field IsInteractionDisabled boolean
+--- @field IsPinnedContainer boolean
+--- @field StoryItem boolean
+--- @field FreezeGravity boolean
+--- @field IsKey boolean
+--- @field IsTrap boolean
+--- @field IsSurfaceBlocker boolean
+--- @field IsSurfaceCloudBlocker boolean
+--- @field TreasureOnDestroy boolean
+--- @field IsHuge boolean
+--- @field HardcoreOnly boolean
+--- @field NotHardcore boolean
+--- @field UsePartyLevelForTreasureLevel boolean
+--- @field Unimportant boolean
+--- @field Hostile boolean
+--- @field UseOnDistance boolean
+--- @field UseRemotely boolean
+--- @field IsBlocker boolean
+--- @field IsPointerBlocker boolean
+--- @field ItemDisplayName boolean
+--- @field Tooltip number
+--- @field Stats string
+--- @field OnUseDescription string
+--- @field DefaultState string
+--- @field Owner string
+--- @field Key string
+--- @field HitFX string
+--- @field LockLevel number 
+--- @field Amount number
+--- @field MaxStackAmount number
+--- @field TreasureLevel number
+--- @field DropSound string
+--- @field PickupSound string
+--- @field UseSound string
+--- @field EquipSound string
+--- @field UnequipSound string
+--- @field InventoryMoveSound string
+--- @field LoopSound string
+--- @field SoundInitEvent string
+--- @field SoundAttachBone string
+--- @field SoundAttenuation number
+--- @field Description string
+--- @field ItemDescription string
+--- @field Speaker string
+--- @field AltSpeaker string
+--- @field SpeakerGroup string
+--- @field ActivationGroupId string
+--- @field Race number
+--- @field IsWall boolean
+--- @field LevelOverride number
+--- @field Floating boolean
+--- @field IsSourceContainer boolean
+--- @field MeshProxy string
+--- @field IsPublicDomain boolean
+--- @field AllowSummonTeleport boolean
 
 
 --- @class ProjectileTemplate : EoCGameObjectTemplate
---- @field public LifeTime number
---- @field public Speed number
---- @field public Acceleration number
---- @field public CastBone string
---- @field public ImpactFX string
---- @field public TrailFX string
---- @field public DestroyTrailFXOnImpact boolean
---- @field public BeamFX string
---- @field public PreviewPathMaterial string
---- @field public PreviewPathImpactFX string
---- @field public PreviewPathRadius number
---- @field public ImpactFXSize number
---- @field public RotateImpact boolean
---- @field public IgnoreRoof boolean
---- @field public DetachBeam boolean
---- @field public NeedsArrowImpactSFX boolean
---- @field public ProjectilePath boolean
---- @field public PathShift string
---- @field public PathRadius number
---- @field public PathMinArcDist number
---- @field public PathMaxArcDist number
---- @field public PathRepeat number
-local ProjectileTemplate = {}
+--- @field LifeTime number
+--- @field Speed number
+--- @field Acceleration number
+--- @field CastBone string
+--- @field ImpactFX string
+--- @field TrailFX string
+--- @field DestroyTrailFXOnImpact boolean
+--- @field BeamFX string
+--- @field PreviewPathMaterial string
+--- @field PreviewPathImpactFX string
+--- @field PreviewPathRadius number
+--- @field ImpactFXSize number
+--- @field RotateImpact boolean
+--- @field IgnoreRoof boolean
+--- @field DetachBeam boolean
+--- @field NeedsArrowImpactSFX boolean
+--- @field ProjectilePath boolean
+--- @field PathShift string
+--- @field PathRadius number
+--- @field PathMinArcDist number
+--- @field PathMaxArcDist number
+--- @field PathRepeat number
 
 
 --- @class TriggerTemplate : EoCGameObjectTemplate
---- @field public TriggerType string
---- @field public PhysicsType string
---- @field public TriggerGizmoOverride string
+--- @field TriggerType string
+--- @field PhysicsType string
+--- @field TriggerGizmoOverride string
 
 
 --- @class SurfaceTemplateStatus
---- @field public StatusId string
---- @field public Chance number
---- @field public Duration number
---- @field public RemoveStatus boolean
---- @field public OnlyWhileMoving boolean
---- @field public ApplyToCharacters boolean
---- @field public ApplyToItems boolean
---- @field public KeepAlive boolean
---- @field public VanishOnReapply boolean
---- @field public ForceStatus boolean
+--- @field StatusId string
+--- @field Chance number
+--- @field Duration number
+--- @field RemoveStatus boolean
+--- @field OnlyWhileMoving boolean
+--- @field ApplyToCharacters boolean
+--- @field ApplyToItems boolean
+--- @field KeepAlive boolean
+--- @field VanishOnReapply boolean
+--- @field ForceStatus boolean
 
 
 --- @class SurfaceTemplate : GameObjectTemplate
---- @field public SurfaceTypeId integer
---- @field public SurfaceType string
---- @field public DisplayName string
---- @field public Description string
---- @field public DecalMaterial string
---- @field public CanEnterCombat boolean
---- @field public AlwaysUseDefaultLifeTime boolean
---- @field public DefaultLifeTime number
---- @field public SurfaceGrowTimer number
---- @field public FadeInSpeed number
---- @field public FadeOutSpeed number
---- @field public Seed integer
---- @field public Statuses SurfaceTemplateStatus[]
---- @field public DamageWeapon string
---- @field public Summon string
---- @field public DamageCharacters boolean
---- @field public DamageItems boolean
---- @field public DamageTorches boolean
---- @field public RemoveDestroyedItems boolean
---- @field public CanSeeThrough boolean
---- @field public CanShootThrough boolean
+--- @field SurfaceTypeId integer
+--- @field SurfaceType string
+--- @field DisplayName string
+--- @field Description string
+--- @field DecalMaterial string
+--- @field CanEnterCombat boolean
+--- @field AlwaysUseDefaultLifeTime boolean
+--- @field DefaultLifeTime number
+--- @field SurfaceGrowTimer number
+--- @field FadeInSpeed number
+--- @field FadeOutSpeed number
+--- @field Seed integer
+--- @field Statuses SurfaceTemplateStatus[]
+--- @field DamageWeapon string
+--- @field Summon string
+--- @field DamageCharacters boolean
+--- @field DamageItems boolean
+--- @field DamageTorches boolean
+--- @field RemoveDestroyedItems boolean
+--- @field CanSeeThrough boolean
+--- @field CanShootThrough boolean
 
-
--- FIXME EclStatus
+--TODO
+--- @class EclStatus
+--- @field StatusId string
 
 --- @class EsvStatus
---- @field public StatusType string Engine status type (HIT, DAMAGE, CONSUME, ...)
---- @field public StatusId string
---- @field public CanEnterChance integer
---- @field public StartTimer number
---- @field public LifeTime number
---- @field public CurrentLifeTime number
---- @field public TurnTimer number
---- @field public Strength number
---- @field public StatsMultiplier number
---- @field public DamageSourceType string See CauseType enumeration
---- @field public StatusHandle ObjectHandle
---- @field public TargetHandle ObjectHandle Handle of game object this status was applied to
---- @field public StatusSourceHandle ObjectHandle Handle of game object that caused this status
+--- @field StatusType string Engine status type (HIT, DAMAGE, CONSUME, ...)
+--- @field StatusId string
+--- @field CanEnterChance integer
+--- @field StartTimer number
+--- @field LifeTime number
+--- @field CurrentLifeTime number
+--- @field TurnTimer number
+--- @field Strength number
+--- @field StatsMultiplier number
+--- @field DamageSourceType string See CauseType enumeration
+--- @field StatusHandle StatusHandle
+--- @field TargetHandle ObjectHandle Handle of game object this status was applied to
+--- @field StatusSourceHandle ObjectHandle Handle of game object that caused this status
 ---
 --- StatusFlags0
---- @field public KeepAlive boolean
---- @field public IsOnSourceSurface boolean
---- @field public IsFromItem boolean
---- @field public Channeled boolean
---- @field public IsLifeTimeSet boolean
---- @field public InitiateCombat boolean
---- @field public Influence boolean
+--- @field KeepAlive boolean
+--- @field IsOnSourceSurface boolean
+--- @field IsFromItem boolean
+--- @field Channeled boolean
+--- @field IsLifeTimeSet boolean
+--- @field InitiateCombat boolean
+--- @field Influence boolean
 --- StatusFlags1
---- @field public BringIntoCombat boolean
---- @field public IsHostileAct boolean
---- @field public IsInvulnerable boolean
---- @field public IsResistingDeath boolean
+--- @field BringIntoCombat boolean
+--- @field IsHostileAct boolean
+--- @field IsInvulnerable boolean
+--- @field IsResistingDeath boolean
 --- StatusFlags2
---- @field public ForceStatus boolean
---- @field public ForceFailStatus boolean
---- @field public RequestClientSync boolean
---- @field public RequestDelete boolean
---- @field public RequestDeleteAtTurnEnd boolean
---- @field public Started boolean
-local EsvStatus = {}
+--- @field ForceStatus boolean
+--- @field ForceFailStatus boolean
+--- @field RequestClientSync boolean
+--- @field RequestDelete boolean
+--- @field RequestDeleteAtTurnEnd boolean
+--- @field Started boolean
 
 --- @class EsvStatusHit : EsvStatus
---- @field public Hit HitRequest
---- @field public HitByHandle ObjectHandle
---- @field public HitWithHandle ObjectHandle
---- @field public WeaponHandle ObjectHandle
---- @field public HitReason string
---- @field public SkillId string
---- @field public Interruption boolean
---- @field public AllowInterruptAction boolean
---- @field public ForceInterrupt boolean
---- @field public DecDelayDeathCount boolean
---- @field public ImpactPosition number[]
---- @field public ImpactOrigin number[]
---- @field public ImpactDirection number[]
-local EsvStatusHit = {}
+--- @field Hit HitRequest
+--- @field HitByHandle ObjectHandle
+--- @field HitWithHandle ObjectHandle
+--- @field WeaponHandle ObjectHandle
+--- @field HitReason string
+--- @field SkillId string
+--- @field Interruption boolean
+--- @field AllowInterruptAction boolean
+--- @field ForceInterrupt boolean
+--- @field DecDelayDeathCount boolean
+--- @field ImpactPosition number[]
+--- @field ImpactOrigin number[]
+--- @field ImpactDirection number[]
+
 
 --- @class EsvStatusConsumeBase : EsvStatus
 --- TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
---- @field public ResetAllCooldowns boolean
---- @field public ResetOncePerCombat boolean
---- @field public ScaleWithVitality boolean
---- @field public LoseControl boolean
---- @field public ApplyStatusOnTick string
---- @field public EffectTime number
---- @field public StatsId string
---- @field public StackId string
---- @field public OriginalWeaponStatsId string
---- @field public OverrideWeaponStatsId string
---- @field public OverrideWeaponHandle ObjectHandle
---- @field public SavingThrow integer TODO enum + enum prop!
---- @field public SourceDirection number[]
---- @field public Turn integer
---- @field public HealEffectOverride string See HealEffect enumeration
---- @field public Poisoned boolean
-local EsvStatusConsumeBase = {}
+--- @field ResetAllCooldowns boolean
+--- @field ResetOncePerCombat boolean
+--- @field ScaleWithVitality boolean
+--- @field LoseControl boolean
+--- @field ApplyStatusOnTick string
+--- @field EffectTime number
+--- @field StatsId string
+--- @field StackId string
+--- @field OriginalWeaponStatsId string
+--- @field OverrideWeaponStatsId string
+--- @field OverrideWeaponHandle ObjectHandle
+--- @field SavingThrow integer TODO enum + enum prop!
+--- @field SourceDirection number[]
+--- @field Turn integer
+--- @field HealEffectOverride string See HealEffect enumeration
+--- @field Poisoned boolean
 
 --- @class EsvStatusDying : EsvStatus
---- @field public SourceHandle ObjectHandle
---- @field public SourceType integer
---- @field public DeathType string See DeathType enumeration
---- @field public AttackDirection integer
---- @field public ImpactDirection number[]
---- @field public IsAlreadyDead boolean
---- @field public DieActionsCompleted boolean
---- @field public ForceNoGhost boolean
---- @field public SkipAnimation boolean
---- @field public DontThrowDeathEvent boolean
---- @field public InflicterHandle ObjectHandle
---- @field public DisputeTargetHandle ObjectHandle
---- @field public CombatId integer
---- @field public IgnoreGodMode boolean
-local EsvStatusDying = {}
+--- @field SourceHandle ObjectHandle
+--- @field SourceType integer
+--- @field DeathType string See DeathType enumeration
+--- @field AttackDirection integer
+--- @field ImpactDirection number[]
+--- @field IsAlreadyDead boolean
+--- @field DieActionsCompleted boolean
+--- @field ForceNoGhost boolean
+--- @field SkipAnimation boolean
+--- @field DontThrowDeathEvent boolean
+--- @field InflicterHandle ObjectHandle
+--- @field DisputeTargetHandle ObjectHandle
+--- @field CombatId integer
+--- @field IgnoreGodMode boolean
 
 --- @class EsvStatusHeal : EsvStatus
---- @field public EffectTime number
---- @field public HealAmount integer
---- @field public HealEffect string See HealEffect enumeration
---- @field public HealEffectId string
---- @field public HealType string See StatusHealType enumeration
---- @field public AbsorbSurfaceRange integer
---- @field public TargetDependentHeal boolean
-local EsvStatusHeal = {}
+--- @field EffectTime number
+--- @field HealAmount integer
+--- @field HealEffect string See HealEffect enumeration
+--- @field HealEffectId string
+--- @field HealType string See StatusHealType enumeration
+--- @field AbsorbSurfaceRange integer
+--- @field TargetDependentHeal boolean
 
 --- @class EsvStatusMuted : EsvStatusConsumeBase
 
 --- @class EsvStatusCharmed : EsvStatusConsumeBase
---- @field public UserId integer
---- @field public OriginalOwnerCharacterHandle ObjectHandle
-local EsvStatusCharmed = {}
+--- @field UserId integer
+--- @field OriginalOwnerCharacterHandle ObjectHandle
 
 --- @class EsvStatusKnockedDown : EsvStatus
---- @field public KnockedDownState integer
---- @field public IsInstant boolean
-local EsvStatusKnockedDown = {}
+--- @field KnockedDownState integer
+--- @field IsInstant boolean
 
 --- @class EsvStatusSummoning : EsvStatus
---- @field public AnimationDuration number
---- @field public SummonLevel integer
-local EsvStatusSummoning = {}
+--- @field AnimationDuration number
+--- @field SummonLevel integer
 
 --- @class EsvStatusHealing : EsvStatus
---- @field public HealAmount integer
---- @field public TimeElapsed number
---- @field public HealEffect string See HealEffect enumeration
---- @field public HealEffectId string
---- @field public SkipInitialEffect boolean
---- @field public HealingEvent number
---- @field public HealStat string See StatusHealType enumeration
---- @field public AbsorbSurfaceRange integer
-local EsvStatusHealing = {}
+--- @field HealAmount integer
+--- @field TimeElapsed number
+--- @field HealEffect string See HealEffect enumeration
+--- @field HealEffectId string
+--- @field SkipInitialEffect boolean
+--- @field HealingEvent number
+--- @field HealStat string See StatusHealType enumeration
+--- @field AbsorbSurfaceRange integer
 
 --- @class EsvStatusThrown : EsvStatus
---- @field public Level integer
---- @field public CasterHandle ObjectHandle
---- @field public AnimationDuration number
---- @field public IsThrowingSelf boolean
---- @field public LandingEstimate number
---- @field public Landed boolean
-local EsvStatusThrown = {}
+--- @field Level integer
+--- @field CasterHandle ObjectHandle
+--- @field AnimationDuration number
+--- @field IsThrowingSelf boolean
+--- @field LandingEstimate number
+--- @field Landed boolean
 
 --- @class EsvStatusTeleportFall : EsvStatus
---- @field public Target number[]
---- @field public ReappearTime number
---- @field public SkillId string
---- @field public HasDamage boolean
---- @field public HasDamageBeenApplied boolean
-local EsvStatusTeleportFall = {}
+--- @field Target number[]
+--- @field ReappearTime number
+--- @field SkillId string
+--- @field HasDamage boolean
+--- @field HasDamageBeenApplied boolean
 
 --- @class EsvStatusConsume : EsvStatusConsumeBase
 
 --- @class EsvStatusCombat : EsvStatus
---- @field public ReadyForCombat boolean
---- @field public OwnerTeamId integer
-local EsvStatusCombat = {}
+--- @field ReadyForCombat boolean
+--- @field OwnerTeamId integer
 
 --- @class EsvStatusAoO : EsvStatus
---- @field public SourceHandle ObjectHandle
---- @field public TargetHandle ObjectHandle
---- @field public PartnerHandle ObjectHandle
---- @field public ActivateAoOBoost boolean
---- @field public ShowOverhead boolean
-local EsvStatusAoO = {}
+--- @field SourceHandle ObjectHandle
+--- @field TargetHandle ObjectHandle
+--- @field PartnerHandle ObjectHandle
+--- @field ActivateAoOBoost boolean
+--- @field ShowOverhead boolean
 
 --- @class EsvStatusStoryFrozen : EsvStatus
 
 --- @class EsvStatusSneaking : EsvStatus
---- @field public ClientRequestStop boolean
-local EsvStatusSneaking = {}
+--- @field ClientRequestStop boolean
 
 --- @class EsvStatusUnlock : EsvStatus
---- @field public SourceHandle ObjectHandle
---- @field public Key string
---- @field public Level integer
---- @field public Unlocked integer
-local EsvStatusUnlock = {}
+--- @field SourceHandle ObjectHandle
+--- @field Key string
+--- @field Level integer
+--- @field Unlocked integer
 
 --- @class EsvStatusFear : EsvStatus
 
 --- @class EsvStatusBoost : EsvStatus
---- @field public EffectTime number
---- @field public BoostId string
-local EsvStatusBoost = {}
+--- @field EffectTime number
+--- @field BoostId string
 
 --- @class EsvStatusUnsheathed : EsvStatus
---- @field public Force boolean
-local EsvStatusUnsheathed = {}
+--- @field Force boolean
 
 --- @class EsvStatusStance : EsvStatusConsumeBase
---- @field public SkillId string
-local EsvStatusStance = {}
+--- @field SkillId string
 
 --- @class EsvStatusLying : EsvStatus
---- @field public ItemHandle ObjectHandle
---- @field public Position number[]
---- @field public Index integer
---- @field public TimeElapsed number
---- @field public Heal number
-local EsvStatusLying = {}
+--- @field ItemHandle ObjectHandle
+--- @field Position number[]
+--- @field Index integer
+--- @field TimeElapsed number
+--- @field Heal number
 
 --- @class EsvStatusBlind : EsvStatusConsumeBase
 
@@ -590,68 +553,58 @@ local EsvStatusLying = {}
 --- @class EsvStatusClean : EsvStatus
 
 --- @class EsvStatusInfectiousDiseased : EsvStatusConsumeBase
---- @field public Infections integer
---- @field public InfectTimer number
---- @field public Radius number
---- @field public TargetHandle ObjectHandle
-local EsvStatusInfectiousDiseased = {}
+--- @field Infections integer
+--- @field InfectTimer number
+--- @field Radius number
+--- @field TargetHandle ObjectHandle
 
 --- @class EsvStatusInvisible : EsvStatusConsumeBase
---- @field public InvisiblePosition number[]
-local EsvStatusInvisible = {}
+--- @field InvisiblePosition number[]
 
 --- @class EsvStatusRotate : EsvStatus
---- @field public Yaw number
---- @field public RotationSpeed number
-local EsvStatusRotate = {}
+--- @field Yaw number
+--- @field RotationSpeed number
 
 --- @class EsvStatusEncumbered : EsvStatusConsumeBase
 
 --- @class EsvStatusIdentify : EsvStatus
---- @field public Level integer
---- @field public Identified integer
---- @field public IdentifierHandle ObjectHandle
-local EsvStatusIdentify = {}
+--- @field Level integer
+--- @field Identified integer
+--- @field IdentifierHandle ObjectHandle
 
 --- @class EsvStatusRepair : EsvStatus
---- @field public Level integer
---- @field public Repaired integer
---- @field public RepairerHandle ObjectHandle
-local EsvStatusRepair = {}
+--- @field Level integer
+--- @field Repaired integer
+--- @field RepairerHandle ObjectHandle
 
 --- @class EsvStatusMaterial : EsvStatus
---- @field public MaterialUUID string
---- @field public ApplyOnBody boolean
---- @field public ApplyOnArmor boolean
---- @field public ApplyOnWeapon boolean
---- @field public ApplyOnWings boolean
---- @field public ApplyOnHorns boolean
---- @field public ApplyOnOverhead boolean
---- @field public IsOverlayMaterial boolean
---- @field public Fading boolean
---- @field public ApplyNormalMap boolean
---- @field public Force boolean
-local EsvStatusMaterial = {}
+--- @field MaterialUUID string
+--- @field ApplyOnBody boolean
+--- @field ApplyOnArmor boolean
+--- @field ApplyOnWeapon boolean
+--- @field ApplyOnWings boolean
+--- @field ApplyOnHorns boolean
+--- @field ApplyOnOverhead boolean
+--- @field IsOverlayMaterial boolean
+--- @field Fading boolean
+--- @field ApplyNormalMap boolean
+--- @field Force boolean
 
 --- @class EsvStatusLeadership : EsvStatusConsumeBase
 
 --- @class EsvStatusExplode : EsvStatus
---- @field public Projectile string
-local EsvStatusExplode = {}
+--- @field Projectile string
 
 --- @class EsvStatusAdrenaline : EsvStatusConsumeBase
---- @field public InitialAPMod integer
---- @field public SecondaryAPMod integer
---- @field public CombatTurn integer
-local EsvStatusAdrenaline = {}
+--- @field InitialAPMod integer
+--- @field SecondaryAPMod integer
+--- @field CombatTurn integer
 
 --- @class EsvStatusShacklesOfPain : EsvStatusConsumeBase
---- @field public CasterHandle ObjectHandle
-local EsvStatusShacklesOfPain = {}
+--- @field CasterHandle ObjectHandle
 
 --- @class EsvStatusShacklesOfPainCaster : EsvStatusConsumeBase
---- @field public VictimHandle ObjectHandle
-local EsvStatusShacklesOfPainCaster = {}
+--- @field VictimHandle ObjectHandle
 
 --- @class EsvStatusWindWalker : EsvStatusConsumeBase
 
@@ -668,52 +621,45 @@ local EsvStatusShacklesOfPainCaster = {}
 --- @class EsvStatusChanneling : EsvStatusStance
 
 --- @class EsvStatusDrain : EsvStatus
---- @field public Infused integer
-local EsvStatusDrain = {}
+--- @field Infused integer
 
 --- @class EsvStatusLingeringWounds : EsvStatusConsumeBase
 
 --- @class EsvStatusInfused : EsvStatus
 
 --- @class EsvStatusSpiritVision : EsvStatusConsumeBase
---- @field public SpiritVisionSkillId string
-local EsvStatusSpiritVision = {}
+--- @field SpiritVisionSkillId string
 
 --- @class EsvStatusSpirit : EsvStatus
-local EsvStatusSpirit = {}
 
 --- @class EsvStatusDamage : EsvStatusConsumeBase
---- @field public DamageEvent integer
---- @field public HitTimer number
---- @field public TimeElapsed number
---- @field public DamageLevel integer
---- @field public DamageStats string
---- @field public SpawnBlood boolean
-local EsvStatusDamage = {}
+--- @field DamageEvent integer
+--- @field HitTimer number
+--- @field TimeElapsed number
+--- @field DamageLevel integer
+--- @field DamageStats string
+--- @field SpawnBlood boolean
 
 --- @class EsvStatusForceMove : EsvStatusConsumeBase
 
 --- @class EsvStatusClimbing : EsvStatus
---- @field public MoveDirection number[]
---- @field public LadderHandle ObjectHandle
---- @field public Level string
---- @field public Status integer
---- @field public Direction boolean
-local EsvStatusClimbing = {}
+--- @field MoveDirection number[]
+--- @field LadderHandle ObjectHandle
+--- @field Level string
+--- @field Status integer
+--- @field Direction boolean
 
 --- @class EsvStatusIncapacitated : EsvStatusConsumeBase
---- @field public CurrentFreezeTime number
---- @field public FreezeTime number
---- @field public FrozenFlag integer
-local EsvStatusIncapacitated = {}
+--- @field CurrentFreezeTime number
+--- @field FreezeTime number
+--- @field FrozenFlag integer
 
 --- @class EsvStatusInSurface : EsvStatus
---- @field public SurfaceTimerCheck number
---- @field public SurfaceDistanceCheck number
---- @field public Translate number[]
---- @field public Force boolean
+--- @field SurfaceTimerCheck number
+--- @field SurfaceDistanceCheck number
+--- @field Translate number[]
+--- @field Force boolean
 --- TODO -- document surface layer flags!
-local EsvStatusInSurface = {}
 
 --- @class EsvStatusSourceMuted : EsvStatus
 
@@ -722,17 +668,15 @@ local EsvStatusInSurface = {}
 --- @class EsvStatusCombustion : EsvStatusConsumeBase
 
 --- @class EsvStatusPolymorphed : EsvStatusConsumeBase
---- @field public OriginalTemplate string
---- @field public TransformedRace string
---- @field public OriginalTemplateType integer
---- @field public PolymorphResult string
---- @field public DisableInteractions boolean
-local EsvStatusPolymorphed = {}
+--- @field OriginalTemplate string
+--- @field TransformedRace string
+--- @field OriginalTemplateType integer
+--- @field PolymorphResult string
+--- @field DisableInteractions boolean
 
 --- @class EsvStatusDamageOnMove : EsvStatusDamage
---- @field public DistancePerDamage number
---- @field public DistanceTraveled number
-local EsvStatusDamageOnMove = {}
+--- @field DistancePerDamage number
+--- @field DistanceTraveled number
 
 --- @class EsvStatusDemonicBargain : EsvStatus
 
@@ -741,35 +685,30 @@ local EsvStatusDamageOnMove = {}
 --- @class EsvStatusFloating : EsvStatusConsumeBase
 
 --- @class EsvStatusChallenge : EsvStatusConsumeBase
---- @field public SourceHandle ObjectHandle
---- @field public Target boolean
-local EsvStatusChallenge = {}
+--- @field SourceHandle ObjectHandle
+--- @field Target boolean
 
 --- @class EsvStatusDisarmed : EsvStatusConsumeBase
 
 --- @class EsvStatusHealSharing : EsvStatusConsumeBase
---- @field public CasterHandle ObjectHandle
-local EsvStatusHealSharing = {}
+--- @field CasterHandle ObjectHandle
 
 --- @class EsvStatusHealSharingCaster : EsvStatusConsumeBase
---- @field public TargetHandle ObjectHandle
-local EsvStatusHealSharingCaster = {}
+--- @field TargetHandle ObjectHandle
 
 --- @class EsvStatusExtraTurn : EsvStatusConsumeBase
 
 --- @class EsvStatusActiveDefense : EsvStatusConsumeBase
---- @field public Charges integer
---- @field public TargetPos number[]
---- @field public TargetHandle ObjectHandle
---- @field public Radius number
---- @field public Projectile string
-local EsvStatusActiveDefense = {}
+--- @field Charges integer
+--- @field TargetPos number[]
+--- @field TargetHandle ObjectHandle
+--- @field Radius number
+--- @field Projectile string
 
 --- @class EsvStatusSpark : EsvStatusConsumeBase
---- @field public Charges integer
---- @field public Radius number
---- @field public Projectile string
-local EsvStatusSpark = {}
+--- @field Charges integer
+--- @field Radius number
+--- @field Projectile string
 
 --- @class EsvStatusPlayDead : EsvStatusConsumeBase
 
@@ -785,515 +724,500 @@ local EsvStatusSpark = {}
 
 --- @class StatCharacterDynamic : StatBase
 --- Properties from PropertyMap
---- @field public SummonLifelinkModifier integer
---- @field public Strength integer
---- @field public Memory integer
---- @field public Intelligence integer
---- @field public Movement integer
---- @field public MovementSpeedBoost integer
---- @field public Finesse integer
---- @field public Wits integer
---- @field public Constitution integer
---- @field public FireResistance integer
---- @field public EarthResistance integer
---- @field public WaterResistance integer
---- @field public AirResistance integer
---- @field public PoisonResistance integer
---- @field public ShadowResistance integer
---- @field public Willpower integer
---- @field public Bodybuilding integer
---- @field public PiercingResistance integer
---- @field public PhysicalResistance integer
---- @field public CorrosiveResistance integer
---- @field public MagicResistance integer
---- @field public CustomResistance integer
---- @field public Sight integer
---- @field public Hearing integer
---- @field public FOV integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public CriticalChance integer
---- @field public Initiative integer
---- @field public Vitality integer
---- @field public VitalityBoost integer
---- @field public MagicPoints integer
---- @field public Level integer
---- @field public Gain integer
---- @field public Armor integer
---- @field public MagicArmor integer
---- @field public ArmorBoost integer
---- @field public MagicArmorBoost integer
---- @field public ArmorBoostGrowthPerLevel integer
---- @field public MagicArmorBoostGrowthPerLevel integer
---- @field public DamageBoost integer
---- @field public DamageBoostGrowthPerLevel integer
---- @field public Accuracy integer
---- @field public Dodge integer
---- @field public MaxResistance integer
---- @field public LifeSteal integer
---- @field public Weight integer
---- @field public ChanceToHitBoost integer
---- @field public RangeBoost integer
---- @field public APCostBoost integer
---- @field public SPCostBoost integer
---- @field public MaxSummons integer
---- @field public BonusWeaponDamageMultiplier integer
---- @field public TranslationKey integer
---- @field public BonusWeapon integer
---- @field public StepsType integer
+--- @field SummonLifelinkModifier integer
+--- @field Strength integer
+--- @field Memory integer
+--- @field Intelligence integer
+--- @field Movement integer
+--- @field MovementSpeedBoost integer
+--- @field Finesse integer
+--- @field Wits integer
+--- @field Constitution integer
+--- @field FireResistance integer
+--- @field EarthResistance integer
+--- @field WaterResistance integer
+--- @field AirResistance integer
+--- @field PoisonResistance integer
+--- @field ShadowResistance integer
+--- @field Willpower integer
+--- @field Bodybuilding integer
+--- @field PiercingResistance integer
+--- @field PhysicalResistance integer
+--- @field CorrosiveResistance integer
+--- @field MagicResistance integer
+--- @field CustomResistance integer
+--- @field Sight integer
+--- @field Hearing integer
+--- @field FOV integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field CriticalChance integer
+--- @field Initiative integer
+--- @field Vitality integer
+--- @field VitalityBoost integer
+--- @field MagicPoints integer
+--- @field Level integer
+--- @field Gain integer
+--- @field Armor integer
+--- @field MagicArmor integer
+--- @field ArmorBoost integer
+--- @field MagicArmorBoost integer
+--- @field ArmorBoostGrowthPerLevel integer
+--- @field MagicArmorBoostGrowthPerLevel integer
+--- @field DamageBoost integer
+--- @field DamageBoostGrowthPerLevel integer
+--- @field Accuracy integer
+--- @field Dodge integer
+--- @field MaxResistance integer
+--- @field LifeSteal integer
+--- @field Weight integer
+--- @field ChanceToHitBoost integer
+--- @field RangeBoost integer
+--- @field APCostBoost integer
+--- @field SPCostBoost integer
+--- @field MaxSummons integer
+--- @field BonusWeaponDamageMultiplier integer
+--- @field TranslationKey integer
+--- @field BonusWeapon integer
+--- @field StepsType integer
 -- TODO Abilities, Talents, RemovedTalents, Traits
-local StatCharacterDynamic = {
-}
 
 
 --- @class StatBase
 --- "Fake" base class to avoid declaring attribute flags/talents/abilities twice
 ---
 --- StatAttributeFlags
---- @field public FreezeImmunity boolean
---- @field public BurnImmunity boolean
---- @field public StunImmunity boolean
---- @field public PoisonImmunity boolean
---- @field public CharmImmunity boolean
---- @field public FearImmunity boolean
---- @field public KnockdownImmunity boolean
---- @field public MuteImmunity boolean
---- @field public ChilledImmunity boolean
---- @field public WarmImmunity boolean
---- @field public WetImmunity boolean
---- @field public BleedingImmunity boolean
---- @field public CrippledImmunity boolean
---- @field public BlindImmunity boolean
---- @field public CursedImmunity boolean
---- @field public WeakImmunity boolean
---- @field public SlowedImmunity boolean
---- @field public DiseasedImmunity boolean
---- @field public InfectiousDiseasedImmunity boolean
---- @field public PetrifiedImmunity boolean
---- @field public DrunkImmunity boolean
---- @field public SlippingImmunity boolean
---- @field public FreezeContact boolean
---- @field public BurnContact boolean
---- @field public StunContact boolean
---- @field public PoisonContact boolean
---- @field public ChillContact boolean
---- @field public Torch boolean
---- @field public Arrow boolean
---- @field public Unbreakable boolean
---- @field public Unrepairable boolean
---- @field public Unstorable boolean
---- @field public Grounded boolean
---- @field public HastedImmunity boolean
---- @field public TauntedImmunity boolean
---- @field public SleepingImmunity boolean
---- @field public AcidImmunity boolean
---- @field public SuffocatingImmunity boolean
---- @field public RegeneratingImmunity boolean
---- @field public DisarmedImmunity boolean
---- @field public DecayingImmunity boolean
---- @field public ClairvoyantImmunity boolean
---- @field public EnragedImmunity boolean
---- @field public BlessedImmunity boolean
---- @field public ProtectFromSummon boolean
---- @field public Floating boolean
---- @field public DeflectProjectiles boolean
---- @field public IgnoreClouds boolean
---- @field public MadnessImmunity boolean
---- @field public ChickenImmunity boolean
---- @field public IgnoreCursedOil boolean
---- @field public ShockedImmunity boolean
---- @field public WebImmunity boolean
---- @field public LootableWhenEquipped boolean
---- @field public PickpocketableWhenEquipped boolean
---- @field public LoseDurabilityOnCharacterHit boolean
---- @field public EntangledContact boolean
---- @field public ShacklesOfPainImmunity boolean
---- @field public MagicalSulfur boolean
---- @field public ThrownImmunity boolean
---- @field public InvisibilityImmunity boolean
+--- @field FreezeImmunity boolean
+--- @field BurnImmunity boolean
+--- @field StunImmunity boolean
+--- @field PoisonImmunity boolean
+--- @field CharmImmunity boolean
+--- @field FearImmunity boolean
+--- @field KnockdownImmunity boolean
+--- @field MuteImmunity boolean
+--- @field ChilledImmunity boolean
+--- @field WarmImmunity boolean
+--- @field WetImmunity boolean
+--- @field BleedingImmunity boolean
+--- @field CrippledImmunity boolean
+--- @field BlindImmunity boolean
+--- @field CursedImmunity boolean
+--- @field WeakImmunity boolean
+--- @field SlowedImmunity boolean
+--- @field DiseasedImmunity boolean
+--- @field InfectiousDiseasedImmunity boolean
+--- @field PetrifiedImmunity boolean
+--- @field DrunkImmunity boolean
+--- @field SlippingImmunity boolean
+--- @field FreezeContact boolean
+--- @field BurnContact boolean
+--- @field StunContact boolean
+--- @field PoisonContact boolean
+--- @field ChillContact boolean
+--- @field Torch boolean
+--- @field Arrow boolean
+--- @field Unbreakable boolean
+--- @field Unrepairable boolean
+--- @field Unstorable boolean
+--- @field Grounded boolean
+--- @field HastedImmunity boolean
+--- @field TauntedImmunity boolean
+--- @field SleepingImmunity boolean
+--- @field AcidImmunity boolean
+--- @field SuffocatingImmunity boolean
+--- @field RegeneratingImmunity boolean
+--- @field DisarmedImmunity boolean
+--- @field DecayingImmunity boolean
+--- @field ClairvoyantImmunity boolean
+--- @field EnragedImmunity boolean
+--- @field BlessedImmunity boolean
+--- @field ProtectFromSummon boolean
+--- @field Floating boolean
+--- @field DeflectProjectiles boolean
+--- @field IgnoreClouds boolean
+--- @field MadnessImmunity boolean
+--- @field ChickenImmunity boolean
+--- @field IgnoreCursedOil boolean
+--- @field ShockedImmunity boolean
+--- @field WebImmunity boolean
+--- @field LootableWhenEquipped boolean
+--- @field PickpocketableWhenEquipped boolean
+--- @field LoseDurabilityOnCharacterHit boolean
+--- @field EntangledContact boolean
+--- @field ShacklesOfPainImmunity boolean
+--- @field MagicalSulfur boolean
+--- @field ThrownImmunity boolean
+--- @field InvisibilityImmunity boolean
 ---
 --- Talents (prefix TALENT_)
---- @field public TALENT_None boolean
---- @field public TALENT_ItemMovement boolean
---- @field public TALENT_ItemCreation boolean
---- @field public TALENT_Flanking boolean
---- @field public TALENT_AttackOfOpportunity boolean
---- @field public TALENT_Backstab boolean
---- @field public TALENT_Trade boolean
---- @field public TALENT_Lockpick boolean
---- @field public TALENT_ChanceToHitRanged boolean
---- @field public TALENT_ChanceToHitMelee boolean
---- @field public TALENT_Damage boolean
---- @field public TALENT_ActionPoints boolean
---- @field public TALENT_ActionPoints2 boolean
---- @field public TALENT_Criticals boolean
---- @field public TALENT_IncreasedArmor boolean
---- @field public TALENT_Sight boolean
---- @field public TALENT_ResistFear boolean
---- @field public TALENT_ResistKnockdown boolean
---- @field public TALENT_ResistStun boolean
---- @field public TALENT_ResistPoison boolean
---- @field public TALENT_ResistSilence boolean
---- @field public TALENT_ResistDead boolean
---- @field public TALENT_Carry boolean
---- @field public TALENT_Throwing boolean
---- @field public TALENT_Repair boolean
---- @field public TALENT_ExpGain boolean
---- @field public TALENT_ExtraStatPoints boolean
---- @field public TALENT_ExtraSkillPoints boolean
---- @field public TALENT_Durability boolean
---- @field public TALENT_Awareness boolean
---- @field public TALENT_Vitality boolean
---- @field public TALENT_FireSpells boolean
---- @field public TALENT_WaterSpells boolean
---- @field public TALENT_AirSpells boolean
---- @field public TALENT_EarthSpells boolean
---- @field public TALENT_Charm boolean
---- @field public TALENT_Intimidate boolean
---- @field public TALENT_Reason boolean
---- @field public TALENT_Luck boolean
---- @field public TALENT_Initiative boolean
---- @field public TALENT_InventoryAccess boolean
---- @field public TALENT_AvoidDetection boolean
---- @field public TALENT_AnimalEmpathy boolean
---- @field public TALENT_Escapist boolean
---- @field public TALENT_StandYourGround boolean
---- @field public TALENT_SurpriseAttack boolean
---- @field public TALENT_LightStep boolean
---- @field public TALENT_ResurrectToFullHealth boolean
---- @field public TALENT_Scientist boolean
---- @field public TALENT_Raistlin boolean
---- @field public TALENT_MrKnowItAll boolean
---- @field public TALENT_WhatARush boolean
---- @field public TALENT_FaroutDude boolean
---- @field public TALENT_Leech boolean
---- @field public TALENT_ElementalAffinity boolean
---- @field public TALENT_FiveStarRestaurant boolean
---- @field public TALENT_Bully boolean
---- @field public TALENT_ElementalRanger boolean
---- @field public TALENT_LightningRod boolean
---- @field public TALENT_Politician boolean
---- @field public TALENT_WeatherProof boolean
---- @field public TALENT_LoneWolf boolean
---- @field public TALENT_Zombie boolean
---- @field public TALENT_Demon boolean
---- @field public TALENT_IceKing boolean
---- @field public TALENT_Courageous boolean
---- @field public TALENT_GoldenMage boolean
---- @field public TALENT_WalkItOff boolean
---- @field public TALENT_FolkDancer boolean
---- @field public TALENT_SpillNoBlood boolean
---- @field public TALENT_Stench boolean
---- @field public TALENT_Kickstarter boolean
---- @field public TALENT_WarriorLoreNaturalArmor boolean
---- @field public TALENT_WarriorLoreNaturalHealth boolean
---- @field public TALENT_WarriorLoreNaturalResistance boolean
---- @field public TALENT_RangerLoreArrowRecover boolean
---- @field public TALENT_RangerLoreEvasionBonus boolean
---- @field public TALENT_RangerLoreRangedAPBonus boolean
---- @field public TALENT_RogueLoreDaggerAPBonus boolean
---- @field public TALENT_RogueLoreDaggerBackStab boolean
---- @field public TALENT_RogueLoreMovementBonus boolean
---- @field public TALENT_RogueLoreHoldResistance boolean
---- @field public TALENT_NoAttackOfOpportunity boolean
---- @field public TALENT_WarriorLoreGrenadeRange boolean
---- @field public TALENT_RogueLoreGrenadePrecision boolean
---- @field public TALENT_WandCharge boolean
---- @field public TALENT_DualWieldingDodging boolean
---- @field public TALENT_Human_Inventive boolean
---- @field public TALENT_Human_Civil boolean
---- @field public TALENT_Elf_Lore boolean
---- @field public TALENT_Elf_CorpseEating boolean
---- @field public TALENT_Dwarf_Sturdy boolean
---- @field public TALENT_Dwarf_Sneaking boolean
---- @field public TALENT_Lizard_Resistance boolean
---- @field public TALENT_Lizard_Persuasion boolean
---- @field public TALENT_Perfectionist boolean
---- @field public TALENT_Executioner boolean
---- @field public TALENT_ViolentMagic boolean
---- @field public TALENT_QuickStep boolean
---- @field public TALENT_Quest_SpidersKiss_Str boolean
---- @field public TALENT_Quest_SpidersKiss_Int boolean
---- @field public TALENT_Quest_SpidersKiss_Per boolean
---- @field public TALENT_Quest_SpidersKiss_Null boolean
---- @field public TALENT_Memory boolean
---- @field public TALENT_Quest_TradeSecrets boolean
---- @field public TALENT_Quest_GhostTree boolean
---- @field public TALENT_BeastMaster boolean
---- @field public TALENT_LivingArmor boolean
---- @field public TALENT_Torturer boolean
---- @field public TALENT_Ambidextrous boolean
---- @field public TALENT_Unstable boolean
---- @field public TALENT_ResurrectExtraHealth boolean
---- @field public TALENT_NaturalConductor boolean
---- @field public TALENT_Quest_Rooted boolean
---- @field public TALENT_PainDrinker boolean
---- @field public TALENT_DeathfogResistant boolean
---- @field public TALENT_Sourcerer boolean
---- @field public TALENT_Rager boolean
---- @field public TALENT_Elementalist boolean
---- @field public TALENT_Sadist boolean
---- @field public TALENT_Haymaker boolean
---- @field public TALENT_Gladiator boolean
---- @field public TALENT_Indomitable boolean
---- @field public TALENT_WildMag boolean
---- @field public TALENT_Jitterbug boolean
---- @field public TALENT_Soulcatcher boolean
---- @field public TALENT_MasterThief boolean
---- @field public TALENT_GreedyVessel boolean
---- @field public TALENT_MagicCycles boolean
+--- @field TALENT_None boolean
+--- @field TALENT_ItemMovement boolean
+--- @field TALENT_ItemCreation boolean
+--- @field TALENT_Flanking boolean
+--- @field TALENT_AttackOfOpportunity boolean
+--- @field TALENT_Backstab boolean
+--- @field TALENT_Trade boolean
+--- @field TALENT_Lockpick boolean
+--- @field TALENT_ChanceToHitRanged boolean
+--- @field TALENT_ChanceToHitMelee boolean
+--- @field TALENT_Damage boolean
+--- @field TALENT_ActionPoints boolean
+--- @field TALENT_ActionPoints2 boolean
+--- @field TALENT_Criticals boolean
+--- @field TALENT_IncreasedArmor boolean
+--- @field TALENT_Sight boolean
+--- @field TALENT_ResistFear boolean
+--- @field TALENT_ResistKnockdown boolean
+--- @field TALENT_ResistStun boolean
+--- @field TALENT_ResistPoison boolean
+--- @field TALENT_ResistSilence boolean
+--- @field TALENT_ResistDead boolean
+--- @field TALENT_Carry boolean
+--- @field TALENT_Throwing boolean
+--- @field TALENT_Repair boolean
+--- @field TALENT_ExpGain boolean
+--- @field TALENT_ExtraStatPoints boolean
+--- @field TALENT_ExtraSkillPoints boolean
+--- @field TALENT_Durability boolean
+--- @field TALENT_Awareness boolean
+--- @field TALENT_Vitality boolean
+--- @field TALENT_FireSpells boolean
+--- @field TALENT_WaterSpells boolean
+--- @field TALENT_AirSpells boolean
+--- @field TALENT_EarthSpells boolean
+--- @field TALENT_Charm boolean
+--- @field TALENT_Intimidate boolean
+--- @field TALENT_Reason boolean
+--- @field TALENT_Luck boolean
+--- @field TALENT_Initiative boolean
+--- @field TALENT_InventoryAccess boolean
+--- @field TALENT_AvoidDetection boolean
+--- @field TALENT_AnimalEmpathy boolean
+--- @field TALENT_Escapist boolean
+--- @field TALENT_StandYourGround boolean
+--- @field TALENT_SurpriseAttack boolean
+--- @field TALENT_LightStep boolean
+--- @field TALENT_ResurrectToFullHealth boolean
+--- @field TALENT_Scientist boolean
+--- @field TALENT_Raistlin boolean
+--- @field TALENT_MrKnowItAll boolean
+--- @field TALENT_WhatARush boolean
+--- @field TALENT_FaroutDude boolean
+--- @field TALENT_Leech boolean
+--- @field TALENT_ElementalAffinity boolean
+--- @field TALENT_FiveStarRestaurant boolean
+--- @field TALENT_Bully boolean
+--- @field TALENT_ElementalRanger boolean
+--- @field TALENT_LightningRod boolean
+--- @field TALENT_Politician boolean
+--- @field TALENT_WeatherProof boolean
+--- @field TALENT_LoneWolf boolean
+--- @field TALENT_Zombie boolean
+--- @field TALENT_Demon boolean
+--- @field TALENT_IceKing boolean
+--- @field TALENT_Courageous boolean
+--- @field TALENT_GoldenMage boolean
+--- @field TALENT_WalkItOff boolean
+--- @field TALENT_FolkDancer boolean
+--- @field TALENT_SpillNoBlood boolean
+--- @field TALENT_Stench boolean
+--- @field TALENT_Kickstarter boolean
+--- @field TALENT_WarriorLoreNaturalArmor boolean
+--- @field TALENT_WarriorLoreNaturalHealth boolean
+--- @field TALENT_WarriorLoreNaturalResistance boolean
+--- @field TALENT_RangerLoreArrowRecover boolean
+--- @field TALENT_RangerLoreEvasionBonus boolean
+--- @field TALENT_RangerLoreRangedAPBonus boolean
+--- @field TALENT_RogueLoreDaggerAPBonus boolean
+--- @field TALENT_RogueLoreDaggerBackStab boolean
+--- @field TALENT_RogueLoreMovementBonus boolean
+--- @field TALENT_RogueLoreHoldResistance boolean
+--- @field TALENT_NoAttackOfOpportunity boolean
+--- @field TALENT_WarriorLoreGrenadeRange boolean
+--- @field TALENT_RogueLoreGrenadePrecision boolean
+--- @field TALENT_WandCharge boolean
+--- @field TALENT_DualWieldingDodging boolean
+--- @field TALENT_Human_Inventive boolean
+--- @field TALENT_Human_Civil boolean
+--- @field TALENT_Elf_Lore boolean
+--- @field TALENT_Elf_CorpseEating boolean
+--- @field TALENT_Dwarf_Sturdy boolean
+--- @field TALENT_Dwarf_Sneaking boolean
+--- @field TALENT_Lizard_Resistance boolean
+--- @field TALENT_Lizard_Persuasion boolean
+--- @field TALENT_Perfectionist boolean
+--- @field TALENT_Executioner boolean
+--- @field TALENT_ViolentMagic boolean
+--- @field TALENT_QuickStep boolean
+--- @field TALENT_Quest_SpidersKiss_Str boolean
+--- @field TALENT_Quest_SpidersKiss_Int boolean
+--- @field TALENT_Quest_SpidersKiss_Per boolean
+--- @field TALENT_Quest_SpidersKiss_Null boolean
+--- @field TALENT_Memory boolean
+--- @field TALENT_Quest_TradeSecrets boolean
+--- @field TALENT_Quest_GhostTree boolean
+--- @field TALENT_BeastMaster boolean
+--- @field TALENT_LivingArmor boolean
+--- @field TALENT_Torturer boolean
+--- @field TALENT_Ambidextrous boolean
+--- @field TALENT_Unstable boolean
+--- @field TALENT_ResurrectExtraHealth boolean
+--- @field TALENT_NaturalConductor boolean
+--- @field TALENT_Quest_Rooted boolean
+--- @field TALENT_PainDrinker boolean
+--- @field TALENT_DeathfogResistant boolean
+--- @field TALENT_Sourcerer boolean
+--- @field TALENT_Rager boolean
+--- @field TALENT_Elementalist boolean
+--- @field TALENT_Sadist boolean
+--- @field TALENT_Haymaker boolean
+--- @field TALENT_Gladiator boolean
+--- @field TALENT_Indomitable boolean
+--- @field TALENT_WildMag boolean
+--- @field TALENT_Jitterbug boolean
+--- @field TALENT_Soulcatcher boolean
+--- @field TALENT_MasterThief boolean
+--- @field TALENT_GreedyVessel boolean
+--- @field TALENT_MagicCycles boolean
 ---
 --- Abilities
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public RogueLore integer
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public PainReflection integer
---- @field public Ranged integer
---- @field public Shield integer
---- @field public Reflexes integer
---- @field public PhysicalArmorMastery integer
---- @field public MagicArmorMastery integer
---- @field public VitalityMastery integer
---- @field public Sourcery integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Necromancy integer
---- @field public Summoning integer
---- @field public Polymorph integer
---- @field public Telekinesis integer
---- @field public Repair integer
---- @field public Sneaking integer
---- @field public Pickpocket integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Crafting integer
---- @field public Barter integer
---- @field public Charm integer
---- @field public Intimidate integer
---- @field public Reason integer
---- @field public Persuasion integer
---- @field public Leadership integer
---- @field public Luck integer
---- @field public DualWielding integer
---- @field public Wand integer
---- @field public Perseverance integer
---- @field public Runecrafting integer
---- @field public Brewmaster integer
---- @field public Sulfurology integer
-local StatBase = {}
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field RogueLore integer
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field PainReflection integer
+--- @field Ranged integer
+--- @field Shield integer
+--- @field Reflexes integer
+--- @field PhysicalArmorMastery integer
+--- @field MagicArmorMastery integer
+--- @field VitalityMastery integer
+--- @field Sourcery integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Necromancy integer
+--- @field Summoning integer
+--- @field Polymorph integer
+--- @field Telekinesis integer
+--- @field Repair integer
+--- @field Sneaking integer
+--- @field Pickpocket integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Crafting integer
+--- @field Barter integer
+--- @field Charm integer
+--- @field Intimidate integer
+--- @field Reason integer
+--- @field Persuasion integer
+--- @field Leadership integer
+--- @field Luck integer
+--- @field DualWielding integer
+--- @field Wand integer
+--- @field Perseverance integer
+--- @field Runecrafting integer
+--- @field Brewmaster integer
+--- @field Sulfurology integer
 
 
 --- @class StatCharacter : StatBase
 --- Properties from PropertyMap
---- @field public Level integer
---- @field public Name string
---- @field public AIFlags integer
---- @field public CurrentVitality integer
---- @field public CurrentArmor integer
---- @field public CurrentMagicArmor integer
---- @field public ArmorAfterHitCooldownMultiplier integer
---- @field public MagicArmorAfterHitCooldownMultiplier integer
---- @field public MPStart integer
---- @field public CurrentAP integer
---- @field public BonusActionPoints integer
---- @field public Experience integer
---- @field public Reputation integer
---- @field public Flanked integer
---- @field public Karma integer
---- @field public MaxResistance integer
---- @field public HasTwoHandedWeapon integer
---- @field public IsIncapacitatedRefCount integer
---- @field public MaxVitality integer
---- @field public BaseMaxVitality integer
---- @field public MaxArmor integer
---- @field public BaseMaxArmor integer
---- @field public MaxMagicArmor integer
---- @field public BaseMaxMagicArmor integer
---- @field public Sight number
---- @field public BaseSight number
---- @field public MaxSummons integer
---- @field public BaseMaxSummons integer
---- @field public MaxMpOverride integer
----
+--- @field Level integer
+--- @field Name string
+--- @field AIFlags integer
+--- @field CurrentVitality integer
+--- @field CurrentArmor integer
+--- @field CurrentMagicArmor integer
+--- @field ArmorAfterHitCooldownMultiplier integer
+--- @field MagicArmorAfterHitCooldownMultiplier integer
+--- @field MPStart integer
+--- @field CurrentAP integer
+--- @field BonusActionPoints integer
+--- @field Experience integer
+--- @field Reputation integer
+--- @field Flanked integer
+--- @field Karma integer
+--- @field MaxResistance integer
+--- @field HasTwoHandedWeapon integer
+--- @field IsIncapacitatedRefCount integer
+--- @field MaxVitality integer
+--- @field BaseMaxVitality integer
+--- @field MaxArmor integer
+--- @field BaseMaxArmor integer
+--- @field MaxMagicArmor integer
+--- @field BaseMaxMagicArmor integer
+--- @field Sight number
+--- @field BaseSight number
+--- @field MaxSummons integer
+--- @field BaseMaxSummons integer
+--- @field MaxMpOverride integer
 --- StatCharacterFlags
---- @field public IsPlayer boolean
---- @field public InParty boolean
---- @field public IsSneaking boolean
---- @field public Invisible boolean
---- @field public Blind boolean
---- @field public DrinkedPotion boolean
---- @field public EquipmentValidated boolean
----
+--- @field IsPlayer boolean
+--- @field InParty boolean
+--- @field IsSneaking boolean
+--- @field Invisible boolean
+--- @field Blind boolean
+--- @field DrinkedPotion boolean
+--- @field EquipmentValidated boolean
 --- Properties from CDivinityStats_Character::GetStat
---- @field public PhysicalResistance integer
---- @field public PiercingResistance integer
---- @field public CorrosiveResistance integer
---- @field public MagicResistance integer
----
+--- @field PhysicalResistance integer
+--- @field PiercingResistance integer
+--- @field CorrosiveResistance integer
+--- @field MagicResistance integer
 --- Base properties from CDivinityStats_Character::GetStat
---- @field public BasePhysicalResistance integer
---- @field public BasePiercingResistance integer
---- @field public BaseCorrosiveResistance integer
---- @field public BaseMagicResistance integer
----
+--- @field BasePhysicalResistance integer
+--- @field BasePiercingResistance integer
+--- @field BaseCorrosiveResistance integer
+--- @field BaseMagicResistance integer
 --- Properties from CharacterStatsGetters::GetStat
---- @field public MaxMp integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public APMaximum integer
---- @field public Strength integer
---- @field public Finesse integer
---- @field public Intelligence integer
---- @field public Constitution integer
---- @field public Memory integer
---- @field public Wits integer
---- @field public Accuracy integer
---- @field public Dodge integer
---- @field public CriticalChance integer
---- @field public FireResistance integer
---- @field public EarthResistance integer
---- @field public WaterResistance integer
---- @field public AirResistance integer
---- @field public PoisonResistance integer
---- @field public ShadowResistance integer
---- @field public CustomResistance integer
---- @field public LifeSteal integer
---- @field public Hearing integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public BlockChance integer
---- @field public ChanceToHitBoost integer
----
+--- @field MaxMp integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field APMaximum integer
+--- @field Strength integer
+--- @field Finesse integer
+--- @field Intelligence integer
+--- @field Constitution integer
+--- @field Memory integer
+--- @field Wits integer
+--- @field Accuracy integer
+--- @field Dodge integer
+--- @field CriticalChance integer
+--- @field FireResistance integer
+--- @field EarthResistance integer
+--- @field WaterResistance integer
+--- @field AirResistance integer
+--- @field PoisonResistance integer
+--- @field ShadowResistance integer
+--- @field CustomResistance integer
+--- @field LifeSteal integer
+--- @field Hearing integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field BlockChance integer
+--- @field ChanceToHitBoost integer
 --- Base properties from CharacterStatsGetters::GetStat
---- @field public BaseMaxMp integer
---- @field public BaseAPStart integer
---- @field public BaseAPRecovery integer
---- @field public BaseAPMaximum integer
---- @field public BaseStrength integer
---- @field public BaseFinesse integer
---- @field public BaseIntelligence integer
---- @field public BaseConstitution integer
---- @field public BaseMemory integer
---- @field public BaseWits integer
---- @field public BaseAccuracy integer
---- @field public BaseDodge integer
---- @field public BaseCriticalChance integer
---- @field public BaseFireResistance integer
---- @field public BaseEarthResistance integer
---- @field public BaseWaterResistance integer
---- @field public BaseAirResistance integer
---- @field public BasePoisonResistance integer
---- @field public BaseShadowResistance integer
---- @field public BaseCustomResistance integer
---- @field public BaseLifeSteal integer
---- @field public BaseHearing integer
---- @field public BaseMovement integer
---- @field public BaseInitiative integer
---- @field public BaseBlockChance integer
---- @field public BaseChanceToHitBoost integer
----
+--- @field BaseMaxMp integer
+--- @field BaseAPStart integer
+--- @field BaseAPRecovery integer
+--- @field BaseAPMaximum integer
+--- @field BaseStrength integer
+--- @field BaseFinesse integer
+--- @field BaseIntelligence integer
+--- @field BaseConstitution integer
+--- @field BaseMemory integer
+--- @field BaseWits integer
+--- @field BaseAccuracy integer
+--- @field BaseDodge integer
+--- @field BaseCriticalChance integer
+--- @field BaseFireResistance integer
+--- @field BaseEarthResistance integer
+--- @field BaseWaterResistance integer
+--- @field BaseAirResistance integer
+--- @field BasePoisonResistance integer
+--- @field BaseShadowResistance integer
+--- @field BaseCustomResistance integer
+--- @field BaseLifeSteal integer
+--- @field BaseHearing integer
+--- @field BaseMovement integer
+--- @field BaseInitiative integer
+--- @field BaseBlockChance integer
+--- @field BaseChanceToHitBoost integer
 --- Properties from CharacterFetchStat
---- @field public DynamicStats StatCharacterDynamic[]
---- @field public MainWeapon StatItem
---- @field public OffHandWeapon StatItem
---- @field public DamageBoost integer
---- @field public Character EsvCharacter
---- @field public Rotation number[]
---- @field public Position number[]
---- @field public MyGuid string
---- @field public NetID integer
-local StatCharacter = {
-    --- Returns the item equipped in the specified slot
-    --- @param self StatCharacter
-    --- @param slot string See Itemslot enumeration
-    --- @return StatItem|nil
-    GetItemBySlot = function (self, slot) end
-}
+--- @field DynamicStats StatCharacterDynamic[]
+--- @field MainWeapon StatItem
+--- @field OffHandWeapon StatItem
+--- @field DamageBoost integer
+--- @field Character EsvCharacter
+--- @field Rotation number[]
+--- @field Position number[]
+--- @field MyGuid string
+--- @field NetID integer
+local StatCharacter = {}
 
+--- Returns the item equipped in the specified slot
+--- @param slot string See Itemslot enumeration
+--- @return StatItem|nil
+function StatCharacter:GetItemBySlot(slot) end
 
 --- @class StatItemDynamic : StatBase
---- @field public Durability integer
---- @field public DurabilityDegradeSpeed integer
---- @field public StrengthBoost integer
---- @field public FinesseBoost integer
---- @field public IntelligenceBoost integer
---- @field public ConstitutionBoost integer
---- @field public MemoryBoost integer
---- @field public WitsBoost integer
---- @field public SightBoost integer
---- @field public HearingBoost integer
---- @field public VitalityBoost integer
---- @field public SourcePointsBoost integer
---- @field public MaxAP integer
---- @field public StartAP integer
---- @field public APRecovery integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public LifeSteal integer
---- @field public CriticalChance integer
---- @field public ChanceToHitBoost integer
---- @field public MovementSpeedBoost integer
---- @field public RuneSlots integer
---- @field public RuneSlots_V1 integer
---- @field public FireResistance integer
---- @field public AirResistance integer
---- @field public WaterResistance integer
---- @field public EarthResistance integer
---- @field public PoisonResistance integer
---- @field public ShadowResistance integer
---- @field public PiercingResistance integer
---- @field public CorrosiveResistance integer
---- @field public PhysicalResistance integer
---- @field public MagicResistance integer
---- @field public CustomResistance integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public Willpower integer
---- @field public Bodybuilding integer
---- @field public MaxSummons integer
---- @field public Value integer
---- @field public Weight integer
---- @field public Skills string
---- @field public ItemColor string
---- @field public ModifierType integer
---- @field public ObjectInstanceName string
---- @field public BoostName string
---- @field public StatsType string See EquipmentStatsType enumeration
---- @field public DamageType integer Weapon only! - See DamageType enumeration
---- @field public MinDamage integer Weapon only!
---- @field public MaxDamage integer Weapon only!
---- @field public DamageBoost integer Weapon only!
---- @field public DamageFromBase integer Weapon only!
---- @field public CriticalDamage integer Weapon only!
---- @field public WeaponRange integer Weapon only!
---- @field public CleaveAngle integer Weapon only!
---- @field public CleavePercentage integer Weapon only!
---- @field public AttackAPCost integer Weapon only!
---- @field public ArmorValue integer Shield/Armor only!
---- @field public ArmorBoost integer Shield/Armor only!
---- @field public MagicArmorValue integer Shield/Armor only!
---- @field public MagicArmorBoost integer Shield/Armor only!
---- @field public Blocking integer Shield only!
+--- @field Durability integer
+--- @field DurabilityDegradeSpeed integer
+--- @field StrengthBoost integer
+--- @field FinesseBoost integer
+--- @field IntelligenceBoost integer
+--- @field ConstitutionBoost integer
+--- @field MemoryBoost integer
+--- @field WitsBoost integer
+--- @field SightBoost integer
+--- @field HearingBoost integer
+--- @field VitalityBoost integer
+--- @field SourcePointsBoost integer
+--- @field MaxAP integer
+--- @field StartAP integer
+--- @field APRecovery integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field LifeSteal integer
+--- @field CriticalChance integer
+--- @field ChanceToHitBoost integer
+--- @field MovementSpeedBoost integer
+--- @field RuneSlots integer
+--- @field RuneSlots_V1 integer
+--- @field FireResistance integer
+--- @field AirResistance integer
+--- @field WaterResistance integer
+--- @field EarthResistance integer
+--- @field PoisonResistance integer
+--- @field ShadowResistance integer
+--- @field PiercingResistance integer
+--- @field CorrosiveResistance integer
+--- @field PhysicalResistance integer
+--- @field MagicResistance integer
+--- @field CustomResistance integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field Willpower integer
+--- @field Bodybuilding integer
+--- @field MaxSummons integer
+--- @field Value integer
+--- @field Weight integer
+--- @field Skills string
+--- @field ItemColor string
+--- @field ModifierType integer
+--- @field ObjectInstanceName string
+--- @field BoostName string
+--- @field StatsType string See EquipmentStatsType enumeration
+--- @field DamageType integer Weapon only! - See DamageType enumeration
+--- @field MinDamage integer Weapon only!
+--- @field MaxDamage integer Weapon only!
+--- @field DamageBoost integer Weapon only!
+--- @field DamageFromBase integer Weapon only!
+--- @field CriticalDamage integer Weapon only!
+--- @field WeaponRange integer Weapon only!
+--- @field CleaveAngle integer Weapon only!
+--- @field CleavePercentage integer Weapon only!
+--- @field AttackAPCost integer Weapon only!
+--- @field ArmorValue integer Shield/Armor only!
+--- @field ArmorBoost integer Shield/Armor only!
+--- @field MagicArmorValue integer Shield/Armor only!
+--- @field MagicArmorBoost integer Shield/Armor only!
+--- @field Blocking integer Shield only!
 --- TODO - add attribute flags object support
 --- TODO - AbilityModifiers, Talents, Reflection
-local StatItemDynamic = {}
-
 
 --- @class StatProperty
 --- @field Context string[] Target|Self|AoE|SelfOnHit|SelfOnEquip
 --- @field Type string Custom|Status|SurfaceChange|GameAction|OsirisTask|Sabotage|Summon|Force
 --- @field Condition string|nil
-local StatProperty = {}
 
 --- @class StatPropertyCustom : StatProperty
 --- @field Type string Custom
 --- @field Action string
-local StatPropertyStatus = {}
 
 --- @class StatPropertyStatus : StatProperty
 --- @field Type string Status
@@ -1305,7 +1229,6 @@ local StatPropertyStatus = {}
 --- @field Arg5 integer
 --- @field SurfaceBoost boolean
 --- @field SurfaceBoosts string[] Labels from "Surface Type" enumeration
-local StatPropertyStatus = {}
 
 --- @class StatPropertySurfaceChange : StatProperty
 --- @field Type string SurfaceChange
@@ -1314,12 +1237,10 @@ local StatPropertyStatus = {}
 --- @field Lifetime number
 --- @field StatusChance number
 --- @field Radius number
-local StatPropertySurfaceChange = {}
 
 --- @class StatPropertySabotage : StatProperty
 --- @field Type string Sabotage
 --- @field Amount integer
-local StatPropertySabotage = {}
 
 --- @class StatPropertySummon : StatProperty
 --- @field Type string Summon
@@ -1327,12 +1248,10 @@ local StatPropertySabotage = {}
 --- @field Duration number
 --- @field IsTotem boolean
 --- @field Skill string
-local StatPropertySummon = {}
 
 --- @class StatPropertyForce : StatProperty
 --- @field Type string Force
 --- @field Distance integer
-local StatPropertyForce = {}
 
 --- @class StatPropertyGameAction : StatProperty
 --- @field Type string GameAction
@@ -1343,14 +1262,12 @@ local StatPropertyForce = {}
 --- @field Arg4 number
 --- @field Arg5 number
 --- @field StatusHealType string Label from "StatusHealType" enumeration
-local StatPropertyGameAction = {}
 
 --- @class StatPropertyOsirisTask : StatProperty
 --- @field Type string OsirisTask
 --- @field Action string Label from "Osiris Task" enumeration
 --- @field Chance number
 --- @field VitalityOnRevive integer
-local StatPropertyOsirisTask = {}
 
 --- @class StatPropertyExtender : StatProperty
 --- @field Type string Extender
@@ -1360,468 +1277,432 @@ local StatPropertyOsirisTask = {}
 --- @field Arg3 string
 --- @field Arg4 integer
 --- @field Arg5 integer
-local StatPropertyExtender = {}
-
 
 --- @class StatItem : StatBase
 --- Properties from property map
---- @field public Level integer
---- @field public Name string
---- @field public InstanceId integer
---- @field public ItemType string See EquipmentStatsType enumeration
---- @field public ItemSlot string See ItemSlot enumeration
---- @field public WeaponType string See WeaponType enumeration
---- @field public AnimType integer TODO maybe an enum?
---- @field public WeaponRange integer
---- @field public IsIdentified integer
---- @field public IsTwoHanded boolean
---- @field public ShouldSyncStats boolean
---- @field public HasModifiedSkills boolean
---- @field public Skills string
---- @field public DamageTypeOverwrite string See DamageType enumeration
---- @field public Durability integer
---- @field public DurabilityCounter integer
---- @field public ItemTypeReal string
---- @field public MaxCharges integer
---- @field public Charges integer
+--- @field Level integer
+--- @field Name string
+--- @field InstanceId integer
+--- @field ItemType string See EquipmentStatsType enumeration
+--- @field ItemSlot string See ItemSlot enumeration
+--- @field WeaponType string See WeaponType enumeration
+--- @field AnimType integer TODO maybe an enum?
+--- @field WeaponRange integer
+--- @field IsIdentified integer
+--- @field IsTwoHanded boolean
+--- @field ShouldSyncStats boolean
+--- @field HasModifiedSkills boolean
+--- @field Skills string
+--- @field DamageTypeOverwrite string See DamageType enumeration
+--- @field Durability integer
+--- @field DurabilityCounter integer
+--- @field ItemTypeReal string
+--- @field MaxCharges integer
+--- @field Charges integer
 ---
 --- Properties from ItemFetchStat
---- @field public DynamicStats StatItemDynamic[]
+--- @field DynamicStats StatItemDynamic[]
 ---
 --- Indirect properties from StatEntryWeapon/Armor/Shield
---- @field public Using string
---- @field public Damage integer
---- @field public Act string See Act enumeration
---- @field public Handedness string See Handedness enumeration
---- @field public DamageBoost integer
---- @field public DamageFromBase integer
---- @field public CriticalDamage integer
---- @field public CriticalChance integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public Requirements StatRequirement[]
---- @field public Slot string See Itemslot enumeration
---- @field public DurabilityDegradeSpeed string See Qualifier enumeration
---- @field public Value integer
---- @field public ModifierType string See ModifierType enumeration
---- @field public Projectile string
---- @field public StrengthBoost string See Penalty Qualifier enumeration
---- @field public FinesseBoost string See Penalty Qualifier enumeration
---- @field public IntelligenceBoost string See Penalty Qualifier enumeration
---- @field public ConstitutionBoost string See Penalty Qualifier enumeration
---- @field public MemoryBoost string See Penalty Qualifier enumeration
---- @field public WitsBoost string See Penalty Qualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public Leadership integer
---- @field public PainReflection integer
---- @field public Perseverance integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public Fire integer
---- @field public Earth integer
---- @field public Water integer
---- @field public Air integer
---- @field public Poison integer
---- @field public Physical integer
---- @field public Piercing integer
---- @field public SightBoost string See Penalty Qualifier enumeration
---- @field public HearingBoost string See Penalty Qualifier enumeration
---- @field public VitalityBoost integer
---- @field public MagicPointsBoost string See Penalty Qualifier enumeration
---- @field public ChanceToHitBoost integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public Weight integer
---- @field public AttackAPCost integer
---- @field public ComboCategory string
---- @field public Flags string See AttributeFlags enumeration
---- @field public Boosts string
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public Reflection string
---- @field public ItemGroup string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public ItemColor string
---- @field public MaxSummons integer
---- @field public RuneSlots integer
---- @field public RuneSlots_V1 integer
---- @field public NeedsIdentification string See YesNo enumeration
---- @field public LifeSteal integer
---- @field public CleavePercentage integer
---- @field public CleaveAngle integer
---- @field public Talents string
---- @field public IgnoreVisionBlock string See YesNo enumeration
---- @field public Tags string
---- @field public ArmorBoost integer
---- @field public MagicArmorBoost integer
---- @field public Blocking integer
---- @field public ExtraProperties StatProperty[]
+--- @field Using string
+--- @field Damage integer
+--- @field Act string See Act enumeration
+--- @field Handedness string See Handedness enumeration
+--- @field DamageBoost integer
+--- @field DamageFromBase integer
+--- @field CriticalDamage integer
+--- @field CriticalChance integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field Requirements StatRequirement[]
+--- @field Slot string See Itemslot enumeration
+--- @field DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field Value integer
+--- @field ModifierType string See ModifierType enumeration
+--- @field Projectile string
+--- @field StrengthBoost string See Penalty Qualifier enumeration
+--- @field FinesseBoost string See Penalty Qualifier enumeration
+--- @field IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field MemoryBoost string See Penalty Qualifier enumeration
+--- @field WitsBoost string See Penalty Qualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field Leadership integer
+--- @field PainReflection integer
+--- @field Perseverance integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field Fire integer
+--- @field Earth integer
+--- @field Water integer
+--- @field Air integer
+--- @field Poison integer
+--- @field Physical integer
+--- @field Piercing integer
+--- @field SightBoost string See Penalty Qualifier enumeration
+--- @field HearingBoost string See Penalty Qualifier enumeration
+--- @field VitalityBoost integer
+--- @field MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field ChanceToHitBoost integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field Weight integer
+--- @field AttackAPCost integer
+--- @field ComboCategory string
+--- @field Flags string See AttributeFlags enumeration
+--- @field Boosts string
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field Reflection string
+--- @field ItemGroup string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field ItemColor string
+--- @field MaxSummons integer
+--- @field RuneSlots integer
+--- @field RuneSlots_V1 integer
+--- @field NeedsIdentification string See YesNo enumeration
+--- @field LifeSteal integer
+--- @field CleavePercentage integer
+--- @field CleaveAngle integer
+--- @field Talents string
+--- @field IgnoreVisionBlock string See YesNo enumeration
+--- @field Tags string
+--- @field ArmorBoost integer
+--- @field MagicArmorBoost integer
+--- @field Blocking integer
+--- @field ExtraProperties StatProperty[]
 local StatItem = {}
 
 
 --- @class EclGameObject
---- @field public NetID integer
---- @field public MyGuid string
+--- @field NetID integer
+--- @field MyGuid string
 --- TODO - Add more properties via virtual getters?
 --- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
 local EclGameObject = {}
 
 
 --- @class EclItem : EclGameObject
---- @field public RootTemplate ItemTemplate
---- @field public Stats StatItem
---- @field public Handle ObjectHandle
+--- @field RootTemplate ItemTemplate
+--- @field Stats StatItem
+--- @field Handle ObjectHandle
 ---
---- @field public WorldPos number[]
---- @field public CurrentLevel string
---- @field public Scale number
---- @field public StatsId string
---- @field public Weight integer
---- @field public KeyName string
---- @field public Level integer
---- @field public ItemType string
---- @field public GoldValueOverride integer
---- @field public BaseWeightOverwrite integer
---- @field public ItemColorOverride integer
---- @field public DisplayName string
+--- @field WorldPos number[]
+--- @field CurrentLevel string
+--- @field Scale number
+--- @field StatsId string
+--- @field Weight integer
+--- @field KeyName string
+--- @field Level integer
+--- @field ItemType string
+--- @field GoldValueOverride integer
+--- @field BaseWeightOverwrite integer
+--- @field ItemColorOverride integer
+--- @field DisplayName string
 local EclItem = {}
 
 --- Returns all delta mods on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetDeltaMods (self) end
+function EclItem:GetDeltaMods() end
 
---- Returns the GUID of all items within the inventory of the item
---- @param self EclItem
+--- Returns the UUID of all items within the inventory of the item
 --- @return string[]
-function EclItem.GetInventoryItems (self) end
+function EclItem:GetInventoryItems() end
 
---- Returns the GUID of character that currently owns the item; nil if the item is not in a character inventory
---- @param self EclItem
+--- Returns the UUID of character that currently owns the item; nil if the item is not in a character inventory
 --- @return string|nil
-function EclItem.GetOwnerCharacter (self) end
+function EclItem:GetOwnerCharacter() end
 
 --- Returns whether the item has the specified tag
---- @param self EclItem
 --- @param tag string
 --- @return boolean
-function EclItem.HasTag (self, tag) end
+function EclItem:HasTag(tag) end
 
 --- Returns all tags on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetTags (self) end
+function EclItem:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EclItem
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclItem.GetStatus (self, statusId) end
+function EclItem:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EclItem
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclItem.GetStatusByType (self, type) end
+function EclItem:GetStatusByType(type) end
 
 --- Returns all statuses on the item
---- @param self EclItem
 --- @return string[]
-function EclItem.GetStatuses (self) end
+function EclItem:GetStatuses() end
 
 --- Returns all statuses on the item
---- @param self EclItem
 --- @return EclStatus[]
-function EclItem.GetStatusObjects (self) end
+function EclItem:GetStatusObjects() end
 
 
 
 --- @class EclCharacter : EclGameObject
---- @field public RootTemplate CharacterTemplate
---- @field public PlayerCustomData PlayerCustomData
---- @field public Stats StatCharacter
---- @field public Handle ObjectHandle
+--- @field RootTemplate CharacterTemplate
+--- @field PlayerCustomData PlayerCustomData
+--- @field Stats StatCharacter
+--- @field Handle ObjectHandle
 ---
---- @field public WorldPos number[]
---- @field public CurrentLevel string
---- @field public Scale number
---- @field public AnimationOverride string
---- @field public UserID integer
---- @field public DisplayName string
---- @field public StoryDisplayName string
---- @field public OriginalDisplayName string
---- @field public WalkSpeedOverride number
---- @field public RunSpeedOverride number
---- @field public Archetype string
---- @field public CorpseLootable boolean
+--- @field WorldPos number[]
+--- @field CurrentLevel string
+--- @field Scale number
+--- @field AnimationOverride string
+--- @field UserID integer
+--- @field DisplayName string
+--- @field StoryDisplayName string
+--- @field OriginalDisplayName string
+--- @field WalkSpeedOverride number
+--- @field RunSpeedOverride number
+--- @field Archetype string
+--- @field CorpseLootable boolean
 local EclCharacter = {}
 
---- Returns the GUID of all items within the inventory of the character
---- @param self EclCharacter
+--- Returns the UUID of all items within the inventory of the character
 --- @return string[]
-function EclCharacter.GetInventoryItems (self) end
+function EclCharacter:GetInventoryItems() end
 
 --- Returns the item equipped in the specified slot
---- @param self EclCharacter
 --- @param slot string See ItemSlot enumeration
 --- @return EclItem|nil
-function EclCharacter.GetItemBySlot (self, slot) end
+function EclCharacter:GetItemBySlot(slot) end
 
 --- Returns whether the character has the specified tag
---- @param self EclCharacter
 --- @param tag string
 --- @return boolean
-function EclCharacter.HasTag (self, tag) end
+function EclCharacter:HasTag(tag) end
 
 --- Returns all tags on the character
---- @param self EclCharacter
 --- @return string[]
-function EclCharacter.GetTags (self) end
+function EclCharacter:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EclCharacter
 --- @param statusId string Status ID
 --- @return EclStatus|nil
-function EclCharacter.GetStatus (self, statusId) end
+function EclCharacter:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EclCharacter
 --- @param type string Status type
 --- @return EclStatus|nil
-function EclCharacter.GetStatusByType (self, type) end
+function EclCharacter:GetStatusByType(type) end
 
 --- Returns all statuses on the character
---- @param self EclCharacter
 --- @return string[]
-function EclCharacter.GetStatuses (self) end
+function EclCharacter:GetStatuses() end
 
 --- Returns all statuses on the character
---- @param self EclCharacter
 --- @return EclStatus[]
-function EclCharacter.GetStatusObjects (self) end
+function EclCharacter:GetStatusObjects() end
 
 --- Update model scale of the character.
---- @param self EclCharacter
 --- @param scale number 
-function EclCharacter.SetScale (self, scale) end
+function EclCharacter:SetScale(scale) end
 
 --- Returns the value of the specified custom stat
---- @param self EclCharacter
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EclCharacter.GetCustomStat (self, statId) end
-
-
+function EclCharacter:GetCustomStat(statId) end
 
 --- @class EsvGameObject
---- @field public NetID integer
---- @field public MyGuid string
+--- @field NetID integer
+--- @field MyGuid string
 --- TODO - Add more properties via virtual getters?
 --- (IsGlobal, GetComponentType, GetFlags, GetTags, T/R/S, Velocity, Height, Level?)
 local EsvGameObject = {}
 
-
 --- @class EsvItem : EsvGameObject
---- @field public Handle ObjectHandle
---- @field public RootTemplate ItemTemplate
---- @field public WorldPos number[]
---- @field public CurrentLevel string
---- @field public Scale number
---- @field public CustomDisplayName string
---- @field public CustomDescription string
---- @field public CustomBookContent string
---- @field public StatsId string
---- @field public InventoryHandle ObjectHandle
---- @field public ParentInventoryHandle ObjectHandle
---- @field public Slot integer
---- @field public Amount integer
---- @field public Vitality integer
---- @field public Armor integer
---- @field public InUseByCharacterHandle ObjectHandle
---- @field public Key string
---- @field public LockLevel integer
---- @field public OwnerHandle ObjectHandle
---- @field public ItemType string
---- @field public GoldValueOverwrite integer
---- @field public WeightValueOverwrite integer
---- @field public TreasureLevel integer
---- @field public LevelOverride integer
---- @field public ForceSynch boolean
---- @field public DisplayName string
+--- @field Handle ObjectHandle
+--- @field RootTemplate ItemTemplate
+--- @field WorldPos number[]
+--- @field CurrentLevel string
+--- @field Scale number
+--- @field CustomDisplayName string
+--- @field CustomDescription string
+--- @field CustomBookContent string
+--- @field StatsId string
+--- @field InventoryHandle ObjectHandle
+--- @field ParentInventoryHandle ObjectHandle
+--- @field Slot integer
+--- @field Amount integer
+--- @field Vitality integer
+--- @field Armor integer
+--- @field InUseByCharacterHandle ObjectHandle
+--- @field Key string
+--- @field LockLevel integer
+--- @field OwnerHandle ObjectHandle
+--- @field ItemType string
+--- @field GoldValueOverwrite integer
+--- @field WeightValueOverwrite integer
+--- @field TreasureLevel integer
+--- @field LevelOverride integer
+--- @field ForceSynch boolean
+--- @field DisplayName string
 --- From ItemFlags
---- @field public Activated boolean
---- @field public OffStage boolean
---- @field public CanBePickedUp boolean
---- @field public CanBeMoved boolean
---- @field public WalkOn boolean
---- @field public WalkThrough boolean
---- @field public NoCover boolean
---- @field public CanShootThrough boolean
---- @field public CanUse boolean
---- @field public InteractionDisabled boolean
---- @field public Destroyed boolean
---- @field public LoadedTemplate boolean
---- @field public IsDoor boolean
---- @field public StoryItem boolean
---- @field public Summon boolean
---- @field public FreezeGravity boolean
---- @field public ForceSync boolean
---- @field public IsLadder boolean
---- @field public PositionChanged boolean
---- @field public Totem boolean
---- @field public Destroy boolean
---- @field public GMFolding boolean
---- @field public Sticky boolean
---- @field public DoorFlag boolean
---- @field public Floating boolean
---- @field public IsSurfaceBlocker boolean
---- @field public IsSurfaceCloudBlocker boolean
---- @field public SourceContainer boolean
---- @field public Frozen boolean
---- @field public TeleportOnUse boolean
---- @field public PinnedContainer boolean
+--- @field Activated boolean
+--- @field OffStage boolean
+--- @field CanBePickedUp boolean
+--- @field CanBeMoved boolean
+--- @field WalkOn boolean
+--- @field WalkThrough boolean
+--- @field NoCover boolean
+--- @field CanShootThrough boolean
+--- @field CanUse boolean
+--- @field InteractionDisabled boolean
+--- @field Destroyed boolean
+--- @field LoadedTemplate boolean
+--- @field IsDoor boolean
+--- @field StoryItem boolean
+--- @field Summon boolean
+--- @field FreezeGravity boolean
+--- @field ForceSync boolean
+--- @field IsLadder boolean
+--- @field PositionChanged boolean
+--- @field Totem boolean
+--- @field Destroy boolean
+--- @field GMFolding boolean
+--- @field Sticky boolean
+--- @field DoorFlag boolean
+--- @field Floating boolean
+--- @field IsSurfaceBlocker boolean
+--- @field IsSurfaceCloudBlocker boolean
+--- @field SourceContainer boolean
+--- @field Frozen boolean
+--- @field TeleportOnUse boolean
+--- @field PinnedContainer boolean
 --- From ItemFlags2
---- @field public UnsoldGenerated boolean
---- @field public IsKey boolean
---- @field public Global boolean
---- @field public CanConsume boolean
---- @field public TreasureGenerated boolean
---- @field public UnEquipLocked boolean
---- @field public UseRemotely boolean
+--- @field UnsoldGenerated boolean
+--- @field IsKey boolean
+--- @field Global boolean
+--- @field CanConsume boolean
+--- @field TreasureGenerated boolean
+--- @field UnEquipLocked boolean
+--- @field UseRemotely boolean
 --- 
---- @field public Stats StatItem
+--- @field Stats StatItem
 local EsvItem = {}
 
 --- Returns all delta mods on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetDeltaMods (self) end
+function EsvItem:GetDeltaMods() end
 
 --- Updates the delta mod list on the item.
 --- The new deltamods will only be applied after a save/reload!
---- @param self EsvItem
---- @param boosts string[]
-function EsvItem.SetDeltaMods (self) end
+--- @param deltamods string[]
+function EsvItem:SetDeltaMods(deltamods) end
 
 --- Returns all boosts that were added during treasure generation
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetGeneratedBoosts (self) end
+function EsvItem:GetGeneratedBoosts() end
 
 --- Updates the list of boosts that were added during treasure generation.
 --- The new boosts will only be applied after a save/reload!
---- @param self EsvItem
 --- @param boosts string[]
-function EsvItem.SetGeneratedBoosts (self) end
+function EsvItem:SetGeneratedBoosts(boosts) end
 
---- Returns the GUID of all items within the inventory of the item
---- @param self EsvItem
+--- Returns the UUID of all items within the inventory of the item
 --- @return string[]
-function EsvItem.GetInventoryItems (self) end
+function EsvItem:GetInventoryItems() end
 
---- Returns the GUID of all characters within the specified radius
---- @param self EsvItem
+--- Returns the UUID of all characters within the specified radius
+--- @param radius number
 --- @return string[]
-function EsvItem.GetNearbyCharacters (self, radius) end
+function EsvItem:GetNearbyCharacters(radius) end
 
 --- Returns whether the item has the specified tag
---- @param self EsvItem
 --- @param tag string
 --- @return boolean
-function EsvItem.HasTag (self, tag) end
+function EsvItem:HasTag(tag) end
 
 --- Returns all tags on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetTags (self) end
+function EsvItem:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EsvItem
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvItem.GetStatus (self, statusId) end
+function EsvItem:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EsvItem
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvItem.GetStatusByType (self, type) end
+function EsvItem:GetStatusByType(type) end
 
 --- Returns all statuses on the item
---- @param self EsvItem
 --- @return string[]
-function EsvItem.GetStatuses (self) end
+function EsvItem:GetStatuses() end
 
 --- Returns all statuses on the character
---- @param self EclItem
 --- @return EsvStatus[]
-function EsvItem.GetStatusObjects (self) end
+function EsvItem:GetStatusObjects() end
 
 
 
 
 --- @class ItemDefinition
---- @field public RootTemplate string
---- @field public OriginalRootTemplate string
---- @field public Slot integer
---- @field public Amount integer
---- @field public GoldValueOverwrite integer
---- @field public WeightValueOverwrite integer
---- @field public DamageTypeOverwrite string DamageType enumeration
---- @field public ItemType string
---- @field public CustomDisplayName string
---- @field public CustomDescription string
---- @field public CustomBookContent string
---- @field public GenerationStatsId string
---- @field public GenerationItemType string
---- @field public GenerationRandom integer
---- @field public GenerationLevel integer
---- @field public StatsLevel integer
---- @field public Key string
---- @field public LockLevel integer
---- @field public EquipmentStatsType integer
---- @field public HasModifiedSkills boolean
---- @field public Skills string
---- @field public HasGeneratedStats boolean
---- @field public IsIdentified boolean
---- @field public GMFolding boolean
---- @field public CanUseRemotely boolean
---- @field public GenerationBoosts string[]
---- @field public RuneBoosts string[]
---- @field public DeltaMods string[]
+--- @field RootTemplate string
+--- @field OriginalRootTemplate string
+--- @field Slot integer
+--- @field Amount integer
+--- @field GoldValueOverwrite integer
+--- @field WeightValueOverwrite integer
+--- @field DamageTypeOverwrite string DamageType enumeration
+--- @field ItemType string
+--- @field CustomDisplayName string
+--- @field CustomDescription string
+--- @field CustomBookContent string
+--- @field GenerationStatsId string
+--- @field GenerationItemType string
+--- @field GenerationRandom integer
+--- @field GenerationLevel integer
+--- @field StatsLevel integer
+--- @field Key string
+--- @field LockLevel integer
+--- @field EquipmentStatsType integer
+--- @field HasModifiedSkills boolean
+--- @field Skills string
+--- @field HasGeneratedStats boolean
+--- @field IsIdentified boolean
+--- @field GMFolding boolean
+--- @field CanUseRemotely boolean
+--- @field GenerationBoosts string[]
+--- @field RuneBoosts string[]
+--- @field DeltaMods string[]
 local ItemDefinition = {}
 
 --- Clears item progression data (name group, level group, etc.)
---- @param self ItemDefinition
-function ItemDefinition.ResetProgression (self) end
+function ItemDefinition:ResetProgression() end
 
 
 
@@ -1835,556 +1716,542 @@ local ItemConstructor = {}
 
 --- Constructs an instance of the item contained in the constructor definition.
 --- The definition is cleared after the item is created.
---- @param self ItemConstructor
 --- @return EsvItem|nil
-function ItemConstructor.Construct (self) end
+function ItemConstructor:Construct() end
 
 
 
 --- @class PlayerCustomData
---- @field public CustomLookEnabled boolean
---- @field public Name string
---- @field public ClassType string
---- @field public SkinColor integer
---- @field public HairColor integer
---- @field public ClothColor1 integer
---- @field public ClothColor2 integer
---- @field public ClothColor3 integer
---- @field public IsMale boolean
---- @field public Race string
---- @field public OriginName string
---- @field public Icon string
---- @field public MusicInstrument string
---- @field public OwnerProfileID string
---- @field public ReservedProfileID string
---- @field public AiPersonality string
---- @field public Speaker string
-local PlayerCustomData = {
-}
-
+--- @field CustomLookEnabled boolean
+--- @field Name string
+--- @field ClassType string
+--- @field SkinColor integer
+--- @field HairColor integer
+--- @field ClothColor1 integer
+--- @field ClothColor2 integer
+--- @field ClothColor3 integer
+--- @field IsMale boolean
+--- @field Race string
+--- @field OriginName string
+--- @field Icon string
+--- @field MusicInstrument string
+--- @field OwnerProfileID string
+--- @field ReservedProfileID string
+--- @field AiPersonality string
+--- @field Speaker string
+local PlayerCustomData = {}
 
 --- @class EsvSkillInfo
---- @field public ActiveCooldown number
---- @field public IsActivated boolean
---- @field public IsLearned boolean
---- @field public ZeroMemory boolean
---- @field public OncePerCombat boolean
---- @field public NumCharges number
-local EsvSkillInfo = {}
-
+--- @field ActiveCooldown number
+--- @field CauseList StatusHandle|ObjectHandle[] Array of statuses and item handles granting this skill, if any. Use individual entries together with Ext.GetStatus/Ext.GetItem.
+--- @field IsActivated boolean
+--- @field IsLearned boolean
+--- @field ZeroMemory boolean
+--- @field OncePerCombat boolean
+--- @field NumCharges number
+--- @see EsvCharacter#GetSkillInfo
 
 --- @class EsvCharacter : EsvGameObject
---- @field public RootTemplate CharacterTemplate
---- @field public PlayerCustomData PlayerCustomData
---- @field public Stats StatCharacter
---- @field public DisplayName string
---- @field public Handle ObjectHandle
+--- @field RootTemplate CharacterTemplate
+--- @field PlayerCustomData PlayerCustomData
+--- @field Stats StatCharacter
+--- @field DisplayName string
+--- @field Handle ObjectHandle
 ---
---- @field public NetID integer
---- @field public MyGuid string
---- @field public WorldPos number[]
---- @field public CurrentLevel string
---- @field public Scale number
---- @field public AnimationOverride string
---- @field public WalkSpeedOverride number
---- @field public RunSpeedOverride number
---- @field public NeedsUpdateCount integer
---- @field public ScriptForceUpdateCount integer
---- @field public ForceSynchCount integer
---- @field public InventoryHandle ObjectHandle Not useful yet as you can't use inventory handles for any API
---- @field public SkillBeingPrepared string Set while preparing a skill, cleared afterwards
---- @field public LifeTime number Used for summons to indicate remaining lifetime
---- @field public TurnTimer number
---- @field public TriggerTrapsTimer number
---- @field public UserID integer
---- @field public ReservedUserID integer
---- @field public OwnerHandle ObjectHandle Handle of owner character (in case of summons/followers)
---- @field public FollowCharacterHandle ObjectHandle
---- @field public SpiritCharacterHandle ObjectHandle
---- @field public CorpseCharacterHandle ObjectHandle
---- @field public PartialAP number Movement AP
---- @field public AnimType integer
---- @field public DelayDeathCount integer
---- @field public AnimationSetOverride string
---- @field public OriginalTransformDisplayName string
---- @field public PartyHandle ObjectHandle
---- @field public CustomTradeTreasure string
---- @field public IsAlarmed boolean
---- @field public CrimeWarningsEnabled boolean
---- @field public CrimeInterrogationEnabled boolean
---- @field public MovingCasterHandle ObjectHandle
---- @field public Archetype string
---- @field public EquipmentColor string
---- @field public ProjectileTemplate string
---- @field public ReadyCheckBlocked boolean
---- @field public CorpseLootable boolean
---- @field public CustomBloodSurface string
---- @field public PreviousLevel string
+--- @field NetID integer
+--- @field MyGuid string
+--- @field WorldPos number[]
+--- @field CurrentLevel string
+--- @field Scale number
+--- @field AnimationOverride string
+--- @field WalkSpeedOverride number
+--- @field RunSpeedOverride number
+--- @field NeedsUpdateCount integer
+--- @field ScriptForceUpdateCount integer
+--- @field ForceSynchCount integer
+--- @field InventoryHandle ObjectHandle Not useful yet as you can't use inventory handles for any API
+--- @field SkillBeingPrepared string Set while preparing a skill, cleared afterwards
+--- @field LifeTime number Used for summons to indicate remaining lifetime
+--- @field TurnTimer number
+--- @field TriggerTrapsTimer number
+--- @field UserID integer
+--- @field ReservedUserID integer
+--- @field OwnerHandle ObjectHandle Handle of owner character (in case of summons/followers)
+--- @field FollowCharacterHandle ObjectHandle
+--- @field SpiritCharacterHandle ObjectHandle
+--- @field CorpseCharacterHandle ObjectHandle
+--- @field PartialAP number Movement AP
+--- @field AnimType integer
+--- @field DelayDeathCount integer
+--- @field AnimationSetOverride string
+--- @field OriginalTransformDisplayName string
+--- @field PartyHandle ObjectHandle
+--- @field CustomTradeTreasure string
+--- @field IsAlarmed boolean
+--- @field CrimeWarningsEnabled boolean
+--- @field CrimeInterrogationEnabled boolean
+--- @field MovingCasterHandle ObjectHandle
+--- @field Archetype string
+--- @field EquipmentColor string
+--- @field ProjectileTemplate string
+--- @field ReadyCheckBlocked boolean
+--- @field CorpseLootable boolean
+--- @field CustomBloodSurface string
+--- @field PreviousLevel string
 ---
 --- CharacterFlags 0
---- @field public IsPlayer boolean
---- @field public Multiplayer boolean
---- @field public InParty boolean
---- @field public HostControl boolean
---- @field public Activated boolean
---- @field public OffStage boolean
---- @field public Dead boolean
---- @field public HasOwner boolean
---- @field public InDialog boolean
---- @field public Summon boolean
---- @field public CannotDie boolean
---- @field public CharacterControl boolean
---- @field public Loaded boolean
---- @field public InArena boolean
---- @field public CharacterCreationFinished boolean
---- @field public Floating boolean
---- @field public SpotSneakers boolean
---- @field public Temporary boolean
---- @field public WalkThrough boolean
---- @field public CoverAmount boolean
---- @field public CanShootThrough boolean
---- @field public PartyFollower boolean
---- @field public Totem boolean
---- @field public NoRotate boolean
---- @field public Deactivated boolean
---- @field public IsHuge boolean
---- @field public MadePlayer boolean
---- @field public LevelTransitionPending boolean
---- @field public RegisteredForAutomatedDialog boolean
+--- @field IsPlayer boolean
+--- @field Multiplayer boolean
+--- @field InParty boolean
+--- @field HostControl boolean
+--- @field Activated boolean
+--- @field OffStage boolean
+--- @field Dead boolean
+--- @field HasOwner boolean
+--- @field InDialog boolean
+--- @field Summon boolean
+--- @field CannotDie boolean
+--- @field CharacterControl boolean
+--- @field Loaded boolean
+--- @field InArena boolean
+--- @field CharacterCreationFinished boolean
+--- @field Floating boolean
+--- @field SpotSneakers boolean
+--- @field Temporary boolean
+--- @field WalkThrough boolean
+--- @field CoverAmount boolean
+--- @field CanShootThrough boolean
+--- @field PartyFollower boolean
+--- @field Totem boolean
+--- @field NoRotate boolean
+--- @field Deactivated boolean
+--- @field IsHuge boolean
+--- @field MadePlayer boolean
+--- @field LevelTransitionPending boolean
+--- @field RegisteredForAutomatedDialog boolean
 ---
 --- CharacterFlags 2
---- @field public Global boolean
---- @field public HasOsirisDialog boolean
---- @field public HasDefaultDialog boolean
---- @field public TreasureGeneratedForTrader boolean
---- @field public Trader boolean
---- @field public Resurrected boolean
+--- @field Global boolean
+--- @field HasOsirisDialog boolean
+--- @field HasDefaultDialog boolean
+--- @field TreasureGeneratedForTrader boolean
+--- @field Trader boolean
+--- @field Resurrected boolean
 ---
 --- CharacterFlags 3
---- @field public IsPet boolean
---- @field public IsSpectating boolean
---- @field public NoReptuationEffects boolean
---- @field public HasWalkSpeedOverride boolean
---- @field public HasRunSpeedOverride boolean
---- @field public IsGameMaster boolean
---- @field public IsPossessed boolean
---- @field public ManuallyLeveled boolean
+--- @field IsPet boolean
+--- @field IsSpectating boolean
+--- @field NoReptuationEffects boolean
+--- @field HasWalkSpeedOverride boolean
+--- @field HasRunSpeedOverride boolean
+--- @field IsGameMaster boolean
+--- @field IsPossessed boolean
+--- @field ManuallyLeveled boolean
 local EsvCharacter = {}
 
---- Returns the GUID of all items in the characters inventory
---- @param self EsvCharacter
+--- Returns the UUID of all items in the characters inventory
 --- @return string[]
-function EsvCharacter.GetInventoryItems (self) end
+function EsvCharacter:GetInventoryItems() end
 
 --- Returns detailed information about the specified skill
---- @param self EsvCharacter
 --- @param skillId string
 --- @return EsvSkillInfo
-function EsvCharacter.GetSkillInfo (self, skillId) end
+function EsvCharacter:GetSkillInfo(skillId) end
 
 --- Returns the name of all skills available to the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetSkills (self) end
+function EsvCharacter:GetSkills() end
 
---- Returns the GUID of all characters within the specified radius
---- @param self EsvCharacter
+--- Returns the UUID of all characters within the specified radius
 --- @return string[]
-function EsvCharacter.GetNearbyCharacters (self, radius) end
+function EsvCharacter:GetNearbyCharacters(radius) end
 
---- Returns the GUID of all summons owned by the character
---- @param self EsvCharacter
+--- Returns the UUID of all summons owned by the character
 --- @return string[]
-function EsvCharacter.GetSummons (self) end
+function EsvCharacter:GetSummons() end
 
 --- Returns whether the character has the specified tag
---- @param self EsvCharacter
 --- @param tag string
 --- @return boolean
-function EsvCharacter.HasTag (self, tag) end
+function EsvCharacter:HasTag(tag) end
 
 --- Returns all tags on the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetTags (self) end
+function EsvCharacter:GetTags() end
 
 --- Returns the first status with the specified status ID, if one exists.
---- @param self EsvCharacter
 --- @param statusId string Status ID
 --- @return EsvStatus|nil
-function EsvCharacter.GetStatus (self, statusId) end
+function EsvCharacter:GetStatus(statusId) end
 
 --- Returns the first status with the specified engine status type, if one exists.
---- @param self EsvCharacter
 --- @param type string Status type
 --- @return EsvStatus|nil
-function EsvCharacter.GetStatusByType (self, type) end
+function EsvCharacter:GetStatusByType(type) end
 
 --- Returns all statuses on the character
---- @param self EsvCharacter
 --- @return string[]
-function EsvCharacter.GetStatuses (self) end
+function EsvCharacter:GetStatuses() end
 
 --- Returns all statuses on the character
---- @param self EsvCharacter
 --- @return EsvStatus[]
-function EsvCharacter.GetStatusObjects (self) end
+function EsvCharacter:GetStatusObjects() end
 
 --- Update model scale of the character.
 --- NOTE: This change must be manually synchronized to the client!
---- @param self EsvCharacter
 --- @param scale number 
-function EsvCharacter.SetScale (self, scale) end
+function EsvCharacter:SetScale(scale) end
 
 --- Returns the value of the specified custom stat
---- @param self EsvCharacter
 --- @param statId string Custom stat UUID
 --- @return number Stat value
-function EsvCharacter.GetCustomStat (self, statId) end
+function EsvCharacter:GetCustomStat(statId) end
 
 --- Updates the value of the specified custom stat
---- @param self EsvCharacter
 --- @param statId string Custom stat UUID
 --- @param statValue number Stat value
-function EsvCharacter.GetCustomStat (self, statId, statValue) end
+function EsvCharacter:SetCustomStat(statId, statValue) end
 
 
 
 --- @class EsvSurface
---- @field public NetId integer
---- @field public MyHandle ObjectHandle
---- @field public SurfaceType string See SurfaceType enumeration
---- @field public RootTemplate SurfaceTemplate
---- @field public Flags integer
---- @field public TeamId integer
---- @field public OwnerHandle ObjectHandle
---- @field public LifeTime number
---- @field public LifeTimeFromTemplate boolean
---- @field public StatusChance number
---- @field public Index integer
---- @field public OwnershipTimer number
+--- @field NetId integer
+--- @field MyHandle ObjectHandle
+--- @field SurfaceType string See SurfaceType enumeration
+--- @field RootTemplate SurfaceTemplate
+--- @field Flags integer
+--- @field TeamId integer
+--- @field OwnerHandle ObjectHandle
+--- @field LifeTime number
+--- @field LifeTimeFromTemplate boolean
+--- @field StatusChance number
+--- @field Index integer
+--- @field OwnershipTimer number
 
 
 --- @class EsvShootProjectileRequest
---- @field public SkillId string
---- @field public Caster ObjectHandle
---- @field public Source ObjectHandle
---- @field public Target ObjectHandle
---- @field public StartPosition number[]
---- @field public EndPosition number[]
---- @field public Random integer
---- @field public CasterLevel integer
---- @field public IsTrap boolean
---- @field public UnknownFlag1 boolean
---- @field public CleanseStatuses string
---- @field public StatusClearChance integer
---- @field public IsFromItem boolean
---- @field public IsStealthed boolean
---- @field public IgnoreObjects boolean
+--- @field SkillId string
+--- @field Caster ObjectHandle
+--- @field Source ObjectHandle
+--- @field Target ObjectHandle
+--- @field StartPosition number[]
+--- @field EndPosition number[]
+--- @field Random integer
+--- @field CasterLevel integer
+--- @field IsTrap boolean
+--- @field UnknownFlag1 boolean
+--- @field CleanseStatuses string
+--- @field StatusClearChance integer
+--- @field IsFromItem boolean
+--- @field IsStealthed boolean
+--- @field IgnoreObjects boolean
 --- TODO - DamageList, HitObject
 local EsvShootProjectileRequest = {}
 
 
 --- @class EsvProjectile : EsvGameObject
---- @field public RootTemplate ProjectileTemplate
---- @field public Handle ObjectHandle
---- @field public NetID integer
---- @field public MyGuid string
---- @field public CasterHandle ObjectHandle
---- @field public SourceHandle ObjectHandle
---- @field public TargetObjectHandle ObjectHandle
---- @field public HitObjectHandle ObjectHandle
---- @field public SourcePosition number[]
---- @field public TargetPosition number[]
---- @field public DamageType string
---- @field public DamageSourceType string
---- @field public LifeTime number
---- @field public HitInterpolation integer
---- @field public ExplodeRadius0 number
---- @field public ExplodeRadius1 number
---- @field public DeathType string
---- @field public SkillId string
---- @field public WeaponHandle ObjectHandle
---- @field public MovingEffectHandle ObjectHandle
---- @field public SpawnEffect string
---- @field public SpawnFXOverridesImpactFX boolean
---- @field public EffectHandle string
---- @field public RequestDelete boolean
---- @field public Launched boolean
---- @field public IsTrap boolean
---- @field public UseCharacterStats boolean
---- @field public ReduceDurability boolean
---- @field public AlwaysDamage boolean
---- @field public ForceTarget boolean
---- @field public IsFromItem boolean
---- @field public DivideDamage boolean
---- @field public IgnoreRoof boolean
---- @field public CanDeflect boolean
---- @field public IgnoreObjects boolean
---- @field public CleanseStatuses string
---- @field public StatusClearChance integer
---- @field public Position number[]
---- @field public PrevPosition number[]
---- @field public Velocity number[]
---- @field public Scale number
---- @field public CurrentLevel string
+--- @field RootTemplate ProjectileTemplate
+--- @field Handle ObjectHandle
+--- @field NetID integer
+--- @field MyGuid string
+--- @field CasterHandle ObjectHandle
+--- @field SourceHandle ObjectHandle
+--- @field TargetObjectHandle ObjectHandle
+--- @field HitObjectHandle ObjectHandle
+--- @field SourcePosition number[]
+--- @field TargetPosition number[]
+--- @field DamageType string
+--- @field DamageSourceType string
+--- @field LifeTime number
+--- @field HitInterpolation integer
+--- @field ExplodeRadius0 number
+--- @field ExplodeRadius1 number
+--- @field DeathType string
+--- @field SkillId string
+--- @field WeaponHandle ObjectHandle
+--- @field MovingEffectHandle ObjectHandle
+--- @field SpawnEffect string
+--- @field SpawnFXOverridesImpactFX boolean
+--- @field EffectHandle string
+--- @field RequestDelete boolean
+--- @field Launched boolean
+--- @field IsTrap boolean
+--- @field UseCharacterStats boolean
+--- @field ReduceDurability boolean
+--- @field AlwaysDamage boolean
+--- @field ForceTarget boolean
+--- @field IsFromItem boolean
+--- @field DivideDamage boolean
+--- @field IgnoreRoof boolean
+--- @field CanDeflect boolean
+--- @field IgnoreObjects boolean
+--- @field CleanseStatuses string
+--- @field StatusClearChance integer
+--- @field Position number[]
+--- @field PrevPosition number[]
+--- @field Velocity number[]
+--- @field Scale number
+--- @field CurrentLevel string
 local EsvProjectile = {}
 
 
 --- @class EsvSoundVolumeTriggerData
---- @field public AmbientSound string
---- @field public Occlusion number
---- @field public AuxBus1 integer
---- @field public AuxBus2 integer
---- @field public AuxBus3 integer
---- @field public AuxBus4 integer
+--- @field AmbientSound string
+--- @field Occlusion number
+--- @field AuxBus1 integer
+--- @field AuxBus2 integer
+--- @field AuxBus3 integer
+--- @field AuxBus4 integer
 
 
 --- @class EsvAtmosphereTriggerData
---- @field public Atmospheres string[]
---- @field public FadeTime number
+--- @field Atmospheres string[]
+--- @field FadeTime number
 
 
 --- @class EsvTrigger : EsvGameObject
---- @field public RootTemplate TriggerTemplate
---- @field public Handle ObjectHandle
---- @field public UUID string
---- @field public SyncFlags integer
---- @field public Translate number[]
---- @field public TriggerType string
---- @field public IsGlobal boolean
---- @field public Level string
---- @field public TriggerData EsvAtmosphereTriggerData|EsvSoundVolumeTriggerData
+--- @field RootTemplate TriggerTemplate
+--- @field Handle ObjectHandle
+--- @field UUID string
+--- @field SyncFlags integer
+--- @field Translate number[]
+--- @field TriggerType string
+--- @field IsGlobal boolean
+--- @field Level string
+--- @field TriggerData EsvAtmosphereTriggerData|EsvSoundVolumeTriggerData
 
 
 --- @class EsvSurfaceAction
---- @field public MyHandle ObjectHandle
+--- @field MyHandle ObjectHandle
 local EsvSurfaceAction = {}
 
 
 --- @class EsvCreateSurfaceActionBase : EsvSurfaceAction
---- @field public OwnerHandle ObjectHandle
---- @field public Duration number
---- @field public StatusChance number
---- @field public Position number[]
---- @field public SurfaceType string
+--- @field OwnerHandle ObjectHandle
+--- @field Duration number
+--- @field StatusChance number
+--- @field Position number[]
+--- @field SurfaceType string
 local EsvCreateSurfaceActionBase = {}
 
 
 --- @class EsvCreateSurfaceAction : EsvCreateSurfaceActionBase
---- @field public Radius number
---- @field public ExcludeRadius number
---- @field public MaxHeight number
---- @field public IgnoreIrreplacableSurfaces boolean
---- @field public CheckExistingSurfaces boolean
---- @field public SurfaceCollisionFlags integer
---- @field public SurfaceCollisionNotOnFlags integer
---- @field public Timer number
---- @field public GrowTimer number
---- @field public GrowStep integer
---- @field public SurfaceLayer integer
+--- @field Radius number
+--- @field ExcludeRadius number
+--- @field MaxHeight number
+--- @field IgnoreIrreplacableSurfaces boolean
+--- @field CheckExistingSurfaces boolean
+--- @field SurfaceCollisionFlags integer
+--- @field SurfaceCollisionNotOnFlags integer
+--- @field Timer number
+--- @field GrowTimer number
+--- @field GrowStep integer
+--- @field SurfaceLayer integer
 local EsvCreateSurfaceAction = {}
 
 
 --- @class EsvChangeSurfaceOnPathAction : EsvCreateSurfaceActionBase
---- @field public FollowObject ObjectHandle
---- @field public Radius number
---- @field public IgnoreIrreplacableSurfaces boolean
---- @field public CheckExistingSurfaces boolean
---- @field public SurfaceCollisionFlags integer
---- @field public SurfaceCollisionNotOnFlags integer
---- @field public IgnoreOwnerCells boolean
+--- @field FollowObject ObjectHandle
+--- @field Radius number
+--- @field IgnoreIrreplacableSurfaces boolean
+--- @field CheckExistingSurfaces boolean
+--- @field SurfaceCollisionFlags integer
+--- @field SurfaceCollisionNotOnFlags integer
+--- @field IgnoreOwnerCells boolean
 local EsvChangeSurfaceOnPathAction = {}
 
 
 --- @class EsvCreatePuddleAction : EsvCreateSurfaceActionBase
---- @field public SurfaceCells integer
---- @field public Step integer
---- @field public GrowSpeed number
---- @field public IgnoreIrreplacableSurfaces boolean
---- @field public GrowTimer number
+--- @field SurfaceCells integer
+--- @field Step integer
+--- @field GrowSpeed number
+--- @field IgnoreIrreplacableSurfaces boolean
+--- @field GrowTimer number
 local EsvCreatePuddleAction = {}
 
 
 --- @class EsvExtinguishFireAction : EsvCreateSurfaceActionBase
---- @field public Position number[]
---- @field public Radius number
---- @field public Percentage number
---- @field public GrowTimer number
---- @field public Step number
+--- @field Position number[]
+--- @field Radius number
+--- @field Percentage number
+--- @field GrowTimer number
+--- @field Step number
 local EsvExtinguishFireAction = {}
 
 
 --- @class EsvRectangleSurfaceAction : EsvCreateSurfaceActionBase
---- @field public DamageList DamageList
---- @field public Target number[]
---- @field public SurfaceArea number
---- @field public Width number
---- @field public Length number
---- @field public GrowTimer number
---- @field public MaxHeight number
---- @field public GrowStep integer
---- @field public AiFlags integer
---- @field public DeathType string
---- @field public LineCheckBlock integer
+--- @field DamageList DamageList
+--- @field Target number[]
+--- @field SurfaceArea number
+--- @field Width number
+--- @field Length number
+--- @field GrowTimer number
+--- @field MaxHeight number
+--- @field GrowStep integer
+--- @field AiFlags integer
+--- @field DeathType string
+--- @field LineCheckBlock integer
 local EsvRectangleSurfaceAction = {}
 
 
 --- @class EsvPolygonSurfaceAction : EsvCreateSurfaceActionBase
---- @field public DamageList DamageList
---- @field public Vertices number[][]
---- @field public PositionX number
---- @field public PositionZ number
---- @field public GrowTimer number
---- @field public GrowStep integer
+--- @field DamageList DamageList
+--- @field Vertices number[][]
+--- @field PositionX number
+--- @field PositionZ number
+--- @field GrowTimer number
+--- @field GrowStep integer
 local EsvPolygonSurfaceAction = {}
 
 
 --- @class EsvSwapSurfaceAction : EsvCreateSurfaceActionBase
---- @field public Radius number
---- @field public ExcludeRadius number
---- @field public MaxHeight number
---- @field public Target number[]
---- @field public IgnoreIrreplacableSurfaces boolean
---- @field public CheckExistingSurfaces boolean
---- @field public SurfaceCollisionFlags integer
---- @field public SurfaceCollisionNotOnFlags integer
---- @field public LineCheckBlock integer
---- @field public GrowTimer number
---- @field public GrowStep integer
+--- @field Radius number
+--- @field ExcludeRadius number
+--- @field MaxHeight number
+--- @field Target number[]
+--- @field IgnoreIrreplacableSurfaces boolean
+--- @field CheckExistingSurfaces boolean
+--- @field SurfaceCollisionFlags integer
+--- @field SurfaceCollisionNotOnFlags integer
+--- @field LineCheckBlock integer
+--- @field GrowTimer number
+--- @field GrowStep integer
 local EsvSwapSurfaceAction = {}
 
 
 --- @class EsvZoneAction : EsvCreateSurfaceActionBase
---- @field public SkillId string
---- @field public DamageList DamageList
---- @field public Target number[]
---- @field public Shape integer
---- @field public Radius number
---- @field public AngleOrBase number
---- @field public BackStart number
---- @field public FrontOffset number
---- @field public MaxHeight number
---- @field public GrowTimer number
---- @field public GrowStep integer
---- @field public AiFlags integer
---- @field public DeathType string
+--- @field SkillId string
+--- @field DamageList DamageList
+--- @field Target number[]
+--- @field Shape integer
+--- @field Radius number
+--- @field AngleOrBase number
+--- @field BackStart number
+--- @field FrontOffset number
+--- @field MaxHeight number
+--- @field GrowTimer number
+--- @field GrowStep integer
+--- @field AiFlags integer
+--- @field DeathType string
 local EsvZoneAction = {}
 
 
 --- @class EsvTransformSurfaceAction : EsvSurfaceAction
---- @field public SurfaceTransformAction string
---- @field public OriginSurface string
---- @field public SurfaceLayer integer
---- @field public GrowCellPerSecond number
---- @field public OwnerHandle2 ObjectHandle
---- @field public Position number[]
---- @field public SurfaceLifetime number
---- @field public SurfaceStatusChance number
+--- @field SurfaceTransformAction string
+--- @field OriginSurface string
+--- @field SurfaceLayer integer
+--- @field GrowCellPerSecond number
+--- @field OwnerHandle2 ObjectHandle
+--- @field Position number[]
+--- @field SurfaceLifetime number
+--- @field SurfaceStatusChance number
 local EsvTransformSurfaceAction = {}
 
 
 --- @class ModInfo
---- @field public UUID string
---- @field public Name string
---- @field public Version integer
---- @field public PublishVersion integer
---- @field public Directory string
---- @field public Author string
---- @field public Description string
---- @field public ModuleType string
---- @field public Dependencies string[] Dependency mod UUID-s
+--- @field UUID string
+--- @field Name string
+--- @field Version integer
+--- @field PublishVersion integer
+--- @field Directory string
+--- @field Author string
+--- @field Description string
+--- @field ModuleType string
+--- @field Dependencies string[] Dependency mod UUID-s
 local ModInfo = {}
 
 
 --- @class CustomSkillProperty
---- @field public GetDescription fun(property:StatPropertyExtender):string|nil
---- @field public ExecuteOnPosition fun(property:StatPropertyExtender, attacker: EsvGameObject, position: number[], areaRadius: number, isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
---- @field public ExecuteOnTarget fun(property:StatPropertyExtender, attacker: EsvGameObject, target: EsvGameObject, position: number[], isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
+--- @field GetDescription fun(property:StatPropertyExtender):string|nil
+--- @field ExecuteOnPosition fun(property:StatPropertyExtender, attacker: EsvGameObject, position: number[], areaRadius: number, isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
+--- @field ExecuteOnTarget fun(property:StatPropertyExtender, attacker: EsvGameObject, target: EsvGameObject, position: number[], isFromItem: boolean, skill: StatEntrySkillData|nil, hit: HitRequest|nil)
 
 
 --- @class StatSkillSet
---- @field public Name string
---- @field public Skills string[]
+--- @field Name string
+--- @field Skills string[]
 
 --- @class StatEquipmentGroup
---- @field public Name string
---- @field public Equipment string[]
+--- @field Name string
+--- @field Equipment string[]
 
 --- @class StatEquipmentSet
---- @field public Name string
---- @field public Groups StatEquipmentGroup[]
+--- @field Name string
+--- @field Groups StatEquipmentGroup[]
 
 --- @class DeltaModBoost
---- @field public Boost string
---- @field public Count integer
+--- @field Boost string
+--- @field Count integer
 local DeltaModBoost = {}
 
 --- @class DeltaMod
---- @field public ModifierType string
---- @field public SlotType string
---- @field public WeaponType string
---- @field public ArmorType string
---- @field public Handedness string
---- @field public Name string
---- @field public BoostType string
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public Frequency integer
---- @field public Boosts DeltaModBoost[]
+--- @field ModifierType string
+--- @field SlotType string
+--- @field WeaponType string
+--- @field ArmorType string
+--- @field Handedness string
+--- @field Name string
+--- @field BoostType string
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field Frequency integer
+--- @field Boosts DeltaModBoost[]
 local DeltaMod = {}
 
+---@class DeltaModStatEntry
+---@field Name string
+---@field ModifierType string
 
 --- @class ItemComboIngredients
---- @field public Object string
---- @field public IngredientType string See IngredientType enumeration
---- @field public Transform string See IngredientTransformType enumeration
---- @field public ItemRarity string See ItemDataRarity enumeration (ValueLists.txt only!)
+--- @field Object string
+--- @field IngredientType string See IngredientType enumeration
+--- @field Transform string See IngredientTransformType enumeration
+--- @field ItemRarity string See ItemDataRarity enumeration (ValueLists.txt only!)
 local ItemComboIngredients = {}
 
 --- @class ItemComboResultElement
---- @field public Result string
---- @field public Boost string
---- @field public ResultAmount number
+--- @field Result string
+--- @field Boost string
+--- @field ResultAmount number
 local ItemComboResultElement = {}
 
 --- @class ItemComboResult
---- @field public Requirement string See Ability enum
---- @field public ReqLevel number
---- @field public PreviewStatsId string
---- @field public PreviewIcon string
---- @field public PreviewTooltip string
---- @field public Name string
---- @field public Results ItemComboResultElement[]
+--- @field Requirement string See Ability enum
+--- @field ReqLevel number
+--- @field PreviewStatsId string
+--- @field PreviewIcon string
+--- @field PreviewTooltip string
+--- @field Name string
+--- @field Results ItemComboResultElement[]
 local ItemComboResult = {}
 
 --- @class ItemCombo
---- @field public Name string
---- @field public RecipeCategory string See RecipeCategory enum
---- @field public CraftingStation string See CraftingStationType enum
---- @field public Ingredients ItemComboIngredients[]
---- @field public Results ItemComboResult[]
+--- @field Name string
+--- @field RecipeCategory string See RecipeCategory enum
+--- @field CraftingStation string See CraftingStationType enum
+--- @field Ingredients ItemComboIngredients[]
+--- @field Results ItemComboResult[]
 local ItemCombo = {}
 
 --- @class ItemComboPreviewData
---- @field public Name string
---- @field public Type string
---- @field public StatsId string
---- @field public Tooltip string
---- @field public Icon string
+--- @field Name string
+--- @field Type string
+--- @field StatsId string
+--- @field Tooltip string
+--- @field Icon string
 local ItemComboPreviewData = {}
 
 --- @class ItemComboPropertyElement
---- @field public ObjectId string
---- @field public IngredientType string See IngredientType enumeration
---- @field public Result string
+--- @field ObjectId string
+--- @field IngredientType string See IngredientType enumeration
+--- @field Result string
 local ItemComboPropertyElement = {}
 
 --- @class ItemComboProperty
---- @field public Name string
---- @field public PreviewIcon string
---- @field public PreviewTooltip string
---- @field public Entries ItemComboPropertyElement[]
+--- @field Name string
+--- @field PreviewIcon string
+--- @field PreviewTooltip string
+--- @field Entries ItemComboPropertyElement[]
 local ItemComboProperty = {}
 
 ---@class StatTreasureCategory
@@ -2422,152 +2289,152 @@ local ItemComboProperty = {}
 ---@field SubTables StatTreasureSubTable[]
 
 --- @class ItemNameGroupLink
---- @field public NameGroup string
---- @field public NoneCoolSuffix number
---- @field public ItemName string
+--- @field NameGroup string
+--- @field NoneCoolSuffix number
+--- @field ItemName string
 local ItemNameGroupLink = {}
 
 --- @class ItemRootGroup
---- @field public MinLevel number
---- @field public MaxLevel number
---- @field public RootGroup string
---- @field public NameGroupLinks ItemNameGroupLink[]
+--- @field MinLevel number
+--- @field MaxLevel number
+--- @field RootGroup string
+--- @field NameGroupLinks ItemNameGroupLink[]
 local ItemRootGroup = {}
 
 --- @class ItemLevelGroup
---- @field public MinLevel number
---- @field public MaxLevel number
---- @field public Name string
---- @field public RootGroups ItemRootGroup[]
+--- @field MinLevel number
+--- @field MaxLevel number
+--- @field Name string
+--- @field RootGroups ItemRootGroup[]
 local ItemLevelGroup = {}
 
 --- @class ItemGroup
---- @field public Name string
---- @field public LevelGroups ItemLevelGroup[]
+--- @field Name string
+--- @field LevelGroups ItemLevelGroup[]
 local ItemGroup = {}
 
 --- @class ItemNameGroupName
---- @field public Name string
---- @field public Name2 string
+--- @field Name string
+--- @field Name2 string
 local ItemNameGroupName = {}
 
 --- @class ItemNameGroup
---- @field public Name string
---- @field public Names ItemNameGroupName[]
---- @field public NamesCool ItemNameGroupName[]
+--- @field Name string
+--- @field Names ItemNameGroupName[]
+--- @field NamesCool ItemNameGroupName[]
 local ItemNameGroup = {}
 
 
 --- @class StatRequirement
---- @field public Requirement string
---- @field public Param string|integer
---- @field public Not boolean
+--- @field Requirement string
+--- @field Param string|integer
+--- @field Not boolean
 local StatRequirement = {}
 
 
 --- @class StatEntryWeapon
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public Damage integer
---- @field public Act string See Act enumeration
---- @field public Handedness string See Handedness enumeration
---- @field public IsTwoHanded string See YesNo enumeration
---- @field public DamageBoost integer
---- @field public DamageFromBase integer
---- @field public CriticalDamage integer
---- @field public CriticalChance integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public Requirements StatRequirement[]
---- @field public Slot string See Itemslot enumeration
---- @field public Durability integer
---- @field public DurabilityDegradeSpeed string See Qualifier enumeration
---- @field public Value integer
---- @field public WeaponType string See WeaponType enumeration
---- @field public AnimType string See AnimType enumeration
---- @field public WeaponRange integer
---- @field public ModifierType string See ModifierType enumeration
---- @field public Projectile string
---- @field public StrengthBoost string See Penalty Qualifier enumeration
---- @field public FinesseBoost string See Penalty Qualifier enumeration
---- @field public IntelligenceBoost string See Penalty Qualifier enumeration
---- @field public ConstitutionBoost string See Penalty Qualifier enumeration
---- @field public MemoryBoost string See Penalty Qualifier enumeration
---- @field public WitsBoost string See Penalty Qualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public Leadership integer
---- @field public PainReflection integer
---- @field public Perseverance integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public Fire integer
---- @field public Earth integer
---- @field public Water integer
---- @field public Air integer
---- @field public Poison integer
---- @field public Physical integer
---- @field public Piercing integer
---- @field public SightBoost string See Penalty Qualifier enumeration
---- @field public HearingBoost string See Penalty Qualifier enumeration
---- @field public VitalityBoost integer
---- @field public MagicPointsBoost string See Penalty Qualifier enumeration
---- @field public ChanceToHitBoost integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public Weight integer
---- @field public AttackAPCost integer
---- @field public ComboCategory string
---- @field public Flags string See AttributeFlags enumeration
---- @field public Boosts string
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public Charges integer
---- @field public MaxCharges integer
---- @field public Skills string
---- @field public Reflection string
---- @field public ItemGroup string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public ItemColor string
---- @field public MaxSummons integer
---- @field public RuneSlots integer
---- @field public RuneSlots_V1 integer
---- @field public NeedsIdentification string See YesNo enumeration
---- @field public LifeSteal integer
---- @field public CleavePercentage integer
---- @field public CleaveAngle integer
---- @field public Talents string
---- @field public IgnoreVisionBlock string See YesNo enumeration
---- @field public Tags string
---- @field public ExtraProperties StatProperty[]
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field Damage integer
+--- @field Act string See Act enumeration
+--- @field Handedness string See Handedness enumeration
+--- @field IsTwoHanded string See YesNo enumeration
+--- @field DamageBoost integer
+--- @field DamageFromBase integer
+--- @field CriticalDamage integer
+--- @field CriticalChance integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field Requirements StatRequirement[]
+--- @field Slot string See Itemslot enumeration
+--- @field Durability integer
+--- @field DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field Value integer
+--- @field WeaponType string See WeaponType enumeration
+--- @field AnimType string See AnimType enumeration
+--- @field WeaponRange integer
+--- @field ModifierType string See ModifierType enumeration
+--- @field Projectile string
+--- @field StrengthBoost string See Penalty Qualifier enumeration
+--- @field FinesseBoost string See Penalty Qualifier enumeration
+--- @field IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field MemoryBoost string See Penalty Qualifier enumeration
+--- @field WitsBoost string See Penalty Qualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field Leadership integer
+--- @field PainReflection integer
+--- @field Perseverance integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field Fire integer
+--- @field Earth integer
+--- @field Water integer
+--- @field Air integer
+--- @field Poison integer
+--- @field Physical integer
+--- @field Piercing integer
+--- @field SightBoost string See Penalty Qualifier enumeration
+--- @field HearingBoost string See Penalty Qualifier enumeration
+--- @field VitalityBoost integer
+--- @field MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field ChanceToHitBoost integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field Weight integer
+--- @field AttackAPCost integer
+--- @field ComboCategory string
+--- @field Flags string See AttributeFlags enumeration
+--- @field Boosts string
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field Charges integer
+--- @field MaxCharges integer
+--- @field Skills string
+--- @field Reflection string
+--- @field ItemGroup string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field ItemColor string
+--- @field MaxSummons integer
+--- @field RuneSlots integer
+--- @field RuneSlots_V1 integer
+--- @field NeedsIdentification string See YesNo enumeration
+--- @field LifeSteal integer
+--- @field CleavePercentage integer
+--- @field CleaveAngle integer
+--- @field Talents string
+--- @field IgnoreVisionBlock string See YesNo enumeration
+--- @field Tags string
+--- @field ExtraProperties StatProperty[]
 local StatEntryWeapon = {
     --- @type string See Damage Type enumeration
     ['Damage Type'] = "",
@@ -2579,96 +2446,96 @@ local StatEntryWeapon = {
 
 
 --- @class StatEntryArmor
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public ArmorBoost integer
---- @field public MagicArmorBoost integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public Requirements StatRequirement[]
---- @field public Slot string See Itemslot enumeration
---- @field public Durability integer
---- @field public DurabilityDegradeSpeed string See Qualifier enumeration
---- @field public Value integer
---- @field public ModifierType string See ModifierType enumeration
---- @field public Act string See Act enumeration
---- @field public Fire integer
---- @field public Air integer
---- @field public Water integer
---- @field public Earth integer
---- @field public Poison integer
---- @field public Piercing integer
---- @field public Physical integer
---- @field public StrengthBoost string See Penalty Qualifier enumeration
---- @field public FinesseBoost string See Penalty Qualifier enumeration
---- @field public IntelligenceBoost string See Penalty Qualifier enumeration
---- @field public ConstitutionBoost string See Penalty Qualifier enumeration
---- @field public MemoryBoost string See Penalty Qualifier enumeration
---- @field public WitsBoost string See Penalty Qualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public PainReflection integer
---- @field public Perseverance integer
---- @field public Leadership integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public SightBoost string See Penalty Qualifier enumeration
---- @field public HearingBoost string See Penalty Qualifier enumeration
---- @field public VitalityBoost integer
---- @field public MagicPointsBoost string See Penalty Qualifier enumeration
---- @field public ChanceToHitBoost integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public CriticalChance integer
---- @field public ComboCategory string
---- @field public Weight integer
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public Flags string See AttributeFlags enumeration
---- @field public ArmorType string See ArmorType enumeration
---- @field public Boosts string
---- @field public Skills string
---- @field public ItemColor string
---- @field public Reflection string
---- @field public ItemGroup string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public MaxSummons integer
---- @field public NeedsIdentification string See YesNo enumeration
---- @field public Charges integer
---- @field public RuneSlots integer
---- @field public RuneSlots_V1 integer
---- @field public MaxCharges integer
---- @field public Talents string
---- @field public Tags string
---- @field public ExtraProperties StatProperty[]
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field ArmorBoost integer
+--- @field MagicArmorBoost integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field Requirements StatRequirement[]
+--- @field Slot string See Itemslot enumeration
+--- @field Durability integer
+--- @field DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field Value integer
+--- @field ModifierType string See ModifierType enumeration
+--- @field Act string See Act enumeration
+--- @field Fire integer
+--- @field Air integer
+--- @field Water integer
+--- @field Earth integer
+--- @field Poison integer
+--- @field Piercing integer
+--- @field Physical integer
+--- @field StrengthBoost string See Penalty Qualifier enumeration
+--- @field FinesseBoost string See Penalty Qualifier enumeration
+--- @field IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field MemoryBoost string See Penalty Qualifier enumeration
+--- @field WitsBoost string See Penalty Qualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field PainReflection integer
+--- @field Perseverance integer
+--- @field Leadership integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field SightBoost string See Penalty Qualifier enumeration
+--- @field HearingBoost string See Penalty Qualifier enumeration
+--- @field VitalityBoost integer
+--- @field MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field ChanceToHitBoost integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field CriticalChance integer
+--- @field ComboCategory string
+--- @field Weight integer
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field Flags string See AttributeFlags enumeration
+--- @field ArmorType string See ArmorType enumeration
+--- @field Boosts string
+--- @field Skills string
+--- @field ItemColor string
+--- @field Reflection string
+--- @field ItemGroup string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field MaxSummons integer
+--- @field NeedsIdentification string See YesNo enumeration
+--- @field Charges integer
+--- @field RuneSlots integer
+--- @field RuneSlots_V1 integer
+--- @field MaxCharges integer
+--- @field Talents string
+--- @field Tags string
+--- @field ExtraProperties StatProperty[]
 local StatEntryArmor = {
     ['Armor Defense Value'] = 0,
     ['Magic Armor Value'] = 0,
@@ -2678,93 +2545,93 @@ local StatEntryArmor = {
 
 
 --- @class StatEntryShield
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public ArmorBoost integer
---- @field public MagicArmorBoost integer
---- @field public Movement integer
---- @field public Initiative integer
---- @field public Requirements StatRequirement[]
---- @field public Slot string See Itemslot enumeration
---- @field public Durability integer
---- @field public DurabilityDegradeSpeed string See Qualifier enumeration
---- @field public Value integer
---- @field public ModifierType string See ModifierType enumeration
---- @field public Act string See Act enumeration
---- @field public Fire integer
---- @field public Air integer
---- @field public Water integer
---- @field public Earth integer
---- @field public Poison integer
---- @field public Piercing integer
---- @field public Physical integer
---- @field public Blocking integer
---- @field public StrengthBoost string See Penalty Qualifier enumeration
---- @field public FinesseBoost string See Penalty Qualifier enumeration
---- @field public IntelligenceBoost string See Penalty Qualifier enumeration
---- @field public ConstitutionBoost string See Penalty Qualifier enumeration
---- @field public MemoryBoost string See Penalty Qualifier enumeration
---- @field public WitsBoost string See Penalty Qualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public Leadership integer
---- @field public PainReflection integer
---- @field public Perseverance integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public SightBoost string See Penalty Qualifier enumeration
---- @field public HearingBoost string See Penalty Qualifier enumeration
---- @field public VitalityBoost integer
---- @field public MagicPointsBoost string See Penalty Qualifier enumeration
---- @field public ChanceToHitBoost integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public CriticalChance string See Penalty Qualifier enumeration
---- @field public ComboCategory string
---- @field public Weight integer
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public Flags string See AttributeFlags enumeration
---- @field public Skills string
---- @field public Reflection string
---- @field public ItemGroup string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public ItemColor string
---- @field public MaxSummons integer
---- @field public RuneSlots integer
---- @field public RuneSlots_V1 integer
---- @field public NeedsIdentification string See YesNo enumeration
---- @field public Talents string
---- @field public Tags string
---- @field public ExtraProperties StatProperty[]
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field ArmorBoost integer
+--- @field MagicArmorBoost integer
+--- @field Movement integer
+--- @field Initiative integer
+--- @field Requirements StatRequirement[]
+--- @field Slot string See Itemslot enumeration
+--- @field Durability integer
+--- @field DurabilityDegradeSpeed string See Qualifier enumeration
+--- @field Value integer
+--- @field ModifierType string See ModifierType enumeration
+--- @field Act string See Act enumeration
+--- @field Fire integer
+--- @field Air integer
+--- @field Water integer
+--- @field Earth integer
+--- @field Poison integer
+--- @field Piercing integer
+--- @field Physical integer
+--- @field Blocking integer
+--- @field StrengthBoost string See Penalty Qualifier enumeration
+--- @field FinesseBoost string See Penalty Qualifier enumeration
+--- @field IntelligenceBoost string See Penalty Qualifier enumeration
+--- @field ConstitutionBoost string See Penalty Qualifier enumeration
+--- @field MemoryBoost string See Penalty Qualifier enumeration
+--- @field WitsBoost string See Penalty Qualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field Leadership integer
+--- @field PainReflection integer
+--- @field Perseverance integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field SightBoost string See Penalty Qualifier enumeration
+--- @field HearingBoost string See Penalty Qualifier enumeration
+--- @field VitalityBoost integer
+--- @field MagicPointsBoost string See Penalty Qualifier enumeration
+--- @field ChanceToHitBoost integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field CriticalChance string See Penalty Qualifier enumeration
+--- @field ComboCategory string
+--- @field Weight integer
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field Flags string See AttributeFlags enumeration
+--- @field Skills string
+--- @field Reflection string
+--- @field ItemGroup string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field ItemColor string
+--- @field MaxSummons integer
+--- @field RuneSlots integer
+--- @field RuneSlots_V1 integer
+--- @field NeedsIdentification string See YesNo enumeration
+--- @field Talents string
+--- @field Tags string
+--- @field ExtraProperties StatProperty[]
 local StatEntryShield = {
     ['Armor Defense Value'] = 0,
     ['Magic Armor Value'] = 0,
@@ -2774,123 +2641,123 @@ local StatEntryShield = {
 
 
 --- @class StatEntryPotion
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public ModifierType string See ModifierType enumeration
---- @field public VitalityBoost integer
---- @field public Strength string See Penalty PreciseQualifier enumeration
---- @field public Finesse string See Penalty PreciseQualifier enumeration
---- @field public Intelligence string See Penalty PreciseQualifier enumeration
---- @field public Constitution string See Penalty PreciseQualifier enumeration
---- @field public Memory string See Penalty PreciseQualifier enumeration
---- @field public Wits string See Penalty PreciseQualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public PainReflection integer
---- @field public Perseverance integer
---- @field public Leadership integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public FireResistance integer
---- @field public EarthResistance integer
---- @field public WaterResistance integer
---- @field public AirResistance integer
---- @field public PoisonResistance integer
---- @field public PhysicalResistance integer
---- @field public PiercingResistance integer
---- @field public Sight integer
---- @field public Hearing string See Penalty Qualifier enumeration
---- @field public Initiative integer
---- @field public Vitality integer
---- @field public VitalityPercentage integer
---- @field public MagicPoints integer
---- @field public ActionPoints integer
---- @field public ChanceToHitBoost integer
---- @field public AccuracyBoost integer
---- @field public DodgeBoost integer
---- @field public DamageBoost integer
---- @field public APCostBoost integer
---- @field public SPCostBoost integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public Movement integer
---- @field public MovementSpeedBoost integer
---- @field public Gain string See BigQualifier enumeration
---- @field public Armor integer
---- @field public MagicArmor integer
---- @field public ArmorBoost integer
---- @field public MagicArmorBoost integer
---- @field public CriticalChance integer
---- @field public Act string See Act enumeration
---- @field public Duration integer
---- @field public UseAPCost integer
---- @field public ComboCategory string
---- @field public StackId string
---- @field public BoostConditions string
---- @field public Flags string See AttributeFlags enumeration
---- @field public StatusMaterial string
---- @field public StatusEffect string
---- @field public StatusIcon string
---- @field public SavingThrow string See SavingThrow enumeration
---- @field public Weight integer
---- @field public Value integer
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public UnknownBeforeConsume string See YesNo enumeration
---- @field public Reflection string
---- @field public Damage string See Qualifier enumeration
---- @field public DamageType string See Damage Type enumeration
---- @field public AuraRadius integer
---- @field public AuraSelf string
---- @field public AuraAllies string
---- @field public AuraEnemies string
---- @field public AuraNeutrals string
---- @field public AuraItems string
---- @field public AuraFX string
---- @field public RootTemplate string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public MaxLevel integer
---- @field public BloodSurfaceType string
---- @field public MaxSummons integer
---- @field public AddToBottomBar string See YesNo enumeration
---- @field public SummonLifelinkModifier integer
---- @field public IgnoredByAI string See YesNo enumeration
---- @field public RangeBoost integer
---- @field public BonusWeapon string
---- @field public AiCalculationStatsOverride string
---- @field public RuneEffectWeapon string
---- @field public RuneEffectUpperbody string
---- @field public RuneEffectAmulet string
---- @field public RuneLevel integer
---- @field public LifeSteal integer
---- @field public IsFood string See YesNo enumeration
---- @field public IsConsumable string See YesNo enumeration
---- @field public ExtraProperties StatProperty[]
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field ModifierType string See ModifierType enumeration
+--- @field VitalityBoost integer
+--- @field Strength string See Penalty PreciseQualifier enumeration
+--- @field Finesse string See Penalty PreciseQualifier enumeration
+--- @field Intelligence string See Penalty PreciseQualifier enumeration
+--- @field Constitution string See Penalty PreciseQualifier enumeration
+--- @field Memory string See Penalty PreciseQualifier enumeration
+--- @field Wits string See Penalty PreciseQualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field PainReflection integer
+--- @field Perseverance integer
+--- @field Leadership integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field FireResistance integer
+--- @field EarthResistance integer
+--- @field WaterResistance integer
+--- @field AirResistance integer
+--- @field PoisonResistance integer
+--- @field PhysicalResistance integer
+--- @field PiercingResistance integer
+--- @field Sight integer
+--- @field Hearing string See Penalty Qualifier enumeration
+--- @field Initiative integer
+--- @field Vitality integer
+--- @field VitalityPercentage integer
+--- @field MagicPoints integer
+--- @field ActionPoints integer
+--- @field ChanceToHitBoost integer
+--- @field AccuracyBoost integer
+--- @field DodgeBoost integer
+--- @field DamageBoost integer
+--- @field APCostBoost integer
+--- @field SPCostBoost integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field Movement integer
+--- @field MovementSpeedBoost integer
+--- @field Gain string See BigQualifier enumeration
+--- @field Armor integer
+--- @field MagicArmor integer
+--- @field ArmorBoost integer
+--- @field MagicArmorBoost integer
+--- @field CriticalChance integer
+--- @field Act string See Act enumeration
+--- @field Duration integer
+--- @field UseAPCost integer
+--- @field ComboCategory string
+--- @field StackId string
+--- @field BoostConditions string
+--- @field Flags string See AttributeFlags enumeration
+--- @field StatusMaterial string
+--- @field StatusEffect string
+--- @field StatusIcon string
+--- @field SavingThrow string See SavingThrow enumeration
+--- @field Weight integer
+--- @field Value integer
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field UnknownBeforeConsume string See YesNo enumeration
+--- @field Reflection string
+--- @field Damage string See Qualifier enumeration
+--- @field DamageType string See Damage Type enumeration
+--- @field AuraRadius integer
+--- @field AuraSelf string
+--- @field AuraAllies string
+--- @field AuraEnemies string
+--- @field AuraNeutrals string
+--- @field AuraItems string
+--- @field AuraFX string
+--- @field RootTemplate string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field MaxLevel integer
+--- @field BloodSurfaceType string
+--- @field MaxSummons integer
+--- @field AddToBottomBar string See YesNo enumeration
+--- @field SummonLifelinkModifier integer
+--- @field IgnoredByAI string See YesNo enumeration
+--- @field RangeBoost integer
+--- @field BonusWeapon string
+--- @field AiCalculationStatsOverride string
+--- @field RuneEffectWeapon string
+--- @field RuneEffectUpperbody string
+--- @field RuneEffectAmulet string
+--- @field RuneLevel integer
+--- @field LifeSteal integer
+--- @field IsFood string See YesNo enumeration
+--- @field IsConsumable string See YesNo enumeration
+--- @field ExtraProperties StatProperty[]
 local StatEntryPotion = {
     ['Damage Multiplier'] = 0,
     ['Damage Range'] = 0,
@@ -2900,48 +2767,48 @@ local StatEntryPotion = {
 
 
 --- @class StatEntryObject
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public ModifierType string See ModifierType enumeration
---- @field public Act string See Act enumeration
---- @field public UseAPCost integer
---- @field public Value integer
---- @field public ComboCategory string
---- @field public Weight integer
---- @field public Strength string See PreciseQualifier enumeration
---- @field public Finesse string See PreciseQualifier enumeration
---- @field public Intelligence string See PreciseQualifier enumeration
---- @field public Constitution string See PreciseQualifier enumeration
---- @field public Memory string See PreciseQualifier enumeration
---- @field public Wits string See PreciseQualifier enumeration
---- @field public Vitality integer
---- @field public Armor string See PreciseQualifier enumeration
---- @field public FireResistance integer
---- @field public EarthResistance integer
---- @field public WaterResistance integer
---- @field public AirResistance integer
---- @field public PoisonResistance integer
---- @field public PiercingResistance integer
---- @field public PhysicalResistance integer
---- @field public ShadowResistance integer
---- @field public Flags string See AttributeFlags enumeration
---- @field public Requirements StatRequirement[]
---- @field public InventoryTab string See InventoryTabs enumeration
---- @field public RootTemplate string
---- @field public ObjectCategory string
---- @field public MinAmount integer
---- @field public MaxAmount integer
---- @field public Priority integer
---- @field public Unique integer
---- @field public MinLevel integer
---- @field public RuneEffectWeapon string
---- @field public RuneEffectUpperbody string
---- @field public RuneEffectAmulet string
---- @field public RuneLevel integer
---- @field public MaxLevel integer
---- @field public AddToBottomBar string See YesNo enumeration
---- @field public IgnoredByAI string See YesNo enumeration
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field ModifierType string See ModifierType enumeration
+--- @field Act string See Act enumeration
+--- @field UseAPCost integer
+--- @field Value integer
+--- @field ComboCategory string
+--- @field Weight integer
+--- @field Strength string See PreciseQualifier enumeration
+--- @field Finesse string See PreciseQualifier enumeration
+--- @field Intelligence string See PreciseQualifier enumeration
+--- @field Constitution string See PreciseQualifier enumeration
+--- @field Memory string See PreciseQualifier enumeration
+--- @field Wits string See PreciseQualifier enumeration
+--- @field Vitality integer
+--- @field Armor string See PreciseQualifier enumeration
+--- @field FireResistance integer
+--- @field EarthResistance integer
+--- @field WaterResistance integer
+--- @field AirResistance integer
+--- @field PoisonResistance integer
+--- @field PiercingResistance integer
+--- @field PhysicalResistance integer
+--- @field ShadowResistance integer
+--- @field Flags string See AttributeFlags enumeration
+--- @field Requirements StatRequirement[]
+--- @field InventoryTab string See InventoryTabs enumeration
+--- @field RootTemplate string
+--- @field ObjectCategory string
+--- @field MinAmount integer
+--- @field MaxAmount integer
+--- @field Priority integer
+--- @field Unique integer
+--- @field MinLevel integer
+--- @field RuneEffectWeapon string
+--- @field RuneEffectUpperbody string
+--- @field RuneEffectAmulet string
+--- @field RuneLevel integer
+--- @field MaxLevel integer
+--- @field AddToBottomBar string See YesNo enumeration
+--- @field IgnoredByAI string See YesNo enumeration
 local StatEntryObject = {
     --- @type string See ActPart enumeration
     ['Act part'] = ""
@@ -2949,83 +2816,83 @@ local StatEntryObject = {
 
 
 --- @class StatEntryCharacter
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public Strength string See PreciseQualifier enumeration
---- @field public Finesse string See PreciseQualifier enumeration
---- @field public Intelligence string See PreciseQualifier enumeration
---- @field public Constitution string See PreciseQualifier enumeration
---- @field public Memory string See PreciseQualifier enumeration
---- @field public Wits string See PreciseQualifier enumeration
---- @field public SingleHanded integer
---- @field public TwoHanded integer
---- @field public Ranged integer
---- @field public DualWielding integer
---- @field public RogueLore integer
---- @field public WarriorLore integer
---- @field public RangerLore integer
---- @field public FireSpecialist integer
---- @field public WaterSpecialist integer
---- @field public AirSpecialist integer
---- @field public EarthSpecialist integer
---- @field public Sourcery integer
---- @field public Necromancy integer
---- @field public Polymorph integer
---- @field public Summoning integer
---- @field public PainReflection integer
---- @field public Leadership integer
---- @field public Perseverance integer
---- @field public Telekinesis integer
---- @field public Sneaking integer
---- @field public Thievery integer
---- @field public Loremaster integer
---- @field public Repair integer
---- @field public Barter integer
---- @field public Persuasion integer
---- @field public Luck integer
---- @field public FireResistance integer
---- @field public EarthResistance integer
---- @field public WaterResistance integer
---- @field public AirResistance integer
---- @field public PoisonResistance integer
---- @field public PiercingResistance integer
---- @field public PhysicalResistance integer
---- @field public Sight string See Penalty Qualifier enumeration
---- @field public Hearing string See Penalty Qualifier enumeration
---- @field public FOV integer
---- @field public APMaximum integer
---- @field public APStart integer
---- @field public APRecovery integer
---- @field public Initiative integer
---- @field public Vitality integer
---- @field public MagicPoints integer
---- @field public ChanceToHitBoost integer
---- @field public Movement integer
---- @field public MovementSpeedBoost integer
---- @field public CriticalChance string See Penalty Qualifier enumeration
---- @field public Gain string See BigQualifier enumeration
---- @field public Armor integer
---- @field public ArmorBoost integer
---- @field public ArmorBoostGrowthPerLevel integer
---- @field public MagicArmor integer
---- @field public MagicArmorBoost integer
---- @field public MagicArmorBoostGrowthPerLevel integer
---- @field public Accuracy integer
---- @field public Dodge integer
---- @field public Act string See Act enumeration
---- @field public MaxResistance integer
---- @field public Weight integer
---- @field public Talents string
---- @field public Traits string
---- @field public PathInfluence string
---- @field public Flags string See AttributeFlags enumeration
---- @field public Reflection string
---- @field public StepsType string See StepsType enumeration
---- @field public MaxSummons integer
---- @field public MPStart integer
---- @field public DamageBoost integer
---- @field public DamageBoostGrowthPerLevel integer
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field Strength string See PreciseQualifier enumeration
+--- @field Finesse string See PreciseQualifier enumeration
+--- @field Intelligence string See PreciseQualifier enumeration
+--- @field Constitution string See PreciseQualifier enumeration
+--- @field Memory string See PreciseQualifier enumeration
+--- @field Wits string See PreciseQualifier enumeration
+--- @field SingleHanded integer
+--- @field TwoHanded integer
+--- @field Ranged integer
+--- @field DualWielding integer
+--- @field RogueLore integer
+--- @field WarriorLore integer
+--- @field RangerLore integer
+--- @field FireSpecialist integer
+--- @field WaterSpecialist integer
+--- @field AirSpecialist integer
+--- @field EarthSpecialist integer
+--- @field Sourcery integer
+--- @field Necromancy integer
+--- @field Polymorph integer
+--- @field Summoning integer
+--- @field PainReflection integer
+--- @field Leadership integer
+--- @field Perseverance integer
+--- @field Telekinesis integer
+--- @field Sneaking integer
+--- @field Thievery integer
+--- @field Loremaster integer
+--- @field Repair integer
+--- @field Barter integer
+--- @field Persuasion integer
+--- @field Luck integer
+--- @field FireResistance integer
+--- @field EarthResistance integer
+--- @field WaterResistance integer
+--- @field AirResistance integer
+--- @field PoisonResistance integer
+--- @field PiercingResistance integer
+--- @field PhysicalResistance integer
+--- @field Sight string See Penalty Qualifier enumeration
+--- @field Hearing string See Penalty Qualifier enumeration
+--- @field FOV integer
+--- @field APMaximum integer
+--- @field APStart integer
+--- @field APRecovery integer
+--- @field Initiative integer
+--- @field Vitality integer
+--- @field MagicPoints integer
+--- @field ChanceToHitBoost integer
+--- @field Movement integer
+--- @field MovementSpeedBoost integer
+--- @field CriticalChance string See Penalty Qualifier enumeration
+--- @field Gain string See BigQualifier enumeration
+--- @field Armor integer
+--- @field ArmorBoost integer
+--- @field ArmorBoostGrowthPerLevel integer
+--- @field MagicArmor integer
+--- @field MagicArmorBoost integer
+--- @field MagicArmorBoostGrowthPerLevel integer
+--- @field Accuracy integer
+--- @field Dodge integer
+--- @field Act string See Act enumeration
+--- @field MaxResistance integer
+--- @field Weight integer
+--- @field Talents string
+--- @field Traits string
+--- @field PathInfluence string
+--- @field Flags string See AttributeFlags enumeration
+--- @field Reflection string
+--- @field StepsType string See StepsType enumeration
+--- @field MaxSummons integer
+--- @field MPStart integer
+--- @field DamageBoost integer
+--- @field DamageBoostGrowthPerLevel integer
 local StatEntryCharacter = {
     --- @type string See ActPart enumeration
     ['Act part'] = "",
@@ -3035,218 +2902,218 @@ local StatEntryCharacter = {
 
 
 --- @class StatEntrySkillData
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public SkillType string
---- @field public Ability string See SkillAbility enumeration
---- @field public Element string See SkillElement enumeration
---- @field public Requirement string See SkillRequirement enumeration
---- @field public Requirements StatRequirement[]
---- @field public DisplayName string
---- @field public DisplayNameRef string
---- @field public Description string
---- @field public DescriptionRef string
---- @field public StatsDescription string
---- @field public StatsDescriptionRef string
---- @field public StatsDescriptionParams string
---- @field public Icon string
---- @field public FXScale integer
---- @field public PrepareAnimationInit string
---- @field public PrepareAnimationLoop string
---- @field public PrepareEffect string
---- @field public PrepareEffectBone string
---- @field public CastAnimation string
---- @field public CastTextEvent string
---- @field public CastAnimationCheck string See CastCheckType enumeration
---- @field public CastEffect string
---- @field public CastEffectTextEvent string
---- @field public TargetCastEffect string
---- @field public TargetHitEffect string
---- @field public TargetEffect string
---- @field public SourceTargetEffect string
---- @field public TargetTargetEffect string
---- @field public LandingEffect string
---- @field public ImpactEffect string
---- @field public MaleImpactEffects string
---- @field public FemaleImpactEffects string
---- @field public OnHitEffect string
---- @field public SelectedCharacterEffect string
---- @field public SelectedObjectEffect string
---- @field public SelectedPositionEffect string
---- @field public DisappearEffect string
---- @field public ReappearEffect string
---- @field public ReappearEffectTextEvent string
---- @field public RainEffect string
---- @field public StormEffect string
---- @field public FlyEffect string
---- @field public SpatterEffect string
---- @field public ShieldMaterial string
---- @field public ShieldEffect string
---- @field public ContinueEffect string
---- @field public SkillEffect string
---- @field public Template string
---- @field public TemplateCheck string See CastCheckType enumeration
---- @field public TemplateOverride string
---- @field public TemplateAdvanced string
---- @field public Totem string See YesNo enumeration
---- @field public Template1 string
---- @field public Template2 string
---- @field public Template3 string
---- @field public WeaponBones string
---- @field public TeleportSelf string See YesNo enumeration
---- @field public CanTargetCharacters string See YesNo enumeration
---- @field public CanTargetItems string See YesNo enumeration
---- @field public CanTargetTerrain string See YesNo enumeration
---- @field public ForceTarget string See YesNo enumeration
---- @field public TargetProjectiles string See YesNo enumeration
---- @field public UseCharacterStats string See YesNo enumeration
---- @field public UseWeaponDamage string See YesNo enumeration
---- @field public UseWeaponProperties string See YesNo enumeration
---- @field public SingleSource string See YesNo enumeration
---- @field public ContinueOnKill string See YesNo enumeration
---- @field public Autocast string See YesNo enumeration
---- @field public AmountOfTargets integer
---- @field public AutoAim string See YesNo enumeration
---- @field public AddWeaponRange string See YesNo enumeration
---- @field public ActionPoints integer
---- @field public Cooldown integer
---- @field public CooldownReduction integer
---- @field public ChargeDuration integer
---- @field public CastDelay integer
---- @field public Offset integer
---- @field public Lifetime integer
---- @field public Duration string See Qualifier enumeration
---- @field public TargetRadius integer
---- @field public ExplodeRadius integer
---- @field public AreaRadius integer
---- @field public HitRadius integer
---- @field public RadiusMax integer
---- @field public Range integer
---- @field public MaxDistance integer
---- @field public Angle integer
---- @field public TravelSpeed integer
---- @field public Acceleration integer
---- @field public Height integer
---- @field public Damage string See DamageSourceType enumeration
---- @field public DamageType string See Damage Type enumeration
---- @field public DamageMultiplier string See PreciseQualifier enumeration
---- @field public DeathType string See Death Type enumeration
---- @field public BonusDamage string See Qualifier enumeration
---- @field public HitPointsPercent integer
---- @field public MinHitsPerTurn integer
---- @field public MaxHitsPerTurn integer
---- @field public HitDelay integer
---- @field public MaxAttacks integer
---- @field public NextAttackChance integer
---- @field public NextAttackChanceDivider integer
---- @field public EndPosRadius integer
---- @field public JumpDelay integer
---- @field public TeleportDelay integer
---- @field public PointsMaxOffset integer
---- @field public RandomPoints integer
---- @field public ChanceToPierce integer
---- @field public MaxPierceCount integer
---- @field public MaxForkCount integer
---- @field public ForkLevels integer
---- @field public ForkChance integer
---- @field public HealAmount string See PreciseQualifier enumeration
---- @field public StatusClearChance integer
---- @field public SurfaceType string See Surface Type enumeration
---- @field public SurfaceLifetime integer
---- @field public SurfaceStatusChance integer
---- @field public SurfaceTileCollision string See SurfaceCollisionFlags enumeration
---- @field public SurfaceGrowInterval integer
---- @field public SurfaceGrowStep integer
---- @field public SurfaceRadius integer
---- @field public TotalSurfaceCells integer
---- @field public SurfaceMinSpawnRadius integer
---- @field public MinSurfaces integer
---- @field public MaxSurfaces integer
---- @field public MinSurfaceSize integer
---- @field public MaxSurfaceSize integer
---- @field public GrowSpeed integer
---- @field public GrowOnSurface string See SurfaceCollisionFlags enumeration
---- @field public GrowTimeout integer
---- @field public SkillBoost string
---- @field public SkillAttributeFlags string See AttributeFlags enumeration
---- @field public SkillProperties StatProperty[]
---- @field public CleanseStatuses string
---- @field public AoEConditions string See Conditions enumeration
---- @field public TargetConditions string See Conditions enumeration
---- @field public ForkingConditions string See Conditions enumeration
---- @field public CycleConditions string See Conditions enumeration
---- @field public ShockWaveDuration integer
---- @field public TeleportTextEvent string
---- @field public SummonEffect string
---- @field public ProjectileCount integer
---- @field public ProjectileDelay integer
---- @field public StrikeCount integer
---- @field public StrikeDelay integer
---- @field public PreviewStrikeHits string See YesNo enumeration
---- @field public SummonLevel integer
---- @field public StartTextEvent string
---- @field public StopTextEvent string
---- @field public Atmosphere string See AtmosphereType enumeration
---- @field public ConsequencesStartTime integer
---- @field public ConsequencesDuration integer
---- @field public HealthBarColor integer
---- @field public Skillbook string
---- @field public PreviewImpactEffect string
---- @field public IgnoreVisionBlock string See YesNo enumeration
---- @field public HealEffectId string
---- @field public AddRangeFromAbility string See Ability enumeration
---- @field public DivideDamage string See YesNo enumeration
---- @field public OverrideMinAP string See YesNo enumeration
---- @field public OverrideSkillLevel string See YesNo enumeration
---- @field public Tier string See SkillTier enumeration
---- @field public GrenadeBone string
---- @field public GrenadeProjectile string
---- @field public GrenadePath string
---- @field public MovingObject string
---- @field public SpawnObject string
---- @field public SpawnEffect string
---- @field public SpawnFXOverridesImpactFX string See YesNo enumeration
---- @field public SpawnLifetime integer
---- @field public ProjectileTerrainOffset string See YesNo enumeration
---- @field public ProjectileType string See ProjectileType enumeration
---- @field public HitEffect string
---- @field public PushDistance integer
---- @field public ForceMove string See YesNo enumeration
---- @field public Stealth string See YesNo enumeration
---- @field public Distribution string See ProjectileDistribution enumeration
---- @field public Shuffle string See YesNo enumeration
---- @field public PushPullEffect string
---- @field public BackStart integer
---- @field public FrontOffset integer
---- @field public TargetGroundEffect string
---- @field public PositionEffect string
---- @field public BeamEffect string
---- @field public PreviewEffect string
---- @field public CastSelfAnimation string
---- @field public IgnoreCursed string See YesNo enumeration
---- @field public IsEnemySkill string See YesNo enumeration
---- @field public DomeEffect string
---- @field public AuraSelf string
---- @field public AuraAllies string
---- @field public AuraEnemies string
---- @field public AuraNeutrals string
---- @field public AuraItems string
---- @field public AIFlags string See AIFlags enumeration
---- @field public Shape string
---- @field public Base integer
---- @field public AiCalculationSkillOverride string
---- @field public TeleportSurface string See YesNo enumeration
---- @field public ProjectileSkills string
---- @field public SummonCount integer
---- @field public LinkTeleports string See YesNo enumeration
---- @field public TeleportsUseCount integer
---- @field public HeightOffset integer
---- @field public ForGameMaster string See YesNo enumeration
---- @field public IsMelee string See YesNo enumeration
---- @field public MemorizationRequirements StatRequirement[]
---- @field public IgnoreSilence string See YesNo enumeration
---- @field public IgnoreHeight string See YesNo enumeration
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field SkillType string
+--- @field Ability string See SkillAbility enumeration
+--- @field Element string See SkillElement enumeration
+--- @field Requirement string See SkillRequirement enumeration
+--- @field Requirements StatRequirement[]
+--- @field DisplayName string
+--- @field DisplayNameRef string
+--- @field Description string
+--- @field DescriptionRef string
+--- @field StatsDescription string
+--- @field StatsDescriptionRef string
+--- @field StatsDescriptionParams string
+--- @field Icon string
+--- @field FXScale integer
+--- @field PrepareAnimationInit string
+--- @field PrepareAnimationLoop string
+--- @field PrepareEffect string
+--- @field PrepareEffectBone string
+--- @field CastAnimation string
+--- @field CastTextEvent string
+--- @field CastAnimationCheck string See CastCheckType enumeration
+--- @field CastEffect string
+--- @field CastEffectTextEvent string
+--- @field TargetCastEffect string
+--- @field TargetHitEffect string
+--- @field TargetEffect string
+--- @field SourceTargetEffect string
+--- @field TargetTargetEffect string
+--- @field LandingEffect string
+--- @field ImpactEffect string
+--- @field MaleImpactEffects string
+--- @field FemaleImpactEffects string
+--- @field OnHitEffect string
+--- @field SelectedCharacterEffect string
+--- @field SelectedObjectEffect string
+--- @field SelectedPositionEffect string
+--- @field DisappearEffect string
+--- @field ReappearEffect string
+--- @field ReappearEffectTextEvent string
+--- @field RainEffect string
+--- @field StormEffect string
+--- @field FlyEffect string
+--- @field SpatterEffect string
+--- @field ShieldMaterial string
+--- @field ShieldEffect string
+--- @field ContinueEffect string
+--- @field SkillEffect string
+--- @field Template string
+--- @field TemplateCheck string See CastCheckType enumeration
+--- @field TemplateOverride string
+--- @field TemplateAdvanced string
+--- @field Totem string See YesNo enumeration
+--- @field Template1 string
+--- @field Template2 string
+--- @field Template3 string
+--- @field WeaponBones string
+--- @field TeleportSelf string See YesNo enumeration
+--- @field CanTargetCharacters string See YesNo enumeration
+--- @field CanTargetItems string See YesNo enumeration
+--- @field CanTargetTerrain string See YesNo enumeration
+--- @field ForceTarget string See YesNo enumeration
+--- @field TargetProjectiles string See YesNo enumeration
+--- @field UseCharacterStats string See YesNo enumeration
+--- @field UseWeaponDamage string See YesNo enumeration
+--- @field UseWeaponProperties string See YesNo enumeration
+--- @field SingleSource string See YesNo enumeration
+--- @field ContinueOnKill string See YesNo enumeration
+--- @field Autocast string See YesNo enumeration
+--- @field AmountOfTargets integer
+--- @field AutoAim string See YesNo enumeration
+--- @field AddWeaponRange string See YesNo enumeration
+--- @field ActionPoints integer
+--- @field Cooldown integer
+--- @field CooldownReduction integer
+--- @field ChargeDuration integer
+--- @field CastDelay integer
+--- @field Offset integer
+--- @field Lifetime integer
+--- @field Duration string See Qualifier enumeration
+--- @field TargetRadius integer
+--- @field ExplodeRadius integer
+--- @field AreaRadius integer
+--- @field HitRadius integer
+--- @field RadiusMax integer
+--- @field Range integer
+--- @field MaxDistance integer
+--- @field Angle integer
+--- @field TravelSpeed integer
+--- @field Acceleration integer
+--- @field Height integer
+--- @field Damage string See DamageSourceType enumeration
+--- @field DamageType string See Damage Type enumeration
+--- @field DamageMultiplier string See PreciseQualifier enumeration
+--- @field DeathType string See Death Type enumeration
+--- @field BonusDamage string See Qualifier enumeration
+--- @field HitPointsPercent integer
+--- @field MinHitsPerTurn integer
+--- @field MaxHitsPerTurn integer
+--- @field HitDelay integer
+--- @field MaxAttacks integer
+--- @field NextAttackChance integer
+--- @field NextAttackChanceDivider integer
+--- @field EndPosRadius integer
+--- @field JumpDelay integer
+--- @field TeleportDelay integer
+--- @field PointsMaxOffset integer
+--- @field RandomPoints integer
+--- @field ChanceToPierce integer
+--- @field MaxPierceCount integer
+--- @field MaxForkCount integer
+--- @field ForkLevels integer
+--- @field ForkChance integer
+--- @field HealAmount string See PreciseQualifier enumeration
+--- @field StatusClearChance integer
+--- @field SurfaceType string See Surface Type enumeration
+--- @field SurfaceLifetime integer
+--- @field SurfaceStatusChance integer
+--- @field SurfaceTileCollision string See SurfaceCollisionFlags enumeration
+--- @field SurfaceGrowInterval integer
+--- @field SurfaceGrowStep integer
+--- @field SurfaceRadius integer
+--- @field TotalSurfaceCells integer
+--- @field SurfaceMinSpawnRadius integer
+--- @field MinSurfaces integer
+--- @field MaxSurfaces integer
+--- @field MinSurfaceSize integer
+--- @field MaxSurfaceSize integer
+--- @field GrowSpeed integer
+--- @field GrowOnSurface string See SurfaceCollisionFlags enumeration
+--- @field GrowTimeout integer
+--- @field SkillBoost string
+--- @field SkillAttributeFlags string See AttributeFlags enumeration
+--- @field SkillProperties StatProperty[]
+--- @field CleanseStatuses string
+--- @field AoEConditions string See Conditions enumeration
+--- @field TargetConditions string See Conditions enumeration
+--- @field ForkingConditions string See Conditions enumeration
+--- @field CycleConditions string See Conditions enumeration
+--- @field ShockWaveDuration integer
+--- @field TeleportTextEvent string
+--- @field SummonEffect string
+--- @field ProjectileCount integer
+--- @field ProjectileDelay integer
+--- @field StrikeCount integer
+--- @field StrikeDelay integer
+--- @field PreviewStrikeHits string See YesNo enumeration
+--- @field SummonLevel integer
+--- @field StartTextEvent string
+--- @field StopTextEvent string
+--- @field Atmosphere string See AtmosphereType enumeration
+--- @field ConsequencesStartTime integer
+--- @field ConsequencesDuration integer
+--- @field HealthBarColor integer
+--- @field Skillbook string
+--- @field PreviewImpactEffect string
+--- @field IgnoreVisionBlock string See YesNo enumeration
+--- @field HealEffectId string
+--- @field AddRangeFromAbility string See Ability enumeration
+--- @field DivideDamage string See YesNo enumeration
+--- @field OverrideMinAP string See YesNo enumeration
+--- @field OverrideSkillLevel string See YesNo enumeration
+--- @field Tier string See SkillTier enumeration
+--- @field GrenadeBone string
+--- @field GrenadeProjectile string
+--- @field GrenadePath string
+--- @field MovingObject string
+--- @field SpawnObject string
+--- @field SpawnEffect string
+--- @field SpawnFXOverridesImpactFX string See YesNo enumeration
+--- @field SpawnLifetime integer
+--- @field ProjectileTerrainOffset string See YesNo enumeration
+--- @field ProjectileType string See ProjectileType enumeration
+--- @field HitEffect string
+--- @field PushDistance integer
+--- @field ForceMove string See YesNo enumeration
+--- @field Stealth string See YesNo enumeration
+--- @field Distribution string See ProjectileDistribution enumeration
+--- @field Shuffle string See YesNo enumeration
+--- @field PushPullEffect string
+--- @field BackStart integer
+--- @field FrontOffset integer
+--- @field TargetGroundEffect string
+--- @field PositionEffect string
+--- @field BeamEffect string
+--- @field PreviewEffect string
+--- @field CastSelfAnimation string
+--- @field IgnoreCursed string See YesNo enumeration
+--- @field IsEnemySkill string See YesNo enumeration
+--- @field DomeEffect string
+--- @field AuraSelf string
+--- @field AuraAllies string
+--- @field AuraEnemies string
+--- @field AuraNeutrals string
+--- @field AuraItems string
+--- @field AIFlags string See AIFlags enumeration
+--- @field Shape string
+--- @field Base integer
+--- @field AiCalculationSkillOverride string
+--- @field TeleportSurface string See YesNo enumeration
+--- @field ProjectileSkills string
+--- @field SummonCount integer
+--- @field LinkTeleports string See YesNo enumeration
+--- @field TeleportsUseCount integer
+--- @field HeightOffset integer
+--- @field ForGameMaster string See YesNo enumeration
+--- @field IsMelee string See YesNo enumeration
+--- @field MemorizationRequirements StatRequirement[]
+--- @field IgnoreSilence string See YesNo enumeration
+--- @field IgnoreHeight string See YesNo enumeration
 local StatEntrySkillData = {
     ['Memory Cost'] = 0,
     ['Magic Cost'] = 0,
@@ -3262,201 +3129,199 @@ local StatEntrySkillData = {
 
 
 --- @class StatEntryStatusData
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public StatusType string
---- @field public Icon string
---- @field public DisplayName string
---- @field public DisplayNameRef string
---- @field public Description string
---- @field public DescriptionRef string
---- @field public DescriptionParams string
---- @field public OverrideDefaultDescription string See YesNo enumeration
---- @field public FormatColor string See FormatStringColor enumeration
---- @field public SavingThrow string See SavingThrow enumeration
---- @field public IsChanneled string See YesNo enumeration
---- @field public Instant string See YesNo enumeration
---- @field public StatusEffect string
---- @field public StatusEffectOverrideForItems string
---- @field public StatusEffectOnTurn string
---- @field public MaterialType string See MaterialType enumeration
---- @field public Material string
---- @field public MaterialApplyBody string See YesNo enumeration
---- @field public MaterialApplyArmor string See YesNo enumeration
---- @field public MaterialApplyWeapon string See YesNo enumeration
---- @field public MaterialApplyNormalMap string See YesNo enumeration
---- @field public MaterialFadeAmount integer
---- @field public MaterialOverlayOffset integer
---- @field public MaterialParameters string
---- @field public HealingEvent string See StatusEvent enumeration
---- @field public HealStat string See StatusHealType enumeration
---- @field public HealType string See HealValueType enumeration
---- @field public HealValue integer
---- @field public StatsId string
---- @field public IsInvulnerable string See YesNo enumeration
---- @field public IsDisarmed string See YesNo enumeration
---- @field public StackId string
---- @field public StackPriority integer
---- @field public AuraRadius integer
---- @field public AuraSelf string
---- @field public AuraAllies string
---- @field public AuraEnemies string
---- @field public AuraNeutrals string
---- @field public AuraItems string
---- @field public AuraFX string
---- @field public ImmuneFlag string See AttributeFlag enumeration
---- @field public CleanseStatuses string
---- @field public MaxCleanseCount integer
---- @field public ApplyAfterCleanse string See YesNo enumeration
---- @field public SoundStart string
---- @field public SoundLoop string
---- @field public SoundStop string
---- @field public DamageEvent string See StatusEvent enumeration
---- @field public DamageStats string
---- @field public DeathType string See Death Type enumeration
---- @field public DamageCharacters string See YesNo enumeration
---- @field public DamageItems string See YesNo enumeration
---- @field public DamageTorches string See YesNo enumeration
---- @field public FreezeTime integer
---- @field public SurfaceChange string
---- @field public PermanentOnTorch string See YesNo enumeration
---- @field public AbsorbSurfaceType string
---- @field public AbsorbSurfaceRange integer
---- @field public Skills string
---- @field public BonusFromAbility string See Ability enumeration
---- @field public Items string
---- @field public OnlyWhileMoving string See YesNo enumeration
---- @field public DescriptionCaster string
---- @field public DescriptionTarget string
---- @field public WinBoost string See Properties enumeration
---- @field public LoseBoost string See Properties enumeration
---- @field public WeaponOverride string
---- @field public ApplyEffect string
---- @field public ForGameMaster string See YesNo enumeration
---- @field public ResetCooldowns string
---- @field public ResetOncePerCombat string See YesNo enumeration
---- @field public PolymorphResult string
---- @field public DisableInteractions string See YesNo enumeration
---- @field public LoseControl string See YesNo enumeration
---- @field public AiCalculationSkillOverride string
---- @field public HealEffectId string
---- @field public ScaleWithVitality string See YesNo enumeration
---- @field public VampirismType string See VampirismType enumeration
---- @field public BeamEffect string
---- @field public HealMultiplier integer
---- @field public InitiateCombat string See YesNo enumeration
---- @field public Projectile string
---- @field public Radius integer
---- @field public Charges integer
---- @field public MaxCharges integer
---- @field public DefendTargetPosition string See YesNo enumeration
---- @field public TargetConditions string See Conditions enumeration
---- @field public Toggle string See YesNo enumeration
---- @field public LeaveAction string
---- @field public DieAction string
---- @field public PlayerSameParty string See YesNo enumeration
---- @field public PlayerHasTag string
---- @field public PeaceOnly string See YesNo enumeration
---- @field public Necromantic string See YesNo enumeration
---- @field public RetainSkills string
---- @field public BringIntoCombat string See YesNo enumeration
---- @field public ApplyStatusOnTick string
---- @field public IsResistingDeath string See YesNo enumeration
---- @field public TargetEffect string
---- @field public DamagePercentage integer
---- @field public ForceOverhead string See YesNo enumeration
---- @field public TickSFX string
---- @field public ForceStackOverwrite string See YesNo enumeration
---- @field public FreezeCooldowns string See YesNo enumeration
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field StatusType string
+--- @field Icon string
+--- @field DisplayName string
+--- @field DisplayNameRef string
+--- @field Description string
+--- @field DescriptionRef string
+--- @field DescriptionParams string
+--- @field OverrideDefaultDescription string See YesNo enumeration
+--- @field FormatColor string See FormatStringColor enumeration
+--- @field SavingThrow string See SavingThrow enumeration
+--- @field IsChanneled string See YesNo enumeration
+--- @field Instant string See YesNo enumeration
+--- @field StatusEffect string
+--- @field StatusEffectOverrideForItems string
+--- @field StatusEffectOnTurn string
+--- @field MaterialType string See MaterialType enumeration
+--- @field Material string
+--- @field MaterialApplyBody string See YesNo enumeration
+--- @field MaterialApplyArmor string See YesNo enumeration
+--- @field MaterialApplyWeapon string See YesNo enumeration
+--- @field MaterialApplyNormalMap string See YesNo enumeration
+--- @field MaterialFadeAmount integer
+--- @field MaterialOverlayOffset integer
+--- @field MaterialParameters string
+--- @field HealingEvent string See StatusEvent enumeration
+--- @field HealStat string See StatusHealType enumeration
+--- @field HealType string See HealValueType enumeration
+--- @field HealValue integer
+--- @field StatsId string
+--- @field IsInvulnerable string See YesNo enumeration
+--- @field IsDisarmed string See YesNo enumeration
+--- @field StackId string
+--- @field StackPriority integer
+--- @field AuraRadius integer
+--- @field AuraSelf string
+--- @field AuraAllies string
+--- @field AuraEnemies string
+--- @field AuraNeutrals string
+--- @field AuraItems string
+--- @field AuraFX string
+--- @field ImmuneFlag string See AttributeFlag enumeration
+--- @field CleanseStatuses string
+--- @field MaxCleanseCount integer
+--- @field ApplyAfterCleanse string See YesNo enumeration
+--- @field SoundStart string
+--- @field SoundLoop string
+--- @field SoundStop string
+--- @field DamageEvent string See StatusEvent enumeration
+--- @field DamageStats string
+--- @field DeathType string See Death Type enumeration
+--- @field DamageCharacters string See YesNo enumeration
+--- @field DamageItems string See YesNo enumeration
+--- @field DamageTorches string See YesNo enumeration
+--- @field FreezeTime integer
+--- @field SurfaceChange string
+--- @field PermanentOnTorch string See YesNo enumeration
+--- @field AbsorbSurfaceType string
+--- @field AbsorbSurfaceRange integer
+--- @field Skills string
+--- @field BonusFromAbility string See Ability enumeration
+--- @field Items string
+--- @field OnlyWhileMoving string See YesNo enumeration
+--- @field DescriptionCaster string
+--- @field DescriptionTarget string
+--- @field WinBoost string See Properties enumeration
+--- @field LoseBoost string See Properties enumeration
+--- @field WeaponOverride string
+--- @field ApplyEffect string
+--- @field ForGameMaster string See YesNo enumeration
+--- @field ResetCooldowns string
+--- @field ResetOncePerCombat string See YesNo enumeration
+--- @field PolymorphResult string
+--- @field DisableInteractions string See YesNo enumeration
+--- @field LoseControl string See YesNo enumeration
+--- @field AiCalculationSkillOverride string
+--- @field HealEffectId string
+--- @field ScaleWithVitality string See YesNo enumeration
+--- @field VampirismType string See VampirismType enumeration
+--- @field BeamEffect string
+--- @field HealMultiplier integer
+--- @field InitiateCombat string See YesNo enumeration
+--- @field Projectile string
+--- @field Radius integer
+--- @field Charges integer
+--- @field MaxCharges integer
+--- @field DefendTargetPosition string See YesNo enumeration
+--- @field TargetConditions string See Conditions enumeration
+--- @field Toggle string See YesNo enumeration
+--- @field LeaveAction string
+--- @field DieAction string
+--- @field PlayerSameParty string See YesNo enumeration
+--- @field PlayerHasTag string
+--- @field PeaceOnly string See YesNo enumeration
+--- @field Necromantic string See YesNo enumeration
+--- @field RetainSkills string
+--- @field BringIntoCombat string See YesNo enumeration
+--- @field ApplyStatusOnTick string
+--- @field IsResistingDeath string See YesNo enumeration
+--- @field TargetEffect string
+--- @field DamagePercentage integer
+--- @field ForceOverhead string See YesNo enumeration
+--- @field TickSFX string
+--- @field ForceStackOverwrite string See YesNo enumeration
+--- @field FreezeCooldowns string See YesNo enumeration
 local StatEntryStatusData = {}
 
 
 --- @class StatEntryCrime
---- @field public Name string
---- @field public Level integer
---- @field public Using string
---- @field public CrimeType string
---- @field public TensionWeight integer
---- @field public Lifetime integer
---- @field public Audible string See YesNo enumeration
---- @field public DetectionRange integer
---- @field public CreatesCrimescene string See YesNo enumeration
---- @field public Continuous string See YesNo enumeration
---- @field public VictimReaction string
---- @field public NoticedAD string
---- @field public WarningDialog string
---- @field public ArrestDialog string
---- @field public InterrogateDialog string
---- @field public ReactionCategory_Tag string
---- @field public ReactionCategory_Priority integer
---- @field public ReactionCategory_PrimaryReaction string
---- @field public ReactionCategory_SecondaryReaction string
---- @field public MaxInvestigators integer
---- @field public ContinuousDelayTimer integer
---- @field public SoundEvent string
---- @field public AudibleRange integer
---- @field public VictimDialog string
---- @field public CanRaiseAlarm string See YesNo enumeration
---- @field public CanMerge string See YesNo enumeration
+--- @field Name string
+--- @field Level integer
+--- @field Using string
+--- @field CrimeType string
+--- @field TensionWeight integer
+--- @field Lifetime integer
+--- @field Audible string See YesNo enumeration
+--- @field DetectionRange integer
+--- @field CreatesCrimescene string See YesNo enumeration
+--- @field Continuous string See YesNo enumeration
+--- @field VictimReaction string
+--- @field NoticedAD string
+--- @field WarningDialog string
+--- @field ArrestDialog string
+--- @field InterrogateDialog string
+--- @field ReactionCategory_Tag string
+--- @field ReactionCategory_Priority integer
+--- @field ReactionCategory_PrimaryReaction string
+--- @field ReactionCategory_SecondaryReaction string
+--- @field MaxInvestigators integer
+--- @field ContinuousDelayTimer integer
+--- @field SoundEvent string
+--- @field AudibleRange integer
+--- @field VictimDialog string
+--- @field CanRaiseAlarm string See YesNo enumeration
+--- @field CanMerge string See YesNo enumeration
 local StatEntryCrime = {}
 
 
 --- @class HitRequest
---- @field public Equipment integer
---- @field public TotalDamageDone integer
---- @field public DamageDealt integer
---- @field public DeathType string See DeathType enumeration
---- @field public DamageType string See DamageType enumeration
---- @field public AttackDirection integer
---- @field public ArmorAbsorption integer
---- @field public LifeSteal integer
---- @field public EffectFlags integer See HitFlags enumeration
---- @field public HitWithWeapon boolean
---- @field public DamageList DamageList
+--- @field Equipment integer
+--- @field TotalDamageDone integer
+--- @field DamageDealt integer
+--- @field DeathType string See DeathType enumeration
+--- @field DamageType string See DamageType enumeration
+--- @field AttackDirection integer
+--- @field ArmorAbsorption integer
+--- @field LifeSteal integer
+--- @field EffectFlags integer See HitFlags enumeration
+--- @field HitWithWeapon boolean
+--- @field DamageList DamageList
 local HitRequest = {}
 
 
 --- @class HitContext
 --- Context information passed in StatusHitEnter/BeforeCharacterApplyDamage callbacks
---- @field public HitId integer Unique hit identifier for hit tracking
---- @field public Weapon StatItem
---- @field public Hit HitRequest
---- @field public HitType string See HitType enumeration
---- @field public NoHitRoll boolean
---- @field public ProcWindWalker boolean
---- @field public ForceReduceDurability boolean
---- @field public HighGround string
---- @field public CriticalRoll string
---- @field public HitStatus EsvStatus
+--- @field HitId integer Unique hit identifier for hit tracking
+--- @field Weapon StatItem
+--- @field Hit HitRequest
+--- @field HitType string See HitType enumeration
+--- @field NoHitRoll boolean
+--- @field ProcWindWalker boolean
+--- @field ForceReduceDurability boolean
+--- @field HighGround string
+--- @field CriticalRoll string
+--- @field HitStatus EsvStatusHit
 local HitContext = {}
 
 
 --- @class EsvCombatTeam
---- @field public TeamId integer A number identifying the team instance
---- @field public CombatId integer 	Identifies which combat the team is a participant of
---- @field public Initiative integer Computed initiative value of the team
---- @field public StillInCombat boolean Can the team currently fight, or is it temporarily out of combat?
---- @field public Character EsvCharacter|nil Character object if the team is a character; nil otherwise
---- @field public Item EsvItem|nil Item object if the team is an item; nil otherwise
+--- @field TeamId integer A number identifying the team instance
+--- @field CombatId integer 	Identifies which combat the team is a participant of
+--- @field Initiative integer Computed initiative value of the team
+--- @field StillInCombat boolean Can the team currently fight, or is it temporarily out of combat?
+--- @field Character EsvCharacter|nil Character object if the team is a character; nil otherwise
+--- @field Item EsvItem|nil Item object if the team is an item; nil otherwise
 local EsvCombatTeam = {}
 
 
 --- @class EsvCombat
---- @field public CombatId integer A number identifying the combat instance
---- @field public LevelName string Level where the combat is taking place
---- @field public IsActive boolean
+--- @field CombatId integer A number identifying the combat instance
+--- @field LevelName string Level where the combat is taking place
+--- @field IsActive boolean
 local EsvCombat = {}
 
 --- Retrieves the turn order of the current round.
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetCurrentTurnOrder (self) end
+function EsvCombat:GetCurrentTurnOrder() end
     
 --- Retrieves the turn order of the next round.
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetNextTurnOrder (self) end
+function EsvCombat:GetNextTurnOrder() end
 
 --- Updates the turn order of the current round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetCurrentTurnOrder().
@@ -3466,9 +3331,8 @@ function EsvCombat.GetNextTurnOrder (self) end
 ---  The character whose turn is currently active (the very first item) should not be removed or reordered. 
 ---    This only applies for GetCurrentTurnOrder, the first item can be freely reordered in GetNextTurnOrder.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
---- @param self EsvCombat
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat.UpdateCurrentTurnOrder (self, turnOrder) end
+function EsvCombat:UpdateCurrentTurnOrder(turnOrder) end
     
 --- Updates the turn order of the next round. 
 --- The turnOrder argument should be a reordered version of the table returned by GetNextTurnOrder().
@@ -3476,14 +3340,12 @@ function EsvCombat.UpdateCurrentTurnOrder (self, turnOrder) end
 ---  It is possible to remove or add characters to the next turn by adding/removing their Team object from the table.
 ---  It is possible to add a character to the next turn more than once, the character will only appear once in the UI however.
 ---  Changed performed using this function are synchronized to the client at the end of the current server tick.
---- @param self EsvCombat
 --- @param turnOrder EsvCombatTeam[]
-function EsvCombat.UpdateNextTurnOrder (self, turnOrder) end
+function EsvCombat:UpdateNextTurnOrder(turnOrder) end
     
 --- Retrieves all participants of the combat
---- @param self EsvCombat
 --- @return EsvCombatTeam[]
-function EsvCombat.GetAllTeams (self) end
+function EsvCombat:GetAllTeams() end
 
 
 --- @class FlashObject
@@ -3514,7 +3376,12 @@ local FlashArray = {}
 --- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned.
 local FlashFunction = {}
 
----@class FlashInteractiveObject:FlashObject
+---@class FlashEventDispatcher:FlashObject
+
+---Currently unsupported type 12.
+---@class FlashDisplayObject:FlashEventDispatcher
+
+---@class FlashInteractiveObject:FlashDisplayObject
 ---@field doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
 ---@field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
 ---@field tabEnabled boolean Specifies whether this object is in the tab order.
@@ -3538,8 +3405,27 @@ local FlashFunction = {}
 ---@field lineTo fun(x:number, y:number):void Draws a line using the current line style from the current drawing position to  fun(x, y); the current drawing position is then set to  fun(x, y).
 ---@field moveTo fun(x:number, y:number):void Moves the current drawing position to  fun(x, y).
 
+---@class FlashDisplayObjectContainer:FlashInteractiveObject
+---@field mouseChildren boolean Determines whether or not the children of the object are mouse, or user input device, enabled.
+---@field numChildren integer Returns the number of children of this object. [read-only]
+---@field tabChildren boolean Determines whether the children of the object are tab enabled.
+---@field textSnapshot FlashTextSnapshot Returns a TextSnapshot object for this DisplayObjectContainer instance. [read-only]
+---@field addChild fun(child:FlashDisplayObject):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+---@field addChildAt fun(child:FlashDisplayObject, index:integer):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+---@field areInaccessibleObjectsUnderPoint fun(point:Point):boolean Indicates whether the security restrictions would cause any display objects to be omitted from the list returned by calling the DisplayObjectContainer.getObjectsUnderPoint() method with the specified point point.
+---@field contains fun(child:FlashDisplayObject):boolean Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself.
+---@field getChildAt fun(index:integer):FlashDisplayObject Returns the child display object instance that exists at the specified index.
+---@field getChildByName fun(name:String):FlashDisplayObject Returns the child display object that exists with the specified name.
+---@field getChildIndex fun(child:FlashDisplayObject):integer Returns the index position of a child DisplayObject instance.
+---@field getObjectsUnderPoint fun(point:Point):Array Returns an array of objects that lie under the specified point and are children (or grandchildren, and so on) of this DisplayObjectContainer instance.
+---@field removeChild fun(child:FlashDisplayObject):FlashDisplayObject Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance.
+---@field removeChildAt fun(index:integer):FlashDisplayObject Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer.
+---@field removeChildren fun(beginIndex:integer, endIndex:integer):void Removes all child DisplayObject instances from the child list of the DisplayObjectContainer instance.
+---@field setChildIndex fun(child:FlashDisplayObject, index:integer):void Changes the position of an existing child in the display object container.
+---@field swapChildren fun(child1:FlashDisplayObject, child2:FlashDisplayObject):void Swaps the z-order (front-to-back order) of the two specified child objects.
+---@field swapChildrenAt fun(index1:integer, index2:integer):void Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list.
 
----@class FlashSprite:FlashInteractiveObject
+---@class FlashSprite:FlashDisplayObjectContainer
 ---@field buttonMode boolean Specifies the button mode of this sprite.
 ---@field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
 ---@field soundTransform number Controls sound within this sprite.
@@ -3579,121 +3465,98 @@ local FlashFunction = {}
 --- @class UIObject
 local UIObject = {}
 
---- @param self UIObject
 --- @param x integer
 --- @param y integer
-function UIObject.SetPosition (self, x, y) end
+function UIObject:SetPosition(x, y) end
     
---- @param self UIObject
 --- @param width integer
 --- @param height integer
-function UIObject.Resize (self, width, height) end
+function UIObject:Resize(width, height) end
     
---- @param self UIObject
-function UIObject.Show (self) end
+function UIObject:Show() end
     
---- @param self UIObject
-function UIObject.Hide (self) end
+function UIObject:Hide() end
     
 --- Calls a method on the main timeline object of the UI element. 
---- The first argument (func) is the name of the ActionScript function to call; 
+--- The first argument(func) is the name of the ActionScript function to call; 
 --- all subsequent arguments are passed to the ActionScript function as parameters. 
 --- Only string, number and boolean arguments are supported.
---- @param self UIObject
 --- @param method string Method to call
 --- @vararg any
-function UIObject.Invoke (self, method, ...) end
+function UIObject:Invoke(method, ...) end
     
 --- Simulates an ExternalInterface.call(...) call from Flash, 
 --- i.e. it calls an UI handler function in the game engine. 
---- The first argument (func) is the name of the UI function to call; 
+--- The first argument(func) is the name of the UI function to call; 
 --- all subsequent arguments are passed to the engine as parameters. 
 --- Only string, number and boolean arguments are supported.
---- @param self UIObject
 --- @param func string ExternalInterface function to call
 --- @vararg any
-function UIObject.ExternalInterfaceCall (self, func, ...) end
+function UIObject:ExternalInterfaceCall(func, ...) end
     
---- @param self UIObject
 --- @param frame integer
-function UIObject.GotoFrame (self, frame) end
+function UIObject:GotoFrame(frame) end
     
 --- Updates the specified public property of the main timeline object.
---- @param self UIObject
 --- @param property string Property path to set
 --- @param value number|boolean|string Value
 --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
-function UIObject.SetValue (self, property, value, arrayIndex) end
+function UIObject:SetValue(property, value, arrayIndex) end
     
 --- Retrieves the specified public property of the main timeline object. 
 --- "type" contains the type of value to retrieve and must be string, number or boolean.
---- @param self UIObject
 --- @param property string Property path to set
 --- @param type "'number'" | "'boolean'" | "'string'" | nil
 --- @param arrayIndex integer|nil Pass integer to set property[arrayIndex]
 --- @return number|boolean|string
-function UIObject.GetValue (self, property, type, arrayIndex) end
+function UIObject:GetValue(property, type, arrayIndex) end
     
---- Returns the root (MainTimeline) Flash object
---- @param self UIObject
+--- Returns the root(MainTimeline) Flash object
 --- @return FlashMainTimeline
-function UIObject.GetRoot (self) end
+function UIObject:GetRoot() end
     
 --- Returns the engine UI type ID of the UI element
---- @param self UIObject
 --- @return integer
-function UIObject.GetTypeId (self) end
+function UIObject:GetTypeId() end
     
---- @param self UIObject
 --- @return ObjectHandle
-function UIObject.GetHandle (self) end
+function UIObject:GetHandle() end
     
 --- Returns the handle of the player that this UI element is assigned to.
---- (Only certain elements have a player assigned, like character sheet, inventory, etc.)
---- @param self UIObject
+---(Only certain elements have a player assigned, like character sheet, inventory, etc.)
 --- @return ObjectHandle|nil
-function UIObject.GetPlayerHandle (self) end
+function UIObject:GetPlayerHandle() end
     
---- @param self UIObject
-function UIObject.Destroy (self) end
+function UIObject:Destroy() end
 
---- Enables custom icon draw capture hooks.
---- @param self UIObject
-function UIObject.EnableCustomDraw (self) end
-    
---- Binds a texture atlas icon to a Flash custom draw element.
---- @param self UIObject
---- @param element string Name of custom draw object
---- @param icon string Icon name from texture atlas
---- @param width number Draw width
---- @param height number Draw height
-function UIObject.SetCustomIcon (self, element, icon, width, height) end
-    
+--- @param name string The draw call name for the movieclip. For instance, if the movieclip is iggy_luck, the name would be luck.
+--- @param icon string The icon atlas entry to use, such as statIcons_Lucky.
+--- @param width number The movieclip width.
+--- @param height number The movieclip height.
+function UIObject:SetCustomIcon(name, icon, width, height) end
+
 --- Removes the Flash custom draw element override applied by SetCustomIcon().
---- @param self UIObject
 --- @param element string Name of custom draw object
-function UIObject.ClearCustomIcon (self, element) end
-
+function UIObject:ClearCustomIcon(element) end
 
 --- @class EclPickingState
---- @field public WorldPosition number[] Position of cursor in world coordinates
---- @field public WalkablePosition number[] Closest walkable position to cursor in world coordinates
---- @field public HoverCharacter ObjectHandle Character hovered by cursor
---- @field public HoverCharacter2 ObjectHandle Character hovered by cursor (???)
---- @field public HoverCharacterPosition number[] Position of character hovered by cursor
---- @field public HoverItem ObjectHandle Item hovered by cursor
---- @field public HoverItemPosition number[] Position of item hovered by cursor
---- @field public PlaceableEntity ObjectHandle Placeable game object hovered by cursor
---- @field public PlaceablePosition number[] Position of placeable game object hovered by cursor
+--- @field WorldPosition number[] Position of cursor in world coordinates
+--- @field WalkablePosition number[] Closest walkable position to cursor in world coordinates
+--- @field HoverCharacter ObjectHandle Character hovered by cursor
+--- @field HoverCharacter2 ObjectHandle Character hovered by cursor (???)
+--- @field HoverCharacterPosition number[] Position of character hovered by cursor
+--- @field HoverItem ObjectHandle Item hovered by cursor
+--- @field HoverItemPosition number[] Position of item hovered by cursor
+--- @field PlaceableEntity ObjectHandle Placeable game object hovered by cursor
+--- @field PlaceablePosition number[] Position of placeable game object hovered by cursor
 
 
 --- @class SurfaceInteractionSet
---- @field public TransformType string Surface transform to apply (Bless, Curse, Ignite, ...)
---- @field public ActionableSurfaces string[][] Surface types that this transform applies to
-local SurfaceInteractionSet = {}
+--- @field TransformType string Surface transform to apply (Bless, Curse, Ignite, ...)
+--- @field ActionableSurfaces string[][] Surface types that this transform applies to
 
 
---- @alias ExtEngineEvent "'SessionLoading'" | "'SessionLoaded'" | "'ModuleLoading'" | "'ModuleLoadStarted'" | "'ModuleResume'" | "'GameStateChanged'" | "'SkillGetDescriptionParam'" | "'StatusGetDescriptionParam'" | "'GetSkillDamage'" | "'GetSkillAPCost'" | "'ComputeCharacterHit'" | "'CalculateTurnOrder'" | "'GetHitChance'" | "'StatusGetEnterChance'" | '"StatusHitEnter"' | "'BeforeCharacterApplyDamage'" | "'UIInvoke'" | "'UICall'" | "'AfterUIInvoke'" | "'AfterUICall'" | "'BeforeShootProjectile'" | "'ShootProjectile'" | "'ProjectileHit'" | "'GroundHit'" | "'InputEvent'"
+--- @alias ExtEngineEvent string | '"SessionLoading"' | '"SessionLoaded"' | '"ModuleLoading"' | '"ModuleLoadStarted"' | '"ModuleResume"' | '"GameStateChanged"' | '"SkillGetDescriptionParam"' | '"StatusGetDescriptionParam"' | '"GetSkillDamage"' | '"GetSkillAPCost"' | '"ComputeCharacterHit"' | '"CalculateTurnOrder"' | '"GetHitChance"' | '"StatusGetEnterChance"' | '"StatusHitEnter"' | '"BeforeCharacterApplyDamage"' | '"UIInvoke"' | '"UICall"' | '"AfterUIInvoke"' | '"AfterUICall"' | '"BeforeShootProjectile"' | '"ShootProjectile"' | '"ProjectileHit"' | '"GroundHit"' | '"InputEvent"'
 
 --- @alias ExtGameStateChangedCallback fun(fromState: string, toState: string)
 --- @alias ExtComputeCharacterHitCallback fun(target: StatCharacter, attacker: StatCharacter, weapon: StatItem, damageList: DamageList, hitType: string, noHitRoll: boolean, forceReduceDurability: boolean, hit: HitRequest, alwaysBackstab: boolean, highGroundFlag: string, criticalRoll: string): HitRequest
@@ -3711,7 +3574,6 @@ local SurfaceInteractionSet = {}
 --- @alias ExtProjectileHitCallback fun(projectile: EsvProjectile, hitObject: EsvGameObject|nil, position: number[])
 --- @alias ExtGroundHitCallback fun(caster: EsvGameObject, position: number[], damageList: DamageList)
 --- @alias ExtInputEventCallback fun(event: InputEvent)
---- @alias UICallbackHandler fun(ui:UIObject, event:string):void
 
 --- @class Ext
 Ext = {
@@ -3946,21 +3808,21 @@ Ext = {
 
 --- Returns the version number of the Osiris Extender
 --- @return integer
-function Ext.Version () end
+function Ext.Version() end
 
 --- Returns the version number of the game
 --- @return string
-function Ext.GameVersion () end
+function Ext.GameVersion() end
 
 --- Loads the specified Lua file
---- @param modGuid string GUID of the module containing the Lua file
+--- @param modGuid string UUID of the module containing the Lua file
 --- @param fileName string Path of Lua file, relative to Mods/<Mod>/Story/RawFiles/Lua
-function Ext.Require (modGuid, fileName) end
+function Ext.Require(modGuid, fileName) end
 
 --- Registers a function to call when an extender event is thrown
 --- @param event ExtEngineEvent Event to listen for
 --- @param callback function Lua function to run when the event fires
-function Ext.RegisterListener (event, callback) end
+function Ext.RegisterListener(event, callback) end
 
 --- Registers a function that is called when certain Osiris functions are called.
 --- Supports events, built-in queries, DBs, PROCs, QRYs (user queries).
@@ -3968,178 +3830,181 @@ function Ext.RegisterListener (event, callback) end
 --- @param arity number Number of columns for DBs or the number of parameters (both IN and OUT) for functions
 --- @param event string Event type ('before' - triggered before Osiris call; 'after' - after Osiris call; 'beforeDelete'/'afterDelete' - before/after delete from DB)
 --- @param handler function Lua function to run when the event fires
-function Ext.RegisterOsirisListener (name, arity, event, handler) end
+function Ext.RegisterOsirisListener(name, arity, event, handler) end
 
 --- Registers a new call in Osiris
 --- @param func function Function to register
 --- @param funcName string Name of call to register
 --- @param arguments string Call argument list
-function Ext.NewCall (func, funcName, arguments) end
+function Ext.NewCall(func, funcName, arguments) end
 
 --- Registers a new query in Osiris
 --- @param func function Function to register
 --- @param funcName string Name of query to register
 --- @param arguments string Query argument list
-function Ext.NewQuery (func, funcName, arguments) end
+function Ext.NewQuery(func, funcName, arguments) end
 
 --- Registers a new event in Osiris
 --- @param funcName string Name of event to register
 --- @param arguments string Event argument list
-function Ext.NewEvent (funcName, arguments) end
+function Ext.NewEvent(funcName, arguments) end
 
 --- Print to console window and editor messages pane
-function Ext.Print (...) end
+--- @vararg any
+function Ext.Print(...) end
 
 --- Print warning to console window and editor messages pane
-function Ext.PrintWarning (...) end
+--- @vararg any
+function Ext.PrintWarning(...) end
 
 --- Print error to console window and editor messages pane
-function Ext.PrintError (...) end
+--- @vararg any
+function Ext.PrintError(...) end
 
 --- Parse a JSON document into a Lua object
 --- @param json string JSON string to parse
 --- @return any
-function Ext.JsonParse (json) end
+function Ext.JsonParse(json) end
 
 --- Converts a Lua value into a JSON document
 --- @param val any Value to serialize
 --- @return string JSON document
-function Ext.JsonStringify (val) end
+function Ext.JsonStringify(val) end
 
 --- Returns whether the specified mod is loaded
---- @param modGuid string GUID of the module
+--- @param modGuid string UUID of the module
 --- @return boolean
-function Ext.IsModLoaded (modGuid) end
+function Ext.IsModLoaded(modGuid) end
 
 --- Returns the list of loaded modules in load order
 --- @return string[]
-function Ext.GetModLoadOrder () end
+function Ext.GetModLoadOrder() end
 
 --- Returns detailed information about the specified (loaded) module
---- @param modGuid string GUID of the module
+--- @param modGuid string UUID of the module
 --- @return ModInfo
-function Ext.GetModInfo (modGuid) end
+function Ext.GetModInfo(modGuid) end
 
 --- Returns the list of loaded stat entries
 --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
 --- @return string[]
-function Ext.GetStatEntries (type) end
+function Ext.GetStatEntries(type) end
 
 --- Returns the list of stat entries that were loaded before the specified mod
---- @param modGuid string Mod GUID to check
+--- @param modGuid string Mod UUID to check
 --- @param type string|nil Type of stat entry to fetch (StatusData, SkillData, ...)
 --- @return string[]
-function Ext.GetStatEntriesLoadedBefore (modId, type) end
+function Ext.GetStatEntriesLoadedBefore(modId, type) end
 
 --- Returns an attribute of the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Stat attribute name
 --- @return any
-function Ext.StatGetAttribute (stat, attribute) end
+function Ext.StatGetAttribute(stat, attribute) end
 
 --- Updates an attribute of the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Stat attribute name
 --- @param value any New stat value
-function Ext.StatSetAttribute (stat, attribute, value) end
+function Ext.StatSetAttribute(stat, attribute, value) end
 
 --- Adds a property description to the specified stat entry
 --- @param stat string Stat entry name
 --- @param attribute string Property list attribute name
 --- @param description any Description to add
-function Ext.StatAddCustomDescription (stat, attribute, description) end
+function Ext.StatAddCustomDescription(stat, attribute, description) end
 
 --- Returns all skills from the specified skill set
 --- @param name string Name of skill set entry
 --- @return StatSkillSet|nil
-function Ext.GetSkillSet (name) end
+function Ext.GetSkillSet(name) end
 
 --- Updates all properties of the specified skill set.
 --- The function expects a table in the same format as the one returned by GetSkillSet.
 --- @param skillSet StatSkillSet
-function Ext.UpdateSkillSet (skillSet) end
+function Ext.UpdateSkillSet(skillSet) end
 
 --- Returns all equipment from the specified equipment set
 --- @param name string Name of equipment set entry
 --- @return StatEquipmentSet|nil
-function Ext.GetEquipmentSet (name) end
+function Ext.GetEquipmentSet(name) end
 
 --- Updates all properties of the specified equipment set.
 --- The function expects a table in the same format as the one returned by GetEquipmentSet.
 --- @param equipmentSet StatEquipmentSet
-function Ext.UpdateEquipmentSet (equipmentSet) end
+function Ext.UpdateEquipmentSet(equipmentSet) end
 
 --- Returns the specified DeltaMod or nil on failure
 --- @param name string Name of delta mod
 --- @param modifierType string Modifier type (Armor/Weapon)
 --- @return DeltaMod
-function Ext.GetDeltaMod (name, modifierType) end
+function Ext.GetDeltaMod(name, modifierType) end
 
 --- Updates all properties of the specified DeltaMod.
 --- The function expects a table in the same format as the one returned by GetDeltaMod.
 --- @param deltaMod DeltaMod Name of delta mod
-function Ext.UpdateDeltaMod (deltaMod) end
+function Ext.UpdateDeltaMod(deltaMod) end
 
 --- Returns the specified crafting item combination or nil on failure
 --- @param name string Name of item combo
 --- @return ItemCombo|nil
-function Ext.GetItemCombo (name) end
+function Ext.GetItemCombo(name) end
 
 --- Updates all properties of the specified item combination.
 --- The function expects a table in the same format as the one returned by GetItemCombo.
 --- @param itemCombo ItemCombo
-function Ext.UpdateItemCombo (itemCombo) end
+function Ext.UpdateItemCombo(itemCombo) end
 
 --- Returns the specified crafting preview data or nil on failure
 --- @param name string Name of item combo preview data
 --- @return ItemComboPreviewData|nil
-function Ext.GetItemComboPreviewData (name) end
+function Ext.GetItemComboPreviewData(name) end
 
 --- Updates all properties of the specified item combo preview.
 --- The function expects a table in the same format as the one returned by GetItemComboPreviewData.
 --- @param previewData ItemComboPreviewData
-function Ext.UpdateItemComboPreviewData (previewData) end
+function Ext.UpdateItemComboPreviewData(previewData) end
 
 --- Returns the specified crafting property or nil on failure
 --- @param name string Name of item combo property
 --- @return ItemComboProperty|nil
-function Ext.GetItemComboProperty (name) end
+function Ext.GetItemComboProperty(name) end
 
 --- Updates all properties of the specified item combo property.
 --- The function expects a table in the same format as the one returned by GetItemComboProperty.
 --- @param itemComboProperty ItemComboProperty
-function Ext.UpdateItemComboProperty (itemComboProperty) end
+function Ext.UpdateItemComboProperty(itemComboProperty) end
 
 --- Returns the specified treasure table or nil on failure
 --- @param name string Name of treasure table
 --- @return StatTreasureTable|nil
-function Ext.GetTreasureTable (name) end
+function Ext.GetTreasureTable(name) end
 
 --- Updates all properties of the specified treasure table.
 --- The function expects a table in the same format as the one returned by GetTreasureTable.
 --- @param treasureTable StatTreasureTable
-function Ext.UpdateTreasureTable (treasureTable) end
+function Ext.UpdateTreasureTable(treasureTable) end
 
 --- Returns the specified treasure category or nil on failure
 --- @param name string Name of treasure category
 --- @return StatTreasureCategory|nil
-function Ext.GetTreasureCategory (name) end
+function Ext.GetTreasureCategory(name) end
 
 --- Updates all properties of the specified treasure category.
 --- The function expects a table in the same format as the one returned by GetTreasureCategory.
 --- @param name string Name of treasure category
 --- @param treasureCategory StatTreasureCategory
-function Ext.UpdateTreasureCategory (name, treasureCategory) end
+function Ext.UpdateTreasureCategory(name, treasureCategory) end
 
 --- Returns the specified item progression item group or nil on failure
 --- @param name string Name of item group
 --- @return ItemGroup|nil
-function Ext.GetItemGroup (name) end
+function Ext.GetItemGroup(name) end
 
 --- Returns the specified item progression name group or nil on failure
 --- @param name string Name of name group
 --- @return ItemNameGroup|nil
-function Ext.GetNameGroup (name) end
+function Ext.GetNameGroup(name) end
 
 --- Registers a new skill property that can be triggered via SkillProperties
 --- Stat syntax: data "SkillProperties" "EXT:<PROPERTY_NAME>[,<int>,<int>,<string>,<int>,<int>]"
@@ -4148,54 +4013,54 @@ function Ext.GetNameGroup (name) end
 --- Conditions for EXT: properties (i.e. "IF(COND):") are _NOT YET_ supported.
 --- @param channel string Skill property name
 --- @param defn CustomSkillProperty Event handlers for the skill property
-function Ext.RegisterSkillProperty (name, defn) end
+function Ext.RegisterSkillProperty(name, defn) end
 
 --- Replaces level scaling formula for the specified stat
 --- @param statType string Stat entry type
 --- @param attribute string Stat attribute name
 --- @param func function Replacement scaling function
-function Ext.StatSetLevelScaling (statType, attribute, func) end
+function Ext.StatSetLevelScaling(statType, attribute, func) end
 
 --- Returns the property proxy of the specified stats entry
 --- Returns level scaled values if the level parameter is not nil.
 --- @param stat string Stat entry name
 --- @param level integer|nil Level scaling level
 --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
-function Ext.GetStat (stat, level) end
+function Ext.GetStat(stat, level) end
 
 --- Creates a new stats entry on the server
 --- @param name string Stat entry name
 --- @param type string Stat entry type (i.e. SkillData, StatusData, etc.)
 --- @param template string|nil When not nil, all properties are copied from the specified stats entry
 --- @return StatEntryArmor|StatEntryCharacter|StatEntryObject|StatEntryPotion|StatEntryShield|StatEntrySkillData|StatEntryStatusData|StatEntryWeapon
-function Ext.CreateStat (name, type, template) end
+function Ext.CreateStat(name, type, template) end
 
 --- Synchronizes all modifications of the specified stat to all clients
 --- @param name string Stat entry name
 --- @param persist boolean|nil Persist stats entry to savegame?
-function Ext.SyncStat (name, persist) end
+function Ext.SyncStat(name, persist) end
 
 --- Toggles whether the specified stats entry should be persisted to savegames
 --- @param name string Stat entry name
 --- @param persist boolean Persist stats entry to savegame?
-function Ext.StatSetPersistence (name, persist) end
+function Ext.StatSetPersistence(name, persist) end
 
 --- Returns the textual label assigned to the specified enumeration value
 --- @param enum string Engine enumeration name
 --- @param index number Value index to look up
 --- @return string|nil
-function Ext.EnumIndexToLabel (enum, index) end
+function Ext.EnumIndexToLabel(enum, index) end
 
 --- Returns the numeric index assigned to the specified enumeration label
 --- @param enum string Engine enumeration name
 --- @param label string Value name to look for
 --- @return number|nil
-function Ext.EnumLabelToIndex (enum, label) end
+function Ext.EnumLabelToIndex(enum, label) end
 
 -- Execute the SkillProperties of the specified skill on a target character.
 --- @param skillId string Stats skill ID
---- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
---- @param target ObjectHandle|int|string Target character handle/NetID/GUID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/UUID
+--- @param target ObjectHandle|int|string Target character handle/NetID/UUID
 --- @param position number[]
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
 --- @param isFromItem boolean
@@ -4203,7 +4068,7 @@ function Ext.ExecuteSkillPropertiesOnTarget(skillId, attacker, target, position,
 
 -- Execute the SkillProperties of the specified skill on a position.
 --- @param skillId string Stats skill ID
---- @param attacker ObjectHandle|int|string Attacker character handle/NetID/GUID
+--- @param attacker ObjectHandle|int|string Attacker character handle/NetID/UUID
 --- @param position number[]
 --- @param radius number
 --- @param propertyContext string Target|AoE|Self|SelfOnHit|SelfOnEquip
@@ -4212,296 +4077,300 @@ function Ext.ExecuteSkillPropertiesOnPosition(skillId, attacker, position, radiu
 
 --- Returns the transformation rules that are applied when two neighbouring surfaces interact.
 --- @return SurfaceInteractionSet[][]
-function Ext.GetSurfaceTransformRules () end
+function Ext.GetSurfaceTransformRules() end
 
 --- Returns the surface template for the specified surface type
 --- @param type string See SurfaceType enumeration
 --- @return SurfaceTemplate
-function Ext.GetSurfaceTemplate (type) end
+function Ext.GetSurfaceTemplate(type) end
 
 --- Updates the transformation rules that are applied when two neighbouring surfaces interact.
 --- @param rules SurfaceInteractionSet[][] New rules to apply
-function Ext.UpdateSurfaceTransformRules (rules) end
+function Ext.UpdateSurfaceTransformRules(rules) end
 
 --- Prepares a new surface action for execution
 --- @param type string Surface action type
 --- @return EsvSurfaceAction
-function Ext.CreateSurfaceAction (type) end
+function Ext.CreateSurfaceAction(type) end
 
 --- Executes a surface action
 --- @param action EsvSurfaceAction Action to execute
-function Ext.ExecuteSurfaceAction (action) end
+function Ext.ExecuteSurfaceAction(action) end
 
 --- CAncels a surface action
 --- @param actionHandle integer Action to cancel
-function Ext.CancelSurfaceAction (actionHandle) end
+function Ext.CancelSurfaceAction(actionHandle) end
 
---- Starts creating a new item using template GUID or cloning an existing item.
---- @param from EsvItem|string Template GUID or item to clone
+--- Starts creating a new item using template UUID or cloning an existing item.
+--- @param from EsvItem|string Template UUID or item to clone
 --- @param recursive boolean|nil Copy items in container? (cloning only)
 --- @return ItemConstructor
-function Ext.CreateItemConstructor (from, recursive) end
+function Ext.CreateItemConstructor(from, recursive) end
 
 --- Begin applying a status on the specified character or item.
 --- @param target string|ObjectHandle Target character/item
 --- @param statusId string Status ID to apply
 --- @param lifeTime number Status lifetime (-1 = infinite, -2 = keep alive)
 --- @return EsvStatus|nil
-function Ext.PrepareStatus (target, statusId, lifeTime) end
+function Ext.PrepareStatus(target, statusId, lifeTime) end
 
 --- Finish applying a status on the specified character or item.
 --- @param status EsvStatus Status to apply
-function Ext.ApplyStatus (status) end
+function Ext.ApplyStatus(status) end
 
 --- Returns a table containing the UUID of all registered custom stat definitions
 --- @return string[]
-function Ext.GetAllCustomStats () end
+function Ext.GetAllCustomStats() end
 
 --- Retrieve a custom stat definition by name
 --- @param statName string Custom stat name to look for
 --- @return CustomStatDefinition|nil
-function Ext.GetCustomStatByName (statName) end
+function Ext.GetCustomStatByName(statName) end
 
 --- Retrieve a custom stat definition by id
 --- @param statId string Custom stat UUID to look for
 --- @return CustomStatDefinition|nil
-function Ext.GetCustomStatById (statId) end
+function Ext.GetCustomStatById(statId) end
 
 --- Create a new custom stat definition
 --- @param name string Custom stat name
 --- @param description string Custom stat description
 --- @return string|nil Custom stat UUID
-function Ext.CreateCustomStat (name, description) end
+function Ext.CreateCustomStat(name, description) end
 
---- Returns the GUID of all characters on the specified level. 
+--- Returns the UUID of all characters on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllCharacters (level) end
+function Ext.GetAllCharacters(level) end
 
---- Returns the GUID of all characters within a radius around the specified point.
+--- Returns the UUID of all characters within a radius around the specified point.
 --- @param x number
 --- @param y number
 --- @param z number
 --- @param distance number
 --- @return string[]
-function Ext.GetCharactersAroundPosition (x, y, z, distance) end
+function Ext.GetCharactersAroundPosition(x, y, z, distance) end
 
---- Returns the GUID of all items on the specified level. 
+--- Returns the UUID of all items on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllItems (level) end
+function Ext.GetAllItems(level) end
 
---- Returns the GUID of all items within a radius around the specified point.
+--- Returns the UUID of all items within a radius around the specified point.
 --- @param x number
 --- @param y number
 --- @param z number
 --- @param distance number
 --- @return string[]
-function Ext.GetItemsAroundPosition (x, y, z, distance) end
+function Ext.GetItemsAroundPosition(x, y, z, distance) end
 
---- Returns the GUID of all triggers on the specified level. 
+--- Returns the UUID of all triggers on the specified level. 
 --- Uses the current level if no level name was specified.
 --- @param level string|nil Optional level name
 --- @return string[]
-function Ext.GetAllTriggers (level) end
+function Ext.GetAllTriggers(level) end
 
 --- Returns the property proxy of the specified character
---- @param id string|integer|ObjectHandle Character GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Character UUID or handle or NetID
 --- @return EsvCharacter|EclCharacter
-function Ext.GetCharacter (id) end
+function Ext.GetCharacter(id) end
 
 --- Returns the property proxy of the specified item
---- @param id string|integer|ObjectHandle Item GUID or handle or NetID
+--- @param id string|integer|ObjectHandle Item UUID or handle or NetID
 --- @return EsvItem|EclCharacter
-function Ext.GetItem (id) end
+function Ext.GetItem(id) end
 
 --- Returns the property proxy of the specified trigger (server only)
---- @param id string|ObjectHandle Trigger GUID or handle
+--- @param id string|ObjectHandle Trigger UUID or handle
 --- @return EsvTrigger
-function Ext.GetTrigger (id) end
+function Ext.GetTrigger(id) end
 
 --- Returns the property proxy of the specified character, item, projectile or trigger
---- @param handle ObjectHandle Game object handle
+--- @param handle ObjectHandle|string Game object handle or UUID. NetID will fail since it has no type information (an item and a character could have the same NetID).
 --- @return EsvGameObject|EclGameObject
-function Ext.GetGameObject (handle) end
+function Ext.GetGameObject(handle) end
 
 --- Returns the property proxy of the specified surface
 --- @param handle ObjectHandle Surface handle
 --- @return EsvSurface
-function Ext.GetSurface (handle) end
+function Ext.GetSurface(handle) end
 
 --- Returns the property proxy of the specified status
---- @param character string|integer|ObjectHandle Character GUID or handle or NetID
---- @param handle integer|ObjectHandle Status handle or NetID
+--- @param character string|integer|ObjectHandle Character UUID or handle or NetID
+--- @param handle integer|StatusHandle Status handle or NetID
 --- @return EsvStatus
-function Ext.GetStatus (character, handle) end
+function Ext.GetStatus(character, handle) end
 
 --- Returns the specified turn-based combat
 --- @param combatId integer Combat ID
 --- @return EsvCombat
-function Ext.GetCombat (combatId) end
+function Ext.GetCombat(combatId) end
 
 --- Returns the AI grid for the currently active level
 --- @return AiGrid
-function Ext.GetAiGrid () end
+function Ext.GetAiGrid() end
 
 --- Returns information about the currently active level
 --- @return LevelDesc
-function Ext.GetCurrentLevelData () end
+function Ext.GetCurrentLevelData() end
 
 --- Creates a new damage list object
 --- @return DamageList
-function Ext.NewDamageList () end
+function Ext.NewDamageList() end
 
 --- Returns whether Osiris is currently accessible or not.
 --- @return boolean
-function Ext.OsirisIsCallable () end
+function Ext.OsirisIsCallable() end
 
 --- Returns a random number; equivalent to Lua random
 --- @param low integer
 --- @param up integer
 --- @return integer|number
-function Ext.Random (low, up) end
+function Ext.Random(low, up) end
 
 --- Rounds the specified number
 --- @param n number
 --- @return number
-function Ext.Round (n) end
+function Ext.Round(n) end
 
 --- Generate Lua IDE helpers for the currently loaded module
 --- @param builtin boolean|nil Only export built-in functions and names exported by Lua?
-function Ext.GenerateIdeHelpers (builtin) end
+function Ext.GenerateIdeHelpers(builtin) end
 
 --- Returns whether the code is executing in a client context
 --- @return boolean
-function Ext.IsClient () end
+function Ext.IsClient() end
 
 --- Returns whether the code is executing in a server context
 --- @return boolean
-function Ext.IsServer () end
+function Ext.IsServer() end
 
 --- Returns whether the Developer Mode switch is enabled
 --- @return boolean
-function Ext.IsDeveloperMode () end
+function Ext.IsDeveloperMode() end
 
 --- Returns the current client/server game state machine state.
 --- @return string
-function Ext.GetGameState () end
+function Ext.GetGameState() end
 
 --- Broadcast a message to all peers
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
 --- @param excludeCharacter string|nil Optional peer to exclude from broadcast
-function Ext.BroadcastMessage (channel, payload, excludeCharacter) end
+function Ext.BroadcastMessage(channel, payload, excludeCharacter) end
 
 --- Sends a message to the peer that controls the specified character
 --- @param characterGuid string Character that will receive the message
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToClient (characterGuid, channel, payload) end
+function Ext.PostMessageToClient(characterGuid, channel, payload) end
 
 --- Sends a message to the specified peer
 --- @param userId number User that will receive the message
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToUser (userId, channel, payload) end
+function Ext.PostMessageToUser(userId, channel, payload) end
 
 --- Sends a message to the server
 --- @param channel string Channel that will receive the message
 --- @param payload string Message payload
-function Ext.PostMessageToServer (channel, payload) end
+function Ext.PostMessageToServer(channel, payload) end
+
+---@alias NetListenerCallback fun(channel:string, payload:string, user:integer|nil):void
 
 --- Registers a listener that is called when a network message is received on the specified channel
 --- @param channel string Network channel name
---- @param handler function Lua handler
-function Ext.RegisterNetListener (channel, handler) end
+--- @param handler NetListenerCallback Lua handler
+function Ext.RegisterNetListener(channel, handler) end
 
 --- Registers a new dialog voice line for the specified speaker.
 --- @param speakerGuid string Speaker character UUID
 --- @param textKey string Translated string key of text line
 --- @param path string Path to audio .WEM
 --- @param length number Length of audio in seconds
-function Ext.AddVoiceMetaData (speakerGuid, textKey, path, length) end
+function Ext.AddVoiceMetaData(speakerGuid, textKey, path, length) end
 
 --- @param handle string Translated string handle
 --- @param fallback string Fallback string if the specified handle is not found
 --- @return string Translated string
-function Ext.GetTranslatedString (handle, fallback) end
+function Ext.GetTranslatedString(handle, fallback) end
 
 --- @param key string Translated string key
 --- @return string,string Translated string and handle
-function Ext.GetTranslatedStringFromKey (key) end
+function Ext.GetTranslatedStringFromKey(key) end
 
 --- @param key string Translated string key
 --- @param handle string Translated string handle
---- @return bool
-function Ext.CreateTranslatedStringKey (key, handle) end
+--- @return boolean
+function Ext.CreateTranslatedStringKey(key, handle) end
 
 --- @param handle string Translated string handle
 --- @param text string Display text
---- @return bool
-function Ext.CreateTranslatedStringHandle (handle, text) end
+--- @return boolean
+function Ext.CreateTranslatedStringHandle(handle, text) end
 
 --- @param key string Translated string key
 --- @param text string Display text
 --- @return string|nil Created string handle
-function Ext.CreateTranslatedString (key, text) end
+function Ext.CreateTranslatedString(key, text) end
 
 --- Redirects all file accesses to the specified path to another file.
 --- @param path string Original path
 --- @param newPath string New (redirected) path
-function Ext.AddPathOverride (path, newPath) end
+function Ext.AddPathOverride(path, newPath) end
 
 --- Returns whether the specified path is currently redirected to another path.
 --- @param path string Original path
 --- @return string|nil Overridden path
-function Ext.GetPathOverride (path) end
+function Ext.GetPathOverride(path) end
 
 --- Constructs a new Flash UI element
 --- @param name string User-defined unique name that identifies the UI element
 --- @param path string Path of the SWF file relative to the data directory
 --- @param layer integer Stack order of the UI element
 --- @return UIObject|nil
-function Ext.CreateUI (name, path, layer) end
+function Ext.CreateUI(name, path, layer) end
 
 --- Retrieves an UI element with the specified name
 --- @param name string User-defined unique name that identifies the UI element
 --- @return UIObject|nil
-function Ext.GetUI (name) end
+function Ext.GetUI(name) end
 
 --- Retrieves a built-in UI element at the specified path.
 --- If no such element exists, the function returns nil.
 --- @param path string UI SWF path relative to Data\
 --- @return UIObject|nil
-function Ext.GetBuiltinUI (path) end
+function Ext.GetBuiltinUI(path) end
 
 --- Retrieves an engine UI element with the specified engine type ID.
 --- If no such element exists, the function returns nil.
 --- @param typeId number Engine UI element type ID
 --- @return UIObject|nil
-function Ext.GetUIByType (typeId) end
+function Ext.GetUIByType(typeId) end
 
 --- Destroys the specified UI element
 --- @param name string User-defined unique name that identifies the UI element
-function Ext.DestroyUI (name) end
+function Ext.DestroyUI(name) end
 
 --- Refresh the UI of the specified character
 --- @param character ObjectHandle Handle of character
 --- @param flags integer UI elements to refresh
-function Ext.UISetDirty (character, flags) end
+function Ext.UISetDirty(character, flags) end
 
---- Enable/disable debug prints on Flash custom draw callbacks
---- @param enable bool
-function Ext.UIEnableCustomDrawCallDebugging (enable) end
+--- Enable/disable debug prints on Flash custom draw callbacks. Useful if you need to see what icon names a UI is handling, for usage with UIObject:SetCustomIcon.
+--- @param enable boolean
+function Ext.UIEnableCustomDrawCallDebugging(enable) end
+
+---@alias UICallbackHandler fun(ui:UIObject, event:string, vararg any):void
 
 --- Registers a listener that is called when the specified function is called from Flash
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUICall (object, name, handler, type) end
+function Ext.RegisterUICall(object, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered for every UI element with the specified type ID.
@@ -4509,7 +4378,7 @@ function Ext.RegisterUICall (object, name, handler, type) end
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUITypeCall (typeId, name, handler, type) end
+function Ext.RegisterUITypeCall(typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified function is called from Flash.
 --- The event is triggered regardless of which UI element it was called on.
@@ -4517,14 +4386,14 @@ function Ext.RegisterUITypeCall (typeId, name, handler, type) end
 --- @param name string ExternalInterface function name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUINameCall (name, handler, type) end
+function Ext.RegisterUINameCall(name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- @param object UIObject UI object returned from Ext.CreateUI, Ext.GetUI or Ext.GetBuiltinUI
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUIInvokeListener (object, name, handler, type) end
+function Ext.RegisterUIInvokeListener(object, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered for every UI element with the specified type ID.
@@ -4532,62 +4401,63 @@ function Ext.RegisterUIInvokeListener (object, name, handler, type) end
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUITypeInvokeListener (typeId, name, handler, type) end
+function Ext.RegisterUITypeInvokeListener(typeId, name, handler, type) end
 
 --- Registers a listener that is called when the specified method is called on the main timeline of the Flash object
 --- The event is triggered regardless of which UI element it was called on.
 --- @param method string Flash method name
 --- @param handler UICallbackHandler Lua handler
 --- @param type string|nil Event type - 'Before' or 'After'
-function Ext.RegisterUINameInvokeListener (name, handler, type) end
+function Ext.RegisterUINameInvokeListener(name, handler, type) end
 
 --- Registers a listener that is called when a console command is entered in the dev console
 --- @param cmd string Console command
 --- @param handler function Lua handler
-function Ext.RegisterConsoleCommand (cmd, handler) end
+function Ext.RegisterConsoleCommand(cmd, handler) end
 
 --- Write data to an external (persistent) file
 --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
 --- @param contents string File contents to write
-function Ext.SaveFile (path, contents) end
+function Ext.SaveFile(path, contents) end
 
 --- Read data from an external (persistent) file
 --- @param path string File path relative to Documents\Larian Studios\Divinity Original Sin 2 Definitive Edition\Osiris Data
 --- @param context string|nil Path context (nil or "user" means relative to the Osiris Data directory; "data" means relative to game data path)
 --- @return string File contents
-function Ext.LoadFile (path, context) end
+function Ext.LoadFile(path, context) end
 
 --- Returns a monotonic value representing the current time in milliseconds.
 --- Useful for performance measurements / measuring real world time.
 --- (Note: This value is not synchronized between peers and different clients may report different time values!)
 --- @return number Time
-function Ext.MonotonicTime () end
+function Ext.MonotonicTime() end
 
 --- Returns whether the player has a compatible Script Extender version installed
---- @param playerGuid string GUID of player character
+--- @param playerGuid string UUID of player character
 --- @return boolean
-function Ext.PlayerHasExtender (playerGuid) end
+function Ext.PlayerHasExtender(playerGuid) end
 
 --- Returns information about current mouse position and hovered objects
 --- @return EclPickingState
-function Ext.GetPickingState () end
+function Ext.GetPickingState() end
 
 --- Triggers a breakpoint in the Lua debugger.
 --- If no debugger is connected, the function does nothing.
-function Ext.DebugBreak () end
+function Ext.DebugBreak() end
 
 --- Handle to double conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
---- @param handle ObjectHandle Handle to cast
+--- @param handle ObjectHandle|StatusHandle Handle to cast
 --- @return number Double handle
-function Ext.HandleToDouble (handle) end
+function Ext.HandleToDouble(handle) end
 
 --- Double to handle conversion hack for use in Flash external interface calls
 --- (Some of the builtin functions treat handles as double values)
 --- @param handle number Double handle to cast
---- @return ObjectHandle Handle
-function Ext.DoubleToHandle (handle) end
+--- @return ObjectHandle|StatusHandle
+function Ext.DoubleToHandle(handle) end
 
+---Client-side audio functions.
 Ext.Audio = {}
 
 --- Set audio state switch
@@ -4595,49 +4465,49 @@ Ext.Audio = {}
 --- @param switchGroup string Switch group name
 --- @param state string Switch state
 --- @return boolean
-function Ext.Audio.SetSwitch (gameObject, switchGroup, state) end
+function Ext.Audio.SetSwitch(gameObject, switchGroup, state) end
 
 --- Set audio state
 --- @param stateGroup string State group name
 --- @param state string State
 --- @return boolean
-function Ext.Audio.SetState (stateGroup, state) end
+function Ext.Audio.SetState(stateGroup, state) end
 
 --- Set real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter name
 --- @param value number Parameter value
 --- @return boolean
-function Ext.Audio.SetRTPC (gameObject, rtpc, value) end
+function Ext.Audio.SetRTPC(gameObject, rtpc, value) end
 
 --- Reset real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter Name
 --- @return boolean
-function Ext.Audio.ResetRTPC (gameObject, rtpc) end
+function Ext.Audio.ResetRTPC(gameObject, rtpc) end
 
 --- Get real-time parameter (RTPC) value
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param rtpc string Parameter name
 --- @return number
-function Ext.Audio.GetRTPC (gameObject, rtpc) end
+function Ext.Audio.GetRTPC(gameObject, rtpc) end
 
 --- Stop audio
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
-function Ext.Audio.Stop (gameObject) end
+function Ext.Audio.Stop(gameObject) end
 
 --- Pause audio playback
-function Ext.Audio.PauseAllSounds () end
+function Ext.Audio.PauseAllSounds() end
 
 --- Resume audio playback
-function Ext.Audio.ResumeAllSounds () end
+function Ext.Audio.ResumeAllSounds() end
 
 --- Trigger an audio event
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
 --- @param eventName string Event to trigger
 --- @param positionSec number|nil Position in audio track
 --- @return boolean
-function Ext.Audio.PostEvent (gameObject, eventName, positionSec) end
+function Ext.Audio.PostEvent(gameObject, eventName, positionSec) end
 
 --- Trigger an audio event using an external audio file
 --- @param gameObject ObjectHandle|string|nil Character handle, built-in sound object name or nil
@@ -4645,4 +4515,4 @@ function Ext.Audio.PostEvent (gameObject, eventName, positionSec) end
 --- @param path string Audio file path (relative to data directory)
 --- @param codecId integer Codec ID
 --- @return boolean
-function Ext.Audio.PlayExternalSound (gameObject, eventName, path, codecId) end
+function Ext.Audio.PlayExternalSound(gameObject, eventName, path, codecId) end
