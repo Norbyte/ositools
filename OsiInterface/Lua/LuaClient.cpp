@@ -216,7 +216,8 @@ namespace dse::lua
 		if (statsComponent == nullptr) {
 			// The game UI displays nonexistent stat entries as zero, 
 			// so we'll do the same in the API
-			return 0;
+			push(L, 0);
+			return 1;
 		}
 
 		auto value = statsComponent->StatValues.Find(ToFixedString(statId));
