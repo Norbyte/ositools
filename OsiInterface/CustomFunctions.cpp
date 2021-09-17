@@ -500,17 +500,24 @@ struct CustomEventGuard
 void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const
 {
 	auto it = divToOsiMappings_.find(handle);
-	if (it != divToOsiMappings_.end()) {
-		CustomEventGuard guard;
-		if (guard.CanThrowEvent()) {
-			auto osiris = gOsirisProxy->GetDynamicGlobals().OsirisObject;
-			gOsirisProxy->GetWrappers().Event.CallOriginal(osiris, it->second, args);
-		} else {
-			OsiError("Maximum Osiris event depth (" << gCustomEventDepth << ") exceeded");
-		}
-	} else {
+	if (it == divToOsiMappings_.end()) {
 		OsiError("Event handle not mapped: " << std::hex << (unsigned)handle);
+		return;
 	}
+	
+	CustomEventGuard guard;
+	if (!guard.CanThrowEvent()) {
+		OsiError("Maximum Osiris event depth (" << gCustomEventDepth << ") exceeded");
+		return;
+	}
+
+	auto const& globals = gOsirisProxy->GetDynamicGlobals();
+	if (globals.Manager == nullptr || globals.Manager->Osiris== nullptr) {
+		OsiError("Attempted to throw event while Osiris is not initialized!");
+		return;
+	}
+
+	gOsirisProxy->GetWrappers().Event.CallOriginal(globals.OsirisObject, it->second, args);
 }
 
 void OsiFunctionToSymbolInfo(Function & func, OsiSymbolInfo & symbol)
