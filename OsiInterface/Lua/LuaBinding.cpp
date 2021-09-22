@@ -936,7 +936,7 @@ namespace dse::lua
 		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
-		Restriction restriction(*this, RestrictAll);
+		Restriction restriction(*this, RestrictOsiris);
 
 		PushExtFunction(L, "_GetSkillDamage"); // stack: fn
 
