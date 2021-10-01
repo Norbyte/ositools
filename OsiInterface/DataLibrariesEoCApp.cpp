@@ -36,6 +36,16 @@ namespace dse
 		{"esv::GameActionManager::AddAction", SymbolMappingTarget::kIndirect, 95, STATIC_SYM(AddGameAction)}
 	};
 
+	SymbolMappingData const sSymbolWallAction = {
+		"WallAction2",
+		SymbolMappingData::kCustom, 0,
+		"48 8B C4 " // mov     rax, rsp
+		"48 89 58 10 " // mov     [rax+10h], rbx
+		"48 89 70 18 ", // mov     [rax+18h], rsi
+		{},
+		{"esv::WallAction::CreateWall", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(WallActionCreateWall)}
+	};
+
 	SymbolMappingData const sSymbolTornadoAction = {
 		"TornadoAction2",
 		SymbolMappingData::kCustom, 0,
@@ -432,6 +442,17 @@ namespace dse
 			"49 8B CE ", // mov     rcx, r14
 			{SymbolMappingCondition::kFixedString, 9, "ForceMove"},
 			{"esv::LevelManager", SymbolMappingTarget::kAbsolute, 0, nullptr, nullptr, &sSymbolLevelManager, 0x100}
+		},
+
+		{
+			"esv::WallAction::CreateWall",
+			SymbolMappingData::kText, SymbolMappingData::kDeferred,
+			"F3 41 0F 5E C6 " // divss   xmm0, xmm14
+			"48 8D 15 XX XX XX XX " // lea     rdx, fs_Template1
+			"49 8B CC " // mov     rcx, r12
+			"41 8B FE ", // mov     edi, r14d
+			{SymbolMappingCondition::kFixedString, 5, "Template1"},
+			{"esv::WallAction::CreateWall", SymbolMappingTarget::kAbsolute, -0x300, nullptr, nullptr, &sSymbolWallAction, 0x300}
 		},
 
 		{
