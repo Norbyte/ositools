@@ -1316,9 +1316,10 @@ namespace dse
 	}
 
 	template <class IterFunc, class ItemFunc>
-	int32_t ComputeCharacterStat(CDivinityStats_Character * character, int32_t initVal, IterFunc iter, ItemFunc iterItem, bool excludeBoosts)
+	int32_t ComputeCharacterResistance(CDivinityStats_Character * character, IterFunc iter, ItemFunc iterItem, bool excludeBoosts)
 	{
-		int32_t value = initVal;
+		int32_t value = 0;
+		bool appliedMaxResist = false;
 
 		auto lastStatIt = excludeBoosts ? (character->DynamicStats.begin() + 3) : character->DynamicStats.end();
 
@@ -1327,6 +1328,11 @@ namespace dse
 			auto & stat = *it;
 			if (stat->BoostConditionsMask == 0 || character->IsBoostActive(stat->BoostConditionsMask)) {
 				value = iter(character, value, i, stat);
+
+				if (!appliedMaxResist) {
+					value = std::min(value, character->MaxResistance);
+					appliedMaxResist = true;
+				}
 			}
 		}
 
@@ -1347,7 +1353,6 @@ namespace dse
 
 	int32_t CDivinityStats_Character::GetPhysicalResistance(bool excludeBoosts)
 	{
-		auto physResist = std::min(DynamicStats[0]->PhysicalResistance, DynamicStats[0]->MaxResistance);
 		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
 			return val + stat->PhysicalResistance;
 		};
@@ -1355,12 +1360,11 @@ namespace dse
 			return val + item->GetPhysicalResistance();
 		};
 
-		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+		return ComputeCharacterResistance(this, addDynamic, addItem, excludeBoosts);
 	}
 
 	int32_t CDivinityStats_Character::GetPiercingResistance(bool excludeBoosts)
 	{
-		auto physResist = std::min(DynamicStats[0]->PiercingResistance, DynamicStats[0]->MaxResistance);
 		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
 			return val + stat->PiercingResistance;
 		};
@@ -1368,12 +1372,11 @@ namespace dse
 			return val + item->GetPiercingResistance();
 		};
 
-		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+		return ComputeCharacterResistance(this, addDynamic, addItem, excludeBoosts);
 	}
 
 	int32_t CDivinityStats_Character::GetCorrosiveResistance(bool excludeBoosts)
 	{
-		auto physResist = std::min(DynamicStats[0]->CorrosiveResistance, DynamicStats[0]->MaxResistance);
 		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
 			return val + stat->CorrosiveResistance;
 		};
@@ -1381,12 +1384,11 @@ namespace dse
 			return val + item->GetCorrosiveResistance();
 		};
 
-		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+		return ComputeCharacterResistance(this, addDynamic, addItem, excludeBoosts);
 	}
 
 	int32_t CDivinityStats_Character::GetMagicResistance(bool excludeBoosts)
 	{
-		auto physResist = std::min(DynamicStats[0]->MagicResistance, DynamicStats[0]->MaxResistance);
 		auto addDynamic = [](CDivinityStats_Character * self, int32_t val, unsigned index, CharacterDynamicStat * stat) -> int32_t {
 			return val + stat->MagicResistance;
 		};
@@ -1394,7 +1396,7 @@ namespace dse
 			return val + item->GetMagicResistance();
 		};
 
-		return ComputeCharacterStat(this, physResist, addDynamic, addItem, excludeBoosts);
+		return ComputeCharacterResistance(this, addDynamic, addItem, excludeBoosts);
 	}
 
 	int32_t CDivinityStats_Character::GetDamageBoost()
