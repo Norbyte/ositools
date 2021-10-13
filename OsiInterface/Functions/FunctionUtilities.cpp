@@ -224,7 +224,6 @@ namespace dse
 				}
 			}
 
-			OsiError("No game action found with handle " << (int64_t)handle);
 			return nullptr;
 		}
 
