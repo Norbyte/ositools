@@ -153,6 +153,12 @@ namespace dse
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>
 		{
+			struct PickpocketData
+			{
+				int64_t Weight;
+				int64_t Value;
+			};
+
 			ObjectHandle SomeObjectHandle;
 			ObjectSet<SkillBarItem> SkillBar;
 			ObjectSet<uint32_t> LockedAbility;
@@ -162,8 +168,8 @@ namespace dse
 			uint8_t SelectedSkillSetIndex;
 			FixedString QuestSelected;
 			PlayerCustomData CustomData;
-			void * PreviousPickpocketTargets;
-			ObjectHandle SomeObjectHandle2;
+			RefMap<ObjectHandle, PickpocketData> * PreviousPickpocketTargets;
+			ObjectHandle PickpocketTarget;
 			ObjectSet<glm::vec3> PreviousPositions;
 			uint32_t PreviousPositionId;
 			bool HelmetOption;
