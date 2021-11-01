@@ -1,0 +1,518 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="GameDefinitions">
+      <UniqueIdentifier>{406fe6cb-ab34-43e9-9f29-835f13e275cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameDefinitions\Base">
+      <UniqueIdentifier>{9a27ad77-7db1-4b73-aa5c-05813dac419e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameDefinitions\Components">
+      <UniqueIdentifier>{be7c7187-9500-48ec-adc2-f468bf1be6e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameDefinitions\PropertyMaps">
+      <UniqueIdentifier>{58303a22-70e8-47b3-be97-cc36f6ae97c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameDefinitions\Stats">
+      <UniqueIdentifier>{b823d222-d676-4b89-9fa7-f783713ed277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameHooks">
+      <UniqueIdentifier>{04a051c9-926d-46ee-9860-ff290fc751a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{d73d7148-38f0-4e2c-ab5d-708ab1d57b56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LuaScripts">
+      <UniqueIdentifier>{46717589-139e-4739-a4a5-fa758f7246fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Osiris">
+      <UniqueIdentifier>{0b8958a5-c9f5-4a69-9509-19109a5a3a55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\Client">
+      <UniqueIdentifier>{1c831b9d-e693-4532-b385-21fef32eb843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\Debugger">
+      <UniqueIdentifier>{3e2757f8-6d92-45c3-8542-e7d3fe304363}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\Server">
+      <UniqueIdentifier>{e11bbfef-7dd1-419d-9b87-0ab608ddb861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\Shared">
+      <UniqueIdentifier>{f3f1161a-d4e9-4c77-bfd6-b8a563510c14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Osiris\Debugger">
+      <UniqueIdentifier>{cecbe620-dc15-4e4b-afb9-e69b20874279}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Osiris\Functions">
+      <UniqueIdentifier>{77832bb1-377e-49ec-8767-63cc7dab1d9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Osiris\Shared">
+      <UniqueIdentifier>{bd6d8a9e-3ce9-4afa-a169-447cf0d10dfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Extender">
+      <UniqueIdentifier>{f33a12e2-fc41-470a-8344-2c233f5bac9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Extender\Client">
+      <UniqueIdentifier>{3da92838-daaa-4981-a5b9-0ed4bf18bf90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Extender\Server">
+      <UniqueIdentifier>{aaa46267-246e-4607-9a23-f9bb02a8ebf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Extender\Shared">
+      <UniqueIdentifier>{87cca9b2-7b3e-46f1-afcc-87cc398b3fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameDefinitions\GameObjects">
+      <UniqueIdentifier>{632927db-7ec0-45e3-97b1-46a0a294dab9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Extender\Client\ExtensionStateClient.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Client\ScriptExtenderClient.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Server\ExtensionStateServer.h">
+      <Filter>Extender\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Server\ScriptExtenderServer.h">
+      <Filter>Extender\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\Console.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ExtenderConfig.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ExtensionState.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ModuleHasher.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\SavegameSerializer.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ScriptExtenderBase.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\ScriptExtender.h">
+      <Filter>Extender</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\CustomStats.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\EntitySystem.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\EntitySystemHelpers.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Enumerations.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GlobalFixedStrings.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Misc.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Net.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Osiris.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Sound.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Stats.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Symbols.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\TurnManager.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\UI.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseContainers.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseMemory.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseString.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseTypes.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseUtilities.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\ObjectVisitor.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Character.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Item.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Projectile.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Trigger.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\PropertyMaps\PropertyMap.h">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\PropertyMaps\PropertyMaps.h">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\ActionMachine.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Ai.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\GameAction.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Level.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Module.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Party.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Status.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Surface.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHooks\DataLibraries.h">
+      <Filter>GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHooks\OsirisWrappers.h">
+      <Filter>GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHooks\Wrappers.h">
+      <Filter>GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Client\LuaBindingClient.h">
+      <Filter>Lua\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Debugger\LuaDebug.pb.h">
+      <Filter>Lua\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Debugger\LuaDebugger.h">
+      <Filter>Lua\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Debugger\LuaDebugMessages.h">
+      <Filter>Lua\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaBinding.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaHelpers.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaSerializers.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Server\LuaBindingServer.h">
+      <Filter>Lua\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\OsirisExtender.h">
+      <Filter>Osiris</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Debugger\Debugger.h">
+      <Filter>Osiris\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Debugger\DebugInterface.h">
+      <Filter>Osiris\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Debugger\DebugMessages.h">
+      <Filter>Osiris\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Debugger\osidebug.pb.h">
+      <Filter>Osiris\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Functions\FunctionLibrary.h">
+      <Filter>Osiris\Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Shared\CustomFunctions.h">
+      <Filter>Osiris\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Shared\NodeHooks.h">
+      <Filter>Osiris\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Osiris\Shared\OsirisHelpers.h">
+      <Filter>Osiris\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="DxgiWrapper.h" />
+    <ClInclude Include="Hit.h" />
+    <ClInclude Include="NetProtocol.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptHelpers.h" />
+    <ClInclude Include="StatusHelpers.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Version.h" />
+    <ClInclude Include="GameDefinitions\Base\Base.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ExtensionHelpers.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\ScriptExtensions.pb.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Server\NetworkManagerServer.h">
+      <Filter>Extender\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Client\NetworkManagerClient.h">
+      <Filter>Extender\Client</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
+      <Filter>Extender\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Server\ScriptExtenderServer.cpp">
+      <Filter>Extender\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\Console.cpp">
+      <Filter>Extender\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\CrashReporter.cpp">
+      <Filter>Extender\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\ExtensionState.cpp">
+      <Filter>Extender\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\ScriptExtender.cpp">
+      <Filter>Extender</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\Enumerations.cpp">
+      <Filter>GameDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\GameHelpers.cpp">
+      <Filter>GameDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\GlobalFixedStrings.cpp">
+      <Filter>GameDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\PropertyMaps\PropertyMaps.cpp">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks\DataLibraries.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks\DataLibrariesEoCApp.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks\DataLibrariesEoCPlugin.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks\OsirisWrappers.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Client\LuaClient.cpp">
+      <Filter>Lua\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc">
+      <Filter>Lua\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Debugger\LuaDebugger.cpp">
+      <Filter>Lua\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp">
+      <Filter>Lua\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaBinding.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaExtFunctions.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaSerializers.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaStats.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Server\LuaServer.cpp">
+      <Filter>Lua\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\OsirisExtender.cpp">
+      <Filter>Osiris</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Debugger\Debugger.cpp">
+      <Filter>Osiris\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Debugger\DebugInterface.cpp">
+      <Filter>Osiris\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Debugger\DebugMessages.cpp">
+      <Filter>Osiris\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Debugger\osidebug.pb.cc">
+      <Filter>Osiris\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\CharacterFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\CustomStatFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\DamageFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\FunctionLibrary.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\FunctionUtilities.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\GameActionFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\ItemFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\LuaFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\MathFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\PlayerFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\ProjectileFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\StatFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\StatusFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\UtilityFunctions.cpp">
+      <Filter>Osiris\Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Shared\CustomFunctions.cpp">
+      <Filter>Osiris\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Shared\NodeHooks.cpp">
+      <Filter>Osiris\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Osiris\Shared\OsirisHelpers.cpp">
+      <Filter>Osiris\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="DxgiWrapper.cpp" />
+    <ClCompile Include="Hit.cpp" />
+    <ClCompile Include="NetProtocol.cpp" />
+    <ClCompile Include="ScriptHelpers.cpp" />
+    <ClCompile Include="Stats.cpp" />
+    <ClCompile Include="StatusHelpers.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Extender\Shared\ScriptExtensions.pb.cc">
+      <Filter>Extender\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Client\NetworkManagerClient.cpp">
+      <Filter>Extender\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Server\NetworkManagerServer.cpp">
+      <Filter>Extender\Server</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Extender\Shared\ModuleHasher.inl">
+      <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Extender\Shared\SavegameSerializer.inl">
+      <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Extender\Shared\StatLoadOrderHelper.inl">
+      <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Extender\Shared\ThreadedExtenderState.inl">
+      <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="GameDefinitions\CharacterGetters.inl">
+      <Filter>GameDefinitions</Filter>
+    </None>
+    <None Include="GameDefinitions\EngineHooks.inl">
+      <Filter>GameDefinitions</Filter>
+    </None>
+    <None Include="GameDefinitions\Enumerations.inl">
+      <Filter>GameDefinitions</Filter>
+    </None>
+    <None Include="GameDefinitions\GlobalFixedStrings.inl">
+      <Filter>GameDefinitions</Filter>
+    </None>
+    <None Include="Lua\Debugger\LuaDebug.proto">
+      <Filter>Lua\Debugger</Filter>
+    </None>
+    <None Include="Lua\Shared\LevelIteratorFunctions.inl">
+      <Filter>Lua\Shared</Filter>
+    </None>
+    <None Include="Lua\Shared\LuaShared.inl">
+      <Filter>Lua\Shared</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibrary.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibraryClient.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\BuiltinLibraryServer.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\Game.Math.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\Game.Tooltip.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\SandboxStartup.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="Osiris\Debugger\osidebug.proto">
+      <Filter>Osiris\Debugger</Filter>
+    </None>
+    <None Include="cpp.hint" />
+    <None Include="Exports.def" />
+    <None Include="Extender\Shared\ScriptExtensions.proto">
+      <Filter>Extender\Shared</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScriptExtender.rc" />
+  </ItemGroup>
+</Project>

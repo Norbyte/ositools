@@ -1,0 +1,215 @@
+#pragma once
+
+#include <array>
+#include <string>
+#include <cassert>
+#include <optional>
+#include <atomic>
+#include <glm/glm.hpp>
+
+#include <GameDefinitions/Base/BaseUtilities.h>
+
+BEGIN_SE()
+
+using Vector3 = glm::vec3;
+
+struct NetId
+{
+	static constexpr uint32_t Unassigned = 0xffffffff;
+
+	uint32_t Id;
+
+	inline constexpr NetId() : Id(Unassigned) {}
+	inline constexpr NetId(uint32_t id) : Id(id) {}
+	inline constexpr NetId(NetId const & id) : Id(id.Id) {}
+
+	inline explicit operator bool() const
+	{
+		return Id != Unassigned;
+	}
+
+	inline bool operator !() const
+	{
+		return Id == Unassigned;
+	}
+
+	inline constexpr uint16_t GetIndex() const
+	{
+		return (uint16_t)Id;
+	}
+
+	inline constexpr uint16_t GetSalt() const
+	{
+		return (uint16_t)(Id >> 16);
+	}
+};
+
+constexpr NetId NetIdUnassigned{ 0xffffffff };
+
+using PeerId = int32_t;
+
+struct UserId
+{
+	static constexpr int32_t Unassigned = (int32_t)0xFFFF0000;
+
+	int32_t Id;
+
+	inline constexpr UserId() : Id(Unassigned) {}
+	inline explicit constexpr UserId(int32_t id) : Id(id) {}
+	inline constexpr UserId(UserId const& id) : Id(id.Id) {}
+
+	inline operator bool() const
+	{
+		return Id != Unassigned;
+	}
+
+	inline bool operator !() const
+	{
+		return Id == Unassigned;
+	}
+
+	inline bool operator ==(UserId const& o) const
+	{
+		return Id == o.Id;
+	}
+
+	inline bool operator !=(UserId const& o) const
+	{
+		return Id != o.Id;
+	}
+
+	inline constexpr PeerId GetPeerId() const
+	{
+		return (PeerId)(Id >> 16);
+	}
+};
+
+static constexpr UserId ReservedUserId{ UserId::Unassigned };
+
+struct ObjectHandle
+{
+	uint64_t Handle;
+
+	inline ObjectHandle()
+		: Handle(0)
+	{}
+
+	explicit inline ObjectHandle(uint64_t handle)
+		: Handle(handle)
+	{}
+
+	explicit inline ObjectHandle(int64_t handle)
+		: Handle((uint64_t)handle)
+	{}
+
+	inline ObjectHandle(uint64_t type, uint64_t index, uint64_t salt)
+	{
+		assert(type < 0x400 && salt < 0x400000);
+		Handle = index | (salt << 32) | (type << 54);
+	}
+
+	inline ObjectHandle(ObjectHandle const & oh)
+		: Handle(oh.Handle)
+	{}
+
+	inline ObjectHandle & operator = (ObjectHandle const & oh)
+	{
+		Handle = oh.Handle;
+		return *this;
+	}
+
+	inline bool operator == (ObjectHandle const & oh) const
+	{
+		return Handle == oh.Handle;
+	}
+
+	inline uint32_t GetType() const
+	{
+		return Handle >> 54;
+	}
+
+	inline uint32_t GetSalt() const
+	{
+		return (Handle >> 32) & 0x3fffff;
+	}
+
+	inline uint32_t GetIndex() const
+	{
+		return (uint32_t)(Handle & 0xffffffff);
+	}
+
+	explicit inline operator bool() const
+	{
+		return Handle != 0;
+	}
+
+	inline bool operator !() const
+	{
+		return Handle == 0;
+	}
+
+	explicit inline operator int64_t() const
+	{
+		return (int64_t)Handle;
+	}
+};
+
+inline uint64_t Hash(ObjectHandle const& h)
+{
+	return h.Handle;
+}
+
+struct ComponentHandle
+{
+	int64_t TypeId;
+	ObjectHandle Handle;
+
+	inline bool IsValid() const
+	{
+		return TypeId != -1 && !!Handle;
+	}
+};
+
+struct Pool
+{
+	int PoolSize;
+	int MaxSize;
+#if !defined(OSI_EOCAPP)
+	char* PoolName;
+#endif
+};
+
+struct GameTime
+{
+	double Time;
+	float DeltaTime;
+	int32_t Ticks;
+};
+
+END_SE()
+
+
+namespace std
+{
+	template<> struct hash<dse::ObjectHandle>
+	{
+		typedef dse::ObjectHandle argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<uint64_t>{}(fn.Handle);
+		}
+	};
+
+	template<> struct hash<dse::UserId>
+	{
+		typedef dse::UserId argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<int32_t>{}(fn.Id);
+		}
+	};
+}
