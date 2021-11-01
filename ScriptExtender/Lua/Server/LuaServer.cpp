@@ -531,7 +531,7 @@ namespace dse::lua
 
 		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
+		FixedString propFS(prop);
 		if (!propFS) {
 			OsiError("Illegal property name: " << prop);
 			lua_pushnil(L);
@@ -618,7 +618,7 @@ namespace dse::lua
 
 		StackCheck _(L, 0);
 		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
+		FixedString propFS(prop);
 		if (!propFS) {
 			OsiError("Illegal property name: " << prop);
 			return 0;
@@ -726,7 +726,7 @@ namespace dse::lua
 
 		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
+		FixedString propFS(prop);
 		if (!propFS) {
 			OsiError("[esv::Item] has no property named '" << prop << "'");
 			push(L, nullptr);
@@ -3149,7 +3149,7 @@ namespace dse::esv::lua
 		PushHit(L, *hit);
 
 		auto alwaysBackstab = skillProperties != nullptr
-			&& skillProperties->Properties.Find(ToFixedString("AlwaysBackstab")) != nullptr;
+			&& skillProperties->Properties.Find(FixedString("AlwaysBackstab")) != nullptr;
 		push(L, alwaysBackstab);
 
 		push(L, highGroundFlag);

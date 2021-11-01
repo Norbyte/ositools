@@ -29,7 +29,7 @@ namespace dse
 				Labels.resize(index + 1);
 			}
 
-			auto fs = MakeFixedString(label);
+			FixedString fs(label);
 			Labels[index] = fs;
 			Values.Insert(fs, val);
 		}
@@ -47,7 +47,7 @@ namespace dse
 		static std::optional<T> Find(char const* name)
 		{
 			// TODO - remove when all refs are gone
-			return Find(ToFixedString(name));
+			return Find(FixedString(name));
 		}
 
 		static FixedString Find(T val)
@@ -81,7 +81,7 @@ namespace dse
 
 		static void __declspec(noinline) Add(T val, char const* label)
 		{
-			auto fs = MakeFixedString(label);
+			FixedString fs(label);
 			auto index = static_cast<uint32_t>(val);
 
 			if (Labels.size() <= index) {
@@ -105,7 +105,7 @@ namespace dse
 		static std::optional<T> Find(char const* name)
 		{
 			// TODO - remove when all refs are gone
-			return Find(ToFixedString(name));
+			return Find(FixedString(name));
 		}
 
 		static FixedString Find(T val)

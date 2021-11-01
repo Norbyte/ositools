@@ -16,7 +16,7 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			auto skillId = ToFixedString(args[1].String);
+			FixedString skillId(args[1].String);
 			if (!skillId) {
 				OsiError("'" << args[1].String << "' is not a valid FixedString!");
 				return nullptr;
@@ -85,7 +85,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto skillId = ToFixedString(args[1].String);
+			FixedString skillId(args[1].String);
 			if (!skillId) {
 				OsiError("'" << args[1].String << "' is not a valid FixedString!");
 				return false;
@@ -194,7 +194,7 @@ namespace dse::esv
 			FixedString beamEffectFs;
 			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
-				beamEffectFs = ToFixedString(beamEffectName);
+				beamEffectFs = FixedString(beamEffectName);
 
 				if (!beamEffectFs) {
 					OsiErrorS("Beam effect is not a valid FixedString!");

@@ -62,7 +62,7 @@ namespace dse::esv
 				return;
 			}
 
-			helper->SetGuidString(ToFixedString(prop), value);
+			helper->SetGuidString(FixedString(prop), value);
 		}
 
 		void ProjectileSetVector3(OsiArgumentDesc const & args)
@@ -76,7 +76,7 @@ namespace dse::esv
 				return;
 			}
 
-			helper->SetVector(ToFixedString(prop), vec);
+			helper->SetVector(FixedString(prop), vec);
 		}
 
 		void ProjectileAddDamage(OsiArgumentDesc const & args)

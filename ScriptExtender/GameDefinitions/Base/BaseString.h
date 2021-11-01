@@ -11,22 +11,16 @@ using STDWString = std::basic_string<wchar_t, std::char_traits<wchar_t>, GameAll
 using StringView = std::string_view;
 using WStringView = std::wstring_view;
 
-dse::STDString ToUTF8(WStringView s);
-dse::STDWString FromUTF8(StringView s);
+STDString ToUTF8(WStringView s);
+STDWString FromUTF8(StringView s);
 
 struct FixedString
 {
-	enum FromPool {};
-
 	inline FixedString()
 		: Str(nullptr)
 	{}
 
-	inline explicit FixedString(char const * s, FromPool)
-		: Str(s)
-	{
-		IncRef();
-	}
+	explicit FixedString(char const* s);
 
 	inline FixedString(FixedString const & fs)
 		: Str(fs.Str)
@@ -118,6 +112,8 @@ private:
 			// TODO - remove from global pool if refcount reaches 1!
 		}
 	}
+
+	static const char* FindGlobalString(const char* s);
 };
 
 inline uint64_t Hash(FixedString const& s)
@@ -125,8 +121,6 @@ inline uint64_t Hash(FixedString const& s)
 	return (uint64_t)s.Str;
 }
 
-FixedString ToFixedString(const char * s);
-FixedString MakeFixedString(const char* s);
 FixedString NameGuidToFixedString(char const* nameGuid);
 bool IsValidGuidString(const char* s);
 

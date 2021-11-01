@@ -135,6 +135,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="GameDefinitions\Base\Base.cpp" />
     <ClCompile Include="GameDefinitions\Enumerations.cpp" />
     <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
     <ClCompile Include="GameDefinitions\GlobalFixedStrings.cpp" />

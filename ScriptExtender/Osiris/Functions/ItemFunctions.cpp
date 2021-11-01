@@ -81,7 +81,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto deltaMod = ToFixedString(args[1].String);
+			FixedString deltaMod(args[1].String);
 
 			int32_t count = 0;
 			if (item->Stats != nullptr) {
@@ -426,7 +426,7 @@ namespace dse::esv
 			}
 
 			auto boostType = args[0].String;
-			auto boostName = ToFixedString(args[1].String);
+			FixedString boostName(args[1].String);
 
 			if (!boostName) {
 				OsiError("Not a valid boost name: " << args[1].String);

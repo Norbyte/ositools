@@ -38,7 +38,7 @@ namespace dse::esv
 			auto & statValue = args[3];
 			if (character == nullptr || character->Stats == nullptr) return false;
 
-			auto value = character->Stats->GetStat(ToFixedString(statName), baseStats);
+			auto value = character->Stats->GetStat(FixedString(statName), baseStats);
 			if (value) {
 				statValue.Set(*value);
 				return true;
@@ -80,7 +80,7 @@ namespace dse::esv
 		void CharacterSetStatInt(OsiArgumentDesc const & args)
 		{
 			auto character = GetEntityWorld()->GetCharacter(args[0].String);
-			auto stat = ToFixedString(args[1].String);
+			FixedString stat(args[1].String);
 			auto value = args[2].Int32;
 
 			if (character == nullptr || character->Stats == nullptr) return;

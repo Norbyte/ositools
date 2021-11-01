@@ -450,6 +450,9 @@
     <ClCompile Include="Extender\Server\NetworkManagerServer.cpp">
       <Filter>Extender\Server</Filter>
     </ClCompile>
+    <ClCompile Include="GameDefinitions\Base\Base.cpp">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">

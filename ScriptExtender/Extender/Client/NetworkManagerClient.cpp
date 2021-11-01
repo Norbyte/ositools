@@ -288,7 +288,7 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 		fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
 
 		for (uint32_t i = 0; i < numStrings; i++) {
-			auto fixedStr = MakeFixedString(updatedStrings_[i].c_str());
+			FixedString fixedStr(updatedStrings_[i].c_str());
 			fs.FixedStrSet.Add(fixedStr);
 			fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
 		}

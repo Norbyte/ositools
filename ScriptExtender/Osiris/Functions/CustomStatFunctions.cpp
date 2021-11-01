@@ -51,7 +51,7 @@ namespace dse::esv
 
 	CustomStatDefinitionComponent * CustomStatHelpers::FindStatDefinitionById(char const * id)
 	{
-		auto fs = ToFixedString(id);
+		FixedString fs(id);
 		if (!fs) {
 			OsiError("Custom stat definition '" << id << "' is not in fixed string table");
 			return nullptr;
@@ -163,7 +163,7 @@ namespace dse::esv
 			return 0;
 		}
 
-		auto value = statsComponent->StatValues.Find(ToFixedString(statDefn->Id.Str));
+		auto value = statsComponent->StatValues.Find(FixedString(statDefn->Id.Str));
 		if (value == nullptr) {
 			return 0;
 		} else {

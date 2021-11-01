@@ -396,7 +396,7 @@ namespace dse::lua
 				if (scriptCheckBlock) {
 					auto statConditions = GameAlloc<CDivinityStats_Condition>();
 					statConditions->ScriptCheckBlock = scriptCheckBlock;
-					statConditions->Name = MakeFixedString(name.c_str());
+					statConditions->Name = FixedString(name.c_str());
 					v.Conditions = statConditions;
 				}
 				else {
@@ -404,7 +404,7 @@ namespace dse::lua
 				}
 			}
 
-			v.Name = MakeFixedString(name.c_str());
+			v.Name = FixedString(name.c_str());
 		}
 
 		return s;

@@ -148,7 +148,7 @@ namespace dse::esv
 			return false;
 		}
 
-		auto fsHit = ToFixedString("HIT");
+		FixedString fsHit("HIT");
 		auto hit = (esv::StatusHit *)createStatus(statusMachine, fsHit, 0);
 
 		hit->StartTimer = 0.0f;
@@ -161,7 +161,7 @@ namespace dse::esv
 		if (SkillId) {
 			hit->SkillId = SkillId;
 		} else {
-			hit->SkillId = ToFixedString("");
+			hit->SkillId = FixedString("");
 		}
 
 		hit->Strength = Strength;
@@ -342,7 +342,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			helper->SetVector(ToFixedString(prop), vec);
+			helper->SetVector(FixedString(prop), vec);
 		}
 
 		void HitClearAllDamage(OsiArgumentDesc const & args)

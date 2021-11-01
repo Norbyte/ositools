@@ -548,8 +548,8 @@ namespace dse::lua
 			return;
 		}
 
-		auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(MakeFixedString(speakerGuid));
-		auto voiceMeta = speaker->Insert(MakeFixedString(translatedStringKey));
+		auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(FixedString(speakerGuid));
+		auto voiceMeta = speaker->Insert(FixedString(translatedStringKey));
 		voiceMeta->CodecID = 4;
 		voiceMeta->IsRecorded = true;
 		voiceMeta->Length = (float)length;
@@ -589,11 +589,11 @@ namespace dse::lua
 
 	std::optional<STDString> CreateTranslatedString(lua_State* L, char const* keyStr, char const* value)
 	{
-		auto key = MakeFixedString(keyStr);
+		FixedString key(keyStr);
 
 		STDString handleStr = "ExtStr_";
 		handleStr += std::to_string(NextDynamicStringHandleId++);
-		auto handle = MakeFixedString(handleStr.c_str());
+		FixedString handle(handleStr.c_str());
 
 		if (script::CreateTranslatedStringKey(key, handle)) {
 			STDWString str(FromUTF8(value));
@@ -609,8 +609,8 @@ namespace dse::lua
 
 	bool CreateTranslatedStringKey(lua_State* L, char const* keyStr, char const* handleStr)
 	{
-		auto key = MakeFixedString(keyStr);
-		auto handle = MakeFixedString(handleStr);
+		FixedString key(keyStr);
+		FixedString handle(handleStr);
 		return script::CreateTranslatedStringKey(key, handle);
 	}
 
@@ -618,7 +618,7 @@ namespace dse::lua
 
 	bool CreateTranslatedStringHandle(lua_State* L, char const* handleStr, char const* value)
 	{
-		auto handle = MakeFixedString(handleStr);
+		FixedString handle(handleStr);
 
 		STDWString str(FromUTF8(value));
 		return script::CreateTranslatedString(handle, str);

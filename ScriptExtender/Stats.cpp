@@ -16,7 +16,7 @@ namespace dse
 		proto->Tier = *stats->GetAttributeInt(object, GFS.strTier);
 		proto->Requirement = *stats->GetAttributeInt(object, GFS.strRequirement);
 		proto->Level = *stats->GetAttributeInt(object, GFS.strLevel);
-		proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
+		proto->Icon = FixedString(*stats->GetAttributeString(object, GFS.strIcon));
 		proto->MagicCost = *stats->GetAttributeInt(object, GFS.strMagicCost);
 		proto->MemoryCost = *stats->GetAttributeInt(object, GFS.strMemoryCost);
 		proto->ActionPoints = *stats->GetAttributeInt(object, GFS.strActionPoints);
@@ -24,7 +24,7 @@ namespace dse
 		proto->CooldownReduction = *stats->GetAttributeInt(object, GFS.strCooldownReduction) / 100.0f;
 		proto->ChargeDuration = *stats->GetAttributeInt(object, GFS.strChargeDuration) * 6.0f;
 
-		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
+		FixedString displayNameKey(*stats->GetAttributeString(object, GFS.strDisplayName));
 		TranslatedString displayName;
 		if (script::GetTranslatedStringFromKey(displayNameKey, displayName)) {
 			proto->DisplayName = displayName.Handle.ReferenceString;
@@ -80,7 +80,7 @@ namespace dse
 
 			STDString lv1Name = proto->SkillId.Str;
 			lv1Name += "_-1";
-			lv1Proto->SkillId = MakeFixedString(lv1Name.c_str());
+			lv1Proto->SkillId = FixedString(lv1Name.c_str());
 			lv1Proto->Level = -1;
 
 			proto->ChildPrototypes.Add(lv1Proto);
@@ -93,7 +93,7 @@ namespace dse
 
 			STDString lv1Name = (*pProto)->SkillId.Str;
 			lv1Name += "_-1";
-			auto lv1Proto = Prototypes.Find(MakeFixedString(lv1Name.c_str()));
+			auto lv1Proto = Prototypes.Find(FixedString(lv1Name.c_str()));
 			if (lv1Proto) {
 				SyncSkillStat(object, *lv1Proto);
 			}
@@ -142,13 +142,13 @@ namespace dse
 			return;
 		}
 
-		auto displayNameKey = ToFixedString(*stats->GetAttributeString(object, GFS.strDisplayName));
+		FixedString displayNameKey(*stats->GetAttributeString(object, GFS.strDisplayName));
 		TranslatedString displayName;
 		if (script::GetTranslatedStringFromKey(displayNameKey, displayName)) {
 			proto->DisplayName = displayName;
 		}
 
-		proto->Icon = ToFixedString(*stats->GetAttributeString(object, GFS.strIcon));
+		proto->Icon = FixedString(*stats->GetAttributeString(object, GFS.strIcon));
 		// FIXME - AbsorbSurfaceType
 	}
 
@@ -167,7 +167,7 @@ namespace dse
 		RequirementId = (RequirementType)msg.requirement();
 		IntParam = msg.int_param();
 		if (!msg.string_param().empty()) {
-			StringParam = MakeFixedString(msg.string_param().c_str());
+			StringParam = FixedString(msg.string_param().c_str());
 		}
 
 		Negate = msg.negate();
@@ -295,7 +295,7 @@ namespace dse
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
-		Name = MakeFixedString(msg.name().c_str());
+		Name = FixedString(msg.name().c_str());
 		Context = (CRPGStats_Object_PropertyContext)msg.property_context();
 
 		if (!msg.conditions().empty()) {
@@ -318,10 +318,10 @@ namespace dse
 		case CRPGStats_Object_Property_Type::Status:
 		{
 			auto& p = (CDivinityStats_Object_Property_Status&)*this;
-			p.Status = MakeFixedString(msg.string_params()[0].c_str());
+			p.Status = FixedString(msg.string_params()[0].c_str());
 			p.StatusChance = msg.float_params()[0];
 			p.Duration = msg.float_params()[1];
-			p.StatsId = MakeFixedString(msg.string_params()[1].c_str());
+			p.StatsId = FixedString(msg.string_params()[1].c_str());
 			p.Arg4 = msg.int_params()[0];
 			p.Arg5 = msg.int_params()[1];
 			p.SurfaceBoost = msg.bool_params()[0];
@@ -348,7 +348,7 @@ namespace dse
 			p.GameAction = msg.int_params()[0];
 			p.Arg1 = msg.float_params()[0];
 			p.Arg2 = msg.float_params()[1];
-			p.Arg3 = MakeFixedString(msg.string_params()[0].c_str());
+			p.Arg3 = FixedString(msg.string_params()[0].c_str());
 			p.Arg4 = msg.float_params()[2];
 			p.Arg5 = msg.float_params()[3];
 			p.StatusHealType = msg.int_params()[1];
@@ -374,10 +374,10 @@ namespace dse
 		case CRPGStats_Object_Property_Type::Summon:
 		{
 			auto& p = (CDivinityStats_Object_Property_Summon&)*this;
-			p.Template = MakeFixedString(msg.string_params()[0].c_str());
+			p.Template = FixedString(msg.string_params()[0].c_str());
 			p.Duration = msg.float_params()[0];
 			p.IsTotem = msg.bool_params()[0];
-			p.Skill = MakeFixedString(msg.string_params()[1].c_str());
+			p.Skill = FixedString(msg.string_params()[1].c_str());
 			break;
 		}
 
@@ -398,10 +398,10 @@ namespace dse
 		case CRPGStats_Object_Property_Type::Extender:
 		{
 			auto& p = (CRPGStats_Object_Property_Extender&)*this;
-			p.PropertyName = MakeFixedString(msg.string_params()[0].c_str());
+			p.PropertyName = FixedString(msg.string_params()[0].c_str());
 			p.Arg1 = msg.float_params()[0];
 			p.Arg2 = msg.float_params()[1];
-			p.Arg3 = MakeFixedString(msg.string_params()[1].c_str());
+			p.Arg3 = FixedString(msg.string_params()[1].c_str());
 			p.Arg4 = msg.int_params()[0];
 			p.Arg5 = msg.int_params()[1];
 			break;
@@ -503,7 +503,7 @@ namespace dse
 			}
 		}
 
-		AIFlags = MakeFixedString(msg.ai_flags().c_str());
+		AIFlags = FixedString(msg.ai_flags().c_str());
 
 		Requirements.Clear();
 		for (auto const& reqmt : msg.requirements()) {
@@ -521,12 +521,12 @@ namespace dse
 
 		ComboCategories.Clear();
 		for (auto const& category : msg.combo_categories()) {
-			ComboCategories.Add(MakeFixedString(category.c_str()));
+			ComboCategories.Add(FixedString(category.c_str()));
 		}
 
 		PropertyList.Clear();
 		for (auto const& props : msg.property_lists()) {
-			auto name = MakeFixedString(props.name().c_str());
+			FixedString name(props.name().c_str());
 			auto propertyList = stats->ConstructPropertyList(name);
 			propertyList->FromProtobuf(props);
 			PropertyList.Insert(name, propertyList);
@@ -674,12 +674,12 @@ namespace dse
 
 	void CRPGStatsManager::SyncObjectFromServer(MsgS2CSyncStat const& msg)
 	{
-		auto object = objects.Find(ToFixedString(msg.name().c_str()));
+		auto object = objects.Find(FixedString(msg.name().c_str()));
 		if (object) {
 			object->FromProtobuf(msg);
 			SyncWithPrototypeManager(object);
 		} else {
-			auto newObject = CreateObject(MakeFixedString(msg.name().c_str()), msg.modifier_list());
+			auto newObject = CreateObject(FixedString(msg.name().c_str()), msg.modifier_list());
 			if (!newObject) {
 				OsiError("Could not construct stats object from server: " << msg.name());
 				return;
@@ -833,7 +833,7 @@ namespace dse
 			return {};
 		}
 
-		auto index = rpgEnum->Values.Find(ToFixedString(enumLabel));
+		auto index = rpgEnum->Values.Find(FixedString(enumLabel));
 		if (index == nullptr) {
 			return {};
 		} else {
@@ -978,7 +978,7 @@ namespace dse
 
 	int CRPGStatsManager::GetOrCreateFixedString(const char * value)
 	{
-		auto fs = MakeFixedString(value);
+		FixedString fs(value);
 		if (!fs) return -1;
 
 		auto & strings = ModifierFSSet;
@@ -1055,7 +1055,7 @@ namespace dse
 				*attrFlags = *flags;
 			}
 		} else if (typeInfo->Values.ItemCount > 0) {
-			auto enumIndex = typeInfo->Values.Find(ToFixedString(value));
+			auto enumIndex = typeInfo->Values.Find(FixedString(value));
 			if (enumIndex != nullptr) {
 				object->IndexedProperties[attributeIndex] = *enumIndex;
 			} else {

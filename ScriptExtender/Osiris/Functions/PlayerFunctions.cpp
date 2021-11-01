@@ -20,7 +20,7 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			auto skill = character->SkillManager->Skills.Find(ToFixedString(skillId));
+			auto skill = character->SkillManager->Skills.Find(FixedString(skillId));
 			if (skill == nullptr) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return nullptr;
@@ -162,7 +162,7 @@ namespace dse::esv
 			auto skillBar = GetSkillBar(characterGuid);
 			if (skillBar == nullptr) return false;
 
-			auto skillId = ToFixedString(args[1].String);
+			FixedString skillId(args[1].String);
 			for (uint32_t i = 0; i < skillBar->Size; i++) {
 				auto & skill = (*skillBar)[i];
 				if (skill.Type == esv::SkillBarItem::kSkill
@@ -208,10 +208,10 @@ namespace dse::esv
 			auto characterGuid = args[0].String;
 			auto slot = args[1].Int32;
 			auto skillId = args[2].String;
-			auto skillIdFs = ToFixedString(skillId);
+			FixedString skillIdFs(skillId);
 
 			auto * stats = GetStaticSymbols().GetStats();
-			auto skillDataFs = ToFixedString("SkillData");
+			FixedString skillDataFs("SkillData");
 			if (!stats->ObjectExists(skillIdFs, skillDataFs)) {
 				OsiError("'" << skillId << "' is not a valid skill ID!");
 				return;
@@ -264,7 +264,7 @@ namespace dse::esv
 			if (skillBarItem == nullptr) return;
 
 			skillBarItem->Type = esv::SkillBarItem::kNone;
-			skillBarItem->SkillOrStatId = ToFixedString("");
+			skillBarItem->SkillOrStatId = FixedString("");
 			skillBarItem->ItemHandle = ObjectHandle{};
 
 			auto character = GetEntityWorld()->GetCharacter(characterGuid);

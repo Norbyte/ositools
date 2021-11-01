@@ -6,8 +6,8 @@ namespace dse
 {
 	void GlobalFixedStrings::Initialize()
 	{
-#define FS(val) str##val = MakeFixedString(#val)
-#define FS_NAME(name, val) str##name = MakeFixedString(val)
+#define FS(val) str##val = FixedString(#val)
+#define FS_NAME(name, val) str##name = FixedString(val)
 #include "GlobalFixedStrings.inl"
 #undef FS
 #undef FS_NAME

@@ -102,7 +102,7 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 		return false;
 	}
 
-	auto key = ToFixedString(handle);
+	FixedString key(handle);
 	if (!key) {
 		return false;
 	}

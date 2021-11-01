@@ -220,7 +220,7 @@ namespace dse::lua
 			return 1;
 		}
 
-		auto value = statsComponent->StatValues.Find(ToFixedString(statId));
+		auto value = statsComponent->StatValues.Find(FixedString(statId));
 		if (value) {
 			push(L, *value);
 		} else {
@@ -236,7 +236,7 @@ namespace dse::lua
 		if (!character) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
+		FixedString propFS(prop);
 		if (!propFS) {
 			OsiError("Illegal property name: " << prop);
 			return 0;
@@ -366,7 +366,7 @@ namespace dse::lua
 
 		StackCheck _(L, 1);
 		auto prop = luaL_checkstring(L, 2);
-		auto propFS = ToFixedString(prop);
+		FixedString propFS(prop);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ClientItemGetInventoryItems);
@@ -1720,7 +1720,7 @@ namespace dse::ecl::lua
 
 		auto newIcon = std::make_unique<CustomDrawStruct>();
 		newIcon->VMT = vmt;
-		create(MakeFixedString(icon), newIcon.get(), width, height, MakeFixedString(materialGuid));
+		create(FixedString(icon), newIcon.get(), width, height, FixedString(materialGuid));
 
 		if (newIcon->IconMesh) {
 			customIcons->second.insert(std::make_pair(element, std::move(newIcon)));

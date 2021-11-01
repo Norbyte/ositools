@@ -301,11 +301,7 @@ namespace dse::lua
 	inline FixedString get<FixedString>(lua_State* L, int index)
 	{
 		auto str = lua_tostring(L, index);
-		if (str) {
-			return MakeFixedString(str);
-		} else {
-			return FixedString{};
-		}
+		return FixedString(str);
 	}
 
 	template <>
@@ -344,13 +340,7 @@ namespace dse::lua
 	inline FixedString checked_get(lua_State* L, int index)
 	{
 		auto str = luaL_checkstring(L, index);
-		auto fs = MakeFixedString(str);
-		if (!fs) {
-			luaL_error(L, "Argument %d: expected a valid FixedString value, got '%s'", index, str);
-			return {};
-		} else {
-			return fs;
-		}
+		return FixedString(str);
 	}
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, ObjectHandle>, int>* = nullptr>

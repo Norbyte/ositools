@@ -85,7 +85,7 @@ namespace dse::esv
 			auto statusMachine = GetStatusMachine(gameObjectGuid);
 			if (statusMachine == nullptr) return false;
 
-			auto statusIdFS = ToFixedString(args[1].String);
+			FixedString statusIdFS(args[1].String);
 			if (!statusIdFS) {
 				// No fixed string with this ID --> invalid status name
 				OsiWarn("Status " << args[1].String << " not in string table, possibly invalid status name?");
@@ -129,7 +129,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto statusHandle = gExtender->GetStatusHelpers().ApplyActiveDefense(character, MakeFixedString(statusId), lifeTime);
+			auto statusHandle = gExtender->GetStatusHelpers().ApplyActiveDefense(character, FixedString(statusId), lifeTime);
 			if (statusHandle) {
 				args[3].Set((int64_t)*statusHandle);
 				return true;
@@ -154,7 +154,7 @@ namespace dse::esv
 			}
 
 			auto sourceCharacter = GetEntityWorld()->GetCharacter(sourceCharacterGuid);
-			auto statusHandle = gExtender->GetStatusHelpers().ApplyDamageOnMove(character, MakeFixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
+			auto statusHandle = gExtender->GetStatusHelpers().ApplyDamageOnMove(character, FixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
 			if (statusHandle) {
 				args[5].Set((int64_t)*statusHandle);
 				return true;
@@ -425,7 +425,7 @@ namespace dse::esv
 				extProp->Context = status->Context;
 				extProp->TypeId = CRPGStats_Object_Property_Type::Extender;
 				extProp->Conditions = status->Conditions;
-				extProp->PropertyName = MakeFixedString(status->Status.Str + 4);
+				extProp->PropertyName = FixedString(status->Status.Str + 4);
 				extProp->Arg1 = status->StatusChance;
 				extProp->Arg2 = status->Duration;
 				extProp->Arg3 = status->StatsId;

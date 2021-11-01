@@ -35,7 +35,7 @@ namespace dse
 
 		std::optional<int> FindIndex(char const * str) const
 		{
-			auto fs = ToFixedString(str);
+			FixedString fs(str);
 			if (fs) {
 				return FindIndex(fs);
 			} else {
@@ -64,7 +64,7 @@ namespace dse
 
 		T * Find(char const * str) const
 		{
-			auto fs = ToFixedString(str);
+			FixedString fs(str);
 			if (fs) {
 				return Find(fs);
 			} else {

@@ -169,7 +169,7 @@ namespace dse::lua
 
 		bool fetched;
 		if (!prop && strncmp(propStr, "Base", 4) == 0) {
-			auto baseStatName = ToFixedString(propStr + 4);
+			FixedString baseStatName(propStr + 4);
 			fetched = CharacterFetchStat(L, stats, baseStatName, true);
 		} else {
 			fetched = CharacterFetchStat(L, stats, prop, false);
@@ -217,7 +217,7 @@ namespace dse::lua
 		if (!stats) return 0;
 
 		auto prop = luaL_checkstring(L, 2);
-		auto fs = ToFixedString(prop);
+		FixedString fs(prop);
 
 		if (fs == GFS.strGetItemBySlot) {
 			lua_pushcfunction(L, &CharacterGetItemBySlot);
@@ -352,11 +352,11 @@ namespace dse::lua
 		if (obj == nullptr) {
 			lua_pushnil(L);
 		}
-		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Character"))) {
+		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character*>(obj);
 			character_ = ObjectProxy<CDivinityStats_Character>::New(L, ch);
 		}
-		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(ToFixedString("Item"))) {
+		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Item"))) {
 			auto item = reinterpret_cast<CDivinityStats_Item*>(obj);
 			item_ = ObjectProxy<CDivinityStats_Item>::New(L, item);
 		}
@@ -382,7 +382,7 @@ namespace dse::lua
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 		auto key = luaL_checkstring(L, 2);
-		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
+		auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
 		if (extraData != nullptr) {
 			push(L, *extraData);
 		}
@@ -400,7 +400,7 @@ namespace dse::lua
 
 		auto key = luaL_checkstring(L, 2);
 		auto value = checked_get<float>(L, 3);
-		auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
+		auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
 		if (extraData != nullptr) {
 			*extraData = value;
 		}
@@ -769,7 +769,7 @@ namespace dse::lua
 
 	int GetItemComboPreviewData(lua_State* L)
 	{
-		auto comboName = ToFixedString(luaL_checkstring(L, 1));
+		FixedString comboName(luaL_checkstring(L, 1));
 		auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
 		return LuaWrite(L, preview);
 	}
@@ -798,7 +798,7 @@ namespace dse::lua
 
 	int GetItemComboProperty(lua_State* L)
 	{
-		auto propertyName = ToFixedString(luaL_checkstring(L, 1));
+		FixedString propertyName(luaL_checkstring(L, 1));
 		auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
 		return LuaWrite(L, prop);
 	}
@@ -828,7 +828,7 @@ namespace dse::lua
 
 	int GetItemGroup(lua_State* L)
 	{
-		auto name = ToFixedString(luaL_checkstring(L, 1));
+		FixedString name(luaL_checkstring(L, 1));
 		auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
 		return LuaWrite(L, group);
 	}
@@ -836,7 +836,7 @@ namespace dse::lua
 
 	int GetNameGroup(lua_State* L)
 	{
-		auto name = ToFixedString(luaL_checkstring(L, 1));
+		FixedString name(luaL_checkstring(L, 1));
 		auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
 		return LuaWrite(L, nameGroup);
 	}
@@ -855,7 +855,7 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto stats = GetStaticSymbols().GetStats();
 
-		auto attributeFS = ToFixedString(attributeName);
+		FixedString attributeFS(attributeName);
 		if (!attributeFS) {
 			OsiError("Invalid stats attribute name: " << attributeName);
 			push(L, nullptr);
@@ -983,7 +983,7 @@ namespace dse::lua
 			}
 		}
 
-		auto attributeFS = ToFixedString(attributeName);
+		FixedString attributeFS(attributeName);
 		if (!attributeFS) {
 			OsiError("Invalid stats attribute name: " << attributeName);
 			return 0;
@@ -999,7 +999,7 @@ namespace dse::lua
 			LuaRead(L, object->MemorizationRequirements);
 			return 0;
 		} else if (attributeFS == GFS.strAIFlags) {
-			object->AIFlags = MakeFixedString(lua_tostring(L, valueIdx));
+			object->AIFlags = FixedString(lua_tostring(L, valueIdx));
 			return 0;
 		} else if (attributeFS == GFS.strComboCategory) {
 			object->ComboCategories.Clear();
@@ -1010,7 +1010,7 @@ namespace dse::lua
 
 			for (auto category : iterate(L, valueIdx)) {
 				auto categoryName = checked_get<char const*>(L, category);
-				object->ComboCategories.Add(MakeFixedString(categoryName));
+				object->ComboCategories.Add(FixedString(categoryName));
 			}
 
 			return 0;
@@ -1018,11 +1018,11 @@ namespace dse::lua
 			STDString name = object->Name.Str;
 			name += "_";
 			name += attributeName;
-			auto statsPropertyKey = MakeFixedString(name.c_str());
+			FixedString statsPropertyKey(name.c_str());
 
 			auto newList = LuaToObjectPropertyList(L, statsPropertyKey);
 			if (newList) {
-				auto propertyList = object->PropertyList.Find(ToFixedString(attributeName));
+				auto propertyList = object->PropertyList.Find(FixedString(attributeName));
 				if (propertyList) {
 					// FIXME - add Remove() support!
 					object->PropertyList.Clear();
@@ -1030,7 +1030,7 @@ namespace dse::lua
 					// GameFree(*propertyList);
 				}
 
-				object->PropertyList.Insert(MakeFixedString(attributeName), newList);
+				object->PropertyList.Insert(FixedString(attributeName), newList);
 			}
 
 			return 0;
@@ -1050,7 +1050,7 @@ namespace dse::lua
 					STDString name = object->Name.Str;
 					name += "_";
 					name += attributeName;
-					statConditions->Name = MakeFixedString(name.c_str());
+					statConditions->Name = FixedString(name.c_str());
 					*conditions = statConditions;
 				} else {
 					OsiWarn("Failed to parse conditions: " << value);
@@ -1110,7 +1110,7 @@ namespace dse::lua
 		auto object = StatFindObject(statName);
 		if (!object) return;
 
-		auto props = object->PropertyList.Find(ToFixedString(attributeName));
+		auto props = object->PropertyList.Find(FixedString(attributeName));
 		if (props == nullptr || *props == nullptr) {
 			OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
 			return;
@@ -1218,7 +1218,7 @@ namespace dse::lua
 		}
 
 		auto stats = GetStaticSymbols().GetStats();
-		auto modifier = stats->GetModifierInfo(ToFixedString(modifierListName), ToFixedString(modifierName));
+		auto modifier = stats->GetModifierInfo(FixedString(modifierListName), FixedString(modifierName));
 		if (modifier == nullptr) {
 			OsiError("Modifier list '" << modifierListName << "' or modifier '" << modifierName << "' does not exist!");
 			return 0;
@@ -1280,7 +1280,7 @@ namespace dse::lua
 	bool CopyStats(CRPGStats_Object* obj, char const* copyFrom)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto copyFromObject = stats->objects.Find(ToFixedString(copyFrom));
+		auto copyFromObject = stats->objects.Find(FixedString(copyFrom));
 		if (copyFromObject == nullptr) {
 			OsiError("Cannot copy stats from nonexistent object: " << copyFrom);
 			return false;
@@ -1348,7 +1348,7 @@ namespace dse::lua
 		}
 
 		auto stats = GetStaticSymbols().GetStats();
-		auto object = stats->CreateObject(MakeFixedString(statName), MakeFixedString(modifierName));
+		auto object = stats->CreateObject(FixedString(statName), FixedString(modifierName));
 		if (!object) {
 			push(L, nullptr);
 			return 1;
@@ -1368,7 +1368,7 @@ namespace dse::lua
 	void SyncStat(lua_State* L, char const* statName, std::optional<bool> persist)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto object = stats->objects.Find(ToFixedString(statName));
+		auto object = stats->objects.Find(FixedString(statName));
 		if (!object) {
 			OsiError("Cannot sync nonexistent stat: " << statName);
 			return;
@@ -1379,9 +1379,9 @@ namespace dse::lua
 		if (gExtender->GetServer().IsInServerThread()) {
 			object->BroadcastSyncMessage(false);
 
-			gExtender->GetServer().GetExtensionState().MarkDynamicStat(ToFixedString(statName));
+			gExtender->GetServer().GetExtensionState().MarkDynamicStat(FixedString(statName));
 			if (persist && *persist) {
-				gExtender->GetServer().GetExtensionState().MarkPersistentStat(ToFixedString(statName));
+				gExtender->GetServer().GetExtensionState().MarkPersistentStat(FixedString(statName));
 			}
 		}
 	}
@@ -1391,16 +1391,16 @@ namespace dse::lua
 	void StatSetPersistence(lua_State* L, char const* statName, bool persist)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto object = stats->objects.Find(ToFixedString(statName));
+		auto object = stats->objects.Find(FixedString(statName));
 		if (!object) {
 			OsiError("Cannot set persistence for nonexistent stat: " << statName);
 			return;
 		}
 
 		if (persist) {
-			gExtender->GetServer().GetExtensionState().MarkPersistentStat(ToFixedString(statName));
+			gExtender->GetServer().GetExtensionState().MarkPersistentStat(FixedString(statName));
 		} else {
-			gExtender->GetServer().GetExtensionState().UnmarkPersistentStat(ToFixedString(statName));
+			gExtender->GetServer().GetExtensionState().UnmarkPersistentStat(FixedString(statName));
 		}
 	}
 
@@ -1457,7 +1457,7 @@ namespace dse::lua
 		lua_pop(L, 1);
 
 		if (isNew) {
-			deltaModType->Add(MakeFixedString(name), deltaMod);
+			deltaModType->Add(FixedString(name), deltaMod);
 		}
 
 		return 0;
@@ -1558,7 +1558,7 @@ namespace dse::lua
 
 		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
 		if (valueList) {
-			auto value = valueList->Values.Find(ToFixedString(label));
+			auto value = valueList->Values.Find(FixedString(label));
 
 			if (value) {
 				push(L, *value);

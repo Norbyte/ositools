@@ -6,7 +6,7 @@ int GameObjectGetStatus(lua_State* L)
 	auto statusId = luaL_checkstring(L, 2);
 
 	auto object = self->Get(L);
-	auto statusIdFs = ToFixedString(statusId);
+	FixedString statusIdFs(statusId);
 
 	if (!object || !object->StatusMachine || !statusIdFs) {
 		return 0;
@@ -93,7 +93,7 @@ int GameObjectHasTag(lua_State* L)
 	auto tag = luaL_checkstring(L, 2);
 
 	auto object = self->Get(L);
-	auto tagFs = ToFixedString(tag);
+	FixedString tagFs(tag);
 
 	if (!object || !tagFs) {
 		push(L, false);

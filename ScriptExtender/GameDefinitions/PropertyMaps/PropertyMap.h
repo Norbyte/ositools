@@ -406,7 +406,7 @@ namespace dse
 			switch (prop->second.Type) {
 			case PropertyType::kFixedString:
 				{
-					auto fs = ToFixedString(value);
+				FixedString fs(value);
 					if (!fs) {
 						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Could not map to FixedString");
 						return false;
@@ -417,7 +417,7 @@ namespace dse
 				}
 
 			case PropertyType::kDynamicFixedString:
-				*reinterpret_cast<FixedString*>(ptr) = MakeFixedString(value);
+				*reinterpret_cast<FixedString*>(ptr) = FixedString(value);
 				return true;
 
 			case PropertyType::kFixedStringGuid:
@@ -675,13 +675,13 @@ namespace dse
 	inline PropertyMapBase::PropertyInfo& AddPropertyInternal(PropertyMapBase& map, char const* name, PropertyMapBase::PropertyInfo const& info)
 	{
 #if !defined(NDEBUG)
-		if (map.Properties.find(MakeFixedString(name)) != map.Properties.end()
-			|| map.Flags.find(MakeFixedString(name)) != map.Flags.end()) {
+		if (map.Properties.find(FixedString(name)) != map.Properties.end()
+			|| map.Flags.find(FixedString(name)) != map.Flags.end()) {
 			throw std::runtime_error("Tried to add duplicate property!");
 		}
 #endif
 
-		auto it = map.Properties.insert(std::make_pair(MakeFixedString(name), info));
+		auto it = map.Properties.insert(std::make_pair(FixedString(name), info));
 		return it.first->second;
 	}
 
@@ -760,7 +760,7 @@ namespace dse
 	{
 		using Enum = EnumInfo<TEnum>;
 
-		auto fieldName = MakeFixedString(name);
+		FixedString fieldName(name);
 		PropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;

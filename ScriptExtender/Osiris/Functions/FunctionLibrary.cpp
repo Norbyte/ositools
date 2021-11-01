@@ -20,7 +20,7 @@ namespace dse::esv
 
 		bool IsModLoaded(OsiArgumentDesc & args)
 		{
-			auto modUuid = ToFixedString(args[0].String);
+			FixedString modUuid(args[0].String);
 			auto & loaded = args[1];
 
 			auto modManager = GetModManagerServer();

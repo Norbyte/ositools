@@ -35,7 +35,7 @@ namespace dse::esv
 			}
 
 			int attributeIndex;
-			auto attrInfo = stats->GetAttributeInfo(object, ToFixedString(attributeName), attributeIndex);
+			auto attrInfo = stats->GetAttributeInfo(object, FixedString(attributeName), attributeIndex);
 			return attrInfo != nullptr;
 		}
 
@@ -55,7 +55,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto value = stats->GetAttributeInt(object, ToFixedString(attributeName));
+			auto value = stats->GetAttributeInt(object, FixedString(attributeName));
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
@@ -93,7 +93,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto value = stats->GetAttributeString(object, ToFixedString(attributeName));
+			auto value = stats->GetAttributeString(object, FixedString(attributeName));
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
@@ -138,7 +138,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto extraData = stats->ExtraData->Properties.Find(ToFixedString(key));
+			auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
 			if (extraData != nullptr) {
 				value.Set(*extraData);
 				return true;

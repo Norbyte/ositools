@@ -122,7 +122,7 @@ namespace dse
 	{
 		EnumInfo<TalentType>::Values.Iterate([&propertyMap, prefix, f](auto const& name, auto const& id) {
 			auto talentName = prefix + name.Str;
-			auto talentFS = MakeFixedString(talentName.c_str());
+			FixedString talentFS(talentName.c_str());
 			AddProperty<bool>(propertyMap, talentFS.Str, 0);
 
 			propertyMap.Properties[talentFS].GetInt = [id, f](void* obj) -> std::optional<int64_t> {
@@ -1683,7 +1683,7 @@ namespace dse
 		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
 		auto propertyNameStr = args[firstArg].String;
-		auto propertyName = ToFixedString(propertyNameStr);
+		FixedString propertyName(propertyNameStr);
 
 		if (obj == nullptr) {
 			OsiError("Attempted to get property '" << propertyNameStr << "' of null object!");
@@ -1754,7 +1754,7 @@ namespace dse
 			}
 
 			if (!*val) {
-				args[firstArg + 1].Set(ToFixedString("NULL_00000000-0000-0000-0000-000000000000").Str);
+				args[firstArg + 1].Set(FixedString("NULL_00000000-0000-0000-0000-000000000000").Str);
 				return true;
 			}
 
@@ -1792,7 +1792,7 @@ namespace dse
 		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
 		auto propertyNameStr = args[firstArg].String;
-		auto propertyName = ToFixedString(propertyNameStr);
+		FixedString propertyName(propertyNameStr);
 
 		if (obj == nullptr) {
 			OsiError("Attempted to set property '" << propertyNameStr << "' of null object!");
@@ -1839,7 +1839,7 @@ namespace dse
 			auto guid = args[firstArg + 1].String;
 			if (guid == nullptr
 				|| !strlen(guid)
-				|| NameGuidToFixedString(guid) == ToFixedString("00000000-0000-0000-0000-000000000000")) {
+				|| NameGuidToFixedString(guid) == FixedString("00000000-0000-0000-0000-000000000000")) {
 				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
 			}
 
@@ -1873,7 +1873,7 @@ namespace dse
 	bool LuaPropertyMapGet(lua_State* L, PropertyMapBase const& propertyMap, void* obj,
 		char const* propertyName, bool throwError)
 	{
-		auto propertyFS = ToFixedString(propertyName);
+		FixedString propertyFS(propertyName);
 		if (!propertyFS) {
 			OsiError("Failed to get property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
@@ -2013,7 +2013,7 @@ namespace dse
 			return false;
 		}
 
-		auto propertyFS = ToFixedString(propertyName);
+		FixedString propertyFS(propertyName);
 		if (!propertyFS) {
 			OsiError("Failed to set property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
 			return false;
