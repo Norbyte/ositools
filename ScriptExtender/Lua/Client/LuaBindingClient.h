@@ -17,6 +17,9 @@ namespace dse::ecl::lua
 {
 	using namespace dse::lua;
 
+	LifetimeHolder GetClientLifetime();
+	LifetimePool& GetClientLifetimePool();
+
 	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
 
 	class ExtensionLibraryClient : public ExtensionLibrary

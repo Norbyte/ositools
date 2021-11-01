@@ -1,9 +1,10 @@
 #pragma once
 
+#include <Lua/Shared/LuaHelpers.h>
+#include <Lua/Shared/LuaLifetime.h>
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/GameObjects/Status.h>
-#include <Lua/Shared/LuaHelpers.h>
 
 #include <mutex>
 #include <unordered_set>
@@ -13,6 +14,7 @@ namespace dse::lua
 {
 	void PushExtFunction(lua_State * L, char const * func);
 	void PushModFunction(lua_State* L, char const* mod, char const* func);
+	LifetimeHolder GetCurrentLifetime();
 
 	template <class T>
 	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>
@@ -20,8 +22,12 @@ namespace dse::lua
 	public:
 		static char const * const MetatableName;
 
-		ObjectProxy(T * obj)
-			: obj_(obj), handle_()
+		ObjectProxy(T * obj, LifetimeHolder const& lifetime)
+			: obj_(obj), handle_(), lifetime_(lifetime)
+		{}
+
+		ObjectProxy(LifetimeHolder const& lifetime, T * obj)
+			: obj_(obj), handle_(), lifetime_(lifetime)
 		{}
 
 		ObjectProxy(ComponentHandle handle)
@@ -33,9 +39,19 @@ namespace dse::lua
 			obj_ = nullptr;
 		}
 
+		T* Get(lua_State* L)
+		{
+			auto ptr = GetPtr(L);
+			if (lifetime_ && !lifetime_->IsAlive()) {
+				luaL_error(L, "Attempted to access object of type '%s' whose lifetime has expired", MetatableName);
+				return nullptr;
+			}
+
+			return ptr;
+		}
+
 		int Index(lua_State * L);
 		int NewIndex(lua_State * L);
-		T* Get(lua_State* L);
 
 		static T* CheckedGet(lua_State* L, int index)
 		{
@@ -50,6 +66,8 @@ namespace dse::lua
 		}
 
 	protected:
+		T* GetPtr(lua_State* L);
+
 		int GenericGetter(lua_State* L, PropertyMapBase const& propertyMap)
 		{
 			StackCheck _(L, 1);
@@ -83,6 +101,7 @@ namespace dse::lua
 	private:
 		T * obj_;
 		ComponentHandle handle_;
+		std::optional<LifetimeReference> lifetime_;
 	};
 
 
@@ -236,9 +255,21 @@ namespace dse::lua
 			return L;
 		}
 
+		inline LifetimeStack& GetStack()
+		{
+			return lifetimeStack_;
+		}
+
 		inline bool StartupDone() const
 		{
 			return startupDone_;
+		}
+
+		LifetimeHolder GetCurrentLifetime();
+
+		inline LifetimePool& GetLifetimePool()
+		{
+			return lifetimePool_;
 		}
 
 		void FinishStartup();
@@ -255,7 +286,9 @@ namespace dse::lua
 		{
 			Restriction restriction(*this, restrictions);
 			PushExtFunction(L, func);
-			auto _{ PushArguments(L, std::tuple{args...}) };
+			LifetimePin _l(lifetimeStack_);
+			auto lifetime = lifetimeStack_.GetCurrent();
+			auto _{ PushArguments(L, lifetime, std::tuple{args...}) };
 			return CheckedCall<Ret...>(L, sizeof...(args), func);
 		}
 
@@ -264,8 +297,10 @@ namespace dse::lua
 		{
 			StackCheck _(L, 0);
 			Restriction restriction(*this, restrictions);
+			LifetimePin _l(lifetimeStack_);
+			auto lifetime = lifetimeStack_.GetCurrent();
 			PushExtFunction(L, func);
-			auto _p{ PushArguments(L, std::tuple{args...}) };
+			auto _p{ PushArguments(L, lifetime, std::tuple{args...}) };
 			CheckedCall(L, sizeof...(args), func);
 			// FIXME!
 			return true;
@@ -286,6 +321,9 @@ namespace dse::lua
 	protected:
 		lua_State * L;
 		bool startupDone_{ false };
+
+		LifetimePool lifetimePool_;
+		LifetimeStack lifetimeStack_;
 
 		void OpenLibs();
 	};

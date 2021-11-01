@@ -215,6 +215,7 @@ void DebugConsole::ConsoleThread()
 					if (line[0] == '!') {
 						pin->CallExt("DoConsoleCommand", 0, line.substr(1));
 					} else {
+						lua::LifetimePin _(pin->GetStack());
 						auto L = pin->GetState();
 						if (luaL_loadstring(L, line.c_str()) || lua::CallWithTraceback(L, 0, 0)) { // stack: errmsg
 							ERR("%s", lua_tostring(L, -1));

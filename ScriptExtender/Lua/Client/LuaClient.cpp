@@ -9,6 +9,8 @@
 
 namespace dse::lua
 {
+	using namespace dse::ecl::lua;
+
 	char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
 
 
@@ -18,7 +20,7 @@ namespace dse::lua
 		return gEclStatusPropertyMap;
 	}
 
-	ecl::Status* ObjectProxy<ecl::Status>::Get(lua_State* L)
+	ecl::Status* ObjectProxy<ecl::Status>::GetPtr(lua_State* L)
 	{
 		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
 		return obj_;
@@ -56,7 +58,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ecl::PlayerCustomData>::MetatableName = "ecl::PlayerCustomData";
 
-	ecl::PlayerCustomData* ObjectProxy<ecl::PlayerCustomData>::Get(lua_State* L)
+	ecl::PlayerCustomData* ObjectProxy<ecl::PlayerCustomData>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
@@ -121,7 +123,7 @@ namespace dse::lua
 		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
 				// FIXME - use handle based proxy
-				ObjectProxy<CDivinityStats_Character>::New(L, character->Stats);
+				ObjectProxy<CDivinityStats_Character>::New(L, GetClientLifetime(), character->Stats);
 			} else {
 				OsiError("Character has no stats.");
 				push(L, nullptr);
@@ -135,7 +137,7 @@ namespace dse::lua
 		}
 
 		if (prop == GFS.strRootTemplate) {
-			ObjectProxy<CharacterTemplate>::New(L, character->Template);
+			ObjectProxy<CharacterTemplate>::New(L, GetClientLifetime(), character->Template);
 			return 1;
 		}
 
@@ -159,7 +161,7 @@ namespace dse::lua
 		return 1;
 	}
 
-	ecl::Character* ObjectProxy<ecl::Character>::Get(lua_State* L)
+	ecl::Character* ObjectProxy<ecl::Character>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
@@ -299,7 +301,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ecl::Item>::MetatableName = "ecl::Item";
 
-	ecl::Item* ObjectProxy<ecl::Item>::Get(lua_State* L)
+	ecl::Item* ObjectProxy<ecl::Item>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto item = ecl::GetEntityWorld()->GetItem(handle_);
@@ -410,7 +412,7 @@ namespace dse::lua
 		if (propFS == GFS.strStats) {
 			if (item->Stats != nullptr) {
 				// FIXME - use handle based proxy
-				ObjectProxy<CDivinityStats_Item>::New(L, item->Stats);
+				ObjectProxy<CDivinityStats_Item>::New(L, GetClientLifetime(), item->Stats);
 				return 1;
 			} else {
 				push(L, nullptr);
@@ -424,7 +426,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strRootTemplate) {
-			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
+			ObjectProxy<ItemTemplate>::New(L, GetClientLifetime(), item->CurrentTemplate);
 			return 1;
 		}
 
@@ -456,6 +458,18 @@ namespace dse::lua
 namespace dse::ecl::lua
 {
 	using namespace dse::lua;
+
+	LifetimeHolder GetClientLifetime()
+	{
+		assert(gExtender->GetClient().IsInClientThread());
+		return ExtensionState::Get().GetLua()->GetCurrentLifetime();
+	}
+
+	LifetimePool& GetClientLifetimePool()
+	{
+		assert(gExtender->GetClient().IsInClientThread());
+		return ExtensionState::Get().GetLua()->GetLifetimePool();
+	}
 
 	void ExtensionLibraryClient::Register(lua_State * L)
 	{
@@ -709,7 +723,7 @@ namespace dse::ecl::lua
 			return 0;
 		}
 
-		ObjectProxy<eoc::AiGrid>::New(L, level->AiGrid);
+		ObjectProxy<eoc::AiGrid>::New(L, GetClientLifetime(), level->AiGrid);
 		return 1;
 	}
 
@@ -2625,6 +2639,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_UIObjectCreated");
 		UIObjectProxy::New(L, uiObjectHandle);
@@ -2635,6 +2650,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_UICall"); // stack: fn
 
@@ -2652,6 +2668,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_UICall"); // stack: fn
 
@@ -2669,6 +2686,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_UIInvoke"); // stack: fn
 
@@ -2686,6 +2704,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_UIInvoke"); // stack: fn
 
@@ -2704,6 +2723,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		auto skill = prototype->GetStats();
 		if (skill == nullptr) {
@@ -2713,8 +2733,9 @@ namespace dse::ecl::lua
 		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
 		auto _a{ PushArguments(L,
+			GetClientLifetime(),
 			std::tuple{Push<SkillPrototypeProxy>(prototype, std::optional<int32_t>()),
-			Push<ObjectProxy<CDivinityStats_Character>>(character)}) };
+			Push<ObjectProxy<CDivinityStats_Character>>(GetClientLifetime(), character)}) };
 		push(L, isFromItem);
 
 		for (auto const& paramText : paramTexts) {
@@ -2740,6 +2761,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		auto status = prototype->GetStats();
 		if (status == nullptr) {
@@ -2772,6 +2794,7 @@ namespace dse::ecl::lua
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
 		StackCheck _(L, 0);
+		LifetimePin _p(lifetimeStack_);
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);
@@ -2789,6 +2812,7 @@ namespace dse::ecl::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetSkillPropertyDescription"); // stack: fn
 		LuaSerializer serializer(L, true);
@@ -2807,6 +2831,7 @@ namespace dse::ecl::lua
 	void ClientState::OnAppInputEvent(InputEvent const& inputEvent)
 	{
 		StackCheck _(L, 0);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_OnInputEvent"); // stack: fn
 		lua_newtable(L);

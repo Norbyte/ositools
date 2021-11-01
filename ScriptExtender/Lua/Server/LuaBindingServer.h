@@ -55,6 +55,9 @@ namespace dse::esv::lua
 {
 	using namespace dse::lua;
 
+	LifetimeHolder GetServerLifetime();
+	LifetimePool& GetServerLifetimePool();
+
 	void LuaToOsi(lua_State * L, int i, TypedValue & tv, ValueType osiType, bool allowNil = false);
 	TypedValue * LuaToOsi(lua_State * L, int i, ValueType osiType, bool allowNil = false);
 	void LuaToOsi(lua_State * L, int i, OsiArgumentValue & arg, ValueType osiType, bool allowNil = false);
@@ -409,9 +412,9 @@ namespace dse::esv::lua
 		void CallQueryPreHook(Node* node, OsiArgumentDesc* args);
 		void CallQueryPostHook(Node* node, OsiArgumentDesc* args, bool succeeded);
 		void RunHandlers(uint64_t nodeRef, TuplePtrLL* tuple) const;
-		void RunHandler(lua_State* L, RegistryEntry const& func, TuplePtrLL* tuple) const;
+		void RunHandler(ServerState& lua, RegistryEntry const& func, TuplePtrLL* tuple) const;
 		void RunHandlers(uint64_t nodeRef, OsiArgumentDesc* tuple) const;
-		void RunHandler(lua_State* L, RegistryEntry const& func, OsiArgumentDesc* tuple) const;
+		void RunHandler(ServerState& lua, RegistryEntry const& func, OsiArgumentDesc* tuple) const;
 	};
 
 
@@ -471,6 +474,7 @@ namespace dse::esv::lua
 		void Call(char const* mod, char const* func, std::vector<TArg> const & args)
 		{
 			auto L = GetState();
+			LifetimePin _(GetStack());
 			lua_checkstack(L, (int)args.size() + 1);
 			auto stackSize = lua_gettop(L);
 

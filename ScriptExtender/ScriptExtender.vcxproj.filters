@@ -292,6 +292,9 @@
     <ClInclude Include="Extender\Client\NetworkManagerClient.h">
       <Filter>Extender\Client</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaLifetime.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

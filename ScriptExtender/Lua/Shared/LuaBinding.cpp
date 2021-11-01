@@ -124,7 +124,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CombatComponentTemplate>::MetatableName = "eoc::CombatComponentTemplate";
 
-	CombatComponentTemplate* ObjectProxy<CombatComponentTemplate>::Get(lua_State* L)
+	CombatComponentTemplate* ObjectProxy<CombatComponentTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "CharacterTemplate not bound!");
@@ -145,7 +145,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CharacterTemplate>::MetatableName = "eoc::CharacterTemplate";
 
-	CharacterTemplate* ObjectProxy<CharacterTemplate>::Get(lua_State* L)
+	CharacterTemplate* ObjectProxy<CharacterTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "CharacterTemplate not bound!");
@@ -204,7 +204,7 @@ namespace dse::lua
 		}
 
 		if (strcmp(prop, "CombatTemplate") == 0) {
-			ObjectProxy<CombatComponentTemplate>::New(L, &obj->CombatComponent);
+			ObjectProxy<CombatComponentTemplate>::New(L, GetCurrentLifetime(), &obj->CombatComponent);
 			return 1;
 		}
 
@@ -221,7 +221,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ItemTemplate>::MetatableName = "eoc::ItemTemplate";
 
-	ItemTemplate* ObjectProxy<ItemTemplate>::Get(lua_State* L)
+	ItemTemplate* ObjectProxy<ItemTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "ItemTemplate not bound!");
@@ -236,7 +236,7 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "CombatTemplate") == 0) {
-			ObjectProxy<CombatComponentTemplate>::New(L, &obj->CombatComponent);
+			ObjectProxy<CombatComponentTemplate>::New(L, GetCurrentLifetime(), &obj->CombatComponent);
 			return 1;
 		}
 
@@ -253,7 +253,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ProjectileTemplate>::MetatableName = "eoc::ProjectileTemplate";
 
-	ProjectileTemplate* ObjectProxy<ProjectileTemplate>::Get(lua_State* L)
+	ProjectileTemplate* ObjectProxy<ProjectileTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "ProjectileTemplate not bound!");
@@ -273,7 +273,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<SurfaceTemplate>::MetatableName = "eoc::SurfaceTemplate";
 
-	SurfaceTemplate* ObjectProxy<SurfaceTemplate>::Get(lua_State* L)
+	SurfaceTemplate* ObjectProxy<SurfaceTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "SurfaceTemplate not bound!");
@@ -311,7 +311,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<TriggerTemplate>::MetatableName = "eoc::TriggerTemplate";
 
-	TriggerTemplate* ObjectProxy<TriggerTemplate>::Get(lua_State* L)
+	TriggerTemplate* ObjectProxy<TriggerTemplate>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "TriggerTemplate not bound!");
@@ -331,7 +331,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<eoc::AiGrid>::MetatableName = "eoc::AiGrid";
 
-	eoc::AiGrid* ObjectProxy<eoc::AiGrid>::Get(lua_State* L)
+	eoc::AiGrid* ObjectProxy<eoc::AiGrid>::GetPtr(lua_State* L)
 	{
 		return obj_;
 	}
@@ -824,6 +824,7 @@ namespace dse::lua
 	}
 
 	State::State()
+		: lifetimeStack_(lifetimePool_)
 	{
 		L = luaL_newstate();
 #if LUA_VERSION_NUM <= 501
@@ -839,6 +840,16 @@ namespace dse::lua
 	{
 		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
+	}
+
+	LifetimeHolder State::GetCurrentLifetime()
+	{
+		if (lifetimeStack_.IsEmpty()) {
+			OsiErrorS("Attempted to construct Lua object proxy while lifetime stack is empty");
+			return LifetimeHolder(lifetimePool_, nullptr);
+		} else {
+			return lifetimeStack_.GetCurrent();
+		}
 	}
 
 	void State::LoadBootstrap(STDString const& path, STDString const& modTable)
@@ -905,6 +916,7 @@ namespace dse::lua
 #endif
 
 		/* Ask Lua to run our little script */
+		LifetimePin _(lifetimeStack_);
 		status = CallWithTraceback(L, 0, LUA_MULTRET);
 		if (status != LUA_OK) {
 			LuaError("Failed to execute script: " << lua_tostring(L, -1));
@@ -918,11 +930,13 @@ namespace dse::lua
 	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetHitChance"); // stack: fn
 		auto _{ PushArguments(L,
-			std::tuple{Push<ObjectProxy<CDivinityStats_Character>>(attacker),
-			Push<ObjectProxy<CDivinityStats_Character>>(target)}) };
+			GetCurrentLifetime(),
+			std::tuple{Push<ObjectProxy<CDivinityStats_Character>>(GetCurrentLifetime(), attacker),
+			Push<ObjectProxy<CDivinityStats_Character>>(GetCurrentLifetime(), target)}) };
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
@@ -937,6 +951,7 @@ namespace dse::lua
 		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
 		Restriction restriction(*this, RestrictOsiris);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetSkillDamage"); // stack: fn
 
@@ -987,6 +1002,7 @@ namespace dse::lua
 		glm::vec3* position, float* radius)
 	{
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetSkillAPCost");
 
@@ -995,7 +1011,7 @@ namespace dse::lua
 		ItemOrCharacterPushPin _ch(L, character);
 
 		if (aiGrid != nullptr) {
-			ObjectProxy<eoc::AiGrid>::New(L, aiGrid);
+			ObjectProxy<eoc::AiGrid>::New(L, GetCurrentLifetime(), aiGrid);
 		} else {
 			push(L, nullptr);
 		}

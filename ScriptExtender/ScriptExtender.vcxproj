@@ -99,6 +99,7 @@
     <ClInclude Include="Lua\Server\LuaBindingServer.h" />
     <ClInclude Include="Lua\Shared\LuaBinding.h" />
     <ClInclude Include="Lua\Shared\LuaHelpers.h" />
+    <ClInclude Include="Lua\Shared\LuaLifetime.h" />
     <ClInclude Include="Lua\Shared\LuaSerializers.h" />
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="Osiris\Debugger\Debugger.h" />

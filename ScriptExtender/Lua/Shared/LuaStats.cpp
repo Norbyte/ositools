@@ -94,7 +94,7 @@ namespace dse::lua
 			unsigned statIdx = 1;
 			for (auto dynamicStat : stats->DynamicStats) {
 				push(L, statIdx++);
-				ObjectProxy<CharacterDynamicStat>::New(L, dynamicStat);
+				ObjectProxy<CharacterDynamicStat>::New(L, GetCurrentLifetime(), dynamicStat);
 				lua_settable(L, -3);
 			}
 
@@ -104,7 +104,7 @@ namespace dse::lua
 		if (prop == GFS.strMainWeapon) {
 			auto weapon = stats->GetMainWeapon();
 			if (weapon != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), weapon);
 				return 1;
 			} else {
 				return 0;
@@ -114,7 +114,7 @@ namespace dse::lua
 		if (prop == GFS.strOffHandWeapon) {
 			auto weapon = stats->GetOffHandWeapon();
 			if (weapon != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, weapon);
+				ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), weapon);
 				return 1;
 			} else {
 				return 0;
@@ -187,7 +187,7 @@ namespace dse::lua
 		return 0;
 	}
 
-	CDivinityStats_Character* ObjectProxy<CDivinityStats_Character>::Get(lua_State* L)
+	CDivinityStats_Character* ObjectProxy<CDivinityStats_Character>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
@@ -203,7 +203,7 @@ namespace dse::lua
 
 		auto item = self->Get(L)->GetItemBySlot(slot, true);
 		if (item != nullptr) {
-			ObjectProxy<CDivinityStats_Item>::New(L, item);
+			ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), item);
 			return 1;
 		}
 		else {
@@ -239,7 +239,7 @@ namespace dse::lua
 			unsigned statIdx = 1;
 			for (auto dynamicStat : item->DynamicAttributes) {
 				push(L, statIdx++);
-				ObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, dynamicStat);
+				ObjectProxy<CDivinityStats_Equipment_Attributes>::New(L, GetCurrentLifetime(), dynamicStat);
 				lua_settable(L, -3);
 			}
 
@@ -276,7 +276,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CDivinityStats_Item>::MetatableName = "CDivinityStats_Item";
 
-	CDivinityStats_Item* ObjectProxy<CDivinityStats_Item>::Get(lua_State* L)
+	CDivinityStats_Item* ObjectProxy<CDivinityStats_Item>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto item = esv::GetEntityWorld()->GetItem(handle_);
@@ -303,7 +303,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CDivinityStats_Equipment_Attributes>::MetatableName = "CDivinityStats_Equipment_Attributes";
 
-	CDivinityStats_Equipment_Attributes* ObjectProxy<CDivinityStats_Equipment_Attributes>::Get(lua_State* L)
+	CDivinityStats_Equipment_Attributes* ObjectProxy<CDivinityStats_Equipment_Attributes>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "Equipment stats no longer available");
@@ -329,7 +329,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
 
-	CharacterDynamicStat* ObjectProxy<CharacterDynamicStat>::Get(lua_State* L)
+	CharacterDynamicStat* ObjectProxy<CharacterDynamicStat>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "Character stats no longer available");
@@ -354,11 +354,11 @@ namespace dse::lua
 		}
 		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character*>(obj);
-			character_ = ObjectProxy<CDivinityStats_Character>::New(L, ch);
+			character_ = ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), ch);
 		}
 		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Item"))) {
 			auto item = reinterpret_cast<CDivinityStats_Item*>(obj);
-			item_ = ObjectProxy<CDivinityStats_Item>::New(L, item);
+			item_ = ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), item);
 		}
 		else {
 			object_ = StatsProxy::New(L, obj, -1);

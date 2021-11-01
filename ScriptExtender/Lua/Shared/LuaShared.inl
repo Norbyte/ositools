@@ -14,7 +14,7 @@ int GameObjectGetStatus(lua_State* L)
 	auto status = object->StatusMachine->GetStatus(statusId);
 	if (status) {
 		// FIXME - use handle based proxy
-		ObjectProxy<TStatus>::New(L, status);
+		ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
 		return 1;
 	}
 	else {
@@ -36,7 +36,7 @@ int GameObjectGetStatusByType(lua_State* L)
 	for (auto status : object->StatusMachine->Statuses) {
 		if (status->GetStatusId() == statusType) {
 			// FIXME - use handle based proxy
-			ObjectProxy<TStatus>::New(L, status);
+			ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
 			return 1;
 		}
 	}
@@ -78,7 +78,7 @@ int GameObjectGetStatusObjects(lua_State* L)
 	for (auto status : object->StatusMachine->Statuses) {
 		push(L, index++);
 		// FIXME - use handle based proxy
-		ObjectProxy<TStatus>::New(L, status);
+		ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
 		lua_settable(L, -3);
 	}
 

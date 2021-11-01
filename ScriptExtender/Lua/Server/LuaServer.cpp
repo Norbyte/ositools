@@ -11,8 +11,46 @@
 #include <ScriptHelpers.h>
 #include "resource.h"
 
+BEGIN_NS(lua)
+
+LifetimeHolder GetCurrentLifetime()
+{
+	if (gExtender->GetServer().IsInServerThread()) {
+		return esv::lua::GetServerLifetime();
+	}
+	else {
+		return ecl::lua::GetClientLifetime();
+	}
+}
+
+LifetimePool& GetLifetimePool()
+{
+	if (gExtender->GetServer().IsInServerThread()) {
+		return esv::lua::GetServerLifetimePool();
+	}
+	else {
+		return ecl::lua::GetClientLifetimePool();
+	}
+}
+
+END_NS()
+
 namespace dse::esv::lua
 {
+	using namespace dse::lua;
+
+	LifetimeHolder GetServerLifetime()
+	{
+		assert(gExtender->GetServer().IsInServerThread());
+		return esv::ExtensionState::Get().GetLua()->GetCurrentLifetime();
+	}
+
+	LifetimePool& GetServerLifetimePool()
+	{
+		assert(gExtender->GetServer().IsInServerThread());
+		return esv::ExtensionState::Get().GetLua()->GetLifetimePool();
+	}
+
 #include <Lua/Shared/LevelIteratorFunctions.inl>
 
 	template <class Predicate>
@@ -63,6 +101,8 @@ namespace dse::esv::lua
 
 namespace dse::lua
 {
+	using namespace dse::esv::lua;
+
 	void PushHit(lua_State* L, HitDamageInfo const& hit)
 	{
 		lua_newtable(L);
@@ -117,7 +157,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
 
-	esv::Status* ObjectProxy<esv::Status>::Get(lua_State* L)
+	esv::Status* ObjectProxy<esv::Status>::GetPtr(lua_State* L)
 	{
 		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
 		return obj_;
@@ -167,7 +207,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::EsvTrigger>::MetatableName = "esv::Trigger";
 
-	esv::EsvTrigger* ObjectProxy<esv::EsvTrigger>::Get(lua_State* L)
+	esv::EsvTrigger* ObjectProxy<esv::EsvTrigger>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto trigger = esv::GetEntityWorld()->GetTrigger(handle_);
@@ -201,7 +241,7 @@ namespace dse::lua
 				push(L, nullptr);
 			} else if (obj->TriggerType == GFS.strTriggerAtmosphere) {
 				auto triggerData = static_cast<AtmosphereTriggerData*>(obj->Template->TriggerTypeData);
-				ObjectProxy<AtmosphereTriggerData>::New(L, triggerData);
+				ObjectProxy<AtmosphereTriggerData>::New(L, GetServerLifetime(), triggerData);
 			} else {
 				LuaError("TriggerData for trigger type '" << obj->TriggerType << "' not supported yet!");
 				push(L, nullptr);
@@ -221,7 +261,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<AtmosphereTriggerData>::MetatableName = "ls::AtmosphereTriggerData";
 
-	AtmosphereTriggerData* ObjectProxy<AtmosphereTriggerData>::Get(lua_State* L)
+	AtmosphereTriggerData* ObjectProxy<AtmosphereTriggerData>::GetPtr(lua_State* L)
 	{
 		if (obj_ == nullptr) luaL_error(L, "AtmosphereTriggerData object no longer available");
 		return obj_;
@@ -267,7 +307,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<SoundVolumeTriggerData>::MetatableName = "esv::SoundVolumeTriggerData";
 
-	SoundVolumeTriggerData* ObjectProxy<SoundVolumeTriggerData>::Get(lua_State* L)
+	SoundVolumeTriggerData* ObjectProxy<SoundVolumeTriggerData>::GetPtr(lua_State* L)
 	{
 		if (obj_ == nullptr) luaL_error(L, "SoundVolumeTriggerData object no longer available");
 		return obj_;
@@ -290,7 +330,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
 
-	esv::PlayerCustomData* ObjectProxy<esv::PlayerCustomData>::Get(lua_State* L)
+	esv::PlayerCustomData* ObjectProxy<esv::PlayerCustomData>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
@@ -370,7 +410,7 @@ namespace dse::lua
 		}
 
 		if (prop == GFS.strRootTemplate) {
-			ObjectProxy<CharacterTemplate>::New(L, character->CurrentTemplate);
+			ObjectProxy<CharacterTemplate>::New(L, GetServerLifetime(), character->CurrentTemplate);
 			return 1;
 		}
 
@@ -383,7 +423,7 @@ namespace dse::lua
 		return 1;
 	}
 
-	esv::Character* ObjectProxy<esv::Character>::Get(lua_State* L)
+	esv::Character* ObjectProxy<esv::Character>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
@@ -642,7 +682,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
 
-	esv::Item* ObjectProxy<esv::Item>::Get(lua_State* L)
+	esv::Item* ObjectProxy<esv::Item>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto item = esv::GetEntityWorld()->GetItem(handle_);
@@ -792,7 +832,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strRootTemplate) {
-			ObjectProxy<ItemTemplate>::New(L, item->CurrentTemplate);
+			ObjectProxy<ItemTemplate>::New(L, GetServerLifetime(), item->CurrentTemplate);
 			return 1;
 		}
 
@@ -821,7 +861,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<eoc::ItemDefinition>::MetatableName = "eoc::ItemDefinition";
 
-	eoc::ItemDefinition* ObjectProxy<eoc::ItemDefinition>::Get(lua_State* L)
+	eoc::ItemDefinition* ObjectProxy<eoc::ItemDefinition>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "ItemDefinition object has expired!");
@@ -898,7 +938,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::ShootProjectileHelper>::MetatableName = "esv::ShootProjectileRequest";
 
-	esv::ShootProjectileHelper* ObjectProxy<esv::ShootProjectileHelper>::Get(lua_State* L)
+	esv::ShootProjectileHelper* ObjectProxy<esv::ShootProjectileHelper>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "ShootProjectileRequest object has expired!");
@@ -918,7 +958,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::Projectile>::MetatableName = "esv::Projectile";
 
-	esv::Projectile* ObjectProxy<esv::Projectile>::Get(lua_State* L)
+	esv::Projectile* ObjectProxy<esv::Projectile>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto projectile = esv::GetEntityWorld()->GetProjectile(handle_);
@@ -940,7 +980,7 @@ namespace dse::lua
 		}
 
 		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
-			ObjectProxy<ProjectileTemplate>::New(L, projectile->ProjectileTemplate);
+			ObjectProxy<ProjectileTemplate>::New(L, GetServerLifetime(), projectile->ProjectileTemplate);
 			return 1;
 		}
 
@@ -957,7 +997,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::Surface>::MetatableName = "esv::Surface";
 
-	esv::Surface* ObjectProxy<esv::Surface>::Get(lua_State* L)
+	esv::Surface* ObjectProxy<esv::Surface>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 
@@ -980,7 +1020,7 @@ namespace dse::lua
 		if (strcmp(prop, "RootTemplate") == 0) {
 			auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surface->SurfaceType);
 			if (tmpl != nullptr) {
-				ObjectProxy<SurfaceTemplate>::New(L, tmpl);
+				ObjectProxy<SurfaceTemplate>::New(L, GetServerLifetime(), tmpl);
 			} else {
 				LuaError("Couldn't fetch surface template of type " << (unsigned)surface->SurfaceType);
 				push(L, nullptr);
@@ -999,7 +1039,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<esv::SurfaceAction>::MetatableName = "esv::SurfaceAction";
 
-	esv::SurfaceAction* ObjectProxy<esv::SurfaceAction>::Get(lua_State* L)
+	esv::SurfaceAction* ObjectProxy<esv::SurfaceAction>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		luaL_error(L, "SurfaceAction object not bound (maybe it was executed already?)");
@@ -1412,7 +1452,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectProxy<esv::Item>::New(L, item);
+		ObjectProxy<esv::Item>::New(L, GetServerLifetime(), item);
 		return 1;
 	}
 
@@ -1435,7 +1475,7 @@ namespace dse::esv::lua
 				return luaL_error(L, "Clone set only has %d elements", definition_.Size);
 			}
 
-			ObjectProxy<eoc::ItemDefinition>::New(L, &definition_[idx - 1]);
+			ObjectProxy<eoc::ItemDefinition>::New(L, GetServerLifetime(), &definition_[idx - 1]);
 			return 1;
 		}
 	}
@@ -1885,7 +1925,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectProxy<eoc::AiGrid>::New(L, level->AiGrid);
+		ObjectProxy<eoc::AiGrid>::New(L, GetServerLifetime(), level->AiGrid);
 		return 1;
 	}
 
@@ -2023,7 +2063,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectProxy<SurfaceAction>::New(L, action);
+		ObjectProxy<SurfaceAction>::New(L, GetServerLifetime(), action);
 		return 1;
 	}
 
@@ -2778,14 +2818,16 @@ namespace dse::esv::lua
 		LuaServerPin lua(state_);
 		if (lua) {
 			std::for_each(it.first, it.second, [&lua, this, tuple](std::pair<uint64_t, std::size_t> handler) {
-				RunHandler(lua->GetState(), subscribers_[handler.second], tuple);
+				RunHandler(lua.Get(), subscribers_[handler.second], tuple);
 			});
 		}
 	}
 
-	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, TuplePtrLL* tuple) const
+	void OsirisCallbackManager::RunHandler(ServerState& lua, RegistryEntry const& func, TuplePtrLL* tuple) const
 	{
+		auto L = lua.GetState();
 		StackCheck _(L, 0);
+		LifetimePin p_(lua.GetStack());
 		int32_t stackArgs = 1;
 		if (tuple != nullptr) {
 			auto node = tuple->Items.Head->Next;
@@ -2837,14 +2879,16 @@ namespace dse::esv::lua
 		LuaServerPin lua(state_);
 		if (lua) {
 			std::for_each(it.first, it.second, [&lua, this, args](std::pair<uint64_t, std::size_t> handler) {
-				RunHandler(lua->GetState(), subscribers_[handler.second], args);
+				RunHandler(lua.Get(), subscribers_[handler.second], args);
 			});
 		}
 	}
 
-	void OsirisCallbackManager::RunHandler(lua_State* L, RegistryEntry const& func, OsiArgumentDesc* args) const
+	void OsirisCallbackManager::RunHandler(ServerState& lua, RegistryEntry const& func, OsiArgumentDesc* args) const
 	{
+		auto L = lua.GetState();
 		StackCheck _(L, 0);
+		LifetimePin p_(lua.GetStack());
 		int32_t stackArgs = 1;
 		auto node = args;
 		while (node) {
@@ -3042,10 +3086,12 @@ namespace dse::esv::lua
 	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool isEnterCheck)
 	{
 		Restriction restriction(*this, RestrictOsiris);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
 		auto _{ PushArguments(L,
-			std::tuple{Push<ObjectProxy<esv::Status>>(status)}) };
+			GetServerLifetime(),
+			std::tuple{Push<ObjectProxy<esv::Status>>(GetServerLifetime(), status)}) };
 		push(L, isEnterCheck);
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
@@ -3062,7 +3108,7 @@ namespace dse::esv::lua
 		setfield(L, "HitId", hit.Id);
 
 		if (hit.CapturedCharacterHit) {
-			ObjectProxy<CDivinityStats_Item>::New(L, hit.WeaponStats);
+			ObjectProxy<CDivinityStats_Item>::New(L, GetServerLifetime(), hit.WeaponStats);
 			lua_setfield(L, -2, "Weapon");
 			PushHit(L, hit.CharacterHit);
 			lua_setfield(L, -2, "Hit");
@@ -3109,13 +3155,13 @@ namespace dse::esv::lua
 
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
-		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, target);
+		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, GetServerLifetime(), target);
 		UnbindablePin _t(luaTarget);
 		ItemOrCharacterPushPin luaAttacker(L, attacker);
 
 		ObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
 		if (weapon != nullptr) {
-			luaWeapon = ObjectProxy<CDivinityStats_Item>::New(L, weapon);
+			luaWeapon = ObjectProxy<CDivinityStats_Item>::New(L, GetServerLifetime(), weapon);
 		} else {
 			lua_pushnil(L);
 		}
@@ -3198,7 +3244,7 @@ namespace dse::esv::lua
 
 		PushExtFunction(L, "_BeforeCharacterApplyDamage"); // stack: fn
 
-		auto luaTarget = ObjectProxy<esv::Character>::New(L, target);
+		auto luaTarget = ObjectProxy<esv::Character>::New(L, GetServerLifetime(), target);
 		UnbindablePin _t(luaTarget);
 
 		CRPGStats_Object* attacker{ nullptr };
@@ -3252,6 +3298,7 @@ namespace dse::esv::lua
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
 		StackCheck _(L, 0);
+		LifetimePin _p(lifetimeStack_);
 		PushExtFunction(L, "_GameStateChanged"); // stack: fn
 		push(L, fromState);
 		push(L, toState);
@@ -3306,7 +3353,7 @@ namespace dse::esv::lua
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_BeforeCraftingExecuteCombination"); // stack: fn
 
-		ObjectProxy<esv::Character>::New(L, character);
+		ObjectProxy<esv::Character>::New(L, GetServerLifetime(), character);
 		push(L, craftingStation);
 
 		lua_newtable(L);
@@ -3315,7 +3362,7 @@ namespace dse::esv::lua
 			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
 			if (ingredient) {
 				push(L, index);
-				ObjectProxy<esv::Item>::New(L, ingredient);
+				ObjectProxy<esv::Item>::New(L, GetServerLifetime(), ingredient);
 				lua_settable(L, -3);
 			}
 		}
@@ -3345,7 +3392,7 @@ namespace dse::esv::lua
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_AfterCraftingExecuteCombination"); // stack: fn
 
-		ObjectProxy<esv::Character>::New(L, character);
+		ObjectProxy<esv::Character>::New(L, GetServerLifetime(), character);
 		push(L, craftingStation);
 
 		lua_newtable(L);
@@ -3354,7 +3401,7 @@ namespace dse::esv::lua
 			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle, false);
 			if (ingredient) {
 				push(L, index);
-				ObjectProxy<esv::Item>::New(L, ingredient);
+				ObjectProxy<esv::Item>::New(L, GetServerLifetime(), ingredient);
 				lua_settable(L, -3);
 			}
 		}
@@ -3374,7 +3421,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnBeforeShootProjectile");
-		UnbindablePin _h(ObjectProxy<ShootProjectileHelper>::New(L, helper));
+		UnbindablePin _h(ObjectProxy<ShootProjectileHelper>::New(L, GetServerLifetime(), helper));
 
 		if (CallWithTraceback(L, 1, 0) != 0) {
 			LuaError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
@@ -3387,7 +3434,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnShootProjectile");
-		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, projectile));
+		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, GetServerLifetime(), projectile));
 
 		if (CallWithTraceback(L, 1, 0) != 0) {
 			LuaError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
@@ -3427,7 +3474,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnProjectileHit");
-		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, projectile));
+		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, GetServerLifetime(), projectile));
 
 		PushGameObject(L, hitObject);
 		push(L, position);
@@ -3575,6 +3622,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetModPersistentVars");
 		push(L, modTable);
@@ -3592,6 +3640,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
+		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_RestoreModPersistentVars");
 		push(L, modTable);

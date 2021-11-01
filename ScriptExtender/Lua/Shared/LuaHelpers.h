@@ -197,14 +197,14 @@ namespace dse::lua
 	struct NullPin {};
 
 	template <class T>
-	inline typename std::enable_if_t<std::is_integral_v<T>, NullPin> push_pin(lua_State * L, T v)
+	inline typename std::enable_if_t<std::is_integral_v<T>, NullPin> push_pin(lua_State * L, LifetimeHolder const& lifetime, T v)
 	{
 		push(L, v);
 		return {};
 	}
 
 	template <class T, typename std::enable_if_t<std::is_invocable_v<T, lua_State *>, int> * = nullptr>
-	inline auto push_pin(lua_State * L, T v)
+	inline auto push_pin(lua_State * L, LifetimeHolder const& lifetime, T v)
 	{
 		return v(L);
 	}
@@ -250,7 +250,7 @@ namespace dse::lua
 		T * object_;
 	};
 
-#define NULL_PIN(type) inline NullPin push_pin(lua_State * L, type v) \
+#define NULL_PIN(type) inline NullPin push_pin(lua_State * L, LifetimeHolder const& lifetime, type v) \
 	{ \
 		push(L, v); \
 		return {}; \
@@ -573,11 +573,11 @@ namespace dse::lua
 	// Pushes all arguments to the Lua stack and returns a pin that should
 	// be destroyed after the call
 	template <class ...Args>
-	inline auto PushArguments(lua_State * L, std::tuple<Args...> args)
+	inline auto PushArguments(lua_State * L, LifetimeHolder const& lifetime, std::tuple<Args...> args)
 	{
 		return std::apply([=](const auto &... elem)
 		{
-			return std::tuple{ push_pin(L, elem)... };
+			return std::tuple{ push_pin(L, lifetime, elem)... };
 		}, args);
 	}
 

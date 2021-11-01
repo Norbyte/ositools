@@ -1,5 +1,7 @@
 #pragma once
 
+struct lua_State;
+
 BEGIN_SE()
 
 struct PropertyMapBase;
@@ -83,5 +85,15 @@ namespace ecl
 	struct PickingHelperManager;
 }
 
+
+// Forward declarations for custom Lua serializers
+namespace lua
+{
+	class LifetimeHolder;
+
+	template <class T>
+	void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value);
+
+}
 
 END_SE()
