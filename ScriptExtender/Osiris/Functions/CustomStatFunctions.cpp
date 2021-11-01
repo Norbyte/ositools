@@ -52,10 +52,6 @@ namespace dse::esv
 	CustomStatDefinitionComponent * CustomStatHelpers::FindStatDefinitionById(char const * id)
 	{
 		FixedString fs(id);
-		if (!fs) {
-			OsiError("Custom stat definition '" << id << "' is not in fixed string table");
-			return nullptr;
-		}
 
 		auto entityWorld = GetEntityWorld();
 		auto statSystem = entityWorld->GetCustomStatSystem();

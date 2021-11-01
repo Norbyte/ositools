@@ -3,16 +3,15 @@ template <class TObject, class TStatus>
 int GameObjectGetStatus(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto statusId = luaL_checkstring(L, 2);
+	auto statusId = checked_get<FixedString>(L, 2);
 
 	auto object = self->Get(L);
-	FixedString statusIdFs(statusId);
 
-	if (!object || !object->StatusMachine || !statusIdFs) {
+	if (!object || !object->StatusMachine) {
 		return 0;
 	}
 
-	auto status = object->StatusMachine->GetStatus(statusIdFs);
+	auto status = object->StatusMachine->GetStatus(statusId);
 	if (status) {
 		// FIXME - use handle based proxy
 		ObjectProxy<TStatus>::New(L, status);
@@ -90,15 +89,14 @@ template <class TObject>
 int GameObjectHasTag(lua_State* L)
 {
 	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto tag = luaL_checkstring(L, 2);
+	auto tag = checked_get<FixedString>(L, 2);
 
 	auto object = self->Get(L);
-	FixedString tagFs(tag);
 
-	if (!object || !tagFs) {
+	if (!object) {
 		push(L, false);
 	} else {
-		push(L, object->IsTagged(tagFs));
+		push(L, object->IsTagged(tag));
 	}
 
 	return 1;

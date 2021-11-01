@@ -189,7 +189,7 @@ bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
 bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinition>& definition)
 {
 	auto templateGuidFs = NameGuidToFixedString(templateGuid);
-	if (!IsValidGuidString(templateGuid) || !templateGuidFs) {
+	if (!templateGuidFs) {
 		OsiError("Invalid template GUID passed to ItemConstructBegin: " << templateGuid);
 		return false;
 	}

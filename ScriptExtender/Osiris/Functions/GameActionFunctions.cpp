@@ -16,12 +16,6 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			FixedString skillId(args[1].String);
-			if (!skillId) {
-				OsiError("'" << args[1].String << "' is not a valid FixedString!");
-				return nullptr;
-			}
-
 			auto pos = args.GetVector(2);
 
 			if (pos.x == -1.0f && pos.y == -1.0f && pos.z == -1.0f) {
@@ -38,7 +32,7 @@ namespace dse::esv
 
 			auto action = (TAction *)lib.CreateGameAction(actionMgr, type, 0);
 
-			action->SkillId = skillId;
+			action->SkillId = FixedString(args[1].String);
 			ObjectHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
@@ -85,12 +79,6 @@ namespace dse::esv
 				return false;
 			}
 
-			FixedString skillId(args[1].String);
-			if (!skillId) {
-				OsiError("'" << args[1].String << "' is not a valid FixedString!");
-				return false;
-			}
-
 			auto stats = GetStaticSymbols().GetStats();
 			if (stats == nullptr) {
 				return false;
@@ -123,7 +111,7 @@ namespace dse::esv
 
 			auto action = (esv::WallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
 
-			action->SkillId = skillId;
+			action->SkillId = FixedString(args[1].String);
 			ObjectHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
@@ -191,16 +179,8 @@ namespace dse::esv
 			ObjectHandle objectHandle;
 			objectToMove->GetObjectHandle(objectHandle);
 
-			FixedString beamEffectFs;
 			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
-				beamEffectFs = FixedString(beamEffectName);
-
-				if (!beamEffectFs) {
-					OsiErrorS("Beam effect is not a valid FixedString!");
-					return false;
-				}
-
 				caster = GetEntityWorld()->GetCharacter(casterGuid);
 				if (caster == nullptr) {
 					OsiError("Caster character '" << casterGuid << "' does not exist!");
@@ -228,7 +208,7 @@ namespace dse::esv
 				ObjectHandle casterHandle;
 				caster->GetObjectHandle(casterHandle);
 				action->CasterCharacterHandle = casterHandle;
-				action->BeamEffectName = beamEffectFs;
+				action->BeamEffectName = FixedString(beamEffectName);
 			}
 
 			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
@@ -351,7 +331,7 @@ namespace dse::esv
 
 			auto objectTemplate = NameGuidToFixedString(args[1].String);
 			if (!objectTemplate) {
-				OsiError("Template '" << args[1].String << "' not in FixedString table!");
+				OsiError("Malformed template GUID: '" << args[1].String << "'!");
 				return false;
 			}
 

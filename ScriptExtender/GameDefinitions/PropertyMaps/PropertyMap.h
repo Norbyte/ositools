@@ -405,17 +405,6 @@ namespace dse
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
 			case PropertyType::kFixedString:
-				{
-				FixedString fs(value);
-					if (!fs) {
-						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Could not map to FixedString");
-						return false;
-					} else {
-						*reinterpret_cast<FixedString *>(ptr) = fs;
-						return true;
-					}
-				}
-
 			case PropertyType::kDynamicFixedString:
 				*reinterpret_cast<FixedString*>(ptr) = FixedString(value);
 				return true;
@@ -424,7 +413,7 @@ namespace dse
 				{
 					auto fs = NameGuidToFixedString(value);
 					if (!fs) {
-						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Could not map to FixedString GUID");
+						OsiError("Failed to set string property '" << name << "' of [" << Name << "]: Not a valid GUID string!");
 						return false;
 					} else {
 						*reinterpret_cast<FixedString *>(ptr) = fs;

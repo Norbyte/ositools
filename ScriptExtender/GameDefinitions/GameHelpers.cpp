@@ -195,9 +195,6 @@ namespace dse
 	Module const * ModManager::FindModByNameGuid(char const * nameGuid) const
 	{
 		auto modUuidFS = NameGuidToFixedString(nameGuid);
-		if (!modUuidFS) {
-			return nullptr;
-		}
 
 		for (auto const& mod : BaseModule.LoadOrderedModules) {
 			if (mod.Info.ModuleUUID == modUuidFS) {

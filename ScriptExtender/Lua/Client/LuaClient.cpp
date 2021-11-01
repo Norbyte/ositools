@@ -235,12 +235,7 @@ namespace dse::lua
 		auto character = Get(L);
 		if (!character) return 0;
 
-		auto prop = luaL_checkstring(L, 2);
-		FixedString propFS(prop);
-		if (!propFS) {
-			OsiError("Illegal property name: " << prop);
-			return 0;
-		}
+		auto propFS = checked_get<FixedString>(L, 2);
 
 		StackCheck _(L, 1);
 		if (propFS == GFS.strGetInventoryItems) {
@@ -365,8 +360,7 @@ namespace dse::lua
 		if (!item) return 0;
 
 		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		FixedString propFS(prop);
+		auto propFS = checked_get<FixedString>(L, 2);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ClientItemGetInventoryItems);

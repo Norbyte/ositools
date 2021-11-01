@@ -856,11 +856,6 @@ namespace dse::lua
 		auto stats = GetStaticSymbols().GetStats();
 
 		FixedString attributeFS(attributeName);
-		if (!attributeFS) {
-			OsiError("Invalid stats attribute name: " << attributeName);
-			push(L, nullptr);
-			return 1;
-		}
 
 		if (attributeFS == GFS.strLevel) {
 			push(L, object->Level);
@@ -984,10 +979,6 @@ namespace dse::lua
 		}
 
 		FixedString attributeFS(attributeName);
-		if (!attributeFS) {
-			OsiError("Invalid stats attribute name: " << attributeName);
-			return 0;
-		}
 
 		if (attributeFS == GFS.strLevel) {
 			object->Level = (int32_t)luaL_checkinteger(L, valueIdx);

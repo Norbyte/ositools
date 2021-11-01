@@ -530,13 +530,7 @@ namespace dse::lua
 		if (!character) return 0;
 
 		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		FixedString propFS(prop);
-		if (!propFS) {
-			OsiError("Illegal property name: " << prop);
-			lua_pushnil(L);
-			return 1;
-		}
+		auto propFS = checked_get<FixedString>(L, 2);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
@@ -617,12 +611,7 @@ namespace dse::lua
 		if (!character) return 0;
 
 		StackCheck _(L, 0);
-		auto prop = luaL_checkstring(L, 2);
-		FixedString propFS(prop);
-		if (!propFS) {
-			OsiError("Illegal property name: " << prop);
-			return 0;
-		}
+		auto propFS = checked_get<FixedString>(L, 2);
 
 		if (propFS == GFS.strWalkSpeed) {
 			if (lua_isnil(L, 3)) {
@@ -725,13 +714,7 @@ namespace dse::lua
 		if (!item) return 0;
 
 		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-		FixedString propFS(prop);
-		if (!propFS) {
-			OsiError("[esv::Item] has no property named '" << prop << "'");
-			push(L, nullptr);
-			return 1;
-		}
+		auto propFS = checked_get<FixedString>(L, 2);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ItemGetInventoryItems);
@@ -1185,7 +1168,7 @@ namespace dse::esv::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (status->GetStatusId() == StatusType::HIT
-			&& strcmp(luaL_checkstring(L, 2), "Hit") == 0) {
+			&& strcmp(prop, "Hit") == 0) {
 			auto hit = static_cast<esv::StatusHit*>(status);
 			HitDamageInfo damageInfo;
 			PopHit(L, damageInfo, 3);
@@ -2268,6 +2251,7 @@ namespace dse::esv::lua
 
 		esv::Character * excludeCharacter = nullptr;
 		if (lua_gettop(L) > 2 && !lua_isnil(L, 3)) {
+			// TODO - checked_get<GUIDString> alias?
 			auto excludeCharacterGuid = luaL_checkstring(L, 3);
 			excludeCharacter = GetEntityWorld()->GetCharacter(excludeCharacterGuid);
 			if (excludeCharacter == nullptr) return 0;

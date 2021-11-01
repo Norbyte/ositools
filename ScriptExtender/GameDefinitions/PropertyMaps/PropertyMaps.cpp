@@ -1873,13 +1873,7 @@ namespace dse
 	bool LuaPropertyMapGet(lua_State* L, PropertyMapBase const& propertyMap, void* obj,
 		char const* propertyName, bool throwError)
 	{
-		FixedString propertyFS(propertyName);
-		if (!propertyFS) {
-			OsiError("Failed to get property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
-			return false;
-		}
-
-		return LuaPropertyMapGet(L, propertyMap, obj, propertyFS, throwError);
+		return LuaPropertyMapGet(L, propertyMap, obj, FixedString(propertyName), throwError);
 	}
 
 	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
@@ -2014,10 +2008,6 @@ namespace dse
 		}
 
 		FixedString propertyFS(propertyName);
-		if (!propertyFS) {
-			OsiError("Failed to set property '" << propertyName << "' of [" << propertyMap.Name << "]: Property does not exist!");
-			return false;
-		}
 
 		auto prop = propertyMap.findProperty(propertyFS);
 		if (prop == nullptr) {

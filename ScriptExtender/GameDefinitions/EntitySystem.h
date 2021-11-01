@@ -233,11 +233,6 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		}
 
 		auto fs = NameGuidToFixedString(nameGuid);
-		if (!fs) {
-			OsiError("Could not map GUID '" << nameGuid << "' to FixedString");
-			return nullptr;
-		}
-
 		auto component = Components[(uint32_t)componentType].component->FindComponentByGuid(&fs);
 		if (component != nullptr) {
 			return component;

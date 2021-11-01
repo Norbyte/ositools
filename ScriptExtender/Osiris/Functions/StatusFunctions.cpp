@@ -86,11 +86,6 @@ namespace dse::esv
 			if (statusMachine == nullptr) return false;
 
 			FixedString statusIdFS(args[1].String);
-			if (!statusIdFS) {
-				// No fixed string with this ID --> invalid status name
-				OsiWarn("Status " << args[1].String << " not in string table, possibly invalid status name?");
-				return false;
-			}
 
 			for (auto const status : statusMachine->Statuses) {
 				if (status->StatusId == statusIdFS) {
