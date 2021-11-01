@@ -160,11 +160,11 @@ namespace dse::esv::lua
 	public:
 		static char const * const MetatableName;
 
-		inline StatusHandleProxy(ObjectHandle owner, ObjectHandle status, bool isUnapplied = false)
+		inline StatusHandleProxy(ComponentHandle owner, ComponentHandle status, bool isUnapplied = false)
 			: owner_(owner), statusHandle_(status), isUnapplied_(isUnapplied)
 		{}
 
-		inline StatusHandleProxy(ObjectHandle owner, NetId status)
+		inline StatusHandleProxy(ComponentHandle owner, NetId status)
 			: owner_(owner), statusNetId_(status), isUnapplied_(false)
 		{}
 
@@ -172,19 +172,19 @@ namespace dse::esv::lua
 		int NewIndex(lua_State * L);
 		esv::Status* Get(lua_State* L);
 
-		inline ObjectHandle OwnerHandle() const
+		inline ComponentHandle OwnerHandle() const
 		{
 			return owner_;
 		}
 
-		inline ObjectHandle StatusHandle() const
+		inline ComponentHandle StatusHandle() const
 		{
 			return statusHandle_;
 		}
 
 	private:
-		ObjectHandle owner_;
-		ObjectHandle statusHandle_;
+		ComponentHandle owner_;
+		ComponentHandle statusHandle_;
 		NetId statusNetId_;
 		bool isUnapplied_;
 	};
@@ -520,23 +520,23 @@ namespace dse::esv::lua
 			CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
 			bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
 			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
-		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
+		bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
 		void OnGameStateChanged(GameState fromState, GameState toState);
 		esv::Item* OnGenerateTreasureItem(esv::Item* item);
-		bool OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+		bool OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 			esv::Character* character, uint8_t quantity, FixedString const& combinationId);
-		void OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+		void OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 			esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded);
 		void OnBeforeShootProjectile(ShootProjectileHelper* helper);
 		void OnShootProjectile(Projectile* projectile);
-		void OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position);
-		void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList);
+		void OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position);
+		void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList);
 
-		void ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
-			ObjectHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype* skillProto,
+		void ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
+			ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype* skillProto,
 			HitDamageInfo const* damageInfo);
-		void ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle, 
+		void ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle, 
 			glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype* skillPrototype,
 			HitDamageInfo const* damageInfo);
 

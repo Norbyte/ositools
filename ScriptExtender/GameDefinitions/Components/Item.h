@@ -95,7 +95,7 @@ namespace dse
 
 		struct Item : public IEoCServerObject
 		{
-			Status * GetStatus(ObjectHandle handle, bool returnPending, bool returnUnapplied = false) const;
+			Status * GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
 
 			glm::vec3 WorldPos; // Saved
@@ -118,13 +118,13 @@ namespace dse
 			CDivinityStats_Item * Stats;
 			CRPGStats_Object * StatsFromName;
 			ItemGeneration * Generation; // Saved
-			ObjectHandle InventoryHandle; // Saved
-			ObjectHandle ParentInventoryHandle; // Saved
+			ComponentHandle InventoryHandle; // Saved
+			ComponentHandle ParentInventoryHandle; // Saved
 			uint16_t Slot; // Saved
 			uint32_t Amount; // Saved
 			uint32_t Vitality; // Saved
 			uint32_t Armor; // Saved
-			ObjectHandle InUseByCharacterHandle;
+			ComponentHandle InUseByCharacterHandle;
 			uint32_t UserId;
 			uint32_t U50;
 			FixedString Key;
@@ -134,8 +134,8 @@ namespace dse
 			void * VariableManager; // Saved
 			StatusMachine * StatusMachine; // Saved
 			FixedString VisualResourceID;
-			ObjectHandle OwnerHandle; // Saved
-			ObjectHandle OriginalOwnerCharacter; // Saved
+			ComponentHandle OwnerHandle; // Saved
+			ComponentHandle OriginalOwnerCharacter; // Saved
 			void * Sockets; // Saved
 			uint64_t U7;
 			int32_t ComputedVitality;
@@ -167,16 +167,16 @@ namespace dse
 			FixedString MyGuid;
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIdClassNames;
-			ObjectHandle MyHandle;
+			ComponentHandle MyHandle;
 			uint8_t EquipmentSlots;
-			ObjectHandle ParentHandle;
+			ComponentHandle ParentHandle;
 			uint32_t _Pad4;
 			uint32_t WeightValueComputed;
 			bool IsGlobal;
 			bool UnknownFlag;
-			ObjectSet<ObjectHandle> ItemsBySlot;
+			ObjectSet<ComponentHandle> ItemsBySlot;
 			void * Views;
-			ObjectSet<ObjectHandle> UpdateViews;
+			ObjectSet<ComponentHandle> UpdateViews;
 			uint64_t Unknown2;
 			RefMap<FixedString, uint32_t> BuyBackAmounts;
 			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
@@ -184,13 +184,13 @@ namespace dse
 
 		struct CombineManager : public ProtectedGameObject<CombineManager>
 		{
-			using ExecuteCombinationProc = bool (esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
+			using ExecuteCombinationProc = bool (esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ComponentHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
 
 			void* VMT;
 			uint64_t field_8;
 			ObjectSet<CRPGStats_Object*> IngredientStats;
 			ObjectSet<Item*> Ingredients;
-			ObjectSet<ObjectHandle> ObjectHandles;
+			ObjectSet<ComponentHandle> ObjectHandles;
 			ObjectSet<Item*> Items2;
 		};
 
@@ -218,21 +218,21 @@ namespace dse
 			CDivinityStats_Item* Stats;
 			FixedString StatsId;
 			CRPGStats_Object* StatsFromName;
-			ObjectHandle InventoryHandle;
-			ObjectHandle InventoryParentHandle;
+			ComponentHandle InventoryHandle;
+			ComponentHandle InventoryParentHandle;
 			int16_t CurrentSlot;
 			int Weight;
 			int field_80;
 			void* ItemMachine;
 			StatusMachine* StatusMachine;
-			ObjectHandle InUseByCharacterHandle;
+			ComponentHandle InUseByCharacterHandle;
 			int InUseByUserId;
 			FixedString KeyName;
 			__int64 field_B0;
-			ObjectHandle OH5;
+			ComponentHandle OH5;
 			STDWString* CachedItemDescription;
 			STDWString* WString2;
-			ObjectHandle OH4;
+			ComponentHandle OH4;
 			void * Sockets;
 			__int64 field_E0;
 			ObjectSet<FixedString> Tags;
@@ -259,21 +259,21 @@ namespace dse
 			FixedString GUID;
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
-			ObjectHandle OwnerCharacterHandleUI;
+			ComponentHandle OwnerCharacterHandleUI;
 			uint8_t field_40;
 			uint8_t field_41;
 			uint8_t EquipmentSlots;
-			ObjectHandle ParentHandle;
+			ComponentHandle ParentHandle;
 			int field_50;
 			int field_54;
 			uint8_t Flags;
 			uint8_t field_59;
-			ObjectSet<ObjectHandle> ItemsBySlot;
+			ObjectSet<ComponentHandle> ItemsBySlot;
 			RefMap<int, void*>* Views; // <int, InventoryView*>
-			ObjectSet<ObjectHandle> UpdateViews;
+			ObjectSet<ComponentHandle> UpdateViews;
 			RefMap<int, void*>* OfferedAmounts;
-			RefMap<ObjectHandle, void*>* BuyBackAmounts;
-			ObjectSet<ObjectHandle> HandleSet3;
+			RefMap<ComponentHandle, void*>* BuyBackAmounts;
+			ObjectSet<ComponentHandle> HandleSet3;
 		};
 	}
 }

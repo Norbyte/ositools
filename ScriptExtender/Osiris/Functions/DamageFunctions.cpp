@@ -17,13 +17,13 @@ namespace dse::esv
 	{
 		auto id = nextHelperId_++;
 		auto helper = std::make_unique<DamageHelpers>();
-		helper->Handle = ObjectHandle(DamageHelpers::HitHandleTypeId, id, 0);
+		helper->Handle = ComponentHandle(DamageHelpers::HitHandleTypeId, id, 0);
 		auto ptr = helper.get();
 		helpers_.insert(std::make_pair(id, std::move(helper)));
 		return ptr;
 	}
 
-	bool DamageHelperPool::Destroy(ObjectHandle handle)
+	bool DamageHelperPool::Destroy(ComponentHandle handle)
 	{
 		if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
 			return false;
@@ -38,7 +38,7 @@ namespace dse::esv
 		}
 	}
 
-	DamageHelpers * DamageHelperPool::Get(ObjectHandle handle) const
+	DamageHelpers * DamageHelperPool::Get(ComponentHandle handle) const
 	{
 		if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
 			return false;
@@ -152,9 +152,9 @@ namespace dse::esv
 		auto hit = (esv::StatusHit *)createStatus(statusMachine, fsHit, 0);
 
 		hit->StartTimer = 0.0f;
-		hit->HitByHandle = ObjectHandle{};
-		hit->HitWithHandle = ObjectHandle{}; // FIXME?
-		hit->WeaponHandle = ObjectHandle{}; // FIXME?
+		hit->HitByHandle = ComponentHandle{};
+		hit->HitWithHandle = ComponentHandle{}; // FIXME?
+		hit->WeaponHandle = ComponentHandle{}; // FIXME?
 		hit->HitReason = HitReason;
 		hit->Flags0 &= ~esv::StatusFlags0::IsFromItem; // Clear IsFromItem
 
@@ -166,10 +166,10 @@ namespace dse::esv
 
 		hit->Strength = Strength;
 		hit->DamageSourceType = DamageSourceType;
-		hit->StatusSourceHandle = ObjectHandle{};
+		hit->StatusSourceHandle = ComponentHandle{};
 
 		if (Source != nullptr) {
-			ObjectHandle sourceHandle;
+			ComponentHandle sourceHandle;
 			Source->GetObjectHandle(sourceHandle);
 			hit->HitByHandle = sourceHandle;
 			hit->StatusSourceHandle = sourceHandle;
@@ -259,7 +259,7 @@ namespace dse::esv
 
 		DamageHelpers * HelperHandleToHelper(int64_t handleInt)
 		{
-			ObjectHandle handle{ handleInt };
+			ComponentHandle handle{ handleInt };
 			if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
 				OsiError("Attempted to use handle of type " << handle.GetType() << " in a hit function.");
 				OsiError("For HIT statuses and handles received from NRD_OnHit use the NRD_StatusGet... functions instead!");

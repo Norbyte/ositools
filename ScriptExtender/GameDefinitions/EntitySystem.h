@@ -10,14 +10,14 @@ BEGIN_SE()
 struct BaseComponent
 {
 	void* VMT;
-	ObjectHandle EntityObjectHandle;
-	ComponentHandle Component;
+	ComponentHandle EntityObjectHandle;
+	ComponentHandleWithType Component;
 };
 
 struct ComponentFactory : public ProtectedGameObject<ComponentFactory>
 {
-	/*virtual ObjectHandle * ReevaluateHandle(ObjectHandle & handle) = 0;
-	virtual ObjectHandle * GetFreeHandle(ObjectHandle & handle) = 0;
+	/*virtual ComponentHandle * ReevaluateHandle(ComponentHandle & handle) = 0;
+	virtual ComponentHandle * GetFreeHandle(ComponentHandle & handle) = 0;
 	virtual bool IsFreeIndex(uint32_t index) = 0;
 	virtual bool IsReservedIndex(uint32_t index) = 0;
 	virtual uint64_t ReserveIndex(uint32_t index) = 0;
@@ -32,7 +32,7 @@ struct ComponentFactory : public ProtectedGameObject<ComponentFactory>
 	uint8_t Unknown2;
 	uint32_t Unknown3;
 
-	void * Get(ObjectHandle handle) const
+	void * Get(ComponentHandle handle) const
 	{
 		if (!handle) {
 			return nullptr;
@@ -57,8 +57,8 @@ struct Component : public ProtectedGameObject<Component>
 	virtual void DestroyComponent() = 0;
 	virtual void CreateComponent() = 0;
 	virtual void ForceCreateComponent() = 0; // ForceComponentDefault
-	virtual void * FindComponentByHandle(ObjectHandle const * oh) = 0;
-	virtual void * TryFindComponentByHandle(ObjectHandle const* oh) = 0;
+	virtual void * FindComponentByHandle(ComponentHandle const * oh) = 0;
+	virtual void * TryFindComponentByHandle(ComponentHandle const* oh) = 0;
 	virtual void * FindComponentByGuid(FixedString const * fs) = 0;
 	virtual bool MoveComponentByGuid(FixedString const* fs, void* component) = 0;
 	virtual void * FindComponentByNetId(NetId const & netId, bool checkSalt = true) = 0;
@@ -113,7 +113,7 @@ struct ComponentLayout
 	struct LayoutEntry
 	{
 		uint64_t unkn1;
-		ComponentHandle Handle;
+		ComponentHandleWithType Handle;
 	};
 
 	Array<LayoutEntry> Entries;
@@ -164,7 +164,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 	uint64_t Unknown2[2];
 
 
-	void* GetComponent(uint32_t type, ObjectType handleType, ObjectHandle componentHandle, bool logError = true)
+	void* GetComponent(uint32_t type, ObjectType handleType, ComponentHandle componentHandle, bool logError = true)
 	{
 		if (this == nullptr) {
 			OsiError("Tried to find component on null EntityWorld!");
@@ -269,7 +269,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		return componentMgr->FindComponentByNetId(netId, true);
 	}
 
-	void* GetComponentByEntityHandle(uint32_t type, ObjectHandle entityHandle, bool logError = true)
+	void* GetComponentByEntityHandle(uint32_t type, ComponentHandle entityHandle, bool logError = true)
 	{
 		if (this == nullptr) {
 			OsiError("Tried to find component on null EntityWorld!");
@@ -314,7 +314,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 			return nullptr;
 		}
 
-		ObjectHandle componentHandle{ layoutEntry.Handle.Handle };
+		ComponentHandle componentHandle{ layoutEntry.Handle.Handle };
 		auto componentMgr = Components[(uint32_t)type].component;
 		return componentMgr->FindComponentByHandle(&componentHandle);
 	}
@@ -338,8 +338,8 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual ~IGameObjectBase() = 0;
 	virtual void HandleTextKeyEvent() = 0;
 	virtual uint64_t Ret5() = 0;
-	virtual void SetObjectHandle(ObjectHandle Handle) = 0;
-	virtual void GetObjectHandle(ObjectHandle& Handle) const = 0;
+	virtual void SetObjectHandle(ComponentHandle Handle) = 0;
+	virtual void GetObjectHandle(ComponentHandle& Handle) const = 0;
 	virtual void SetGuid(FixedString const& fs) = 0;
 	virtual FixedString* GetGuid() const = 0;
 	virtual void SetNetID(NetId netId) = 0;
@@ -349,7 +349,7 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual void SetGlobal(bool isGlobal) = 0;
 	virtual bool IsGlobal() const = 0;
 	virtual uint32_t GetComponentType() = 0;
-	virtual void* GetEntityObjectByHandle(ObjectHandle handle) = 0;
+	virtual void* GetEntityObjectByHandle(ComponentHandle handle) = 0;
 	virtual STDWString* GetName() = 0;
 	virtual void SetFlags(uint64_t flag) = 0;
 	virtual void ClearFlags(uint64_t flag) = 0;
@@ -445,7 +445,7 @@ namespace esv
 		RefMap<FixedString, ObjectSet<Item *> *> RegisteredItems;
 		RefMap<FixedString, ObjectSet<Item *> *> ActivatedItems;
 		FixedString CurrentLevel;
-		Map<FixedString, ObjectHandle> GlobalItemHandles;
+		Map<FixedString, ComponentHandle> GlobalItemHandles;
 #if !defined(OSI_EOCAPP)
 		RefMap<FixedString, void*> DebugItems;
 		__int64 field_88;
@@ -496,7 +496,7 @@ namespace esv
 
 	struct EntityWorld : public EntityWorldBase
 	{
-		inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ObjectHandle componentHandle, bool logError = true)
+		inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ComponentHandle componentHandle, bool logError = true)
 		{
 			// FIXME - remove typecasts after conversion is complete
 			auto component = GetComponent((uint32_t)ComponentType::CustomStatDefinition, ObjectType::ServerCustomStatDefinitionComponent, 
@@ -509,7 +509,7 @@ namespace esv
 			}
 		}
 
-		inline Character* GetCharacterComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline Character* GetCharacterComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Character, entityHandle, logError);
 			if (ptr != nullptr) {
@@ -520,7 +520,7 @@ namespace esv
 			}
 		}
 
-		inline Item* GetItemComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline Item* GetItemComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Item, entityHandle, logError);
 			if (ptr != nullptr) {
@@ -531,17 +531,17 @@ namespace esv
 			}
 		}
 
-		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CombatComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Combat, entityHandle, logError);
 		}
 
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
 		}
 
-		inline NetComponent* GetNetComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline NetComponent* GetNetComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			return (NetComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Net, entityHandle, logError);
 		}
@@ -569,7 +569,7 @@ namespace esv
 			}
 		}
 
-		inline Character* GetCharacter(ObjectHandle handle, bool logError = true)
+		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
 		{
 			auto component = GetComponent((uint32_t)ComponentType::Character, ObjectType::ServerCharacter, handle, logError);
 			if (component != nullptr) {
@@ -602,7 +602,7 @@ namespace esv
 			}
 		}
 
-		inline Item* GetItem(ObjectHandle handle, bool logError = true)
+		inline Item* GetItem(ComponentHandle handle, bool logError = true)
 		{
 			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ServerItem, handle, logError);
 			if (component != nullptr) {
@@ -624,7 +624,7 @@ namespace esv
 			}
 		}
 
-		inline Projectile* GetProjectile(ObjectHandle handle, bool logError = true)
+		inline Projectile* GetProjectile(ComponentHandle handle, bool logError = true)
 		{
 			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ServerProjectile, handle, logError);
 			if (component != nullptr) {
@@ -684,7 +684,7 @@ namespace esv
 			return nullptr;
 		}
 
-		inline Trigger* GetTrigger(ObjectHandle handle, bool logError = true)
+		inline Trigger* GetTrigger(ComponentHandle handle, bool logError = true)
 		{
 			auto type = (ObjectType)handle.GetType();
 			if (type != ObjectType::ServerEocPointTrigger
@@ -717,7 +717,7 @@ namespace esv
 		}
 
 		IEoCServerObject* GetGameObject(char const* nameGuid, bool logError = true);
-		IEoCServerObject* GetGameObject(ObjectHandle handle, bool logError = true);
+		IEoCServerObject* GetGameObject(ComponentHandle handle, bool logError = true);
 	};
 
 	struct CharacterFactory : public NetworkComponentFactory
@@ -836,7 +836,7 @@ namespace ecl
 			}
 		}
 
-		inline Character* GetCharacter(ObjectHandle handle, bool logError = true)
+		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
 		{
 			auto component = GetComponent((uint32_t)ComponentType::Character, ObjectType::ClientCharacter, handle, logError);
 			if (component != nullptr) {
@@ -869,7 +869,7 @@ namespace ecl
 			}
 		}
 
-		inline Item* GetItem(ObjectHandle handle, bool logError = true)
+		inline Item* GetItem(ComponentHandle handle, bool logError = true)
 		{
 			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ClientItem, handle, logError);
 			if (component != nullptr) {
@@ -891,7 +891,7 @@ namespace ecl
 			}
 		}
 
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ObjectHandle entityHandle, bool logError = true)
+		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
 		}

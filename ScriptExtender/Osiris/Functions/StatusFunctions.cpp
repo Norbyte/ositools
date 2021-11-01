@@ -100,7 +100,7 @@ namespace dse::esv
 		void StatusPreventApply(OsiArgumentDesc const & args)
 		{
 			auto gameObject = GetEntityWorld()->GetGameObject(args[0].String);
-			auto statusHandle = ObjectHandle{ args[1].Int64 };
+			auto statusHandle = ComponentHandle{ args[1].Int64 };
 			auto preventApply = args[2].Int32;
 
 			if (gameObject == nullptr) {
@@ -221,7 +221,7 @@ namespace dse::esv
 	esv::Status * GetStatusHelper(OsiArgumentDesc const & args)
 	{
 		auto gameObjectGuid = args[0].String;
-		ObjectHandle statusHandle{ args[1].Int64 };
+		ComponentHandle statusHandle{ args[1].Int64 };
 
 		if (statusHandle.GetType() == DamageHelpers::HitHandleTypeId) {
 			OsiError("Attempted to use a hit handle in a status function.");
@@ -505,8 +505,8 @@ namespace dse::esv
 	}
 
 
-	void CustomFunctionLibrary::OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex,
-		unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result)
+	void CustomFunctionLibrary::OnCreateUIObject(UIObjectManager* self, ComponentHandle* handle, unsigned int layerIndex,
+		unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId, ComponentHandle* result)
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {
@@ -521,7 +521,7 @@ namespace dse::esv
 	{
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (position && lua) {
-			lua->OnExecutePropertyDataOnGroundHit(*position, ObjectHandle(casterHandle), damageList);
+			lua->OnExecutePropertyDataOnGroundHit(*position, ComponentHandle(casterHandle), damageList);
 		}
 	}
 
@@ -542,9 +542,9 @@ namespace dse::esv
 				if (prop->TypeId == CRPGStats_Object_Property_Type::Extender) {
 					auto extProp = static_cast<CRPGStats_Object_Property_Extender*>(prop);
 					for (auto const& target : targets) {
-						ObjectHandle targetHandle;
+						ComponentHandle targetHandle;
 						target->GetObjectHandle(targetHandle);
-						lua->ExecutePropertyDataOnTarget(extProp, ObjectHandle{ attackerHandle }, targetHandle, 
+						lua->ExecutePropertyDataOnTarget(extProp, ComponentHandle{ attackerHandle }, targetHandle, 
 							impactOrigin, isFromItem, skillPrototype, damageInfo);
 					}
 				}
@@ -567,7 +567,7 @@ namespace dse::esv
 			for (auto prop : properties->Properties.Primitives) {
 				if (prop->TypeId == CRPGStats_Object_Property_Type::Extender) {
 					auto extProp = static_cast<CRPGStats_Object_Property_Extender*>(prop);
-					lua->ExecutePropertyDataOnPosition(extProp, ObjectHandle{ attackerHandle }, *position, areaRadius, isFromItem,
+					lua->ExecutePropertyDataOnPosition(extProp, ComponentHandle{ attackerHandle }, *position, areaRadius, isFromItem,
 						skillPrototype, damageInfo);
 				}
 			}
@@ -592,7 +592,7 @@ namespace dse::esv
 
 
 	bool CustomFunctionLibrary::OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next,
-		esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ObjectHandle>* ingredientHandles,
+		esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ComponentHandle>* ingredientHandles,
 		esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId)
 	{
 		esv::LuaServerPin lua(esv::ExtensionState::Get());

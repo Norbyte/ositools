@@ -326,7 +326,7 @@ namespace dse
 			bool Initialized;
 			bool IsRendering;
 			bool FlashRenderFrameStarted;
-			ObjectHandle RenderTargetTextureHandle;
+			ComponentHandle RenderTargetTextureHandle;
 			uint64_t field_E0;
 			void * GDraw;
 			ObjectSet<Path> Paths;
@@ -383,8 +383,8 @@ namespace dse
 			OnFunctionCalledProc OnFunctionCalled;
 			CustomDrawCallbackProc CustomDrawCallback;
 			void (* Destroy)(UIObject * self, bool);
-			void(* SetHandle)(UIObject * self, ObjectHandle *);
-			ObjectHandle * (* GetHandle)(UIObject * self, ObjectHandle *);
+			void(* SetHandle)(UIObject * self, ComponentHandle *);
+			ComponentHandle * (* GetHandle)(UIObject * self, ComponentHandle *);
 			void(* RequestDelete)(UIObject * self);
 			void(* SetOwnerPlayerId)(UIObject * self, uint64_t);
 			void(* SetPos)(UIObject * self, int *);
@@ -418,8 +418,8 @@ namespace dse
 			int64_t(* GetBitmapHeight)(UIObject * self);
 			int64_t(* GetBitmapWidth)(UIObject * self);
 			void * (* GetCharacter)(UIObject * self);
-			bool (* SetPlayerHandle)(UIObject * self, ObjectHandle * handle);
-			ObjectHandle * (* GetPlayerHandle)(UIObject * self, ObjectHandle * handle);
+			bool (* SetPlayerHandle)(UIObject * self, ComponentHandle * handle);
+			ComponentHandle * (* GetPlayerHandle)(UIObject * self, ComponentHandle * handle);
 			bool (* Unknown1)(UIObject * self);
 			void(* Unknown2)(UIObject * self);
 			void * (* Unknown3)(UIObject * self);
@@ -430,8 +430,8 @@ namespace dse
 		virtual void OnFunctionCalled(const char * a1, unsigned int a2, ig::InvokeDataValue * a3);
 		virtual void CustomDrawCallback(void * a1);
 		virtual void Destroy(bool a1);
-		virtual void SetHandle(ObjectHandle * a1);
-		virtual ObjectHandle * GetHandle(ObjectHandle *);
+		virtual void SetHandle(ComponentHandle * a1);
+		virtual ComponentHandle * GetHandle(ComponentHandle *);
 		virtual void RequestDelete();
 		virtual void SetOwnerPlayerId(uint64_t a1);
 		virtual void SetPos(int * a1);
@@ -465,8 +465,8 @@ namespace dse
 		virtual int64_t GetBitmapHeight();
 		virtual int64_t GetBitmapWidth();
 		virtual void * GetCharacter();
-		virtual bool SetPlayerHandle(ObjectHandle * handle);
-		virtual ObjectHandle * GetPlayerHandle(ObjectHandle * handle);
+		virtual bool SetPlayerHandle(ComponentHandle * handle);
+		virtual ComponentHandle * GetPlayerHandle(ComponentHandle * handle);
 		virtual bool Unknown1();
 		virtual void Unknown2();
 		virtual void * Unknown3();
@@ -480,8 +480,8 @@ namespace dse
 		ig::FlashPlayer * FlashPlayer;
 		Path Path;
 		bool IsDragging;
-		ObjectHandle ChildUIHandle;
-		ObjectHandle ParentUIHandle;
+		ComponentHandle ChildUIHandle;
+		ComponentHandle ParentUIHandle;
 		int Layer;
 		int RenderOrder;
 		int MovieLayout;
@@ -512,7 +512,7 @@ namespace dse
 		bool RenderDataPrepared;
 		bool InputFocused;
 		bool HasAnchorPos;
-		ObjectHandle UIObjectHandle;
+		ComponentHandle UIObjectHandle;
 		int Type;
 		int16_t PlayerId;
 	};
@@ -525,7 +525,7 @@ namespace dse
 		void* VMT{ nullptr };
 		void* IconMesh{ nullptr };
 		FixedString IconName;
-		ObjectHandle CustomTextureHandle;
+		ComponentHandle CustomTextureHandle;
 		uint8_t DrawEffect{ 0 };
 	};
 
@@ -543,15 +543,15 @@ namespace dse
 		struct SomeObject
 		{
 			uint64_t ObjectIndex_M;
-			ObjectHandle ObjHandle1;
-			ObjectHandle ObjHandle2;
+			ComponentHandle ObjHandle1;
+			ComponentHandle ObjHandle2;
 			__int16 field_18;
 			BYTE field_1A[6];
 		};
 
 		using RegisterUIObjectCreatorProc = void (UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
-		using CreateUIObjectProc = ObjectHandle * (UIObjectManager * self, ObjectHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
-		using DestroyUIObjectProc = void (UIObjectManager * self, ObjectHandle * handle);
+		using CreateUIObjectProc = ComponentHandle * (UIObjectManager * self, ComponentHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
+		using DestroyUIObjectProc = void (UIObjectManager * self, ComponentHandle * handle);
 		using GetInstanceProc = UIObjectManager * ();
 
 		void * InputEventListenerVMT;
@@ -571,8 +571,8 @@ namespace dse
 		bool field_115;
 		int UIDesignedHeight;
 		int UIDesignedWidth;
-		Map<ObjectHandle, uint64_t> *LastFrameDirtyFlags;
-		Map<ObjectHandle, uint64_t> *CharacterDirtyFlags;
+		Map<ComponentHandle, uint64_t> *LastFrameDirtyFlags;
+		Map<ComponentHandle, uint64_t> *CharacterDirtyFlags;
 		CRITICAL_SECTION CriticalSection;
 		SomeObject SomeObjects[4];
 		int64_t field_1D8;
@@ -606,8 +606,8 @@ namespace dse
 			bool field_154;
 			bool SomeInitPerformed;
 			__int16 field_156;
-			ObjectHandle ObjHandle1;
-			ObjectHandle TooltipHandle;
+			ComponentHandle ObjHandle1;
+			ComponentHandle TooltipHandle;
 			uint64_t field_168;
 			uint64_t field_170;
 			STDString field_178;
@@ -652,8 +652,8 @@ namespace dse
 			char field_22F;
 			uint64_t field_230;
 			UserId UserID;
-			ObjectHandle OH1;
-			ObjectHandle ObjectBeingExamined;
+			ComponentHandle OH1;
+			ComponentHandle ObjectBeingExamined;
 			uint64_t field_250;
 		};
 
@@ -671,12 +671,12 @@ namespace dse
 			PickPosition HoverCharacterPickPos;
 			PickPosition HoverItemPickPos;
 			PickPosition WalkablePickPos;
-			ObjectHandle HoverCharacterHandle2;
-			ObjectHandle HoverCharacterHandle;
-			ObjectHandle HoverItemHandle;
-			ObjectHandle HoverCharacterOrItemHandle;
-			ObjectHandle PlaceablePickHandle;
-			ObjectHandle OH6;
+			ComponentHandle HoverCharacterHandle2;
+			ComponentHandle HoverCharacterHandle;
+			ComponentHandle HoverItemHandle;
+			ComponentHandle HoverCharacterOrItemHandle;
+			ComponentHandle PlaceablePickHandle;
+			ComponentHandle OH6;
 			uint64_t WalkablePickInfo1;
 			char WalkablePickInfo2;
 			char GameObjectPickFlags;
@@ -695,8 +695,8 @@ namespace dse
 			PickingHelperBase b;
 			Level* Level;
 			int16_t PlayerId;
-			ObjectHandle OH7;
-			ObjectSet<ObjectHandle> OS_OH;
+			ComponentHandle OH7;
+			ObjectSet<ComponentHandle> OS_OH;
 			void* field_E0;
 			int field_E8;
 			float ScreenPos[2];

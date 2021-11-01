@@ -49,13 +49,13 @@ namespace dse
         {
             FixedString FS1;
             NetId NetID;
-            ObjectHandle MyHandle;
+            ComponentHandle MyHandle;
             SurfaceType SurfaceType;
             uint8_t Flags;
             int field_20;
             int CombatComponentIdx;
             int TeamId;
-            ObjectHandle OwnerHandle;
+            ComponentHandle OwnerHandle;
             float LifeTime;
             int8_t Level;
             uint8_t _Pad3[3];
@@ -112,17 +112,17 @@ namespace dse
         {
             SurfaceActionVMT* VMT;
             Level* Level;
-            ObjectHandle MyHandle;
+            ComponentHandle MyHandle;
         };
 
         struct CreateSurfaceActionBase : public SurfaceAction
         {
-            ObjectHandle OwnerHandle; // Init param
+            ComponentHandle OwnerHandle; // Init param
             float Duration; // Init param
             float StatusChance; // Init param
             glm::vec3 Position; // Init param
             SurfaceType SurfaceType; // Init param
-            ObjectHandle SurfaceHandlesByType[79];
+            ComponentHandle SurfaceHandlesByType[79];
             PrimitiveSmallSet<SurfaceCell>* SurfaceChanges[79];
             PrimitiveSmallSet<SurfaceCell>* SurfaceCellsByLayer[2];
         };
@@ -147,7 +147,7 @@ namespace dse
 
         struct ChangeSurfaceOnPathAction : public CreateSurfaceActionBase
         {
-            ObjectHandle FollowObject; // Init param
+            ComponentHandle FollowObject; // Init param
             float Radius; // Init param
             bool IsFinished;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
@@ -193,11 +193,11 @@ namespace dse
             float GrowCellPerSecond;
             bool Finished;
             void* CellSearcher;
-            ObjectHandle OwnerHandle; // Init param
+            ComponentHandle OwnerHandle; // Init param
             glm::vec3 Position; // Init param
             float SurfaceLifetime; // Init param
             float SurfaceStatusChance; // Init param
-            RefMap<SurfaceType, ObjectHandle> SurfaceMap;
+            RefMap<SurfaceType, ComponentHandle> SurfaceMap;
             RefMap<SurfaceType, PrimitiveSet<SurfaceCell>> SurfaceCellMap;
             PrimitiveSmallSet<SurfaceCell> SurfaceRemoveGroundCellMap;
             PrimitiveSmallSet<SurfaceCell> SurfaceRemoveCloudCellMap;
@@ -221,8 +221,8 @@ namespace dse
             CRPGStats_Object_Property_List* SkillProperties;
             float CurrentGrowTimer;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
-            ObjectSet<ObjectHandle> Characters;
-            ObjectSet<ObjectHandle> Items;
+            ObjectSet<ComponentHandle> Characters;
+            ObjectSet<ComponentHandle> Items;
             uint64_t CurrentCellCount;
         };
 
@@ -241,8 +241,8 @@ namespace dse
             int GrowStep; // Init param
             int LastSurfaceCellCount;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
-            ObjectSet<ObjectHandle> Characters;
-            ObjectSet<ObjectHandle> Items;
+            ObjectSet<ComponentHandle> Characters;
+            ObjectSet<ComponentHandle> Items;
             char field_608;
         };
 
@@ -287,8 +287,8 @@ namespace dse
             float GrowTimerStart;
             int field_5AC;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
-            ObjectSet<ObjectHandle> Characters;
-            ObjectSet<ObjectHandle> Items;
+            ObjectSet<ComponentHandle> Characters;
+            ObjectSet<ComponentHandle> Items;
             uint64_t CurrentCellCount;
             bool IsFromItem;
         };

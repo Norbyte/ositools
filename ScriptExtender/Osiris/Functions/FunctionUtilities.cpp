@@ -72,7 +72,7 @@ namespace dse
 			return nullptr;
 		}
 
-		IEoCServerObject* EntityWorld::GetGameObject(ObjectHandle handle, bool logError)
+		IEoCServerObject* EntityWorld::GetGameObject(ComponentHandle handle, bool logError)
 		{
 			if (!handle) {
 				return nullptr;
@@ -117,7 +117,7 @@ namespace dse
 			return (esv::TurnBasedProtocol *)gameServer->Protocols[22];
 		}
 
-		esv::Inventory * FindInventoryByHandle(ObjectHandle const & handle, bool logError)
+		esv::Inventory * FindInventoryByHandle(ComponentHandle const & handle, bool logError)
 		{
 			auto inventoryMgr = GetStaticSymbols().GetServerInventoryFactory();
 			if (inventoryMgr != nullptr) {
@@ -128,7 +128,7 @@ namespace dse
 			}
 		}
 
-		esv::GameAction * FindGameActionByHandle(ObjectHandle const & handle)
+		esv::GameAction * FindGameActionByHandle(ComponentHandle const & handle)
 		{
 			auto actionMgr = GetStaticSymbols().GetGameActionManager();
 
@@ -164,7 +164,7 @@ namespace dse
 				return;
 			}
 
-			ObjectHandle handle;
+			ComponentHandle handle;
 			obj->GetObjectHandle(handle);
 			glm::vec3 position = reinterpret_cast<esv::Character*>(obj)->WorldPos;
 
@@ -283,7 +283,7 @@ namespace dse
 			}
 		}
 
-		ecl::Inventory* FindInventoryByHandle(ObjectHandle const& handle, bool logError)
+		ecl::Inventory* FindInventoryByHandle(ComponentHandle const& handle, bool logError)
 		{
 			auto inventoryMgr = GetStaticSymbols().GetClientInventoryFactory();
 			// FIXME - cast!

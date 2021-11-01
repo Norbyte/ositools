@@ -14,7 +14,7 @@ namespace dse
 			FixedString SomeFS;
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
-			ObjectHandle MyHandle;
+			ComponentHandle MyHandle;
 			uint32_t GameActionType;
 			bool Active;
 			bool Dirty;
@@ -30,7 +30,7 @@ namespace dse
 		struct TornadoAction : public GameAction
 		{
 			FixedString SkillId;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			glm::vec3 Position;
 			glm::vec3 Target;
 			float TurnTimer;
@@ -42,16 +42,16 @@ namespace dse
 			uint64_t Anchor;
 			float Interpolation;
 			uint32_t _Unk3;
-			ObjectHandle SurfaceActionHandle;
-			ObjectSet<ObjectHandle> HitCharacterHandles;
-			ObjectSet<ObjectHandle> HitItemHandles;
+			ComponentHandle SurfaceActionHandle;
+			ObjectSet<ComponentHandle> HitCharacterHandles;
+			ObjectSet<ComponentHandle> HitItemHandles;
 			FixedString CleanseStatuses;
 			float StatusClearChance;
 		};
 
 		struct StormAction : public GameAction
 		{
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			glm::vec3 Position;
 			float LifeTime;
 			FixedString SkillId;
@@ -67,7 +67,7 @@ namespace dse
 
 		struct RainAction : public GameAction
 		{
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			glm::vec3 Position;
 			float AreaRadius;
 			float LifeTime;
@@ -84,7 +84,7 @@ namespace dse
 		struct WallAction : public GameAction
 		{
 			FixedString SkillId;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			glm::vec3 Target;
 			glm::vec3 Source;
 			float LifeTime;
@@ -100,7 +100,7 @@ namespace dse
 
 		struct StatusDomeAction : public GameAction
 		{
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			glm::vec3 Position;
 			uint8_t _Pad3[4];
 			float LifeTime;
@@ -112,12 +112,12 @@ namespace dse
 		struct GameObjectMoveAction : public GameAction
 		{
 			void * PathMover;
-			ObjectHandle ObjectToMove;
+			ComponentHandle ObjectToMove;
 			bool DoneMoving;
 			uint32_t U3[2];
-			ObjectHandle CasterCharacterHandle;
+			ComponentHandle CasterCharacterHandle;
 			FixedString BeamEffectName;
-			ObjectHandle SomeHandle;
+			ComponentHandle SomeHandle;
 			uint64_t _U4[8];
 		};
 
@@ -128,7 +128,7 @@ namespace dse
 		typedef void(*GameActionManager__AddAction)(GameActionManager * GameActionManager, esv::GameAction * Action);
 #endif
 		typedef void(*TornadoAction__Setup)(void * TornadoAction);
-		typedef void(*GameObjectMoveAction__Setup)(void * Action, ObjectHandle & ObjectToMove, glm::vec3 * TargetPosition);
+		typedef void(*GameObjectMoveAction__Setup)(void * Action, ComponentHandle & ObjectToMove, glm::vec3 * TargetPosition);
 
 	}
 }

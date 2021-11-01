@@ -216,7 +216,7 @@ namespace dse
 		GameDelete(this);
 	}
 
-	void esv::ProxyProjectileHit::OnHit(glm::vec3 const& position, ObjectHandle const& hitObject, Projectile* projectile)
+	void esv::ProxyProjectileHit::OnHit(glm::vec3 const& position, ComponentHandle const& hitObject, Projectile* projectile)
 	{
 		if (WrappedHit) {
 			DisableCrashReporting _;
@@ -265,7 +265,7 @@ namespace dse
 		}
 	}
 
-	PendingStatus * PendingStatuses::Find(ObjectHandle owner, ObjectHandle handle)
+	PendingStatus * PendingStatuses::Find(ComponentHandle owner, ComponentHandle handle)
 	{
 		auto it = statuses_.find(handle);
 		if (it != statuses_.end()) {
@@ -282,7 +282,7 @@ namespace dse
 		}
 	}
 
-	esv::Status * esv::StatusMachine::GetStatus(ObjectHandle handle, bool returnUnapplied) const
+	esv::Status * esv::StatusMachine::GetStatus(ComponentHandle handle, bool returnUnapplied) const
 	{
 		if (returnUnapplied) {
 			for (auto statusPtr : Components) {
@@ -347,7 +347,7 @@ namespace dse
 	}
 
 
-	esv::Status * esv::Character::GetStatus(ObjectHandle statusHandle, bool returnPending, bool returnUnapplied) const
+	esv::Status * esv::Character::GetStatus(ComponentHandle statusHandle, bool returnPending, bool returnUnapplied) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
@@ -359,7 +359,7 @@ namespace dse
 		}
 
 		if (returnPending) {
-			ObjectHandle ownerHandle;
+			ComponentHandle ownerHandle;
 			this->GetObjectHandle(ownerHandle);
 
 			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
@@ -381,7 +381,7 @@ namespace dse
 		return StatusMachine->GetStatus(netId);
 	}
 
-	esv::Status * esv::Item::GetStatus(ObjectHandle statusHandle, bool returnPending, bool returnUnapplied) const
+	esv::Status * esv::Item::GetStatus(ComponentHandle statusHandle, bool returnPending, bool returnUnapplied) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
@@ -393,7 +393,7 @@ namespace dse
 		}
 
 		if (returnPending) {
-			ObjectHandle ownerHandle;
+			ComponentHandle ownerHandle;
 			this->GetObjectHandle(ownerHandle);
 
 			auto pendingStatus = ExtensionState::Get().PendingStatuses.Find(ownerHandle, statusHandle);
@@ -414,7 +414,7 @@ namespace dse
 		return StatusMachine->GetStatus(netId);
 	}
 
-	ecl::Status* ecl::Character::GetStatus(ObjectHandle statusHandle) const
+	ecl::Status* ecl::Character::GetStatus(ComponentHandle statusHandle) const
 	{
 		if (StatusMachine == nullptr) {
 			return nullptr;
@@ -658,12 +658,12 @@ namespace dse
 		return GetStaticSymbols().EoCUI__vftable->Destroy(this, a1);
 	}
 
-	void UIObject::SetHandle(ObjectHandle * a1)
+	void UIObject::SetHandle(ComponentHandle * a1)
 	{
 		return GetStaticSymbols().EoCUI__vftable->SetHandle(this, a1);
 	}
 
-	ObjectHandle * UIObject::GetHandle(ObjectHandle * a1)
+	ComponentHandle * UIObject::GetHandle(ComponentHandle * a1)
 	{
 		return GetStaticSymbols().EoCUI__vftable->GetHandle(this, a1);
 	}
@@ -833,12 +833,12 @@ namespace dse
 		return GetStaticSymbols().EoCUI__vftable->GetCharacter(this);
 	}
 
-	bool UIObject::SetPlayerHandle(ObjectHandle * handle)
+	bool UIObject::SetPlayerHandle(ComponentHandle * handle)
 	{
 		return GetStaticSymbols().EoCUI__vftable->SetPlayerHandle(this, handle);
 	}
 
-	ObjectHandle * UIObject::GetPlayerHandle(ObjectHandle * handle)
+	ComponentHandle * UIObject::GetPlayerHandle(ComponentHandle * handle)
 	{
 		return GetStaticSymbols().EoCUI__vftable->GetPlayerHandle(this, handle);
 	}

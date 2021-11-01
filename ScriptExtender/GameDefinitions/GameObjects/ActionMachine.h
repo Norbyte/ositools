@@ -78,9 +78,9 @@ namespace dse
 
 		struct ASAttack : public ProtectedGameObject<ActionState>
 		{
-			ObjectHandle TargetHandle;
+			ComponentHandle TargetHandle;
 			glm::vec3 TargetPosition;
-			ObjectSet<ObjectHandle> ObjectHandleSet;
+			ObjectSet<ComponentHandle> ObjectHandleSet;
 			bool IsFinished;
 			bool AlwaysHit;
 			__int64 AttackAnimation;
@@ -94,12 +94,12 @@ namespace dse
 			int HitCountOffHand;
 			int ShootCount;
 			int ShootCountOffHand;
-			ObjectHandle MainWeaponHandle;
-			ObjectHandle OffWeaponHandle;
-			RefMap<ObjectHandle, HitDamageInfo> MainWeaponDamageList;
-			RefMap<ObjectHandle, HitDamageInfo> OffHandDamageList;
-			RefMap<ObjectHandle, NumberDividers> MainWeaponNumberDividers;
-			RefMap<ObjectHandle, NumberDividers> OffHandNumberDividers;
+			ComponentHandle MainWeaponHandle;
+			ComponentHandle OffWeaponHandle;
+			RefMap<ComponentHandle, HitDamageInfo> MainWeaponDamageList;
+			RefMap<ComponentHandle, HitDamageInfo> OffHandDamageList;
+			RefMap<ComponentHandle, NumberDividers> MainWeaponNumberDividers;
+			RefMap<ComponentHandle, NumberDividers> OffHandNumberDividers;
 			ObjectSet<void*> DamageDividerDamage; // DamageDivider::Damage ?
 			ObjectSet<void*> DamageDividerDamage2; // DamageDivider::Damage ?
 			__int64 field_118;
@@ -112,7 +112,7 @@ namespace dse
 			glm::vec3 ProjectileStartPosition;
 			glm::vec3 ProjectileTargetPosition;
 			bool DamageDurability;
-			ObjectSet<ObjectHandle> DelayDeathCharacterHandles;
+			ObjectSet<ComponentHandle> DelayDeathCharacterHandles;
 		};
 
 		struct SkillState
@@ -121,8 +121,8 @@ namespace dse
 			int StateIndex;
 			int State;
 			FixedString SkillId;
-			ObjectHandle CharacterHandle;
-			ObjectHandle SourceItemHandle;
+			ComponentHandle CharacterHandle;
+			ComponentHandle SourceItemHandle;
 			bool CanEnter;
 			bool IsFinished;
 			bool SkillStateOver6_2;
@@ -173,7 +173,7 @@ namespace dse
 			using SetStateProc = bool (esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer);
 			using ResetStateProc = bool (esv::ActionMachine* self, bool force);
 
-			ObjectHandle CharacterHandle;
+			ComponentHandle CharacterHandle;
 			ActionMachineLayer Layers[3];
 			bool IsEntering[4];
 			uint16_t Unknown;

@@ -85,7 +85,7 @@ namespace dse::lua
 
 	char const* const ObjectProxy<ecl::Character>::MetatableName = "ecl::Character";
 
-	void ClientGetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
+	void ClientGetInventoryItems(lua_State* L, ComponentHandle inventoryHandle)
 	{
 		lua_newtable(L);
 
@@ -109,7 +109,7 @@ namespace dse::lua
 			if (character->PlayerData != nullptr
 				// Always false on the client for some reason
 				/*&& character->PlayerData->CustomData.Initialized*/) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				character->GetObjectHandle(handle);
 				ObjectProxy<ecl::PlayerCustomData>::New(L, handle);
 			} else {
@@ -478,9 +478,9 @@ namespace dse::ecl::lua
 		switch (lua_type(L, index)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, index);
+			auto handle = checked_get<ComponentHandle>(L, index);
 			if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-				OsiError("Attempted to resolve server ObjectHandle on the client");
+				OsiError("Attempted to resolve server ComponentHandle on the client");
 			}
 			else {
 				character = GetEntityWorld()->GetCharacter(handle);
@@ -493,9 +493,9 @@ namespace dse::ecl::lua
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
 				OsiError("Resolving integer object handles is deprecated since v52!")
-				ObjectHandle handle{ value };
+				ComponentHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-					OsiError("Attempted to resolve server ObjectHandle on the client");
+					OsiError("Attempted to resolve server ComponentHandle on the client");
 				} else {
 					character = GetEntityWorld()->GetCharacter(handle);
 				}
@@ -529,7 +529,7 @@ namespace dse::ecl::lua
 		ecl::Character* character = GetCharacter(L, 1);
 
 		if (character != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			character->GetObjectHandle(handle);
 			ObjectProxy<ecl::Character>::New(L, handle);
 		} else {
@@ -548,9 +548,9 @@ namespace dse::ecl::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, 1);
+			auto handle = checked_get<ComponentHandle>(L, 1);
 			if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
-				OsiError("Attempted to resolve server ObjectHandle on the client");
+				OsiError("Attempted to resolve server ComponentHandle on the client");
 			} else {
 				item = GetEntityWorld()->GetItem(handle);
 			}
@@ -561,9 +561,9 @@ namespace dse::ecl::lua
 		{
 			auto value = lua_tointeger(L, 1);
 			if (value > 0xffffffff) {
-				ObjectHandle handle{ value };
+				ComponentHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
-					OsiError("Attempted to resolve server ObjectHandle on the client");
+					OsiError("Attempted to resolve server ComponentHandle on the client");
 				} else {
 					item = GetEntityWorld()->GetItem(handle);
 				}
@@ -587,7 +587,7 @@ namespace dse::ecl::lua
 		}
 
 		if (item != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			item->GetObjectHandle(handle);
 			ObjectProxy<ecl::Item>::New(L, handle);
 		} else {
@@ -607,24 +607,24 @@ namespace dse::ecl::lua
 
 		ecl::Status* status;
 		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
-			auto statusHandle = checked_get<ObjectHandle>(L, 2);
+			auto statusHandle = checked_get<ComponentHandle>(L, 2);
 			status = character->GetStatus(statusHandle);
 
 			if (status != nullptr) {
-				ObjectHandle characterHandle;
+				ComponentHandle characterHandle;
 				character->GetObjectHandle(characterHandle);
 				StatusHandleProxy::New(L, characterHandle, statusHandle);
 				return 1;
 			}
 
-			OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
+			OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
 		} else {
 			auto index = lua_tointeger(L, 2);
 			NetId statusNetId{ (uint32_t)index };
 			status = character->GetStatus(statusNetId);
 
 			if (status != nullptr) {
-				ObjectHandle characterHandle;
+				ComponentHandle characterHandle;
 				character->GetObjectHandle(characterHandle);
 				StatusHandleProxy::New(L, characterHandle, statusNetId);
 				return 1;
@@ -651,7 +651,7 @@ namespace dse::ecl::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, 1);
+			auto handle = checked_get<ComponentHandle>(L, 1);
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ClientCharacter:
@@ -686,12 +686,12 @@ namespace dse::ecl::lua
 		}
 
 		if (item != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			item->GetObjectHandle(handle);
 			ObjectProxy<Item>::New(L, handle);
 			return 1;
 		} else if (character != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			character->GetObjectHandle(handle);
 			ObjectProxy<Character>::New(L, handle);
 			return 1;
@@ -1481,7 +1481,7 @@ namespace dse::ecl::lua
 		auto ui = CheckUserData(L, 1)->Get();
 		if (!ui) return 0;
 
-		ObjectHandle handle;
+		ComponentHandle handle;
 		if (ui->Type == 104) {
 			// ecl::UIExamine (104) doesn't implement GetPlayerHandle(), but we need it
 			auto examine = reinterpret_cast<ecl::UIExamine*>(ui);
@@ -1602,7 +1602,7 @@ namespace dse::ecl::lua
 	// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
 	std::unordered_map<UIObject::VMT *, UIObject::CustomDrawCallbackProc> OriginalCustomDrawHandlers;
 
-	std::unordered_map<ObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> UICustomIcons;
+	std::unordered_map<ComponentHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> UICustomIcons;
 
 	bool UIDebugCustomDrawCalls{ false };
 
@@ -1767,7 +1767,7 @@ namespace dse::ecl::lua
 	// Persistent for the lifetime of the app, as we don't restore FlashPlayer VMTs either
 	FlashPlayerHooks gFlashPlayerHooks;
 
-	ObjectHandle FindUIObjectHandle(ig::FlashPlayer* player)
+	ComponentHandle FindUIObjectHandle(ig::FlashPlayer* player)
 	{
 		auto uiManager = GetStaticSymbols().GetUIObjectManager();
 		if (uiManager == nullptr) {
@@ -1991,7 +1991,7 @@ namespace dse::ecl::lua
 			creatorId = NextCustomCreatorId++;
 		}
 
-		ObjectHandle handle;
+		ComponentHandle handle;
 		sym.UIObjectManager__CreateUIObject(uiManager, &handle, layer, *creatorId, flags, 0x80, 0);
 
 		if (!handle) {
@@ -2097,7 +2097,7 @@ namespace dse::ecl::lua
 	int UISetDirty(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto handle = checked_get<ObjectHandle>(L, 1);
+		auto handle = checked_get<ComponentHandle>(L, 1);
 		auto flags = checked_get<uint64_t>(L, 2);
 
 		auto ui = GetStaticSymbols().GetUIObjectManager();
@@ -2268,7 +2268,7 @@ namespace dse::ecl::lua
 
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, idx);
+			auto handle = checked_get<ComponentHandle>(L, idx);
 			if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 				auto character = GetEntityWorld()->GetCharacter(handle);
 				if (character) {
@@ -2621,7 +2621,7 @@ namespace dse::ecl::lua
 #endif
 	}
 
-	void ClientState::OnCreateUIObject(ObjectHandle uiObjectHandle)
+	void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
@@ -2631,7 +2631,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 1, "Ext.UIObjectCreated");
 	}
 
-	void ClientState::OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
+	void ClientState::OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
@@ -2648,7 +2648,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
 	}
 
-	void ClientState::OnAfterUICall(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
@@ -2665,7 +2665,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
 	}
 
-	void ClientState::OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
@@ -2682,7 +2682,7 @@ namespace dse::ecl::lua
 		CheckedCall<>(L, 3 + numArgs, "Ext.UIInvoke");
 	}
 
-	void ClientState::OnAfterUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
@@ -2779,7 +2779,7 @@ namespace dse::ecl::lua
 	}
 
 
-	void ClientState::OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle)
+	void ClientState::OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle)
 	{
 		clientUI_.insert(std::make_pair(name, handle));
 	}

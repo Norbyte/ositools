@@ -19,8 +19,8 @@ namespace dse::esv
 	struct PendingHit
 	{
 		uint32_t Id;
-		ObjectHandle TargetHandle;
-		ObjectHandle AttackerHandle;
+		ComponentHandle TargetHandle;
+		ComponentHandle AttackerHandle;
 
 		// Properties captured during esv::Character::Hit
 		bool CapturedCharacterHit{ false };

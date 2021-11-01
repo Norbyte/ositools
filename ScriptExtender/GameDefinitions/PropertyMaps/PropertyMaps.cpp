@@ -1840,12 +1840,12 @@ namespace dse
 			if (guid == nullptr
 				|| !strlen(guid)
 				|| NameGuidToFixedString(guid) == FixedString("00000000-0000-0000-0000-000000000000")) {
-				return propertyMap.setHandle(obj, propertyName, ObjectHandle{}, false, throwError);
+				return propertyMap.setHandle(obj, propertyName, ComponentHandle{}, false, throwError);
 			}
 
 			auto gameObject = esv::GetEntityWorld()->GetGameObject(guid);
 			if (gameObject != nullptr) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				gameObject->GetObjectHandle(handle);
 				return propertyMap.setHandle(obj, propertyName, handle, false, throwError);
 			}
@@ -2070,7 +2070,7 @@ namespace dse
 
 		case PropertyType::kObjectHandle:
 		{
-			auto handle = lua::checked_get<ObjectHandle>(L, index);
+			auto handle = lua::checked_get<ComponentHandle>(L, index);
 			return propertyMap.setHandle(obj, propertyFS, handle, false, throwError);
 		}
 

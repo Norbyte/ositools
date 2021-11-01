@@ -347,21 +347,21 @@ namespace dse::lua
 
 	// int64 handle to double conversion hack for use in Flash external interface calls
 	// (Some of the builtin functions treat handles as double values)
-	double HandleToDouble(lua_State* L, ObjectHandle handle)
+	double HandleToDouble(lua_State* L, ComponentHandle handle)
 	{
 		return *reinterpret_cast<double*>(&handle);
 	}
 
 	WrapLuaFunction(HandleToDouble)
 
-	ObjectHandle DoubleToHandle(lua_State* L, double dbl)
+	ComponentHandle DoubleToHandle(lua_State* L, double dbl)
 	{
-		return ObjectHandle(*reinterpret_cast<int64_t*>(&dbl));
+		return ComponentHandle(*reinterpret_cast<int64_t*>(&dbl));
 	}
 
 	WrapLuaFunction(DoubleToHandle)
 
-	STDString GetHandleType(lua_State* L, ObjectHandle handle)
+	STDString GetHandleType(lua_State* L, ComponentHandle handle)
 	{
 		auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
 		if (type) {

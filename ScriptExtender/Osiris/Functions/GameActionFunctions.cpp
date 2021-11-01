@@ -33,7 +33,7 @@ namespace dse::esv
 			auto action = (TAction *)lib.CreateGameAction(actionMgr, type, 0);
 
 			action->SkillId = FixedString(args[1].String);
-			ObjectHandle characterHandle;
+			ComponentHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
 
@@ -112,7 +112,7 @@ namespace dse::esv
 			auto action = (esv::WallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
 
 			action->SkillId = FixedString(args[1].String);
-			ObjectHandle characterHandle;
+			ComponentHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
 			action->OwnerHandle = characterHandle;
 
@@ -176,7 +176,7 @@ namespace dse::esv
 			auto objectToMove = GetEntityWorld()->GetGameObject(gameObjectGuid, true);
 			if (objectToMove == nullptr) return false;
 
-			ObjectHandle objectHandle;
+			ComponentHandle objectHandle;
 			objectToMove->GetObjectHandle(objectHandle);
 
 			esv::Character * caster{ nullptr };
@@ -205,7 +205,7 @@ namespace dse::esv
 
 
 			if (caster != nullptr) {
-				ObjectHandle casterHandle;
+				ComponentHandle casterHandle;
 				caster->GetObjectHandle(casterHandle);
 				action->CasterCharacterHandle = casterHandle;
 				action->BeamEffectName = FixedString(beamEffectName);
@@ -253,7 +253,7 @@ namespace dse::esv
 
 		void GameActionDestroy(OsiArgumentDesc const & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
+			auto gameAction = FindGameActionByHandle(ComponentHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return;
 
 			DestroyGameActionInternal(*gameAction);
@@ -261,7 +261,7 @@ namespace dse::esv
 
 		bool GameActionGetLifeTime(OsiArgumentDesc & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
+			auto gameAction = FindGameActionByHandle(ComponentHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return false;
 
 			float lifeTime;
@@ -293,7 +293,7 @@ namespace dse::esv
 
 		void GameActionSetLifeTime(OsiArgumentDesc const & args)
 		{
-			auto gameAction = FindGameActionByHandle(ObjectHandle{ args[0].Int64 });
+			auto gameAction = FindGameActionByHandle(ComponentHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return;
 
 			auto lifeTime = args[1].Float;
@@ -355,7 +355,7 @@ namespace dse::esv
 			esv::SummonHelperResults results;
 			esv::SummonHelperSummonArgs summonArgs;
 
-			ObjectHandle characterHandle;
+			ComponentHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
 			summonArgs.OwnerCharacterHandle = characterHandle;
 			summonArgs.GameObjectTemplateFS = objectTemplate;

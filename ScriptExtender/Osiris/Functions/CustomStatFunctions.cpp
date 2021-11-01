@@ -94,7 +94,7 @@ namespace dse::esv
 		processMsg(nullptr, nullptr, &dummy1, msg);
 	}
 
-	void CustomStatHelpers::SyncCharacterStats(ObjectHandle entityHandle, eoc::CustomStatsComponent * stats,
+	void CustomStatHelpers::SyncCharacterStats(ComponentHandle entityHandle, eoc::CustomStatsComponent * stats,
 		FixedString statKey, int statValue)
 	{
 		eocnet::CustomStatsSyncMessage statSyncMsg;
@@ -144,7 +144,7 @@ namespace dse::esv
 		ProcessMessage(&msg);
 	}
 
-	std::optional<int> CustomStatHelpers::GetCharacterStat(ObjectHandle entityHandle, char const* statId)
+	std::optional<int> CustomStatHelpers::GetCharacterStat(ComponentHandle entityHandle, char const* statId)
 	{
 		if (!entityHandle) return {};
 
@@ -167,7 +167,7 @@ namespace dse::esv
 		}
 	}
 
-	bool CustomStatHelpers::SetCharacterStat(ObjectHandle entityHandle, char const* statId, int value)
+	bool CustomStatHelpers::SetCharacterStat(ComponentHandle entityHandle, char const* statId, int value)
 	{
 		if (!entityHandle) return false;
 

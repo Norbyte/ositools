@@ -97,7 +97,7 @@ namespace dse::esv
 		}
 	}
 
-	esv::Status * StatusHelpers::GetStatus(char const* gameObjectGuid, ObjectHandle const& statusHandle)
+	esv::Status * StatusHelpers::GetStatus(char const* gameObjectGuid, ComponentHandle const& statusHandle)
 	{
 		if (statusHandle.GetType() == DamageHelpers::HitHandleTypeId) {
 			OsiError("Attempted to use a hit handle in a status function.");
@@ -127,9 +127,9 @@ namespace dse::esv
 		return status;
 	}
 
-	void StatusHelpers::PreventApply(IEoCServerObject* gameObject, ObjectHandle const& statusHandle, bool preventApply)
+	void StatusHelpers::PreventApply(IEoCServerObject* gameObject, ComponentHandle const& statusHandle, bool preventApply)
 	{
-		ObjectHandle gameObjectHandle;
+		ComponentHandle gameObjectHandle;
 		gameObject->GetObjectHandle(gameObjectHandle);
 
 		auto status = ExtensionState::Get().PendingStatuses.Find(gameObjectHandle, statusHandle);
@@ -206,7 +206,7 @@ namespace dse::esv
 		return status;
 	}
 
-	std::optional<ObjectHandle> StatusHelpers::ApplyActiveDefense(esv::Character* character, FixedString const& statusId, float lifeTime)
+	std::optional<ComponentHandle> StatusHelpers::ApplyActiveDefense(esv::Character* character, FixedString const& statusId, float lifeTime)
 	{
 		auto statusMachine = character->StatusMachine;
 		if (!statusMachine) {
@@ -229,7 +229,7 @@ namespace dse::esv
 		status->LifeTime = lifeTime;
 		status->CurrentLifeTime = lifeTime;
 
-		ObjectHandle handle;
+		ComponentHandle handle;
 		character->GetObjectHandle(handle);
 
 		status->TargetHandle = handle;
@@ -239,7 +239,7 @@ namespace dse::esv
 		return status->StatusHandle;
 	}
 
-	std::optional<ObjectHandle> StatusHelpers::ApplyDamageOnMove(esv::Character* character, FixedString const& statusId, esv::Character* sourceCharacter,
+	std::optional<ComponentHandle> StatusHelpers::ApplyDamageOnMove(esv::Character* character, FixedString const& statusId, esv::Character* sourceCharacter,
 		float lifeTime, float distancePerDamage)
 	{
 		auto statusMachine = character->StatusMachine;
@@ -269,9 +269,9 @@ namespace dse::esv
 		status->CurrentLifeTime = lifeTime;
 
 		if (sourceCharacter == nullptr) {
-			status->StatusSourceHandle = ObjectHandle{};
+			status->StatusSourceHandle = ComponentHandle{};
 		} else {
-			ObjectHandle sourceHandle;
+			ComponentHandle sourceHandle;
 			sourceCharacter->GetObjectHandle(sourceHandle);
 			status->StatusSourceHandle = sourceHandle;
 		}

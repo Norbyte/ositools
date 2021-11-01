@@ -184,7 +184,7 @@ namespace dse::lua
 		auto prop = checked_get<FixedString>(L, 2);
 
 		if (prop == GFS.strHandle) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			obj->GetObjectHandle(handle);
 			push(L, handle);
 			return 1;
@@ -315,7 +315,7 @@ namespace dse::lua
 		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
-	void GetInventoryItems(lua_State* L, ObjectHandle inventoryHandle)
+	void GetInventoryItems(lua_State* L, ComponentHandle inventoryHandle)
 	{
 		lua_newtable(L);
 
@@ -340,7 +340,7 @@ namespace dse::lua
 		if (prop == GFS.strPlayerCustomData) {
 			if (character->PlayerData != nullptr
 				&& character->PlayerData->CustomData.Initialized) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				character->GetObjectHandle(handle);
 				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
 				return 1;
@@ -353,7 +353,7 @@ namespace dse::lua
 
 		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				character->GetObjectHandle(handle);
 				ObjectProxy<CDivinityStats_Character>::New(L, handle);
 				return 1;
@@ -1376,7 +1376,7 @@ namespace dse::esv::lua
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
 			if (character != nullptr) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				character->GetObjectHandle(handle);
 				ObjectProxy<esv::Character>::New(L, handle);
 			} else {
@@ -1385,7 +1385,7 @@ namespace dse::esv::lua
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
 			if (item != nullptr) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				item->GetObjectHandle(handle);
 				ObjectProxy<esv::Item>::New(L, handle);
 			} else {
@@ -1473,9 +1473,9 @@ namespace dse::esv::lua
 		switch (lua_type(L, index)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, index);
+			auto handle = checked_get<ComponentHandle>(L, index);
 			if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
-				OsiError("Attempted to resolve client ObjectHandle on the server");
+				OsiError("Attempted to resolve client ComponentHandle on the server");
 			} else {
 				character = GetEntityWorld()->GetCharacter(handle);
 			}
@@ -1487,9 +1487,9 @@ namespace dse::esv::lua
 			auto value = lua_tointeger(L, index);
 			if (value > 0xffffffff) {
 				OsiError("Resolving integer object handles is deprecated since v52!")
-				ObjectHandle handle{ value };
+				ComponentHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
-					OsiError("Attempted to resolve client ObjectHandle on the server");
+					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
 					character = GetEntityWorld()->GetCharacter(handle);
 				}
@@ -1526,7 +1526,7 @@ namespace dse::esv::lua
 		esv::Character* character = GetCharacter(L, 1);
 
 		if (character != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			character->GetObjectHandle(handle);
 			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
@@ -1548,7 +1548,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, 1);
+			auto handle = checked_get<ComponentHandle>(L, 1);
 			item = GetEntityWorld()->GetItem(handle);
 			break;
 		}
@@ -1558,9 +1558,9 @@ namespace dse::esv::lua
 			auto value = lua_tointeger(L, 1);
 			if (value > 0xffffffff) {
 				OsiError("Resolving integer object handles is deprecated since v52!")
-				ObjectHandle handle{ value };
+				ComponentHandle handle{ value };
 				if (handle.GetType() == (uint32_t)ObjectType::ClientItem) {
-					OsiError("Attempted to resolve client ObjectHandle on the server");
+					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
 					item = GetEntityWorld()->GetItem(handle);
 				}
@@ -1585,7 +1585,7 @@ namespace dse::esv::lua
 		}
 
 		if (item != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			item->GetObjectHandle(handle);
 			ObjectProxy<esv::Item>::New(L, handle);
 		} else {
@@ -1607,7 +1607,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, 1);
+			auto handle = checked_get<ComponentHandle>(L, 1);
 			trigger = GetEntityWorld()->GetTrigger(handle);
 			break;
 		}
@@ -1626,7 +1626,7 @@ namespace dse::esv::lua
 		}
 
 		if (trigger != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			trigger->GetObjectHandle(handle);
 			ObjectProxy<esv::EsvTrigger>::New(L, handle);
 		} else {
@@ -1650,7 +1650,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, idx)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ObjectHandle>(L, idx);
+			auto handle = checked_get<ComponentHandle>(L, idx);
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ServerCharacter:
@@ -1695,7 +1695,7 @@ namespace dse::esv::lua
 		case LUA_TNUMBER:
 		{
 			OsiError("Resolving integer object handles is deprecated since v52!")
-			auto handle = ObjectHandle(lua_tointeger(L, idx));
+			auto handle = ComponentHandle(lua_tointeger(L, idx));
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ServerCharacter:
@@ -1747,22 +1747,22 @@ namespace dse::esv::lua
 		auto result = GetGameObjectInternal(L, 1);
 
 		if (result.item != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			result.item->GetObjectHandle(handle);
 			ObjectProxy<esv::Item>::New(L, handle);
 			return 1;
 		} else if (result.character != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			result.character->GetObjectHandle(handle);
 			ObjectProxy<esv::Character>::New(L, handle);
 			return 1;
 		} else if (result.projectile != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			result.projectile->GetObjectHandle(handle);
 			ObjectProxy<esv::Projectile>::New(L, handle);
 			return 1;
 		} else if (result.trigger != nullptr) {
-			ObjectHandle handle;
+			ComponentHandle handle;
 			result.trigger->GetObjectHandle(handle);
 			ObjectProxy<esv::EsvTrigger>::New(L, handle);
 			return 1;
@@ -1785,37 +1785,37 @@ namespace dse::esv::lua
 		StackCheck _(L, 1);
 		esv::Status* status;
 		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
-			auto statusHandle = checked_get<ObjectHandle>(L, 2);
+			auto statusHandle = checked_get<ComponentHandle>(L, 2);
 			status = character->GetStatus(statusHandle, true);
 			if (status != nullptr) {
-				ObjectHandle characterHandle;
+				ComponentHandle characterHandle;
 				character->GetObjectHandle(characterHandle);
 				StatusHandleProxy::New(L, characterHandle, statusHandle);
 				return 1;
 			}
 
-			OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
+			OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
 		} else {
 			auto index = lua_tointeger(L, 2);
 
 			// We need to keep integer status handle support since some extender Osiris events
 			// (eg. NRD_OnHit, NRD_OnPrepareHit, etc.) use these handles and Osiris doesn't support lightuserdata
 			if (index > 0xffffffff) {
-				ObjectHandle statusHandle{ index };
+				ComponentHandle statusHandle{ index };
 				status = character->GetStatus(statusHandle, true);
 				if (status != nullptr) {
-					ObjectHandle characterHandle;
+					ComponentHandle characterHandle;
 					character->GetObjectHandle(characterHandle);
 					StatusHandleProxy::New(L, characterHandle, statusHandle);
 					return 1;
 				}
 
-				OsiError("Character has no status with ObjectHandle 0x" << std::hex << statusHandle.Handle);
+				OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
 			} else {
 				NetId statusNetId{ (uint32_t)index };
 				status = character->GetStatus(statusNetId);
 				if (status != nullptr) {
-					ObjectHandle characterHandle;
+					ComponentHandle characterHandle;
 					character->GetObjectHandle(characterHandle);
 					StatusHandleProxy::New(L, characterHandle, statusNetId);
 					return 1;
@@ -1860,7 +1860,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
 
-		auto handle = checked_get<ObjectHandle>(L, 1);
+		auto handle = checked_get<ComponentHandle>(L, 1);
 
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (!level || !level->SurfaceManager) {
@@ -2062,7 +2062,7 @@ namespace dse::esv::lua
 	int CancelSurfaceAction(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto handle = checked_get<ObjectHandle>(L, 1);
+		auto handle = checked_get<ComponentHandle>(L, 1);
 		
 		if (handle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
 			OsiError("Expected a surface action handle, got type " << handle.GetType());
@@ -2180,7 +2180,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectHandle attackerHandle;
+		ComponentHandle attackerHandle;
 		attacker->GetObjectHandle(attackerHandle);
 		ObjectSet<esv::Character*> targets;
 		targets.Add(target);
@@ -2226,7 +2226,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectHandle attackerHandle;
+		ComponentHandle attackerHandle;
 		attacker->GetObjectHandle(attackerHandle);
 
 		exec(*skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr, 2.4f);
@@ -2455,7 +2455,7 @@ namespace dse::esv::lua
 		float lifeTime = checked_get<float>(L, 3);
 
 		StatusMachine* statusMachine{ nullptr };
-		ObjectHandle ownerHandle;
+		ComponentHandle ownerHandle;
 		if (gameObj.character != nullptr) {
 			statusMachine = gameObj.character->StatusMachine;
 			gameObj.character->GetObjectHandle(ownerHandle);
@@ -3190,7 +3190,7 @@ namespace dse::esv::lua
 		return ok;
 	}
 
-	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ObjectHandle attackerHandle,
+	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
 		StackCheck _(L, 0);
@@ -3264,7 +3264,7 @@ namespace dse::esv::lua
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_TreasureItemGenerated"); // stack: fn
 
-		ObjectHandle itemHandle;
+		ComponentHandle itemHandle;
 		item->GetObjectHandle(itemHandle);
 		ObjectProxy<esv::Item>::New(L, itemHandle);
 
@@ -3300,7 +3300,7 @@ namespace dse::esv::lua
 	}
 
 
-	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
 	{
 		StackCheck _(L, 0);
@@ -3339,7 +3339,7 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ObjectHandle> const& ingredients,
+	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded)
 	{
 		StackCheck _(L, 0);
@@ -3395,7 +3395,7 @@ namespace dse::esv::lua
 		}
 	}
 
-	void PushGameObject(lua_State* L, ObjectHandle handle)
+	void PushGameObject(lua_State* L, ComponentHandle handle)
 	{
 		if (!handle) {
 			push(L, nullptr);
@@ -3423,7 +3423,7 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::OnProjectileHit(Projectile* projectile, ObjectHandle const& hitObject, glm::vec3 const& position)
+	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnProjectileHit");
@@ -3439,7 +3439,7 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ObjectHandle casterHandle, DamagePairList* damageList)
+	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList)
 	{
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_OnGroundHit");
@@ -3458,8 +3458,8 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
-		ObjectHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype * skillProto,
+	void ServerState::ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
+		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype * skillProto,
 		HitDamageInfo const* damageInfo)
 	{
 		StackCheck _(L, 0);
@@ -3492,7 +3492,7 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ObjectHandle attackerHandle,
+	void ServerState::ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
 		glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype * skillPrototype,
 		HitDamageInfo const* damageInfo)
 	{

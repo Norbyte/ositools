@@ -188,7 +188,7 @@ namespace dse::esv
 				return false;
 			}
 
-			ObjectHandle handle;
+			ComponentHandle handle;
 			item->GetObjectHandle(handle);
 
 			for (uint32_t i = 0; i < skillBar->Size; i++) {
@@ -222,7 +222,7 @@ namespace dse::esv
 
 			skillBarItem->Type = esv::SkillBarItem::kSkill;
 			skillBarItem->SkillOrStatId = skillIdFs;
-			skillBarItem->ItemHandle = ObjectHandle{};
+			skillBarItem->ItemHandle = ComponentHandle{};
 
 			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
@@ -243,7 +243,7 @@ namespace dse::esv
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;
 
-			ObjectHandle handle;
+			ComponentHandle handle;
 			item->GetObjectHandle(handle);
 			// FIXME - check if item is in the players' inventory?
 
@@ -265,7 +265,7 @@ namespace dse::esv
 
 			skillBarItem->Type = esv::SkillBarItem::kNone;
 			skillBarItem->SkillOrStatId = FixedString("");
-			skillBarItem->ItemHandle = ObjectHandle{};
+			skillBarItem->ItemHandle = ComponentHandle{};
 
 			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;

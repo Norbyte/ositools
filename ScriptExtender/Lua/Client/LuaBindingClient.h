@@ -32,11 +32,11 @@ namespace dse::ecl::lua
 	public:
 		static char const* const MetatableName;
 
-		inline StatusHandleProxy(ObjectHandle character, NetId status)
+		inline StatusHandleProxy(ComponentHandle character, NetId status)
 			: character_(character), statusNetId_(status)
 		{}
 
-		inline StatusHandleProxy(ObjectHandle character, ObjectHandle status)
+		inline StatusHandleProxy(ComponentHandle character, ComponentHandle status)
 			: character_(character), statusHandle_(status)
 		{}
 
@@ -45,8 +45,8 @@ namespace dse::ecl::lua
 		int NewIndex(lua_State* L);
 
 	private:
-		ObjectHandle character_;
-		ObjectHandle statusHandle_;
+		ComponentHandle character_;
+		ComponentHandle statusHandle_;
 		NetId statusNetId_;
 	};
 
@@ -58,14 +58,14 @@ namespace dse::ecl::lua
 
 		static void PopulateMetatable(lua_State * L);
 
-		inline UIObjectProxy(ObjectHandle handle)
+		inline UIObjectProxy(ComponentHandle handle)
 			: handle_(handle)
 		{}
 
 		UIObject * Get();
 
 	private:
-		ObjectHandle handle_;
+		ComponentHandle handle_;
 
 		static int SetPosition(lua_State * L);
 		static int Resize(lua_State * L);
@@ -149,11 +149,11 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
-		void OnCreateUIObject(ObjectHandle handle);
-		void OnUICall(ObjectHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
-		void OnAfterUICall(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnAfterUIInvoke(ObjectHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnCreateUIObject(ComponentHandle handle);
+		void OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
+		void OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
@@ -162,11 +162,11 @@ namespace dse::ecl::lua
 		std::optional<STDString> GetSkillPropertyDescription(CRPGStats_Object_Property_Extender*);
 		void OnAppInputEvent(InputEvent const& inputEvent);
 
-		void OnCustomClientUIObjectCreated(char const * name, ObjectHandle handle);
+		void OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle);
 		UIObject * GetUIObject(char const * name);
 
 	private:
 		ExtensionLibraryClient library_;
-		std::unordered_map<STDString, ObjectHandle> clientUI_;
+		std::unordered_map<STDString, ComponentHandle> clientUI_;
 	};
 }

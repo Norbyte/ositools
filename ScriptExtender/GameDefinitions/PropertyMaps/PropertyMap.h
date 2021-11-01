@@ -68,7 +68,7 @@ namespace dse
 			return PropertyType::kStdWString;
 		} else if constexpr (std::is_same<T, TranslatedString>::value) {
 			return PropertyType::kTranslatedString;
-		} else if constexpr (std::is_same<T, ObjectHandle>::value) {
+		} else if constexpr (std::is_same<T, ComponentHandle>::value) {
 			return PropertyType::kObjectHandle;
 		} else if constexpr (std::is_same<T, Vector3>::value) {
 			return PropertyType::kVector3;
@@ -90,12 +90,12 @@ namespace dse
 			std::function<bool (void *, int64_t)> SetInt;
 			std::function<bool (void *, float)> SetFloat;
 			std::function<bool (void *, char const *)> SetString;
-			std::function<bool (void *, ObjectHandle)> SetHandle;
+			std::function<bool (void *, ComponentHandle)> SetHandle;
 			std::function<bool (void *, Vector3)> SetVector3;
 			std::function<std::optional<int64_t> (void *)> GetInt;
 			std::function<std::optional<float> (void *)> GetFloat;
 			std::function<std::optional<char const *> (void *)> GetString;
-			std::function<std::optional<ObjectHandle> (void *)> GetHandle;
+			std::function<std::optional<ComponentHandle> (void *)> GetHandle;
 			std::function<std::optional<Vector3> (void *)> GetVector3;
 		};
 
@@ -359,7 +359,7 @@ namespace dse
 
 			case PropertyType::kObjectHandle:
 			{
-				auto handle = reinterpret_cast<ObjectHandle *>(ptr);
+				auto handle = reinterpret_cast<ComponentHandle *>(ptr);
 				if (*handle) {
 					// FIXME - support for client?
 					auto object = esv::GetEntityWorld()->GetGameObject(*handle, false);
@@ -443,7 +443,7 @@ namespace dse
 			}
 		}
 
-		std::optional<ObjectHandle> getHandle(void * obj, FixedString const & name, bool raw, bool throwError) const
+		std::optional<ComponentHandle> getHandle(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -468,14 +468,14 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			if (prop->second.Type == PropertyType::kObjectHandle) {
-				return *reinterpret_cast<ObjectHandle *>(ptr);
+				return *reinterpret_cast<ComponentHandle *>(ptr);
 			} else {
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a handle");
 				return {};
 			}
 		}
 
-		bool setHandle(void * obj, FixedString const & name, ObjectHandle value, bool raw, bool throwError) const
+		bool setHandle(void * obj, FixedString const & name, ComponentHandle value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -500,7 +500,7 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			if (prop->second.Type == PropertyType::kObjectHandle) {
-				*reinterpret_cast<ObjectHandle *>(ptr) = value;
+				*reinterpret_cast<ComponentHandle *>(ptr) = value;
 				return true;
 			} else {
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a handle");

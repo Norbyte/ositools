@@ -36,7 +36,7 @@ namespace dse
 		{
 			struct Status
 			{
-				ObjectHandle Handle;
+				ComponentHandle Handle;
 				bool FirstAttempt;
 				bool IsForced;
 			};
@@ -49,7 +49,7 @@ namespace dse
 
 			struct TemporaryStatus
 			{
-				ObjectHandle Handle;
+				ComponentHandle Handle;
 				float Strength;
 				float WeatherStrength;
 				float LifeTime;
@@ -57,7 +57,7 @@ namespace dse
 			};
 
 			ObjectSet<FixedString> Unknown;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			Map<FixedString, PermanentInfluence> PermanetInfluences;
 			Map<FixedString, TemporaryStatus> TemporaryStatuses;
 			Map<FixedString, Status> Statuses;
@@ -71,8 +71,8 @@ namespace dse
 			__int64 field_8;
 			float Timer;
 			int field_14;
-			Map<ObjectHandle, EnvironmentalInfluences> EnvironmentalInfluences;
-			ObjectSet<ObjectHandle> UnknownHandles;
+			Map<ComponentHandle, EnvironmentalInfluences> EnvironmentalInfluences;
+			ObjectSet<ComponentHandle> UnknownHandles;
 		};
 
 

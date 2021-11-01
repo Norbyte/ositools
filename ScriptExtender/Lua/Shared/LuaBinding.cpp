@@ -384,7 +384,7 @@ namespace dse::lua
 		if (meta != nullptr) {
 			int32_t aiIdx = 1;
 			for (auto ai : meta->Ai) {
-				ObjectHandle handle;
+				ComponentHandle handle;
 				ai->GameObject->GetObjectHandle(handle);
 				settable(L, aiIdx++, handle);
 			}

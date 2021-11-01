@@ -23,13 +23,13 @@ namespace dse
             glm::vec3 InitialPlayerPos;
             glm::vec3 InitialEnemyPos;
             uint8_t CombatGroupID;
-            ObjectSet<ObjectHandle> UnknownHandles;
+            ObjectSet<ComponentHandle> UnknownHandles;
         };
 
 
         struct PartyFormation
         {
-            ObjectSet<ObjectHandle> Characters;
+            ObjectSet<ComponentHandle> Characters;
             uint8_t Unknown;
             uint8_t CombatId;
         };
@@ -40,16 +40,16 @@ namespace dse
             void* VMT;
             FixedString GUID;
             int NetID;
-            ObjectHandle Handle;
+            ComponentHandle Handle;
             ObjectSet<Character*> Players;
             ObjectSet<Character*> Characters;
             ObjectSet<PartyGroup*> Groups;
             ObjectSet<FixedString> ConsumedItems;
             ObjectSet<FixedString> UnlockedRecipes;
-            RefMap<ObjectHandle, PartyNPCData> NPCData;
-            ObjectSet<ObjectHandle> InventoryViews;
+            RefMap<ComponentHandle, PartyNPCData> NPCData;
+            ObjectSet<ComponentHandle> InventoryViews;
             ObjectSet<void*> Waypoints;
-            ObjectSet<ObjectHandle> UsedPortals;
+            ObjectSet<ComponentHandle> UsedPortals;
             uint64_t field_130[6];
             int field_160;
             int PartyExperience;
@@ -63,12 +63,12 @@ namespace dse
             void* EventListenerVMT;
             __int64 field_130;
             ObjectSet<Party*> Parties;
-            RefMap<uint8_t, ObjectHandle> HotSeatSlotToPartyHandleMap;
-            RefMap<int32_t, ObjectHandle> UserIdToPartyHandleMap;
+            RefMap<uint8_t, ComponentHandle> HotSeatSlotToPartyHandleMap;
+            RefMap<int32_t, ComponentHandle> UserIdToPartyHandleMap;
             RefMap<int16_t, PartyFormation*> PartyFormations;
             ObjectSet<Character*> CurrentParty;
             ObjectSet<Character*> Characters;
-            ObjectHandle GameMasterPartyHandle;
+            ComponentHandle GameMasterPartyHandle;
             FixedString TeleportTargetID;
             STDWString TeleportArriveEvent;
             int64_t TeleportNumRequest;

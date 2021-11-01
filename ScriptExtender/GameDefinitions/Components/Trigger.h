@@ -32,7 +32,7 @@ namespace dse
 
 	struct Trigger : public IGameObjectBase
 	{
-		ObjectHandle Handle; // Defunct, use GetObjectHandle() instead
+		ComponentHandle Handle; // Defunct, use GetObjectHandle() instead
 		FixedString UUID; // Defunct, use GetGuid() instead
 		TriggerTemplate* Template;
 		uint16_t field_20;
@@ -53,7 +53,7 @@ namespace dse
 	struct AreaTrigger : public Trigger
 	{
 		void* field_A8;
-		ObjectSet<ObjectHandle> field_B0;
+		ObjectSet<ComponentHandle> field_B0;
 		// void* field_D0; - Unused?
 	};
 

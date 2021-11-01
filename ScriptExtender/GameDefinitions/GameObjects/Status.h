@@ -49,8 +49,8 @@ namespace dse
 			using EnterProc = bool (Status* self);
 
 			virtual ~Status() = 0;
-			virtual void SetObjectHandle(ObjectHandle Handle) = 0;
-			virtual void GetObjectHandle(ObjectHandle * Handle) = 0;
+			virtual void SetObjectHandle(ComponentHandle Handle) = 0;
+			virtual void GetObjectHandle(ComponentHandle * Handle) = 0;
 			virtual StatusType GetStatusId() = 0;
 			// 0 - Stackable
 			// 1 - Apply only the first instance, discard new ones
@@ -98,11 +98,11 @@ namespace dse
 			float Strength; // Saved
 			float StatsMultiplier; // Saved
 			CauseType DamageSourceType; // Saved
-			ObjectHandle StatusHandle;
-			ObjectHandle TargetHandle;
-			ObjectSet<ObjectHandle> StatusOwner; // Saved
-			ObjectHandle StatusSourceHandle; // Saved
-			ObjectHandle CleansedByHandle;
+			ComponentHandle StatusHandle;
+			ComponentHandle TargetHandle;
+			ObjectSet<ComponentHandle> StatusOwner; // Saved
+			ComponentHandle StatusSourceHandle; // Saved
+			ComponentHandle CleansedByHandle;
 			StatusFlags2 Flags2; // Saved
 			StatusFlags0 Flags0; // Saved
 			StatusFlags1 Flags1; // Saved
@@ -118,14 +118,14 @@ namespace dse
 			bool ScaleWithVitality; // Saved
 			bool LoseControl; // Saved
 			FixedString ApplyStatusOnTick;
-			ObjectSet<ObjectHandle> ItemHandles; // Saved
+			ObjectSet<ComponentHandle> ItemHandles; // Saved
 			float EffectTime; // Saved
 			FixedString StatsId; // Saved
 			ObjectSet<void*> StatsIDs; // Set<StatsData>
 			FixedString StackId;
 			FixedString OriginalWeaponStatsId;
 			FixedString OverrideWeaponStatsId;
-			ObjectHandle OverrideWeaponHandle;
+			ComponentHandle OverrideWeaponHandle;
 			int AttributeHandle;
 			int SavingThrow; // TODO enum + enum prop!
 			Vector3 SourceDirection; // Saved
@@ -184,10 +184,10 @@ namespace dse
 			uint8_t Unk3;
 			void * RPGPropertyList;
 			HitDamageInfo DamageInfo;
-			ObjectHandle HitByHandle;
+			ComponentHandle HitByHandle;
 			// Character, Item or Projectile
-			ObjectHandle HitWithHandle;
-			ObjectHandle WeaponHandle;
+			ComponentHandle HitWithHandle;
+			ComponentHandle WeaponHandle;
 			// 0 - ASAttack
 			// 1 - Character::ApplyDamage, StatusDying, ExecPropertyDamage, StatusDamage
 			// 2 - AI hit test
@@ -211,7 +211,7 @@ namespace dse
 
 		struct StatusDying : public Status
 		{
-			ObjectHandle SourceHandle;
+			ComponentHandle SourceHandle;
 			int SourceType;
 			DeathType DeathType;
 			int AttackDirection;
@@ -222,9 +222,9 @@ namespace dse
 			bool ForceNoGhost;
 			bool SkipAnimation;
 			bool DontThrowDeathEvent;
-			ObjectHandle InflicterHandle;
-			ObjectHandle DisputeTargetHandle;
-			ObjectHandle OH4;
+			ComponentHandle InflicterHandle;
+			ComponentHandle DisputeTargetHandle;
+			ComponentHandle OH4;
 			uint8_t CombatId;
 			bool IgnoreGodMode;
 		};
@@ -250,7 +250,7 @@ namespace dse
 		struct StatusCharmed : public StatusConsumeBase
 		{
 			uint32_t UserId;
-			ObjectHandle OriginalOwnerCharacterHandle;
+			ComponentHandle OriginalOwnerCharacterHandle;
 		};
 
 		struct StatusKnockedDown : public Status
@@ -280,7 +280,7 @@ namespace dse
 		struct StatusThrown : public Status
 		{
 			int Level;
-			ObjectHandle CasterHandle;
+			ComponentHandle CasterHandle;
 			float AnimationDuration;
 			bool IsThrowingSelf; // Saved
 			float LandingEstimate; // Saved
@@ -308,9 +308,9 @@ namespace dse
 
 		struct StatusAoO : public Status
 		{
-			ObjectHandle SourceHandle; // Saved
-			ObjectHandle TargetHandle; // Saved
-			ObjectHandle PartnerHandle; // Saved
+			ComponentHandle SourceHandle; // Saved
+			ComponentHandle TargetHandle; // Saved
+			ComponentHandle PartnerHandle; // Saved
 			bool ActivateAoOBoost; // Saved
 			bool ShowOverhead; // Saved
 		};
@@ -324,7 +324,7 @@ namespace dse
 
 		struct StatusUnlock : public Status
 		{
-			ObjectHandle SourceHandle; // Saved
+			ComponentHandle SourceHandle; // Saved
 			FixedString Key;
 			int Level; // Saved
 			int Unlocked; // Saved
@@ -350,7 +350,7 @@ namespace dse
 
 		struct StatusLying : public Status
 		{
-			ObjectHandle ItemHandle; // Saved
+			ComponentHandle ItemHandle; // Saved
 			glm::vec3 Position; // Saved
 			int Index; // Saved
 			int field_A8;
@@ -371,7 +371,7 @@ namespace dse
 			int Infections; // Saved
 			float InfectTimer; // Saved
 			float Radius;
-			ObjectHandle TargetHandle; // Saved
+			ComponentHandle TargetHandle; // Saved
 		};
 
 		struct StatusInvisible : public StatusConsumeBase
@@ -391,14 +391,14 @@ namespace dse
 		{
 			int Level; // Saved
 			int Identified; // Saved
-			ObjectHandle IdentifierHandle; // Saved
+			ComponentHandle IdentifierHandle; // Saved
 		};
 
 		struct StatusRepair : public Status
 		{
 			int Level; // Saved
 			int Repaired; // Saved
-			ObjectHandle RepairerHandle; // Saved
+			ComponentHandle RepairerHandle; // Saved
 		};
 
 		struct StatusMaterial : public Status
@@ -427,12 +427,12 @@ namespace dse
 
 		struct StatusShacklesOfPain : public StatusConsumeBase
 		{
-			ObjectHandle CasterHandle; // Saved
+			ComponentHandle CasterHandle; // Saved
 		};
 
 		struct StatusShacklesOfPainCaster : public StatusConsumeBase
 		{
-			ObjectHandle VictimHandle; // Saved
+			ComponentHandle VictimHandle; // Saved
 		};
 
 		struct StatusWindWalker : public StatusConsumeBase {};
@@ -465,7 +465,7 @@ namespace dse
 
 		struct StatusSpirit : public Status
 		{
-			ObjectSet<ObjectHandle> Characters; // Saved
+			ObjectSet<ComponentHandle> Characters; // Saved
 		};
 
 		struct StatusDamage : public StatusConsumeBase
@@ -485,7 +485,7 @@ namespace dse
 			void* LadderData;
 			int LadderData2;
 			glm::vec3 MoveDirection;
-			ObjectHandle LadderHandle; // Saved
+			ComponentHandle LadderHandle; // Saved
 			FixedString Level; // Saved
 			int Status; // Saved
 			bool Direction; // Saved
@@ -539,7 +539,7 @@ namespace dse
 
 		struct StatusChallenge : public StatusConsumeBase
 		{
-			ObjectHandle SourceHandle; // Saved
+			ComponentHandle SourceHandle; // Saved
 			bool Target; // Saved
 		};
 
@@ -547,12 +547,12 @@ namespace dse
 
 		struct StatusHealSharing : public StatusConsumeBase
 		{
-			ObjectHandle CasterHandle; // Saved
+			ComponentHandle CasterHandle; // Saved
 		};
 
 		struct StatusHealSharingCaster : public StatusConsumeBase
 		{
-			ObjectHandle TargetHandle; // Saved
+			ComponentHandle TargetHandle; // Saved
 		};
 
 		struct StatusExtraTurn : public StatusConsumeBase {};
@@ -561,12 +561,12 @@ namespace dse
 		{
 			int Charges; // Saved
 			Vector3 TargetPos; // Saved
-			ObjectHandle TargetHandle; // Saved
+			ComponentHandle TargetHandle; // Saved
 			float Radius;
 			FixedString Projectile;
 			CDivinityStats_Condition* TargetConditions;
 			ObjectSet<void *> Targets; // ObjectSet<StatusActiveDefenseTargetData>
-			ObjectSet<ObjectHandle> PreviousTargets; // Saved
+			ObjectSet<ComponentHandle> PreviousTargets; // Saved
 		};
 
 		struct StatusSpark : public StatusConsumeBase
@@ -591,10 +591,10 @@ namespace dse
 
 		struct StatusMachine : public NetworkComponentFactory // FIXME - <Status, (uint32_t)ObjectType::Unknown>
 		{
-			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ObjectHandle);
+			using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ComponentHandle);
 			using ApplyStatusProc = void (esv::StatusMachine* StatusMachine, Status* Status);
 
-			Status * GetStatus(ObjectHandle handle, bool returnUnapplied = false) const;
+			Status * GetStatus(ComponentHandle handle, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
 			Status* GetStatus(FixedString const& statusId) const;
 
@@ -602,7 +602,7 @@ namespace dse
 			bool IsStatusMachineActive;
 			bool PreventStatusApply;
 			ObjectSet<Status *> Statuses;
-			ObjectHandle OwnerObjectHandle;
+			ComponentHandle OwnerObjectHandle;
 			uint32_t References;
 		};
 	}
@@ -612,8 +612,8 @@ namespace dse
 		struct Status
 		{
 			virtual void Destroy() = 0;
-			virtual void SetOwnerHandle(ObjectHandle handle) = 0;
-			virtual ObjectHandle GetOwnerHandle(ObjectHandle *) = 0;
+			virtual void SetOwnerHandle(ComponentHandle handle) = 0;
+			virtual ComponentHandle GetOwnerHandle(ComponentHandle *) = 0;
 			virtual StatusType GetStatusId() = 0;
 			virtual unsigned int GetStatusType() = 0;
 			virtual unsigned int BeforeAddStatus() = 0;
@@ -644,7 +644,7 @@ namespace dse
 
 			FixedString field_8;
 			NetId NetID;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			__int64 field_20;
 			FixedString StatusId;
 			int field_30;
@@ -652,7 +652,7 @@ namespace dse
 			float CurrentLifeTime;
 			float StatsMultiplier;
 			StatusFlags Flags;
-			ObjectHandle StatusSourceHandle;
+			ComponentHandle StatusSourceHandle;
 		};
 
 
@@ -666,7 +666,7 @@ namespace dse
 			bool IsStatusMachineActive;
 			bool PreventStatusApply;
 			ObjectSet<Status*> Statuses;
-			ObjectHandle OwnerObjectHandle;
+			ComponentHandle OwnerObjectHandle;
 			uint32_t References;
 			int field_154;
 			__int64 field_158;
@@ -685,9 +685,9 @@ namespace dse
 	public:
 		void Add(esv::Status * status);
 		void Remove(esv::Status * status);
-		PendingStatus * Find(ObjectHandle owner, ObjectHandle statusHandle);
+		PendingStatus * Find(ComponentHandle owner, ComponentHandle statusHandle);
 
 	private:
-		std::unordered_map<ObjectHandle, PendingStatus> statuses_;
+		std::unordered_map<ComponentHandle, PendingStatus> statuses_;
 	};
 }

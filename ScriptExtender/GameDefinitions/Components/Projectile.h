@@ -15,11 +15,11 @@ namespace dse
         struct DefaultProjectileHit : Noncopyable<DefaultProjectileHit>
         {
             virtual void Destroy(bool b) = 0;
-            virtual void OnHit(glm::vec3 const& position, ObjectHandle const& objectHandle, Projectile* projectile) = 0;
+            virtual void OnHit(glm::vec3 const& position, ComponentHandle const& objectHandle, Projectile* projectile) = 0;
             virtual void Visit(ObjectVisitor* visitor) = 0;
             virtual int GetTypeId() = 0;
 
-            ObjectHandle CasterHandle;
+            ComponentHandle CasterHandle;
             int Level{ -1 };
             bool IsFromItem{ false };
             FixedString SkillId;
@@ -28,7 +28,7 @@ namespace dse
         struct ProxyProjectileHit : DefaultProjectileHit
         {
             void Destroy(bool b) override;
-            void OnHit(glm::vec3 const& position, ObjectHandle const& objectHandle, Projectile* projectile) override;
+            void OnHit(glm::vec3 const& position, ComponentHandle const& objectHandle, Projectile* projectile) override;
             void Visit(ObjectVisitor* visitor) override;
             int GetTypeId() override;
 
@@ -39,10 +39,10 @@ namespace dse
 		{
             using ExplodeProc = void (Projectile*);
 
-            ObjectHandle CasterHandle;
-            ObjectHandle SourceHandle;
-            ObjectHandle TargetObjectHandle;
-            ObjectHandle HitObjectHandle;
+            ComponentHandle CasterHandle;
+            ComponentHandle SourceHandle;
+            ComponentHandle TargetObjectHandle;
+            ComponentHandle HitObjectHandle;
             glm::vec3 SourcePosition;
             glm::vec3 TargetPosition;
             DamageType DamageType;
@@ -58,11 +58,11 @@ namespace dse
             FixedString SkillId;
             CRPGStats_Object_Property_List* PropertyList;
             uint8_t BoostConditions;
-            ObjectHandle WeaponHandle;
-            ObjectHandle MovingEffectHandle;
+            ComponentHandle WeaponHandle;
+            ComponentHandle MovingEffectHandle;
             FixedString SpawnEffect;
             bool SpawnFXOverridesImpactFX;
-            ObjectHandle EffectHandle;
+            ComponentHandle EffectHandle;
             bool RequestDelete;
             bool Launched;
             bool IsTrap;
@@ -93,16 +93,16 @@ namespace dse
 	    struct ShootProjectileHelperHitObject
 	    {
 		    int HitInterpolation{ 0 };
-		    ObjectHandle Target;
+		    ComponentHandle Target;
 		    glm::vec3 Position;
 	    };
 
 	    struct ShootProjectileHelper
 	    {
 		    FixedString SkillId;
-		    ObjectHandle Caster;
-		    ObjectHandle Source;
-		    ObjectHandle Target;
+		    ComponentHandle Caster;
+		    ComponentHandle Source;
+		    ComponentHandle Target;
 		    glm::vec3 StartPosition{ .0f };
 		    glm::vec3 EndPosition{ .0f };
 		    uint8_t Random{ 0 };

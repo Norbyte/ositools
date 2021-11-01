@@ -108,10 +108,10 @@ namespace dse
 			FixedString UnknownFS;
 			NetId NetID;
 			SkillInfo Info;
-			ObjectSet<ObjectHandle> CauseList;
-			ObjectHandle UnknownHandle;
+			ObjectSet<ComponentHandle> CauseList;
+			ComponentHandle UnknownHandle;
 			uint32_t Unknown1;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			FixedString SkillId;
 			float ActiveCooldown;
 			bool IsActivated;
@@ -126,7 +126,7 @@ namespace dse
 		struct SkillManager : public ProtectedGameObject<SkillManager>
 		{
 			void * FreeSkillState;
-			ObjectHandle OwnerHandle;
+			ComponentHandle OwnerHandle;
 			Map<FixedString, Skill *> Skills;
 			RefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
 			bool IsLoading;
@@ -144,7 +144,7 @@ namespace dse
 
 			ItemType Type;
 			FixedString SkillOrStatId;
-			ObjectHandle ItemHandle;
+			ComponentHandle ItemHandle;
 		};
 
 		struct PlayerCustomData : public eoc::PlayerCustomData {};
@@ -157,7 +157,7 @@ namespace dse
 				int64_t Value;
 			};
 
-			ObjectHandle SomeObjectHandle;
+			ComponentHandle SomeObjectHandle;
 			ObjectSet<SkillBarItem> SkillBar;
 			ObjectSet<uint32_t> LockedAbility;
 			Map<FixedString, void *> ShapeShiftVariableManagers;
@@ -166,17 +166,17 @@ namespace dse
 			uint8_t SelectedSkillSetIndex;
 			FixedString QuestSelected;
 			PlayerCustomData CustomData;
-			RefMap<ObjectHandle, PickpocketData> * PreviousPickpocketTargets;
-			ObjectHandle PickpocketTarget;
+			RefMap<ComponentHandle, PickpocketData> * PreviousPickpocketTargets;
+			ComponentHandle PickpocketTarget;
 			ObjectSet<glm::vec3> PreviousPositions;
 			uint32_t PreviousPositionId;
 			bool HelmetOption;
 			bool ShouldReevaluateSkillBar;
 			uint32_t Renown;
 			uint32_t CachedTension;
-			ObjectHandle SomeObjectHandle3;
+			ComponentHandle SomeObjectHandle3;
 			uint8_t HomesteadKeyState;
-			ObjectHandle RecruiterHandle;
+			ComponentHandle RecruiterHandle;
 			FixedString OriginalTemplate;
 			FixedString Region;
 		};
@@ -189,7 +189,7 @@ namespace dse
 				HitType hitType, bool noHitRoll, HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
 			using ApplyDamageProc = void (esv::Character* self, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
 
-			Status* GetStatus(ObjectHandle handle, bool returnPending, bool returnUnapplied = false) const;
+			Status* GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId handle) const;
 
 			glm::vec3 WorldPos; // Saved
@@ -220,7 +220,7 @@ namespace dse
 			uint8_t ForceSynchCount;
 			bool U5;
 			CDivinityStats_Character * Stats;
-			ObjectHandle InventoryHandle;
+			ComponentHandle InventoryHandle;
 			void * MovementMachine;
 			esv::ActionMachine * ActionMachine;
 			void * SteeringMachine;
@@ -251,21 +251,21 @@ namespace dse
 			UserId UserID;
 			UserId ReservedUserID;
 			uint32_t U12;
-			ObjectHandle OwnerHandle;
-			ObjectHandle FollowCharacterHandle;
-			ObjectHandle EnemyCharacterHandle;
-			ObjectHandle SpiritCharacterHandle;
-			ObjectHandle CorpseCharacterHandle;
-			ObjectHandle ObjectHandle6;
-			ObjectSet<ObjectHandle> EnemyHandles;
+			ComponentHandle OwnerHandle;
+			ComponentHandle FollowCharacterHandle;
+			ComponentHandle EnemyCharacterHandle;
+			ComponentHandle SpiritCharacterHandle;
+			ComponentHandle CorpseCharacterHandle;
+			ComponentHandle ObjectHandle6;
+			ObjectSet<ComponentHandle> EnemyHandles;
 			ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePathInfluence>
-			ObjectSet<ObjectHandle> SummonHandles;
+			ObjectSet<ComponentHandle> SummonHandles;
 			void * PlanManager;
 			float PartialAP;
 			uint8_t AnimType;
 			uint8_t DelayDeathCount;
 			Status * DelayedDyingStatus;
-			ObjectSet<ObjectHandle> RegisteredTriggerHandles;
+			ObjectSet<ComponentHandle> RegisteredTriggerHandles;
 			ObjectSet<FixedString> RegisteredTriggers;
 			PlayerData * PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
@@ -279,13 +279,13 @@ namespace dse
 			int32_t MaxArmorPatchCheck;
 			int32_t MaxMagicArmorPatchCheck;
 			FixedString AnimationSetOverride;
-			ObjectHandle PartyHandle;
+			ComponentHandle PartyHandle;
 			ObjectSet<FixedString> CreatedTemplateItems;
 			ObjectSet<FixedString> Treasures;
 			FixedString CustomTradeTreasure;
 			ObjectSet<FixedString> Tags;
-			ObjectHandle CrimeHandle;
-			ObjectHandle PreviousCrimeHandle;
+			ComponentHandle CrimeHandle;
+			ComponentHandle PreviousCrimeHandle;
 			uint32_t CrimeState;
 			uint32_t PreviousCrimeState;
 			bool IsAlarmed;
@@ -296,14 +296,14 @@ namespace dse
 			uint64_t DamageCounter;
 			uint64_t HealCounter;
 			uint64_t KillCounter;
-			ObjectHandle MovingCasterHandle;
+			ComponentHandle MovingCasterHandle;
 			FixedString Archetype;
 			FixedString EquipmentColor;
 			FixedString ProjectileTemplate;
 			uint32_t TimeElapsed;
 			ObjectSet<FixedString> PreferredAiTarget;
 			void* CharacterBody;
-			RefMap<ObjectHandle, ObjectSet<CDivinityStats_Object_Property_Status const*>> StatusesFromItems;
+			RefMap<ComponentHandle, ObjectSet<CDivinityStats_Object_Property_Status const*>> StatusesFromItems;
 			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;
@@ -360,7 +360,7 @@ namespace dse
 
 		struct Character : public IEocClientObject
 		{
-			Status* GetStatus(ObjectHandle statusHandle) const;
+			Status* GetStatus(ComponentHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 
 			glm::vec3 WorldPos; // Saved
@@ -387,7 +387,7 @@ namespace dse
 			CharacterTemplate* Template;
 			CharacterTemplate* OriginalTemplate;
 			CDivinityStats_Character* Stats;
-			ObjectHandle InventoryHandle;
+			ComponentHandle InventoryHandle;
 			void* MovementMachine;
 			void* ActionStateMachine;
 			void* SteeringMachine;
@@ -402,14 +402,14 @@ namespace dse
 			int field_100;
 			__int64 field_108;
 			void* CharacterBody;
-			ObjectHandle OwnerCharacterHandle;
-			ObjectHandle OH3;
-			ObjectHandle CorpseCharacterHandle;
-			ObjectHandle OH5;
+			ComponentHandle OwnerCharacterHandle;
+			ComponentHandle OH3;
+			ComponentHandle CorpseCharacterHandle;
+			ComponentHandle OH5;
 			int field_138;
-			ObjectHandle HighlightCircleEffect;
-			ObjectHandle OH7;
-			ObjectHandle ViewConeEffectHandle;
+			ComponentHandle HighlightCircleEffect;
+			ComponentHandle OH7;
+			ComponentHandle ViewConeEffectHandle;
 			__int64 field_158;
 			__int64 field_160;
 			ecl::PlayerData* PlayerData;
@@ -419,8 +419,8 @@ namespace dse
 			__int64 field_248;
 			float field_250;
 			SoundObjectId SoundObjectHandles[3];
-			ObjectHandle OH9;
-			ObjectHandle FollowCharacterHandle;
+			ComponentHandle OH9;
+			ComponentHandle FollowCharacterHandle;
 			char PickpocketNLootingFlags;
 			char Flags2;
 			int Flags3;
@@ -429,7 +429,7 @@ namespace dse
 			TranslatedString* DisplayNameOverride;
 			TranslatedString StoryDisplayName;
 			TranslatedString OriginalDisplayName;
-			ObjectHandle TalkingIconEffect;
+			ComponentHandle TalkingIconEffect;
 			float field_3F0;
 			int SoundBoneIndex;
 			int field_3F8;
@@ -448,12 +448,12 @@ namespace dse
 			__int64 field_468;
 			__int64 field_470;
 			__int64 field_478;
-			ObjectHandle OH13;
+			ComponentHandle OH13;
 			FixedString Archetype;
 			FixedString FS3;
 			int field_498;
 			char field_49C;
-			ObjectSet<ObjectHandle> ObjectHandles;
+			ObjectSet<ComponentHandle> ObjectHandles;
 			Map<FixedString, void*> field_4C0;
 			__int64 field_4D8;
 			__int64 field_4E0;

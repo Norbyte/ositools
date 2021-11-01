@@ -485,7 +485,7 @@ namespace dse
 			"48 8B F2 " // mov     rsi, rdx
 			"4C 8B F1 " // mov     r14, rcx
 			"0F 8E 8C 00 00 00 " // jle     short xxx
-			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ComponentHandle@ls@@2V12@B
 			"48 8D 15 XX XX XX XX " // lea     rdx, fs_LIFESTEAL
 			"48 89 5C 24 30 " //  mov     [rsp+28h+arg_0], rbx
 			"48 89 7C 24 40 " //  mov     [rsp+28h+arg_10], rdi

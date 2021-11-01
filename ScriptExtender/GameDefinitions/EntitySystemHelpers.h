@@ -147,7 +147,7 @@ public:
 
 	template <class T>
 	// FIXME - migrate to EntityHandle
-	T* GetEntityComponent(ObjectHandle entityHandle, bool logError = true)
+	T* GetEntityComponent(ComponentHandle entityHandle, bool logError = true)
 	{
 		auto component = GetRawEntityComponent(entityHandle, T::ComponentType, logError);
 		if (component) {
@@ -218,7 +218,7 @@ private:
 	void* GetRawComponent(ComponentHandle componentHandle, ExtComponentType type, bool logError);
 	void* GetRawComponent(char const* nameGuid, ExtComponentType type, bool logError);
 	void* GetRawComponent(FixedString const& guid, ExtComponentType type, bool logError);
-	void* GetRawEntityComponent(ObjectHandle entityHandle, ExtComponentType type, bool logError);
+	void* GetRawEntityComponent(ComponentHandle entityHandle, ExtComponentType type, bool logError);
 };
 
 class ServerEntitySystemHelpers : public EntitySystemHelpersBase

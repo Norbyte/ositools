@@ -402,7 +402,7 @@ namespace dse
 			"48 8B F2 " // mov     rsi, rdx
 			"4C 8B F1 " // mov     r14, rcx
 			"7E 7E " // jle     short xxx
-			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			"4C 8B 05 XX XX XX XX " // mov     r8, cs:?Unassigned@ComponentHandle@ls@@2V12@B
 			"48 8D 15 XX XX XX XX " // lea     rdx, fs_LIFESTEAL
 			"48 89 5C 24 30 " //  mov     [rsp+28h+arg_0], rbx
 			"48 89 7C 24 40 " //  mov     [rsp+28h+arg_10], rdi
@@ -837,7 +837,7 @@ namespace dse
 			"48 8D 05 XX XX XX XX " // lea     rax, ??_7EocUI@ecl@@6B@
 			"48 89 03 " // mov     [rbx], rax
 			"66 C7 83 54 01 00 00 00 00 " // mov     word ptr [rbx+154h], 0
-			"48 8B 05 XX XX XX XX ", // mov     rax, cs:?Unassigned@ObjectHandle@ls@@2V12@B
+			"48 8B 05 XX XX XX XX ", // mov     rax, cs:?Unassigned@ComponentHandle@ls@@2V12@B
 			{},
 			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(EoCUI__ctor)},
 			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(EoCUI__vftable)},

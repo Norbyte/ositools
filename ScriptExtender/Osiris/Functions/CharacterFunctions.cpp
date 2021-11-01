@@ -266,7 +266,7 @@ namespace dse::esv
 			auto inventory = FindInventoryByHandle(character->InventoryHandle);
 			if (inventory == nullptr) return;
 
-			ObjectHandle itemHandle;
+			ComponentHandle itemHandle;
 			item->GetObjectHandle(itemHandle);
 
 			auto equipProc = GetStaticSymbols().InventoryEquip;

@@ -59,12 +59,12 @@ namespace dse::esv
 	{
 	public:
 		esv::StatusMachine* GetStatusMachine(char const* gameObjectGuid);
-		esv::Status* GetStatus(char const* gameObjectGuid, ObjectHandle const& statusHandle);
-		void PreventApply(IEoCServerObject* gameObject, ObjectHandle const& statusHandle, bool preventApply);
+		esv::Status* GetStatus(char const* gameObjectGuid, ComponentHandle const& statusHandle);
+		void PreventApply(IEoCServerObject* gameObject, ComponentHandle const& statusHandle, bool preventApply);
 
 		Status* PrepareStatus(esv::StatusMachine* statusMachine, FixedString const& stautsId, float lifeTime);
-		std::optional<ObjectHandle> ApplyActiveDefense(esv::Character* character, FixedString const& stautsId, float lifeTime);
-		std::optional<ObjectHandle> ApplyDamageOnMove(esv::Character* character, FixedString const& stautsId, esv::Character* sourceCharacter,
+		std::optional<ComponentHandle> ApplyActiveDefense(esv::Character* character, FixedString const& stautsId, float lifeTime);
+		std::optional<ComponentHandle> ApplyDamageOnMove(esv::Character* character, FixedString const& stautsId, esv::Character* sourceCharacter,
 			float lifeTime, float distancePerDamage);
 
 		void ThrowStatusHitEnter(esv::Status* status);

@@ -36,7 +36,7 @@ namespace dse::esv
 
 		DEBUG_HIT("PendingHitManager::OnCharacterHit(Hit=%p): Constructing new hit %d", damageInfo, hit->Id);
 
-		ObjectHandle targetHandle, attackerHandle;
+		ComponentHandle targetHandle, attackerHandle;
 		character->GetObjectHandle(targetHandle);
 		hit->TargetHandle = targetHandle;
 
@@ -322,7 +322,7 @@ namespace dse::esv
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
-			if (lua->OnCharacterApplyDamage(self, luaHit, ObjectHandle(attackerHandle), causeType, impactDirection, context)) {
+			if (lua->OnCharacterApplyDamage(self, luaHit, ComponentHandle(attackerHandle), causeType, impactDirection, context)) {
 				return;
 			}
 		}
@@ -347,7 +347,7 @@ namespace dse::esv
 		gExtender->GetStatusHelpers().ThrowApplyStatus(self, status);
 
 		bool previousPreventApplyState = self->PreventStatusApply;
-		ObjectHandle targetHandle;
+		ComponentHandle targetHandle;
 		auto target = GetEntityWorld()->GetGameObject(self->OwnerObjectHandle);
 		if (target != nullptr) {
 			target->GetObjectHandle(targetHandle);

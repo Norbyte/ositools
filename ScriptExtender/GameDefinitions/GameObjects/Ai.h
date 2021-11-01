@@ -51,8 +51,8 @@ namespace dse::eoc
         int field_48;
         int field_4C;
         int field_50;
-        ObjectHandle AiHandle;
-        ObjectHandle TargetAiHandle_M;
+        ComponentHandle AiHandle;
+        ComponentHandle TargetAiHandle_M;
         PathParams* PathParams;
         float RadiusX;
         float field_74;
@@ -75,7 +75,7 @@ namespace dse::eoc
         ObjectSet<void*> Checkpoints; // AiPathCheckpoint*
         ObjectSet<void*> Checkpoints2; // AiPathCheckpoint*
         ObjectSet<bool> UnknownSet;
-        ObjectSet<ObjectHandle> IgnoreCollision;
+        ObjectSet<ComponentHandle> IgnoreCollision;
         float FindPathStartPosition[2];
     };
 
@@ -103,7 +103,7 @@ namespace dse::eoc
         char field_8C;
         float XZ2[2];
         bool UseOnDistance;
-        ObjectHandle MyHandle;
+        ComponentHandle MyHandle;
     };
 
     struct AiMetaData
@@ -368,7 +368,7 @@ namespace dse::ecl
         char field_79;
         char field_7A;
         char RegionMaskTextureInitialized;
-        ObjectHandle OH1;
+        ComponentHandle OH1;
         char field_88;
         char field_89;
         char field_8A;
@@ -377,8 +377,8 @@ namespace dse::ecl
         int field_94;
         RefMap<int, FixedString> ShroudTriggers_int_FS;
         ObjectSet<void*> OS_SightTileData;
-        ObjectSet<ObjectHandle> OS_ObjectHandle;
-        ObjectSet<ObjectHandle> OS_ObjectHandle2;
+        ObjectSet<ComponentHandle> OS_ObjectHandle;
+        ObjectSet<ComponentHandle> OS_ObjectHandle2;
         char field_108;
     };
 }

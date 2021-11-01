@@ -98,7 +98,7 @@ namespace dse
 
 			struct EntityWrapper
 			{
-				ObjectHandle EntityHandle;
+				ComponentHandle EntityHandle;
 				eoc::CombatComponent *CombatComponentPtr;
 				Character * Character;
 				struct Item * Item;
@@ -137,7 +137,7 @@ namespace dse
 				bool AddedNextTurnNotification;
 				CombatGroup *CombatGroup;
 				EntityWrapper EntityWrapper;
-				ComponentHandle ComponentHandle;
+				ComponentHandleWithType ComponentHandle;
 			};
 
 			struct Combat
@@ -150,10 +150,10 @@ namespace dse
 				ObjectSet<void *> SummonDataSet;
 				RefMap<uint32_t, CombatTeam *> Teams;
 				uint32_t NextTeamId;
-				ObjectSet<ObjectHandle> WaitingForCharComponents;
+				ObjectSet<ComponentHandle> WaitingForCharComponents;
 				RefMap<FixedString, void *> ObjHKRefMap;
-				ObjectHandle InitialPlayerHandle;
-				ObjectHandle InitialEnemyHandle;
+				ComponentHandle InitialPlayerHandle;
+				ComponentHandle InitialEnemyHandle;
 				FixedString LevelName;
 				float TimeSpentInTurn;
 				float TimeLeft_M;
@@ -170,17 +170,17 @@ namespace dse
 
 			struct TimeoutOverride
 			{
-				ComponentHandle Handle;
+				ComponentHandleWithType Handle;
 				float Timeout;
 			};
 
 			void * VMT;
 			BaseComponentProcessingSystem Base;
-			ObjectSet<ComponentHandle> ComponentHandleSet;
-			ObjectSet<ObjectHandle> EntityHandleSet;
-			ObjectSet<ObjectHandle> EntityHandleSet2;
+			ObjectSet<ComponentHandleWithType> ComponentHandleSet;
+			ObjectSet<ComponentHandle> EntityHandleSet;
+			ObjectSet<ComponentHandle> EntityHandleSet2;
 			ObjectSet<EntityWrapper> EntityWrapperSet;
-			ObjectSet<ObjectHandle> EntitesLeftCombatHandleSet;
+			ObjectSet<ComponentHandle> EntitesLeftCombatHandleSet;
 			int TeamMode;
 			RefMap<uint8_t, Combat> Combats;
 			ObjectSet<uint8_t> FreeIdSet;

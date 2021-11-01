@@ -67,8 +67,8 @@ namespace dse::esv
 			CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
-		void OnCreateUIObject(UIObjectManager* self, ObjectHandle* handle, unsigned int layerIndex, unsigned int creatorId, int flags, 
-			uint64_t resourceFlags, uint16_t playerId, ObjectHandle* result);
+		void OnCreateUIObject(UIObjectManager* self, ComponentHandle* handle, unsigned int layerIndex, unsigned int creatorId, int flags, 
+			uint64_t resourceFlags, uint16_t playerId, ComponentHandle* result);
 		void OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle, DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList,
 			DamageType damageType);
 		void OnExecuteCharacterSetExtraProperties(CRPGStats_Object_Property_List* extraProperties, uint64_t attackerHandle,
@@ -81,7 +81,7 @@ namespace dse::esv
 
 		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, RPGStats_Treasure_Object_Info* treasureInfo, int level);
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 
-			ObjectSet<ObjectHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
+			ObjectSet<ComponentHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
 
 
 		void OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent);

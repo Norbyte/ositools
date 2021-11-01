@@ -86,39 +86,44 @@ struct UserId
 
 static constexpr UserId ReservedUserId{ UserId::Unassigned };
 
-struct ObjectHandle
+
+
+template <class T>
+struct TypedHandle
 {
+	static constexpr uint64_t NullHandle = 0ull;
+
 	uint64_t Handle;
 
-	inline ObjectHandle()
-		: Handle(0)
+	inline TypedHandle()
+		: Handle(NullHandle)
 	{}
 
-	explicit inline ObjectHandle(uint64_t handle)
+	explicit inline TypedHandle(uint64_t handle)
 		: Handle(handle)
 	{}
 
-	explicit inline ObjectHandle(int64_t handle)
+	explicit inline TypedHandle(int64_t handle)
 		: Handle((uint64_t)handle)
 	{}
 
-	inline ObjectHandle(uint64_t type, uint64_t index, uint64_t salt)
+	inline TypedHandle(uint64_t type, uint64_t index, uint64_t salt)
 	{
 		assert(type < 0x400 && salt < 0x400000);
 		Handle = index | (salt << 32) | (type << 54);
 	}
 
-	inline ObjectHandle(ObjectHandle const & oh)
+	inline TypedHandle(TypedHandle const & oh)
 		: Handle(oh.Handle)
 	{}
 
-	inline ObjectHandle & operator = (ObjectHandle const & oh)
+	inline TypedHandle& operator = (TypedHandle const & oh)
 	{
 		Handle = oh.Handle;
 		return *this;
 	}
 
-	inline bool operator == (ObjectHandle const & oh) const
+	inline bool operator == (TypedHandle const & oh) const
 	{
 		return Handle == oh.Handle;
 	}
@@ -140,12 +145,12 @@ struct ObjectHandle
 
 	explicit inline operator bool() const
 	{
-		return Handle != 0;
+		return Handle != NullHandle;
 	}
 
 	inline bool operator !() const
 	{
-		return Handle == 0;
+		return Handle == NullHandle;
 	}
 
 	explicit inline operator int64_t() const
@@ -154,15 +159,22 @@ struct ObjectHandle
 	}
 };
 
-inline uint64_t Hash(ObjectHandle const& h)
+enum EntityHandleTag {};
+enum GenericComponentHandleTag {};
+
+using EntityHandle = TypedHandle<EntityHandleTag>;
+using ComponentHandle = TypedHandle<GenericComponentHandleTag>;
+
+template <class T>
+inline uint64_t Hash(TypedHandle<T> const& h)
 {
 	return h.Handle;
 }
 
-struct ComponentHandle
+struct ComponentHandleWithType
 {
 	int64_t TypeId;
-	ObjectHandle Handle;
+	ComponentHandle Handle;
 
 	inline bool IsValid() const
 	{
@@ -191,9 +203,20 @@ END_SE()
 
 namespace std
 {
-	template<> struct hash<dse::ObjectHandle>
+	template<> struct hash<dse::EntityHandle>
 	{
-		typedef dse::ObjectHandle argument_type;
+		typedef dse::EntityHandle argument_type;
+		typedef std::size_t result_type;
+
+		result_type operator()(argument_type const& fn) const noexcept
+		{
+			return std::hash<uint64_t>{}(fn.Handle);
+		}
+	};
+
+	template<> struct hash<dse::ComponentHandle>
+	{
+		typedef dse::ComponentHandle argument_type;
 		typedef std::size_t result_type;
 
 		result_type operator()(argument_type const& fn) const noexcept

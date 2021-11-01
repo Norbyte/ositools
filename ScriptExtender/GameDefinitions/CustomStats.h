@@ -91,11 +91,11 @@ namespace dse
 			void * NetEventListenerVMT;
 			void * BaseComponentVMT;
 			EntityWorld * EntityWorld;
-			ObjectSet<ComponentHandle> CreatedDefinitions;
-			ObjectSet<ComponentHandle> InSyncDefinitions;
-			ObjectSet<ComponentHandle> RemovedDefinitions;
-			ObjectSet<ComponentHandle> UpdatedDefinitions;
-			ObjectSet<ComponentHandle> CustomStatComponents;
+			ObjectSet<ComponentHandleWithType> CreatedDefinitions;
+			ObjectSet<ComponentHandleWithType> InSyncDefinitions;
+			ObjectSet<ComponentHandleWithType> RemovedDefinitions;
+			ObjectSet<ComponentHandleWithType> UpdatedDefinitions;
+			ObjectSet<ComponentHandleWithType> CustomStatComponents;
 			PrimitiveSet<short> PeerIDClassnames;
 		};
 
@@ -109,10 +109,10 @@ namespace dse
 			static CustomStatDefinitionComponent* FindStatDefinitionByName(char const* name);
 			static CustomStatDefinitionComponent* FindStatDefinitionById(char const* id);
 
-			static void SyncCharacterStats(ObjectHandle entityHandle, eoc::CustomStatsComponent* stats,
+			static void SyncCharacterStats(ComponentHandle entityHandle, eoc::CustomStatsComponent* stats,
 				FixedString statKey, int statValue);
-			static std::optional<int> GetCharacterStat(ObjectHandle entityHandle, char const* statId);
-			static bool SetCharacterStat(ObjectHandle entityHandle, char const* statId, int value);
+			static std::optional<int> GetCharacterStat(ComponentHandle entityHandle, char const* statId);
+			static bool SetCharacterStat(ComponentHandle entityHandle, char const* statId, int value);
 
 		private:
 			static void ProcessMessage(net::Message* msg);

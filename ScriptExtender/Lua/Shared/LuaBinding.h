@@ -24,7 +24,7 @@ namespace dse::lua
 			: obj_(obj), handle_()
 		{}
 
-		ObjectProxy(ObjectHandle handle)
+		ObjectProxy(ComponentHandle handle)
 			: obj_(nullptr), handle_(handle)
 		{}
 
@@ -82,7 +82,7 @@ namespace dse::lua
 
 	private:
 		T * obj_;
-		ObjectHandle handle_;
+		ComponentHandle handle_;
 	};
 
 
