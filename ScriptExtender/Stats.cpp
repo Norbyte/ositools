@@ -922,7 +922,7 @@ namespace dse
 			} else {
 				return "";
 			}
-		} else if (typeInfo->Values.ItemCount > 0) {
+		} else if (typeInfo->Values.Count() > 0) {
 			auto enumLabel = typeInfo->Values.FindByValue(index);
 			if (enumLabel) {
 				return enumLabel->Str;
@@ -946,7 +946,7 @@ namespace dse
 
 		auto index = object->IndexedProperties[attributeIndex];
 		if (typeInfo->Name == GFS.strConstantInt
-			|| typeInfo->Values.ItemCount > 0) {
+			|| typeInfo->Values.Count() > 0) {
 			return index;
 		}
 		else {
@@ -1054,7 +1054,7 @@ namespace dse
 			if (flags) {
 				*attrFlags = *flags;
 			}
-		} else if (typeInfo->Values.ItemCount > 0) {
+		} else if (typeInfo->Values.Count() > 0) {
 			auto enumIndex = typeInfo->Values.Find(FixedString(value));
 			if (enumIndex != nullptr) {
 				object->IndexedProperties[attributeIndex] = *enumIndex;
@@ -1081,8 +1081,8 @@ namespace dse
 
 		if (typeInfo->Name == GFS.strConstantInt) {
 			object->IndexedProperties[attributeIndex] = value;
-		} else if (typeInfo->Values.ItemCount > 0) {
-			if (value >= 0 && value < (int)typeInfo->Values.ItemCount) {
+		} else if (typeInfo->Values.Count() > 0) {
+			if (value >= 0 && value < (int)typeInfo->Values.Count()) {
 				object->IndexedProperties[attributeIndex] = value;
 			} else {
 				OsiError("Couldn't set " << object->Name << "." << attributeName << ": Enum index (\"" << value << "\") out of range");
