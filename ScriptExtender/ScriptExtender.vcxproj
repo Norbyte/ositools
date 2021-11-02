@@ -101,6 +101,13 @@
     <ClInclude Include="Lua\Shared\LuaHelpers.h" />
     <ClInclude Include="Lua\Shared\LuaLifetime.h" />
     <ClInclude Include="Lua\Shared\LuaSerializers.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="Osiris\Debugger\Debugger.h" />
     <ClInclude Include="Osiris\Debugger\DebugInterface.h" />
@@ -156,6 +163,7 @@
     <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\Shared\LuaSerializers.cpp" />
     <ClCompile Include="Lua\Shared\LuaStats.cpp" />
+    <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp" />
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
     <ClCompile Include="Osiris\Debugger\DebugInterface.cpp" />
@@ -202,6 +210,7 @@
     <None Include="GameDefinitions\EngineHooks.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
+    <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
     <None Include="LuaScripts\BuiltinLibraryClient.lua" />
     <None Include="LuaScripts\BuiltinLibraryServer.lua" />
@@ -211,6 +220,11 @@
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\LuaShared.inl" />
+    <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaSetProxy.inl" />
     <None Include="Osiris\Debugger\osidebug.proto" />
   </ItemGroup>
   <ItemGroup>

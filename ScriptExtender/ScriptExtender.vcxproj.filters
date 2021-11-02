@@ -64,6 +64,9 @@
     <Filter Include="GameDefinitions\GameObjects">
       <UniqueIdentifier>{632927db-7ec0-45e3-97b1-46a0a294dab9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lua\Shared\Proxies">
+      <UniqueIdentifier>{a14c3c88-f75a-4527-90eb-7d4be67e6dcb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Extender\Client\ExtensionStateClient.h">
@@ -295,6 +298,27 @@
     <ClInclude Include="Lua\Shared\LuaLifetime.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -456,6 +480,9 @@
     <ClCompile Include="GameDefinitions\Base\Base.cpp">
       <Filter>GameDefinitions\Base</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">
@@ -516,6 +543,24 @@
     <None Include="Exports.def" />
     <None Include="Extender\Shared\ScriptExtensions.proto">
       <Filter>Extender\Shared</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaMapProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaSetProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

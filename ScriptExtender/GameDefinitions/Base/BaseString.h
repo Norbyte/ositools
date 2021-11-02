@@ -20,7 +20,11 @@ struct FixedString
 		: Str(nullptr)
 	{}
 
-	explicit FixedString(char const* s);
+	inline explicit FixedString(STDString const& s)
+		: FixedString(s.data(), (int)s.size())
+	{}
+
+	explicit FixedString(char const* s, int length = -1);
 
 	inline FixedString(FixedString const & fs)
 		: Str(fs.Str)

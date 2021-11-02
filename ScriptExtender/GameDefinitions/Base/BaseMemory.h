@@ -45,6 +45,9 @@ T * GameAllocArray(std::size_t n, Args... args)
 }
 
 template <class T>
+using GameUniquePtr = std::unique_ptr<T, decltype(&GameDelete<T>)>;
+
+template <class T>
 class GameAllocator
 {
 public:
@@ -124,6 +127,17 @@ struct GameMemoryAllocator
 	static void* Alloc(std::size_t size)
 	{
 		return GameAllocRaw(size);
+	}
+
+	template <class T>
+	static T* NewRaw()
+	{
+		return reinterpret_cast<T*>(GameAllocRaw(sizeof(T)));
+	}
+	template <class T>
+	static T* NewRaw(std::size_t count)
+	{
+		return reinterpret_cast<T*>(GameAllocRaw(count * sizeof(T)));
 	}
 
 	template <class T>

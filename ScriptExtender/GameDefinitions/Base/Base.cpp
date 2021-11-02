@@ -190,7 +190,7 @@ const char* FixedString::FindGlobalString(const char * s)
 	return stringTable->Find(s, strlen(s));
 }
 
-FixedString::FixedString(char const* s)
+FixedString::FixedString(char const* s, int length)
 {
 	if (s == nullptr) {
 		Str = nullptr;
@@ -200,10 +200,10 @@ FixedString::FixedString(char const* s)
 			auto createFixedString = GetStaticSymbols().CreateFixedString;
 			if (createFixedString != nullptr) {
 #if defined(OSI_EOCAPP)
-				str = createFixedString(s, -1);
+				str = createFixedString(s, length);
 #else
 				FixedString fs;
-				createFixedString(&fs, s, -1);
+				createFixedString(&fs, s, length);
 				str = fs.Str;
 				fs.Str = nullptr;
 #endif

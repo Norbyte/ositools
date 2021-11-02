@@ -5,8 +5,8 @@
 #define BEGIN_SE() namespace dse {
 #define END_SE() }
 
-#define BEGIN_NS(ns) namespace dse { namespace ns {
-#define END_NS() }}
+#define BEGIN_NS(ns) namespace dse::ns {
+#define END_NS() }
 
 BEGIN_SE()
 

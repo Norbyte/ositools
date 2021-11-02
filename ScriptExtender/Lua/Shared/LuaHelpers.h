@@ -6,6 +6,9 @@
 #include <lauxlib.h>
 #include <optional>
 
+#include <Lua/Shared/Proxies/LuaUserdata.h>
+#include <Lua/Shared/Proxies/LuaEntityProxy.h>
+
 namespace dse::lua
 {
 #if !defined(NDEBUG)
@@ -94,11 +97,6 @@ namespace dse::lua
 		lua_pushinteger(L, (lua_Integer)v);
 	}
 
-	inline void push(lua_State * L, NetId v)
-	{
-		push(L, v.Id);
-	}
-
 	inline void push(lua_State * L, double v)
 	{
 		lua_pushnumber(L, v);
@@ -118,19 +116,65 @@ namespace dse::lua
 		lua_pushstring(L, v.Str);
 	}
 
-	inline void push(lua_State * L, StringView v)
+	inline void push(lua_State* L, STDString const& s)
+	{
+		lua_pushlstring(L, s.data(), s.size());
+	}
+
+	inline void push(lua_State* L, STDWString const& s)
+	{
+		push(L, ToUTF8(s));
+	}
+
+	inline void push(lua_State * L, StringView const& v)
 	{
 		lua_pushlstring(L, v.data(), v.size());
 	}
 
-	inline void push(lua_State * L, WStringView v)
+	inline void push(lua_State * L, WStringView const& v)
 	{
 		push(L, ToUTF8(v));
 	}
 
+	void push(lua_State* L, EntityHandle const& h);
+
 	inline void push(lua_State* L, ComponentHandle const& h)
 	{
 		lua_pushlightuserdata(L, (void*)h.Handle);
+	}
+
+	inline void push(lua_State* L, lua_CFunction v)
+	{
+		lua_pushcfunction(L, v);
+	}
+
+	inline void push(lua_State* L, Path const& p)
+	{
+		push(L, p.Name);
+	}
+
+	inline void push(lua_State* L, NetId const& v)
+	{
+		push(L, v.Id);
+	}
+
+	inline void push(lua_State* L, UserId const& v)
+	{
+		push(L, v.Id);
+	}
+
+	inline void push(lua_State* L, glm::ivec2 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+	}
+
+	inline void push(lua_State* L, glm::vec2 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
 	}
 
 	inline void push(lua_State* L, glm::vec3 const& v)
@@ -139,6 +183,15 @@ namespace dse::lua
 		settable(L, 1, v.x);
 		settable(L, 2, v.y);
 		settable(L, 3, v.z);
+	}
+
+	inline void push(lua_State* L, glm::vec4 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+		settable(L, 3, v.z);
+		settable(L, 4, v.w);
 	}
 
 	inline void push(lua_State* L, glm::mat3 const& m)
@@ -161,7 +214,10 @@ namespace dse::lua
 	}
 
 	template <class T>
-	inline typename std::enable_if_t<std::is_pointer_v<T>, std::enable_if_t<!std::is_same_v<T, char const*>, std::enable_if_t<!std::is_same_v<T, char*>, void>>> push(lua_State* L, T v)
+	inline typename std::enable_if_t<std::is_pointer_v<T>,
+		std::enable_if_t<!std::is_same_v<T, char const*>,
+		std::enable_if_t<!std::is_same_v<T, char*>,
+		std::enable_if_t<!std::is_same_v<T, lua_CFunction>, void>>>> push(lua_State* L, T v)
 	{
 		static_assert(false, "Can't push pointers to Lua");
 	}
@@ -349,6 +405,23 @@ namespace dse::lua
 		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
+		
+	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::ivec2>, int>* = nullptr>	
+	inline glm::ivec2 checked_get(lua_State* L, int index)	
+	{	
+		auto i = (index < 0) ? (index - 1) : index;	
+		glm::ivec2 val;	
+		luaL_checktype(L, index, LUA_TTABLE);	
+		push(L, 1);	
+		lua_rawget(L, i);	
+		val.x = checked_get<int32_t>(L, -1);	
+		lua_pop(L, 1);	
+		push(L, 2);	
+		lua_rawget(L, i);	
+		val.y = checked_get<int32_t>(L, -1);	
+		lua_pop(L, 1);	
+		return val;	
+	}
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec2>, int>* = nullptr>
 	inline glm::vec2 checked_get(lua_State* L, int index)
@@ -390,6 +463,31 @@ namespace dse::lua
 		return val;
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec4>, int>* = nullptr>	
+	inline glm::vec4 checked_get(lua_State* L, int index)	
+	{	
+		auto i = (index < 0) ? (index - 1) : index;	
+		glm::vec4 val;	
+		luaL_checktype(L, index, LUA_TTABLE);	
+		push(L, 1);	
+		lua_rawget(L, i);	
+		val.x = checked_get<float>(L, -1);	
+		lua_pop(L, 1);	
+		push(L, 2);	
+		lua_rawget(L, i);	
+		val.y = checked_get<float>(L, -1);	
+		lua_pop(L, 1);	
+		push(L, 3);	
+		lua_rawget(L, i);	
+		val.z = checked_get<float>(L, -1);	
+		lua_pop(L, 1);	
+		push(L, 4);	
+		lua_rawget(L, i);	
+		val.w = checked_get<float>(L, -1);	
+		lua_pop(L, 1);	
+		return val;	
+	}
+
 	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
 	inline STDString checked_get(lua_State* L, int index)
 	{
@@ -403,6 +501,11 @@ namespace dse::lua
 		return FromUTF8(str);
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, Path>, int>* = nullptr>
+	inline Path checked_get(lua_State* L, int index)
+	{
+		return Path(luaL_checkstring(L, index));
+	}
 
 	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
 	T checked_get(lua_State * L, int index)
@@ -415,7 +518,7 @@ namespace dse::lua
 			if (index) {
 				return (T)*index;
 			} else {
-				luaL_error(L, "Param %d is not a valid '%s' enum label: %s", index, EnumInfo<T>::Name, val);
+				luaL_error(L, "Param '%s' is not a valid '%s' enum label: %s", val, EnumInfo<T>::Name, val);
 			}
 			break;
 		}
@@ -772,147 +875,7 @@ namespace dse::lua
 
 	int CallWithTraceback(lua_State * L, int narg, int nres);
 
-	class Callable {};
-	class Indexable {};
-	class NewIndexable {};
-	class Lengthable {};
-
-	template <class T>
-	class Userdata
-	{
-	public:
-		static T * AsUserData(lua_State * L, int index)
-		{
-			if (lua_type(L, index) == LUA_TUSERDATA) {
-				auto obj = luaL_testudata(L, index, T::MetatableName);
-				return reinterpret_cast<T *>(obj);
-			} else {
-				return nullptr;
-			}
-		}
-
-		static T * CheckUserData(lua_State * L, int index)
-		{
-			return reinterpret_cast<T *>(luaL_checkudata(L, index, T::MetatableName));
-		}
-
-		template <class... Args>
-		static T * New(lua_State * L, Args... args)
-		{
-			auto obj = reinterpret_cast<T *>(lua_newuserdata(L, sizeof(T)));
-			new (obj) T(std::forward<Args>(args)...);
-			luaL_setmetatable(L, T::MetatableName);
-			return obj;
-		}
-
-		static int CallProxy(lua_State * L)
-		{
-			if constexpr (std::is_base_of_v<Callable, T>) {
-				auto self = CheckUserData(L, 1);
-				return self->LuaCall(L);
-			} else {
-				return luaL_error(L, "Not callable!");
-			}
-		}
-
-		static int IndexProxy(lua_State * L)
-		{
-			if constexpr (std::is_base_of_v<Indexable, T>) {
-				auto self = CheckUserData(L, 1);
-				return self->Index(L);
-			} else {
-				return luaL_error(L, "Not indexable!");
-			}
-		}
-
-		static int NewIndexProxy(lua_State * L)
-		{
-			if constexpr (std::is_base_of_v<NewIndexable, T>) {
-				auto self = CheckUserData(L, 1);
-				return self->NewIndex(L);
-			} else {
-				return luaL_error(L, "Not newindexable!");
-			}
-		}
-
-		static int LengthProxy(lua_State * L)
-		{
-			if constexpr (std::is_base_of_v<Lengthable, T>) {
-				auto self = CheckUserData(L, 1);
-				return self->Length(L);
-			} else {
-				return luaL_error(L, "Not lengthable!");
-			}
-		}
-
-		static void PopulateMetatable(lua_State * L)
-		{
-			// Add custom metatable items by overriding this in subclasses
-		}
-
-		static void RegisterMetatable(lua_State * L)
-		{
-			lua_register(L, T::MetatableName, nullptr);
-			luaL_newmetatable(L, T::MetatableName); // stack: mt
-
-			push(L, T::MetatableName);
-			lua_setfield(L, -2, "__metatable");
-
-			if constexpr (std::is_base_of_v<Callable, T>) {
-				lua_pushcfunction(L, &CallProxy); // stack: mt, &LuaCall
-				lua_setfield(L, -2, "__call"); // mt.__call = &LuaCall; stack: mt
-			}
-
-			if constexpr (std::is_base_of_v<Indexable, T>) {
-				lua_pushcfunction(L, &IndexProxy); // stack: mt, &Index
-				lua_setfield(L, -2, "__index"); // mt.__index = &Index; stack: mt
-			}
-
-			if constexpr (std::is_base_of_v<NewIndexable, T>) {
-				lua_pushcfunction(L, &NewIndexProxy); // stack: mt, &NewIndex
-				lua_setfield(L, -2, "__newindex"); // mt.__index = &NewIndex; stack: mt
-			}
-
-			if constexpr (std::is_base_of_v<Lengthable, T>) {
-				lua_pushcfunction(L, &LengthProxy); // stack: mt, &Length
-				lua_setfield(L, -2, "__len"); // mt.__index = &Length; stack: mt
-			}
-
-			T::PopulateMetatable(L);
-
-			lua_pop(L, 1); // stack: -
-		}
-	};
-
-	template <class T>
-	inline std::optional<T *> safe_get_userdata(lua_State * L, int index)
-	{
-		if (lua_isnil(L, index)) {
-			return {};
-		} else {
-			auto val = T::AsUserData(L, index);
-			if (val) {
-				return val;
-			} else {
-				ERR("Expected userdata of type '%s'", T::MetatableName);
-				return {};
-			}
-		}
-	}
-
-	template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int> * = nullptr>
-	inline std::optional<T> safe_get(lua_State * L, int index)
-	{
-		return safe_get_userdata<std::remove_pointer_t<T>>(L, index);
-	}
-
-
-	template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int> * = nullptr>
-	inline T checked_get(lua_State * L, int index)
-	{
-		return std::remove_pointer_t<T>::CheckUserData(L, index);
-	}
-
+	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
 
 	struct TableIterationHelper
 	{
