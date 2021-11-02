@@ -514,12 +514,12 @@ function DebugTooltipEncoding(ui)
         tooltipArray2[i] = s
     end
 
-    Ext.Print("tooltip_array: " .. Ext.JsonStringify(tooltipArray2))
+    Ext.Print("tooltip_array: " .. Ext.Json.Stringify(tooltipArray2))
     local parsed = ParseTooltipArray(tooltipArray)
-    Ext.Print("Parsed: " .. Ext.JsonStringify(parsed))
+    Ext.Print("Parsed: " .. Ext.Json.Stringify(parsed))
     local encoded = EncodeTooltipArray(parsed)
     local parsed2 = ParseTooltipArray(encoded)
-    Ext.Print("Encoding matches: ", Ext.JsonStringify(parsed2) == Ext.JsonStringify(parsed))
+    Ext.Print("Encoding matches: ", Ext.Json.Stringify(parsed2) == Ext.Json.Stringify(parsed))
 end
 
 TooltipHooks = {

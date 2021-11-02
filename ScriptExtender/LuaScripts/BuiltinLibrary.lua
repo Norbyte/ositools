@@ -207,7 +207,7 @@ end
 
 -- Helper for dumping variables in console
 Ext.Dump = function (val)
-	Ext.Print(Ext.JsonStringify(val, true, true))
+	Ext.Print(Ext.Json.Stringify(val, true, true))
 end
 
 -- Custom skill property registration
@@ -216,3 +216,7 @@ Ext._SkillPropertyTypes = {}
 Ext.RegisterSkillProperty = function (name, proto)
 	Ext._SkillPropertyTypes[name] = proto
 end
+
+-- Backwards compatibility with old JSON APIs
+Ext.JsonStringify = Ext.Json.Stringify
+Ext.JsonParse = Ext.Json.Parse

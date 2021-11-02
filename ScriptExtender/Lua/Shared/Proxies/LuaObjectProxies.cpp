@@ -12,14 +12,6 @@
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/Components/Trigger.h>
 
-#include <Lua/Shared/Proxies/LuaArrayProxy.inl>
-// FIXME - disabled until entity system is upgrated
-// #include <Lua/Shared/Proxies/LuaEntityProxy.inl>
-// #include <Lua/Shared/Proxies/LuaEventProxy.inl>
-#include <Lua/Shared/Proxies/LuaMapProxy.inl>
-#include <Lua/Shared/Proxies/LuaObjectProxy.inl>
-#include <Lua/Shared/Proxies/LuaSetProxy.inl>
-
 BEGIN_NS(lua)
 
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName)

@@ -806,6 +806,15 @@ namespace dse::lua
 
 #endif
 
+	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib)
+	{
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_createtable(L, 0, 0); // stack: ext, lib
+		luaL_setfuncs(L, lib, 0);
+		lua_setfield(L, -2, name);
+		lua_pop(L, 1);
+	}
+
 	int LuaPanic(lua_State * L)
 	{
 		char const* err = "(Unknown)";

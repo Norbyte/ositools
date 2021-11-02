@@ -51,6 +51,11 @@ namespace std
 	};
 }
 
+namespace dse::lua
+{
+	void RegisterSharedLibraries(lua_State* L);
+}
+
 namespace dse::esv::lua
 {
 	using namespace dse::lua;

@@ -2664,9 +2664,6 @@ namespace dse::esv::lua
 			{"SaveFile", SaveFileWrapper},
 			{"LoadFile", LoadFileWrapper},
 
-			{"JsonParse", JsonParse},
-			{"JsonStringify", JsonStringify},
-
 			{"IsModLoaded", IsModLoadedWrapper},
 			{"GetModLoadOrder", GetModLoadOrder},
 			{"GetModInfo", GetModInfo},
@@ -2773,6 +2770,8 @@ namespace dse::esv::lua
 
 		luaL_newlib(L, extLib); // stack: lib
 		lua_setglobal(L, "Ext"); // stack: -
+
+		RegisterSharedLibraries(L);
 	}
 
 

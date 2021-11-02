@@ -157,6 +157,7 @@
     <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc" />
     <ClCompile Include="Lua\Debugger\LuaDebugger.cpp" />
     <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp" />
+    <ClCompile Include="Lua\Libs\LuaLibs.cpp" />
     <ClCompile Include="Lua\Server\LuaServer.cpp" />
     <ClCompile Include="Lua\Shared\LuaBinding.cpp" />
     <ClCompile Include="Lua\Shared\LuaExtFunctions.cpp" />
@@ -224,6 +225,7 @@
     <None Include="LuaScripts\Game.Tooltip.lua" />
     <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
+    <None Include="Lua\Libs\LuaJson.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\LuaShared.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />

@@ -83,7 +83,7 @@ Ext._GetModPersistentVars = function (modTable)
 	if tab ~= nil then
 		local persistent = tab.PersistentVars
 		if persistent ~= nil then
-			return Ext.JsonStringify(persistent)
+			return Ext.Json.Stringify(persistent)
 		end
 	end
 end
@@ -91,7 +91,7 @@ end
 Ext._RestoreModPersistentVars = function (modTable, vars)
 	local tab = Mods[modTable]
 	if tab ~= nil then
-		tab.PersistentVars = Ext.JsonParse(vars)
+		tab.PersistentVars = Ext.Json.Parse(vars)
 	end
 end
 

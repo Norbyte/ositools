@@ -67,6 +67,9 @@
     <Filter Include="Lua\Shared\Proxies">
       <UniqueIdentifier>{a14c3c88-f75a-4527-90eb-7d4be67e6dcb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lua\Libs">
+      <UniqueIdentifier>{7ce3fe1a-0cb0-4741-89d1-9f28599af617}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Extender\Client\ExtensionStateClient.h">
@@ -483,6 +486,9 @@
     <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\Libs\LuaLibs.cpp">
+      <Filter>Lua\Libs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">
@@ -579,6 +585,9 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\Item.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Lua\Libs\LuaJson.inl">
+      <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -2480,9 +2480,6 @@ namespace dse::ecl::lua
 			{"SaveFile", SaveFileWrapper},
 			{"LoadFile", LoadFileWrapper},
 
-			{"JsonParse", JsonParse},
-			{"JsonStringify", JsonStringify},
-
 			{"IsModLoaded", IsModLoadedWrapper},
 			{"GetModLoadOrder", GetModLoadOrder},
 			{"GetModInfo", GetModInfo},
@@ -2583,6 +2580,8 @@ namespace dse::ecl::lua
 		luaL_newlib(L, soundLib); // stack: ext, lib
 		lua_setfield(L, -2, "Audio");
 		lua_pop(L, 1);
+
+		RegisterSharedLibraries(L);
 	}
 
 

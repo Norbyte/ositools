@@ -2,6 +2,14 @@
 
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
+
+#include <Lua/Shared/Proxies/LuaArrayProxy.h>
+#include <Lua/Shared/Proxies/LuaMapProxy.h>
+#include <Lua/Shared/Proxies/LuaObjectProxy.h>
+#include <Lua/Shared/Proxies/LuaSetProxy.h>
+// #include <Lua/Shared/LuaEvent.h>
+// #include <Lua/Shared/LuaEntityProxy.h>
+
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/GameObjects/Status.h>
@@ -362,9 +370,6 @@ namespace dse::lua
 
 	int SaveFileWrapper(lua_State* L);
 	int LoadFileWrapper(lua_State* L);
-
-	int JsonParse(lua_State* L);
-	int JsonStringify(lua_State* L);
 
 	int IsModLoadedWrapper(lua_State* L);
 	int GetModLoadOrder(lua_State* L);
