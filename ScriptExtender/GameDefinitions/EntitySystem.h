@@ -984,6 +984,7 @@ namespace ecl
 
 	typedef void (*EoCClient__HandleError)(void* self, STDWString const* message, bool exitGame, STDWString const* a4);
 	typedef void (*GameStateThreaded__GameStateWorker__DoWork)(void* self);
+	typedef void (*GameStateMachine__Update)(void* self, GameTime* time);
 	typedef void (*GameStateEventManager__ExecuteGameStateChangedEvent)(void* self, GameState fromState, GameState toState);
 
 	EntityWorld* GetEntityWorld();

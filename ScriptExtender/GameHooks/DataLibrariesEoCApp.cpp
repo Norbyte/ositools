@@ -321,6 +321,26 @@ namespace dse
 		{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 10, STATIC_SYM(EoCUI__vftable)}
 	};
 
+	SymbolMappingData const sSymbolEclGameStateMachineUpdate = {
+		"ecl::GameStateMachine::Update",
+		SymbolMappingData::kCustom, 0,
+		"48 89 5C 24 08 " // mov     [rsp+arg_0], rbx
+		"48 89 6C 24 10 " // mov     [rsp+arg_8], rbp
+		"48 89 74 24 18 ", // mov     [rsp+arg_10], rsi
+		{},
+		{"ecl::GameStateMachine::Update", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(ecl__GameStateMachine__Update)}
+	};
+
+	SymbolMappingData const sSymbolEsvGameStateMachineUpdate = {
+		"esv::GameStateMachine::Update",
+		SymbolMappingData::kCustom, 0,
+		"40 56 " // push    rsi
+		"48 83 EC 60 " // sub     rsp, 60h
+		"83 79 24 00 ", // cmp     dword ptr [rcx+24h], 0
+		{},
+		{"esv::GameStateMachine::Update", SymbolMappingTarget::kAbsolute, 0, STATIC_SYM(esv__GameStateMachine__Update)}
+	};
+
 	SymbolMappingData const sSymbolMappings[] = {
 		{
 			"EoCMemoryMgr", 
@@ -704,7 +724,8 @@ namespace dse
 			"33 D2 " // xor     edx, edx
 			"4C 8D 44 24 30 ", // lea     r8, [rsp+68h+var_38]
 			{SymbolMappingCondition::kString, 0, "CLIENT STATE SWAP - from: %s, to: %s\n"},
-			{"ecl::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x2A, STATIC_SYM(ecl__GameStateEventManager__ExecuteGameStateChangedEvent)}
+			{"ecl::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x2A, STATIC_SYM(ecl__GameStateEventManager__ExecuteGameStateChangedEvent)},
+			{"ecl::GameStateMachine::Update", SymbolMappingTarget::kAbsolute, -0x300, nullptr, nullptr, &sSymbolEclGameStateMachineUpdate, 0x300}
 		},
 
 		{
@@ -715,7 +736,8 @@ namespace dse
 			"33 D2 " // xor     edx, edx
 			"4C 8D 44 24 30 ", // lea     r8, [rsp+68h+var_38]
 			{SymbolMappingCondition::kString, 0, "SERVER STATE SWAP - from: %s, to: %s\n"},
-			{"esv::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x2A, STATIC_SYM(esv__GameStateEventManager__ExecuteGameStateChangedEvent)}
+			{"esv::GameStateEventManager::ExecuteGameStateChangedEvent", SymbolMappingTarget::kIndirect, 0x2A, STATIC_SYM(esv__GameStateEventManager__ExecuteGameStateChangedEvent)},
+			{"esv::GameStateMachine::Update", SymbolMappingTarget::kAbsolute, -0x300, nullptr, nullptr, &sSymbolEsvGameStateMachineUpdate, 0x300}
 		},
 
 		{

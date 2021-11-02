@@ -155,10 +155,14 @@ namespace dse
 		uint8_t const * CustomStatUIRollHook{ nullptr };
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
+
 		ecl::GameStateEventManager__ExecuteGameStateChangedEvent ecl__GameStateEventManager__ExecuteGameStateChangedEvent{ nullptr };
 		esv::GameStateEventManager__ExecuteGameStateChangedEvent esv__GameStateEventManager__ExecuteGameStateChangedEvent{ nullptr };
 		ecl::GameStateThreaded__GameStateWorker__DoWork ecl__GameStateThreaded__GameStateWorker__DoWork{ nullptr };
 		esv::GameStateThreaded__GameStateWorker__DoWork esv__GameStateThreaded__GameStateWorker__DoWork{ nullptr };
+		ecl::GameStateMachine__Update ecl__GameStateMachine__Update{ nullptr };
+		esv::GameStateMachine__Update esv__GameStateMachine__Update{ nullptr };
+
 		net::Host::AddProtocol net__Host__AddProtocol{ nullptr };
 		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };
 		net::MessageFactory::GetFreeMessage net__MessageFactory__GetFreeMessage{ nullptr };

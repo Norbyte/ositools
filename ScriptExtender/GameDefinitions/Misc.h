@@ -254,6 +254,7 @@ namespace dse
 	typedef void(*SummonHelpers__Summon)(SummonHelperResults * Results, SummonHelperSummonArgs * Args);
 	typedef void(*GameStateEventManager__ExecuteGameStateChangedEvent)(void * self, GameState fromState, GameState toState);
 	typedef void(*GameStateThreaded__GameStateWorker__DoWork)(void * self);
+	typedef void(*GameStateMachine__Update)(void* self, GameTime* time);
 
 	}
 

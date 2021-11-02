@@ -59,10 +59,9 @@ void ScriptExtender::Initialize()
 			gameStateWorkerStart_.Wrap(lib.esv__GameStateThreaded__GameStateWorker__DoWork);
 		}
 
-		// FIXME - bind!
-		/*if (lib.esv__GameStateMachine__Update != nullptr) {
+		if (lib.esv__GameStateMachine__Update != nullptr) {
 			gameStateMachineUpdate_.Wrap(lib.esv__GameStateMachine__Update);
-		}*/
+		}
 
 		DetourTransactionCommit();
 
