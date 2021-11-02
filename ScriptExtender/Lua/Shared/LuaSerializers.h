@@ -104,9 +104,54 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, FixedString& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, STDString& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, STDWString& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, Path& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, NetId& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, UserId& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, ComponentHandle& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, EntityHandle& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, glm::ivec2& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec2& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec3& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec4& v) { return s.Visit(v); }
+	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v);
+
+	template <class T>
+	LuaSerializer& operator << (LuaSerializer& s, OverrideableProperty<T>& v)
+	{
+		s << v.Value;
+		if (!s.IsWriting) {
+			v.IsOverridden = true;
+		}
+		return s;
+	}
 
 	template <class T, class Allocator, bool StoreSize>
 	LuaSerializer& operator << (LuaSerializer& s, ObjectSet<T, Allocator, StoreSize>& v)
+	{
+		s.BeginObject();
+		if (s.IsWriting) {
+			int i = 1;
+			for (auto& val : v) {
+				StackCheck _(s.L);
+				push(s.L, i++);
+				s << val;
+				lua_settable(s.L, -3);
+			}
+		} else {
+			v.Clear();
+			for (auto idx : iterate(s.L, -1)) {
+				StackCheck _(s.L);
+				T temp{};
+				s << temp;
+				v.Add(temp);
+			}
+		}
+		s.EndObject();
+		return s;
+	}
+
+	template <class T>
+	LuaSerializer& operator << (LuaSerializer& s, Array<T>& v)
 	{
 		s.BeginObject();
 		if (s.IsWriting) {
@@ -152,6 +197,82 @@ namespace dse::lua
 			}
 		}
 		s.EndObject();
+		return s;
+	}
+
+	template <class TKey, class TValue>
+	LuaSerializer& operator << (LuaSerializer& s, RefMap<TKey, TValue>& v)
+	{
+		s.BeginObject();
+		if (s.IsWriting) {
+			int i = 1;
+			for (auto& it : v) {
+				StackCheck _(s.L);
+				s << it.Key << it.Value;
+				lua_settable(s.L, -3);
+			}
+		} else {
+			v.Clear();
+			for (auto idx : iterate(s.L, -1)) {
+				StackCheck _(s.L);
+				TKey key{};
+				TValue value{};
+				lua_pushvalue(s.L, -2);
+				s << key;
+				lua_pop(s.L, 1);
+				s << value;
+				v.Insert(std::move(key), std::move(value));
+			}
+		}
+		s.EndObject();
+		return s;
+	}
+
+	template <class TKey, class TValue>
+	LuaSerializer& operator << (LuaSerializer& s, Map<TKey, TValue>& v)
+	{
+		s.BeginObject();
+		if (s.IsWriting) {
+			int i = 1;
+			for (auto& it : v) {
+				StackCheck _(s.L);
+				s << it.Key() << it.Value();
+				lua_settable(s.L, -3);
+			}
+		} else {
+			v.Clear();
+			for (auto idx : iterate(s.L, -1)) {
+				StackCheck _(s.L);
+				TKey key{};
+				TValue value{};
+				lua_pushvalue(s.L, -2);
+				s << key;
+				lua_pop(s.L, 1);
+				s << value;
+				v.Insert(std::move(key), std::move(value));
+			}
+		}
+		s.EndObject();
+		return s;
+	}
+
+	template <class T>
+	LuaSerializer& operator << (LuaSerializer& s, std::optional<T>& v)
+	{
+		if (s.IsWriting) {
+			if (v) {
+				s << *v;
+			} else {
+				push(s.L, nullptr);
+			}
+		} else {
+			if (!v) {
+				v = T();
+			}
+
+			s << *v;
+		}
+
 		return s;
 	}
 

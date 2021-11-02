@@ -9,6 +9,13 @@
 
 namespace dse::lua
 {
+	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v)
+	{
+		// TODO - is this enough?
+		s << v.Handle.Handle;
+		return s;
+	}
+
 	LuaSerializer& operator << (LuaSerializer& s, CEquipmentSet& v)
 	{
 		s.BeginObject();

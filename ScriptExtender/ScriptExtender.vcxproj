@@ -211,6 +211,12 @@
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Character.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Item.inl" />
+    <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
     <None Include="LuaScripts\BuiltinLibraryClient.lua" />
     <None Include="LuaScripts\BuiltinLibraryServer.lua" />

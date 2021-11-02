@@ -159,6 +159,10 @@ struct ScratchBuffer : public Noncopyable<ScratchBuffer>
 
 struct Path
 {
+	inline Path() {}
+
+	inline Path(STDString const& s) : Name(s) {}
+
 	STDString Name;
 #if !defined(OSI_EOCAPP)
 	uint32_t Unknown{ 0 };

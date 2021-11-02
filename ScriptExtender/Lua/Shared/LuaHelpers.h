@@ -366,6 +366,16 @@ namespace dse::lua
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
 
+	template <>
+	inline EntityHandle get<EntityHandle>(lua_State* L, int index)
+	{
+		if (lua_type(L, index) == LUA_TNIL) {
+			return EntityHandle{ EntityHandle::NullHandle };
+		} else {
+			return EntityProxy::CheckUserData(L, index)->Handle();
+		}
+	}
+
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
 	inline bool checked_get(lua_State * L, int index)
@@ -386,6 +396,20 @@ namespace dse::lua
 		return (T)luaL_checknumber(L, index);
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, NetId>, int>* = nullptr>
+	inline NetId checked_get(lua_State* L, int index)
+	{
+		auto v = luaL_checkinteger(L, index);
+		return NetId((uint32_t)v);
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, UserId>, int>* = nullptr>
+	inline UserId checked_get(lua_State* L, int index)
+	{
+		auto v = luaL_checkinteger(L, index);
+		return UserId((int32_t)v);
+	}
+
 	template <class T, typename std::enable_if_t<std::is_same_v<T, char const *>, int> * = nullptr>
 	inline char const * checked_get(lua_State * L, int index)
 	{
@@ -399,11 +423,31 @@ namespace dse::lua
 		return FixedString(str);
 	}
 
+	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
+	inline STDString checked_get(lua_State* L, int index)
+	{
+		return STDString(luaL_checkstring(L, index));
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, STDWString>, int>* = nullptr>
+	inline STDWString checked_get(lua_State* L, int index)
+	{
+		auto str = luaL_checkstring(L, index);
+		return FromUTF8(str);
+	}
+
 	template <class T, typename std::enable_if_t<std::is_same_v<T, ComponentHandle>, int>* = nullptr>
 	inline ComponentHandle checked_get(lua_State* L, int index)
 	{
 		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
+	}
+
+	template <class T, typename std::enable_if_t<std::is_same_v<T, EntityHandle>, int>* = nullptr>
+	inline EntityHandle checked_get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TUSERDATA);
+		return EntityProxy::CheckUserData(L, index)->Handle();
 	}
 		
 	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::ivec2>, int>* = nullptr>	
@@ -486,19 +530,6 @@ namespace dse::lua
 		val.w = checked_get<float>(L, -1);	
 		lua_pop(L, 1);	
 		return val;	
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
-	inline STDString checked_get(lua_State* L, int index)
-	{
-		return STDString(luaL_checkstring(L, index));
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, STDWString>, int>* = nullptr>
-	inline STDWString checked_get(lua_State* L, int index)
-	{
-		auto str = luaL_checkstring(L, index);
-		return FromUTF8(str);
 	}
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, Path>, int>* = nullptr>

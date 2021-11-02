@@ -562,6 +562,24 @@
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\Statuses.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Stats.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Character.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Surface.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Item.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

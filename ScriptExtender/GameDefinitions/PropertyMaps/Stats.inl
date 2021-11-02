@@ -1,0 +1,306 @@
+BEGIN_CLS(CDivinityStats_Equipment_Attributes)
+P(Durability)
+P(DurabilityDegradeSpeed)
+P(StrengthBoost)
+P(FinesseBoost)
+P(IntelligenceBoost)
+P(ConstitutionBoost)
+P(MemoryBoost)
+P(WitsBoost)
+P(SightBoost)
+P(HearingBoost)
+P(VitalityBoost)
+P(SourcePointsBoost)
+P(MaxAP)
+P(StartAP)
+P(APRecovery)
+P(AccuracyBoost)
+P(DodgeBoost)
+P(LifeSteal)
+P(CriticalChance)
+P(ChanceToHitBoost)
+P(MovementSpeedBoost)
+P(RuneSlots)
+P(RuneSlots_V1)
+P(FireResistance)
+P(AirResistance)
+P(WaterResistance)
+P(EarthResistance)
+P(PoisonResistance)
+P(ShadowResistance)
+P(PiercingResistance)
+P(CorrosiveResistance)
+P(PhysicalResistance)
+P(MagicResistance)
+P(CustomResistance)
+P(Movement)
+P(Initiative)
+P(Willpower)
+P(Bodybuilding)
+P(MaxSummons)
+P(Value)
+P(Weight)
+// TODO - Reflection
+P(Skills)
+P(ItemColor)
+P_RO(ModifierType)
+P_RO(ObjectInstanceName)
+P_RO(BoostName)
+P_RO(StatsType)
+
+/*EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+	AddProperty<bool>(propertyMap, name.Str, 0);
+
+	propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+		auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+		auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+		if (attrFlags) {
+			return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+		}
+		else {
+			return 0;
+		}
+	};
+
+	propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+		auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+		int flagsId = (int)attrs->AttributeFlagsObjectId;
+		auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+		attrs->AttributeFlagsObjectId = flagsId;
+
+		if (value) {
+			*attrFlags |= id;
+		}
+		else {
+			*attrFlags &= ~id;
+		}
+		return true;
+	};
+	});
+
+EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+	AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, AbilityModifiers) + (unsigned)id * sizeof(int32_t));
+	});
+
+AddTalentArray<CDivinityStats_Equipment_Attributes>(propertyMap, "TALENT_", [](CDivinityStats_Equipment_Attributes* obj) {
+	return obj->Talents;
+	});
+}*/
+END_CLS()
+
+
+BEGIN_CLS(CDivinityStats_Equipment_Attributes_Weapon)
+INHERIT(CDivinityStats_Equipment_Attributes)
+P(DamageType)
+P(MinDamage)
+P(MaxDamage)
+P(DamageBoost)
+P(DamageFromBase)
+P(CriticalDamage)
+P(WeaponRange)
+P(CleaveAngle)
+P(CleavePercentage)
+P(AttackAPCost)
+P(Projectile)
+END_CLS()
+
+
+BEGIN_CLS(CDivinityStats_Equipment_Attributes_Armor)
+INHERIT(CDivinityStats_Equipment_Attributes)
+P(ArmorValue)
+P(ArmorBoost)
+P(MagicArmorValue)
+P(MagicArmorBoost)
+END_CLS()
+
+
+BEGIN_CLS(CDivinityStats_Equipment_Attributes_Shield)
+INHERIT(CDivinityStats_Equipment_Attributes)
+P(ArmorValue)
+P(ArmorBoost)
+P(MagicArmorValue)
+P(MagicArmorBoost)
+P(Blocking)
+END_CLS()
+
+
+
+BEGIN_CLS(CharacterDynamicStat)
+P(SummonLifelinkModifier)
+P(Strength)
+P(Memory)
+P(Intelligence)
+P(Movement)
+P(MovementSpeedBoost)
+P(Finesse)
+P(Wits)
+P(Constitution)
+
+P(FireResistance)
+P(EarthResistance)
+P(WaterResistance)
+P(AirResistance)
+P(PoisonResistance)
+P(ShadowResistance)
+
+P(Willpower)
+P(Bodybuilding)
+P(PiercingResistance)
+P(PhysicalResistance)
+P(CorrosiveResistance)
+P(MagicResistance)
+P(CustomResistance)
+
+P(Sight)
+P(Hearing)
+P(FOV)
+P(APMaximum)
+P(APStart)
+P(APRecovery)
+P(CriticalChance)
+P(Initiative)
+P(Vitality)
+P(VitalityBoost)
+P(MagicPoints)
+P(Level)
+P(Gain)
+
+P(Armor)
+P(MagicArmor)
+P(ArmorBoost)
+P(MagicArmorBoost)
+P(ArmorBoostGrowthPerLevel)
+P(MagicArmorBoostGrowthPerLevel)
+P(DamageBoost)
+P(DamageBoostGrowthPerLevel)
+
+P(Accuracy)
+P(Dodge)
+P(MaxResistance)
+P(LifeSteal)
+P(Weight)
+P(ChanceToHitBoost)
+P(RangeBoost)
+P(APCostBoost)
+P(SPCostBoost)
+P(MaxSummons)
+P(BonusWeaponDamageMultiplier)
+P(TranslationKey)
+P(BonusWeapon)
+P(StepsType)
+
+/*EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+	AddProperty<bool>(propertyMap, name.Str, 0);
+
+	propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+		auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
+		auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+		if (attrFlags) {
+			return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+		}
+		else {
+			return 0;
+		}
+	};
+
+	propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+		auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
+		int flagsId = (int)attrs->AttributeFlagsObjectId;
+		auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+		attrs->AttributeFlagsObjectId = flagsId;
+
+		if (value) {
+			*attrFlags |= id;
+		}
+		else {
+			*attrFlags &= ~id;
+		}
+		return true;
+	};
+	});
+
+EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
+	AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, Abilities) + (unsigned)id * sizeof(int32_t));
+	});
+
+AddTalentArray<CharacterDynamicStat>(propertyMap, "TALENT_", [](CharacterDynamicStat* obj) {
+	return obj->Talents;
+	});
+
+AddTalentArray<CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](CharacterDynamicStat* obj) {
+	return obj->RemovedTalents;
+	});
+}*/
+END_CLS()
+
+
+BEGIN_CLS(CDivinityStats_Character)
+// CRPGStats_Object
+P_RO(Level)
+P_RO(Name)
+P_RO(AIFlags)
+P_RO(InstanceId)
+
+// CDivinityStats_Character
+P(CurrentVitality)
+P(CurrentArmor)
+P(CurrentMagicArmor)
+P(ArmorAfterHitCooldownMultiplier)
+P(MagicArmorAfterHitCooldownMultiplier)
+P_RO(MPStart)
+P(CurrentAP)
+P(BonusActionPoints)
+P(Experience)
+P(Reputation)
+P_RO(Flanked)
+P(Karma)
+P_RO(Flags)
+P(MaxResistance)
+P_RO(HasTwoHandedWeapon)
+P_RO(IsIncapacitatedRefCount)
+P_RO(MaxVitality)
+P_RO(BaseMaxVitality)
+P_RO(MaxArmor)
+P_RO(BaseMaxArmor)
+P_RO(MaxMagicArmor)
+P_RO(BaseMaxMagicArmor)
+P_RO(Sight)
+P_RO(BaseSight)
+P_RO(MaxSummons)
+P_RO(BaseMaxSummons)
+P(MaxMpOverride)
+P_RO(AttributeFlags)
+
+/*AddTalentArray<CDivinityStats_Character>(propertyMap, "DISABLED_ALENT_", [](CDivinityStats_Character* obj) {
+	return obj->DisabledTalents;
+	});
+// TODO - TraitOrder?
+*/
+END_CLS()
+
+
+BEGIN_CLS(CDivinityStats_Item)
+// CRPGStats_Object
+P_RO(Level)
+P_RO(Name)
+P_RO(InstanceId)
+
+// CDivinityStats_Item
+P_RO(ItemType)
+P_RO(ItemSlot)
+P(WeaponType)
+P(AnimType)
+P(WeaponRange)
+P(IsIdentified)
+P_RO(IsTwoHanded)
+P(ShouldSyncStats)
+P(HasModifiedSkills)
+P(Skills)
+P(DamageTypeOverwrite)
+P(Durability)
+P(DurabilityCounter)
+P(ItemTypeReal)
+P_RO(AttributeFlags)
+P(MaxCharges)
+P(Charges)
+END_CLS()

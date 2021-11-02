@@ -9,6 +9,9 @@
 #include <Lua/Server/LuaBindingServer.h>
 #include <Lua/Client/LuaBindingClient.h>
 
+#include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/Components/Trigger.h>
+
 #include <Lua/Shared/Proxies/LuaArrayProxy.inl>
 // FIXME - disabled until entity system is upgrated
 // #include <Lua/Shared/Proxies/LuaEntityProxy.inl>
