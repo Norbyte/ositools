@@ -4,9 +4,7 @@ title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
+    value: "Note that MacOS is not supported. For installation instructions (including Linux), check the release page: [https://github.com/Norbyte/ositools/releases/latest](Latest Release)"
   - type: input
     id: version
     attributes:
