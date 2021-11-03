@@ -18,8 +18,9 @@ body:
       description: The OS you're using with the extender.
       options:
         - label: Windows
-        required: true
         - label: Linux
+    validations:
+      required: true
   - type: input
     id: version
     attributes:
