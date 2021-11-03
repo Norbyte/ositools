@@ -1,0 +1,43 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: version
+    attributes:
+      label: Extender Version
+      description: The version of the extender when you encountered this issue (visible in the main menu or loading screen).
+      placeholder: v55
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: Game Version
+      description: The version of Divinity: Original Sin 2 - Definitive Edition when you encountered this issue (visible in the main menu).
+      placeholder: v3.6.117.3735
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Bug Summary
+      description: Describe what the bug is, and how to reproduce it.
+      placeholder: Describe the bug here.
+      value: 
+    validations:
+      required: true
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Links to any screenshots, pastes for files etc that are too big to be attached.
+      placeholder: Debug log https://gist.github.com/MyUserName/SomeLink
+      value: 
+    validations:
+      required: false
