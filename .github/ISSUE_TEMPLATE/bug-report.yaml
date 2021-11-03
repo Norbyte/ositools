@@ -38,7 +38,7 @@ body:
     id: links
     attributes:
       label: Links
-      description: Links to any screenshots, pastes for files etc that are too big to be attached.
+      description: Links to any screenshots, crash dumps, or relevant logs.
       placeholder: Debug log https://gist.github.com/MyUserName/SomeLink
       value: 
     validations:
