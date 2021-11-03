@@ -18,8 +18,8 @@ body:
       description: The OS you're using with the extender.
       options:
         - label: Windows
-        - label: Linux
         required: true
+        - label: Linux
   - type: input
     id: version
     attributes:
