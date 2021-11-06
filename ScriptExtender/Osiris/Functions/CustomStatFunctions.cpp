@@ -85,7 +85,7 @@ namespace dse::esv
 		DummyType dummy1;
 		dummy1.unkn2 = 0;
 
-		auto processMsg = GetStaticSymbols().EsvCustomStatsProtocolProcessMsg;
+		auto processMsg = GetStaticSymbols().esv__CustomStatsProtocol__ProcessMsg;
 		if (processMsg == nullptr) {
 			OsiErrorS("esv::CustomStatsProtocol::ProcessMsg not found!");
 			return;

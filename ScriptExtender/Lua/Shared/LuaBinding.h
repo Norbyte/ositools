@@ -296,20 +296,54 @@ namespace dse::lua
 			PushExtFunction(L, func);
 			LifetimePin _l(lifetimeStack_);
 			auto lifetime = lifetimeStack_.GetCurrent();
-			auto _{ PushArguments(L, lifetime, std::tuple{args...}) };
+			std::tuple _p{ push(L, lifetime, args)... };
 			return CheckedCall<Ret...>(L, sizeof...(args), func);
 		}
 
-		template <class... Args>
-		bool CallExt(char const* func, uint32_t restrictions, Args... args)
+		bool CallExt(char const* func, uint32_t restrictions);
+
+		// FIXME - temporary hack until new event system is in
+		template <class T1>
+		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1)
 		{
 			StackCheck _(L, 0);
 			Restriction restriction(*this, restrictions);
 			LifetimePin _l(lifetimeStack_);
 			auto lifetime = lifetimeStack_.GetCurrent();
 			PushExtFunction(L, func);
-			auto _p{ PushArguments(L, lifetime, std::tuple{args...}) };
-			CheckedCall(L, sizeof...(args), func);
+			push(L, arg1);
+			CheckedCall(L, 1, func);
+			// FIXME!
+			return true;
+		}
+
+		template <class T1, class T2>
+		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1, T2 const& arg2)
+		{
+			StackCheck _(L, 0);
+			Restriction restriction(*this, restrictions);
+			LifetimePin _l(lifetimeStack_);
+			auto lifetime = lifetimeStack_.GetCurrent();
+			PushExtFunction(L, func);
+			push(L, arg1);
+			push(L, arg2);
+			CheckedCall(L, 2, func);
+			// FIXME!
+			return true;
+		}
+
+		template <class T1, class T2, class T3>
+		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1, T2 const& arg2, T3 const& arg3)
+		{
+			StackCheck _(L, 0);
+			Restriction restriction(*this, restrictions);
+			LifetimePin _l(lifetimeStack_);
+			auto lifetime = lifetimeStack_.GetCurrent();
+			PushExtFunction(L, func);
+			push(L, arg1);
+			push(L, arg2);
+			push(L, arg3);
+			CheckedCall(L, 3, func);
 			// FIXME!
 			return true;
 		}

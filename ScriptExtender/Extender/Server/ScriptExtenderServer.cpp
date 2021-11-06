@@ -192,7 +192,8 @@ void ScriptExtender::ResetLuaState()
 
 bool ScriptExtender::RequestResetClientLuaState()
 {
-	auto server = GetStaticSymbols().EoCServer;
+	// FIXME - eliminate direct references to esv__EoCServer
+	auto server = GetStaticSymbols().esv__EoCServer;
 	if (server && *server && (*server)->GameServer) {
 		// Reset clients via a network message if the server is running
 		auto msg = network_.GetFreeMessage(ReservedUserId);

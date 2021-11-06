@@ -16,6 +16,12 @@ STDWString FromUTF8(StringView s);
 
 struct FixedString
 {
+#if defined(OSI_EOCAPP)
+	typedef char const* (CreateProc)(char const* str, int length);
+#else
+	typedef void (CreateProc)(FixedString* self, char const* str, int length);
+#endif
+
 	inline FixedString()
 		: Str(nullptr)
 	{}
@@ -159,6 +165,8 @@ struct ScratchBuffer : public Noncopyable<ScratchBuffer>
 
 struct Path
 {
+	typedef StringView* (GetPrefixForRootProc)(StringView* path, unsigned int rootType);
+
 	inline Path() {}
 
 	inline Path(STDString const& s) : Name(s) {}

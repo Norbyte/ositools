@@ -197,7 +197,7 @@ FixedString::FixedString(char const* s, int length)
 	} else {
 		auto str = FindGlobalString(s);
 		if (!str) {
-			auto createFixedString = GetStaticSymbols().CreateFixedString;
+			auto createFixedString = GetStaticSymbols().ls__FixedString__Create;
 			if (createFixedString != nullptr) {
 #if defined(OSI_EOCAPP)
 				str = createFixedString(s, length);

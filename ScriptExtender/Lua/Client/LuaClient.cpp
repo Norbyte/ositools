@@ -2731,10 +2731,8 @@ namespace dse::ecl::lua
 
 		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
 
-		auto _a{ PushArguments(L,
-			GetClientLifetime(),
-			std::tuple{Push<SkillPrototypeProxy>(prototype, std::optional<int32_t>()),
-			Push<ObjectProxy<CDivinityStats_Character>>(GetClientLifetime(), character)}) };
+		SkillPrototypeProxy::New(L, prototype, std::optional<int32_t>());
+		ObjectProxy<CDivinityStats_Character>::New(L, GetClientLifetime(), character);
 		push(L, isFromItem);
 
 		for (auto const& paramText : paramTexts) {

@@ -374,7 +374,7 @@ namespace dse::esv
 			}
 
 			auto & clone = ExtensionState::Get().PendingItemClone;
-			auto item = GetStaticSymbols().CreateItemFromParsed(clone.get(), 0);
+			auto item = GetStaticSymbols().esv__CreateItemFromParsed(clone.get(), 0);
 			clone.reset();
 
 			if (item == nullptr) {

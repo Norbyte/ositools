@@ -52,6 +52,7 @@
     <ClInclude Include="Extender\Shared\ScriptExtenderBase.h" />
     <ClInclude Include="Extender\Shared\ScriptExtensions.pb.h" />
     <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h" />
+    <ClInclude Include="Extender\Shared\tinyxml2.h" />
     <ClInclude Include="GameDefinitions\Base\Base.h" />
     <ClInclude Include="GameDefinitions\Base\BaseContainers.h" />
     <ClInclude Include="GameDefinitions\Base\BaseMemory.h" />
@@ -89,7 +90,9 @@
     <ClInclude Include="GameDefinitions\TurnManager.h" />
     <ClInclude Include="GameDefinitions\UI.h" />
     <ClInclude Include="GameHooks\DataLibraries.h" />
+    <ClInclude Include="GameHooks\EngineHooks.h" />
     <ClInclude Include="GameHooks\OsirisWrappers.h" />
+    <ClInclude Include="GameHooks\SymbolMapper.h" />
     <ClInclude Include="GameHooks\Wrappers.h" />
     <ClInclude Include="Hit.h" />
     <ClInclude Include="Lua\Client\LuaBindingClient.h" />
@@ -143,6 +146,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Extender\Shared\tinyxml2.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="GameDefinitions\Base\Base.cpp" />
     <ClCompile Include="GameDefinitions\Enumerations.cpp" />
     <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
@@ -151,10 +157,17 @@
     <ClCompile Include="GameHooks\DataLibraries.cpp" />
     <ClCompile Include="GameHooks\DataLibrariesEoCApp.cpp" />
     <ClCompile Include="GameHooks\DataLibrariesEoCPlugin.cpp" />
+    <ClCompile Include="GameHooks\EngineHooks.cpp" />
     <ClCompile Include="GameHooks\OsirisWrappers.cpp" />
+    <ClCompile Include="GameHooks\SymbolMapper.cpp" />
     <ClCompile Include="Hit.cpp" />
     <ClCompile Include="Lua\Client\LuaClient.cpp" />
-    <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc" />
+    <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseExtensionsOnly|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Lua\Debugger\LuaDebugger.cpp" />
     <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp" />
     <ClCompile Include="Lua\Libs\LuaLibs.cpp" />
@@ -169,7 +182,12 @@
     <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
     <ClCompile Include="Osiris\Debugger\DebugInterface.cpp" />
     <ClCompile Include="Osiris\Debugger\DebugMessages.cpp" />
-    <ClCompile Include="Osiris\Debugger\osidebug.pb.cc" />
+    <ClCompile Include="Osiris\Debugger\osidebug.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseExtensionsOnly|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Osiris\Functions\CharacterFunctions.cpp" />
     <ClCompile Include="Osiris\Functions\CustomStatFunctions.cpp" />
     <ClCompile Include="Osiris\Functions\DamageFunctions.cpp" />
@@ -208,7 +226,6 @@
     <None Include="Extender\Shared\StatLoadOrderHelper.inl" />
     <None Include="Extender\Shared\ThreadedExtenderState.inl" />
     <None Include="GameDefinitions\CharacterGetters.inl" />
-    <None Include="GameDefinitions\EngineHooks.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
@@ -218,6 +235,7 @@
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
     <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
+    <None Include="GameHooks\EngineHooks.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
     <None Include="LuaScripts\BuiltinLibraryClient.lua" />
     <None Include="LuaScripts\BuiltinLibraryServer.lua" />
@@ -237,6 +255,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="GameHooks\BinaryMappingsEoCApp.xml" />
+    <Xml Include="GameHooks\BinaryMappingsEoCPlugin.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4723A102-E4DE-4874-BED7-6DA4EC2D0C80}</ProjectGuid>

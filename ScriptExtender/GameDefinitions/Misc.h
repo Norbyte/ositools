@@ -261,6 +261,9 @@ namespace dse
 
 	struct FileReader : public Noncopyable<FileReader>
 	{
+		using CtorProc = FileReader * (FileReader* self, Path const& path, unsigned int type);
+		using DtorProc = void (FileReader* self);
+
 		bool IsLoaded;
 		void * ScratchBufPtr;
 		void * MemBuffer;
@@ -325,16 +328,6 @@ namespace dse
 	private:
 		FileReader * reader_;
 	};
-
-
-#if defined(OSI_EOCAPP)
-	typedef char const * (*ls__FixedString__Create)(char const * str, int length);
-#else
-	typedef void(*ls__FixedString__Create)(FixedString * self, char const * str, int length);
-#endif
-	typedef FileReader * (* ls__FileReader__FileReader)(FileReader * self, Path * path, unsigned int type);
-	typedef void (* ls__FileReader__Dtor)(FileReader * self);
-	typedef StringView * (* ls__Path__GetPrefixForRoot)(StringView * path, unsigned int rootType);
 
 	class TempStrings
 	{

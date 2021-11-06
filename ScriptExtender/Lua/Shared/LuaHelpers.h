@@ -704,17 +704,6 @@ namespace dse::lua
 		};
 	}
 
-	// Pushes all arguments to the Lua stack and returns a pin that should
-	// be destroyed after the call
-	template <class ...Args>
-	inline auto PushArguments(lua_State * L, LifetimeHolder const& lifetime, std::tuple<Args...> args)
-	{
-		return std::apply([=](const auto &... elem)
-		{
-			return std::tuple{ push_pin(L, lifetime, elem)... };
-		}, args);
-	}
-
 	// Helper for indicating return type of a Lua function
 	template <class... Args>
 	struct ReturnType {};

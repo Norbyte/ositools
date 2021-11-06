@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameDefinitions/GameObjects/Ai.h>
+#include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/CustomStats.h>
 #include <GameDefinitions/GameObjects/GameAction.h>
@@ -109,45 +110,76 @@ namespace dse
 			uint32_t refs;
 		};
 
-		ls__FixedString__Create CreateFixedString{ nullptr };
+		EoCAllocFunc EoCAlloc{ nullptr };
+		EoCFreeFunc EoCFree{ nullptr };
+		CrtAllocFunc CrtAlloc{ nullptr };
+		CrtFreeFunc CrtFree{ nullptr };
+
+		FixedString::CreateProc* ls__FixedString__Create{ nullptr };
+		GlobalStringTable const** ls__GlobalStrings{ nullptr };
+
+		Path::GetPrefixForRootProc* ls__Path__GetPrefixForRoot{ nullptr };
+		FileReader::CtorProc* ls__FileReader__ctor{ nullptr };
+		FileReader::DtorProc* ls__FileReader__dtor{ nullptr };
+		STDString** ls__PathRoots{ nullptr };
+
+		App** AppInstance{ nullptr };
+		App::VMT::OnInputEventProc* App__OnInputEvent{ nullptr };
+
+		ecl::EoCClient** ecl__EoCClient{ nullptr };
+		ecl::EoCClient__HandleError ecl__EoCClient__HandleError{ nullptr };
+		esv::EoCServer** esv__EoCServer{ nullptr };
 
 		esv::ProjectileHelpers__ShootProjectile* esv__ProjectileHelpers__ShootProjectile{ nullptr };
 		esv::Projectile::ExplodeProc* esv__Projectile__Explode{ nullptr };
-		esv::GameActionManager__CreateAction CreateGameAction{ nullptr };
-		esv::GameActionManager__AddAction AddGameAction{ nullptr };
-		esv::TornadoAction__Setup TornadoActionSetup{ nullptr };
-		esv::TornadoAction__Setup WallActionCreateWall{ nullptr };
-		esv::SummonHelpers__Summon SummonHelpersSummon{ nullptr };
-		esv::GameObjectMoveAction__Setup GameObjectMoveActionSetup{ nullptr };
-		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
-		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
-		esv::Character::HitProc* esv__Character__Hit{ nullptr };
-		CDivinityStats_Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
-		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
-		esv::StatusVMT const * StatusHealVMT{ nullptr };
-		esv::StatusVMT const * StatusHitVMT{ nullptr };
+		esv::GameActionManager__CreateAction esv__GameActionManager__CreateAction{ nullptr };
+		esv::GameActionManager__AddAction esv__GameActionManager__AddGameAction{ nullptr };
+		esv::TornadoAction__Setup esv__TornadoAction__Setup{ nullptr };
+		esv::TornadoAction__Setup esv__WallAction__CreateWall{ nullptr };
+		esv::SummonHelpers__Summon esv__SummonHelpers__Summon{ nullptr };
+		esv::GameObjectMoveAction__Setup esv__GameObjectMoveAction__Setup{ nullptr };
+
+		esv::StatusVMT const * esv__StatusHeal__VMT{ nullptr };
+		esv::StatusVMT const * esv__StatusHit__VMT{ nullptr };
 		esv::StatusHeal::EnterProc* esv__StatusHeal__Enter{ nullptr };
 		esv::StatusHit::EnterProc* esv__StatusHit__Enter{ nullptr };
 		esv::StatusHit::SetupProc* esv__StatusHit__Setup{ nullptr };
-		esv::ParseItem ParseItem{ nullptr };
-		esv::CreateItemFromParsed CreateItemFromParsed{ nullptr };
-		esv::CustomStatsProtocol__ProcessMsg EsvCustomStatsProtocolProcessMsg{ nullptr };
+		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
+
+		esv::ParseItem esv__ParseItem{ nullptr };
+		esv::CreateItemFromParsed esv__CreateItemFromParsed{ nullptr };
+		esv::Inventory::Equip esv__Inventory__Equip{ nullptr };
+		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
+		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
+
+		esv::CustomStatsProtocol__ProcessMsg esv__CustomStatsProtocol__ProcessMsg{ nullptr };
+
 		esv::ActionMachine::SetStateProc* ecl__ActionMachine__SetState{ nullptr };
 		esv::ActionMachine::SetStateProc* esv__ActionMachine__SetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
+
+		CRPGStatsManager::LoadProc RPGStats__Load{ nullptr };
+		CRPGStatsManager::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
+		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
+		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
+
 		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
 		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
 		esv::ExecuteCharacterSetExtraPropertiesProc* esv__ExecuteCharacterSetExtraProperties{ nullptr };
 
+		esv::Character::HitProc* esv__Character__Hit{ nullptr };
+		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
+		CDivinityStats_Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
+
+		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
+		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
+
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };
 		esv::TransformSurfaceAction::InitProc* esv__TransformSurfaceAction__Init{ nullptr };
-
-		ecl::EoCClient ** EoCClient{ nullptr };
-		ecl::EoCClient__HandleError EoCClientHandleError{ nullptr };
-		App** AppInstance{ nullptr };
-		App::VMT::OnInputEventProc* App__OnInputEvent{ nullptr };
+		eoc::SurfaceTransformInteractions* eoc__SurfaceTransformActionsFromType{ nullptr };
+		SurfaceTemplate** eoc__SurfaceTemplates{ nullptr };
 
 		uint8_t const * UICharacterSheetHook{ nullptr };
 		uint8_t const * ActivateClientSystemsHook{ nullptr };
@@ -166,25 +198,15 @@ namespace dse
 		net::Host::AddProtocol net__Host__AddProtocol{ nullptr };
 		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };
 		net::MessageFactory::GetFreeMessage net__MessageFactory__GetFreeMessage{ nullptr };
-		eoc__SkillPrototypeManager__Init SkillPrototypeManagerInit{ nullptr };
+
+		eoc__SkillPrototypeManager__Init SkillPrototypeManager__Init{ nullptr };
 		SkillPrototype::FormatDescriptionParamProc* SkillPrototype__FormatDescriptionParam{ nullptr };
 		SkillPrototype::GetSkillDamageProc* SkillPrototype__GetSkillDamage{ nullptr };
 		SkillPrototype::GetAttackAPCostProc* SkillPrototype__GetAttackAPCost{ nullptr };
 		StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
-		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
-		esv::Inventory::Equip InventoryEquip{ nullptr };
-		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
-		esv::ItemHelpers__GenerateTreasureItem* esv__ItemHelpers__GenerateTreasureItem{ nullptr };
-		esv::CombineManager::ExecuteCombinationProc* esv__CombineManager__ExecuteCombination{ nullptr };
-		eoc::SurfaceTransformInteractions* eoc__SurfaceTransformActionsFromType{ nullptr };
-		SurfaceTemplate** eoc__SurfaceTemplates{ nullptr };
-		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
 
-		GlobalStringTable const ** GlobalStrings{ nullptr };
-		ls__Path__GetPrefixForRoot GetPrefixForRoot{ nullptr };
-		ls__FileReader__FileReader FileReaderCtor{ nullptr };
-		ls__FileReader__Dtor FileReaderDtor{ nullptr };
-		STDString ** PathRoots{ nullptr };
+		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
+		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
 
 		UIObjectManager::RegisterUIObjectCreatorProc* UIObjectManager__RegisterUIObjectCreator{ nullptr };
 		UIObjectManager::CreateUIObjectProc* UIObjectManager__CreateUIObject{ nullptr };
@@ -208,32 +230,27 @@ namespace dse
 		TranslatedStringKeyManager::GetInstance TranslatedStringKeyManager__GetInstance{ nullptr };
 		TranslatedStringKeyManager::GetTranlatedStringFromKey TranslatedStringKeyManager__GetTranlatedStringFromKey{ nullptr };
 
-		CRPGStatsManager::LoadProc RPGStats__Load{ nullptr };
-		CRPGStatsManager::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
-		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
-		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
 		void* esv__OsirisVariableHelper__SavegameVisit{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
-		ScriptCheckBlock__Build ScriptCheckBlock__Build{ nullptr };
+		ScriptCheckBlock__Build ls__ScriptCheckBlock__Build{ nullptr };
 
-		ecl::LevelManager ** EclLevelManager{ nullptr };
-		ecl::InventoryFactory ** EclInventoryFactory{ nullptr };
+		ecl::LevelManager ** ecl__LevelManager{ nullptr };
+		ecl::InventoryFactory ** ecl__InventoryFactory{ nullptr };
 
-		esv::LevelManager ** EsvLevelManager{ nullptr };
-		esv::InventoryFactory ** EsvInventoryFactory{ nullptr };
-		esv::SurfaceActionFactory** EsvSurfaceActionFactory{ nullptr };
-		esv::EoCServer ** EoCServer{ nullptr };
+		esv::LevelManager ** esv__LevelManager{ nullptr };
+		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
+
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };
 #if defined(OSI_EOCAPP)
-		GlobalSwitches ** pGlobalSwitches{ nullptr };
+		GlobalSwitches ** ls__GlobalSwitches{ nullptr };
 #else
-		GlobalSwitches *** pGlobalSwitches{ nullptr };
+		GlobalSwitches *** ls__GlobalSwitches{ nullptr };
 #endif
-		void * ItemFoldDynamicAttributes{ nullptr };
-		void * ModuleSettingsHasCustomMods{ nullptr };
-		void * ModuleSettingsHasCustomModsGB5{ nullptr };
+		void * CDivinityStats_Item__FoldDynamicAttributes{ nullptr };
+		void * ls__ModuleSettings__HasCustomMods{ nullptr };
+		void * ls__ModuleSettings__HasCustomModsGB5{ nullptr };
 		ModuleSettings::ValidateProc* ModuleSettings__Validate{ nullptr };
 		Module::HashProc* Module__Hash{ nullptr };
 		esv::LoadProtocol::HandleModuleLoadedProc* esv__LoadProtocol__HandleModuleLoaded{ nullptr };
@@ -264,11 +281,6 @@ namespace dse
 		uint8_t const * EocRegisterFuncs[6]{ nullptr };
 		uint8_t const ** EocGlobals[6]{ nullptr };
 
-		EoCAllocFunc EoCAlloc{ nullptr };
-		EoCFreeFunc EoCFree{ nullptr };
-		CrtAllocFunc CrtAlloc{ nullptr };
-		CrtFreeFunc CrtFree{ nullptr };
-
 		CharacterStatsGetters CharStatsGetters;
 
 		inline StaticSymbols() {}
@@ -278,14 +290,14 @@ namespace dse
 		inline GlobalSwitches * GetGlobalSwitches() const
 		{
 #if defined(OSI_EOCAPP)
-			if (pGlobalSwitches && *pGlobalSwitches) {
-				return *pGlobalSwitches;
+			if (ls__GlobalSwitches && *ls__GlobalSwitches) {
+				return *ls__GlobalSwitches;
 			} else {
 				return nullptr;
 			}
 #else
-			if (pGlobalSwitches && *pGlobalSwitches && **pGlobalSwitches) {
-				return **pGlobalSwitches;
+			if (ls__GlobalSwitches && *ls__GlobalSwitches && **ls__GlobalSwitches) {
+				return **ls__GlobalSwitches;
 			} else {
 				return nullptr;
 			}
@@ -295,8 +307,8 @@ namespace dse
 
 		inline esv::InventoryFactory * GetServerInventoryFactory() const
 		{
-			if (EsvInventoryFactory) {
-				return *EsvInventoryFactory;
+			if (esv__InventoryFactory) {
+				return *esv__InventoryFactory;
 			} else {
 				return nullptr;
 			}
@@ -304,8 +316,8 @@ namespace dse
 
 		inline ecl::InventoryFactory* GetClientInventoryFactory() const
 		{
-			if (EclInventoryFactory) {
-				return *EclInventoryFactory;
+			if (ecl__InventoryFactory) {
+				return *ecl__InventoryFactory;
 			}
 			else {
 				return nullptr;
@@ -314,8 +326,8 @@ namespace dse
 
 		inline GlobalStringTable const * GetGlobalStringTable() const
 		{
-			if (GlobalStrings) {
-				return *GlobalStrings;
+			if (ls__GlobalStrings) {
+				return *ls__GlobalStrings;
 			} else {
 				return nullptr;
 			}
@@ -323,12 +335,12 @@ namespace dse
 
 		inline esv::LevelManager* GetServerLevelManager() const
 		{
-			if (EsvLevelManager == nullptr
-				|| *EsvLevelManager == nullptr) {
+			if (esv__LevelManager == nullptr
+				|| *esv__LevelManager == nullptr) {
 				return nullptr;
 			}
 
-			return *EsvLevelManager;
+			return *esv__LevelManager;
 		}
 
 		inline esv::Level* GetCurrentServerLevel() const
@@ -353,12 +365,12 @@ namespace dse
 
 		inline ecl::LevelManager* GetClientLevelManager() const
 		{
-			if (EclLevelManager == nullptr
-				|| *EclLevelManager == nullptr) {
+			if (ecl__LevelManager == nullptr
+				|| *ecl__LevelManager == nullptr) {
 				return nullptr;
 			}
 
-			return *EclLevelManager;
+			return *ecl__LevelManager;
 		}
 
 		inline ecl::Level* GetCurrentClientLevel() const
@@ -382,11 +394,11 @@ namespace dse
 
 		inline std::optional<ecl::GameState> GetClientState() const
 		{
-			if (EoCClient != nullptr
-				&& *EoCClient != nullptr
-				&& (*EoCClient)->GameStateMachine != nullptr
-				&& *(*EoCClient)->GameStateMachine != nullptr) {
-				return (*(*EoCClient)->GameStateMachine)->State;
+			if (ecl__EoCClient != nullptr
+				&& *ecl__EoCClient != nullptr
+				&& (*ecl__EoCClient)->GameStateMachine != nullptr
+				&& *(*ecl__EoCClient)->GameStateMachine != nullptr) {
+				return (*(*ecl__EoCClient)->GameStateMachine)->State;
 			} else {
 				return {};
 			}
@@ -394,10 +406,10 @@ namespace dse
 
 		inline std::optional<esv::GameState> GetServerState() const
 		{
-			if (EoCServer != nullptr
-				&& *EoCServer != nullptr
-				&& (*EoCServer)->StateMachine != nullptr) {
-				return (*EoCServer)->StateMachine->State;
+			if (esv__EoCServer != nullptr
+				&& *esv__EoCServer != nullptr
+				&& (*esv__EoCServer)->StateMachine != nullptr) {
+				return (*esv__EoCServer)->StateMachine->State;
 			} else {
 				return {};
 			}
@@ -477,11 +489,11 @@ namespace dse
 
 		inline void AddGameActionWrapper(esv::GameActionManager * mgr, esv::GameAction * action) const
 		{
-			if (AddGameAction != nullptr) {
+			if (esv__GameActionManager__AddGameAction != nullptr) {
 #if defined(OSI_EOCAPP)
-				AddGameAction(&mgr->GameActions, &action);
+				esv__GameActionManager__AddGameAction(&mgr->GameActions, &action);
 #else
-				AddGameAction(mgr, action);
+				esv__GameActionManager__AddGameAction(mgr, action);
 #endif
 			}
 		}

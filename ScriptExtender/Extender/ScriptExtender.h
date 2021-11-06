@@ -21,6 +21,7 @@
 #include <GameHooks/OsirisWrappers.h>
 #include <Osiris/Shared/CustomFunctions.h>
 #include <GameHooks/DataLibraries.h>
+#include <GameHooks/EngineHooks.h>
 #include <Osiris/Functions/FunctionLibrary.h>
 #include "NetProtocol.h"
 #include <GameDefinitions/Symbols.h>
@@ -144,6 +145,11 @@ public:
 		return hasher_;
 	}
 
+	inline EngineHooks& GetEngineHooks()
+	{
+		return hooks_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -155,6 +161,7 @@ private:
 	esv::ScriptExtender server_;
 	ecl::ScriptExtender client_;
 	LibraryManager Libraries;
+	EngineHooks hooks_;
 	//bool LibrariesPostInitialized{ false };
 	std::recursive_mutex globalStateLock_;
 	std::shared_mutex pathOverrideMutex_;
@@ -210,7 +217,7 @@ private:
 	void OnStatsLoadStarted(CRPGStatsManager* mgr);
 	void OnStatsLoadFinished(CRPGStatsManager* mgr);
 	void OnSkillPrototypeManagerInit(void * self);
-	FileReader * OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type);
+	FileReader * OnFileReaderCreate(FileReader::CtorProc* next, FileReader * self, Path const& path, unsigned int type);
 	void OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor);
 
 	void OnInitNetworkFixedStrings(eoc::NetworkFixedStrings* self, void * arg1);

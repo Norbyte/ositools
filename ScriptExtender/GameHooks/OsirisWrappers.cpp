@@ -178,12 +178,12 @@ void OsirisWrappers::InitializeExtensions()
 		ServerGameStateWorkerStart.Wrap(lib.esv__GameStateThreaded__GameStateWorker__DoWork);
 	}
 
-	if (lib.SkillPrototypeManagerInit != nullptr) {
-		SkillPrototypeManagerInit.Wrap(lib.SkillPrototypeManagerInit);
+	if (lib.SkillPrototypeManager__Init != nullptr) {
+		SkillPrototypeManagerInit.Wrap(lib.SkillPrototypeManager__Init);
 	}
 
-	if (lib.FileReaderCtor != nullptr) {
-		FileReader__ctor.Wrap(lib.FileReaderCtor);
+	if (lib.ls__FileReader__ctor != nullptr) {
+		FileReader__ctor.Wrap(lib.ls__FileReader__ctor);
 	}
 
 	if (lib.RPGStats__Load != nullptr) {

@@ -215,25 +215,26 @@ namespace dse::esv
 
 		using namespace std::placeholders;
 
-		osiris_.GetLibraryManager().esv__StatusHit__Setup.SetPreHook(
+		auto& hooks = osiris_.GetEngineHooks();
+		hooks.esv__StatusHit__Setup.SetPreHook(
 			std::bind(&HitProxy::OnStatusHitSetup, this, _1, _2)
 		);
-		osiris_.GetLibraryManager().esv__StatusHit__Enter.SetPreHook(
+		hooks.esv__StatusHit__Enter.SetPreHook(
 			std::bind(&HitProxy::OnStatusHitEnter, this, _1)
 		);
-		osiris_.GetLibraryManager().esv__Character_Hit.SetWrapper(
+		hooks.esv__Character_Hit.SetWrapper(
 			std::bind(&HitProxy::OnCharacterHit, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
 		);
-		osiris_.GetLibraryManager().CDivinityStats_Character__HitInternal.SetWrapper(
+		hooks.CDivinityStats_Character__HitInternal.SetWrapper(
 			std::bind(&HitProxy::OnCharacterHitInternal, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
 		);
-		osiris_.GetLibraryManager().esv__Character_ApplyDamageHook.SetWrapper(
+		hooks.esv__Character_ApplyDamageHook.SetWrapper(
 			std::bind(&HitProxy::OnCharacterApplyDamage, this, _1, _2, _3, _4, _5, _6)
 		);
-		osiris_.GetLibraryManager().esv__StatusMachine__ApplyStatus.SetWrapper(
+		hooks.esv__StatusMachine__ApplyStatus.SetWrapper(
 			std::bind(&HitProxy::OnApplyStatus, this, _1, _2, _3)
 		);
-		osiris_.GetLibraryManager().SkillPrototype__GetSkillDamage.SetWrapper(
+		hooks.SkillPrototype__GetSkillDamage.SetWrapper(
 			std::bind(&HitProxy::OnGetSkillDamage, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
 		);
 

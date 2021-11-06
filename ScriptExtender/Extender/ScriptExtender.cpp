@@ -139,7 +139,7 @@ void ScriptExtender::Shutdown()
 	DEBUG("ScriptExtender::Shutdown: Exiting");
 	server_.Shutdown();
 	client_.Shutdown();
-	// FIXME - what was this? Hooks.UnhookAll();
+	hooks_.UnhookAll();
 
 	/*ResetExtensionStateServer();
 	ResetExtensionStateClient();
@@ -634,26 +634,26 @@ std::optional<STDString> ScriptExtender::GetPathOverride(STDString const & path)
 	}
 }
 
-FileReader * ScriptExtender::OnFileReaderCreate(ls__FileReader__FileReader next, FileReader * self, Path * path, unsigned int type)
+FileReader * ScriptExtender::OnFileReaderCreate(FileReader::CtorProc* next, FileReader * self, Path const& path, unsigned int type)
 {
 	if (!pathOverrides_.empty()) {
 		std::shared_lock lock(pathOverrideMutex_);
-		auto it = pathOverrides_.find(path->Name);
+		auto it = pathOverrides_.find(path.Name);
 		if (it != pathOverrides_.end() && !hasher_.isHashing()) {
-			DEBUG("FileReader path override: %s -> %s", path->Name.c_str(), it->second.c_str());
+			DEBUG("FileReader path override: %s -> %s", path.Name.c_str(), it->second.c_str());
 			Path overriddenPath;
 			overriddenPath.Name = it->second;
 #if !defined(OSI_EOCAPP)
 			overriddenPath.Unknown = path->Unknown;
 #endif
 			lock.unlock();
-			return next(self, &overriddenPath, type);
+			return next(self, overriddenPath, type);
 		}
 	}
 
-	if (path->Name.size() > 4 
-		&& memcmp(path->Name.data() + path->Name.size() - 4, ".txt", 4) == 0) {
-		statLoadOrderHelper_.OnStatFileOpened(*path);
+	if (path.Name.size() > 4 
+		&& memcmp(path.Name.data() + path.Name.size() - 4, ".txt", 4) == 0) {
+		statLoadOrderHelper_.OnStatFileOpened(path);
 	}
 
 	DisableCrashReporting _;
@@ -672,14 +672,14 @@ void ScriptExtender::PostStartup()
 	if (Libraries.PostStartupFindLibraries()) {
 		gExtender->GetServer().Osiris().GetWrappers().InitializeDeferredExtensions();
 		// FunctionLibrary.PostStartup();
-		// Hooks.HookAll();
+		hooks_.HookAll();
 		server_.PostStartup();
 		client_.PostStartup();
 		hitProxy_.PostStartup();
 		hasher_.PostStartup();
 
-		//using namespace std::placeholders;
-		//Hooks.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4, _5));
+		using namespace std::placeholders;
+		hooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
 	}
 
 	GameVersionInfo gameVersion;

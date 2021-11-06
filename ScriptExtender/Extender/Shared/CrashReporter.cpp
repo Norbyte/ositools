@@ -22,12 +22,12 @@ struct ExcludedSymbol
 // Wrapper frames are included in the stack trace for any server/client worker thread crash,
 // so we have to filter them to make sure that we don't receive a report for every (unrelated) game crash.
 static const ExcludedSymbol ExcludedSymbols[] = {
-	{&decltype(dse::LibraryManager::esv__ActionMachine__SetState)::CallToTrampoline, 0x120},
-	{&decltype(dse::LibraryManager::esv__ActionMachine__ResetState)::CallToTrampoline, 0x120},
-	{&decltype(dse::LibraryManager::esv__CombineManager__ExecuteCombination)::CallToTrampoline, 0x120},
-	{&decltype(dse::LibraryManager::esv__ProjectileHelpers__ShootProjectile)::CallToTrampoline, 0x120},
-	{&decltype(dse::LibraryManager::esv__Projectile__Explode)::CallToTrampoline, 0x120},
-	{&decltype(dse::LibraryManager::UIObjectManager__CreateUIObject)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::esv__ActionMachine__SetState)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::esv__ActionMachine__ResetState)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::esv__CombineManager__ExecuteCombination)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::esv__ProjectileHelpers__ShootProjectile)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::esv__Projectile__Explode)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::UIObjectManager__CreateUIObject)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::FileReader__ctor)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},

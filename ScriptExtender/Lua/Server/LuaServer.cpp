@@ -1446,7 +1446,7 @@ namespace dse::esv::lua
 	{
 		auto self = ItemConstructor::CheckUserData(L, 1);
 
-		auto item = GetStaticSymbols().CreateItemFromParsed(&self->Get(), 0);
+		auto item = GetStaticSymbols().esv__CreateItemFromParsed(&self->Get(), 0);
 		if (item == nullptr) {
 			OsiErrorS("Failed to create parsed item.");
 			return 0;
@@ -1566,9 +1566,10 @@ namespace dse::esv::lua
 		esv::Character* character = GetCharacter(L, 1);
 
 		if (character != nullptr) {
-			ComponentHandle handle;
-			character->GetObjectHandle(handle);
-			ObjectProxy<esv::Character>::New(L, handle);
+			//ComponentHandle handle;
+			//character->GetObjectHandle(handle);
+			//ObjectProxy<esv::Character>::New(L, handle);
+			ObjectProxy2::MakeRef(L, character, GetCurrentLifetime());
 			return 1;
 		} else {
 			push(L, nullptr);
@@ -2393,7 +2394,7 @@ namespace dse::esv::lua
 
 	int DumpNetworking(lua_State* L)
 	{
-		auto server = (*GetStaticSymbols().EoCServer)->GameServer;
+		auto server = (*GetStaticSymbols().esv__EoCServer)->GameServer;
 		auto loadProto = (esv::LoadProtocol*)server->Protocols[4];
 
 		INFO(" === NETWORK DUMP === ");
@@ -3088,9 +3089,7 @@ namespace dse::esv::lua
 		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
-		auto _{ PushArguments(L,
-			GetServerLifetime(),
-			std::tuple{Push<ObjectProxy<esv::Status>>(GetServerLifetime(), status)}) };
+		ObjectProxy<esv::Status>::New(L, GetServerLifetime(), status);
 		push(L, isEnterCheck);
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");

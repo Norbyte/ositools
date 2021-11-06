@@ -2,7 +2,6 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
-#include <GameDefinitions/GameObjects/Module.h>
 #include <GameDefinitions/GlobalFixedStrings.h>
 
 BEGIN_SE()

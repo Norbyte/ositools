@@ -322,6 +322,15 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="GameHooks\SymbolMapper.h">
+      <Filter>GameHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Extender\Shared\tinyxml2.h">
+      <Filter>Extender\Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHooks\EngineHooks.h">
+      <Filter>GameHooks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -489,6 +498,15 @@
     <ClCompile Include="Lua\Libs\LuaLibs.cpp">
       <Filter>Lua\Libs</Filter>
     </ClCompile>
+    <ClCompile Include="GameHooks\SymbolMapper.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\tinyxml2.cpp">
+      <Filter>Extender\Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHooks\EngineHooks.cpp">
+      <Filter>GameHooks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">
@@ -504,9 +522,6 @@
       <Filter>Extender\Shared</Filter>
     </None>
     <None Include="GameDefinitions\CharacterGetters.inl">
-      <Filter>GameDefinitions</Filter>
-    </None>
-    <None Include="GameDefinitions\EngineHooks.inl">
       <Filter>GameDefinitions</Filter>
     </None>
     <None Include="GameDefinitions\Enumerations.inl">
@@ -589,8 +604,19 @@
     <None Include="Lua\Libs\LuaJson.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="GameHooks\EngineHooks.inl">
+      <Filter>GameHooks</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="GameHooks\BinaryMappingsEoCApp.xml">
+      <Filter>GameHooks</Filter>
+    </Xml>
+    <Xml Include="GameHooks\BinaryMappingsEoCPlugin.xml">
+      <Filter>GameHooks</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

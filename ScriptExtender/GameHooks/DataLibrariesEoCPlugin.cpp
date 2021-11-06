@@ -1061,7 +1061,7 @@ namespace dse
 		}
 	}
 
-	bool LibraryManager::FindEoCPlugin(uint8_t const * & start, size_t & size)
+	bool LibraryManager::BindApp()
 	{
 		HMODULE hEoCApp = GetModuleHandleW(L"EoCApp.exe");
 		if (hEoCApp != NULL) {
@@ -1073,6 +1073,8 @@ namespace dse
 		if (hDivinityEngine == NULL) {
 			return false;
 		}
+
+		ASDASD FIXME
 
 		HMODULE hEoCPlugin = LoadLibraryW(L"EoCPlugin.dll");
 		if (hEoCPlugin == NULL) {

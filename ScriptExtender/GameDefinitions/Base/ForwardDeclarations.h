@@ -17,6 +17,10 @@ struct ProjectileTemplate;
 struct IGameObject;
 struct Trigger;
 
+struct ModuleInfo;
+struct Module;
+struct ModManager;
+
 struct ObjectVisitor;
 struct FileReader;
 struct TranslatedStringRepository;
@@ -59,6 +63,7 @@ namespace esv
 	struct SurfaceAction;
 	struct SurfaceManager;
 	struct Level;
+	struct Status;
 
 	struct SurfaceManager;
 	struct GameActionManager;
@@ -79,6 +84,7 @@ namespace ecl
 	struct Character;
 	struct Inventory;
 	struct Level;
+	struct Status;
 
 	struct EntityManager;
 	struct ShroudManager;

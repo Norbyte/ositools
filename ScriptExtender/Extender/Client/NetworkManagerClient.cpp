@@ -149,7 +149,7 @@ void NetworkManager::HookMessages(net::MessageFactory * messageFactory)
 
 net::Client * NetworkManager::GetClient() const
 {
-	auto client = GetStaticSymbols().EoCClient;
+	auto client = GetStaticSymbols().ecl__EoCClient;
 	if (client != nullptr && *client != nullptr) {
 		return (*client)->GameClient;
 	} else {

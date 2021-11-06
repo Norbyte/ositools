@@ -10,358 +10,32 @@
 
 namespace dse
 {
-	void InitPropertyMaps();
-
-#define HOOK_DEFN(name, sym, defn, hookType) decltype(LibraryManager::name) * decltype(LibraryManager::name)::gHook;
-#include <GameDefinitions/EngineHooks.inl>
-#undef HOOK_DEFN
-
-	uint8_t CharToByte(char c)
-	{
-		if (c >= '0' && c <= '9') {
-			return c - '0';
-		}
-		else if (c >= 'A' && c <= 'F') {
-			return c - 'A' + 0x0A;
-		}
-		else if (c >= 'a' && c <= 'f') {
-			return c - 'a' + 0x0A;
-		}
-		else {
-			Fail("Invalid hexadecimal character");
-		}
-	}
-
-	uint8_t HexByteToByte(char c1, char c2)
-	{
-		uint8_t hi = CharToByte(c1);
-		uint8_t lo = CharToByte(c2);
-		return (hi << 4) | lo;
-	}
-
-	void Pattern::FromString(std::string_view s)
-	{
-		if (s.size() % 3) Fail("Invalid pattern length");
-		auto len = s.size() / 3;
-		if (!len) Fail("Zero-length patterns not allowed");
-
-		pattern_.clear();
-		pattern_.reserve(len);
-
-		char const * c = s.data();
-		for (auto i = 0; i < len; i++) {
-			PatternByte b;
-			if (c[2] != ' ') Fail("Bytes must be separated by space");
-			if (c[0] == 'X' && c[1] == 'X') {
-				b.pattern = 0;
-				b.mask = 0;
-			}
-			else {
-				b.pattern = HexByteToByte(c[0], c[1]);
-				b.mask = 0xff;
-			}
-
-			pattern_.push_back(b);
-			c += 3;
-		}
-
-		if (pattern_[0].mask != 0xff) Fail("First byte of pattern must be an exact match");
-	}
-
-	void Pattern::FromRaw(const char * s)
-	{
-		auto len = strlen(s) + 1;
-		pattern_.resize(len);
-		for (auto i = 0; i < len; i++) {
-			pattern_[i].pattern = (uint8_t)s[i];
-			pattern_[i].mask = 0xFF;
-		}
-	}
-
-	bool Pattern::MatchPattern(uint8_t const * start)
-	{
-		auto p = start;
-		for (auto const & pattern : pattern_) {
-			if ((*p++ & pattern.mask) != pattern.pattern) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
-	{
-		uint8_t initial = pattern_[0].pattern;
-
-		for (auto p = start; p < end; p++) {
-			if (*p == initial) {
-				if (MatchPattern(p)) {
-					auto matched = callback(p);
-					if (!multiple || (matched && *matched)) return;
-				}
-			}
-		}
-	}
-
-	void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
-	{
-		uint16_t initial = pattern_[0].pattern
-			| (pattern_[1].pattern << 8);
-
-		for (auto p = start; p < end; p++) {
-			if (*reinterpret_cast<uint16_t const *>(p) == initial) {
-				if (MatchPattern(p)) {
-					auto matched = callback(p);
-					if (!multiple || (matched && *matched)) return;
-				}
-			}
-		}
-	}
-
-	void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
-	{
-		uint32_t initial = pattern_[0].pattern
-			| (pattern_[1].pattern << 8)
-			| (pattern_[2].pattern << 16)
-			| (pattern_[3].pattern << 24);
-
-		for (auto p = start; p < end; p++) {
-			if (*reinterpret_cast<uint32_t const *>(p) == initial) {
-				if (MatchPattern(p)) {
-					auto matched = callback(p);
-					if (!multiple || (matched && *matched)) return;
-				}
-			}
-		}
-	}
-
-	void Pattern::Scan(uint8_t const * start, size_t length, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple)
-	{
-		// Check prefix length
-		auto prefixLength = 0;
-		for (auto i = 0; i < pattern_.size(); i++) {
-			if (pattern_[i].mask == 0xff) {
-				prefixLength++;
-			} else {
-				break;
-			}
-		}
-
-		auto end = start + length - pattern_.size();
-		if (prefixLength >= 4) {
-			ScanPrefix4(start, end, callback, multiple);
-		} else if (prefixLength >= 2) {
-			ScanPrefix2(start, end, callback, multiple);
-		} else {
-			ScanPrefix1(start, end, callback, multiple);
-		}
-	}
-
-	bool LibraryManager::IsConstStringRef(uint8_t const * ref, char const * str) const
-	{
-		return
-			ref >= moduleStart_ 
-			&& ref < moduleStart_ + moduleSize_
-			&& strcmp((char const *)ref, str) == 0;
-	}
-
-	bool LibraryManager::IsFixedStringRef(uint8_t const * ref, char const * str) const
-	{
-		if (ref >= moduleStart_ && ref < moduleStart_ + moduleSize_) {
-			auto fsx = (FixedString const *)ref;
-			if (*fsx && strcmp(fsx->Str, str) == 0) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool LibraryManager::EvaluateSymbolCondition(SymbolMappingCondition const & cond, uint8_t const * match)
-	{
-		uint8_t const * ptr{ nullptr };
-		switch (cond.Type) {
-		case SymbolMappingCondition::kString:
-			ptr = AsmResolveInstructionRef(match + cond.Offset);
-			return ptr != nullptr && IsConstStringRef(ptr, cond.String);
-
-		case SymbolMappingCondition::kFixedString:
-			ptr = AsmResolveInstructionRef(match + cond.Offset);
-			return ptr != nullptr && IsFixedStringRef(ptr, cond.String);
-
-		case SymbolMappingCondition::kNone:
-		default:
-			return true;
-		}
-	}
-
-	SymbolMappingResult LibraryManager::ExecSymbolMappingAction(SymbolMappingTarget const & target, uint8_t const * match)
-	{
-		if (target.Type == SymbolMappingTarget::kNone) return SymbolMappingResult::Success;
-
-		uint8_t const * ptr{ nullptr };
-		switch (target.Type) {
-		case SymbolMappingTarget::kAbsolute:
-			ptr = match + target.Offset;
-			break;
-
-		case SymbolMappingTarget::kIndirect:
-			ptr = AsmResolveInstructionRef(match + target.Offset);
-			break;
-
-		default:
-			break;
-		}
-
-		if (ptr != nullptr) {
-			auto targetPtr = target.Target.Get();
-			if (targetPtr != nullptr) {
-				*targetPtr = const_cast<uint8_t *>(ptr);
-			}
-
-			if (target.NextSymbol != nullptr) {
-				if (!MapSymbol(*target.NextSymbol, ptr, target.NextSymbolSeekSize)) {
-					return SymbolMappingResult::Fail;
-				}
-			}
-
-			if (target.Handler != nullptr) {
-				return target.Handler(ptr);
-			} else {
-				return SymbolMappingResult::Success;
-			}
-		} else {
-			ERR("Could not map match to symbol address while resolving '%s'", target.Name);
-			return SymbolMappingResult::Fail;
-		}
-	}
-
-	bool LibraryManager::MapSymbol(SymbolMappingData const & mapping, uint8_t const * customStart, std::size_t customSize)
-	{
-		if (mapping.Version.Type != SymbolVersion::None) {
-			bool passed;
-			if (mapping.Version.Type == SymbolVersion::Below) {
-				passed = gameRevision_ < mapping.Version.Revision;
-			} else {
-				passed = gameRevision_ >= mapping.Version.Revision;
-			}
-
-			if (!passed) {
-				// Ignore mappings that aren't supported by the current game version
-				return true;
-			}
-		}
-
-		Pattern p;
-		p.FromString(mapping.Matcher);
-
-		uint8_t const * memStart;
-		std::size_t memSize;
-
-		switch (mapping.Scope) {
-		case SymbolMappingData::kBinary:
-			memStart = moduleStart_;
-			memSize = moduleSize_;
-			break;
-
-		case SymbolMappingData::kText:
-			memStart = moduleTextStart_;
-			memSize = moduleTextSize_;
-			break;
-
-		case SymbolMappingData::kCustom:
-			memStart = customStart;
-			memSize = customSize;
-			break;
-
-		default:
-			memStart = nullptr;
-			memSize = 0;
-			break;
-		}
-
-		bool mapped = false;
-		p.Scan(memStart, memSize, [this, &mapping, &mapped](const uint8_t * match) -> std::optional<bool> {
-			if (EvaluateSymbolCondition(mapping.Conditions, match)) {
-				auto action1 = ExecSymbolMappingAction(mapping.Target1, match);
-				auto action2 = ExecSymbolMappingAction(mapping.Target2, match);
-				auto action3 = ExecSymbolMappingAction(mapping.Target3, match);
-				mapped = action1 == SymbolMappingResult::Success 
-					&& action2 == SymbolMappingResult::Success
-					&& action3 == SymbolMappingResult::Success;
-				return action1 != SymbolMappingResult::TryNext 
-					&& action2 != SymbolMappingResult::TryNext
-					&& action3 != SymbolMappingResult::TryNext;
-			} else {
-				return {};
-			}
-		});
-
-		if (!mapped && !(mapping.Flag & SymbolMappingData::kAllowFail)) {
-			ERR("No match found for mapping '%s'", mapping.Name);
-			InitFailed = true;
-			if (mapping.Flag & SymbolMappingData::kCritical) {
-				CriticalInitFailed = true;
-			}
-		}
-
-		return mapped;
-	}
-
-
-	// Fetch the address referenced by an assembly instruction
-	uint8_t const * AsmResolveInstructionRef(uint8_t const * insn)
-	{
-		// Call (4b operand) instruction
-		if (insn[0] == 0xE8 || insn[0] == 0xE9) {
-			int32_t rel = *(int32_t const *)(insn + 1);
-			return insn + rel + 5;
-		}
-
-		// MOV/LEA (4b operand) instruction
-		if ((insn[0] == 0x48 || insn[0] == 0x4C) && (insn[1] == 0x8D || insn[1] == 0x8B)) {
-			int32_t rel = *(int32_t const *)(insn + 3);
-			return insn + rel + 7;
-		}
-
-
-		ERR("AsmResolveInstructionRef(): Not a supported CALL, MOV or LEA instruction at %p", insn);
-		return nullptr;
-	}
-
-	void LibraryManager::FindTextSegment()
-	{
-		IMAGE_NT_HEADERS * pNtHdr = ImageNtHeader(const_cast<uint8_t *>(moduleStart_));
-		IMAGE_SECTION_HEADER * pSectionHdr = (IMAGE_SECTION_HEADER *)(pNtHdr + 1);
-
-		for (std::size_t i = 0; i < pNtHdr->FileHeader.NumberOfSections; i++) {
-			if (memcmp(pSectionHdr->Name, ".text", 6) == 0) {
-				moduleTextStart_ = moduleStart_ + pSectionHdr->VirtualAddress;
-				moduleTextSize_ = pSectionHdr->SizeOfRawData;
-				return;
-			}
-		}
-
-		// Fallback, if .text segment was not found
-		moduleTextStart_ = moduleStart_;
-		moduleTextSize_ = moduleSize_;
-	}
+	LibraryManager::LibraryManager()
+		: symbolMapper_(mappings_)
+	{}
 
 	bool LibraryManager::FindLibraries(uint32_t gameRevision)
 	{
-		gameRevision_ = gameRevision;
+		RegisterSymbols();
+
+		SymbolMappingLoader loader(mappings_);
+		PreRegisterLibraries(loader);
+		if (!loader.LoadBuiltinMappings()) {
+			ERR("Failed to load symbol mapping table");
+			CriticalInitFailed = true;
+		}
+
 		memset(&GetStaticSymbols().CharStatsGetters, 0, sizeof(GetStaticSymbols().CharStatsGetters));
 
 #if defined(OSI_EOCAPP)
-		if (FindEoCApp(moduleStart_, moduleSize_)) {
+		if (BindApp()) {
 #else
-		if (FindEoCPlugin(moduleStart_, moduleSize_)) {
+		if (BindApp()) {
 #endif
+			RegisterLibraries(symbolMapper_);
+			symbolMapper_.MapAllSymbols(false);
 
-			FindTextSegment();
-			MapAllSymbols(false);
-
+			// FIXME - move to a DllExport mapping type
 			HMODULE crtBase = GetModuleHandle(L"ucrtbase.dll");
 			auto crtAllocProc = GetProcAddress(crtBase, "malloc");
 			auto crtFreeProc = GetProcAddress(crtBase, "free");
@@ -396,6 +70,170 @@ namespace dse
 #endif
 			return false;
 		}
+	}
+
+#define SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair(#name, (int)offsetof(StaticSymbols, name)))
+
+	void LibraryManager::RegisterSymbols()
+	{
+		SYM_OFF(EoCAlloc);
+		SYM_OFF(EoCFree);
+		SYM_OFF(CrtAlloc);
+		SYM_OFF(CrtFree);
+
+		SYM_OFF(ls__FixedString__Create);
+		SYM_OFF(ls__GlobalStrings);
+
+		SYM_OFF(ls__Path__GetPrefixForRoot);
+		SYM_OFF(ls__FileReader__ctor);
+		SYM_OFF(ls__FileReader__dtor);
+		SYM_OFF(ls__PathRoots);
+
+		SYM_OFF(AppInstance);
+		SYM_OFF(App__OnInputEvent);
+
+		SYM_OFF(ecl__EoCClient);
+		SYM_OFF(ecl__EoCClient__HandleError);
+		SYM_OFF(esv__EoCServer);
+
+		SYM_OFF(esv__ProjectileHelpers__ShootProjectile);
+		SYM_OFF(esv__Projectile__Explode);
+		SYM_OFF(esv__GameActionManager__CreateAction);
+		SYM_OFF(esv__GameActionManager__AddGameAction);
+		SYM_OFF(esv__TornadoAction__Setup);
+		SYM_OFF(esv__WallAction__CreateWall);
+		SYM_OFF(esv__SummonHelpers__Summon);
+		SYM_OFF(esv__GameObjectMoveAction__Setup);
+		SYM_OFF(esv__Projectile__Explode);
+		SYM_OFF(esv__Projectile__Explode);
+
+		SYM_OFF(esv__StatusMachine__CreateStatus);
+		SYM_OFF(esv__StatusMachine__ApplyStatus);
+
+		SYM_OFF(esv__StatusHeal__VMT);
+		SYM_OFF(esv__StatusHit__VMT);
+		SYM_OFF(esv__StatusHeal__Enter);
+		SYM_OFF(esv__StatusHit__Enter);
+		SYM_OFF(esv__StatusHit__Setup);
+		SYM_OFF(esv__Status__GetEnterChance);
+
+		SYM_OFF(esv__ParseItem);
+		SYM_OFF(esv__CreateItemFromParsed);
+		SYM_OFF(esv__Inventory__Equip);
+		SYM_OFF(esv__ItemHelpers__GenerateTreasureItem);
+		SYM_OFF(esv__CombineManager__ExecuteCombination);
+
+		SYM_OFF(esv__CustomStatsProtocol__ProcessMsg);
+
+		SYM_OFF(ecl__ActionMachine__SetState);
+		SYM_OFF(esv__ActionMachine__SetState);
+		SYM_OFF(ecl__ActionMachine__ResetState);
+		SYM_OFF(esv__ActionMachine__ResetState);
+
+		SYM_OFF(RPGStats__Load);
+		SYM_OFF(RPGStats__ParseProperties);
+		SYM_OFF(eoc__SkillPrototypeManager);
+		SYM_OFF(eoc__StatusPrototypeManager);
+
+		SYM_OFF(esv__ExecutePropertyDataOnGroundHit);
+		SYM_OFF(esv__ExecutePropertyDataOnPositionOnly);
+		SYM_OFF(esv__ExecuteCharacterSetExtraProperties);
+
+		SYM_OFF(esv__Character__Hit);
+		SYM_OFF(esv__Character__ApplyDamage);
+		SYM_OFF(CDivinityStats_Character__HitInternal);
+
+		SYM_OFF(esv__SurfaceActionFactory);
+		SYM_OFF(esv__SurfaceActionFactory__CreateAction);
+		SYM_OFF(esv__TransformSurfaceAction__Init);
+		SYM_OFF(eoc__SurfaceTransformActionsFromType);
+		SYM_OFF(eoc__SurfaceTemplates);
+
+		SYM_OFF(UICharacterSheetHook);
+		SYM_OFF(ActivateClientSystemsHook);
+		SYM_OFF(ActivateServerSystemsHook);
+		SYM_OFF(CustomStatUIRollHook);
+		SYM_OFF(NetworkFixedStrings);
+		SYM_OFF(InitNetworkFixedStrings);
+
+		SYM_OFF(ecl__GameStateEventManager__ExecuteGameStateChangedEvent);
+		SYM_OFF(esv__GameStateEventManager__ExecuteGameStateChangedEvent);
+		SYM_OFF(ecl__GameStateThreaded__GameStateWorker__DoWork);
+		SYM_OFF(esv__GameStateThreaded__GameStateWorker__DoWork);
+		SYM_OFF(ecl__GameStateMachine__Update);
+		SYM_OFF(esv__GameStateMachine__Update);
+
+		SYM_OFF(net__Host__AddProtocol);
+		SYM_OFF(net__MessageFactory__RegisterMessage);
+		SYM_OFF(net__MessageFactory__GetFreeMessage);
+
+		SYM_OFF(SkillPrototypeManager__Init);
+		SYM_OFF(SkillPrototype__FormatDescriptionParam);
+		SYM_OFF(SkillPrototype__GetSkillDamage);
+		SYM_OFF(SkillPrototype__GetAttackAPCost);
+		SYM_OFF(StatusPrototype__FormatDescriptionParam);
+
+		SYM_OFF(esv__TurnManager__UpdateTurnOrder);
+		SYM_OFF(eoc__AiGrid__SearchForCell);
+
+		SYM_OFF(UIObjectManager__RegisterUIObjectCreator);
+		SYM_OFF(UIObjectManager__CreateUIObject);
+		SYM_OFF(UIObjectManager__DestroyUIObject);
+		SYM_OFF(UIObjectManager__GetInstance);
+		SYM_OFF(UIObjectManager__Instance);
+		SYM_OFF(EoCUI__ctor);
+		SYM_OFF(EoCUI__vftable);
+
+		SYM_OFF(ls__CustomDrawStruct__VMT);
+		SYM_OFF(ls__UIHelper__UIClearIcon);
+		SYM_OFF(ls__UIHelper__UICreateIconMesh);
+		SYM_OFF(ls__UIHelper__CustomDrawObject);
+
+		SYM_OFF(TranslatedStringRepository__Instance);
+		SYM_OFF(TranslatedStringRepository__GetInstance);
+		SYM_OFF(TranslatedStringRepository__Get);
+		SYM_OFF(TranslatedStringRepository__UnloadOverrides);
+
+		SYM_OFF(TranslatedStringKeyManager__Instance);
+		SYM_OFF(TranslatedStringKeyManager__GetInstance);
+		SYM_OFF(TranslatedStringKeyManager__GetTranlatedStringFromKey);
+
+		SYM_OFF(eoc__SpeakerManager);
+		SYM_OFF(esv__OsirisVariableHelper__SavegameVisit);
+		SYM_OFF(ModManager__CollectAvailableMods);
+		SYM_OFF(ls__ScriptCheckBlock__Build);
+
+		SYM_OFF(ecl__LevelManager);
+		SYM_OFF(ecl__InventoryFactory);
+
+		SYM_OFF(esv__LevelManager);
+		SYM_OFF(esv__InventoryFactory);
+
+		SYM_OFF(ResourceManager__GetInstance);
+		SYM_OFF(ResourceManager__Instance);
+		SYM_OFF(ls__GlobalSwitches);
+
+		SYM_OFF(CDivinityStats_Item__FoldDynamicAttributes);
+		SYM_OFF(ls__ModuleSettings__HasCustomMods);
+		SYM_OFF(ls__ModuleSettings__HasCustomModsGB5);
+
+		SYM_OFF(ModuleSettings__Validate);
+		SYM_OFF(Module__Hash);
+		SYM_OFF(esv__LoadProtocol__HandleModuleLoaded);
+
+		SYM_OFF(IgValuePathMakeNameRef);
+		SYM_OFF(IgValuePathPathMakeArrayRef);
+		SYM_OFF(IgValuePathSetArrayIndex);
+		SYM_OFF(IgValueGetType);
+		SYM_OFF(IgValueGetArrayLength);
+		SYM_OFF(IgValueGetBoolean);
+		SYM_OFF(IgValueGetF64);
+		SYM_OFF(IgValueGetStringUTF8);
+		SYM_OFF(IgValueSetBoolean);
+		SYM_OFF(IgValueSetF64);
+		SYM_OFF(IgValueSetStringUTF8);
+		SYM_OFF(IgPlayerCreateFastNameUTF8);
+		SYM_OFF(IgPlayerCallMethod);
 	}
 
 	void LibraryManager::FindExportsIggy()
@@ -475,7 +313,7 @@ namespace dse
 
 		auto initStart = std::chrono::high_resolution_clock::now();
 
-		MapAllSymbols(true);
+		symbolMapper_.MapAllSymbols(true);
 
 		if (!CriticalInitFailed) {
 			GFS.Initialize();
@@ -491,18 +329,16 @@ namespace dse
 				sym.App__OnInputEvent = (*sym.AppInstance)->__vftable->OnInputEvent;
 			}
 
-			if (sym.StatusHealVMT != nullptr) {
-				sym.esv__Status__GetEnterChance = sym.StatusHealVMT->GetEnterChance;
-				sym.esv__StatusHeal__Enter = sym.StatusHealVMT->Enter;
+			if (sym.esv__StatusHeal__VMT != nullptr) {
+				sym.esv__Status__GetEnterChance = sym.esv__StatusHeal__VMT->GetEnterChance;
+				sym.esv__StatusHeal__Enter = sym.esv__StatusHeal__VMT->Enter;
 			}
 
-			if (sym.StatusHitVMT != nullptr) {
-				sym.esv__StatusHit__Enter = sym.StatusHitVMT->Enter;
+			if (sym.esv__StatusHit__VMT != nullptr) {
+				sym.esv__StatusHit__Enter = sym.esv__StatusHit__VMT->Enter;
 			}
 
-#define HOOK_DEFN(name, sym, defn, hookType) if (GetStaticSymbols().sym != nullptr) { name.Wrap(GetStaticSymbols().sym); }
-#include <GameDefinitions/EngineHooks.inl>
-#undef HOOK_DEFN
+
 
 			sym.CharStatsGetters.WrapAll();
 
@@ -523,18 +359,6 @@ namespace dse
 
 		PostLoaded = true;
 		return !CriticalInitFailed;
-	}
-
-	void LibraryManager::Cleanup()
-	{
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-#define HOOK_DEFN(name, sym, defn, hookType) name.Unwrap();
-#include <GameDefinitions/EngineHooks.inl>
-#undef HOOK_DEFN
-
-		DetourTransactionCommit();
 	}
 
 	bool LibraryManager::GetGameVersion(GameVersionInfo & version)
@@ -577,8 +401,8 @@ namespace dse
 	{
 		ERR(L"STARTUP ERROR: %s", msg.c_str());
 
-		if (GetStaticSymbols().EoCClient == nullptr
-			|| GetStaticSymbols().EoCClientHandleError == nullptr
+		if (GetStaticSymbols().ecl__EoCClient == nullptr
+			|| GetStaticSymbols().ecl__EoCClient__HandleError == nullptr
 			|| GetStaticSymbols().EoCAlloc == nullptr) {
 			return;
 		}
@@ -612,7 +436,7 @@ namespace dse
 	{
 		if (!CanShowMessages()) return;
 
-		GetStaticSymbols().EoCClientHandleError(*GetStaticSymbols().EoCClient, &msg, exitGame, &msg);
+		GetStaticSymbols().ecl__EoCClient__HandleError(*GetStaticSymbols().ecl__EoCClient, &msg, exitGame, &msg);
 	}
 
 	void LibraryManager::ShowStartupMessage(STDWString const & msg, bool exitGame)
@@ -626,7 +450,7 @@ namespace dse
 	bool LibraryManager::CanShowMessages()
 	{
 		return GetStaticSymbols().GetClientState()
-			&& GetStaticSymbols().EoCClientHandleError != nullptr
+			&& GetStaticSymbols().ecl__EoCClient__HandleError != nullptr
 			&& GetStaticSymbols().EoCAlloc != nullptr;
 	}
 
@@ -695,8 +519,8 @@ namespace dse
 	{
 		if (gExtender->HasFeatureFlag("DisableFolding")) {
 #if defined(OSI_EOCAPP)
-			if (GetStaticSymbols().ItemFoldDynamicAttributes != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ItemFoldDynamicAttributes);
+			if (GetStaticSymbols().CDivinityStats_Item__FoldDynamicAttributes != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().CDivinityStats_Item__FoldDynamicAttributes);
 				WriteAnchor code(p, 0x40);
 				p[0x26] = 0x90;
 				p[0x27] = 0xE9;
@@ -711,14 +535,14 @@ namespace dse
 
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().EnableAchievements) {
-			if (GetStaticSymbols().ModuleSettingsHasCustomMods != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ModuleSettingsHasCustomMods);
+			if (GetStaticSymbols().ls__ModuleSettings__HasCustomMods != nullptr) {
+				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ls__ModuleSettings__HasCustomMods);
 				WriteAnchor code(p, 0x40);
 				p[0x0E] = 0x90;
 				p[0x0F] = 0xE9;
 
-				if (GetStaticSymbols().ModuleSettingsHasCustomModsGB5 != nullptr) {
-					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ModuleSettingsHasCustomModsGB5);
+				if (GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5 != nullptr) {
+					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5);
 					WriteAnchor code(p, 0x40);
 					p[0x32] = 0x90;
 					p[0x33] = 0xE9;

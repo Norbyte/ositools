@@ -658,7 +658,7 @@ namespace dse::esv
 
 			if (result != 0) {
 				STDWString userName = L"(Unknown)";
-				auto gameServer = (*GetStaticSymbols().EoCServer)->GameServer;
+				auto gameServer = (*GetStaticSymbols().esv__EoCServer)->GameServer;
 				auto peer = gameServer->Peers.Find(peerModSettings.peerId);
 				if (peer != nullptr) {
 					peer->Users.Iterate([&userName](uint16_t const&, net::GameServer::UserInfo const& user) {
@@ -703,7 +703,7 @@ namespace dse::esv
 					break;
 				}
 
-				auto server = GetStaticSymbols().EoCServer;
+				auto server = GetStaticSymbols().esv__EoCServer;
 				if (server != nullptr) {
 					int32_t userId = peerModSettings.peerId << 16;
 					// We use the vanilla HostRefuse message for non-extender clients or old extender

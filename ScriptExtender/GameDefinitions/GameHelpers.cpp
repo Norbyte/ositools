@@ -32,7 +32,7 @@ namespace dse
 #if defined(OSI_EOCAPP)
 	STDString StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
-		if (PathRoots == nullptr) {
+		if (ls__PathRoots == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
@@ -42,7 +42,7 @@ namespace dse
 			CanonicalizePath(canonicalPath);
 		}
 
-		auto rootPath = PathRoots[(unsigned)root];
+		auto rootPath = ls__PathRoots[(unsigned)root];
 		if (rootPath == nullptr) {
 			ERR("StaticSymbols::ToPath(): Path roots not initialized!");
 			return "";
@@ -55,7 +55,7 @@ namespace dse
 
 	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
-		if (PathRoots == nullptr || FileReaderCtor == nullptr) {
+		if (ls__PathRoots == nullptr || ls__FileReader__ctor == nullptr) {
 			ERR("StaticSymbols::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
@@ -66,7 +66,7 @@ namespace dse
 		lsPath.Name = absolutePath;
 
 		auto reader = new FileReader();
-		FileReaderCtor(reader, &lsPath, 2);
+		ls__FileReader__ctor(reader, lsPath, 2);
 		return FileReaderPin(reader);
 	}
 #else
@@ -121,8 +121,8 @@ namespace dse
 
 	void StaticSymbols::DestroyFileReader(FileReader * reader)
 	{
-		if (FileReaderDtor != nullptr) {
-			FileReaderDtor(reader);
+		if (ls__FileReader__dtor != nullptr) {
+			ls__FileReader__dtor(reader);
 		}
 	}
 

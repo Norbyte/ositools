@@ -128,7 +128,7 @@ void NetworkManager::ExtendNetworking()
 
 net::GameServer * NetworkManager::GetServer() const
 {
-	auto server = GetStaticSymbols().EoCServer;
+	auto server = GetStaticSymbols().esv__EoCServer;
 	if (server != nullptr && *server != nullptr) {
 		return (*server)->GameServer;
 	} else {

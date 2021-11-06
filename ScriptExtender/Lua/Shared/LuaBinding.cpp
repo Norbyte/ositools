@@ -942,10 +942,8 @@ namespace dse::lua
 		LifetimePin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetHitChance"); // stack: fn
-		auto _{ PushArguments(L,
-			GetCurrentLifetime(),
-			std::tuple{Push<ObjectProxy<CDivinityStats_Character>>(GetCurrentLifetime(), attacker),
-			Push<ObjectProxy<CDivinityStats_Character>>(GetCurrentLifetime(), target)}) };
+		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), attacker);
+		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), target);
 
 		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
@@ -1083,6 +1081,18 @@ namespace dse::lua
 	void State::OnModuleResume()
 	{
 		CallExt("_OnModuleResume", RestrictAll | ScopeModuleResume);
+	}
+
+	bool State::CallExt(char const* func, uint32_t restrictions)
+	{
+		StackCheck _(L, 0);
+		Restriction restriction(*this, restrictions);
+		LifetimePin _l(lifetimeStack_);
+		auto lifetime = lifetimeStack_.GetCurrent();
+		PushExtFunction(L, func);
+		CheckedCall(L, 0, func);
+		// FIXME!
+		return true;
 	}
 
 	STDString State::GetBuiltinLibrary(int resourceId)

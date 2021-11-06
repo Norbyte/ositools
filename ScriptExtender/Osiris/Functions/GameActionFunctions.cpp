@@ -25,12 +25,12 @@ namespace dse::esv
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
 
-			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+			if (lib.esv__GameActionManager__CreateAction == nullptr || lib.esv__GameActionManager__AddGameAction == nullptr || actionMgr == nullptr) {
 				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
-			auto action = (TAction *)lib.CreateGameAction(actionMgr, type, 0);
+			auto action = (TAction *)lib.esv__GameActionManager__CreateAction(actionMgr, type, 0);
 
 			action->SkillId = FixedString(args[1].String);
 			ComponentHandle characterHandle;
@@ -99,17 +99,17 @@ namespace dse::esv
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
 
-			if (lib.WallActionCreateWall == nullptr) {
+			if (lib.esv__WallAction__CreateWall == nullptr) {
 				OsiErrorS("Wall action symbols not available in library manager");
 				return false;
 			}
 
-			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+			if (lib.esv__GameActionManager__CreateAction == nullptr || lib.esv__GameActionManager__AddGameAction == nullptr || actionMgr == nullptr) {
 				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
-			auto action = (esv::WallAction *)lib.CreateGameAction(actionMgr, GameActionType::WallAction, 0);
+			auto action = (esv::WallAction *)lib.esv__GameActionManager__CreateAction(actionMgr, GameActionType::WallAction, 0);
 
 			action->SkillId = FixedString(args[1].String);
 			ComponentHandle characterHandle;
@@ -122,7 +122,7 @@ namespace dse::esv
 			action->Source = args.GetVector(2);
 			action->Target = args.GetVector(5);
 
-			lib.WallActionCreateWall(action);
+			lib.esv__WallAction__CreateWall(action);
 			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[8].Set((int64_t)action->MyHandle);
@@ -132,7 +132,7 @@ namespace dse::esv
 		bool CreateTornado(OsiArgumentDesc & args)
 		{
 			auto const & lib = GetStaticSymbols();
-			if (lib.TornadoActionSetup == nullptr) {
+			if (lib.esv__TornadoAction__Setup == nullptr) {
 				OsiErrorS("Tornado action symbols not available in library manager");
 				return false;
 			}
@@ -145,7 +145,7 @@ namespace dse::esv
 			action->Target = args.GetVector(5);
 
 			auto actionMgr = lib.GetGameActionManager();
-			lib.TornadoActionSetup(action);
+			lib.esv__TornadoAction__Setup(action);
 			lib.AddGameActionWrapper(actionMgr, action);
 
 			args[8].Set((int64_t)action->MyHandle);
@@ -191,17 +191,17 @@ namespace dse::esv
 			auto const & lib = GetStaticSymbols();
 			auto actionMgr = lib.GetGameActionManager();
 
-			if (lib.GameObjectMoveActionSetup == nullptr) {
+			if (lib.esv__GameObjectMoveAction__Setup == nullptr) {
 				OsiErrorS("GameObjectMove symbols not available in library manager");
 				return false;
 			}
 
-			if (lib.CreateGameAction == nullptr || lib.AddGameAction == nullptr || actionMgr == nullptr) {
+			if (lib.esv__GameActionManager__CreateAction == nullptr || lib.esv__GameActionManager__AddGameAction == nullptr || actionMgr == nullptr) {
 				OsiErrorS("Game Action maanger not available");
 				return false;
 			}
 
-			auto action = (esv::GameObjectMoveAction *)lib.CreateGameAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
+			auto action = (esv::GameObjectMoveAction *)lib.esv__GameActionManager__CreateAction(actionMgr, GameActionType::GameObjectMoveAction, 0);
 
 
 			if (caster != nullptr) {
@@ -211,7 +211,7 @@ namespace dse::esv
 				action->BeamEffectName = FixedString(beamEffectName);
 			}
 
-			lib.GameObjectMoveActionSetup(action, objectHandle, &targetPosition);
+			lib.esv__GameObjectMoveAction__Setup(action, objectHandle, &targetPosition);
 			lib.AddGameActionWrapper(actionMgr, action);
 
 			gameActionHandle.Set((int64_t)action->MyHandle);
@@ -336,7 +336,7 @@ namespace dse::esv
 			}
 
 			auto const & lib = GetStaticSymbols();
-			if (lib.SummonHelpersSummon == nullptr) {
+			if (lib.esv__SummonHelpers__Summon == nullptr) {
 				OsiErrorS("Summon helper symbols not available in library manager");
 				return false;
 			}
@@ -369,7 +369,7 @@ namespace dse::esv
 			summonArgs.IsTotem = isTotem;
 			summonArgs.MapToAiGrid = mapToAiGrid;
 
-			lib.SummonHelpersSummon(&results, &summonArgs);
+			lib.esv__SummonHelpers__Summon(&results, &summonArgs);
 			if (results.SummonHandle) {
 				FixedString guid;
 

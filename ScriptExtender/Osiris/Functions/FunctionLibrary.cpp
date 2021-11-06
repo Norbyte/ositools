@@ -199,7 +199,7 @@ namespace dse::esv
 		}
 
 		using namespace std::placeholders;
-		auto& lib = gExtender->GetLibraryManager();
+		auto& lib = gExtender->GetEngineHooks();
 		// CreateUIObject always enabled for main menu version display
 		lib.UIObjectManager__CreateUIObject.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)

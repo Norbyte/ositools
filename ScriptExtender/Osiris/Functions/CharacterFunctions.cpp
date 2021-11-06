@@ -269,7 +269,7 @@ namespace dse::esv
 			ComponentHandle itemHandle;
 			item->GetObjectHandle(itemHandle);
 
-			auto equipProc = GetStaticSymbols().InventoryEquip;
+			auto equipProc = GetStaticSymbols().esv__Inventory__Equip;
 			equipProc(inventory, itemHandle.Handle, consumeAP, slotIndex, true, checkRequirements,
 				updateVitality, useWeaponAnimType);
 		}

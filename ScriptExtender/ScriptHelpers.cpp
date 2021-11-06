@@ -215,7 +215,7 @@ bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinitio
 
 bool ParseItem(esv::Item* item, ObjectSet<eoc::ItemDefinition>& definition, bool recursive)
 {
-	auto parseItem = GetStaticSymbols().ParseItem;
+	auto parseItem = GetStaticSymbols().esv__ParseItem;
 	if (parseItem == nullptr) {
 		OsiErrorS("esv::ParseItem not found!");
 		return false;

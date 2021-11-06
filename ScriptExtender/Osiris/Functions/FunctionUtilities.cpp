@@ -8,7 +8,7 @@ namespace dse
 {
 	ecl::EoCClient * GetEoCClient()
 	{
-		auto clientPtr = GetStaticSymbols().EoCClient;
+		auto clientPtr = GetStaticSymbols().ecl__EoCClient;
 		if (clientPtr == nullptr || *clientPtr == nullptr) {
 			return nullptr;
 		} else {
@@ -28,7 +28,7 @@ namespace dse
 
 	esv::EoCServer * GetEoCServer()
 	{
-		auto serverPtr = GetStaticSymbols().EoCServer;
+		auto serverPtr = GetStaticSymbols().esv__EoCServer;
 		if (serverPtr == nullptr || *serverPtr == nullptr) {
 			return nullptr;
 		} else {
@@ -107,7 +107,7 @@ namespace dse
 
 		esv::TurnBasedProtocol * GetTurnBasedProtocol()
 		{
-			auto server = GetStaticSymbols().EoCServer;
+			auto server = GetStaticSymbols().esv__EoCServer;
 			if (server == nullptr || *server == nullptr) return nullptr;
 
 			auto gameServer = (*server)->GameServer;

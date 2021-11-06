@@ -1011,7 +1011,7 @@ namespace dse
 
 	void* CRPGStatsManager::BuildScriptCheckBlock(STDString const& source)
 	{
-		auto build = GetStaticSymbols().ScriptCheckBlock__Build;
+		auto build = GetStaticSymbols().ls__ScriptCheckBlock__Build;
 		if (!build) {
 			OsiError("ScriptCheckBlock::Build not available!");
 			return nullptr;
