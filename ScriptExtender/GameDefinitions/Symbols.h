@@ -213,8 +213,8 @@ namespace dse
 		UIObjectManager::DestroyUIObjectProc* UIObjectManager__DestroyUIObject{ nullptr };
 		UIObjectManager::GetInstanceProc* UIObjectManager__GetInstance{ nullptr };
 		UIObjectManager ** UIObjectManager__Instance{ nullptr };
-		ecl::EoCUI::ctor EoCUI__ctor{ nullptr };
-		UIObject::VMT * EoCUI__vftable{ nullptr };
+		ecl::EoCUI::ctor ecl__EoCUI__ctor{ nullptr };
+		UIObject::VMT * ecl__EoCUI__vftable{ nullptr };
 
 		void* ls__CustomDrawStruct__VMT{ nullptr };
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };

@@ -55,6 +55,11 @@ public:
 		return InitFailed;
 	}
 
+	inline SymbolMapper& Mapper()
+	{
+		return symbolMapper_;
+	}
+
 private:
 
 	void PreRegisterLibraries(SymbolMappingLoader& loader);

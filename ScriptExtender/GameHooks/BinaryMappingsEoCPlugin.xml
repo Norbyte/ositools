@@ -580,8 +580,8 @@
       48 89 03  // mov     [rbx], rax
       66 C7 83 54 01 00 00 00 00  // mov     word ptr [rbx+154h], 0
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:?Unassigned@ComponentHandle@ls@@2V12@B
-      <Target Type="Absolute" Offset="-9" Symbol="EoCUI__ctor" /> <!-- ecl::EoCUI::EoCUI -->
-      <Target Type="Indirect" Offset="16" Symbol="EoCUI__vftable" /> <!-- ecl::EoCUI::vftable -->
+      <Target Type="Absolute" Offset="-9" Symbol="ecl__EoCUI__ctor" /> <!-- ecl::EoCUI::EoCUI -->
+      <Target Type="Indirect" Offset="16" Symbol="ecl__EoCUI__vftable" /> <!-- ecl::EoCUI::vftable -->
     </Mapping>
 
     <Mapping Name="eoc::gSpeakerManager">

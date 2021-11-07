@@ -839,8 +839,8 @@ namespace dse
 			"66 C7 83 54 01 00 00 00 00 " // mov     word ptr [rbx+154h], 0
 			"48 8B 05 XX XX XX XX ", // mov     rax, cs:?Unassigned@ComponentHandle@ls@@2V12@B
 			{},
-			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(EoCUI__ctor)},
-			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(EoCUI__vftable)},
+			{"ecl::EoCUI::EoCUI", SymbolMappingTarget::kAbsolute, -9, STATIC_SYM(ecl__EoCUI__ctor)},
+			{"ecl::EoCUI::vftable", SymbolMappingTarget::kIndirect, 16, STATIC_SYM(ecl__EoCUI__vftable)},
 		},
 
 		{

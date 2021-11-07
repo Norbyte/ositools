@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <BinaryMappings>
   <Mappings Version="3.6.117.3735" Default="true">
 
@@ -23,41 +24,35 @@
       <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHealEoCApp2" NextSymbolSeekSize="FIXME" /> <!-- esv::StatusHeal::__vftable -->
     </Mapping>
 
-    <Mapping Name="GetAbility" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetAbility" Scope="Custom">
       45 33 C9  // xor     r9d, r9d
       45 33 C0  // xor     r8d, r8d
       8B D0  // mov     edx, eax
       48 8B CB  // mov     rcx, rbx
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetAbility
-      <Target Type="Indirect" Offset="11" Symbol="CharacterGetters__GetAbility" />
+      <Target Type="Indirect" Offset="11" Symbol="CharacterStatGetters__GetAbility" />
     </Mapping>
 
-    <Mapping Name="GetTalent" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetTalent" Scope="Custom">
       45 0F B6 C7  // movzx   r8d, r15b
       BA 03 00 00 00  // mov     edx, 3
       48 8B CB  // mov     rcx, rbx
       03 F7  // add     esi, edi
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__HasTalent
-      <Target Type="Indirect" Offset="14" Symbol="CharacterGetters__GetTalent" />
+      <Target Type="Indirect" Offset="14" Symbol="CharacterStatGetters__GetTalent" />
     </Mapping>
 
     <Mapping Name="GetChanceToHitBoost" Scope="Custom">
       48 0F 4D C2  // cmovge  rax, rdx
       8B 18  // mov     ebx, [rax]
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetChanceToHitBoost
-      <Target Type="Indirect" Offset="6" Symbol="CharacterGetters__GetChanceToHitBoost" />
+      <Target Type="Indirect" Offset="6" Symbol="CharacterStatGetters__GetChanceToHitBoost" />
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototype::GetSkillDamage" Scope="Custom">
       44 88 4C 24 20  // mov     byte ptr [rsp+arg_18], r9b
       48 89 54 24 10  // mov     [rsp+damageList], rdx
       <Target Type="Absolute" Offset="0" Symbol="SkillPrototype__GetSkillDamage" /> <!-- eoc::SkillPrototype::GetSkillDamage2 -->
-    </Mapping>
-
-    <Mapping Name="ecl::EoCUI::vftable" Scope="Custom">
-      C7 83 48 01 00 00 00 00 00 00  // mov     dword ptr [rbx+148h], 0
-      48 8D 05 ?? ?? ?? ??  // lea     rax, ecl__EoCUI__vftable
-      <Target Type="Indirect" Offset="10" Symbol="EoCUI__vftable" /> <!-- ecl::EoCUI::vftable -->
     </Mapping>
 
     <Mapping Name="EoCMemoryMgr" Critical="true" >
@@ -324,7 +319,7 @@
       75 ??  // jnz     short loc_1415A124C
       48 6B 15 ?? ?? ?? ?? 38  // imul    rdx, cs:qword_1428F14F0, 38h
       48 8B CB  // mov     rcx, rbx
-      <Target Type="Absolute" Offset="26" NextSymbol="FindActivateEntitySystemEoCApp" NextSymbolSeekSize="FIXME" /> <!-- ActivateEntitySystemHook -->
+      <Target Type="Absolute" Offset="26" EngineCallback="FindActivateEntitySystem" /> <!-- ActivateEntitySystemHook -->
     </Mapping>
 
     <Mapping Name="CustomStatUIRollHook">
@@ -425,7 +420,7 @@
       4C 89 44 24 28  // mov     [rsp+68h+var_40], r8
       33 D2  // xor     edx, edx
       4C 8D 44 24 30  // lea     r8, [rsp+68h+var_38]
-      <Condition Type="String" Offset="0" Value="CLIENT STATE SWAP - from: %s, to: %s\n" />
+      <Condition Type="String" Offset="0" Value="CLIENT STATE SWAP - from: %s, to: %s&#10;" />
       <Target Type="Indirect" Offset="0x2A" Symbol="ecl__GameStateEventManager__ExecuteGameStateChangedEvent" /> <!-- ecl::GameStateEventManager::ExecuteGameStateChangedEvent -->
       <Target Type="Absolute" Offset="-0x300" NextSymbol="ecl::GameStateMachine::Update" NextSymbolSeekSize="0x300" /> <!-- ecl::GameStateMachine::Update -->
     </Mapping>
@@ -442,7 +437,7 @@
       4C 89 44 24 28  // mov     [rsp+68h+var_40], r8
       33 D2  // xor     edx, edx
       4C 8D 44 24 30  // lea     r8, [rsp+68h+var_38]
-      <Condition Type="String" Offset="0" Value="SERVER STATE SWAP - from: %s, to: %s\n" />
+      <Condition Type="String" Offset="0" Value="SERVER STATE SWAP - from: %s, to: %s&#10;" />
       <Target Type="Indirect" Offset="0x2A" Symbol="esv__GameStateEventManager__ExecuteGameStateChangedEvent" /> <!-- esv::GameStateEventManager::ExecuteGameStateChangedEvent -->
       <Target Type="Absolute" Offset="-0x300" NextSymbol="esv::GameStateMachine::Update" NextSymbolSeekSize="0x300" /> <!-- esv::GameStateMachine::Update -->
     </Mapping>
@@ -500,10 +495,10 @@
       8B 86 40 03 00 00  // mov     eax, [rsi+340h]
       40 0F B6 D5  // movzx   edx, bpl
       89 43 44  // mov     [rbx+44h], eax
-      <Target Type="Absolute" Offset="0" NextSymbol="FindCharacterStatGettersEoCApp" NextSymbolSeekSize="FIXME" /> <!-- CharacterStatsGetters -->
+      <Target Type="Absolute" Offset="0" NextSymbol="FindCharacterStatGetters" NextSymbolSeekSize="FIXME" /> <!-- CharacterStatsGetters -->
     </Mapping>
 
-    <Mapping Name="GetHitChance">
+    <Mapping Name="CharacterStatGetters::GetHitChance">
       40 56  // push    rsi
       57  // push    rdi
       48 83 EC 28  // sub     rsp, 28h
@@ -512,7 +507,7 @@
       48 8B F9  // mov     rdi, rcx
       41 8D 50 78  // lea     edx, [r8+78h]
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__HasTalent
-      <Target Type="Absolute" Offset="0" Symbol="CharacterGetters__GetHitChance" NextSymbol="ChanceToHitBoost" NextSymbolSeekSize="0x200" />
+      <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="ChanceToHitBoost" NextSymbolSeekSize="0x200" />
     </Mapping>
 
     <Mapping Name="CDivinityStats_Character::_HitInternal" Scope="Custom">
@@ -541,7 +536,7 @@
       <Target Type="Absolute" Offset="0" NextSymbol="esv::Character::CharacterHit" NextSymbolSeekSize="0x400" /> <!-- esv::Character::Hit -->
     </Mapping>
 
-    <Mapping Name="FindLibrariesEoCApp" AllowFail="true" >
+    <Mapping Name="FindLibraries" AllowFail="true" >
       8B C8  // mov ecx, eax
       FF C0  // inc eax
       89 05 ?? ?? ?? ??  // mov cs:xxx, eax
@@ -550,8 +545,7 @@
       44 8D 41 ??  // lea r8d, [rdx+XXh]
       48 8D 0D ?? ?? ?? ??  // lea rcx, xxx
       48 8D 15 ?? ?? ?? ??  // lea rdx, xxx
-      <!-- FIXME - convert to engine callbacks! -->
-      <Target Type="Absolute" Offset="0" NextSymbol="FindLibrariesEoCApp" NextSymbolSeekSize="FIXME" /> <!-- FindLibrariesEoCApp -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindLibraries" />
     </Mapping>
 
     <Mapping Name="esv::ActionMachine::UpdateSyncState">
@@ -563,7 +557,7 @@
       41 C6 44 3B 53 00  // mov     byte ptr [r11+rdi+53h], 0
       48 8B CF  // mov     rcx, rdi
       E8 ?? ?? ?? ??  // call    xxx
-      <Target Type="Indirect" Offset="29" NextSymbol="FindActionMachineSetState" NextSymbolSeekSize="FIXME" /> <!-- esv::ActionMachine::UpdateSyncState -->
+      <Target Type="Indirect" Offset="29" EngineCallback="FindActionMachineSetState" /> <!-- esv::ActionMachine::UpdateSyncState -->
     </Mapping>
 
     <Mapping Name="esv::ActionMachine::ResetState">
@@ -575,7 +569,7 @@
       0F B6 EA  // movzx   ebp, dl
       48 8D 59 18  // lea     rbx, [rcx+18h]
       4C 8B F9  // mov     r15, rcx
-      <Target Type="Absolute" Offset="-20" NextSymbol="FindActionMachineResetState" NextSymbolSeekSize="FIXME" /> <!-- esv::ActionMachine::ResetState -->
+      <Target Type="Absolute" Offset="-20" EngineCallback="FindActionMachineResetState" /> <!-- esv::ActionMachine::ResetState -->
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam" Scope="Custom">
@@ -752,13 +746,19 @@
       <Target Type="Indirect" Offset="10" Symbol="UIObjectManager__DestroyUIObject" /> <!-- ls::UIObjectManager::DestroyUIObject -->
     </Mapping>
 
+    <Mapping Name="ecl::EoCUI::vftable" Scope="Custom">
+      C7 83 48 01 00 00 00 00 00 00  // mov     dword ptr [rbx+148h], 0
+      48 8D 05 ?? ?? ?? ??  // lea     rax, ecl__EoCUI__vftable
+      <Target Type="Indirect" Offset="10" Symbol="ecl__EoCUI__vftable" /> <!-- ecl::EoCUI::vftable -->
+    </Mapping>
+
     <Mapping Name="eoc::EoCUI::ctor">
       48 8B D9  // mov     rbx, rcx
       E8 ?? ?? ?? ??  // call    ecl__EocUI__ctor
       C7 83 98 01 00 00 00 00 A0 40  // mov     dword ptr [rbx+198h], 40A00000h
       48 8D 8B B0 01 00 00  // lea     rcx, [rbx+1B0h]
       C7 83 9C 01 00 00 FF FF FF FF  // mov     dword ptr [rbx+19Ch], 0FFFFFFFFh
-      <Target Type="Indirect" Offset="3" Symbol="EoCUI__ctor" NextSymbol="EoCUI__vftable" NextSymbolSeekSize="0x40" />
+      <Target Type="Indirect" Offset="3" Symbol="ecl__EoCUI__ctor" NextSymbol="ecl::EoCUI::vftable" NextSymbolSeekSize="0x40" />
     </Mapping>
 
     <Mapping Name="eoc::gSpeakerManager">
@@ -937,7 +937,7 @@
       4C 8D 0D ?? ?? ?? ??  // lea     r9, xxx
       48 8D 0D ?? ?? ?? ??  // lea     rcx, "TransformSurfaceAction Created! action: %u (%d:%s)"
       4C 8B 10  // mov     r10, [rax]
-      <Condition Type="String" Offset="7" Value="TransformSurfaceAction Created! action: %u (%d:%s)\n" />
+      <Condition Type="String" Offset="7" Value="TransformSurfaceAction Created! action: %u (%d:%s)&#10;" />
       <Target Type="Absolute" Offset="-0x2A" Symbol="esv__TransformSurfaceAction__Init" /> <!-- esv::TransformSurfaceAction::Init -->
     </Mapping>
 

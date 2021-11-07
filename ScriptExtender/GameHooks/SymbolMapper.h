@@ -41,9 +41,15 @@ private:
 
 struct Pattern
 {
+	enum class ScanAction
+	{
+		Continue,
+		Finish
+	};
+
 	bool FromString(std::string_view s);
 	void FromRaw(const char * s);
-	void Scan(uint8_t const * start, size_t length, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple = true) const;
+	void Scan(uint8_t const * start, size_t length, std::function<ScanAction (uint8_t const *)> callback) const;
 
 private:
 	struct PatternByte
@@ -55,9 +61,9 @@ private:
 	std::vector<PatternByte> pattern_;
 
 	bool MatchPattern(uint8_t const * start) const;
-	void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const;
-	void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const;
-	void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const;
+	void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const;
+	void ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const;
+	void ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const;
 };
 
 uint8_t const * AsmResolveInstructionRef(uint8_t const * code);
@@ -80,6 +86,11 @@ struct StaticSymbolRef
 	{}
 
 	void ** Get() const;
+
+	inline operator bool() const
+	{
+		return Offset != -1 || TargetPtr != nullptr;
+	}
 };
 
 #define STATIC_SYM(name) StaticSymbolRef(offsetof(StaticSymbols, name))
@@ -117,6 +128,7 @@ struct SymbolMappings
 		StaticSymbolRef TargetRef;
 		std::string NextSymbol;
 		int32_t NextSymbolSeekSize{ 0 };
+		std::string EngineCallback;
 	};
 
 	enum class SymbolVersion
@@ -186,6 +198,13 @@ private:
 class SymbolMapper
 {
 public:
+	enum class MappingResult
+	{
+		Success,
+		Fail,
+		TryNext
+	};
+
 	struct ModuleInfo
 	{
 		uint8_t const* ModuleStart{ nullptr };
@@ -199,7 +218,10 @@ public:
 	{}
 
 	bool AddModule(std::string const& name, std::wstring const& modName);
+	void AddEngineCallback(std::string const& name, std::function<MappingResult (uint8_t const *)> const& cb);
 	void MapAllSymbols(bool deferred);
+	bool MapSymbol(std::string const& mappingName, uint8_t const* customStart, std::size_t customSize);
+	bool MapSymbol(SymbolMappings::Mapping const& mapping, uint8_t const* customStart, std::size_t customSize);
 
 	inline bool HasFailedCriticalMappings() const
 	{
@@ -217,15 +239,9 @@ public:
 	}
 
 private:
-	enum class MappingResult
-	{
-		Success,
-		Fail,
-		TryNext
-	};
-
 	SymbolMappings& mappings_;
 	std::unordered_map<std::string, ModuleInfo> modules_;
+	std::unordered_map<std::string, std::function<MappingResult(uint8_t const*)>> engineCallbacks_;
 	uint32_t gameRevision_;
 	bool hasFailedMappings_{ false };
 	bool hasFailedCriticalMappings_{ false };
@@ -237,7 +253,6 @@ private:
 
 	bool EvaluateSymbolCondition(SymbolMappings::Condition const& cond, uint8_t const* match);
 	MappingResult ExecSymbolMappingAction(SymbolMappings::Target const& target, uint8_t const* match);
-	bool MapSymbol(SymbolMappings::Mapping const& mapping, uint8_t const* customStart, std::size_t customSize);
 };
 
 END_SE()

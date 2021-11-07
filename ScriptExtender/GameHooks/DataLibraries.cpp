@@ -73,6 +73,7 @@ namespace dse
 	}
 
 #define SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair(#name, (int)offsetof(StaticSymbols, name)))
+#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + offsetof(CharacterStatsGetters, name)))
 
 	void LibraryManager::RegisterSymbols()
 	{
@@ -181,8 +182,8 @@ namespace dse
 		SYM_OFF(UIObjectManager__DestroyUIObject);
 		SYM_OFF(UIObjectManager__GetInstance);
 		SYM_OFF(UIObjectManager__Instance);
-		SYM_OFF(EoCUI__ctor);
-		SYM_OFF(EoCUI__vftable);
+		SYM_OFF(ecl__EoCUI__ctor);
+		SYM_OFF(ecl__EoCUI__vftable);
 
 		SYM_OFF(ls__CustomDrawStruct__VMT);
 		SYM_OFF(ls__UIHelper__UIClearIcon);
@@ -234,6 +235,11 @@ namespace dse
 		SYM_OFF(IgValueSetStringUTF8);
 		SYM_OFF(IgPlayerCreateFastNameUTF8);
 		SYM_OFF(IgPlayerCallMethod);
+
+		CHAR_GETTER_SYM_OFF(GetChanceToHitBoost);
+		CHAR_GETTER_SYM_OFF(GetHitChance);
+		CHAR_GETTER_SYM_OFF(GetTalent);
+		CHAR_GETTER_SYM_OFF(GetAbility);
 	}
 
 	void LibraryManager::FindExportsIggy()

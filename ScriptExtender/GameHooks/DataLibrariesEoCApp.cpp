@@ -8,6 +8,89 @@
 #if defined(OSI_EOCAPP)
 namespace dse
 {
+	SymbolMapper::MappingResult FindCharacterStatGetters(uint8_t const * match)
+	{
+		unsigned ptrIndex = 0;
+		auto & getters = GetStaticSymbols().CharStatsGetters;
+		for (auto p = match; p < match + 0x240; p++) {
+			auto insn = *reinterpret_cast<uint32_t const *>(p);
+			if (insn == 0xE8CE8B48 /* 48 8B CE E8 -- mov  rcx, rsi; call */
+				|| insn == 0xE8084389 /* 89 43 08 E8 -- mov [rbx+8], eax; call */) {
+				if (ptrIndex < std::size(getters.Ptrs)) {
+					auto ptr = AsmResolveInstructionRef(p + 3);
+					getters.Ptrs[ptrIndex++] = (void *)ptr;
+				}
+			} else if (insn == 0x00908389) { /* mov [rbx+90h], eax */
+				if (ptrIndex < std::size(getters.Ptrs)) {
+					auto ptr = AsmResolveInstructionRef(p + 6);
+					getters.Ptrs[ptrIndex++] = (void *)ptr;
+				}
+			}
+		}
+
+		if (getters.GetBlockChance != nullptr) {
+			auto& mapper = gExtender->GetLibraryManager().Mapper();
+			mapper.MapSymbol("CharacterStatGetters::GetAbility", (uint8_t *)getters.GetDodge, 0x480);
+			mapper.MapSymbol("CharacterStatGetters::GetTalent", (uint8_t *)getters.GetDodge, 0x480);
+		}
+
+		return (getters.GetBlockChance != nullptr) ? SymbolMapper::MappingResult::Success : SymbolMapper::MappingResult::Fail;
+	}
+
+	SymbolMapper::MappingResult FindLibrariesEoCApp(uint8_t const * match)
+	{
+		auto & lib = GetStaticSymbols().Libraries;
+
+		auto initFunc = AsmResolveInstructionRef(match + 18);
+		auto freeFunc = AsmResolveInstructionRef(match + 25);
+		if (initFunc != nullptr && freeFunc != nullptr) {
+			auto it = lib.find(initFunc);
+			if (it != lib.end()) {
+				it->second.refs++;
+			} else {
+				lib.insert(std::pair<uint8_t const *, StaticSymbols::EoCLibraryInfo>(initFunc, { initFunc, freeFunc, 1 }));
+			}
+
+			return SymbolMapper::MappingResult::TryNext;
+		} else {
+			return SymbolMapper::MappingResult::Fail;
+		}
+	}
+
+	SymbolMapper::MappingResult FindActivateEntitySystem(uint8_t const* match)
+	{
+		if (GetStaticSymbols().ActivateClientSystemsHook == nullptr) {
+			GetStaticSymbols().ActivateClientSystemsHook = match;
+			return SymbolMapper::MappingResult::TryNext;
+		} else {
+			GetStaticSymbols().ActivateServerSystemsHook = match;
+			return SymbolMapper::MappingResult::Success;
+		}
+	}
+
+	SymbolMapper::MappingResult FindActionMachineSetState(uint8_t const * match)
+	{
+		if (GetStaticSymbols().ecl__ActionMachine__SetState == nullptr) {
+			GetStaticSymbols().ecl__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
+			return SymbolMapper::MappingResult::TryNext;
+		} else {
+			GetStaticSymbols().esv__ActionMachine__SetState = (esv::ActionMachine::SetStateProc*)match;
+			return SymbolMapper::MappingResult::Success;
+		}
+	}
+
+	SymbolMapper::MappingResult FindActionMachineResetState(uint8_t const* match)
+	{
+		if (GetStaticSymbols().ecl__ActionMachine__ResetState == nullptr) {
+			GetStaticSymbols().ecl__ActionMachine__ResetState = (esv::ActionMachine::ResetStateProc*)match;
+			return SymbolMapper::MappingResult::TryNext;
+		}
+		else {
+			GetStaticSymbols().esv__ActionMachine__ResetState = (esv::ActionMachine::ResetStateProc*)match;
+			return SymbolMapper::MappingResult::Success;
+		}
+	}
+
 	void LibraryManager::PreRegisterLibraries(SymbolMappingLoader& loader)
 	{
 		loader.AddKnownModule("Main");
@@ -16,6 +99,11 @@ namespace dse
 	void LibraryManager::RegisterLibraries(SymbolMapper& mapper)
 	{
 		mapper.AddModule("Main", L"EoCApp.exe");
+		mapper.AddEngineCallback("FindLibraries", &FindLibrariesEoCApp);
+		mapper.AddEngineCallback("FindActivateEntitySystem", &FindActivateEntitySystem);
+		mapper.AddEngineCallback("FindCharacterStatGetters", &FindCharacterStatGetters);
+		mapper.AddEngineCallback("FindActionMachineSetState", &FindActionMachineSetState);
+		mapper.AddEngineCallback("FindActionMachineResetState", &FindActionMachineResetState);
 	}
 
 	bool LibraryManager::BindApp()

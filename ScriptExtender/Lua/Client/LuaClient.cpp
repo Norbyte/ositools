@@ -1984,7 +1984,7 @@ namespace dse::ecl::lua
 			return 0;
 		}
 
-		if (sym.EoCUI__ctor == nullptr || sym.EoCUI__vftable == nullptr) {
+		if (sym.ecl__EoCUI__ctor == nullptr || sym.ecl__EoCUI__vftable == nullptr) {
 			OsiError("Couldn't get symbol for ecl::EoCUI::vftable!");
 			return 0;
 		}

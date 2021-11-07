@@ -645,229 +645,229 @@ namespace dse
 
 	void UIObject::OnFunctionCalled(const char * a1, unsigned int a2, ig::InvokeDataValue * a3)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnFunctionCalled(this, a1, a2, a3);
 	}
 
 	void UIObject::CustomDrawCallback(void * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->CustomDrawCallback(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->CustomDrawCallback(this, a1);
 	}
 
 	void UIObject::Destroy(bool a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->Destroy(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Destroy(this, a1);
 	}
 
 	void UIObject::SetHandle(ComponentHandle * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SetHandle(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SetHandle(this, a1);
 	}
 
 	ComponentHandle * UIObject::GetHandle(ComponentHandle * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetHandle(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetHandle(this, a1);
 	}
 
 	void UIObject::RequestDelete()
 	{
-		return GetStaticSymbols().EoCUI__vftable->RequestDelete(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->RequestDelete(this);
 	}
 
 	void UIObject::SetOwnerPlayerId(uint64_t a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SetOwnerPlayerId(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SetOwnerPlayerId(this, a1);
 	}
 
 	void UIObject::SetPos(int * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SetPos(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SetPos(this, a1);
 	}
 
 	void UIObject::KeepWithin(int a1, int a2)
 	{
-		return GetStaticSymbols().EoCUI__vftable->KeepWithin(this, a1, a2);
+		return GetStaticSymbols().ecl__EoCUI__vftable->KeepWithin(this, a1, a2);
 	}
 
 	void UIObject::Show()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Show(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Show(this);
 	}
 
 	void UIObject::Hide()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Hide(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Hide(this);
 	}
 
 	const char * UIObject::GetDebugName()
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetDebugName(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetDebugName(this);
 	}
 
 	bool UIObject::IsControllerUI()
 	{
-		return GetStaticSymbols().EoCUI__vftable->IsControllerUI(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->IsControllerUI(this);
 	}
 
 	void UIObject::Init()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Init(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Init(this);
 	}
 
 	void UIObject::InitAPI()
 	{
-		return GetStaticSymbols().EoCUI__vftable->InitAPI(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->InitAPI(this);
 	}
 
 	void UIObject::Update(float a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->Update(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Update(this, a1);
 	}
 
 	void UIObject::PostUpdate(float a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->PostUpdate(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->PostUpdate(this, a1);
 	}
 
 	void UIObject::Render(void * a1, void * a2)
 	{
-		return GetStaticSymbols().EoCUI__vftable->Render(this, a1, a2);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Render(this, a1, a2);
 	}
 
 	void UIObject::RegisterInvokeNames()
 	{
-		return GetStaticSymbols().EoCUI__vftable->RegisterInvokeNames(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->RegisterInvokeNames(this);
 	}
 
 	void UIObject::Resize()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Resize(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Resize(this);
 	}
 
 	void * UIObject::OnInputEvent(void * a1, void * a2)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnInputEvent(this, a1, a2);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnInputEvent(this, a1, a2);
 	}
 
 	uint8_t * UIObject::SendEventToFlash(uint8_t * a2, void *a3, unsigned int a4)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SendEventToFlash(this, a2, a3, a4);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SendEventToFlash(this, a2, a3, a4);
 	}
 
 	void * UIObject::OnInputEventText(void * a1, void * a2)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnInputEventText(this, a1, a2);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnInputEventText(this, a1, a2);
 	}
 
 	uint16_t * UIObject::OnUnlinkedInput(uint16_t * a1, uint32_t a2, uint16_t a3)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnUnlinkedInput(this, a1, a2, a3);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnUnlinkedInput(this, a1, a2, a3);
 	}
 
 	void UIObject::SetModifierStates(bool a1, bool a2, bool a3, bool a4)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SetModifierStates(this, a1, a2, a3, a4);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SetModifierStates(this, a1, a2, a3, a4);
 	}
 
 	bool UIObject::OnAPIPreResetDevice(void * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnAPIPreResetDevice(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnAPIPreResetDevice(this, a1);
 	}
 
 	bool UIObject::OnAPIPostResetDevice(void * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnAPIPostResetDevice(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnAPIPostResetDevice(this, a1);
 	}
 
 	void UIObject::OnControllerModeChanged()
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnControllerModeChanged(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnControllerModeChanged(this);
 	}
 
 	void UIObject::OnPlayerDisconnect(int a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->OnPlayerDisconnect(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->OnPlayerDisconnect(this, a1);
 	}
 
 	void UIObject::ReleaseRenderData()
 	{
-		return GetStaticSymbols().EoCUI__vftable->ReleaseRenderData(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->ReleaseRenderData(this);
 	}
 
 	void UIObject::PrepareRenderData()
 	{
-		return GetStaticSymbols().EoCUI__vftable->PrepareRenderData(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->PrepareRenderData(this);
 	}
 
 	void UIObject::DoPrepareRenderData()
 	{
-		return GetStaticSymbols().EoCUI__vftable->DoPrepareRenderData(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->DoPrepareRenderData(this);
 	}
 
 	void UIObject::Activate()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Activate(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Activate(this);
 	}
 
 	void UIObject::Deactivate()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Deactivate(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Deactivate(this);
 	}
 
 	void UIObject::LoseFocus()
 	{
-		return GetStaticSymbols().EoCUI__vftable->LoseFocus(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->LoseFocus(this);
 	}
 
 	int64_t UIObject::GetBitmapHeight()
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetBitmapHeight(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetBitmapHeight(this);
 	}
 
 	int64_t UIObject::GetBitmapWidth()
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetBitmapWidth(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetBitmapWidth(this);
 	}
 
 	void * UIObject::GetCharacter()
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetCharacter(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetCharacter(this);
 	}
 
 	bool UIObject::SetPlayerHandle(ComponentHandle * handle)
 	{
-		return GetStaticSymbols().EoCUI__vftable->SetPlayerHandle(this, handle);
+		return GetStaticSymbols().ecl__EoCUI__vftable->SetPlayerHandle(this, handle);
 	}
 
 	ComponentHandle * UIObject::GetPlayerHandle(ComponentHandle * handle)
 	{
-		return GetStaticSymbols().EoCUI__vftable->GetPlayerHandle(this, handle);
+		return GetStaticSymbols().ecl__EoCUI__vftable->GetPlayerHandle(this, handle);
 	}
 
 	bool UIObject::Unknown1()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Unknown1(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Unknown1(this);
 	}
 
 	void UIObject::Unknown2()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Unknown2(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Unknown2(this);
 	}
 
 	void * UIObject::Unknown3()
 	{
-		return GetStaticSymbols().EoCUI__vftable->Unknown3(this);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Unknown3(this);
 	}
 
 	void UIObject::Unknown4(void * a1)
 	{
-		return GetStaticSymbols().EoCUI__vftable->Unknown4(this, a1);
+		return GetStaticSymbols().ecl__EoCUI__vftable->Unknown4(this, a1);
 	}
 
 	namespace ecl
 	{
 		EoCUI::EoCUI(dse::Path * path)
 		{
-			GetStaticSymbols().EoCUI__ctor(this, path);
+			GetStaticSymbols().ecl__EoCUI__ctor(this, path);
 		}
 	}
 

@@ -146,21 +146,21 @@ bool Pattern::MatchPattern(uint8_t const * start) const
 	return true;
 }
 
-void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const
+void Pattern::ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const
 {
 	uint8_t initial = pattern_[0].pattern;
 
 	for (auto p = start; p < end; p++) {
 		if (*p == initial) {
 			if (MatchPattern(p)) {
-				auto matched = callback(p);
-				if (!multiple || (matched && *matched)) return;
+				auto action = callback(p);
+				if (action == ScanAction::Finish) return;
 			}
 		}
 	}
 }
 
-void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const
+void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const
 {
 	uint16_t initial = pattern_[0].pattern
 		| (pattern_[1].pattern << 8);
@@ -168,14 +168,14 @@ void Pattern::ScanPrefix2(uint8_t const * start, uint8_t const * end, std::funct
 	for (auto p = start; p < end; p++) {
 		if (*reinterpret_cast<uint16_t const *>(p) == initial) {
 			if (MatchPattern(p)) {
-				auto matched = callback(p);
-				if (!multiple || (matched && *matched)) return;
+				auto action = callback(p);
+				if (action == ScanAction::Finish) return;
 			}
 		}
 	}
 }
 
-void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const
+void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const
 {
 	uint32_t initial = pattern_[0].pattern
 		| (pattern_[1].pattern << 8)
@@ -185,14 +185,14 @@ void Pattern::ScanPrefix4(uint8_t const * start, uint8_t const * end, std::funct
 	for (auto p = start; p < end; p++) {
 		if (*reinterpret_cast<uint32_t const *>(p) == initial) {
 			if (MatchPattern(p)) {
-				auto matched = callback(p);
-				if (!multiple || (matched && *matched)) return;
+				auto action = callback(p);
+				if (action == ScanAction::Finish) return;
 			}
 		}
 	}
 }
 
-void Pattern::Scan(uint8_t const * start, size_t length, std::function<std::optional<bool> (uint8_t const *)> callback, bool multiple) const
+void Pattern::Scan(uint8_t const * start, size_t length, std::function<ScanAction (uint8_t const *)> callback) const
 {
 	// Check prefix length
 	auto prefixLength = 0;
@@ -206,11 +206,11 @@ void Pattern::Scan(uint8_t const * start, size_t length, std::function<std::opti
 
 	auto end = start + length - pattern_.size();
 	if (prefixLength >= 4) {
-		ScanPrefix4(start, end, callback, multiple);
+		ScanPrefix4(start, end, callback);
 	} else if (prefixLength >= 2) {
-		ScanPrefix2(start, end, callback, multiple);
+		ScanPrefix2(start, end, callback);
 	} else {
-		ScanPrefix1(start, end, callback, multiple);
+		ScanPrefix1(start, end, callback);
 	}
 }
 
@@ -453,12 +453,22 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::
 		}
 	}
 
+	auto engineCallback = ele->Attribute("EngineCallback");
+	if (engineCallback) {
+		target.EngineCallback = engineCallback;
+	}
+
 	if (target.Name.empty()) {
 		if (staticSymbol) {
 			target.Name = staticSymbol;
 		} else {
 			target.Name = "(Unnamed)";
 		}
+	}
+
+	if (target.NextSymbol.empty() && target.EngineCallback.empty() && !target.TargetRef) {
+		ERR("Target doesn't specify any actions!");
+		return false;
 	}
 
 	return true;
@@ -586,11 +596,32 @@ SymbolMapper::MappingResult SymbolMapper::ExecSymbolMappingAction(SymbolMappings
 			}
 		}
 
+		if (!target.EngineCallback.empty()) {
+			auto cb = engineCallbacks_.find(target.EngineCallback);
+			if (cb == engineCallbacks_.end()) {
+				ERR("Target references nonexistent engine callback: '%s'", target.EngineCallback.c_str());
+				return MappingResult::Fail;
+			} else {
+				return cb->second(ptr);
+			}
+		}
+
 		return MappingResult::Success;
 	} else {
 		ERR("Could not map match to symbol address while resolving '%s'", target.Name.c_str());
 		return MappingResult::Fail;
 	}
+}
+
+bool SymbolMapper::MapSymbol(std::string const& mappingName, uint8_t const* customStart, std::size_t customSize)
+{
+	auto mapping = mappings_.Mappings.find(mappingName);
+	if (mapping == mappings_.Mappings.end()) {
+		ERR("Can't execute nonexistent symbol mapping '%s'", mappingName.c_str());
+		return false;
+	}
+
+	return MapSymbol(mapping->second, customStart, customSize);
 }
 
 bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t const * customStart, std::size_t customSize)
@@ -645,7 +676,7 @@ bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t co
 
 	bool mapped = false,
 		hasMatches = false;
-	mapping.Pattern.Scan(memStart, memSize, [this, &mapping, &mapped, &hasMatches](const uint8_t * match) -> std::optional<bool> {
+	mapping.Pattern.Scan(memStart, memSize, [this, &mapping, &mapped, &hasMatches](const uint8_t * match) -> Pattern::ScanAction {
 		bool matching{ true };
 		for (auto const& condition : mapping.Conditions) {
 			if (!EvaluateSymbolCondition(condition, match)) {
@@ -660,7 +691,7 @@ bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t co
 #endif
 
 			hasMatches = true;
-			bool tryNext{ false };
+			auto patternAction{ Pattern::ScanAction::Finish };
 			for (auto const& target : mapping.Targets) {
 				auto action = ExecSymbolMappingAction(target, match);
 #if defined(DEBUG_MAPPINGS)
@@ -671,11 +702,12 @@ bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t co
 				if (!mapped) {
 					mapped = (action == MappingResult::Success);
 				}
-				if (!tryNext) {
-					tryNext = (action == MappingResult::TryNext);
+				if (action == MappingResult::TryNext) {
+					patternAction = Pattern::ScanAction::Continue;
 				}
 			}
-			return tryNext;
+
+			return patternAction;
 		} else {
 			return {};
 		}
@@ -755,6 +787,11 @@ bool SymbolMapper::AddModule(std::string const& name, std::wstring const& modNam
 
 	modules_.insert(std::make_pair(name, modInfo));
 	return true;
+}
+
+void SymbolMapper::AddEngineCallback(std::string const& name, std::function<MappingResult(uint8_t const*)> const& cb)
+{
+	engineCallbacks_.insert(std::make_pair(name, cb));
 }
 
 void SymbolMapper::MapAllSymbols(bool deferred)
