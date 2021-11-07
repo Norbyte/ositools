@@ -170,7 +170,16 @@ struct SymbolMappings
 		VersionRequirement Version;
 	};
 
+	struct DllImport
+	{
+		std::string Symbol;
+		std::string Module;
+		std::string Proc;
+		StaticSymbolRef TargetRef;
+	};
+
 	std::unordered_map<std::string, Mapping> Mappings;
+	std::unordered_map<std::string, DllImport> DllImports;
 	std::unordered_map<std::string, int> StaticSymbolOffsets;
 };
 
@@ -191,6 +200,7 @@ private:
 
 	bool LoadMappingsNode(tinyxml2::XMLElement* mappingsNode);
 	bool LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappings::Mapping& sym);
+	bool LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMappings::DllImport& imp);
 	bool LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::Target& target);
 	bool LoadCondition(tinyxml2::XMLElement* ele, SymbolMappings::Condition& condition);
 };
@@ -222,6 +232,7 @@ public:
 	void MapAllSymbols(bool deferred);
 	bool MapSymbol(std::string const& mappingName, uint8_t const* customStart, std::size_t customSize);
 	bool MapSymbol(SymbolMappings::Mapping const& mapping, uint8_t const* customStart, std::size_t customSize);
+	bool MapDllImport(SymbolMappings::DllImport const& imp);
 
 	inline bool HasFailedCriticalMappings() const
 	{

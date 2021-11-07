@@ -77,8 +77,6 @@ private:
 	void FindGlobalStringTableCoreLib();
 #endif
 
-	void FindExportsIggy();
-
 	bool CanShowError();
 	bool CanShowMessages();
 

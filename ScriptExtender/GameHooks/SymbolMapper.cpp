@@ -283,18 +283,27 @@ bool SymbolMappingLoader::LoadMappings(tinyxml2::XMLDocument* doc)
 
 bool SymbolMappingLoader::LoadMappingsNode(tinyxml2::XMLElement* mappingsNode)
 {
-	auto mapping = mappingsNode->FirstChildElement("Mapping");
+	auto mapping = mappingsNode->FirstChildElement();
 	while (mapping != nullptr) {
-		SymbolMappings::Mapping sym;
-		if (LoadMapping(mapping, sym)) {
-			if (mappings_.Mappings.find(sym.Name) != mappings_.Mappings.end()) {
-				ERR("Duplicate mapping name: %s", sym.Name.c_str());
-			}
+		if (strcmp(mapping->Name(), "Mapping") == 0) {
+			SymbolMappings::Mapping sym;
+			if (LoadMapping(mapping, sym)) {
+				if (mappings_.Mappings.find(sym.Name) != mappings_.Mappings.end()) {
+					ERR("Duplicate mapping name: %s", sym.Name.c_str());
+				}
 
-			mappings_.Mappings.insert(std::make_pair(sym.Name, sym));
+				mappings_.Mappings.insert(std::make_pair(sym.Name, sym));
+			}
+		} else if (strcmp(mapping->Name(), "DllImport") == 0) {
+			SymbolMappings::DllImport imp;
+			if (LoadDllImport(mapping, imp)) {
+				mappings_.DllImports.insert(std::make_pair(imp.Symbol, imp));
+			}
+		} else {
+			ERR("Unknown element in <Mappings>: '%s'", mapping->Name());
 		}
 
-		mapping = mapping->NextSiblingElement("Mapping");
+		mapping = mapping->NextSiblingElement();
 	}
 
 	return true;
@@ -394,6 +403,43 @@ bool SymbolMappingLoader::LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappi
 		ERR("Mapping '%s' has no valid targets!", sym.Name.c_str());
 		return false;
 	}
+
+	return true;
+}
+
+bool SymbolMappingLoader::LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMappings::DllImport& imp)
+{
+	auto staticSymbol = mapping->Attribute("Symbol");
+	if (!staticSymbol) {
+		ERR("DllImport must have a symbol");
+		return false;
+	}
+
+	auto symIt = mappings_.StaticSymbolOffsets.find(staticSymbol);
+	if (symIt != mappings_.StaticSymbolOffsets.end()) {
+		imp.TargetRef = StaticSymbolRef(symIt->second);
+	} else {
+		ERR("DllImport references nonexistent engine symbol: '%s'", staticSymbol);
+		return false;
+	}
+
+	imp.Symbol = staticSymbol;
+
+	auto mod = mapping->Attribute("Module");
+	if (!mod) {
+		ERR("DllImport must have a module");
+		return false;
+	}
+
+	imp.Module = mod;
+
+	auto proc = mapping->Attribute("Proc");
+	if (!proc) {
+		ERR("DllImport must have a proc name");
+		return false;
+	}
+
+	imp.Proc = proc;
 
 	return true;
 }
@@ -731,6 +777,28 @@ bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t co
 	return mapped;
 }
 
+bool SymbolMapper::MapDllImport(SymbolMappings::DllImport const & imp)
+{
+	auto hMod = GetModuleHandleA(imp.Module.c_str());
+	if (!hMod) {
+		ERR("Symbol import references module that is not loaded: '%s'", imp.Module.c_str());
+		return false;
+	}
+	
+	auto proc = GetProcAddress(hMod, imp.Proc.c_str());
+	if (!proc) {
+		ERR("Symbol import references proc that is not exported: '%s'.'%s'", imp.Module.c_str(), imp.Proc.c_str());
+		return false;
+	}
+
+	auto targetPtr = imp.TargetRef.Get();
+	if (targetPtr != nullptr) {
+		*targetPtr = reinterpret_cast<uint8_t*>(proc);
+	}
+
+	return true;
+}
+
 
 // Fetch the address referenced by an assembly instruction
 uint8_t const * AsmResolveInstructionRef(uint8_t const * insn)
@@ -800,6 +868,12 @@ void SymbolMapper::MapAllSymbols(bool deferred)
 		if (mapping.second.Scope != SymbolMappings::MatchScope::kCustom
 			&& deferred == ((mapping.second.Flag & SymbolMappings::Mapping::kDeferred) != 0)) {
 			MapSymbol(mapping.second, nullptr, 0);
+		}
+	}
+
+	if (!deferred) {
+		for (auto const& imp : mappings_.DllImports) {
+			MapDllImport(imp.second);
 		}
 	}
 }

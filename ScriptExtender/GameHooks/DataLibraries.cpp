@@ -35,15 +35,7 @@ namespace dse
 			RegisterLibraries(symbolMapper_);
 			symbolMapper_.MapAllSymbols(false);
 
-			// FIXME - move to a DllExport mapping type
-			HMODULE crtBase = GetModuleHandle(L"ucrtbase.dll");
-			auto crtAllocProc = GetProcAddress(crtBase, "malloc");
-			auto crtFreeProc = GetProcAddress(crtBase, "free");
-
-			GetStaticSymbols().CrtAlloc = (CrtAllocFunc)crtAllocProc;
-			GetStaticSymbols().CrtFree = (CrtFreeFunc)crtFreeProc;
-
-			if (crtAllocProc == nullptr || crtFreeProc == nullptr) {
+			if (GetStaticSymbols().CrtAlloc == nullptr || GetStaticSymbols().CrtFree == nullptr) {
 				ERR("Could not find memory management functions");
 				CriticalInitFailed = true;
 			}
@@ -59,8 +51,6 @@ namespace dse
 			FindGlobalStringTableCoreLib();
 #endif
 
-			FindExportsIggy();
-
 			return !CriticalInitFailed;
 		} else {
 #if defined(OSI_EOCAPP)
@@ -73,7 +63,7 @@ namespace dse
 	}
 
 #define SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair(#name, (int)offsetof(StaticSymbols, name)))
-#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + offsetof(CharacterStatsGetters, name)))
+#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + (int)offsetof(CharacterStatsGetters, name)))
 
 	void LibraryManager::RegisterSymbols()
 	{
@@ -240,75 +230,6 @@ namespace dse
 		CHAR_GETTER_SYM_OFF(GetHitChance);
 		CHAR_GETTER_SYM_OFF(GetTalent);
 		CHAR_GETTER_SYM_OFF(GetAbility);
-	}
-
-	void LibraryManager::FindExportsIggy()
-	{
-		auto& sym = GetStaticSymbols();
-
-		HMODULE hIggy = LoadLibraryW(L"iggy_w64.dll");
-		if (hIggy == NULL) {
-			ERR("LibraryManager::FindExportsIggy(): Could not load Iggy library");
-			InitFailed = true;
-			return;
-		}
-
-		auto makeNameRefProc = GetProcAddress(hIggy, "IggyValue" "PathMakeNameRef");
-		auto makeArrayRefProc = GetProcAddress(hIggy, "IggyValue" "PathMakeArrayRef");
-		auto setArrayIndexProc = GetProcAddress(hIggy, "IggyValue" "PathSetArrayIndex");
-
-		auto getTypeProc = GetProcAddress(hIggy, "IggyValue" "GetTypeRS");
-		auto getArrayLengthProc = GetProcAddress(hIggy, "IggyValue" "GetArrayLengthRS");
-
-		auto getBooleanProc = GetProcAddress(hIggy, "IggyValue" "GetBooleanRS");
-		auto getF64Proc = GetProcAddress(hIggy, "IggyValue" "GetF64RS");
-		auto getStringUTF8Proc = GetProcAddress(hIggy, "IggyValue" "GetStringUTF8RS");
-
-		auto setBooleanProc = GetProcAddress(hIggy, "IggyValue" "SetBooleanRS");
-		auto setF64Proc = GetProcAddress(hIggy, "IggyValue" "SetF64RS");
-		auto setStringUTF8Proc = GetProcAddress(hIggy, "IggyValue" "SetStringUTF8RS");
-
-		auto createFastNameUTF8Proc = GetProcAddress(hIggy, "IggyPlayer" "CreateFastNameUTF8");
-		auto callMethodProc = GetProcAddress(hIggy, "IggyPlayer" "CallMethodRS");
-
-		sym.IgValuePathMakeNameRef = (ig::ValuePathMakeNameRefProc)makeNameRefProc;
-		sym.IgValuePathPathMakeArrayRef = (ig::ValuePathMakeArrayRefProc)makeArrayRefProc;
-		sym.IgValuePathSetArrayIndex = (ig::ValuePathSetArrayIndexProc)setArrayIndexProc;
-
-		sym.IgValueGetType = (ig::ValueGetTypeProc)getTypeProc;
-		sym.IgValueGetArrayLength = (ig::ValueGetArrayLengthProc)getArrayLengthProc;
-
-		sym.IgValueGetBoolean = (ig::ValueGetBooleanProc)getBooleanProc;
-		sym.IgValueGetF64 = (ig::ValueGetF64Proc)getF64Proc;
-		sym.IgValueGetStringUTF8 = (ig::ValueGetStringUTF8Proc)getStringUTF8Proc;
-
-		sym.IgValueSetBoolean = (ig::ValueSetBooleanProc)setBooleanProc;
-		sym.IgValueSetF64 = (ig::ValueSetF64Proc)setF64Proc;
-		sym.IgValueSetStringUTF8 = (ig::ValueSetStringUTF8Proc)setStringUTF8Proc;
-
-		sym.IgPlayerCreateFastNameUTF8 = (ig::PlayerCreateFastNameUTF8)createFastNameUTF8Proc;
-		sym.IgPlayerCallMethod = (ig::PlayerCallMethod)callMethodProc;
-
-		if (sym.IgValuePathMakeNameRef == nullptr
-			|| sym.IgValuePathPathMakeArrayRef == nullptr
-			|| sym.IgValuePathSetArrayIndex == nullptr
-
-			|| sym.IgValueGetType == nullptr
-			|| sym.IgValueGetArrayLength == nullptr
-
-			|| sym.IgValueGetBoolean == nullptr
-			|| sym.IgValueGetF64 == nullptr
-			|| sym.IgValueGetStringUTF8 == nullptr
-
-			|| sym.IgValueSetBoolean == nullptr
-			|| sym.IgValueSetF64 == nullptr
-			|| sym.IgValueSetStringUTF8 == nullptr
-
-			|| sym.IgPlayerCreateFastNameUTF8 == nullptr
-			|| sym.IgPlayerCallMethod == nullptr) {
-			ERR("LibraryManager::FindExportsIggy(): Could not find Iggy functions");
-			InitFailed = true;
-		}
 	}
 
 	bool LibraryManager::PostStartupFindLibraries()

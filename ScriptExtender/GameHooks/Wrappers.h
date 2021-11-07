@@ -20,6 +20,7 @@ namespace dse {
 
 		void Wrap(HMODULE Module, char * ProcName, FuncType NewFunction)
 		{
+			// FIXME - move to BinaryMappings
 			FARPROC ExportProc = GetProcAddress(Module, ProcName);
 			if (ExportProc == NULL) {
 				std::string errmsg("Could not locate export ");

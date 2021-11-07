@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml version="1.0" encoding="UTF-8"?>
 <BinaryMappings>
   <Mappings Version="3.6.117.3735" Default="true">
+
+    <DllImport Symbol="CrtAlloc" Module="ucrtbase.dll" Proc="malloc" />
+    <DllImport Symbol="CrtFree" Module="ucrtbase.dll" Proc="free" />
+    
+    <DllImport Symbol="IgValuePathMakeNameRef" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathMakeNameRef" />
+    <DllImport Symbol="IgValuePathPathMakeArrayRef" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathMakeArrayRef" />
+    <DllImport Symbol="IgValuePathSetArrayIndex" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathSetArrayIndex" />
+    <DllImport Symbol="IgValueGetType" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetTypeRS" />
+    <DllImport Symbol="IgValueGetArrayLength" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetArrayLengthRS" />
+    <DllImport Symbol="IgValueGetBoolean" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetBooleanRS" />
+    <DllImport Symbol="IgValueGetF64" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetF64RS" />
+    <DllImport Symbol="IgValueGetStringUTF8" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetStringUTF8RS" />
+    <DllImport Symbol="IgValueSetBoolean" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetBooleanRS" />
+    <DllImport Symbol="IgValueSetF64" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetF64RS" />
+    <DllImport Symbol="IgValueSetStringUTF8" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetStringUTF8RS" />
+    <DllImport Symbol="IgPlayerCreateFastNameUTF8" Module="iggy_w64.dll" Proc="Igg&#121;PlayerCreateFastNameUTF8" />
+    <DllImport Symbol="IgPlayerCallMethod" Module="iggy_w64.dll" Proc="Igg&#121;PlayerCallMethodRS" />
+    
+    <DllImport Symbol="IgSetWarningCallback" Module="iggy_w64.dll" Proc="Igg&#121;SetWarningCallback" />
+    <DllImport Symbol="IgSetTraceCallbackUTF8" Module="iggy_w64.dll" Proc="Igg&#121;SetTraceCallbackUTF8" />
 
     <Mapping Name="esv::StatusHit::__vftable" Scope="Custom">
       40 55  // push    rbp
@@ -42,7 +61,7 @@
       <Target Type="Indirect" Offset="14" Symbol="CharacterStatGetters__GetTalent" />
     </Mapping>
 
-    <Mapping Name="GetChanceToHitBoost" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetChanceToHitBoost" Scope="Custom">
       48 0F 4D C2  // cmovge  rax, rdx
       8B 18  // mov     ebx, [rax]
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetChanceToHitBoost
@@ -495,7 +514,7 @@
       8B 86 40 03 00 00  // mov     eax, [rsi+340h]
       40 0F B6 D5  // movzx   edx, bpl
       89 43 44  // mov     [rbx+44h], eax
-      <Target Type="Absolute" Offset="0" NextSymbol="FindCharacterStatGetters" NextSymbolSeekSize="FIXME" /> <!-- CharacterStatsGetters -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindCharacterStatGetters" />
     </Mapping>
 
     <Mapping Name="CharacterStatGetters::GetHitChance">
@@ -507,7 +526,7 @@
       48 8B F9  // mov     rdi, rcx
       41 8D 50 78  // lea     edx, [r8+78h]
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character__HasTalent
-      <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="ChanceToHitBoost" NextSymbolSeekSize="0x200" />
+      <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="CharacterStatGetters::GetChanceToHitBoost" NextSymbolSeekSize="0x200" />
     </Mapping>
 
     <Mapping Name="CDivinityStats_Character::_HitInternal" Scope="Custom">

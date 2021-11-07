@@ -85,6 +85,7 @@ void OsirisWrappers::Initialize()
 		Fail("Could not locate RuleAction::Call in osiris_x64.dll");
 	}
 
+	// FIXME - move to BinaryMappings
 	FARPROC OsirisCtorProc = GetProcAddress(OsirisModule, "??0COsiris@@QEAA@XZ");
 	if (OsirisCtorProc == NULL) {
 		Fail("Could not locate COsiris::COsiris() in osiris_x64.dll");
