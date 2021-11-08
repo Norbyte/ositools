@@ -225,6 +225,8 @@ namespace dse
 		SYM_OFF(IgValueSetStringUTF8);
 		SYM_OFF(IgPlayerCreateFastNameUTF8);
 		SYM_OFF(IgPlayerCallMethod);
+		SYM_OFF(IgSetWarningCallback);
+		SYM_OFF(IgSetTraceCallbackUTF8);
 
 		CHAR_GETTER_SYM_OFF(GetChanceToHitBoost);
 		CHAR_GETTER_SYM_OFF(GetHitChance);

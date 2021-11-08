@@ -90,6 +90,42 @@ namespace dse
 			return SymbolMapper::MappingResult::Success;
 		}
 	}
+	
+	SymbolMapper::MappingResult FindStatusHeal(uint8_t const * match)
+	{
+		auto const& mainMod = gExtender->GetLibraryManager().Mapper().Modules().find("Main");
+		auto moduleStart = mainMod->second.ModuleStart;
+		auto moduleSize = mainMod->second.ModuleSize;
+
+		// Look for this function ptr
+		auto ptr = (uint64_t)match;
+		for (auto p = moduleStart; p < moduleStart + moduleSize; p += 8) {
+			if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+				GetStaticSymbols().esv__StatusHeal__VMT = reinterpret_cast<esv::StatusVMT const *>(p - 25 * 8);
+				return SymbolMapper::MappingResult::Success;
+			}
+		}
+
+		return SymbolMapper::MappingResult::Fail;
+	}
+
+	SymbolMapper::MappingResult FindStatusHit(uint8_t const * match)
+	{
+		auto const & mainMod = gExtender->GetLibraryManager().Mapper().Modules().find("Main");
+		auto moduleStart = mainMod->second.ModuleStart;
+		auto moduleSize = mainMod->second.ModuleSize;
+
+		// Look for this function ptr
+		auto ptr = (uint64_t)match;
+		for (auto p = moduleStart; p < moduleStart + moduleSize; p += 8) {
+			if (*reinterpret_cast<uint64_t const *>(p) == ptr) {
+				GetStaticSymbols().esv__StatusHit__VMT = reinterpret_cast<esv::StatusVMT const *>(p - 12 * 8);
+				return SymbolMapper::MappingResult::Success;
+			}
+		}
+
+		return SymbolMapper::MappingResult::Fail;
+	}
 
 	void LibraryManager::PreRegisterLibraries(SymbolMappingLoader& loader)
 	{
@@ -104,6 +140,8 @@ namespace dse
 		mapper.AddEngineCallback("FindCharacterStatGetters", &FindCharacterStatGetters);
 		mapper.AddEngineCallback("FindActionMachineSetState", &FindActionMachineSetState);
 		mapper.AddEngineCallback("FindActionMachineResetState", &FindActionMachineResetState);
+		mapper.AddEngineCallback("FindStatusHeal", &FindStatusHeal);
+		mapper.AddEngineCallback("FindStatusHit", &FindStatusHit);
 	}
 
 	bool LibraryManager::BindApp()

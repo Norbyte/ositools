@@ -294,20 +294,13 @@ void ScriptExtender::LoadExtensionState()
 
 void ScriptExtender::RegisterFlashTraceCallbacks()
 {
-	HMODULE hIggy = GetModuleHandleW(L"iggy_w64.dll");
-	if (hIggy == NULL) {
-		return;
+	auto const& sym = GetStaticSymbols();
+	if (sym.IgSetWarningCallback != nullptr) {
+		sym.IgSetWarningCallback(&FlashWarningCallback, nullptr);
 	}
 
-	auto setWarningCallback = (ig::SetWarningCallbackProc)GetProcAddress(hIggy, "IggySetWarningCallback");
-	auto setTraceCallback = (ig::SetTraceCallbackUTF8Proc)GetProcAddress(hIggy, "IggySetTraceCallbackUTF8");
-
-	if (setWarningCallback != nullptr) {
-		setWarningCallback(&FlashWarningCallback, nullptr);
-	}
-
-	if (setTraceCallback != nullptr) {
-		setTraceCallback(&FlashTraceCallback, nullptr);
+	if (sym.IgSetTraceCallbackUTF8 != nullptr) {
+		sym.IgSetTraceCallbackUTF8(&FlashTraceCallback, nullptr);
 	}
 }
 
