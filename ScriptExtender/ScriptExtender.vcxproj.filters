@@ -331,6 +331,9 @@
     <ClInclude Include="GameHooks\EngineHooks.h">
       <Filter>GameHooks</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -606,6 +609,15 @@
     </None>
     <None Include="GameHooks\EngineHooks.inl">
       <Filter>GameHooks</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaEvent.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="LuaScripts\Event.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Events.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

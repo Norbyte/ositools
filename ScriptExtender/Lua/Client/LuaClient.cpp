@@ -2592,6 +2592,8 @@ namespace dse::ecl::lua
 
 		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
 		LoadScript(baseLib, "BuiltinLibrary.lua");
+		auto eventLib = GetBuiltinLibrary(IDR_LUA_EVENT);
+		LoadScript(eventLib, "Event.lua");
 		auto clientLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_CLIENT);
 		LoadScript(clientLib, "BuiltinLibraryClient.lua");
 		auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
@@ -2642,7 +2644,7 @@ namespace dse::ecl::lua
 
 		PushExtFunction(L, "_UIObjectCreated");
 		UIObjectProxy::New(L, uiObjectHandle);
-		CheckedCall<>(L, 1, "Ext.UIObjectCreated");
+		CheckedCall(L, 1, "Ext.UIObjectCreated");
 	}
 
 	void ClientState::OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
@@ -2660,7 +2662,7 @@ namespace dse::ecl::lua
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
+		CheckedCall(L, 3 + numArgs, "Ext.UICall");
 	}
 
 	void ClientState::OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
@@ -2678,7 +2680,7 @@ namespace dse::ecl::lua
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 3 + numArgs, "Ext.UICall");
+		CheckedCall(L, 3 + numArgs, "Ext.UICall");
 	}
 
 	void ClientState::OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
@@ -2696,7 +2698,7 @@ namespace dse::ecl::lua
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 3 + numArgs, "Ext.UIInvoke");
+		CheckedCall(L, 3 + numArgs, "Ext.UIInvoke");
 	}
 
 	void ClientState::OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
@@ -2714,7 +2716,7 @@ namespace dse::ecl::lua
 			InvokeDataValueToLua(L, args[i]);
 		}
 
-		CheckedCall<>(L, 3 + numArgs, "Ext.UIInvoke");
+		CheckedCall(L, 3 + numArgs, "Ext.UIInvoke");
 	}
 
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
@@ -2739,7 +2741,7 @@ namespace dse::ecl::lua
 			push(L, paramText); // stack: fn, skill, character, params...
 		}
 
-		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.SkillGetDescriptionParam");
+		auto result = CheckedCallRet<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.SkillGetDescriptionParam");
 		if (result) {
 			auto description = std::get<0>(*result);
 			if (description) {
@@ -2775,7 +2777,7 @@ namespace dse::ecl::lua
 			push(L, paramText); // stack: fn, status, srcCharacter, character, params...
 		}
 
-		auto result = CheckedCall<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.StatusGetDescriptionParam");
+		auto result = CheckedCallRet<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.StatusGetDescriptionParam");
 		if (result) {
 			auto description = std::get<0>(*result);
 			if (description) {
@@ -2790,12 +2792,8 @@ namespace dse::ecl::lua
 
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		StackCheck _(L, 0);
-		LifetimePin _p(lifetimeStack_);
-		PushExtFunction(L, "_GameStateChanged"); // stack: fn
-		push(L, fromState);
-		push(L, toState);
-		CheckedCall<>(L, 2, "Ext.GameStateChanged");
+		GameStateChangeEventParams params{ fromState, toState };
+		ThrowEvent("GameStateChanged", params, false, 0, ReadOnlyEvent{});
 	}
 
 
@@ -2816,7 +2814,7 @@ namespace dse::ecl::lua
 		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
 		SerializeObjectProperty(serializer, propRef);
 
-		auto result = CheckedCall<std::optional<char const*>>(L, 1, "Ext.GetSkillPropertyDescription");
+		auto result = CheckedCallRet<std::optional<char const*>>(L, 1, "Ext.GetSkillPropertyDescription");
 		if (result) {
 			return std::get<0>(*result);
 		} else {
@@ -2842,7 +2840,7 @@ namespace dse::ecl::lua
 		settable(L, "Repeat", (inputEvent.Type & InputType::Repeat) == InputType::Repeat);
 		settable(L, "AcceleratedRepeat", (inputEvent.Type & InputType::AcceleratedRepeat) == InputType::AcceleratedRepeat);
 
-		CheckedCall<>(L, 1, "Ext.OnInputEvent");
+		CheckedCall(L, 1, "Ext.OnInputEvent");
 	}
 
 

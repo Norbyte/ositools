@@ -1,22 +1,26 @@
 local _G = _G
 
+Ext._Internal = {}
+local _I = Ext._Internal
+
 Ext._LoadedFiles = {}
 -- Table to hold debugger expression evaluation results
 Ext._EVAL_ROOTS_ = {}
 Mods = {}
 
-Ext._WarnDeprecated = function (msg)
-	Ext.PrintError(msg)
-	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v41-to-v42 for more info.")
-end
+_I._PublishedSharedEvents = {
+	"ModuleLoadStarted",
+	"ModuleLoading",
+	"StatsLoaded",
+	"ModuleResume",
+	"SessionLoading",
+	"SessionLoaded",
+	"GameStateChanged"
+}
 
-Ext._Notify = function (event, ...)
-    for i,callback in pairs(Ext._Listeners[event]) do
-        local status, err = xpcall(callback, debug.traceback, ...)
-        if not status then
-            Ext.PrintError("Error during " .. event .. ": ", err)
-        end
-    end
+Ext._WarnDeprecated56 = function (msg)
+	Ext.PrintError(msg)
+	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
 end
 
 Ext._EngineCallback1 = function (event, ...)
@@ -45,61 +49,12 @@ Ext._EngineCallback2 = function (event, ...)
     end
 end
 
-Ext._OnGameSessionLoading = function ()
-    Ext._Notify("SessionLoading")
-end
-
-Ext._OnGameSessionLoaded = function ()
-    Ext._Notify("SessionLoaded")
-end
-
-Ext._OnModuleLoadStarted = function ()
-    Ext._Notify("ModuleLoadStarted")
-end
-
-Ext._OnModuleLoading = function ()
-    Ext._Notify("ModuleLoading")
-end
-
-Ext._OnStatsLoaded = function ()
-    Ext._Notify("StatsLoaded")
-end
-
-Ext._OnModuleResume = function ()
-    Ext._Notify("ModuleResume")
-end
-
-Ext._GameStateChanged = function (...)
-    Ext._Notify("GameStateChanged", ...)
-end
-
 Ext._GetHitChance = function (...)
     return Ext._EngineCallback1("GetHitChance", ...)
 end
 
 Ext._GetSkillAPCost = function (...)
     return Ext._EngineCallback2("GetSkillAPCost", ...)
-end
-
-Ext._NetListeners = {}
-
-Ext.RegisterNetListener = function (channel, fn)
-	if Ext._NetListeners[channel] == nil then
-		Ext._NetListeners[channel] = {}
-	end
-
-	table.insert(Ext._NetListeners[channel], fn)
-end
-
-Ext._NetMessageReceived = function (channel, payload, userId)
-	if Ext._NetListeners[channel] ~= nil then
-		for i,callback in pairs(Ext._NetListeners[channel]) do
-			local ok, err = xpcall(callback, debug.traceback, channel, payload, userId)
-			if not ok then
-				Ext.PrintError("Error during NetMessageReceived: ", err)
-			end
-		end
-	end
 end
 
 Ext.Require = function (mod, path)
@@ -166,33 +121,6 @@ Ext._LoadBootstrap = function (path, modTable)
 	Ext.Include(ModuleUUID, path, env)
 end
 
-Ext._ConsoleCommandListeners = {}
-
-Ext.DoConsoleCommand = function (cmd)
-	local params = {}
-	for param in string.gmatch(cmd, "%S+") do
-		table.insert(params, param)
-	end
-
-	local listeners = Ext._ConsoleCommandListeners[params[1]]
-	if listeners ~= nil then
-		for i,callback in pairs(listeners) do
-			local status, result = xpcall(callback, debug.traceback, table.unpack(params))
-			if not status then
-				Ext.PrintError("Error during console command callback: ", result)
-			end
-		end
-	end
-end
-
-Ext.RegisterConsoleCommand = function (cmd, fn)
-	if Ext._ConsoleCommandListeners[cmd] == nil then
-		Ext._ConsoleCommandListeners[cmd] = {}
-	end
-
-	table.insert(Ext._ConsoleCommandListeners[cmd], fn)
-end
-
 -- Used by the Lua debug adapter to store intermediate evaluation results.
 -- Should not be used manually!
 Ext.DebugEvaluate = function (retval)
@@ -205,17 +133,21 @@ Ext.DebugEvaluate = function (retval)
 	end
 end
 
--- Helper for dumping variables in console
-Ext.Dump = function (val)
-	Ext.Print(Ext.Json.Stringify(val, true, true))
-end
-
 -- Custom skill property registration
 Ext._SkillPropertyTypes = {}
 
 Ext.RegisterSkillProperty = function (name, proto)
 	Ext._SkillPropertyTypes[name] = proto
 end
+
+-- Helper for dumping variables in console
+Ext.Dump = function (val)
+	Ext.Print(Ext.Json.Stringify(val, true, true, true))
+end
+
+-- Global helper aliases for Ext.Dump, Ext.Print
+_D = Ext.Dump
+_P = Ext.Print
 
 -- Backwards compatibility with old JSON APIs
 Ext.JsonStringify = Ext.Json.Stringify

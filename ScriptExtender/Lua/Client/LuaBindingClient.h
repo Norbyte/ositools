@@ -145,6 +145,11 @@ namespace dse::ecl::lua
 		UIFlashPath path_;
 	};
 
+	struct GameStateChangeEventParams
+	{
+		GameState FromState;
+		GameState ToState;
+	};
 
 	class ClientState : public State
 	{

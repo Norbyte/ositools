@@ -1,28 +1,25 @@
-Ext._Listeners = {
-	ModuleLoadStarted = {},
-	ModuleLoading = {},
-	StatsLoaded = {},
-	ModuleResume = {},
-	SessionLoading = {},
-	SessionLoaded = {},
-	GameStateChanged = {},
-	GetSkillDamage = {},
-	GetSkillAPCost = {},
-	ComputeCharacterHit = {},
-	CalculateTurnOrder = {},
-	GetHitChance = {},
-	StatusGetEnterChance = {},
-	StatusHitEnter = {},
-	BeforeCharacterApplyDamage = {},
-	TreasureItemGenerated = {},
-	BeforeCraftingExecuteCombination = {},
-	AfterCraftingExecuteCombination = {},
-	BeforeShootProjectile = {},
-	ShootProjectile = {},
-	ProjectileHit = {},
-	GroundHit = {}
+local _I = Ext._Internal
+
+_I._PublishedEvents = {
+	"GameStateChanged",
+	"GetSkillDamage",
+	"GetSkillAPCost",
+	"ComputeCharacterHit",
+	"CalculateTurnOrder",
+	"GetHitChance",
+	"StatusGetEnterChance",
+	"StatusHitEnter",
+	"BeforeCharacterApplyDamage",
+	"TreasureItemGenerated",
+	"BeforeCraftingExecuteCombination",
+	"AfterCraftingExecuteCombination",
+	"BeforeShootProjectile",
+	"ShootProjectile",
+	"ProjectileHit",
+	"GroundHit"
 }
 
+-- FIXME - migrate these events!
 Ext._GetSkillDamage = function (...)
     for i,callback in pairs(Ext._Listeners.GetSkillDamage) do
         local status, damageList, deathType = xpcall(callback, debug.traceback, ...)
@@ -48,15 +45,9 @@ Ext._StatusGetEnterChance = function (...)
     return Ext._EngineCallback1("StatusGetEnterChance", ...)
 end
 
-Ext._StatusHitEnter = function (...)
-    return Ext._Notify("StatusHitEnter", ...)
-end
-
 Ext.RegisterListener = function (type, fn)
 	if Ext._Listeners[type] ~= nil then
 		table.insert(Ext._Listeners[type], fn)
-	elseif type == "SkillGetDescriptionParam" or type == "StatusGetDescriptionParam" then
-		Ext._WarnDeprecated("Cannot register listeners for event '" .. type .. "' from server!")
 	else
 		Ext.PrintError("Unknown listener type: " .. type)
 	end
@@ -68,14 +59,6 @@ end
 
 Ext.IsServer = function ()
 	return true
-end
-
-Ext.EnableStatOverride = function ()
-	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
-end
-
-Ext.StatSetLevelScaling = function ()
-	Ext._WarnDeprecated("Calling Ext.StatSetLevelScaling() from a server context is deprecated!")
 end
 
 Ext._GetModPersistentVars = function (modTable)
@@ -123,6 +106,10 @@ Ext._BeforeCraftingExecuteCombination = function (...)
     end
 end
 
+Ext._StatusHitEnter = function (...)
+    return Ext._Notify("StatusHitEnter", ...)
+end
+
 Ext._AfterCraftingExecuteCombination = function (...)
     return Ext._Notify("AfterCraftingExecuteCombination", ...)
 end
@@ -156,3 +143,5 @@ Ext._ExecutePropertyDataOnTarget = function (prop, ...)
 		propType.ExecuteOnTarget(prop, ...)
 	end
 end
+
+_I._RegisterEvents()

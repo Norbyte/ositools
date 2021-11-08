@@ -5,7 +5,7 @@
 #include <Lua/Shared/Proxies/LuaArrayProxy.inl>
 // FIXME - disabled until entity system is upgrated
 // #include <Lua/Shared/Proxies/LuaEntityProxy.inl>
-// #include <Lua/Shared/Proxies/LuaEventProxy.inl>
+#include <Lua/Shared/Proxies/LuaEvent.inl>
 #include <Lua/Shared/Proxies/LuaMapProxy.inl>
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaSetProxy.inl>
@@ -22,7 +22,7 @@ void RegisterSharedLibraries(lua_State* L)
 	Userdata<MapProxy>::RegisterMetatable(L);
 	Userdata<ObjectProxy2>::RegisterMetatable(L);
 	Userdata<SetProxy>::RegisterMetatable(L);
-	// Userdata<EventObject>::RegisterMetatable(L);
+	Userdata<EventObject>::RegisterMetatable(L);
 	InitObjectProxyPropertyMaps();
 
 	// RegisterEntityProxy(L);

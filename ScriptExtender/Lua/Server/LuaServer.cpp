@@ -3043,6 +3043,8 @@ namespace dse::esv::lua
 
 		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
 		LoadScript(baseLib, "BuiltinLibrary.lua");
+		auto eventLib = GetBuiltinLibrary(IDR_LUA_EVENT);
+		LoadScript(eventLib, "Event.lua");
 		auto serverLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_SERVER);
 		LoadScript(serverLib, "BuiltinLibraryServer.lua");
 		auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
@@ -3092,7 +3094,7 @@ namespace dse::esv::lua
 		ObjectProxy<esv::Status>::New(L, GetServerLifetime(), status);
 		push(L, isEnterCheck);
 
-		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
+		auto result = CheckedCallRet<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
 		if (result) {
 			return std::get<0>(*result);
 		} else {
@@ -3295,12 +3297,8 @@ namespace dse::esv::lua
 
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		StackCheck _(L, 0);
-		LifetimePin _p(lifetimeStack_);
-		PushExtFunction(L, "_GameStateChanged"); // stack: fn
-		push(L, fromState);
-		push(L, toState);
-		CheckedCall<>(L, 2, "Ext.GameStateChanged");
+		GameStateChangeEventParams params{ fromState, toState };
+		ThrowEvent("GameStateChanged", params, false, 0, ReadOnlyEvent{});
 	}
 
 
@@ -3625,7 +3623,7 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_GetModPersistentVars");
 		push(L, modTable);
 
-		auto ret = CheckedCall<std::optional<char const*>>(L, 1, "Ext.GetModPersistentVars");
+		auto ret = CheckedCallRet<std::optional<char const*>>(L, 1, "Ext.GetModPersistentVars");
 		if (ret) {
 			return std::get<0>(*ret);
 		} else {
@@ -3644,7 +3642,7 @@ namespace dse::esv::lua
 		push(L, modTable);
 		push(L, vars);
 
-		CheckedCall<>(L, 2, "Ext.RestoreModPersistentVars");
+		CheckedCall(L, 2, "Ext.RestoreModPersistentVars");
 	}
 
 

@@ -110,6 +110,14 @@ namespace dse::lua
 		lua_remove(L, -2); // stack: fn
 	}
 
+	void PushInternalFunction(lua_State* L, char const* func)
+	{
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, "_Internal"); // stack: Ext, _Internal
+		lua_remove(L, -2); // stack: _I
+		lua_getfield(L, -1, func); // stack: _I, fn
+		lua_remove(L, -2); // stack: fn
+	}
 
 	void PushModFunction(lua_State* L, char const* mod, char const* func)
 	{
@@ -945,7 +953,7 @@ namespace dse::lua
 		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), attacker);
 		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), target);
 
-		auto result = CheckedCall<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
+		auto result = CheckedCallRet<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
 		if (result) {
 			return std::get<0>(*result);
 		} else {
@@ -984,7 +992,7 @@ namespace dse::lua
 		push(L, level);
 		push(L, noRandomization);
 
-		auto result = CheckedCall<std::optional<DeathType>, std::optional<DamageList *>>(L, 8, "Ext.GetSkillDamage");
+		auto result = CheckedCallRet<std::optional<DeathType>, std::optional<DamageList *>>(L, 8, "Ext.GetSkillDamage");
 		if (result) {
 			auto deathType = std::get<0>(*result);
 			auto damages = std::get<1>(*result);
@@ -1035,7 +1043,7 @@ namespace dse::lua
 			push(L, nullptr);
 		}
 
-		auto result = CheckedCall<std::optional<bool>, std::optional<int>>(L, 5, "Ext.GetSkillAPCost");
+		auto result = CheckedCallRet<std::optional<bool>, std::optional<int>>(L, 5, "Ext.GetSkillAPCost");
 		if (result) {
 			auto ap = std::get<1>(*result);
 			auto elementalAffinity = std::get<0>(*result);
@@ -1055,32 +1063,32 @@ namespace dse::lua
 
 	void State::OnGameSessionLoading()
 	{
-		CallExt("_OnGameSessionLoading", RestrictAll | ScopeSessionLoad);
+		ThrowEvent<EmptyEventParams>("SessionLoading", EmptyEventParams{}, false, RestrictAll | ScopeSessionLoad, ReadOnlyEvent{});
 	}
 
 	void State::OnGameSessionLoaded()
 	{
-		CallExt("_OnGameSessionLoaded", RestrictAll);
+		ThrowEvent<EmptyEventParams>("SessionLoaded", EmptyEventParams{}, false, RestrictAll, ReadOnlyEvent{});
 	}
 
 	void State::OnModuleLoadStarted()
 	{
-		CallExt("_OnModuleLoadStarted", RestrictAll | ScopeModulePreLoad);
+		ThrowEvent<EmptyEventParams>("ModuleLoadStarted", EmptyEventParams{}, false, RestrictAll | ScopeModulePreLoad, ReadOnlyEvent{});
 	}
 
 	void State::OnModuleLoading()
 	{
-		CallExt("_OnModuleLoading", RestrictAll | ScopeModuleLoad);
+		ThrowEvent<EmptyEventParams>("ModuleLoading", EmptyEventParams{}, false, RestrictAll | ScopeModuleLoad, ReadOnlyEvent{});
 	}
 
 	void State::OnStatsLoaded()
 	{
-		CallExt("_OnStatsLoaded", RestrictAll | ScopeModuleLoad);
+		ThrowEvent<EmptyEventParams>("StatsLoaded", EmptyEventParams{}, false, RestrictAll | ScopeModuleLoad, ReadOnlyEvent{});
 	}
 
 	void State::OnModuleResume()
 	{
-		CallExt("_OnModuleResume", RestrictAll | ScopeModuleResume);
+		ThrowEvent<EmptyEventParams>("ModuleResume", EmptyEventParams{}, false, RestrictAll | ScopeModuleResume, ReadOnlyEvent{});
 	}
 
 	bool State::CallExt(char const* func, uint32_t restrictions)
@@ -1090,9 +1098,7 @@ namespace dse::lua
 		LifetimePin _l(lifetimeStack_);
 		auto lifetime = lifetimeStack_.GetCurrent();
 		PushExtFunction(L, func);
-		CheckedCall(L, 0, func);
-		// FIXME!
-		return true;
+		return CheckedCall(L, 0, func);
 	}
 
 	STDString State::GetBuiltinLibrary(int resourceId)

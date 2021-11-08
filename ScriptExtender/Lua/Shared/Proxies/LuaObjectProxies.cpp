@@ -5,7 +5,7 @@
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/Proxies/LuaPropertyMapHelpers.h>
-// #include <Lua/Shared/Proxies/LuaEvent.h>
+#include <Lua/Shared/Proxies/LuaEvent.h>
 #include <Lua/Server/LuaBindingServer.h>
 #include <Lua/Client/LuaBindingClient.h>
 

@@ -25,22 +25,14 @@
     <Mapping Name="esv::StatusHit::__vftable" Scope="Custom">
       40 55  // push    rbp
       41 54  // push    r12
-      41 55  // push    r13
       41 57  // push    r15
-      <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHitEoCApp2" NextSymbolSeekSize="FIXME" /> <!-- esv::StatusHit::__vftable; -->
-    </Mapping>
-
-    <Mapping Name="esv::StatusHit::__vftable2" Scope="Custom">
-      40 55  // push    rbp
-      41 54  // push    r12
-      41 57  // push    r15
-      <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHitEoCApp2" NextSymbolSeekSize="FIXME" /> <!-- esv::StatusHit::__vftable -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindStatusHit" />
     </Mapping>
 
     <Mapping Name="esv::StatusHeal::__vftable" Scope="Custom">
       48 89 5C 24 10  // mov     [rsp-8+arg_8], rbx
       48 89 74 24 18  // mov     [rsp-8+arg_10], rsi
-      <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHealEoCApp2" NextSymbolSeekSize="FIXME" /> <!-- esv::StatusHeal::__vftable -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindStatusHeal" />
     </Mapping>
 
     <Mapping Name="CharacterStatGetters::GetAbility" Scope="Custom">
@@ -297,13 +289,13 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__StatusHit__Setup" /> <!-- esv::StatusHit::Setup -->
     </Mapping>
 
-    <Mapping Name="esv::StatusHeal::__vftable" Deferred="true" >
+    <Mapping Name="esv::StatusHeal::__vftable Initial" Deferred="true" >
       45 33 C9  // xor     r9d, r9d
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_TargetDependentHeal
       48 8B CB  // mov     rcx, rbx
       FF 90 B0 01 00 00  // call    qword ptr [rax+1B0h]
       <Condition Type="FixedString" Offset="3" Value="TargetDependentHeal" />
-      <Target Type="Absolute" Offset="-0x200" NextSymbol="StatusHeal" NextSymbolSeekSize="0xa00" /> <!-- esv::StatusHeal::__vftable -->
+      <Target Type="Absolute" Offset="-0x200" NextSymbol="esv::StatusHeal::__vftable" NextSymbolSeekSize="0xa00" /> <!-- esv::StatusHeal::__vftable -->
     </Mapping>
 
     <Mapping Name="esv::ParseItem">

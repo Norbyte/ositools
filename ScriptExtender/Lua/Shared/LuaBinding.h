@@ -7,7 +7,7 @@
 #include <Lua/Shared/Proxies/LuaMapProxy.h>
 #include <Lua/Shared/Proxies/LuaObjectProxy.h>
 #include <Lua/Shared/Proxies/LuaSetProxy.h>
-// #include <Lua/Shared/LuaEvent.h>
+#include <Lua/Shared/Proxies/LuaEvent.h>
 // #include <Lua/Shared/LuaEntityProxy.h>
 
 #include <GameDefinitions/Components/Character.h>
@@ -21,6 +21,7 @@
 namespace dse::lua
 {
 	void PushExtFunction(lua_State * L, char const * func);
+	void PushInternalFunction(lua_State* L, char const* func);
 	void PushModFunction(lua_State* L, char const* mod, char const* func);
 	LifetimeHolder GetCurrentLifetime();
 
@@ -312,9 +313,7 @@ namespace dse::lua
 			auto lifetime = lifetimeStack_.GetCurrent();
 			PushExtFunction(L, func);
 			push(L, arg1);
-			CheckedCall(L, 1, func);
-			// FIXME!
-			return true;
+			return CheckedCall(L, 1, func);
 		}
 
 		template <class T1, class T2>
@@ -327,9 +326,7 @@ namespace dse::lua
 			PushExtFunction(L, func);
 			push(L, arg1);
 			push(L, arg2);
-			CheckedCall(L, 2, func);
-			// FIXME!
-			return true;
+			return CheckedCall(L, 2, func);
 		}
 
 		template <class T1, class T2, class T3>
@@ -343,9 +340,32 @@ namespace dse::lua
 			push(L, arg1);
 			push(L, arg2);
 			push(L, arg3);
-			CheckedCall(L, 3, func);
-			// FIXME!
-			return true;
+			return CheckedCall(L, 3, func);
+		}
+
+		template <class TEvent, class TReadWrite>
+		bool ThrowEvent(char const* eventName, TEvent& evt, bool canPreventAction, uint32_t restrictions, TReadWrite)
+		{
+			auto stackSize = lua_gettop(L);
+
+			try {
+				StackCheck _(L, 0);
+				Restriction restriction(*this, restrictions);
+				LifetimePin _p(lifetimeStack_);
+				PushInternalFunction(L, "_ThrowEvent");
+				EventObject::Make(L, lifetimeStack_.GetCurrent().pool, eventName, evt, canPreventAction, TReadWrite{});
+				return CheckedCall(L, 1, "_ThrowEvent");
+			} catch (Exception &) {
+				auto stackRemaining = lua_gettop(L) - stackSize;
+				if (stackRemaining > 0) {
+					LuaError("Failed to dispatch event '" << eventName << "': " << lua_tostring(L, -1));
+					lua_pop(L, stackRemaining);
+				} else {
+					LuaError("Internal error while dispatching event '" << eventName << "'");
+				}
+
+				return false;
+			}
 		}
 
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);

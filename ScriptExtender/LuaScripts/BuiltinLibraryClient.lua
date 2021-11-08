@@ -1,24 +1,20 @@
-Ext._Listeners = {
-	ModuleLoadStarted = {},
-	ModuleLoading = {},
-	StatsLoaded = {},
-	ModuleResume = {},
-	SessionLoading = {},
-	SessionLoaded = {},
-	GameStateChanged = {},
-	SkillGetDescriptionParam = {},
-	StatusGetDescriptionParam = {},
-	GetSkillDamage = {},
-	GetSkillAPCost = {},
-	GetHitChance = {},
-	UIObjectCreated = {},
-	UIInvoke = {},
-	UICall = {},
-	AfterUIInvoke = {},
-	AfterUICall = {},
-	InputEvent = {}
+local _I = Ext._Internal
+
+_I._PublishedEvents = {
+	"SkillGetDescriptionParam",
+	"StatusGetDescriptionParam",
+	"GetSkillDamage",
+	"GetSkillAPCost",
+	"GetHitChance",
+	"UIObjectCreated",
+	"UIInvoke",
+	"UICall",
+	"AfterUIInvoke",
+	"AfterUICall",
+	"InputEvent"
 }
 
+-- FIXME - migrate these events!
 Ext._SkillGetDescriptionParam = function (...)
     return Ext._EngineCallback1("SkillGetDescriptionParam", ...)
 end
@@ -40,54 +36,12 @@ Ext._GetSkillDamage = function (...)
     end
 end
 
-Ext.RegisterListener = function (type, fn)
-	if Ext._Listeners[type] ~= nil then
-		table.insert(Ext._Listeners[type], fn)
-	elseif type == "CalculateTurnOrder" or type == "ComputeCharacterHit" or type == "StatusGetEnterChance" then
-		Ext._WarnDeprecated("Cannot register listeners for event '" .. type .. "' from client!")
-	else
-		Ext.PrintError("Unknown listener type: " .. type)
-	end
-end
-
 Ext.IsClient = function ()
 	return true
 end
 
 Ext.IsServer = function ()
 	return false
-end
-
-Ext.NewCall = function ()
-	Ext._WarnDeprecated("Calling Ext.NewCall() from a client context is deprecated!")
-end
-
-Ext.NewQuery = function ()
-	Ext._WarnDeprecated("Calling Ext.NewQuery() from a client context is deprecated!")
-end
-
-Ext.NewEvent = function ()
-	Ext._WarnDeprecated("Calling Ext.NewEvent() from a client context is deprecated!")
-end
-
-Ext.GetCombat = function ()
-	Ext._WarnDeprecated("Calling Ext.GetCombat() from a client context is deprecated!")
-end
-
-Ext.GenerateIdeHelpers = function ()
-	Ext._WarnDeprecated("Calling Ext.GenerateIdeHelpers() from a client context is deprecated!")
-end
-
-Ext.EnableStatOverride = function ()
-	Ext._WarnDeprecated("Calling Ext.EnableStatOverride() is no longer neccessary!")
-end
-
-Ext._UIObjectCreated = function (uiObject)
-	Ext._Notify("UIObjectCreated", uiObject)
-end
-
-Ext._OnInputEvent = function (event)
-	Ext._Notify("InputEvent", event)
 end
 
 Ext._UIExternalInterfaceHandleListeners = { Before = {}, After = {} }
@@ -254,17 +208,20 @@ Ext.RegisterUITypeInvokeListener(28, "openMenu", function (menu, ...)
     menu:Invoke("setDebugText", ver)
 end)
 
--- Subscribe to main menu calls
-Ext.RegisterListener("UIObjectCreated", function (ui)
-    if ui:GetTypeId() == 28 then
-        ui:CaptureExternalInterfaceCalls()
-        ui:CaptureInvokes()
-    end
-end)
-
 Ext._GetSkillPropertyDescription = function (prop)
 	local propType = Ext._SkillPropertyTypes[prop.Action]
 	if propType ~= nil and propType.GetDescription ~= nil then
 		return propType.GetDescription(prop)
 	end
 end
+
+_I._RegisterEvents()
+
+-- Subscribe to main menu calls
+Ext.Events.UIObjectCreated:Subscribe(function (e)
+	local ui = e.UIObject
+    if ui:GetTypeId() == 28 then
+        ui:CaptureExternalInterfaceCalls()
+        ui:CaptureInvokes()
+    end
+end)

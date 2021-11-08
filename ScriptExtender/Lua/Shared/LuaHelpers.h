@@ -778,12 +778,29 @@ namespace dse::lua
 		}
 	}
 
+	int CallWithTraceback(lua_State* L, int narg, int nres);
+
+	// Calls Lua function.
+	// Function and arguments must be already pushed to the Lua stack.
+	// Returns false if call failed, true tuple otherwise.
+	// Function name only needed for error reporting purposes
+	inline bool CheckedCall(lua_State* L, int numArgs, char const* functionName)
+	{
+		if (CallWithTraceback(L, numArgs, 0) != 0) { // stack: errmsg
+			ERR("%s Lua call failed: %s", functionName, lua_tostring(L, -1));
+			lua_pop(L, 1);
+			return false;
+		}
+
+		return true;
+	}
+
 	// Calls Lua function and fetches Lua return values into a tuple.
 	// Function and arguments must be already pushed to the Lua stack.
 	// Returns {} if call or return value fetch failed, rval tuple otherwise.
 	// Function name only needed for error reporting purposes
 	template <class... Args>
-	auto CheckedCall(lua_State * L, int numArgs, char const * functionName)
+	auto CheckedCallRet(lua_State * L, int numArgs, char const * functionName)
 	{
 		if (CallWithTraceback(L, numArgs, sizeof...(Args)) != 0) { // stack: errmsg
 			ERR("%s Lua call failed: %s", functionName, lua_tostring(L, -1));
@@ -892,8 +909,6 @@ namespace dse::lua
 		lua_State * L_;
 		int ref_;
 	};
-
-	int CallWithTraceback(lua_State * L, int narg, int nres);
 
 	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
 

@@ -422,6 +422,11 @@ namespace dse::esv::lua
 		void RunHandler(ServerState& lua, RegistryEntry const& func, OsiArgumentDesc* tuple) const;
 	};
 
+	struct GameStateChangeEventParams
+	{
+		GameState FromState;
+		GameState ToState;
+	};
 
 	class ServerState : public State
 	{

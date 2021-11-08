@@ -191,3 +191,7 @@ FS(StatObject);
 FS(StatId);
 FS(StatType);
 FS(Blob);
+
+// LuaEvent properties
+FS(ReadOnly);
+FS(CanPreventAction);
