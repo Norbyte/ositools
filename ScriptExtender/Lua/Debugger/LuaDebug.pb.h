@@ -282,7 +282,7 @@ enum MsgValueType {
   USERDATA = 7,
   THREAD = 8,
   UNKNOWN = 9,
-  OBJECT_HANDLE = 10,
+  COMPONENT_HANDLE = 10,
   NONE = 11,
   MsgValueType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   MsgValueType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
