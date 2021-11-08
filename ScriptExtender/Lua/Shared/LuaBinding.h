@@ -289,6 +289,7 @@ namespace dse::lua
 		void OnModuleLoading();
 		void OnStatsLoaded();
 		void OnModuleResume();
+		void OnResetCompleted();
 
 		template <class... Ret, class... Args>
 		auto CallExtRet(char const * func, uint32_t restrictions, ReturnType<Ret...>, Args... args)

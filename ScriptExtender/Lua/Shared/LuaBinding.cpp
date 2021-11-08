@@ -1091,6 +1091,11 @@ namespace dse::lua
 		ThrowEvent<EmptyEventParams>("ModuleResume", EmptyEventParams{}, false, RestrictAll | ScopeModuleResume, ReadOnlyEvent{});
 	}
 
+	void State::OnResetCompleted()
+	{
+		ThrowEvent<EmptyEventParams>("ResetCompleted", EmptyEventParams{}, false, 0, ReadOnlyEvent{});
+	}
+
 	bool State::CallExt(char const* func, uint32_t restrictions)
 	{
 		StackCheck _(L, 0);

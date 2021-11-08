@@ -184,6 +184,7 @@ void ScriptExtender::ResetLuaState()
 				ext->OnGameSessionLoading();
 				ext->OnGameSessionLoaded();
 				ext->StoryLoaded();
+				ext->OnResetCompleted();
 			}
 		});
 		ext->LuaReset(true);

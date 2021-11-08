@@ -15,7 +15,8 @@ _I._PublishedSharedEvents = {
 	"ModuleResume",
 	"SessionLoading",
 	"SessionLoaded",
-	"GameStateChanged"
+	"GameStateChanged",
+	"ResetCompleted"
 }
 
 Ext._WarnDeprecated56 = function (msg)

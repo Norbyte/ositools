@@ -44,6 +44,7 @@ namespace dse
 		void OnModuleLoading();
 		void OnStatsLoaded();
 		void OnModuleResume();
+		void OnResetCompleted();
 
 		void IncLuaRefs();
 		void DecLuaRefs();
