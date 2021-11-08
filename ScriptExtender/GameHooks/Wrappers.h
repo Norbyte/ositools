@@ -18,7 +18,7 @@ namespace dse {
 			return OriginalFunc != nullptr;
 		}
 
-		void Wrap(HMODULE Module, char * ProcName, FuncType NewFunction)
+		void Wrap(HMODULE Module, char const * ProcName, FuncType NewFunction)
 		{
 			// FIXME - move to BinaryMappings
 			FARPROC ExportProc = GetProcAddress(Module, ProcName);
@@ -116,9 +116,9 @@ namespace dse {
 		using PreHookType = void(Params...);
 		using PreHookFuncType = std::function<PreHookType>;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -129,7 +129,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -140,7 +140,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -160,7 +160,7 @@ namespace dse {
 				preHook_(std::forward<Params>(Args)...);
 			}
 
-			return CallOriginal(std::forward<Params>(Args)...);
+			return this->CallOriginal(std::forward<Params>(Args)...);
 		}
 
 		static R CallToTrampoline(Params... Args)
@@ -184,9 +184,9 @@ namespace dse {
 		using PostHookType = typename GetHookSignature<R, Params...>::Type;
 		using PostHookFuncType = std::function<PostHookType>;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -197,7 +197,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -208,7 +208,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -225,14 +225,13 @@ namespace dse {
 		inline R CallWithHooks(Params... Args) const
 		{
 			if constexpr (std::is_same<void, R>::value) {
-				CallOriginal(std::forward<Params>(Args)...);
+				this->CallOriginal(std::forward<Params>(Args)...);
 
 				if (postHook_) {
 					postHook_(std::forward<Params>(Args)...);
 				}
-			}
-			else {
-				auto retval = CallOriginal(std::forward<Params>(Args)...);
+			} else {
+				auto retval = this->CallOriginal(std::forward<Params>(Args)...);
 
 				if (postHook_) {
 					postHook_(std::forward<Params>(Args)..., std::forward<decltype(retval)>(retval));
@@ -266,9 +265,9 @@ namespace dse {
 		using PostHookType = typename GetHookSignature<R, Params...>::Type;
 		using PostHookFuncType = std::function<PostHookType>;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -279,7 +278,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -290,7 +289,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -317,14 +316,14 @@ namespace dse {
 			}
 
 			if constexpr (std::is_same<void, R>::value) {
-				CallOriginal(std::forward<Params>(Args)...);
+				this->CallOriginal(std::forward<Params>(Args)...);
 
 				for (auto const & hook : postHooks_) {
 					hook(std::forward<Params>(Args)...);
 				}
 			}
 			else {
-				auto retval = CallOriginal(std::forward<Params>(Args)...);
+				auto retval = this->CallOriginal(std::forward<Params>(Args)...);
 
 				for (auto const & hook : postHooks_) {
 					hook(std::forward<Params>(Args)..., std::forward<decltype(retval)>(retval));
@@ -353,12 +352,12 @@ namespace dse {
 	class FastWrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
 	{
 	public:
-		using WrapperHookType = R(FuncType *, Params...);
+		using WrapperHookType = R(BaseWrappableFunction<Tag, R(Params...)>::FuncType *, Params...);
 		using WrapperHookFuncType = WrapperHookType*;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -369,7 +368,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -380,7 +379,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -406,9 +405,9 @@ namespace dse {
 		inline R CallWithHooks(Params... Args) const
 		{
 			if (wrapperHook_) {
-				return wrapperHook_(wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+				return wrapperHook_(this->wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
 			} else {
-				return CallOriginal(std::forward<Params>(Args)...);
+				return this->CallOriginal(std::forward<Params>(Args)...);
 			}
 		}
 
@@ -430,12 +429,12 @@ namespace dse {
 	class WrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
 	{
 	public:
-		using WrapperHookType = R(FuncType *, Params...);
+		using WrapperHookType = R(BaseWrappableFunction<Tag, R(Params...)>::FuncType *, Params...);
 		using WrapperHookFuncType = std::function<WrapperHookType>;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -446,7 +445,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -457,7 +456,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -483,9 +482,9 @@ namespace dse {
 		inline R CallWithHooks(Params... Args) const
 		{
 			if (wrapperHook_) {
-				return wrapperHook_(wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
+				return wrapperHook_(this->wrapped_.GetTrampoline(), std::forward<Params>(Args)...);
 			} else {
-				return CallOriginal(std::forward<Params>(Args)...);
+				return this->CallOriginal(std::forward<Params>(Args)...);
 			}
 		}
 
@@ -507,12 +506,12 @@ namespace dse {
 	class MultiWrappableFunction<Tag, R(Params...)> : public BaseWrappableFunction<Tag, R(Params...)>
 	{
 	public:
-		using WrapperHookType = R(std::function<FuncType> const &, Params...);
+		using WrapperHookType = R(std::function<typename BaseWrappableFunction<Tag, R(Params...)>::FuncType> const &, Params...);
 		using WrapperHookFuncType = std::function<WrapperHookType>;
 
-		void Wrap(HMODULE Module, char * ProcName)
+		void Wrap(HMODULE Module, char const * ProcName)
 		{
-			wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
+			this->wrapped_.Wrap(Module, ProcName, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -523,7 +522,7 @@ namespace dse {
 
 		void Wrap(void * Function)
 		{
-			wrapped_.Wrap(Function, &CallToTrampoline);
+			this->wrapped_.Wrap(Function, &CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");
@@ -534,7 +533,7 @@ namespace dse {
 
 		void Unwrap()
 		{
-			wrapped_.Unwrap();
+			this->wrapped_.Unwrap();
 			gHook = nullptr;
 		}
 
@@ -556,14 +555,14 @@ namespace dse {
 
 		inline R CallOriginal(Params... Args) const
 		{
-			return wrapped_(std::forward<Params>(Args)...);
+			return this->wrapped_(std::forward<Params>(Args)...);
 		}
 
 	private:
 		struct WrapperHookInfo
 		{
 			WrapperHookFuncType hook;
-			std::function<FuncType> forwarder;
+			std::function<typename BaseWrappableFunction<Tag, R(Params...)>::FuncType> forwarder;
 		};
 
 		std::vector<WrapperHookInfo> wrapperHooks_;
@@ -576,7 +575,7 @@ namespace dse {
 				auto const & hook = wrapperHooks_[WrapperHookNum];
 				return hook.hook(std::ref(hook.forwarder), std::forward<Params>(Args)...);
 			} else {
-				return wrapped_(std::forward<Params>(Args)...);
+				return this->wrapped_(std::forward<Params>(Args)...);
 			}
 		}
 

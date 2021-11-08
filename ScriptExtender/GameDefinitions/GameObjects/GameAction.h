@@ -15,7 +15,7 @@ namespace dse
 			NetId NetID;
 			PrimitiveSet<uint16_t> PeerIDClassNames;
 			ComponentHandle MyHandle;
-			uint32_t GameActionType;
+			GameActionType ActionType;
 			bool Active;
 			bool Dirty;
 			float ActivateTimer;

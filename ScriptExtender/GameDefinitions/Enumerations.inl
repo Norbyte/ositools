@@ -1466,7 +1466,7 @@ BEGIN_ENUM(ShroudType, uint8_t)
 	EV(RegionMask, 3)
 END_ENUM()
 
-BEGIN_ENUM(GameActionType, int)
+BEGIN_ENUM(GameActionType, uint32_t)
 	EV(RainAction, 1)
 	EV(StormAction, 2)
 	EV(WallAction, 4)

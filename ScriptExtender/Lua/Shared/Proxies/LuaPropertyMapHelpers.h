@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/Proxies/LuaObjectProxy.h>
+#include <Lua/Shared/Proxies/LuaArrayProxy.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 
 BEGIN_NS(lua)

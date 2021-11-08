@@ -64,7 +64,7 @@ namespace dse::lua
 
 		static T* CheckedGet(lua_State* L, int index)
 		{
-			auto self = CheckUserData(L, index);
+			auto self = ObjectProxy<T>::CheckUserData(L, index);
 			auto obj = self->Get(L);
 			if (obj != nullptr) {
 				return obj;

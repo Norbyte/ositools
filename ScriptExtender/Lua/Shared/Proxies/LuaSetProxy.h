@@ -2,7 +2,7 @@
 
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
-#include <Lua/Shared/Proxies/LuaPropertyMapHelpers.h>
+#include <Lua/Shared/Proxies/LuaUserdata.h>
 
 BEGIN_NS(lua)
 
@@ -94,7 +94,7 @@ inline T* checked_get_set_proxy(lua_State* L, int index)
 {
 	auto proxy = Userdata<SetProxy>::CheckUserData(L, index);
 	auto const& typeName = TypeInfo<T>::TypeName;
-	if (strcmp(GetImpl()->GetTypeName(), typeName) == 0) {
+	if (strcmp(proxy->GetImpl()->GetTypeName(), typeName) == 0) {
 		auto obj = proxy->Get<T>();
 		if (obj == nullptr) {
 			luaL_error(L, "Argument %d: got Set<%s> whose lifetime has expired", index, typeName);

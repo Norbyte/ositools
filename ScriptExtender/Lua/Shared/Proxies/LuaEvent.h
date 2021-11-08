@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Lua/Shared/LuaHelpers.h>
-#include <Lua/Shared/Proxies/LuaUserdata.h>
 #include <Lua/Shared/LuaLifetime.h>
+#include <Lua/Shared/Proxies/LuaUserdata.h>
 
 BEGIN_NS(lua)
 

@@ -2,6 +2,7 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/EntitySystem.h>
+#include <Lua/Shared/Proxies/LuaUserdata.h>
 
 BEGIN_SE()
 
@@ -21,13 +22,15 @@ public:
 	template <class T>
 	bool HasComponent()
 	{
-		return this->entitySystem_->GetEntityComponent<T>(handle_, false) != nullptr;
+		// FIXME return this->entitySystem_->GetEntityComponent<T>(handle_, false) != nullptr;
+		return false;
 	}
 
 	template <class T>
 	T* GetComponent()
 	{
-		return this->entitySystem_->GetEntityComponent<T>(handle_, false);
+		// FIXME return this->entitySystem_->GetEntityComponent<T>(handle_, false);
+		return nullptr;
 	}
 
 	static int HasRawComponent(lua_State* L);
@@ -89,5 +92,24 @@ private:
 	ComponentHandle handle_;
 	EntitySystemHelpersBase* entitySystem_;
 };
+
+
+template <class T, typename std::enable_if_t<std::is_same_v<T, EntityHandle>, int>* = nullptr>
+inline EntityHandle checked_get(lua_State* L, int index)
+{
+	luaL_checktype(L, index, LUA_TUSERDATA);
+	return EntityProxy::CheckUserData(L, index)->Handle();
+}
+
+template <>
+inline EntityHandle get<EntityHandle>(lua_State* L, int index)
+{
+	if (lua_type(L, index) == LUA_TNIL) {
+		return EntityHandle{ EntityHandle::NullHandle };
+	} else {
+		return EntityProxy::CheckUserData(L, index)->Handle();
+	}
+}
+
 
 END_NS()

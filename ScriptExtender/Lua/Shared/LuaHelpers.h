@@ -6,9 +6,6 @@
 #include <lauxlib.h>
 #include <optional>
 
-#include <Lua/Shared/Proxies/LuaUserdata.h>
-#include <Lua/Shared/Proxies/LuaEntityProxy.h>
-
 namespace dse::lua
 {
 #if !defined(NDEBUG)
@@ -50,22 +47,6 @@ namespace dse::lua
 		{}
 	};
 #endif
-
-	template <class TValue>
-	inline void setfield(lua_State* L, char const* k, TValue const& v, int index = -2)
-	{
-		push(L, v);
-		lua_setfield(L, index, k);
-	}
-
-	template <class TKey, class TValue>
-	inline void settable(lua_State* L, TKey const& k, TValue const& v, int index = -3)
-	{
-		push(L, k);
-		push(L, v);
-		lua_settable(L, index);
-	}
-
 
 	inline void push(lua_State * L, nullptr_t v)
 	{
@@ -163,44 +144,11 @@ namespace dse::lua
 		push(L, v.Id);
 	}
 
-	inline void push(lua_State* L, glm::ivec2 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-	}
-
-	inline void push(lua_State* L, glm::vec2 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-	}
-
-	inline void push(lua_State* L, glm::vec3 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-		settable(L, 3, v.z);
-	}
-
-	inline void push(lua_State* L, glm::vec4 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-		settable(L, 3, v.z);
-		settable(L, 4, v.w);
-	}
-
-	inline void push(lua_State* L, glm::mat3 const& m)
-	{
-		lua_newtable(L);
-		for (auto i = 0; i < 9; i++) {
-			settable(L, i + 1, m[i / 3][i % 3]);
-		}
-	}
+	void push(lua_State* L, glm::ivec2 const& v);
+	void push(lua_State* L, glm::vec2 const& v);
+	void push(lua_State* L, glm::vec3 const& v);
+	void push(lua_State* L, glm::vec4 const& v);
+	void push(lua_State* L, glm::mat3 const& m);
 
 	template <class T>
 	inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
@@ -239,13 +187,13 @@ namespace dse::lua
 
 		lua_newtable(L);
 		int i = 1;
-		EnumInfo<T>::Values.Iterate([value, L, &i](auto const& k, auto const& v) {
-			if ((value & v) == v) {
+		for (auto const& val : EnumInfo<T>::Values) {
+			if ((value & val.Value) == val.Value) {
 				push(L, i++);
-				push(L, k);
+				push(L, val.Key);
 				lua_settable(L, -3);
 			}
-		});
+		}
 	}
 
 
@@ -366,16 +314,6 @@ namespace dse::lua
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
 
-	template <>
-	inline EntityHandle get<EntityHandle>(lua_State* L, int index)
-	{
-		if (lua_type(L, index) == LUA_TNIL) {
-			return EntityHandle{ EntityHandle::NullHandle };
-		} else {
-			return EntityProxy::CheckUserData(L, index)->Handle();
-		}
-	}
-
 
 	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
 	inline bool checked_get(lua_State * L, int index)
@@ -441,13 +379,6 @@ namespace dse::lua
 	{
 		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, EntityHandle>, int>* = nullptr>
-	inline EntityHandle checked_get(lua_State* L, int index)
-	{
-		luaL_checktype(L, index, LUA_TUSERDATA);
-		return EntityProxy::CheckUserData(L, index)->Handle();
 	}
 		
 	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::ivec2>, int>* = nullptr>	
@@ -1003,5 +934,60 @@ namespace dse::lua
 		}
 
 		return flags;
+	}
+	
+
+	template <class TValue>
+	inline void setfield(lua_State* L, char const* k, TValue const& v, int index = -2)
+	{
+		push(L, v);
+		lua_setfield(L, index, k);
+	}
+
+	template <class TKey, class TValue>
+	inline void settable(lua_State* L, TKey const& k, TValue const& v, int index = -3)
+	{
+		push(L, k);
+		push(L, v);
+		lua_settable(L, index);
+	}
+
+	inline void push(lua_State* L, glm::ivec2 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+	}
+
+	inline void push(lua_State* L, glm::vec2 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+	}
+
+	inline void push(lua_State* L, glm::vec3 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+		settable(L, 3, v.z);
+	}
+
+	inline void push(lua_State* L, glm::vec4 const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.x);
+		settable(L, 2, v.y);
+		settable(L, 3, v.z);
+		settable(L, 4, v.w);
+	}
+
+	inline void push(lua_State* L, glm::mat3 const& m)
+	{
+		lua_newtable(L);
+		for (auto i = 0; i < 9; i++) {
+			settable(L, i + 1, m[i / 3][i % 3]);
+		}
 	}
 }

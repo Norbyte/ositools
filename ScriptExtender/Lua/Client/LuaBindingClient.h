@@ -100,7 +100,7 @@ namespace dse::ecl::lua
 		std::vector<ig::IggyValuePath> paths_;
 
 		UIFlashPath();
-		UIFlashPath(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		UIFlashPath(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 		ig::IggyValuePath* Last();
 	};
 
@@ -109,7 +109,7 @@ namespace dse::ecl::lua
 	public:
 		static char const* const MetatableName;
 
-		UIFlashObject(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		UIFlashObject(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 		int Index(lua_State* L);
 		int NewIndex(lua_State* L);
 
@@ -123,7 +123,7 @@ namespace dse::ecl::lua
 	public:
 		static char const* const MetatableName;
 
-		UIFlashArray(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		UIFlashArray(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 		int Index(lua_State* L);
 		int NewIndex(lua_State* L);
 		int Length(lua_State* L);
@@ -138,7 +138,7 @@ namespace dse::ecl::lua
 	public:
 		static char const* const MetatableName;
 
-		UIFlashFunction(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+		UIFlashFunction(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 		int LuaCall(lua_State* L);
 
 	private:

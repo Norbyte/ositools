@@ -9,6 +9,19 @@ BEGIN_SE()
 
 namespace net
 {
+	Message* AbstractPeer::DoGetFreeMessage(NetMessage messageId)
+	{
+		auto getMsg = GetStaticSymbols().net__MessageFactory__GetFreeMessage;
+		if (getMsg == nullptr) return nullptr;
+
+		if (NetMessageFactory->MessagePools.Size > (unsigned)messageId) {
+			return getMsg(NetMessageFactory, messageId);
+		} else {
+			ERR("GetFreeMessage(): Message factory not registered for this message type?");
+			return nullptr;
+		}
+	}
+
 	void MessageFactory::ReservePools(uint32_t minPools)
 	{
 		if (MessagePools.Capacity >= minPools) return;

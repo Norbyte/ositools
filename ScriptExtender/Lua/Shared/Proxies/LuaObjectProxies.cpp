@@ -2,6 +2,7 @@
 
 #include <stdafx.h>
 
+#include <GameDefinitions/Enumerations.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/Proxies/LuaPropertyMapHelpers.h>

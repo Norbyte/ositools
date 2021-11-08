@@ -908,7 +908,7 @@ namespace dse::ecl::lua
 
 	UIFlashPath::UIFlashPath() {}
 
-	UIFlashPath::UIFlashPath(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	UIFlashPath::UIFlashPath(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 		: paths_(parents)
 	{
 		paths_.push_back(*path);
@@ -923,13 +923,13 @@ namespace dse::ecl::lua
 		return &*paths_.rbegin();
 	}
 
-	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path);
+	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 	bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx);
 
 
 	char const* const UIFlashObject::MetatableName = "FlashObject";
 
-	UIFlashObject::UIFlashObject(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	UIFlashObject::UIFlashObject(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 		: path_(parents, path)
 	{}
 
@@ -962,7 +962,7 @@ namespace dse::ecl::lua
 
 	char const* const UIFlashArray::MetatableName = "FlashArray";
 
-	UIFlashArray::UIFlashArray(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	UIFlashArray::UIFlashArray(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 		: path_(parents, path)
 	{}
 
@@ -1008,7 +1008,7 @@ namespace dse::ecl::lua
 
 	char const* const UIFlashFunction::MetatableName = "FlashFunction";
 
-	UIFlashFunction::UIFlashFunction(std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	UIFlashFunction::UIFlashFunction(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 		: path_(parents, path)
 	{}
 
@@ -1154,7 +1154,7 @@ namespace dse::ecl::lua
 		}
 	}
 
-	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath>& parents, ig::IggyValuePath* path)
+	int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 	{
 		auto const& s = GetStaticSymbols();
 

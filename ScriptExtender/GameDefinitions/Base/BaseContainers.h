@@ -820,9 +820,8 @@ struct CompactSet
 				*(uint64_t*)newBuf = newCapacity;
 
 				Buf = (T*)((std::ptrdiff_t)newBuf + 8);
-			}
-			else {
-				Buf = Allocator::New<T>(newCapacity);
+			} else {
+				Buf = Allocator::template New<T>(newCapacity);
 			}
 		} else {
 			Buf = nullptr;
@@ -849,10 +848,7 @@ struct CompactSet
 
 	void Remove(uint32_t index)
 	{
-		if (index >= Size) {
-			ERR("Tried to remove out-of-bounds index %d!", index);
-			return;
-		}
+		assert(index < Size);
 
 		for (auto i = index; i < Size - 1; i++) {
 			Buf[i] = Buf[i + 1];
@@ -900,37 +896,35 @@ struct Set : public CompactSet<T, Allocator, StoreSize>
 	uint32_t CapacityIncrement() const
 	{
 		if (CapacityIncrementSize != 0) {
-			return Capacity + (uint32_t)CapacityIncrementSize;
-		}
-		else if (Capacity > 0) {
-			return 2 * Capacity;
-		}
-		else {
+			return this->Capacity + (uint32_t)CapacityIncrementSize;
+		} else if (this->Capacity > 0) {
+			return 2 * this->Capacity;
+		} else {
 			return 1;
 		}
 	}
 
 	void Add(T const& value)
 	{
-		if (Capacity <= Size) {
-			Reallocate(CapacityIncrement());
+		if (this->Capacity <= this->Size) {
+			this->Reallocate(CapacityIncrement());
 		}
 
-		new (&Buf[Size++]) T(value);
+		new (&this->Buf[this->Size++]) T(value);
 	}
 
 	void InsertAt(uint32_t index, T const& value)
 	{
-		if (Capacity <= Size) {
-			Reallocate(CapacityIncrement());
+		if (this->Capacity <= this->Size) {
+			this->Reallocate(CapacityIncrement());
 		}
 
-		for (auto i = Size; i > index; i--) {
-			Buf[i] = Buf[i - 1];
+		for (auto i = this->Size; i > index; i--) {
+			this->Buf[i] = this->Buf[i - 1];
 		}
 
-		Buf[index] = value;
-		Size++;
+		this->Buf[index] = value;
+		this->Size++;
 	}
 };
 
@@ -941,21 +935,20 @@ struct PrimitiveSmallSet : public CompactSet<T, Allocator, false>
 
 	uint32_t CapacityIncrement() const
 	{
-		if (Capacity > 0) {
-			return 2 * Capacity;
-		}
-		else {
+		if (this->Capacity > 0) {
+			return 2 * this->Capacity;
+		} else {
 			return 1;
 		}
 	}
 
 	void Add(T const& value)
 	{
-		if (Capacity <= Size) {
-			Reallocate(CapacityIncrement());
+		if (this->Capacity <= this->Size) {
+			this->Reallocate(CapacityIncrement());
 		}
 
-		new (&Buf[Size++]) T(value);
+		new (&this->Buf[this->Size++]) T(value);
 	}
 };
 

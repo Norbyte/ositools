@@ -39,6 +39,9 @@ protected:
 	//~ProtectedGameObject() = delete;
 };
 
+// Tag for engine objects that have a Lua property map
+struct HasObjectProxy {};
+
 // Base class for game objects that are managed entirely
 // by the game and we cannot create/copy them.
 // Temporary hack until we have a better fix for HasObjectProxy
@@ -62,9 +65,6 @@ struct TypeInfo
 {
 	static char const* const TypeName;
 };
-
-// Tag for engine objects that have a Lua property map
-struct HasObjectProxy {};
 
 template <class T>
 struct HasObjectProxyTag {

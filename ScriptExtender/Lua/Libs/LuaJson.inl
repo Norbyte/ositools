@@ -5,9 +5,9 @@
 
 BEGIN_NS(lua::utils)
 
-void JsonParse(lua_State * L, Json::Value & val);
+void JsonParse(lua_State * L, Json::Value const & val);
 
-void JsonParseArray(lua_State * L, Json::Value & val)
+void JsonParseArray(lua_State * L, Json::Value const & val)
 {
 	lua_newtable(L);
 	int idx = 1;
@@ -18,7 +18,7 @@ void JsonParseArray(lua_State * L, Json::Value & val)
 	}
 }
 
-void JsonParseObject(lua_State * L, Json::Value & val)
+void JsonParseObject(lua_State * L, Json::Value const & val)
 {
 	lua_newtable(L);
 	for (auto it = val.begin(), end = val.end(); it != end; ++it) {
@@ -28,7 +28,7 @@ void JsonParseObject(lua_State * L, Json::Value & val)
 	}
 }
 
-void JsonParse(lua_State * L, Json::Value & val)
+void JsonParse(lua_State * L, Json::Value const & val)
 {
 	switch (val.type()) {
 	case Json::nullValue:

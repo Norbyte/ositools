@@ -41,7 +41,7 @@ namespace dse::esv
 	DamageHelpers * DamageHelperPool::Get(ComponentHandle handle) const
 	{
 		if (handle.GetType() != DamageHelpers::HitHandleTypeId) {
-			return false;
+			return nullptr;
 		}
 
 		auto it = helpers_.find(handle.GetIndex());
@@ -119,7 +119,7 @@ namespace dse::esv
 	{
 		if (!Target) {
 			OsiErrorS("No target!");
-			return false;
+			return nullptr;
 		}
 
 		if (DamageList->Size == 0) {
@@ -132,20 +132,20 @@ namespace dse::esv
 		auto characterHit = GetStaticSymbols().esv__Character__Hit;
 		if (SimulateHit && characterHit == nullptr) {
 			OsiErrorS("esv::Character::Hit not found!");
-			return false;
+			return nullptr;
 		}
 
 		auto statusMachine = GetStatusMachine(Target->GetGuid()->Str);
 		if (!statusMachine) {
 			OsiErrorS("Target has no StatusMachine!");
-			return false;
+			return nullptr;
 		}
 
 		auto createStatus = GetStaticSymbols().esv__StatusMachine__CreateStatus;
 		auto applyStatus = GetStaticSymbols().esv__StatusMachine__ApplyStatus;
 		if (createStatus == nullptr || applyStatus == nullptr) {
 			OsiErrorS("esv::StatusMachine::CreateStatus not found!");
-			return false;
+			return nullptr;
 		}
 
 		FixedString fsHit("HIT");

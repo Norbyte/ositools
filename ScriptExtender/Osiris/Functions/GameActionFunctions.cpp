@@ -27,7 +27,7 @@ namespace dse::esv
 
 			if (lib.esv__GameActionManager__CreateAction == nullptr || lib.esv__GameActionManager__AddGameAction == nullptr || actionMgr == nullptr) {
 				OsiErrorS("Game Action maanger not available");
-				return false;
+				return nullptr;
 			}
 
 			auto action = (TAction *)lib.esv__GameActionManager__CreateAction(actionMgr, type, 0);
@@ -220,7 +220,7 @@ namespace dse::esv
 
 		void DestroyGameActionInternal(esv::GameAction & action)
 		{
-			switch (action.GameActionType) {
+			switch (action.ActionType) {
 			case GameActionType::RainAction:
 				static_cast<esv::RainAction &>(action).Finished = true;
 				break;
@@ -246,7 +246,7 @@ namespace dse::esv
 				break;
 
 			default:
-				OsiError("Don't know how to destroy game action type " << action.GameActionType);
+				OsiError("Don't know how to destroy game action type " << (unsigned)action.ActionType);
 				break;
 			}
 		}
@@ -265,7 +265,7 @@ namespace dse::esv
 			if (gameAction == nullptr) return false;
 
 			float lifeTime;
-			switch (gameAction->GameActionType) {
+			switch (gameAction->ActionType) {
 			case GameActionType::RainAction:
 				lifeTime = static_cast<esv::RainAction *>(gameAction)->LifeTime;
 				break;
@@ -283,7 +283,7 @@ namespace dse::esv
 				break;
 
 			default:
-				OsiError("Not supported for game action type " << gameAction->GameActionType);
+				OsiError("Not supported for game action type " << (unsigned)gameAction->ActionType);
 				return false;
 			}
 
@@ -302,7 +302,7 @@ namespace dse::esv
 				return;
 			}
 
-			switch (gameAction->GameActionType) {
+			switch (gameAction->ActionType) {
 			case GameActionType::RainAction:
 				static_cast<esv::RainAction *>(gameAction)->LifeTime = lifeTime;
 				break;
@@ -316,7 +316,7 @@ namespace dse::esv
 				break;
 
 			default:
-				OsiError("Not supported for game action type " << gameAction->GameActionType);
+				OsiError("Not supported for game action type " << (unsigned)gameAction->ActionType);
 				break;
 			}
 		}

@@ -181,16 +181,10 @@ namespace dse
 			template <class T>
 			T * GetFreeMessage()
 			{
-				auto getMsg = GetStaticSymbols().net__MessageFactory__GetFreeMessage;
-				if (getMsg == nullptr) return nullptr;
-
-				if (NetMessageFactory->MessagePools.Size > (unsigned)T::MessageId) {
-					return static_cast<T *>(getMsg(NetMessageFactory, T::MessageId));
-				} else {
-					ERR("GetFreeMessage(): Message factory not registered for this message type?");
-					return nullptr;
-				}
+				return static_cast<T*>(DoGetFreeMessage(T::MessageId));
 			}
+
+			Message* DoGetFreeMessage(NetMessage messageId);
 		};
 
 		struct Host : public AbstractPeer

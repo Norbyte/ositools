@@ -166,7 +166,7 @@ namespace dse::eoc
         int Width;
         int Height;
 
-        inline glm::i32vec2 eoc::DataGrid::PositionToCellPosition(glm::vec2 pos) const
+        inline glm::i32vec2 PositionToCellPosition(glm::vec2 pos) const
         {
             return glm::i32vec2(
                 (int)((pos.x - OffsetX) / GridScale),

@@ -2,6 +2,7 @@
 
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
+#include <Lua/Shared/Proxies/LuaUserdata.h>
 
 BEGIN_NS(lua)
 
@@ -73,7 +74,7 @@ public:
 
 	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, RawPropertyAccessors const& prop) const
 	{
-		auto getter = (PropertyAccessors::Getter*)prop.Get;
+		auto getter = (typename PropertyAccessors::Getter*)prop.Get;
 
 #if defined(_DEBUG)
 		__try {
@@ -90,7 +91,7 @@ public:
 
 	inline bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, RawPropertyAccessors const& prop, int index) const
 	{
-		auto setter = (PropertyAccessors::Setter*)prop.Set;
+		auto setter = (typename PropertyAccessors::Setter*)prop.Set;
 
 #if defined(_DEBUG)
 		__try {

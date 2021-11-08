@@ -2,7 +2,7 @@
 
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
-#include <Lua/Shared/Proxies/LuaPropertyMapHelpers.h>
+#include <Lua/Shared/Proxies/LuaUserdata.h>
 
 BEGIN_SE()
 

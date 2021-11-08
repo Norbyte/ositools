@@ -170,7 +170,7 @@ public:
 			return;
 		}
 
-		auto pool = world->Components.Types[(int)*componentIndex].Pool;
+		auto pool = world->Components[(int)*componentIndex].Pool;
 		auto size = pool->GetSize();
 		for (auto i = 0; i < size; i++) {
 			auto component = pool->Factory.FindByIndex(i);

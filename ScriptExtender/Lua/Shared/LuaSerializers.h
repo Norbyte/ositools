@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Lua/Shared/LuaBinding.h>
+#include <Lua/Shared/Proxies/LuaEntityProxy.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 
 namespace dse::lua
@@ -292,6 +293,25 @@ namespace dse::lua
 			}
 
 			s << *v;
+		}
+
+		return s;
+	}
+
+
+	template <class T>
+	typename std::enable_if_t<std::is_pointer_v<T>, std::enable_if_t<!IsAllocatable<std::remove_pointer_t<T>>::value, LuaSerializer&>> operator << (LuaSerializer& s, T& v)
+	{
+		if (s.IsWriting) {
+			if (v == nullptr) {
+				lua_pushnil(s.L);
+			} else {
+				s << *v;
+			}
+		} else {
+			if (v != nullptr) {
+				s << *v;
+			}
 		}
 
 		return s;
