@@ -661,9 +661,9 @@ namespace dse::esv
 				auto gameServer = (*GetStaticSymbols().esv__EoCServer)->GameServer;
 				auto peer = gameServer->Peers.Find(peerModSettings.peerId);
 				if (peer != nullptr) {
-					peer->Users.Iterate([&userName](uint16_t const&, net::GameServer::UserInfo const& user) {
-						userName = user.UserName;
-					});
+					for (auto const& user : peer->Users) {
+						userName = user.Value.UserName;
+					}
 				}
 
 				ERR("Validation rc = %d", result);

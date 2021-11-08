@@ -388,30 +388,6 @@ public:
 		return nullptr;
 	}
 
-	template <class Visitor>
-	void Iterate(Visitor visitor)
-	{
-		for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
-			Node* item = HashTable[bucket];
-			while (item != nullptr) {
-				visitor(item->Key, item->Value);
-				item = item->Next;
-			}
-		}
-	}
-
-	template <class Visitor>
-	void Iterate(Visitor visitor) const
-	{
-		for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
-			Node* item = HashTable[bucket];
-			while (item != nullptr) {
-				visitor(item->Key, item->Value);
-				item = item->Next;
-			}
-		}
-	}
-
 	Iterator begin()
 	{
 		return Iterator(*this);
@@ -767,18 +743,6 @@ public:
 
 		ItemCount++;
 		return &node->Value;
-	}
-
-	template <class Visitor>
-	void Iterate(Visitor visitor)
-	{
-		for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
-			Node* item = HashTable[bucket];
-			while (item != nullptr) {
-				visitor(item->Key, item->Value);
-				item = item->Next;
-			}
-		}
 	}
 
 private:

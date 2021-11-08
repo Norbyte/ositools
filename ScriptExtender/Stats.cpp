@@ -471,9 +471,9 @@ namespace dse
 			msg->add_combo_categories(category.Str);
 		}
 
-		PropertyList.Iterate([msg](auto const& key, auto const& propertyList) {
-			propertyList->ToProtobuf(key, msg->add_property_lists());
-		});
+		for (auto const& propList : PropertyList) {
+			propList.Value->ToProtobuf(propList.Key, msg->add_property_lists());
+		}
 	}
 
 	void CRPGStats_Object::FromProtobuf(MsgS2CSyncStat const& msg)
@@ -600,12 +600,12 @@ namespace dse
 			ObjectVMT = stats->objects.Primitives[0]->VMT;
 		}
 
-		stats->PropertyLists.Iterate([this](auto const& k, auto const& propList) {
-			SkillPropertiesVMT = *(void**)propList;
-			for (auto prop : propList->Properties.Primitives) {
+		for (auto const& propList : stats->PropertyLists) {
+			SkillPropertiesVMT = *(void**)propList.Value;
+			for (auto prop : propList.Value->Properties.Primitives) {
 				PropertyTypes[prop->TypeId] = *(void**)prop;
 			}
-		});
+		}
 
 		VMTsMapped = true;
 	}

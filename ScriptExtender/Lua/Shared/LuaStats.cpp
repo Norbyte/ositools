@@ -443,33 +443,33 @@ namespace dse::lua
 	void FetchItemComboPropertyEntries(lua_State* L, CRPGStatsManager* stats)
 	{
 		int32_t index = 1;
-		stats->ItemCombinationManager->ComboProperties.Iterate([L, &index](FixedString const& key, CItemCombinationProperty const*) {
-			settable(L, index++, key);
-		});
+		for (auto const& combo : stats->ItemCombinationManager->ComboProperties) {
+			settable(L, index++, combo.Key);
+		}
 	}
 
 	void FetchItemComboPreviewDataEntries(lua_State* L, CRPGStatsManager* stats)
 	{
 		int32_t index = 1;
-		stats->ItemCombinationManager->PreviewData.Iterate([L, &index](FixedString const& key, CItemCombinationPreviewData const*) {
-			settable(L, index++, key);
-		});
+		for (auto const& preview : stats->ItemCombinationManager->PreviewData) {
+			settable(L, index++, preview.Key);
+		}
 	}
 
 	void FetchItemGroupEntries(lua_State* L, CRPGStatsManager* stats)
 	{
 		int32_t index = 1;
-		stats->ItemProgressionManager->ItemGroups.Iterate([L, &index](FixedString const& key, CItemGroup*) {
-			settable(L, index++, key);
-		});
+		for (auto const& group : stats->ItemProgressionManager->ItemGroups) {
+			settable(L, index++, group.Key);
+		}
 	}
 
 	void FetchItemNameGroupEntries(lua_State* L, CRPGStatsManager* stats)
 	{
 		int32_t index = 1;
-		stats->ItemProgressionManager->NameGroups.Iterate([L, &index](FixedString const& key, CNameGroup*) {
-			settable(L, index++, key);
-		});
+		for (auto const& group : stats->ItemProgressionManager->NameGroups) {
+			settable(L, index++, group.Key);
+		}
 	}
 
 	void FetchDeltaModEntries(lua_State* L, CRPGStatsManager* stats)
@@ -1292,15 +1292,15 @@ namespace dse::lua
 			obj->IndexedProperties[i] = copyFromObject->IndexedProperties[i];
 		}
 
-		copyFromObject->PropertyList.Iterate([obj](auto const& key, auto propertyList) {
+		for (auto const& prop : copyFromObject->PropertyList) {
 			// TODO - is reusing property list objects allowed?
-			obj->PropertyList.Insert(key, propertyList);
-		});
+			obj->PropertyList.Insert(prop.Key, prop.Value);
+		}
 
-		copyFromObject->ConditionList.Iterate([obj](auto const& key, auto propertyList) {
+		for (auto const& cond : copyFromObject->ConditionList) {
 			// TODO - is reusing condition objects allowed?
-			obj->ConditionList.Insert(key, propertyList);
-		});
+			obj->ConditionList.Insert(cond.Key, cond.Value);
+		}
 
 		obj->Requirements = copyFromObject->Requirements;
 		obj->MemorizationRequirements = copyFromObject->MemorizationRequirements;
@@ -1507,11 +1507,11 @@ namespace dse::lua
 		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
 		if (valueList) {
 			std::optional<FixedString> value;
-			valueList->Values.Iterate([&value, index](auto const& k, auto const& idx) {
-				if (idx == index) {
-					value = k;
+			for (auto const& val : valueList->Values) {
+				if (val.Value == index) {
+					value = val.Key;
 				}
-			});
+			}
 
 			if (value) {
 				push(L, *value);

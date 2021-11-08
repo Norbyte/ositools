@@ -591,11 +591,11 @@ namespace dse::lua
 		s.BeginObject();
 		if (s.IsWriting) {
 			int index{ 1 };
-			v.Properties.NameHashMap.Iterate([&s, &v, &index](auto const& k, auto& idx) {
+			for (auto const& val : v.Properties.NameHashMap) {
 				push(s.L, index++);
-				SerializeObjectProperty(s, v.Properties.Primitives[idx]);
+				SerializeObjectProperty(s, v.Properties.Primitives[val.Value]);
 				lua_settable(s.L, -3);
-			});
+			}
 		} else {
 			for (auto idx : iterate(s.L, -1)) {
 				CDivinityStats_Object_Property_Data* prop{ nullptr };

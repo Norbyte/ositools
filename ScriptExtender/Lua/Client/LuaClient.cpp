@@ -1990,11 +1990,12 @@ namespace dse::ecl::lua
 		}
 
 		std::optional<uint32_t> creatorId;
-		uiManager->UIObjectCreators.Iterate([&absPath, &creatorId](uint32_t id, UIObjectFunctor * value) {
-			if (value->Path.Name == absPath.c_str()) {
-				creatorId = id;
+		for (auto const& creator : uiManager->UIObjectCreators) {
+			if (creator.Value->Path.Name == absPath.c_str()) {
+				creatorId = creator.Key;
+				break;
 			}
-		});
+		}
 
 		if (!creatorId) {
 			auto creator = GameAlloc<UIObjectFunctor>();

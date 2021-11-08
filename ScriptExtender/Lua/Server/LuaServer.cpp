@@ -482,9 +482,9 @@ namespace dse::lua
 
 		auto skillMgr = self->Get(L)->SkillManager;
 		if (skillMgr != nullptr) {
-			skillMgr->Skills.Iterate([L, &index](FixedString const& skillId, esv::Skill* skill) {
-				settable(L, index++, skillId);
-			});
+			for (auto const& skill : skillMgr->Skills) {
+				settable(L, index++, skill.Key);
+			}
 		}
 
 		return 1;
@@ -1385,11 +1385,11 @@ namespace dse::esv::lua
 		lua_newtable(L);
 
 		uint32_t i = 1;
-		combat->Teams.Iterate([L, &i](uint32_t teamId, esv::TurnManager::CombatTeam * team) {
+		for (auto const& team : combat->Teams) {
 			push(L, i++);
-			TurnManagerTeamProxy::New(L, eoc::CombatTeamId(teamId));
+			TurnManagerTeamProxy::New(L, eoc::CombatTeamId(team.Key));
 			lua_settable(L, -3);
-		});
+		}
 
 		return 1;
 	}

@@ -756,21 +756,21 @@ namespace dse
 		info.Flags = 0;
 		AddPropertyInternal(map, name, info);
 
-		Enum::Values.Iterate([&map, canWrite, fieldName](auto const& k, auto v) {
+		for (auto const& val : Enum::Values) {
 			PropertyMapBase::FlagInfo flag;
 			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
-			flag.Mask = (int64_t)v;
+			flag.Mask = (int64_t)val.Value;
 
 #if !defined(NDEBUG)
-			if (map.Properties.find(k) != map.Properties.end()
-				|| map.Flags.find(k) != map.Flags.end()) {
+			if (map.Properties.find(val.Key) != map.Properties.end()
+				|| map.Flags.find(val.Key) != map.Flags.end()) {
 				throw std::runtime_error("Tried to add duplicate property!");
 			}
 #endif
 
-			map.Flags.insert(std::make_pair(k, flag));
-		});
+			map.Flags.insert(std::make_pair(val.Key, flag));
+		}
 	}
 
 	template <class TValue>

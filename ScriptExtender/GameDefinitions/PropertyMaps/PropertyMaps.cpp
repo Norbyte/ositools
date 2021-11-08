@@ -120,8 +120,9 @@ namespace dse
 	template <class T, class TalentArrayFetcher>
 	void AddTalentArray(PropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
-		EnumInfo<TalentType>::Values.Iterate([&propertyMap, prefix, f](auto const& name, auto const& id) {
-			auto talentName = prefix + name.Str;
+		for (auto const& val : EnumInfo<TalentType>::Values) {
+			auto id = val.Value;
+			auto talentName = prefix + val.Key.Str;
 			FixedString talentFS(talentName.c_str());
 			AddProperty<bool>(propertyMap, talentFS.Str, 0);
 
@@ -135,7 +136,7 @@ namespace dse
 				f(attrs).Toggle(id, value != 0);
 				return true;
 			};
-		});
+		}
 	}
 
 	void InitPropertyMaps()
@@ -690,10 +691,11 @@ namespace dse
 			PROP_RO(BoostName);
 			PROP_ENUM_RO(StatsType);
 
-			EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				AddProperty<bool>(propertyMap, name.Str, 0);
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
+				auto id = val.Value;
+				AddProperty<bool>(propertyMap, val.Key.Str, 0);
 
-				propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
 					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
 					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
@@ -703,7 +705,7 @@ namespace dse
 					}
 				};
 
-				propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+				propertyMap.Properties[val.Key].SetInt = [id](void* obj, int64_t value) -> bool {
 					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
 					int flagsId = (int)attrs->AttributeFlagsObjectId;
 					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
@@ -716,11 +718,11 @@ namespace dse
 					}
 					return true;
 				};
-			});
+			}
 
-			EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, AbilityModifiers) + (unsigned)id * sizeof(int32_t));
-			});
+			for (auto const& v : EnumInfo<AbilityType>::Values) {
+				AddProperty<int32_t>(propertyMap, v.Key.Str, offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
+			}
 
 			AddTalentArray<CDivinityStats_Equipment_Attributes>(propertyMap, "TALENT_", [](CDivinityStats_Equipment_Attributes* obj) {
 				return obj->Talents;
@@ -827,10 +829,11 @@ namespace dse
 			PROP(BonusWeapon);
 			PROP(StepsType);
 
-			EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				AddProperty<bool>(propertyMap, name.Str, 0);
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
+				auto id = val.Value;
+				AddProperty<bool>(propertyMap, val.Key.Str, 0);
 
-				propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
+				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
 					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
 					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
@@ -840,7 +843,7 @@ namespace dse
 					}
 				};
 
-				propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
+				propertyMap.Properties[val.Key].SetInt = [id](void* obj, int64_t value) -> bool {
 					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
 					int flagsId = (int)attrs->AttributeFlagsObjectId;
 					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
@@ -853,11 +856,11 @@ namespace dse
 					}
 					return true;
 				};
-			});
+			}
 
-			EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, Abilities) + (unsigned)id * sizeof(int32_t));
-			});
+			for (auto const& val : EnumInfo<AbilityType>::Values) {
+				AddProperty<int32_t>(propertyMap, val.Key.Str, offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
+			}
 
 			AddTalentArray<CharacterDynamicStat>(propertyMap, "TALENT_", [](CharacterDynamicStat* obj) {
 				return obj->Talents;
@@ -991,8 +994,9 @@ namespace dse
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 
-			EnumInfo<esv::CharacterFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				auto& flag = propertyMap.Flags[name];
+			for (auto const& val : EnumInfo<esv::CharacterFlags>::Values) {
+				auto id = val.Value;
+				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {
 					flag.Set = [id](void* obj, bool value) -> bool {
 						auto ch = reinterpret_cast<esv::Character*>(obj);
@@ -1004,7 +1008,7 @@ namespace dse
 						return true;
 					};
 				}
-			});
+			}
 
 			PROP_RO(Scale);
 			PROP(AnimationOverride);
@@ -1060,8 +1064,9 @@ namespace dse
 			propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 
-			EnumInfo<esv::ItemFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-				auto& flag = propertyMap.Flags[name];
+			for (auto const& val : EnumInfo<esv::ItemFlags>::Values) {
+				auto id = val.Value;
+				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {
 					flag.Set = [id](void* obj, bool value) -> bool {
 						auto ch = reinterpret_cast<esv::Item*>(obj);
@@ -1073,7 +1078,7 @@ namespace dse
 						return true;
 					};
 				}
-			});
+			}
 
 			PROP_RO(CurrentLevel);
 			PROP_RO(Scale);

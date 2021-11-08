@@ -34,19 +34,19 @@ void StatLoadOrderHelper::OnStatFileOpened()
 {
 	auto stats = GetStaticSymbols().GetStats();
 	auto const& bufs = stats->PreParsedDataBufferMap;
-	bufs.Iterate([this, stats](auto const& key, auto const& preParseBufIdx) {
-		auto preParseBuf = stats->PreParsedDataBuffers[(uint32_t)preParseBufIdx];
-		auto entry = statsEntryToModMap_.find(key);
+	for (auto const& buf : stats->PreParsedDataBufferMap) {
+		auto preParseBuf = stats->PreParsedDataBuffers[(uint32_t)buf.Value];
+		auto entry = statsEntryToModMap_.find(buf.Key);
 		if (entry == statsEntryToModMap_.end()) {
 			StatsEntryModMapping mapping;
 			mapping.Mod = statLastTxtMod_;
 			mapping.PreParseBuf = preParseBuf;
-			statsEntryToModMap_.insert(std::make_pair(key, mapping));
+			statsEntryToModMap_.insert(std::make_pair(buf.Key, mapping));
 		} else if (entry->second.PreParseBuf != preParseBuf) {
 			entry->second.Mod = statLastTxtMod_;
 			entry->second.PreParseBuf = preParseBuf;
 		}
-	});
+	}
 }
 
 static std::regex sStatPathRegex(".*/Public/(.*)/Stats/Generated/.*.txt$");

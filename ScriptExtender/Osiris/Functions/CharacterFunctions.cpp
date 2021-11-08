@@ -218,10 +218,9 @@ namespace dse::esv
 
 			std::vector<std::tuple<char const*, bool, bool>> skillEvents;
 
-			auto & skills = character->SkillManager->Skills;
-			skills.Iterate([&characterGuid, &eventName, &skillEvents](FixedString const & skillId, esv::Skill * skill) {
-				skillEvents.push_back(std::tuple(skill->SkillId.Str, skill->IsLearned, skill->IsActivated));
-			});
+			for (auto const& skill : character->SkillManager->Skills) {
+				skillEvents.push_back(std::tuple(skill.Value->SkillId.Str, skill.Value->IsLearned, skill.Value->IsActivated));
+			}
 
 			for (auto const& skill : skillEvents) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
