@@ -37,7 +37,6 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
-#define P_REF_PTR(prop)
 #define PN(prop, name)
 #define P_FUN(prop, fun)
 
@@ -49,7 +48,6 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 #undef P
 #undef P_RO
 #undef P_REF
-#undef P_REF_PTR
 #undef PN
 #undef P_FUN
 
@@ -99,13 +97,6 @@ bool EnableWriteProtectedWrites{ false };
 		offsetof(PM::ObjectType, prop) \
 	);
 
-#define P_REF_PTR(prop) \
-	pm.AddRawProperty(#prop, \
-		&(GenericGetOffsetPtrProperty<decltype(PM::ObjectType::prop)>), \
-		&GenericSetOffsetRefProperty, \
-		offsetof(PM::ObjectType, prop) \
-	);
-
 #define PN(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
@@ -135,7 +126,6 @@ bool EnableWriteProtectedWrites{ false };
 #undef P
 #undef P_RO
 #undef P_REF
-#undef P_REF_PTR
 #undef PN
 #undef P_FUN
 
@@ -151,7 +141,6 @@ BEGIN_SE()
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
-#define P_REF_PTR(prop)
 #define PN(prop, name)
 #define P_FUN(prop, fun)
 
@@ -163,7 +152,6 @@ BEGIN_SE()
 #undef P
 #undef P_RO
 #undef P_REF
-#undef P_REF_PTR
 #undef PN
 #undef P_FUN
 

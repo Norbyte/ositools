@@ -13,7 +13,15 @@ extern bool EnableWriteProtectedWrites;
 template <class T>
 void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 {
-	ObjectProxy2::MakeRef<T>(L, value, lifetime);
+	if constexpr (std::is_pointer_v<T>) {
+		if (value != nullptr) {
+			ObjectProxy2::MakeRef(L, *value, lifetime);
+		} else {
+			push(L, nullptr);
+		}
+	} else {
+		ObjectProxy2::MakeRef(L, value, lifetime);
+	}
 }
 
 template <class T>
@@ -24,6 +32,16 @@ void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideablePro
 
 template <class T>
 void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, Array<T>* value)
+{
+	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
+		ArrayProxy::MakeByVal<T>(L, value, lifetime);
+	} else {
+		ArrayProxy::MakeByRef<T>(L, value, lifetime);
+	}
+}
+
+template <class T>
+void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, std::span<T>* value)
 {
 	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
 		ArrayProxy::MakeByVal<T>(L, value, lifetime);
@@ -109,20 +127,6 @@ bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, v
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	MakeObjectRef(L, lifetime, value);
-	return true;
-}
-
-template <class T>
-bool GenericGetOffsetPtrProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset)
-{
-	auto* value = (T*)((std::uintptr_t)obj + offset);
-	if (*value) {
-		MakeObjectRef(L, lifetime, *value);
-	}
-	else {
-		push(L, nullptr);
-	}
-
 	return true;
 }
 
