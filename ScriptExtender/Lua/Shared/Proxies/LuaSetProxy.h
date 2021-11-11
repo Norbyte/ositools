@@ -53,7 +53,7 @@ public:
 			return nullptr;
 		}
 			
-		if (strcmp(GetImpl()->GetTypeName(), TypeInfo<T>::TypeName) == 0) {
+		if (strcmp(GetImpl()->GetTypeName(), GetTypeInfo<T>()) == 0) {
 			return reinterpret_cast<T*>(GetImpl()->GetRaw());
 		} else {
 			return nullptr;
@@ -93,7 +93,7 @@ template <class T>
 inline T* checked_get_set_proxy(lua_State* L, int index)
 {
 	auto proxy = Userdata<SetProxy>::CheckUserData(L, index);
-	auto const& typeName = TypeInfo<T>::TypeName;
+	auto const& typeName = GetTypeInfo<T>();
 	if (strcmp(proxy->GetImpl()->GetTypeName(), typeName) == 0) {
 		auto obj = proxy->Get<T>();
 		if (obj == nullptr) {

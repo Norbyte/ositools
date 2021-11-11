@@ -171,3 +171,16 @@ P_RO(CleanseStatuses)
 P_RO(StatusClearChance)
 P_RO(CharacterHasSkill)
 END_CLS()
+
+// FIXME - placeholders
+BEGIN_CLS(eoc::AiGrid)
+END_CLS()
+
+// FIXME - placeholders
+BEGIN_CLS(UIObject)
+END_CLS()
+
+// FIXME - placeholders
+BEGIN_CLS(DamagePairList)
+END_CLS()
+

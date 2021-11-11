@@ -44,12 +44,12 @@ public:
 
 	char const* GetKeyTypeName() const override
 	{
-		return TypeInfo<TKey>::TypeName;
+		return GetTypeInfo<TKey>();
 	}
 
 	char const* GetValueTypeName() const override
 	{
-		return TypeInfo<TValue>::TypeName;
+		return GetTypeInfo<TValue>();
 	}
 
 	bool GetValue(lua_State* L, int luaKeyIndex) override
@@ -134,12 +134,12 @@ public:
 
 	char const* GetKeyTypeName() const override
 	{
-		return TypeInfo<TKey>::TypeName;
+		return GetTypeInfo<TKey>();
 	}
 
 	char const* GetValueTypeName() const override
 	{
-		return TypeInfo<TValue>::TypeName;
+		return GetTypeInfo<TValue>();
 	}
 
 	bool GetValue(lua_State* L, int luaKeyIndex) override

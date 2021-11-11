@@ -175,4 +175,6 @@ BEGIN_SE()
 #undef END_ENUM_NS
 #undef END_ENUM
 
+char const* const TypeInfo<ig::InvokeDataValue>::TypeName = "ig::InvokeDataValue";
+
 END_SE()

@@ -301,7 +301,6 @@ namespace dse
 		int32_t Handle{ -1 };
 		int32_t Level{ -1 };
 		int32_t ModifierListIndex{ -1 };
-		uint32_t Unused2{ 0 };
 		Vector<int32_t> IndexedProperties;
 		FixedString Name;
 		TranslatedString TranslatedStringX;

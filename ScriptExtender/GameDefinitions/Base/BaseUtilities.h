@@ -67,6 +67,16 @@ struct TypeInfo
 };
 
 template <class T>
+constexpr char const* GetTypeInfo()
+{
+	if constexpr (std::is_pointer_v<T>) {
+		return GetTypeInfo<std::remove_pointer_t<T>>();
+	} else {
+		return TypeInfo<T>::TypeName;
+	}
+}
+
+template <class T>
 struct HasObjectProxyTag {
 	static constexpr bool HasProxy = false;
 };

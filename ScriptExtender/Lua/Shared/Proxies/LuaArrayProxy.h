@@ -74,7 +74,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -140,7 +140,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -196,6 +196,150 @@ private:
 
 
 template <class T>
+class VectorProxyByRefImpl : public ArrayProxyImplBase
+{
+public:
+	VectorProxyByRefImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
+		: object_(obj), lifetime_(lifetime)
+	{}
+		
+	~VectorProxyByRefImpl() override
+	{}
+
+	T* Get() const
+	{
+		return object_;
+	}
+
+	void* GetRaw() override
+	{
+		return object_;
+	}
+
+	char const* GetTypeName() const override
+	{
+		return GetTypeInfo<T>();
+	}
+
+	bool GetElement(lua_State* L, unsigned arrayIndex) override
+	{
+		if (arrayIndex > 0 && arrayIndex <= (int)object_->size()) {
+			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
+	{
+		// Appending/swapping elements to by-ref arrays not supported for now
+		return false;
+	}
+
+	unsigned Length() override
+	{
+		return (unsigned)object_->size();
+	}
+
+	int Next(lua_State* L, int key) override
+	{
+		if (key >= 0 && key < (int)object_->size()) {
+			push(L, ++key);
+			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
+private:
+	Vector<T>* object_;
+	LifetimeHolder lifetime_;
+};
+
+
+template <class T>
+class VectorProxyByValImpl : public ArrayProxyImplBase
+{
+public:
+	static_assert(!std::is_pointer_v<T>, "VectorProxyByValImpl template parameter should not be a pointer type!");
+
+	VectorProxyByValImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
+		: object_(obj), lifetime_(lifetime)
+	{}
+		
+	~VectorProxyByValImpl() override
+	{}
+
+	T* Get() const
+	{
+		return object_;
+	}
+
+	void* GetRaw() override
+	{
+		return object_;
+	}
+
+	char const* GetTypeName() const override
+	{
+		return GetTypeInfo<T>();
+	}
+
+	bool GetElement(lua_State* L, unsigned arrayIndex) override
+	{
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
+			LuaWrite(L, (*object_)[arrayIndex - 1]);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
+	{
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
+			lua_pushvalue(L, luaIndex);
+			LuaRead(L, (*object_)[arrayIndex - 1]);
+			lua_pop(L, 1);
+			return true;
+		} else if (arrayIndex == object_->size() + 1) {
+			T val;
+			lua_pushvalue(L, luaIndex);
+			LuaRead(L, val);
+			lua_pop(L, 1);
+
+			object_->push_back(val);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	unsigned Length() override
+	{
+		return (unsigned)object_->size();
+	}
+
+	int Next(lua_State* L, int key) override
+	{
+		if (key >= 0 && key < (int)object_->size()) {
+			push(L, ++key);
+			LuaWrite(L, (*object_)[key - 1]);
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
+private:
+	Vector<T>* object_;
+	LifetimeHolder lifetime_;
+};
+
+
+template <class T>
 class SpanProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
@@ -218,7 +362,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -284,7 +428,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -312,7 +456,7 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->size();
+		return (unsigned)object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
@@ -355,7 +499,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -421,7 +565,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -499,7 +643,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -565,7 +709,7 @@ public:
 
 	char const* GetTypeName() const override
 	{
-		return TypeInfo<T>::TypeName;
+		return GetTypeInfo<T>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -632,6 +776,12 @@ public:
 	}
 
 	template <class T>
+	inline static VectorProxyByRefImpl<T>* MakeByRef(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	{
+		return MakeImplByRef<VectorProxyByRefImpl<T>>(L, lifetime, object);
+	}
+
+	template <class T>
 	inline static SpanProxyByRefImpl<T>* MakeByRef(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
 	{
 		return MakeImplByRef<SpanProxyByRefImpl<T>>(L, lifetime, object);
@@ -653,6 +803,12 @@ public:
 	inline static ArrayProxyByValImpl<T>* MakeByVal(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByValImpl<T>>(L, lifetime, object);
+	}
+
+	template <class T>
+	inline static VectorProxyByValImpl<T>* MakeByVal(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	{
+		return MakeImplByRef<VectorProxyByValImpl<T>>(L, lifetime, object);
 	}
 
 	template <class T>
@@ -690,7 +846,7 @@ public:
 			return nullptr;
 		}
 
-		if (strcmp(TypeInfo<T>::TypeName, GetImpl()->GetTypeName()) == 0) {
+		if (strcmp(GetTypeInfo<T>(), GetImpl()->GetTypeName()) == 0) {
 			return reinterpret_cast<T*>(GetImpl()->GetRaw());
 		} else {
 			return nullptr;
@@ -730,7 +886,7 @@ template <class T>
 inline T* checked_get_array_proxy(lua_State* L, int index)
 {
 	auto proxy = Userdata<ArrayProxy>::CheckUserData(L, index);
-	auto const& typeName = TypeInfo<T>::TypeName;
+	auto const& typeName = GetTypeInfo<T>();
 	if (strcmp(proxy->GetImpl()->GetTypeName(), typeName) == 0) {
 		auto obj = proxy->Get<T>();
 		if (obj == nullptr) {

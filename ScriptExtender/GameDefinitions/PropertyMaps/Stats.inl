@@ -234,14 +234,35 @@ AddTalentArray<CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](Characte
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Character)
-// CRPGStats_Object
-P_RO(Level)
+// FIXME - add polymorphic getter?
+BEGIN_CLS(CRPGStats_Object)
+P_RO(Handle)
+P(Level)
+P_RO(ModifierListIndex)
 P_RO(Name)
+P_RO(TranslatedStringX)
+P_RO(FS2)
+// IS DivStats useful for scripts?
+// P_REF(DivStats)
+P_REF(PropertyList)
+P_REF(ConditionList)
 P_RO(AIFlags)
-P_RO(InstanceId)
+// FIXME - these use different memory allocators than normal ObjectSets
+// P_REF(Requirements)
+// P_REF(MemorizationRequirements)
+P_RO(StringProperties1)
+P_RO(ComboCategories)
+// FIXME
+// Add using custom property! - P_RO(Using)
+END_CLS()
 
-// CDivinityStats_Character
+BEGIN_CLS(CRPGStats_ObjectInstance)
+INHERIT(CRPGStats_Object)
+P_RO(InstanceId)
+END_CLS()
+
+BEGIN_CLS(CDivinityStats_Character)
+INHERIT(CRPGStats_ObjectInstance)
 P(CurrentVitality)
 P(CurrentArmor)
 P(CurrentMagicArmor)
@@ -255,9 +276,16 @@ P(Reputation)
 P_RO(Flanked)
 P(Karma)
 P_RO(Flags)
+P_REF(TraitOrder)
 P(MaxResistance)
 P_RO(HasTwoHandedWeapon)
+// FIXME - polymorphic ref? P_REF(Character)
 P_RO(IsIncapacitatedRefCount)
+P_REF(DynamicStats)
+P_REF(StatsFromStatsEntry)
+// FIXME - via custom map!
+// P_REF(EquippedItems)
+// FIXME - SurfacePathInfluences
 P_RO(MaxVitality)
 P_RO(BaseMaxVitality)
 P_RO(MaxArmor)
@@ -266,10 +294,14 @@ P_RO(MaxMagicArmor)
 P_RO(BaseMaxMagicArmor)
 P_RO(Sight)
 P_RO(BaseSight)
+P_RO(AttributeFlags)
+P_RO(BaseAttributeFlags)
+P_RO(ItemBoostedAttributeFlags)
+P_RO(AttributeFlagsUpdated)
 P_RO(MaxSummons)
 P_RO(BaseMaxSummons)
 P(MaxMpOverride)
-P_RO(AttributeFlags)
+// FIXME - special class for TalentArray? P_REF(DisabledTalents)
 
 /*AddTalentArray<CDivinityStats_Character>(propertyMap, "DISABLED_ALENT_", [](CDivinityStats_Character* obj) {
 	return obj->DisabledTalents;
@@ -279,12 +311,7 @@ P_RO(AttributeFlags)
 END_CLS()
 
 BEGIN_CLS(CDivinityStats_Item)
-// CRPGStats_Object
-P_RO(Level)
-P_RO(Name)
-P_RO(InstanceId)
-
-// CDivinityStats_Item
+INHERIT(CRPGStats_ObjectInstance)
 P_RO(ItemType)
 P_RO(ItemSlot)
 P(WeaponType)
@@ -299,9 +326,11 @@ P(DamageTypeOverwrite)
 P(Durability)
 P(DurabilityCounter)
 P(ItemTypeReal)
+P_REF(DynamicAttributes)
 P_RO(AttributeFlags)
 P(MaxCharges)
 P(Charges)
+P_REF(BoostNameSet)
 END_CLS()
 
 
