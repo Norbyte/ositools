@@ -372,6 +372,7 @@ namespace dse
 		OF_PreventCameraMove = 0x40000000,
 	};
 
+	BY_VAL_ARRAY(ig::InvokeDataValue);
 
 	struct UIObject : Noncopyable<UIObject>
 	{

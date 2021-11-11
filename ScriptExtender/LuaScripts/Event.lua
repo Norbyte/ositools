@@ -153,12 +153,21 @@ _I._CallLegacyEvent = function (fn, event)
 	if event.Name == "GameStateChanged" then
 		fn(event.FromState, event.ToState)
 	elseif event.Name == "UIObjectCreated" then
-		fn(event.UIObject)
+		fn(event.UI)
 	elseif event.Name == "InputEvent" then
 		fn(event.InputEvent)
+		-- FIXME - add other events!
 	else
 		fn()
 	end
+end
+
+Ext.RegisterListener = function (evt, fn)
+	Ext._WarnDeprecated56("Ext.RegisterListener(" .. evt .. ") is deprecated! Use Ext.Events." .. evt .. ":Subscribe() instead!")
+
+	Ext.Events[evt]:Subscribe(function (event) 
+		_I._CallLegacyEvent(fn, event)
+	end)
 end
 
 _I._RegisterEvents = function ()
@@ -174,15 +183,7 @@ _I._RegisterEvents = function ()
 
 	-- Support for Ext.RegisterNetListener()
 	Ext.Events.NetMessageReceived:Subscribe(function (e)
-		_I._NetMessageReceived(e.Channel, e.Payload, e.UserId)
-	end)
-end
-
-Ext.RegisterListener = function (evt, fn)
-	Ext._WarnDeprecated56("Ext.RegisterListener(" .. evt .. ") is deprecated! Use Ext.Events." .. evt .. ":Subscribe() instead!")
-
-	Ext.Events[evt]:Subscribe(function (event) 
-		_I._CallLegacyEvent(fn, event)
+		_I._NetMessageReceived(e.Channel, e.Payload, e.UserID)
 	end)
 end
 

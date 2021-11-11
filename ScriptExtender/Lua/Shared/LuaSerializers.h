@@ -115,6 +115,8 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec3& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec4& v) { return s.Visit(v); }
 	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v);
+	LuaSerializer& operator << (LuaSerializer& s, char const*& v);
+	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v);
 
 	template <class T>
 	LuaSerializer& operator << (LuaSerializer& s, OverrideableProperty<T>& v)

@@ -781,8 +781,8 @@ namespace dse
 			ObjectSet<STDString> * stdStringSet);
 
 		using GetSkillDamageProc = void (SkillPrototype * self, struct DamagePairList * damageList,
-			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
-			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+			glm::vec3 const& targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 #if defined(OSI_EOCAPP)
 		using GetAttackAPCostProc = int(SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid, glm::vec3* position, float* radius, int* pEelementalAffinity);
 #else
@@ -835,7 +835,7 @@ namespace dse
 		TranslatedString DisplayName;
 		FixedString Icon;
 		bool HasStats{ false };
-		ObjectSet<uint32_t>* AbsorbSurfaceTypes{ nullptr }; // eoc::ESurfaceType
+		ObjectSet<SurfaceType>* AbsorbSurfaceTypes{ nullptr };
 
 		CRPGStats_Object * GetStats() const;
 	};

@@ -11,6 +11,61 @@ namespace dse::lua
 {
 	using namespace dse::ecl::lua;
 
+
+	void LuaToInvokeDataValue(lua_State * L, int index, ig::InvokeDataValue & val)
+	{
+		switch (lua_type(L, index)) {
+		case LUA_TNUMBER:
+			val.TypeId = ig::DataType::Double;
+			val.DoubleVal = lua_tonumber(L, index);
+			break;
+
+		case LUA_TBOOLEAN:
+			val.TypeId = ig::DataType::Bool;
+			val.BoolVal = lua_toboolean(L, index);
+			break;
+
+		case LUA_TSTRING:
+			val.TypeId = ig::DataType::String;
+			val.StringVal = lua_tostring(L, index);
+			break;
+
+		default:
+			luaL_error(L, "Cannot pass value of type %s to Flash", lua_typename(L, lua_type(L, index)));
+		}
+	}
+
+
+	void InvokeDataValueToLua(lua_State * L, ig::InvokeDataValue const & val)
+	{
+		switch (val.TypeId) {
+		case ig::DataType::None:
+			lua_pushnil(L);
+			break;
+
+		case ig::DataType::Bool:
+			push(L, val.BoolVal);
+			break;
+
+		case ig::DataType::Double:
+			push(L, val.DoubleVal);
+			break;
+
+		case ig::DataType::String:
+			push(L, val.StringVal);
+			break;
+
+		case ig::DataType::WString:
+			push(L, val.WStringVal);
+			break;
+
+		default:
+			OsiError("Flash value of type " << (unsigned)val.TypeId << " cannot be passed to Lua");
+			lua_pushnil(L);
+			break;
+		}
+	}
+
 	char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
 
 
@@ -849,61 +904,6 @@ namespace dse::ecl::lua
 			return GameAlloc<CustomUI>(path);
 		}
 	};
-
-
-	void LuaToInvokeDataValue(lua_State * L, int index, ig::InvokeDataValue & val)
-	{
-		switch (lua_type(L, index)) {
-		case LUA_TNUMBER:
-			val.TypeId = ig::DataType::Double;
-			val.DoubleVal = lua_tonumber(L, index);
-			break;
-
-		case LUA_TBOOLEAN:
-			val.TypeId = ig::DataType::Bool;
-			val.BoolVal = lua_toboolean(L, index);
-			break;
-
-		case LUA_TSTRING:
-			val.TypeId = ig::DataType::String;
-			val.StringVal = lua_tostring(L, index);
-			break;
-
-		default:
-			luaL_error(L, "Cannot pass value of type %s to Flash", lua_typename(L, lua_type(L, index)));
-		}
-	}
-
-
-	void InvokeDataValueToLua(lua_State * L, ig::InvokeDataValue const & val)
-	{
-		switch (val.TypeId) {
-		case ig::DataType::None:
-			lua_pushnil(L);
-			break;
-
-		case ig::DataType::Bool:
-			push(L, val.BoolVal);
-			break;
-
-		case ig::DataType::Double:
-			push(L, val.DoubleVal);
-			break;
-
-		case ig::DataType::String:
-			push(L, val.StringVal);
-			break;
-
-		case ig::DataType::WString:
-			push(L, val.WStringVal);
-			break;
-
-		default:
-			OsiError("Flash value of type " << (unsigned)val.TypeId << " cannot be passed to Lua");
-			lua_pushnil(L);
-			break;
-		}
-	}
 
 
 	UIFlashPath::UIFlashPath() {}
@@ -2639,117 +2639,69 @@ namespace dse::ecl::lua
 
 	void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_UIObjectCreated");
-		UIObjectProxy::New(L, uiObjectHandle);
-		CheckedCall(L, 1, "Ext.UIObjectCreated");
+		UIObjectCreatedEventParams params;
+		// FIXME - TEMP CAST
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		ThrowEvent(*this, "UIObjectCreated", params);
 	}
 
 	void ClientState::OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_UICall"); // stack: fn
-
-		UIObjectProxy::New(L, uiObjectHandle);
-		push(L, func);
-		push(L, "Before");
-		for (uint32_t i = 0; i < numArgs; i++) {
-			InvokeDataValueToLua(L, args[i]);
-		}
-
-		CheckedCall(L, 3 + numArgs, "Ext.UICall");
+		UICallEventParams params;
+		// FIXME - TEMP CAST
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.Function = func;
+		params.When = "Before";
+		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		ThrowEvent(*this, "UICall", params);
 	}
 
 	void ClientState::OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_UICall"); // stack: fn
-
-		UIObjectProxy::New(L, uiObjectHandle);
-		push(L, func);
-		push(L, "After");
-		for (uint32_t i = 0; i < numArgs; i++) {
-			InvokeDataValueToLua(L, args[i]);
-		}
-
-		CheckedCall(L, 3 + numArgs, "Ext.UICall");
+		UICallEventParams params;
+		// FIXME - TEMP CAST
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.Function = func;
+		params.When = "After";
+		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		ThrowEvent(*this, "UICall", params);
 	}
 
 	void ClientState::OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_UIInvoke"); // stack: fn
-
-		UIObjectProxy::New(L, uiObjectHandle);
-		push(L, func);
-		push(L, "Before");
-		for (uint32_t i = 0; i < numArgs; i++) {
-			InvokeDataValueToLua(L, args[i]);
-		}
-
-		CheckedCall(L, 3 + numArgs, "Ext.UIInvoke");
+		UICallEventParams params;
+		// FIXME - TEMP CAST
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.Function = func;
+		params.When = "Before";
+		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		ThrowEvent(*this, "UIInvoke", params);
 	}
 
 	void ClientState::OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_UIInvoke"); // stack: fn
-
-		UIObjectProxy::New(L, uiObjectHandle);
-		push(L, func);
-		push(L, "After");
-		for (uint32_t i = 0; i < numArgs; i++) {
-			InvokeDataValueToLua(L, args[i]);
-		}
-
-		CheckedCall(L, 3 + numArgs, "Ext.UIInvoke");
+		UICallEventParams params;
+		// FIXME - TEMP CAST
+		auto uiManager = GetStaticSymbols().GetUIObjectManager();
+		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.Function = func;
+		params.When = "After";
+		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		ThrowEvent(*this, "UIInvoke", params);
 	}
 
 	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
 		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
+		SkillGetDescriptionEventParams params{ prototype, character, paramTexts, isFromItem };
+		ThrowEvent(*this, "SkillGetDescriptionParam", params);
 
-		auto skill = prototype->GetStats();
-		if (skill == nullptr) {
-			return {};
-		}
-
-		PushExtFunction(L, "_SkillGetDescriptionParam"); // stack: fn
-
-		SkillPrototypeProxy::New(L, prototype, std::optional<int32_t>());
-		ObjectProxy<CDivinityStats_Character>::New(L, GetClientLifetime(), character);
-		push(L, isFromItem);
-
-		for (auto const& paramText : paramTexts) {
-			push(L, paramText); // stack: fn, skill, character, params...
-		}
-
-		auto result = CheckedCallRet<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.SkillGetDescriptionParam");
-		if (result) {
-			auto description = std::get<0>(*result);
-			if (description) {
-				return FromUTF8(*description);
-			} else {
-				return {};
-			}
+		if (!params.Description.empty()) {
+			return FromUTF8(params.Description);
 		} else {
 			return {};
 		}
@@ -2759,33 +2711,11 @@ namespace dse::ecl::lua
 	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
 		CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
+		StatusGetDescriptionEventParams params{ prototype, owner, statusSource, paramTexts };
+		ThrowEvent(*this, "StatusGetDescriptionParam", params);
 
-		auto status = prototype->GetStats();
-		if (status == nullptr) {
-			return {};
-		}
-
-		PushExtFunction(L, "_StatusGetDescriptionParam"); // stack: fn
-
-		auto luaStatus = Push<StatsProxy>(status, std::optional<int32_t>())(L);
-		ItemOrCharacterPushPin luaSource(L, statusSource);
-		ItemOrCharacterPushPin luaOwner(L, owner);
-
-		for (auto const& paramText : paramTexts) {
-			push(L, paramText); // stack: fn, status, srcCharacter, character, params...
-		}
-
-		auto result = CheckedCallRet<std::optional<char const *>>(L, 3 + paramTexts.Size, "Ext.StatusGetDescriptionParam");
-		if (result) {
-			auto description = std::get<0>(*result);
-			if (description) {
-				return FromUTF8(*description);
-			} else {
-				return {};
-			}
+		if (!params.Description.empty()) {
+			return FromUTF8(params.Description);
 		} else {
 			return {};
 		}
@@ -2794,7 +2724,7 @@ namespace dse::ecl::lua
 	void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
 		GameStateChangeEventParams params{ fromState, toState };
-		ThrowEvent("GameStateChanged", params, false, 0, ReadOnlyEvent{});
+		ThrowEvent(*this, "GameStateChanged", params);
 	}
 
 
@@ -2806,18 +2736,11 @@ namespace dse::ecl::lua
 
 	std::optional<STDString> ClientState::GetSkillPropertyDescription(CRPGStats_Object_Property_Extender* prop)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
+		GetSkillPropertyDescriptionEventParams params{ prop };
+		ThrowEvent(*this, "GetSkillPropertyDescription", params);
 
-		PushExtFunction(L, "_GetSkillPropertyDescription"); // stack: fn
-		LuaSerializer serializer(L, true);
-		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
-		SerializeObjectProperty(serializer, propRef);
-
-		auto result = CheckedCallRet<std::optional<char const*>>(L, 1, "Ext.GetSkillPropertyDescription");
-		if (result) {
-			return std::get<0>(*result);
+		if (!params.Description.empty()) {
+			return params.Description;
 		} else {
 			return {};
 		}
@@ -2826,22 +2749,8 @@ namespace dse::ecl::lua
 
 	void ClientState::OnAppInputEvent(InputEvent const& inputEvent)
 	{
-		StackCheck _(L, 0);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_OnInputEvent"); // stack: fn
-		lua_newtable(L);
-		settable(L, "EventId", inputEvent.EventId);
-		settable(L, "InputDeviceId", inputEvent.InputDeviceId);
-		settable(L, "InputPlayerIndex", inputEvent.InputPlayerIndex);
-		settable(L, "Press", (inputEvent.Type & InputType::Press) == InputType::Press);
-		settable(L, "Release", (inputEvent.Type & InputType::Release) == InputType::Release);
-		settable(L, "ValueChange", (inputEvent.Type & InputType::ValueChange) == InputType::ValueChange);
-		settable(L, "Hold", (inputEvent.Type & InputType::Hold) == InputType::Hold);
-		settable(L, "Repeat", (inputEvent.Type & InputType::Repeat) == InputType::Repeat);
-		settable(L, "AcceleratedRepeat", (inputEvent.Type & InputType::AcceleratedRepeat) == InputType::AcceleratedRepeat);
-
-		CheckedCall(L, 1, "Ext.OnInputEvent");
+		InputEventParams params{ const_cast<InputEvent*>(&inputEvent) };
+		ThrowEvent(*this, "InputEvent", params);
 	}
 
 

@@ -3085,21 +3085,11 @@ namespace dse::esv::lua
 	}
 
 
-	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status * status, bool isEnterCheck)
+	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status* status, bool isEnterCheck)
 	{
-		Restriction restriction(*this, RestrictOsiris);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_StatusGetEnterChance"); // stack: fn
-		ObjectProxy<esv::Status>::New(L, GetServerLifetime(), status);
-		push(L, isEnterCheck);
-
-		auto result = CheckedCallRet<std::optional<int32_t>>(L, 2, "Ext.StatusGetEnterChance");
-		if (result) {
-			return std::get<0>(*result);
-		} else {
-			return {};
-		}
+		StatusGetEnterChanceEventParams params{ status, isEnterCheck };
+		ThrowEvent(*this, "StatusGetEnterChance", params);
+		return params.EnterChance;
 	}
 
 	void PushPendingHit(lua_State* L, PendingHit const& hit)
@@ -3128,21 +3118,8 @@ namespace dse::esv::lua
 
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_StatusHitEnter"); // stack: fn
-
-		StatusHandleProxy::New(L, hit->TargetHandle, hit->StatusHandle);
-
-		if (context) {
-			PushPendingHit(L, *context);
-		} else {
-			lua_newtable(L);
-		}
-
-		if (CallWithTraceback(L, 2, 0) != 0) { // stack: succeeded
-			LuaError("StatusHitEnter handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		StatusHitEnterEventParams params{ hit, context };
+		ThrowEvent(*this, "StatusHitEnter", params);
 	}
 
 	bool ServerState::ComputeCharacterHit(CDivinityStats_Character * target,
@@ -3298,7 +3275,7 @@ namespace dse::esv::lua
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
 		GameStateChangeEventParams params{ fromState, toState };
-		ThrowEvent("GameStateChanged", params, false, 0, ReadOnlyEvent{});
+		ThrowEvent(*this, "GameStateChanged", params);
 	}
 
 

@@ -9,10 +9,34 @@
 
 namespace dse::lua
 {
+	void LuaToInvokeDataValue(lua_State* L, int index, ig::InvokeDataValue& val);
+	void InvokeDataValueToLua(lua_State* L, ig::InvokeDataValue const& val);
+
 	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v)
 	{
 		// TODO - is this enough?
 		s << v.Handle.Handle;
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, char const*& v)
+	{
+		if (s.IsWriting) {
+			s << v;
+		} else {
+			// Cannot unserialize string pointers, as we don't know how their memory should be managed
+		}
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v)
+	{
+		if (s.IsWriting) {
+			InvokeDataValueToLua(s.L, v);
+		} else {
+			LuaToInvokeDataValue(s.L, 1, v);
+		}
+
 		return s;
 	}
 

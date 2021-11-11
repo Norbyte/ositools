@@ -88,9 +88,25 @@ namespace ecl
 
 	struct EntityManager;
 	struct ShroudManager;
+	struct PickingHelper;
 	struct PickingHelperManager;
+
+	struct EoCUI;
 }
 
+namespace ig
+{
+	struct InvokeDataValue;
+	struct IggyValuePath;
+	struct IggyDataValue;
+	struct FlashObject;
+	struct FlashPlayer;
+	struct IggyBinding;
+}
+
+struct UIObject;
+struct CustomDrawStruct;
+struct UIObjectManager;
 
 // Forward declarations for custom Lua serializers
 namespace lua
@@ -99,7 +115,6 @@ namespace lua
 
 	template <class T>
 	void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value);
-
 }
 
 END_SE()

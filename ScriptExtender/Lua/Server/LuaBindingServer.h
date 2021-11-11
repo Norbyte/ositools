@@ -428,6 +428,19 @@ namespace dse::esv::lua
 		GameState ToState;
 	};
 
+	struct StatusGetEnterChanceEventParams
+	{
+		esv::Status* Status;
+		bool IsEnterCheck;
+		std::optional<int32_t> EnterChance;
+	};
+
+	struct StatusHitEnterEventParams
+	{
+		esv::StatusHit* Hit;
+		PendingHit* Context;
+	};
+
 	class ServerState : public State
 	{
 	public:

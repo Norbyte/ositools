@@ -369,8 +369,8 @@ namespace dse::esv
 
 
 	void HitProxy::OnGetSkillDamage(SkillPrototype::GetSkillDamageProc* next, SkillPrototype* self, DamagePairList* damageList,
-		CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, float* attackerPosition,
-		float* targetPosition, DeathType* pDeathType, int level, bool noRandomization)
+		CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+		glm::vec3 const& targetPosition, DeathType* pDeathType, int level, bool noRandomization)
 	{
 		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
 		if (lua) {

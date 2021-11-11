@@ -213,7 +213,9 @@ void DebugConsole::ConsoleThread()
 					}
 
 					if (line[0] == '!') {
-						pin->CallExt("DoConsoleCommand", 0, line.substr(1));
+						lua::ConsoleEventParams params;
+						params.Command = line.substr(1);
+						ThrowEvent(*pin, "DoConsoleCommand", params, false, 0);
 					} else {
 						lua::LifetimePin _(pin->GetStack());
 						auto L = pin->GetState();

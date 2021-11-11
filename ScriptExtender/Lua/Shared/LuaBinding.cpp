@@ -871,7 +871,14 @@ namespace dse::lua
 
 	void State::LoadBootstrap(STDString const& path, STDString const& modTable)
 	{
-		CallExt("_LoadBootstrap", RestrictAll, path, modTable);
+		StackCheck _(L, 0);
+		Restriction restriction(*this, RestrictAll);
+		LifetimePin _l(lifetimeStack_);
+		auto lifetime = lifetimeStack_.GetCurrent();
+		PushExtFunction(L, "_LoadBootstrap");
+		push(L, path);
+		push(L, modTable);
+		CheckedCall(L, 2, "Ext.LoadBootstrap");
 	}
 
 	void State::FinishStartup()
@@ -946,164 +953,93 @@ namespace dse::lua
 
 	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
 	{
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_GetHitChance"); // stack: fn
-		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), attacker);
-		ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), target);
-
-		auto result = CheckedCallRet<std::optional<int32_t>>(L, 2, "Ext.GetHitChance");
-		if (result) {
-			return std::get<0>(*result);
-		} else {
-			return {};
-		}
+		GetHitChanceEventParams params{ attacker, target };
+		ThrowEvent(*this, "GetHitChance", params, false, RestrictAll);
+		return params.HitChance;
 	}
 
 	bool State::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
-		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, float * attackerPosition,
-		float * targetPosition, DeathType * pDeathType, int level, bool noRandomization)
+		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+		glm::vec3 const& targetPosition, DeathType * pDeathType, int level, bool noRandomization)
 	{
-		Restriction restriction(*this, RestrictOsiris);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_GetSkillDamage"); // stack: fn
-
-		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1); // stack: fn, skill
-		UnbindablePin _(luaSkill);
-		ItemOrCharacterPushPin _a(L, attacker);
-
-		push(L, isFromItem);
-		push(L, stealthed);
-		
-		// Push attacker position
-		lua_newtable(L);
-		settable(L, 1, attackerPosition[0]);
-		settable(L, 2, attackerPosition[1]);
-		settable(L, 3, attackerPosition[2]);
-
-		// Push target position
-		lua_newtable(L);
-		settable(L, 1, targetPosition[0]);
-		settable(L, 2, targetPosition[1]);
-		settable(L, 3, targetPosition[2]);
-
-		push(L, level);
-		push(L, noRandomization);
-
-		auto result = CheckedCallRet<std::optional<DeathType>, std::optional<DamageList *>>(L, 8, "Ext.GetSkillDamage");
-		if (result) {
-			auto deathType = std::get<0>(*result);
-			auto damages = std::get<1>(*result);
-
-			if (deathType && damages) {
-				if (pDeathType) {
-					*pDeathType = *deathType;
-				}
-
-				for (auto const& dmg : (*damages)->Get()) {
-					damageList->AddDamage(dmg.DamageType, dmg.Amount);
-				}
-
-				return true;
+		GetSkillDamageEventParams params{ skill, attacker, isFromItem, stealthed, attackerPosition, targetPosition,
+			level, noRandomization };
+		ThrowEvent(*this, "GetSkillDamage", params, false, RestrictOsiris);
+		if (params.DeathType && params.DamageList.Size > 0) {
+			for (auto const& dmg : params.DamageList) {
+				damageList->AddDamage(dmg.DamageType, dmg.Amount);
 			}
-		}
 
-		return false;
+			if (pDeathType) {
+				*pDeathType = *params.DeathType;
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	std::optional<std::pair<int, bool>> State::GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius)
 	{
-		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
-
-		PushExtFunction(L, "_GetSkillAPCost");
-
-		auto luaSkill = SkillPrototypeProxy::New(L, skill, -1);
-		UnbindablePin _(luaSkill);
-		ItemOrCharacterPushPin _ch(L, character);
-
-		if (aiGrid != nullptr) {
-			ObjectProxy<eoc::AiGrid>::New(L, GetCurrentLifetime(), aiGrid);
+		GetSkillAPCostEventParams params{ skill, character, aiGrid, position, radius };
+		ThrowEvent(*this, "GetSkillAPCost", params, false, RestrictAll);
+		if (params.AP && params.ElementalAffinity) {
+			return std::make_pair(*params.AP, *params.ElementalAffinity);
 		} else {
-			push(L, nullptr);
+			return {};
 		}
-
-		if (position != nullptr) {
-			push(L, *position);
-		} else {
-			push(L, nullptr);
-		}
-
-		if (radius != nullptr) {
-			push(L, *radius);
-		} else {
-			push(L, nullptr);
-		}
-
-		auto result = CheckedCallRet<std::optional<bool>, std::optional<int>>(L, 5, "Ext.GetSkillAPCost");
-		if (result) {
-			auto ap = std::get<1>(*result);
-			auto elementalAffinity = std::get<0>(*result);
-
-			if (ap && elementalAffinity) {
-				return std::make_pair(*ap, *elementalAffinity);
-			}
-		}
-
-		return {};
 	}
 
 	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId)
 	{
-		CallExt("_NetMessageReceived", 0, channel, payload, userId.Id);
+		NetMessageEventParams params;
+		params.Channel = channel;
+		params.Payload = payload;
+		params.UserID = userId;
+		ThrowEvent(*this, "NetMessageReceived", params);
 	}
 
 	void State::OnGameSessionLoading()
 	{
-		ThrowEvent<EmptyEventParams>("SessionLoading", EmptyEventParams{}, false, RestrictAll | ScopeSessionLoad, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "SessionLoading", params, false, RestrictAll | ScopeSessionLoad);
 	}
 
 	void State::OnGameSessionLoaded()
 	{
-		ThrowEvent<EmptyEventParams>("SessionLoaded", EmptyEventParams{}, false, RestrictAll, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "SessionLoaded", params, false, RestrictAll);
 	}
 
 	void State::OnModuleLoadStarted()
 	{
-		ThrowEvent<EmptyEventParams>("ModuleLoadStarted", EmptyEventParams{}, false, RestrictAll | ScopeModulePreLoad, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "ModuleLoadStarted", params, false, RestrictAll | ScopeModulePreLoad);
 	}
 
 	void State::OnModuleLoading()
 	{
-		ThrowEvent<EmptyEventParams>("ModuleLoading", EmptyEventParams{}, false, RestrictAll | ScopeModuleLoad, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "ModuleLoading", params, false, RestrictAll | ScopeModuleLoad);
 	}
 
 	void State::OnStatsLoaded()
 	{
-		ThrowEvent<EmptyEventParams>("StatsLoaded", EmptyEventParams{}, false, RestrictAll | ScopeModuleLoad, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "StatsLoaded", params, false, RestrictAll | ScopeModuleLoad);
 	}
 
 	void State::OnModuleResume()
 	{
-		ThrowEvent<EmptyEventParams>("ModuleResume", EmptyEventParams{}, false, RestrictAll | ScopeModuleResume, ReadOnlyEvent{});
+		EmptyEventParams params;
+		ThrowEvent(*this, "ModuleResume", params, false, RestrictAll | ScopeModuleResume);
 	}
 
 	void State::OnResetCompleted()
 	{
-		ThrowEvent<EmptyEventParams>("ResetCompleted", EmptyEventParams{}, false, 0, ReadOnlyEvent{});
-	}
-
-	bool State::CallExt(char const* func, uint32_t restrictions)
-	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, restrictions);
-		LifetimePin _l(lifetimeStack_);
-		auto lifetime = lifetimeStack_.GetCurrent();
-		PushExtFunction(L, func);
-		return CheckedCall(L, 0, func);
+		EmptyEventParams params;
+		ThrowEvent(*this, "ResetCompleted", params, false, 0);
 	}
 
 	STDString State::GetBuiltinLibrary(int resourceId)

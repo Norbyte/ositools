@@ -12,6 +12,7 @@
 
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/Components/Trigger.h>
+#include <Hit.h>
 
 BEGIN_NS(lua)
 

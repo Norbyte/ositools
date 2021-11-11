@@ -327,7 +327,7 @@ public:
 	}
 
 private:
-	Array<T>* object_;
+	std::span<T>* object_;
 	LifetimeHolder lifetime_;
 };
 

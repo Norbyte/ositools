@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Lua/Shared/LuaBinding.h>
+#include <GameDefinitions/UI.h>
+#include <span>
 
 namespace dse
 {
@@ -149,6 +151,48 @@ namespace dse::ecl::lua
 	{
 		GameState FromState;
 		GameState ToState;
+	};
+
+	struct UIObjectCreatedEventParams
+	{
+		UIObject* UI;
+	};
+
+	struct UICallEventParams
+	{
+		UIObject* UI;
+		char const* Function;
+		char const* When;
+		std::span<ig::InvokeDataValue> Args;
+	};
+
+	struct SkillGetDescriptionEventParams
+	{
+		SkillPrototype* Skill;
+		CDivinityStats_Character* Character;
+		ObjectSet<STDString> Params;
+		bool IsFromItem;
+		STDString Description;
+	};
+
+	struct StatusGetDescriptionEventParams
+	{
+		StatusPrototype* Status;
+		CRPGStats_ObjectInstance* Owner;
+		CRPGStats_ObjectInstance* StatusSource;
+		ObjectSet<STDString> Params;
+		STDString Description;
+	};
+
+	struct GetSkillPropertyDescriptionEventParams
+	{
+		CRPGStats_Object_Property_Extender* Property;
+		STDString Description;
+	};
+
+	struct InputEventParams
+	{
+		InputEvent* Event;
 	};
 
 	class ClientState : public State

@@ -207,6 +207,49 @@ namespace dse::lua
 		static int ToTable(lua_State * L);
 	};
 
+	struct ConsoleEventParams
+	{
+		STDString Command;
+	};
+
+	struct NetMessageEventParams
+	{
+		STDString Channel;
+		STDString Payload;
+		UserId UserID;
+	};
+
+	struct GetHitChanceEventParams
+	{
+		CDivinityStats_Character* Attacker;
+		CDivinityStats_Character* Target;
+		std::optional<int32_t> HitChance;
+	};
+
+	struct GetSkillDamageEventParams
+	{
+		SkillPrototype* Skill;
+		CRPGStats_ObjectInstance* Attacker;
+		bool IsFromItem;
+		bool Stealthed;
+		glm::vec3 AttackerPosition;
+		glm::vec3 TargetPosition;
+		int Level;
+		bool NoRandomization;
+		DamagePairList DamageList;
+		std::optional<DeathType> DeathType;
+	};
+
+	struct GetSkillAPCostEventParams
+	{
+		SkillPrototype* Skill;
+		CDivinityStats_Character* Character;
+		eoc::AiGrid* AiGrid;
+		glm::vec3* Position;
+		float* Radius;
+		std::optional<int> AP;
+		std::optional<bool> ElementalAffinity;
+	};
 
 	class ExtensionLibrary
 	{
@@ -291,90 +334,12 @@ namespace dse::lua
 		void OnModuleResume();
 		void OnResetCompleted();
 
-		template <class... Ret, class... Args>
-		auto CallExtRet(char const * func, uint32_t restrictions, ReturnType<Ret...>, Args... args)
-		{
-			Restriction restriction(*this, restrictions);
-			PushExtFunction(L, func);
-			LifetimePin _l(lifetimeStack_);
-			auto lifetime = lifetimeStack_.GetCurrent();
-			std::tuple _p{ push(L, lifetime, args)... };
-			return CheckedCall<Ret...>(L, sizeof...(args), func);
-		}
-
-		bool CallExt(char const* func, uint32_t restrictions);
-
-		// FIXME - temporary hack until new event system is in
-		template <class T1>
-		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1)
-		{
-			StackCheck _(L, 0);
-			Restriction restriction(*this, restrictions);
-			LifetimePin _l(lifetimeStack_);
-			auto lifetime = lifetimeStack_.GetCurrent();
-			PushExtFunction(L, func);
-			push(L, arg1);
-			return CheckedCall(L, 1, func);
-		}
-
-		template <class T1, class T2>
-		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1, T2 const& arg2)
-		{
-			StackCheck _(L, 0);
-			Restriction restriction(*this, restrictions);
-			LifetimePin _l(lifetimeStack_);
-			auto lifetime = lifetimeStack_.GetCurrent();
-			PushExtFunction(L, func);
-			push(L, arg1);
-			push(L, arg2);
-			return CheckedCall(L, 2, func);
-		}
-
-		template <class T1, class T2, class T3>
-		bool CallExt(char const* func, uint32_t restrictions, T1 const& arg1, T2 const& arg2, T3 const& arg3)
-		{
-			StackCheck _(L, 0);
-			Restriction restriction(*this, restrictions);
-			LifetimePin _l(lifetimeStack_);
-			auto lifetime = lifetimeStack_.GetCurrent();
-			PushExtFunction(L, func);
-			push(L, arg1);
-			push(L, arg2);
-			push(L, arg3);
-			return CheckedCall(L, 3, func);
-		}
-
-		template <class TEvent, class TReadWrite>
-		bool ThrowEvent(char const* eventName, TEvent& evt, bool canPreventAction, uint32_t restrictions, TReadWrite)
-		{
-			auto stackSize = lua_gettop(L);
-
-			try {
-				StackCheck _(L, 0);
-				Restriction restriction(*this, restrictions);
-				LifetimePin _p(lifetimeStack_);
-				PushInternalFunction(L, "_ThrowEvent");
-				EventObject::Make(L, lifetimeStack_.GetCurrent().pool, eventName, evt, canPreventAction, TReadWrite{});
-				return CheckedCall(L, 1, "_ThrowEvent");
-			} catch (Exception &) {
-				auto stackRemaining = lua_gettop(L) - stackSize;
-				if (stackRemaining > 0) {
-					LuaError("Failed to dispatch event '" << eventName << "': " << lua_tostring(L, -1));
-					lua_pop(L, stackRemaining);
-				} else {
-					LuaError("Internal error while dispatching event '" << eventName << "'");
-				}
-
-				return false;
-			}
-		}
-
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
 		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
-			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, float * attackerPosition,
-			float * targetPosition, DeathType * pDeathType, int level, bool noRandomization);
+			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+			glm::vec3 const& targetPosition, DeathType * pDeathType, int level, bool noRandomization);
 		std::optional<std::pair<int, bool>> GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
 			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
@@ -409,6 +374,32 @@ namespace dse::lua
 		State & state_;
 		uint32_t oldFlags_;
 	};
+
+	template <class TEvent>
+	bool ThrowEvent(State& state, char const* eventName, TEvent& evt, bool canPreventAction = false, uint32_t restrictions = 0)
+	{
+		auto L = state.GetState();
+		auto stackSize = lua_gettop(L);
+
+		try {
+			StackCheck _(L, 0);
+			Restriction restriction(state, restrictions);
+			LifetimePin _p(state.GetStack());
+			PushInternalFunction(L, "_ThrowEvent");
+			EventObject::Make(L, state.GetStack().GetCurrent().pool, eventName, evt, canPreventAction, WriteableEvent{});
+			return CheckedCall(L, 1, "_ThrowEvent");
+		} catch (Exception &) {
+			auto stackRemaining = lua_gettop(L) - stackSize;
+			if (stackRemaining > 0) {
+				LuaError("Failed to dispatch event '" << eventName << "': " << lua_tostring(L, -1));
+				lua_pop(L, stackRemaining);
+			} else {
+				LuaError("Internal error while dispatching event '" << eventName << "'");
+			}
+
+			return false;
+		}
+	}
 
 	void RegisterStatsObjects(lua_State* L);
 
