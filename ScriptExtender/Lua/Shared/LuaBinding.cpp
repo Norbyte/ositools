@@ -840,10 +840,28 @@ namespace dse::lua
 		throw Exception(err);
 	}
 
+	void* LuaAlloc(void* ud, void* ptr, size_t osize, size_t nsize)
+	{
+		(void)ud; (void)osize;  /* not used */
+		if (nsize == 0) {
+			GameFree(ptr);
+			return NULL;
+		} else {
+			auto newBuf = GameAllocRaw(nsize);
+			if (ptr != nullptr) {
+				memcpy(newBuf, ptr, std::min(nsize, osize));
+				GameFree(ptr);
+			}
+
+			return newBuf;
+		}
+	}
+
 	State::State()
 		: lifetimeStack_(lifetimePool_)
 	{
-		L = luaL_newstate();
+		L = lua_newstate(LuaAlloc, nullptr);
+		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
 		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
 #endif
@@ -857,6 +875,11 @@ namespace dse::lua
 	{
 		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
+	}
+
+	State* State::FromLua(lua_State* L)
+	{
+		return *reinterpret_cast<State**>(lua_getextraspace(L));
 	}
 
 	LifetimeHolder State::GetCurrentLifetime()

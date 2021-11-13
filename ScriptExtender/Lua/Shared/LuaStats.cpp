@@ -965,7 +965,7 @@ namespace dse::lua
 	int LuaStatSetAttribute(lua_State * L, CRPGStats_Object * object, char const * attributeName, int valueIdx)
 	{
 		StackCheck _(L);
-		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 			return luaL_error(L, "Stat functions unavailable during module preload");
 		}
@@ -1089,7 +1089,7 @@ namespace dse::lua
 
 	void StatAddCustomDescription(lua_State * L, const char* statName, const char* attributeName, const char* description)
 	{
-		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 			luaL_error(L, "Stat functions unavailable during module preload");
 		}
@@ -1199,7 +1199,7 @@ namespace dse::lua
 		auto modifierName = luaL_checkstring(L, 2);
 		luaL_checktype(L, 3, LUA_TFUNCTION);
 
-		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 			return luaL_error(L, "Stat functions unavailable during module preload");
 		}
@@ -1319,7 +1319,7 @@ namespace dse::lua
 			copyFrom = luaL_checkstring(L, 3);
 		}
 
-		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 			return luaL_error(L, "Stat functions unavailable during module preload");
 		}

@@ -532,7 +532,7 @@ namespace dse::lua
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().DeveloperMode) {
 #endif
-			esv::LuaServerPin lua(esv::ExtensionState::Get());
+			auto lua = State::FromLua(L);
 			if (lua->RestrictionFlags & State::RestrictOsiris) {
 				luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 			}

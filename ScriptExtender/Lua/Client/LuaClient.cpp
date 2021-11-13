@@ -593,7 +593,6 @@ namespace dse::ecl::lua
 	int GetCharacter(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		LuaClientPin lua(ExtensionState::Get());
 
 		ecl::Character* character = GetCharacter(L, 1);
 
@@ -611,7 +610,6 @@ namespace dse::ecl::lua
 	int GetItem(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		LuaClientPin lua(ExtensionState::Get());
 
 		ecl::Item* item = nullptr;
 		switch (lua_type(L, 1)) {
@@ -669,7 +667,6 @@ namespace dse::ecl::lua
 	int GetStatus(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		LuaClientPin lua(ExtensionState::Get());
 
 		auto character = GetCharacter(L, 1);
 		if (character == nullptr) return 0;
@@ -708,7 +705,7 @@ namespace dse::ecl::lua
 
 	int GetGameObject(lua_State* L)
 	{
-		LuaClientPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
 		}

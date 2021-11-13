@@ -301,6 +301,8 @@ namespace dse::lua
 		State(State &&) = delete;
 		State & operator = (State const &) = delete;
 		State & operator = (State &&) = delete;
+		
+		static State* FromLua(lua_State* L);
 
 		inline lua_State * GetState()
 		{

@@ -1557,7 +1557,7 @@ namespace dse::esv::lua
 
 	int GetCharacter(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve character handle in restricted context");
 		}
@@ -1579,7 +1579,7 @@ namespace dse::esv::lua
 
 	int GetItem(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
@@ -1638,7 +1638,7 @@ namespace dse::esv::lua
 
 	int GetTrigger(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve trigger handle in restricted context");
 		}
@@ -1779,7 +1779,7 @@ namespace dse::esv::lua
 
 	int GetGameObject(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
 		}
@@ -1815,7 +1815,7 @@ namespace dse::esv::lua
 
 	int GetStatus(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve status handle in restricted context");
 		}
@@ -1872,7 +1872,7 @@ namespace dse::esv::lua
 
 	int GetCombat(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
 		}
@@ -1896,7 +1896,7 @@ namespace dse::esv::lua
 
 	int GetSurface(lua_State* L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
@@ -2277,7 +2277,7 @@ namespace dse::esv::lua
 	int OsirisIsCallable(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		LuaServerPin lua(ExtensionState::Get());
+		auto lua = State::FromLua(L);
 		bool allowed = gExtender->GetServer().Osiris().IsStoryLoaded()
 			&& ((lua->RestrictionFlags & State::RestrictOsiris) == 0);
 		push(L, allowed);

@@ -1161,9 +1161,7 @@ namespace dse::esv::lua
 
 	int ExtensionLibraryServer::NewCall(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (!lua) return luaL_error(L, "Exiting");
-
+		auto lua = State::FromLua(L);
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register call after Lua startup phase");
 
 		luaL_checktype(L, 1, LUA_TFUNCTION);
@@ -1184,9 +1182,7 @@ namespace dse::esv::lua
 
 	int ExtensionLibraryServer::NewQuery(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (!lua) return luaL_error(L, "Exiting");
-
+		auto lua = State::FromLua(L);
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register query after Lua startup phase");
 
 		luaL_checktype(L, 1, LUA_TFUNCTION);
@@ -1207,9 +1203,7 @@ namespace dse::esv::lua
 
 	int ExtensionLibraryServer::NewEvent(lua_State * L)
 	{
-		LuaServerPin lua(ExtensionState::Get());
-		if (!lua) return luaL_error(L, "Exiting");
-
+		auto lua = State::FromLua(L);
 		if (lua->StartupDone()) return luaL_error(L, "Attempted to register event after Lua startup phase");
 
 		auto funcName = luaL_checkstring(L, 1);
