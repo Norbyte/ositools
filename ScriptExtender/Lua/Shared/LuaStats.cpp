@@ -1250,7 +1250,7 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto statName = luaL_checkstring(L, 1);
 		std::optional<int> level;
-		bool warnOnError{ true };
+		bool warnOnError{ false };
 		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 			level = (int32_t)luaL_checkinteger(L, 2);
 		}

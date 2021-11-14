@@ -1218,7 +1218,7 @@ namespace dse
 
 	typedef void* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);
 
-	CRPGStats_Object * StatFindObject(char const * name, bool warnOnError = true);
+	CRPGStats_Object * StatFindObject(char const * name, bool warnOnError = false);
 	CRPGStats_Object * StatFindObject(int index);
 
 	template <class TTag>

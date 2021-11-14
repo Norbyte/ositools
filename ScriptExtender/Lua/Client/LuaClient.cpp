@@ -2651,7 +2651,7 @@ namespace dse::ecl::lua
 		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
 		params.Function = func;
 		params.When = "Before";
-		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UICall", params);
 	}
 
@@ -2663,7 +2663,7 @@ namespace dse::ecl::lua
 		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
 		params.Function = func;
 		params.When = "After";
-		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UICall", params);
 	}
 
@@ -2675,7 +2675,7 @@ namespace dse::ecl::lua
 		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
 		params.Function = func;
 		params.When = "Before";
-		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UIInvoke", params);
 	}
 
@@ -2687,7 +2687,7 @@ namespace dse::ecl::lua
 		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
 		params.Function = func;
 		params.When = "After";
-		// params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UIInvoke", params);
 	}
 

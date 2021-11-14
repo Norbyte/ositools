@@ -101,5 +101,21 @@ int ObjectProxy2::GC(lua_State* L)
 	return 0;
 }
 
+void* ObjectProxy2::CheckedGetRaw(lua_State* L, int index, FixedString const& typeName)
+{
+	auto proxy = Userdata<ObjectProxy2>::CheckUserData(L, index);
+	if (proxy->GetImpl()->IsA(typeName)) {
+		auto obj = proxy->GetRaw();
+		if (obj == nullptr) {
+			luaL_error(L, "Argument %d: got object of type '%s' whose lifetime has expired", index, typeName.GetString());
+			return nullptr;
+		} else {
+			return obj;
+		}
+	} else {
+		luaL_error(L, "Argument %d: expected an object of type '%s', got '%s'", index, typeName.GetString(), proxy->GetImpl()->GetTypeName());
+		return nullptr;
+	}
+}
 
 END_NS()

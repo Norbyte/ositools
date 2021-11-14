@@ -105,12 +105,12 @@ bool EnableWriteProtectedWrites{ false };
 		offsetof(PM::ObjectType, prop) \
 	);
 
+// FIXME - avoid generating a separate push function for each closure
 #define P_FUN(name, fun) \
 	pm.AddProperty(#name, \
 		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset) { \
 			lua_pushcfunction(L, [](lua_State* L) -> int { \
-				auto self = checked_get_proxy<PM::ObjectType>(L, 1); \
-				return fun(L, self); \
+				return CallMethod(L, fun); \
 			}); \
 			return true; \
 		}, \

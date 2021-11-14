@@ -44,7 +44,7 @@ public:
 
 	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop) const
 	{
-#if defined(_DEBUG)
+#if defined(DEBUG_TRAP_GETTERS)
 		__try {
 			return GetRawProperty(L, lifetime, (void*)object, prop);
 		}
@@ -59,7 +59,7 @@ public:
 
 	inline bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop, int index) const
 	{
-#if defined(_DEBUG)
+#if defined(DEBUG_TRAP_GETTERS)
 		__try {
 			return SetRawProperty(L, lifetime, (void*)object, prop, index);
 		}
@@ -76,7 +76,7 @@ public:
 	{
 		auto getter = (typename PropertyAccessors::Getter*)prop.Get;
 
-#if defined(_DEBUG)
+#if defined(DEBUG_TRAP_GETTERS)
 		__try {
 			return getter(L, lifetime, object, prop.Offset);
 		}
@@ -93,7 +93,7 @@ public:
 	{
 		auto setter = (typename PropertyAccessors::Setter*)prop.Set;
 
-#if defined(_DEBUG)
+#if defined(DEBUG_TRAP_GETTERS)
 		__try {
 			return setter(L, lifetime, object, index, prop.Offset);
 		}
@@ -352,6 +352,16 @@ public:
 		return new (self->GetImpl()) ObjectProxyOwnerImpl<T>(pool, lifetime, obj);
 	}
 
+	static void* CheckedGetRaw(lua_State* L, int index, FixedString const& typeName);
+
+	template <class T>
+	inline static T* CheckedGet(lua_State* L, int index)
+	{
+		auto const& typeName = StaticLuaPropertyMap<T>::PropertyMap.Name;
+		auto obj = checked_get_raw_proxy(L, index, typeName);
+		return reinterpret_cast<T *>(obj);
+	}
+
 	inline ObjectProxyImplBase* GetImpl()
 	{
 		return reinterpret_cast<ObjectProxyImplBase*>(this + 1);
@@ -360,6 +370,15 @@ public:
 	inline bool IsAlive() const
 	{
 		return lifetime_.IsAlive();
+	}
+
+	inline void* GetRaw()
+	{
+		if (!lifetime_.IsAlive()) {
+			return nullptr;
+		}
+
+		return GetImpl()->GetRaw();
 	}
 
 	template <class T>
@@ -414,23 +433,24 @@ inline void push_proxy(lua_State* L, LifetimeHolder const& lifetime, T const& v)
 	}
 }
 
-template <class T>
-inline T* checked_get_proxy(lua_State* L, int index)
-{
-	auto proxy = Userdata<ObjectProxy2>::CheckUserData(L, index);
-	auto const& typeName = StaticLuaPropertyMap<T>::PropertyMap.Name;
-	if (proxy->GetImpl()->IsA(typeName)) {
-		auto obj = proxy->Get<T>();
-		if (obj == nullptr) {
-			luaL_error(L, "Argument %d: got object of type '%s' whose lifetime has expired", index, typeName.GetString());
-			return nullptr;
-		} else {
-			return obj;
-		}
-	} else {
-		luaL_error(L, "Argument %d: expected an object of type '%s', got '%s'", index, typeName.GetString(), proxy->GetImpl()->GetTypeName());
-		return nullptr;
-	}
+template <class T, class ...Args, size_t ...Indices>
+inline int CallMethodHelper(lua_State* L, void (* fun)(lua_State*, T&, Args...), std::index_sequence<Indices...>) {
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	fun(L, obj, lua::checked_get<std::remove_cv_t<std::remove_reference_t<Args>>>(L, 1 + (int)Indices)...);
+	return 0;
+}
+
+template <class R, class T, class ...Args, size_t ...Indices>
+inline int CallMethodHelper(lua_State* L, R (* fun)(lua_State*, T&, Args...), std::index_sequence<Indices...>) {
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto retval = fun(L, obj, checked_get<std::remove_cv_t<std::remove_reference_t<Args>>>(L, 1 + (int)Indices)...);
+	push(L, retval);
+	return 1;
+}
+
+template <class R, class ...Args>
+inline int CallMethod(lua_State* L, R(*fun)(lua_State*, Args...)) {
+	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
 }
 
 END_NS()

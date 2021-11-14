@@ -219,7 +219,7 @@ _I._RegisterEvents()
 
 -- Subscribe to main menu calls
 Ext.Events.UIObjectCreated:Subscribe(function (e)
-	local ui = e.UIObject
+	local ui = e.UI
     if ui:GetTypeId() == 28 then
         ui:CaptureExternalInterfaceCalls()
         ui:CaptureInvokes()

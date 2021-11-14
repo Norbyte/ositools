@@ -149,11 +149,115 @@ _I._RegisterEngineEvent = function (event)
 	_I._Events[event] = SubscribableEvent:New(event)
 end
 
+_I._FindTableValue = function (t, val)
+	for k, v in pairs(l) do
+		if v == val then
+			return k
+		end
+	end
+
+	return nil
+end
+
+_I._MakeLegacyHitEvent = function (hit)
+	local t = {
+		HitId = hit.Id,
+		HitStatus = hit.Status
+	}
+
+	if (hit.CapturedCharacterHit) then
+		t.Weapon = hit.WeaponStats
+		t.HitType = hit.HitType
+		t.NoHitRoll = hit.NoHitRoll
+		t.ProcWindWalker = hit.ProcWindWalker
+		t.ForceReduceDurability = hit.ForceReduceDurability
+		t.HighGround = hit.HighGround
+		t.CriticalRoll = hit.CriticalRoll
+
+		local ch = hit.CharacterHit
+		t.Hit = {
+			Equipment = ch.Equipment,
+			TotalDamageDone = ch.TotalDamage,
+			DamageDealt = ch.DamageDealt,
+			DeathType = ch.DeathType,
+			DamageType = ch.DamageType,
+			AttackDirection = ch.AttackDirection,
+			ArmorAbsorption = ch.ArmorAbsorption,
+			LifeSteal = ch.LifeSteal,
+			-- FIXME - replace with raw flag number
+			EffectFlags = ch.EffectFlags,
+			HitWithWeapon = ch.HitWithWeapon,
+			DamageList = ch.DamageList
+		}
+	end
+
+	return t
+end
+
 _I._CallLegacyEvent = function (fn, event)
 	if event.Name == "GameStateChanged" then
 		fn(event.FromState, event.ToState)
 	elseif event.Name == "UIObjectCreated" then
 		fn(event.UI)
+	elseif event.Name == "UICall" then
+		fn(event.UI, event.Function, event.When, table.unpack(event.Args))
+	elseif event.Name == "UIInvoke" then
+		fn(event.UI, event.Function, event.When, table.unpack(event.Args))
+	elseif event.Name == "SkillGetDescriptionParam" then
+		local desc = fn(event.Skill, event.Character, event.Params, event.IsFromItem)
+		if desc ~= nil then
+			event.Description = desc
+			event.StopPropagation()
+		end
+	elseif event.Name == "StatusGetDescriptionParam" then
+		local desc = fn(event.Status, event.Owner, event.StatusSource, event.Params)
+		if desc ~= nil then
+			event.Description = desc
+			event.StopPropagation()
+		end
+	elseif event.Name == "GetSkillPropertyDescription" then
+		local desc = fn(event.Property)
+		if desc ~= nil then
+			event.Description = desc
+			event.StopPropagation()
+		end
+	elseif event.Name == "InputEvent" then
+		local ev = event.Event
+		fn({
+			EventId = ev.EventId,
+			InputDeviceId = ev.InputDeviceId,
+			InputPlayerIndex = ev.InputPlayerIndex,
+			-- FIXME - replace with new bitmask API
+			Press = _I._FindTableValue(ev.Type, "Press") ~= nil,
+			Release = _I._FindTableValue(ev.Type, "Release") ~= nil,
+			ValueChange = _I._FindTableValue(ev.Type, "ValueChange") ~= nil,
+			Hold = _I._FindTableValue(ev.Type, "Hold") ~= nil,
+			Repeat = _I._FindTableValue(ev.Type, "Repeat") ~= nil,
+			AcceleratedRepeat = _I._FindTableValue(ev.Type, "AcceleratedRepeat") ~= nil
+		})
+	elseif event.Name == "StatusGetEnterChance" then
+		local chance = fn(event.Status, event.IsEnterCheck)
+		if chance ~= nil then
+			event.EnterChance = chance
+			event.StopPropagation()
+		end
+	elseif event.Name == "StatusHitEnter" then
+		fn(event.Hit, _I._MakeLegacyHitEvent(event.Context))
+	elseif event.Name == "GetSkillDamage" then
+		local deathType, dmg = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
+			event.NoRandomization)
+		if deathType ~= nil and dmg ~= nil then
+			event.DamageList = dmg
+			event.DeathType = deathType
+			event.StopPropagation()
+		end
+	elseif event.Name == "GetSkillAPCost" then
+		local ap, elementalAffinity = fn(event.Skill, event.Character, event.AiGrid, event.Position, event.Radius)
+		if ap ~= nil and elementalAffinity ~= nil then
+			event.AP = ap
+			event.ElementalAffinity = elementalAffinity
+			event.StopPropagation()
+		end
 	elseif event.Name == "InputEvent" then
 		fn(event.InputEvent)
 		-- FIXME - add other events!
@@ -180,6 +284,11 @@ _I._RegisterEvents = function ()
 	for i,ev in pairs(_I._PublishedEvents) do
 		_I._RegisterEngineEvent(ev)
 	end
+
+	-- Support for Ext.RegisterConsoleCommand()
+	Ext.Events.DoConsoleCommand:Subscribe(function (e)
+		_I.DoConsoleCommand(e.Command)
+	end)
 
 	-- Support for Ext.RegisterNetListener()
 	Ext.Events.NetMessageReceived:Subscribe(function (e)

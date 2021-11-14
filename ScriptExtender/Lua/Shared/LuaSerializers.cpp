@@ -22,7 +22,7 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, char const*& v)
 	{
 		if (s.IsWriting) {
-			s << v;
+			push(s.L, v);
 		} else {
 			// Cannot unserialize string pointers, as we don't know how their memory should be managed
 		}

@@ -67,7 +67,7 @@ END_CLS()
 
 BEGIN_CLS(ecl::lua::UICallEventParams)
 P_REF(UI)
-P(Function)
+P_RO(Function)
 P_RO(When)
 P_REF(Args)
 END_CLS()
