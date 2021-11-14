@@ -10,6 +10,9 @@ protected:
 	void ProcessExtenderMessage(net::MessageContext& context, MessageWrapper& msg) override;
 	int PostUpdate(GameTime* Time) override;
 
+private:
+	void ShowPerfWarning(GameTime* Time);
+
 	std::chrono::steady_clock::time_point lastTick_;
 	long long lastRealTimeMs_{ 0 };
 };

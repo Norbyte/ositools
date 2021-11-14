@@ -40,29 +40,39 @@ void ExtenderProtocol::ProcessExtenderMessage(net::MessageContext& context, Mess
 	}
 }
 
+void ExtenderProtocol::ShowPerfWarning(GameTime* Time)
+{
+	auto currentTick = std::chrono::steady_clock::now();
+	auto realTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTick - lastTick_).count();
+
+	// Above 200 ms frame times the server clock becomes slower than the real clock
+	// (the time between two server frames cannot be greater than ~200ms), which means that
+	// animation timings, etc. will be out of sync with the client
+	if (Time->DeltaTime >= 0.2f) {
+		ERR("Possible desync! Server tick took %.2f ms (frame time exceeded by %.2f ms), wall time %ld ms cur, %ld ms last!",
+			Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f, realTimeMs, lastRealTimeMs_);
+	}
+	else if (Time->DeltaTime > 0.13f) {
+		ERR("Server tick took %.2f ms (frame time exceeded by %.2f ms)!",
+			Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f);
+	}
+	else if (Time->DeltaTime > 0.08f) {
+		WARN("Server tick took %.2f ms (frame time exceeded by %.2f ms)!",
+			Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f);
+	}
+
+	lastTick_ = currentTick;
+	lastRealTimeMs_ = realTimeMs;
+}
+
 int ExtenderProtocol::PostUpdate(GameTime* Time)
 {
 #if defined(OSI_EOCAPP)
 	if (gExtender->GetConfig().ShowPerfWarnings) {
-		auto currentTick = std::chrono::steady_clock::now();
-		auto realTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(currentTick - lastTick_).count();
-
-		// Above 200 ms frame times the server clock becomes slower than the real clock
-		// (the time between two server frames cannot be greater than ~200ms), which means that
-		// animation timings, etc. will be out of sync with the client
-		if (Time->DeltaTime >= 0.2f) {
-			ERR("CLIENT/SERVER DESYNC! Server tick took %.2f ms (frame time exceeded by %.2f ms), wall time %ld ms cur, %ld ms last!",
-				Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f, realTimeMs, lastRealTimeMs_);
-		} else if (Time->DeltaTime > 0.13f) {
-			ERR("Server tick took %.2f ms (frame time exceeded by %.2f ms)!",
-				Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f);
-		} else if (Time->DeltaTime > 0.08f) {
-			WARN("Server tick took %.2f ms (frame time exceeded by %.2f ms)!",
-				Time->DeltaTime * 1000.0f, (Time->DeltaTime - 0.0333f) * 1000.0f);
+		auto state = GetStaticSymbols().GetServerState();
+		if (state && *state == esv::GameState::Running) {
+			ShowPerfWarning(Time);
 		}
-
-		lastTick_ = currentTick;
-		lastRealTimeMs_ = realTimeMs;
 	}
 #endif
 
