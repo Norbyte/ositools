@@ -1283,27 +1283,23 @@ void UIObject::LuaHide()
 	Hide();
 }
 
-int UIObject::LuaInvoke(lua_State * L)
+bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 {
 	if (!FlashPlayer) {
-		push(L, false);
-		return 1;
+		return false;
 	}
 
 	auto root = FlashPlayer->GetRootObject();
 	if (!root) {
-		push(L, false);
-		return 1;
+		return false;
 	}
 
 	WarnDeprecated56("UIObject::Invoke() is deprecated; use GetRoot() to access the Flash function directly instead!");
 
-	auto name = luaL_checkstring(L, 2);
-
 	auto & invokes = FlashPlayer->Invokes;
 	std::optional<uint32_t> invokeId;
 	for (uint32_t i = 0; i < invokes.Size; i++) {
-		if (strcmp(name, invokes[i].Name) == 0) {
+		if (strcmp(method.c_str(), invokes[i].Name) == 0) {
 			invokeId = i;
 			break;
 		}
@@ -1311,7 +1307,7 @@ int UIObject::LuaInvoke(lua_State * L)
 
 	if (!invokeId) {
 		invokeId = FlashPlayer->Invokes.Size;
-		FlashPlayer->AddInvokeName(*invokeId, name);
+		FlashPlayer->AddInvokeName(*invokeId, method.c_str());
 	}
 
 	auto numArgs = lua_gettop(L) - 2;
@@ -1321,9 +1317,7 @@ int UIObject::LuaInvoke(lua_State * L)
 		LuaToInvokeDataValue(L, i + 3, args[i]);
 	}
 
-	bool ok = FlashPlayer->InvokeArgs(*invokeId, args.data(), numArgs);
-	push(L, ok);
-	return 1;
+	return FlashPlayer->InvokeArgs(*invokeId, args.data(), numArgs);
 }
 
 
@@ -1412,14 +1406,14 @@ int UIObject::GetTypeId()
 	return Type;
 }
 
-int UIObject::LuaGetRoot(lua_State* L)
+UserReturn UIObject::LuaGetRoot(lua_State* L)
 {
+	StackCheck _(L, 1);
 	if (!FlashPlayer || !FlashPlayer->IggyPlayerRootPath) {
 		push(L, nullptr);
-		return 0;
+		return 1;
 	}
 
-	StackCheck _(L, 1);
 	std::vector<ig::IggyValuePath> path;
 	return PushFlashRef(L, path, FlashPlayer->IggyPlayerRootPath);
 }
@@ -1431,10 +1425,8 @@ void UIObject::LuaDestroy()
 }
 
 
-int UIObject::LuaExternalInterfaceCall(lua_State * L)
+void UIObject::LuaExternalInterfaceCall(lua_State * L, STDString const& method)
 {
-	StackCheck _(L, 0);
-	auto function = luaL_checkstring(L, 2);
 	auto numArgs = lua_gettop(L) - 2;
 	std::vector<ig::InvokeDataValue> args;
 	args.resize(numArgs);
@@ -1442,8 +1434,7 @@ int UIObject::LuaExternalInterfaceCall(lua_State * L)
 		LuaToInvokeDataValue(L, i + 3, args[i]);
 	}
 
-	OnFunctionCalled(function, numArgs, args.data());
-	return 0;
+	OnFunctionCalled(method.c_str(), numArgs, args.data());
 }
 
 

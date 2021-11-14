@@ -441,6 +441,13 @@ inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), 
 	return 0;
 }
 
+template <class T, class ...Args, size_t ...Indices>
+inline int CallMethodHelper(lua_State* L, UserReturn (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto nret = (obj->*fun)(L, checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
+	return (int)nret;
+}
+
 template <class R, class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, R (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, 1);

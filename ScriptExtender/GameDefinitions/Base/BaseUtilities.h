@@ -231,4 +231,19 @@ inline typename std::enable_if_t<std::is_enum_v<T>, uint64_t> Hash(T v)
 	return Hash(std::underlying_type_t<T>(v));
 }
 
+// Return type indicating that Lua return values are pushed to the stack by the function
+struct UserReturn
+{
+	inline UserReturn(int n)
+		: num(n)
+	{}
+
+	inline operator int() const
+	{
+		return num;
+	}
+
+	int num;
+};
+
 END_SE()
