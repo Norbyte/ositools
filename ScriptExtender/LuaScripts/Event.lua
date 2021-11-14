@@ -267,7 +267,7 @@ _I._CallLegacyEvent = function (fn, event)
 end
 
 Ext.RegisterListener = function (evt, fn)
-	Ext._WarnDeprecated56("Ext.RegisterListener(" .. evt .. ") is deprecated! Use Ext.Events." .. evt .. ":Subscribe() instead!")
+	Ext._WarnDeprecated56("Ext.RegisterListener(" .. evt .. ") is deprecated! Use Ext.Events." .. evt .. ":Subscribe() instead!", "RegisterListener")
 
 	Ext.Events[evt]:Subscribe(function (event) 
 		_I._CallLegacyEvent(fn, event)

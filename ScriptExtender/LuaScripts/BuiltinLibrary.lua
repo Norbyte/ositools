@@ -19,9 +19,15 @@ _I._PublishedSharedEvents = {
 	"ResetCompleted"
 }
 
-Ext._WarnDeprecated56 = function (msg)
-	Ext.PrintError(msg)
-	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
+Ext._WarningShown = {}
+
+Ext._WarnDeprecated56 = function (msg, type)
+	type = type or msg
+	if Ext._WarningShown[type] == nil then
+		Ext.PrintWarning(msg)
+		Ext.PrintWarning("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
+		Ext._WarningShown[type] = true
+	end
 end
 
 Ext.Require = function (mod, path)
