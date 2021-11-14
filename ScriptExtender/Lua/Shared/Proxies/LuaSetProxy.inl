@@ -27,7 +27,7 @@ int SetProxy::NewIndex(lua_State* L)
 		return 0;
 	}
 
-	auto val = checked_get<bool>(L, 3);
+	auto val = get<bool>(L, 3);
 	if (val) {
 		impl->AddElement(L, 3);
 	} else {
@@ -62,7 +62,7 @@ int SetProxy::Next(lua_State* L)
 	if (lua_type(L, 2) == LUA_TNIL) {
 		return impl->Next(L, -1);
 	} else {
-		auto key = checked_get<int>(L, 2);
+		auto key = get<int>(L, 2);
 		return impl->Next(L, key);
 	}
 }

@@ -198,8 +198,8 @@ namespace dse::lua
 
 	int CharacterGetItemBySlot(lua_State* L)
 	{
-		auto self = checked_get<ObjectProxy<CDivinityStats_Character>*>(L, 1);
-		auto slot = checked_get<ItemSlot>(L, 2);
+		auto self = get<ObjectProxy<CDivinityStats_Character>*>(L, 1);
+		auto slot = get<ItemSlot>(L, 2);
 
 		auto item = self->Get(L)->GetItemBySlot(slot, true);
 		if (item != nullptr) {
@@ -399,7 +399,7 @@ namespace dse::lua
 		if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 		auto key = luaL_checkstring(L, 2);
-		auto value = checked_get<float>(L, 3);
+		auto value = get<float>(L, 3);
 		auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
 		if (extraData != nullptr) {
 			*extraData = value;
@@ -565,7 +565,7 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		FixedString statType;
 		if (lua_gettop(L) >= 1 && !lua_isnil(L, 1)) {
-			statType = checked_get<FixedString>(L, 1);
+			statType = get<FixedString>(L, 1);
 		}
 		
 		lua_newtable(L);
@@ -605,10 +605,10 @@ namespace dse::lua
 	int GetStatEntriesLoadedBefore(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto modId = checked_get<FixedString>(L, 1);
+		auto modId = get<FixedString>(L, 1);
 		FixedString statType;
 		if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
-			statType = checked_get<FixedString>(L, 2);
+			statType = get<FixedString>(L, 2);
 		}
 
 		lua_newtable(L);
@@ -721,7 +721,7 @@ namespace dse::lua
 	int UpdateTreasureCategory(lua_State* L)
 	{
 		StackCheck _(L);
-		auto name = checked_get<FixedString>(L, 1);
+		auto name = get<FixedString>(L, 1);
 		luaL_checktype(L, 2, LUA_TTABLE);
 
 		auto stats = GetStaticSymbols().GetStats();
@@ -1000,7 +1000,7 @@ namespace dse::lua
 			}
 
 			for (auto category : iterate(L, valueIdx)) {
-				auto categoryName = checked_get<char const*>(L, category);
+				auto categoryName = get<char const*>(L, category);
 				object->ComboCategories.Add(FixedString(categoryName));
 			}
 
@@ -1255,7 +1255,7 @@ namespace dse::lua
 			level = (int32_t)luaL_checkinteger(L, 2);
 		}
 		if (lua_gettop(L) >= 3) {
-			warnOnError = checked_get<bool>(L, 3);
+			warnOnError = get<bool>(L, 3);
 		}
 		
 		auto object = StatFindObject(statName, warnOnError);
@@ -1400,8 +1400,8 @@ namespace dse::lua
 	int GetDeltaMod(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto name = checked_get<char const *>(L, 1);
-		auto modifierType = checked_get<char const*>(L, 2);
+		auto name = get<char const *>(L, 1);
+		auto modifierType = get<char const*>(L, 2);
 
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
@@ -1499,8 +1499,8 @@ namespace dse::lua
 
 	int EnumIndexToLabel(lua_State* L)
 	{
-		auto enumName = checked_get<FixedString>(L, 1);
-		auto index = checked_get<int>(L, 2);
+		auto enumName = get<FixedString>(L, 1);
+		auto index = get<int>(L, 2);
 
 #include <GameDefinitions/Enumerations.inl>
 
@@ -1544,8 +1544,8 @@ namespace dse::lua
 
 	int EnumLabelToIndex(lua_State* L)
 	{
-		auto enumName = checked_get<FixedString>(L, 1);
-		auto label = checked_get<char const*>(L, 2);
+		auto enumName = get<FixedString>(L, 1);
+		auto label = get<char const*>(L, 2);
 
 #include <GameDefinitions/Enumerations.inl>
 

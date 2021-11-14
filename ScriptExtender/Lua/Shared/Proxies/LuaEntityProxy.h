@@ -94,21 +94,10 @@ private:
 };
 
 
-template <class T, typename std::enable_if_t<std::is_same_v<T, EntityHandle>, int>* = nullptr>
-inline EntityHandle checked_get(lua_State* L, int index)
+inline EntityHandle do_get(lua_State* L, int index, Overload<EntityHandle>)
 {
 	luaL_checktype(L, index, LUA_TUSERDATA);
 	return EntityProxy::CheckUserData(L, index)->Handle();
-}
-
-template <>
-inline EntityHandle get<EntityHandle>(lua_State* L, int index)
-{
-	if (lua_type(L, index) == LUA_TNIL) {
-		return EntityHandle{ EntityHandle::NullHandle };
-	} else {
-		return EntityProxy::CheckUserData(L, index)->Handle();
-	}
 }
 
 

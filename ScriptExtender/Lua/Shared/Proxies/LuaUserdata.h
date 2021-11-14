@@ -200,31 +200,9 @@ public:
 	}
 };
 
+
 template <class T>
-inline std::optional<T*> safe_get_userdata(lua_State* L, int index)
-{
-	if (lua_isnil(L, index)) {
-		return {};
-	} else {
-		auto val = T::AsUserData(L, index);
-		if (val) {
-			return val;
-		} else {
-			ERR("Expected userdata of type '%s'", T::MetatableName);
-			return {};
-		}
-	}
-}
-
-template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int>* = nullptr>
-inline std::optional<T> safe_get(lua_State* L, int index)
-{
-	return safe_get_userdata<std::remove_pointer_t<T>>(L, index);
-}
-
-
-template <class T, typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, int>* = nullptr>
-inline T checked_get(lua_State* L, int index)
+inline typename std::enable_if_t<std::is_base_of_v<Userdata<std::remove_pointer_t<T>>, std::remove_pointer_t<T>>, T> do_get(lua_State* L, int index, Overload<T>)
 {
 	return std::remove_pointer_t<T>::CheckUserData(L, index);
 }

@@ -5,6 +5,7 @@
 #include <lualib.h>
 #include <lauxlib.h>
 #include <optional>
+#include <GameDefinitions/Base/Base.h>
 
 namespace dse::lua
 {
@@ -269,209 +270,152 @@ namespace dse::lua
 	NULL_PIN(WStringView)
 
 
-	template <class TValue>
-	TValue get(lua_State * L, int index = -1);
+	template <class T>
+	T get(lua_State* L, int index);
 
-	template <>
-	inline bool get<bool>(lua_State * L, int index)
-	{
-		return lua_toboolean(L, index) == 1;
-	}
-
-	template <>
-	inline int32_t get<int32_t>(lua_State * L, int index)
-	{
-		return (int32_t)lua_tointeger(L, index);
-	}
-
-	template <>
-	inline int64_t get<int64_t>(lua_State * L, int index)
-	{
-		return lua_tointeger(L, index);
-	}
-
-	template <>
-	inline double get<double>(lua_State * L, int index)
-	{
-		return lua_tonumber(L, index);
-	}
-
-	template <>
-	inline char const * get<char const *>(lua_State * L, int index)
-	{
-		return lua_tostring(L, index);
-	}
-
-	template <>
-	inline FixedString get<FixedString>(lua_State* L, int index)
-	{
-		auto str = lua_tostring(L, index);
-		return FixedString(str);
-	}
-
-	template <>
-	inline ComponentHandle get<ComponentHandle>(lua_State* L, int index)
-	{
-		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
-	}
-
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
-	inline bool checked_get(lua_State * L, int index)
+	inline bool do_get(lua_State * L, int index, Overload<bool>)
 	{
 		luaL_checktype(L, index, LUA_TBOOLEAN);
 		return lua_toboolean(L, index) == 1;
 	}
 
-	template <class T, typename std::enable_if_t<std::is_integral_v<T>, std::enable_if_t<!std::is_same<T, bool>::value, int>> * = nullptr>
-	inline T checked_get(lua_State * L, int index)
-	{
-		return (T)luaL_checkinteger(L, index);
-	}
-
-	template <class T, typename std::enable_if_t<std::is_floating_point_v<T>, int> * = nullptr>
-	inline T checked_get(lua_State * L, int index)
-	{
-		return (T)luaL_checknumber(L, index);
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, NetId>, int>* = nullptr>
-	inline NetId checked_get(lua_State* L, int index)
+	inline NetId do_get(lua_State* L, int index, Overload<NetId>)
 	{
 		auto v = luaL_checkinteger(L, index);
 		return NetId((uint32_t)v);
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, UserId>, int>* = nullptr>
-	inline UserId checked_get(lua_State* L, int index)
+	inline UserId do_get(lua_State* L, int index, Overload<UserId>)
 	{
 		auto v = luaL_checkinteger(L, index);
 		return UserId((int32_t)v);
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, char const *>, int> * = nullptr>
-	inline char const * checked_get(lua_State * L, int index)
+	inline char const* do_get(lua_State* L, int index, Overload<char const*>)
 	{
 		return luaL_checkstring(L, index);
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, FixedString>, int>* = nullptr>
-	inline FixedString checked_get(lua_State* L, int index)
+	inline FixedString do_get(lua_State* L, int index, Overload<FixedString>)
 	{
 		auto str = luaL_checkstring(L, index);
 		return FixedString(str);
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, STDString>, int>* = nullptr>
-	inline STDString checked_get(lua_State* L, int index)
+	inline STDString do_get(lua_State* L, int index, Overload<STDString>)
 	{
 		return STDString(luaL_checkstring(L, index));
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, STDWString>, int>* = nullptr>
-	inline STDWString checked_get(lua_State* L, int index)
+	inline STDWString do_get(lua_State* L, int index, Overload<STDWString>)
 	{
 		auto str = luaL_checkstring(L, index);
 		return FromUTF8(str);
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, ComponentHandle>, int>* = nullptr>
-	inline ComponentHandle checked_get(lua_State* L, int index)
+	inline ComponentHandle do_get(lua_State* L, int index, Overload<ComponentHandle>)
 	{
 		luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
-		
-	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::ivec2>, int>* = nullptr>	
-	inline glm::ivec2 checked_get(lua_State* L, int index)	
+
+	inline glm::ivec2 do_get(lua_State* L, int index, Overload<glm::ivec2>)
 	{	
 		auto i = (index < 0) ? (index - 1) : index;	
 		glm::ivec2 val;	
 		luaL_checktype(L, index, LUA_TTABLE);	
 		push(L, 1);	
 		lua_rawget(L, i);	
-		val.x = checked_get<int32_t>(L, -1);	
+		val.x = get<int32_t>(L, -1);	
 		lua_pop(L, 1);	
 		push(L, 2);	
 		lua_rawget(L, i);	
-		val.y = checked_get<int32_t>(L, -1);	
+		val.y = get<int32_t>(L, -1);	
 		lua_pop(L, 1);	
 		return val;	
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec2>, int>* = nullptr>
-	inline glm::vec2 checked_get(lua_State* L, int index)
+	inline glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>)
 	{
 		auto i = (index < 0) ? (index - 1) : index;
 		glm::vec2 val;
 		luaL_checktype(L, index, LUA_TTABLE);
 		push(L, 1);
 		lua_rawget(L, i);
-		val.x = checked_get<float>(L, -1);
+		val.x = get<float>(L, -1);
 		lua_pop(L, 1);
 		push(L, 2);
 		lua_rawget(L, i);
-		val.y = checked_get<float>(L, -1);
+		val.y = get<float>(L, -1);
 		lua_pop(L, 1);
 
 		return val;
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec3>, int>* = nullptr>
-	inline glm::vec3 checked_get(lua_State* L, int index)
+	inline glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>)
 	{
 		auto i = (index < 0) ? (index - 1) : index;
 		glm::vec3 val;
 		luaL_checktype(L, index, LUA_TTABLE);
 		push(L, 1);
 		lua_rawget(L, i);
-		val.x = checked_get<float>(L, -1);
+		val.x = get<float>(L, -1);
 		lua_pop(L, 1);
 		push(L, 2);
 		lua_rawget(L, i);
-		val.y = checked_get<float>(L, -1);
+		val.y = get<float>(L, -1);
 		lua_pop(L, 1);
 		push(L, 3);
 		lua_rawget(L, i);
-		val.z = checked_get<float>(L, -1);
+		val.z = get<float>(L, -1);
 		lua_pop(L, 1);
 
 		return val;
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, glm::vec4>, int>* = nullptr>	
-	inline glm::vec4 checked_get(lua_State* L, int index)	
+	inline glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>)
 	{	
 		auto i = (index < 0) ? (index - 1) : index;	
 		glm::vec4 val;	
 		luaL_checktype(L, index, LUA_TTABLE);	
 		push(L, 1);	
 		lua_rawget(L, i);	
-		val.x = checked_get<float>(L, -1);	
+		val.x = get<float>(L, -1);	
 		lua_pop(L, 1);	
 		push(L, 2);	
 		lua_rawget(L, i);	
-		val.y = checked_get<float>(L, -1);	
+		val.y = get<float>(L, -1);	
 		lua_pop(L, 1);	
 		push(L, 3);	
 		lua_rawget(L, i);	
-		val.z = checked_get<float>(L, -1);	
+		val.z = get<float>(L, -1);	
 		lua_pop(L, 1);	
 		push(L, 4);	
 		lua_rawget(L, i);	
-		val.w = checked_get<float>(L, -1);	
+		val.w = get<float>(L, -1);	
 		lua_pop(L, 1);	
 		return val;	
 	}
 
-	template <class T, typename std::enable_if_t<std::is_same_v<T, Path>, int>* = nullptr>
-	inline Path checked_get(lua_State* L, int index)
+	inline Path do_get(lua_State* L, int index, Overload<Path>)
 	{
 		return Path(luaL_checkstring(L, index));
 	}
 
-	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
-	T checked_get(lua_State * L, int index)
+	template <class T>
+	inline typename std::enable_if_t<std::is_integral_v<T>, T> do_get(lua_State * L, int index, Overload<T>)
+	{
+		return (T)luaL_checkinteger(L, index);
+	}
+
+	template <class T>
+	inline typename std::enable_if_t<std::is_floating_point_v<T>, T> do_get(lua_State* L, int index, Overload<T>)
+	{
+		return (T)luaL_checknumber(L, index);
+	}
+
+	template <class T>
+	typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index, Overload<T>)
 	{
 		switch (lua_type(L, index)) {
 		case LUA_TSTRING:
@@ -506,108 +450,25 @@ namespace dse::lua
 		return (T)0;
 	}
 
+	ig::InvokeDataValue do_get(lua_State* L, int index, Overload<ig::InvokeDataValue>);
 
-
-	template <class T, typename std::enable_if_t<std::is_enum_v<T>, int> * = nullptr>
-	std::optional<T> safe_get(lua_State * L, int index = -1)
+	template <class T>
+	inline typename std::optional<T> do_get(lua_State* L, int index, Overload<std::optional<T>>)
 	{
-		switch (lua_type(L, index)) {
-		case LUA_TSTRING:
-		{
-			auto val = lua_tostring(L, index);
-			auto index = EnumInfo<T>::Find(val);
-			if (index) {
-				return (T)*index;
-			} else {
-				ERR("'%s' is not a valid enumeration label in '%s'", val, EnumInfo<T>::Name);
-				return {};
-			}
-			break;
-		}
-
-		case LUA_TNUMBER:
-		{
-			auto val = lua_tointeger(L, index);
-			auto index = EnumInfo<T>::Find((T)val);
-			if (index) {
-				return (T)val;
-			} else {
-				ERR("'%d' is not a valid enumeration index in '%s'", val, EnumInfo<T>::Name);
-				return {};
-			}
-			break;
-		}
-
-		default:
+		if (lua_type(L, index) == LUA_TNIL) {
 			return {};
 		}
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, bool>, int> * = nullptr>
-	inline std::optional<T> safe_get(lua_State * L, int index)
-	{
-		if (lua_type(L, index) == LUA_TBOOLEAN) {
-			return lua_toboolean(L, index) == 1;
-		} else {
-			return {};
+		else {
+			return do_get(L, index, Overload<T>{});
 		}
 	}
 
-	template <class T, typename std::enable_if_t<std::is_integral_v<T>, std::enable_if_t<!std::is_same_v<T, bool>, int>> * = nullptr>
-	inline std::optional<T> safe_get(lua_State * L, int index)
-	{
-		if (lua_type(L, index) == LUA_TNUMBER) {
-			return (T)lua_tointeger(L, index);
-		} else {
-			return {};
-		}
-	}
-
-	template <class T, typename std::enable_if_t<std::is_floating_point_v<T>, int> * = nullptr>
-	inline std::optional<T> safe_get(lua_State * L, int index)
-	{
-		if (lua_type(L, index) == LUA_TNUMBER) {
-			return (T)lua_tonumber(L, index);
-		} else {
-			return {};
-		}
-	}
-
-	template <class T, typename std::enable_if_t<std::is_same_v<T, char const *>, int> * = nullptr>
-	inline std::optional<char const *> safe_get(lua_State * L, int index)
-	{
-		if (lua_type(L, index) == LUA_TSTRING) {
-			return lua_tostring(L, index);
-		} else {
-			return {};
-		}
-	}
-
-
-	template <class TValue>
-	TValue getfield(lua_State* L, char const* k, int index = -1)
-	{
-		lua_getfield(L, index, k);
-		TValue val = get<TValue>(L, -1);
-		lua_pop(L, 1);
-		return val;
-	}
-
-	template <class TKey, class TValue>
-	TValue gettable(lua_State * L, TKey const & k, int index = -2)
-	{
-		push(L, k);
-		lua_gettable(L, index);
-		TValue val = get<TValue>(L, -1);
-		lua_pop(L, 1);
-		return val;
-	}
 
 	template <class TValue>
 	TValue checked_getfield(lua_State* L, char const* k, int index = -1)
 	{
 		lua_getfield(L, index, k);
-		TValue val = checked_get<TValue>(L, -1);
+		TValue val = get<TValue>(L, -1);
 		lua_pop(L, 1);
 		return val;
 	}
@@ -617,7 +478,7 @@ namespace dse::lua
 	{
 		push(L, k);
 		lua_gettable(L, index);
-		TValue val = checked_get<TValue>(L, -1);
+		TValue val = get<TValue>(L, -1);
 		lua_pop(L, 1);
 		return val;
 	}
@@ -626,7 +487,7 @@ namespace dse::lua
 	template <class T>
 	inline T checked_get_param(lua_State* L, int i, Overload<T>)
 	{
-		return checked_get<T>(L, i);
+		return get<T>(L, i);
 	}
 
 	// Overload helper for fetching a parameter for a Lua -> C++ function call
@@ -636,7 +497,7 @@ namespace dse::lua
 		if (lua_gettop(L) < i || lua_isnil(L, i)) {
 			return {};
 		} else {
-			return checked_get<T>(L, i);
+			return get<T>(L, i);
 		}
 	}
 
@@ -647,89 +508,6 @@ namespace dse::lua
 		return checked_get_param(L, i, Overload<std::remove_cv_t<std::remove_reference_t<T>>>{});
 	}
 
-
-	template <class T, class... Args>
-	inline auto Push(Args... args)
-	{
-		return[args...](lua_State * L) {
-			auto obj = T::New(L, args...);
-			if constexpr (std::is_base_of_v<Pushable<PushPolicy::Unbind>, T>) {
-				return UnbindablePin{ obj };
-			} else {
-				return NullPin{};
-			}
-		};
-	}
-
-	// Helper for indicating return type of a Lua function
-	template <class... Args>
-	struct ReturnType {};
-
-	// Fetches a required return value (i.e. succeeded = false if arg doesn't exist or is nil)
-	template <class T>
-	T CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<T>)
-	{
-		auto i = index--;
-		if (lua_isnil(L, i)) {
-			ERR("Return value %d must not be missing or nil", -i);
-			succeeded = false;
-			return {};
-		} else {
-			auto val = safe_get<T>(L, i);
-			if ((bool)val) {
-				return *val;
-			} else {
-				ERR("Failed to fetch return value %d, incorrect type?", -i);
-				succeeded = false;
-				return {};
-			}
-		}
-	}
-
-	// Fetches an optional return value (i.e. succeeded = true if arg doesn't exist or is nil)
-	template <class T>
-	std::optional<T> CheckedGetReturnValue(lua_State * L, int & index, bool & succeeded, Overload<std::optional<T>>)
-	{
-		auto i = index--;
-		if (lua_isnil(L, i)) {
-			return {};
-		} else {
-			auto val = safe_get<T>(L, i);
-			if ((bool)val) {
-				return val;
-			} else {
-				ERR("Failed to fetch return value %d, incorrect type?", -i);
-				succeeded = false;
-				return {};
-			}
-		}
-	}
-
-	// Fetch Lua return values into a tuple
-	// Sets succeeded=false if validation of any return value failed.
-	// Tuple size *must* match lua_call nres, otherwise it'll corrupt the Lua heap!
-	template <class... Args>
-	auto CheckedGetReturnValues(lua_State * L, bool & succeeded)
-	{
-		int index{ -1 };
-		return std::tuple{CheckedGetReturnValue(L, index, succeeded, Overload<Args>{})...};
-	}
-
-	// Fetch Lua return values into a tuple
-	// Returns {} if validation of any return value failed, rval tuple otherwise.
-	// Tuple size *must* match lua_call nres, otherwise it'll corrupt the Lua heap!
-	template <class... Args>
-	auto CheckedPopReturnValues(lua_State * L)
-	{
-		bool succeeded{ true };
-		auto rval = CheckedGetReturnValues<Args...>(L, succeeded);
-		lua_pop(L, (int)sizeof...(Args));
-		if (succeeded) {
-			return std::optional(rval);
-		} else {
-			return std::optional<decltype(rval)>();
-		}
-	}
 
 	int CallWithTraceback(lua_State* L, int narg, int nres);
 
@@ -746,27 +524,6 @@ namespace dse::lua
 		}
 
 		return true;
-	}
-
-	// Calls Lua function and fetches Lua return values into a tuple.
-	// Function and arguments must be already pushed to the Lua stack.
-	// Returns {} if call or return value fetch failed, rval tuple otherwise.
-	// Function name only needed for error reporting purposes
-	template <class... Args>
-	auto CheckedCallRet(lua_State * L, int numArgs, char const * functionName)
-	{
-		if (CallWithTraceback(L, numArgs, sizeof...(Args)) != 0) { // stack: errmsg
-			ERR("%s Lua call failed: %s", functionName, lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return decltype(CheckedPopReturnValues<Args...>(L))();
-		}
-
-		auto result = CheckedPopReturnValues<Args...>(L);
-		if (!result) {
-			ERR("Got incorrect return values from %s", functionName);
-		}
-
-		return result;
 	}
 
 	template <class... Args, size_t... Is>
@@ -928,7 +685,7 @@ namespace dse::lua
 		luaL_checktype(L, index, LUA_TTABLE);
 		T flags = (T)0;
 		for (auto idx : iterate(L, index)) {
-			auto label = checked_get<FixedString>(L, idx);
+			auto label = get<FixedString>(L, idx);
 			auto val = EnumInfo<T>::Find(label);
 			if (val) {
 				flags |= *val;
@@ -993,5 +750,11 @@ namespace dse::lua
 		for (auto i = 0; i < 9; i++) {
 			settable(L, i + 1, m[i / 3][i % 3]);
 		}
+	}
+
+	template <class T>
+	inline typename T get(lua_State* L, int index)
+	{
+		return do_get(L, index, Overload<T>{});
 	}
 }

@@ -92,7 +92,7 @@ namespace dse::esv::lua
 	{
 		FixedString levelName;
 		if (lua_gettop(L) >= 1) {
-			levelName = checked_get<FixedString>(L, 1);
+			levelName = get<FixedString>(L, 1);
 		}
 
 		GetTriggersGeneric(L, levelName, [](Trigger*) { return true; });
@@ -222,7 +222,7 @@ namespace dse::lua
 		if (obj == nullptr) return luaL_error(L, "Trigger object no longer available");
 
 		StackCheck _(L, 1);
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 
 		if (prop == GFS.strHandle) {
 			ComponentHandle handle;
@@ -273,7 +273,7 @@ namespace dse::lua
 		if (obj_ == nullptr) return luaL_error(L, "AtmosphereTriggerData object no longer available");
 
 		StackCheck _(L, 1);
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 
 		if (prop == GFS.strAtmospheres) {
 			return LuaWrite(L, obj_->Atmospheres);
@@ -288,7 +288,7 @@ namespace dse::lua
 	int ObjectProxy<AtmosphereTriggerData>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 
 		if (prop == GFS.strAtmospheres) {
 			lua_pushvalue(L, 3);
@@ -435,7 +435,7 @@ namespace dse::lua
 	int CharacterGetInventoryItems(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
 
 		GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
@@ -445,9 +445,9 @@ namespace dse::lua
 	int CharacterGetNearbyCharacters(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
 		auto pos = self->Get(L)->WorldPos;
-		auto distance = checked_get<float>(L, 2);
+		auto distance = get<float>(L, 2);
 
 		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
 			return abs(glm::length(pos - c->WorldPos)) < distance;
@@ -458,7 +458,7 @@ namespace dse::lua
 	int CharacterGetSummons(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
 		
 		lua_newtable(L);
 		int32_t index{ 1 };
@@ -476,7 +476,7 @@ namespace dse::lua
 	int CharacterGetSkills(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
 
 		lua_newtable(L);
 		int32_t index{ 1 };
@@ -494,8 +494,8 @@ namespace dse::lua
 	int CharacterGetSkillInfo(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
-		auto skillId = checked_get<FixedString>(L, 2);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
+		auto skillId = get<FixedString>(L, 2);
 
 		auto skillMgr = self->Get(L)->SkillManager;
 		if (skillMgr != nullptr) {
@@ -528,8 +528,8 @@ namespace dse::lua
 	int CharacterGetCustomStatValue(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
-		auto statId = checked_get<char const*>(L, 2);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
+		auto statId = get<char const*>(L, 2);
 
 		auto character = self->Get(L);
 		if (character == nullptr) {
@@ -550,9 +550,9 @@ namespace dse::lua
 	int CharacterSetCustomStatValue(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Character>*>(L, 1);
-		auto statId = checked_get<char const*>(L, 2);
-		auto value = checked_get<int>(L, 3);
+		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
+		auto statId = get<char const*>(L, 2);
+		auto value = get<int>(L, 3);
 
 		auto character = self->Get(L);
 		if (character == nullptr) {
@@ -571,7 +571,7 @@ namespace dse::lua
 		if (!character) return 0;
 
 		StackCheck _(L, 1);
-		auto propFS = checked_get<FixedString>(L, 2);
+		auto propFS = get<FixedString>(L, 2);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &CharacterGetInventoryItems);
@@ -652,14 +652,14 @@ namespace dse::lua
 		if (!character) return 0;
 
 		StackCheck _(L, 0);
-		auto propFS = checked_get<FixedString>(L, 2);
+		auto propFS = get<FixedString>(L, 2);
 
 		if (propFS == GFS.strWalkSpeed) {
 			if (lua_isnil(L, 3)) {
 				character->WalkSpeedOverride = 0.0f;
 				character->Flags3 &= ~esv::CharacterFlags3::HasWalkSpeedOverride;
 			} else {
-				auto speed = checked_get<float>(L, 3);
+				auto speed = get<float>(L, 3);
 				character->WalkSpeedOverride = speed;
 				character->Flags3 |= esv::CharacterFlags3::HasWalkSpeedOverride;
 			}
@@ -669,7 +669,7 @@ namespace dse::lua
 				character->Flags3 &= ~esv::CharacterFlags3::HasRunSpeedOverride;
 			}
 			else {
-				auto speed = checked_get<float>(L, 3);
+				auto speed = get<float>(L, 3);
 				character->RunSpeedOverride = speed;
 				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
 			}
@@ -694,7 +694,7 @@ namespace dse::lua
 	int ItemGetInventoryItems(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
 
 		GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
@@ -704,9 +704,9 @@ namespace dse::lua
 	int ItemGetNearbyCharacters(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
 		auto pos = self->Get(L)->WorldPos;
-		auto distance = checked_get<float>(L, 2);
+		auto distance = get<float>(L, 2);
 
 		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
 			return abs(glm::length(pos - c->WorldPos)) < distance;
@@ -716,7 +716,7 @@ namespace dse::lua
 
 	int ItemGetGeneratedBoosts(lua_State* L)
 	{
-		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
 		auto item = self->Get(L);
 		if (!item) return 0;
 
@@ -735,7 +735,7 @@ namespace dse::lua
 	int ItemSetGeneratedBoosts(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto self = checked_get<ObjectProxy<esv::Item>*>(L, 1);
+		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
 		auto item = self->Get(L);
 		if (!item) return 0;
 
@@ -755,7 +755,7 @@ namespace dse::lua
 		if (!item) return 0;
 
 		StackCheck _(L, 1);
-		auto propFS = checked_get<FixedString>(L, 2);
+		auto propFS = get<FixedString>(L, 2);
 
 		if (propFS == GFS.strGetInventoryItems) {
 			lua_pushcfunction(L, &ItemGetInventoryItems);
@@ -883,7 +883,7 @@ namespace dse::lua
 	int ObjectProxy<eoc::ItemDefinition>::Index(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 		if (prop == GFS.strResetProgression) {
 			lua_pushcfunction(L, &ItemDefinitionResetProgression);
 			return 1;
@@ -910,7 +910,7 @@ namespace dse::lua
 	int ObjectProxy<eoc::ItemDefinition>::NewIndex(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 		if (prop == GFS.strGenerationBoosts) {
 			lua_pushvalue(L, 3);
 			LuaRead(L, Get(L)->GenerationBoosts);
@@ -1016,7 +1016,7 @@ namespace dse::lua
 	int ObjectProxy<esv::Surface>::Index(lua_State* L)
 	{
 		auto surface = Get(L);
-		auto prop = checked_get<char const*>(L, 2);
+		auto prop = get<char const*>(L, 2);
 
 		if (strcmp(prop, "RootTemplate") == 0) {
 			auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surface->SurfaceType);
@@ -1126,7 +1126,7 @@ namespace dse::lua
 				act->PolygonVertices.Clear();
 				luaL_checktype(L, 3, LUA_TTABLE);
 				for (auto idx : iterate(L, 3)) {
-					auto vec2 = checked_get<glm::vec2>(L, idx);
+					auto vec2 = get<glm::vec2>(L, idx);
 					act->PolygonVertices.Add(vec2);
 				}
 			} else {
@@ -1461,7 +1461,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 1);
 		if (lua_type(L, 2) == LUA_TSTRING) {
-			auto func = checked_get<FixedString>(L, 2);
+			auto func = get<FixedString>(L, 2);
 			if (func == GFS.strConstruct) {
 				lua_pushcfunction(L, &ItemConstructorConstructItem);
 				return 1;
@@ -1471,7 +1471,7 @@ namespace dse::esv::lua
 			push(L, nullptr);
 			return 1;
 		} else {
-			auto idx = checked_get<int>(L, 2);
+			auto idx = get<int>(L, 2);
 			if (idx < 1 || idx > (int)definition_.Size) {
 				return luaL_error(L, "Clone set only has %d elements", definition_.Size);
 			}
@@ -1514,7 +1514,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, index)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ComponentHandle>(L, index);
+			auto handle = get<ComponentHandle>(L, index);
 			if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 				OsiError("Attempted to resolve client ComponentHandle on the server");
 			} else {
@@ -1590,7 +1590,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ComponentHandle>(L, 1);
+			auto handle = get<ComponentHandle>(L, 1);
 			item = GetEntityWorld()->GetItem(handle);
 			break;
 		}
@@ -1649,7 +1649,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, 1)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ComponentHandle>(L, 1);
+			auto handle = get<ComponentHandle>(L, 1);
 			trigger = GetEntityWorld()->GetTrigger(handle);
 			break;
 		}
@@ -1692,7 +1692,7 @@ namespace dse::esv::lua
 		switch (lua_type(L, idx)) {
 		case LUA_TLIGHTUSERDATA:
 		{
-			auto handle = checked_get<ComponentHandle>(L, idx);
+			auto handle = get<ComponentHandle>(L, idx);
 			if (handle) {
 				switch ((ObjectType)handle.GetType()) {
 				case ObjectType::ServerCharacter:
@@ -1827,7 +1827,7 @@ namespace dse::esv::lua
 		StackCheck _(L, 1);
 		esv::Status* status;
 		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
-			auto statusHandle = checked_get<ComponentHandle>(L, 2);
+			auto statusHandle = get<ComponentHandle>(L, 2);
 			status = character->GetStatus(statusHandle, true);
 			if (status != nullptr) {
 				ComponentHandle characterHandle;
@@ -1902,7 +1902,7 @@ namespace dse::esv::lua
 			return luaL_error(L, "Attempted to resolve item handle in restricted context");
 		}
 
-		auto handle = checked_get<ComponentHandle>(L, 1);
+		auto handle = get<ComponentHandle>(L, 1);
 
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (!level || !level->SurfaceManager) {
@@ -2030,7 +2030,7 @@ namespace dse::esv::lua
 
 		luaL_checktype(L, 1, LUA_TTABLE);
 		for (auto idx : iterate(L, 1)) {
-			auto surfaceType = checked_get<SurfaceType>(L, idx - 1);
+			auto surfaceType = get<SurfaceType>(L, idx - 1);
 			auto& surfaceRules = interactions->SurfaceTypes[(unsigned)surfaceType].Interactions;
 
 			luaL_checktype(L, -1, LUA_TTABLE);
@@ -2051,7 +2051,7 @@ namespace dse::esv::lua
 
 	int CreateSurfaceAction(lua_State* L)
 	{
-		auto type = checked_get<SurfaceActionType>(L, 1);
+		auto type = get<SurfaceActionType>(L, 1);
 
 		auto const& sym = GetStaticSymbols();
 		if (!sym.esv__SurfaceActionFactory || !*sym.esv__SurfaceActionFactory || !sym.esv__SurfaceActionFactory__CreateAction) {
@@ -2104,7 +2104,7 @@ namespace dse::esv::lua
 	int CancelSurfaceAction(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto handle = checked_get<ComponentHandle>(L, 1);
+		auto handle = get<ComponentHandle>(L, 1);
 		
 		if (handle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
 			OsiError("Expected a surface action handle, got type " << handle.GetType());
@@ -2189,12 +2189,12 @@ namespace dse::esv::lua
 	int ExecuteSkillPropertiesOnTarget(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto skillId = checked_get<FixedString>(L, 1);
+		auto skillId = get<FixedString>(L, 1);
 		auto attacker = GetCharacter(L, 2);
 		auto target = GetCharacter(L, 3);
-		auto position = checked_get<glm::vec3>(L, 4);
-		auto propertyContext = checked_get<CRPGStats_Object_PropertyContext>(L, 5);
-		auto isFromItem = checked_get<bool>(L, 6);
+		auto position = get<glm::vec3>(L, 4);
+		auto propertyContext = get<CRPGStats_Object_PropertyContext>(L, 5);
+		auto isFromItem = get<bool>(L, 6);
 
 		SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
@@ -2235,12 +2235,12 @@ namespace dse::esv::lua
 	int ExecuteSkillPropertiesOnPosition(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto skillId = checked_get<FixedString>(L, 1);
+		auto skillId = get<FixedString>(L, 1);
 		auto attacker = GetCharacter(L, 2);
-		auto position = checked_get<glm::vec3>(L, 3);
-		auto radius = checked_get<float>(L, 4);
-		auto propertyContext = checked_get<CRPGStats_Object_PropertyContext>(L, 5);
-		auto isFromItem = checked_get<bool>(L, 6);
+		auto position = get<glm::vec3>(L, 3);
+		auto radius = get<float>(L, 4);
+		auto propertyContext = get<CRPGStats_Object_PropertyContext>(L, 5);
+		auto isFromItem = get<bool>(L, 6);
 
 		SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
@@ -2293,7 +2293,7 @@ namespace dse::esv::lua
 
 		esv::Character * excludeCharacter = nullptr;
 		if (lua_gettop(L) > 2 && !lua_isnil(L, 3)) {
-			// TODO - checked_get<GUIDString> alias?
+			// TODO - get<GUIDString> alias?
 			auto excludeCharacterGuid = luaL_checkstring(L, 3);
 			excludeCharacter = GetEntityWorld()->GetCharacter(excludeCharacterGuid);
 			if (excludeCharacter == nullptr) return 0;
@@ -2354,7 +2354,7 @@ namespace dse::esv::lua
 	int PostMessageToUser(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto userId = checked_get<int>(L, 1);
+		auto userId = get<int>(L, 1);
 		auto channel = luaL_checkstring(L, 2);
 		auto payload = luaL_checkstring(L, 3);
 
@@ -2435,9 +2435,9 @@ namespace dse::esv::lua
 	int RegisterOsirisListener(lua_State* L)
 	{
 		StackCheck _(L, 0);
-		auto name = checked_get<char const*>(L, 1);
-		auto arity = checked_get<int>(L, 2);
-		auto typeName = checked_get<char const*>(L, 3);
+		auto name = get<char const*>(L, 1);
+		auto arity = get<int>(L, 2);
+		auto typeName = get<char const*>(L, 3);
 		luaL_checktype(L, 4, LUA_TFUNCTION);
 
 		OsirisHookSignature::HookType type;
@@ -2465,7 +2465,7 @@ namespace dse::esv::lua
 		StackCheck _(L, 1);
 		auto type = lua_type(L, 1);
 		if (type == LUA_TSTRING) {
-			auto templateGuid = checked_get<char const*>(L, 1);
+			auto templateGuid = get<char const*>(L, 1);
 			auto constructor = ItemConstructor::New(L);
 			if (!script::CreateItemDefinition(templateGuid, constructor->Get())) {
 				lua_pop(L, 1);
@@ -2475,7 +2475,7 @@ namespace dse::esv::lua
 			auto item = ObjectProxy<esv::Item>::CheckedGet(L, 1);
 			bool recursive{ false };
 			if (lua_gettop(L) > 1) {
-				recursive = checked_get<bool>(L, 2);
+				recursive = get<bool>(L, 2);
 			}
 
 			auto constructor = ItemConstructor::New(L);
@@ -2493,8 +2493,8 @@ namespace dse::esv::lua
 		StackCheck _(L, 1);
 
 		auto gameObj = GetGameObjectInternal(L, 1);
-		auto statusId = checked_get<FixedString>(L, 2);
-		float lifeTime = checked_get<float>(L, 3);
+		auto statusId = get<FixedString>(L, 2);
+		float lifeTime = get<float>(L, 3);
 
 		StatusMachine* statusMachine{ nullptr };
 		ComponentHandle ownerHandle;
@@ -2568,8 +2568,8 @@ namespace dse::esv::lua
 	int CreateCustomStat(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto statName = checked_get<char const*>(L, 1);
-		auto statDescription = checked_get<char const*>(L, 2);
+		auto statName = get<char const*>(L, 1);
+		auto statDescription = get<char const*>(L, 2);
 
 		auto statsId = CustomStatHelpers::CreateStat(statName, statDescription);
 		if (statsId) {
@@ -2584,7 +2584,7 @@ namespace dse::esv::lua
 	int GetCustomStatById(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto statId = checked_get<char const*>(L, 1);
+		auto statId = get<char const*>(L, 1);
 
 		auto statDefn = CustomStatHelpers::FindStatDefinitionById(statId);
 		if (statDefn) {
@@ -2629,7 +2629,7 @@ namespace dse::esv::lua
 	int GetCustomStatByName(lua_State* L)
 	{
 		StackCheck _(L, 1);
-		auto statName = checked_get<char const*>(L, 1);
+		auto statName = get<char const*>(L, 1);
 
 		auto statDefn = CustomStatHelpers::FindStatDefinitionByName(statName);
 		if (statDefn) {
@@ -3350,10 +3350,10 @@ namespace dse::esv::lua
 			return false;
 		}
 
-		auto processed = get<bool>(L, -1);
+		auto processed = get<std::optional<bool>>(L, -1);
 		lua_pop(L, 1);
 		if (processed) {
-			return processed;
+			return *processed;
 		} else {
 			return false;
 		}
@@ -3601,12 +3601,17 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_GetModPersistentVars");
 		push(L, modTable);
 
-		auto ret = CheckedCallRet<std::optional<char const*>>(L, 1, "Ext.GetModPersistentVars");
-		if (ret) {
-			return std::get<0>(*ret);
-		} else {
+		if (CallWithTraceback(L, 1, 1) != 0) {
+			ERR("Ext._GetModPersistentVars failed: %s", lua_tostring(L, -1));
+			lua_pop(L, 1);
 			return {};
 		}
+
+		if (lua_type(L, -1) == LUA_TSTRING) {
+			return get<char const*>(L, -1);
+		}
+
+		return {};
 	}
 
 

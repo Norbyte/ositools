@@ -43,7 +43,7 @@ int ObjectProxy2::Index(lua_State* L)
 		return 1;
 	}
 
-	auto prop = checked_get<FixedString>(L, 2);
+	auto prop = get<FixedString>(L, 2);
 	if (!impl->GetProperty(L, prop)) {
 		push(L, nullptr);
 	}
@@ -60,7 +60,7 @@ int ObjectProxy2::NewIndex(lua_State* L)
 		return 0;
 	}
 
-	auto prop = checked_get<FixedString>(L, 2);
+	auto prop = get<FixedString>(L, 2);
 	impl->SetProperty(L, prop, 3);
 	return 0;
 }
@@ -76,7 +76,7 @@ int ObjectProxy2::Next(lua_State* L)
 	if (lua_type(L, 2) == LUA_TNIL) {
 		return impl->Next(L, FixedString{});
 	} else {
-		auto key = checked_get<FixedString>(L, 2);
+		auto key = get<FixedString>(L, 2);
 		return impl->Next(L, key);
 	}
 }

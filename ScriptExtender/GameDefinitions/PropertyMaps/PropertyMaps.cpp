@@ -2075,13 +2075,13 @@ namespace dse
 
 		case PropertyType::kObjectHandle:
 		{
-			auto handle = lua::checked_get<ComponentHandle>(L, index);
+			auto handle = lua::get<ComponentHandle>(L, index);
 			return propertyMap.setHandle(obj, propertyFS, handle, false, throwError);
 		}
 
 		case PropertyType::kVector3:
 		{
-			auto val = lua::checked_get<glm::vec3>(L, index);
+			auto val = lua::get<glm::vec3>(L, index);
 			return propertyMap.setVector3(obj, propertyFS, val, false, throwError);
 		}
 

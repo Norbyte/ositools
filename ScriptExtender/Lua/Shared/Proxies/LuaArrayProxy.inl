@@ -44,7 +44,7 @@ int ArrayProxy::Index(lua_State* L)
 		return 1;
 	}
 
-	auto index = checked_get<int>(L, 2);
+	auto index = get<int>(L, 2);
 	// TODO - integer range check?
 	if (!impl->GetElement(L, index)) {
 		push(L, nullptr);
@@ -62,7 +62,7 @@ int ArrayProxy::NewIndex(lua_State* L)
 		return 0;
 	}
 
-	auto index = checked_get<int>(L, 2);
+	auto index = get<int>(L, 2);
 	impl->SetElement(L, index, 3);
 	return 0;
 }
@@ -92,7 +92,7 @@ int ArrayProxy::Next(lua_State* L)
 	if (lua_type(L, 2) == LUA_TNIL) {
 		return impl->Next(L, 0);
 	} else {
-		auto key = checked_get<int>(L, 2);
+		auto key = get<int>(L, 2);
 		return impl->Next(L, key);
 	}
 }

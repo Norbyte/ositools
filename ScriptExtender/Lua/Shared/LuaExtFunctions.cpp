@@ -223,7 +223,7 @@ namespace dse::lua
 
 	int GetSurfaceTemplate(lua_State* L)
 	{
-		auto surfaceType = checked_get<SurfaceType>(L, 1);
+		auto surfaceType = get<SurfaceType>(L, 1);
 		auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surfaceType);
 		if (tmpl != nullptr) {
 			ObjectProxy<SurfaceTemplate>::New(L, GetCurrentLifetime(), tmpl);

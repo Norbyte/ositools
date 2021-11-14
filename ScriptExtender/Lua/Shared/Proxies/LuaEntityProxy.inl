@@ -11,8 +11,8 @@ EntityProxy::EntityProxy(EntityHandle const& handle, EntitySystemHelpersBase* en
 int EntityProxy::HasRawComponent(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
-	auto componentType = checked_get<char const*>(L, 2);
+	auto self = get<EntityProxy*>(L, 1);
+	auto componentType = get<char const*>(L, 2);
 	auto componentIdx = self->entitySystem_->GetComponentIndex(componentType);
 	if (componentIdx) {
 		auto world = self->entitySystem_->GetEntityWorld();
@@ -29,7 +29,7 @@ int EntityProxy::HasRawComponent(lua_State* L)
 int EntityProxy::GetComponentHandles(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 
 	lua_newtable(L);
 
@@ -132,8 +132,8 @@ void PushComponent(lua_State* L, EntitySystemHelpersBase* helpers, ComponentHand
 int EntityProxy::GetComponent(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
-	auto componentType = checked_get<ExtComponentType>(L, 2);
+	auto self = get<EntityProxy*>(L, 1);
+	auto componentType = get<ExtComponentType>(L, 2);
 	PushComponent(L, self->entitySystem_, self->handle_, componentType, GetCurrentLifetime(), false);
 	return 1;
 }
@@ -141,11 +141,11 @@ int EntityProxy::GetComponent(lua_State* L)
 int EntityProxy::GetAllComponents(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 
 	bool warnOnMissing = false;
 	if (lua_gettop(L) >= 2) {
-		warnOnMissing = checked_get<bool>(L, 2);
+		warnOnMissing = get<bool>(L, 2);
 	}
 
 	lua_newtable(L);
@@ -178,7 +178,7 @@ int EntityProxy::GetAllComponents(lua_State* L)
 int EntityProxy::GetEntityType(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 	push(L, self->handle_.GetType());
 	return 1;
 }
@@ -186,7 +186,7 @@ int EntityProxy::GetEntityType(lua_State* L)
 int EntityProxy::GetSalt(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 	push(L, self->handle_.GetSalt());
 	return 1;
 }
@@ -194,7 +194,7 @@ int EntityProxy::GetSalt(lua_State* L)
 int EntityProxy::GetIndex(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 	push(L, self->handle_.GetIndex());
 	return 1;
 }
@@ -202,7 +202,7 @@ int EntityProxy::GetIndex(lua_State* L)
 int EntityProxy::IsAlive(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
+	auto self = get<EntityProxy*>(L, 1);
 	auto world = self->entitySystem_->GetEntityWorld();
 	auto entity = world->GetEntity(self->handle_, false);
 	push(L, entity != nullptr);
@@ -212,8 +212,8 @@ int EntityProxy::IsAlive(lua_State* L)
 int EntityProxy::Index(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<EntityProxy*>(L, 1);
-	auto key = checked_get<FixedString>(L, 2);
+	auto self = get<EntityProxy*>(L, 1);
+	auto key = get<FixedString>(L, 2);
 
 	if (key == GFS.strHasRawComponent) {
 		push(L, &EntityProxy::HasRawComponent);
@@ -259,7 +259,7 @@ int EntityProxy::Index(lua_State* L)
 	if (componentType) {
 		PushComponent(L, self->entitySystem_, self->handle_, *componentType, GetCurrentLifetime(), false);
 	} else {
-		auto componentTypeName = checked_get<char const*>(L, 2);
+		auto componentTypeName = get<char const*>(L, 2);
 		luaL_error(L, "Not a valid EntityProxy method or component type: %s", componentTypeName);
 	}
 
@@ -285,7 +285,7 @@ ComponentHandleProxy::ComponentHandleProxy(ComponentHandle const& handle, Entity
 int ComponentHandleProxy::GetType(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<ComponentHandleProxy*>(L, 1);
+	auto self = get<ComponentHandleProxy*>(L, 1);
 	push(L, self->handle_.GetType());
 	return 1;
 }
@@ -293,7 +293,7 @@ int ComponentHandleProxy::GetType(lua_State* L)
 int ComponentHandleProxy::GetTypeName(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<ComponentHandleProxy*>(L, 1);
+	auto self = get<ComponentHandleProxy*>(L, 1);
 	auto name = self->entitySystem_->GetComponentName(EntityWorldBase::HandleTypeIndex(self->handle_.GetType()));
 	push(L, name);
 	return 1;
@@ -302,7 +302,7 @@ int ComponentHandleProxy::GetTypeName(lua_State* L)
 int ComponentHandleProxy::GetSalt(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<ComponentHandleProxy*>(L, 1);
+	auto self = get<ComponentHandleProxy*>(L, 1);
 	push(L, self->handle_.GetSalt());
 	return 1;
 }
@@ -310,7 +310,7 @@ int ComponentHandleProxy::GetSalt(lua_State* L)
 int ComponentHandleProxy::GetIndex(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<ComponentHandleProxy*>(L, 1);
+	auto self = get<ComponentHandleProxy*>(L, 1);
 	push(L, self->handle_.GetIndex());
 	return 1;
 }
@@ -318,7 +318,7 @@ int ComponentHandleProxy::GetIndex(lua_State* L)
 int ComponentHandleProxy::GetComponent(lua_State* L)
 {
 	StackCheck _(L, 1);
-	auto self = checked_get<ComponentHandleProxy*>(L, 1);
+	auto self = get<ComponentHandleProxy*>(L, 1);
 	auto componentType = self->entitySystem_->GetComponentType((EntityWorldBase::HandleTypeIndex)self->handle_.GetType());
 	if (componentType) {
 		PushComponent(L, self->entitySystem_, self->handle_, *componentType, GetCurrentLifetime(), false);

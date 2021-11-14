@@ -162,8 +162,8 @@ namespace dse::lua
 
 	int CharacterTemplateGetVisualChoices(lua_State* L)
 	{
-		auto self = checked_get<ObjectProxy<CharacterTemplate>*>(L, 1);
-		auto slot = checked_get<VisualTemplateVisualIndex>(L, 2);
+		auto self = get<ObjectProxy<CharacterTemplate>*>(L, 1);
+		auto slot = get<VisualTemplateVisualIndex>(L, 2);
 
 		auto obj = self->Get(L);
 		auto visualSet = obj->VisualSetObject;
@@ -179,8 +179,8 @@ namespace dse::lua
 
 	int CharacterTemplateGetColorChoices(lua_State* L)
 	{
-		auto self = checked_get<ObjectProxy<CharacterTemplate>*>(L, 1);
-		auto slot = checked_get<VisualTemplateColorIndex>(L, 2);
+		auto self = get<ObjectProxy<CharacterTemplate>*>(L, 1);
+		auto slot = get<VisualTemplateColorIndex>(L, 2);
 
 		auto obj = self->Get(L);
 		auto visualSet = obj->VisualSetObject;
@@ -291,7 +291,7 @@ namespace dse::lua
 	int ObjectProxy<SurfaceTemplate>::Index(lua_State* L)
 	{
 		auto obj = Get(L);
-		auto prop = checked_get<char const*>(L, 2);
+		auto prop = get<char const*>(L, 2);
 
 		if (strcmp(prop, "Statuses") == 0) {
 			return LuaWrite(L, obj->Statuses.Value);
@@ -303,7 +303,7 @@ namespace dse::lua
 	int ObjectProxy<SurfaceTemplate>::NewIndex(lua_State* L)
 	{
 		auto obj = Get(L);
-		auto prop = checked_get<char const*>(L, 2);
+		auto prop = get<char const*>(L, 2);
 
 		if (strcmp(prop, "Statuses") == 0) {
 			lua_pushvalue(L, 3);
@@ -347,11 +347,11 @@ namespace dse::lua
 	int AiGridSearchForCell(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
-		auto radius = checked_get<float>(L, 4);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
+		auto radius = get<float>(L, 4);
 		auto flags = checked_get_flags<ESurfaceFlag>(L, 5);
-		auto bias = checked_get<float>(L, 6);
+		auto bias = get<float>(L, 6);
 
 		auto search = GetStaticSymbols().eoc__AiGrid__SearchForCell;
 		if (!search) {
@@ -368,8 +368,8 @@ namespace dse::lua
 	int AiGridGetCellInfo(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
 
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
@@ -423,8 +423,8 @@ namespace dse::lua
 	int AiGridGetHeight(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
 
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
@@ -442,8 +442,8 @@ namespace dse::lua
 	int AiGridGetAiFlags(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
 
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
@@ -461,9 +461,9 @@ namespace dse::lua
 		constexpr uint64_t UpdateFlags = 5;
 
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
-		auto flags = checked_get<uint64_t>(L, 4);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
+		auto flags = get<uint64_t>(L, 4);
 
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
@@ -478,9 +478,9 @@ namespace dse::lua
 	int AiGridSetHeight(lua_State* L)
 	{
 		auto grid = ObjectProxy<eoc::AiGrid>::CheckedGet(L, 1);
-		auto x = checked_get<float>(L, 2);
-		auto z = checked_get<float>(L, 3);
-		auto height = checked_get<float>(L, 4);
+		auto x = get<float>(L, 2);
+		auto z = get<float>(L, 3);
+		auto height = get<float>(L, 4);
 
 		auto cell = grid->GetCell(glm::vec2(x, z));
 		if (!cell) {
@@ -503,7 +503,7 @@ namespace dse::lua
 		auto grid = Get(L);
 		if (!grid) return 0;
 
-		auto prop = checked_get<FixedString>(L, 2);
+		auto prop = get<FixedString>(L, 2);
 
 		if (prop == GFS.strSearchForCell) {
 			lua_pushcfunction(L, &AiGridSearchForCell);
@@ -611,7 +611,7 @@ namespace dse::lua
 	int DamageList::GetByType(lua_State * L)
 	{
 		auto self = DamageList::CheckUserData(L, 1);
-		auto damageType = checked_get<DamageType>(L, 2);
+		auto damageType = get<DamageType>(L, 2);
 
 		int32_t amount = 0;
 		for (auto const& dmg : self->damages_) {
@@ -627,7 +627,7 @@ namespace dse::lua
 	int DamageList::Add(lua_State * L)
 	{
 		auto self = DamageList::CheckUserData(L, 1);
-		auto damageType = checked_get<DamageType>(L, 2);
+		auto damageType = get<DamageType>(L, 2);
 		auto amount = (int32_t)luaL_checkinteger(L, 3);
 
 		self->damages_.AddDamage(damageType, amount);
@@ -639,7 +639,7 @@ namespace dse::lua
 	{
 		auto self = DamageList::CheckUserData(L, 1);
 		if (lua_gettop(L) >= 2) {
-			auto damageType = checked_get<DamageType>(L, 2);
+			auto damageType = get<DamageType>(L, 2);
 			self->damages_.ClearDamage(damageType);
 		} else {
 			self->damages_.Clear();
@@ -675,7 +675,7 @@ namespace dse::lua
 	int DamageList::ConvertDamageType(lua_State * L)
 	{
 		auto self = DamageList::CheckUserData(L, 1);
-		auto damageType = checked_get<DamageType>(L, 2);
+		auto damageType = get<DamageType>(L, 2);
 
 		int32_t totalDamage = 0;
 		for (auto const& dmg : self->damages_) {

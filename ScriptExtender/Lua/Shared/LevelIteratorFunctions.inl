@@ -35,7 +35,7 @@ int GetAllCharacters(lua_State* L)
 {
 	FixedString levelName;
 	if (lua_gettop(L) >= 1) {
-		levelName = checked_get<FixedString>(L, 1);
+		levelName = get<FixedString>(L, 1);
 	}
 
 	GetCharactersGeneric(L, levelName, [](esv::Character*) { return true; });
@@ -45,11 +45,11 @@ int GetAllCharacters(lua_State* L)
 int GetCharactersAroundPosition(lua_State* L)
 {
 	glm::vec3 pos(
-		checked_get<float>(L, 1),
-		checked_get<float>(L, 2),
-		checked_get<float>(L, 3)
+		get<float>(L, 1),
+		get<float>(L, 2),
+		get<float>(L, 3)
 	);
-	float distance = checked_get<float>(L, 4);
+	float distance = get<float>(L, 4);
 
 	GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
 		return abs(glm::length(pos - c->WorldPos)) < distance;
@@ -92,7 +92,7 @@ int GetAllItems(lua_State* L)
 {
 	FixedString levelName;
 	if (lua_gettop(L) >= 1) {
-		levelName = checked_get<FixedString>(L, 1);
+		levelName = get<FixedString>(L, 1);
 	}
 
 	GetItemsGeneric(L, levelName, [](esv::Item*) { return true; });
@@ -102,11 +102,11 @@ int GetAllItems(lua_State* L)
 int GetItemsAroundPosition(lua_State* L)
 {
 	glm::vec3 pos(
-		checked_get<float>(L, 1),
-		checked_get<float>(L, 2),
-		checked_get<float>(L, 3)
+		get<float>(L, 1),
+		get<float>(L, 2),
+		get<float>(L, 3)
 	);
-	float distance = checked_get<float>(L, 4);
+	float distance = get<float>(L, 4);
 
 	GetItemsGeneric(L, FixedString{}, [pos, distance](esv::Item* c) {
 		return abs(glm::length(pos - c->WorldPos)) < distance;

@@ -24,7 +24,7 @@ namespace dse::lua
 				push(L, v);
 			} else {
 				StackCheck _(L);
-				v = checked_get<T>(L, -1);
+				v = do_get(L, -1, Overload<T>{});
 			}
 
 			return *this;
@@ -327,7 +327,7 @@ namespace dse::lua
 			if (s.IsWriting) {
 				push(s.L, v);
 			} else {
-				v = checked_get<T>(s.L, -1);
+				v = get<T>(s.L, -1);
 			}
 		} else if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
 			if (s.IsWriting) {

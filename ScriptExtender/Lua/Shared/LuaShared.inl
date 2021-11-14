@@ -2,8 +2,8 @@
 template <class TObject, class TStatus>
 int GameObjectGetStatus(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto statusId = checked_get<FixedString>(L, 2);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
+	auto statusId = get<FixedString>(L, 2);
 
 	auto object = self->Get(L);
 
@@ -25,8 +25,8 @@ int GameObjectGetStatus(lua_State* L)
 template <class TObject, class TStatus>
 int GameObjectGetStatusByType(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto statusType = checked_get<StatusType>(L, 2);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
+	auto statusType = get<StatusType>(L, 2);
 
 	auto object = self->Get(L);
 	if (!object || !object->StatusMachine) {
@@ -47,7 +47,7 @@ int GameObjectGetStatusByType(lua_State* L)
 template <class TObject>
 int GameObjectGetStatuses(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto object = self->Get(L);
 	if (!object || !object->StatusMachine) {
 		return 0;
@@ -66,7 +66,7 @@ int GameObjectGetStatuses(lua_State* L)
 template <class TObject, class TStatus>
 int GameObjectGetStatusObjects(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto object = self->Get(L);
 	if (!object || !object->StatusMachine) {
 		return 0;
@@ -88,8 +88,8 @@ int GameObjectGetStatusObjects(lua_State* L)
 template <class TObject>
 int GameObjectHasTag(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
-	auto tag = checked_get<FixedString>(L, 2);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
+	auto tag = get<FixedString>(L, 2);
 
 	auto object = self->Get(L);
 
@@ -105,7 +105,7 @@ int GameObjectHasTag(lua_State* L)
 template <class TObject>
 int GameObjectGetTags(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto character = self->Get(L);
 	if (!character) {
 		return 0;
@@ -127,13 +127,13 @@ int GameObjectGetTags(lua_State* L)
 template <class TObject>
 int GameObjectSetScale(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto character = self->Get(L);
 	if (!character) {
 		return 0;
 	}
 
-	auto scale = checked_get<float>(L, 2);
+	auto scale = get<float>(L, 2);
 	// Weird things happen if scale is too large/small
 	if (scale < 0.01f || scale > 100.0f) {
 		OsiError("Scale must be between 0.01 and 100")
@@ -156,7 +156,7 @@ int GameObjectGetDisplayName(lua_State* L, TObject* object)
 template <class TObject>
 int ItemGetDeltaMods(lua_State* L)
 {
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto item = self->Get(L);
 	if (!item) {
 		return 0;
@@ -177,7 +177,7 @@ template <class TObject>
 int ItemSetDeltaMods(lua_State* L)
 {
 	StackCheck _(L, 0);
-	auto self = checked_get<ObjectProxy<TObject>*>(L, 1);
+	auto self = get<ObjectProxy<TObject>*>(L, 1);
 	auto item = self->Get(L);
 	if (!item) return 0;
 

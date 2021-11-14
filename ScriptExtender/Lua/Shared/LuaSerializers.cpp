@@ -382,7 +382,7 @@ namespace dse::lua
 			}
 		} else {
 			if (v.RequirementId == RequirementType::Tag) {
-				auto param = getfield<char const*>(s.L, "Param");
+				auto param = checked_getfield<char const*>(s.L, "Param");
 				s.VisitProperty("Param", v.StringParam);
 				v.IntParam = -1;
 			} else {
@@ -417,13 +417,13 @@ namespace dse::lua
 		} else {
 			STDString name = std::to_string(gIndex++).c_str();
 
-			auto conditions = getfield<char const*>(s.L, "Condition");
+			auto conditions = checked_getfield<std::optional<char const*>>(s.L, "Condition");
 			if (conditions && *conditions) {
 				name += "_IF(";
-				name += conditions;
+				name += *conditions;
 				name += ")";
 
-				auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(conditions);
+				auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(*conditions);
 				if (scriptCheckBlock) {
 					auto statConditions = GameAlloc<CDivinityStats_Condition>();
 					statConditions->ScriptCheckBlock = scriptCheckBlock;
@@ -431,7 +431,7 @@ namespace dse::lua
 					v.Conditions = statConditions;
 				}
 				else {
-					OsiWarn("Failed to parse conditions: " << conditions);
+					OsiWarn("Failed to parse conditions: " << *conditions);
 				}
 			}
 
@@ -454,9 +454,9 @@ namespace dse::lua
 		s.VisitProperty("Action", v.Status);
 		PO(StatusChance, 100.0f);
 		PO(Duration, 1.0f);
-		auto statsId = getfield<FixedString>(s.L, "Arg3");
+		auto statsId = checked_getfield<std::optional<FixedString>>(s.L, "Arg3");
 		if (statsId) {
-			v.StatsId = statsId;
+			v.StatsId = *statsId;
 		} else {
 			PO(StatsId, GFS.strEmpty);
 		}
@@ -537,11 +537,10 @@ namespace dse::lua
 		s.VisitProperty("Action", v.PropertyName);
 		PO(Arg1, 100.0f);
 		PO(Arg2, 1.0f);
-		auto arg3 = getfield<FixedString>(s.L, "Arg3");
+		auto arg3 = checked_getfield<std::optional<FixedString>>(s.L, "Arg3");
 		if (arg3) {
-			v.Arg3 = arg3;
-		}
-		else {
+			v.Arg3 = *arg3;
+		} else {
 			PO(Arg3, GFS.strEmpty);
 		}
 		PO(Arg4, -1);
