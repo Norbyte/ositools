@@ -16,7 +16,8 @@ _I._PublishedSharedEvents = {
 	"SessionLoading",
 	"SessionLoaded",
 	"GameStateChanged",
-	"ResetCompleted"
+	"ResetCompleted",
+	"DoConsoleCommand"
 }
 
 Ext._WarningShown = {}
