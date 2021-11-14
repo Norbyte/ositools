@@ -31,7 +31,9 @@ public:
 
 	RefMapByRefProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~RefMapByRefProxyImpl() override
 	{}
@@ -120,7 +122,9 @@ public:
 
 	RefMapByValProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~RefMapByValProxyImpl() override
 	{}
@@ -226,7 +230,9 @@ public:
 
 	MapByRefProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~MapByRefProxyImpl() override
 	{}
@@ -315,7 +321,9 @@ public:
 
 	MapByValProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~MapByValProxyImpl() override
 	{}

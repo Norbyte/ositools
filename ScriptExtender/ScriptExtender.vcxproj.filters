@@ -335,7 +335,7 @@
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
     <ClInclude Include="Lua\Shared\LuaMethodHelpers.h">
-      <Filter>Lua\Shared\Proxies</Filter>
+      <Filter>Lua\Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

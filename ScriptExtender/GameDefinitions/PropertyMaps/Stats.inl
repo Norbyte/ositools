@@ -310,8 +310,8 @@ P(MaxMpOverride)
 */
 
 // FIXME - add props for v55 compat:
-// MainWeapon
-// OffHandWeapon
+P_GETTER(MainWeapon, GetMainWeapon)
+P_GETTER(OffHandWeapon, GetOffHandWeapon)
 // ModId
 // NotSneaking (wtf?)
 // Base* (Base version of stats)

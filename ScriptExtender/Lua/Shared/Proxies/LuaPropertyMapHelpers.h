@@ -73,7 +73,7 @@ bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, v
 	return true;
 }
 
-inline bool GenericSetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	return false;
 }

@@ -234,7 +234,7 @@ namespace dse
 			void * ShapeShiftVariableManager;
 			Map<FixedString, void *> Attitudes; // Element type unknown
 			FixedString SkillBeingPrepared;
-			CharacterTemplate* CurrentTemplate2;
+			void* CurrentTemplate2; // Not a RootTemplate!
 			uint32_t Dialog;
 			bool IsDialogAiControlled;
 			uint8_t U10[3];

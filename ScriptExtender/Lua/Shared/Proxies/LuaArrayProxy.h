@@ -57,7 +57,9 @@ class ArrayProxyByRefImpl : public ArrayProxyImplBase
 public:
 	ArrayProxyByRefImpl(LifetimeHolder const& lifetime, Array<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~ArrayProxyByRefImpl() override
 	{}
@@ -123,7 +125,9 @@ public:
 
 	ArrayProxyByValImpl(LifetimeHolder const& lifetime, Array<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~ArrayProxyByValImpl() override
 	{}
@@ -201,7 +205,9 @@ class VectorProxyByRefImpl : public ArrayProxyImplBase
 public:
 	VectorProxyByRefImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~VectorProxyByRefImpl() override
 	{}
@@ -267,7 +273,9 @@ public:
 
 	VectorProxyByValImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~VectorProxyByValImpl() override
 	{}
@@ -345,7 +353,9 @@ class SpanProxyByRefImpl : public ArrayProxyImplBase
 public:
 	SpanProxyByRefImpl(LifetimeHolder const& lifetime, std::span<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~SpanProxyByRefImpl() override
 	{}
@@ -411,7 +421,9 @@ public:
 
 	SpanProxyByValImpl(LifetimeHolder const& lifetime, std::span<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~SpanProxyByValImpl() override
 	{}
@@ -482,7 +494,9 @@ class ObjectSetProxyByRefImpl : public ArrayProxyImplBase
 public:
 	ObjectSetProxyByRefImpl(LifetimeHolder const& lifetime, ObjectSet<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~ObjectSetProxyByRefImpl() override
 	{}
@@ -548,7 +562,9 @@ public:
 
 	ObjectSetProxyByValImpl(LifetimeHolder const& lifetime, ObjectSet<T> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~ObjectSetProxyByValImpl() override
 	{}
@@ -626,7 +642,9 @@ class StdArrayProxyByRefImpl : public ArrayProxyImplBase
 public:
 	StdArrayProxyByRefImpl(LifetimeHolder const& lifetime, std::array<T, Size> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~StdArrayProxyByRefImpl() override
 	{}
@@ -692,7 +710,9 @@ public:
 
 	StdArrayProxyByValImpl(LifetimeHolder const& lifetime, std::array<T, Size> * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~StdArrayProxyByValImpl() override
 	{}

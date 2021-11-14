@@ -69,6 +69,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #define P_BITMASK(prop)
 #define PN(name, prop)
 #define PN_REF(name, prop)
+#define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
@@ -82,6 +83,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #undef P_BITMASK
 #undef PN
 #undef PN_REF
+#undef P_GETTER
 #undef P_FUN
 
 #if defined(DEBUG)
@@ -128,7 +130,7 @@ bool EnableWriteProtectedWrites{ false };
 #define P_REF(prop) \
 	pm.AddRawProperty(#prop, \
 		&(GenericGetOffsetRefProperty<decltype(PM::ObjectType::prop)>), \
-		&GenericSetOffsetRefProperty, \
+		&GenericSetNonWriteableProperty, \
 		offsetof(PM::ObjectType, prop) \
 	);
 
@@ -144,22 +146,30 @@ bool EnableWriteProtectedWrites{ false };
 #define PN_REF(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetRefProperty<decltype(PM::ObjectType::prop)>), \
-		&GenericSetOffsetRefProperty, \
+		&GenericSetNonWriteableProperty, \
 		offsetof(PM::ObjectType, prop) \
+	);
+
+// FIXME - avoid generating a separate push function for each closure
+#define P_GETTER(name, fun) \
+	pm.AddProperty(#name, \
+		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+			CallGetter(L, &PM::ObjectType::fun); \
+			return true; \
+		}, \
+		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
 	);
 
 // FIXME - avoid generating a separate push function for each closure
 #define P_FUN(name, fun) \
 	pm.AddProperty(#name, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset) { \
+		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			lua_pushcfunction(L, [](lua_State* L) -> int { \
 				return CallMethod(L, &PM::ObjectType::fun); \
 			}); \
 			return true; \
 		}, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, int index, std::size_t offset) { \
-			return false; \
-		}, 0 \
+		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
 	);
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
@@ -174,6 +184,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef P_BITMASK
 #undef PN
 #undef PN_REF
+#undef P_GETTER
 #undef P_FUN
 
 		initialized = true;
@@ -191,6 +202,7 @@ BEGIN_SE()
 #define P_BITMASK(prop)
 #define PN(name, prop)
 #define PN_REF(name, prop)
+#define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
@@ -204,6 +216,7 @@ BEGIN_SE()
 #undef P_BITMASK
 #undef PN
 #undef PN_REF
+#undef P_GETTER
 #undef P_FUN
 
 

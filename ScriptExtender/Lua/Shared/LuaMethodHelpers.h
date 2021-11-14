@@ -34,15 +34,15 @@ void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 	} else if constexpr (std::is_pointer_v<T>) {
 		if (value != nullptr) {
 			if constexpr (std::is_const_v<std::remove_pointer_t<T>>) {
-				ObjectProxy2::MakeRef(L, const_cast<std::remove_const_t<std::remove_pointer_t<T>>*>(*value), lifetime);
+				MakeObjectRef(L, lifetime, const_cast<std::remove_const_t<std::remove_pointer_t<T>>*>(*value));
 			} else {
-				ObjectProxy2::MakeRef(L, *value, lifetime);
+				MakeObjectRef(L, lifetime, *value);
 			}
 		} else {
 			push(L, nullptr);
 		}
 	} else {
-		if (value) {
+		if (value != nullptr) {
 			ObjectProxy2::MakeRef(L, value, lifetime);
 		} else {
 			push(L, nullptr);
@@ -172,6 +172,21 @@ inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequ
 template <class R, class T, class ...Args>
 inline int CallMethod(lua_State* L, R(T::* fun)(Args...)) {
 	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
+}
+
+// Special case of CallMethod that only accepts functions that return exactly 1 value
+template <class R, class T, class ...Args, size_t ...Indices>
+inline int CallGetterHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
+	StackCheck _(L, 1);
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
+	PushReturnValue(L, retval);
+	return 1;
+}
+
+template <class R, class T, class ...Args>
+inline int CallGetter(lua_State* L, R(T::* fun)(Args...)) {
+	return CallGetterHelper(L, fun, std::index_sequence_for<Args...>());
 }
 
 END_NS()

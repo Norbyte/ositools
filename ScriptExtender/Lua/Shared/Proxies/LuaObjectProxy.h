@@ -39,8 +39,8 @@ class LuaPropertyMap : public GenericPropertyMap
 public:
 	struct PropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, std::size_t offset);
-		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, int index, std::size_t offset);
+		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, std::size_t offset, uint64_t flag);
+		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
 	};
 
 	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop) const
@@ -79,14 +79,14 @@ public:
 
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
-			return getter(L, lifetime, object, prop.Offset);
+			return getter(L, lifetime, object, prop.Offset, prop.Flag);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while reading property %s.%s", Name.GetString(), prop.Name.GetString());
 			return false;
 		}
 #else
-		return getter(L, lifetime, object, prop.Offset);
+		return getter(L, lifetime, object, prop.Offset, prop.Flag);
 #endif
 	}
 
@@ -96,14 +96,14 @@ public:
 
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
-			return setter(L, lifetime, object, index, prop.Offset);
+			return setter(L, lifetime, object, index, prop.Offset, prop.Flag);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while writing property %s.%s", Name.GetString(), prop.Name.GetString());
 			return false;
 		}
 #else
-		return setter(L, lifetime, object, index, prop.Offset);
+		return setter(L, lifetime, object, index, prop.Offset, prop.Flag);
 #endif
 	}
 
@@ -118,8 +118,9 @@ template <class T>
 struct StaticLuaPropertyMap
 {
 	using ObjectType = T;
+	using TPropertyMap = LuaPropertyMap<T>;
 
-	static LuaPropertyMap<T> PropertyMap;
+	static TPropertyMap PropertyMap;
 };
 
 class ObjectProxyImplBase
@@ -221,7 +222,9 @@ public:
 
 	ObjectProxyRefImpl(LifetimeHolder const& lifetime, T * obj)
 		: object_(obj), lifetime_(lifetime)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 		
 	~ObjectProxyRefImpl() override
 	{}
@@ -277,7 +280,9 @@ public:
 	ObjectProxyOwnerImpl(LifetimePool& pool, Lifetime* lifetime, T* obj)
 		: lifetime_(pool, lifetime), 
 		object_(obj, &GameDelete<T>)
-	{}
+	{
+		assert(obj != nullptr);
+	}
 
 	~ObjectProxyOwnerImpl() override
 	{
