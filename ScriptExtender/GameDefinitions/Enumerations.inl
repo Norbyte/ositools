@@ -998,6 +998,13 @@ BEGIN_ENUM(EquipmentStatsType, uint32_t)
 END_ENUM()
 
 
+BEGIN_ENUM_NS(esv, SkillBarItemType, uint32_t)
+	EV(None, 0)
+	EV(Skill, 1)
+	EV(Item, 2)
+END_ENUM_NS()
+
+
 BEGIN_BITMASK_NS(ecl, StatusFlags, uint8_t)
 	EV(RequestDelete, 0x01)
 	EV(Started, 0x02)

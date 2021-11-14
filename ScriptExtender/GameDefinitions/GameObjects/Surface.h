@@ -173,7 +173,7 @@ namespace dse
 
         struct ExtinguishFireAction : public CreateSurfaceActionBase
         {
-            glm::vec3 Position;
+            glm::vec3 ExtinguishPosition;
             float Radius;
             float Percentage;
             float GrowTimer;

@@ -334,6 +334,9 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaMethodHelpers.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -618,6 +621,9 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\Events.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Lua\Server\ServerCharacter.inl">
+      <Filter>Lua\Server</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

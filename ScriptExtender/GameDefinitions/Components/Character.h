@@ -135,14 +135,7 @@ namespace dse
 
 		struct SkillBarItem : public ProtectedGameObject<SkillBarItem>
 		{
-			enum ItemType : uint32_t
-			{
-				kNone = 0,
-				kSkill = 1,
-				kItem = 2
-			};
-
-			ItemType Type;
+			SkillBarItemType Type;
 			FixedString SkillOrStatId;
 			ComponentHandle ItemHandle;
 		};
@@ -303,7 +296,7 @@ namespace dse
 			uint32_t TimeElapsed;
 			ObjectSet<FixedString> PreferredAiTarget;
 			void* CharacterBody;
-			RefMap<ComponentHandle, ObjectSet<CDivinityStats_Object_Property_Status const*>> StatusesFromItems;
+			RefMap<ComponentHandle, ObjectSet<CDivinityStats_Object_Property_Status*>> StatusesFromItems;
 			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;
@@ -311,6 +304,17 @@ namespace dse
 			uint8_t NumConsumables;
 			SurfaceType CustomBloodSurface;
 			FixedString PreviousLevel;
+
+			// For compatibility with v55
+			ObjectSet<FixedString> GetInventoryItemGuids();
+			ObjectSet<Item*> GetInventoryItems();
+			ObjectSet<FixedString> GetNearbyCharacters(float distance);
+			ObjectSet<FixedString> GetSummonGuids();
+			ObjectSet<Character*> GetSummons();
+			ObjectSet<FixedString> GetSkillIds();
+			Skill* GetSkillInfo(FixedString const& skill);
+			std::optional<int> GetCustomStatValue(FixedString const& statId);
+			bool SetCustomStatValue(FixedString const& statId, int value);
 		};
 	}
 

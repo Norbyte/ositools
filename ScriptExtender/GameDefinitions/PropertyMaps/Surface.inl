@@ -71,7 +71,7 @@ END_CLS()
 
 BEGIN_CLS(esv::ExtinguishFireAction)
 INHERIT(esv::CreateSurfaceActionBase)
-P(Position)
+P(ExtinguishPosition)
 P(Radius)
 P(Percentage)
 P(GrowTimer)

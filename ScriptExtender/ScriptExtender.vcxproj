@@ -103,6 +103,7 @@
     <ClInclude Include="Lua\Shared\LuaBinding.h" />
     <ClInclude Include="Lua\Shared\LuaHelpers.h" />
     <ClInclude Include="Lua\Shared\LuaLifetime.h" />
+    <ClInclude Include="Lua\Shared\LuaMethodHelpers.h" />
     <ClInclude Include="Lua\Shared\LuaSerializers.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
@@ -247,6 +248,7 @@
     <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\LuaJson.inl" />
+    <None Include="Lua\Server\ServerCharacter.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\LuaShared.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />

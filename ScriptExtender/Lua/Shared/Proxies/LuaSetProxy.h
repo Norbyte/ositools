@@ -84,6 +84,9 @@ protected:
 };
 
 template <class T>
+struct IsSetLike { static constexpr bool Value = false; };
+
+template <class T>
 inline void push_set_proxy(lua_State* L, LifetimeHolder const& lifetime, T* v)
 {
 	SetProxy::Make<T>(L, v, lifetime);

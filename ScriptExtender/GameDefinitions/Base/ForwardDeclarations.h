@@ -112,9 +112,6 @@ struct UIObjectManager;
 namespace lua
 {
 	class LifetimeHolder;
-
-	template <class T>
-	void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value);
 }
 
 END_SE()

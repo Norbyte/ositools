@@ -93,8 +93,8 @@ namespace dse::eoc
         float AIBoundsSize;
         uint16_t MetaDataIndex;
         char field_46;
-        float XZ[2];
-        float Rotation[9];
+        glm::vec2 XZ;
+        glm::mat3 Rotation;
         uint16_t AiCollidingRefCount;
         uint16_t Settings;
         uint64_t AiFlags;

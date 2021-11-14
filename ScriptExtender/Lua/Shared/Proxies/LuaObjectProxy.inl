@@ -10,7 +10,7 @@ bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHolder const& life
 		return 0;
 	}
 
-	return it->second.Get(L, lifetime, object, it->second.Offset);
+	return it->second.Get(L, lifetime, object, it->second.Offset, it->second.Flag);
 }
 
 bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const
@@ -20,14 +20,15 @@ bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHolder const& life
 		return 0;
 	}
 
-	return it->second.Set(L, lifetime, object, index, it->second.Offset);
+	return it->second.Set(L, lifetime, object, index, it->second.Offset, it->second.Flag);
 }
 
 void GenericPropertyMap::AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
-	typename RawPropertyAccessors::Setter* setter, std::size_t offset)
+	typename RawPropertyAccessors::Setter* setter, std::size_t offset, uint64_t flag)
 {
 	auto key = FixedString(prop);
-	Properties.insert(std::make_pair(key, RawPropertyAccessors{ key, getter, setter, offset }));
+	assert(Properties.find(key) == Properties.end());
+	Properties.insert(std::make_pair(key, RawPropertyAccessors{ key, getter, setter, offset, flag }));
 }
 
 

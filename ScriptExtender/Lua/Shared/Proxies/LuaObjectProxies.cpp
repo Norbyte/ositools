@@ -5,11 +5,13 @@
 #include <GameDefinitions/Enumerations.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 #include <Lua/Shared/Proxies/LuaPropertyMapHelpers.h>
 #include <Lua/Shared/Proxies/LuaEvent.h>
 #include <Lua/Server/LuaBindingServer.h>
 #include <Lua/Client/LuaBindingClient.h>
 
+#include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>
@@ -29,6 +31,32 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 	child.Parents.push_back(FixedString(baseClsName));
 }
 
+template <class T>
+void AddBitmaskProperty(GenericPropertyMap& pm, std::size_t offset)
+{
+	for (auto const& label : EnumInfo<T>::Values) {
+		pm.AddRawProperty(label.Key.GetString(),
+			&(GenericGetOffsetBitmaskFlag<T>),
+			&(GenericSetOffsetBitmaskFlag<T>),
+			offset,
+			(uint64_t)label.Value
+		);
+	}
+}
+
+bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+{
+	auto ch = reinterpret_cast<esv::Character*>(obj);
+	auto set = get<bool>(L, index);
+	if (set) {
+		ch->SetFlags(flag);
+	} else {
+		ch->ClearFlags(flag);
+	}
+
+	return true;
+}
+
 // Lua property map and object proxy template specialization declarations
 
 #define BEGIN_CLS(name) LuaPropertyMap<name> StaticLuaPropertyMap<name>::PropertyMap;
@@ -38,7 +66,9 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
-#define PN(prop, name)
+#define P_BITMASK(prop)
+#define PN(name, prop)
+#define PN_REF(name, prop)
 #define P_FUN(prop, fun)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
@@ -49,7 +79,9 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_BITMASK
 #undef PN
+#undef PN_REF
 #undef P_FUN
 
 #if defined(DEBUG)
@@ -64,6 +96,8 @@ bool EnableWriteProtectedWrites{ false };
 	{
 		static bool initialized{ false };
 		if (initialized) return;
+
+#define GENERATING_PROPMAP
 
 #define BEGIN_CLS(cls) { \
 	using PM = StaticLuaPropertyMap<cls>; \
@@ -98,10 +132,19 @@ bool EnableWriteProtectedWrites{ false };
 		offsetof(PM::ObjectType, prop) \
 	);
 
+#define P_BITMASK(prop) AddBitmaskProperty<decltype(PM::ObjectType::prop)>(pm, offsetof(PM::ObjectType, prop));
+
 #define PN(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
 		&(GenericSetOffsetProperty<decltype(PM::ObjectType::prop)>), \
+		offsetof(PM::ObjectType, prop) \
+	);
+
+#define PN_REF(name, prop) \
+	pm.AddRawProperty(#name, \
+		&(GenericGetOffsetRefProperty<decltype(PM::ObjectType::prop)>), \
+		&GenericSetOffsetRefProperty, \
 		offsetof(PM::ObjectType, prop) \
 	);
 
@@ -121,13 +164,16 @@ bool EnableWriteProtectedWrites{ false };
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
+#undef GENERATING_PROPMAP
 #undef BEGIN_CLS
 #undef END_CLS
 #undef INHERIT
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_BITMASK
 #undef PN
+#undef PN_REF
 #undef P_FUN
 
 		initialized = true;
@@ -142,7 +188,9 @@ BEGIN_SE()
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
-#define PN(prop, name)
+#define P_BITMASK(prop)
+#define PN(name, prop)
+#define PN_REF(name, prop)
 #define P_FUN(prop, fun)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
@@ -153,7 +201,9 @@ BEGIN_SE()
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_BITMASK
 #undef PN
+#undef PN_REF
 #undef P_FUN
 
 
@@ -176,5 +226,6 @@ BEGIN_SE()
 #undef END_ENUM
 
 char const* const TypeInfo<ig::InvokeDataValue>::TypeName = "ig::InvokeDataValue";
+char const* const TypeInfo<ObjectSet<CDivinityStats_Object_Property_Status*>>::TypeName = "ObjectSet<CDivinityStats_Object_Property_Status>";
 
 END_SE()

@@ -9,6 +9,7 @@ BEGIN_SE()
 struct BaseComponent
 {
 	void* VMT;
+	// FIXME - this is an EntityHandle
 	ComponentHandle EntityObjectHandle;
 	ComponentHandleWithType Component;
 };
@@ -355,7 +356,7 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual bool HasFlag(uint64_t flag) const = 0;
 	virtual void SetAiColliding(bool colliding) = 0;
 	virtual void GetTags(ObjectSet<FixedString> & tags) = 0;
-	virtual bool IsTagged(FixedString & tag) = 0;
+	virtual bool IsTagged(FixedString const & tag) = 0;
 	virtual Vector3 const* GetTranslate() const = 0;
 	virtual glm::mat3 const* GetRotation() const = 0;
 	virtual float GetScale() const = 0;
@@ -385,6 +386,9 @@ struct IGameObject : public IGameObjectBase
 	FixedString MyGuid;
 
 	NetId NetID;
+
+	ObjectSet<FixedString> LuaGetTags();
+	bool LuaIsTagged(FixedString const& tag);
 };
 
 struct IEocClientObject : public IGameObject

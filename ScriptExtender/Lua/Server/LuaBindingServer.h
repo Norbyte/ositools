@@ -441,6 +441,89 @@ namespace dse::esv::lua
 		PendingHit* Context;
 	};
 
+	struct BeforeCharacterApplyDamageEventParams
+	{
+		esv::Character* Target;
+		CRPGStats_Object* Attacker;
+		HitDamageInfo* Hit;
+		CauseType Cause;
+		glm::vec3 ImpactDirection;
+		PendingHit* Context;
+		bool Handled{ false };
+	};
+
+	struct TreasureItemGeneratedEventParams
+	{
+		esv::Item* Item;
+		esv::Item* ResultingItem{ nullptr };
+	};
+
+	struct BeforeCraftingExecuteCombinationEventParams
+	{
+		esv::Character* Item;
+		CraftingStationType CraftingStation;
+		FixedString CombinationId;
+		uint8_t Quantity;
+		ObjectSet<esv::Item*> Items;
+		bool Processed{ false };
+	};
+
+	struct AfterCraftingExecuteCombinationEventParams
+	{
+		esv::Character* Item;
+		CraftingStationType CraftingStation;
+		FixedString CombinationId;
+		uint8_t Quantity;
+		bool Succeeded;
+		ObjectSet<esv::Item*> Items;
+	};
+
+	struct BeforeShootProjectileEventParams
+	{
+		ShootProjectileHelper* Projectile;
+	};
+
+	struct ShootProjectileEventParams
+	{
+		Projectile* Projectile;
+	};
+
+	struct ProjectileHitEventParams
+	{
+		Projectile* Projectile;
+		ComponentHandle HitObject;
+		glm::vec3 Position;
+	};
+
+	struct ExecutePropertyDataOnGroundHitEventParams
+	{
+		glm::vec3 Position;
+		ComponentHandle Caster;
+		DamagePairList* DamageList;
+	};
+
+	struct ExecutePropertyDataOnTargetEventParams
+	{
+		CRPGStats_Object_Property_Extender* Property;
+		ComponentHandle Attacker;
+		ComponentHandle Target;
+		glm::vec3 ImpactOrigin;
+		bool IsFromItem;
+		SkillPrototype* Skill;
+		HitDamageInfo const* DamageInfo;
+	};
+
+	struct ExecutePropertyDataOnPositionEventParams
+	{
+		CRPGStats_Object_Property_Extender* Property;
+		ComponentHandle Attacker;
+		glm::vec3 Position;
+		float AreaRadius;
+		bool IsFromItem;
+		SkillPrototype* Skill;
+		HitDamageInfo const* DamageInfo;
+	};
+
 	class ServerState : public State
 	{
 	public:

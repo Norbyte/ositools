@@ -3,6 +3,7 @@
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 
 namespace dse::lua
 {
@@ -138,7 +139,7 @@ namespace dse::lua
 				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
 					ObjectProxy<ecl::Character>::New(L, handle);
 				} else if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-					ObjectProxy<esv::Character>::New(L, handle);
+					MakeObjectRef(L, (esv::Character*)stats->Character);
 				} else {
 					ERR("Unknown character handle type: %d", handle.GetType());
 					push(L, nullptr);

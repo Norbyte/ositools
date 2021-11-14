@@ -27,8 +27,7 @@ template <class TKey, class TValue>
 class RefMapByRefProxyImpl : public MapProxyImplBase
 {
 public:
-	static_assert(!std::is_pointer_v<TKey>, "RefMapByRefProxyImpl template parameter should not be a pointer type!");
-	static_assert(!std::is_pointer_v<TValue>, "RefMapByRefProxyImpl template parameter should not be a pointer type!");
+	static_assert(ByVal<TKey>::Value, "RefMap key should be a by-value type!");
 
 	RefMapByRefProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
@@ -117,8 +116,7 @@ template <class TKey, class TValue>
 class RefMapByValProxyImpl : public MapProxyImplBase
 {
 public:
-	static_assert(!std::is_pointer_v<TKey>, "RefMapByValProxyImpl template parameter should not be a pointer type!");
-	static_assert(!std::is_pointer_v<TValue>, "RefMapByValProxyImpl template parameter should not be a pointer type!");
+	static_assert(ByVal<TKey>::Value, "RefMap key should be a by-value type!");
 
 	RefMapByValProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
@@ -218,6 +216,201 @@ private:
 	RefMap<TKey, TValue>* object_;
 	LifetimeHolder lifetime_;
 };
+	
+
+template <class TKey, class TValue>
+class MapByRefProxyImpl : public MapProxyImplBase
+{
+public:
+	static_assert(ByVal<TKey>::Value, "Map key should be a by-value type!");
+
+	MapByRefProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
+		: object_(obj), lifetime_(lifetime)
+	{}
+		
+	~MapByRefProxyImpl() override
+	{}
+
+	void* GetRaw() override
+	{
+		return object_;
+	}
+
+	char const* GetKeyTypeName() const override
+	{
+		return GetTypeInfo<TKey>();
+	}
+
+	char const* GetValueTypeName() const override
+	{
+		return GetTypeInfo<TValue>();
+	}
+
+	bool GetValue(lua_State* L, int luaKeyIndex) override
+	{
+		TKey key;
+		lua_pushvalue(L, luaKeyIndex);
+		LuaRead(L, key);
+		lua_pop(L, 1);
+
+		auto value = object_->Find(key);
+		if (value) {
+			MakeObjectRef(L, lifetime_, value);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool SetValue(lua_State* L, int luaKeyIndex, int luaValueIndex) override
+	{
+		return false;
+	}
+
+	unsigned Length() override
+	{
+		return object_->Count();
+	}
+
+	int Next(lua_State* L, int luaKeyIndex) override
+	{
+		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
+			auto it = object_->begin();
+			if (it != object_->end()) {
+				LuaWrite(L, it.Key());
+				MakeObjectRef(L, lifetime_, &it.Value());
+				return 2;
+			}
+		} else {
+			TKey key;
+			lua_pushvalue(L, luaKeyIndex);
+			LuaRead(L, key);
+			lua_pop(L, 1);
+
+			auto it = object_->FindIterator(key);
+			if (it != object_->end()) {
+				it++;
+				if (it != object_->end()) {
+					LuaWrite(L, it.Key());
+					MakeObjectRef(L, lifetime_, &it.Value());
+					return 2;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+private:
+	Map<TKey, TValue>* object_;
+	LifetimeHolder lifetime_;
+};
+
+	
+template <class TKey, class TValue>
+class MapByValProxyImpl : public MapProxyImplBase
+{
+public:
+	static_assert(ByVal<TKey>::Value, "Map key should be a by-value type!");
+
+	MapByValProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
+		: object_(obj), lifetime_(lifetime)
+	{}
+		
+	~MapByValProxyImpl() override
+	{}
+
+	void* GetRaw() override
+	{
+		return object_;
+	}
+
+	char const* GetKeyTypeName() const override
+	{
+		return GetTypeInfo<TKey>();
+	}
+
+	char const* GetValueTypeName() const override
+	{
+		return GetTypeInfo<TValue>();
+	}
+
+	bool GetValue(lua_State* L, int luaKeyIndex) override
+	{
+		TKey key;
+		lua_pushvalue(L, luaKeyIndex);
+		LuaRead(L, key);
+		lua_pop(L, 1);
+
+		auto value = object_->Find(key);
+		if (value) {
+			LuaWrite(L, *value);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool SetValue(lua_State* L, int luaKeyIndex, int luaValueIndex) override
+	{
+		TKey key;
+		lua_pushvalue(L, luaKeyIndex);
+		LuaRead(L, key);
+		lua_pop(L, 1);
+
+		if (lua_type(L, luaValueIndex) == LUA_TNIL) {
+			// FIXME - add support for remove() in maps!
+			// object_->Remove(key);
+		} else {
+			TValue value;
+			lua_pushvalue(L, luaValueIndex);
+			LuaRead(L, value);
+			lua_pop(L, 1);
+
+			*object_->Insert(key) = value;
+		}
+
+		return true;
+	}
+
+	unsigned Length() override
+	{
+		return object_->Count();
+	}
+
+	int Next(lua_State* L, int luaKeyIndex) override
+	{
+		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
+			auto it = object_->begin();
+			if (it != object_->end()) {
+				LuaWrite(L, it.Key());
+				LuaWrite(L, it.Value());
+				return 2;
+			}
+		} else {
+			TKey key;
+			lua_pushvalue(L, luaKeyIndex);
+			LuaRead(L, key);
+			lua_pop(L, 1);
+
+			auto it = object_->FindIterator(key);
+			if (it != object_->end()) {
+				it++;
+				if (it != object_->end()) {
+					LuaWrite(L, it.Key());
+					LuaWrite(L, it.Value());
+					return 2;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+private:
+	Map<TKey, TValue>* object_;
+	LifetimeHolder lifetime_;
+};
 
 
 class MapProxy : private Userdata<MapProxy>, public Indexable, public NewIndexable,
@@ -239,6 +432,20 @@ public:
 	{
 		auto self = NewWithExtraData(L, sizeof(RefMapByValProxyImpl<TKey, TValue>), lifetime);
 		return new (self->GetImpl()) RefMapByValProxyImpl<TKey, TValue>(lifetime, object);
+	}
+
+	template <class TKey, class TValue>
+	inline static MapByRefProxyImpl<TKey, TValue>* MakeByRef(lua_State* L, Map<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	{
+		auto self = NewWithExtraData(L, sizeof(MapByRefProxyImpl<TKey, TValue>), lifetime);
+		return new (self->GetImpl()) MapByRefProxyImpl<TKey, TValue>(lifetime, object);
+	}
+
+	template <class TKey, class TValue>
+	inline static MapByValProxyImpl<TKey, TValue>* MakeByVal(lua_State* L, Map<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	{
+		auto self = NewWithExtraData(L, sizeof(MapByValProxyImpl<TKey, TValue>), lifetime);
+		return new (self->GetImpl()) MapByValProxyImpl<TKey, TValue>(lifetime, object);
 	}
 
 	inline MapProxyImplBase* GetImpl()
@@ -292,6 +499,25 @@ protected:
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
 	int GC(lua_State* L);
+};
+
+template <class T>
+struct IsMapLike { static constexpr bool Value = false; };
+
+template <class TK, class TV>
+struct IsMapLike<Map<TK, TV>>
+{ 
+	static constexpr bool Value = true; 
+	using TKey = TK;
+	using TValue = TV;
+};
+
+template <class TK, class TV>
+struct IsMapLike<RefMap<TK, TV>>
+{ 
+	static constexpr bool Value = true;
+	using TKey = TK;
+	using TValue = TV;
 };
 
 template <class T>

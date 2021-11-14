@@ -739,7 +739,7 @@ namespace dse::lua
 
 			if (seenWarnings_.find(msg) == seenWarnings_.end()) {
 				seenWarnings_.insert(msg);
-				OsiWarn("DEPRECATION WARNING: " << msg);
+				LogOsirisWarning(std::string("DEPRECATION WARNING: ") + msg);
 			}
 		}
 

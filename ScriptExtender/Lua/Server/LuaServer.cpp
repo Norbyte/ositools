@@ -6,10 +6,27 @@
 #include <GameDefinitions/CustomStats.h>
 #include <Lua/Server/LuaBindingServer.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 #include <ScriptHelpers.h>
 #include "resource.h"
+
+BEGIN_SE()
+
+ObjectSet<FixedString> IGameObject::LuaGetTags()
+{
+	ObjectSet<FixedString> tags;
+	GetTags(tags);
+	return tags;
+}
+
+bool IGameObject::LuaIsTagged(FixedString const& tag)
+{
+	return IsTagged(tag);
+}
+
+END_SE()
 
 BEGIN_NS(lua)
 
@@ -99,6 +116,8 @@ namespace dse::esv::lua
 		return 1;
 	}
 }
+
+#include <Lua/Server/ServerCharacter.inl>
 
 namespace dse::lua
 {
@@ -356,330 +375,6 @@ namespace dse::lua
 		return GenericSetter(L, gPlayerCustomDataPropertyMap);
 	}
 
-	void GetInventoryItems(lua_State* L, ComponentHandle inventoryHandle)
-	{
-		lua_newtable(L);
-
-		auto inventory = esv::FindInventoryByHandle(inventoryHandle);
-		if (inventory != nullptr) {
-			int32_t index = 1;
-			for (auto itemHandle : inventory->ItemsBySlot) {
-				if (itemHandle) {
-					auto item = esv::GetEntityWorld()->GetItem(itemHandle);
-					if (item != nullptr) {
-						settable(L, index++, item->MyGuid);
-					}
-				}
-			}
-		}
-	}
-
-	char const* const ObjectProxy<esv::Character>::MetatableName = "esv::Character";
-
-	int ServerCharacterFetchProperty(lua_State* L, esv::Character* character, FixedString const& prop)
-	{
-		if (prop == GFS.strPlayerCustomData) {
-			if (character->PlayerData != nullptr
-				&& character->PlayerData->CustomData.Initialized) {
-				ComponentHandle handle;
-				character->GetObjectHandle(handle);
-				ObjectProxy<esv::PlayerCustomData>::New(L, handle);
-				return 1;
-			} else {
-				OsiError("Character has no player data, or custom data was not initialized.");
-				push(L, nullptr);
-				return 1;
-			}
-		}
-
-		if (prop == GFS.strStats) {
-			if (character->Stats != nullptr) {
-				ComponentHandle handle;
-				character->GetObjectHandle(handle);
-				ObjectProxy<CDivinityStats_Character>::New(L, handle);
-				return 1;
-			} else {
-				OsiError("Character has no stats.");
-				push(L, nullptr);
-				return 1;
-			}
-		}
-
-		if (prop == GFS.strHandle) {
-			push(L, character->Base.Component.Handle);
-			return 1;
-		}
-
-		if (prop == GFS.strRootTemplate) {
-			ObjectProxy<CharacterTemplate>::New(L, GetServerLifetime(), character->CurrentTemplate);
-			return 1;
-		}
-
-		if (prop == GFS.strDisplayName) {
-			return GameObjectGetDisplayName<esv::Character>(L, character);
-		}
-
-		auto fetched = LuaPropertyMapGet(L, gCharacterPropertyMap, character, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	esv::Character* ObjectProxy<esv::Character>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
-		if (character == nullptr) luaL_error(L, "Character handle invalid");
-		return character;
-	}
-
-	int CharacterGetInventoryItems(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-
-		GetInventoryItems(L, self->Get(L)->InventoryHandle);
-
-		return 1;
-	}
-
-	int CharacterGetNearbyCharacters(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-		auto pos = self->Get(L)->WorldPos;
-		auto distance = get<float>(L, 2);
-
-		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
-			return abs(glm::length(pos - c->WorldPos)) < distance;
-		});
-		return 1;
-	}
-
-	int CharacterGetSummons(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-		
-		lua_newtable(L);
-		int32_t index{ 1 };
-
-		for (auto const& handle : self->Get(L)->SummonHandles) {
-			auto summon = esv::GetEntityWorld()->GetCharacter(handle);
-			if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
-				settable(L, index++, summon->MyGuid);;
-			}
-		}
-
-		return 1;
-	}
-
-	int CharacterGetSkills(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-
-		lua_newtable(L);
-		int32_t index{ 1 };
-
-		auto skillMgr = self->Get(L)->SkillManager;
-		if (skillMgr != nullptr) {
-			for (auto const& skill : skillMgr->Skills) {
-				settable(L, index++, skill.Key);
-			}
-		}
-
-		return 1;
-	}
-
-	int CharacterGetSkillInfo(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-		auto skillId = get<FixedString>(L, 2);
-
-		auto skillMgr = self->Get(L)->SkillManager;
-		if (skillMgr != nullptr) {
-			auto skill = skillMgr->Skills.Find(skillId);
-			if (skill != nullptr) {
-				auto& sk = **skill;
-				lua_newtable(L);
-				setfield(L, "ActiveCooldown", sk.ActiveCooldown);
-				setfield(L, "IsActivated", sk.IsActivated);
-				setfield(L, "IsLearned", sk.IsLearned);
-				setfield(L, "ZeroMemory", sk.ZeroMemory);
-				setfield(L, "OncePerCombat", sk.OncePerCombat);
-				setfield(L, "NumCharges", sk.NumCharges);
-
-				lua_newtable(L);
-				int32_t causeIdx{ 1 };
-				for (auto const& handle : sk.CauseList) {
-					settable(L, causeIdx++, handle);
-				}
-
-				lua_setfield(L, -2, "CauseList");
-				return 1;
-			}
-		}
-
-		push(L, nullptr);
-		return 1;
-	}
-
-	int CharacterGetCustomStatValue(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-		auto statId = get<char const*>(L, 2);
-
-		auto character = self->Get(L);
-		if (character == nullptr) {
-			push(L, nullptr);
-			return 1;
-		}
-
-		auto value = esv::CustomStatHelpers::GetCharacterStat(character->Base.EntityObjectHandle, statId);
-		if (value) {
-			push(L, *value);
-		} else {
-			push(L, nullptr);
-		}
-
-		return 1;
-	}
-
-	int CharacterSetCustomStatValue(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Character>*>(L, 1);
-		auto statId = get<char const*>(L, 2);
-		auto value = get<int>(L, 3);
-
-		auto character = self->Get(L);
-		if (character == nullptr) {
-			push(L, false);
-			return 1;
-		}
-
-		auto set = esv::CustomStatHelpers::SetCharacterStat(character->Base.EntityObjectHandle, statId, value);
-		push(L, set);
-		return 1;
-	}
-
-	int ObjectProxy<esv::Character>::Index(lua_State* L)
-	{
-		auto character = Get(L);
-		if (!character) return 0;
-
-		StackCheck _(L, 1);
-		auto propFS = get<FixedString>(L, 2);
-
-		if (propFS == GFS.strGetInventoryItems) {
-			lua_pushcfunction(L, &CharacterGetInventoryItems);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetSkills) {
-			lua_pushcfunction(L, &CharacterGetSkills);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetSkillInfo) {
-			lua_pushcfunction(L, &CharacterGetSkillInfo);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetNearbyCharacters) {
-			lua_pushcfunction(L, &CharacterGetNearbyCharacters);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetSummons) {
-			lua_pushcfunction(L, &CharacterGetSummons);
-			return 1;
-		}
-
-		if (propFS == GFS.strHasTag) {
-			lua_pushcfunction(L, &GameObjectHasTag<esv::Character>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetTags) {
-			lua_pushcfunction(L, &GameObjectGetTags<esv::Character>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Character, esv::Status>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Character, esv::Status>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatuses) {
-			lua_pushcfunction(L, (&GameObjectGetStatuses<esv::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<esv::Character, esv::Status>));
-			return 1;
-		}
-
-		if (propFS == GFS.strSetScale) {
-			lua_pushcfunction(L, (&GameObjectSetScale<esv::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetCustomStat) {
-			lua_pushcfunction(L, &CharacterGetCustomStatValue);
-			return 1;
-		}
-
-		if (propFS == GFS.strSetCustomStat) {
-			lua_pushcfunction(L, &CharacterSetCustomStatValue);
-			return 1;
-		}
-
-		return ServerCharacterFetchProperty(L, character, propFS);
-	}
-
-	int ObjectProxy<esv::Character>::NewIndex(lua_State* L)
-	{
-		auto character = Get(L);
-		if (!character) return 0;
-
-		StackCheck _(L, 0);
-		auto propFS = get<FixedString>(L, 2);
-
-		if (propFS == GFS.strWalkSpeed) {
-			if (lua_isnil(L, 3)) {
-				character->WalkSpeedOverride = 0.0f;
-				character->Flags3 &= ~esv::CharacterFlags3::HasWalkSpeedOverride;
-			} else {
-				auto speed = get<float>(L, 3);
-				character->WalkSpeedOverride = speed;
-				character->Flags3 |= esv::CharacterFlags3::HasWalkSpeedOverride;
-			}
-		} else if (propFS == GFS.strRunSpeed) {
-			if (lua_isnil(L, 3)) {
-				character->RunSpeedOverride = 0.0f;
-				character->Flags3 &= ~esv::CharacterFlags3::HasRunSpeedOverride;
-			}
-			else {
-				auto speed = get<float>(L, 3);
-				character->RunSpeedOverride = speed;
-				character->Flags3 |= esv::CharacterFlags3::HasRunSpeedOverride;
-			}
-		} else {
-			return GenericSetter(L, gCharacterPropertyMap);
-		}
-
-		return 0;
-	}
-
 
 	char const* const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
 
@@ -696,7 +391,7 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
 
-		GetInventoryItems(L, self->Get(L)->InventoryHandle);
+		// FIXME - GetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
 	}
@@ -708,7 +403,7 @@ namespace dse::lua
 		auto pos = self->Get(L)->WorldPos;
 		auto distance = get<float>(L, 2);
 
-		esv::lua::GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
+		esv::lua::GetCharactersGenericOld(L, FixedString{}, [pos, distance](esv::Character* c) {
 			return abs(glm::length(pos - c->WorldPos)) < distance;
 		});
 		return 1;
@@ -1416,13 +1111,7 @@ namespace dse::esv::lua
 			// TODO - fetching CombatGroup?
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
-			if (character != nullptr) {
-				ComponentHandle handle;
-				character->GetObjectHandle(handle);
-				ObjectProxy<esv::Character>::New(L, handle);
-			} else {
-				push(L, nullptr);
-			}
+			MakeObjectRef(L, character);
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
 			if (item != nullptr) {
@@ -1487,7 +1176,6 @@ namespace dse::esv::lua
 		ExtensionLibrary::Register(L);
 
 		ObjectProxy<esv::Status>::RegisterMetatable(L);
-		ObjectProxy<esv::Character>::RegisterMetatable(L);
 		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
@@ -1565,17 +1253,8 @@ namespace dse::esv::lua
 
 		StackCheck _(L, 1);
 		esv::Character* character = GetCharacter(L, 1);
-
-		if (character != nullptr) {
-			//ComponentHandle handle;
-			//character->GetObjectHandle(handle);
-			//ObjectProxy<esv::Character>::New(L, handle);
-			ObjectProxy2::MakeRef(L, character, GetCurrentLifetime());
-			return 1;
-		} else {
-			push(L, nullptr);
-			return 1;
-		}
+		MakeObjectRef(L, character);
+		return 1;
 	}
 
 	int GetItem(lua_State* L)
@@ -1794,9 +1473,7 @@ namespace dse::esv::lua
 			ObjectProxy<esv::Item>::New(L, handle);
 			return 1;
 		} else if (result.character != nullptr) {
-			ComponentHandle handle;
-			result.character->GetObjectHandle(handle);
-			ObjectProxy<esv::Character>::New(L, handle);
+			MakeObjectRef(L, result.character);
 			return 1;
 		} else if (result.projectile != nullptr) {
 			ComponentHandle handle;
@@ -3112,7 +2789,7 @@ namespace dse::esv::lua
 		}
 
 		if (hit.Status) {
-			StatusHandleProxy::New(L, hit.Status->TargetHandle, hit.Status->StatusHandle);
+			StatusHandleProxy::New(L, hit.Status->OwnerHandle, hit.Status->StatusHandle);
 			lua_setfield(L, -2, "HitStatus");
 		}
 	}
@@ -3217,14 +2894,6 @@ namespace dse::esv::lua
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictOsiris);
-
-		PushExtFunction(L, "_BeforeCharacterApplyDamage"); // stack: fn
-
-		auto luaTarget = ObjectProxy<esv::Character>::New(L, GetServerLifetime(), target);
-		UnbindablePin _t(luaTarget);
-
 		CRPGStats_Object* attacker{ nullptr };
 		if (attackerHandle) {
 			auto attackerChar = GetEntityWorld()->GetCharacter(attackerHandle, false);
@@ -3240,36 +2909,11 @@ namespace dse::esv::lua
 			}
 		}
 
-		ItemOrCharacterPushPin luaAttacker(L, attacker);
-
-		PushHit(L, hit);
-
-		push(L, causeType);
-		push(L, impactDirection); // stack: fn, target, attacker, hit, causeType, impactDirection
-
-		if (context) {
-			PushPendingHit(L, *context);
-		} else {
-			lua_newtable(L);
-		}
-
-		if (CallWithTraceback(L, 6, 1) != 0) { // stack: succeeded
-			LuaError("BeforeCharacterApplyDamage handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return false;
-		}
-
-		int top = lua_gettop(L);
-		try {
-			PopHit(L, hit, -1);
-		}
-		catch (Exception& e) {
-			lua_settop(L, top);
-			OsiError("Exception thrown during BeforeCharacterApplyDamage processing: " << e.what());
-		}
-
-		lua_pop(L, 1); // stack: -
-		return false;
+		BeforeCharacterApplyDamageEventParams evt{
+			target, attacker, &hit, causeType, impactDirection, context
+		};
+		ThrowEvent(*this, "BeforeCharacterApplyDamage", evt);
+		return evt.Handled;
 	}
 
 
@@ -3285,135 +2929,72 @@ namespace dse::esv::lua
 		StackCheck _(L, 0);
 		PushExtFunction(L, "_TreasureItemGenerated"); // stack: fn
 
-		ComponentHandle itemHandle;
-		item->GetObjectHandle(itemHandle);
-		ObjectProxy<esv::Item>::New(L, itemHandle);
+		TreasureItemGeneratedEventParams params{ item, nullptr };
+		ThrowEvent(*this, "TreasureItemGenerated", params);
 
-		if (CallWithTraceback(L, 1, 1) != 0) { // stack: succeeded
-			LuaError("TreasureItemGenerated handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return item;
+		if (!params.ResultingItem) {
+			return nullptr;
 		}
 
-		auto returnItem = ObjectProxy<esv::Item>::AsUserData(L, -1);
-		lua_pop(L, 1);
-
-		if (!returnItem) {
-			return item;
-		}
-
-		auto returnObj = returnItem->Get(L);
-		if (!returnObj) {
-			return item;
-		}
-
-		if (returnObj->ParentInventoryHandle) {
+		if (params.ResultingItem->ParentInventoryHandle) {
 			OsiError("TreasureItemGenerated must return an item that's not already in an inventory");
 			return item;
 		}
 
-		if (!returnObj->CurrentLevel || returnObj->CurrentLevel.Str[0]) {
+		if (params.ResultingItem->CurrentLevel && params.ResultingItem->CurrentLevel.GetString()[0]) {
 			OsiError("TreasureItemGenerated must return an item that's not in the level");
 			return item;
 		}
 
-		return returnObj;
+		return params.ResultingItem;
 	}
 
 
 	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_BeforeCraftingExecuteCombination"); // stack: fn
+		BeforeCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity };
 
-		ObjectProxy<esv::Character>::New(L, GetServerLifetime(), character);
-		push(L, craftingStation);
-
-		lua_newtable(L);
-		int32_t index = 1;
 		for (auto ingredientHandle : ingredients) {
 			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
 			if (ingredient) {
-				push(L, index);
-				ObjectProxy<esv::Item>::New(L, GetServerLifetime(), ingredient);
-				lua_settable(L, -3);
+				params.Items.Add(ingredient);
 			}
 		}
 
-		push(L, quantity);
-		push(L, combinationId);
+		ThrowEvent(*this, "BeforeCraftingExecuteCombination", params);
 
-		if (CallWithTraceback(L, 5, 1) != 0) { // stack: succeeded
-			LuaError("BeforeCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-			return false;
-		}
-
-		auto processed = get<std::optional<bool>>(L, -1);
-		lua_pop(L, 1);
-		if (processed) {
-			return *processed;
-		} else {
-			return false;
-		}
+		return params.Processed;
 	}
 
 
 	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_AfterCraftingExecuteCombination"); // stack: fn
+		AfterCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity, succeeded };
 
-		ObjectProxy<esv::Character>::New(L, GetServerLifetime(), character);
-		push(L, craftingStation);
-
-		lua_newtable(L);
-		int32_t index = 1;
 		for (auto ingredientHandle : ingredients) {
-			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle, false);
+			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
 			if (ingredient) {
-				push(L, index);
-				ObjectProxy<esv::Item>::New(L, GetServerLifetime(), ingredient);
-				lua_settable(L, -3);
+				params.Items.Add(ingredient);
 			}
 		}
 
-		push(L, quantity);
-		push(L, combinationId);
-		push(L, succeeded);
-
-		if (CallWithTraceback(L, 6, 0) != 0) { // stack: succeeded
-			LuaError("AfterCraftingExecuteCombination handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ThrowEvent(*this, "AfterCraftingExecuteCombination", params);
 	}
 
 
 	void ServerState::OnBeforeShootProjectile(ShootProjectileHelper* helper)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_OnBeforeShootProjectile");
-		UnbindablePin _h(ObjectProxy<ShootProjectileHelper>::New(L, GetServerLifetime(), helper));
-
-		if (CallWithTraceback(L, 1, 0) != 0) {
-			LuaError("OnBeforeShootProjectile handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		BeforeShootProjectileEventParams params{ helper };
+		ThrowEvent(*this, "BeforeShootProjectile", params);
 	}
 
 
 	void ServerState::OnShootProjectile(Projectile* projectile)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_OnShootProjectile");
-		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, GetServerLifetime(), projectile));
-
-		if (CallWithTraceback(L, 1, 0) != 0) {
-			LuaError("OnShootProjectile handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ShootProjectileEventParams params{ projectile };
+		ThrowEvent(*this, "OnShootProjectile", params);
 	}
 
 	void PushGameObject(lua_State* L, ComponentHandle handle)
@@ -3425,8 +3006,11 @@ namespace dse::esv::lua
 
 		switch (handle.GetType()) {
 		case (uint32_t)ObjectType::ServerCharacter:
-			ObjectProxy<esv::Character>::New(L, handle);
+		{
+			auto character = esv::GetEntityWorld()->GetCharacter(handle);
+			MakeObjectRef(L, character);
 			break;
+		}
 
 		case (uint32_t)ObjectType::ServerItem:
 			ObjectProxy<esv::Item>::New(L, handle);
@@ -3446,36 +3030,15 @@ namespace dse::esv::lua
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_OnProjectileHit");
-		UnbindablePin _p(ObjectProxy<esv::Projectile>::New(L, GetServerLifetime(), projectile));
-
-		PushGameObject(L, hitObject);
-		push(L, position);
-
-		if (CallWithTraceback(L, 3, 0) != 0) {
-			LuaError("OnProjectileHit handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ProjectileHitEventParams params{ projectile, hitObject, position };
+		ThrowEvent(*this, "OnProjectileHit", params);
 	}
 
 
 	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_OnGroundHit");
-
-		PushGameObject(L, casterHandle);
-		push(L, position);
-		auto dmgList = DamageList::New(L);
-		if (damageList) {
-			dmgList->Get().CopyFrom(*damageList);
-		}
-
-		if (CallWithTraceback(L, 3, 0) != 0) {
-			LuaError("GroundHit handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ExecutePropertyDataOnGroundHitEventParams params{ position, casterHandle, damageList };
+		ThrowEvent(*this, "OnExecutePropertyDataOnGroundHit", params);
 	}
 
 
@@ -3483,33 +3046,10 @@ namespace dse::esv::lua
 		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype * skillProto,
 		HitDamageInfo const* damageInfo)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_ExecutePropertyDataOnTarget");
-
-		LuaSerializer serializer(L, true);
-		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
-		SerializeObjectProperty(serializer, propRef);
-		PushGameObject(L, attackerHandle);
-		PushGameObject(L, target);
-		push(L, impactOrigin);
-		push(L, isFromItem);
-
-		if (skillProto) {
-			SkillPrototypeProxy::New(L, skillProto, -1);
-		} else {
-			push(L, nullptr);
-		}
-
-		if (damageInfo) {
-			PushHit(L, *damageInfo);
-		} else {
-			push(L, nullptr);
-		}
-
-		if (CallWithTraceback(L, 7, 0) != 0) {
-			LuaError("ExecutePropertyDataOnTarget handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ExecutePropertyDataOnTargetEventParams params{ 
+			prop, attackerHandle, target, impactOrigin, isFromItem, skillProto, damageInfo
+		};
+		ThrowEvent(*this, "OnExecutePropertyDataOnTarget", params);
 	}
 
 
@@ -3517,33 +3057,10 @@ namespace dse::esv::lua
 		glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype * skillPrototype,
 		HitDamageInfo const* damageInfo)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_ExecutePropertyDataOnPosition");
-
-		LuaSerializer serializer(L, true);
-		auto propRef = static_cast<CDivinityStats_Object_Property_Data*>(prop);
-		SerializeObjectProperty(serializer, propRef);
-		PushGameObject(L, attackerHandle);
-		push(L, position);
-		push(L, areaRadius);
-		push(L, isFromItem);
-
-		if (skillPrototype) {
-			SkillPrototypeProxy::New(L, skillPrototype, -1);
-		} else {
-			push(L, nullptr);
-		}
-
-		if (damageInfo) {
-			PushHit(L, *damageInfo);
-		} else {
-			push(L, nullptr);
-		}
-
-		if (CallWithTraceback(L, 7, 0) != 0) {
-			LuaError("ExecutePropertyDataOnPosition handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		ExecutePropertyDataOnPositionEventParams params{
+			prop, attackerHandle, position, areaRadius, isFromItem, skillPrototype, damageInfo
+		};
+		ThrowEvent(*this, "OnExecutePropertyDataOnPosition", params);
 	}
 
 

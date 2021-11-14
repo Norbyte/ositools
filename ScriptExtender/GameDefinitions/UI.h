@@ -341,7 +341,7 @@ namespace dse
 		typedef void (* SetTraceCallbackUTF8Proc)(TraceCallbackProc, void *);
 	}
 
-	BY_VAL_ARRAY(ig::InvokeDataValue);
+	BY_VAL(ig::InvokeDataValue);
 
 	struct UIObject : Noncopyable<UIObject>
 	{

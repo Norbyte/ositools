@@ -102,7 +102,7 @@ struct Status : public ProtectedGameObject<Status>
 	float StatsMultiplier; // Saved
 	CauseType DamageSourceType; // Saved
 	ComponentHandle StatusHandle;
-	ComponentHandle TargetHandle;
+	ComponentHandle OwnerHandle;
 	ObjectSet<ComponentHandle> StatusOwner; // Saved
 	ComponentHandle StatusSourceHandle; // Saved
 	ComponentHandle CleansedByHandle;

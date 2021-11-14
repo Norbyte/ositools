@@ -87,13 +87,14 @@ struct HasObjectProxyTag {
 
 #define HAS_OBJECT_PROXY(cls) template<> struct HasObjectProxyTag<cls> { static constexpr bool HasProxy = true; }
 
-// Tag for by-ref vs by-val array behavior
+// Tag indicating whether a specific type should be handled as a value (by-val) 
+// or as an object via an object/array proxy (by-ref)
 template <class T>
-struct ByValArray {
-	static constexpr bool Value = false;
+struct ByVal {
+	static constexpr bool Value = std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_enum_v<T>;
 };
 
-#define BY_VAL_ARRAY(cls) template<> struct ByValArray<cls> { static constexpr bool Value = true; }
+#define BY_VAL(cls) template<> struct ByVal<cls> { static constexpr bool Value = true; }
 
 // Prevents implicit casting between aliases of integral types (eg. NetId and UserId)
 // Goal is to prevent accidental mixups between different types
@@ -244,6 +245,15 @@ struct UserReturn
 	}
 
 	int num;
+};
+
+template <class T>
+struct OverrideableProperty
+{
+    using Type = T;
+
+    T Value;
+    bool IsOverridden;
 };
 
 END_SE()

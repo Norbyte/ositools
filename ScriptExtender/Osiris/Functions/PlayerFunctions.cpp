@@ -128,7 +128,7 @@ namespace dse::esv
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
-			if (skillBarItem->Type == esv::SkillBarItem::kItem) {
+			if (skillBarItem->Type == esv::SkillBarItemType::Item) {
 				auto item = GetEntityWorld()->GetItem(skillBarItem->ItemHandle);
 				if (item != nullptr) {
 					args[2].Set(item->MyGuid.Str);
@@ -148,7 +148,7 @@ namespace dse::esv
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return false;
 
-			if (skillBarItem->Type == esv::SkillBarItem::kSkill) {
+			if (skillBarItem->Type == esv::SkillBarItemType::Skill) {
 				args[2].Set(skillBarItem->SkillOrStatId.Str);
 				return true;
 			} else {
@@ -165,7 +165,7 @@ namespace dse::esv
 			FixedString skillId(args[1].String);
 			for (uint32_t i = 0; i < skillBar->Size; i++) {
 				auto & skill = (*skillBar)[i];
-				if (skill.Type == esv::SkillBarItem::kSkill
+				if (skill.Type == esv::SkillBarItemType::Skill
 					&& skill.SkillOrStatId == skillId) {
 					args[2].Set((int32_t)i);
 					return true;
@@ -193,7 +193,7 @@ namespace dse::esv
 
 			for (uint32_t i = 0; i < skillBar->Size; i++) {
 				auto & skill = (*skillBar)[i];
-				if (skill.Type == esv::SkillBarItem::kItem
+				if (skill.Type == esv::SkillBarItemType::Item
 					&& skill.ItemHandle == handle) {
 					args[2].Set((int32_t)i);
 					return true;
@@ -220,7 +220,7 @@ namespace dse::esv
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;
 
-			skillBarItem->Type = esv::SkillBarItem::kSkill;
+			skillBarItem->Type = esv::SkillBarItemType::Skill;
 			skillBarItem->SkillOrStatId = skillIdFs;
 			skillBarItem->ItemHandle = ComponentHandle{};
 
@@ -247,7 +247,7 @@ namespace dse::esv
 			item->GetObjectHandle(handle);
 			// FIXME - check if item is in the players' inventory?
 
-			skillBarItem->Type = esv::SkillBarItem::kItem;
+			skillBarItem->Type = esv::SkillBarItemType::Item;
 			skillBarItem->SkillOrStatId = item->StatsId;
 			skillBarItem->ItemHandle = handle;
 
@@ -263,7 +263,7 @@ namespace dse::esv
 			auto skillBarItem = SkillBarGetSlot(characterGuid, slot);
 			if (skillBarItem == nullptr) return;
 
-			skillBarItem->Type = esv::SkillBarItem::kNone;
+			skillBarItem->Type = esv::SkillBarItemType::None;
 			skillBarItem->SkillOrStatId = FixedString("");
 			skillBarItem->ItemHandle = ComponentHandle{};
 

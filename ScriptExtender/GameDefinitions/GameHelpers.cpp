@@ -270,7 +270,7 @@ namespace dse
 		auto it = statuses_.find(handle);
 		if (it != statuses_.end()) {
 			auto & status = it->second;
-			if (owner == status.Status->TargetHandle) {
+			if (owner == status.Status->OwnerHandle) {
 				return &status;
 			} else {
 				OsiError("Attempted to retrieve pending status " << std::hex << (int64_t)status.Status->StatusHandle

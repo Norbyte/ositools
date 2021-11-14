@@ -1,7 +1,5 @@
-
-
 template <class Predicate>
-void GetCharactersGeneric(lua_State* L, FixedString const& requestedLevel, Predicate pred)
+void GetCharactersGenericOld(lua_State* L, FixedString const& requestedLevel, Predicate pred)
 {
 	int index{ 1 };
 
@@ -31,6 +29,35 @@ void GetCharactersGeneric(lua_State* L, FixedString const& requestedLevel, Predi
 	}
 }
 
+
+template <class Predicate>
+void GetCharactersGeneric(ObjectSet<Character *>& characters, FixedString const& requestedLevel, Predicate pred)
+{
+	FixedString levelName = requestedLevel;
+	if (!levelName) {
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
+		if (level == nullptr) {
+			OsiError("No current level!");
+			return;
+		}
+
+		levelName = level->LevelDesc->LevelName;
+	}
+
+	auto& helpers = GetEoCServer()->EntityManager->CharacterConversionHelpers;
+	auto levelCharacters = helpers.RegisteredCharacters.Find(levelName);
+	if (levelCharacters == nullptr) {
+		OsiError("No characters registered for level: " << levelName);
+		return;
+	}
+
+	for (auto character : **levelCharacters) {
+		if (pred(character)) {
+			characters.Add(character);
+		}
+	}
+}
+
 int GetAllCharacters(lua_State* L)
 {
 	FixedString levelName;
@@ -38,7 +65,7 @@ int GetAllCharacters(lua_State* L)
 		levelName = get<FixedString>(L, 1);
 	}
 
-	GetCharactersGeneric(L, levelName, [](esv::Character*) { return true; });
+	GetCharactersGenericOld(L, levelName, [](esv::Character*) { return true; });
 	return 1;
 }
 
@@ -51,7 +78,7 @@ int GetCharactersAroundPosition(lua_State* L)
 	);
 	float distance = get<float>(L, 4);
 
-	GetCharactersGeneric(L, FixedString{}, [pos, distance](esv::Character* c) {
+	GetCharactersGenericOld(L, FixedString{}, [pos, distance](esv::Character* c) {
 		return abs(glm::length(pos - c->WorldPos)) < distance;
 	});
 	return 1;

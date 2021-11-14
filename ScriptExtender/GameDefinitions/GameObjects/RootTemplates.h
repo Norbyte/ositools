@@ -22,15 +22,6 @@ namespace dse
         IsCustom = 1
     };
 
-    template <class T>
-    struct OverrideableProperty
-    {
-        using Type = T;
-
-        T Value;
-        bool IsOverridden;
-    };
-
     struct GameObjectTemplate : ProtectedGameObject<GameObjectTemplate>
     {
         void * VMT;

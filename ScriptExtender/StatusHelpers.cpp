@@ -291,7 +291,7 @@ namespace dse::esv
 			return;
 		}
 
-		auto target = GetEntityWorld()->GetGameObject(status->TargetHandle);
+		auto target = GetEntityWorld()->GetGameObject(status->OwnerHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;
@@ -323,7 +323,7 @@ namespace dse::esv
 
 	void StatusHelpers::ThrowStatusHealEnter(esv::StatusHeal* status)
 	{
-		auto target = GetEntityWorld()->GetCharacter(status->TargetHandle);
+		auto target = GetEntityWorld()->GetCharacter(status->OwnerHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;

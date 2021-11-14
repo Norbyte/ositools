@@ -11,103 +11,14 @@ BEGIN_NS(lua)
 extern bool EnableWriteProtectedWrites;
 
 template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
-{
-	if constexpr (std::is_pointer_v<T>) {
-		if (value != nullptr) {
-			ObjectProxy2::MakeRef(L, *value, lifetime);
-		} else {
-			push(L, nullptr);
-		}
-	} else {
-		ObjectProxy2::MakeRef(L, value, lifetime);
-	}
-}
-
-template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
-{
-	MakeObjectRef(L, lifetime, &value->Value);
-}
-
-template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, Array<T>* value)
-{
-	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
-		ArrayProxy::MakeByVal<T>(L, value, lifetime);
-	} else {
-		ArrayProxy::MakeByRef<T>(L, value, lifetime);
-	}
-}
-
-template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, Vector<T>* value)
-{
-	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
-		ArrayProxy::MakeByVal<T>(L, value, lifetime);
-	} else {
-		ArrayProxy::MakeByRef<T>(L, value, lifetime);
-	}
-}
-
-template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, std::span<T>* value)
-{
-	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
-		ArrayProxy::MakeByVal<T>(L, value, lifetime);
-	} else {
-		ArrayProxy::MakeByRef<T>(L, value, lifetime);
-	}
-}
-
-template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, ObjectSet<T>* value)
-{
-	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
-		ArrayProxy::MakeByVal<T>(L, value, lifetime);
-	} else {
-		ArrayProxy::MakeByRef<T>(L, value, lifetime);
-	}
-}
-
-template <class T, int Size>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, std::array<T, Size>* value)
-{
-	if constexpr (ByValArray<T>::Value || std::is_enum_v<T>) {
-		ArrayProxy::MakeByVal<T, Size>(L, value, lifetime);
-	} else {
-		ArrayProxy::MakeByRef<T, Size>(L, value, lifetime);
-	}
-}
-
-template <class TKey, class TValue>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, Map<TKey, TValue>* value)
-{
-	// FIXME!
-	push(L, "Map PROXIES NOT SUPPORTED YET!");
-}
-
-template <class TKey, class TValue>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, RefMap<TKey, TValue>* value)
-{
-	static_assert(ByValArray<TKey>::Value || std::is_enum_v<TKey>, "HashMap key is a type that we cannot serialize by-value?");
-
-	if constexpr (ByValArray<TValue>::Value || std::is_enum_v<TValue>) {
-		MapProxy::MakeByVal<TKey, TValue>(L, value, lifetime);
-	} else {
-		MapProxy::MakeByRef<TKey, TValue>(L, value, lifetime);
-	}
-}
-
-template <class T>
-bool GenericGetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset)
+bool GenericGetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	return LuaWrite(L, *value) == 1;
 }
 
 template <class T>
-bool GenericSetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset)
+bool GenericSetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	lua_pushvalue(L, index);
@@ -117,47 +28,54 @@ bool GenericSetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void
 }
 
 template <class T>
-bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset)
+bool GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t flag)
+{
+	auto value = *(T*)((std::uintptr_t)obj + offset);
+	push(L, (value & (T)flag) == (T)flag);
+	return 1;
+}
+
+template <class T>
+bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+{
+	auto* value = (T*)((std::uintptr_t)obj + offset);
+	auto set = get<bool>(L, index);
+	if (set) {
+		*value |= (T)flag;
+	} else {
+		*value &= (T)~flag;
+	}
+
+	return true;
+}
+
+template <class T>
+bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	if (EnableWriteProtectedWrites) {
-		return GenericSetOffsetProperty<T>(L, lifetime, obj, index, offset);
+		return GenericSetOffsetProperty<T>(L, lifetime, obj, index, offset, flag);
 	} else {
 		OsiError("Attempted to set a write-protected property");
 		return false;
 	}
 }
 
-inline bool SetPropertyWriteProtected(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset)
+inline bool SetPropertyWriteProtected(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	return false;
 }
 
 template <class T>
-bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset)
+bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	MakeObjectRef(L, lifetime, value);
 	return true;
 }
 
-inline bool GenericSetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset)
+inline bool GenericSetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	return false;
-}
-
-template <class T>
-bool GenericGetProperty(lua_State* L, LifetimeHolder const& lifetime, T const& value)
-{
-	return LuaWrite(L, value) == 1;
-}
-	
-template <class T>
-bool GenericSetProperty(lua_State* L, LifetimeHolder const& lifetime, T& value, int index)
-{
-	lua_pushvalue(L, index);
-	LuaRead(L, value);
-	lua_pop(L, 1);
-	return true;
 }
 
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName);
@@ -166,6 +84,7 @@ template <class T, class T2>
 inline void CopyProperties(LuaPropertyMap<T> const& base, LuaPropertyMap<T2>& child, STDString const& baseClsName)
 {
 	static_assert(std::is_base_of_v<T, T2>, "Can only copy properties from base class");
+	static_assert(static_cast<T*>(reinterpret_cast<T2*>(nullptr)) == reinterpret_cast<T*>(nullptr), "Base and child class should start at same base ptr");
 	CopyRawProperties(base, child, baseClsName);
 }
 

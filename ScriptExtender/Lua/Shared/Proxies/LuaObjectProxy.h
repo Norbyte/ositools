@@ -13,19 +13,20 @@ class GenericPropertyMap
 public:
 	struct RawPropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, std::size_t offset);
-		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, int index, std::size_t offset);
+		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, std::size_t offset, uint64_t flag);
+		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, int index, std::size_t offset, uint64_t flag);
 
 		FixedString Name;
 		Getter* Get;
 		Setter* Set;
 		std::size_t Offset;
+		uint64_t Flag;
 	};
 
 	bool GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const;
 	bool SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
-		typename RawPropertyAccessors::Setter* setter, std::size_t offset);
+		typename RawPropertyAccessors::Setter* setter, std::size_t offset, uint64_t flag = 0);
 
 	FixedString Name;
 	std::unordered_map<FixedString, RawPropertyAccessors> Properties;
@@ -215,6 +216,8 @@ class ObjectProxyRefImpl : public ObjectProxyImplBase
 {
 public:
 	static_assert(!std::is_pointer_v<T>, "ObjectProxyImpl template parameter should not be a pointer type!");
+	static_assert(!std::is_const_v<T>, "ObjectProxyImpl template parameter should not be CV-qualified!");
+	static_assert(!std::is_volatile_v<T>, "ObjectProxyImpl template parameter should not be CV-qualified!");
 
 	ObjectProxyRefImpl(LifetimeHolder const& lifetime, T * obj)
 		: object_(obj), lifetime_(lifetime)
@@ -431,57 +434,6 @@ inline void push_proxy(lua_State* L, LifetimeHolder const& lifetime, T const& v)
 	} else {
 		push(L, v);
 	}
-}
-
-template <class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, 0);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	(obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
-	return 0;
-}
-
-template <class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, UserReturn (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	auto nret = (obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
-	return (int)nret;
-}
-
-template <class R, class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, R (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, 1);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	auto retval = (obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
-	push(L, retval);
-	return 1;
-}
-
-template <class R, class T, class ...Args>
-inline int CallMethod(lua_State* L, R(T::* fun)(lua_State*, Args...)) {
-	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
-}
-
-template <class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, void (T::* fun)(Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, 0);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	(obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
-	return 0;
-}
-
-template <class R, class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, 1);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
-	push(L, retval);
-	return 1;
-}
-
-template <class R, class T, class ...Args>
-inline int CallMethod(lua_State* L, R(T::* fun)(Args...)) {
-	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
 }
 
 END_NS()

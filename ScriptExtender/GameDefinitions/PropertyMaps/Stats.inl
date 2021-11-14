@@ -245,7 +245,7 @@ P_RO(FS2)
 // IS DivStats useful for scripts?
 // P_REF(DivStats)
 P_REF(PropertyList)
-P_REF(ConditionList)
+// P_REF(ConditionList)
 P_RO(AIFlags)
 // FIXME - these use different memory allocators than normal ObjectSets
 // P_REF(Requirements)
@@ -308,6 +308,20 @@ P(MaxMpOverride)
 	});
 // TODO - TraitOrder?
 */
+
+// FIXME - add props for v55 compat:
+// MainWeapon
+// OffHandWeapon
+// ModId
+// NotSneaking (wtf?)
+// Base* (Base version of stats)
+// * (Boosted version of stats)
+// ----- Do we need these?
+// Rotation
+// Position
+// MyGuid
+// NetID
+
 END_CLS()
 
 BEGIN_CLS(CDivinityStats_Item)
@@ -372,6 +386,19 @@ P_RO(Context)
 END_CLS()
 
 
+BEGIN_CLS(CDivinityStats_Object_Property_Status)
+INHERIT(CDivinityStats_Object_Property_Data)
+P(Status)
+P(StatusChance)
+P(Duration)
+P(StatsId)
+P(Arg4)
+P(Arg5)
+P(SurfaceBoost)
+P_REF(SurfaceBoosts)
+END_CLS()
+
+
 BEGIN_CLS(CRPGStats_Object_Property_Extender)
 INHERIT(CDivinityStats_Object_Property_Data)
 P(PropertyName)
@@ -380,6 +407,13 @@ P(Arg2)
 P(Arg3)
 P(Arg4)
 P(Arg5)
+END_CLS()
+
+
+// FIXME - property list API!
+BEGIN_CLS(CRPGStats_Object_Property_List)
+P_RO(Name)
+P_RO(AllPropertyContexts)
 END_CLS()
 
 

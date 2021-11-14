@@ -388,6 +388,36 @@ public:
 		return nullptr;
 	}
 
+	ConstIterator FindIterator(TKey const& key) const
+	{
+		auto slot = Hash(key) % HashSize;
+		auto item = HashTable[slot];
+		while (item != nullptr) {
+			if (key == item->Key) {
+				return ConstIterator(*this, HashTable + slot, item);
+			}
+
+			item = item->Next;
+		}
+
+		return end();
+	}
+
+	Iterator FindIterator(TKey const& key)
+	{
+		auto slot = Hash(key) % HashSize;
+		auto item = HashTable[slot];
+		while (item != nullptr) {
+			if (key == item->Key) {
+				return Iterator(*this, HashTable + slot, item);
+			}
+
+			item = item->Next;
+		}
+
+		return end();
+	}
+
 	Iterator begin()
 	{
 		return Iterator(*this);

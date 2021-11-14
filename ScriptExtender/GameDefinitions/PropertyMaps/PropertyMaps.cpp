@@ -154,7 +154,7 @@ namespace dse
 			PROP(StatsMultiplier);
 			PROP_ENUM(DamageSourceType);
 			PROP_RO(StatusHandle);
-			PROP_RO(TargetHandle);
+			PROP_RO(OwnerHandle);
 			PROP(StatusSourceHandle);
 			PROP_RO(CleansedByHandle);
 			PROP_FLAGS(Flags0, esv::StatusFlags0, true);
