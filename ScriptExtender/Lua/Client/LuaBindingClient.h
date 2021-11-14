@@ -7,6 +7,8 @@
 namespace dse
 {
 	struct UIObject;
+
+	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
 }
 
 namespace dse::ig
@@ -21,8 +23,6 @@ namespace dse::ecl::lua
 
 	LifetimeHolder GetClientLifetime();
 	LifetimePool& GetClientLifetimePool();
-
-	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
 
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
@@ -53,45 +53,6 @@ namespace dse::ecl::lua
 		ComponentHandle character_;
 		ComponentHandle statusHandle_;
 		NetId statusNetId_;
-	};
-
-
-	class UIObjectProxy : public Userdata<UIObjectProxy>, public Pushable<PushPolicy::None>
-	{
-	public:
-		static char const * const MetatableName;
-
-		static void PopulateMetatable(lua_State * L);
-
-		inline UIObjectProxy(ComponentHandle handle)
-			: handle_(handle)
-		{}
-
-		UIObject * Get();
-
-	private:
-		ComponentHandle handle_;
-
-		static int SetPosition(lua_State * L);
-		static int Resize(lua_State * L);
-		static int Show(lua_State * L);
-		static int Hide(lua_State * L);
-
-		static int Invoke(lua_State * L);
-		static int GotoFrame(lua_State * L);
-		static int GetValue(lua_State * L);
-		static int SetValue(lua_State * L);
-		static int GetHandle(lua_State * L);
-		static int GetPlayerHandle(lua_State * L);
-		static int GetTypeId(lua_State * L);
-		static int GetRoot(lua_State* L);
-		static int Destroy(lua_State * L);
-		static int ExternalInterfaceCall(lua_State * L);
-		static int CaptureExternalInterfaceCalls(lua_State * L);
-		static int CaptureInvokes(lua_State* L);
-		static int EnableCustomDraw(lua_State* L);
-		static int SetCustomIcon(lua_State* L);
-		static int ClearCustomIcon(lua_State* L);
 	};
 
 

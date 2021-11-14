@@ -403,6 +403,8 @@ namespace dse::lua
 		}
 	}
 
+	void WarnDeprecated56(char const* msg);
+
 	void RegisterStatsObjects(lua_State* L);
 
 	int GetExtensionVersionWrapper(lua_State* L);

@@ -42,7 +42,7 @@ static const ExcludedSymbol ExcludedSymbols[] = {
 	{&dse::NodeVMTWrapper::s_WrappedInsertTuple, 0x100},
 	{&dse::NodeVMTWrapper::s_WrappedDeleteTuple, 0x100},
 	{&dse::NodeVMTWrapper::s_WrappedCallQuery, 0x100},
-	{&dse::ecl::lua::UIObjectFunctionCallCapture, 0x120},
+	{&dse::UIObjectFunctionCallCapture, 0x120},
 	{&dse::CustomFunctionInjector::StaticCallWrapper, 0x120},
 	{&dse::CustomFunctionInjector::StaticQueryWrapper, 0x120}
 };

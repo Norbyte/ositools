@@ -10,6 +10,10 @@
 
 BEGIN_SE()
 
+// Helper struct to allow function overloading without (real) template-dependent parameters
+template <class>
+struct Overload {};
+
 // Base class for game objects that cannot be copied.
 template <class T>
 class Noncopyable

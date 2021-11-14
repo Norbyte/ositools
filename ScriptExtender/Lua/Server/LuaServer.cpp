@@ -13,6 +13,7 @@
 
 BEGIN_NS(lua)
 
+// FIXME - deprecated; use state from L wherever possible
 LifetimeHolder GetCurrentLifetime()
 {
 	if (gExtender->GetServer().IsInServerThread()) {

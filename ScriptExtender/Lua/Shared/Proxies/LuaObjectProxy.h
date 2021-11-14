@@ -358,7 +358,7 @@ public:
 	inline static T* CheckedGet(lua_State* L, int index)
 	{
 		auto const& typeName = StaticLuaPropertyMap<T>::PropertyMap.Name;
-		auto obj = checked_get_raw_proxy(L, index, typeName);
+		auto obj = CheckedGetRaw(L, index, typeName);
 		return reinterpret_cast<T *>(obj);
 	}
 
@@ -434,22 +434,46 @@ inline void push_proxy(lua_State* L, LifetimeHolder const& lifetime, T const& v)
 }
 
 template <class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, void (* fun)(lua_State*, T&, Args...), std::index_sequence<Indices...>) {
+inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
+	StackCheck _(L, 0);
 	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	fun(L, obj, lua::checked_get<std::remove_cv_t<std::remove_reference_t<Args>>>(L, 1 + (int)Indices)...);
+	(obj->*fun)(L, checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
 	return 0;
 }
 
 template <class R, class T, class ...Args, size_t ...Indices>
-inline int CallMethodHelper(lua_State* L, R (* fun)(lua_State*, T&, Args...), std::index_sequence<Indices...>) {
+inline int CallMethodHelper(lua_State* L, R (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
+	StackCheck _(L, 1);
 	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	auto retval = fun(L, obj, checked_get<std::remove_cv_t<std::remove_reference_t<Args>>>(L, 1 + (int)Indices)...);
+	auto retval = (obj->*fun)(L, checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
 	push(L, retval);
 	return 1;
 }
 
-template <class R, class ...Args>
-inline int CallMethod(lua_State* L, R(*fun)(lua_State*, Args...)) {
+template <class R, class T, class ...Args>
+inline int CallMethod(lua_State* L, R(T::* fun)(lua_State*, Args...)) {
+	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
+}
+
+template <class T, class ...Args, size_t ...Indices>
+inline int CallMethodHelper(lua_State* L, void (T::* fun)(Args...), std::index_sequence<Indices...>) {
+	StackCheck _(L, 0);
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	(obj->*fun)(checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
+	return 0;
+}
+
+template <class R, class T, class ...Args, size_t ...Indices>
+inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
+	StackCheck _(L, 1);
+	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 1 + (int)Indices)...);
+	push(L, retval);
+	return 1;
+}
+
+template <class R, class T, class ...Args>
+inline int CallMethod(lua_State* L, R(T::* fun)(Args...)) {
 	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
 }
 

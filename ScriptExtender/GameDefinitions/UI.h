@@ -185,7 +185,7 @@ namespace dse
 				void (*field_A8)(FlashPlayer* self);
 				void (*InvokeByName)(FlashPlayer* self, char const* name, uint64_t unknown, InvokeDataValue* arg);
 				void (*SetRenderRectangle)(FlashPlayer* self);
-				void (*SetSize)(FlashPlayer* self, int* size);
+				void (*SetSize)(FlashPlayer* self, glm::ivec2 const& size);
 				int* (*GetSize)(FlashPlayer* self);
 				void (*field_D0)(FlashPlayer* self);
 				void (*Render)(FlashPlayer* self);
@@ -193,7 +193,7 @@ namespace dse
 				void (*field_E8)(FlashPlayer* self);
 				void (*GetFlashMovieProperties)(FlashPlayer* self);
 				void (*GotoFrame)(FlashPlayer* self, uint64_t frame);
-				void (*GotoFrame2)(FlashPlayer* self, uint64_t frame);
+				void (*ForceGotoFrame)(FlashPlayer* self, uint64_t frame);
 				FlashObject* (*CreateFlashObject)(FlashPlayer* self, char const* path, int arrayIndex);
 				ig::FlashObject* (* GetRootObject)(FlashPlayer* self);
 				void (*SetFrameRate)(FlashPlayer* self, uint32_t frameRate);
@@ -243,7 +243,7 @@ namespace dse
 			virtual void field_A8() = 0;
 			virtual void InvokeByName(char const * name, uint64_t unknown, InvokeDataValue * arg) = 0;
 			virtual void SetRenderRectangle() = 0;
-			virtual void SetSize(int * size) = 0;
+			virtual void SetSize(glm::ivec2 const& size) = 0;
 			virtual int * GetSize() = 0;
 			virtual void field_D0() = 0;
 			virtual void Render() = 0;
@@ -251,7 +251,7 @@ namespace dse
 			virtual void field_E8() = 0;
 			virtual void GetFlashMovieProperties() = 0;
 			virtual void GotoFrame(uint64_t frame) = 0;
-			virtual void GotoFrame2(uint64_t frame) = 0;
+			virtual void ForceGotoFrame(uint64_t frame) = 0;
 			virtual FlashObject * CreateFlashObject(char const * path, int arrayIndex) = 0;
 			virtual ig::FlashObject *GetRootObject() = 0;
 			virtual void SetFrameRate(uint32_t frameRate) = 0;
@@ -341,37 +341,6 @@ namespace dse
 		typedef void (* SetTraceCallbackUTF8Proc)(TraceCallbackProc, void *);
 	}
 
-
-	enum UIObjectFlags : uint32_t
-	{
-		OF_Load = 0x1,
-		OF_Loaded = 0x2,
-		OF_RequestDelete = 0x4,
-		OF_Visible = 0x8,
-		OF_Activated = 0x10,
-		OF_PlayerInput1 = 0x20,
-		OF_PlayerInput2 = 0x40,
-		OF_PlayerInput3 = 0x80,
-		OF_PlayerInput4 = 0x100,
-		OF_PlayerModal1 = 0x200,
-		OF_PlayerModal2 = 0x400,
-		OF_PlayerModal3 = 0x800,
-		OF_PlayerModal4 = 0x1000,
-		OF_KeepInScreen = 0x8000,
-		OF_KeepCustomInScreen = 0x10000,
-		OF_DeleteOnChildDestroy = 0x20000,
-		OF_PauseRequest = 0x40000,
-		OF_SortOnAdd = 0x80000,
-		OF_FullScreen = 0x400000,
-		OF_PlayerTextInput1 = 0x800000,
-		OF_PlayerTextInput2 = 0x1000000,
-		OF_PlayerTextInput3 = 0x2000000,
-		OF_PlayerTextInput4 = 0x4000000,
-		OF_DontHideOnDelete = 0x10000000,
-		OF_PrecacheUIData = 0x20000000,
-		OF_PreventCameraMove = 0x40000000,
-	};
-
 	BY_VAL_ARRAY(ig::InvokeDataValue);
 
 	struct UIObject : Noncopyable<UIObject>
@@ -388,7 +357,7 @@ namespace dse
 			ComponentHandle * (* GetHandle)(UIObject * self, ComponentHandle *);
 			void(* RequestDelete)(UIObject * self);
 			void(* SetOwnerPlayerId)(UIObject * self, uint64_t);
-			void(* SetPos)(UIObject * self, int *);
+			void(* SetPos)(UIObject * self, glm::ivec2 const&);
 			void(* KeepWithin)(UIObject * self, int, int);
 			void(* Show)(UIObject * self);
 			void(* Hide)(UIObject * self);
@@ -435,7 +404,7 @@ namespace dse
 		virtual ComponentHandle * GetHandle(ComponentHandle *);
 		virtual void RequestDelete();
 		virtual void SetOwnerPlayerId(uint64_t a1);
-		virtual void SetPos(int * a1);
+		virtual void SetPos(glm::ivec2 const& a1);
 		virtual void KeepWithin(int a1, int a2);
 		virtual void Show();
 		virtual void Hide();
@@ -486,10 +455,10 @@ namespace dse
 		int Layer;
 		int RenderOrder;
 		int MovieLayout;
-		float FlashSize[2];
+		glm::vec2 FlashSize;
 		int field_74;
 		int field_78;
-		float FlashMovieSize[2];
+		glm::vec2 FlashMovieSize;
 		int SysPanelX;
 		int SysPanelY;
 		float SysPanelW;
@@ -516,6 +485,27 @@ namespace dse
 		ComponentHandle UIObjectHandle;
 		int Type;
 		int16_t PlayerId;
+
+
+		void LuaSetPosition(int x, int y);
+		void LuaResize(int width, int height);
+		void LuaShow();
+		void LuaHide();
+		int LuaInvoke(lua_State* L);
+		void LuaGotoFrame(int frame, std::optional<bool> force);
+		std::optional<ig::InvokeDataValue> GetValue(lua_State* L, STDString const& path, std::optional<STDString> typeName, std::optional<int> arrayIndex);
+		void SetValue(STDString const& path, ig::InvokeDataValue const& value, std::optional<int> arrayIndex);
+		ComponentHandle LuaGetHandle();
+		std::optional<ComponentHandle> LuaGetPlayerHandle();
+		int GetTypeId();
+		int LuaGetRoot(lua_State* L);
+		void LuaDestroy();
+		int LuaExternalInterfaceCall(lua_State* L);
+		void CaptureExternalInterfaceCalls();
+		void CaptureInvokes();
+		void EnableCustomDraw();
+		void SetCustomIcon(STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid);
+		void ClearCustomIcon(STDWString const& element);
 	};
 
 	struct CustomDrawStruct

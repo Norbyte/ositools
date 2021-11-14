@@ -678,7 +678,7 @@ namespace dse
 		return GetStaticSymbols().ecl__EoCUI__vftable->SetOwnerPlayerId(this, a1);
 	}
 
-	void UIObject::SetPos(int * a1)
+	void UIObject::SetPos(glm::ivec2 const& a1)
 	{
 		return GetStaticSymbols().ecl__EoCUI__vftable->SetPos(this, a1);
 	}

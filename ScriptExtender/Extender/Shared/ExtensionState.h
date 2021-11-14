@@ -61,6 +61,11 @@ namespace dse
 		std::optional<int> LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, 
 			bool warnOnError = true, int globalsIdx = 0);
 
+		inline ExtensionModConfig const& GetMergedConfig() const
+		{
+			return MergedConfig;
+		}
+
 		inline std::unordered_map<FixedString, ExtensionModConfig> const& GetConfigs() const
 		{
 			return modConfigs_;

@@ -728,6 +728,33 @@ namespace dse::lua
 	}
 
 
+	class DeprecationHelpers
+	{
+	public:
+		void WarnDeprecated56(char const* msg)
+		{
+			if (gExtender->GetClient().GetExtensionState().GetMergedConfig().MinimumVersion < 56) {
+				return;
+			}
+
+			if (seenWarnings_.find(msg) == seenWarnings_.end()) {
+				seenWarnings_.insert(msg);
+				OsiWarn("DEPRECATION WARNING: " << msg);
+			}
+		}
+
+	private:
+		std::unordered_set<char const*> seenWarnings_;
+	};
+
+	DeprecationHelpers gDeprecationHelpers;
+
+	void WarnDeprecated56(char const* msg)
+	{
+		gDeprecationHelpers.WarnDeprecated56(msg);
+	}
+
+
 	void ExtensionLibrary::Register(lua_State * L)
 	{
 		RegisterLib(L);

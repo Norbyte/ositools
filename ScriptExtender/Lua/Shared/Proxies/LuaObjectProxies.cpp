@@ -110,7 +110,7 @@ bool EnableWriteProtectedWrites{ false };
 	pm.AddProperty(#name, \
 		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset) { \
 			lua_pushcfunction(L, [](lua_State* L) -> int { \
-				return CallMethod(L, fun); \
+				return CallMethod(L, &PM::ObjectType::fun); \
 			}); \
 			return true; \
 		}, \

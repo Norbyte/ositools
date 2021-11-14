@@ -149,6 +149,7 @@ namespace dse::lua
 	void push(lua_State* L, glm::vec3 const& v);
 	void push(lua_State* L, glm::vec4 const& v);
 	void push(lua_State* L, glm::mat3 const& m);
+	void push(lua_State* L, ig::InvokeDataValue const& v);
 
 	template <class T>
 	inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
@@ -621,6 +622,31 @@ namespace dse::lua
 		return val;
 	}
 
+	// Overload helper for fetching a parameter for a Lua -> C++ function call
+	template <class T>
+	inline T checked_get_param(lua_State* L, int i, Overload<T>)
+	{
+		return checked_get<T>(L, i);
+	}
+
+	// Overload helper for fetching a parameter for a Lua -> C++ function call
+	template <class T>
+	inline std::optional<T> checked_get_param(lua_State* L, int i, Overload<std::optional<T>>)
+	{
+		if (lua_gettop(L) < i || lua_isnil(L, i)) {
+			return {};
+		} else {
+			return checked_get<T>(L, i);
+		}
+	}
+
+	// Helper for removing reference and CV-qualifiers before fetching a Lua value
+	template <class T>
+	inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_State* L, int i)
+	{
+		return checked_get_param(L, i, Overload<std::remove_cv_t<std::remove_reference_t<T>>>{});
+	}
+
 
 	template <class T, class... Args>
 	inline auto Push(Args... args)
@@ -638,10 +664,6 @@ namespace dse::lua
 	// Helper for indicating return type of a Lua function
 	template <class... Args>
 	struct ReturnType {};
-
-	// Helper struct to allow function overloading without (real) template-dependent parameters
-	template <class>
-	struct Overload {};
 
 	// Fetches a required return value (i.e. succeeded = false if arg doesn't exist or is nil)
 	template <class T>
@@ -747,24 +769,6 @@ namespace dse::lua
 		return result;
 	}
 
-	// Overload helper for fetching a parameter for a Lua -> C++ function call
-	template <class T>
-	T CheckedGetParam(lua_State* L, int i, Overload<T>)
-	{
-		return checked_get<T>(L, i);
-	}
-
-	// Overload helper for fetching a parameter for a Lua -> C++ function call
-	template <class T>
-	std::optional<T> CheckedGetParam(lua_State* L, int i, Overload<std::optional<T>>)
-	{
-		if (lua_gettop(L) < i || lua_isnil(L, i)) {
-			return {};
-		} else {
-			return checked_get<T>(L, i);
-		}
-	}
-
 	template <class... Args, size_t... Is>
 	inline void PushReturnTupleInner(lua_State* L, std::tuple<Args...> t, std::index_sequence<Is...>)
 	{
@@ -783,7 +787,7 @@ namespace dse::lua
 	inline int LuaCallWrapper2(lua_State* L, void(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
 	{
 		StackCheck _(L, 0);
-		fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
 		return 0;
 	}
 
@@ -792,7 +796,7 @@ namespace dse::lua
 	inline int LuaCallWrapper2(lua_State* L, R(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
 	{
 		StackCheck _(L, 1);
-		auto retval = fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		auto retval = fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
 		push(L, retval);
 		return 1;
 	}
@@ -802,7 +806,7 @@ namespace dse::lua
 	inline int LuaCallWrapper2(lua_State* L, std::tuple<R...>(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
 	{
 		StackCheck _(L, sizeof...(R));
-		auto retval = fun(L, CheckedGetParam(L, 1 + Is, Overload<Args>{})...);
+		auto retval = fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
 		PushReturnTuple(L, std::move(retval));
 		return sizeof...(R);
 	}
