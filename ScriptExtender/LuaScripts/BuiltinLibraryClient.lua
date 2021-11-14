@@ -14,28 +14,6 @@ _I._PublishedEvents = {
 	"InputEvent"
 }
 
--- FIXME - migrate these events!
-Ext._SkillGetDescriptionParam = function (...)
-    return Ext._EngineCallback1("SkillGetDescriptionParam", ...)
-end
-
-Ext._StatusGetDescriptionParam = function (...)
-    return Ext._EngineCallback1("StatusGetDescriptionParam", ...)
-end
-
-Ext._GetSkillDamage = function (...)
-    for i,callback in pairs(Ext._Listeners.GetSkillDamage) do
-        local status, damageList, deathType = xpcall(callback, debug.traceback, ...)
-        if status then
-			if damageList ~= nil then
-				return damageList, deathType
-			end
-		else
-            Ext.PrintError("Error during GetSkillDamage: ", damageList)
-        end
-    end
-end
-
 Ext.IsClient = function ()
 	return true
 end

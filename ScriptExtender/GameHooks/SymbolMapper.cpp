@@ -9,7 +9,7 @@
 #include <Extender/Shared/tinyxml2.h>
 #include "resource.h"
 
-#define DEBUG_MAPPINGS
+#undef DEBUG_MAPPINGS
 
 BEGIN_SE()
 

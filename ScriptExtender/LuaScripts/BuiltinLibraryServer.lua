@@ -19,40 +19,6 @@ _I._PublishedEvents = {
 	"GroundHit"
 }
 
--- FIXME - migrate these events!
-Ext._GetSkillDamage = function (...)
-    for i,callback in pairs(Ext._Listeners.GetSkillDamage) do
-        local status, damageList, deathType = xpcall(callback, debug.traceback, ...)
-        if status then
-			if damageList ~= nil then
-				return damageList, deathType
-			end
-		else
-            Ext.PrintError("Error during GetSkillDamage: ", damageList)
-        end
-    end
-end
-
-Ext._ComputeCharacterHit = function (...)
-    return Ext._EngineCallback1("ComputeCharacterHit", ...)
-end
-
-Ext._CalculateTurnOrder = function (...)
-    return Ext._EngineCallback1("CalculateTurnOrder", ...)
-end
-
-Ext._StatusGetEnterChance = function (...)
-    return Ext._EngineCallback1("StatusGetEnterChance", ...)
-end
-
-Ext.RegisterListener = function (type, fn)
-	if Ext._Listeners[type] ~= nil then
-		table.insert(Ext._Listeners[type], fn)
-	else
-		Ext.PrintError("Unknown listener type: " .. type)
-	end
-end
-
 Ext.IsClient = function ()
 	return false
 end
@@ -78,6 +44,7 @@ Ext._RestoreModPersistentVars = function (modTable, vars)
 	end
 end
 
+-- FIXME - migrate these events!
 Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, impactDirection, context)
     for i,callback in pairs(Ext._Listeners.BeforeCharacterApplyDamage) do
         local status, result = xpcall(callback, debug.traceback, target, attacker, hit, causeType, impactDirection, context)
@@ -104,10 +71,6 @@ Ext._BeforeCraftingExecuteCombination = function (...)
             Ext.PrintError("Error during BeforeCraftingExecuteCombination: ", result)
         end
     end
-end
-
-Ext._StatusHitEnter = function (...)
-    return Ext._Notify("StatusHitEnter", ...)
 end
 
 Ext._AfterCraftingExecuteCombination = function (...)

@@ -24,40 +24,6 @@ Ext._WarnDeprecated56 = function (msg)
 	Ext.PrintError("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
 end
 
-Ext._EngineCallback1 = function (event, ...)
-    for i,callback in pairs(Ext._Listeners[event]) do
-        local status, result = xpcall(callback, debug.traceback, ...)
-        if status then
-			if result ~= nil then
-				return result
-			end
-		else
-            Ext.PrintError("Error during " .. event .. ": ", result)
-        end
-    end
-end
-
-Ext._EngineCallback2 = function (event, ...)
-    for i,callback in pairs(Ext._Listeners[event]) do
-        local status, result1, result2 = xpcall(callback, debug.traceback, ...)
-        if status then
-			if result1 ~= nil then
-				return result1, result2
-			end
-		else
-            Ext.PrintError("Error during " .. event .. ": ", result1)
-        end
-    end
-end
-
-Ext._GetHitChance = function (...)
-    return Ext._EngineCallback1("GetHitChance", ...)
-end
-
-Ext._GetSkillAPCost = function (...)
-    return Ext._EngineCallback2("GetSkillAPCost", ...)
-end
-
 Ext.Require = function (mod, path)
 	if ModuleUUID == nil then
 		Ext.PrintWarning("Calling Ext.Require() after the module was loaded is deprecated!");
