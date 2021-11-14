@@ -163,10 +163,10 @@ namespace dse::ecl::lua
 		~ClientState();
 
 		void OnCreateUIObject(ComponentHandle handle);
-		void OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
-		void OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
+		void OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		void OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
 		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
 			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,

@@ -867,7 +867,7 @@ namespace dse::ecl::lua
 			{
 				LuaClientPin lua(ExtensionState::Get());
 				if (lua) {
-					lua->OnUICall(UIObjectHandle, func, numArgs, args);
+					lua->OnUICall(this, func, numArgs, args);
 				}
 			}
 
@@ -876,7 +876,7 @@ namespace dse::ecl::lua
 			{
 				LuaClientPin lua(ExtensionState::Get());
 				if (lua) {
-					lua->OnAfterUICall(UIObjectHandle, func, numArgs, args);
+					lua->OnAfterUICall(this, func, numArgs, args);
 				}
 			}
 		}
@@ -1446,7 +1446,7 @@ void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned 
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {
-			lua->OnUICall(self->UIObjectHandle, function, numArgs, args);
+			lua->OnUICall(self, function, numArgs, args);
 		}
 	}
 
@@ -1461,7 +1461,7 @@ void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned 
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {
-			lua->OnAfterUICall(self->UIObjectHandle, function, numArgs, args);
+			lua->OnAfterUICall(self, function, numArgs, args);
 		}
 	}
 }
@@ -1619,7 +1619,7 @@ END_SE()
 
 BEGIN_NS(ecl::lua)
 
-	ComponentHandle FindUIObjectHandle(ig::FlashPlayer* player)
+	UIObject* FindUIObject(ig::FlashPlayer* player)
 	{
 		auto uiManager = GetStaticSymbols().GetUIObjectManager();
 		if (uiManager == nullptr) {
@@ -1629,7 +1629,7 @@ BEGIN_NS(ecl::lua)
 
 		for (auto const& ui : uiManager->UIObjects) {
 			if (ui->FlashPlayer == player) {
-				return ui->UIObjectHandle;
+				return ui;
 			}
 		}
 
@@ -1640,9 +1640,10 @@ BEGIN_NS(ecl::lua)
 	void OnFlashPlayerPreInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
+		auto ui = FindUIObject(self);
+		if (lua && ui) {
 			std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
-			lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 
+			lua->OnUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, 
 				(uint32_t)invokeArgs.size(), invokeArgs.data());
 		}
 	}
@@ -1651,9 +1652,10 @@ BEGIN_NS(ecl::lua)
 	void OnFlashPlayerPostInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... args)
 	{
 		LuaClientPin lua(ExtensionState::Get());
-		if (lua) {
+		auto ui = FindUIObject(self);
+		if (lua && ui) {
 			std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
-			lua->OnAfterUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, 
+			lua->OnAfterUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, 
 				(uint32_t)invokeArgs.size(), invokeArgs.data());
 		}
 	}
@@ -1722,8 +1724,9 @@ BEGIN_NS(ecl::lua)
 	{
 		{
 			LuaClientPin lua(ExtensionState::Get());
-			if (lua) {
-				lua->OnUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+			auto ui = FindUIObject(self);
+			if (lua && ui) {
+				lua->OnUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
 			}
 		}
 
@@ -1731,8 +1734,9 @@ BEGIN_NS(ecl::lua)
 
 		{
 			LuaClientPin lua(ExtensionState::Get());
-			if (lua) {
-				lua->OnAfterUIInvoke(FindUIObjectHandle(self), self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
+			auto ui = FindUIObject(self);
+			if (lua && ui) {
+				lua->OnAfterUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, numArgs, args);
 			}
 		}
 
@@ -2463,48 +2467,40 @@ BEGIN_NS(ecl::lua)
 		ThrowEvent(*this, "UIObjectCreated", params);
 	}
 
-	void ClientState::OnUICall(ComponentHandle uiObjectHandle, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
+	void ClientState::OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 	{
 		UICallEventParams params;
-		// FIXME - TEMP CAST
-		auto uiManager = GetStaticSymbols().GetUIObjectManager();
-		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.UI = ui;
 		params.Function = func;
 		params.When = "Before";
 		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UICall", params);
 	}
 
-	void ClientState::OnAfterUICall(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		UICallEventParams params;
-		// FIXME - TEMP CAST
-		auto uiManager = GetStaticSymbols().GetUIObjectManager();
-		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.UI = ui;
 		params.Function = func;
 		params.When = "After";
 		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UICall", params);
 	}
 
-	void ClientState::OnUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		UICallEventParams params;
-		// FIXME - TEMP CAST
-		auto uiManager = GetStaticSymbols().GetUIObjectManager();
-		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.UI = ui;
 		params.Function = func;
 		params.When = "Before";
 		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 		ThrowEvent(*this, "UIInvoke", params);
 	}
 
-	void ClientState::OnAfterUIInvoke(ComponentHandle uiObjectHandle, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+	void ClientState::OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 	{
 		UICallEventParams params;
-		// FIXME - TEMP CAST
-		auto uiManager = GetStaticSymbols().GetUIObjectManager();
-		params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+		params.UI = ui;
 		params.Function = func;
 		params.When = "After";
 		params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
