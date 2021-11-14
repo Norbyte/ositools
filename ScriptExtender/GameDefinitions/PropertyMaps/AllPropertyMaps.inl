@@ -240,3 +240,9 @@ END_CLS()
 BEGIN_CLS(DamagePairList)
 END_CLS()
 
+BEGIN_CLS(Transform)
+// TODO - P(Matrix)
+// TODO - P(Rotate) -- no 3x3 mat serialization support yet!
+P(Translate)
+P(Scale)
+END_CLS()

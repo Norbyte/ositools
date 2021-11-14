@@ -262,8 +262,8 @@ namespace dse
             FixedString Visual;
             float Height;
             uint8_t gapC[4];
-            int Rotation[2];
-            float Scale[2];
+            glm::ivec2 Rotation;
+            glm::vec2 Scale;
             float GridSize;
             int SpawnCell;
             float RandomPlacement;
