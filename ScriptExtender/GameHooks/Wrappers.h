@@ -52,6 +52,10 @@ namespace dse {
 				if (result != NO_ERROR) {
 					Fail("DetourDetach failed!");
 				}
+
+				OriginalFunc = nullptr;
+				NewFunc = nullptr;
+				FuncTrampoline = nullptr;
 			}
 		}
 

@@ -272,14 +272,6 @@ namespace dse
 			sym.CharStatsGetters.WrapAll();
 
 			DetourTransactionCommit();
-
-			// Temporary workaround for crash when GetMaxMP is wrapped
-			DetourTransactionBegin();
-			DetourUpdateThread(GetCurrentThread());
-			if (sym.CharStatsGetters.GetMaxMp != nullptr) {
-				sym.CharStatsGetters.WrapperMaxMp.Unwrap();
-			}
-			DetourTransactionCommit();
 		}
 
 		auto initEnd = std::chrono::high_resolution_clock::now();
