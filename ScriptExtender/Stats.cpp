@@ -1182,7 +1182,14 @@ namespace dse
 			return {};
 		}
 
-		switch (*statType) {
+		return GetStat(character, *statType, original, excludeBoosts);
+	}
+	
+
+	std::optional<int32_t> CharacterStatsGetters::GetStat(CDivinityStats_Character * character, 
+		StatGetterType statType, bool original, bool excludeBoosts)
+	{
+		switch (statType) {
 #define DEFN_GETTER(type, n) case StatGetterType::n: \
 	return CharacterStatGetter<n##Tag>(Get##n, Wrapper##n, character, original, excludeBoosts);
 
@@ -1205,7 +1212,7 @@ namespace dse
 			return character->GetDamageBoost();
 
 		default:
-			OsiError("No stat fetcher defined for stat: '" << name << "'");
+			OsiError("No stat fetcher defined for stat type ID " << (unsigned)statType);
 			return {};
 		}
 	}
@@ -1249,10 +1256,10 @@ namespace dse
 		}
 	}
 
-	CDivinityStats_Item * CDivinityStats_Character::GetItemBySlot(ItemSlot slot, bool mustBeEquipped)
+	CDivinityStats_Item * CDivinityStats_Character::GetItemBySlot(ItemSlot slot, std::optional<bool> mustBeEquipped)
 	{
 		for (auto stat : EquippedItems) {
-			if (stat->ItemSlot == slot && (!mustBeEquipped || stat->IsEquipped)) {
+			if (stat->ItemSlot == slot && ((mustBeEquipped && !*mustBeEquipped) || stat->IsEquipped)) {
 				auto index = stat->ItemStatsHandle;
 				if (index >= 0 
 					&& index < DivStats->ItemList->Handles.Handles.size()) {

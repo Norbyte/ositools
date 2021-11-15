@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <Lua/Client/LuaBindingClient.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 #include <Extender/Client/ExtensionStateClient.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
@@ -195,8 +196,7 @@ namespace dse::lua
 
 		if (prop == GFS.strStats) {
 			if (character->Stats != nullptr) {
-				// FIXME - use handle based proxy
-				ObjectProxy<CDivinityStats_Character>::New(L, GetClientLifetime(), character->Stats);
+				MakeObjectRef(L, character->Stats);
 			} else {
 				OsiError("Character has no stats.");
 				push(L, nullptr);

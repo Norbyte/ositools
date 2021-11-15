@@ -48,191 +48,6 @@ namespace dse::lua
 		return LuaStatGetAttribute(L, stats_, attributeName, level_);
 	}
 
-	char const* const ObjectProxy<CDivinityStats_Character>::MetatableName = "CDivinityStats_Character";
-
-	bool CharacterFetchStat(lua_State* L, CDivinityStats_Character* stats, FixedString const& prop, bool excludeBoosts)
-	{
-		if (!prop) return false;
-
-		if (prop == GFS.strSight) {
-			if (excludeBoosts) {
-				push(L, stats->BaseSight);
-			} else {
-				push(L, stats->Sight);
-			}
-			return true;
-		}
-
-		auto dynamicStat = stats->GetStat(prop, excludeBoosts);
-		if (dynamicStat) {
-			push(L, *dynamicStat);
-			return true;
-		}
-
-		auto abilityId = EnumInfo<AbilityType>::Find(prop);
-		if (abilityId) {
-			int abilityLevel = stats->GetAbility(*abilityId, excludeBoosts);
-			push(L, abilityLevel);
-			return true;
-		}
-
-		if (strncmp(prop.Str, "TALENT_", 7) == 0) {
-			auto talentId = EnumInfo<TalentType>::Find(prop.Str + 7);
-			if (talentId) {
-				bool hasTalent = stats->HasTalent(*talentId, false);
-				push(L, hasTalent);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	int CharacterFetchStat(lua_State* L, CDivinityStats_Character* stats, char const* propStr, FixedString const& prop)
-	{
-		if (prop == GFS.strDynamicStats) {
-			lua_newtable(L);
-			unsigned statIdx = 1;
-			for (auto dynamicStat : stats->DynamicStats) {
-				push(L, statIdx++);
-				ObjectProxy<CharacterDynamicStat>::New(L, GetCurrentLifetime(), dynamicStat);
-				lua_settable(L, -3);
-			}
-
-			return 1;
-		}
-
-		if (prop == GFS.strMainWeapon) {
-			auto weapon = stats->GetMainWeapon();
-			if (weapon != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), weapon);
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-
-		if (prop == GFS.strOffHandWeapon) {
-			auto weapon = stats->GetOffHandWeapon();
-			if (weapon != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), weapon);
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-
-		if (prop == GFS.strModId) {
-			push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(stats->Name));
-			return 1;
-		}
-
-		if (prop == GFS.strNotSneaking) {
-			push(L, (bool)(stats->Flags & StatCharacterFlags::IsSneaking));
-			return 1;
-		}
-
-		if (stats->Character != nullptr) {
-			if (prop == GFS.strCharacter) {
-				ComponentHandle handle;
-				stats->Character->GetObjectHandle(handle);
-				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
-					ObjectProxy<ecl::Character>::New(L, handle);
-				} else if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-					MakeObjectRef(L, (esv::Character*)stats->Character);
-				} else {
-					ERR("Unknown character handle type: %d", handle.GetType());
-					push(L, nullptr);
-				}
-				return 1;
-			}
-
-			if (prop == GFS.strRotation) {
-				push(L, *stats->Character->GetRotation());
-				return 1;
-			}
-
-			if (prop == GFS.strPosition) {
-				push(L, *stats->Character->GetTranslate());
-				return 1;
-			}
-
-			if (prop == GFS.strMyGuid) {
-				push(L, *stats->Character->GetGuid());
-				return 1;
-			}
-
-			if (prop == GFS.strNetID) {
-				push(L, stats->Character->NetID);
-				return 1;
-			}
-		}
-
-		bool fetched;
-		if (!prop && strncmp(propStr, "Base", 4) == 0) {
-			FixedString baseStatName(propStr + 4);
-			fetched = CharacterFetchStat(L, stats, baseStatName, true);
-		} else {
-			fetched = CharacterFetchStat(L, stats, prop, false);
-		}
-
-		if (!fetched) {
-			fetched = LuaPropertyMapGet(L, gCharacterStatsPropertyMap, stats, prop, false);
-		}
-
-		if (fetched) {
-			return 1;
-		}
-
-		OsiError("Unknown character stats property: " << propStr);
-		return 0;
-	}
-
-	CDivinityStats_Character* ObjectProxy<CDivinityStats_Character>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
-		if (character == nullptr) luaL_error(L, "Character handle invalid");
-		if (character->Stats == nullptr) luaL_error(L, "Character has no stats!");
-		return character->Stats;
-	}
-
-	int CharacterGetItemBySlot(lua_State* L)
-	{
-		auto self = get<ObjectProxy<CDivinityStats_Character>*>(L, 1);
-		auto slot = get<ItemSlot>(L, 2);
-
-		auto item = self->Get(L)->GetItemBySlot(slot, true);
-		if (item != nullptr) {
-			ObjectProxy<CDivinityStats_Item>::New(L, GetCurrentLifetime(), item);
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
-
-	int ObjectProxy<CDivinityStats_Character>::Index(lua_State* L)
-	{
-		auto stats = Get(L);
-		if (!stats) return 0;
-
-		auto prop = luaL_checkstring(L, 2);
-		FixedString fs(prop);
-
-		if (fs == GFS.strGetItemBySlot) {
-			lua_pushcfunction(L, &CharacterGetItemBySlot);
-			return 1;
-		}
-
-		return CharacterFetchStat(L, stats, prop, fs);
-	}
-
-	int ObjectProxy<CDivinityStats_Character>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gCharacterStatsPropertyMap);
-	}
-
 	int ItemFetchStat(lua_State* L, CDivinityStats_Item* item, char const* prop)
 	{
 		if (strcmp(prop, "DynamicStats") == 0) {
@@ -328,26 +143,6 @@ namespace dse::lua
 	}
 
 
-	char const* const ObjectProxy<CharacterDynamicStat>::MetatableName = "CharacterDynamicStat";
-
-	CharacterDynamicStat* ObjectProxy<CharacterDynamicStat>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		luaL_error(L, "Character stats no longer available");
-		return nullptr;
-	}
-
-	int ObjectProxy<CharacterDynamicStat>::Index(lua_State* L)
-	{
-		return GenericGetter(L, gCharacterDynamicStatPropertyMap);
-	}
-
-	int ObjectProxy<CharacterDynamicStat>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gCharacterDynamicStatPropertyMap);
-	}
-
-
 	ItemOrCharacterPushPin::ItemOrCharacterPushPin(lua_State* L, CRPGStats_Object* obj)
 	{
 		if (obj == nullptr) {
@@ -355,7 +150,7 @@ namespace dse::lua
 		}
 		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Character"))) {
 			auto ch = reinterpret_cast<CDivinityStats_Character*>(obj);
-			character_ = ObjectProxy<CDivinityStats_Character>::New(L, GetCurrentLifetime(), ch);
+			MakeObjectRef(L, ch);
 		}
 		else if (obj->ModifierListIndex == GetStaticSymbols().GetStats()->modifierList.FindIndex(FixedString("Item"))) {
 			auto item = reinterpret_cast<CDivinityStats_Item*>(obj);
@@ -369,7 +164,6 @@ namespace dse::lua
 
 	ItemOrCharacterPushPin::~ItemOrCharacterPushPin()
 	{
-		if (character_) character_->Unbind();
 		if (item_) item_->Unbind();
 		if (object_) object_->Unbind();
 	}
@@ -415,8 +209,6 @@ namespace dse::lua
 
 	void RegisterStatsObjects(lua_State* L)
 	{
-		ObjectProxy<CDivinityStats_Character>::RegisterMetatable(L);
-		ObjectProxy<CharacterDynamicStat>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Item>::RegisterMetatable(L);
 		ObjectProxy<CDivinityStats_Equipment_Attributes>::RegisterMetatable(L);
 		StatsExtraDataProxy::RegisterMetatable(L);

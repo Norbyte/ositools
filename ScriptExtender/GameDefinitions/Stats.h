@@ -637,7 +637,7 @@ namespace dse
 		std::optional<int32_t> GetHitChance(CDivinityStats_Character * target);
 		bool HasTalent(TalentType talent, bool excludeBoosts);
 		int32_t GetAbility(AbilityType ability, bool excludeBoosts);
-		CDivinityStats_Item * GetItemBySlot(ItemSlot slot, bool mustBeEquipped);
+		CDivinityStats_Item * GetItemBySlot(ItemSlot slot, std::optional<bool> mustBeEquipped);
 		CDivinityStats_Item * GetMainWeapon();
 		CDivinityStats_Item * GetOffHandWeapon();
 		int32_t GetPhysicalResistance(bool excludeBoosts);
@@ -1333,6 +1333,8 @@ namespace dse
 		void UnwrapAll();
 
 		std::optional<int32_t> GetStat(CDivinityStats_Character * character, FixedString const& name, 
+			bool original, bool baseValues);
+		std::optional<int32_t> GetStat(CDivinityStats_Character * character, StatGetterType type, 
 			bool original, bool baseValues);
 	};
 

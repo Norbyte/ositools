@@ -9,57 +9,59 @@
 BEGIN_NS(lua)
 
 template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
+auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 {
 	if constexpr (IsArrayLike<T>::Value) {
 		if constexpr (ByVal<IsArrayLike<T>::TElement>::Value) {
-			ArrayProxy::MakeByVal<IsArrayLike<T>::TElement>(L, value, lifetime);
+			return ArrayProxy::MakeByVal<IsArrayLike<T>::TElement>(L, value, lifetime);
 		} else {
-			ArrayProxy::MakeByRef<IsArrayLike<T>::TElement>(L, value, lifetime);
+			return ArrayProxy::MakeByRef<IsArrayLike<T>::TElement>(L, value, lifetime);
 		}
 	} else if constexpr (IsMapLike<T>::Value) {
 		static_assert(ByVal<IsMapLike<T>::TKey>::Value, "Map key is a type that we cannot serialize by-value?");
 
 		if constexpr (ByVal<IsMapLike<T>::TValue>::Value) {
-			MapProxy::MakeByVal(L, value, lifetime);
+			return MapProxy::MakeByVal(L, value, lifetime);
 		} else {
-			MapProxy::MakeByRef(L, value, lifetime);
+			return MapProxy::MakeByRef(L, value, lifetime);
 		}
 	} else if constexpr (IsSetLike<T>::Value) {
 		if constexpr (ByVal<IsSetLike<T>::TElement>::Value) {
-			SetProxy::MakeByVal<IsSetLike<T>::TElement>(L, value, lifetime);
+			return SetProxy::MakeByVal<IsSetLike<T>::TElement>(L, value, lifetime);
 		} else {
-			SetProxy::MakeByRef<IsSetLike<T>::TElement>(L, value, lifetime);
+			return SetProxy::MakeByRef<IsSetLike<T>::TElement>(L, value, lifetime);
 		}
 	} else if constexpr (std::is_pointer_v<T>) {
-		if (value != nullptr) {
-			if constexpr (std::is_const_v<std::remove_pointer_t<T>>) {
-				MakeObjectRef(L, lifetime, const_cast<std::remove_const_t<std::remove_pointer_t<T>>*>(*value));
+		if constexpr (std::is_const_v<std::remove_pointer_t<T>>) {
+			if (value != nullptr) {
+				return MakeObjectRef(L, lifetime, const_cast<std::remove_const_t<std::remove_pointer_t<T>>*>(*value));
 			} else {
-				MakeObjectRef(L, lifetime, *value);
+				push(L, nullptr);
+				return (ObjectProxyRefImpl<std::remove_const_t<std::remove_pointer_t<T>>>*)nullptr;
 			}
 		} else {
-			push(L, nullptr);
+			return MakeObjectRef(L, lifetime, *value);
 		}
 	} else {
 		if (value != nullptr) {
-			ObjectProxy2::MakeRef(L, value, lifetime);
+			return ObjectProxy2::MakeRef(L, value, lifetime);
 		} else {
 			push(L, nullptr);
+			return (ObjectProxyRefImpl<T>*)nullptr;
 		}
 	}
 }
 
 template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
+auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
 {
-	MakeObjectRef(L, lifetime, &value->Value);
+	return MakeObjectRef(L, lifetime, &value->Value);
 }
 
 template <class T>
-void MakeObjectRef(lua_State* L, T* value)
+auto MakeObjectRef(lua_State* L, T* value)
 {
-	MakeObjectRef(L, GetCurrentLifetime(), value);
+	return MakeObjectRef(L, GetCurrentLifetime(), value);
 }
 
 

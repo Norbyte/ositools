@@ -165,7 +165,6 @@ namespace dse::lua
 		~ItemOrCharacterPushPin();
 
 	private:
-		ObjectProxy<CDivinityStats_Character> * character_{ nullptr };
 		ObjectProxy<CDivinityStats_Item> * item_{ nullptr };
 		StatsProxy * object_{ nullptr };
 	};

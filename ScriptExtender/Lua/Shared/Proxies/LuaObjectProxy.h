@@ -33,6 +33,11 @@ public:
 	std::vector<FixedString> Parents;
 };
 
+inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+{
+	return false;
+}
+
 template <class T>
 class LuaPropertyMap : public GenericPropertyMap
 {
@@ -108,9 +113,13 @@ public:
 	}
 
 	inline void AddProperty(char const* prop, typename PropertyAccessors::Getter* getter,
-		typename PropertyAccessors::Setter* setter, std::size_t offset)
+		typename PropertyAccessors::Setter* setter = nullptr, std::size_t offset = 0, uint64_t flag = 0)
 	{
-		AddRawProperty(prop, (RawPropertyAccessors::Getter*)getter, (RawPropertyAccessors::Setter*)setter, offset);
+		if (setter == nullptr) {
+			setter = (typename PropertyAccessors::Setter*)&GenericSetNonWriteableProperty;
+		}
+
+		AddRawProperty(prop, (RawPropertyAccessors::Getter*)getter, (RawPropertyAccessors::Setter*)setter, offset, flag);
 	}
 };
 

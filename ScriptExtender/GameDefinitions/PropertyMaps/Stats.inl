@@ -292,8 +292,9 @@ P_RO(MaxArmor)
 P_RO(BaseMaxArmor)
 P_RO(MaxMagicArmor)
 P_RO(BaseMaxMagicArmor)
-P_RO(Sight)
-P_RO(BaseSight)
+// Sight/BaseSight are fetched through CharacterStatGetters
+// P_RO(Sight)
+// P_RO(BaseSight)
 P_RO(AttributeFlags)
 P_RO(BaseAttributeFlags)
 P_RO(ItemBoostedAttributeFlags)
@@ -309,18 +310,128 @@ P(MaxMpOverride)
 // TODO - TraitOrder?
 */
 
-// FIXME - add props for v55 compat:
+// v55 compatibility
+P_FUN(GetItemBySlot, GetItemBySlot)
 P_GETTER(MainWeapon, GetMainWeapon)
 P_GETTER(OffHandWeapon, GetOffHandWeapon)
-// ModId
-// NotSneaking (wtf?)
-// Base* (Base version of stats)
-// * (Boosted version of stats)
-// ----- Do we need these?
-// Rotation
-// Position
-// MyGuid
-// NetID
+
+#if defined(GENERATING_PROPMAP)
+// TODO - GFS.strCharacter
+pm.AddProperty("ModId",
+	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(obj->Name));
+		return true;
+	}
+);
+
+pm.AddProperty("Rotation",
+	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->Character) {
+			push(L, *obj->Character->GetRotation());
+		} else {
+			push(L, nullptr);
+		}
+
+		return true;
+	}
+);
+
+pm.AddProperty("Position",
+	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->Character) {
+			push(L, *obj->Character->GetTranslate());
+		} else {
+			push(L, nullptr);
+		}
+
+		return true;
+	}
+);
+
+pm.AddProperty("MyGuid",
+	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->Character) {
+			push(L, *obj->Character->GetGuid());
+		} else {
+			push(L, nullptr);
+		}
+
+		return true;
+	}
+);
+
+pm.AddProperty("NetID",
+	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->Character) {
+			push(L, obj->Character->NetID);
+		} else {
+			push(L, nullptr);
+		}
+
+		return true;
+	}
+);
+
+for (auto const& label : EnumInfo<StatGetterType>::Values) {
+	auto statId = label.Value;
+
+	// Boosted property getter (eg. BlockChance)
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (StatGetterType)flag, false, false));
+			return true;
+		},
+		nullptr, 0, (uint64_t)statId
+	);
+
+	// Base property getter (eg. BaseBlockChance)
+	STDString basePropName = STDString("Base") + label.Key.GetString();
+	pm.AddProperty(basePropName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (StatGetterType)flag, false, true));
+			return true;
+		},
+		nullptr, 0, (uint64_t)statId
+	);
+}
+
+for (auto const& label : EnumInfo<AbilityType>::Values) {
+	auto abilityId = label.Value;
+
+	// Boosted ability getter (eg. Aerothurge)
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((AbilityType)flag, false));
+			return true;
+		},
+		nullptr, 0, (uint64_t)abilityId
+	);
+
+	// Base ability getter (eg. BaseAerothurge)
+	STDString baseAbilityName = STDString("Base") + label.Key.GetString();
+	pm.AddProperty(baseAbilityName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((AbilityType)flag, true));
+			return true;
+		},
+		nullptr, 0, (uint64_t)abilityId
+	);
+}
+
+for (auto const& label : EnumInfo<TalentType>::Values) {
+	auto talentId = label.Value;
+
+	// Talent getter (eg. TALENT_)
+	STDString talentName = STDString("TALENT_") + label.Key.GetString();
+	pm.AddProperty(talentName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->HasTalent((TalentType)flag, true));
+			return true;
+		},
+		nullptr, 0, (uint64_t)talentId
+	);
+}
+#endif
 
 END_CLS()
 

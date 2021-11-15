@@ -2810,8 +2810,7 @@ namespace dse::esv::lua
 
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
-		auto luaTarget = ObjectProxy<CDivinityStats_Character>::New(L, GetServerLifetime(), target);
-		UnbindablePin _t(luaTarget);
+		MakeObjectRef(L, target);
 		ItemOrCharacterPushPin luaAttacker(L, attacker);
 
 		ObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;

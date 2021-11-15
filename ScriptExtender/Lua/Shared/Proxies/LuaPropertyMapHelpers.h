@@ -73,11 +73,6 @@ bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, v
 	return true;
 }
 
-inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
-{
-	return false;
-}
-
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName);
 
 template <class T, class T2>

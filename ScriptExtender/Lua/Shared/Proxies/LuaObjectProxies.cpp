@@ -3,6 +3,7 @@
 #include <stdafx.h>
 
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/Symbols.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/LuaMethodHelpers.h>
@@ -15,6 +16,7 @@
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>
+#include <Extender/ScriptExtender.h>
 
 BEGIN_NS(lua)
 
