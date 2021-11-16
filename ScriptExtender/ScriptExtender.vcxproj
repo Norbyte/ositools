@@ -236,6 +236,7 @@
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
     <None Include="GameDefinitions\PropertyMaps\Item.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
     <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />

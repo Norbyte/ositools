@@ -113,9 +113,15 @@ struct Status : public ProtectedGameObject<Status>
 
 struct StatusConsumeBase : public Status
 {
+	struct StatsData
+	{
+		FixedString StatsId;
+		int32_t Turn;
+	};
+
 	ObjectSet<FixedString> Skill; // Saved
 	ObjectSet<FixedString> Items; // Saved
-	ObjectSet<uint32_t> ResetCooldownsSet; // Set<TSkillAbility>
+	ObjectSet<uint32_t> ResetCooldownsAbilities; // Set<TSkillAbility>
 	bool ResetAllCooldowns; // Saved
 	bool ResetOncePerCombat; // Saved
 	bool ScaleWithVitality; // Saved
@@ -124,7 +130,7 @@ struct StatusConsumeBase : public Status
 	ObjectSet<ComponentHandle> ItemHandles; // Saved
 	float EffectTime; // Saved
 	FixedString StatsId; // Saved
-	ObjectSet<void*> StatsIDs; // Set<StatsData>
+	ObjectSet<StatsData> StatsIds;
 	FixedString StackId;
 	FixedString OriginalWeaponStatsId;
 	FixedString OverrideWeaponStatsId;
@@ -132,7 +138,7 @@ struct StatusConsumeBase : public Status
 	int AttributeHandle;
 	int SavingThrow; // TODO enum + enum prop!
 	Vector3 SourceDirection; // Saved
-	ObjectSet<void*> SurfaceChangeSet; // Set<SurfaceChange>
+	ObjectSet<SurfaceTransformActionType> SurfaceChanges;
 	int Turn; // Saved
 	int field_1AC;
 	Status* AuraStatus; // Saved
@@ -185,7 +191,7 @@ struct StatusHit : public Status
 
 	uint32_t Unk2;
 	uint8_t Unk3;
-	void * RPGPropertyList;
+	CRPGStats_Object_Property_List * PropertyList;
 	HitDamageInfo DamageInfo;
 	ComponentHandle HitByHandle;
 	// Character, Item or Projectile
@@ -240,11 +246,11 @@ struct StatusHeal : public Status
 	FixedString HealEffectId;
 	StatusHealType HealType;
 	uint32_t AbsorbSurfaceRange;
-	ObjectSet<void *> AbsorbSurfaceTypes;
+	ObjectSet<SurfaceType> AbsorbSurfaceTypes;
 	uint64_t Unkn2;
 	bool TargetDependentHeal;
-	uint32_t TargetDependentValue[3];
-	uint32_t TargetDependentHealAmount[3];
+	std::array<int32_t, 3> TargetDependentValue;
+	std::array<int32_t, 3> TargetDependentHealAmount;
 	uint32_t Unkn3;
 };
 

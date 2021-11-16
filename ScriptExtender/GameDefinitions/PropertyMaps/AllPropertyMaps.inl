@@ -5,6 +5,7 @@
 #include <GameDefinitions/PropertyMaps/Stats.inl>
 #include <GameDefinitions/PropertyMaps/Surface.inl>
 #include <GameDefinitions/PropertyMaps/RootTemplates.inl>
+#include <GameDefinitions/PropertyMaps/Projectile.inl>
 
 
 BEGIN_CLS(HitDamageInfo)
@@ -33,72 +34,6 @@ P(HitReason)
 P(DamageSourceType)
 P(Strength)
 END_CLS()
-
-
-BEGIN_CLS(esv::ShootProjectileHelper)
-P(SkillId)
-P(Caster)
-P(Source)
-P(Target)
-P(StartPosition)
-P(EndPosition)
-P(Random)
-P(CasterLevel)
-P(IsTrap)
-P(UnknownFlag1)
-P(CleanseStatuses)
-P(StatusClearChance)
-P(IsFromItem)
-P(IsStealthed)
-P(IgnoreObjects)
-END_CLS()
-
-
-BEGIN_CLS(esv::Projectile)
-// EoCServerObject
-P_RO(NetID)
-P_RO(MyGuid)
-// Projectile
-P_RO(CasterHandle)
-P_RO(SourceHandle)
-P_RO(TargetObjectHandle)
-P_RO(HitObjectHandle)
-P(SourcePosition)
-P(TargetPosition)
-P(DamageType)
-P(DamageSourceType)
-P(LifeTime)
-P(HitInterpolation)
-P(ExplodeRadius0)
-P(ExplodeRadius1)
-P(DeathType)
-P(SkillId)
-P_RO(WeaponHandle)
-P_RO(MovingEffectHandle)
-P(SpawnEffect)
-P(SpawnFXOverridesImpactFX)
-P_RO(EffectHandle)
-P(RequestDelete)
-P_RO(Launched)
-P(IsTrap)
-P(UseCharacterStats)
-P(ReduceDurability)
-P(AlwaysDamage)
-P(ForceTarget)
-P(IsFromItem)
-P(DivideDamage)
-P(IgnoreRoof)
-P(CanDeflect)
-P(IgnoreObjects)
-P(CleanseStatuses)
-P(StatusClearChance)
-P_RO(Position)
-P_RO(PrevPosition)
-P_RO(Velocity)
-P_RO(Scale)
-P_RO(CurrentLevel)
-END_CLS()
-
 
 
 BEGIN_CLS(Trigger)

@@ -51,6 +51,98 @@ LifetimePool& GetLifetimePool()
 	}
 }
 
+#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
+
+void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHolder const & lifetime)
+{
+	switch (status->GetStatusId()) {
+	MAKE_REF(HIT, esv::StatusHit)
+	MAKE_REF(DYING, esv::StatusDying)
+	MAKE_REF(HEAL, esv::StatusHeal)
+	MAKE_REF(CHARMED, esv::StatusCharmed)
+	MAKE_REF(KNOCKED_DOWN, esv::StatusKnockedDown)
+	MAKE_REF(SUMMONING, esv::StatusSummoning)
+	MAKE_REF(HEALING, esv::StatusHealing)
+	MAKE_REF(THROWN, esv::StatusThrown)
+	MAKE_REF(TELEPORT_FALLING, esv::StatusTeleportFall)
+	MAKE_REF(COMBAT, esv::StatusCombat)
+	MAKE_REF(AOO, esv::StatusAoO)
+	MAKE_REF(SNEAKING, esv::StatusSneaking)
+	MAKE_REF(UNLOCK, esv::StatusUnlock)
+	MAKE_REF(BOOST, esv::StatusBoost)
+	MAKE_REF(UNSHEATHED, esv::StatusUnsheathed)
+	MAKE_REF(STANCE, esv::StatusStance)
+	MAKE_REF(SITTING, esv::StatusLying)
+	MAKE_REF(LYING, esv::StatusLying)
+	MAKE_REF(INFECTIOUS_DISEASED, esv::StatusInfectiousDiseased)
+	MAKE_REF(INVISIBLE, esv::StatusInvisible)
+	MAKE_REF(ROTATE, esv::StatusRotate)
+	MAKE_REF(IDENTIFY, esv::StatusIdentify)
+	MAKE_REF(REPAIR, esv::StatusRepair)
+	MAKE_REF(MATERIAL, esv::StatusMaterial)
+	MAKE_REF(EXPLODE, esv::StatusExplode)
+	MAKE_REF(ADRENALINE, esv::StatusAdrenaline)
+	MAKE_REF(SHACKLES_OF_PAIN, esv::StatusShacklesOfPain)
+	MAKE_REF(SHACKLES_OF_PAIN_CASTER, esv::StatusShacklesOfPainCaster)
+	MAKE_REF(DRAIN, esv::StatusDrain)
+	MAKE_REF(SPIRIT_VISION, esv::StatusSpiritVision)
+	MAKE_REF(SPIRIT, esv::StatusSpirit)
+	MAKE_REF(DAMAGE, esv::StatusDamage)
+	MAKE_REF(CLIMBING, esv::StatusClimbing)
+	MAKE_REF(INCAPACITATED, esv::StatusIncapacitated)
+	MAKE_REF(INSURFACE, esv::StatusInSurface)
+	MAKE_REF(POLYMORPHED, esv::StatusPolymorphed)
+	MAKE_REF(DAMAGE_ON_MOVE, esv::StatusDamageOnMove)
+	MAKE_REF(CHALLENGE, esv::StatusChallenge)
+	MAKE_REF(HEAL_SHARING, esv::StatusHealSharing)
+	MAKE_REF(HEAL_SHARING_CASTER, esv::StatusHealSharingCaster)
+	MAKE_REF(ACTIVE_DEFENSE, esv::StatusActiveDefense)
+	MAKE_REF(SPARK, esv::StatusSpark)
+	MAKE_REF(CONSTRAINED, esv::StatusLying)
+
+	case StatusType::STORY_FROZEN:
+	case StatusType::SMELLY:
+	case StatusType::CLEAN:
+	case StatusType::UNHEALABLE:
+	case StatusType::FLANKED:
+	case StatusType::INFUSED:
+	case StatusType::SOURCE_MUTED:
+	case StatusType::DEMONIC_BARGAIN:
+	case StatusType::EFFECT:
+	case StatusType::TUTORIAL_BED:
+		ObjectProxy2::MakeRef(L, static_cast<esv::Status*>(status), lifetime);
+		return;
+
+	case StatusType::MUTED:
+	case StatusType::CONSUME:
+	case StatusType::FEAR:
+	case StatusType::BLIND:
+	case StatusType::ENCUMBERED:
+	case StatusType::LEADERSHIP:
+	case StatusType::WIND_WALKER:
+	case StatusType::DARK_AVENGER:
+	case StatusType::REMORSE:
+	case StatusType::DECAYING_TOUCH:
+	case StatusType::CHANNELING:
+	case StatusType::FORCE_MOVE:
+	case StatusType::OVERPOWER:
+	case StatusType::COMBUSTION:
+	case StatusType::GUARDIAN_ANGEL:
+	case StatusType::FLOATING:
+	case StatusType::DISARMED:
+	case StatusType::EXTRA_TURN:
+	case StatusType::PLAY_DEAD:
+	case StatusType::DEACTIVATED:
+		ObjectProxy2::MakeRef(L, static_cast<esv::StatusConsumeBase*>(status), lifetime);
+		return;
+
+	default:
+		OsiWarn("No property map available for unknown status type " << (unsigned)status->GetStatusId());
+		ObjectProxy2::MakeRef(L, static_cast<esv::Status*>(status), lifetime);
+		return;
+	}
+}
+
 END_NS()
 
 namespace dse::esv::lua
@@ -175,56 +267,6 @@ namespace dse::lua
 		}
 	}
 
-	char const* const ObjectProxy<esv::Status>::MetatableName = "esv::Status";
-
-	esv::Status* ObjectProxy<esv::Status>::GetPtr(lua_State* L)
-	{
-		if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
-		return obj_;
-	}
-
-	int ObjectProxy<esv::Status>::Index(lua_State* L)
-	{
-		if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-
-		if (strcmp(prop, "StatusType") == 0) {
-			push(L, obj_->GetStatusId());
-			return 1;
-		}
-
-		if (obj_->GetStatusId() == StatusType::HIT && strcmp(prop, "Hit") == 0) {
-			auto hit = static_cast<esv::StatusHit*>(obj_);
-			PushHit(L, hit->DamageInfo);
-			return 1;
-		}
-
-		auto& propertyMap = StatusToPropertyMap(obj_);
-		auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	int ObjectProxy<esv::Status>::NewIndex(lua_State* L)
-	{
-		StackCheck _(L, 0);
-
-		if (obj_->GetStatusId() == StatusType::HIT
-			&& strcmp(luaL_checkstring(L, 2), "Hit") == 0) {
-			auto hit = static_cast<esv::StatusHit*>(obj_);
-			HitDamageInfo damageInfo;
-			PopHit(L, damageInfo, 3);
-			hit->DamageInfo = damageInfo;
-			return 0;
-		}
-
-		auto& propertyMap = StatusToPropertyMap(obj_);
-		return GenericSetter(L, propertyMap);
-	}
-
-
 	char const* const ObjectProxy<esv::EsvTrigger>::MetatableName = "esv::Trigger";
 
 	esv::EsvTrigger* ObjectProxy<esv::EsvTrigger>::GetPtr(lua_State* L)
@@ -348,33 +390,6 @@ namespace dse::lua
 
 #include <Lua/Shared/LuaShared.inl>
 
-	char const* const ObjectProxy<esv::PlayerCustomData>::MetatableName = "esv::PlayerCustomData";
-
-	esv::PlayerCustomData* ObjectProxy<esv::PlayerCustomData>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto character = esv::GetEntityWorld()->GetCharacter(handle_);
-		if (character == nullptr) luaL_error(L, "Character handle invalid");
-
-		if (character->PlayerData == nullptr
-			|| !character->PlayerData->CustomData.Initialized) {
-			OsiError("Character has no player data, or custom data was not initialized.");
-			return nullptr;
-		}
-
-		return &character->PlayerData->CustomData;
-	}
-
-	int ObjectProxy<esv::PlayerCustomData>::Index(lua_State* L)
-	{
-		return GenericGetter(L, gPlayerCustomDataPropertyMap);
-	}
-
-	int ObjectProxy<esv::PlayerCustomData>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gPlayerCustomDataPropertyMap);
-	}
-
 
 	char const* const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
 
@@ -493,12 +508,12 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Item, esv::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Item>));
 			return 1;
 		}
 
 		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Item, esv::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Item>));
 			return 1;
 		}
 
@@ -508,7 +523,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<esv::Item, esv::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusObjects<esv::Item>));
 			return 1;
 		}
 
@@ -628,66 +643,6 @@ namespace dse::lua
 		}
 
 		return GenericSetter(L, gEoCItemDefinitionPropertyMap);
-	}
-
-
-
-	char const* const ObjectProxy<esv::ShootProjectileHelper>::MetatableName = "esv::ShootProjectileRequest";
-
-	esv::ShootProjectileHelper* ObjectProxy<esv::ShootProjectileHelper>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		luaL_error(L, "ShootProjectileRequest object has expired!");
-		return nullptr;
-	}
-
-	int ObjectProxy<esv::ShootProjectileHelper>::Index(lua_State* L)
-	{
-		return GenericGetter(L, gShootProjectileHelperPropertyMap);
-	}
-
-	int ObjectProxy<esv::ShootProjectileHelper>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gShootProjectileHelperPropertyMap);
-	}
-
-
-	char const* const ObjectProxy<esv::Projectile>::MetatableName = "esv::Projectile";
-
-	esv::Projectile* ObjectProxy<esv::Projectile>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto projectile = esv::GetEntityWorld()->GetProjectile(handle_);
-		if (projectile == nullptr) luaL_error(L, "Projectile handle invalid");
-		return projectile;
-	}
-
-	int ObjectProxy<esv::Projectile>::Index(lua_State* L)
-	{
-		auto projectile = Get(L);
-		if (!projectile) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-
-		if (strcmp(prop, GFS.strHandle.Str) == 0) {
-			push(L, projectile->Base.Component.Handle);
-			return 1;
-		}
-
-		if (strcmp(prop, GFS.strRootTemplate.Str) == 0) {
-			ObjectProxy<ProjectileTemplate>::New(L, GetServerLifetime(), projectile->ProjectileTemplate);
-			return 1;
-		}
-
-		bool fetched = LuaPropertyMapGet(L, gProjectilePropertyMap, projectile, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	int ObjectProxy<esv::Projectile>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gProjectilePropertyMap);
 	}
 
 
@@ -839,84 +794,6 @@ namespace dse::lua
 namespace dse::esv::lua
 {
 	using namespace dse::lua;
-
-	char const* const StatusHandleProxy::MetatableName = "esv::HStatus";
-
-	esv::Status* StatusHandleProxy::Get(lua_State* L)
-	{
-		esv::Status* status{ nullptr };
-		if (owner_.GetType() == (uint32_t)ObjectType::ServerCharacter) {
-			auto character = GetEntityWorld()->GetCharacter(owner_);
-			if (character == nullptr) {
-				luaL_error(L, "Character handle invalid");
-				return nullptr;
-			}
-
-			if (statusHandle_) {
-				status = character->GetStatus(statusHandle_, true, isUnapplied_);
-			} else {
-				status = character->GetStatus(statusNetId_);
-			}
-		} else {
-			auto item = GetEntityWorld()->GetItem(owner_);
-			if (item == nullptr) {
-				luaL_error(L, "Item handle invalid");
-				return nullptr;
-			}
-
-			if (statusHandle_) {
-				status = item->GetStatus(statusHandle_, true, isUnapplied_);
-			} else {
-				status = item->GetStatus(statusNetId_);
-			}
-		}
-
-		if (status == nullptr) luaL_error(L, "Status handle invalid");
-		return status;
-	}
-
-	int StatusHandleProxy::Index(lua_State* L)
-	{
-		auto status = Get(L);
-		if (!status) return 0;
-
-		StackCheck _(L, 1);
-		auto prop = luaL_checkstring(L, 2);
-
-		if (status->GetStatusId() == StatusType::HIT && strcmp(prop, "Hit") == 0) {
-			auto hit = static_cast<esv::StatusHit*>(status);
-			PushHit(L, hit->DamageInfo);
-			return 1;
-		}
-
-		auto& propertyMap = StatusToPropertyMap(status);
-		auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	int StatusHandleProxy::NewIndex(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto status = Get(L);
-		if (!status) return 0;
-
-		auto prop = luaL_checkstring(L, 2);
-
-		if (status->GetStatusId() == StatusType::HIT
-			&& strcmp(prop, "Hit") == 0) {
-			auto hit = static_cast<esv::StatusHit*>(status);
-			HitDamageInfo damageInfo;
-			PopHit(L, damageInfo, 3);
-			hit->DamageInfo = damageInfo;
-			return 0;
-		}
-
-		auto& propertyMap = StatusToPropertyMap(status);
-		LuaPropertyMapSet(L, 3, propertyMap, status, prop, true);
-		return 0;
-	}
-
 
 	char const * const TurnManagerCombatProxy::MetatableName = "esv::TurnManager::Combat";
 
@@ -1175,20 +1052,15 @@ namespace dse::esv::lua
 	{
 		ExtensionLibrary::Register(L);
 
-		ObjectProxy<esv::Status>::RegisterMetatable(L);
-		ObjectProxy<esv::PlayerCustomData>::RegisterMetatable(L);
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
-		ObjectProxy<esv::Projectile>::RegisterMetatable(L);
 		ObjectProxy<esv::EsvTrigger>::RegisterMetatable(L);
 		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
 		ObjectProxy<SoundVolumeTriggerData>::RegisterMetatable(L);
-		ObjectProxy<esv::ShootProjectileHelper>::RegisterMetatable(L);
 		ObjectProxy<esv::Surface>::RegisterMetatable(L);
 		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
-		StatusHandleProxy::RegisterMetatable(L);
 		TurnManagerCombatProxy::RegisterMetatable(L);
 		TurnManagerTeamProxy::RegisterMetatable(L);
 		ItemConstructor::RegisterMetatable(L);
@@ -1476,9 +1348,7 @@ namespace dse::esv::lua
 			MakeObjectRef(L, result.character);
 			return 1;
 		} else if (result.projectile != nullptr) {
-			ComponentHandle handle;
-			result.projectile->GetObjectHandle(handle);
-			ObjectProxy<esv::Projectile>::New(L, handle);
+			MakeObjectRef(L, result.projectile);
 			return 1;
 		} else if (result.trigger != nullptr) {
 			ComponentHandle handle;
@@ -1507,9 +1377,7 @@ namespace dse::esv::lua
 			auto statusHandle = get<ComponentHandle>(L, 2);
 			status = character->GetStatus(statusHandle, true);
 			if (status != nullptr) {
-				ComponentHandle characterHandle;
-				character->GetObjectHandle(characterHandle);
-				StatusHandleProxy::New(L, characterHandle, statusHandle);
+				MakeObjectRef(L, status);
 				return 1;
 			}
 
@@ -1523,9 +1391,7 @@ namespace dse::esv::lua
 				ComponentHandle statusHandle{ index };
 				status = character->GetStatus(statusHandle, true);
 				if (status != nullptr) {
-					ComponentHandle characterHandle;
-					character->GetObjectHandle(characterHandle);
-					StatusHandleProxy::New(L, characterHandle, statusHandle);
+					MakeObjectRef(L, status);
 					return 1;
 				}
 
@@ -1534,9 +1400,7 @@ namespace dse::esv::lua
 				NetId statusNetId{ (uint32_t)index };
 				status = character->GetStatus(statusNetId);
 				if (status != nullptr) {
-					ComponentHandle characterHandle;
-					character->GetObjectHandle(characterHandle);
-					StatusHandleProxy::New(L, characterHandle, statusNetId);
+					MakeObjectRef(L, status);
 					return 1;
 				}
 
@@ -2132,7 +1996,7 @@ namespace dse::esv::lua
 
 		LuaServerPin lua(ExtensionState::Get());
 		RegistryEntry handler(L, 4);
-		lua->GetOsirisCallbacks().Subscribe(name, arity, type, std::move(handler));
+		lua->Osiris().GetOsirisCallbacks().Subscribe(name, arity, type, std::move(handler));
 		return 0;
 	}
 
@@ -2193,16 +2057,16 @@ namespace dse::esv::lua
 			return 1;
 		}
 
-		StatusHandleProxy::New(L, ownerHandle, status->StatusHandle, true);
+		MakeObjectRef(L, status);
 		return 1;
 	}
 
 	int ApplyStatus(lua_State* L)
 	{
-		auto status = StatusHandleProxy::CheckUserData(L, 1);
+		auto status = ObjectProxy2::CheckedGet<esv::Status>(L, 1);
 		StatusMachine* statusMachine{ nullptr };
 
-		auto ownerHandle = status->OwnerHandle();
+		auto ownerHandle = status->OwnerHandle;
 		if (ownerHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
 			auto character = GetEntityWorld()->GetCharacter(ownerHandle);
 			if (character) {
@@ -2227,7 +2091,7 @@ namespace dse::esv::lua
 		}
 
 		// FIXME - TEMP CAST
-		auto statusObj = (esv::Status*)statusMachine->Get(status->StatusHandle());
+		auto statusObj = (esv::Status*)statusMachine->Get(status->StatusHandle);
 		if (!statusObj) {
 			OsiError("No status found with this handle!");
 			return 0;
@@ -2759,8 +2623,11 @@ namespace dse::esv::lua
 			break;
 
 		case (uint32_t)ObjectType::ServerProjectile:
-			ObjectProxy<esv::Projectile>::New(L, handle);
+		{
+			auto projectile = esv::GetEntityWorld()->GetProjectile(handle);
+			MakeObjectRef(L, projectile);
 			break;
+		}
 
 		default:
 			push(L, nullptr);

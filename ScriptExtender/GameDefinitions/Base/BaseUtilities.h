@@ -257,3 +257,14 @@ struct OverrideableProperty
 };
 
 END_SE()
+
+BEGIN_NS(lua)
+
+// Indicates that a type should be pushed through the polymorphic MakeObjectRef()
+// implementation, since there are separate property maps for the different subclasses
+template <class T>
+struct LuaPolymorphic {
+	static constexpr bool IsPolymorphic = false;
+};
+
+END_NS()

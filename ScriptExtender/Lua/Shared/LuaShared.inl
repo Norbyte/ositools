@@ -1,5 +1,5 @@
 
-template <class TObject, class TStatus>
+template <class TObject>
 int GameObjectGetStatus(lua_State* L)
 {
 	auto self = get<ObjectProxy<TObject>*>(L, 1);
@@ -13,8 +13,7 @@ int GameObjectGetStatus(lua_State* L)
 
 	auto status = object->StatusMachine->GetStatus(statusId);
 	if (status) {
-		// FIXME - use handle based proxy
-		ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
+		MakeObjectRef(L, status);
 		return 1;
 	}
 	else {
@@ -22,7 +21,7 @@ int GameObjectGetStatus(lua_State* L)
 	}
 }
 
-template <class TObject, class TStatus>
+template <class TObject>
 int GameObjectGetStatusByType(lua_State* L)
 {
 	auto self = get<ObjectProxy<TObject>*>(L, 1);
@@ -35,8 +34,7 @@ int GameObjectGetStatusByType(lua_State* L)
 
 	for (auto status : object->StatusMachine->Statuses) {
 		if (status->GetStatusId() == statusType) {
-			// FIXME - use handle based proxy
-			ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
+			MakeObjectRef(L, status);
 			return 1;
 		}
 	}
@@ -63,7 +61,7 @@ int GameObjectGetStatuses(lua_State* L)
 	return 1;
 }
 
-template <class TObject, class TStatus>
+template <class TObject>
 int GameObjectGetStatusObjects(lua_State* L)
 {
 	auto self = get<ObjectProxy<TObject>*>(L, 1);
@@ -77,8 +75,7 @@ int GameObjectGetStatusObjects(lua_State* L)
 	int32_t index = 1;
 	for (auto status : object->StatusMachine->Statuses) {
 		push(L, index++);
-		// FIXME - use handle based proxy
-		ObjectProxy<TStatus>::New(L, GetCurrentLifetime(), status);
+		MakeObjectRef(L, status);
 		lua_settable(L, -3);
 	}
 

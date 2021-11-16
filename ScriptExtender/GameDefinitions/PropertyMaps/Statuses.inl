@@ -11,19 +11,18 @@ P(StatsMultiplier)
 P(DamageSourceType)
 P_RO(StatusHandle)
 P_RO(OwnerHandle)
+P_REF(StatusOwner)
 P(StatusSourceHandle)
 P_RO(CleansedByHandle)
 P(Flags0)
 P(Flags1)
 P(Flags2)
-/*PROP_FLAGS(Flags0, esv::StatusFlags0, true);
-PROP_FLAGS(Flags1, esv::StatusFlags1, true);
-PROP_FLAGS(Flags2, esv::StatusFlags2, true);
+P_BITMASK(Flags0)
+P_BITMASK(Flags1)
+P_BITMASK(Flags2)
 
-propertyMap.Flags[GFS.strForceStatus].Flags |= kPropWrite;
-propertyMap.Flags[GFS.strForceFailStatus].Flags |= kPropWrite;
-propertyMap.Flags[GFS.strRequestDeleteAtTurnEnd].Flags |= kPropWrite;
-
+/*
+* FIXME!
 propertyMap.Properties[GFS.strLifeTime].SetFloat = [](void* st, float value) -> bool {
 	auto status = reinterpret_cast<esv::Status*>(st);
 	if (value < 0.0f && value != -1.0f) return false;
@@ -48,22 +47,32 @@ propertyMap.Properties[GFS.strCurrentLifeTime].SetFloat = [](void* st, float val
 }*/
 END_CLS()
 
+BEGIN_CLS(esv::StatusConsumeBase::StatsData)
+P(StatsId)
+P(Turn)
+END_CLS()
+
 BEGIN_CLS(esv::StatusConsumeBase)
 INHERIT(esv::Status)
-// TODO - Skills, Items, ResetCooldownsSet, StatsIDs?
+P_REF(Skill)
+P_REF(Items)
+P_REF(ResetCooldownsAbilities)
 P(ResetAllCooldowns)
 P(ResetOncePerCombat)
 P(ScaleWithVitality)
 P(LoseControl)
 P(ApplyStatusOnTick)
+P_REF(ItemHandles)
 P(EffectTime)
 P(StatsId)
+P_REF(StatsIds)
 P(StackId)
 P(OriginalWeaponStatsId)
 P(OverrideWeaponStatsId)
 P_RO(OverrideWeaponHandle)
 P(SavingThrow)
 P(SourceDirection)
+P_REF(SurfaceChanges)
 P(Turn)
 P(HealEffectOverride)
 P(Poisoned)
@@ -72,6 +81,8 @@ END_CLS()
 
 BEGIN_CLS(esv::StatusHit)
 INHERIT(esv::Status)
+P_REF(PropertyList)
+P_REF(DamageInfo)
 P_RO(HitByHandle)
 P_RO(HitWithHandle)
 P_RO(WeaponHandle)
@@ -114,7 +125,10 @@ P(HealEffect)
 P(HealEffectId)
 P(HealType)
 P(AbsorbSurfaceRange)
+P_REF(AbsorbSurfaceTypes)
 P(TargetDependentHeal)
+P_REF(TargetDependentValue)
+P_REF(TargetDependentHealAmount)
 END_CLS()
 
 
@@ -323,7 +337,7 @@ END_CLS()
 
 BEGIN_CLS(esv::StatusSpirit)
 INHERIT(esv::Status)
-// TODO - Characters
+P_REF(Characters)
 END_CLS()
 
 
@@ -410,7 +424,9 @@ P(TargetPos)
 P(TargetHandle)
 P(Radius)
 P(Projectile)
-// TODO - Conditions, PreviousTargets
+// FIXME - P_REF(TargetConditions)
+// FIXME - Targets
+P_REF(PreviousTargets)
 END_CLS()
 
 
@@ -419,6 +435,12 @@ INHERIT(esv::StatusConsumeBase)
 P(Charges)
 P(Radius)
 P(Projectile)
+// FIXME - P_REF(TargetConditions)
+END_CLS()
+
+
+BEGIN_CLS(esv::StatusConsume)
+INHERIT(esv::StatusConsumeBase)
 END_CLS()
 
 

@@ -334,12 +334,12 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character>));
 			return 1;
 		}
 
 		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Character, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Character>));
 			return 1;
 		}
 
@@ -349,7 +349,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Character, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Character>));
 			return 1;
 		}
 
@@ -463,12 +463,12 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Item, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Item>));
 			return 1;
 		}
 
 		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Item, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Item>));
 			return 1;
 		}
 
@@ -478,7 +478,7 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Item, ecl::Status>));
+			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Item>));
 			return 1;
 		}
 
