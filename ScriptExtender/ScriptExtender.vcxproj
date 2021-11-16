@@ -100,6 +100,7 @@
     <ClInclude Include="Lua\Debugger\LuaDebugger.h" />
     <ClInclude Include="Lua\Debugger\LuaDebugMessages.h" />
     <ClInclude Include="Lua\Server\LuaBindingServer.h" />
+    <ClInclude Include="Lua\Server\LuaOsiris.h" />
     <ClInclude Include="Lua\Shared\LuaBinding.h" />
     <ClInclude Include="Lua\Shared\LuaHelpers.h" />
     <ClInclude Include="Lua\Shared\LuaLifetime.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Lua\Debugger\LuaDebugger.cpp" />
     <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp" />
     <ClCompile Include="Lua\Libs\LuaLibs.cpp" />
+    <ClCompile Include="Lua\Server\LuaOsiris.cpp" />
     <ClCompile Include="Lua\Server\LuaServer.cpp" />
     <ClCompile Include="Lua\Shared\LuaBinding.cpp" />
     <ClCompile Include="Lua\Shared\LuaExtFunctions.cpp" />

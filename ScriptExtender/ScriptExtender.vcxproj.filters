@@ -337,6 +337,9 @@
     <ClInclude Include="Lua\Shared\LuaMethodHelpers.h">
       <Filter>Lua\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Server\LuaOsiris.h">
+      <Filter>Lua\Server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -513,6 +516,9 @@
     <ClCompile Include="GameHooks\EngineHooks.cpp">
       <Filter>GameHooks</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\Server\LuaOsiris.cpp">
+      <Filter>Lua\Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">
@@ -624,6 +630,9 @@
     </None>
     <None Include="Lua\Server\ServerCharacter.inl">
       <Filter>Lua\Server</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Projectile.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

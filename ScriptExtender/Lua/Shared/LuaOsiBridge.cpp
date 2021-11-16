@@ -311,7 +311,7 @@ namespace dse::esv::lua
 			|| (func->Type == FunctionType::Database && func->Node.Get() && !func->Node.Get()->IsDataNode())) {
 
 			auto numArgs = func->Signature->Params->Params.Size;
-			auto adapter = state.GetIdentityAdapterMap().FindAdapter((uint8_t)numArgs);
+			auto adapter = state.Osiris().GetIdentityAdapterMap().FindAdapter((uint8_t)numArgs);
 			if (adapter == nullptr) {
 				OsiError("Couldn't bind query '" << func->Signature->Name 
 					<< "': No identity adapter found for arity " << numArgs);
@@ -531,7 +531,7 @@ namespace dse::esv::lua
 				function_->Signature->Name, funcArgs, numArgs - 1);
 		}
 
-		OsiArgumentListPin<OsiArgumentDesc> args(state_->GetArgumentDescPool(), (uint32_t)funcArgs);
+		OsiArgumentListPin<OsiArgumentDesc> args(state_->Osiris().GetArgumentDescPool(), (uint32_t)funcArgs);
 		auto argType = function_->Signature->Params->Params.Head->Next;
 		for (uint32_t i = 0; i < funcArgs; i++) {
 			auto arg = args.Args() + i;
@@ -558,8 +558,8 @@ namespace dse::esv::lua
 			luaL_error(L, "Function has no node");
 		}
 
-		OsiArgumentListPin<TypedValue> tvs(state_->GetTypedValuePool(), (uint32_t)funcArgs);
-		OsiArgumentListPin<ListNode<TypedValue *>> nodes(state_->GetTypedValueNodePool(), (uint32_t)funcArgs + 1);
+		OsiArgumentListPin<TypedValue> tvs(state_->Osiris().GetTypedValuePool(), (uint32_t)funcArgs);
+		OsiArgumentListPin<ListNode<TypedValue *>> nodes(state_->Osiris().GetTypedValueNodePool(), (uint32_t)funcArgs + 1);
 
 		TuplePtrLL tuple;
 		auto & args = tuple.Items;
@@ -596,7 +596,7 @@ namespace dse::esv::lua
 				function_->Signature->Name, inParams, numArgs - 1);
 		}
 
-		OsiArgumentListPin<OsiArgumentDesc> args(state_->GetArgumentDescPool(), (uint32_t)numParams);
+		OsiArgumentListPin<OsiArgumentDesc> args(state_->Osiris().GetArgumentDescPool(), (uint32_t)numParams);
 		auto argType = function_->Signature->Params->Params.Head->Next;
 		uint32_t inputArg = 2;
 		for (uint32_t i = 0; i < numParams; i++) {
@@ -647,7 +647,7 @@ namespace dse::esv::lua
 				function_->Signature->Name, inParams, numArgs - 1);
 		}
 
-		OsiArgumentListPin<ListNode<TupleLL::Item>> nodes(state_->GetTupleNodePool(), (uint32_t)numParams + 1);
+		OsiArgumentListPin<ListNode<TupleLL::Item>> nodes(state_->Osiris().GetTupleNodePool(), (uint32_t)numParams + 1);
 
 		VirtTupleLL tuple;
 		
@@ -725,7 +725,7 @@ namespace dse::esv::lua
 	}
 
 	OsiFunctionNameProxy::OsiFunctionNameProxy(STDString const & name, ServerState & state)
-		: name_(name), state_(state), generationId_(state_.GenerationId())
+		: name_(name), state_(state), generationId_(state_.Osiris().GenerationId())
 	{}
 
 	void OsiFunctionNameProxy::UnbindAll()
@@ -740,10 +740,10 @@ namespace dse::esv::lua
 			return false;
 		}
 
-		if (generationId_ != state_.GenerationId()) {
+		if (generationId_ != state_.Osiris().GenerationId()) {
 			// Clear cached functions if story was reloaded
 			UnbindAll();
-			generationId_ = state_.GenerationId();
+			generationId_ = state_.Osiris().GenerationId();
 		}
 
 		return true;
@@ -1218,27 +1218,5 @@ namespace dse::esv::lua
 		functionMgr.RegisterDynamic(std::move(customEvt));
 
 		return 0;
-	}
-
-	void ServerState::StoryLoaded()
-	{
-		generationId_++;
-		identityAdapters_.UpdateAdapters();
-		if (!identityAdapters_.HasAllAdapters()) {
-			OsiWarn("Not all identity adapters are available - some queries may not work!");
-		}
-
-		osirisCallbacks_.StoryLoaded();
-	}
-
-	void ServerState::StoryFunctionMappingsUpdated()
-	{
-		auto helpers = library_.GenerateOsiHelpers();
-		LoadScript(helpers, "bootstrapper");
-	}
-
-	void ServerState::StorySetMerging(bool isMerging)
-	{
-		osirisCallbacks_.StorySetMerging(isMerging);
 	}
 }
