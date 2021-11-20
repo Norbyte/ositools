@@ -2429,6 +2429,9 @@ namespace dse::esv::lua
 		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
 		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
 	{
+		// FIXME - not migrated yet!
+		return false;
+
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 
@@ -2543,9 +2546,6 @@ namespace dse::esv::lua
 
 	esv::Item* ServerState::OnGenerateTreasureItem(esv::Item* item)
 	{
-		StackCheck _(L, 0);
-		PushExtFunction(L, "_TreasureItemGenerated"); // stack: fn
-
 		TreasureItemGeneratedEventParams params{ item, nullptr };
 		ThrowEvent(*this, "TreasureItemGenerated", params);
 
@@ -2611,7 +2611,7 @@ namespace dse::esv::lua
 	void ServerState::OnShootProjectile(Projectile* projectile)
 	{
 		ShootProjectileEventParams params{ projectile };
-		ThrowEvent(*this, "OnShootProjectile", params);
+		ThrowEvent(*this, "ShootProjectile", params);
 	}
 
 	void PushGameObject(lua_State* L, ComponentHandle handle)
@@ -2651,7 +2651,7 @@ namespace dse::esv::lua
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
 		ProjectileHitEventParams params{ projectile, hitObject, position };
-		ThrowEvent(*this, "OnProjectileHit", params);
+		ThrowEvent(*this, "ProjectileHit", params);
 	}
 
 
@@ -2686,6 +2686,9 @@ namespace dse::esv::lua
 
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
+		// FIXME - not migrated yet!
+		return false;
+
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 

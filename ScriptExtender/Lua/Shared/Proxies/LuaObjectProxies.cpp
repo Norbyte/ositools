@@ -70,6 +70,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #define P_REF(prop)
 #define P_BITMASK(prop)
 #define PN(name, prop)
+#define PN_RO(name, prop)
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
@@ -85,6 +86,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #undef P_REF
 #undef P_BITMASK
 #undef PN
+#undef PN_RO
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN
@@ -147,6 +149,13 @@ bool EnableWriteProtectedWrites{ false };
 		offsetof(PM::ObjectType, prop) \
 	);
 
+#define PN_RO(name, prop) \
+	pm.AddRawProperty(#name, \
+		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
+		&(GenericSetOffsetWriteProtectedProperty<decltype(PM::ObjectType::prop)>), \
+		offsetof(PM::ObjectType, prop) \
+	);
+
 #define PN_REF(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetRefProperty<decltype(PM::ObjectType::prop)>), \
@@ -189,6 +198,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef P_REF
 #undef P_BITMASK
 #undef PN
+#undef PN_RO
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN
@@ -208,6 +218,7 @@ BEGIN_SE()
 #define P_REF(prop)
 #define P_BITMASK(prop)
 #define PN(name, prop)
+#define PN_RO(name, prop)
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
@@ -223,6 +234,7 @@ BEGIN_SE()
 #undef P_REF
 #undef P_BITMASK
 #undef PN
+#undef PN_RO
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN

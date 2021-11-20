@@ -232,7 +232,7 @@ namespace dse::esv
 		ComponentHandle handle;
 		character->GetObjectHandle(handle);
 
-		status->TargetHandle = handle;
+		status->StatusTargetHandle = handle;
 		status->TargetPos = *character->GetTranslate();
 
 		applyStatus(statusMachine, status);
@@ -287,7 +287,7 @@ namespace dse::esv
 	void StatusHelpers::ThrowStatusHitEnter(esv::Status * status)
 	{
 		auto statusHit = static_cast<esv::StatusHit *>(status);
-		if ((bool)(statusHit->DamageInfo.EffectFlags & HitFlag::NoEvents)) {
+		if ((bool)(statusHit->Hit.EffectFlags & HitFlag::NoEvents)) {
 			return;
 		}
 
@@ -305,18 +305,18 @@ namespace dse::esv
 
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->DamageInfo.TotalDamage });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->Hit.TotalDamage });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
 		gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);
 
 		delete eventArgs;
 
-		if (statusHit->DamageInfo.DamageList.Size == 0) {
+		if (statusHit->Hit.DamageList.Size == 0) {
 			TDamagePair dummy;
 			dummy.Amount = 0;
 			dummy.DamageType = DamageType::Physical;
-			statusHit->DamageInfo.DamageList.SafeAdd(dummy);
+			statusHit->Hit.DamageList.SafeAdd(dummy);
 		}
 	}
 

@@ -4,6 +4,13 @@ BEGIN_NS(lua)
 
 char const* const EventObject::MetatableName = "Event";
 
+int EventObject::StopPropagation(lua_State* L)
+{
+	auto self = EventObject::CheckUserData(L, 1);
+	self->eventStopped_ = true;
+	return 0;
+}
+
 int EventObject::Index(lua_State* L)
 {
 	StackCheck _(L, 1);
@@ -22,6 +29,10 @@ int EventObject::Index(lua_State* L)
 		push(L, !writeable_);
 	} else if (prop == GFS.strCanPreventAction) {
 		push(L, !canPreventAction_);
+	} else if (prop == GFS.strStopped) {
+		push(L, eventStopped_);
+	} else if (prop == GFS.strStopPropagation) {
+		push(L, &EventObject::StopPropagation);
 	} else if (!impl->GetProperty(L, lifetime_.Get(), prop)) {
 		push(L, nullptr);
 	}

@@ -192,7 +192,7 @@ struct StatusHit : public Status
 	uint32_t Unk2;
 	uint8_t Unk3;
 	CRPGStats_Object_Property_List * PropertyList;
-	HitDamageInfo DamageInfo;
+	HitDamageInfo Hit;
 	ComponentHandle HitByHandle;
 	// Character, Item or Projectile
 	ComponentHandle HitWithHandle;
@@ -318,7 +318,7 @@ struct StatusCombat : public Status
 struct StatusAoO : public Status
 {
 	ComponentHandle SourceHandle; // Saved
-	ComponentHandle TargetHandle; // Saved
+	ComponentHandle AoOTargetHandle; // Saved
 	ComponentHandle PartnerHandle; // Saved
 	bool ActivateAoOBoost; // Saved
 	bool ShowOverhead; // Saved
@@ -380,7 +380,7 @@ struct StatusInfectiousDiseased : public StatusConsumeBase
 	int Infections; // Saved
 	float InfectTimer; // Saved
 	float Radius;
-	ComponentHandle TargetHandle; // Saved
+	ComponentHandle StatusTargetHandle; // Saved
 };
 
 struct StatusInvisible : public StatusConsumeBase
@@ -561,7 +561,7 @@ struct StatusHealSharing : public StatusConsumeBase
 
 struct StatusHealSharingCaster : public StatusConsumeBase
 {
-	ComponentHandle TargetHandle; // Saved
+	ComponentHandle StatusTargetHandle; // Saved
 };
 
 struct StatusExtraTurn : public StatusConsumeBase {};
@@ -570,7 +570,7 @@ struct StatusActiveDefense : public StatusConsumeBase
 {
 	int Charges; // Saved
 	Vector3 TargetPos; // Saved
-	ComponentHandle TargetHandle; // Saved
+	ComponentHandle StatusTargetHandle; // Saved
 	float Radius;
 	FixedString Projectile;
 	CDivinityStats_Condition* TargetConditions;

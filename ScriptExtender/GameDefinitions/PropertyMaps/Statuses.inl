@@ -11,6 +11,7 @@ P(StatsMultiplier)
 P(DamageSourceType)
 P_RO(StatusHandle)
 P_RO(OwnerHandle)
+PN_RO(TargetHandle, OwnerHandle) // OwnerHandle was called TargetHandle before v55
 P_REF(StatusOwner)
 P(StatusSourceHandle)
 P_RO(CleansedByHandle)
@@ -20,6 +21,16 @@ P(Flags2)
 P_BITMASK(Flags0)
 P_BITMASK(Flags1)
 P_BITMASK(Flags2)
+
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatusType",
+	[](lua_State* L, LifetimeHolder const& lifetime, esv::Status* status, std::size_t offset, uint64_t flag) {
+		push(L, status->GetStatusId());
+		return true;
+	}
+);
+#endif
 
 /*
 * FIXME!
@@ -82,7 +93,7 @@ END_CLS()
 BEGIN_CLS(esv::StatusHit)
 INHERIT(esv::Status)
 P_REF(PropertyList)
-P_REF(DamageInfo)
+P_REF(Hit)
 P_RO(HitByHandle)
 P_RO(HitWithHandle)
 P_RO(WeaponHandle)
@@ -197,7 +208,7 @@ END_CLS()
 BEGIN_CLS(esv::StatusAoO)
 INHERIT(esv::Status)
 P(SourceHandle)
-P(TargetHandle)
+P(AoOTargetHandle)
 P(PartnerHandle)
 P(ActivateAoOBoost)
 P(ShowOverhead)
@@ -253,7 +264,7 @@ INHERIT(esv::StatusConsumeBase)
 P(Infections)
 P(InfectTimer)
 P(Radius)
-P(TargetHandle)
+P(StatusTargetHandle)
 END_CLS()
 
 
@@ -413,7 +424,7 @@ END_CLS()
 
 BEGIN_CLS(esv::StatusHealSharingCaster)
 INHERIT(esv::StatusConsumeBase)
-P(TargetHandle)
+P(StatusTargetHandle)
 END_CLS()
 
 
@@ -421,7 +432,7 @@ BEGIN_CLS(esv::StatusActiveDefense)
 INHERIT(esv::StatusConsumeBase)
 P(Charges)
 P(TargetPos)
-P(TargetHandle)
+P(StatusTargetHandle)
 P(Radius)
 P(Projectile)
 // FIXME - P_REF(TargetConditions)

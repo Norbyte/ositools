@@ -371,23 +371,23 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Requirement& v)
 	{
 		s.BeginObject();
-		s.VisitProperty("Requirement", v.RequirementId);
-		s.VisitProperty("Not", v.Negate);
+		s.VisitProperty("Requirement", v.Requirement);
+		s.VisitProperty("Not", v.Not);
 
 		if (s.IsWriting) {
-			if (v.RequirementId == RequirementType::Tag) {
-				s.VisitProperty("Param", v.StringParam);
+			if (v.Requirement == RequirementType::Tag) {
+				s.VisitProperty("Param", v.Tag);
 			} else {
-				s.VisitProperty("Param", v.IntParam);
+				s.VisitProperty("Param", v.Param);
 			}
 		} else {
-			if (v.RequirementId == RequirementType::Tag) {
+			if (v.Requirement == RequirementType::Tag) {
 				auto param = checked_getfield<char const*>(s.L, "Param");
-				s.VisitProperty("Param", v.StringParam);
-				v.IntParam = -1;
+				s.VisitProperty("Param", v.Tag);
+				v.Param = -1;
 			} else {
-				s.VisitProperty("Param", v.IntParam);
-				v.StringParam = FixedString{};
+				s.VisitProperty("Param", v.Param);
+				v.Tag = FixedString{};
 			}
 		}
 

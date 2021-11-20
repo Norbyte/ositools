@@ -102,20 +102,20 @@ namespace dse::esv
 		auto it = hitStatusMap_.find(status);
 		if (it != hitStatusMap_.end()) {
 			pHit = it->second;
-			DEBUG_HIT("PendingHitManager::OnApplyHit(S=%p): Mapped to existing %d", status, &status->DamageInfo, pHit->Id);
+			DEBUG_HIT("PendingHitManager::OnApplyHit(S=%p): Mapped to existing %d", status, &status->Hit, pHit->Id);
 		} else {
 			auto hit = std::make_unique<PendingHit>();
 			hit->Id = nextHitId_++;
 
 			pHit = hit.get();
 			hits_.insert(std::make_pair(hit->Id, std::move(hit)));
-			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p): Create new %d", status, &status->DamageInfo, pHit->Id);
+			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p): Create new %d", status, &status->Hit, pHit->Id);
 		}
 
 		pHit->CapturedStatusApply = true;
 		pHit->TargetHandle = self->OwnerObjectHandle;
 		pHit->Status = status;
-		hitStatusDamageMap_.insert(std::make_pair(&status->DamageInfo, pHit));
+		hitStatusDamageMap_.insert(std::make_pair(&status->Hit, pHit));
 
 		return pHit;
 	}
@@ -126,19 +126,19 @@ namespace dse::esv
 		auto it = hitStatusMap_.find(status);
 		if (it != hitStatusMap_.end()) {
 			pHit = it->second;
-			DEBUG_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Mapped to existing %d", status, &status->DamageInfo, pHit->Id);
+			DEBUG_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Mapped to existing %d", status, &status->Hit, pHit->Id);
 		} else {
 			auto hit = std::make_unique<PendingHit>();
 			hit->Id = nextHitId_++;
 
 			pHit = hit.get();
 			hits_.insert(std::make_pair(hit->Id, std::move(hit)));
-			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Create new %d", status, &status->DamageInfo, pHit->Id);
+			WARN_HIT("PendingHitManager::OnStatusHitEnter(S=%p, Hit=%p): Create new %d", status, &status->Hit, pHit->Id);
 		}
 
 		pHit->CapturedStatusEnter = true;
 		pHit->Status = status;
-		hitStatusDamageMap_.insert(std::make_pair(&status->DamageInfo, pHit));
+		hitStatusDamageMap_.insert(std::make_pair(&status->Hit, pHit));
 
 		return pHit;
 	}
@@ -170,7 +170,7 @@ namespace dse::esv
 	void PendingHitManager::DeleteHit(PendingHit* hit)
 	{
 		if (hit->CapturedStatusEnter) {
-			auto it = hitStatusDamageMap_.find(&hit->Status->DamageInfo);
+			auto it = hitStatusDamageMap_.find(&hit->Status->Hit);
 			if (it != hitStatusDamageMap_.end()) {
 				hitStatusDamageMap_.erase(it);
 			}
@@ -205,10 +205,6 @@ namespace dse::esv
 
 	void HitProxy::PostStartup()
 	{
-		if (!gExtender->HasFeatureFlag("OsirisExtensions")) {
-			return;
-		}
-
 		if (PostLoaded) {
 			return;
 		}

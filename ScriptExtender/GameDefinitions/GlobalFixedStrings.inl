@@ -197,3 +197,5 @@ FS(StatsEntry);
 // LuaEvent properties
 FS(ReadOnly);
 FS(CanPreventAction);
+FS(StopPropagation);
+FS(Stopped);

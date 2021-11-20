@@ -242,6 +242,26 @@ bool CRPGStats_Object::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& l
 	return object->LuaSetAttribute(L, prop, index);
 }
 
+bool StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop)
+{
+	return CRPGStats_Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
+}
+
+bool StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
+{
+	return CRPGStats_Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
+}
+
+bool SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop)
+{
+	return CRPGStats_Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
+}
+
+bool SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
+{
+	return CRPGStats_Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
+}
+
 END_SE()
 
 namespace dse::lua

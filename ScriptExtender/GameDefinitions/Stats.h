@@ -10,10 +10,10 @@ namespace dse
 
 	struct CRPGStats_Requirement
 	{
-		RequirementType RequirementId;
-		int32_t IntParam;
-		FixedString StringParam;
-		bool Negate;
+		RequirementType Requirement;
+		int32_t Param;
+		FixedString Tag;
+		bool Not;
 
 		void ToProtobuf(class StatRequirement* msg) const;
 		void FromProtobuf(StatRequirement const& msg);
@@ -821,6 +821,9 @@ namespace dse
 		ObjectSet<SkillPrototype *> ChildPrototypes;
 
 		CRPGStats_Object * GetStats() const;
+
+		static bool LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop);
+		static bool LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop, int index);
 	};
 
 	struct SkillPrototypeManager
@@ -850,6 +853,9 @@ namespace dse
 		ObjectSet<SurfaceType>* AbsorbSurfaceTypes{ nullptr };
 
 		CRPGStats_Object * GetStats() const;
+
+		static bool LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop);
+		static bool LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop, int index);
 	};
 
 	struct StatusPrototypeManager

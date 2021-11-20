@@ -96,6 +96,10 @@ end
 function SubscribableEvent:Throw(event)
 	local cur = self.First
 	while cur ~= nil do
+		if event.Stopped then
+			break
+		end
+
         local ok, result = xpcall(cur.Handler, debug.traceback, event)
         if not ok then
             Ext.PrintError("Error while dispatching event " .. self.Name .. ": ", result)
@@ -149,16 +153,6 @@ _I._RegisterEngineEvent = function (event)
 	_I._Events[event] = SubscribableEvent:New(event)
 end
 
-_I._FindTableValue = function (t, val)
-	for k, v in pairs(l) do
-		if v == val then
-			return k
-		end
-	end
-
-	return nil
-end
-
 _I._MakeLegacyHitEvent = function (hit)
 	local t = {
 		HitId = hit.Id,
@@ -207,39 +201,27 @@ _I._CallLegacyEvent = function (fn, event)
 		local desc = fn(event.Skill, event.Character, event.Params, event.IsFromItem)
 		if desc ~= nil then
 			event.Description = desc
-			event.StopPropagation()
+			event:StopPropagation()
 		end
 	elseif event.Name == "StatusGetDescriptionParam" then
 		local desc = fn(event.Status, event.Owner, event.StatusSource, event.Params)
 		if desc ~= nil then
 			event.Description = desc
-			event.StopPropagation()
+			event:StopPropagation()
 		end
 	elseif event.Name == "GetSkillPropertyDescription" then
 		local desc = fn(event.Property)
 		if desc ~= nil then
 			event.Description = desc
-			event.StopPropagation()
+			event:StopPropagation()
 		end
 	elseif event.Name == "InputEvent" then
-		local ev = event.Event
-		fn({
-			EventId = ev.EventId,
-			InputDeviceId = ev.InputDeviceId,
-			InputPlayerIndex = ev.InputPlayerIndex,
-			-- FIXME - replace with new bitmask API
-			Press = _I._FindTableValue(ev.Type, "Press") ~= nil,
-			Release = _I._FindTableValue(ev.Type, "Release") ~= nil,
-			ValueChange = _I._FindTableValue(ev.Type, "ValueChange") ~= nil,
-			Hold = _I._FindTableValue(ev.Type, "Hold") ~= nil,
-			Repeat = _I._FindTableValue(ev.Type, "Repeat") ~= nil,
-			AcceleratedRepeat = _I._FindTableValue(ev.Type, "AcceleratedRepeat") ~= nil
-		})
+		fn(event.Event)
 	elseif event.Name == "StatusGetEnterChance" then
 		local chance = fn(event.Status, event.IsEnterCheck)
 		if chance ~= nil then
 			event.EnterChance = chance
-			event.StopPropagation()
+			event:StopPropagation()
 		end
 	elseif event.Name == "StatusHitEnter" then
 		fn(event.Hit, _I._MakeLegacyHitEvent(event.Context))
@@ -247,17 +229,47 @@ _I._CallLegacyEvent = function (fn, event)
 		local deathType, dmg = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
 			event.NoRandomization)
 		if deathType ~= nil and dmg ~= nil then
-			event.DamageList = dmg
-			event.DeathType = deathType
-			event.StopPropagation()
+			-- FIXME - copy damage list!
+			-- event.DamageList = dmg
+			-- event.DeathType = deathType
+			event:StopPropagation()
 		end
 	elseif event.Name == "GetSkillAPCost" then
 		local ap, elementalAffinity = fn(event.Skill, event.Character, event.AiGrid, event.Position, event.Radius)
 		if ap ~= nil and elementalAffinity ~= nil then
 			event.AP = ap
 			event.ElementalAffinity = elementalAffinity
-			event.StopPropagation()
+			event:StopPropagation()
 		end
+	elseif event.Name == "BeforeCharacterApplyDamage" then
+		fn(event.Target, event.Attacker, event.Hit, event.Cause, event.ImpactDirection, event.Context)
+	elseif event.Name == "TreasureItemGenerated" then
+		local resultItem = fn(event.Item)
+		if resultItem ~= nil then
+			event.ResultingItem = resultItem
+		end
+	elseif event.Name == "BeforeCraftingExecuteCombination" then
+		local processed = fn(event.Character, event.CraftingStation, event.Items, event.Quantity, event.CombinationId)
+		if processed == true then
+			event.Processed = true
+		end
+	elseif event.Name == "AfterCraftingExecuteCombination" then
+		local processed = fn(event.Character, event.CraftingStation, event.Items, event.Quantity, event.CombinationId, event.Succeeded)
+		if processed == true then
+			event.Processed = true
+		end
+	elseif event.Name == "BeforeShootProjectile" then
+		fn(event.Projectile)
+	elseif event.Name == "ShootProjectile" then
+		fn(event.Projectile)
+	elseif event.Name == "ProjectileHit" then
+		fn(event.Projectile, event.HitObject, event.Position)
+	elseif event.Name == "OnExecutePropertyDataOnGroundHit" then
+		fn(event.Caster, event.Position, event.DamageList)
+	elseif event.Name == "OnExecutePropertyDataOnTarget" then
+		fn(event.Property, event.Attacker, event.Target, event.ImpactOrigin, event.IsFromItem, event.Skill, event.Hit)
+	elseif event.Name == "OnExecutePropertyDataOnPosition" then
+		fn(event.Property, event.Attacker, event.Position, event.AreaRadius, event.IsFromItem, event.Skill, event.Hit)
 	elseif event.Name == "InputEvent" then
 		fn(event.InputEvent)
 		-- FIXME - add other events!

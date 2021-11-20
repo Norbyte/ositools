@@ -19,6 +19,7 @@ P(ArmorAbsorption)
 P(LifeSteal)
 P(EffectFlags)
 P(HitWithWeapon)
+P_REF(DamageList)
 END_CLS()
 
 

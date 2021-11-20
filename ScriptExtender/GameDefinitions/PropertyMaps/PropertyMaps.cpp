@@ -324,7 +324,7 @@ namespace dse
 			BEGIN_PROPERTIES(gStatusAoOPropertyMap, esv::StatusAoO);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(SourceHandle);
-			PROP(TargetHandle);
+			PROP(AoOTargetHandle);
 			PROP(PartnerHandle);
 			PROP(ActivateAoOBoost);
 			PROP(ShowOverhead);
@@ -380,7 +380,7 @@ namespace dse
 			PROP(Infections);
 			PROP(InfectTimer);
 			PROP(Radius);
-			PROP(TargetHandle);
+			PROP(StatusTargetHandle);
 		}
 
 		{
@@ -540,7 +540,7 @@ namespace dse
 		{
 			BEGIN_PROPERTIES(gStatusHealSharingCasterPropertyMap, esv::StatusHealSharingCaster);
 			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
-			PROP(TargetHandle);
+			PROP(StatusTargetHandle);
 		}
 
 		{
@@ -548,7 +548,7 @@ namespace dse
 			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
 			PROP(Charges);
 			PROP(TargetPos);
-			PROP(TargetHandle);
+			PROP(StatusTargetHandle);
 			PROP(Radius);
 			PROP(Projectile);
 			// TODO - Conditions, PreviousTargets

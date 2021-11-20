@@ -176,7 +176,7 @@ struct TreasureItemGeneratedEventParams
 
 struct BeforeCraftingExecuteCombinationEventParams
 {
-	esv::Character* Item;
+	esv::Character* Character;
 	CraftingStationType CraftingStation;
 	FixedString CombinationId;
 	uint8_t Quantity;
@@ -186,7 +186,7 @@ struct BeforeCraftingExecuteCombinationEventParams
 
 struct AfterCraftingExecuteCombinationEventParams
 {
-	esv::Character* Item;
+	esv::Character* Character;
 	CraftingStationType CraftingStation;
 	FixedString CombinationId;
 	uint8_t Quantity;
@@ -226,7 +226,7 @@ struct ExecutePropertyDataOnTargetEventParams
 	glm::vec3 ImpactOrigin;
 	bool IsFromItem;
 	SkillPrototype* Skill;
-	HitDamageInfo const* DamageInfo;
+	HitDamageInfo const* Hit;
 };
 
 struct ExecutePropertyDataOnPositionEventParams
@@ -237,7 +237,7 @@ struct ExecutePropertyDataOnPositionEventParams
 	float AreaRadius;
 	bool IsFromItem;
 	SkillPrototype* Skill;
-	HitDamageInfo const* DamageInfo;
+	HitDamageInfo const* Hit;
 };
 
 class ServerState : public State

@@ -28,7 +28,7 @@ namespace dse::esv
 
 		if (status->GetStatusId() == StatusType::HIT) {
 			auto hit = static_cast<esv::StatusHit*>(status);
-			if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
+			if (OsirisPropertyMapGet(gHitDamageInfoPropertyMap, &hit->Hit, args, 2, Type, false)) {
 				return true;
 			}
 		}
@@ -47,7 +47,7 @@ namespace dse::esv
 
 		if (status->GetStatusId() == StatusType::HIT) {
 			auto hit = static_cast<esv::StatusHit*>(status);
-			if (OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->DamageInfo, args, 2, Type, false)) {
+			if (OsirisPropertyMapSet(gHitDamageInfoPropertyMap, &hit->Hit, args, 2, Type, false)) {
 				return;
 			}
 		}

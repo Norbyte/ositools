@@ -205,10 +205,6 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
 		);
 
-		if (!gExtender->HasFeatureFlag("OsirisExtensions")) {
-			return;
-		}
-
 		lib.esv__Status__GetEnterChanceHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
 		);

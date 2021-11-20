@@ -1,8 +1,8 @@
 BEGIN_CLS(CRPGStats_Requirement)
-P(RequirementId)
-P(IntParam)
-P(StringParam)
-P(Negate)
+P(Requirement)
+P(Param)
+P(Tag)
+P(Not)
 END_CLS()
 
 BEGIN_CLS(CDivinityStats_Equipment_Attributes)
@@ -301,6 +301,7 @@ P(Reputation)
 P_RO(Flanked)
 P(Karma)
 P_RO(Flags)
+P_BITMASK(Flags)
 P_REF(TraitOrder)
 P(MaxResistance)
 P_RO(HasTwoHandedWeapon)
@@ -514,6 +515,17 @@ P_RO(DisplayName)
 P_RO(Icon)
 P_RO(HasStats)
 P_RO(AbsorbSurfaceTypes)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatsObject",
+	[](lua_State* L, LifetimeHolder const& lifetime, StatusPrototype* obj, std::size_t offset, uint64_t flag) {
+		MakeObjectRef(L, obj->GetStats());
+		return true;
+	}
+);
+#endif
+
+P_FALLBACK(&StatusPrototype::LuaFallbackGet, &StatusPrototype::LuaFallbackSet)
 END_CLS()
 
 
@@ -535,6 +547,17 @@ P_RO(Icon)
 P_RO(AiFlags)
 P_REF(RootSkillPrototype)
 P_REF(ChildPrototypes)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatsObject",
+	[](lua_State* L, LifetimeHolder const& lifetime, SkillPrototype* obj, std::size_t offset, uint64_t flag) {
+		MakeObjectRef(L, obj->GetStats());
+		return true;
+	}
+);
+#endif
+
+P_FALLBACK(&SkillPrototype::LuaFallbackGet, &SkillPrototype::LuaFallbackSet)
 END_CLS()
 
 

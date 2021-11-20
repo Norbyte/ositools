@@ -175,7 +175,7 @@ namespace dse::esv
 			hit->StatusSourceHandle = sourceHandle;
 		}
 
-		auto & damage = hit->DamageInfo;
+		auto & damage = hit->Hit;
 		damage.Equipment = Hit->Equipment;
 		damage.TotalDamage = Hit->TotalDamage;
 		damage.DamageDealt = Hit->DamageDealt;
@@ -441,7 +441,7 @@ namespace dse::esv
 			auto status = HitStatusGet(args);
 			if (status == nullptr) return;
 
-			status->DamageInfo.ClearDamage();
+			status->Hit.ClearDamage();
 		}
 
 		void HitStatusClearDamage(OsiArgumentDesc const & args)
@@ -456,7 +456,7 @@ namespace dse::esv
 				return;
 			}
 
-			status->DamageInfo.ClearDamage(*damageType);
+			status->Hit.ClearDamage(*damageType);
 		}
 
 		bool HitStatusGetDamage(OsiArgumentDesc & args)
@@ -471,9 +471,9 @@ namespace dse::esv
 				return false;
 			}
 
-			auto & dmgList = status->DamageInfo.DamageList;
+			auto & dmgList = status->Hit.DamageList;
 			int32_t amount = 0;
-			for (auto const& dmg : status->DamageInfo.DamageList) {
+			for (auto const& dmg : status->Hit.DamageList) {
 				if (dmg.DamageType == *damageType) {
 					amount += dmg.Amount;
 				}
@@ -497,7 +497,7 @@ namespace dse::esv
 				return;
 			}
 
-			status->DamageInfo.AddDamage(*damageType, amount);
+			status->Hit.AddDamage(*damageType, amount);
 		}
 	}
 

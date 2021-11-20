@@ -154,23 +154,23 @@ namespace dse
 
 	void CRPGStats_Requirement::ToProtobuf(StatRequirement* msg) const
 	{
-		msg->set_requirement((int32_t)RequirementId);
-		msg->set_int_param(IntParam);
-		if (StringParam) {
-			msg->set_string_param(StringParam.Str);
+		msg->set_requirement((int32_t)Requirement);
+		msg->set_int_param(Param);
+		if (Tag) {
+			msg->set_string_param(Tag.Str);
 		}
-		msg->set_negate(Negate);
+		msg->set_negate(Not);
 	}
 
 	void CRPGStats_Requirement::FromProtobuf(StatRequirement const& msg)
 	{
-		RequirementId = (RequirementType)msg.requirement();
-		IntParam = msg.int_param();
+		Requirement = (RequirementType)msg.requirement();
+		Param = msg.int_param();
 		if (!msg.string_param().empty()) {
-			StringParam = FixedString(msg.string_param().c_str());
+			Tag = FixedString(msg.string_param().c_str());
 		}
 
-		Negate = msg.negate();
+		Not = msg.negate();
 	}
 
 

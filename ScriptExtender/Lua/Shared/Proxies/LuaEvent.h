@@ -115,6 +115,7 @@ private:
 	char const* eventName_;
 	bool canPreventAction_;
 	bool writeable_;
+	bool eventStopped_{ false };
 
 	EventObject(LifetimeHolder const& lifetime, char const* eventName, bool canPreventAction, bool writeable)
 		: lifetime_(lifetime), eventName_(eventName), canPreventAction_(canPreventAction), writeable_(writeable)
@@ -133,6 +134,7 @@ protected:
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
 	int GC(lua_State* L);
+	static int StopPropagation(lua_State* L);
 };
 
 

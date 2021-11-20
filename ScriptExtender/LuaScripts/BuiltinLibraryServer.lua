@@ -4,9 +4,9 @@ _I._PublishedEvents = {
 	"GameStateChanged",
 	"GetSkillDamage",
 	"GetSkillAPCost",
-	"ComputeCharacterHit",
-	"CalculateTurnOrder",
-	"GetHitChance",
+	"ComputeCharacterHit", -- FIXME
+	"CalculateTurnOrder", -- FIXME
+	"GetHitChance", -- FIXME
 	"StatusGetEnterChance",
 	"StatusHitEnter",
 	"BeforeCharacterApplyDamage",
@@ -16,7 +16,9 @@ _I._PublishedEvents = {
 	"BeforeShootProjectile",
 	"ShootProjectile",
 	"ProjectileHit",
-	"GroundHit"
+	"OnExecutePropertyDataOnGroundHit",
+	"OnExecutePropertyDataOnTarget",
+	"OnExecutePropertyDataOnPosition"
 }
 
 Ext.IsClient = function ()
@@ -44,67 +46,20 @@ Ext._RestoreModPersistentVars = function (modTable, vars)
 	end
 end
 
--- FIXME - migrate these events!
-Ext._BeforeCharacterApplyDamage = function (target, attacker, hit, causeType, impactDirection, context)
-    for i,callback in pairs(Ext._Listeners.BeforeCharacterApplyDamage) do
-        local status, result = xpcall(callback, debug.traceback, target, attacker, hit, causeType, impactDirection, context)
-        if not status then
-            Ext.PrintError("Error during BeforeCharacterApplyDamage: ", result)
-        end
-    end
+_I._RegisterEvents()
 
-	return hit
-end
-
-Ext._TreasureItemGenerated = function (...)
-    return Ext._EngineCallback1("TreasureItemGenerated", ...)
-end
-
-Ext._BeforeCraftingExecuteCombination = function (...)
-    for i,callback in pairs(Ext._Listeners["BeforeCraftingExecuteCombination"]) do
-        local status, result = xpcall(callback, debug.traceback, ...)
-        if status then
-			if result == true then
-				return result
-			end
-		else
-            Ext.PrintError("Error during BeforeCraftingExecuteCombination: ", result)
-        end
-    end
-end
-
-Ext._AfterCraftingExecuteCombination = function (...)
-    return Ext._Notify("AfterCraftingExecuteCombination", ...)
-end
-
-Ext._OnBeforeShootProjectile = function (...)
-    return Ext._Notify("BeforeShootProjectile", ...)
-end
-
-Ext._OnShootProjectile = function (...)
-    return Ext._Notify("ShootProjectile", ...)
-end
-
-Ext._OnProjectileHit = function (...)
-    return Ext._Notify("ProjectileHit", ...)
-end
-
-Ext._OnGroundHit = function (...)
-    return Ext._Notify("GroundHit", ...)
-end
-
-Ext._ExecutePropertyDataOnPosition = function (prop, ...)
-	local propType = Ext._SkillPropertyTypes[prop.Action]
-	if propType ~= nil and propType.ExecuteOnPosition ~= nil then
-		propType.ExecuteOnPosition(prop, ...)
-	end
-end
-
-Ext._ExecutePropertyDataOnTarget = function (prop, ...)
+Ext.Events.OnExecutePropertyDataOnTarget:Subscribe(function (e)
+	local prop = e.Property
 	local propType = Ext._SkillPropertyTypes[prop.Action]
 	if propType ~= nil and propType.ExecuteOnTarget ~= nil then
-		propType.ExecuteOnTarget(prop, ...)
+		propType:ExecuteOnTarget(e.Property, e.Attacker, e.Target, e.ImpactOrigin, e.IsFromItem, e.Skill, e.Hit)
 	end
-end
+end)
 
-_I._RegisterEvents()
+Ext.Events.OnExecutePropertyDataOnPosition:Subscribe(function (e)
+	local prop = e.Property
+	local propType = Ext._SkillPropertyTypes[prop.Action]
+	if propType ~= nil and propType.ExecuteOnPosition ~= nil then
+		propType:ExecuteOnPosition(e.Property, e.Attacker, e.Position, e.AreaRadius, e.IsFromItem, e.Skill, e.Hit)
+	end
+end)
