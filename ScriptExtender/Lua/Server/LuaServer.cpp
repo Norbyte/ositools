@@ -143,6 +143,28 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 	}
 }
 
+void LuaPolymorphic<CRPGStats_ObjectInstance>::MakeRef(lua_State* L, CRPGStats_ObjectInstance* stats, LifetimeHolder const & lifetime)
+{
+	auto modifierList = stats->GetModifierList();
+	if (modifierList->Name == GFS.strCharacter) {
+		return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Character*>(stats));
+	} else if (modifierList->Name == GFS.strItem) {
+		return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Item*>(stats));
+	} else {
+		return MakeObjectRef(L, lifetime, stats);
+	}
+}
+
+void LuaPolymorphic<CDivinityStats_Equipment_Attributes>::MakeRef(lua_State* L, CDivinityStats_Equipment_Attributes* stats, LifetimeHolder const & lifetime)
+{
+	switch (stats->StatsType) {
+	case EquipmentStatsType::Weapon: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Weapon*>(stats));
+	case EquipmentStatsType::Armor: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Armor*>(stats));
+	case EquipmentStatsType::Shield: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Shield*>(stats));
+	default: return MakeObjectRef(L, lifetime, stats);
+	}
+}
+
 END_NS()
 
 namespace dse::esv::lua
@@ -528,13 +550,8 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strStats) {
-			if (item->Stats != nullptr) {
-				ObjectProxy<CDivinityStats_Item>::New(L, item->Base.Component.Handle);
-				return 1;
-			} else {
-				push(L, nullptr);
-				return 1;
-			}
+			MakeObjectRef(L, item->Stats);
+			return 1;
 		}
 
 		if (propFS == GFS.strHandle) {
@@ -2383,7 +2400,7 @@ namespace dse::esv::lua
 		setfield(L, "HitId", hit.Id);
 
 		if (hit.CapturedCharacterHit) {
-			ObjectProxy<CDivinityStats_Item>::New(L, GetServerLifetime(), hit.WeaponStats);
+			MakeObjectRef(L, hit.WeaponStats);
 			lua_setfield(L, -2, "Weapon");
 			PushHit(L, hit.CharacterHit);
 			lua_setfield(L, -2, "Hit");
@@ -2418,15 +2435,9 @@ namespace dse::esv::lua
 		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
 
 		MakeObjectRef(L, target);
-		ItemOrCharacterPushPin luaAttacker(L, attacker);
+		MakeObjectRef(L, attacker);
 
-		ObjectProxy<CDivinityStats_Item> * luaWeapon = nullptr;
-		if (weapon != nullptr) {
-			luaWeapon = ObjectProxy<CDivinityStats_Item>::New(L, GetServerLifetime(), weapon);
-		} else {
-			lua_pushnil(L);
-		}
-		UnbindablePin _2(luaWeapon);
+		MakeObjectRef(L, weapon);
 
 		auto luaDamageList = DamageList::New(L);
 		for (auto const& dmg : *damageList) {
@@ -2500,7 +2511,7 @@ namespace dse::esv::lua
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
-		CRPGStats_Object* attacker{ nullptr };
+		CRPGStats_ObjectInstance* attacker{ nullptr };
 		if (attackerHandle) {
 			auto attackerChar = GetEntityWorld()->GetCharacter(attackerHandle, false);
 			if (attackerChar) {

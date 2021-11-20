@@ -188,7 +188,7 @@ namespace dse
 
 			void* VMT;
 			uint64_t field_8;
-			ObjectSet<CRPGStats_Object*> IngredientStats;
+			ObjectSet<CRPGStats_ObjectInstance*> IngredientStats;
 			ObjectSet<Item*> Ingredients;
 			ObjectSet<ComponentHandle> ObjectHandles;
 			ObjectSet<Item*> Items2;

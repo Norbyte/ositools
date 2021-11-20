@@ -99,6 +99,7 @@ FS(MainWeapon);
 FS(OffHandWeapon);
 FS(NotSneaking);
 FS(Character);
+FS(Item);
 FS(Rotation);
 FS(Position);
 FS(MyGuid);
@@ -191,6 +192,7 @@ FS(StatObject);
 FS(StatId);
 FS(StatType);
 FS(Blob);
+FS(StatsEntry);
 
 // LuaEvent properties
 FS(ReadOnly);

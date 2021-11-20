@@ -193,13 +193,13 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			auto numStats = item->Stats->DynamicAttributes.size();
+			auto numStats = item->Stats->DynamicStats.size();
 			if (numStats <= 1) {
 				OsiError("Tried to get dynamic stat " << index << ", item only has " << numStats);
 				return nullptr;
 			}
 
-			return item->Stats->DynamicAttributes[index];
+			return item->Stats->DynamicStats[index];
 		}
 
 		template <OsiPropertyMapType Type>

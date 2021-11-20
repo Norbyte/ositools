@@ -73,6 +73,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
+#define P_FALLBACK(getter, setter)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
@@ -87,6 +88,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN
+#undef P_FALLBACK
 
 #if defined(DEBUG)
 bool EnableWriteProtectedWrites{ true };
@@ -174,6 +176,8 @@ bool EnableWriteProtectedWrites{ false };
 		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
 	);
 
+#define P_FALLBACK(getter, setter) pm.SetFallback(getter, setter);
+
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
 #undef GENERATING_PROPMAP
@@ -188,6 +192,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN
+#undef P_FALLBACK
 
 		initialized = true;
 	}
@@ -206,6 +211,7 @@ BEGIN_SE()
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
 #define P_FUN(prop, fun)
+#define P_FALLBACK(getter, setter)
 
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
@@ -220,6 +226,7 @@ BEGIN_SE()
 #undef PN_REF
 #undef P_GETTER
 #undef P_FUN
+#undef P_FALLBACK
 
 
 #define BEGIN_BITMASK_NS(NS, T, type) char const* const TypeInfo<NS::T>::TypeName = #T;

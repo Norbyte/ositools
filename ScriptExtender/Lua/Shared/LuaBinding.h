@@ -114,59 +114,19 @@ namespace dse::lua
 	};
 
 
-	class StatsProxy : public Userdata<StatsProxy>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>
+	
+	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<CRPGStats_Object>
 	{
 	public:
-		static char const * const MetatableName;
+		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::optional<int> level);
 
-		StatsProxy(CRPGStats_Object * obj, std::optional<int> level)
-			: obj_(obj), level_(level)
-		{}
-
-		void Unbind()
-		{
-			obj_ = nullptr;
-		}
-
-		int Index(lua_State * L);
-		int NewIndex(lua_State * L);
+		FixedString const& GetTypeName() const override;
+		bool GetProperty(lua_State* L, FixedString const& prop) override;
+		bool SetProperty(lua_State* L, FixedString const& prop, int index) override;
+		int Next(lua_State* L, FixedString const& key) override;
 
 	private:
-		CRPGStats_Object * obj_;
 		std::optional<int> level_;
-	};
-
-
-	class SkillPrototypeProxy : public Userdata<SkillPrototypeProxy>, public Indexable, public Pushable<PushPolicy::Unbind>
-	{
-	public:
-		static char const * const MetatableName;
-
-		SkillPrototypeProxy(SkillPrototype * obj, std::optional<int> level);
-
-		void Unbind()
-		{
-			obj_ = nullptr;
-		}
-
-		int Index(lua_State * L);
-
-	private:
-		SkillPrototype * obj_;
-		CRPGStats_Object * stats_;
-		std::optional<int> level_;
-	};
-
-
-	class ItemOrCharacterPushPin
-	{
-	public:
-		ItemOrCharacterPushPin(lua_State * L, CRPGStats_Object * obj);
-		~ItemOrCharacterPushPin();
-
-	private:
-		ObjectProxy<CDivinityStats_Item> * item_{ nullptr };
-		StatsProxy * object_{ nullptr };
 	};
 
 

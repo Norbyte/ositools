@@ -11,6 +11,9 @@ LifetimeHolder GetCurrentLifetime();
 class GenericPropertyMap
 {
 public:
+	using TFallbackGetter = bool(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop);
+	using TFallbackSetter = bool(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index);
+
 	struct RawPropertyAccessors
 	{
 		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, std::size_t offset, uint64_t flag);
@@ -31,6 +34,8 @@ public:
 	FixedString Name;
 	std::unordered_map<FixedString, RawPropertyAccessors> Properties;
 	std::vector<FixedString> Parents;
+	TFallbackGetter* FallbackGetter{ nullptr };
+	TFallbackSetter* FallbackSetter{ nullptr };
 };
 
 inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
@@ -46,6 +51,8 @@ public:
 	{
 		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, std::size_t offset, uint64_t flag);
 		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
+		using FallbackGetter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop);
+		using FallbackSetter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop, int index);
 	};
 
 	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop) const
@@ -120,6 +127,12 @@ public:
 		}
 
 		AddRawProperty(prop, (RawPropertyAccessors::Getter*)getter, (RawPropertyAccessors::Setter*)setter, offset, flag);
+	}
+
+	inline void SetFallback(PropertyAccessors::FallbackGetter* getter, PropertyAccessors::FallbackSetter* setter)
+	{
+		FallbackGetter = (TFallbackGetter*)getter;
+		FallbackSetter = (TFallbackSetter*)setter;
 	}
 };
 
@@ -344,6 +357,13 @@ class ObjectProxy2 : private Userdata<ObjectProxy2>, public Indexable, public Ne
 {
 public:
 	static char const * const MetatableName;
+
+	template <class TImpl, class T, class... Args>
+	inline static TImpl* MakeImpl(lua_State* L, T* object, LifetimeHolder const& lifetime, Args... args)
+	{
+		auto self = NewWithExtraData(L, sizeof(TImpl), lifetime);
+		return new (self->GetImpl()) TImpl(lifetime, object, args...);
+	}
 
 	template <class T>
 	inline static ObjectProxyRefImpl<T>* MakeRef(lua_State* L, T* object, LifetimeHolder const& lifetime)

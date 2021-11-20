@@ -1,4 +1,6 @@
 #include <Lua/Shared/Proxies/LuaEntityProxy.h>
+#include <Lua/Shared/LuaHelpers.h>
+#include <Lua/Shared/LuaBinding.h>
 
 BEGIN_NS(lua)
 
@@ -134,7 +136,7 @@ int EntityProxy::GetComponent(lua_State* L)
 	StackCheck _(L, 1);
 	auto self = get<EntityProxy*>(L, 1);
 	auto componentType = get<ExtComponentType>(L, 2);
-	PushComponent(L, self->entitySystem_, self->handle_, componentType, GetCurrentLifetime(), false);
+	PushComponent(L, self->entitySystem_, self->handle_, componentType, State::FromLua(L)->GetCurrentLifetime(), false);
 	return 1;
 }
 
@@ -160,7 +162,7 @@ int EntityProxy::GetAllComponents(lua_State* L)
 
 				if (type) {
 					push(L, type);
-					PushComponent(L, self->entitySystem_, self->handle_, *type, GetCurrentLifetime(), true);
+					PushComponent(L, self->entitySystem_, self->handle_, *type, State::FromLua(L)->GetCurrentLifetime(), true);
 					lua_settable(L, -3);
 				} else if (warnOnMissing) {
 					auto name = self->entitySystem_->GetComponentName((EntityWorldBase::ComponentTypeIndex)componentIdx);
@@ -257,7 +259,7 @@ int EntityProxy::Index(lua_State* L)
 
 	auto componentType = EnumInfo<ExtComponentType>::Find(key);
 	if (componentType) {
-		PushComponent(L, self->entitySystem_, self->handle_, *componentType, GetCurrentLifetime(), false);
+		PushComponent(L, self->entitySystem_, self->handle_, *componentType, State::FromLua(L)->GetCurrentLifetime(), false);
 	} else {
 		auto componentTypeName = get<char const*>(L, 2);
 		luaL_error(L, "Not a valid EntityProxy method or component type: %s", componentTypeName);
@@ -321,7 +323,7 @@ int ComponentHandleProxy::GetComponent(lua_State* L)
 	auto self = get<ComponentHandleProxy*>(L, 1);
 	auto componentType = self->entitySystem_->GetComponentType((EntityWorldBase::HandleTypeIndex)self->handle_.GetType());
 	if (componentType) {
-		PushComponent(L, self->entitySystem_, self->handle_, *componentType, GetCurrentLifetime(), false);
+		PushComponent(L, self->entitySystem_, self->handle_, *componentType, State::FromLua(L)->GetCurrentLifetime(), false);
 	} else {
 		OsiError("No component model exists for this component type");
 		push(L, nullptr);

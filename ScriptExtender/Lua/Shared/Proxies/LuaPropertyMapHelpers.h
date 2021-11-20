@@ -81,6 +81,14 @@ inline void CopyProperties(LuaPropertyMap<T> const& base, LuaPropertyMap<T2>& ch
 	static_assert(std::is_base_of_v<T, T2>, "Can only copy properties from base class");
 	static_assert(static_cast<T*>(reinterpret_cast<T2*>(nullptr)) == reinterpret_cast<T*>(nullptr), "Base and child class should start at same base ptr");
 	CopyRawProperties(base, child, baseClsName);
+
+	if (child.FallbackGetter == nullptr) {
+		child.FallbackGetter = base.FallbackGetter;
+	}
+
+	if (child.FallbackSetter == nullptr) {
+		child.FallbackSetter = base.FallbackSetter;
+	}
 }
 
 END_NS()

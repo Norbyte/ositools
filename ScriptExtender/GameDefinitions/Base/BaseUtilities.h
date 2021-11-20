@@ -267,4 +267,12 @@ struct LuaPolymorphic {
 	static constexpr bool IsPolymorphic = false;
 };
 
+#define LUA_POLYMORPHIC(cls) \
+	template <> \
+	struct LuaPolymorphic<cls> { \
+		static constexpr bool IsPolymorphic = true; \
+		static void MakeRef(lua_State* L, cls* value, LifetimeHolder const& lifetime); \
+	};
+
+
 END_NS()

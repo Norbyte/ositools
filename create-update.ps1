@@ -1,5 +1,5 @@
 # Force a build date refresh
-(gci OsiInterface/Utils.cpp).LastWriteTime = Get-Date
+(gci ScriptExtender/Extender/Shared/Console.cpp).LastWriteTime = Get-Date
 
 # MSVC is broken and reuses old structure definitions from previous compilations.
 # Force a full recompile each time

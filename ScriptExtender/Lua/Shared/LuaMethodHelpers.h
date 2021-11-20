@@ -58,7 +58,7 @@ auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideablePro
 template <class T>
 auto MakeObjectRef(lua_State* L, T* value)
 {
-	return MakeObjectRef(L, GetCurrentLifetime(), value);
+	return MakeObjectRef(L, State::FromLua(L)->GetCurrentLifetime(), value);
 }
 
 

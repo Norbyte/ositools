@@ -6,6 +6,8 @@
 
 namespace dse
 {
+	struct ModifierList;
+
 	struct CRPGStats_Requirement
 	{
 		RequirementType RequirementId;
@@ -323,6 +325,17 @@ namespace dse
 		void ToProtobuf(class MsgS2CSyncStat* msg) const;
 		void FromProtobuf(MsgS2CSyncStat const& msg);
 		void BroadcastSyncMessage(bool syncDuringLoading) const;
+		ModifierList* GetModifierList() const;
+
+		int LuaGetAttributeLegacy(lua_State* L, FixedString const& attribute, std::optional<int> level);
+		int LuaGetAttribute(lua_State* L, FixedString const& attribute, std::optional<int> level);
+		bool LuaSetAttribute(lua_State* L, FixedString const& attribute, int index);
+
+		static bool LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, CRPGStats_Object* object, FixedString const& prop);
+		static bool LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, CRPGStats_Object* object, FixedString const& prop, int index);
+
+	private:
+		int LuaGetAttributeShared(lua_State* L, FixedString const& attribute, std::optional<int> level);
 	};
 
 	struct CRPGStats_ObjectInstance : public CRPGStats_Object
@@ -467,7 +480,7 @@ namespace dse
 		uint32_t U7;
 		FixedString ItemTypeReal; // Saved
 		FixedString U8;
-		Vector<CDivinityStats_Equipment_Attributes *> DynamicAttributes;
+		Vector<CDivinityStats_Equipment_Attributes *> DynamicStats;
 		uint64_t U9[1];
 		StatAttributeFlags AttributeFlags;
 		int32_t MaxCharges; // Saved; -1 = Not overridden

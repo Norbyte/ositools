@@ -488,11 +488,11 @@ private:
 };
 
 
-template <class T>
+template <class T, class Allocator, bool StoreSize>
 class ObjectSetProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	ObjectSetProxyByRefImpl(LifetimeHolder const& lifetime, ObjectSet<T> * obj)
+	ObjectSetProxyByRefImpl(LifetimeHolder const& lifetime, ObjectSet<T, Allocator, StoreSize> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -549,18 +549,18 @@ public:
 	}
 
 private:
-	ObjectSet<T>* object_;
+	ObjectSet<T, Allocator, StoreSize>* object_;
 	LifetimeHolder lifetime_;
 };
 
 
-template <class T>
+template <class T, class Allocator, bool StoreSize>
 class ObjectSetProxyByValImpl : public ArrayProxyImplBase
 {
 public:
 	static_assert(!std::is_pointer_v<T>, "ObjectSetProxyByValImpl template parameter should not be a pointer type!");
 
-	ObjectSetProxyByValImpl(LifetimeHolder const& lifetime, ObjectSet<T> * obj)
+	ObjectSetProxyByValImpl(LifetimeHolder const& lifetime, ObjectSet<T, Allocator, StoreSize> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -631,7 +631,7 @@ public:
 	}
 
 private:
-	ObjectSet<T>* object_;
+	ObjectSet<T, Allocator, StoreSize>* object_;
 	LifetimeHolder lifetime_;
 };
 
@@ -807,10 +807,10 @@ public:
 		return MakeImplByRef<SpanProxyByRefImpl<T>>(L, lifetime, object);
 	}
 
-	template <class T>
-	inline static ObjectSetProxyByRefImpl<T>* MakeByRef(lua_State* L, ObjectSet<T>* object, LifetimeHolder const& lifetime)
+	template <class T, class Allocator, bool StoreSize>
+	inline static ObjectSetProxyByRefImpl<T, Allocator, StoreSize>* MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ObjectSetProxyByRefImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ObjectSetProxyByRefImpl<T, Allocator, StoreSize>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
@@ -837,10 +837,10 @@ public:
 		return MakeImplByRef<SpanProxyByValImpl<T>>(L, lifetime, object);
 	}
 
-	template <class T>
-	inline static ObjectSetProxyByValImpl<T>* MakeByVal(lua_State* L, ObjectSet<T>* object, LifetimeHolder const& lifetime)
+	template <class T, class Allocator, bool StoreSize>
+	inline static ObjectSetProxyByValImpl<T, Allocator, StoreSize>* MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ObjectSetProxyByValImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ObjectSetProxyByValImpl<T, Allocator, StoreSize>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
@@ -908,8 +908,8 @@ struct IsArrayLike<Vector<T>> { static constexpr bool Value = true; using TEleme
 template <class T>
 struct IsArrayLike<std::span<T>> { static constexpr bool Value = true; using TElement = T; };
 
-template <class T>
-struct IsArrayLike<ObjectSet<T>> { static constexpr bool Value = true; using TElement = T; };
+template <class T, class Allocator, bool StoreSize>
+struct IsArrayLike<ObjectSet<T, Allocator, StoreSize>> { static constexpr bool Value = true; using TElement = T; };
 
 template <class T, size_t Size>
 struct IsArrayLike<std::array<T, Size>> { static constexpr bool Value = true; using TElement = T; };

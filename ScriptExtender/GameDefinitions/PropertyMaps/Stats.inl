@@ -1,3 +1,10 @@
+BEGIN_CLS(CRPGStats_Requirement)
+P(RequirementId)
+P(IntParam)
+P(StringParam)
+P(Negate)
+END_CLS()
+
 BEGIN_CLS(CDivinityStats_Equipment_Attributes)
 P(Durability)
 P(DurabilityDegradeSpeed)
@@ -254,6 +261,24 @@ P_RO(StringProperties1)
 P_RO(ComboCategories)
 // FIXME
 // Add using custom property! - P_RO(Using)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatsEntry",
+	[](lua_State* L, LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::size_t offset, uint64_t flag) {
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, CRPGStats_Object>(L, obj, lifetime, std::optional<int>());
+		return true;
+	}
+);
+
+pm.AddProperty("ModId",
+	[](lua_State* L, LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::size_t offset, uint64_t flag) {
+		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(obj->Name));
+		return true;
+	}
+);
+#endif
+
+P_FALLBACK(&CRPGStats_Object::LuaFallbackGet, &CRPGStats_Object::LuaFallbackSet)
 END_CLS()
 
 BEGIN_CLS(CRPGStats_ObjectInstance)
@@ -317,13 +342,6 @@ P_GETTER(OffHandWeapon, GetOffHandWeapon)
 
 #if defined(GENERATING_PROPMAP)
 // TODO - GFS.strCharacter
-pm.AddProperty("ModId",
-	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(obj->Name));
-		return true;
-	}
-);
-
 pm.AddProperty("Rotation",
 	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->Character) {
@@ -451,11 +469,41 @@ P(DamageTypeOverwrite)
 P(Durability)
 P(DurabilityCounter)
 P(ItemTypeReal)
-P_REF(DynamicAttributes)
+P_REF(DynamicStats)
 P_RO(AttributeFlags)
 P(MaxCharges)
 P(Charges)
 P_REF(BoostNameSet)
+
+
+#if defined(GENERATING_PROPMAP)
+for (auto const& label : EnumInfo<AbilityType>::Values) {
+	auto abilityId = label.Value;
+
+	// Ability stat getter (eg. Aerothurge)
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Item* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((AbilityType)flag));
+			return true;
+		},
+		nullptr, 0, (uint64_t)abilityId
+	);
+}
+
+for (auto const& label : EnumInfo<TalentType>::Values) {
+	auto talentId = label.Value;
+
+	// Talent stat getter (eg. TALENT_)
+	STDString talentName = STDString("TALENT_") + label.Key.GetString();
+	pm.AddProperty(talentName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Item* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->HasTalent((TalentType)flag));
+			return true;
+		},
+		nullptr, 0, (uint64_t)talentId
+	);
+}
+#endif
 END_CLS()
 
 

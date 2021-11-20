@@ -7,7 +7,11 @@ bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHolder const& life
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
-		return 0;
+		if (FallbackGetter) {
+			return FallbackGetter(L, lifetime, object, prop);
+		} else {
+			return false;
+		}
 	}
 
 	return it->second.Get(L, lifetime, object, it->second.Offset, it->second.Flag);
@@ -17,7 +21,11 @@ bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHolder const& life
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
-		return 0;
+		if (FallbackSetter) {
+			return FallbackSetter(L, lifetime, object, prop, index);
+		} else {
+			return false;
+		}
 	}
 
 	return it->second.Set(L, lifetime, object, index, it->second.Offset, it->second.Flag);
@@ -39,7 +47,7 @@ int ObjectProxy2::Index(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to read dead object of type '%s'", impl->GetTypeName());
+		luaL_error(L, "Attempted to read object of type '%s' whose lifetime has expired", impl->GetTypeName());
 		push(L, nullptr);
 		return 1;
 	}

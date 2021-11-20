@@ -17,12 +17,9 @@ namespace dse::esv
 
 BEGIN_NS(lua)
 
-template <>
-struct LuaPolymorphic<esv::Status> {
-	static constexpr bool IsPolymorphic = true;
-
-	static void MakeRef(lua_State* L, esv::Status* value, LifetimeHolder const& lifetime);
-};
+LUA_POLYMORPHIC(esv::Status)
+LUA_POLYMORPHIC(CRPGStats_ObjectInstance)
+LUA_POLYMORPHIC(CDivinityStats_Equipment_Attributes)
 
 void RegisterSharedLibraries(lua_State* L);
 
@@ -163,7 +160,7 @@ struct StatusHitEnterEventParams
 struct BeforeCharacterApplyDamageEventParams
 {
 	esv::Character* Target;
-	CRPGStats_Object* Attacker;
+	CRPGStats_ObjectInstance* Attacker;
 	HitDamageInfo* Hit;
 	CauseType Cause;
 	glm::vec3 ImpactDirection;

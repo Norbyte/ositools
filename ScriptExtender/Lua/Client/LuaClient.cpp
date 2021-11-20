@@ -483,14 +483,8 @@ namespace dse::lua
 		}
 
 		if (propFS == GFS.strStats) {
-			if (item->Stats != nullptr) {
-				// FIXME - use handle based proxy
-				ObjectProxy<CDivinityStats_Item>::New(L, GetClientLifetime(), item->Stats);
-				return 1;
-			} else {
-				push(L, nullptr);
-				return 1;
-			}
+			MakeObjectRef(L, item->Stats);
+			return 1;
 		}
 
 		if (propFS == GFS.strHandle) {
@@ -1799,7 +1793,7 @@ BEGIN_NS(ecl::lua)
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			OsiError("An UI object with name '" << name << "' already exists!");
-			ObjectProxy2::MakeRef<UIObject>(L, ui, GetCurrentLifetime());
+			MakeObjectRef(L, ui);
 			return 1;
 		}
 
@@ -1855,7 +1849,7 @@ BEGIN_NS(ecl::lua)
 		}
 
 		pin->OnCustomClientUIObjectCreated(name, handle);
-		ObjectProxy2::MakeRef<UIObject>(L, object, GetCurrentLifetime());
+		MakeObjectRef(L, object);
 		return 1;
 	}
 
@@ -1866,11 +1860,7 @@ BEGIN_NS(ecl::lua)
 
 		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
-		if (ui != nullptr) {
-			ObjectProxy2::MakeRef<UIObject>(L, ui, GetCurrentLifetime());
-		} else {
-			push(L, nullptr);
-		}
+		MakeObjectRef(L, ui);
 
 		return 1;
 	}
@@ -1886,11 +1876,7 @@ BEGIN_NS(ecl::lua)
 			ui = uiManager->GetByType(typeId);
 		}
 
-		if (ui != nullptr) {
-			ObjectProxy2::MakeRef<UIObject>(L, ui, GetCurrentLifetime());
-		} else {
-			push(L, nullptr);
-		}
+		MakeObjectRef(L, ui);
 
 		return 1;
 	}
@@ -1912,7 +1898,7 @@ BEGIN_NS(ecl::lua)
 			auto ui = (UIObject*)uiPtr;
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.c_str()) {
-				ObjectProxy2::MakeRef<UIObject>(L, ui, GetCurrentLifetime());
+				MakeObjectRef(L, ui);
 				return 1;
 			}
 		}

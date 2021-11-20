@@ -550,6 +550,11 @@ namespace dse
 		}
 	}
 
+	ModifierList* CRPGStats_Object::GetModifierList() const
+	{
+		return GetStaticSymbols().GetStats()->modifierList.Find(ModifierListIndex);
+	}
+
 	bool RPGEnumeration::IsIndexedProperty() const
 	{
 		return Name != GFS.strProperties
@@ -1425,7 +1430,7 @@ namespace dse
 	int32_t CDivinityStats_Item::GetPhysicalResistance()
 	{
 		int32_t resistance = 0;
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			resistance += dynamicStat->PhysicalResistance;
 		}
 
@@ -1435,7 +1440,7 @@ namespace dse
 	int32_t CDivinityStats_Item::GetPiercingResistance()
 	{
 		int32_t resistance = 0;
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			resistance += dynamicStat->PiercingResistance;
 		}
 
@@ -1445,7 +1450,7 @@ namespace dse
 	int32_t CDivinityStats_Item::GetMagicResistance()
 	{
 		int32_t resistance = 0;
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			resistance += dynamicStat->MagicResistance;
 		}
 
@@ -1455,7 +1460,7 @@ namespace dse
 	int32_t CDivinityStats_Item::GetCorrosiveResistance()
 	{
 		int32_t resistance = 0;
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			resistance += dynamicStat->CorrosiveResistance;
 		}
 
@@ -1465,7 +1470,7 @@ namespace dse
 
 	bool CDivinityStats_Item::HasTalent(TalentType talent)
 	{
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			if (dynamicStat->Talents.HasTalent(talent)) {
 				return true;
 			}
@@ -1478,7 +1483,7 @@ namespace dse
 	int32_t CDivinityStats_Item::GetAbility(AbilityType ability)
 	{
 		int32_t points = 0;
-		for (auto dynamicStat : DynamicAttributes) {
+		for (auto dynamicStat : DynamicStats) {
 			points += dynamicStat->AbilityModifiers[(unsigned)ability];
 		}
 
