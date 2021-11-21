@@ -99,7 +99,7 @@ END_CLS()
 
 BEGIN_CLS(esv::lua::ProjectileHitEventParams)
 P_REF(Projectile)
-P(HitObject)
+P_REF(HitObject)
 P(Position)
 END_CLS()
 

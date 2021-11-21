@@ -11,12 +11,6 @@ namespace dse
 	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
 }
 
-BEGIN_NS(lua)
-
-LUA_INFINITE_LIFETIME(UIObject)
-
-END_NS()
-
 namespace dse::ig
 {
 	struct InvokeDataValue;

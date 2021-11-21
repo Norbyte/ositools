@@ -242,21 +242,24 @@ _I._CallLegacyEvent = function (fn, event)
 			event:StopPropagation()
 		end
 	elseif event.Name == "BeforeCharacterApplyDamage" then
-		fn(event.Target, event.Attacker, event.Hit, event.Cause, event.ImpactDirection, event.Context)
+		fn(event.Target, event.Attacker, event.Hit, event.Cause, event.ImpactDirection, _I._MakeLegacyHitEvent(event.Context))
 	elseif event.Name == "TreasureItemGenerated" then
 		local resultItem = fn(event.Item)
 		if resultItem ~= nil then
 			event.ResultingItem = resultItem
+			event:StopPropagation()
 		end
 	elseif event.Name == "BeforeCraftingExecuteCombination" then
 		local processed = fn(event.Character, event.CraftingStation, event.Items, event.Quantity, event.CombinationId)
 		if processed == true then
 			event.Processed = true
+			event:StopPropagation()
 		end
 	elseif event.Name == "AfterCraftingExecuteCombination" then
 		local processed = fn(event.Character, event.CraftingStation, event.Items, event.Quantity, event.CombinationId, event.Succeeded)
 		if processed == true then
 			event.Processed = true
+			event:StopPropagation()
 		end
 	elseif event.Name == "BeforeShootProjectile" then
 		fn(event.Projectile)
@@ -272,6 +275,12 @@ _I._CallLegacyEvent = function (fn, event)
 		fn(event.Property, event.Attacker, event.Position, event.AreaRadius, event.IsFromItem, event.Skill, event.Hit)
 	elseif event.Name == "InputEvent" then
 		fn(event.InputEvent)
+	elseif event.Name == "GetHitChance" then
+		local chance = fn(event.Attacker, event.Target)
+		if chance ~= nil then
+			event.HitChance = chance
+			event:StopPropagation()
+		end
 		-- FIXME - add other events!
 	else
 		fn()

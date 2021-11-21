@@ -17,6 +17,7 @@ namespace dse::esv
 
 BEGIN_NS(lua)
 
+LUA_POLYMORPHIC(IGameObjectBase)
 LUA_POLYMORPHIC(esv::Status)
 LUA_POLYMORPHIC(CRPGStats_ObjectInstance)
 LUA_POLYMORPHIC(CDivinityStats_Equipment_Attributes)
@@ -207,7 +208,7 @@ struct ShootProjectileEventParams
 struct ProjectileHitEventParams
 {
 	Projectile* Projectile;
-	ComponentHandle HitObject;
+	IGameObjectBase* HitObject;
 	glm::vec3 Position;
 };
 

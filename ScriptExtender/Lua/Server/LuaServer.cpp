@@ -2619,7 +2619,8 @@ namespace dse::esv::lua
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
-		ProjectileHitEventParams params{ projectile, hitObject, position };
+		auto hitObj = GetGameObjectInternal(hitObject);
+		ProjectileHitEventParams params{ projectile, hitObj, position };
 		ThrowEvent(*this, "ProjectileHit", params);
 	}
 

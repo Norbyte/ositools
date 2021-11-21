@@ -23,7 +23,7 @@ P_REF(DamageList)
 
 // EffectFlags is an integer in v55
 #if defined(GENERATING_PROPMAP)
-pm.AddProperty("StatsObject",
+pm.AddProperty("EffectFlags",
 	[](lua_State* L, LifetimeHolder const& lifetime, HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
 		push(L, hit->EffectFlags);
 		return true;
