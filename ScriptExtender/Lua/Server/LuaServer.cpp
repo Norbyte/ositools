@@ -2658,7 +2658,7 @@ namespace dse::esv::lua
 	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList)
 	{
 		ExecutePropertyDataOnGroundHitEventParams params{ position, casterHandle, damageList };
-		ThrowEvent(*this, "OnExecutePropertyDataOnGroundHit", params);
+		ThrowEvent(*this, "GroundHit", params);
 	}
 
 

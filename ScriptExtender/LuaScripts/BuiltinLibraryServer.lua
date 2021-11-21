@@ -16,7 +16,7 @@ _I._PublishedEvents = {
 	"BeforeShootProjectile",
 	"ShootProjectile",
 	"ProjectileHit",
-	"OnExecutePropertyDataOnGroundHit",
+	"GroundHit",
 	"OnExecutePropertyDataOnTarget",
 	"OnExecutePropertyDataOnPosition"
 }

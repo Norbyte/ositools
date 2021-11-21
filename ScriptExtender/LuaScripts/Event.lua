@@ -264,7 +264,7 @@ _I._CallLegacyEvent = function (fn, event)
 		fn(event.Projectile)
 	elseif event.Name == "ProjectileHit" then
 		fn(event.Projectile, event.HitObject, event.Position)
-	elseif event.Name == "OnExecutePropertyDataOnGroundHit" then
+	elseif event.Name == "GroundHit" then
 		fn(event.Caster, event.Position, event.DamageList)
 	elseif event.Name == "OnExecutePropertyDataOnTarget" then
 		fn(event.Property, event.Attacker, event.Target, event.ImpactOrigin, event.IsFromItem, event.Skill, event.Hit)
