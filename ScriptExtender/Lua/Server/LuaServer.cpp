@@ -309,10 +309,10 @@ namespace dse::lua
 		if (obj_) return obj_;
 		auto trigger = esv::GetEntityWorld()->GetTrigger(handle_);
 		if (trigger == nullptr) luaL_error(L, "Trigger handle invalid");
-		return static_cast<esv::EsvTrigger*>(trigger);
+		return static_cast<esv::Trigger*>(trigger);
 	}
 
-	int ObjectProxy<esv::EsvTrigger>::Index(lua_State* L)
+	int ObjectProxy<esv::Trigger>::Index(lua_State* L)
 	{
 		auto obj = Get(L);
 		if (obj == nullptr) return luaL_error(L, "Trigger object no longer available");
@@ -350,7 +350,7 @@ namespace dse::lua
 		return GenericGetter(L, gTriggerPropertyMap);
 	}
 
-	int ObjectProxy<esv::EsvTrigger>::NewIndex(lua_State* L)
+	int ObjectProxy<esv::Trigger>::NewIndex(lua_State* L)
 	{
 		return GenericSetter(L, gTriggerPropertyMap);
 	}
@@ -1088,7 +1088,7 @@ namespace dse::esv::lua
 
 		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
-		ObjectProxy<esv::EsvTrigger>::RegisterMetatable(L);
+		ObjectProxy<esv::Trigger>::RegisterMetatable(L);
 		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
 		ObjectProxy<SoundVolumeTriggerData>::RegisterMetatable(L);
 		ObjectProxy<esv::Surface>::RegisterMetatable(L);
@@ -1255,7 +1255,7 @@ namespace dse::esv::lua
 		if (trigger != nullptr) {
 			ComponentHandle handle;
 			trigger->GetObjectHandle(handle);
-			ObjectProxy<esv::EsvTrigger>::New(L, handle);
+			ObjectProxy<Trigger>::New(L, handle);
 		} else {
 			push(L, nullptr);
 		}

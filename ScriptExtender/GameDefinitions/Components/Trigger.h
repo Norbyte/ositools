@@ -68,7 +68,7 @@ namespace dse
 
 namespace dse::esv
 {
-	struct EsvTrigger : public dse::Trigger
+	struct Trigger : public dse::Trigger
 	{};
 
 	struct AtmosphereTrigger : public dse::AtmosphereTrigger
