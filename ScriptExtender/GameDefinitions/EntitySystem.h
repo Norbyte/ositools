@@ -378,6 +378,8 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual void GetParentUUID() = 0;
 	virtual FixedString* GetCurrentLevel() const = 0;
 	virtual void SetCurrentLevel(FixedString const& level) = 0;
+
+	esv::StatusMachine* GetStatusMachine() const;
 };
 
 struct IGameObject : public IGameObjectBase

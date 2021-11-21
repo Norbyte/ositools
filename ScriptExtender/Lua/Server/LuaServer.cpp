@@ -14,6 +14,30 @@
 
 BEGIN_SE()
 
+esv::StatusMachine* IGameObjectBase::GetStatusMachine() const
+{
+	ComponentHandle handle;
+	GetObjectHandle(handle);
+
+	switch ((ObjectType)handle.GetType()) {
+	case ObjectType::ServerCharacter:
+	{
+		auto ch = static_cast<esv::Character const*>(this);
+		return ch->StatusMachine;
+	}
+	
+	case ObjectType::ServerItem:
+	{
+		auto it = static_cast<esv::Item const*>(this);
+		return it->StatusMachine;
+	}
+
+	default:
+		OsiError("Objects of type " << handle.GetType() << " have no status machine!");
+		return nullptr;
+	}
+}
+
 ObjectSet<FixedString> IGameObject::LuaGetTags()
 {
 	ObjectSet<FixedString> tags;
@@ -50,6 +74,45 @@ LifetimePool& GetLifetimePool()
 		return ecl::lua::GetClientLifetimePool();
 	}
 }
+
+#define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
+
+void LuaPolymorphic<IGameObjectBase>::MakeRef(lua_State* L, IGameObjectBase* obj, LifetimeHolder const & lifetime)
+{
+	ComponentHandle handle;
+	obj->GetObjectHandle(handle);
+
+	switch ((ObjectType)handle.GetType()) {
+	MAKE_REF(ServerCharacter, esv::Character)
+	MAKE_REF(ServerItem, esv::Item)
+	MAKE_REF(ServerProjectile, esv::Projectile)
+
+	case ObjectType::ServerEocPointTrigger:
+	case ObjectType::ServerEocAreaTrigger:
+	case ObjectType::ServerStartTrigger:
+	case ObjectType::ServerTeleportTrigger:
+	case ObjectType::ServerEventTrigger:
+	case ObjectType::ServerCrimeAreaTrigger:
+	case ObjectType::ServerCrimeRegionTrigger:
+	case ObjectType::ServerAtmosphereTrigger:
+	case ObjectType::ServerAIHintAreaTrigger:
+	case ObjectType::ServerMusicVolumeTrigger:
+	case ObjectType::ServerSecretRegionTrigger:
+	case ObjectType::ServerStatsAreaTrigger:
+	case ObjectType::ServerSoundVolumeTrigger:
+	case ObjectType::ServerRegionTrigger:
+	case ObjectType::ServerExplorationTrigger:
+		ObjectProxy2::MakeRef(L, static_cast<esv::Trigger*>(obj), lifetime);
+		return;
+
+	default:
+		OsiError("Creating Lua proxy for unknown handle type " << handle.GetType());
+		ObjectProxy2::MakeRef(L, obj, lifetime);
+		return;
+	}
+}
+
+#undef MAKE_REF
 
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 
@@ -142,6 +205,8 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 		return;
 	}
 }
+
+#undef MAKE_REF
 
 void LuaPolymorphic<CRPGStats_ObjectInstance>::MakeRef(lua_State* L, CRPGStats_ObjectInstance* stats, LifetimeHolder const & lifetime)
 {
@@ -1246,57 +1311,71 @@ namespace dse::esv::lua
 		return 1;
 	}
 
-	struct GetGameObjectResult
+	IGameObjectBase* GetGameObjectInternal(ComponentHandle const& handle)
 	{
-		esv::Item* item = nullptr;
-		esv::Character* character = nullptr;
-		esv::Projectile* projectile = nullptr;
-		Trigger* trigger = nullptr;
-	};
+		switch ((ObjectType)handle.GetType()) {
+		case ObjectType::ServerCharacter:
+			return GetEntityWorld()->GetCharacter(handle);
 
-	GetGameObjectResult GetGameObjectInternal(lua_State* L, int idx)
+		case ObjectType::ServerItem:
+			return GetEntityWorld()->GetItem(handle);
+
+		case ObjectType::ServerProjectile:
+			return GetEntityWorld()->GetProjectile(handle);
+
+		case ObjectType::ServerEocPointTrigger:
+		case ObjectType::ServerEocAreaTrigger:
+		case ObjectType::ServerStartTrigger:
+		case ObjectType::ServerTeleportTrigger:
+		case ObjectType::ServerEventTrigger:
+		case ObjectType::ServerCrimeAreaTrigger:
+		case ObjectType::ServerCrimeRegionTrigger:
+		case ObjectType::ServerAtmosphereTrigger:
+		case ObjectType::ServerAIHintAreaTrigger:
+		case ObjectType::ServerMusicVolumeTrigger:
+		case ObjectType::ServerSecretRegionTrigger:
+		case ObjectType::ServerStatsAreaTrigger:
+		case ObjectType::ServerSoundVolumeTrigger:
+		case ObjectType::ServerRegionTrigger:
+		case ObjectType::ServerExplorationTrigger:
+			return GetEntityWorld()->GetTrigger(handle);
+
+		default:
+			OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
+			return nullptr;
+		}
+	}
+
+	IGameObjectBase* GetGameObjectInternal(char const* nameGuid)
 	{
-		GetGameObjectResult result;
+		auto character = GetEntityWorld()->GetCharacter(nameGuid, false);
+		if (character) {
+			return character;
+		}
+
+		auto item = GetEntityWorld()->GetItem(nameGuid, false);
+		if (item) {
+			return item;
+		}
+		
+		auto trigger = GetEntityWorld()->GetTrigger(nameGuid, false);
+		if (trigger) {
+			return trigger;
+		}
+
+		return nullptr;
+	}
+
+	IGameObjectBase* GetGameObjectInternal(lua_State* L, int idx)
+	{
 		switch (lua_type(L, idx)) {
 		case LUA_TLIGHTUSERDATA:
 		{
 			auto handle = get<ComponentHandle>(L, idx);
 			if (handle) {
-				switch ((ObjectType)handle.GetType()) {
-				case ObjectType::ServerCharacter:
-					result.character = GetEntityWorld()->GetCharacter(handle);
-					break;
-
-				case ObjectType::ServerItem:
-					result.item = GetEntityWorld()->GetItem(handle);
-					break;
-
-				case ObjectType::ServerProjectile:
-					result.projectile = GetEntityWorld()->GetProjectile(handle);
-					break;
-
-				case ObjectType::ServerEocPointTrigger:
-				case ObjectType::ServerEocAreaTrigger:
-				case ObjectType::ServerStartTrigger:
-				case ObjectType::ServerTeleportTrigger:
-				case ObjectType::ServerEventTrigger:
-				case ObjectType::ServerCrimeAreaTrigger:
-				case ObjectType::ServerCrimeRegionTrigger:
-				case ObjectType::ServerAtmosphereTrigger:
-				case ObjectType::ServerAIHintAreaTrigger:
-				case ObjectType::ServerMusicVolumeTrigger:
-				case ObjectType::ServerSecretRegionTrigger:
-				case ObjectType::ServerStatsAreaTrigger:
-				case ObjectType::ServerSoundVolumeTrigger:
-				case ObjectType::ServerRegionTrigger:
-				case ObjectType::ServerExplorationTrigger:
-					result.trigger = GetEntityWorld()->GetTrigger(handle);
-					break;
-
-				default:
-					OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
-					break;
-				}
+				return GetGameObjectInternal(handle);
+			} else {
+				return nullptr;
 			}
 
 			break;
@@ -1307,23 +1386,9 @@ namespace dse::esv::lua
 			OsiError("Resolving integer object handles is deprecated since v52!")
 			auto handle = ComponentHandle(lua_tointeger(L, idx));
 			if (handle) {
-				switch ((ObjectType)handle.GetType()) {
-				case ObjectType::ServerCharacter:
-					result.character = GetEntityWorld()->GetCharacter(handle);
-					break;
-
-				case ObjectType::ServerItem:
-					result.item = GetEntityWorld()->GetItem(handle);
-					break;
-
-				case ObjectType::ServerProjectile:
-					result.projectile = GetEntityWorld()->GetProjectile(handle);
-					break;
-
-				default:
-					OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
-					break;
-				}
+				return GetGameObjectInternal(handle);
+			} else {
+				return nullptr;
 			}
 
 			break;
@@ -1331,19 +1396,14 @@ namespace dse::esv::lua
 
 		case LUA_TSTRING:
 		{
-			auto guid = lua_tostring(L, idx);
-			result.character = GetEntityWorld()->GetCharacter(guid, false);
-			result.item = GetEntityWorld()->GetItem(guid, false);
-			result.trigger = GetEntityWorld()->GetTrigger(guid, false);
-			break;
+			auto guid = get<char const*>(L, idx);
+			return GetGameObjectInternal(guid);
 		}
 
 		default:
 			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, idx)));
-			break;
+			return nullptr;
 		}
-
-		return result;
 	}
 
 	int GetGameObject(lua_State* L)
@@ -1355,27 +1415,8 @@ namespace dse::esv::lua
 
 		StackCheck _(L, 1);
 		auto result = GetGameObjectInternal(L, 1);
-
-		if (result.item != nullptr) {
-			ComponentHandle handle;
-			result.item->GetObjectHandle(handle);
-			ObjectProxy<esv::Item>::New(L, handle);
-			return 1;
-		} else if (result.character != nullptr) {
-			MakeObjectRef(L, result.character);
-			return 1;
-		} else if (result.projectile != nullptr) {
-			MakeObjectRef(L, result.projectile);
-			return 1;
-		} else if (result.trigger != nullptr) {
-			ComponentHandle handle;
-			result.trigger->GetObjectHandle(handle);
-			ObjectProxy<esv::EsvTrigger>::New(L, handle);
-			return 1;
-		} else {
-			push(L, nullptr);
-			return 1;
-		}
+		MakeObjectRef(L, result);
+		return 1;
 	}
 
 	int GetStatus(lua_State* L)
@@ -2054,16 +2095,14 @@ namespace dse::esv::lua
 		auto statusId = get<FixedString>(L, 2);
 		float lifeTime = get<float>(L, 3);
 
-		StatusMachine* statusMachine{ nullptr };
-		ComponentHandle ownerHandle;
-		if (gameObj.character != nullptr) {
-			statusMachine = gameObj.character->StatusMachine;
-			gameObj.character->GetObjectHandle(ownerHandle);
-		} else if (gameObj.item != nullptr) {
-			statusMachine = gameObj.item->StatusMachine;
-			gameObj.item->GetObjectHandle(ownerHandle);
-		} else if (gameObj.trigger != nullptr || gameObj.projectile != nullptr) {
-			OsiError("Attempted to send message to reserved user ID!");
+		if (!gameObj) {
+			OsiError("Attempted to prepare status on nonexistent game object!");
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto statusMachine = gameObj->GetStatusMachine();
+		if (!statusMachine) {
 			push(L, nullptr);
 			return 1;
 		}
