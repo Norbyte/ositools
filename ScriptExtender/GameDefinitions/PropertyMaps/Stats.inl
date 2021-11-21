@@ -305,7 +305,7 @@ P_BITMASK(Flags)
 P_REF(TraitOrder)
 P(MaxResistance)
 P_RO(HasTwoHandedWeapon)
-// FIXME - polymorphic ref? P_REF(Character)
+P_REF(Character)
 P_RO(IsIncapacitatedRefCount)
 P_REF(DynamicStats)
 P_REF(StatsFromStatsEntry)
@@ -382,7 +382,7 @@ pm.AddProperty("MyGuid",
 pm.AddProperty("NetID",
 	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->Character) {
-			push(L, obj->Character->NetID);
+			push(L, ((IGameObject*)obj->Character)->NetID);
 		} else {
 			push(L, nullptr);
 		}

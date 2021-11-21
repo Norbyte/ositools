@@ -150,7 +150,11 @@ P_RO(EntityObjectHandle)
 END_CLS()
 
 
+BEGIN_CLS(IGameObjectBase)
+END_CLS()
+
 BEGIN_CLS(IGameObject)
+INHERIT(IGameObjectBase)
 P_REF(Base)
 P_RO(MyGuid)
 P_RO(NetID)

@@ -619,7 +619,7 @@ namespace dse
 		ObjectSet<int> TraitOrder; // Saved
 		int32_t MaxResistance;
 		int32_t HasTwoHandedWeapon;
-		IGameObject * Character;
+		IGameObjectBase * Character;
 		int32_t Unkn2;
 		int32_t IsIncapacitatedRefCount;
 		Vector<CharacterDynamicStat*> DynamicStats;
