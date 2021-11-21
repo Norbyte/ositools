@@ -885,7 +885,8 @@ namespace dse::lua
 	}
 
 	State::State()
-		: lifetimeStack_(lifetimePool_)
+		: lifetimeStack_(lifetimePool_),
+		globalLifetime_(lifetimePool_, lifetimePool_.Allocate())
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;

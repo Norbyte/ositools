@@ -275,4 +275,18 @@ struct LuaPolymorphic {
 	};
 
 
+// Indicates that a type should be pushed through the polymorphic MakeObjectRef()
+// implementation, since there are separate property maps for the different subclasses
+template <class T>
+struct LuaLifetimeInfo {
+	static constexpr bool HasInfiniteLifetime = false;
+};
+
+#define LUA_INFINITE_LIFETIME(cls) \
+	template <> \
+	struct LuaLifetimeInfo<cls> { \
+		static constexpr bool HasInfiniteLifetime = true; \
+	};
+
+
 END_NS()

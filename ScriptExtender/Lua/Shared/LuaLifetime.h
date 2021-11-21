@@ -260,6 +260,12 @@ public:
 		return lifetime;
 	}
 
+	void Push(Lifetime* lifetime)
+	{
+		assert(stack_.size() < 0x1000);
+		stack_.push_back(LifetimeReference(pool_, lifetime));
+	}
+
 	void Pop()
 	{
 		assert(!stack_.empty());
@@ -299,6 +305,12 @@ public:
 	{
 		lifetime_ = stack_.Push();
 	}
+	
+	LifetimePin(LifetimeStack& stack, Lifetime* lifetime)
+		: stack_(stack), lifetime_(lifetime)
+	{
+		 stack_.Push(lifetime);
+	}
 
 	~LifetimePin()
 	{
@@ -308,7 +320,6 @@ public:
 private:
 	LifetimeStack& stack_;
 	Lifetime* lifetime_;
-
 };
 
 template <class T>

@@ -13,7 +13,10 @@ struct SoundVolumeTriggerData;
 struct CharacterTemplate;
 struct ItemTemplate;
 struct ProjectileTemplate;
+struct SurfaceTemplate;
+struct TriggerTemplate;
 
+struct IGameObjectBase;
 struct IGameObject;
 struct Trigger;
 
@@ -64,6 +67,8 @@ namespace esv
 	struct SurfaceManager;
 	struct Level;
 	struct Status;
+	struct StatusMachine;
+	struct Trigger;
 
 	struct SurfaceManager;
 	struct GameActionManager;

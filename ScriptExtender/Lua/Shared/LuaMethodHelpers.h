@@ -45,7 +45,11 @@ void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 			MakeObjectRef(L, lifetime, *value);
 		}
 	} else {
-		ObjectProxy2::MakeRef(L, value, lifetime);
+		if constexpr (LuaLifetimeInfo<T>::HasInfiniteLifetime) {
+			ObjectProxy2::MakeRef(L, value, State::FromLua(L)->GetGlobalLifetime());
+		} else {
+			ObjectProxy2::MakeRef(L, value, lifetime);
+		}
 	}
 }
 

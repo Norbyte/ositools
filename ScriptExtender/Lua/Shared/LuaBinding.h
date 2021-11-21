@@ -20,6 +20,15 @@
 
 namespace dse::lua
 {
+	LUA_INFINITE_LIFETIME(CRPGStats_Object)
+	LUA_INFINITE_LIFETIME(GameObjectTemplate)
+	LUA_INFINITE_LIFETIME(EoCGameObjectTemplate)
+	LUA_INFINITE_LIFETIME(CharacterTemplate)
+	LUA_INFINITE_LIFETIME(ItemTemplate)
+	LUA_INFINITE_LIFETIME(SurfaceTemplate)
+	LUA_INFINITE_LIFETIME(ProjectileTemplate)
+	LUA_INFINITE_LIFETIME(TriggerTemplate)
+
 	void PushExtFunction(lua_State * L, char const * func);
 	void PushInternalFunction(lua_State* L, char const* func);
 	void PushModFunction(lua_State* L, char const* mod, char const* func);
@@ -280,6 +289,11 @@ namespace dse::lua
 
 		LifetimeHolder GetCurrentLifetime();
 
+		inline LifetimeHolder GetGlobalLifetime()
+		{
+			return globalLifetime_.Get();
+		}
+
 		inline LifetimePool& GetLifetimePool()
 		{
 			return lifetimePool_;
@@ -313,6 +327,7 @@ namespace dse::lua
 
 		LifetimePool lifetimePool_;
 		LifetimeStack lifetimeStack_;
+		LifetimeReference globalLifetime_;
 
 		void OpenLibs();
 	};
