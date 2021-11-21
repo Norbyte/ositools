@@ -305,7 +305,7 @@ namespace dse::esv
 
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
-		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->Hit.TotalDamage });
+		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->Hit.TotalDamageDone });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
 		gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(HitEventHandle, eventArgs);

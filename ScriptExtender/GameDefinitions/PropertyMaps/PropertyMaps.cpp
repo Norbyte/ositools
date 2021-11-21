@@ -565,7 +565,7 @@ namespace dse
 		{
 			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap, HitDamageInfo);
 			PROP(Equipment);
-			PROP(TotalDamage);
+			PROP(TotalDamageDone);
 			PROP(DamageDealt);
 			PROP_ENUM(DeathType);
 			PROP_ENUM(DamageType);

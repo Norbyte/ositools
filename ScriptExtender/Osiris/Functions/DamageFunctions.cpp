@@ -177,7 +177,7 @@ namespace dse::esv
 
 		auto & damage = hit->Hit;
 		damage.Equipment = Hit->Equipment;
-		damage.TotalDamage = Hit->TotalDamage;
+		damage.TotalDamageDone = Hit->TotalDamageDone;
 		damage.DamageDealt = Hit->DamageDealt;
 		damage.DeathType = Hit->DeathType;
 		damage.DamageType = Hit->DamageType;
@@ -200,7 +200,7 @@ namespace dse::esv
 			damage.DamageList.Size = DamageList->Size;
 			for (uint32_t i = 0; i < DamageList->Size; i++) {
 				damage.DamageList[i] = DamageList->Buf[i];
-				damage.TotalDamage += DamageList->Buf[i].Amount;
+				damage.TotalDamageDone += DamageList->Buf[i].Amount;
 			}
 		}
 

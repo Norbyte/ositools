@@ -10,16 +10,31 @@
 
 BEGIN_CLS(HitDamageInfo)
 P(Equipment)
-P(TotalDamage)
+P(TotalDamageDone)
 P(DamageDealt)
 P(DeathType)
 P(DamageType)
 P(AttackDirection)
 P(ArmorAbsorption)
 P(LifeSteal)
-P(EffectFlags)
+P_BITMASK(EffectFlags)
 P(HitWithWeapon)
 P_REF(DamageList)
+
+// EffectFlags is an integer in v55
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatsObject",
+	[](lua_State* L, LifetimeHolder const& lifetime, HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
+		push(L, hit->EffectFlags);
+		return true;
+	},
+	[](lua_State* L, LifetimeHolder const& lifetime, HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
+		hit->EffectFlags = (HitFlag)get<uint32_t>(L, index);
+		return true;
+	}
+);
+#endif
+
 END_CLS()
 
 

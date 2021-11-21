@@ -434,7 +434,7 @@ namespace dse
 
 	void HitDamageInfo::ClearDamage()
 	{
-		TotalDamage = 0;
+		TotalDamageDone = 0;
 		ArmorAbsorption = 0;
 		DamageList.Clear();
 	}
@@ -443,7 +443,7 @@ namespace dse
 	{
 		for (auto const& dmg : DamageList) {
 			if (dmg.DamageType == damageType) {
-				TotalDamage -= dmg.Amount;
+				TotalDamageDone -= dmg.Amount;
 			}
 		}
 
@@ -452,14 +452,14 @@ namespace dse
 
 	void HitDamageInfo::AddDamage(dse::DamageType damageType, int32_t amount)
 	{
-		TotalDamage += amount;
+		TotalDamageDone += amount;
 		DamageList.AddDamage(damageType, amount);
 	}
 
 	void HitDamageInfo::CopyFrom(HitDamageInfo const& src)
 	{
 		Equipment = src.Equipment;
-		TotalDamage = src.TotalDamage;
+		TotalDamageDone = src.TotalDamageDone;
 		DamageDealt = src.DamageDealt;
 		DeathType = src.DeathType;
 		DamageType = src.DamageType;

@@ -23,7 +23,7 @@ struct HitDamageInfo
 {
 	uint32_t Equipment{ 0 };
 	// Sum of all damages in DamageList
-	int32_t TotalDamage{ 0 };
+	int32_t TotalDamageDone{ 0 };
 	// Damage dealt after ApplyDamage() call
 	int32_t DamageDealt{ 0 };
 	DeathType DeathType{ DeathType::Sentinel };
