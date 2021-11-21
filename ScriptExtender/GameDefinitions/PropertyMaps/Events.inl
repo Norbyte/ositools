@@ -105,7 +105,7 @@ END_CLS()
 
 BEGIN_CLS(esv::lua::ExecutePropertyDataOnGroundHitEventParams)
 P(Position)
-P(Caster)
+P_REF(Caster)
 P_REF(DamageList)
 END_CLS()
 

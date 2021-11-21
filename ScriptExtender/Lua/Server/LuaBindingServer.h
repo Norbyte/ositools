@@ -215,7 +215,7 @@ struct ProjectileHitEventParams
 struct ExecutePropertyDataOnGroundHitEventParams
 {
 	glm::vec3 Position;
-	ComponentHandle Caster;
+	IGameObjectBase* Caster;
 	DamagePairList* DamageList;
 };
 
