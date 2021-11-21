@@ -511,6 +511,88 @@ namespace dse
 		}
 	}
 
+	int DamagePairList::GetByType(DamageType damageType)
+	{
+		int32_t amount = 0;
+		for (auto const& dmg : *this) {
+			if (dmg.DamageType == damageType) {
+				amount += dmg.Amount;
+			}
+		}
+
+		return amount;
+	}
+
+
+	void DamagePairList::ClearAll(std::optional<DamageType> damageType)
+	{
+		if (damageType) {
+			ClearDamage(*damageType);
+		} else {
+			Clear();
+		}
+	}
+
+	void DamagePairList::Multiply(float multiplier)
+	{
+		for (auto& dmg : *this) {
+			dmg.Amount = (int32_t)round(dmg.Amount * multiplier);
+		}
+	}
+
+	void DamagePairList::LuaMerge(lua_State* L)
+	{
+		auto other = lua::ObjectProxy2::CheckedGet<DamagePairList>(L, 2);
+
+		for (auto const& dmg : *other) {
+			AddDamage(dmg.DamageType, dmg.Amount);
+		}
+	}
+
+	void DamagePairList::ConvertDamageType(DamageType newType)
+	{
+		int32_t totalDamage = 0;
+		for (auto const& dmg : *this) {
+			totalDamage += dmg.Amount;
+		}
+
+		Clear();
+		AddDamage(newType, totalDamage);
+	}
+
+	void DamagePairList::AggregateSameTypeDamages()
+	{
+		for (uint32_t i = Size; i > 0; i--) {
+			auto & src = (*this)[i - 1];
+			for (uint32_t j = i - 1; j > 0; j--) {
+				auto & dest = (*this)[j - 1];
+				if (src.DamageType == dest.DamageType) {
+					dest.Amount += src.Amount;
+					Remove(i - 1);
+					break;
+				}
+			}
+		}
+	}
+
+	UserReturn DamagePairList::LuaToTable(lua_State* L)
+	{
+		lua_newtable(L); // Stack: tab
+
+		for (uint32_t i = 0; i < Size; i++) {
+			auto const & item = (*this)[i];
+
+			lua::push(L, i + 1); // Stack: tab, index
+			lua_newtable(L); // Stack: tab, index, dmgTab
+			lua::setfield(L, "DamageType", item.DamageType);
+			lua::setfield(L, "Amount", item.Amount);
+
+			lua_settable(L, -3); // Stack: tab
+		}
+
+		return 1;
+	}
+
 
 	namespace esv
 	{

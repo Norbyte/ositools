@@ -9,7 +9,7 @@
 BEGIN_NS(lua)
 
 template <class T>
-void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
+inline void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 {
 	if (value == nullptr) {
 		push(L, nullptr);
@@ -54,15 +54,21 @@ void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
 }
 
 template <class T>
-auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
+inline auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
 {
 	return MakeObjectRef(L, lifetime, &value->Value);
 }
 
 template <class T>
-auto MakeObjectRef(lua_State* L, T* value)
+inline auto MakeObjectRef(lua_State* L, T* value)
 {
 	return MakeObjectRef(L, State::FromLua(L)->GetCurrentLifetime(), value);
+}
+
+template <class T, class... Args>
+inline auto MakeObjectContainer(lua_State* L, Args... args)
+{
+	return ObjectProxy2::MakeContainer<T, Args...>(L, State::FromLua(L)->GetLifetimePool(), args...);
 }
 
 

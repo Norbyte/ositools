@@ -4,6 +4,7 @@
 #include <Version.h>
 #include <ScriptHelpers.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 
 #include <fstream>
 #include <json/json.h>
@@ -217,7 +218,7 @@ namespace dse::lua
 
 	int NewDamageList(lua_State * L)
 	{
-		DamageList::New(L);
+		MakeObjectContainer<DamagePairList>(L);
 		return 1;
 	}
 

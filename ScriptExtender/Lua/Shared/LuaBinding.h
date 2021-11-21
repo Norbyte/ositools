@@ -149,32 +149,6 @@ namespace dse::lua
 		int NewIndex(lua_State * L);
 	};
 
-
-	class DamageList : public Userdata<DamageList>, public Pushable<PushPolicy::None>
-	{
-	public:
-		static char const * const MetatableName;
-
-		static void PopulateMetatable(lua_State * L);
-
-		inline DamagePairList & Get()
-		{
-			return damages_;
-		}
-
-	private:
-		DamagePairList damages_;
-
-		static int GetByType(lua_State * L);
-		static int Add(lua_State * L);
-		static int Clear(lua_State * L);
-		static int Multiply(lua_State * L);
-		static int Merge(lua_State * L);
-		static int ConvertDamageType(lua_State * L);
-		static int AggregateSameTypeDamages(lua_State * L);
-		static int ToTable(lua_State * L);
-	};
-
 	struct ConsoleEventParams
 	{
 		STDString Command;

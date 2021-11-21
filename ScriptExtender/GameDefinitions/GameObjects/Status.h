@@ -17,6 +17,14 @@ struct DamagePairList : public Array<TDamagePair>
 {
 	void AddDamage(DamageType damageType, int32_t amount);
 	void ClearDamage(DamageType damageType);
+
+	int GetByType(DamageType damageType);
+	void ClearAll(std::optional<DamageType> damageType);
+	void Multiply(float multiplier);
+	void ConvertDamageType(DamageType newType);
+	void AggregateSameTypeDamages();
+	void LuaMerge(lua_State* L);
+	UserReturn LuaToTable(lua_State* L);
 };
 
 struct HitDamageInfo

@@ -187,13 +187,24 @@ P_FUN(SetCustomIcon, SetCustomIcon)
 P_FUN(ClearCustomIcon, ClearCustomIcon)
 END_CLS()
 
-// FIXME - placeholders
-BEGIN_CLS(DamagePairList)
-END_CLS()
-
 BEGIN_CLS(Transform)
 // TODO - P(Matrix)
 // TODO - P(Rotate) -- no 3x3 mat serialization support yet!
 P(Translate)
 P(Scale)
+END_CLS()
+
+// FIXME - placeholders
+BEGIN_CLS(DamagePairList)
+P_FUN(GetByType, GetByType)
+P_FUN(Add, AddDamage)
+P_FUN(Clear, ClearAll)
+P_FUN(Multiply, Multiply)
+P_FUN(Merge, LuaMerge)
+P_FUN(ConvertDamageType, ConvertDamageType)
+P_FUN(AggregateSameTypeDamages, AggregateSameTypeDamages)
+P_FUN(ToTable, LuaToTable)
+END_CLS()
+
+BEGIN_CLS(esv::Trigger)
 END_CLS()

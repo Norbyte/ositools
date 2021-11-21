@@ -352,6 +352,63 @@ private:
 };
 
 
+// Object proxy that contains the object (i.e. the object is allocated next to the proxy impl in the Lua heap)
+template <class T>
+class ObjectProxyContainerImpl : public ObjectProxyImplBase
+{
+public:
+	static_assert(!std::is_pointer_v<T>, "ObjectProxyImpl template parameter should not be a pointer type!");
+
+	template <class... Args>
+	ObjectProxyContainerImpl(LifetimePool& pool, Lifetime* lifetime, Args... args)
+		: lifetime_(pool, lifetime), 
+		object_(args...)
+	{}
+
+	~ObjectProxyContainerImpl() override
+	{}
+
+	T* Get() const
+	{
+		return &object_;
+	}
+
+	void* GetRaw() override
+	{
+		return &object_;
+	}
+
+	FixedString const& GetTypeName() const override
+	{
+		return StaticLuaPropertyMap<T>::PropertyMap.Name;
+	}
+
+	bool GetProperty(lua_State* L, FixedString const& prop) override
+	{
+		return ObjectProxyHelpers<T>::GetProperty(L, &object_, lifetime_.Get(), prop);
+	}
+
+	bool SetProperty(lua_State* L, FixedString const& prop, int index) override
+	{
+		return ObjectProxyHelpers<T>::SetProperty(L, &object_, lifetime_.Get(), prop, index);
+	}
+
+	int Next(lua_State* L, FixedString const& key) override
+	{
+		return ObjectProxyHelpers<T>::Next(L, &object_, lifetime_.Get(), key);
+	}
+
+	bool IsA(FixedString const& typeName) override
+	{
+		return ObjectProxyHelpers<T>::IsA(typeName);
+	}
+
+private:
+	LifetimeReference lifetime_;
+	T object_;
+};
+
+
 class ObjectProxy2 : private Userdata<ObjectProxy2>, public Indexable, public NewIndexable,
 	public Iterable, public Stringifiable, public GarbageCollected
 {
@@ -381,12 +438,11 @@ public:
 	}
 
 	template <class T, class... Args>
-	inline static ObjectProxyOwnerImpl<T>* MakeOwner(lua_State* L, LifetimePool& pool, Args... args)
+	inline static ObjectProxyContainerImpl<T>* MakeContainer(lua_State* L, LifetimePool& pool, Args... args)
 	{
 		auto lifetime = pool.Allocate();
-		auto self = NewWithExtraData(L, sizeof(ObjectProxyOwnerImpl<T>), LifetimeHolder(pool, lifetime));
-		auto obj = GameAlloc<T, Args...>(std::forward(args)...);
-		return new (self->GetImpl()) ObjectProxyOwnerImpl<T>(pool, lifetime, obj);
+		auto self = NewWithExtraData(L, sizeof(ObjectProxyContainerImpl<T>), LifetimeHolder(pool, lifetime));
+		return new (self->GetImpl()) ObjectProxyContainerImpl<T>(pool, lifetime, args...);
 	}
 
 	static void* CheckedGetRaw(lua_State* L, int index, FixedString const& typeName);

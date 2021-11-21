@@ -302,61 +302,9 @@ namespace dse::lua
 {
 	using namespace dse::esv::lua;
 
-	void PushHit(lua_State* L, HitDamageInfo const& hit)
-	{
-		lua_newtable(L);
-		setfield(L, "Equipment", hit.Equipment);
-		setfield(L, "TotalDamageDone", hit.TotalDamage);
-		setfield(L, "DamageDealt", hit.DamageDealt);
-		setfield(L, "DeathType", hit.DeathType);
-		setfield(L, "DamageType", hit.DamageType);
-		setfield(L, "AttackDirection", hit.AttackDirection);
-		setfield(L, "ArmorAbsorption", hit.ArmorAbsorption);
-		setfield(L, "LifeSteal", hit.LifeSteal);
-		setfield(L, "EffectFlags", (int64_t)hit.EffectFlags);
-		setfield(L, "HitWithWeapon", hit.HitWithWeapon);
+	char const* const ObjectProxy<esv::Trigger>::MetatableName = "esv::Trigger";
 
-		auto luaDamageList = DamageList::New(L);
-		for (auto const& dmg : hit.DamageList) {
-			luaDamageList->Get().SafeAdd(dmg);
-		}
-		
-		lua_setfield(L, -2, "DamageList");
-	}
-
-	bool PopHit(lua_State* L, HitDamageInfo& hit, int index)
-	{
-		luaL_checktype(L, index, LUA_TTABLE);
-		hit.Equipment = checked_getfield<uint32_t>(L, "Equipment", index);
-		hit.TotalDamage = checked_getfield<int32_t>(L, "TotalDamageDone", index);
-		hit.DamageDealt = checked_getfield<int32_t>(L, "DamageDealt", index);
-		hit.DeathType = checked_getfield<DeathType>(L, "DeathType", index);
-		hit.DamageType = checked_getfield<DamageType>(L, "DamageType", index);
-		hit.AttackDirection = checked_getfield<uint32_t>(L, "AttackDirection", index);
-		hit.ArmorAbsorption = checked_getfield<int32_t>(L, "ArmorAbsorption", index);
-		hit.LifeSteal = checked_getfield<int32_t>(L, "LifeSteal", index);
-		hit.HitWithWeapon = checked_getfield<bool>(L, "HitWithWeapon", index);
-		hit.EffectFlags = (HitFlag)checked_getfield<uint32_t>(L, "EffectFlags", index);
-
-		lua_getfield(L, index, "DamageList");
-		auto damageList = DamageList::AsUserData(L, -1);
-		lua_pop(L, 1);
-
-		if (damageList == nullptr) {
-			OsiErrorS("Missing 'DamageList' in Hit table");
-			return false;
-		} else {
-			hit.DamageList.Clear();
-			for (auto const& dmg : damageList->Get()) {
-				hit.DamageList.AddDamage(dmg.DamageType, dmg.Amount);
-			}
-			return true;
-		}
-	}
-
-	char const* const ObjectProxy<esv::EsvTrigger>::MetatableName = "esv::Trigger";
-
-	esv::EsvTrigger* ObjectProxy<esv::EsvTrigger>::GetPtr(lua_State* L)
+	esv::Trigger* ObjectProxy<esv::Trigger>::GetPtr(lua_State* L)
 	{
 		if (obj_) return obj_;
 		auto trigger = esv::GetEntityWorld()->GetTrigger(handle_);
@@ -822,6 +770,9 @@ namespace dse::lua
 		auto prop = luaL_checkstring(L, 2);
 
 		if (strcmp(prop, "DamageList") == 0) {
+			// FIXME
+			luaL_error(L, "DamageList not supported yet!");
+			/*
 			auto& damageList = DamageList::CheckUserData(L, 3)->Get();
 			switch (action->VMT->GetTypeId(action)) {
 			case SurfaceActionType::RectangleSurfaceAction:
@@ -848,6 +799,7 @@ namespace dse::lua
 			default:
 				OsiError("This surface action type doesn't have a DamageList!");
 			}
+			*/
 
 			return 0;
 		}
@@ -2433,30 +2385,6 @@ namespace dse::esv::lua
 		return params.EnterChance;
 	}
 
-	void PushPendingHit(lua_State* L, PendingHit const& hit)
-	{
-		lua_newtable(L);
-		setfield(L, "HitId", hit.Id);
-
-		if (hit.CapturedCharacterHit) {
-			MakeObjectRef(L, hit.WeaponStats);
-			lua_setfield(L, -2, "Weapon");
-			PushHit(L, hit.CharacterHit);
-			lua_setfield(L, -2, "Hit");
-			setfield(L, "HitType", hit.HitType);
-			setfield(L, "NoHitRoll", hit.NoHitRoll);
-			setfield(L, "ProcWindWalker", hit.ProcWindWalker);
-			setfield(L, "ForceReduceDurability", hit.ForceReduceDurability);
-			setfield(L, "HighGround", hit.HighGround);
-			setfield(L, "CriticalRoll", hit.CriticalRoll);
-		}
-
-		if (hit.Status) {
-			MakeObjectRef(L, hit.Status);
-			lua_setfield(L, -2, "HitStatus");
-		}
-	}
-
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
 		StatusHitEnterEventParams params{ hit, context };
@@ -2471,6 +2399,7 @@ namespace dse::esv::lua
 		// FIXME - not migrated yet!
 		return false;
 
+		/* REMOVED
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictOsiris);
 
@@ -2532,7 +2461,7 @@ namespace dse::esv::lua
 				ok = false;
 			} else {
 				hit->EffectFlags = (HitFlag)effectFlags;
-				hit->TotalDamage = (int32_t)totalDamageDone;
+				hit->TotalDamageDone = (int32_t)totalDamageDone;
 				hit->ArmorAbsorption = (int32_t)armorAbsorption;
 				hit->LifeSteal = (int32_t)lifeSteal;
 				hit->DamageList.Clear();
@@ -2548,6 +2477,7 @@ namespace dse::esv::lua
 
 		lua_pop(L, 1); // stack: -
 		return ok;
+		*/
 	}
 
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,

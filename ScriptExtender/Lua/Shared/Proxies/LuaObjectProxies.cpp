@@ -62,6 +62,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 // Lua property map and object proxy template specialization declarations
 
 #define BEGIN_CLS(name) LuaPropertyMap<name> StaticLuaPropertyMap<name>::PropertyMap;
+#define BEGIN_CLS_TN(name, typeName) LuaPropertyMap<name> StaticLuaPropertyMap<name>::PropertyMap;
 
 #define END_CLS()
 #define INHERIT(base)
@@ -79,6 +80,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
 #undef BEGIN_CLS
+#undef BEGIN_CLS_TN
 #undef END_CLS
 #undef INHERIT
 #undef P
@@ -108,6 +110,11 @@ bool EnableWriteProtectedWrites{ false };
 #define GENERATING_PROPMAP
 
 #define BEGIN_CLS(cls) { \
+	using PM = StaticLuaPropertyMap<cls>; \
+	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
+	pm.Name = FixedString(#cls);
+
+#define BEGIN_CLS_TN(cls, typeName) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
 	pm.Name = FixedString(#cls);
@@ -191,6 +198,7 @@ bool EnableWriteProtectedWrites{ false };
 
 #undef GENERATING_PROPMAP
 #undef BEGIN_CLS
+#undef BEGIN_CLS_TN
 #undef END_CLS
 #undef INHERIT
 #undef P
@@ -211,6 +219,7 @@ END_NS()
 BEGIN_SE()
 
 #define BEGIN_CLS(name) char const* const TypeInfo<name>::TypeName = #name;
+#define BEGIN_CLS_TN(name, typeName) char const* const TypeInfo<name>::TypeName = #typeName;
 #define END_CLS()
 #define INHERIT(base)
 #define P(prop)
@@ -227,6 +236,7 @@ BEGIN_SE()
 #include <GameDefinitions/PropertyMaps/AllPropertyMaps.inl>
 
 #undef BEGIN_CLS
+#undef BEGIN_CLS_TN
 #undef END_CLS
 #undef INHERIT
 #undef P
