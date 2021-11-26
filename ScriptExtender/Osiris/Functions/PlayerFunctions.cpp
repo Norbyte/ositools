@@ -325,7 +325,7 @@ namespace dse::esv
 			auto character = FindPlayerByNameGuid(characterGuid);
 			if (character == nullptr) return;
 
-			auto ability = EnumInfo<AbilityType>::Find(abilityName);
+			auto ability = EnumInfo<stats::AbilityType>::Find(abilityName);
 			if (!ability) {
 				OsiError("Unknown ability: " << abilityName);
 				return;
@@ -347,7 +347,7 @@ namespace dse::esv
 			auto character = FindPlayerByNameGuid(characterGuid);
 			if (character == nullptr) return;
 
-			auto talent = EnumInfo<TalentType>::Find(talentName);
+			auto talent = EnumInfo<stats::TalentType>::Find(talentName);
 			if (!talent) {
 				OsiError("Unknown talent type: " << talentName);
 				return;

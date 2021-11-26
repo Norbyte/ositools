@@ -59,27 +59,27 @@ namespace dse::esv
 
 	DamageHelpers::~DamageHelpers()
 	{
-		if (MyDamageList) {
-			delete[] MyDamageList->Buf;
+		if (damageList_) {
+			delete[] damageList_->Buf;
 		}
 	}
 
 
 	void DamageHelpers::SetInternalDamageInfo()
 	{
-		MyDamageInfo = std::make_unique<HitDamageInfo>();
-		MyDamageList = std::make_unique<DamagePairList>();
-		MyDamageList->Capacity = 7;
-		MyDamageList->Buf = new TDamagePair[7];
+		damageInfo_ = std::make_unique<stats::HitDamageInfo>();
+		damageList_ = std::make_unique<stats::DamagePairList>();
+		damageList_->Capacity = 7;
+		damageList_->Buf = new stats::TDamagePair[7];
 
-		Hit = MyDamageInfo.get();
-		DamageList = MyDamageList.get();
+		Hit = damageInfo_.get();
+		DamageList = damageList_.get();
 	}
 
-	void DamageHelpers::SetExternalDamageInfo(HitDamageInfo * damageInfo, DamagePairList * damageList)
+	void DamageHelpers::SetExternalDamageInfo(stats::HitDamageInfo * damageInfo, stats::DamagePairList * damageList)
 	{
-		MyDamageInfo.reset();
-		MyDamageList.reset();
+		damageInfo_.reset();
+		damageList_.reset();
 		Hit = damageInfo;
 		DamageList = damageList;
 	}
@@ -108,9 +108,9 @@ namespace dse::esv
 		}
 	}
 
-	void DamageHelpers::AddDamage(DamageType DamageType, int32_t Amount)
+	void DamageHelpers::AddDamage(stats::DamageType damageType, int32_t Amount)
 	{
-		DamageList->AddDamage(DamageType, Amount);
+		DamageList->AddDamage(damageType, Amount);
 	}
 
 	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid);
@@ -123,9 +123,9 @@ namespace dse::esv
 		}
 
 		if (DamageList->Size == 0) {
-			TDamagePair dummy;
+			stats::TDamagePair dummy;
 			dummy.Amount = 0;
-			dummy.DamageType = DamageType::Physical;
+			dummy.DamageType = stats::DamageType::Physical;
 			DamageList->SafeAdd(dummy);
 		}
 
@@ -361,7 +361,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -384,7 +384,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return false;
 
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return false;
@@ -409,7 +409,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -450,7 +450,7 @@ namespace dse::esv
 			if (status == nullptr) return;
 
 			auto damageTypeStr = args[2].String;
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -465,7 +465,7 @@ namespace dse::esv
 			if (status == nullptr) return false;
 
 			auto damageTypeStr = args[2].String;
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return false;
@@ -491,7 +491,7 @@ namespace dse::esv
 			auto damageTypeStr = args[2].String;
 			auto amount = args[3].Int32;
 
-			auto damageType = EnumInfo<DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;

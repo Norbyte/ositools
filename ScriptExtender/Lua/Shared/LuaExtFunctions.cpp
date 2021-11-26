@@ -218,7 +218,7 @@ namespace dse::lua
 
 	int NewDamageList(lua_State * L)
 	{
-		MakeObjectContainer<DamagePairList>(L);
+		MakeObjectContainer<stats::DamagePairList>(L);
 		return 1;
 	}
 

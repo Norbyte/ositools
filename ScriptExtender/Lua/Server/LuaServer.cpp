@@ -208,24 +208,24 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 
 #undef MAKE_REF
 
-void LuaPolymorphic<CRPGStats_ObjectInstance>::MakeRef(lua_State* L, CRPGStats_ObjectInstance* stats, LifetimeHolder const & lifetime)
+void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectInstance* stats, LifetimeHolder const & lifetime)
 {
 	auto modifierList = stats->GetModifierList();
 	if (modifierList->Name == GFS.strCharacter) {
-		return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Character*>(stats));
+		return MakeObjectRef(L, lifetime, static_cast<stats::Character*>(stats));
 	} else if (modifierList->Name == GFS.strItem) {
-		return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Item*>(stats));
+		return MakeObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
 	} else {
 		return MakeObjectRef(L, lifetime, stats);
 	}
 }
 
-void LuaPolymorphic<CDivinityStats_Equipment_Attributes>::MakeRef(lua_State* L, CDivinityStats_Equipment_Attributes* stats, LifetimeHolder const & lifetime)
+void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::EquipmentAttributes* stats, LifetimeHolder const & lifetime)
 {
 	switch (stats->StatsType) {
-	case EquipmentStatsType::Weapon: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Weapon*>(stats));
-	case EquipmentStatsType::Armor: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Armor*>(stats));
-	case EquipmentStatsType::Shield: return MakeObjectRef(L, lifetime, static_cast<CDivinityStats_Equipment_Attributes_Shield*>(stats));
+	case stats::EquipmentStatsType::Weapon: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesWeapon*>(stats));
+	case stats::EquipmentStatsType::Armor: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesArmor*>(stats));
+	case stats::EquipmentStatsType::Shield: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesShield*>(stats));
 	default: return MakeObjectRef(L, lifetime, stats);
 	}
 }
@@ -1744,10 +1744,10 @@ namespace dse::esv::lua
 		auto attacker = GetCharacter(L, 2);
 		auto target = GetCharacter(L, 3);
 		auto position = get<glm::vec3>(L, 4);
-		auto propertyContext = get<CRPGStats_Object_PropertyContext>(L, 5);
+		auto propertyContext = get<stats::PropertyContext>(L, 5);
 		auto isFromItem = get<bool>(L, 6);
 
-		SkillPrototype* skillProto{ nullptr };
+		stats::SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 		if (skillProtoMgr && *skillProtoMgr) {
 			auto proto = (*skillProtoMgr)->Prototypes.Find(skillId);
@@ -1762,7 +1762,7 @@ namespace dse::esv::lua
 		}
 
 		auto exec = GetStaticSymbols().esv__ExecuteCharacterSetExtraProperties;
-		auto skillProperties = skillProto->GetStats()->PropertyList.Find(GFS.strSkillProperties);
+		auto skillProperties = skillProto->GetStats()->PropertyLists.Find(GFS.strSkillProperties);
 
 		if (!skillProperties) {
 			LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -1790,10 +1790,10 @@ namespace dse::esv::lua
 		auto attacker = GetCharacter(L, 2);
 		auto position = get<glm::vec3>(L, 3);
 		auto radius = get<float>(L, 4);
-		auto propertyContext = get<CRPGStats_Object_PropertyContext>(L, 5);
+		auto propertyContext = get<stats::PropertyContext>(L, 5);
 		auto isFromItem = get<bool>(L, 6);
 
-		SkillPrototype* skillProto{ nullptr };
+		stats::SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 		if (skillProtoMgr && *skillProtoMgr) {
 			auto proto = (*skillProtoMgr)->Prototypes.Find(skillId);
@@ -1808,7 +1808,7 @@ namespace dse::esv::lua
 		}
 
 		auto exec = GetStaticSymbols().esv__ExecutePropertyDataOnPositionOnly;
-		auto skillProperties = skillProto->GetStats()->PropertyList.Find(GFS.strSkillProperties);
+		auto skillProperties = skillProto->GetStats()->PropertyLists.Find(GFS.strSkillProperties);
 
 		if (!skillProperties) {
 			LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -2391,10 +2391,10 @@ namespace dse::esv::lua
 		ThrowEvent(*this, "StatusHitEnter", params);
 	}
 
-	bool ServerState::ComputeCharacterHit(CDivinityStats_Character * target,
-		CDivinityStats_Character *attacker, CDivinityStats_Item *weapon, DamagePairList *damageList,
-		HitType hitType, bool noHitRoll, bool forceReduceDurability, HitDamageInfo *hit,
-		CRPGStats_Object_Property_List *skillProperties, HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
+	bool ServerState::ComputeCharacterHit(stats::Character * target,
+		stats::Character *attacker, stats::Item *weapon, stats::DamagePairList *damageList,
+		stats::HitType hitType, bool noHitRoll, bool forceReduceDurability, stats::HitDamageInfo *hit,
+		stats::PropertyList *skillProperties, stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll)
 	{
 		// FIXME - not migrated yet!
 		return false;
@@ -2480,10 +2480,10 @@ namespace dse::esv::lua
 		*/
 	}
 
-	bool ServerState::OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
+	bool ServerState::OnCharacterApplyDamage(esv::Character* target, stats::HitDamageInfo& hit, ComponentHandle attackerHandle,
 			CauseType causeType, glm::vec3& impactDirection, PendingHit* context)
 	{
-		CRPGStats_ObjectInstance* attacker{ nullptr };
+		stats::ObjectInstance* attacker{ nullptr };
 		if (attackerHandle) {
 			auto attackerChar = GetEntityWorld()->GetCharacter(attackerHandle, false);
 			if (attackerChar) {
@@ -2625,16 +2625,16 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList)
+	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, stats::DamagePairList* damageList)
 	{
 		ExecutePropertyDataOnGroundHitEventParams params{ position, GetGameObjectInternal(casterHandle), damageList };
 		ThrowEvent(*this, "GroundHit", params);
 	}
 
 
-	void ServerState::ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
-		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype * skillProto,
-		HitDamageInfo const* damageInfo)
+	void ServerState::ExecutePropertyDataOnTarget(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
+		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype * skillProto,
+		stats::HitDamageInfo const* damageInfo)
 	{
 		ExecutePropertyDataOnTargetEventParams params{ 
 			prop, attackerHandle, target, impactOrigin, isFromItem, skillProto, damageInfo
@@ -2643,9 +2643,9 @@ namespace dse::esv::lua
 	}
 
 
-	void ServerState::ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
-		glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype * skillPrototype,
-		HitDamageInfo const* damageInfo)
+	void ServerState::ExecutePropertyDataOnPosition(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
+		glm::vec3 const& position, float areaRadius, bool isFromItem, stats::SkillPrototype * skillPrototype,
+		stats::HitDamageInfo const* damageInfo)
 	{
 		ExecutePropertyDataOnPositionEventParams params{
 			prop, attackerHandle, position, areaRadius, isFromItem, skillPrototype, damageInfo

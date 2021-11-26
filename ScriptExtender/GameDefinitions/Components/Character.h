@@ -14,7 +14,7 @@ namespace dse
 	{
 		struct PlayerUpgrade : public ProtectedGameObject<PlayerUpgrade>
 		{
-			CDivinityStats_Character * Stats;
+			stats::Character * Stats;
 			uint32_t AttributePoints;
 			uint32_t CombatAbilityPoints;
 			uint32_t CivilAbilityPoints;
@@ -22,7 +22,7 @@ namespace dse
 			uint32_t Unknown;
 			ObjectSet<int> Attributes;
 			ObjectSet<int> Abilities;
-			TalentArray Talents;
+			stats::TalentArray Talents;
 			ObjectSet<uint16_t> Traits;
 			bool IsCustom;
 		};
@@ -178,9 +178,9 @@ namespace dse
 		struct Character : public IEoCServerObject
 		{
 
-			using HitProc = void (esv::Character* self, CDivinityStats_Character* attackerStats, CDivinityStats_Item* itemStats, DamagePairList* damageList,
-				HitType hitType, bool noHitRoll, HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag, bool procWindWalker, CriticalRoll criticalRoll);
-			using ApplyDamageProc = void (esv::Character* self, HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
+			using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
+				stats::HitType hitType, bool noHitRoll, stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag, bool procWindWalker, stats::CriticalRoll criticalRoll);
+			using ApplyDamageProc = void (esv::Character* self, stats::HitDamageInfo& hit, uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
 
 			Status* GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId handle) const;
@@ -212,7 +212,7 @@ namespace dse
 			uint8_t ScriptForceUpdateCount;
 			uint8_t ForceSynchCount;
 			bool U5;
-			CDivinityStats_Character * Stats;
+			stats::Character * Stats;
 			ComponentHandle InventoryHandle;
 			void * MovementMachine;
 			esv::ActionMachine * ActionMachine;
@@ -296,7 +296,7 @@ namespace dse
 			uint32_t TimeElapsed;
 			ObjectSet<FixedString> PreferredAiTarget;
 			void* CharacterBody;
-			RefMap<ComponentHandle, ObjectSet<CDivinityStats_Object_Property_Status*>> StatusesFromItems;
+			RefMap<ComponentHandle, ObjectSet<stats::PropertyStatus*>> StatusesFromItems;
 			ObjectSet<FixedString> TagsFromItems;
 			void * VisualSetIndices;
 			bool ReadyCheckBlocked;
@@ -390,7 +390,7 @@ namespace dse
 			NetId NetID3;
 			CharacterTemplate* Template;
 			CharacterTemplate* OriginalTemplate;
-			CDivinityStats_Character* Stats;
+			Character* Stats;
 			ComponentHandle InventoryHandle;
 			void* MovementMachine;
 			void* ActionStateMachine;

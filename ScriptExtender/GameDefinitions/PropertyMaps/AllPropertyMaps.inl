@@ -8,7 +8,7 @@
 #include <GameDefinitions/PropertyMaps/Projectile.inl>
 
 
-BEGIN_CLS(HitDamageInfo)
+BEGIN_CLS(stats::HitDamageInfo)
 P(Equipment)
 P(TotalDamageDone)
 P(DamageDealt)
@@ -24,12 +24,12 @@ P_REF(DamageList)
 // EffectFlags is an integer in v55
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("EffectFlags",
-	[](lua_State* L, LifetimeHolder const& lifetime, HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
 		push(L, hit->EffectFlags);
 		return true;
 	},
-	[](lua_State* L, LifetimeHolder const& lifetime, HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
-		hit->EffectFlags = (HitFlag)get<uint32_t>(L, index);
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
+		hit->EffectFlags = (stats::HitFlag)get<uint32_t>(L, index);
 		return true;
 	}
 );
@@ -195,7 +195,7 @@ P(Scale)
 END_CLS()
 
 // FIXME - placeholders
-BEGIN_CLS(DamagePairList)
+BEGIN_CLS(stats::DamagePairList)
 P_FUN(GetByType, GetByType)
 P_FUN(Add, AddDamage)
 P_FUN(Clear, ClearAll)

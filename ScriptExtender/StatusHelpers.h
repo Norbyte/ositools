@@ -70,10 +70,10 @@ namespace dse::esv
 
 		void ThrowStatusHitEnter(esv::Status* status);
 		void ThrowStatusHealEnter(esv::StatusHeal* status);
-		void ThrowCharacterHit(esv::Character* self, CDivinityStats_Character* attackerStats,
-			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-			HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGround,
-			bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper);
+		void ThrowCharacterHit(esv::Character* self, stats::Character* attackerStats,
+			stats::Item* itemStats, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+			stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGround,
+			bool procWindWalker, stats::CriticalRoll criticalRoll, DamageHelpers& helper);
 		void ThrowApplyStatus(esv::StatusMachine* self, esv::Status* status);
 
 	};

@@ -214,8 +214,8 @@ private:
 
 	void OnBaseModuleLoaded(void * self);
 	void OnModuleLoadStarted(TranslatedStringRepository * self);
-	void OnStatsLoadStarted(CRPGStatsManager* mgr);
-	void OnStatsLoadFinished(CRPGStatsManager* mgr);
+	void OnStatsLoadStarted(stats::RPGStats* mgr);
+	void OnStatsLoadFinished(stats::RPGStats* mgr);
 	void OnSkillPrototypeManagerInit(void * self);
 	FileReader * OnFileReaderCreate(FileReader::CtorProc* next, FileReader * self, Path const& path, unsigned int type);
 	void OnSavegameVisit(void* osirisHelpers, ObjectVisitor* visitor);

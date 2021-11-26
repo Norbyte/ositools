@@ -244,6 +244,7 @@
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
     <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
+    <None Include="GameDefinitions\StatsObject.inl" />
     <None Include="GameHooks\EngineHooks.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
     <None Include="LuaScripts\BuiltinLibraryClient.lua" />

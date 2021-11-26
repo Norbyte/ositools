@@ -40,7 +40,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CEquipmentSet& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::EquipmentSet& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -49,7 +49,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CEquipmentGroup& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::EquipmentGroup& v)
 	{
 		s.BeginObject();
 		// Name property is unused
@@ -59,7 +59,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CSkillSet& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::SkillSet& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -68,7 +68,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_Table& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureTable& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -82,7 +82,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_SubTable_Description& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureSubTableDescription& v)
 	{
 		s.BeginObject();
 		P(TotalCount);
@@ -117,7 +117,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_SubTable_Description::Category& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureSubTableDescription::Category& v)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
@@ -172,7 +172,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_SubTable_Description::DropCount& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureSubTableDescription::DropCount& v)
 	{
 		s.BeginObject();
 		P(Chance);
@@ -181,7 +181,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_Category& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureCategory& v)
 	{
 		s.BeginObject();
 		P(Category);
@@ -190,7 +190,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Treasure_Category::Item& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::TreasureCategory::Item& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -205,7 +205,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombination& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombination& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -218,7 +218,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationIngredient& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationIngredient& v)
 	{
 		s.BeginObject();
 		P(Object);
@@ -229,10 +229,10 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationResult& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationResult& v)
 	{
 		s.BeginObject();
-		PO(Requirement, AbilityType::Sentinel);
+		PO(Requirement, stats::AbilityType::Sentinel);
 		PO(ReqLevel, 0);
 		P(PreviewStatsId);
 		PO(PreviewIcon, GFS.strEmpty);
@@ -243,7 +243,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationResult::CombinationResult& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationResult::CombinationResult& v)
 	{
 		s.BeginObject();
 		P(Result);
@@ -253,7 +253,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationPreviewData& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationPreviewData& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -265,7 +265,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationProperty& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationProperty& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -276,7 +276,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemCombinationProperty::ItemCombinationPropertyEntry& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemCombinationProperty::Entry& v)
 	{
 		s.BeginObject();
 		P(ObjectId);
@@ -286,7 +286,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CItemGroup& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::CItemGroup& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -295,7 +295,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CLevelGroup& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::CLevelGroup& v)
 	{
 		s.BeginObject();
 		P(MinLevel);
@@ -306,7 +306,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRootGroup& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::CRootGroup& v)
 	{
 		s.BeginObject();
 		P(MinLevel);
@@ -318,7 +318,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CNameGroupLink& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::CNameGroupLink& v)
 	{
 		s.BeginObject();
 		P(NameGroup);
@@ -329,7 +329,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CNameGroup& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::NameGroup& v)
 	{
 		s.BeginObject();
 		P(Name);
@@ -339,7 +339,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CNameGroupName& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::NameGroupName& v)
 	{
 		s.BeginObject();
 		s.VisitProperty("Name", v.Name.Handle.ReferenceString);
@@ -368,20 +368,20 @@ namespace dse::lua
 		}
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Requirement& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::Requirement& v)
 	{
 		s.BeginObject();
-		s.VisitProperty("Requirement", v.Requirement);
+		s.VisitProperty("Requirement", v.RequirementId);
 		s.VisitProperty("Not", v.Not);
 
 		if (s.IsWriting) {
-			if (v.Requirement == RequirementType::Tag) {
+			if (v.RequirementId == stats::RequirementType::Tag) {
 				s.VisitProperty("Param", v.Tag);
 			} else {
 				s.VisitProperty("Param", v.Param);
 			}
 		} else {
-			if (v.Requirement == RequirementType::Tag) {
+			if (v.RequirementId == stats::RequirementType::Tag) {
 				auto param = checked_getfield<char const*>(s.L, "Param");
 				s.VisitProperty("Param", v.Tag);
 				v.Param = -1;
@@ -395,7 +395,7 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Data& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyData& v)
 	{
 		static long gIndex{ 0 };
 		auto stats = GetStaticSymbols().GetStats();
@@ -425,7 +425,7 @@ namespace dse::lua
 
 				auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(*conditions);
 				if (scriptCheckBlock) {
-					auto statConditions = GameAlloc<CDivinityStats_Condition>();
+					auto statConditions = GameAlloc<stats::Condition>();
 					statConditions->ScriptCheckBlock = scriptCheckBlock;
 					statConditions->Name = FixedString(name.c_str());
 					v.Conditions = statConditions;
@@ -441,16 +441,16 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Custom& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyCustom& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		s.VisitProperty("Action", v.Name);
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Status& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyStatus& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		s.VisitProperty("Action", v.Status);
 		PO(StatusChance, 100.0f);
 		PO(Duration, 1.0f);
@@ -467,9 +467,9 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_SurfaceChange& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertySurfaceChange& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strSurfaceChange, v.SurfaceChange);
 		PO(SurfaceChance, 1.0f);
 		PO(Lifetime, 0.0f);
@@ -478,9 +478,9 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_GameAction& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyGameAction& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strGameAction, v.GameAction);
 		PO(Arg1, -1.0f);
 		PO(Arg2, -1.0f);
@@ -491,25 +491,25 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_OsirisTask& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyOsirisTask& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		LuaSerializeStatsEnum(s, "Action", GFS.strOsirisTask, v.OsirisTask);
 		PO(Chance, 1.0f);
 		PO(VitalityOnRevive, -1);
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Sabotage& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertySabotage& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		PO(Amount, 1);
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Summon& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertySummon& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		P(Template);
 		PO(Duration, 6.0f);
 		PO(IsTotem, false);
@@ -517,23 +517,23 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CDivinityStats_Object_Property_Force& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyForce& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		P(Distance);
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_CustomDescription& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyCustomDescription& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		s.VisitProperty("TextLine1", v.TextLine1);
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_Extender& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyExtender& v)
 	{
-		s << static_cast<CDivinityStats_Object_Property_Data&>(v);
+		s << static_cast<stats::PropertyData&>(v);
 		s.VisitProperty("Action", v.PropertyName);
 		PO(Arg1, 100.0f);
 		PO(Arg2, 1.0f);
@@ -548,28 +548,28 @@ namespace dse::lua
 		return s;
 	}
 
-	void SerializeObjectProperty(LuaSerializer& s, CDivinityStats_Object_Property_Data*& v)
+	void SerializeObjectProperty(LuaSerializer& s, stats::PropertyData*& v)
 	{
 		s.BeginObject();
 		if (s.IsWriting) {
 			if (!v) {
 				lua_pushnil(s.L);
 			} else {
-				#define V(type, cls) case CRPGStats_Object_Property_Type::type: \
+				#define V(type, cls) case stats::PropertyType::type: \
 					s << *static_cast<cls*>(v); \
 					break;
 
 				switch (v->TypeId) {
-					V(Custom, CDivinityStats_Object_Property_Custom)
-					V(Status, CDivinityStats_Object_Property_Status)
-					V(SurfaceChange, CDivinityStats_Object_Property_SurfaceChange)
-					V(GameAction, CDivinityStats_Object_Property_GameAction)
-					V(OsirisTask, CDivinityStats_Object_Property_OsirisTask)
-					V(Sabotage, CDivinityStats_Object_Property_Sabotage)
-					V(Summon, CDivinityStats_Object_Property_Summon)
-					V(Force, CDivinityStats_Object_Property_Force)
-					V(CustomDescription, CRPGStats_Object_Property_CustomDescription)
-					V(Extender, CRPGStats_Object_Property_Extender)
+					V(Custom, stats::PropertyCustom)
+					V(Status, stats::PropertyStatus)
+					V(SurfaceChange, stats::PropertySurfaceChange)
+					V(GameAction, stats::PropertyGameAction)
+					V(OsirisTask, stats::PropertyOsirisTask)
+					V(Sabotage, stats::PropertySabotage)
+					V(Summon, stats::PropertySummon)
+					V(Force, stats::PropertyForce)
+					V(CustomDescription, stats::PropertyCustomDescription)
+					V(Extender, stats::PropertyExtender)
 
 					default:
 						ERR("Unable to serialize unknown object property type %d to Lua!", v->TypeId);
@@ -578,27 +578,27 @@ namespace dse::lua
 			}
 		} else {
 			if (v == nullptr) {
-				CRPGStats_Object_Property_Type type;
+				stats::PropertyType type;
 				s.VisitProperty("Type", type);
 				v = GetStaticSymbols().GetStats()->ConstructProperty(type);
 			}
 
 			if (v) {
-				#define V(type, cls) case CRPGStats_Object_Property_Type::type: \
+				#define V(type, cls) case stats::PropertyType::type: \
 					s << *static_cast<cls*>(v); \
 					break;
 
 				switch (v->TypeId) {
-					V(Custom, CDivinityStats_Object_Property_Custom)
-					V(Status, CDivinityStats_Object_Property_Status)
-					V(SurfaceChange, CDivinityStats_Object_Property_SurfaceChange)
-					V(GameAction, CDivinityStats_Object_Property_GameAction)
-					V(OsirisTask, CDivinityStats_Object_Property_OsirisTask)
-					V(Sabotage, CDivinityStats_Object_Property_Sabotage)
-					V(Summon, CDivinityStats_Object_Property_Summon)
-					V(Force, CDivinityStats_Object_Property_Force)
-					V(CustomDescription, CRPGStats_Object_Property_CustomDescription)
-					V(Extender, CRPGStats_Object_Property_Extender)
+					V(Custom, stats::PropertyCustom)
+					V(Status, stats::PropertyStatus)
+					V(SurfaceChange, stats::PropertySurfaceChange)
+					V(GameAction, stats::PropertyGameAction)
+					V(OsirisTask, stats::PropertyOsirisTask)
+					V(Sabotage, stats::PropertySabotage)
+					V(Summon, stats::PropertySummon)
+					V(Force, stats::PropertyForce)
+					V(CustomDescription, stats::PropertyCustomDescription)
+					V(Extender, stats::PropertyExtender)
 
 					default:
 						ERR("Unable to serialize unknown object property type %d to Lua!", v->TypeId);
@@ -609,7 +609,7 @@ namespace dse::lua
 		s.EndObject();
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_Object_Property_List& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyList& v)
 	{
 		s.BeginObject();
 		if (s.IsWriting) {
@@ -621,7 +621,7 @@ namespace dse::lua
 			}
 		} else {
 			for (auto idx : iterate(s.L, -1)) {
-				CDivinityStats_Object_Property_Data* prop{ nullptr };
+				stats::PropertyData* prop{ nullptr };
 				SerializeObjectProperty(s, prop);
 				if (prop) {
 					v.Properties.Add(prop->Name, prop);
@@ -633,17 +633,17 @@ namespace dse::lua
 		return s;
 	}
 
-	LuaSerializer& operator << (LuaSerializer& s, CRPGStats_DeltaModifier& v)
+	LuaSerializer& operator << (LuaSerializer& s, stats::DeltaModifier& v)
 	{
 		auto stats = GetStaticSymbols().GetStats();
 
 		s.BeginObject();
 
 		P(ModifierType);
-		PO(SlotType, ItemSlot32::Sentinel);
-		PO(WeaponType, WeaponType::Sentinel);
-		PO(ArmorType, ArmorType::Sentinel);
-		PO(Handedness, HandednessType::Any);
+		PO(SlotType, stats::ItemSlot32::Sentinel);
+		PO(WeaponType, stats::WeaponType::Sentinel);
+		PO(ArmorType, stats::ArmorType::Sentinel);
+		PO(Handedness, stats::HandednessType::Any);
 		P(Name);
 		P(BoostType);
 		PO(MinLevel, -1);
@@ -654,7 +654,7 @@ namespace dse::lua
 			lua_newtable(s.L);
 			int index = 1;
 			for (uint32_t i = 0; i < v.BoostIndices.Size; i++) {
-				auto boost = stats->objects.Find(v.BoostIndices[i]);
+				auto boost = stats->Objects.Find(v.BoostIndices[i]);
 				if (boost != nullptr) {
 					push(s.L, index++);
 					lua_newtable(s.L);
@@ -676,7 +676,7 @@ namespace dse::lua
 				s.VisitProperty("Boost", boost);
 				s.VisitOptionalProperty("Count", count, 1);
 
-				auto object = stats->objects.FindIndex(boost);
+				auto object = stats->Objects.FindIndex(boost);
 				if (object) {
 					v.BoostIndices.Add(*object);
 					v.BoostCounts.Add(count);

@@ -370,7 +370,7 @@ function ComputeWeaponRequirementScaledDamage(character, weapon)
     end
 end
 
--- from CDivinityStats_Item::ComputeDamage
+-- from Item::ComputeDamage
 --- @param weapon StatItem
 function ComputeBaseWeaponDamage(weapon)
     local damages = {}
@@ -426,7 +426,7 @@ function ComputeBaseWeaponDamage(weapon)
     return damages, damageBoost
 end
 
--- from CDivinityStats_Item::ComputeDamage
+-- from Item::ComputeDamage
 --- @param weapon StatItem
 function CalculateWeaponDamageWithDamageBoost(weapon)
     local damages, damageBoost = ComputeBaseWeaponDamage(weapon)
@@ -445,7 +445,7 @@ function CalculateWeaponDamageWithDamageBoost(weapon)
     return damages
 end
 
--- from CDivinityStats_Item::ComputeScaledDamage
+-- from Item::ComputeScaledDamage
 --- @param character StatCharacter
 --- @param weapon StatItem
 function CalculateWeaponScaledDamageRanges(character, weapon)
@@ -470,7 +470,7 @@ function CalculateWeaponScaledDamageRanges(character, weapon)
     return damages
 end
 
--- from CDivinityStats_Character::CalculateWeaponDamageInner
+-- from Character::CalculateWeaponDamageInner
 --- @param character StatCharacter
 --- @param weapon StatItem
 --- @param damageList DamageList

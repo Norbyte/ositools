@@ -63,7 +63,7 @@ namespace dse
 	}
 
 #define SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair(#name, (int)offsetof(StaticSymbols, name)))
-#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + (int)offsetof(CharacterStatsGetters, name)))
+#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + (int)offsetof(stats::CharacterStatsGetters, name)))
 
 	void LibraryManager::RegisterSymbols()
 	{
@@ -447,10 +447,10 @@ namespace dse
 				p[0x27] = 0xE9;
 				DEBUG("Dynamic item stat folding disabled.");
 			} else {
-				ERR("Could not disable item stat folding; symbol CDivinityStats_Item::FoldDynamicAttributes not mapped!");
+				ERR("Could not disable item stat folding; symbol Item::FoldDynamicAttributes not mapped!");
 			}
 #else
-			DEBUG("Folding is already disabled in the editor; not patching CDivinityStats_Item::FoldDynamicAttributes");
+			DEBUG("Folding is already disabled in the editor; not patching Item::FoldDynamicAttributes");
 #endif
 		}
 

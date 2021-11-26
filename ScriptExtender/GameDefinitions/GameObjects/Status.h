@@ -5,53 +5,6 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Stats.h>
 
-BEGIN_SE()
-
-struct TDamagePair
-{
-	int32_t Amount;
-	DamageType DamageType;
-};
-
-struct DamagePairList : public Array<TDamagePair>
-{
-	void AddDamage(DamageType damageType, int32_t amount);
-	void ClearDamage(DamageType damageType);
-
-	int GetByType(DamageType damageType);
-	void ClearAll(std::optional<DamageType> damageType);
-	void Multiply(float multiplier);
-	void ConvertDamageType(DamageType newType);
-	void AggregateSameTypeDamages();
-	void LuaMerge(lua_State* L);
-	UserReturn LuaToTable(lua_State* L);
-};
-
-struct HitDamageInfo
-{
-	uint32_t Equipment{ 0 };
-	// Sum of all damages in DamageList
-	int32_t TotalDamageDone{ 0 };
-	// Damage dealt after ApplyDamage() call
-	int32_t DamageDealt{ 0 };
-	DeathType DeathType{ DeathType::Sentinel };
-	DamageType DamageType{ DamageType::None };
-	uint32_t AttackDirection{ 0 };
-	int32_t ArmorAbsorption{ 0 };
-	int32_t LifeSteal{ 0 };
-	HitFlag EffectFlags{ 0 };
-	bool HitWithWeapon{ false };
-	DamagePairList DamageList;
-
-	inline HitDamageInfo() {}
-	void ClearDamage();
-	void ClearDamage(dse::DamageType damageType);
-	void AddDamage(dse::DamageType damageType, int32_t amount);
-	void CopyFrom(HitDamageInfo const& src);
-};
-
-END_SE()
-
 BEGIN_NS(esv)
 
 struct Status : public ProtectedGameObject<Status>
@@ -195,12 +148,12 @@ struct StatusVMT
 
 struct StatusHit : public Status
 {
-	using SetupProc = void (StatusHit* self, HitDamageInfo* hit);
+	using SetupProc = void (StatusHit* self, stats::HitDamageInfo* hit);
 
 	uint32_t Unk2;
 	uint8_t Unk3;
-	CRPGStats_Object_Property_List * PropertyList;
-	HitDamageInfo Hit;
+	stats::PropertyList * PropertyList;
+	stats::HitDamageInfo Hit;
 	ComponentHandle HitByHandle;
 	// Character, Item or Projectile
 	ComponentHandle HitWithHandle;
@@ -230,7 +183,7 @@ struct StatusDying : public Status
 {
 	ComponentHandle SourceHandle;
 	int SourceType;
-	DeathType DeathType;
+	stats::DeathType DeathType;
 	int AttackDirection;
 	glm::vec3 ImpactDirection;
 	bool IsAlreadyDead;
@@ -581,7 +534,7 @@ struct StatusActiveDefense : public StatusConsumeBase
 	ComponentHandle StatusTargetHandle; // Saved
 	float Radius;
 	FixedString Projectile;
-	CDivinityStats_Condition* TargetConditions;
+	stats::Condition* TargetConditions;
 	ObjectSet<void *> Targets; // ObjectSet<StatusActiveDefenseTargetData>
 	ObjectSet<ComponentHandle> PreviousTargets; // Saved
 };
@@ -591,7 +544,7 @@ struct StatusSpark : public StatusConsumeBase
 	int Charges; // Saved
 	float Radius;
 	FixedString Projectile;
-	CDivinityStats_Condition* TargetConditions;
+	stats::Condition* TargetConditions;
 	ObjectSet<void*> SparkTargetData;
 };
 

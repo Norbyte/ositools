@@ -16,7 +16,7 @@ public:
 	void UpdateModDirectoryMap();
 
 	FixedString GetStatsEntryMod(FixedString statId) const;
-	std::vector<CRPGStats_Object*> GetStatsLoadedBefore(FixedString modId) const;
+	std::vector<stats::Object*> GetStatsLoadedBefore(FixedString modId) const;
 
 private:
 	struct StatsEntryModMapping

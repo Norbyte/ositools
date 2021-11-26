@@ -45,7 +45,7 @@ namespace dse
             ComponentHandle HitObjectHandle;
             glm::vec3 SourcePosition;
             glm::vec3 TargetPosition;
-            DamageType DamageType;
+            stats::DamageType DamageType;
             CauseType DamageSourceType;
             float LifeTime;
             float HitInterpolation;
@@ -53,10 +53,10 @@ namespace dse
             eoc::PathMover PathMover2;
             float ExplodeRadius0;
             float ExplodeRadius1;
-            DamagePairList DamageList;
-            DeathType DeathType;
+            stats::DamagePairList DamageList;
+            stats::DeathType DeathType;
             FixedString SkillId;
-            CRPGStats_Object_Property_List* PropertyList;
+            stats::PropertyList* PropertyList;
             uint8_t BoostConditions;
             ComponentHandle WeaponHandle;
             ComponentHandle MovingEffectHandle;
@@ -106,7 +106,7 @@ namespace dse
 		    glm::vec3 StartPosition{ .0f };
 		    glm::vec3 EndPosition{ .0f };
 		    uint8_t Random{ 0 };
-		    DamagePairList * DamageList;
+            stats::DamagePairList * DamageList;
 		    int32_t CasterLevel{ -1 };
 		    ShootProjectileHelperHitObject * HitObject;
 		    bool IsTrap{ false };

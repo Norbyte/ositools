@@ -79,7 +79,7 @@ FixedString StatLoadOrderHelper::GetStatsEntryMod(FixedString statId) const
 	}
 }
 
-std::vector<CRPGStats_Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedString modId) const
+std::vector<stats::Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedString modId) const
 {
 	std::unordered_set<FixedString> modsLoadedBefore;
 	auto state = gExtender->GetCurrentExtensionState();
@@ -99,9 +99,9 @@ std::vector<CRPGStats_Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedSt
 		return {};
 	}
 
-	std::vector<CRPGStats_Object*> statsLoadedBefore;
+	std::vector<stats::Object*> statsLoadedBefore;
 	auto stats = GetStaticSymbols().GetStats();
-	for (auto const& object : stats->objects.Primitives) {
+	for (auto const& object : stats->Objects.Primitives) {
 		auto statEntryMod = GetStatsEntryMod(object->Name);
 		if (statEntryMod && modsLoadedBefore.find(statEntryMod) != modsLoadedBefore.end()) {
 			statsLoadedBefore.push_back(object);

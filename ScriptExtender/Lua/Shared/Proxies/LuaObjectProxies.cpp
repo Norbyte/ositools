@@ -270,6 +270,6 @@ BEGIN_SE()
 #undef END_ENUM
 
 char const* const TypeInfo<ig::InvokeDataValue>::TypeName = "ig::InvokeDataValue";
-char const* const TypeInfo<ObjectSet<CDivinityStats_Object_Property_Status*>>::TypeName = "ObjectSet<CDivinityStats_Object_Property_Status>";
+char const* const TypeInfo<ObjectSet<stats::PropertyStatus*>>::TypeName = "ObjectSet<PropertyStatus>";
 
 END_SE()

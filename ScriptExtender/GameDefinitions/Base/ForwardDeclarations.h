@@ -2,6 +2,11 @@
 
 struct lua_State;
 
+namespace Json
+{
+	class Value;
+}
+
 BEGIN_SE()
 
 struct PropertyMapBase;
@@ -28,10 +33,16 @@ struct ObjectVisitor;
 struct FileReader;
 struct TranslatedStringRepository;
 
-struct CRPGStatsManager;
-struct SkillPrototype;
-struct DamagePairList;
-struct HitDamageInfo;
+namespace stats
+{
+	struct RPGStats;
+	struct SkillPrototype;
+	struct DamagePairList;
+	struct HitDamageInfo;
+	struct Object;
+	struct Character;
+	struct Item;
+}
 
 namespace net
 {
@@ -50,6 +61,7 @@ namespace eoc
 	struct Ai;
 	struct AiGrid;
 	struct NetworkFixedStrings;
+	struct Text;
 }
 
 namespace esv
@@ -80,6 +92,9 @@ namespace esv
 	struct CharacterFactory;
 
 	struct EntityWorld;
+
+	struct PendingHit;
+	class ExtensionState;
 }
 
 
@@ -97,6 +112,7 @@ namespace ecl
 	struct PickingHelperManager;
 
 	struct EoCUI;
+	class ExtensionState;
 }
 
 namespace ig
@@ -112,6 +128,9 @@ namespace ig
 struct UIObject;
 struct CustomDrawStruct;
 struct UIObjectManager;
+
+class OsirisExtender;
+class ScriptExtender;
 
 // Forward declarations for custom Lua serializers
 namespace lua

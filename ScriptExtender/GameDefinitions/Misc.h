@@ -225,6 +225,34 @@ namespace dse
 			void * VMT;
 			RefMap<FixedString, RefMap<FixedString, VoiceTextMetaData>> * SpeakerMetaDataHashMap;
 		};
+		
+
+		struct TextBuffer
+		{
+			wchar_t * Buf;
+			uint64_t Capacity;
+			uint64_t Length;
+			uint64_t Unknown;
+
+			void Replace(WStringView replacement);
+		};
+
+		struct Text
+		{
+			struct Param
+			{
+				int32_t PlaceholderOffset;
+				int32_t Unknown[2];
+				int32_t PlaceholderSize;
+			};
+
+			void * VMT;
+			TextBuffer * Buf;
+			uint32_t Unknown[2];
+			Param Params[8];
+
+			void ReplaceParam(int index, WStringView replacement);
+		};
 	}
 
 	namespace esv

@@ -84,13 +84,13 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(args[1].String);
+			auto object = stats->Objects.Find(args[1].String);
 			if (object == nullptr) {
 				OsiError("No such skill entry: '" << args[1].String << "'");
 				return false;
 			}
 
-			auto lifetime = stats->GetAttributeInt(object, GFS.strLifetime);
+			auto lifetime = object->GetInt(GFS.strLifetime);
 			if (!lifetime) {
 				OsiError("Couldn't fetch lifetime of skill '" << args[1].String << "'");
 				return false;

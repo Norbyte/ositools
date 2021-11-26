@@ -5,268 +5,9 @@
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/LuaMethodHelpers.h>
 
-BEGIN_NS(lua)
-
-CRPGStats_Object_Property_List* LuaToObjectPropertyList(lua_State* L, FixedString const& propertyName)
-{
-	auto properties = GetStaticSymbols().GetStats()->ConstructPropertyList(propertyName);
-	LuaSerializer s(L, false);
-	s << properties;
-	return properties;
-}
-
-END_NS()
-
-BEGIN_SE()
-
-using namespace dse::lua;
-
-int CRPGStats_Object::LuaGetAttributeShared(lua_State* L, FixedString const& attribute, std::optional<int> level)
-{
-	auto stats = GetStaticSymbols().GetStats();
-
-	if (attribute == GFS.strLevel) {
-		push(L, Level);
-		return 1;
-	} else if (attribute == GFS.strName) {
-		push(L, Name);
-		return 1;
-	} else if (attribute == GFS.strModId) {
-		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(Name));
-		return 1;
-	} else if (attribute == GFS.strUsing) {
-		if (Using) {
-			auto parent = stats->objects.Find(Using);
-			if (parent != nullptr) {
-				push(L, parent->Name);
-				return 1;
-			}
-		}
-
-		push(L, nullptr);
-		return 1;
-	} else if (attribute == GFS.strAIFlags) {
-		push(L, AIFlags);
-		return 1;
-	}
-
-	int index;
-	auto attrInfo = stats->GetAttributeInfo(this, attribute, index);
-	if (attrInfo && attrInfo->Name == GFS.strConditions) {
-		auto conditions = ConditionList.Find(attribute);
-		if (conditions) {
-			OsiError("Conditions property '" << attribute << "' is not readable");
-		}
-
-		push(L, nullptr);
-		return 1;
-	}
-
-	auto value = stats->GetAttributeString(this, attribute);
-	if (!value) {
-		std::optional<int> intval;
-		if (level) {
-			if (*level == -1) {
-				*level = this->Level;
-			}
-
-			intval = stats->GetAttributeIntScaled(this, attribute, *level);
-		} else {
-			intval = stats->GetAttributeInt(this, attribute);
-		}
-
-		if (!intval) {
-			OsiError("Stat object '" << Name << "' has no attribute named '" << attribute << "'");
-			push(L, nullptr);
-		} else {
-			push(L, *intval);
-		}
-	} else {
-		push(L, *value);
-	}
-
-	return 1;
-}
-
-int CRPGStats_Object::LuaGetAttributeLegacy(lua_State* L, FixedString const& attribute, std::optional<int> level)
-{
-	StackCheck _(L, 1);
-	auto stats = GetStaticSymbols().GetStats();
-
-	if (attribute == GFS.strRequirements) {
-		return LuaWrite(L, Requirements);
-	} else if (attribute == GFS.strMemorizationRequirements) {
-		return LuaWrite(L, MemorizationRequirements);
-	} else if (attribute == GFS.strComboCategory) {
-		return LuaWrite(L, ComboCategories);
-	} else if (attribute == GFS.strSkillProperties || attribute == GFS.strExtraProperties) {
-		auto propertyList = PropertyList.Find(attribute);
-		if (propertyList) {
-			return LuaWrite(L, *propertyList);
-		} else {
-			push(L, nullptr);
-			return 1;
-		}
-	}
-
-	return LuaGetAttributeShared(L, attribute, level);
-}
-
-int CRPGStats_Object::LuaGetAttribute(lua_State* L, FixedString const& attribute, std::optional<int> level)
-{
-	StackCheck _(L, 1);
-	auto stats = GetStaticSymbols().GetStats();
-
-	if (attribute == GFS.strRequirements) {
-		MakeObjectRef(L, &Requirements);
-		return 1;
-	} else if (attribute == GFS.strMemorizationRequirements) {
-		MakeObjectRef(L, &MemorizationRequirements);
-		return 1;
-	} else if (attribute == GFS.strComboCategory) {
-		MakeObjectRef(L, &ComboCategories);
-		return 1;
-	} else if (attribute == GFS.strSkillProperties || attribute == GFS.strExtraProperties) {
-		auto propertyList = PropertyList.Find(attribute);
-		MakeObjectRef(L, propertyList);
-		return 1;
-	}
-
-	return LuaGetAttributeShared(L, attribute, level);
-}
-
-bool CRPGStats_Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int valueIdx)
-{
-	StackCheck _(L);
-
-	if (attribute == GFS.strLevel) {
-		Level = get<int32_t>(L, valueIdx);
-		return true;
-	} else if (attribute == GFS.strRequirements) {
-		LuaRead(L, Requirements);
-		return true;
-	} else if (attribute == GFS.strMemorizationRequirements) {
-		LuaRead(L, MemorizationRequirements);
-		return true;
-	} else if (attribute == GFS.strAIFlags) {
-		AIFlags = get<FixedString>(L, valueIdx);
-		return true;
-	} else if (attribute == GFS.strComboCategory) {
-		ComboCategories.Clear();
-		if (lua_type(L, valueIdx) != LUA_TTABLE) {
-			OsiError("Must pass a table when setting ComboCategory");
-			return false;
-		}
-
-		for (auto category : iterate(L, valueIdx)) {
-			auto categoryName = get<FixedString>(L, category);
-			ComboCategories.Add(categoryName);
-		}
-
-		return true;
-	} else if (attribute == GFS.strSkillProperties || attribute == GFS.strExtraProperties) {
-		STDString name = Name.Str;
-		name += "_";
-		name += attribute.GetString();
-		FixedString statsPropertyKey(name.c_str());
-
-		auto newList = LuaToObjectPropertyList(L, statsPropertyKey);
-		if (newList) {
-			auto propertyList = PropertyList.Find(attribute);
-			if (propertyList) {
-				// FIXME - add Remove() support!
-				PropertyList.Clear();
-				// FIXME - need to remove from stats.PropertyLists too!
-				// GameFree(*propertyList);
-			}
-
-			PropertyList.Insert(attribute, newList);
-		}
-
-		return true;
-	}
-
-	int index;
-	auto stats = GetStaticSymbols().GetStats();
-	auto attrInfo = stats->GetAttributeInfo(this, attribute, index);
-	if (attrInfo && attrInfo->Name == GFS.strConditions) {
-		auto conditions = ConditionList.Find(attribute);
-		if (conditions) {
-			auto value = get<STDString>(L, valueIdx);
-			auto scriptCheckBlock = stats->BuildScriptCheckBlockFromProperties(value);
-			if (scriptCheckBlock) {
-				auto statConditions = GameAlloc<CDivinityStats_Condition>();
-				statConditions->ScriptCheckBlock = scriptCheckBlock;
-				STDString name = Name.Str;
-				name += "_";
-				name += attribute.GetString();
-				statConditions->Name = FixedString(name.c_str());
-				*conditions = statConditions;
-			} else {
-				OsiWarn("Failed to parse conditions: " << value);
-			}
-		} else {
-			// FIXME - not implemented yet!
-			OsiWarnS("Adding new Conditions entries not implemented yet!");
-		}
-
-		return 0;
-	}
-
-	switch (lua_type(L, valueIdx)) {
-	case LUA_TSTRING:
-	{
-		auto value = get<STDString>(L, valueIdx);
-		return stats->SetAttributeString(this, attribute, value.c_str());
-	}
-
-	case LUA_TNUMBER:
-	{
-		auto value = get<int32_t>(L, valueIdx);
-		return stats->SetAttributeInt(this, attribute, value);
-	}
-
-	default:
-		luaL_error(L, "Expected a string or integer attribute value.");
-		return false;
-	}
-}
-
-bool CRPGStats_Object::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, CRPGStats_Object* object, FixedString const& prop)
-{
-	return object->LuaGetAttribute(L, prop, {});
-}
-
-bool CRPGStats_Object::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, CRPGStats_Object* object, FixedString const& prop, int index)
-{
-	return object->LuaSetAttribute(L, prop, index);
-}
-
-bool StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop)
-{
-	return CRPGStats_Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
-}
-
-bool StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
-{
-	return CRPGStats_Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
-}
-
-bool SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop)
-{
-	return CRPGStats_Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
-}
-
-bool SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
-{
-	return CRPGStats_Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
-}
-
-END_SE()
-
 namespace dse::lua
 {
-	StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::optional<int> level)
+	StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level)
 		: ObjectProxyRefImpl(lifetime, obj),
 		level_(level)
 	{}
@@ -310,7 +51,7 @@ namespace dse::lua
 	}
 
 
-	char const* const StatsExtraDataProxy::MetatableName = "CRPGStats_ExtraData";
+	char const* const StatsExtraDataProxy::MetatableName = "ExtraData";
 
 	int StatsExtraDataProxy::Index(lua_State* L)
 	{
@@ -354,7 +95,7 @@ namespace dse::lua
 	}
 	
 	
-	void FetchSkillSetEntries(lua_State * L, CRPGStatsManager * stats)
+	void FetchSkillSetEntries(lua_State * L, stats::RPGStats * stats)
 	{
 		int32_t index = 1;
 		for (auto skillSet : stats->SkillSetManager->Primitives) {
@@ -362,7 +103,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchItemComboEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchItemComboEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto itemCombo : stats->ItemCombinationManager->Primitives) {
@@ -370,7 +111,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchItemComboPropertyEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchItemComboPropertyEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto const& combo : stats->ItemCombinationManager->ComboProperties) {
@@ -378,7 +119,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchItemComboPreviewDataEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchItemComboPreviewDataEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto const& preview : stats->ItemCombinationManager->PreviewData) {
@@ -386,7 +127,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchItemGroupEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchItemGroupEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto const& group : stats->ItemProgressionManager->ItemGroups) {
@@ -394,7 +135,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchItemNameGroupEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchItemNameGroupEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto const& group : stats->ItemProgressionManager->NameGroups) {
@@ -402,7 +143,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchDeltaModEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchDeltaModEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto deltaModList : stats->DeltaMods.Primitives) {
@@ -416,7 +157,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchEquipmentSetEntries(lua_State * L, CRPGStatsManager * stats)
+	void FetchEquipmentSetEntries(lua_State * L, stats::RPGStats * stats)
 	{
 		int32_t index = 1;
 		for (auto equipmentSet : stats->EquipmentSetManager->Primitives) {
@@ -424,7 +165,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchTreasureTableEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchTreasureTableEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto treasureTable : stats->TreasureTables.Primitives) {
@@ -432,7 +173,7 @@ namespace dse::lua
 		}
 	}
 
-	void FetchTreasureCategoryEntries(lua_State* L, CRPGStatsManager* stats)
+	void FetchTreasureCategoryEntries(lua_State* L, stats::RPGStats* stats)
 	{
 		int32_t index = 1;
 		for (auto treasureCategory : stats->TreasureCategories.Primitives) {
@@ -440,11 +181,11 @@ namespace dse::lua
 		}
 	}
 
-	void FetchStatEntries(lua_State * L, CRPGStatsManager * stats, FixedString const& statType)
+	void FetchStatEntries(lua_State * L, stats::RPGStats * stats, FixedString const& statType)
 	{
-		ModifierList* modifierList{ nullptr };
+		stats::ModifierList* modifierList{ nullptr };
 		if (statType) {
-			modifierList = stats->modifierList.Find(statType);
+			modifierList = stats->ModifierLists.Find(statType);
 			if (modifierList == nullptr) {
 				OsiError("Unknown stats entry type: " << statType);
 				return;
@@ -452,7 +193,7 @@ namespace dse::lua
 		}
 
 		int32_t index = 1;
-		for (auto object : stats->objects.Primitives) {
+		for (auto object : stats->Objects.Primitives) {
 			if (statType) {
 				auto type = stats->GetTypeInfo(object);
 				if (modifierList != nullptr && type != modifierList) {
@@ -464,11 +205,11 @@ namespace dse::lua
 		}
 	}
 
-	void FetchStatEntriesBefore(lua_State* L, CRPGStatsManager* stats, FixedString const& modId, FixedString const& statType)
+	void FetchStatEntriesBefore(lua_State* L, stats::RPGStats* stats, FixedString const& modId, FixedString const& statType)
 	{
-		ModifierList* modifierList{ nullptr };
+		stats::ModifierList* modifierList{ nullptr };
 		if (statType) {
-			modifierList = stats->modifierList.Find(statType);
+			modifierList = stats->ModifierLists.Find(statType);
 			if (modifierList == nullptr) {
 				OsiError("Unknown stats entry type: " << statType);
 				return;
@@ -501,7 +242,7 @@ namespace dse::lua
 		lua_newtable(L);
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
+			OsiError("RPGStats not available");
 			return 1;
 		}
 
@@ -544,7 +285,7 @@ namespace dse::lua
 		lua_newtable(L);
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
+			OsiError("RPGStats not available");
 			return 1;
 		}
 
@@ -712,7 +453,7 @@ namespace dse::lua
 
 		auto stats = GetStaticSymbols().GetStats();
 		auto existing = stats->ItemCombinationManager->PreviewData.Find(name);
-		CItemCombinationPreviewData* previewData = existing ? *existing : nullptr;
+		stats::ItemCombinationPreviewData* previewData = existing ? *existing : nullptr;
 		bool isNew = (previewData == nullptr);
 
 		lua_pushvalue(L, 1);
@@ -741,7 +482,7 @@ namespace dse::lua
 
 		auto stats = GetStaticSymbols().GetStats();
 		auto existing = stats->ItemCombinationManager->ComboProperties.Find(name);
-		CItemCombinationProperty* comboProperty = existing ? *existing : nullptr;
+		stats::ItemCombinationProperty* comboProperty = existing ? *existing : nullptr;
 		bool isNew = (comboProperty == nullptr);
 
 		lua_pushvalue(L, 1);
@@ -776,7 +517,7 @@ namespace dse::lua
 		auto statName = get<char const*>(L, 1);
 		auto attributeName = get<FixedString>(L, 2);
 
-		auto object = StatFindObject(statName);
+		auto object = stats::StatFindObject(statName);
 		if (!object) {
 			push(L, nullptr);
 			return 1;
@@ -790,7 +531,7 @@ namespace dse::lua
 		auto statName = get<char const*>(L, 1);
 		auto attributeName = get<FixedString>(L, 2);
 
-		auto object = StatFindObject(statName);
+		auto object = stats::StatFindObject(statName);
 		if (!object) {
 			push(L, nullptr);
 			return 1;
@@ -804,7 +545,7 @@ namespace dse::lua
 		auto statName = get<char const*>(L, 1);
 		auto attributeName = get<FixedString>(L, 2);
 
-		auto object = StatFindObject(statName);
+		auto object = stats::StatFindObject(statName);
 		if (!object) return 0;
 
 		push(L, object->LuaSetAttribute(L, attributeName, 3));
@@ -822,19 +563,19 @@ namespace dse::lua
 			luaL_error(L, "StatAddCustomDescription() can only be called during module load");
 		}
 
-		auto object = StatFindObject(statName);
+		auto object = stats::StatFindObject(statName);
 		if (!object) return;
 
-		auto props = object->PropertyList.Find(FixedString(attributeName));
+		auto props = object->PropertyLists.Find(FixedString(attributeName));
 		if (props == nullptr || *props == nullptr) {
 			OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
 			return;
 		}
 
 		// FIXME - assign name + add to map properly
-		auto customProp = GameAlloc<CRPGStats_Object_Property_CustomDescription>();
-		customProp->Context = (CRPGStats_Object_PropertyContext)0;
-		customProp->TypeId = CRPGStats_Object_Property_Type::CustomDescription;
+		auto customProp = GameAlloc<stats::PropertyCustomDescription>();
+		customProp->Context = (stats::PropertyContext)0;
+		customProp->TypeId = stats::PropertyType::CustomDescription;
 		customProp->Conditions = nullptr;
 		customProp->TextLine1 = FromUTF8(description);
 		(*props)->Properties.Primitives.Add(customProp);
@@ -843,13 +584,13 @@ namespace dse::lua
 	WrapLuaFunction(StatAddCustomDescription)
 
 
-	struct CRPGStats_CustomLevelMap : public CRPGStats_LevelMap
+	struct CustomLevelMap : public stats::LevelMap
 	{
 		RegistryEntry Function;
-		CRPGStats_LevelMap * OriginalLevelMap{ nullptr };
+		stats::LevelMap * OriginalLevelMap{ nullptr };
 
-		CRPGStats_CustomLevelMap() {}
-		~CRPGStats_CustomLevelMap() override {}
+		CustomLevelMap() {}
+		~CustomLevelMap() override {}
 		
 		void SetModifierList(int modifierListIndex, int modifierIndex) override
 		{
@@ -907,7 +648,7 @@ namespace dse::lua
 	{
 		auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives;
 		for (auto levelMapIndex : levelMapIds) {
-			auto levelMap = static_cast<CRPGStats_CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
+			auto levelMap = static_cast<CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
 			levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
 		}
 
@@ -944,21 +685,21 @@ namespace dse::lua
 			return 0;
 		}
 
-		CRPGStats_LevelMap * originalLevelMap;
+		stats::LevelMap * originalLevelMap;
 		auto currentLevelMap = stats->LevelMaps.Find(modifier->LevelMapIndex);
 		
 		auto it = lua->OverriddenLevelMaps.find(modifier->LevelMapIndex);
 		if (it != lua->OverriddenLevelMaps.end()) {
-			auto overridden = static_cast<CRPGStats_CustomLevelMap *>(currentLevelMap);
+			auto overridden = static_cast<CustomLevelMap *>(currentLevelMap);
 			originalLevelMap = overridden->OriginalLevelMap;
 		} else {
 			originalLevelMap = currentLevelMap;
 		}
 
-		auto levelMap = GameAlloc<CRPGStats_CustomLevelMap>();
+		auto levelMap = GameAlloc<CustomLevelMap>();
 		levelMap->ModifierListIndex = originalLevelMap->ModifierListIndex;
 		levelMap->ModifierIndex = originalLevelMap->ModifierIndex;
-		levelMap->RPGEnumerationIndex = originalLevelMap->RPGEnumerationIndex;
+		levelMap->ValueListIndex = originalLevelMap->ValueListIndex;
 		levelMap->Name = originalLevelMap->Name;
 		levelMap->Function = RegistryEntry(L, 3);
 		levelMap->OriginalLevelMap = originalLevelMap;
@@ -982,9 +723,9 @@ namespace dse::lua
 			warnOnError = get<bool>(L, 3);
 		}
 		
-		auto object = StatFindObject(statName, warnOnError);
+		auto object = stats::StatFindObject(statName, warnOnError);
 		if (object != nullptr) {
-			ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, CRPGStats_Object>(L, object, GetCurrentLifetime(), level);
+			ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, object, GetCurrentLifetime(), level);
 			return 1;
 		} else {
 			push(L, nullptr);
@@ -992,18 +733,18 @@ namespace dse::lua
 		}
 	}
 
-	bool CopyStats(CRPGStats_Object* obj, char const* copyFrom)
+	bool CopyStats(stats::Object* obj, char const* copyFrom)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto copyFromObject = stats->objects.Find(FixedString(copyFrom));
+		auto copyFromObject = stats->Objects.Find(FixedString(copyFrom));
 		if (copyFromObject == nullptr) {
 			OsiError("Cannot copy stats from nonexistent object: " << copyFrom);
 			return false;
 		}
 
 		if (obj->ModifierListIndex != copyFromObject->ModifierListIndex) {
-			auto objModifier = stats->modifierList.Find(obj->ModifierListIndex);
-			auto copyModifier = stats->modifierList.Find(obj->ModifierListIndex);
+			auto objModifier = stats->ModifierLists.Find(obj->ModifierListIndex);
+			auto copyModifier = stats->ModifierLists.Find(obj->ModifierListIndex);
 			OsiError("Cannot copy stats from object '" << copyFrom << "' (a " << copyModifier->Name.Str 
 				<< ") to an object of type " << objModifier->Name.Str);
 			return false;
@@ -1016,14 +757,14 @@ namespace dse::lua
 			obj->IndexedProperties[i] = copyFromObject->IndexedProperties[i];
 		}
 
-		for (auto const& prop : copyFromObject->PropertyList) {
+		for (auto const& prop : copyFromObject->PropertyLists) {
 			// TODO - is reusing property list objects allowed?
-			obj->PropertyList.Insert(prop.Key, prop.Value);
+			obj->PropertyLists.Insert(prop.Key, prop.Value);
 		}
 
-		for (auto const& cond : copyFromObject->ConditionList) {
+		for (auto const& cond : copyFromObject->Conditions) {
 			// TODO - is reusing condition objects allowed?
-			obj->ConditionList.Insert(cond.Key, cond.Value);
+			obj->Conditions.Insert(cond.Key, cond.Value);
 		}
 
 		obj->Requirements = copyFromObject->Requirements;
@@ -1076,14 +817,14 @@ namespace dse::lua
 			}
 		}
 
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, CRPGStats_Object>(L, *object, GetCurrentLifetime(), -1);
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, *object, GetCurrentLifetime(), -1);
 		return 1;
 	}
 
 	void SyncStat(lua_State* L, char const* statName, std::optional<bool> persist)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto object = stats->objects.Find(FixedString(statName));
+		auto object = stats->Objects.Find(FixedString(statName));
 		if (!object) {
 			OsiError("Cannot sync nonexistent stat: " << statName);
 			return;
@@ -1106,7 +847,7 @@ namespace dse::lua
 	void StatSetPersistence(lua_State* L, char const* statName, bool persist)
 	{
 		auto stats = GetStaticSymbols().GetStats();
-		auto object = stats->objects.Find(FixedString(statName));
+		auto object = stats->Objects.Find(FixedString(statName));
 		if (!object) {
 			OsiError("Cannot set persistence for nonexistent stat: " << statName);
 			return;
@@ -1129,7 +870,7 @@ namespace dse::lua
 
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
+			OsiError("RPGStats not available");
 			push(L, nullptr);
 			return 1;
 		}
@@ -1154,7 +895,7 @@ namespace dse::lua
 
 		auto stats = GetStaticSymbols().GetStats();
 		if (stats == nullptr) {
-			OsiError("CRPGStatsManager not available");
+			OsiError("RPGStats not available");
 			return 0;
 		}
 
@@ -1228,7 +969,7 @@ namespace dse::lua
 
 #include <GameDefinitions/Enumerations.inl>
 
-		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
+		auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(enumName);
 		if (valueList) {
 			std::optional<FixedString> value;
 			for (auto const& val : valueList->Values) {
@@ -1273,7 +1014,7 @@ namespace dse::lua
 
 #include <GameDefinitions/Enumerations.inl>
 
-		auto valueList = GetStaticSymbols().GetStats()->modifierValueList.Find(enumName);
+		auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(enumName);
 		if (valueList) {
 			auto value = valueList->Values.Find(FixedString(label));
 

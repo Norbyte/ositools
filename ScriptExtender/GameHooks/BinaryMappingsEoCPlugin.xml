@@ -94,11 +94,11 @@
       {"GetChanceToHitBoost", SymbolMappingTarget::kIndirect, 8, CHAR_GETTER_SYM(GetChanceToHitBoost)}
     </Mapping>
 
-    <Mapping Name="CDivinityStats_Character::_HitInternal" Scope="Custom">
+    <Mapping Name="Character::_HitInternal" Scope="Custom">
       88 44 24 28  // mov     [rsp+0A8h+var_80], al
       89 6C 24 20  // mov     [rsp+0A8h+var_88], ebp
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character___HitInternalDeferred="true"
-      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" /> <!-- CDivinityStats_Character::_HitInternal -->
+      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" /> <!-- Character::_HitInternal -->
     </Mapping>
 
     <Mapping Name="esv::Character::Hit" Scope="Custom">

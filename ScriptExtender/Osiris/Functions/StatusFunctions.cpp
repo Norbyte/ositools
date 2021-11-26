@@ -265,8 +265,8 @@ namespace dse::esv
 		return wrappedGetEnterChance(status, isEnterCheck);
 	}
 
-	int32_t CustomFunctionLibrary::OnGetHitChance(CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
-		CDivinityStats_Character * attacker, CDivinityStats_Character * target)
+	int32_t CustomFunctionLibrary::OnGetHitChance(stats::CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
+		stats::Character * attacker, stats::Character * target)
 	{
 		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
 		if (lua) {
@@ -410,15 +410,15 @@ namespace dse::esv
 		delete eventArgs;
 	}
 
-	CDivinityStats_Object_Property_Data* CustomFunctionLibrary::OnParseSkillProperties(CRPGStatsManager::ParsePropertiesProc* next, CRPGStatsManager* self, STDString* str)
+	stats::PropertyData* CustomFunctionLibrary::OnParseSkillProperties(stats::RPGStats::ParsePropertiesProc* next, stats::RPGStats* self, STDString* str)
 	{
 		auto parsed = next(self, str);
-		if (parsed != nullptr && parsed->TypeId == CRPGStats_Object_Property_Type::Status) {
-			auto status = static_cast<CDivinityStats_Object_Property_Status*>(parsed);
+		if (parsed != nullptr && parsed->TypeId == stats::PropertyType::Status) {
+			auto status = static_cast<stats::PropertyStatus*>(parsed);
 			if (strncmp(status->Status.Str, "EXT:", 4) == 0) {
-				auto extProp = GameAlloc<CRPGStats_Object_Property_Extender>();
+				auto extProp = GameAlloc<stats::PropertyExtender>();
 				extProp->Context = status->Context;
-				extProp->TypeId = CRPGStats_Object_Property_Type::Extender;
+				extProp->TypeId = stats::PropertyType::Extender;
 				extProp->Conditions = status->Conditions;
 				extProp->PropertyName = FixedString(status->Status.Str + 4);
 				extProp->Arg1 = status->StatusChance;
@@ -433,8 +433,8 @@ namespace dse::esv
 		return parsed;
 	}
 
-	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(SkillPrototype::FormatDescriptionParamProc* next, SkillPrototype *skillPrototype,
-		CDivinityStats_Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
+	void CustomFunctionLibrary::OnSkillFormatDescriptionParam(stats::SkillPrototype::FormatDescriptionParamProc* next, stats::SkillPrototype *skillPrototype,
+		stats::Character *tgtCharStats, eoc::Text *eocText, int paramIndex, bool isFromItem,
 		float xmm9_4_0, FixedString * paramText, ObjectSet<STDString> * paramTexts)
 	{
 		// When fetching subproperties (recursively), paramTexts will be null.
@@ -454,10 +454,10 @@ namespace dse::esv
 	}
 
 #if defined(OSI_EOCAPP)
-	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+	int CustomFunctionLibrary::OnGetSkillAPCost(stats::SkillPrototype::GetAttackAPCostProc* next, stats::SkillPrototype* self, stats::Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius, int* pElementalAffinity)
 #else
-	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius, bool unused, int* pElementalAffinity)
 #endif
 	{
@@ -480,8 +480,8 @@ namespace dse::esv
 #endif
 	}
 
-	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(StatusPrototype::FormatDescriptionParamProc* next, StatusPrototype *prototype,
-		CRPGStats_ObjectInstance* owner, CRPGStats_ObjectInstance* statusSource, float multiplier,
+	void CustomFunctionLibrary::OnStatusFormatDescriptionParam(stats::StatusPrototype::FormatDescriptionParamProc* next, stats::StatusPrototype *prototype,
+		stats::ObjectInstance* owner, stats::ObjectInstance* statusSource, float multiplier,
 		eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet)
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
@@ -517,7 +517,7 @@ namespace dse::esv
 
 
 	void CustomFunctionLibrary::OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle,
-		DamagePairList* damageList, CRPGStats_Object_Property_List* propertyList, DamageType damageType)
+		stats::DamagePairList* damageList, stats::PropertyList* propertyList, stats::DamageType damageType)
 	{
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (position && lua) {
@@ -526,9 +526,9 @@ namespace dse::esv
 	}
 
 
-	void CustomFunctionLibrary::OnExecuteCharacterSetExtraProperties(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
-		ObjectSet<esv::Character*> const& targets, glm::vec3 const& impactOrigin, CRPGStats_Object_PropertyContext propertyContext,
-		bool isFromItem, SkillPrototype* skillPrototype, HitDamageInfo* damageInfo, float statusStartTimer, esv::Character* refTarget,
+	void CustomFunctionLibrary::OnExecuteCharacterSetExtraProperties(stats::PropertyList* properties, uint64_t attackerHandle,
+		ObjectSet<esv::Character*> const& targets, glm::vec3 const& impactOrigin, stats::PropertyContext propertyContext,
+		bool isFromItem, stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float statusStartTimer, esv::Character* refTarget,
 		bool statusFlag0x40, float a12)
 	{
 		if (!properties || (unsigned)properties->AllPropertyContexts == 0
@@ -539,8 +539,8 @@ namespace dse::esv
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua) {
 			for (auto prop : properties->Properties.Primitives) {
-				if (prop->TypeId == CRPGStats_Object_Property_Type::Extender) {
-					auto extProp = static_cast<CRPGStats_Object_Property_Extender*>(prop);
+				if (prop->TypeId == stats::PropertyType::Extender) {
+					auto extProp = static_cast<stats::PropertyExtender*>(prop);
 					for (auto const& target : targets) {
 						ComponentHandle targetHandle;
 						target->GetObjectHandle(targetHandle);
@@ -553,9 +553,9 @@ namespace dse::esv
 	}
 
 
-	void CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly(CRPGStats_Object_Property_List* properties, uint64_t attackerHandle,
-		glm::vec3 const* position, float areaRadius, CRPGStats_Object_PropertyContext propertyContext, bool isFromItem,
-		SkillPrototype* skillPrototype, HitDamageInfo* damageInfo, float unkn)
+	void CustomFunctionLibrary::OnExecutePropertyDataOnPositionOnly(stats::PropertyList* properties, uint64_t attackerHandle,
+		glm::vec3 const* position, float areaRadius, stats::PropertyContext propertyContext, bool isFromItem,
+		stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn)
 	{
 		if (!properties || !position || (unsigned)properties->AllPropertyContexts == 0 
 			|| properties->Properties.Primitives.Size == 0) {
@@ -565,8 +565,8 @@ namespace dse::esv
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
 		if (lua) {
 			for (auto prop : properties->Properties.Primitives) {
-				if (prop->TypeId == CRPGStats_Object_Property_Type::Extender) {
-					auto extProp = static_cast<CRPGStats_Object_Property_Extender*>(prop);
+				if (prop->TypeId == stats::PropertyType::Extender) {
+					auto extProp = static_cast<stats::PropertyExtender*>(prop);
 					lua->ExecutePropertyDataOnPosition(extProp, ComponentHandle{ attackerHandle }, *position, areaRadius, isFromItem,
 						skillPrototype, damageInfo);
 				}
@@ -576,7 +576,7 @@ namespace dse::esv
 
 
 	esv::Item* CustomFunctionLibrary::OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next,
-		RPGStats_Treasure_Object_Info* treasureInfo, int level)
+		stats::TreasureObjectInfo* treasureInfo, int level)
 	{
 		auto item = next(treasureInfo, level);
 

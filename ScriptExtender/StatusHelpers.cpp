@@ -287,7 +287,7 @@ namespace dse::esv
 	void StatusHelpers::ThrowStatusHitEnter(esv::Status * status)
 	{
 		auto statusHit = static_cast<esv::StatusHit *>(status);
-		if ((bool)(statusHit->Hit.EffectFlags & HitFlag::NoEvents)) {
+		if ((bool)(statusHit->Hit.EffectFlags & stats::HitFlag::NoEvents)) {
 			return;
 		}
 
@@ -313,9 +313,9 @@ namespace dse::esv
 		delete eventArgs;
 
 		if (statusHit->Hit.DamageList.Size == 0) {
-			TDamagePair dummy;
+			stats::TDamagePair dummy;
 			dummy.Amount = 0;
-			dummy.DamageType = DamageType::Physical;
+			dummy.DamageType = stats::DamageType::Physical;
 			statusHit->Hit.DamageList.SafeAdd(dummy);
 		}
 	}
@@ -346,19 +346,19 @@ namespace dse::esv
 	}
 
 
-	void StatusHelpers::ThrowCharacterHit(esv::Character * self, CDivinityStats_Character * attackerStats,
-		CDivinityStats_Item * itemStats, DamagePairList * damageList, HitType hitType, bool noHitRoll,
-		HitDamageInfo * damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List * skillProperties, HighGroundBonus highGround,
-		bool procWindWalker, CriticalRoll criticalRoll, DamageHelpers& helper)
+	void StatusHelpers::ThrowCharacterHit(esv::Character * self, stats::Character * attackerStats,
+		stats::Item * itemStats, stats::DamagePairList * damageList, stats::HitType hitType, bool noHitRoll,
+		stats::HitDamageInfo * damageInfo, int forceReduceDurability, stats::PropertyList * skillProperties, stats::HighGroundBonus highGround,
+		bool procWindWalker, stats::CriticalRoll criticalRoll, DamageHelpers& helper)
 	{
-		if ((bool)(damageInfo->EffectFlags & HitFlag::NoEvents)) {
+		if ((bool)(damageInfo->EffectFlags & stats::HitFlag::NoEvents)) {
 			return;
 		}
 
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 		if (attackerStats != nullptr
-			&& attackerStats->Character != nullptr) {
-			sourceGuid = attackerStats->Character->GetGuid()->Str;
+			&& attackerStats->GameObject != nullptr) {
+			sourceGuid = attackerStats->GameObject->GetGuid()->Str;
 		}
 
 		int32_t totalDamage{ 0 };

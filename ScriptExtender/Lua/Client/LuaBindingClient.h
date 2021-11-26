@@ -6,15 +6,7 @@
 
 namespace dse
 {
-	struct UIObject;
-
 	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
-}
-
-namespace dse::ig
-{
-	struct InvokeDataValue;
-	struct IggyValuePath;
 }
 
 namespace dse::ecl::lua
@@ -129,8 +121,8 @@ namespace dse::ecl::lua
 
 	struct SkillGetDescriptionEventParams
 	{
-		SkillPrototype* Skill;
-		CDivinityStats_Character* Character;
+		stats::SkillPrototype* Skill;
+		stats::Character* Character;
 		ObjectSet<STDString> Params;
 		bool IsFromItem;
 		STDString Description;
@@ -138,16 +130,16 @@ namespace dse::ecl::lua
 
 	struct StatusGetDescriptionEventParams
 	{
-		StatusPrototype* Status;
-		CRPGStats_ObjectInstance* Owner;
-		CRPGStats_ObjectInstance* StatusSource;
+		stats::StatusPrototype* Status;
+		stats::ObjectInstance* Owner;
+		stats::ObjectInstance* StatusSource;
 		ObjectSet<STDString> Params;
 		STDString Description;
 	};
 
 	struct GetSkillPropertyDescriptionEventParams
 	{
-		CRPGStats_Object_Property_Extender* Property;
+		stats::PropertyExtender* Property;
 		STDString Description;
 	};
 
@@ -167,12 +159,12 @@ namespace dse::ecl::lua
 		void OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
 		void OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
 		void OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		std::optional<STDWString> SkillGetDescriptionParam(SkillPrototype * prototype,
-			CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
-		std::optional<STDWString> StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
-			CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
+		std::optional<STDWString> SkillGetDescriptionParam(stats::SkillPrototype * prototype,
+			stats::Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
+		std::optional<STDWString> StatusGetDescriptionParam(stats::StatusPrototype * prototype, stats::ObjectInstance* owner,
+			stats::ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
 		void OnGameStateChanged(GameState fromState, GameState toState);
-		std::optional<STDString> GetSkillPropertyDescription(CRPGStats_Object_Property_Extender*);
+		std::optional<STDString> GetSkillPropertyDescription(stats::PropertyExtender*);
 		void OnAppInputEvent(InputEvent const& inputEvent);
 
 		void OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle);

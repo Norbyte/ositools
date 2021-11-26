@@ -15,10 +15,10 @@ namespace dse::esv
 	extern FunctionHandle HitEventHandle;
 
 
-	PendingHit* PendingHitManager::OnCharacterHit(esv::Character* character, CDivinityStats_Character* attacker,
-		CDivinityStats_Item* weapon, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-		HitDamageInfo* damageInfo, int forceReduceDurability, HighGroundBonus highGround,
-		bool procWindWalker, CriticalRoll criticalRoll)
+	PendingHit* PendingHitManager::OnCharacterHit(esv::Character* character, stats::Character* attacker,
+		stats::Item* weapon, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+		stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::HighGroundBonus highGround,
+		bool procWindWalker, stats::CriticalRoll criticalRoll)
 	{
 		auto it = characterHitMap_.find(damageInfo);
 		if (it != characterHitMap_.end()) {
@@ -40,8 +40,8 @@ namespace dse::esv
 		character->GetObjectHandle(targetHandle);
 		hit->TargetHandle = targetHandle;
 
-		if (attacker != nullptr && attacker->Character != nullptr) {
-			attacker->Character->GetObjectHandle(attackerHandle);
+		if (attacker != nullptr && attacker->GameObject != nullptr) {
+			attacker->GameObject->GetObjectHandle(attackerHandle);
 			hit->AttackerHandle = attackerHandle;
 		}
 
@@ -63,7 +63,7 @@ namespace dse::esv
 		return pHit;
 	}
 
-	PendingHit* PendingHitManager::OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* damageInfo)
+	PendingHit* PendingHitManager::OnStatusHitSetup(esv::StatusHit* status, stats::HitDamageInfo* damageInfo)
 	{
 		PendingHit* pHit;
 		auto it = characterHitMap_.find(damageInfo);
@@ -155,7 +155,7 @@ namespace dse::esv
 
 	}
 
-	PendingHit* PendingHitManager::OnCharacterApplyDamage(HitDamageInfo* hit)
+	PendingHit* PendingHitManager::OnCharacterApplyDamage(stats::HitDamageInfo* hit)
 	{
 		auto it = hitStatusDamageMap_.find(hit);
 		if (it != hitStatusDamageMap_.end()) {
@@ -238,7 +238,7 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit)
+	void HitProxy::OnStatusHitSetup(esv::StatusHit* status, stats::HitDamageInfo* hit)
 	{
 		gExtender->GetServer().GetExtensionState().PendingHits.OnStatusHitSetup(status, hit);
 	}
@@ -258,16 +258,16 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
-		CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-		HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGround,
-		bool procWindWalker, CriticalRoll criticalRoll)
+	void HitProxy::OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, stats::Character* attackerStats,
+		stats::Item* itemStats, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+		stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGround,
+		bool procWindWalker, stats::CriticalRoll criticalRoll)
 	{
 		auto helper = gExtender->GetServer().GetExtensionState().DamageHelpers.Create();
 		helper->Type = DamageHelpers::HT_PrepareHitEvent;
 		helper->Target = self;
 		if (attackerStats != nullptr) {
-			helper->Source = static_cast<esv::Character*>(attackerStats->Character);
+			helper->Source = static_cast<esv::Character*>(attackerStats->GameObject);
 		}
 
 		helper->SimulateHit = true;
@@ -292,10 +292,10 @@ namespace dse::esv
 		gExtender->GetServer().GetExtensionState().DamageHelpers.Destroy(helper->Handle);
 	}
 
-	void HitProxy::OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character* self,
-		CDivinityStats_Character* attackerStats, CDivinityStats_Item* item, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-		bool forceReduceDurability, HitDamageInfo* damageInfo, CRPGStats_Object_Property_List* skillProperties,
-		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll)
+	void HitProxy::OnCharacterHitInternal(stats::Character::HitInternalProc next, stats::Character* self,
+		stats::Character* attackerStats, stats::Item* item, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+		bool forceReduceDurability, stats::HitDamageInfo* damageInfo, stats::PropertyList* skillProperties,
+		stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll)
 	{
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
@@ -310,12 +310,12 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, HitDamageInfo& hit,
+	void HitProxy::OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, stats::HitDamageInfo& hit,
 		uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection)
 	{
 		auto context = gExtender->GetServer().GetExtensionState().PendingHits.OnCharacterApplyDamage(&hit);
 
-		HitDamageInfo luaHit = hit;
+		stats::HitDamageInfo luaHit = hit;
 
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
@@ -364,9 +364,9 @@ namespace dse::esv
 	}
 
 
-	void HitProxy::OnGetSkillDamage(SkillPrototype::GetSkillDamageProc* next, SkillPrototype* self, DamagePairList* damageList,
-		CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
-		glm::vec3 const& targetPosition, DeathType* pDeathType, int level, bool noRandomization)
+	void HitProxy::OnGetSkillDamage(stats::SkillPrototype::GetSkillDamageProc* next, stats::SkillPrototype* self, stats::DamagePairList* damageList,
+		stats::ObjectInstance* attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+		glm::vec3 const& targetPosition, stats::DeathType* pDeathType, int level, bool noRandomization)
 	{
 		LuaVirtualPin lua(gExtender->GetCurrentExtensionState());
 		if (lua) {

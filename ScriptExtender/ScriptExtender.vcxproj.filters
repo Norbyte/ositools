@@ -634,6 +634,9 @@
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="GameDefinitions\StatsObject.inl">
+      <Filter>GameDefinitions</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -28,7 +28,7 @@ namespace dse
 		{
 			ShootProjectileHelper Helper;
 			ShootProjectileHelperHitObject HitObject;
-			DamagePairList DamageList;
+			stats::DamagePairList DamageList;
 			bool HasStartPosition{ false };
 			bool HasEndPosition{ false };
 			bool HasHitObject{ false };
@@ -40,7 +40,7 @@ namespace dse
 			ShootProjectileApiHelper();
 			void SetGuidString(FixedString const& prop, char const * value);
 			void SetVector(FixedString const& prop, glm::vec3 const & value);
-			void AddDamage(DamageType type, int32_t amount);
+			void AddDamage(stats::DamageType type, int32_t amount);
 			bool Shoot();
 		};
 
@@ -60,15 +60,15 @@ namespace dse
 			IEoCServerObject * Target{ nullptr };
 
 			HelperType Type{ HelperType::HT_CustomHit };
-			HitDamageInfo * Hit{ nullptr };
+			stats::HitDamageInfo * Hit{ nullptr };
 			bool SimulateHit{ false };
-			HitType HitType{ HitType::Melee };
+			stats::HitType HitType{ stats::HitType::Melee };
 			bool NoHitRoll{ false };
 			bool ProcWindWalker{ false };
 			bool ForceReduceDurability{ false };
 			// TODO - SkillProperties
-			HighGroundBonus HighGround{ HighGroundBonus::Unknown };
-			CriticalRoll CriticalRoll{ CriticalRoll::Roll };
+			stats::HighGroundBonus HighGround{ stats::HighGroundBonus::Unknown };
+			stats::CriticalRoll CriticalRoll{ stats::CriticalRoll::Roll };
 
 			// 0 - ASAttack
 			// 1 - Character::ApplyDamage, StatusDying, ExecPropertyDamage, StatusDamage
@@ -89,21 +89,21 @@ namespace dse
 			CauseType DamageSourceType{ CauseType::None };
 			float Strength{ 0.0f };
 
-			DamagePairList * DamageList{ nullptr };
+			stats::DamagePairList * DamageList{ nullptr };
 
 			DamageHelpers();
 			~DamageHelpers();
 
 			void SetInternalDamageInfo();
-			void SetExternalDamageInfo(HitDamageInfo * damageInfo, DamagePairList * damageList);
+			void SetExternalDamageInfo(stats::HitDamageInfo * damageInfo, stats::DamagePairList * damageList);
 
 			void SetVector(FixedString const& prop, Vector3 const & value);
-			void AddDamage(DamageType DamageType, int32_t Amount);
+			void AddDamage(stats::DamageType damageType, int32_t Amount);
 			esv::StatusHit * Execute();
 
 		private:
-			std::unique_ptr<HitDamageInfo> MyDamageInfo;
-			std::unique_ptr<DamagePairList> MyDamageList;
+			std::unique_ptr<stats::HitDamageInfo> damageInfo_;
+			std::unique_ptr<stats::DamagePairList> damageList_;
 		};
 	}
 

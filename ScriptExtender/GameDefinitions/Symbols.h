@@ -159,10 +159,10 @@ namespace dse
 		esv::ActionMachine::ResetStateProc* ecl__ActionMachine__ResetState{ nullptr };
 		esv::ActionMachine::ResetStateProc* esv__ActionMachine__ResetState{ nullptr };
 
-		CRPGStatsManager::LoadProc RPGStats__Load{ nullptr };
-		CRPGStatsManager::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
-		SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
-		StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
+		stats::RPGStats::LoadProc RPGStats__Load{ nullptr };
+		stats::RPGStats::ParsePropertiesProc* RPGStats__ParseProperties{ nullptr };
+		stats::SkillPrototypeManager** eoc__SkillPrototypeManager{ nullptr };
+		stats::StatusPrototypeManager** eoc__StatusPrototypeManager{ nullptr };
 
 		esv::ExecutePropertyDataOnGroundHitProc* esv__ExecutePropertyDataOnGroundHit{ nullptr };
 		esv::ExecutePropertyDataOnPositionOnlyProc* esv__ExecutePropertyDataOnPositionOnly{ nullptr };
@@ -170,7 +170,7 @@ namespace dse
 
 		esv::Character::HitProc* esv__Character__Hit{ nullptr };
 		esv::Character::ApplyDamageProc* esv__Character__ApplyDamage{ nullptr };
-		CDivinityStats_Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
+		stats::Character::HitInternalProc* CDivinityStats_Character__HitInternal{ nullptr };
 
 		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
 		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
@@ -199,11 +199,11 @@ namespace dse
 		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };
 		net::MessageFactory::GetFreeMessage net__MessageFactory__GetFreeMessage{ nullptr };
 
-		eoc__SkillPrototypeManager__Init SkillPrototypeManager__Init{ nullptr };
-		SkillPrototype::FormatDescriptionParamProc* SkillPrototype__FormatDescriptionParam{ nullptr };
-		SkillPrototype::GetSkillDamageProc* SkillPrototype__GetSkillDamage{ nullptr };
-		SkillPrototype::GetAttackAPCostProc* SkillPrototype__GetAttackAPCost{ nullptr };
-		StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
+		stats::eoc__SkillPrototypeManager__Init SkillPrototypeManager__Init{ nullptr };
+		stats::SkillPrototype::FormatDescriptionParamProc* SkillPrototype__FormatDescriptionParam{ nullptr };
+		stats::SkillPrototype::GetSkillDamageProc* SkillPrototype__GetSkillDamage{ nullptr };
+		stats::SkillPrototype::GetAttackAPCostProc* SkillPrototype__GetAttackAPCost{ nullptr };
+		stats::StatusPrototype::FormatDescriptionParamProc* StatusPrototype__FormatDescriptionParam{ nullptr };
 
 		esv::TurnManager::UpdateTurnOrderProc* esv__TurnManager__UpdateTurnOrder{ nullptr };
 		eoc::AiGrid::SearchForCellProc* eoc__AiGrid__SearchForCell{ nullptr };
@@ -233,7 +233,7 @@ namespace dse
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
 		void* esv__OsirisVariableHelper__SavegameVisit{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
-		ScriptCheckBlock__Build ls__ScriptCheckBlock__Build{ nullptr };
+		stats::ScriptCheckBlock__Build ls__ScriptCheckBlock__Build{ nullptr };
 
 		ecl::LevelManager ** ecl__LevelManager{ nullptr };
 		ecl::InventoryFactory ** ecl__InventoryFactory{ nullptr };
@@ -284,7 +284,7 @@ namespace dse
 		uint8_t const * EocRegisterFuncs[6]{ nullptr };
 		uint8_t const ** EocGlobals[6]{ nullptr };
 
-		CharacterStatsGetters CharStatsGetters;
+		stats::CharacterStatsGetters CharStatsGetters;
 
 		inline StaticSymbols() {}
 		StaticSymbols(StaticSymbols const &) = delete;
@@ -386,10 +386,10 @@ namespace dse
 			return levelMgr->CurrentLevel;
 		}
 
-		inline CRPGStatsManager * GetStats() const
+		inline stats::RPGStats * GetStats() const
 		{
 			if (EocGlobals[5]) {
-				return *(CRPGStatsManager **)EocGlobals[5];
+				return *(stats::RPGStats **)EocGlobals[5];
 			} else {
 				return nullptr;
 			}

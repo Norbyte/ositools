@@ -5,8 +5,6 @@
 #include <random>
 #include <unordered_set>
 
-namespace Json { class Value; }
-
 namespace dse
 {
 	struct ExtensionModConfig

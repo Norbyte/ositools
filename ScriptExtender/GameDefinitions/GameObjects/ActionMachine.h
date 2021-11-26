@@ -96,8 +96,8 @@ namespace dse
 			int ShootCountOffHand;
 			ComponentHandle MainWeaponHandle;
 			ComponentHandle OffWeaponHandle;
-			RefMap<ComponentHandle, HitDamageInfo> MainWeaponDamageList;
-			RefMap<ComponentHandle, HitDamageInfo> OffHandDamageList;
+			RefMap<ComponentHandle, stats::HitDamageInfo> MainWeaponDamageList;
+			RefMap<ComponentHandle, stats::HitDamageInfo> OffHandDamageList;
 			RefMap<ComponentHandle, NumberDividers> MainWeaponNumberDividers;
 			RefMap<ComponentHandle, NumberDividers> OffHandNumberDividers;
 			ObjectSet<void*> DamageDividerDamage; // DamageDivider::Damage ?

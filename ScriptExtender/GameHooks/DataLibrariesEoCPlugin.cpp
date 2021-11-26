@@ -209,13 +209,13 @@ namespace dse
 	};
 
 	SymbolMappingData const sSymbolCharacterHitInternal = {
-		"CDivinityStats_Character::_HitInternal",
+		"Character::_HitInternal",
 		SymbolMappingData::kCustom, 0,
 		"88 44 24 28 " // mov     [rsp+0A8h+var_80], al
 		"89 6C 24 20 " // mov     [rsp+0A8h+var_88], ebp
 		"E8 XX XX XX XX ", // call    CDivinityStats_Character___HitInternal
 		{},
-		{"CDivinityStats_Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CDivinityStats_Character__HitInternal)}
+		{"Character::_HitInternal", SymbolMappingTarget::kIndirect, 8, STATIC_SYM(CDivinityStats_Character__HitInternal)}
 	};
 
 	SymbolMappingData const sSymbolCharacterHit = {

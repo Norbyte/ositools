@@ -215,10 +215,10 @@ namespace dse
             float MaxHeight; // Init param
             int GrowStep; // Init param
             uint64_t AiFlags; // Init param
-            DamagePairList DamageList; // Init param
-            DeathType DeathType; // Init param
+            stats::DamagePairList DamageList; // Init param
+            stats::DeathType DeathType; // Init param
             uint64_t LineCheckBlock;
-            CRPGStats_Object_Property_List* SkillProperties;
+            stats::PropertyList* SkillProperties;
             float CurrentGrowTimer;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;
             ObjectSet<ComponentHandle> Characters;
@@ -231,7 +231,7 @@ namespace dse
             FixedString field_538;
             ObjectSet<glm::vec2> PolygonVertices; // Init param
             int field_560;
-            DamagePairList DamageList;
+            stats::DamagePairList DamageList;
             char field_588;
             __int64 field_590;
             float CurrentGrowTimer;
@@ -281,9 +281,9 @@ namespace dse
             uint32_t GrowStep; // Init param
             int field_56C;
             uint64_t AiFlags;
-            DamagePairList DamageList;
-            DeathType DeathType;
-            CRPGStats_Object_Property_List* SkillProperties;
+            stats::DamagePairList DamageList;
+            stats::DeathType DeathType;
+            stats::PropertyList* SkillProperties;
             float GrowTimerStart;
             int field_5AC;
             PrimitiveSmallSet<SurfaceCell> SurfaceCells;

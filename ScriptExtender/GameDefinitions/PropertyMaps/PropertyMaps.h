@@ -52,17 +52,17 @@ namespace dse
 	extern PropertyMap<esv::StatusActiveDefense, esv::StatusConsume> gStatusActiveDefensePropertyMap;
 	extern PropertyMap<esv::StatusSpark, esv::StatusConsume> gStatusSparkPropertyMap;
 
-	extern PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	extern PropertyMap<stats::HitDamageInfo, void> gHitDamageInfoPropertyMap;
 	extern PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
 	extern PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
 	extern PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
-	extern PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
-	extern PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
-	extern PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
-	extern PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
-	extern PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
-	extern PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
-	extern PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
+	extern PropertyMap<stats::EquipmentAttributes, void> gEquipmentAttributesPropertyMap;
+	extern PropertyMap<stats::EquipmentAttributesWeapon, stats::EquipmentAttributes> gEquipmentAttributesWeaponPropertyMap;
+	extern PropertyMap<stats::EquipmentAttributesArmor, stats::EquipmentAttributes> gEquipmentAttributesArmorPropertyMap;
+	extern PropertyMap<stats::EquipmentAttributesShield, stats::EquipmentAttributes> gEquipmentAttributesShieldPropertyMap;
+	extern PropertyMap<stats::CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
+	extern PropertyMap<stats::Character, void> gCharacterStatsPropertyMap;
+	extern PropertyMap<stats::Item, void> gItemStatsPropertyMap;
 	extern PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 	extern PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern PropertyMap<esv::Item, void> gItemPropertyMap;

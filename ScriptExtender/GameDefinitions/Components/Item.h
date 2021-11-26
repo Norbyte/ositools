@@ -32,7 +32,7 @@ namespace dse
 			uint32_t Amount{ 1 };
 			int32_t GoldValueOverwrite{ -1 }; // -1 = Not overridden
 			int32_t WeightValueOverwrite{ -1 }; // -1 = Not overridden
-			DamageType DamageTypeOverwrite{ (DamageType )-1 };
+			stats::DamageType DamageTypeOverwrite{ (stats::DamageType)-1 };
 			int32_t SomeOverwrite{ -1 };
 			FixedString FS4;
 			// eg. "Uncommon"
@@ -115,8 +115,8 @@ namespace dse
 			STDWString CustomDescription; // Saved
 			STDWString CustomBookContent; // Saved
 			FixedString StatsId; // Saved
-			CDivinityStats_Item * Stats;
-			CRPGStats_Object * StatsFromName;
+			stats::Item * Stats;
+			stats::Object * StatsFromName;
 			ItemGeneration * Generation; // Saved
 			ComponentHandle InventoryHandle; // Saved
 			ComponentHandle ParentInventoryHandle; // Saved
@@ -188,13 +188,13 @@ namespace dse
 
 			void* VMT;
 			uint64_t field_8;
-			ObjectSet<CRPGStats_ObjectInstance*> IngredientStats;
+			ObjectSet<stats::ObjectInstance*> IngredientStats;
 			ObjectSet<Item*> Ingredients;
 			ObjectSet<ComponentHandle> ObjectHandles;
 			ObjectSet<Item*> Items2;
 		};
 
-		using ItemHelpers__GenerateTreasureItem = Item* (RPGStats_Treasure_Object_Info* treasureInfo, int level);
+		using ItemHelpers__GenerateTreasureItem = Item* (stats::TreasureObjectInfo* treasureInfo, int level);
 	}
 
 	namespace ecl
@@ -215,9 +215,9 @@ namespace dse
 			void* PhysicsObject;
 			void* AiObject;
 			ItemTemplate* CurrentTemplate;
-			CDivinityStats_Item* Stats;
+			stats::Item* Stats;
 			FixedString StatsId;
-			CRPGStats_Object* StatsFromName;
+			stats::Object* StatsFromName;
 			ComponentHandle InventoryHandle;
 			ComponentHandle InventoryParentHandle;
 			int16_t CurrentSlot;

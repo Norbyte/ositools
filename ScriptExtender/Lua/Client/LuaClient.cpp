@@ -256,7 +256,7 @@ namespace dse::lua
 	{
 		StackCheck _(L, 1);
 		auto self = get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto slot = (uint32_t)get<ItemSlot32>(L, 2);
+		auto slot = (uint32_t)get<stats::ItemSlot32>(L, 2);
 
 		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryHandle);
 		if (inventory != nullptr && slot < inventory->ItemsBySlot.Size) {
@@ -2500,8 +2500,8 @@ BEGIN_NS(ecl::lua)
 		ThrowEvent(*this, "UIInvoke", params);
 	}
 
-	std::optional<STDWString> ClientState::SkillGetDescriptionParam(SkillPrototype * prototype,
-		CDivinityStats_Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
+	std::optional<STDWString> ClientState::SkillGetDescriptionParam(stats::SkillPrototype * prototype,
+		stats::Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 	{
 		SkillGetDescriptionEventParams params{ prototype, character, paramTexts, isFromItem };
 		ThrowEvent(*this, "SkillGetDescriptionParam", params);
@@ -2514,8 +2514,8 @@ BEGIN_NS(ecl::lua)
 	}
 
 
-	std::optional<STDWString> ClientState::StatusGetDescriptionParam(StatusPrototype * prototype, CRPGStats_ObjectInstance* owner,
-		CRPGStats_ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
+	std::optional<STDWString> ClientState::StatusGetDescriptionParam(stats::StatusPrototype * prototype, stats::ObjectInstance* owner,
+		stats::ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 	{
 		StatusGetDescriptionEventParams params{ prototype, owner, statusSource, paramTexts };
 		ThrowEvent(*this, "StatusGetDescriptionParam", params);
@@ -2540,7 +2540,7 @@ BEGIN_NS(ecl::lua)
 	}
 
 
-	std::optional<STDString> ClientState::GetSkillPropertyDescription(CRPGStats_Object_Property_Extender* prop)
+	std::optional<STDString> ClientState::GetSkillPropertyDescription(stats::PropertyExtender* prop)
 	{
 		GetSkillPropertyDescriptionEventParams params{ prop };
 		ThrowEvent(*this, "GetSkillPropertyDescription", params);

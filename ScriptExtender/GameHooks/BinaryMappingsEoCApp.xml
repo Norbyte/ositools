@@ -521,11 +521,11 @@
       <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="CharacterStatGetters::GetChanceToHitBoost" NextSymbolSeekSize="0x200" />
     </Mapping>
 
-    <Mapping Name="CDivinityStats_Character::_HitInternal" Scope="Custom">
+    <Mapping Name="Character::_HitInternal" Scope="Custom">
       88 44 24 28  // mov     [rsp+98h+noHitRoll], al
       89 7C 24 20  // mov     [rsp+98h+hitType], edi
       E8 ?? ?? ?? ??  // call    CDivinityStats_Character___HitInternal
-      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" /> <!-- CDivinityStats_Character::_HitInternal -->
+      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" /> <!-- Character::_HitInternal -->
     </Mapping>
 
     <Mapping Name="esv::Character::CharacterHit" Scope="Custom">
@@ -534,7 +534,7 @@
       E8 ?? ?? ?? ??  // call    esv__Character__Hit
       4C 8B AE A0 01 00 00  // mov     r13, [rsi+1A0h]
       EB 5F  // jmp short xxx
-      <Target Type="Indirect" Offset="12" Symbol="esv__Character__Hit" NextSymbol="CDivinityStats_Character::_HitInternal" NextSymbolSeekSize="0x280" />
+      <Target Type="Indirect" Offset="12" Symbol="esv__Character__Hit" NextSymbol="Character::_HitInternal" NextSymbolSeekSize="0x280" />
     </Mapping>
 
     <Mapping Name="esv::Character::Hit" Deferred="true" >
@@ -656,7 +656,7 @@
       <Target Type="Indirect" Offset="4" Symbol="ls__GlobalSwitches" /> <!-- GlobalSwitches -->
     </Mapping>
 
-    <Mapping Name="CDivinityStats_Item::FoldDynamicAttributes">
+    <Mapping Name="Item::FoldDynamicAttributes">
       4C 8B DC  // mov     r11, rsp
       49 89 4B 08  // mov     [r11+8], rcx
       55  // push    rbp
@@ -665,7 +665,7 @@
       48 81 EC B8 00 00 00  // sub     rsp, 0B8h
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:gGlobalSwitches
       4C 8B E9  // mov     r13, rcx
-      <Target Type="Absolute" Offset="0" Symbol="CDivinityStats_Item__FoldDynamicAttributes" /> <!-- CDivinityStats_Item::FoldDynamicAttributes -->
+      <Target Type="Absolute" Offset="0" Symbol="CDivinityStats_Item__FoldDynamicAttributes" /> <!-- Item::FoldDynamicAttributes -->
     </Mapping>
 
     <Mapping Name="ls::ModuleSettings::HasCustomMods" AllowFail="true" >

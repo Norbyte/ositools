@@ -3,11 +3,8 @@
 #include <Extender/Shared/ExtensionState.h>
 #include <Lua/Client/LuaBindingClient.h>
 
-namespace Json { class Value; }
-
 BEGIN_NS(ecl)
 
-class ExtensionState;
 using LuaClientPin = LuaStatePin<ExtensionState, lua::ClientState>;
 
 class ExtensionState : public ExtensionStateBase

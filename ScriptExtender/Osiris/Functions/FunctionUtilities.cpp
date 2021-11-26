@@ -217,7 +217,7 @@ namespace dse
 			}
 		}
 
-		void ShootProjectileApiHelper::AddDamage(DamageType type, int32_t amount)
+		void ShootProjectileApiHelper::AddDamage(stats::DamageType type, int32_t amount)
 		{
 			DamageList.AddDamage(type, amount);
 			HasDamageList = true;

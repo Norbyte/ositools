@@ -4,8 +4,6 @@
 #include <Lua/Server/LuaBindingServer.h>
 #include <Hit.h>
 
-namespace Json { class Value; }
-
 BEGIN_NS(esv)
 
 class DamageHelperPool
@@ -21,7 +19,6 @@ private:
 	uint32_t nextHelperId_{ 0 };
 };
 
-class ExtensionState;
 using LuaServerPin = LuaStatePin<ExtensionState, lua::ServerState>;
 
 class ExtensionState : public ExtensionStateBase

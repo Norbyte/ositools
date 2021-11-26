@@ -848,16 +848,16 @@ namespace dse::lua
 		return lua_gettop(L) - top;
 	}
 
-	std::optional<int32_t> State::GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target)
+	std::optional<int32_t> State::GetHitChance(stats::Character * attacker, stats::Character * target)
 	{
 		GetHitChanceEventParams params{ attacker, target };
 		ThrowEvent(*this, "GetHitChance", params, false, RestrictAll);
 		return params.HitChance;
 	}
 
-	bool State::GetSkillDamage(SkillPrototype * skill, DamagePairList * damageList,
-		CRPGStats_ObjectInstance *attacker, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
-		glm::vec3 const& targetPosition, DeathType * pDeathType, int level, bool noRandomization)
+	bool State::GetSkillDamage(stats::SkillPrototype * skill, stats::DamagePairList * damageList,
+		stats::ObjectInstance *attacker, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+		glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization)
 	{
 		GetSkillDamageEventParams params{ skill, attacker, isFromItem, stealthed, attackerPosition, targetPosition,
 			level, noRandomization };
@@ -876,7 +876,7 @@ namespace dse::lua
 		}
 	}
 
-	std::optional<std::pair<int, bool>> State::GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+	std::optional<std::pair<int, bool>> State::GetSkillAPCost(stats::SkillPrototype* skill, stats::Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius)
 	{
 		GetSkillAPCostEventParams params{ skill, character, aiGrid, position, radius };

@@ -15,7 +15,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(statName);
+			auto object = stats->Objects.Find(statName);
 			return object != nullptr;
 		}
 
@@ -29,14 +29,13 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(statName);
+			auto object = stats->Objects.Find(statName);
 			if (object == nullptr) {
 				return false;
 			}
 
-			int attributeIndex;
-			auto attrInfo = stats->GetAttributeInfo(object, FixedString(attributeName), attributeIndex);
-			return attrInfo != nullptr;
+			auto attrInfo = object->GetModifierInfo(FixedString(attributeName));
+			return attrInfo.has_value();
 		}
 
 		bool StatGetInt(OsiArgumentDesc & args)
@@ -49,13 +48,13 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(statName);
+			auto object = stats->Objects.Find(statName);
 			if (object == nullptr) {
 				OsiError("Stat object '" << statName << "' does not exist");
 				return false;
 			}
 
-			auto value = stats->GetAttributeInt(object, FixedString(attributeName));
+			auto value = object->GetInt(FixedString(attributeName));
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
@@ -75,7 +74,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(statName);
+			auto object = stats->Objects.Find(statName);
 			if (object == nullptr) {
 				OsiError("Stat object '" << statName << "' does not exist");
 				return false;
@@ -83,7 +82,7 @@ namespace dse::esv
 
 			if (strcmp(attributeName, "Using") == 0) {
 				if (object->Using) {
-					auto parent = stats->objects.Find(object->Using);
+					auto parent = stats->Objects.Find(object->Using);
 					if (parent != nullptr) {
 						args[2].Set(parent->Name.Str);
 						return true;
@@ -93,7 +92,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto value = stats->GetAttributeString(object, FixedString(attributeName));
+			auto value = object->GetString(FixedString(attributeName));
 			if (!value) {
 				OsiError("Attribute '" << attributeName << "' not found on object '" << statName << "'");
 				return false;
@@ -112,7 +111,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto object = stats->objects.Find(statsId);
+			auto object = stats->Objects.Find(statsId);
 			if (object == nullptr) {
 				OsiError("Stat object '" << statsId << "' does not exist");
 				return false;

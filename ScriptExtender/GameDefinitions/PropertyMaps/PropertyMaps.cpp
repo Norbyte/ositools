@@ -52,17 +52,17 @@ namespace dse
 	PropertyMap<esv::StatusActiveDefense, esv::StatusConsume> gStatusActiveDefensePropertyMap;
 	PropertyMap<esv::StatusSpark, esv::StatusConsume> gStatusSparkPropertyMap;
 
-	PropertyMap<HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	PropertyMap<stats::HitDamageInfo, void> gHitDamageInfoPropertyMap;
 	PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
 	PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
 	PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
-	PropertyMap<CDivinityStats_Equipment_Attributes, void> gEquipmentAttributesPropertyMap;
-	PropertyMap<CDivinityStats_Equipment_Attributes_Weapon, CDivinityStats_Equipment_Attributes> gEquipmentAttributesWeaponPropertyMap;
-	PropertyMap<CDivinityStats_Equipment_Attributes_Armor, CDivinityStats_Equipment_Attributes> gEquipmentAttributesArmorPropertyMap;
-	PropertyMap<CDivinityStats_Equipment_Attributes_Shield, CDivinityStats_Equipment_Attributes> gEquipmentAttributesShieldPropertyMap;
-	PropertyMap<CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
-	PropertyMap<CDivinityStats_Character, void> gCharacterStatsPropertyMap;
-	PropertyMap<CDivinityStats_Item, void> gItemStatsPropertyMap;
+	PropertyMap<stats::EquipmentAttributes, void> gEquipmentAttributesPropertyMap;
+	PropertyMap<stats::EquipmentAttributesWeapon, stats::EquipmentAttributes> gEquipmentAttributesWeaponPropertyMap;
+	PropertyMap<stats::EquipmentAttributesArmor, stats::EquipmentAttributes> gEquipmentAttributesArmorPropertyMap;
+	PropertyMap<stats::EquipmentAttributesShield, stats::EquipmentAttributes> gEquipmentAttributesShieldPropertyMap;
+	PropertyMap<stats::CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
+	PropertyMap<stats::Character, void> gCharacterStatsPropertyMap;
+	PropertyMap<stats::Item, void> gItemStatsPropertyMap;
 	PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 	PropertyMap<esv::Character, void> gCharacterPropertyMap;
 	PropertyMap<esv::Item, void> gItemPropertyMap;
@@ -120,7 +120,7 @@ namespace dse
 	template <class T, class TalentArrayFetcher>
 	void AddTalentArray(PropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
-		for (auto const& val : EnumInfo<TalentType>::Values) {
+		for (auto const& val : EnumInfo<stats::TalentType>::Values) {
 			auto id = val.Value;
 			auto talentName = prefix + val.Key.Str;
 			FixedString talentFS(talentName.c_str());
@@ -563,7 +563,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap, HitDamageInfo);
+			BEGIN_PROPERTIES(gHitDamageInfoPropertyMap, stats::HitDamageInfo);
 			PROP(Equipment);
 			PROP(TotalDamageDone);
 			PROP(DamageDealt);
@@ -572,7 +572,7 @@ namespace dse
 			PROP(AttackDirection);
 			PROP(ArmorAbsorption);
 			PROP(LifeSteal);
-			PROP_FLAGS(EffectFlags, HitFlag, true);
+			PROP_FLAGS(EffectFlags, stats::HitFlag, true);
 			PROP(HitWithWeapon);
 		}
 
@@ -640,7 +640,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesPropertyMap, CDivinityStats_Equipment_Attributes);
+			BEGIN_PROPERTIES(gEquipmentAttributesPropertyMap, stats::EquipmentAttributes);
 
 			PROP(Durability);
 			PROP(DurabilityDegradeSpeed);
@@ -696,41 +696,41 @@ namespace dse
 				AddProperty<bool>(propertyMap, val.Key.Str, 0);
 
 				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
-					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
-					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+					auto attrs = reinterpret_cast<stats::EquipmentAttributes*>(obj);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
-						return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+						return (uint64_t)(**attrFlags & (uint64_t)id) != 0 ? 1 : 0;
 					} else {
 						return 0;
 					}
 				};
 
 				propertyMap.Properties[val.Key].SetInt = [id](void* obj, int64_t value) -> bool {
-					auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+					auto attrs = reinterpret_cast<stats::EquipmentAttributes*>(obj);
 					int flagsId = (int)attrs->AttributeFlagsObjectId;
-					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateFlags(flagsId);
 					attrs->AttributeFlagsObjectId = flagsId;
 
 					if (value) {
-						*attrFlags |= id;
+						*attrFlags |= (uint64_t)id;
 					} else {
-						*attrFlags &= ~id;
+						*attrFlags &= (uint64_t)~id;
 					}
 					return true;
 				};
 			}
 
-			for (auto const& v : EnumInfo<AbilityType>::Values) {
+			for (auto const& v : EnumInfo<stats::AbilityType>::Values) {
 				AddProperty<int32_t>(propertyMap, v.Key.Str, offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
 			}
 
-			AddTalentArray<CDivinityStats_Equipment_Attributes>(propertyMap, "TALENT_", [](CDivinityStats_Equipment_Attributes* obj) {
+			AddTalentArray<stats::EquipmentAttributes>(propertyMap, "TALENT_", [](stats::EquipmentAttributes* obj) {
 				return obj->Talents;
 			});
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesWeaponPropertyMap, CDivinityStats_Equipment_Attributes_Weapon);
+			BEGIN_PROPERTIES(gEquipmentAttributesWeaponPropertyMap, stats::EquipmentAttributesWeapon);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP_ENUM(DamageType);
 			PROP(MinDamage);
@@ -746,7 +746,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesArmorPropertyMap, CDivinityStats_Equipment_Attributes_Armor);
+			BEGIN_PROPERTIES(gEquipmentAttributesArmorPropertyMap, stats::EquipmentAttributesArmor);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP(ArmorValue);
 			PROP(ArmorBoost);
@@ -755,7 +755,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gEquipmentAttributesShieldPropertyMap, CDivinityStats_Equipment_Attributes_Shield);
+			BEGIN_PROPERTIES(gEquipmentAttributesShieldPropertyMap, stats::EquipmentAttributesShield);
 			propertyMap.Parent = &gEquipmentAttributesPropertyMap;
 			PROP(ArmorValue);
 			PROP(ArmorBoost);
@@ -765,7 +765,7 @@ namespace dse
 		}
 
 		{
-			BEGIN_PROPERTIES(gCharacterDynamicStatPropertyMap, CharacterDynamicStat);
+			BEGIN_PROPERTIES(gCharacterDynamicStatPropertyMap, stats::CharacterDynamicStat);
 			PROP(SummonLifelinkModifier);
 			PROP(Strength);
 			PROP(Memory);
@@ -834,52 +834,52 @@ namespace dse
 				AddProperty<bool>(propertyMap, val.Key.Str, 0);
 
 				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
-					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
-					auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
+					auto attrs = reinterpret_cast<stats::CharacterDynamicStat*>(obj);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
-						return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+						return (uint64_t)(**attrFlags & (uint64_t)id) != 0 ? 1 : 0;
 					} else {
 						return 0;
 					}
 				};
 
 				propertyMap.Properties[val.Key].SetInt = [id](void* obj, int64_t value) -> bool {
-					auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
+					auto attrs = reinterpret_cast<stats::CharacterDynamicStat*>(obj);
 					int flagsId = (int)attrs->AttributeFlagsObjectId;
-					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
+					auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateFlags(flagsId);
 					attrs->AttributeFlagsObjectId = flagsId;
 
 					if (value) {
-						*attrFlags |= id;
+						*attrFlags |= (uint64_t)id;
 					} else {
-						*attrFlags &= ~id;
+						*attrFlags &= (uint64_t)~id;
 					}
 					return true;
 				};
 			}
 
-			for (auto const& val : EnumInfo<AbilityType>::Values) {
+			for (auto const& val : EnumInfo<stats::AbilityType>::Values) {
 				AddProperty<int32_t>(propertyMap, val.Key.Str, offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
 			}
 
-			AddTalentArray<CharacterDynamicStat>(propertyMap, "TALENT_", [](CharacterDynamicStat* obj) {
+			AddTalentArray<stats::CharacterDynamicStat>(propertyMap, "TALENT_", [](stats::CharacterDynamicStat* obj) {
 				return obj->Talents;
 			});
 
-			AddTalentArray<CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](CharacterDynamicStat* obj) {
+			AddTalentArray<stats::CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](stats::CharacterDynamicStat* obj) {
 				return obj->RemovedTalents;
 			});
 		}
 
 		{
-			BEGIN_PROPERTIES(gCharacterStatsPropertyMap, CDivinityStats_Character);
-			// CRPGStats_Object
+			BEGIN_PROPERTIES(gCharacterStatsPropertyMap, stats::Character);
+			// Object
 			PROP_RO(Level);
 			PROP_RO(Name);
 			PROP_RO(AIFlags);
 			PROP_RO(InstanceId);
 
-			// CDivinityStats_Character
+			// Character
 			PROP(CurrentVitality);
 			PROP(CurrentArmor);
 			PROP(CurrentMagicArmor);
@@ -892,7 +892,7 @@ namespace dse
 			PROP(Reputation);
 			PROP_RO(Flanked);
 			PROP(Karma);
-			PROP_FLAGS(Flags, StatCharacterFlags, false);
+			PROP_FLAGS(Flags, stats::CharacterFlags, false);
 			PROP(MaxResistance);
 			PROP_RO(HasTwoHandedWeapon);
 			PROP_RO(IsIncapacitatedRefCount);
@@ -909,20 +909,20 @@ namespace dse
 			PROP(MaxMpOverride);
 			PROP_FLAGS(AttributeFlags, StatAttributeFlags, false);
 
-			AddTalentArray<CDivinityStats_Character>(propertyMap, "DISABLED_ALENT_", [](CDivinityStats_Character* obj) {
+			AddTalentArray<stats::Character>(propertyMap, "DISABLED_ALENT_", [](stats::Character* obj) {
 				return obj->DisabledTalents;
 			});
 			// TODO - TraitOrder?
 		}
 
 		{
-			BEGIN_PROPERTIES(gItemStatsPropertyMap, CDivinityStats_Item);
-			// CRPGStats_Object
+			BEGIN_PROPERTIES(gItemStatsPropertyMap, stats::Item);
+			// Object
 			PROP_RO(Level);
 			PROP_RO(Name);
 			PROP_RO(InstanceId);
 
-			// CDivinityStats_Item
+			// Item
 			PROP_ENUM_RO(ItemType);
 			PROP_ENUM_RO(ItemSlot);
 			PROP_ENUM(WeaponType);

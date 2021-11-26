@@ -1,11 +1,20 @@
-BEGIN_CLS(CRPGStats_Requirement)
-P(Requirement)
+BEGIN_CLS(stats::Requirement)
+PN(Requirement, RequirementId)
 P(Param)
 P(Tag)
 P(Not)
 END_CLS()
 
-BEGIN_CLS(CDivinityStats_Equipment_Attributes)
+BEGIN_CLS(stats::Reflection)
+P(DamageType)
+P(MeleeOnly)
+END_CLS()
+
+BEGIN_CLS(stats::ReflectionSet)
+// FIXME - P_REF(DamageTypes)
+END_CLS()
+
+BEGIN_CLS(stats::EquipmentAttributes)
 P(Durability)
 P(DurabilityDegradeSpeed)
 P(StrengthBoost)
@@ -47,7 +56,7 @@ P(Bodybuilding)
 P(MaxSummons)
 P(Value)
 P(Weight)
-// TODO - Reflection
+P_REF(Reflection)
 P(Skills)
 P(ItemColor)
 P_RO(ModifierType)
@@ -55,11 +64,35 @@ P_RO(ObjectInstanceName)
 P_RO(BoostName)
 P_RO(StatsType)
 
+/*
+#if defined(GENERATING_PROPMAP)
+for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+	auto attributeFlag = label.Value;
+
+	// Boosted ability getter (eg. Aerothurge)
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
+			auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags(obj->AttributeFlagsObjectId);
+			if (attrFlags) {
+				return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
+			} else {
+				return 0;
+			}
+			return true;
+		},
+		[](lua_State* L, LifetimeHolder const& lifetime, EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((AbilityType)flag, false));
+			return true;
+		}, 0, (uint64_t)attributeFlag
+	);
+}
+#endif
+*/
 /*EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
 	AddProperty<bool>(propertyMap, name.Str, 0);
 
 	propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
-		auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+		auto attrs = reinterpret_cast<EquipmentAttributes*>(obj);
 		auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
 		if (attrFlags) {
 			return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
@@ -70,7 +103,7 @@ P_RO(StatsType)
 	};
 
 	propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
-		auto attrs = reinterpret_cast<CDivinityStats_Equipment_Attributes*>(obj);
+		auto attrs = reinterpret_cast<EquipmentAttributes*>(obj);
 		int flagsId = (int)attrs->AttributeFlagsObjectId;
 		auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
 		attrs->AttributeFlagsObjectId = flagsId;
@@ -83,21 +116,21 @@ P_RO(StatsType)
 		}
 		return true;
 	};
-	});
+});
 
 EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
 	AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, AbilityModifiers) + (unsigned)id * sizeof(int32_t));
 	});
 
-AddTalentArray<CDivinityStats_Equipment_Attributes>(propertyMap, "TALENT_", [](CDivinityStats_Equipment_Attributes* obj) {
+AddTalentArray<EquipmentAttributes>(propertyMap, "TALENT_", [](EquipmentAttributes* obj) {
 	return obj->Talents;
 	});
 }*/
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Equipment_Attributes_Weapon)
-INHERIT(CDivinityStats_Equipment_Attributes)
+BEGIN_CLS(stats::EquipmentAttributesWeapon)
+INHERIT(stats::EquipmentAttributes)
 P(DamageType)
 P(MinDamage)
 P(MaxDamage)
@@ -112,8 +145,8 @@ P(Projectile)
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Equipment_Attributes_Armor)
-INHERIT(CDivinityStats_Equipment_Attributes)
+BEGIN_CLS(stats::EquipmentAttributesArmor)
+INHERIT(stats::EquipmentAttributes)
 P(ArmorValue)
 P(ArmorBoost)
 P(MagicArmorValue)
@@ -121,8 +154,8 @@ P(MagicArmorBoost)
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Equipment_Attributes_Shield)
-INHERIT(CDivinityStats_Equipment_Attributes)
+BEGIN_CLS(stats::EquipmentAttributesShield)
+INHERIT(stats::EquipmentAttributes)
 P(ArmorValue)
 P(ArmorBoost)
 P(MagicArmorValue)
@@ -132,7 +165,7 @@ END_CLS()
 
 
 
-BEGIN_CLS(CharacterDynamicStat)
+BEGIN_CLS(stats::CharacterDynamicStat)
 P(SummonLifelinkModifier)
 P(Strength)
 P(Memory)
@@ -242,7 +275,7 @@ END_CLS()
 
 
 // FIXME - add polymorphic getter?
-BEGIN_CLS(CRPGStats_Object)
+BEGIN_CLS(stats::Object)
 P_RO(Handle)
 P(Level)
 P_RO(ModifierListIndex)
@@ -251,8 +284,8 @@ P_RO(TranslatedStringX)
 P_RO(FS2)
 // IS DivStats useful for scripts?
 // P_REF(DivStats)
-P_REF(PropertyList)
-// P_REF(ConditionList)
+P_REF(PropertyLists)
+// P_REF(Conditions)
 P_RO(AIFlags)
 // FIXME - these use different memory allocators than normal ObjectSets
 // P_REF(Requirements)
@@ -264,30 +297,30 @@ P_RO(ComboCategories)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsEntry",
-	[](lua_State* L, LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::size_t offset, uint64_t flag) {
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, CRPGStats_Object>(L, obj, lifetime, std::optional<int>());
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, obj, lifetime, std::optional<int>());
 		return true;
 	}
 );
 
 pm.AddProperty("ModId",
-	[](lua_State* L, LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
 		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(obj->Name));
 		return true;
 	}
 );
 #endif
 
-P_FALLBACK(&CRPGStats_Object::LuaFallbackGet, &CRPGStats_Object::LuaFallbackSet)
+P_FALLBACK(&stats::Object::LuaFallbackGet, &stats::Object::LuaFallbackSet)
 END_CLS()
 
-BEGIN_CLS(CRPGStats_ObjectInstance)
-INHERIT(CRPGStats_Object)
+BEGIN_CLS(stats::ObjectInstance)
+INHERIT(stats::Object)
 P_RO(InstanceId)
 END_CLS()
 
-BEGIN_CLS(CDivinityStats_Character)
-INHERIT(CRPGStats_ObjectInstance)
+BEGIN_CLS(stats::Character)
+INHERIT(stats::ObjectInstance)
 P(CurrentVitality)
 P(CurrentArmor)
 P(CurrentMagicArmor)
@@ -305,7 +338,7 @@ P_BITMASK(Flags)
 P_REF(TraitOrder)
 P(MaxResistance)
 P_RO(HasTwoHandedWeapon)
-P_REF(Character)
+PN_REF(Character, GameObject)
 P_RO(IsIncapacitatedRefCount)
 P_REF(DynamicStats)
 P_REF(StatsFromStatsEntry)
@@ -322,6 +355,7 @@ P_RO(BaseMaxMagicArmor)
 // P_RO(Sight)
 // P_RO(BaseSight)
 P_RO(AttributeFlags)
+P_BITMASK(AttributeFlags)
 P_RO(BaseAttributeFlags)
 P_RO(ItemBoostedAttributeFlags)
 P_RO(AttributeFlagsUpdated)
@@ -330,7 +364,7 @@ P_RO(BaseMaxSummons)
 P(MaxMpOverride)
 // FIXME - special class for TalentArray? P_REF(DisabledTalents)
 
-/*AddTalentArray<CDivinityStats_Character>(propertyMap, "DISABLED_ALENT_", [](CDivinityStats_Character* obj) {
+/*AddTalentArray<Character>(propertyMap, "DISABLED_ALENT_", [](Character* obj) {
 	return obj->DisabledTalents;
 	});
 // TODO - TraitOrder?
@@ -344,9 +378,9 @@ P_GETTER(OffHandWeapon, GetOffHandWeapon)
 #if defined(GENERATING_PROPMAP)
 // TODO - GFS.strCharacter
 pm.AddProperty("Rotation",
-	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-		if (obj->Character) {
-			push(L, *obj->Character->GetRotation());
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->GameObject) {
+			push(L, *obj->GameObject->GetRotation());
 		} else {
 			push(L, nullptr);
 		}
@@ -356,9 +390,9 @@ pm.AddProperty("Rotation",
 );
 
 pm.AddProperty("Position",
-	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-		if (obj->Character) {
-			push(L, *obj->Character->GetTranslate());
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->GameObject) {
+			push(L, *obj->GameObject->GetTranslate());
 		} else {
 			push(L, nullptr);
 		}
@@ -368,9 +402,9 @@ pm.AddProperty("Position",
 );
 
 pm.AddProperty("MyGuid",
-	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-		if (obj->Character) {
-			push(L, *obj->Character->GetGuid());
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->GameObject) {
+			push(L, *obj->GameObject->GetGuid());
 		} else {
 			push(L, nullptr);
 		}
@@ -380,9 +414,9 @@ pm.AddProperty("MyGuid",
 );
 
 pm.AddProperty("NetID",
-	[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-		if (obj->Character) {
-			push(L, ((IGameObject*)obj->Character)->NetID);
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->GameObject) {
+			push(L, ((IGameObject*)obj->GameObject)->NetID);
 		} else {
 			push(L, nullptr);
 		}
@@ -391,13 +425,13 @@ pm.AddProperty("NetID",
 	}
 );
 
-for (auto const& label : EnumInfo<StatGetterType>::Values) {
+for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
 	auto statId = label.Value;
 
 	// Boosted property getter (eg. BlockChance)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (StatGetterType)flag, false, false));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (stats::CharacterStatGetterType)flag, false, false));
 			return true;
 		},
 		nullptr, 0, (uint64_t)statId
@@ -406,21 +440,21 @@ for (auto const& label : EnumInfo<StatGetterType>::Values) {
 	// Base property getter (eg. BaseBlockChance)
 	STDString basePropName = STDString("Base") + label.Key.GetString();
 	pm.AddProperty(basePropName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (StatGetterType)flag, false, true));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (stats::CharacterStatGetterType)flag, false, true));
 			return true;
 		},
 		nullptr, 0, (uint64_t)statId
 	);
 }
 
-for (auto const& label : EnumInfo<AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	auto abilityId = label.Value;
 
 	// Boosted ability getter (eg. Aerothurge)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-			push(L, obj->GetAbility((AbilityType)flag, false));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((stats::AbilityType)flag, false));
 			return true;
 		},
 		nullptr, 0, (uint64_t)abilityId
@@ -429,22 +463,22 @@ for (auto const& label : EnumInfo<AbilityType>::Values) {
 	// Base ability getter (eg. BaseAerothurge)
 	STDString baseAbilityName = STDString("Base") + label.Key.GetString();
 	pm.AddProperty(baseAbilityName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-			push(L, obj->GetAbility((AbilityType)flag, true));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((stats::AbilityType)flag, true));
 			return true;
 		},
 		nullptr, 0, (uint64_t)abilityId
 	);
 }
 
-for (auto const& label : EnumInfo<TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	auto talentId = label.Value;
 
 	// Talent getter (eg. TALENT_)
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Character* obj, std::size_t offset, uint64_t flag) {
-			push(L, obj->HasTalent((TalentType)flag, true));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->HasTalent((stats::TalentType)flag, true));
 			return true;
 		},
 		nullptr, 0, (uint64_t)talentId
@@ -454,8 +488,8 @@ for (auto const& label : EnumInfo<TalentType>::Values) {
 
 END_CLS()
 
-BEGIN_CLS(CDivinityStats_Item)
-INHERIT(CRPGStats_ObjectInstance)
+BEGIN_CLS(stats::Item)
+INHERIT(stats::ObjectInstance)
 P_RO(ItemType)
 P_RO(ItemSlot)
 P(WeaponType)
@@ -472,33 +506,34 @@ P(DurabilityCounter)
 P(ItemTypeReal)
 P_REF(DynamicStats)
 P_RO(AttributeFlags)
+P_BITMASK(AttributeFlags)
 P(MaxCharges)
 P(Charges)
 P_REF(BoostNameSet)
 
 
 #if defined(GENERATING_PROPMAP)
-for (auto const& label : EnumInfo<AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	auto abilityId = label.Value;
 
 	// Ability stat getter (eg. Aerothurge)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Item* obj, std::size_t offset, uint64_t flag) {
-			push(L, obj->GetAbility((AbilityType)flag));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->GetAbility((stats::AbilityType)flag));
 			return true;
 		},
 		nullptr, 0, (uint64_t)abilityId
 	);
 }
 
-for (auto const& label : EnumInfo<TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	auto talentId = label.Value;
 
 	// Talent stat getter (eg. TALENT_)
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, CDivinityStats_Item* obj, std::size_t offset, uint64_t flag) {
-			push(L, obj->HasTalent((TalentType)flag));
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->HasTalent((stats::TalentType)flag));
 			return true;
 		},
 		nullptr, 0, (uint64_t)talentId
@@ -508,7 +543,7 @@ for (auto const& label : EnumInfo<TalentType>::Values) {
 END_CLS()
 
 
-BEGIN_CLS(StatusPrototype)
+BEGIN_CLS(stats::StatusPrototype)
 P_RO(StatusId)
 P_RO(StatusName)
 P_RO(DisplayName)
@@ -518,18 +553,18 @@ P_RO(AbsorbSurfaceTypes)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",
-	[](lua_State* L, LifetimeHolder const& lifetime, StatusPrototype* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::StatusPrototype* obj, std::size_t offset, uint64_t flag) {
 		MakeObjectRef(L, obj->GetStats());
 		return true;
 	}
 );
 #endif
 
-P_FALLBACK(&StatusPrototype::LuaFallbackGet, &StatusPrototype::LuaFallbackSet)
+P_FALLBACK(&stats::StatusPrototype::LuaFallbackGet, &stats::StatusPrototype::LuaFallbackSet)
 END_CLS()
 
 
-BEGIN_CLS(SkillPrototype)
+BEGIN_CLS(stats::SkillPrototype)
 P_RO(SkillTypeId)
 P_RO(SkillId)
 P_RO(Ability)
@@ -550,26 +585,26 @@ P_REF(ChildPrototypes)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",
-	[](lua_State* L, LifetimeHolder const& lifetime, SkillPrototype* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::SkillPrototype* obj, std::size_t offset, uint64_t flag) {
 		MakeObjectRef(L, obj->GetStats());
 		return true;
 	}
 );
 #endif
 
-P_FALLBACK(&SkillPrototype::LuaFallbackGet, &SkillPrototype::LuaFallbackSet)
+P_FALLBACK(&stats::SkillPrototype::LuaFallbackGet, &stats::SkillPrototype::LuaFallbackSet)
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Object_Property_Data)
+BEGIN_CLS(stats::PropertyData)
 P_RO(Name)
 P_RO(TypeId)
 P_RO(Context)
 END_CLS()
 
 
-BEGIN_CLS(CDivinityStats_Object_Property_Status)
-INHERIT(CDivinityStats_Object_Property_Data)
+BEGIN_CLS(stats::PropertyStatus)
+INHERIT(stats::PropertyData)
 P(Status)
 P(StatusChance)
 P(Duration)
@@ -581,8 +616,8 @@ P_REF(SurfaceBoosts)
 END_CLS()
 
 
-BEGIN_CLS(CRPGStats_Object_Property_Extender)
-INHERIT(CDivinityStats_Object_Property_Data)
+BEGIN_CLS(stats::PropertyExtender)
+INHERIT(stats::PropertyData)
 P(PropertyName)
 P(Arg1)
 P(Arg2)
@@ -593,7 +628,7 @@ END_CLS()
 
 
 // FIXME - property list API!
-BEGIN_CLS(CRPGStats_Object_Property_List)
+BEGIN_CLS(stats::PropertyList)
 P_RO(Name)
 P_RO(AllPropertyContexts)
 END_CLS()

@@ -116,6 +116,7 @@ FS(Atmospheres);
 FS(FadeTime);
 
 // Stat attributes
+FS(Weapon);
 FS(Level);
 FS(Name);
 FS(Using);

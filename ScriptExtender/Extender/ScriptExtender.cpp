@@ -32,9 +32,7 @@ void LuaDebugThreadRunner(LuaDebugInterface& intf)
 #endif
 
 ScriptExtender::ScriptExtender()
-	: /*CustomInjector(Wrappers, CustomFunctions),
-	FunctionLibrary(*this),*/
-	server_(config_),
+	: server_(config_),
 	client_(config_),
 	hitProxy_(*this)
 {
@@ -67,20 +65,7 @@ void ScriptExtender::Initialize()
 
 	DEBUG("ScriptExtender::Initialize: Starting");
 	auto initStart = std::chrono::high_resolution_clock::now();
-	/*Wrappers.Initialize();
 
-	Wrappers.RegisterDivFunctions.AddPreHook(std::bind(&ScriptExtender::OnRegisterDIVFunctions, this, _1, _2));
-	Wrappers.InitGame.SetPreHook(std::bind(&ScriptExtender::OnInitGame, this, _1));
-	Wrappers.DeleteAllData.SetPreHook(std::bind(&ScriptExtender::OnDeleteAllData, this, _1, _2));
-	Wrappers.Error.SetPreHook(std::bind(&ScriptExtender::OnError, this, _1));
-	Wrappers.Assert.SetPreHook(std::bind(&ScriptExtender::OnAssert, this, _1, _2, _3));
-	Wrappers.Compile.SetWrapper(std::bind(&ScriptExtender::CompileWrapper, this, _1, _2, _3, _4));
-	Wrappers.Load.AddPostHook(std::bind(&ScriptExtender::OnAfterOsirisLoad, this, _1, _2, _3));
-	Wrappers.Merge.SetWrapper(std::bind(&ScriptExtender::MergeWrapper, this, _1, _2, _3));
-#if !defined(OSI_NO_DEBUGGER)
-	Wrappers.RuleActionCall.SetWrapper(std::bind(&ScriptExtender::RuleActionCall, this, _1, _2, _3, _4, _5, _6));
-#endif
-*/
 	if (!Libraries.FindLibraries(gameVersion.Revision)) {
 		ERR("ScriptExtender::Initialize: Could not load libraries; skipping scripting extension initialization.");
 		extensionsEnabled_ = false;
@@ -96,12 +81,6 @@ void ScriptExtender::Initialize()
 	// we won't be able to show any startup errors
 	Wrappers.InitializeExtensions();
 	Wrappers.InitNetworkFixedStrings.SetPostHook(std::bind(&ScriptExtender::OnInitNetworkFixedStrings, this, _1, _2));
-	/*Wrappers.ClientGameStateChangedEvent.SetPostHook(std::bind(&ScriptExtender::OnClientGameStateChanged, this, _1, _2, _3));
-	Wrappers.ServerGameStateChangedEvent.SetPostHook(std::bind(&ScriptExtender::OnServerGameStateChanged, this, _1, _2, _3));
-	Wrappers.ClientGameStateWorkerStart.AddPreHook(std::bind(&ScriptExtender::OnClientGameStateWorkerStart, this, _1));
-	Wrappers.ServerGameStateWorkerStart.AddPreHook(std::bind(&ScriptExtender::OnServerGameStateWorkerStart, this, _1));
-	Wrappers.ClientGameStateWorkerStart.AddPostHook(std::bind(&ScriptExtender::OnClientGameStateWorkerExit, this, _1));
-	Wrappers.ServerGameStateWorkerStart.AddPostHook(std::bind(&ScriptExtender::OnServerGameStateWorkerExit, this, _1));*/
 	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&ScriptExtender::OnSkillPrototypeManagerInit, this, _1));
 	Wrappers.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
 	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&ScriptExtender::OnSavegameVisit, this, _1, _2));
@@ -200,28 +179,6 @@ void ScriptExtender::LogOsirisMsg(std::string_view msg)
 	server_.Osiris().LogMessage(msg);
 }
 
-/*void ScriptExtender::RestartLogging(std::wstring const & Type)
-{
-	DebugFlag NewFlags = (DebugFlag)((config_.DebugFlags & 0xffff0000) | (*Wrappers.Globals.DebugFlags & 0x0000ffff));
-
-	if (LogFilename.empty() || LogType != Type) {
-		LogFilename = MakeLogFilePath(Type, L"log");
-		LogType = Type;
-
-		if (!LogFilename.empty()) {
-			DEBUG(L"ScriptExtender::RestartLogging: Starting %s debug logging.\r\n"
-				"\tPath=%s", Type.c_str(), LogFilename.c_str());
-		}
-	}
-
-	Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
-
-	if (!LogFilename.empty()) {
-		*Wrappers.Globals.DebugFlags = NewFlags;
-		Wrappers.OpenLogFile.CallOriginal(DynGlobals.OsirisObject, LogFilename.c_str(), L"ab+");
-	}
-}*/
-
 std::wstring ScriptExtender::MakeLogFilePath(std::wstring const & Type, std::wstring const & Extension)
 {
 	if (config_.LogDirectory.empty()) {
@@ -260,197 +217,6 @@ std::wstring ScriptExtender::MakeLogFilePath(std::wstring const & Type, std::wst
 	return ss.str();
 }
 
-/*void ScriptExtender::HookNodeVMTs()
-{
-	ResolveNodeVMTs(*Wrappers.Globals.Nodes);
-
-	if (ResolvedNodeVMTs && !gNodeVMTWrappers) {
-		gNodeVMTWrappers = std::make_unique<NodeVMTWrappers>(NodeVMTs);
-	}
-}
-
-void ScriptExtender::OnRegisterDIVFunctions(void * Osiris, DivFunctions * Functions)
-{
-	// FIXME - register before OsirisWrappers!
-	StoryLoaded = false;
-	DynGlobals.OsirisObject = Osiris;
-	uint8_t * interfaceLoadPtr = nullptr;
-	// uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Functions->ErrorMessage);
-	uint8_t * errorMessageFunc = ResolveRealFunctionAddress((uint8_t *)Wrappers.ErrorOriginal);
-
-	// Try to find ptr of gOsirisInterface
-	OsirisInterface * osirisInterface = nullptr;
-	for (uint8_t * ptr = errorMessageFunc; ptr < errorMessageFunc + 64; ptr++) {
-		// Look for the instruction "mov rbx, cs:gOsirisInterface"
-		if (ptr[0] == 0x48 && ptr[1] == 0x8B && ptr[2] == 0x1D && ptr[6] < 0x02) {
-			auto osiPtr = AsmResolveInstructionRef(ptr);
-			osirisInterface = *(OsirisInterface **)osiPtr;
-			DynGlobals.Manager = osirisInterface->Manager;
-			break;
-		}
-	}
-
-	if (DynGlobals.Manager == nullptr) {
-		Fail("Could not locate OsirisInterface");
-	}
-
-	// Look for TypedValue::VMT
-	uint8_t const copyCtor1[] = {
-		0x48, 0x89, 0x5C, 0x24, 0x08, // mov     [rsp+arg_0], rbx
-		0x48, 0x89, 0x74, 0x24, 0x10, // mov     [rsp+arg_8], rsi
-		0x57, // push    rdi
-		0x48, 0x83, 0xEC, 0x20, // sub     rsp, 20h
-		0x33, 0xF6, // xor     esi, esi
-		0x48, 0x8D, 0x05 // lea     rax, TypedValue::VMT
-	};
-
-	auto start = reinterpret_cast<uint8_t *>(Wrappers.OsirisDllStart);
-	auto end = start + Wrappers.OsirisDllSize - sizeof(copyCtor1);
-
-	for (auto p = start; p < end; p++) {
-		if (*p == 0x48
-			&& memcmp(copyCtor1, p, sizeof(copyCtor1)) == 0) {
-			Wrappers.Globals.TypedValueVMT = (void *)AsmResolveInstructionRef(p + 17);
-			break;
-		}
-	}
-
-	if (config_.EnableLogging) {
-		RestartLogging(L"Osiris Runtime");
-	}
-
-#if 0
-	DEBUG("ScriptExtender::OnRegisterDIVFunctions: Initializing story.");
-	DEBUG("\tErrorMessageProc = %p", errorMessageFunc);
-	DEBUG("\tOsirisManager = %p", Globals.Manager);
-	DEBUG("\tOsirisInterface = %p", osirisInterface);
-#endif
-
-#if !defined(OSI_NO_DEBUGGER)
-	// FIXME - move to DebuggerHooks
-	if (config_.EnableDebugger) {
-		if (debuggerThread_ == nullptr) {
-			DEBUG("Starting debugger server");
-			try {
-				debugInterface_ = std::make_unique<OsirisDebugInterface>(config_.DebuggerPort);
-				debugMsgHandler_ = std::make_unique<osidbg::DebugMessageHandler>(std::ref(*debugInterface_));
-				debuggerThread_ = new std::thread(std::bind(OsirisDebugThreadRunner, std::ref(*debugInterface_)));
-				DEBUG("Osiris debugger listening on 127.0.0.1:%d; DBG protocol version %d", 
-					config_.DebuggerPort, osidbg::DebugMessageHandler::ProtocolVersion);
-			} catch (std::exception & e) {
-				ERR("Osiris debugger start failed: %s", e.what());
-			}
-		}
-	}
-#endif
-}
-
-void ScriptExtender::OnInitGame(void * Osiris)
-{
-	DEBUG("ScriptExtender::OnInitGame()");
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_) {
-		debugger_->GameInitHook();
-	}
-#endif
-}
-
-void ScriptExtender::OnDeleteAllData(void * Osiris, bool DeleteTypes)
-{
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_) {
-		DEBUG("ScriptExtender::OnDeleteAllData()");
-		debugger_->DeleteAllDataHook();
-		debugger_.reset();
-	}
-#endif
-}
-
-void ScriptExtender::OnError(char const * Message)
-{
-	ERR("Osiris Error: %s", Message);
-}
-
-void ScriptExtender::OnAssert(bool Successful, char const * Message, bool Unknown2)
-{
-	if (!Successful) {
-		WARN("Osiris Assert: %s", Message);
-	}
-}
-
-bool ScriptExtender::CompileWrapper(std::function<bool(void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode)
-{
-	DEBUG(L"ScriptExtender::CompileWrapper: Starting compilation of '%s'", Path);
-	auto OriginalFlags = *Wrappers.Globals.DebugFlags;
-	std::wstring storyPath;
-
-	if (extensionsEnabled_) {
-		CustomFunctions.PreProcessStory(Path);
-	}
-
-	if (config_.LogCompile || config_.LogFailedCompile) {
-		if (!config_.LogCompile) {
-			*Wrappers.Globals.DebugFlags = (DebugFlag)(OriginalFlags & ~DebugFlag::DF_CompileTrace);
-		}
-
-		RestartLogging(L"Compile");
-
-		if (config_.LogCompile) {
-			storyPath = MakeLogFilePath(L"Compile", L"div");
-			CopyFileW(Path, storyPath.c_str(), TRUE);
-		}
-	}
-
-	auto ret = Next(Osiris, Path, Mode);
-
-	if (ret) {
-		DEBUG("ScriptExtender::CompileWrapper: Success.");
-	} else {
-		ERR("ScriptExtender::CompileWrapper: Compilation FAILED.");
-	}
-
-	if (config_.LogCompile || config_.LogFailedCompile) {
-		*Wrappers.Globals.DebugFlags = OriginalFlags;
-		Wrappers.CloseLogFile.CallOriginal(DynGlobals.OsirisObject);
-
-		if (ret) {
-			if (config_.LogCompile) {
-				DeleteFileW(storyPath.c_str());
-			} else if (!LogFilename.empty()) {
-				DeleteFileW(LogFilename.c_str());
-			}
-		}
-	}
-
-	return ret;
-}
-
-void ScriptExtender::OnAfterOsirisLoad(void * Osiris, void * Buf, int retval)
-{
-	std::lock_guard _(storyLoadLock_);
-
-#if !defined(OSI_NO_DEBUGGER)
-	if (debuggerThread_ != nullptr) {
-		HookNodeVMTs();
-	}
-#endif
-
-	StoryLoaded = true; 
-	DEBUG("ScriptExtender::OnAfterOsirisLoad: %d nodes", (*Wrappers.Globals.Nodes)->Db.Size);
-
-#if !defined(OSI_NO_DEBUGGER)
-	if (debuggerThread_ != nullptr && gNodeVMTWrappers) {
-		debugger_.reset();
-		debugger_ = std::make_unique<osidbg::Debugger>(Wrappers.Globals, std::ref(*debugMsgHandler_));
-		debugger_->StoryLoaded();
-	}
-#endif
-
-	if (extensionsEnabled_) {
-		esv::ExtensionState::Get().StoryLoaded();
-	}
-}*/
-
 // FIXME - move this to client state!
 void ScriptExtender::OnInitNetworkFixedStrings(eoc::NetworkFixedStrings * self, void * arg1)
 {
@@ -463,12 +229,12 @@ void ScriptExtender::OnInitNetworkFixedStrings(eoc::NetworkFixedStrings * self, 
 	}
 }
 
-void ScriptExtender::OnStatsLoadStarted(CRPGStatsManager* mgr)
+void ScriptExtender::OnStatsLoadStarted(stats::RPGStats* mgr)
 {
 	statLoadOrderHelper_.OnLoadStarted();
 }
 
-void ScriptExtender::OnStatsLoadFinished(CRPGStatsManager* mgr)
+void ScriptExtender::OnStatsLoadFinished(stats::RPGStats* mgr)
 {
 	statLoadOrderHelper_.OnLoadFinished();
 	auto state = GetCurrentExtensionState();
@@ -476,53 +242,6 @@ void ScriptExtender::OnStatsLoadFinished(CRPGStatsManager* mgr)
 		state->OnStatsLoaded();
 	}
 }
-
-/*bool ScriptExtender::MergeWrapper(std::function<bool (void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src)
-{
-	DEBUG("ScriptExtender::MergeWrapper() - Started merge");
-
-	if (ServerExtState) {
-		ServerExtState->StorySetMerging(true);
-	}
-
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_ != nullptr) {
-		debugger_->MergeStarted();
-	}
-#endif
-
-	bool retval = Next(Osiris, Src);
-
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_ != nullptr) {
-		debugger_->MergeFinished();
-	}
-#endif
-
-	if (ServerExtState) {
-		ServerExtState->StorySetMerging(false);
-	}
-
-	DEBUG("ScriptExtender::MergeWrapper() - Finished merge");
-	return retval;
-}
-
-void ScriptExtender::RuleActionCall(std::function<void (RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4)
-{
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_ != nullptr) {
-		debugger_->RuleActionPreHook(Action);
-	}
-#endif
-
-	Next(Action, a1, a2, a3, a4);
-
-#if !defined(OSI_NO_DEBUGGER)
-	if (debugger_ != nullptr) {
-		debugger_->RuleActionPostHook(Action);
-	}
-#endif
-}*/
 
 bool ScriptExtender::HasFeatureFlag(char const * flag) const
 {
@@ -705,6 +424,5 @@ void ScriptExtender::InitRuntimeLogging()
 	gConsole.OpenLogFile(path);
 	DEBUG(L"Extender runtime log written to '%s'", path.c_str());
 }
-
 
 }

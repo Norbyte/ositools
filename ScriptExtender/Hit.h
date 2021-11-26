@@ -9,11 +9,6 @@
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
 
-namespace dse
-{
-	class ScriptExtender;
-}
-
 namespace dse::esv
 {
 	struct PendingHit
@@ -24,16 +19,16 @@ namespace dse::esv
 
 		// Properties captured during esv::Character::Hit
 		bool CapturedCharacterHit{ false };
-		CDivinityStats_Item* WeaponStats{ nullptr };
-		HitDamageInfo* CharacterHitPointer{ nullptr };
-		DamagePairList CharacterHitDamageList;
-		HitDamageInfo CharacterHit;
-		HitType HitType{ HitType::Melee };
+		stats::Item* WeaponStats{ nullptr };
+		stats::HitDamageInfo* CharacterHitPointer{ nullptr };
+		stats::DamagePairList CharacterHitDamageList;
+		stats::HitDamageInfo CharacterHit;
+		stats::HitType HitType{ stats::HitType::Melee };
 		bool NoHitRoll{ false };
 		bool ProcWindWalker{ false };
 		bool ForceReduceDurability{ false };
-		HighGroundBonus HighGround{ HighGroundBonus::Unknown };
-		CriticalRoll CriticalRoll{ CriticalRoll::Roll };
+		stats::HighGroundBonus HighGround{ stats::HighGroundBonus::Unknown };
+		stats::CriticalRoll CriticalRoll{ stats::CriticalRoll::Roll };
 
 		// Captured during esv::StatusHit::Setup
 		bool CapturedStatusSetup{ false };
@@ -47,24 +42,24 @@ namespace dse::esv
 	class PendingHitManager
 	{
 	public:
-		PendingHit* OnCharacterHit(esv::Character* character, CDivinityStats_Character* attacker,
-			CDivinityStats_Item* weapon, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-			HitDamageInfo* damageInfo, int forceReduceDurability, HighGroundBonus highGround,
-			bool procWindWalker, CriticalRoll criticalRoll);
-		PendingHit* OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit);
+		PendingHit* OnCharacterHit(esv::Character* character, stats::Character* attacker,
+			stats::Item* weapon, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+			stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::HighGroundBonus highGround,
+			bool procWindWalker, stats::CriticalRoll criticalRoll);
+		PendingHit* OnStatusHitSetup(esv::StatusHit* status, stats::HitDamageInfo* hit);
 		PendingHit* OnApplyHit(esv::StatusMachine* self, esv::StatusHit* status);
 		PendingHit* OnStatusHitEnter(esv::StatusHit* status);
 		void OnStatusHitDestroy(esv::StatusHit* status);
-		PendingHit* OnCharacterApplyDamage(HitDamageInfo* hit);
+		PendingHit* OnCharacterApplyDamage(stats::HitDamageInfo* hit);
 
 		void DeleteHit(PendingHit* hit);
 
 	private:
 		uint32_t nextHitId_{ 1 };
 		std::unordered_map<uint32_t, std::unique_ptr<PendingHit>> hits_;
-		std::unordered_map<HitDamageInfo*, PendingHit*> characterHitMap_;
+		std::unordered_map<stats::HitDamageInfo*, PendingHit*> characterHitMap_;
 		std::unordered_map<StatusHit*, PendingHit*> hitStatusMap_;
-		std::unordered_map<HitDamageInfo*, PendingHit*> hitStatusDamageMap_;
+		std::unordered_map<stats::HitDamageInfo*, PendingHit*> hitStatusDamageMap_;
 	};
 
 	class HitProxy
@@ -74,24 +69,24 @@ namespace dse::esv
 
 		void PostStartup();
 
-		void OnStatusHitSetup(esv::StatusHit* status, HitDamageInfo* hit);
+		void OnStatusHitSetup(esv::StatusHit* status, stats::HitDamageInfo* hit);
 		void OnStatusHitEnter(esv::Status* status);
 
-		void OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, CDivinityStats_Character* attackerStats,
-			CDivinityStats_Item* itemStats, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-			HitDamageInfo* damageInfo, int forceReduceDurability, CRPGStats_Object_Property_List* skillProperties, HighGroundBonus highGroundFlag,
-			bool procWindWalker, CriticalRoll criticalRoll);
-		void OnCharacterHitInternal(CDivinityStats_Character::HitInternalProc next, CDivinityStats_Character* self,
-			CDivinityStats_Character* attackerStats, CDivinityStats_Item* item, DamagePairList* damageList, HitType hitType, bool noHitRoll,
-			bool forceReduceDurability, HitDamageInfo* damageInfo, CRPGStats_Object_Property_List* skillProperties,
-			HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
-		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, HitDamageInfo& hit,
+		void OnCharacterHit(esv::Character::HitProc* wrappedHit, esv::Character* self, stats::Character* attackerStats,
+			stats::Item* itemStats, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+			stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag,
+			bool procWindWalker, stats::CriticalRoll criticalRoll);
+		void OnCharacterHitInternal(stats::Character::HitInternalProc next, stats::Character* self,
+			stats::Character* attackerStats, stats::Item* item, stats::DamagePairList* damageList, stats::HitType hitType, bool noHitRoll,
+			bool forceReduceDurability, stats::HitDamageInfo* damageInfo, stats::PropertyList* skillProperties,
+			stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll);
+		void OnCharacterApplyDamage(esv::Character::ApplyDamageProc* next, esv::Character* self, stats::HitDamageInfo& hit,
 			uint64_t attackerHandle, CauseType causeType, glm::vec3& impactDirection);
 
 		void OnApplyStatus(esv::StatusMachine::ApplyStatusProc* wrappedApply, esv::StatusMachine* self, esv::Status* status);
-		void OnGetSkillDamage(SkillPrototype::GetSkillDamageProc* next, SkillPrototype* self, DamagePairList* damageList,
-			CRPGStats_ObjectInstance* attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
-			glm::vec3 const& targetPosition, DeathType* pDeathType, int level, bool noRandomization);
+		void OnGetSkillDamage(stats::SkillPrototype::GetSkillDamageProc* next, stats::SkillPrototype* self, stats::DamagePairList* damageList,
+			stats::ObjectInstance* attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+			glm::vec3 const& targetPosition, stats::DeathType* pDeathType, int level, bool noRandomization);
 
 	private:
 		dse::ScriptExtender& osiris_;

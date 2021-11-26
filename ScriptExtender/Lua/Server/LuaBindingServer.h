@@ -9,18 +9,12 @@
 #include <Extender/Shared/ExtensionHelpers.h>
 #include <Osiris/Shared/OsirisHelpers.h>
 
-namespace dse::esv
-{
-	struct PendingHit;
-	class ExtensionState;
-}
-
 BEGIN_NS(lua)
 
 LUA_POLYMORPHIC(IGameObjectBase)
 LUA_POLYMORPHIC(esv::Status)
-LUA_POLYMORPHIC(CRPGStats_ObjectInstance)
-LUA_POLYMORPHIC(CDivinityStats_Equipment_Attributes)
+LUA_POLYMORPHIC(stats::ObjectInstance)
+LUA_POLYMORPHIC(stats::EquipmentAttributes)
 
 void RegisterSharedLibraries(lua_State* L);
 
@@ -161,8 +155,8 @@ struct StatusHitEnterEventParams
 struct BeforeCharacterApplyDamageEventParams
 {
 	esv::Character* Target;
-	CRPGStats_ObjectInstance* Attacker;
-	HitDamageInfo* Hit;
+	stats::ObjectInstance* Attacker;
+	stats::HitDamageInfo* Hit;
 	CauseType Cause;
 	glm::vec3 ImpactDirection;
 	PendingHit* Context;
@@ -216,29 +210,29 @@ struct ExecutePropertyDataOnGroundHitEventParams
 {
 	glm::vec3 Position;
 	IGameObjectBase* Caster;
-	DamagePairList* DamageList;
+	stats::DamagePairList* DamageList;
 };
 
 struct ExecutePropertyDataOnTargetEventParams
 {
-	CRPGStats_Object_Property_Extender* Property;
+	stats::PropertyExtender* Property;
 	ComponentHandle Attacker;
 	ComponentHandle Target;
 	glm::vec3 ImpactOrigin;
 	bool IsFromItem;
-	SkillPrototype* Skill;
-	HitDamageInfo const* Hit;
+	stats::SkillPrototype* Skill;
+	stats::HitDamageInfo const* Hit;
 };
 
 struct ExecutePropertyDataOnPositionEventParams
 {
-	CRPGStats_Object_Property_Extender* Property;
+	stats::PropertyExtender* Property;
 	ComponentHandle Attacker;
 	glm::vec3 Position;
 	float AreaRadius;
 	bool IsFromItem;
-	SkillPrototype* Skill;
-	HitDamageInfo const* Hit;
+	stats::SkillPrototype* Skill;
+	stats::HitDamageInfo const* Hit;
 };
 
 class ServerState : public State
@@ -307,11 +301,11 @@ public:
 	std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool isEnterCheck);
 	bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 	void OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context);
-	bool ComputeCharacterHit(CDivinityStats_Character * self,
-		CDivinityStats_Character *attackerStats, CDivinityStats_Item *item, DamagePairList *damageList, HitType hitType, bool noHitRoll,
-		bool forceReduceDurability, HitDamageInfo *damageInfo, CRPGStats_Object_Property_List *skillProperties,
-		HighGroundBonus highGroundFlag, CriticalRoll criticalRoll);
-	bool OnCharacterApplyDamage(esv::Character* target, HitDamageInfo& hit, ComponentHandle attackerHandle,
+	bool ComputeCharacterHit(stats::Character * self,
+		stats::Character *attackerStats, stats::Item *item, stats::DamagePairList *damageList, stats::HitType hitType, bool noHitRoll,
+		bool forceReduceDurability, stats::HitDamageInfo *damageInfo, stats::PropertyList *skillProperties,
+		stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll);
+	bool OnCharacterApplyDamage(esv::Character* target, stats::HitDamageInfo& hit, ComponentHandle attackerHandle,
 		CauseType causeType, glm::vec3& impactDirection, PendingHit* context);
 	void OnGameStateChanged(GameState fromState, GameState toState);
 	esv::Item* OnGenerateTreasureItem(esv::Item* item);
@@ -322,14 +316,14 @@ public:
 	void OnBeforeShootProjectile(ShootProjectileHelper* helper);
 	void OnShootProjectile(Projectile* projectile);
 	void OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position);
-	void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, DamagePairList* damageList);
+	void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, stats::DamagePairList* damageList);
 
-	void ExecutePropertyDataOnTarget(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle,
-		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, SkillPrototype* skillProto,
-		HitDamageInfo const* damageInfo);
-	void ExecutePropertyDataOnPosition(CRPGStats_Object_Property_Extender* prop, ComponentHandle attackerHandle, 
-		glm::vec3 const& position, float areaRadius, bool isFromItem, SkillPrototype* skillPrototype,
-		HitDamageInfo const* damageInfo);
+	void ExecutePropertyDataOnTarget(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
+		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype* skillProto,
+		stats::HitDamageInfo const* damageInfo);
+	void ExecutePropertyDataOnPosition(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
+		glm::vec3 const& position, float areaRadius, bool isFromItem, stats::SkillPrototype* skillPrototype,
+		stats::HitDamageInfo const* damageInfo);
 
 	std::optional<STDString> GetModPersistentVars(STDString const& modTable);
 	void RestoreModPersistentVars(STDString const& modTable, STDString const& vars);

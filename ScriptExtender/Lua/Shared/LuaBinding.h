@@ -20,7 +20,7 @@
 
 namespace dse::lua
 {
-	LUA_INFINITE_LIFETIME(CRPGStats_Object)
+	LUA_INFINITE_LIFETIME(stats::Object)
 	LUA_INFINITE_LIFETIME(GameObjectTemplate)
 	LUA_INFINITE_LIFETIME(EoCGameObjectTemplate)
 	LUA_INFINITE_LIFETIME(CharacterTemplate)
@@ -124,10 +124,10 @@ namespace dse::lua
 
 
 	
-	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<CRPGStats_Object>
+	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<stats::Object>
 	{
 	public:
-		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, CRPGStats_Object* obj, std::optional<int> level);
+		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level);
 
 		FixedString const& GetTypeName() const override;
 		bool GetProperty(lua_State* L, FixedString const& prop) override;
@@ -163,29 +163,29 @@ namespace dse::lua
 
 	struct GetHitChanceEventParams
 	{
-		CDivinityStats_Character* Attacker;
-		CDivinityStats_Character* Target;
+		stats::Character* Attacker;
+		stats::Character* Target;
 		std::optional<int32_t> HitChance;
 	};
 
 	struct GetSkillDamageEventParams
 	{
-		SkillPrototype* Skill;
-		CRPGStats_ObjectInstance* Attacker;
+		stats::SkillPrototype* Skill;
+		stats::ObjectInstance* Attacker;
 		bool IsFromItem;
 		bool Stealthed;
 		glm::vec3 AttackerPosition;
 		glm::vec3 TargetPosition;
 		int Level;
 		bool NoRandomization;
-		DamagePairList DamageList;
-		std::optional<DeathType> DeathType;
+		stats::DamagePairList DamageList;
+		std::optional<stats::DeathType> DeathType;
 	};
 
 	struct GetSkillAPCostEventParams
 	{
-		SkillPrototype* Skill;
-		CDivinityStats_Character* Character;
+		stats::SkillPrototype* Skill;
+		stats::Character* Character;
 		eoc::AiGrid* AiGrid;
 		glm::vec3* Position;
 		float* Radius;
@@ -285,11 +285,11 @@ namespace dse::lua
 
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 
-		std::optional<int32_t> GetHitChance(CDivinityStats_Character * attacker, CDivinityStats_Character * target);
-		bool GetSkillDamage(SkillPrototype * self, DamagePairList * damageList,
-			CRPGStats_ObjectInstance *attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
-			glm::vec3 const& targetPosition, DeathType * pDeathType, int level, bool noRandomization);
-		std::optional<std::pair<int, bool>> GetSkillAPCost(SkillPrototype* skill, CDivinityStats_Character* character, eoc::AiGrid* aiGrid,
+		std::optional<int32_t> GetHitChance(stats::Character * attacker, stats::Character * target);
+		bool GetSkillDamage(stats::SkillPrototype * self, stats::DamagePairList * damageList,
+			stats::ObjectInstance *attackerStats, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
+			glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization);
+		std::optional<std::pair<int, bool>> GetSkillAPCost(stats::SkillPrototype* skill, stats::Character* character, eoc::AiGrid* aiGrid,
 			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
