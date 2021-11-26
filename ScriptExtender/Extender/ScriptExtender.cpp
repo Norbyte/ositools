@@ -82,7 +82,6 @@ void ScriptExtender::Initialize()
 	Wrappers.InitializeExtensions();
 	Wrappers.InitNetworkFixedStrings.SetPostHook(std::bind(&ScriptExtender::OnInitNetworkFixedStrings, this, _1, _2));
 	Wrappers.SkillPrototypeManagerInit.SetPreHook(std::bind(&ScriptExtender::OnSkillPrototypeManagerInit, this, _1));
-	Wrappers.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
 	Wrappers.esv__OsirisVariableHelper__SavegameVisit.SetPreHook(std::bind(&ScriptExtender::OnSavegameVisit, this, _1, _2));
 	//Wrappers.TranslatedStringRepository__UnloadOverrides.SetPreHook(std::bind(&ScriptExtender::OnModuleLoadStarted, this, _1));
 	Wrappers.RPGStats__Load.AddPreHook(std::bind(&ScriptExtender::OnStatsLoadStarted, this, _1));

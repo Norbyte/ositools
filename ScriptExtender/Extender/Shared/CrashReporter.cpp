@@ -28,7 +28,7 @@ static const ExcludedSymbol ExcludedSymbols[] = {
 	{&decltype(dse::EngineHooks::esv__ProjectileHelpers__ShootProjectile)::CallToTrampoline, 0x120},
 	{&decltype(dse::EngineHooks::esv__Projectile__Explode)::CallToTrampoline, 0x120},
 	{&decltype(dse::EngineHooks::UIObjectManager__CreateUIObject)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::FileReader__ctor)::CallToTrampoline, 0x120},
+	{&decltype(dse::EngineHooks::FileReader__ctor)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
 	{&decltype(dse::OsirisWrappers::Event)::CallToTrampoline, 0x120},

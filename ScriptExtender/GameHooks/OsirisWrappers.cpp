@@ -33,7 +33,6 @@ STATIC_HOOK(ServerGameStateChangedEvent)
 STATIC_HOOK(ClientGameStateWorkerStart)
 STATIC_HOOK(ServerGameStateWorkerStart)
 STATIC_HOOK(SkillPrototypeManagerInit)
-STATIC_HOOK(FileReader__ctor)
 STATIC_HOOK(eocnet__ClientConnectMessage__Serialize)
 STATIC_HOOK(eocnet__ClientAcceptMessage__Serialize)
 STATIC_HOOK(esv__OsirisVariableHelper__SavegameVisit)
@@ -183,10 +182,6 @@ void OsirisWrappers::InitializeExtensions()
 		SkillPrototypeManagerInit.Wrap(lib.SkillPrototypeManager__Init);
 	}
 
-	if (lib.ls__FileReader__ctor != nullptr) {
-		FileReader__ctor.Wrap(lib.ls__FileReader__ctor);
-	}
-
 	if (lib.RPGStats__Load != nullptr) {
 		RPGStats__Load.Wrap(lib.RPGStats__Load);
 	}
@@ -242,7 +237,6 @@ void OsirisWrappers::Shutdown()
 	ClientGameStateWorkerStart.Unwrap();
 	ServerGameStateWorkerStart.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
-	FileReader__ctor.Unwrap();
 	RPGStats__Load.Unwrap();
 	TranslatedStringRepository__UnloadOverrides.Unwrap();
 	ExtensionsInitialized = false;

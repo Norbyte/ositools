@@ -60,7 +60,7 @@ void StatLoadOrderHelper::OnStatFileOpened(Path const& path)
 		std::unique_lock lock(modMapMutex_);
 
 		auto modIt = modDirectoryToModMap_.find(match[1].str().c_str());
-		if (modIt != modDirectoryToModMap_.end()) {
+		if (modIt != modDirectoryToModMap_.end() && statLastTxtMod_ != modIt->second) {
 			statLastTxtMod_ = modIt->second;
 			OnStatFileOpened();
 		} else {
