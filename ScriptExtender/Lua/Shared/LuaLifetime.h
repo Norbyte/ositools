@@ -266,10 +266,20 @@ public:
 		stack_.push_back(LifetimeReference(pool_, lifetime));
 	}
 
-	void Pop()
+	void PopAndKill()
 	{
 		assert(!stack_.empty());
 		auto lifetime = stack_.rbegin()->GetLifetime();
+		if (lifetime != nullptr) {
+			lifetime->Kill();
+		}
+		stack_.pop_back();
+	}
+
+	void PopAndKill(Lifetime* lifetime)
+	{
+		assert(!stack_.empty());
+		assert(stack_.rbegin()->GetLifetime() == lifetime);
 		if (lifetime != nullptr) {
 			lifetime->Kill();
 		}
@@ -280,9 +290,6 @@ public:
 	{
 		assert(!stack_.empty());
 		assert(stack_.rbegin()->GetLifetime() == lifetime);
-		if (lifetime != nullptr) {
-			lifetime->Kill();
-		}
 		stack_.pop_back();
 	}
 
@@ -305,14 +312,27 @@ public:
 	{
 		lifetime_ = stack_.Push();
 	}
-	
-	LifetimePin(LifetimeStack& stack, Lifetime* lifetime)
+
+	~LifetimePin()
+	{
+		stack_.PopAndKill(lifetime_);
+	}
+
+private:
+	LifetimeStack& stack_;
+	Lifetime* lifetime_;
+};
+
+class StaticLifetimePin
+{
+public:
+	StaticLifetimePin(LifetimeStack& stack, Lifetime* lifetime)
 		: stack_(stack), lifetime_(lifetime)
 	{
 		 stack_.Push(lifetime);
 	}
 
-	~LifetimePin()
+	~StaticLifetimePin()
 	{
 		stack_.Pop(lifetime_);
 	}
