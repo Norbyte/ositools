@@ -37,6 +37,8 @@ namespace dse
 
 		struct Projectile : public IEoCServerObject
 		{
+            static constexpr auto ObjectTypeIndex = ObjectType::ServerProjectile;
+
             using ExplodeProc = void (Projectile*);
 
             ComponentHandle CasterHandle;

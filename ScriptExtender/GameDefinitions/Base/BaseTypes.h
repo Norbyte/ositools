@@ -11,8 +11,6 @@
 
 BEGIN_SE()
 
-using Vector3 = glm::vec3;
-
 struct NetId
 {
 	static constexpr uint32_t Unassigned = 0xffffffff;

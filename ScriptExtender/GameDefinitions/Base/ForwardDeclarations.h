@@ -21,9 +21,11 @@ struct ProjectileTemplate;
 struct SurfaceTemplate;
 struct TriggerTemplate;
 
-struct IGameObjectBase;
 struct IGameObject;
+struct IEoCServerObject;
+struct IEoCClientObject;
 struct Trigger;
+struct Level;
 
 struct ModuleInfo;
 struct Module;
@@ -105,6 +107,7 @@ namespace ecl
 	struct Inventory;
 	struct Level;
 	struct Status;
+	struct StatusMachine;
 
 	struct EntityManager;
 	struct ShroudManager;

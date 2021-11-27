@@ -229,48 +229,73 @@ P(TranslationKey)
 P(BonusWeapon)
 P(StepsType)
 
-/*EnumInfo<StatAttributeFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-	AddProperty<bool>(propertyMap, name.Str, 0);
+#if defined(GENERATING_PROPMAP)
+// Attribute flag getters/setters
+for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+	auto abilityId = label.Value;
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
+			if (attrFlags) {
+				push(L, (**attrFlags & (1ull << flag)) != 0);
+			} else {
+				push(L, false);
+			}
+			return true;
+		},
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+			auto val = get<int32_t>(L, index);
+			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
+			if (attrFlags) {
+				if (val) {
+					**attrFlags |= (1ull << flag);
+				} else {
+					**attrFlags &= ~(1ull << flag);
+				}
+			}
+			return true;
+		}, 0, (uint64_t)abilityId
+	);
+}
 
-	propertyMap.Properties[name].GetInt = [id](void* obj) -> std::optional<int64_t> {
-		auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
-		auto attrFlags = GetStaticSymbols().GetStats()->GetAttributeFlags((int)attrs->AttributeFlagsObjectId);
-		if (attrFlags) {
-			return (uint64_t)(**attrFlags & id) != 0 ? 1 : 0;
-		}
-		else {
-			return 0;
-		}
-	};
+// Ability getters (eg. Aerothurge)
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+	auto abilityId = label.Value;
+	pm.AddProperty(label.Key.GetString(),
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->Abilities[flag]);
+			return true;
+		},
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+			auto val = get<int32_t>(L, index);
+			obj->Abilities[flag] = val;
+			return true;
+		}, 0, (uint64_t)abilityId
+	);
+}
 
-	propertyMap.Properties[name].SetInt = [id](void* obj, int64_t value) -> bool {
-		auto attrs = reinterpret_cast<CharacterDynamicStat*>(obj);
-		int flagsId = (int)attrs->AttributeFlagsObjectId;
-		auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateAttributeFlags(flagsId);
-		attrs->AttributeFlagsObjectId = flagsId;
+// Talent getter (eg. TALENT_)
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+	auto talentId = label.Value;
+	STDString talentName = STDString("TALENT_") + label.Key.GetString();
+	pm.AddProperty(talentName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->Talents.HasTalent((stats::TalentType)flag));
+			return true;
+		},
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+			auto val = get<bool>(L, index);
+			if (val) {
+				obj->Talents.Set((uint32_t)flag);
+			} else {
+				obj->Talents.Clear((uint32_t)flag);
+			}
+			return true;
+		}, 0, (uint64_t)talentId
+	);
+}
+#endif
 
-		if (value) {
-			*attrFlags |= id;
-		}
-		else {
-			*attrFlags &= ~id;
-		}
-		return true;
-	};
-	});
-
-EnumInfo<AbilityType>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-	AddProperty<int32_t>(propertyMap, name.Str, offsetof(TObject, Abilities) + (unsigned)id * sizeof(int32_t));
-	});
-
-AddTalentArray<CharacterDynamicStat>(propertyMap, "TALENT_", [](CharacterDynamicStat* obj) {
-	return obj->Talents;
-	});
-
-AddTalentArray<CharacterDynamicStat>(propertyMap, "REMOVED_TALENT_", [](CharacterDynamicStat* obj) {
-	return obj->RemovedTalents;
-	});
-}*/
 END_CLS()
 
 

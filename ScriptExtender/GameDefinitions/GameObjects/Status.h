@@ -5,10 +5,65 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Stats.h>
 
+BEGIN_SE()
+
+template <class TStatus>
+struct StatusMachine : public NetworkComponentFactory<TStatus>
+{
+	TStatus * GetStatus(ComponentHandle handle) const
+	{
+		for (auto status : Statuses) {
+			if (status->StatusHandle == handle) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	TStatus* GetStatus(StatusType type) const
+	{
+		for (auto status : Statuses) {
+			if (status->GetStatusId() == type) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	TStatus* GetStatus(FixedString const& statusId) const
+	{
+		for (auto status : Statuses) {
+			if (status->StatusId == statusId) {
+				return status;
+			}
+		}
+
+		return nullptr;
+	}
+
+	TStatus* GetStatus(NetId netId) const
+	{
+		return this->FindByNetId(netId);
+	}
+
+	void* GameEventMgrVMT;
+	bool IsStatusMachineActive;
+	bool PreventStatusApply;
+	ObjectSet<TStatus*> Statuses;
+	ComponentHandle OwnerObjectHandle;
+	uint32_t References;
+};
+
+END_SE()
+
 BEGIN_NS(esv)
 
 struct Status : public ProtectedGameObject<Status>
 {
+	static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+
 	using GetEnterChanceProc = int32_t(Status* self, bool isEnterCheck);
 	using EnterProc = bool (Status* self);
 
@@ -98,7 +153,7 @@ struct StatusConsumeBase : public Status
 	ComponentHandle OverrideWeaponHandle;
 	int AttributeHandle;
 	int SavingThrow; // TODO enum + enum prop!
-	Vector3 SourceDirection; // Saved
+	glm::vec3 SourceDirection; // Saved
 	ObjectSet<SurfaceTransformActionType> SurfaceChanges;
 	int Turn; // Saved
 	int field_1AC;
@@ -173,9 +228,9 @@ struct StatusHit : public Status
 	// Decrease characters' DelayDeathCount
 	bool DecDelayDeathCount;
 	uint8_t PropertyContext;
-	Vector3 ImpactPosition;
-	Vector3 ImpactOrigin;
-	Vector3 ImpactDirection;
+	glm::vec3 ImpactPosition;
+	glm::vec3 ImpactOrigin;
+	glm::vec3 ImpactDirection;
 	uint32_t Unk4;
 };
 
@@ -530,7 +585,7 @@ struct StatusExtraTurn : public StatusConsumeBase {};
 struct StatusActiveDefense : public StatusConsumeBase
 {
 	int Charges; // Saved
-	Vector3 TargetPos; // Saved
+	glm::vec3 TargetPos; // Saved
 	ComponentHandle StatusTargetHandle; // Saved
 	float Radius;
 	FixedString Projectile;
@@ -558,22 +613,12 @@ struct StatusDeactivated : public StatusConsumeBase {};
 
 struct StatusTutorialBed : public Status {};
 
-
-struct StatusMachine : public NetworkComponentFactory // FIXME - <Status, (uint32_t)ObjectType::Unknown>
+struct StatusMachine : public dse::StatusMachine<Status>
 {
-	using CreateStatusProc = Status* (esv::StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ComponentHandle);
-	using ApplyStatusProc = void (esv::StatusMachine* StatusMachine, Status* Status);
+	using CreateStatusProc = Status * (StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ComponentHandle);
+	using ApplyStatusProc = void(StatusMachine* StatusMachine, Status* Status);
 
-	Status * GetStatus(ComponentHandle handle, bool returnUnapplied = false) const;
-	Status* GetStatus(NetId netId) const;
-	Status* GetStatus(FixedString const& statusId) const;
-
-	void* GameEventMgrVMT;
-	bool IsStatusMachineActive;
-	bool PreventStatusApply;
-	ObjectSet<Status *> Statuses;
-	ComponentHandle OwnerObjectHandle;
-	uint32_t References;
+	esv::Status* GetServerStatus(ComponentHandle handle, bool returnUnapplied) const;
 };
 
 END_NS()
@@ -582,6 +627,8 @@ BEGIN_NS(ecl)
 
 struct Status
 {
+	static constexpr auto ObjectTypeIndex = ObjectType::ClientStatus;
+
 	virtual void Destroy() = 0;
 	virtual void SetOwnerHandle(ComponentHandle handle) = 0;
 	virtual ComponentHandle GetOwnerHandle(ComponentHandle *) = 0;
@@ -626,22 +673,8 @@ struct Status
 	ComponentHandle StatusSourceHandle;
 };
 
-
-struct StatusMachine : public NetworkComponentFactory // FIXME - <Status, (uint32_t)ObjectType::ClientStatus>
-{
-	Status* GetStatus(StatusType type) const;
-	Status* GetStatus(FixedString const& statusId) const;
-	Status* GetStatus(NetId netId) const;
-
-	void* GameEventMgrVMT;
-	bool IsStatusMachineActive;
-	bool PreventStatusApply;
-	ObjectSet<Status*> Statuses;
-	ComponentHandle OwnerObjectHandle;
-	uint32_t References;
-	int field_154;
-	__int64 field_158;
-};
+struct StatusMachine : public dse::StatusMachine<Status>
+{};
 
 END_NS()
 

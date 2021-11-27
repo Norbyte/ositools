@@ -29,10 +29,7 @@ END_CLS()
 
 
 BEGIN_CLS(esv::Item)
-// EoCServerObject
-P_RO(NetID)
-P_RO(MyGuid)
-// Item
+INHERIT(IEoCServerObject)
 P_RO(WorldPos)
 P(Flags);
 P(Flags2);

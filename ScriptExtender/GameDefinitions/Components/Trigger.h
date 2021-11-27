@@ -30,8 +30,9 @@ namespace dse
 		float FadeTime;
 	};
 
-	struct Trigger : public IGameObjectBase
+	struct Trigger
 	{
+		void* VMT;
 		ComponentHandle Handle; // Defunct, use GetObjectHandle() instead
 		FixedString UUID; // Defunct, use GetGuid() instead
 		TriggerTemplate* Template;
@@ -71,10 +72,7 @@ namespace dse::esv
 	struct Trigger : public dse::Trigger
 	{};
 
-	struct AtmosphereTrigger : public dse::AtmosphereTrigger
+	struct AtmosphereTrigger : public dse::AtmosphereTrigger, public IEoCServerObject
 	{
-		BaseComponent Base;
-		FixedString MyGuid;
-		NetId NetID;
 	};
 }

@@ -84,7 +84,7 @@ namespace dse::esv
 		DamageList = damageList;
 	}
 
-	void DamageHelpers::SetVector(FixedString const& prop, Vector3 const & value)
+	void DamageHelpers::SetVector(FixedString const& prop, glm::vec3 const & value)
 	{
 		if (Type != DamageHelpers::HT_CustomHit) {
 			OsiErrorS("Impact vectors can only be set for custom hits");
@@ -338,7 +338,7 @@ namespace dse::esv
 		{
 			auto helper = HelperHandleToHelper(args[0].Int64);
 			auto prop = args[1].String;
-			Vector3 vec = args.GetVector(2);
+			glm::vec3 vec = args.GetVector(2);
 
 			if (helper == nullptr) return;
 

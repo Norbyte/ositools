@@ -345,6 +345,8 @@ namespace dse
 
 	struct UIObject : Noncopyable<UIObject>
 	{
+		static constexpr auto ObjectTypeIndex = ObjectType::UIObject;
+
 		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
 		typedef void(* CustomDrawCallbackProc)(UIObject * self, void *);
 
@@ -529,7 +531,7 @@ namespace dse
 
 
 
-	struct UIObjectManager : public ComponentFactory // FIXME - ObjectFactory<UIObject, 3>
+	struct UIObjectManager : public ComponentFactory<UIObject>
 	{
 		struct SomeObject
 		{

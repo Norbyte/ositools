@@ -741,7 +741,7 @@ struct Character : public ObjectInstance
 	ObjectSet<int> TraitOrder; // Saved
 	int32_t MaxResistance;
 	int32_t HasTwoHandedWeapon;
-	IGameObjectBase * GameObject;
+	IGameObject * GameObject;
 	int32_t Unkn2;
 	int32_t IsIncapacitatedRefCount;
 	Vector<CharacterDynamicStat*> DynamicStats;

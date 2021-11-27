@@ -35,7 +35,7 @@ END_CLS()
 
 
 BEGIN_CLS(esv::Projectile)
-INHERIT(IGameObject)
+INHERIT(IEoCServerObject)
 P_RO(CasterHandle)
 P_RO(SourceHandle)
 P_RO(TargetObjectHandle)

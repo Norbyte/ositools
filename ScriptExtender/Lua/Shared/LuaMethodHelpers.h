@@ -132,6 +132,12 @@ inline void PushReturnValue(lua_State* L, Map<TKey, TValue>* v)
 	}
 }
 
+template <class T>
+inline void PushReturnValue(lua_State* L, RefReturn<T> v)
+{
+	MakeObjectRef(L, v.Object);
+}
+
 template <class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, 0);
@@ -179,7 +185,7 @@ inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequ
 }
 
 template <class R, class T, class ...Args>
-inline int CallMethod(lua_State* L, R(T::* fun)(Args...)) {
+inline int CallMethod(lua_State* L, R (T::* fun)(Args...)) {
 	return CallMethodHelper(L, fun, std::index_sequence_for<Args...>());
 }
 

@@ -8,6 +8,8 @@
 #include <GameDefinitions/GameObjects/Ai.h>
 #include "resource.h"
 
+#include <Lua/Client/ClientEntitySystem.inl>
+
 BEGIN_SE()
 
 bool CustomDrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* callback);
@@ -323,17 +325,8 @@ namespace dse::lua
 			return 1;
 		}
 
-		if (propFS == GFS.strHasTag) {
-			lua_pushcfunction(L, &GameObjectHasTag<ecl::Character>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetTags) {
-			lua_pushcfunction(L, &GameObjectGetTags<ecl::Character>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatus) {
+		// FIXME - re-add when migrated to new proxy
+		/*if (propFS == GFS.strGetStatus) {
 			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character>));
 			return 1;
 		}
@@ -351,7 +344,7 @@ namespace dse::lua
 		if (propFS == GFS.strGetStatusObjects) {
 			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Character>));
 			return 1;
-		}
+		}*/
 
 		if (propFS == GFS.strSetScale) {
 			lua_pushcfunction(L, (&GameObjectSetScale<ecl::Character>));
@@ -452,17 +445,8 @@ namespace dse::lua
 			return 1;
 		}
 
-		if (propFS == GFS.strHasTag) {
-			lua_pushcfunction(L, &GameObjectHasTag<ecl::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetTags) {
-			lua_pushcfunction(L, &GameObjectGetTags<ecl::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatus) {
+		// FIXME - re-add when migrated to new proxy
+		/*if (propFS == GFS.strGetStatus) {
 			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Item>));
 			return 1;
 		}
@@ -480,7 +464,7 @@ namespace dse::lua
 		if (propFS == GFS.strGetStatusObjects) {
 			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Item>));
 			return 1;
-		}
+		}*/
 
 		if (propFS == GFS.strStats) {
 			MakeObjectRef(L, item->Stats);

@@ -1864,7 +1864,7 @@ namespace dse
 			auto x = args[firstArg + 1].Float;
 			auto y = args[firstArg + 2].Float;
 			auto z = args[firstArg + 3].Float;
-			Vector3 vec(x, y, z);
+			glm::vec3 vec(x, y, z);
 			return propertyMap.setVector3(obj, propertyName, vec, false, throwError);
 		}
 

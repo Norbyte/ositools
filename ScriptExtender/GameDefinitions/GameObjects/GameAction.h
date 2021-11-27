@@ -38,7 +38,7 @@ namespace dse
 			bool IsFromItem;
 			float HitRadius;
 			uint64_t _Unk2;
-			ObjectSet<Vector3> AnchorList;
+			ObjectSet<glm::vec3> AnchorList;
 			uint64_t Anchor;
 			float Interpolation;
 			uint32_t _Unk3;

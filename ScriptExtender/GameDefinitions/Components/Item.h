@@ -95,6 +95,8 @@ namespace dse
 
 		struct Item : public IEoCServerObject
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ServerItem;
+
 			Status * GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
 
@@ -156,9 +158,20 @@ namespace dse
 		typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
 		typedef Item * (*CreateItemFromParsed)(ObjectSet<eoc::ItemDefinition> * ParsedItems, uint32_t Index);
 
+		struct ItemFactory : public NetworkComponentFactory<Item>
+		{
+			void* VMT2;
+			void* VMT3;
+			Map<FixedString, void*> FSMap_ReloadComponent;
+			EntityWorld* Entities;
+			uint64_t Unkn8[2];
+		};
+
 
 		struct Inventory : public ProtectedGameObject<Inventory>
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ServerInventory;
+
 			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
 				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
 				bool updateCurrentVitality, bool useWeaponAnimTypeAndSkills);
@@ -182,6 +195,11 @@ namespace dse
 			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
 		};
 
+		struct InventoryFactory : public NetworkComponentFactory<Inventory>
+		{
+			// TODO
+		};
+
 		struct CombineManager : public ProtectedGameObject<CombineManager>
 		{
 			using ExecuteCombinationProc = bool (esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ComponentHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
@@ -199,8 +217,10 @@ namespace dse
 
 	namespace ecl
 	{
-		struct Item : public IEocClientObject
+		struct Item : public IEoCClientObject
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ClientItem;
+
 			glm::vec3 WorldPos;
 			uint32_t _Pad2;
 			uint64_t Flags;
@@ -255,6 +275,8 @@ namespace dse
 
 		struct Inventory : ProtectedGameObject<Inventory>
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ClientInventory;
+
 			void* VMT;
 			FixedString GUID;
 			NetId NetID;
@@ -274,6 +296,10 @@ namespace dse
 			RefMap<int, void*>* OfferedAmounts;
 			RefMap<ComponentHandle, void*>* BuyBackAmounts;
 			ObjectSet<ComponentHandle> HandleSet3;
+		};
+
+		struct InventoryFactory : public NetworkComponentFactory<Inventory>
+		{
 		};
 	}
 }

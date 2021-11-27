@@ -11,7 +11,9 @@
 
 BEGIN_NS(lua)
 
-LUA_POLYMORPHIC(IGameObjectBase)
+LUA_POLYMORPHIC(IGameObject)
+LUA_POLYMORPHIC(IEoCServerObject)
+LUA_POLYMORPHIC(IEoCClientObject)
 LUA_POLYMORPHIC(esv::Status)
 LUA_POLYMORPHIC(stats::ObjectInstance)
 LUA_POLYMORPHIC(stats::EquipmentAttributes)
@@ -202,14 +204,14 @@ struct ShootProjectileEventParams
 struct ProjectileHitEventParams
 {
 	Projectile* Projectile;
-	IGameObjectBase* HitObject;
+	IEoCServerObject* HitObject;
 	glm::vec3 Position;
 };
 
 struct ExecutePropertyDataOnGroundHitEventParams
 {
 	glm::vec3 Position;
-	IGameObjectBase* Caster;
+	IEoCServerObject* Caster;
 	stats::DamagePairList* DamageList;
 };
 

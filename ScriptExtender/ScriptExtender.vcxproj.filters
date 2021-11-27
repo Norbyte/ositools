@@ -637,6 +637,12 @@
     <None Include="GameDefinitions\StatsObject.inl">
       <Filter>GameDefinitions</Filter>
     </None>
+    <None Include="Lua\Server\ServerEntitySystem.inl">
+      <Filter>Lua\Server</Filter>
+    </None>
+    <None Include="Lua\Client\ClientEntitySystem.inl">
+      <Filter>Lua\Client</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

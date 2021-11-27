@@ -70,7 +70,7 @@ namespace dse
 			return PropertyType::kTranslatedString;
 		} else if constexpr (std::is_same<T, ComponentHandle>::value) {
 			return PropertyType::kObjectHandle;
-		} else if constexpr (std::is_same<T, Vector3>::value) {
+		} else if constexpr (std::is_same<T, glm::vec3>::value) {
 			return PropertyType::kVector3;
 		} else if constexpr (std::is_same<T, NetId>::value) {
 			return PropertyType::kUInt32;
@@ -91,12 +91,12 @@ namespace dse
 			std::function<bool (void *, float)> SetFloat;
 			std::function<bool (void *, char const *)> SetString;
 			std::function<bool (void *, ComponentHandle)> SetHandle;
-			std::function<bool (void *, Vector3)> SetVector3;
+			std::function<bool (void *, glm::vec3)> SetVector3;
 			std::function<std::optional<int64_t> (void *)> GetInt;
 			std::function<std::optional<float> (void *)> GetFloat;
 			std::function<std::optional<char const *> (void *)> GetString;
 			std::function<std::optional<ComponentHandle> (void *)> GetHandle;
-			std::function<std::optional<Vector3> (void *)> GetVector3;
+			std::function<std::optional<glm::vec3> (void *)> GetVector3;
 		};
 
 		struct FlagInfo
@@ -508,7 +508,7 @@ namespace dse
 			}
 		}
 
-		std::optional<Vector3> getVector3(void * obj, FixedString const & name, bool raw, bool throwError) const
+		std::optional<glm::vec3> getVector3(void * obj, FixedString const & name, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -533,14 +533,14 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			if (prop->second.Type == PropertyType::kVector3) {
-				return *reinterpret_cast<Vector3 *>(ptr);
+				return *reinterpret_cast<glm::vec3 *>(ptr);
 			} else {
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a vector");
 				return {};
 			}
 		}
 
-		bool setVector3(void * obj, FixedString const & name, Vector3 const & value, bool raw, bool throwError) const
+		bool setVector3(void * obj, FixedString const & name, glm::vec3 const & value, bool raw, bool throwError) const
 		{
 			auto prop = Properties.find(name);
 			if (prop == Properties.end()) {
@@ -565,7 +565,7 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			if (prop->second.Type == PropertyType::kVector3) {
-				*reinterpret_cast<Vector3 *>(ptr) = value;
+				*reinterpret_cast<glm::vec3 *>(ptr) = value;
 				return true;
 			} else {
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a vector");

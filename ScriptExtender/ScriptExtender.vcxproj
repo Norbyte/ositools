@@ -253,9 +253,11 @@
     <None Include="LuaScripts\Game.Math.lua" />
     <None Include="LuaScripts\Game.Tooltip.lua" />
     <None Include="LuaScripts\SandboxStartup.lua" />
+    <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\LuaJson.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
+    <None Include="Lua\Server\ServerEntitySystem.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\LuaShared.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />

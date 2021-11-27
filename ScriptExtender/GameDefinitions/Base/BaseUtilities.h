@@ -247,6 +247,26 @@ struct UserReturn
 	int num;
 };
 
+// Return type indicating that the return value should be passed to Lua using an object proxy
+template <class T>
+struct RefReturn
+{
+	inline RefReturn()
+		: Object(nullptr)
+	{}
+	
+	inline RefReturn(T* obj)
+		: Object(obj)
+	{}
+
+	inline operator T*() const
+	{
+		return Object;
+	}
+
+	T* Object;
+};
+
 template <class T>
 struct OverrideableProperty
 {

@@ -79,11 +79,11 @@ namespace dse
 			// 6 - SetHP, osi::ApplyDamage, StatusConsume
 			uint32_t HitReason{ 6 };
 			FixedString SkillId;
-			Vector3 ImpactPosition{ .0f };
+			glm::vec3 ImpactPosition{ .0f };
 			bool HasImpactPosition{ false };
-			Vector3 ImpactOrigin{ .0f };
+			glm::vec3 ImpactOrigin{ .0f };
 			bool HasImpactOrigin{ false };
-			Vector3 ImpactDirection{ .0f };
+			glm::vec3 ImpactDirection{ .0f };
 			bool HasImpactDirection{ false };
 
 			CauseType DamageSourceType{ CauseType::None };
@@ -97,7 +97,7 @@ namespace dse
 			void SetInternalDamageInfo();
 			void SetExternalDamageInfo(stats::HitDamageInfo * damageInfo, stats::DamagePairList * damageList);
 
-			void SetVector(FixedString const& prop, Vector3 const & value);
+			void SetVector(FixedString const& prop, glm::vec3 const & value);
 			void AddDamage(stats::DamageType damageType, int32_t Amount);
 			esv::StatusHit * Execute();
 

@@ -281,71 +281,21 @@ namespace dse
 			return nullptr;
 		}
 	}
-
-	esv::Status * esv::StatusMachine::GetStatus(ComponentHandle handle, bool returnUnapplied) const
+	
+	esv::Status * esv::StatusMachine::GetServerStatus(ComponentHandle handle, bool returnUnapplied) const
 	{
 		if (returnUnapplied) {
-			for (auto statusPtr : Components) {
-#pragma message("FIXME - reintroduce typing to factories!")
-				auto status = reinterpret_cast<Status*>(statusPtr);
+			for (auto status : Components) {
 				if (status->StatusHandle == handle) {
 					return status;
 				}
 			}
+
+			return nullptr;
 		} else {
-			for (auto status : Statuses) {
-				if (status->StatusHandle == handle) {
-					return status;
-				}
-			}
+			return GetStatus(handle);
 		}
-
-		return nullptr;
 	}
-
-	esv::Status* esv::StatusMachine::GetStatus(NetId netId) const
-	{
-		return (esv::Status * )FindByNetId(netId);
-	}
-
-	esv::Status* esv::StatusMachine::GetStatus(FixedString const& statusId) const
-	{
-		for (auto status : Statuses) {
-			if (status->StatusId == statusId) {
-				return status;
-			}
-		}
-
-		return nullptr;
-	}
-
-	ecl::Status* ecl::StatusMachine::GetStatus(StatusType type) const
-	{
-		for (auto status : Statuses) {
-			if (status->GetStatusId() == type) {
-				return status;
-			}
-		}
-
-		return nullptr;
-	}
-
-	ecl::Status* ecl::StatusMachine::GetStatus(FixedString const& statusId) const
-	{
-		for (auto status : Statuses) {
-			if (status->StatusId == statusId) {
-				return status;
-			}
-		}
-
-		return nullptr;
-	}
-
-	ecl::Status* ecl::StatusMachine::GetStatus(NetId netId) const
-	{
-		return (ecl::Status *) FindByNetId(netId);
-	}
-
 
 	esv::Status * esv::Character::GetStatus(ComponentHandle statusHandle, bool returnPending, bool returnUnapplied) const
 	{
@@ -353,7 +303,7 @@ namespace dse
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatus(statusHandle, returnUnapplied);
+		auto status = StatusMachine->GetServerStatus(statusHandle, returnUnapplied);
 		if (status != nullptr) {
 			return status;
 		}
@@ -387,7 +337,7 @@ namespace dse
 			return nullptr;
 		}
 
-		auto status = StatusMachine->GetStatus(statusHandle, returnUnapplied);
+		auto status = StatusMachine->GetServerStatus(statusHandle, returnUnapplied);
 		if (status != nullptr) {
 			return status;
 		}

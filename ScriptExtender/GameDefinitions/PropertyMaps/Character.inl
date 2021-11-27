@@ -145,28 +145,8 @@ P(Region)
 END_CLS()
 
 
-BEGIN_CLS(BaseComponent)
-P_RO(EntityObjectHandle)
-END_CLS()
-
-
-BEGIN_CLS(IGameObjectBase)
-END_CLS()
-
-BEGIN_CLS(IGameObject)
-INHERIT(IGameObjectBase)
-P_REF(Base)
-P_RO(MyGuid)
-P_RO(NetID)
-
-P_FUN(IsTagged, LuaIsTagged)
-P_FUN(HasTag, LuaIsTagged)
-P_FUN(GetTags, LuaGetTags)
-END_CLS()
-
-
 BEGIN_CLS(esv::Character)
-INHERIT(IGameObject)
+INHERIT(IEoCServerObject)
 P_RO(WorldPos)
 P_RO(Flags)
 

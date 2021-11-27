@@ -14,8 +14,11 @@ struct BaseComponent
 	ComponentHandleWithType Component;
 };
 
-struct ComponentFactory : public ProtectedGameObject<ComponentFactory>
+template <class TComponent>
+struct ComponentFactory : public ProtectedGameObject<ComponentFactory<TComponent>>
 {
+	static constexpr ObjectType ObjectTypeIndex = TComponent::ObjectTypeIndex;
+
 	/*virtual ComponentHandle * ReevaluateHandle(ComponentHandle & handle) = 0;
 	virtual ComponentHandle * GetFreeHandle(ComponentHandle & handle) = 0;
 	virtual bool IsFreeIndex(uint32_t index) = 0;
@@ -25,16 +28,16 @@ struct ComponentFactory : public ProtectedGameObject<ComponentFactory>
 	virtual void Destroy() = 0;*/
 
 	void * VMT;
-	Array<void *> ComponentsByHandleIndex;
+	Array<TComponent*> ComponentsByHandleIndex;
 	Array<uint32_t> Salts;
 	Set<uint32_t> FreeSlotIndices;
-	ObjectSet<void *> Components;
-	uint8_t Unknown2;
-	uint32_t Unknown3;
+	ObjectSet<TComponent*> Components;
+	bool HasReservedIndices;
+	uint32_t MaximumSize;
 
-	void * Get(ComponentHandle handle) const
+	TComponent* Get(ComponentHandle handle) const
 	{
-		if (!handle) {
+		if (!handle || handle.GetType() != (uint32_t)ObjectTypeIndex) {
 			return nullptr;
 		}
 
@@ -71,18 +74,19 @@ struct Component : public ProtectedGameObject<Component>
 	virtual void UnreserveIndex() = 0;
 };
 
-struct NetworkComponentFactory : public ComponentFactory
+template <class TComponent>
+struct NetworkComponentFactory : public ComponentFactory<TComponent>
 {
-	Map<FixedString, void *> ObjectMap;
-	Map<uint16_t, void*> NetIds;
-	Map<uint16_t, void *> FreeNetIdMap;
-	Set<uint32_t> Unknown4;
+	Map<FixedString, TComponent*> ObjectMap;
+	Map<uint16_t, TComponent*> NetIds;
+	Map<uint16_t, TComponent*> FreeNetIdMap;
+	Set<uint32_t> FreeNetIds;
 	uint32_t NumFreeNetIDs;
 	Array<uint16_t> NetIdSalts;
 	uint16_t NextFreeNetIndex;
 	bool CanCreateNetIDs;
 
-	void* FindByNetId(NetId netId) const
+	TComponent* FindByNetId(NetId netId) const
 	{
 		if (!netId) return nullptr;
 
@@ -129,6 +133,8 @@ struct SystemTypeEntry
 
 struct EntityEntry
 {
+	static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+
 	void * VMT;
 	ComponentLayout Layout;
 };
@@ -148,7 +154,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 	enum class ComponentTypeIndexTag {};
 	using ComponentTypeIndex = TypedIntegral<int32_t, ComponentTypeIndexTag>;
 
-	ComponentFactory EntityPool;
+	ComponentFactory<EntityEntry> EntityPool;
 	Array<ComponentTypeEntry> Components;
 	ObjectSet<void *> KeepAlives; // ObjectSet<ObjectHandleRefMap<ComponentKeepAliveDesc>>
 	Array<SystemTypeEntry> SystemTypes;
@@ -198,7 +204,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		}
 
 		// FIXME - This is somewhat ugly :(
-		auto factory = reinterpret_cast<ComponentFactory*>((std::intptr_t)componentMgr + 8);
+		auto factory = reinterpret_cast<ComponentFactory<EntityEntry>*>((std::intptr_t)componentMgr + 8);
 		auto index = componentHandle.GetIndex();
 		auto salt = componentHandle.GetSalt();
 		if (index >= factory->Salts.Size) {
@@ -333,11 +339,11 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 };
 
 
-struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
+struct IGameObject : public ProtectedGameObject<IGameObject>
 {
-	virtual ~IGameObjectBase() = 0;
+	virtual ~IGameObject() = 0;
 	virtual void HandleTextKeyEvent() = 0;
-	virtual uint64_t Ret5() = 0;
+	virtual uint64_t GetRTTI() = 0;
 	virtual void SetObjectHandle(ComponentHandle Handle) = 0;
 	virtual void GetObjectHandle(ComponentHandle& Handle) const = 0;
 	virtual void SetGuid(FixedString const& fs) = 0;
@@ -345,11 +351,11 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual void SetNetID(NetId netId) = 0;
 	virtual void GetNetID(NetId& netId) const = 0;
 	virtual void SetCurrentTemplate(void* esvTemplate) = 0;
-	virtual void* GetCurrentTemplate() const = 0;
+	virtual GameObjectTemplate* GetCurrentTemplate() const = 0;
 	virtual void SetGlobal(bool isGlobal) = 0;
 	virtual bool IsGlobal() const = 0;
 	virtual uint32_t GetComponentType() = 0;
-	virtual void* GetEntityObjectByHandle(ComponentHandle handle) = 0;
+	virtual ComponentHandle* GetEntityObjectHandle(ComponentHandle& handle) = 0;
 	virtual STDWString* GetName() = 0;
 	virtual void SetFlags(uint64_t flag) = 0;
 	virtual void ClearFlags(uint64_t flag) = 0;
@@ -357,14 +363,14 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual void SetAiColliding(bool colliding) = 0;
 	virtual void GetTags(ObjectSet<FixedString> & tags) = 0;
 	virtual bool IsTagged(FixedString const & tag) = 0;
-	virtual Vector3 const* GetTranslate() const = 0;
+	virtual glm::vec3 const* GetTranslate() const = 0;
 	virtual glm::mat3 const* GetRotation() const = 0;
 	virtual float GetScale() const = 0;
-	virtual void SetTranslate(Vector3 const& translate) = 0;
+	virtual void SetTranslate(glm::vec3 const& translate) = 0;
 	virtual void SetRotation(glm::mat3 const& rotate) = 0;
 	virtual void SetScale(float scale) = 0;
-	virtual Vector3 const* GetVelocity() = 0;
-	virtual void SetVelocity(Vector3 const& translate) = 0;
+	virtual glm::vec3 const* GetVelocity() = 0;
+	virtual void SetVelocity(glm::vec3 const& translate) = 0;
 	virtual void LoadVisual() = 0;
 	virtual void UnloadVisual() = 0;
 	virtual void ReloadVisual() = 0;
@@ -379,21 +385,16 @@ struct IGameObjectBase : public ProtectedGameObject<IGameObjectBase>
 	virtual FixedString* GetCurrentLevel() const = 0;
 	virtual void SetCurrentLevel(FixedString const& level) = 0;
 
-	esv::StatusMachine* GetStatusMachine() const;
-};
+	ObjectSet<FixedString> LuaGetTags();
+	bool LuaIsTagged(FixedString const& tag);
 
-struct IGameObject : public IGameObjectBase
-{
 	BaseComponent Base;
 	FixedString MyGuid;
 
 	NetId NetID;
-
-	ObjectSet<FixedString> LuaGetTags();
-	bool LuaIsTagged(FixedString const& tag);
 };
 
-struct IEocClientObject : public IGameObject
+struct IEoCClientObject : public IGameObject
 {
 	virtual eoc::Ai * GetAi() = 0;
 	virtual void LoadAi() = 0;
@@ -413,22 +414,34 @@ struct IEocClientObject : public IGameObject
 	virtual void RemoveLight() = 0;
 	virtual FixedString * GetPlayerRace(bool returnPolymorph, bool excludeUninitialized) = 0;
 	virtual FixedString* GetPlayerOrigin(bool returnPolymorph, bool excludeUninitialized) = 0;
+
+	ecl::StatusMachine* GetStatusMachine() const;
+	RefReturn<ecl::Status> LuaGetStatus(FixedString const& statusId);
+	RefReturn<ecl::Status> LuaGetStatusByType(StatusType type);
+	ObjectSet<FixedString> LuaGetStatusIds();
+	UserReturn LuaGetStatuses(lua_State* L);
 };
 
 struct IEoCServerObject : public IGameObject
 {
-	virtual void AddPeer() = 0;
-	virtual void UNK1() = 0;
-	virtual void UNK2() = 0;
-	virtual void UNK3() = 0;
+	virtual void AddPeer(PeerId const& peer) = 0;
+	virtual void RemovePeer(PeerId const& peer) = 0;
+	virtual void ClearPeers() = 0;
+	virtual bool HasPeer(PeerId const& peer) = 0;
 	virtual eoc::Ai* GetAi() = 0;
 	virtual void LoadAi() = 0;
 	virtual void UnloadAi() = 0;
 	virtual TranslatedString* GetDisplayName(TranslatedString* name) = 0;
-	virtual void SavegameVisit() = 0;
-	virtual void GetEntityNetworkId() = 0;
-	virtual void SetTemplate() = 0;
-	virtual void SetOriginalTemplate_M() = 0;
+	virtual bool SavegameVisit(ObjectVisitor& visitor) = 0;
+	virtual NetId GetEntityNetworkId(NetId& netId) = 0;
+	virtual void SetTemplate(GameObjectTemplate* tmpl) = 0;
+	virtual void CacheTemplate(int templateType, Level* level) = 0;
+
+	esv::StatusMachine* GetStatusMachine() const;
+	RefReturn<esv::Status> LuaGetStatus(FixedString const& statusId);
+	RefReturn<esv::Status> LuaGetStatusByType(StatusType type);
+	ObjectSet<FixedString> LuaGetStatusIds();
+	UserReturn LuaGetStatuses(lua_State* L);
 };
 
 template <class TWorld>
@@ -725,29 +738,6 @@ namespace esv
 		IEoCServerObject* GetGameObject(ComponentHandle handle, bool logError = true);
 	};
 
-	struct CharacterFactory : public NetworkComponentFactory
-	{
-		void* VMT2;
-		void* VMT3;
-		Map<FixedString, void*> FSMap_ReloadComponent;
-		EntityWorld* Entities;
-		uint64_t Unkn8[2];
-	};
-
-	struct ItemFactory : public NetworkComponentFactory
-	{
-		void* VMT2;
-		void* VMT3;
-		Map<FixedString, void*> FSMap_ReloadComponent;
-		EntityWorld* Entities;
-		uint64_t Unkn8[2];
-	};
-
-	struct InventoryFactory : public NetworkComponentFactory
-	{
-		// TODO
-	};
-
 	struct GameStateMachine : public ProtectedGameObject<GameStateMachine>
 	{
 		uint8_t Unknown;
@@ -914,11 +904,6 @@ namespace ecl
 		void* WallManager;
 		ObjectSet<FixedString> TriggerTypes;
 		ObjectSet<FixedString> OS_FS2;
-	};
-
-
-	struct InventoryFactory : public NetworkComponentFactory
-	{
 	};
 
 	struct ActivationManager

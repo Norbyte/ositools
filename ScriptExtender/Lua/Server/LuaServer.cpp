@@ -12,46 +12,6 @@
 #include <ScriptHelpers.h>
 #include "resource.h"
 
-BEGIN_SE()
-
-esv::StatusMachine* IGameObjectBase::GetStatusMachine() const
-{
-	ComponentHandle handle;
-	GetObjectHandle(handle);
-
-	switch ((ObjectType)handle.GetType()) {
-	case ObjectType::ServerCharacter:
-	{
-		auto ch = static_cast<esv::Character const*>(this);
-		return ch->StatusMachine;
-	}
-	
-	case ObjectType::ServerItem:
-	{
-		auto it = static_cast<esv::Item const*>(this);
-		return it->StatusMachine;
-	}
-
-	default:
-		OsiError("Objects of type " << handle.GetType() << " have no status machine!");
-		return nullptr;
-	}
-}
-
-ObjectSet<FixedString> IGameObject::LuaGetTags()
-{
-	ObjectSet<FixedString> tags;
-	GetTags(tags);
-	return tags;
-}
-
-bool IGameObject::LuaIsTagged(FixedString const& tag)
-{
-	return IsTagged(tag);
-}
-
-END_SE()
-
 BEGIN_NS(lua)
 
 // FIXME - deprecated; use state from L wherever possible
@@ -77,7 +37,7 @@ LifetimePool& GetLifetimePool()
 
 #define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
-void LuaPolymorphic<IGameObjectBase>::MakeRef(lua_State* L, IGameObjectBase* obj, LifetimeHolder const & lifetime)
+void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
 {
 	ComponentHandle handle;
 	obj->GetObjectHandle(handle);
@@ -86,15 +46,16 @@ void LuaPolymorphic<IGameObjectBase>::MakeRef(lua_State* L, IGameObjectBase* obj
 	MAKE_REF(ServerCharacter, esv::Character)
 	MAKE_REF(ServerItem, esv::Item)
 	MAKE_REF(ServerProjectile, esv::Projectile)
+	MAKE_REF(ServerAtmosphereTrigger, esv::AtmosphereTrigger)
 
-	case ObjectType::ServerEocPointTrigger:
+	// FIXME - triggers need a prototype for each type, since they multiple-inherit from IEoCServerObject
+	/*case ObjectType::ServerEocPointTrigger:
 	case ObjectType::ServerEocAreaTrigger:
 	case ObjectType::ServerStartTrigger:
 	case ObjectType::ServerTeleportTrigger:
 	case ObjectType::ServerEventTrigger:
 	case ObjectType::ServerCrimeAreaTrigger:
 	case ObjectType::ServerCrimeRegionTrigger:
-	case ObjectType::ServerAtmosphereTrigger:
 	case ObjectType::ServerAIHintAreaTrigger:
 	case ObjectType::ServerMusicVolumeTrigger:
 	case ObjectType::ServerSecretRegionTrigger:
@@ -103,7 +64,7 @@ void LuaPolymorphic<IGameObjectBase>::MakeRef(lua_State* L, IGameObjectBase* obj
 	case ObjectType::ServerRegionTrigger:
 	case ObjectType::ServerExplorationTrigger:
 		ObjectProxy2::MakeRef(L, static_cast<esv::Trigger*>(obj), lifetime);
-		return;
+		return;*/
 
 	default:
 		OsiError("Creating Lua proxy for unknown handle type " << handle.GetType());
@@ -115,6 +76,16 @@ void LuaPolymorphic<IGameObjectBase>::MakeRef(lua_State* L, IGameObjectBase* obj
 #undef MAKE_REF
 
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
+
+void LuaPolymorphic<IEoCServerObject>::MakeRef(lua_State* L, IEoCServerObject* obj, LifetimeHolder const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* obj, LifetimeHolder const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
 
 void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHolder const & lifetime)
 {
@@ -274,14 +245,15 @@ namespace dse::esv::lua
 			return;
 		}
 
-		for (auto trigger : **triggers) {
+		// FIXME - re-add when migrated to new proxy
+		/*for (auto trigger : **triggers) {
 			if (pred(trigger)) {
 				auto guid = trigger->GetGuid();
 				if (guid && *guid) {
 					settable(L, index++, *guid);
 				}
 			}
-		}
+		}*/
 	}
 
 	int GetAllTriggers(lua_State* L)
@@ -296,6 +268,7 @@ namespace dse::esv::lua
 	}
 }
 
+#include <Lua/Server/ServerEntitySystem.inl>
 #include <Lua/Server/ServerCharacter.inl>
 
 namespace dse::lua
@@ -320,7 +293,8 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto prop = get<FixedString>(L, 2);
 
-		if (prop == GFS.strHandle) {
+		// FIXME - re-add when migrated to new proxy
+		/*if (prop == GFS.strHandle) {
 			ComponentHandle handle;
 			obj->GetObjectHandle(handle);
 			push(L, handle);
@@ -330,7 +304,7 @@ namespace dse::lua
 		if (prop == GFS.strUUID) {
 			push(L, *obj->GetGuid());
 			return 1;
-		}
+		}*/
 
 		if (prop == GFS.strTriggerData) {
 			auto atm = reinterpret_cast<esv::AtmosphereTrigger*>(obj);
@@ -532,17 +506,8 @@ namespace dse::lua
 			return 1;
 		}
 
-		if (propFS == GFS.strHasTag) {
-			lua_pushcfunction(L, &GameObjectHasTag<esv::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetTags) {
-			lua_pushcfunction(L, &GameObjectGetTags<esv::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatus) {
+		// FIXME - re-add when migrated to new proxy
+		/*if (propFS == GFS.strGetStatus) {
 			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Item>));
 			return 1;
 		}
@@ -560,7 +525,7 @@ namespace dse::lua
 		if (propFS == GFS.strGetStatusObjects) {
 			lua_pushcfunction(L, (&GameObjectGetStatusObjects<esv::Item>));
 			return 1;
-		}
+		}*/
 
 		if (propFS == GFS.strStats) {
 			MakeObjectRef(L, item->Stats);
@@ -1253,9 +1218,11 @@ namespace dse::esv::lua
 		}
 
 		if (trigger != nullptr) {
-			ComponentHandle handle;
+			// FIXME - re-add when migrated to new proxy
+			/*ComponentHandle handle;
 			trigger->GetObjectHandle(handle);
-			ObjectProxy<Trigger>::New(L, handle);
+			ObjectProxy<Trigger>::New(L, handle);*/
+			push(L, nullptr);
 		} else {
 			push(L, nullptr);
 		}
@@ -1263,7 +1230,7 @@ namespace dse::esv::lua
 		return 1;
 	}
 
-	IGameObjectBase* GetGameObjectInternal(ComponentHandle const& handle)
+	IEoCServerObject* GetGameObjectInternal(ComponentHandle const& handle)
 	{
 		switch ((ObjectType)handle.GetType()) {
 		case ObjectType::ServerCharacter:
@@ -1275,7 +1242,8 @@ namespace dse::esv::lua
 		case ObjectType::ServerProjectile:
 			return GetEntityWorld()->GetProjectile(handle);
 
-		case ObjectType::ServerEocPointTrigger:
+		// FIXME - re-add when migrated to new proxy
+		/*case ObjectType::ServerEocPointTrigger:
 		case ObjectType::ServerEocAreaTrigger:
 		case ObjectType::ServerStartTrigger:
 		case ObjectType::ServerTeleportTrigger:
@@ -1290,7 +1258,7 @@ namespace dse::esv::lua
 		case ObjectType::ServerSoundVolumeTrigger:
 		case ObjectType::ServerRegionTrigger:
 		case ObjectType::ServerExplorationTrigger:
-			return GetEntityWorld()->GetTrigger(handle);
+			return GetEntityWorld()->GetTrigger(handle);*/
 
 		default:
 			OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
@@ -1298,7 +1266,7 @@ namespace dse::esv::lua
 		}
 	}
 
-	IGameObjectBase* GetGameObjectInternal(char const* nameGuid)
+	IEoCServerObject* GetGameObjectInternal(char const* nameGuid)
 	{
 		auto character = GetEntityWorld()->GetCharacter(nameGuid, false);
 		if (character) {
@@ -1309,16 +1277,17 @@ namespace dse::esv::lua
 		if (item) {
 			return item;
 		}
-		
-		auto trigger = GetEntityWorld()->GetTrigger(nameGuid, false);
+
+		// FIXME - re-add when migrated to new proxy
+		/*auto trigger = GetEntityWorld()->GetTrigger(nameGuid, false);
 		if (trigger) {
 			return trigger;
-		}
+		}*/
 
 		return nullptr;
 	}
 
-	IGameObjectBase* GetGameObjectInternal(lua_State* L, int idx)
+	IEoCServerObject* GetGameObjectInternal(lua_State* L, int idx)
 	{
 		switch (lua_type(L, idx)) {
 		case LUA_TLIGHTUSERDATA:

@@ -177,6 +177,7 @@ namespace dse
 
 		struct Character : public IEoCServerObject
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ServerCharacter;
 
 			using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
 				stats::HitType hitType, bool noHitRoll, stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag, bool procWindWalker, stats::CriticalRoll criticalRoll);
@@ -316,6 +317,15 @@ namespace dse
 			std::optional<int> GetCustomStatValue(FixedString const& statId);
 			bool SetCustomStatValue(FixedString const& statId, int value);
 		};
+
+		struct CharacterFactory : public NetworkComponentFactory<Character>
+		{
+			void* VMT2;
+			void* VMT3;
+			Map<FixedString, void*> FSMap_ReloadComponent;
+			EntityWorld* Entities;
+			uint64_t Unkn8[2];
+		};
 	}
 
 	namespace ecl 
@@ -362,8 +372,10 @@ namespace dse
 
 
 
-		struct Character : public IEocClientObject
+		struct Character : public IEoCClientObject
 		{
+			static constexpr auto ObjectTypeIndex = ObjectType::ClientCharacter;
+
 			Status* GetStatus(ComponentHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 

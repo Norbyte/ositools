@@ -60,9 +60,11 @@ void StatLoadOrderHelper::OnStatFileOpened(Path const& path)
 		std::unique_lock lock(modMapMutex_);
 
 		auto modIt = modDirectoryToModMap_.find(match[1].str().c_str());
-		if (modIt != modDirectoryToModMap_.end() && statLastTxtMod_ != modIt->second) {
-			statLastTxtMod_ = modIt->second;
-			OnStatFileOpened();
+		if (modIt != modDirectoryToModMap_.end()) {
+			if (statLastTxtMod_ != modIt->second) {
+				statLastTxtMod_ = modIt->second;
+				OnStatFileOpened();
+			}
 		} else {
 			WARN("Unable to resolve mod while loading stats .txt: %s", path.Name.c_str());
 		}

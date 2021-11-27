@@ -70,9 +70,9 @@ namespace dse
 
     struct EoCGameObjectTemplate : public GameObjectTemplate
     {
-        Vector3 AIBoundsMin;
+        glm::vec3 AIBoundsMin;
         uint8_t _Pad0[4];
-        Vector3 AIBoundsMax;
+        glm::vec3 AIBoundsMax;
         uint8_t _Pad1[4];
         OverrideableProperty<float> AIBoundsRadius;
         OverrideableProperty<float> AIBoundsHeight;

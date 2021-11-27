@@ -47,6 +47,8 @@ namespace dse
 
         struct Surface : ProtectedGameObject<Surface>
         {
+            static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+
             FixedString FS1;
             NetId NetID;
             ComponentHandle MyHandle;
@@ -82,7 +84,7 @@ namespace dse
             PrimitiveSmallSet<SurfaceCell> Cells;
         };
 
-        struct SurfaceManager : public ComponentFactory // FIXME - <Surface, (uint32_t)ObjectType::Unknown>
+        struct SurfaceManager : public ComponentFactory<Surface>
         {
             BaseComponentProcessingSystem ComponentProcessingSystem;
             uint64_t field_98;
@@ -110,6 +112,8 @@ namespace dse
 
         struct SurfaceAction : ProtectedGameObject<SurfaceAction>
         {
+            static constexpr auto ObjectTypeIndex = ObjectType::ServerSurfaceAction;
+
             SurfaceActionVMT* VMT;
             Level* Level;
             ComponentHandle MyHandle;
@@ -294,7 +298,7 @@ namespace dse
         };
 
 
-        struct SurfaceActionFactory : public ComponentFactory // FIXME - <SurfaceAction, (uint32_t)ObjectType::ServerSurfaceAction>
+        struct SurfaceActionFactory : public ComponentFactory<SurfaceAction>
         {
             using CreateActionProc = esv::SurfaceAction* (esv::SurfaceActionFactory* self, SurfaceActionType actionId, uint64_t handle);
         };
