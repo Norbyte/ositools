@@ -643,6 +643,9 @@
     <None Include="Lua\Client\ClientEntitySystem.inl">
       <Filter>Lua\Client</Filter>
     </None>
+    <None Include="Lua\Libs\LuaTypes.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

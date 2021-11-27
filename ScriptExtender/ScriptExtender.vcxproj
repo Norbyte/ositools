@@ -256,6 +256,7 @@
     <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\LuaJson.inl" />
+    <None Include="Lua\Libs\LuaTypes.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
     <None Include="Lua\Server\ServerEntitySystem.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />

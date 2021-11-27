@@ -126,3 +126,9 @@ _P = Ext.Print
 -- Backwards compatibility with old JSON APIs
 Ext.JsonStringify = Ext.Json.Stringify
 Ext.JsonParse = Ext.Json.Parse
+
+-- New getmetatable() to support fetching type information for proxy objects
+local base_getmetatable = getmetatable
+getmetatable = function (obj)
+	return Ext.Types.GetObjectType(obj) or base_getmetatable(obj)
+end
