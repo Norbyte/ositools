@@ -344,7 +344,7 @@ INHERIT(stats::Object)
 P_RO(InstanceId)
 END_CLS()
 
-BEGIN_CLS(stats::Character)
+BEGIN_CLS_TN(stats::Character, CDivinityStats_Character)
 INHERIT(stats::ObjectInstance)
 P(CurrentVitality)
 P(CurrentArmor)
@@ -513,7 +513,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 
 END_CLS()
 
-BEGIN_CLS(stats::Item)
+BEGIN_CLS_TN(stats::Item, CDivinityStats_Item)
 INHERIT(stats::ObjectInstance)
 P_RO(ItemType)
 P_RO(ItemSlot)

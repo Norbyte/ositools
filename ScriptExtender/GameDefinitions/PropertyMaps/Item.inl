@@ -27,42 +27,41 @@ P(GMFolding)
 P(CanUseRemotely)
 END_CLS()
 
+BEGIN_CLS(esv::ItemGeneration)
+P_RO(Base)
+P_RO(ItemType)
+P_RO(Random)
+P_RO(Level)
+P_RO(Boosts)
+END_CLS()
 
 BEGIN_CLS(esv::Item)
 INHERIT(IEoCServerObject)
 P_RO(WorldPos)
-P(Flags);
-P(Flags2);
+P(Flags)
+P_BITMASK(Flags)
+P(Flags2)
+P_BITMASK(Flags2)
 /*
 // Make dangerous flags read-only
 propertyMap.Flags[GFS.strActivated].Flags &= ~kPropWrite;
 propertyMap.Flags[GFS.strOffStage].Flags &= ~kPropWrite;
 propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
 propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
-
-EnumInfo<esv::ItemFlags>::Values.Iterate([&propertyMap](auto const& name, auto const& id) {
-	auto& flag = propertyMap.Flags[name];
-	if (flag.Flags & kPropWrite) {
-		flag.Set = [id](void* obj, bool value) -> bool {
-			auto ch = reinterpret_cast<esv::Item*>(obj);
-			if (value) {
-				ch->SetFlags((uint64_t)id);
-			}
-			else {
-				ch->ClearFlags((uint64_t)id);
-			}
-			return true;
-		};
-	}
-	});
-	*/
+*/
 P_RO(CurrentLevel)
 // Available via IGameObject
 // P_RO(Scale)
+P_REF(AI)
+P_REF(CurrentTemplate)
+P(OriginalTemplateType)
 P(CustomDisplayName)
 P(CustomDescription)
 P(CustomBookContent)
 P(StatsId)
+P_REF(Stats)
+P_REF(StatsFromName)
+P_REF(Generation)
 P_RO(InventoryHandle)
 P_RO(ParentInventoryHandle)
 P_RO(Slot)
@@ -70,16 +69,25 @@ P(Amount)
 P(Vitality)
 P(Armor)
 P_RO(InUseByCharacterHandle)
+P(UserId)
 P(Key)
 P(LockLevel)
+P_REF(StatusMachine)
+P_RO(VisualResourceID)
 P_RO(OwnerHandle)
+P_RO(OriginalOwnerCharacter)
+// FIXME - Sockets?
 P(ComputedVitality)
 P(ItemType)
 P(GoldValueOverwrite)
 P(WeightValueOverwrite)
+P_REF(Tags)
+P_RO(TeleportTargetOverride)
 P(TreasureLevel)
-P(LevelOverride)
+P_RO(LevelOverride)
 P_RO(ForceSynch)
+P_RO(TeleportUseCount)
+P_RO(PreviousLevel)
 
 // v55 compatibility
 PN_REF(RootTemplate, CurrentTemplate)
@@ -94,14 +102,15 @@ END_CLS()
 
 
 BEGIN_CLS(ecl::Item)
-// EoCClientObject
-P_RO(NetID)
-P_RO(MyGuid)
-// Item
+INHERIT(IEoCClientObject)
 P_RO(WorldPos)
 P_RO(CurrentLevel)
-P_RO(Scale)
+// Available via IGameObject
+// P_RO(Scale)
+P_REF(CurrentTemplate)
+P_REF(Stats)
 P_RO(StatsId)
+P_REF(StatsFromName)
 P_RO(Weight)
 P_RO(KeyName)
 P_RO(Level)

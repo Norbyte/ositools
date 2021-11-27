@@ -118,7 +118,8 @@ bool EnableWriteProtectedWrites{ false };
 #define BEGIN_CLS_TN(cls, typeName) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
-	pm.Name = FixedString(#cls);
+	pm.Init(); \
+	pm.Name = FixedString(#typeName);
 
 #define END_CLS() pm.Finish(); \
 	}

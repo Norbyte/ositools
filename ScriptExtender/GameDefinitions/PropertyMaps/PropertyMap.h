@@ -238,7 +238,7 @@ namespace dse
 			}
 
 			if (!raw && !(prop->second.Flags & kPropWrite)) {
-				OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property not writeable; contact Norbyte on Discord if you have a legitimate use case for doing this.");
+				OsiError("Failed to set int property '" << name << "' of [" << Name << "]: Property not writeable.");
 				return false;
 			}
 

@@ -1054,6 +1054,10 @@ namespace dse::esv::lua
 
 	IEoCServerObject* GetGameObjectInternal(ComponentHandle const& handle)
 	{
+		if (!handle) {
+			return nullptr;
+		}
+
 		switch ((ObjectType)handle.GetType()) {
 		case ObjectType::ServerCharacter:
 			return GetEntityWorld()->GetCharacter(handle);
