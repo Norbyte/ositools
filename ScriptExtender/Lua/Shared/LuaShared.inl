@@ -23,7 +23,7 @@ template <class TObject>
 int GameObjectGetDisplayName(lua_State* L, TObject* object)
 {
 	TranslatedString name;
-	object->GetDisplayName(&name);
+	object->GetDisplayName(name);
 	push(L, name.Handle.ReferenceString);
 	return 1;
 }

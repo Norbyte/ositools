@@ -292,8 +292,6 @@ PN_REF(RootTemplate, CurrentTemplate)
 // FIXME - PlayerCustomData - PlayerData->CustomData
 // if (character->PlayerData != nullptr
 // && character->PlayerData->CustomData.Initialized) {
-// Handle -> Base.Component.Handle
-// DisplayName -> GameObjectGetDisplayName<esv::Character>(L, character)
 
 P_FUN(GetInventoryItems, GetInventoryItemGuids)
 P_FUN(GetSkills, GetSkillIds)

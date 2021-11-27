@@ -38,6 +38,52 @@ bool IGameObject::LuaIsTagged(FixedString const& tag)
 	return IsTagged(tag);
 }
 
+ComponentHandle IGameObject::LuaGetHandle()
+{
+	ComponentHandle handle;
+	GetObjectHandle(handle);
+	return handle;
+}
+
+EntityHandle IGameObject::LuaGetEntityHandle()
+{
+	EntityHandle handle;
+	GetEntityHandle(handle);
+	return handle;
+}
+
+glm::vec3 IGameObject::LuaGetTranslate()
+{
+	return *GetTranslate();
+}
+
+glm::mat3 IGameObject::LuaGetRotate()
+{
+	return *GetRotation();
+}
+
+float IGameObject::LuaGetScale()
+{
+	return GetScale();
+}
+
+glm::vec3 IGameObject::LuaGetVelocity()
+{
+	return *GetVelocity();
+}
+
+float IGameObject::LuaGetHeight()
+{
+	return GetHeight();
+}
+
+std::optional<STDWString> IEoCServerObject::LuaGetDisplayName()
+{
+	TranslatedString name;
+	GetDisplayName(name);
+	return name.Handle.ReferenceString;
+}
+
 RefReturn<esv::Status> IEoCServerObject::LuaGetStatus(FixedString const& statusId)
 {
 	auto statusMachine = GetStatusMachine();

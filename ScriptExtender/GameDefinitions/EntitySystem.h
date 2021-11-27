@@ -355,7 +355,7 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	virtual void SetGlobal(bool isGlobal) = 0;
 	virtual bool IsGlobal() const = 0;
 	virtual uint32_t GetComponentType() = 0;
-	virtual ComponentHandle* GetEntityObjectHandle(ComponentHandle& handle) = 0;
+	virtual EntityHandle* GetEntityHandle(EntityHandle& handle) = 0;
 	virtual STDWString* GetName() = 0;
 	virtual void SetFlags(uint64_t flag) = 0;
 	virtual void ClearFlags(uint64_t flag) = 0;
@@ -380,13 +380,21 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	virtual void LoadPhysics() = 0;
 	virtual void UnloadPhysics() = 0;
 	virtual void ReloadPhysics() = 0;
-	virtual void GetHeight() = 0;
+	virtual float GetHeight() = 0;
 	virtual void GetParentUUID() = 0;
 	virtual FixedString* GetCurrentLevel() const = 0;
 	virtual void SetCurrentLevel(FixedString const& level) = 0;
 
 	ObjectSet<FixedString> LuaGetTags();
 	bool LuaIsTagged(FixedString const& tag);
+
+	ComponentHandle LuaGetHandle();
+	EntityHandle LuaGetEntityHandle();
+	glm::vec3 LuaGetTranslate();
+	glm::mat3 LuaGetRotate();
+	float LuaGetScale();
+	glm::vec3 LuaGetVelocity();
+	float LuaGetHeight();
 
 	BaseComponent Base;
 	FixedString MyGuid;
@@ -406,7 +414,7 @@ struct IEoCClientObject : public IGameObject
 	virtual FixedString * Unknown4() = 0;
 	virtual bool Unknown5() = 0;
 	virtual float GetHeight2() = 0;
-	virtual TranslatedString* GetDisplayName(TranslatedString* name) = 0;
+	virtual TranslatedString* GetDisplayName(TranslatedString& name) = 0;
 	virtual float Unknown6() = 0;
 	virtual void SavegameVisit() = 0;
 	virtual void SetLight(FixedString *) = 0;
@@ -431,12 +439,13 @@ struct IEoCServerObject : public IGameObject
 	virtual eoc::Ai* GetAi() = 0;
 	virtual void LoadAi() = 0;
 	virtual void UnloadAi() = 0;
-	virtual TranslatedString* GetDisplayName(TranslatedString* name) = 0;
+	virtual TranslatedString* GetDisplayName(TranslatedString& name) = 0;
 	virtual bool SavegameVisit(ObjectVisitor& visitor) = 0;
 	virtual NetId GetEntityNetworkId(NetId& netId) = 0;
 	virtual void SetTemplate(GameObjectTemplate* tmpl) = 0;
 	virtual void CacheTemplate(int templateType, Level* level) = 0;
 
+	std::optional<STDWString> LuaGetDisplayName();
 	esv::StatusMachine* GetStatusMachine() const;
 	RefReturn<esv::Status> LuaGetStatus(FixedString const& statusId);
 	RefReturn<esv::Status> LuaGetStatusByType(StatusType type);

@@ -75,18 +75,9 @@ P(CleanseStatuses)
 P(StatusClearChance)
 P_RO(Position)
 P_RO(PrevPosition)
-P_RO(Velocity)
-P_RO(Scale)
+// Available via IGameObject
+// P_RO(Velocity)
+// P_RO(Scale)
 P_RO(CurrentLevel)
 PN_REF(RootTemplate, ProjectileTemplate)
-
-#if defined(GENERATING_PROPMAP)
-// v55 compatibility
-pm.AddProperty("Handle",
-	[](lua_State* L, LifetimeHolder const& lifetime, esv::Projectile* obj, std::size_t offset, uint64_t flag) {
-		push(L, obj->Base.Component.Handle);
-		return true;
-	}
-);
-#endif
 END_CLS()
