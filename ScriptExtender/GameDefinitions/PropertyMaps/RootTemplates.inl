@@ -54,6 +54,7 @@ END_CLS()
 BEGIN_CLS(CharacterTemplate)
 INHERIT(EoCGameObjectTemplate)
 P_REF(CombatComponent)
+PN_REF(CombatTemplate, CombatComponent) // v55 compatibility
 P(Icon)
 P(Stats)
 P(SkillSet)

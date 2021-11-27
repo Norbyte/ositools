@@ -19,7 +19,78 @@ END_SE()
 namespace dse::lua
 {
 	using namespace dse::ecl::lua;
+	
+	class UIObjectProxyRefImpl : public ObjectProxyImplBase
+	{
+	public:
+		UIObjectProxyRefImpl(LifetimeHolder const& containerLifetime, UIObject* obj, LifetimeHolder const& lifetime)
+			: handle_(obj->UIObjectHandle), containerLifetime_(containerLifetime), lifetime_(lifetime)
+		{}
+		
+		~UIObjectProxyRefImpl() override
+		{}
 
+		UIObject* Get() const
+		{
+			auto self = GetStaticSymbols().GetUIObjectManager()->Get(handle_);
+			if (!lifetime_.IsAlive()) {
+				WarnDeprecated56("An access was made to a UIObject instance after its lifetime has expired; this behavior is deprecated.");
+			}
+
+			return self;
+		}
+
+		void* GetRaw() override
+		{
+			return Get();
+		}
+
+		FixedString const& GetTypeName() const override
+		{
+			return StaticLuaPropertyMap<UIObject>::PropertyMap.Name;
+		}
+
+		bool GetProperty(lua_State* L, FixedString const& prop) override
+		{
+			auto ui = Get();
+			if (!ui) return false;
+			return ObjectProxyHelpers<UIObject>::GetProperty(L, ui, containerLifetime_, prop);
+		}
+
+		bool SetProperty(lua_State* L, FixedString const& prop, int index) override
+		{
+			auto ui = Get();
+			if (!ui) return false;
+			return ObjectProxyHelpers<UIObject>::SetProperty(L, ui, containerLifetime_, prop, index);
+		}
+
+		int Next(lua_State* L, FixedString const& key) override
+		{
+			auto ui = Get();
+			if (!ui) return 0;
+			return ObjectProxyHelpers<UIObject>::Next(L, ui, containerLifetime_, key);
+		}
+
+		bool IsA(FixedString const& typeName) override
+		{
+			return ObjectProxyHelpers<UIObject>::IsA(typeName);
+		}
+
+	private:
+		ComponentHandle handle_;
+		LifetimeHolder containerLifetime_;
+		LifetimeReference lifetime_;
+	};
+
+	void MakeUIRef(lua_State* L, UIObject* obj)
+	{
+		if (obj) {
+			ObjectProxy2::MakeImpl<UIObjectProxyRefImpl, UIObject>(L, obj, State::FromLua(L)->GetGlobalLifetime(),
+				State::FromLua(L)->GetCurrentLifetime());
+		} else {
+			push(L, nullptr);
+		}
+	}
 
 	void LuaToInvokeDataValue(lua_State * L, int index, ig::InvokeDataValue & val)
 	{
@@ -1777,7 +1848,7 @@ BEGIN_NS(ecl::lua)
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			OsiError("An UI object with name '" << name << "' already exists!");
-			MakeObjectRef(L, ui);
+			MakeUIRef(L, ui);
 			return 1;
 		}
 
@@ -1833,7 +1904,7 @@ BEGIN_NS(ecl::lua)
 		}
 
 		pin->OnCustomClientUIObjectCreated(name, handle);
-		MakeObjectRef(L, object);
+		MakeUIRef(L, object);
 		return 1;
 	}
 
@@ -1844,7 +1915,7 @@ BEGIN_NS(ecl::lua)
 
 		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
-		MakeObjectRef(L, ui);
+		MakeUIRef(L, ui);
 
 		return 1;
 	}
@@ -1860,7 +1931,7 @@ BEGIN_NS(ecl::lua)
 			ui = uiManager->GetByType(typeId);
 		}
 
-		MakeObjectRef(L, ui);
+		MakeUIRef(L, ui);
 
 		return 1;
 	}
@@ -1882,7 +1953,7 @@ BEGIN_NS(ecl::lua)
 			auto ui = (UIObject*)uiPtr;
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.c_str()) {
-				MakeObjectRef(L, ui);
+				MakeUIRef(L, ui);
 				return 1;
 			}
 		}

@@ -620,7 +620,7 @@ AttributeType ValueList::GetPropertyType() const
 		return AttributeType::Conditions;
 	}
 
-	if (Name == GFS.strRequirements) {
+	if (Name == GFS.strRequirements || Name == GFS.strMemorizationRequirements) {
 		return AttributeType::Requirements;
 	}
 

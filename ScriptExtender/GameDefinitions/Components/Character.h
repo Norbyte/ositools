@@ -402,7 +402,7 @@ namespace dse
 			NetId NetID3;
 			CharacterTemplate* Template;
 			CharacterTemplate* OriginalTemplate;
-			Character* Stats;
+			stats::Character* Stats;
 			ComponentHandle InventoryHandle;
 			void* MovementMachine;
 			void* ActionStateMachine;
