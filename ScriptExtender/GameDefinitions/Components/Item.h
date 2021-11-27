@@ -153,6 +153,14 @@ namespace dse
 			bool ForceSynch; // Saved
 			int32_t TeleportUseCount; // Saved
 			FixedString PreviousLevel; // Saved
+
+			ObjectSet<FixedString> GetInventoryItemGuids();
+			ObjectSet<Item*> GetInventoryItems();
+			ObjectSet<FixedString> GetNearbyCharacters(float distance);
+			CompactObjectSet<FixedString> GetGeneratedBoosts();
+			void LuaSetGeneratedBoosts(lua_State* L);
+			ObjectSet<FixedString> GetDeltaMods();
+			void LuaSetDeltaMods(lua_State* L);
 		};
 
 		typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);

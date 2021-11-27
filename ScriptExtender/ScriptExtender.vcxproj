@@ -260,6 +260,7 @@
     <None Include="Lua\Libs\LuaTypes.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
     <None Include="Lua\Server\ServerEntitySystem.inl" />
+    <None Include="Lua\Server\ServerItem.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\LuaShared.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />

@@ -85,7 +85,7 @@ namespace dse::esv
 
 			int32_t count = 0;
 			if (item->Stats != nullptr) {
-				for (auto const& boost : item->Stats->BoostNameSet) {
+				for (auto const& boost : item->Stats->DeltaMods) {
 					if (boost == deltaMod) {
 						count++;
 					}
@@ -125,7 +125,7 @@ namespace dse::esv
 			}
 
 			if (item->Stats != nullptr) {
-				for (auto const& boost : item->Stats->BoostNameSet) {
+				for (auto const& boost : item->Stats->DeltaMods) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
 					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });

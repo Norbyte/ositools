@@ -57,7 +57,8 @@ EnumInfo<esv::ItemFlags>::Values.Iterate([&propertyMap](auto const& name, auto c
 	});
 	*/
 P_RO(CurrentLevel)
-P_RO(Scale)
+// Available via IGameObject
+// P_RO(Scale)
 P(CustomDisplayName)
 P(CustomDescription)
 P(CustomBookContent)
@@ -79,6 +80,16 @@ P(WeightValueOverwrite)
 P(TreasureLevel)
 P(LevelOverride)
 P_RO(ForceSynch)
+
+// v55 compatibility
+PN_REF(RootTemplate, CurrentTemplate)
+
+P_FUN(GetInventoryItems, GetInventoryItemGuids)
+P_FUN(GetNearbyCharacters, GetNearbyCharacters)
+P_FUN(GetDeltaMods, GetDeltaMods)
+P_FUN(SetDeltaMods, LuaSetDeltaMods)
+P_FUN(GetGeneratedBoosts, GetGeneratedBoosts)
+P_FUN(SetGeneratedBoosts, LuaSetGeneratedBoosts)
 END_CLS()
 
 

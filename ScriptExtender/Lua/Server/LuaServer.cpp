@@ -270,6 +270,7 @@ namespace dse::esv::lua
 
 #include <Lua/Server/ServerEntitySystem.inl>
 #include <Lua/Server/ServerCharacter.inl>
+#include <Lua/Server/ServerItem.inl>
 
 namespace dse::lua
 {
@@ -398,171 +399,6 @@ namespace dse::lua
 
 
 #include <Lua/Shared/LuaShared.inl>
-
-
-	char const* const ObjectProxy<esv::Item>::MetatableName = "esv::Item";
-
-	esv::Item* ObjectProxy<esv::Item>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto item = esv::GetEntityWorld()->GetItem(handle_);
-		if (item == nullptr) luaL_error(L, "Item handle invalid");
-		return item;
-	}
-
-	int ItemGetInventoryItems(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
-
-		// FIXME - GetInventoryItems(L, self->Get(L)->InventoryHandle);
-
-		return 1;
-	}
-
-	int ItemGetNearbyCharacters(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
-		auto pos = self->Get(L)->WorldPos;
-		auto distance = get<float>(L, 2);
-
-		esv::lua::GetCharactersGenericOld(L, FixedString{}, [pos, distance](esv::Character* c) {
-			return abs(glm::length(pos - c->WorldPos)) < distance;
-		});
-		return 1;
-	}
-
-	int ItemGetGeneratedBoosts(lua_State* L)
-	{
-		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
-		auto item = self->Get(L);
-		if (!item) return 0;
-
-		StackCheck _(L, 1);
-		lua_newtable(L);
-		int32_t index{ 1 };
-		if (item->Generation != nullptr) {
-			for (auto const& boost : item->Generation->Boosts) {
-				settable(L, index++, boost);
-			}
-		}
-
-		return 1;
-	}
-
-	int ItemSetGeneratedBoosts(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto self = get<ObjectProxy<esv::Item>*>(L, 1);
-		auto item = self->Get(L);
-		if (!item) return 0;
-
-		CompactObjectSet<FixedString> boosts;
-		LuaRead(L, boosts);
-
-		if (item->Generation != nullptr) {
-			item->Generation->Boosts = boosts;
-		}
-
-		return 0;
-	}
-
-	int ObjectProxy<esv::Item>::Index(lua_State* L)
-	{
-		auto item = Get(L);
-		if (!item) return 0;
-
-		StackCheck _(L, 1);
-		auto propFS = get<FixedString>(L, 2);
-
-		if (propFS == GFS.strGetInventoryItems) {
-			lua_pushcfunction(L, &ItemGetInventoryItems);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetNearbyCharacters) {
-			lua_pushcfunction(L, &ItemGetNearbyCharacters);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetDeltaMods) {
-			lua_pushcfunction(L, &ItemGetDeltaMods<esv::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strSetDeltaMods) {
-			lua_pushcfunction(L, &ItemSetDeltaMods<esv::Item>);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetGeneratedBoosts) {
-			lua_pushcfunction(L, &ItemGetGeneratedBoosts);
-			return 1;
-		}
-
-		if (propFS == GFS.strSetGeneratedBoosts) {
-			lua_pushcfunction(L, &ItemSetGeneratedBoosts);
-			return 1;
-		}
-
-		// FIXME - re-add when migrated to new proxy
-		/*if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<esv::Item>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<esv::Item>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatuses) {
-			lua_pushcfunction(L, (&GameObjectGetStatuses<esv::Item>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<esv::Item>));
-			return 1;
-		}*/
-
-		if (propFS == GFS.strStats) {
-			MakeObjectRef(L, item->Stats);
-			return 1;
-		}
-
-		if (propFS == GFS.strHandle) {
-			push(L, item->Base.Component.Handle);
-			return 1;
-		}
-
-		if (propFS == GFS.strRootTemplate) {
-			ObjectProxy<ItemTemplate>::New(L, GetServerLifetime(), item->CurrentTemplate);
-			return 1;
-		}
-
-		if (propFS == GFS.strDisplayName) {
-			return GameObjectGetDisplayName<esv::Item>(L, item);
-		}
-
-		bool fetched = false;
-		if (item->Stats != nullptr) {
-			fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, propFS, false);
-		}
-
-		if (!fetched) {
-			fetched = LuaPropertyMapGet(L, gItemPropertyMap, item, propFS, true);
-		}
-
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	int ObjectProxy<esv::Item>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gItemPropertyMap);
-	}
 
 
 	char const* const ObjectProxy<eoc::ItemDefinition>::MetatableName = "eoc::ItemDefinition";
@@ -990,13 +826,7 @@ namespace dse::esv::lua
 			MakeObjectRef(L, character);
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
-			if (item != nullptr) {
-				ComponentHandle handle;
-				item->GetObjectHandle(handle);
-				ObjectProxy<esv::Item>::New(L, handle);
-			} else {
-				push(L, nullptr);
-			}
+			MakeObjectRef(L, item);
 		} else {
 			OsiError("Combat team has no attribute named " << prop);
 			push(L, nullptr);
@@ -1018,7 +848,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectProxy<esv::Item>::New(L, GetServerLifetime(), item);
+		MakeObjectRef(L, item);
 		return 1;
 	}
 
@@ -1051,7 +881,6 @@ namespace dse::esv::lua
 	{
 		ExtensionLibrary::Register(L);
 
-		ObjectProxy<esv::Item>::RegisterMetatable(L);
 		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
 		ObjectProxy<esv::Trigger>::RegisterMetatable(L);
 		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
@@ -1176,14 +1005,7 @@ namespace dse::esv::lua
 			return 1;
 		}
 
-		if (item != nullptr) {
-			ComponentHandle handle;
-			item->GetObjectHandle(handle);
-			ObjectProxy<esv::Item>::New(L, handle);
-		} else {
-			push(L, nullptr);
-		}
-
+		MakeObjectRef(L, item);
 		return 1;
 	}
 
@@ -1992,7 +1814,7 @@ namespace dse::esv::lua
 				push(L, nullptr);
 			}
 		} else {
-			auto item = ObjectProxy<esv::Item>::CheckedGet(L, 1);
+			auto item = ObjectProxy2::CheckedGet<esv::Item>(L, 1);
 			bool recursive{ false };
 			if (lua_gettop(L) > 1) {
 				recursive = get<bool>(L, 2);
@@ -2568,8 +2390,11 @@ namespace dse::esv::lua
 		}
 
 		case (uint32_t)ObjectType::ServerItem:
-			ObjectProxy<esv::Item>::New(L, handle);
+		{
+			auto item = esv::GetEntityWorld()->GetItem(handle);
+			MakeObjectRef(L, item);
 			break;
+		}
 
 		case (uint32_t)ObjectType::ServerProjectile:
 		{

@@ -649,6 +649,9 @@
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="Lua\Server\ServerItem.inl">
+      <Filter>Lua\Server</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

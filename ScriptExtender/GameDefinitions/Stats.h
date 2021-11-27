@@ -614,7 +614,7 @@ struct Item : public ObjectInstance
 	uint8_t NameIndex;
 	uint32_t NameCool;
 	ObjectSet<void *> Tags_Maybe;
-	ObjectSet<FixedString> BoostNameSet;
+	ObjectSet<FixedString> DeltaMods;
 
 	int32_t GetPhysicalResistance();
 	int32_t GetPiercingResistance();

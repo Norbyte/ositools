@@ -534,7 +534,7 @@ P_RO(AttributeFlags)
 P_BITMASK(AttributeFlags)
 P(MaxCharges)
 P(Charges)
-P_REF(BoostNameSet)
+P_REF(DeltaMods)
 
 
 #if defined(GENERATING_PROPMAP)

@@ -184,7 +184,8 @@ propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 
 P_RO(CurrentLevel)
 // FIXME - no mat3 serializer yet! P_RO(WorldRot)
-P_RO(Scale)
+// Available via IGameObject
+// P_RO(Scale)
 P_REF(CurrentTemplate)
 P_REF(OriginalTemplate)
 P_REF(TemplateUsedForSkills)
@@ -302,10 +303,6 @@ P_FUN(GetSummons, GetSummonGuids)
 P_FUN(GetCustomStat, GetCustomStatValue)
 P_FUN(SetCustomStat, SetCustomStatValue)
 // FIXME - 
-// GetStatus
-// GetStatusByType
-// GetStatuses
-// GetStatusObjects
 // SetScale
 
 END_CLS()
@@ -319,7 +316,8 @@ P_RO(MyGuid)
 // Character
 P_RO(WorldPos)
 P_RO(CurrentLevel)
-P_RO(Scale)
+// Available via IGameObject
+// P_RO(Scale)
 P_RO(UserID)
 P_RO(OwnerCharacterHandle)
 P_RO(CorpseCharacterHandle)

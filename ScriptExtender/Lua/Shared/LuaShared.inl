@@ -40,7 +40,7 @@ int ItemGetDeltaMods(lua_State* L)
 	lua_newtable(L);
 	int32_t index{ 1 };
 	if (item->Stats != nullptr) {
-		for (auto const& boost : item->Stats->BoostNameSet) {
+		for (auto const& boost : item->Stats->DeltaMods) {
 			settable(L, index++, boost);
 		}
 	}
@@ -60,7 +60,7 @@ int ItemSetDeltaMods(lua_State* L)
 	LuaRead(L, deltaMods);
 
 	if (item->Stats != nullptr) {
-		item->Stats->BoostNameSet = deltaMods;
+		item->Stats->DeltaMods = deltaMods;
 	}
 
 	return 0;
