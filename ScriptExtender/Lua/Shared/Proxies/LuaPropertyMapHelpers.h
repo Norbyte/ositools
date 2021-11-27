@@ -76,10 +76,15 @@ bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, v
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName);
 
 template <class T, class T2>
-inline void CopyProperties(LuaPropertyMap<T> const& base, LuaPropertyMap<T2>& child, STDString const& baseClsName)
+inline void InheritProperties(LuaPropertyMap<T> const& base, LuaPropertyMap<T2>& child, STDString const& baseClsName)
 {
 	static_assert(std::is_base_of_v<T, T2>, "Can only copy properties from base class");
 	static_assert(static_cast<T*>(reinterpret_cast<T2*>(nullptr)) == reinterpret_cast<T*>(nullptr), "Base and child class should start at same base ptr");
+
+	// Check to make sure that the property map we're inheriting from is already initialized
+	assert(base.Initialized);
+	assert(child.IsInitializing);
+
 	CopyRawProperties(base, child, baseClsName);
 
 	if (child.FallbackGetter == nullptr) {

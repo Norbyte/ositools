@@ -26,6 +26,8 @@ public:
 		uint64_t Flag;
 	};
 
+	void Init();
+	void Finish();
 	bool GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const;
 	bool SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
@@ -36,6 +38,8 @@ public:
 	std::vector<FixedString> Parents;
 	TFallbackGetter* FallbackGetter{ nullptr };
 	TFallbackSetter* FallbackSetter{ nullptr };
+	bool IsInitializing{ false };
+	bool Initialized{ false };
 };
 
 inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)

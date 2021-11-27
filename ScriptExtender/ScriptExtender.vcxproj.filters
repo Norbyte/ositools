@@ -646,6 +646,9 @@
     <None Include="Lua\Libs\LuaTypes.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -237,6 +237,7 @@
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
+    <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
     <None Include="GameDefinitions\PropertyMaps\Item.inl" />
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />

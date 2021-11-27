@@ -112,6 +112,7 @@ bool EnableWriteProtectedWrites{ false };
 #define BEGIN_CLS(cls) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
+	pm.Init(); \
 	pm.Name = FixedString(#cls);
 
 #define BEGIN_CLS_TN(cls, typeName) { \
@@ -119,11 +120,12 @@ bool EnableWriteProtectedWrites{ false };
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
 	pm.Name = FixedString(#cls);
 
-#define END_CLS() }
+#define END_CLS() pm.Finish(); \
+	}
 
 #define INHERIT(base) { \
 		auto& basePm = StaticLuaPropertyMap<base>::PropertyMap; \
-		CopyProperties(basePm, pm, #base); \
+		InheritProperties(basePm, pm, #base); \
 	}
 
 #define P(prop) \
