@@ -423,6 +423,7 @@ struct IEoCClientObject : public IGameObject
 	virtual FixedString * GetPlayerRace(bool returnPolymorph, bool excludeUninitialized) = 0;
 	virtual FixedString* GetPlayerOrigin(bool returnPolymorph, bool excludeUninitialized) = 0;
 
+	std::optional<STDWString> LuaGetDisplayName();
 	ecl::StatusMachine* GetStatusMachine() const;
 	RefReturn<ecl::Status> LuaGetStatus(FixedString const& statusId);
 	RefReturn<ecl::Status> LuaGetStatusByType(StatusType type);

@@ -2,6 +2,13 @@ BEGIN_SE()
 
 using namespace lua;
 
+std::optional<STDWString> IEoCClientObject::LuaGetDisplayName()
+{
+	TranslatedString name;
+	GetDisplayName(name);
+	return name.Handle.ReferenceString;
+}
+
 ecl::StatusMachine* IEoCClientObject::GetStatusMachine() const
 {
 	ComponentHandle handle;

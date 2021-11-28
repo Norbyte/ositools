@@ -159,6 +159,17 @@ for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
 		(uint64_t)label.Value
 	);
 }
+
+pm.AddProperty("PlayerCustomData",
+	[](lua_State* L, LifetimeHolder const& lifetime, esv::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->PlayerData) {
+			MakeObjectRef(L, &obj->PlayerData->CustomData);
+		} else {
+			push(L, nullptr);
+		}
+		return true;
+	}
+);
 #endif
 
 /*
@@ -358,6 +369,19 @@ P_RO(RunSpeedOverride)
 P_RO(Archetype)
 P_REF(ItemTags)
 P_RO(CorpseLootable)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("PlayerCustomData",
+	[](lua_State* L, LifetimeHolder const& lifetime, ecl::Character* obj, std::size_t offset, uint64_t flag) {
+		if (obj->PlayerData) {
+			MakeObjectRef(L, &obj->PlayerData->CustomData);
+		} else {
+			push(L, nullptr);
+		}
+		return true;
+	}
+);
+#endif
 
 // v55 compatibility
 PN_REF(RootTemplate, OriginalTemplate)

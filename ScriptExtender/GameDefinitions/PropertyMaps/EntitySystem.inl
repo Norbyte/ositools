@@ -32,6 +32,7 @@ END_CLS()
 
 BEGIN_CLS(IEoCClientObject)
 INHERIT(IGameObject)
+P_GETTER(DisplayName, LuaGetDisplayName)
 P_FUN(GetStatus, LuaGetStatus)
 P_FUN(GetStatusByType, LuaGetStatusByType)
 P_FUN(GetStatuses, LuaGetStatusIds)
