@@ -286,25 +286,27 @@ namespace dse
 
 	}
 
+	enum class FileType
+	{
+		Unknown,
+		MemBuffer,
+		MemoryMapped
+	};
 
 	struct FileReader : public Noncopyable<FileReader>
 	{
 		using CtorProc = FileReader * (FileReader* self, Path const& path, unsigned int type);
-		using DtorProc = void (FileReader* self);
+		using DtorProc = void(FileReader* self);
 
-		bool IsLoaded;
-		void * ScratchBufPtr;
-		void * MemBuffer;
-		uint64_t FileSize;
-		int FileHandle;
-		int FileHandle2;
-		uint64_t ScratchBuffer;
-		uint64_t G;
-		int H;
-		uint64_t I;
-		int FileType;
-		void * FileObject;
-		uint64_t _Fill[16];
+		bool IsLoaded{ false };
+		void* DataPtr{ nullptr };
+		void* ReadPtr{ nullptr };
+		uint64_t FileSize{ 0 };
+		uint64_t FileHandle{ 0 };
+		uint64_t FileHandle2{ 0 };
+		ScratchBuffer ScratchBuffer;
+		FileType Type{ FileType::Unknown };
+		void* FileObject{ nullptr };
 	};
 
 	class FileReaderPin
@@ -336,7 +338,7 @@ namespace dse
 		void * Buf() const
 		{
 			if (IsLoaded()) {
-				return reader_->ScratchBufPtr;
+				return reader_->DataPtr;
 			} else {
 				return nullptr;
 			}

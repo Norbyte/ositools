@@ -941,7 +941,7 @@ namespace dse::lua
 
 	void State::OnUpdate()
 	{
-		lua_gc(L, LUA_GCSTEP, 0);
+		lua_gc(L, LUA_GCSTEP, 10);
 	}
 
 	STDString State::GetBuiltinLibrary(int resourceId)

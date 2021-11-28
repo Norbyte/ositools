@@ -156,7 +156,7 @@ struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
 struct ScratchBuffer : public Noncopyable<ScratchBuffer>
 {
 	void * Buffer{ nullptr };
-	uint32_t Unkn{ 0 };
+	uint32_t Capacity{ 0 };
 	uint32_t Size{ 0 };
 	uint32_t WritePosition{ 0 };
 	uint32_t ReadPosition{ 0 };
