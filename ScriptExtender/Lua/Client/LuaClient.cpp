@@ -9,6 +9,7 @@
 #include "resource.h"
 
 #include <Lua/Client/ClientEntitySystem.inl>
+#include <Lua/Client/ClientCharacter.inl>
 
 BEGIN_SE()
 
@@ -82,11 +83,10 @@ namespace dse::lua
 		LifetimeReference lifetime_;
 	};
 
-	void MakeUIRef(lua_State* L, UIObject* obj)
+	void MakeUIObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value)
 	{
-		if (obj) {
-			ObjectProxy2::MakeImpl<UIObjectProxyRefImpl, UIObject>(L, obj, State::FromLua(L)->GetGlobalLifetime(),
-				State::FromLua(L)->GetCurrentLifetime());
+		if (value) {
+			ObjectProxy2::MakeImpl<UIObjectProxyRefImpl, UIObject>(L, value, State::FromLua(L)->GetGlobalLifetime(), lifetime);
 		} else {
 			push(L, nullptr);
 		}
@@ -1634,7 +1634,7 @@ BEGIN_NS(ecl::lua)
 		auto ui = pin->GetUIObject(name);
 		if (ui != nullptr) {
 			OsiError("An UI object with name '" << name << "' already exists!");
-			MakeUIRef(L, ui);
+			MakeObjectRef(L, ui);
 			return 1;
 		}
 
@@ -1690,7 +1690,7 @@ BEGIN_NS(ecl::lua)
 		}
 
 		pin->OnCustomClientUIObjectCreated(name, handle);
-		MakeUIRef(L, object);
+		MakeObjectRef(L, object);
 		return 1;
 	}
 
@@ -1701,7 +1701,7 @@ BEGIN_NS(ecl::lua)
 
 		LuaClientPin pin(ExtensionState::Get());
 		auto ui = pin->GetUIObject(name);
-		MakeUIRef(L, ui);
+		MakeObjectRef(L, ui);
 
 		return 1;
 	}
@@ -1717,7 +1717,7 @@ BEGIN_NS(ecl::lua)
 			ui = uiManager->GetByType(typeId);
 		}
 
-		MakeUIRef(L, ui);
+		MakeObjectRef(L, ui);
 
 		return 1;
 	}
@@ -1739,7 +1739,7 @@ BEGIN_NS(ecl::lua)
 			auto ui = (UIObject*)uiPtr;
 			if (ui != nullptr && ui->FlashPlayer != nullptr
 				&& absPath == ui->Path.Name.c_str()) {
-				MakeUIRef(L, ui);
+				MakeObjectRef(L, ui);
 				return 1;
 			}
 		}
