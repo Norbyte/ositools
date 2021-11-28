@@ -232,210 +232,6 @@ namespace dse::lua
 	}
 
 
-	char const* const ObjectProxy<ecl::Character>::MetatableName = "ecl::Character";
-
-	void ClientGetInventoryItems(lua_State* L, ComponentHandle inventoryHandle)
-	{
-		lua_newtable(L);
-
-		auto inventory = ecl::FindInventoryByHandle(inventoryHandle);
-		if (inventory != nullptr) {
-			int32_t index = 1;
-			for (auto itemHandle : inventory->ItemsBySlot) {
-				if (itemHandle) {
-					auto item = ecl::GetEntityWorld()->GetItem(itemHandle);
-					if (item != nullptr) {
-						settable(L, index++, item->MyGuid);
-					}
-				}
-			}
-		}
-	}
-
-	int ClientCharacterFetchProperty(lua_State* L, ecl::Character* character, FixedString const& prop)
-	{
-		if (prop == GFS.strPlayerCustomData) {
-			if (character->PlayerData != nullptr
-				// Always false on the client for some reason
-				/*&& character->PlayerData->CustomData.Initialized*/) {
-				ComponentHandle handle;
-				character->GetObjectHandle(handle);
-				ObjectProxy<ecl::PlayerCustomData>::New(L, handle);
-			} else {
-				push(L, nullptr);
-			}
-			return 1;
-		}
-
-		if (prop == GFS.strStats) {
-			if (character->Stats != nullptr) {
-				MakeObjectRef(L, character->Stats);
-			} else {
-				OsiError("Character has no stats.");
-				push(L, nullptr);
-			}
-			return 1;
-		}
-
-		if (prop == GFS.strHandle) {
-			push(L, character->Base.Component.Handle);
-			return 1;
-		}
-
-		if (prop == GFS.strRootTemplate) {
-			ObjectProxy<CharacterTemplate>::New(L, GetClientLifetime(), character->Template);
-			return 1;
-		}
-
-		if (prop == GFS.strDisplayName) {
-			return GameObjectGetDisplayName<ecl::Character>(L, character);
-		}
-
-		if (prop == GFS.strDisplayNameOverride) {
-			if (character->DisplayNameOverride != nullptr) {
-				auto const& reference = character->DisplayNameOverride->Handle.ReferenceString;
-				auto name = gTempStrings.Make(ToUTF8(reference));
-				push(L, name);
-			} else {
-				push(L, nullptr);
-			}
-			return 1;
-		}
-
-		auto fetched = LuaPropertyMapGet(L, gEclCharacterPropertyMap, character, prop, true);
-		if (!fetched) push(L, nullptr);
-		return 1;
-	}
-
-	ecl::Character* ObjectProxy<ecl::Character>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
-		if (character == nullptr) luaL_error(L, "Character handle invalid");
-		return character;
-	}
-
-	int ClientCharacterGetInventoryItems(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<ecl::Character>*>(L, 1);
-
-		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
-
-		return 1;
-	}
-
-	int ClientCharacterGetItemBySlot(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto slot = (uint32_t)get<stats::ItemSlot32>(L, 2);
-
-		auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryHandle);
-		if (inventory != nullptr && slot < inventory->ItemsBySlot.Size) {
-			auto itemHandle = inventory->ItemsBySlot[slot];
-			if (itemHandle) {
-				auto item = ecl::GetEntityWorld()->GetItem(itemHandle);
-				if (item != nullptr) {
-					push(L, item->MyGuid);
-					return 1;
-				}
-			}
-		}
-
-		lua_pushnil(L);
-		return 1;
-	}
-
-	int ClientCharacterGetCustomStatValue(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto self = get<ObjectProxy<ecl::Character>*>(L, 1);
-		auto statId = get<char const*>(L, 2);
-
-		auto character = self->Get(L);
-		if (character == nullptr) {
-			push(L, nullptr);
-			return 1;
-		}
-
-		auto entityWorld = ecl::GetEntityWorld();
-		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(character->Base.EntityObjectHandle, false);
-		if (statsComponent == nullptr) {
-			// The game UI displays nonexistent stat entries as zero, 
-			// so we'll do the same in the API
-			push(L, 0);
-			return 1;
-		}
-
-		auto value = statsComponent->StatValues.Find(FixedString(statId));
-		if (value) {
-			push(L, *value);
-		} else {
-			push(L, 0);
-		}
-
-		return 1;
-	}
-
-	int ObjectProxy<ecl::Character>::Index(lua_State* L)
-	{
-		auto character = Get(L);
-		if (!character) return 0;
-
-		auto propFS = get<FixedString>(L, 2);
-
-		StackCheck _(L, 1);
-		if (propFS == GFS.strGetInventoryItems) {
-			lua_pushcfunction(L, &ClientCharacterGetInventoryItems);
-			return 1;
-		}
-
-		if (propFS == GFS.strGetItemBySlot) {
-			lua_pushcfunction(L, &ClientCharacterGetItemBySlot);
-			return 1;
-		}
-
-		// FIXME - re-add when migrated to new proxy
-		/*if (propFS == GFS.strGetStatus) {
-			lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusByType) {
-			lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatuses) {
-			lua_pushcfunction(L, (&GameObjectGetStatuses<ecl::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetStatusObjects) {
-			lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Character>));
-			return 1;
-		}*/
-
-		if (propFS == GFS.strSetScale) {
-			lua_pushcfunction(L, (&GameObjectSetScale<ecl::Character>));
-			return 1;
-		}
-
-		if (propFS == GFS.strGetCustomStat) {
-			lua_pushcfunction(L, &ClientCharacterGetCustomStatValue);
-			return 1;
-		}
-
-		return ClientCharacterFetchProperty(L, character, propFS);
-	}
-
-	int ObjectProxy<ecl::Character>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gEclCharacterPropertyMap);
-	}
-
-
 	char const* const ObjectProxy<ecl::Item>::MetatableName = "ecl::Item";
 
 	ecl::Item* ObjectProxy<ecl::Item>::GetPtr(lua_State* L)
@@ -451,7 +247,9 @@ namespace dse::lua
 		StackCheck _(L, 1);
 		auto self = get<ObjectProxy<ecl::Item>*>(L, 1);
 
-		ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
+		lua_newtable(L);
+		// FIXME!
+		//ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
 
 		return 1;
 	}
@@ -599,7 +397,6 @@ namespace dse::ecl::lua
 		StatusHandleProxy::RegisterMetatable(L);
 		ObjectProxy<Status>::RegisterMetatable(L);
 		ObjectProxy<PlayerCustomData>::RegisterMetatable(L);
-		ObjectProxy<Character>::RegisterMetatable(L);
 		ObjectProxy<Item>::RegisterMetatable(L);
 		UIFlashObject::RegisterMetatable(L);
 		UIFlashArray::RegisterMetatable(L);
@@ -659,17 +456,8 @@ namespace dse::ecl::lua
 	int GetCharacter(lua_State* L)
 	{
 		StackCheck _(L, 1);
-
 		ecl::Character* character = GetCharacter(L, 1);
-
-		if (character != nullptr) {
-			ComponentHandle handle;
-			character->GetObjectHandle(handle);
-			ObjectProxy<ecl::Character>::New(L, handle);
-		} else {
-			push(L, nullptr);
-		}
-
+		MakeObjectRef(L, character);
 		return 1;
 	}
 
@@ -823,9 +611,7 @@ namespace dse::ecl::lua
 			ObjectProxy<Item>::New(L, handle);
 			return 1;
 		} else if (character != nullptr) {
-			ComponentHandle handle;
-			character->GetObjectHandle(handle);
-			ObjectProxy<Character>::New(L, handle);
+			MakeObjectRef(L, character);
 			return 1;
 		} else {
 			push(L, nullptr);

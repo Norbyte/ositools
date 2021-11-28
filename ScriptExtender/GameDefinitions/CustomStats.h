@@ -119,4 +119,13 @@ namespace dse
 			static void CreateStatInternal(char const* name, char const* description);
 		};
 	}
+
+	namespace ecl
+	{
+		class CustomStatHelpers
+		{
+		public:
+			static std::optional<int> GetCharacterStat(ComponentHandle entityHandle, FixedString const& statId);
+		};
+	}
 }

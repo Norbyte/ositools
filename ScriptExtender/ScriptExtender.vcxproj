@@ -111,6 +111,7 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
@@ -254,6 +255,7 @@
     <None Include="LuaScripts\Game.Math.lua" />
     <None Include="LuaScripts\Game.Tooltip.lua" />
     <None Include="LuaScripts\SandboxStartup.lua" />
+    <None Include="Lua\Client\ClientCharacter.inl" />
     <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\LuaJson.inl" />

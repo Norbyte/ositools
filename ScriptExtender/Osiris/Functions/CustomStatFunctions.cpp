@@ -294,3 +294,27 @@ namespace dse::esv
 	}
 
 }
+
+BEGIN_NS(ecl)
+
+std::optional<int> CustomStatHelpers::GetCharacterStat(ComponentHandle entityHandle, FixedString const& statId)
+{
+	if (!entityHandle) return {};
+
+	auto entityWorld = GetEntityWorld();
+	auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
+	if (statsComponent == nullptr) {
+		// The game UI displays nonexistent stat entries as zero, 
+		// so we'll do the same in the API
+		return 0;
+	}
+
+	auto value = statsComponent->StatValues.Find(statId);
+	if (value == nullptr) {
+		return 0;
+	} else {
+		return *value;
+	}
+}
+
+END_NS()

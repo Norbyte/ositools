@@ -400,7 +400,7 @@ namespace dse
 			int32_t UserId2;
 			NetId NetID2;
 			NetId NetID3;
-			CharacterTemplate* Template;
+			CharacterTemplate* CurrentTemplate;
 			CharacterTemplate* OriginalTemplate;
 			stats::Character* Stats;
 			ComponentHandle InventoryHandle;
@@ -476,6 +476,10 @@ namespace dse
 			ObjectSet<FixedString> ItemTags;
 			void* VisualSetIndices;
 			bool CorpseLootable;
+
+			ObjectSet<FixedString> GetInventoryItemGuids();
+			Item* GetItemBySlot(stats::ItemSlot32 slot);
+			std::optional<int> GetCustomStatValue(FixedString const& statId);
 		};
 
 	}
