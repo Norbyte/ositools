@@ -215,7 +215,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 
 	// Cone is an alias of Zone, but is not part of the SkillType enum
 	std::optional<SkillType> skillType;
-	if (*skillTypeName == "Cone") {
+	if (strcmp(*skillTypeName, "Cone") == 0) {
 		skillType = SkillType::Zone;
 	} else {
 		skillType = EnumInfo<SkillType>::Find(*skillTypeName);
