@@ -575,6 +575,43 @@ namespace dse::lua
 
 	WrapLuaFunction(ShowErrorAndExitGame)
 
+	int DebugDumpLifetimes(lua_State* L)
+	{
+		auto const& pool = State::FromLua(L)->GetLifetimePool().GetAllocator();
+
+		unsigned l1free{ 0 }, l1partial{ 0 }, l1full{ 0 };
+		unsigned l2free{ 0 }, l2partial{ 0 }, l2full{ 0 };
+		unsigned l3free{ 0 }, l3partial{ 0 }, l3full{ 0 };
+		unsigned totalObjs{ 0 };
+
+		for (auto i = 0; i < std::size(pool.l1_); i++) {
+			if (pool.l1_[i] == 0) l1full++;
+			else if (pool.l1_[i] == 0xffffffffffffffffull) l1free++;
+			else l1partial++;
+		}
+
+		for (auto i = 0; i < std::size(pool.l2_); i++) {
+			if (pool.l2_[i] == 0) l2full++;
+			else if (pool.l2_[i] == 0xffffffffffffffffull) l2free++;
+			else l2partial++;
+		}
+
+		for (auto i = 0; i < std::size(pool.l3_); i++) {
+			if (pool.l3_[i] == 0) l3full++;
+			else if (pool.l3_[i] == 0xffffffffffffffffull) l3free++;
+			else l3partial++;
+			totalObjs += _mm_popcnt_u64(pool.l3_[i]);
+		}
+
+		std::cout << " === LIFETIME STATS === " << std::endl;
+		std::cout << "L1: " << l1free << " free pages, " << l1partial << " partially saturated pages, " << l1full << " full pages" << std::endl;
+		std::cout << "L2: " << l2free << " free pages, " << l2partial << " partially saturated pages, " << l2full << " full pages" << std::endl;
+		std::cout << "L3: " << l3free << " free pages, " << l3partial << " partially saturated pages, " << l3full << " full pages" << std::endl;
+		std::cout << "Objects: " << 262144 << " in pool, " << totalObjs << " free" << std::endl;
+
+		return 0;
+	}
+
 	void DumpStack(lua_State* L)
 	{
 		auto top = lua_gettop(L);

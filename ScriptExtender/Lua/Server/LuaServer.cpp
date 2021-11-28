@@ -2122,6 +2122,7 @@ namespace dse::esv::lua
 			{"DumpStack", DumpStackWrapper},
 			{"DumpNetworking", DumpNetworking},
 			{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
+			{"DebugDumpLifetimes", DebugDumpLifetimes},
 
 			{"GetGameState", GetGameState},
 			{"AddPathOverride", AddPathOverrideWrapper},

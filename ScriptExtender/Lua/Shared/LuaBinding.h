@@ -427,6 +427,7 @@ namespace dse::lua
 	int CreateTranslatedStringWrapper(lua_State* L);
 	int GenerateIdeHelpersWrapper(lua_State* L);
 
+	int DebugDumpLifetimes(lua_State* L);
 	int EnableExperimentalPropertyWritesWrapper(lua_State* L);
 	int DumpStackWrapper(lua_State* L);
 	int ShowErrorAndExitGameWrapper(lua_State* L);

@@ -610,6 +610,7 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 		{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
 		{"DumpStack", DumpStackWrapper},
 		{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
+		{"DebugDumpLifetimes", DebugDumpLifetimes},
 
 		{"GetGameState", GetGameState},
 		{"GetPickingState", GetPickingState},

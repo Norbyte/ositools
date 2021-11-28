@@ -83,7 +83,7 @@ public:
 		ptr->~T();
 	}
 
-private:
+public:
 	static_assert((Size % 4096) == 0, "Size must be a multiple of 4096");
 
 	uint64_t l1_[Size / 262144 + ((Size % 262144) ? 1 : 0)];
@@ -148,6 +148,11 @@ public:
 	{
 		assert(lifetime->References() == 0);
 		pool_.Free(lifetime);
+	}
+
+	inline auto const& GetAllocator() const
+	{
+		return pool_;
 	}
 
 private:
