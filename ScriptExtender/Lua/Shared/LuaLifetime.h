@@ -52,6 +52,7 @@ public:
 			}
 		}
 
+		OsiErrorS("Couldn't allocate Lua lifetime - pool is full! This is very, very bad.");
 		return nullptr;
 	}
 

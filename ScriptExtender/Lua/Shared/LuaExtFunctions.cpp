@@ -62,6 +62,7 @@ namespace dse::lua
 	{
 		std::stringstream ss;
 		OsiArgsToStream(L, ss);
+		if (ss.str() == "Condition 1") return 0;
 		gExtender->LogOsirisMsg(ss.str());
 		return 0;
 	}
@@ -600,7 +601,7 @@ namespace dse::lua
 			if (pool.l3_[i] == 0) l3full++;
 			else if (pool.l3_[i] == 0xffffffffffffffffull) l3free++;
 			else l3partial++;
-			totalObjs += _mm_popcnt_u64(pool.l3_[i]);
+			totalObjs += (unsigned)_mm_popcnt_u64(pool.l3_[i]);
 		}
 
 		std::cout << " === LIFETIME STATS === " << std::endl;
