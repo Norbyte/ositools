@@ -165,6 +165,9 @@ void ScriptExtender::OnGameStateWorkerExit(void* self)
 void ScriptExtender::OnUpdate(void* self, GameTime* time)
 {
 	RunPendingTasks();
+	if (extensionState_) {
+		extensionState_->OnUpdate();
+	}
 }
 
 bool ScriptExtender::IsInServerThread() const

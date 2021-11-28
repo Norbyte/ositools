@@ -284,6 +284,7 @@ namespace dse::lua
 		void OnStatsLoaded();
 		void OnModuleResume();
 		void OnResetCompleted();
+		void OnUpdate();
 
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 

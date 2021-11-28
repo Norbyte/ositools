@@ -939,6 +939,11 @@ namespace dse::lua
 		ThrowEvent(*this, "ResetCompleted", params, false, 0);
 	}
 
+	void State::OnUpdate()
+	{
+		lua_gc(L, LUA_GCSTEP, 0);
+	}
+
 	STDString State::GetBuiltinLibrary(int resourceId)
 	{
 		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(resourceId),
