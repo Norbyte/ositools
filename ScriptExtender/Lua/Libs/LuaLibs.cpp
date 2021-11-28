@@ -12,6 +12,7 @@
 
 #include <Lua/Libs/LuaJson.inl>
 #include <Lua/Libs/LuaTypes.inl>
+#include <Lua/Libs/LuaAudio.inl>
 
 BEGIN_NS(lua)
 
@@ -29,6 +30,15 @@ void RegisterSharedLibraries(lua_State* L)
 	// RegisterEntityProxy(L);
 	utils::RegisterJsonLib(L);
 	types::RegisterTypesLib(L);
+}
+
+END_NS()
+
+BEGIN_NS(ecl::lua)
+
+void RegisterClientLibraries(lua_State* L)
+{
+	audio::RegisterAudioLib(L);
 }
 
 END_NS()

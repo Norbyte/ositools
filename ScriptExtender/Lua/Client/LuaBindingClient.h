@@ -15,6 +15,7 @@ namespace dse::ecl::lua
 
 	LifetimeHolder GetClientLifetime();
 	LifetimePool& GetClientLifetimePool();
+	void RegisterClientLibraries(lua_State* L);
 
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{

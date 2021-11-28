@@ -257,7 +257,9 @@
     <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\Client\ClientCharacter.inl" />
     <None Include="Lua\Client\ClientEntitySystem.inl" />
+    <None Include="Lua\Client\ClientUI.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
+    <None Include="Lua\Libs\LuaAudio.inl" />
     <None Include="Lua\Libs\LuaJson.inl" />
     <None Include="Lua\Libs\LuaTypes.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />

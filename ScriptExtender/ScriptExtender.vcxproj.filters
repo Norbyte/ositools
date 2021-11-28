@@ -658,6 +658,12 @@
     <None Include="Lua\Client\ClientCharacter.inl">
       <Filter>Lua\Client</Filter>
     </None>
+    <None Include="Lua\Client\ClientUI.inl">
+      <Filter>Lua\Client</Filter>
+    </None>
+    <None Include="Lua\Libs\LuaAudio.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />
