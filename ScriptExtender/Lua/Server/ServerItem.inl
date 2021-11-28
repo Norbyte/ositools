@@ -75,13 +75,4 @@ void Item::LuaSetDeltaMods(lua_State* L)
 	}
 }
 
-/*if (propFS == GFS.strHandle) {
-	push(L, item->Base.Component.Handle);
-	return 1;
-}
-
-if (propFS == GFS.strDisplayName) {
-	return GameObjectGetDisplayName<esv::Item>(L, item);
-}*/
-
 END_NS()

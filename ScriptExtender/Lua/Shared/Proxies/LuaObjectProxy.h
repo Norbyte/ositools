@@ -8,6 +8,8 @@
 BEGIN_NS(lua)
 
 LifetimeHolder GetCurrentLifetime();
+LifetimeHolder LifetimeFromState(lua_State* L);
+LifetimeHolder GlobalLifetimeFromState(lua_State* L);
 
 class ObjectProxyImplBase
 {
@@ -155,6 +157,64 @@ private:
 	LifetimeHolder lifetime_;
 };
 
+template <class T>
+class ObjectProxyHandleBasedRefImpl : public ObjectProxyImplBase
+{
+public:
+	static_assert(!std::is_pointer_v<T>, "ObjectProxyImpl template parameter should not be a pointer type!");
+	static_assert(!std::is_const_v<T>, "ObjectProxyImpl template parameter should not be CV-qualified!");
+	static_assert(!std::is_volatile_v<T>, "ObjectProxyImpl template parameter should not be CV-qualified!");
+
+	ObjectProxyHandleBasedRefImpl(LifetimeHolder const& containerLifetime, ComponentHandle handle, LifetimeHolder const& lifetime)
+		: handle_(handle), containerLifetime_(containerLifetime), lifetime_(lifetime)
+	{}
+
+	~ObjectProxyHandleBasedRefImpl() override
+	{}
+
+	T* Get() const;
+
+	void* GetRaw() override
+	{
+		return Get();
+	}
+
+	FixedString const& GetTypeName() const override
+	{
+		return StaticLuaPropertyMap<T>::PropertyMap.Name;
+	}
+
+	bool GetProperty(lua_State* L, FixedString const& prop) override
+	{
+		auto object = Get();
+		if (!object) return false;
+		return ObjectProxyHelpers<T>::GetProperty(L, object, LifetimeFromState(L), prop);
+	}
+
+	bool SetProperty(lua_State* L, FixedString const& prop, int index) override
+	{
+		auto object = Get();
+		if (!object) return false;
+		return ObjectProxyHelpers<T>::SetProperty(L, object, LifetimeFromState(L), prop, index);
+	}
+
+	int Next(lua_State* L, FixedString const& key) override
+	{
+		auto object = Get();
+		if (!object) return 0;
+		return ObjectProxyHelpers<T>::Next(L, object, LifetimeFromState(L), key);
+	}
+
+	bool IsA(FixedString const& typeName) override
+	{
+		return ObjectProxyHelpers<T>::IsA(typeName);
+	}
+
+private:
+	ComponentHandle handle_;
+	LifetimeHolder containerLifetime_;
+	LifetimeReference lifetime_;
+};
 
 // Object proxy that owns the contained object and deletes the object on GC
 template <class T>
@@ -307,6 +367,13 @@ public:
 		auto lifetime = pool.Allocate();
 		auto self = NewWithExtraData(L, sizeof(ObjectProxyContainerImpl<T>), LifetimeHolder(pool, lifetime));
 		return new (self->GetImpl()) ObjectProxyContainerImpl<T>(pool, lifetime, args...);
+	}
+
+	template <class T>
+	inline static ObjectProxyHandleBasedRefImpl<T>* MakeHandle(lua_State* L, ComponentHandle handle, LifetimeHolder const& lifetime)
+	{
+		auto self = NewWithExtraData(L, sizeof(ObjectProxyHandleBasedRefImpl<T>), GlobalLifetimeFromState(L));
+		return new (self->GetImpl()) ObjectProxyHandleBasedRefImpl<T>(GlobalLifetimeFromState(L), handle, lifetime);
 	}
 
 	static void* CheckedGetRaw(lua_State* L, int index, FixedString const& typeName);

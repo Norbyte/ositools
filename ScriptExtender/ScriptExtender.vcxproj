@@ -257,6 +257,7 @@
     <None Include="LuaScripts\SandboxStartup.lua" />
     <None Include="Lua\Client\ClientCharacter.inl" />
     <None Include="Lua\Client\ClientEntitySystem.inl" />
+    <None Include="Lua\Client\ClientItem.inl" />
     <None Include="Lua\Client\ClientUI.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\LuaAudio.inl" />
@@ -266,7 +267,6 @@
     <None Include="Lua\Server\ServerEntitySystem.inl" />
     <None Include="Lua\Server\ServerItem.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
-    <None Include="Lua\Shared\LuaShared.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaEvent.inl" />

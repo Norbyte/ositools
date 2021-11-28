@@ -35,6 +35,16 @@ LifetimePool& GetLifetimePool()
 	}
 }
 
+LifetimeHolder LifetimeFromState(lua_State* L)
+{
+	return State::FromLua(L)->GetCurrentLifetime();
+}
+
+LifetimeHolder GlobalLifetimeFromState(lua_State* L)
+{
+	return State::FromLua(L)->GetGlobalLifetime();
+}
+
 #define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
 void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
@@ -198,6 +208,26 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 	case stats::EquipmentStatsType::Armor: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesArmor*>(stats));
 	case stats::EquipmentStatsType::Shield: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesShield*>(stats));
 	default: return MakeObjectRef(L, lifetime, stats);
+	}
+}
+
+template <>
+esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get() const
+{
+	auto self = esv::GetEntityWorld()->GetCharacter(handle_);
+	if (!lifetime_.IsAlive()) {
+		WarnDeprecated56("An access was made to an esv::Character instance after its lifetime has expired; this behavior is deprecated.");
+	}
+
+	return self;
+}
+
+void MakeLegacyServerCharacterObjectRef(lua_State* L, esv::Character* value)
+{
+	if (value) {
+		ObjectProxy2::MakeHandle<esv::Character>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
+	} else {
+		push(L, nullptr);
 	}
 }
 
@@ -396,9 +426,6 @@ namespace dse::lua
 	{
 		return GenericSetter(L, gSoundVolumeTriggerDataPropertyMap);
 	}
-
-
-#include <Lua/Shared/LuaShared.inl>
 
 
 	char const* const ObjectProxy<eoc::ItemDefinition>::MetatableName = "eoc::ItemDefinition";
@@ -823,7 +850,7 @@ namespace dse::esv::lua
 			// TODO - fetching CombatGroup?
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
-			MakeObjectRef(L, character);
+			MakeLegacyServerCharacterObjectRef(L, character);
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
 			MakeObjectRef(L, item);
@@ -953,7 +980,7 @@ namespace dse::esv::lua
 
 		StackCheck _(L, 1);
 		esv::Character* character = GetCharacter(L, 1);
-		MakeObjectRef(L, character);
+		MakeLegacyServerCharacterObjectRef(L, character);
 		return 1;
 	}
 
@@ -2377,43 +2404,6 @@ namespace dse::esv::lua
 		ShootProjectileEventParams params{ projectile };
 		ThrowEvent(*this, "ShootProjectile", params);
 	}
-
-	void PushGameObject(lua_State* L, ComponentHandle handle)
-	{
-		if (!handle) {
-			push(L, nullptr);
-			return;
-		}
-
-		switch (handle.GetType()) {
-		case (uint32_t)ObjectType::ServerCharacter:
-		{
-			auto character = esv::GetEntityWorld()->GetCharacter(handle);
-			MakeObjectRef(L, character);
-			break;
-		}
-
-		case (uint32_t)ObjectType::ServerItem:
-		{
-			auto item = esv::GetEntityWorld()->GetItem(handle);
-			MakeObjectRef(L, item);
-			break;
-		}
-
-		case (uint32_t)ObjectType::ServerProjectile:
-		{
-			auto projectile = esv::GetEntityWorld()->GetProjectile(handle);
-			MakeObjectRef(L, projectile);
-			break;
-		}
-
-		default:
-			push(L, nullptr);
-			LuaError("Don't know how to push handle of type " << handle.GetType());
-			break;
-		}
-	}
-
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{

@@ -118,4 +118,11 @@ P_RO(ItemType)
 P_RO(GoldValueOverride)
 P_RO(BaseWeightOverwrite)
 P_RO(ItemColorOverride)
+
+// v55 compatibility
+PN_REF(RootTemplate, CurrentTemplate)
+
+P_FUN(GetInventoryItems, GetInventoryItemGuids)
+P_FUN(GetOwnerCharacter, GetOwnerCharacter)
+P_FUN(GetDeltaMods, GetDeltaMods)
 END_CLS()

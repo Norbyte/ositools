@@ -10,12 +10,53 @@
 
 #include <Lua/Client/ClientEntitySystem.inl>
 #include <Lua/Client/ClientCharacter.inl>
+#include <Lua/Client/ClientItem.inl>
 #include <Lua/Client/ClientUI.inl>
 
 
 BEGIN_NS(lua)
 
 using namespace dse::ecl::lua;
+
+template <>
+ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
+{
+	auto self = ecl::GetEntityWorld()->GetCharacter(handle_);
+	if (!lifetime_.IsAlive()) {
+		WarnDeprecated56("An access was made to an ecl::Character instance after its lifetime has expired; this behavior is deprecated.");
+	}
+
+	return self;
+}
+
+void MakeLegacyClientCharacterObjectRef(lua_State* L, ecl::Character* value)
+{
+	if (value) {
+		ObjectProxy2::MakeHandle<ecl::Character>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
+	} else {
+		push(L, nullptr);
+	}
+}
+
+template <>
+ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get() const
+{
+	auto self = ecl::GetEntityWorld()->GetItem(handle_);
+	if (!lifetime_.IsAlive()) {
+		WarnDeprecated56("An access was made to an ecl::Item instance after its lifetime has expired; this behavior is deprecated.");
+	}
+
+	return self;
+}
+
+void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
+{
+	if (value) {
+		ObjectProxy2::MakeHandle<ecl::Item>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
+	} else {
+		push(L, nullptr);
+	}
+}
 
 char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
 
@@ -59,8 +100,6 @@ int ObjectProxy<ecl::Status>::NewIndex(lua_State* L)
 	return GenericSetter(L, propertyMap);
 }
 
-#include <Lua/Shared/LuaShared.inl>
-
 char const* const ObjectProxy<ecl::PlayerCustomData>::MetatableName = "ecl::PlayerCustomData";
 
 ecl::PlayerCustomData* ObjectProxy<ecl::PlayerCustomData>::GetPtr(lua_State* L)
@@ -89,147 +128,6 @@ int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
 	return GenericSetter(L, gPlayerCustomDataPropertyMap);
 }
 
-
-char const* const ObjectProxy<ecl::Item>::MetatableName = "ecl::Item";
-
-ecl::Item* ObjectProxy<ecl::Item>::GetPtr(lua_State* L)
-{
-	if (obj_) return obj_;
-	auto item = ecl::GetEntityWorld()->GetItem(handle_);
-	if (item == nullptr) luaL_error(L, "Item handle invalid");
-	return item;
-}
-
-int ClientItemGetInventoryItems(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto self = get<ObjectProxy<ecl::Item>*>(L, 1);
-
-	lua_newtable(L);
-	// FIXME!
-	//ClientGetInventoryItems(L, self->Get(L)->InventoryHandle);
-
-	return 1;
-}
-
-int ItemGetOwnerCharacter(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto self = get<ObjectProxy<ecl::Item>*>(L, 1);
-
-	auto inventory = ecl::FindInventoryByHandle(self->Get(L)->InventoryParentHandle);
-
-	for (;;) {
-		if (inventory == nullptr) {
-			break;
-		}
-
-		auto parent = inventory->ParentHandle;
-		if (parent.GetType() == (uint32_t)ObjectType::ClientItem) {
-			auto item = ecl::GetEntityWorld()->GetItem(parent);
-			if (item) {
-				inventory = ecl::FindInventoryByHandle(item->InventoryParentHandle);
-			} else {
-				break;
-			}
-		} else if (parent.GetType() == (uint32_t)ObjectType::ClientCharacter) {
-			auto character = ecl::GetEntityWorld()->GetCharacter(parent);
-			if (character) {
-				push(L, character->MyGuid);
-				return 1;
-			} else {
-				break;
-			}
-		} else {
-			break;
-		}
-	}
-
-	lua_pushnil(L);
-	return 1;
-}
-
-int ObjectProxy<ecl::Item>::Index(lua_State* L)
-{
-	auto item = Get(L);
-	if (!item) return 0;
-
-	StackCheck _(L, 1);
-	auto propFS = get<FixedString>(L, 2);
-
-	if (propFS == GFS.strGetInventoryItems) {
-		lua_pushcfunction(L, &ClientItemGetInventoryItems);
-		return 1;
-	}
-
-	if (propFS == GFS.strGetOwnerCharacter) {
-		lua_pushcfunction(L, &ItemGetOwnerCharacter);
-		return 1;
-	}
-
-	if (propFS == GFS.strGetDeltaMods) {
-		lua_pushcfunction(L, &ItemGetDeltaMods<ecl::Item>);
-		return 1;
-	}
-
-	// FIXME - re-add when migrated to new proxy
-	/*if (propFS == GFS.strGetStatus) {
-		lua_pushcfunction(L, (&GameObjectGetStatus<ecl::Item>));
-		return 1;
-	}
-
-	if (propFS == GFS.strGetStatusByType) {
-		lua_pushcfunction(L, (&GameObjectGetStatusByType<ecl::Item>));
-		return 1;
-	}
-
-	if (propFS == GFS.strGetStatuses) {
-		lua_pushcfunction(L, (&GameObjectGetStatuses<ecl::Item>));
-		return 1;
-	}
-
-	if (propFS == GFS.strGetStatusObjects) {
-		lua_pushcfunction(L, (&GameObjectGetStatusObjects<ecl::Item>));
-		return 1;
-	}*/
-
-	if (propFS == GFS.strStats) {
-		MakeObjectRef(L, item->Stats);
-		return 1;
-	}
-
-	if (propFS == GFS.strHandle) {
-		push(L, item->Base.Component.Handle);
-		return 1;
-	}
-
-	if (propFS == GFS.strRootTemplate) {
-		ObjectProxy<ItemTemplate>::New(L, GetClientLifetime(), item->CurrentTemplate);
-		return 1;
-	}
-
-	if (propFS == GFS.strDisplayName) {
-		return GameObjectGetDisplayName<ecl::Item>(L, item);
-	}
-
-	bool fetched = false;
-	if (item->Stats != nullptr) {
-		fetched = LuaPropertyMapGet(L, gItemStatsPropertyMap, item->Stats, propFS, false);
-	}
-
-	if (!fetched) {
-		fetched = LuaPropertyMapGet(L, gEclItemPropertyMap, item, propFS, true);
-	}
-
-	if (!fetched) push(L, nullptr);
-	return 1;
-}
-
-int ObjectProxy<ecl::Item>::NewIndex(lua_State* L)
-{
-	StackCheck _(L, 0);
-	return GenericSetter(L, gEclItemPropertyMap);
-}
 END_NS()
 
 BEGIN_NS(ecl::lua)
@@ -254,7 +152,6 @@ void ExtensionLibraryClient::Register(lua_State * L)
 	StatusHandleProxy::RegisterMetatable(L);
 	ObjectProxy<Status>::RegisterMetatable(L);
 	ObjectProxy<PlayerCustomData>::RegisterMetatable(L);
-	ObjectProxy<Item>::RegisterMetatable(L);
 	UIFlashObject::RegisterMetatable(L);
 	UIFlashArray::RegisterMetatable(L);
 	UIFlashFunction::RegisterMetatable(L);
@@ -314,7 +211,7 @@ int GetCharacter(lua_State* L)
 {
 	StackCheck _(L, 1);
 	ecl::Character* character = GetCharacter(L, 1);
-	MakeObjectRef(L, character);
+	MakeLegacyClientCharacterObjectRef(L, character);
 	return 1;
 }
 
@@ -361,17 +258,10 @@ int GetItem(lua_State* L)
 
 	default:
 		OsiError("Expected item UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 1)));
-		return 0;
+		break;
 	}
 
-	if (item != nullptr) {
-		ComponentHandle handle;
-		item->GetObjectHandle(handle);
-		ObjectProxy<ecl::Item>::New(L, handle);
-	} else {
-		push(L, nullptr);
-	}
-
+	MakeLegacyClientItemObjectRef(L, item);
 	return 1;
 }
 
@@ -463,12 +353,10 @@ int GetGameObject(lua_State* L)
 	}
 
 	if (item != nullptr) {
-		ComponentHandle handle;
-		item->GetObjectHandle(handle);
-		ObjectProxy<Item>::New(L, handle);
+		MakeLegacyClientItemObjectRef(L, item);
 		return 1;
 	} else if (character != nullptr) {
-		MakeObjectRef(L, character);
+		MakeLegacyClientCharacterObjectRef(L, character);
 		return 1;
 	} else {
 		push(L, nullptr);

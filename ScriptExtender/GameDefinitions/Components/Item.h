@@ -278,6 +278,10 @@ namespace dse
 			TranslatedString CustomBookContent;
 			int GatewayTeleportationsRemaining;
 			uint16_t UpdateRefCount;
+
+			ObjectSet<FixedString> GetInventoryItemGuids();
+			std::optional<FixedString> GetOwnerCharacter();
+			ObjectSet<FixedString> GetDeltaMods();
 		};
 
 
