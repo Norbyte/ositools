@@ -196,7 +196,9 @@ _I._CallLegacyEvent = function (fn, event)
 	elseif event.Name == "UICall" then
 		fn(event.UI, event.Function, event.When, table.unpack(event.Args))
 	elseif event.Name == "UIInvoke" then
-		fn(event.UI, event.Function, event.When, table.unpack(event.Args))
+		if event.When == "Before" then
+			fn(event.UI, event.Function, event.When, table.unpack(event.Args))
+		end
 	elseif event.Name == "SkillGetDescriptionParam" then
 		local desc = fn(event.Skill, event.Character, event.Params, event.IsFromItem)
 		if desc ~= nil then
