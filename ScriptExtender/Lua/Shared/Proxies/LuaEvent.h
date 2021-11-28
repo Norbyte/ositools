@@ -67,20 +67,18 @@ public:
 	static char const* const MetatableName;
 
 	template <class TParams>
-	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimePool& pool, char const* eventName,
+	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
 		TParams& eventParams, bool canPreventAction, WriteableEvent)
 	{
-		auto lifetime = pool.Allocate();
-		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), LifetimeHolder(pool, lifetime), eventName, canPreventAction, true);
+		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, true);
 		return new (self->GetImpl()) EventObjectParamsImpl<TParams>(eventParams);
 	}
 
 	template <class TParams>
-	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimePool& pool, char const* eventName, 
+	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName, 
 		TParams const& eventParams, bool canPreventAction, ReadOnlyEvent)
 	{
-		auto lifetime = pool.Allocate();
-		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), LifetimeHolder(pool, lifetime), eventName, canPreventAction, false);
+		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, false);
 		return new (self->GetImpl()) EventObjectParamsImpl<TParams>(const_cast<TParams &>(eventParams));
 	}
 

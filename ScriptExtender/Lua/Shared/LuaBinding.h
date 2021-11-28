@@ -338,7 +338,7 @@ namespace dse::lua
 			Restriction restriction(state, restrictions);
 			LifetimePin _p(state.GetStack());
 			PushInternalFunction(L, "_ThrowEvent");
-			EventObject::Make(L, state.GetStack().GetCurrent().pool, eventName, evt, canPreventAction, WriteableEvent{});
+			EventObject::Make(L, state.GetCurrentLifetime(), eventName, evt, canPreventAction, WriteableEvent{});
 			return CheckedCall(L, 1, "_ThrowEvent");
 		} catch (Exception &) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
