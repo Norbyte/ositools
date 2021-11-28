@@ -328,7 +328,7 @@ P_RO(ComboCategories)
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsEntry",
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, obj, lifetime, std::optional<int>());
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, obj, lifetime, std::optional<int>(), false);
 		return true;
 	}
 );

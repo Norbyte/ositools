@@ -127,7 +127,7 @@ namespace dse::lua
 	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<stats::Object>
 	{
 	public:
-		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level);
+		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy);
 
 		FixedString const& GetTypeName() const override;
 		bool GetProperty(lua_State* L, FixedString const& prop) override;
@@ -136,6 +136,8 @@ namespace dse::lua
 
 	private:
 		std::optional<int> level_;
+		// Use pre-v55 behavior?
+		bool legacy_;
 	};
 
 

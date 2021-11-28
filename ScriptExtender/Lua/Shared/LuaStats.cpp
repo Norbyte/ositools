@@ -7,9 +7,9 @@
 
 namespace dse::lua
 {
-	StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level)
+	StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy)
 		: ObjectProxyRefImpl(lifetime, obj),
-		level_(level)
+		level_(level), legacy_(legacy)
 	{}
 
 	FixedString const& StatsEntryProxyRefImpl::GetTypeName() const
@@ -19,7 +19,11 @@ namespace dse::lua
 		
 	bool StatsEntryProxyRefImpl::GetProperty(lua_State* L, FixedString const& prop)
 	{
-		return Get()->LuaGetAttribute(L, prop, level_) == 1;
+		if (legacy_) {
+			return Get()->LuaGetAttributeLegacy(L, prop, level_) == 1;
+		} else {
+			return Get()->LuaGetAttribute(L, prop, level_) == 1;
+		}
 	}
 
 	bool StatsEntryProxyRefImpl::SetProperty(lua_State* L, FixedString const& prop, int index)
@@ -725,7 +729,7 @@ namespace dse::lua
 		
 		auto object = stats::StatFindObject(statName, warnOnError);
 		if (object != nullptr) {
-			ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, object, GetCurrentLifetime(), level);
+			ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, object, GetCurrentLifetime(), level, true);
 			return 1;
 		} else {
 			push(L, nullptr);
@@ -817,7 +821,7 @@ namespace dse::lua
 			}
 		}
 
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, *object, GetCurrentLifetime(), -1);
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, *object, GetCurrentLifetime(), -1, true);
 		return 1;
 	}
 
