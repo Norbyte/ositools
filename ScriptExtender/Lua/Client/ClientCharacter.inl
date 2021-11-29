@@ -43,6 +43,16 @@ Item* Character::GetItemBySlot(stats::ItemSlot32 slot)
 	return InventoryGetItemBySlot(InventoryHandle, (uint32_t)slot);
 }
 
+std::optional<FixedString> Character::GetItemGuidBySlot(stats::ItemSlot32 slot)
+{
+	auto item = GetItemBySlot(slot);
+	if (item) {
+		return item->MyGuid;
+	} else {
+		return {};
+	}
+}
+
 std::optional<int> Character::GetCustomStatValue(FixedString const& statId)
 {
 	return CustomStatHelpers::GetCharacterStat(Base.EntityObjectHandle, statId);

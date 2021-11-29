@@ -479,6 +479,7 @@ namespace dse
 
 			ObjectSet<FixedString> GetInventoryItemGuids();
 			Item* GetItemBySlot(stats::ItemSlot32 slot);
+			std::optional<FixedString> GetItemGuidBySlot(stats::ItemSlot32 slot);
 			std::optional<int> GetCustomStatValue(FixedString const& statId);
 		};
 

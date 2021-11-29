@@ -387,6 +387,7 @@ pm.AddProperty("PlayerCustomData",
 PN_REF(RootTemplate, OriginalTemplate)
 
 P_FUN(GetInventoryItems, GetInventoryItemGuids)
-P_FUN(GetItemBySlot, GetItemBySlot)
+P_FUN(GetItemBySlot, GetItemGuidBySlot)
+P_FUN(GetItemObjectBySlot, GetItemBySlot)
 P_FUN(GetCustomStat, GetCustomStatValue)
 END_CLS()
