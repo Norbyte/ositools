@@ -9,7 +9,7 @@
 
 namespace dse
 {
-	enum class PropertyType
+	enum class LegacyPropertyType
 	{
 		kBool,
 		kUInt8,
@@ -38,52 +38,52 @@ namespace dse
 	};
 
 	template <class T>
-	constexpr PropertyType GetPropertyType()
+	constexpr LegacyPropertyType GetPropertyType()
 	{
 		if constexpr (std::is_same<T, bool>::value) {
-			return PropertyType::kBool;
+			return LegacyPropertyType::kBool;
 		} else if constexpr (std::is_same<T, uint8_t>::value) {
-			return PropertyType::kUInt8;
+			return LegacyPropertyType::kUInt8;
 		} else if constexpr (std::is_same<T, int16_t>::value) {
-			return PropertyType::kInt16;
+			return LegacyPropertyType::kInt16;
 		} else if constexpr (std::is_same<T, uint16_t>::value) {
-			return PropertyType::kUInt16;
+			return LegacyPropertyType::kUInt16;
 		} else if constexpr (std::is_same<T, int32_t>::value) {
-			return PropertyType::kInt32;
+			return LegacyPropertyType::kInt32;
 		} else if constexpr (std::is_same<T, uint32_t>::value) {
-			return PropertyType::kUInt32;
+			return LegacyPropertyType::kUInt32;
 		} else if constexpr (std::is_same<T, int64_t>::value) {
-			return PropertyType::kInt64;
+			return LegacyPropertyType::kInt64;
 		} else if constexpr (std::is_same<T, uint64_t>::value) {
-			return PropertyType::kUInt64;
+			return LegacyPropertyType::kUInt64;
 		} else if constexpr (std::is_same<T, float>::value) {
-			return PropertyType::kFloat;
+			return LegacyPropertyType::kFloat;
 		} else if constexpr (std::is_same<T, FixedString>::value) {
-			return PropertyType::kFixedString;
+			return LegacyPropertyType::kFixedString;
 		} else if constexpr (std::is_same<T, char *>::value) {
-			return PropertyType::kStringPtr;
+			return LegacyPropertyType::kStringPtr;
 		} else if constexpr (std::is_same<T, STDString>::value) {
-			return PropertyType::kStdString;
+			return LegacyPropertyType::kStdString;
 		} else if constexpr (std::is_same<T, STDWString>::value) {
-			return PropertyType::kStdWString;
+			return LegacyPropertyType::kStdWString;
 		} else if constexpr (std::is_same<T, TranslatedString>::value) {
-			return PropertyType::kTranslatedString;
+			return LegacyPropertyType::kTranslatedString;
 		} else if constexpr (std::is_same<T, ComponentHandle>::value) {
-			return PropertyType::kObjectHandle;
+			return LegacyPropertyType::kObjectHandle;
 		} else if constexpr (std::is_same<T, glm::vec3>::value) {
-			return PropertyType::kVector3;
+			return LegacyPropertyType::kVector3;
 		} else if constexpr (std::is_same<T, NetId>::value) {
-			return PropertyType::kUInt32;
+			return LegacyPropertyType::kUInt32;
 		} else {
 			static_assert(false, "Unsupported property type");
 		}
 	}
 
-	struct PropertyMapBase
+	struct LegacyPropertyMapBase
 	{
 		struct PropertyInfo
 		{
-			PropertyType Type;
+			LegacyPropertyType Type;
 			std::uintptr_t Offset;
 			uint32_t Flags;
 
@@ -113,13 +113,13 @@ namespace dse
 		std::unordered_map<FixedString, PropertyInfo> Properties;
 		std::unordered_map<FixedString, FlagInfo> Flags;
 
-		PropertyMapBase * Parent{ nullptr };
+		LegacyPropertyMapBase * Parent{ nullptr };
 
 		virtual void * toParent(void * obj) const = 0;
 
 		PropertyInfo const * findProperty(FixedString const& name) const
 		{
-			PropertyMapBase const * propMap = this;
+			LegacyPropertyMapBase const * propMap = this;
 			do {
 				auto prop = propMap->Properties.find(name);
 				if (prop != propMap->Properties.end()) {
@@ -134,7 +134,7 @@ namespace dse
 
 		FlagInfo const * findFlag(FixedString const& name) const
 		{
-			PropertyMapBase const * propMap = this;
+			LegacyPropertyMapBase const * propMap = this;
 			do {
 				auto prop = propMap->Flags.find(name);
 				if (prop != propMap->Flags.end()) {
@@ -172,15 +172,15 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kBool: return (int64_t)*reinterpret_cast<bool *>(ptr);
-			case PropertyType::kUInt8: return (int64_t)*reinterpret_cast<uint8_t *>(ptr);
-			case PropertyType::kInt16: return (int64_t)*reinterpret_cast<int16_t *>(ptr);
-			case PropertyType::kUInt16: return (int64_t)*reinterpret_cast<uint16_t *>(ptr);
-			case PropertyType::kInt32: return (int64_t)*reinterpret_cast<int32_t *>(ptr);
-			case PropertyType::kUInt32: return (int64_t)*reinterpret_cast<uint32_t *>(ptr);
-			case PropertyType::kInt64: return (int64_t)*reinterpret_cast<int64_t *>(ptr);
-			case PropertyType::kUInt64: return (int64_t)*reinterpret_cast<uint64_t *>(ptr);
-			case PropertyType::kFloat: return (int64_t)*reinterpret_cast<float *>(ptr);
+			case LegacyPropertyType::kBool: return (int64_t)*reinterpret_cast<bool *>(ptr);
+			case LegacyPropertyType::kUInt8: return (int64_t)*reinterpret_cast<uint8_t *>(ptr);
+			case LegacyPropertyType::kInt16: return (int64_t)*reinterpret_cast<int16_t *>(ptr);
+			case LegacyPropertyType::kUInt16: return (int64_t)*reinterpret_cast<uint16_t *>(ptr);
+			case LegacyPropertyType::kInt32: return (int64_t)*reinterpret_cast<int32_t *>(ptr);
+			case LegacyPropertyType::kUInt32: return (int64_t)*reinterpret_cast<uint32_t *>(ptr);
+			case LegacyPropertyType::kInt64: return (int64_t)*reinterpret_cast<int64_t *>(ptr);
+			case LegacyPropertyType::kUInt64: return (int64_t)*reinterpret_cast<uint64_t *>(ptr);
+			case LegacyPropertyType::kFloat: return (int64_t)*reinterpret_cast<float *>(ptr);
 			default:
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not an int");
 				return {};
@@ -212,7 +212,7 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kFloat: return *reinterpret_cast<float *>(ptr);
+			case LegacyPropertyType::kFloat: return *reinterpret_cast<float *>(ptr);
 			default:
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a float");
 				return {};
@@ -244,15 +244,15 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kBool: *reinterpret_cast<bool *>(ptr) = (bool)value; break;
-			case PropertyType::kUInt8: *reinterpret_cast<uint8_t *>(ptr) = (uint8_t)value; break;
-			case PropertyType::kInt16: *reinterpret_cast<int16_t *>(ptr) = (int16_t)value; break;
-			case PropertyType::kUInt16: *reinterpret_cast<uint16_t *>(ptr) = (uint16_t)value; break;
-			case PropertyType::kInt32: *reinterpret_cast<int32_t *>(ptr) = (int32_t)value; break;
-			case PropertyType::kUInt32: *reinterpret_cast<uint32_t *>(ptr) = (uint32_t)value; break;
-			case PropertyType::kInt64: *reinterpret_cast<int64_t *>(ptr) = (int64_t)value; break;
-			case PropertyType::kUInt64: *reinterpret_cast<uint64_t *>(ptr) = (uint64_t)value; break;
-			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = (float)value; break;
+			case LegacyPropertyType::kBool: *reinterpret_cast<bool *>(ptr) = (bool)value; break;
+			case LegacyPropertyType::kUInt8: *reinterpret_cast<uint8_t *>(ptr) = (uint8_t)value; break;
+			case LegacyPropertyType::kInt16: *reinterpret_cast<int16_t *>(ptr) = (int16_t)value; break;
+			case LegacyPropertyType::kUInt16: *reinterpret_cast<uint16_t *>(ptr) = (uint16_t)value; break;
+			case LegacyPropertyType::kInt32: *reinterpret_cast<int32_t *>(ptr) = (int32_t)value; break;
+			case LegacyPropertyType::kUInt32: *reinterpret_cast<uint32_t *>(ptr) = (uint32_t)value; break;
+			case LegacyPropertyType::kInt64: *reinterpret_cast<int64_t *>(ptr) = (int64_t)value; break;
+			case LegacyPropertyType::kUInt64: *reinterpret_cast<uint64_t *>(ptr) = (uint64_t)value; break;
+			case LegacyPropertyType::kFloat: *reinterpret_cast<float *>(ptr) = (float)value; break;
 			default:
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not an int");
 				return false;
@@ -286,7 +286,7 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kFloat: *reinterpret_cast<float *>(ptr) = value; break;
+			case LegacyPropertyType::kFloat: *reinterpret_cast<float *>(ptr) = value; break;
 			default:
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Property is not a float");
 				return false;
@@ -320,9 +320,9 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kFixedString:
-			case PropertyType::kDynamicFixedString:
-			case PropertyType::kFixedStringGuid:
+			case LegacyPropertyType::kFixedString:
+			case LegacyPropertyType::kDynamicFixedString:
+			case LegacyPropertyType::kFixedStringGuid:
 			{
 				auto p = reinterpret_cast<FixedString *>(ptr)->Str;
 				if (p != nullptr) {
@@ -332,7 +332,7 @@ namespace dse
 				}
 			}
 
-			case PropertyType::kStringPtr:
+			case LegacyPropertyType::kStringPtr:
 			{
 				auto p = *reinterpret_cast<char const **>(ptr);
 				if (p != nullptr) {
@@ -342,22 +342,22 @@ namespace dse
 				}
 			}
 
-			case PropertyType::kStdString:
+			case LegacyPropertyType::kStdString:
 				return gTempStrings.Make(*reinterpret_cast<STDString *>(ptr));
 
-			case PropertyType::kStdWString:
+			case LegacyPropertyType::kStdWString:
 			{
 				auto str = reinterpret_cast<STDWString *>(ptr);
 				return gTempStrings.Make(ToUTF8(*str));
 			}
 
-			case PropertyType::kTranslatedString:
+			case LegacyPropertyType::kTranslatedString:
 			{
 				auto str = reinterpret_cast<TranslatedString*>(ptr);
 				return gTempStrings.Make(ToUTF8(str->Handle.ReferenceString));
 			}
 
-			case PropertyType::kObjectHandle:
+			case LegacyPropertyType::kObjectHandle:
 			{
 				auto handle = reinterpret_cast<ComponentHandle *>(ptr);
 				if (*handle) {
@@ -404,12 +404,12 @@ namespace dse
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
 			switch (prop->second.Type) {
-			case PropertyType::kFixedString:
-			case PropertyType::kDynamicFixedString:
+			case LegacyPropertyType::kFixedString:
+			case LegacyPropertyType::kDynamicFixedString:
 				*reinterpret_cast<FixedString*>(ptr) = FixedString(value);
 				return true;
 
-			case PropertyType::kFixedStringGuid:
+			case LegacyPropertyType::kFixedStringGuid:
 				{
 					auto fs = NameGuidToFixedString(value);
 					if (!fs) {
@@ -421,19 +421,19 @@ namespace dse
 					}
 				}
 
-			case PropertyType::kStringPtr:
+			case LegacyPropertyType::kStringPtr:
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Updating raw string properties not supported");
 				return false;
 
-			case PropertyType::kStdString:
+			case LegacyPropertyType::kStdString:
 				*reinterpret_cast<STDString *>(ptr) = value;
 				return true;
 
-			case PropertyType::kStdWString:
+			case LegacyPropertyType::kStdWString:
 				*reinterpret_cast<STDWString *>(ptr) = FromUTF8(value);
 				return true;
 
-			case PropertyType::kTranslatedString:
+			case LegacyPropertyType::kTranslatedString:
 				OsiError("Failed to set property '" << name << "' of [" << Name << "]: Updating TranslatedString properties not supported");
 				return false;
 
@@ -467,7 +467,7 @@ namespace dse
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kObjectHandle) {
+			if (prop->second.Type == LegacyPropertyType::kObjectHandle) {
 				return *reinterpret_cast<ComponentHandle *>(ptr);
 			} else {
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a handle");
@@ -499,7 +499,7 @@ namespace dse
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kObjectHandle) {
+			if (prop->second.Type == LegacyPropertyType::kObjectHandle) {
 				*reinterpret_cast<ComponentHandle *>(ptr) = value;
 				return true;
 			} else {
@@ -532,7 +532,7 @@ namespace dse
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kVector3) {
+			if (prop->second.Type == LegacyPropertyType::kVector3) {
 				return *reinterpret_cast<glm::vec3 *>(ptr);
 			} else {
 				OsiError("Failed to get property '" << name << "' of [" << Name << "]: Property is not a vector");
@@ -564,7 +564,7 @@ namespace dse
 			}
 
 			auto ptr = reinterpret_cast<std::uintptr_t>(obj) + prop->second.Offset;
-			if (prop->second.Type == PropertyType::kVector3) {
+			if (prop->second.Type == LegacyPropertyType::kVector3) {
 				*reinterpret_cast<glm::vec3 *>(ptr) = value;
 				return true;
 			} else {
@@ -643,13 +643,13 @@ namespace dse
 	};
 
 	template <class T>
-	struct PropertyMapInterface : public PropertyMapBase
+	struct LegacyPropertyMapInterface : public LegacyPropertyMapBase
 	{
 		using ObjType = T;
 	};
 
 	template <class T, class TBase>
-	struct PropertyMap : public PropertyMapInterface<T>
+	struct LegacyPropertyMap : public LegacyPropertyMapInterface<T>
 	{
 		using ObjectType = T;
 		using BaseType = typename std::conditional<!std::is_same<TBase, void>::value, TBase, T>::type;
@@ -661,7 +661,7 @@ namespace dse
 		}
 	};
 
-	inline PropertyMapBase::PropertyInfo& AddPropertyInternal(PropertyMapBase& map, char const* name, PropertyMapBase::PropertyInfo const& info)
+	inline LegacyPropertyMapBase::PropertyInfo& AddPropertyInternal(LegacyPropertyMapBase& map, char const* name, LegacyPropertyMapBase::PropertyInfo const& info)
 	{
 #if !defined(NDEBUG)
 		if (map.Properties.find(FixedString(name)) != map.Properties.end()
@@ -675,9 +675,9 @@ namespace dse
 	}
 
 	template <class TValue>
-	typename PropertyMapBase::PropertyInfo & AddProperty(PropertyMapBase & map, char const* name, std::uintptr_t offset)
+	typename LegacyPropertyMapBase::PropertyInfo & AddProperty(LegacyPropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
-		PropertyMapBase::PropertyInfo info;
+		LegacyPropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | kPropWrite;
@@ -685,9 +685,9 @@ namespace dse
 	}
 
 	template <class TValue>
-	typename PropertyMapBase::PropertyInfo & AddPropertyRO(PropertyMapBase & map, char const* name, std::uintptr_t offset)
+	typename LegacyPropertyMapBase::PropertyInfo & AddPropertyRO(LegacyPropertyMapBase & map, char const* name, std::uintptr_t offset)
 	{
-		PropertyMapBase::PropertyInfo info;
+		LegacyPropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead;
@@ -695,10 +695,10 @@ namespace dse
 	}
 
 	template <class TEnum>
-	typename PropertyMapBase::PropertyInfo & AddPropertyEnum(PropertyMapBase & map, char const* name, std::uintptr_t offset, bool writeable)
+	typename LegacyPropertyMapBase::PropertyInfo & AddPropertyEnum(LegacyPropertyMapBase & map, char const* name, std::uintptr_t offset, bool writeable)
 	{
 		using TValue = std::underlying_type<TEnum>::type;
-		PropertyMapBase::PropertyInfo info;
+		LegacyPropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = kPropRead | (writeable ? kPropWrite : 0);
@@ -744,20 +744,20 @@ namespace dse
 	}
 
 	template <class TValue, class TEnum>
-	void AddPropertyFlags(PropertyMapBase & map, char const* name,
+	void AddPropertyFlags(LegacyPropertyMapBase & map, char const* name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		using Enum = EnumInfo<TEnum>;
 
 		FixedString fieldName(name);
-		PropertyMapBase::PropertyInfo info;
+		LegacyPropertyMapBase::PropertyInfo info;
 		info.Type = GetPropertyType<TValue>();
 		info.Offset = offset;
 		info.Flags = 0;
 		AddPropertyInternal(map, name, info);
 
 		for (auto const& val : Enum::Values) {
-			PropertyMapBase::FlagInfo flag;
+			LegacyPropertyMapBase::FlagInfo flag;
 			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 			flag.Mask = (int64_t)val.Value;
@@ -774,24 +774,24 @@ namespace dse
 	}
 
 	template <class TValue>
-	typename void AddPropertyGuidString(PropertyMapBase & map, char const* name,
+	typename void AddPropertyGuidString(LegacyPropertyMapBase & map, char const* name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString GUID values are supported");
-		PropertyMapBase::PropertyInfo info;
-		info.Type = PropertyType::kFixedStringGuid;
+		LegacyPropertyMapBase::PropertyInfo info;
+		info.Type = LegacyPropertyType::kFixedStringGuid;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 		AddPropertyInternal(map, name, info);
 	}
 
 	template <class TValue>
-	typename void AddPropertyDynamicFixedString(PropertyMapBase& map, char const* name,
+	typename void AddPropertyDynamicFixedString(LegacyPropertyMapBase& map, char const* name,
 		std::uintptr_t offset, bool canWrite)
 	{
 		static_assert(std::is_same<TValue, FixedString>::value, "Only FixedString values are supported");
-		PropertyMapBase::PropertyInfo info;
-		info.Type = PropertyType::kDynamicFixedString;
+		LegacyPropertyMapBase::PropertyInfo info;
+		info.Type = LegacyPropertyType::kDynamicFixedString;
 		info.Offset = offset;
 		info.Flags = kPropRead | (canWrite ? kPropWrite : 0);
 		AddPropertyInternal(map, name, info);

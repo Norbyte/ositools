@@ -86,7 +86,7 @@ namespace dse::lua
 	protected:
 		T* GetPtr(lua_State* L);
 
-		int GenericGetter(lua_State* L, PropertyMapBase const& propertyMap)
+		int GenericGetter(lua_State* L, LegacyPropertyMapBase const& propertyMap)
 		{
 			StackCheck _(L, 1);
 			auto obj = Get(L);
@@ -104,7 +104,7 @@ namespace dse::lua
 			return 1;
 		}
 
-		int GenericSetter(lua_State* L, PropertyMapBase const& propertyMap)
+		int GenericSetter(lua_State* L, LegacyPropertyMapBase const& propertyMap)
 		{
 			StackCheck _(L, 0);
 			auto obj = Get(L);

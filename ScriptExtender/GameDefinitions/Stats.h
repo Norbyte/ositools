@@ -544,7 +544,7 @@ struct EquipmentAttributes : public ProtectedGameObject<EquipmentAttributes>
 	uint32_t Unkn4;
 	int64_t AttributeFlagsObjectId;
 
-	struct PropertyMapBase & GetPropertyMap() const;
+	struct LegacyPropertyMapBase & GetPropertyMap() const;
 };
 
 struct EquipmentAttributesWeapon : public EquipmentAttributes

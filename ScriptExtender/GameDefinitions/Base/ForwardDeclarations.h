@@ -9,7 +9,7 @@ namespace Json
 
 BEGIN_SE()
 
-struct PropertyMapBase;
+struct LegacyPropertyMapBase;
 
 struct GameObjectTemplate;
 struct EoCGameObjectTemplate;

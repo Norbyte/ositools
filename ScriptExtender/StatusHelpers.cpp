@@ -10,7 +10,7 @@ namespace dse::esv
 	extern FunctionHandle HitEventHandle;
 	extern FunctionHandle HealEventHandle;
 
-	PropertyMapBase & StatusToPropertyMap(esv::Status * status)
+	LegacyPropertyMapBase & StatusToPropertyMap(esv::Status * status)
 	{
 		switch (status->GetStatusId()) {
 		case StatusType::HIT: return gStatusHitPropertyMap;

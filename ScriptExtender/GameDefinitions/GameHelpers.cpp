@@ -416,7 +416,7 @@ namespace dse
 		};
 
 
-		PropertyMapBase * ActionState::GetPropertyMap()
+		LegacyPropertyMapBase * ActionState::GetPropertyMap()
 		{
 			switch (GetType()) {
 			case ActionStateType::ASAttack:

@@ -1456,7 +1456,7 @@ bool PropertyExtender::GetDescription(STDWString* Line1)
 }
 
 
-PropertyMapBase & EquipmentAttributes::GetPropertyMap() const
+LegacyPropertyMapBase & EquipmentAttributes::GetPropertyMap() const
 {
 	switch (StatsType) {
 	case EquipmentStatsType::Weapon:

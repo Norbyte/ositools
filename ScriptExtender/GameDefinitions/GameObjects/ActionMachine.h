@@ -60,7 +60,7 @@ namespace dse
 			uint8_t Unknown1;
 			uint32_t Unknown2;
 
-			PropertyMapBase * GetPropertyMap();
+			LegacyPropertyMapBase * GetPropertyMap();
 			char const * GetTypeName();
 		};
 

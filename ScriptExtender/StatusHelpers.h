@@ -5,7 +5,7 @@
 
 namespace dse::esv
 {
-	PropertyMapBase& StatusToPropertyMap(esv::Status* status);
+	LegacyPropertyMapBase& StatusToPropertyMap(esv::Status* status);
 	esv::Status* GetStatusHelper(OsiArgumentDesc const& args);
 
 	template <OsiPropertyMapType Type>

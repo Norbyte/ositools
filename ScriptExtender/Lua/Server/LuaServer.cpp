@@ -555,7 +555,7 @@ namespace dse::lua
 		return nullptr;
 	}
 
-	PropertyMapBase& GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
+	LegacyPropertyMapBase& GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
 	{
 		switch (action->VMT->GetTypeId(action)) {
 		case SurfaceActionType::CreateSurfaceAction:

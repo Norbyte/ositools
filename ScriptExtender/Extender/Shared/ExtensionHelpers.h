@@ -22,7 +22,7 @@ namespace dse
 		esv::Inventory* FindInventoryByHandle(ComponentHandle const& handle, bool logError = true);
 		esv::GameAction* FindGameActionByHandle(ComponentHandle const& handle);
 
-		PropertyMapBase & StatusToPropertyMap(esv::Status * status);
+		LegacyPropertyMapBase & StatusToPropertyMap(esv::Status * status);
 
 		struct ShootProjectileApiHelper
 		{

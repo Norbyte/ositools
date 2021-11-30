@@ -61,7 +61,7 @@ void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
 char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
 
 
-PropertyMapBase& ClientStatusToPropertyMap(ecl::Status* status)
+LegacyPropertyMapBase& ClientStatusToPropertyMap(ecl::Status* status)
 {
 	// TODO - add property maps for statuses
 	return gEclStatusPropertyMap;

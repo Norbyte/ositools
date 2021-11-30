@@ -8,97 +8,97 @@
 
 namespace dse
 {
-	PropertyMap<esv::Status, void> gStatusPropertyMap;
-	PropertyMap<esv::StatusConsumeBase, esv::Status> gStatusConsumeBasePropertyMap;
-	PropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
-	PropertyMap<esv::StatusDying, esv::Status> gStatusDyingPropertyMap;
-	PropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
-	PropertyMap<esv::StatusCharmed, esv::Status> gStatusCharmedPropertyMap;
-	PropertyMap<esv::StatusKnockedDown, esv::Status> gStatusKnockedDownPropertyMap;
-	PropertyMap<esv::StatusSummoning, esv::Status> gStatusSummoningPropertyMap;
-	PropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
-	PropertyMap<esv::StatusThrown, esv::Status> gStatusThrownPropertyMap;
-	PropertyMap<esv::StatusTeleportFall, esv::Status> gStatusTeleportFallPropertyMap;
-	PropertyMap<esv::StatusCombat, esv::Status> gStatusCombatPropertyMap;
-	PropertyMap<esv::StatusAoO, esv::Status> gStatusAoOPropertyMap;
-	PropertyMap<esv::StatusSneaking, esv::Status> gStatusSneakingPropertyMap;
-	PropertyMap<esv::StatusUnlock, esv::Status> gStatusUnlockPropertyMap;
-	PropertyMap<esv::StatusBoost, esv::Status> gStatusBoostPropertyMap;
-	PropertyMap<esv::StatusUnsheathed, esv::Status> gStatusUnsheathedPropertyMap;
-	PropertyMap<esv::StatusStance, esv::StatusConsumeBase> gStatusStancePropertyMap;
-	PropertyMap<esv::StatusLying, esv::Status> gStatusLyingPropertyMap;
-	PropertyMap<esv::StatusInfectiousDiseased, esv::StatusConsumeBase> gStatusInfectiousDiseasedPropertyMap;
-	PropertyMap<esv::StatusInvisible, esv::StatusConsumeBase> gStatusInvisiblePropertyMap;
-	PropertyMap<esv::StatusRotate, esv::Status> gStatusRotatePropertyMap;
-	PropertyMap<esv::StatusIdentify, esv::Status> gStatusIdentifyPropertyMap;
-	PropertyMap<esv::StatusRepair, esv::Status> gStatusRepairPropertyMap;
-	PropertyMap<esv::StatusMaterial, esv::Status> gStatusMaterialPropertyMap;
-	PropertyMap<esv::StatusExplode, esv::Status> gStatusExplodePropertyMap;
-	PropertyMap<esv::StatusAdrenaline, esv::StatusConsumeBase> gStatusAdrenalinePropertyMap;
-	PropertyMap<esv::StatusShacklesOfPain, esv::StatusConsumeBase> gStatusShacklesOfPainPropertyMap;
-	PropertyMap<esv::StatusShacklesOfPainCaster, esv::StatusConsumeBase> gStatusShacklesOfPainCasterPropertyMap;
-	PropertyMap<esv::StatusDrain, esv::Status> gStatusDrainPropertyMap;
-	PropertyMap<esv::StatusSpiritVision, esv::StatusConsumeBase> gStatusSpiritVisionPropertyMap;
-	PropertyMap<esv::StatusSpirit, esv::Status> gStatusSpiritPropertyMap;
-	PropertyMap<esv::StatusDamage, esv::StatusConsumeBase> gStatusDamagePropertyMap;
-	PropertyMap<esv::StatusClimbing, esv::Status> gStatusClimbingPropertyMap;
-	PropertyMap<esv::StatusIncapacitated, esv::StatusConsumeBase> gStatusIncapacitatedPropertyMap;
-	PropertyMap<esv::StatusInSurface, esv::Status> gStatusInSurfacePropertyMap;
-	PropertyMap<esv::StatusPolymorphed, esv::StatusConsumeBase> gStatusPolymorphedPropertyMap;
-	PropertyMap<esv::StatusDamageOnMove, esv::StatusDamage> gStatusDamageOnMovePropertyMap;
-	PropertyMap<esv::StatusChallenge, esv::StatusConsumeBase> gStatusChallengePropertyMap;
-	PropertyMap<esv::StatusHealSharing, esv::StatusConsumeBase> gStatusHealSharingPropertyMap;
-	PropertyMap<esv::StatusHealSharingCaster, esv::StatusConsumeBase> gStatusHealSharingCasterPropertyMap;
-	PropertyMap<esv::StatusActiveDefense, esv::StatusConsume> gStatusActiveDefensePropertyMap;
-	PropertyMap<esv::StatusSpark, esv::StatusConsume> gStatusSparkPropertyMap;
+	LegacyPropertyMap<esv::Status, void> gStatusPropertyMap;
+	LegacyPropertyMap<esv::StatusConsumeBase, esv::Status> gStatusConsumeBasePropertyMap;
+	LegacyPropertyMap<esv::StatusHit, esv::Status> gStatusHitPropertyMap;
+	LegacyPropertyMap<esv::StatusDying, esv::Status> gStatusDyingPropertyMap;
+	LegacyPropertyMap<esv::StatusHeal, esv::Status> gStatusHealPropertyMap;
+	LegacyPropertyMap<esv::StatusCharmed, esv::Status> gStatusCharmedPropertyMap;
+	LegacyPropertyMap<esv::StatusKnockedDown, esv::Status> gStatusKnockedDownPropertyMap;
+	LegacyPropertyMap<esv::StatusSummoning, esv::Status> gStatusSummoningPropertyMap;
+	LegacyPropertyMap<esv::StatusHealing, esv::StatusConsume> gStatusHealingPropertyMap;
+	LegacyPropertyMap<esv::StatusThrown, esv::Status> gStatusThrownPropertyMap;
+	LegacyPropertyMap<esv::StatusTeleportFall, esv::Status> gStatusTeleportFallPropertyMap;
+	LegacyPropertyMap<esv::StatusCombat, esv::Status> gStatusCombatPropertyMap;
+	LegacyPropertyMap<esv::StatusAoO, esv::Status> gStatusAoOPropertyMap;
+	LegacyPropertyMap<esv::StatusSneaking, esv::Status> gStatusSneakingPropertyMap;
+	LegacyPropertyMap<esv::StatusUnlock, esv::Status> gStatusUnlockPropertyMap;
+	LegacyPropertyMap<esv::StatusBoost, esv::Status> gStatusBoostPropertyMap;
+	LegacyPropertyMap<esv::StatusUnsheathed, esv::Status> gStatusUnsheathedPropertyMap;
+	LegacyPropertyMap<esv::StatusStance, esv::StatusConsumeBase> gStatusStancePropertyMap;
+	LegacyPropertyMap<esv::StatusLying, esv::Status> gStatusLyingPropertyMap;
+	LegacyPropertyMap<esv::StatusInfectiousDiseased, esv::StatusConsumeBase> gStatusInfectiousDiseasedPropertyMap;
+	LegacyPropertyMap<esv::StatusInvisible, esv::StatusConsumeBase> gStatusInvisiblePropertyMap;
+	LegacyPropertyMap<esv::StatusRotate, esv::Status> gStatusRotatePropertyMap;
+	LegacyPropertyMap<esv::StatusIdentify, esv::Status> gStatusIdentifyPropertyMap;
+	LegacyPropertyMap<esv::StatusRepair, esv::Status> gStatusRepairPropertyMap;
+	LegacyPropertyMap<esv::StatusMaterial, esv::Status> gStatusMaterialPropertyMap;
+	LegacyPropertyMap<esv::StatusExplode, esv::Status> gStatusExplodePropertyMap;
+	LegacyPropertyMap<esv::StatusAdrenaline, esv::StatusConsumeBase> gStatusAdrenalinePropertyMap;
+	LegacyPropertyMap<esv::StatusShacklesOfPain, esv::StatusConsumeBase> gStatusShacklesOfPainPropertyMap;
+	LegacyPropertyMap<esv::StatusShacklesOfPainCaster, esv::StatusConsumeBase> gStatusShacklesOfPainCasterPropertyMap;
+	LegacyPropertyMap<esv::StatusDrain, esv::Status> gStatusDrainPropertyMap;
+	LegacyPropertyMap<esv::StatusSpiritVision, esv::StatusConsumeBase> gStatusSpiritVisionPropertyMap;
+	LegacyPropertyMap<esv::StatusSpirit, esv::Status> gStatusSpiritPropertyMap;
+	LegacyPropertyMap<esv::StatusDamage, esv::StatusConsumeBase> gStatusDamagePropertyMap;
+	LegacyPropertyMap<esv::StatusClimbing, esv::Status> gStatusClimbingPropertyMap;
+	LegacyPropertyMap<esv::StatusIncapacitated, esv::StatusConsumeBase> gStatusIncapacitatedPropertyMap;
+	LegacyPropertyMap<esv::StatusInSurface, esv::Status> gStatusInSurfacePropertyMap;
+	LegacyPropertyMap<esv::StatusPolymorphed, esv::StatusConsumeBase> gStatusPolymorphedPropertyMap;
+	LegacyPropertyMap<esv::StatusDamageOnMove, esv::StatusDamage> gStatusDamageOnMovePropertyMap;
+	LegacyPropertyMap<esv::StatusChallenge, esv::StatusConsumeBase> gStatusChallengePropertyMap;
+	LegacyPropertyMap<esv::StatusHealSharing, esv::StatusConsumeBase> gStatusHealSharingPropertyMap;
+	LegacyPropertyMap<esv::StatusHealSharingCaster, esv::StatusConsumeBase> gStatusHealSharingCasterPropertyMap;
+	LegacyPropertyMap<esv::StatusActiveDefense, esv::StatusConsume> gStatusActiveDefensePropertyMap;
+	LegacyPropertyMap<esv::StatusSpark, esv::StatusConsume> gStatusSparkPropertyMap;
 
-	PropertyMap<stats::HitDamageInfo, void> gHitDamageInfoPropertyMap;
-	PropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
-	PropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
-	PropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
-	PropertyMap<stats::EquipmentAttributes, void> gEquipmentAttributesPropertyMap;
-	PropertyMap<stats::EquipmentAttributesWeapon, stats::EquipmentAttributes> gEquipmentAttributesWeaponPropertyMap;
-	PropertyMap<stats::EquipmentAttributesArmor, stats::EquipmentAttributes> gEquipmentAttributesArmorPropertyMap;
-	PropertyMap<stats::EquipmentAttributesShield, stats::EquipmentAttributes> gEquipmentAttributesShieldPropertyMap;
-	PropertyMap<stats::CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
-	PropertyMap<stats::Character, void> gCharacterStatsPropertyMap;
-	PropertyMap<stats::Item, void> gItemStatsPropertyMap;
-	PropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
-	PropertyMap<esv::Character, void> gCharacterPropertyMap;
-	PropertyMap<esv::Item, void> gItemPropertyMap;
-	PropertyMap<esv::Projectile, void> gProjectilePropertyMap;
-	PropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
-	PropertyMap<Trigger, void> gTriggerPropertyMap;
-	PropertyMap<SoundVolumeTriggerData, void> gSoundVolumeTriggerDataPropertyMap;
+	LegacyPropertyMap<stats::HitDamageInfo, void> gHitDamageInfoPropertyMap;
+	LegacyPropertyMap<esv::DamageHelpers, void> gDamageHelpersPropertyMap;
+	LegacyPropertyMap<esv::ShootProjectileHelper, void> gShootProjectileHelperPropertyMap;
+	LegacyPropertyMap<eoc::ItemDefinition, void> gEoCItemDefinitionPropertyMap;
+	LegacyPropertyMap<stats::EquipmentAttributes, void> gEquipmentAttributesPropertyMap;
+	LegacyPropertyMap<stats::EquipmentAttributesWeapon, stats::EquipmentAttributes> gEquipmentAttributesWeaponPropertyMap;
+	LegacyPropertyMap<stats::EquipmentAttributesArmor, stats::EquipmentAttributes> gEquipmentAttributesArmorPropertyMap;
+	LegacyPropertyMap<stats::EquipmentAttributesShield, stats::EquipmentAttributes> gEquipmentAttributesShieldPropertyMap;
+	LegacyPropertyMap<stats::CharacterDynamicStat, void> gCharacterDynamicStatPropertyMap;
+	LegacyPropertyMap<stats::Character, void> gCharacterStatsPropertyMap;
+	LegacyPropertyMap<stats::Item, void> gItemStatsPropertyMap;
+	LegacyPropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
+	LegacyPropertyMap<esv::Character, void> gCharacterPropertyMap;
+	LegacyPropertyMap<esv::Item, void> gItemPropertyMap;
+	LegacyPropertyMap<esv::Projectile, void> gProjectilePropertyMap;
+	LegacyPropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
+	LegacyPropertyMap<Trigger, void> gTriggerPropertyMap;
+	LegacyPropertyMap<SoundVolumeTriggerData, void> gSoundVolumeTriggerDataPropertyMap;
 
-	PropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
-	PropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
-	PropertyMap<esv::CreateSurfaceActionBase, esv::SurfaceAction> gEsvCreateSurfaceActionBasePropertyMap;
-	PropertyMap<esv::CreateSurfaceAction, esv::CreateSurfaceActionBase> gEsvCreateSurfaceActionPropertyMap;
-	PropertyMap<esv::ChangeSurfaceOnPathAction, esv::CreateSurfaceActionBase> gEsvChangeSurfaceOnPathActionPropertyMap;
-	PropertyMap<esv::CreatePuddleAction, esv::CreateSurfaceActionBase> gEsvCreatePuddleActionPropertyMap;
-	PropertyMap<esv::ExtinguishFireAction, esv::CreateSurfaceActionBase> gEsvExtinguishFireActionPropertyMap;
-	PropertyMap<esv::RectangleSurfaceAction, esv::CreateSurfaceActionBase> gEsvRectangleSurfaceActionPropertyMap;
-	PropertyMap<esv::PolygonSurfaceAction, esv::CreateSurfaceActionBase> gEsvPolygonSurfaceActionPropertyMap;
-	PropertyMap<esv::SwapSurfaceAction, esv::CreateSurfaceActionBase> gEsvSwapSurfaceActionPropertyMap;
-	PropertyMap<esv::ZoneAction, esv::CreateSurfaceActionBase> gEsvZoneActionPropertyMap;
+	LegacyPropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::CreateSurfaceActionBase, esv::SurfaceAction> gEsvCreateSurfaceActionBasePropertyMap;
+	LegacyPropertyMap<esv::CreateSurfaceAction, esv::CreateSurfaceActionBase> gEsvCreateSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::ChangeSurfaceOnPathAction, esv::CreateSurfaceActionBase> gEsvChangeSurfaceOnPathActionPropertyMap;
+	LegacyPropertyMap<esv::CreatePuddleAction, esv::CreateSurfaceActionBase> gEsvCreatePuddleActionPropertyMap;
+	LegacyPropertyMap<esv::ExtinguishFireAction, esv::CreateSurfaceActionBase> gEsvExtinguishFireActionPropertyMap;
+	LegacyPropertyMap<esv::RectangleSurfaceAction, esv::CreateSurfaceActionBase> gEsvRectangleSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::PolygonSurfaceAction, esv::CreateSurfaceActionBase> gEsvPolygonSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::SwapSurfaceAction, esv::CreateSurfaceActionBase> gEsvSwapSurfaceActionPropertyMap;
+	LegacyPropertyMap<esv::ZoneAction, esv::CreateSurfaceActionBase> gEsvZoneActionPropertyMap;
 
-	PropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
-	PropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
-	PropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
+	LegacyPropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
+	LegacyPropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
+	LegacyPropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
 
-	PropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
-	PropertyMap<ecl::Item, void> gEclItemPropertyMap;
-	PropertyMap<ecl::Status, void> gEclStatusPropertyMap;
+	LegacyPropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
+	LegacyPropertyMap<ecl::Item, void> gEclItemPropertyMap;
+	LegacyPropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
-	PropertyMap<GameObjectTemplate, void> gGameObjectTemplatePropertyMap;
-	PropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
-	PropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
-	PropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
-	PropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
-	PropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
-	PropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
-	PropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
+	LegacyPropertyMap<GameObjectTemplate, void> gGameObjectTemplatePropertyMap;
+	LegacyPropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
+	LegacyPropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
+	LegacyPropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
+	LegacyPropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
+	LegacyPropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
+	LegacyPropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
+	LegacyPropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
 
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
@@ -118,7 +118,7 @@ namespace dse
 #define PROP_TPL(name) AddProperty<decltype(TObject::name)::Type>(propertyMap, #name, offsetof(TObject, name))
 
 	template <class T, class TalentArrayFetcher>
-	void AddTalentArray(PropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
+	void AddTalentArray(LegacyPropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
 		for (auto const& val : EnumInfo<stats::TalentType>::Values) {
 			auto id = val.Value;
@@ -1684,7 +1684,7 @@ namespace dse
 	}
 
 
-	bool OsirisPropertyMapGetRaw(PropertyMapBase const & propertyMap, void * obj,
+	bool OsirisPropertyMapGetRaw(LegacyPropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
 		auto propertyNameStr = args[firstArg].String;
@@ -1793,7 +1793,7 @@ namespace dse
 	}
 
 
-	bool OsirisPropertyMapSetRaw(PropertyMapBase const & propertyMap, void * obj,
+	bool OsirisPropertyMapSetRaw(LegacyPropertyMapBase const & propertyMap, void * obj,
 		OsiArgumentDesc const & args, uint32_t firstArg, OsiPropertyMapType type, bool throwError)
 	{
 		auto propertyNameStr = args[firstArg].String;
@@ -1875,13 +1875,13 @@ namespace dse
 	}
 
 
-	bool LuaPropertyMapGet(lua_State* L, PropertyMapBase const& propertyMap, void* obj,
+	bool LuaPropertyMapGet(lua_State* L, LegacyPropertyMapBase const& propertyMap, void* obj,
 		char const* propertyName, bool throwError)
 	{
 		return LuaPropertyMapGet(L, propertyMap, obj, FixedString(propertyName), throwError);
 	}
 
-	bool LuaPropertyMapGet(lua_State * L, PropertyMapBase const & propertyMap, void * obj,
+	bool LuaPropertyMapGet(lua_State * L, LegacyPropertyMapBase const & propertyMap, void * obj,
 		FixedString const& propertyName, bool throwError)
 	{
 		if (obj == nullptr) {
@@ -1913,11 +1913,11 @@ namespace dse
 		auto type = prop->Type;
 		if (prop->GetString) {
 			// Return enumeration labels instead of IDs if possible
-			type = PropertyType::kFixedString;
+			type = LegacyPropertyType::kFixedString;
 		}
 
 		switch (type) {
-		case PropertyType::kBool:
+		case LegacyPropertyType::kBool:
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
 			if (val) {
@@ -1928,13 +1928,13 @@ namespace dse
 			}
 		}
 
-		case PropertyType::kUInt8:
-		case PropertyType::kInt16:
-		case PropertyType::kUInt16:
-		case PropertyType::kInt32:
-		case PropertyType::kUInt32:
-		case PropertyType::kInt64:
-		case PropertyType::kUInt64:
+		case LegacyPropertyType::kUInt8:
+		case LegacyPropertyType::kInt16:
+		case LegacyPropertyType::kUInt16:
+		case LegacyPropertyType::kInt32:
+		case LegacyPropertyType::kUInt32:
+		case LegacyPropertyType::kInt64:
+		case LegacyPropertyType::kUInt64:
 		{
 			auto val = propertyMap.getInt(obj, propertyName, false, throwError);
 			if (val) {
@@ -1945,7 +1945,7 @@ namespace dse
 			}
 		}
 
-		case PropertyType::kFloat:
+		case LegacyPropertyType::kFloat:
 		{
 			auto val = propertyMap.getFloat(obj, propertyName, false, throwError);
 			if (val) {
@@ -1956,13 +1956,13 @@ namespace dse
 			}
 		}
 
-		case PropertyType::kFixedString:
-		case PropertyType::kDynamicFixedString:
-		case PropertyType::kFixedStringGuid:
-		case PropertyType::kStringPtr:
-		case PropertyType::kStdString:
-		case PropertyType::kStdWString:
-		case PropertyType::kTranslatedString:
+		case LegacyPropertyType::kFixedString:
+		case LegacyPropertyType::kDynamicFixedString:
+		case LegacyPropertyType::kFixedStringGuid:
+		case LegacyPropertyType::kStringPtr:
+		case LegacyPropertyType::kStdString:
+		case LegacyPropertyType::kStdWString:
+		case LegacyPropertyType::kTranslatedString:
 		{
 			auto val = propertyMap.getString(obj, propertyName, false, throwError);
 			if (val) {
@@ -1973,7 +1973,7 @@ namespace dse
 			}
 		}
 
-		case PropertyType::kObjectHandle:
+		case LegacyPropertyType::kObjectHandle:
 		{
 			auto val = propertyMap.getHandle(obj, propertyName, false, throwError);
 			if (val) {
@@ -1984,7 +1984,7 @@ namespace dse
 			}
 		}
 
-		case PropertyType::kVector3:
+		case LegacyPropertyType::kVector3:
 		{
 			auto val = propertyMap.getVector3(obj, propertyName, false, throwError);
 			if (val) {
@@ -2002,7 +2002,7 @@ namespace dse
 	}
 
 
-	bool LuaPropertyMapSet(lua_State * L, int index, PropertyMapBase const & propertyMap, 
+	bool LuaPropertyMapSet(lua_State * L, int index, LegacyPropertyMapBase const & propertyMap, 
 		void * obj, char const * propertyName, bool throwError)
 	{
 		if (obj == nullptr) {
@@ -2032,54 +2032,54 @@ namespace dse
 		auto type = prop->Type;
 		if (prop->SetString && lua_type(L, index) == LUA_TSTRING) {
 			// Allow setting enumerations using labels
-			type = PropertyType::kFixedString;
+			type = LegacyPropertyType::kFixedString;
 		}
 
 		switch (type) {
-		case PropertyType::kBool:
+		case LegacyPropertyType::kBool:
 		{
 			luaL_checktype(L, index, LUA_TBOOLEAN);
 			auto val = lua_toboolean(L, index);
 			return propertyMap.setInt(obj, propertyFS, val, false, throwError);
 		}
 
-		case PropertyType::kUInt8:
-		case PropertyType::kInt16:
-		case PropertyType::kUInt16:
-		case PropertyType::kInt32:
-		case PropertyType::kUInt32:
-		case PropertyType::kInt64:
-		case PropertyType::kUInt64:
+		case LegacyPropertyType::kUInt8:
+		case LegacyPropertyType::kInt16:
+		case LegacyPropertyType::kUInt16:
+		case LegacyPropertyType::kInt32:
+		case LegacyPropertyType::kUInt32:
+		case LegacyPropertyType::kInt64:
+		case LegacyPropertyType::kUInt64:
 		{
 			auto val = luaL_checkinteger(L, index);
 			return propertyMap.setInt(obj, propertyFS, val, false, throwError);
 		}
 
-		case PropertyType::kFloat:
+		case LegacyPropertyType::kFloat:
 		{
 			auto val = luaL_checknumber(L, index);
 			return propertyMap.setFloat(obj, propertyFS, (float)val, false, throwError);
 		}
 
-		case PropertyType::kFixedString:
-		case PropertyType::kDynamicFixedString:
-		case PropertyType::kFixedStringGuid:
-		case PropertyType::kStringPtr:
-		case PropertyType::kStdString:
-		case PropertyType::kStdWString:
-		case PropertyType::kTranslatedString:
+		case LegacyPropertyType::kFixedString:
+		case LegacyPropertyType::kDynamicFixedString:
+		case LegacyPropertyType::kFixedStringGuid:
+		case LegacyPropertyType::kStringPtr:
+		case LegacyPropertyType::kStdString:
+		case LegacyPropertyType::kStdWString:
+		case LegacyPropertyType::kTranslatedString:
 		{
 			auto val = luaL_checkstring(L, index);
 			return propertyMap.setString(obj, propertyFS, val, false, throwError);
 		}
 
-		case PropertyType::kObjectHandle:
+		case LegacyPropertyType::kObjectHandle:
 		{
 			auto handle = lua::get<ComponentHandle>(L, index);
 			return propertyMap.setHandle(obj, propertyFS, handle, false, throwError);
 		}
 
-		case PropertyType::kVector3:
+		case LegacyPropertyType::kVector3:
 		{
 			auto val = lua::get<glm::vec3>(L, index);
 			return propertyMap.setVector3(obj, propertyFS, val, false, throwError);
