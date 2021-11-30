@@ -279,9 +279,8 @@ namespace dse::lua
 		return s;
 	}
 
-
 	template <class T>
-	typename std::enable_if_t<std::is_pointer_v<T>, std::enable_if_t<IsAllocatable<std::remove_pointer_t<T>>::value, LuaSerializer&>> operator << (LuaSerializer& s, T& v)
+	typename std::enable_if_t<std::is_pointer_v<T>, LuaSerializer&> operator << (LuaSerializer& s, T& v)
 	{
 		if (s.IsWriting) {
 			if (v == nullptr) {
@@ -290,27 +289,12 @@ namespace dse::lua
 				s << *v;
 			}
 		} else {
-			if (v == nullptr) {
-				v = GameAlloc<std::remove_pointer_t<T>>();
+			if constexpr (decltype(IsAllocatable<std::remove_pointer_t<T>>(nullptr))::value) {
+				if (v == nullptr) {
+					v = GameAlloc<std::remove_pointer_t<T>>();
+				}
 			}
 
-			s << *v;
-		}
-
-		return s;
-	}
-
-
-	template <class T>
-	typename std::enable_if_t<std::is_pointer_v<T>, std::enable_if_t<!IsAllocatable<std::remove_pointer_t<T>>::value, LuaSerializer&>> operator << (LuaSerializer& s, T& v)
-	{
-		if (s.IsWriting) {
-			if (v == nullptr) {
-				lua_pushnil(s.L);
-			} else {
-				s << *v;
-			}
-		} else {
 			if (v != nullptr) {
 				s << *v;
 			}
