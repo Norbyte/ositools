@@ -126,7 +126,7 @@ namespace dse::esv
 			stats::TDamagePair dummy;
 			dummy.Amount = 0;
 			dummy.DamageType = stats::DamageType::Physical;
-			DamageList->SafeAdd(dummy);
+			DamageList->Add(dummy);
 		}
 
 		auto characterHit = GetStaticSymbols().esv__Character__Hit;

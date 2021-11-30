@@ -316,7 +316,7 @@ namespace dse::esv
 			stats::TDamagePair dummy;
 			dummy.Amount = 0;
 			dummy.DamageType = stats::DamageType::Physical;
-			statusHit->Hit.DamageList.SafeAdd(dummy);
+			statusHit->Hit.DamageList.Add(dummy);
 		}
 	}
 

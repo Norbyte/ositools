@@ -1115,18 +1115,13 @@ struct Array
 		Capacity = newCapacity;
 	}
 
-	bool SafeAdd(T const & val)
+	void Add(T const & val)
 	{
 		if (Capacity <= Size) {
 			Reallocate(CapacityIncrement());
 		}
 
-		if (Size < Capacity) {
-			new (&Buf[Size++]) T(val);
-			return true;
-		} else {
-			return false;
-		}
+		new (&Buf[Size++]) T(val);
 	}
 
 	void Remove(uint32_t index)

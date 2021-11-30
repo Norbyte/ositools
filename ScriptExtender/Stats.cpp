@@ -84,9 +84,7 @@ void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 		TDamagePair dmg;
 		dmg.DamageType = damageType;
 		dmg.Amount = amount;
-		if (!SafeAdd(dmg)) {
-			OsiErrorS("DamageList capacity exceeded!");
-		}
+		Add(dmg);
 	}
 }
 
