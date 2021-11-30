@@ -200,13 +200,13 @@ _I._CallLegacyEvent = function (fn, event)
 			fn(event.UI, event.Function, event.When, table.unpack(event.Args))
 		end
 	elseif event.Name == "SkillGetDescriptionParam" then
-		local desc = fn(event.Skill, event.Character, event.Params, event.IsFromItem)
+		local desc = fn(event.Skill, event.Character, event.IsFromItem, table.unpack(event.Params))
 		if desc ~= nil then
 			event.Description = desc
 			event:StopPropagation()
 		end
 	elseif event.Name == "StatusGetDescriptionParam" then
-		local desc = fn(event.Status, event.Owner, event.StatusSource, event.Params)
+		local desc = fn(event.Status, event.Owner, event.StatusSource, table.unpack(event.Params))
 		if desc ~= nil then
 			event.Description = desc
 			event:StopPropagation()
