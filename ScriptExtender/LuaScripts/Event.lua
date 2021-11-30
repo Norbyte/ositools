@@ -231,9 +231,8 @@ _I._CallLegacyEvent = function (fn, event)
 		local deathType, dmg = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
 			event.NoRandomization)
 		if deathType ~= nil and dmg ~= nil then
-			-- FIXME - copy damage list!
-			-- event.DamageList = dmg
-			-- event.DeathType = deathType
+			event.DamageList:CopyFrom(dmg)
+			event.DeathType = deathType
 			event:StopPropagation()
 		end
 	elseif event.Name == "GetSkillAPCost" then

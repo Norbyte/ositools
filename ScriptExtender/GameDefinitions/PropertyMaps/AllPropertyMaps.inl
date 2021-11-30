@@ -210,6 +210,7 @@ P_FUN(Merge, LuaMerge)
 P_FUN(ConvertDamageType, ConvertDamageType)
 P_FUN(AggregateSameTypeDamages, AggregateSameTypeDamages)
 P_FUN(ToTable, LuaToTable)
+P_FUN(CopyFrom, LuaCopyFrom)
 END_CLS()
 
 BEGIN_CLS(esv::Trigger)

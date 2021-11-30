@@ -33,6 +33,7 @@ struct DamagePairList : public Array<TDamagePair>
 	void AggregateSameTypeDamages();
 	void LuaMerge(lua_State* L);
 	UserReturn LuaToTable(lua_State* L);
+	void LuaCopyFrom(lua_State* L);
 };
 
 struct HitDamageInfo

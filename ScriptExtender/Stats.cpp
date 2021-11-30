@@ -170,6 +170,15 @@ UserReturn DamagePairList::LuaToTable(lua_State* L)
 	return 1;
 }
 
+void DamagePairList::LuaCopyFrom(lua_State* L)
+{
+	auto other = ObjectProxy2::CheckedGet<DamagePairList>(L, 2);
+	Clear();
+	for (auto const& damage : *other) {
+		Add(damage);
+	}
+}
+
 void SkillPrototypeManager::SyncSkillStat(Object* object, SkillPrototype* proto)
 {
 	auto stats = GetStaticSymbols().GetStats();
