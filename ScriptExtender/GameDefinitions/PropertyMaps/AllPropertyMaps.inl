@@ -26,10 +26,12 @@ P_REF(DamageList)
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("EffectFlags",
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
-		push(L, hit->EffectFlags);
+		WarnDeprecated56("Reading EffectFlags directly is deprecated; use the new boolean properties (Hit, Blocked, Dodged, etc.) instead");
+		push(L, (uint32_t)hit->EffectFlags);
 		return true;
 	},
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
+		WarnDeprecated56("Writing EffectFlags directly is deprecated; use the new boolean properties (Hit, Blocked, Dodged, etc.) instead");
 		hit->EffectFlags = (stats::HitFlag)get<uint32_t>(L, index);
 		return true;
 	}
