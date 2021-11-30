@@ -2274,7 +2274,7 @@ namespace dse::esv::lua
 		ThrowEvent(*this, "TreasureItemGenerated", params);
 
 		if (!params.ResultingItem) {
-			return nullptr;
+			return item;
 		}
 
 		if (params.ResultingItem->ParentInventoryHandle) {
