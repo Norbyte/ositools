@@ -1200,30 +1200,6 @@ struct ItemCombinationManager : public NamedElementManager<ItemCombination>
 };
 
 
-MARK_ALLOCATABLE(PropertyList);
-MARK_ALLOCATABLE(SkillSet);
-MARK_ALLOCATABLE(EquipmentGroup);
-MARK_ALLOCATABLE(EquipmentSet);
-MARK_ALLOCATABLE(DeltaModifier);
-MARK_ALLOCATABLE(TreasureSubTableDescription);
-MARK_ALLOCATABLE(TreasureSubTableDescription::Category);
-MARK_ALLOCATABLE(TreasureTable);
-MARK_ALLOCATABLE(TreasureCategory);
-MARK_ALLOCATABLE(TreasureCategory::Item);
-MARK_ALLOCATABLE(NameGroupName);
-MARK_ALLOCATABLE(NameGroup);
-MARK_ALLOCATABLE(CNameGroupLink);
-MARK_ALLOCATABLE(CRootGroup);
-MARK_ALLOCATABLE(CLevelGroup);
-MARK_ALLOCATABLE(CItemGroup);
-MARK_ALLOCATABLE(ItemCombinationProperty);
-MARK_ALLOCATABLE(ItemCombinationPreviewData);
-MARK_ALLOCATABLE(ItemCombinationIngredient);
-MARK_ALLOCATABLE(ItemCombinationResult);
-MARK_ALLOCATABLE(ItemCombinationResult::CombinationResult);
-MARK_ALLOCATABLE(ItemCombination);
-
-
 extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;
 
 struct RPGStats : public ProtectedGameObject<RPGStats>
@@ -1430,3 +1406,32 @@ using ExecutePropertyDataOnPositionOnlyProc = void(stats::PropertyList* properti
 	stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn);
 
 END_NS()
+
+BEGIN_SE()
+
+using namespace dse::stats;
+
+MARK_ALLOCATABLE(PropertyList);
+MARK_ALLOCATABLE(SkillSet);
+MARK_ALLOCATABLE(EquipmentGroup);
+MARK_ALLOCATABLE(EquipmentSet);
+MARK_ALLOCATABLE(DeltaModifier);
+MARK_ALLOCATABLE(TreasureSubTableDescription);
+MARK_ALLOCATABLE(TreasureSubTableDescription::Category);
+MARK_ALLOCATABLE(TreasureTable);
+MARK_ALLOCATABLE(TreasureCategory);
+MARK_ALLOCATABLE(TreasureCategory::Item);
+MARK_ALLOCATABLE(NameGroupName);
+MARK_ALLOCATABLE(NameGroup);
+MARK_ALLOCATABLE(CNameGroupLink);
+MARK_ALLOCATABLE(CRootGroup);
+MARK_ALLOCATABLE(CLevelGroup);
+MARK_ALLOCATABLE(CItemGroup);
+MARK_ALLOCATABLE(ItemCombinationProperty);
+MARK_ALLOCATABLE(ItemCombinationPreviewData);
+MARK_ALLOCATABLE(ItemCombinationIngredient);
+MARK_ALLOCATABLE(ItemCombinationResult);
+MARK_ALLOCATABLE(ItemCombinationResult::CombinationResult);
+MARK_ALLOCATABLE(ItemCombination);
+
+END_SE()

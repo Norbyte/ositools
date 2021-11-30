@@ -103,14 +103,10 @@ bool operator != (GameAllocator<T> const & x, GameAllocator<U> const & y) noexce
 
 // Identifies types that can be allocated by us (using the game allocator)
 template <class>
-std::false_type AllocatableImpl(...);
+std::false_type IsAllocatable(...);
 
 #define MARK_ALLOCATABLE(ty) template <class T> \
-	std::true_type AllocatableImpl(T*)
-
-template <class T>
-struct IsAllocatable : decltype(AllocatableImpl<T>(nullptr))
-{};
+	std::true_type IsAllocatable(T*)
 
 
 #if defined(OSI_EOCAPP)
