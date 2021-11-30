@@ -2219,88 +2219,20 @@ namespace dse::esv::lua
 		stats::HitType hitType, bool noHitRoll, bool forceReduceDurability, stats::HitDamageInfo *hit,
 		stats::PropertyList *skillProperties, stats::HighGroundBonus highGroundFlag, stats::CriticalRoll criticalRoll)
 	{
-		// FIXME - not migrated yet!
-		return false;
-
-		/* REMOVED
-		StackCheck _(L, 0);
-		Restriction restriction(*this, RestrictOsiris);
-
-		PushExtFunction(L, "_ComputeCharacterHit"); // stack: fn
-
-		MakeObjectRef(L, target);
-		MakeObjectRef(L, attacker);
-
-		MakeObjectRef(L, weapon);
-
-		auto luaDamageList = DamageList::New(L);
-		for (auto const& dmg : *damageList) {
-			luaDamageList->Get().SafeAdd(dmg);
-		}
-
-		push(L, hitType);
-		push(L, noHitRoll);
-		push(L, forceReduceDurability);
-
-		PushHit(L, *hit);
-
 		auto alwaysBackstab = skillProperties != nullptr
 			&& skillProperties->Properties.Find(FixedString("AlwaysBackstab")) != nullptr;
-		push(L, alwaysBackstab);
 
-		push(L, highGroundFlag);
-		push(L, criticalRoll);
+		stats::HitDamageInfo tempHit;
+		ComputeCharacterHitEventParams params{ target, attacker, weapon, damageList, hitType, noHitRoll,
+			forceReduceDurability, & tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, false };
+		ThrowEvent(*this, "ComputeCharacterHit", params);
 
-		if (CallWithTraceback(L, 11, 1) != 0) { // stack: succeeded
-			LuaError("ComputeCharacterHit handler failed: " << lua_tostring(L, -1));
-			lua_pop(L, 1);
+		if (params.Handled) {
+			*hit = tempHit;
+			return true;
+		} else {
 			return false;
 		}
-
-		int isnil = lua_isnil(L, -1);
-
-		bool ok;
-		if (isnil) {
-			ok = false;
-		} else if (lua_type(L, -1) == LUA_TTABLE) {
-			lua_getfield(L, -1, "EffectFlags");
-			auto effectFlags = lua_tointeger(L, -1);
-			lua_pop(L, 1);
-			lua_getfield(L, -1, "TotalDamageDone");
-			auto totalDamageDone = lua_tointeger(L, -1);
-			lua_pop(L, 1);
-			lua_getfield(L, -1, "ArmorAbsorption");
-			auto armorAbsorption = lua_tointeger(L, -1);
-			lua_pop(L, 1);
-			lua_getfield(L, -1, "LifeSteal");
-			auto lifeSteal = lua_tointeger(L, -1);
-			lua_pop(L, 1);
-			lua_getfield(L, -1, "DamageList");
-			auto damageList = DamageList::AsUserData(L, -1);
-			lua_pop(L, 1);
-
-			if (damageList == nullptr) {
-				OsiErrorS("Missing 'DamageList' in table returned from ComputeCharacterHit");
-				ok = false;
-			} else {
-				hit->EffectFlags = (HitFlag)effectFlags;
-				hit->TotalDamageDone = (int32_t)totalDamageDone;
-				hit->ArmorAbsorption = (int32_t)armorAbsorption;
-				hit->LifeSteal = (int32_t)lifeSteal;
-				hit->DamageList.Clear();
-				for (auto const& dmg : damageList->Get()) {
-					hit->DamageList.AddDamage(dmg.DamageType, dmg.Amount);
-				}
-				ok = true;
-			}
-		} else {
-			OsiErrorS("ComputeCharacterHit must return a table");
-			ok = false;
-		}
-
-		lua_pop(L, 1); // stack: -
-		return ok;
-		*/
 	}
 
 	bool ServerState::OnCharacterApplyDamage(esv::Character* target, stats::HitDamageInfo& hit, ComponentHandle attackerHandle,

@@ -154,6 +154,23 @@ struct StatusHitEnterEventParams
 	PendingHit* Context;
 };
 
+struct ComputeCharacterHitEventParams
+{
+	stats::Character* Target;
+	stats::Character* Attacker;
+	stats::Item* Weapon;
+	stats::DamagePairList* DamageList;
+	stats::HitType HitType;
+	bool NoHitRoll;
+	bool ForceReduceDurability;
+	stats::HitDamageInfo* Hit;
+	stats::PropertyList* SkillProperties;
+	bool AlwaysBackstab;
+	stats::HighGroundBonus HighGround;
+	stats::CriticalRoll CriticalRoll;
+	bool Handled{ false };
+};
+
 struct BeforeCharacterApplyDamageEventParams
 {
 	esv::Character* Target;
