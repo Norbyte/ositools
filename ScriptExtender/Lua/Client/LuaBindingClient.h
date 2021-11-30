@@ -138,7 +138,7 @@ namespace dse::ecl::lua
 		STDString Description;
 	};
 
-	struct GetSkillPropertyDescriptionEventParams
+	struct SkillGetPropertyDescriptionEventParams
 	{
 		stats::PropertyExtender* Property;
 		STDString Description;

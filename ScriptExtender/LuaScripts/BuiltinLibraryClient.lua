@@ -2,6 +2,7 @@ local _I = Ext._Internal
 
 _I._PublishedEvents = {
 	"SkillGetDescriptionParam",
+	"SkillGetPropertyDescription",
 	"StatusGetDescriptionParam",
 	"GetSkillDamage",
 	"GetSkillAPCost",
@@ -205,13 +206,6 @@ Ext.RegisterUITypeInvokeListener(28, "openMenu", function (menu, ...)
     menu:Invoke("setDebugText", ver)
 end)
 
-Ext._GetSkillPropertyDescription = function (prop)
-	local propType = Ext._SkillPropertyTypes[prop.Action]
-	if propType ~= nil and propType.GetDescription ~= nil then
-		return propType.GetDescription(prop)
-	end
-end
-
 _I._RegisterEvents()
 
 -- Support for UI call/invoke listeners
@@ -230,4 +224,15 @@ Ext.Events.UIObjectCreated:Subscribe(function (e)
         ui:CaptureExternalInterfaceCalls()
         ui:CaptureInvokes()
     end
+end)
+
+Ext.Events.SkillGetPropertyDescription:Subscribe(function (e)
+	local propType = Ext._SkillPropertyTypes[e.Property.Action]
+	if propType ~= nil and propType.GetDescription ~= nil then
+		local desc = propType.GetDescription(prop)
+		if desc ~= nil then
+			e.Description = desc
+			e.StopPropagation()
+		end
+	end
 end)

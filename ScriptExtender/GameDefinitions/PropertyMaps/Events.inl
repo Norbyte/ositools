@@ -177,7 +177,7 @@ P_REF(Params)
 P(Description)
 END_CLS()
 
-BEGIN_CLS(ecl::lua::GetSkillPropertyDescriptionEventParams)
+BEGIN_CLS(ecl::lua::SkillGetPropertyDescriptionEventParams)
 P_REF(Property)
 P(Description)
 END_CLS()

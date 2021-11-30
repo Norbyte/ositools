@@ -214,7 +214,7 @@ _I._CallLegacyEvent = function (fn, event)
 			event.Description = desc
 			event:StopPropagation()
 		end
-	elseif event.Name == "GetSkillPropertyDescription" then
+	elseif event.Name == "SkillGetPropertyDescription" then
 		local desc = fn(event.Property)
 		if desc ~= nil then
 			event.Description = desc

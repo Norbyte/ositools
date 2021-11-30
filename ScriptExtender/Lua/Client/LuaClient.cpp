@@ -784,8 +784,8 @@ void ClientState::OnCustomClientUIObjectCreated(char const * name, ComponentHand
 
 std::optional<STDString> ClientState::GetSkillPropertyDescription(stats::PropertyExtender* prop)
 {
-	GetSkillPropertyDescriptionEventParams params{ prop };
-	ThrowEvent(*this, "GetSkillPropertyDescription", params);
+	SkillGetPropertyDescriptionEventParams params{ prop };
+	ThrowEvent(*this, "SkillGetPropertyDescription", params);
 
 	if (!params.Description.empty()) {
 		return params.Description;
