@@ -167,25 +167,28 @@ _I._MakeLegacyHitEvent = function (hit)
 		t.ForceReduceDurability = hit.ForceReduceDurability
 		t.HighGround = hit.HighGround
 		t.CriticalRoll = hit.CriticalRoll
-
-		local ch = hit.CharacterHit
-		t.Hit = {
-			Equipment = ch.Equipment,
-			TotalDamageDone = ch.TotalDamageDone,
-			DamageDealt = ch.DamageDealt,
-			DeathType = ch.DeathType,
-			DamageType = ch.DamageType,
-			AttackDirection = ch.AttackDirection,
-			ArmorAbsorption = ch.ArmorAbsorption,
-			LifeSteal = ch.LifeSteal,
-			-- FIXME - replace with raw flag number
-			EffectFlags = ch.EffectFlags,
-			HitWithWeapon = ch.HitWithWeapon,
-			DamageList = ch.DamageList
-		}
+		t.Hit = _I._MakeLegacyHitInfo(hit.CharacterHit)
 	end
 
 	return t
+end
+
+_I._MakeLegacyHitInfo = function (hit)
+	local damageList = Ext.NewDamageList()
+	damageList:CopyFrom(hit.DamageList)
+	return {
+		Equipment = hit.Equipment,
+		TotalDamageDone = hit.TotalDamageDone,
+		DamageDealt = hit.DamageDealt,
+		DeathType = hit.DeathType,
+		DamageType = hit.DamageType,
+		AttackDirection = hit.AttackDirection,
+		ArmorAbsorption = hit.ArmorAbsorption,
+		LifeSteal = hit.LifeSteal,
+		EffectFlags = hit.EffectFlags,
+		HitWithWeapon = hit.HitWithWeapon,
+		DamageList = damageList
+	}
 end
 
 _I._CallLegacyEvent = function (fn, event)
@@ -227,6 +230,26 @@ _I._CallLegacyEvent = function (fn, event)
 		end
 	elseif event.Name == "StatusHitEnter" then
 		fn(event.Hit, _I._MakeLegacyHitEvent(event.Context))
+	elseif event.Name == "ComputeCharacterHit" then
+	local hit = event.Hit
+		local legacyHit = _I._MakeLegacyHitInfo(hit)
+		local hitResult = fn(event.Target, event.Attacker, event.Weapon, event.DamageList, event.HitType, event.NoHitRoll,
+			event.ForceReduceDurability, legacyHit, event.AlwaysBackstab, event.HighGround, event.CriticalRoll)
+		if hitResult ~= nil then
+			hit.Equipment = hitResult.Equipment
+			hit.TotalDamageDone = hitResult.TotalDamageDone
+			hit.DamageDealt = hitResult.DamageDealt
+			hit.DeathType = hitResult.DeathType
+			hit.DamageType = hitResult.DamageType
+			hit.AttackDirection = hitResult.AttackDirection
+			hit.ArmorAbsorption = hitResult.ArmorAbsorption
+			hit.LifeSteal = hitResult.LifeSteal
+			hit.EffectFlags = hitResult.EffectFlags
+			hit.HitWithWeapon = hitResult.HitWithWeapon
+			hit.DamageList:CopyFrom(hitResult.DamageList)
+			event.Handled = true
+			event:StopPropagation()
+		end
 	elseif event.Name == "GetSkillDamage" then
 		local deathType, dmg = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
 			event.NoRandomization)
