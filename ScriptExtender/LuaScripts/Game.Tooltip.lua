@@ -922,4 +922,4 @@ local function OnSessionLoaded()
     end
 end
 
-Ext.RegisterListener("SessionLoaded", OnSessionLoaded)
+Ext.Events.SessionLoaded:Subscribe(OnSessionLoaded)

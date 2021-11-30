@@ -251,7 +251,7 @@ _I._CallLegacyEvent = function (fn, event)
 			event:StopPropagation()
 		end
 	elseif event.Name == "GetSkillDamage" then
-		local deathType, dmg = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
+		local dmg, deathType = fn(event.Skill, event.Attacker, event.IsFromItem, event.Stealthed, event.AttackerPosition, event.TargetPosition, event.Level, 
 			event.NoRandomization)
 		if deathType ~= nil and dmg ~= nil then
 			event.DamageList:CopyFrom(dmg)
