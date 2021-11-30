@@ -14,7 +14,7 @@ BEGIN_CLS(stats::ReflectionSet)
 // FIXME - P_REF(DamageTypes)
 END_CLS()
 
-BEGIN_CLS(stats::EquipmentAttributes)
+BEGIN_CLS_TN(stats::EquipmentAttributes, CDivinityStats_Equipment_Attributes)
 P(Durability)
 P(DurabilityDegradeSpeed)
 P(StrengthBoost)
@@ -134,7 +134,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 END_CLS()
 
 
-BEGIN_CLS(stats::EquipmentAttributesWeapon)
+BEGIN_CLS_TN(stats::EquipmentAttributesWeapon, CDivinityStats_Equipment_Attributes_Weapon)
 INHERIT(stats::EquipmentAttributes)
 P(DamageType)
 P(MinDamage)
@@ -150,7 +150,7 @@ P(Projectile)
 END_CLS()
 
 
-BEGIN_CLS(stats::EquipmentAttributesArmor)
+BEGIN_CLS_TN(stats::EquipmentAttributesArmor, CDivinityStats_Equipment_Attributes_Armor)
 INHERIT(stats::EquipmentAttributes)
 P(ArmorValue)
 P(ArmorBoost)
@@ -159,7 +159,7 @@ P(MagicArmorBoost)
 END_CLS()
 
 
-BEGIN_CLS(stats::EquipmentAttributesShield)
+BEGIN_CLS_TN(stats::EquipmentAttributesShield, CDivinityStats_Equipment_Attributes_Shield)
 INHERIT(stats::EquipmentAttributes)
 P(ArmorValue)
 P(ArmorBoost)
