@@ -235,8 +235,8 @@ struct ExecutePropertyDataOnGroundHitEventParams
 struct ExecutePropertyDataOnTargetEventParams
 {
 	stats::PropertyExtender* Property;
-	ComponentHandle Attacker;
-	ComponentHandle Target;
+	IEoCServerObject* Attacker;
+	IEoCServerObject* Target;
 	glm::vec3 ImpactOrigin;
 	bool IsFromItem;
 	stats::SkillPrototype* Skill;
@@ -246,7 +246,7 @@ struct ExecutePropertyDataOnTargetEventParams
 struct ExecutePropertyDataOnPositionEventParams
 {
 	stats::PropertyExtender* Property;
-	ComponentHandle Attacker;
+	IEoCServerObject* Attacker;
 	glm::vec3 Position;
 	float AreaRadius;
 	bool IsFromItem;

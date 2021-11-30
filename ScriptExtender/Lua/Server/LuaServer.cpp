@@ -2354,11 +2354,13 @@ namespace dse::esv::lua
 
 
 	void ServerState::ExecutePropertyDataOnTarget(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
-		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype * skillProto,
+		ComponentHandle targetHandle, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype * skillProto,
 		stats::HitDamageInfo const* damageInfo)
 	{
+		auto attacker = GetGameObjectInternal(attackerHandle);
+		auto target = GetGameObjectInternal(targetHandle);
 		ExecutePropertyDataOnTargetEventParams params{ 
-			prop, attackerHandle, target, impactOrigin, isFromItem, skillProto, damageInfo
+			prop, attacker, target, impactOrigin, isFromItem, skillProto, damageInfo
 		};
 		ThrowEvent(*this, "OnExecutePropertyDataOnTarget", params);
 	}
@@ -2368,8 +2370,9 @@ namespace dse::esv::lua
 		glm::vec3 const& position, float areaRadius, bool isFromItem, stats::SkillPrototype * skillPrototype,
 		stats::HitDamageInfo const* damageInfo)
 	{
+		auto attacker = GetGameObjectInternal(attackerHandle);
 		ExecutePropertyDataOnPositionEventParams params{
-			prop, attackerHandle, position, areaRadius, isFromItem, skillPrototype, damageInfo
+			prop, attacker, position, areaRadius, isFromItem, skillPrototype, damageInfo
 		};
 		ThrowEvent(*this, "OnExecutePropertyDataOnPosition", params);
 	}

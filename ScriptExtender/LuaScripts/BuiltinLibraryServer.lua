@@ -6,7 +6,7 @@ _I._PublishedEvents = {
 	"GetSkillAPCost",
 	"ComputeCharacterHit",
 	"CalculateTurnOrder", -- FIXME
-	"GetHitChance", -- FIXME
+	"GetHitChance",
 	"StatusGetEnterChance",
 	"StatusHitEnter",
 	"BeforeCharacterApplyDamage",
@@ -52,7 +52,7 @@ Ext.Events.OnExecutePropertyDataOnTarget:Subscribe(function (e)
 	local prop = e.Property
 	local propType = Ext._SkillPropertyTypes[prop.Action]
 	if propType ~= nil and propType.ExecuteOnTarget ~= nil then
-		propType:ExecuteOnTarget(e.Property, e.Attacker, e.Target, e.ImpactOrigin, e.IsFromItem, e.Skill, e.Hit)
+		propType.ExecuteOnTarget(e.Property, e.Attacker, e.Target, e.ImpactOrigin, e.IsFromItem, e.Skill, e.Hit)
 	end
 end)
 
@@ -60,6 +60,6 @@ Ext.Events.OnExecutePropertyDataOnPosition:Subscribe(function (e)
 	local prop = e.Property
 	local propType = Ext._SkillPropertyTypes[prop.Action]
 	if propType ~= nil and propType.ExecuteOnPosition ~= nil then
-		propType:ExecuteOnPosition(e.Property, e.Attacker, e.Position, e.AreaRadius, e.IsFromItem, e.Skill, e.Hit)
+		propType.ExecuteOnPosition(e.Property, e.Attacker, e.Position, e.AreaRadius, e.IsFromItem, e.Skill, e.Hit)
 	end
 end)
