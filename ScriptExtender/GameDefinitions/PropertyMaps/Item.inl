@@ -78,7 +78,7 @@ P_RO(OwnerHandle)
 P_RO(OriginalOwnerCharacter)
 // FIXME - Sockets?
 P(ComputedVitality)
-P(ItemType)
+P(Rarity)
 P(GoldValueOverwrite)
 P(WeightValueOverwrite)
 P_REF(Tags)
@@ -98,6 +98,8 @@ P_FUN(GetDeltaMods, GetDeltaMods)
 P_FUN(SetDeltaMods, LuaSetDeltaMods)
 P_FUN(GetGeneratedBoosts, GetGeneratedBoosts)
 P_FUN(SetGeneratedBoosts, LuaSetGeneratedBoosts)
+
+P_FALLBACK(&esv::Item::LuaFallbackGet, &esv::Item::LuaFallbackSet)
 END_CLS()
 
 

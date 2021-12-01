@@ -75,4 +75,27 @@ void Item::LuaSetDeltaMods(lua_State* L)
 	}
 }
 
+bool Item::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop)
+{
+	if (object->Stats) {
+		auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;
+		if (map.GetProperty(L, lifetime, object->Stats, prop)) {
+			WarnDeprecated56("Getting stats properties through an esv::Item instance is deprecated! (Use item.Stats instead)");
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool Item::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop, int index)
+{
+	if (object->Stats) {
+		auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;
+		return map.SetProperty(L, lifetime, object->Stats, prop, index);
+	} else {
+		return false;
+	}
+}
+
 END_NS()

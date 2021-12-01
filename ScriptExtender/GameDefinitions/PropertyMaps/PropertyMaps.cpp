@@ -1097,7 +1097,7 @@ namespace dse
 			PROP(LockLevel);
 			PROP_RO(OwnerHandle);
 			PROP(ComputedVitality);
-			PROP(ItemType);
+			PROP(Rarity);
 			PROP(GoldValueOverwrite);
 			PROP(WeightValueOverwrite);
 			PROP(TreasureLevel);

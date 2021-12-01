@@ -142,7 +142,7 @@ namespace dse
 			uint64_t U7;
 			int32_t ComputedVitality;
 			int32_t MaxDurabilityPatchCheck; // Saved
-			FixedString ItemType; // Saved
+			FixedString Rarity; // Saved
 			int32_t GoldValueOverwrite; // Saved
 			int32_t WeightValueOverwrite; // Saved
 			void * Portal;
@@ -161,6 +161,9 @@ namespace dse
 			void LuaSetGeneratedBoosts(lua_State* L);
 			ObjectSet<FixedString> GetDeltaMods();
 			void LuaSetDeltaMods(lua_State* L);
+
+			static bool LuaFallbackGet(lua_State* L, dse::lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop);
+			static bool LuaFallbackSet(lua_State* L, dse::lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop, int index);
 		};
 
 		typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
