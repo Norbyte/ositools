@@ -274,5 +274,7 @@ BEGIN_SE()
 
 char const* const TypeInfo<ig::InvokeDataValue>::TypeName = "ig::InvokeDataValue";
 char const* const TypeInfo<ObjectSet<stats::PropertyStatus*>>::TypeName = "ObjectSet<PropertyStatus>";
+char const* const TypeInfo<ObjectSet<FixedString>>::TypeName = "ObjectSet<FixedString>";
+char const* const TypeInfo<ObjectSet<uint32_t>>::TypeName = "ObjectSet<uint32_t>";
 
 END_SE()

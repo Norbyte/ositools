@@ -95,10 +95,6 @@ namespace dse
 	LegacyPropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
 	LegacyPropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
 	LegacyPropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
-	LegacyPropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
-	LegacyPropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
-	LegacyPropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
-	LegacyPropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
 
 #define BEGIN_PROPERTIES(map, cls) auto& propertyMap = map; \
 	using TObject = decltype(map)::ObjectType; \
@@ -1607,79 +1603,6 @@ namespace dse
 			PROP_TPL(MeshProxy);
 			PROP_TPL(IsPublicDomain);
 			PROP_TPL(AllowSummonTeleport);
-		}
-
-		{
-			BEGIN_PROPERTIES(gProjectileTemplatePropertyMap, ProjectileTemplate);
-			propertyMap.Parent = &gEoCGameObjectTemplatePropertyMap;
-			PROP(LifeTime);
-			PROP(Speed);
-			PROP(Acceleration);
-			PROP(CastBone);
-			PROP(ImpactFX);
-			PROP(TrailFX);
-			PROP(DestroyTrailFXOnImpact);
-			PROP(BeamFX);
-			PROP(PreviewPathMaterial);
-			PROP(PreviewPathImpactFX);
-			PROP(PreviewPathRadius);
-			PROP(ImpactFXSize);
-			PROP(RotateImpact);
-			PROP(IgnoreRoof);
-			PROP(DetachBeam);
-			PROP(NeedsArrowImpactSFX);
-			PROP(ProjectilePath);
-			PROP(PathShift);
-			PROP(PathRadius);
-			PROP(PathMinArcDist);
-			PROP(PathMaxArcDist);
-			PROP(PathRepeat);
-		}
-
-		{
-			BEGIN_PROPERTIES(gCombatComponentTemplatePropertyMap, CombatComponentTemplate);
-			PROP_TPL(Alignment);
-			PROP_TPL(CanFight);
-			PROP_TPL(CanJoinCombat);
-			PROP_TPL(CombatGroupID);
-			PROP_TPL(IsBoss);
-			PROP_TPL(IsInspector);
-			PROP_TPL(StartCombatRange);
-		}
-
-		{
-			BEGIN_PROPERTIES(gSurfaceTemplatePropertyMap, SurfaceTemplate);
-			propertyMap.Parent = &gGameObjectTemplatePropertyMap;
-			PROP_RO(SurfaceTypeId);
-			PROP_RO(SurfaceType);
-			PROP_TPL(DisplayName);
-			PROP_TPL(Description);
-			PROP_TPL(DecalMaterial);
-			PROP_TPL(CanEnterCombat);
-			PROP_TPL(AlwaysUseDefaultLifeTime);
-			PROP_TPL(DefaultLifeTime);
-			PROP_TPL(SurfaceGrowTimer);
-			PROP_TPL(FadeInSpeed);
-			PROP_TPL(FadeOutSpeed);
-			PROP_TPL(Seed);
-			// StatusData handled in the Lua proxy object
-			// TODO - InstanceVisual, IntroFX, FX
-			PROP_TPL(DamageWeapon);
-			PROP_TPL(Summon);
-			PROP_TPL(DamageCharacters);
-			PROP_TPL(DamageItems);
-			PROP_TPL(DamageTorches);
-			PROP_TPL(RemoveDestroyedItems);
-			PROP_TPL(CanSeeThrough);
-			PROP_TPL(CanShootThrough);
-		}
-
-		{
-			BEGIN_PROPERTIES(gTriggerTemplatePropertyMap, TriggerTemplate);
-			propertyMap.Parent = &gGameObjectTemplatePropertyMap;
-			PROP_TPL(TriggerType);
-			PROP_TPL(PhysicsType);
-			PROP_TPL(TriggerGizmoOverride);
 		}
 	}
 

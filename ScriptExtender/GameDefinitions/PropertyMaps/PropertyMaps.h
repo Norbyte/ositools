@@ -96,10 +96,6 @@ namespace dse
 	extern LegacyPropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
 	extern LegacyPropertyMap<CharacterTemplate, EoCGameObjectTemplate> gCharacterTemplatePropertyMap;
 	extern LegacyPropertyMap<ItemTemplate, EoCGameObjectTemplate> gItemTemplatePropertyMap;
-	extern LegacyPropertyMap<ProjectileTemplate, EoCGameObjectTemplate> gProjectileTemplatePropertyMap;
-	extern LegacyPropertyMap<CombatComponentTemplate, void> gCombatComponentTemplatePropertyMap;
-	extern LegacyPropertyMap<SurfaceTemplate, GameObjectTemplate> gSurfaceTemplatePropertyMap;
-	extern LegacyPropertyMap<TriggerTemplate, GameObjectTemplate> gTriggerTemplatePropertyMap;
 
 	void InitPropertyMaps();
 

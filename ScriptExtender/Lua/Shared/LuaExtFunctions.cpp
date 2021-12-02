@@ -227,12 +227,7 @@ namespace dse::lua
 	{
 		auto surfaceType = get<SurfaceType>(L, 1);
 		auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surfaceType);
-		if (tmpl != nullptr) {
-			ObjectProxy<SurfaceTemplate>::New(L, GetCurrentLifetime(), tmpl);
-		} else {
-			LuaError("Couldn't fetch surface template of type " << (unsigned)surfaceType);
-			push(L, nullptr);
-		}
+		MakeObjectRef(L, tmpl);
 		return 1;
 	}
 

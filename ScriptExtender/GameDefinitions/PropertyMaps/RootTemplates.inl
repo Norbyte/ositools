@@ -51,6 +51,12 @@ P(GameMasterSpawnSubSection)
 END_CLS()
 
 
+BEGIN_CLS(VisualSet)
+P_REF(Visuals)
+P_REF(Colors)
+END_CLS()
+
+
 BEGIN_CLS(CharacterTemplate)
 INHERIT(EoCGameObjectTemplate)
 P_REF(CombatComponent)
@@ -114,7 +120,10 @@ P(InventoryType)
 P(IsArenaChampion)
 P(FootstepWeight)
 P_RO(EmptyVisualSet)
-// TODO - VisualSetObject
+P_REF(VisualSet)
+
+P_FUN(GetVisualChoices, GetVisualChoices)
+P_FUN(GetColorChoices, GetColorChoices)
 END_CLS()
 
 

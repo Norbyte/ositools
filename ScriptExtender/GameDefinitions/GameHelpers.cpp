@@ -127,6 +127,25 @@ namespace dse
 	}
 
 
+	ObjectSet<FixedString>* CharacterTemplate::GetVisualChoices(VisualTemplateVisualIndex slot)
+	{
+		if (VisualSet) {
+			return &VisualSet->Visuals[(unsigned)slot];
+		} else {
+			return nullptr;
+		}
+	}
+
+	ObjectSet<uint32_t>* CharacterTemplate::GetColorChoices(VisualTemplateColorIndex slot)
+	{
+		if (VisualSet) {
+			return &VisualSet->Colors[(unsigned)slot];
+		} else {
+			return nullptr;
+		}
+	}
+
+
 	FileReaderPin::~FileReaderPin()
 	{
 		if (reader_ != nullptr) {

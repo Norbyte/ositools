@@ -103,8 +103,8 @@ namespace dse
     struct VisualSet
     {
         void* VMT;
-        ObjectSet<FixedString> Visuals[9];
-        ObjectSet<uint32_t> Colors[3];
+        std::array<ObjectSet<FixedString>, 9> Visuals;
+        std::array<ObjectSet<uint32_t>, 3> Colors;
     };
 
     struct CharacterTemplate : public EoCGameObjectTemplate
@@ -172,7 +172,10 @@ namespace dse
         OverrideableProperty<uint32_t> FootstepWeight;
         char field_700;
         bool EmptyVisualSet;
-        VisualSet* VisualSetObject;
+        VisualSet* VisualSet;
+
+        ObjectSet<FixedString>* GetVisualChoices(VisualTemplateVisualIndex slot);
+        ObjectSet<uint32_t>* GetColorChoices(VisualTemplateColorIndex slot);
     };
 
     struct ItemTemplate : public EoCGameObjectTemplate
