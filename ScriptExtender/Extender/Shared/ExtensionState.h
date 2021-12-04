@@ -59,6 +59,8 @@ namespace dse
 			bool warnOnError = true, int globalsIdx = 0);
 		std::optional<int> LuaLoadModScript(STDString const & modNameGuid, STDString const & fileName, 
 			bool warnOnError = true, int globalsIdx = 0);
+		std::optional<int> LuaLoadBuiltinFile(STDString const & fileName, bool warnOnError = true, int globalsIdx = 0);
+		std::optional<int> LuaLoadFile(STDString const& path, STDString const& scriptName, bool warnOnError = true, int globalsIdx = 0);
 
 		inline ExtensionModConfig const& GetMergedConfig() const
 		{

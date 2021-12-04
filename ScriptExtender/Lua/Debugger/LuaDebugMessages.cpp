@@ -389,26 +389,6 @@ namespace dse::lua::dbg
 			}
 		}
 
-		// Check for builtins
-		int resourceId{ 0 };
-		if (req.name() == "BuiltinLibrary.lua") {
-			resourceId = IDR_LUA_BUILTIN_LIBRARY;
-		} else if (req.name() == "BuiltinLibraryClient.lua") {
-			resourceId = IDR_LUA_BUILTIN_LIBRARY_CLIENT;
-		} else if (req.name() == "BuiltinLibraryServer.lua") {
-			resourceId = IDR_LUA_BUILTIN_LIBRARY_SERVER;
-		} else if (req.name() == "Game.Math.lua") {
-			resourceId = IDR_LUA_GAME_MATH;
-		} else if (req.name() == "Game.Tooltip.lua") {
-			resourceId = IDR_LUA_GAME_TOOLTIP;
-		}
-
-		if (resourceId) {
-			auto body = State::GetBuiltinLibrary(resourceId);
-			SendSourceResponse(seq, req.name().c_str(), body);
-			return;
-		}
-
 		SendResult(seq, ResultCode::NoSuchFile);
 	}
 

@@ -8,7 +8,7 @@
 #include <sstream>
 #include <fstream>
 
-void ConfigGetBool(Json::Value & node, char const * key, bool & value)
+void ConfigGet(Json::Value & node, char const * key, bool & value)
 {
 	auto configVar = node[key];
 	if (!configVar.isNull() && configVar.isBool()) {
@@ -16,11 +16,19 @@ void ConfigGetBool(Json::Value & node, char const * key, bool & value)
 	}
 }
 
-void ConfigGetInt(Json::Value& node, char const* key, uint32_t& value)
+void ConfigGet(Json::Value& node, char const* key, uint32_t& value)
 {
 	auto configVar = node[key];
 	if (!configVar.isNull() && configVar.isUInt()) {
 		value = configVar.asUInt();
+	}
+}
+
+void ConfigGet(Json::Value& node, char const* key, std::wstring& value)
+{
+	auto configVar = node[key];
+	if (!configVar.isNull() && configVar.isString()) {
+		value = FromUTF8(configVar.asString());
 	}
 }
 
@@ -43,36 +51,29 @@ void LoadConfig(std::wstring const & configPath, dse::ExtenderConfig & config)
 		Fail(err.str().c_str());
 	}
 
-	ConfigGetBool(root, "CreateConsole", config.CreateConsole);
-	ConfigGetBool(root, "EnableLogging", config.EnableLogging);
-	ConfigGetBool(root, "LogCompile", config.LogCompile);
-	ConfigGetBool(root, "LogFailedCompile", config.LogFailedCompile);
-	ConfigGetBool(root, "LogRuntime", config.LogRuntime);
-	ConfigGetBool(root, "EnableExtensions", config.EnableExtensions);
-	ConfigGetBool(root, "SendCrashReports", config.SendCrashReports);
-	ConfigGetBool(root, "DumpNetworkStrings", config.DumpNetworkStrings);
-	ConfigGetBool(root, "SyncNetworkStrings", config.SyncNetworkStrings);
-	ConfigGetBool(root, "EnableDebugger", config.EnableDebugger);
-	ConfigGetBool(root, "EnableLuaDebugger", config.EnableLuaDebugger);
-	ConfigGetBool(root, "OptimizeHashing", config.OptimizeHashing);
-	ConfigGetBool(root, "DisableModValidation", config.DisableModValidation);
-	ConfigGetBool(root, "DeveloperMode", config.DeveloperMode);
-	ConfigGetBool(root, "ShowPerfWarnings", config.ShowPerfWarnings);
-	ConfigGetBool(root, "EnableAchievements", config.EnableAchievements);
+	ConfigGet(root, "CreateConsole", config.CreateConsole);
+	ConfigGet(root, "EnableLogging", config.EnableLogging);
+	ConfigGet(root, "LogCompile", config.LogCompile);
+	ConfigGet(root, "LogFailedCompile", config.LogFailedCompile);
+	ConfigGet(root, "LogRuntime", config.LogRuntime);
+	ConfigGet(root, "EnableExtensions", config.EnableExtensions);
+	ConfigGet(root, "SendCrashReports", config.SendCrashReports);
+	ConfigGet(root, "DumpNetworkStrings", config.DumpNetworkStrings);
+	ConfigGet(root, "SyncNetworkStrings", config.SyncNetworkStrings);
+	ConfigGet(root, "EnableDebugger", config.EnableDebugger);
+	ConfigGet(root, "EnableLuaDebugger", config.EnableLuaDebugger);
+	ConfigGet(root, "OptimizeHashing", config.OptimizeHashing);
+	ConfigGet(root, "DisableModValidation", config.DisableModValidation);
+	ConfigGet(root, "DeveloperMode", config.DeveloperMode);
+	ConfigGet(root, "ShowPerfWarnings", config.ShowPerfWarnings);
+	ConfigGet(root, "EnableAchievements", config.EnableAchievements);
 
-	ConfigGetInt(root, "DebuggerPort", config.DebuggerPort);
-	ConfigGetInt(root, "LuaDebuggerPort", config.LuaDebuggerPort);
-	ConfigGetInt(root, "DebugFlags", config.DebugFlags);
+	ConfigGet(root, "DebuggerPort", config.DebuggerPort);
+	ConfigGet(root, "LuaDebuggerPort", config.LuaDebuggerPort);
+	ConfigGet(root, "DebugFlags", config.DebugFlags);
 
-	auto logDir = root["LogDirectory"];
-	if (!logDir.isNull()) {
-		if (logDir.isString()) {
-			config.LogDirectory = FromUTF8(logDir.asString());
-		}
-		else {
-			Fail("Config option 'LogDirectory' should be a string.");
-		}
-	}
+	ConfigGet(root, "LogDirectory", config.LogDirectory);
+	ConfigGet(root, "LuaBuiltinResourceDirectory", config.LuaBuiltinResourceDirectory);
 }
 
 void SetupOsirisProxy(HMODULE hModule)

@@ -155,6 +155,8 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
+		void Initialize() override;
+
 		void OnCreateUIObject(ComponentHandle handle);
 		void OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
 		void OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);

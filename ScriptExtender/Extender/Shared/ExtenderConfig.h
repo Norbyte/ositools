@@ -53,6 +53,7 @@ struct ExtenderConfig
 	uint32_t LuaDebuggerPort{ 9998 };
 	uint32_t DebugFlags{ 0 };
 	std::wstring LogDirectory;
+	std::wstring LuaBuiltinResourceDirectory;
 };
 
 END_SE()

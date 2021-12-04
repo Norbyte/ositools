@@ -229,10 +229,10 @@ end)
 Ext.Events.SkillGetPropertyDescription:Subscribe(function (e)
 	local propType = Ext._SkillPropertyTypes[e.Property.Action]
 	if propType ~= nil and propType.GetDescription ~= nil then
-		local desc = propType.GetDescription(prop)
+		local desc = propType.GetDescription(e.Property)
 		if desc ~= nil then
 			e.Description = desc
-			e.StopPropagation()
+			e:StopPropagation()
 		end
 	end
 end)

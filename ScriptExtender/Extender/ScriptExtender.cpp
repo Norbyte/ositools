@@ -396,6 +396,11 @@ void ScriptExtender::PostStartup()
 		hitProxy_.PostStartup();
 		hasher_.PostStartup();
 
+		luaBuiltinBundle_.SetResourcePath(config_.LuaBuiltinResourceDirectory);
+		if (!luaBuiltinBundle_.LoadBuiltinResource(IDR_LUA_BUILTIN_BUNDLE)) {
+			ERR("Failed to load Lua builtin resource bundle!");
+		}
+
 		using namespace std::placeholders;
 		hooks_.FileReader__ctor.SetWrapper(std::bind(&ScriptExtender::OnFileReaderCreate, this, _1, _2, _3, _4));
 	}

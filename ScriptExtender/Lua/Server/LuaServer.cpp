@@ -2147,38 +2147,7 @@ namespace dse::esv::lua
 
 	ServerState::ServerState(ExtensionState& state)
 		: osiris_(state)
-	{
-		StackCheck _(L, 0);
-
-		library_.Register(L);
-
-		auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
-		LoadScript(baseLib, "BuiltinLibrary.lua");
-		auto eventLib = GetBuiltinLibrary(IDR_LUA_EVENT);
-		LoadScript(eventLib, "Event.lua");
-		auto serverLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_SERVER);
-		LoadScript(serverLib, "BuiltinLibraryServer.lua");
-		auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
-		LoadScript(gameMathLib, "Game.Math.lua");
-		auto gameTooltipLib = GetBuiltinLibrary(IDR_LUA_GAME_TOOLTIP);
-		LoadScript(gameTooltipLib, "Game.Tooltip.lua");
-
-		lua_getglobal(L, "Ext"); // stack: Ext
-		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
-		lua_setfield(L, -2, "ExtraData"); // stack: Ext
-		lua_pop(L, 1); // stack: -
-
-		// Ext is not writeable after loading SandboxStartup!
-		auto sandbox = GetBuiltinLibrary(IDR_LUA_SANDBOX_STARTUP);
-		LoadScript(sandbox, "SandboxStartup.lua");
-
-#if !defined(OSI_NO_DEBUGGER)
-		auto debugger = gExtender->GetLuaDebugger();
-		if (debugger) {
-			debugger->ServerStateCreated(this);
-		}
-#endif
-	}
+	{}
 
 	ServerState::~ServerState()
 	{
@@ -2193,6 +2162,30 @@ namespace dse::esv::lua
 			// FIXME - HANDLE IN SERVER LOGIC!
 			gExtender->GetServer().Osiris().GetCustomFunctionManager().ClearDynamicEntries();
 		}
+	}
+
+	void ServerState::Initialize()
+	{
+		StackCheck _(L, 0);
+
+		library_.Register(L);
+
+		gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("ServerStartup.lua");
+
+		lua_getglobal(L, "Ext"); // stack: Ext
+		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
+		lua_setfield(L, -2, "ExtraData"); // stack: Ext
+		lua_pop(L, 1); // stack: -
+
+		// Ext is not writeable after loading SandboxStartup!
+		gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("SandboxStartup.lua");
+
+#if !defined(OSI_NO_DEBUGGER)
+		auto debugger = gExtender->GetLuaDebugger();
+		if (debugger) {
+			debugger->ServerStateCreated(this);
+		}
+#endif
 	}
 
 
@@ -2512,6 +2505,7 @@ namespace dse::esv
 	{
 		Lua.reset();
 		Lua = std::make_unique<lua::ServerState>(*this);
+		Lua->Initialize();
 		Lua->StoryFunctionMappingsUpdated();
 	}
 

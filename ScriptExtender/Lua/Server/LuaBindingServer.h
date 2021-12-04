@@ -260,10 +260,7 @@ public:
 	ServerState(ExtensionState& state);
 	~ServerState();
 
-	ServerState(ServerState const &) = delete;
-	ServerState(ServerState &&) = delete;
-	ServerState & operator = (ServerState const &) = delete;
-	ServerState & operator = (ServerState &&) = delete;
+	void Initialize() override;
 
 	inline OsirisBinding& Osiris()
 	{

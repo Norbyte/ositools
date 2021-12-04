@@ -643,37 +643,7 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 
 
 ClientState::ClientState()
-{
-	StackCheck _(L, 0);
-	library_.Register(L);
-
-	auto baseLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY);
-	LoadScript(baseLib, "BuiltinLibrary.lua");
-	auto eventLib = GetBuiltinLibrary(IDR_LUA_EVENT);
-	LoadScript(eventLib, "Event.lua");
-	auto clientLib = GetBuiltinLibrary(IDR_LUA_BUILTIN_LIBRARY_CLIENT);
-	LoadScript(clientLib, "BuiltinLibraryClient.lua");
-	auto gameMathLib = GetBuiltinLibrary(IDR_LUA_GAME_MATH);
-	LoadScript(gameMathLib, "Game.Math.lua");
-	auto gameTooltipLib = GetBuiltinLibrary(IDR_LUA_GAME_TOOLTIP);
-	LoadScript(gameTooltipLib, "Game.Tooltip.lua");
-
-	lua_getglobal(L, "Ext"); // stack: Ext
-	StatsExtraDataProxy::New(L); // stack: Ext, ExtraDataProxy
-	lua_setfield(L, -2, "ExtraData"); // stack: Ext
-	lua_pop(L, 1); // stack: -
-
-	// Ext is not writeable after loading SandboxStartup!
-	auto sandbox = GetBuiltinLibrary(IDR_LUA_SANDBOX_STARTUP);
-	LoadScript(sandbox, "SandboxStartup.lua");
-
-#if !defined(OSI_NO_DEBUGGER)
-	auto debugger = gExtender->GetLuaDebugger();
-	if (debugger) {
-		debugger->ClientStateCreated(this);
-	}
-#endif
-}
+{}
 
 ClientState::~ClientState()
 {
@@ -689,6 +659,29 @@ ClientState::~ClientState()
 		if (debugger) {
 			debugger->ClientStateDeleted();
 		}
+	}
+#endif
+}
+
+void ClientState::Initialize()
+{
+	StackCheck _(L, 0);
+	library_.Register(L);
+
+	gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("ClientStartup.lua");
+
+	lua_getglobal(L, "Ext"); // stack: Ext
+	StatsExtraDataProxy::New(L); // stack: Ext, ExtraDataProxy
+	lua_setfield(L, -2, "ExtraData"); // stack: Ext
+	lua_pop(L, 1); // stack: -
+
+	// Ext is not writeable after loading SandboxStartup!
+	gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("SandboxStartup.lua");
+
+#if !defined(OSI_NO_DEBUGGER)
+	auto debugger = gExtender->GetLuaDebugger();
+	if (debugger) {
+		debugger->ClientStateCreated(this);
 	}
 #endif
 }
@@ -844,6 +837,7 @@ void ExtensionState::DoLuaReset()
 {
 	Lua.reset();
 	Lua = std::make_unique<lua::ClientState>();
+	Lua->Initialize();
 }
 
 void ExtensionState::LuaStartup()

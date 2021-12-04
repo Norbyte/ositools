@@ -5,15 +5,9 @@
 #define RES_DLL_MAJOR_VERSION           56
 #define RES_DLL_VERSION_STRING          "56.0.0.0"
 
-#define IDR_LUA_BUILTIN_LIBRARY         101
-#define IDR_LUA_BUILTIN_LIBRARY_SERVER  102
-#define IDR_LUA_BUILTIN_LIBRARY_CLIENT  103
-#define IDR_LUA_SANDBOX_STARTUP         104
-#define IDR_LUA_GAME_MATH               105
-#define IDR_LUA_GAME_TOOLTIP            106
+#define IDR_LUA_BUILTIN_BUNDLE          101
 #define IDR_BINARY_MAPPINGS_EOCAPP      107
 #define IDR_BINARY_MAPPINGS_EOCPLUGIN   108
-#define IDR_LUA_EVENT                   109
 
 // Next default values for new objects
 // 

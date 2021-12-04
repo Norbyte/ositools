@@ -98,6 +98,7 @@ void LogOsirisError(std::string_view msg);
 void LogOsirisWarning(std::string_view msg);
 void LogOsirisMsg(std::string_view msg);
 
+std::optional<std::string> GetExeResource(int resourceId);
 
 extern std::atomic<uint32_t> gDisableCrashReportingCount;
 

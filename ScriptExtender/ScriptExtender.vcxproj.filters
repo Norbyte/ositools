@@ -343,6 +343,9 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\LuaBundle.h">
+      <Filter>Lua\Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -521,6 +524,9 @@
     </ClCompile>
     <ClCompile Include="Lua\Server\LuaOsiris.cpp">
       <Filter>Lua\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaBundle.cpp">
+      <Filter>Lua\Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

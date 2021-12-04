@@ -18,6 +18,7 @@
 #include <Lua/Debugger/LuaDebugger.h>
 #include <Lua/Debugger/LuaDebugMessages.h>
 #endif
+#include <Lua/Shared/LuaBundle.h>
 #include <GameHooks/OsirisWrappers.h>
 #include <Osiris/Shared/CustomFunctions.h>
 #include <GameHooks/DataLibraries.h>
@@ -64,26 +65,6 @@ public:
 		return client_;
 	}
 
-	/*inline OsirisExtender const & Osiris() const
-	{
-		return osiris_;
-	}
-
-	inline OsirisExtender & Osiris()
-	{
-		return osiris_;
-	}
-
-	inline OsirisDynamicGlobals const & GetDynamicGlobals() const
-	{
-		return DynGlobals;
-	}
-
-	inline esv::CustomFunctionLibrary & GetFunctionLibrary()
-	{
-		return FunctionLibrary;
-	}*/
-
 	inline LibraryManager const & GetLibraryManager() const
 	{
 		return Libraries;
@@ -108,26 +89,6 @@ public:
 
 	ExtensionStateBase* GetCurrentExtensionState();
 
-	/*inline bool HasServerExtensionState() const
-	{
-		return (bool)ServerExtState;
-	}
-
-	inline esv::ExtensionState & GetServerExtensionState()
-	{
-		return *ServerExtState;
-	}
-
-	inline bool HasClientExtensionState() const
-	{
-		return (bool)ClientExtState;
-	}
-
-	inline ecl::ExtensionState & GetClientExtensionState()
-	{
-		return *ClientExtState;
-	}*/
-
 	bool HasFeatureFlag(char const *) const;
 
 	inline StatLoadOrderHelper& GetStatLoadOrderHelper()
@@ -150,6 +111,11 @@ public:
 		return hooks_;
 	}
 
+	inline lua::LuaBundle& GetLuaBuiltinBundle()
+	{
+		return luaBuiltinBundle_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -162,7 +128,6 @@ private:
 	ecl::ScriptExtender client_;
 	LibraryManager Libraries;
 	EngineHooks hooks_;
-	//bool LibrariesPostInitialized{ false };
 	std::recursive_mutex globalStateLock_;
 	std::shared_mutex pathOverrideMutex_;
 	std::unordered_map<STDString, STDString> pathOverrides_;
@@ -171,46 +136,18 @@ private:
 	esv::HitProxy hitProxy_;
 	esv::StatusHelpers statusHelpers_;
 	ModuleHasher hasher_;
+	lua::LuaBundle luaBuiltinBundle_;
 
-	/*NodeVMT * NodeVMTs[(unsigned)NodeType::Max + 1];
-	bool ResolvedNodeVMTs{ false };*/
-
-	/*void OnRegisterDIVFunctions(void *, DivFunctions *);
-	void OnInitGame(void *);
-	void OnDeleteAllData(void *, bool);
-
-	void OnError(char const * Message);
-	void OnAssert(bool Successful, char const * Message, bool Unknown2);
-	bool CompileWrapper(std::function<bool (void *, wchar_t const *, wchar_t const *)> const & Next, void * Osiris, wchar_t const * Path, wchar_t const * Mode);
-	void OnAfterOsirisLoad(void * Osiris, void * Buf, int retval);
-	bool MergeWrapper(std::function<bool(void *, wchar_t *)> const & Next, void * Osiris, wchar_t * Src);
-	void RuleActionCall(std::function<void(RuleActionNode *, void *, void *, void *, void *)> const & Next, RuleActionNode * Action, void * a1, void * a2, void * a3, void * a4);
-	*/
 	ExtenderConfig config_;
 	bool extensionsEnabled_{ false };
 	bool postStartupDone_{ false };
 
-	/*std::wstring LogFilename;
-	std::wstring LogType;*/
-
-	/*bool StoryLoaded{ false };
-	std::recursive_mutex storyLoadLock_;*/
-
 #if !defined(OSI_NO_DEBUGGER)
-	/*std::thread * debuggerThread_{ nullptr };
-	std::unique_ptr<OsirisDebugInterface> debugInterface_;
-	std::unique_ptr<osidbg::DebugMessageHandler> debugMsgHandler_;
-	std::unique_ptr<osidbg::Debugger> debugger_;*/
-
 	std::thread* luaDebuggerThread_{ nullptr };
 	std::unique_ptr<LuaDebugInterface> luaDebugInterface_;
 	std::unique_ptr<lua::dbg::DebugMessageHandler> luaDebugMsgHandler_;
 	std::unique_ptr<lua::dbg::Debugger> luaDebugger_;
 #endif
-
-	/*void ResolveNodeVMTs(NodeDb * Db);
-	void SaveNodeVMT(NodeType type, NodeVMT * vmt);
-	void RestartLogging(std::wstring const & Type);*/
 
 	void OnBaseModuleLoaded(void * self);
 	void OnModuleLoadStarted(TranslatedStringRepository * self);

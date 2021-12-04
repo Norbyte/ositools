@@ -173,6 +173,27 @@ _I._MakeLegacyHitEvent = function (hit)
 	return t
 end
 
+_I._MakeLegacyHitStatusProxy = function (hit)
+	local proxy = {}
+	setmetatable(proxy, {
+		__index = function (obj, attr)
+			if attr == "Hit" then
+				return _I._MakeLegacyHitInfo(hit.Hit)
+			else
+				return hit[attr]
+			end
+		end,
+		__newindex = function (obj, attr, val)
+			if attr == "Hit" then
+				_I._UpdateHitFromTable(hit.Hit, val)
+			else
+				hit[attr] = val
+			end
+		end
+	})
+	return proxy
+end
+
 _I._MakeLegacyHitInfo = function (hit)
 	local damageList = Ext.NewDamageList()
 	damageList:CopyFrom(hit.DamageList)
@@ -189,6 +210,20 @@ _I._MakeLegacyHitInfo = function (hit)
 		HitWithWeapon = hit.HitWithWeapon,
 		DamageList = damageList
 	}
+end
+
+_I._UpdateHitFromTable = function (hit, t)
+	hit.Equipment = t.Equipment
+	hit.TotalDamageDone = t.TotalDamageDone
+	hit.DamageDealt = t.DamageDealt
+	hit.DeathType = t.DeathType
+	hit.DamageType = t.DamageType
+	hit.AttackDirection = t.AttackDirection
+	hit.ArmorAbsorption = t.ArmorAbsorption
+	hit.LifeSteal = t.LifeSteal
+	hit.EffectFlags = t.EffectFlags
+	hit.HitWithWeapon = t.HitWithWeapon
+	hit.DamageList:CopyFrom(t.DamageList)
 end
 
 _I._CallLegacyEvent = function (fn, event)
@@ -229,24 +264,14 @@ _I._CallLegacyEvent = function (fn, event)
 			event:StopPropagation()
 		end
 	elseif event.Name == "StatusHitEnter" then
-		fn(event.Hit, _I._MakeLegacyHitEvent(event.Context))
+		fn(_I._MakeLegacyHitStatusProxy(event.Hit), _I._MakeLegacyHitEvent(event.Context))
 	elseif event.Name == "ComputeCharacterHit" then
 	local hit = event.Hit
 		local legacyHit = _I._MakeLegacyHitInfo(hit)
 		local hitResult = fn(event.Target, event.Attacker, event.Weapon, event.DamageList, event.HitType, event.NoHitRoll,
 			event.ForceReduceDurability, legacyHit, event.AlwaysBackstab, event.HighGround, event.CriticalRoll)
 		if hitResult ~= nil then
-			hit.Equipment = hitResult.Equipment
-			hit.TotalDamageDone = hitResult.TotalDamageDone
-			hit.DamageDealt = hitResult.DamageDealt
-			hit.DeathType = hitResult.DeathType
-			hit.DamageType = hitResult.DamageType
-			hit.AttackDirection = hitResult.AttackDirection
-			hit.ArmorAbsorption = hitResult.ArmorAbsorption
-			hit.LifeSteal = hitResult.LifeSteal
-			hit.EffectFlags = hitResult.EffectFlags
-			hit.HitWithWeapon = hitResult.HitWithWeapon
-			hit.DamageList:CopyFrom(hitResult.DamageList)
+			_I._UpdateHitFromTable(hit, hitResult)
 			event.Handled = true
 			event:StopPropagation()
 		end

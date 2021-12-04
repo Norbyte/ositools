@@ -275,6 +275,8 @@ namespace dse::lua
 			return lifetimePool_;
 		}
 
+		virtual void Initialize() = 0;
+
 		void FinishStartup();
 		void LoadBootstrap(STDString const& path, STDString const& modTable);
 		virtual void OnGameSessionLoading();
@@ -295,8 +297,6 @@ namespace dse::lua
 		std::optional<std::pair<int, bool>> GetSkillAPCost(stats::SkillPrototype* skill, stats::Character* character, eoc::AiGrid* aiGrid,
 			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
-
-		static STDString GetBuiltinLibrary(int resourceId);
 
 	protected:
 		lua_State * L;

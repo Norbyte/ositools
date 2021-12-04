@@ -403,10 +403,10 @@ namespace dse::lua
 
 	int ExtensionLibrary::Include(lua_State * L)
 	{
-		auto modGuid = luaL_checkstring(L, 1);
-		auto fileName = luaL_checkstring(L, 2);
+		auto modGuid = get<std::optional<STDString>>(L, 1);
+		auto fileName = get<STDString>(L, 2);
 
-		bool replaceGlobals = !lua_isnil(L, 3);
+		bool replaceGlobals = lua_gettop(L) > 2 && !lua_isnil(L, 3);
 		auto globalsIdx = lua_gettop(L) + 1;
 
 		if (replaceGlobals) {
@@ -418,8 +418,14 @@ namespace dse::lua
 #endif
 		}
 
-		auto nret = gExtender->GetCurrentExtensionState()
-			->LuaLoadModScript(modGuid, fileName, true, replaceGlobals ? 3 : 0);
+		std::optional<int> nret;
+		if (modGuid) {
+			auto nret = gExtender->GetCurrentExtensionState()
+				->LuaLoadModScript(*modGuid, fileName, true, replaceGlobals ? 3 : 0);
+		} else {
+			auto nret = gExtender->GetCurrentExtensionState()
+				->LuaLoadFile(fileName, "", true, replaceGlobals ? 3 : 0);
+		}
 
 		if (replaceGlobals) {
 #if LUA_VERSION_NUM > 501
@@ -728,29 +734,6 @@ namespace dse::lua
 	void State::OnUpdate()
 	{
 		lua_gc(L, LUA_GCSTEP, 10);
-	}
-
-	STDString State::GetBuiltinLibrary(int resourceId)
-	{
-		auto hResource = FindResource(gThisModule, MAKEINTRESOURCE(resourceId),
-			L"LUA_SCRIPT");
-
-		if (hResource) {
-			auto hGlobal = LoadResource(gThisModule, hResource);
-			if (hGlobal) {
-				auto resourceData = LockResource(hGlobal);
-				if (resourceData) {
-					DWORD resourceSize = SizeofResource(gThisModule, hResource);
-					STDString script;
-					script.resize(resourceSize);
-					memcpy(script.data(), resourceData, resourceSize);
-					return script;
-				}
-			}
-		}
-
-		OsiErrorS("Could not find bootstrap resource!");
-		return STDString();
 	}
 
 }

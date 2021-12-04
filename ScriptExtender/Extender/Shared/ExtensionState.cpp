@@ -453,6 +453,36 @@ namespace dse
 		return LuaLoadGameFile(path, scriptName, warnOnError, globalsIdx);
 	}
 
+	std::optional<int> ExtensionStateBase::LuaLoadBuiltinFile(STDString const & path, bool warnOnError, int globalsIdx)
+	{
+		auto file = gExtender->GetLuaBuiltinBundle().GetResource(path);
+		if (!file) {
+			if (warnOnError) {
+				OsiError("Builtin Lua script file could not be opened: " << path);
+			}
+			return {};
+		}
+
+		LuaVirtualPin lua(*this);
+		if (!lua) {
+			OsiErrorS("Called when the Lua VM has not been initialized!");
+			return {};
+		}
+
+		auto scriptName = STDString("builtin://") + path;
+		return lua->LoadScript(*file, scriptName, globalsIdx);
+	}
+
+	std::optional<int> ExtensionStateBase::LuaLoadFile(STDString const & path, STDString const & scriptName, 
+		bool warnOnError, int globalsIdx)
+	{
+		if (path.starts_with("builtin://")) {
+			return LuaLoadBuiltinFile(path.substr(10), warnOnError, globalsIdx);
+		} else {
+			return LuaLoadGameFile(path, scriptName, warnOnError, globalsIdx);
+		}
+	}
+
 	void ExtensionStateBase::LuaResetInternal()
 	{
 		std::lock_guard _(luaMutex_);

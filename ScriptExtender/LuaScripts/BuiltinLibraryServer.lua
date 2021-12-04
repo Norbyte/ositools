@@ -63,3 +63,11 @@ Ext.Events.OnExecutePropertyDataOnPosition:Subscribe(function (e)
 		propType.ExecuteOnPosition(e.Property, e.Attacker, e.Position, e.AreaRadius, e.IsFromItem, e.Skill, e.Hit)
 	end
 end)
+
+_C = function ()
+	return Ext.GetCharacter(CharacterGetHostCharacter())
+end
+
+_W = function ()
+	return Ext.GetItem(CharacterGetEquippedWeapon(CharacterGetHostCharacter()))
+end
