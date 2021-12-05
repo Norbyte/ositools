@@ -4,6 +4,7 @@
 #include <psapi.h>
 #include <Extender/ScriptExtender.h>
 #include <Osiris/Shared/NodeHooks.h>
+#include <Lua/Client/ClientUI.h>
 
 #include <vector>
 #include <string>

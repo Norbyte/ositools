@@ -1,8 +1,8 @@
 #pragma once
 
-#include <windows.h>
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/EntitySystem.h>
 
 namespace dse
 {
@@ -543,7 +543,7 @@ namespace dse
 		};
 
 		using RegisterUIObjectCreatorProc = void (UIObjectManager * self, unsigned int index, UIObjectFunctor * creator);
-		using CreateUIObjectProc = ComponentHandle * (UIObjectManager * self, ComponentHandle * handle, unsigned int layerIndex, unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId);
+		using CreateUIObjectProc = ComponentHandle * (UIObjectManager * self, ComponentHandle * handle, unsigned int layerIndex, unsigned int creatorId, UIObjectFlags flags, uint64_t resourceFlags, uint16_t playerId);
 		using DestroyUIObjectProc = void (UIObjectManager * self, ComponentHandle * handle);
 		using GetInstanceProc = UIObjectManager * ();
 

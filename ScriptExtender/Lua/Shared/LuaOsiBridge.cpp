@@ -2,7 +2,6 @@
 #include <Extender/ScriptExtender.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <fstream>
-#include <regex>
 
 
 namespace dse::esv::lua
@@ -843,36 +842,6 @@ namespace dse::esv::lua
 		}
 	}
 
-	ValueType StringToValueType(std::string_view s)
-	{
-		if (s == "INTEGER") {
-			return ValueType::Integer;
-		} else if (s == "INTEGER") {
-			return ValueType::Integer;
-		} else if (s == "INTEGER64") {
-			return ValueType::Integer64;
-		} else if (s == "REAL") {
-			return ValueType::Real;
-		} else if (s == "STRING") {
-			return ValueType::String;
-		} else if (s == "GUIDSTRING") {
-			return ValueType::GuidString;
-		} else if (s == "CHARACTERGUID") {
-			return ValueType::CharacterGuid;
-		} else if (s == "ITEMGUID") {
-			return ValueType::ItemGuid;
-		} else if (s == "TRIGGERGUID") {
-			return ValueType::TriggerGuid;
-		} else if (s == "SPLINEGUID") {
-			return ValueType::SplineGuid;
-		} else if (s == "LEVELTEMPLATEGUID") {
-			return ValueType::LevelTemplateGuid;
-		} else {
-			OsiError("Unknown Osiris value type: " << s.data());
-			return ValueType::None;
-		}
-	}
-
 
 	bool CustomLuaCall::Call(OsiArgumentDesc const & params)
 	{
@@ -1109,114 +1078,5 @@ namespace dse::esv::lua
 		}
 
 		return STDString(ss.str());
-	}
-
-
-	const std::regex inOutParamRe("^\\s*(\\[(in|out)\\])?\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
-	const std::regex inParamRe("^\\s*\\(([A-Z0-9]+)\\)(_[a-zA-Z0-9]+)\\s*$");
-
-	CustomFunctionParam ParseCustomFunctionParam(lua_State * L, STDString const & param, bool isQuery)
-	{
-		CustomFunctionParam parsed;
-
-		std::smatch paramMatch;
-		if (!std::regex_match(param, paramMatch, isQuery ? inOutParamRe : inParamRe)) {
-			luaL_error(L, "Parameter string malformed: %s", param.c_str());
-		}
-
-		if (isQuery && paramMatch[2].matched) {
-			auto dir = paramMatch[2].str();
-			if (dir == "in") {
-				parsed.Dir = FunctionArgumentDirection::In;
-			} else if (dir == "out") {
-				parsed.Dir = FunctionArgumentDirection::Out;
-			} else {
-				luaL_error(L, "Invalid parameter direction: %s", dir.c_str());
-			}
-		} else {
-			parsed.Dir = FunctionArgumentDirection::In;
-		}
-
-		auto type = paramMatch[isQuery ? 3 : 1].str();
-		parsed.Type = StringToValueType(type);
-		if (parsed.Type == ValueType::None) {
-			luaL_error(L, "Unsupported parameter type: %s", type.c_str());
-		}
-
-		parsed.Name = paramMatch[isQuery ? 4 : 2].str().substr(1);
-		return parsed;
-	}
-
-	void ParseCustomFunctionParams(lua_State * L, char const * s, 
-		std::vector<CustomFunctionParam> & params, bool isQuery)
-	{
-		STDString param;
-		std::istringstream paramStream(s);
-
-		while (std::getline(paramStream, param, ',')) {
-			auto parsedParam = ParseCustomFunctionParam(L, param, isQuery);
-			params.push_back(parsedParam);
-		}
-	}
-
-	int ExtensionLibraryServer::NewCall(lua_State * L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->StartupDone()) return luaL_error(L, "Attempted to register call after Lua startup phase");
-
-		luaL_checktype(L, 1, LUA_TFUNCTION);
-		auto funcName = luaL_checkstring(L, 2);
-		auto args = luaL_checkstring(L, 3);
-
-		std::vector<CustomFunctionParam> argList;
-		ParseCustomFunctionParams(L, args, argList, false);
-
-		RegistryEntry func(L, 1);
-		auto call = std::make_unique<CustomLuaCall>(funcName, argList, std::move(func));
-
-		auto & functionMgr = gExtender->GetServer().Osiris().GetCustomFunctionManager();
-		functionMgr.RegisterDynamic(std::move(call));
-		
-		return 0;
-	}
-
-	int ExtensionLibraryServer::NewQuery(lua_State * L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->StartupDone()) return luaL_error(L, "Attempted to register query after Lua startup phase");
-
-		luaL_checktype(L, 1, LUA_TFUNCTION);
-		auto funcName = luaL_checkstring(L, 2);
-		auto args = luaL_checkstring(L, 3);
-
-		std::vector<CustomFunctionParam> argList;
-		ParseCustomFunctionParams(L, args, argList, true);
-
-		RegistryEntry func(L, 1);
-		auto query = std::make_unique<CustomLuaQuery>(funcName, argList, std::move(func));
-
-		auto & functionMgr = gExtender->GetServer().Osiris().GetCustomFunctionManager();
-		functionMgr.RegisterDynamic(std::move(query));
-
-		return 0;
-	}
-
-	int ExtensionLibraryServer::NewEvent(lua_State * L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->StartupDone()) return luaL_error(L, "Attempted to register event after Lua startup phase");
-
-		auto funcName = luaL_checkstring(L, 1);
-		auto args = luaL_checkstring(L, 2);
-
-		std::vector<CustomFunctionParam> argList;
-		ParseCustomFunctionParams(L, args, argList, false);
-
-		auto customEvt = std::make_unique<CustomEvent>(funcName, argList);
-
-		auto & functionMgr = gExtender->GetServer().Osiris().GetCustomFunctionManager();
-		functionMgr.RegisterDynamic(std::move(customEvt));
-
-		return 0;
 	}
 }

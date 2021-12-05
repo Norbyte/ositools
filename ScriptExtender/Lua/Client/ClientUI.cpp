@@ -1,74 +1,70 @@
-BEGIN_SE()
-
-bool CustomDrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* callback);
-
-END_SE()
+#include <stdafx.h>
+#include <Lua/Client/ClientUI.h>
+#include <Lua/Shared/LuaBinding.h>
+#include <Lua/Client/LuaBindingClient.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
+#include <Extender/Client/ExtensionStateClient.h>
+#include <GameDefinitions/Symbols.h>
+#include <GameHooks/SymbolMapper.h>
+#include <Extender/ScriptExtender.h>
+#include <Extender/Client/ExtensionStateClient.h>
 
 BEGIN_NS(lua)
 
 using namespace dse::ecl::lua;
 	
-class UIObjectProxyRefImpl : public ObjectProxyImplBase
-{
-public:
-	UIObjectProxyRefImpl(LifetimeHolder const& containerLifetime, UIObject* obj, LifetimeHolder const& lifetime)
-		: handle_(obj->UIObjectHandle), containerLifetime_(containerLifetime), lifetime_(lifetime)
-	{}
+UIObjectProxyRefImpl::UIObjectProxyRefImpl(LifetimeHolder const& containerLifetime, UIObject* obj, LifetimeHolder const& lifetime)
+	: handle_(obj->UIObjectHandle), containerLifetime_(containerLifetime), lifetime_(lifetime)
+{}
 		
-	~UIObjectProxyRefImpl() override
-	{}
+UIObjectProxyRefImpl::~UIObjectProxyRefImpl()
+{}
 
-	UIObject* Get() const
-	{
-		auto self = GetStaticSymbols().GetUIObjectManager()->Get(handle_);
-		if (!lifetime_.IsAlive()) {
-			WarnDeprecated56("An access was made to a UIObject instance after its lifetime has expired; this behavior is deprecated.");
-		}
-
-		return self;
+UIObject* UIObjectProxyRefImpl::Get() const
+{
+	auto self = GetStaticSymbols().GetUIObjectManager()->Get(handle_);
+	if (!lifetime_.IsAlive()) {
+		WarnDeprecated56("An access was made to a UIObject instance after its lifetime has expired; this behavior is deprecated.");
 	}
 
-	void* GetRaw() override
-	{
-		return Get();
-	}
+	return self;
+}
 
-	FixedString const& GetTypeName() const override
-	{
-		return StaticLuaPropertyMap<UIObject>::PropertyMap.Name;
-	}
+void* UIObjectProxyRefImpl::GetRaw()
+{
+	return Get();
+}
 
-	bool GetProperty(lua_State* L, FixedString const& prop) override
-	{
-		auto ui = Get();
-		if (!ui) return false;
-		return ObjectProxyHelpers<UIObject>::GetProperty(L, ui, containerLifetime_, prop);
-	}
+FixedString const& UIObjectProxyRefImpl::GetTypeName() const
+{
+	return StaticLuaPropertyMap<UIObject>::PropertyMap.Name;
+}
 
-	bool SetProperty(lua_State* L, FixedString const& prop, int index) override
-	{
-		auto ui = Get();
-		if (!ui) return false;
-		return ObjectProxyHelpers<UIObject>::SetProperty(L, ui, containerLifetime_, prop, index);
-	}
+bool UIObjectProxyRefImpl::GetProperty(lua_State* L, FixedString const& prop)
+{
+	auto ui = Get();
+	if (!ui) return false;
+	return ObjectProxyHelpers<UIObject>::GetProperty(L, ui, containerLifetime_, prop);
+}
 
-	int Next(lua_State* L, FixedString const& key) override
-	{
-		auto ui = Get();
-		if (!ui) return 0;
-		return ObjectProxyHelpers<UIObject>::Next(L, ui, containerLifetime_, key);
-	}
+bool UIObjectProxyRefImpl::SetProperty(lua_State* L, FixedString const& prop, int index)
+{
+	auto ui = Get();
+	if (!ui) return false;
+	return ObjectProxyHelpers<UIObject>::SetProperty(L, ui, containerLifetime_, prop, index);
+}
 
-	bool IsA(FixedString const& typeName) override
-	{
-		return ObjectProxyHelpers<UIObject>::IsA(typeName);
-	}
+int UIObjectProxyRefImpl::Next(lua_State* L, FixedString const& key)
+{
+	auto ui = Get();
+	if (!ui) return 0;
+	return ObjectProxyHelpers<UIObject>::Next(L, ui, containerLifetime_, key);
+}
 
-private:
-	ComponentHandle handle_;
-	LifetimeHolder containerLifetime_;
-	LifetimeReference lifetime_;
-};
+bool UIObjectProxyRefImpl::IsA(FixedString const& typeName)
+{
+	return ObjectProxyHelpers<UIObject>::IsA(typeName);
+}
 
 void MakeUIObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value)
 {
@@ -151,59 +147,58 @@ BEGIN_NS(ecl::lua)
 
 using namespace dse::lua;
 
-struct CustomUI : public ecl::EoCUI
+CustomUI::CustomUI(dse::Path * path)
+	: EoCUI(path)
+{}
+
+void CustomUI::OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 {
-	CustomUI(dse::Path * path)
-		: EoCUI(path)
-	{}
-
-	void OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args) override
 	{
-		{
-			LuaClientPin lua(ExtensionState::Get());
-			if (lua) {
-				lua->OnUICall(this, func, numArgs, args);
-			}
-		}
-
-		EoCUI::OnFunctionCalled(func, numArgs, args);
-
-		{
-			LuaClientPin lua(ExtensionState::Get());
-			if (lua) {
-				lua->OnAfterUICall(this, func, numArgs, args);
-			}
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnUICall(this, func, numArgs, args);
 		}
 	}
 
-	void CustomDrawCallback(void* callback) override
-	{
-		auto cb = reinterpret_cast<FlashCustomDrawCallback*>(callback);
-		if (CustomDrawIcon(this, cb)) {
-			return;
-		}
+	EoCUI::OnFunctionCalled(func, numArgs, args);
 
-		EoCUI::CustomDrawCallback(callback);
-	}
-
-	void Destroy(bool free) override
 	{
-		EoCUI::Destroy(false);
-		if (free) {
-			GameFree(this);
+		LuaClientPin lua(ExtensionState::Get());
+		if (lua) {
+			lua->OnAfterUICall(this, func, numArgs, args);
 		}
 	}
+}
 
-	const char * GetDebugName() override
-	{
-		return "extender::CustomUI";
+void CustomUI::CustomDrawCallback(void* callback)
+{
+	auto cb = reinterpret_cast<FlashCustomDrawCallback*>(callback);
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua && lua->GetCustomDrawHelper().DrawIcon(this, cb)) {
+		return;
 	}
 
-	static UIObject * Creator(dse::Path * path)
-	{
-		return GameAlloc<CustomUI>(path);
+	EoCUI::CustomDrawCallback(callback);
+}
+
+void CustomUI::Destroy(bool free)
+{
+	EoCUI::Destroy(false);
+	if (free) {
+		GameFree(this);
 	}
-};
+}
+
+const char * CustomUI::GetDebugName()
+{
+	return "extender::CustomUI";
+}
+
+UIObject * CustomUI::Creator(dse::Path * path)
+{
+	return GameAlloc<CustomUI>(path);
+}
+
 
 
 UIFlashPath::UIFlashPath() {}
@@ -527,22 +522,6 @@ int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig
 	return 1;
 }
 
-struct FlashPlayerHooks
-{
-	bool Hooked{ false };
-	ig::FlashPlayer::VMT* VMT{ nullptr };
-	ig::FlashPlayer::VMT::Invoke6Proc OriginalInvoke6{ nullptr };
-	ig::FlashPlayer::VMT::Invoke5Proc OriginalInvoke5{ nullptr };
-	ig::FlashPlayer::VMT::Invoke4Proc OriginalInvoke4{ nullptr };
-	ig::FlashPlayer::VMT::Invoke3Proc OriginalInvoke3{ nullptr };
-	ig::FlashPlayer::VMT::Invoke2Proc OriginalInvoke2{ nullptr };
-	ig::FlashPlayer::VMT::Invoke1Proc OriginalInvoke1{ nullptr };
-	ig::FlashPlayer::VMT::Invoke0Proc OriginalInvoke0{ nullptr };
-	ig::FlashPlayer::VMT::InvokeArgsProc OriginalInvokeArgs{ nullptr };
-
-	void Hook(ig::FlashPlayer::VMT* vmt);
-};
-
 // Persistent for the lifetime of the app, as we don't restore FlashPlayer VMTs either
 FlashPlayerHooks gFlashPlayerHooks;
 
@@ -551,6 +530,125 @@ END_NS()
 BEGIN_SE()
 
 using namespace dse::lua;
+
+bool CustomDrawHelper::DrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* callback)
+{
+	auto customIcons = icons_.find(self->UIObjectHandle);
+	if (customIcons != icons_.end()) {
+		auto icon = customIcons->second.find(callback->Name);
+		if (icon != customIcons->second.end() && icon->second->IconMesh != nullptr) {
+			auto draw = GetStaticSymbols().ls__UIHelper__CustomDrawObject;
+			draw(callback, icon->second->IconMesh);
+
+			if (DebugDrawCalls) {
+				INFO("Custom draw callback handled: %s -> %s", ToUTF8(callback->Name).c_str(), icon->second->IconName.Str);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void CustomDrawHelper::DrawCallback(UIObject* self, void* callback)
+{
+	auto cb = reinterpret_cast<ecl::FlashCustomDrawCallback*>(callback);
+	if (DrawIcon(self, cb)) {
+		return;
+	}
+
+	auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
+	auto handler = originalDrawHandlers_.find(vmt);
+	if (handler != originalDrawHandlers_.end()) {
+		if (DebugDrawCalls) {
+			INFO(L"Custom draw callback unhandled: %s", cb->Name);
+		}
+		handler->second(self, callback);
+	}
+	else {
+		OsiError("Couldn't find original CustomDrawCallback handler for UI object");
+	}
+}
+
+void CustomDrawHelper::sDrawCallback(UIObject* self, void* callback)
+{
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua) {
+		lua->GetCustomDrawHelper().DrawCallback(self, callback);
+	}
+}
+
+void CustomDrawHelper::EnableCustomDraw(UIObject* ui)
+{
+	auto vmt = *reinterpret_cast<UIObject::VMT**>(ui);
+	if (vmt->CustomDrawCallback == &sDrawCallback) return;
+
+	// Custom UI element draw calls are already handled, no need to hook them
+	if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return;
+
+	WriteAnchor _w((uint8_t*)vmt, sizeof(*vmt));
+	originalDrawHandlers_.insert(std::make_pair(vmt, vmt->CustomDrawCallback));
+	vmt->CustomDrawCallback = &sDrawCallback;
+}
+
+bool CustomDrawHelper::SetCustomIcon(UIObject* ui, STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid)
+{
+	if (width < 1 || height < 1 || width > 1024 || height > 1024) {
+		OsiError("Invalid icon size");
+		return false;
+	}
+
+	auto const& sym = GetStaticSymbols();
+	auto vmt = sym.ls__CustomDrawStruct__VMT;
+	auto clear = sym.ls__UIHelper__UIClearIcon;
+	auto create = sym.ls__UIHelper__UICreateIconMesh;
+	auto draw = sym.ls__UIHelper__CustomDrawObject;
+
+	if (!vmt || !clear || !create || !draw) {
+		OsiError("Not all UIHelper symbols are available");
+		return false;
+	}
+
+	auto customIcons = icons_.find(ui->UIObjectHandle);
+	if (customIcons == icons_.end()) {
+		icons_.insert(std::make_pair(ui->UIObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>()));
+	}
+
+	customIcons = icons_.find(ui->UIObjectHandle);
+	auto curIcon = customIcons->second.find(element);
+	if (curIcon != customIcons->second.end()) {
+		clear(curIcon->second.get());
+		customIcons->second.erase(curIcon);
+	}
+
+	auto newIcon = std::make_unique<CustomDrawStruct>();
+	newIcon->VMT = vmt;
+	create(FixedString(icon), newIcon.get(), width, height, FixedString(materialGuid ? *materialGuid : "9169b076-6e8d-44a4-bb52-95eedf9eab63"));
+
+	if (newIcon->IconMesh) {
+		customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
+		EnableCustomDraw(ui);
+		return true;
+	} else {
+		OsiError("Failed to load icon: " << icon);
+		return false;
+	}
+}
+
+void CustomDrawHelper::ClearCustomIcon(UIObject* ui, STDWString const& element)
+{
+	auto customIcons = icons_.find(ui->UIObjectHandle);
+	if (customIcons != icons_.end()) {
+		auto curIcon = customIcons->second.find(element);
+		if (curIcon != customIcons->second.end()) {
+			auto clear = GetStaticSymbols().ls__UIHelper__UIClearIcon;
+			clear(curIcon->second.get());
+			customIcons->second.erase(curIcon);
+		}
+	}
+}
+
 
 void UIObject::LuaSetPosition(int x, int y)
 {
@@ -771,122 +869,27 @@ void UIObject::CaptureExternalInterfaceCalls()
 }
 
 
-// This needs to be persistent for the lifetime of the app, as we don't restore altered VMTs
-std::unordered_map<UIObject::VMT *, UIObject::CustomDrawCallbackProc> OriginalCustomDrawHandlers;
-
-std::unordered_map<ComponentHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> UICustomIcons;
-
-bool UIDebugCustomDrawCalls{ false };
-
-bool CustomDrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* callback)
-{
-	auto customIcons = UICustomIcons.find(self->UIObjectHandle);
-	if (customIcons != UICustomIcons.end()) {
-		auto icon = customIcons->second.find(callback->Name);
-		if (icon != customIcons->second.end() && icon->second->IconMesh != nullptr) {
-			auto draw = GetStaticSymbols().ls__UIHelper__CustomDrawObject;
-			draw(callback, icon->second->IconMesh);
-
-			if (UIDebugCustomDrawCalls) {
-				INFO("Custom draw callback handled: %s -> %s", ToUTF8(callback->Name).c_str(), icon->second->IconName.Str);
-			}
-
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void UIObjectCustomDrawCallback(UIObject* self, void* callback)
-{
-	auto cb = reinterpret_cast<ecl::FlashCustomDrawCallback*>(callback);
-	if (CustomDrawIcon(self, cb)) {
-		return;
-	}
-
-	auto vmt = *reinterpret_cast<UIObject::VMT**>(self);
-	auto handler = OriginalCustomDrawHandlers.find(vmt);
-	if (handler != OriginalCustomDrawHandlers.end()) {
-		if (UIDebugCustomDrawCalls) {
-			INFO(L"Custom draw callback unhandled: %s", cb->Name);
-		}
-		handler->second(self, callback);
-	} else {
-		OsiError("Couldn't find original CustomDrawCallback handler for UI object");
-	}
-}
-
-void DoEnableCustomDraw(UIObject* ui)
-{
-	auto vmt = *reinterpret_cast<UIObject::VMT**>(ui);
-	if (vmt->CustomDrawCallback == &UIObjectCustomDrawCallback) return;
-
-	// Custom UI element draw calls are already handled, no need to hook them
-	if (strcmp(ui->GetDebugName(), "extender::CustomUI") == 0) return;
-
-	WriteAnchor _w((uint8_t*)vmt, sizeof(*vmt));
-	OriginalCustomDrawHandlers.insert(std::make_pair(vmt, vmt->CustomDrawCallback));
-	vmt->CustomDrawCallback = &UIObjectCustomDrawCallback;
-}
-
 void UIObject::EnableCustomDraw()
 {
-	DoEnableCustomDraw(this);
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua) {
+		lua->GetCustomDrawHelper().EnableCustomDraw(this);
+	}
 }
 
 void UIObject::SetCustomIcon(STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid)
 {
-	if (width < 1 || height < 1 || width > 1024 || height > 1024) {
-		OsiError("Invalid icon size");
-		return;
-	}
-
-	auto const& sym = GetStaticSymbols();
-	auto vmt = sym.ls__CustomDrawStruct__VMT;
-	auto clear = sym.ls__UIHelper__UIClearIcon;
-	auto create = sym.ls__UIHelper__UICreateIconMesh;
-	auto draw = sym.ls__UIHelper__CustomDrawObject;
-
-	if (!vmt || !clear || !create || !draw) {
-		OsiError("Not all UIHelper symbols are available");
-		return;
-	}
-
-	auto customIcons = UICustomIcons.find(UIObjectHandle);
-	if (customIcons == UICustomIcons.end()) {
-		UICustomIcons.insert(std::make_pair(UIObjectHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>()));
-	}
-
-	customIcons = UICustomIcons.find(UIObjectHandle);
-	auto curIcon = customIcons->second.find(element);
-	if (curIcon != customIcons->second.end()) {
-		clear(curIcon->second.get());
-		customIcons->second.erase(curIcon);
-	}
-
-	auto newIcon = std::make_unique<CustomDrawStruct>();
-	newIcon->VMT = vmt;
-	create(FixedString(icon), newIcon.get(), width, height, FixedString(materialGuid ? *materialGuid : "9169b076-6e8d-44a4-bb52-95eedf9eab63"));
-
-	if (newIcon->IconMesh) {
-		customIcons->second.insert(std::make_pair(element, std::move(newIcon)));
-		DoEnableCustomDraw(this);
-	} else {
-		OsiError("Failed to load icon: " << icon);
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua) {
+		lua->GetCustomDrawHelper().SetCustomIcon(this, element, icon, width, height, materialGuid);
 	}
 }
 
 void UIObject::ClearCustomIcon(STDWString const& element)
 {
-	auto customIcons = UICustomIcons.find(UIObjectHandle);
-	if (customIcons != UICustomIcons.end()) {
-		auto curIcon = customIcons->second.find(element);
-		if (curIcon != customIcons->second.end()) {
-			auto clear = GetStaticSymbols().ls__UIHelper__UIClearIcon;
-			clear(curIcon->second.get());
-			customIcons->second.erase(curIcon);
-		}
+	ecl::LuaClientPin lua(gExtender->GetClient().GetExtensionState());
+	if (lua) {
+		lua->GetCustomDrawHelper().ClearCustomIcon(this, element);
 	}
 }
 
@@ -1059,186 +1062,6 @@ void FlashPlayerHooks::Hook(ig::FlashPlayer::VMT* vmt)
 	vmt->InvokeArgs = &FlashPlayerInvokeArgsCapture;
 
 	Hooked = true;
-}
-
-
-uint32_t NextCustomCreatorId = 1000;
-
-int CreateUI(lua_State * L)
-{
-	auto name = luaL_checkstring(L, 1);
-	auto path = luaL_checkstring(L, 2);
-	auto layer = (int)luaL_checkinteger(L, 3);
-
-	uint32_t flags;
-	if (lua_gettop(L) >= 4) {
-		flags = (uint32_t)luaL_checkinteger(L, 4); // 0x20021
-	} else {
-		flags = (uint32_t)(UIObjectFlags::OF_Load | UIObjectFlags::OF_PlayerInput1 | UIObjectFlags::OF_DeleteOnChildDestroy);
-	}
-
-	// FIXME - playerId, registerInvokeNames?
-
-	LuaClientPin pin(ExtensionState::Get());
-	auto ui = pin->GetUIObject(name);
-	if (ui != nullptr) {
-		OsiError("An UI object with name '" << name << "' already exists!");
-		MakeObjectRef(L, ui);
-		return 1;
-	}
-
-	auto & sym = GetStaticSymbols();
-	auto absPath = sym.ToPath(path, PathRootType::Data);
-
-	auto uiManager = sym.GetUIObjectManager();
-	if (uiManager == nullptr) {
-		OsiError("Couldn't get symbol for UIObjectManager!");
-		return 0;
-	}
-
-	if (sym.ecl__EoCUI__ctor == nullptr || sym.ecl__EoCUI__vftable == nullptr) {
-		OsiError("Couldn't get symbol for ecl::EoCUI::vftable!");
-		return 0;
-	}
-
-	std::optional<uint32_t> creatorId;
-	for (auto const& creator : uiManager->UIObjectCreators) {
-		if (creator.Value->Path.Name == absPath.c_str()) {
-			creatorId = creator.Key;
-			break;
-		}
-	}
-
-	if (!creatorId) {
-		auto creator = GameAlloc<UIObjectFunctor>();
-		creator->Path.Name = absPath;
-		creator->CreateProc = CustomUI::Creator;
-
-		sym.RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
-		creatorId = NextCustomCreatorId++;
-	}
-
-	ComponentHandle handle;
-	sym.UIObjectManager__CreateUIObject(uiManager, &handle, layer, *creatorId, flags, 0x80, 0);
-
-	if (!handle) {
-		OsiError("Failed to create UI object");
-		return 0;
-	}
-
-	// FIXME - TEMP CAST
-	auto object = (UIObject*)uiManager->Get(handle);
-	if (!object) {
-		OsiError("Failed to look up constructed UI object");
-		return 0;
-	}
-
-	if (!object->FlashPlayer) {
-		OsiError("Flash player initialization failed");
-		return 0;
-	}
-
-	pin->OnCustomClientUIObjectCreated(name, handle);
-	MakeObjectRef(L, object);
-	return 1;
-}
-
-int GetUI(lua_State * L)
-{
-	StackCheck _(L, 1);
-	auto name = luaL_checkstring(L, 1);
-
-	LuaClientPin pin(ExtensionState::Get());
-	auto ui = pin->GetUIObject(name);
-	MakeObjectRef(L, ui);
-
-	return 1;
-}
-
-int GetUIByType(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto typeId = get<int>(L, 1);
-
-	UIObject* ui{ nullptr };
-	auto uiManager = GetStaticSymbols().GetUIObjectManager();
-	if (uiManager != nullptr) {
-		ui = uiManager->GetByType(typeId);
-	}
-
-	MakeObjectRef(L, ui);
-
-	return 1;
-}
-
-int GetBuiltinUI(lua_State * L)
-{
-	auto path = luaL_checkstring(L, 1);
-	auto absPath = GetStaticSymbols().ToPath(path, PathRootType::Data);
-
-	auto uiManager = GetStaticSymbols().GetUIObjectManager();
-	if (uiManager == nullptr) {
-		OsiError("Couldn't get symbol for UIObjectManager!");
-		return 0;
-	}
-
-	StackCheck _(L, 1);
-	for (auto uiPtr : uiManager->Components) {
-		// FIXME - TEMP CAST
-		auto ui = (UIObject*)uiPtr;
-		if (ui != nullptr && ui->FlashPlayer != nullptr
-			&& absPath == ui->Path.Name.c_str()) {
-			MakeObjectRef(L, ui);
-			return 1;
-		}
-	}
-
-	push(L, nullptr);
-	return 1;
-}
-
-int DestroyUI(lua_State * L)
-{
-	StackCheck _(L, 0);
-	auto name = luaL_checkstring(L, 1);
-
-	LuaClientPin pin(ExtensionState::Get());
-	auto ui = pin->GetUIObject(name);
-	if (ui != nullptr) {
-		ui->RequestDelete();
-	} else {
-		OsiError("No UI object exists with name '" << name << "'!");
-	}
-
-	return 0;
-}
-
-int UISetDirty(lua_State* L)
-{
-	StackCheck _(L, 0);
-	auto handle = get<ComponentHandle>(L, 1);
-	auto flags = get<uint64_t>(L, 2);
-
-	auto ui = GetStaticSymbols().GetUIObjectManager();
-	if (ui && ui->CharacterDirtyFlags) {
-		EnterCriticalSection(&ui->CriticalSection);
-		auto curFlags = ui->CharacterDirtyFlags->Find(handle);
-		if (curFlags != nullptr) {
-			*curFlags |= flags;
-		} else {
-			*ui->CharacterDirtyFlags->Insert(handle) = flags;
-		}
-		LeaveCriticalSection(&ui->CriticalSection);
-	}
-
-	return 0;
-}
-
-int UIEnableCustomDrawCallDebugging(lua_State* L)
-{
-	StackCheck _(L, 0);
-	UIDebugCustomDrawCalls = get<bool>(L, 1);
-	return 0;
 }
 
 END_NS()

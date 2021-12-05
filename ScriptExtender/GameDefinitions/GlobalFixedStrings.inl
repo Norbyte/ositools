@@ -200,3 +200,8 @@ FS(ReadOnly);
 FS(CanPreventAction);
 FS(StopPropagation);
 FS(Stopped);
+
+// IO file type
+FS(data);
+FS(user);
+

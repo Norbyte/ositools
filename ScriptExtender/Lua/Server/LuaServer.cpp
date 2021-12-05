@@ -1643,112 +1643,6 @@ namespace dse::esv::lua
 		return 0;
 	}
 
-	int OsirisIsCallable(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto lua = State::FromLua(L);
-		bool allowed = gExtender->GetServer().Osiris().IsStoryLoaded()
-			&& ((lua->RestrictionFlags & State::RestrictOsiris) == 0);
-		push(L, allowed);
-		return 1;
-	}
-
-	int BroadcastMessage(lua_State * L)
-	{
-		StackCheck _(L, 0);
-		auto channel = luaL_checkstring(L, 1);
-		auto payload = luaL_checkstring(L, 2);
-
-		esv::Character * excludeCharacter = nullptr;
-		if (lua_gettop(L) > 2 && !lua_isnil(L, 3)) {
-			// TODO - get<GUIDString> alias?
-			auto excludeCharacterGuid = luaL_checkstring(L, 3);
-			excludeCharacter = GetEntityWorld()->GetCharacter(excludeCharacterGuid);
-			if (excludeCharacter == nullptr) return 0;
-		}
-
-		auto & networkMgr = gExtender->GetServer().GetNetworkManager();
-		auto msg = networkMgr.GetFreeMessage(ReservedUserId);
-		if (msg != nullptr) {
-			auto postMsg = msg->GetMessage().mutable_post_lua();
-			postMsg->set_channel_name(channel);
-			postMsg->set_payload(payload);
-			if (excludeCharacter != nullptr) {
-				networkMgr.Broadcast(msg, excludeCharacter->UserID);
-			} else {
-				networkMgr.Broadcast(msg, ReservedUserId);
-			}
-		} else {
-			OsiErrorS("Could not get free message!");
-		}
-
-		return 0;
-	}
-
-	void PostMessageToUserInternal(UserId userId, char const* channel, char const* payload)
-	{
-		auto& networkMgr = gExtender->GetServer().GetNetworkManager();
-		auto msg = networkMgr.GetFreeMessage(userId);
-		if (msg != nullptr) {
-			auto postMsg = msg->GetMessage().mutable_post_lua();
-			postMsg->set_channel_name(channel);
-			postMsg->set_payload(payload);
-			networkMgr.Send(msg, userId);
-		}
-		else {
-			OsiErrorS("Could not get free message!");
-		}
-	}
-
-	int PostMessageToClient(lua_State * L)
-	{
-		StackCheck _(L, 0);
-		auto characterGuid = luaL_checkstring(L, 1);
-		auto channel = luaL_checkstring(L, 2);
-		auto payload = luaL_checkstring(L, 3);
-
-		auto character = GetEntityWorld()->GetCharacter(characterGuid);
-		if (character == nullptr) return 0;
-
-		if (character->UserID == ReservedUserId) {
-			OsiError("Attempted to send message to character " << characterGuid << " that has no user assigned!");
-			return 0;
-		}
-
-		PostMessageToUserInternal(character->UserID, channel, payload);
-		return 0;
-	}
-
-	int PostMessageToUser(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto userId = get<int>(L, 1);
-		auto channel = luaL_checkstring(L, 2);
-		auto payload = luaL_checkstring(L, 3);
-
-		if (UserId(userId) == ReservedUserId) {
-			OsiError("Attempted to send message to reserved user ID!");
-			return 0;
-		}
-
-		PostMessageToUserInternal(UserId(userId), channel, payload);
-		return 0;
-	}
-
-	int PlayerHasExtender(lua_State* L)
-	{
-		auto characterGuid = luaL_checkstring(L, 1);
-
-		auto character = GetEntityWorld()->GetCharacter(characterGuid);
-		if (character == nullptr || character->UserID == ReservedUserId) return 0;
-
-		// FIXME - access server from Lua context!
-		auto& networkMgr = gExtender->GetServer().GetNetworkManager();
-		bool hasExtender = networkMgr.CanSendExtenderMessages(character->UserID.GetPeerId());
-		push(L, hasExtender);
-		return 1;
-	}
-
 	int GetGameState(lua_State* L)
 	{
 		auto state = GetStaticSymbols().GetServerState();
@@ -1759,72 +1653,6 @@ namespace dse::esv::lua
 		}
 
 		return 1;
-	}
-
-	int DumpNetworking(lua_State* L)
-	{
-		auto server = (*GetStaticSymbols().esv__EoCServer)->GameServer;
-		auto loadProto = (esv::LoadProtocol*)server->Protocols[4];
-
-		INFO(" === NETWORK DUMP === ");
-		INFO("LoadProtocol state: %d", loadProto->State);
-		INFO("Received LEVEL_START: %d", loadProto->NumLevelStartPlayers);
-		INFO("Received SWAP_READY: %d", loadProto->NumSwapReadyPeers);
-
-		INFO("ModuleLoaded responses:");
-		for (auto const& load : loadProto->OS_ModuleLoaded) {
-			INFO("    Peer %d", load.PeerId);
-		}
-
-		INFO("SessionLoaded responses:");
-		for (auto const& load : loadProto->OS_SessionLoaded) {
-			INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
-		}
-
-		INFO("LevelLoaded responses:");
-		for (auto const& load : loadProto->OS_LevelLoaded) {
-			INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
-		}
-
-		INFO("FileTransferOutbox items:");
-		for (auto const& item : loadProto->OS_FileTransferOutbox) {
-			INFO("    Peer %d, user %d", item.PeerId, item.UserId_M);
-			for (auto const& path : item.OS_FixedString) {
-				INFO("        FS %s", path.Str);
-			}
-			for (auto const& path : item.OS_Path) {
-				INFO("        Path %s", path.Name.c_str());
-			}
-		}
-
-		return 0;
-	}
-
-	int RegisterOsirisListener(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto name = get<char const*>(L, 1);
-		auto arity = get<int>(L, 2);
-		auto typeName = get<char const*>(L, 3);
-		luaL_checktype(L, 4, LUA_TFUNCTION);
-
-		OsirisHookSignature::HookType type;
-		if (strcmp(typeName, "before") == 0) {
-			type = OsirisHookSignature::BeforeTrigger;
-		} else if (strcmp(typeName, "after") == 0) {
-			type = OsirisHookSignature::AfterTrigger;
-		} else if (strcmp(typeName, "beforeDelete") == 0) {
-			type = OsirisHookSignature::BeforeDeleteTrigger;
-		} else if (strcmp(typeName, "afterDelete") == 0) {
-			type = OsirisHookSignature::AfterDeleteTrigger;
-		} else {
-			return luaL_error(L, "Hook type must be 'before', 'beforeDelete', 'after' or 'afterDelete'");
-		}
-
-		LuaServerPin lua(ExtensionState::Get());
-		RegistryEntry handler(L, 4);
-		lua->Osiris().GetOsirisCallbacks().Subscribe(name, arity, type, std::move(handler));
-		return 0;
 	}
 
 
@@ -1931,144 +1759,10 @@ namespace dse::esv::lua
 		return 0;
 	}
 
-	int CreateCustomStat(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto statName = get<char const*>(L, 1);
-		auto statDescription = get<char const*>(L, 2);
-
-		auto statsId = CustomStatHelpers::CreateStat(statName, statDescription);
-		if (statsId) {
-			push(L, *statsId);
-		} else {
-			push(L, nullptr);
-		}
-
-		return 1;
-	}
-
-	int GetCustomStatById(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto statId = get<char const*>(L, 1);
-
-		auto statDefn = CustomStatHelpers::FindStatDefinitionById(statId);
-		if (statDefn) {
-			lua_newtable(L);
-			settable(L, "Id", statDefn->Id);
-			settable(L, "Name", statDefn->Name);
-			settable(L, "Description", statDefn->Description);
-		}
-		else {
-			push(L, nullptr);
-		}
-
-		return 1;
-	}
-
-	int GetAllCustomStats(lua_State* L)
-	{
-		StackCheck _(L, 1);
-
-		auto entityWorld = GetEntityWorld();
-		auto statSystem = entityWorld->GetCustomStatSystem();
-
-		lua_newtable(L);
-		int idx{ 1 };
-		for (auto const& defn : statSystem->CreatedDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
-			if (statDefn != nullptr) {
-				settable(L, idx++, statDefn->Id);
-			}
-		}
-
-		for (auto const& defn : statSystem->InSyncDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
-			if (statDefn != nullptr) {
-				settable(L, idx++, statDefn->Id);
-			}
-		}
-
-		return 1;
-	}
-
-	int GetCustomStatByName(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto statName = get<char const*>(L, 1);
-
-		auto statDefn = CustomStatHelpers::FindStatDefinitionByName(statName);
-		if (statDefn) {
-			lua_newtable(L);
-			settable(L, "Id", statDefn->Id);
-			settable(L, "Name", statDefn->Name);
-			settable(L, "Description", statDefn->Description);
-		}
-		else {
-			push(L, nullptr);
-		}
-
-		return 1;
-	}
-
 
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
-			{"Version", GetExtensionVersionWrapper},
-			{"GameVersion", GetGameVersionWrapper},
-			{"MonotonicTime", MonotonicTimeWrapper},
-			{"Include", Include},
-			{"NewCall", NewCall},
-			{"NewQuery", NewQuery},
-			{"NewEvent", NewEvent},
-			{"Print", OsiPrint},
-			{"PrintWarning", OsiPrintWarning},
-			{"PrintError", OsiPrintError},
-			{"HandleToDouble", HandleToDoubleWrapper},
-			{"DoubleToHandle", DoubleToHandleWrapper},
-			{"GetHandleType", GetHandleTypeWrapper},
-
-			{"SaveFile", SaveFileWrapper},
-			{"LoadFile", LoadFileWrapper},
-
-			{"IsModLoaded", IsModLoadedWrapper},
-			{"GetModLoadOrder", GetModLoadOrder},
-			{"GetModInfo", GetModInfo},
-
-			{"DebugBreak", LuaDebugBreakWrapper},
-
-			{"GetStatEntries", GetStatEntries},
-			{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
-			{"GetSkillSet", GetSkillSet},
-			{"UpdateSkillSet", UpdateSkillSet},
-			{"GetEquipmentSet", GetEquipmentSet},
-			{"UpdateEquipmentSet", UpdateEquipmentSet},
-			{"GetTreasureTable", GetTreasureTable},
-			{"UpdateTreasureTable", UpdateTreasureTable},
-			{"GetTreasureCategory", GetTreasureCategory},
-			{"UpdateTreasureCategory", UpdateTreasureCategory},
-			{"GetItemCombo", GetItemCombo},
-			{"UpdateItemCombo", UpdateItemCombo},
-			{"GetItemComboPreviewData", GetItemComboPreviewData},
-			{"UpdateItemComboPreviewData", UpdateItemComboPreviewData},
-			{"GetItemComboProperty", GetItemComboProperty},
-			{"UpdateItemComboProperty", UpdateItemComboProperty},
-			{"GetItemGroup", GetItemGroup},
-			{"GetNameGroup", GetNameGroup},
-
-			{"StatGetAttribute", StatGetAttribute},
-			{"StatSetAttribute", StatSetAttribute},
-			{"StatAddCustomDescription", StatAddCustomDescriptionWrapper},
-			{"GetStat", GetStat},
-			{"CreateStat", CreateStat},
-			{"SyncStat", SyncStatWrapper},
-			{"StatSetPersistence", StatSetPersistenceWrapper},
-			{"StatSetPersistence", StatSetPersistenceWrapper},
-			{"GetDeltaMod", GetDeltaMod},
-			{"UpdateDeltaMod", UpdateDeltaMod},
-			{"EnumIndexToLabel", EnumIndexToLabel},
-			{"EnumLabelToIndex", EnumLabelToIndex},
 			{"ExecuteSkillPropertiesOnTarget", ExecuteSkillPropertiesOnTarget},
 			{"ExecuteSkillPropertiesOnPosition", ExecuteSkillPropertiesOnPosition},
 
@@ -2088,11 +1782,6 @@ namespace dse::esv::lua
 			{"PrepareStatus", PrepareStatus},
 			{"ApplyStatus", ApplyStatus},
 
-			{"GetAllCustomStats", GetAllCustomStats},
-			{"GetCustomStatByName", GetCustomStatByName},
-			{"GetCustomStatById", GetCustomStatById},
-			{"CreateCustomStat", CreateCustomStat},
-
 			{"GetCharacter", GetCharacter},
 			{"GetItem", GetItem},
 			{"GetTrigger", GetTrigger},
@@ -2104,36 +1793,9 @@ namespace dse::esv::lua
 			{"GetCurrentLevelData", GetCurrentLevelData},
 			{"NewDamageList", NewDamageList},
 			{"GetSurfaceTemplate", GetSurfaceTemplate},
-			{"OsirisIsCallable", OsirisIsCallable},
-			{"IsDeveloperMode", IsDeveloperModeWrapper},
-			{"GetGameMode", GetGameModeWrapper},
-			{"GetDifficulty", GetDifficultyWrapper},
-			{"Random", LuaRandom},
-			{"Round", LuaRoundWrapper},
-			{"GenerateIdeHelpers", GenerateIdeHelpersWrapper},
-
-			// EXPERIMENTAL FUNCTIONS
-			{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
-			{"DumpStack", DumpStackWrapper},
-			{"DumpNetworking", DumpNetworking},
-			{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
-			{"DebugDumpLifetimes", DebugDumpLifetimes},
 
 			{"GetGameState", GetGameState},
-			{"AddPathOverride", AddPathOverrideWrapper},
-			{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
-			{"GetTranslatedString", GetTranslatedStringWrapper},
-			{"GetTranslatedStringFromKey", GetTranslatedStringFromKeyWrapper},
-			{"CreateTranslatedString", CreateTranslatedStringWrapper},
-			{"CreateTranslatedStringKey", CreateTranslatedStringKeyWrapper},
-			{"CreateTranslatedStringHandle", CreateTranslatedStringHandleWrapper},
 
-			{"BroadcastMessage", BroadcastMessage},
-			{"PostMessageToClient", PostMessageToClient},
-			{"PostMessageToUser", PostMessageToUser},
-			{"PlayerHasExtender", PlayerHasExtender},
-
-			{"RegisterOsirisListener", RegisterOsirisListener},
 			{0,0}
 		};
 
@@ -2141,6 +1803,7 @@ namespace dse::esv::lua
 		lua_setglobal(L, "Ext"); // stack: -
 
 		RegisterSharedLibraries(L);
+		RegisterServerLibraries(L);
 	}
 
 

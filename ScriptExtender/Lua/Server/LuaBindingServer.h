@@ -28,6 +28,7 @@ using namespace dse::lua;
 
 LifetimeHolder GetServerLifetime();
 LifetimePool& GetServerLifetimePool();
+void RegisterServerLibraries(lua_State* L);
 
 
 class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable, public Pushable<PushPolicy::None>
@@ -128,10 +129,6 @@ private:
 	void CreateNameResolver(lua_State * L);
 
 	static int LuaIndexResolverTable(lua_State * L);
-
-	static int NewCall(lua_State * L);
-	static int NewQuery(lua_State * L);
-	static int NewEvent(lua_State * L);
 };
 
 

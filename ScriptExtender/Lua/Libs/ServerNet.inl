@@ -1,0 +1,85 @@
+#include <Lua/Shared/LuaMethodHelpers.h>
+#include <Extender/ScriptExtender.h>
+
+BEGIN_NS(esv::lua::net)
+
+void BroadcastMessage(char const* channel, char const* payload, std::optional<char const*> excludeCharacterGuid)
+{
+	esv::Character * excludeCharacter = nullptr;
+	if (excludeCharacterGuid) {
+		excludeCharacter = GetEntityWorld()->GetCharacter(*excludeCharacterGuid);
+	}
+
+	auto & networkMgr = gExtender->GetServer().GetNetworkManager();
+	auto msg = networkMgr.GetFreeMessage(ReservedUserId);
+	if (msg != nullptr) {
+		auto postMsg = msg->GetMessage().mutable_post_lua();
+		postMsg->set_channel_name(channel);
+		postMsg->set_payload(payload);
+		if (excludeCharacter != nullptr) {
+			networkMgr.Broadcast(msg, excludeCharacter->UserID);
+		} else {
+			networkMgr.Broadcast(msg, ReservedUserId);
+		}
+	}
+}
+
+void PostMessageToUserInternal(UserId userId, char const* channel, char const* payload)
+{
+	auto& networkMgr = gExtender->GetServer().GetNetworkManager();
+	auto msg = networkMgr.GetFreeMessage(userId);
+	if (msg != nullptr) {
+		auto postMsg = msg->GetMessage().mutable_post_lua();
+		postMsg->set_channel_name(channel);
+		postMsg->set_payload(payload);
+		networkMgr.Send(msg, userId);
+	}
+}
+
+void PostMessageToClient(char const* characterGuid, char const* channel, char const* payload)
+{
+	auto character = GetEntityWorld()->GetCharacter(characterGuid);
+	if (character == nullptr) return;
+
+	if (character->UserID == ReservedUserId) {
+		OsiError("Attempted to send message to character " << characterGuid << " that has no user assigned!");
+		return;
+	}
+
+	PostMessageToUserInternal(character->UserID, channel, payload);
+}
+
+void PostMessageToUser(int userId, char const* channel, char const* payload)
+{
+	if (UserId(userId) == ReservedUserId) {
+		OsiError("Attempted to send message to reserved user ID!");
+		return;
+	}
+
+	PostMessageToUserInternal(UserId(userId), channel, payload);
+}
+
+bool PlayerHasExtender(char const* characterGuid)
+{
+	auto character = GetEntityWorld()->GetCharacter(characterGuid);
+	if (character == nullptr || character->UserID == ReservedUserId) return false;
+
+	// FIXME - access server from Lua context!
+	auto& networkMgr = gExtender->GetServer().GetNetworkManager();
+	return networkMgr.CanSendExtenderMessages(character->UserID.GetPeerId());
+}
+
+void RegisterNetLib(lua_State* L)
+{
+	static const luaL_Reg lib[] = {
+		{"BroadcastMessage", LuaWrapFunction(&BroadcastMessage)},
+		{"PostMessageToClient", LuaWrapFunction(&PostMessageToClient)},
+		{"PostMessageToUser", LuaWrapFunction(&PostMessageToUser)},
+		{"PlayerHasExtender", LuaWrapFunction(&PlayerHasExtender)},
+		{0,0}
+	};
+
+	RegisterLib(L, "Net", lib);
+}
+
+END_NS()

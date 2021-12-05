@@ -506,7 +506,7 @@ namespace dse::esv
 
 
 	void CustomFunctionLibrary::OnCreateUIObject(UIObjectManager* self, ComponentHandle* handle, unsigned int layerIndex,
-		unsigned int creatorId, int flags, uint64_t resourceFlags, uint16_t playerId, ComponentHandle* result)
+		unsigned int creatorId, UIObjectFlags flags, uint64_t resourceFlags, uint16_t playerId, ComponentHandle* result)
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {

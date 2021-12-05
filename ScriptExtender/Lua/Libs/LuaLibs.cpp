@@ -10,9 +10,19 @@
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaSetProxy.inl>
 
-#include <Lua/Libs/LuaJson.inl>
-#include <Lua/Libs/LuaTypes.inl>
-#include <Lua/Libs/LuaAudio.inl>
+#include <Lua/Libs/Utils.inl>
+#include <Lua/Libs/Json.inl>
+#include <Lua/Libs/Types.inl>
+#include <Lua/Libs/Audio.inl>
+#include <Lua/Libs/IO.inl>
+#include <Lua/Libs/Mod.inl>
+#include <Lua/Libs/Localization.inl>
+#include <Lua/Libs/Debug.inl>
+#include <Lua/Libs/Stats.inl>
+#include <Lua/Libs/ClientUI.inl>
+#include <Lua/Libs/ServerOsiris.inl>
+#include <Lua/Libs/ServerNet.inl>
+#include <Lua/Libs/ServerCustomStats.inl>
 
 BEGIN_NS(lua)
 
@@ -26,10 +36,16 @@ void RegisterSharedLibraries(lua_State* L)
 	Userdata<SetProxy>::RegisterMetatable(L);
 	Userdata<EventObject>::RegisterMetatable(L);
 	InitObjectProxyPropertyMaps();
-
 	// RegisterEntityProxy(L);
+
+	utils::RegisterUtilsLib(L);
 	utils::RegisterJsonLib(L);
 	types::RegisterTypesLib(L);
+	io::RegisterIOLib(L);
+	mod::RegisterModLib(L);
+	loca::RegisterLocalizationLib(L);
+	debug::RegisterDebugLib(L);
+	stats::RegisterStatsLib(L);
 }
 
 END_NS()
@@ -39,6 +55,18 @@ BEGIN_NS(ecl::lua)
 void RegisterClientLibraries(lua_State* L)
 {
 	audio::RegisterAudioLib(L);
+	ui::RegisterUILib(L);
+}
+
+END_NS()
+
+BEGIN_NS(esv::lua)
+
+void RegisterServerLibraries(lua_State* L)
+{
+	osiris::RegisterOsirisLib(L);
+	net::RegisterNetLib(L);
+	stats::RegisterCustomStatLib(L);
 }
 
 END_NS()

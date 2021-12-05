@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <Lua/Client/LuaBindingClient.h>
+#include <Lua/Client/ClientUI.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
@@ -11,7 +12,6 @@
 #include <Lua/Client/ClientEntitySystem.inl>
 #include <Lua/Client/ClientCharacter.inl>
 #include <Lua/Client/ClientItem.inl>
-#include <Lua/Client/ClientUI.inl>
 
 
 BEGIN_NS(lua)
@@ -540,57 +540,6 @@ WrapLuaFunction(PostMessageToServer)
 void ExtensionLibraryClient::RegisterLib(lua_State * L)
 {
 	static const luaL_Reg extLib[] = {
-		{"Version", GetExtensionVersionWrapper},
-		{"GameVersion", GetGameVersionWrapper},
-		{"MonotonicTime", MonotonicTimeWrapper},
-		{"Include", Include},
-		{"Print", OsiPrint},
-		{"PrintWarning", OsiPrintWarning},
-		{"PrintError", OsiPrintError},
-		{"HandleToDouble", HandleToDoubleWrapper},
-		{"DoubleToHandle", DoubleToHandleWrapper},
-		{"GetHandleType", GetHandleTypeWrapper},
-
-		{"SaveFile", SaveFileWrapper},
-		{"LoadFile", LoadFileWrapper},
-
-		{"IsModLoaded", IsModLoadedWrapper},
-		{"GetModLoadOrder", GetModLoadOrder},
-		{"GetModInfo", GetModInfo},
-
-		{"DebugBreak", LuaDebugBreakWrapper},
-
-		{"GetStatEntries", GetStatEntries},
-		{"GetStatEntriesLoadedBefore", GetStatEntriesLoadedBefore},
-		{"GetSkillSet", GetSkillSet},
-		{"UpdateSkillSet", UpdateSkillSet},
-		{"GetEquipmentSet", GetEquipmentSet},
-		{"UpdateEquipmentSet", UpdateEquipmentSet},
-		{"GetTreasureTable", GetTreasureTable},
-		{"UpdateTreasureTable", UpdateTreasureTable},
-		{"GetTreasureCategory", GetTreasureCategory},
-		{"UpdateTreasureCategory", UpdateTreasureCategory},
-		{"GetItemCombo", GetItemCombo},
-		{"UpdateItemCombo", UpdateItemCombo},
-		{"GetItemComboPreviewData", GetItemComboPreviewData},
-		{"UpdateItemComboPreviewData", UpdateItemComboPreviewData},
-		{"GetItemComboProperty", GetItemComboProperty},
-		{"UpdateItemComboProperty", UpdateItemComboProperty},
-		{"GetItemGroup", GetItemGroup},
-		{"GetNameGroup", GetNameGroup},
-
-		{"StatGetAttribute", StatGetAttribute},
-		{"StatSetAttribute", StatSetAttribute},
-		{"StatAddCustomDescription", StatAddCustomDescriptionWrapper},
-		{"StatSetLevelScaling", StatSetLevelScaling},
-		{"GetStat", GetStat},
-		{"CreateStat", CreateStat},
-		{"SyncStat", SyncStatWrapper},
-		{"GetDeltaMod", GetDeltaMod},
-		{"UpdateDeltaMod", UpdateDeltaMod},
-		{"EnumIndexToLabel", EnumIndexToLabel},
-		{"EnumLabelToIndex", EnumLabelToIndex},
-
 		{"GetCharacter", GetCharacter},
 		{"GetItem", GetItem},
 		{"GetStatus", GetStatus},
@@ -598,39 +547,15 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 		{"GetAiGrid", GetAiGrid},
 		{"NewDamageList", NewDamageList},
 		{"GetSurfaceTemplate", GetSurfaceTemplate},
-		{"OsirisIsCallable", OsirisIsCallableClientWrapper},
-		{"IsDeveloperMode", IsDeveloperModeWrapper},
-		{"GetGameMode", GetGameModeWrapper},
-		{"GetDifficulty", GetDifficultyWrapper},
-		{"Random", LuaRandom},
-		{"Round", LuaRoundWrapper},
-
-		// EXPERIMENTAL FUNCTIONS
-		{"UpdateShroud", UpdateShroud},
-		{"EnableExperimentalPropertyWrites", EnableExperimentalPropertyWritesWrapper},
-		{"DumpStack", DumpStackWrapper},
-		{"ShowErrorAndExitGame", ShowErrorAndExitGameWrapper},
-		{"DebugDumpLifetimes", DebugDumpLifetimes},
 
 		{"GetGameState", GetGameState},
 		{"GetPickingState", GetPickingState},
-		{"AddPathOverride", AddPathOverrideWrapper},
-		{"GetPathOverride", GetPathOverrideWrapper},
 		{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
-		{"GetTranslatedString", GetTranslatedStringWrapper},
-		{"GetTranslatedStringFromKey", GetTranslatedStringFromKeyWrapper},
-		{"CreateTranslatedString", CreateTranslatedStringWrapper},
-		{"CreateTranslatedStringKey", CreateTranslatedStringKeyWrapper},
-		{"CreateTranslatedStringHandle", CreateTranslatedStringHandleWrapper},
 
 		{"PostMessageToServer", PostMessageToServerWrapper},
-		{"CreateUI", CreateUI},
-		{"GetUI", GetUI},
-		{"GetUIByType", GetUIByType},
-		{"GetBuiltinUI", GetBuiltinUI},
-		{"DestroyUI", DestroyUI},
-		{"UISetDirty", UISetDirty},
-		{"UIEnableCustomDrawCallDebugging", UIEnableCustomDrawCallDebugging},
+
+		// EXPERIMENTAL FUNCTIONS
+		{"UpdateShroud", UpdateShroud},
 		{0,0}
 	};
 

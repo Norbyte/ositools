@@ -319,84 +319,6 @@ namespace dse::lua
 		return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
 	}
 
-	inline glm::ivec2 do_get(lua_State* L, int index, Overload<glm::ivec2>)
-	{	
-		auto i = (index < 0) ? (index - 1) : index;	
-		glm::ivec2 val;	
-		luaL_checktype(L, index, LUA_TTABLE);	
-		push(L, 1);	
-		lua_rawget(L, i);	
-		val.x = get<int32_t>(L, -1);	
-		lua_pop(L, 1);	
-		push(L, 2);	
-		lua_rawget(L, i);	
-		val.y = get<int32_t>(L, -1);	
-		lua_pop(L, 1);	
-		return val;	
-	}
-
-	inline glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>)
-	{
-		auto i = (index < 0) ? (index - 1) : index;
-		glm::vec2 val;
-		luaL_checktype(L, index, LUA_TTABLE);
-		push(L, 1);
-		lua_rawget(L, i);
-		val.x = get<float>(L, -1);
-		lua_pop(L, 1);
-		push(L, 2);
-		lua_rawget(L, i);
-		val.y = get<float>(L, -1);
-		lua_pop(L, 1);
-
-		return val;
-	}
-
-	inline glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>)
-	{
-		auto i = (index < 0) ? (index - 1) : index;
-		glm::vec3 val;
-		luaL_checktype(L, index, LUA_TTABLE);
-		push(L, 1);
-		lua_rawget(L, i);
-		val.x = get<float>(L, -1);
-		lua_pop(L, 1);
-		push(L, 2);
-		lua_rawget(L, i);
-		val.y = get<float>(L, -1);
-		lua_pop(L, 1);
-		push(L, 3);
-		lua_rawget(L, i);
-		val.z = get<float>(L, -1);
-		lua_pop(L, 1);
-
-		return val;
-	}
-
-	inline glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>)
-	{	
-		auto i = (index < 0) ? (index - 1) : index;	
-		glm::vec4 val;	
-		luaL_checktype(L, index, LUA_TTABLE);	
-		push(L, 1);	
-		lua_rawget(L, i);	
-		val.x = get<float>(L, -1);	
-		lua_pop(L, 1);	
-		push(L, 2);	
-		lua_rawget(L, i);	
-		val.y = get<float>(L, -1);	
-		lua_pop(L, 1);	
-		push(L, 3);	
-		lua_rawget(L, i);	
-		val.z = get<float>(L, -1);	
-		lua_pop(L, 1);	
-		push(L, 4);	
-		lua_rawget(L, i);	
-		val.w = get<float>(L, -1);	
-		lua_pop(L, 1);	
-		return val;	
-	}
-
 	inline Path do_get(lua_State* L, int index, Overload<Path>)
 	{
 		return Path(luaL_checkstring(L, index));
@@ -473,14 +395,78 @@ namespace dse::lua
 		return val;
 	}
 
-	template <class TKey, class TValue>
-	TValue checked_gettable(lua_State* L, TKey const& k, int index = -2)
+	template <class TValue>
+	TValue gettable(lua_State* L, lua_Integer k, int index = -2)
 	{
-		push(L, k);
-		lua_gettable(L, index);
-		TValue val = get<TValue>(L, -1);
+		lua_rawgeti(L, index, k);
+		TValue val = do_get(L, -1, Overload<TValue>{});
 		lua_pop(L, 1);
 		return val;
+	}
+
+	template <class TValue>
+	TValue gettable(lua_State* L, char const* k, int index = -2)
+	{
+		push(L, k);
+		lua_getfield(L, index, k);
+		lua_rawget(L, index);
+		TValue val = do_get(L, -1, Overload<TValue>{});
+		lua_pop(L, 1);
+		return val;
+	}
+
+	inline glm::ivec2 do_get(lua_State* L, int index, Overload<glm::ivec2>)
+	{	
+		auto i = lua_absindex(L, index);
+		glm::ivec2 val;	
+		luaL_checktype(L, index, LUA_TTABLE);
+		val.x = gettable<int32_t>(L, 1, i);
+		val.y = gettable<int32_t>(L, 2, i);
+		return val;	
+	}
+
+	inline glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>)
+	{
+		auto i = lua_absindex(L, index);
+		glm::vec2 val;
+		luaL_checktype(L, index, LUA_TTABLE);
+		val.x = gettable<float>(L, 1, i);
+		val.y = gettable<float>(L, 2, i);
+		return val;
+	}
+
+	inline glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>)
+	{
+		auto i = lua_absindex(L, index);
+		glm::vec3 val;
+		luaL_checktype(L, index, LUA_TTABLE);
+		val.x = gettable<float>(L, 1, i);
+		val.y = gettable<float>(L, 2, i);
+		val.z = gettable<float>(L, 3, i);
+		return val;
+	}
+
+	inline glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>)
+	{
+		auto i = lua_absindex(L, index);
+		glm::vec4 val;	
+		luaL_checktype(L, index, LUA_TTABLE);
+		val.x = gettable<float>(L, 1, i);
+		val.y = gettable<float>(L, 2, i);
+		val.z = gettable<float>(L, 3, i);
+		val.w = gettable<float>(L, 4, i);
+		return val;	
+	}
+
+	inline Version do_get(lua_State* L, int index, Overload<Version>)
+	{
+		auto i = lua_absindex(L, index);
+		luaL_checktype(L, i, LUA_TTABLE);
+		uint32_t minor = gettable<uint32_t>(L, 1, i),
+			major = gettable<uint32_t>(L, 2, i),
+			revision = gettable<uint32_t>(L, 3, i),
+			build = gettable<uint32_t>(L, 4, i);
+		return Version(minor, major, revision, build);	
 	}
 
 	// Overload helper for fetching a parameter for a Lua -> C++ function call
@@ -603,6 +589,7 @@ namespace dse::lua
 	};
 
 	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
+	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib);
 
 	struct TableIterationHelper
 	{
@@ -742,6 +729,15 @@ namespace dse::lua
 		settable(L, 2, v.y);
 		settable(L, 3, v.z);
 		settable(L, 4, v.w);
+	}
+
+	inline void push(lua_State* L, Version const& v)
+	{
+		lua_newtable(L);
+		settable(L, 1, v.Minor());
+		settable(L, 2, v.Major());
+		settable(L, 3, v.Revision());
+		settable(L, 4, v.Build());
 	}
 
 	inline void push(lua_State* L, glm::mat3 const& m)

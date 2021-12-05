@@ -397,49 +397,7 @@ namespace dse::lua
 	void ExtensionLibrary::Register(lua_State * L)
 	{
 		RegisterLib(L);
-		RegisterStatsObjects(L);
 		ObjectProxy<eoc::AiGrid>::RegisterMetatable(L);
-	}
-
-	int ExtensionLibrary::Include(lua_State * L)
-	{
-		auto modGuid = get<std::optional<STDString>>(L, 1);
-		auto fileName = get<STDString>(L, 2);
-
-		bool replaceGlobals = lua_gettop(L) > 2 && !lua_isnil(L, 3);
-		auto globalsIdx = lua_gettop(L) + 1;
-
-		if (replaceGlobals) {
-			luaL_checktype(L, 3, LUA_TTABLE);
-#if LUA_VERSION_NUM > 501
-			lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-			lua_pushvalue(L, 3);
-			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-#endif
-		}
-
-		std::optional<int> nret;
-		if (modGuid) {
-			auto nret = gExtender->GetCurrentExtensionState()
-				->LuaLoadModScript(*modGuid, fileName, true, replaceGlobals ? 3 : 0);
-		} else {
-			auto nret = gExtender->GetCurrentExtensionState()
-				->LuaLoadFile(fileName, "", true, replaceGlobals ? 3 : 0);
-		}
-
-		if (replaceGlobals) {
-#if LUA_VERSION_NUM > 501
-			lua_pushvalue(L, globalsIdx);
-			lua_rawseti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-			lua_remove(L, globalsIdx);
-#endif
-		}
-
-		if (nret) {
-			return *nret;
-		} else {
-			return 0;
-		}
 	}
 
 
@@ -486,6 +444,16 @@ namespace dse::lua
 		luaL_setfuncs(L, lib, 0);
 		lua_setfield(L, -2, name);
 		lua_pop(L, 1);
+	}
+
+	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib)
+	{
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, name); // stack: Ext, parent
+		lua_createtable(L, 0, 0); // stack: ext, parent, lib
+		luaL_setfuncs(L, lib, 0);
+		lua_setfield(L, -2, subTableName);
+		lua_pop(L, 2);
 	}
 
 	int LuaPanic(lua_State * L)

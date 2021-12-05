@@ -2,12 +2,8 @@
 
 #include <Lua/Shared/LuaBinding.h>
 #include <GameDefinitions/UI.h>
+#include <Lua/Client/ClientUI.h>
 #include <span>
-
-namespace dse
-{
-	void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args);
-}
 
 namespace dse::ecl::lua
 {
@@ -46,59 +42,6 @@ namespace dse::ecl::lua
 		ComponentHandle character_;
 		ComponentHandle statusHandle_;
 		NetId statusNetId_;
-	};
-
-
-
-	struct UIFlashPath
-	{
-	public:
-		std::vector<ig::IggyValuePath> paths_;
-
-		UIFlashPath();
-		UIFlashPath(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
-		ig::IggyValuePath* Last();
-	};
-
-	class UIFlashObject : public Userdata<UIFlashObject>, public Indexable, public NewIndexable
-	{
-	public:
-		static char const* const MetatableName;
-
-		UIFlashObject(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
-		int Index(lua_State* L);
-		int NewIndex(lua_State* L);
-
-	private:
-		UIFlashPath path_;
-	};
-
-
-	class UIFlashArray : public Userdata<UIFlashArray>, public Indexable, public NewIndexable, public Lengthable
-	{
-	public:
-		static char const* const MetatableName;
-
-		UIFlashArray(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
-		int Index(lua_State* L);
-		int NewIndex(lua_State* L);
-		int Length(lua_State* L);
-
-	private:
-		UIFlashPath path_;
-	};
-
-
-	class UIFlashFunction : public Userdata<UIFlashFunction>, public Callable
-	{
-	public:
-		static char const* const MetatableName;
-
-		UIFlashFunction(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
-		int LuaCall(lua_State* L);
-
-	private:
-		UIFlashPath path_;
 	};
 
 	struct GameStateChangeEventParams
@@ -155,6 +98,11 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
+		CustomDrawHelper& GetCustomDrawHelper()
+		{
+			return customDrawHelper_;
+		}
+
 		void Initialize() override;
 
 		void OnCreateUIObject(ComponentHandle handle);
@@ -176,5 +124,6 @@ namespace dse::ecl::lua
 	private:
 		ExtensionLibraryClient library_;
 		std::unordered_map<STDString, ComponentHandle> clientUI_;
+		CustomDrawHelper customDrawHelper_;
 	};
 }

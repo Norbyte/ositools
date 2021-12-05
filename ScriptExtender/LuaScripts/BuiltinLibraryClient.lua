@@ -236,3 +236,14 @@ Ext.Events.SkillGetPropertyDescription:Subscribe(function (e)
 		end
 	end
 end)
+
+-- Backwards compatibility with old UI APIs
+Ext.CreateUI = CallDeprecated(Ext.UI.Create, "CreateUI", "UI.Create")
+Ext.GetUI = CallDeprecated(Ext.UI.GetByName, "GetUI", "UI.GetByName")
+Ext.GetUIByType = CallDeprecated(Ext.UI.GetByType, "GetUIByType", "UI.GetByType")
+Ext.GetBuiltinUI = CallDeprecated(Ext.UI.GetByPath, "GetBuiltinUI", "UI.GetByPath")
+Ext.DestroyUI = CallDeprecated(Ext.UI.Destroy, "DestroyUI", "UI.Destroy")
+Ext.UISetDirty = CallDeprecated(Ext.UI.SetDirty, "UISetDirty", "UI.SetDirty")
+Ext.UIEnableCustomDrawCallDebugging = CallDeprecated(Ext.UI.EnableCustomDrawCallDebugging, "UIEnableCustomDrawCallDebugging", "UI.EnableCustomDrawCallDebugging")
+Ext.HandleToDouble = CallDeprecated(Ext.UI.HandleToDouble, "HandleToDouble", "UI.HandleToDouble")
+Ext.DoubleToHandle = CallDeprecated(Ext.UI.DoubleToHandle, "DoubleToHandle", "UI.DoubleToHandle")

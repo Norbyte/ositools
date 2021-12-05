@@ -6,6 +6,7 @@
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
+#include <GameDefinitions/UseActions.h>
 
 namespace dse
 {

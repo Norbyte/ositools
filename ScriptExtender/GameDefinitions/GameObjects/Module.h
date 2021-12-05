@@ -4,38 +4,6 @@
 
 namespace dse
 {
-	struct Version
-	{
-		inline Version() : Ver(0) {}
-		inline Version(uint32_t ver) : Ver(ver) {}
-		inline Version(uint32_t minor, uint32_t major, uint32_t revision, uint32_t build)
-			: Ver(((major & 0xf) << 28) + ((minor & 0xf) << 24) + ((revision & 0xff) << 16) + (build & 0xffff))
-		{}
-
-		inline uint32_t Major() const
-		{
-			return Ver >> 28;
-		}
-
-		inline uint32_t Minor() const
-		{
-			return (Ver >> 24) & 0xf;
-		}
-
-		inline uint32_t Revision() const
-		{
-			return (Ver >> 16) & 0xff;
-		}
-
-		inline uint32_t Build() const
-		{
-			return Ver & 0xffff;
-		}
-
-		uint32_t Ver;
-	};
-
-
 	struct ModuleShortDesc
 	{
 		FixedString ModuleUUID;
@@ -93,7 +61,7 @@ namespace dse
 		bool UsesLsfFormat{ false };
 		bool FinishedLoading{ false };
 		uint64_t DataHashList[4]{ 0 };
-		bool BFSReset_M{ false };
+		bool BFSReset{ false };
 	};
 
 	struct ModManager : public ProtectedGameObject<ModManager>

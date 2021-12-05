@@ -123,9 +123,92 @@ end
 _D = Ext.Dump
 _P = Ext.Print
 
+function CallDeprecated(fun, oldName, newName)
+	return function (...)
+		Ext._WarnDeprecated56("Calling Ext." .. oldName .. " is deprecated; use Ext." .. newName .. " instead.")
+		return fun(...)
+	end
+end
+
+Ext.EnableExperimentalPropertyWrites = function ()
+	Ext.PrintWarning("EnableExperimentalPropertyWrites() is no longer needed in v53!")
+end
+
 -- Backwards compatibility with old JSON APIs
-Ext.JsonStringify = Ext.Json.Stringify
-Ext.JsonParse = Ext.Json.Parse
+Ext.JsonStringify = CallDeprecated(Ext.Json.Stringify, "JsonStringify", "Json.Stringify")
+Ext.JsonParse = CallDeprecated(Ext.Json.Parse, "JsonParse", "Json.Parse")
+
+-- Backwards compatibility with old debug APIs
+Ext.DebugBreak = CallDeprecated(Ext.Debug.DebugBreak, "DebugBreak", "Debug.DebugBreak")
+Ext.IsDeveloperMode = CallDeprecated(Ext.Debug.IsDeveloperMode, "IsDeveloperMode", "Debug.IsDeveloperMode")
+
+-- Backwards compatibility with old utility APIs
+Ext.Print = Ext.Utils.Print
+Ext.PrintWarning = Ext.Utils.PrintWarning
+Ext.PrintError = Ext.Utils.PrintError
+Ext.GetGameMode = Ext.Utils.GetGameMode
+Ext.GetDifficulty = Ext.Utils.GetDifficulty
+Ext.Random = Ext.Utils.Random
+Ext.Round = Ext.Utils.Round
+
+Ext.MonotonicTime = CallDeprecated(Ext.Utils.MonotonicTime, "MonotonicTime", "Utils.MonotonicTime")
+Ext.Version = CallDeprecated(Ext.Utils.Version, "Version", "Utils.Version")
+Ext.GameVersion = CallDeprecated(Ext.Utils.GameVersion, "GameVersion", "Utils.GameVersion")
+Ext.GetHandleType = CallDeprecated(Ext.Utils.GetHandleType, "GetHandleType", "Utils.GetHandleType")
+Ext.ShowErrorAndExitGame = CallDeprecated(Ext.Utils.ShowErrorAndExitGame, "ShowErrorAndExitGame", "Utils.ShowErrorAndExitGame")
+
+-- Backwards compatibility with old IO APIs
+Ext.LoadFile = CallDeprecated(Ext.IO.LoadFile, "LoadFile", "IO.LoadFile")
+Ext.SaveFile = CallDeprecated(Ext.IO.SaveFile, "SaveFile", "IO.SaveFile")
+Ext.AddPathOverride = CallDeprecated(Ext.IO.AddPathOverride, "AddPathOverride", "IO.AddPathOverride")
+Ext.GetPathOverride = CallDeprecated(Ext.IO.GetPathOverride, "GetPathOverride", "IO.GetPathOverride")
+
+-- Backwards compatibility with old Mod APIs
+Ext.IsModLoaded = CallDeprecated(Ext.Mod.IsModLoaded, "IsModLoaded", "Mod.IsModLoaded")
+Ext.GetModLoadOrder = CallDeprecated(Ext.Mod.GetLoadOrder, "GetModLoadOrder", "Mod.GetLoadOrder")
+Ext.GetModInfo = CallDeprecated(Ext.Mod.GetModInfo, "GetModInfo", "Mod.GetModInfo")
+
+-- Backwards compatibility with old localization APIs
+Ext.GetTranslatedString = CallDeprecated(Ext.L10N.GetTranslatedString, "GetTranslatedString", "L10N.GetTranslatedString")
+Ext.GetTranslatedStringFromKey = CallDeprecated(Ext.L10N.GetTranslatedStringFromKey, "GetTranslatedStringFromKey", "L10N.GetTranslatedStringFromKey")
+Ext.CreateTranslatedString = CallDeprecated(Ext.L10N.CreateTranslatedString, "CreateTranslatedString", "L10N.CreateTranslatedString")
+Ext.CreateTranslatedStringKey = CallDeprecated(Ext.L10N.CreateTranslatedStringKey, "CreateTranslatedStringKey", "L10N.CreateTranslatedStringKey")
+Ext.CreateTranslatedStringHandle = CallDeprecated(Ext.L10N.CreateTranslatedStringHandle, "CreateTranslatedStringHandle", "L10N.CreateTranslatedStringHandle")
+
+-- Backwards compatibility with old stat APIs
+Ext.GetStatEntries = CallDeprecated(Ext.Stats.GetStats, "GetStatEntries", "Stats.GetStats")
+Ext.GetStatEntriesLoadedBefore = CallDeprecated(Ext.Stats.GetStatsLoadedBefore, "GetStatEntriesLoadedBefore", "Stats.GetStatsLoadedBefore")
+Ext.GetStat = CallDeprecated(Ext.Stats.Get, "GetStat", "Stats.Get")
+Ext.CreateStat = CallDeprecated(Ext.Stats.Create, "CreateStat", "Stats.Create")
+Ext.SyncStat = CallDeprecated(Ext.Stats.Sync, "SyncStat", "Stats.Sync")
+Ext.StatSetPersistence = CallDeprecated(Ext.Stats.SetPersistence, "StatSetPersistence", "Stats.SetPersistence")
+Ext.StatGetAttribute = Ext.Stats.GetAttribute
+Ext.StatSetAttribute = Ext.Stats.SetAttribute
+Ext.StatAddCustomDescription = CallDeprecated(Ext.Stats.AddCustomDescription, "StatAddCustomDescription", "Stats.AddCustomDescription")
+Ext.StatSetLevelScaling = CallDeprecated(Ext.Stats.SetLevelScaling, "StatSetLevelScaling", "Stats.SetLevelScaling")
+Ext.EnumIndexToLabel = CallDeprecated(Ext.Stats.EnumIndexToLabel, "EnumIndexToLabel", "Stats.EnumIndexToLabel")
+Ext.EnumLabelToIndex = CallDeprecated(Ext.Stats.EnumLabelToIndex, "EnumLabelToIndex", "Stats.EnumLabelToIndex")
+
+Ext.GetDeltaMod = CallDeprecated(Ext.Stats.DeltaMod.GetLegacy, "GetDeltaMod", "Stats.DeltaMod.GetLegacy")
+Ext.UpdateDeltaMod = CallDeprecated(Ext.Stats.DeltaMod.Update, "UpdateDeltaMod", "Stats.DeltaMod.Update")
+Ext.GetSkillSet = CallDeprecated(Ext.Stats.SkillSet.GetLegacy, "GetSkillSet", "Stats.SkillSet.GetLegacy")
+Ext.UpdateSkillSet = CallDeprecated(Ext.Stats.SkillSet.Update, "UpdateSkillSet", "Stats.SkillSet.Update")
+Ext.GetEquipmentSet = CallDeprecated(Ext.Stats.EquipmentSet.GetLegacy, "GetEquipmentSet", "Stats.EquipmentSet.GetLegacy")
+Ext.UpdateEquipmentSet = CallDeprecated(Ext.Stats.EquipmentSet.Update, "UpdateEquipmentSet", "Stats.EquipmentSet.Update")
+Ext.GetTreasureTable = CallDeprecated(Ext.Stats.TreasureTable.GetLegacy, "GetTreasureTable", "Stats.TreasureTable.GetLegacy")
+Ext.UpdateTreasureTable = CallDeprecated(Ext.Stats.TreasureTable.Update, "UpdateTreasureTable", "Stats.TreasureTable.Update")
+Ext.GetTreasureCategory = CallDeprecated(Ext.Stats.TreasureCategory.GetLegacy, "GetTreasureCategory", "Stats.TreasureCategory.GetLegacy")
+Ext.UpdateTreasureCategory = CallDeprecated(Ext.Stats.TreasureCategory.Update, "UpdateTreasureCategory", "Stats.TreasureCategory.Update")
+Ext.GetItemCombo = CallDeprecated(Ext.Stats.ItemCombo.GetLegacy, "GetItemCombo", "Stats.ItemCombo.GetLegacy")
+Ext.UpdateItemCombo = CallDeprecated(Ext.Stats.ItemCombo.Update, "UpdateItemCombo", "Stats.ItemCombo.Update")
+Ext.GetItemComboPreviewData = CallDeprecated(Ext.Stats.ItemComboPreview.GetLegacy, "GetItemComboPreviewData", "Stats.ItemComboPreview.GetLegacy")
+Ext.UpdateItemComboPreviewData = CallDeprecated(Ext.Stats.ItemComboPreview.Update, "UpdateItemComboPreviewData", "Stats.ItemComboPreview.Update")
+Ext.GetItemComboProperty = CallDeprecated(Ext.Stats.ItemComboPreview.GetLegacy, "GetItemComboProperty", "Stats.ItemComboPreview.GetLegacy")
+Ext.UpdateItemComboProperty = CallDeprecated(Ext.Stats.ItemComboPreview.Update, "UpdateItemComboProperty", "Stats.ItemComboPreview.Update")
+Ext.GetItemGroup = CallDeprecated(Ext.Stats.ItemGroup.GetLegacy, "GetItemGroup", "Stats.ItemGroup.GetLegacy")
+Ext.GetNameGroup = CallDeprecated(Ext.Stats.NameGroup.Update, "GetNameGroup", "Stats.NameGroup.Update")
+
+
 
 -- New getmetatable() to support fetching type information for proxy objects
 local base_getmetatable = getmetatable

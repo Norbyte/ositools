@@ -200,9 +200,6 @@ namespace dse::lua
 	public:
 		virtual void Register(lua_State * L);
 		virtual void RegisterLib(lua_State * L) = 0;
-
-	protected:
-		static int Include(lua_State * L);
 	};
 
 	class Exception : public std::runtime_error
@@ -356,79 +353,8 @@ namespace dse::lua
 
 	void WarnDeprecated56(char const* msg);
 
-	void RegisterStatsObjects(lua_State* L);
-
-	int GetExtensionVersionWrapper(lua_State* L);
-	int GetGameVersionWrapper(lua_State* L);
-	int MonotonicTimeWrapper(lua_State* L);
-	int OsiPrint(lua_State* L);
-	int OsiPrintWarning(lua_State* L);
-	int OsiPrintError(lua_State* L);
-	int HandleToDoubleWrapper(lua_State* L);
-	int DoubleToHandleWrapper(lua_State* L);
-	int GetHandleTypeWrapper(lua_State* L);
 	int GetCellInfo(lua_State* L);
-
-	int SaveFileWrapper(lua_State* L);
-	int LoadFileWrapper(lua_State* L);
-
-	int IsModLoadedWrapper(lua_State* L);
-	int GetModLoadOrder(lua_State* L);
-	int GetModInfo(lua_State* L);
-	int LuaDebugBreakWrapper(lua_State* L);
-
-	int GetStatEntries(lua_State* L);
-	int GetStatEntriesLoadedBefore(lua_State* L);
-	int GetSkillSet(lua_State* L);
-	int UpdateSkillSet(lua_State* L);
-	int GetEquipmentSet(lua_State* L);
-	int UpdateEquipmentSet(lua_State* L);
-	int GetTreasureTable(lua_State* L);
-	int UpdateTreasureTable(lua_State* L);
-	int GetTreasureCategory(lua_State* L);
-	int UpdateTreasureCategory(lua_State* L);
-	int GetItemCombo(lua_State* L);
-	int UpdateItemCombo(lua_State* L);
-	int GetItemComboPreviewData(lua_State* L);
-	int UpdateItemComboPreviewData(lua_State* L);
-	int GetItemComboProperty(lua_State* L);
-	int UpdateItemComboProperty(lua_State* L);
-	int GetItemGroup(lua_State* L);
-	int GetNameGroup(lua_State* L);
-
-	int StatGetAttribute(lua_State* L);
-	int StatSetAttribute(lua_State* L);
-	int StatAddCustomDescriptionWrapper(lua_State* L);
-	int StatSetLevelScaling(lua_State* L);
-	int GetStat(lua_State* L);
-	int CreateStat(lua_State* L);
-	int SyncStatWrapper(lua_State* L);
-	int StatSetPersistenceWrapper(lua_State* L);
-	int GetDeltaMod(lua_State* L);
-	int UpdateDeltaMod(lua_State* L);
-
-	int EnumIndexToLabel(lua_State* L);
-	int EnumLabelToIndex(lua_State* L);
 	int NewDamageList(lua_State* L);
 	int GetSurfaceTemplate(lua_State* L);
-
-	int IsDeveloperModeWrapper(lua_State* L);
-	int GetDifficultyWrapper(lua_State* L);
-	int GetGameModeWrapper(lua_State* L);
-	int AddPathOverrideWrapper(lua_State* L);
-	int GetPathOverrideWrapper(lua_State* L);
-	int LuaRandom(lua_State* L);
-	int LuaRoundWrapper(lua_State* L);
 	int AddVoiceMetaDataWrapper(lua_State* L);
-	int GetTranslatedStringWrapper(lua_State* L);
-	int GetTranslatedStringFromKeyWrapper(lua_State* L);
-	int CreateTranslatedStringKeyWrapper(lua_State* L);
-	int CreateTranslatedStringHandleWrapper(lua_State* L);
-	int CreateTranslatedStringWrapper(lua_State* L);
-	int GenerateIdeHelpersWrapper(lua_State* L);
-
-	int DebugDumpLifetimes(lua_State* L);
-	int EnableExperimentalPropertyWritesWrapper(lua_State* L);
-	int DumpStackWrapper(lua_State* L);
-	int ShowErrorAndExitGameWrapper(lua_State* L);
 }

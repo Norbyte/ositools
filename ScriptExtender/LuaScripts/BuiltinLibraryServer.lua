@@ -71,3 +71,22 @@ end
 _W = function ()
 	return Ext.GetItem(CharacterGetEquippedWeapon(CharacterGetHostCharacter()))
 end
+
+-- Backwards compatibility with old Osiris APIs
+Ext.RegisterOsirisListener = CallDeprecated(Ext.Osiris.RegisterListener, "RegisterOsirisListener", "Osiris.RegisterListener")
+Ext.OsirisIsCallable = CallDeprecated(Ext.Osiris.IsCallable, "OsirisIsCallable", "Osiris.IsCallable")
+Ext.NewCall = CallDeprecated(Ext.Osiris.NewCall, "NewCall", "Osiris.NewCall")
+Ext.NewQuery = CallDeprecated(Ext.Osiris.NewQuery, "NewQuery", "Osiris.NewQuery")
+Ext.NewEvent = CallDeprecated(Ext.Osiris.NewEvent, "NewEvent", "Osiris.NewEvent")
+
+-- Backwards compatibility with old Net APIs
+Ext.BroadcastMessage = CallDeprecated(Ext.Net.BroadcastMessage, "BroadcastMessage", "Net.BroadcastMessage")
+Ext.PostMessageToClient = CallDeprecated(Ext.Net.PostMessageToClient, "PostMessageToClient", "Net.PostMessageToClient")
+Ext.PostMessageToUser = CallDeprecated(Ext.Net.PostMessageToUser, "PostMessageToUser", "Net.PostMessageToUser")
+Ext.PlayerHasExtender = CallDeprecated(Ext.Net.PlayerHasExtender, "PlayerHasExtender", "Net.PlayerHasExtender")
+
+-- Backwards compatibility with old custom stat APIs
+Ext.CreateCustomStat = CallDeprecated(Ext.CustomStat.Create, "CreateCustomStat", "CustomStat.Create")
+Ext.GetCustomStatById = CallDeprecated(Ext.CustomStat.GetById, "GetCustomStatById", "CustomStat.GetById")
+Ext.GetCustomStatByName = CallDeprecated(Ext.CustomStat.GetByName, "GetCustomStatByName", "CustomStat.GetByName")
+Ext.GetAllCustomStats = CallDeprecated(Ext.CustomStat.GetAll, "GetAllCustomStats", "CustomStat.GetAll")

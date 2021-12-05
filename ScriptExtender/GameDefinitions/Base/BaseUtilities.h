@@ -247,6 +247,26 @@ struct UserReturn
 	int num;
 };
 
+// Return type indicating that the return value should be passed to Lua LuaWrite(), i.e. the value should be serialized
+template <class T>
+struct ByValReturn
+{
+	inline ByValReturn()
+		: Object(nullptr)
+	{}
+	
+	inline ByValReturn(T* obj)
+		: Object(obj)
+	{}
+
+	inline operator T*() const
+	{
+		return Object;
+	}
+
+	T* Object;
+};
+
 // Return type indicating that the return value should be passed to Lua using an object proxy
 template <class T>
 struct RefReturn

@@ -1,5 +1,6 @@
 #include <GameDefinitions/PropertyMaps/EntitySystem.inl>
 #include <GameDefinitions/PropertyMaps/Events.inl>
+#include <GameDefinitions/PropertyMaps/Mod.inl>
 #include <GameDefinitions/PropertyMaps/Statuses.inl>
 #include <GameDefinitions/PropertyMaps/Character.inl>
 #include <GameDefinitions/PropertyMaps/Item.inl>

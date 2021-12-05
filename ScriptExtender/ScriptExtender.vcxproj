@@ -89,12 +89,14 @@
     <ClInclude Include="GameDefinitions\Symbols.h" />
     <ClInclude Include="GameDefinitions\TurnManager.h" />
     <ClInclude Include="GameDefinitions\UI.h" />
+    <ClInclude Include="GameDefinitions\UseActions.h" />
     <ClInclude Include="GameHooks\DataLibraries.h" />
     <ClInclude Include="GameHooks\EngineHooks.h" />
     <ClInclude Include="GameHooks\OsirisWrappers.h" />
     <ClInclude Include="GameHooks\SymbolMapper.h" />
     <ClInclude Include="GameHooks\Wrappers.h" />
     <ClInclude Include="Hit.h" />
+    <ClInclude Include="Lua\Client\ClientUI.h" />
     <ClInclude Include="Lua\Client\LuaBindingClient.h" />
     <ClInclude Include="Lua\Debugger\LuaDebug.pb.h" />
     <ClInclude Include="Lua\Debugger\LuaDebugger.h" />
@@ -169,6 +171,7 @@
     <ClCompile Include="GameHooks\OsirisWrappers.cpp" />
     <ClCompile Include="GameHooks\SymbolMapper.cpp" />
     <ClCompile Include="Hit.cpp" />
+    <ClCompile Include="Lua\Client\ClientUI.cpp" />
     <ClCompile Include="Lua\Client\LuaClient.cpp" />
     <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -186,7 +189,6 @@
     <ClCompile Include="Lua\Shared\LuaExtFunctions.cpp" />
     <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\Shared\LuaSerializers.cpp" />
-    <ClCompile Include="Lua\Shared\LuaStats.cpp" />
     <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp" />
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
@@ -243,6 +245,7 @@
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
     <None Include="GameDefinitions\PropertyMaps\Item.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Mod.inl" />
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
     <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
@@ -260,11 +263,20 @@
     <None Include="Lua\Client\ClientCharacter.inl" />
     <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Client\ClientItem.inl" />
-    <None Include="Lua\Client\ClientUI.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
-    <None Include="Lua\Libs\LuaAudio.inl" />
-    <None Include="Lua\Libs\LuaJson.inl" />
-    <None Include="Lua\Libs\LuaTypes.inl" />
+    <None Include="Lua\Libs\Audio.inl" />
+    <None Include="Lua\Libs\ClientUI.inl" />
+    <None Include="Lua\Libs\Debug.inl" />
+    <None Include="Lua\Libs\IO.inl" />
+    <None Include="Lua\Libs\Json.inl" />
+    <None Include="Lua\Libs\Localization.inl" />
+    <None Include="Lua\Libs\Mod.inl" />
+    <None Include="Lua\Libs\ServerCustomStats.inl" />
+    <None Include="Lua\Libs\ServerNet.inl" />
+    <None Include="Lua\Libs\ServerOsiris.inl" />
+    <None Include="Lua\Libs\Stats.inl" />
+    <None Include="Lua\Libs\Types.inl" />
+    <None Include="Lua\Libs\Utils.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
     <None Include="Lua\Server\ServerEntitySystem.inl" />
     <None Include="Lua\Server\ServerItem.inl" />
