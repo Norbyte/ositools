@@ -55,9 +55,9 @@ Ext.Require = function (mod, path)
 
 	local loaded
 	if path == nil then
-		loaded = {Ext.Include(ModuleUUID, mod, env)}
+		loaded = {Ext.Utils.Include(ModuleUUID, mod, env)}
 	else
-		loaded = {Ext.Include(mod, path, env)}
+		loaded = {Ext.Utils.Include(mod, path, env)}
 	end
 
 	Ext._LoadedFiles[fullName] = loaded
@@ -92,7 +92,7 @@ Ext._LoadBootstrap = function (path, modTable)
 	Mods[modTable] = env
 	
 	env._G = env
-	Ext.Include(ModuleUUID, path, env)
+	Ext.Utils.Include(ModuleUUID, path, env)
 end
 
 -- Used by the Lua debug adapter to store intermediate evaluation results.
