@@ -1,7 +1,9 @@
 #include <Lua/Shared/LuaSerializers.h>
 
 #include <fstream>
+#include <unordered_set>
 #include <json/json.h>
+#include <lstate.h>
 
 BEGIN_NS(lua::utils)
 
@@ -88,11 +90,80 @@ int JsonParse(lua_State * L)
 	return 1;
 }
 
-Json::Value JsonStringify(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata);
+struct StringifyContext
+{
+	bool StringifyInternalTypes{ false };
+	bool IterateUserdata{ false };
+	bool Beautify{ true };
+	bool AvoidRecursion{ false };
+	uint32_t MaxDepth{ 64 };
+	std::unordered_set<void*> SeenUserdata;
+};
 
-Json::Value JsonStringifyUserdata(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata)
+TValue* GetStackElem(lua_State* L, int idx)
+{
+	CallInfo* ci = L->ci;
+	if (idx > 0) {
+		return ci->func + idx;
+	} else if (idx > LUA_REGISTRYINDEX) {
+		return L->top + idx;
+	} else {
+		return nullptr;
+	}
+}
+
+void* GetTablePointer(lua_State* L, int index)
+{
+	luaL_checktype(L, index, LUA_TTABLE);
+	auto val = GetStackElem(L, index);
+	if (val) {
+		return hvalue(val);
+	} else {
+		return nullptr;
+	}
+}
+
+void* GetUserdataPointer(lua_State* L, int index)
+{
+	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
+	if (proxy) {
+		return proxy->GetRaw();
+	}
+
+	return lua_touserdata(L, index);
+}
+
+void* GetPointerValue(lua_State* L, int index)
+{
+	switch (lua_type(L, index)) {
+	case LUA_TTABLE:
+		return GetTablePointer(L, index);
+
+	case LUA_TUSERDATA:
+		return GetUserdataPointer(L, index);
+
+	default:
+		return nullptr;
+	}
+}
+
+Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx);
+
+Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	StackCheck _(L, 0);
+
+	if (ctx.AvoidRecursion) {
+		auto ptr = GetPointerValue(L, index);
+		if (ptr) {
+			auto seenIt = ctx.SeenUserdata.find(ptr);
+			if (seenIt != ctx.SeenUserdata.end()) {
+				return Json::Value("*RECURSION*");
+			} else {
+				ctx.SeenUserdata.insert(ptr);
+			}
+		}
+	}
 
 	index = lua_absindex(L, index);
 	if (!lua_getmetatable(L, index)) {
@@ -123,7 +194,7 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, int depth, bool stri
 	lua_call(L, 2, 2); // returns k, val
 
 	while (lua_type(L, -2) != LUA_TNIL) {
-		Json::Value val(JsonStringify(L, -1, depth + 1, stringifyInternalTypes, iterateUserdata));
+		Json::Value val(JsonStringify(L, -1, depth + 1, ctx));
 
 		if (lua_type(L, -2) == LUA_TSTRING) {
 			auto key = lua_tostring(L, -2);
@@ -133,7 +204,7 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, int depth, bool stri
 			auto key = lua_tostring(L, -1);
 			arr[key] = val;
 			lua_pop(L, 1);
-		} else if (lua_type(L, -2) == LUA_TUSERDATA && stringifyInternalTypes) {
+		} else if (lua_type(L, -2) == LUA_TUSERDATA && ctx.StringifyInternalTypes) {
 			int top = lua_gettop(L);
 			lua_getglobal(L, "tostring");  /* function to be called */
 			lua_pushvalue(L, -3);   /* value to print */
@@ -165,7 +236,7 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, int depth, bool stri
 	return arr;
 }
 
-Json::Value JsonStringifyObject(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata)
+Json::Value JsonStringifyObject(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::objectValue);
 	lua_pushnil(L);
@@ -173,7 +244,7 @@ Json::Value JsonStringifyObject(lua_State * L, int index, int depth, bool string
 	if (index < 0) index--;
 
 	while (lua_next(L, index) != 0) {
-		Json::Value val(JsonStringify(L, -1, depth + 1, stringifyInternalTypes, iterateUserdata));
+		Json::Value val(JsonStringify(L, -1, depth + 1, ctx));
 
 		if (lua_type(L, -2) == LUA_TSTRING) {
 			auto key = lua_tostring(L, -2);
@@ -193,7 +264,7 @@ Json::Value JsonStringifyObject(lua_State * L, int index, int depth, bool string
 	return arr;
 }
 
-Json::Value JsonStringifyArray(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata)
+Json::Value JsonStringifyArray(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::arrayValue);
 	lua_pushnil(L);
@@ -201,7 +272,7 @@ Json::Value JsonStringifyArray(lua_State * L, int index, int depth, bool stringi
 	if (index < 0) index--;
 
 	while (lua_next(L, index) != 0) {
-		arr.append(JsonStringify(L, -1, depth + 1, stringifyInternalTypes, iterateUserdata));
+		arr.append(JsonStringify(L, -1, depth + 1, ctx));
 		lua_pop(L, 1);
 	}
 
@@ -244,19 +315,31 @@ bool JsonCanStringifyAsArray(lua_State * L, int index)
 	return isArray;
 }
 
-Json::Value JsonStringifyTable(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata)
+Json::Value JsonStringifyTable(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
+	if (ctx.AvoidRecursion) {
+		auto ptr = GetPointerValue(L, index);
+		if (ptr) {
+			auto seenIt = ctx.SeenUserdata.find(ptr);
+			if (seenIt != ctx.SeenUserdata.end()) {
+				return Json::Value("*RECURSION*");
+			} else {
+				ctx.SeenUserdata.insert(ptr);
+			}
+		}
+	}
+
 	if (JsonCanStringifyAsArray(L, index)) {
-		return JsonStringifyArray(L, index, depth, stringifyInternalTypes, iterateUserdata);
+		return JsonStringifyArray(L, index, depth, ctx);
 	} else {
-		return JsonStringifyObject(L, index, depth, stringifyInternalTypes, iterateUserdata);
+		return JsonStringifyObject(L, index, depth, ctx);
 	}
 }
 
 
-Json::Value JsonStringify(lua_State * L, int index, int depth, bool stringifyInternalTypes, bool iterateUserdata)
+Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
-	if (depth > 64) {
+	if (depth > ctx.MaxDepth) {
 		throw std::runtime_error("Recursion depth exceeded while stringifying JSON");
 	}
 
@@ -282,22 +365,25 @@ Json::Value JsonStringify(lua_State * L, int index, int depth, bool stringifyInt
 		return Json::Value(lua_tostring(L, index));
 
 	case LUA_TTABLE:
-		return JsonStringifyTable(L, index, depth, stringifyInternalTypes, iterateUserdata);
+		return JsonStringifyTable(L, index, depth, ctx);
 
 	case LUA_TUSERDATA:
 	{
-		auto obj = JsonStringifyUserdata(L, index, depth, stringifyInternalTypes, iterateUserdata);
-		if (!obj.isNull()) {
-			return obj;
+		if (ctx.IterateUserdata) {
+			auto obj = JsonStringifyUserdata(L, index, depth, ctx);
+			if (!obj.isNull()) {
+				return obj;
+			}
+			// Fallthrough
+		} else {
+			// Fallthrough
 		}
 	}
-
-	// Fallthrough
 
 	case LUA_TLIGHTUSERDATA:
 	case LUA_TFUNCTION:
 	case LUA_TTHREAD:
-		if (stringifyInternalTypes) {
+		if (ctx.StringifyInternalTypes) {
 			auto val = Json::Value(luaL_tolstring(L, index, NULL));
 			lua_pop(L, 1);
 			return val;
@@ -323,30 +409,43 @@ int JsonStringify(lua_State * L)
 		return luaL_error(L, "JsonStringify expects at most three parameters.");
 	}
 
-	bool beautify{ true };
+	StringifyContext ctx;
+
 	if (nargs >= 2) {
-		beautify = lua_toboolean(L, 2) == 1;
-	}
+		// New stringify API - Json.Stringify(obj, paramTable)
+		if (lua_type(L, 2) == LUA_TTABLE) {
+			ctx.Beautify = try_gettable<bool>(L, "Beautify", 2, true);
+			ctx.StringifyInternalTypes = try_gettable<bool>(L, "StringifyInternalTypes", 2, false);
+			ctx.IterateUserdata = try_gettable<bool>(L, "IterateUserdata", 2, false);
+			ctx.AvoidRecursion = try_gettable<bool>(L, "AvoidRecursion", 2, false);
+			ctx.MaxDepth = try_gettable<uint32_t>(L, "MaxDepth", 2, 64);
 
-	bool stringifyInternalTypes{ false };
-	if (nargs >= 3) {
-		stringifyInternalTypes = lua_toboolean(L, 3) == 1;
-	}
+			if (ctx.MaxDepth > 64) {
+				ctx.MaxDepth = 64;
+			}
+		} else {
+			// Old stringify API - Json.Stringify(obj, beautify, stringifyInternalTypes, iterateUserdata)
+			ctx.Beautify = lua_toboolean(L, 2) == 1;
 
-	bool iterateUserdata{ false };
-	if (nargs >= 4) {
-		iterateUserdata = lua_toboolean(L, 4) == 1;
+			if (nargs >= 3) {
+				ctx.StringifyInternalTypes = lua_toboolean(L, 3) == 1;
+			}
+
+			if (nargs >= 4) {
+				ctx.IterateUserdata = lua_toboolean(L, 4) == 1;
+			}
+		}
 	}
 
 	Json::Value root;
 	try {
-		root = JsonStringify(L, 1, 0, stringifyInternalTypes, iterateUserdata);
+		root = JsonStringify(L, 1, 0, ctx);
 	} catch (std::runtime_error & e) {
 		return luaL_error(L, "%s", e.what());
 	}
 
 	Json::StreamWriterBuilder builder;
-	if (beautify) {
+	if (ctx.Beautify) {
 		builder["indentation"] = "\t";
 	}
 	std::stringstream ss;

@@ -341,3 +341,4 @@ publish.bat
 publish-*.bat
 package-signer.key
 LuaDebugger/DbgProtocol.cs
+ScriptExtender/Lua.bundle

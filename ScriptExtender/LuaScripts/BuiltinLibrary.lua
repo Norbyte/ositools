@@ -115,8 +115,18 @@ Ext.RegisterSkillProperty = function (name, proto)
 end
 
 -- Helper for dumping variables in console
+Ext.DumpExport = function (val)
+	local opts = {
+		Beautify = true,
+		StringifyInternalTypes = true,
+		IterateUserdata = true,
+		AvoidRecursion = true
+	}
+	return Ext.Json.Stringify(val, opts)
+end
+
 Ext.Dump = function (val)
-	Ext.Print(Ext.Json.Stringify(val, true, true, true))
+	Ext.Print(Ext.DumpExport(val))
 end
 
 -- Global helper aliases for Ext.Dump, Ext.Print

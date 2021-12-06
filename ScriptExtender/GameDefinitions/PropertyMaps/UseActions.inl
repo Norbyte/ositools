@@ -98,7 +98,7 @@ END_CLS()
 
 BEGIN_CLS(ShowStoryElementUIActionData)
 INHERIT(IActionData)
-P(Type)
+P(UIType)
 P(UIStoryInstance)
 END_CLS()
 

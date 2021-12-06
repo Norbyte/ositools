@@ -408,7 +408,6 @@ namespace dse::lua
 	TValue gettable(lua_State* L, char const* k, int index = -2)
 	{
 		push(L, k);
-		lua_getfield(L, index, k);
 		lua_rawget(L, index);
 		TValue val = do_get(L, -1, Overload<TValue>{});
 		lua_pop(L, 1);
@@ -752,5 +751,15 @@ namespace dse::lua
 	inline typename T get(lua_State* L, int index)
 	{
 		return do_get(L, index, Overload<T>{});
+	}
+
+	template <class T>
+	T try_gettable(lua_State* L, char const* k, int index, T defaultValue)
+	{
+		push(L, k);
+		lua_rawget(L, index);
+		auto val = get<std::optional<T>>(L, -1);
+		lua_pop(L, 1);
+		return val ? *val : defaultValue;
 	}
 }

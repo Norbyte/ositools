@@ -107,7 +107,7 @@ struct DisarmTrapActionData : public IActionData
 
 struct ShowStoryElementUIActionData : public IActionData
 {
-    int Type;
+    int UIType;
     STDString UIStoryInstance;
 };
 
