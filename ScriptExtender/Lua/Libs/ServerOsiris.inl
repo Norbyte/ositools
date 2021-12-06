@@ -28,7 +28,6 @@ void RegisterListener(lua_State* L, char const* name, int arity, char const* typ
 
 bool IsCallable(lua_State* L)
 {
-	StackCheck _(L, 1);
 	auto lua = State::FromLua(L);
 	return gExtender->GetServer().Osiris().IsStoryLoaded()
 		&& ((lua->RestrictionFlags & State::RestrictOsiris) == 0);
@@ -170,7 +169,7 @@ void RegisterOsirisLib(lua_State* L)
 {
 	static const luaL_Reg lib[] = {
 		{"RegisterListener", LuaWrapFunction(&RegisterListener)},
-		{"OsirisIsCallable", LuaWrapFunction(&IsCallable)},
+		{"IsCallable", LuaWrapFunction(&IsCallable)},
 		{"NewCall", LuaWrapFunction(&NewCall)},
 		{"NewQuery", LuaWrapFunction(&NewQuery)},
 		{"NewEvent", LuaWrapFunction(&NewEvent)},
