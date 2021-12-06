@@ -1198,6 +1198,10 @@ std::optional<int32_t> Character::GetStat(FixedString const& name, bool excludeB
 
 bool Character::HasTalent(TalentType talent, bool excludeBoosts)
 {
+	if (talent == TalentType::None) {
+		return false;
+	}
+
 	auto getter = GetStaticSymbols().CharStatsGetters.GetTalent;
 	if (getter) {
 		return getter(this, talent, excludeBoosts);
