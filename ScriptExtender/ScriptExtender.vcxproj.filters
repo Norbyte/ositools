@@ -349,8 +349,8 @@
     <ClInclude Include="Lua\Client\ClientUI.h">
       <Filter>Lua\Client</Filter>
     </ClInclude>
-    <ClInclude Include="GameDefinitions\UseActions.h">
-      <Filter>GameDefinitions</Filter>
+    <ClInclude Include="GameDefinitions\GameObjects\UseActions.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -705,6 +705,9 @@
     </None>
     <None Include="Lua\Libs\ServerCustomStats.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\UseActions.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

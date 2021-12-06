@@ -8,6 +8,7 @@
 #include <GameDefinitions/PropertyMaps/Surface.inl>
 #include <GameDefinitions/PropertyMaps/RootTemplates.inl>
 #include <GameDefinitions/PropertyMaps/Projectile.inl>
+#include <GameDefinitions/PropertyMaps/UseActions.inl>
 
 
 BEGIN_CLS(stats::HitDamageInfo)

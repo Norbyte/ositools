@@ -6,7 +6,7 @@
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
-#include <GameDefinitions/UseActions.h>
+#include <GameDefinitions/GameObjects/UseActions.h>
 
 namespace dse
 {
@@ -142,7 +142,7 @@ namespace dse
         OverrideableProperty<bool> NoRotate;
         OverrideableProperty<bool> IsHuge;
         OverrideableProperty<uint32_t> EquipmentClass;
-        OverrideableProperty<ObjectSet<void*>> OnDeathActions; // IActionData*
+        OverrideableProperty<ObjectSet<IActionData*>> OnDeathActions;
         OverrideableProperty<SurfaceType> BloodSurfaceType;
         OverrideableProperty<FixedString> ExplodedResourceID;
         OverrideableProperty<FixedString> ExplosionFX;
@@ -216,8 +216,8 @@ namespace dse
         OverrideableProperty<uint32_t> Tooltip;
         OverrideableProperty<FixedString> Stats;
         OverrideableProperty<ObjectSet<FixedString>> Treasures;
-        OverrideableProperty<ObjectSet<void*>> OnUsePeaceActions; // IActionData*
-        OverrideableProperty<ObjectSet<void*>> OnDestroyActions; // IActionData*
+        OverrideableProperty<ObjectSet<IActionData*>> OnUsePeaceActions;
+        OverrideableProperty<ObjectSet<IActionData*>> OnDestroyActions;
         OverrideableProperty<TranslatedString> OnUseDescription;
         OverrideableProperty<ObjectSet<void*>> Scripts; // ScriptData*
         OverrideableProperty<ObjectSet<void*>> ItemList; // eoc::InventoryItemData

@@ -45,6 +45,45 @@ LifetimeHolder GlobalLifetimeFromState(lua_State* L)
 	return State::FromLua(L)->GetGlobalLifetime();
 }
 
+#define MAKE_REF(ty) case ActionDataType::ty: ObjectProxy2::MakeRef(L, static_cast<ty##ActionData*>(obj), lifetime); return;
+
+void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, LifetimeHolder const & lifetime)
+{
+	switch (obj->Type) {
+	MAKE_REF(Teleport)
+	MAKE_REF(CreateSurface)
+	MAKE_REF(CreatePuddle)
+	MAKE_REF(Consume)
+	MAKE_REF(Door)
+	MAKE_REF(Book)
+	MAKE_REF(UseSkill)
+	MAKE_REF(SkillBook)
+	MAKE_REF(Sit)
+	MAKE_REF(Lying)
+	MAKE_REF(Identify)
+	MAKE_REF(Repair)
+	MAKE_REF(Lockpick)
+	MAKE_REF(DisarmTrap)
+	MAKE_REF(ShowStoryElementUI)
+	MAKE_REF(Craft)
+	MAKE_REF(PlaySound)
+	MAKE_REF(SpawnCharacter)
+	MAKE_REF(Constrain)
+	MAKE_REF(Recipe)
+
+	case ActionDataType::DestroyParameters:
+		ObjectProxy2::MakeRef(L, static_cast<DestroyParametersData*>(obj), lifetime);
+		return;
+
+	default:
+		ObjectProxy2::MakeRef(L, obj, lifetime);
+		return;
+	}
+}
+
+#undef MAKE_REF
+
+
 #define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
 void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
@@ -84,6 +123,7 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 }
 
 #undef MAKE_REF
+
 
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 

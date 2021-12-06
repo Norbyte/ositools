@@ -78,6 +78,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Status.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Surface.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\UseActions.h" />
     <ClInclude Include="GameDefinitions\GlobalFixedStrings.h" />
     <ClInclude Include="GameDefinitions\Misc.h" />
     <ClInclude Include="GameDefinitions\Net.h" />
@@ -89,7 +90,6 @@
     <ClInclude Include="GameDefinitions\Symbols.h" />
     <ClInclude Include="GameDefinitions\TurnManager.h" />
     <ClInclude Include="GameDefinitions\UI.h" />
-    <ClInclude Include="GameDefinitions\UseActions.h" />
     <ClInclude Include="GameHooks\DataLibraries.h" />
     <ClInclude Include="GameHooks\EngineHooks.h" />
     <ClInclude Include="GameHooks\OsirisWrappers.h" />
@@ -251,6 +251,7 @@
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
     <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
+    <None Include="GameDefinitions\PropertyMaps\UseActions.inl" />
     <None Include="GameDefinitions\StatsObject.inl" />
     <None Include="GameHooks\EngineHooks.inl" />
     <None Include="LuaScripts\BuiltinLibrary.lua" />
