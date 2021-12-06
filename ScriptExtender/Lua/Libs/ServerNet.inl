@@ -59,10 +59,10 @@ void PostMessageToUser(int userId, char const* channel, char const* payload)
 	PostMessageToUserInternal(UserId(userId), channel, payload);
 }
 
-bool PlayerHasExtender(char const* characterGuid)
+std::optional<bool> PlayerHasExtender(char const* characterGuid)
 {
 	auto character = GetEntityWorld()->GetCharacter(characterGuid);
-	if (character == nullptr || character->UserID == ReservedUserId) return false;
+	if (character == nullptr || character->UserID == ReservedUserId) return {};
 
 	// FIXME - access server from Lua context!
 	auto& networkMgr = gExtender->GetServer().GetNetworkManager();
