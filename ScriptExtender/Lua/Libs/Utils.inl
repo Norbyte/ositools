@@ -62,6 +62,7 @@ void ArgsToStream(lua_State * L, std::stringstream & ss)
 		ss << str;
 		lua_pop(L, 1);  /* pop result */
 	}
+	lua_pop(L, 1); // pop tostring
 }
 
 int GetExtensionVersion()
