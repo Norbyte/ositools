@@ -66,31 +66,10 @@ namespace dse
 	extern LegacyPropertyMap<eoc::PlayerCustomData, void> gPlayerCustomDataPropertyMap;
 	extern LegacyPropertyMap<esv::Character, void> gCharacterPropertyMap;
 	extern LegacyPropertyMap<esv::Item, void> gItemPropertyMap;
-	extern LegacyPropertyMap<esv::Projectile, void> gProjectilePropertyMap;
-	extern LegacyPropertyMap<esv::Surface, void> gEsvSurfacePropertyMap;
-	extern LegacyPropertyMap<Trigger, void> gTriggerPropertyMap;
-	extern LegacyPropertyMap<SoundVolumeTriggerData, void> gSoundVolumeTriggerDataPropertyMap;
-
-	extern LegacyPropertyMap<esv::SurfaceAction, void> gEsvSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::TransformSurfaceAction, esv::SurfaceAction> gEsvTransformSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::CreateSurfaceActionBase, esv::SurfaceAction> gEsvCreateSurfaceActionBasePropertyMap;
-	extern LegacyPropertyMap<esv::CreateSurfaceAction, esv::CreateSurfaceActionBase> gEsvCreateSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::ChangeSurfaceOnPathAction, esv::CreateSurfaceActionBase> gEsvChangeSurfaceOnPathActionPropertyMap;
-	extern LegacyPropertyMap<esv::CreatePuddleAction, esv::CreateSurfaceActionBase> gEsvCreatePuddleActionPropertyMap;
-	extern LegacyPropertyMap<esv::ExtinguishFireAction, esv::CreateSurfaceActionBase> gEsvExtinguishFireActionPropertyMap;
-	extern LegacyPropertyMap<esv::RectangleSurfaceAction, esv::CreateSurfaceActionBase> gEsvRectangleSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::PolygonSurfaceAction, esv::CreateSurfaceActionBase> gEsvPolygonSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::SwapSurfaceAction, esv::CreateSurfaceActionBase> gEsvSwapSurfaceActionPropertyMap;
-	extern LegacyPropertyMap<esv::ZoneAction, esv::CreateSurfaceActionBase> gEsvZoneActionPropertyMap;
-
 
 	extern LegacyPropertyMap<esv::ASAttack, void> gASAttackPropertyMap;
 	extern LegacyPropertyMap<esv::ASPrepareSkill, void> gASPrepareSkillPropertyMap;
 	extern LegacyPropertyMap<esv::SkillState, void> gSkillStatePropertyMap;
-
-	extern LegacyPropertyMap<ecl::Character, void> gEclCharacterPropertyMap;
-	extern LegacyPropertyMap<ecl::Item, void> gEclItemPropertyMap;
-	extern LegacyPropertyMap<ecl::Status, void> gEclStatusPropertyMap;
 
 	extern LegacyPropertyMap<GameObjectTemplate, void> gGameObjectTemplatePropertyMap;
 	extern LegacyPropertyMap<EoCGameObjectTemplate, GameObjectTemplate> gEoCGameObjectTemplatePropertyMap;
