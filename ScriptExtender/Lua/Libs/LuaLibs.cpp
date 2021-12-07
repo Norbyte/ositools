@@ -26,6 +26,7 @@
 #include <Lua/Libs/ServerCustomStats.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
+#include <Lua/Libs/AI.inl>
 
 BEGIN_NS(lua)
 

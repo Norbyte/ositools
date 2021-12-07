@@ -19,10 +19,10 @@ namespace dse
 			FixedString FS1;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
 			FixedString RootTemplate;
-			uint32_t Unkn1{ 6 };
+			uint32_t RootTemplateType{ 6 };
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7"
 			FixedString OriginalRootTemplate;
-			uint32_t Unkn21{ 6 };
+			uint32_t OriginalRootTemplateType{ 6 };
 			uint32_t Unkn22[3]{ 0 };
 			glm::mat3x3 WorldRot;
 			float Scale_M{ 1.0 };
@@ -47,7 +47,7 @@ namespace dse
 			FixedString GenerationItemType;
 			uint32_t GenerationRandom{ 0 };
 			uint16_t GenerationLevel{ 1 };
-			ObjectSet<FixedString> GenerationBoosts;
+			ObjectSet<FixedString> GenerationBoostSet;
 			int8_t LevelGroupIndex{ -1 };
 			int16_t RootGroupIndex{ -1 };
 			int8_t NameIndex{ -1 };
@@ -64,8 +64,8 @@ namespace dse
 			bool HasModifiedSkills{ false };
 			FixedString Skills;
 			ObjectSet<FixedString> FSSet2;
-			ObjectSet<FixedString> RuneBoosts;
-			ObjectSet<FixedString> DeltaMods;
+			ObjectSet<FixedString> RuneBoostSet;
+			ObjectSet<FixedString> DeltaModSet;
 			ObjectSet<FixedString> FSSet5;
 			uint8_t Flags0[2]{ 0 };
 			bool HasGeneratedStats{ false };
@@ -78,6 +78,8 @@ namespace dse
 			uint8_t Flags2{ 0 };
 			bool CanUseRemotely{ false };
 			uint64_t Unknown2[2]{ 0 };
+
+			void ResetProgression();
 		};
 	}
 

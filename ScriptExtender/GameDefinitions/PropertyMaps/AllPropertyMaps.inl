@@ -133,11 +133,54 @@ P_RO(StatusClearChance)
 P_RO(CharacterHasSkill)
 END_CLS()
 
-// FIXME - placeholders
 BEGIN_CLS(eoc::AiGrid)
+P_FUN(SearchForCell, SearchForCell)
+P_FUN(GetCellInfo, GetCellInfo)
+P_FUN(GetHeight, GetHeight)
+P_FUN(SetHeight, SetHeight)
+P_FUN(GetAiFlags, GetAiFlags)
+P_FUN(SetAiFlags, SetAiFlags)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("OffsetX",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, ai->DataGrid.OffsetX);
+		return true;
+	}
+);
+pm.AddProperty("OffsetY",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, ai->DataGrid.OffsetY);
+		return true;
+	}
+);
+pm.AddProperty("OffsetZ",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, ai->DataGrid.OffsetZ);
+		return true;
+	}
+);
+pm.AddProperty("GridScale",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, ai->DataGrid.GridScale);
+		return true;
+	}
+);
+pm.AddProperty("Width",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, (double)ai->DataGrid.Width * ai->DataGrid.GridScale);
+		return true;
+	}
+);
+pm.AddProperty("Height",
+	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+		push(L, (double)ai->DataGrid.Height * ai->DataGrid.GridScale);
+		return true;
+	}
+);
+#endif
 END_CLS()
 
-// FIXME - placeholders
 BEGIN_CLS(UIObject)
 P_RO(Flags)
 P_RO(Path)
@@ -197,6 +240,7 @@ P_FUN(SetCustomIcon, SetCustomIcon)
 P_FUN(ClearCustomIcon, ClearCustomIcon)
 END_CLS()
 
+// FIXME - placeholders
 BEGIN_CLS(Transform)
 // TODO - P(Matrix)
 // TODO - P(Rotate) -- no 3x3 mat serialization support yet!
@@ -204,7 +248,6 @@ P(Translate)
 P(Scale)
 END_CLS()
 
-// FIXME - placeholders
 BEGIN_CLS(stats::DamagePairList)
 P_FUN(GetByType, GetByType)
 P_FUN(Add, AddDamage)

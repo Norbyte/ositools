@@ -435,11 +435,11 @@ namespace dse::esv
 
 			auto & defn = (*clone)[0];
 			if (strcmp(boostType, "Generation") == 0) {
-				defn.GenerationBoosts.Add(boostName);
+				defn.GenerationBoostSet.Add(boostName);
 			} else if (strcmp(boostType, "DeltaMod") == 0) {
-				defn.DeltaMods.Add(boostName);
+				defn.DeltaModSet.Add(boostName);
 			} else if (strcmp(boostType, "Rune") == 0) {
-				for (auto& boost : defn.RuneBoosts) {
+				for (auto& boost : defn.RuneBoostSet) {
 					if (!boost) {
 						boost = boostName;
 						return;

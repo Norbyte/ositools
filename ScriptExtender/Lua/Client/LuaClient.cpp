@@ -59,76 +59,6 @@ void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
 	}
 }
 
-char const* const ObjectProxy<ecl::Status>::MetatableName = "ecl::Status";
-
-
-LegacyPropertyMapBase& ClientStatusToPropertyMap(ecl::Status* status)
-{
-	// TODO - add property maps for statuses
-	return gEclStatusPropertyMap;
-}
-
-ecl::Status* ObjectProxy<ecl::Status>::GetPtr(lua_State* L)
-{
-	if (obj_ == nullptr) luaL_error(L, "Status object no longer available");
-	return obj_;
-}
-
-int ObjectProxy<ecl::Status>::Index(lua_State* L)
-{
-	if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
-
-	StackCheck _(L, 1);
-	auto prop = luaL_checkstring(L, 2);
-
-	if (strcmp(prop, "StatusType") == 0) {
-		push(L, obj_->GetStatusId());
-		return 1;
-	}
-
-	auto& propertyMap = ClientStatusToPropertyMap(obj_);
-	auto fetched = LuaPropertyMapGet(L, propertyMap, obj_, prop, true);
-	if (!fetched) push(L, nullptr);
-	return 1;
-}
-
-int ObjectProxy<ecl::Status>::NewIndex(lua_State* L)
-{
-	if (obj_ == nullptr) return luaL_error(L, "Status object no longer available");
-
-	StackCheck _(L, 0);
-	auto& propertyMap = ClientStatusToPropertyMap(obj_);
-	return GenericSetter(L, propertyMap);
-}
-
-char const* const ObjectProxy<ecl::PlayerCustomData>::MetatableName = "ecl::PlayerCustomData";
-
-ecl::PlayerCustomData* ObjectProxy<ecl::PlayerCustomData>::GetPtr(lua_State* L)
-{
-	if (obj_) return obj_;
-	auto character = ecl::GetEntityWorld()->GetCharacter(handle_);
-	if (character == nullptr) luaL_error(L, "Character handle invalid");
-
-	if (character->PlayerData == nullptr
-		// Always false on the client for some reason
-		/*|| !character->PlayerData->CustomData.Initialized*/) {
-		OsiError("Character has no player data, or custom data was not initialized.");
-		return nullptr;
-	}
-
-	return &character->PlayerData->CustomData;
-}
-
-int ObjectProxy<ecl::PlayerCustomData>::Index(lua_State* L)
-{
-	return GenericGetter(L, gPlayerCustomDataPropertyMap);
-}
-
-int ObjectProxy<ecl::PlayerCustomData>::NewIndex(lua_State* L)
-{
-	return GenericSetter(L, gPlayerCustomDataPropertyMap);
-}
-
 END_NS()
 
 BEGIN_NS(ecl::lua)
@@ -150,9 +80,6 @@ LifetimePool& GetClientLifetimePool()
 void ExtensionLibraryClient::Register(lua_State * L)
 {
 	ExtensionLibrary::Register(L);
-	StatusHandleProxy::RegisterMetatable(L);
-	ObjectProxy<Status>::RegisterMetatable(L);
-	ObjectProxy<PlayerCustomData>::RegisterMetatable(L);
 	UIFlashObject::RegisterMetatable(L);
 	UIFlashArray::RegisterMetatable(L);
 	UIFlashFunction::RegisterMetatable(L);
@@ -277,31 +204,13 @@ int GetStatus(lua_State* L)
 	if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
 		auto statusHandle = get<ComponentHandle>(L, 2);
 		status = character->GetStatus(statusHandle);
-
-		if (status != nullptr) {
-			ComponentHandle characterHandle;
-			character->GetObjectHandle(characterHandle);
-			StatusHandleProxy::New(L, characterHandle, statusHandle);
-			return 1;
-		}
-
-		OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
 	} else {
 		auto index = lua_tointeger(L, 2);
 		NetId statusNetId{ (uint32_t)index };
 		status = character->GetStatus(statusNetId);
-
-		if (status != nullptr) {
-			ComponentHandle characterHandle;
-			character->GetObjectHandle(characterHandle);
-			StatusHandleProxy::New(L, characterHandle, statusNetId);
-			return 1;
-		}
-
-		OsiError("Character has no status with NetId 0x" << std::hex << index);
 	}
 
-	push(L, nullptr);
+	MakeObjectRef(L, status);
 	return 1;
 }
 
@@ -365,6 +274,7 @@ int GetGameObject(lua_State* L)
 	}
 }
 
+// FIXME - move to Level->AiGrid!
 int GetAiGrid(lua_State* L)
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -373,55 +283,10 @@ int GetAiGrid(lua_State* L)
 		return 0;
 	}
 
-	ObjectProxy<eoc::AiGrid>::New(L, GetClientLifetime(), level->AiGrid);
+	MakeObjectRef(L, level->AiGrid);
 	return 1;
 }
 
-char const* const StatusHandleProxy::MetatableName = "ecl::HStatus";
-
-ecl::Status* StatusHandleProxy::Get(lua_State* L)
-{
-	auto character = GetEntityWorld()->GetCharacter(character_);
-	if (character == nullptr) {
-		luaL_error(L, "Character handle invalid");
-		return nullptr;
-	}
-
-	ecl::Status* status;
-	if (statusHandle_) {
-		status = character->GetStatus(statusHandle_);
-	} else {
-		status = character->GetStatus(statusNetId_);
-	}
-
-	if (status == nullptr) luaL_error(L, "Status handle invalid");
-
-	return status;
-}
-
-int StatusHandleProxy::Index(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto status = Get(L);
-
-	auto prop = luaL_checkstring(L, 2);
-	auto& propertyMap = ClientStatusToPropertyMap(status);
-	auto fetched = LuaPropertyMapGet(L, propertyMap, status, prop, true);
-	if (!fetched) push(L, nullptr);
-	return 1;
-}
-
-int StatusHandleProxy::NewIndex(lua_State* L)
-{
-	StackCheck _(L, 0);
-	auto status = Get(L);
-	if (!status) return 0;
-
-	auto prop = luaL_checkstring(L, 2);
-	auto& propertyMap = ClientStatusToPropertyMap(status);
-	LuaPropertyMapSet(L, 3, propertyMap, status, prop, true);
-	return 0;
-}
 
 int GetGameState(lua_State* L)
 {

@@ -84,6 +84,31 @@ void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, Lifeti
 #undef MAKE_REF
 
 
+#define MAKE_REF(ty) case SurfaceActionType::ty: ObjectProxy2::MakeRef(L, static_cast<esv::ty*>(obj), lifetime); return;
+
+void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceAction* obj, LifetimeHolder const& lifetime)
+{
+	switch (obj->VMT->GetTypeId(obj)) {
+	MAKE_REF(CreateSurfaceAction)
+	MAKE_REF(CreatePuddleAction)
+	MAKE_REF(ExtinguishFireAction)
+	MAKE_REF(ZoneAction)
+	MAKE_REF(TransformSurfaceAction)
+	MAKE_REF(ChangeSurfaceOnPathAction)
+	MAKE_REF(RectangleSurfaceAction)
+	MAKE_REF(PolygonSurfaceAction)
+	MAKE_REF(SwapSurfaceAction)
+
+	default:
+		OsiError("No property map found for this surface type!");
+		ObjectProxy2::MakeRef(L, obj, lifetime);
+		return;
+	}
+}
+
+#undef MAKE_REF
+
+
 #define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
 void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
@@ -342,351 +367,17 @@ namespace dse::esv::lua
 #include <Lua/Server/ServerCharacter.inl>
 #include <Lua/Server/ServerItem.inl>
 
-namespace dse::lua
+BEGIN_NS(eoc)
+
+void ItemDefinition::ResetProgression()
 {
-	using namespace dse::esv::lua;
-
-	char const* const ObjectProxy<esv::Trigger>::MetatableName = "esv::Trigger";
-
-	esv::Trigger* ObjectProxy<esv::Trigger>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		auto trigger = esv::GetEntityWorld()->GetTrigger(handle_);
-		if (trigger == nullptr) luaL_error(L, "Trigger handle invalid");
-		return static_cast<esv::Trigger*>(trigger);
-	}
-
-	int ObjectProxy<esv::Trigger>::Index(lua_State* L)
-	{
-		auto obj = Get(L);
-		if (obj == nullptr) return luaL_error(L, "Trigger object no longer available");
-
-		StackCheck _(L, 1);
-		auto prop = get<FixedString>(L, 2);
-
-		// FIXME - re-add when migrated to new proxy
-		/*if (prop == GFS.strHandle) {
-			ComponentHandle handle;
-			obj->GetObjectHandle(handle);
-			push(L, handle);
-			return 1;
-		}
-
-		if (prop == GFS.strUUID) {
-			push(L, *obj->GetGuid());
-			return 1;
-		}*/
-
-		if (prop == GFS.strTriggerData) {
-			auto atm = reinterpret_cast<esv::AtmosphereTrigger*>(obj);
-			if (!obj->Template || !obj->Template->TriggerTypeData) {
-				push(L, nullptr);
-			} else if (obj->TriggerType == GFS.strTriggerAtmosphere) {
-				auto triggerData = static_cast<AtmosphereTriggerData*>(obj->Template->TriggerTypeData);
-				ObjectProxy<AtmosphereTriggerData>::New(L, GetServerLifetime(), triggerData);
-			} else {
-				LuaError("TriggerData for trigger type '" << obj->TriggerType << "' not supported yet!");
-				push(L, nullptr);
-			}
-
-			return 1;
-		}
-
-		return GenericGetter(L, gTriggerPropertyMap);
-	}
-
-	int ObjectProxy<esv::Trigger>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gTriggerPropertyMap);
-	}
-
-
-	char const* const ObjectProxy<AtmosphereTriggerData>::MetatableName = "ls::AtmosphereTriggerData";
-
-	AtmosphereTriggerData* ObjectProxy<AtmosphereTriggerData>::GetPtr(lua_State* L)
-	{
-		if (obj_ == nullptr) luaL_error(L, "AtmosphereTriggerData object no longer available");
-		return obj_;
-	}
-
-	int ObjectProxy<AtmosphereTriggerData>::Index(lua_State* L)
-	{
-		if (obj_ == nullptr) return luaL_error(L, "AtmosphereTriggerData object no longer available");
-
-		StackCheck _(L, 1);
-		auto prop = get<FixedString>(L, 2);
-
-		if (prop == GFS.strAtmospheres) {
-			return LuaWrite(L, obj_->Atmospheres);
-		} else if (prop == GFS.strFadeTime) {
-			return LuaWrite(L, obj_->FadeTime);
-		} else {
-			push(L, nullptr);
-			return 1;
-		}
-	}
-
-	int ObjectProxy<AtmosphereTriggerData>::NewIndex(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto prop = get<FixedString>(L, 2);
-
-		if (prop == GFS.strAtmospheres) {
-			lua_pushvalue(L, 3);
-			LuaRead(L, obj_->Atmospheres);
-			lua_pop(L, 1);
-		} else if (prop == GFS.strFadeTime) {
-			lua_pushvalue(L, 3);
-			LuaRead(L, obj_->FadeTime);
-			lua_pop(L, 1);
-		} else {
-			LuaError("Unsupported atmosphere property: " << prop);
-		}
-
-		return 0;
-	}
-
-
-	char const* const ObjectProxy<SoundVolumeTriggerData>::MetatableName = "esv::SoundVolumeTriggerData";
-
-	SoundVolumeTriggerData* ObjectProxy<SoundVolumeTriggerData>::GetPtr(lua_State* L)
-	{
-		if (obj_ == nullptr) luaL_error(L, "SoundVolumeTriggerData object no longer available");
-		return obj_;
-	}
-
-	int ObjectProxy<SoundVolumeTriggerData>::Index(lua_State* L)
-	{
-		if (obj_ == nullptr) return luaL_error(L, "SoundVolumeTriggerData object no longer available");
-
-		return GenericGetter(L, gSoundVolumeTriggerDataPropertyMap);
-	}
-
-	int ObjectProxy<SoundVolumeTriggerData>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gSoundVolumeTriggerDataPropertyMap);
-	}
-
-
-	char const* const ObjectProxy<eoc::ItemDefinition>::MetatableName = "eoc::ItemDefinition";
-
-	eoc::ItemDefinition* ObjectProxy<eoc::ItemDefinition>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		luaL_error(L, "ItemDefinition object has expired!");
-		return nullptr;
-	}
-
-	int ItemDefinitionResetProgression(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto self = ObjectProxy<eoc::ItemDefinition>::CheckedGet(L, 2);
-		self->LevelGroupIndex = -1;
-		self->RootGroupIndex = -1;
-		self->NameIndex = -1;
-		self->NameCool = 0;
-		return 0;
-	}
-
-	int ObjectProxy<eoc::ItemDefinition>::Index(lua_State* L)
-	{
-		StackCheck _(L, 1);
-		auto prop = get<FixedString>(L, 2);
-		if (prop == GFS.strResetProgression) {
-			lua_pushcfunction(L, &ItemDefinitionResetProgression);
-			return 1;
-		}
-
-		if (prop == GFS.strGenerationBoosts) {
-			LuaWrite(L, Get(L)->GenerationBoosts);
-			return 1;
-		}
-
-		if (prop == GFS.strRuneBoosts) {
-			LuaWrite(L, Get(L)->RuneBoosts);
-			return 1;
-		}
-
-		if (prop == GFS.strDeltaMods) {
-			LuaWrite(L, Get(L)->DeltaMods);
-			return 1;
-		}
-
-		return GenericGetter(L, gEoCItemDefinitionPropertyMap);
-	}
-
-	int ObjectProxy<eoc::ItemDefinition>::NewIndex(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto prop = get<FixedString>(L, 2);
-		if (prop == GFS.strGenerationBoosts) {
-			lua_pushvalue(L, 3);
-			LuaRead(L, Get(L)->GenerationBoosts);
-			lua_pop(L, 1);
-			return 0;
-		}
-
-		if (prop == GFS.strRuneBoosts) {
-			lua_pushvalue(L, 3);
-			LuaRead(L, Get(L)->RuneBoosts);
-			lua_pop(L, 1);
-			return 0;
-		}
-
-		if (prop == GFS.strDeltaMods) {
-			lua_pushvalue(L, 3);
-			LuaRead(L, Get(L)->DeltaMods);
-			lua_pop(L, 1);
-			return 0;
-		}
-
-		return GenericSetter(L, gEoCItemDefinitionPropertyMap);
-	}
-
-
-	char const* const ObjectProxy<esv::Surface>::MetatableName = "esv::Surface";
-
-	esv::Surface* ObjectProxy<esv::Surface>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-
-		auto level = GetStaticSymbols().GetCurrentServerLevel();
-		if (level) {
-			auto surface = level->SurfaceManager->Get(handle_);
-			if (surface == nullptr) luaL_error(L, "Surface handle invalid");
-			// FIXME - TEMP CAST
-			return (esv::Surface*)surface;
-		} else {
-			return nullptr;
-		}
-	}
-
-	int ObjectProxy<esv::Surface>::Index(lua_State* L)
-	{
-		auto surface = Get(L);
-		auto prop = get<char const*>(L, 2);
-
-		if (strcmp(prop, "RootTemplate") == 0) {
-			auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surface->SurfaceType);
-			MakeObjectRef(L, tmpl);
-			return 1;
-		}
-
-		return GenericGetter(L, gEsvSurfacePropertyMap);
-	}
-
-	int ObjectProxy<esv::Surface>::NewIndex(lua_State* L)
-	{
-		return GenericSetter(L, gEsvSurfacePropertyMap);
-	}
-
-
-	char const* const ObjectProxy<esv::SurfaceAction>::MetatableName = "esv::SurfaceAction";
-
-	esv::SurfaceAction* ObjectProxy<esv::SurfaceAction>::GetPtr(lua_State* L)
-	{
-		if (obj_) return obj_;
-		luaL_error(L, "SurfaceAction object not bound (maybe it was executed already?)");
-		return nullptr;
-	}
-
-	LegacyPropertyMapBase& GetSurfaceActionPropertyMap(esv::SurfaceAction* action)
-	{
-		switch (action->VMT->GetTypeId(action)) {
-		case SurfaceActionType::CreateSurfaceAction:
-			return gEsvCreateSurfaceActionPropertyMap;
-		case SurfaceActionType::CreatePuddleAction:
-			return gEsvCreatePuddleActionPropertyMap;
-		case SurfaceActionType::ExtinguishFireAction:
-			return gEsvExtinguishFireActionPropertyMap;
-		case SurfaceActionType::ZoneAction:
-			return gEsvZoneActionPropertyMap;
-		case SurfaceActionType::TransformSurfaceAction:
-			return gEsvTransformSurfaceActionPropertyMap;
-		case SurfaceActionType::ChangeSurfaceOnPathAction:
-			return gEsvChangeSurfaceOnPathActionPropertyMap;
-		case SurfaceActionType::RectangleSurfaceAction:
-			return gEsvRectangleSurfaceActionPropertyMap;
-		case SurfaceActionType::PolygonSurfaceAction:
-			return gEsvPolygonSurfaceActionPropertyMap;
-		case SurfaceActionType::SwapSurfaceAction:
-			return gEsvSwapSurfaceActionPropertyMap;
-		default:
-			OsiError("No property map found for this surface type!");
-			return gEsvSurfaceActionPropertyMap;
-		}
-	}
-
-	int ObjectProxy<esv::SurfaceAction>::Index(lua_State* L)
-	{
-		auto action = Get(L);
-		if (!action) return 0;
-
-		return GenericGetter(L, GetSurfaceActionPropertyMap(action));
-	}
-
-	int ObjectProxy<esv::SurfaceAction>::NewIndex(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto action = Get(L);
-
-		auto prop = luaL_checkstring(L, 2);
-
-		if (strcmp(prop, "DamageList") == 0) {
-			// FIXME
-			luaL_error(L, "DamageList not supported yet!");
-			/*
-			auto& damageList = DamageList::CheckUserData(L, 3)->Get();
-			switch (action->VMT->GetTypeId(action)) {
-			case SurfaceActionType::RectangleSurfaceAction:
-			{
-				auto act = static_cast<esv::RectangleSurfaceAction*>(action);
-				act->DamageList.CopyFrom(damageList);
-				break;
-			}
-
-			case SurfaceActionType::PolygonSurfaceAction:
-			{
-				auto act = static_cast<esv::PolygonSurfaceAction*>(action);
-				act->DamageList.CopyFrom(damageList);
-				break;
-			}
-
-			case SurfaceActionType::ZoneAction:
-			{
-				auto act = static_cast<esv::ZoneAction*>(action);
-				act->DamageList.CopyFrom(damageList);
-				break;
-			}
-
-			default:
-				OsiError("This surface action type doesn't have a DamageList!");
-			}
-			*/
-
-			return 0;
-		}
-
-		if (strcmp(prop, "Vertices") == 0) {
-			if (action->VMT->GetTypeId(action) == SurfaceActionType::PolygonSurfaceAction) {
-				auto act = static_cast<esv::PolygonSurfaceAction*>(action);
-				act->PolygonVertices.Clear();
-				luaL_checktype(L, 3, LUA_TTABLE);
-				for (auto idx : iterate(L, 3)) {
-					auto vec2 = get<glm::vec2>(L, idx);
-					act->PolygonVertices.Add(vec2);
-				}
-			} else {
-				OsiError("Vertices only supported for surface action type PolygonSurfaceAction!");
-			}
-
-			return 0;
-		}
-
-		auto const& propertyMap = GetSurfaceActionPropertyMap(action);
-		return GenericSetter(L, propertyMap);
-	}
+	LevelGroupIndex = -1;
+	RootGroupIndex = -1;
+	NameIndex = -1;
+	NameCool = 0;
 }
+
+END_NS()
 
 namespace dse::esv::lua
 {
@@ -933,7 +624,7 @@ namespace dse::esv::lua
 				return luaL_error(L, "Clone set only has %d elements", definition_.Size);
 			}
 
-			ObjectProxy<eoc::ItemDefinition>::New(L, GetServerLifetime(), &definition_[idx - 1]);
+			MakeObjectRef(L, &definition_[idx - 1]);
 			return 1;
 		}
 	}
@@ -942,13 +633,6 @@ namespace dse::esv::lua
 	void ExtensionLibraryServer::Register(lua_State * L)
 	{
 		ExtensionLibrary::Register(L);
-
-		ObjectProxy<eoc::ItemDefinition>::RegisterMetatable(L);
-		ObjectProxy<esv::Trigger>::RegisterMetatable(L);
-		ObjectProxy<AtmosphereTriggerData>::RegisterMetatable(L);
-		ObjectProxy<SoundVolumeTriggerData>::RegisterMetatable(L);
-		ObjectProxy<esv::Surface>::RegisterMetatable(L);
-		ObjectProxy<esv::SurfaceAction>::RegisterMetatable(L);
 
 		OsiFunctionNameProxy::RegisterMetatable(L);
 		TurnManagerCombatProxy::RegisterMetatable(L);
@@ -1103,9 +787,7 @@ namespace dse::esv::lua
 
 		if (trigger != nullptr) {
 			// FIXME - re-add when migrated to new proxy
-			/*ComponentHandle handle;
-			trigger->GetObjectHandle(handle);
-			ObjectProxy<Trigger>::New(L, handle);*/
+			/*MakeObjectRef(L, trigger);*/
 			push(L, nullptr);
 		} else {
 			push(L, nullptr);
@@ -1319,14 +1001,11 @@ namespace dse::esv::lua
 		}
 
 		auto surface = level->SurfaceManager->Get(handle);
-		if (surface != nullptr) {
-			ObjectProxy<esv::Surface>::New(L, handle);
-			return 1;
-		} else {
-			return 0;
-		}
+		MakeObjectRef(L, surface);
+		return 1;
 	}
 
+	// FIXME - move to Level->AiGrid!
 	int GetAiGrid(lua_State* L)
 	{
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
@@ -1335,7 +1014,7 @@ namespace dse::esv::lua
 			return 0;
 		}
 
-		ObjectProxy<eoc::AiGrid>::New(L, GetServerLifetime(), level->AiGrid);
+		MakeObjectRef(L, level->AiGrid);
 		return 1;
 	}
 

@@ -265,6 +265,7 @@
     <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Client\ClientItem.inl" />
     <None Include="Lua\Debugger\LuaDebug.proto" />
+    <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
     <None Include="Lua\Libs\ClientNet.inl" />
     <None Include="Lua\Libs\ClientUI.inl" />

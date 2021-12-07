@@ -1,11 +1,19 @@
 BEGIN_CLS(eoc::ItemDefinition)
+P_RO(Version)
+P_RO(NetID)
+P_RO(ItemNetId)
 P(RootTemplate)
+P_RO(RootTemplateType)
 P(OriginalRootTemplate)
+P_RO(OriginalRootTemplateType)
+P_RO(InventoryNetID)
+P_RO(InventorySubContainerNetID)
 P(Slot)
 P(Amount)
 P(GoldValueOverwrite)
 P(WeightValueOverwrite)
 P(DamageTypeOverwrite)
+P(SomeOverwrite)
 P(ItemType)
 P(CustomDisplayName)
 P(CustomDescription)
@@ -14,6 +22,11 @@ P(GenerationStatsId)
 P(GenerationItemType)
 P(GenerationRandom)
 P(GenerationLevel)
+P_REF(GenerationBoostSet)
+P_RO(LevelGroupIndex)
+P_RO(RootGroupIndex)
+P_RO(NameIndex)
+P_RO(NameCool)
 P(StatsLevel)
 P(Key)
 P(LockLevel)
@@ -21,10 +34,33 @@ P(StatsEntryName)
 P(EquipmentStatsType)
 P(HasModifiedSkills)
 P(Skills)
+P_REF(RuneBoostSet)
+P_REF(DeltaModSet)
 P(HasGeneratedStats)
 P(IsIdentified)
 P(GMFolding)
 P(CanUseRemotely)
+
+P_FUN(ResetProgression, ResetProgression)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddRawProperty("GenerationBoosts",
+	&(GenericGetOffsetProperty<decltype(PM::ObjectType::GenerationBoostSet)>),
+	&(GenericSetOffsetProperty<decltype(PM::ObjectType::GenerationBoostSet)>),
+	offsetof(PM::ObjectType, GenerationBoostSet)
+);
+pm.AddRawProperty("RuneBoosts",
+	&(GenericGetOffsetProperty<decltype(PM::ObjectType::RuneBoostSet)>),
+	&(GenericSetOffsetProperty<decltype(PM::ObjectType::RuneBoostSet)>),
+	offsetof(PM::ObjectType, RuneBoostSet)
+);
+pm.AddRawProperty("DeltaMods",
+	&(GenericGetOffsetProperty<decltype(PM::ObjectType::DeltaModSet)>),
+	&(GenericSetOffsetProperty<decltype(PM::ObjectType::DeltaModSet)>),
+	offsetof(PM::ObjectType, DeltaModSet)
+);
+#endif
+
 END_CLS()
 
 BEGIN_CLS(esv::ItemGeneration)

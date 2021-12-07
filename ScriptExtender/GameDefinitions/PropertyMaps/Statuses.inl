@@ -464,4 +464,13 @@ P_RO(CurrentLifeTime)
 P_RO(StatsMultiplier)
 P_RO(Flags)
 P_RO(StatusSourceHandle)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("StatusType",
+	[](lua_State* L, LifetimeHolder const& lifetime, ecl::Status* status, std::size_t offset, uint64_t flag) {
+		push(L, status->GetStatusId());
+		return true;
+	}
+);
+#endif
 END_CLS()

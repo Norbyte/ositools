@@ -11,6 +11,15 @@ P(StatusChance)
 P_RO(Index)
 P_RO(NeedsSplitEvaluation)
 P_RO(OwnershipTimer)
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("RootTemplate",
+	[](lua_State* L, LifetimeHolder const& lifetime, esv::Surface* obj, std::size_t offset, uint64_t flag) {
+		MakeObjectRef(L, GetStaticSymbols().GetSurfaceTemplate(obj->SurfaceType));
+		return true;
+	}
+);
+#endif
 END_CLS()
 
 BEGIN_CLS(esv::SurfaceAction)

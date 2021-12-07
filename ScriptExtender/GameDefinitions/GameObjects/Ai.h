@@ -259,6 +259,13 @@ namespace dse::eoc
 
         int16_t GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const;
         eoc::AiMetaData* GetAiMetaData(AiGridTile* tile) const;
+
+        bool SearchForCell(float x, float z, float radius, ESurfaceFlag flags, float bias);
+        UserReturn GetCellInfo(lua_State* L, float x, float z);
+        std::optional<float> GetHeight(float x, float z);
+        void SetHeight(float x, float z, float height);
+        std::optional<uint64_t> GetAiFlags(float x, float z);
+        void SetAiFlags(float x, float z, uint64_t aiFlags);
     };
 
     struct ShroudObject
