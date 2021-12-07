@@ -90,3 +90,9 @@ Ext.CreateCustomStat = CallDeprecated(Ext.CustomStat.Create, "CreateCustomStat",
 Ext.GetCustomStatById = CallDeprecated(Ext.CustomStat.GetById, "GetCustomStatById", "CustomStat.GetById")
 Ext.GetCustomStatByName = CallDeprecated(Ext.CustomStat.GetByName, "GetCustomStatByName", "CustomStat.GetByName")
 Ext.GetAllCustomStats = CallDeprecated(Ext.CustomStat.GetAll, "GetAllCustomStats", "CustomStat.GetAll")
+
+-- Backwards compatibility with old surface APIs
+Ext.CreateSurfaceAction = CallDeprecated(Ext.Surface.Action.Create, "CreateSurfaceAction", "Surface.Action.Create")
+Ext.ExecuteSurfaceAction = CallDeprecated(Ext.Surface.Action.Execute, "ExecuteSurfaceAction", "Surface.Action.Execute")
+Ext.CancelSurfaceAction = CallDeprecated(Ext.Surface.Action.Cancel, "CancelSurfaceAction", "Surface.Action.Cancel")
+

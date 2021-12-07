@@ -16,7 +16,8 @@
 
 BEGIN_NS(lua)
 
-using namespace dse::ecl::lua;
+void AddVoiceMetaData(lua_State* L, char const* speakerGuid, char const* translatedStringKey, char const* source,
+	float length, std::optional<int> priority);
 
 template <>
 ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
@@ -376,27 +377,6 @@ int GetAiGrid(lua_State* L)
 	return 1;
 }
 
-bool OsirisIsCallableClient(lua_State* L)
-{
-	return false;
-}
-
-
-void PostMessageToServer(lua_State * L, char const* channel, char const* payload)
-{
-	// FIXME - should be done from Lua state ext!
-	auto & networkMgr = gExtender->GetClient().GetNetworkManager();
-	auto msg = networkMgr.GetFreeMessage();
-	if (msg != nullptr) {
-		auto postMsg = msg->GetMessage().mutable_post_lua();
-		postMsg->set_channel_name(channel);
-		postMsg->set_payload(payload);
-		networkMgr.Send(msg);
-	} else {
-		OsiErrorS("Could not get free message!");
-	}
-}
-
 char const* const StatusHandleProxy::MetatableName = "ecl::HStatus";
 
 ecl::Status* StatusHandleProxy::Get(lua_State* L)
@@ -533,10 +513,6 @@ int UpdateShroud(lua_State* L)
 	return 0; 
 }
 
-
-WrapLuaFunction(OsirisIsCallableClient)
-WrapLuaFunction(PostMessageToServer)
-
 void ExtensionLibraryClient::RegisterLib(lua_State * L)
 {
 	static const luaL_Reg extLib[] = {
@@ -546,13 +522,10 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 		{"GetGameObject", GetGameObject},
 		{"GetAiGrid", GetAiGrid},
 		{"NewDamageList", NewDamageList},
-		{"GetSurfaceTemplate", GetSurfaceTemplate},
 
 		{"GetGameState", GetGameState},
 		{"GetPickingState", GetPickingState},
-		{"AddVoiceMetaData", AddVoiceMetaDataWrapper},
-
-		{"PostMessageToServer", PostMessageToServerWrapper},
+		{"AddVoiceMetaData", LuaWrapFunction(AddVoiceMetaData)},
 
 		// EXPERIMENTAL FUNCTIONS
 		{"UpdateShroud", UpdateShroud},

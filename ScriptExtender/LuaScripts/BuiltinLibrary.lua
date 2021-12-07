@@ -218,6 +218,10 @@ Ext.UpdateItemComboProperty = CallDeprecated(Ext.Stats.ItemComboPreview.Update, 
 Ext.GetItemGroup = CallDeprecated(Ext.Stats.ItemGroup.GetLegacy, "GetItemGroup", "Stats.ItemGroup.GetLegacy")
 Ext.GetNameGroup = CallDeprecated(Ext.Stats.NameGroup.Update, "GetNameGroup", "Stats.NameGroup.Update")
 
+-- Backwards compatibility with old surface APIs
+Ext.GetSurfaceTransformRules = CallDeprecated(Ext.Surface.GetTransformRules, "GetSurfaceTransformRules", "Surface.GetTransformRules")
+Ext.UpdateSurfaceTransformRules = CallDeprecated(Ext.Surface.UpdateTransformRules, "UpdateSurfaceTransformRules", "Surface.UpdateTransformRules")
+Ext.GetSurfaceTemplate = CallDeprecated(Ext.Surface.GetTemplate, "GetSurfaceTemplate", "Surface.GetTemplate")
 
 
 -- New getmetatable() to support fetching type information for proxy objects

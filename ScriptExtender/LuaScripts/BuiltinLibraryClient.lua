@@ -247,3 +247,6 @@ Ext.UISetDirty = CallDeprecated(Ext.UI.SetDirty, "UISetDirty", "UI.SetDirty")
 Ext.UIEnableCustomDrawCallDebugging = CallDeprecated(Ext.UI.EnableCustomDrawCallDebugging, "UIEnableCustomDrawCallDebugging", "UI.EnableCustomDrawCallDebugging")
 Ext.HandleToDouble = CallDeprecated(Ext.UI.HandleToDouble, "HandleToDouble", "UI.HandleToDouble")
 Ext.DoubleToHandle = CallDeprecated(Ext.UI.DoubleToHandle, "DoubleToHandle", "UI.DoubleToHandle")
+
+-- Backwards compatibility with old Net APIs
+Ext.PostMessageToServer = CallDeprecated(Ext.Net.PostMessageToServer, "PostMessageToServer", "Net.PostMessageToServer")

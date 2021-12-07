@@ -21,7 +21,7 @@ namespace dse::ecl::lua
 	};
 
 
-	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public NewIndexable, public Pushable<PushPolicy::None>
+	class StatusHandleProxy : public Userdata<StatusHandleProxy>, public Indexable, public NewIndexable
 	{
 	public:
 		static char const* const MetatableName;

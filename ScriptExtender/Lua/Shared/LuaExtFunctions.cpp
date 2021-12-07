@@ -13,14 +13,6 @@ namespace dse::lua
 		return 1;
 	}
 
-	int GetSurfaceTemplate(lua_State* L)
-	{
-		auto surfaceType = get<SurfaceType>(L, 1);
-		auto tmpl = GetStaticSymbols().GetSurfaceTemplate(surfaceType);
-		MakeObjectRef(L, tmpl);
-		return 1;
-	}
-
 	void AddVoiceMetaData(lua_State * L, char const* speakerGuid, char const* translatedStringKey, char const* source, 
 		float length, std::optional<int> priority)
 	{
@@ -40,6 +32,4 @@ namespace dse::lua
 		auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
 		voiceMeta->Source.Name = path;
 	}
-
-	WrapLuaFunction(AddVoiceMetaData)
 }

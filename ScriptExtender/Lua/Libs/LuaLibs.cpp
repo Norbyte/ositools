@@ -20,9 +20,12 @@
 #include <Lua/Libs/Debug.inl>
 #include <Lua/Libs/Stats.inl>
 #include <Lua/Libs/ClientUI.inl>
+#include <Lua/Libs/ClientNet.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
+#include <Lua/Libs/Surface.inl>
+#include <Lua/Libs/ServerSurfaceAction.inl>
 
 BEGIN_NS(lua)
 
@@ -46,6 +49,7 @@ void RegisterSharedLibraries(lua_State* L)
 	loca::RegisterLocalizationLib(L);
 	debug::RegisterDebugLib(L);
 	stats::RegisterStatsLib(L);
+	surface::RegisterSurfaceLib(L);
 }
 
 END_NS()
@@ -56,6 +60,7 @@ void RegisterClientLibraries(lua_State* L)
 {
 	audio::RegisterAudioLib(L);
 	ui::RegisterUILib(L);
+	net::RegisterNetLib(L);
 }
 
 END_NS()
@@ -67,6 +72,7 @@ void RegisterServerLibraries(lua_State* L)
 	osiris::RegisterOsirisLib(L);
 	net::RegisterNetLib(L);
 	stats::RegisterCustomStatLib(L);
+	surface::RegisterSurfaceActionLib(L);
 }
 
 END_NS()

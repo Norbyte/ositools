@@ -355,6 +355,4 @@ namespace dse::lua
 
 	int GetCellInfo(lua_State* L);
 	int NewDamageList(lua_State* L);
-	int GetSurfaceTemplate(lua_State* L);
-	int AddVoiceMetaDataWrapper(lua_State* L);
 }
