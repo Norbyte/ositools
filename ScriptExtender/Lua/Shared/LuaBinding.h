@@ -35,7 +35,7 @@ namespace dse::lua
 	LifetimeHolder GetCurrentLifetime();
 
 	template <class T>
-	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable, public Pushable<PushPolicy::Unbind>
+	class ObjectProxy : public Userdata<ObjectProxy<T>>, public Indexable, public NewIndexable
 	{
 	public:
 		static char const * const MetatableName;
@@ -141,8 +141,7 @@ namespace dse::lua
 	};
 
 
-	class StatsExtraDataProxy : public Userdata<StatsExtraDataProxy>, public Indexable, 
-		public NewIndexable, public Pushable<PushPolicy::None>
+	class StatsExtraDataProxy : public Userdata<StatsExtraDataProxy>, public Indexable, public NewIndexable
 	{
 	public:
 		static char const * const MetatableName;

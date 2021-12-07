@@ -199,77 +199,6 @@ namespace dse::lua
 	}
 
 
-	// Dummy pin class for values that need no special pinning/unpinning behavior
-	struct NullPin {};
-
-	template <class T>
-	inline typename std::enable_if_t<std::is_integral_v<T>, NullPin> push_pin(lua_State * L, LifetimeHolder const& lifetime, T v)
-	{
-		push(L, v);
-		return {};
-	}
-
-	template <class T, typename std::enable_if_t<std::is_invocable_v<T, lua_State *>, int> * = nullptr>
-	inline auto push_pin(lua_State * L, LifetimeHolder const& lifetime, T v)
-	{
-		return v(L);
-	}
-
-	// Specifies additional actions taken when the object is pushed to a Lua call
-	enum class PushPolicy
-	{
-		None,
-		// Indicates that the we should call Unbind() on the specified object after
-		// it goes out of scope (in Lua)
-		Unbind
-	};
-
-	template <PushPolicy TPolicy>
-	struct Pushable
-	{};
-
-	template <class T>
-	class UnbindablePin
-	{
-	public:
-		inline UnbindablePin(T * object)
-			: object_(object)
-		{}
-
-		inline ~UnbindablePin()
-		{
-			if (object_) object_->Unbind();
-		}
-
-		inline UnbindablePin(UnbindablePin const &) = delete;
-
-		inline UnbindablePin(UnbindablePin && other)
-			: object_(other.object_)
-		{
-			other.object_ = nullptr;
-		}
-
-		UnbindablePin & operator = (UnbindablePin const &) = delete;
-
-
-	private:
-		T * object_;
-	};
-
-#define NULL_PIN(type) inline NullPin push_pin(lua_State * L, LifetimeHolder const& lifetime, type v) \
-	{ \
-		push(L, v); \
-		return {}; \
-	}
-
-	NULL_PIN(nullptr_t)
-	NULL_PIN(double)
-	NULL_PIN(char const *)
-	NULL_PIN(FixedString)
-	NULL_PIN(StringView)
-	NULL_PIN(WStringView)
-
-
 	template <class T>
 	T get(lua_State* L, int index);
 
@@ -475,7 +404,6 @@ namespace dse::lua
 		return get<T>(L, i);
 	}
 
-	// Overload helper for fetching a parameter for a Lua -> C++ function call
 	template <class T>
 	inline std::optional<T> checked_get_param(lua_State* L, int i, Overload<std::optional<T>>)
 	{
@@ -484,13 +412,6 @@ namespace dse::lua
 		} else {
 			return get<T>(L, i);
 		}
-	}
-
-	// Helper for removing reference and CV-qualifiers before fetching a Lua value
-	template <class T>
-	inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_State* L, int i)
-	{
-		return checked_get_param(L, i, Overload<std::remove_cv_t<std::remove_reference_t<T>>>{});
 	}
 
 
@@ -509,61 +430,6 @@ namespace dse::lua
 		}
 
 		return true;
-	}
-
-	template <class... Args, size_t... Is>
-	inline void PushReturnTupleInner(lua_State* L, std::tuple<Args...> t, std::index_sequence<Is...>)
-	{
-		(push(L, std::get<Is>(t)), ...);
-	}
-
-	// Pushes all elements of a tuple (in order) to the Lua stack
-	template <class... Args>
-	inline void PushReturnTuple(lua_State* L, std::tuple<Args...> t)
-	{
-		PushReturnTupleInner(L, std::move(t), std::index_sequence_for<Args...>{});
-	}
-
-	// Lua -> C++ wrapper -- no return case
-	template <class... Args, size_t... Is>
-	inline int LuaCallWrapper2(lua_State* L, void(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
-	{
-		StackCheck _(L, 0);
-		fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
-		return 0;
-	}
-
-	// Lua -> C++ wrapper -- single return value case
-	template <class R, class... Args, size_t... Is>
-	inline int LuaCallWrapper2(lua_State* L, R(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
-	{
-		StackCheck _(L, 1);
-		auto retval = fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
-		push(L, retval);
-		return 1;
-	}
-
-	// Lua -> C++ wrapper -- multiple return values case
-	template <class... R, class... Args, size_t... Is>
-	inline int LuaCallWrapper2(lua_State* L, std::tuple<R...>(*fun)(lua_State* L, Args... args), std::index_sequence<Is...>)
-	{
-		StackCheck _(L, sizeof...(R));
-		auto retval = fun(L, checked_get_param(L, 1 + Is, Overload<Args>{})...);
-		PushReturnTuple(L, std::move(retval));
-		return sizeof...(R);
-	}
-
-	// Untyped wrapper function for calling C++ functions with a typed signature
-	template <class R, class... Args>
-	int LuaCallWrapper(lua_State* L, R(*fun)(lua_State* L, Args... args))
-	{
-		return LuaCallWrapper2(L, fun, std::index_sequence_for<Args...>{});
-	}
-
-#define WrapLuaFunction(fun) \
-	int fun##Wrapper(lua_State* L) \
-	{ \
-		return LuaCallWrapper(L, fun); \
 	}
 
 

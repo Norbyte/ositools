@@ -178,6 +178,19 @@ inline int ReturnValueSize(Overload<std::tuple<Args...>>)
 	return sizeof...(Args);
 }
 
+template <class T>
+inline ProxyParam<T> checked_get_param(lua_State* L, int i, Overload<ProxyParam<T>>)
+{
+	return ProxyParam(ObjectProxy2::CheckedGet<T>(L, i));
+}
+
+// Helper for removing reference and CV-qualifiers before fetching a Lua value
+template <class T>
+inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_State* L, int i)
+{
+	return checked_get_param(L, i, Overload<std::remove_cv_t<std::remove_reference_t<T>>>{});
+}
+
 // No return value, lua_State passed
 template <class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {

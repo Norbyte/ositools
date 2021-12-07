@@ -287,6 +287,31 @@ struct RefReturn
 	T* Object;
 };
 
+// Parameter type indicating that the value should be passed from Lua using an object proxy
+template <class T>
+struct ProxyParam
+{
+	inline ProxyParam()
+		: Object(nullptr)
+	{}
+	
+	inline ProxyParam(T* obj)
+		: Object(obj)
+	{}
+
+	inline operator T*() const
+	{
+		return Object;
+	}
+
+	inline T* operator ->() const
+	{
+		return Object;
+	}
+
+	T* Object;
+};
+
 template <class T>
 struct OverrideableProperty
 {

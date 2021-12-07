@@ -32,7 +32,7 @@ LifetimePool& GetServerLifetimePool();
 void RegisterServerLibraries(lua_State* L);
 
 
-class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable, public Pushable<PushPolicy::None>
+class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable
 {
 public:
 	static char const * const MetatableName;
@@ -60,7 +60,7 @@ private:
 	static int GetAllTeams(lua_State * L);
 };
 
-class TurnManagerTeamProxy : public Userdata<TurnManagerTeamProxy>, public Indexable, public Pushable<PushPolicy::None>
+class TurnManagerTeamProxy : public Userdata<TurnManagerTeamProxy>, public Indexable
 {
 public:
 	static char const * const MetatableName;
@@ -96,7 +96,7 @@ private:
 };
 
 
-class ItemConstructor : public Userdata<ItemConstructor>, public Indexable, public Pushable<PushPolicy::None>
+class ItemConstructor : public Userdata<ItemConstructor>, public Indexable
 {
 public:
 	static char const* const MetatableName;
