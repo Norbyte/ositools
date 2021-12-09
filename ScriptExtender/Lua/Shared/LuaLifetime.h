@@ -1,5 +1,8 @@
 #pragma once
 
+#define DEBUG_LIFETIMES
+#undef TRACE_LIFETIMES
+
 BEGIN_NS(lua)
 
 template <class T, unsigned Size>
@@ -12,6 +15,7 @@ public:
 	HierarchicalPoolAllocator()
 	{
 		pool_ = new T[Size];
+		memset(pool_, 0, sizeof(T) * Size);
 		memset(l1_, 0xff, sizeof(l1_));
 		memset(l2_, 0xff, sizeof(l2_));
 		memset(l3_, 0xff, sizeof(l3_));
@@ -30,25 +34,38 @@ public:
 	T* Allocate()
 	{
 		for (auto i = 0; i < std::size(l1_); i++) {
-			auto l1 = __lzcnt64(l1_[i]);
-			if (l1 < PageBits) {
+			unsigned long l1;
+			if (_BitScanForward64(&l1, l1_[i])) {
 				auto l2off = (i << PageShift) + l1;
-				auto l2 = __lzcnt64(l2_[l2off]);
+				unsigned long l2;
+				_BitScanForward64(&l2, l2_[l2off]);
 				assert(l2 < PageBits);
 				auto l3off = (i << (2 * PageShift)) + (l1 << PageShift) + l2;
-				auto l3 = __lzcnt64(l3_[l3off]);
+				unsigned long l3;
+				_BitScanForward64(&l3, l3_[l3off]);
 				assert(l3 < PageBits);
-				l3_[l3off] &= ~(0x8000000000000000ull >> l3);
+				l3_[l3off] &= ~(1ull << l3);
 				if (l3_[l3off] == 0) {
-					l2_[l2off] &= ~(0x8000000000000000ull >> l2);
+					l2_[l2off] &= ~(1ull << l2);
 					if (l2_[l2off] == 0) {
-						l1_[i] &= ~(0x8000000000000000ull >> l1);
+						l1_[i] &= ~(1ull << l1);
 					}
 				}
 
 				auto off = (i << (3 * PageShift)) + (l1 << (2 * PageShift)) + (l2 << PageShift) + l3;
-				new (pool_ + off) T();
-				return pool_ + off;
+#if defined(TRACE_LIFETIMES)
+				INFO("ACQ: off=%d, root=%d, l1=%d, l2=%d, l3=%d, l2off=%d, l3off=%d", off, i, l1, l2, l3, l2off, l3off);
+#endif
+
+				auto lifetime = pool_ + off;
+#if defined(DEBUG_LIFETIMES)
+				if (lifetime->References() > 0) {
+					ERR("Attempted to construct a lifetime on a slot that still has references! This is very, very bad!");
+				}
+#endif
+
+				lifetime->Acquire();
+				return lifetime;
 			}
 		}
 
@@ -72,16 +89,16 @@ public:
 		auto l1off = index;
 
 		bool l3set = (l3_[l3off] == 0);
-		l3_[l3off] |= 0x8000000000000000ull >> l3;
+		l3_[l3off] |= 1ull << l3;
 		if (l3set) {
 			bool l2set = (l2_[l2off] == 0);
-			l2_[l2off] |= 0x8000000000000000ull >> l2;
+			l2_[l2off] |= 1ull << l2;
 			if (l2set) {
-				l1_[l1off] |= 0x8000000000000000ull >> l1;
+				l1_[l1off] |= 1ull << l1;
 			}
 		}
 
-		ptr->~T();
+		ptr->Release();
 	}
 
 public:
@@ -99,12 +116,60 @@ class Lifetime : public Noncopyable<Lifetime>
 {
 public:
 	Lifetime()
-		: isAlive_(true), references_(0)
+		: isDeleted_(true), isAlive_(false), isInfinite_(false), references_(0)
 	{}
+
+	~Lifetime()
+	{
+		assert(references_ == 0 && !isAlive_);
+	}
+
+	void Acquire()
+	{
+		isDeleted_ = false;
+		isAlive_ = true;
+		isInfinite_ = false;
+		references_ = 0;
+#if defined(TRACE_LIFETIMES)
+		INFO("[%p] ACQUIRE", this);
+#endif
+	}
+
+	void Release()
+	{
+#if defined(DEBUG_LIFETIMES)
+		if (isInfinite_) {
+			ERR("[%p] Attempted to release a persistent reference. This is very, very bad!", this);
+		}
+
+		if (isAlive_) {
+			ERR("[%p] Attempted to release an alive lifetime.", this);
+		}
+
+		if (isDeleted_) {
+			ERR("[%p] Attempted to release a deleted reference. This is very, very bad!", this);
+		}
+#endif
+
+		assert(references_ == 0 && !isDeleted_);
+		isDeleted_ = true;
+		isAlive_ = false;
+#if defined(TRACE_LIFETIMES)
+		INFO("[%p] RELEASE", this);
+#endif
+	}
 
 	inline bool IsAlive() const
 	{
 		return isAlive_;
+	}
+
+	inline void SetInfinite()
+	{
+#if defined(TRACE_LIFETIMES)
+		INFO("[%p] MAKE GLOBAL", this);
+#endif
+		isInfinite_ = true;
 	}
 
 	inline unsigned References() const
@@ -114,15 +179,46 @@ public:
 
 	inline void Kill()
 	{
+#if defined(DEBUG_LIFETIMES)
+		if (isInfinite_) {
+			ERR("[%p] Attempted to kill a persistent reference. This is very, very bad!", this);
+			return;
+		}
+
+		if (!isAlive_) {
+			ERR("[%p] Attempted to kill a reference that is not alive.", this);
+			return;
+		}
+
+		if (isDeleted_ || references_ == 0) {
+			ERR("[%p] Attempted to kill a deleted lifetime!", this);
+			return;
+		}
+
+#endif
+
+#if defined(TRACE_LIFETIMES)
+		INFO("[%p] Kill", this);
+#endif
+
 		assert(isAlive_);
 		isAlive_ = false;
 	}
 
 protected:
 	friend class LifetimeReference;
+	friend class LifetimePin;
+	friend class StaticLifetimePin;
 
 	void AddRef()
 	{
+#if defined(DEBUG_LIFETIMES)
+		if (!isAlive_ || isDeleted_) {
+			ERR("[%p] IncRef on deleted lifetime?", this);
+			return;
+		}
+#endif
+
 		references_++;
 	}
 
@@ -134,7 +230,9 @@ protected:
 
 private:
 	std::atomic<unsigned> references_;
+	bool isDeleted_;
 	bool isAlive_;
+	bool isInfinite_;
 };
 
 class LifetimePool : Noncopyable<LifetimePool>
@@ -253,6 +351,11 @@ public:
 		: pool_(pool)
 	{}
 
+	LifetimePool& Pool()
+	{
+		return pool_;
+	}
+
 	bool IsEmpty() const
 	{
 		return stack_.empty();
@@ -310,18 +413,24 @@ private:
 	std::vector<LifetimeReference> stack_;
 };
 
-class LifetimePin
+class LifetimePin : Noncopyable<LifetimePin>
 {
 public:
 	LifetimePin(LifetimeStack& stack)
 		: stack_(stack)
 	{
 		lifetime_ = stack_.Push();
+		if (lifetime_) {
+			lifetime_->AddRef();
+		}
 	}
 
 	~LifetimePin()
 	{
 		stack_.PopAndKill(lifetime_);
+		if (lifetime_ && lifetime_->DecRef() == 0) {
+			stack_.Pool().Release(lifetime_);
+		}
 	}
 
 private:
@@ -329,18 +438,24 @@ private:
 	Lifetime* lifetime_;
 };
 
-class StaticLifetimePin
+class StaticLifetimePin : Noncopyable<StaticLifetimePin>
 {
 public:
 	StaticLifetimePin(LifetimeStack& stack, Lifetime* lifetime)
 		: stack_(stack), lifetime_(lifetime)
 	{
-		 stack_.Push(lifetime);
+		 stack_.Push(lifetime_);
+		 if (lifetime_) {
+			 lifetime_->AddRef();
+		 }
 	}
 
 	~StaticLifetimePin()
 	{
 		stack_.Pop(lifetime_);
+		if (lifetime_ && lifetime_->DecRef() == 0) {
+			stack_.Pool().Release(lifetime_);
+		}
 	}
 
 private:

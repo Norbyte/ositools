@@ -255,6 +255,8 @@ namespace dse::lua
 		: lifetimeStack_(lifetimePool_),
 		globalLifetime_(lifetimePool_, lifetimePool_.Allocate())
 	{
+		globalLifetime_.GetLifetime()->SetInfinite();
+
 		L = lua_newstate(LuaAlloc, nullptr);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
