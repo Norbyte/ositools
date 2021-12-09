@@ -17,6 +17,7 @@ LUA_POLYMORPHIC(IEoCServerObject)
 LUA_POLYMORPHIC(IEoCClientObject)
 LUA_POLYMORPHIC(esv::SurfaceAction)
 LUA_POLYMORPHIC(esv::Status)
+LUA_POLYMORPHIC(ecl::Status)
 LUA_POLYMORPHIC(stats::ObjectInstance)
 LUA_POLYMORPHIC(stats::EquipmentAttributes)
 

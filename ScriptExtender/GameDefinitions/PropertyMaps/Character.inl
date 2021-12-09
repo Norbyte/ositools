@@ -108,14 +108,6 @@ P_RO(FreeMemorySlots)
 END_CLS()
 
 
-BEGIN_CLS(esv::StatusMachine)
-P_RO(IsStatusMachineActive)
-P_RO(PreventStatusApply)
-P_REF(Statuses)
-P_RO(OwnerObjectHandle)
-END_CLS()
-
-
 BEGIN_CLS(esv::PlayerCustomData)
 INHERIT(eoc::PlayerCustomData)
 END_CLS()
@@ -351,7 +343,7 @@ P_REF(CurrentTemplate)
 P_REF(OriginalTemplate)
 P_REF(Stats)
 P_RO(InventoryHandle)
-// FIXME - P_REF(StatusMachine)
+P_REF(StatusMachine)
 P_RO(OwnerCharacterHandle)
 P_RO(CorpseCharacterHandle)
 P_REF(PlayerData)

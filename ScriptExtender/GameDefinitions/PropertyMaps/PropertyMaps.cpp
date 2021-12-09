@@ -1137,7 +1137,7 @@ namespace dse
 			// TODO Tags
 			PROP_RO(Id);
 			PROP(Name);
-			PROP_RO(TemplateName);
+			PROP_RO(RootTemplate);
 			PROP_RO(IsGlobal);
 			PROP_RO(IsDeleted);
 			PROP_RO(LevelName);

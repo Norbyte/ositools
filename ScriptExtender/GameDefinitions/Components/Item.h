@@ -271,7 +271,7 @@ namespace dse
 			ObjectSet<FixedString> Tags;
 			int field_108;
 			bool CachedDescriptionFlags;
-			char Flags3;
+			uint8_t Flags3;
 			int Level;
 			FixedString ItemType;
 			int GoldValueOverride;

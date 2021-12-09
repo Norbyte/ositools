@@ -455,6 +455,14 @@ INHERIT(esv::StatusConsumeBase)
 END_CLS()
 
 
+BEGIN_CLS(esv::StatusMachine)
+P_RO(IsStatusMachineActive)
+P_RO(PreventStatusApply)
+P_REF(Statuses)
+P_RO(OwnerObjectHandle)
+END_CLS()
+
+
 BEGIN_CLS(ecl::Status)
 P_RO(NetID)
 P_RO(OwnerHandle)
@@ -473,4 +481,12 @@ pm.AddProperty("StatusType",
 	}
 );
 #endif
+END_CLS()
+
+
+BEGIN_CLS(ecl::StatusMachine)
+P_RO(IsStatusMachineActive)
+P_RO(PreventStatusApply)
+P_REF(Statuses)
+P_RO(OwnerObjectHandle)
 END_CLS()

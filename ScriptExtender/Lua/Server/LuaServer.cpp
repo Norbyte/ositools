@@ -150,8 +150,6 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
-
 void LuaPolymorphic<IEoCServerObject>::MakeRef(lua_State* L, IEoCServerObject* obj, LifetimeHolder const& lifetime)
 {
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
@@ -161,6 +159,8 @@ void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* o
 {
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }
+
+#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 
 void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHolder const & lifetime)
 {
@@ -253,6 +253,23 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 }
 
 #undef MAKE_REF
+
+
+#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
+
+void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, LifetimeHolder const & lifetime)
+{
+	switch (status->GetStatusId()) {
+	// FIXME - map client status types
+
+	default:
+		ObjectProxy2::MakeRef(L, static_cast<ecl::Status*>(status), lifetime);
+		return;
+	}
+}
+
+#undef MAKE_REF
+
 
 void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectInstance* stats, LifetimeHolder const & lifetime)
 {
@@ -1565,10 +1582,12 @@ namespace dse::esv::lua
 			return {};
 		}
 
+		std::optional<STDString> result;
 		if (lua_type(L, -1) == LUA_TSTRING) {
-			return get<char const*>(L, -1);
+			result = get<char const*>(L, -1);
 		}
 
+		lua_pop(L, 1);
 		return {};
 	}
 
