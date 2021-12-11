@@ -4,6 +4,15 @@
 
 namespace dse
 {
+	struct LevelMetaData
+	{
+		void* VMT;
+		Bound Bounds;
+		FixedString LevelTemplateBoundTrigger;
+		FixedString AtmosphereUUID;
+		bool VisualStreamingEnabled;
+	};
+
 	struct LevelDesc
 	{
 		void* VMT;
@@ -18,7 +27,7 @@ namespace dse
 	{
 		void* VMT;
 		LevelDesc* LevelDesc;
-		void* LocalTemplateManager;
+		LocalTemplateManager* LocalTemplateManager;
 		char Unknown;
 		void* DummyManager;
 		void* ReferenceManager;
@@ -97,7 +106,7 @@ namespace dse
 			void * field_F8;
 			EnvironmentalStatusManager* EnvironmentalStatusManager;
 			ObjectSet<void *> TemplateTypeDescs;
-			void * LevelCacheTemplateManager;
+			LevelCacheTemplateManager* LevelCacheTemplateManager;
 			ObjectSet<void *> TemplateTraceSet;
 		};
 
@@ -145,7 +154,7 @@ namespace dse
 			int field_140;
 			char field_144;
 			ObjectSet<void*> TemplateTypes; // ecl::Level::TemplateTypeDesc*
-			__int64 LevelCacheTemplateManager;
+			LevelCacheTemplateManager* LevelCacheTemplateManager;
 		};
 
 

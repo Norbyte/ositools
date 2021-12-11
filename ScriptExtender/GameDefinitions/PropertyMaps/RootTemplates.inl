@@ -1,7 +1,8 @@
 BEGIN_CLS(GameObjectTemplate)
 // TODO Tags
-P_RO(Flags)
-P_RO(Flag)
+P(Flags)
+P_BITMASK(Flags)
+P(FlagsOverridden)
 #if defined(OSI_EOCAPP)
 P_RO(Type)
 #endif

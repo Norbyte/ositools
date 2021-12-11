@@ -227,6 +227,22 @@ struct Version
 	uint32_t Ver;
 };
 
+struct Transform
+{
+	glm::mat4 Matrix;
+	glm::mat3 Rotate;
+	glm::vec3 Translate;
+	glm::vec3 Scale;
+};
+
+struct Bound
+{
+	glm::vec3 Center;
+	float Radius;
+	glm::vec3 Min;
+	glm::vec3 Max;
+	bool IsCenterSet;
+};
 
 
 END_SE()

@@ -352,6 +352,24 @@
     <ClInclude Include="GameDefinitions\GameObjects\UseActions.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Render.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Terrain.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Material.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Resource.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\VariableManager.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Effect.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

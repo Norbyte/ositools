@@ -20,6 +20,7 @@ struct ItemTemplate;
 struct ProjectileTemplate;
 struct SurfaceTemplate;
 struct TriggerTemplate;
+struct LevelTemplate;
 
 struct IGameObject;
 struct IEoCServerObject;
@@ -34,6 +35,21 @@ struct ModManager;
 struct ObjectVisitor;
 struct FileReader;
 struct TranslatedStringRepository;
+
+struct GlobalTemplateManager;
+struct LocalTemplateManager;
+struct GlobalCacheTemplateManager;
+struct LevelCacheTemplateManager;
+
+struct Scene;
+struct MoveableObject;
+struct Visual;
+struct RenderableObject;
+
+struct Material;
+struct AppliedMaterial;
+
+struct EoCSoundManager;
 
 namespace stats
 {

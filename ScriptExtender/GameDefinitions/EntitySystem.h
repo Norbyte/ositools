@@ -443,8 +443,8 @@ struct IEoCServerObject : public IGameObject
 	virtual TranslatedString* GetDisplayName(TranslatedString& name) = 0;
 	virtual bool SavegameVisit(ObjectVisitor& visitor) = 0;
 	virtual NetId GetEntityNetworkId(NetId& netId) = 0;
-	virtual void SetTemplate(GameObjectTemplate* tmpl) = 0;
-	virtual void CacheTemplate(int templateType, Level* level) = 0;
+	virtual void TransformTemplate(GameObjectTemplate* tmpl) = 0;
+	virtual void CacheTemplate(int templateType, LevelTemplate* levelTemplate) = 0;
 
 	std::optional<STDWString> LuaGetDisplayName();
 	esv::StatusMachine* GetStatusMachine() const;

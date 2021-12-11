@@ -16,6 +16,19 @@ BEGIN_BITMASK(InputType, int)
 	EV(AcceleratedRepeat, 32)
 END_ENUM()
 
+BEGIN_BITMASK(VisualComponentFlags, uint8_t)
+	EV(VisualSetLoaded, 1)
+	EV(ForceUseAnimationBlueprint, 2)
+END_ENUM()
+
+BEGIN_BITMASK(MultiEffectHandlerFlags, uint8_t)
+	EV(Detach, 0x01)
+	EV(KeepRot, 0x02)
+	EV(FaceSource, 0x04)
+	EV(Beam, 0x08)
+	EV(FollowScale, 0x10)
+END_ENUM()
+
 BEGIN_ENUM(ActionDataType, uint32_t)
 	EV(Unknown, 0)
 	EV(OpenClose, 1)
@@ -1828,6 +1841,20 @@ BEGIN_ENUM(SurfaceLayer, uint32_t)
 	EV(Ground, 0)
 	EV(Cloud, 1)
 	EV(None, 2)
+END_ENUM()
+
+
+BEGIN_ENUM(TemplateType, uint32_t)
+	EV(RootTemplate, 0)
+	EV(GlobalTemplate, 1)
+	EV(LocalTemplate, 2)
+	EV(GlobalCacheTemplate, 3)
+	EV(LevelCacheTemplate, 5)
+END_ENUM()
+
+
+BEGIN_BITMASK(GameObjectTemplateFlags, uint32_t)
+	EV(IsCustom, 1)
 END_ENUM()
 
 

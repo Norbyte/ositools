@@ -16,6 +16,7 @@
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 #include <GameDefinitions/Sound.h>
+#include <GameDefinitions/Resource.h>
 
 namespace dse
 {
@@ -240,6 +241,9 @@ namespace dse
 
 		esv::LevelManager ** esv__LevelManager{ nullptr };
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
+
+		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
+		LocalTemplateManager** esv__LocalTemplateManager{ nullptr };
 
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };

@@ -10,24 +10,43 @@
 
 namespace dse
 {
-    struct Transform
+    struct TemplateHandle
     {
-        glm::mat4 Matrix;
-        glm::mat3 Rotate;
-        glm::vec3 Translate;
-        glm::vec3 Scale;
-    };
+        static constexpr uint32_t InvalidHandle = 0;
 
-    enum class GameObjectTemplateFlags
-    {
-        IsCustom = 1
+        inline TemplateHandle() : Value(InvalidHandle) {}
+        inline TemplateHandle(TemplateHandle const& h) : Value(h.Value) {}
+        inline TemplateHandle(uint32_t v) : Value(v) {}
+        inline TemplateHandle(TemplateType type, uint32_t index) : Value(index | ((uint32_t)type << 29)) {}
+
+        inline uint32_t Index() const
+        {
+            return Value & 0x1FFFFFFF;
+        }
+
+        inline TemplateType Type() const
+        {
+            return (TemplateType)(Value >> 29);
+        }
+
+        uint32_t Value;
     };
 
     struct GameObjectTemplate : ProtectedGameObject<GameObjectTemplate>
     {
-        void * VMT;
-        uint32_t Flags;
-        uint8_t Flag;
+        virtual FixedString* GetTypeId() = 0;
+        virtual GameObjectTemplate* Clone() = 0;
+        virtual bool IsValid() = 0;
+        virtual void Fix() = 0;
+        virtual bool HasCustomVariables() = 0;
+        virtual ~GameObjectTemplate() = 0;
+        virtual bool Visit(ObjectVisitor* visitor) = 0;
+        virtual bool NeedsUUIDPatchForPersistentLevelTemplate() = 0;
+        virtual void UpdateFromRootTemplate(GameObjectTemplate* root, bool replaceOverrides) = 0;
+        virtual void Verify() = 0;
+
+        GameObjectTemplateFlags Flags;
+        bool FlagsOverridden;
 #if defined(OSI_EOCAPP)
         uint32_t Type;
 #endif
@@ -35,7 +54,7 @@ namespace dse
         bool HasAnyTags;
         FixedString Id;
         STDString Name;
-        FixedString TemplateName;
+        FixedString RootTemplate;
         uint32_t TemplateHandle;
         bool IsGlobal;
         bool IsDeleted;
@@ -59,7 +78,7 @@ namespace dse
         OverrideableProperty<glm::vec3> CameraOffset;
         bool HasParentModRelation;
         bool Unknown;
-        void* ContainingLevelTemplate; // ls::LevelTemplate*
+        LevelTemplate* ContainingLevelTemplate;
         OverrideableProperty<bool> HasGameplayValue;
 #if !defined(OSI_EOCAPP)
         STDString DevComment;
@@ -67,6 +86,77 @@ namespace dse
         RefMap<FixedString, void*> LayerLists; // LayerList*
 #endif
         Path FileName;
+    };
+
+    struct GlobalTemplateBank
+    {
+        void* VMT;
+        Map<FixedString, GameObjectTemplate*> Templates;
+        ObjectSet<GameObjectTemplate*> RootTemplates;
+        Map<TemplateHandle, GameObjectTemplate*> RootTemplatesByHandle;
+        Map<TemplateHandle, GameObjectTemplate*> GlobalTemplatesByHandle;
+        Map<uint16_t, ObjectSet<GameObjectTemplate*>> TemplatesByType;
+        uint32_t FirstHandle;
+        uint32_t LastHandle;
+        FixedString ModName;
+        void* LocalLoadHelper;
+    };
+
+    struct GlobalTemplateManager
+    {
+        void* VMT;
+        Map<FixedString, GameObjectTemplate*> Templates;
+        GlobalTemplateBank* Banks[2];
+    };
+
+    struct LocalTemplateManager
+    {
+        void* VMT;
+        Map<FixedString, GameObjectTemplate*> Templates;
+        Map<uint16_t, ObjectSet<GameObjectTemplate*>> TemplatesByType;
+        Map<TemplateHandle, GameObjectTemplate*> TemplatesByHandle;
+        uint32_t RefCount;
+        bool Locked;
+        uint32_t NextTemplateId;
+        int16_t TemplateTypeId;
+        void* LocalLoadHelperEx;
+        FixedString ModName;
+        FixedString LevelName;
+        LevelTemplate* LevelTemplate_BAD;
+    };
+
+    struct CacheTemplateManagerBase
+    {
+        void* VMT;
+        TemplateType TemplateManagerType;
+        Map<FixedString, GameObjectTemplate*> Templates;
+        Map<TemplateHandle, GameObjectTemplate*> TemplatesByHandle;
+        Map<TemplateHandle, uint32_t> RefCountsByHandle;
+        ObjectSet<GameObjectTemplate*> pNewTemplates;
+        ObjectSet<void*> CacheTemplateRemovers;
+        bool field_90;
+    };
+
+
+    struct GlobalCacheTemplateManager : public CacheTemplateManagerBase
+    {
+        uint32_t NextTemplateId;
+    };
+
+    struct LevelCacheTemplateManager : public CacheTemplateManagerBase
+    {
+        FixedString LevelName;
+    };
+
+
+    struct LevelTemplate : public GameObjectTemplate
+    {
+        OverrideableProperty<FixedString> SubLevelName;
+        OverrideableProperty<bool> IsPersistent;
+        OverrideableProperty<bool> IsStartingActive;
+        Bound LocalLevelBound;
+        Bound WorldLevelBound;
+        FixedString LevelBoundTrigger;
     };
 
     struct EoCGameObjectTemplate : public GameObjectTemplate
