@@ -1323,7 +1323,7 @@ namespace dse::esv::lua
 
 		library_.Register(L);
 
-		gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("ServerStartup.lua");
+		gExtender->GetServer().GetExtensionState().LuaLoadBuiltinFile("ServerStartup.lua");
 
 		lua_getglobal(L, "Ext"); // stack: Ext
 		StatsExtraDataProxy::New(L); // stack: Ext, "ExtraData", ExtraDataProxy
@@ -1331,7 +1331,7 @@ namespace dse::esv::lua
 		lua_pop(L, 1); // stack: -
 
 		// Ext is not writeable after loading SandboxStartup!
-		gExtender->GetClient().GetExtensionState().LuaLoadBuiltinFile("SandboxStartup.lua");
+		gExtender->GetServer().GetExtensionState().LuaLoadBuiltinFile("SandboxStartup.lua");
 
 #if !defined(OSI_NO_DEBUGGER)
 		auto debugger = gExtender->GetLuaDebugger();
