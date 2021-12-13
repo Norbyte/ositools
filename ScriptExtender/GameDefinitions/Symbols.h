@@ -511,6 +511,7 @@ namespace dse
 		void DestroyFileReader(FileReader * reader);
 		bool FileExists(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 		GlobalTemplateBank* GetGlobalTemplateBank() const;
+		ResourceBank* GetResourceBank() const;
 	};
 
 	StaticSymbols & GetStaticSymbols();
