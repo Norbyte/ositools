@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="dse::FixedString">
+    <DisplayString>{Str,na}</DisplayString>
+  </Type>
+  
+  <Type Name="dse::Array&lt;*&gt;">
+    <Intrinsic Name="size" Expression="Size" />
+    <Intrinsic Name="capacity" Expression="Capacity" />
+    <DisplayString>{{ size={Size} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">Size</Item>
+      <Item Name="[capacity]" ExcludeView="simple">Capacity</Item>
+      <ArrayItems>
+        <Size>Size</Size>
+        <ValuePointer>Buf</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="dse::ObjectSet&lt;*&gt;">
+    <Intrinsic Name="size" Expression="Size" />
+    <Intrinsic Name="capacity" Expression="Capacity" />
+    <DisplayString>{{ size={Size} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">Size</Item>
+      <Item Name="[capacity]" ExcludeView="simple">Capacity</Item>
+      <ArrayItems>
+        <Size>Size</Size>
+        <ValuePointer>Buf</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="dse::RefMap&lt;*,*&gt;">
+    <Intrinsic Name="size" Expression="ItemCount" />
+    <DisplayString>{{ size={ItemCount} }}</DisplayString>
+    <Expand>
+      <CustomListItems MaxItemsPerView="5000" ExcludeView="Test">
+        <Variable Name="iBucket" InitialValue="-1" />
+        <Variable Name="pBucket" InitialValue="HashTable == nullptr ? nullptr : *HashTable" />
+        <Variable Name="iBucketIncrement" InitialValue="-1" />
+
+        <Size>ItemCount</Size>
+        <Exec>pBucket = nullptr</Exec>
+        <Loop>
+          <If Condition="pBucket == nullptr">
+            <Exec>iBucket++</Exec>
+            <Exec>iBucketIncrement = __findnonnull(HashTable + iBucket, HashSize - iBucket)</Exec>
+            <Break Condition="iBucketIncrement == -1" />
+            <Exec>iBucket += iBucketIncrement</Exec>
+            <Exec>pBucket = HashTable[iBucket]</Exec>
+          </If>
+          <Item>pBucket,na</Item>
+          <Exec>pBucket = pBucket->Next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="dse::Map&lt;*,*&gt;">
+    <Intrinsic Name="size" Expression="ItemCount" />
+    <DisplayString>{{ size={ItemCount} }}</DisplayString>
+    <Expand>
+      <CustomListItems MaxItemsPerView="5000" ExcludeView="Test">
+        <Variable Name="iBucket" InitialValue="-1" />
+        <Variable Name="pBucket" InitialValue="HashTable == nullptr ? nullptr : *HashTable" />
+        <Variable Name="iBucketIncrement" InitialValue="-1" />
+
+        <Size>ItemCount</Size>
+        <Exec>pBucket = nullptr</Exec>
+        <Loop>
+          <If Condition="pBucket == nullptr">
+            <Exec>iBucket++</Exec>
+            <Exec>iBucketIncrement = __findnonnull(HashTable + iBucket, HashSize - iBucket)</Exec>
+            <Break Condition="iBucketIncrement == -1" />
+            <Exec>iBucket += iBucketIncrement</Exec>
+            <Exec>pBucket = HashTable[iBucket]</Exec>
+          </If>
+          <Item>pBucket,na</Item>
+          <Exec>pBucket = pBucket->Next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

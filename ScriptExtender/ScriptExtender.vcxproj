@@ -307,6 +307,9 @@
     <Xml Include="GameHooks\BinaryMappingsEoCApp.xml" />
     <Xml Include="GameHooks\BinaryMappingsEoCPlugin.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ScriptExtender.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4723A102-E4DE-4874-BED7-6DA4EC2D0C80}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

@@ -751,4 +751,7 @@
       <Filter>GameHooks</Filter>
     </Xml>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ScriptExtender.natvis" />
+  </ItemGroup>
 </Project>
