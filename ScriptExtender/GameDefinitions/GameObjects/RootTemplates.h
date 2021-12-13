@@ -88,7 +88,7 @@ namespace dse
         Path FileName;
     };
 
-    struct GlobalTemplateBank
+    struct GlobalTemplateBank : public ProtectedGameObject<GlobalTemplateBank>
     {
         void* VMT;
         Map<FixedString, GameObjectTemplate*> Templates;
@@ -102,14 +102,14 @@ namespace dse
         void* LocalLoadHelper;
     };
 
-    struct GlobalTemplateManager
+    struct GlobalTemplateManager : public ProtectedGameObject<GlobalTemplateManager>
     {
         void* VMT;
         Map<FixedString, GameObjectTemplate*> Templates;
         GlobalTemplateBank* Banks[2];
     };
 
-    struct LocalTemplateManager
+    struct LocalTemplateManager : public ProtectedGameObject<LocalTemplateManager>
     {
         void* VMT;
         Map<FixedString, GameObjectTemplate*> Templates;
@@ -125,7 +125,7 @@ namespace dse
         LevelTemplate* LevelTemplate_BAD;
     };
 
-    struct CacheTemplateManagerBase
+    struct CacheTemplateManagerBase : public ProtectedGameObject<CacheTemplateManagerBase>
     {
         void* VMT;
         TemplateType TemplateManagerType;
@@ -191,7 +191,7 @@ namespace dse
         bool CanFight2;
     };
 
-    struct VisualSet
+    struct VisualSet : public ProtectedGameObject<VisualSet>
     {
         void* VMT;
         std::array<ObjectSet<FixedString>, 9> Visuals;

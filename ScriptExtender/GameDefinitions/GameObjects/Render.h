@@ -59,7 +59,7 @@ struct Visual : public MoveableObject
 	bool ReceiveColorFromParent;
 };
 
-struct PhysicsShape
+struct PhysicsShape : public ProtectedGameObject<PhysicsShape>
 {
 	void* VMT;
 	FixedString Name;
@@ -95,7 +95,7 @@ struct RenderableObject : public MoveableObject
 	void* RenderCallback;
 };
 
-struct WorkerThreadJob
+struct WorkerThreadJob : public ProtectedGameObject<WorkerThreadJob>
 {
 	__int64 field_0;
 	__int64 field_8;

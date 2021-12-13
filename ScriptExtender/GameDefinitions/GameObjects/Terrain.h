@@ -6,7 +6,7 @@
 
 BEGIN_SE()
 
-struct TerrainPatchDescription
+struct TerrainPatchDescription : public ProtectedGameObject<TerrainPatchDescription>
 {
 	glm::ivec2 Index;
 	glm::ivec2 DimensionInVertices;

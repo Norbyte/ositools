@@ -35,7 +35,7 @@ namespace dse
         };
 
 
-        struct Party
+        struct Party : public ProtectedGameObject<Party>
         {
             void* VMT;
             FixedString GUID;
@@ -56,7 +56,7 @@ namespace dse
         };
 
 
-        struct PartyManager : NetworkObjectFactory<Party, 1>
+        struct PartyManager : NetworkComponentFactory<Party>
         {
             void* GameEventManagerVMT;
             __int64 field_120;

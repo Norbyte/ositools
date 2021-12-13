@@ -115,7 +115,7 @@ namespace dse
 			ObjectSet<ComponentHandle> DelayDeathCharacterHandles;
 		};
 
-		struct SkillState
+		struct SkillState : public ProtectedGameObject<SkillState>
 		{
 			void* VMT;
 			int StateIndex;
@@ -158,7 +158,7 @@ namespace dse
 			bool OwnsSkillState;
 		};
 
-		struct ActionMachineLayer
+		struct ActionMachineLayer : public ProtectedGameObject<ActionMachineLayer>
 		{
 			ActionState * State;
 			uint64_t Unknown;

@@ -5,6 +5,10 @@ BEGIN_CLS(lua::ConsoleEventParams)
 P_RO(Command)
 END_CLS()
 
+BEGIN_CLS(lua::TickEventParams)
+P_REF(Time)
+END_CLS()
+
 BEGIN_CLS(lua::NetMessageEventParams)
 P_RO(Channel)
 P_RO(Payload)

@@ -4,7 +4,7 @@
 
 namespace dse
 {
-	struct LevelMetaData
+	struct LevelMetaData : public ProtectedGameObject<LevelMetaData>
 	{
 		void* VMT;
 		Bound Bounds;
@@ -13,7 +13,7 @@ namespace dse
 		bool VisualStreamingEnabled;
 	};
 
-	struct LevelDesc
+	struct LevelDesc : public ProtectedGameObject<LevelDesc>
 	{
 		void* VMT;
 		FixedString LevelName;
@@ -74,7 +74,7 @@ namespace dse
 		};
 
 
-		struct EnvironmentalStatusManager
+		struct EnvironmentalStatusManager : public ProtectedGameObject<EnvironmentalStatusManager>
 		{
 			void* VMT;
 			__int64 field_8;
@@ -110,7 +110,7 @@ namespace dse
 			ObjectSet<void *> TemplateTraceSet;
 		};
 
-		struct LevelManager
+		struct LevelManager : public ProtectedGameObject<LevelManager>
 		{
 			void * VMT;
 #if defined(OSI_EOCAPP)
@@ -158,7 +158,7 @@ namespace dse
 		};
 
 
-		struct LevelManager
+		struct LevelManager : public ProtectedGameObject<LevelManager>
 		{
 			void* VMT;
 			Level* CurrentLevel;

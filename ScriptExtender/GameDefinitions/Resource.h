@@ -5,7 +5,7 @@
 
 BEGIN_SE()
 
-struct Resource
+struct Resource : public ProtectedGameObject<Resource>
 {
     void* VMT;
     Path XMLName;
@@ -36,7 +36,7 @@ struct ResourceContainer : public ProtectedGameObject<ResourceContainer>
 
 struct ResourceBank;
 
-struct ResourcePackage
+struct ResourcePackage : public ProtectedGameObject<ResourcePackage>
 {
     void* VMT;
     ResourceContainer Container;
@@ -44,7 +44,7 @@ struct ResourcePackage
     FixedString Name;
 };
 
-struct ResourceBank
+struct ResourceBank : public ProtectedGameObject<ResourceBank>
 {
     void* VMT;
     ResourceContainer Container;

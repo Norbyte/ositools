@@ -47,7 +47,7 @@ namespace dse
 		TranslatedString DisplayDescription;
 	};
 
-	struct Module
+	struct Module : public ProtectedGameObject<Module>
 	{
 		using HashProc = bool (Module* self);
 

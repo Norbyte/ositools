@@ -28,7 +28,7 @@ END_SE()
 
 BEGIN_NS(ecl)
 
-struct MultiEffectHandler
+struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 {
 	struct WeaponAttachmentInfo
 	{
@@ -37,7 +37,7 @@ struct MultiEffectHandler
 		FixedString VisualId;
 	}; 
 	
-	struct MultiEffectVisual
+	struct MultiEffectVisual : public ProtectedGameObject<MultiEffectVisual>
 	{
 		void* VMT;
 		EntityHandle VisualEntityHandle;

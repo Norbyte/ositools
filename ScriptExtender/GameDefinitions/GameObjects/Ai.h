@@ -9,7 +9,7 @@ namespace dse
 
 namespace dse::eoc
 {
-    struct AiGridPortal
+    struct AiGridPortal : public ProtectedGameObject<AiGridPortal>
     {
         uint64_t field_0;
         AiGrid* AiGrid;
@@ -35,7 +35,7 @@ namespace dse::eoc
         ObjectSet<int> SurfacePathInfluences; // Set<SurfacePathInfluence>
     };
 
-    struct AiPath
+    struct AiPath : public ProtectedGameObject<AiPath>
     {
         bool field_0;
         bool PathfindingComplete;
@@ -79,7 +79,7 @@ namespace dse::eoc
         float FindPathStartPosition[2];
     };
 
-    struct Ai
+    struct Ai : public ProtectedGameObject<Ai>
     {
         AiGrid* AiGrid;
         void* VisionGrid;
@@ -137,7 +137,7 @@ namespace dse::eoc
     };
 
 
-    struct AiGridDataTiles
+    struct AiGridDataTiles : public ProtectedGameObject<AiGridDataTiles>
     {
         uint64_t field_0;
         int Width;
@@ -156,7 +156,7 @@ namespace dse::eoc
         }
     };
 
-    struct DataGrid
+    struct DataGrid : public ProtectedGameObject<DataGrid>
     {
         void* VMT;
         float OffsetX;
@@ -182,7 +182,7 @@ namespace dse::eoc
         ESurfaceFlag MaskAiFlags;
     };
 
-    struct AiGrid
+    struct AiGrid : public ProtectedGameObject<AiGrid>
     {
         using SearchForCellProc = bool (eoc::AiGrid* self, float posX, float posZ, float radius, ESurfaceFlag aiFlags, ObjectSet<SurfacePathInfluence>* pathInfluences, float aiBoundsBias);
 
@@ -268,7 +268,7 @@ namespace dse::eoc
         void SetAiFlags(float x, float z, uint64_t aiFlags);
     };
 
-    struct ShroudObject
+    struct ShroudObject : public ProtectedGameObject<ShroudObject>
     {
         void* LevelAllocator;
         ShroudType ShroudTypeId;
@@ -305,7 +305,7 @@ namespace dse::eoc
         }
     };
 
-    struct ShroudData
+    struct ShroudData : public ProtectedGameObject<ShroudData>
     {
         void* LevelAllocator;
         ObjectSet<glm::vec2> OS_Vector2f;
@@ -344,7 +344,7 @@ namespace dse::eoc
 
 namespace dse::esv
 {
-    struct ShroudManager
+    struct ShroudManager : public ProtectedGameObject<ShroudManager>
     {
         void* VMT;
         EntityWorld* EntityWorld;
@@ -360,7 +360,7 @@ namespace dse::esv
 
 namespace dse::ecl
 {
-    struct ShroudManager
+    struct ShroudManager : public ProtectedGameObject<ShroudManager>
     {
         void* VMT;
         void* LevelAllocator;
