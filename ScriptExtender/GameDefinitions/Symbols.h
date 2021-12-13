@@ -510,6 +510,7 @@ namespace dse
 		FileReaderPin MakeFileReader(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
 		void DestroyFileReader(FileReader * reader);
 		bool FileExists(StringView path, PathRootType root = PathRootType::Data, bool canonicalize = true) const;
+		GlobalTemplateBank* GetGlobalTemplateBank() const;
 	};
 
 	StaticSymbols & GetStaticSymbols();

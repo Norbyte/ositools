@@ -1055,5 +1055,25 @@
       <Condition Type="FixedString" Offset="0" Value="9169b076-6e8d-44a4-bb52-95eedf9eab63" />
       <Target Type="Indirect" Offset="21" Symbol="ls__UIHelper__UICreateIconMesh" /> <!-- ls::UIHelper::UICreateIconMesh -->
     </Mapping>
+
+    <Mapping Name="ls::GlobalTemplateManager">
+      33 C0 // xor     eax, eax
+      C3  // retn
+      48 8B 0D ?? ?? ?? ??  //  mov     rcx, cs:ls__GlobalTemplateManager
+      49 8B D1 // mov     rdx, r9
+      <Target Type="Indirect" Offset="3" Symbol="ls__GlobalTemplateManager" />
+    </Mapping>
+
+    <Mapping Name="esv::GetGameObjectTemplate">
+      48 8B 88 80 00 00 00 // mov     rcx, [rax+80h]
+      48 85 C9  // test    rcx, rcx
+      74 06  // jz xxx
+      48 8B 49 10  // mov     rcx, [rcx+10h]
+      EB 0C  //  jmp xxx
+      48 8B 0D ?? ?? ?? ?? // mov     rcx, cs:esv__gLocalTemplateManager
+      48 85 C9 // test    rcx, rcx
+      <Target Type="Indirect" Offset="18" Symbol="esv__LocalTemplateManager" />
+      <Target Type="Absolute" Offset="0" NextSymbol="ls::GlobalTemplateManager" NextSymbolSeekSize="0x80" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

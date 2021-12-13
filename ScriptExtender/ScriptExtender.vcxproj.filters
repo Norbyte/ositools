@@ -739,6 +739,9 @@
     <None Include="Lua\Libs\AI.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="Lua\Libs\Template.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
     <None Include="GameDefinitions\PropertyMaps\Render.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>

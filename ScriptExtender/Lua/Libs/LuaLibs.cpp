@@ -27,6 +27,7 @@
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
 #include <Lua/Libs/AI.inl>
+#include <Lua/Libs/Template.inl>
 
 BEGIN_NS(lua)
 
@@ -51,6 +52,7 @@ void RegisterSharedLibraries(lua_State* L)
 	debug::RegisterDebugLib(L);
 	stats::RegisterStatsLib(L);
 	surface::RegisterSurfaceLib(L);
+	tmpl::RegisterTemplateLib(L);
 }
 
 END_NS()

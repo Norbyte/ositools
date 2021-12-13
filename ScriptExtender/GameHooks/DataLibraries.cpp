@@ -200,6 +200,9 @@ namespace dse
 		SYM_OFF(esv__LevelManager);
 		SYM_OFF(esv__InventoryFactory);
 
+		SYM_OFF(ls__GlobalTemplateManager);
+		SYM_OFF(esv__LocalTemplateManager);
+
 		SYM_OFF(ResourceManager__GetInstance);
 		SYM_OFF(ResourceManager__Instance);
 		SYM_OFF(ls__GlobalSwitches);

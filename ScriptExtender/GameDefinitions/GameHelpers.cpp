@@ -112,6 +112,15 @@ namespace dse
 	}
 #endif
 
+	GlobalTemplateBank* StaticSymbols::GetGlobalTemplateBank() const
+	{
+		auto gtm = GetStaticSymbols().ls__GlobalTemplateManager;
+		if (!gtm) return nullptr;
+		auto tls = *(uint64_t*)__readgsqword(0x58);
+		auto slot = ((uint8_t*)tls)[8];
+		return (*gtm)->Banks[slot];
+	}
+
 	bool StaticSymbols::FileExists(StringView path, PathRootType root, bool canonicalize) const
 	{
 		// TODO - implement using proper FS file exists call

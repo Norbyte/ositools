@@ -288,6 +288,7 @@
     <None Include="Lua\Libs\ServerSurfaceAction.inl" />
     <None Include="Lua\Libs\Surface.inl" />
     <None Include="Lua\Libs\Stats.inl" />
+    <None Include="Lua\Libs\Template.inl" />
     <None Include="Lua\Libs\Types.inl" />
     <None Include="Lua\Libs\Utils.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />
