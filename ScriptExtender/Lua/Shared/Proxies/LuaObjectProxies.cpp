@@ -74,6 +74,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #define PN_RO(name, prop)
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
+#define P_GETTER_SETTER(prop, getter, setter)
 #define P_FUN(prop, fun)
 #define P_FALLBACK(getter, setter)
 
@@ -91,6 +92,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #undef PN_RO
 #undef PN_REF
 #undef P_GETTER
+#undef P_GETTER_SETTER
 #undef P_FUN
 #undef P_FALLBACK
 
@@ -173,14 +175,26 @@ bool EnableWriteProtectedWrites{ false };
 		offsetof(PM::ObjectType, prop) \
 	);
 
-// FIXME - avoid generating a separate push function for each closure
 #define P_GETTER(name, fun) \
 	pm.AddProperty(#name, \
 		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
-			CallGetter(L, &PM::ObjectType::fun); \
+			CallGetter(L, obj, &PM::ObjectType::fun); \
 			return true; \
 		}, \
 		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
+	);
+
+#define P_GETTER_SETTER(prop, getter, setter) \
+	pm.AddProperty(#prop, \
+		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+			CallGetter(L, obj, &PM::ObjectType::getter); \
+			return true; \
+		}, \
+		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, int index, std::size_t offset, uint64_t flag) { \
+			CallSetter(L, obj, index, &PM::ObjectType::setter); \
+			return true; \
+		}, \
+		0 \
 	);
 
 // FIXME - avoid generating a separate push function for each closure
@@ -212,6 +226,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef PN_RO
 #undef PN_REF
 #undef P_GETTER
+#undef P_GETTER_SETTER
 #undef P_FUN
 #undef P_FALLBACK
 
@@ -233,6 +248,7 @@ BEGIN_SE()
 #define PN_RO(name, prop)
 #define PN_REF(name, prop)
 #define P_GETTER(prop, fun)
+#define P_GETTER_SETTER(prop, getter, setter)
 #define P_FUN(prop, fun)
 #define P_FALLBACK(getter, setter)
 
@@ -250,6 +266,7 @@ BEGIN_SE()
 #undef PN_RO
 #undef PN_REF
 #undef P_GETTER
+#undef P_GETTER_SETTER
 #undef P_FUN
 #undef P_FALLBACK
 

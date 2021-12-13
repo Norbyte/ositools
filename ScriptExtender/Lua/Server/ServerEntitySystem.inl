@@ -57,6 +57,11 @@ glm::vec3 IGameObject::LuaGetTranslate()
 	return *GetTranslate();
 }
 
+void IGameObject::LuaSetTranslate(glm::vec3 const& translate)
+{
+	SetTranslate(translate);
+}
+
 glm::mat3 IGameObject::LuaGetRotate()
 {
 	return *GetRotation();
@@ -65,6 +70,11 @@ glm::mat3 IGameObject::LuaGetRotate()
 float IGameObject::LuaGetScale()
 {
 	return GetScale();
+}
+
+void IGameObject::LuaSetScale(float scale)
+{
+	SetScale(scale);
 }
 
 glm::vec3 IGameObject::LuaGetVelocity()

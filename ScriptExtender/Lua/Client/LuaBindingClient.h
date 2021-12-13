@@ -71,6 +71,8 @@ namespace dse::ecl::lua
 	class ClientState : public State
 	{
 	public:
+		static ClientState* FromLua(lua_State* L);
+
 		ClientState();
 		~ClientState();
 
@@ -80,6 +82,7 @@ namespace dse::ecl::lua
 		}
 
 		void Initialize() override;
+		bool IsClient() override;
 		void OnUpdate(GameTime const& time) override;
 
 		void OnCreateUIObject(ComponentHandle handle);

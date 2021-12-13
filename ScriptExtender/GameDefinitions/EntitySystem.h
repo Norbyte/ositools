@@ -391,8 +391,10 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	ComponentHandle LuaGetHandle();
 	EntityHandle LuaGetEntityHandle();
 	glm::vec3 LuaGetTranslate();
+	void LuaSetTranslate(glm::vec3 const& translate);
 	glm::mat3 LuaGetRotate();
 	float LuaGetScale();
+	void LuaSetScale(float);
 	glm::vec3 LuaGetVelocity();
 	float LuaGetHeight();
 

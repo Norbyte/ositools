@@ -20,10 +20,10 @@ void* CrtAllocRaw(std::size_t size);
 void CrtFree(void*);
 
 template <class T, class ...Args>
-T * GameAlloc(Args... args)
+T * GameAlloc(Args&&... args)
 {
 	auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T)));
-	new (ptr) T(args...);
+	new (ptr) T(std::forward<Args>(args)...);
 	return ptr;
 }
 
@@ -35,17 +35,23 @@ void GameDelete(T* obj)
 }
 
 template <class T, class ...Args>
-T * GameAllocArray(std::size_t n, Args... args)
+T * GameAllocArray(std::size_t n, Args&&... args)
 {
 	auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T) * n));
 	for (auto i = 0; i < n; i++) {
-		new (ptr + i) T(args...);
+		new (ptr + i) T(std::forward<Args>(args)...);
 	}
 	return ptr;
 }
 
 template <class T>
 using GameUniquePtr = std::unique_ptr<T, decltype(&GameDelete<T>)>;
+
+template <class T, class... Args>
+GameUniquePtr<T> MakeGameUnique(Args&&... args)
+{
+	return GameUniquePtr<T>(GameAlloc<T>(std::forward<Args>(args)...), &GameDelete<T>);
+}
 
 template <class T>
 class GameAllocator

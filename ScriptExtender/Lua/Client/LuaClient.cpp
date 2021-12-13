@@ -13,7 +13,6 @@
 #include <Lua/Client/ClientCharacter.inl>
 #include <Lua/Client/ClientItem.inl>
 
-
 BEGIN_NS(lua)
 
 void AddVoiceMetaData(lua_State* L, char const* speakerGuid, char const* translatedStringKey, char const* source,
@@ -404,6 +403,13 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	RegisterClientLibraries(L);
 }
 
+ClientState* ClientState::FromLua(lua_State* L)
+{
+	assert(gExtender->GetClient().IsInClientThread());
+	auto self = static_cast<ClientState*>(State::FromLua(L));
+	assert(self->IsClient());
+	return self;
+}
 
 ClientState::ClientState()
 {}
@@ -447,6 +453,11 @@ void ClientState::Initialize()
 		debugger->ClientStateCreated(this);
 	}
 #endif
+}
+
+bool ClientState::IsClient()
+{
+	return true;
 }
 
 void ClientState::OnUpdate(GameTime const& time)

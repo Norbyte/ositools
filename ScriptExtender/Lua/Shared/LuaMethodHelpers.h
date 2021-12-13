@@ -167,13 +167,13 @@ inline void PushReturnValue(lua_State* L, std::tuple<Args...> v)
 }
 
 template <class T>
-inline int ReturnValueSize(Overload<T>)
+inline constexpr int ReturnValueSize(Overload<T>)
 {
 	return 1;
 }
 
 template <class ...Args>
-inline int ReturnValueSize(Overload<std::tuple<Args...>>)
+inline constexpr int ReturnValueSize(Overload<std::tuple<Args...>>)
 {
 	return sizeof...(Args);
 }
@@ -182,6 +182,16 @@ template <class T>
 inline ProxyParam<T> checked_get_param(lua_State* L, int i, Overload<ProxyParam<T>>)
 {
 	return ProxyParam(ObjectProxy2::CheckedGet<T>(L, i));
+}
+
+template <class T>
+inline std::optional<ProxyParam<T>> checked_get_param(lua_State* L, int i, Overload<std::optional<ProxyParam<T>>>)
+{
+	if (lua_gettop(L) < i || lua_isnil(L, i)) {
+		return {};
+	} else {
+		return ProxyParam(ObjectProxy2::CheckedGet<T>(L, i));
+	}
 }
 
 // Helper for removing reference and CV-qualifiers before fetching a Lua value
@@ -250,20 +260,22 @@ inline int CallMethod(lua_State* L, R (T::* fun)(Args...)) {
 }
 
 
-template <class R, class T, class ...Args, size_t ...Indices>
-inline int CallGetterHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
-	StackCheck _(L, ReturnValueSize(Overload<R>{}));
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
-	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
+template <class R, class T>
+inline void CallGetter(lua_State* L, T* obj, R(T::* fun)()) {
+	static_assert(ReturnValueSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
+	StackCheck _(L, 1);
+	auto retval = (obj->*fun)();
 	PushReturnValue(L, retval);
-	return ReturnValueSize(Overload<R>{});
 }
 
-template <class R, class T, class ...Args>
-inline int CallGetter(lua_State* L, R(T::* fun)(Args...)) {
-	return CallGetterHelper(L, fun, std::index_sequence_for<Args...>());
-}
 
+template <class T, class TArg>
+inline void CallSetter(lua_State* L, T* obj, int index, void(T::* fun)(TArg)) {
+	static_assert(ReturnValueSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
+	StackCheck _(L, 0);
+	auto val = checked_get_param_cv<TArg>(L, index);
+	(obj->*fun)(val);
+}
 
 
 // No return value, lua_State passed

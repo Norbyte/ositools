@@ -1298,6 +1298,14 @@ namespace dse::esv::lua
 
 
 
+	ServerState* ServerState::FromLua(lua_State* L)
+	{
+		assert(gExtender->GetServer().IsInServerThread());
+		auto self = static_cast<ServerState*>(State::FromLua(L));
+		assert(!self->IsClient());
+		return self;
+	}
+
 	ServerState::ServerState(ExtensionState& state)
 		: osiris_(state)
 	{}
@@ -1315,6 +1323,11 @@ namespace dse::esv::lua
 			// FIXME - HANDLE IN SERVER LOGIC!
 			gExtender->GetServer().Osiris().GetCustomFunctionManager().ClearDynamicEntries();
 		}
+	}
+
+	bool ServerState::IsClient()
+	{
+		return false;
 	}
 
 	void ServerState::Initialize()

@@ -257,10 +257,13 @@ struct ExecutePropertyDataOnPositionEventParams
 class ServerState : public State
 {
 public:
+	static ServerState* FromLua(lua_State* L);
+
 	ServerState(ExtensionState& state);
 	~ServerState();
 
 	void Initialize() override;
+	bool IsClient() override;
 
 	inline OsirisBinding& Osiris()
 	{
