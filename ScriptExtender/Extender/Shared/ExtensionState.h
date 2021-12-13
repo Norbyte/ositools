@@ -43,7 +43,7 @@ namespace dse
 		void OnStatsLoaded();
 		void OnModuleResume();
 		void OnResetCompleted();
-		void OnUpdate();
+		void OnUpdate(GameTime const& time);
 
 		void IncLuaRefs();
 		void DecLuaRefs();

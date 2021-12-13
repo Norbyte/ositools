@@ -299,11 +299,11 @@ namespace dse
 		}
 	}
 
-	void ExtensionStateBase::OnUpdate()
+	void ExtensionStateBase::OnUpdate(GameTime const& time)
 	{
 		LuaVirtualPin lua(*this);
 		if (lua) {
-			lua->OnUpdate();
+			lua->OnUpdate(time);
 		}
 	}
 

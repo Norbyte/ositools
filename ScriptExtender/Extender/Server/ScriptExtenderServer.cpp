@@ -166,7 +166,7 @@ void ScriptExtender::OnUpdate(void* self, GameTime* time)
 {
 	RunPendingTasks();
 	if (extensionState_) {
-		extensionState_->OnUpdate();
+		extensionState_->OnUpdate(*time);
 	}
 }
 

@@ -449,6 +449,13 @@ void ClientState::Initialize()
 #endif
 }
 
+void ClientState::OnUpdate(GameTime const& time)
+{
+	State::OnUpdate(time);
+
+	effectSystem_.Update();
+}
+
 void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 {
 	UIObjectCreatedEventParams params;

@@ -80,6 +80,7 @@ namespace dse::ecl::lua
 		}
 
 		void Initialize() override;
+		void OnUpdate(GameTime const& time) override;
 
 		void OnCreateUIObject(ComponentHandle handle);
 		void OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);

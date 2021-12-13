@@ -65,6 +65,11 @@ namespace dse::lua
 		STDString Command;
 	};
 
+	struct TickEventParams
+	{
+		GameTime Time;
+	};
+
 	struct NetMessageEventParams
 	{
 		STDString Channel;
@@ -182,6 +187,7 @@ namespace dse::lua
 		}
 
 		virtual void Initialize() = 0;
+		virtual bool IsClient() = 0;
 
 		void FinishStartup();
 		void LoadBootstrap(STDString const& path, STDString const& modTable);
@@ -192,7 +198,7 @@ namespace dse::lua
 		void OnStatsLoaded();
 		void OnModuleResume();
 		void OnResetCompleted();
-		void OnUpdate();
+		virtual void OnUpdate(GameTime const& time);
 
 		std::optional<int> LoadScript(STDString const & script, STDString const & name = "", int globalsIdx = 0);
 

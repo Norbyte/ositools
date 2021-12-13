@@ -462,8 +462,11 @@ namespace dse::lua
 		ThrowEvent(*this, "ResetCompleted", params, false, 0);
 	}
 
-	void State::OnUpdate()
+	void State::OnUpdate(GameTime const& time)
 	{
+		TickEventParams params{ time };
+		ThrowEvent(*this, "Tick", params, false, 0);
+
 		lua_gc(L, LUA_GCSTEP, 10);
 	}
 
