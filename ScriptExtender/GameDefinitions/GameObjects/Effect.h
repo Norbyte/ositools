@@ -30,6 +30,10 @@ BEGIN_NS(ecl)
 
 struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 {
+	using InitProc = void (MultiEffectHandler* self, char const* effect, glm::vec3 const& position, IEoCClientObject* target, void* skillState, IEoCClientObject* listenForTextKeys, FixedString const& weaponBones);
+	using UpdateProc = void (MultiEffectHandler* self);
+	using DeleteProc = void (MultiEffectHandler* self, bool immediate);
+
 	struct WeaponAttachmentInfo
 	{
 		FixedString EffectName;
@@ -39,7 +43,7 @@ struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 	
 	struct MultiEffectVisual : public ProtectedGameObject<MultiEffectVisual>
 	{
-		void* VMT;
+		void* VMT{ nullptr };
 		EntityHandle VisualEntityHandle;
 		MultiEffectHandler* MultiEffectHandler;
 		ObjectSet<FixedString> OS_FS;
@@ -48,22 +52,17 @@ struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 	struct EffectInfo
 	{
 		FixedString Effect;
-		ObjectSet<FixedString> Args;
+		ObjectSet<FixedString> BoneNames;
 		MultiEffectHandlerFlags Flags;
 	};
 
-	struct TextKey
-	{
-		ObjectSet<EffectInfo*> Effects;
-	};
-
-	void* VMT;
+	void* VMT{ nullptr };
 	glm::vec3 Position;
 	ComponentHandle TargetObjectHandle;
 	ComponentHandle ListenForTextKeysHandle;
 	FixedString WeaponBones;
-	RefMap<FixedString, TextKey> TextKeys;
-	void* SkillState;
+	RefMap<FixedString, ObjectSet<EffectInfo*>> TextKeyEffects;
+	void* SkillState{ nullptr };
 	ObjectSet<ComponentHandle> Effects;
 	ObjectSet<ComponentHandle> AttachedVisuals;
 	ObjectSet<MultiEffectVisual*> Visuals;

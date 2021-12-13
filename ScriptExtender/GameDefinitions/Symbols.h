@@ -17,6 +17,7 @@
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 #include <GameDefinitions/Sound.h>
 #include <GameDefinitions/Resource.h>
+#include <GameDefinitions/GameObjects/Effect.h>
 
 namespace dse
 {
@@ -244,6 +245,10 @@ namespace dse
 
 		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
 		LocalTemplateManager** esv__LocalTemplateManager{ nullptr };
+
+		ecl::MultiEffectHandler::InitProc* ecl__MultiEffectHandler__Init{ nullptr };
+		ecl::MultiEffectHandler::UpdateProc* ecl__MultiEffectHandler__Update{ nullptr };
+		ecl::MultiEffectHandler::DeleteProc* ecl__MultiEffectHandler__Delete{ nullptr };
 
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };

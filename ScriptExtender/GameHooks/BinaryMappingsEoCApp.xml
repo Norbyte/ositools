@@ -1075,5 +1075,37 @@
       <Target Type="Indirect" Offset="18" Symbol="esv__LocalTemplateManager" />
       <Target Type="Absolute" Offset="0" NextSymbol="ls::GlobalTemplateManager" NextSymbolSeekSize="0x80" />
     </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Init">
+      48 8D 15 ?? ?? ?? ?? // lea     rdx, aRs3FxGpStatusS
+      48 8D 05 ?? ?? ?? ??  // lea     rax, fs_Empty_
+      48 89 44 24 30  // mov     [rsp+68h+var_38], rax
+      4C 89 7C 24 28  // mov     [rsp+68h+var_40], r15
+      48 C7 44 24 20 00 00 00 00  // mov     [rsp+68h+var_48], 0
+      E8 ?? ?? ?? ?? // call    ecl__MultiEffectHandler__Init
+      <Condition Type="String" Offset="0" Value="RS3_FX_GP_Status_Smelly_01:Dummy_StatusFX" />
+      <Target Type="Indirect" Offset="33" Symbol="ecl__MultiEffectHandler__Init" />
+    </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Delete">
+      F6 41 40 40 // test    byte ptr [rcx+40h], 40h
+      48 8B F9  // mov     rdi, rcx
+      0F 84 D5 00 00 00  // jz      loc_14173A698
+      48 81 C1 D0 00 00 00  // add     rcx, 0D0h
+      48 89 5C 24 38  // mov     [rsp+28h+arg_8], rbx
+      33 D2  // xor     edx, edx
+      E8 ?? ?? ?? ??  // call    ecl__MultiEffectHandler__Delete
+      48 8D 8F A0 01 00 00 // lea     rcx, [rdi+1A0h]
+      <Target Type="Indirect" Offset="27" Symbol="ecl__MultiEffectHandler__Delete" />
+    </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Update">
+      C6 87 34 01 00 00 00 // mov     byte ptr [rdi+134h], 0
+      48 8D 4F 38  // lea     rcx, [rdi+38h]
+      E8 ?? ?? ?? ??  // call    ecl__MultiEffectHandler__Update
+      F3 0F 10 45 08  // movss   xmm0, dword ptr [rbp+8]
+      F3 0F 58 87 30 01 00 00  // addss   xmm0, dword ptr [rdi+130h]
+      <Target Type="Indirect" Offset="11" Symbol="ecl__MultiEffectHandler__Update" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

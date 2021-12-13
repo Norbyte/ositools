@@ -203,6 +203,10 @@ namespace dse
 		SYM_OFF(ls__GlobalTemplateManager);
 		SYM_OFF(esv__LocalTemplateManager);
 
+		SYM_OFF(ecl__MultiEffectHandler__Init);
+		SYM_OFF(ecl__MultiEffectHandler__Update);
+		SYM_OFF(ecl__MultiEffectHandler__Delete);
+
 		SYM_OFF(ResourceManager__GetInstance);
 		SYM_OFF(ResourceManager__Instance);
 		SYM_OFF(ls__GlobalSwitches);

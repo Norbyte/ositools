@@ -11,6 +11,7 @@
 #include <GameDefinitions/PropertyMaps/UseActions.inl>
 #include <GameDefinitions/PropertyMaps/Render.inl>
 #include <GameDefinitions/PropertyMaps/Material.inl>
+#include <GameDefinitions/PropertyMaps/Effect.inl>
 
 
 BEGIN_CLS(stats::HitDamageInfo)
@@ -42,6 +43,13 @@ pm.AddProperty("EffectFlags",
 );
 #endif
 
+END_CLS()
+
+
+BEGIN_CLS(GameTime)
+P_RO(Time)
+P_RO(DeltaTime)
+P_RO(Ticks)
 END_CLS()
 
 

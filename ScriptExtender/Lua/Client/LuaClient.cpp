@@ -60,6 +60,43 @@ void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
 
 END_NS()
 
+BEGIN_NS(ecl::lua::effect)
+
+EffectSystem::~EffectSystem()
+{
+	auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
+	for (auto const& effect : effects_) {
+		del(effect.get(), true);
+	}
+}
+
+ClientMultiEffect* EffectSystem::Create()
+{
+	auto effect = MakeGameUnique<ClientMultiEffect>();
+	effects_.push_back(std::move(effect));
+	return effects_.rbegin()->get();
+}
+
+void EffectSystem::Destroy(ClientMultiEffect* effect)
+{
+	auto it = std::find_if(effects_.begin(), effects_.end(), [&](auto const& v) { return v.get() == effect; });
+	if (it != effects_.end()) {
+		auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
+		del(it->get(), false);
+		effects_.erase(it);
+	}
+}
+
+void EffectSystem::Update()
+{
+	auto update = GetStaticSymbols().ecl__MultiEffectHandler__Update;
+	for (auto const& effect : effects_) {
+		update(effect.get());
+	}
+}
+
+END_NS()
+
 BEGIN_NS(ecl::lua)
 
 using namespace dse::lua;

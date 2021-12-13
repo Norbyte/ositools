@@ -748,6 +748,12 @@
     <None Include="GameDefinitions\PropertyMaps\Material.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="Lua\Libs\ClientEffect.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Effect.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
     <None Include="Lua\Libs\Resource.inl">
       <Filter>Lua\Libs</Filter>
     </None>

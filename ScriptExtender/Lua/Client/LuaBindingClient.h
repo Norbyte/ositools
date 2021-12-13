@@ -3,7 +3,30 @@
 #include <Lua/Shared/LuaBinding.h>
 #include <GameDefinitions/UI.h>
 #include <Lua/Client/ClientUI.h>
+#include <GameDefinitions/GameObjects/Effect.h>
 #include <span>
+
+BEGIN_NS(ecl::lua::effect)
+
+struct ClientMultiEffect : public MultiEffectHandler
+{
+	void Delete(lua_State* L);
+};
+
+class EffectSystem
+{
+public:
+	~EffectSystem();
+
+	ClientMultiEffect* Create();
+	void Destroy(ClientMultiEffect* effect);
+	void Update();
+
+private:
+	Vector<GameUniquePtr<ClientMultiEffect>> effects_;
+};
+
+END_NS()
 
 namespace dse::ecl::lua
 {
@@ -76,6 +99,11 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
+		effect::EffectSystem& GetEffectSystem()
+		{
+			return effectSystem_;
+		}
+
 		CustomDrawHelper& GetCustomDrawHelper()
 		{
 			return customDrawHelper_;
@@ -105,5 +133,6 @@ namespace dse::ecl::lua
 		ExtensionLibraryClient library_;
 		std::unordered_map<STDString, ComponentHandle> clientUI_;
 		CustomDrawHelper customDrawHelper_;
+		effect::EffectSystem effectSystem_;
 	};
 }

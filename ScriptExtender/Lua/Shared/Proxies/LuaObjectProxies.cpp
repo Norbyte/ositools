@@ -295,5 +295,6 @@ char const* const TypeInfo<ig::InvokeDataValue>::TypeName = "ig::InvokeDataValue
 char const* const TypeInfo<ObjectSet<stats::PropertyStatus*>>::TypeName = "ObjectSet<PropertyStatus>";
 char const* const TypeInfo<ObjectSet<FixedString>>::TypeName = "ObjectSet<FixedString>";
 char const* const TypeInfo<ObjectSet<uint32_t>>::TypeName = "ObjectSet<uint32_t>";
+char const* const TypeInfo<ObjectSet<ecl::MultiEffectHandler::EffectInfo*>>::TypeName = "ObjectSet<ecl::MultiEffectHandler::EffectInfo *>";
 
 END_SE()
