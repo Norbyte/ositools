@@ -68,7 +68,7 @@ int MapProxy::ToString(lua_State* L)
 		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p)", 
 			impl->GetKeyTypeName(), impl->GetValueTypeName(), GetImpl()->GetRaw());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p, DEAD)", 
+		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p, DEAD REFERENCE)", 
 			impl->GetKeyTypeName(), impl->GetValueTypeName(), GetImpl()->GetRaw());
 	}
 

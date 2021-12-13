@@ -74,7 +74,7 @@ int SetProxy::ToString(lua_State* L)
 	if (lifetime_.IsAlive()) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p)", GetImpl()->GetTypeName(), GetImpl()->GetRaw());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p, DEAD)", GetImpl()->GetTypeName(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p, DEAD REFERENCE)", GetImpl()->GetTypeName(), GetImpl()->GetRaw());
 	}
 
 	push(L, entityName);

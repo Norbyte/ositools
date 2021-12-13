@@ -111,7 +111,7 @@ int ObjectProxy2::ToString(lua_State* L)
 	if (lifetime_.IsAlive()) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p, DEAD)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p, DEAD REFERENCE)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw());
 	}
 
 	push(L, entityName);

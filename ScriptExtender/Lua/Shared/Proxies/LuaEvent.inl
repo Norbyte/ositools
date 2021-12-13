@@ -84,7 +84,7 @@ int EventObject::ToString(lua_State* L)
 	if (lifetime_.IsAlive()) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s)", eventName_, GetImpl()->GetTypeName());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s, DEAD)", eventName_, GetImpl()->GetTypeName());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s, DEAD REFERENCE)", eventName_, GetImpl()->GetTypeName());
 	}
 
 	push(L, entityName);
