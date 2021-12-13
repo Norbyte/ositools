@@ -9,6 +9,8 @@
 #include <GameDefinitions/PropertyMaps/RootTemplates.inl>
 #include <GameDefinitions/PropertyMaps/Projectile.inl>
 #include <GameDefinitions/PropertyMaps/UseActions.inl>
+#include <GameDefinitions/PropertyMaps/Render.inl>
+#include <GameDefinitions/PropertyMaps/Material.inl>
 
 
 BEGIN_CLS(stats::HitDamageInfo)

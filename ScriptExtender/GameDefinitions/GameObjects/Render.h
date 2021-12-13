@@ -2,6 +2,7 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/EntitySystem.h>
 
 BEGIN_SE()
 
@@ -10,7 +11,7 @@ struct MoveableObject : public ProtectedGameObject<MoveableObject>
 	void* VMT;
 	Transform LocalTransform;
 	Transform WorldTransform;
-	Scene *Scene;
+	Scene *ContainingScene;
 	void* CullFunction;
 	void* CameraSortCallback;
 	uint8_t ObjectFlags;
@@ -42,9 +43,9 @@ struct Visual : public MoveableObject
 	ComponentHandle Handle;
 	void* Actor;
 	void* Skeleton;
-	ObjectSet<ObjectDesc> OS_ObjectDesc;
+	ObjectSet<ObjectDesc> SubObjects;
 	ObjectSet<float> LODDistances;
-	ObjectSet<Attachment> OS_Attachment;
+	ObjectSet<Attachment> Attachments;
 	Visual* Parent;
 	void* VisualResource;
 	IGameObject* GameObject;
@@ -80,15 +81,15 @@ struct PropertyList
 
 struct RenderableObject : public MoveableObject
 {
-	rf::Model* Model;
+	void* Model; // rf::Model*
 	void* ClothModel;
-	bool IsSimulatedCloth_M;
-	PropertyList PropertyList;
+	bool IsSimulatedCloth;
+	dse::PropertyList PropertyList;
 	Visual* ParentVisual;
-	ObjectSet<void*> AppliedMaterials;
+	ObjectSet<AppliedMaterial*> AppliedMaterials;
 	Material* ActiveMaterial;
-	ObjectSet<void*> AppliedOverlayMaterials;
-	char HasPhysicsProxy;
+	ObjectSet<AppliedMaterial*> AppliedOverlayMaterials;
+	bool HasPhysicsProxy;
 	PhysicsShape* ClothPhysicsShape;
 	uint8_t LOD;
 	float MeshRandomData[4];
@@ -129,7 +130,7 @@ struct Light : public MoveableObject
 	void* LightVolumeTexture;
 	int LightVolumeMapping;
 	uint8_t field_24C;
-	LightTemplate* Template;
+	void* Template; // LightTemplate*
 	Scene* AssociatedScene;
 	bool IsUpdateJobRunning;
 };

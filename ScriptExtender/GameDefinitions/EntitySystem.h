@@ -374,7 +374,7 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	virtual void LoadVisual() = 0;
 	virtual void UnloadVisual() = 0;
 	virtual void ReloadVisual() = 0;
-	virtual void GetVisual() = 0;
+	virtual Visual* GetVisual() = 0;
 	virtual void GetPhysics() = 0;
 	virtual void SetPhysics() = 0;
 	virtual void LoadPhysics() = 0;
@@ -397,6 +397,7 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	void LuaSetScale(float);
 	glm::vec3 LuaGetVelocity();
 	float LuaGetHeight();
+	Visual* LuaGetVisual();
 
 	BaseComponent Base;
 	FixedString MyGuid;

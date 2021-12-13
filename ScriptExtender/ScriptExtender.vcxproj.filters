@@ -739,6 +739,12 @@
     <None Include="Lua\Libs\AI.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\Render.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Material.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -87,6 +87,11 @@ float IGameObject::LuaGetHeight()
 	return GetHeight();
 }
 
+Visual* IGameObject::LuaGetVisual()
+{
+	return GetVisual();
+}
+
 std::optional<STDWString> IEoCServerObject::LuaGetDisplayName()
 {
 	TranslatedString name;

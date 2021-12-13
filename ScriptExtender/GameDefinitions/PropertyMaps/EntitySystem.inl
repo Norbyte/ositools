@@ -15,6 +15,7 @@ P_GETTER_SETTER(Translate, LuaGetTranslate, LuaSetTranslate)
 P_GETTER_SETTER(Scale, LuaGetScale, LuaSetScale)
 P_GETTER(Velocity, LuaGetVelocity)
 P_GETTER(Height, LuaGetHeight)
+P_GETTER(Visual, LuaGetVisual)
 
 P_FUN(IsTagged, LuaIsTagged)
 P_FUN(HasTag, LuaIsTagged)

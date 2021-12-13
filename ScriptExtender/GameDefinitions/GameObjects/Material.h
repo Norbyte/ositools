@@ -71,8 +71,8 @@ struct Material : public ProtectedGameObject<Material>
 {
 	void* VMT;
 	FixedString MaterialID;
-	ShaderDesc ShaderDescs[12];
-	Path ShaderPaths[12];
+	std::array<ShaderDesc, 12> ShaderDescs;
+	std::array<Path, 12> ShaderPaths;
 	int ShadingModel;
 	int ForwardLightingMode;
 	uint8_t BlendState;
