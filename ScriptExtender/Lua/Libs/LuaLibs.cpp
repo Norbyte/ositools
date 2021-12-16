@@ -21,7 +21,7 @@
 #include <Lua/Libs/Stats.inl>
 #include <Lua/Libs/ClientUI.inl>
 #include <Lua/Libs/ClientNet.inl>
-#include <Lua/Libs/ClientEffect.inl>
+#include <Lua/Libs/ClientVisual.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
@@ -67,7 +67,7 @@ void RegisterClientLibraries(lua_State* L)
 	audio::RegisterAudioLib(L);
 	ui::RegisterUILib(L);
 	net::RegisterNetLib(L);
-	effect::RegisterEffectLib(L);
+	visual::RegisterVisualLib(L);
 }
 
 END_NS()

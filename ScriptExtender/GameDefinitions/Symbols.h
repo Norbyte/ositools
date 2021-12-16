@@ -250,8 +250,16 @@ namespace dse
 		ecl::MultiEffectHandler::UpdateProc* ecl__MultiEffectHandler__Update{ nullptr };
 		ecl::MultiEffectHandler::DeleteProc* ecl__MultiEffectHandler__Delete{ nullptr };
 
+		Visual::AddAttachmentProc* ls__Visual__AddAttachment{ nullptr };
+
+		void** ls__gEffectsManager{ nullptr };
+		EffectsManager__DestroyEffect* ls__EffectsManager__DestroyEffect{ nullptr };
+
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
+		ResourceManager::InstantiateVisualProc* ResourceManager__InstantiateVisual{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };
+		VisualFactory::DestroyVisualProc* ls__VisualFactory__DestroyVisual{ nullptr };
+
 #if defined(OSI_EOCAPP)
 		GlobalSwitches ** ls__GlobalSwitches{ nullptr };
 #else

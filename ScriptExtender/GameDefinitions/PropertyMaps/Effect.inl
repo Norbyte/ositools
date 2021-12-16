@@ -33,7 +33,10 @@ P_RO(VisualId)
 END_CLS()
 
 
-BEGIN_CLS(ecl::lua::effect::ClientMultiEffect)
+BEGIN_CLS(ecl::lua::visual::ClientMultiVisual)
 INHERIT(ecl::MultiEffectHandler)
+P_REF(AttachedVisuals)
 P_FUN(Delete, Delete)
+P_FUN(ParseFromStats, ParseFromStats)
+P_FUN(AddVisual, AddVisual)
 END_CLS()

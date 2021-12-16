@@ -1107,5 +1107,44 @@
       F3 0F 58 87 30 01 00 00  // addss   xmm0, dword ptr [rdi+130h]
       <Target Type="Indirect" Offset="11" Symbol="ecl__MultiEffectHandler__Update" />
     </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::AttachVisuals">
+      C6 44 24 20 01 // mov     [rsp+100h+a5], 1
+      E8 ?? ?? ?? ??  // call    ls__ResourceManager__InstantiateVisual
+      48 8B F8  // mov     rdi, rax
+      48 85 C0 // test    rax, rax
+      74 2A  // jz      short xxx
+      44 8B 4D 87  // mov     r9d, [rbp+57h+var_D0]
+      4C 8B C3  // mov     r8, rbx
+      48 8B D0  // mov     rdx, rax
+      C7 44 24 20 00 00 00 00  // mov     dword ptr [rsp+100h+a5], 0
+      49 8B CE  // mov     rcx, r14
+      E8 ?? ?? ?? ?? // call    ls__Visual__AddAttachment
+      <Target Type="Indirect" Offset="5" Symbol="ResourceManager__InstantiateVisual" />
+      <Target Type="Indirect" Offset="39" Symbol="ls__Visual__AddAttachment" />
+    </Mapping>
+
+    <Mapping Name="ls::ResourceManager::DestroyVisual">
+      4C 8D 82 C0 01 00 00 // lea     r8, [rdx+1C0h]
+      49 8B 10  // mov     rdx, [r8]
+      48 8B C2  // mov     rax, rdx
+      48 C1 E8 36  // shr     rax, 36h
+      25 FF 03 00 00  // and     eax, 3FFh
+      3B 05 ?? ?? ?? ??  // cmp     eax, cs:ls__gVisualTypeIndex
+      75 18  // jnz     short xxx
+      48 B8 00 00 00 00 FF FF 3F 00  // mov     rax, 3FFFFF00000000h
+      48 85 D0  // test    rax, rdx
+      74 20  // jz      short xxx
+      48 8B 49 20  // mov     rcx, [rcx+20h]
+      E9 ?? ?? ?? ??  // jmp     ls__VisualFactory__DestroyVisual
+      3B 05 ?? ?? ?? ??  // cmp     eax, cs:ls__gEffectTypeIndex
+      75 0F  // jnz     short xxx
+      48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:ls__gEffectsManager
+      49 8B D0  // mov     rdx, r8
+      E9 ?? ?? ?? ??  // jmp     ls__EffectsManager__DestroyEffect
+      <Target Type="Indirect" Offset="49" Symbol="ls__VisualFactory__DestroyVisual" />
+      <Target Type="Indirect" Offset="62" Symbol="ls__gEffectsManager" />
+      <Target Type="Indirect" Offset="72" Symbol="ls__EffectsManager__DestroyEffect" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

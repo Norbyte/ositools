@@ -71,6 +71,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
+#define P_REF_TY(prop, ty)
 #define P_BITMASK(prop)
 #define PN(name, prop)
 #define PN_RO(name, prop)
@@ -89,6 +90,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, i
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_REF_TY
 #undef P_BITMASK
 #undef PN
 #undef PN_RO
@@ -150,6 +152,13 @@ bool EnableWriteProtectedWrites{ false };
 #define P_REF(prop) \
 	pm.AddRawProperty(#prop, \
 		&(GenericGetOffsetRefProperty<decltype(PM::ObjectType::prop)>), \
+		&GenericSetNonWriteableProperty, \
+		offsetof(PM::ObjectType, prop) \
+	);
+
+#define P_REF_TY(prop, ty) \
+	pm.AddRawProperty(#prop, \
+		&(GenericGetOffsetRefProperty<ty>), \
 		&GenericSetNonWriteableProperty, \
 		offsetof(PM::ObjectType, prop) \
 	);
@@ -223,6 +232,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_REF_TY
 #undef P_BITMASK
 #undef PN
 #undef PN_RO
@@ -245,6 +255,7 @@ BEGIN_SE()
 #define P(prop)
 #define P_RO(prop)
 #define P_REF(prop)
+#define P_REF_TY(prop, ty)
 #define P_BITMASK(prop)
 #define PN(name, prop)
 #define PN_RO(name, prop)
@@ -263,6 +274,7 @@ BEGIN_SE()
 #undef P
 #undef P_RO
 #undef P_REF
+#undef P_REF_TY
 #undef P_BITMASK
 #undef PN
 #undef PN_RO
@@ -296,5 +308,6 @@ char const* const TypeInfo<ObjectSet<stats::PropertyStatus*>>::TypeName = "Objec
 char const* const TypeInfo<ObjectSet<FixedString>>::TypeName = "ObjectSet<FixedString>";
 char const* const TypeInfo<ObjectSet<uint32_t>>::TypeName = "ObjectSet<uint32_t>";
 char const* const TypeInfo<ObjectSet<ecl::MultiEffectHandler::EffectInfo*>>::TypeName = "ObjectSet<ecl::MultiEffectHandler::EffectInfo *>";
+char const* const TypeInfo<RefMap<FixedString, AnimationSet::AnimationDescriptor>>::TypeName = "RefMap<FixedString, AnimationSet::AnimationDescriptor>";
 
 END_SE()

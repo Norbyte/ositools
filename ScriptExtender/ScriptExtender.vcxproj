@@ -276,7 +276,7 @@
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
-    <None Include="Lua\Libs\ClientEffect.inl" />
+    <None Include="Lua\Libs\ClientVisual.inl" />
     <None Include="Lua\Libs\ClientNet.inl" />
     <None Include="Lua\Libs\ClientUI.inl" />
     <None Include="Lua\Libs\Debug.inl" />

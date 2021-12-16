@@ -207,8 +207,15 @@ namespace dse
 		SYM_OFF(ecl__MultiEffectHandler__Update);
 		SYM_OFF(ecl__MultiEffectHandler__Delete);
 
+		SYM_OFF(ls__Visual__AddAttachment);
+
+		SYM_OFF(ls__gEffectsManager);
+		SYM_OFF(ls__EffectsManager__DestroyEffect);
+
 		SYM_OFF(ResourceManager__GetInstance);
+		SYM_OFF(ResourceManager__InstantiateVisual);
 		SYM_OFF(ResourceManager__Instance);
+		SYM_OFF(ls__VisualFactory__DestroyVisual);
 		SYM_OFF(ls__GlobalSwitches);
 
 		SYM_OFF(CDivinityStats_Item__FoldDynamicAttributes);

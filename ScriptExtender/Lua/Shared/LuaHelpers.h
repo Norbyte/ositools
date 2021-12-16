@@ -303,17 +303,6 @@ namespace dse::lua
 
 	ig::InvokeDataValue do_get(lua_State* L, int index, Overload<ig::InvokeDataValue>);
 
-	template <class T>
-	inline typename std::optional<T> do_get(lua_State* L, int index, Overload<std::optional<T>>)
-	{
-		if (lua_type(L, index) == LUA_TNIL) {
-			return {};
-		}
-		else {
-			return do_get(L, index, Overload<T>{});
-		}
-	}
-
 
 	template <class TValue>
 	TValue checked_getfield(lua_State* L, char const* k, int index = -1)
@@ -395,6 +384,16 @@ namespace dse::lua
 			revision = gettable<uint32_t>(L, 3, i),
 			build = gettable<uint32_t>(L, 4, i);
 		return Version(minor, major, revision, build);	
+	}
+
+	template <class T>
+	inline typename std::optional<T> do_get(lua_State* L, int index, Overload<std::optional<T>>)
+	{
+		if (lua_type(L, index) == LUA_TNIL) {
+			return {};
+		} else {
+			return do_get(L, index, Overload<T>{});
+		}
 	}
 
 	// Overload helper for fetching a parameter for a Lua -> C++ function call
@@ -627,5 +626,15 @@ namespace dse::lua
 		auto val = get<std::optional<T>>(L, -1);
 		lua_pop(L, 1);
 		return val ? *val : defaultValue;
+	}
+
+	template <class T>
+	std::optional<T> try_gettable(lua_State* L, char const* k, int index)
+	{
+		push(L, k);
+		lua_rawget(L, index);
+		auto val = get<std::optional<T>>(L, -1);
+		lua_pop(L, 1);
+		return val;
 	}
 }

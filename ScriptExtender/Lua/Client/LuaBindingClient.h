@@ -6,24 +6,32 @@
 #include <GameDefinitions/GameObjects/Effect.h>
 #include <span>
 
-BEGIN_NS(ecl::lua::effect)
+BEGIN_NS(ecl::lua::visual)
 
-struct ClientMultiEffect : public MultiEffectHandler
-{
-	void Delete(lua_State* L);
-};
-
-class EffectSystem
+struct ClientMultiVisual : public MultiEffectHandler
 {
 public:
-	~EffectSystem();
+	void ParseFromStats(char const* effect, std::optional<char const*> weaponBones);
+	Visual* AddVisual(lua_State* L, FixedString const& visualId);
+	void Delete(lua_State* L);
 
-	ClientMultiEffect* Create();
-	void Destroy(ClientMultiEffect* effect);
+	ObjectSet<ComponentHandle> AttachedVisuals;
+};
+
+class VisualSystem
+{
+public:
+	~VisualSystem();
+
+	ClientMultiVisual* Create();
+	void Destroy(ClientMultiVisual* effect);
 	void Update();
 
+	void RequestDeleteVisual(ComponentHandle handle);
+
 private:
-	Vector<GameUniquePtr<ClientMultiEffect>> effects_;
+	Vector<GameUniquePtr<ClientMultiVisual>> visuals_;
+	ObjectSet<ComponentHandle> pendingVisualDeletes_;
 };
 
 END_NS()
@@ -35,6 +43,9 @@ namespace dse::ecl::lua
 	LifetimeHolder GetClientLifetime();
 	LifetimePool& GetClientLifetimePool();
 	void RegisterClientLibraries(lua_State* L);
+
+	IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle);
+	IEoCClientObject* GetGameObjectInternal(char const* nameGuid);
 
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
@@ -99,9 +110,9 @@ namespace dse::ecl::lua
 		ClientState();
 		~ClientState();
 
-		effect::EffectSystem& GetEffectSystem()
+		visual::VisualSystem& GetVisualSystem()
 		{
-			return effectSystem_;
+			return visualSystem_;
 		}
 
 		CustomDrawHelper& GetCustomDrawHelper()
@@ -133,6 +144,6 @@ namespace dse::ecl::lua
 		ExtensionLibraryClient library_;
 		std::unordered_map<STDString, ComponentHandle> clientUI_;
 		CustomDrawHelper customDrawHelper_;
-		effect::EffectSystem effectSystem_;
+		visual::VisualSystem visualSystem_;
 	};
 }

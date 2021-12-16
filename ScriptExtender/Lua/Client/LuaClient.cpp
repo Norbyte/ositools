@@ -60,39 +60,58 @@ void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
 
 END_NS()
 
-BEGIN_NS(ecl::lua::effect)
+BEGIN_NS(ecl::lua::visual)
 
-EffectSystem::~EffectSystem()
+VisualSystem::~VisualSystem()
 {
 	auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
-	for (auto const& effect : effects_) {
+	for (auto const& effect : visuals_) {
 		del(effect.get(), true);
 	}
 }
 
-ClientMultiEffect* EffectSystem::Create()
+ClientMultiVisual* VisualSystem::Create()
 {
-	auto effect = MakeGameUnique<ClientMultiEffect>();
-	effects_.push_back(std::move(effect));
-	return effects_.rbegin()->get();
+	auto effect = MakeGameUnique<ClientMultiVisual>();
+	visuals_.push_back(std::move(effect));
+	return visuals_.rbegin()->get();
 }
 
-void EffectSystem::Destroy(ClientMultiEffect* effect)
+void VisualSystem::Destroy(ClientMultiVisual* effect)
 {
-	auto it = std::find_if(effects_.begin(), effects_.end(), [&](auto const& v) { return v.get() == effect; });
-	if (it != effects_.end()) {
+	auto it = std::find_if(visuals_.begin(), visuals_.end(), [&](auto const& v) { return v.get() == effect; });
+	if (it != visuals_.end()) {
 		auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
 		del(it->get(), false);
-		effects_.erase(it);
+		visuals_.erase(it);
 	}
 }
 
-void EffectSystem::Update()
+void VisualSystem::Update()
 {
 	auto update = GetStaticSymbols().ecl__MultiEffectHandler__Update;
-	for (auto const& effect : effects_) {
+	for (auto const& effect : visuals_) {
 		update(effect.get());
 	}
+
+	for (auto const& handle : pendingVisualDeletes_) {
+		if ((ObjectType)handle.GetType() == ObjectType::Visual) {
+			auto visual = GetStaticSymbols().GetResourceManager()->VisualFactory->Get(handle);
+			if (visual) {
+				visual->DetachFromScene();
+			}
+		}
+
+		GetStaticSymbols().GetResourceManager()->DestroyVisual(handle);
+	}
+
+	pendingVisualDeletes_.Clear();
+}
+
+
+void VisualSystem::RequestDeleteVisual(ComponentHandle handle)
+{
+	pendingVisualDeletes_.Add(handle);
 }
 
 END_NS()
@@ -250,6 +269,40 @@ int GetStatus(lua_State* L)
 	return 1;
 }
 
+IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle)
+{
+	if (handle) {
+		switch ((ObjectType)handle.GetType()) {
+		case ObjectType::ClientCharacter:
+			return GetEntityWorld()->GetCharacter(handle);
+
+		case ObjectType::ClientItem: 
+			return GetEntityWorld()->GetItem(handle);
+
+		default:
+			OsiError("Cannot resolve unsupported client handle type: " << handle.GetType());
+			return nullptr;
+		}
+	} else {
+		return nullptr;
+	}
+}
+
+IEoCClientObject* GetGameObjectInternal(char const* nameGuid)
+{
+	auto character = GetEntityWorld()->GetCharacter(nameGuid, false);
+	if (character) {
+		return character;
+	}
+
+	auto item = GetEntityWorld()->GetItem(nameGuid, false);
+	if (item) {
+		return item;
+	}
+
+	return nullptr;
+}
+
 int GetGameObject(lua_State* L)
 {
 	auto lua = State::FromLua(L);
@@ -258,56 +311,28 @@ int GetGameObject(lua_State* L)
 	}
 
 	StackCheck _(L, 1);
-	Item* item = nullptr;
-	Character* character = nullptr;
-	Trigger* trigger = nullptr;
 	switch (lua_type(L, 1)) {
 	case LUA_TLIGHTUSERDATA:
 	{
 		auto handle = get<ComponentHandle>(L, 1);
-		if (handle) {
-			switch ((ObjectType)handle.GetType()) {
-			case ObjectType::ClientCharacter:
-				character = GetEntityWorld()->GetCharacter(handle);
-				break;
-
-			case ObjectType::ClientItem:
-				item = GetEntityWorld()->GetItem(handle);
-				break;
-
-			default:
-				OsiError("Cannot resolve unsupported client handle type: " << handle.GetType());
-				break;
-			}
-		}
-
+		MakeObjectRef(L, GetGameObjectInternal(handle));
 		break;
 	}
 
 	case LUA_TSTRING:
 	{
 		auto guid = lua_tostring(L, 1);
-		character = GetEntityWorld()->GetCharacter(guid, false);
-		item = GetEntityWorld()->GetItem(guid, false);
+		MakeObjectRef(L, GetGameObjectInternal(guid));
 		break;
 	}
 
 	default:
 		OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
 		push(L, nullptr);
-		return 1;
+		break;
 	}
 
-	if (item != nullptr) {
-		MakeLegacyClientItemObjectRef(L, item);
-		return 1;
-	} else if (character != nullptr) {
-		MakeLegacyClientCharacterObjectRef(L, character);
-		return 1;
-	} else {
-		push(L, nullptr);
-		return 1;
-	}
+	return 1;
 }
 
 // FIXME - move to Level->AiGrid!
@@ -501,7 +526,7 @@ void ClientState::OnUpdate(GameTime const& time)
 {
 	State::OnUpdate(time);
 
-	effectSystem_.Update();
+	visualSystem_.Update();
 }
 
 void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)

@@ -191,3 +191,9 @@ FS(Stopped);
 FS(data);
 FS(user);
 
+// Material parameters
+FS(Color1);
+FS(Color2);
+FS(Color3);
+FS(Color4);
+FS(Color5);
