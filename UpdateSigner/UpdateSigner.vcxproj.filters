@@ -18,10 +18,13 @@
     <ClCompile Include="UpdateSigner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\OsiLoader\Crypto.cpp">
+    <ClCompile Include="..\Updater\Crypto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\OsiLoader\Utils.cpp">
+    <ClCompile Include="..\Updater\Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Updater\Manifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

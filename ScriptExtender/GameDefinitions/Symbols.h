@@ -129,7 +129,7 @@ namespace dse
 		App::VMT::OnInputEventProc* App__OnInputEvent{ nullptr };
 
 		ecl::EoCClient** ecl__EoCClient{ nullptr };
-		ecl::EoCClient__HandleError ecl__EoCClient__HandleError{ nullptr };
+		ecl::EoCClient::HandleErrorProc* ecl__EoCClient__HandleError{ nullptr };
 		esv::EoCServer** esv__EoCServer{ nullptr };
 
 		esv::ProjectileHelpers__ShootProjectile* esv__ProjectileHelpers__ShootProjectile{ nullptr };

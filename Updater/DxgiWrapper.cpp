@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DxgiWrapper.h"
-#include "ErrorUtils.h"
+#include "GameHelpers.h"
+
+BEGIN_SE()
 
 std::unique_ptr<DxgiWrapper> gDxgiWrapper;
 
@@ -35,8 +37,6 @@ DxgiWrapper::DxgiWrapper()
 	{
 		Fail("Could not locate CreateDXGIFactory in dxgi.dll");
 	}
-
-	DEBUG("DXGI exports successfully mapped");
 }
 
 DxgiWrapper::~DxgiWrapper()
@@ -99,8 +99,12 @@ HRESULT DxgiWrapper::DXGID3D10RegisterLayers(const void *pLayers, UINT NumLayers
 	return D3D10RegisterLayers(pLayers, NumLayers);
 }
 
+END_SE()
+
 extern "C"
 {
+	using namespace dse;
+
 	HRESULT WINAPI WrappedCreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
 	{
 		return gDxgiWrapper->CreateDXGIFactory(riid, ppFactory);

@@ -3,6 +3,8 @@
 #include <dxgi.h>
 #include <memory>
 
+BEGIN_SE()
+
 class DxgiWrapper
 {
 public:
@@ -44,3 +46,5 @@ private:
 };
 
 extern std::unique_ptr<DxgiWrapper> gDxgiWrapper;
+
+END_SE()

@@ -7,7 +7,6 @@
 
 // Windows Header Files:
 #include <windows.h>
-#include <detours.h>
 
 #include <memory>
 #include <cstdint>
