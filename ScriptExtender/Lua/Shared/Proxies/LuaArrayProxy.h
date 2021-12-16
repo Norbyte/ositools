@@ -149,7 +149,7 @@ public:
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size()) {
+		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
 			LuaWrite(L, (*object_)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -159,12 +159,12 @@ public:
 
 	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size()) {
+		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, (*object_)[arrayIndex - 1]);
 			lua_pop(L, 1);
 			return true;
-		} else if (arrayIndex == object_->Size() + 1) {
+		} else if (arrayIndex == object_->Size + 1) {
 			T val;
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, val);
@@ -179,12 +179,12 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Size();
+		return object_->Size;
 	}
 
 	int Next(lua_State* L, int key) override
 	{
-		if (key >= 0 && key < (int)object_->Size()) {
+		if (key >= 0 && key < (int)object_->Size) {
 			push(L, ++key);
 			LuaWrite(L, (*object_)[key - 1]);
 			return 2;
