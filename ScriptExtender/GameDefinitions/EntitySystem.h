@@ -14,11 +14,9 @@ struct BaseComponent
 	ComponentHandleWithType Component;
 };
 
-template <class TComponent>
-struct ComponentFactory : public ProtectedGameObject<ComponentFactory<TComponent>>
+struct IObjectFactory : public ProtectedGameObject<IObjectFactory>
 {
-	static constexpr ObjectType ObjectTypeIndex = TComponent::ObjectTypeIndex;
-
+	void* VMT;
 	/*virtual ComponentHandle * ReevaluateHandle(ComponentHandle & handle) = 0;
 	virtual ComponentHandle * GetFreeHandle(ComponentHandle & handle) = 0;
 	virtual bool IsFreeIndex(uint32_t index) = 0;
@@ -26,8 +24,21 @@ struct ComponentFactory : public ProtectedGameObject<ComponentFactory<TComponent
 	virtual uint64_t ReserveIndex(uint32_t index) = 0;
 	virtual uint64_t UnreserveIndex(uint32_t index) = 0;
 	virtual void Destroy() = 0;*/
+};
 
-	void * VMT;
+struct ObjectFactoryNullLocker : public IObjectFactory
+{};
+
+struct ObjectFactoryRWLocker : public IObjectFactory
+{
+	SRWLOCK Lock;
+};
+
+template <class TComponent, class TLocker = ObjectFactoryNullLocker>
+struct ComponentFactory : public TLocker
+{
+	static constexpr ObjectType ObjectTypeIndex = TComponent::ObjectTypeIndex;
+
 	Array<TComponent*> ComponentsByHandleIndex;
 	Array<uint32_t> Salts;
 	Set<uint32_t> FreeSlotIndices;

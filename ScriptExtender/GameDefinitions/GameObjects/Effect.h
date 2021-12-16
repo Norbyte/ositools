@@ -8,6 +8,8 @@ BEGIN_SE()
 
 struct Effect : public Visual
 {
+	static constexpr auto ObjectTypeIndex = ObjectType::Effect;
+
 	void* VMT;
 	__int64 field_258;
 	void* EffectResource; // EffectResource*
@@ -64,7 +66,7 @@ struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 	RefMap<FixedString, ObjectSet<EffectInfo*>> TextKeyEffects;
 	void* SkillState{ nullptr };
 	ObjectSet<ComponentHandle> Effects;
-	ObjectSet<ComponentHandle> AttachedVisuals;
+	ObjectSet<ComponentHandle> AttachedVisualComponents;
 	ObjectSet<MultiEffectVisual*> Visuals;
 	ObjectSet<WeaponAttachmentInfo> WeaponAttachments;
 	bool ListeningOnTextKeys;

@@ -5,6 +5,8 @@
 
 BEGIN_SE()
 
+struct VisualFactory;
+
 struct Resource : public ProtectedGameObject<Resource>
 {
     void* VMT;
@@ -19,6 +21,20 @@ struct Resource : public ProtectedGameObject<Resource>
     bool IsDirty;
     bool IsOriginal;
 };
+
+struct TwoStepLoadable
+{
+    void* VMT;
+    int Loaded;
+    void* SRWKernelLock;
+    void* LoadJob;
+};
+
+struct DeferredLoadableResource : public Resource
+{
+    TwoStepLoadable TwoStepLoader;
+};
+
 
 struct ResourceContainer : public ProtectedGameObject<ResourceContainer>
 {
@@ -56,11 +72,14 @@ struct ResourceBank : public ProtectedGameObject<ResourceBank>
 struct ResourceManager : public ProtectedGameObject<ResourceManager>
 {
     using GetInstanceProc = ResourceManager * ();
+    using InstantiateVisualProc = Visual* (ResourceManager* self, FixedString const& visualId, bool playEffects, bool prepareAnims, bool unknown);
+
+    void DestroyVisual(ComponentHandle const& handle);
 
     void* VMT;
     ResourceBank* ResourceBanks[2];
     void* MeshProxyFactory;
-    void* VisualFactory;
+    VisualFactory* VisualFactory;
     PrimitiveSmallSet<uint32_t> AnimationClassNames; // ObjectSet<TAnimationSimpleNameClassname>
     void* EffectFactory;
     void* VisualTemplateManager;

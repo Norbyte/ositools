@@ -258,4 +258,14 @@ FixedString NameGuidToFixedString(char const * nameGuid)
 	return FixedString(guid);
 }
 
+char const* GetHandleTypeName(ComponentHandle const& handle)
+{
+	auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
+	if (type) {
+		return type.GetString();
+	} else {
+		return "(UNKNOWN)";
+	}
+}
+
 END_SE()

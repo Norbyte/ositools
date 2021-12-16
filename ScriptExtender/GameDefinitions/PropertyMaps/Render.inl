@@ -1,9 +1,99 @@
+BEGIN_CLS(Skeleton)
+// No simple way to expose bones for now
+END_CLS()
+
+
+BEGIN_CLS(MeshBinding)
+P_REF(Link)
+// TODO - P_RO(Transform)
+P_REF(Bound)
+END_CLS()
+
+
+BEGIN_CLS(PhysicsRagdoll)
+// No simple way to expose for now
+END_CLS()
+
+
+BEGIN_CLS(Actor)
+P_REF(Skeleton)
+P_REF(MeshBindings)
+P_REF(PhysicsRagdoll)
+P_RO(TextKeyPrepareFlags)
+P_REF(Visual)
+P_REF(Time)
+END_CLS()
+
+
 BEGIN_CLS(MoveableObject)
 P_REF(LocalTransform)
 P_REF(WorldTransform)
-// FIXME - P_REF(Scene)
+// TODO - no reason to expose - P_REF(ContainingScene)
 P_RO(ObjectFlags)
 P_RO(DirtyFlags)
+END_CLS()
+
+
+BEGIN_CLS(AnimationSet::AnimationDescriptor)
+P_RO(ID)
+P_RO(Name)
+END_CLS()
+
+
+BEGIN_CLS(AnimationSet)
+P_REF(AnimationSubSets)
+P_RO(Type)
+END_CLS()
+
+
+BEGIN_CLS(VisualResource::ClothParam)
+P(UUID)
+P(LinearStiffness)
+P(BendingStiffness)
+P(Iterations)
+P(PoseMatching)
+P(Margin)
+P(MassPerMeterSqr)
+P(AtmosphericWindEnabled)
+P(Lift)
+P(Drag)
+P(FrontalWindSpeed)
+P(FrontalWindFrequency)
+P(FrontalWindVariance)
+END_CLS()
+
+
+BEGIN_CLS(VisualResource::ObjectDesc)
+P(ObjectID)
+P(MaterialID)
+P(LOD)
+END_CLS()
+
+
+BEGIN_CLS(VisualResource::Attachment)
+P(UUID)
+P(Name)
+END_CLS()
+
+
+BEGIN_CLS(VisualResource::BonePosRot)
+P(Position)
+// TODO - P(Rotation)
+END_CLS()
+
+
+BEGIN_CLS(VisualResource)
+P_RO(Template)
+P_REF(Objects)
+P_REF(LODDistances)
+P_REF(Attachments)
+P_REF(KnownAnimationSetOverrides)
+P_REF(AnimationWaterfall)
+P_REF(CustomAnimationSet)
+P_REF(ResolvedAnimationSet)
+P_RO(BlueprintInstanceResourceID)
+P_REF(ClothParams)
+P_REF(Bones)
 END_CLS()
 
 
@@ -12,7 +102,7 @@ P_REF(Visual)
 P_RO(DummyAttachmentBoneIndex)
 P_RO(BoneIndex)
 P_RO(AttachmentBoneName)
-P_RO(Flags)
+P_BITMASK(Flags)
 END_CLS()
 
 
@@ -25,14 +115,15 @@ END_CLS()
 BEGIN_CLS(Visual)
 INHERIT(MoveableObject)
 P_RO(Handle)
-// TODO - Actor, Skeleton
+P_REF(Actor)
+P_REF(Skeleton)
 P_REF(SubObjects)
 P_REF(LODDistances)
 P_REF(Attachments)
 P_REF(Parent)
-// TODO - VisualResource
+P_REF(VisualResource)
 P_REF(GameObject)
-P_RO(VisualFlags)
+P_BITMASK(VisualFlags)
 P_RO(TextKeyPrepareFlags)
 P_RO(CullFlags)
 P_RO(PlayingAttachedEffects)
@@ -68,11 +159,18 @@ INHERIT(MoveableObject)
 P_RO(IsSimulatedCloth)
 P_REF(PropertyList)
 P_REF(AppliedMaterials)
-P_REF(ActiveMaterial)
+P_REF(ActiveAppliedMaterial)
 P_REF(AppliedOverlayMaterials)
 P_RO(HasPhysicsProxy)
 P_REF(ClothPhysicsShape)
 P_RO(LOD)
+END_CLS()
+
+
+BEGIN_CLS(AnimatableObject)
+INHERIT(RenderableObject)
+P_REF(MeshBinding)
+// TODO - OverrideTransforms?
 END_CLS()
 
 

@@ -163,6 +163,8 @@ enum GenericComponentHandleTag {};
 using EntityHandle = TypedHandle<EntityHandleTag>;
 using ComponentHandle = TypedHandle<GenericComponentHandleTag>;
 
+char const* GetHandleTypeName(ComponentHandle const& handle);
+
 template <class T>
 inline uint64_t Hash(TypedHandle<T> const& h)
 {

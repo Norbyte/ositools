@@ -46,6 +46,15 @@ pm.AddProperty("EffectFlags",
 END_CLS()
 
 
+BEGIN_CLS(Bound)
+P(Center)
+P(Radius)
+P(Min)
+P(Max)
+P(IsCenterSet)
+END_CLS()
+
+
 BEGIN_CLS(GameTime)
 P_RO(Time)
 P_RO(DeltaTime)
@@ -284,4 +293,8 @@ P_RO(IsLocalized)
 P_RO(IsActive)
 P_RO(IsDirty)
 P_RO(IsOriginal)
+END_CLS()
+
+BEGIN_CLS(DeferredLoadableResource)
+INHERIT(Resource)
 END_CLS()

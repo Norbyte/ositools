@@ -5,11 +5,15 @@
 
 BEGIN_SE()
 
+struct TextureMap;
+
 struct MaterialParameter
 {
 	FixedString Parameter;
 	FixedString UniformName;
+#if !defined(OSI_EOCAPP)
 	FixedString GroupName;
+#endif
 	uint16_t ShaderFlags;
 	bool Enabled;
 };
@@ -17,8 +21,39 @@ struct MaterialParameter
 template <class T>
 struct MaterialParameterWithValue : public MaterialParameter
 {
-	MaterialParameter Name;
 	T Value;
+};
+
+struct MaterialVector3
+{
+	glm::vec3 Value;
+	bool IsColor;
+};
+
+struct alignas(16) MaterialVector4
+{
+	glm::vec4 Value;
+	bool IsColor;
+	uint8_t _Pad[15];
+};
+
+struct MaterialTexture2D
+{
+	FixedString ID;
+#if !defined(OSI_EOCAPP)
+	bool IgnoreTexelDensity{ false };
+#endif
+};
+
+struct MaterialSamplerState
+{
+	uint8_t TextureFilterOverride;
+	uint8_t TextureAddressMode;
+};
+
+template <class T>
+struct MaterialParameterSet : public ObjectSet<MaterialParameterWithValue<T>>
+{
 };
 
 struct MaterialParameters : public ProtectedGameObject<MaterialParameters>
@@ -26,13 +61,14 @@ struct MaterialParameters : public ProtectedGameObject<MaterialParameters>
 	void* VMT;
 	Material* ParentMaterial;
 	AppliedMaterial* ParentAppliedMaterial;
-	ObjectSet<MaterialParameterWithValue<void*>> TextureMaps;
-	ObjectSet<MaterialParameterWithValue<float>> Scalars;
-	ObjectSet<MaterialParameterWithValue<glm::vec2>> Vector2s;
-	ObjectSet<MaterialParameterWithValue<glm::vec3>> Vector3s;
-	ObjectSet<MaterialParameterWithValue<glm::vec4>> Vector4s;
-	ObjectSet<MaterialParameterWithValue<void*>> Texture2Ds;
-	ObjectSet<MaterialParameterWithValue<void*>> SamplerStates;
+	MaterialParameterSet<TextureMap*> TextureMaps;
+	MaterialParameterSet<float> Scalars;
+	MaterialParameterSet<glm::vec2> Vector2s;
+	MaterialParameterSet<MaterialVector3> Vector3s;
+	MaterialParameterSet<MaterialVector4> Vector4s;
+	MaterialParameterSet<MaterialTexture2D> Texture2Ds;
+	MaterialParameterSet<MaterialSamplerState> SamplerStates;
+
 };
 
 struct AppliedMaterial : public ProtectedGameObject<AppliedMaterial>
@@ -84,8 +120,10 @@ struct Material : public ProtectedGameObject<Material>
 	uint8_t MaterialPassHint;
 	int MaterialType;
 	MaterialParameters MaterialParameters;
+#if !defined(OSI_EOCAPP)
 	CRITICAL_SECTION CriticalSection;
 	ObjectSet<AppliedMaterial> AppliedMaterials;
+#endif
 };
 
 
