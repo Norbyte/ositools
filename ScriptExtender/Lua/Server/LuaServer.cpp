@@ -121,6 +121,9 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 	MAKE_REF(ServerItem, esv::Item)
 	MAKE_REF(ServerProjectile, esv::Projectile)
 	MAKE_REF(ServerAtmosphereTrigger, esv::AtmosphereTrigger)
+		
+	MAKE_REF(ClientCharacter, ecl::Character)
+	MAKE_REF(ClientItem, ecl::Item)
 
 	// FIXME - triggers need a prototype for each type, since they multiple-inherit from IEoCServerObject
 	/*case ObjectType::ServerEocPointTrigger:
