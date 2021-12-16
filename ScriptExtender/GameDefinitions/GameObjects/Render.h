@@ -422,7 +422,7 @@ struct VisualComponent : public BaseComponent
 	VisualComponentFlags Flags;
 };
 
-struct VisualFactory : public ComponentFactory<Visual>
+struct VisualFactory : public ComponentFactory<Visual, ObjectFactoryRWLocker>
 {
 	using DestroyVisualProc = bool (VisualFactory* self, uint64_t handle);
 };
