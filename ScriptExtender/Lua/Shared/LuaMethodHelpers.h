@@ -151,13 +151,10 @@ inline void PushReturnValue(lua_State* L, ByValReturn<T> v)
 	LuaWrite(L, v.Object);
 }
 
-template <typename ...Args>
-void PushReturnTupleDummy(Args&&...) { }
-
 template <class ...Args, size_t ...Indices>
 inline void PushReturnTuple(lua_State* L, std::tuple<Args...> const& v, std::index_sequence<Indices...>)
 {
-	PushReturnTupleDummy((push<Args>(L, std::get<Indices>(v)), 0)...);
+	( push<Args>(L, std::get<Indices>(v)), ... );
 }
 
 template <class ...Args>
