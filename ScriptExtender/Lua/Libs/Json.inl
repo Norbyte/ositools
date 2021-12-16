@@ -194,6 +194,17 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, Stri
 	lua_call(L, 2, 2); // returns k, val
 
 	while (lua_type(L, -2) != LUA_TNIL) {
+#if !defined(NDEBUG)
+		STDString key;
+		if (lua_type(L, -2) == LUA_TSTRING) {
+			key = lua_tostring(L, -2);
+		} else if (lua_type(L, -2) == LUA_TNUMBER) {
+			lua_pushvalue(L, -2);
+			key = lua_tostring(L, -1);
+			lua_pop(L, 1);
+		}
+#endif
+
 		Json::Value val(JsonStringify(L, -1, depth + 1, ctx));
 
 		if (lua_type(L, -2) == LUA_TSTRING) {
