@@ -54,6 +54,18 @@ struct MaterialSamplerState
 template <class T>
 struct MaterialParameterSet : public ObjectSet<MaterialParameterWithValue<T>>
 {
+public:
+	bool Override(FixedString const& name, T const& value)
+	{
+		for (auto& param : *this) {
+			if (param.Parameter == name) {
+				param.Value = value;
+				return true;
+			}
+		}
+
+		return false;
+	}
 };
 
 struct MaterialParameters : public ProtectedGameObject<MaterialParameters>
@@ -69,6 +81,13 @@ struct MaterialParameters : public ProtectedGameObject<MaterialParameters>
 	MaterialParameterSet<MaterialTexture2D> Texture2Ds;
 	MaterialParameterSet<MaterialSamplerState> SamplerStates;
 
+	bool OverrideParameter(FixedString const& parameter, TextureMap* value);
+	bool OverrideParameter(FixedString const& parameter, float value);
+	bool OverrideParameter(FixedString const& parameter, glm::vec2 const& value);
+	bool OverrideParameter(FixedString const& parameter, MaterialVector3 const& value);
+	bool OverrideParameter(FixedString const& parameter, MaterialVector4 const& value);
+	bool OverrideParameter(FixedString const& parameter, MaterialTexture2D const& value);
+	bool OverrideParameter(FixedString const& parameter, MaterialSamplerState const& value);
 };
 
 struct AppliedMaterial : public ProtectedGameObject<AppliedMaterial>

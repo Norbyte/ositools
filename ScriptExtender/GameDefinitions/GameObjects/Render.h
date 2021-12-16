@@ -299,6 +299,32 @@ struct Visual : public MoveableObject
 	bool ChildVisualHasCloth;
 	float FadeOpacity;
 	bool ReceiveColorFromParent;
+
+	template <class T>
+	void OverrideMaterialParameter(FixedString const& parameter, T const& value)
+	{
+		for (auto const& object : SubObjects) {
+			auto material = object.Renderable->ActiveAppliedMaterial;
+			if (material) {
+				material->MaterialParameters.OverrideParameter(parameter, value);
+			}
+		}
+
+		for (auto const& attachment : Attachments) {
+			if (attachment.Visual->ReceiveColorFromParent) {
+				for (auto const& object : attachment.Visual->SubObjects) {
+					auto material = object.Renderable->ActiveAppliedMaterial;
+					if (material) {
+						material->MaterialParameters.OverrideParameter(parameter, value);
+					}
+				}
+			}
+		}
+	}
+
+	void OverrideVec3MaterialParameter(FixedString const& parameter, glm::vec3 const& vec, bool isColor);
+	void OverrideVec4MaterialParameter(FixedString const& parameter, glm::vec4 const& vec, bool isColor);
+	void OverrideTextureMaterialParameter(FixedString const& parameter, FixedString const& textureId);
 };
 
 struct PhysicsShape : public ProtectedGameObject<PhysicsShape>

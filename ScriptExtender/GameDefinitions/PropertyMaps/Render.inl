@@ -132,6 +132,12 @@ P_RO(HasCloth)
 P_RO(ChildVisualHasCloth)
 P_RO(FadeOpacity)
 P_RO(ReceiveColorFromParent)
+
+P_FUN(OverrideScalarMaterialParameter, OverrideMaterialParameter<float>)
+P_FUN(OverrideVec2MaterialParameter, OverrideMaterialParameter<glm::vec2>)
+P_FUN(OverrideVec3MaterialParameter, OverrideVec3MaterialParameter)
+P_FUN(OverrideVec4MaterialParameter, OverrideVec4MaterialParameter)
+P_FUN(OverrideTextureMaterialParameter, OverrideTextureMaterialParameter)
 END_CLS()
 
 
