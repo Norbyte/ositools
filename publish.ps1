@@ -21,7 +21,7 @@ $PDBRoot = Join-Path "$PublishingRoot" "PDB"
 $RootPath = (Get-Location).Path
 $ManifestPath = Join-Path $PublishingRoot "Manifest2.json"
 $BuildPackagePath = Join-Path $BuildRoot "Latest.zip"
-$DllPath = Join-Path $RootPath "x64\Release\OsiExtenderEoCApp.dll"
+$DllPath = Join-Path $RootPath "x64\Game Release\OsiExtenderEoCApp.dll"
 
 $BuildDir = Join-Path "$BuildRoot" "TempBuild"
 $PDBDir = Join-Path "$PDBRoot" "TempPDB"
@@ -36,12 +36,12 @@ function Build-Extender
 
 	# MSVC is broken and sometimes reuses old struct definitions from previous compilations.
 	# Force a full recompile each time
-	Remove-Item x64\Release -Recurse -ErrorAction SilentlyContinue
-	Remove-Item x64\ReleaseExtensionsOnly -Recurse -ErrorAction SilentlyContinue
+	Remove-Item "x64\Game Release" -Recurse -ErrorAction SilentlyContinue
+	Remove-Item "x64\Editor Release" -Recurse -ErrorAction SilentlyContinue
 
 	Write-Output " ===== BUILDING EXTENDER ===== "
-	msbuild OsiTools.sln /p:Configuration=Release /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
-	# msbuild OsiTools.sln /p:Configuration=ReleaseExtensionsOnly /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	# msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }
 
 function Create-Update-Package ($ZipPath)
@@ -54,17 +54,17 @@ function Create-Update-Package ($ZipPath)
 
 	git show -s --format="D:OS2 Extender Version: Commit %H, %cD" > $BuildDir\Version.txt
 
-	Copy-Item x64\Release\CrashReporter.exe -Destination $BuildDir\CrashReporter.exe
-	Copy-Item x64\Release\OsiExtenderEoCApp.dll -Destination $BuildDir\OsiExtenderEoCApp.dll
-	# Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.dll -Destination $BuildDir\OsiExtenderEoCPlugin.dll
+	Copy-Item "x64\Release\CrashReporter.exe" -Destination $BuildDir\CrashReporter.exe
+	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $BuildDir\OsiExtenderEoCApp.dll
+	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $BuildDir\OsiExtenderEoCPlugin.dll
 	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $BuildDir\libprotobuf-lite.dll
 
-	Copy-Item x64\Release\CrashReporter.pdb -Destination $PDBDir\CrashReporter.pdb
-	Copy-Item x64\Release\OsiExtenderEoCApp.pdb -Destination $PDBDir\OsiExtenderEoCApp.pdb
-	# Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.pdb -Destination $PDBDir\OsiExtenderEoCPlugin.pdb
-	Copy-Item x64\Release\CrashReporter.exe -Destination $PDBDir\CrashReporter.exe
-	Copy-Item x64\Release\OsiExtenderEoCApp.dll -Destination $PDBDir\OsiExtenderEoCApp.dll
-	# Copy-Item x64\ReleaseExtensionsOnly\OsiExtenderEoCPlugin.dll -Destination $PDBDir\OsiExtenderEoCPlugin.dll
+	Copy-Item "x64\Release\CrashReporter.pdb" -Destination $PDBDir\CrashReporter.pdb
+	Copy-Item "x64\Game Release\OsiExtenderEoCApp.pdb" -Destination $PDBDir\OsiExtenderEoCApp.pdb
+	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.pdb" -Destination $PDBDir\OsiExtenderEoCPlugin.pdb
+	Copy-Item "x64\Release\CrashReporter.exe" -Destination $PDBDir\CrashReporter.exe
+	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $PDBDir\OsiExtenderEoCApp.dll
+	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $PDBDir\OsiExtenderEoCPlugin.dll
 	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $PDBDir\libprotobuf-lite.dll
 	
 	Remove-Item $ZipPath -ErrorAction SilentlyContinue
