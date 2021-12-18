@@ -634,6 +634,7 @@ function GetSkillDamage(skill, attacker, isFromItem, stealthed, attackerPos, tar
     return damageList, deathType
 end
 
+-- Not used anymore, kept for compatibility only
 HitFlag = {
     Hit = 1,
     Blocked = 2,
@@ -774,7 +775,7 @@ end
 function ApplyCriticalHit(hit, attacker)
     local mainWeapon = attacker.MainWeapon
     if mainWeapon ~= nil then
-        hit.EffectFlags = hit.EffectFlags | HitFlag.CriticalHit;
+        hit.CriticalHit = true
         hit.DamageMultiplier = hit.DamageMultiplier + (GetCriticalHitMultiplier(mainWeapon, attacker, 0, 0) - 1.0)
     end
 end
@@ -801,7 +802,7 @@ function ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll)
         critChance = critChance * Ext.ExtraData.TalentViolentMagicCriticalChancePercent * 0.01
         critChance = math.max(critChance, 1)
     else
-        if (hit.EffectFlags & HitFlag.Backstab) ~= 0 then
+        if hit.Backstab then
             return true
         end
 
@@ -837,7 +838,7 @@ function ApplyLifeSteal(hit, target, attacker, hitType)
     local corrosiveDmg = hit.DamageList:GetByType("Corrosive")
     local lifesteal = hit.TotalDamageDone - hit.ArmorAbsorption - corrosiveDmg - magicDmg
 
-    if (hit.EffectFlags & (HitFlag.FromShacklesOfPain|HitFlag.NoDamageOnOwner|HitFlag.Reflection)) ~= 0 then
+    if hit.FromShacklesOfPain or hit.NoDamageOnOwner or hit.Reflection then
         local modifier = Ext.ExtraData.LifestealFromReflectionModifier
         lifesteal = math.floor(lifesteal * modifier)
     end
@@ -893,7 +894,7 @@ end
 --- @param target StatCharacter
 --- @param attacker StatCharacter
 function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
-    hit.EffectFlags = hit.EffectFlags | HitFlag.Hit;
+    hit.Hit = true;
     damageList:AggregateSameTypeDamages()
     damageList:Multiply(hit.DamageMultiplier)
 
@@ -921,15 +922,15 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
     if hit.TotalDamageDone > 0 then
         ApplyLifeSteal(hit, target, attacker, hitType)
     else
-        hit.EffectFlags = hit.EffectFlags | HitFlag.DontCreateBloodSurface
+        hit.DontCreateBloodSurface = true
     end
 
     if hitType == "Surface" then
-        hit.EffectFlags = hit.EffectFlags | HitFlag.Surface
+        hit.Surface = true
     end
 
     if hitType == "DoT" then
-        hit.EffectFlags = hit.EffectFlags | HitFlag.DoT
+        hit.DoT = true
     end
 end
 
@@ -1086,24 +1087,24 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
 
     local backstabbed = false
     if alwaysBackstab or (weapon ~= nil and weapon.WeaponType == "Knife" and CanBackstab(target, attacker)) then
-        hit.EffectFlags = hit.EffectFlags | HitFlag.Backstab
+        hit.Backstab = true
         backstabbed = true
     end
 
     if hitType == "Melee" then
         if IsInFlankingPosition(target, attacker) then
-            hit.EffectFlags = hit.EffectFlags | HitFlag.Flanking
+            hit.Flanking = true
         end
     
         -- Apply Sadist talent
         if attacker.TALENT_Sadist then
-            if (hit.EffectFlags & HitFlag.Poisoned) ~= 0 then
+            if hit.Poisoned then
                 table.insert(statusBonusDmgTypes, "Poison")
             end
-            if (hit.EffectFlags & HitFlag.Burning) ~= 0 then
+            if hit.Burning then
                 table.insert(statusBonusDmgTypes, "Fire")
             end
-            if (hit.EffectFlags & HitFlag.Bleeding) ~= 0 then
+            if hit.Bleeding then
                 table.insert(statusBonusDmgTypes, "Physical")
             end
         end
@@ -1120,21 +1121,21 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
         local hitRoll = math.random(0, 99)
         if hitRoll >= hitChance then
             if target.TALENT_RangerLoreEvasionBonus and hitRoll < hitChance + 10 then
-                hit.EffectFlags = hit.EffectFlags | HitFlag.Dodged
+                hit.Dodged = true
             else
-                hit.EffectFlags = hit.EffectFlags | HitFlag.Missed
+                hit.Missed = true
             end
             hitBlocked = true
         else
             local blockChance = target.BlockChance
             if not backstabbed and blockChance > 0 and math.random(0, 99) < blockChance then
-                hit.EffectFlags = hit.EffectFlags | HitFlag.Blocked;
+                hit.Blocked = true
                 hitBlocked = true
             end
         end
     end
 
-    if weapon ~= nil and weapon.Name ~= "DefaultWeapon" and hitType ~= "Magic" and forceReduceDurability and (hit.EffectFlags & (HitFlag.Missed|HitFlag.Dodged)) == 0 then
+    if weapon ~= nil and weapon.Name ~= "DefaultWeapon" and hitType ~= "Magic" and forceReduceDurability and not hit.Missed and not hit.Dodged then
         ConditionalDamageItemDurability(attacker, weapon)
     end
 
