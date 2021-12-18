@@ -1056,6 +1056,14 @@
       <Target Type="Indirect" Offset="21" Symbol="ls__UIHelper__UICreateIconMesh" /> <!-- ls::UIHelper::UICreateIconMesh -->
     </Mapping>
 
+    <Mapping Name="esv::CacheTemplateManager">
+      49 8B D1 // mov     rdx, r9
+      E9 ?? ?? ?? ?? // jmp     sub_141E5ACC0
+      4C 8B 0D ?? ?? ?? ??  // mov     r9, cs:esv__gCacheTemplateManager
+      33 D2 // xor     edx, edx
+      <Target Type="Indirect" Offset="8" Symbol="esv__CacheTemplateManager" />
+    </Mapping>
+
     <Mapping Name="ls::GlobalTemplateManager">
       33 C0 // xor     eax, eax
       C3  // retn
@@ -1074,6 +1082,7 @@
       48 85 C9 // test    rcx, rcx
       <Target Type="Indirect" Offset="18" Symbol="esv__LocalTemplateManager" />
       <Target Type="Absolute" Offset="0" NextSymbol="ls::GlobalTemplateManager" NextSymbolSeekSize="0x80" />
+      <Target Type="Absolute" Offset="-0x80" NextSymbol="esv::CacheTemplateManager" NextSymbolSeekSize="0x80" />
     </Mapping>
 
     <Mapping Name="ecl::MultiEffectHandler::Init">
@@ -1145,6 +1154,16 @@
       <Target Type="Indirect" Offset="49" Symbol="ls__VisualFactory__DestroyVisual" />
       <Target Type="Indirect" Offset="62" Symbol="ls__gEffectsManager" />
       <Target Type="Indirect" Offset="72" Symbol="ls__EffectsManager__DestroyEffect" />
+    </Mapping>
+
+    <Mapping Name="ls::CacheTemplateManagerBase::CacheTemplate">
+      48 8B 85 80 00 00 00 // mov     rax, [rbp+80h]
+      48 8B 88 20 01 00 00  // mov     rcx, [rax+120h]
+      EB 07  // jmp     short xxx
+      48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:esv__gCacheTemplateManager
+      48 8B D7  // mov     rdx, rdi
+      E8 ?? ?? ?? ??  // call    ls__CacheTemplateManagerBase__CacheTemplate
+      <Target Type="Indirect" Offset="26" Symbol="ls__CacheTemplateManagerBase__CacheTemplate" />
     </Mapping>
   </Mappings>
 </BinaryMappings>

@@ -260,6 +260,7 @@
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
+    <None Include="Lua\Libs\ClientTemplate.inl" />
     <None Include="Lua\Libs\ClientVisual.inl" />
     <None Include="Lua\Libs\ClientNet.inl" />
     <None Include="Lua\Libs\ClientUI.inl" />
@@ -273,9 +274,9 @@
     <None Include="Lua\Libs\ServerNet.inl" />
     <None Include="Lua\Libs\ServerOsiris.inl" />
     <None Include="Lua\Libs\ServerSurfaceAction.inl" />
+    <None Include="Lua\Libs\ServerTemplate.inl" />
     <None Include="Lua\Libs\Surface.inl" />
     <None Include="Lua\Libs\Stats.inl" />
-    <None Include="Lua\Libs\Template.inl" />
     <None Include="Lua\Libs\Types.inl" />
     <None Include="Lua\Libs\Utils.inl" />
     <None Include="Lua\Server\ServerCharacter.inl" />

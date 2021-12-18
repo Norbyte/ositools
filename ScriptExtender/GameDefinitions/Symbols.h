@@ -244,7 +244,10 @@ namespace dse
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
 
 		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
+		GlobalCacheTemplateManager** esv__CacheTemplateManager{ nullptr };
 		LocalTemplateManager** esv__LocalTemplateManager{ nullptr };
+
+		CacheTemplateManagerBase::CacheTemplateProc* ls__CacheTemplateManagerBase__CacheTemplate{ nullptr };
 
 		ecl::MultiEffectHandler::InitProc* ecl__MultiEffectHandler__Init{ nullptr };
 		ecl::MultiEffectHandler::UpdateProc* ecl__MultiEffectHandler__Update{ nullptr };

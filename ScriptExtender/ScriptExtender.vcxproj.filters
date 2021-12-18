@@ -739,9 +739,6 @@
     <None Include="Lua\Libs\AI.inl">
       <Filter>Lua\Libs</Filter>
     </None>
-    <None Include="Lua\Libs\Template.inl">
-      <Filter>Lua\Libs</Filter>
-    </None>
     <None Include="GameDefinitions\PropertyMaps\Render.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
@@ -755,6 +752,12 @@
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
     <None Include="Lua\Libs\Resource.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Libs\ClientTemplate.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Libs\ServerTemplate.inl">
       <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>

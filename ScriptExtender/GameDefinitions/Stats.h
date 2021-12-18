@@ -402,7 +402,7 @@ struct Object : public Noncopyable<Object>
 	int32_t ModifierListIndex{ -1 };
 	Vector<int32_t> IndexedProperties;
 	FixedString Name;
-	TranslatedString TranslatedStringX;
+	TranslatedString DisplayName;
 	FixedString FS2;
 	struct CDivinityStats* DivStats{ nullptr };
 	Map<FixedString, PropertyList *> PropertyLists;

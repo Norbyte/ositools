@@ -87,6 +87,12 @@ namespace dse
 
 		struct Level : public dse::Level
 		{
+			struct TemplateTrace
+			{
+				FixedString Type;
+				FixedString Id;
+			};
+
 			void* LayerManager;
 #if !defined(OSI_EOCAPP)
 			void * field_90;
@@ -107,7 +113,7 @@ namespace dse
 			EnvironmentalStatusManager* EnvironmentalStatusManager;
 			ObjectSet<void *> TemplateTypeDescs;
 			LevelCacheTemplateManager* LevelCacheTemplateManager;
-			ObjectSet<void *> TemplateTraceSet;
+			ObjectSet<TemplateTrace> TemplateTraces;
 		};
 
 		struct LevelManager : public ProtectedGameObject<LevelManager>

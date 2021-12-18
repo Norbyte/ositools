@@ -310,7 +310,7 @@ P_RO(Handle)
 P(Level)
 P_RO(ModifierListIndex)
 P_RO(Name)
-P_RO(TranslatedStringX)
+P_RO(DisplayName)
 P_RO(FS2)
 // IS DivStats useful for scripts?
 // P_REF(DivStats)

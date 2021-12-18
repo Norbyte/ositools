@@ -127,7 +127,15 @@ namespace dse
 
     struct CacheTemplateManagerBase : public ProtectedGameObject<CacheTemplateManagerBase>
     {
-        void* VMT;
+        using CacheTemplateProc = GameObjectTemplate* (CacheTemplateManagerBase* self, GameObjectTemplate* tmpl);
+
+        virtual ~CacheTemplateManagerBase() = 0;
+        virtual void Clear(uint8_t type) = 0;
+        virtual bool ShouldSave(ObjectVisitor* visitor, GameObjectTemplate* tmpl) = 0;
+        virtual bool OnLoad(ObjectVisitor* visitor, GameObjectTemplate* tmpl) = 0;
+        virtual uint32_t GetNewIndex() = 0;
+        virtual bool PostVisit() = 0;
+
         TemplateType TemplateManagerType;
         Map<FixedString, GameObjectTemplate*> Templates;
         Map<TemplateHandle, GameObjectTemplate*> TemplatesByHandle;
@@ -161,6 +169,16 @@ namespace dse
 
     struct EoCGameObjectTemplate : public GameObjectTemplate
     {
+        virtual glm::vec3* GetAIBoundsMin(glm::vec3& bounds) = 0;
+        virtual glm::vec3* GetAIBoundsMax(glm::vec3& bounds) = 0;
+        virtual float GetAIBoundsRadius() = 0;
+        virtual uint32_t GetAIBoundsAIType() = 0;
+        virtual float GetAIBoundSize() = 0;
+        virtual void SetFadeable(bool fadeable) = 0;
+        virtual void SetFadeIn(bool fadeIn) = 0;
+        virtual void SetOpacity(float opacity) = 0;
+        virtual void SetSeeThrough(bool seeThrough) = 0;
+
         glm::vec3 AIBoundsMin;
         uint8_t _Pad0[4];
         glm::vec3 AIBoundsMax;

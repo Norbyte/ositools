@@ -201,7 +201,10 @@ namespace dse
 		SYM_OFF(esv__InventoryFactory);
 
 		SYM_OFF(ls__GlobalTemplateManager);
+		SYM_OFF(esv__CacheTemplateManager);
 		SYM_OFF(esv__LocalTemplateManager);
+
+		SYM_OFF(ls__CacheTemplateManagerBase__CacheTemplate);
 
 		SYM_OFF(ecl__MultiEffectHandler__Init);
 		SYM_OFF(ecl__MultiEffectHandler__Update);

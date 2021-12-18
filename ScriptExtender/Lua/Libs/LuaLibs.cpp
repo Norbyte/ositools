@@ -27,8 +27,9 @@
 #include <Lua/Libs/ServerCustomStats.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
+#include <Lua/Libs/ServerTemplate.inl>
+#include <Lua/Libs/ClientTemplate.inl>
 #include <Lua/Libs/AI.inl>
-#include <Lua/Libs/Template.inl>
 #include <Lua/Libs/Resource.inl>
 
 BEGIN_NS(lua)
@@ -54,7 +55,6 @@ void RegisterSharedLibraries(lua_State* L)
 	debug::RegisterDebugLib(L);
 	stats::RegisterStatsLib(L);
 	surface::RegisterSurfaceLib(L);
-	tmpl::RegisterTemplateLib(L);
 	resource::RegisterResourceLib(L);
 }
 
@@ -68,6 +68,7 @@ void RegisterClientLibraries(lua_State* L)
 	ui::RegisterUILib(L);
 	net::RegisterNetLib(L);
 	visual::RegisterVisualLib(L);
+	tmpl::RegisterTemplateLib(L);
 }
 
 END_NS()
@@ -80,6 +81,7 @@ void RegisterServerLibraries(lua_State* L)
 	net::RegisterNetLib(L);
 	stats::RegisterCustomStatLib(L);
 	surface::RegisterSurfaceActionLib(L);
+	tmpl::RegisterTemplateLib(L);
 }
 
 END_NS()
