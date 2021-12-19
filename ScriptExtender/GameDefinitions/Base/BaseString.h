@@ -133,6 +133,7 @@ inline uint64_t Hash(FixedString const& s)
 
 FixedString NameGuidToFixedString(char const* nameGuid);
 bool IsValidGuidString(const char* s);
+FixedString GenerateGuid();
 
 struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
 {

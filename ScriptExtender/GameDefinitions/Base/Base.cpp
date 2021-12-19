@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <GameDefinitions/Symbols.h>
+#include <combaseapi.h>
 
 BEGIN_SE()
 
@@ -256,6 +257,26 @@ FixedString NameGuidToFixedString(char const * nameGuid)
 
 	auto guid = nameGuid + nameLen - 36;
 	return FixedString(guid);
+}
+
+FixedString GenerateGuid()
+{
+	GUID guid;
+	CoCreateGuid(&guid);
+	char guidStr[100];
+	sprintf_s(guidStr, "%08lx-%04hx-%04hx-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		guid.Data1,
+		guid.Data2,
+		guid.Data3,
+		guid.Data4[0],
+		guid.Data4[1],
+		guid.Data4[2],
+		guid.Data4[3],
+		guid.Data4[4],
+		guid.Data4[5],
+		guid.Data4[6],
+		guid.Data4[7]);
+	return FixedString(guidStr);
 }
 
 char const* GetHandleTypeName(ComponentHandle const& handle)

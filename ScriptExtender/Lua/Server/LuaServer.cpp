@@ -163,6 +163,49 @@ void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* o
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }
 
+void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplate* obj, LifetimeHolder const& lifetime)
+{
+	auto type = obj->GetTypeId();
+
+	if (*type == GFS.strLevelTemplate) {
+		ObjectProxy2::MakeRef(L, static_cast<LevelTemplate*>(obj), lifetime);
+		return;
+	}
+
+	if (*type == GFS.strcharacter) {
+		ObjectProxy2::MakeRef(L, static_cast<CharacterTemplate*>(obj), lifetime);
+		return;
+	}
+	
+	if (*type == GFS.stritem) {
+		ObjectProxy2::MakeRef(L, static_cast<ItemTemplate*>(obj), lifetime);
+		return;
+	}
+	
+	if (*type == GFS.strsurface) {
+		ObjectProxy2::MakeRef(L, static_cast<SurfaceTemplate*>(obj), lifetime);
+		return;
+	}
+	
+	if (*type == GFS.strprojectile) {
+		ObjectProxy2::MakeRef(L, static_cast<ProjectileTemplate*>(obj), lifetime);
+		return;
+	}
+	
+	if (*type == GFS.strtrigger) {
+		ObjectProxy2::MakeRef(L, static_cast<TriggerTemplate*>(obj), lifetime);
+		return;
+	}
+
+	OsiError("Creating Lua proxy for unknown template type " << *type);
+	ObjectProxy2::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<EoCGameObjectTemplate>::MakeRef(lua_State* L, EoCGameObjectTemplate* obj, LifetimeHolder const& lifetime)
+{
+	LuaPolymorphic<GameObjectTemplate>::MakeRef(L, obj, lifetime);
+}
+
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 
 void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHolder const & lifetime)

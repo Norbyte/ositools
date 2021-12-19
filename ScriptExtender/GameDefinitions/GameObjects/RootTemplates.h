@@ -139,8 +139,8 @@ namespace dse
         TemplateType TemplateManagerType;
         Map<FixedString, GameObjectTemplate*> Templates;
         Map<TemplateHandle, GameObjectTemplate*> TemplatesByHandle;
-        Map<TemplateHandle, uint32_t> RefCountsByHandle;
-        ObjectSet<GameObjectTemplate*> pNewTemplates;
+        RefMap<TemplateHandle, uint32_t> RefCountsByHandle;
+        ObjectSet<GameObjectTemplate*> NewTemplates;
         ObjectSet<void*> CacheTemplateRemovers;
         bool field_90;
     };

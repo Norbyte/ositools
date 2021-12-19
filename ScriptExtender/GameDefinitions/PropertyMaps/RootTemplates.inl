@@ -307,3 +307,13 @@ P(PhysicsType)
 P(Color4)
 P(TriggerGizmoOverride)
 END_CLS()
+
+
+BEGIN_CLS(LevelTemplate)
+INHERIT(GameObjectTemplate)
+P_RO(SubLevelName)
+P_RO(IsPersistent)
+P_REF(LocalLevelBound)
+P_REF(WorldLevelBound)
+P_RO(LevelBoundTrigger)
+END_CLS()

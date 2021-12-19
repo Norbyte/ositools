@@ -71,6 +71,21 @@ GameObjectTemplate* GetTemplate(FixedString const& templateId)
 	return tmpl;
 }
 
+GameObjectTemplate* CacheTemplate(FixedString const& templateId)
+{
+	auto tmpl = GetTemplate(templateId);
+	if (!tmpl) return nullptr;
+	auto baseCopy = tmpl->Clone();
+	baseCopy->Id = GenerateGuid();
+
+	auto cache = *GetStaticSymbols().esv__CacheTemplateManager;
+	auto cacheFunc = GetStaticSymbols().ls__CacheTemplateManagerBase__CacheTemplate;
+
+	auto cachedTmpl = cacheFunc(cache, baseCopy);
+	cache->NewTemplates.Add(cachedTmpl);
+	return cachedTmpl;
+}
+
 void RegisterTemplateLib(lua_State* L)
 {
 	static const luaL_Reg lib[] = {
@@ -79,6 +94,7 @@ void RegisterTemplateLib(lua_State* L)
 		{"GetCacheTemplate", LuaWrapFunction(&GetCacheTemplate)},
 		{"GetLocalCacheTemplate", LuaWrapFunction(&GetLocalCacheTemplate)},
 		{"GetTemplate", LuaWrapFunction(&GetTemplate)},
+		{"CacheTemplate", LuaWrapFunction(&CacheTemplate)},
 		{0,0}
 	};
 

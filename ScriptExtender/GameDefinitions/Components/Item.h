@@ -16,7 +16,7 @@ namespace dse
 			uint32_t Version{ 0x36060000 };
 			NetId NetID{ -1 };
 			NetId ItemNetId{ -1 };
-			FixedString FS1;
+			FixedString UUID;
 			// eg. "f14b8136-c4c6-4d7a-bc04-639d5a2397e7
 			FixedString RootTemplate;
 			uint32_t RootTemplateType{ 6 };
@@ -33,7 +33,7 @@ namespace dse
 			int32_t GoldValueOverwrite{ -1 }; // -1 = Not overridden
 			int32_t WeightValueOverwrite{ -1 }; // -1 = Not overridden
 			stats::DamageType DamageTypeOverwrite{ (stats::DamageType)-1 };
-			int32_t SomeOverwrite{ -1 };
+			int32_t HP{ -1 };
 			FixedString FS4;
 			// eg. "Uncommon"
 			FixedString ItemType;
@@ -63,19 +63,29 @@ namespace dse
 			ScratchBuffer BaseStatsBuf;
 			bool HasModifiedSkills{ false };
 			FixedString Skills;
-			ObjectSet<FixedString> FSSet2;
+			ObjectSet<FixedString> Tags;
 			ObjectSet<FixedString> RuneBoostSet;
 			ObjectSet<FixedString> DeltaModSet;
-			ObjectSet<FixedString> FSSet5;
-			uint8_t Flags0[2]{ 0 };
+			ObjectSet<FixedString> PinnedContainerTags;
+			bool IsGlobal{ false };
+			bool Active{ false };
 			bool HasGeneratedStats{ false };
-			uint8_t Flags1[12]{ 0 };
+			bool CanBeUsed{ false };
+			bool IsPinnedContainer{ false };
+			bool CanBeMoved{ false };
+			bool CanBePickedUp{ false };
+			bool Invisible{ false };
+			uint8_t Flags1[3]{ 0 };
+			bool CustomRequirements{ false };
+			uint8_t Flags12{ 0 };
+			bool Known{ false };
+			uint8_t Flags13{ 0 };
 #if !defined(OSI_EOCAPP)
-			uint8_t Flags11{ 0 };
+			bool UnEquipLocked{ false };
 #endif
 			bool IsIdentified{ false };
 			bool GMFolding{ false };
-			uint8_t Flags2{ 0 };
+			bool Floating{ false };
 			bool CanUseRemotely{ false };
 			uint64_t Unknown2[2]{ 0 };
 

@@ -197,3 +197,11 @@ FS(Color2);
 FS(Color3);
 FS(Color4);
 FS(Color5);
+
+// Root template types
+FS(LevelTemplate);
+FS(character);
+FS(item);
+FS(surface);
+FS(projectile);
+FS(trigger);
