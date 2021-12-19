@@ -199,7 +199,7 @@ bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinitio
 
 	eoc::ItemDefinition& item = definition.Buf[0];
 	new (&item) eoc::ItemDefinition();
-	item.FS1 = GFS.strEmpty;
+	item.UUID = GFS.strEmpty;
 	item.RootTemplate = templateGuidFs;
 	item.OriginalRootTemplate = templateGuidFs;
 	item.WorldRot = glm::mat3x3(1.0f);
