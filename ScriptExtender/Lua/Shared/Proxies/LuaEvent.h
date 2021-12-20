@@ -10,7 +10,7 @@ class EventObjectParamsImplBase
 {
 public:
 	inline virtual ~EventObjectParamsImplBase() {};
-	virtual char const* GetTypeName() const = 0;
+	virtual TypeInformation const& GetType() const = 0;
 	virtual bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop) = 0;
 	virtual bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop, int index) = 0;
 	virtual int Next(lua_State* L, LifetimeHolder const& lifetime, FixedString const& key) = 0;
@@ -35,9 +35,9 @@ public:
 		return params_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
-		return TypeInfo<TParams>::TypeName;
+		return GetTypeInfo<TParams>();
 	}
 
 	bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop) override
@@ -101,7 +101,7 @@ public:
 			return nullptr;
 		}
 
-		if (GetImpl()->GetTypeName() == TypeInfo<TParams>::TypeName) {
+		if (GetImpl()->GetType().TypeName == GetTypeInfo<TParams>().TypeName) {
 			return &reinterpret_cast<EventObjectParamsImpl<TParams>*>(GetImpl())->GetParams();
 		} else {
 			return nullptr;

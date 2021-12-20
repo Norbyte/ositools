@@ -12,8 +12,8 @@ class MapProxyImplBase
 {
 public:
 	inline virtual ~MapProxyImplBase() {};
-	virtual char const* GetKeyTypeName() const = 0;
-	virtual char const* GetValueTypeName() const = 0;
+	virtual TypeInformation const& GetKeyType() const = 0;
+	virtual TypeInformation const& GetValueType() const = 0;
 	virtual void* GetRaw() = 0;
 	virtual bool GetValue(lua_State* L, int luaKeyIndex) = 0;
 	virtual bool SetValue(lua_State* L, int luaKeyIndex, int luaValueIndex) = 0;
@@ -43,12 +43,12 @@ public:
 		return object_;
 	}
 
-	char const* GetKeyTypeName() const override
+	TypeInformation const& GetKeyType() const override
 	{
 		return GetTypeInfo<TKey>();
 	}
 
-	char const* GetValueTypeName() const override
+	TypeInformation const& GetValueType() const override
 	{
 		return GetTypeInfo<TValue>();
 	}
@@ -134,12 +134,12 @@ public:
 		return object_;
 	}
 
-	char const* GetKeyTypeName() const override
+	TypeInformation const& GetKeyType() const override
 	{
 		return GetTypeInfo<TKey>();
 	}
 
-	char const* GetValueTypeName() const override
+	TypeInformation const& GetValueType() const override
 	{
 		return GetTypeInfo<TValue>();
 	}
@@ -242,12 +242,12 @@ public:
 		return object_;
 	}
 
-	char const* GetKeyTypeName() const override
+	TypeInformation const& GetKeyType() const override
 	{
 		return GetTypeInfo<TKey>();
 	}
 
-	char const* GetValueTypeName() const override
+	TypeInformation const& GetValueType() const override
 	{
 		return GetTypeInfo<TValue>();
 	}
@@ -333,12 +333,12 @@ public:
 		return object_;
 	}
 
-	char const* GetKeyTypeName() const override
+	TypeInformation const& GetKeyType() const override
 	{
 		return GetTypeInfo<TKey>();
 	}
 
-	char const* GetValueTypeName() const override
+	TypeInformation const& GetValueType() const override
 	{
 		return GetTypeInfo<TValue>();
 	}

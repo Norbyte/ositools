@@ -142,6 +142,13 @@ INHERIT(IEoCServerObject)
 P_RO(WorldPos)
 P_RO(Flags)
 
+#if defined(GENERATING_TYPE_INFO)
+for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
+	ADD_TYPE(label.Key, bool)
+}
+ADD_TYPE("PlayerCustomData", eoc::PlayerCustomData)
+#endif
+
 #if defined(GENERATING_PROPMAP)
 for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
 	pm.AddRawProperty(label.Key.GetString(),
@@ -361,6 +368,10 @@ P_RO(RunSpeedOverride)
 P_RO(Archetype)
 P_REF(ItemTags)
 P_RO(CorpseLootable)
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("PlayerCustomData", eoc::PlayerCustomData)
+#endif
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("PlayerCustomData",

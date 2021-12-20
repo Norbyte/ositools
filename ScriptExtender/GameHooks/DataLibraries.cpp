@@ -265,6 +265,7 @@ namespace dse
 			GFS.Initialize();
 			InitializeEnumerations();
 			InitPropertyMaps();
+			TypeInformationRepository::GetInstance().Initialize();
 
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());

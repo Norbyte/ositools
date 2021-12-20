@@ -41,6 +41,7 @@
     <ClInclude Include="GameDefinitions\Base\BaseContainers.h" />
     <ClInclude Include="GameDefinitions\Base\BaseMemory.h" />
     <ClInclude Include="GameDefinitions\Base\BaseString.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseTypeInformation.h" />
     <ClInclude Include="GameDefinitions\Base\BaseTypes.h" />
     <ClInclude Include="GameDefinitions\Base\BaseUtilities.h" />
     <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\Shared\LuaSerializers.cpp" />
     <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp" />
+    <ClCompile Include="Lua\Shared\Proxies\LuaTypeInformation.cpp" />
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
     <ClCompile Include="Osiris\Debugger\DebugInterface.cpp" />

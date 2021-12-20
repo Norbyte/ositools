@@ -114,7 +114,7 @@ namespace dse::esv
 
 		auto & stat = statSyncMsg.Stats[0];
 		stat.NetId = netComponent->NetID;
-		stat.Stats.Init(0x25);
+		stat.Stats.ResizeHashtable(0x25);
 
 		if (stats != nullptr) {
 			for (auto const& val : stats->StatValues) {

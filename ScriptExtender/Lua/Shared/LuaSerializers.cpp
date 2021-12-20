@@ -2,6 +2,7 @@
 #include <GameDefinitions/Symbols.h>
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/Shared/ExtensionHelpers.h>
 
 #define P(name) s.VisitProperty(#name, v.name)
@@ -35,6 +36,19 @@ namespace dse::lua
 			InvokeDataValueToLua(s.L, v);
 		} else {
 			LuaToInvokeDataValue(s.L, 1, v);
+		}
+
+		return s;
+	}
+
+	LuaSerializer& operator << (LuaSerializer& s, TypeInformationRef& v)
+	{
+		if (s.IsWriting) {
+			if (v) {
+				MakeObjectRef(s.L, v.GetStatic()->Type);
+			} else {
+				push(s.L, nullptr);
+			}
 		}
 
 		return s;

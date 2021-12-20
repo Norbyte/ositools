@@ -31,6 +31,7 @@ BY_VAL(glm::vec2);
 BY_VAL(glm::vec3);
 BY_VAL(glm::vec4);
 BY_VAL(glm::mat3);
+BY_VAL(TypeInformationRef);
 
 END_SE()
 
@@ -42,7 +43,7 @@ class ArrayProxyImplBase
 {
 public:
 	inline virtual ~ArrayProxyImplBase() {};
-	virtual char const* GetTypeName() const = 0;
+	virtual TypeInformation const& GetType() const = 0;
 	virtual void* GetRaw() = 0;
 	virtual bool GetElement(lua_State* L, unsigned arrayIndex) = 0;
 	virtual bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) = 0;
@@ -74,7 +75,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -142,7 +143,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -222,7 +223,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -290,7 +291,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -370,7 +371,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -438,7 +439,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -511,7 +512,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -579,7 +580,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -659,7 +660,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -727,7 +728,7 @@ public:
 		return object_;
 	}
 
-	char const* GetTypeName() const override
+	TypeInformation const& GetType() const override
 	{
 		return GetTypeInfo<T>();
 	}
@@ -866,7 +867,7 @@ public:
 			return nullptr;
 		}
 
-		if (strcmp(GetTypeInfo<T>(), GetImpl()->GetTypeName()) == 0) {
+		if (GetTypeInfo<T>().TypeName == GetImpl()->GetType().TypeName) {
 			return reinterpret_cast<T*>(GetImpl()->GetRaw());
 		} else {
 			return nullptr;
@@ -924,17 +925,17 @@ template <class T>
 inline T* checked_get_array_proxy(lua_State* L, int index)
 {
 	auto proxy = Userdata<ArrayProxy>::CheckUserData(L, index);
-	auto const& typeName = GetTypeInfo<T>();
-	if (strcmp(proxy->GetImpl()->GetTypeName(), typeName) == 0) {
+	auto const& typeName = GetTypeInfo<T>().TypeName;
+	if (proxy->GetImpl()->GetType().TypeName == typeName) {
 		auto obj = proxy->Get<T>();
 		if (obj == nullptr) {
-			luaL_error(L, "Argument %d: got Array<%s> whose lifetime has expired", index, typeName);
+			luaL_error(L, "Argument %d: got Array<%s> whose lifetime has expired", index, typeName.GetString());
 			return nullptr;
 		} else {
 			return obj;
 		}
 	} else {
-		luaL_error(L, "Argument %d: expected Array<%s>, got Array<%s>", index, typeName, proxy->GetImpl()->GetTypeName());
+		luaL_error(L, "Argument %d: expected Array<%s>, got Array<%s>", index, typeName.GetString(), proxy->GetImpl()->GetType().TypeName.GetString());
 		return nullptr;
 	}
 }

@@ -9,7 +9,7 @@ int SetProxy::Index(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to read dead Set<%s>", impl->GetTypeName());
+		luaL_error(L, "Attempted to read dead Set<%s>", impl->GetType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
 	}
@@ -23,7 +23,7 @@ int SetProxy::NewIndex(lua_State* L)
 	StackCheck _(L, 0);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to write dead Set<%s>", impl->GetTypeName());
+		luaL_error(L, "Attempted to write dead Set<%s>", impl->GetType().TypeName.GetString());
 		return 0;
 	}
 
@@ -42,7 +42,7 @@ int SetProxy::Length(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to get length of dead Set<%s>", impl->GetTypeName());
+		luaL_error(L, "Attempted to get length of dead Set<%s>", impl->GetType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
 	}
@@ -55,7 +55,7 @@ int SetProxy::Next(lua_State* L)
 {
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to iterate dead Set<%s>", impl->GetTypeName());
+		luaL_error(L, "Attempted to iterate dead Set<%s>", impl->GetType().TypeName.GetString());
 		return 0;
 	}
 
@@ -72,9 +72,9 @@ int SetProxy::ToString(lua_State* L)
 	StackCheck _(L, 1);
 	char entityName[200];
 	if (lifetime_.IsAlive()) {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p)", GetImpl()->GetTypeName(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p)", GetImpl()->GetType().TypeName.GetString(), GetImpl()->GetRaw());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p, DEAD REFERENCE)", GetImpl()->GetTypeName(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Set<%s> (%p, DEAD REFERENCE)", GetImpl()->GetType().TypeName.GetString(), GetImpl()->GetRaw());
 	}
 
 	push(L, entityName);

@@ -22,6 +22,9 @@ P_BITMASK(Flags0)
 P_BITMASK(Flags1)
 P_BITMASK(Flags2)
 
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("StatusType", FixedString)
+#endif
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatusType",
@@ -472,6 +475,10 @@ P_RO(CurrentLifeTime)
 P_RO(StatsMultiplier)
 P_RO(Flags)
 P_RO(StatusSourceHandle)
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("StatusType", FixedString)
+#endif
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatusType",

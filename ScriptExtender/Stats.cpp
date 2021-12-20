@@ -758,8 +758,8 @@ std::optional<Object*> RPGStats::CreateObject(FixedString const& name, int32_t m
 	object->IndexedProperties.resize(modifier->Attributes.Primitives.Size, 0);
 	object->DivStats = DivinityStats;
 	object->Name = name;
-	object->PropertyLists.Init(3);
-	object->Conditions.Init(3);
+	object->PropertyLists.ResizeHashtable(3);
+	object->Conditions.ResizeHashtable(3);
 
 	object->Handle = Objects.Primitives.Size;
 	Objects.Add(name, object);
@@ -880,7 +880,7 @@ PropertyList* RPGStats::ConstructPropertyList(FixedString const& propertyName)
 
 	auto properties = GameAlloc<PropertyList>();
 	properties->Properties.VMT = gCRPGStatsVMTMappings.SkillPropertiesVMT;
-	properties->Properties.NameHashMap.Init(31);
+	properties->Properties.NameHashMap.ResizeHashtable(31);
 	properties->Name = propertyName;
 	return properties;
 }

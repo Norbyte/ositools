@@ -370,6 +370,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\Effect.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseTypeInformation.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -551,6 +554,9 @@
     </ClCompile>
     <ClCompile Include="Lua\Client\ClientUI.cpp">
       <Filter>Lua\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\Proxies\LuaTypeInformation.cpp">
+      <Filter>Lua\Shared\Proxies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,10 @@ P_RO(Index)
 P_RO(NeedsSplitEvaluation)
 P_RO(OwnershipTimer)
 
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("RootTemplate", SurfaceTemplate)
+#endif
+
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("RootTemplate",
 	[](lua_State* L, LifetimeHolder const& lifetime, esv::Surface* obj, std::size_t offset, uint64_t flag) {

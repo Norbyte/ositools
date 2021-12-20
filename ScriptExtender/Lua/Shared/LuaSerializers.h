@@ -118,6 +118,7 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, TranslatedString& v);
 	LuaSerializer& operator << (LuaSerializer& s, char const*& v);
 	LuaSerializer& operator << (LuaSerializer& s, ig::InvokeDataValue& v);
+	LuaSerializer& operator << (LuaSerializer& s, TypeInformationRef& v);
 
 	template <class T>
 	LuaSerializer& operator << (LuaSerializer& s, OverrideableProperty<T>& v)

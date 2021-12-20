@@ -31,7 +31,7 @@ struct ObjectProxyHelpers
 		auto const& map = StaticLuaPropertyMap<T>::PropertyMap;
 		auto fetched = map.GetProperty(L, lifetime, object, prop);
 		if (!fetched) {
-			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>(), prop.GetString());
+			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
 			return false;
 		}
 
@@ -43,7 +43,7 @@ struct ObjectProxyHelpers
 		auto const& map = StaticLuaPropertyMap<T>::PropertyMap;
 		auto ok = map.SetProperty(L, lifetime, object, prop, index);
 		if (!ok) {
-			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>(), prop.GetString());
+			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
 			return false;
 		}
 

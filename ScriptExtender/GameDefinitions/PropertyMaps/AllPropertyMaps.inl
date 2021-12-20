@@ -14,6 +14,24 @@
 #include <GameDefinitions/PropertyMaps/Effect.inl>
 
 
+BEGIN_CLS(TypeInformation)
+P_RO(TypeName)
+P_RO(Kind)
+P_RO(KeyType)
+P_RO(ElementType)
+P_RO(ParentType)
+P_REF(Members)
+P_REF(Methods)
+P_RO(HasWildcardProperties)
+P_REF(EnumValues)
+P_REF(ReturnValues)
+P_REF(Params)
+P_RO(VarargParams)
+P_RO(VarargsReturn)
+P_RO(IsBuiltin)
+END_CLS()
+
+
 BEGIN_CLS(stats::HitDamageInfo)
 P(Equipment)
 P(TotalDamageDone)
@@ -159,6 +177,15 @@ P_FUN(GetHeight, GetHeight)
 P_FUN(SetHeight, SetHeight)
 P_FUN(GetAiFlags, GetAiFlags)
 P_FUN(SetAiFlags, SetAiFlags)
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("OffsetX", float)
+ADD_TYPE("OffsetY", float)
+ADD_TYPE("OffsetZ", float)
+ADD_TYPE("GridScale", float)
+ADD_TYPE("Width", uint32_t)
+ADD_TYPE("Height", uint32_t)
+#endif
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("OffsetX",

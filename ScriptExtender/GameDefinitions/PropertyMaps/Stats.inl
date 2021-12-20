@@ -64,6 +64,18 @@ P_RO(ObjectInstanceName)
 P_RO(BoostName)
 P_RO(StatsType)
 
+#if defined(GENERATING_TYPE_INFO)
+for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+	ADD_TYPE(label.Key, bool)
+}
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+	ADD_TYPE(label.Key, int32_t)
+}
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
+}
+#endif
+
 #if defined(GENERATING_PROPMAP)
 // Attribute flag getters/setters
 for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
@@ -234,6 +246,18 @@ P(TranslationKey)
 P(BonusWeapon)
 P(StepsType)
 
+#if defined(GENERATING_TYPE_INFO)
+for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+	ADD_TYPE(label.Key, bool)
+}
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+	ADD_TYPE(label.Key, int32_t)
+}
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
+}
+#endif
+
 #if defined(GENERATING_PROPMAP)
 // Attribute flag getters/setters
 for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
@@ -325,6 +349,11 @@ P_RO(ComboCategories)
 // FIXME
 // Add using custom property! - P_RO(Using)
 
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("StatsEntry", stats::Object)
+ADD_TYPE("ModId", FixedString)
+#endif
+
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsEntry",
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
@@ -404,6 +433,23 @@ P(MaxMpOverride)
 P_FUN(GetItemBySlot, GetItemBySlot)
 P_GETTER(MainWeapon, GetMainWeapon)
 P_GETTER(OffHandWeapon, GetOffHandWeapon)
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("Position", glm::vec3)
+ADD_TYPE("MyGuid", FixedString)
+ADD_TYPE("NetID", NetId)
+for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
+	ADD_TYPE(label.Key, int32_t)
+	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
+}
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+	ADD_TYPE(label.Key, int32_t)
+	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
+}
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
+}
+#endif
 
 #if defined(GENERATING_PROPMAP)
 // TODO - GFS.strCharacter
@@ -541,6 +587,15 @@ P(MaxCharges)
 P(Charges)
 P_REF(DeltaMods)
 
+#if defined(GENERATING_TYPE_INFO)
+for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+	ADD_TYPE(label.Key, int32_t)
+	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
+}
+for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
+}
+#endif
 
 #if defined(GENERATING_PROPMAP)
 for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
@@ -581,6 +636,10 @@ P_RO(Icon)
 P_RO(HasStats)
 P_RO(AbsorbSurfaceTypes)
 
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("StatsObject", stats::Object)
+#endif
+
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::StatusPrototype* obj, std::size_t offset, uint64_t flag) {
@@ -612,6 +671,10 @@ P_RO(Icon)
 P_RO(AiFlags)
 P_REF(RootSkillPrototype)
 P_REF(ChildPrototypes)
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("StatsObject", stats::Object)
+#endif
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",

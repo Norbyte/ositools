@@ -8,17 +8,17 @@ namespace dse
 {
 
 #define BEGIN_BITMASK_NS(NS, T, type) \
-	std::vector<FixedString> BitmaskInfoBase<NS::T>::Labels; \
-	Map<FixedString, NS::T> BitmaskInfoBase<NS::T>::Values;
+	Vector<FixedString> BitmaskInfoBase<NS::T>::Labels; \
+	Map<FixedString, NS::T> BitmaskInfoBase<NS::T>::Values{0};
 #define BEGIN_ENUM_NS(NS, T, type) \
-	std::vector<FixedString> EnumInfoBase<NS::T>::Labels; \
-	Map<FixedString, NS::T> EnumInfoBase<NS::T>::Values;
+	Vector<FixedString> EnumInfoBase<NS::T>::Labels; \
+	Map<FixedString, NS::T> EnumInfoBase<NS::T>::Values{0};
 #define BEGIN_BITMASK(T, type) \
-	std::vector<FixedString> BitmaskInfoBase<T>::Labels; \
-	Map<FixedString, T> BitmaskInfoBase<T>::Values;
+	Vector<FixedString> BitmaskInfoBase<T>::Labels; \
+	Map<FixedString, T> BitmaskInfoBase<T>::Values{0};
 #define BEGIN_ENUM(T, type) \
-	std::vector<FixedString> EnumInfoBase<T>::Labels; \
-	Map<FixedString, T> EnumInfoBase<T>::Values;
+	Vector<FixedString> EnumInfoBase<T>::Labels; \
+	Map<FixedString, T> EnumInfoBase<T>::Values{0};
 #define E(label)
 #define EV(label, value)
 #define END_ENUM_NS()

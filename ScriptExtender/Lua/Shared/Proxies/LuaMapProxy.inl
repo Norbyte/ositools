@@ -9,7 +9,7 @@ int MapProxy::Index(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to read dead Map<%s, %s>", impl->GetKeyTypeName(), impl->GetValueTypeName());
+		luaL_error(L, "Attempted to read dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
 	}
@@ -26,7 +26,7 @@ int MapProxy::NewIndex(lua_State* L)
 	StackCheck _(L, 0);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to write dead Map<%s, %s>", impl->GetKeyTypeName(), impl->GetValueTypeName());
+		luaL_error(L, "Attempted to write dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
 		return 0;
 	}
 
@@ -39,7 +39,7 @@ int MapProxy::Length(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to get length of dead Map<%s, %s>", impl->GetKeyTypeName(), impl->GetValueTypeName());
+		luaL_error(L, "Attempted to get length of dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
 	}
@@ -52,7 +52,7 @@ int MapProxy::Next(lua_State* L)
 {
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to iterate dead Map<%s, %s>", impl->GetKeyTypeName(), impl->GetValueTypeName());
+		luaL_error(L, "Attempted to iterate dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
 		return 0;
 	}
 
@@ -66,10 +66,10 @@ int MapProxy::ToString(lua_State* L)
 	auto impl = GetImpl();
 	if (lifetime_.IsAlive()) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p)", 
-			impl->GetKeyTypeName(), impl->GetValueTypeName(), GetImpl()->GetRaw());
+			impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString(), GetImpl()->GetRaw());
 	} else {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p, DEAD REFERENCE)", 
-			impl->GetKeyTypeName(), impl->GetValueTypeName(), GetImpl()->GetRaw());
+			impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString(), GetImpl()->GetRaw());
 	}
 
 	push(L, entityName);

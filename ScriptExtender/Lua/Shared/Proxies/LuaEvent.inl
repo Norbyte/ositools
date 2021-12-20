@@ -16,7 +16,7 @@ int EventObject::Index(lua_State* L)
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to read dead event of type '%s'", impl->GetTypeName());
+		luaL_error(L, "Attempted to read dead event of type '%s'", impl->GetType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
 	}
@@ -45,7 +45,7 @@ int EventObject::NewIndex(lua_State* L)
 	StackCheck _(L, 0);
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to write dead event of type '%s'", impl->GetTypeName());
+		luaL_error(L, "Attempted to write dead event of type '%s'", impl->GetType().TypeName.GetString());
 		return 0;
 	}
 
@@ -54,7 +54,7 @@ int EventObject::NewIndex(lua_State* L)
 		impl->SetProperty(L, lifetime_.Get(), prop, 3);
 	} else {
 		luaL_error(L, "Event '%s' is not writeable in this context (while attempting to write property %s.%s)",
-			eventName_, impl->GetTypeName(), prop.GetString());
+			eventName_, impl->GetType().TypeName.GetString(), prop.GetString());
 		return false;
 	}
 
@@ -65,7 +65,7 @@ int EventObject::Next(lua_State* L)
 {
 	auto impl = GetImpl();
 	if (!lifetime_.IsAlive()) {
-		luaL_error(L, "Attempted to iterate dead event of type '%s'", impl->GetTypeName());
+		luaL_error(L, "Attempted to iterate dead event of type '%s'", impl->GetType().TypeName.GetString());
 		return 0;
 	}
 
@@ -82,9 +82,9 @@ int EventObject::ToString(lua_State* L)
 	StackCheck _(L, 1);
 	char entityName[200];
 	if (lifetime_.IsAlive()) {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s)", eventName_, GetImpl()->GetTypeName());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s)", eventName_, GetImpl()->GetType().TypeName.GetString());
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s, DEAD REFERENCE)", eventName_, GetImpl()->GetTypeName());
+		_snprintf_s(entityName, std::size(entityName) - 1, "Event %s (%s, DEAD REFERENCE)", eventName_, GetImpl()->GetType().TypeName.GetString());
 	}
 
 	push(L, entityName);

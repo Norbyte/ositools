@@ -2,6 +2,7 @@
 
 #include <GameDefinitions/Base/BaseTypes.h>
 #include <GameDefinitions/Base/BaseMemory.h>
+#include <span>
 
 BEGIN_SE()
 
@@ -96,7 +97,7 @@ private:
 
 
 template <class TKey, class TValue>
-class Map : public Noncopyable<Map<TKey, TValue>>
+class Map
 {
 public:
 	struct Node
@@ -282,24 +283,51 @@ public:
 		Map<TKey, TValue>::Node const* Element;
 	};
 
-	Map() {}
-
-	Map(uint32_t hashSize)
+	Map(uint32_t hashSize = 31)
 	{
-		Init(hashSize);
+		ResizeHashtable(hashSize);
+	}
+
+	Map(Map<TKey, TValue> const& other)
+	{
+		ResizeHashtable(other.HashSize);
+
+		for (auto const& pair : other) {
+			Insert(pair.Key, pair.Value);
+		}
 	}
 
 	~Map()
 	{
-		Clear();
+		if (HashTable) {
+			Clear();
+			GameFree(HashTable);
+		}
 	}
 
-	void Init(uint32_t hashSize)
+	Map<TKey, TValue>& operator =(Map<TKey, TValue> const& other)
 	{
-		HashSize = hashSize;
-		HashTable = GameAllocArray<Node*>(hashSize);
-		ItemCount = 0;
-		memset(HashTable, 0, sizeof(Node*) * hashSize);
+		Clear();
+		ResizeHashtable(other.HashSize);
+		for (auto const& pair : other) {
+			Insert(pair.Key, pair.Value);
+		}
+
+		return *this;
+	}
+
+	void ResizeHashtable(uint32_t hashSize)
+	{
+		if (HashTable) {
+			Clear();
+			GameFree(HashTable);
+		}
+
+		if (HashSize != hashSize) {
+			HashSize = hashSize;
+			HashTable = GameAllocArray<Node*>(HashSize);
+			memset(HashTable, 0, sizeof(Node*) * HashSize);
+		}
 	}
 
 	void Clear()
@@ -356,6 +384,13 @@ public:
 
 		ItemCount++;
 		return &node->Value;
+	}
+
+	TValue* insert(std::pair<TKey, TValue> const& v)
+	{
+		auto nodeValue = Insert(v.first);
+		*nodeValue = v.second;
+		return nodeValue;
 	}
 
 	TValue* Find(TKey const& key) const
@@ -650,6 +685,16 @@ public:
 		}
 	}
 
+	RefMap<TKey, TValue>& operator =(RefMap<TKey, TValue> const& other)
+	{
+		Init(other.HashSize);
+		for (auto const& pair : other) {
+			Insert(pair.Key, pair.Value);
+		}
+
+		return *this;
+	}
+
 	Iterator begin()
 	{
 		return Iterator(*this);
@@ -773,6 +818,13 @@ public:
 
 		ItemCount++;
 		return &node->Value;
+	}
+
+	TValue* insert(std::pair<TKey, TValue> const& v)
+	{
+		auto nodeValue = Insert(v.first);
+		*nodeValue = v.second;
+		return nodeValue;
 	}
 
 private:

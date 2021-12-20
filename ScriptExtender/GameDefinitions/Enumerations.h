@@ -7,13 +7,13 @@ namespace dse
 	template <class T>
 	struct BitmaskInfoBase
 	{
-		static std::vector<FixedString> Labels;
+		static Vector<FixedString> Labels;
 		static Map<FixedString, T> Values;
 
 		static void Init(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
-			Values.Init(GetNearestLowerPrime(sizeHint));
+			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 		}
 
 		static void __declspec(noinline) Add(T val, char const* label)
@@ -70,13 +70,13 @@ namespace dse
 	template <class T>
 	struct EnumInfoBase
 	{
-		static std::vector<FixedString> Labels;
+		static Vector<FixedString> Labels;
 		static Map<FixedString, T> Values;
 
 		static void Init(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
-			Values.Init(GetNearestLowerPrime(sizeHint));
+			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 		}
 
 		static void __declspec(noinline) Add(T val, char const* label)
