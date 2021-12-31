@@ -307,7 +307,6 @@ public:
 
 	Map<TKey, TValue>& operator =(Map<TKey, TValue> const& other)
 	{
-		Clear();
 		ResizeHashtable(other.HashSize);
 		for (auto const& pair : other) {
 			Insert(pair.Key, pair.Value);
@@ -320,10 +319,13 @@ public:
 	{
 		if (HashTable) {
 			Clear();
-			GameFree(HashTable);
 		}
 
 		if (HashSize != hashSize) {
+			if (HashTable) {
+				GameFree(HashTable);
+			}
+
 			HashSize = hashSize;
 			HashTable = GameAllocArray<Node*>(HashSize);
 			memset(HashTable, 0, sizeof(Node*) * HashSize);
@@ -672,27 +674,51 @@ public:
 	};
 
 	RefMap(uint32_t hashSize = 31)
-		: ItemCount(0), HashSize(hashSize)
 	{
-		HashTable = GameAllocArray<Node*>(hashSize);
-		memset(HashTable, 0, sizeof(Node*) * hashSize);
+		ResizeHashtable(hashSize);
+	}
+
+	RefMap(RefMap<TKey, TValue> const& other)
+	{
+		ResizeHashtable(other.HashSize);
+		for (auto const& pair : other) {
+			Insert(pair.Key, pair.Value);
+		}
 	}
 
 	~RefMap()
 	{
-		if (HashTable != nullptr) {
+		if (HashTable) {
+			Clear();
 			GameFree(HashTable);
 		}
 	}
 
 	RefMap<TKey, TValue>& operator =(RefMap<TKey, TValue> const& other)
 	{
-		Init(other.HashSize);
+		ResizeHashtable(other.HashSize);
 		for (auto const& pair : other) {
 			Insert(pair.Key, pair.Value);
 		}
 
 		return *this;
+	}
+
+	void ResizeHashtable(uint32_t hashSize)
+	{
+		if (HashTable) {
+			Clear();
+		}
+
+		if (HashSize != hashSize) {
+			if (HashTable) {
+				GameFree(HashTable);
+			}
+
+			HashSize = hashSize;
+			HashTable = GameAllocArray<Node*>(HashSize);
+			memset(HashTable, 0, sizeof(Node*) * HashSize);
+		}
 	}
 
 	Iterator begin()
