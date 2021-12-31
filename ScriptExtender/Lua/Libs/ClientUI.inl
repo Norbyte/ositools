@@ -96,6 +96,10 @@ UIObject* GetByName(char const* name)
 
 UIObject* GetByType(int typeId)
 {
+	// UIDummyOverhead is not an EoCUI object
+	// TODO - better fix for this (split UIObject)!
+	if (typeId == 0xf) return nullptr;
+
 	auto uiManager = GetStaticSymbols().GetUIObjectManager();
 	if (uiManager != nullptr) {
 		return uiManager->GetByType(typeId);
