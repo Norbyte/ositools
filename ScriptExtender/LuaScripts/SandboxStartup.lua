@@ -45,3 +45,5 @@ math.random = Ext.Random
 math.randomseed = function ()
 	error("math.randomseed() not implemented")
 end
+
+print = Ext.Utils.Print

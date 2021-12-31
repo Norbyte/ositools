@@ -131,12 +131,12 @@ Ext.DumpExport = function (val)
 end
 
 Ext.Dump = function (val)
-	Ext.Print(Ext.DumpExport(val))
+	Ext.Utils.Print(Ext.DumpExport(val))
 end
 
 -- Global helper aliases for Ext.Dump, Ext.Print
 _D = Ext.Dump
-_P = Ext.Print
+_P = Ext.Utils.Print
 
 function CallDeprecated(fun, oldName, newName)
 	return function (...)
