@@ -112,9 +112,9 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	}
 
 	// Check to make sure that startup is done even if the extender was loaded when the game was already in GameState::Init
-	if (toState != ecl::GameState::Unknown
-		&& toState != ecl::GameState::StartLoading
-		&& toState != ecl::GameState::InitMenu
+	if (toState != GameState::Unknown
+		&& toState != GameState::StartLoading
+		&& toState != GameState::InitMenu
 		&& !gExtender->GetLibraryManager().InitializationFailed()) {
 		// We need to initialize the function library here, as GlobalAllocator isn't available in Init().
 		gExtender->PostStartup();
@@ -125,7 +125,7 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		gExtender->PostStartup();
 	}
 
-	if (toState == ecl::GameState::LoadModule && config_.DisableModValidation) {
+	if (toState == GameState::LoadModule && config_.DisableModValidation) {
 		if (GetStaticSymbols().GetGlobalSwitches()) {
 			GetStaticSymbols().GetGlobalSwitches()->EnableModuleHashing = false;
 			INFO("Disabled module hashing");
@@ -135,47 +135,52 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	}
 
 #if defined(DEBUG_SERVER_CLIENT)
-	DEBUG("ScriptExtender::OnClientGameStateChanged(): %s -> %s",
+	DEBUG("ecl::ScriptExtender::OnClientGameStateChanged(): %s -> %s",
 		ClientGameStateNames[(unsigned)fromState], ClientGameStateNames[(unsigned)toState]);
 #endif
 
-	if (fromState != ecl::GameState::Unknown) {
+	if (fromState != GameState::Unknown) {
 		AddThread(GetCurrentThreadId());
 	}
 
 	switch (fromState) {
-	case ecl::GameState::LoadModule:
-		INFO("ScriptExtender::OnClientGameStateChanged(): Loaded module");
+	case GameState::LoadModule:
+		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loaded module");
 		LoadExtensionState();
 		break;
 
-	case ecl::GameState::LoadSession:
+	// Initialize client state when exiting from a game and returning to menu
+	case GameState::LoadMenu:
+		LoadExtensionState();
+		break;
+
+	case GameState::LoadSession:
 		if (extensionState_) {
 			extensionState_->OnGameSessionLoaded();
 		}
 		break;
 
-	case ecl::GameState::InitConnection:
+	case GameState::InitConnection:
 		network_.ExtendNetworking();
 		networkFixedStrings_.RequestFromServer();
 		break;
 	}
 
 	switch (toState) {
-	case ecl::GameState::LoadModule:
+	case GameState::LoadModule:
 		gExtender->InitRuntimeLogging();
 		if (config_.DeveloperMode) {
 			RegisterFlashTraceCallbacks();
 		}
 		break;
 
-	case ecl::GameState::InitNetwork:
-	case ecl::GameState::Disconnect:
+	case GameState::InitNetwork:
+	case GameState::Disconnect:
 		network_.Reset();
 		networkFixedStrings_.ClientReset();
 		break;
 
-	case ecl::GameState::UnloadModule:
+	case GameState::UnloadModule:
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
 		networkFixedStrings_.ClientReset();
@@ -183,19 +188,19 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		gExtender->Hasher().ClearCaches();
 		break;
 
-	case ecl::GameState::UnloadSession:
-		INFO("ScriptExtender::OnClientGameStateChanged(): Unloading session");
+	case GameState::UnloadSession:
+		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Unloading session");
 		ResetExtensionState();
 		break;
 
-	case ecl::GameState::LoadGMCampaign:
-		INFO("ScriptExtender::OnClientGameStateChanged(): Loading GM campaign");
+	case GameState::LoadGMCampaign:
+		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loading GM campaign");
 		LoadExtensionState();
 		network_.ExtendNetworking();
 		break;
 
-	case ecl::GameState::LoadSession:
-		INFO("ScriptExtender::OnClientGameStateChanged(): Loading game session");
+	case GameState::LoadSession:
+		INFO("ecl::ScriptExtender::OnClientGameStateChanged(): Loading game session");
 		LoadExtensionState();
 		network_.ExtendNetworking();
 		if (extensionState_) {
@@ -207,14 +212,14 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		}
 		break;
 
-	case ecl::GameState::Running:
-		if (fromState == ecl::GameState::PrepareRunning) {
+	case GameState::Running:
+		if (fromState == GameState::PrepareRunning) {
 			networkFixedStrings_.ClientLoaded();
 		}
 		break;
 	}
 
-	ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+	LuaClientPin lua(ecl::ExtensionState::Get());
 	if (lua) {
 		lua->OnGameStateChanged(fromState, toState);
 	}
