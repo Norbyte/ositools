@@ -193,6 +193,12 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, Stri
 	// Call __next(obj, k)
 	lua_call(L, 2, 2); // returns k, val
 
+#if !defined(NDEBUG)
+	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
+	auto objPtr = proxy ? proxy->GetRaw() : nullptr;
+	auto typeName = proxy ? proxy->GetImpl()->GetTypeName() : FixedString{};
+#endif
+
 	while (lua_type(L, -2) != LUA_TNIL) {
 #if !defined(NDEBUG)
 		STDString key;
