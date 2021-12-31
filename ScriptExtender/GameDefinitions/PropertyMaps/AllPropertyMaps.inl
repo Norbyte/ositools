@@ -310,7 +310,6 @@ BEGIN_CLS(esv::Trigger)
 END_CLS()
 
 BEGIN_CLS(Resource)
-P_RO(XMLName)
 P_RO(SourceFile)
 P_RO(PackageName)
 P_RO(ModName)

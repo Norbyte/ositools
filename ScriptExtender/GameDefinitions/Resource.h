@@ -10,7 +10,9 @@ struct VisualFactory;
 struct Resource : public ProtectedGameObject<Resource>
 {
     void* VMT;
+#if !defined(OSI_EOCAPP)
     Path XMLName;
+#endif
     Path SourceFile;
     FixedString PackageName;
     FixedString ModName;
