@@ -538,8 +538,30 @@ void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 	ThrowEvent(*this, "UIObjectCreated", params);
 }
 
+// Workaround for strange bug where an InvokeDataValue is corrupted after an Invoke handler call
+bool AreInvokeParamsPlausible(std::span<ig::InvokeDataValue> const& params)
+{
+	for (auto const& param : params) {
+		if (param.TypeId > ig::DataType::UserData2) {
+			return false;
+		}
+
+		if (param.TypeId == ig::DataType::String && param.StringVal.size() > 0xffff) {
+			return false;
+		}
+
+		if (param.TypeId == ig::DataType::WString && param.WStringVal.size() > 0xffff) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void ClientState::OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 {
+	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+
 	UICallEventParams params;
 	params.UI = ui;
 	params.Function = func;
@@ -550,6 +572,8 @@ void ClientState::OnUICall(UIObject* ui, const char * func, unsigned int numArgs
 
 void ClientState::OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 {
+	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+
 	UICallEventParams params;
 	params.UI = ui;
 	params.Function = func;
@@ -560,6 +584,8 @@ void ClientState::OnAfterUICall(UIObject* ui, const char* func, unsigned int num
 
 void ClientState::OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 {
+	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+
 	UICallEventParams params;
 	params.UI = ui;
 	params.Function = func;
@@ -570,6 +596,8 @@ void ClientState::OnUIInvoke(UIObject* ui, const char* func, unsigned int numArg
 
 void ClientState::OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
 {
+	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+
 	UICallEventParams params;
 	params.UI = ui;
 	params.Function = func;
