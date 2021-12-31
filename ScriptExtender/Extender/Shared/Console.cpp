@@ -246,6 +246,8 @@ void DebugConsole::Create()
 
 	auto hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleMode(hStdout, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	// Disable Ctrl+C handling
+	SetConsoleCtrlHandler(NULL, TRUE);
 
 	FILE * outputStream;
 	freopen_s(&outputStream, "CONOUT$", "w", stdout);

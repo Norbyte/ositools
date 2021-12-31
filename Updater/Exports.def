@@ -1,5 +1,3 @@
-LIBRARY DXGI
-
 EXPORTS
 	CreateDXGIFactory=WrappedCreateDXGIFactory @1
 	CreateDXGIFactory1=WrappedCreateDXGIFactory1 @2
