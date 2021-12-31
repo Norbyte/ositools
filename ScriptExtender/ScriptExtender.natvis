@@ -57,6 +57,14 @@
       </CustomListItems>
     </Expand>
   </Type>
+
+  <Type Name="dse::RefMap&lt;*,*&gt;::Node">
+    <DisplayString>{{ Key={Key} Value={Value} }}</DisplayString>
+    <Expand>
+      <Item Name="Key" ExcludeView="simple">Key</Item>
+      <Item Name="Value" ExcludeView="simple">Value</Item>
+    </Expand>
+  </Type>
   
   <Type Name="dse::Map&lt;*,*&gt;">
     <Intrinsic Name="size" Expression="ItemCount" />
@@ -81,6 +89,14 @@
           <Exec>pBucket = pBucket->Next</Exec>
         </Loop>
       </CustomListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="dse::Map&lt;*,*&gt;::Node">
+    <DisplayString>{{ Key={Key} Value={Value} }}</DisplayString>
+    <Expand>
+      <Item Name="Key" ExcludeView="simple">Key</Item>
+      <Item Name="Value" ExcludeView="simple">Value</Item>
     </Expand>
   </Type>
 </AutoVisualizer>
