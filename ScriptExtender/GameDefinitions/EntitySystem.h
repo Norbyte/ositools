@@ -441,6 +441,7 @@ struct IEoCClientObject : public IGameObject
 	ecl::StatusMachine* GetStatusMachine() const;
 	RefReturn<ecl::Status> LuaGetStatus(FixedString const& statusId);
 	RefReturn<ecl::Status> LuaGetStatusByType(StatusType type);
+	RefReturn<ecl::Status> LuaGetStatusByHandle(ComponentHandle const& handle);
 	ObjectSet<FixedString> LuaGetStatusIds();
 	UserReturn LuaGetStatuses(lua_State* L);
 };
@@ -464,6 +465,7 @@ struct IEoCServerObject : public IGameObject
 	esv::StatusMachine* GetStatusMachine() const;
 	RefReturn<esv::Status> LuaGetStatus(FixedString const& statusId);
 	RefReturn<esv::Status> LuaGetStatusByType(StatusType type);
+	RefReturn<esv::Status> LuaGetStatusByHandle(ComponentHandle const& handle);
 	ObjectSet<FixedString> LuaGetStatusIds();
 	UserReturn LuaGetStatuses(lua_State* L);
 };

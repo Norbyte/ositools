@@ -581,12 +581,12 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
 
     if method == "showSkillTooltip" then
         request.Type = 'Skill'
-        request.Character = Ext.DoubleToHandle(arg1)
+        request.CharacterHandle = Ext.DoubleToHandle(arg1)
         request.Skill = arg2
     elseif method == "showStatusTooltip" then
         request.Type = 'Status'
-        request.Character = Ext.DoubleToHandle(arg1)
-        request.Status = Ext.DoubleToHandle(arg2)
+        request.CharacterHandle = Ext.DoubleToHandle(arg1)
+        request.StatusHandle = Ext.DoubleToHandle(arg2)
     elseif method == "showItemTooltip" then
         if arg1 == nil then
             -- Item handle will be nil when it's being dragged
@@ -594,14 +594,14 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
         end
 
         request.Type = 'Item'
-        request.Item = Ext.DoubleToHandle(arg1)
+        request.ItemHandle = Ext.DoubleToHandle(arg1)
     elseif method == "showStatTooltip" then
         request.Type = 'Stat'
         if isCharSheet then
-            request.Character = ui:GetPlayerHandle()
+            request.CharacterHandle = ui:GetPlayerHandle()
             request.Stat = arg1
         else
-            request.Character = Ext.DoubleToHandle(arg1)
+            request.CharacterHandle = Ext.DoubleToHandle(arg1)
             request.Stat = arg2
         end
 
@@ -614,10 +614,10 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
     elseif method == "showAbilityTooltip" then
         request.Type = 'Ability'
         if isCharSheet then
-            request.Character = ui:GetPlayerHandle()
+            request.CharacterHandle = ui:GetPlayerHandle()
             request.Ability = arg1
         else
-            request.Character = Ext.DoubleToHandle(arg1)
+            request.CharacterHandle = Ext.DoubleToHandle(arg1)
             request.Ability = arg2
         end
 
@@ -625,10 +625,10 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
     elseif method == "showTalentTooltip" then
         request.Type = 'Talent'
         if isCharSheet then
-            request.Character = ui:GetPlayerHandle()
+            request.CharacterHandle = ui:GetPlayerHandle()
             request.Talent = arg1
         else
-            request.Character = Ext.DoubleToHandle(arg1)
+            request.CharacterHandle = Ext.DoubleToHandle(arg1)
             request.Talent = arg2
         end
 
@@ -636,18 +636,6 @@ function TooltipHooks:OnRequestTooltip(ui, method, arg1, arg2, arg3, ...)
     else
         Ext.PrintError("Unknown tooltip request method?", method)
         return
-    end
-
-    if request.Character ~= nil then
-        request.Character = Ext.GetCharacter(request.Character)
-    end
-
-    if request.Status ~= nil then
-        request.Status = Ext.GetStatus(request.Character.Handle, request.Status)
-    end
-
-    if request.Item ~= nil then
-        request.Item = Ext.GetItem(request.Item)
     end
 
     if self.NextRequest ~= nil then
@@ -660,7 +648,7 @@ end
 --- @param ui UIObject
 function TooltipHooks:OnRequestExamineUITooltip(ui, method, typeIndex, id, ...)
     local request = {
-        Character = Ext.GetCharacter(ui:GetPlayerHandle())
+        CharacterHandle = ui:GetPlayerHandle()
     }
 
     if typeIndex == 1 then
@@ -678,7 +666,7 @@ function TooltipHooks:OnRequestExamineUITooltip(ui, method, typeIndex, id, ...)
         request.Talent = Ext.EnumIndexToLabel("TalentType", id)
     elseif typeIndex == 7 then
         request.Type = 'Status'
-        request.Status = Ext.GetStatus(request.Character.Handle, Ext.DoubleToHandle(id))
+        request.StatusHandle = Ext.DoubleToHandle(id)
     else
         return
     end
@@ -725,6 +713,20 @@ function TooltipHooks:GetCompareItem(ui, item, offHand)
     end
 end
 
+function TooltipHooks:PrepareRequestForRender(request)
+    if request.CharacterHandle ~= nil then
+        request.Character = Ext.GetCharacter(request.CharacterHandle)
+    end
+
+    if request.StatusHandle ~= nil then
+        request.Status = Ext.GetStatus(request.CharacterHandle, request.StatusHandle)
+    end
+
+    if request.ItemHandle ~= nil then
+        request.Item = Ext.GetItem(request.ItemHandle)
+    end
+end
+
 --- @param ui UIObject
 function TooltipHooks:OnRenderTooltip(ui, method, ...)
     if self.NextRequest == nil then
@@ -733,6 +735,7 @@ function TooltipHooks:OnRenderTooltip(ui, method, ...)
     end
 
     local req = self.NextRequest
+    self:PrepareRequestForRender(req)
     self:OnRenderSubTooltip(ui, "tooltip_array", req, method, ...)
 
     if req.Type == "Item" then

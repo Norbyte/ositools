@@ -12,13 +12,7 @@ struct StatusMachine : public NetworkComponentFactory<TStatus>
 {
 	TStatus * GetStatus(ComponentHandle handle) const
 	{
-		for (auto status : Statuses) {
-			if (status->StatusHandle == handle) {
-				return status;
-			}
-		}
-
-		return nullptr;
+		return this->Get(handle);
 	}
 
 	TStatus* GetStatus(StatusType type) const

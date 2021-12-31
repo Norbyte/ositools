@@ -53,6 +53,16 @@ RefReturn<ecl::Status> IEoCClientObject::LuaGetStatusByType(StatusType type)
 	return statusMachine->GetStatus(type);
 }
 
+RefReturn<ecl::Status> IEoCClientObject::LuaGetStatusByHandle(ComponentHandle const& handle)
+{
+	auto statusMachine = GetStatusMachine();
+	if (!statusMachine) {
+		return {};
+	}
+
+	return statusMachine->GetStatus(handle);
+}
+
 ObjectSet<FixedString> IEoCClientObject::LuaGetStatusIds()
 {
 	ObjectSet<FixedString> statuses;

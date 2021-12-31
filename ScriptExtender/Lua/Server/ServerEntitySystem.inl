@@ -119,6 +119,16 @@ RefReturn<esv::Status> IEoCServerObject::LuaGetStatusByType(StatusType type)
 	return statusMachine->GetStatus(type);
 }
 
+RefReturn<esv::Status> IEoCServerObject::LuaGetStatusByHandle(ComponentHandle const& handle)
+{
+	auto statusMachine = GetStatusMachine();
+	if (!statusMachine) {
+		return {};
+	}
+
+	return statusMachine->GetStatus(handle);
+}
+
 ObjectSet<FixedString> IEoCServerObject::LuaGetStatusIds()
 {
 	ObjectSet<FixedString> statuses;
