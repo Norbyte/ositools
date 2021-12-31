@@ -82,6 +82,10 @@ bool Item::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, Ite
 		if (map.GetProperty(L, lifetime, object->Stats, prop)) {
 			WarnDeprecated56("Getting stats properties through an esv::Item instance is deprecated! (Use item.Stats instead)");
 			return true;
+		} else if (map.HasProperty(prop)) {
+			WarnDeprecated56("Getting stats properties through an esv::Item instance is deprecated! (Use item.Stats instead)");
+			push(L, nullptr);
+			return true;
 		}
 	}
 

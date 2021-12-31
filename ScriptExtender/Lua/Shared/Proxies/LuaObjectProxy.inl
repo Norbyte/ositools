@@ -16,6 +16,11 @@ void GenericPropertyMap::Finish()
 	Initialized = true;
 }
 
+bool GenericPropertyMap::HasProperty(FixedString const& prop) const
+{
+	return Properties.find(prop) != Properties.end();
+}
+
 bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const
 {
 	auto it = Properties.find(prop);

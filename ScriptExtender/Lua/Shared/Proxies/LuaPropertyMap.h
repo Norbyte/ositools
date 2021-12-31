@@ -26,6 +26,7 @@ public:
 
 	void Init();
 	void Finish();
+	bool HasProperty(FixedString const& prop) const;
 	bool GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const;
 	bool SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
