@@ -21,14 +21,18 @@ _I._PublishedSharedEvents = {
 	"Tick"
 }
 
-Ext._WarningShown = {}
+_I._WarningShown = {}
+_I._DeprecationURLShown = false
 
 Ext._WarnDeprecated56 = function (msg, type)
 	type = type or msg
-	if Ext._WarningShown[type] == nil then
+	if _I._WarningShown[type] == nil then
 		Ext.PrintWarning(msg)
-		Ext.PrintWarning("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
-		Ext._WarningShown[type] = true
+		if not _I._DeprecationURLShown then
+			Ext.PrintWarning("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
+			_I._DeprecationURLShown = true
+		end
+		_I._WarningShown[type] = true
 	end
 end
 
