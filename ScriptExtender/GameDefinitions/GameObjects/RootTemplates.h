@@ -205,7 +205,7 @@ namespace dse
         OverrideableProperty<FixedString> CombatGroupID;
         OverrideableProperty<bool> IsBoss;
         OverrideableProperty<bool> IsInspector;
-        OverrideableProperty<int32_t> StartCombatRange;
+        OverrideableProperty<float> StartCombatRange;
         bool CanFight2;
     };
 
