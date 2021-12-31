@@ -266,5 +266,9 @@ Ext.UIEnableCustomDrawCallDebugging = CallDeprecated(Ext.UI.EnableCustomDrawCall
 Ext.HandleToDouble = CallDeprecated(Ext.UI.HandleToDouble, "HandleToDouble", "UI.HandleToDouble")
 Ext.DoubleToHandle = CallDeprecated(Ext.UI.DoubleToHandle, "DoubleToHandle", "UI.DoubleToHandle")
 
+Ext.OsirisIsCallable = function ()
+	return false
+end
+
 -- Backwards compatibility with old Net APIs
 Ext.PostMessageToServer = CallDeprecated(Ext.Net.PostMessageToServer, "PostMessageToServer", "Net.PostMessageToServer")
