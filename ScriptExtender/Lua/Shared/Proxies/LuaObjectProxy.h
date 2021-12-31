@@ -290,7 +290,9 @@ public:
 	{}
 
 	~ObjectProxyContainerImpl() override
-	{}
+	{
+		lifetime_.GetLifetime()->Kill();
+	}
 
 	T* Get() const
 	{
