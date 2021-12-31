@@ -237,6 +237,24 @@ Ext.Events.SkillGetPropertyDescription:Subscribe(function (e)
 	end
 end)
 
+-- Debug helper to get current player character
+_C = function ()
+	local statusConsole = Ext.UI.GetByType(117)
+	if statusConsole == nil then return end
+	local handle = statusConsole:GetPlayerHandle()
+	if handle == nil then return end
+	return Ext.GetCharacter(handle)
+end
+
+-- Debug helper to get character being examined
+_E = function ()
+	local examine = Ext.UI.GetByType(104)
+	if examine == nil then return end
+	local handle = examine:GetPlayerHandle()
+	if handle == nil then return end
+	return Ext.GetCharacter(handle)
+end
+
 -- Backwards compatibility with old UI APIs
 Ext.CreateUI = CallDeprecated(Ext.UI.Create, "CreateUI", "UI.Create")
 Ext.GetUI = CallDeprecated(Ext.UI.GetByName, "GetUI", "UI.GetByName")
