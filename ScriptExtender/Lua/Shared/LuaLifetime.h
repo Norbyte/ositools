@@ -169,7 +169,17 @@ public:
 #if defined(TRACE_LIFETIMES)
 		INFO("[%p] MAKE GLOBAL", this);
 #endif
+		assert(!isInfinite_);
 		isInfinite_ = true;
+	}
+
+	inline void ClearInfinite()
+	{
+#if defined(TRACE_LIFETIMES)
+		INFO("[%p] MAKE GLOBAL", this);
+#endif
+		assert(isInfinite_);
+		isInfinite_ = false;
 	}
 
 	inline unsigned References() const
@@ -194,7 +204,6 @@ public:
 			ERR("[%p] Attempted to kill a deleted lifetime!", this);
 			return;
 		}
-
 #endif
 
 #if defined(TRACE_LIFETIMES)

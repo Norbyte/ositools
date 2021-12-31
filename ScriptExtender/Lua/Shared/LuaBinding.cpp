@@ -270,6 +270,8 @@ namespace dse::lua
 
 	State::~State()
 	{
+		globalLifetime_.GetLifetime()->ClearInfinite();
+		globalLifetime_.GetLifetime()->Kill();
 		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
 	}
