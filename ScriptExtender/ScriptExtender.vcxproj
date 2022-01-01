@@ -252,10 +252,13 @@
     <None Include="LuaScripts\BuiltinLibrary.lua" />
     <None Include="LuaScripts\BuiltinLibraryClient.lua" />
     <None Include="LuaScripts\BuiltinLibraryServer.lua" />
-    <None Include="LuaScripts\Event.lua" />
-    <None Include="LuaScripts\Game.Math.lua" />
-    <None Include="LuaScripts\Game.Tooltip.lua" />
+    <None Include="LuaScripts\ClientStartup.lua" />
+    <None Include="LuaScripts\Libs\Event.lua" />
+    <None Include="LuaScripts\Libs\Game.Math.lua" />
+    <None Include="LuaScripts\Libs\Game.Tooltip.lua" />
+    <None Include="LuaScripts\Libs\IdeHelpersGenerator.lua" />
     <None Include="LuaScripts\SandboxStartup.lua" />
+    <None Include="LuaScripts\ServerStartup.lua" />
     <None Include="Lua\Client\ClientCharacter.inl" />
     <None Include="Lua\Client\ClientEntitySystem.inl" />
     <None Include="Lua\Client\ClientItem.inl" />

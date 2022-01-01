@@ -194,10 +194,38 @@ _I._MakeLegacyHitStatusProxy = function (hit)
 	return proxy
 end
 
+-- Hit flag to EffectFlags value mappings
+local HitFlagMap = {
+    Hit = 1,
+    Blocked = 2,
+    Dodged = 4,
+    Missed = 8,
+    CriticalHit = 0x10,
+    Backstab = 0x20,
+    FromSetHP = 0x40,
+    DontCreateBloodSurface = 0x80,
+    Reflection = 0x200,
+    NoDamageOnOwner = 0x400,
+    FromShacklesOfPain = 0x800,
+    DamagedMagicArmor = 0x1000,
+    DamagedPhysicalArmor = 0x2000,
+    DamagedVitality = 0x4000,
+    Flanking = 0x8000,
+    PropagatedFromOwner = 0x10000,
+    Surface = 0x20000,
+    DoT = 0x40000,
+    ProcWindWalker = 0x80000,
+    CounterAttack = 0x100000,
+    Poisoned = 0x200000,
+    Burning = 0x400000,
+    Bleeding = 0x800000,
+    NoEvents = 0x80000000
+}
+
 _I._MakeLegacyHitInfo = function (hit)
 	local damageList = Ext.NewDamageList()
 	damageList:CopyFrom(hit.DamageList)
-	return {
+	local t = {
 		Equipment = hit.Equipment,
 		TotalDamageDone = hit.TotalDamageDone,
 		DamageDealt = hit.DamageDealt,
@@ -210,6 +238,28 @@ _I._MakeLegacyHitInfo = function (hit)
 		HitWithWeapon = hit.HitWithWeapon,
 		DamageList = damageList
 	}
+	local proxy = {}
+	setmetatable(proxy, {
+		__index = function (obj, attr)
+			if HitFlagMap[attr] ~= nil then
+				return (t.EffectFlags & HitFlagMap[attr]) ~= 0
+			else
+				return t[attr]
+			end
+		end,
+		__newindex = function (obj, attr, val)
+			if HitFlagMap[attr] ~= nil then
+				if val then
+					t.EffectFlags = t.EffectFlags | HitFlagMap[attr]
+				else
+					t.EffectFlags = t.EffectFlags & ~HitFlagMap[attr]
+				end
+			else
+				t[attr] = val
+			end
+		end
+	})
+	return proxy
 end
 
 _I._UpdateHitFromTable = function (hit, t)

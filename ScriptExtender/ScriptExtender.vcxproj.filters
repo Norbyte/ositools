@@ -70,6 +70,9 @@
     <Filter Include="Lua\Libs">
       <UniqueIdentifier>{7ce3fe1a-0cb0-4741-89d1-9f28599af617}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LuaScripts\Libs">
+      <UniqueIdentifier>{97684495-d5fc-4e0d-a95b-c0b2c68db9e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Extender\Client\ExtensionStateClient.h">
@@ -596,12 +599,6 @@
     <None Include="LuaScripts\BuiltinLibraryServer.lua">
       <Filter>LuaScripts</Filter>
     </None>
-    <None Include="LuaScripts\Game.Math.lua">
-      <Filter>LuaScripts</Filter>
-    </None>
-    <None Include="LuaScripts\Game.Tooltip.lua">
-      <Filter>LuaScripts</Filter>
-    </None>
     <None Include="LuaScripts\SandboxStartup.lua">
       <Filter>LuaScripts</Filter>
     </None>
@@ -657,9 +654,6 @@
     </None>
     <None Include="Lua\Shared\Proxies\LuaEvent.inl">
       <Filter>Lua\Shared\Proxies</Filter>
-    </None>
-    <None Include="LuaScripts\Event.lua">
-      <Filter>LuaScripts</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\Events.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
@@ -765,6 +759,24 @@
     </None>
     <None Include="Lua\Libs\ServerTemplate.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="LuaScripts\Libs\Event.lua">
+      <Filter>LuaScripts\Libs</Filter>
+    </None>
+    <None Include="LuaScripts\Libs\Game.Math.lua">
+      <Filter>LuaScripts\Libs</Filter>
+    </None>
+    <None Include="LuaScripts\Libs\Game.Tooltip.lua">
+      <Filter>LuaScripts\Libs</Filter>
+    </None>
+    <None Include="LuaScripts\Libs\IdeHelpersGenerator.lua">
+      <Filter>LuaScripts\Libs</Filter>
+    </None>
+    <None Include="LuaScripts\ClientStartup.lua">
+      <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="LuaScripts\ServerStartup.lua">
+      <Filter>LuaScripts</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
