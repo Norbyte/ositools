@@ -357,6 +357,13 @@ namespace dse::esv
 			}
 		}
 
+		LuaServerPin lua(ExtensionState::Get());
+		if (lua) {
+			if (lua->OnApplyStatus(self->OwnerObjectHandle, status, self->PreventStatusApply)) {
+				self->PreventStatusApply = true;
+			}
+		}
+
 		wrappedApply(self, status);
 
 		self->PreventStatusApply = previousPreventApplyState;

@@ -150,6 +150,13 @@ struct StatusGetEnterChanceEventParams
 	std::optional<int32_t> EnterChance;
 };
 
+struct BeforeStatusApplyEventParams
+{
+	IEoCServerObject* Owner;
+	esv::Status* Status;
+	bool PreventStatusApply;
+};
+
 struct StatusHitEnterEventParams
 {
 	esv::StatusHit* Hit;
@@ -321,6 +328,7 @@ public:
 
 	std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool isEnterCheck);
 	bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+	bool OnApplyStatus(ComponentHandle const& ownerHandle, esv::Status* status, bool preventStatusApply);
 	void OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context);
 	bool ComputeCharacterHit(stats::Character * self,
 		stats::Character *attackerStats, stats::Item *item, stats::DamagePairList *damageList, stats::HitType hitType, bool noHitRoll,

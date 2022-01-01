@@ -1408,6 +1408,14 @@ namespace dse::esv::lua
 		return params.EnterChance;
 	}
 
+	bool ServerState::OnApplyStatus(ComponentHandle const& ownerHandle, esv::Status* status, bool preventStatusApply)
+	{
+		auto owner = GetEntityWorld()->GetGameObject(ownerHandle);
+		BeforeStatusApplyEventParams params{ owner, status, preventStatusApply };
+		ThrowEvent(*this, "BeforeStatusApply", params);
+		return params.PreventStatusApply;
+	}
+
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
 		StatusHitEnterEventParams params{ hit, context };

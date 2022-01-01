@@ -55,6 +55,12 @@ P_RO(IsEnterCheck)
 P(EnterChance)
 END_CLS()
 
+BEGIN_CLS(esv::lua::BeforeStatusApplyEventParams)
+P_REF(Owner)
+P_REF(Status)
+P(PreventStatusApply)
+END_CLS()
+
 BEGIN_CLS(esv::lua::ComputeCharacterHitEventParams)
 P_REF(Target)
 P_REF(Attacker)

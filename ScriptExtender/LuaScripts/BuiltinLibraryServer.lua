@@ -8,6 +8,7 @@ _I._PublishedEvents = {
 	"CalculateTurnOrder", -- FIXME
 	"GetHitChance",
 	"StatusGetEnterChance",
+	"BeforeStatusApply",
 	"StatusHitEnter",
 	"BeforeCharacterApplyDamage",
 	"TreasureItemGenerated",
