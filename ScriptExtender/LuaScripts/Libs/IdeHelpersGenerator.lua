@@ -5,12 +5,14 @@ Generator.ValueKindToLua = {
     Integer = "number",
     Float = "number",
     String = "string",
-    Enumeration = "string"
+    Enumeration = "string",
+    Any = "any"
 }
 
 function Generator:New()
     local o = {}
     setmetatable(o, self)
+    o.Intrinsics = {}
     o.Builtins = {}
     o.Enumerations = {}
     o.Classes = {}
@@ -36,9 +38,15 @@ function Generator:Build()
             table.insert(self.Classes, type)
         elseif type.Kind == "Enumeration" then
             table.insert(self.Enumerations, type)
-        elseif type.Kind == "Boolean" or type.Kind == "Integer" or type.Kind == "Float" or type.Kind == "String" then
+        elseif type.Kind == "Boolean" or type.Kind == "Integer" or type.Kind == "Float" or type.Kind == "String" or type.Kind == "Any" then
+            table.insert(self.Intrinsics, type)
+        elseif typeName == "vec2" or typeName == "vec3" or typeName == "vec4" or typeName == "ivec2" then
             table.insert(self.Builtins, type)
         end
+    end
+
+    for i,type in ipairs(self.Intrinsics) do
+        self:EmitIntrinsicType(type)
     end
 
     for i,type in ipairs(self.Builtins) do
@@ -69,13 +77,19 @@ function Generator:MakeTypeName(type)
     return type
 end
 
-function Generator:MakeTypeSignature(cls, type)
-    if type.IsBuiltin then
+function Generator:MakeTypeSignature(cls, type, forceExpand)
+    if type.IsBuiltin and forceExpand ~= true then
         return type.TypeName
+    elseif type.Kind == "Any" then
+        return "any"
     elseif type.Kind == "Nullable" then
         return self:MakeTypeSignature(cls, type.ParentType) .. "|nil"
     elseif type.Kind == "Array" then
-        return self:MakeTypeName(type.ElementType.TypeName) .. "[]"
+        if type.ElementType.Kind == "Array" or type.ElementType.Kind == "Map" then
+            return self:MakeTypeSignature(nil, type.ElementType) .. "[]"
+        else
+            return self:MakeTypeName(type.ElementType.TypeName) .. "[]"
+        end
     elseif type.Kind == "Map" then
         return "table<" .. self:MakeTypeName(type.KeyType.TypeName) .. ", " .. self:MakeTypeName(type.ElementType.TypeName) .. ">"
     elseif type.Kind == "Function" then
@@ -114,8 +128,12 @@ function Generator:EmitAlias(name, definition)
     self:EmitComment("@alias " .. self:MakeTypeName(name) .. " " .. definition)
 end
 
-function Generator:EmitBuiltinType(type)
+function Generator:EmitIntrinsicType(type)
     self:EmitAlias(type.TypeName, self.ValueKindToLua[type.Kind])
+end
+
+function Generator:EmitBuiltinType(type)
+    self:EmitAlias(type.TypeName, self:MakeTypeSignature(nil, type, true))
 end
 
 function Generator:EmitEnumeration(type)
