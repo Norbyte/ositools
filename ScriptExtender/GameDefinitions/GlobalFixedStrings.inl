@@ -101,8 +101,12 @@ FS(TriggerAtmosphere);
 FS(Atmospheres);
 FS(FadeTime);
 
-// Stat attributes
+// Modifier list types
 FS(Weapon);
+FS(Armor);
+FS(Shield);
+
+// Stat attributes
 FS(Level);
 FS(Name);
 FS(Using);
