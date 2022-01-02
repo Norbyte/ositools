@@ -190,4 +190,6 @@ PN_REF(RootTemplate, CurrentTemplate)
 P_FUN(GetInventoryItems, GetInventoryItemGuids)
 P_FUN(GetOwnerCharacter, GetOwnerCharacter)
 P_FUN(GetDeltaMods, GetDeltaMods)
+
+P_FALLBACK(&ecl::Item::LuaFallbackGet, &ecl::Item::LuaFallbackSet)
 END_CLS()

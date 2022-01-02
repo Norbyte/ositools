@@ -297,6 +297,9 @@ namespace dse
 			ObjectSet<FixedString> GetInventoryItemGuids();
 			std::optional<FixedString> GetOwnerCharacter();
 			ObjectSet<FixedString> GetDeltaMods();
+
+			static bool LuaFallbackGet(lua_State* L, dse::lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop);
+			static bool LuaFallbackSet(lua_State* L, dse::lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop, int index);
 		};
 
 
