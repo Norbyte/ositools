@@ -788,7 +788,7 @@ function TooltipHooks:OnRenderSubTooltip(ui, propertyName, req, method, ...)
             Ext.PrintError("Unknown tooltip type? ", req.Type)
         end
 
-        newTooltip = EncodeTooltipArray(tooltip.Data)
+        local newTooltip = EncodeTooltipArray(tooltip.Data)
         if newTooltip ~= nil then
             ReplaceTooltipArray(ui, propertyName, newTooltip, tt)
         end
