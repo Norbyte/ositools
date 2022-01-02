@@ -531,6 +531,8 @@ BEGIN_SE()
 
 using namespace dse::lua;
 
+std::unordered_map<UIObject::VMT*, UIObject::CustomDrawCallbackProc> CustomDrawHelper::originalDrawHandlers_;
+
 bool CustomDrawHelper::DrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* callback)
 {
 	auto customIcons = icons_.find(self->UIObjectHandle);

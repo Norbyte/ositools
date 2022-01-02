@@ -143,7 +143,8 @@ public:
 	void ClearCustomIcon(UIObject* ui, STDWString const& element);
 
 private:
-	std::unordered_map<UIObject::VMT*, UIObject::CustomDrawCallbackProc> originalDrawHandlers_;
+	// Needs to be static, as VMT overwrites are not restored when the client state is deleted
+	static std::unordered_map<UIObject::VMT*, UIObject::CustomDrawCallbackProc> originalDrawHandlers_;
 	std::unordered_map<ComponentHandle, std::unordered_map<STDWString, std::unique_ptr<CustomDrawStruct>>> icons_;
 };
 
