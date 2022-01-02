@@ -95,11 +95,12 @@ private:
 	T const* ptr_;
 };
 
-
 template <class TKey, class TValue>
-class Map
+struct MapInternals
 {
-public:
+	using KeyType = TKey;
+	using ValueType = TValue;
+
 	struct Node
 	{
 		Node* Next{ nullptr };
@@ -107,23 +108,54 @@ public:
 		TValue Value;
 	};
 
+	uint32_t HashSize{ 0 };
+	Node** HashTable{ nullptr };
+	uint32_t ItemCount{ 0 };
+};
+
+template <class TKey, class TValue>
+struct RefMapInternals
+{
+	using KeyType = TKey;
+	using ValueType = TValue;
+
+	struct Node
+	{
+		Node* Next{ nullptr };
+		TKey Key;
+		TValue Value;
+	};
+
+	uint32_t ItemCount{ 0 };
+	uint32_t HashSize{ 0 };
+	Node** HashTable{ nullptr };
+};
+
+template <class TInternals>
+class MapBase : private TInternals
+{
+public:
+	using KeyType = TInternals::KeyType;
+	using ValueType = TInternals::ValueType;
+	using Node = TInternals::Node;
+
 	class Iterator
 	{
 	public:
-		Iterator(Map& map) 
-			: Node(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
+		Iterator(MapBase& map)
+			: CurrentNode(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
 		{
-			while (Node < NodeListEnd && *Node == nullptr) {
-				Node++;
+			while (CurrentNode < NodeListEnd && *CurrentNode == nullptr) {
+				CurrentNode++;
 			}
 
-			if (Node < NodeListEnd && *Node) {
-				Element = *Node;
+			if (CurrentNode < NodeListEnd && *CurrentNode) {
+				Element = *CurrentNode;
 			}
 		}
 			
-		Iterator(Map& map, Node** node, Node* element)
-			: Node(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
+		Iterator(MapBase& map, Node** node, Node* element)
+			: CurrentNode(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
 		{}
 
 		Iterator operator ++ ()
@@ -133,11 +165,11 @@ public:
 			Element = Element->Next;
 			if (Element == nullptr) {
 				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
+					CurrentNode++;
+				} while (CurrentNode < NodeListEnd && *CurrentNode == nullptr);
 
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
+				if (CurrentNode < NodeListEnd && *CurrentNode) {
+					Element = *CurrentNode;
 				}
 			}
 
@@ -149,11 +181,11 @@ public:
 			Element = Element->Next;
 			if (Element == nullptr) {
 				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
+					CurrentNode++;
+				} while (CurrentNode < NodeListEnd && *CurrentNode == nullptr);
 
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
+				if (CurrentNode < NodeListEnd && *CurrentNode) {
+					Element = *CurrentNode;
 				}
 			}
 
@@ -162,20 +194,20 @@ public:
 
 		bool operator == (Iterator const& it)
 		{
-			return it.Node == Node && it.Element == Element;
+			return it.CurrentNode == CurrentNode && it.Element == Element;
 		}
 
 		bool operator != (Iterator const& it)
 		{
-			return it.Node != Node || it.Element != Element;
+			return it.CurrentNode != CurrentNode || it.Element != Element;
 		}
 
-		TKey & Key () const
+		KeyType & Key () const
 		{
 			return Element->Key;
 		}
 
-		TValue & Value () const
+		ValueType& Value () const
 		{
 			return Element->Value;
 		}
@@ -191,27 +223,27 @@ public:
 		}
 
 	private:
-		Node** Node, ** NodeListEnd;
-		Map<TKey, TValue>::Node* Element;
+		Node** CurrentNode, ** NodeListEnd;
+		Node* Element;
 	};
 
 	class ConstIterator
 	{
 	public:
-		ConstIterator(Map const& map)
-			: Node(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
+		ConstIterator(MapBase const& map)
+			: CurrentNode(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
 		{
-			while (Node < NodeListEnd && *Node == nullptr) {
-				Node++;
+			while (CurrentNode < NodeListEnd && *CurrentNode == nullptr) {
+				CurrentNode++;
 			}
 
-			if (Node < NodeListEnd && *Node) {
-				Element = *Node;
+			if (CurrentNode < NodeListEnd && *CurrentNode) {
+				Element = *CurrentNode;
 			}
 		}
 
-		ConstIterator(Map const& map, Node* const* node, Node const* element)
-			: Node(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
+		ConstIterator(MapBase const& map, Node* const* node, Node const* element)
+			: CurrentNode(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
 		{}
 
 		ConstIterator operator ++ ()
@@ -221,11 +253,11 @@ public:
 			Element = Element->Next;
 			if (Element == nullptr) {
 				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
+					CurrentNode++;
+				} while (CurrentNode < NodeListEnd && *CurrentNode == nullptr);
 
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
+				if (CurrentNode < NodeListEnd && *CurrentNode) {
+					Element = *CurrentNode;
 				}
 			}
 
@@ -237,11 +269,11 @@ public:
 			Element = Element->Next;
 			if (Element == nullptr) {
 				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
+					CurrentNode++;
+				} while (CurrentNode < NodeListEnd && *CurrentNode == nullptr);
 
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
+				if (CurrentNode < NodeListEnd && *CurrentNode) {
+					Element = *CurrentNode;
 				}
 			}
 
@@ -250,20 +282,20 @@ public:
 
 		bool operator == (ConstIterator const& it)
 		{
-			return it.Node == Node && it.Element == Element;
+			return it.CurrentNode == CurrentNode && it.Element == Element;
 		}
 
 		bool operator != (ConstIterator const& it)
 		{
-			return it.Node != Node || it.Element != Element;
+			return it.CurrentNode != CurrentNode || it.Element != Element;
 		}
 
-		TKey const& Key() const
+		KeyType const& Key() const
 		{
 			return Element->Key;
 		}
 
-		TValue const& Value() const
+		ValueType const& Value() const
 		{
 			return Element->Value;
 		}
@@ -279,16 +311,16 @@ public:
 		}
 
 	private:
-		Node* const * Node, * const * NodeListEnd;
-		Map<TKey, TValue>::Node const* Element;
+		Node* const * CurrentNode, * const * NodeListEnd;
+		Node const* Element;
 	};
 
-	Map(uint32_t hashSize = 31)
+	MapBase(uint32_t hashSize = 31)
 	{
 		ResizeHashtable(hashSize);
 	}
 
-	Map(Map<TKey, TValue> const& other)
+	MapBase(MapBase<TInternals> const& other)
 	{
 		ResizeHashtable(other.HashSize);
 
@@ -297,15 +329,15 @@ public:
 		}
 	}
 
-	~Map()
+	~MapBase()
 	{
-		if (HashTable) {
+		if (this->HashTable) {
 			Clear();
-			GameFree(HashTable);
+			GameFree(this->HashTable);
 		}
 	}
 
-	Map<TKey, TValue>& operator =(Map<TKey, TValue> const& other)
+	MapBase<TInternals>& operator =(MapBase<TInternals> const& other)
 	{
 		ResizeHashtable(other.HashSize);
 		for (auto const& pair : other) {
@@ -317,29 +349,29 @@ public:
 
 	void ResizeHashtable(uint32_t hashSize)
 	{
-		if (HashTable) {
+		if (this->HashTable) {
 			Clear();
 		}
 
-		if (HashSize != hashSize) {
-			if (HashTable) {
-				GameFree(HashTable);
+		if (this->HashSize != hashSize) {
+			if (this->HashTable) {
+				GameFree(this->HashTable);
 			}
 
-			HashSize = hashSize;
-			HashTable = GameAllocArray<Node*>(HashSize);
-			memset(HashTable, 0, sizeof(Node*) * HashSize);
+			this->HashSize = hashSize;
+			this->HashTable = GameAllocArray<Node*>(this->HashSize);
+			memset(this->HashTable, 0, sizeof(Node*) * this->HashSize);
 		}
 	}
 
 	void Clear()
 	{
-		ItemCount = 0;
-		for (uint32_t i = 0; i < HashSize; i++) {
-			auto item = HashTable[i];
+		this->ItemCount = 0;
+		for (uint32_t i = 0; i < this->HashSize; i++) {
+			auto item = this->HashTable[i];
 			if (item != nullptr) {
 				FreeHashChain(item);
-				HashTable[i] = nullptr;
+				this->HashTable[i] = nullptr;
 			}
 		}
 	}
@@ -353,16 +385,16 @@ public:
 		} while (node != nullptr);
 	}
 
-	TValue* Insert(TKey const& key, TValue const& value)
+	ValueType* Insert(KeyType const& key, ValueType const& value)
 	{
 		auto nodeValue = Insert(key);
 		*nodeValue = value;
 		return nodeValue;
 	}
 
-	TValue* Insert(TKey const& key)
+	ValueType* Insert(KeyType const& key)
 	{
-		auto item = HashTable[Hash(key) % HashSize];
+		auto item = this->HashTable[Hash(key) % this->HashSize];
 		auto last = item;
 		while (item != nullptr) {
 			if (key == item->Key) {
@@ -378,26 +410,25 @@ public:
 		node->Key = key;
 
 		if (last == nullptr) {
-			HashTable[Hash(key) % HashSize] = node;
-		}
-		else {
+			this->HashTable[Hash(key) % this->HashSize] = node;
+		} else {
 			last->Next = node;
 		}
 
-		ItemCount++;
+		this->ItemCount++;
 		return &node->Value;
 	}
 
-	TValue* insert(std::pair<TKey, TValue> const& v)
+	ValueType* insert(std::pair<KeyType, ValueType> const& v)
 	{
 		auto nodeValue = Insert(v.first);
 		*nodeValue = v.second;
 		return nodeValue;
 	}
 
-	TValue* Find(TKey const& key) const
+	ValueType* Find(KeyType const& key) const
 	{
-		auto item = HashTable[Hash(key) % HashSize];
+		auto item = this->HashTable[Hash(key) % this->HashSize];
 		while (item != nullptr) {
 			if (key == item->Key) {
 				return &item->Value;
@@ -409,10 +440,10 @@ public:
 		return nullptr;
 	}
 
-	TKey* FindByValue(TValue const& value) const
+	KeyType* FindByValue(ValueType const& value) const
 	{
-		for (uint32_t bucket = 0; bucket < HashSize; bucket++) {
-			Node* item = HashTable[bucket];
+		for (uint32_t bucket = 0; bucket < this->HashSize; bucket++) {
+			Node* item = this->HashTable[bucket];
 			while (item != nullptr) {
 				if (value == item->Value) {
 					return &item->Key;
@@ -425,13 +456,13 @@ public:
 		return nullptr;
 	}
 
-	ConstIterator FindIterator(TKey const& key) const
+	ConstIterator FindIterator(KeyType const& key) const
 	{
-		auto slot = Hash(key) % HashSize;
-		auto item = HashTable[slot];
+		auto slot = Hash(key) % this->HashSize;
+		auto item = this->HashTable[slot];
 		while (item != nullptr) {
 			if (key == item->Key) {
-				return ConstIterator(*this, HashTable + slot, item);
+				return ConstIterator(*this, this->HashTable + slot, item);
 			}
 
 			item = item->Next;
@@ -440,13 +471,13 @@ public:
 		return end();
 	}
 
-	Iterator FindIterator(TKey const& key)
+	Iterator FindIterator(KeyType const& key)
 	{
-		auto slot = Hash(key) % HashSize;
-		auto item = HashTable[slot];
+		auto slot = Hash(key) % this->HashSize;
+		auto item = this->HashTable[slot];
 		while (item != nullptr) {
 			if (key == item->Key) {
-				return Iterator(*this, HashTable + slot, item);
+				return Iterator(*this, this->HashTable + slot, item);
 			}
 
 			item = item->Next;
@@ -462,7 +493,7 @@ public:
 
 	Iterator end()
 	{
-		return Iterator(*this, HashTable + HashSize, nullptr);
+		return Iterator(*this, this->HashTable + this->HashSize, nullptr);
 	}
 
 	ConstIterator begin() const
@@ -472,392 +503,20 @@ public:
 
 	ConstIterator end() const
 	{
-		return ConstIterator(*this, HashTable + HashSize, nullptr);
+		return ConstIterator(*this, this->HashTable + this->HashSize, nullptr);
 	}
 
 	inline uint32_t Count() const
 	{
-		return ItemCount;
+		return this->ItemCount;
 	}
-
-private:
-	uint32_t HashSize{ 0 };
-	Node** HashTable{ nullptr };
-	uint32_t ItemCount{ 0 };
 };
 
 template <class TKey, class TValue>
-class RefMap : public Noncopyable<RefMap<TKey, TValue>>
-{
-public:
-	struct Node
-	{
-		Node* Next{ nullptr };
-		TKey Key;
-		TValue Value;
-	};
+using Map = MapBase<MapInternals<TKey, TValue>>;
 
-	class Iterator
-	{
-	public:
-		Iterator(RefMap& map) 
-			: Node(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
-		{
-			while (Node < NodeListEnd && *Node == nullptr) {
-				Node++;
-			}
-
-			if (Node < NodeListEnd && *Node) {
-				Element = *Node;
-			}
-		}
-			
-		Iterator(RefMap& map, Node** node, Node* element)
-			: Node(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
-		{}
-
-		Iterator operator ++ ()
-		{
-			Iterator it(*this);
-
-			Element = Element->Next;
-			if (Element == nullptr) {
-				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
-
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
-				}
-			}
-
-			return it;
-		}
-
-		Iterator& operator ++ (int)
-		{
-			Element = Element->Next;
-			if (Element == nullptr) {
-				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
-
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
-				}
-			}
-
-			return *this;
-		}
-
-		bool operator == (Iterator const& it)
-		{
-			return it.Node == Node && it.Element == Element;
-		}
-
-		bool operator != (Iterator const& it)
-		{
-			return it.Node != Node || it.Element != Element;
-		}
-
-		TKey & Key () const
-		{
-			return Element->Key;
-		}
-
-		TValue & Value () const
-		{
-			return Element->Value;
-		}
-
-		Node& operator * () const
-		{
-			return *Element;
-		}
-
-		Node& operator -> () const
-		{
-			return *Element;
-		}
-
-	private:
-		Node** Node, ** NodeListEnd;
-		RefMap<TKey, TValue>::Node* Element;
-	};
-
-	class ConstIterator
-	{
-	public:
-		ConstIterator(RefMap const& map)
-			: Node(map.HashTable), NodeListEnd(map.HashTable + map.HashSize), Element(nullptr)
-		{
-			while (Node < NodeListEnd && *Node == nullptr) {
-				Node++;
-			}
-
-			if (Node < NodeListEnd && *Node) {
-				Element = *Node;
-			}
-		}
-
-		ConstIterator(RefMap const& map, Node* const* node, Node const* element)
-			: Node(node), NodeListEnd(map.HashTable + map.HashSize), Element(element)
-		{}
-
-		ConstIterator operator ++ ()
-		{
-			ConstIterator it(*this);
-
-			Element = Element->Next;
-			if (Element == nullptr) {
-				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
-
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
-				}
-			}
-
-			return it;
-		}
-
-		ConstIterator& operator ++ (int)
-		{
-			Element = Element->Next;
-			if (Element == nullptr) {
-				do {
-					Node++;
-				} while (Node < NodeListEnd && *Node == nullptr);
-
-				if (Node < NodeListEnd && *Node) {
-					Element = *Node;
-				}
-			}
-
-			return *this;
-		}
-
-		bool operator == (ConstIterator const& it)
-		{
-			return it.Node == Node && it.Element == Element;
-		}
-
-		bool operator != (ConstIterator const& it)
-		{
-			return it.Node != Node || it.Element != Element;
-		}
-
-		TKey const& Key() const
-		{
-			return Element->Key;
-		}
-
-		TValue const& Value() const
-		{
-			return Element->Value;
-		}
-
-		Node const& operator * () const
-		{
-			return *Element;
-		}
-
-		Node const& operator -> () const
-		{
-			return *Element;
-		}
-
-	private:
-		Node* const * Node, * const * NodeListEnd;
-		RefMap<TKey, TValue>::Node const* Element;
-	};
-
-	RefMap(uint32_t hashSize = 31)
-	{
-		ResizeHashtable(hashSize);
-	}
-
-	RefMap(RefMap<TKey, TValue> const& other)
-	{
-		ResizeHashtable(other.HashSize);
-		for (auto const& pair : other) {
-			Insert(pair.Key, pair.Value);
-		}
-	}
-
-	~RefMap()
-	{
-		if (HashTable) {
-			Clear();
-			GameFree(HashTable);
-		}
-	}
-
-	RefMap<TKey, TValue>& operator =(RefMap<TKey, TValue> const& other)
-	{
-		ResizeHashtable(other.HashSize);
-		for (auto const& pair : other) {
-			Insert(pair.Key, pair.Value);
-		}
-
-		return *this;
-	}
-
-	void ResizeHashtable(uint32_t hashSize)
-	{
-		if (HashTable) {
-			Clear();
-		}
-
-		if (HashSize != hashSize) {
-			if (HashTable) {
-				GameFree(HashTable);
-			}
-
-			HashSize = hashSize;
-			HashTable = GameAllocArray<Node*>(HashSize);
-			memset(HashTable, 0, sizeof(Node*) * HashSize);
-		}
-	}
-
-	Iterator begin()
-	{
-		return Iterator(*this);
-	}
-
-	Iterator end()
-	{
-		return Iterator(*this, HashTable + HashSize, nullptr);
-	}
-
-	ConstIterator begin() const
-	{
-		return ConstIterator(*this);
-	}
-
-	ConstIterator end() const
-	{
-		return ConstIterator(*this, HashTable + HashSize, nullptr);
-	}
-
-	inline uint32_t Count() const
-	{
-		return ItemCount;
-	}
-
-	void Clear()
-	{
-		ItemCount = 0;
-		for (uint32_t i = 0; i < HashSize; i++) {
-			auto item = HashTable[i];
-			if (item != nullptr) {
-				FreeHashChain(item);
-				HashTable[i] = nullptr;
-			}
-		}
-	}
-
-	void FreeHashChain(Node* node)
-	{
-		do {
-			auto next = node->Next;
-			GameDelete(node);
-			node = next;
-		} while (node != nullptr);
-	}
-
-	TValue* Find(TKey const& key) const
-	{
-		auto item = HashTable[Hash(key) % HashSize];
-		while (item != nullptr) {
-			if (key == item->Key) {
-				return &item->Value;
-			}
-
-			item = item->Next;
-		}
-
-		return nullptr;
-	}
-
-	ConstIterator FindIterator(TKey const& key) const
-	{
-		auto slot = Hash(key) % HashSize;
-		auto item = HashTable[slot];
-		while (item != nullptr) {
-			if (key == item->Key) {
-				return ConstIterator(*this, HashTable + slot, item);
-			}
-
-			item = item->Next;
-		}
-
-		return end();
-	}
-
-	Iterator FindIterator(TKey const& key)
-	{
-		auto slot = Hash(key) % HashSize;
-		auto item = HashTable[slot];
-		while (item != nullptr) {
-			if (key == item->Key) {
-				return Iterator(*this, HashTable + slot, item);
-			}
-
-			item = item->Next;
-		}
-
-		return end();
-	}
-
-	TValue* Insert(TKey const& key, TValue const& value)
-	{
-		auto nodeValue = Insert(key);
-		*nodeValue = value;
-		return nodeValue;
-	}
-
-	TValue* Insert(TKey const& key)
-	{
-		auto item = HashTable[Hash(key) % HashSize];
-		auto last = item;
-		while (item != nullptr) {
-			if (key == item->Key) {
-				return &item->Value;
-			}
-
-			last = item;
-			item = item->Next;
-		}
-
-		auto node = GameAlloc<Node>();
-		node->Next = nullptr;
-		node->Key = key;
-
-		if (last == nullptr) {
-			HashTable[Hash(key) % HashSize] = node;
-		}
-		else {
-			last->Next = node;
-		}
-
-		ItemCount++;
-		return &node->Value;
-	}
-
-	TValue* insert(std::pair<TKey, TValue> const& v)
-	{
-		auto nodeValue = Insert(v.first);
-		*nodeValue = v.second;
-		return nodeValue;
-	}
-
-private:
-	uint32_t ItemCount{ 0 };
-	uint32_t HashSize{ 0 };
-	Node** HashTable{ nullptr };
-};
+template <class TKey, class TValue>
+using RefMap = MapBase<RefMapInternals<TKey, TValue>>;
 
 
 template <class T, class Allocator = GameMemoryAllocator, bool StoreSize = false>
