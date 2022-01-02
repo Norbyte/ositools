@@ -58,25 +58,29 @@ void Fail(char const * reason);
 #define LuaError(msg) { \
 	std::stringstream ss; \
 	ss << __FUNCTION__ "(): " msg; \
-	LogLuaError(ss.str()); \
+	std::string str = ss.str(); \
+	LogLuaError(str); \
 }
 
 #define OsiError(msg) { \
 	std::stringstream ss; \
 	ss << __FUNCTION__ "(): " msg; \
-	LogOsirisError(ss.str()); \
+	std::string str = ss.str(); \
+	LogOsirisError(str); \
 }
 
 #define OsiWarn(msg) { \
 	std::stringstream ss; \
 	ss << __FUNCTION__ "(): " msg; \
-	LogOsirisWarning(ss.str()); \
+	std::string str = ss.str(); \
+	LogOsirisWarning(str); \
 }
 
 #define OsiMsg(msg) { \
 	std::stringstream ss; \
 	ss << msg; \
-	LogOsirisMsg(ss.str()); \
+	std::string str = ss.str(); \
+	LogOsirisMsg(str); \
 }
 
 #define OsiErrorS(msg) LogOsirisError(__FUNCTION__ "(): " msg)
