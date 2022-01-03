@@ -1,0 +1,44 @@
+name: Mod Developer - Scripting Bug Report
+description: File a bug report for the scripting API
+title: "[API][Bug]: "
+labels: ["bug", "scripting"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For installation instructions (including Linux), check the release page: 
+        [Latest Release](https://github.com/Norbyte/ositools/releases/latest)
+  - type: input
+    id: version
+    attributes:
+      label: Extender Version
+      description: The version of the extender when you encountered this issue (visible in the main menu or loading screen).
+      placeholder: v56
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: Game Version
+      description: The version of Divinity Original Sin 2 Definitive Edition when you encountered this issue (visible in the main menu).
+      placeholder: v3.6.117.3735
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Bug Summary
+      description: Describe what the bug is, and how to reproduce it.
+      placeholder: Describe the bug here.
+      value: 
+    validations:
+      required: true
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Links to any screenshots, crash dumps, or relevant logs.
+      placeholder: Debug log https://gist.github.com/MyUserName/SomeLink
+      value: 
+    validations:
+      required: false
