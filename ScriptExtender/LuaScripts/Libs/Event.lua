@@ -316,7 +316,7 @@ _I._CallLegacyEvent = function (fn, event)
 	elseif event.Name == "StatusHitEnter" then
 		fn(_I._MakeLegacyHitStatusProxy(event.Hit), _I._MakeLegacyHitEvent(event.Context))
 	elseif event.Name == "ComputeCharacterHit" then
-	local hit = event.Hit
+		local hit = event.Hit
 		local legacyHit = _I._MakeLegacyHitInfo(hit)
 		local hitResult = fn(event.Target, event.Attacker, event.Weapon, event.DamageList, event.HitType, event.NoHitRoll,
 			event.ForceReduceDurability, legacyHit, event.AlwaysBackstab, event.HighGround, event.CriticalRoll)

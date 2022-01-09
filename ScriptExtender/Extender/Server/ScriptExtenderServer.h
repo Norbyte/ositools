@@ -77,9 +77,6 @@ private:
 	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
 
 	void OnBaseModuleLoaded(void * self);
-	/*void OnModuleLoadStarted(TranslatedStringRepository * self);
-	void OnStatsLoadStarted(RPGStats* mgr);
-	void OnStatsLoadFinished(RPGStats* mgr);*/
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);
 	void OnGameStateWorkerStart(void * self);
 	void OnGameStateWorkerExit(void* self);
