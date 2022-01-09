@@ -1,23 +1,5 @@
 BEGIN_NS(ecl::lua::ui)
 
-UIObject* FindUIObject(ig::FlashPlayer* player)
-{
-	auto uiManager = GetStaticSymbols().GetUIObjectManager();
-	if (uiManager == nullptr) {
-		OsiError("Couldn't get symbol for UIObjectManager!");
-		return {};
-	}
-
-	for (auto const& ui : uiManager->UIObjects) {
-		if (ui->FlashPlayer == player) {
-			return ui;
-		}
-	}
-
-	return {};
-}
-
-
 uint32_t NextCustomCreatorId = 1000;
 
 UIObject* CreateUI(char const* name, char const* path, int layer, std::optional<uint32_t> inFlags)

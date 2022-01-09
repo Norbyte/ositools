@@ -923,7 +923,7 @@ UIObject* FindUIObject(ig::FlashPlayer* player)
 		return {};
 	}
 
-	for (auto const& ui : uiManager->UIObjects) {
+	for (auto const& ui : uiManager->Components) {
 		if (ui->FlashPlayer == player) {
 			return ui;
 		}
