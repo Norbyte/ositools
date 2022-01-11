@@ -658,12 +658,6 @@ void UIObject::LuaSetPosition(int x, int y)
 	SetPos(pos);
 }
 
-void UIObject::LuaResize(int width, int height)
-{
-	glm::ivec2 size(width, height);
-	FlashPlayer->SetSize(size);
-}
-
 void UIObject::LuaShow()
 {
 	Show();
@@ -893,6 +887,25 @@ void UIObject::ClearCustomIcon(STDWString const& element)
 	if (lua) {
 		lua->GetCustomDrawHelper().ClearCustomIcon(this, element);
 	}
+}
+
+
+float UIObject::GetUIScaleMultiplier()
+{
+	return (GetStaticSymbols().ls__UIObject__GetUIScaleMultiplier)(this);
+}
+
+void UIObject::SetMovieClipSize(float width, float height, std::optional<float> scale)
+{
+	if (!FlashPlayer) return;
+
+	auto uiScale = scale ? *scale : GetUIScaleMultiplier();
+	this->MovieClipSize = glm::vec2(width, height);
+	this->FlashSize = glm::vec2(width * uiScale, height * uiScale);
+	FlashPlayer->SetStageSize((unsigned)width, (unsigned)height);
+	auto pos = FlashPlayer->GetPosition();
+	glm::ivec2 renderSize{ (int)this->FlashSize[0], (int)this->FlashSize[1] };
+	FlashPlayer->SetRenderRectangle(pos, renderSize, 1);
 }
 
 

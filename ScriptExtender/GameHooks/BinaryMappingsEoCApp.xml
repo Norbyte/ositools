@@ -1165,5 +1165,20 @@
       E8 ?? ?? ?? ??  // call    ls__CacheTemplateManagerBase__CacheTemplate
       <Target Type="Indirect" Offset="26" Symbol="ls__CacheTemplateManagerBase__CacheTemplate" />
     </Mapping>
+
+    <Mapping Name="ls::UIObject::GetUIScaleMultiplier">
+      48 8D 15 ?? ?? ?? ?? // lea     rdx, aSetmcsize
+      48 8B CB  // mov     rcx, rbx
+      FF 15 ?? ?? ?? ??  // call    cs:__imp__stricmp
+      85 C0  // test    eax, eax
+      0F 85 ?? ?? ?? ??  // jnz     xxx
+      83 7F 60 03  // cmp     dword ptr [rdi+60h], 3
+      0F 85 ?? ?? ?? ??  // jnz     xxx
+      48 8B CF  // mov     rcx, rdi
+      0F 29 B4 24 C0 00 00 00  // movaps  [rsp+0F0h+var_30], xmm6
+      E8 ?? ?? ?? ??  // call    sub_141245070
+      <Condition Type="String" Offset="0" Value="setMcSize" />
+      <Target Type="Indirect" Offset="45" Symbol="ls__UIObject__GetUIScaleMultiplier" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

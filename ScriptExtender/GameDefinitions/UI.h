@@ -242,9 +242,9 @@ namespace dse
 			virtual bool HasInvokes() = 0;
 			virtual void field_A8() = 0;
 			virtual void InvokeByName(char const * name, uint64_t unknown, InvokeDataValue * arg) = 0;
-			virtual void SetRenderRectangle() = 0;
-			virtual void SetSize(glm::ivec2 const& size) = 0;
-			virtual int * GetSize() = 0;
+			virtual void SetRenderRectangle(glm::ivec2 const& topLeft, glm::ivec2 const& size, uint8_t type) = 0;
+			virtual void SetPosition(glm::ivec2 const& position) = 0;
+			virtual glm::ivec2 const& GetPosition() = 0;
 			virtual void field_D0() = 0;
 			virtual void Render() = 0;
 			virtual void field_E0() = 0;
@@ -270,7 +270,7 @@ namespace dse
 			virtual void Cut() = 0;
 			virtual void SetFlashMousePosition() = 0;
 			virtual void SetupEventMapping() = 0;
-			virtual void SetStageSize() = 0;
+			virtual void SetStageSize(unsigned width, unsigned height) = 0;
 			virtual void AddInvokeName(int index, char const * name) = 0;
 			virtual void field_1A8() = 0;
 			virtual void LoadTextureFile(Path * path) = 0;
@@ -278,12 +278,9 @@ namespace dse
 
 
 			__int64 field_8;
-			int field_10;
-			int field_14;
-			int field_18;
-			int field_1C;
-			int field_20;
-			int field_24;
+			glm::ivec2 ExternalSize;
+			glm::ivec2 RenderRectangeleSize;
+			glm::ivec2 RenderRectangeleSize2;
 			__int16 field_28;
 			void * IggyPlayer;
 			IggyValuePath * IggyPlayerRootPath;
@@ -349,6 +346,7 @@ namespace dse
 
 		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
 		typedef void(* CustomDrawCallbackProc)(UIObject * self, void *);
+		typedef float (GetUIScaleMultiplierProc)(UIObject * self);
 
 		struct VMT
 		{
@@ -458,18 +456,14 @@ namespace dse
 		int RenderOrder;
 		int MovieLayout;
 		glm::vec2 FlashSize;
-		int field_74;
-		int field_78;
+		glm::vec2 MovieClipSize;
 		glm::vec2 FlashMovieSize;
-		int SysPanelX;
-		int SysPanelY;
-		float SysPanelW;
-		float SysPanelH;
+		glm::ivec2 SysPanelPosition;
+		glm::vec2 SysPanelSize;
 		float Left;
 		float Top;
 		float Right;
-		float MinWidth;
-		float MinHeight;
+		glm::vec2 MinSize;
 		float UIScale;
 		float CustomScale;
 		FixedString AnchorObjectName;
@@ -490,7 +484,6 @@ namespace dse
 
 
 		void LuaSetPosition(int x, int y);
-		void LuaResize(int width, int height);
 		void LuaShow();
 		void LuaHide();
 		bool LuaInvoke(lua_State* L, STDString const& method);
@@ -508,6 +501,8 @@ namespace dse
 		void EnableCustomDraw();
 		void SetCustomIcon(STDWString const& element, STDString const& icon, int width, int height, std::optional<STDString> materialGuid);
 		void ClearCustomIcon(STDWString const& element);
+		float GetUIScaleMultiplier();
+		void SetMovieClipSize(float width, float height, std::optional<float> scale);
 	};
 
 	struct CustomDrawStruct
