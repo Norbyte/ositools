@@ -1,6 +1,6 @@
 name: Mod Developer - Scripting Bug Report
 description: File a bug report for the scripting API
-title: "[API][Bug]: "
+title: "[API][Bug] "
 labels: ["bug", "scripting"]
 body:
   - type: markdown
