@@ -64,8 +64,23 @@ bool Pattern::FromString(std::string_view s)
 			continue;
 		}
 
+		if (*c == '@') {
+			c++;
+			auto anchorStart = c;
+			while (*c && std::isalpha(*c)) c++;
+			if (c != anchorStart) {
+				anchors_.insert(std::make_pair(std::string(anchorStart, c - anchorStart), (unsigned)pattern_.size()));
+				c++;
+			} else {
+				ERR("Empty anchor name found");
+				return false;
+			}
+
+			continue;
+		}
+
 		PatternByte b;
-		if (c[2] != ' ' && c[2] != '\t' && c[2] != '\r' && c[2] != '\n') {
+		if (!c[1] || !c[2] || !std::isspace(c[2])) {
 			ERR("Bytes must be separated by whitespace");
 			return false;
 		}
@@ -190,12 +205,56 @@ void Pattern::Scan(uint8_t const * start, size_t length, std::function<ScanActio
 	}
 }
 
+std::optional<uint32_t> Pattern::GetAnchor(char const* anchor) const
+{
+	auto it = anchors_.find(anchor);
+	if (it != anchors_.end()) {
+		return it->second;
+	} else {
+		return {};
+	}
+}
+
 std::optional<int> GetIntAttribute(tinyxml2::XMLElement* ele, char const* name)
 {
 	char const* value{ nullptr };
 	auto e = ele->QueryStringAttribute(name, &value);
 	if (e != tinyxml2::XML_SUCCESS) {
 		return {};
+	}
+
+	std::size_t readSize{ 0 };
+	int parsed;
+	try {
+		parsed = std::stoi(value, &readSize, 0);
+	} catch (std::exception const& e) {
+		ERR("Invalid int value in XML attribute '%s': '%s' (%s)", name, value, e.what());
+		return {};
+	}
+
+	if (readSize != strlen(value)) {
+		ERR("Invalid int value in XML attribute '%s': '%s' (garbage found at end of string)", name, value);
+	}
+
+	return parsed;
+}
+
+std::optional<int> GetOffsetAttribute(tinyxml2::XMLElement* ele, Pattern const& pattern, char const* name)
+{
+	char const* value{ nullptr };
+	auto e = ele->QueryStringAttribute(name, &value);
+	if (e != tinyxml2::XML_SUCCESS) {
+		return {};
+	}
+
+	if (*value == '@') {
+		auto offset = pattern.GetAnchor(value + 1);
+		if (!offset) {
+			ERR("Invalid anchor reference in XML attribute '%s': '%s'", name, value);
+			return {};
+		} else {
+			return (int)*offset;
+		}
 	}
 
 	std::size_t readSize{ 0 };
@@ -269,6 +328,8 @@ bool SymbolMappingLoader::LoadMappingsNode(tinyxml2::XMLElement* mappingsNode)
 				}
 
 				mappings_.Mappings.insert(std::make_pair(sym.Name, sym));
+			} else {
+				ERR("Failed to parse mapping '%s'; mapping discarded", sym.Name.c_str());
 			}
 		} else if (strcmp(mapping->Name(), "DllImport") == 0) {
 			SymbolMappings::DllImport imp;
@@ -355,7 +416,7 @@ bool SymbolMappingLoader::LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappi
 	auto targetNode = mapping->FirstChildElement("Target");
 	while (targetNode != nullptr) {
 		SymbolMappings::Target target;
-		if (LoadTarget(targetNode, target)) {
+		if (LoadTarget(targetNode, sym.Pattern, target)) {
 			sym.Targets.push_back(target);
 		}
 		targetNode = targetNode->NextSiblingElement("Target");
@@ -364,7 +425,7 @@ bool SymbolMappingLoader::LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappi
 	auto conditionNode = mapping->FirstChildElement("Condition");
 	while (conditionNode != nullptr) {
 		SymbolMappings::Condition condition;
-		if (!LoadCondition(conditionNode, condition)) {
+		if (!LoadCondition(conditionNode, sym.Pattern, condition)) {
 			return false;
 		}
 		if (condition.Type == SymbolMappings::MatchType::kFixedString
@@ -420,7 +481,7 @@ bool SymbolMappingLoader::LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMap
 	return true;
 }
 
-bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::Target& target)
+bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Target& target)
 {
 	auto name = ele->Attribute("Name");
 	if (name) target.Name = name;
@@ -435,7 +496,7 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::
 		return false;
 	}
 
-	auto offset = GetIntAttribute(ele, "Offset");
+	auto offset = GetOffsetAttribute(ele, pattern, "Offset");
 	if (!offset) {
 		ERR("Mapping target has invalid Offset value.");
 		return false;
@@ -496,7 +557,7 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::
 	return true;
 }
 
-bool SymbolMappingLoader::LoadCondition(tinyxml2::XMLElement* ele, SymbolMappings::Condition& condition)
+bool SymbolMappingLoader::LoadCondition(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Condition& condition)
 {
 	auto type = ele->Attribute("Type");
 	if (strcmp(type, "String") == 0) {
@@ -510,7 +571,12 @@ bool SymbolMappingLoader::LoadCondition(tinyxml2::XMLElement* ele, SymbolMapping
 		return false;
 	}
 
-	condition.Offset = ele->IntAttribute("Offset");
+	auto offset = GetOffsetAttribute(ele, pattern, "Offset");
+	if (offset) {
+		condition.Offset = *offset;
+	} else {
+		return false;
+	}
 
 	auto str = ele->Attribute("Value");
 	if (!str) {

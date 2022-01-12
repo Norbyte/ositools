@@ -35,10 +35,8 @@ namespace dse
 			RegisterLibraries(symbolMapper_);
 			symbolMapper_.MapAllSymbols(false);
 
-			if (GetStaticSymbols().CrtAlloc == nullptr || GetStaticSymbols().CrtFree == nullptr) {
-				ERR("Could not find memory management functions");
-				CriticalInitFailed = true;
-			}
+			CriticalInitFailed = CriticalInitFailed || symbolMapper_.HasFailedCriticalMappings();
+			InitFailed = InitFailed || symbolMapper_.HasFailedMappings();
 
 #if defined(OSI_EOCAPP)
 			FindServerGlobalsEoCApp();

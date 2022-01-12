@@ -50,6 +50,7 @@ struct Pattern
 	bool FromString(std::string_view s);
 	void FromRaw(const char * s);
 	void Scan(uint8_t const * start, size_t length, std::function<ScanAction (uint8_t const *)> callback) const;
+	std::optional<uint32_t> GetAnchor(char const* anchor) const;
 
 private:
 	struct PatternByte
@@ -59,6 +60,7 @@ private:
 	};
 
 	std::vector<PatternByte> pattern_;
+	std::unordered_map<std::string, uint32_t> anchors_;
 
 	bool MatchPattern(uint8_t const * start) const;
 	void ScanPrefix1(uint8_t const * start, uint8_t const * end, std::function<ScanAction (uint8_t const *)> callback) const;
@@ -201,8 +203,8 @@ private:
 	bool LoadMappingsNode(tinyxml2::XMLElement* mappingsNode);
 	bool LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappings::Mapping& sym);
 	bool LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMappings::DllImport& imp);
-	bool LoadTarget(tinyxml2::XMLElement* ele, SymbolMappings::Target& target);
-	bool LoadCondition(tinyxml2::XMLElement* ele, SymbolMappings::Condition& condition);
+	bool LoadTarget(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Target& target);
+	bool LoadCondition(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Condition& condition);
 };
 
 class SymbolMapper
