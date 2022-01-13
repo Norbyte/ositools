@@ -128,6 +128,7 @@ namespace dse::esv
 		eocnet::CustomStatsDefinitionSyncMessage msg;
 		msg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
 
+		msg.StatDefns.resize(1);
 		eocnet::CustomStatDefinitionSyncInfo defn = msg.StatDefns[0];
 		defn.Name = FromUTF8(name);
 		defn.Description = FromUTF8(description);

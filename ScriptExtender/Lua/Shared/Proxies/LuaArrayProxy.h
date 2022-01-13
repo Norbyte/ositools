@@ -52,11 +52,11 @@ public:
 };
 
 
-template <class T>
+template <class TArray, class TElement>
 class ArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	ArrayProxyByRefImpl(LifetimeHolder const& lifetime, Array<T> * obj)
+	ArrayProxyByRefImpl(LifetimeHolder const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -65,11 +65,6 @@ public:
 	~ArrayProxyByRefImpl() override
 	{}
 
-	T* Get() const
-	{
-		return object_;
-	}
-
 	void* GetRaw() override
 	{
 		return object_;
@@ -77,7 +72,7 @@ public:
 
 	TypeInformation const& GetType() const override
 	{
-		return GetTypeInfo<T>();
+		return GetTypeInfo<TElement>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -113,18 +108,18 @@ public:
 	}
 
 private:
-	Array<T>* object_;
+	TArray* object_;
 	LifetimeHolder lifetime_;
 };
 
 
-template <class T>
+template <class TArray, class TElement>
 class ArrayProxyByValImpl : public ArrayProxyImplBase
 {
 public:
-	static_assert(!std::is_pointer_v<T>, "ArrayProxyByValImpl template parameter should not be a pointer type!");
+	static_assert(!std::is_pointer_v<TElement>, "ArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	ArrayProxyByValImpl(LifetimeHolder const& lifetime, Array<T> * obj)
+	ArrayProxyByValImpl(LifetimeHolder const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -133,11 +128,6 @@ public:
 	~ArrayProxyByValImpl() override
 	{}
 
-	T* Get() const
-	{
-		return object_;
-	}
-
 	void* GetRaw() override
 	{
 		return object_;
@@ -145,7 +135,7 @@ public:
 
 	TypeInformation const& GetType() const override
 	{
-		return GetTypeInfo<T>();
+		return GetTypeInfo<TElement>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -166,7 +156,7 @@ public:
 			lua_pop(L, 1);
 			return true;
 		} else if (arrayIndex == object_->size() + 1) {
-			T val;
+			TElement val;
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, val);
 			lua_pop(L, 1);
@@ -180,7 +170,7 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->size();
+		return (unsigned)object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
@@ -195,28 +185,23 @@ public:
 	}
 
 private:
-	Array<T>* object_;
+	TArray* object_;
 	LifetimeHolder lifetime_;
 };
 
 
-template <class T>
-class VectorProxyByRefImpl : public ArrayProxyImplBase
+template <class TArray, class TElement>
+class FixedSizeArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	VectorProxyByRefImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
+	FixedSizeArrayProxyByRefImpl(LifetimeHolder const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
 	}
 		
-	~VectorProxyByRefImpl() override
+	~FixedSizeArrayProxyByRefImpl() override
 	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
 
 	void* GetRaw() override
 	{
@@ -225,7 +210,7 @@ public:
 
 	TypeInformation const& GetType() const override
 	{
-		return GetTypeInfo<T>();
+		return GetTypeInfo<TElement>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -261,30 +246,25 @@ public:
 	}
 
 private:
-	Vector<T>* object_;
+	TArray* object_;
 	LifetimeHolder lifetime_;
 };
 
 
-template <class T>
-class VectorProxyByValImpl : public ArrayProxyImplBase
+template <class TArray, class TElement>
+class FixedSizeArrayProxyByValImpl : public ArrayProxyImplBase
 {
 public:
-	static_assert(!std::is_pointer_v<T>, "VectorProxyByValImpl template parameter should not be a pointer type!");
+	static_assert(!std::is_pointer_v<TElement>, "FixedSizeArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	VectorProxyByValImpl(LifetimeHolder const& lifetime, Vector<T> * obj)
+	FixedSizeArrayProxyByValImpl(LifetimeHolder const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
 	}
 		
-	~VectorProxyByValImpl() override
+	~FixedSizeArrayProxyByValImpl() override
 	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
 
 	void* GetRaw() override
 	{
@@ -293,155 +273,7 @@ public:
 
 	TypeInformation const& GetType() const override
 	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
-			LuaWrite(L, (*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
-			lua_pushvalue(L, luaIndex);
-			LuaRead(L, (*object_)[arrayIndex - 1]);
-			lua_pop(L, 1);
-			return true;
-		} else if (arrayIndex == object_->size() + 1) {
-			T val;
-			lua_pushvalue(L, luaIndex);
-			LuaRead(L, val);
-			lua_pop(L, 1);
-
-			object_->push_back(val);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	unsigned Length() override
-	{
-		return (unsigned)object_->size();
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < (int)object_->size()) {
-			push(L, ++key);
-			LuaWrite(L, (*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	Vector<T>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T>
-class SpanProxyByRefImpl : public ArrayProxyImplBase
-{
-public:
-	SpanProxyByRefImpl(LifetimeHolder const& lifetime, std::span<T> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~SpanProxyByRefImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= (int)object_->size()) {
-			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		// Appending/swapping elements to by-ref arrays not supported for now
-		return false;
-	}
-
-	unsigned Length() override
-	{
-		return (unsigned)object_->size();
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < (int)object_->size()) {
-			push(L, ++key);
-			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	std::span<T>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T>
-class SpanProxyByValImpl : public ArrayProxyImplBase
-{
-public:
-	static_assert(!std::is_pointer_v<T>, "SpanProxyByValImpl template parameter should not be a pointer type!");
-
-	SpanProxyByValImpl(LifetimeHolder const& lifetime, std::span<T> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~SpanProxyByValImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
+		return GetTypeInfo<TElement>();
 	}
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
@@ -484,295 +316,7 @@ public:
 	}
 
 private:
-	std::span<T>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T, class Allocator, bool StoreSize>
-class ObjectSetProxyByRefImpl : public ArrayProxyImplBase
-{
-public:
-	ObjectSetProxyByRefImpl(LifetimeHolder const& lifetime, ObjectSet<T, Allocator, StoreSize> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~ObjectSetProxyByRefImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
-			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		// Appending/swapping elements to by-ref arrays not supported for now
-		return false;
-	}
-
-	unsigned Length() override
-	{
-		return object_->size();
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < (int)object_->size()) {
-			push(L, ++key);
-			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	ObjectSet<T, Allocator, StoreSize>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T, class Allocator, bool StoreSize>
-class ObjectSetProxyByValImpl : public ArrayProxyImplBase
-{
-public:
-	static_assert(!std::is_pointer_v<T>, "ObjectSetProxyByValImpl template parameter should not be a pointer type!");
-
-	ObjectSetProxyByValImpl(LifetimeHolder const& lifetime, ObjectSet<T, Allocator, StoreSize> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~ObjectSetProxyByValImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
-			LuaWrite(L, (*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
-			lua_pushvalue(L, luaIndex);
-			LuaRead(L, (*object_)[arrayIndex - 1]);
-			lua_pop(L, 1);
-			return true;
-		} else if (arrayIndex == object_->size() + 1) {
-			T val;
-			lua_pushvalue(L, luaIndex);
-			LuaRead(L, val);
-			lua_pop(L, 1);
-
-			object_->push_back(val);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	unsigned Length() override
-	{
-		return object_->size();
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < (int)object_->size()) {
-			push(L, ++key);
-			LuaWrite(L, (*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	ObjectSet<T, Allocator, StoreSize>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T, int Size>
-class StdArrayProxyByRefImpl : public ArrayProxyImplBase
-{
-public:
-	StdArrayProxyByRefImpl(LifetimeHolder const& lifetime, std::array<T, Size> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~StdArrayProxyByRefImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= Size) {
-			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		// Appending/swapping elements to by-ref arrays not supported for now
-		return false;
-	}
-
-	unsigned Length() override
-	{
-		return Size;
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < Size) {
-			push(L, ++key);
-			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	std::array<T, Size>* object_;
-	LifetimeHolder lifetime_;
-};
-
-
-template <class T, int Size>
-class StdArrayProxyByValImpl : public ArrayProxyImplBase
-{
-public:
-	static_assert(!std::is_pointer_v<T>, "StdArrayProxyByValImpl template parameter should not be a pointer type!");
-
-	StdArrayProxyByValImpl(LifetimeHolder const& lifetime, std::array<T, Size> * obj)
-		: object_(obj), lifetime_(lifetime)
-	{
-		assert(obj != nullptr);
-	}
-		
-	~StdArrayProxyByValImpl() override
-	{}
-
-	T* Get() const
-	{
-		return object_;
-	}
-
-	void* GetRaw() override
-	{
-		return object_;
-	}
-
-	TypeInformation const& GetType() const override
-	{
-		return GetTypeInfo<T>();
-	}
-
-	bool GetElement(lua_State* L, unsigned arrayIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= Size) {
-			LuaWrite(L, (*object_)[arrayIndex - 1]);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
-	{
-		if (arrayIndex > 0 && arrayIndex <= Size) {
-			lua_pushvalue(L, luaIndex);
-			LuaRead(L, (*object_)[arrayIndex - 1]);
-			lua_pop(L, 1);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	unsigned Length() override
-	{
-		return Size;
-	}
-
-	int Next(lua_State* L, int key) override
-	{
-		if (key >= 0 && key < Size) {
-			push(L, ++key);
-			LuaWrite(L, (*object_)[key - 1]);
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-
-private:
-	std::array<T, Size>* object_;
+	TArray* object_;
 	LifetimeHolder lifetime_;
 };
 
@@ -791,63 +335,63 @@ public:
 	}
 
 	template <class T>
-	inline static ArrayProxyByRefImpl<T>* MakeByRef(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ArrayProxyByRefImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByRefImpl<Array<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static VectorProxyByRefImpl<T>* MakeByRef(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<VectorProxyByRefImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByRefImpl<Vector<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static SpanProxyByRefImpl<T>* MakeByRef(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<SpanProxyByRefImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<FixedSizeArrayProxyByRefImpl<std::span<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static ObjectSetProxyByRefImpl<T, Allocator, StoreSize>* MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ObjectSetProxyByRefImpl<T, Allocator, StoreSize>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByRefImpl<ObjectSet<T, Allocator, StoreSize>, T>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
-	inline static StdArrayProxyByRefImpl<T, Size>* MakeByRef(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<StdArrayProxyByRefImpl<T, Size>>(L, lifetime, object);
+		return MakeImplByRef<FixedSizeArrayProxyByRefImpl<std::array<T, Size>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static ArrayProxyByValImpl<T>* MakeByVal(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ArrayProxyByValImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByValImpl<Array<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static VectorProxyByValImpl<T>* MakeByVal(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<VectorProxyByValImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByValImpl<Vector<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static SpanProxyByValImpl<T>* MakeByVal(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<SpanProxyByValImpl<T>>(L, lifetime, object);
+		return MakeImplByRef<FixedSizeArrayProxyByValImpl<std::span<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static ObjectSetProxyByValImpl<T, Allocator, StoreSize>* MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<ObjectSetProxyByValImpl<T, Allocator, StoreSize>>(L, lifetime, object);
+		return MakeImplByRef<ArrayProxyByValImpl<ObjectSet<T, Allocator, StoreSize>, T>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
-	inline static StdArrayProxyByValImpl<T, Size>* MakeByVal(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
 	{
-		return MakeImplByRef<StdArrayProxyByValImpl<T, Size>>(L, lifetime, object);
+		return MakeImplByRef<FixedSizeArrayProxyByValImpl<std::array<T, Size>, T>>(L, lifetime, object);
 	}
 
 	inline ArrayProxyImplBase* GetImpl()
