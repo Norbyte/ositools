@@ -262,7 +262,7 @@ template <class TKey, class TValue>
 TypeInformation* MakeDeferredMapType()
 {
 	auto ty = GameAlloc<TypeInformation>();
-	ty->Kind = LuaTypeId::Array;
+	ty->Kind = LuaTypeId::Map;
 	ty->KeyType = GetStaticTypeInfo(Overload<TKey>{});
 	ty->ElementType = GetStaticTypeInfo(Overload<TValue>{});
 	return ty;

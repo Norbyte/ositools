@@ -94,7 +94,7 @@ function Generator:MakeTypeSignature(cls, type, forceExpand)
             return self:MakeTypeName(type.ElementType.TypeName) .. "[]"
         end
     elseif type.Kind == "Map" then
-        return "table<" .. self:MakeTypeName(type.KeyType.TypeName) .. ", " .. self:MakeTypeName(type.ElementType.TypeName) .. ">"
+        return "table<" .. self:MakeTypeName(type.KeyType.TypeName) .. ", " .. self:MakeTypeSignature(nil, type.ElementType) .. ">"
     elseif type.Kind == "Function" then
         local args = {}
         local retval = {}
