@@ -123,8 +123,8 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	void Add(FixedString const& name, T* elem)
 	{
-		NameHashMap.Insert(name, Primitives.Size);
-		Primitives.Add(elem);
+		NameHashMap.Insert(name, Primitives.size());
+		Primitives.push_back(elem);
 		NextHandle++;
 	}
 
@@ -150,10 +150,10 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	T * Find(int index) const
 	{
-		if (index < 0 || index >= (int)Primitives.Size) {
+		if (index < 0 || index >= (int)Primitives.size()) {
 			return nullptr;
 		} else {
-			return Primitives.Buf[index];
+			return Primitives[index];
 		}
 	}
 
@@ -171,7 +171,7 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 	{
 		auto ptr = NameHashMap.Find(str);
 		if (ptr != nullptr) {
-			return Primitives.Buf[*ptr];
+			return Primitives[*ptr];
 		} else {
 			return nullptr;
 		}

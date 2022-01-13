@@ -34,7 +34,7 @@ int StatsEntryProxyRefImpl::Next(lua_State* L, FixedString const& key)
 {
 	auto const& attrs = Get()->GetModifierList()->Attributes;
 	if (!key) {
-		if (attrs.Primitives.Size > 0) {
+		if (attrs.Primitives.size() > 0) {
 			auto const& prop = attrs.Primitives[0]->Name;
 			push(L, prop);
 			Get()->LuaGetAttribute(L, prop, level_);
@@ -42,7 +42,7 @@ int StatsEntryProxyRefImpl::Next(lua_State* L, FixedString const& key)
 		}
 	} else {
 		auto curKey = attrs.FindIndex(key);
-		if (curKey && attrs.Primitives.Size > (unsigned)*curKey + 1) {
+		if (curKey && attrs.Primitives.size() > (unsigned)*curKey + 1) {
 			auto const& prop = attrs.Primitives[*curKey + 1]->Name;
 			push(L, prop);
 			Get()->LuaGetAttribute(L, prop, level_);
@@ -155,8 +155,8 @@ void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
 {
 	auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives;
 	for (auto levelMapIndex : levelMapIds) {
-		auto levelMap = static_cast<CustomLevelMap *>(levelMaps.Buf[levelMapIndex]);
-		levelMaps.Buf[levelMapIndex] = levelMap->OriginalLevelMap;
+		auto levelMap = static_cast<CustomLevelMap *>(levelMaps[levelMapIndex]);
+		levelMaps[levelMapIndex] = levelMap->OriginalLevelMap;
 	}
 
 	if (!levelMapIds.empty()) {
@@ -174,7 +174,7 @@ ObjectSet<FixedString> FetchSkillSetEntries(RPGStats * stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto skillSet : stats->SkillSetManager->Primitives) {
-		names.Add(skillSet->Name);
+		names.push_back(skillSet->Name);
 	}
 
 	return names;
@@ -184,7 +184,7 @@ ObjectSet<FixedString> FetchItemComboEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto itemCombo : stats->ItemCombinationManager->Primitives) {
-		names.Add(itemCombo->Name);
+		names.push_back(itemCombo->Name);
 	}
 
 	return names;
@@ -194,7 +194,7 @@ ObjectSet<FixedString> FetchItemComboPropertyEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto const& combo : stats->ItemCombinationManager->ComboProperties) {
-		names.Add(combo.Key);
+		names.push_back(combo.Key);
 	}
 
 	return names;
@@ -204,7 +204,7 @@ ObjectSet<FixedString> FetchItemComboPreviewDataEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto const& preview : stats->ItemCombinationManager->PreviewData) {
-		names.Add(preview.Key);
+		names.push_back(preview.Key);
 	}
 
 	return names;
@@ -214,7 +214,7 @@ ObjectSet<FixedString> FetchItemGroupEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto const& group : stats->ItemProgressionManager->ItemGroups) {
-		names.Add(group.Key);
+		names.push_back(group.Key);
 	}
 
 	return names;
@@ -224,7 +224,7 @@ ObjectSet<FixedString> FetchItemNameGroupEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto const& group : stats->ItemProgressionManager->NameGroups) {
-		names.Add(group.Key);
+		names.push_back(group.Key);
 	}
 
 	return names;
@@ -248,7 +248,7 @@ ObjectSet<FixedString> FetchEquipmentSetEntries(RPGStats * stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto equipmentSet : stats->EquipmentSetManager->Primitives) {
-		names.Add(equipmentSet->Name);
+		names.push_back(equipmentSet->Name);
 	}
 
 	return names;
@@ -258,7 +258,7 @@ ObjectSet<FixedString> FetchTreasureTableEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto treasureTable : stats->TreasureTables.Primitives) {
-		names.Add(treasureTable->Name);
+		names.push_back(treasureTable->Name);
 	}
 
 	return names;
@@ -268,7 +268,7 @@ ObjectSet<FixedString> FetchTreasureCategoryEntries(RPGStats* stats)
 {
 	ObjectSet<FixedString> names;
 	for (auto treasureCategory : stats->TreasureCategories.Primitives) {
-		names.Add(treasureCategory->Category);
+		names.push_back(treasureCategory->Category);
 	}
 
 	return names;
@@ -294,7 +294,7 @@ ObjectSet<FixedString> FetchStatEntries(RPGStats * stats, FixedString const& sta
 			}
 		}
 
-		names.Add(object->Name);
+		names.push_back(object->Name);
 	}
 
 	return names;
@@ -322,7 +322,7 @@ ObjectSet<FixedString> FetchStatEntriesBefore(RPGStats* stats, FixedString const
 			}
 		}
 
-		names.Add(object->Name);
+		names.push_back(object->Name);
 	}
 
 	return names;
@@ -642,7 +642,7 @@ void StatAddCustomDescription(lua_State * L, const char* statName, const char* a
 	customProp->TypeId = PropertyType::CustomDescription;
 	customProp->Conditions = nullptr;
 	customProp->TextLine1 = FromUTF8(description);
-	(*props)->Properties.Primitives.Add(customProp);
+	(*props)->Properties.Primitives.push_back(customProp);
 }
 
 void StatSetLevelScaling(lua_State * L)
@@ -692,7 +692,7 @@ void StatSetLevelScaling(lua_State * L)
 	levelMap->Function = RegistryEntry(L, 3);
 	levelMap->OriginalLevelMap = originalLevelMap;
 
-	stats->LevelMaps.Primitives.Buf[modifier->LevelMapIndex] = levelMap;
+	stats->LevelMaps.Primitives[modifier->LevelMapIndex] = levelMap;
 	lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 }
 

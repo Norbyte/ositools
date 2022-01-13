@@ -104,15 +104,10 @@ namespace dse::esv
 			statSyncMsg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_UPDATE;
 		}
 
-		// FIXME - memory leak!
-		statSyncMsg.Stats.Buf = GameAllocArray<eocnet::CustomStatsSyncInfo>(1);
-		statSyncMsg.Stats.Capacity = 1;
-		statSyncMsg.Stats.Size = 1;
-
 		auto entityWorld = GetEntityWorld();
 		auto netComponent = entityWorld->GetNetComponentByEntityHandle(entityHandle);
 
-		auto & stat = statSyncMsg.Stats[0];
+		eocnet::CustomStatsSyncInfo stat;
 		stat.NetId = netComponent->NetID;
 		stat.Stats.ResizeHashtable(0x25);
 
@@ -123,6 +118,7 @@ namespace dse::esv
 		}
 
 		stat.Stats.Insert(statKey, statValue);
+		statSyncMsg.Stats.push_back(std::move(stat));
 
 		ProcessMessage(&statSyncMsg);
 	}
@@ -132,14 +128,10 @@ namespace dse::esv
 		eocnet::CustomStatsDefinitionSyncMessage msg;
 		msg.MsgId = NetMessage::NETMSG_CUSTOM_STATS_DEFINITION_CREATE;
 
-		// FIXME - memory leak!
-		msg.StatDefns.Buf = GameAllocArray<eocnet::CustomStatDefinitionSyncInfo>(1);
-		msg.StatDefns.Capacity = 1;
-		msg.StatDefns.Size = 1;
-
-		auto & defn = msg.StatDefns[0];
+		eocnet::CustomStatDefinitionSyncInfo defn = msg.StatDefns[0];
 		defn.Name = FromUTF8(name);
 		defn.Description = FromUTF8(description);
+		msg.StatDefns.push_back(defn);
 
 		ProcessMessage(&msg);
 	}

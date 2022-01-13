@@ -683,7 +683,7 @@ bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 
 	auto & invokes = FlashPlayer->Invokes;
 	std::optional<uint32_t> invokeId;
-	for (uint32_t i = 0; i < invokes.Size; i++) {
+	for (uint32_t i = 0; i < invokes.size(); i++) {
 		if (strcmp(method.c_str(), invokes[i].Name) == 0) {
 			invokeId = i;
 			break;
@@ -691,7 +691,7 @@ bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 	}
 
 	if (!invokeId) {
-		invokeId = FlashPlayer->Invokes.Size;
+		invokeId = FlashPlayer->Invokes.size();
 		FlashPlayer->AddInvokeName(*invokeId, method.c_str());
 	}
 

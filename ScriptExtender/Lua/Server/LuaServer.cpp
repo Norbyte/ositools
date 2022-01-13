@@ -474,7 +474,7 @@ namespace dse::esv::lua
 	{
 		lua_newtable(L);
 
-		for (uint32_t i = 0; i < teams.Size; i++) {
+		for (uint32_t i = 0; i < teams.size(); i++) {
 			push(L, i + 1);
 			TurnManagerTeamProxy::New(L, teams[i]->TeamId);
 			lua_settable(L, -3);
@@ -560,20 +560,20 @@ namespace dse::esv::lua
 			notifies.insert(notify);
 		}
 
-		combatTeams.Size = 0;
+		combatTeams.clear();
 		for (auto const & team : teams) {
-			combatTeams.Add(team);
+			combatTeams.push_back(team);
 		}
 
-		combatNotifies.Size = 0;
+		combatNotifies.clear();
 		for (auto const & teamId : notifies) {
-			combatNotifies.Add(teamId);
+			combatNotifies.push_back(teamId);
 		}
 
 		auto protocol = GetTurnBasedProtocol();
 		if (protocol != nullptr) {
 			// FIXME - filter duplicates
-			protocol->UpdatedTurnOrderCombatIds.Add(combatId);
+			protocol->UpdatedTurnOrderCombatIds.push_back(combatId);
 		}
 	}
 
@@ -683,8 +683,8 @@ namespace dse::esv::lua
 			return 1;
 		} else {
 			auto idx = get<int>(L, 2);
-			if (idx < 1 || idx > (int)definition_.Size) {
-				return luaL_error(L, "Clone set only has %d elements", definition_.Size);
+			if (idx < 1 || idx > (int)definition_.size()) {
+				return luaL_error(L, "Clone set only has %d elements", definition_.size());
 			}
 
 			MakeObjectRef(L, &definition_[idx - 1]);
@@ -1136,7 +1136,7 @@ namespace dse::esv::lua
 		ComponentHandle attackerHandle;
 		attacker->GetObjectHandle(attackerHandle);
 		ObjectSet<esv::Character*> targets;
-		targets.Add(target);
+		targets.push_back(target);
 
 		exec(*skillProperties, attackerHandle.Handle, targets, position, propertyContext, isFromItem,
 			skillProto, nullptr, 0.0f, nullptr, false, 2.4f);
@@ -1508,7 +1508,7 @@ namespace dse::esv::lua
 		for (auto ingredientHandle : ingredients) {
 			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
 			if (ingredient) {
-				params.Items.Add(ingredient);
+				params.Items.push_back(ingredient);
 			}
 		}
 
@@ -1526,7 +1526,7 @@ namespace dse::esv::lua
 		for (auto ingredientHandle : ingredients) {
 			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
 			if (ingredient) {
-				params.Items.Add(ingredient);
+				params.Items.push_back(ingredient);
 			}
 		}
 

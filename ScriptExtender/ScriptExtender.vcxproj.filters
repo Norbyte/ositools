@@ -150,7 +150,7 @@
     <ClInclude Include="GameDefinitions\UI.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
-    <ClInclude Include="GameDefinitions\Base\BaseContainers.h">
+    <ClInclude Include="GameDefinitions\Base\BaseArray.h">
       <Filter>GameDefinitions\Base</Filter>
     </ClInclude>
     <ClInclude Include="GameDefinitions\Base\BaseMemory.h">
@@ -374,6 +374,9 @@
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="GameDefinitions\Base\BaseTypeInformation.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\BaseMap.h">
       <Filter>GameDefinitions\Base</Filter>
     </ClInclude>
   </ItemGroup>

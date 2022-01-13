@@ -532,7 +532,7 @@ namespace dse::esv
 		bool statusFlag0x40, float a12)
 	{
 		if (!properties || (unsigned)properties->AllPropertyContexts == 0
-			|| properties->Properties.Primitives.Size == 0) {
+			|| properties->Properties.Primitives.size() == 0) {
 			return;
 		}
 
@@ -558,7 +558,7 @@ namespace dse::esv
 		stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn)
 	{
 		if (!properties || !position || (unsigned)properties->AllPropertyContexts == 0 
-			|| properties->Properties.Primitives.Size == 0) {
+			|| properties->Properties.Primitives.size() == 0) {
 			return;
 		}
 

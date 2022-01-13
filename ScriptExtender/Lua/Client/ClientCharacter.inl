@@ -11,7 +11,7 @@ void CollectInventoryItemGuids(ObjectSet<FixedString>& guids, ComponentHandle in
 			if (itemHandle) {
 				auto item = GetEntityWorld()->GetItem(itemHandle);
 				if (item != nullptr) {
-					guids.Add(item->MyGuid);
+					guids.push_back(item->MyGuid);
 				}
 			}
 		}
@@ -21,7 +21,7 @@ void CollectInventoryItemGuids(ObjectSet<FixedString>& guids, ComponentHandle in
 Item* InventoryGetItemBySlot(ComponentHandle inventoryHandle, uint32_t slot)
 {
 	auto inventory = FindInventoryByHandle(inventoryHandle);
-	if (inventory != nullptr && slot < inventory->ItemsBySlot.Size) {
+	if (inventory != nullptr && slot < inventory->ItemsBySlot.size()) {
 		auto itemHandle = inventory->ItemsBySlot[slot];
 		if (itemHandle) {
 			return GetEntityWorld()->GetItem(itemHandle);

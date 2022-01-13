@@ -82,7 +82,7 @@ public:
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= (int)object_->Size()) {
+		if (arrayIndex > 0 && arrayIndex <= (int)object_->size()) {
 			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -98,12 +98,12 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Size();
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
 	{
-		if (key >= 0 && key < (int)object_->Size()) {
+		if (key >= 0 && key < (int)object_->size()) {
 			push(L, ++key);
 			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
 			return 2;
@@ -150,7 +150,7 @@ public:
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
 			LuaWrite(L, (*object_)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -160,18 +160,18 @@ public:
 
 	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, (*object_)[arrayIndex - 1]);
 			lua_pop(L, 1);
 			return true;
-		} else if (arrayIndex == object_->Size + 1) {
+		} else if (arrayIndex == object_->size() + 1) {
 			T val;
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, val);
 			lua_pop(L, 1);
 
-			object_->Add(val);
+			object_->push_back(val);
 			return true;
 		} else {
 			return false;
@@ -180,12 +180,12 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Size;
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
 	{
-		if (key >= 0 && key < (int)object_->Size) {
+		if (key >= 0 && key < (int)object_->size()) {
 			push(L, ++key);
 			LuaWrite(L, (*object_)[key - 1]);
 			return 2;
@@ -519,7 +519,7 @@ public:
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
 			MakeObjectRef(L, lifetime_, &(*object_)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -535,12 +535,12 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Size;
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
 	{
-		if (key >= 0 && key < (int)object_->Size) {
+		if (key >= 0 && key < (int)object_->size()) {
 			push(L, ++key);
 			MakeObjectRef(L, lifetime_, &(*object_)[key - 1]);
 			return 2;
@@ -587,7 +587,7 @@ public:
 
 	bool GetElement(lua_State* L, unsigned arrayIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
 			LuaWrite(L, (*object_)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -597,18 +597,18 @@ public:
 
 	bool SetElement(lua_State* L, unsigned arrayIndex, int luaIndex) override
 	{
-		if (arrayIndex > 0 && arrayIndex <= object_->Size) {
+		if (arrayIndex > 0 && arrayIndex <= object_->size()) {
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, (*object_)[arrayIndex - 1]);
 			lua_pop(L, 1);
 			return true;
-		} else if (arrayIndex == object_->Size + 1) {
+		} else if (arrayIndex == object_->size() + 1) {
 			T val;
 			lua_pushvalue(L, luaIndex);
 			LuaRead(L, val);
 			lua_pop(L, 1);
 
-			object_->Add(val);
+			object_->push_back(val);
 			return true;
 		} else {
 			return false;
@@ -617,12 +617,12 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Size;
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int key) override
 	{
-		if (key >= 0 && key < (int)object_->Size) {
+		if (key >= 0 && key < (int)object_->size()) {
 			push(L, ++key);
 			LuaWrite(L, (*object_)[key - 1]);
 			return 2;

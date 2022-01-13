@@ -48,7 +48,7 @@ namespace dse::esv
 		hit->CapturedCharacterHit = true;
 		hit->WeaponStats = weapon;
 		hit->CharacterHitPointer = damageInfo;
-		hit->CharacterHitDamageList.CopyFrom(*damageList);
+		hit->CharacterHitDamageList = *damageList;
 		hit->CharacterHit.CopyFrom(*damageInfo);
 		hit->HitType = hitType;
 		hit->NoHitRoll = noHitRoll;

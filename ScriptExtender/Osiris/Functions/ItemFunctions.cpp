@@ -435,9 +435,9 @@ namespace dse::esv
 
 			auto & defn = (*clone)[0];
 			if (strcmp(boostType, "Generation") == 0) {
-				defn.GenerationBoostSet.Add(boostName);
+				defn.GenerationBoostSet.push_back(boostName);
 			} else if (strcmp(boostType, "DeltaMod") == 0) {
-				defn.DeltaModSet.Add(boostName);
+				defn.DeltaModSet.push_back(boostName);
 			} else if (strcmp(boostType, "Rune") == 0) {
 				for (auto& boost : defn.RuneBoostSet) {
 					if (!boost) {

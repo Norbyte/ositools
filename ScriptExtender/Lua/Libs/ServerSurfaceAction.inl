@@ -49,7 +49,7 @@ void ExecuteSurfaceAction(ProxyParam<SurfaceAction> action)
 	}
 
 	action->VMT->Enter(action);
-	level->SurfaceManager->SurfaceActions.Add(action);
+	level->SurfaceManager->SurfaceActions.push_back(action);
 }
 
 void CancelSurfaceAction(ComponentHandle actionHandle)
@@ -75,7 +75,7 @@ void CancelSurfaceAction(ComponentHandle actionHandle)
 	case SurfaceActionType::CreateSurfaceAction:
 	{
 		auto act = static_cast<esv::CreateSurfaceAction*>(action);
-		act->CurrentCellCount = act->SurfaceCells.Size;
+		act->CurrentCellCount = act->SurfaceCells.size();
 		break;
 	}
 	case SurfaceActionType::CreatePuddleAction:
@@ -93,7 +93,7 @@ void CancelSurfaceAction(ComponentHandle actionHandle)
 	case SurfaceActionType::ZoneAction:
 	{
 		auto act = static_cast<esv::ZoneAction*>(action);
-		act->CurrentCellCount = act->SurfaceCells.Size;
+		act->CurrentCellCount = act->SurfaceCells.size();
 		break;
 	}
 	case SurfaceActionType::ChangeSurfaceOnPathAction:
@@ -105,19 +105,19 @@ void CancelSurfaceAction(ComponentHandle actionHandle)
 	case SurfaceActionType::RectangleSurfaceAction:
 	{
 		auto act = static_cast<esv::RectangleSurfaceAction*>(action);
-		act->CurrentCellCount = act->SurfaceCells.Size;
+		act->CurrentCellCount = act->SurfaceCells.size();
 		break;
 	}
 	case SurfaceActionType::PolygonSurfaceAction:
 	{
 		auto act = static_cast<esv::PolygonSurfaceAction*>(action);
-		act->LastSurfaceCellCount = act->SurfaceCells.Size;
+		act->LastSurfaceCellCount = act->SurfaceCells.size();
 		break;
 	}
 	case SurfaceActionType::SwapSurfaceAction:
 	{
 		auto act = static_cast<esv::SwapSurfaceAction*>(action);
-		act->CurrentCellCount = act->SurfaceCells.Size;
+		act->CurrentCellCount = act->SurfaceCells.size();
 		break;
 	}
 	case SurfaceActionType::TransformSurfaceAction:

@@ -53,7 +53,7 @@ void GetCharactersGeneric(ObjectSet<Character *>& characters, FixedString const&
 
 	for (auto character : **levelCharacters) {
 		if (pred(character)) {
-			characters.Add(character);
+			characters.push_back(character);
 		}
 	}
 }

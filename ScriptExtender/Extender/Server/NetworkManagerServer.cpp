@@ -115,7 +115,7 @@ void NetworkManager::ExtendNetworking()
 {
 	auto server = GetServer();
 	if (server != nullptr
-		&& server->NetMessageFactory->MessagePools.Size >= (unsigned)ScriptExtenderMessage::MessageId) {
+		&& server->NetMessageFactory->MessagePools.size() >= (unsigned)ScriptExtenderMessage::MessageId) {
 		return;
 	}
 
@@ -180,7 +180,7 @@ void NetworkManager::Broadcast(ScriptExtenderMessage * msg, UserId excludeUserId
 		for (auto peerId : server->ActivePeerIds) {
 			if (CanSendExtenderMessages(peerId)) {
 				if (peerId != 1 || !excludeLocalPeer) {
-					peerIds.Add(peerId);
+					peerIds.push_back(peerId);
 				}
 			} else {
 				WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
@@ -196,11 +196,11 @@ void NetworkManager::BroadcastToConnectedPeers(ScriptExtenderMessage* msg, UserI
 	auto server = GetServer();
 	if (server != nullptr) {
 		ObjectSet<PeerId> peerIds;
-		peerIds.Reallocate(server->ConnectedPeerIds.Size);
+		peerIds.reallocate(server->ConnectedPeerIds.size());
 		for (auto peerId : server->ConnectedPeerIds) {
 			if (CanSendExtenderMessages(peerId)) {
 				if (peerId != 1 || !excludeLocalPeer) {
-					peerIds.Add(peerId);
+					peerIds.push_back(peerId);
 				}
 			} else {
 				WARN("Not sending extender message to peer %d as it does not understand extender protocol!", peerId);
@@ -270,7 +270,7 @@ void NetworkFixedStringSender::SendUpdateToUser(UserId userId)
 	auto msg = network_.GetFreeMessage(userId);
 	if (msg != nullptr) {
 		auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
-		auto numStrings = nfs.FixedStrSet.Size;
+		auto numStrings = nfs.FixedStrSet.size();
 		for (uint32_t i = 1; i < numStrings; i++) {
 			syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
 		}

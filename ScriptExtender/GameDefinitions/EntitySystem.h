@@ -53,7 +53,7 @@ struct ComponentFactory : public TLocker
 		}
 
 		auto index = handle.GetIndex();
-		if (index >= ComponentsByHandleIndex.Size) {
+		if (index >= ComponentsByHandleIndex.size()) {
 			return nullptr;
 		}
 
@@ -102,7 +102,7 @@ struct NetworkComponentFactory : public ComponentFactory<TComponent>
 		if (!netId) return nullptr;
 
 		auto index = netId.GetIndex();
-		if (index >= NetIdSalts.Size
+		if (index >= NetIdSalts.size()
 			|| netId.GetSalt() != NetIdSalts[index]) {
 			return nullptr;
 		}
@@ -192,7 +192,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 			return nullptr;
 		}
 
-		if ((uint32_t)type >= Components.Size) {
+		if ((uint32_t)type >= Components.size()) {
 			if (logError) {
 				OsiError("Component type index " << (uint32_t)type << " too large!");
 			}
@@ -218,9 +218,9 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		auto factory = reinterpret_cast<ComponentFactory<EntityEntry>*>((std::intptr_t)componentMgr + 8);
 		auto index = componentHandle.GetIndex();
 		auto salt = componentHandle.GetSalt();
-		if (index >= factory->Salts.Size) {
+		if (index >= factory->Salts.size()) {
 			if (logError) {
-				OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.Size
+				OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.size()
 					<< " objects, requested " << (unsigned)index);
 			}
 			return nullptr;
@@ -272,7 +272,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 			return nullptr;
 		}
 
-		if ((uint32_t)type >= Components.Size) {
+		if ((uint32_t)type >= Components.size()) {
 			OsiError("Component type index " << (uint32_t)type << " too large!");
 			return nullptr;
 		}
@@ -300,7 +300,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 
 		// FIXME - use EntityPool.Get()
 		auto index = entityHandle.GetIndex();
-		if (index >= EntityPool.Components.Size) {
+		if (index >= EntityPool.Components.size()) {
 			if (logError) {
 				OsiError("Entity index " << index << " too large!");
 			}
@@ -316,7 +316,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		}
 
 		auto entity = (EntityEntry*)EntityPool.ComponentsByHandleIndex[index];
-		if ((uint32_t)type >= entity->Layout.Entries.Size) {
+		if ((uint32_t)type >= entity->Layout.Entries.size()) {
 			if (logError) {
 				OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
 			}
@@ -592,7 +592,7 @@ namespace esv
 
 		inline CustomStatSystem* GetCustomStatSystem()
 		{
-			auto sys = SystemTypes.Buf[(uint32_t)SystemType::CustomStat].System;
+			auto sys = SystemTypes[(uint32_t)SystemType::CustomStat].System;
 			return (CustomStatSystem*)((uint8_t*)sys - 0x18);
 		}
 

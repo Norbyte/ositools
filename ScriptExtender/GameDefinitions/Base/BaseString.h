@@ -154,7 +154,7 @@ struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
 	static uint32_t Hash(char const * s, uint64_t length);
 };
 
-struct ScratchBuffer : public Noncopyable<ScratchBuffer>
+struct ScratchBuffer
 {
 	void * Buffer{ nullptr };
 	uint32_t Capacity{ 0 };
@@ -162,6 +162,14 @@ struct ScratchBuffer : public Noncopyable<ScratchBuffer>
 	uint32_t WritePosition{ 0 };
 	uint32_t ReadPosition{ 0 };
 	uint32_t GrowSize{ 0 };
+
+	ScratchBuffer();
+	ScratchBuffer(ScratchBuffer const& o);
+	ScratchBuffer(ScratchBuffer && o);
+	~ScratchBuffer();
+
+	ScratchBuffer& operator = (ScratchBuffer const& o);
+	ScratchBuffer& operator = (ScratchBuffer&& o);
 };
 
 struct Path

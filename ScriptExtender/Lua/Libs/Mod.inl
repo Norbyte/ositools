@@ -24,7 +24,7 @@ ObjectSet<FixedString> GetLoadOrder()
 	auto modManager = gExtender->GetCurrentExtensionState()->GetModManager();
 
 	for (auto const& mod : modManager->BaseModule.LoadOrderedModules) {
-		loadOrder.Add(mod.Info.ModuleUUID);
+		loadOrder.push_back(mod.Info.ModuleUUID);
 	}
 
 	return loadOrder;
@@ -58,7 +58,7 @@ UserReturn GetModInfo(lua_State* L, char const* modNameGuid)
 			
 		lua_newtable(L);
 		auto & dependents = module->DependentModules;
-		for (uint32_t i = 0; i < dependents.Size; i++) {
+		for (uint32_t i = 0; i < dependents.size(); i++) {
 			auto const & mod = dependents[i];
 			settable(L, i + 1, mod.Info.ModuleUUID);
 		}

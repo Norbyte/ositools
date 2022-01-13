@@ -143,12 +143,12 @@ namespace dse::lua
 				lua_settable(s.L, -3);
 			}
 		} else {
-			v.Clear();
+			v.clear();
 			for (auto idx : iterate(s.L, -1)) {
 				StackCheck _(s.L);
 				T temp{};
 				s << temp;
-				v.Add(temp);
+				v.push_back(temp);
 			}
 		}
 		s.EndObject();

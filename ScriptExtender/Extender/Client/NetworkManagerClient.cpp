@@ -110,7 +110,7 @@ void NetworkManager::ExtendNetworking()
 {
 	auto client = GetClient();
 	if (client != nullptr
-		&& client->NetMessageFactory->MessagePools.Size >= (unsigned)ScriptExtenderMessage::MessageId) {
+		&& client->NetMessageFactory->MessagePools.size() >= (unsigned)ScriptExtenderMessage::MessageId) {
 		return;
 	}
 
@@ -244,7 +244,7 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 	if (updatedStrings_.empty()
 		|| fixedStrs == nullptr
 		|| *fixedStrs == nullptr
-		|| (*fixedStrs)->FixedStrSet.Size == 0) {
+		|| (*fixedStrs)->FixedStrSet.size() == 0) {
 		return;
 	}
 
@@ -252,7 +252,7 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 	auto& fs = **fixedStrs;
 	auto numStrings = (uint32_t)updatedStrings_.size();
 
-	auto sizeMin = std::min(fs.FixedStrSet.Size - 1, numStrings);
+	auto sizeMin = std::min(fs.FixedStrSet.size() - 1, numStrings);
 	uint32_t brokenNum = 0;
 	for (uint32_t i = 0; i < sizeMin; i++) {
 		auto const& serverString = updatedStrings_[i];
@@ -280,17 +280,17 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 	}
 
 	if (notInSync_) {
-		fs.FixedStrSet.Clear();
+		fs.FixedStrSet.clear();
 		fs.FixedStrToNetIndexMap.Clear();
 
-		fs.FixedStrSet.Reallocate(numStrings + 1);
+		fs.FixedStrSet.reallocate(numStrings + 1);
 
-		fs.FixedStrSet.Add(FixedString{});
+		fs.FixedStrSet.push_back(FixedString{});
 		fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
 
 		for (uint32_t i = 0; i < numStrings; i++) {
 			FixedString fixedStr(updatedStrings_[i].c_str());
-			fs.FixedStrSet.Add(fixedStr);
+			fs.FixedStrSet.push_back(fixedStr);
 			fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
 		}
 	}

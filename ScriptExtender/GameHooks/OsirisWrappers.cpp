@@ -201,7 +201,7 @@ void OsirisWrappers::InitializeNetworking(net::MessageFactory* factory)
 		return;
 	}
 
-	if (factory->MessagePools.Size <= (unsigned)NetMessage::NETMSG_CLIENT_ACCEPT) {
+	if (factory->MessagePools.size() <= (unsigned)NetMessage::NETMSG_CLIENT_ACCEPT) {
 		ERR("MessageFactory not initialized yet?");
 		return;
 	}

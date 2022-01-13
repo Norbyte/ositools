@@ -135,7 +135,7 @@ ObjectSet<FixedString> IEoCServerObject::LuaGetStatusIds()
 	auto statusMachine = GetStatusMachine();
 	if (statusMachine) {
 		for (auto status : statusMachine->Statuses) {
-			statuses.Add(status->StatusId);
+			statuses.push_back(status->StatusId);
 		}
 	}
 

@@ -82,7 +82,7 @@ GameObjectTemplate* CacheTemplate(FixedString const& templateId)
 	auto cacheFunc = GetStaticSymbols().ls__CacheTemplateManagerBase__CacheTemplate;
 
 	auto cachedTmpl = cacheFunc(cache, baseCopy);
-	cache->NewTemplates.Add(cachedTmpl);
+	cache->NewTemplates.push_back(cachedTmpl);
 	return cachedTmpl;
 }
 

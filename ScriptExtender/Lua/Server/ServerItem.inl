@@ -31,7 +31,7 @@ ObjectSet<FixedString> Item::GetNearbyCharacters(float distance)
 
 	ObjectSet<FixedString> characterGuids;
 	for (auto const& ch : characters) {
-		characterGuids.Add(ch->MyGuid);
+		characterGuids.push_back(ch->MyGuid);
 	}
 
 	return characterGuids;

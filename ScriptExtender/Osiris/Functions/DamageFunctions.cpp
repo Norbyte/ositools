@@ -59,9 +59,6 @@ namespace dse::esv
 
 	DamageHelpers::~DamageHelpers()
 	{
-		if (damageList_) {
-			delete[] damageList_->Buf;
-		}
 	}
 
 
@@ -69,8 +66,6 @@ namespace dse::esv
 	{
 		damageInfo_ = std::make_unique<stats::HitDamageInfo>();
 		damageList_ = std::make_unique<stats::DamagePairList>();
-		damageList_->Capacity = 7;
-		damageList_->Buf = new stats::TDamagePair[7];
 
 		Hit = damageInfo_.get();
 		DamageList = damageList_.get();
@@ -122,11 +117,11 @@ namespace dse::esv
 			return nullptr;
 		}
 
-		if (DamageList->Size == 0) {
+		if (DamageList->size() == 0) {
 			stats::TDamagePair dummy;
 			dummy.Amount = 0;
 			dummy.DamageType = stats::DamageType::Physical;
-			DamageList->Add(dummy);
+			DamageList->push_back(dummy);
 		}
 
 		auto characterHit = GetStaticSymbols().esv__Character__Hit;
@@ -197,10 +192,9 @@ namespace dse::esv
 			}
 
 		} else {
-			damage.DamageList.Size = DamageList->Size;
-			for (uint32_t i = 0; i < DamageList->Size; i++) {
-				damage.DamageList[i] = DamageList->Buf[i];
-				damage.TotalDamageDone += DamageList->Buf[i].Amount;
+			damage.DamageList = *DamageList;
+			for (auto const& dmg : *DamageList) {
+				damage.TotalDamageDone += dmg.Amount;
 			}
 		}
 
@@ -351,7 +345,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			helper->DamageList->Clear();
+			helper->DamageList->clear();
 		}
 
 		void HitClearDamage(OsiArgumentDesc const & args)
@@ -368,9 +362,9 @@ namespace dse::esv
 			}
 
 			auto & dmgList = *helper->DamageList;
-			for (uint32_t i = 0; i < dmgList.Size; i++) {
+			for (uint32_t i = 0; i < dmgList.size(); i++) {
 				if (dmgList[i].DamageType == *damageType) {
-					dmgList.Remove(i);
+					dmgList.remove(i);
 					break;
 				}
 			}

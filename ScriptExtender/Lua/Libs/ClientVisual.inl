@@ -22,7 +22,7 @@ void ResourceManager::DestroyVisual(ComponentHandle const& handle)
 void Actor::AddMeshBinding(MeshBinding* binding)
 {
 	binding->RemapToSkeleton(Skeleton);
-	MeshBindings.Add(binding);
+	MeshBindings.push_back(binding);
 }
 
 
@@ -127,7 +127,7 @@ void ClientMultiVisual::Delete(lua_State* L)
 		state->GetVisualSystem().RequestDeleteVisual(handle);
 	}
 
-	AttachedVisuals.Clear();
+	AttachedVisuals.clear();
 
 	state->GetVisualSystem().Destroy(this);
 }
@@ -333,7 +333,7 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 		parentVisual->Actor->SetTextKeyEventHandler(target);
 	}
 
-	AttachedVisuals.Add(visual->Handle);
+	AttachedVisuals.push_back(visual->Handle);
 	return visual;
 }
 

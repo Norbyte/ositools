@@ -279,6 +279,55 @@ FixedString GenerateGuid()
 	return FixedString(guidStr);
 }
 
+ScratchBuffer::ScratchBuffer() {}
+
+ScratchBuffer::ScratchBuffer(ScratchBuffer const& o)
+{
+	*this = o;
+}
+
+ScratchBuffer::ScratchBuffer(ScratchBuffer&& o)
+{
+	*this = std::move(o);
+}
+
+ScratchBuffer::~ScratchBuffer()
+{
+	if (Buffer) {
+		GameFree(Buffer);
+	}
+}
+
+ScratchBuffer& ScratchBuffer::operator = (ScratchBuffer const& o)
+{
+	Buffer = GameAllocArray<uint8_t>(o.Capacity);
+	Capacity = o.Capacity;
+	Size = o.Size;
+	WritePosition = o.WritePosition;
+	ReadPosition = o.ReadPosition;
+	GrowSize = o.GrowSize;
+	memcpy(Buffer, o.Buffer, o.Capacity);
+	return *this;
+}
+
+ScratchBuffer& ScratchBuffer::operator = (ScratchBuffer&& o)
+{
+	Buffer = o.Buffer;
+	Capacity = o.Capacity;
+	Size = o.Size;
+	WritePosition = o.WritePosition;
+	ReadPosition = o.ReadPosition;
+	GrowSize = o.GrowSize;
+
+	o.Buffer = nullptr;
+	o.Capacity = 0;
+	o.Size = 0;
+	o.WritePosition = 0;
+	o.ReadPosition = 0;
+	return *this;
+}
+
+
 char const* GetHandleTypeName(ComponentHandle const& handle)
 {
 	auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());

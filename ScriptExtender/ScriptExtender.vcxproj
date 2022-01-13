@@ -38,7 +38,8 @@
     <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h" />
     <ClInclude Include="Extender\Shared\tinyxml2.h" />
     <ClInclude Include="GameDefinitions\Base\Base.h" />
-    <ClInclude Include="GameDefinitions\Base\BaseContainers.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseArray.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseMap.h" />
     <ClInclude Include="GameDefinitions\Base\BaseMemory.h" />
     <ClInclude Include="GameDefinitions\Base\BaseString.h" />
     <ClInclude Include="GameDefinitions\Base\BaseTypeInformation.h" />

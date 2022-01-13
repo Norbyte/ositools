@@ -107,22 +107,22 @@ namespace dse::lua
 
 		if (!s.IsWriting) {
 			v.TotalFrequency = 0;
-			v.CategoryFrequencies.Reallocate(v.Categories.Size);
-			for (uint32_t i = 0; i < v.Categories.Size; i++) {
+			v.CategoryFrequencies.reallocate(v.Categories.size());
+			for (uint32_t i = 0; i < v.Categories.size(); i++) {
 				v.CategoryFrequencies[i] = v.Categories[i]->Frequency;
 				v.TotalFrequency += v.Categories[i]->Frequency;
 			}
 
 			// Allow negative TotalCount if there are no DropCounts, since a negative value indicates a "guaranteed" drop
-			if (v.DropCounts.Size > 0 || v.TotalCount > 0) {
+			if (v.DropCounts.size() > 0 || v.TotalCount > 0) {
 				v.TotalCount = 0;
-				for (uint32_t i = 0; i < v.DropCounts.Size; i++) {
+				for (uint32_t i = 0; i < v.DropCounts.size(); i++) {
 					v.TotalCount += v.DropCounts[i].Amount;
 				}
 			}
 
-			v.Amounts.Reallocate(v.DropCounts.Size);
-			for (uint32_t i = 0; i < v.DropCounts.Size; i++) {
+			v.Amounts.reallocate(v.DropCounts.size());
+			for (uint32_t i = 0; i < v.DropCounts.size(); i++) {
 				v.Amounts[i] = v.DropCounts[i].Amount;
 			}
 		}
@@ -667,7 +667,7 @@ namespace dse::lua
 		if (s.IsWriting) {
 			lua_newtable(s.L);
 			int index = 1;
-			for (uint32_t i = 0; i < v.BoostIndices.Size; i++) {
+			for (uint32_t i = 0; i < v.BoostIndices.size(); i++) {
 				auto boost = stats->Objects.Find(v.BoostIndices[i]);
 				if (boost != nullptr) {
 					push(s.L, index++);
@@ -679,8 +679,8 @@ namespace dse::lua
 			}
 			lua_setfield(s.L, -2, "Boosts");
 		} else {
-			v.BoostCounts.Clear();
-			v.BoostIndices.Clear();
+			v.BoostCounts.clear();
+			v.BoostIndices.clear();
 			lua_getfield(s.L, 1, "Boosts");
 
 			luaL_checktype(s.L, -1, LUA_TTABLE);
@@ -692,8 +692,8 @@ namespace dse::lua
 
 				auto object = stats->Objects.FindIndex(boost);
 				if (object) {
-					v.BoostIndices.Add(*object);
-					v.BoostCounts.Add(count);
+					v.BoostIndices.push_back(*object);
+					v.BoostCounts.push_back(count);
 				} else {
 					OsiError("DeltaMod references nonexistent boost '" << boost << "'");
 				}

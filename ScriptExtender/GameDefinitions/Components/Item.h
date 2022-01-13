@@ -11,7 +11,7 @@ namespace dse
 
 	namespace eoc
 	{
-		struct ItemDefinition : public Noncopyable<ItemDefinition>
+		struct ItemDefinition
 		{
 			uint32_t Version{ 0x36060000 };
 			NetId NetID{ -1 };

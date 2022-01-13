@@ -387,7 +387,7 @@ namespace dse::lua
 		GetSkillDamageEventParams params{ skill, attacker, isFromItem, stealthed, attackerPosition, targetPosition,
 			level, noRandomization };
 		ThrowEvent(*this, "GetSkillDamage", params, false, RestrictOsiris);
-		if (params.DeathType && params.DamageList.Size > 0) {
+		if (params.DeathType && params.DamageList.size() > 0) {
 			for (auto const& dmg : params.DamageList) {
 				damageList->AddDamage(dmg.DamageType, dmg.Amount);
 			}

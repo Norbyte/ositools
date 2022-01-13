@@ -312,11 +312,11 @@ namespace dse::esv
 
 		delete eventArgs;
 
-		if (statusHit->Hit.DamageList.Size == 0) {
+		if (statusHit->Hit.DamageList.size() == 0) {
 			stats::TDamagePair dummy;
 			dummy.Amount = 0;
 			dummy.DamageType = stats::DamageType::Physical;
-			statusHit->Hit.DamageList.Add(dummy);
+			statusHit->Hit.DamageList.push_back(dummy);
 		}
 	}
 

@@ -11,7 +11,7 @@ void CollectInventoryItemGuids(ObjectSet<FixedString>& guids, ComponentHandle in
 			if (itemHandle) {
 				auto item = esv::GetEntityWorld()->GetItem(itemHandle);
 				if (item != nullptr) {
-					guids.Add(item->MyGuid);
+					guids.push_back(item->MyGuid);
 				}
 			}
 		}
@@ -27,7 +27,7 @@ void CollectInventoryItems(ObjectSet<Item*>& items, ComponentHandle inventoryHan
 			if (itemHandle) {
 				auto item = esv::GetEntityWorld()->GetItem(itemHandle);
 				if (item != nullptr) {
-					items.Add(item);
+					items.push_back(item);
 				}
 			}
 		}
@@ -59,7 +59,7 @@ ObjectSet<FixedString> Character::GetNearbyCharacters(float distance)
 
 	ObjectSet<FixedString> characterGuids;
 	for (auto const& ch : characters) {
-		characterGuids.Add(ch->MyGuid);
+		characterGuids.push_back(ch->MyGuid);
 	}
 
 	return characterGuids;
@@ -72,7 +72,7 @@ ObjectSet<FixedString> Character::GetSummonGuids()
 	for (auto const& handle : SummonHandles) {
 		auto summon = esv::GetEntityWorld()->GetCharacter(handle);
 		if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
-			summons.Add(summon->MyGuid);
+			summons.push_back(summon->MyGuid);
 		}
 	}
 
@@ -86,7 +86,7 @@ ObjectSet<Character*> Character::GetSummons()
 	for (auto const& handle : SummonHandles) {
 		auto summon = esv::GetEntityWorld()->GetCharacter(handle);
 		if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
-			summons.Add(summon);
+			summons.push_back(summon);
 		}
 	}
 
@@ -99,7 +99,7 @@ ObjectSet<FixedString> Character::GetSkillIds()
 
 	if (SkillManager != nullptr) {
 		for (auto const& skill : SkillManager->Skills) {
-			skillIds.Add(skill.Key);
+			skillIds.push_back(skill.Key);
 		}
 	}
 

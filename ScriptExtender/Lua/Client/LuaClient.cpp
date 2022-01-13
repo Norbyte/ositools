@@ -105,13 +105,13 @@ void VisualSystem::Update()
 		GetStaticSymbols().GetResourceManager()->DestroyVisual(handle);
 	}
 
-	pendingVisualDeletes_.Clear();
+	pendingVisualDeletes_.clear();
 }
 
 
 void VisualSystem::RequestDeleteVisual(ComponentHandle handle)
 {
-	pendingVisualDeletes_.Add(handle);
+	pendingVisualDeletes_.push_back(handle);
 }
 
 END_NS()

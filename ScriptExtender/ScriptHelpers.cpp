@@ -194,10 +194,9 @@ bool CreateItemDefinition(char const* templateGuid, ObjectSet<eoc::ItemDefinitio
 		return false;
 	}
 
-	definition.RawReallocate(1);
-	definition.Size = 1;
+	definition.resize(1);
 
-	eoc::ItemDefinition& item = definition.Buf[0];
+	eoc::ItemDefinition& item = definition[0];
 	new (&item) eoc::ItemDefinition();
 	item.UUID = GFS.strEmpty;
 	item.RootTemplate = templateGuidFs;
@@ -221,11 +220,11 @@ bool ParseItem(esv::Item* item, ObjectSet<eoc::ItemDefinition>& definition, bool
 		return false;
 	}
 
-	definition.Clear();
+	definition.clear();
 	parseItem(item, &definition, false, false);
 
-	if (!definition.Size || (!recursive && definition.Size != 1)) {
-		OsiError("Something went wrong during item parsing. Item set size: " << definition.Size);
+	if (!definition.size() || (!recursive && definition.size() != 1)) {
+		OsiError("Something went wrong during item parsing. Item set size: " << definition.size());
 		return false;
 	}
 

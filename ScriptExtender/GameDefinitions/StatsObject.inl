@@ -121,7 +121,7 @@ std::optional<ObjectSet<FixedString>> Object::GetFlags(ModifierInfo const& modif
 
 	for (auto const& kv : modifier.ValueList->Values) {
 		if (*flags & (1ull << (kv.Value - 1))) {
-			flagSet.Add(kv.Key);
+			flagSet.push_back(kv.Key);
 		}
 	}
 
@@ -332,23 +332,23 @@ void Object::FromProtobuf(MsgS2CSyncStat const& msg)
 
 	AIFlags = FixedString(msg.ai_flags().c_str());
 
-	Requirements.Clear();
+	Requirements.clear();
 	for (auto const& reqmt : msg.requirements()) {
 		Requirement requirement;
 		requirement.FromProtobuf(reqmt);
-		Requirements.Add(requirement);
+		Requirements.push_back(requirement);
 	}
 
-	MemorizationRequirements.Clear();
+	MemorizationRequirements.clear();
 	for (auto const& reqmt : msg.memorization_requirements()) {
 		Requirement requirement;
 		requirement.FromProtobuf(reqmt);
-		MemorizationRequirements.Add(requirement);
+		MemorizationRequirements.push_back(requirement);
 	}
 
-	ComboCategories.Clear();
+	ComboCategories.clear();
 	for (auto const& category : msg.combo_categories()) {
-		ComboCategories.Add(FixedString(category.c_str()));
+		ComboCategories.push_back(FixedString(category.c_str()));
 	}
 
 	PropertyLists.Clear();
@@ -541,7 +541,7 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 		AIFlags = get<FixedString>(L, valueIdx);
 		return true;
 	} else if (attribute == GFS.strComboCategory) {
-		ComboCategories.Clear();
+		ComboCategories.clear();
 		if (lua_type(L, valueIdx) != LUA_TTABLE) {
 			OsiError("Must pass a table when setting ComboCategory");
 			return false;
@@ -549,7 +549,7 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 
 		for (auto category : iterate(L, valueIdx)) {
 			auto categoryName = get<FixedString>(L, category);
-			ComboCategories.Add(categoryName);
+			ComboCategories.push_back(categoryName);
 		}
 
 		return true;

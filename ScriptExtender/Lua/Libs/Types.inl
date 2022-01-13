@@ -64,7 +64,7 @@ ObjectSet<FixedString> GetAllTypes()
 	ObjectSet<FixedString> types;
 	auto const& allTypes = TypeInformationRepository::GetInstance().GetAllTypes();
 	for (auto const& type : allTypes) {
-		types.Add(type.Key);
+		types.push_back(type.Key);
 	}
 
 	return types;

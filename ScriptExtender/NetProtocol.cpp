@@ -14,7 +14,7 @@ namespace net
 		auto getMsg = GetStaticSymbols().net__MessageFactory__GetFreeMessage;
 		if (getMsg == nullptr) return nullptr;
 
-		if (NetMessageFactory->MessagePools.Size > (unsigned)messageId) {
+		if (NetMessageFactory->MessagePools.size() > (unsigned)messageId) {
 			return getMsg(NetMessageFactory, messageId);
 		} else {
 			ERR("GetFreeMessage(): Message factory not registered for this message type?");
@@ -24,9 +24,9 @@ namespace net
 
 	void MessageFactory::ReservePools(uint32_t minPools)
 	{
-		if (MessagePools.Capacity >= minPools) return;
+		if (MessagePools.capacity() >= minPools) return;
 
-		MessagePools.Reallocate(minPools);
+		MessagePools.reallocate(minPools);
 	}
 }
 

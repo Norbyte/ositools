@@ -15,7 +15,7 @@ void HitDamageInfo::ClearDamage()
 {
 	TotalDamageDone = 0;
 	ArmorAbsorption = 0;
-	DamageList.Clear();
+	DamageList.clear();
 }
 
 void HitDamageInfo::ClearDamage(stats::DamageType damageType)
@@ -47,15 +47,15 @@ void HitDamageInfo::CopyFrom(HitDamageInfo const& src)
 	LifeSteal = src.LifeSteal;
 	EffectFlags = src.EffectFlags;
 	HitWithWeapon = src.HitWithWeapon;
-	DamageList.CopyFrom(src.DamageList);
+	DamageList = src.DamageList;
 }
 
 
 void DamagePairList::ClearDamage(stats::DamageType damageType)
 {
-	for (uint32_t i = 0; i < Size; i++) {
-		if (Buf[i].DamageType == damageType) {
-			Remove(i);
+	for (uint32_t i = 0; i < size(); i++) {
+		if ((*this)[i].DamageType == damageType) {
+			remove(i);
 			i--;
 		}
 	}
@@ -66,13 +66,13 @@ void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 	if (amount == 0) return;
 
 	bool added{ false };
-	for (uint32_t i = 0; i < Size; i++) {
-		if (Buf[i].DamageType == damageType) {
-			auto newAmount = Buf[i].Amount + amount;
+	for (uint32_t i = 0; i < size(); i++) {
+		if ((*this)[i].DamageType == damageType) {
+			auto newAmount = (*this)[i].Amount + amount;
 			if (newAmount == 0) {
-				Remove(i);
+				remove(i);
 			} else {
-				Buf[i].Amount = newAmount;
+				(*this)[i].Amount = newAmount;
 			}
 
 			added = true;
@@ -84,7 +84,7 @@ void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 		TDamagePair dmg;
 		dmg.DamageType = damageType;
 		dmg.Amount = amount;
-		Add(dmg);
+		push_back(dmg);
 	}
 }
 
@@ -106,7 +106,7 @@ void DamagePairList::ClearAll(std::optional<DamageType> damageType)
 	if (damageType) {
 		ClearDamage(*damageType);
 	} else {
-		Clear();
+		clear();
 	}
 }
 
@@ -133,19 +133,19 @@ void DamagePairList::ConvertDamageType(DamageType newType)
 		totalDamage += dmg.Amount;
 	}
 
-	Clear();
+	clear();
 	AddDamage(newType, totalDamage);
 }
 
 void DamagePairList::AggregateSameTypeDamages()
 {
-	for (uint32_t i = Size; i > 0; i--) {
+	for (uint32_t i = size(); i > 0; i--) {
 		auto & src = (*this)[i - 1];
 		for (uint32_t j = i - 1; j > 0; j--) {
 			auto & dest = (*this)[j - 1];
 			if (src.DamageType == dest.DamageType) {
 				dest.Amount += src.Amount;
-				Remove(i - 1);
+				remove(i - 1);
 				break;
 			}
 		}
@@ -156,7 +156,7 @@ UserReturn DamagePairList::LuaToTable(lua_State* L)
 {
 	lua_newtable(L); // Stack: tab
 
-	for (uint32_t i = 0; i < Size; i++) {
+	for (uint32_t i = 0; i < size(); i++) {
 		auto const & item = (*this)[i];
 
 		lua::push(L, i + 1); // Stack: tab, index
@@ -173,10 +173,7 @@ UserReturn DamagePairList::LuaToTable(lua_State* L)
 void DamagePairList::LuaCopyFrom(lua_State* L)
 {
 	auto other = ObjectProxy2::CheckedGet<DamagePairList>(L, 2);
-	Clear();
-	for (auto const& damage : *other) {
-		Add(damage);
-	}
+	*this = *other;
 }
 
 void SkillPrototypeManager::SyncSkillStat(Object* object, SkillPrototype* proto)
@@ -243,7 +240,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		SyncSkillStat(object, proto);
 
 		Prototypes.Insert(proto->SkillId, proto);
-		PrototypeNames.Add(proto->SkillId);
+		PrototypeNames.push_back(proto->SkillId);
 
 		auto lv1Proto = GameAlloc<SkillPrototype>();
 		*lv1Proto = *proto;
@@ -253,11 +250,11 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		lv1Proto->SkillId = FixedString(lv1Name.c_str());
 		lv1Proto->Level = -1;
 
-		proto->ChildPrototypes.Add(lv1Proto);
+		proto->ChildPrototypes.push_back(lv1Proto);
 		lv1Proto->RootSkillPrototype = proto;
 
 		Prototypes.Insert(lv1Proto->SkillId, lv1Proto);
-		PrototypeNames.Add(lv1Proto->SkillId);
+		PrototypeNames.push_back(lv1Proto->SkillId);
 	} else {
 		SyncSkillStat(object, *pProto);
 
@@ -302,7 +299,7 @@ void StatusPrototypeManager::SyncStatusStat(Object* object)
 		proto->HasStats = false;
 
 		Prototypes.Insert(proto->StatusName, proto);
-		PrototypeNames.Add(proto->StatusName);
+		PrototypeNames.push_back(proto->StatusName);
 	} else {
 		proto = *pProto;
 	}
@@ -496,7 +493,7 @@ void PropertyData::FromProtobuf(StatProperty const& msg)
 		p.Arg5 = msg.int_params()[1];
 		p.SurfaceBoost = msg.bool_params()[0];
 		for (auto boost : msg.surface_boosts()) {
-			p.SurfaceBoosts.Add((SurfaceType)boost);
+			p.SurfaceBoosts.push_back((SurfaceType)boost);
 		}
 		break;
 	}
@@ -692,7 +689,7 @@ void CRPGStatsVMTMappings::MapVMTs()
 	if (VMTsMapped) return;
 	auto stats = GetStaticSymbols().GetStats();
 
-	if (stats->Objects.Primitives.Size > 0) {
+	if (stats->Objects.Primitives.size() > 0) {
 		ObjectVMT = stats->Objects.Primitives[0]->VMT;
 	}
 
@@ -756,13 +753,13 @@ std::optional<Object*> RPGStats::CreateObject(FixedString const& name, int32_t m
 	object = GameAlloc<Object>();
 	object->VMT = gCRPGStatsVMTMappings.ObjectVMT;
 	object->ModifierListIndex = modifierListIndex;
-	object->IndexedProperties.resize(modifier->Attributes.Primitives.Size, 0);
+	object->IndexedProperties.resize(modifier->Attributes.Primitives.size(), 0);
 	object->DivStats = DivinityStats;
 	object->Name = name;
 	object->PropertyLists.ResizeHashtable(3);
 	object->Conditions.ResizeHashtable(3);
 
-	object->Handle = Objects.Primitives.Size;
+	object->Handle = Objects.Primitives.size();
 	Objects.Add(name, object);
 
 	return object;
@@ -826,8 +823,8 @@ std::optional<FixedString*> RPGStats::GetFixedString(int stringId)
 FixedString* RPGStats::GetOrCreateFixedString(int& stringId)
 {
 	if (stringId <= 0) {
-		stringId = (int)FixedStrings.Size;
-		FixedStrings.Add(FixedString{});
+		stringId = (int)FixedStrings.size();
+		FixedStrings.push_back(FixedString{});
 	}
 
 	return &FixedStrings[stringId];
@@ -862,10 +859,10 @@ std::optional<uint64_t*> RPGStats::GetFlags(int flagsId)
 uint64_t* RPGStats::GetOrCreateFlags(int& flagsId)
 {
 	if (flagsId <= 0) {
-		flagsId = (int)Flags.Size;
+		flagsId = (int)Flags.size();
 		auto flags = GameAlloc<uint64_t>();
 		*flags = 0;
-		Flags.Add(flags);
+		Flags.push_back(flags);
 	}
 
 	return Flags[flagsId];
@@ -1011,14 +1008,14 @@ int RPGStats::GetOrCreateFixedString(const char * value)
 	if (!fs) return -1;
 
 	auto & strings = FixedStrings;
-	for (uint32_t i = 0; i < strings.Size; i++) {
+	for (uint32_t i = 0; i < strings.size(); i++) {
 		if (strings[i] == fs) {
 			return i;
 		}
 	}
 
-	strings.Add(fs);
-	return strings.Size - 1;
+	strings.push_back(fs);
+	return strings.size() - 1;
 }
 
 std::optional<StatAttributeFlags> RPGStats::StringToAttributeFlags(const char * value)
