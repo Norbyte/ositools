@@ -18,6 +18,7 @@
 #include <GameDefinitions/Sound.h>
 #include <GameDefinitions/Resource.h>
 #include <GameDefinitions/GameObjects/Effect.h>
+#include <GameDefinitions/GameObjects/CharacterCreation.h>
 
 namespace dse
 {
@@ -237,6 +238,8 @@ namespace dse
 		void* esv__OsirisVariableHelper__SavegameVisit{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 		stats::ScriptCheckBlock__Build ls__ScriptCheckBlock__Build{ nullptr };
+
+		character_creation::CharacterCreationManager** eoc__CharacterCreationManager{ nullptr };
 
 		ecl::LevelManager ** ecl__LevelManager{ nullptr };
 		ecl::InventoryFactory ** ecl__InventoryFactory{ nullptr };

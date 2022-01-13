@@ -193,6 +193,8 @@ namespace dse
 		SYM_OFF(ModManager__CollectAvailableMods);
 		SYM_OFF(ls__ScriptCheckBlock__Build);
 
+		SYM_OFF(eoc__CharacterCreationManager);
+
 		SYM_OFF(ecl__LevelManager);
 		SYM_OFF(ecl__InventoryFactory);
 

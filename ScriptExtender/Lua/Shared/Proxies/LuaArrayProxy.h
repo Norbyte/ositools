@@ -93,7 +93,7 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->size();
+		return (unsigned)object_->size();
 	}
 
 	int Next(lua_State* L, int key) override

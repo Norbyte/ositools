@@ -13,9 +13,6 @@
     <Filter Include="GameDefinitions\PropertyMaps">
       <UniqueIdentifier>{58303a22-70e8-47b3-be97-cc36f6ae97c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameDefinitions\Stats">
-      <UniqueIdentifier>{b823d222-d676-4b89-9fa7-f783713ed277}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameHooks">
       <UniqueIdentifier>{04a051c9-926d-46ee-9860-ff290fc751a4}</UniqueIdentifier>
     </Filter>
@@ -378,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="GameDefinitions\Base\BaseMap.h">
       <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\CharacterCreation.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -780,6 +780,9 @@
     </None>
     <None Include="LuaScripts\ServerStartup.lua">
       <Filter>LuaScripts</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

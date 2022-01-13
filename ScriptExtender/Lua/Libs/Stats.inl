@@ -170,6 +170,11 @@ BEGIN_NS(lua::stats)
 
 using namespace dse::stats;
 
+character_creation::CharacterCreationManager* GetCharacterCreation()
+{
+	return *GetStaticSymbols().eoc__CharacterCreationManager;
+}
+
 ObjectSet<FixedString> FetchSkillSetEntries(RPGStats * stats)
 {
 	ObjectSet<FixedString> names;
@@ -1034,6 +1039,7 @@ void RegisterStatsLib(lua_State* L)
 	StatsExtraDataProxy::RegisterMetatable(L);
 
 	static const luaL_Reg lib[] = {
+		{"GetCharacterCreation", LuaWrapFunction(&GetCharacterCreation)},
 		{"GetStats", LuaWrapFunction(&GetStats)},
 		{"GetStatsLoadedBefore", LuaWrapFunction(&GetStatsLoadedBefore)},
 		{"Get", LuaWrapFunction(&GetStat)},

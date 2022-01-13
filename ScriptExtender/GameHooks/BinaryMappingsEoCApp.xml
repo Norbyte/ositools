@@ -1180,5 +1180,15 @@
       <Condition Type="String" Offset="@str" Value="setMcSize" />
       <Target Type="Indirect" Offset="@func" Symbol="ls__UIObject__GetUIScaleMultiplier" />
     </Mapping>
+
+    <Mapping Name="eoc::CharacterCreationManager">
+      4C 8D B0 08 03 00 00 // lea     r14, [rax+308h]
+      48 89 5C 24 30  // mov     [rsp+28h+arg_0], rbx
+      48 8B 07  // mov     rax, [rdi]
+      @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_MALE
+      @ref 48 8B 1D ?? ?? ?? ??  // mov     rbx, cs:eoc__gCharacterCreationManager
+      <Condition Type="FixedString" Offset="@str" Value="MALE" />
+      <Target Type="Indirect" Offset="@ref" Symbol="eoc__CharacterCreationManager" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

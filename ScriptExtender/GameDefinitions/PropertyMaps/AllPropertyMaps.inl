@@ -12,6 +12,7 @@
 #include <GameDefinitions/PropertyMaps/Render.inl>
 #include <GameDefinitions/PropertyMaps/Material.inl>
 #include <GameDefinitions/PropertyMaps/Effect.inl>
+#include <GameDefinitions/PropertyMaps/CharacterCreation.inl>
 
 
 BEGIN_CLS(TypeInformation)

@@ -71,6 +71,9 @@ function Generator:Build()
 end
 
 function Generator:MakeTypeName(type)
+    type = string.gsub(type, "_%a", function (ns)
+        return string.upper(string.sub(ns, 2))
+    end)
     type = string.gsub(type, "%a+::", function (ns)
         return string.upper(string.sub(ns, 1, 1)) .. string.sub(ns, 2, -3)
     end)
