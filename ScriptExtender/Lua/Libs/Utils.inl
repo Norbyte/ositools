@@ -180,6 +180,11 @@ void ShowErrorAndExitGame(STDWString message)
 	gExtender->GetLibraryManager().ShowStartupError(message, true);
 }
 
+GlobalSwitches* GetGlobalSwitches()
+{
+	return GetStaticSymbols().GetGlobalSwitches();
+}
+
 void RegisterUtilsLib(lua_State* L)
 {
 	static const luaL_Reg lib[] = {
@@ -196,6 +201,7 @@ void RegisterUtilsLib(lua_State* L)
 		{"Random", LuaWrapFunction(&Random)},
 		{"Round", LuaWrapFunction(&Round)},
 		{"ShowErrorAndExitGame", LuaWrapFunction(&ShowErrorAndExitGame)},
+		{"GetGlobalSwitches", LuaWrapFunction(&GetGlobalSwitches)},
 		{0,0}
 	};
 
