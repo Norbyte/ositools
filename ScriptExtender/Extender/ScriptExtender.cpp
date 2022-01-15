@@ -236,6 +236,12 @@ void ScriptExtender::OnStatsLoadStarted(stats::RPGStats* mgr)
 void ScriptExtender::OnStatsLoadFinished(stats::RPGStats* mgr)
 {
 	statLoadOrderHelper_.OnLoadFinished();
+	if (client_.IsInClientThread()) {
+		client_.LoadExtensionState();
+	} else if (server_.IsInServerThread()) {
+		server_.LoadExtensionState();
+	}
+
 	auto state = GetCurrentExtensionState();
 	if (state) {
 		state->OnStatsLoaded();
