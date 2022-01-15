@@ -109,10 +109,10 @@ namespace dse
 			static CustomStatDefinitionComponent* FindStatDefinitionByName(char const* name);
 			static CustomStatDefinitionComponent* FindStatDefinitionById(char const* id);
 
-			static void SyncCharacterStats(ComponentHandle entityHandle, eoc::CustomStatsComponent* stats,
+			static void SyncCharacterStats(EntityHandle entityHandle, eoc::CustomStatsComponent* stats,
 				FixedString statKey, int statValue);
-			static std::optional<int> GetCharacterStat(ComponentHandle entityHandle, char const* statId);
-			static bool SetCharacterStat(ComponentHandle entityHandle, char const* statId, int value);
+			static std::optional<int> GetCharacterStat(EntityHandle entityHandle, char const* statId);
+			static bool SetCharacterStat(EntityHandle entityHandle, char const* statId, int value);
 
 		private:
 			static void ProcessMessage(net::Message* msg);
@@ -125,7 +125,7 @@ namespace dse
 		class CustomStatHelpers
 		{
 		public:
-			static std::optional<int> GetCharacterStat(ComponentHandle entityHandle, FixedString const& statId);
+			static std::optional<int> GetCharacterStat(EntityHandle entityHandle, FixedString const& statId);
 		};
 	}
 }

@@ -1,5 +1,6 @@
 BEGIN_CLS(BaseComponent)
-P_RO(EntityObjectHandle)
+// FIXME - entity handles not supported yet!
+// P_RO(Handle)
 END_CLS()
 
 

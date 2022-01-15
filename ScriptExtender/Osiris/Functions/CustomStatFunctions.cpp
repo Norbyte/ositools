@@ -94,7 +94,7 @@ namespace dse::esv
 		processMsg(nullptr, nullptr, &dummy1, msg);
 	}
 
-	void CustomStatHelpers::SyncCharacterStats(ComponentHandle entityHandle, eoc::CustomStatsComponent * stats,
+	void CustomStatHelpers::SyncCharacterStats(EntityHandle entityHandle, eoc::CustomStatsComponent * stats,
 		FixedString statKey, int statValue)
 	{
 		eocnet::CustomStatsSyncMessage statSyncMsg;
@@ -137,7 +137,7 @@ namespace dse::esv
 		ProcessMessage(&msg);
 	}
 
-	std::optional<int> CustomStatHelpers::GetCharacterStat(ComponentHandle entityHandle, char const* statId)
+	std::optional<int> CustomStatHelpers::GetCharacterStat(EntityHandle entityHandle, char const* statId)
 	{
 		if (!entityHandle) return {};
 
@@ -160,7 +160,7 @@ namespace dse::esv
 		}
 	}
 
-	bool CustomStatHelpers::SetCharacterStat(ComponentHandle entityHandle, char const* statId, int value)
+	bool CustomStatHelpers::SetCharacterStat(EntityHandle entityHandle, char const* statId, int value)
 	{
 		if (!entityHandle) return false;
 
@@ -169,7 +169,6 @@ namespace dse::esv
 
 		auto entityWorld = GetEntityWorld();
 		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
-		if (statsComponent == nullptr) return false;
 
 		SyncCharacterStats(entityHandle, statsComponent, statDefn->Id, value);
 		return true;
@@ -185,7 +184,7 @@ namespace dse::esv
 
 			if (character == nullptr) return false;
 
-			auto value = CustomStatHelpers::GetCharacterStat(character->Base.EntityObjectHandle, statId);
+			auto value = CustomStatHelpers::GetCharacterStat(character->Base.Handle, statId);
 			if (value) {
 				statValue.Set(*value);
 				return true;
@@ -202,7 +201,7 @@ namespace dse::esv
 
 			if (character == nullptr) return;
 
-			CustomStatHelpers::SetCharacterStat(character->Base.EntityObjectHandle, statId, statValue);
+			CustomStatHelpers::SetCharacterStat(character->Base.Handle, statId, statValue);
 		}
 
 		bool CreateCustomStat(OsiArgumentDesc & args)
@@ -291,7 +290,7 @@ namespace dse::esv
 
 BEGIN_NS(ecl)
 
-std::optional<int> CustomStatHelpers::GetCharacterStat(ComponentHandle entityHandle, FixedString const& statId)
+std::optional<int> CustomStatHelpers::GetCharacterStat(EntityHandle entityHandle, FixedString const& statId)
 {
 	if (!entityHandle) return {};
 

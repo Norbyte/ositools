@@ -55,7 +55,7 @@ std::optional<FixedString> Character::GetItemGuidBySlot(stats::ItemSlot32 slot)
 
 std::optional<int> Character::GetCustomStatValue(FixedString const& statId)
 {
-	return CustomStatHelpers::GetCharacterStat(Base.EntityObjectHandle, statId);
+	return CustomStatHelpers::GetCharacterStat(Base.Handle, statId);
 }
 
 END_NS()

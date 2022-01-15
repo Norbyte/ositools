@@ -120,12 +120,12 @@ Skill* Character::GetSkillInfo(FixedString const& skillId)
 
 std::optional<int> Character::GetCustomStatValue(FixedString const& statId)
 {
-	return esv::CustomStatHelpers::GetCharacterStat(Base.EntityObjectHandle, statId.GetString());
+	return esv::CustomStatHelpers::GetCharacterStat(Base.Handle, statId.GetString());
 }
 
 bool Character::SetCustomStatValue(FixedString const& statId, int value)
 {
-	return esv::CustomStatHelpers::SetCharacterStat(Base.EntityObjectHandle, statId.GetString(), value);
+	return esv::CustomStatHelpers::SetCharacterStat(Base.Handle, statId.GetString(), value);
 }
 
 END_NS()

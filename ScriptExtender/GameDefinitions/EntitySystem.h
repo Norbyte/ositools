@@ -9,8 +9,7 @@ BEGIN_SE()
 struct BaseComponent
 {
 	void* VMT;
-	// FIXME - this is an EntityHandle
-	ComponentHandle EntityObjectHandle;
+	EntityHandle Handle;
 	ComponentHandleWithType Component;
 };
 
@@ -65,16 +64,16 @@ struct ComponentFactory : public TLocker
 	}
 };
 
-struct Component : public ProtectedGameObject<Component>
+struct IComponentPool : public ProtectedGameObject<IComponentPool>
 {
 	virtual void Destroy() = 0;
 	virtual void DestroyComponent() = 0;
 	virtual void CreateComponent() = 0;
 	virtual void ForceCreateComponent() = 0; // ForceComponentDefault
-	virtual void * FindComponentByHandle(ComponentHandle const * oh) = 0;
-	virtual void * TryFindComponentByHandle(ComponentHandle const* oh) = 0;
-	virtual void * FindComponentByGuid(FixedString const * fs) = 0;
-	virtual bool MoveComponentByGuid(FixedString const* fs, void* component) = 0;
+	virtual void * FindComponentByHandle(ComponentHandle const & oh) = 0;
+	virtual void * TryFindComponentByHandle(ComponentHandle const & oh) = 0;
+	virtual void * FindComponentByGuid(FixedString const & fs) = 0;
+	virtual bool MoveComponentByGuid(FixedString const & fs, void* component) = 0;
 	virtual void * FindComponentByNetId(NetId const & netId, bool checkSalt = true) = 0;
 	virtual void UNKN() = 0;
 	virtual void * GetComponentByIndex(uint64_t index) = 0;
@@ -118,16 +117,20 @@ struct NetworkComponentFactory : public ComponentFactory<TComponent>
 
 struct ComponentTypeEntry
 {
-	// todo
-	Component * component;
-	uint64_t dummy[31];
+	IComponentPool* Pool;
+	int64_t TypeId;
+	ObjectSet<uint64_t> DependencyComponentIds;
+	ObjectSet<uint64_t> RegisteredSystemIds;
+	ObjectSet<void*> Listeners;
+	bool field_70;
+	uint64_t field_78[17];
 };
 
 struct ComponentLayout
 {
 	struct LayoutEntry
 	{
-		uint64_t unkn1;
+		uint8_t Flags;
 		ComponentHandleWithType Handle;
 	};
 
@@ -146,7 +149,7 @@ struct EntityEntry
 {
 	static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
 
-	void * VMT;
+	ComponentHandle Handle;
 	ComponentLayout Layout;
 };
 	
@@ -181,172 +184,11 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 	uint64_t Unknown2[2];
 
 
-	void* GetComponent(uint32_t type, ObjectType handleType, ComponentHandle componentHandle, bool logError = true)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (!componentHandle) {
-			return nullptr;
-		}
-
-		if ((uint32_t)type >= Components.size()) {
-			if (logError) {
-				OsiError("Component type index " << (uint32_t)type << " too large!");
-			}
-			return nullptr;
-		}
-
-		auto componentMgr = Components[(uint32_t)type].component;
-		if (componentMgr == nullptr) {
-			if (logError) {
-				OsiError("Component type " << (uint32_t)type << " not bound!");
-			}
-			return nullptr;
-		}
-
-		if (componentHandle.GetType() != (uint32_t)handleType) {
-			if (logError) {
-				OsiError("Type mismatch! Factory supports " << (unsigned)handleType << ", got " << (unsigned)componentHandle.GetType());
-			}
-			return nullptr;
-		}
-
-		// FIXME - This is somewhat ugly :(
-		auto factory = reinterpret_cast<ComponentFactory<EntityEntry>*>((std::intptr_t)componentMgr + 8);
-		auto index = componentHandle.GetIndex();
-		auto salt = componentHandle.GetSalt();
-		if (index >= factory->Salts.size()) {
-			if (logError) {
-				OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.size()
-					<< " objects, requested " << (unsigned)index);
-			}
-			return nullptr;
-		}
-
-		if (salt != factory->Salts[index]) {
-			if (logError) {
-				OsiError("Salt mismatch for type " << (unsigned)handleType << ", object " << index << ": got "
-					<< salt << ", real is " << factory->Salts[index]);
-			}
-			return nullptr;
-		}
-
-		return componentMgr->FindComponentByHandle(&componentHandle);
-	}
-
-	void* GetComponent(uint32_t componentType, char const* nameGuid, bool logError = true)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (nameGuid == nullptr) {
-			OsiError("Attempted to look up component with null name!");
-			return nullptr;
-		}
-
-		auto fs = NameGuidToFixedString(nameGuid);
-		auto component = Components[(uint32_t)componentType].component->FindComponentByGuid(&fs);
-		if (component != nullptr) {
-			return component;
-		} else {
-			if (logError) {
-				OsiError("No " << ComponentTypeToName(componentType).Str << " component found with GUID '" << nameGuid << "'");
-			}
-			return nullptr;
-		}
-	}
-
-	void* GetComponent(uint32_t type, NetId netId, bool logError = true)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (!netId) {
-			return nullptr;
-		}
-
-		if ((uint32_t)type >= Components.size()) {
-			OsiError("Component type index " << (uint32_t)type << " too large!");
-			return nullptr;
-		}
-
-		auto componentMgr = Components[(uint32_t)type].component;
-		if (componentMgr == nullptr) {
-			OsiError("Component type " << (uint32_t)type << " not bound!");
-			return nullptr;
-		}
-
-		return componentMgr->FindComponentByNetId(netId, true);
-	}
-
-	void* GetComponentByEntityHandle(uint32_t type, ComponentHandle entityHandle, bool logError = true)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (entityHandle.GetType() != 0) {
-			OsiError("Entity handle has invalid type " << entityHandle.GetType());
-			return nullptr;
-		}
-
-		// FIXME - use EntityPool.Get()
-		auto index = entityHandle.GetIndex();
-		if (index >= EntityPool.Components.size()) {
-			if (logError) {
-				OsiError("Tried to fetch entity " << index << "; we only have " << EntityPool.Components.size() << "!");
-			}
-			return nullptr;
-		}
-
-		auto salt = entityHandle.GetSalt();
-		if (salt != EntityPool.Salts[index]) {
-			if (logError) {
-				OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntityPool.Salts[index]);
-			}
-			return nullptr;
-		}
-
-		auto entity = (EntityEntry*)EntityPool.ComponentsByHandleIndex[index];
-		if ((uint32_t)type >= entity->Layout.Entries.size()) {
-			if (logError) {
-				OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
-			}
-			return nullptr;
-		}
-
-		auto const& layoutEntry = entity->Layout.Entries[(uint32_t)type];
-		if (!layoutEntry.Handle.IsValid()) {
-			if (logError) {
-				OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
-			}
-			return nullptr;
-		}
-
-		ComponentHandle componentHandle{ layoutEntry.Handle.Handle };
-		auto componentMgr = Components[(uint32_t)type].component;
-		return componentMgr->FindComponentByHandle(&componentHandle);
-	}
-
-	FixedString ComponentTypeToName(uint32_t type)
-	{
-		return GFS.strEmpty;
-		// FIXME!
-		/*auto label = EnumInfo<TComponentType>::Find(type);
-		if (label) {
-			return label;
-		} else {
-			return GFS.strEmpty;
-		}*/
-	}
+	void* GetComponent(uint32_t type, ObjectType handleType, ComponentHandle componentHandle, bool logError = true);
+	void* GetComponent(uint32_t componentType, char const* nameGuid, bool logError = true);
+	void* GetComponent(uint32_t type, NetId netId, bool logError = true);
+	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true);
+	void* GetComponentByEntityHandle(uint32_t type, EntityHandle entityHandle, bool logError = true);
 };
 
 
@@ -553,7 +395,7 @@ namespace esv
 			}
 		}
 
-		inline Character* GetCharacterComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline Character* GetCharacterComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Character, entityHandle, logError);
 			if (ptr != nullptr) {
@@ -564,7 +406,7 @@ namespace esv
 			}
 		}
 
-		inline Item* GetItemComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline Item* GetItemComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Item, entityHandle, logError);
 			if (ptr != nullptr) {
@@ -575,17 +417,17 @@ namespace esv
 			}
 		}
 
-		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CombatComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Combat, entityHandle, logError);
 		}
 
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
 		}
 
-		inline NetComponent* GetNetComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline NetComponent* GetNetComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			return (NetComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Net, entityHandle, logError);
 		}
@@ -912,7 +754,7 @@ namespace ecl
 			}
 		}
 
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(ComponentHandle entityHandle, bool logError = true)
+		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
 			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
 		}

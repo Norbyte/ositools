@@ -182,6 +182,17 @@ struct ComponentHandleWithType
 	}
 };
 
+struct EntityHandleWithType
+{
+	int64_t TypeId;
+	EntityHandle Handle;
+
+	inline bool IsValid() const
+	{
+		return TypeId != -1 && !!Handle;
+	}
+};
+
 struct Pool
 {
 	int PoolSize;

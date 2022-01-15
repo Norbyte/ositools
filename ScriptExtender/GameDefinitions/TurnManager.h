@@ -98,7 +98,7 @@ namespace dse
 
 			struct EntityWrapper
 			{
-				ComponentHandle EntityHandle;
+				EntityHandle Handle;
 				eoc::CombatComponent *CombatComponentPtr;
 				Character * Character;
 				struct Item * Item;
@@ -106,17 +106,17 @@ namespace dse
 
 				esv::Character * GetCharacter() const
 				{
-					return GetEntityWorld()->GetCharacterComponentByEntityHandle(EntityHandle);
+					return GetEntityWorld()->GetCharacterComponentByEntityHandle(Handle);
 				}
 
 				esv::Item * GetItem() const
 				{
-					return GetEntityWorld()->GetItemComponentByEntityHandle(EntityHandle);
+					return GetEntityWorld()->GetItemComponentByEntityHandle(Handle);
 				}
 
 				eoc::CombatComponent * GetCombatComponent() const
 				{
-					return GetEntityWorld()->GetCombatComponentByEntityHandle(EntityHandle);
+					return GetEntityWorld()->GetCombatComponentByEntityHandle(Handle);
 				}
 			};
 
