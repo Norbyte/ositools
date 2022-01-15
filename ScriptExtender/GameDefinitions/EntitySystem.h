@@ -302,7 +302,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 		auto index = entityHandle.GetIndex();
 		if (index >= EntityPool.Components.size()) {
 			if (logError) {
-				OsiError("Entity index " << index << " too large!");
+				OsiError("Tried to fetch entity " << index << "; we only have " << EntityPool.Components.size() << "!");
 			}
 			return nullptr;
 		}

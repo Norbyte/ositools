@@ -169,6 +169,7 @@ namespace dse::esv
 
 		auto entityWorld = GetEntityWorld();
 		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
+		if (statsComponent == nullptr) return false;
 
 		SyncCharacterStats(entityHandle, statsComponent, statDefn->Id, value);
 		return true;
