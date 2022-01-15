@@ -149,6 +149,10 @@ Ext.EnableExperimentalPropertyWrites = function ()
 	Ext.PrintWarning("EnableExperimentalPropertyWrites() is no longer needed in v53!")
 end
 
+Ext.OnNextTick = function (fun)
+	Ext.Events.Tick.Subscribe(fun, {Once = true})
+end
+
 -- Backwards compatibility with old JSON APIs
 Ext.JsonStringify = CallDeprecated(Ext.Json.Stringify, "JsonStringify", "Json.Stringify")
 Ext.JsonParse = CallDeprecated(Ext.Json.Parse, "JsonParse", "Json.Parse")

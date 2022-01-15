@@ -22,6 +22,7 @@ function SubscribableEvent:Subscribe(handler, opts)
 		Handler = handler,
 		Index = index,
 		Priority = opts.Priority or 100,
+		Once = opts.Once or false,
 		Options = opts
 	}
 
@@ -105,7 +106,13 @@ function SubscribableEvent:Throw(event)
             Ext.PrintError("Error while dispatching event " .. self.Name .. ": ", result)
         end
 
-		cur = cur.Next
+		if cur.Once then
+			local last = cur
+			cur = last.Next
+			self:RemoveNode(last)
+		else
+			cur = cur.Next
+		end
 	end
 end
 
