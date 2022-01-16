@@ -55,7 +55,7 @@ namespace dse
         FixedString Id;
         STDString Name;
         FixedString RootTemplate;
-        uint32_t TemplateHandle;
+        TemplateHandle Handle;
         bool IsGlobal;
         bool IsDeleted;
         FixedString LevelName;

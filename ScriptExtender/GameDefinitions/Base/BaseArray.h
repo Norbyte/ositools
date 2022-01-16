@@ -190,6 +190,11 @@ public:
 		return size_;
 	}
 
+	bool empty() const
+	{
+		return size_ == 0;
+	}
+
 	inline T const& operator [] (size_type index) const
 	{
 		return buf_[index];
@@ -513,6 +518,11 @@ public:
 	size_type size() const
 	{
 		return size_;
+	}
+
+	bool empty() const
+	{
+		return size_ == 0;
 	}
 
 	size_type capacity() const

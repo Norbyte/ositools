@@ -74,15 +74,28 @@ GameObjectTemplate* GetTemplate(FixedString const& templateId)
 GameObjectTemplate* CacheTemplate(FixedString const& templateId)
 {
 	auto tmpl = GetTemplate(templateId);
-	if (!tmpl) return nullptr;
+	if (!tmpl) {
+		OsiError("Couldn't find template to cache: " << templateId);
+		return nullptr;
+	}
+
+	if (tmpl->Handle.Type() != TemplateType::RootTemplate) {
+		OsiError("Cannot cache template that is not global: " << templateId);
+		return nullptr;
+	}
+
 	auto baseCopy = tmpl->Clone();
 	baseCopy->Id = GenerateGuid();
+	baseCopy->RootTemplate = tmpl->Id;
 
 	auto cache = *GetStaticSymbols().esv__CacheTemplateManager;
 	auto cacheFunc = GetStaticSymbols().ls__CacheTemplateManagerBase__CacheTemplate;
 
 	auto cachedTmpl = cacheFunc(cache, baseCopy);
-	cache->NewTemplates.push_back(cachedTmpl);
+	if (cache->NewTemplates.empty()) {
+		OsiError("CacheTemplateManager did not add new template: " << cachedTmpl->Id);
+	}
+
 	return cachedTmpl;
 }
 
