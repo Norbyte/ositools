@@ -125,8 +125,8 @@ struct StatusConsumeBase : public Status
 {
 	struct StatsData
 	{
-		FixedString StatsId;
 		int32_t Turn;
+		FixedString StatsId;
 	};
 
 	ObjectSet<FixedString> Skill; // Saved
