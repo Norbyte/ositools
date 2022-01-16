@@ -1048,7 +1048,7 @@ void RegisterStatsLib(lua_State* L)
 		{"SetPersistence", LuaWrapFunction(&StatSetPersistence)},
 		{"GetAttribute", LuaWrapFunction(&StatGetAttribute)},
 		{"SetAttribute", LuaWrapFunction(&StatSetAttribute)},
-		{"AddCustomDescriptionWrapper", LuaWrapFunction(&StatAddCustomDescription)},
+		{"AddCustomDescription", LuaWrapFunction(&StatAddCustomDescription)},
 		{"SetLevelScaling", LuaWrapFunction(&StatSetLevelScaling)},
 		{"EnumIndexToLabel", LuaWrapFunction(&EnumIndexToLabel)},
 		{"EnumLabelToIndex", LuaWrapFunction(&EnumLabelToIndex)},
