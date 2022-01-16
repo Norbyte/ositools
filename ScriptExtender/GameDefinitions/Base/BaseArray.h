@@ -129,8 +129,7 @@ public:
 	~CompactSet()
 	{
 		if (buf_) {
-			clear();
-			FreeBuffer(buf_);
+			FreeBuffer(buf_, capacity_);
 		}
 	}
 
@@ -140,7 +139,7 @@ public:
 		reallocate(other.size_);
 		size_ = other.size_;
 		for (size_type i = 0; i < other.size_; i++) {
-			new (buf_ + i) T(other.buf_[i]);
+			buf_[i] = other.buf_[i];
 		}
 		return *this;
 	}
@@ -204,17 +203,15 @@ public:
 	void reallocate(size_type newCapacity)
 	{
 		auto oldBuf = buf_;
+		auto oldCapacity = capacity_;
 		RawReallocate(newCapacity);
 
-		for (size_type i = 0; i < std::min(size_, newCapacity); i++) {
-			new (buf_ + i) T(std::move(oldBuf[i]));
+		size_ = std::min(size_, newCapacity);
+		for (size_type i = 0; i < size_; i++) {
+			buf_[i] = oldBuf[i];
 		}
 
-		for (size_type i = std::min(size_, newCapacity); i < size_; i++) {
-			oldBuf[i].~T();
-		}
-
-		FreeBuffer(oldBuf);
+		FreeBuffer(oldBuf, oldCapacity);
 	}
 
 	void resize(size_type newSize)
@@ -223,20 +220,16 @@ public:
 			reallocate(newSize);
 		}
 
-		for (size_type i = size_; i < newSize; i++) {
-			new (buf_ + i) T();
-		}
-
 		size_ = newSize;
 	}
 
 	void remove(size_type index)
 	{
 		assert(index < size_);
-		buf_[index].~T();
+		buf_[index] = T();
 
 		for (auto i = index; i < size_ - 1; i++) {
-			buf_[i] = std::move(buf_[i + 1]);
+			buf_[i] = buf_[i + 1];
 		}
 
 		size_--;
@@ -244,10 +237,6 @@ public:
 
 	void clear()
 	{
-		for (size_type i = 0; i < size_; i++) {
-			buf_[i].~T();
-		}
-
 		size_ = 0;
 	}
 
@@ -256,14 +245,16 @@ protected:
 	size_type capacity_{ 0 };
 	size_type size_{ 0 };
 
-	void FreeBuffer(void* buf)
+	void FreeBuffer(T* buf, size_t oldCapacity)
 	{
-		if (StoreSize) {
-			if (buf != nullptr) {
-				Allocator::Free((void*)((std::ptrdiff_t)buf - 8));
+		if (buf != nullptr) {
+			for (size_t i = 0; i < oldCapacity; i++) {
+				buf[i].~T();
 			}
-		} else {
-			if (buf != nullptr) {
+
+			if (StoreSize) {
+				Allocator::Free((void*)((std::ptrdiff_t)buf - 8));
+			} else {
 				Allocator::Free(buf);
 			}
 		}
@@ -278,7 +269,11 @@ protected:
 
 				buf_ = (T*)((std::ptrdiff_t)newBuf + 8);
 			} else {
-				buf_ = Allocator::template New<T>(newCapacity);
+				buf_ = (T*)Allocator::Alloc(newCapacity * sizeof(T));
+			}
+
+			for (size_type i = 0; i < newCapacity; i++) {
+				new (buf_ + i) T();
 			}
 		} else {
 			buf_ = nullptr;
@@ -309,7 +304,7 @@ public:
 			this->reallocate(capacity_increment());
 		}
 
-		new (&this->buf_[this->size_++]) T(value);
+		this->buf_[this->size_++] = value;
 	}
 
 	void push_back(T && value)
@@ -318,7 +313,7 @@ public:
 			this->reallocate(capacity_increment());
 		}
 
-		new (&this->buf_[this->size_++]) T(std::move(value));
+		this->buf_[this->size_++] = std::move(value);
 	}
 
 	void insert(CompactSet<T, Allocator, StoreSize>::size_type index, T const& value)
@@ -328,11 +323,10 @@ public:
 		}
 
 		for (auto i = this->size_; i > index; i--) {
-			this->buf_[i] = std::move(this->buf_[i - 1]);
+			this->buf_[i] = this->buf_[i - 1];
 		}
 
-		this->buf_[index].~T();
-		new (this->buf_ + index) T(value);
+		this->buf_[index] = value;
 		this->size_++;
 	}
 
@@ -361,7 +355,7 @@ public:
 			this->reallocate(capacity_increment());
 		}
 
-		new (&this->buf_[this->Size++]) T(value);
+		this->buf_[this->size_++] = value;
 	}
 
 	void push_back(T && value)
@@ -370,7 +364,7 @@ public:
 			this->reallocate(capacity_increment());
 		}
 
-		new (&this->buf_[this->size_++]) T(std::move(value));
+		this->buf_[this->size_++] = std::move(value);
 	}
 };
 
@@ -461,8 +455,7 @@ public:
 	virtual ~Array()
 	{
 		if (buf_) {
-			clear();
-			GameFree(buf_);
+			GameDeleteArray<T>(buf_, capacity_);
 		}
 	}
 
@@ -540,21 +533,17 @@ public:
 	void reallocate(size_type newCapacity)
 	{
 		auto newBuf = GameAllocArray<T>(newCapacity);
+		size_ = std::min(size_, capacity_);
 		for (size_type i = 0; i < std::min(size_, newCapacity); i++) {
-			new (newBuf + i) T(std::move(buf_[i]));
-		}
-
-		for (size_type i = std::min(size_, newCapacity); i < size_; i++) {
-			buf_[i].~T();
+			newBuf[i] = buf_[i];
 		}
 
 		if (buf_ != nullptr) {
-			GameFree(buf_);
+			GameDeleteArray<T>(buf_, capacity_);
 		}
 
 		buf_ = newBuf;
 		capacity_ = newCapacity;
-		size_ = std::min(size_, capacity_);
 	}
 
 	void resize(size_type newSize)
@@ -563,20 +552,16 @@ public:
 			reallocate(newSize);
 		}
 
-		for (size_type i = size_; i < newSize; i++) {
-			new (buf_ + i) T();
-		}
-
 		size_ = newSize;
 	}
 
 	void remove(uint32_t index)
 	{
 		assert(index < size_);
-		buf_[index].~T();
+		buf_[index] = T();
 
 		for (auto i = index; i < size_ - 1; i++) {
-			buf_[i] = std::move(buf_[i + 1]);
+			buf_[i] = buf_[i + 1];
 		}
 
 		size_--;
@@ -584,10 +569,6 @@ public:
 
 	void clear()
 	{
-		for (size_type i = 0; i < size_; i++) {
-			buf_[i].~T();
-		}
-
 		size_ = 0;
 	}
 
@@ -597,7 +578,7 @@ public:
 			reallocate(capacity_increment());
 		}
 
-		new (&buf_[size_++]) T(value);
+		buf_[size_++] = value;
 	}
 
 	void push_back(T&& value)
@@ -606,7 +587,7 @@ public:
 			reallocate(capacity_increment());
 		}
 
-		new (&buf_[size_++]) T(std::move(value));
+		buf_[size_++] = std::move(value);
 	}
 
 	void insert(size_type index, T const& value)
@@ -616,11 +597,10 @@ public:
 		}
 
 		for (auto i = size_; i > index; i--) {
-			buf_[i] = std::move(buf_[i - 1]);
+			buf_[i] = buf_[i - 1];
 		}
 
-		buf_[index].~T();
-		new (buf_ + index) T(value);
+		buf_[index] = value;
 		size_++;
 	}
 
@@ -639,7 +619,7 @@ private:
 		reallocate(a.size_);
 		size_ = a.size_;
 		for (uint32_t i = 0; i < size_; i++) {
-			new (buf_ + i) T(a.buf_[i]);
+			buf_[i] = a.buf_[i];
 		}
 	}
 

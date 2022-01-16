@@ -38,10 +38,20 @@ template <class T, class ...Args>
 T * GameAllocArray(std::size_t n, Args&&... args)
 {
 	auto ptr = reinterpret_cast<T *>(GameAllocRaw(sizeof(T) * n));
-	for (auto i = 0; i < n; i++) {
+	for (std::size_t i = 0; i < n; i++) {
 		new (ptr + i) T(std::forward<Args>(args)...);
 	}
 	return ptr;
+}
+
+template <class T>
+void GameDeleteArray(T* ptr, std::size_t n)
+{
+	for (std::size_t i = 0; i < n; i++) {
+		ptr[i].~T();
+	}
+
+	GameFree(ptr);
 }
 
 template <class T>
