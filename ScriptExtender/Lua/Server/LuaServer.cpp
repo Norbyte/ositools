@@ -1656,7 +1656,7 @@ namespace dse::esv::lua
 		}
 
 		lua_pop(L, 1);
-		return {};
+		return result;
 	}
 
 
