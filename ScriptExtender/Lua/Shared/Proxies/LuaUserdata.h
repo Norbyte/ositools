@@ -17,6 +17,7 @@ class Lengthable {};
 class Iterable {};
 class Stringifiable {};
 class GarbageCollected {};
+class EqualityComparable {};
 
 template <class T>
 class Userdata
@@ -125,6 +126,25 @@ public:
 		}
 	}
 
+	static int EqualProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			auto self = CheckUserData(L, 1);
+			auto other = AsUserData(L, 2);
+			bool equal;
+			if (other == nullptr) {
+				equal = false;
+			} else {
+				equal = self->IsEqual(L, other);
+			}
+
+			push(L, equal);
+			return 1;
+		} else {
+			return luaL_error(L, "Not garbage collected!");
+		}
+	}
+
 	// Default __pairs implementation
 	int Pairs(lua_State* L)
 	{
@@ -192,6 +212,11 @@ public:
 		if constexpr (std::is_base_of_v<GarbageCollected, T>) {
 			lua_pushcfunction(L, &GCProxy);
 			lua_setfield(L, -2, "__gc");
+		}
+
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			lua_pushcfunction(L, &EqualProxy);
+			lua_setfield(L, -2, "__eq");
 		}
 
 		T::PopulateMetatable(L);

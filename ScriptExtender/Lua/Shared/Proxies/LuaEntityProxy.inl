@@ -277,6 +277,11 @@ int EntityProxy::ToString(lua_State* L)
 	return 1;
 }
 
+bool EntityProxy::IsEqual(lua_State* L, EntityProxy* other)
+{
+	return handle_ == other->handle_;
+}
+
 
 char const* const ComponentHandleProxy::MetatableName = "ComponentHandleProxy";
 
@@ -380,6 +385,11 @@ int ComponentHandleProxy::ToString(lua_State* L)
 
 	push(L, entityName);
 	return 1;
+}
+
+bool ComponentHandleProxy::IsEqual(lua_State* L, ComponentHandleProxy* other)
+{
+	return handle_ == other->handle_;
 }
 
 

@@ -86,4 +86,9 @@ int ArrayProxy::GC(lua_State* L)
 	return 0;
 }
 
+bool ArrayProxy::IsEqual(lua_State* L, ArrayProxy* other)
+{
+	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+}
+
 END_NS()

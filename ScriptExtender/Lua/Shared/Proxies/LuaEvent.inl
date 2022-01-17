@@ -97,4 +97,9 @@ int EventObject::GC(lua_State* L)
 	return 0;
 }
 
+bool EventObject::IsEqual(lua_State* L, EventObject* other)
+{
+	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+}
+
 END_NS()

@@ -12,7 +12,8 @@ END_SE()
 
 BEGIN_NS(lua)
 
-class EntityProxy : public Userdata<EntityProxy>, public Indexable, public Stringifiable
+class EntityProxy : public Userdata<EntityProxy>, public Indexable, public Stringifiable,
+	public EqualityComparable
 {
 public:
 	static char const* const MetatableName;
@@ -44,6 +45,7 @@ public:
 
 	int Index(lua_State* L);
 	int ToString(lua_State* L);
+	bool IsEqual(lua_State* L, EntityProxy* other);
 
 	inline EntityHandle const& Handle() const
 	{
@@ -61,7 +63,8 @@ private:
 };
 
 
-class ComponentHandleProxy : public Userdata<ComponentHandleProxy>, public Indexable, public Stringifiable
+class ComponentHandleProxy : public Userdata<ComponentHandleProxy>, public Indexable, public Stringifiable,
+	public EqualityComparable
 {
 public:
 	static char const* const MetatableName;
@@ -77,6 +80,7 @@ public:
 
 	int Index(lua_State* L);
 	int ToString(lua_State* L);
+	bool IsEqual(lua_State* L, ComponentHandleProxy* other);
 
 	inline ComponentHandle const& Handle() const
 	{

@@ -129,6 +129,11 @@ int ObjectProxy2::GC(lua_State* L)
 	return 0;
 }
 
+bool ObjectProxy2::IsEqual(lua_State* L, ObjectProxy2* other)
+{
+	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+}
+
 void* ObjectProxy2::CheckedGetRaw(lua_State* L, int index, FixedString const& typeName)
 {
 	auto proxy = Userdata<ObjectProxy2>::CheckUserData(L, index);

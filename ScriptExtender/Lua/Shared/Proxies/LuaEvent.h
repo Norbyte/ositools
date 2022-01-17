@@ -14,6 +14,7 @@ public:
 	virtual bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop) = 0;
 	virtual bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop, int index) = 0;
 	virtual int Next(lua_State* L, LifetimeHolder const& lifetime, FixedString const& key) = 0;
+	virtual void* GetRaw() = 0;
 };
 
 enum class WriteableEvent {};
@@ -55,13 +56,18 @@ public:
 		return ObjectProxyHelpers<TParams>::Next(L, &params_, lifetime, key);
 	}
 
+	void* GetRaw() override
+	{
+		return &params_;
+	}
+
 private:
 	TParams& params_;
 };
 
 
 class EventObject : private Userdata<EventObject>, public Indexable, public NewIndexable,
-	public Iterable, public Stringifiable, public GarbageCollected
+	public Iterable, public Stringifiable, public GarbageCollected, public EqualityComparable
 {
 public:
 	static char const* const MetatableName;
@@ -132,6 +138,7 @@ protected:
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
 	int GC(lua_State* L);
+	bool IsEqual(lua_State* L, EventObject* other);
 	static int StopPropagation(lua_State* L);
 };
 

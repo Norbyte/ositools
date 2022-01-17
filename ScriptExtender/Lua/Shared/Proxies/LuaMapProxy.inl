@@ -82,4 +82,9 @@ int MapProxy::GC(lua_State* L)
 	return 0;
 }
 
+bool MapProxy::IsEqual(lua_State* L, MapProxy* other)
+{
+	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+}
+
 END_NS()
