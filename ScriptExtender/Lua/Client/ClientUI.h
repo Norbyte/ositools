@@ -49,10 +49,10 @@ using namespace dse::lua;
 struct UIFlashPath
 {
 public:
-	std::vector<ig::IggyValuePath> paths_;
+	Vector<ig::IggyValuePath> paths_;
 
 	UIFlashPath();
-	UIFlashPath(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+	UIFlashPath(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 	ig::IggyValuePath* Last();
 };
 
@@ -61,7 +61,7 @@ class UIFlashObject : public Userdata<UIFlashObject>, public Indexable, public N
 public:
 	static char const* const MetatableName;
 
-	UIFlashObject(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+	UIFlashObject(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 	int Index(lua_State* L);
 	int NewIndex(lua_State* L);
 
@@ -75,7 +75,7 @@ class UIFlashArray : public Userdata<UIFlashArray>, public Indexable, public New
 public:
 	static char const* const MetatableName;
 
-	UIFlashArray(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+	UIFlashArray(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 	int Index(lua_State* L);
 	int NewIndex(lua_State* L);
 	int Length(lua_State* L);
@@ -90,7 +90,7 @@ class UIFlashFunction : public Userdata<UIFlashFunction>, public Callable
 public:
 	static char const* const MetatableName;
 
-	UIFlashFunction(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+	UIFlashFunction(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 	int LuaCall(lua_State* L);
 
 private:
@@ -108,7 +108,7 @@ struct CustomUI : public ecl::EoCUI
 	static UIObject* Creator(dse::Path* path);
 };
 
-int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+int PushFlashRef(lua_State* L, Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx);
 
 struct FlashPlayerHooks

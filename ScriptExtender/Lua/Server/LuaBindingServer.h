@@ -283,7 +283,7 @@ public:
 	void StoryFunctionMappingsUpdated();
 
 	template <class TArg>
-	void Call(char const* mod, char const* func, std::vector<TArg> const & args)
+	void Call(char const* mod, char const* func, Vector<TArg> const & args)
 	{
 		auto L = GetState();
 		LifetimePin _(GetStack());

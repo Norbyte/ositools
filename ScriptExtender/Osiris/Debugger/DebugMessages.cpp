@@ -77,7 +77,7 @@ namespace dse::osidbg
 		}
 	}
 
-	void MakeMsgTuple(MsgTuple & msgTuple, std::vector<OsiArgumentValue> const & tuple)
+	void MakeMsgTuple(MsgTuple & msgTuple, Vector<OsiArgumentValue> const & tuple)
 	{
 		for (auto const & val : tuple) {
 			auto column = msgTuple.add_column();
@@ -139,7 +139,7 @@ namespace dse::osidbg
 		}
 	}
 
-	void MakeMsgCallStack(BkBreakpointTriggered & msg, std::vector<CallStackFrame> const & callStack)
+	void MakeMsgCallStack(BkBreakpointTriggered & msg, Vector<CallStackFrame> const & callStack)
 	{
 		for (auto const & frame : callStack) {
 			auto msgFrame = msg.add_call_stack();
@@ -163,7 +163,7 @@ namespace dse::osidbg
 		}
 	}
 
-	void DebugMessageHandler::SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
+	void DebugMessageHandler::SendBreakpointTriggered(Vector<CallStackFrame> const & callStack,
 		QueryResultInfo const * results)
 	{
 		auto const & lastFrame = *callStack.rbegin();

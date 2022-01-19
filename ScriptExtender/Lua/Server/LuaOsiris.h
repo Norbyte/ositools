@@ -112,7 +112,7 @@ public:
 
 private:
 	STDString name_;
-	std::vector<OsiFunction> functions_;
+	Vector<OsiFunction> functions_;
 	ServerState & state_;
 	uint32_t generationId_;
 

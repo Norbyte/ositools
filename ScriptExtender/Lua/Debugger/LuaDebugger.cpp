@@ -199,7 +199,7 @@ namespace dse::lua::dbg
 		lua_pop(L, 1);
 	}
 
-	void LuaPushStackLocals(lua_State* L, lua_Debug* ar, std::vector<std::pair<int, STDString>>& locals)
+	void LuaPushStackLocals(lua_State* L, lua_Debug* ar, Vector<std::pair<int, STDString>>& locals)
 	{
 		if (!LuaIsUserFunction(L, ar->i_ci)) {
 			return;
@@ -587,7 +587,7 @@ namespace dse::lua::dbg
 		auto top = lua_gettop(L);
 
 		STDString evalateLocals;
-		std::vector<std::pair<int, STDString>> locals;
+		Vector<std::pair<int, STDString>> locals;
 		if (req.Frame != -1) {
 			lua_Debug ar;
 			memset(&ar, 0, sizeof(ar));

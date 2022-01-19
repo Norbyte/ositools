@@ -203,7 +203,7 @@ UIObject * CustomUI::Creator(dse::Path * path)
 
 UIFlashPath::UIFlashPath() {}
 
-UIFlashPath::UIFlashPath(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
+UIFlashPath::UIFlashPath(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 	: paths_(parents)
 {
 	paths_.push_back(*path);
@@ -218,13 +218,13 @@ ig::IggyValuePath* UIFlashPath::Last()
 	return &*paths_.rbegin();
 }
 
-int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
+int PushFlashRef(lua_State* L, Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path);
 bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx);
 
 
 char const* const UIFlashObject::MetatableName = "FlashObject";
 
-UIFlashObject::UIFlashObject(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
+UIFlashObject::UIFlashObject(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 	: path_(parents, path)
 {}
 
@@ -257,7 +257,7 @@ int UIFlashObject::NewIndex(lua_State* L)
 
 char const* const UIFlashArray::MetatableName = "FlashArray";
 
-UIFlashArray::UIFlashArray(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
+UIFlashArray::UIFlashArray(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 	: path_(parents, path)
 {}
 
@@ -303,7 +303,7 @@ int UIFlashArray::Length(lua_State* L)
 
 char const* const UIFlashFunction::MetatableName = "FlashFunction";
 
-UIFlashFunction::UIFlashFunction(std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
+UIFlashFunction::UIFlashFunction(Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 	: path_(parents, path)
 {}
 
@@ -380,7 +380,7 @@ int UIFlashFunction::LuaCall(lua_State* L)
 	auto object = &path_.paths_[path_.paths_.size() - 2];
 	auto method = path_.Last()->Name;
 
-	std::vector<ig::IggyDataValue> args;
+	Vector<ig::IggyDataValue> args;
 	args.resize(numArgs);
 
 	for (auto i = 0; i < numArgs; i++) {
@@ -449,7 +449,7 @@ bool SetFlashValue(lua_State* L, ig::IggyValuePath* path, int idx)
 	}
 }
 
-int PushFlashRef(lua_State* L, std::vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
+int PushFlashRef(lua_State* L, Vector<ig::IggyValuePath> const& parents, ig::IggyValuePath* path)
 {
 	auto const& s = GetStaticSymbols();
 
@@ -696,7 +696,7 @@ bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 	}
 
 	auto numArgs = lua_gettop(L) - 2;
-	std::vector<ig::InvokeDataValue> args;
+	Vector<ig::InvokeDataValue> args;
 	args.resize(numArgs);
 	for (auto i = 0; i < numArgs; i++) {
 		LuaToInvokeDataValue(L, i + 3, args[i]);
@@ -799,7 +799,7 @@ UserReturn UIObject::LuaGetRoot(lua_State* L)
 		return 1;
 	}
 
-	std::vector<ig::IggyValuePath> path;
+	Vector<ig::IggyValuePath> path;
 	return PushFlashRef(L, path, FlashPlayer->IggyPlayerRootPath);
 }
 
@@ -813,7 +813,7 @@ void UIObject::LuaDestroy()
 void UIObject::LuaExternalInterfaceCall(lua_State * L, STDString const& method)
 {
 	auto numArgs = lua_gettop(L) - 2;
-	std::vector<ig::InvokeDataValue> args;
+	Vector<ig::InvokeDataValue> args;
 	args.resize(numArgs);
 	for (auto i = 0; i < numArgs; i++) {
 		LuaToInvokeDataValue(L, i + 3, args[i]);
@@ -951,7 +951,7 @@ void OnFlashPlayerPreInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... arg
 	LuaClientPin lua(ExtensionState::Get());
 	auto ui = FindUIObject(self);
 	if (lua && ui) {
-		std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
+		Vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
 		lua->OnUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, 
 			(uint32_t)invokeArgs.size(), invokeArgs.data());
 	}
@@ -963,7 +963,7 @@ void OnFlashPlayerPostInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... ar
 	LuaClientPin lua(ExtensionState::Get());
 	auto ui = FindUIObject(self);
 	if (lua && ui) {
-		std::vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
+		Vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
 		lua->OnAfterUIInvoke(ui, self->Invokes[(uint32_t)invokeId].Name, 
 			(uint32_t)invokeArgs.size(), invokeArgs.data());
 	}

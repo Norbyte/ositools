@@ -419,7 +419,7 @@ public:
 
 private:
 	LifetimePool& pool_;
-	std::vector<LifetimeReference> stack_;
+	Vector<LifetimeReference> stack_;
 };
 
 class LifetimePin : Noncopyable<LifetimePin>

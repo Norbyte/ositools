@@ -81,7 +81,7 @@ FixedString StatLoadOrderHelper::GetStatsEntryMod(FixedString statId) const
 	}
 }
 
-std::vector<stats::Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedString modId) const
+Vector<stats::Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedString modId) const
 {
 	std::unordered_set<FixedString> modsLoadedBefore;
 	auto state = gExtender->GetCurrentExtensionState();
@@ -101,7 +101,7 @@ std::vector<stats::Object*> StatLoadOrderHelper::GetStatsLoadedBefore(FixedStrin
 		return {};
 	}
 
-	std::vector<stats::Object*> statsLoadedBefore;
+	Vector<stats::Object*> statsLoadedBefore;
 	auto stats = GetStaticSymbols().GetStats();
 	for (auto const& object : stats->Objects.Primitives) {
 		auto statEntryMod = GetStatsEntryMod(object->Name);

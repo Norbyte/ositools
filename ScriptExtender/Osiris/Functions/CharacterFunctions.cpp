@@ -216,7 +216,7 @@ namespace dse::esv
 			auto character = GetEntityWorld()->GetCharacter(characterGuid);
 			if (character == nullptr || character->SkillManager == nullptr) return;
 
-			std::vector<std::tuple<char const*, bool, bool>> skillEvents;
+			Vector<std::tuple<char const*, bool, bool>> skillEvents;
 
 			for (auto const& skill : character->SkillManager->Skills) {
 				skillEvents.push_back(std::tuple(skill.Value->SkillId.Str, skill.Value->IsLearned, skill.Value->IsActivated));

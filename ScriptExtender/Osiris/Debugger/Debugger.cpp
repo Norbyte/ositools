@@ -199,7 +199,7 @@ namespace dse::osidbg
 		return ((uint64_t)BreakpointItemType::BP_GoalExit << 56) | ((uint64_t)actionIndex << 32) | goalId;
 	}
 
-	bool BreakpointManager::ForcedBreakpointConditionsSatisfied(std::vector<CallStackFrame> const & stack, 
+	bool BreakpointManager::ForcedBreakpointConditionsSatisfied(Vector<CallStackFrame> const & stack,
 		Node * bpNode, BreakpointType bpType)
 	{
 		// Check if the current frame type is one we can break on
@@ -263,7 +263,7 @@ namespace dse::osidbg
 		return true;
 	}
 
-	bool BreakpointManager::ShouldTriggerBreakpoint(std::vector<CallStackFrame> const & stack, Node * bpNode, 
+	bool BreakpointManager::ShouldTriggerBreakpoint(Vector<CallStackFrame> const & stack, Node * bpNode,
 		uint64_t bpNodeId, BreakpointType bpType, GlobalBreakpointType globalBpType)
 	{
 		if (debuggingDisabled_) {

@@ -54,7 +54,7 @@ namespace dse::lua::dbg
 		int VariablesRef;
 		int Frame;
 		int Local;
-		std::vector<KeyType> Key;
+		Vector<KeyType> Key;
 		BkGetVariablesResponse* Response;
 		std::function<void(DebuggerGetVariablesRequest const&, ResultCode)> CompletionCallback;
 	};

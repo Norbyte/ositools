@@ -530,7 +530,7 @@ namespace dse::esv::lua
 	{
 		if (lua_type(L, index) != LUA_TTABLE) luaL_error(L, "UpdateTurnOrder() expects a table of teams as the first argument");
 
-		std::vector<esv::TurnManager::CombatTeam *> teams;
+		Vector<esv::TurnManager::CombatTeam *> teams;
 		std::unordered_set<eoc::CombatTeamId> notifies;
 
 		lua_pushnil(L);

@@ -75,7 +75,7 @@ namespace dse::osidbg
 		// Did the last query succeed?
 		bool succeeded;
 		// Results of last div query
-		std::vector<OsiArgumentValue> results;
+		Vector<OsiArgumentValue> results;
 	};
 
 	class Debugger;
@@ -93,7 +93,7 @@ namespace dse::osidbg
 		}
 
 		void SetDebugger(Debugger * debugger);
-		void SendBreakpointTriggered(std::vector<CallStackFrame> const & callStack,
+		void SendBreakpointTriggered(Vector<CallStackFrame> const & callStack,
 			QueryResultInfo const * results = nullptr);
 		void SendGlobalBreakpointTriggered(GlobalBreakpointReason reason);
 		void SendStoryLoaded();

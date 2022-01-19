@@ -16,7 +16,7 @@ public:
 	void UpdateModDirectoryMap();
 
 	FixedString GetStatsEntryMod(FixedString statId) const;
-	std::vector<stats::Object*> GetStatsLoadedBefore(FixedString modId) const;
+	Vector<stats::Object*> GetStatsLoadedBefore(FixedString modId) const;
 
 private:
 	struct StatsEntryModMapping

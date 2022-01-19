@@ -65,7 +65,7 @@ namespace dse::esv
 
 			auto func = args[0].String;
 			auto numArgs = args.Count() - 1;
-			std::vector<OsiArgumentValue> luaArgs;
+			Vector<OsiArgumentValue> luaArgs;
 			luaArgs.resize(numArgs);
 
 			for (uint32_t i = 0; i < numArgs; i++) {
@@ -86,7 +86,7 @@ namespace dse::esv
 			auto mod = args[0].String;
 			auto func = args[1].String;
 			auto numArgs = args.Count() - 2;
-			std::vector<OsiArgumentValue> luaArgs;
+			Vector<OsiArgumentValue> luaArgs;
 			luaArgs.resize(numArgs);
 
 			for (uint32_t i = 0; i < numArgs; i++) {

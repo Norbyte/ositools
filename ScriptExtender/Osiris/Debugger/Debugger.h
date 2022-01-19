@@ -99,9 +99,9 @@ namespace dse::osidbg
 		void SetForcedBreakpoints(bool enabled, uint32_t bpMask, uint32_t flags, uint32_t maxDepth);
 		void ClearForcedBreakpoints();
 
-		bool ForcedBreakpointConditionsSatisfied(std::vector<CallStackFrame> const & stack, Node * bpNode, 
+		bool ForcedBreakpointConditionsSatisfied(Vector<CallStackFrame> const & stack, Node * bpNode,
 			BreakpointType bpType);
-		bool ShouldTriggerBreakpoint(std::vector<CallStackFrame> const & stack, Node * bpNode, uint64_t bpNodeId, 
+		bool ShouldTriggerBreakpoint(Vector<CallStackFrame> const & stack, Node * bpNode, uint64_t bpNodeId,
 			BreakpointType bpType, GlobalBreakpointType globalBpType);
 		bool ShouldTriggerGlobalBreakpoint(GlobalBreakpointType globalBpType);
 
@@ -189,7 +189,7 @@ namespace dse::osidbg
 	private:
 		OsirisStaticGlobals & globals_;
 		DebugMessageHandler & messageHandler_;
-		std::vector<CallStackFrame> callStack_;
+		Vector<CallStackFrame> callStack_;
 		RuleActionMap actionMappings_;
 		// Did the engine call COsiris::InitGame() in this session?
 		bool isInitialized_{ false };
