@@ -81,12 +81,6 @@ int SetProxy::ToString(lua_State* L)
 	return 1;
 }
 
-int SetProxy::GC(lua_State* L)
-{
-	this->~SetProxy();
-	return 0;
-}
-
 bool SetProxy::IsEqual(lua_State* L, SetProxy* other)
 {
 	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();

@@ -16,7 +16,6 @@ class NewIndexable {};
 class Lengthable {};
 class Iterable {};
 class Stringifiable {};
-class GarbageCollected {};
 class EqualityComparable {};
 
 template <class T>
@@ -118,12 +117,9 @@ public:
 
 	static int GCProxy(lua_State* L)
 	{
-		if constexpr (std::is_base_of_v<GarbageCollected, T>) {
-			auto self = CheckUserData(L, 1);
-			return self->GC(L);
-		} else {
-			return luaL_error(L, "Not garbage collected!");
-		}
+		auto self = CheckUserData(L, 1);
+		self->GC(L);
+		return 0;
 	}
 
 	static int EqualProxy(lua_State* L)
@@ -154,6 +150,12 @@ public:
 		push(L, nullptr);
 
 		return 3;
+	}
+
+	// Default __gc implementation
+	void GC(lua_State* L)
+	{
+		static_cast<T*>(this)->~T();
 	}
 
 	static int NextProxy(lua_State* L)
@@ -209,10 +211,8 @@ public:
 			lua_setfield(L, -2, "__tostring");
 		}
 
-		if constexpr (std::is_base_of_v<GarbageCollected, T>) {
-			lua_pushcfunction(L, &GCProxy);
-			lua_setfield(L, -2, "__gc");
-		}
+		lua_pushcfunction(L, &GCProxy);
+		lua_setfield(L, -2, "__gc");
 
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
 			lua_pushcfunction(L, &EqualProxy);

@@ -80,12 +80,6 @@ int ArrayProxy::ToString(lua_State* L)
 	return 1;
 }
 
-int ArrayProxy::GC(lua_State* L)
-{
-	this->~ArrayProxy();
-	return 0;
-}
-
 bool ArrayProxy::IsEqual(lua_State* L, ArrayProxy* other)
 {
 	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();

@@ -23,7 +23,7 @@ public:
 
 
 class SetProxy : private Userdata<SetProxy>, public Indexable, public NewIndexable,
-	public Lengthable, public Iterable, public Stringifiable, public GarbageCollected, public EqualityComparable
+	public Lengthable, public Iterable, public Stringifiable, public EqualityComparable
 {
 public:
 	static char const * const MetatableName;
@@ -80,7 +80,6 @@ protected:
 	int Length(lua_State* L);
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
-	int GC(lua_State* L);
 	bool IsEqual(lua_State* L, SetProxy* other);
 };
 

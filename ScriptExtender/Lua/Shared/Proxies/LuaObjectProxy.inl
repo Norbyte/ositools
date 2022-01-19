@@ -123,12 +123,6 @@ int ObjectProxy2::ToString(lua_State* L)
 	return 1;
 }
 
-int ObjectProxy2::GC(lua_State* L)
-{
-	this->~ObjectProxy2();
-	return 0;
-}
-
 bool ObjectProxy2::IsEqual(lua_State* L, ObjectProxy2* other)
 {
 	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();

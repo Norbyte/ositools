@@ -91,12 +91,6 @@ int EventObject::ToString(lua_State* L)
 	return 1;
 }
 
-int EventObject::GC(lua_State* L)
-{
-	this->~EventObject();
-	return 0;
-}
-
 bool EventObject::IsEqual(lua_State* L, EventObject* other)
 {
 	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();

@@ -336,7 +336,7 @@ private:
 
 
 class ObjectProxy2 : private Userdata<ObjectProxy2>, public Indexable, public NewIndexable,
-	public Iterable, public Stringifiable, public GarbageCollected, public EqualityComparable
+	public Iterable, public Stringifiable, public EqualityComparable
 {
 public:
 	static char const * const MetatableName;
@@ -440,7 +440,6 @@ protected:
 	int NewIndex(lua_State* L);
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
-	int GC(lua_State* L);
 	bool IsEqual(lua_State* L, ObjectProxy2* other);
 };
 

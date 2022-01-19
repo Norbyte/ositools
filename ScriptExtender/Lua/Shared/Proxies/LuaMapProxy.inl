@@ -76,12 +76,6 @@ int MapProxy::ToString(lua_State* L)
 	return 1;
 }
 
-int MapProxy::GC(lua_State* L)
-{
-	this->~MapProxy();
-	return 0;
-}
-
 bool MapProxy::IsEqual(lua_State* L, MapProxy* other)
 {
 	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();

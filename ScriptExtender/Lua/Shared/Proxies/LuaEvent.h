@@ -67,7 +67,7 @@ private:
 
 
 class EventObject : private Userdata<EventObject>, public Indexable, public NewIndexable,
-	public Iterable, public Stringifiable, public GarbageCollected, public EqualityComparable
+	public Iterable, public Stringifiable, public EqualityComparable
 {
 public:
 	static char const* const MetatableName;
@@ -137,7 +137,6 @@ protected:
 	int NewIndex(lua_State* L);
 	int Next(lua_State* L);
 	int ToString(lua_State* L);
-	int GC(lua_State* L);
 	bool IsEqual(lua_State* L, EventObject* other);
 	static int StopPropagation(lua_State* L);
 };
