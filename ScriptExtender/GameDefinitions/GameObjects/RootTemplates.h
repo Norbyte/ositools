@@ -45,11 +45,11 @@ namespace dse
         virtual void UpdateFromRootTemplate(GameObjectTemplate* root, bool replaceOverrides) = 0;
         virtual void Verify() = 0;
 
+#if defined(OSI_EOCAPP)
+        uint64_t _Unknown;
+#endif
         GameObjectTemplateFlags Flags;
         bool FlagsOverridden;
-#if defined(OSI_EOCAPP)
-        uint32_t Type;
-#endif
         ObjectSet<FixedString> Tags;
         bool HasAnyTags;
         FixedString Id;

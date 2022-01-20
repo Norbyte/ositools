@@ -1,11 +1,9 @@
 BEGIN_CLS(GameObjectTemplate)
 // TODO Tags
-P(Flags)
+P_RO(Flags)
+// FIXME Make IsCustom read-only
 P_BITMASK(Flags)
 P(FlagsOverridden)
-#if defined(OSI_EOCAPP)
-P_RO(Type)
-#endif
 P_REF(Tags)
 P_RO(HasAnyTags)
 P_RO(Id)

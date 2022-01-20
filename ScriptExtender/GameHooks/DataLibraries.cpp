@@ -204,6 +204,7 @@ namespace dse
 		SYM_OFF(ls__GlobalTemplateManager);
 		SYM_OFF(esv__CacheTemplateManager);
 		SYM_OFF(esv__LocalTemplateManager);
+		SYM_OFF(ecl__CacheTemplateManager);
 
 		SYM_OFF(ls__CacheTemplateManagerBase__CacheTemplate);
 
