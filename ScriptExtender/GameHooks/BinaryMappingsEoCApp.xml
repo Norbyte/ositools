@@ -1064,6 +1064,16 @@
       <Target Type="Indirect" Offset="@ref" Symbol="esv__CacheTemplateManager" />
     </Mapping>
 
+    <Mapping Name="ecl::CacheTemplateManager">
+      48 8B 88 60 01 00 00 // mov     rcx, [rax+160h]
+      EB ?? // jmp     short loc_xx
+      83 F8 03 // cmp     eax, 3
+      75 ?? // jnz     short loc_xx
+      @ref 48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:ecl__gCacheTemplateManager
+      45 33 C9 // xor     r9d, r9d
+      <Target Type="Indirect" Offset="@ref" Symbol="ecl__CacheTemplateManager" />
+    </Mapping>
+
     <Mapping Name="ls::GlobalTemplateManager">
       33 C0 // xor     eax, eax
       C3  // retn

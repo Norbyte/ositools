@@ -250,6 +250,7 @@ namespace dse
 		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
 		GlobalCacheTemplateManager** esv__CacheTemplateManager{ nullptr };
 		LocalTemplateManager** esv__LocalTemplateManager{ nullptr };
+		GlobalCacheTemplateManager** ecl__CacheTemplateManager{ nullptr };
 
 		CacheTemplateManagerBase::CacheTemplateProc* ls__CacheTemplateManagerBase__CacheTemplate{ nullptr };
 

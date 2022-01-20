@@ -16,6 +16,19 @@ GameObjectTemplate* GetRootTemplate(FixedString templateId)
 	}
 }
 
+GameObjectTemplate* GetCacheTemplate(FixedString const& templateId)
+{
+	auto cache = *GetStaticSymbols().ecl__CacheTemplateManager;
+	if (cache) {
+		auto tmpl = cache->Templates.Find(templateId);
+		if (tmpl) {
+			return *tmpl;
+		}
+	}
+
+	return nullptr;
+}
+
 GameObjectTemplate* GetLocalTemplate(FixedString const& templateId)
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();
@@ -48,7 +61,7 @@ GameObjectTemplate* GetTemplate(FixedString const& templateId)
 	if (!tmpl) {
 		tmpl = GetLocalTemplate(templateId);
 		if (!tmpl) {
-			// FIXME! tmpl = GetCacheTemplate(templateId);
+			tmpl = GetCacheTemplate(templateId);
 			if (!tmpl) {
 				tmpl = GetLocalCacheTemplate(templateId);
 			}
@@ -63,8 +76,7 @@ void RegisterTemplateLib(lua_State* L)
 	static const luaL_Reg lib[] = {
 		{"GetRootTemplate", LuaWrapFunction(&GetRootTemplate)},
 		{"GetLocalTemplate", LuaWrapFunction(&GetLocalTemplate)},
-		// TODO - client cache templates not supported yet!
-		// {"GetCacheTemplate", LuaWrapFunction(&GetCacheTemplate)},
+		{"GetCacheTemplate", LuaWrapFunction(&GetCacheTemplate)},
 		{"GetLocalCacheTemplate", LuaWrapFunction(&GetLocalCacheTemplate)},
 		{"GetTemplate", LuaWrapFunction(&GetTemplate)},
 		{0,0}
