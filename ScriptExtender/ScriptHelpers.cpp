@@ -112,7 +112,7 @@ bool GetTranslatedString(char const* handle, STDWString& translated)
 	uint64_t length{ 0 };
 	auto translatedString = getter(repo, &runtimeString, &length, 0, 0, true);
 
-	if (translatedString) {
+	if (translatedString && !translatedString->empty()) {
 		translated = *translatedString;
 		return true;
 	} else {
