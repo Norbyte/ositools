@@ -1,11 +1,27 @@
 BEGIN_CLS(GameObjectTemplate)
-// TODO Tags
+
+#if defined(GENERATING_TYPE_INFO)
+ADD_TYPE("Type", TemplateType)
+ADD_TYPE("Handle", uint32_t)
+#endif
+
+#if defined(GENERATING_PROPMAP)
+pm.AddProperty("Type",
+	[](lua_State* L, LifetimeHolder const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
+		push(L, obj->Handle.Type());
+		return true;
+	}
+);
+pm.AddProperty("Handle",
+	[](lua_State* L, LifetimeHolder const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
+		push(L, obj->Handle.Value);
+		return true;
+	}
+);
+#endif
+
 P_RO(Flags)
-// FIXME Make IsCustom read-only
-P_BITMASK(Flags)
-P(FlagsOverridden)
 P_REF(Tags)
-P_RO(HasAnyTags)
 P_RO(Id)
 P_RO(Name)
 P_RO(RootTemplate)

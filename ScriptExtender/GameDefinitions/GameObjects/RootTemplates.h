@@ -48,10 +48,8 @@ namespace dse
 #if defined(OSI_EOCAPP)
         uint64_t _Unknown;
 #endif
-        GameObjectTemplateFlags Flags;
-        bool FlagsOverridden;
-        ObjectSet<FixedString> Tags;
-        bool HasAnyTags;
+        OverrideableProperty<GameObjectTemplateFlags> Flags;
+        OverrideableProperty<ObjectSet<FixedString>> Tags;
         FixedString Id;
         STDString Name;
         FixedString RootTemplate;

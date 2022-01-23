@@ -87,8 +87,8 @@ GameObjectTemplate* CacheTemplate(FixedString const& templateId)
 	auto baseCopy = tmpl->Clone();
 	baseCopy->Id = GenerateGuid();
 	baseCopy->RootTemplate = tmpl->Id;
-	baseCopy->Flags |= GameObjectTemplateFlags::IsCustom;
-	baseCopy->FlagsOverridden = true;
+	baseCopy->Flags.Value |= GameObjectTemplateFlags::IsCustom;
+	baseCopy->Flags.IsOverridden = true;
 
 	auto cache = *GetStaticSymbols().esv__CacheTemplateManager;
 	auto cacheFunc = GetStaticSymbols().ls__CacheTemplateManagerBase__CacheTemplate;
