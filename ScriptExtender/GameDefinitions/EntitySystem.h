@@ -290,10 +290,10 @@ struct IEoCClientObject : public IGameObject
 
 struct IEoCServerObject : public IGameObject
 {
-	virtual void AddPeer(PeerId const& peer) = 0;
-	virtual void RemovePeer(PeerId const& peer) = 0;
-	virtual void ClearPeers() = 0;
-	virtual bool HasPeer(PeerId const& peer) = 0;
+	virtual void AddVisibleToPeer(PeerId const& peer) = 0;
+	virtual void RemoveVisibleToPeer(PeerId const& peer) = 0;
+	virtual void ClearVisiblePeers() = 0;
+	virtual bool IsVisibleToPeer(PeerId const& peer) = 0;
 	virtual eoc::Ai* GetAi() = 0;
 	virtual void LoadAi() = 0;
 	virtual void UnloadAi() = 0;
@@ -301,7 +301,7 @@ struct IEoCServerObject : public IGameObject
 	virtual bool SavegameVisit(ObjectVisitor& visitor) = 0;
 	virtual NetId GetEntityNetworkId(NetId& netId) = 0;
 	virtual void TransformTemplate(GameObjectTemplate* tmpl) = 0;
-	virtual void CacheTemplate(int templateType, LevelTemplate* levelTemplate) = 0;
+	virtual void CacheTemplate(TemplateType templateType, LevelTemplate* levelTemplate) = 0;
 
 	std::optional<STDWString> LuaGetDisplayName();
 	esv::StatusMachine* GetStatusMachine() const;
@@ -310,6 +310,9 @@ struct IEoCServerObject : public IGameObject
 	RefReturn<esv::Status> LuaGetStatusByHandle(ComponentHandle const& handle);
 	ObjectSet<FixedString> LuaGetStatusIds();
 	UserReturn LuaGetStatuses(lua_State* L);
+	GameObjectTemplate* CreateCacheTemplate();
+	void LuaTransformTemplate(ProxyParam<GameObjectTemplate> tmpl);
+	void ForceSyncToPeers();
 };
 
 template <class TWorld>

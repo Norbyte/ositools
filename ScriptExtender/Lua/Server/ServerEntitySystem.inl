@@ -159,4 +159,29 @@ UserReturn IEoCServerObject::LuaGetStatuses(lua_State* L)
 	return 1;
 }
 
+GameObjectTemplate* IEoCServerObject::CreateCacheTemplate()
+{
+	CacheTemplate(TemplateType::GlobalCacheTemplate, nullptr);
+	return GetCurrentTemplate();
+}
+
+void IEoCServerObject::LuaTransformTemplate(ProxyParam<GameObjectTemplate> tmpl)
+{
+	if (tmpl->GetTypeId() != GetCurrentTemplate()->GetTypeId()) {
+		OsiError("Attempted to transform object from " << GetCurrentTemplate()->GetTypeId() << " template to " << tmpl->GetTypeId() << " template!");
+		return;
+	}
+
+	if (tmpl->Id == GetCurrentTemplate()->Id) {
+		return;
+	}
+
+	TransformTemplate(tmpl);
+}
+
+void IEoCServerObject::ForceSyncToPeers()
+{
+	ClearVisiblePeers();
+}
+
 END_SE()
