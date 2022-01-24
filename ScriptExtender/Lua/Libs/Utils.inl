@@ -70,7 +70,7 @@ int GetExtensionVersion()
 	return CurrentVersion;
 }
 
-std::optional<STDString> GetGameVersion()
+std::optional<STDString> GameVersion()
 {
 	GameVersionInfo gameVersion;
 	if (gExtender->GetLibraryManager().GetGameVersion(gameVersion)) {
@@ -185,27 +185,25 @@ GlobalSwitches* GetGlobalSwitches()
 	return GetStaticSymbols().GetGlobalSwitches();
 }
 
-void RegisterUtilsLib(lua_State* L)
+void RegisterUtilsLib()
 {
-	static const luaL_Reg lib[] = {
-		{"Version", LuaWrapFunction(&GetExtensionVersion)},
-		{"GameVersion", LuaWrapFunction(&GetGameVersion)},
-		{"MonotonicTime", LuaWrapFunction(&MonotonicTime)},
-		{"Include", LuaWrapFunction(&Include)},
-		{"Print", LuaWrapFunction(&Print)},
-		{"PrintWarning", LuaWrapFunction(&PrintWarning)},
-		{"PrintError", LuaWrapFunction(&PrintError)},
-		{"GetHandleType", LuaWrapFunction(&GetHandleType)},
-		{"GetGameMode", LuaWrapFunction(&GetGameMode)},
-		{"GetDifficulty", LuaWrapFunction(&GetDifficulty)},
-		{"Random", LuaWrapFunction(&Random)},
-		{"Round", LuaWrapFunction(&Round)},
-		{"ShowErrorAndExitGame", LuaWrapFunction(&ShowErrorAndExitGame)},
-		{"GetGlobalSwitches", LuaWrapFunction(&GetGlobalSwitches)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Utils", lib);
+	DECLARE_MODULE(Utils, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("Version", GetExtensionVersion)
+	MODULE_FUNCTION(GameVersion)
+	MODULE_FUNCTION(MonotonicTime)
+	MODULE_FUNCTION(Include)
+	MODULE_FUNCTION(Print)
+	MODULE_FUNCTION(PrintError)
+	MODULE_FUNCTION(PrintWarning)
+	MODULE_FUNCTION(GetHandleType)
+	MODULE_FUNCTION(GetGameMode)
+	MODULE_FUNCTION(GetDifficulty)
+	MODULE_FUNCTION(Random)
+	MODULE_FUNCTION(Round)
+	MODULE_FUNCTION(ShowErrorAndExitGame)
+	MODULE_FUNCTION(GetGlobalSwitches)
+	END_MODULE()
 }
 
 END_NS()

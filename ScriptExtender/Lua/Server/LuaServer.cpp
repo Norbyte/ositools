@@ -1338,8 +1338,8 @@ namespace dse::esv::lua
 		luaL_newlib(L, extLib); // stack: lib
 		lua_setglobal(L, "Ext"); // stack: -
 
-		RegisterSharedLibraries(L);
-		RegisterServerLibraries(L);
+		RegisterSharedMetatables(L);
+		gModuleRegistry.ConstructState(L, ModuleRole::Server);
 	}
 
 

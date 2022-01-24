@@ -23,7 +23,8 @@ LUA_POLYMORPHIC(ecl::Status)
 LUA_POLYMORPHIC(stats::ObjectInstance)
 LUA_POLYMORPHIC(stats::EquipmentAttributes)
 
-void RegisterSharedLibraries(lua_State* L);
+void RegisterLibraries();
+void RegisterSharedMetatables(lua_State* L);
 
 END_NS()
 
@@ -33,7 +34,6 @@ using namespace dse::lua;
 
 LifetimeHolder GetServerLifetime();
 LifetimePool& GetServerLifetimePool();
-void RegisterServerLibraries(lua_State* L);
 
 
 class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable

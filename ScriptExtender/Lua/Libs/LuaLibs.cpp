@@ -10,6 +10,36 @@
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaSetProxy.inl>
 
+BEGIN_SE()
+
+template <class Fun>
+TypeInformation DoConstructFunctionSignature(Fun f)
+{
+	TypeInformation sig;
+	ConstructFunctionSignature(sig, f);
+	return sig;
+}
+
+END_SE()
+
+#define DECLARE_MODULE(name, role) { \
+	ModuleDefinition mod; \
+	mod.Role = ModuleRole::role; \
+	mod.Table = FixedString{#name};
+
+#define DECLARE_SUBMODULE(name, sub, role) { \
+	ModuleDefinition mod; \
+	mod.Role = ModuleRole::role; \
+	mod.Table = FixedString{#name}; \
+	mod.SubTable = FixedString{#sub};
+
+#define BEGIN_MODULE() mod.Functions = {
+#define MODULE_FUNCTION(fun) { FixedString{#fun}, LuaWrapFunction(&fun), DoConstructFunctionSignature(&fun) },
+#define MODULE_NAMED_FUNCTION(name, fun){ FixedString{name}, LuaWrapFunction(&fun), DoConstructFunctionSignature(&fun) },
+#define END_MODULE() }; \
+	gModuleRegistry.RegisterModule(mod); \
+}
+
 #include <Lua/Libs/Utils.inl>
 #include <Lua/Libs/Json.inl>
 #include <Lua/Libs/Types.inl>
@@ -32,11 +62,37 @@
 #include <Lua/Libs/AI.inl>
 #include <Lua/Libs/Resource.inl>
 
+BEGIN_NS(ecl::lua)
+
+void RegisterClientLibraries()
+{
+	audio::RegisterAudioLib();
+	ui::RegisterUILib();
+	net::RegisterNetLib();
+	visual::RegisterVisualLib();
+	tmpl::RegisterTemplateLib();
+}
+
+END_NS()
+
+BEGIN_NS(esv::lua)
+
+void RegisterServerLibraries()
+{
+	osiris::RegisterOsirisLib();
+	net::RegisterNetLib();
+	stats::RegisterCustomStatLib();
+	surface::action::RegisterSurfaceActionLib();
+	tmpl::RegisterTemplateLib();
+}
+
+END_NS()
+
 BEGIN_NS(lua)
 
 void InitObjectProxyPropertyMaps();
 
-void RegisterSharedLibraries(lua_State* L)
+void RegisterSharedMetatables(lua_State* L)
 {
 	Userdata<ArrayProxy>::RegisterMetatable(L);
 	Userdata<MapProxy>::RegisterMetatable(L);
@@ -45,43 +101,30 @@ void RegisterSharedLibraries(lua_State* L)
 	Userdata<EventObject>::RegisterMetatable(L);
 	InitObjectProxyPropertyMaps();
 	// RegisterEntityProxy(L);
-
-	utils::RegisterUtilsLib(L);
-	utils::RegisterJsonLib(L);
-	types::RegisterTypesLib(L);
-	io::RegisterIOLib(L);
-	mod::RegisterModLib(L);
-	loca::RegisterLocalizationLib(L);
-	debug::RegisterDebugLib(L);
-	stats::RegisterStatsLib(L);
-	surface::RegisterSurfaceLib(L);
-	resource::RegisterResourceLib(L);
+	StatsExtraDataProxy::RegisterMetatable(L);
 }
 
-END_NS()
-
-BEGIN_NS(ecl::lua)
-
-void RegisterClientLibraries(lua_State* L)
+void RegisterSharedLibraries()
 {
-	audio::RegisterAudioLib(L);
-	ui::RegisterUILib(L);
-	net::RegisterNetLib(L);
-	visual::RegisterVisualLib(L);
-	tmpl::RegisterTemplateLib(L);
+	utils::RegisterUtilsLib();
+	json::RegisterJsonLib();
+	types::RegisterTypesLib();
+	io::RegisterIOLib();
+	mod::RegisterModLib();
+	loca::RegisterLocalizationLib();
+	debug::RegisterDebugLib();
+	stats::RegisterStatsLib();
+	surface::RegisterSurfaceLib();
+	resource::RegisterResourceLib();
 }
 
-END_NS()
-
-BEGIN_NS(esv::lua)
-
-void RegisterServerLibraries(lua_State* L)
+void RegisterLibraries()
 {
-	osiris::RegisterOsirisLib(L);
-	net::RegisterNetLib(L);
-	stats::RegisterCustomStatLib(L);
-	surface::RegisterSurfaceActionLib(L);
-	tmpl::RegisterTemplateLib(L);
+	if (!gModuleRegistry.GetModules().empty()) return;
+
+	RegisterSharedLibraries();
+	esv::lua::RegisterServerLibraries();
+	ecl::lua::RegisterClientLibraries();
 }
 
 END_NS()

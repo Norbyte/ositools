@@ -106,21 +106,19 @@ void UpdateTransformRules(lua_State* L)
 	*rules = *interactions;
 }
 
-SurfaceTemplate* GetSurfaceTemplate(SurfaceType type)
+SurfaceTemplate* GetTemplate(SurfaceType type)
 {
 	return GetStaticSymbols().GetSurfaceTemplate(type);
 }
 
-void RegisterSurfaceLib(lua_State* L)
+void RegisterSurfaceLib()
 {
-	static const luaL_Reg lib[] = {
-		{"GetTransformRules", LuaWrapFunction(&GetTransformRules)},
-		{"UpdateTransformRules", LuaWrapFunction(&UpdateTransformRules)},
-		{"GetTemplate", LuaWrapFunction(&GetSurfaceTemplate)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Surface", lib);
+	DECLARE_MODULE(Surface, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(GetTransformRules)
+	MODULE_FUNCTION(UpdateTransformRules)
+	MODULE_FUNCTION(GetTemplate)
+	END_MODULE()
 }
 
 END_NS()

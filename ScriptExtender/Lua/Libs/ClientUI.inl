@@ -2,7 +2,7 @@ BEGIN_NS(ecl::lua::ui)
 
 uint32_t NextCustomCreatorId = 1000;
 
-UIObject* CreateUI(char const* name, char const* path, int layer, std::optional<uint32_t> inFlags)
+UIObject* Create(char const* name, char const* path, int layer, std::optional<uint32_t> inFlags)
 {
 	auto& sym = GetStaticSymbols();
 	auto uiManager = sym.GetUIObjectManager();
@@ -152,22 +152,20 @@ ComponentHandle DoubleToHandle(lua_State* L, double dbl)
 	return ComponentHandle(*reinterpret_cast<int64_t*>(&dbl));
 }
 
-void RegisterUILib(lua_State* L)
+void RegisterUILib()
 {
-	static const luaL_Reg lib[] = {
-		{"Create", LuaWrapFunction(&CreateUI)},
-		{"GetByName", LuaWrapFunction(&GetByName)},
-		{"GetByType", LuaWrapFunction(&GetByType)},
-		{"GetByPath", LuaWrapFunction(&GetByPath)},
-		{"Destroy", LuaWrapFunction(&Destroy)},
-		{"SetDirty", LuaWrapFunction(&SetDirty)},
-		{"EnableCustomDrawCallDebugging", LuaWrapFunction(&EnableCustomDrawCallDebugging)},
-		{"HandleToDouble", LuaWrapFunction(&HandleToDouble)},
-		{"DoubleToHandle", LuaWrapFunction(&DoubleToHandle)},
-		{0,0}
-	};
-
-	RegisterLib(L, "UI", lib);
+	DECLARE_MODULE(UI, Client)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(Create)
+	MODULE_FUNCTION(GetByName)
+	MODULE_FUNCTION(GetByType)
+	MODULE_FUNCTION(GetByPath)
+	MODULE_FUNCTION(Destroy)
+	MODULE_FUNCTION(SetDirty)
+	MODULE_FUNCTION(EnableCustomDrawCallDebugging)
+	MODULE_FUNCTION(HandleToDouble)
+	MODULE_FUNCTION(DoubleToHandle)
+	END_MODULE()
 }
 
 END_NS()

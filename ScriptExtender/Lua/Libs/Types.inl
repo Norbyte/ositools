@@ -2,7 +2,7 @@
 
 BEGIN_NS(lua::types)
 
-std::optional<STDString> GetObjectType(lua_State * L, int index)
+std::optional<STDString> GetObjectTypeName(lua_State * L, int index)
 {
 	if (lua_type(L, index) != LUA_TUSERDATA) {
 		return {};
@@ -36,10 +36,10 @@ std::optional<STDString> GetObjectType(lua_State * L, int index)
 	return {};
 }
 
-int GetObjectType(lua_State * L)
+UserReturn GetObjectType(lua_State * L)
 {
 	StackCheck _(L, 1);
-	auto type = GetObjectType(L, 1);
+	auto type = GetObjectTypeName(L, 1);
 	if (type) {
 		push(L, *type);
 	} else {
@@ -70,16 +70,14 @@ ObjectSet<FixedString> GetAllTypes()
 	return types;
 }
 
-void RegisterTypesLib(lua_State* L)
+void RegisterTypesLib()
 {
-	static const luaL_Reg jsonLib[] = {
-		{"GetObjectType", GetObjectType},
-		{"GetTypeInfo", LuaWrapFunction(&GetTypeInfo)},
-		{"GetAllTypes", LuaWrapFunction(&GetAllTypes)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Types", jsonLib);
+	DECLARE_MODULE(Types, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(GetObjectType)
+	MODULE_FUNCTION(GetTypeInfo)
+	MODULE_FUNCTION(GetAllTypes)
+	END_MODULE()
 }
 
 END_NS()

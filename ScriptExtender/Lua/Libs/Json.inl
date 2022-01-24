@@ -5,32 +5,32 @@
 #include <json/json.h>
 #include <lstate.h>
 
-BEGIN_NS(lua::utils)
+BEGIN_NS(lua::json)
 
-void JsonParse(lua_State * L, Json::Value const & val);
+void Parse(lua_State * L, Json::Value const & val);
 
-void JsonParseArray(lua_State * L, Json::Value const & val)
+void ParseArray(lua_State * L, Json::Value const & val)
 {
 	lua_newtable(L);
 	int idx = 1;
 	for (auto it = val.begin(), end = val.end(); it != end; ++it) {
 		push(L, idx++);
-		JsonParse(L, *it);
+		Parse(L, *it);
 		lua_settable(L, -3);
 	}
 }
 
-void JsonParseObject(lua_State * L, Json::Value const & val)
+void ParseObject(lua_State * L, Json::Value const & val)
 {
 	lua_newtable(L);
 	for (auto it = val.begin(), end = val.end(); it != end; ++it) {
-		JsonParse(L, it.key());
-		JsonParse(L, *it);
+		Parse(L, it.key());
+		Parse(L, *it);
 		lua_settable(L, -3);
 	}
 }
 
-void JsonParse(lua_State * L, Json::Value const & val)
+void Parse(lua_State * L, Json::Value const & val)
 {
 	switch (val.type()) {
 	case Json::nullValue:
@@ -58,11 +58,11 @@ void JsonParse(lua_State * L, Json::Value const & val)
 		break;
 
 	case Json::arrayValue:
-		JsonParseArray(L, val);
+		ParseArray(L, val);
 		break;
 
 	case Json::objectValue:
-		JsonParseObject(L, val);
+		ParseObject(L, val);
 		break;
 
 	default:
@@ -71,7 +71,7 @@ void JsonParse(lua_State * L, Json::Value const & val)
 }
 
 
-int JsonParse(lua_State * L)
+UserReturn LuaParse(lua_State * L)
 {
 	StackCheck _(L, 1);
 	size_t length;
@@ -86,7 +86,7 @@ int JsonParse(lua_State * L)
 		return luaL_error(L, "Unable to parse JSON: %s", errs.c_str());
 	}
 
-	JsonParse(L, root);
+	Parse(L, root);
 	return 1;
 }
 
@@ -147,9 +147,9 @@ void* GetPointerValue(lua_State* L, int index)
 	}
 }
 
-Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx);
+Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx);
 
-Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	StackCheck _(L, 0);
 
@@ -211,7 +211,7 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, Stri
 		}
 #endif
 
-		Json::Value val(JsonStringify(L, -1, depth + 1, ctx));
+		Json::Value val(Stringify(L, -1, depth + 1, ctx));
 
 		if (lua_type(L, -2) == LUA_TSTRING) {
 			auto key = lua_tostring(L, -2);
@@ -253,7 +253,7 @@ Json::Value JsonStringifyUserdata(lua_State * L, int index, unsigned depth, Stri
 	return arr;
 }
 
-Json::Value JsonStringifyObject(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyObject(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::objectValue);
 	lua_pushnil(L);
@@ -261,7 +261,7 @@ Json::Value JsonStringifyObject(lua_State * L, int index, unsigned depth, String
 	if (index < 0) index--;
 
 	while (lua_next(L, index) != 0) {
-		Json::Value val(JsonStringify(L, -1, depth + 1, ctx));
+		Json::Value val(Stringify(L, -1, depth + 1, ctx));
 
 		if (lua_type(L, -2) == LUA_TSTRING) {
 			auto key = lua_tostring(L, -2);
@@ -281,7 +281,7 @@ Json::Value JsonStringifyObject(lua_State * L, int index, unsigned depth, String
 	return arr;
 }
 
-Json::Value JsonStringifyArray(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyArray(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::arrayValue);
 	lua_pushnil(L);
@@ -289,7 +289,7 @@ Json::Value JsonStringifyArray(lua_State * L, int index, unsigned depth, Stringi
 	if (index < 0) index--;
 
 	while (lua_next(L, index) != 0) {
-		arr.append(JsonStringify(L, -1, depth + 1, ctx));
+		arr.append(Stringify(L, -1, depth + 1, ctx));
 		lua_pop(L, 1);
 	}
 
@@ -332,7 +332,7 @@ bool JsonCanStringifyAsArray(lua_State * L, int index)
 	return isArray;
 }
 
-Json::Value JsonStringifyTable(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyTable(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	if (ctx.AvoidRecursion) {
 		auto ptr = GetPointerValue(L, index);
@@ -347,14 +347,14 @@ Json::Value JsonStringifyTable(lua_State * L, int index, unsigned depth, Stringi
 	}
 
 	if (JsonCanStringifyAsArray(L, index)) {
-		return JsonStringifyArray(L, index, depth, ctx);
+		return StringifyArray(L, index, depth, ctx);
 	} else {
-		return JsonStringifyObject(L, index, depth, ctx);
+		return StringifyObject(L, index, depth, ctx);
 	}
 }
 
 
-Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	if (depth > ctx.MaxDepth) {
 		throw std::runtime_error("Recursion depth exceeded while stringifying JSON");
@@ -382,12 +382,12 @@ Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyCon
 		return Json::Value(lua_tostring(L, index));
 
 	case LUA_TTABLE:
-		return JsonStringifyTable(L, index, depth, ctx);
+		return StringifyTable(L, index, depth, ctx);
 
 	case LUA_TUSERDATA:
 	{
 		if (ctx.IterateUserdata) {
-			auto obj = JsonStringifyUserdata(L, index, depth, ctx);
+			auto obj = StringifyUserdata(L, index, depth, ctx);
 			if (!obj.isNull()) {
 				return obj;
 			}
@@ -414,16 +414,16 @@ Json::Value JsonStringify(lua_State * L, int index, unsigned depth, StringifyCon
 }
 
 
-int JsonStringify(lua_State * L)
+UserReturn LuaStringify(lua_State * L)
 {
 	StackCheck _(L, 1);
 	int nargs = lua_gettop(L);
 	if (nargs < 1) {
-		return luaL_error(L, "JsonStringify expects at least one parameter.");
+		return luaL_error(L, "Stringify expects at least one parameter.");
 	}
 
 	if (nargs > 4) {
-		return luaL_error(L, "JsonStringify expects at most three parameters.");
+		return luaL_error(L, "Stringify expects at most three parameters.");
 	}
 
 	StringifyContext ctx;
@@ -456,7 +456,7 @@ int JsonStringify(lua_State * L)
 
 	Json::Value root;
 	try {
-		root = JsonStringify(L, 1, 0, ctx);
+		root = Stringify(L, 1, 0, ctx);
 	} catch (std::runtime_error & e) {
 		return luaL_error(L, "%s", e.what());
 	}
@@ -473,15 +473,13 @@ int JsonStringify(lua_State * L)
 	return 1;
 }
 
-void RegisterJsonLib(lua_State* L)
+void RegisterJsonLib()
 {
-	static const luaL_Reg jsonLib[] = {
-		{"Parse", JsonParse},
-		{"Stringify", JsonStringify},
-		{0,0}
-	};
-
-	RegisterLib(L, "Json", jsonLib);
+	DECLARE_MODULE(Json, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("Parse", LuaParse)
+	MODULE_NAMED_FUNCTION("Stringify", LuaStringify)
+	END_MODULE()
 }
 
 END_NS()

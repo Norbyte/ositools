@@ -71,7 +71,7 @@ GameObjectTemplate* GetTemplate(FixedString const& templateId)
 	return tmpl;
 }
 
-GameObjectTemplate* CacheTemplate(FixedString const& templateId)
+GameObjectTemplate* CreateCacheTemplate(FixedString const& templateId)
 {
 	auto tmpl = GetTemplate(templateId);
 	if (!tmpl) {
@@ -101,19 +101,17 @@ GameObjectTemplate* CacheTemplate(FixedString const& templateId)
 	return cachedTmpl;
 }
 
-void RegisterTemplateLib(lua_State* L)
+void RegisterTemplateLib()
 {
-	static const luaL_Reg lib[] = {
-		{"GetRootTemplate", LuaWrapFunction(&GetRootTemplate)},
-		{"GetLocalTemplate", LuaWrapFunction(&GetLocalTemplate)},
-		{"GetCacheTemplate", LuaWrapFunction(&GetCacheTemplate)},
-		{"GetLocalCacheTemplate", LuaWrapFunction(&GetLocalCacheTemplate)},
-		{"GetTemplate", LuaWrapFunction(&GetTemplate)},
-		{"CacheTemplate", LuaWrapFunction(&CacheTemplate)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Template", lib);
+	DECLARE_MODULE(Template, Server)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(GetRootTemplate)
+	MODULE_FUNCTION(GetLocalTemplate)
+	MODULE_FUNCTION(GetCacheTemplate)
+	MODULE_FUNCTION(GetLocalCacheTemplate)
+	MODULE_FUNCTION(GetTemplate)
+	MODULE_FUNCTION(CreateCacheTemplate)
+	END_MODULE()
 }
 
 END_NS()

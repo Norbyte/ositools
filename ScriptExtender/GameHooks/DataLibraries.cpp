@@ -267,6 +267,7 @@ namespace dse
 			GFS.Initialize();
 			InitializeEnumerations();
 			InitPropertyMaps();
+			lua::RegisterLibraries();
 			TypeInformationRepository::GetInstance().Initialize();
 
 			DetourTransactionBegin();

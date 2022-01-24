@@ -22,51 +22,11 @@ void AddBitmaskTypeInfo(TypeInformation& ty)
 	}
 }
 
-template <class R, class T, class... Args>
-R GetFunctionReturnType(R (T::*)(Args...)) {}
-
-template <class T>
-inline void AddFunctionReturnType(TypeInformation& ty, Overload<T>)
-{
-	ty.ReturnValues.push_back(GetTypeInfoRef<T>());
-}
-
-template <>
-inline void AddFunctionReturnType(TypeInformation& ty, Overload<void>)
-{
-	// No return value, nothing to do
-}
-
-template <>
-inline void AddFunctionReturnType(TypeInformation& ty, Overload<UserReturn>)
-{
-	// User defined number of return types and values
-	ty.VarargsReturn = true;
-}
-
-template <class T>
-inline void AddFunctionParamType(TypeInformation& ty, Overload<T>)
-{
-	ty.Params.push_back(GetTypeInfoRef<T>());
-}
-
-template <class R, class T, class... Args>
-void AddFunctionSignature(TypeInformation& ty, char const* method, R (T::*)(Args...))
+template <class Fun>
+void AddFunctionSignature(TypeInformation& ty, char const* method, Fun f)
 {
 	TypeInformation sig;
-	sig.Kind = LuaTypeId::Function;
-	AddFunctionReturnType(sig, Overload<R>{});
-	(AddFunctionParamType(sig, Overload<Args>{}), ...);
-	ty.Methods.insert(std::make_pair(FixedString(method), sig));
-}
-
-template <class R, class T, class... Args>
-void AddFunctionSignature(TypeInformation& ty, char const* method, R (T::*)(lua_State* L, Args...))
-{
-	TypeInformation sig;
-	sig.Kind = LuaTypeId::Function;
-	AddFunctionReturnType(sig, Overload<R>{});
-	(AddFunctionParamType(sig, Overload<Args>{}), ...);
+	ConstructFunctionSignature(sig, f);
 	ty.Methods.insert(std::make_pair(FixedString(method), sig));
 }
 

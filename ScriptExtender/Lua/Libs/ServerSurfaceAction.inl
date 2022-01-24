@@ -3,14 +3,19 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
-BEGIN_NS(esv::lua::surface)
+/// <lua_module>Ext.Surface.Action</summary>
+BEGIN_NS(esv::lua::surface::action)
 
 using namespace dse::lua::surface;
 
-SurfaceAction* CreateSurfaceAction(lua_State* L)
+/// <summary>
+/// Prepares a new surface action for execution
+/// </summary>
+/// <lua_export>Create</lua_export>
+/// <param name="type" type="SurfaceActionType">Surface action type</param>
+/// <returns>EsvSurfaceAction</returns>
+SurfaceAction* Create(SurfaceActionType type)
 {
-	auto type = get<SurfaceActionType>(L, 1);
-
 	auto const& sym = GetStaticSymbols();
 	if (!sym.esv__SurfaceActionFactory || !*sym.esv__SurfaceActionFactory || !sym.esv__SurfaceActionFactory__CreateAction) {
 		OsiError("esv::SurfaceActionFactory not mapped!");
@@ -26,7 +31,7 @@ SurfaceAction* CreateSurfaceAction(lua_State* L)
 	return action;
 }
 
-void ExecuteSurfaceAction(ProxyParam<SurfaceAction> action)
+void Execute(ProxyParam<SurfaceAction> action)
 {
 	if (action->Level) {
 		OsiError("Attempted to execute surface action more than once!");
@@ -52,7 +57,7 @@ void ExecuteSurfaceAction(ProxyParam<SurfaceAction> action)
 	level->SurfaceManager->SurfaceActions.push_back(action);
 }
 
-void CancelSurfaceAction(ComponentHandle actionHandle)
+void Cancel(ComponentHandle actionHandle)
 {
 	if (actionHandle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
 		OsiError("Expected a surface action handle, got type " << actionHandle.GetType());
@@ -131,19 +136,14 @@ void CancelSurfaceAction(ComponentHandle actionHandle)
 	}
 }
 
-void RegisterSurfaceActionLib(lua_State* L)
+void RegisterSurfaceActionLib()
 {
-	static const luaL_Reg lib[] = {
-		{"Create", LuaWrapFunction(&CreateSurfaceAction)},
-		// FIXME - move to SurfaceAction::Execute()
-		{"Execute", LuaWrapFunction(&ExecuteSurfaceAction)},
-		// FIXME - move to SurfaceAction::Cancel() ?
-		// need to add GetAction first to resolve by handle
-		{"Cancel", LuaWrapFunction(&CancelSurfaceAction)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Surface", "Action", lib);
+	DECLARE_SUBMODULE(Surface, Action, Server)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(Create)
+	MODULE_FUNCTION(Execute)
+	MODULE_FUNCTION(Cancel)
+	END_MODULE()
 }
 
 END_NS()

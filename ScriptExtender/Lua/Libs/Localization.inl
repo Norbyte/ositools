@@ -59,18 +59,16 @@ bool CreateTranslatedStringHandle(lua_State* L, char const* handleStr, char cons
 	return script::CreateTranslatedString(handle, str);
 }
 
-void RegisterLocalizationLib(lua_State* L)
+void RegisterLocalizationLib()
 {
-	static const luaL_Reg lib[] = {
-		{"GetTranslatedString", LuaWrapFunction(&GetTranslatedString)},
-		{"GetTranslatedStringFromKey", LuaWrapFunction(&GetTranslatedStringFromKey)},
-		{"CreateTranslatedString", LuaWrapFunction(&CreateTranslatedString)},
-		{"CreateTranslatedStringKey", LuaWrapFunction(&CreateTranslatedStringKey)},
-		{"CreateTranslatedStringHandle", LuaWrapFunction(&CreateTranslatedStringHandle)},
-		{0,0}
-	};
-
-	RegisterLib(L, "L10N", lib);
+	DECLARE_MODULE(L10N, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(GetTranslatedString)
+	MODULE_FUNCTION(GetTranslatedStringFromKey)
+	MODULE_FUNCTION(CreateTranslatedString)
+	MODULE_FUNCTION(CreateTranslatedStringKey)
+	MODULE_FUNCTION(CreateTranslatedStringHandle)
+	END_MODULE()
 }
 
 END_NS()

@@ -1,5 +1,7 @@
 #pragma once
 
+struct lua_State;
+
 BEGIN_SE()
 
 struct TypeInformation;
@@ -266,6 +268,70 @@ TypeInformation* MakeDeferredMapType()
 	ty->KeyType = GetStaticTypeInfo(Overload<TKey>{});
 	ty->ElementType = GetStaticTypeInfo(Overload<TValue>{});
 	return ty;
+}
+
+template <class R, class T, class... Args>
+R GetFunctionReturnType(R (T::*)(Args...)) {}
+
+template <class T>
+inline void AddFunctionReturnType(TypeInformation& ty, Overload<T>)
+{
+	ty.ReturnValues.push_back(GetTypeInfoRef<T>());
+}
+
+template <>
+inline void AddFunctionReturnType(TypeInformation& ty, Overload<void>)
+{
+	// No return value, nothing to do
+}
+
+template <>
+inline void AddFunctionReturnType(TypeInformation& ty, Overload<UserReturn>)
+{
+	// User defined number of return types and values
+	ty.VarargsReturn = true;
+}
+
+template <class T>
+inline void AddFunctionParamType(TypeInformation& ty, Overload<T>)
+{
+	ty.Params.push_back(GetTypeInfoRef<T>());
+}
+
+// Pointer to member function without Lua state parameter
+template <class R, class T, class... Args>
+void ConstructFunctionSignature(TypeInformation& sig, R (T::*)(Args...))
+{
+	sig.Kind = LuaTypeId::Function;
+	AddFunctionReturnType(sig, Overload<R>{});
+	(AddFunctionParamType(sig, Overload<Args>{}), ...);
+}
+
+// Pointer to member function with Lua state parameter
+template <class R, class T, class... Args>
+void ConstructFunctionSignature(TypeInformation& sig, R (T::*)(lua_State* L, Args...))
+{
+	sig.Kind = LuaTypeId::Function;
+	AddFunctionReturnType(sig, Overload<R>{});
+	(AddFunctionParamType(sig, Overload<Args>{}), ...);
+}
+
+// Unbound function without Lua state parameter
+template <class R, class... Args>
+void ConstructFunctionSignature(TypeInformation& sig, R (*)(Args...))
+{
+	sig.Kind = LuaTypeId::Function;
+	AddFunctionReturnType(sig, Overload<R>{});
+	(AddFunctionParamType(sig, Overload<Args>{}), ...);
+}
+
+// Unbound function with Lua state parameter
+template <class R, class... Args>
+void ConstructFunctionSignature(TypeInformation& sig, R (*)(lua_State* L, Args...))
+{
+	sig.Kind = LuaTypeId::Function;
+	AddFunctionReturnType(sig, Overload<R>{});
+	(AddFunctionParamType(sig, Overload<Args>{}), ...);
 }
 
 END_SE()

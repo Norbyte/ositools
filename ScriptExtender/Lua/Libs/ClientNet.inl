@@ -19,14 +19,12 @@ void PostMessageToServer(char const* channel, char const* payload)
 }
 
 
-void RegisterNetLib(lua_State* L)
+void RegisterNetLib()
 {
-	static const luaL_Reg lib[] = {
-		{"PostMessageToServer", LuaWrapFunction(&PostMessageToServer)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Net", lib);
+	DECLARE_MODULE(Net, Client)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(PostMessageToServer)
+	END_MODULE()
 }
 
 END_NS()

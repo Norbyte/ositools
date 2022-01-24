@@ -592,7 +592,7 @@ UserReturn GetNameGroup(lua_State* L)
 	return LuaWrite(L, nameGroup);
 }
 
-UserReturn StatGetAttribute(lua_State * L)
+UserReturn GetAttribute(lua_State * L)
 {
 	WarnDeprecated56("StatGetAttribute() is deprecated; set properties directly on the stats object instead!");
 
@@ -608,7 +608,7 @@ UserReturn StatGetAttribute(lua_State * L)
 	return object->LuaGetAttributeLegacy(L, attributeName, {});
 }
 
-bool StatSetAttribute(lua_State * L)
+bool SetAttribute(lua_State * L)
 {
 	WarnDeprecated56("StatSetAttribute() is deprecated; set properties directly on the stats object instead!");
 
@@ -621,7 +621,7 @@ bool StatSetAttribute(lua_State * L)
 	return object->LuaSetAttribute(L, attributeName, 3);
 }
 
-void StatAddCustomDescription(lua_State * L, const char* statName, const char* attributeName, const char* description)
+void AddCustomDescription(lua_State * L, const char* statName, const char* attributeName, const char* description)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
@@ -650,7 +650,7 @@ void StatAddCustomDescription(lua_State * L, const char* statName, const char* a
 	(*props)->Properties.Primitives.push_back(customProp);
 }
 
-void StatSetLevelScaling(lua_State * L)
+void SetLevelScaling(lua_State * L)
 {
 	StackCheck _(L);
 	auto modifierListName = luaL_checkstring(L, 1);
@@ -701,7 +701,7 @@ void StatSetLevelScaling(lua_State * L)
 	lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 }
 
-UserReturn GetStat(lua_State * L)
+UserReturn Get(lua_State * L)
 {
 	StackCheck _(L, 1);
 	auto statName = luaL_checkstring(L, 1);
@@ -765,7 +765,7 @@ bool CopyStats(Object* obj, char const* copyFrom)
 	return true;
 }
 
-UserReturn CreateStat(lua_State * L)
+UserReturn Create(lua_State * L)
 {
 	StackCheck _(L, 1);
 	auto statName = luaL_checkstring(L, 1);
@@ -812,7 +812,7 @@ UserReturn CreateStat(lua_State * L)
 	return 1;
 }
 
-void SyncStat(char const* statName, std::optional<bool> persist)
+void Sync(char const* statName, std::optional<bool> persist)
 {
 	auto stats = GetStaticSymbols().GetStats();
 	auto object = stats->Objects.Find(FixedString(statName));
@@ -834,7 +834,7 @@ void SyncStat(char const* statName, std::optional<bool> persist)
 }
 
 
-void StatSetPersistence(char const* statName, bool persist)
+void SetPersistence(char const* statName, bool persist)
 {
 	if (!gExtender->GetServer().IsInServerThread()) {
 		OsiError("Can only set persistence in server context");
@@ -1034,106 +1034,83 @@ UserReturn EnumLabelToIndex(lua_State* L)
 #undef END_ENUM_NS
 #undef END_ENUM
 
-void RegisterStatsLib(lua_State* L)
+void RegisterStatsLib()
 {
-	StatsExtraDataProxy::RegisterMetatable(L);
-
-	static const luaL_Reg lib[] = {
-		{"GetCharacterCreation", LuaWrapFunction(&GetCharacterCreation)},
-		{"GetStats", LuaWrapFunction(&GetStats)},
-		{"GetStatsLoadedBefore", LuaWrapFunction(&GetStatsLoadedBefore)},
-		{"Get", LuaWrapFunction(&GetStat)},
-		{"Create", LuaWrapFunction(&CreateStat)},
-		{"Sync", LuaWrapFunction(&SyncStat)},
-		{"SetPersistence", LuaWrapFunction(&StatSetPersistence)},
-		{"GetAttribute", LuaWrapFunction(&StatGetAttribute)},
-		{"SetAttribute", LuaWrapFunction(&StatSetAttribute)},
-		{"AddCustomDescription", LuaWrapFunction(&StatAddCustomDescription)},
-		{"SetLevelScaling", LuaWrapFunction(&StatSetLevelScaling)},
-		{"EnumIndexToLabel", LuaWrapFunction(&EnumIndexToLabel)},
-		{"EnumLabelToIndex", LuaWrapFunction(&EnumLabelToIndex)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", lib);
-
-	static const luaL_Reg deltaModLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetDeltaMod)},
-		{"Update", LuaWrapFunction(&UpdateDeltaMod)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "DeltaMod", deltaModLib);
-
-	static const luaL_Reg skillSetLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetSkillSet)},
-		{"Update", LuaWrapFunction(&UpdateSkillSet)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "SkillSet", skillSetLib);
-
-	static const luaL_Reg equipmentSetLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetEquipmentSet)},
-		{"Update", LuaWrapFunction(&UpdateEquipmentSet)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "EquipmentSet", equipmentSetLib);
-
-	static const luaL_Reg treasureTableLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetTreasureTable)},
-		{"Update", LuaWrapFunction(&UpdateTreasureTable)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "TreasureTable", treasureTableLib);
-
-	static const luaL_Reg treasureCategoryLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetTreasureCategory)},
-		{"Update", LuaWrapFunction(&UpdateTreasureCategory)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "TreasureCategory", treasureCategoryLib);
-
-	static const luaL_Reg itemComboLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetItemCombo)},
-		{"Update", LuaWrapFunction(&UpdateItemCombo)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "ItemCombo", itemComboLib);
-
-	static const luaL_Reg itemComboPreviewLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetItemComboPreviewData)},
-		{"Update", LuaWrapFunction(&UpdateItemComboPreviewData)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "ItemComboPreview", itemComboPreviewLib);
-
-	static const luaL_Reg itemComboPropertyLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetItemComboProperty)},
-		{"Update", LuaWrapFunction(&UpdateItemComboProperty)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "ItemComboProperty", itemComboPropertyLib);
-
-	static const luaL_Reg itemGroupLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetItemGroup)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "ItemGroup", itemGroupLib);
-
-	static const luaL_Reg nameGroupLib[] = {
-		{"GetLegacy", LuaWrapFunction(&GetNameGroup)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Stats", "NameGroup", nameGroupLib);
+	DECLARE_MODULE(Stats, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(GetCharacterCreation)
+	MODULE_FUNCTION(GetStats)
+	MODULE_FUNCTION(GetStatsLoadedBefore)
+	MODULE_FUNCTION(Get)
+	MODULE_FUNCTION(Create)
+	// TODO - move to stats object method
+	MODULE_FUNCTION(Sync)
+	MODULE_FUNCTION(SetPersistence)
+	MODULE_FUNCTION(GetAttribute)
+	MODULE_FUNCTION(SetAttribute)
+	MODULE_FUNCTION(AddCustomDescription)
+	MODULE_FUNCTION(SetLevelScaling)
+	MODULE_FUNCTION(EnumIndexToLabel)
+	MODULE_FUNCTION(EnumLabelToIndex)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, DeltaMod, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetDeltaMod)
+	MODULE_NAMED_FUNCTION("Update", UpdateDeltaMod)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, SkillSet, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetSkillSet)
+	MODULE_NAMED_FUNCTION("Update", UpdateSkillSet)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, EquipmentSet, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetEquipmentSet)
+	MODULE_NAMED_FUNCTION("Update", UpdateEquipmentSet)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, TreasureTable, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetTreasureTable)
+	MODULE_NAMED_FUNCTION("Update", UpdateTreasureTable)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, TreasureCategory, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetTreasureCategory)
+	MODULE_NAMED_FUNCTION("Update", UpdateTreasureCategory)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, ItemCombo, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetItemCombo)
+	MODULE_NAMED_FUNCTION("Update", UpdateItemCombo)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, ItemComboPreview, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetItemComboPreviewData)
+	MODULE_NAMED_FUNCTION("Update", UpdateItemComboPreviewData)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, ItemComboProperty, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetItemComboProperty)
+	MODULE_NAMED_FUNCTION("Update", UpdateItemComboProperty)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, ItemGroup, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetItemGroup)
+	END_MODULE()
+		
+	DECLARE_SUBMODULE(Stats, NameGroup, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetNameGroup)
+	END_MODULE()
 }
 
 END_NS()

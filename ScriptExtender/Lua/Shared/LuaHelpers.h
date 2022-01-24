@@ -550,11 +550,49 @@ namespace dse::lua
 
 	struct ModuleFunction
 	{
-		const char* Name;
+		FixedString Name;
 		lua_CFunction Func;
 		TypeInformation Signature;
 	};
 
+	enum class ModuleRole
+	{
+		Client,
+		Server,
+		Both
+	};
+
+	struct ModuleDefinition
+	{
+		ModuleRole Role;
+		FixedString Table;
+		FixedString SubTable;
+		std::vector<ModuleFunction> Functions;
+	};
+
+	class ModuleRegistry
+	{
+	public:
+		void RegisterModule(ModuleDefinition const& module);
+		void ConstructState(lua_State* L, ModuleRole role);
+		void RegisterTypeInformation();
+
+		inline std::vector<ModuleDefinition> const& GetModules() const
+		{
+			return modules_;
+		}
+
+	private:
+		std::vector<ModuleDefinition> modules_;
+
+		void AddModuleToState(lua_State* L, ModuleDefinition const& module);
+		void RegisterModuleTypeInformation(ModuleDefinition const& module);
+	};
+
+	extern ModuleRegistry gModuleRegistry;
+
+	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
+	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib);
 
 	template <class T>
 	inline T checked_get_flags(lua_State* L, int index)

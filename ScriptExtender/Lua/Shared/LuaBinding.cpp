@@ -217,6 +217,69 @@ namespace dse::lua
 		lua_pop(L, 2);
 	}
 
+
+	ModuleRegistry gModuleRegistry;
+
+	void ModuleRegistry::RegisterModule(ModuleDefinition const& module)
+	{
+		modules_.push_back(module);
+	}
+
+	void ModuleRegistry::ConstructState(lua_State* L, ModuleRole role)
+	{
+		for (auto const& module : modules_) {
+			if (role == module.Role || module.Role == ModuleRole::Both) {
+				AddModuleToState(L, module);
+			}
+		}
+	}
+
+	void ModuleRegistry::RegisterTypeInformation()
+	{
+		assert(!modules_.empty());
+		for (auto const& module : modules_) {
+			RegisterModuleTypeInformation(module);
+		}
+	}
+
+	void ModuleRegistry::RegisterModuleTypeInformation(ModuleDefinition const& module)
+	{
+		STDString name;
+		switch (module.Role) {
+		case ModuleRole::Both: name = "Ext."; break;
+		case ModuleRole::Client: name = "ExtClient."; break;
+		case ModuleRole::Server: name = "ExtServer."; break;
+		}
+
+		name += module.Table.GetString();
+		if (module.SubTable) {
+			name += ".";
+			name += module.SubTable.GetString();
+		}
+
+		TypeInformation& mod = TypeInformationRepository::GetInstance().RegisterType(FixedString{ name });
+		mod.Kind = LuaTypeId::Module;
+		for (auto const& func : module.Functions) {
+			mod.Methods.insert(std::make_pair(func.Name, func.Signature));
+		}
+	}
+
+	void ModuleRegistry::AddModuleToState(lua_State* L, ModuleDefinition const& module)
+	{
+		std::vector<luaL_Reg> lib;
+		lib.reserve(module.Functions.size() + 1);
+		for (auto const& fun : module.Functions) {
+			lib.push_back({ fun.Name.GetString(), fun.Func });
+		}
+		lib.push_back({ nullptr, nullptr });
+
+		if (!module.SubTable) {
+			RegisterLib(L, module.Table.GetString(), lib.data());
+		} else {
+			RegisterLib(L, module.Table.GetString(), module.SubTable.GetString(), lib.data());
+		}
+	}
+
 	int LuaPanic(lua_State * L)
 	{
 		char const* err = "(Unknown)";

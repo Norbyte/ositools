@@ -5,21 +5,19 @@
 
 BEGIN_NS(lua::resource)
 
-Resource* GetResource(ResourceType type, FixedString templateId)
+Resource* Get(ResourceType type, FixedString templateId)
 {
 	auto bank = GetStaticSymbols().GetResourceBank();
 	auto res = bank->Container.Banks[(uint32_t)type]->Resources.Find(templateId);
 	return res ? *res : nullptr;
 }
 
-void RegisterResourceLib(lua_State* L)
+void RegisterResourceLib()
 {
-	static const luaL_Reg lib[] = {
-		{"Get", LuaWrapFunction(&GetResource)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Resource", lib);
+	DECLARE_MODULE(Resource, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(Get)
+	END_MODULE()
 }
 
 END_NS()

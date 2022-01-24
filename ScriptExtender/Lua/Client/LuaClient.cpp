@@ -461,8 +461,8 @@ void ExtensionLibraryClient::RegisterLib(lua_State * L)
 	luaL_newlib(L, extLib); // stack: lib
 	lua_setglobal(L, "Ext"); // stack: -
 
-	RegisterSharedLibraries(L);
-	RegisterClientLibraries(L);
+	RegisterSharedMetatables(L);
+	gModuleRegistry.ConstructState(L, ModuleRole::Client);
 }
 
 ClientState* ClientState::FromLua(lua_State* L)

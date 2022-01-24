@@ -32,17 +32,15 @@ std::optional<STDString> GetPathOverride(char const* path)
 	return gExtender->GetPathOverride(path);
 }
 
-void RegisterIOLib(lua_State* L)
+void RegisterIOLib()
 {
-	static const luaL_Reg ioLib[] = {
-		{"LoadFile", LuaWrapFunction(&LoadFile)},
-		{"SaveFile", LuaWrapFunction(&SaveFile)},
-		{"AddPathOverride", LuaWrapFunction(&AddPathOverride)},
-		{"GetPathOverride", LuaWrapFunction(&GetPathOverride)},
-		{0,0}
-	};
-
-	RegisterLib(L, "IO", ioLib);
+	DECLARE_MODULE(IO, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(LoadFile)
+	MODULE_FUNCTION(SaveFile)
+	MODULE_FUNCTION(AddPathOverride)
+	MODULE_FUNCTION(GetPathOverride)
+	END_MODULE()
 }
 
 END_NS()

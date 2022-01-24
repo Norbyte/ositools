@@ -16,7 +16,7 @@ function Generator:New()
     o.Builtins = {}
     o.Enumerations = {}
     o.Classes = {}
-    o.EmittedClasses = {}
+    o.Modules = {}
     o.Text = ""
     self.__index = self
     return o
@@ -36,6 +36,8 @@ function Generator:Build()
         local type = Ext.Types.GetTypeInfo(typeName)
         if type.Kind == "Object" then
             table.insert(self.Classes, type)
+        elseif type.Kind == "Module" then
+            table.insert(self.Modules, type)
         elseif type.Kind == "Enumeration" then
             table.insert(self.Enumerations, type)
         elseif type.Kind == "Boolean" or type.Kind == "Integer" or type.Kind == "Float" or type.Kind == "String" or type.Kind == "Any" then
@@ -65,6 +67,12 @@ function Generator:Build()
 
     for i,type in ipairs(self.Classes) do
         self:EmitClass(type)
+        self:EmitEmptyLine()
+        self:EmitEmptyLine()
+    end
+
+    for i,type in ipairs(self.Modules) do
+        self:EmitModule(type)
         self:EmitEmptyLine()
         self:EmitEmptyLine()
     end
@@ -99,7 +107,10 @@ function Generator:MakeTypeSignature(cls, type, forceExpand)
         local args = {}
         local retval = {}
 
-        table.insert(args, "self:" .. self:MakeTypeSignature(nil, cls))
+        if cls ~= nil then
+            table.insert(args, "self:" .. self:MakeTypeSignature(nil, cls))
+        end
+        
         for i,arg in ipairs(type.Params) do
             table.insert(args, "a" .. i .. ":" .. self:MakeTypeSignature(cls, arg))
         end
@@ -169,6 +180,18 @@ function Generator:EmitClass(type)
 
     for i,fname in ipairs(sortedMembers) do
         self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(type, type.Members[fname]))
+    end
+end
+
+function Generator:EmitModule(type)
+    self:EmitComment("@class " .. type.TypeName)
+
+    local sortedFuncs = {}
+    for fname,ftype in pairs(type.Methods) do table.insert(sortedFuncs, fname) end
+    table.sort(sortedFuncs)
+
+    for i,fname in ipairs(sortedFuncs) do
+        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(nil, type.Methods[fname]))
     end
 end
 

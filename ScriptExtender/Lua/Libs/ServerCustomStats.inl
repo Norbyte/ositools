@@ -3,12 +3,12 @@
 
 BEGIN_NS(esv::lua::stats)
 
-std::optional<FixedString> CreateCustomStat(char const* name, char const* description)
+std::optional<FixedString> Create(char const* name, char const* description)
 {
 	return CustomStatHelpers::CreateStat(name, description);
 }
 
-UserReturn GetCustomStatById(lua_State* L, char const* statId)
+UserReturn GetById(lua_State* L, char const* statId)
 {
 	StackCheck _(L, 1);
 
@@ -25,7 +25,7 @@ UserReturn GetCustomStatById(lua_State* L, char const* statId)
 	return 1;
 }
 
-UserReturn GetCustomStatByName(lua_State* L, char const* statName)
+UserReturn GetByName(lua_State* L, char const* statName)
 {
 	StackCheck _(L, 1);
 
@@ -42,7 +42,7 @@ UserReturn GetCustomStatByName(lua_State* L, char const* statName)
 	return 1;
 }
 
-UserReturn GetAllCustomStats(lua_State* L)
+UserReturn GetAll(lua_State* L)
 {
 	StackCheck _(L, 1);
 
@@ -68,17 +68,15 @@ UserReturn GetAllCustomStats(lua_State* L)
 	return 1;
 }
 
-void RegisterCustomStatLib(lua_State* L)
+void RegisterCustomStatLib()
 {
-	static const luaL_Reg lib[] = {
-		{"Create", LuaWrapFunction(&CreateCustomStat)},
-		{"GetById", LuaWrapFunction(&GetCustomStatById)},
-		{"GetByName", LuaWrapFunction(&GetCustomStatByName)},
-		{"GetAll", LuaWrapFunction(&GetAllCustomStats)},
-		{0,0}
-	};
-
-	RegisterLib(L, "CustomStat", lib);
+	DECLARE_MODULE(CustomStat, Server)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(Create)
+	MODULE_FUNCTION(GetById)
+	MODULE_FUNCTION(GetByName)
+	MODULE_FUNCTION(GetAll)
+	END_MODULE()
 }
 
 END_NS()

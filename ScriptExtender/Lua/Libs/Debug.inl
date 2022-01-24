@@ -141,7 +141,7 @@ char const * OsiToLuaTypeName(ValueType type)
 	}
 }
 
-STDString GenerateIdeHelpers(bool builtinOnly)
+STDString DoGenerateIdeHelpers(bool builtinOnly)
 {
 	STDString helpers;
 	helpers.reserve(0x20000);
@@ -231,7 +231,7 @@ STDString GenerateIdeHelpers(bool builtinOnly)
 	return helpers;
 }
 
-void LuaGenerateIdeHelpers(lua_State* L, std::optional<bool> builtinOnly)
+void GenerateIdeHelpers(lua_State* L, std::optional<bool> builtinOnly)
 {
 #if defined(OSI_EOCAPP)
 	if (gExtender->GetConfig().DeveloperMode) {
@@ -241,7 +241,7 @@ void LuaGenerateIdeHelpers(lua_State* L, std::optional<bool> builtinOnly)
 			luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}
 
-		auto helpers = GenerateIdeHelpers(builtinOnly && *builtinOnly);
+		auto helpers = DoGenerateIdeHelpers(builtinOnly && *builtinOnly);
 
 		auto path = GetStaticSymbols().ToPath("", PathRootType::Data);
 		path += "Mods/";
@@ -277,19 +277,17 @@ void LuaDebugBreak(lua_State* L)
 #endif
 }
 
-void RegisterDebugLib(lua_State* L)
+void RegisterDebugLib()
 {
-	static const luaL_Reg lib[] = {
-		{"DumpStack", LuaWrapFunction(&DumpStack)},
-		{"DumpNetworking", LuaWrapFunction(&DumpNetworking)},
-		{"DebugDumpLifetimes", LuaWrapFunction(&DebugDumpLifetimes)},
-		{"GenerateIdeHelpers", LuaWrapFunction(&LuaGenerateIdeHelpers)},
-		{"DebugBreak", LuaWrapFunction(&LuaDebugBreak)},
-		{"IsDeveloperMode", LuaWrapFunction(&IsDeveloperMode)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Debug", lib);
+	DECLARE_MODULE(Debug, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(DumpStack)
+	MODULE_FUNCTION(DumpNetworking)
+	MODULE_FUNCTION(DebugDumpLifetimes)
+	MODULE_FUNCTION(GenerateIdeHelpers)
+	MODULE_NAMED_FUNCTION("DebugBreak", LuaDebugBreak)
+	MODULE_FUNCTION(IsDeveloperMode)
+	END_MODULE()
 }
 
 END_NS()

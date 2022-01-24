@@ -69,17 +69,15 @@ std::optional<bool> PlayerHasExtender(char const* characterGuid)
 	return networkMgr.CanSendExtenderMessages(character->UserID.GetPeerId());
 }
 
-void RegisterNetLib(lua_State* L)
+void RegisterNetLib()
 {
-	static const luaL_Reg lib[] = {
-		{"BroadcastMessage", LuaWrapFunction(&BroadcastMessage)},
-		{"PostMessageToClient", LuaWrapFunction(&PostMessageToClient)},
-		{"PostMessageToUser", LuaWrapFunction(&PostMessageToUser)},
-		{"PlayerHasExtender", LuaWrapFunction(&PlayerHasExtender)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Net", lib);
+	DECLARE_MODULE(Net, Server)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(BroadcastMessage)
+	MODULE_FUNCTION(PostMessageToClient)
+	MODULE_FUNCTION(PostMessageToUser)
+	MODULE_FUNCTION(PlayerHasExtender)
+	END_MODULE()
 }
 
 END_NS()

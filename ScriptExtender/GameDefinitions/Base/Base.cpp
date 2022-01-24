@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <GameDefinitions/Symbols.h>
+#include <Lua/Shared/LuaHelpers.h>
 #include <combaseapi.h>
 
 BEGIN_SE()
@@ -519,6 +520,8 @@ void TypeInformationRepository::Initialize()
 	typeRef.ParentType = GetStaticTypeInfo(Overload<TypeInformation>{});
 
 	RegisterObjectProxyTypeInformation();
+
+	lua::gModuleRegistry.RegisterTypeInformation();
 
 	for (auto& type : types_) {
 		type.Value->DeferredInitialize();

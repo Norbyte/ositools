@@ -230,23 +230,21 @@ int PlayExternalSound(lua_State* L)
 	return 1;
 }
 
-void RegisterAudioLib(lua_State* L)
+void RegisterAudioLib()
 {
-	static const luaL_Reg soundLib[] = {
-		{"SetSwitch", audio::SetSwitch},
-		{"SetState", audio::SetState},
-		{"SetRTPC", audio::SetRTPC},
-		{"GetRTPC", audio::GetRTPC},
-		{"ResetRTPC", audio::ResetRTPC},
-		{"Stop", audio::Stop},
-		{"PauseAllSounds", audio::PauseAllSounds},
-		{"ResumeAllSounds", audio::ResumeAllSounds},
-		{"PostEvent", audio::PostEvent},
-		{"PlayExternalSound", audio::PlayExternalSound},
-		{0,0}
-	};
-
-	RegisterLib(L, "Audio", soundLib);
+	DECLARE_MODULE(Audio, Client)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(SetSwitch)
+	MODULE_FUNCTION(SetState)
+	MODULE_FUNCTION(SetRTPC)
+	MODULE_FUNCTION(GetRTPC)
+	MODULE_FUNCTION(ResetRTPC)
+	MODULE_FUNCTION(Stop)
+	MODULE_FUNCTION(PauseAllSounds)
+	MODULE_FUNCTION(ResumeAllSounds)
+	MODULE_FUNCTION(PostEvent)
+	MODULE_FUNCTION(PlayExternalSound)
+	END_MODULE()
 }
 
 END_NS()

@@ -91,18 +91,16 @@ Module* GetBaseMod()
 	return &gExtender->GetCurrentExtensionState()->GetModManager()->BaseModule;
 }
 
-void RegisterModLib(lua_State* L)
+void RegisterModLib()
 {
-	static const luaL_Reg lib[] = {
-		{"IsModLoaded", LuaWrapFunction(&IsModLoaded)},
-		{"GetLoadOrder", LuaWrapFunction(&GetLoadOrder)},
-		{"GetModInfo", LuaWrapFunction(&GetModInfo)},
-		{"GetMod", LuaWrapFunction(&GetMod)},
-		{"GetBaseMod", LuaWrapFunction(&GetBaseMod)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Mod", lib);
+	DECLARE_MODULE(Mod, Both)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(IsModLoaded)
+	MODULE_FUNCTION(GetLoadOrder)
+	MODULE_FUNCTION(GetModInfo)
+	MODULE_FUNCTION(GetMod)
+	MODULE_FUNCTION(GetBaseMod)
+	END_MODULE()
 }
 
 END_NS()

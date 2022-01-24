@@ -165,18 +165,16 @@ void NewEvent(lua_State * L)
 	functionMgr.RegisterDynamic(std::move(customEvt));
 }
 
-void RegisterOsirisLib(lua_State* L)
+void RegisterOsirisLib()
 {
-	static const luaL_Reg lib[] = {
-		{"RegisterListener", LuaWrapFunction(&RegisterListener)},
-		{"IsCallable", LuaWrapFunction(&IsCallable)},
-		{"NewCall", LuaWrapFunction(&NewCall)},
-		{"NewQuery", LuaWrapFunction(&NewQuery)},
-		{"NewEvent", LuaWrapFunction(&NewEvent)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Osiris", lib);
+	DECLARE_MODULE(Osiris, Server)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(RegisterListener)
+	MODULE_FUNCTION(IsCallable)
+	MODULE_FUNCTION(NewCall)
+	MODULE_FUNCTION(NewQuery)
+	MODULE_FUNCTION(NewEvent)
+	END_MODULE()
 }
 
 END_NS()

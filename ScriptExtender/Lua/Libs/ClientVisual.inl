@@ -81,7 +81,7 @@ END_SE()
 
 BEGIN_NS(ecl::lua::visual)
 
-Visual* GetVisual(ComponentHandle const& handle)
+Visual* Get(ComponentHandle const& handle)
 {
 	if ((ObjectType)handle.GetType() != ObjectType::Visual) {
 		OsiError("Expected a visual handle, got " << GetHandleTypeName(handle));
@@ -92,7 +92,7 @@ Visual* GetVisual(ComponentHandle const& handle)
 	return factory->Get(handle);
 }
 
-ClientMultiVisual* CreateMultiVisual(lua_State* L, glm::vec3 const& position)
+ClientMultiVisual* Create(lua_State* L, glm::vec3 const& position)
 {
 	auto init = GetStaticSymbols().ecl__MultiEffectHandler__Init;
 	auto state = ClientState::FromLua(L);
@@ -101,7 +101,7 @@ ClientMultiVisual* CreateMultiVisual(lua_State* L, glm::vec3 const& position)
 	return effect;
 }
 
-ClientMultiVisual* CreateMultiVisualOnCharacter(lua_State* L, glm::vec3 const& position, std::optional<ProxyParam<Character>> target, std::optional<ProxyParam<Character>> listenForTextKeys)
+ClientMultiVisual* CreateOnCharacter(lua_State* L, glm::vec3 const& position, std::optional<ProxyParam<Character>> target, std::optional<ProxyParam<Character>> listenForTextKeys)
 {
 	auto init = GetStaticSymbols().ecl__MultiEffectHandler__Init;
 	auto state = ClientState::FromLua(L);
@@ -110,7 +110,7 @@ ClientMultiVisual* CreateMultiVisualOnCharacter(lua_State* L, glm::vec3 const& p
 	return effect;
 }
 
-ClientMultiVisual* CreateMultiVisualOnItem(lua_State* L, glm::vec3 const& position, std::optional<ProxyParam<Item>> target, std::optional<ProxyParam<Item>> listenForTextKeys)
+ClientMultiVisual* CreateOnItem(lua_State* L, glm::vec3 const& position, std::optional<ProxyParam<Item>> target, std::optional<ProxyParam<Item>> listenForTextKeys)
 {
 	auto init = GetStaticSymbols().ecl__MultiEffectHandler__Init;
 	auto state = ClientState::FromLua(L);
@@ -337,17 +337,15 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 	return visual;
 }
 
-void RegisterVisualLib(lua_State* L)
+void RegisterVisualLib()
 {
-	static const luaL_Reg lib[] = {
-		{"Get", LuaWrapFunction(&GetVisual)},
-		{"Create", LuaWrapFunction(&CreateMultiVisual)},
-		{"CreateOnCharacter", LuaWrapFunction(&CreateMultiVisualOnCharacter)},
-		{"CreateOnItem", LuaWrapFunction(&CreateMultiVisualOnItem)},
-		{0,0}
-	};
-
-	RegisterLib(L, "Visual", lib);
+	DECLARE_MODULE(Visual, Client)
+	BEGIN_MODULE()
+	MODULE_FUNCTION(Get)
+	MODULE_FUNCTION(Create)
+	MODULE_FUNCTION(CreateOnCharacter)
+	MODULE_FUNCTION(CreateOnItem)
+	END_MODULE()
 }
 
 END_NS()
