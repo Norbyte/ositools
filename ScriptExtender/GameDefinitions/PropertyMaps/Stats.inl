@@ -550,9 +550,19 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	auto talentId = label.Value;
 
-	// Talent getter (eg. TALENT_)
+	// Talent getter (eg. TALENT_ResistDead)
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
+		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+			push(L, obj->HasTalent((stats::TalentType)flag, false));
+			return true;
+		},
+		nullptr, 0, (uint64_t)talentId
+	);
+
+	// Base talent getter (eg. TALENT_BaseResistDead)
+	STDString baseTalentName = STDString("TALENT_Base") + label.Key.GetString();
+	pm.AddProperty(baseTalentName.c_str(),
 		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->HasTalent((stats::TalentType)flag, true));
 			return true;
