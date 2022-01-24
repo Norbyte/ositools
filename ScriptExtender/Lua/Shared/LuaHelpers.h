@@ -49,6 +49,78 @@ namespace dse::lua
 	};
 #endif
 
+	struct TableIterationHelper
+	{
+		struct EndIterator {};
+
+		struct Iterator
+		{
+			lua_State* L;
+			int Index;
+			bool End;
+
+			inline Iterator(lua_State* _L, int index)
+				: L(_L), Index(index), End(false)
+			{}
+
+			inline Iterator operator ++ ()
+			{
+				lua_pop(L, 1);
+				Iterator it(L, Index);
+				it.End = lua_next(L, Index) == 0;
+				End = it.End;
+				return it;
+			}
+
+			inline Iterator& operator ++ (int)
+			{
+				lua_pop(L, 1);
+				End = lua_next(L, Index) == 0;
+				return *this;
+			}
+
+			inline bool operator == (EndIterator const&)
+			{
+				return End;
+			}
+
+			inline bool operator != (EndIterator const&)
+			{
+				return !End;
+			}
+
+			inline int operator * ()
+			{
+				return -1;
+			}
+		};
+
+		lua_State* L;
+		int Index;
+
+		inline Iterator begin()
+		{
+			lua_pushnil(L);
+
+			Iterator it(L, Index);
+			it.End = lua_next(L, Index) == 0;
+			return it;
+		}
+
+		inline EndIterator end()
+		{
+			return EndIterator{};
+		}
+	};
+
+	inline TableIterationHelper iterate(lua_State* L, int index)
+	{
+		TableIterationHelper helper;
+		helper.L = L;
+		helper.Index = lua_absindex(L, index);
+		return helper;
+	}
+
 	inline void push(lua_State * L, nullptr_t v)
 	{
 		lua_pushnil(L);
@@ -276,7 +348,7 @@ namespace dse::lua
 			if (index) {
 				return (T)*index;
 			} else {
-				luaL_error(L, "Param '%s' is not a valid '%s' enum label: %s", val, EnumInfo<T>::Name, val);
+				luaL_error(L, "Param %d: not a valid '%s' enum label: %s", index, EnumInfo<T>::Name, val);
 			}
 			break;
 		}
@@ -288,7 +360,30 @@ namespace dse::lua
 			if (index) {
 				return (T)val;
 			} else {
-				luaL_error(L, "Param %d is not a valid '%s' enum index: %d", index, EnumInfo<T>::Name, val);
+				luaL_error(L, "Param %d: not a valid '%s' enum index: %d", index, EnumInfo<T>::Name, val);
+			}
+			break;
+		}
+
+		case LUA_TTABLE:
+		{
+			if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
+				T val{ 0 };
+				for (auto valueIdx : iterate(L, index)) {
+					auto label = do_get(L, valueIdx, Overload<FixedString>{});
+					auto index = EnumInfo<T>::Find(label);
+					if (index) {
+						val |= (T)*index;
+					} else {
+						luaL_error(L, "Param %d: not a valid '%s' enum label: %s", 
+							index, EnumInfo<T>::Name, label.GetString());
+					}
+				}
+
+				return val;
+			} else {
+				luaL_error(L, "Param %d: table values not allowed as parameter when passing a '%s' enumeration (only for bitfields)", 
+					index, EnumInfo<T>::Name);
 			}
 			break;
 		}
@@ -296,6 +391,7 @@ namespace dse::lua
 		default:
 			luaL_error(L, "Param %d: expected integer or string '%s' enumeration value, got %s", index,
 				EnumInfo<T>::Name, lua_typename(L, lua_type(L, index)));
+			break;
 		}
 
 		return (T)0;
@@ -452,81 +548,13 @@ namespace dse::lua
 		int ref_;
 	};
 
-	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
-	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib);
-
-	struct TableIterationHelper
+	struct ModuleFunction
 	{
-		struct EndIterator {};
-
-		struct Iterator
-		{
-			lua_State* L;
-			int Index;
-			bool End;
-
-			inline Iterator(lua_State* _L, int index)
-				: L(_L), Index(index), End(false)
-			{}
-
-			inline Iterator operator ++ ()
-			{
-				lua_pop(L, 1);
-				Iterator it(L, Index);
-				it.End = lua_next(L, Index) == 0;
-				End = it.End;
-				return it;
-			}
-
-			inline Iterator& operator ++ (int)
-			{
-				lua_pop(L, 1);
-				End = lua_next(L, Index) == 0;
-				return *this;
-			}
-
-			inline bool operator == (EndIterator const&)
-			{
-				return End;
-			}
-
-			inline bool operator != (EndIterator const&)
-			{
-				return !End;
-			}
-
-			inline int operator * ()
-			{
-				return -1;
-			}
-		};
-
-		lua_State* L;
-		int Index;
-
-		inline Iterator begin()
-		{
-			lua_pushnil(L);
-			if (Index < 0) Index--;
-
-			Iterator it(L, Index);
-			it.End = lua_next(L, Index) == 0;
-			return it;
-		}
-
-		inline EndIterator end()
-		{
-			return EndIterator{};
-		}
+		const char* Name;
+		lua_CFunction Func;
+		TypeInformation Signature;
 	};
 
-	inline TableIterationHelper iterate(lua_State* L, int index)
-	{
-		TableIterationHelper helper;
-		helper.L = L;
-		helper.Index = index;
-		return helper;
-	}
 
 	template <class T>
 	inline T checked_get_flags(lua_State* L, int index)
