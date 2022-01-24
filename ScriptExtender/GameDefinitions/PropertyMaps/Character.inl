@@ -310,8 +310,7 @@ P_FUN(GetNearbyCharacters, GetNearbyCharacters)
 P_FUN(GetSummons, GetSummonGuids)
 P_FUN(GetCustomStat, GetCustomStatValue)
 P_FUN(SetCustomStat, SetCustomStatValue)
-// FIXME - 
-// SetScale
+P_FUN(SetScale, LuaSetScale)
 
 END_CLS()
 
@@ -393,4 +392,5 @@ P_FUN(GetInventoryItems, GetInventoryItemGuids)
 P_FUN(GetItemBySlot, GetItemGuidBySlot)
 P_FUN(GetItemObjectBySlot, GetItemBySlot)
 P_FUN(GetCustomStat, GetCustomStatValue)
+P_FUN(SetScale, LuaSetScale)
 END_CLS()
