@@ -13,6 +13,7 @@ using WStringView = std::wstring_view;
 
 STDString ToUTF8(WStringView s);
 STDWString FromUTF8(StringView s);
+std::wstring FromStdUTF8(StringView s);
 
 struct FixedString
 {

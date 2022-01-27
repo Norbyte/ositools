@@ -104,6 +104,7 @@ struct SymbolMappings
 	{
 		kNone,
 		kString, // Match string
+		kWString, // Match UTF-16LE string
 		kFixedString, // Match a FixedString reference
 		kFixedStringIndirect // Match a pointer to a FixedString reference
 	};
@@ -113,6 +114,7 @@ struct SymbolMappings
 		MatchType Type{ MatchType::kNone };
 		int32_t Offset{ 0 };
 		std::string String;
+		std::wstring WString;
 	};
 
 	enum ActionType
@@ -261,6 +263,7 @@ private:
 
 	bool IsValidModulePtr(uint8_t const* ref) const;
 	bool IsConstStringRef(uint8_t const* ref, char const* str) const;
+	bool IsConstWStringRef(uint8_t const* ref, wchar_t const* str) const;
 	bool IsFixedStringRef(uint8_t const* ref, char const* str) const;
 	bool IsIndirectFixedStringRef(uint8_t const* ref, char const* str) const;
 

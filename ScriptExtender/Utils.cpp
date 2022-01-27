@@ -23,6 +23,15 @@ namespace dse
 		MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size());
 		return converted;
 	}
+
+	std::wstring FromStdUTF8(StringView s)
+	{
+		int size = MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), NULL, 0);
+		std::wstring converted;
+		converted.resize(size);
+		MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), converted.data(), (int)converted.size());
+		return converted;
+	}
 }
 
 std::optional<std::string> GetExeResource(int resourceId)

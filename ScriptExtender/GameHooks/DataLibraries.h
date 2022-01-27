@@ -89,6 +89,7 @@ private:
 	bool PostLoaded{ false };
 	bool EnabledCustomStats{ false };
 	bool EnabledCustomStatsPane{ false };
+	bool enabledCustomAlignments_{ false };
 };
 
 END_SE()

@@ -1200,5 +1200,14 @@
       <Condition Type="FixedString" Offset="@str" Value="MALE" />
       <Target Type="Indirect" Offset="@ref" Symbol="eoc__CharacterCreationManager" />
     </Mapping>
+
+    <Mapping Name="esv::AlignmentContainer::Load Hook">
+      48 8B 9A F0 02 00 00 // mov     rbx, [rdx+2F0h]
+      @str 4C 8D 25 ?? ?? ?? ??  // lea     r12, aStoryAlignment ; "Story/Alignments/Alignment.lsx"
+      8B 82 FC 02 00 00 // mov     eax, [rdx+2FCh]
+      48 69 F8 58 03 00 00 // imul    rdi, rax, 358h
+      <Condition Type="WString" Offset="@str" Value="Story/Alignments/Alignment.lsx" />
+      <Target Type="Absolute" Offset="0" Symbol="esv__AlignmentContainer__Load__Hook" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

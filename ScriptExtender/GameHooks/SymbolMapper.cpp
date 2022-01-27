@@ -562,6 +562,8 @@ bool SymbolMappingLoader::LoadCondition(tinyxml2::XMLElement* ele, Pattern const
 	auto type = ele->Attribute("Type");
 	if (strcmp(type, "String") == 0) {
 		condition.Type = SymbolMappings::MatchType::kString;
+	} else if (strcmp(type, "WString") == 0) {
+		condition.Type = SymbolMappings::MatchType::kWString;
 	} else if (strcmp(type, "FixedString") == 0) {
 		condition.Type = SymbolMappings::MatchType::kFixedString;
 	} else if (strcmp(type, "FixedStringIndirect") == 0) {
@@ -584,6 +586,11 @@ bool SymbolMappingLoader::LoadCondition(tinyxml2::XMLElement* ele, Pattern const
 		return false;
 	}
 	condition.String = str;
+
+	if (condition.Type == SymbolMappings::MatchType::kWString) {
+		condition.WString = FromStdUTF8(str).c_str();
+	}
+
 	return true;
 }
 
@@ -604,6 +611,13 @@ bool SymbolMapper::IsConstStringRef(uint8_t const * ref, char const * str) const
 	return
 		IsValidModulePtr(ref)
 		&& strcmp((char const *)ref, str) == 0;
+}
+
+bool SymbolMapper::IsConstWStringRef(uint8_t const * ref, wchar_t const * str) const
+{
+	return
+		IsValidModulePtr(ref)
+		&& wcscmp((wchar_t const *)ref, str) == 0;
 }
 
 bool SymbolMapper::IsFixedStringRef(uint8_t const * ref, char const * str) const
@@ -639,6 +653,10 @@ bool SymbolMapper::EvaluateSymbolCondition(SymbolMappings::Condition const & con
 	case SymbolMappings::MatchType::kString:
 		ptr = AsmResolveInstructionRef(match + cond.Offset);
 		return ptr != nullptr && IsConstStringRef(ptr, cond.String.c_str());
+		
+	case SymbolMappings::MatchType::kWString:
+		ptr = AsmResolveInstructionRef(match + cond.Offset);
+		return ptr != nullptr && IsConstWStringRef(ptr, cond.WString.c_str());
 
 	case SymbolMappings::MatchType::kFixedString:
 		ptr = AsmResolveInstructionRef(match + cond.Offset);

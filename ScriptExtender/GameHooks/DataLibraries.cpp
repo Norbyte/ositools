@@ -231,6 +231,8 @@ namespace dse
 		SYM_OFF(Module__Hash);
 		SYM_OFF(esv__LoadProtocol__HandleModuleLoaded);
 
+		SYM_OFF(esv__AlignmentContainer__Load__Hook);
+
 		SYM_OFF(IgValuePathMakeNameRef);
 		SYM_OFF(IgValuePathPathMakeArrayRef);
 		SYM_OFF(IgValuePathSetArrayIndex);
@@ -410,10 +412,11 @@ namespace dse
 
 	void LibraryManager::EnableCustomStats()
 	{
-		if (GetStaticSymbols().UICharacterSheetHook == nullptr
-			|| GetStaticSymbols().ActivateClientSystemsHook == nullptr
-			|| GetStaticSymbols().ActivateServerSystemsHook == nullptr
-			|| GetStaticSymbols().CustomStatUIRollHook == nullptr) {
+		auto const& sym = GetStaticSymbols();
+		if (sym.UICharacterSheetHook == nullptr
+			|| sym.ActivateClientSystemsHook == nullptr
+			|| sym.ActivateServerSystemsHook == nullptr
+			|| sym.CustomStatUIRollHook == nullptr) {
 			ERR("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
@@ -421,19 +424,19 @@ namespace dse
 		if (gExtender->HasFeatureFlag("CustomStats") && !EnabledCustomStats) {
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(GetStaticSymbols().ActivateClientSystemsHook, sizeof(replacement));
+				WriteAnchor code(sym.ActivateClientSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0x90, 0x90 };
-				WriteAnchor code(GetStaticSymbols().ActivateServerSystemsHook, sizeof(replacement));
+				WriteAnchor code(sym.ActivateServerSystemsHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
 			{
 				uint8_t const replacement[] = { 0xC3 };
-				WriteAnchor code(GetStaticSymbols().CustomStatUIRollHook, sizeof(replacement));
+				WriteAnchor code(sym.CustomStatUIRollHook, sizeof(replacement));
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
@@ -451,9 +454,16 @@ namespace dse
 #endif
 			};
 
-			WriteAnchor code(GetStaticSymbols().UICharacterSheetHook, sizeof(replacement));
+			WriteAnchor code(sym.UICharacterSheetHook, sizeof(replacement));
 			memcpy(code.ptr(), replacement, sizeof(replacement));
 			EnabledCustomStatsPane = true;
+		}
+
+		if (!enabledCustomAlignments_ && sym.esv__AlignmentContainer__Load__Hook) {
+			WriteAnchor code((uint8_t*)sym.esv__AlignmentContainer__Load__Hook, 0x100);
+			*(uint32_t*)(code.ptr() + 3) = 0x2B0;
+			*(uint32_t*)(code.ptr() + 16) = 0x2BC;
+			enabledCustomAlignments_ = true;
 		}
 	}
 

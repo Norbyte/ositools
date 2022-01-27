@@ -280,6 +280,8 @@ namespace dse
 		Module::HashProc* Module__Hash{ nullptr };
 		esv::LoadProtocol::HandleModuleLoadedProc* esv__LoadProtocol__HandleModuleLoaded{ nullptr };
 
+		void* esv__AlignmentContainer__Load__Hook{ nullptr };
+
 		ig::ValuePathMakeNameRefProc IgValuePathMakeNameRef{ nullptr };
 		ig::ValuePathMakeArrayRefProc IgValuePathPathMakeArrayRef{ nullptr };
 		ig::ValuePathSetArrayIndexProc IgValuePathSetArrayIndex{ nullptr };
