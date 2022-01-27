@@ -9,6 +9,7 @@ namespace dse
 	{
 		static Vector<FixedString> Labels;
 		static Map<FixedString, T> Values;
+		static T AllowedFlags;
 
 		static void Init(unsigned sizeHint)
 		{
@@ -32,6 +33,7 @@ namespace dse
 			FixedString fs(label);
 			Labels[index] = fs;
 			Values.Insert(fs, val);
+			AllowedFlags = (T)((uint64_t)AllowedFlags | (uint64_t)val);
 		}
 
 		static std::optional<T> Find(FixedString const& name)

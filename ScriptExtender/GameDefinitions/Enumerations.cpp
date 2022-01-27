@@ -9,13 +9,15 @@ namespace dse
 
 #define BEGIN_BITMASK_NS(NS, T, type) \
 	Vector<FixedString> BitmaskInfoBase<NS::T>::Labels; \
-	Map<FixedString, NS::T> BitmaskInfoBase<NS::T>::Values{0};
+	Map<FixedString, NS::T> BitmaskInfoBase<NS::T>::Values{0}; \
+	NS::T BitmaskInfoBase<NS::T>::AllowedFlags{0};
 #define BEGIN_ENUM_NS(NS, T, type) \
 	Vector<FixedString> EnumInfoBase<NS::T>::Labels; \
 	Map<FixedString, NS::T> EnumInfoBase<NS::T>::Values{0};
 #define BEGIN_BITMASK(T, type) \
 	Vector<FixedString> BitmaskInfoBase<T>::Labels; \
-	Map<FixedString, T> BitmaskInfoBase<T>::Values{0};
+	Map<FixedString, T> BitmaskInfoBase<T>::Values{0}; \
+	T BitmaskInfoBase<T>::AllowedFlags{0};
 #define BEGIN_ENUM(T, type) \
 	Vector<FixedString> EnumInfoBase<T>::Labels; \
 	Map<FixedString, T> EnumInfoBase<T>::Values{0};
