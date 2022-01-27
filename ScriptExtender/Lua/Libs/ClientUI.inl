@@ -2,7 +2,7 @@ BEGIN_NS(ecl::lua::ui)
 
 uint32_t NextCustomCreatorId = 1000;
 
-UIObject* Create(char const* name, char const* path, int layer, std::optional<uint32_t> inFlags)
+UIObject* Create(char const* name, char const* path, int layer, std::optional<UIObjectFlags> inFlags)
 {
 	auto& sym = GetStaticSymbols();
 	auto uiManager = sym.GetUIObjectManager();
@@ -13,9 +13,16 @@ UIObject* Create(char const* name, char const* path, int layer, std::optional<ui
 
 	UIObjectFlags flags;
 	if (inFlags) {
-		flags = (UIObjectFlags )*inFlags;
+		flags = (UIObjectFlags)*inFlags;
 	} else {
 		flags = UIObjectFlags::OF_Load | UIObjectFlags::OF_PlayerInput1 | UIObjectFlags::OF_DeleteOnChildDestroy;
+	}
+
+	const UIObjectFlags requiredFlags = UIObjectFlags::OF_Load | UIObjectFlags::OF_DeleteOnChildDestroy;
+	const UIObjectFlags disallowedFlags = UIObjectFlags::OF_Loaded | UIObjectFlags::OF_RequestDelete | UIObjectFlags::OF_Activated;
+	if (((flags & requiredFlags) != requiredFlags) || (flags & disallowedFlags) != (UIObjectFlags)0) {
+		OsiError("Attempted to create UI object with invalid flags set!");
+		return nullptr;
 	}
 
 	// FIXME - playerId, registerInvokeNames?
