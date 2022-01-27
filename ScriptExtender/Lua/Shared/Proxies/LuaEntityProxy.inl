@@ -64,7 +64,7 @@ void PushComponentType(lua_State* L, EntitySystemHelpersBase* helpers, EntityHan
 		ObjectProxy2::MakeRef<T>(L, component, lifetime);
 	} else {
 		if (logError) {
-			OsiError("Couldn't get component of type " << T::ComponentType);
+			OsiError("Couldn't get component of type " << T::EntityComponentIndex);
 		}
 
 		push(L, nullptr);
@@ -80,7 +80,7 @@ void PushComponentType(lua_State* L, EntitySystemHelpersBase* helpers, Component
 		ObjectProxy2::MakeRef<T>(L, component, lifetime);
 	} else {
 		if (logError) {
-			OsiError("Couldn't get component of type " << T::ComponentType);
+			OsiError("Couldn't get component of type " << T::EntityComponentIndex);
 		}
 
 		push(L, nullptr);
@@ -88,7 +88,7 @@ void PushComponentType(lua_State* L, EntitySystemHelpersBase* helpers, Component
 }
 
 #define T(cls) \
-case cls::ComponentType: \
+case cls::EntityComponentIndex: \
 { \
 	PushComponentType<cls>(L, helpers, handle, lifetime, logError); \
 	break; \
@@ -110,7 +110,7 @@ void PushComponent(lua_State* L, EntitySystemHelpersBase* helpers, EntityHandle 
 #undef T
 
 #define T(cls) \
-case cls::ComponentType: \
+case cls::EntityComponentIndex: \
 { \
 	PushComponentType<cls>(L, helpers, handle, lifetime, logError); \
 	break; \

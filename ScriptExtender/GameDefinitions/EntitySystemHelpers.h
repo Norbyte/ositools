@@ -104,7 +104,7 @@ public:
 	template <class T>
 	T* GetComponent(ComponentHandle componentHandle, bool logError = true)
 	{
-		auto component = GetRawComponent(componentHandle, T::ComponentType, logError);
+		auto component = GetRawComponent(componentHandle, T::EntityComponentIndex, logError);
 		if (component) {
 			return RawComponentPtrToComponent<T>(component);
 		} else {
@@ -115,7 +115,7 @@ public:
 	template <class T>
 	T* GetComponent(char const* nameGuid, bool logError = true)
 	{
-		auto component = GetRawComponent(nameGuid, T::ComponentType, logError);
+		auto component = GetRawComponent(nameGuid, T::EntityComponentIndex, logError);
 		if (component) {
 			return RawComponentPtrToComponent<T>(component);
 		} else {
@@ -126,7 +126,7 @@ public:
 	template <class T>
 	T* GetComponent(FixedString const& guid, bool logError = true)
 	{
-		auto component = GetRawComponent(guid, T::ComponentType, logError);
+		auto component = GetRawComponent(guid, T::EntityComponentIndex, logError);
 		if (component) {
 			return RawComponentPtrToComponent<T>(component);
 		} else {
@@ -137,7 +137,7 @@ public:
 	template <class T>
 	T* GetComponent(NetId netId, bool logError = true)
 	{
-		auto component = GetRawComponent(netId, T::ComponentType, logError);
+		auto component = GetRawComponent(netId, T::EntityComponentIndex, logError);
 		if (component) {
 			return RawComponentPtrToComponent<T>(component);
 		} else {
@@ -149,7 +149,7 @@ public:
 	// FIXME - migrate to EntityHandle
 	T* GetEntityComponent(ComponentHandle entityHandle, bool logError = true)
 	{
-		auto component = GetRawEntityComponent(entityHandle, T::ComponentType, logError);
+		auto component = GetRawEntityComponent(entityHandle, T::EntityComponentIndex, logError);
 		if (component) {
 			return RawComponentPtrToComponent<T>(component);
 		} else {
@@ -165,7 +165,7 @@ public:
 			return;
 		}
 
-		auto componentIndex = GetComponentIndex(T::ComponentType);
+		auto componentIndex = GetComponentIndex(T::EntityComponentIndex);
 		if (!componentIndex) {
 			return;
 		}

@@ -388,7 +388,7 @@ namespace esv
 		inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ComponentHandle componentHandle, bool logError = true)
 		{
 			// FIXME - remove typecasts after conversion is complete
-			auto component = GetComponent((uint32_t)ComponentType::CustomStatDefinition, ObjectType::ServerCustomStatDefinitionComponent, 
+			auto component = GetComponent((uint32_t)EntityComponentIndex::CustomStatDefinition, ObjectHandleType::ServerCustomStatDefinitionComponent, 
 				componentHandle, logError);
 			if (component != nullptr) {
 				return (CustomStatDefinitionComponent*)((uint8_t*)component - 80);
@@ -400,7 +400,7 @@ namespace esv
 
 		inline Character* GetCharacterComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Character, entityHandle, logError);
+			auto ptr = GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Character, entityHandle, logError);
 			if (ptr != nullptr) {
 				return (Character*)((uint8_t*)ptr - 8);
 			}
@@ -411,7 +411,7 @@ namespace esv
 
 		inline Item* GetItemComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			auto ptr = GetComponentByEntityHandle((uint32_t)ComponentType::Item, entityHandle, logError);
+			auto ptr = GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Item, entityHandle, logError);
 			if (ptr != nullptr) {
 				return (Item*)((uint8_t*)ptr - 8);
 			}
@@ -422,17 +422,17 @@ namespace esv
 
 		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			return (eoc::CombatComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Combat, entityHandle, logError);
+			return (eoc::CombatComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Combat, entityHandle, logError);
 		}
 
 		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
+			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::CustomStats, entityHandle, logError);
 		}
 
 		inline NetComponent* GetNetComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			return (NetComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::Net, entityHandle, logError);
+			return (NetComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Net, entityHandle, logError);
 		}
 
 		inline CustomStatSystem* GetCustomStatSystem()
@@ -449,7 +449,7 @@ namespace esv
 
 		inline Character* GetCharacter(char const* nameGuid, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, nameGuid, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, nameGuid, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -460,7 +460,7 @@ namespace esv
 
 		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, ObjectType::ServerCharacter, handle, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, ObjectHandleType::ServerCharacter, handle, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -471,7 +471,7 @@ namespace esv
 
 		inline Character* GetCharacter(NetId netId, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, netId, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, netId, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -482,7 +482,7 @@ namespace esv
 
 		inline Item* GetItem(char const* nameGuid, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, nameGuid, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, nameGuid, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -493,7 +493,7 @@ namespace esv
 
 		inline Item* GetItem(ComponentHandle handle, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ServerItem, handle, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ServerItem, handle, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -504,7 +504,7 @@ namespace esv
 
 		inline Item* GetItem(NetId netId, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, netId, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, netId, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -515,7 +515,7 @@ namespace esv
 
 		inline Projectile* GetProjectile(ComponentHandle handle, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ServerProjectile, handle, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ServerProjectile, handle, logError);
 			if (component != nullptr) {
 				return (Projectile*)((uint8_t*)component - 8);
 			}
@@ -545,22 +545,22 @@ namespace esv
 
 		inline Trigger* GetTrigger(char const* nameGuid, bool logError = true)
 		{
-			static constexpr ComponentType triggerTypes[] = {
-				ComponentType::EoCPointTrigger,
-				ComponentType::EoCAreaTrigger,
-				ComponentType::StartTrigger,
-				ComponentType::TeleportTrigger,
-				ComponentType::EventTrigger,
-				ComponentType::CrimeAreaTrigger,
-				ComponentType::CrimeRegionTrigger,
-				ComponentType::AtmosphereTrigger,
-				ComponentType::AIHintAreaTrigger,
-				ComponentType::MusicVolumeTrigger,
-				ComponentType::SecretRegionTrigger,
-				ComponentType::StatsAreaTrigger,
-				ComponentType::SoundVolumeTrigger,
-				ComponentType::RegionTrigger,
-				ComponentType::ExplorationTrigger
+			static constexpr EntityComponentIndex triggerTypes[] = {
+				EntityComponentIndex::EoCPointTrigger,
+				EntityComponentIndex::EoCAreaTrigger,
+				EntityComponentIndex::StartTrigger,
+				EntityComponentIndex::TeleportTrigger,
+				EntityComponentIndex::EventTrigger,
+				EntityComponentIndex::CrimeAreaTrigger,
+				EntityComponentIndex::CrimeRegionTrigger,
+				EntityComponentIndex::AtmosphereTrigger,
+				EntityComponentIndex::AIHintAreaTrigger,
+				EntityComponentIndex::MusicVolumeTrigger,
+				EntityComponentIndex::SecretRegionTrigger,
+				EntityComponentIndex::StatsAreaTrigger,
+				EntityComponentIndex::SoundVolumeTrigger,
+				EntityComponentIndex::RegionTrigger,
+				EntityComponentIndex::ExplorationTrigger
 			};
 
 			for (auto i = 0; i < std::size(triggerTypes); i++) {
@@ -594,8 +594,8 @@ namespace esv
 				return nullptr;
 			}
 
-			auto componentType = (ComponentType)((unsigned)ComponentType::EoCPointTrigger + typeIdx);
 			auto typeIdx = (unsigned)type - (unsigned)ObjectHandleType::ServerEocPointTrigger;
+			auto componentType = (EntityComponentIndex)((unsigned)EntityComponentIndex::EoCPointTrigger + typeIdx);
 
 			auto component = GetComponent((uint32_t)componentType, type, handle, logError);
 			if (component != nullptr) {
@@ -693,7 +693,7 @@ namespace ecl
 	{
 		inline Character* GetCharacter(char const* nameGuid, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, nameGuid, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, nameGuid, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -704,7 +704,7 @@ namespace ecl
 
 		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, ObjectType::ClientCharacter, handle, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, ObjectHandleType::ClientCharacter, handle, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -715,7 +715,7 @@ namespace ecl
 
 		inline Character* GetCharacter(NetId netId, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Character, netId, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, netId, logError);
 			if (component != nullptr) {
 				return (Character*)((uint8_t*)component - 8);
 			}
@@ -726,7 +726,7 @@ namespace ecl
 
 		inline Item* GetItem(char const* nameGuid, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, nameGuid, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, nameGuid, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -737,7 +737,7 @@ namespace ecl
 
 		inline Item* GetItem(ComponentHandle handle, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, ObjectType::ClientItem, handle, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ClientItem, handle, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -748,7 +748,7 @@ namespace ecl
 
 		inline Item* GetItem(NetId netId, bool logError = true)
 		{
-			auto component = GetComponent((uint32_t)ComponentType::Item, netId, logError);
+			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, netId, logError);
 			if (component != nullptr) {
 				return (Item*)((uint8_t*)component - 8);
 			}
@@ -759,7 +759,7 @@ namespace ecl
 
 		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
 		{
-			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)ComponentType::CustomStats, entityHandle, logError);
+			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::CustomStats, entityHandle, logError);
 		}
 	};
 

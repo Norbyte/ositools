@@ -279,7 +279,7 @@ BEGIN_ENUM_NS(ecl, GameState, uint32_t)
 END_ENUM_NS()
 
 
-BEGIN_ENUM_NS(ecl, ComponentType, uint32_t)
+BEGIN_ENUM_NS(ecl, EntityComponentIndex, uint32_t)
 	// Registered from App::InitGame
 	EV(AnimationBlueprint, 0)
 	E(Spline)
@@ -354,7 +354,7 @@ BEGIN_ENUM(ExtComponentType, uint32_t)
 END_ENUM()
 
 
-BEGIN_ENUM_NS(esv, ComponentType, uint32_t)
+BEGIN_ENUM_NS(esv, EntityComponentIndex, uint32_t)
 	// Registered from App::InitGame
 	EV(AnimationBlueprint, 0)
 	E(Spline)
