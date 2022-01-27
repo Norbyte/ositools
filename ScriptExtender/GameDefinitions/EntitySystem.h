@@ -36,7 +36,7 @@ struct ObjectFactoryRWLocker : public IObjectFactory
 template <class TComponent, class TLocker = ObjectFactoryNullLocker>
 struct ComponentFactory : public TLocker
 {
-	static constexpr ObjectType ObjectTypeIndex = TComponent::ObjectTypeIndex;
+	static constexpr ObjectHandleType ObjectTypeIndex = TComponent::ObjectTypeIndex;
 
 	Array<TComponent*> ComponentsByHandleIndex;
 	Array<uint32_t> Salts;
@@ -147,7 +147,7 @@ struct SystemTypeEntry
 
 struct EntityEntry
 {
-	static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
 
 	ComponentHandle Handle;
 	ComponentLayout Layout;
@@ -184,7 +184,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 	uint64_t Unknown2[2];
 
 
-	void* GetComponent(uint32_t type, ObjectType handleType, ComponentHandle componentHandle, bool logError = true);
+	void* GetComponent(uint32_t type, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError = true);
 	void* GetComponent(uint32_t componentType, char const* nameGuid, bool logError = true);
 	void* GetComponent(uint32_t type, NetId netId, bool logError = true);
 	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true);
@@ -575,27 +575,27 @@ namespace esv
 
 		inline Trigger* GetTrigger(ComponentHandle handle, bool logError = true)
 		{
-			auto type = (ObjectType)handle.GetType();
-			if (type != ObjectType::ServerEocPointTrigger
-				&& type != ObjectType::ServerEocAreaTrigger
-				&& type != ObjectType::ServerStartTrigger
-				&& type != ObjectType::ServerTeleportTrigger
-				&& type != ObjectType::ServerEventTrigger
-				&& type != ObjectType::ServerCrimeAreaTrigger
-				&& type != ObjectType::ServerCrimeRegionTrigger
-				&& type != ObjectType::ServerAtmosphereTrigger
-				&& type != ObjectType::ServerAIHintAreaTrigger
-				&& type != ObjectType::ServerMusicVolumeTrigger
-				&& type != ObjectType::ServerSecretRegionTrigger
-				&& type != ObjectType::ServerStatsAreaTrigger
-				&& type != ObjectType::ServerSoundVolumeTrigger
-				&& type != ObjectType::ServerRegionTrigger
-				&& type != ObjectType::ServerExplorationTrigger) {
+			auto type = (ObjectHandleType)handle.GetType();
+			if (type != ObjectHandleType::ServerEocPointTrigger
+				&& type != ObjectHandleType::ServerEocAreaTrigger
+				&& type != ObjectHandleType::ServerStartTrigger
+				&& type != ObjectHandleType::ServerTeleportTrigger
+				&& type != ObjectHandleType::ServerEventTrigger
+				&& type != ObjectHandleType::ServerCrimeAreaTrigger
+				&& type != ObjectHandleType::ServerCrimeRegionTrigger
+				&& type != ObjectHandleType::ServerAtmosphereTrigger
+				&& type != ObjectHandleType::ServerAIHintAreaTrigger
+				&& type != ObjectHandleType::ServerMusicVolumeTrigger
+				&& type != ObjectHandleType::ServerSecretRegionTrigger
+				&& type != ObjectHandleType::ServerStatsAreaTrigger
+				&& type != ObjectHandleType::ServerSoundVolumeTrigger
+				&& type != ObjectHandleType::ServerRegionTrigger
+				&& type != ObjectHandleType::ServerExplorationTrigger) {
 				return nullptr;
 			}
 
-			auto typeIdx = (unsigned)type - (unsigned)ObjectType::ServerEocPointTrigger;
 			auto componentType = (ComponentType)((unsigned)ComponentType::EoCPointTrigger + typeIdx);
+			auto typeIdx = (unsigned)type - (unsigned)ObjectHandleType::ServerEocPointTrigger;
 
 			auto component = GetComponent((uint32_t)componentType, type, handle, logError);
 			if (component != nullptr) {

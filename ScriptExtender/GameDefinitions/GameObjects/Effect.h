@@ -8,7 +8,7 @@ BEGIN_SE()
 
 struct Effect : public Visual
 {
-	static constexpr auto ObjectTypeIndex = ObjectType::Effect;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Effect;
 
 	void* VMT;
 	__int64 field_258;

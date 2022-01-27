@@ -107,7 +107,7 @@ namespace dse
 
 		struct Item : public IEoCServerObject
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ServerItem;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerItem;
 
 			Status * GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
 			Status* GetStatus(NetId netId) const;
@@ -193,7 +193,7 @@ namespace dse
 
 		struct Inventory : public ProtectedGameObject<Inventory>
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ServerInventory;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerInventory;
 
 			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
 				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
@@ -242,7 +242,7 @@ namespace dse
 	{
 		struct Item : public IEoCClientObject
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ClientItem;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientItem;
 
 			glm::vec3 WorldPos;
 			uint32_t _Pad2;
@@ -305,7 +305,7 @@ namespace dse
 
 		struct Inventory : ProtectedGameObject<Inventory>
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ClientInventory;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientInventory;
 
 			void* VMT;
 			FixedString GUID;

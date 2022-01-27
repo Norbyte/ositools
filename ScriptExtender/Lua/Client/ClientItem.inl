@@ -21,14 +21,14 @@ std::optional<FixedString> Item::GetOwnerCharacter()
 		}
 
 		auto parent = inventory->ParentHandle;
-		if (parent.GetType() == (uint32_t)ObjectType::ClientItem) {
+		if (parent.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
 			auto item = GetEntityWorld()->GetItem(parent);
 			if (item) {
 				inventory = FindInventoryByHandle(item->InventoryParentHandle);
 			} else {
 				break;
 			}
-		} else if (parent.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+		} else if (parent.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 			auto character = GetEntityWorld()->GetCharacter(parent);
 			if (character) {
 				return character->MyGuid;

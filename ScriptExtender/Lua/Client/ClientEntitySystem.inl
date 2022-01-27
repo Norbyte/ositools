@@ -14,14 +14,14 @@ ecl::StatusMachine* IEoCClientObject::GetStatusMachine() const
 	ComponentHandle handle;
 	GetObjectHandle(handle);
 
-	switch ((ObjectType)handle.GetType()) {
-	case ObjectType::ClientCharacter:
+	switch ((ObjectHandleType)handle.GetType()) {
+	case ObjectHandleType::ClientCharacter:
 	{
 		auto ch = static_cast<ecl::Character const*>(this);
 		return ch->StatusMachine;
 	}
 
-	case ObjectType::ClientItem:
+	case ObjectHandleType::ClientItem:
 	{
 		auto it = static_cast<ecl::Item const*>(this);
 		return it->StatusMachine;

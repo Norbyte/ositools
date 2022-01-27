@@ -47,7 +47,7 @@ namespace dse
 
         struct Surface : ProtectedGameObject<Surface>
         {
-            static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+            static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
 
             FixedString FS1;
             NetId NetID;
@@ -112,7 +112,7 @@ namespace dse
 
         struct SurfaceAction : ProtectedGameObject<SurfaceAction>
         {
-            static constexpr auto ObjectTypeIndex = ObjectType::ServerSurfaceAction;
+            static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerSurfaceAction;
 
             SurfaceActionVMT* VMT;
             Level* Level;

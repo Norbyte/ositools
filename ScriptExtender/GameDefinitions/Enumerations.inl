@@ -142,7 +142,7 @@ BEGIN_ENUM(VisualTemplateColorIndex, uint32_t)
 	EV(Cloth, 2)
 END_ENUM()
 
-BEGIN_ENUM(ObjectType, uint32_t)
+BEGIN_ENUM(ObjectHandleType, uint32_t)
 	EV(Unknown, 0)
 	EV(Light, 1)
 	EV(Visual, 2)

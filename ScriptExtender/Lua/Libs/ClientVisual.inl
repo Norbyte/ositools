@@ -7,10 +7,10 @@ BEGIN_SE()
 
 void ResourceManager::DestroyVisual(ComponentHandle const& handle)
 {
-	if ((ObjectType)handle.GetType() == ObjectType::Visual) {
+	if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Visual) {
 		auto del = GetStaticSymbols().ls__VisualFactory__DestroyVisual;
 		del(VisualFactory, handle.Handle);
-	} else if ((ObjectType)handle.GetType() == ObjectType::Visual) {
+	} else if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Visual) {
 		auto mgr = GetStaticSymbols().ls__gEffectsManager;
 		auto del = GetStaticSymbols().ls__EffectsManager__DestroyEffect;
 		del(*mgr, handle);
@@ -83,7 +83,7 @@ BEGIN_NS(ecl::lua::visual)
 
 Visual* Get(ComponentHandle const& handle)
 {
-	if ((ObjectType)handle.GetType() != ObjectType::Visual) {
+	if ((ObjectHandleType)handle.GetType() != ObjectHandleType::Visual) {
 		OsiError("Expected a visual handle, got " << GetHandleTypeName(handle));
 		return nullptr;
 	}

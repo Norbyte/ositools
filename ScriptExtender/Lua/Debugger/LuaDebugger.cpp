@@ -61,7 +61,7 @@ namespace dse::lua::dbg
 		else {
 			std::stringstream ss;
 
-			auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
+			auto type = EnumInfo<ObjectHandleType>::Find((ObjectHandleType)handle.GetType());
 			if (type) {
 				ss << type.Str;
 			}

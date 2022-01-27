@@ -56,7 +56,7 @@ BEGIN_NS(esv)
 
 struct Status : public ProtectedGameObject<Status>
 {
-	static constexpr auto ObjectTypeIndex = ObjectType::Unknown;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
 
 	using GetEnterChanceProc = int32_t(Status* self, bool isEnterCheck);
 	using EnterProc = bool (Status* self);
@@ -621,7 +621,7 @@ BEGIN_NS(ecl)
 
 struct Status
 {
-	static constexpr auto ObjectTypeIndex = ObjectType::ClientStatus;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientStatus;
 
 	virtual void Destroy() = 0;
 	virtual void SetOwnerHandle(ComponentHandle handle) = 0;

@@ -331,7 +331,7 @@ ScratchBuffer& ScratchBuffer::operator = (ScratchBuffer&& o)
 
 char const* GetHandleTypeName(ComponentHandle const& handle)
 {
-	auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
+	auto type = EnumInfo<ObjectHandleType>::Find((ObjectHandleType)handle.GetType());
 	if (type) {
 		return type.GetString();
 	} else {

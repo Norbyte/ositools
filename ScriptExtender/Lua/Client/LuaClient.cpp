@@ -95,7 +95,7 @@ void VisualSystem::Update()
 	}
 
 	for (auto const& handle : pendingVisualDeletes_) {
-		if ((ObjectType)handle.GetType() == ObjectType::Visual) {
+		if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Visual) {
 			auto visual = GetStaticSymbols().GetResourceManager()->VisualFactory->Get(handle);
 			if (visual) {
 				visual->DetachFromScene();
@@ -148,7 +148,7 @@ ecl::Character* GetCharacter(lua_State* L, int index)
 	case LUA_TLIGHTUSERDATA:
 	{
 		auto handle = get<ComponentHandle>(L, index);
-		if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+		if (handle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
 			OsiError("Attempted to resolve server ComponentHandle on the client");
 		}
 		else {
@@ -163,7 +163,7 @@ ecl::Character* GetCharacter(lua_State* L, int index)
 		if (value > 0xffffffff) {
 			OsiError("Resolving integer object handles is deprecated since v52!")
 			ComponentHandle handle{ value };
-			if (handle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
 				OsiError("Attempted to resolve server ComponentHandle on the client");
 			} else {
 				character = GetEntityWorld()->GetCharacter(handle);
@@ -207,7 +207,7 @@ int GetItem(lua_State* L)
 	case LUA_TLIGHTUSERDATA:
 	{
 		auto handle = get<ComponentHandle>(L, 1);
-		if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
+		if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
 			OsiError("Attempted to resolve server ComponentHandle on the client");
 		} else {
 			item = GetEntityWorld()->GetItem(handle);
@@ -220,7 +220,7 @@ int GetItem(lua_State* L)
 		auto value = lua_tointeger(L, 1);
 		if (value > 0xffffffff) {
 			ComponentHandle handle{ value };
-			if (handle.GetType() == (uint32_t)ObjectType::ServerItem) {
+			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
 				OsiError("Attempted to resolve server ComponentHandle on the client");
 			} else {
 				item = GetEntityWorld()->GetItem(handle);
@@ -272,11 +272,11 @@ int GetStatus(lua_State* L)
 IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle)
 {
 	if (handle) {
-		switch ((ObjectType)handle.GetType()) {
-		case ObjectType::ClientCharacter:
+		switch ((ObjectHandleType)handle.GetType()) {
+		case ObjectHandleType::ClientCharacter:
 			return GetEntityWorld()->GetCharacter(handle);
 
-		case ObjectType::ClientItem: 
+		case ObjectHandleType::ClientItem: 
 			return GetEntityWorld()->GetItem(handle);
 
 		default:

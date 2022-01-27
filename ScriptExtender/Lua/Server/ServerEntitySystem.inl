@@ -7,14 +7,14 @@ esv::StatusMachine* IEoCServerObject::GetStatusMachine() const
 	ComponentHandle handle;
 	GetObjectHandle(handle);
 
-	switch ((ObjectType)handle.GetType()) {
-	case ObjectType::ServerCharacter:
+	switch ((ObjectHandleType)handle.GetType()) {
+	case ObjectHandleType::ServerCharacter:
 	{
 		auto ch = static_cast<esv::Character const*>(this);
 		return ch->StatusMachine;
 	}
 
-	case ObjectType::ServerItem:
+	case ObjectHandleType::ServerItem:
 	{
 		auto it = static_cast<esv::Item const*>(this);
 		return it->StatusMachine;

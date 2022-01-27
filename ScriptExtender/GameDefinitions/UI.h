@@ -342,7 +342,7 @@ namespace dse
 
 	struct UIObject : Noncopyable<UIObject>
 	{
-		static constexpr auto ObjectTypeIndex = ObjectType::UIObject;
+		static constexpr auto ObjectTypeIndex = ObjectHandleType::UIObject;
 
 		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
 		typedef void(* CustomDrawCallbackProc)(UIObject * self, void *);

@@ -59,7 +59,7 @@ void Execute(ProxyParam<SurfaceAction> action)
 
 void Cancel(ComponentHandle actionHandle)
 {
-	if (actionHandle.GetType() != (uint32_t)ObjectType::ServerSurfaceAction) {
+	if (actionHandle.GetType() != (uint32_t)ObjectHandleType::ServerSurfaceAction) {
 		OsiError("Expected a surface action handle, got type " << actionHandle.GetType());
 		return;
 	}

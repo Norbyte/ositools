@@ -111,7 +111,7 @@ void PrintError(lua_State* L)
 
 STDString GetHandleType(ComponentHandle handle)
 {
-	auto type = EnumInfo<ObjectType>::Find((ObjectType)handle.GetType());
+	auto type = EnumInfo<ObjectHandleType>::Find((ObjectHandleType)handle.GetType());
 	if (type) {
 		return type.Str;
 	} else {

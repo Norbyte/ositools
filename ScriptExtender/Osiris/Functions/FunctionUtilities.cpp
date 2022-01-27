@@ -47,7 +47,7 @@ namespace dse
 	}
 
 	
-	void* EntityWorldBase::GetComponent(uint32_t type, ObjectType handleType, ComponentHandle componentHandle, bool logError)
+	void* EntityWorldBase::GetComponent(uint32_t type, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError)
 	{
 		if (this == nullptr) {
 			OsiError("Tried to find component on null EntityWorld!");
@@ -242,14 +242,14 @@ namespace dse
 				return nullptr;
 			}
 
-			switch ((ObjectType)handle.GetType()) {
-			case ObjectType::ServerCharacter:
+			switch ((ObjectHandleType)handle.GetType()) {
+			case ObjectHandleType::ServerCharacter:
 				return GetCharacter(handle, logError);
 
-			case ObjectType::ServerItem:
+			case ObjectHandleType::ServerItem:
 				return GetItem(handle, logError);
 
-			case ObjectType::ServerProjectile:
+			case ObjectHandleType::ServerProjectile:
 				return GetProjectile(handle, logError);
 
 			default:

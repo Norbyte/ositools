@@ -258,7 +258,7 @@ struct VisualResource : public DeferredLoadableResource
 
 struct Visual : public MoveableObject
 {
-	static constexpr auto ObjectTypeIndex = ObjectType::Visual;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Visual;
 
 	virtual void Pick(void* ray, void* pickResult) = 0;
 	virtual void UpdateCullFlags() = 0;

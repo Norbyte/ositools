@@ -109,14 +109,14 @@ void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceActio
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty, cls) case ObjectType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
+#define MAKE_REF(ty, cls) case ObjectHandleType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
 void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
 {
 	ComponentHandle handle;
 	obj->GetObjectHandle(handle);
 
-	switch ((ObjectType)handle.GetType()) {
+	switch ((ObjectHandleType)handle.GetType()) {
 	MAKE_REF(ServerCharacter, esv::Character)
 	MAKE_REF(ServerItem, esv::Item)
 	MAKE_REF(ServerProjectile, esv::Projectile)
@@ -712,7 +712,7 @@ namespace dse::esv::lua
 		case LUA_TLIGHTUSERDATA:
 		{
 			auto handle = get<ComponentHandle>(L, index);
-			if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+			if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 				OsiError("Attempted to resolve client ComponentHandle on the server");
 			} else {
 				character = GetEntityWorld()->GetCharacter(handle);
@@ -726,7 +726,7 @@ namespace dse::esv::lua
 			if (value > 0xffffffff) {
 				OsiError("Resolving integer object handles is deprecated since v52!")
 				ComponentHandle handle{ value };
-				if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
 					character = GetEntityWorld()->GetCharacter(handle);
@@ -789,7 +789,7 @@ namespace dse::esv::lua
 			if (value > 0xffffffff) {
 				OsiError("Resolving integer object handles is deprecated since v52!")
 				ComponentHandle handle{ value };
-				if (handle.GetType() == (uint32_t)ObjectType::ClientItem) {
+				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
 					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
 					item = GetEntityWorld()->GetItem(handle);
@@ -865,32 +865,32 @@ namespace dse::esv::lua
 			return nullptr;
 		}
 
-		switch ((ObjectType)handle.GetType()) {
-		case ObjectType::ServerCharacter:
+		switch ((ObjectHandleType)handle.GetType()) {
+		case ObjectHandleType::ServerCharacter:
 			return GetEntityWorld()->GetCharacter(handle);
 
-		case ObjectType::ServerItem:
+		case ObjectHandleType::ServerItem:
 			return GetEntityWorld()->GetItem(handle);
 
-		case ObjectType::ServerProjectile:
+		case ObjectHandleType::ServerProjectile:
 			return GetEntityWorld()->GetProjectile(handle);
 
 		// FIXME - re-add when migrated to new proxy
-		/*case ObjectType::ServerEocPointTrigger:
-		case ObjectType::ServerEocAreaTrigger:
-		case ObjectType::ServerStartTrigger:
-		case ObjectType::ServerTeleportTrigger:
-		case ObjectType::ServerEventTrigger:
-		case ObjectType::ServerCrimeAreaTrigger:
-		case ObjectType::ServerCrimeRegionTrigger:
-		case ObjectType::ServerAtmosphereTrigger:
-		case ObjectType::ServerAIHintAreaTrigger:
-		case ObjectType::ServerMusicVolumeTrigger:
-		case ObjectType::ServerSecretRegionTrigger:
-		case ObjectType::ServerStatsAreaTrigger:
-		case ObjectType::ServerSoundVolumeTrigger:
-		case ObjectType::ServerRegionTrigger:
-		case ObjectType::ServerExplorationTrigger:
+		/*case ObjectHandleType::ServerEocPointTrigger:
+		case ObjectHandleType::ServerEocAreaTrigger:
+		case ObjectHandleType::ServerStartTrigger:
+		case ObjectHandleType::ServerTeleportTrigger:
+		case ObjectHandleType::ServerEventTrigger:
+		case ObjectHandleType::ServerCrimeAreaTrigger:
+		case ObjectHandleType::ServerCrimeRegionTrigger:
+		case ObjectHandleType::ServerAtmosphereTrigger:
+		case ObjectHandleType::ServerAIHintAreaTrigger:
+		case ObjectHandleType::ServerMusicVolumeTrigger:
+		case ObjectHandleType::ServerSecretRegionTrigger:
+		case ObjectHandleType::ServerStatsAreaTrigger:
+		case ObjectHandleType::ServerSoundVolumeTrigger:
+		case ObjectHandleType::ServerRegionTrigger:
+		case ObjectHandleType::ServerExplorationTrigger:
 			return GetEntityWorld()->GetTrigger(handle);*/
 
 		default:
@@ -1263,12 +1263,12 @@ namespace dse::esv::lua
 		StatusMachine* statusMachine{ nullptr };
 
 		auto ownerHandle = status->OwnerHandle;
-		if (ownerHandle.GetType() == (uint32_t)ObjectType::ServerCharacter) {
+		if (ownerHandle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
 			auto character = GetEntityWorld()->GetCharacter(ownerHandle);
 			if (character) {
 				statusMachine = character->StatusMachine;
 			}
-		} else if (ownerHandle.GetType() == (uint32_t)ObjectType::ServerItem) {
+		} else if (ownerHandle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
 			auto item = GetEntityWorld()->GetItem(ownerHandle);
 			if (item) {
 				statusMachine = item->StatusMachine;

@@ -54,7 +54,7 @@ std::optional<SoundObjectId> GetSoundObjectId(lua_State* L, int idx)
 	case LUA_TLIGHTUSERDATA:
 	{
 		auto handle = get<ComponentHandle>(L, idx);
-		if (handle.GetType() == (uint32_t)ObjectType::ClientCharacter) {
+		if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 			auto character = GetEntityWorld()->GetCharacter(handle);
 			if (character) {
 				return character->SoundObjectHandles[0];

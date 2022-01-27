@@ -177,7 +177,7 @@ namespace dse
 
 		struct Character : public IEoCServerObject
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ServerCharacter;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerCharacter;
 
 			using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
 				stats::HitType hitType, bool noHitRoll, stats::HitDamageInfo* damageInfo, int forceReduceDurability, stats::PropertyList* skillProperties, stats::HighGroundBonus highGroundFlag, bool procWindWalker, stats::CriticalRoll criticalRoll);
@@ -374,7 +374,7 @@ namespace dse
 
 		struct Character : public IEoCClientObject
 		{
-			static constexpr auto ObjectTypeIndex = ObjectType::ClientCharacter;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientCharacter;
 
 			Status* GetStatus(ComponentHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
