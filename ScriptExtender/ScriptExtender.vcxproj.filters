@@ -784,6 +784,9 @@
     <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\UI.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -159,6 +159,20 @@ ComponentHandle DoubleToHandle(lua_State* L, double dbl)
 	return ComponentHandle(*reinterpret_cast<int64_t*>(&dbl));
 }
 
+ecl::character_creation::UICharacterCreationWizard* GetCharacterCreationWizard()
+{
+	auto ui = GetByType(3);
+	if (!ui) {
+		ui = GetByType(4);
+	}
+
+	if (ui) {
+		return static_cast<ecl::character_creation::UICharacterCreationWizard*>(ui);
+	} else {
+		return nullptr;
+	}
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -172,6 +186,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(EnableCustomDrawCallDebugging)
 	MODULE_FUNCTION(HandleToDouble)
 	MODULE_FUNCTION(DoubleToHandle)
+	MODULE_FUNCTION(GetCharacterCreationWizard)
 	END_MODULE()
 }
 

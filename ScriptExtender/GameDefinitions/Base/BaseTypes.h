@@ -21,6 +21,16 @@ struct NetId
 	inline constexpr NetId(uint32_t id) : Id(id) {}
 	inline constexpr NetId(NetId const & id) : Id(id.Id) {}
 
+	inline bool operator !=(NetId const& o) const
+	{
+		return Id != o.Id;
+	}
+
+	inline bool operator ==(NetId const& o) const
+	{
+		return Id == o.Id;
+	}
+
 	inline explicit operator bool() const
 	{
 		return Id != Unassigned;
@@ -43,6 +53,11 @@ struct NetId
 };
 
 constexpr NetId NetIdUnassigned{ 0xffffffff };
+
+inline uint64_t Hash(NetId v)
+{
+	return v.Id;
+}
 
 using PeerId = int32_t;
 
@@ -83,6 +98,11 @@ struct UserId
 };
 
 static constexpr UserId ReservedUserId{ UserId::Unassigned };
+
+inline uint64_t Hash(UserId v)
+{
+	return v.Id;
+}
 
 
 
