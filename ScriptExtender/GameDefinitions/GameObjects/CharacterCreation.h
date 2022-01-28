@@ -216,6 +216,15 @@ struct UICharacterCreationWizard : public ecl::EoCUI
 		FixedString Value;
 	};
 
+	struct Points
+	{
+		uint8_t Attribute;
+		uint8_t Ability;
+		uint8_t Civil;
+		uint8_t SkillSlots;
+		uint8_t Talent;
+	};
+
 	void* IMessageBoxOwnerVMT;
 	void* VideoListenerVMT;
 	void* VMT2;
@@ -240,8 +249,8 @@ struct UICharacterCreationWizard : public ecl::EoCUI
 	uint8_t IconSpacingH;
 	uint8_t IconSpacingV;
 	uint8_t NumberOfCols;
-	std::array<uint8_t, 5> AttributePoints;
-	std::array<uint8_t, 5> AssignedPoints;
+	Points AvailablePoints;
+	Points AssignedPoints;
 	int CharIconWidth;
 	int CharIconHeight;
 	float UserIconWidth;
