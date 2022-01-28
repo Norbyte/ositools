@@ -75,6 +75,10 @@ function SubscribableEvent:RemoveNode(node)
 		node.Next.Prev = node.Prev
 	end
 
+	if self.First == node then
+		self.First = node.Next
+	end
+
 	node.Prev = nil
 	node.Next = nil
 end
