@@ -150,7 +150,7 @@ Ext.EnableExperimentalPropertyWrites = function ()
 end
 
 Ext.OnNextTick = function (fun)
-	Ext.Events.Tick.Subscribe(fun, {Once = true})
+	Ext.Events.Tick:Subscribe(fun, {Once = true})
 end
 
 -- Backwards compatibility with old JSON APIs
