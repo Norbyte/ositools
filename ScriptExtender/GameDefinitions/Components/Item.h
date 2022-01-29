@@ -107,6 +107,7 @@ namespace dse
 
 		struct Item : public IEoCServerObject
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Item;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerItem;
 
 			Status * GetStatus(ComponentHandle handle, bool returnPending, bool returnUnapplied = false) const;
@@ -242,6 +243,7 @@ namespace dse
 	{
 		struct Item : public IEoCClientObject
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Item;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientItem;
 
 			glm::vec3 WorldPos;

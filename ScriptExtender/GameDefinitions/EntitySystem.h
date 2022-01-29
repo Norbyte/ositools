@@ -11,6 +11,30 @@ struct BaseComponent
 	void* VMT;
 	EntityHandle Handle;
 	ComponentHandleWithType Component;
+
+	template <class T>
+	T* ToComponent()
+	{
+		if (this == nullptr) return nullptr;
+
+		if constexpr (std::is_base_of_v<BaseComponent, T>) {
+			return static_cast<T*>(this);
+		} else {
+			return reinterpret_cast<T*>(reinterpret_cast<std::uintptr_t>(this) - offsetof(T, Base));
+		}
+	}
+
+	template <class T>
+	T const* ToComponent() const
+	{
+		if (this == nullptr) return nullptr;
+
+		if constexpr (std::is_base_of_v<BaseComponent, T>) {
+			return static_cast<T const*>(this);
+		} else {
+			return reinterpret_cast<T const*>(reinterpret_cast<std::uintptr_t>(this) - offsetof(T, Base));
+		}
+	}
 };
 
 struct IObjectFactory : public ProtectedGameObject<IObjectFactory>
@@ -70,11 +94,11 @@ struct IComponentPool : public ProtectedGameObject<IComponentPool>
 	virtual void DestroyComponent() = 0;
 	virtual void CreateComponent() = 0;
 	virtual void ForceCreateComponent() = 0; // ForceComponentDefault
-	virtual void * FindComponentByHandle(ComponentHandle const & oh) = 0;
-	virtual void * TryFindComponentByHandle(ComponentHandle const & oh) = 0;
-	virtual void * FindComponentByGuid(FixedString const & fs) = 0;
+	virtual BaseComponent* FindComponentByHandle(ComponentHandle const & oh) = 0;
+	virtual BaseComponent* TryFindComponentByHandle(ComponentHandle const & oh) = 0;
+	virtual BaseComponent* FindComponentByGuid(FixedString const & fs) = 0;
 	virtual bool MoveComponentByGuid(FixedString const & fs, void* component) = 0;
-	virtual void * FindComponentByNetId(NetId const & netId, bool checkSalt = true) = 0;
+	virtual BaseComponent* FindComponentByNetId(NetId const & netId, bool checkSalt = true) = 0;
 	virtual void UNKN() = 0;
 	virtual void * GetComponentByIndex(uint64_t index) = 0;
 	virtual void GetFreeHandle() = 0;
@@ -159,7 +183,8 @@ struct BaseComponentProcessingSystem
 	void * field_8;
 };
 
-struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
+template <class TEntityComponentIndex>
+struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase<TEntityComponentIndex>>
 {
 	// Handle type index, registered statically during game startup
 	enum class HandleTypeIndexTag {};
@@ -183,12 +208,161 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase>
 	uint64_t ReservedComponentHandleList;
 	uint64_t Unknown2[2];
 
+	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find component on null EntityWorld!");
+			return nullptr;
+		}
 
-	void* GetComponent(uint32_t type, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError = true);
-	void* GetComponent(uint32_t componentType, char const* nameGuid, bool logError = true);
-	void* GetComponent(uint32_t type, NetId netId, bool logError = true);
-	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true);
-	void* GetComponentByEntityHandle(uint32_t type, EntityHandle entityHandle, bool logError = true);
+		if (!componentHandle) {
+			return nullptr;
+		}
+
+		if (componentHandle.GetType() != (uint32_t)handleType) {
+			if (logError) {
+				OsiError("Type mismatch! Factory supports " << (unsigned)handleType << ", got " << (unsigned)componentHandle.GetType());
+			}
+			return nullptr;
+		}
+
+		// FIXME - This is somewhat ugly :(
+		auto componentMgr = Components[(uint32_t)componentPoolIdx].Pool;
+		auto factory = reinterpret_cast<ComponentFactory<EntityEntry>*>((std::intptr_t)componentMgr + 8);
+		auto index = componentHandle.GetIndex();
+		auto salt = componentHandle.GetSalt();
+		if (index >= factory->Salts.size()) {
+			if (logError) {
+				OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.size()
+					<< " objects, requested " << (unsigned)index);
+			}
+			return nullptr;
+		}
+
+		if (salt != factory->Salts[index]) {
+			if (logError) {
+				OsiError("Salt mismatch for type " << (unsigned)handleType << ", object " << index << ": got "
+					<< salt << ", real is " << factory->Salts[index]);
+			}
+			return nullptr;
+		}
+
+		return componentMgr->FindComponentByHandle(componentHandle);
+	}
+
+	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, char const* nameGuid, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find component on null EntityWorld!");
+			return nullptr;
+		}
+
+		if (nameGuid == nullptr) {
+			OsiError("Attempted to look up component with null name!");
+			return nullptr;
+		}
+
+		auto fs = NameGuidToFixedString(nameGuid);
+		auto component = Components[(uint32_t)componentPoolIdx].Pool->FindComponentByGuid(fs);
+		if (component != nullptr) {
+			return component;
+		} else {
+			if (logError) {
+				OsiError("No component found with GUID '" << nameGuid << "'");
+			}
+			return nullptr;
+		}
+	}
+
+	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, NetId netId, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find component on null EntityWorld!");
+			return nullptr;
+		}
+
+		if (!netId) {
+			return nullptr;
+		}
+
+		auto component = Components[(uint32_t)componentPoolIdx].Pool->FindComponentByNetId(netId, true);
+		if (component != nullptr) {
+			return component;
+		} else {
+			if (logError) {
+				OsiError("No component found with NetID " << netId.Id);
+			}
+			return nullptr;
+		}
+	}
+
+	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find entity on null EntityWorld!");
+			return nullptr;
+		}
+
+		auto entity = EntityPool.Get(ComponentHandle{ entityHandle.Handle });
+		if (entity != nullptr) {
+			return entity;
+		} else {
+			if (logError) {
+				OsiError("Couldn't find entity with handle " << entityHandle.Handle);
+			}
+			return nullptr;
+		}
+	}
+
+	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, EntityHandle entityHandle, bool logError = true)
+	{
+		auto entity = GetEntity(entityHandle, logError);
+		if (!entity) return nullptr;
+
+		auto index = entityHandle.GetIndex();
+		if ((uint32_t)componentPoolIdx >= entity->Layout.Entries.size()) {
+			if (logError) {
+				OsiError("Entity " << index << " has no component slot for " << (uint32_t)componentPoolIdx);
+			}
+			return nullptr;
+		}
+
+		auto const& layoutEntry = entity->Layout.Entries[(uint32_t)componentPoolIdx];
+		if (!layoutEntry.Handle.IsValid()) {
+			if (logError) {
+				OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)componentPoolIdx);
+			}
+			return nullptr;
+		}
+
+		ComponentHandle componentHandle{ layoutEntry.Handle.Handle };
+		auto componentMgr = Components[(uint32_t)componentPoolIdx].Pool;
+		return componentMgr->FindComponentByHandle(componentHandle);
+	}
+
+	template <class T>
+	T* GetComponent(ComponentHandle componentHandle, bool logError = true)
+	{
+		return GetBaseComponent(T::ComponentPoolIndex, T::ObjectTypeIndex, componentHandle, logError)->ToComponent<T>();
+	}
+
+	template <class T>
+	T* GetComponent(char const* nameGuid, bool logError = true)
+	{
+		return GetBaseComponent(T::ComponentPoolIndex, nameGuid, logError)->ToComponent<T>();
+	}
+
+	template <class T>
+	T* GetComponent(NetId netId, bool logError = true)
+	{
+		return GetBaseComponent(T::ComponentPoolIndex, netId, logError)->ToComponent<T>();
+	}
+
+	template <class T>
+	T* GetComponent(EntityHandle entityHandle, bool logError = true)
+	{
+		return GetBaseComponent(T::ComponentPoolIndex, entityHandle, logError)->ToComponent<T>();
+	}
 };
 
 
@@ -383,58 +557,8 @@ namespace esv
 	};
 
 
-	struct EntityWorld : public EntityWorldBase
+	struct EntityWorld : public EntityWorldBase<EntityComponentIndex>
 	{
-		inline CustomStatDefinitionComponent* GetCustomStatDefinitionComponent(ComponentHandle componentHandle, bool logError = true)
-		{
-			// FIXME - remove typecasts after conversion is complete
-			auto component = GetComponent((uint32_t)EntityComponentIndex::CustomStatDefinition, ObjectHandleType::ServerCustomStatDefinitionComponent, 
-				componentHandle, logError);
-			if (component != nullptr) {
-				return (CustomStatDefinitionComponent*)((uint8_t*)component - 80);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Character* GetCharacterComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			auto ptr = GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Character, entityHandle, logError);
-			if (ptr != nullptr) {
-				return (Character*)((uint8_t*)ptr - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItemComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			auto ptr = GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Item, entityHandle, logError);
-			if (ptr != nullptr) {
-				return (Item*)((uint8_t*)ptr - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline eoc::CombatComponent* GetCombatComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			return (eoc::CombatComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Combat, entityHandle, logError);
-		}
-
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::CustomStats, entityHandle, logError);
-		}
-
-		inline NetComponent* GetNetComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			return (NetComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::Net, entityHandle, logError);
-		}
-
 		inline CustomStatSystem* GetCustomStatSystem()
 		{
 			auto sys = SystemTypes[(uint32_t)SystemType::CustomStat].System;
@@ -445,83 +569,6 @@ namespace esv
 		{
 			auto const& system = SystemTypes[(unsigned)SystemType::TurnManager];
 			return (TurnManager*)((uint8_t*)system.System - 8);
-		}
-
-		inline Character* GetCharacter(char const* nameGuid, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, nameGuid, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, ObjectHandleType::ServerCharacter, handle, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Character* GetCharacter(NetId netId, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, netId, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(char const* nameGuid, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, nameGuid, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(ComponentHandle handle, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ServerItem, handle, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(NetId netId, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, netId, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Projectile* GetProjectile(ComponentHandle handle, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ServerProjectile, handle, logError);
-			if (component != nullptr) {
-				return (Projectile*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
 		}
 
 		static constexpr int32_t TriggerOffsets[] = {
@@ -564,7 +611,7 @@ namespace esv
 			};
 
 			for (auto i = 0; i < std::size(triggerTypes); i++) {
-				auto component = GetComponent((uint32_t)triggerTypes[i], nameGuid, false);
+				auto component = GetBaseComponent(triggerTypes[i], nameGuid, false);
 				if (component != nullptr) {
 					return (Trigger*)((uintptr_t)component - TriggerOffsets[i]);
 				}
@@ -597,7 +644,7 @@ namespace esv
 			auto typeIdx = (unsigned)type - (unsigned)ObjectHandleType::ServerEocPointTrigger;
 			auto componentType = (EntityComponentIndex)((unsigned)EntityComponentIndex::EoCPointTrigger + typeIdx);
 
-			auto component = GetComponent((uint32_t)componentType, type, handle, logError);
+			auto component = GetBaseComponent(componentType, type, handle, logError);
 			if (component != nullptr) {
 				return (Trigger*)((uintptr_t)component - TriggerOffsets[typeIdx]);
 			} else {
@@ -689,78 +736,8 @@ namespace ecl
 	};
 
 
-	struct EntityWorld : public EntityWorldBase
+	struct EntityWorld : public EntityWorldBase<EntityComponentIndex>
 	{
-		inline Character* GetCharacter(char const* nameGuid, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, nameGuid, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Character* GetCharacter(ComponentHandle handle, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, ObjectHandleType::ClientCharacter, handle, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Character* GetCharacter(NetId netId, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Character, netId, logError);
-			if (component != nullptr) {
-				return (Character*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(char const* nameGuid, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, nameGuid, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(ComponentHandle handle, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, ObjectHandleType::ClientItem, handle, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline Item* GetItem(NetId netId, bool logError = true)
-		{
-			auto component = GetComponent((uint32_t)EntityComponentIndex::Item, netId, logError);
-			if (component != nullptr) {
-				return (Item*)((uint8_t*)component - 8);
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		inline eoc::CustomStatsComponent* GetCustomStatsComponentByEntityHandle(EntityHandle entityHandle, bool logError = true)
-		{
-			return (eoc::CustomStatsComponent*)GetComponentByEntityHandle((uint32_t)EntityComponentIndex::CustomStats, entityHandle, logError);
-		}
 	};
 
 

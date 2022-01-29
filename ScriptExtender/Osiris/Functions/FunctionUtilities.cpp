@@ -46,169 +46,6 @@ namespace dse
 		}
 	}
 
-	
-	void* EntityWorldBase::GetComponent(uint32_t type, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (!componentHandle) {
-			return nullptr;
-		}
-
-		if ((uint32_t)type >= Components.size()) {
-			if (logError) {
-				OsiError("Component type index " << (uint32_t)type << " too large!");
-			}
-			return nullptr;
-		}
-
-		auto componentMgr = Components[(uint32_t)type].Pool;
-		if (componentMgr == nullptr) {
-			if (logError) {
-				OsiError("Component type " << (uint32_t)type << " not bound!");
-			}
-			return nullptr;
-		}
-
-		if (componentHandle.GetType() != (uint32_t)handleType) {
-			if (logError) {
-				OsiError("Type mismatch! Factory supports " << (unsigned)handleType << ", got " << (unsigned)componentHandle.GetType());
-			}
-			return nullptr;
-		}
-
-		// FIXME - This is somewhat ugly :(
-		auto factory = reinterpret_cast<ComponentFactory<EntityEntry>*>((std::intptr_t)componentMgr + 8);
-		auto index = componentHandle.GetIndex();
-		auto salt = componentHandle.GetSalt();
-		if (index >= factory->Salts.size()) {
-			if (logError) {
-				OsiError("Factory for type " << (unsigned)handleType << " only has " << factory->Salts.size()
-					<< " objects, requested " << (unsigned)index);
-			}
-			return nullptr;
-		}
-
-		if (salt != factory->Salts[index]) {
-			if (logError) {
-				OsiError("Salt mismatch for type " << (unsigned)handleType << ", object " << index << ": got "
-					<< salt << ", real is " << factory->Salts[index]);
-			}
-			return nullptr;
-		}
-
-		return componentMgr->FindComponentByHandle(componentHandle);
-	}
-
-	void* EntityWorldBase::GetComponent(uint32_t componentType, char const* nameGuid, bool logError)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (nameGuid == nullptr) {
-			OsiError("Attempted to look up component with null name!");
-			return nullptr;
-		}
-
-		auto fs = NameGuidToFixedString(nameGuid);
-		auto component = Components[(uint32_t)componentType].Pool->FindComponentByGuid(fs);
-		if (component != nullptr) {
-			return component;
-		} else {
-			if (logError) {
-				OsiError("No component found with GUID '" << nameGuid << "'");
-			}
-			return nullptr;
-		}
-	}
-
-	void* EntityWorldBase::GetComponent(uint32_t type, NetId netId, bool logError)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find component on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (!netId) {
-			return nullptr;
-		}
-
-		if ((uint32_t)type >= Components.size()) {
-			OsiError("Component type index " << (uint32_t)type << " too large!");
-			return nullptr;
-		}
-
-		auto componentMgr = Components[(uint32_t)type].Pool;
-		if (componentMgr == nullptr) {
-			OsiError("Component type " << (uint32_t)type << " not bound!");
-			return nullptr;
-		}
-
-		return componentMgr->FindComponentByNetId(netId, true);
-	}
-
-	EntityEntry* EntityWorldBase::GetEntity(EntityHandle entityHandle, bool logError)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find entity on null EntityWorld!");
-			return nullptr;
-		}
-
-		if (entityHandle.GetType() != 0) {
-			OsiError("Entity handle has invalid type " << entityHandle.GetType());
-			return nullptr;
-		}
-
-		// FIXME - use EntityPool.Get()
-		auto index = entityHandle.GetIndex();
-		if (index >= EntityPool.Salts.size()) {
-			if (logError) {
-				OsiError("Tried to fetch entity " << index << "; we only have " << EntityPool.Salts.size() << "!");
-			}
-			return nullptr;
-		}
-
-		auto salt = entityHandle.GetSalt();
-		if (salt != EntityPool.Salts[index]) {
-			if (logError) {
-				OsiError("Salt mismatch on index " << index << "; " << salt << " != " << EntityPool.Salts[index]);
-			}
-			return nullptr;
-		}
-
-		return (EntityEntry*)EntityPool.ComponentsByHandleIndex[index];
-	}
-
-	void* EntityWorldBase::GetComponentByEntityHandle(uint32_t type, EntityHandle entityHandle, bool logError)
-	{
-		auto entity = GetEntity(entityHandle, logError);
-		if (!entity) return nullptr;
-
-		auto index = entityHandle.GetIndex();
-		if ((uint32_t)type >= entity->Layout.Entries.size()) {
-			if (logError) {
-				OsiError("Entity " << index << " has no component slot for " << (uint32_t)type);
-			}
-			return nullptr;
-		}
-
-		auto const& layoutEntry = entity->Layout.Entries[(uint32_t)type];
-		if (!layoutEntry.Handle.IsValid()) {
-			if (logError) {
-				OsiError("Entity " << index << " has no component bound to slot " << (uint32_t)type);
-			}
-			return nullptr;
-		}
-
-		ComponentHandle componentHandle{ layoutEntry.Handle.Handle };
-		auto componentMgr = Components[(uint32_t)type].Pool;
-		return componentMgr->FindComponentByHandle(componentHandle);
-	}
 
 	namespace esv
 	{
@@ -219,12 +56,12 @@ namespace dse
 				return nullptr;
 			}
 
-			auto character = GetCharacter(nameGuid, false);
+			auto character = GetComponent<Character>(nameGuid, false);
 			if (character != nullptr) {
 				return character;
 			}
 
-			auto item = GetItem(nameGuid, false);
+			auto item = GetComponent<Item>(nameGuid, false);
 			if (item != nullptr) {
 				return item;
 			}
@@ -244,13 +81,13 @@ namespace dse
 
 			switch ((ObjectHandleType)handle.GetType()) {
 			case ObjectHandleType::ServerCharacter:
-				return GetCharacter(handle, logError);
+				return GetComponent<Character>(handle, logError);
 
 			case ObjectHandleType::ServerItem:
-				return GetItem(handle, logError);
+				return GetComponent<Item>(handle, logError);
 
 			case ObjectHandleType::ServerProjectile:
-				return GetProjectile(handle, logError);
+				return GetComponent<Projectile>(handle, logError);
 
 			default:
 				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");

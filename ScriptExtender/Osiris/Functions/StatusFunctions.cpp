@@ -15,12 +15,12 @@ namespace dse::esv
 
 	esv::StatusMachine * GetStatusMachine(char const * gameObjectGuid)
 	{
-		auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
+		auto character = GetEntityWorld()->GetComponent<Character>(gameObjectGuid, false);
 		if (character != nullptr) {
 			return character->StatusMachine;
 		}
 
-		auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
+		auto item = GetEntityWorld()->GetComponent<Item>(gameObjectGuid, false);
 		if (item != nullptr) {
 			return item->StatusMachine;
 		}
@@ -118,7 +118,7 @@ namespace dse::esv
 			auto statusId = args[1].String;
 			auto lifeTime = args[2].Float;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character " << characterGuid << " does not exist!");
 				return false;
@@ -142,13 +142,13 @@ namespace dse::esv
 			auto lifeTime = args[3].Float;
 			auto distancePerDamage = args[4].Float;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character " << characterGuid << " does not exist!");
 				return false;
 			}
 
-			auto sourceCharacter = GetEntityWorld()->GetCharacter(sourceCharacterGuid);
+			auto sourceCharacter = GetEntityWorld()->GetComponent<Character>(sourceCharacterGuid);
 			auto statusHandle = gExtender->GetStatusHelpers().ApplyDamageOnMove(character, FixedString(statusId), sourceCharacter, lifeTime, distancePerDamage);
 			if (statusHandle) {
 				args[5].Set((int64_t)*statusHandle);
@@ -165,7 +165,7 @@ namespace dse::esv
 		{
 			auto characterGuid = args[0].String;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr
 				|| character->ActionMachine == nullptr
 				|| character->ActionMachine->Layers[0].State == nullptr) {
@@ -198,7 +198,7 @@ namespace dse::esv
 			auto characterGuid = args[0].String;
 			auto & action = args[1];
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr
 				|| character->ActionMachine == nullptr) {
 				return false;
@@ -230,11 +230,11 @@ namespace dse::esv
 		}
 
 		esv::Status * status{ nullptr };
-		auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
+		auto character = GetEntityWorld()->GetComponent<Character>(gameObjectGuid, false);
 		if (character != nullptr) {
 			status = character->GetStatus(statusHandle, true);
 		} else {
-			auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
+			auto item = GetEntityWorld()->GetComponent<Item>(gameObjectGuid, false);
 			if (item != nullptr) {
 				status = item->GetStatus(statusHandle, true);
 			} else {
@@ -294,7 +294,7 @@ namespace dse::esv
 
 		if (!curState->CanExit() && !force) return;
 
-		auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
+		auto character = GetEntityWorld()->GetComponent<Character>(self->CharacterHandle);
 		if (character == nullptr) {
 			OsiErrorS("ActionMachine has no character?");
 			return;
@@ -323,7 +323,7 @@ namespace dse::esv
 			auto curState = self->Layers[layer].State;
 			if (curState == nullptr || (!curState->CanExit() && !force)) continue;
 
-			auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
+			auto character = GetEntityWorld()->GetComponent<Character>(self->CharacterHandle);
 			if (character == nullptr) {
 				OsiErrorS("ActionMachine has no character?");
 				return;
@@ -387,7 +387,7 @@ namespace dse::esv
 	{
 		if (!succeeded || actionState == nullptr || !setLayer) return;
 
-		auto character = GetEntityWorld()->GetCharacter(self->CharacterHandle);
+		auto character = GetEntityWorld()->GetComponent<Character>(self->CharacterHandle);
 		if (character == nullptr) {
 			OsiErrorS("ActionMachine has no character?");
 			return;

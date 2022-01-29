@@ -74,13 +74,13 @@ namespace dse::esv
 
 		void BreakOnCharacter(OsiArgumentDesc const & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			OsiWarn("GotIt");
 		}
 
 		void BreakOnItem(OsiArgumentDesc const & args)
 		{
-			auto item = GetEntityWorld()->GetItem(args[0].String);
+			auto item = GetEntityWorld()->GetComponent<Item>(args[0].String);
 			OsiWarn("GotIt");
 		}
 

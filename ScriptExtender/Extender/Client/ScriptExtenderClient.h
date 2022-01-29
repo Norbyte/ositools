@@ -5,7 +5,6 @@
 #include <Extender/Client/ExtensionStateClient.h>
 #include <Extender/Client/NetworkManagerClient.h>
 #include <GameDefinitions/Symbols.h>
-#include <GameDefinitions/EntitySystemHelpers.h>
 
 BEGIN_NS(ecl)
 

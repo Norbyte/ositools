@@ -9,7 +9,7 @@ namespace dse::esv
 	{
 		esv::Skill * CharacterGetSkill(char const * characterGuid, char const * skillId)
 		{
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
 				return nullptr;
@@ -93,7 +93,7 @@ namespace dse::esv
 
 		ObjectSet<esv::SkillBarItem> * GetSkillBar(char const * characterGuid)
 		{
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) {
 				OsiError("Character '" << characterGuid << "' does not exist!");
 				return nullptr;
@@ -129,7 +129,7 @@ namespace dse::esv
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == esv::SkillBarItemType::Item) {
-				auto item = GetEntityWorld()->GetItem(skillBarItem->ItemHandle);
+				auto item = GetEntityWorld()->GetComponent<Item>(skillBarItem->ItemHandle);
 				if (item != nullptr) {
 					args[2].Set(item->MyGuid.Str);
 					return true;
@@ -182,7 +182,7 @@ namespace dse::esv
 			if (skillBar == nullptr) return false;
 
 			auto itemGuid = args[1].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -224,7 +224,7 @@ namespace dse::esv
 			skillBarItem->SkillOrStatId = skillIdFs;
 			skillBarItem->ItemHandle = ComponentHandle{};
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
@@ -234,7 +234,7 @@ namespace dse::esv
 			auto slot = args[1].Int32;
 			auto itemGuid = args[2].String;
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
@@ -251,7 +251,7 @@ namespace dse::esv
 			skillBarItem->SkillOrStatId = item->StatsId;
 			skillBarItem->ItemHandle = handle;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
@@ -267,13 +267,13 @@ namespace dse::esv
 			skillBarItem->SkillOrStatId = FixedString("");
 			skillBarItem->ItemHandle = ComponentHandle{};
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			character->PlayerData->ShouldReevaluateSkillBar = true;
 		}
 
 		esv::Character * FindPlayerByNameGuid(char const * guid)
 		{
-			auto character = GetEntityWorld()->GetCharacter(guid);
+			auto character = GetEntityWorld()->GetComponent<Character>(guid);
 			if (character == nullptr) return nullptr;
 
 			if (character->PlayerData == nullptr) {

@@ -14,7 +14,7 @@ namespace dse::esv
 		bool ItemGetStatsId(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -32,7 +32,7 @@ namespace dse::esv
 		bool ItemGetGenerationParams(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -54,7 +54,7 @@ namespace dse::esv
 		bool ItemGetGenerationParams2(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -75,7 +75,7 @@ namespace dse::esv
 		bool ItemHasDeltaModifier(OsiArgumentDesc & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -110,7 +110,7 @@ namespace dse::esv
 			auto itemGuid = args[0].String;
 			auto eventName = args[1].String;
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return;
 
 			if (item->Generation != nullptr) {
@@ -139,7 +139,7 @@ namespace dse::esv
 		void ItemSetIdentified(OsiArgumentDesc const & args)
 		{
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return;
@@ -158,7 +158,7 @@ namespace dse::esv
 			auto itemGuid = args[0].String;
 			auto & parentGuid = args[1];
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) {
 				OsiError("Item '" << itemGuid << "' does not exist!");
 				return false;
@@ -205,7 +205,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		bool ItemGet(OsiArgumentDesc & args)
 		{
-			auto item = GetEntityWorld()->GetItem(args[0].String);
+			auto item = GetEntityWorld()->GetComponent<Item>(args[0].String);
 			if (item == nullptr) return false;
 
 			bool fetched = false;
@@ -223,7 +223,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		bool ItemGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto item = GetEntityWorld()->GetItem(args[0].String);
+			auto item = GetEntityWorld()->GetComponent<Item>(args[0].String);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -236,7 +236,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		void ItemSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto item = GetEntityWorld()->GetItem(args[0].String);
+			auto item = GetEntityWorld()->GetComponent<Item>(args[0].String);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -252,7 +252,7 @@ namespace dse::esv
 			auto ability = args[1].String;
 			auto & level = args[2];
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -274,7 +274,7 @@ namespace dse::esv
 			auto talent = args[1].String;
 			auto & enabled = args[2];
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return false;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -296,7 +296,7 @@ namespace dse::esv
 			auto ability = args[1].String;
 			auto level = args[2].Int32;
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -317,7 +317,7 @@ namespace dse::esv
 			auto talent = args[1].String;
 			auto enabled = args[2].Int32;
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return;
 
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
@@ -357,7 +357,7 @@ namespace dse::esv
 			
 
 			auto itemGuid = args[0].String;
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return;
 
 			auto & clone = ExtensionState::Get().PendingItemClone;

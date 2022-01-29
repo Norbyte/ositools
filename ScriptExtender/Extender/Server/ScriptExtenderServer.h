@@ -8,7 +8,6 @@
 #include <GameHooks/OsirisWrappers.h>
 #include <GameDefinitions/Symbols.h>
 #include <Osiris/OsirisExtender.h>
-#include <GameDefinitions/EntitySystemHelpers.h>
 #include <GameHooks/Wrappers.h>
 #include <Osiris/OsirisExtender.h>
 

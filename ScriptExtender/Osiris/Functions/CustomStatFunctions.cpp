@@ -33,14 +33,14 @@ namespace dse::esv
 		auto statSystem = entityWorld->GetCustomStatSystem();
 
 		for (auto const& defn : statSystem->CreatedDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 			if (statDefn != nullptr && statDefn->Name == wstrName) {
 				return statDefn;
 			}
 		}
 
 		for (auto const& defn : statSystem->InSyncDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 			if (statDefn != nullptr && statDefn->Name == wstrName) {
 				return statDefn;
 			}
@@ -57,14 +57,14 @@ namespace dse::esv
 		auto statSystem = entityWorld->GetCustomStatSystem();
 
 		for (auto const& defn : statSystem->CreatedDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 			if (statDefn != nullptr && statDefn->Id == fs) {
 				return statDefn;
 			}
 		}
 
 		for (auto const& defn : statSystem->InSyncDefinitions) {
-			auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+			auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 			if (statDefn != nullptr && statDefn->Id == fs) {
 				return statDefn;
 			}
@@ -105,7 +105,7 @@ namespace dse::esv
 		}
 
 		auto entityWorld = GetEntityWorld();
-		auto netComponent = entityWorld->GetNetComponentByEntityHandle(entityHandle);
+		auto netComponent = entityWorld->GetComponent<NetComponent>(entityHandle);
 
 		eocnet::CustomStatsSyncInfo stat;
 		stat.NetId = netComponent->NetID;
@@ -145,7 +145,7 @@ namespace dse::esv
 		if (statDefn == nullptr) return {};
 
 		auto entityWorld = GetEntityWorld();
-		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
+		auto statsComponent = entityWorld->GetComponent<CustomStatsComponent>(entityHandle, false);
 		if (statsComponent == nullptr) {
 			// The game UI displays nonexistent stat entries as zero, 
 			// so we'll do the same in the API
@@ -168,7 +168,7 @@ namespace dse::esv
 		if (statDefn == nullptr) return false;
 
 		auto entityWorld = GetEntityWorld();
-		auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
+		auto statsComponent = entityWorld->GetComponent<CustomStatsComponent>(entityHandle, false);
 
 		SyncCharacterStats(entityHandle, statsComponent, statDefn->Id, value);
 		return true;
@@ -178,7 +178,7 @@ namespace dse::esv
 	{
 		bool CharacterGetCustomStat(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			auto statId = args[1].String;
 			auto & statValue = args[2];
 
@@ -195,7 +195,7 @@ namespace dse::esv
 
 		void CharacterSetCustomStat(OsiArgumentDesc const & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			auto statId = args[1].String;
 			auto statValue = args[2].Int32;
 
@@ -295,7 +295,7 @@ std::optional<int> CustomStatHelpers::GetCharacterStat(EntityHandle entityHandle
 	if (!entityHandle) return {};
 
 	auto entityWorld = GetEntityWorld();
-	auto statsComponent = entityWorld->GetCustomStatsComponentByEntityHandle(entityHandle, false);
+	auto statsComponent = entityWorld->GetComponent<CustomStatsComponent>(entityHandle, false);
 	if (statsComponent == nullptr) {
 		// The game UI displays nonexistent stat entries as zero, 
 		// so we'll do the same in the API

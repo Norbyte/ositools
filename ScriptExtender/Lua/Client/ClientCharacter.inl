@@ -9,7 +9,7 @@ void CollectInventoryItemGuids(ObjectSet<FixedString>& guids, ComponentHandle in
 		int32_t index = 1;
 		for (auto itemHandle : inventory->ItemsBySlot) {
 			if (itemHandle) {
-				auto item = GetEntityWorld()->GetItem(itemHandle);
+				auto item = GetEntityWorld()->GetComponent<Item>(itemHandle);
 				if (item != nullptr) {
 					guids.push_back(item->MyGuid);
 				}
@@ -24,7 +24,7 @@ Item* InventoryGetItemBySlot(ComponentHandle inventoryHandle, uint32_t slot)
 	if (inventory != nullptr && slot < inventory->ItemsBySlot.size()) {
 		auto itemHandle = inventory->ItemsBySlot[slot];
 		if (itemHandle) {
-			return GetEntityWorld()->GetItem(itemHandle);
+			return GetEntityWorld()->GetComponent<Item>(itemHandle);
 		}
 	}
 

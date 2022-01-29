@@ -217,7 +217,6 @@ bool ScriptExtender::RequestResetClientLuaState()
 
 void ScriptExtender::ResetExtensionState()
 {
-	#pragma message("Purpose of state lock?")
 	extensionState_ = std::make_unique<ExtensionState>();
 	extensionState_->Reset();
 	extensionLoaded_ = false;

@@ -53,7 +53,6 @@
     <ClInclude Include="GameDefinitions\Components\Trigger.h" />
     <ClInclude Include="GameDefinitions\CustomStats.h" />
     <ClInclude Include="GameDefinitions\EntitySystem.h" />
-    <ClInclude Include="GameDefinitions\EntitySystemHelpers.h" />
     <ClInclude Include="GameDefinitions\Enumerations.h" />
     <ClInclude Include="GameDefinitions\GameObjects\ActionMachine.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Ai.h" />
@@ -269,6 +268,7 @@
     <None Include="Lua\Debugger\LuaDebug.proto" />
     <None Include="Lua\Libs\AI.inl" />
     <None Include="Lua\Libs\Audio.inl" />
+    <None Include="Lua\Libs\ClientEntity.inl" />
     <None Include="Lua\Libs\ClientTemplate.inl" />
     <None Include="Lua\Libs\ClientVisual.inl" />
     <None Include="Lua\Libs\ClientNet.inl" />

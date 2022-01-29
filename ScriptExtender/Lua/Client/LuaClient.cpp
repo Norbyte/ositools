@@ -21,7 +21,7 @@ void AddVoiceMetaData(lua_State* L, char const* speakerGuid, char const* transla
 template <>
 ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
 {
-	auto self = ecl::GetEntityWorld()->GetCharacter(handle_);
+	auto self = ecl::GetEntityWorld()->GetComponent<ecl::Character>(handle_);
 	if (!lifetime_.IsAlive()) {
 		WarnDeprecated56("An access was made to an ecl::Character instance after its lifetime has expired; this behavior is deprecated.");
 	}
@@ -41,7 +41,7 @@ void MakeLegacyClientCharacterObjectRef(lua_State* L, ecl::Character* value)
 template <>
 ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get() const
 {
-	auto self = ecl::GetEntityWorld()->GetItem(handle_);
+	auto self = ecl::GetEntityWorld()->GetComponent<ecl::Item>(handle_);
 	if (!lifetime_.IsAlive()) {
 		WarnDeprecated56("An access was made to an ecl::Item instance after its lifetime has expired; this behavior is deprecated.");
 	}
@@ -152,7 +152,7 @@ ecl::Character* GetCharacter(lua_State* L, int index)
 			OsiError("Attempted to resolve server ComponentHandle on the client");
 		}
 		else {
-			character = GetEntityWorld()->GetCharacter(handle);
+			character = GetEntityWorld()->GetComponent<ecl::Character>(handle);
 		}
 		break;
 	}
@@ -166,11 +166,11 @@ ecl::Character* GetCharacter(lua_State* L, int index)
 			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
 				OsiError("Attempted to resolve server ComponentHandle on the client");
 			} else {
-				character = GetEntityWorld()->GetCharacter(handle);
+				character = GetEntityWorld()->GetComponent<ecl::Character>(handle);
 			}
 		} else {
 			NetId netId{ (uint32_t)value };
-			character = GetEntityWorld()->GetCharacter(netId);
+			character = GetEntityWorld()->GetComponent<ecl::Character>(netId);
 		}
 		break;
 	}
@@ -178,7 +178,7 @@ ecl::Character* GetCharacter(lua_State* L, int index)
 	case LUA_TSTRING:
 	{
 		auto guid = lua_tostring(L, index);
-		character = GetEntityWorld()->GetCharacter(guid);
+		character = GetEntityWorld()->GetComponent<ecl::Character>(guid);
 		break;
 	}
 
@@ -210,7 +210,7 @@ int GetItem(lua_State* L)
 		if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
 			OsiError("Attempted to resolve server ComponentHandle on the client");
 		} else {
-			item = GetEntityWorld()->GetItem(handle);
+			item = GetEntityWorld()->GetComponent<ecl::Item>(handle);
 		}
 		break;
 	}
@@ -223,11 +223,11 @@ int GetItem(lua_State* L)
 			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
 				OsiError("Attempted to resolve server ComponentHandle on the client");
 			} else {
-				item = GetEntityWorld()->GetItem(handle);
+				item = GetEntityWorld()->GetComponent<ecl::Item>(handle);
 			}
 		} else {
 			NetId netId{ (uint32_t)value };
-			item = GetEntityWorld()->GetItem(netId);
+			item = GetEntityWorld()->GetComponent<ecl::Item>(netId);
 		}
 		break;
 	}
@@ -235,7 +235,7 @@ int GetItem(lua_State* L)
 	case LUA_TSTRING:
 	{
 		auto guid = lua_tostring(L, 1);
-		item = GetEntityWorld()->GetItem(guid);
+		item = GetEntityWorld()->GetComponent<ecl::Item>(guid);
 		break;
 	}
 
@@ -274,10 +274,10 @@ IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle)
 	if (handle) {
 		switch ((ObjectHandleType)handle.GetType()) {
 		case ObjectHandleType::ClientCharacter:
-			return GetEntityWorld()->GetCharacter(handle);
+			return GetEntityWorld()->GetComponent<ecl::Character>(handle);
 
 		case ObjectHandleType::ClientItem: 
-			return GetEntityWorld()->GetItem(handle);
+			return GetEntityWorld()->GetComponent<ecl::Item>(handle);
 
 		default:
 			OsiError("Cannot resolve unsupported client handle type: " << handle.GetType());
@@ -290,12 +290,12 @@ IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle)
 
 IEoCClientObject* GetGameObjectInternal(char const* nameGuid)
 {
-	auto character = GetEntityWorld()->GetCharacter(nameGuid, false);
+	auto character = GetEntityWorld()->GetComponent<ecl::Character>(nameGuid, false);
 	if (character) {
 		return character;
 	}
 
-	auto item = GetEntityWorld()->GetItem(nameGuid, false);
+	auto item = GetEntityWorld()->GetComponent<ecl::Item>(nameGuid, false);
 	if (item) {
 		return item;
 	}

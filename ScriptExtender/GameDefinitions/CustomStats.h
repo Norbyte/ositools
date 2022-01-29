@@ -71,6 +71,9 @@ namespace dse
 	{
 		struct NetComponent : public ProtectedGameObject<NetComponent>
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Net;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
+
 			BaseComponent Base;
 			FixedString FixedStr1;
 			NetId NetID;
@@ -78,11 +81,21 @@ namespace dse
 
 		struct CustomStatDefinitionComponent : public eoc::CustomStatDefinitionComponent
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::CustomStatDefinition;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerCustomStatDefinitionComponent;
+
 			BaseComponent Base;
 			FixedString someStr;
 			NetId NetID;
 			uint64_t Unkn1;
 		};
+
+		struct CustomStatsComponent : public eoc::CustomStatsComponent
+		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::CustomStats;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
+		};
+
 
 		struct CustomStatSystem : public ProtectedGameObject<CustomStatSystem>
 		{
@@ -122,6 +135,23 @@ namespace dse
 
 	namespace ecl
 	{
+		struct CustomStatDefinitionComponent : public eoc::CustomStatDefinitionComponent
+		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::CustomStatDefinition;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientCustomStatDefinitionComponent;
+
+			BaseComponent Base;
+			FixedString someStr;
+			NetId NetID;
+			uint64_t Unkn1;
+		};
+
+		struct CustomStatsComponent : public eoc::CustomStatsComponent
+		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::CustomStats;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
+		};
+
 		class CustomStatHelpers
 		{
 		public:

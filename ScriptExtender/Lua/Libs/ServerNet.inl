@@ -7,7 +7,7 @@ void BroadcastMessage(char const* channel, char const* payload, std::optional<ch
 {
 	esv::Character * excludeCharacter = nullptr;
 	if (excludeCharacterGuid) {
-		excludeCharacter = GetEntityWorld()->GetCharacter(*excludeCharacterGuid);
+		excludeCharacter = GetEntityWorld()->GetComponent<Character>(*excludeCharacterGuid);
 	}
 
 	auto & networkMgr = gExtender->GetServer().GetNetworkManager();
@@ -38,7 +38,7 @@ void PostMessageToUserInternal(UserId userId, char const* channel, char const* p
 
 void PostMessageToClient(char const* characterGuid, char const* channel, char const* payload)
 {
-	auto character = GetEntityWorld()->GetCharacter(characterGuid);
+	auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 	if (character == nullptr) return;
 
 	if (character->UserID == ReservedUserId) {
@@ -61,7 +61,7 @@ void PostMessageToUser(int userId, char const* channel, char const* payload)
 
 std::optional<bool> PlayerHasExtender(char const* characterGuid)
 {
-	auto character = GetEntityWorld()->GetCharacter(characterGuid);
+	auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 	if (character == nullptr || character->UserID == ReservedUserId) return {};
 
 	// FIXME - access server from Lua context!

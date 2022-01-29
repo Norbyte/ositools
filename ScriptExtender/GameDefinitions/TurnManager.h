@@ -77,6 +77,12 @@ namespace dse
 
 	namespace esv
 	{
+		struct CombatComponent : public eoc::CombatComponent
+		{
+			static constexpr auto ComponentPoolIndex = esv::EntityComponentIndex::Combat;
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::CombatComponent;
+		};
+
 		struct TurnBasedProtocol
 		{
 			void * VMT;
@@ -106,17 +112,17 @@ namespace dse
 
 				esv::Character * GetCharacter() const
 				{
-					return GetEntityWorld()->GetCharacterComponentByEntityHandle(Handle);
+					return GetEntityWorld()->GetComponent<esv::Character>(Handle);
 				}
 
 				esv::Item * GetItem() const
 				{
-					return GetEntityWorld()->GetItemComponentByEntityHandle(Handle);
+					return GetEntityWorld()->GetComponent<esv::Item>(Handle);
 				}
 
 				eoc::CombatComponent * GetCombatComponent() const
 				{
-					return GetEntityWorld()->GetCombatComponentByEntityHandle(Handle);
+					return GetEntityWorld()->GetComponent<esv::CombatComponent>(Handle);
 				}
 			};
 

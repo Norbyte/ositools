@@ -9,7 +9,7 @@ void CollectInventoryItemGuids(ObjectSet<FixedString>& guids, ComponentHandle in
 		int32_t index = 1;
 		for (auto itemHandle : inventory->ItemsBySlot) {
 			if (itemHandle) {
-				auto item = esv::GetEntityWorld()->GetItem(itemHandle);
+				auto item = esv::GetEntityWorld()->GetComponent<Item>(itemHandle);
 				if (item != nullptr) {
 					guids.push_back(item->MyGuid);
 				}
@@ -25,7 +25,7 @@ void CollectInventoryItems(ObjectSet<Item*>& items, ComponentHandle inventoryHan
 		int32_t index = 1;
 		for (auto itemHandle : inventory->ItemsBySlot) {
 			if (itemHandle) {
-				auto item = esv::GetEntityWorld()->GetItem(itemHandle);
+				auto item = esv::GetEntityWorld()->GetComponent<Item>(itemHandle);
 				if (item != nullptr) {
 					items.push_back(item);
 				}
@@ -70,7 +70,7 @@ ObjectSet<FixedString> Character::GetSummonGuids()
 	ObjectSet<FixedString> summons;
 
 	for (auto const& handle : SummonHandles) {
-		auto summon = esv::GetEntityWorld()->GetCharacter(handle);
+		auto summon = esv::GetEntityWorld()->GetComponent<Character>(handle);
 		if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
 			summons.push_back(summon->MyGuid);
 		}
@@ -84,7 +84,7 @@ ObjectSet<Character*> Character::GetSummons()
 	ObjectSet<Character*> summons;
 
 	for (auto const& handle : SummonHandles) {
-		auto summon = esv::GetEntityWorld()->GetCharacter(handle);
+		auto summon = esv::GetEntityWorld()->GetComponent<Character>(handle);
 		if ((summon->Flags & esv::CharacterFlags::HasOwner) == esv::CharacterFlags::HasOwner) {
 			summons.push_back(summon);
 		}

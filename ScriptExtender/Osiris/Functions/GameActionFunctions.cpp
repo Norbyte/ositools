@@ -10,7 +10,7 @@ namespace dse::esv
 		template <class TAction>
 		TAction * PrepareAction(OsiArgumentDesc const & args, GameActionType type)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return nullptr;
@@ -73,7 +73,7 @@ namespace dse::esv
 
 		bool CreateWall(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
@@ -181,7 +181,7 @@ namespace dse::esv
 
 			esv::Character * caster{ nullptr };
 			if (beamEffectName != nullptr && strlen(beamEffectName) > 0) {
-				caster = GetEntityWorld()->GetCharacter(casterGuid);
+				caster = GetEntityWorld()->GetComponent<Character>(casterGuid);
 				if (caster == nullptr) {
 					OsiError("Caster character '" << casterGuid << "' does not exist!");
 					return false;
@@ -323,7 +323,7 @@ namespace dse::esv
 
 		bool Summon(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr) {
 				OsiError("Character '" << args[0].String << "' does not exist!");
 				return false;
@@ -373,12 +373,11 @@ namespace dse::esv
 			if (results.SummonHandle) {
 				FixedString guid;
 
-				auto summonCharacter = GetEntityWorld()->GetCharacter(results.SummonHandle);
+				auto summonCharacter = GetEntityWorld()->GetComponent<Character>(results.SummonHandle);
 				if (summonCharacter != nullptr) {
 					guid = *summonCharacter->GetGuid();
-				}
-				else {
-					auto summonItem = GetEntityWorld()->GetItem(results.SummonHandle);
+				} else {
+					auto summonItem = GetEntityWorld()->GetComponent<Item>(results.SummonHandle);
 					if (summonItem != nullptr) {
 						guid = *summonItem->GetGuid();
 					}

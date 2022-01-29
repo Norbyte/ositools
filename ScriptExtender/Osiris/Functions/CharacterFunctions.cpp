@@ -32,7 +32,7 @@ namespace dse::esv
 
 		bool CharacterGetComputedStat(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			auto statName = args[1].String;
 			auto baseStats = args[2].Int32 == 1;
 			auto & statValue = args[3];
@@ -49,8 +49,8 @@ namespace dse::esv
 
 		bool CharacterGetHitChance(OsiArgumentDesc & args)
 		{
-			auto attacker = GetEntityWorld()->GetCharacter(args[0].String);
-			auto target = GetEntityWorld()->GetCharacter(args[1].String);
+			auto attacker = GetEntityWorld()->GetComponent<Character>(args[0].String);
+			auto target = GetEntityWorld()->GetComponent<Character>(args[1].String);
 			auto & hitChance = args[2];
 			if (attacker == nullptr
 				|| target == nullptr
@@ -71,7 +71,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		bool CharacterGetStat(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr || character->Stats == nullptr) return false;
 
 			return OsirisPropertyMapGet(gCharacterStatsPropertyMap, character->Stats, args, 1, Type);
@@ -79,7 +79,7 @@ namespace dse::esv
 
 		void CharacterSetStatInt(OsiArgumentDesc const & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			FixedString stat(args[1].String);
 			auto value = args[2].Int32;
 
@@ -100,7 +100,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		bool CharacterGetPermanentBoost(OsiArgumentDesc & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr) return false;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -112,7 +112,7 @@ namespace dse::esv
 		template <OsiPropertyMapType Type>
 		void CharacterSetPermanentBoost(OsiArgumentDesc const & args)
 		{
-			auto character = GetEntityWorld()->GetCharacter(args[0].String);
+			auto character = GetEntityWorld()->GetComponent<Character>(args[0].String);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -127,7 +127,7 @@ namespace dse::esv
 			auto talent = args[1].String;
 			auto enabled = args[2].Int32;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -148,7 +148,7 @@ namespace dse::esv
 			auto talent = args[1].String;
 			auto & disabled = args[2];
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) return false;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -170,7 +170,7 @@ namespace dse::esv
 			auto talent = args[1].String;
 			auto disabled = args[2].Int32;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) return;
 
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
@@ -191,7 +191,7 @@ namespace dse::esv
 			auto characterGuid = args[0].String;
 			auto global = args[1].Int32 == 1;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) return;
 
 			character->SetGlobal(global);
@@ -202,7 +202,7 @@ namespace dse::esv
 		{
 			auto characterGuid = args[0].String;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr) return false;
 
 			return OsirisPropertyMapGet(gCharacterPropertyMap, character, args, 1, Type);
@@ -213,7 +213,7 @@ namespace dse::esv
 			auto characterGuid = args[0].String;
 			auto eventName = args[1].String;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr || character->SkillManager == nullptr) return;
 
 			Vector<std::tuple<char const*, bool, bool>> skillEvents;
@@ -245,10 +245,10 @@ namespace dse::esv
 			auto updateVitality = args[5].Int32 > 0;
 			auto useWeaponAnimType = args[6].Int32 > 0;
 
-			auto character = GetEntityWorld()->GetCharacter(characterGuid);
+			auto character = GetEntityWorld()->GetComponent<Character>(characterGuid);
 			if (character == nullptr || !character->InventoryHandle) return;
 
-			auto item = GetEntityWorld()->GetItem(itemGuid);
+			auto item = GetEntityWorld()->GetComponent<Item>(itemGuid);
 			if (item == nullptr) return;
 
 			int16_t slotIndex = -1;
@@ -284,7 +284,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto character = GetEntityWorld()->GetCharacter(guid, false);
+			auto character = GetEntityWorld()->GetComponent<Character>(guid, false);
 			if (character != nullptr) {
 				if (flag < 64) {
 					value.Set(character->HasFlag(1ull << flag));
@@ -299,7 +299,7 @@ namespace dse::esv
 				return true;
 			}
 
-			auto item = GetEntityWorld()->GetItem(guid);
+			auto item = GetEntityWorld()->GetComponent<Item>(guid);
 			if (item != nullptr) {
 				if (flag < 64) {
 					value.Set(item->HasFlag(1ull << flag));
@@ -324,7 +324,7 @@ namespace dse::esv
 				return;
 			}
 
-			auto character = GetEntityWorld()->GetCharacter(guid, false);
+			auto character = GetEntityWorld()->GetComponent<Character>(guid, false);
 			if (character != nullptr) {
 				if (flag < 64) {
 					if (value) {
@@ -355,7 +355,7 @@ namespace dse::esv
 				return;
 			}
 
-			auto item = GetEntityWorld()->GetItem(guid);
+			auto item = GetEntityWorld()->GetComponent<Item>(guid);
 			if (item != nullptr) {
 				if (flag < 64) {
 					if (value) {
@@ -382,12 +382,12 @@ namespace dse::esv
 			auto property = args[1].Int32;
 			auto& value = args[2];
 
-			auto character = GetEntityWorld()->GetCharacter(guid, false);
+			auto character = GetEntityWorld()->GetComponent<Character>(guid, false);
 			if (character != nullptr) {
 				return OsirisPropertyMapGet(gCharacterTemplatePropertyMap, character->CurrentTemplate, args, 1, Type);
 			}
 
-			auto item = GetEntityWorld()->GetItem(guid);
+			auto item = GetEntityWorld()->GetComponent<Item>(guid);
 			if (item != nullptr) {
 				return OsirisPropertyMapGet(gItemTemplatePropertyMap, item->CurrentTemplate, args, 1, Type);
 			} else {

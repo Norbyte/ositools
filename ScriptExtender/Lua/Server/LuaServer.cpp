@@ -342,7 +342,7 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get() const
 {
-	auto self = esv::GetEntityWorld()->GetCharacter(handle_);
+	auto self = esv::GetEntityWorld()->GetComponent<esv::Character>(handle_);
 	if (!lifetime_.IsAlive()) {
 		WarnDeprecated56("An access was made to an esv::Character instance after its lifetime has expired; this behavior is deprecated.");
 	}
@@ -715,7 +715,7 @@ namespace dse::esv::lua
 			if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 				OsiError("Attempted to resolve client ComponentHandle on the server");
 			} else {
-				character = GetEntityWorld()->GetCharacter(handle);
+				character = GetEntityWorld()->GetComponent<Character>(handle);
 			}
 			break;
 		}
@@ -729,11 +729,11 @@ namespace dse::esv::lua
 				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
 					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
-					character = GetEntityWorld()->GetCharacter(handle);
+					character = GetEntityWorld()->GetComponent<Character>(handle);
 				}
 			} else {
 				NetId netId{ (uint32_t)value };
-				character = GetEntityWorld()->GetCharacter(netId);
+				character = GetEntityWorld()->GetComponent<Character>(netId);
 			}
 			break;
 		}
@@ -741,7 +741,7 @@ namespace dse::esv::lua
 		case LUA_TSTRING:
 		{
 			auto guid = lua_tostring(L, index);
-			character = GetEntityWorld()->GetCharacter(guid);
+			character = GetEntityWorld()->GetComponent<Character>(guid);
 			break;
 		}
 
@@ -779,7 +779,7 @@ namespace dse::esv::lua
 		case LUA_TLIGHTUSERDATA:
 		{
 			auto handle = get<ComponentHandle>(L, 1);
-			item = GetEntityWorld()->GetItem(handle);
+			item = GetEntityWorld()->GetComponent<Item>(handle);
 			break;
 		}
 
@@ -792,11 +792,11 @@ namespace dse::esv::lua
 				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
 					OsiError("Attempted to resolve client ComponentHandle on the server");
 				} else {
-					item = GetEntityWorld()->GetItem(handle);
+					item = GetEntityWorld()->GetComponent<Item>(handle);
 				}
 			} else {
 				NetId netId{ (uint32_t)value };
-				item = GetEntityWorld()->GetItem(netId);
+				item = GetEntityWorld()->GetComponent<Item>(netId);
 			}
 			break;
 		}
@@ -804,7 +804,7 @@ namespace dse::esv::lua
 		case LUA_TSTRING:
 		{
 			auto guid = lua_tostring(L, 1);
-			item = GetEntityWorld()->GetItem(guid);
+			item = GetEntityWorld()->GetComponent<Item>(guid);
 			break;
 		}
 
@@ -867,13 +867,13 @@ namespace dse::esv::lua
 
 		switch ((ObjectHandleType)handle.GetType()) {
 		case ObjectHandleType::ServerCharacter:
-			return GetEntityWorld()->GetCharacter(handle);
+			return GetEntityWorld()->GetComponent<Character>(handle);
 
 		case ObjectHandleType::ServerItem:
-			return GetEntityWorld()->GetItem(handle);
+			return GetEntityWorld()->GetComponent<Item>(handle);
 
 		case ObjectHandleType::ServerProjectile:
-			return GetEntityWorld()->GetProjectile(handle);
+			return GetEntityWorld()->GetComponent<Projectile>(handle);
 
 		// FIXME - re-add when migrated to new proxy
 		/*case ObjectHandleType::ServerEocPointTrigger:
@@ -901,12 +901,12 @@ namespace dse::esv::lua
 
 	IEoCServerObject* GetGameObjectInternal(char const* nameGuid)
 	{
-		auto character = GetEntityWorld()->GetCharacter(nameGuid, false);
+		auto character = GetEntityWorld()->GetComponent<Character>(nameGuid, false);
 		if (character) {
 			return character;
 		}
 
-		auto item = GetEntityWorld()->GetItem(nameGuid, false);
+		auto item = GetEntityWorld()->GetComponent<Item>(nameGuid, false);
 		if (item) {
 			return item;
 		}
@@ -1264,12 +1264,12 @@ namespace dse::esv::lua
 
 		auto ownerHandle = status->OwnerHandle;
 		if (ownerHandle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
-			auto character = GetEntityWorld()->GetCharacter(ownerHandle);
+			auto character = GetEntityWorld()->GetComponent<Character>(ownerHandle);
 			if (character) {
 				statusMachine = character->StatusMachine;
 			}
 		} else if (ownerHandle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
-			auto item = GetEntityWorld()->GetItem(ownerHandle);
+			auto item = GetEntityWorld()->GetComponent<Item>(ownerHandle);
 			if (item) {
 				statusMachine = item->StatusMachine;
 			}
@@ -1449,11 +1449,11 @@ namespace dse::esv::lua
 	{
 		stats::ObjectInstance* attacker{ nullptr };
 		if (attackerHandle) {
-			auto attackerChar = GetEntityWorld()->GetCharacter(attackerHandle, false);
+			auto attackerChar = GetEntityWorld()->GetComponent<Character>(attackerHandle, false);
 			if (attackerChar) {
 				attacker = attackerChar->Stats;
 			} else {
-				auto attackerItem = GetEntityWorld()->GetItem(attackerHandle, false);
+				auto attackerItem = GetEntityWorld()->GetComponent<Item>(attackerHandle, false);
 				if (attackerItem) {
 					attacker = attackerItem->Stats;
 				} else {
@@ -1506,7 +1506,7 @@ namespace dse::esv::lua
 		BeforeCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity };
 
 		for (auto ingredientHandle : ingredients) {
-			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
+			auto ingredient = GetEntityWorld()->GetComponent<Item>(ingredientHandle);
 			if (ingredient) {
 				params.Items.push_back(ingredient);
 			}
@@ -1524,7 +1524,7 @@ namespace dse::esv::lua
 		AfterCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity, succeeded };
 
 		for (auto ingredientHandle : ingredients) {
-			auto ingredient = GetEntityWorld()->GetItem(ingredientHandle);
+			auto ingredient = GetEntityWorld()->GetComponent<Item>(ingredientHandle);
 			if (ingredient) {
 				params.Items.push_back(ingredient);
 			}

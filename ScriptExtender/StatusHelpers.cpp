@@ -106,11 +106,11 @@ namespace dse::esv
 		}
 
 		esv::Status * status{ nullptr };
-		auto character = GetEntityWorld()->GetCharacter(gameObjectGuid, false);
+		auto character = GetEntityWorld()->GetComponent<Character>(gameObjectGuid, false);
 		if (character != nullptr) {
 			status = character->GetStatus(statusHandle, true);
 		} else {
-			auto item = GetEntityWorld()->GetItem(gameObjectGuid, false);
+			auto item = GetEntityWorld()->GetComponent<Item>(gameObjectGuid, false);
 			if (item != nullptr) {
 				status = item->GetStatus(statusHandle, true);
 			} else {
@@ -323,7 +323,7 @@ namespace dse::esv
 
 	void StatusHelpers::ThrowStatusHealEnter(esv::StatusHeal* status)
 	{
-		auto target = GetEntityWorld()->GetCharacter(status->OwnerHandle);
+		auto target = GetEntityWorld()->GetComponent<Character>(status->OwnerHandle);
 		if (target == nullptr) {
 			OsiErrorS("Status has no target?");
 			return;

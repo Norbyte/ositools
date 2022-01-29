@@ -114,9 +114,6 @@
     <ClInclude Include="GameDefinitions\EntitySystem.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
-    <ClInclude Include="GameDefinitions\EntitySystemHelpers.h">
-      <Filter>GameDefinitions</Filter>
-    </ClInclude>
     <ClInclude Include="GameDefinitions\Enumerations.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
@@ -786,6 +783,9 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\UI.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Lua\Libs\ClientEntity.inl">
+      <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

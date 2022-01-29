@@ -183,7 +183,7 @@ namespace dse::esv
 		damage.HitWithWeapon = Hit->HitWithWeapon;
 
 		if (SimulateHit) {
-			auto targetCharacter = GetEntityWorld()->GetCharacter(Target->GetGuid()->Str);
+			auto targetCharacter = GetEntityWorld()->GetComponent<Character>(Target->GetGuid()->Str);
 			if (targetCharacter == nullptr) {
 				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {
@@ -244,7 +244,7 @@ namespace dse::esv
 			auto helper = gExtender->GetServer().GetExtensionState().DamageHelpers.Create();
 			helper->Type = DamageHelpers::HT_CustomHit;
 			helper->Target = target;
-			helper->Source = GetEntityWorld()->GetCharacter(sourceGuid);
+			helper->Source = GetEntityWorld()->GetComponent<Character>(sourceGuid);
 			helper->SetInternalDamageInfo();
 
 			helperHandle.Set((int64_t)helper->Handle.Handle);

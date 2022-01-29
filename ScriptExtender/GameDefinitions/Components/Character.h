@@ -177,6 +177,7 @@ namespace dse
 
 		struct Character : public IEoCServerObject
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerCharacter;
 
 			using HitProc = void (esv::Character* self, stats::Character* attackerStats, stats::Item* itemStats, stats::DamagePairList* damageList,
@@ -374,6 +375,7 @@ namespace dse
 
 		struct Character : public IEoCClientObject
 		{
+			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientCharacter;
 
 			Status* GetStatus(ComponentHandle statusHandle) const;

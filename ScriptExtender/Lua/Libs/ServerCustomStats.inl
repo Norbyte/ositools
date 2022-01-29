@@ -52,14 +52,14 @@ UserReturn GetAll(lua_State* L)
 	lua_newtable(L);
 	int idx{ 1 };
 	for (auto const& defn : statSystem->CreatedDefinitions) {
-		auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+		auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 		if (statDefn != nullptr) {
 			settable(L, idx++, statDefn->Id);
 		}
 	}
 
 	for (auto const& defn : statSystem->InSyncDefinitions) {
-		auto statDefn = entityWorld->GetCustomStatDefinitionComponent(defn.Handle);
+		auto statDefn = entityWorld->GetComponent<CustomStatDefinitionComponent>(defn.Handle);
 		if (statDefn != nullptr) {
 			settable(L, idx++, statDefn->Id);
 		}
