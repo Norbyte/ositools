@@ -787,6 +787,9 @@
     <None Include="Lua\Shared\LevelIteratorFunctions.inl">
       <Filter>Lua\Shared</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\Level.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

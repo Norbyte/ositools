@@ -239,6 +239,7 @@
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
     <None Include="GameDefinitions\PropertyMaps\Item.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Level.inl" />
     <None Include="GameDefinitions\PropertyMaps\Material.inl" />
     <None Include="GameDefinitions\PropertyMaps\Mod.inl" />
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
