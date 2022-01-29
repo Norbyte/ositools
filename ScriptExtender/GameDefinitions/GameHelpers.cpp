@@ -289,12 +289,12 @@ namespace dse
 	void PendingStatuses::Add(esv::Status * status)
 	{
 		PendingStatus pend { status, false };
-		statuses_.insert(std::make_pair(status->StatusHandle, pend));
+		statuses_.insert(std::make_pair(std::make_pair(status->OwnerHandle, status->StatusHandle), pend));
 	}
 
 	void PendingStatuses::Remove(esv::Status * status)
 	{
-		auto it = statuses_.find(status->StatusHandle);
+		auto it = statuses_.find(std::make_pair(status->OwnerHandle, status->StatusHandle));
 		if (it != statuses_.end()) {
 			statuses_.erase(it);
 		} else {
@@ -304,7 +304,7 @@ namespace dse
 
 	PendingStatus * PendingStatuses::Find(ComponentHandle owner, ComponentHandle handle)
 	{
-		auto it = statuses_.find(handle);
+		auto it = statuses_.find(std::make_pair(owner, handle));
 		if (it != statuses_.end()) {
 			auto & status = it->second;
 			if (owner == status.Status->OwnerHandle) {

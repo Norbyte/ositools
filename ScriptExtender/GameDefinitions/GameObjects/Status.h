@@ -688,7 +688,14 @@ public:
 	PendingStatus * Find(ComponentHandle owner, ComponentHandle statusHandle);
 
 private:
-	std::unordered_map<ComponentHandle, PendingStatus> statuses_;
+	struct StatusHasher
+	{
+		std::size_t operator() (const std::pair<ComponentHandle, ComponentHandle>& pair) const {
+			return std::hash<ComponentHandle>()(pair.first) ^ std::hash<ComponentHandle>()(pair.second);
+		}
+	};
+
+	std::unordered_map<std::pair<ComponentHandle, ComponentHandle>, PendingStatus, StatusHasher> statuses_;
 };
 
 END_SE()
