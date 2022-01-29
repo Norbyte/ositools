@@ -173,6 +173,55 @@ ecl::character_creation::UICharacterCreationWizard* GetCharacterCreationWizard()
 	}
 }
 
+UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
+{
+	StackCheck _(L, 1);
+	auto level = GetStaticSymbols().GetCurrentClientLevel();
+	if (level == nullptr || level->PickingHelperManager == nullptr) {
+		push(L, nullptr);
+		return 1;
+	}
+
+	auto helper = level->PickingHelperManager->PlayerHelpers.Find(playerIndex.value_or(1));
+	if (helper == nullptr) {
+		push(L, nullptr);
+		return 1;
+	}
+
+	auto const& base = (*helper)->b;
+	lua_newtable(L);
+	if ((*helper)->GameObjectPick) {
+		setfield(L, "WorldPosition", (*helper)->GameObjectPick->WorldPos.Position);
+	}
+
+	setfield(L, "WalkablePosition", base.WalkablePickPos.Position);
+
+	if (base.HoverCharacterHandle2) {
+		setfield(L, "HoverCharacter", base.HoverCharacterHandle2);
+		setfield(L, "HoverCharacterPosition", base.HoverCharacterPickPos.Position);
+	}
+
+	if (base.HoverCharacterHandle) {
+		setfield(L, "HoverCharacter2", base.HoverCharacterHandle);
+	}
+
+	if (base.HoverItemHandle) {
+		setfield(L, "HoverItem", base.HoverItemHandle);
+		setfield(L, "HoverItemPosition", base.HoverItemPickPos.Position);
+	}
+
+	if (base.HoverCharacterOrItemHandle) {
+		setfield(L, "HoverEntity", base.HoverCharacterOrItemHandle);
+	}
+
+	if (base.PlaceablePickHandle) {
+		setfield(L, "PlaceableEntity", base.PlaceablePickHandle);
+		setfield(L, "PlaceablePosition", base.PlaceablePickInfo.Position);
+	}
+
+	return 1;
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -187,6 +236,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(HandleToDouble)
 	MODULE_FUNCTION(DoubleToHandle)
 	MODULE_FUNCTION(GetCharacterCreationWizard)
+	MODULE_FUNCTION(GetPickingState)
 	END_MODULE()
 }
 

@@ -269,5 +269,4 @@ namespace dse::lua
 	void WarnDeprecated56(char const* msg);
 
 	int GetCellInfo(lua_State* L);
-	int NewDamageList(lua_State* L);
 }

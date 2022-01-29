@@ -284,6 +284,49 @@ namespace dse
 			}
 		}
 
+		IEoCClientObject* EntityWorld::GetGameObject(char const* nameGuid, bool logError)
+		{
+			if (!nameGuid) {
+				OsiError("Attempted to look up object with null name!");
+				return nullptr;
+			}
+
+			auto character = GetComponent<Character>(nameGuid, false);
+			if (character != nullptr) {
+				return character;
+			}
+
+			auto item = GetComponent<Item>(nameGuid, false);
+			if (item != nullptr) {
+				return item;
+			}
+
+			if (logError) {
+				OsiError("No EoC client object found with GUID '" << nameGuid << "'");
+			}
+
+			return nullptr;
+		}
+
+		IEoCClientObject* EntityWorld::GetGameObject(ComponentHandle handle, bool logError)
+		{
+			if (!handle) {
+				return nullptr;
+			}
+
+			switch ((ObjectHandleType)handle.GetType()) {
+			case ObjectHandleType::ClientCharacter:
+				return GetComponent<Character>(handle, logError);
+
+			case ObjectHandleType::ClientItem:
+				return GetComponent<Item>(handle, logError);
+
+			default:
+				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");
+				return nullptr;
+			}
+		}
+
 		ecl::Inventory* FindInventoryByHandle(ComponentHandle const& handle, bool logError)
 		{
 			auto inventoryMgr = GetStaticSymbols().GetClientInventoryFactory();

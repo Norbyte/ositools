@@ -265,6 +265,14 @@ Ext.UISetDirty = CallDeprecated(Ext.UI.SetDirty, "UISetDirty", "UI.SetDirty")
 Ext.UIEnableCustomDrawCallDebugging = CallDeprecated(Ext.UI.EnableCustomDrawCallDebugging, "UIEnableCustomDrawCallDebugging", "UI.EnableCustomDrawCallDebugging")
 Ext.HandleToDouble = CallDeprecated(Ext.UI.HandleToDouble, "HandleToDouble", "UI.HandleToDouble")
 Ext.DoubleToHandle = CallDeprecated(Ext.UI.DoubleToHandle, "DoubleToHandle", "UI.DoubleToHandle")
+Ext.GetPickingState = CallDeprecated(Ext.UI.GetPickingState, "GetPickingState", "UI.GetPickingState")
+
+-- Backwards compatibility with old Entity APIs
+Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacter, "GetCharacter", "Entity.GetCharacter")
+Ext.GetItem = CallDeprecated(Ext.Entity.GetItem, "GetItem", "Entity.GetItem")
+Ext.GetStatus = CallDeprecated(Ext.Entity.GetStatus, "GetStatus", "Entity.GetStatus")
+Ext.GetGameObject = CallDeprecated(Ext.Entity.GetGameObject, "GetGameObject", "Entity.GetGameObject")
+Ext.GetAiGrid = CallDeprecated(Ext.Entity.GetAiGrid, "GetAiGrid", "Entity.GetAiGrid")
 
 Ext.OsirisIsCallable = function ()
 	return false

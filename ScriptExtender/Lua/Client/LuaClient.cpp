@@ -15,9 +15,6 @@
 
 BEGIN_NS(lua)
 
-void AddVoiceMetaData(lua_State* L, char const* speakerGuid, char const* translatedStringKey, char const* source,
-	float length, std::optional<int> priority);
-
 template <>
 ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
 {
@@ -29,15 +26,6 @@ ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
 	return self;
 }
 
-void MakeLegacyClientCharacterObjectRef(lua_State* L, ecl::Character* value)
-{
-	if (value) {
-		ObjectProxy2::MakeHandle<ecl::Character>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
-	} else {
-		push(L, nullptr);
-	}
-}
-
 template <>
 ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get() const
 {
@@ -47,15 +35,6 @@ ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get() const
 	}
 
 	return self;
-}
-
-void MakeLegacyClientItemObjectRef(lua_State* L, ecl::Item* value)
-{
-	if (value) {
-		ObjectProxy2::MakeHandle<ecl::Item>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
-	} else {
-		push(L, nullptr);
-	}
 }
 
 END_NS()
@@ -141,214 +120,6 @@ void ExtensionLibraryClient::Register(lua_State * L)
 }
 
 
-ecl::Character* GetCharacter(lua_State* L, int index)
-{
-	ecl::Character* character = nullptr;
-	switch (lua_type(L, index)) {
-	case LUA_TLIGHTUSERDATA:
-	{
-		auto handle = get<ComponentHandle>(L, index);
-		if (handle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
-			OsiError("Attempted to resolve server ComponentHandle on the client");
-		}
-		else {
-			character = GetEntityWorld()->GetComponent<ecl::Character>(handle);
-		}
-		break;
-	}
-
-	case LUA_TNUMBER:
-	{
-		auto value = lua_tointeger(L, index);
-		if (value > 0xffffffff) {
-			OsiError("Resolving integer object handles is deprecated since v52!")
-			ComponentHandle handle{ value };
-			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerCharacter) {
-				OsiError("Attempted to resolve server ComponentHandle on the client");
-			} else {
-				character = GetEntityWorld()->GetComponent<ecl::Character>(handle);
-			}
-		} else {
-			NetId netId{ (uint32_t)value };
-			character = GetEntityWorld()->GetComponent<ecl::Character>(netId);
-		}
-		break;
-	}
-
-	case LUA_TSTRING:
-	{
-		auto guid = lua_tostring(L, index);
-		character = GetEntityWorld()->GetComponent<ecl::Character>(guid);
-		break;
-	}
-
-	default:
-		OsiError("Expected character UUID, Handle or NetId");
-		break;
-	}
-
-	return character;
-}
-
-int GetCharacter(lua_State* L)
-{
-	StackCheck _(L, 1);
-	ecl::Character* character = GetCharacter(L, 1);
-	MakeLegacyClientCharacterObjectRef(L, character);
-	return 1;
-}
-
-int GetItem(lua_State* L)
-{
-	StackCheck _(L, 1);
-
-	ecl::Item* item = nullptr;
-	switch (lua_type(L, 1)) {
-	case LUA_TLIGHTUSERDATA:
-	{
-		auto handle = get<ComponentHandle>(L, 1);
-		if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
-			OsiError("Attempted to resolve server ComponentHandle on the client");
-		} else {
-			item = GetEntityWorld()->GetComponent<ecl::Item>(handle);
-		}
-		break;
-	}
-
-	case LUA_TNUMBER:
-	{
-		auto value = lua_tointeger(L, 1);
-		if (value > 0xffffffff) {
-			ComponentHandle handle{ value };
-			if (handle.GetType() == (uint32_t)ObjectHandleType::ServerItem) {
-				OsiError("Attempted to resolve server ComponentHandle on the client");
-			} else {
-				item = GetEntityWorld()->GetComponent<ecl::Item>(handle);
-			}
-		} else {
-			NetId netId{ (uint32_t)value };
-			item = GetEntityWorld()->GetComponent<ecl::Item>(netId);
-		}
-		break;
-	}
-
-	case LUA_TSTRING:
-	{
-		auto guid = lua_tostring(L, 1);
-		item = GetEntityWorld()->GetComponent<ecl::Item>(guid);
-		break;
-	}
-
-	default:
-		OsiError("Expected item UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 1)));
-		break;
-	}
-
-	MakeLegacyClientItemObjectRef(L, item);
-	return 1;
-}
-
-int GetStatus(lua_State* L)
-{
-	StackCheck _(L, 1);
-
-	auto character = GetCharacter(L, 1);
-	if (character == nullptr) return 0;
-
-	ecl::Status* status;
-	if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
-		auto statusHandle = get<ComponentHandle>(L, 2);
-		status = character->GetStatus(statusHandle);
-	} else {
-		auto index = lua_tointeger(L, 2);
-		NetId statusNetId{ (uint32_t)index };
-		status = character->GetStatus(statusNetId);
-	}
-
-	MakeObjectRef(L, status);
-	return 1;
-}
-
-IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle)
-{
-	if (handle) {
-		switch ((ObjectHandleType)handle.GetType()) {
-		case ObjectHandleType::ClientCharacter:
-			return GetEntityWorld()->GetComponent<ecl::Character>(handle);
-
-		case ObjectHandleType::ClientItem: 
-			return GetEntityWorld()->GetComponent<ecl::Item>(handle);
-
-		default:
-			OsiError("Cannot resolve unsupported client handle type: " << handle.GetType());
-			return nullptr;
-		}
-	} else {
-		return nullptr;
-	}
-}
-
-IEoCClientObject* GetGameObjectInternal(char const* nameGuid)
-{
-	auto character = GetEntityWorld()->GetComponent<ecl::Character>(nameGuid, false);
-	if (character) {
-		return character;
-	}
-
-	auto item = GetEntityWorld()->GetComponent<ecl::Item>(nameGuid, false);
-	if (item) {
-		return item;
-	}
-
-	return nullptr;
-}
-
-int GetGameObject(lua_State* L)
-{
-	auto lua = State::FromLua(L);
-	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-		return luaL_error(L, "Attempted to resolve game object handle in restricted context");
-	}
-
-	StackCheck _(L, 1);
-	switch (lua_type(L, 1)) {
-	case LUA_TLIGHTUSERDATA:
-	{
-		auto handle = get<ComponentHandle>(L, 1);
-		MakeObjectRef(L, GetGameObjectInternal(handle));
-		break;
-	}
-
-	case LUA_TSTRING:
-	{
-		auto guid = lua_tostring(L, 1);
-		MakeObjectRef(L, GetGameObjectInternal(guid));
-		break;
-	}
-
-	default:
-		OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-		push(L, nullptr);
-		break;
-	}
-
-	return 1;
-}
-
-// FIXME - move to Level->AiGrid!
-int GetAiGrid(lua_State* L)
-{
-	auto level = GetStaticSymbols().GetCurrentClientLevel();
-	if (!level || !level->AiGrid) {
-		OsiError("Current level not available yet!");
-		return 0;
-	}
-
-	MakeObjectRef(L, level->AiGrid);
-	return 1;
-}
-
-
 int GetGameState(lua_State* L)
 {
 	StackCheck _(L, 1);
@@ -357,60 +128,6 @@ int GetGameState(lua_State* L)
 		push(L, *state);
 	} else {
 		lua_pushnil(L);
-	}
-
-	return 1;
-}
-
-int GetPickingState(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto level = GetStaticSymbols().GetCurrentClientLevel();
-	if (level == nullptr || level->PickingHelperManager == nullptr) {
-		push(L, nullptr);
-		return 1;
-	}
-
-	int playerIndex{ 1 };
-	if (lua_gettop(L) >= 1) {
-		playerIndex = get<int>(L, 1);
-	}
-
-	auto helper = level->PickingHelperManager->PlayerHelpers.Find(playerIndex);
-	if (helper == nullptr) {
-		push(L, nullptr);
-		return 1;
-	}
-
-	auto const& base = (*helper)->b;
-	lua_newtable(L);
-	if ((*helper)->GameObjectPick) {
-		setfield(L, "WorldPosition", (*helper)->GameObjectPick->WorldPos.Position);
-	}
-
-	setfield(L, "WalkablePosition", base.WalkablePickPos.Position);
-
-	if (base.HoverCharacterHandle2) {
-		setfield(L, "HoverCharacter", base.HoverCharacterHandle2);
-		setfield(L, "HoverCharacterPosition", base.HoverCharacterPickPos.Position);
-	}
-
-	if (base.HoverCharacterHandle) {
-		setfield(L, "HoverCharacter2", base.HoverCharacterHandle);
-	}
-
-	if (base.HoverItemHandle) {
-		setfield(L, "HoverItem", base.HoverItemHandle);
-		setfield(L, "HoverItemPosition", base.HoverItemPickPos.Position);
-	}
-
-	if (base.HoverCharacterOrItemHandle) {
-		setfield(L, "HoverEntity", base.HoverCharacterOrItemHandle);
-	}
-
-	if (base.PlaceablePickHandle) {
-		setfield(L, "PlaceableEntity", base.PlaceablePickHandle);
-		setfield(L, "PlaceablePosition", base.PlaceablePickInfo.Position);
 	}
 
 	return 1;
@@ -442,16 +159,7 @@ int UpdateShroud(lua_State* L)
 void ExtensionLibraryClient::RegisterLib(lua_State * L)
 {
 	static const luaL_Reg extLib[] = {
-		{"GetCharacter", GetCharacter},
-		{"GetItem", GetItem},
-		{"GetStatus", GetStatus},
-		{"GetGameObject", GetGameObject},
-		{"GetAiGrid", GetAiGrid},
-		{"NewDamageList", NewDamageList},
-
 		{"GetGameState", GetGameState},
-		{"GetPickingState", GetPickingState},
-		{"AddVoiceMetaData", LuaWrapFunction(AddVoiceMetaData)},
 
 		// EXPERIMENTAL FUNCTIONS
 		{"UpdateShroud", UpdateShroud},

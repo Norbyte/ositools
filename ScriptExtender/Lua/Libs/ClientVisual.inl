@@ -136,8 +136,8 @@ void ClientMultiVisual::ParseFromStats(char const* effect, std::optional<char co
 {
 	auto init = GetStaticSymbols().ecl__MultiEffectHandler__Init;
 
-	auto target = GetGameObjectInternal(TargetObjectHandle);
-	auto listenForTextKeys = GetGameObjectInternal(ListenForTextKeysHandle);
+	auto target = GetEntityWorld()->GetGameObject(TargetObjectHandle);
+	auto listenForTextKeys = GetEntityWorld()->GetGameObject(ListenForTextKeysHandle);
 	init(this, effect, Position, target, nullptr, listenForTextKeys, weaponBones ? FixedString(*weaponBones) : GFS.strEmpty);
 }
 
@@ -250,7 +250,7 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 	auto instantiate = GetStaticSymbols().ResourceManager__InstantiateVisual;
 	auto addAttachment = GetStaticSymbols().ls__Visual__AddAttachment;
 
-	auto target = GetGameObjectInternal(TargetObjectHandle);
+	auto target = GetEntityWorld()->GetGameObject(TargetObjectHandle);
 	if (!target) {
 		OsiErrorS("Cannot add visuals when no target character or item is specified.");
 		return nullptr;

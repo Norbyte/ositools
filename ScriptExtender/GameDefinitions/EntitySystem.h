@@ -738,6 +738,9 @@ namespace ecl
 
 	struct EntityWorld : public EntityWorldBase<EntityComponentIndex>
 	{
+	public:
+		IEoCClientObject* GetGameObject(char const* nameGuid, bool logError = true);
+		IEoCClientObject* GetGameObject(ComponentHandle handle, bool logError = true);
 	};
 
 

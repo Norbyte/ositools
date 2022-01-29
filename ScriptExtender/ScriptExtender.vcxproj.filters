@@ -435,9 +435,6 @@
     <ClCompile Include="Lua\Shared\LuaBinding.cpp">
       <Filter>Lua\Shared</Filter>
     </ClCompile>
-    <ClCompile Include="Lua\Shared\LuaExtFunctions.cpp">
-      <Filter>Lua\Shared</Filter>
-    </ClCompile>
     <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp">
       <Filter>Lua\Shared</Filter>
     </ClCompile>

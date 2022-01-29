@@ -1034,6 +1034,32 @@ UserReturn EnumLabelToIndex(lua_State* L)
 #undef END_ENUM_NS
 #undef END_ENUM
 
+UserReturn NewDamageList(lua_State* L)
+{
+	MakeObjectContainer<stats::DamagePairList>(L);
+	return 1;
+}
+
+void AddVoiceMetaData(char const* speakerGuid, char const* translatedStringKey, char const* source, 
+	float length, std::optional<int> priority)
+{
+	auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
+	if (speakerMgr == nullptr || *speakerMgr == nullptr || (*speakerMgr)->SpeakerMetaDataHashMap == nullptr) {
+		OsiError("Speaker manager not initialized!");
+		return;
+	}
+
+	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(FixedString(speakerGuid));
+	auto voiceMeta = speaker->Insert(FixedString(translatedStringKey));
+	voiceMeta->CodecID = 4;
+	voiceMeta->IsRecorded = true;
+	voiceMeta->Length = (float)length;
+	voiceMeta->Priority = priority.value_or(0);
+
+	auto path = GetStaticSymbols().ToPath(source, PathRootType::Data);
+	voiceMeta->Source.Name = path;
+}
+
 void RegisterStatsLib()
 {
 	DECLARE_MODULE(Stats, Both)
@@ -1052,6 +1078,8 @@ void RegisterStatsLib()
 	MODULE_FUNCTION(SetLevelScaling)
 	MODULE_FUNCTION(EnumIndexToLabel)
 	MODULE_FUNCTION(EnumLabelToIndex)
+	MODULE_FUNCTION(NewDamageList)
+	MODULE_FUNCTION(AddVoiceMetaData)
 	END_MODULE()
 		
 	DECLARE_SUBMODULE(Stats, DeltaMod, Both)

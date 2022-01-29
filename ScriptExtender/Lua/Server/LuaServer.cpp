@@ -1328,7 +1328,6 @@ namespace dse::esv::lua
 			{"GetSurface", GetSurface},
 			{"GetAiGrid", GetAiGrid},
 			{"GetCurrentLevelData", GetCurrentLevelData},
-			{"NewDamageList", NewDamageList},
 
 			{"GetGameState", GetGameState},
 

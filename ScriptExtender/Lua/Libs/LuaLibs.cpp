@@ -52,6 +52,7 @@ END_SE()
 #include <Lua/Libs/ClientUI.inl>
 #include <Lua/Libs/ClientNet.inl>
 #include <Lua/Libs/ClientVisual.inl>
+#include <Lua/Libs/ClientEntity.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
@@ -70,6 +71,7 @@ void RegisterClientLibraries()
 	ui::RegisterUILib();
 	net::RegisterNetLib();
 	visual::RegisterVisualLib();
+	ecs::RegisterEntityLib();
 	tmpl::RegisterTemplateLib();
 }
 

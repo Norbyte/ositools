@@ -207,6 +207,8 @@ Ext.StatAddCustomDescription = CallDeprecated(Ext.Stats.AddCustomDescription, "S
 Ext.StatSetLevelScaling = CallDeprecated(Ext.Stats.SetLevelScaling, "StatSetLevelScaling", "Stats.SetLevelScaling")
 Ext.EnumIndexToLabel = CallDeprecated(Ext.Stats.EnumIndexToLabel, "EnumIndexToLabel", "Stats.EnumIndexToLabel")
 Ext.EnumLabelToIndex = CallDeprecated(Ext.Stats.EnumLabelToIndex, "EnumLabelToIndex", "Stats.EnumLabelToIndex")
+Ext.NewDamageList = CallDeprecated(Ext.Stats.NewDamageList, "NewDamageList", "Stats.NewDamageList")
+Ext.AddVoiceMetaData = CallDeprecated(Ext.Stats.AddVoiceMetaData, "AddVoiceMetaData", "Stats.AddVoiceMetaData")
 
 Ext.GetDeltaMod = CallDeprecated(Ext.Stats.DeltaMod.GetLegacy, "GetDeltaMod", "Stats.DeltaMod.GetLegacy")
 Ext.UpdateDeltaMod = CallDeprecated(Ext.Stats.DeltaMod.Update, "UpdateDeltaMod", "Stats.DeltaMod.Update")

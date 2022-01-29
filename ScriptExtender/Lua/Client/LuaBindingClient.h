@@ -44,9 +44,6 @@ namespace dse::ecl::lua
 	LifetimePool& GetClientLifetimePool();
 	void RegisterClientLibraries(lua_State* L);
 
-	IEoCClientObject* GetGameObjectInternal(ComponentHandle const& handle);
-	IEoCClientObject* GetGameObjectInternal(char const* nameGuid);
-
 	class ExtensionLibraryClient : public ExtensionLibrary
 	{
 	public:
