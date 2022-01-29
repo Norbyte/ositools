@@ -1,9 +1,6 @@
 template <class Predicate>
-void GetCharactersGenericOld(lua_State* L, FixedString const& requestedLevel, Predicate pred)
+void GetCharacterGuidsGeneric(ObjectSet<FixedString> guids, FixedString const& requestedLevel, Predicate pred)
 {
-	int index{ 1 };
-
-	lua_newtable(L);
 	FixedString levelName = requestedLevel;
 	if (!levelName) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
@@ -24,7 +21,7 @@ void GetCharactersGenericOld(lua_State* L, FixedString const& requestedLevel, Pr
 
 	for (auto character : **characters) {
 		if (pred(character)) {
-			settable(L, index++, character->MyGuid);
+			guids.push_back(character->MyGuid);
 		}
 	}
 }
@@ -58,38 +55,9 @@ void GetCharactersGeneric(ObjectSet<Character *>& characters, FixedString const&
 	}
 }
 
-int GetAllCharacters(lua_State* L)
-{
-	FixedString levelName;
-	if (lua_gettop(L) >= 1) {
-		levelName = get<FixedString>(L, 1);
-	}
-
-	GetCharactersGenericOld(L, levelName, [](esv::Character*) { return true; });
-	return 1;
-}
-
-int GetCharactersAroundPosition(lua_State* L)
-{
-	glm::vec3 pos(
-		get<float>(L, 1),
-		get<float>(L, 2),
-		get<float>(L, 3)
-	);
-	float distance = get<float>(L, 4);
-
-	GetCharactersGenericOld(L, FixedString{}, [pos, distance](esv::Character* c) {
-		return abs(glm::length(pos - c->WorldPos)) < distance;
-	});
-	return 1;
-}
-
 template <class Predicate>
-void GetItemsGeneric(lua_State* L, FixedString const& requestedLevel, Predicate pred)
+void GetItemGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
-	int index{ 1 };
-
-	lua_newtable(L);
 	FixedString levelName = requestedLevel;
 	if (!levelName) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
@@ -110,33 +78,67 @@ void GetItemsGeneric(lua_State* L, FixedString const& requestedLevel, Predicate 
 
 	for (auto item : **items) {
 		if (pred(item)) {
-			settable(L, index++, item->MyGuid);
+			guids.push_back(item->MyGuid);
 		}
 	}
 }
 
-int GetAllItems(lua_State* L)
+template <class Predicate>
+void GetItemsGeneric(ObjectSet<Item*>& resultItems, FixedString const& requestedLevel, Predicate pred)
 {
-	FixedString levelName;
-	if (lua_gettop(L) >= 1) {
-		levelName = get<FixedString>(L, 1);
+	FixedString levelName = requestedLevel;
+	if (!levelName) {
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
+		if (level == nullptr) {
+			OsiError("No current level!");
+			return;
+		}
+
+		levelName = level->LevelDesc->LevelName;
 	}
 
-	GetItemsGeneric(L, levelName, [](esv::Item*) { return true; });
-	return 1;
+	auto& helpers = GetEoCServer()->EntityManager->ItemConversionHelpers;
+	auto items = helpers.RegisteredItems.Find(levelName);
+	if (items == nullptr) {
+		OsiError("No items registered for level: " << levelName);
+		return;
+	}
+
+	for (auto item : **items) {
+		if (pred(item)) {
+			resultItems.push_back(item);
+		}
+	}
 }
 
-int GetItemsAroundPosition(lua_State* L)
+template <class Predicate>
+void GetTriggerGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
-	glm::vec3 pos(
-		get<float>(L, 1),
-		get<float>(L, 2),
-		get<float>(L, 3)
-	);
-	float distance = get<float>(L, 4);
+	FixedString levelName = requestedLevel;
+	if (!levelName) {
+		auto level = GetStaticSymbols().GetCurrentServerLevel();
+		if (level == nullptr) {
+			OsiError("No current level!");
+			return;
+		}
 
-	GetItemsGeneric(L, FixedString{}, [pos, distance](esv::Item* c) {
-		return abs(glm::length(pos - c->WorldPos)) < distance;
-	});
-	return 1;
+		levelName = level->LevelDesc->LevelName;
+	}
+
+	auto& helpers = GetEoCServer()->EntityManager->TriggerConversionHelpers;
+	auto triggers = helpers.RegisteredTriggers.Find(levelName);
+	if (triggers == nullptr) {
+		OsiError("No triggers registered for level: " << levelName);
+		return;
+	}
+
+	// FIXME - re-add when migrated to new proxy
+	/*for (auto trigger : **triggers) {
+		if (pred(trigger)) {
+			auto guid = trigger->GetGuid();
+			if (guid && *guid) {
+				settable(L, index++, *guid);
+			}
+		}
+	}*/
 }

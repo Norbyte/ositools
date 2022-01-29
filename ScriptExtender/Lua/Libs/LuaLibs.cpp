@@ -56,6 +56,7 @@ END_SE()
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
+#include <Lua/Libs/ServerEntity.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
 #include <Lua/Libs/ServerTemplate.inl>
@@ -84,6 +85,7 @@ void RegisterServerLibraries()
 	osiris::RegisterOsirisLib();
 	net::RegisterNetLib();
 	stats::RegisterCustomStatLib();
+	ecs::RegisterEntityLib();
 	surface::action::RegisterSurfaceActionLib();
 	tmpl::RegisterTemplateLib();
 }

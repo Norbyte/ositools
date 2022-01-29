@@ -279,6 +279,7 @@
     <None Include="Lua\Libs\Mod.inl" />
     <None Include="Lua\Libs\Resource.inl" />
     <None Include="Lua\Libs\ServerCustomStats.inl" />
+    <None Include="Lua\Libs\ServerEntity.inl" />
     <None Include="Lua\Libs\ServerNet.inl" />
     <None Include="Lua\Libs\ServerOsiris.inl" />
     <None Include="Lua\Libs\ServerSurfaceAction.inl" />

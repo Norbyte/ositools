@@ -12,6 +12,14 @@
 #include <ScriptHelpers.h>
 #include "resource.h"
 
+BEGIN_NS(esv::lua::ecs)
+void MakeLegacyServerCharacterObjectRef(lua_State* L, esv::Character* value);
+Character* LuaGetCharacter(lua_State* L, int index);
+Item* LuaGetItem(lua_State* L, int index);
+Trigger* LuaGetTrigger(lua_State* L, int index);
+IEoCServerObject* LuaGetGameObject(lua_State* L, int idx);
+END_NS()
+
 BEGIN_NS(lua)
 
 // FIXME - deprecated; use state from L wherever possible
@@ -350,15 +358,6 @@ esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get() const
 	return self;
 }
 
-void MakeLegacyServerCharacterObjectRef(lua_State* L, esv::Character* value)
-{
-	if (value) {
-		ObjectProxy2::MakeHandle<esv::Character>(L, value->Base.Component.Handle, State::FromLua(L)->GetCurrentLifetime());
-	} else {
-		push(L, nullptr);
-	}
-}
-
 END_NS()
 
 namespace dse::esv::lua
@@ -377,53 +376,7 @@ namespace dse::esv::lua
 		return esv::ExtensionState::Get().GetLua()->GetLifetimePool();
 	}
 
-#include <Lua/Shared/LevelIteratorFunctions.inl>
-
-	template <class Predicate>
-	void GetTriggersGeneric(lua_State* L, FixedString const& requestedLevel, Predicate pred)
-	{
-		int index{ 1 };
-
-		lua_newtable(L);
-		FixedString levelName = requestedLevel;
-		if (!levelName) {
-			auto level = GetStaticSymbols().GetCurrentServerLevel();
-			if (level == nullptr) {
-				OsiError("No current level!");
-				return;
-			}
-
-			levelName = level->LevelDesc->LevelName;
-		}
-
-		auto& helpers = GetEoCServer()->EntityManager->TriggerConversionHelpers;
-		auto triggers = helpers.RegisteredTriggers.Find(levelName);
-		if (triggers == nullptr) {
-			OsiError("No triggers registered for level: " << levelName);
-			return;
-		}
-
-		// FIXME - re-add when migrated to new proxy
-		/*for (auto trigger : **triggers) {
-			if (pred(trigger)) {
-				auto guid = trigger->GetGuid();
-				if (guid && *guid) {
-					settable(L, index++, *guid);
-				}
-			}
-		}*/
-	}
-
-	int GetAllTriggers(lua_State* L)
-	{
-		FixedString levelName;
-		if (lua_gettop(L) >= 1) {
-			levelName = get<FixedString>(L, 1);
-		}
-
-		GetTriggersGeneric(L, levelName, [](Trigger*) { return true; });
-		return 1;
-	}
+	#include <Lua/Shared/LevelIteratorFunctions.inl>
 }
 
 #include <Lua/Server/ServerEntitySystem.inl>
@@ -639,7 +592,7 @@ namespace dse::esv::lua
 			// TODO - fetching CombatGroup?
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
-			MakeLegacyServerCharacterObjectRef(L, character);
+			ecs::MakeLegacyServerCharacterObjectRef(L, character);
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
 			MakeObjectRef(L, item);
@@ -704,405 +657,14 @@ namespace dse::esv::lua
 		RegisterNameResolverMetatable(L);
 		CreateNameResolver(L);
 	}
-	
-	esv::Character* GetCharacter(lua_State* L, int index)
-	{
-		esv::Character* character = nullptr;
-		switch (lua_type(L, index)) {
-		case LUA_TLIGHTUSERDATA:
-		{
-			auto handle = get<ComponentHandle>(L, index);
-			if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
-				OsiError("Attempted to resolve client ComponentHandle on the server");
-			} else {
-				character = GetEntityWorld()->GetComponent<Character>(handle);
-			}
-			break;
-		}
 
-		case LUA_TNUMBER:
-		{
-			auto value = lua_tointeger(L, index);
-			if (value > 0xffffffff) {
-				OsiError("Resolving integer object handles is deprecated since v52!")
-				ComponentHandle handle{ value };
-				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientCharacter) {
-					OsiError("Attempted to resolve client ComponentHandle on the server");
-				} else {
-					character = GetEntityWorld()->GetComponent<Character>(handle);
-				}
-			} else {
-				NetId netId{ (uint32_t)value };
-				character = GetEntityWorld()->GetComponent<Character>(netId);
-			}
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = lua_tostring(L, index);
-			character = GetEntityWorld()->GetComponent<Character>(guid);
-			break;
-		}
-
-		default:
-			OsiError("Expected character UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 1)));
-			break;
-		}
-
-		return character;
-	}
-
-	int GetCharacter(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve character handle in restricted context");
-		}
-
-		StackCheck _(L, 1);
-		esv::Character* character = GetCharacter(L, 1);
-		MakeLegacyServerCharacterObjectRef(L, character);
-		return 1;
-	}
-
-	int GetItem(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve item handle in restricted context");
-		}
-
-		StackCheck _(L, 1);
-		esv::Item* item = nullptr;
-		switch (lua_type(L, 1)) {
-		case LUA_TLIGHTUSERDATA:
-		{
-			auto handle = get<ComponentHandle>(L, 1);
-			item = GetEntityWorld()->GetComponent<Item>(handle);
-			break;
-		}
-
-		case LUA_TNUMBER:
-		{
-			auto value = lua_tointeger(L, 1);
-			if (value > 0xffffffff) {
-				OsiError("Resolving integer object handles is deprecated since v52!")
-				ComponentHandle handle{ value };
-				if (handle.GetType() == (uint32_t)ObjectHandleType::ClientItem) {
-					OsiError("Attempted to resolve client ComponentHandle on the server");
-				} else {
-					item = GetEntityWorld()->GetComponent<Item>(handle);
-				}
-			} else {
-				NetId netId{ (uint32_t)value };
-				item = GetEntityWorld()->GetComponent<Item>(netId);
-			}
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = lua_tostring(L, 1);
-			item = GetEntityWorld()->GetComponent<Item>(guid);
-			break;
-		}
-
-		default:
-			OsiError("Expected item GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-			push(L, nullptr);
-			return 1;
-		}
-
-		MakeObjectRef(L, item);
-		return 1;
-	}
-
-	int GetTrigger(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve trigger handle in restricted context");
-		}
-
-		StackCheck _(L, 1);
-		Trigger* trigger = nullptr;
-		switch (lua_type(L, 1)) {
-		case LUA_TLIGHTUSERDATA:
-		{
-			auto handle = get<ComponentHandle>(L, 1);
-			trigger = GetEntityWorld()->GetTrigger(handle);
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = lua_tostring(L, 1);
-			trigger = GetEntityWorld()->GetTrigger(guid);
-			break;
-		}
-
-		default:
-			OsiError("Expected trigger GUID or handle, got " << lua_typename(L, lua_type(L, 1)));
-			push(L, nullptr);
-			return 1;
-		}
-
-		if (trigger != nullptr) {
-			// FIXME - re-add when migrated to new proxy
-			/*MakeObjectRef(L, trigger);*/
-			push(L, nullptr);
-		} else {
-			push(L, nullptr);
-		}
-
-		return 1;
-	}
-
-	IEoCServerObject* GetGameObjectInternal(ComponentHandle const& handle)
-	{
-		if (!handle) {
-			return nullptr;
-		}
-
-		switch ((ObjectHandleType)handle.GetType()) {
-		case ObjectHandleType::ServerCharacter:
-			return GetEntityWorld()->GetComponent<Character>(handle);
-
-		case ObjectHandleType::ServerItem:
-			return GetEntityWorld()->GetComponent<Item>(handle);
-
-		case ObjectHandleType::ServerProjectile:
-			return GetEntityWorld()->GetComponent<Projectile>(handle);
-
-		// FIXME - re-add when migrated to new proxy
-		/*case ObjectHandleType::ServerEocPointTrigger:
-		case ObjectHandleType::ServerEocAreaTrigger:
-		case ObjectHandleType::ServerStartTrigger:
-		case ObjectHandleType::ServerTeleportTrigger:
-		case ObjectHandleType::ServerEventTrigger:
-		case ObjectHandleType::ServerCrimeAreaTrigger:
-		case ObjectHandleType::ServerCrimeRegionTrigger:
-		case ObjectHandleType::ServerAtmosphereTrigger:
-		case ObjectHandleType::ServerAIHintAreaTrigger:
-		case ObjectHandleType::ServerMusicVolumeTrigger:
-		case ObjectHandleType::ServerSecretRegionTrigger:
-		case ObjectHandleType::ServerStatsAreaTrigger:
-		case ObjectHandleType::ServerSoundVolumeTrigger:
-		case ObjectHandleType::ServerRegionTrigger:
-		case ObjectHandleType::ServerExplorationTrigger:
-			return GetEntityWorld()->GetTrigger(handle);*/
-
-		default:
-			OsiError("Cannot resolve unsupported server handle type: " << handle.GetType());
-			return nullptr;
-		}
-	}
-
-	IEoCServerObject* GetGameObjectInternal(char const* nameGuid)
-	{
-		auto character = GetEntityWorld()->GetComponent<Character>(nameGuid, false);
-		if (character) {
-			return character;
-		}
-
-		auto item = GetEntityWorld()->GetComponent<Item>(nameGuid, false);
-		if (item) {
-			return item;
-		}
-
-		// FIXME - re-add when migrated to new proxy
-		/*auto trigger = GetEntityWorld()->GetTrigger(nameGuid, false);
-		if (trigger) {
-			return trigger;
-		}*/
-
-		return nullptr;
-	}
-
-	IEoCServerObject* GetGameObjectInternal(lua_State* L, int idx)
-	{
-		switch (lua_type(L, idx)) {
-		case LUA_TLIGHTUSERDATA:
-		{
-			auto handle = get<ComponentHandle>(L, idx);
-			if (handle) {
-				return GetGameObjectInternal(handle);
-			} else {
-				return nullptr;
-			}
-
-			break;
-		}
-
-		case LUA_TNUMBER:
-		{
-			OsiError("Resolving integer object handles is deprecated since v52!")
-			auto handle = ComponentHandle(lua_tointeger(L, idx));
-			if (handle) {
-				return GetGameObjectInternal(handle);
-			} else {
-				return nullptr;
-			}
-
-			break;
-		}
-
-		case LUA_TSTRING:
-		{
-			auto guid = get<char const*>(L, idx);
-			return GetGameObjectInternal(guid);
-		}
-
-		default:
-			OsiError("Expected object GUID or handle, got " << lua_typename(L, lua_type(L, idx)));
-			return nullptr;
-		}
-	}
-
-	int GetGameObject(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve game object handle in restricted context");
-		}
-
-		StackCheck _(L, 1);
-		auto result = GetGameObjectInternal(L, 1);
-		MakeObjectRef(L, result);
-		return 1;
-	}
-
-	int GetStatus(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve status handle in restricted context");
-		}
-
-		esv::Character* character = GetCharacter(L, 1);
-		if (character == nullptr) return 0;
-
-		StackCheck _(L, 1);
-		esv::Status* status;
-		if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
-			auto statusHandle = get<ComponentHandle>(L, 2);
-			status = character->GetStatus(statusHandle, true);
-			if (status != nullptr) {
-				MakeObjectRef(L, status);
-				return 1;
-			}
-
-			OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
-		} else {
-			auto index = lua_tointeger(L, 2);
-
-			// We need to keep integer status handle support since some extender Osiris events
-			// (eg. NRD_OnHit, NRD_OnPrepareHit, etc.) use these handles and Osiris doesn't support lightuserdata
-			if (index > 0xffffffff) {
-				ComponentHandle statusHandle{ index };
-				status = character->GetStatus(statusHandle, true);
-				if (status != nullptr) {
-					MakeObjectRef(L, status);
-					return 1;
-				}
-
-				OsiError("Character has no status with ComponentHandle 0x" << std::hex << statusHandle.Handle);
-			} else {
-				NetId statusNetId{ (uint32_t)index };
-				status = character->GetStatus(statusNetId);
-				if (status != nullptr) {
-					MakeObjectRef(L, status);
-					return 1;
-				}
-
-				OsiError("Character has no status with NetId 0x" << std::hex << index);
-			}
-		}
-
-		push(L, nullptr);
-		return 1;
-	}
-
-	int GetCombat(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve combat ID in restricted context");
-		}
-
-		auto turnMgr = GetEntityWorld()->GetTurnManager();
-		if (turnMgr == nullptr) {
-			OsiErrorS("esv::TurnManager not available");
-			return 0;
-		}
-
-		auto combatId = (uint8_t)luaL_checkinteger(L, 1);
-		auto combat = turnMgr->Combats.Find(combatId);
-		if (combat == nullptr) {
-			OsiError("No combat found with ID " << (unsigned)combatId);
-			return 0;
-		}
-
-		TurnManagerCombatProxy::New(L, combatId);
-		return 1;
-	}
-
-	int GetSurface(lua_State* L)
-	{
-		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-			return luaL_error(L, "Attempted to resolve item handle in restricted context");
-		}
-
-		auto handle = get<ComponentHandle>(L, 1);
-
-		auto level = GetStaticSymbols().GetCurrentServerLevel();
-		if (!level || !level->SurfaceManager) {
-			OsiError("Current level not available yet!");
-			return 0;
-		}
-
-		auto surface = level->SurfaceManager->Get(handle);
-		MakeObjectRef(L, surface);
-		return 1;
-	}
-
-	// FIXME - move to Level->AiGrid!
-	int GetAiGrid(lua_State* L)
-	{
-		auto level = GetStaticSymbols().GetCurrentServerLevel();
-		if (!level || !level->AiGrid) {
-			OsiError("Current level not available yet!");
-			return 0;
-		}
-
-		MakeObjectRef(L, level->AiGrid);
-		return 1;
-	}
-
-	int GetCurrentLevelData(lua_State* L)
-	{
-		auto level = GetStaticSymbols().GetCurrentServerLevel();
-		if (!level || !level->LevelDesc) {
-			OsiError("Current level not available yet!");
-			return 0;
-		}
-
-		lua_newtable(L);
-		settable(L, "LevelName", level->LevelDesc->LevelName);
-		settable(L, "UniqueKey", level->LevelDesc->UniqueKey);
-		settable(L, "CustomDisplayLevelName", level->LevelDesc->CustomDisplayLevelName);
-		settable(L, "Type", level->LevelDesc->Type);
-		return 1;
-	}
 
 	int ExecuteSkillPropertiesOnTarget(lua_State* L)
 	{
 		StackCheck _(L, 0);
 		auto skillId = get<FixedString>(L, 1);
-		auto attacker = GetCharacter(L, 2);
-		auto target = GetCharacter(L, 3);
+		auto attacker = ecs::LuaGetCharacter(L, 2);
+		auto target = ecs::LuaGetCharacter(L, 3);
 		auto position = get<glm::vec3>(L, 4);
 		auto propertyContext = get<stats::PropertyContext>(L, 5);
 		auto isFromItem = get<bool>(L, 6);
@@ -1147,7 +709,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		auto skillId = get<FixedString>(L, 1);
-		auto attacker = GetCharacter(L, 2);
+		auto attacker = ecs::LuaGetCharacter(L, 2);
 		auto position = get<glm::vec3>(L, 3);
 		auto radius = get<float>(L, 4);
 		auto propertyContext = get<stats::PropertyContext>(L, 5);
@@ -1231,7 +793,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 1);
 
-		auto gameObj = GetGameObjectInternal(L, 1);
+		auto gameObj = ecs::LuaGetGameObject(L, 1);
 		auto statusId = get<FixedString>(L, 2);
 		float lifeTime = get<float>(L, 3);
 
@@ -1309,25 +871,10 @@ namespace dse::esv::lua
 			{"ExecuteSkillPropertiesOnTarget", ExecuteSkillPropertiesOnTarget},
 			{"ExecuteSkillPropertiesOnPosition", ExecuteSkillPropertiesOnPosition},
 
-			{"GetAllCharacters", GetAllCharacters},
-			{"GetCharactersAroundPosition", GetCharactersAroundPosition},
-			{"GetAllItems", GetAllItems},
-			{"GetItemsAroundPosition", GetItemsAroundPosition},
 			{"CreateItemConstructor", CreateItemConstructor},
-			{"GetAllTriggers", GetAllTriggers},
 
 			{"PrepareStatus", PrepareStatus},
 			{"ApplyStatus", ApplyStatus},
-
-			{"GetCharacter", GetCharacter},
-			{"GetItem", GetItem},
-			{"GetTrigger", GetTrigger},
-			{"GetGameObject", GetGameObject},
-			{"GetStatus", GetStatus},
-			{"GetCombat", GetCombat},
-			{"GetSurface", GetSurface},
-			{"GetAiGrid", GetAiGrid},
-			{"GetCurrentLevelData", GetCurrentLevelData},
 
 			{"GetGameState", GetGameState},
 
@@ -1548,7 +1095,7 @@ namespace dse::esv::lua
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
-		auto hitObj = GetGameObjectInternal(hitObject);
+		auto hitObj = GetEntityWorld()->GetGameObject(hitObject);
 		ProjectileHitEventParams params{ projectile, hitObj, position };
 		ThrowEvent(*this, "ProjectileHit", params);
 	}
@@ -1556,7 +1103,7 @@ namespace dse::esv::lua
 
 	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, stats::DamagePairList* damageList)
 	{
-		ExecutePropertyDataOnGroundHitEventParams params{ position, GetGameObjectInternal(casterHandle), damageList };
+		ExecutePropertyDataOnGroundHitEventParams params{ position, GetEntityWorld()->GetGameObject(casterHandle), damageList };
 		ThrowEvent(*this, "GroundHit", params);
 	}
 
@@ -1565,8 +1112,8 @@ namespace dse::esv::lua
 		ComponentHandle targetHandle, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype * skillProto,
 		stats::HitDamageInfo const* damageInfo)
 	{
-		auto attacker = GetGameObjectInternal(attackerHandle);
-		auto target = GetGameObjectInternal(targetHandle);
+		auto attacker = GetEntityWorld()->GetGameObject(attackerHandle);
+		auto target = GetEntityWorld()->GetGameObject(targetHandle);
 		ExecutePropertyDataOnTargetEventParams params{ 
 			prop, attacker, target, impactOrigin, isFromItem, skillProto, damageInfo
 		};
@@ -1578,7 +1125,7 @@ namespace dse::esv::lua
 		glm::vec3 const& position, float areaRadius, bool isFromItem, stats::SkillPrototype * skillPrototype,
 		stats::HitDamageInfo const* damageInfo)
 	{
-		auto attacker = GetGameObjectInternal(attackerHandle);
+		auto attacker = GetEntityWorld()->GetGameObject(attackerHandle);
 		ExecutePropertyDataOnPositionEventParams params{
 			prop, attacker, position, areaRadius, isFromItem, skillPrototype, damageInfo
 		};

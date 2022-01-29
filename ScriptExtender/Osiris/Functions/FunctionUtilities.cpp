@@ -66,6 +66,12 @@ namespace dse
 				return item;
 			}
 
+			// FIXME - re-add when migrated to new proxy
+			/*auto trigger = GetComponent<Trigger>(nameGuid, false);
+			if (trigger) {
+				return trigger;
+			}*/
+
 			if (logError) {
 				OsiError("No EoC server object found with GUID '" << nameGuid << "'");
 			}
@@ -88,6 +94,25 @@ namespace dse
 
 			case ObjectHandleType::ServerProjectile:
 				return GetComponent<Projectile>(handle, logError);
+
+			// FIXME - re-add when migrated to new proxy
+			/*case ObjectHandleType::ServerEocPointTrigger:
+				case ObjectHandleType::ServerEocAreaTrigger:
+				case ObjectHandleType::ServerStartTrigger:
+				case ObjectHandleType::ServerTeleportTrigger:
+				case ObjectHandleType::ServerEventTrigger:
+				case ObjectHandleType::ServerCrimeAreaTrigger:
+				case ObjectHandleType::ServerCrimeRegionTrigger:
+				case ObjectHandleType::ServerAtmosphereTrigger:
+				case ObjectHandleType::ServerAIHintAreaTrigger:
+				case ObjectHandleType::ServerMusicVolumeTrigger:
+				case ObjectHandleType::ServerSecretRegionTrigger:
+				case ObjectHandleType::ServerStatsAreaTrigger:
+				case ObjectHandleType::ServerSoundVolumeTrigger:
+				case ObjectHandleType::ServerRegionTrigger:
+				case ObjectHandleType::ServerExplorationTrigger:
+					return GetComponent<Trigger>(handle);
+			*/
 
 			default:
 				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");

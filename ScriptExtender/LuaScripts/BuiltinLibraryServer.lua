@@ -86,6 +86,22 @@ Ext.PostMessageToClient = CallDeprecated(Ext.Net.PostMessageToClient, "PostMessa
 Ext.PostMessageToUser = CallDeprecated(Ext.Net.PostMessageToUser, "PostMessageToUser", "Net.PostMessageToUser")
 Ext.PlayerHasExtender = CallDeprecated(Ext.Net.PlayerHasExtender, "PlayerHasExtender", "Net.PlayerHasExtender")
 
+-- Backwards compatibility with old Entity APIs
+Ext.GetAllCharacters = CallDeprecated(Ext.Entity.GetAllCharacterGuids, "GetAllCharacters", "Entity.GetAllCharacterGuids")
+Ext.GetCharactersAroundPosition = CallDeprecated(Ext.Entity.GetCharacterGuidsAroundPosition, "GetCharactersAroundPosition", "Entity.GetCharacterGuidsAroundPosition")
+Ext.GetAllItems = CallDeprecated(Ext.Entity.GetAllItemGuids, "GetAllItems", "Entity.GetAllItemGuids")
+Ext.GetItemsAroundPosition = CallDeprecated(Ext.Entity.GetItemGuidsAroundPosition, "GetItemsAroundPosition", "Entity.GetItemGuidsAroundPosition")
+Ext.GetAllTriggers = CallDeprecated(Ext.Entity.GetAllTriggerGuids, "GetAllTriggers", "Entity.GetAllTriggerGuids")
+Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacter, "GetCharacter", "Entity.GetCharacter")
+Ext.GetItem = CallDeprecated(Ext.Entity.GetItem, "GetItem", "Entity.GetItem")
+Ext.GetTrigger = CallDeprecated(Ext.Entity.GetTrigger, "GetTrigger", "Entity.GetTrigger")
+Ext.GetGameObject = CallDeprecated(Ext.Entity.GetGameObject, "GetGameObject", "Entity.GetGameObject")
+Ext.GetStatus = CallDeprecated(Ext.Entity.GetStatus, "GetStatus", "Entity.GetStatus")
+Ext.GetCombat = CallDeprecated(Ext.Entity.GetCombat, "GetCombat", "Entity.GetCombat")
+Ext.GetSurface = CallDeprecated(Ext.Entity.GetSurface, "GetSurface", "Entity.GetSurface")
+Ext.GetAiGrid = CallDeprecated(Ext.Entity.GetAiGrid, "GetAiGrid", "Entity.GetAiGrid")
+Ext.GetCurrentLevelData = CallDeprecated(Ext.Entity.GetCurrentLevelData, "GetCurrentLevelData", "Entity.GetCurrentLevelData")
+
 -- Backwards compatibility with old custom stat APIs
 Ext.CreateCustomStat = CallDeprecated(Ext.CustomStat.Create, "CreateCustomStat", "CustomStat.Create")
 Ext.GetCustomStatById = CallDeprecated(Ext.CustomStat.GetById, "GetCustomStatById", "CustomStat.GetById")
