@@ -280,3 +280,7 @@ end
 
 -- Backwards compatibility with old Net APIs
 Ext.PostMessageToServer = CallDeprecated(Ext.Net.PostMessageToServer, "PostMessageToServer", "Net.PostMessageToServer")
+
+-- Backwards compatibility with old client APIs
+Ext.GetGameState = CallDeprecated(Ext.Client.GetGameState, "GetGameState", "Client.GetGameState")
+Ext.UpdateShroud = CallDeprecated(Ext.Client.UpdateShroud, "UpdateShroud", "Client.UpdateShroud")

@@ -790,6 +790,12 @@
     <None Include="GameDefinitions\PropertyMaps\Level.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
+    <None Include="Lua\Libs\Client.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Libs\Server.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

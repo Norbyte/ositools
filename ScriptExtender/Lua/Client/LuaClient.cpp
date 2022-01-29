@@ -119,50 +119,9 @@ void ExtensionLibraryClient::Register(lua_State * L)
 	UIFlashFunction::RegisterMetatable(L);
 }
 
-
-int GetGameState(lua_State* L)
-{
-	StackCheck _(L, 1);
-	auto state = GetStaticSymbols().GetClientState();
-	if (state) {
-		push(L, *state);
-	} else {
-		lua_pushnil(L);
-	}
-
-	return 1;
-}
-
-int UpdateShroud(lua_State* L)
-{
-	StackCheck _(L, 0);
-	auto x = get<float>(L, 1);
-	auto y = get<float>(L, 2);
-	auto layer = get<ShroudType>(L, 3);
-	auto value = get<int>(L, 4);
-
-	if (value < 0 || value > 255) {
-		OsiError("Can only set shroud cell values between 0 and 255");
-		return 0;
-	}
-
-	auto level = GetStaticSymbols().GetCurrentClientLevel();
-	if (!level || !level->ShroudManager || !level->ShroudManager->ShroudData) {
-		OsiError("No ShroudManager for current level?");
-		return 0;
-	}
-
-	level->ShroudManager->ShroudData->SetByteAtPos(layer, x, y, (uint8_t)value);
-	return 0; 
-}
-
 void ExtensionLibraryClient::RegisterLib(lua_State * L)
 {
 	static const luaL_Reg extLib[] = {
-		{"GetGameState", GetGameState},
-
-		// EXPERIMENTAL FUNCTIONS
-		{"UpdateShroud", UpdateShroud},
 		{0,0}
 	};
 

@@ -113,3 +113,5 @@ Ext.CreateSurfaceAction = CallDeprecated(Ext.Surface.Action.Create, "CreateSurfa
 Ext.ExecuteSurfaceAction = CallDeprecated(Ext.Surface.Action.Execute, "ExecuteSurfaceAction", "Surface.Action.Execute")
 Ext.CancelSurfaceAction = CallDeprecated(Ext.Surface.Action.Cancel, "CancelSurfaceAction", "Surface.Action.Cancel")
 
+-- Backwards compatibility with old server APIs
+Ext.GetGameState = CallDeprecated(Ext.Server.GetGameState, "GetGameState", "Server.GetGameState")

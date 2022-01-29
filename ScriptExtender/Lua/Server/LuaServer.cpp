@@ -748,19 +748,6 @@ namespace dse::esv::lua
 		return 0;
 	}
 
-	int GetGameState(lua_State* L)
-	{
-		auto state = GetStaticSymbols().GetServerState();
-		if (state) {
-			push(L, *state);
-		} else {
-			lua_pushnil(L);
-		}
-
-		return 1;
-	}
-
-
 	int CreateItemConstructor(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -875,8 +862,6 @@ namespace dse::esv::lua
 
 			{"PrepareStatus", PrepareStatus},
 			{"ApplyStatus", ApplyStatus},
-
-			{"GetGameState", GetGameState},
 
 			{0,0}
 		};

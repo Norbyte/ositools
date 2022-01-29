@@ -49,10 +49,12 @@ END_SE()
 #include <Lua/Libs/Localization.inl>
 #include <Lua/Libs/Debug.inl>
 #include <Lua/Libs/Stats.inl>
+#include <Lua/Libs/Client.inl>
 #include <Lua/Libs/ClientUI.inl>
 #include <Lua/Libs/ClientNet.inl>
 #include <Lua/Libs/ClientVisual.inl>
 #include <Lua/Libs/ClientEntity.inl>
+#include <Lua/Libs/Server.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
@@ -68,6 +70,7 @@ BEGIN_NS(ecl::lua)
 
 void RegisterClientLibraries()
 {
+	client::RegisterClientLib();
 	audio::RegisterAudioLib();
 	ui::RegisterUILib();
 	net::RegisterNetLib();
@@ -82,6 +85,7 @@ BEGIN_NS(esv::lua)
 
 void RegisterServerLibraries()
 {
+	server::RegisterServerLib();
 	osiris::RegisterOsirisLib();
 	net::RegisterNetLib();
 	stats::RegisterCustomStatLib();
