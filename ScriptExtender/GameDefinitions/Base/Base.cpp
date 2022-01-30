@@ -500,7 +500,6 @@ void TypeInformationRepository::Initialize()
 	RegisterStaticType<UserId>("UserId", LuaTypeId::Integer);
 	RegisterStaticType<ComponentHandle>("ComponentHandle", LuaTypeId::Integer);
 	RegisterStaticType<EntityHandle>("EntityHandle", LuaTypeId::Integer);
-	RegisterStaticType<TranslatedString>("TranslatedString", LuaTypeId::String);
 	RegisterStaticType<char const*>("CString", LuaTypeId::String);
 	RegisterStaticType<ig::InvokeDataValue>("IggyInvokeDataValue", LuaTypeId::Any);
 

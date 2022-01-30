@@ -35,6 +35,18 @@ P_RO(IsBuiltin)
 END_CLS()
 
 
+BEGIN_CLS(RuntimeStringHandle)
+P(Handle)
+P(ReferenceString)
+END_CLS()
+
+
+BEGIN_CLS(TranslatedString)
+P_REF(Handle)
+P_REF(ArgumentString)
+END_CLS()
+
+
 BEGIN_CLS(stats::HitDamageInfo)
 P(Equipment)
 P(TotalDamageDone)

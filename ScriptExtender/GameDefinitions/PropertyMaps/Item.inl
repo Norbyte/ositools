@@ -180,9 +180,9 @@ P(ItemType)
 P(GoldValueOverride)
 P(BaseWeightOverwrite)
 P(ItemColorOverride)
-P(CustomDisplayName)
-P(CustomDescription)
-P(CustomBookContent)
+P_REF(CustomDisplayName)
+P_REF(CustomDescription)
+P_REF(CustomBookContent)
 
 // v55 compatibility
 PN_REF(RootTemplate, CurrentTemplate)
