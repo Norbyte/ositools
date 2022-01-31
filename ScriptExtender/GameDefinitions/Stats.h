@@ -1093,7 +1093,7 @@ struct CRootGroup
 	int MinLevel;
 	int MaxLevel;
 	FixedString RootGroup;
-	FixedString field_10;
+	FixedString Color;
 	ObjectSet<CNameGroupLink*> NameGroupLinks;
 };
 

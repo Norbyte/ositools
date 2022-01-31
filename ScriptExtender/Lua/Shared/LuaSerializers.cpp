@@ -326,8 +326,8 @@ namespace dse::lua
 		P(MinLevel);
 		P(MaxLevel);
 		P(RootGroup);
+		PO(Color, GFS.strEmpty);
 		P(NameGroupLinks);
-		s.VisitOptionalProperty("Unknown", v.field_10, GFS.strEmpty);
 		s.EndObject();
 		return s;
 	}
