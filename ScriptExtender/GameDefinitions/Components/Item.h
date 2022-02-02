@@ -5,6 +5,8 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
+#include <GameDefinitions/Misc.h>
+#include <GameDefinitions/GameObjects/RootTemplates.h>
 
 namespace dse
 {
@@ -189,6 +191,58 @@ namespace dse
 			Map<FixedString, void*> FSMap_ReloadComponent;
 			EntityWorld* Entities;
 			uint64_t Unkn8[2];
+		};
+
+		struct ItemMovement
+		{
+			struct InventoryAddParams
+			{
+				ComponentHandle OwnerCharacterHandle;
+				uint32_t Flags;
+				NetId InventoryNetId;
+				ItemSlot Slot;
+				uint64_t field_18;
+				uint64_t field_20;
+				uint64_t field_28;
+			};
+
+			ComponentHandle ItemHandle;
+			ComponentHandle MoverHandle;
+			bool Moving;
+			void* MovementData;
+			bool MovingToInventory;
+			bool MovingInWorld;
+			bool HeightForced;
+			eoc::PathMover PathMover;
+			glm::vec3 AiBounds;
+			bool WakePhysics;
+			bool DoHitTest;
+			InventoryAddParams InventoryAdd;
+			STDString MoveEventName;
+		};
+
+		struct ItemMover
+		{
+			Map<ComponentHandle, ItemMovement*> Movements;
+		};
+
+		struct ItemManager : public BaseComponentProcessingSystem<EntityWorld>
+		{
+			struct TransformParams
+			{
+				ComponentHandle ItemHandle;
+				TemplateHandle TemplateHandle;
+				ItemTransformFlags Flags;
+			};
+
+			void* VMT2;
+			ItemFactory* Factory;
+			ItemMover* Mover;
+			ObjectSet<Item*> Items;
+			ObjectSet<Item*> ActiveItems;
+			ObjectSet<TransformParams> PendingTransforms;
+			ObjectSet<TransformParams> NetPendingTransforms;
+			ObjectSet<Item*> ItemsUpdatedLastTick;
 		};
 
 

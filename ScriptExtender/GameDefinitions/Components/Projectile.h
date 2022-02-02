@@ -122,5 +122,17 @@ namespace dse
 	    };
 
         using ProjectileHelpers__ShootProjectile = Projectile* (ShootProjectileHelper* ShootProjectileHelper);
+
+        struct ProjectileFactory : public NetworkComponentFactory<Projectile>
+        {
+            // FIXME - rest unmapped
+        };
+
+        struct ProjectileManager : public BaseComponentProcessingSystem<EntityWorld>
+        {
+            ProjectileFactory* Factory;
+            ObjectSet<Projectile*> ActiveProjectiles;
+            ObjectSet<Projectile*> ProjectilesToDestroy;
+        };
 	}
 }

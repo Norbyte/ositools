@@ -7,6 +7,7 @@
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
 #include <GameDefinitions/Sound.h>
+#include <GameDefinitions/GameObjects/RootTemplates.h>
 
 namespace dse
 {
@@ -327,6 +328,36 @@ namespace dse
 			EntityWorld* Entities;
 			uint64_t Unkn8[2];
 		};
+
+		struct CharacterManager : public BaseComponentProcessingSystem<EntityWorld>
+		{
+			struct AnimationBlueprintEntry
+			{
+				Character* Character;
+				void* AnimationBlueprintComponent;
+			};
+
+			struct TransformParams
+			{
+				PeerId PeerID;
+				ComponentHandle TargetCharacterHandle;
+				TemplateHandle Template;
+				ComponentHandle TemplateCharacterHandle;
+				FixedString EquipmentSetName;
+				CharacterTransformType TransformType;
+				CharacterTransformFlags Flags;
+			};
+
+			void* GameEventManagerVMT;
+			CharacterFactory* CharacterFactory;
+			ObjectSet<Character*> RegisteredCharacters;
+			ObjectSet<Character*> ActiveCharacters;
+			ObjectSet<TransformParams> PendingTransforms;
+			ObjectSet<TransformParams> NetPendingTransforms;
+			ObjectSet<ComponentHandle> Unknown;
+			ObjectSet<Character*> CharactersUpdatedLastTick_OS_pCharacter3;
+			ObjectSet<AnimationBlueprintEntry> ActiveAnimationBlueprints;
+		};
 	}
 
 	namespace ecl 
@@ -414,7 +445,7 @@ namespace dse
 			void* NetworkController;
 			void* StatusController;
 			void* DialogController;
-			void* CharacterSupervisir;
+			void* CharacterSupervisor;
 			StatusMachine* StatusMachine;
 			void* SkillManager;
 			int field_100;

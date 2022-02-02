@@ -348,11 +348,12 @@ namespace dse::esv
     {
         void* VMT;
         EntityWorld* EntityWorld;
-        ObjectSet<glm::vec2> OS_Vector2f;
+        ObjectSet<glm::vec2> FrustumUpdateShape;
         eoc::AiGrid* AiGrid;
         Level* Level;
         eoc::ShroudData* ShroudData;
-        RefMap<int, int> field_48; // Unknown key/value type
+        // RegionMask layer value => trigger UUID
+        RefMap<int8_t, FixedString> RegionTriggers;
         float UpdateTimer;
         bool IsEnabled;
     };

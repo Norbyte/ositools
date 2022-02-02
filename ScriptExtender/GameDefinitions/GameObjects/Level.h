@@ -85,6 +85,16 @@ namespace dse
 		};
 
 
+		struct SightManager : public BaseComponentProcessingSystem<EntityWorld>
+		{
+			// TODO - this has a composite (2 handles + a flag) key!
+			Map<ComponentHandle, ComponentHandle> CharactersInSight;
+			ObjectSet<ComponentHandle> GenerateSightEventsFor;
+			void* VisionGrid;
+			eoc::AiGrid* AiGrid;
+		};
+
+
 		struct Level : public dse::Level
 		{
 			struct TemplateTrace
@@ -100,10 +110,10 @@ namespace dse
 			EntityManager * EntityManager;
 			eoc::AiGrid * AiGrid;
 			void * VisionGrid;
-			void * SightManager;
-			void * CharacterManager;
-			void * ItemManager;
-			void * ProjectileManager;
+			SightManager* SightManager;
+			CharacterManager* CharacterManager;
+			ItemManager* ItemManager;
+			ProjectileManager* ProjectileManager;
 			SurfaceManager * SurfaceManager;
 			GameActionManager * GameActionManager;
 			EffectManager * EffectManager;
