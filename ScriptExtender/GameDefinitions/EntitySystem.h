@@ -177,10 +177,11 @@ struct EntityEntry
 	ComponentLayout Layout;
 };
 	
+template <class TEntityWorld>
 struct BaseComponentProcessingSystem
 {
 	void * VMT;
-	void * field_8;
+	TEntityWorld* EntityWorld;
 };
 
 template <class TEntityComponentIndex>

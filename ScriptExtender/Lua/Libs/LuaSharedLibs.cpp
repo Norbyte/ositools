@@ -1,44 +1,5 @@
 #include <stdafx.h>
-#include <Lua/Shared/LuaBinding.h>
-#include <Lua/Shared/LuaSerializers.h>
-
-#include <Lua/Shared/Proxies/LuaArrayProxy.inl>
-// FIXME - disabled until entity system is upgrated
-// #include <Lua/Shared/Proxies/LuaEntityProxy.inl>
-#include <Lua/Shared/Proxies/LuaEvent.inl>
-#include <Lua/Shared/Proxies/LuaMapProxy.inl>
-#include <Lua/Shared/Proxies/LuaObjectProxy.inl>
-#include <Lua/Shared/Proxies/LuaSetProxy.inl>
-
-BEGIN_SE()
-
-template <class Fun>
-TypeInformation DoConstructFunctionSignature(Fun f)
-{
-	TypeInformation sig;
-	ConstructFunctionSignature(sig, f);
-	return sig;
-}
-
-END_SE()
-
-#define DECLARE_MODULE(name, role) { \
-	ModuleDefinition mod; \
-	mod.Role = ModuleRole::role; \
-	mod.Table = FixedString{#name};
-
-#define DECLARE_SUBMODULE(name, sub, role) { \
-	ModuleDefinition mod; \
-	mod.Role = ModuleRole::role; \
-	mod.Table = FixedString{#name}; \
-	mod.SubTable = FixedString{#sub};
-
-#define BEGIN_MODULE() mod.Functions = {
-#define MODULE_FUNCTION(fun) { FixedString{#fun}, LuaWrapFunction(&fun), DoConstructFunctionSignature(&fun) },
-#define MODULE_NAMED_FUNCTION(name, fun){ FixedString{name}, LuaWrapFunction(&fun), DoConstructFunctionSignature(&fun) },
-#define END_MODULE() }; \
-	gModuleRegistry.RegisterModule(mod); \
-}
+#include <Lua/Libs/LibraryRegistrationHelpers.h>
 
 #include <Lua/Libs/Utils.inl>
 #include <Lua/Libs/Json.inl>
@@ -59,6 +20,7 @@ END_SE()
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
 #include <Lua/Libs/ServerEntity.inl>
+#include <Lua/Libs/ServerEffect.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
 #include <Lua/Libs/ServerTemplate.inl>
@@ -90,6 +52,7 @@ void RegisterServerLibraries()
 	net::RegisterNetLib();
 	stats::RegisterCustomStatLib();
 	ecs::RegisterEntityLib();
+	effect::RegisterEffectLib();
 	surface::action::RegisterSurfaceActionLib();
 	tmpl::RegisterTemplateLib();
 }

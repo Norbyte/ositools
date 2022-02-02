@@ -106,7 +106,7 @@ namespace dse
 			void * ProjectileManager;
 			SurfaceManager * SurfaceManager;
 			GameActionManager * GameActionManager;
-			void * EffectManager;
+			EffectManager * EffectManager;
 			void * NoiseManager;
 			ShroudManager* ShroudManager;
 			void * field_F8;

@@ -4,7 +4,7 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/GameObjects/Render.h>
 
-BEGIN_SE()
+BEGIN_NS(ecl)
 
 struct Effect : public Visual
 {
@@ -25,10 +25,6 @@ struct Effect : public Visual
 	void* OldJob;
 	uint16_t RefCount;
 };
-
-END_SE()
-
-BEGIN_NS(ecl)
 
 struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 {
@@ -70,6 +66,59 @@ struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 	ObjectSet<MultiEffectVisual*> Visuals;
 	ObjectSet<WeaponAttachmentInfo> WeaponAttachments;
 	bool ListeningOnTextKeys;
+};
+
+END_NS()
+
+BEGIN_NS(esv)
+
+struct Effect : public BaseComponent
+{
+	static constexpr auto ComponentPoolIndex = EntityComponentIndex::Effect;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Effect;
+
+	FixedString GUID; // Unused
+	NetId NetID;
+	ObjectSet<int16_t> PeerIDs;
+	bool Loop;
+	bool ForgetEffect;
+	bool IsForgotten;
+	bool IsDeleted;
+	float Duration;
+	FixedString EffectName;
+	ComponentHandle Target;
+	ComponentHandle BeamTarget;
+	glm::vec3 Position;
+	glm::mat3 Rotation;
+	float Scale;
+	FixedString Bone;
+	FixedString BeamTargetBone;
+	glm::vec3 BeamTargetPos;
+	bool DetachBeam;
+
+	void Delete();
+};
+
+
+struct EffectFactory : public NetworkComponentFactory<Effect>
+{
+	void* VMT2;
+	ObjectSet<EntityHandle> EffectEntities;
+	EntityWorld* World;
+};
+
+
+struct EffectManager
+{
+	using CreateEffectProc = Effect* (EffectManager* self, FixedString const& effectName, __int64 sourceHandle, FixedString const& castBone);
+	using DestroyEffectProc = void (EffectManager* self, uint64_t effectHandle);
+
+	void* VMT;
+	BaseComponentProcessingSystem<EntityWorld> ComponentProcessingSystem;
+	EffectFactory* EffectFactory;
+	ObjectSet<Effect*> Effects;
+	ObjectSet<Effect*> DeletedEffects;
+	ObjectSet<Effect*> ActiveEffects;
 };
 
 END_NS()

@@ -93,6 +93,7 @@
     <ClInclude Include="Lua\Debugger\LuaDebug.pb.h" />
     <ClInclude Include="Lua\Debugger\LuaDebugger.h" />
     <ClInclude Include="Lua\Debugger\LuaDebugMessages.h" />
+    <ClInclude Include="Lua\Libs\LibraryRegistrationHelpers.h" />
     <ClInclude Include="Lua\Server\LuaBindingServer.h" />
     <ClInclude Include="Lua\Server\LuaOsiris.h" />
     <ClInclude Include="Lua\Shared\LuaBinding.h" />
@@ -173,7 +174,7 @@
     </ClCompile>
     <ClCompile Include="Lua\Debugger\LuaDebugger.cpp" />
     <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp" />
-    <ClCompile Include="Lua\Libs\LuaLibs.cpp" />
+    <ClCompile Include="Lua\Libs\LuaSharedLibs.cpp" />
     <ClCompile Include="Lua\Server\LuaOsiris.cpp" />
     <ClCompile Include="Lua\Server\LuaServer.cpp" />
     <ClCompile Include="Lua\Shared\LuaBinding.cpp" />
@@ -282,6 +283,7 @@
     <None Include="Lua\Libs\Resource.inl" />
     <None Include="Lua\Libs\Server.inl" />
     <None Include="Lua\Libs\ServerCustomStats.inl" />
+    <None Include="Lua\Libs\ServerEffect.inl" />
     <None Include="Lua\Libs\ServerEntity.inl" />
     <None Include="Lua\Libs\ServerNet.inl" />
     <None Include="Lua\Libs\ServerOsiris.inl" />

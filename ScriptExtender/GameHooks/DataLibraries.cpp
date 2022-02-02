@@ -217,6 +217,9 @@ namespace dse
 		SYM_OFF(ls__gEffectsManager);
 		SYM_OFF(ls__EffectsManager__DestroyEffect);
 
+		SYM_OFF(esv__EffectManager__CreateEffect);
+		SYM_OFF(esv__EffectManager__DestroyEffect);
+
 		SYM_OFF(ResourceManager__GetInstance);
 		SYM_OFF(ResourceManager__InstantiateVisual);
 		SYM_OFF(ResourceManager__Instance);

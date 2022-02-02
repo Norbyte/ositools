@@ -263,6 +263,9 @@ namespace dse
 		void** ls__gEffectsManager{ nullptr };
 		EffectsManager__DestroyEffect* ls__EffectsManager__DestroyEffect{ nullptr };
 
+		esv::EffectManager::CreateEffectProc* esv__EffectManager__CreateEffect{ nullptr };
+		esv::EffectManager::DestroyEffectProc* esv__EffectManager__DestroyEffect{ nullptr };
+
 		ResourceManager::GetInstanceProc * ResourceManager__GetInstance{ nullptr };
 		ResourceManager::InstantiateVisualProc* ResourceManager__InstantiateVisual{ nullptr };
 		ResourceManager ** ResourceManager__Instance{ nullptr };

@@ -342,4 +342,5 @@ publish-*.bat
 package-signer.key
 LuaDebugger/DbgProtocol.cs
 ScriptExtender/Lua.bundle
+ScriptExtender/Doxygen
 republish-manifest.bat

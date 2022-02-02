@@ -86,7 +86,7 @@ namespace dse
 
         struct SurfaceManager : public ComponentFactory<Surface>
         {
-            BaseComponentProcessingSystem ComponentProcessingSystem;
+            BaseComponentProcessingSystem<EntityWorld> ComponentProcessingSystem;
             uint64_t field_98;
             ObjectSet<SurfaceAction*> SurfaceActions;
             Array<Surface*> Surfaces;

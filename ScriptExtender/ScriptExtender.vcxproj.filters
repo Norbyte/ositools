@@ -376,6 +376,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\CharacterCreation.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Libs\LibraryRegistrationHelpers.h">
+      <Filter>Lua\Libs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -534,7 +537,7 @@
     <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClCompile>
-    <ClCompile Include="Lua\Libs\LuaLibs.cpp">
+    <ClCompile Include="Lua\Libs\LuaSharedLibs.cpp">
       <Filter>Lua\Libs</Filter>
     </ClCompile>
     <ClCompile Include="GameHooks\SymbolMapper.cpp">
@@ -794,6 +797,9 @@
       <Filter>Lua\Libs</Filter>
     </None>
     <None Include="Lua\Libs\Server.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Libs\ServerEffect.inl">
       <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>

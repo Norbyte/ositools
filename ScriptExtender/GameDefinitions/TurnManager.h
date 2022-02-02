@@ -181,7 +181,7 @@ namespace dse
 			};
 
 			void * VMT;
-			BaseComponentProcessingSystem Base;
+			BaseComponentProcessingSystem<EntityWorld> Base;
 			ObjectSet<ComponentHandleWithType> ComponentHandleSet;
 			ObjectSet<ComponentHandle> EntityHandleSet;
 			ObjectSet<ComponentHandle> EntityHandleSet2;

@@ -102,6 +102,7 @@ namespace esv
 
 	struct SurfaceManager;
 	struct GameActionManager;
+	struct EffectManager;
 	struct ShroudManager;
 	struct EntityManager;
 	struct CombineManager;
