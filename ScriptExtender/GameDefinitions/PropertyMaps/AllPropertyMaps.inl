@@ -245,8 +245,8 @@ END_CLS()
 
 // FIXME - placeholders
 BEGIN_CLS(Transform)
-// TODO - P(Matrix)
-// TODO - P(Rotate) -- no 3x3 mat serialization support yet!
+P(Matrix)
+P(Rotate)
 P(Translate)
 P(Scale)
 END_CLS()

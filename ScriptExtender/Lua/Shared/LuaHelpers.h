@@ -222,6 +222,7 @@ namespace dse::lua
 	void push(lua_State* L, glm::vec3 const& v);
 	void push(lua_State* L, glm::vec4 const& v);
 	void push(lua_State* L, glm::mat3 const& m);
+	void push(lua_State* L, glm::mat4 const& m);
 	void push(lua_State* L, ig::InvokeDataValue const& v);
 
 	template <class T>
@@ -481,6 +482,28 @@ namespace dse::lua
 		return val;	
 	}
 
+	inline glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>)
+	{
+		auto i = lua_absindex(L, index);
+		glm::mat3 val;
+		luaL_checktype(L, index, LUA_TTABLE);
+		for (auto i = 0; i < 9; i++) {
+			val[i / 3][i % 3] = gettable<float>(L, i + 1, i);
+		}
+		return val;
+	}
+
+	inline glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>)
+	{
+		auto i = lua_absindex(L, index);
+		glm::mat4 val;
+		luaL_checktype(L, index, LUA_TTABLE);
+		for (auto i = 0; i < 16; i++) {
+			val[i / 4][i % 4] = gettable<float>(L, i + 1, i);
+		}
+		return val;
+	}
+
 	inline Version do_get(lua_State* L, int index, Overload<Version>)
 	{
 		auto i = lua_absindex(L, index);
@@ -685,6 +708,14 @@ namespace dse::lua
 		lua_newtable(L);
 		for (auto i = 0; i < 9; i++) {
 			settable(L, i + 1, m[i / 3][i % 3]);
+		}
+	}
+
+	inline void push(lua_State* L, glm::mat4 const& m)
+	{
+		lua_newtable(L);
+		for (auto i = 0; i < 16; i++) {
+			settable(L, i + 1, m[i / 4][i % 4]);
 		}
 	}
 

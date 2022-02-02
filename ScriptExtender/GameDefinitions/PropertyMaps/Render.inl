@@ -5,7 +5,7 @@ END_CLS()
 
 BEGIN_CLS(MeshBinding)
 P_REF(Link)
-// TODO - P_RO(Transform)
+P_RO(Transform)
 P_REF(Bound)
 END_CLS()
 
@@ -78,7 +78,7 @@ END_CLS()
 
 BEGIN_CLS(VisualResource::BonePosRot)
 P(Position)
-// TODO - P(Rotation)
+P(Rotation)
 END_CLS()
 
 
@@ -144,7 +144,7 @@ END_CLS()
 BEGIN_CLS(PhysicsShape)
 P_RO(Name)
 P_RO(Translate)
-// FIXME - P_RO(Rotate)
+P_RO(Rotate)
 P_RO(Scale)
 END_CLS()
 
