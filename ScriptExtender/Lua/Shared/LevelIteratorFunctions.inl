@@ -2,7 +2,7 @@ template <class Predicate>
 void GetCharacterGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
-	if (!levelName) {
+	if (!levelName || levelName == GFS.strEmpty) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
@@ -31,7 +31,7 @@ template <class Predicate>
 void GetCharactersGeneric(ObjectSet<Character *>& characters, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
-	if (!levelName) {
+	if (!levelName || levelName == GFS.strEmpty) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
@@ -59,7 +59,7 @@ template <class Predicate>
 void GetItemGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
-	if (!levelName) {
+	if (!levelName || levelName == GFS.strEmpty) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
@@ -87,7 +87,7 @@ template <class Predicate>
 void GetItemsGeneric(ObjectSet<Item*>& resultItems, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
-	if (!levelName) {
+	if (!levelName || levelName == GFS.strEmpty) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
@@ -115,7 +115,7 @@ template <class Predicate>
 void GetTriggerGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
-	if (!levelName) {
+	if (!levelName || levelName == GFS.strEmpty) {
 		auto level = GetStaticSymbols().GetCurrentServerLevel();
 		if (level == nullptr) {
 			OsiError("No current level!");
