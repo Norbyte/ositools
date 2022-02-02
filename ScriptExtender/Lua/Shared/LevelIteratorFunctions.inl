@@ -1,5 +1,5 @@
 template <class Predicate>
-void GetCharacterGuidsGeneric(ObjectSet<FixedString> guids, FixedString const& requestedLevel, Predicate pred)
+void GetCharacterGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& requestedLevel, Predicate pred)
 {
 	FixedString levelName = requestedLevel;
 	if (!levelName) {
