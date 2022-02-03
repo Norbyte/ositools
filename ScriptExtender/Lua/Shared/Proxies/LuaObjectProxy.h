@@ -7,7 +7,6 @@
 
 BEGIN_NS(lua)
 
-LifetimeHolder GetCurrentLifetime();
 LifetimeHolder LifetimeFromState(lua_State* L);
 LifetimeHolder GlobalLifetimeFromState(lua_State* L);
 

@@ -32,9 +32,6 @@ BEGIN_NS(esv::lua)
 
 using namespace dse::lua;
 
-LifetimeHolder GetServerLifetime();
-LifetimePool& GetServerLifetimePool();
-
 
 class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable
 {

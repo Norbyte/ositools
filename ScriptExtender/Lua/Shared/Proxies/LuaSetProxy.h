@@ -6,8 +6,6 @@
 
 BEGIN_NS(lua)
 
-LifetimeHolder GetCurrentLifetime();
-
 class SetProxyImplBase
 {
 public:

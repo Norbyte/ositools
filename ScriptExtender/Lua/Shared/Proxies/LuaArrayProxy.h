@@ -37,8 +37,6 @@ END_SE()
 
 BEGIN_NS(lua)
 
-LifetimeHolder GetCurrentLifetime();
-
 class ArrayProxyImplBase
 {
 public:

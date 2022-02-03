@@ -716,7 +716,7 @@ UserReturn Get(lua_State * L)
 		
 	auto object = StatFindObject(statName, warnOnError);
 	if (object != nullptr) {
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, object, GetCurrentLifetime(), level, true);
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, object, State::FromLua(L)->GetCurrentLifetime(), level, true);
 		return 1;
 	} else {
 		push(L, nullptr);
@@ -808,7 +808,7 @@ UserReturn Create(lua_State * L)
 		}
 	}
 
-	ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, *object, GetCurrentLifetime(), -1, true);
+	ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, *object, State::FromLua(L)->GetCurrentLifetime(), -1, true);
 	return 1;
 }
 

@@ -32,7 +32,6 @@ namespace dse::lua
 	void PushExtFunction(lua_State * L, char const * func);
 	void PushInternalFunction(lua_State* L, char const* func);
 	void PushModFunction(lua_State* L, char const* mod, char const* func);
-	LifetimeHolder GetCurrentLifetime();
 	
 	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<stats::Object>
 	{

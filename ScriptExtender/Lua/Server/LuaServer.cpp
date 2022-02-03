@@ -22,27 +22,6 @@ END_NS()
 
 BEGIN_NS(lua)
 
-// FIXME - deprecated; use state from L wherever possible
-LifetimeHolder GetCurrentLifetime()
-{
-	if (gExtender->GetServer().IsInServerThread()) {
-		return esv::lua::GetServerLifetime();
-	}
-	else {
-		return ecl::lua::GetClientLifetime();
-	}
-}
-
-LifetimePool& GetLifetimePool()
-{
-	if (gExtender->GetServer().IsInServerThread()) {
-		return esv::lua::GetServerLifetimePool();
-	}
-	else {
-		return ecl::lua::GetClientLifetimePool();
-	}
-}
-
 LifetimeHolder LifetimeFromState(lua_State* L)
 {
 	return State::FromLua(L)->GetCurrentLifetime();
@@ -363,18 +342,6 @@ END_NS()
 namespace dse::esv::lua
 {
 	using namespace dse::lua;
-
-	LifetimeHolder GetServerLifetime()
-	{
-		assert(gExtender->GetServer().IsInServerThread());
-		return esv::ExtensionState::Get().GetLua()->GetCurrentLifetime();
-	}
-
-	LifetimePool& GetServerLifetimePool()
-	{
-		assert(gExtender->GetServer().IsInServerThread());
-		return esv::ExtensionState::Get().GetLua()->GetLifetimePool();
-	}
 
 	#include <Lua/Shared/LevelIteratorFunctions.inl>
 }

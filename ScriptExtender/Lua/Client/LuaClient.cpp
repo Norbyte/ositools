@@ -99,18 +99,6 @@ BEGIN_NS(ecl::lua)
 
 using namespace dse::lua;
 
-LifetimeHolder GetClientLifetime()
-{
-	assert(gExtender->GetClient().IsInClientThread());
-	return ExtensionState::Get().GetLua()->GetCurrentLifetime();
-}
-
-LifetimePool& GetClientLifetimePool()
-{
-	assert(gExtender->GetClient().IsInClientThread());
-	return ExtensionState::Get().GetLua()->GetLifetimePool();
-}
-
 void ExtensionLibraryClient::Register(lua_State * L)
 {
 	ExtensionLibrary::Register(L);
