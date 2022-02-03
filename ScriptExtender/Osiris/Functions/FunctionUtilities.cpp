@@ -147,8 +147,7 @@ namespace dse
 		{
 			auto inventoryMgr = GetStaticSymbols().GetServerInventoryFactory();
 			if (inventoryMgr != nullptr) {
-				// FIXME - CAST
-				return (esv::Inventory*)inventoryMgr->Get(handle);
+				return inventoryMgr->Get(handle);
 			} else {
 				return nullptr;
 			}
@@ -355,11 +354,9 @@ namespace dse
 		ecl::Inventory* FindInventoryByHandle(ComponentHandle const& handle, bool logError)
 		{
 			auto inventoryMgr = GetStaticSymbols().GetClientInventoryFactory();
-			// FIXME - cast!
 			if (inventoryMgr != nullptr) {
-				return (ecl::Inventory*)inventoryMgr->Get(handle);
-			}
-			else {
+				return inventoryMgr->Get(handle);
+			} else {
 				return nullptr;
 			}
 		}

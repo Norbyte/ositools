@@ -148,8 +148,8 @@ namespace dse::esv
 
 		hit->StartTimer = 0.0f;
 		hit->HitByHandle = ComponentHandle{};
-		hit->HitWithHandle = ComponentHandle{}; // FIXME?
-		hit->WeaponHandle = ComponentHandle{}; // FIXME?
+		hit->HitWithHandle = ComponentHandle{};
+		hit->WeaponHandle = ComponentHandle{};
 		hit->HitReason = HitReason;
 		hit->Flags0 &= ~esv::StatusFlags0::IsFromItem; // Clear IsFromItem
 

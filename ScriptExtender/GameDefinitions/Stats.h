@@ -2,6 +2,7 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/GameObjects/Ai.h>
 #include <GameHooks/Wrappers.h>
 
 BEGIN_SE()
@@ -748,7 +749,7 @@ struct Character : public ObjectInstance
 	Vector<CharacterDynamicStat*> DynamicStats;
 	CharacterDynamicStat * StatsFromStatsEntry;
 	Vector<CharacterEquippedItem*> EquippedItems;
-	ObjectSet<void *> SurfacePathInfluences;
+	ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 	int32_t ActiveBoostConditions[16]; // Saved
 	EoCGameRandom DamageRng;
 	EoCGameRandom CriticalHitRng;

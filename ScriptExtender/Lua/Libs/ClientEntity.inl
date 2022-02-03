@@ -126,7 +126,6 @@ IEoCClientObject* GetGameObject(lua_State* L)
 	}
 }
 
-// FIXME - move to Level->AiGrid!
 eoc::AiGrid* GetAiGrid()
 {
 	auto level = GetStaticSymbols().GetCurrentClientLevel();

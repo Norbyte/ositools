@@ -243,7 +243,6 @@ pm.AddProperty("Height",
 END_CLS()
 
 
-// FIXME - placeholders
 BEGIN_CLS(Transform)
 P(Matrix)
 P(Rotate)

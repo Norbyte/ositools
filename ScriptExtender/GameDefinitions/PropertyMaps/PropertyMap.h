@@ -361,7 +361,6 @@ namespace dse
 			{
 				auto handle = reinterpret_cast<ComponentHandle *>(ptr);
 				if (*handle) {
-					// FIXME - support for client?
 					auto object = esv::GetEntityWorld()->GetGameObject(*handle, false);
 					if (object != nullptr) {
 						return object->MyGuid.Str;

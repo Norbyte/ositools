@@ -28,14 +28,6 @@ class SetProxy : private Userdata<SetProxy>, public Indexable, public NewIndexab
 public:
 	static char const * const MetatableName;
 
-	// FIXME - should ObjectSet be converted to SetProxy?
-	/*template <class T>
-	inline static MultiHashSetProxyImpl<T>* Make(lua_State* L, MultiHashSet<T>* object, LifetimeHolder const& lifetime)
-	{
-		auto self = NewWithExtraData(L, sizeof(MultiHashSetProxyImpl<T>), lifetime);
-		return new (self->GetImpl()) MultiHashSetProxyImpl<T>(lifetime, object);
-	}*/
-
 	inline SetProxyImplBase* GetImpl()
 	{
 		return reinterpret_cast<SetProxyImplBase*>(this + 1);

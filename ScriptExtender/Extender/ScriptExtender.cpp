@@ -320,7 +320,6 @@ void ScriptExtender::OnSkillPrototypeManagerInit(void * self)
 	loadMsg += L")";
 	Libraries.ShowStartupMessage(loadMsg, false);
 	
-	// FIXME - remove this hook, should be done in extension state!
 	if (server_.IsInServerThread()) {
 		server_.LoadExtensionState();
 	} else {

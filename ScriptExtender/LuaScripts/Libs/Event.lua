@@ -391,7 +391,6 @@ _I._CallLegacyEvent = function (fn, event)
 			event.HitChance = chance
 			event:StopPropagation()
 		end
-		-- FIXME - add other events!
 	else
 		fn()
 	end

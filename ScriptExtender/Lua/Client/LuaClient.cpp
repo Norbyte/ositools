@@ -199,9 +199,8 @@ void ClientState::OnUpdate(GameTime const& time)
 void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 {
 	UIObjectCreatedEventParams params;
-	// FIXME - TEMP CAST
 	auto uiManager = GetStaticSymbols().GetUIObjectManager();
-	params.UI = (UIObject*)uiManager->Get(uiObjectHandle);
+	params.UI = uiManager->Get(uiObjectHandle);
 	ThrowEvent(*this, "UIObjectCreated", params);
 }
 
@@ -339,8 +338,7 @@ UIObject * ClientState::GetUIObject(char const * name)
 	if (it != clientUI_.end()) {
 		auto uiManager = GetStaticSymbols().GetUIObjectManager();
 		if (uiManager != nullptr) {
-			// FIXME - TEMP CAST
-			return (UIObject*)uiManager->Get(it->second);
+			return uiManager->Get(it->second);
 		}
 	}
 

@@ -112,6 +112,10 @@ BEGIN_CLS(esv::PlayerCustomData)
 INHERIT(eoc::PlayerCustomData)
 END_CLS()
 
+BEGIN_CLS(esv::PlayerData::PickpocketData)
+P(Weight)
+P(Value)
+END_CLS()
 
 BEGIN_CLS(esv::PlayerData)
 P_RO(SomeObjectHandle)
@@ -123,7 +127,7 @@ P(LevelUpMarker)
 P(SelectedSkillSetIndex)
 P(QuestSelected)
 P_REF(CustomData)
-// FIXME - RefMap - P_REF(PreviousPickpocketTargets)
+P_REF(PreviousPickpocketTargets)
 P(PickpocketTarget)
 P_REF(PreviousPositions)
 P_RO(PreviousPositionId)
@@ -193,7 +197,7 @@ propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 */
 
 P_RO(CurrentLevel)
-// FIXME - no mat3 serializer yet! P_RO(WorldRot)
+P_RO(WorldRot)
 // Available via IGameObject
 // P_RO(Scale)
 P_REF(CurrentTemplate)
@@ -248,7 +252,7 @@ P_RO(SpiritCharacterHandle)
 P_RO(CorpseCharacterHandle)
 P_RO(ObjectHandle6)
 P_REF(EnemyHandles)
-// P_RO(SurfacePathInfluenceSet)
+P_REF(SurfacePathInfluences)
 P_REF(SummonHandles)
 P(PartialAP)
 P(AnimType)
@@ -299,9 +303,6 @@ P_RO(PreviousLevel)
 
 // v55 compatibility
 PN_REF(RootTemplate, CurrentTemplate)
-// FIXME - PlayerCustomData - PlayerData->CustomData
-// if (character->PlayerData != nullptr
-// && character->PlayerData->CustomData.Initialized) {
 
 P_FUN(GetInventoryItems, GetInventoryItemGuids)
 P_FUN(GetSkills, GetSkillIds)
@@ -354,7 +355,7 @@ P_RO(OwnerCharacterHandle)
 P_RO(CorpseCharacterHandle)
 P_REF(PlayerData)
 P_REF(PlayerUpgrade)
-// FIXME - P_REF(SurfacePathInfluences)
+P_REF(SurfacePathInfluences)
 P_REF(Tags)
 P_RO(FollowCharacterHandle)
 P_REF(DisplayNameOverride)

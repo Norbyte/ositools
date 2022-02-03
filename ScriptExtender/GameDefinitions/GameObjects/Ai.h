@@ -5,6 +5,12 @@
 
 namespace dse
 {
+    struct SurfacePathInfluence
+    {
+        ESurfaceFlag MatchFlags;
+        int Influence;
+        ESurfaceFlag MaskFlags;
+    };
 }
 
 namespace dse::eoc
@@ -32,7 +38,7 @@ namespace dse::eoc
         bool field_15;
         bool field_16;
         bool field_17;
-        ObjectSet<int> SurfacePathInfluences; // Set<SurfacePathInfluence>
+        ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
     };
 
     struct AiPath : public ProtectedGameObject<AiPath>
@@ -47,7 +53,7 @@ namespace dse::eoc
         int field_10;
         uint64_t Flags;
         uint64_t Flags2;
-        ObjectSet<int> SurfacePathInfluences; // Set<SurfacePathInfluence>
+        ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
         int field_48;
         int field_4C;
         int field_50;
@@ -173,13 +179,6 @@ namespace dse::eoc
                 (int)((pos.y - OffsetZ) / GridScale)
             );
         }
-    };
-
-    struct SurfacePathInfluence
-    {
-        ESurfaceFlag MatchAiFlags;
-        uint64_t field_8;
-        ESurfaceFlag MaskAiFlags;
     };
 
     struct AiGrid : public ProtectedGameObject<AiGrid>

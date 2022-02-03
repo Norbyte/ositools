@@ -184,7 +184,6 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		// Clear stored NetworkFixedString updates from previous session
 		// Server will send a new list when it enters LoadModule state
 		networkFixedStrings_.ClientReset();
-		// FIXME - needed?
 		gExtender->Hasher().ClearCaches();
 		break;
 

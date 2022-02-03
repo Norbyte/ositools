@@ -8,6 +8,7 @@
 #include <GameDefinitions/GameObjects/ActionMachine.h>
 #include <GameDefinitions/Sound.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
+#include <GameDefinitions/GameObjects/Ai.h>
 
 namespace dse
 {
@@ -254,7 +255,7 @@ namespace dse
 			ComponentHandle CorpseCharacterHandle;
 			ComponentHandle ObjectHandle6;
 			ObjectSet<ComponentHandle> EnemyHandles;
-			ObjectSet<void *> SurfacePathInfluenceSet; // Set<eoc::SurfacePathInfluence>
+			ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 			ObjectSet<ComponentHandle> SummonHandles;
 			void * PlanManager;
 			float PartialAP;
@@ -463,7 +464,7 @@ namespace dse
 			__int64 field_160;
 			ecl::PlayerData* PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
-			ObjectSet<void*> SurfacePathInfluences;
+			ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 			ObjectSet<FixedString> Tags;
 			__int64 field_248;
 			float field_250;

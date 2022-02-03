@@ -61,8 +61,7 @@ UIObject* Create(char const* name, char const* path, int layer, std::optional<UI
 		return nullptr;
 	}
 
-	// FIXME - TEMP CAST
-	auto object = (UIObject*)uiManager->Get(handle);
+	auto object = uiManager->Get(handle);
 	if (!object) {
 		OsiError("Failed to look up constructed UI object");
 		return nullptr;

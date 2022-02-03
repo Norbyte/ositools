@@ -1,3 +1,9 @@
+BEGIN_CLS(SurfacePathInfluence)
+P(MatchFlags)
+P(Influence)
+P(MaskFlags)
+END_CLS()
+
 BEGIN_CLS(stats::Requirement)
 PN(Requirement, RequirementId)
 P(Param)
@@ -328,7 +334,6 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 END_CLS()
 
 
-// FIXME - add polymorphic getter?
 BEGIN_CLS(stats::Object)
 P_RO(Handle)
 P(Level)
@@ -341,9 +346,8 @@ P_RO(FS2)
 P_REF(PropertyLists)
 // P_REF(Conditions)
 P_RO(AIFlags)
-// FIXME - these use different memory allocators than normal ObjectSets
-// P_REF(Requirements)
-// P_REF(MemorizationRequirements)
+P_REF(Requirements)
+P_REF(MemorizationRequirements)
 P_RO(StringProperties1)
 P_RO(ComboCategories)
 // FIXME
@@ -403,7 +407,7 @@ P_REF(DynamicStats)
 P_REF(StatsFromStatsEntry)
 // FIXME - via custom map!
 // P_REF(EquippedItems)
-// FIXME - SurfacePathInfluences
+P_REF(SurfacePathInfluences)
 P_RO(MaxVitality)
 P_RO(BaseMaxVitality)
 P_RO(MaxArmor)
