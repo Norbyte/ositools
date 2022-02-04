@@ -75,7 +75,7 @@ BEGIN_NS(esv)
 struct Effect : public BaseComponent
 {
 	static constexpr auto ComponentPoolIndex = EntityComponentIndex::Effect;
-	static constexpr auto ObjectTypeIndex = ObjectHandleType::Effect;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
 
 	FixedString GUID; // Unused
 	NetId NetID;
@@ -118,7 +118,7 @@ struct EffectManager
 	EffectFactory* EffectFactory;
 	ObjectSet<Effect*> Effects;
 	ObjectSet<Effect*> DeletedEffects;
-	ObjectSet<Effect*> ActiveEffects;
+	ObjectSet<Effect*> ForgottenEffects;
 };
 
 END_NS()

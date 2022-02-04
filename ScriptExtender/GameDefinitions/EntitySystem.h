@@ -9,7 +9,7 @@ BEGIN_SE()
 struct BaseComponent
 {
 	void* VMT;
-	EntityHandle Handle;
+	EntityHandle Entity;
 	ComponentHandleWithType Component;
 
 	template <class T>

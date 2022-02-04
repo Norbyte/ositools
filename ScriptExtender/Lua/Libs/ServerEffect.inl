@@ -16,13 +16,13 @@ BEGIN_NS(esv::lua::effect)
 
 ObjectSet<Effect*> GetAllEffects()
 {
-	return GetStaticSymbols().GetCurrentServerLevel()->EffectManager->ActiveEffects;
+	return GetStaticSymbols().GetCurrentServerLevel()->EffectManager->Effects;
 }
 
 ObjectSet<ComponentHandle> GetAllEffectHandles()
 {
 	ObjectSet<ComponentHandle> handles;
-	auto effects = GetStaticSymbols().GetCurrentServerLevel()->EffectManager->ActiveEffects;
+	auto effects = GetStaticSymbols().GetCurrentServerLevel()->EffectManager->Effects;
 	for (auto const& effect : effects) {
 		handles.push_back(effect->Component.Handle);
 	}
@@ -31,14 +31,14 @@ ObjectSet<ComponentHandle> GetAllEffectHandles()
 
 Effect* GetEffect(ComponentHandle handle)
 {
-	return GetStaticSymbols().GetCurrentServerLevel()->EffectManager->EffectFactory->Get(handle);
+	return GetEntityWorld()->GetComponent<esv::Effect>(handle);
 }
 
-Effect* CreateEffect(FixedString const& effectName, ComponentHandle sourceHandle, FixedString const& castBone)
+Effect* CreateEffect(FixedString const& effectName, ComponentHandle sourceHandle, std::optional<FixedString> castBone)
 {
 	auto effectMgr = GetStaticSymbols().GetCurrentServerLevel()->EffectManager;
 	auto createFunc = GetStaticSymbols().esv__EffectManager__CreateEffect;
-	return createFunc(effectMgr, effectName, sourceHandle.Handle, castBone);
+	return createFunc(effectMgr, effectName, sourceHandle.Handle, castBone.value_or(GFS.strEmpty));
 }
 
 void RegisterEffectLib()

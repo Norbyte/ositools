@@ -1216,7 +1216,7 @@
       48 8B 93 C8 01 00 00 // mov     rdx, [rbx+1C8h]
       48 8B 8E D8 00 00 00 // mov     rcx, [rsi+0D8h]
       @ref E8 ?? ?? ?? ?? // call    esv__EffectManager__DestroyEffect
-      <Target Type="Absolute" Offset="@ref" Symbol="esv__EffectManager__DestroyEffect" />
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__DestroyEffect" />
     </Mapping>
 
     <Mapping Name="esv::EffectManager::CreateEffect">
@@ -1227,7 +1227,7 @@
       4C 8D 8F 60 03 00 00 // lea     r9, [rdi+360h]
       48 8B 8E D8 00 00 00 // mov     rcx, [rsi+0D8h]
       @ref E8 ?? ?? ?? ?? // call    esv__EffectManager__CreateEffect
-      <Target Type="Absolute" Offset="@ref" Symbol="esv__EffectManager__CreateEffect" />
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__CreateEffect" />
     </Mapping>
   </Mappings>
 </BinaryMappings>

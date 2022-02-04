@@ -184,7 +184,7 @@ namespace dse::esv
 
 			if (character == nullptr) return false;
 
-			auto value = CustomStatHelpers::GetCharacterStat(character->Base.Handle, statId);
+			auto value = CustomStatHelpers::GetCharacterStat(character->Base.Entity, statId);
 			if (value) {
 				statValue.Set(*value);
 				return true;
@@ -201,7 +201,7 @@ namespace dse::esv
 
 			if (character == nullptr) return;
 
-			CustomStatHelpers::SetCharacterStat(character->Base.Handle, statId, statValue);
+			CustomStatHelpers::SetCharacterStat(character->Base.Entity, statId, statValue);
 		}
 
 		bool CreateCustomStat(OsiArgumentDesc & args)
