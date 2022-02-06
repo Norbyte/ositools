@@ -53,6 +53,13 @@ P(IsCustom)
 END_CLS()
 
 
+BEGIN_CLS(eoc::SkillBarItem)
+P_RO(Type)
+P_RO(SkillOrStatId)
+P_RO(ItemHandle)
+END_CLS()
+
+
 BEGIN_CLS(esv::SkillConditions)
 P(MinimumHealthPercentage)
 P(MaximumHealthPercentage)
@@ -89,13 +96,6 @@ P(IsLearned)
 P(ZeroMemory)
 P(OncePerCombat)
 P(NumCharges)
-END_CLS()
-
-
-BEGIN_CLS(esv::SkillBarItem)
-P_RO(Type)
-P_RO(SkillOrStatId)
-P_RO(ItemHandle)
 END_CLS()
 
 
@@ -322,8 +322,9 @@ INHERIT(eoc::PlayerCustomData)
 END_CLS()
 
 BEGIN_CLS(ecl::PlayerData)
-// P_REF(SomeObjectHandle)
+P_REF(SkillBarItems)
 P_REF(LockedAbilities)
+P_REF(AttitudeOverrideMap)
 P_RO(SelectedSkillSet)
 P_REF(CustomData)
 P_RO(PickpocketTargetNetID)

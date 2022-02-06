@@ -53,6 +53,13 @@ namespace dse
 			FixedString Speaker;
 			ScratchBuffer CustomIconImg;
 		};
+
+		struct SkillBarItem : public ProtectedGameObject<SkillBarItem>
+		{
+			SkillBarItemType Type;
+			FixedString SkillOrStatId;
+			ComponentHandle ItemHandle;
+		};
 	}
 
 	using PlayerId = int16_t;
@@ -135,13 +142,6 @@ namespace dse
 			uint32_t FreeMemorySlots;
 		};
 
-		struct SkillBarItem : public ProtectedGameObject<SkillBarItem>
-		{
-			SkillBarItemType Type;
-			FixedString SkillOrStatId;
-			ComponentHandle ItemHandle;
-		};
-
 		struct PlayerCustomData : public eoc::PlayerCustomData {};
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>
@@ -153,7 +153,7 @@ namespace dse
 			};
 
 			ComponentHandle SomeObjectHandle;
-			ObjectSet<SkillBarItem> SkillBar;
+			ObjectSet<eoc::SkillBarItem> SkillBar;
 			ObjectSet<uint32_t> LockedAbility;
 			Map<FixedString, void *> ShapeShiftVariableManagers;
 			Map<FixedString, void *> ShapeShiftAttitudeMaps;
@@ -380,9 +380,9 @@ namespace dse
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>
 		{
-			ObjectSet<void*> SkillBarItems; // ecl::SkillBarItem
+			ObjectSet<eoc::SkillBarItem> SkillBarItems;
 			ObjectSet<uint32_t> LockedAbilities;
-			Map<FixedString, void*> AttitudeOverrideMap; // ObjectHandleMap<int>*
+			Map<ComponentHandle, int> AttitudeOverrideMap;
 			uint8_t SelectedSkillSet;
 			__int64 field_60;
 			char field_68;

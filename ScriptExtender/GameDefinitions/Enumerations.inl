@@ -1106,10 +1106,12 @@ BEGIN_ENUM_NS(stats, EquipmentStatsType, uint32_t)
 END_ENUM_NS()
 
 
-BEGIN_ENUM_NS(esv, SkillBarItemType, uint32_t)
+BEGIN_ENUM_NS(eoc, SkillBarItemType, uint32_t)
 	EV(None, 0)
 	EV(Skill, 1)
 	EV(Item, 2)
+	EV(ItemTemplate, 3)
+	EV(Action, 4)
 END_ENUM_NS()
 
 
