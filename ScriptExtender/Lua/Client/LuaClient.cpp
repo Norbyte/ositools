@@ -212,51 +212,35 @@ bool AreInvokeParamsPlausible(std::span<ig::InvokeDataValue> const& params)
 	return true;
 }
 
-void ClientState::OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
+EventResult ClientState::OnUICall(UICallEventParams& params)
 {
-	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+	if (!AreInvokeParamsPlausible(params.Args)) return EventResult::Failed;
 
-	UICallEventParams params;
-	params.UI = ui;
-	params.Function = func;
 	params.When = "Before";
-	params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
+	return ThrowEvent(*this, "UICall", params, true);
+}
+
+void ClientState::OnAfterUICall(UICallEventParams& params)
+{
+	if (!AreInvokeParamsPlausible(params.Args)) return;
+
+	params.When = "After";
 	ThrowEvent(*this, "UICall", params);
 }
 
-void ClientState::OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+EventResult ClientState::OnUIInvoke(UICallEventParams& params)
 {
-	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+	if (!AreInvokeParamsPlausible(params.Args)) return EventResult::Failed;
 
-	UICallEventParams params;
-	params.UI = ui;
-	params.Function = func;
-	params.When = "After";
-	params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
-	ThrowEvent(*this, "UICall", params);
-}
-
-void ClientState::OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
-{
-	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
-
-	UICallEventParams params;
-	params.UI = ui;
-	params.Function = func;
 	params.When = "Before";
-	params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
-	ThrowEvent(*this, "UIInvoke", params);
+	return ThrowEvent(*this, "UIInvoke", params, true);
 }
 
-void ClientState::OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args)
+void ClientState::OnAfterUIInvoke(UICallEventParams& params)
 {
-	if (!AreInvokeParamsPlausible({ args, numArgs })) return;
+	if (!AreInvokeParamsPlausible(params.Args)) return;
 
-	UICallEventParams params;
-	params.UI = ui;
-	params.Function = func;
 	params.When = "After";
-	params.Args = std::span<ig::InvokeDataValue>(args, numArgs);
 	ThrowEvent(*this, "UIInvoke", params);
 }
 

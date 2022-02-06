@@ -61,9 +61,9 @@ namespace dse::ecl::lua
 	struct UICallEventParams
 	{
 		UIObject* UI;
-		char const* Function;
-		char const* When;
+		STDString Function;
 		std::span<ig::InvokeDataValue> Args;
+		char const* When;
 	};
 
 	struct SkillGetDescriptionEventParams
@@ -118,10 +118,10 @@ namespace dse::ecl::lua
 		void OnUpdate(GameTime const& time) override;
 
 		void OnCreateUIObject(ComponentHandle handle);
-		void OnUICall(UIObject* ui, const char * func, unsigned int numArgs, ig::InvokeDataValue * args);
-		void OnAfterUICall(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
-		void OnAfterUIInvoke(UIObject* ui, const char* func, unsigned int numArgs, ig::InvokeDataValue* args);
+		EventResult OnUICall(UICallEventParams& params);
+		void OnAfterUICall(UICallEventParams& params);
+		EventResult OnUIInvoke(UICallEventParams& params);
+		void OnAfterUIInvoke(UICallEventParams& params);
 		std::optional<STDWString> SkillGetDescriptionParam(stats::SkillPrototype * prototype,
 			stats::Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(stats::StatusPrototype * prototype, stats::ObjectInstance* owner,

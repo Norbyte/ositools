@@ -239,8 +239,15 @@ namespace dse::lua
 		uint32_t oldFlags_;
 	};
 
+	enum class EventResult
+	{
+		Successful,
+		Failed,
+		ActionPrevented
+	};
+
 	template <class TEvent>
-	bool ThrowEvent(State& state, char const* eventName, TEvent& evt, bool canPreventAction = false, uint32_t restrictions = 0)
+	EventResult ThrowEvent(State& state, char const* eventName, TEvent& evt, bool canPreventAction = false, uint32_t restrictions = 0)
 	{
 		auto L = state.GetState();
 		auto stackSize = lua_gettop(L);
@@ -250,8 +257,16 @@ namespace dse::lua
 			Restriction restriction(state, restrictions);
 			LifetimePin _p(state.GetStack());
 			PushInternalFunction(L, "_ThrowEvent");
-			EventObject::Make(L, state.GetCurrentLifetime(), eventName, evt, canPreventAction, WriteableEvent{});
-			return CheckedCall(L, 1, "_ThrowEvent");
+			auto luaEvent = EventObject::Make(L, state.GetCurrentLifetime(), eventName, evt, canPreventAction, WriteableEvent{});
+			if (!CheckedCall(L, 1, "_ThrowEvent")) {
+				return EventResult::Failed;
+			}
+
+			if (luaEvent->IsActionPrevented()) {
+				return EventResult::ActionPrevented;
+			} else {
+				return EventResult::Successful;
+			}
 		} catch (Exception &) {
 			auto stackRemaining = lua_gettop(L) - stackSize;
 			if (stackRemaining > 0) {
@@ -261,7 +276,7 @@ namespace dse::lua
 				LuaError("Internal error while dispatching event '" << eventName << "'");
 			}
 
-			return false;
+			return EventResult::Failed;
 		}
 	}
 

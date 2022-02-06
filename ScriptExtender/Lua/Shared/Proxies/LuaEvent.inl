@@ -11,6 +11,17 @@ int EventObject::StopPropagation(lua_State* L)
 	return 0;
 }
 
+int EventObject::PreventAction(lua_State* L)
+{
+	auto self = EventObject::CheckUserData(L, 1);
+	if (self->canPreventAction_) {
+		self->preventedAction_ = true;
+	} else {
+		OsiError("Can't prevent action of type '" << self->GetImpl()->GetType().TypeName.GetString() << "'");
+	}
+	return 0;
+}
+
 int EventObject::Index(lua_State* L)
 {
 	StackCheck _(L, 1);
@@ -33,6 +44,8 @@ int EventObject::Index(lua_State* L)
 		push(L, eventStopped_);
 	} else if (prop == GFS.strStopPropagation) {
 		push(L, &EventObject::StopPropagation);
+	} else if (prop == GFS.strPreventAction) {
+		push(L, &EventObject::PreventAction);
 	} else if (!impl->GetProperty(L, lifetime_.Get(), prop)) {
 		push(L, nullptr);
 	}

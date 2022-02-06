@@ -73,19 +73,21 @@ public:
 	static char const* const MetatableName;
 
 	template <class TParams>
-	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
+	inline static EventObject* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
 		TParams& eventParams, bool canPreventAction, WriteableEvent)
 	{
 		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, true);
-		return new (self->GetImpl()) EventObjectParamsImpl<TParams>(eventParams);
+		new (self->GetImpl()) EventObjectParamsImpl<TParams>(eventParams);
+		return self;
 	}
 
 	template <class TParams>
-	inline static EventObjectParamsImpl<TParams>* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName, 
+	inline static EventObject* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
 		TParams const& eventParams, bool canPreventAction, ReadOnlyEvent)
 	{
 		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, false);
-		return new (self->GetImpl()) EventObjectParamsImpl<TParams>(const_cast<TParams &>(eventParams));
+		new (self->GetImpl()) EventObjectParamsImpl<TParams>(const_cast<TParams &>(eventParams));
+		return self;
 	}
 
 	inline EventObjectParamsImplBase* GetImpl()
@@ -98,6 +100,11 @@ public:
 	inline bool IsAlive() const
 	{
 		return lifetime_.IsAlive();
+	}
+
+	inline bool IsActionPrevented() const
+	{
+		return preventedAction_;
 	}
 
 	template <class TParams>
@@ -119,6 +126,7 @@ private:
 	char const* eventName_;
 	bool canPreventAction_;
 	bool writeable_;
+	bool preventedAction_{ false };
 	bool eventStopped_{ false };
 
 	EventObject(LifetimeHolder const& lifetime, char const* eventName, bool canPreventAction, bool writeable)
@@ -139,6 +147,7 @@ protected:
 	int ToString(lua_State* L);
 	bool IsEqual(lua_State* L, EventObject* other);
 	static int StopPropagation(lua_State* L);
+	static int PreventAction(lua_State* L);
 };
 
 
