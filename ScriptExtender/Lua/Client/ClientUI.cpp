@@ -689,7 +689,7 @@ bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 	auto & invokes = FlashPlayer->Invokes;
 	std::optional<uint32_t> invokeId;
 	for (uint32_t i = 0; i < invokes.size(); i++) {
-		if (strcmp(method.c_str(), invokes[i].Name) == 0) {
+		if (method == invokes[i].Name) {
 			invokeId = i;
 			break;
 		}
@@ -697,11 +697,14 @@ bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 
 	if (!invokeId) {
 		invokeId = FlashPlayer->Invokes.size();
-		FlashPlayer->AddInvokeName(*invokeId, method.c_str());
+		// FlashPlayer keeps the pointer we pass to it, so we need to make sure that the
+		// string buffer won't get reused later on
+		auto invokeName = _strdup(method.c_str());
+		FlashPlayer->AddInvokeName(*invokeId, invokeName);
 	}
 
 	auto numArgs = lua_gettop(L) - 2;
-	Vector<ig::InvokeDataValue> args;
+	Vector<ig::InvokeDataValue> args; 
 	args.resize(numArgs);
 	for (auto i = 0; i < numArgs; i++) {
 		LuaToInvokeDataValue(L, i + 3, args[i]);
@@ -747,11 +750,11 @@ std::optional<ig::InvokeDataValue> UIObject::GetValue(lua_State* L, STDString co
 	ig::InvokeDataValue value;
 	ig::DataType type{ ig::DataType::None };
 	if (typeName) {
-		if (strcmp(typeName->c_str(), "number") == 0) {
+		if (typeName == "number") {
 			type = ig::DataType::Double;
-		} else if (strcmp(typeName->c_str(), "boolean") == 0) {
+		} else if (typeName == "boolean") {
 			type = ig::DataType::Bool;
-		} else if (strcmp(typeName->c_str(), "string") == 0) {
+		} else if (typeName == "string") {
 			type = ig::DataType::String;
 		} else {
 			luaL_error(L, "Unknown value type for Flash fetch: %s", typeName->c_str());
