@@ -715,7 +715,7 @@ end
 
 function TooltipHooks:PrepareRequestForRender(request)
     if request.CharacterHandle ~= nil then
-        request.Character = Ext.GetCharacter(request.CharacterHandle)
+        request.Character = Ext.GetGameObject(request.CharacterHandle)
     end
 
     if request.StatusHandle ~= nil then
