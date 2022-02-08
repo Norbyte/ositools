@@ -619,6 +619,31 @@ namespace dse::esv
 		}
 	}
 
+	int CustomFunctionLibrary::OnInventoryProtocolPostUpdate(ecl::InventoryProtocol::PostUpdateProc* next, ecl::InventoryProtocol* self)
+	{
+		if (self->ItemUpdates.size() > 0x200) {
+			bool gameClientSync = self->ShouldSyncGameClient;
+			self->ShouldSyncGameClient = false;
+
+			auto updates = self->ItemUpdates;
+			uint32_t chunkOffset = 0;
+			while (chunkOffset < updates.size()) {
+				self->ItemUpdates.clear();
+				auto chunkSize = std::min(updates.size() - chunkOffset, (uint32_t)0x100);
+				while (chunkSize--) {
+					self->ItemUpdates.push_back(updates[chunkOffset++]);
+				}
+
+				next(self);
+			}
+
+			self->ShouldSyncGameClient = gameClientSync;
+		}
+
+		next(self);
+		return 0;
+	}
+
 	bool CustomFunctionLibrary::OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self,
 		LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)
 	{

@@ -32,3 +32,4 @@ HOOK_DEFN(esv__LoadProtocol__HandleModuleLoaded, esv__LoadProtocol__HandleModule
 HOOK_DEFN(Module__Hash, Module__Hash, Module::HashProc, WrappableFunction)
 HOOK_DEFN(App__OnInputEvent, App__OnInputEvent, App::VMT::OnInputEventProc, PreHookableFunction)
 HOOK_DEFN(FileReader__ctor, ls__FileReader__ctor, FileReader::CtorProc, WrappableFunction)
+HOOK_DEFN(ecl__InventoryProtocol__PostUpdate, ecl__InventoryProtocol__PostUpdate, ecl::InventoryProtocol::PostUpdateProc, WrappableFunction)

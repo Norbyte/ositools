@@ -244,6 +244,8 @@ namespace dse
 		ecl::LevelManager ** ecl__LevelManager{ nullptr };
 		ecl::InventoryFactory ** ecl__InventoryFactory{ nullptr };
 
+		ecl::InventoryProtocol::PostUpdateProc* ecl__InventoryProtocol__PostUpdate{ nullptr };
+
 		esv::LevelManager ** esv__LevelManager{ nullptr };
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
 

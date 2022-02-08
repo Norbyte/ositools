@@ -80,6 +80,7 @@ namespace dse::esv
 		void OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent);
 		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
 			ModuleSettings& hostModSettings);
+		int OnInventoryProtocolPostUpdate(ecl::InventoryProtocol::PostUpdateProc* next, ecl::InventoryProtocol* self);
 
 	private:
 		OsirisExtender& osiris_;

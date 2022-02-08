@@ -6,6 +6,7 @@
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/Misc.h>
+#include <GameDefinitions/Net.h>
 #include <GameDefinitions/GameObjects/RootTemplates.h>
 
 namespace dse
@@ -358,6 +359,13 @@ namespace dse
 			static bool LuaFallbackSet(lua_State* L, dse::lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop, int index);
 		};
 
+		struct ItemFactory : public NetworkComponentFactory<Item>
+		{
+			void* VMT2;
+			void* VMT3;
+			EntityWorld* EntityWorld;
+		};
+
 
 		struct Inventory : ProtectedGameObject<Inventory>
 		{
@@ -387,5 +395,35 @@ namespace dse
 		struct InventoryFactory : public NetworkComponentFactory<Inventory>
 		{
 		};
+
+		struct InventoryView
+		{
+			void* VMT;
+			FixedString GUID_Unused;
+			NetId NetID;
+			ComponentHandle Handle;
+			NetId ParentNetId_M;
+			ComponentHandle OH1;
+			ObjectSet<NetId> ParentInventories;
+			ObjectSet<ComponentHandle> ItemHandles;
+			Map<NetId, int> ItemNetIdToIndex;
+		};
+
+		struct InventoryProtocol : public net::Protocol
+		{
+			using PostUpdateProc = int (InventoryProtocol* self);
+
+			struct InventoryViewItemUpdate
+			{
+				NetId InventoryNetId;
+				NetId ItemNetId;
+				int Index;
+			};
+
+
+			ObjectSet<InventoryViewItemUpdate> ItemUpdates;
+			bool ShouldSyncGameClient;
+		};
+
 	}
 }

@@ -272,6 +272,9 @@ namespace dse::esv
 		lib.App__OnInputEvent.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnAppInputEvent, this, _1, _2, _3)
 		);
+		lib.ecl__InventoryProtocol__PostUpdate.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnInventoryProtocolPostUpdate, this, _1, _2)
+		);
 
 		loaded_ = true;
 	}

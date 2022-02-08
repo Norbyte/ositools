@@ -1229,5 +1229,19 @@
       @ref E8 ?? ?? ?? ?? // call    esv__EffectManager__CreateEffect
       <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__CreateEffect" />
     </Mapping>
+
+    <Mapping Name="ecl::InventoryProtocol::PostUpdate">
+      @ref 40 53 // push    rbx
+      48 83 EC 60 // sub     rsp, 60h
+      4C 89 74 24 48 // mov     [rsp+68h+var_20], r14
+      48 8B D9 // mov     rbx, rcx
+      45 33 F6 // xor     r14d, r14d
+      44 39 71 24 // cmp     [rcx+24h], r14d
+      0F 86 99 00 00 00 // jbe     loc_141637D34
+      48 89 74 24 58 // mov     [rsp+68h+var_10], rsi
+      4C 89 7C 24 40 // mov     [rsp+68h+var_28], r15
+      45 33 FF // xor     r15d, r15d
+      <Target Type="Absolute" Offset="@ref" Symbol="ecl__InventoryProtocol__PostUpdate" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

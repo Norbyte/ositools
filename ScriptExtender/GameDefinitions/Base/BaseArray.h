@@ -240,6 +240,12 @@ public:
 		size_--;
 	}
 
+	void pop_back()
+	{
+		assert(size_ > 0);
+		buf_[--size_] = T();
+	}
+	
 	void clear()
 	{
 		size_ = 0;
