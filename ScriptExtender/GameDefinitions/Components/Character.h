@@ -127,8 +127,9 @@ namespace dse
 			bool IsLearned;
 			bool ZeroMemory;
 			bool OncePerCombat;
-			bool Unknown2;
+			bool ShouldSyncCooldown;
 			int32_t NumCharges;
+			int32_t MaxCharges;
 			uint64_t Unknown3;
 		};
 
@@ -404,6 +405,34 @@ namespace dse
 		};
 
 
+		struct Skill : public ProtectedGameObject<Skill>
+		{
+			void* VMT;
+			FixedString GUID_Unused;
+			NetId NetID;
+			ComponentHandle Handle;
+			uint32_t Flags;
+			ComponentHandle OwnerHandle;
+			FixedString SkillId;
+			float ActiveCooldown;
+			bool CanActivate;
+			bool IsActivated;
+			bool HasCooldown;
+			bool IsLearned;
+			bool ZeroMemory;
+			int32_t NumCharges;
+			int32_t CauseListSize;
+			int32_t MaxCharges;
+		};
+
+
+		struct SkillManager : public ProtectedGameObject<SkillManager>
+		{
+			void* FreeSkillState;
+			ComponentHandle OwnerHandle;
+			Map<FixedString, Skill*> Skills;
+		};
+
 
 		struct Character : public IEoCClientObject
 		{
@@ -448,7 +477,7 @@ namespace dse
 			void* DialogController;
 			void* CharacterSupervisor;
 			StatusMachine* StatusMachine;
-			void* SkillManager;
+			SkillManager* SkillManager;
 			int field_100;
 			__int64 field_108;
 			void* CharacterBody;
