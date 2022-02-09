@@ -54,10 +54,14 @@ void IScriptCheckObject::Dump(STDString& buf, ScriptOperatorType parentOperator)
 
 	case ScriptCheckType::Variable: {
 		auto self = static_cast<ScriptCheckVariable const*>(this);
-		buf += GetStaticSymbols().GetStats()->ConditionsManager.Variables[self->ConditionId];
-		if (self->Value && self->Value != GFS.strEmpty) {
-			buf += ":";
-			buf += self->Value.GetString();
+		if (self->ConditionId == -1) {
+			buf += "INVALID_CONDITION_ID";
+		} else {
+			buf += GetStaticSymbols().GetStats()->ConditionsManager.Variables[self->ConditionId];
+			if (self->Value && self->Value != GFS.strEmpty) {
+				buf += ":";
+				buf += self->Value.GetString();
+			}
 		}
 		break;
 	}

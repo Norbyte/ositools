@@ -418,14 +418,10 @@ namespace dse::lua
 		s.VisitProperty("Type", v.TypeId);
 		
 		if (s.IsWriting) {
-			if (v.Conditions) {
-				STDString name(v.Name.Str);
-				if (name[name.length() - 1] == ')') {
-					auto ifPos = name.find("_IF(");
-					if (ifPos != std::string::npos) {
-						auto condition = name.substr(ifPos + 4, name.length() - ifPos - 5);
-						setfield(s.L, "Condition", condition);
-					}
+			if (v.Conditions && v.Conditions->ScriptCheckBlock) {
+				auto conditions = v.Conditions->ScriptCheckBlock->Dump();
+				if (!conditions.empty()) {
+					setfield(s.L, "Condition", conditions);
 				}
 			}
 		} else {
