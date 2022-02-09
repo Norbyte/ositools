@@ -422,7 +422,7 @@ namespace dse
 
 
 			ObjectSet<InventoryViewItemUpdate> ItemUpdates;
-			bool ShouldSyncGameClient;
+			net::Message* LockStateSyncMsg;
 		};
 
 	}

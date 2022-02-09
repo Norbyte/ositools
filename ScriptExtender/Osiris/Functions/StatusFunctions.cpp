@@ -622,9 +622,10 @@ namespace dse::esv
 	int CustomFunctionLibrary::OnInventoryProtocolPostUpdate(ecl::InventoryProtocol::PostUpdateProc* next, ecl::InventoryProtocol* self)
 	{
 		if (self->ItemUpdates.size() > 0x200) {
-			bool gameClientSync = self->ShouldSyncGameClient;
-			self->ShouldSyncGameClient = false;
+			auto lockStateSyncMsg = self->LockStateSyncMsg;
+			self->LockStateSyncMsg = nullptr;
 
+			ObjectSet<ecl::InventoryProtocol::InventoryViewItemUpdate> deferredUpdates;
 			auto updates = self->ItemUpdates;
 			uint32_t chunkOffset = 0;
 			while (chunkOffset < updates.size()) {
@@ -635,9 +636,14 @@ namespace dse::esv
 				}
 
 				next(self);
+
+				for (auto const& update : self->ItemUpdates) {
+					deferredUpdates.push_back(update);
+				}
 			}
 
-			self->ShouldSyncGameClient = gameClientSync;
+			self->ItemUpdates = deferredUpdates;
+			self->LockStateSyncMsg = lockStateSyncMsg;
 		}
 
 		next(self);
