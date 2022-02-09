@@ -17,6 +17,18 @@ BEGIN_ENUM(LuaTypeId, uint32_t)
 	EV(Module, 15)
 END_ENUM()
 
+BEGIN_ENUM(ScriptCheckType, uint32_t)
+	EV(Variable, 0)
+	EV(Operator, 1)
+END_ENUM()
+
+BEGIN_BITMASK(ScriptOperatorType, uint32_t)
+	EV(None, 0)
+	EV(And, 1)
+	EV(Or, 2)
+	EV(Not, 4)
+END_ENUM()
+
 BEGIN_ENUM(PathRootType, int)
 	EV(Root, 0)
 	EV(Data, 1)

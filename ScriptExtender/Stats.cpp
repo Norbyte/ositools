@@ -9,7 +9,82 @@
 
 #include <GameDefinitions/StatsObject.inl>
 
+BEGIN_SE()
+
+void IScriptCheckObject::Dump(STDString& buf, ScriptOperatorType parentOperator) const
+{
+	switch (GetType()) {
+	case ScriptCheckType::Operator: {
+		auto self = static_cast<ScriptCheckOperator const*>(this);
+		bool needsBrackets = parentOperator == ScriptOperatorType::Not
+			|| (parentOperator != ScriptOperatorType::None
+				&& parentOperator != self->Type);
+
+		switch (self->Type) {
+		case ScriptOperatorType::And: {
+			if (needsBrackets) buf += "(";
+			if (self->Left) self->Left->Dump(buf, self->Type);
+			buf += "&";
+			if (self->Right) self->Right->Dump(buf, self->Type);
+			if (needsBrackets) buf += ")";
+			break;
+		}
+
+		case ScriptOperatorType::Or: {
+			if (needsBrackets) buf += "(";
+			if (self->Left) self->Left->Dump(buf, self->Type);
+			buf += "|";
+			if (self->Right) self->Right->Dump(buf, self->Type);
+			if (needsBrackets) buf += ")";
+			break;
+		}
+
+		case ScriptOperatorType::Not: {
+			buf += "!";
+			if (self->Left) self->Left->Dump(buf, self->Type);
+			break;
+		}
+
+		default:
+			OsiError("Cannot handle script operator type: " << (unsigned)self->Type);
+			break;
+		}
+		break;
+	}
+
+	case ScriptCheckType::Variable: {
+		auto self = static_cast<ScriptCheckVariable const*>(this);
+		buf += GetStaticSymbols().GetStats()->ConditionsManager.Variables[self->ConditionId];
+		if (self->Value && self->Value != GFS.strEmpty) {
+			buf += ":";
+			buf += self->Value.GetString();
+		}
+		break;
+	}
+
+	default:
+		OsiError("Cannot handle script check type: " << (unsigned)GetType());
+		break;
+	}
+}
+
+STDString IScriptCheckObject::Dump() const
+{
+	STDString buf;
+	Dump(buf, ScriptOperatorType::None);
+	return buf;
+}
+
+END_SE()
+
 BEGIN_NS(stats)
+
+STDString Condition::Dump() const
+{
+	if (!ScriptCheckBlock) return "";
+
+	return ScriptCheckBlock->Dump();
+}
 
 void HitDamageInfo::ClearDamage()
 {
@@ -1035,7 +1110,7 @@ std::optional<StatAttributeFlags> RPGStats::StringToAttributeFlags(const char * 
 	return flags;
 }
 
-void* RPGStats::BuildScriptCheckBlock(STDString const& source)
+IScriptCheckObject* RPGStats::BuildScriptCheckBlock(STDString const& source)
 {
 	auto build = GetStaticSymbols().ls__ScriptCheckBlock__Build;
 	if (!build) {
@@ -1046,7 +1121,7 @@ void* RPGStats::BuildScriptCheckBlock(STDString const& source)
 	return build(source, ConditionsManager.Variables, 0, (int)source.size());
 }
 
-void* RPGStats::BuildScriptCheckBlockFromProperties(STDString const& source)
+IScriptCheckObject* RPGStats::BuildScriptCheckBlockFromProperties(STDString const& source)
 {
 	STDString updated = source;
 	for (size_t i = 0; i < updated.size(); i++) {

@@ -12,6 +12,31 @@ class StatRequirement;
 class StatProperty;
 class StatPropertyList;
 
+struct IScriptCheckObject
+{
+	virtual ~IScriptCheckObject() = 0;
+	virtual ScriptCheckType GetType() const = 0;
+	virtual bool Process() = 0;
+	virtual void ForEachCheckDo(void* unknown) = 0;
+	virtual bool ValidateCondition(int conditionId, int maxConditionId) = 0;
+
+	void Dump(STDString& buf, ScriptOperatorType parentOperator) const;
+	STDString Dump() const;
+};
+
+struct ScriptCheckOperator : public IScriptCheckObject
+{
+	ScriptOperatorType Type;
+	IScriptCheckObject* Left;
+	IScriptCheckObject* Right;
+};
+
+struct ScriptCheckVariable : public IScriptCheckObject
+{
+	int ConditionId;
+	FixedString Value;
+};
+
 END_SE()
 
 BEGIN_NS(stats)
@@ -109,8 +134,10 @@ struct ModifierInfo
 
 struct Condition : public Noncopyable<Modifier>
 {
-	void* ScriptCheckBlock;
+	IScriptCheckObject* ScriptCheckBlock;
 	FixedString Name;
+
+	STDString Dump() const;
 };
 
 template <class T>
@@ -1269,11 +1296,11 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	std::optional<int> EnumLabelToIndex(FixedString const& enumName, char const* enumLabel);
 	FixedString EnumIndexToLabel(FixedString const& enumName, int index);
 	std::optional<StatAttributeFlags> StringToAttributeFlags(const char * value);
-	void* BuildScriptCheckBlock(STDString const& source);
-	void* BuildScriptCheckBlockFromProperties(STDString const& source);
+	IScriptCheckObject* BuildScriptCheckBlock(STDString const& source);
+	IScriptCheckObject* BuildScriptCheckBlockFromProperties(STDString const& source);
 };
 
-typedef void* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);
+typedef IScriptCheckObject* (*ScriptCheckBlock__Build)(STDString const& str, ObjectSet<STDString> const& variables, int offset, int length);
 
 Object * StatFindObject(char const * name, bool warnOnError = false);
 Object * StatFindObject(int index);

@@ -441,9 +441,12 @@ void Object::LuaGetAttributeShared(lua_State* L, FixedString const& attribute, s
 
 	case AttributeType::Conditions:
 	{
-		// FIXME - cache conditions during parsing?
-		OsiError("Conditions property '" << modifier->Modifier->Name << "' is not readable");
-		push(L, nullptr);
+		STDString conditionsText;
+		auto conditions = Conditions.Find(modifier->Modifier->Name);
+		if (conditions) {
+			conditionsText = (*conditions)->Dump();
+		}
+		push(L, conditionsText);
 		break;
 	}
 
