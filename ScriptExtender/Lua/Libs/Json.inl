@@ -232,6 +232,11 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 			}
 			int top2 = lua_gettop(L);
 			lua_pop(L, 1);  /* pop result */
+		} else if (lua_type(L, -2) == LUA_TLIGHTUSERDATA && ctx.StringifyInternalTypes) {
+			auto handle = get<ComponentHandle>(L, -2);
+			char key[100];
+			sprintf_s(key, "%016llx", handle.Handle);
+			arr[key] = val;
 		} else {
 			throw std::runtime_error("Can only stringify string or number table keys");
 		}
