@@ -411,7 +411,7 @@ namespace dse
 			FixedString GUID_Unused;
 			NetId NetID;
 			ComponentHandle Handle;
-			uint32_t Flags;
+			SkillType Type;
 			ComponentHandle OwnerHandle;
 			FixedString SkillId;
 			float ActiveCooldown;
@@ -420,8 +420,8 @@ namespace dse
 			bool HasCooldown;
 			bool IsLearned;
 			bool ZeroMemory;
-			int32_t NumCharges;
 			int32_t CauseListSize;
+			int32_t NumCharges;
 			int32_t MaxCharges;
 		};
 
