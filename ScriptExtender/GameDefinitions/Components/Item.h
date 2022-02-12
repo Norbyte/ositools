@@ -246,39 +246,6 @@ namespace dse
 			ObjectSet<Item*> ItemsUpdatedLastTick;
 		};
 
-
-		struct Inventory : public ProtectedGameObject<Inventory>
-		{
-			static constexpr auto ObjectTypeIndex = ObjectHandleType::ServerInventory;
-
-			typedef void (* Equip)(esv::Inventory * self, uint64_t itemHandle, bool consumeAP, 
-				int16_t requestedItemSlot, bool updateInventoryViews, bool checkRequirements, 
-				bool updateCurrentVitality, bool useWeaponAnimTypeAndSkills);
-
-			void * VMT;
-			FixedString MyGuid;
-			NetId NetID;
-			PrimitiveSet<uint16_t> PeerIdClassNames;
-			ComponentHandle MyHandle;
-			uint8_t EquipmentSlots;
-			ComponentHandle ParentHandle;
-			uint32_t _Pad4;
-			uint32_t WeightValueComputed;
-			bool IsGlobal;
-			bool UnknownFlag;
-			ObjectSet<ComponentHandle> ItemsBySlot;
-			void * Views;
-			ObjectSet<ComponentHandle> UpdateViews;
-			uint64_t Unknown2;
-			RefMap<FixedString, uint32_t> BuyBackAmounts;
-			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
-		};
-
-		struct InventoryFactory : public NetworkComponentFactory<Inventory>
-		{
-			// TODO
-		};
-
 		struct CombineManager : public ProtectedGameObject<CombineManager>
 		{
 			using ExecuteCombinationProc = bool (esv::CombineManager* self, CraftingStationType craftingStation, ObjectSet<ComponentHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
@@ -368,65 +335,5 @@ namespace dse
 			void* VMT3;
 			EntityWorld* EntityWorld;
 		};
-
-
-		struct Inventory : ProtectedGameObject<Inventory>
-		{
-			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientInventory;
-
-			void* VMT;
-			FixedString GUID;
-			NetId NetID;
-			PrimitiveSet<uint16_t> PeerIDClassNames;
-			ComponentHandle OwnerCharacterHandleUI;
-			uint8_t field_40;
-			uint8_t field_41;
-			uint8_t EquipmentSlots;
-			ComponentHandle ParentHandle;
-			int field_50;
-			int field_54;
-			uint8_t Flags;
-			uint8_t field_59;
-			ObjectSet<ComponentHandle> ItemsBySlot;
-			RefMap<int, void*>* Views; // <int, InventoryView*>
-			ObjectSet<ComponentHandle> UpdateViews;
-			RefMap<int, void*>* OfferedAmounts;
-			RefMap<ComponentHandle, void*>* BuyBackAmounts;
-			ObjectSet<ComponentHandle> HandleSet3;
-		};
-
-		struct InventoryFactory : public NetworkComponentFactory<Inventory>
-		{
-		};
-
-		struct InventoryView
-		{
-			void* VMT;
-			FixedString GUID_Unused;
-			NetId NetID;
-			ComponentHandle Handle;
-			NetId ParentNetId_M;
-			ComponentHandle OH1;
-			ObjectSet<NetId> ParentInventories;
-			ObjectSet<ComponentHandle> ItemHandles;
-			Map<NetId, int> ItemNetIdToIndex;
-		};
-
-		struct InventoryProtocol : public net::Protocol
-		{
-			using PostUpdateProc = int (InventoryProtocol* self);
-
-			struct InventoryViewItemUpdate
-			{
-				NetId InventoryNetId;
-				NetId ItemNetId;
-				int Index;
-			};
-
-
-			ObjectSet<InventoryViewItemUpdate> ItemUpdates;
-			net::Message* LockStateSyncMsg;
-		};
-
 	}
 }

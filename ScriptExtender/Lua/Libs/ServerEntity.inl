@@ -164,6 +164,12 @@ IEoCServerObject* GetGameObject(lua_State* L)
 	return LuaGetGameObject(L, 1);
 }
 
+Inventory* GetInventory(ComponentHandle handle)
+{
+	auto factory = *GetStaticSymbols().esv__InventoryFactory;
+	return factory->Get(handle);
+}
+
 Status* GetStatus(lua_State* L)
 {
 	auto lua = State::FromLua(L);
@@ -359,6 +365,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetTrigger)
 	MODULE_FUNCTION(GetGameObject)
+	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetCombat)
 	MODULE_FUNCTION(GetSurface)

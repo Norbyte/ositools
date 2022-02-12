@@ -379,6 +379,9 @@
     <ClInclude Include="Lua\Libs\LibraryRegistrationHelpers.h">
       <Filter>Lua\Libs</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Inventory.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

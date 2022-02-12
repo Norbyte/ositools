@@ -89,6 +89,12 @@ UserReturn GetItem(lua_State* L)
 	return 1;
 }
 
+Inventory* GetInventory(ComponentHandle handle)
+{
+	auto factory = *GetStaticSymbols().ecl__InventoryFactory;
+	return factory->Get(handle);
+}
+
 Status* GetStatus(lua_State* L)
 {
 	auto character = LuaGetCharacter(L, 1);
@@ -148,6 +154,7 @@ void RegisterEntityLib()
 	BEGIN_MODULE()
 	MODULE_FUNCTION(GetCharacter)
 	MODULE_FUNCTION(GetItem)
+	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetGameObject)
 	MODULE_FUNCTION(GetAiGrid)

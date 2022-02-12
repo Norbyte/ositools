@@ -5,6 +5,7 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
+#include <GameDefinitions/Components/Inventory.h>
 #include <GameDefinitions/GameObjects/GameAction.h>
 #include <GameDefinitions/Net.h>
 #include <GameDefinitions/Misc.h>

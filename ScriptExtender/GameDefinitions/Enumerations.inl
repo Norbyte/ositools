@@ -305,7 +305,7 @@ BEGIN_ENUM_NS(ecl, EntityComponentIndex, uint32_t)
 	// Registered from BaseApp::RegisterBaseComponentAndSystemTypes
 	E(Visual)
 	E(Light)
-	E(LightProbe)
+	E(LightProbe) // 10
 	E(Decal)
 	E(Sound)
 	E(PublishingRequest)
@@ -317,13 +317,25 @@ BEGIN_ENUM_NS(ecl, EntityComponentIndex, uint32_t)
 	E(OverviewMap)
 	E(Vignette)
 	E(Note)
-	E(CustomStatDefinition)
+	E(CustomStatDefinition) // 20
 	E(Scenery)
 	E(Item)
 	E(Character)
 	E(Egg)
 	E(Projectile)
-	// ...
+	E(PointTrigger)
+	E(CullTrigger)
+	E(CameraLockTrigger)
+	E(RegionTrigger)
+	E(SecretRegionTrigger) // 30
+	E(SoundVolumeTrigger)
+	E(PointSoundTrigger)
+	E(PointSoundTriggerDummy)
+	E(SpectatorTrigger)
+	E(AtmosphereTrigger)
+	E(AiSeederTrigger)
+	E(PingBeacon)
+	E(EquipmentVisualsComponent)
 END_ENUM_NS()
 
 

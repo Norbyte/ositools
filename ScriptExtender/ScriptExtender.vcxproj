@@ -48,6 +48,7 @@
     <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h" />
     <ClInclude Include="GameDefinitions\Base\ObjectVisitor.h" />
     <ClInclude Include="GameDefinitions\Components\Character.h" />
+    <ClInclude Include="GameDefinitions\Components\Inventory.h" />
     <ClInclude Include="GameDefinitions\Components\Item.h" />
     <ClInclude Include="GameDefinitions\Components\Projectile.h" />
     <ClInclude Include="GameDefinitions\Components\Trigger.h" />
