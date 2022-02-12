@@ -37,7 +37,7 @@ namespace dse
 		struct IggyValuePath
 		{
 			void* Iggy;
-			void* Parent;
+			IggyValuePath* Parent;
 			void* Name;
 			void* Ref;
 			int32_t ArrayIndex;
