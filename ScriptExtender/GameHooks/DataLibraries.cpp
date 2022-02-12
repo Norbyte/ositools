@@ -179,6 +179,12 @@ namespace dse
 		SYM_OFF(ls__UIHelper__UICreateIconMesh);
 		SYM_OFF(ls__UIHelper__CustomDrawObject);
 
+		SYM_OFF(ls__DragDropManager);
+		SYM_OFF(ls__DragDropManager__StartDragString);
+		SYM_OFF(ls__DragDropManager__StartDragHandle);
+		SYM_OFF(ls__DragDropManager__StopDrag);
+		SYM_OFF(ecl__DragDropManager);
+
 		SYM_OFF(TranslatedStringRepository__Instance);
 		SYM_OFF(TranslatedStringRepository__GetInstance);
 		SYM_OFF(TranslatedStringRepository__Get);

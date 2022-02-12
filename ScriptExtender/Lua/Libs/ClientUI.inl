@@ -221,6 +221,11 @@ UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
 	return 1;
 }
 
+dse::DragDropManager* GetDragDrop()
+{
+	return *GetStaticSymbols().ls__DragDropManager;
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -236,6 +241,7 @@ void RegisterUILib()
 	MODULE_FUNCTION(DoubleToHandle)
 	MODULE_FUNCTION(GetCharacterCreationWizard)
 	MODULE_FUNCTION(GetPickingState)
+	MODULE_FUNCTION(GetDragDrop)
 	END_MODULE()
 }
 

@@ -480,7 +480,7 @@ namespace dse
 		bool HasAnchorPos;
 		ComponentHandle UIObjectHandle;
 		int Type;
-		int16_t PlayerId;
+		PlayerId PlayerId;
 
 
 		void LuaSetPosition(int x, int y);
@@ -577,7 +577,38 @@ namespace dse
 
 		UIObject* GetByType(int typeId) const;
 	};
-	
+
+	struct DragController
+	{
+		void* VMT;
+		PlayerId PlayerId;
+	};
+
+	struct DragDropManager
+	{
+		using StartDragStringProc = bool(DragDropManager* self, PlayerId playerId, FixedString const& objectId, bool setupStartDrag, glm::vec2 const& mousePos);
+		using StartDragHandleProc = bool(DragDropManager* self, PlayerId playerId, ComponentHandle const& objectHandle, bool setupStartDrag, glm::vec2 const& mousePos);
+		using StopDragProc = bool (DragDropManager* self, PlayerId playerId);
+
+		struct PlayerDragInfo
+		{
+			ComponentHandle DragObject;
+			EntityHandle DragEgg;
+			FixedString DragId;
+			glm::vec2 MousePos;
+			bool IsDragging;
+			bool IsActive;
+			__int64 field_28;
+			ObjectSet<DragController*> Controllers;
+		};
+
+		RefMap<PlayerId, PlayerDragInfo> PlayerDragDrops;
+
+		bool StopDragging(PlayerId playerId);
+		bool StartDraggingName(PlayerId playerId, FixedString const& objectId);
+		bool StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle);
+	};
+
 	
 	namespace ecl
 	{
@@ -682,7 +713,7 @@ namespace dse
 			void* VMT;
 			PickingHelperBase b;
 			Level* Level;
-			int16_t PlayerId;
+			PlayerId PlayerId;
 			ComponentHandle OH7;
 			ObjectSet<ComponentHandle> OS_OH;
 			void* field_E0;
@@ -698,10 +729,32 @@ namespace dse
 		{
 			void* VMT;
 			void* field_8;
-			RefMap<uint16_t, PickingHelper*> PlayerHelpers;
+			RefMap<PlayerId, PickingHelper*> PlayerHelpers;
 			void* field_20;
 			void* field_28;
 		};
+		
+		struct UIDragController : public DragController
+		{
+			ComponentHandle DragObject;
+			EntityHandle DragEgg;
+			bool IsDragging;
+		};
 
+		struct DragDropManager
+		{
+			struct Controllers
+			{
+				ecl::UIDragController* UIDragController;
+				DragController* WorldDragController;
+				DragController* SkillDragController;
+				DragController* EggDragController;
+				DragController* CharacterDragController;
+			};
+
+			void* VMT;
+			uint64_t field_8;
+			RefMap<PlayerId, Controllers> PlayerControllers;
+		};
 	}
 }

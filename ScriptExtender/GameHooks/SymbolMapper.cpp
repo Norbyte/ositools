@@ -67,7 +67,7 @@ bool Pattern::FromString(std::string_view s)
 		if (*c == '@') {
 			c++;
 			auto anchorStart = c;
-			while (*c && std::isalpha(*c)) c++;
+			while (*c && std::isalnum(*c)) c++;
 			if (c != anchorStart) {
 				anchors_.insert(std::make_pair(std::string(anchorStart, c - anchorStart), (unsigned)pattern_.size()));
 				c++;

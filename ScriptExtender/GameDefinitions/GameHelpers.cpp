@@ -771,6 +771,33 @@ namespace dse
 		return GetStaticSymbols().ecl__EoCUI__vftable->Unknown4(this, a1);
 	}
 
+	bool DragDropManager::StopDragging(PlayerId playerId)
+	{
+		return GetStaticSymbols().ls__DragDropManager__StopDrag(this, playerId);
+	}
+
+	bool DragDropManager::StartDraggingName(PlayerId playerId, FixedString const& objectId)
+	{
+		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.Find(playerId);
+		if (controller && controller->UIDragController) {
+			controller->UIDragController->IsDragging = true;
+		}
+
+		glm::vec2 mousePos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+		return GetStaticSymbols().ls__DragDropManager__StartDragString(this, playerId, objectId, true, mousePos);
+	}
+
+	bool DragDropManager::StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle)
+	{
+		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.Find(playerId);
+		if (controller && controller->UIDragController) {
+			controller->UIDragController->IsDragging = true;
+		}
+
+		glm::vec2 mousePos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+		return GetStaticSymbols().ls__DragDropManager__StartDragHandle(this, playerId, objectHandle, true, mousePos);
+	}
+
 	namespace ecl
 	{
 		EoCUI::EoCUI(dse::Path * path)

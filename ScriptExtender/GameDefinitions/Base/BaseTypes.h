@@ -277,6 +277,7 @@ struct Bound
 	bool IsCenterSet;
 };
 
+using PlayerId = int16_t;
 
 END_SE()
 

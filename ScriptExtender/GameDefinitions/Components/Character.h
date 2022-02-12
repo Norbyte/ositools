@@ -62,7 +62,6 @@ namespace dse
 		};
 	}
 
-	using PlayerId = int16_t;
 	using InputPlayerIndex = uint32_t;
 
 	struct PlayerManager

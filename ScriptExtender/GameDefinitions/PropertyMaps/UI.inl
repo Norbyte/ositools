@@ -60,3 +60,22 @@ END_CLS()
 BEGIN_CLS(ecl::EoCUI)
 INHERIT(UIObject)
 END_CLS()
+
+
+BEGIN_CLS(DragDropManager::PlayerDragInfo)
+P_RO(DragObject)
+// P_RO(DragEgg)
+P_RO(DragId)
+P_RO(MousePos)
+P_RO(IsDragging)
+P_RO(IsActive)
+END_CLS()
+
+
+BEGIN_CLS(DragDropManager)
+P_REF(PlayerDragDrops)
+
+P_FUN(StopDragging, StopDragging)
+P_FUN(StartDraggingName, StartDraggingName)
+P_FUN(StartDraggingObject, StartDraggingObject)
+END_CLS()

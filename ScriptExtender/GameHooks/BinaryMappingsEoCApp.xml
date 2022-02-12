@@ -1243,5 +1243,52 @@
       45 33 FF // xor     r15d, r15d
       <Target Type="Absolute" Offset="@ref" Symbol="ecl__InventoryProtocol__PostUpdate" />
     </Mapping>
+
+    <Mapping Name="ls::DragDropManager">
+      49 83 c0 08 // add     r8, 8
+      @ref1 48 8b 0d 73 96 51 01 // mov     rcx, cs:ls__gDragDropManager
+      0f b7 d7 // movzx   edx, di
+      f2 0f 11 44 24 20 // movsd   [rsp+4D0h+var_4B0], xmm0
+      @ref2 e8 7d 74 e0 ff // call    ls__DragDropManager__StartDragFixedString
+      48 8b 05 7e 96 51 01 // mov     rax, cs:ls__gResourceManager
+      @str1 4c 8d 05 c7 59 cc 00 // lea     r8, aItemGenericPic; "Item_Generic_PickUp"
+      <Condition Type="String" Offset="@str1" Value="Item_Generic_PickUp" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__DragDropManager" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="ls__DragDropManager__StartDragString" />
+    </Mapping>
+
+    <Mapping Name="ls::DragDropManager::StartDragObject">
+      0f b7 d7 // movzx   edx, di
+      f2 0f 11 44 24 20 // movsd   [rsp+68h+var_48], xmm0
+      48 8b cd // mov     rcx, rbp
+      @ref e8 3d 23 b7 ff // call    ls__DragDropManager__StartDragObject
+      f3 0f 10 0d cd fe b5 00 // movss   xmm1, cs:dword_14225C148
+      @str 4c 8d 0d 46 b9 26 01 // lea     r9, fs_TUT_MoveItem_Title
+      <Condition Type="FixedString" Offset="@str" Value="TUT_MoveItem_Title" />
+      <Target Type="Indirect" Offset="@ref" Symbol="ls__DragDropManager__StartDragHandle" />
+    </Mapping>
+
+    <Mapping Name="ls::DragDropManager::StopDragging">
+      0f b7 40 0c // movzx   eax, word ptr [rax+0Ch]
+      48 8b 4d b0 // mov     rcx, [rbp+1D0h+var_220]
+      0f b7 d0 // movzx   edx, ax
+      @ref1 e8 f9 e3 dc ff // call    ls__DragDropManager__StopDragging
+      e9 55 09 00 00 // jmp     loc_1414A0D11
+      @str1 48 8d 15 d5 c5 c8 00 // lea     rdx, aCanceldragging; "cancelDragging"
+      <Condition Type="String" Offset="@str1" Value="cancelDragging" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__DragDropManager__StopDrag" />
+    </Mapping>
+
+    <Mapping Name="ecl::DragDropManager">
+      48 89 6b 08 // mov     [rbx+8], rbp
+      @str1 4c 8d 05 a7 79 b8 00 // lea     r8, aDragdrop; "DragDrop"
+      48 8b 06 // mov     rax, [rsi]
+      ba 01 00 00 00 // mov     edx, 1
+      48 8b ce // mov     rcx, rsi
+      ff 90 80 00 00 00 // call    qword ptr [rax+80h]
+      @ref1 48 8b 05 a7 fe 41 01 // mov     rax, cs:ecl__gDragDropManager
+      <Condition Type="String" Offset="@str1" Value="DragDrop" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__DragDropManager" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

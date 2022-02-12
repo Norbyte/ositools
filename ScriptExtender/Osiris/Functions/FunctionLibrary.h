@@ -61,7 +61,7 @@ namespace dse::esv
 			eoc::Text * text, int paramIndex, FixedString * param, ObjectSet<STDString> * paramSet);
 		void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 		void OnCreateUIObject(UIObjectManager* self, ComponentHandle* handle, unsigned int layerIndex, unsigned int creatorId, UIObjectFlags flags, 
-			uint64_t resourceFlags, uint16_t playerId, ComponentHandle* result);
+			uint64_t resourceFlags, PlayerId playerId, ComponentHandle* result);
 		void OnExecutePropertyDataOnGroundHit(glm::vec3* position, uint64_t casterHandle, stats::DamagePairList* damageList, stats::PropertyList* propertyList,
 			stats::DamageType damageType);
 		void OnExecuteCharacterSetExtraProperties(stats::PropertyList* extraProperties, uint64_t attackerHandle,

@@ -6,6 +6,7 @@
 #include <GameDefinitions/CustomStats.h>
 #include <GameDefinitions/GameObjects/GameAction.h>
 #include <GameDefinitions/Components/Item.h>
+#include <GameDefinitions/Components/Inventory.h>
 #include <GameDefinitions/GameObjects/Level.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
@@ -224,6 +225,12 @@ namespace dse
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };
 		CustomDrawStruct::UICreateIconMesh* ls__UIHelper__UICreateIconMesh{ nullptr };
 		ecl::FlashCustomDrawCallback::CustomDrawObject* ls__UIHelper__CustomDrawObject{ nullptr };
+
+		DragDropManager** ls__DragDropManager{ nullptr };
+		DragDropManager::StartDragStringProc* ls__DragDropManager__StartDragString{ nullptr };
+		DragDropManager::StartDragHandleProc* ls__DragDropManager__StartDragHandle{ nullptr };
+		DragDropManager::StopDragProc* ls__DragDropManager__StopDrag{ nullptr };
+		ecl::DragDropManager** ecl__DragDropManager{ nullptr };
 
 		TranslatedStringRepository ** TranslatedStringRepository__Instance{ nullptr };
 		TranslatedStringRepository::GetInstance TranslatedStringRepository__GetInstance{ nullptr };
