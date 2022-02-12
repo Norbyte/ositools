@@ -333,14 +333,8 @@ ObjectSet<FixedString> FetchStatEntriesBefore(RPGStats* stats, FixedString const
 	return names;
 }
 
-UserReturn GetStats(lua_State * L)
+UserReturn GetStats(lua_State * L, std::optional<FixedString> statType)
 {
-	StackCheck _(L, 1);
-	FixedString statType;
-	if (lua_gettop(L) >= 1 && !lua_isnil(L, 1)) {
-		statType = get<FixedString>(L, 1);
-	}
-		
 	auto stats = GetStaticSymbols().GetStats();
 	if (stats == nullptr) {
 		OsiError("RPGStats not available");
@@ -348,30 +342,32 @@ UserReturn GetStats(lua_State * L)
 		return 1;
 	}
 
-	if (statType == GFS.strDeltaMod) {
+	if (statType && *statType == GFS.strDeltaMod) {
 		FetchDeltaModEntries(L, stats);
 	} else {
 		ObjectSet<FixedString> names;
-		if (statType == GFS.strSkillSet) {
+		if (!statType) {
+			names = FetchStatEntries(stats, FixedString{});
+		} else if (*statType == GFS.strSkillSet) {
 			names = FetchSkillSetEntries(stats);
-		} else if (statType == GFS.strEquipmentSet) {
+		} else if (*statType == GFS.strEquipmentSet) {
 			names = FetchEquipmentSetEntries(stats);
-		} else if (statType == GFS.strTreasureTable) {
+		} else if (*statType == GFS.strTreasureTable) {
 			names = FetchTreasureTableEntries(stats);
-		} else if (statType == GFS.strTreasureCategory) {
+		} else if (*statType == GFS.strTreasureCategory) {
 			names = FetchTreasureCategoryEntries(stats);
-		} else if (statType == GFS.strItemCombination) {
+		} else if (*statType == GFS.strItemCombination) {
 			names = FetchItemComboEntries(stats);
-		} else if (statType == GFS.strItemComboProperty) {
+		} else if (*statType == GFS.strItemComboProperty) {
 			names = FetchItemComboPropertyEntries(stats);
-		} else if (statType == GFS.strCraftingPreviewData) {
+		} else if (*statType == GFS.strCraftingPreviewData) {
 			names = FetchItemComboPreviewDataEntries(stats);
-		} else if (statType == GFS.strItemGroup) {
+		} else if (*statType == GFS.strItemGroup) {
 			names = FetchItemGroupEntries(stats);
-		} else if (statType == GFS.strNameGroup) {
+		} else if (*statType == GFS.strNameGroup) {
 			names = FetchItemNameGroupEntries(stats);
 		} else {
-			names = FetchStatEntries(stats, statType);
+			names = FetchStatEntries(stats, *statType);
 		}
 
 		LuaWrite(L, names);
@@ -399,7 +395,6 @@ ByValReturn<SkillSet> GetSkillSet(char const* skillSetName)
 
 void UpdateSkillSet(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -416,9 +411,8 @@ void UpdateSkillSet(lua_State* L)
 	}
 }
 
-UserReturn GetEquipmentSet(lua_State * L)
+UserReturn GetEquipmentSet(lua_State * L, FixedString const& equipmentSetName)
 {
-	auto equipmentSetName = luaL_checkstring(L, 1);
 	auto stats = GetStaticSymbols().GetStats();
 	auto equipmentSet = stats->EquipmentSetManager->Find(equipmentSetName);
 	return LuaWrite(L, equipmentSet);
@@ -426,7 +420,6 @@ UserReturn GetEquipmentSet(lua_State * L)
 
 void UpdateEquipmentSet(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -443,9 +436,8 @@ void UpdateEquipmentSet(lua_State* L)
 	}
 }
 
-UserReturn GetTreasureTable(lua_State* L)
+UserReturn GetTreasureTable(lua_State* L, FixedString const& tableName)
 {
-	auto tableName = luaL_checkstring(L, 1);
 	auto stats = GetStaticSymbols().GetStats();
 	auto table = stats->TreasureTables.Find(tableName);
 	return LuaWrite(L, table);
@@ -453,7 +445,6 @@ UserReturn GetTreasureTable(lua_State* L)
 
 void UpdateTreasureTable(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -470,18 +461,15 @@ void UpdateTreasureTable(lua_State* L)
 	}
 }
 
-UserReturn GetTreasureCategory(lua_State* L)
+UserReturn GetTreasureCategory(lua_State* L, FixedString const& categoryName)
 {
-	auto categoryName = luaL_checkstring(L, 1);
 	auto const* stats = GetStaticSymbols().GetStats();
 	auto category = stats->TreasureCategories.Find(categoryName);
 	return LuaWrite(L, category);
 }
 
-void UpdateTreasureCategory(lua_State* L)
+void UpdateTreasureCategory(lua_State* L, FixedString const& name)
 {
-	StackCheck _(L);
-	auto name = get<FixedString>(L, 1);
 	luaL_checktype(L, 2, LUA_TTABLE);
 
 	auto stats = GetStaticSymbols().GetStats();
@@ -497,16 +485,14 @@ void UpdateTreasureCategory(lua_State* L)
 	}
 }
 
-UserReturn GetItemCombo(lua_State* L)
+UserReturn GetItemCombo(lua_State* L, FixedString const& comboName)
 {
-	auto comboName = luaL_checkstring(L, 1);
 	auto combo = GetStaticSymbols().GetStats()->ItemCombinationManager->Find(comboName);
 	return LuaWrite(L, combo);
 }
 
 void UpdateItemCombo(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -523,16 +509,14 @@ void UpdateItemCombo(lua_State* L)
 	}
 }
 
-UserReturn GetItemComboPreviewData(lua_State* L)
+UserReturn GetItemComboPreviewData(lua_State* L, FixedString const& comboName)
 {
-	FixedString comboName(luaL_checkstring(L, 1));
 	auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
 	return LuaWrite(L, preview);
 }
 
 void UpdateItemComboPreviewData(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -550,16 +534,14 @@ void UpdateItemComboPreviewData(lua_State* L)
 	}
 }
 
-UserReturn GetItemComboProperty(lua_State* L)
+UserReturn GetItemComboProperty(lua_State* L, FixedString const& propertyName)
 {
-	FixedString propertyName(luaL_checkstring(L, 1));
 	auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
 	return LuaWrite(L, prop);
 }
 
 void UpdateItemComboProperty(lua_State* L)
 {
-	StackCheck _(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
@@ -577,27 +559,22 @@ void UpdateItemComboProperty(lua_State* L)
 	}
 }
 
-UserReturn GetItemGroup(lua_State* L)
+UserReturn GetItemGroup(lua_State* L, FixedString const& name)
 {
-	FixedString name(luaL_checkstring(L, 1));
 	auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
 	return LuaWrite(L, group);
 }
 
 
-UserReturn GetNameGroup(lua_State* L)
+UserReturn GetNameGroup(lua_State* L, FixedString const& name)
 {
-	FixedString name(luaL_checkstring(L, 1));
 	auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
 	return LuaWrite(L, nameGroup);
 }
 
-UserReturn GetAttribute(lua_State * L)
+UserReturn GetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
 	WarnDeprecated56("StatGetAttribute() is deprecated; set properties directly on the stats object instead!");
-
-	auto statName = get<char const*>(L, 1);
-	auto attributeName = get<FixedString>(L, 2);
 
 	auto object = StatFindObject(statName);
 	if (!object) {
@@ -608,12 +585,9 @@ UserReturn GetAttribute(lua_State * L)
 	return object->LuaGetAttributeLegacy(L, attributeName, {});
 }
 
-bool SetAttribute(lua_State * L)
+bool SetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
 	WarnDeprecated56("StatSetAttribute() is deprecated; set properties directly on the stats object instead!");
-
-	auto statName = get<char const*>(L, 1);
-	auto attributeName = get<FixedString>(L, 2);
 
 	auto object = StatFindObject(statName);
 	if (!object) return 0;
@@ -650,11 +624,9 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	(*props)->Properties.Primitives.push_back(customProp);
 }
 
-void SetLevelScaling(lua_State * L)
+void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedString const& modifierName)
 {
 	StackCheck _(L);
-	auto modifierListName = luaL_checkstring(L, 1);
-	auto modifierName = luaL_checkstring(L, 2);
 	luaL_checktype(L, 3, LUA_TFUNCTION);
 
 	auto lua = State::FromLua(L);
@@ -701,22 +673,11 @@ void SetLevelScaling(lua_State * L)
 	lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 }
 
-UserReturn Get(lua_State * L)
+UserReturn Get(lua_State * L, char const* statName, std::optional<int> level, std::optional<bool> warnOnError, std::optional<bool> byRef)
 {
-	StackCheck _(L, 1);
-	auto statName = luaL_checkstring(L, 1);
-	std::optional<int> level;
-	bool warnOnError{ false };
-	if (lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
-		level = (int32_t)luaL_checkinteger(L, 2);
-	}
-	if (lua_gettop(L) >= 3) {
-		warnOnError = get<bool>(L, 3);
-	}
-		
-	auto object = StatFindObject(statName, warnOnError);
+	auto object = StatFindObject(statName, warnOnError.value_or(true));
 	if (object != nullptr) {
-		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, object, State::FromLua(L)->GetCurrentLifetime(), level, true);
+		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, object, State::FromLua(L)->GetCurrentLifetime(), level, !byRef.value_or(false));
 		return 1;
 	} else {
 		push(L, nullptr);
@@ -724,10 +685,10 @@ UserReturn Get(lua_State * L)
 	}
 }
 
-bool CopyStats(Object* obj, char const* copyFrom)
+bool CopyStats(Object* obj, FixedString const& copyFrom)
 {
 	auto stats = GetStaticSymbols().GetStats();
-	auto copyFromObject = stats->Objects.Find(FixedString(copyFrom));
+	auto copyFromObject = stats->Objects.Find(copyFrom);
 	if (copyFromObject == nullptr) {
 		OsiError("Cannot copy stats from nonexistent object: " << copyFrom);
 		return false;
@@ -765,16 +726,8 @@ bool CopyStats(Object* obj, char const* copyFrom)
 	return true;
 }
 
-UserReturn Create(lua_State * L)
+UserReturn Create(lua_State * L, FixedString const& statName, FixedString const& modifierName, std::optional<FixedString> copyFrom, std::optional<bool> byRef)
 {
-	StackCheck _(L, 1);
-	auto statName = luaL_checkstring(L, 1);
-	auto modifierName = luaL_checkstring(L, 2);
-	char const* copyFrom{ nullptr };
-	if (lua_gettop(L) >= 3) {
-		copyFrom = luaL_checkstring(L, 3);
-	}
-
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
 		return luaL_error(L, "Stat functions unavailable during module preload");
@@ -801,21 +754,21 @@ UserReturn Create(lua_State * L)
 		return 1;
 	}
 
-	if (copyFrom != nullptr) {
-		if (!CopyStats(*object, copyFrom)) {
+	if (copyFrom) {
+		if (!CopyStats(*object, *copyFrom)) {
 			push(L, nullptr);
 			return 1;
 		}
 	}
 
-	ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, *object, State::FromLua(L)->GetCurrentLifetime(), -1, true);
+	ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, Object>(L, *object, State::FromLua(L)->GetCurrentLifetime(), -1, !byRef.value_or(false));
 	return 1;
 }
 
-void Sync(char const* statName, std::optional<bool> persist)
+void Sync(FixedString const& statName, std::optional<bool> persist)
 {
 	auto stats = GetStaticSymbols().GetStats();
-	auto object = stats->Objects.Find(FixedString(statName));
+	auto object = stats->Objects.Find(statName);
 	if (!object) {
 		OsiError("Cannot sync nonexistent stat: " << statName);
 		return;
@@ -826,15 +779,15 @@ void Sync(char const* statName, std::optional<bool> persist)
 	if (gExtender->GetServer().IsInServerThread()) {
 		object->BroadcastSyncMessage(false);
 
-		gExtender->GetServer().GetExtensionState().MarkDynamicStat(FixedString(statName));
+		gExtender->GetServer().GetExtensionState().MarkDynamicStat(statName);
 		if (persist && *persist) {
-			gExtender->GetServer().GetExtensionState().MarkPersistentStat(FixedString(statName));
+			gExtender->GetServer().GetExtensionState().MarkPersistentStat(statName);
 		}
 	}
 }
 
 
-void SetPersistence(char const* statName, bool persist)
+void SetPersistence(FixedString const& statName, bool persist)
 {
 	if (!gExtender->GetServer().IsInServerThread()) {
 		OsiError("Can only set persistence in server context");
@@ -842,26 +795,22 @@ void SetPersistence(char const* statName, bool persist)
 	}
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto object = stats->Objects.Find(FixedString(statName));
+	auto object = stats->Objects.Find(statName);
 	if (!object) {
 		OsiError("Cannot set persistence for nonexistent stat: " << statName);
 		return;
 	}
 
 	if (persist) {
-		gExtender->GetServer().GetExtensionState().MarkPersistentStat(FixedString(statName));
+		gExtender->GetServer().GetExtensionState().MarkPersistentStat(statName);
 	} else {
-		gExtender->GetServer().GetExtensionState().UnmarkPersistentStat(FixedString(statName));
+		gExtender->GetServer().GetExtensionState().UnmarkPersistentStat(statName);
 	}
 }
 
 
-UserReturn GetDeltaMod(lua_State* L)
+UserReturn GetDeltaMod(lua_State* L, FixedString const& name, FixedString const& modifierType)
 {
-	StackCheck _(L, 1);
-	auto name = get<char const *>(L, 1);
-	auto modifierType = get<char const*>(L, 2);
-
 	auto stats = GetStaticSymbols().GetStats();
 	if (stats == nullptr) {
 		OsiError("RPGStats not available");
@@ -925,7 +874,7 @@ int TypedEnumIndexToLabel(lua_State* L, T index)
 }
 
 template <class T>
-int TypedEnumLabelToIndex(lua_State* L, char const* label)
+int TypedEnumLabelToIndex(lua_State* L, FixedString const& label)
 {
 	auto index = EnumInfo<T>::Find(label);
 	if (index) {
@@ -954,11 +903,8 @@ if (strcmp(enumName.Str, #T) == 0) { \
 	return TypedEnumIndexToLabel<T>(L, (T)index); \
 }
 
-UserReturn EnumIndexToLabel(lua_State* L)
+UserReturn EnumIndexToLabel(lua_State* L, FixedString const& enumName, int index)
 {
-	auto enumName = get<FixedString>(L, 1);
-	auto index = get<int>(L, 2);
-
 #include <GameDefinitions/Enumerations.inl>
 
 	auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(enumName);
@@ -999,11 +945,8 @@ if (strcmp(enumName.Str, #T) == 0) { \
 }
 
 
-UserReturn EnumLabelToIndex(lua_State* L)
+UserReturn EnumLabelToIndex(lua_State* L, FixedString const& enumName, FixedString const& label)
 {
-	auto enumName = get<FixedString>(L, 1);
-	auto label = get<char const*>(L, 2);
-
 #include <GameDefinitions/Enumerations.inl>
 
 	auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(enumName);
@@ -1040,7 +983,7 @@ UserReturn NewDamageList(lua_State* L)
 	return 1;
 }
 
-void AddVoiceMetaData(char const* speakerGuid, char const* translatedStringKey, char const* source, 
+void AddVoiceMetaData(FixedString const& speakerGuid, FixedString const& translatedStringKey, char const* source,
 	float length, std::optional<int> priority)
 {
 	auto speakerMgr = GetStaticSymbols().eoc__SpeakerManager;
@@ -1049,8 +992,8 @@ void AddVoiceMetaData(char const* speakerGuid, char const* translatedStringKey, 
 		return;
 	}
 
-	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(FixedString(speakerGuid));
-	auto voiceMeta = speaker->Insert(FixedString(translatedStringKey));
+	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(speakerGuid);
+	auto voiceMeta = speaker->Insert(translatedStringKey);
 	voiceMeta->CodecID = 4;
 	voiceMeta->IsRecorded = true;
 	voiceMeta->Length = (float)length;
