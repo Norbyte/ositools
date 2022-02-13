@@ -778,13 +778,8 @@ namespace dse
 
 	bool DragDropManager::StartDraggingName(PlayerId playerId, FixedString const& objectId)
 	{
-		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.Find(playerId);
-		if (controller && controller->UIDragController) {
-			controller->UIDragController->IsDragging = true;
-		}
-
-		glm::vec2 mousePos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-		return GetStaticSymbols().ls__DragDropManager__StartDragString(this, playerId, objectId, true, mousePos);
+		// 0x7F7FFFFF7F7FFFFFull == 2x max float value
+		return GetStaticSymbols().ls__DragDropManager__StartDragString(this, playerId, objectId, true, 0x7F7FFFFF7F7FFFFFull);
 	}
 
 	bool DragDropManager::StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle)
@@ -795,7 +790,7 @@ namespace dse
 		}
 
 		glm::vec2 mousePos(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-		return GetStaticSymbols().ls__DragDropManager__StartDragHandle(this, playerId, objectHandle, true, mousePos);
+		return GetStaticSymbols().ls__DragDropManager__StartDragHandle(this, playerId, objectHandle, true, 0x7F7FFFFF7F7FFFFFull);
 	}
 
 	namespace ecl
