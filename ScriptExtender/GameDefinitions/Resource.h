@@ -82,12 +82,12 @@ struct ResourceManager : public ProtectedGameObject<ResourceManager>
     ResourceBank* ResourceBanks[2];
     void* MeshProxyFactory;
     VisualFactory* VisualFactory;
-    PrimitiveSmallSet<uint32_t> AnimationClassNames; // ObjectSet<TAnimationSimpleNameClassname>
+    PrimitiveSmallSet<FixedString> AnimationPreloadList;
     void* EffectFactory;
     void* VisualTemplateManager;
     void* AnimationTemplateManager;
     void* PhysicsTemplateManager;
-    void* field_60;
+    void* PhysicsInstantiator;
     void* ModelManager;
     void* TextureManager;
     void* TextureCache;
@@ -99,15 +99,15 @@ struct ResourceManager : public ProtectedGameObject<ResourceManager>
     void* AtmosphereManager;
     void* VisualSetManager;
     void* MaterialSetManager;
-    void* field_C0;
+    void* GameStatManager;
     void* ModelProxyManager;
     void* MeshProxyTemplateManager;
-    PrimitiveSmallSet<void*>* PhysicsTemplates;
+    PrimitiveSmallSet<void*>* PhysicsLoadResult; // PhysicsTemplate*
     ObjectSet<void*> ScriptDataLoaderResults; // ObjectSet<ScriptDataLoaderResult*>;
     CRITICAL_SECTION CriticalSection;
-    RefMap<FixedString, void*> field_128;
-    Map<FixedString, Path*> UnknownPaths;
-    ObjectSet<void*> VisualLoaderDescs; // ObjectSet<VisualLoaderDesc>
+    RefMap<FixedString, void*> ResourceDependencies; // <Path, ResourceDependencies*>
+    Map<FixedString, Path*> Sources;
+    ObjectSet<void*> VisualLoaders; // ObjectSet<VisualLoaderDesc>
     Map<FixedString, void*> PhysicsDataLoaders; // Map<FixedString, PhysicsDataLoader*>
     Map<FixedString, void*> ScriptDataLoaders; // Map<FixedString, ScriptDataLoader*>
     Map<FixedString, void*> GenomeAnimationManagers; // Map<FixedString, GenomeManager*>
@@ -115,9 +115,9 @@ struct ResourceManager : public ProtectedGameObject<ResourceManager>
     void* PhysicsObjectManager;
     RefMap<FixedString, void*> field_1C8;
     ObjectSet<FixedString> OS_FS;
-    void* field_1F8;
-    int field_200;
-    char field_204;
+    ig::IggyBinding* FlashBinding;
+    uint32_t ResourceTypesEnabled;
+    bool AllowDeferredLoading;
 };
 
 END_SE()

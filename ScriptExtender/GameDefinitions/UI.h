@@ -311,23 +311,46 @@ namespace dse
 
 		struct IggyBinding
 		{
-			void * VMT_APIeventListener;
+			virtual ~IggyBinding() = 0;
+			virtual void BeginRendering() = 0;
+			virtual void EndRendering() = 0;
+			virtual bool Init(void* gDrawContext) = 0;
+			virtual void CleanupDeadFlashPlayers() = 0;
+			virtual void StartFlashRenderFrame(void* d3d11Renderer) = 0;
+			virtual void EndFlashRenderFrame(void* d3d11Renderer) = 0;
+			virtual void Render(void* d3d11Renderer, void* unknown) = 0;
+			virtual ComponentHandle* GetRenderTargetTextureHandle(ComponentHandle& handle) = 0;
+			virtual void ResizeRenderTarget(void*, void*) = 0;
+			virtual void LoadFlashMovieFromFile(Path const& path, uint32_t* scratchPoolSizes, uint32_t flags, uint32_t* invokePoolSize, uint32_t fontCacheBitmapWidth, uint32_t fontCacheBitmapHeight) = 0;
+			virtual void LoadFlashMovieFromMemory(void* buf, uint64_t bufSize, uint32_t* scratchPoolSizes, uint32_t flags, uint32_t* invokePoolSize, uint32_t fontCacheBitmapWidth, uint32_t fontCacheBitmapHeight) = 0;
+			virtual int64_t LoadLibraryFromFile(char const* libraryName, Path const& flashPath, Path const& resourcePath) = 0;
+			virtual int64_t LoadLibraryFromMemory(char const* libraryName, void* flashBuf, uint64_t flashSize, void* resourceBuf, uint64_t resourceSize) = 0;
+			virtual void DestroyLibrary(int64_t handle) = 0;
+			virtual void DestroyAllLibraries() = 0;
+			virtual bool InstallFont(char const* name, Path const& path, uint8_t flags) = 0;
+			virtual bool SetFallbackFont(char const* name, uint8_t flags) = 0;
+			virtual bool LoadTTFFontLibrary(Path const& path) = 0;
+			virtual void SetSomething(uint64_t unknown) = 0;
+			virtual void* GetFlashWorkerThread() = 0;
+			virtual void RemoveError(int errorCode) = 0;
+			virtual void AddError(int errorCode) = 0;
+
 			CRITICAL_SECTION CriticalSection;
 			void * VMT_FileFormatIO;
 			void * SomeContextPtr;
 			ObjectSet<FlashPlayer *> FlashPlayers;
 			ObjectSet<void *> TextureSubstitutionDestroyCallbacks;
 			void * FlashWorkerThread;
-			DWORD Libraries[15];
-			int RenderFrameViewport[4];
+			std::array<int32_t, 15> Libraries;
+			glm::ivec4 RenderFrameViewport;
 			bool Initialized;
 			bool IsRendering;
 			bool FlashRenderFrameStarted;
 			ComponentHandle RenderTargetTextureHandle;
 			uint64_t field_E0;
 			void * GDraw;
-			ObjectSet<Path> Paths;
-			ObjectSet<STDString> ObjSet_StdString;
+			ObjectSet<Path> FontPaths;
+			ObjectSet<STDString> FontNames;
 			ObjectSet<void *> Fonts;
 			ObjectSet<uint32_t> FlashErrorValues;
 		};
@@ -586,8 +609,8 @@ namespace dse
 
 	struct DragDropManager
 	{
-		using StartDragStringProc = bool(DragDropManager* self, PlayerId playerId, FixedString const& objectId, bool setupStartDrag, glm::vec2 const& mousePos);
-		using StartDragHandleProc = bool(DragDropManager* self, PlayerId playerId, ComponentHandle const& objectHandle, bool setupStartDrag, glm::vec2 const& mousePos);
+		using StartDragStringProc = bool(DragDropManager* self, PlayerId playerId, FixedString const& objectId, bool setupStartDrag, uint64_t mousePos);
+		using StartDragHandleProc = bool(DragDropManager* self, PlayerId playerId, ComponentHandle const& objectHandle, bool setupStartDrag, uint64_t mousePos);
 		using StopDragProc = bool (DragDropManager* self, PlayerId playerId);
 
 		struct PlayerDragInfo

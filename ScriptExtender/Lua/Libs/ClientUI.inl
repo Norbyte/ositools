@@ -226,6 +226,21 @@ dse::DragDropManager* GetDragDrop()
 	return *GetStaticSymbols().ls__DragDropManager;
 }
 
+bool LoadFlashLibrary(STDString const& moduleName, STDString const& path)
+{
+	auto binding = GetStaticSymbols().GetResourceManager()->FlashBinding;
+	Path libPath = GetStaticSymbols().ToPath(path, PathRootType::Data);
+	Path dataPath;
+	auto libraryId = binding->LoadLibraryFromFile(moduleName.c_str(), libPath, dataPath);
+	return libraryId >= 0;
+}
+
+glm::ivec2 GetViewportSize()
+{
+	auto binding = GetStaticSymbols().GetResourceManager()->FlashBinding;
+	return glm::ivec2(binding->RenderFrameViewport.x, binding->RenderFrameViewport.y);
+}
+
 void RegisterUILib()
 {
 	DECLARE_MODULE(UI, Client)
@@ -242,6 +257,8 @@ void RegisterUILib()
 	MODULE_FUNCTION(GetCharacterCreationWizard)
 	MODULE_FUNCTION(GetPickingState)
 	MODULE_FUNCTION(GetDragDrop)
+	MODULE_FUNCTION(LoadFlashLibrary)
+	MODULE_FUNCTION(GetViewportSize)
 	END_MODULE()
 }
 
