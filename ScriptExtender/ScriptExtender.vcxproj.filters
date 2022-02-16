@@ -382,6 +382,9 @@
     <ClInclude Include="GameDefinitions\Components\Inventory.h">
       <Filter>GameDefinitions\Components</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Alignment.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -804,6 +807,9 @@
     </None>
     <None Include="Lua\Libs\ServerEffect.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Alignment.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

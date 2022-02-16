@@ -356,6 +356,10 @@ ObjectSet<FixedString> GetAllTriggerGuids(std::optional<FixedString> levelName)
 	return guids;
 }
 
+AlignmentContainer* GetAlignmentManager()
+{
+	return *GetStaticSymbols().esv__AlignmentContainer;
+}
 
 void RegisterEntityLib()
 {
@@ -372,6 +376,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetCurrentLevelData)
 	MODULE_FUNCTION(GetCurrentLevel)
+	MODULE_FUNCTION(GetAlignmentManager)
 
 	// Level iterator functions
 	// FIXME - need by-ref array return to return object ptrs

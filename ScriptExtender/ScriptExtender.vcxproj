@@ -37,6 +37,7 @@
     <ClInclude Include="Extender\Shared\ScriptExtensions.pb.h" />
     <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h" />
     <ClInclude Include="Extender\Shared\tinyxml2.h" />
+    <ClInclude Include="GameDefinitions\Alignment.h" />
     <ClInclude Include="GameDefinitions\Base\Base.h" />
     <ClInclude Include="GameDefinitions\Base\BaseArray.h" />
     <ClInclude Include="GameDefinitions\Base\BaseMap.h" />
@@ -234,6 +235,7 @@
     <None Include="GameDefinitions\CharacterGetters.inl" />
     <None Include="GameDefinitions\Enumerations.inl" />
     <None Include="GameDefinitions\GlobalFixedStrings.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Alignment.inl" />
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
     <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl" />

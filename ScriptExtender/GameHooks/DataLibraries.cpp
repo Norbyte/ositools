@@ -242,6 +242,7 @@ namespace dse
 		SYM_OFF(Module__Hash);
 		SYM_OFF(esv__LoadProtocol__HandleModuleLoaded);
 
+		SYM_OFF(esv__AlignmentContainer);
 		SYM_OFF(esv__AlignmentContainer__Load__Hook);
 
 		SYM_OFF(IgValuePathMakeNameRef);

@@ -15,6 +15,7 @@
 #include <GameDefinitions/PropertyMaps/Effect.inl>
 #include <GameDefinitions/PropertyMaps/UI.inl>
 #include <GameDefinitions/PropertyMaps/CharacterCreation.inl>
+#include <GameDefinitions/PropertyMaps/Alignment.inl>
 
 
 BEGIN_CLS(TypeInformation)

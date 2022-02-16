@@ -279,6 +279,31 @@ struct Bound
 
 using PlayerId = int16_t;
 
+struct BitMatrix
+{
+	uint32_t* Matrix;
+	int Width;
+	int Height;
+
+	inline bool Get(int x, int y)
+	{
+		auto offset = x + y * Width;
+		return (this->Matrix[offset >> 5] & (1 << (offset & 0x1F))) != 0;
+	}
+
+	inline void Set(int x, int y)
+	{
+		auto offset = x + y * Width;
+		this->Matrix[offset >> 5] |= (1 << (offset & 0x1F));
+	}
+
+	inline void Clear(int x, int y)
+	{
+		auto offset = x + y * Width;
+		this->Matrix[offset >> 5] &= ~(1 << (offset & 0x1F));
+	}
+};
+
 END_SE()
 
 

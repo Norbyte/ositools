@@ -20,6 +20,7 @@
 #include <GameDefinitions/Resource.h>
 #include <GameDefinitions/GameObjects/Effect.h>
 #include <GameDefinitions/GameObjects/CharacterCreation.h>
+#include <GameDefinitions/Alignment.h>
 
 namespace dse
 {
@@ -292,6 +293,7 @@ namespace dse
 		Module::HashProc* Module__Hash{ nullptr };
 		esv::LoadProtocol::HandleModuleLoadedProc* esv__LoadProtocol__HandleModuleLoaded{ nullptr };
 
+		esv::AlignmentContainer** esv__AlignmentContainer{ nullptr };
 		void* esv__AlignmentContainer__Load__Hook{ nullptr };
 
 		ig::ValuePathMakeNameRefProc IgValuePathMakeNameRef{ nullptr };

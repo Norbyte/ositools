@@ -242,6 +242,102 @@ namespace dse
 		return nullptr;
 	}
 
+	bool esv::AlignmentContainer::IsPermanentEnemy(ComponentHandle source, ComponentHandle target)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			return PermanentEnemyMatrix->Get(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+		} else {
+			return false;
+		}
+	}
+
+	bool esv::AlignmentContainer::IsTemporaryEnemy(ComponentHandle source, ComponentHandle target)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			return TemporaryEnemyMatrix->Get(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+		} else {
+			return false;
+		}
+	}
+
+	bool esv::AlignmentContainer::IsAlly(ComponentHandle source, ComponentHandle target)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			return AllyMatrix->Get(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+		} else {
+			return false;
+		}
+	}
+
+	void esv::AlignmentContainer::SetPermanentEnemy(ComponentHandle source, ComponentHandle target, bool enabled)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			if (enabled) {
+				PermanentEnemyMatrix->Set(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			} else {
+				PermanentEnemyMatrix->Clear(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			}
+		}
+	}
+
+	void esv::AlignmentContainer::SetTemporaryEnemy(ComponentHandle source, ComponentHandle target, bool enabled)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			if (enabled) {
+				TemporaryEnemyMatrix->Set(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			} else {
+				TemporaryEnemyMatrix->Clear(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			}
+		}
+	}
+
+	void esv::AlignmentContainer::SetAlly(ComponentHandle source, ComponentHandle target, bool enabled)
+	{
+		auto sourceAlignment = Get(source);
+		auto targetAlignment = Get(target);
+		if (sourceAlignment != nullptr && targetAlignment != nullptr) {
+			if (enabled) {
+				AllyMatrix->Set(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			} else {
+				AllyMatrix->Clear(sourceAlignment->MatrixIndex, targetAlignment->MatrixIndex);
+			}
+		}
+	}
+
+	esv::AlignmentData* esv::AlignmentContainer::LuaGet(lua_State* L)
+	{
+		switch (lua_type(L, 2)) {
+		case LUA_TLIGHTUSERDATA: return Get(lua::get<ComponentHandle>(L, 2));
+		case LUA_TNUMBER: return FindByNetId(NetId((uint32_t)lua_tointeger(L, 2)));
+		case LUA_TSTRING: return FindByGuid(lua::get<FixedString>(L, 2));
+
+		default:
+			OsiError("Expected UUID, Handle or NetId; got " << lua_typename(L, lua_type(L, 2)));
+			return nullptr;
+		}
+	}
+
+	ObjectSet<ComponentHandle> esv::AlignmentContainer::LuaGetAll()
+	{
+		ObjectSet<ComponentHandle> handles;
+		for (auto alignment : Components) {
+			if (alignment != nullptr) {
+				handles.push_back(alignment->Handle);
+			}
+		}
+
+		return handles;
+	}
 
 	void esv::ProxyProjectileHit::Destroy(bool b)
 	{
