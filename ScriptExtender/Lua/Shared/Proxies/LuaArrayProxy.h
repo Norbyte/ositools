@@ -23,6 +23,7 @@ BY_VAL(EntityHandle);
 BY_VAL(FixedString);
 BY_VAL(STDString);
 BY_VAL(STDWString);
+BY_VAL(Guid);
 BY_VAL(Path);
 BY_VAL(NetId);
 BY_VAL(UserId);

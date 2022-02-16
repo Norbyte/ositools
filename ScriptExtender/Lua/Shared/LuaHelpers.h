@@ -180,6 +180,11 @@ namespace dse::lua
 		push(L, ToUTF8(s));
 	}
 
+	inline void push(lua_State* L, Guid const& s)
+	{
+		push(L, s.Print());
+	}
+
 	inline void push(lua_State * L, StringView const& v)
 	{
 		lua_pushlstring(L, v.data(), v.size());
@@ -313,6 +318,17 @@ namespace dse::lua
 	{
 		auto str = luaL_checkstring(L, index);
 		return FromUTF8(str);
+	}
+
+	inline Guid do_get(lua_State* L, int index, Overload<Guid>)
+	{
+		auto str = luaL_checkstring(L, index);
+		auto guid = Guid::ParseGuidString(str);
+		if (!guid) {
+			luaL_error(L, "Param %d: not a valid GUID value: '%s'", str);
+		}
+
+		return *guid;
 	}
 
 	inline ComponentHandle do_get(lua_State* L, int index, Overload<ComponentHandle>)

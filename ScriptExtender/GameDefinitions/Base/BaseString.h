@@ -132,8 +132,8 @@ inline uint64_t Hash(FixedString const& s)
 	return (uint64_t)s.Str;
 }
 
-FixedString NameGuidToFixedString(char const* nameGuid);
-bool IsValidGuidString(const char* s);
+FixedString NameGuidToFixedString(StringView nameGuid);
+bool IsValidGuidString(StringView s);
 FixedString GenerateGuid();
 
 struct GlobalStringTable : public ProtectedGameObject<GlobalStringTable>
@@ -203,6 +203,30 @@ struct TranslatedString
 	RuntimeStringHandle Handle;
 	RuntimeStringHandle ArgumentString;
 };
+
+struct Guid
+{
+	uint64_t Val[2]{ 0 };
+
+	inline bool operator ==(Guid const& o) const
+	{
+		return Val[0] == o.Val[0] && Val[1] == o.Val[1];
+	}
+
+	inline bool operator !=(Guid const& o) const
+	{
+		return Val[0] != o.Val[0] || Val[1] != o.Val[1];
+	}
+
+	STDString Print() const;
+	static std::optional<Guid> Parse(StringView s);
+	static std::optional<Guid> ParseGuidString(StringView nameGuid);
+};
+
+inline uint64_t Hash(Guid const& h)
+{
+	return h.Val[0] + h.Val[1];
+}
 
 END_SE()
 

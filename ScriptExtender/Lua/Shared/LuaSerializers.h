@@ -105,6 +105,7 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, FixedString& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, STDString& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, STDWString& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, Guid& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, Path& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, NetId& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, UserId& v) { return s.Visit(v); }

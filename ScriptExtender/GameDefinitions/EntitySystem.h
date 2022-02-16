@@ -111,7 +111,7 @@ struct IComponentPool : public ProtectedGameObject<IComponentPool>
 template <class TComponent>
 struct NetworkComponentFactory : public ComponentFactory<TComponent>
 {
-	Map<FixedString, TComponent*> ObjectMap;
+	Map<FixedString, TComponent*> Guids;
 	Map<uint16_t, TComponent*> NetIds;
 	Map<uint16_t, TComponent*> FreeNetIdMap;
 	Set<uint32_t> FreeNetIds;
@@ -131,6 +131,18 @@ struct NetworkComponentFactory : public ComponentFactory<TComponent>
 		}
 
 		auto object = NetIds.Find(index);
+		if (object != nullptr) {
+			return *object;
+		} else {
+			return nullptr;
+		}
+	}
+
+	TComponent* FindByGuid(FixedString const& guid) const
+	{
+		if (!guid) return nullptr;
+
+		auto object = Guids.Find(guid);
 		if (object != nullptr) {
 			return *object;
 		} else {
