@@ -148,10 +148,16 @@ Level* GetCurrentLevel()
 	return GetStaticSymbols().GetCurrentClientLevel();
 }
 
+ComponentHandle NullHandle()
+{
+	return ComponentHandle(ComponentHandle::NullHandle);
+}
+
 void RegisterEntityLib()
 {
 	DECLARE_MODULE(Entity, Client)
 	BEGIN_MODULE()
+	MODULE_FUNCTION(NullHandle)
 	MODULE_FUNCTION(GetCharacter)
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetInventory)
