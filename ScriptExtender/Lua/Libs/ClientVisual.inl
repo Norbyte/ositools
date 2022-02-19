@@ -280,12 +280,12 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 	}
 
 	if (boneName) {
-		if (!visual->Skeleton) {
+		if (!parentVisual->Skeleton) {
 			OsiError("Cannot attach to bone - visual has no skeleton!");
 			return nullptr;
 		}
 
-		if (!visual->Skeleton->GetBoneIndexFromName(boneName.GetString(), &boneIndex)) {
+		if (!parentVisual->Skeleton->GetBoneIndexFromName(boneName.GetString(), &boneIndex)) {
 			OsiError("Visual has no such bone: " << boneName);
 			return nullptr;
 		}
