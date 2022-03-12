@@ -49,12 +49,12 @@ UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
 		if (!level || level->AiGrid != this || !level->SurfaceManager) {
 			OsiError("Current level not available yet!");
 		} else {
-			if (groundIdx != -1) {
+			if (groundIdx != AiGridTile::InvalidIndex) {
 				auto surface = level->SurfaceManager->Surfaces[groundIdx];
 				settable(L, "GroundSurface", surface->MyHandle);
 			}
 
-			if (cloudIdx != -1) {
+			if (cloudIdx != AiGridTile::InvalidIndex) {
 				auto surface = level->SurfaceManager->Surfaces[cloudIdx];
 				settable(L, "CloudSurface", surface->MyHandle);
 			}

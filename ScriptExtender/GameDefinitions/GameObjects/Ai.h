@@ -124,21 +124,23 @@ namespace dse::eoc
 
     struct AiSurfaceMetaData
     {
-        int16_t BaseSurfaceIndex;
-        int16_t CloudSurfaceIndex;
+        uint16_t BaseSurfaceIndex;
+        uint16_t CloudSurfaceIndex;
         uint16_t X;
         uint16_t Z;
     };
 
     struct AiGridTile
     {
+        static constexpr uint16_t InvalidIndex = 0xffff;
+
         static constexpr uint64_t BaseSurfaceLayerMask  = 0x01C3C007FF000000ull;
         static constexpr uint64_t CloudSurfaceLayerMask = 0x0E3C3FF800000000ull;
 
         uint64_t AiFlags;
         int16_t Height;
-        int16_t AiMetaDataIndex;
-        int16_t SurfaceIndexAndMeta;
+        uint16_t AiMetaDataIndex;
+        uint16_t SurfaceIndexAndMeta;
         int16_t field_E;
     };
 
@@ -256,7 +258,7 @@ namespace dse::eoc
             return Tiles->Get(cellPos);
         }
 
-        int16_t GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const;
+        uint16_t GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const;
         eoc::AiMetaData* GetAiMetaData(AiGridTile* tile) const;
 
         bool SearchForCell(float x, float z, float radius, ESurfaceFlag flags, float bias);

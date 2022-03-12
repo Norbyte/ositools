@@ -897,13 +897,13 @@ namespace dse
 		}
 	}
 
-	int16_t eoc::AiGrid::GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const
+	uint16_t eoc::AiGrid::GetSurfaceIndex(AiGridTile* tile, uint8_t layer) const
 	{
-		if (tile->SurfaceIndexAndMeta == -1) {
-			return -1;
+		if (tile->SurfaceIndexAndMeta == AiGridTile::InvalidIndex) {
+			return AiGridTile::InvalidIndex;
 		}
 
-		int16_t surfaceIndex = -1;
+		uint16_t surfaceIndex = AiGridTile::InvalidIndex;
 		if (tile->SurfaceIndexAndMeta & 1) {
 			uint64_t layerMask;
 			if (layer == 0) {
@@ -934,7 +934,7 @@ namespace dse
 
 	eoc::AiMetaData* eoc::AiGrid::GetAiMetaData(AiGridTile* tile) const
 	{
-		if (tile->AiMetaDataIndex == -1) {
+		if (tile->AiMetaDataIndex == AiGridTile::InvalidIndex) {
 			return nullptr;
 		}
 
