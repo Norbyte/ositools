@@ -192,16 +192,20 @@ VisualAttachmentFlags ParseVisualAttachFlags(lua_State* L, int index)
 		flags |= VisualAttachmentFlags::InheritAnimations;
 	}
 
+	if (try_gettable<bool>(L, "ParticleSystem", index, false)) {
+		flags |= VisualAttachmentFlags::ParticleSystem;
+	}
+
 	if (try_gettable<bool>(L, "DoNotUpdate", index, false)) {
 		flags |= VisualAttachmentFlags::DoNotUpdate;
 	}
 
-	if (try_gettable<bool>(L, "Equipment", index, false)) {
-		flags |= VisualAttachmentFlags::Equipment;
-	}
-
 	if (try_gettable<bool>(L, "Armor", index, false)) {
 		flags |= VisualAttachmentFlags::Armor;
+	}
+
+	if (try_gettable<bool>(L, "Weapon", index, false)) {
+		flags |= VisualAttachmentFlags::Weapon;
 	}
 
 	if (try_gettable<bool>(L, "Wings", index, false)) {
@@ -214,6 +218,18 @@ VisualAttachmentFlags ParseVisualAttachFlags(lua_State* L, int index)
 
 	if (try_gettable<bool>(L, "Overhead", index, false)) {
 		flags |= VisualAttachmentFlags::Overhead;
+	}
+
+	if (try_gettable<bool>(L, "WeaponFX", index, false)) {
+		flags |= VisualAttachmentFlags::WeaponFX;
+	}
+
+	if (try_gettable<bool>(L, "BonusWeaponFX", index, false)) {
+		flags |= VisualAttachmentFlags::BonusWeaponFX;
+	}
+
+	if (try_gettable<bool>(L, "WeaponOverlayFX", index, false)) {
+		flags |= VisualAttachmentFlags::WeaponOverlayFX;
 	}
 
 	return flags;
