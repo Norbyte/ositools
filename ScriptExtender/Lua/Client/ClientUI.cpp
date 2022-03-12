@@ -663,6 +663,15 @@ void UIObject::LuaSetPosition(int x, int y)
 	SetPos(pos);
 }
 
+std::optional<glm::ivec2> UIObject::LuaGetPosition()
+{
+	if (FlashPlayer) {
+		return FlashPlayer->GetPosition();
+	} else {
+		return {};
+	}
+}
+
 void UIObject::LuaShow()
 {
 	Show();

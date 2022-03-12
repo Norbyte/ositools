@@ -34,6 +34,7 @@ P_RO(UIObjectHandle)
 P_RO(Type)
 P_RO(PlayerId)
 
+P_FUN(GetPosition, LuaGetPosition)
 P_FUN(SetPosition, LuaSetPosition)
 P_FUN(Resize, SetMovieClipSize)
 P_FUN(Show, LuaShow)

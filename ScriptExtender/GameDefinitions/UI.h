@@ -278,7 +278,7 @@ namespace dse
 
 
 			__int64 field_8;
-			glm::ivec2 ExternalSize;
+			glm::ivec2 Position;
 			glm::ivec2 RenderRectangeleSize;
 			glm::ivec2 RenderRectangeleSize2;
 			__int16 field_28;
@@ -507,6 +507,7 @@ namespace dse
 
 
 		void LuaSetPosition(int x, int y);
+		std::optional<glm::ivec2> LuaGetPosition();
 		void LuaShow();
 		void LuaHide();
 		bool LuaInvoke(lua_State* L, STDString const& method);
