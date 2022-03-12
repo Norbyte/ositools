@@ -10,7 +10,7 @@ void ResourceManager::DestroyVisual(ComponentHandle const& handle)
 	if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Visual) {
 		auto del = GetStaticSymbols().ls__VisualFactory__DestroyVisual;
 		del(VisualFactory, handle.Handle);
-	} else if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Visual) {
+	} else if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Effect) {
 		auto mgr = GetStaticSymbols().ls__gEffectsManager;
 		auto del = GetStaticSymbols().ls__EffectsManager__DestroyEffect;
 		del(*mgr, handle);
