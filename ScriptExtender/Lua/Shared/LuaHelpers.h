@@ -500,22 +500,22 @@ namespace dse::lua
 
 	inline glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>)
 	{
-		auto i = lua_absindex(L, index);
+		auto idx = lua_absindex(L, index);
 		glm::mat3 val;
 		luaL_checktype(L, index, LUA_TTABLE);
-		for (auto i = 0; i < 9; i++) {
-			val[i / 3][i % 3] = gettable<float>(L, i + 1, i);
+		for (int i = 0; i < 9; i++) {
+			val[i / 3][i % 3] = gettable<float>(L, i + 1, idx);
 		}
 		return val;
 	}
-
+	
 	inline glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>)
 	{
-		auto i = lua_absindex(L, index);
+		auto idx = lua_absindex(L, index);
 		glm::mat4 val;
 		luaL_checktype(L, index, LUA_TTABLE);
-		for (auto i = 0; i < 16; i++) {
-			val[i / 4][i % 4] = gettable<float>(L, i + 1, i);
+		for (int i = 0; i < 16; i++) {
+			val[i / 4][i % 4] = gettable<float>(L, i + 1, idx);
 		}
 		return val;
 	}
