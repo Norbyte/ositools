@@ -72,6 +72,48 @@ P_REF(Colors)
 END_CLS()
 
 
+BEGIN_CLS(SkillAIConditions)
+P(MinimumHealthPercentage)
+P(MaximumHealthPercentage)
+P(HasNoPhysicalArmor)
+P(HasNoMagicalArmor)
+P(Tags)
+END_CLS()
+
+
+BEGIN_CLS(SkillAIParams)
+P(ScoreModifier)
+P(StartRound)
+P(MinimumImpact)
+P(OnlyCastOnSelf)
+P(AIFlags)
+P_REF(SourceConditions)
+P_REF(TargetConditions)
+P(CasualExplorer)
+P(Classic)
+P(TacticianHardcore)
+P(HonorHardcore)
+END_CLS()
+
+
+BEGIN_CLS(CharacterSkillData)
+P(SkillId)
+P_REF(AIParams)
+END_CLS()
+
+
+BEGIN_CLS(InventoryItemData)
+P(UUID)
+P(TemplateID)
+P(field_10)
+P(ItemName)
+P(Type)
+P(LevelName)
+P(Amount)
+P_REF(AIParams)
+END_CLS()
+
+
 BEGIN_CLS(CharacterTemplate)
 INHERIT(EoCGameObjectTemplate)
 P_REF(CombatComponent)
@@ -112,6 +154,8 @@ P(BloodSurfaceType)
 P(ExplodedResourceID)
 P(ExplosionFX)
 // TODO - Scripts, SkillList, ItemList
+P_REF(SkillList)
+P_REF(ItemList)
 P(VisualSetResourceID)
 P(VisualSetIndices)
 P(TrophyID)

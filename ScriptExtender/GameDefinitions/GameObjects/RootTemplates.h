@@ -214,6 +214,49 @@ namespace dse
         std::array<ObjectSet<uint32_t>, 3> Colors;
     };
 
+    struct SkillAIConditions
+    {
+        int32_t MinimumHealthPercentage;
+        int32_t MaximumHealthPercentage;
+        bool HasNoPhysicalArmor;
+        bool HasNoMagicalArmor;
+        ObjectSet<FixedString> Tags;
+    };
+
+    struct SkillAIParams
+    {
+        float ScoreModifier;
+        int32_t StartRound;
+        int32_t MinimumImpact;
+        bool OnlyCastOnSelf;
+        uint8_t AIFlags; // Enum
+        SkillAIConditions SourceConditions;
+        SkillAIConditions TargetConditions;
+        bool CasualExplorer;
+        bool Classic;
+        bool TacticianHardcore;
+        bool HonorHardcore;
+        uint32_t Unknown;
+    };
+
+    struct CharacterSkillData
+    {
+        FixedString SkillId;
+        SkillAIParams AIParams;
+    };
+
+    struct InventoryItemData
+    {
+        FixedString UUID;
+        FixedString TemplateID;
+        STDString field_10;
+        STDString ItemName;
+        int Type;
+        STDString LevelName;
+        int Amount;
+        SkillAIParams AIParams;
+    };
+
     struct CharacterTemplate : public EoCGameObjectTemplate
     {
         CombatComponentTemplate CombatComponent;
@@ -253,8 +296,8 @@ namespace dse
         OverrideableProperty<FixedString> ExplodedResourceID;
         OverrideableProperty<FixedString> ExplosionFX;
         OverrideableProperty<ObjectSet<void*>> Scripts; // ScriptData*
-        OverrideableProperty<ObjectSet<void*>> SkillList; // eoc::CharacterSkillData
-        OverrideableProperty<ObjectSet<void*>> ItemList; // eoc::InventoryItemData
+        OverrideableProperty<ObjectSet<CharacterSkillData>> SkillList;
+        OverrideableProperty<ObjectSet<InventoryItemData>> ItemList;
         OverrideableProperty<FixedString> VisualSetResourceID;
         OverrideableProperty<uint64_t> VisualSetIndices;
         OverrideableProperty<FixedString> TrophyID;
