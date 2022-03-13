@@ -295,6 +295,53 @@ BEGIN_ENUM_NS(ecl, GameState, uint32_t)
 END_ENUM_NS()
 
 
+BEGIN_ENUM_NS(ecl, EntitySystemIndex, uint32_t)
+	// Registered from App::InitGame
+	EV(AnimationBlueprintSystem, 0)
+	E(ContainerComponentSystem)
+	E(ContainerElementComponent)
+	E(CustomStats)
+	E(GameMaster)
+	E(GMJournalNode)
+	E(Container)
+	E(ContainerElement)
+
+	// Registered from BaseApp::RegisterBaseComponentAndSystemTypes
+	E(VisualSystem)
+	E(LightManager)
+	E(LightProbeManager)
+	E(DecalManager)
+	E(SoundSystem)
+	E(PublishingSystem)
+
+	// Registered from ecl::EoCClient::ConfigureECS
+	E(GrannySystem)
+	E(TurnManager)
+	E(GameActionManager)
+	E(PickingHelperManager)
+	E(SceneryManager)
+	E(CharacterManager)
+	E(GameMasterManager)
+	E(ProjectileManager)
+	E(TriggerManager)
+	E(ItemManager)
+	E(EggManager)
+	E(CustomStatsSystem)
+	E(PhysXScene)
+	E(SurfaceManager)
+	E(AtmosphereManager)
+	E(SeeThroughManager)
+	E(CameraSplineSystem)
+	E(EncounterManager)
+	E(GameMasterCampaignManager)
+	E(MusicManager)
+	E(PingBeaconManager)
+	E(LEDSystem)
+	E(GMJournalSystem)
+	E(EquipmentVisualsSystem)
+END_ENUM_NS()
+
+
 BEGIN_ENUM_NS(ecl, EntityComponentIndex, uint32_t)
 	// Registered from App::InitGame
 	EV(AnimationBlueprint, 0)
@@ -380,6 +427,49 @@ BEGIN_ENUM(ExtComponentType, uint32_t)
 
 	E(Max)
 END_ENUM()
+
+
+BEGIN_ENUM_NS(esv, EntitySystemIndex, uint32_t)
+	// Registered from App::InitGame
+	EV(AnimationBlueprintSystem, 0)
+	E(ContainerComponentSystem)
+	E(ContainerElementComponent)
+	E(CustomStats)
+	E(GameMaster)
+	E(GMJournalNode)
+	E(Container)
+	E(ContainerElement)
+
+	// Registered from BaseApp::RegisterBaseComponentAndSystemTypes
+	E(VisualSystem)
+	E(LightManager)
+	E(LightProbeManager) // 10
+	E(DecalManager)
+	E(SoundSystem)
+	E(PublishingSystem)
+
+	// Registered from esv::EoCServer::ConfigureECS
+	E(TurnManager)
+	E(SightManager)
+	E(GameActionManager)
+	E(SurfaceManager)
+	E(CharacterManager)
+	E(ProjectileManager)
+	E(TriggerManager) // 20
+	E(ItemManager)
+	E(EggManager)
+	E(EffectManager)
+	E(ShroudManager)
+	E(EnvironmentalStatusManager)
+	E(NetEntityManager)
+	E(CustomStatsSystem)
+	E(RewardManager)
+	E(CharacterSplineSystem)
+	E(CameraSplineSystem) // 30
+	E(GameMasterManager)
+	E(GameMasterCampaignManager)
+	E(GMJournalSystem)
+END_ENUM_NS()
 
 
 BEGIN_ENUM_NS(esv, EntityComponentIndex, uint32_t)
@@ -1471,6 +1561,7 @@ BEGIN_BITMASK_NS(esv, CharacterFlags, uint64_t)
 	EV(Floating, 0x400000)
 	EV(SpotSneakers, 0x1000000)
 	EV(Temporary, 0x2000000)
+	EV(CannotMove, 0x4000000)
 	EV(WalkThrough, 0x10000000)
 	EV(CoverAmount, 0x20000000)
 	EV(CanShootThrough, 0x40000000)

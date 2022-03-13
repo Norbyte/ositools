@@ -84,38 +84,12 @@ namespace dse
 
 	namespace esv
 	{
-
-		struct SkillConditions
-		{
-			int32_t MinimumHealthPercentage;
-			int32_t MaximumHealthPercentage;
-			bool HasNoPhysicalArmor;
-			bool HasNoMagicalArmor;
-			ObjectSet<FixedString> Tags;
-		};
-
-		struct SkillInfo
-		{
-			float ScoreModifier;
-			int32_t StartRound;
-			int32_t MinimumImpact;
-			bool OnlyCastOnSelf;
-			uint8_t AIFlags; // Enum
-			SkillConditions SourceConditions;
-			SkillConditions TargetConditions;
-			bool CasualExplorer;
-			bool Classic;
-			bool TacticianHardcore;
-			bool HonorHardcore;
-			uint32_t Unknown;
-		};
-
 		struct Skill : public ProtectedGameObject<Skill>
 		{
 			void * VMT;
 			FixedString UnknownFS;
 			NetId NetID;
-			SkillInfo Info;
+			SkillAIParams AIParams;
 			ObjectSet<ComponentHandle> CauseList;
 			ComponentHandle UnknownHandle;
 			uint32_t Unknown1;
@@ -508,7 +482,7 @@ namespace dse
 			TranslatedString StoryDisplayName;
 			TranslatedString OriginalDisplayName;
 			ComponentHandle TalkingIconEffect;
-			float field_3F0;
+			float AnimationSpeed;
 			int SoundBoneIndex;
 			int field_3F8;
 			int field_3FC;
