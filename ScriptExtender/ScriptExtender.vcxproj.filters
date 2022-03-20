@@ -385,6 +385,9 @@
     <ClInclude Include="GameDefinitions\Alignment.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\AiHelpers.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -810,6 +813,12 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\Alignment.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Ai.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Lua\Libs\ServerAi.inl">
+      <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

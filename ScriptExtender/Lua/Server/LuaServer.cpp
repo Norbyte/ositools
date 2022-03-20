@@ -1085,6 +1085,25 @@ namespace dse::esv::lua
 	}
 
 
+	void ServerState::OnBeforeSortAiActions(ComponentHandle characterHandle, AiRequest* request)
+	{
+		AiRequestSortEventParams params{ characterHandle, request };
+		ThrowEvent(*this, "OnBeforeSortAiActions", params);
+	}
+
+	void ServerState::OnAfterSortAiActions(ComponentHandle characterHandle, AiRequest* request)
+	{
+		AiRequestSortEventParams params{ characterHandle, request };
+		ThrowEvent(*this, "OnAfterSortAiActions", params);
+	}
+
+	void ServerState::OnPeekAiAction(ComponentHandle characterHandle, AiRequest* request, AiActionType actionType, bool isFinished)
+	{
+		AiRequestPeekEventParams params{ characterHandle, request, actionType, isFinished };
+		ThrowEvent(*this, "OnPeekAiAction", params);
+	}
+
+
 	bool ServerState::OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId)
 	{
 		// FIXME - not migrated yet!

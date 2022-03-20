@@ -155,6 +155,18 @@ P_REF(Skill)
 P_REF(Hit)
 END_CLS()
 
+BEGIN_CLS(esv::lua::AiRequestSortEventParams)
+P(CharacterHandle)
+P_REF(Request)
+END_CLS()
+
+BEGIN_CLS(esv::lua::AiRequestPeekEventParams)
+P(CharacterHandle)
+P_REF(Request)
+P(ActionType)
+P(IsFinished)
+END_CLS()
+
 BEGIN_CLS(ecl::lua::GameStateChangeEventParams)
 P_RO(FromState)
 P_RO(ToState)

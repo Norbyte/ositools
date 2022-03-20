@@ -10,6 +10,7 @@
 #include <GameDefinitions/Net.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
+#include <GameDefinitions/GameObjects/AiHelpers.h>
 
 namespace dse::esv
 {
@@ -72,6 +73,9 @@ namespace dse::esv
 		void OnExecutePropertyDataOnPositionOnly(stats::PropertyList* properties, uint64_t attackerHandle,
 			glm::vec3 const* position, float areaRadius, stats::PropertyContext propertyContext, bool isFromItem,
 			stats::SkillPrototype* skillPrototype, stats::HitDamageInfo* damageInfo, float unkn);
+
+		void OnSortAiActions(AiHelpers::SortActionsProc* next, Set<AiAction>* actions);
+		void OnPeekAiAction(AiHelpers* self, Character* character, AiActionType actionType, bool isFinished);
 
 		esv::Item* OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next, stats::TreasureObjectInfo* treasureInfo, int level);
 		bool OnCraftingExecuteCombination(esv::CombineManager::ExecuteCombinationProc* next, esv::CombineManager* self, CraftingStationType craftingStation, 

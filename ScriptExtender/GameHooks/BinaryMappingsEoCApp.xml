@@ -123,7 +123,7 @@
       <Target Type="Indirect" Offset="@ref" Symbol="ls__PathRoots" /> <!-- PathRoots -->
     </Mapping>
 
-    <Mapping Name="esv::GameActionManager::CreateAction" Deferred="true" >
+    <Mapping Name="esv::GameActionManager::CreateAction">
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_GameAction
       ?? 8B ??  // mov     xx, xx
       FF 90 80 00 00 00  // call    qword ptr [rax+80h]
@@ -180,7 +180,7 @@
       <Target Type="Indirect" Offset="@add" Symbol="esv__GameActionManager__AddGameAction" /> <!-- esv::GameActionManager::AddGameAction -->
     </Mapping>
 
-    <Mapping Name="esv::LevelManager Initial" Deferred="true" >
+    <Mapping Name="esv::LevelManager Initial">
       0F 84 ?? 00 00 00  // jz      xxx
       4C 8B 00  // mov     r8, [rax]
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_ForceMove
@@ -199,7 +199,7 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__WallAction__CreateWall" /> <!-- esv::WallAction::CreateWall -->
     </Mapping>
 
-    <Mapping Name="esv::WallAction::CreateWall Initial" Deferred="true" >
+    <Mapping Name="esv::WallAction::CreateWall Initial">
       F3 41 0F 5E C6  // divss   xmm0, xmm14
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_Template1
       49 8B CC  // mov     rcx, r12
@@ -214,7 +214,7 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__TornadoAction__Setup" /> <!-- esv::TornadoAction::Setup -->
     </Mapping>
 
-    <Mapping Name="esv::TornadoAction::Setup Initial" Deferred="true" >
+    <Mapping Name="esv::TornadoAction::Setup Initial">
       EB ??  // jmp     short xxx
       48 8B 00  // mov     rax, [rax]
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_RandomPoints
@@ -234,7 +234,7 @@
       <Target Type="Indirect" Offset="@func" Symbol="esv__SummonHelpers__Summon" /> <!-- esv::SummonHelpers::Summon -->
     </Mapping>
 
-    <Mapping Name="esv::SummonHelpers::Summon Initial" Deferred="true" >
+    <Mapping Name="esv::SummonHelpers::Summon Initial">
       44 0F 28 94 24 90 01 00 00  // movaps  xmm10, [rsp+220h+var_90]
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_SpawnObject
       49 8B CC  // mov     rcx, r12
@@ -250,7 +250,7 @@
       <Target Type="Indirect" Offset="@func" Symbol="esv__StatusMachine__ApplyStatus" /> <!-- esv::StatusMachine::ApplyStatus -->
     </Mapping>
 
-    <Mapping Name="esv::StatusMachine::CreateStatus" Deferred="true" >
+    <Mapping Name="esv::StatusMachine::CreateStatus">
       83 7A 1C 00  // cmp     dword ptr [rdx+1Ch], 0
       48 8B F2  // mov     rsi, rdx
       4C 8B F1  // mov     r14, rcx
@@ -267,7 +267,7 @@
       <Target Type="Absolute" Offset="55" NextSymbol="esv::StatusMachine::ApplyStatus" NextSymbolSeekSize="0x100" /> <!-- esv::StatusMachine::ApplyStatus -->
     </Mapping>
 
-    <Mapping Name="esv::StatusHit::__vftable Initial" Deferred="true" >
+    <Mapping Name="esv::StatusHit::__vftable Initial">
       4C 8D 0D ?? ?? ?? ??  // lea     r9, fsx_Dummy_BodyFX
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
       E8 ?? ?? ?? ??  // call    esv__EffectFactory__CreateEffectWrapper
@@ -289,7 +289,7 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__StatusHit__Setup" /> <!-- esv::StatusHit::Setup -->
     </Mapping>
 
-    <Mapping Name="esv::StatusHeal::__vftable Initial" Deferred="true" >
+    <Mapping Name="esv::StatusHeal::__vftable Initial">
       45 33 C9  // xor     r9d, r9d
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_TargetDependentHeal
       48 8B CB  // mov     rcx, rbx
@@ -537,7 +537,7 @@
       <Target Type="Indirect" Offset="@func" Symbol="esv__Character__Hit" NextSymbol="Character::_HitInternal" NextSymbolSeekSize="0x280" />
     </Mapping>
 
-    <Mapping Name="esv::Character::Hit" Deferred="true" >
+    <Mapping Name="esv::Character::Hit">
       74 74  // jz      short loc_141A3EED4
       48 8B 00  // mov     rax, [rax]
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_DamageItems
@@ -590,7 +590,7 @@
       <Target Type="Absolute" Offset="0" Symbol="SkillPrototype__FormatDescriptionParam" /> <!-- eoc::SkillPrototype::FormatDescriptionParam2 -->
     </Mapping>
 
-    <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam Initial" Deferred="true" >
+    <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam Initial">
       48 83 CF FF  // or      rdi, 0FFFFFFFFFFFFFFFFh
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_Damage_Multiplier
       44 8B C7  // mov     r8d, edi
@@ -601,7 +601,7 @@
       <Target Type="Absolute" Offset="-0x200" NextSymbol="eoc::SkillPrototype::FormatDescriptionParam" NextSymbolSeekSize="0x200" /> <!-- eoc::SkillPrototype::FormatDescriptionParam -->
     </Mapping>
 
-    <Mapping Name="eoc::SkillPrototype::GetSkillDamage Initial" Deferred="true" >
+    <Mapping Name="eoc::SkillPrototype::GetSkillDamage Initial">
       0F 84 4D 06 00 00  // jz      loc_xxx
       4C 8B 00  // mov     r8, [rax]
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_Damage_Multiplier
@@ -617,7 +617,7 @@
       <Target Type="Absolute" Offset="0" Symbol="StatusPrototype__FormatDescriptionParam" /> <!-- eoc::StatusPrototype::FormatDescriptionParam2 -->
     </Mapping>
 
-    <Mapping Name="eoc::StatusPrototype::FormatDescriptionParam Initial" Deferred="true" >
+    <Mapping Name="eoc::StatusPrototype::FormatDescriptionParam Initial">
       49 89 7B C8  // mov     [r11-38h], rdi
       0F 85 B5 00 00 00  // jnz     loc_xxx
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_DamageStats
@@ -626,7 +626,7 @@
       <Target Type="Absolute" Offset="-0x100" NextSymbol="eoc::StatusPrototype::FormatDescriptionParam" NextSymbolSeekSize="0x100" /> <!-- eoc::StatusPrototype::FormatDescriptionParam -->
     </Mapping>
 
-    <Mapping Name="esv::EoCServer" Deferred="true" >
+    <Mapping Name="esv::EoCServer">
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_CurrentCellCount
       48 8B CB  // mov     rcx, rbx
       FF 90 90 01 00 00  // call    qword ptr [rax+190h]
@@ -647,7 +647,7 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__TurnManager__UpdateTurnOrder" /> <!-- esv::TurnManager::UpdateTurnOrder -->
     </Mapping>
 
-    <Mapping Name="GlobalSwitches" Deferred="true" >
+    <Mapping Name="GlobalSwitches">
       48 83 EC 20  // sub     rsp, 20h
       @switches 48 8B 05 ?? ?? ?? ??  // mov     rax, cs:gGlobalSwitches
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_UseLevelCache
@@ -809,7 +809,7 @@
       <Target Type="Indirect" Offset="@get" Symbol="TranslatedStringRepository__Get" /> <!-- ls::TranslatedStringRepository::Get -->
     </Mapping>
 
-    <Mapping Name="ls::TranslatedStringKeyManager::GetTranlatedStringFromKey" Deferred="true" >
+    <Mapping Name="ls::TranslatedStringKeyManager::GetTranlatedStringFromKey">
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_DisplayName
       48 8B CB  // mov     rcx, rbx
       E8 ?? ?? ?? ??  // call    sub_141C6E690
@@ -842,7 +842,7 @@
       <Target Type="Indirect" Offset="@func" Symbol="ls__ScriptCheckBlock__Build" /> <!-- ls::ScriptCheckBlock::Build -->
     </Mapping>
 
-    <Mapping Name="esv::OsirisVariableHelper::SavegameVisit" Deferred="true" Critical="true" >
+    <Mapping Name="esv::OsirisVariableHelper::SavegameVisit" Critical="true" >
       48 89 5C 24 18  // mov     [rsp+arg_10], rbx
       48 89 6C 24 20  // mov     [rsp+arg_18], rbp
       57  // push    rdi
@@ -1045,7 +1045,7 @@
       <Target Type="Indirect" Offset="@vmt" Symbol="ls__CustomDrawStruct__VMT" /> <!-- ls::CustomDrawStruct::VMT -->
     </Mapping>
 
-    <Mapping Name="ls::UIHelper::UICreateIconMesh" Deferred="true" >
+    <Mapping Name="ls::UIHelper::UICreateIconMesh">
       @str 48 8D 0D ?? ?? ?? ??  // lea     rcx, GEFS__strUIBaseMaterialUUID
       48 89 4C 24 20  // mov     [rsp+38h+var_18], rcx
       49 8B CA  // mov     rcx, r10
@@ -1302,6 +1302,52 @@
       @ref1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:ecl__gDragDropManager
       <Condition Type="String" Offset="@str1" Value="DragDrop" />
       <Target Type="Indirect" Offset="@ref1" Symbol="ecl__DragDropManager" />
+    </Mapping>
+
+    <Mapping Name="esv::AiHelpers" Scope="Custom">
+      ff 50 08 // call    qword ptr [rax+8]
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gAiModifiers
+      49 8b d6 // mov     rdx, r14
+      e8 ?? ?? ?? ?? // call    eoc__AiModifiers__Init
+      @ref2 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gAiHelpers
+      48 8b 89 98 00 00 00 // mov     rcx, [rcx+98h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__gAiModifiers" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__gAiHelpers" />
+    </Mapping>
+
+    <Mapping Name="esv::AiHelpers start">
+      80 78 59 00 // cmp     byte ptr [rax+59h], 0
+      0f 84 56 01 00 00 // jz      xxx
+      ba 04 00 00 00 // mov     edx, 4
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aClientinitLsx; "clientInit.lsx"
+      <Condition Type="String" Offset="@str1" Value="clientInit.lsx" />
+      <Target Type="Absolute" Offset="-0x80" NextSymbol="esv::AiHelpers" NextSymbolSeekSize="0x80" />
+    </Mapping>
+
+    <Mapping Name="esv::AiHelpers::PeekAction">
+      41 b1 01 // mov     r9b, 1; a4
+      48 8b fa // mov     rdi, rdx
+      48 8b f1 // mov     rsi, rcx
+      @ref1 e8 ?? ?? ?? ?? // call    esv__AiHelpers__PeekAction
+      48 8b d8 // mov     rbx, rax
+      48 85 c0 // test    rax, rax
+      74 40 // jz      short loc_1418CD925
+      4c 8b 05 ?? ?? ?? ?? // mov     r8, cs:ls__ObjectHandle__Unassigned
+      4c 39 80 b8 00 00 00 // cmp     [rax+0B8h], r8
+      74 0f // jz      short loc_1418CD904
+      48 8b 90 b8 00 00 00 // mov     rdx, [rax+0B8h]
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__AiHelpers__PeekAction" />
+    </Mapping>
+
+    <Mapping Name="esv::SortAiActions">
+      f3 0f 5d f0 // minss   xmm6, xmm0
+      49 8d 4c 24 10 // lea     rcx, [r12+10h]
+      f3 0f 11 b3 a0 00 00 00 // movss   dword ptr [rbx+0A0h], xmm6
+      f3 0f 11 b3 c0 00 00 00 // movss   dword ptr [rbx+0C0h], xmm6
+      @ref1 e8 ?? ?? ?? ?? // call    esv__SortAiActions
+      48 8d 4d b8 // lea     rcx, [rbp+370h+PerformanceCount]
+      45 89 6c 24 48 // mov     [r12+48h], r13d
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__AiHelpers__SortActions" />
     </Mapping>
   </Mappings>
 </BinaryMappings>

@@ -17,6 +17,8 @@ HOOK_DEFN(esv__ExecutePropertyDataOnGroundHit, esv__ExecutePropertyDataOnGroundH
 HOOK_DEFN(esv__ExecutePropertyDataOnPositionOnly, esv__ExecutePropertyDataOnPositionOnly, esv::ExecutePropertyDataOnPositionOnlyProc, PostHookableFunction)
 HOOK_DEFN(esv__ExecuteCharacterSetExtraProperties, esv__ExecuteCharacterSetExtraProperties, esv::ExecuteCharacterSetExtraPropertiesProc, PostHookableFunction)
 
+HOOK_DEFN(esv__AiHelpers__PeekAction, esv__AiHelpers__PeekAction, esv::AiHelpers::PeekActionProc, PreHookableFunction)
+HOOK_DEFN(esv__AiHelpers__SortActions, esv__AiHelpers__SortActions, esv::AiHelpers::SortActionsProc, WrappableFunction)
 
 HOOK_DEFN(esv__TurnManager__UpdateTurnOrder, esv__TurnManager__UpdateTurnOrder, esv::TurnManager::UpdateTurnOrderProc, PostHookableFunction)
 

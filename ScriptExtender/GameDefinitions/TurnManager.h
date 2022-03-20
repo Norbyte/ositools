@@ -182,9 +182,9 @@ namespace dse
 
 			void * VMT;
 			BaseComponentProcessingSystem<EntityWorld> Base;
-			ObjectSet<ComponentHandleWithType> ComponentHandleSet;
-			ObjectSet<ComponentHandle> EntityHandleSet;
-			ObjectSet<ComponentHandle> EntityHandleSet2;
+			ObjectSet<ComponentHandleWithType> AttachedCombatComponents;
+			ObjectSet<EntityHandle> CombatEntities;
+			ObjectSet<EntityHandle> CombatEntities2;
 			ObjectSet<EntityWrapper> EntityWrapperSet;
 			ObjectSet<ComponentHandle> EntitesLeftCombatHandleSet;
 			int TeamMode;

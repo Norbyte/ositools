@@ -3,6 +3,7 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/GameObjects/Ai.h>
+#include <GameDefinitions/GameObjects/AiHelpers.h>
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Surface.h>

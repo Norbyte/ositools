@@ -575,6 +575,50 @@ namespace dse::esv
 	}
 
 
+	void CustomFunctionLibrary::OnSortAiActions(AiHelpers::SortActionsProc* next, Set<AiAction>* actions)
+	{
+		AiRequest* currentRequest{ nullptr };
+		ComponentHandle characterHandle;
+		for (auto const& request : (*GetStaticSymbols().esv__gAiHelpers)->CharacterAiRequests) {
+			if (!request.Value->AiActions.empty()
+				&& request.Value->AiActions.begin().get() == actions->begin().get()) {
+				characterHandle = request.Key;
+				currentRequest = request.Value;
+				break;
+			}
+		}
+
+		if (currentRequest) {
+			esv::LuaServerPin lua(esv::ExtensionState::Get());
+			if (lua) {
+				lua->OnBeforeSortAiActions(characterHandle, currentRequest);
+			}
+		}
+
+		next(actions);
+
+		if (currentRequest) {
+			esv::LuaServerPin lua(esv::ExtensionState::Get());
+			if (lua) {
+				lua->OnAfterSortAiActions(characterHandle, currentRequest);
+			}
+		}
+	}
+
+
+	void CustomFunctionLibrary::OnPeekAiAction(AiHelpers* self, Character* character, AiActionType actionType, bool isFinished)
+	{
+		auto characterHandle = character->Base.Component.Handle;
+		auto request = (*GetStaticSymbols().esv__gAiHelpers)->CharacterAiRequests.Find(characterHandle);
+		if (request == nullptr || (*request)->IsCalculating) return;
+
+		esv::LuaServerPin lua(esv::ExtensionState::Get());
+		if (lua) {
+			lua->OnPeekAiAction(characterHandle, *request, actionType, isFinished);
+		}
+	}
+
+
 	esv::Item* CustomFunctionLibrary::OnGenerateTreasureItem(esv::ItemHelpers__GenerateTreasureItem* next,
 		stats::TreasureObjectInfo* treasureInfo, int level)
 	{

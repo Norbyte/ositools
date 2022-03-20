@@ -51,6 +51,8 @@ struct AppliedMaterial;
 
 struct EoCSoundManager;
 
+struct SkillAIParams;
+
 namespace stats
 {
 	struct RPGStats;
@@ -117,6 +119,11 @@ namespace esv
 
 	struct PendingHit;
 	class ExtensionState;
+
+	struct AiModifiers;
+	struct AiHelpers;
+	struct AiRequest;
+	struct AiAction;
 }
 
 

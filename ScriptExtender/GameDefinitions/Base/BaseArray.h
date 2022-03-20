@@ -25,22 +25,27 @@ public:
 		return *this;
 	}
 
-	bool operator == (ContiguousIterator const& it)
+	bool operator == (ContiguousIterator const& it) const
 	{
 		return it.ptr_ == ptr_;
 	}
 
-	bool operator != (ContiguousIterator const& it)
+	bool operator != (ContiguousIterator const& it) const
 	{
 		return it.ptr_ != ptr_;
 	}
 
-	T& operator * ()
+	T& operator * () const
 	{
 		return *ptr_;
 	}
 
-	T* operator -> ()
+	T* operator -> () const
+	{
+		return ptr_;
+	}
+
+	T* get () const
 	{
 		return ptr_;
 	}
@@ -69,22 +74,27 @@ public:
 		return *this;
 	}
 
-	bool operator == (ContiguousConstIterator const& it)
+	bool operator == (ContiguousConstIterator const& it) const
 	{
 		return it.ptr_ == ptr_;
 	}
 
-	bool operator != (ContiguousConstIterator const& it)
+	bool operator != (ContiguousConstIterator const& it) const
 	{
 		return it.ptr_ != ptr_;
 	}
 
-	T const& operator * ()
+	T const& operator * () const
 	{
 		return *ptr_;
 	}
 
-	T const* operator -> ()
+	T const* operator -> () const
+	{
+		return ptr_;
+	}
+
+	T const* get() const
 	{
 		return ptr_;
 	}

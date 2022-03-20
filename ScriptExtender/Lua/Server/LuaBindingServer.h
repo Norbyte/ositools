@@ -249,6 +249,20 @@ struct ExecutePropertyDataOnTargetEventParams
 	stats::HitDamageInfo const* Hit;
 };
 
+struct AiRequestSortEventParams
+{
+	ComponentHandle CharacterHandle;
+	AiRequest* Request;
+};
+
+struct AiRequestPeekEventParams
+{
+	ComponentHandle CharacterHandle;
+	AiRequest* Request;
+	AiActionType ActionType;
+	bool IsFinished;
+};
+
 struct ExecutePropertyDataOnPositionEventParams
 {
 	stats::PropertyExtender* Property;
@@ -343,6 +357,10 @@ public:
 	void OnShootProjectile(Projectile* projectile);
 	void OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position);
 	void OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, stats::DamagePairList* damageList);
+
+	void OnBeforeSortAiActions(ComponentHandle characterHandle, AiRequest* request);
+	void OnAfterSortAiActions(ComponentHandle characterHandle, AiRequest* request);
+	void OnPeekAiAction(ComponentHandle characterHandle, AiRequest* request, AiActionType actionType, bool isFinished);
 
 	void ExecutePropertyDataOnTarget(stats::PropertyExtender* prop, ComponentHandle attackerHandle,
 		ComponentHandle target, glm::vec3 const& impactOrigin, bool isFromItem, stats::SkillPrototype* skillProto,

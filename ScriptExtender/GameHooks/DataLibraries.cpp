@@ -128,6 +128,9 @@ namespace dse
 		SYM_OFF(esv__ExecutePropertyDataOnPositionOnly);
 		SYM_OFF(esv__ExecuteCharacterSetExtraProperties);
 
+		SYM_OFF(esv__AiHelpers__PeekAction);
+		SYM_OFF(esv__AiHelpers__SortActions);
+
 		SYM_OFF(esv__Character__Hit);
 		SYM_OFF(esv__Character__ApplyDamage);
 		SYM_OFF(CDivinityStats_Character__HitInternal);
@@ -208,6 +211,9 @@ namespace dse
 
 		SYM_OFF(esv__LevelManager);
 		SYM_OFF(esv__InventoryFactory);
+
+		SYM_OFF(esv__gAiModifiers);
+		SYM_OFF(esv__gAiHelpers);
 
 		SYM_OFF(ls__GlobalTemplateManager);
 		SYM_OFF(esv__CacheTemplateManager);

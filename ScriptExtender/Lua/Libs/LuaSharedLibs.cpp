@@ -16,6 +16,7 @@
 #include <Lua/Libs/ClientVisual.inl>
 #include <Lua/Libs/ClientEntity.inl>
 #include <Lua/Libs/Server.inl>
+#include <Lua/Libs/ServerAi.inl>
 #include <Lua/Libs/ServerOsiris.inl>
 #include <Lua/Libs/ServerNet.inl>
 #include <Lua/Libs/ServerCustomStats.inl>
@@ -48,6 +49,7 @@ BEGIN_NS(esv::lua)
 void RegisterServerLibraries()
 {
 	server::RegisterServerLib();
+	ai::RegisterAiLib();
 	osiris::RegisterOsirisLib();
 	net::RegisterNetLib();
 	stats::RegisterCustomStatLib();

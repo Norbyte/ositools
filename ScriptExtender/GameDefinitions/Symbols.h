@@ -21,6 +21,7 @@
 #include <GameDefinitions/GameObjects/Effect.h>
 #include <GameDefinitions/GameObjects/CharacterCreation.h>
 #include <GameDefinitions/Alignment.h>
+#include <GameDefinitions/GameObjects/AiHelpers.h>
 
 namespace dse
 {
@@ -256,6 +257,12 @@ namespace dse
 
 		esv::LevelManager ** esv__LevelManager{ nullptr };
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
+
+		esv::AiModifiers ** esv__gAiModifiers{ nullptr };
+		esv::AiHelpers ** esv__gAiHelpers{ nullptr };
+
+		esv::AiHelpers::PeekActionProc* esv__AiHelpers__PeekAction{ nullptr };
+		esv::AiHelpers::SortActionsProc* esv__AiHelpers__SortActions{ nullptr };
 
 		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
 		GlobalCacheTemplateManager** esv__CacheTemplateManager{ nullptr };

@@ -263,6 +263,12 @@ namespace dse::esv
 		lib.esv__ExecuteCharacterSetExtraProperties.SetPostHook(
 			std::bind(&CustomFunctionLibrary::OnExecuteCharacterSetExtraProperties, this, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
 		);
+		lib.esv__AiHelpers__SortActions.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnSortAiActions, this, _1, _2)
+		);
+		lib.esv__AiHelpers__PeekAction.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnPeekAiAction, this, _1, _2, _3, _4)
+		);
 		GetStaticSymbols().CharStatsGetters.WrapperHitChance.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnGetHitChance, this, _1, _2, _3)
 		);

@@ -3,6 +3,7 @@
 #include <GameHooks/Wrappers.h>
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/GameObjects/Status.h>
+#include <GameDefinitions/GameObjects/AiHelpers.h>
 
 BEGIN_SE()
 

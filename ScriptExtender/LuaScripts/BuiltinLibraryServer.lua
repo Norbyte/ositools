@@ -19,7 +19,10 @@ _I._PublishedEvents = {
 	"ProjectileHit",
 	"GroundHit",
 	"OnExecutePropertyDataOnTarget",
-	"OnExecutePropertyDataOnPosition"
+	"OnExecutePropertyDataOnPosition",
+	"OnBeforeSortAiActions",
+	"OnAfterSortAiActions",
+	"OnPeekAiAction"
 }
 
 Ext.IsClient = function ()
