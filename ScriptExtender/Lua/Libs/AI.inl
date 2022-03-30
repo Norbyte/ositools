@@ -8,7 +8,7 @@ bool AiGrid::SearchForCell(float x, float z, float radius, ESurfaceFlag flags, f
 		return false;
 	}
 
-	return search(this, x, z, radius, flags, nullptr, bias);
+	return !search(this, x, z, radius, flags, nullptr, bias);
 }
 
 UserReturn AiGrid::GetCellInfo(lua_State* L, float x, float z)
