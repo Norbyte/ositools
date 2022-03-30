@@ -305,7 +305,7 @@ _I._CallLegacyEvent = function (fn, event)
 			event:StopPropagation()
 		end
 	elseif event.Name == "StatusGetDescriptionParam" then
-		local desc = fn(event.Status, event.Owner, event.StatusSource, table.unpack(event.Params))
+		local desc = fn(event.Status, event.StatusSource, event.Owner, table.unpack(event.Params))
 		if desc ~= nil then
 			event.Description = desc
 			event:StopPropagation()
