@@ -45,23 +45,37 @@ VisualSystem::~VisualSystem()
 {
 	auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
 	for (auto const& effect : visuals_) {
-		del(effect.get(), true);
+		del(effect.Value.get(), true);
+	}
+}
+
+ClientMultiVisual* VisualSystem::Get(ComponentHandle handle)
+{
+	auto it = visuals_.find(handle);
+	if (it) {
+		return it.Value().get();
+	} else {
+		return nullptr;
 	}
 }
 
 ClientMultiVisual* VisualSystem::Create()
 {
 	auto effect = MakeGameUnique<ClientMultiVisual>();
-	visuals_.push_back(std::move(effect));
-	return visuals_.rbegin()->get();
+	// FIXME - assign handle!
+	// effect->Handle
+
+	auto ptr = effect.get();
+	visuals_.insert(std::make_pair(effect->Handle, std::move(effect)));
+	return ptr;
 }
 
 void VisualSystem::Destroy(ClientMultiVisual* effect)
 {
-	auto it = std::find_if(visuals_.begin(), visuals_.end(), [&](auto const& v) { return v.get() == effect; });
+	auto it = std::find_if(visuals_.begin(), visuals_.end(), [&](auto const& v) { return v.Value.get() == effect; });
 	if (it != visuals_.end()) {
 		auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
-		del(it->get(), false);
+		del(it.Value().get(), false);
 		visuals_.erase(it);
 	}
 }
@@ -70,7 +84,7 @@ void VisualSystem::Update()
 {
 	auto update = GetStaticSymbols().ecl__MultiEffectHandler__Update;
 	for (auto const& effect : visuals_) {
-		update(effect.get());
+		update(effect.Value.get());
 	}
 
 	for (auto const& handle : pendingVisualDeletes_) {

@@ -16,6 +16,7 @@ public:
 	void Delete(lua_State* L);
 
 	ObjectSet<ComponentHandle> AttachedVisuals;
+	ComponentHandle Handle;
 };
 
 class VisualSystem
@@ -23,6 +24,7 @@ class VisualSystem
 public:
 	~VisualSystem();
 
+	ClientMultiVisual* Get(ComponentHandle handle);
 	ClientMultiVisual* Create();
 	void Destroy(ClientMultiVisual* effect);
 	void Update();
@@ -30,7 +32,7 @@ public:
 	void RequestDeleteVisual(ComponentHandle handle);
 
 private:
-	Vector<GameUniquePtr<ClientMultiVisual>> visuals_;
+	Map<ComponentHandle, GameUniquePtr<ClientMultiVisual>> visuals_;
 	ObjectSet<ComponentHandle> pendingVisualDeletes_;
 };
 

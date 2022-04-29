@@ -309,7 +309,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		return;
 	}
 
-	auto pProto = Prototypes.Find(object->Name);
+	auto pProto = Prototypes.TryGet(object->Name);
 	if (pProto == nullptr) {
 		auto proto = GameAlloc<SkillPrototype>();
 		proto->StatsObjectIndex = object->Handle;
@@ -318,7 +318,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		proto->RootSkillPrototype = nullptr;
 		SyncSkillStat(object, proto);
 
-		Prototypes.Insert(proto->SkillId, proto);
+		Prototypes.insert(proto->SkillId, proto);
 		PrototypeNames.push_back(proto->SkillId);
 
 		auto lv1Proto = GameAlloc<SkillPrototype>();
@@ -332,16 +332,16 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		proto->ChildPrototypes.push_back(lv1Proto);
 		lv1Proto->RootSkillPrototype = proto;
 
-		Prototypes.Insert(lv1Proto->SkillId, lv1Proto);
+		Prototypes.insert(lv1Proto->SkillId, lv1Proto);
 		PrototypeNames.push_back(lv1Proto->SkillId);
 	} else {
-		SyncSkillStat(object, *pProto);
+		SyncSkillStat(object, pProto);
 
-		STDString lv1Name = (*pProto)->SkillId.Str;
+		STDString lv1Name = pProto->SkillId.Str;
 		lv1Name += "_-1";
-		auto lv1Proto = Prototypes.Find(FixedString(lv1Name.c_str()));
+		auto lv1Proto = Prototypes.TryGet(FixedString(lv1Name.c_str()));
 		if (lv1Proto) {
-			SyncSkillStat(object, *lv1Proto);
+			SyncSkillStat(object, lv1Proto);
 		}
 	}
 }
@@ -362,25 +362,25 @@ void StatusPrototypeManager::SyncStatusStat(Object* object)
 	}
 
 	StatusPrototype* proto;
-	auto pProto = Prototypes.Find(object->Name);
+	auto pProto = Prototypes.TryGet(object->Name);
 	if (pProto == nullptr) {
-		auto hitProto = Prototypes.Find(GFS.strHIT);
+		auto hitProto = Prototypes.TryGet(GFS.strHIT);
 		if (!hitProto) {
 			OsiError("Couldn't sync new status entry - missing HIT status!");
 			return;
 		}
 
 		proto = GameAlloc<StatusPrototype>();
-		proto->VMT = (*hitProto)->VMT;
+		proto->VMT = hitProto->VMT;
 		proto->StatsObjectIndex = object->Handle;
 		proto->StatusId = *statusType;
 		proto->StatusName = object->Name;
 		proto->HasStats = false;
 
-		Prototypes.Insert(proto->StatusName, proto);
+		Prototypes.insert(proto->StatusName, proto);
 		PrototypeNames.push_back(proto->StatusName);
 	} else {
-		proto = *pProto;
+		proto = pProto;
 	}
 
 	if (proto->HasStats) {
@@ -707,7 +707,7 @@ AttributeType ValueList::GetPropertyType() const
 		return AttributeType::Requirements;
 	}
 
-	if (Values.Count() > 0) {
+	if (Values.size() > 0) {
 		if (Name == GFS.strAttributeFlags) {
 			return AttributeType::Flags;
 		} else {
@@ -1041,11 +1041,11 @@ std::optional<int> RPGStats::EnumLabelToIndex(FixedString const& enumName, char 
 		return {};
 	}
 
-	auto index = rpgEnum->Values.Find(FixedString(enumLabel));
-	if (index == nullptr) {
+	auto index = rpgEnum->Values.find(FixedString(enumLabel));
+	if (!index) {
 		return {};
 	} else {
-		return *index;
+		return index.Value();
 	}
 }
 
@@ -1059,9 +1059,8 @@ FixedString RPGStats::EnumIndexToLabel(FixedString const& enumName, int index)
 
 	auto value = rpgEnum->Values.FindByValue(index);
 	if (value) {
-		return *value;
-	}
-	else {
+		return value.Key();
+	} else {
 		return FixedString{};
 	}
 }

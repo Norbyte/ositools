@@ -639,10 +639,7 @@ namespace dse::esv::lua
 		stats::SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 		if (skillProtoMgr && *skillProtoMgr) {
-			auto proto = (*skillProtoMgr)->Prototypes.Find(skillId);
-			if (*proto) {
-				skillProto = *proto;
-			}
+			skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
 		}
 
 		if (!skillProto) {
@@ -651,7 +648,7 @@ namespace dse::esv::lua
 		}
 
 		auto exec = GetStaticSymbols().esv__ExecuteCharacterSetExtraProperties;
-		auto skillProperties = skillProto->GetStats()->PropertyLists.Find(GFS.strSkillProperties);
+		auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
 
 		if (!skillProperties) {
 			LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -667,7 +664,7 @@ namespace dse::esv::lua
 		ObjectSet<esv::Character*> targets;
 		targets.push_back(target);
 
-		exec(*skillProperties, attackerHandle.Handle, targets, position, propertyContext, isFromItem,
+		exec(skillProperties, attackerHandle.Handle, targets, position, propertyContext, isFromItem,
 			skillProto, nullptr, 0.0f, nullptr, false, 2.4f);
 		return 0;
 	}
@@ -685,10 +682,7 @@ namespace dse::esv::lua
 		stats::SkillPrototype* skillProto{ nullptr };
 		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 		if (skillProtoMgr && *skillProtoMgr) {
-			auto proto = (*skillProtoMgr)->Prototypes.Find(skillId);
-			if (*proto) {
-				skillProto = *proto;
-			}
+			skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
 		}
 
 		if (!skillProto) {
@@ -697,7 +691,7 @@ namespace dse::esv::lua
 		}
 
 		auto exec = GetStaticSymbols().esv__ExecutePropertyDataOnPositionOnly;
-		auto skillProperties = skillProto->GetStats()->PropertyLists.Find(GFS.strSkillProperties);
+		auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
 
 		if (!skillProperties) {
 			LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -711,7 +705,7 @@ namespace dse::esv::lua
 		ComponentHandle attackerHandle;
 		attacker->GetObjectHandle(attackerHandle);
 
-		exec(*skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr, 2.4f);
+		exec(skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr, 2.4f);
 		return 0;
 	}
 
@@ -920,6 +914,24 @@ namespace dse::esv::lua
 		ThrowEvent(*this, "StatusHitEnter", params);
 	}
 
+	void ServerState::OnBeforeStatusDelete(esv::Status* status)
+	{
+		StatusDeleteEventParams params{ status };
+		if (ThrowEvent(*this, "BeforeStatusDelete", params, true) == EventResult::ActionPrevented) {
+			if ((bool)(status->Flags2 & (StatusFlags2::RequestDelete | StatusFlags2::RequestDeleteAtTurnEnd))) {
+				status->Flags2 &= ~(StatusFlags2::RequestDelete | StatusFlags2::RequestDeleteAtTurnEnd);
+			} else {
+				OsiWarn("Couldn't prevent deletion of status (delete not triggered by RequestDelete flag)");
+			}
+		}
+	}
+
+	void ServerState::OnStatusDelete(esv::Status* status)
+	{
+		StatusDeleteEventParams params{ status };
+		ThrowEvent(*this, "StatusDelete", params);
+	}
+
 	bool ServerState::ComputeCharacterHit(stats::Character * target,
 		stats::Character *attacker, stats::Item *weapon, stats::DamagePairList *damageList,
 		stats::HitType hitType, bool noHitRoll, bool forceReduceDurability, stats::HitDamageInfo *hit,
@@ -1118,7 +1130,7 @@ namespace dse::esv::lua
 			return false;
 		}
 
-		auto combat = turnMgr->Combats.Find(combatId);
+		auto combat = turnMgr->Combats.FindValueRef(combatId);
 		if (combat == nullptr) {
 			OsiError("No combat found with ID " << (unsigned)combatId);
 			return false;

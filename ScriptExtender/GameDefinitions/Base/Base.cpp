@@ -582,25 +582,25 @@ void TypeInformationRepository::Initialize()
 
 TypeInformation& TypeInformationRepository::RegisterType(FixedString const& typeName)
 {
-	if (types_.Find(typeName)) {
+	if (types_.find(typeName)) {
 		throw std::runtime_error("Type already registered!");
 	}
 
-	auto ty = *types_.Insert(typeName, GameAlloc<TypeInformation>());
+	auto ty = *types_.insert(typeName, GameAlloc<TypeInformation>());
 	ty->TypeName = typeName;
 	return *ty;
 }
 
 void TypeInformationRepository::RegisterType(FixedString const& typeName, TypeInformation* typeInfo)
 {
-	types_.Insert(typeName, typeInfo);
+	types_.insert(typeName, typeInfo);
 }
 
 TypeInformation const& TypeInformationRepository::GetType(FixedString const& typeName)
 {
-	auto type = types_.Find(typeName);
+	auto type = types_.find(typeName);
 	if (type) {
-		return **type;
+		return *type.Value();
 	}
 
 	return undefinedType_;

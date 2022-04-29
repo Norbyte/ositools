@@ -109,10 +109,7 @@ ObjectSet<FixedString> Character::GetSkillIds()
 Skill* Character::GetSkillInfo(FixedString const& skillId)
 {
 	if (SkillManager != nullptr) {
-		auto skill = SkillManager->Skills.Find(skillId);
-		if (skill) {
-			return *skill;
-		}
+		return SkillManager->Skills.TryGet(skillId);
 	}
 
 	return nullptr;

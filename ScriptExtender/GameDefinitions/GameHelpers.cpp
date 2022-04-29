@@ -880,7 +880,7 @@ namespace dse
 
 	bool DragDropManager::StartDraggingObject(PlayerId playerId, ComponentHandle const& objectHandle)
 	{
-		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.Find(playerId);
+		auto controller = (*GetStaticSymbols().ecl__DragDropManager)->PlayerControllers.FindValueRef(playerId);
 		if (controller && controller->UIDragController) {
 			controller->UIDragController->IsDragging = true;
 		}

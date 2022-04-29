@@ -113,11 +113,11 @@ namespace dse::esv
 
 		if (stats != nullptr) {
 			for (auto const& val : stats->StatValues) {
-				stat.Stats.Insert(val.Key, val.Value);
+				stat.Stats.insert(val.Key, val.Value);
 			}
 		}
 
-		stat.Stats.Insert(statKey, statValue);
+		stat.Stats.insert(statKey, statValue);
 		statSyncMsg.Stats.push_back(std::move(stat));
 
 		ProcessMessage(&statSyncMsg);
@@ -152,12 +152,7 @@ namespace dse::esv
 			return 0;
 		}
 
-		auto value = statsComponent->StatValues.Find(FixedString(statDefn->Id.Str));
-		if (value == nullptr) {
-			return 0;
-		} else {
-			return *value;
-		}
+		return statsComponent->StatValues.TryGet(FixedString(statDefn->Id.Str), 0);
 	}
 
 	bool CustomStatHelpers::SetCharacterStat(EntityHandle entityHandle, char const* statId, int value)
@@ -302,12 +297,7 @@ std::optional<int> CustomStatHelpers::GetCharacterStat(EntityHandle entityHandle
 		return 0;
 	}
 
-	auto value = statsComponent->StatValues.Find(statId);
-	if (value == nullptr) {
-		return 0;
-	} else {
-		return *value;
-	}
+	return statsComponent->StatValues.TryGet(statId, 0);
 }
 
 END_NS()

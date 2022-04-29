@@ -98,6 +98,8 @@ namespace dse
 
 		SYM_OFF(esv__StatusMachine__CreateStatus);
 		SYM_OFF(esv__StatusMachine__ApplyStatus);
+		SYM_OFF(esv__StatusMachine__Update);
+		SYM_OFF(esv__StatusMachine__DeleteStatusByHandle);
 
 		SYM_OFF(esv__StatusHeal__VMT);
 		SYM_OFF(esv__StatusHit__VMT);
@@ -105,6 +107,7 @@ namespace dse
 		SYM_OFF(esv__StatusHit__Enter);
 		SYM_OFF(esv__StatusHit__Setup);
 		SYM_OFF(esv__Status__GetEnterChance);
+		SYM_OFF(esv__Status__ShouldDelete);
 
 		SYM_OFF(esv__ParseItem);
 		SYM_OFF(esv__CreateItemFromParsed);

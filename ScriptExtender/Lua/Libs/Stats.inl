@@ -62,11 +62,10 @@ int StatsExtraDataProxy::Index(lua_State* L)
 	if (stats == nullptr || stats->ExtraData == nullptr) return luaL_error(L, "Stats not available");
 
 	auto key = luaL_checkstring(L, 2);
-	auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
-	if (extraData != nullptr) {
-		push(L, *extraData);
-	}
-	else {
+	auto extraData = stats->ExtraData->Properties.find(FixedString(key));
+	if (extraData) {
+		push(L, extraData.Value());
+	} else {
 		push(L, nullptr);
 	}
 
@@ -80,11 +79,10 @@ int StatsExtraDataProxy::NewIndex(lua_State* L)
 
 	auto key = luaL_checkstring(L, 2);
 	auto value = get<float>(L, 3);
-	auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
-	if (extraData != nullptr) {
-		*extraData = value;
-	}
-	else {
+	auto extraData = stats->ExtraData->Properties.find(FixedString(key));
+	if (extraData) {
+		extraData.Value() = value;
+	} else {
 		LuaError("Cannot set nonexistent ExtraData value '" << key << "'");
 	}
 
@@ -511,7 +509,7 @@ void UpdateItemCombo(lua_State* L)
 
 UserReturn GetItemComboPreviewData(lua_State* L, FixedString const& comboName)
 {
-	auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.Find(comboName);
+	auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.TryGet(comboName);
 	return LuaWrite(L, preview);
 }
 
@@ -521,8 +519,8 @@ void UpdateItemComboPreviewData(lua_State* L)
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto existing = stats->ItemCombinationManager->PreviewData.Find(name);
-	ItemCombinationPreviewData* previewData = existing ? *existing : nullptr;
+	auto existing = stats->ItemCombinationManager->PreviewData.TryGet(name);
+	ItemCombinationPreviewData* previewData = existing ? existing : nullptr;
 	bool isNew = (previewData == nullptr);
 
 	lua_pushvalue(L, 1);
@@ -530,13 +528,13 @@ void UpdateItemComboPreviewData(lua_State* L)
 	lua_pop(L, 1);
 
 	if (isNew) {
-		stats->ItemCombinationManager->PreviewData.Insert(name, previewData);
+		stats->ItemCombinationManager->PreviewData.insert(name, previewData);
 	}
 }
 
 UserReturn GetItemComboProperty(lua_State* L, FixedString const& propertyName)
 {
-	auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.Find(propertyName);
+	auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.TryGet(propertyName);
 	return LuaWrite(L, prop);
 }
 
@@ -546,8 +544,8 @@ void UpdateItemComboProperty(lua_State* L)
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto existing = stats->ItemCombinationManager->ComboProperties.Find(name);
-	ItemCombinationProperty* comboProperty = existing ? *existing : nullptr;
+	auto existing = stats->ItemCombinationManager->ComboProperties.TryGet(name);
+	ItemCombinationProperty* comboProperty = existing ? existing : nullptr;
 	bool isNew = (comboProperty == nullptr);
 
 	lua_pushvalue(L, 1);
@@ -555,20 +553,20 @@ void UpdateItemComboProperty(lua_State* L)
 	lua_pop(L, 1);
 
 	if (isNew) {
-		stats->ItemCombinationManager->ComboProperties.Insert(name, comboProperty);
+		stats->ItemCombinationManager->ComboProperties.insert(name, comboProperty);
 	}
 }
 
 UserReturn GetItemGroup(lua_State* L, FixedString const& name)
 {
-	auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.Find(name);
+	auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.TryGet(name);
 	return LuaWrite(L, group);
 }
 
 
 UserReturn GetNameGroup(lua_State* L, FixedString const& name)
 {
-	auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.Find(name);
+	auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.TryGet(name);
 	return LuaWrite(L, nameGroup);
 }
 
@@ -609,8 +607,8 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	auto object = StatFindObject(statName);
 	if (!object) return;
 
-	auto props = object->PropertyLists.Find(FixedString(attributeName));
-	if (props == nullptr || *props == nullptr) {
+	auto props = object->PropertyLists.TryGet(FixedString(attributeName));
+	if (props == nullptr) {
 		OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
 		return;
 	}
@@ -621,7 +619,7 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	customProp->TypeId = PropertyType::CustomDescription;
 	customProp->Conditions = nullptr;
 	customProp->TextLine1 = FromUTF8(description);
-	(*props)->Properties.Primitives.push_back(customProp);
+	props->Properties.Primitives.push_back(customProp);
 }
 
 void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedString const& modifierName)
@@ -711,12 +709,12 @@ bool CopyStats(Object* obj, FixedString const& copyFrom)
 
 	for (auto const& prop : copyFromObject->PropertyLists) {
 		// TODO - is reusing property list objects allowed?
-		obj->PropertyLists.Insert(prop.Key, prop.Value);
+		obj->PropertyLists.insert(prop.Key, prop.Value);
 	}
 
 	for (auto const& cond : copyFromObject->Conditions) {
 		// TODO - is reusing condition objects allowed?
-		obj->Conditions.Insert(cond.Key, cond.Value);
+		obj->Conditions.insert(cond.Key, cond.Value);
 	}
 
 	obj->Requirements = copyFromObject->Requirements;
@@ -951,10 +949,10 @@ UserReturn EnumLabelToIndex(lua_State* L, FixedString const& enumName, FixedStri
 
 	auto valueList = GetStaticSymbols().GetStats()->ModifierValueLists.Find(enumName);
 	if (valueList) {
-		auto value = valueList->Values.Find(FixedString(label));
+		auto value = valueList->Values.find(FixedString(label));
 
 		if (value) {
-			push(L, *value);
+			push(L, value.Value());
 			return 1;
 		} else {
 			OsiError("Enumeration '" << enumName << "' has no label named '" << label << "'");
@@ -992,8 +990,8 @@ void AddVoiceMetaData(FixedString const& speakerGuid, FixedString const& transla
 		return;
 	}
 
-	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->Insert(speakerGuid);
-	auto voiceMeta = speaker->Insert(translatedStringKey);
+	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->insert(speakerGuid, {});
+	auto voiceMeta = speaker->insert(translatedStringKey, {});
 	voiceMeta->CodecID = 4;
 	voiceMeta->IsRecorded = true;
 	voiceMeta->Length = (float)length;

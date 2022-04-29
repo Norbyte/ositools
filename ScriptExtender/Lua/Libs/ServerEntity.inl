@@ -1,3 +1,4 @@
+#include <GameDefinitions/Base/BaseUtilities.h>
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
@@ -223,8 +224,8 @@ UserReturn GetCombat(lua_State* L, uint32_t combatId)
 		return 0;
 	}
 
-	auto combat = turnMgr->Combats.Find((uint8_t)combatId);
-	if (combat == nullptr) {
+	auto combat = turnMgr->Combats.find((uint8_t)combatId);
+	if (!combat) {
 		OsiError("No combat found with ID " << combatId);
 		return 0;
 	}
@@ -295,6 +296,15 @@ ObjectSet<Character*> GetAllCharacters(std::optional<FixedString> levelName)
 	return characters;
 }
 
+/// <summary>
+/// Returns the UUID of all characters within a radius around the specified point.
+/// </summary>
+/// <lua_export>GetCharacterGuidsAroundPosition</lua_export>
+/// <param name="x" type="number">Surface action type</param>
+/// <param name="y" type="number">Surface action type</param>
+/// <param name="z" type="number">Surface action type</param>
+/// <param name="distance" type="number">Surface action type</param>
+/// <returns>Array&lt;FixedString&gt;</returns>
 ObjectSet<FixedString> GetCharacterGuidsAroundPosition(float x, float y, float z, float distance)
 {
 	glm::vec3 pos(x, y, z);
@@ -368,6 +378,7 @@ ComponentHandle NullHandle()
 
 void RegisterEntityLib()
 {
+	/// <lua_module>Ext.Entity</summary>
 	DECLARE_MODULE(Entity, Server)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(NullHandle)

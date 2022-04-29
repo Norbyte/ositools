@@ -128,11 +128,11 @@ void SetDirty(ComponentHandle const& handle, uint64_t flags)
 	auto ui = GetStaticSymbols().GetUIObjectManager();
 	if (ui && ui->CharacterDirtyFlags) {
 		EnterCriticalSection(&ui->CriticalSection);
-		auto curFlags = ui->CharacterDirtyFlags->Find(handle);
-		if (curFlags != nullptr) {
-			*curFlags |= flags;
+		auto curFlags = ui->CharacterDirtyFlags->find(handle);
+		if (curFlags) {
+			curFlags.Value() |= flags;
 		} else {
-			*ui->CharacterDirtyFlags->Insert(handle) = flags;
+			*ui->CharacterDirtyFlags->insert(handle, flags);
 		}
 		LeaveCriticalSection(&ui->CriticalSection);
 	}
@@ -181,16 +181,16 @@ UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
 		return 1;
 	}
 
-	auto helper = level->PickingHelperManager->PlayerHelpers.Find(playerIndex.value_or(1));
+	auto helper = level->PickingHelperManager->PlayerHelpers.TryGet(playerIndex.value_or(1));
 	if (helper == nullptr) {
 		push(L, nullptr);
 		return 1;
 	}
 
-	auto const& base = (*helper)->b;
+	auto const& base = helper->b;
 	lua_newtable(L);
-	if ((*helper)->GameObjectPick) {
-		setfield(L, "WorldPosition", (*helper)->GameObjectPick->WorldPos.Position);
+	if (helper->GameObjectPick) {
+		setfield(L, "WorldPosition", helper->GameObjectPick->WorldPos.Position);
 	}
 
 	setfield(L, "WalkablePosition", base.WalkablePickPos.Position);

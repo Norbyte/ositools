@@ -19,6 +19,16 @@ struct MapInternals
 		Node* Next{ nullptr };
 		TKey Key;
 		TValue Value;
+
+		Node() {}
+
+		Node(TKey const& key, TValue const& value)
+			: Key(key), Value(value)
+		{}
+
+		Node(TKey const& key, TValue && value)
+			: Key(key), Value(std::move(value))
+		{}
 	};
 
 	uint32_t HashSize{ 0 };
@@ -37,6 +47,16 @@ struct RefMapInternals
 		Node* Next{ nullptr };
 		TKey Key;
 		TValue Value;
+
+		Node() {}
+
+		Node(TKey const& key, TValue const& value)
+			: Key(key), Value(value)
+		{}
+
+		Node(TKey const& key, TValue&& value)
+			: Key(key), Value(std::move(value))
+		{}
 	};
 
 	uint32_t ItemCount{ 0 };
@@ -135,7 +155,19 @@ public:
 			return *Element;
 		}
 
-	private:
+		operator bool() const
+		{
+			return Element != nullptr;
+		}
+
+		bool operator !() const
+		{
+			return Element == nullptr;
+		}
+
+	protected:
+		friend class MapBase<TInternals>;
+
 		Node** CurrentNode, ** NodeListEnd;
 		Node* Element;
 	};
@@ -223,6 +255,16 @@ public:
 			return *Element;
 		}
 
+		operator bool() const
+		{
+			return Element != nullptr;
+		}
+
+		bool operator !() const
+		{
+			return Element == nullptr;
+		}
+
 	private:
 		Node* const * CurrentNode, * const * NodeListEnd;
 		Node const* Element;
@@ -238,14 +280,14 @@ public:
 		ResizeHashtable(other.HashSize);
 
 		for (auto const& pair : other) {
-			Insert(pair.Key, pair.Value);
+			insert(pair.Key, pair.Value);
 		}
 	}
 
 	~MapBase()
 	{
 		if (this->HashTable) {
-			Clear();
+			clear();
 			GameFree(this->HashTable);
 		}
 	}
@@ -254,7 +296,7 @@ public:
 	{
 		ResizeHashtable(other.HashSize);
 		for (auto const& pair : other) {
-			Insert(pair.Key, pair.Value);
+			insert(pair.Key, pair.Value);
 		}
 
 		return *this;
@@ -263,7 +305,7 @@ public:
 	void ResizeHashtable(uint32_t hashSize)
 	{
 		if (this->HashTable) {
-			Clear();
+			clear();
 		}
 
 		if (this->HashSize != hashSize) {
@@ -277,7 +319,7 @@ public:
 		}
 	}
 
-	void Clear()
+	void clear()
 	{
 		this->ItemCount = 0;
 		for (uint32_t i = 0; i < this->HashSize; i++) {
@@ -289,28 +331,13 @@ public:
 		}
 	}
 
-	void FreeHashChain(Node* node)
-	{
-		do {
-			auto next = node->Next;
-			GameDelete(node);
-			node = next;
-		} while (node != nullptr);
-	}
-
-	ValueType* Insert(KeyType const& key, ValueType const& value)
-	{
-		auto nodeValue = Insert(key);
-		*nodeValue = value;
-		return nodeValue;
-	}
-
-	ValueType* Insert(KeyType const& key)
+	ValueType* insert(KeyType const& key, ValueType const& value) requires std::copyable<ValueType>
 	{
 		auto item = this->HashTable[Hash(key) % this->HashSize];
 		auto last = item;
 		while (item != nullptr) {
 			if (key == item->Key) {
+				item->Value = value;
 				return &item->Value;
 			}
 
@@ -318,10 +345,7 @@ public:
 			item = item->Next;
 		}
 
-		auto node = GameAlloc<Node>();
-		node->Next = nullptr;
-		node->Key = key;
-
+		auto node = GameAlloc<Node>(key, value);
 		if (last == nullptr) {
 			this->HashTable[Hash(key) % this->HashSize] = node;
 		} else {
@@ -332,44 +356,88 @@ public:
 		return &node->Value;
 	}
 
-	ValueType* insert(std::pair<KeyType, ValueType> const& v)
-	{
-		auto nodeValue = Insert(v.first);
-		*nodeValue = v.second;
-		return nodeValue;
-	}
-
-	ValueType* Find(KeyType const& key) const
+	ValueType* insert(KeyType && key, ValueType && value)
 	{
 		auto item = this->HashTable[Hash(key) % this->HashSize];
+		auto last = item;
 		while (item != nullptr) {
 			if (key == item->Key) {
+				item->Value = std::move(value);
 				return &item->Value;
 			}
 
+			last = item;
 			item = item->Next;
 		}
 
-		return nullptr;
+		auto node = GameAlloc<Node>(std::move(key), std::move(value));
+		if (last == nullptr) {
+			this->HashTable[Hash(key) % this->HashSize] = node;
+		} else {
+			last->Next = node;
+		}
+
+		this->ItemCount++;
+		return &node->Value;
 	}
 
-	KeyType* FindByValue(ValueType const& value) const
+	ValueType* insert(std::pair<KeyType, ValueType> const& v) requires std::copyable<ValueType>
+	{
+		return insert(v.first, v.second);
+	}
+
+	ValueType* insert(std::pair<KeyType, ValueType>&& v)
+	{
+		return insert(std::move(v.first), std::move(v.second));
+	}
+
+	void erase(Iterator const& it)
+	{
+		auto elem = *it.CurrentNode;
+		if (elem == it.Element) {
+			*it.CurrentNode = it.Element;
+		} else {
+			while (elem->Next != it.Element) {
+				elem = elem->Next;
+			}
+
+			elem->Next = it.Element->Next;
+		}
+	}
+
+	Iterator FindByValue(ValueType const& value)
 	{
 		for (uint32_t bucket = 0; bucket < this->HashSize; bucket++) {
 			Node* item = this->HashTable[bucket];
 			while (item != nullptr) {
 				if (value == item->Value) {
-					return &item->Key;
+					return Iterator(*this, this->HashTable + bucket, item);
 				}
 
 				item = item->Next;
 			}
 		}
 
-		return nullptr;
+		return end();
 	}
 
-	ConstIterator FindIterator(KeyType const& key) const
+	ConstIterator FindByValue(ValueType const& value) const
+	{
+		for (uint32_t bucket = 0; bucket < this->HashSize; bucket++) {
+			Node* item = this->HashTable[bucket];
+			while (item != nullptr) {
+				if (value == item->Value) {
+					return ConstIterator(*this, this->HashTable + bucket, item);
+				}
+
+				item = item->Next;
+			}
+		}
+
+		return end();
+	}
+
+	ConstIterator find(KeyType const& key) const
 	{
 		auto slot = Hash(key) % this->HashSize;
 		auto item = this->HashTable[slot];
@@ -384,7 +452,7 @@ public:
 		return end();
 	}
 
-	Iterator FindIterator(KeyType const& key)
+	Iterator find(KeyType const& key)
 	{
 		auto slot = Hash(key) % this->HashSize;
 		auto item = this->HashTable[slot];
@@ -397,6 +465,36 @@ public:
 		}
 
 		return end();
+	}
+
+	ValueType const* FindValueRef(KeyType const& key) const
+	{
+		auto it = find(key);
+		if (it) {
+			return &it.Value();
+		} else {
+			return nullptr;
+		}
+	}
+
+	ValueType* FindValueRef(KeyType const& key)
+	{
+		auto it = find(key);
+		if (it) {
+			return &it.Value();
+		} else {
+			return nullptr;
+		}
+	}
+
+	ValueType TryGet(KeyType const& key, ValueType defaultValue = {}) const
+	{
+		auto it = find(key);
+		if (it) {
+			return it.Value();
+		} else {
+			return defaultValue;
+		}
 	}
 
 	Iterator begin()
@@ -419,9 +517,19 @@ public:
 		return ConstIterator(*this, this->HashTable + this->HashSize, nullptr);
 	}
 
-	inline uint32_t Count() const
+	inline uint32_t size() const
 	{
 		return this->ItemCount;
+	}
+
+private:
+	void FreeHashChain(Node* node)
+	{
+		do {
+			auto next = node->Next;
+			GameDelete(node);
+			node = next;
+		} while (node != nullptr);
 	}
 };
 

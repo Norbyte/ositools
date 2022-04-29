@@ -281,17 +281,17 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 
 	if (notInSync_) {
 		fs.FixedStrSet.clear();
-		fs.FixedStrToNetIndexMap.Clear();
+		fs.FixedStrToNetIndexMap.clear();
 
 		fs.FixedStrSet.reallocate(numStrings + 1);
 
 		fs.FixedStrSet.push_back(FixedString{});
-		fs.FixedStrToNetIndexMap.Insert(FixedString{}, 1);
+		fs.FixedStrToNetIndexMap.insert(FixedString{}, 1);
 
 		for (uint32_t i = 0; i < numStrings; i++) {
 			FixedString fixedStr(updatedStrings_[i].c_str());
 			fs.FixedStrSet.push_back(fixedStr);
-			fs.FixedStrToNetIndexMap.Insert(fixedStr, i + 2);
+			fs.FixedStrToNetIndexMap.insert(fixedStr, i + 2);
 		}
 	}
 }

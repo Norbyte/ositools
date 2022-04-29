@@ -10,6 +10,8 @@ _I._PublishedEvents = {
 	"StatusGetEnterChance",
 	"BeforeStatusApply",
 	"StatusHitEnter",
+	"BeforeStatusDelete",
+	"StatusDelete",
 	"BeforeCharacterApplyDamage",
 	"TreasureItemGenerated",
 	"BeforeCraftingExecuteCombination",

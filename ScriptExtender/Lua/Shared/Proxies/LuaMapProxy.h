@@ -58,9 +58,9 @@ public:
 		LuaRead(L, key);
 		lua_pop(L, 1);
 
-		auto value = object_->Find(key);
+		auto value = object_->find(key);
 		if (value) {
-			MakeObjectRef(L, lifetime_, value);
+			MakeObjectRef(L, lifetime_, &value.Value());
 			return true;
 		} else {
 			return false;
@@ -74,14 +74,14 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Count();
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int luaKeyIndex) override
 	{
 		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
 			auto it = object_->begin();
-			if (it != object_->end()) {
+			if (it) {
 				LuaWrite(L, it.Key());
 				MakeObjectRef(L, lifetime_, &it.Value());
 				return 2;
@@ -92,10 +92,10 @@ public:
 			LuaRead(L, key);
 			lua_pop(L, 1);
 
-			auto it = object_->FindIterator(key);
-			if (it != object_->end()) {
+			auto it = object_->find(key);
+			if (it) {
 				it++;
-				if (it != object_->end()) {
+				if (it) {
 					LuaWrite(L, it.Key());
 					MakeObjectRef(L, lifetime_, &it.Value());
 					return 2;
@@ -149,9 +149,9 @@ public:
 		LuaRead(L, key);
 		lua_pop(L, 1);
 
-		auto value = object_->Find(key);
+		auto value = object_->find(key);
 		if (value) {
-			LuaWrite(L, *value);
+			LuaWrite(L, value.Value());
 			return true;
 		} else {
 			return false;
@@ -166,15 +166,17 @@ public:
 		lua_pop(L, 1);
 
 		if (lua_type(L, luaValueIndex) == LUA_TNIL) {
-			// FIXME - add support for remove() in refmaps!
-			// object_->Remove(key);
+			auto it = object_->find(key);
+			if (it) {
+				object_->erase(it);
+			}
 		} else {
 			TValue value;
 			lua_pushvalue(L, luaValueIndex);
 			LuaRead(L, value);
 			lua_pop(L, 1);
 
-			*object_->Insert(key) = value;
+			object_->insert(key, value);
 		}
 
 		return true;
@@ -182,14 +184,14 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Count();
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int luaKeyIndex) override
 	{
 		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
 			auto it = object_->begin();
-			if (it != object_->end()) {
+			if (it) {
 				LuaWrite(L, it.Key());
 				LuaWrite(L, it.Value());
 				return 2;
@@ -200,10 +202,10 @@ public:
 			LuaRead(L, key);
 			lua_pop(L, 1);
 
-			auto it = object_->FindIterator(key);
-			if (it != object_->end()) {
+			auto it = object_->find(key);
+			if (it) {
 				it++;
-				if (it != object_->end()) {
+				if (it) {
 					LuaWrite(L, it.Key());
 					LuaWrite(L, it.Value());
 					return 2;
@@ -257,9 +259,9 @@ public:
 		LuaRead(L, key);
 		lua_pop(L, 1);
 
-		auto value = object_->Find(key);
+		auto value = object_->find(key);
 		if (value) {
-			MakeObjectRef(L, lifetime_, value);
+			MakeObjectRef(L, lifetime_, &value.Value());
 			return true;
 		} else {
 			return false;
@@ -273,14 +275,14 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Count();
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int luaKeyIndex) override
 	{
 		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
 			auto it = object_->begin();
-			if (it != object_->end()) {
+			if (it) {
 				LuaWrite(L, it.Key());
 				MakeObjectRef(L, lifetime_, &it.Value());
 				return 2;
@@ -291,10 +293,10 @@ public:
 			LuaRead(L, key);
 			lua_pop(L, 1);
 
-			auto it = object_->FindIterator(key);
-			if (it != object_->end()) {
+			auto it = object_->find(key);
+			if (it) {
 				it++;
-				if (it != object_->end()) {
+				if (it) {
 					LuaWrite(L, it.Key());
 					MakeObjectRef(L, lifetime_, &it.Value());
 					return 2;
@@ -348,9 +350,9 @@ public:
 		LuaRead(L, key);
 		lua_pop(L, 1);
 
-		auto value = object_->Find(key);
-		if (value) {
-			LuaWrite(L, *value);
+		auto it = object_->find(key);
+		if (it) {
+			LuaWrite(L, it.Value());
 			return true;
 		} else {
 			return false;
@@ -365,15 +367,17 @@ public:
 		lua_pop(L, 1);
 
 		if (lua_type(L, luaValueIndex) == LUA_TNIL) {
-			// FIXME - add support for remove() in maps!
-			// object_->Remove(key);
+			auto it = object_->find(key);
+			if (it) {
+				object_->erase(it);
+			}
 		} else {
 			TValue value;
 			lua_pushvalue(L, luaValueIndex);
 			LuaRead(L, value);
 			lua_pop(L, 1);
 
-			*object_->Insert(key) = value;
+			object_->insert(key, value);
 		}
 
 		return true;
@@ -381,14 +385,14 @@ public:
 
 	unsigned Length() override
 	{
-		return object_->Count();
+		return object_->size();
 	}
 
 	int Next(lua_State* L, int luaKeyIndex) override
 	{
 		if (lua_type(L, luaKeyIndex) == LUA_TNIL) {
 			auto it = object_->begin();
-			if (it != object_->end()) {
+			if (it) {
 				LuaWrite(L, it.Key());
 				LuaWrite(L, it.Value());
 				return 2;
@@ -399,10 +403,10 @@ public:
 			LuaRead(L, key);
 			lua_pop(L, 1);
 
-			auto it = object_->FindIterator(key);
-			if (it != object_->end()) {
+			auto it = object_->find(key);
+			if (it) {
 				it++;
-				if (it != object_->end()) {
+				if (it) {
 					LuaWrite(L, it.Key());
 					LuaWrite(L, it.Value());
 					return 2;

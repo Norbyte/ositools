@@ -61,6 +61,10 @@ P_REF(Status)
 P(PreventStatusApply)
 END_CLS()
 
+BEGIN_CLS(esv::lua::StatusDeleteEventParams)
+P_REF(Status)
+END_CLS()
+
 BEGIN_CLS(esv::lua::ComputeCharacterHitEventParams)
 P_REF(Target)
 P_REF(Attacker)

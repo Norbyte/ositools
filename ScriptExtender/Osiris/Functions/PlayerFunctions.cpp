@@ -20,13 +20,13 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			auto skill = character->SkillManager->Skills.Find(FixedString(skillId));
-			if (skill == nullptr) {
+			auto skill = character->SkillManager->Skills.TryGet(FixedString(skillId));
+			if (!skill) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return nullptr;
 			}
 
-			return *skill;
+			return skill;
 		}
 
 		bool SkillGetCooldown(OsiArgumentDesc & args)

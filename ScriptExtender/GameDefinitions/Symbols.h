@@ -151,6 +151,7 @@ namespace dse
 		esv::StatusHit::EnterProc* esv__StatusHit__Enter{ nullptr };
 		esv::StatusHit::SetupProc* esv__StatusHit__Setup{ nullptr };
 		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
+		esv::Status::ShouldDeleteProc* esv__Status__ShouldDelete{ nullptr };
 
 		esv::ParseItem esv__ParseItem{ nullptr };
 		esv::CreateItemFromParsed esv__CreateItemFromParsed{ nullptr };
@@ -180,6 +181,8 @@ namespace dse
 
 		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
 		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
+		esv::StatusMachine::UpdateProc* esv__StatusMachine__Update{ nullptr };
+		esv::StatusMachine::DeleteStatusByHandleProc* esv__StatusMachine__DeleteStatusByHandle{ nullptr };
 
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };

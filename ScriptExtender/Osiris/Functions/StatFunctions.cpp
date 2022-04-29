@@ -137,7 +137,7 @@ namespace dse::esv
 				return false;
 			}
 
-			auto extraData = stats->ExtraData->Properties.Find(FixedString(key));
+			auto extraData = stats->ExtraData->Properties.FindValueRef(FixedString(key));
 			if (extraData != nullptr) {
 				value.Set(*extraData);
 				return true;

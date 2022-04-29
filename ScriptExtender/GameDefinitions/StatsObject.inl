@@ -55,10 +55,10 @@ std::optional<char const*> Object::GetString(ModifierInfo const& modifier) const
 		// FIXME - conditions not readable yet!
 		OsiError("Conditions property '" << modifier.Modifier->Name << "' is not readable");
 		return {};
-	} else if (modifier.ValueList->Values.Count() > 0) {
+	} else if (modifier.ValueList->Values.size() > 0) {
 		auto enumLabel = modifier.ValueList->Values.FindByValue(index);
 		if (enumLabel) {
-			return enumLabel->GetString();
+			return enumLabel.Key().GetString();
 		}
 	}
 
@@ -76,7 +76,7 @@ std::optional<int> Object::GetInt(FixedString const& modifierName) const
 std::optional<int> Object::GetInt(ModifierInfo const& modifier) const
 {
 	if (modifier.ValueList->Name == GFS.strConstantInt
-		|| modifier.ValueList->Values.Count() > 0) {
+		|| modifier.ValueList->Values.size() > 0) {
 		return IndexedProperties[modifier.Index];
 	} else {
 		return {};
@@ -134,9 +134,9 @@ std::optional<PropertyList*> Object::GetPropertyList(ModifierInfo const& modifie
 		return {};
 	}
 
-	auto properties = PropertyLists.Find(modifier.Modifier->Name);
+	auto properties = PropertyLists.TryGet(modifier.Modifier->Name);
 	if (properties) {
-		return *properties;
+		return properties;
 	} else {
 		return {};
 	}
@@ -155,11 +155,11 @@ bool Object::SetString(ModifierInfo const& modifier, const char * value)
 		}
 	} else if (modifier.ValueList->Name == GFS.strConditions) {
 		auto conditions = stats->CreateConditions(Name, modifier.Modifier->Name, value);
-		Conditions.Insert(modifier.Modifier->Name, conditions);
-	} else if (modifier.ValueList->Values.Count() > 0) {
-		auto enumIndex = modifier.ValueList->Values.Find(FixedString(value));
-		if (enumIndex != nullptr) {
-			IndexedProperties[modifier.Index] = *enumIndex;
+		Conditions.insert(modifier.Modifier->Name, conditions);
+	} else if (modifier.ValueList->Values.size() > 0) {
+		auto enumIndex = modifier.ValueList->Values.find(FixedString(value));
+		if (enumIndex) {
+			IndexedProperties[modifier.Index] = enumIndex.Value();
 		} else {
 			OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Value (\"" << value << "\") is not a valid enum label");
 			return false;
@@ -176,8 +176,8 @@ bool Object::SetInt(ModifierInfo const& modifier, int32_t value)
 {
 	if (modifier.ValueList->Name == GFS.strConstantInt) {
 		IndexedProperties[modifier.Index] = value;
-	} else if (modifier.ValueList->Values.Count() > 0) {
-		if (value >= 0 && value < (int)modifier.ValueList->Values.Count()) {
+	} else if (modifier.ValueList->Values.size() > 0) {
+		if (value >= 0 && value < (int)modifier.ValueList->Values.size()) {
 			IndexedProperties[modifier.Index] = value;
 		} else {
 			OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Enum index (\"" << value << "\") out of range");
@@ -219,13 +219,13 @@ bool Object::SetFlags(ModifierInfo const& modifier, ObjectSet<FixedString> const
 	auto stats = GetStaticSymbols().GetStats();
 	int64_t flags{ 0 };
 	for (auto const& flag : value) {
-		auto flagValue = modifier.ValueList->Values.Find(flag);
+		auto flagValue = modifier.ValueList->Values.find(flag);
 		if (!flagValue) {
 			OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Value (\"" << flag << "\") is not a valid enum label");
 			return false;
 		}
 
-		flags |= (1ll << (*flagValue - 1));
+		flags |= (1ll << (flagValue.Value() - 1));
 	}
 
 	int poolIdx{ -1 };
@@ -246,10 +246,14 @@ bool Object::SetPropertyList(ModifierInfo const& modifier, std::optional<Propert
 	}
 
 	if (value) {
-		PropertyLists.Insert(modifier.Modifier->Name, *value);
+		PropertyLists.insert(modifier.Modifier->Name, *value);
 	} else {
-		// FIXME - clearing property lists not implemented!
+		auto it = PropertyLists.find(modifier.Modifier->Name);
+		if (it) {
+			PropertyLists.erase(it);
+		}
 	}
+
 	return true;
 }
 
@@ -351,12 +355,12 @@ void Object::FromProtobuf(MsgS2CSyncStat const& msg)
 		ComboCategories.push_back(FixedString(category.c_str()));
 	}
 
-	PropertyLists.Clear();
+	PropertyLists.clear();
 	for (auto const& props : msg.property_lists()) {
 		FixedString name(props.name().c_str());
 		auto propertyList = stats->ConstructPropertyList(name);
 		propertyList->FromProtobuf(props);
-		PropertyLists.Insert(name, propertyList);
+		PropertyLists.insert(name, propertyList);
 	}
 }
 
@@ -442,9 +446,9 @@ void Object::LuaGetAttributeShared(lua_State* L, FixedString const& attribute, s
 	case AttributeType::Conditions:
 	{
 		STDString conditionsText;
-		auto conditions = Conditions.Find(modifier->Modifier->Name);
+		auto conditions = Conditions.find(modifier->Modifier->Name);
 		if (conditions) {
-			conditionsText = (*conditions)->Dump();
+			conditionsText = conditions.Value()->Dump();
 		}
 		push(L, conditionsText);
 		break;
@@ -564,15 +568,14 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 
 		auto newList = LuaToObjectPropertyList(L, statsPropertyKey);
 		if (newList) {
-			auto propertyList = PropertyLists.Find(attribute);
+			auto propertyList = PropertyLists.find(attribute);
 			if (propertyList) {
-				// FIXME - add Remove() support!
-				PropertyLists.Clear();
+				PropertyLists.erase(propertyList);
 				// FIXME - need to remove from stats.PropertyLists too!
 				// GameFree(*propertyList);
 			}
 
-			PropertyLists.Insert(attribute, newList);
+			PropertyLists.insert(attribute, newList);
 		}
 
 		return true;
@@ -597,7 +600,7 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 	{
 		auto value = get<STDString>(L, valueIdx);
 		auto conditions = stats->CreateConditions(Name, modifier->Modifier->Name, value);
-		Conditions.Insert(modifier->Modifier->Name, conditions);
+		Conditions.insert(modifier->Modifier->Name, conditions);
 		return false;
 	}
 

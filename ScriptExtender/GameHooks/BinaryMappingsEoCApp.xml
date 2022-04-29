@@ -267,6 +267,40 @@
       <Target Type="Absolute" Offset="55" NextSymbol="esv::StatusMachine::ApplyStatus" NextSymbolSeekSize="0x100" /> <!-- esv::StatusMachine::ApplyStatus -->
     </Mapping>
 
+    <Mapping Name="esv::StatusMachine::Update" Scope="Custom">
+      @ref 40 55 // push    rbp
+      41 56 // push    r14
+      48 83 ec 38 // sub     rsp, 38h
+      8b 81 3c 01 00 00 // mov     eax, [rcx+13Ch]
+      <Target Type="Absolute" Offset="@ref" Symbol="esv__StatusMachine__Update" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusMachine::DeleteStatusByHandle" Scope="Custom">
+      ff 50 10 // call    qword ptr [rax+10h]
+      48 8b d0 // mov     rdx, rax
+      48 8b cd // mov     rcx, rbp
+      @ref1 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DeleteStatusByHandle
+      8b 85 3c 01 00 00 // mov     eax, [rbp+13Ch]
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__DeleteStatusByHandle" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusMachine::Update inner">
+      @ref e8 ?? ?? ?? ?? // call    esv__Status__ShouldDelete
+      0f b6 f0 // movzx   esi, al
+      84 c0 // test    al, al
+      75 4f // jnz     short loc_141897D59
+      80 bb 88 00 00 00 80 // cmp     byte ptr [rbx+88h], 80h ; '€'
+      73 38 // jnb     short loc_141897D4B
+      f3 0f 10 43 2c // movss   xmm0, dword ptr [rbx+2Ch]
+      0f 2f f0 // comiss  xmm6, xmm0
+      f3 41 0f 5c 46 08 // subss   xmm0, dword ptr [r14+8]
+      0f 93 c0 // setnb   al
+      f3 0f 11 43 2c // movss   dword ptr [rbx+2Ch], xmm0
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__Status__ShouldDelete" />
+      <Target Type="Absolute" Offset="-0x80" NextSymbol="esv::StatusMachine::Update" NextSymbolSeekSize="0x80" />
+      <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusMachine::DeleteStatusByHandle" NextSymbolSeekSize="0x80" />
+    </Mapping>
+
     <Mapping Name="esv::StatusHit::__vftable Initial">
       4C 8D 0D ?? ?? ?? ??  // lea     r9, fsx_Dummy_BodyFX
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01

@@ -205,6 +205,12 @@ namespace dse::esv
 			std::bind(&CustomFunctionLibrary::OnCreateUIObject, this, _1, _2, _3, _4, _5, _6, _7, _8)
 		);
 
+		lib.esv__StatusMachine__Update.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnStatusMachineUpdate, this, _1, _2)
+		);
+		lib.esv__StatusMachine__DeleteStatusByHandle.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnStatusMachineDelete, this, _1, _2)
+		);
 		lib.esv__Status__GetEnterChanceHook.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnStatusGetEnterChance, this, _1, _2, _3)
 		);

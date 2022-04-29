@@ -46,7 +46,7 @@ public:
 
 	inline esv::TurnManager::Combat * Get()
 	{
-		return GetEntityWorld()->GetTurnManager()->Combats.Find(combatId_);
+		return GetEntityWorld()->GetTurnManager()->Combats.FindValueRef(combatId_);
 	}
 
 	int Index(lua_State * L);
@@ -77,14 +77,9 @@ public:
 
 	inline esv::TurnManager::CombatTeam * Get()
 	{
-		auto combat = GetEntityWorld()->GetTurnManager()->Combats.Find(teamId_.CombatId);
+		auto combat = GetEntityWorld()->GetTurnManager()->Combats.FindValueRef(teamId_.CombatId);
 		if (combat) {
-			auto team = combat->Teams.Find((uint32_t)teamId_);
-			if (team) {
-				return *team;
-			} else {
-				return nullptr;
-			}
+			return combat->Teams.TryGet((uint32_t)teamId_);
 		} else {
 			return nullptr;
 		}
@@ -158,6 +153,11 @@ struct StatusHitEnterEventParams
 {
 	esv::StatusHit* Hit;
 	PendingHit* Context;
+};
+
+struct StatusDeleteEventParams
+{
+	esv::Status* Status;
 };
 
 struct ComputeCharacterHitEventParams
@@ -341,6 +341,8 @@ public:
 	bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 	bool OnApplyStatus(ComponentHandle const& ownerHandle, esv::Status* status, bool preventStatusApply);
 	void OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context);
+	void OnBeforeStatusDelete(esv::Status* status);
+	void OnStatusDelete(esv::Status* status);
 	bool ComputeCharacterHit(stats::Character * self,
 		stats::Character *attackerStats, stats::Item *item, stats::DamagePairList *damageList, stats::HitType hitType, bool noHitRoll,
 		bool forceReduceDurability, stats::HitDamageInfo *damageInfo, stats::PropertyList *skillProperties,

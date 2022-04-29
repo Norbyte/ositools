@@ -150,13 +150,13 @@ bool CreateTranslatedStringKey(FixedString const& key, FixedString const& handle
 		return false;
 	}
 
-	auto mapping = keyMgr->StringKeys.Find(key);
+	auto mapping = keyMgr->StringKeys.FindValueRef(key);
 	if (mapping) {
 		mapping->Handle.Handle = handle;
 	} else {
 		TranslatedString str;
 		str.Handle.Handle = handle;
-		keyMgr->StringKeys.Insert(key, str);
+		keyMgr->StringKeys.insert(key, str);
 	}
 
 	return true;
@@ -173,12 +173,12 @@ bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
 	}
 
 	EnterCriticalSection(&repo->CriticalSection);
-	auto str = repo->TranslatedStringOverrides[0]->Find(handle);
+	auto str = repo->TranslatedStringOverrides[0]->FindValueRef(handle);
 	if (str) {
 		**str = string;
 	} else {
 		auto s = GameAlloc<STDWString>(string);
-		repo->TranslatedStringOverrides[0]->Insert(handle, s);
+		repo->TranslatedStringOverrides[0]->insert(handle, s);
 	}
 
 	LeaveCriticalSection(&repo->CriticalSection);

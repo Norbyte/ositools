@@ -8,22 +8,14 @@ BEGIN_NS(esv::lua::tmpl)
 GameObjectTemplate* GetRootTemplate(FixedString const& templateId)
 {
 	auto bank = GetStaticSymbols().GetGlobalTemplateBank();
-	auto tmpl = bank->Templates.Find(templateId);
-	if (tmpl) {
-		return *tmpl;
-	} else {
-		return nullptr;
-	}
+	return bank->Templates.TryGet(templateId);
 }
 
 GameObjectTemplate* GetCacheTemplate(FixedString const& templateId)
 {
 	auto cache = *GetStaticSymbols().esv__CacheTemplateManager;
 	if (cache) {
-		auto tmpl = cache->Templates.Find(templateId);
-		if (tmpl) {
-			return *tmpl;
-		}
+		return cache->Templates.TryGet(templateId);
 	}
 
 	return nullptr;
@@ -33,10 +25,7 @@ GameObjectTemplate* GetLocalTemplate(FixedString const& templateId)
 {
 	auto level = GetStaticSymbols().GetCurrentServerLevel();
 	if (level) {
-		auto tmpl = level->LocalTemplateManager->Templates.Find(templateId);
-		if (tmpl) {
-			return *tmpl;
-		}
+		return level->LocalTemplateManager->Templates.TryGet(templateId);
 	}
 
 	return nullptr;
@@ -46,10 +35,7 @@ GameObjectTemplate* GetLocalCacheTemplate(FixedString const& templateId)
 {
 	auto level = GetStaticSymbols().GetCurrentServerLevel();
 	if (level) {
-		auto tmpl = level->LevelCacheTemplateManager->Templates.Find(templateId);
-		if (tmpl) {
-			return *tmpl;
-		}
+		return level->LevelCacheTemplateManager->Templates.TryGet(templateId);
 	}
 
 	return nullptr;

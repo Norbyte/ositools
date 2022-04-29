@@ -60,6 +60,7 @@ struct Status : public ProtectedGameObject<Status>
 
 	using GetEnterChanceProc = int32_t(Status* self, bool isEnterCheck);
 	using EnterProc = bool (Status* self);
+	using ShouldDeleteProc = bool (Status* self);
 
 	virtual ~Status() = 0;
 	virtual void SetObjectHandle(ComponentHandle Handle) = 0;
@@ -611,6 +612,8 @@ struct StatusMachine : public dse::StatusMachine<Status>
 {
 	using CreateStatusProc = Status * (StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ComponentHandle);
 	using ApplyStatusProc = void(StatusMachine* StatusMachine, Status* Status);
+	using UpdateProc = void(StatusMachine* StatusMachine, GameTime* time);
+	using DeleteStatusByHandleProc = bool(StatusMachine* self, ComponentHandle* handle);
 
 	esv::Status* GetServerStatus(ComponentHandle handle, bool returnUnapplied) const;
 };

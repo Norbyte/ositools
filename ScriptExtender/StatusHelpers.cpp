@@ -178,13 +178,13 @@ namespace dse::esv
 			return nullptr;
 		}
 
-		auto proto = (*statusProtoMgr)->Prototypes.Find(statusId);
+		auto proto = (*statusProtoMgr)->Prototypes.TryGet(statusId);
 		if (!proto) {
 			OsiError("No status found with ID: " << statusId);
 			return nullptr;
 		}
 
-		auto statusType = (*proto)->StatusId;
+		auto statusType = proto->StatusId;
 		esv::Status* status = ConstructStatus(statusMachine, statusId, statusType);
 		if (status == nullptr) {
 			return nullptr;

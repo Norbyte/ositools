@@ -32,17 +32,17 @@ namespace dse
 
 			FixedString fs(label);
 			Labels[index] = fs;
-			Values.Insert(fs, val);
+			Values.insert(std::move(fs), val);
 			AllowedFlags = (T)((uint64_t)AllowedFlags | (uint64_t)val);
 		}
 
 		static std::optional<T> Find(FixedString const& name)
 		{
-			auto val = Values.Find(name);
+			auto val = Values.find(name);
 			if (!val) {
 				return {};
 			} else {
-				return *val;
+				return val.Value();
 			}
 		}
 
@@ -91,16 +91,16 @@ namespace dse
 			}
 
 			Labels[index] = fs;
-			Values.Insert(fs, val);
+			Values.insert(std::move(fs), val);
 		}
 
 		static std::optional<T> Find(FixedString const& name)
 		{
-			auto val = Values.Find(name);
-			if (!val) {
-				return {};
+			auto val = Values.find(name);
+			if (val) {
+				return val.Value();
 			} else {
-				return *val;
+				return {};
 			}
 		}
 
