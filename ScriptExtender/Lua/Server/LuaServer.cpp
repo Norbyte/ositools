@@ -312,7 +312,7 @@ void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectI
 	} else if (modifierList->IsItemType()) {
 		return MakeObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
 	} else {
-		return MakeObjectRef(L, lifetime, stats);
+		ObjectProxy2::MakeRef(L, stats, lifetime);
 	}
 }
 
