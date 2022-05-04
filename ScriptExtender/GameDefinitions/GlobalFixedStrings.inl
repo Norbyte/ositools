@@ -105,6 +105,7 @@ FS(FadeTime);
 FS(Weapon);
 FS(Armor);
 FS(Shield);
+FS(Potion);
 
 // Stat attributes
 FS(Level);

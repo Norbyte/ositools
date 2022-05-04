@@ -723,7 +723,8 @@ Modifier* gExtraPropertiesModifier{ nullptr };
 std::optional<ModifierInfo> ModifierList::GetModifierInfo(FixedString const& attributeName) const
 {
 	auto stats = GetStaticSymbols().GetStats();
-	if (attributeName == GFS.strExtraProperties && IsItemType()) {
+	if (attributeName == GFS.strExtraProperties 
+		&& (IsItemType() || Name == GFS.strPotion)) {
 		if (!gExtraPropertiesModifier) {
 			gExtraPropertiesModifier = GameAlloc<Modifier>();
 			gExtraPropertiesModifier->ValueListIndex = *stats->ModifierValueLists.FindIndex(GFS.strProperties);
