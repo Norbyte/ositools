@@ -24,6 +24,7 @@
 #include <Lua/Libs/ServerEffect.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
+#include <Lua/Libs/ServerPropertyLists.inl>
 #include <Lua/Libs/ServerTemplate.inl>
 #include <Lua/Libs/ClientTemplate.inl>
 #include <Lua/Libs/AI.inl>
@@ -57,6 +58,7 @@ void RegisterServerLibraries()
 	effect::RegisterEffectLib();
 	surface::action::RegisterSurfaceActionLib();
 	tmpl::RegisterTemplateLib();
+	proplist::RegisterPropertyListLib();
 }
 
 END_NS()

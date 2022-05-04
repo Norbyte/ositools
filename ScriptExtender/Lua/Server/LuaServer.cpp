@@ -625,90 +625,6 @@ namespace dse::esv::lua
 		CreateNameResolver(L);
 	}
 
-
-	int ExecuteSkillPropertiesOnTarget(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto skillId = get<FixedString>(L, 1);
-		auto attacker = ecs::LuaGetCharacter(L, 2);
-		auto target = ecs::LuaGetCharacter(L, 3);
-		auto position = get<glm::vec3>(L, 4);
-		auto propertyContext = get<stats::PropertyContext>(L, 5);
-		auto isFromItem = get<bool>(L, 6);
-
-		stats::SkillPrototype* skillProto{ nullptr };
-		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
-		if (skillProtoMgr && *skillProtoMgr) {
-			skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
-		}
-
-		if (!skillProto) {
-			LuaError("Couldn't find skill prototype for " << skillId);
-			return 0;
-		}
-
-		auto exec = GetStaticSymbols().esv__ExecuteCharacterSetExtraProperties;
-		auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
-
-		if (!skillProperties) {
-			LuaError("Skill " << skillId << " has no SkillProperties!");
-			return 0;
-		}
-
-		if (!attacker || !target || !exec) {
-			return 0;
-		}
-
-		ComponentHandle attackerHandle;
-		attacker->GetObjectHandle(attackerHandle);
-		ObjectSet<esv::Character*> targets;
-		targets.push_back(target);
-
-		exec(skillProperties, attackerHandle.Handle, targets, position, propertyContext, isFromItem,
-			skillProto, nullptr, 0.0f, nullptr, false, 2.4f);
-		return 0;
-	}
-
-	int ExecuteSkillPropertiesOnPosition(lua_State* L)
-	{
-		StackCheck _(L, 0);
-		auto skillId = get<FixedString>(L, 1);
-		auto attacker = ecs::LuaGetCharacter(L, 2);
-		auto position = get<glm::vec3>(L, 3);
-		auto radius = get<float>(L, 4);
-		auto propertyContext = get<stats::PropertyContext>(L, 5);
-		auto isFromItem = get<bool>(L, 6);
-
-		stats::SkillPrototype* skillProto{ nullptr };
-		auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
-		if (skillProtoMgr && *skillProtoMgr) {
-			skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
-		}
-
-		if (!skillProto) {
-			LuaError("Couldn't find skill prototype for " << skillId);
-			return 0;
-		}
-
-		auto exec = GetStaticSymbols().esv__ExecutePropertyDataOnPositionOnly;
-		auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
-
-		if (!skillProperties) {
-			LuaError("Skill " << skillId << " has no SkillProperties!");
-			return 0;
-		}
-
-		if (!attacker || !exec) {
-			return 0;
-		}
-
-		ComponentHandle attackerHandle;
-		attacker->GetObjectHandle(attackerHandle);
-
-		exec(skillProperties, attackerHandle.Handle, &position, radius, propertyContext, isFromItem, skillProto, nullptr, 2.4f);
-		return 0;
-	}
-
 	int CreateItemConstructor(lua_State* L)
 	{
 		StackCheck _(L, 1);
@@ -816,9 +732,6 @@ namespace dse::esv::lua
 	void ExtensionLibraryServer::RegisterLib(lua_State * L)
 	{
 		static const luaL_Reg extLib[] = {
-			{"ExecuteSkillPropertiesOnTarget", ExecuteSkillPropertiesOnTarget},
-			{"ExecuteSkillPropertiesOnPosition", ExecuteSkillPropertiesOnPosition},
-
 			{"CreateItemConstructor", CreateItemConstructor},
 
 			{"PrepareStatus", PrepareStatus},

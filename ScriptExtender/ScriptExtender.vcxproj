@@ -293,6 +293,7 @@
     <None Include="Lua\Libs\ServerEntity.inl" />
     <None Include="Lua\Libs\ServerNet.inl" />
     <None Include="Lua\Libs\ServerOsiris.inl" />
+    <None Include="Lua\Libs\ServerPropertyLists.inl" />
     <None Include="Lua\Libs\ServerSurfaceAction.inl" />
     <None Include="Lua\Libs\ServerTemplate.inl" />
     <None Include="Lua\Libs\Surface.inl" />

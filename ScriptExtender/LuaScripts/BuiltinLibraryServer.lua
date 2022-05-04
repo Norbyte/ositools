@@ -120,3 +120,7 @@ Ext.CancelSurfaceAction = CallDeprecated(Ext.Surface.Action.Cancel, "CancelSurfa
 
 -- Backwards compatibility with old server APIs
 Ext.GetGameState = CallDeprecated(Ext.Server.GetGameState, "GetGameState", "Server.GetGameState")
+
+-- Backwards compatibility with old property list APIs
+Ext.ExecuteSkillPropertiesOnTarget = CallDeprecated(Ext.PropertyList.ExecuteSkillPropertiesOnTarget, "ExecuteSkillPropertiesOnTarget", "PropertyList.ExecuteSkillPropertiesOnTarget")
+Ext.ExecuteSkillPropertiesOnPosition = CallDeprecated(Ext.PropertyList.ExecuteSkillPropertiesOnPosition, "ExecuteSkillPropertiesOnPosition", "PropertyList.ExecuteSkillPropertiesOnPosition")

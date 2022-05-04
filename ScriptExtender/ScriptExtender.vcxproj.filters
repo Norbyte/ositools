@@ -820,6 +820,9 @@
     <None Include="Lua\Libs\ServerAi.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="Lua\Libs\ServerPropertyLists.inl">
+      <Filter>Lua\Libs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />
