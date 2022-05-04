@@ -309,7 +309,7 @@ void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectI
 	auto modifierList = stats->GetModifierList();
 	if (modifierList->Name == GFS.strCharacter) {
 		return MakeObjectRef(L, lifetime, static_cast<stats::Character*>(stats));
-	} else if (modifierList->Name == GFS.strItem) {
+	} else if (modifierList->IsItemType()) {
 		return MakeObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
 	} else {
 		return MakeObjectRef(L, lifetime, stats);

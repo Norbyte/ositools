@@ -212,6 +212,7 @@ struct ModifierList
 	FixedString Name;
 
 	std::optional<ModifierInfo> GetModifierInfo(FixedString const& name) const;
+	bool IsItemType() const;
 };
 
 struct PropertyData

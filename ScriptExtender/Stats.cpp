@@ -723,8 +723,7 @@ Modifier* gExtraPropertiesModifier{ nullptr };
 std::optional<ModifierInfo> ModifierList::GetModifierInfo(FixedString const& attributeName) const
 {
 	auto stats = GetStaticSymbols().GetStats();
-	if (attributeName == GFS.strExtraProperties
-		&& (Name == GFS.strWeapon || Name == GFS.strArmor || Name == GFS.strShield)) {
+	if (attributeName == GFS.strExtraProperties && IsItemType()) {
 		if (!gExtraPropertiesModifier) {
 			gExtraPropertiesModifier = GameAlloc<Modifier>();
 			gExtraPropertiesModifier->ValueListIndex = *stats->ModifierValueLists.FindIndex(GFS.strProperties);
@@ -745,6 +744,13 @@ std::optional<ModifierInfo> ModifierList::GetModifierInfo(FixedString const& att
 		auto valueList = stats->ModifierValueLists.Find(modifier->ValueListIndex);
 		return ModifierInfo{ modifier, valueList, *index };
 	}
+}
+
+bool ModifierList::IsItemType() const
+{
+	return Name == GFS.strWeapon
+		|| Name == GFS.strArmor
+		|| Name == GFS.strShield;
 }
 
 CRPGStatsVMTMappings gCRPGStatsVMTMappings;
