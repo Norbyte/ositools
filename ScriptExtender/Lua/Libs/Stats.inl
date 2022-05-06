@@ -597,6 +597,34 @@ void UpdateItemSet(lua_State* L)
 	}
 }
 
+RefMap<FixedString, ItemColorDefinition>* GetAllItemColors()
+{
+	return &GetStaticSymbols().GetStats()->Colors;
+}
+
+ItemColorDefinition* GetItemColor(lua_State* L, FixedString const& colorName)
+{
+	return GetStaticSymbols().GetStats()->Colors.FindValueRef(colorName);
+}
+
+void UpdateItemColor(lua_State* L)
+{
+	luaL_checktype(L, 1, LUA_TTABLE);
+	auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+	auto stats = GetStaticSymbols().GetStats();
+	auto itemColor = stats->Colors.FindValueRef(name);
+	bool isNew = (itemColor == nullptr);
+
+	lua_pushvalue(L, 1);
+	LuaRead(L, itemColor);
+	lua_pop(L, 1);
+
+	if (isNew) {
+		stats->Colors.insert(name, *itemColor);
+	}
+}
+
 UserReturn GetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
 	WarnDeprecated56("StatGetAttribute() is deprecated; set properties directly on the stats object instead!");
@@ -1112,6 +1140,13 @@ void RegisterStatsLib()
 	BEGIN_MODULE()
 	MODULE_NAMED_FUNCTION("GetLegacy", GetItemSet)
 	MODULE_NAMED_FUNCTION("Update", UpdateItemSet)
+	END_MODULE()
+
+	DECLARE_SUBMODULE(Stats, ItemColor, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("Get", GetItemColor)
+	MODULE_NAMED_FUNCTION("Update", UpdateItemColor)
+	MODULE_NAMED_FUNCTION("GetAll", GetAllItemColors)
 	END_MODULE()
 }
 

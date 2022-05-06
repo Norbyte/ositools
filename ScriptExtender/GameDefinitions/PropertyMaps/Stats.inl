@@ -744,6 +744,13 @@ P_RO(AllPropertyContexts)
 END_CLS()
 
 
+BEGIN_CLS(stats::ItemColorDefinition)
+P(Color1)
+P(Color2)
+P(Color3)
+END_CLS()
+
+
 BEGIN_CLS(esv::PendingHit)
 P_RO(Id)
 P_RO(TargetHandle)

@@ -372,5 +372,6 @@ namespace dse::lua
 	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyList& v);
 	LuaSerializer& operator << (LuaSerializer& s, stats::DeltaModifier& v);
 	LuaSerializer& operator << (LuaSerializer& s, stats::ItemSet& v);
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemColorDefinition& v);
 	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v);
 }

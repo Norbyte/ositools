@@ -1251,6 +1251,13 @@ struct ItemSetManager : public NamedElementManager<ItemSet>
 
 extern CRPGStatsVMTMappings gCRPGStatsVMTMappings;
 
+struct ItemColorDefinition
+{
+	uint32_t Color1;
+	uint32_t Color2;
+	uint32_t Color3;
+};
+
 struct RPGStats : public ProtectedGameObject<RPGStats>
 {
 	typedef void (*LoadProc)(RPGStats* self);
@@ -1270,7 +1277,7 @@ struct RPGStats : public ProtectedGameObject<RPGStats>
 	uint64_t Unkn1[5];
 	ExtraData * ExtraData;
 	RefMap<FixedString, void *> RefMap1;
-	RefMap<FixedString, void *> ColorTable;
+	RefMap<FixedString, ItemColorDefinition> Colors;
 	Map<FixedString, FixedString> TreasureCategoryMaps;
 	Map<FixedString, int> TreasureWeaponCounters;
 	Map<FixedString, int> TreasureArmorCounters;

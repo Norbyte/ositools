@@ -716,6 +716,16 @@ namespace dse::lua
 		return s;
 	}
 
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemColorDefinition& v)
+	{
+		s.BeginObject();
+		P(Color1);
+		P(Color2);
+		P(Color3);
+		s.EndObject();
+		return s;
+	}
+
 	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v)
 	{
 		s.BeginObject();
