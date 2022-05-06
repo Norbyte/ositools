@@ -570,6 +570,30 @@ UserReturn GetNameGroup(lua_State* L, FixedString const& name)
 	return LuaWrite(L, nameGroup);
 }
 
+UserReturn GetItemSet(lua_State* L, FixedString const& itemSetName)
+{
+	auto itemSet = GetStaticSymbols().GetStats()->ItemSetsManager->Find(itemSetName);
+	return LuaWrite(L, itemSet);
+}
+
+void UpdateItemSet(lua_State* L)
+{
+	luaL_checktype(L, 1, LUA_TTABLE);
+	auto name = checked_getfield<FixedString>(L, "Name", 1);
+
+	auto stats = GetStaticSymbols().GetStats();
+	auto itemSet = stats->ItemSetsManager->Find(name);
+	bool isNew = (itemSet == nullptr);
+
+	lua_pushvalue(L, 1);
+	LuaRead(L, itemSet);
+	lua_pop(L, 1);
+
+	if (isNew) {
+		stats->ItemSetsManager->Add(name, itemSet);
+	}
+}
+
 UserReturn GetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
 	WarnDeprecated56("StatGetAttribute() is deprecated; set properties directly on the stats object instead!");
@@ -1079,6 +1103,12 @@ void RegisterStatsLib()
 	DECLARE_SUBMODULE(Stats, NameGroup, Both)
 	BEGIN_MODULE()
 	MODULE_NAMED_FUNCTION("GetLegacy", GetNameGroup)
+	END_MODULE()
+
+	DECLARE_SUBMODULE(Stats, ItemSet, Both)
+	BEGIN_MODULE()
+	MODULE_NAMED_FUNCTION("GetLegacy", GetItemSet)
+	MODULE_NAMED_FUNCTION("Update", UpdateItemSet)
 	END_MODULE()
 }
 

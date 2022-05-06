@@ -371,5 +371,6 @@ namespace dse::lua
 	void SerializeObjectProperty(LuaSerializer& s, stats::PropertyData*& v);
 	LuaSerializer& operator << (LuaSerializer& s, stats::PropertyList& v);
 	LuaSerializer& operator << (LuaSerializer& s, stats::DeltaModifier& v);
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemSet& v);
 	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v);
 }

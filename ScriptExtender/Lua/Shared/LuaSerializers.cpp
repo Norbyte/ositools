@@ -702,6 +702,20 @@ namespace dse::lua
 		return s;
 	}
 
+	LuaSerializer& operator << (LuaSerializer& s, stats::ItemSet& v)
+	{
+		s.BeginObject();
+		P(Name);
+		P(TranslatedName);
+		P(TranslatedSetEffect);
+		P(Items);
+		P(GrantedSkills);
+		P(GrantedStatuses);
+		P(ItemsUpgradeLevel);
+		s.EndObject();
+		return s;
+	}
+
 	LuaSerializer& operator << (LuaSerializer& s, SurfaceTemplate::StatusData& v)
 	{
 		s.BeginObject();
