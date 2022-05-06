@@ -25,12 +25,17 @@ ModifierList* Object::GetModifierList() const
 std::optional<ModifierInfo> Object::GetModifierInfo(FixedString const& attributeName) const
 {
 	auto modifierList = GetModifierList();
-	auto modifier = modifierList->GetModifierInfo(attributeName);
-	if (!modifier) {
-		OsiError("Stats entry '" << Name << "' (of type " << modifierList->Name << ") has no property named '" << attributeName << "'");
-	}
+	if (modifierList) {
+		auto modifier = modifierList->GetModifierInfo(attributeName);
+		if (!modifier) {
+			OsiError("Stats entry '" << Name << "' (of type " << modifierList->Name << ") has no property named '" << attributeName << "'");
+		}
 
-	return modifier;
+		return modifier;
+	} else {
+		OsiError("Stats entry '" << Name << "' has no modifier list!");
+		return {};
+	}
 }
 
 std::optional<char const*> Object::GetString(FixedString const& modifierName) const

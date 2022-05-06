@@ -32,21 +32,24 @@ bool StatsEntryProxyRefImpl::SetProperty(lua_State* L, FixedString const& prop, 
 
 int StatsEntryProxyRefImpl::Next(lua_State* L, FixedString const& key)
 {
-	auto const& attrs = Get()->GetModifierList()->Attributes;
-	if (!key) {
-		if (attrs.Primitives.size() > 0) {
-			auto const& prop = attrs.Primitives[0]->Name;
-			push(L, prop);
-			Get()->LuaGetAttribute(L, prop, level_);
-			return 2;
-		}
-	} else {
-		auto curKey = attrs.FindIndex(key);
-		if (curKey && attrs.Primitives.size() > (unsigned)*curKey + 1) {
-			auto const& prop = attrs.Primitives[*curKey + 1]->Name;
-			push(L, prop);
-			Get()->LuaGetAttribute(L, prop, level_);
-			return 2;
+	auto modifierList = Get()->GetModifierList();
+	if (modifierList) {
+		auto const& attrs = modifierList->Attributes;
+		if (!key) {
+			if (attrs.Primitives.size() > 0) {
+				auto const& prop = attrs.Primitives[0]->Name;
+				push(L, prop);
+				Get()->LuaGetAttribute(L, prop, level_);
+				return 2;
+			}
+		} else {
+			auto curKey = attrs.FindIndex(key);
+			if (curKey && attrs.Primitives.size() > (unsigned)*curKey + 1) {
+				auto const& prop = attrs.Primitives[*curKey + 1]->Name;
+				push(L, prop);
+				Get()->LuaGetAttribute(L, prop, level_);
+				return 2;
+			}
 		}
 	}
 			

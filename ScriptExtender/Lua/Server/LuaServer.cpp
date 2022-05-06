@@ -307,9 +307,9 @@ void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, Lif
 void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectInstance* stats, LifetimeHolder const & lifetime)
 {
 	auto modifierList = stats->GetModifierList();
-	if (modifierList->Name == GFS.strCharacter) {
+	if (modifierList && modifierList->Name == GFS.strCharacter) {
 		return MakeObjectRef(L, lifetime, static_cast<stats::Character*>(stats));
-	} else if (modifierList->IsItemType()) {
+	} else if (modifierList && modifierList->IsItemType()) {
 		return MakeObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
 	} else {
 		ObjectProxy2::MakeRef(L, stats, lifetime);
