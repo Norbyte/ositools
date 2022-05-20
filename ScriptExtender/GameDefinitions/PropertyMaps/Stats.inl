@@ -97,7 +97,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 			return true;
 		},
 		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
-			auto val = get<int32_t>(L, index);
+			auto val = get<bool>(L, index);
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
 				if (val) {
