@@ -344,3 +344,4 @@ LuaDebugger/DbgProtocol.cs
 ScriptExtender/Lua.bundle
 ScriptExtender/Doxygen
 republish-manifest.bat
+ScriptExtenderTypeGen

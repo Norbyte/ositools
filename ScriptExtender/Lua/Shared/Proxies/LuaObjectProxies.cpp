@@ -26,7 +26,7 @@ BEGIN_NS(lua)
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName)
 {
 	for (auto const& prop : base.Properties) {
-		child.AddRawProperty(prop.first.GetString(), prop.second.Get, prop.second.Set, prop.second.Offset);
+		child.AddRawProperty(prop.first.GetString(), prop.second.Get, prop.second.Set, prop.second.Offset, prop.second.Flag);
 	}
 
 	for (auto const& parent : base.Parents) {
