@@ -239,6 +239,7 @@ ObjectSet<FixedString> FetchItemNameGroupEntries(RPGStats* stats)
 void FetchDeltaModEntries(lua_State* L, RPGStats* stats)
 {
 	int32_t index = 1;
+	lua_newtable(L);
 	for (auto deltaModList : stats->DeltaMods.Primitives) {
 		for (auto deltaMod : deltaModList->Primitives) {
 			push(L, index++);
