@@ -185,6 +185,11 @@ GlobalSwitches* GetGlobalSwitches()
 	return GetStaticSymbols().GetGlobalSwitches();
 }
 
+GraphicSettings* GetGraphicSettings()
+{
+	return *GetStaticSymbols().ls__GraphicSettings;
+}
+
 void RegisterUtilsLib()
 {
 	DECLARE_MODULE(Utils, Both)
@@ -203,6 +208,7 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(Round)
 	MODULE_FUNCTION(ShowErrorAndExitGame)
 	MODULE_FUNCTION(GetGlobalSwitches)
+	MODULE_FUNCTION(GetGraphicSettings)
 	END_MODULE()
 }
 

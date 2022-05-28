@@ -242,6 +242,7 @@ namespace dse
 		SYM_OFF(ResourceManager__Instance);
 		SYM_OFF(ls__VisualFactory__DestroyVisual);
 		SYM_OFF(ls__GlobalSwitches);
+		SYM_OFF(ls__GraphicSettings);
 
 		SYM_OFF(CDivinityStats_Item__FoldDynamicAttributes);
 		SYM_OFF(ls__ModuleSettings__HasCustomMods);

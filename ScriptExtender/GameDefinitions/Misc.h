@@ -237,6 +237,53 @@ namespace dse
 		int field_11C8;
 	};
 
+	struct GraphicSettings
+	{
+		void* VMT;
+		bool Fullscreen;
+		bool FakeFullscreenEnabled;
+		int ScreenWidth;
+		int ScreenHeight;
+		int RefreshRateNumerator;
+		int RefreshRateDenominator;
+		int MonitorIndex;
+		bool VSync;
+		int VSyncDivider;
+		bool TripleBuffering;
+		bool ClothGPUAcceleration;
+		float GammaCorrection;
+		float HDRGamma;
+		int TextureDetail;
+		int TextureFiltering;
+		bool TextureStreamingEnabled;
+		int ModelDetail;
+		int AnimationAllowedPixelError;
+		int LightingDetail;
+		bool EnableSpotLightsSMAA;
+		bool ShadowsEnabled;
+		bool PointLightShadowsEnabled;
+		int ShadowQuality;
+		float MaxDrawDistance;
+		float MaxDrawDistance2;
+		int AntiAliasing;
+		bool BloomEnabled;
+		bool DOFEnabled;
+		bool GodRaysEnabled;
+		bool LensFlareEnabled;
+		bool MotionBlurEnabled;
+		bool SSAOEnabled;
+		bool EnableSSR;
+		bool UseForwardRendering;
+		bool EnableLightAssignmentStage;
+		bool FrameCapEnabled;
+		int16_t FrameCapFPS;
+		bool RenderMT;
+		float HDRPaperWhite;
+		float HDRMaxNits;
+		bool PostProcessingInjectTexture;
+		bool ShowHDRCalibration;
+	};
+
 	struct InputValue
 	{
 		int field_0;

@@ -296,6 +296,7 @@ namespace dse
 #else
 		GlobalSwitches *** ls__GlobalSwitches{ nullptr };
 #endif
+		GraphicSettings** ls__GraphicSettings{ nullptr };
 		void * CDivinityStats_Item__FoldDynamicAttributes{ nullptr };
 		void * ls__ModuleSettings__HasCustomMods{ nullptr };
 		void * ls__ModuleSettings__HasCustomModsGB5{ nullptr };

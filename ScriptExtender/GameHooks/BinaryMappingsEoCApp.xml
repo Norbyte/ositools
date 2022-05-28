@@ -1383,5 +1383,15 @@
       45 89 6c 24 48 // mov     [r12+48h], r13d
       <Target Type="Indirect" Offset="@ref1" Symbol="esv__AiHelpers__SortActions" />
     </Mapping>
+
+    <Mapping Name="ls::GraphicSettings">
+      48 8b 89 d0 01 00 00 // mov     rcx, [rcx+1D0h]
+      44 0f b6 40 08 // movzx   r8d, byte ptr [rax+8]
+      e8 ?? ?? ?? ?? // call    sub_141203940
+      @ref1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:gGraphicSettings
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_FakeFullscreenEnabled
+      <Condition Type="FixedString" Offset="@str1" Value="FakeFullscreenEnabled" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__gGraphicSettings" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>
