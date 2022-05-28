@@ -5,4 +5,4 @@
 #define END_SE() }
 
 #define BEGIN_NS(ns) namespace dse::ns {
-#define END_NS }
+#define END_NS() }

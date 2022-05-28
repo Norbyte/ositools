@@ -51,6 +51,7 @@ private:
 struct TypeInformation
 {
 	FixedString TypeName;
+	FixedString NativeName;
 	LuaTypeId Kind{ LuaTypeId::Unknown };
 	TypeInformationRef KeyType;
 	TypeInformationRef ElementType;

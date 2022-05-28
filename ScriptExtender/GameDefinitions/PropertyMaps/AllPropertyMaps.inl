@@ -22,6 +22,7 @@
 BEGIN_CLS(TypeInformation)
 P_RO(TypeName)
 P_RO(Kind)
+P_RO(NativeName)
 P_RO(KeyType)
 P_RO(ElementType)
 P_RO(ParentType)
