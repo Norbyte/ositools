@@ -90,7 +90,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
-				push(L, (**attrFlags & (1ull << flag)) != 0);
+				push(L, (**attrFlags & flag) != 0);
 			} else {
 				push(L, false);
 			}
@@ -98,12 +98,14 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 		},
 		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<bool>(L, index);
-			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
+			int flagsId = (int)obj->AttributeFlagsObjectId;
+			auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateFlags(flagsId);
+			obj->AttributeFlagsObjectId = (int64_t)flagsId;
 			if (attrFlags) {
 				if (val) {
-					**attrFlags |= (1ull << flag);
+					*attrFlags |= flag;
 				} else {
-					**attrFlags &= ~(1ull << flag);
+					*attrFlags &= ~flag;
 				}
 			}
 			return true;
@@ -272,7 +274,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
-				push(L, (**attrFlags & (1ull << flag)) != 0);
+				push(L, (**attrFlags & flag) != 0);
 			} else {
 				push(L, false);
 			}
@@ -283,9 +285,9 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
 				if (val) {
-					**attrFlags |= (1ull << flag);
+					**attrFlags |= flag;
 				} else {
-					**attrFlags &= ~(1ull << flag);
+					**attrFlags &= ~flag;
 				}
 			}
 			return true;
