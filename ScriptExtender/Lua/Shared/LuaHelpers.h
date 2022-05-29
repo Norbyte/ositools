@@ -634,14 +634,14 @@ namespace dse::lua
 	private:
 		std::vector<ModuleDefinition> modules_;
 
-		void AddModuleToState(lua_State* L, ModuleDefinition const& module);
+		void MakeLuaFunctionTable(ModuleDefinition const& module, std::vector<luaL_Reg>& lib);
+		void InstantiateModule(lua_State* L, ModuleDefinition const& module);
+		void InstantiateModule(lua_State* L, char const* name, ModuleDefinition const& module);
+		void InstantiateModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module);
 		void RegisterModuleTypeInformation(ModuleDefinition const& module);
 	};
 
 	extern ModuleRegistry gModuleRegistry;
-
-	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib);
-	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib);
 
 	template <class T>
 	inline T checked_get_flags(lua_State* L, int index)

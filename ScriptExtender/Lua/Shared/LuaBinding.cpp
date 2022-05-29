@@ -198,25 +198,6 @@ namespace dse::lua
 
 #endif
 
-	void RegisterLib(lua_State* L, char const* name, luaL_Reg const* lib)
-	{
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_createtable(L, 0, 0); // stack: ext, lib
-		luaL_setfuncs(L, lib, 0);
-		lua_setfield(L, -2, name);
-		lua_pop(L, 1);
-	}
-
-	void RegisterLib(lua_State* L, char const* name, char const* subTableName, luaL_Reg const* lib)
-	{
-		lua_getglobal(L, "Ext"); // stack: Ext
-		lua_getfield(L, -1, name); // stack: Ext, parent
-		lua_createtable(L, 0, 0); // stack: ext, parent, lib
-		luaL_setfuncs(L, lib, 0);
-		lua_setfield(L, -2, subTableName);
-		lua_pop(L, 2);
-	}
-
 
 	ModuleRegistry gModuleRegistry;
 
@@ -229,7 +210,7 @@ namespace dse::lua
 	{
 		for (auto const& module : modules_) {
 			if (role == module.Role || module.Role == ModuleRole::Both) {
-				AddModuleToState(L, module);
+				InstantiateModule(L, module);
 			}
 		}
 	}
@@ -264,19 +245,55 @@ namespace dse::lua
 		}
 	}
 
-	void ModuleRegistry::AddModuleToState(lua_State* L, ModuleDefinition const& module)
+	void ModuleRegistry::MakeLuaFunctionTable(ModuleDefinition const& module, std::vector<luaL_Reg>& lib)
 	{
-		std::vector<luaL_Reg> lib;
 		lib.reserve(module.Functions.size() + 1);
 		for (auto const& fun : module.Functions) {
 			lib.push_back({ fun.Name.GetString(), fun.Func });
 		}
 		lib.push_back({ nullptr, nullptr });
+	}
 
+	void ModuleRegistry::InstantiateModule(lua_State* L, char const* name, ModuleDefinition const& module)
+	{
+		std::vector<luaL_Reg> lib;
+		MakeLuaFunctionTable(module, lib);
+
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_createtable(L, 0, 0); // stack: ext, lib
+		luaL_setfuncs(L, lib.data(), 0);
+		lua_setfield(L, -2, name);
+		lua_pop(L, 1);
+	}
+
+	void ModuleRegistry::InstantiateModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module)
+	{
+		std::vector<luaL_Reg> lib;
+		MakeLuaFunctionTable(module, lib);
+
+		lua_getglobal(L, "Ext"); // stack: Ext
+		lua_getfield(L, -1, name); // stack: Ext, parent
+		lua_createtable(L, 0, 0); // stack: ext, parent, lib
+		luaL_setfuncs(L, lib.data(), 0);
+		lua_setfield(L, -2, subTableName);
+		lua_pop(L, 2);
+	}
+
+	void ModuleRegistry::InstantiateModule(lua_State* L, ModuleDefinition const& module)
+	{
 		if (!module.SubTable) {
-			RegisterLib(L, module.Table.GetString(), lib.data());
+			InstantiateModule(L, module.Table.GetString(), module);
 		} else {
-			RegisterLib(L, module.Table.GetString(), module.SubTable.GetString(), lib.data());
+			InstantiateModule(L, module.Table.GetString(), module.SubTable.GetString(), module);
+		}
+
+		if (module.Role != ModuleRole::Both) {
+			STDString prefix = (module.Role == ModuleRole::Server) ? "Server" : "Client";
+			if (!module.SubTable) {
+				InstantiateModule(L, (prefix + module.Table.GetString()).c_str(), module);
+			} else {
+				InstantiateModule(L, (prefix + module.Table.GetString()).c_str(), module.SubTable.GetString(), module);
+			}
 		}
 	}
 
