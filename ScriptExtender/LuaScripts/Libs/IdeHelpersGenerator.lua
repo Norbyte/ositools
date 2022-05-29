@@ -122,11 +122,17 @@ function Generator:Build()
 end
 
 function Generator:MakeTypeName(type)
-    type = string.gsub(type, "_%a", function (ns)
+    -- Replace "_" with capitalization (mainly used for stats class names)
+    type = string.gsub(type, "_[%a%d]", function (ns)
         return string.upper(string.sub(ns, 2))
     end)
-    type = string.gsub(type, "%a+::", function (ns)
+    -- Replace namespace "::" with capitalization
+    type = string.gsub(type, "[%a%d]+::", function (ns)
         return string.upper(string.sub(ns, 1, 1)) .. string.sub(ns, 2, -3)
+    end)
+    -- Replace template classes "T<V>" with underscore ("T_V")
+    type = string.gsub(type, "<[%a%d]+>", function (n)
+        return "_" .. string.sub(n, 2, -2)
     end)
     return type
 end
