@@ -636,8 +636,9 @@ namespace dse::lua
 
 		void MakeLuaFunctionTable(ModuleDefinition const& module, std::vector<luaL_Reg>& lib);
 		void InstantiateModule(lua_State* L, ModuleDefinition const& module);
-		void InstantiateModule(lua_State* L, char const* name, ModuleDefinition const& module);
-		void InstantiateModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module);
+		void InstantiateModule(lua_State* L, char const* prefix, ModuleDefinition const& module);
+		void InstantiateNamedModule(lua_State* L, char const* name, ModuleDefinition const& module);
+		void InstantiateNamedModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module);
 		void RegisterModuleTypeInformation(ModuleDefinition const& module);
 	};
 

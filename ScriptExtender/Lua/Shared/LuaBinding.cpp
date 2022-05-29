@@ -264,7 +264,7 @@ namespace dse::lua
 		lib.push_back({ nullptr, nullptr });
 	}
 
-	void ModuleRegistry::InstantiateModule(lua_State* L, char const* name, ModuleDefinition const& module)
+	void ModuleRegistry::InstantiateNamedModule(lua_State* L, char const* name, ModuleDefinition const& module)
 	{
 		std::vector<luaL_Reg> lib;
 		MakeLuaFunctionTable(module, lib);
@@ -276,7 +276,7 @@ namespace dse::lua
 		lua_pop(L, 1);
 	}
 
-	void ModuleRegistry::InstantiateModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module)
+	void ModuleRegistry::InstantiateNamedModule(lua_State* L, char const* name, char const* subTableName, ModuleDefinition const& module)
 	{
 		std::vector<luaL_Reg> lib;
 		MakeLuaFunctionTable(module, lib);
@@ -289,21 +289,25 @@ namespace dse::lua
 		lua_pop(L, 2);
 	}
 
-	void ModuleRegistry::InstantiateModule(lua_State* L, ModuleDefinition const& module)
+	void ModuleRegistry::InstantiateModule(lua_State* L, char const* prefix, ModuleDefinition const& module)
 	{
 		if (!module.SubTable) {
-			InstantiateModule(L, module.Table.GetString(), module);
+			InstantiateNamedModule(L, (STDString(prefix) + module.Table.GetString()).c_str(), module);
 		} else {
-			InstantiateModule(L, module.Table.GetString(), module.SubTable.GetString(), module);
+			InstantiateNamedModule(L, (STDString(prefix) + module.Table.GetString()).c_str(), module.SubTable.GetString(), module);
+		}
+	}
+
+	void ModuleRegistry::InstantiateModule(lua_State* L, ModuleDefinition const& module)
+	{
+		InstantiateModule(L, "", module);
+
+		if (module.Role == ModuleRole::Both || module.Role == ModuleRole::Server) {
+			InstantiateModule(L, "Server", module);
 		}
 
-		if (module.Role != ModuleRole::Both) {
-			STDString prefix = (module.Role == ModuleRole::Server) ? "Server" : "Client";
-			if (!module.SubTable) {
-				InstantiateModule(L, (prefix + module.Table.GetString()).c_str(), module);
-			} else {
-				InstantiateModule(L, (prefix + module.Table.GetString()).c_str(), module.SubTable.GetString(), module);
-			}
+		if (module.Role == ModuleRole::Both || module.Role == ModuleRole::Client) {
+			InstantiateModule(L, "Client", module);
 		}
 	}
 
