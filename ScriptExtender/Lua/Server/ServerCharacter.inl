@@ -48,6 +48,10 @@ ObjectSet<Item*> Character::GetInventoryItems()
 	return items;
 }
 
+/// <summary>
+/// Retrieves the GUID of all characters within the specified range.
+/// </summary>
+/// <param name="distance">Maximum character distance</param>
 ObjectSet<FixedString> Character::GetNearbyCharacters(float distance)
 {
 	ObjectSet<Character*> characters;

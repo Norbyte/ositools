@@ -240,6 +240,7 @@ namespace dse
 			ObjectSet<FixedString> RegisteredTriggers;
 			PlayerData * PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
+			/// Number of times ServerControl was acquired on this character
 			uint32_t ServerControlRefCount;
 			float NoiseTimer;
 			float U131;

@@ -1,8 +1,21 @@
-#include <Lua/Shared/LuaMethodHelpers.h>
+﻿#include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Mod</lua_module>
 BEGIN_NS(lua::mod)
 
+/// <summary>
+/// Returns whether the module with the specified GUID is loaded.
+/// This is equivalent to Osiris `NRD_IsModLoaded`, but is callable when the Osiris scripting runtime is not yet available (i.e. `ModuleLoading˙, etc events).
+/// 
+/// Example:
+/// ```lua
+/// if (Ext.IsModLoaded("5cc23efe-f451-c414-117d-b68fbc53d32d")) then
+///     Ext.Print("Mod loaded")
+/// end
+/// ```
+/// </summary>
+/// <param name="modNameGuid">UUID of mod to check</param>
 bool IsModLoaded(char const* modNameGuid)
 {
 	auto modUuid = NameGuidToFixedString(modNameGuid);
@@ -18,6 +31,10 @@ bool IsModLoaded(char const* modNameGuid)
 	return false;
 }
 
+/// <summary>
+/// Returns the list of loaded module UUIDs in the order they're loaded in.
+/// </summary>
+/// <returns></returns>
 ObjectSet<FixedString> GetLoadOrder()
 {
 	ObjectSet<FixedString> loadOrder;
@@ -30,6 +47,20 @@ ObjectSet<FixedString> GetLoadOrder()
 	return loadOrder;
 }
 
+/// <summary>
+/// Returns detailed information about the specified (loaded) module.
+/// This function is deprecated; use `Ext.Mod.GetMod()` instead.
+/// 
+/// Example:
+/// ```lua
+/// local loadOrder = Ext.Mods.GetLoadOrder()
+/// for k, uuid in pairs(loadOrder) do
+///     local mod = Ext.GetModInfo(uuid)
+///     Ext.Dump(mod)
+/// end
+/// ```
+/// </summary>
+/// <param name="modNameGuid">Mod UUID to query</param>
 UserReturn GetModInfo(lua_State* L, char const* modNameGuid)
 {
 	StackCheck _(L, 1);
@@ -70,6 +101,10 @@ UserReturn GetModInfo(lua_State* L, char const* modNameGuid)
 	return 1;
 }
 
+/// <summary>
+/// Returns detailed information about the specified (loaded) module.
+/// </summary>
+/// <param name="modNameGuid">Mod UUID to query</param>
 Module* GetMod(char const* modNameGuid)
 {
 	Module const * module{ nullptr };

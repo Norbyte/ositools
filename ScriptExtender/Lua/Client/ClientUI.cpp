@@ -672,16 +672,39 @@ std::optional<glm::ivec2> UIObject::LuaGetPosition()
 	}
 }
 
+/// <summary>
+/// Displays the UI element.
+/// </summary>
 void UIObject::LuaShow()
 {
 	Show();
 }
 
+/// <summary>
+/// Hides the UI element.
+/// </summary>
 void UIObject::LuaHide()
 {
 	Hide();
 }
 
+/// <summary>
+/// Calls a method on the main timeline object of the UI element. 
+/// The first argument (`func`) is the name of the ActionScript function to call; all subsequent arguments are passed to the ActionScript function as parameters.
+/// Only `string`, `number` and `boolean` arguments are supported.
+/// 
+/// Example:
+/// ```lua
+/// local ui = Ext.UI.GetByPath(...)
+/// ui:Invoke("exposedMethod", "test")
+/// ```
+/// 
+/// ActionScript :
+/// ```actionscript
+/// function exposedMethod(val: String) : * {
+///     this.testLabel.text = val;
+/// }
+/// </summary>
 bool UIObject::LuaInvoke(lua_State * L, STDString const& method)
 {
 	if (!FlashPlayer) {
@@ -784,6 +807,11 @@ ComponentHandle UIObject::LuaGetHandle()
 }
 
 
+/// <summary>
+/// Attempts to determine the handle of the player that this UI element is assigned to. 
+/// If the element is not assigned to a player, the function returns `nil`.
+/// Only certain elements have a player assigned, like character sheet, inventory; others don't have player handles at all.
+/// </summary>
 std::optional<ComponentHandle> UIObject::LuaGetPlayerHandle()
 {
 	ComponentHandle handle;
@@ -802,12 +830,41 @@ std::optional<ComponentHandle> UIObject::LuaGetPlayerHandle()
 	}
 }
 
-
+/// <summary>
+/// Returns the engine type ID of the UI. 
+/// This ID can be used to retrieve the element using `Ext.UI.GetByType(...)`; it is also used to register ID-based listeners
+/// with the `Ext.UI.RegisterTypeInvokeListener` and `Ext.UI.RegisterTypeCall` functions.
+/// </summary>
 int UIObject::GetTypeId()
 {
 	return Type;
 }
 
+/// <summary>
+/// Returns the Flash main timeline object. 
+/// This allows navigation of the Flash object hierarchy from Lua and provides full access to all propertiesand sub - properties in Flash.
+/// This is the recommended way to interact with Flash objects within the UI; the old `GetValue` and `SetValue` methods are deprecated.
+/// 
+/// Examples:
+/// ```lua
+/// local root = Ext.UI.GetByPath("Public/Game/GUI/mainMenu.swf"):GetRoot()
+/// -- Object properties on the main timeline and all child objects are readable
+/// Ext.Print(root.mainMenu_mc.debugText_txt.htmlText)
+/// -- ... and writeable
+/// root.mainMenu_mc.debugText_txt.htmlText = "TEST TEST TEST"
+/// 
+/// -- Fetching array length supported via the # operator
+/// Ext.Print(#root.events)
+/// -- Indexed access to arrays supported
+/// Ext.Print(root.events[2])
+/// -- Array write support
+/// root.events[2] = "TEST"
+/// 
+/// -- Method call support
+/// root.mainMenu_mc.addMenuLabel("TEST LABEL")
+/// Ext.Print(root.getHeight())
+/// ```
+/// </summary>
 UserReturn UIObject::LuaGetRoot(lua_State* L)
 {
 	StackCheck _(L, 1);
@@ -826,7 +883,19 @@ void UIObject::LuaDestroy()
 	RequestDelete();
 }
 
-
+/// <summary>
+/// Simulates an `ExternalInterface.call(...)` call from Flash, i.e. it calls an UI handler function in the game engine. 
+/// The first argument (`func`) is the name of the UI function to call; all subsequent arguments are passed to the engine as parameters.
+/// Only `string`, `number` and `boolean` arguments are supported.
+/// 
+/// Example:
+/// ```lua
+/// local ui = Ext.UI.GetByPath("Public/Game/GUI/characterSheet.swf")
+/// ui:ExternalInterfaceCall("show")
+/// ```
+/// </summary>
+/// <param name="L"></param>
+/// <param name="method"></param>
 void UIObject::LuaExternalInterfaceCall(lua_State * L, STDString const& method)
 {
 	auto numArgs = lua_gettop(L) - 2;

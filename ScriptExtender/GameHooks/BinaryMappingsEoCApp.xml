@@ -1391,7 +1391,7 @@
       @ref1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:gGraphicSettings
       @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_FakeFullscreenEnabled
       <Condition Type="FixedString" Offset="@str1" Value="FakeFullscreenEnabled" />
-      <Target Type="Indirect" Offset="@ref1" Symbol="ls__gGraphicSettings" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__GraphicSettings" />
     </Mapping>
   </Mappings>
 </BinaryMappings>

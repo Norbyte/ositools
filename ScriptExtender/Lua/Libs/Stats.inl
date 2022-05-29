@@ -167,6 +167,7 @@ void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
 
 END_NS()
 
+/// <lua_module>Stats</lua_module>
 BEGIN_NS(lua::stats)
 
 using namespace dse::stats;
@@ -335,6 +336,15 @@ ObjectSet<FixedString> FetchStatEntriesBefore(RPGStats* stats, FixedString const
 	return names;
 }
 
+/// <summary>
+/// Returns a table with the names of all stat entries. 
+/// When the optional parameter `statType` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+/// The following types are supported:  `StatusData`, `SkillData`, `Armor`, `Shield`, `Weapon`, `Potion`, `Character`, `Object`, `SkillSet`, `EquipmentSet`, `TreasureTable`, `ItemCombination`, `ItemComboProperty`, `CraftingPreviewData`, `ItemGroup`, `NameGroup`, `DeltaMod`
+/// </summary>
+/// <lua_export>GetStats</lua_export>
+/// <lua_legacy>Ext.GetStatEntries</lua_legacy>
+/// <param name="statType">Type of stat to fetch</param>
+/// <returns></returns>
 UserReturn GetStats(lua_State * L, std::optional<FixedString> statType)
 {
 	auto stats = GetStaticSymbols().GetStats();
@@ -378,7 +388,17 @@ UserReturn GetStats(lua_State * L, std::optional<FixedString> statType)
 	return 1;
 }
 
-ObjectSet<FixedString> GetStatsLoadedBefore(FixedString const& modId, std::optional<FixedString> statType)
+/// <summary>
+/// Returns a table with the names of all stat entries that were loaded before the specified mod.
+/// This function is useful for retrieving stats that can be overridden by a mod according to the module load order.
+/// When the optional parameter `statType` is specified, it'll only return stats with the specified type. (The type of a stat entry is specified in the stat .txt file itself (eg. `type "StatusData"`).
+/// </summary>
+/// <lua_export>GetStatsLoadedBefore</lua_export>
+/// <lua_legacy>Ext.GetStatEntriesLoadedBefore</lua_legacy>
+/// <param name="modUuid">Return stats entries declared before this module was loaded</param>
+/// <param name="statType">Type of stat to fetch</param>
+/// <returns></returns>
+ObjectSet<FixedString> GetStatsLoadedBefore(FixedString const& modUuid, std::optional<FixedString> statType)
 {
 	auto stats = GetStaticSymbols().GetStats();
 	if (stats == nullptr) {
@@ -386,7 +406,7 @@ ObjectSet<FixedString> GetStatsLoadedBefore(FixedString const& modId, std::optio
 		return {};
 	}
 
-	return FetchStatEntriesBefore(stats, modId, statType);
+	return FetchStatEntriesBefore(stats, modUuid, statType);
 }
 
 ByValReturn<SkillSet> GetSkillSet(char const* skillSetName)
@@ -626,9 +646,38 @@ void UpdateItemColor(lua_State* L)
 	}
 }
 
+/// <summary>
+/// Returns the specified `attribute` of the stat entry.
+/// If the stat entry does not exist, the stat entry doesn't have an attribute named `attribute`, or the attribute is not supported, the function returns `nil`.
+/// 
+/// ** Notes: **
+/// - For enumerations, the function will return the enumeration label(eg. `Corrosive`). See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerationsand enumeration labels.
+/// - The following fields are not supported: `AoEConditions`, `TargetConditions`, `ForkingConditions`, `CycleConditions`
+/// `Requirements` and `MemorizationRequirements` are returned in the following format :
+/// ```js
+/// [
+///		{
+/// 		"Not" : false, // Negated condition?	
+///			"Param" : 1, // Parameter; number for ability/attribute level, string for Tag
+///			"Requirement" : "FireSpecialist" // Requirement name
+///		},
+///		{
+/// 		"Not" : false,
+/// 		"Param" : 1,
+/// 		"Requirement" : "Necromancy"
+///		}
+/// ]
+/// ```
+/// </summary>
+/// <lua_export>GetAttribute</lua_export>
+/// <lua_legacy>Ext.StatGetAttribute</lua_legacy>
+/// <lua_deprecated>StatGetAttribute() is deprecated; read properties directly from the stats object instead!</lua_deprecated>
+/// <param name="statName"></param>
+/// <param name="attributeName"></param>
+/// <returns></returns>
 UserReturn GetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
-	WarnDeprecated56("StatGetAttribute() is deprecated; set properties directly on the stats object instead!");
+	WarnDeprecated56("StatGetAttribute() is deprecated; read properties directly from the stats object instead!");
 
 	auto object = StatFindObject(statName);
 	if (!object) {
@@ -639,6 +688,53 @@ UserReturn GetAttribute(lua_State * L, char const* statName, FixedString const& 
 	return object->LuaGetAttributeLegacy(L, attributeName, {});
 }
 
+/// <summary>
+/// Updates the specified `attribute` of the stat entry. 
+/// This essentially allows on-the-fly patching of stat .txt files from script without having to override the while stat entry.
+/// If the function is called while the module is loading (i.e. from a `ModuleLoading`/`StatsLoaded` listener) no additional calls are needed.
+/// If the function is called after module load, the stats entry must be synchronized with the client via the `Sync` call.
+/// ** Notes: **
+/// - For enumerations, the function accepts both the enumeration label (a string value, eg. `Corrosive`) 
+///   and the enumeration index (an integer value, eg, `7`). 
+///   See `ModifierLists.txt` or `Enumerations.xml` for a list of enumerations and enumeration labels.
+/// - Be aware that a lot of number-like attributes are in fact enums; eg. the `Strength`, `Finesse`, `Intelligence`, etc. attributes of `Potion` are enumerations 
+///   and setting them by passing an integer value to this function will yield unexpected results.
+///   For example, calling `SetAttribute("SomePotion", "Strength", 5)` will set the `Strength` value to `-9.6`! 
+///   The proper way to set these values is by passing the enumeration label as string, 
+///   eg. `SetAttribute("SomePotion", "Strength", "5")`
+/// 
+/// Example:
+/// ```lua
+/// -- Swap DamageType from Poison to Air on all skills
+/// for i,name in pairs(Ext.Stats.GetEntries("SkillData")) do
+///     local damageType = Ext.Stats.GetAttribute(name, "DamageType")
+///     if damageType == "Poison" then
+///         Ext.Stats.SetAttribute(name, "DamageType", "Air")
+///     end
+/// end
+/// ```
+/// 
+/// When modifying stat attributes that contain tables (i.e. `Requirements`, `TargetConditions`, `SkillProperties` etc.) it is not sufficient to just modify the table, the modified table must be reassigned to the property:
+/// ```lua
+/// local requirements = Ext.Stats.GetAttribute(name, "MemorizationRequirements")
+/// table.insert(requirements, {Name = "Intelligence", Param = 10, Not = false})
+/// Ext.Stats.SetAttribute(name, "Requirements", requirements)
+/// ```
+/// 
+/// Stat entries that are modified on the fly (i.e. after `ModuleLoading`/`StatsLoaded`) must be synchronized via `SyncStat()`. Neglecting to do this will cause the stat entry to be different on the client and the server.
+/// ```lua
+/// local stat = Ext.Stats.Get(name)
+/// stat.DamageType = "Air"
+/// stat.Damage = 10
+/// Ext.Stats.Sync(name)
+/// ```
+/// </summary>
+/// <lua_export>SetAttribute</lua_export>
+/// <lua_legacy>Ext.StatSetAttribute</lua_legacy>
+/// <lua_deprecated>StatSetAttribute() is deprecated; set properties directly on the stats object instead!</lua_deprecated>
+/// <param name="statName"></param>
+/// <param name="attributeName"></param>
+/// <param name="value"></param>
 bool SetAttribute(lua_State * L, char const* statName, FixedString const& attributeName)
 {
 	WarnDeprecated56("StatSetAttribute() is deprecated; set properties directly on the stats object instead!");
@@ -649,6 +745,20 @@ bool SetAttribute(lua_State * L, char const* statName, FixedString const& attrib
 	return object->LuaSetAttribute(L, attributeName, 3);
 }
 
+/// <summary>
+/// Adds a custom property description to the specified stat entry. (The blue text in the skill description tooltip).
+/// This function can only be called from a `ModuleLoading` listener.
+/// 
+/// Example:
+/// ```lua
+/// Ext.Stats.AddCustomDescription("Dome_CircleOfProtection", "SkillProperties", "Custom desc one")
+/// ```
+/// </summary>
+/// <lua_export>AddCustomDescription</lua_export>
+/// <lua_legacy>Ext.Stats.AddCustomDescription</lua_legacy>
+/// <param name="statName">Stats name to fetch</param>
+/// <param name="attributeName">Property list to expand (SkillProperties or ExtraProperties)</param>
+/// <param name="description">Description text</param>
 void AddCustomDescription(lua_State * L, const char* statName, const char* attributeName, const char* description)
 {
 	auto lua = State::FromLua(L);
@@ -678,6 +788,21 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	props->Properties.Primitives.push_back(customProp);
 }
 
+/// <summary>
+/// Replaces level scaling formula for the specified stat.
+/// This function can only be called from a `ModuleLoading` listener.
+/// 
+/// `func` must satisfy the following requirements :
+///  - Must be a Lua function that receives two arguments `(attributeValue, level)`and returns the integer level scaled value.
+///  - Must have no side effects(i.e.can't set external variables, call external functions, etc)
+///  - Must always returns the same result when given the same argument values
+///  - Since the function is called very frequently (up to 50, 000 calls during a level load), it should execute as quickly as possible
+/// </summary>
+/// <lua_export>SetLevelScaling</lua_export>
+/// <lua_legacy>Ext.Stats.SetLevelScaling</lua_legacy>
+/// <param name="modifierListName">Type of stat to override (`Character`, `SkillData`, `Potion`, etc.)</param>
+/// <param name="modifierListName">Stat attribute to override (`Strength`, `Constitution`, ...)</param>
+/// <param name="func">Level scaling function</param>
 void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedString const& modifierName)
 {
 	StackCheck _(L);
@@ -727,6 +852,32 @@ void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedSt
 	lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
 }
 
+/// <summary>
+/// Returns the specified stats entry as an object for easier manipulation.
+/// If the `level` argument is not specified or is `nil`, the table will contain stat values as specified in the stat entry.
+/// If the `level` argument is not `nil`, the table will contain level - scaled values for the specified level.
+/// A `level` value of `-1` will use the level specified in the stat entry.
+/// 
+/// The behavior of getting a table entry is identical to that of `StatGetAttribute` and setting a table entry is identical to `StatSetAttribute`.
+/// 
+/// The `StatSetAttribute` example rewritten using `GetStat`:
+/// ```lua
+/// -- Swap DamageType from Poison to Air on all skills
+/// for i, name in pairs(Ext.Stats.GetEntries("SkillData")) do
+///     local stat = Ext.Stats.Get(name)
+///     if stat.DamageType == "Poison" then
+///         stat.DamageType = "Air"
+///     end
+/// end
+/// ```
+/// </summary>
+/// <lua_export>Get</lua_export>
+/// <lua_legacy>Ext.GetGet</lua_legacy>
+/// <param name="statName">Stats name to fetch</param>
+/// <param name="level">Specify `nil` to return raw (unscaled) stat values, `-1` to return values scaled to the stats level, or a specific level value to scale returned stats to that level</param>
+/// <param name="warnOnError">Log a warning in the console if the stats object could not be found?</param>
+/// <param name="byRef">Specifies whether the returned object should use by-value or by-ref properties (default: by-value)</param>
+/// <returns></returns>
 UserReturn Get(lua_State * L, char const* statName, std::optional<int> level, std::optional<bool> warnOnError, std::optional<bool> byRef)
 {
 	auto object = StatFindObject(statName, warnOnError.value_or(true));
@@ -780,7 +931,29 @@ bool CopyStats(Object* obj, FixedString const& copyFrom)
 	return true;
 }
 
-UserReturn Create(lua_State * L, FixedString const& statName, FixedString const& modifierName, std::optional<FixedString> copyFrom, std::optional<bool> byRef)
+/// <summary>
+/// Creates a new stats entry. 
+/// If a stat object with the same name already exists, the specified modifier type is invalid or the specified template doesn't exist, the function returns `nil`.
+/// After all stat properties were initialized, the stats entry must be synchronized by calling `SyncStat()`.
+/// 
+/// - If the entry was created on the server, `SyncStat()` will replicate the stats entry to all clients.If the entry was created on the client, `SyncStat()` will only update it locally.
+/// Example:
+/// ```lua
+/// local stat = Ext.Stats.Create("NRD_Dynamic_Skill", "SkillData", "Rain_Water")
+/// stat.RainEffect = "RS3_FX_Environment_Rain_Fire_01"
+/// stat.SurfaceType = "Fire"
+/// Ext.Stats.Sync("NRD_Dynamic_Skill")
+/// ```
+/// </summary>
+/// <lua_export>Create</lua_export>
+/// <lua_legacy>Ext.CreateStat</lua_legacy>
+/// <lua_returns>stats::Object</lua_returns>
+/// <param name="statName">Name of stats entry to create; it should be globally unique</param>
+/// <param name="modifierList">Stats entry type (eg. `SkillData`, `StatusData`, `Weapon`, etc.)</param>
+/// <param name="copyFromTemplate">If this parameter is not `nil`, stats properties are copied from the specified stats entry to the newly created entry</param>
+/// <param name="byRef">Specifies whether the created object should use by-value or by-ref properties (default: by-value)</param>
+/// <returns>stats::Object</returns>
+UserReturn Create(lua_State * L, FixedString const& statName, FixedString const& modifierList, std::optional<FixedString> copyFromTemplate, std::optional<bool> byRef)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::ScopeModulePreLoad) {
@@ -802,14 +975,14 @@ UserReturn Create(lua_State * L, FixedString const& statName, FixedString const&
 	}
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto object = stats->CreateObject(FixedString(statName), FixedString(modifierName));
+	auto object = stats->CreateObject(statName, modifierList);
 	if (!object) {
 		push(L, nullptr);
 		return 1;
 	}
 
-	if (copyFrom) {
-		if (!CopyStats(*object, *copyFrom)) {
+	if (copyFromTemplate) {
+		if (!CopyStats(*object, *copyFromTemplate)) {
 			push(L, nullptr);
 			return 1;
 		}
@@ -819,6 +992,14 @@ UserReturn Create(lua_State * L, FixedString const& statName, FixedString const&
 	return 1;
 }
 
+/// <summary>
+/// Synchronizes the changes made to the specified stats entry to each client.
+/// `Sync` must be called each time a stats entry is modified dynamically (after `ModuleLoading`/`StatsLoaded`) to ensure that the hostand all clients see the same properties.
+/// </summary>
+/// <lua_export>Sync</lua_export>
+/// <lua_legacy>Ext.SyncStat</lua_legacy>
+/// <param name="statName">Name of stats entry to sync</param>
+/// <param name="persist">Is the stats entry persistent, i.e. if it will be written to savegames. (default `true`)</param>
 void Sync(FixedString const& statName, std::optional<bool> persist)
 {
 	auto stats = GetStaticSymbols().GetStats();
@@ -840,7 +1021,15 @@ void Sync(FixedString const& statName, std::optional<bool> persist)
 	}
 }
 
-
+/// <summary>
+/// Toggles whether the specified stats entry should be persisted to savegames.
+/// Changes made to non - persistent stats will be lost the next time a game is reloaded.
+/// If a dynamically created stats entry is marked as non - persistent, the entry will be deleted completely after the next reload.Make sure that you don't delete entries that are still in use as it could break the game in various ways.
+/// </summary>
+/// <lua_export>SetPersistence</lua_export>
+/// <lua_legacy>Ext.StatSetPersistence</lua_legacy>
+/// <param name="statName">Name of stats entry to update</param>
+/// <param name="persist">Is the stats entry persistent, i.e. if it will be written to savegames</param>
 void SetPersistence(FixedString const& statName, bool persist)
 {
 	if (!gExtender->GetServer().IsInServerThread()) {
