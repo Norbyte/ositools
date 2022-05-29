@@ -237,7 +237,7 @@ void GenerateIdeHelpers(lua_State* L, std::optional<bool> builtinOnly)
 	if (gExtender->GetConfig().DeveloperMode) {
 #endif
 		auto lua = State::FromLua(L);
-		if (lua->RestrictionFlags & State::RestrictOsiris) {
+		if ((lua->RestrictionFlags & State::RestrictOsiris) || !gExtender->GetServer().IsInServerThread()) {
 			luaL_error(L, "GenerateIdeHelpers() can only be called when Osiris is available");
 		}
 
