@@ -226,20 +226,30 @@ namespace dse::lua
 	void ModuleRegistry::RegisterModuleTypeInformation(ModuleDefinition const& module)
 	{
 		STDString name;
-		switch (module.Role) {
-		case ModuleRole::Both: name = "Ext."; break;
-		case ModuleRole::Client: name = "ExtClient."; break;
-		case ModuleRole::Server: name = "ExtServer."; break;
-		}
-
-		name += module.Table.GetString();
+		name = module.Table.GetString();
 		if (module.SubTable) {
 			name += ".";
 			name += module.SubTable.GetString();
 		}
 
-		TypeInformation& mod = TypeInformationRepository::GetInstance().RegisterType(FixedString{ name });
+		STDString exportName = "Module_";
+		switch (module.Role) {
+		case ModuleRole::Both: break;
+		case ModuleRole::Client: exportName += "Client"; break;
+		case ModuleRole::Server: exportName += "Server"; break;
+		}
+
+		exportName += name;
+
+		TypeInformation& mod = TypeInformationRepository::GetInstance().RegisterType(FixedString{ exportName });
 		mod.Kind = LuaTypeId::Module;
+		mod.NativeName = FixedString(name);
+		switch (module.Role) {
+		case ModuleRole::Both: mod.ModuleRole = FixedString("Both"); break;
+		case ModuleRole::Client: mod.ModuleRole = FixedString("Client"); break;
+		case ModuleRole::Server: mod.ModuleRole = FixedString("Server"); break;
+		}
+
 		for (auto const& func : module.Functions) {
 			mod.Methods.insert(std::make_pair(func.Name, func.Signature));
 		}

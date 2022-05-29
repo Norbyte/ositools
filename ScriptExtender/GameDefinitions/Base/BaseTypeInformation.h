@@ -67,6 +67,7 @@ struct TypeInformation
 	bool IsBuiltin{ false };
 	bool DeferredInitializationDone{ false };
 	bool Validated{ false };
+	FixedString ModuleRole;
 
 	void DeferredInitialize();
 	void Validate();

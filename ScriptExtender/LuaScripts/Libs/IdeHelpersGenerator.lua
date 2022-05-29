@@ -115,6 +115,10 @@ function Generator:Build()
         self:EmitEmptyLine()
         self:EmitEmptyLine()
     end
+
+    self:EmitExt("Client")
+    self:EmitExt("Server")
+    self:EmitExt(nil)
 end
 
 function Generator:MakeTypeName(type)
@@ -328,13 +332,24 @@ function Generator:EmitClass(type)
     
     for i,fname in ipairs(extendedMethodSigs) do
         self:EmitMethod(type, fname, nativeDefn)
+function Generator:MakeModuleTypeName(type)
+    local name = type.NativeName:gsub("%.", "")
+    if type.ModuleRole ~= "Both" then
+        name = type.ModuleRole .. name
     end
+
+    return "Ext_" .. name
 end
 
 function Generator:EmitModule(type)
-    local helpersModuleName = type.TypeName:gsub("%.", "")
+    local helpersModuleName = self:MakeModuleTypeName(type)
+    local nativeModuleName = type.NativeName
+    if type.ModuleRole ~= "Both" then
+        nativeModuleName = type.ModuleRole .. nativeModuleName
+    end
+
     self:EmitComment("@class " .. helpersModuleName)
-    local nativeDefn = self.NativeModules[type.TypeName]
+    local nativeDefn = self.NativeModules[nativeModuleName]
 
     local sortedFuncs = {}
     for fname,ftype in pairs(type.Methods) do table.insert(sortedFuncs, fname) end
@@ -361,6 +376,23 @@ function Generator:EmitModule(type)
     for i,fname in ipairs(extendedFuncSigs) do
         self:EmitModuleFunction(type, fname, nativeDefn)
     end
+end
+
+function Generator:EmitExt(role)
+    self:EmitComment("@class Ext" .. (role or ""))
+
+    for i,mod in ipairs(self.Modules) do
+        if role == nil or mod.ModuleRole == "Both" or mod.ModuleRole == role then
+            local helpersModuleName = self:MakeModuleTypeName(mod)
+            self:EmitComment("@field " .. mod.NativeName .. " " .. helpersModuleName)
+            if mod.ModuleRole ~= "Both" then
+                self:EmitComment("@field " .. mod.ModuleRole .. mod.NativeName .. " " .. helpersModuleName)
+            end
+        end
+    end
+
+    self:EmitEmptyLine()
+    self:EmitEmptyLine()
 end
 
 Ext.Types.GenerateIdeHelpers = function ()

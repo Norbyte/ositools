@@ -35,6 +35,7 @@ P_REF(Params)
 P_RO(VarargParams)
 P_RO(VarargsReturn)
 P_RO(IsBuiltin)
+P_RO(ModuleRole)
 END_CLS()
 
 
