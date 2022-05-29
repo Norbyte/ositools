@@ -99,20 +99,21 @@ class FunctionDefn:
         if 'lua_export' in desc.attributes:
             self.exported = True
 
+        self.description = desc.text
+        self.parse_definition(n)
         if self.exported:
-            self.description = desc.text
-            self.parse_definition(n)
             self.export_name = desc.attributes['lua_export']['text'] or self.name
+        else:
+            self.export_name = self.name
 
-            print('')
-            print('')
-            print('Exported function: ' + self.namespace.name + '::' + self.name + ' -> ' + (self.namespace.export_name or self.namespace.name) + '.' + self.export_name)
-            print('Description: ' + self.description.strip())
-            print('')
-            for param in list(self.params):
-                if not param.is_internal:
-                    print(' - Param ' + param.name + ': ' + (param.description or '').strip())
-        
+    def dump(self):
+        print('Exported function: ' + self.namespace.name + '::' + self.name + ' -> ' + (self.namespace.export_name or self.namespace.name) + '.' + self.export_name)
+        print('Description: ' + self.description.strip())
+        print('')
+        for param in list(self.params):
+            if not param.is_internal:
+                print(' - Param ' + param.name + ': ' + (param.description or '').strip())
+    
     def find_param_list(self, n: ElementTree.Element):
         for para in n.find('detaileddescription').findall('para'):
             params = para.find('parameterlist')
@@ -130,8 +131,9 @@ class FunctionDefn:
         self.definition = n.find('definition').text + n.find('argsstring').text
         self.qualified_name = n.find('qualifiedname').text
         loc = n.find('location')
-        self.implementation_file = loc.attrib['bodyfile']
-        self.implementation_line = int(loc.attrib['bodystart'])
+        if 'bodyfile' in loc.attrib:
+            self.implementation_file = loc.attrib['bodyfile']
+            self.implementation_line = int(loc.attrib['bodystart'])
         self.params = []
 
         for param in n.findall('param'):
@@ -173,6 +175,9 @@ class FunctionDefn:
                 defn["params"].append(param.to_json())
 
         return defn
+
+    def has_any_annotations(self) -> bool:
+        return self.exported or (self.description is not None and len(self.description) > 0) or (self.params is not None and len(self.params) > 0)
         
 
 class PropertyDefn:
@@ -193,6 +198,9 @@ class PropertyDefn:
             "description": self.description
         }
 
+    def has_any_annotations(self) -> bool:
+        return self.description is not None and len(self.description) > 0
+
 
 class NamespaceDefn:
     name = ''
@@ -211,7 +219,6 @@ class NamespaceDefn:
             self.exported = True
             self.export_name = desc.attributes['lua_module']['text']
 
-        print('Loading namespace: ' + self.name + ' -> ' + (self.export_name or '(none)'))
         self.parse_definition(n)
 
     def parse_definition(self, n: ElementTree.Element):
@@ -266,12 +273,13 @@ class ClassDefn:
 
         if self.exported:
             self.parse_definition(n)
-            if len(self.methods) > 0:
-                print('Exported class: ' + self.name)
-                for n,method in self.methods.items():
-                    print(method)
-                for n,prop in self.properties.items():
-                    print(prop.name, prop.type, prop.description)
+
+    def dump(self):
+        print('Exported class: ' + self.name)
+        for n,method in self.methods.items():
+            print(method)
+        for n,prop in self.properties.items():
+            print(prop.name, prop.type, prop.description)
 
 
     def parse_definition(self, n: ElementTree.Element):
@@ -286,7 +294,7 @@ class ClassDefn:
             if memberdef.tag == 'memberdef' and memberdef.attrib['kind'] == 'function':
                 fun = FunctionDefn()
                 fun.from_xml(memberdef, self)
-                if fun.exported:
+                if fun.has_any_annotations():
                     self.methods[fun.name] = fun
 
     def parse_property_section(self, n: ElementTree.Element):
@@ -298,11 +306,11 @@ class ClassDefn:
 
     def has_any_annotations(self):
         for prop in self.properties.values():
-            if prop.description is not None and len(prop.description) > 0:
+            if prop.has_any_annotations():
                 return True
 
         for fun in self.methods.values():
-            if fun.exported or (fun.description is not None and len(fun.description) > 0):
+            if fun.has_any_annotations():
                 return True
 
         return False
