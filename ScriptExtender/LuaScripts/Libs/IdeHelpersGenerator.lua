@@ -137,7 +137,7 @@ function Generator:MakeTypeName(type)
     return type
 end
 
-function Generator:MakeTypeSignature(cls, type, forceExpand)
+function Generator:MakeTypeSignature(cls, type, forceExpand, nativeDefn)
     if type.IsBuiltin and forceExpand ~= true then
         return type.TypeName
     elseif type.Kind == "Any" then
@@ -157,11 +157,15 @@ function Generator:MakeTypeSignature(cls, type, forceExpand)
         local retval = {}
 
         if cls ~= nil then
-            table.insert(args, "self:" .. self:MakeTypeSignature(nil, cls))
+            table.insert(args, "self: " .. self:MakeTypeSignature(nil, cls))
         end
         
         for i,arg in ipairs(type.Params) do
-            table.insert(args, "a" .. i .. ":" .. self:MakeTypeSignature(cls, arg))
+            if nativeDefn ~= nil then
+                table.insert(args, nativeDefn.params[i].name .. ": " .. self:MakeTypeSignature(cls, arg))
+            else
+                table.insert(args, "a" .. i .. ": " .. self:MakeTypeSignature(cls, arg))
+            end
         end
 
         for i,arg in ipairs(type.ReturnValues) do
@@ -245,13 +249,31 @@ function Generator:FindNativeFunction(fname, nativeNs)
     return nativeMethod
 end
 
+function Generator:MethodNeedsFullSignature(nativeMethod)
+    if nativeMethod == nil then
+        return false
+    end
+
+    if #self.Trim(nativeMethod.description) > 0 then
+        return true
+    end
+
+    for i,fun in pairs(nativeMethod.params) do
+        if #self.Trim(nativeMethod.description) > 0 then
+            return true
+        end
+    end
+
+    return false
+end
+
 function Generator:EmitMethod(type, fname, nativeDefn)
     local nativeMethod = self:FindNativeMethod(fname, nativeDefn)
 
-    if nativeMethod == nil then
-        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(type, type.Methods[fname]))
-    else
+    if self:MethodNeedsFullSignature(nativeMethod) then
         self:EmitFullMethodSignature(type, fname, type.Methods[fname], nativeMethod)
+    else
+        self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(type, type.Methods[fname],  false, nativeMethod))
     end
 end
 
@@ -272,11 +294,6 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod)
     local clsName = self:MakeTypeName(cls.TypeName)
     local helpersClsName = clsName:gsub("%.", "")
 
-    if cls.Kind ~= "Module" then
-        table.insert(argDescs, "--- @param self " .. helpersClsName)
-        table.insert(args, "self")
-    end
-    
     for i,arg in ipairs(fun.Params) do
         table.insert(argDescs, "--- @param " .. nativeMethod.params[i].name .. " " .. self:MakeTypeSignature(cls, arg) .. " " ..  self.Trim(nativeMethod.params[i].description))
         table.insert(args, nativeMethod.params[i].name)
@@ -286,12 +303,25 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod)
         table.insert(argDescs, "--- @return " .. self:MakeTypeSignature(cls, arg))
     end
 
-    local fun = "function " .. helpersClsName .. "." .. funcName .. "(" .. table.concat(args, ", ") .. ") end"
+    local fun = "function " .. helpersClsName
+    if cls.Kind ~= "Module" then
+        fun = fun .. ":"
+    else
+        fun = fun .. "."
+    end
+
+    fun = fun .. funcName .. "(" .. table.concat(args, ", ") .. ") end"
     local desc = table.concat(argDescs, "\r\n")
 
-    local funcDesc = self.Trim(nativeMethod.description) .. "\r\n" .. "Location: " .. nativeMethod.implementation_file .. ":" .. nativeMethod.implementation_line
+    local funcDesc = self.Trim(nativeMethod.description)
+    if nativeMethod.implementation_file ~= nil and #funcDesc > 0 then
+        funcDesc = funcDesc .. "\r\n" .. "Location: " .. nativeMethod.implementation_file .. ":" .. nativeMethod.implementation_line
+    end
 
-    self:EmitMultiLineComment(funcDesc)
+    if #funcDesc > 0 then
+        self:EmitMultiLineComment(funcDesc)
+    end
+
     self.Text = self.Text .. desc .. "\r\n" .. fun .. "\r\n\r\n"
 end
 
@@ -322,7 +352,8 @@ function Generator:EmitClass(type)
     local extendedMethodSigs = {}
 
     for i,fname in ipairs(sortedMethods) do
-        if self:FindNativeMethod(fname, nativeDefn) ~= nil then
+        local nativeMethod = self:FindNativeMethod(fname, nativeDefn)
+        if self:MethodNeedsFullSignature(nativeMethod) then
             table.insert(extendedMethodSigs, fname)
         else
             table.insert(basicMethodSigs, fname)
@@ -333,11 +364,16 @@ function Generator:EmitClass(type)
         self:EmitMethod(type, fname, nativeDefn)
     end
 
-    self:EmitLine(name .. ' = {}')
-    self:EmitLine("")
-    
-    for i,fname in ipairs(extendedMethodSigs) do
-        self:EmitMethod(type, fname, nativeDefn)
+    if #extendedMethodSigs > 0 then
+        self:EmitLine(name .. ' = {}')
+        self:EmitLine("")
+        
+        for i,fname in ipairs(extendedMethodSigs) do
+            self:EmitMethod(type, fname, nativeDefn)
+        end
+    end
+end
+
 function Generator:MakeModuleTypeName(type)
     local name = type.NativeName:gsub("%.", "")
     if type.ModuleRole ~= "Both" then
