@@ -4,8 +4,7 @@ P_RO(Handle)
 END_CLS()
 
 BEGIN_CLS(BaseComponent)
-// FIXME - entity handles not supported yet!
-// P_RO(Entity)
+P_RO(Entity)
 P_REF(Component)
 END_CLS()
 

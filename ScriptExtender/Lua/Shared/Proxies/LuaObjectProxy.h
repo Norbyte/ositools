@@ -378,12 +378,21 @@ public:
 	}
 
 	static void* CheckedGetRaw(lua_State* L, int index, FixedString const& typeName);
+	static void* TryGetRaw(lua_State* L, int index, FixedString const& typeName);
 
 	template <class T>
 	inline static T* CheckedGet(lua_State* L, int index)
 	{
 		auto const& typeName = StaticLuaPropertyMap<T>::PropertyMap.Name;
 		auto obj = CheckedGetRaw(L, index, typeName);
+		return reinterpret_cast<T *>(obj);
+	}
+
+	template <class T>
+	inline static T* TryGet(lua_State* L, int index)
+	{
+		auto const& typeName = StaticLuaPropertyMap<T>::PropertyMap.Name;
+		auto obj = TryGetRaw(L, index, typeName);
 		return reinterpret_cast<T *>(obj);
 	}
 

@@ -3,8 +3,7 @@
 #include <Lua/Shared/LuaBinding.h>
 #include <Lua/Shared/LuaSerializers.h>
 #include <Lua/Shared/Proxies/LuaArrayProxy.inl>
-// FIXME - disabled until entity system is upgrated
-// #include <Lua/Shared/Proxies/LuaEntityProxy.inl>
+#include <Lua/Shared/Proxies/LuaEntityProxy.inl>
 #include <Lua/Shared/Proxies/LuaEvent.inl>
 #include <Lua/Shared/Proxies/LuaMapProxy.inl>
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>

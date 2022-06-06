@@ -8,7 +8,7 @@
 #include <Lua/Shared/Proxies/LuaObjectProxy.h>
 #include <Lua/Shared/Proxies/LuaSetProxy.h>
 #include <Lua/Shared/Proxies/LuaEvent.h>
-// #include <Lua/Shared/LuaEntityProxy.h>
+#include <Lua/Shared/Proxies/LuaEntityProxy.h>
 
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>

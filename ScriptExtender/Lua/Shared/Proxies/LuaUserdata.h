@@ -175,6 +175,7 @@ public:
 
 	static void RegisterMetatable(lua_State* L)
 	{
+		StackCheck _(L, 0);
 		lua_register(L, T::MetatableName, nullptr);
 		luaL_newmetatable(L, T::MetatableName); // stack: mt
 

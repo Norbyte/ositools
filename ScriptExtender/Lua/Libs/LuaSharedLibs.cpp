@@ -75,7 +75,7 @@ void RegisterSharedMetatables(lua_State* L)
 	Userdata<SetProxy>::RegisterMetatable(L);
 	Userdata<EventObject>::RegisterMetatable(L);
 	InitObjectProxyPropertyMaps();
-	// RegisterEntityProxy(L);
+	RegisterEntityProxy(L);
 	StatsExtraDataProxy::RegisterMetatable(L);
 }
 

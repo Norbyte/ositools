@@ -193,6 +193,18 @@ FS(PreventAction);
 FS(StopPropagation);
 FS(Stopped);
 
+// EntityProxy properties
+FS(HasComponent);
+FS(GetComponent);
+FS(GetComponents);
+FS(EntityType);
+FS(Salt);
+FS(TypeId);
+FS(Type);
+FS(Index);
+FS(IsAlive);
+FS(Get);
+
 // IO file type
 FS(data);
 FS(user);

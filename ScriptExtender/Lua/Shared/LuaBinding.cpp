@@ -38,6 +38,17 @@ void nse_lua_report_handled_error(lua_State* L)
 
 namespace dse::lua
 {
+	void push(lua_State* L, EntityHandle const& h)
+	{
+		auto state = State::FromLua(L);
+		if (state->IsClient()) {
+			EntityProxy::Make(L, h, ecl::GetEntityWorld());
+		} else {
+			EntityProxy::Make(L, h, esv::GetEntityWorld());
+		}
+	}
+
+
 	RegistryEntry::RegistryEntry()
 		: L_(nullptr), ref_(-1)
 	{}

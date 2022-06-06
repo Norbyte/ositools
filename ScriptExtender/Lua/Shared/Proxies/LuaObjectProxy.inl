@@ -145,4 +145,14 @@ void* ObjectProxy2::CheckedGetRaw(lua_State* L, int index, FixedString const& ty
 	}
 }
 
+void* ObjectProxy2::TryGetRaw(lua_State* L, int index, FixedString const& typeName)
+{
+	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
+	if (proxy && proxy->GetImpl()->IsA(typeName)) {
+		return proxy->GetRaw();
+	} else {
+		return nullptr;
+	}
+}
+
 END_NS()

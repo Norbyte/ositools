@@ -2,6 +2,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Surface.Action</lua_module>
 BEGIN_NS(esv::lua::surface::action)
 
 using namespace dse::lua::surface;
@@ -136,7 +137,6 @@ void Cancel(ComponentHandle actionHandle)
 
 void RegisterSurfaceActionLib()
 {
-	/// <lua_module>Ext.Surface.Action</summary>
 	DECLARE_SUBMODULE(Surface, Action, Server)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(Create)

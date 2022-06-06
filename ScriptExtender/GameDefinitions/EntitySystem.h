@@ -185,8 +185,45 @@ struct BaseComponentProcessingSystem
 	TEntityWorld* EntityWorld;
 };
 
+struct EntityWorldData : public ProtectedGameObject<EntityWorldData>
+{
+	ComponentFactory<EntityEntry> EntityPool;
+	Array<ComponentTypeEntry> Components;
+	ObjectSet<void*> KeepAlives; // ObjectSet<ObjectHandleRefMap<ComponentKeepAliveDesc>>
+	Array<SystemTypeEntry> SystemTypes;
+	Array<void*> EventTypes; // Array<EventTypeEntry>
+	void* EntityWorldManager;
+	PrimitiveSet<SystemTypeEntry> SystemTypes2;
+	ObjectSet<void*> Funcs; // ObjectSet<function>
+	RefMap<FixedString, int> RefMap; // ???
+	bool RegisterPhaseEnded;
+	uint64_t NextComponentIndex;
+	uint64_t ReservedEntityHandleList;
+	uint64_t ReservedComponentHandleList;
+	uint64_t Unknown2[2];
+
+
+	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true)
+	{
+		if (this == nullptr) {
+			OsiError("Tried to find entity on null EntityWorld!");
+			return nullptr;
+		}
+
+		auto entity = EntityPool.Get(ComponentHandle{ entityHandle.Handle });
+		if (entity != nullptr) {
+			return entity;
+		} else {
+			if (logError) {
+				OsiError("Couldn't find entity with handle " << entityHandle.Handle);
+			}
+			return nullptr;
+		}
+	}
+};
+
 template <class TEntityComponentIndex>
-struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase<TEntityComponentIndex>>
+struct EntityWorldBase : public EntityWorldData
 {
 	// Handle type index, registered statically during game startup
 	enum class HandleTypeIndexTag {};
@@ -194,21 +231,7 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase<TEntityCompo
 	// Component type index, registered statically during game startup
 	enum class ComponentTypeIndexTag {};
 	using ComponentTypeIndex = TypedIntegral<int32_t, ComponentTypeIndexTag>;
-
-	ComponentFactory<EntityEntry> EntityPool;
-	Array<ComponentTypeEntry> Components;
-	ObjectSet<void *> KeepAlives; // ObjectSet<ObjectHandleRefMap<ComponentKeepAliveDesc>>
-	Array<SystemTypeEntry> SystemTypes;
-	Array<void *> EventTypes; // Array<EventTypeEntry>
-	void * EntityWorldManager;
-	PrimitiveSet<SystemTypeEntry> SystemTypes2;
-	ObjectSet<void *> Funcs; // ObjectSet<function>
-	RefMap<FixedString, int> RefMap; // ???
-	bool RegisterPhaseEnded;
-	uint64_t NextComponentIndex;
-	uint64_t ReservedEntityHandleList;
-	uint64_t ReservedComponentHandleList;
-	uint64_t Unknown2[2];
+	using EntityComponentIndex = TEntityComponentIndex;
 
 	BaseComponent* GetBaseComponent(TEntityComponentIndex componentPoolIdx, ObjectHandleType handleType, ComponentHandle componentHandle, bool logError = true)
 	{
@@ -293,24 +316,6 @@ struct EntityWorldBase : public ProtectedGameObject<EntityWorldBase<TEntityCompo
 		} else {
 			if (logError) {
 				OsiError("No component found with NetID " << netId.Id);
-			}
-			return nullptr;
-		}
-	}
-
-	EntityEntry* GetEntity(EntityHandle entityHandle, bool logError = true)
-	{
-		if (this == nullptr) {
-			OsiError("Tried to find entity on null EntityWorld!");
-			return nullptr;
-		}
-
-		auto entity = EntityPool.Get(ComponentHandle{ entityHandle.Handle });
-		if (entity != nullptr) {
-			return entity;
-		} else {
-			if (logError) {
-				OsiError("Couldn't find entity with handle " << entityHandle.Handle);
 			}
 			return nullptr;
 		}
