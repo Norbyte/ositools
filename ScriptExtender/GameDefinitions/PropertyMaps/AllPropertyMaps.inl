@@ -17,6 +17,7 @@
 #include <GameDefinitions/PropertyMaps/CharacterCreation.inl>
 #include <GameDefinitions/PropertyMaps/Alignment.inl>
 #include <GameDefinitions/PropertyMaps/Ai.inl>
+#include <GameDefinitions/PropertyMaps/Combat.inl>
 
 
 BEGIN_CLS(TypeInformation)

@@ -1539,6 +1539,28 @@ BEGIN_ENUM(HealEffect, uint32_t)
 	EV(HealSharingReflected, 13)
 END_ENUM()
 
+BEGIN_BITMASK_NS(eoc, CombatComponentFlags, uint32_t)
+	EV(IsTicking, 0x1)
+	EV(CanGuard, 0x2)
+	EV(Guarded, 0x4)
+	EV(CanFight, 0x8)
+	EV(CanJoinCombat, 0x10)
+	EV(TurnEnded, 0x20)
+	EV(RequestEndTurn, 0x40)
+	EV(IsBoss, 0x80)
+	EV(CanForceEndTurn, 0x100)
+	EV(IsInspector, 0x200)
+	EV(FleeOnEndTurn, 0x400)
+	EV(GuardOnEndTurn, 0x800)
+	EV(EnteredCombat, 0x1000)
+	EV(TookExtraTurn, 0x2000)
+	EV(RequestEnterCombat, 0x4000)
+	EV(RequestTakeExtraTurn, 0x8000)
+	EV(InArena, 0x10000)
+	EV(DelayDeathCount, 0x20000)
+	EV(CounterAttacked, 0x40000)
+END_ENUM_NS()
+
 
 // Persistent flags: 0x2414170022110
 // AI flags: 0x4000070000060

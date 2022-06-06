@@ -823,6 +823,9 @@
     <None Include="Lua\Libs\ServerPropertyLists.inl">
       <Filter>Lua\Libs</Filter>
     </None>
+    <None Include="GameDefinitions\PropertyMaps\Combat.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScriptExtender.rc" />

@@ -44,24 +44,7 @@ namespace dse
 			}
 		};
 
-		enum CombatComponentFlags : uint32_t
-		{
-			CCF_CombatDisabled_M = 0x1,
-			CCF_CanGuard = 0x2,
-			CCF_Guarded = 0x4,
-			CCF_CanFight = 0x10,
-			CCF_TurnEnded = 0x40,
-			CCF_CanForceEndTurn = 0x100,
-			CCF_HasNoCombatGroup = 0x200,
-			CCF_EnteredCombat = 0x1000,
-			CCF_TookExtraTurn = 0x2000,
-			CCF_ShouldTakeExtraTurn1 = 0x4000,
-			CCF_ShouldTakeExtraTurn2 = 0x8000,
-			CCF_DelayDeathCount = 0x20000,
-			CCF_CounterAttacked = 0x40000
-		};
-
-		struct CombatComponent
+		struct CombatComponent : public ProtectedGameObject<CombatComponent>
 		{
 			void * VMT;
 			BaseComponent Base;
@@ -83,7 +66,7 @@ namespace dse
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::CombatComponent;
 		};
 
-		struct TurnBasedProtocol
+		struct TurnBasedProtocol : public ProtectedGameObject<TurnBasedProtocol>
 		{
 			void * VMT;
 			net::GameServer * GameServer;
@@ -98,7 +81,7 @@ namespace dse
 			net::Message * CombatSummonsMessage;
 		};
 
-		struct TurnManager
+		struct TurnManager : public ProtectedGameObject<TurnManager>
 		{
 			using UpdateTurnOrderProc = void (esv::TurnManager * self, uint8_t combatId);
 
@@ -130,7 +113,7 @@ namespace dse
 			{
 				ObjectSet<eoc::CombatTeamId> CombatTeamsOrdered;
 				uint16_t Initiative;
-				char Party;
+				uint8_t Party;
 				uint64_t LastAddedTeamIndex;
 			};
 
@@ -146,7 +129,7 @@ namespace dse
 				ComponentHandleWithType ComponentHandle;
 			};
 
-			struct Combat
+			struct Combat : public ProtectedGameObject<Combat>
 			{
 				ObjectSet<CombatTeam *, MSVCMemoryAllocator> CurrentRoundTeams;
 				ObjectSet<CombatTeam *, MSVCMemoryAllocator> NextRoundTeams;
@@ -166,7 +149,7 @@ namespace dse
 				float TimeSpentTryingToEndTurn;
 				float TurnTimer_M;
 				uint8_t HasParticipantSurfacesNumTicks;
-				char CombatRound;
+				uint8_t CombatRound;
 				bool IsActive;
 				bool HasParticipantSurfaces;
 				bool CombatStartEventSent;

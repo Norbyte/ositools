@@ -184,7 +184,12 @@
     <ClCompile Include="Lua\Shared\LuaBundle.cpp" />
     <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp" />
     <ClCompile Include="Lua\Shared\LuaSerializers.cpp" />
-    <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp" />
+    <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="Lua\Shared\Proxies\LuaTypeInformation.cpp" />
     <ClCompile Include="NetProtocol.cpp" />
     <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
@@ -241,6 +246,7 @@
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
     <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Combat.inl" />
     <None Include="GameDefinitions\PropertyMaps\Effect.inl" />
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
