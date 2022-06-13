@@ -1074,7 +1074,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
         return hit
     end
 
-    hit.DamageMultiplier = 1.0 + GetAttackerDamageMultiplier(target, attacker, highGroundFlag)
+    hit.DamageMultiplier = 1.0 + GetAttackerDamageMultiplier(attacker, target, highGroundFlag)
     if hitType == "Magic" or hitType == "Surface" or hitType == "DoT" or hitType == "Reflected" then
         ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll)
         DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
