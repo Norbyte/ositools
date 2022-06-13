@@ -1037,8 +1037,8 @@ struct TreasureSubTableDescription
 
 	struct DropCount
 	{
-		int Chance;
 		int Amount;
+		int Chance;
 	};
 
 	ObjectSet<Category*> Categories;
