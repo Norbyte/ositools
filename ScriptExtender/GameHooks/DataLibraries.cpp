@@ -209,11 +209,13 @@ namespace dse
 
 		SYM_OFF(ecl__LevelManager);
 		SYM_OFF(ecl__InventoryFactory);
+		SYM_OFF(ecl__InventoryViewFactory);
 
 		SYM_OFF(ecl__InventoryProtocol__PostUpdate);
 
 		SYM_OFF(esv__LevelManager);
 		SYM_OFF(esv__InventoryFactory);
+		SYM_OFF(esv__InventoryViewFactory);
 
 		SYM_OFF(esv__gAiModifiers);
 		SYM_OFF(esv__gAiHelpers);

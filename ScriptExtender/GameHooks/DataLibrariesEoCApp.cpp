@@ -218,6 +218,7 @@ namespace dse
 		}
 
 		sym.esv__InventoryFactory = (esv::InventoryFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryFactory];
+		sym.esv__InventoryViewFactory = (esv::InventoryViewFactory **)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::EsvInventoryViewFactory];
 		sym.esv__SurfaceActionFactory = (esv::SurfaceActionFactory**)sym.ServerGlobals[(unsigned)EsvGlobalEoCApp::SurfaceActionFactory];
 
 		if (sym.esv__InventoryFactory == nullptr) {

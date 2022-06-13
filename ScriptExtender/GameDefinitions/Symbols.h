@@ -255,11 +255,13 @@ namespace dse
 
 		ecl::LevelManager ** ecl__LevelManager{ nullptr };
 		ecl::InventoryFactory ** ecl__InventoryFactory{ nullptr };
+		ecl::InventoryViewFactory** ecl__InventoryViewFactory{ nullptr };
 
 		ecl::InventoryProtocol::PostUpdateProc* ecl__InventoryProtocol__PostUpdate{ nullptr };
 
 		esv::LevelManager ** esv__LevelManager{ nullptr };
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
+		esv::InventoryViewFactory ** esv__InventoryViewFactory{ nullptr };
 
 		esv::AiModifiers ** esv__gAiModifiers{ nullptr };
 		esv::AiHelpers ** esv__gAiHelpers{ nullptr };
@@ -359,7 +361,6 @@ namespace dse
 #endif
 		}
 
-
 		inline esv::InventoryFactory * GetServerInventoryFactory() const
 		{
 			if (esv__InventoryFactory) {
@@ -369,12 +370,29 @@ namespace dse
 			}
 		}
 
+		inline esv::InventoryViewFactory * GetServerInventoryViewFactory() const
+		{
+			if (esv__InventoryViewFactory) {
+				return *esv__InventoryViewFactory;
+			} else {
+				return nullptr;
+			}
+		}
+
 		inline ecl::InventoryFactory* GetClientInventoryFactory() const
 		{
 			if (ecl__InventoryFactory) {
 				return *ecl__InventoryFactory;
+			} else {
+				return nullptr;
 			}
-			else {
+		}
+
+		inline ecl::InventoryViewFactory * GetClientInventoryViewFactory() const
+		{
+			if (ecl__InventoryViewFactory) {
+				return *ecl__InventoryViewFactory;
+			} else {
 				return nullptr;
 			}
 		}

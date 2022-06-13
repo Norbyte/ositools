@@ -1288,6 +1288,7 @@ namespace dse
 
 		auto & serverGlobals = GetStaticSymbols().ServerGlobals;
 		GetStaticSymbols().EsvInventoryFactory = (esv::InventoryFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvInventoryFactory];
+		GetStaticSymbols().EsvInventoryViewFactory = (esv::InventoryViewFactory **)serverGlobals[(unsigned)EsvGlobalEoCPlugin::EsvInventoryViewFactory];
 		GetStaticSymbols().EsvSurfaceActionFactory = (esv::SurfaceActionFactory**)serverGlobals[(unsigned)EsvGlobalEoCPlugin::SurfaceActionFactory];
 
 		if (GetStaticSymbols().EsvInventoryFactory == nullptr) {

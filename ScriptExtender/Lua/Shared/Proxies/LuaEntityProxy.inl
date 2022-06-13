@@ -149,15 +149,48 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::esv::EntityCompo
 {
 	switch ((ObjectHandleType)handle.GetType())
 	{
+	// Components from ECS
 	P_CLS(esv::Character);
-	// resolve from InventoryViewFactory!
-	// P_CLS(esv::Inventory);
-	// P_CLS(esv::InventoryView);
 	P_CLS(esv::Item);
 	P_CLS(esv::Projectile);
-	// resolve from SurfaceActionFactory!
-	// P_CLS(esv::SurfaceAction);
 	P_CLS(esv::CombatComponent);
+
+	case esv::Inventory::ObjectTypeIndex:
+	{
+		auto inventory = GetStaticSymbols().GetServerInventoryFactory()->Get(handle);
+		if (inventory) {
+			ObjectProxy2::MakeRef(L, inventory, lua::State::FromLua(L)->GetCurrentLifetime());
+			return true;
+		} else {
+			push(L, nullptr);
+			return false;
+		}
+	}
+
+	case esv::InventoryView::ObjectTypeIndex:
+	{
+		auto inventoryView = GetStaticSymbols().GetServerInventoryViewFactory()->Get(handle);
+		if (inventoryView) {
+			ObjectProxy2::MakeRef(L, inventoryView, lua::State::FromLua(L)->GetCurrentLifetime());
+			return true;
+		} else {
+			push(L, nullptr);
+			return false;
+		}
+	}
+
+	case esv::SurfaceAction::ObjectTypeIndex:
+	{
+		auto factory = *GetStaticSymbols().esv__SurfaceActionFactory;
+		auto action = factory->Get(handle);
+		if (action) {
+			ObjectProxy2::MakeRef(L, action, lua::State::FromLua(L)->GetCurrentLifetime());
+			return true;
+		} else {
+			push(L, nullptr);
+			return false;
+		}
+	}
 	default:
 		OsiError("No user-visible class exists for handles of type " << handle.GetType());
 		push(L, nullptr);
@@ -169,12 +202,35 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::ecl::EntityCompo
 {
 	switch ((ObjectHandleType)handle.GetType())
 	{
+	// Components from ECS
 	P_CLS(ecl::Character);
-	// resolve from InventoryFactory!
-	// P_CLS(ecl::Inventory);
-	// TODO - P_CLS(ecl::InventoryView);
 	P_CLS(ecl::Item);
-	// resolve from EffectEffect!
+
+	case esv::Inventory::ObjectTypeIndex:
+	{
+		auto inventory = GetStaticSymbols().GetClientInventoryFactory()->Get(handle);
+		if (inventory) {
+			ObjectProxy2::MakeRef(L, inventory, lua::State::FromLua(L)->GetCurrentLifetime());
+			return true;
+		} else {
+			push(L, nullptr);
+			return false;
+		}
+	}
+
+	case esv::InventoryView::ObjectTypeIndex:
+	{
+		auto inventoryView = GetStaticSymbols().GetClientInventoryViewFactory()->Get(handle);
+		if (inventoryView) {
+			ObjectProxy2::MakeRef(L, inventoryView, lua::State::FromLua(L)->GetCurrentLifetime());
+			return true;
+		} else {
+			push(L, nullptr);
+			return false;
+		}
+	}
+
+	// resolve from EffectFactory!
 	// P_CLS(ecl::Effect);
 	// P_CLS(Visual);
 	default:
