@@ -176,6 +176,24 @@ std::optional<FixedString> GetHandleType(lua_State* L)
 	return EnumInfo<ObjectHandleType>::Find((ObjectHandleType)handle.GetType());
 }
 
+/// <summary>
+/// Converts a handle to an integer value for serialization purposes.
+/// </summary>
+/// <param name="handle">Handle to convert</param>
+int64_t HandleToInteger(ComponentHandle handle)
+{
+	return (int64_t)handle.Handle;
+}
+
+/// <summary>
+/// Converts an integer value to a handle for serialization purposes.
+/// </summary>
+/// <param name="i">Integer value to convert</param>
+ComponentHandle IntegerToHandle(int64_t i)
+{
+	return ComponentHandle(i);
+}
+
 STDString GetValueType(lua_State* L)
 {
 	if (lua_type(L, 1) == LUA_TLIGHTUSERDATA) {
@@ -271,6 +289,8 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(IsValidHandle)
 	MODULE_FUNCTION(GetHandleType)
 	MODULE_FUNCTION(MakeHandleObject)
+	MODULE_FUNCTION(HandleToInteger)
+	MODULE_FUNCTION(IntegerToHandle)
 	MODULE_FUNCTION(GetGameMode)
 	MODULE_FUNCTION(GetDifficulty)
 	MODULE_FUNCTION(Random)

@@ -10,6 +10,7 @@
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/CustomStats.h>
 #include <GameDefinitions/TurnManager.h>
+#include <GameDefinitions/Symbols.h>
 
 BEGIN_NS(lua)
 
