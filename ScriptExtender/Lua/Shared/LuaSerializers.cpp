@@ -35,7 +35,7 @@ namespace dse::lua
 		if (s.IsWriting) {
 			InvokeDataValueToLua(s.L, v);
 		} else {
-			LuaToInvokeDataValue(s.L, 1, v);
+			LuaToInvokeDataValue(s.L, -1, v);
 		}
 
 		return s;
