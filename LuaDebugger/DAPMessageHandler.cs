@@ -86,7 +86,7 @@ namespace NSE.DebuggerFrontend
         private ThreadState ServerState;
         private ThreadState ClientState;
         private List<ModuleInfo> Modules;
-        private List<string> SourceFiles;
+        private List<string> SourceFiles = new List<string>();
         // List of DAP source code fetch requests that are currently pending
         // (i.e. we're waiting for a debugger backend response).
         // Backend sequence ID => original DAP request map
