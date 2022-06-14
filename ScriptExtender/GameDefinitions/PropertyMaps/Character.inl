@@ -78,6 +78,7 @@ END_CLS()
 
 
 BEGIN_CLS(esv::SkillManager)
+P_REF(CurrentSkillState)
 P_RO(OwnerHandle)
 P_REF(Skills)
 P_REF(TimeItemAddedToSkillManager)

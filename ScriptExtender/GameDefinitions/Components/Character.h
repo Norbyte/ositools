@@ -108,7 +108,7 @@ namespace dse
 
 		struct SkillManager : public ProtectedGameObject<SkillManager>
 		{
-			void * FreeSkillState;
+			SkillState * CurrentSkillState;
 			ComponentHandle OwnerHandle;
 			Map<FixedString, Skill *> Skills;
 			RefMap<FixedString, uint32_t> TimeItemAddedToSkillManager;
