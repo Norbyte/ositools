@@ -118,6 +118,12 @@ inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overl
 	return &MakeDeferredArrayType<T>;
 }
 
+template <class T, class Allocator>
+inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<PrimitiveSmallSet<T, Allocator>>)
+{
+	return &MakeDeferredArrayType<T>;
+}
+
 template <class T, int Size>
 inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<std::array<T, Size>>)
 {

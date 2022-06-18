@@ -550,6 +550,8 @@ void TypeInformationRepository::Initialize()
 
 	auto& ivec2 = RegisterStaticType<glm::ivec2>("ivec2", LuaTypeId::Array);
 	ivec2.ElementType = GetStaticTypeInfo(Overload<int32_t>{});
+	auto& i16vec2 = RegisterStaticType<glm::i16vec2>("i16vec2", LuaTypeId::Array);
+	i16vec2.ElementType = GetStaticTypeInfo(Overload<int16_t>{});
 	auto& vec2 = RegisterStaticType<glm::vec2>("vec2", LuaTypeId::Array);
 	vec2.ElementType = GetStaticTypeInfo(Overload<float>{});
 	auto& vec3 = RegisterStaticType<glm::vec3>("vec3", LuaTypeId::Array);
