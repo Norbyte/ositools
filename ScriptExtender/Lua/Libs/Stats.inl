@@ -967,10 +967,6 @@ UserReturn Create(lua_State * L, FixedString const& statName, FixedString const&
 				OsiWarn("Stats entres created after ModuleLoad must be synced manually; make sure that you call SyncStat() on it when you're finished!");
 				syncWarningShown = true;
 			}
-		} else {
-			OsiError("Cannot call CreateStat() on client after module load!");
-			push(L, nullptr);
-			return 1;
 		}
 	}
 
