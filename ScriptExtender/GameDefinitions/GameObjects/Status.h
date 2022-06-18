@@ -104,7 +104,7 @@ struct Status : public ProtectedGameObject<Status>
 	NetId NetID;
 	uint64_t U1;
 	FixedString StatusId; // Saved
-	uint32_t CanEnterChance; // Saved
+	int32_t CanEnterChance; // Saved
 	float StartTimer; // Saved
 	float LifeTime; // Saved
 	float CurrentLifeTime; // Saved
@@ -252,11 +252,11 @@ struct StatusDying : public Status
 struct StatusHeal : public Status
 {
 	float EffectTime;
-	uint32_t HealAmount;
+	int32_t HealAmount;
 	HealEffect HealEffect;
 	FixedString HealEffectId;
 	StatusHealType HealType;
-	uint32_t AbsorbSurfaceRange;
+	int32_t AbsorbSurfaceRange;
 	ObjectSet<SurfaceType> AbsorbSurfaceTypes;
 	uint64_t Unkn2;
 	bool TargetDependentHeal;
@@ -287,14 +287,14 @@ struct StatusSummoning : public Status
 
 struct StatusHealing : public StatusConsumeBase
 {
-	uint32_t HealAmount; // Saved
+	int32_t HealAmount; // Saved
 	float TimeElapsed; // Saved
 	HealEffect HealEffect; // Saved
 	FixedString HealEffectId; // Saved
 	bool SkipInitialEffect; // Saved
-	uint32_t HealingEvent; // Saved
+	int32_t HealingEvent; // Saved
 	StatusHealType HealStat; // Saved
-	uint32_t AbsorbSurfaceRange; // Saved
+	int32_t AbsorbSurfaceRange; // Saved
 };
 
 struct StatusThrown : public Status
