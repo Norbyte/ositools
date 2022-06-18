@@ -20,7 +20,7 @@ namespace dse
 			void * VMT;
 			FixedString GUID; // Unused?
 			NetId NetID;
-			PrimitiveSet<uint16_t> PeerIdClassNames;
+			ObjectSet<uint16_t> PeerIdClassNames;
 			ComponentHandle Handle;
 			uint8_t EquipmentSlots;
 			ComponentHandle ParentHandle;
@@ -76,7 +76,7 @@ namespace dse
 			void* VMT;
 			FixedString GUID;
 			NetId NetID;
-			PrimitiveSet<uint16_t> PeerIDClassNames;
+			ObjectSet<uint16_t> PeerIDClassNames;
 			ComponentHandle OwnerCharacterHandleUI;
 			uint8_t field_40;
 			uint8_t field_41;

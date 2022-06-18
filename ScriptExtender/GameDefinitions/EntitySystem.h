@@ -167,7 +167,7 @@ struct SystemTypeEntry
 	void * System;
 	int64_t Unkn1;
 	uint32_t Unkn2;
-	PrimitiveSet<uint64_t> PSet;
+	ObjectSet<uint64_t> PSet;
 };
 
 struct EntityEntry
@@ -193,7 +193,7 @@ struct EntityWorldData : public ProtectedGameObject<EntityWorldData>
 	Array<SystemTypeEntry> SystemTypes;
 	Array<void*> EventTypes; // Array<EventTypeEntry>
 	void* EntityWorldManager;
-	PrimitiveSet<SystemTypeEntry> SystemTypes2;
+	ObjectSet<SystemTypeEntry> SystemTypes2;
 	ObjectSet<void*> Funcs; // ObjectSet<function>
 	RefMap<FixedString, int> RefMap; // ???
 	bool RegisterPhaseEnded;
@@ -814,7 +814,7 @@ namespace ecl
 		FixedString FS_CurrentSaveGameGUID;
 		bool IsLoading;
 		bool IsLoading2;
-		PrimitiveSet<int> PrimitiveSetUnkn;
+		ObjectSet<int> PrimitiveSetUnkn;
 		uint16_t field_B0;
 		void* Random;
 		void* ItemCombinationManager;

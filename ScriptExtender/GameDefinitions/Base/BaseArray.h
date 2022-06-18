@@ -397,11 +397,6 @@ public:
 };
 
 template <class T, class Allocator = GameMemoryAllocator>
-class PrimitiveSet : public ObjectSet<T, Allocator, false>
-{
-};
-
-template <class T, class Allocator = GameMemoryAllocator>
 class CompactObjectSet : public ObjectSet<T, Allocator, true>
 {
 };

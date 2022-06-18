@@ -124,7 +124,7 @@ namespace dse
 			glm::mat3 WorldRot; // Saved
 			float Scale; // Saved
 			ItemFlags2 Flags2;
-			PrimitiveSet<uint16_t> PeerIDClassNames;
+			ObjectSet<uint16_t> PeerIDClassNames;
 			glm::vec3 WorldVelocity; // Saved
 			eoc::Ai* AI;
 			ItemTemplate* CurrentTemplate; // Saved

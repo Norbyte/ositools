@@ -109,7 +109,7 @@ namespace dse
 			ObjectSet<ComponentHandleWithType> RemovedDefinitions;
 			ObjectSet<ComponentHandleWithType> UpdatedDefinitions;
 			ObjectSet<ComponentHandleWithType> CustomStatComponents;
-			PrimitiveSet<short> PeerIDClassnames;
+			ObjectSet<uint16_t> PeerIDClassnames;
 		};
 
 		typedef int(*CustomStatsProtocol__ProcessMsg)(void * self, void * unkn, void * unkn2, net::Message * msg);

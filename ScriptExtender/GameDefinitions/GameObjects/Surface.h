@@ -126,9 +126,9 @@ namespace dse
             float StatusChance; // Init param
             glm::vec3 Position; // Init param
             SurfaceType SurfaceType; // Init param
-            ComponentHandle SurfaceHandlesByType[79];
-            PrimitiveSmallSet<SurfaceCell>* SurfaceChanges[79];
-            PrimitiveSmallSet<SurfaceCell>* SurfaceCellsByLayer[2];
+            std::array<ComponentHandle, 79> SurfaceHandlesByType;
+            std::array<PrimitiveSmallSet<SurfaceCell>*, 79> SurfaceChanges;
+            std::array<PrimitiveSmallSet<SurfaceCell>*, 2> SurfaceCellsByLayer;
         };
 
         struct CreateSurfaceAction : public CreateSurfaceActionBase
@@ -182,8 +182,8 @@ namespace dse
             float Percentage;
             float GrowTimer;
             float Step;
-            PrimitiveSmallSet<SurfaceCell> field_558;
-            PrimitiveSmallSet<SurfaceCell> field_570;
+            PrimitiveSmallSet<SurfaceCell> Cells1;
+            PrimitiveSmallSet<SurfaceCell> Cells2;
         };
 
         struct TransformSurfaceAction : public SurfaceAction
@@ -202,7 +202,7 @@ namespace dse
             float SurfaceLifetime; // Init param
             float SurfaceStatusChance; // Init param
             RefMap<SurfaceType, ComponentHandle> SurfaceMap;
-            RefMap<SurfaceType, PrimitiveSet<SurfaceCell>> SurfaceCellMap;
+            RefMap<SurfaceType, PrimitiveSmallSet<SurfaceCell>> SurfaceCellMap;
             PrimitiveSmallSet<SurfaceCell> SurfaceRemoveGroundCellMap;
             PrimitiveSmallSet<SurfaceCell> SurfaceRemoveCloudCellMap;
         };

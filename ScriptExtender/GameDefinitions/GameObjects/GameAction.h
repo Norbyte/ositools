@@ -13,7 +13,7 @@ namespace dse
 			void * VMT;
 			FixedString SomeFS;
 			NetId NetID;
-			PrimitiveSet<uint16_t> PeerIDClassNames;
+			ObjectSet<uint16_t> PeerIDClassNames;
 			ComponentHandle MyHandle;
 			GameActionType ActionType;
 			bool Active;
