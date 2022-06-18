@@ -96,6 +96,11 @@ struct FixedString
 		return Str;
 	}
 
+	inline char const* GetStringOrDefault() const
+	{
+		return (Str != nullptr) ? Str : "";
+	}
+
 	char const * Str;
 
 	struct Metadata

@@ -264,7 +264,7 @@ bool Object::SetPropertyList(ModifierInfo const& modifier, std::optional<Propert
 
 void Object::ToProtobuf(MsgS2CSyncStat* msg) const
 {
-	msg->set_name(Name.Str);
+	msg->set_name(Name.GetStringOrDefault());
 	msg->set_level(Level);
 	msg->set_modifier_list(ModifierListIndex);
 
@@ -283,12 +283,12 @@ void Object::ToProtobuf(MsgS2CSyncStat* msg) const
 			break;
 
 		case AttributeType::FixedString:
-			indexedProp->set_stringval(stats->FixedStrings[value].Str);
+			indexedProp->set_stringval(stats->FixedStrings[value].GetStringOrDefault());
 			break;
 		}
 	}
 
-	msg->set_ai_flags(AIFlags.Str);
+	msg->set_ai_flags(AIFlags.GetStringOrDefault());
 
 	for (auto const& reqmt : Requirements) {
 		reqmt.ToProtobuf(msg->add_requirements());
@@ -299,7 +299,7 @@ void Object::ToProtobuf(MsgS2CSyncStat* msg) const
 	}
 
 	for (auto const& category : ComboCategories) {
-		msg->add_combo_categories(category.Str);
+		msg->add_combo_categories(category.GetStringOrDefault());
 	}
 
 	for (auto const& propList : PropertyLists) {

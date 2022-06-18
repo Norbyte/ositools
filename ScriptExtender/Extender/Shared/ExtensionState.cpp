@@ -65,7 +65,7 @@ namespace dse
 						&& config.ModTable.empty()) {
 						OsiError("Module '" << ToUTF8(mod.Info.Name.c_str()) << ":");
 						OsiError("Modules using Lua must specify a ModTable in OsiToolsConfig.json when targeting v43 or later.");
-						config.ModTable = mod.Info.ModuleUUID.Str;
+						config.ModTable = mod.Info.ModuleUUID.GetString();
 					}
 
 					if (config.MinimumVersion > CurrentVersion) {
@@ -574,7 +574,7 @@ namespace dse
 			OsiMsg("Loading bootstrap script: " << path);
 			if (config.MinimumVersion <= 42) {
 				// <= v42: Load module directly into global table
-				LuaLoadModScript(mod.Info.ModuleUUID.Str, bootstrapPath);
+				LuaLoadModScript(mod.Info.ModuleUUID.GetString(), bootstrapPath);
 			} else {
 				// >= v43: Load module with _ENV=Mods[ModTable]
 				lua->LoadBootstrap(bootstrapPath, config.ModTable);

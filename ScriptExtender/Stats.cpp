@@ -276,7 +276,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object, SkillPrototype* proto)
 		proto->DisplayName = displayName.Handle.ReferenceString;
 	}
 
-	STDString aiFlags = object->AIFlags.Str;
+	STDString aiFlags = object->AIFlags.GetStringOrDefault();
 	proto->AiFlags = (AIFlags)0;
 	if (aiFlags.find("CanNotUse") != STDString::npos) proto->AiFlags |= AIFlags::CanNotUse;
 	if (aiFlags.find("IgnoreSelf") != STDString::npos) proto->AiFlags |= AIFlags::IgnoreSelf;
@@ -324,7 +324,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		auto lv1Proto = GameAlloc<SkillPrototype>();
 		*lv1Proto = *proto;
 
-		STDString lv1Name = proto->SkillId.Str;
+		STDString lv1Name = proto->SkillId.GetStringOrDefault();
 		lv1Name += "_-1";
 		lv1Proto->SkillId = FixedString(lv1Name.c_str());
 		lv1Proto->Level = -1;
@@ -337,7 +337,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 	} else {
 		SyncSkillStat(object, pProto);
 
-		STDString lv1Name = pProto->SkillId.Str;
+		STDString lv1Name = pProto->SkillId.GetStringOrDefault();
 		lv1Name += "_-1";
 		auto lv1Proto = Prototypes.TryGet(FixedString(lv1Name.c_str()));
 		if (lv1Proto) {
@@ -403,7 +403,7 @@ void Requirement::ToProtobuf(StatRequirement* msg) const
 	msg->set_requirement((int32_t)RequirementId);
 	msg->set_int_param(Param);
 	if (Tag) {
-		msg->set_string_param(Tag.Str);
+		msg->set_string_param(Tag.GetStringOrDefault());
 	}
 	msg->set_negate(Not);
 }
@@ -422,11 +422,11 @@ void Requirement::FromProtobuf(StatRequirement const& msg)
 
 void PropertyData::ToProtobuf(StatProperty* msg) const
 {
-	msg->set_name(Name.Str ? Name.Str : "<Unnamed>");
+	msg->set_name(Name.GetStringOrDefault());
 	msg->set_type((uint32_t)TypeId);
 	msg->set_property_context((uint32_t)Context);
 	if (Conditions) {
-		STDString name(Name.Str);
+		STDString name(Name.GetStringOrDefault());
 		if (name[name.length() - 1] == ')') {
 			auto ifPos = name.find("_IF(");
 			if (ifPos != std::string::npos) {
@@ -443,10 +443,10 @@ void PropertyData::ToProtobuf(StatProperty* msg) const
 	case PropertyType::Status:
 	{
 		auto const& p = (PropertyStatus const&)*this;
-		msg->add_string_params(p.Status.Str);
+		msg->add_string_params(p.Status.GetStringOrDefault());
 		msg->add_float_params(p.StatusChance);
 		msg->add_float_params(p.Duration);
-		msg->add_string_params(p.StatsId.Str);
+		msg->add_string_params(p.StatsId.GetStringOrDefault());
 		msg->add_int_params(p.Arg4);
 		msg->add_int_params(p.Arg5);
 		msg->add_bool_params(p.SurfaceBoost);
@@ -473,7 +473,7 @@ void PropertyData::ToProtobuf(StatProperty* msg) const
 		msg->add_int_params(p.GameAction);
 		msg->add_float_params(p.Arg1);
 		msg->add_float_params(p.Arg2);
-		msg->add_string_params(p.Arg3.Str);
+		msg->add_string_params(p.Arg3.GetStringOrDefault());
 		msg->add_float_params(p.Arg4);
 		msg->add_float_params(p.Arg5);
 		msg->add_int_params(p.StatusHealType);
@@ -499,10 +499,10 @@ void PropertyData::ToProtobuf(StatProperty* msg) const
 	case PropertyType::Summon:
 	{
 		auto const& p = (PropertySummon const&)*this;
-		msg->add_string_params(p.Template.Str);
+		msg->add_string_params(p.Template.GetStringOrDefault());
 		msg->add_float_params(p.Duration);
 		msg->add_bool_params(p.IsTotem);
-		msg->add_string_params(p.Skill.Str);
+		msg->add_string_params(p.Skill.GetStringOrDefault());
 		break;
 	}
 
@@ -523,10 +523,10 @@ void PropertyData::ToProtobuf(StatProperty* msg) const
 	case PropertyType::Extender:
 	{
 		auto const& p = (PropertyExtender const&)*this;
-		msg->add_string_params(p.PropertyName.Str);
+		msg->add_string_params(p.PropertyName.GetStringOrDefault());
 		msg->add_float_params(p.Arg1);
 		msg->add_float_params(p.Arg2);
-		msg->add_string_params(p.Arg3.Str);
+		msg->add_string_params(p.Arg3.GetStringOrDefault());
 		msg->add_int_params(p.Arg4);
 		msg->add_int_params(p.Arg5);
 		break;
@@ -660,7 +660,7 @@ void PropertyData::FromProtobuf(StatProperty const& msg)
 
 void PropertyList::ToProtobuf(FixedString const& name, StatPropertyList* msg) const
 {
-	msg->set_name(name ? name.Str : "<Unnamed>");
+	msg->set_name(name.GetStringOrDefault());
 	for (auto const& prop : Properties.Primitives) {
 		auto const& dataProp = (PropertyData const*)prop;
 		dataProp->ToProtobuf(msg->add_properties());
