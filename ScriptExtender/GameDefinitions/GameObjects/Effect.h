@@ -26,6 +26,95 @@ struct Effect : public Visual
 	uint16_t RefCount;
 };
 
+END_NS()
+
+BEGIN_NS(lsfx)
+
+struct Component;
+
+struct Parameter
+{
+	STDString Name;
+	float Value;
+};
+
+struct Property
+{
+	void* VMT;
+	FixedString EffectPropertyName;
+	FixedString AttributeName;
+	PrimitiveSmallSet<Parameter*> Parameters;
+	uint32_t field_30;
+	uint32_t field_34;
+};
+
+struct Module
+{
+	STDString Name;
+	ObjectSet<FixedString> EffectPropertyName;
+	ObjectSet<Property*> BoundProperties;
+	Component* Owner;
+};
+
+struct Component
+{
+	void* VMT;
+	ObjectSet<Property*> Properties;
+	Guid UUID;
+	STDString Name;
+	ObjectSet<Module*> Modules;
+};
+
+
+END_NS()
+
+BEGIN_NS(aspk)
+
+struct Effect;
+struct Property;
+struct Component;
+struct Input;
+
+struct EffectHeader
+{
+	float Duration;
+	Array<void*> Phases;
+};
+
+struct Component : public lsfx::Component
+{
+	Effect* Effect;
+	Map<FixedString, Property*> Properties;
+	int TrackGroupIndex;
+	float StartTime;
+	float EndTime;
+	bool IsActive;
+	bool StayAlive;
+};
+
+struct Effect : public dse::ecl::Effect
+{
+	bool field_328;
+	int field_32C;
+	ObjectSet<Component*> Components;
+	bool Paused;
+	bool RequestAdvancePhase;
+	bool NeedsRewind;
+	int NumPhaseLoops;
+	float PhaseTime;
+	float RemainingTime;
+	float RemainingPhaseTime;
+	float CurrentTime;
+	uint8_t CurrentPhase;
+	EffectHeader EffectHeader;
+	ObjectSet<Input*> Inputs;
+};
+
+END_NS()
+
+
+BEGIN_NS(ecl)
+
 struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 {
 	using InitProc = void (MultiEffectHandler* self, char const* effect, glm::vec3 const& position, IEoCClientObject* target, void* skillState, IEoCClientObject* listenForTextKeys, FixedString const& weaponBones);
