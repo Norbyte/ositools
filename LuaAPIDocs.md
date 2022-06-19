@@ -2,7 +2,8 @@
 ### Lua API v53 Documentation
 
 ### Table of Contents  
-
+ - [Getting Started](#getting-started)
+    - [Bootstrap Scripts](#bootstrap-scripts)
  - [Client / Server States](#client-server)
     - [Persistent Variables](#persistent-vars)
  - [Console](#console)
@@ -82,7 +83,7 @@ Meaning of configuration keys:
 | Key | Meaning |
 |--|--|
 | `RequiredExtensionVersion` | Osiris Extender version required to run the mod. It is recommended to use the version number of the Script Extender you used for developing the mod since the behavior of new features and backwards compatibility functions depends on this version number. |
-| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. |
+| `ModTable` | Name of the mod in the global mod table (`Mods`) when using Lua. This name is required to use Lua scripting, and must be unique. |
 | `FeatureFlags` | A list of features that the mod is using. For performance reasons it is recommended to only list features that are actually in use. |
 
 The following features are accepted in `FeatureFlags`:
@@ -96,6 +97,28 @@ The following features are accepted in `FeatureFlags`:
 | `CustomStats` | Activates the custom stats system in non-GM mode (see [Custom Stats](https://github.com/Norbyte/ositools/blob/master/APIDocs.md#custom-stats) for more details). Custom stats are always enabled in GM mode. |
 | `CustomStatsPane` | Replaces the Tags tab with the Custom Stats tab on the character sheet |
 
+<a id="bootstrap-scripts"></a>
+### Bootstrap Scripts  
+
+If Lua is enabled for the mod, the extender will attempt to load `BootstrapServer.lua` on the server side, and `BootstrapClient.lua` on the client side. These scripts should be created in this folder (create the Story\RawFiles\Lua folders if necessary):
+```
+Mods\ModName_UUID\Story\RawFiles\Lua\
+```
+**Required Scripts**  
+| Name | State |
+|--|--|
+| `BootstrapServer.lua` | Server Side |
+| `BootstrapClient.lua` | Client Side |
+
+From here, these scripts can load other scripts with `Ext.Require`. The path to scripts are relative to the Lua folder, so if you had a file setup like this:
+```
+BootstrapClient.lua
+BootstrapServer.lua
+Server/SkillMechanics.lua
+```
+BootstrapServer would load `SkillMechanics.lua` with `Ext.Require("Server/SkillMechanics.lua")`. Script loading only needs to happen once.
+
+See below for further information on the client/server states, as certain scripting functions are only available on a specific side (i.e. only Osiris functions work on the server-side, in unrestricted contexts).
 
 <a id="client-server"></a>
 ## Client / Server States
