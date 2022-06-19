@@ -1,0 +1,542 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Game Debug|x64">
+      <Configuration>Game Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor Release|x64">
+      <Configuration>Editor Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor Debug|x64">
+      <Configuration>Editor Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Game Release|x64">
+      <Configuration>Game Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DxgiWrapper.h" />
+    <ClInclude Include="Extender\Client\ExtensionStateClient.h" />
+    <ClInclude Include="Extender\Client\NetworkManagerClient.h" />
+    <ClInclude Include="Extender\Client\ScriptExtenderClient.h" />
+    <ClInclude Include="Extender\ScriptExtender.h" />
+    <ClInclude Include="Extender\Server\ExtensionStateServer.h" />
+    <ClInclude Include="Extender\Server\NetworkManagerServer.h" />
+    <ClInclude Include="Extender\Server\ScriptExtenderServer.h" />
+    <ClInclude Include="Extender\Shared\Console.h" />
+    <ClInclude Include="Extender\Shared\ExtenderConfig.h" />
+    <ClInclude Include="Extender\Shared\ExtensionHelpers.h" />
+    <ClInclude Include="Extender\Shared\ExtensionState.h" />
+    <ClInclude Include="Extender\Shared\ModuleHasher.h" />
+    <ClInclude Include="Extender\Shared\SavegameSerializer.h" />
+    <ClInclude Include="Extender\Shared\ScriptExtenderBase.h" />
+    <ClInclude Include="Extender\Shared\ScriptExtensions.pb.h" />
+    <ClInclude Include="Extender\Shared\StatLoadOrderHelper.h" />
+    <ClInclude Include="Extender\Shared\tinyxml2.h" />
+    <ClInclude Include="GameDefinitions\Alignment.h" />
+    <ClInclude Include="GameDefinitions\Base\Base.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseArray.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseMap.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseMemory.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseString.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseTypeInformation.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseTypes.h" />
+    <ClInclude Include="GameDefinitions\Base\BaseUtilities.h" />
+    <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h" />
+    <ClInclude Include="GameDefinitions\Base\ObjectVisitor.h" />
+    <ClInclude Include="GameDefinitions\Components\Character.h" />
+    <ClInclude Include="GameDefinitions\Components\Inventory.h" />
+    <ClInclude Include="GameDefinitions\Components\Item.h" />
+    <ClInclude Include="GameDefinitions\Components\Projectile.h" />
+    <ClInclude Include="GameDefinitions\Components\Trigger.h" />
+    <ClInclude Include="GameDefinitions\CustomStats.h" />
+    <ClInclude Include="GameDefinitions\EntitySystem.h" />
+    <ClInclude Include="GameDefinitions\Enumerations.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\ActionMachine.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Ai.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\AiHelpers.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\CharacterCreation.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Effect.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\GameAction.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Level.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Material.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Module.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Party.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Render.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Status.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Surface.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Terrain.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\UseActions.h" />
+    <ClInclude Include="GameDefinitions\GlobalFixedStrings.h" />
+    <ClInclude Include="GameDefinitions\Misc.h" />
+    <ClInclude Include="GameDefinitions\Net.h" />
+    <ClInclude Include="GameDefinitions\Osiris.h" />
+    <ClInclude Include="GameDefinitions\PropertyMaps\PropertyMap.h" />
+    <ClInclude Include="GameDefinitions\PropertyMaps\PropertyMaps.h" />
+    <ClInclude Include="GameDefinitions\Resource.h" />
+    <ClInclude Include="GameDefinitions\Sound.h" />
+    <ClInclude Include="GameDefinitions\Stats.h" />
+    <ClInclude Include="GameDefinitions\Symbols.h" />
+    <ClInclude Include="GameDefinitions\TurnManager.h" />
+    <ClInclude Include="GameDefinitions\UI.h" />
+    <ClInclude Include="GameDefinitions\VariableManager.h" />
+    <ClInclude Include="GameHooks\DataLibraries.h" />
+    <ClInclude Include="GameHooks\EngineHooks.h" />
+    <ClInclude Include="GameHooks\OsirisWrappers.h" />
+    <ClInclude Include="GameHooks\SymbolMapper.h" />
+    <ClInclude Include="GameHooks\Wrappers.h" />
+    <ClInclude Include="Hit.h" />
+    <ClInclude Include="Lua\Client\ClientUI.h" />
+    <ClInclude Include="Lua\Client\LuaBindingClient.h" />
+    <ClInclude Include="Lua\Debugger\LuaDebug.pb.h" />
+    <ClInclude Include="Lua\Debugger\LuaDebugger.h" />
+    <ClInclude Include="Lua\Debugger\LuaDebugMessages.h" />
+    <ClInclude Include="Lua\Libs\LibraryRegistrationHelpers.h" />
+    <ClInclude Include="Lua\Server\LuaBindingServer.h" />
+    <ClInclude Include="Lua\Server\LuaOsiris.h" />
+    <ClInclude Include="Lua\Shared\LuaBinding.h" />
+    <ClInclude Include="Lua\Shared\LuaBundle.h" />
+    <ClInclude Include="Lua\Shared\LuaHelpers.h" />
+    <ClInclude Include="Lua\Shared\LuaLifetime.h" />
+    <ClInclude Include="Lua\Shared\LuaMethodHelpers.h" />
+    <ClInclude Include="Lua\Shared\LuaSerializers.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
+    <ClInclude Include="NetProtocol.h" />
+    <ClInclude Include="Osiris\Debugger\Debugger.h" />
+    <ClInclude Include="Osiris\Debugger\DebugInterface.h" />
+    <ClInclude Include="Osiris\Debugger\DebugMessages.h" />
+    <ClInclude Include="Osiris\Debugger\osidebug.pb.h" />
+    <ClInclude Include="Osiris\Functions\FunctionLibrary.h" />
+    <ClInclude Include="Osiris\OsirisExtender.h" />
+    <ClInclude Include="Osiris\Shared\CustomFunctions.h" />
+    <ClInclude Include="Osiris\Shared\NodeHooks.h" />
+    <ClInclude Include="Osiris\Shared\OsirisHelpers.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptHelpers.h" />
+    <ClInclude Include="StatusHelpers.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="DxgiWrapper.cpp" />
+    <ClCompile Include="Extender\Client\NetworkManagerClient.cpp" />
+    <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp" />
+    <ClCompile Include="Extender\ScriptExtender.cpp" />
+    <ClCompile Include="Extender\Server\NetworkManagerServer.cpp" />
+    <ClCompile Include="Extender\Server\ScriptExtenderServer.cpp" />
+    <ClCompile Include="Extender\Shared\Console.cpp" />
+    <ClCompile Include="Extender\Shared\CrashReporter.cpp" />
+    <ClCompile Include="Extender\Shared\ExtensionState.cpp" />
+    <ClCompile Include="Extender\Shared\ScriptExtensions.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Extender\Shared\tinyxml2.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="GameDefinitions\Base\Base.cpp" />
+    <ClCompile Include="GameDefinitions\Enumerations.cpp" />
+    <ClCompile Include="GameDefinitions\GameHelpers.cpp" />
+    <ClCompile Include="GameDefinitions\GlobalFixedStrings.cpp" />
+    <ClCompile Include="GameDefinitions\PropertyMaps\PropertyMaps.cpp" />
+    <ClCompile Include="GameHooks\DataLibraries.cpp" />
+    <ClCompile Include="GameHooks\DataLibrariesEoCApp.cpp" />
+    <ClCompile Include="GameHooks\DataLibrariesEoCPlugin.cpp" />
+    <ClCompile Include="GameHooks\EngineHooks.cpp" />
+    <ClCompile Include="GameHooks\OsirisWrappers.cpp" />
+    <ClCompile Include="GameHooks\SymbolMapper.cpp" />
+    <ClCompile Include="Hit.cpp" />
+    <ClCompile Include="Lua\Client\ClientUI.cpp" />
+    <ClCompile Include="Lua\Client\LuaClient.cpp" />
+    <ClCompile Include="Lua\Debugger\LuaDebug.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Lua\Debugger\LuaDebugger.cpp" />
+    <ClCompile Include="Lua\Debugger\LuaDebugMessages.cpp" />
+    <ClCompile Include="Lua\Libs\LuaSharedLibs.cpp" />
+    <ClCompile Include="Lua\Server\LuaOsiris.cpp" />
+    <ClCompile Include="Lua\Server\LuaServer.cpp" />
+    <ClCompile Include="Lua\Shared\LuaBinding.cpp" />
+    <ClCompile Include="Lua\Shared\LuaBundle.cpp" />
+    <ClCompile Include="Lua\Shared\LuaInternalHelpers.cpp" />
+    <ClCompile Include="Lua\Shared\LuaOsiBridge.cpp" />
+    <ClCompile Include="Lua\Shared\LuaSerializers.cpp" />
+    <ClCompile Include="Lua\Shared\Proxies\LuaObjectProxies.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="Lua\Shared\Proxies\LuaTypeInformation.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="NetProtocol.cpp" />
+    <ClCompile Include="Osiris\Debugger\Debugger.cpp" />
+    <ClCompile Include="Osiris\Debugger\DebugInterface.cpp" />
+    <ClCompile Include="Osiris\Debugger\DebugMessages.cpp" />
+    <ClCompile Include="Osiris\Debugger\osidebug.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Osiris\Functions\CharacterFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\CustomStatFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\DamageFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\FunctionLibrary.cpp" />
+    <ClCompile Include="Osiris\Functions\FunctionUtilities.cpp" />
+    <ClCompile Include="Osiris\Functions\GameActionFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\ItemFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\LuaFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\MathFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\PlayerFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\ProjectileFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\StatFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\StatusFunctions.cpp" />
+    <ClCompile Include="Osiris\Functions\UtilityFunctions.cpp" />
+    <ClCompile Include="Osiris\OsirisExtender.cpp" />
+    <ClCompile Include="Osiris\Shared\CustomFunctions.cpp" />
+    <ClCompile Include="Osiris\Shared\NodeHooks.cpp" />
+    <ClCompile Include="Osiris\Shared\OsirisHelpers.cpp" />
+    <ClCompile Include="ScriptHelpers.cpp" />
+    <ClCompile Include="Stats.cpp" />
+    <ClCompile Include="StatusHelpers.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+    <None Include="Exports.def" />
+    <None Include="Extender\Shared\ModuleHasher.inl" />
+    <None Include="Extender\Shared\SavegameSerializer.inl" />
+    <None Include="Extender\Shared\ScriptExtensions.proto" />
+    <None Include="Extender\Shared\StatLoadOrderHelper.inl" />
+    <None Include="Extender\Shared\ThreadedExtenderState.inl" />
+    <None Include="GameDefinitions\CharacterGetters.inl" />
+    <None Include="GameDefinitions\Enumerations.inl" />
+    <None Include="GameDefinitions\GlobalFixedStrings.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Ai.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Alignment.inl" />
+    <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Character.inl" />
+    <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Combat.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Effect.inl" />
+    <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Events.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Item.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Level.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Material.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Mod.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Render.inl" />
+    <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
+    <None Include="GameDefinitions\PropertyMaps\UI.inl" />
+    <None Include="GameDefinitions\PropertyMaps\UseActions.inl" />
+    <None Include="GameDefinitions\StatsObject.inl" />
+    <None Include="GameHooks\EngineHooks.inl" />
+    <None Include="LuaScripts\BuiltinLibrary.lua" />
+    <None Include="LuaScripts\BuiltinLibraryClient.lua" />
+    <None Include="LuaScripts\BuiltinLibraryServer.lua" />
+    <None Include="LuaScripts\ClientStartup.lua" />
+    <None Include="LuaScripts\Libs\Event.lua" />
+    <None Include="LuaScripts\Libs\Game.Math.lua" />
+    <None Include="LuaScripts\Libs\Game.Tooltip.lua" />
+    <None Include="LuaScripts\Libs\IdeHelpersGenerator.lua" />
+    <None Include="LuaScripts\SandboxStartup.lua" />
+    <None Include="LuaScripts\ServerStartup.lua" />
+    <None Include="Lua\Client\ClientCharacter.inl" />
+    <None Include="Lua\Client\ClientEntitySystem.inl" />
+    <None Include="Lua\Client\ClientItem.inl" />
+    <None Include="Lua\Debugger\LuaDebug.proto" />
+    <None Include="Lua\Libs\AI.inl" />
+    <None Include="Lua\Libs\Audio.inl" />
+    <None Include="Lua\Libs\Client.inl" />
+    <None Include="Lua\Libs\ClientEntity.inl" />
+    <None Include="Lua\Libs\ClientTemplate.inl" />
+    <None Include="Lua\Libs\ClientVisual.inl" />
+    <None Include="Lua\Libs\ClientNet.inl" />
+    <None Include="Lua\Libs\ClientUI.inl" />
+    <None Include="Lua\Libs\Debug.inl" />
+    <None Include="Lua\Libs\IO.inl" />
+    <None Include="Lua\Libs\Json.inl" />
+    <None Include="Lua\Libs\Localization.inl" />
+    <None Include="Lua\Libs\Math.inl" />
+    <None Include="Lua\Libs\Mod.inl" />
+    <None Include="Lua\Libs\Resource.inl" />
+    <None Include="Lua\Libs\Server.inl" />
+    <None Include="Lua\Libs\ServerAi.inl" />
+    <None Include="Lua\Libs\ServerCustomStats.inl" />
+    <None Include="Lua\Libs\ServerEffect.inl" />
+    <None Include="Lua\Libs\ServerEntity.inl" />
+    <None Include="Lua\Libs\ServerNet.inl" />
+    <None Include="Lua\Libs\ServerOsiris.inl" />
+    <None Include="Lua\Libs\ServerPropertyLists.inl" />
+    <None Include="Lua\Libs\ServerSurfaceAction.inl" />
+    <None Include="Lua\Libs\ServerTemplate.inl" />
+    <None Include="Lua\Libs\Surface.inl" />
+    <None Include="Lua\Libs\Stats.inl" />
+    <None Include="Lua\Libs\Types.inl" />
+    <None Include="Lua\Libs\Utils.inl" />
+    <None Include="Lua\Server\ServerCharacter.inl" />
+    <None Include="Lua\Server\ServerEntitySystem.inl" />
+    <None Include="Lua\Server\ServerItem.inl" />
+    <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
+    <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaEvent.inl" />
+    <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaSetProxy.inl" />
+    <None Include="Osiris\Debugger\osidebug.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ScriptExtender.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="GameHooks\BinaryMappingsEoCApp.xml" />
+    <Xml Include="GameHooks\BinaryMappingsEoCPlugin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ScriptExtender.natvis" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4723A102-E4DE-4874-BED7-6DA4EC2D0C80}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ScriptExtender</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>OsiExtenderEoCPlugin</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>OsiExtenderEoCApp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>OsiExtenderEoCApp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>OsiExtenderEoCPlugin</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;GOOGLE_PROTOBUF_NO_RTTI;_DEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;GLM_FORCE_INTRINSICS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.6\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
+      <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\LuaJIT-2.1\x64_debug;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\The Divinity Engine 2\DefEd\DXGI.dll"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender osidebug.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender LuaDebug.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender ScriptExtensions.proto
+$(SolutionDir)x64\Debug\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(ProjectDir)Lua.bundle"</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;GOOGLE_PROTOBUF_NO_RTTI;_DEBUG;_WINDOWS;_USRDLL;OSI_EOCAPP;OSIINTERFACE_EXPORTS;GLM_FORCE_INTRINSICS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.6\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
+      <AdditionalDependencies>LuaLib.lib;	Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender osidebug.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender LuaDebug.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender ScriptExtensions.proto
+$(SolutionDir)x64\Debug\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(ProjectDir)Lua.bundle"</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;NDEBUG;_WINDOWS;_USRDLL;OSI_EOCAPP;OSIINTERFACE_EXPORTS;OSI_EXTENSION_BUILD;GLM_FORCE_INTRINSICS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\glm;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.6\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender ScriptExtensions.proto
+rem $(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender LuaDebug.proto
+$(SolutionDir)x64\Release\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(ProjectDir)Lua.bundle"</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;NDEBUG;_WINDOWS;_USRDLL;OSIINTERFACE_EXPORTS;GLM_FORCE_INTRINSICS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External\glm;$(SolutionDir)\External\x64-windows\include;$(SolutionDir)\External\Detours\include;$(SolutionDir)\External\lua-5.3.6\src;$(SolutionDir)\External\jsoncpp-master\include;$(ProjectDir)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender osidebug.proto
+$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender LuaDebug.proto
+$(SolutionDir)\External\x64-windows\tools\protobuf\protoc --cpp_out=$(SolutionDir)\ScriptExtender ScriptExtensions.proto
+$(SolutionDir)x64\Release\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(ProjectDir)Lua.bundle"</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\The Divinity Engine 2\DefEd\DXGI.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
