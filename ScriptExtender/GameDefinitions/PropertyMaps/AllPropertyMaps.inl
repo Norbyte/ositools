@@ -197,6 +197,8 @@ P_FUN(GetHeight, GetHeight)
 P_FUN(SetHeight, SetHeight)
 P_FUN(GetAiFlags, GetAiFlags)
 P_FUN(SetAiFlags, SetAiFlags)
+P_FUN(UpdateAiFlagsInRect, UpdateAiFlagsInRect)
+P_FUN(FindCellsInRect, FindCellsInRect)
 
 #if defined(GENERATING_TYPE_INFO)
 ADD_TYPE("OffsetX", float)

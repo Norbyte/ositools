@@ -267,6 +267,8 @@ namespace dse::eoc
         void SetHeight(float x, float z, float height);
         std::optional<uint64_t> GetAiFlags(float x, float z);
         void SetAiFlags(float x, float z, uint64_t aiFlags);
+        bool UpdateAiFlagsInRect(float minX, float minZ, float maxX, float maxZ, uint64_t setFlags, uint64_t clearFlags);
+        ObjectSet<glm::vec2> FindCellsInRect(float minX, float minZ, float maxX, float maxZ, uint64_t anyFlags, uint64_t allFlags);
     };
 
     struct ShroudObject : public ProtectedGameObject<ShroudObject>

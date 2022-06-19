@@ -101,6 +101,66 @@ void AiGrid::SetAiFlags(float x, float z, uint64_t aiFlags)
 	cell->AiFlags = (aiFlags & UpdateFlags) | (cell->AiFlags & ~UpdateFlags);
 }
 
+bool AiGrid::UpdateAiFlagsInRect(float minX, float minZ, float maxX, float maxZ, uint64_t setFlags, uint64_t clearFlags)
+{
+	// Only allow updating Walkable/Reachable flags for now
+	constexpr uint64_t UpdateFlags = 5;
+
+	setFlags &= UpdateFlags;
+	clearFlags &= UpdateFlags;
+
+	auto topLeft = GetCell(glm::vec2(minX, minZ));
+	if (!topLeft) {
+		OsiError("Could not find top left AiGrid cell at " << minX << ";" << minZ);
+		return false;
+	}
+
+	auto bottomRight = GetCell(glm::vec2(maxX, maxZ));
+	if (!bottomRight) {
+		OsiError("Could not find bottom right AiGrid cell at " << maxX << ";" << maxZ);
+		return false;
+	}
+
+	for (auto z = minZ; z <= maxZ; z += DataGrid.GridScale) {
+		for (auto x = minX; x <= maxX; x += DataGrid.GridScale) {
+			auto cell = GetCell(glm::vec2(x, z));
+			if (cell) {
+				cell->AiFlags = (cell->AiFlags & ~clearFlags) | setFlags;
+			}
+		}
+	}
+
+	return true;
+}
+
+ObjectSet<glm::vec2> AiGrid::FindCellsInRect(float minX, float minZ, float maxX, float maxZ, uint64_t anyFlags, uint64_t allFlags)
+{
+	ObjectSet<glm::vec2> hits;
+
+	auto topLeft = GetCell(glm::vec2(minX, minZ));
+	if (!topLeft) {
+		OsiError("Could not find top left AiGrid cell at " << minX << ";" << minZ);
+		return hits;
+	}
+
+	auto bottomRight = GetCell(glm::vec2(maxX, maxZ));
+	if (!bottomRight) {
+		OsiError("Could not find bottom right AiGrid cell at " << maxX << ";" << maxZ);
+		return hits;
+	}
+
+	for (auto z = minZ; z <= maxZ; z += DataGrid.GridScale) {
+		for (auto x = minX; x <= maxX; x += DataGrid.GridScale) {
+			auto cell = GetCell(glm::vec2(x, z));
+			if (cell && (anyFlags == 0 || (cell->AiFlags & anyFlags) != 0) && (cell->AiFlags & allFlags) == allFlags) {
+				hits.push_back(glm::vec2{ x, z });
+			}
+		}
+	}
+
+	return hits;
+}
+
 void AiGrid::SetHeight(float x, float z, float height)
 {
 	auto cell = GetCell(glm::vec2(x, z));
