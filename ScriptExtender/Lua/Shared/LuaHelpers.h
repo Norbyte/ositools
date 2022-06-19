@@ -49,6 +49,18 @@ namespace dse::lua
 	};
 #endif
 
+	struct MathParam
+	{
+		union {
+			float f;
+			glm::vec3 vec3;
+			glm::vec4 vec4;
+			glm::mat3 mat3;
+			glm::mat4 mat4;
+		};
+		uint32_t Arity;
+	};
+
 	struct TableIterationHelper
 	{
 		struct EndIterator {};
@@ -129,6 +141,11 @@ namespace dse::lua
 	inline void push(lua_State * L, bool v)
 	{
 		lua_pushboolean(L, v ? 1 : 0);
+	}
+
+	inline void push(lua_State * L, int16_t v)
+	{
+		lua_pushinteger(L, (lua_Integer)v);
 	}
 
 	inline void push(lua_State * L, int32_t v)
@@ -230,6 +247,12 @@ namespace dse::lua
 	void push(lua_State* L, glm::mat4 const& m);
 	void push(lua_State* L, ig::InvokeDataValue const& v);
 
+	void assign(lua_State* L, int idx, glm::vec2 const& v);
+	void assign(lua_State* L, int idx, glm::vec3 const& v);
+	void assign(lua_State* L, int idx, glm::vec4 const& v);
+	void assign(lua_State* L, int idx, glm::mat3 const& m);
+	void assign(lua_State* L, int idx, glm::mat4 const& m);
+
 	template <class T>
 	inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
 	{
@@ -275,7 +298,6 @@ namespace dse::lua
 			}
 		}
 	}
-
 
 	template <class T>
 	T get(lua_State* L, int index);
@@ -426,7 +448,6 @@ namespace dse::lua
 
 	ig::InvokeDataValue do_get(lua_State* L, int index, Overload<ig::InvokeDataValue>);
 
-
 	template <class TValue>
 	TValue checked_getfield(lua_State* L, char const* k, int index = -1)
 	{
@@ -465,60 +486,22 @@ namespace dse::lua
 		return val;	
 	}
 
-	inline glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>)
-	{
+	inline glm::i16vec2 do_get(lua_State* L, int index, Overload<glm::i16vec2>)
+	{	
 		auto i = lua_absindex(L, index);
-		glm::vec2 val;
+		glm::i16vec2 val;
 		luaL_checktype(L, index, LUA_TTABLE);
-		val.x = gettable<float>(L, 1, i);
-		val.y = gettable<float>(L, 2, i);
-		return val;
-	}
-
-	inline glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>)
-	{
-		auto i = lua_absindex(L, index);
-		glm::vec3 val;
-		luaL_checktype(L, index, LUA_TTABLE);
-		val.x = gettable<float>(L, 1, i);
-		val.y = gettable<float>(L, 2, i);
-		val.z = gettable<float>(L, 3, i);
-		return val;
-	}
-
-	inline glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>)
-	{
-		auto i = lua_absindex(L, index);
-		glm::vec4 val;	
-		luaL_checktype(L, index, LUA_TTABLE);
-		val.x = gettable<float>(L, 1, i);
-		val.y = gettable<float>(L, 2, i);
-		val.z = gettable<float>(L, 3, i);
-		val.w = gettable<float>(L, 4, i);
+		val.x = gettable<int16_t>(L, 1, i);
+		val.y = gettable<int16_t>(L, 2, i);
 		return val;	
 	}
 
-	inline glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>)
-	{
-		auto idx = lua_absindex(L, index);
-		glm::mat3 val;
-		luaL_checktype(L, index, LUA_TTABLE);
-		for (int i = 0; i < 9; i++) {
-			val[i / 3][i % 3] = gettable<float>(L, i + 1, idx);
-		}
-		return val;
-	}
-	
-	inline glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>)
-	{
-		auto idx = lua_absindex(L, index);
-		glm::mat4 val;
-		luaL_checktype(L, index, LUA_TTABLE);
-		for (int i = 0; i < 16; i++) {
-			val[i / 4][i % 4] = gettable<float>(L, i + 1, idx);
-		}
-		return val;
-	}
+	glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>);
+	glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>);
+	glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>);
+	glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>);
+	glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>);
+	MathParam do_get(lua_State* L, int index, Overload<MathParam>);
 
 	inline Version do_get(lua_State* L, int index, Overload<Version>)
 	{
@@ -682,58 +665,25 @@ namespace dse::lua
 
 	inline void push(lua_State* L, glm::ivec2 const& v)
 	{
-		lua_newtable(L);
+		lua_createtable(L, 2, 0);
 		settable(L, 1, v.x);
 		settable(L, 2, v.y);
 	}
 
-	inline void push(lua_State* L, glm::vec2 const& v)
+	inline void push(lua_State* L, glm::i16vec2 const& v)
 	{
-		lua_newtable(L);
+		lua_createtable(L, 2, 0);
 		settable(L, 1, v.x);
 		settable(L, 2, v.y);
-	}
-
-	inline void push(lua_State* L, glm::vec3 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-		settable(L, 3, v.z);
-	}
-
-	inline void push(lua_State* L, glm::vec4 const& v)
-	{
-		lua_newtable(L);
-		settable(L, 1, v.x);
-		settable(L, 2, v.y);
-		settable(L, 3, v.z);
-		settable(L, 4, v.w);
 	}
 
 	inline void push(lua_State* L, Version const& v)
 	{
-		lua_newtable(L);
+		lua_createtable(L, 4, 0);
 		settable(L, 1, v.Minor());
 		settable(L, 2, v.Major());
 		settable(L, 3, v.Revision());
 		settable(L, 4, v.Build());
-	}
-
-	inline void push(lua_State* L, glm::mat3 const& m)
-	{
-		lua_newtable(L);
-		for (auto i = 0; i < 9; i++) {
-			settable(L, i + 1, m[i / 3][i % 3]);
-		}
-	}
-
-	inline void push(lua_State* L, glm::mat4 const& m)
-	{
-		lua_newtable(L);
-		for (auto i = 0; i < 16; i++) {
-			settable(L, i + 1, m[i / 4][i % 4]);
-		}
 	}
 
 	template <class T>

@@ -570,6 +570,9 @@
     <ClCompile Include="Lua\Shared\Proxies\LuaTypeInformation.cpp">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClCompile>
+    <ClCompile Include="Lua\Shared\LuaInternalHelpers.cpp">
+      <Filter>Lua\Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Extender\Shared\ModuleHasher.inl">
@@ -825,6 +828,9 @@
     </None>
     <None Include="GameDefinitions\PropertyMaps\Combat.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="Lua\Libs\Math.inl">
+      <Filter>Lua\Libs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

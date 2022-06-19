@@ -6,6 +6,7 @@
 #include <Lua/Libs/Types.inl>
 #include <Lua/Libs/Audio.inl>
 #include <Lua/Libs/IO.inl>
+#include <Lua/Libs/Math.inl>
 #include <Lua/Libs/Mod.inl>
 #include <Lua/Libs/Localization.inl>
 #include <Lua/Libs/Debug.inl>
@@ -85,6 +86,7 @@ void RegisterSharedLibraries()
 	json::RegisterJsonLib();
 	types::RegisterTypesLib();
 	io::RegisterIOLib();
+	math::RegisterMathLib();
 	mod::RegisterModLib();
 	loca::RegisterLocalizationLib();
 	debug::RegisterDebugLib();
