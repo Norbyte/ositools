@@ -5,8 +5,8 @@ Downloads available [>>>HERE<<<](https://github.com/Norbyte/ositools/releases/la
 The Script Extender toolkit adds previously unavailable features to the scripting language of the game.
 
 Features:
- - Lots of new Osiris calls and queries ([API Documentation](https://github.com/Norbyte/ositools/blob/master/APIDocs.md))
- - Lua scripting ([API Documentation](https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md))
+ - Lots of new Osiris calls and queries ([API Documentation](https://github.com/Norbyte/ositools/blob/master/Docs/APIDocs.md))
+ - Lua scripting ([API Documentation](https://github.com/Norbyte/ositools/blob/master/Docs/LuaAPIDocs.md))
  - Real-time debugging of Osiris code ([Usage](https://gist.github.com/Norbyte/8b7eb35cd17f799ea113636b15e1f967))
  - Significant improvements in modded game loading times
  - Debug logging of Osiris rule execution/compilation
