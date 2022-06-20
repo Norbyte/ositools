@@ -67,6 +67,11 @@ glm::mat3 IGameObject::LuaGetRotate()
 	return *GetRotation();
 }
 
+void IGameObject::LuaSetRotate(glm::mat3 const& rotate)
+{
+	SetRotation(rotate);
+}
+
 float IGameObject::LuaGetScale()
 {
 	return GetScale();

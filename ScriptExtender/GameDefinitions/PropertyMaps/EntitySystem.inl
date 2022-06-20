@@ -15,9 +15,8 @@ P_RO(MyGuid)
 P_RO(NetID)
 
 P_GETTER(Handle, LuaGetHandle)
-// FIXME - re-add after entity proxies are done
-// P_GETTER(EntityHandle, LuaGetEntityHandle)
 P_GETTER_SETTER(Translate, LuaGetTranslate, LuaSetTranslate)
+P_GETTER_SETTER(Rotate, LuaGetRotate, LuaSetRotate)
 P_GETTER_SETTER(Scale, LuaGetScale, LuaSetScale)
 P_GETTER(Velocity, LuaGetVelocity)
 P_GETTER(Height, LuaGetHeight)

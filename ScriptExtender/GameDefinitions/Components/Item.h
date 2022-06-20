@@ -27,7 +27,7 @@ namespace dse
 			FixedString OriginalRootTemplate;
 			uint32_t OriginalRootTemplateType{ 6 };
 			uint32_t Unkn22[3]{ 0 };
-			glm::mat3x3 WorldRot;
+			glm::mat3 WorldRot;
 			float Scale_M{ 1.0 };
 			NetId InventoryNetID{ -1 };
 			NetId InventorySubContainerNetID{ -1 };

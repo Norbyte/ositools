@@ -122,6 +122,8 @@ P_RO(Translate)
 P_RO(TriggerType)
 P_RO(IsGlobal)
 P_RO(Level)
+P_RO(Rotate)
+P_RO(Rotate2)
 END_CLS()
 
 
