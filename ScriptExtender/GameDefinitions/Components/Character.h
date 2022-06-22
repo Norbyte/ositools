@@ -416,25 +416,24 @@ namespace dse
 			Status* GetStatus(ComponentHandle statusHandle) const;
 			Status* GetStatus(NetId handle) const;
 
-			glm::vec3 WorldPos; // Saved
+			glm::vec3 WorldPos;
 			uint32_t _Pad2;
-			uint64_t Flags; // Saved
+			ecl::CharacterFlags Flags;
 			uint32_t U2;
-			FixedString CurrentLevel; // Saved
+			FixedString CurrentLevel;
 			glm::mat3 WorldRot;
 			float Scale;
 			glm::vec3 Velocity;
-			int field_34;
-			int field_38;
-			uint64_t field_40;
-			__int64 field_48;
-			__int64 field_50;
+			glm::vec3 MovementStartPosition;
+			glm::vec3 LadderPosition;
+			glm::vec3 field_4C;
 			void* PhysicsObject;
 			void* Light;
 			void* AiObject;
 			int field_70;
 			UserId UserID;
-			int32_t UserId2;
+			int16_t ReservedForPlayerId;
+			int16_t ReservedForPlayerId2;
 			NetId NetID2;
 			NetId NetID3;
 			CharacterTemplate* CurrentTemplate;
@@ -452,19 +451,21 @@ namespace dse
 			void* CharacterSupervisor;
 			StatusMachine* StatusMachine;
 			SkillManager* SkillManager;
-			int field_100;
+			int AnimType;
 			__int64 field_108;
 			void* CharacterBody;
 			ComponentHandle OwnerCharacterHandle;
-			ComponentHandle OH3;
+			ComponentHandle CorpseOwnerHandle;
 			ComponentHandle CorpseCharacterHandle;
-			ComponentHandle OH5;
+			ComponentHandle LootedByHandle;
 			int field_138;
 			ComponentHandle HighlightCircleEffect;
 			ComponentHandle OH7;
 			ComponentHandle ViewConeEffectHandle;
-			__int64 field_158;
-			__int64 field_160;
+			int FeetStatusId;
+			float FootStepEffectTimer;
+			float RemainingMoveDistance;
+			int FootStepMaterialType;
 			ecl::PlayerData* PlayerData;
 			eoc::PlayerUpgrade PlayerUpgrade;
 			ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
@@ -474,9 +475,9 @@ namespace dse
 			SoundObjectId SoundObjectHandles[3];
 			ComponentHandle OH9;
 			ComponentHandle FollowCharacterHandle;
-			char PickpocketNLootingFlags;
-			char Flags2;
-			int Flags3;
+			uint8_t PickpocketNLootingFlags;
+			uint8_t Flags2;
+			uint32_t Flags3;
 			char field_288;
 			char field_289;
 			TranslatedString* DisplayNameOverride;
@@ -491,9 +492,11 @@ namespace dse
 			FixedString AnimationSetOverride;
 			float WalkSpeedOverride;
 			float RunSpeedOverride;
-			__int64 field_430;
-			__int64 OH12;
-			__int64 field_440;
+			float SneakCheckTimer;
+			float SomeCCValue;
+			ComponentHandle PartyHandle;
+			int PhysicsPickingState;
+			int field_444;
 			void* ResourceTemplate2;
 			char Cloth;
 			void* ResourceTemplate1;
@@ -508,7 +511,7 @@ namespace dse
 			char field_49C;
 			ObjectSet<ComponentHandle> ObjectHandles;
 			Map<FixedString, void*> field_4C0;
-			__int64 field_4D8;
+			__int64 ImmuneFlags;
 			__int64 field_4E0;
 			ObjectSet<FixedString> ItemTags;
 			void* VisualSetIndices;

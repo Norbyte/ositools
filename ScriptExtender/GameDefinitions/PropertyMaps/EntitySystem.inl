@@ -16,7 +16,7 @@ P_RO(NetID)
 
 P_GETTER(Handle, LuaGetHandle)
 P_GETTER_SETTER(Translate, LuaGetTranslate, LuaSetTranslate)
-P_GETTER_SETTER(Rotate, LuaGetRotate, LuaSetRotate)
+P_GETTER_SETTER(Rotation, LuaGetRotate, LuaSetRotate)
 P_GETTER_SETTER(Scale, LuaGetScale, LuaSetScale)
 P_GETTER(Velocity, LuaGetVelocity)
 P_GETTER(Height, LuaGetHeight)
