@@ -235,6 +235,7 @@ private:
 
 
 class ServerState;
+
 class OsirisCallbackManager : Noncopyable<OsirisCallbackManager>
 {
 public:
@@ -244,6 +245,11 @@ public:
 	void Subscribe(STDString const& name, uint32_t arity, OsirisHookSignature::HookType type, RegistryEntry handler);
 	void StoryLoaded();
 	void StorySetMerging(bool isMerging);
+
+	void InsertPreHook(Node* node, TuplePtrLL* tuple, bool deleted);
+	void InsertPostHook(Node* node, TuplePtrLL* tuple, bool deleted);
+	void CallQueryPreHook(Node* node, OsiArgumentDesc* args);
+	void CallQueryPostHook(Node* node, OsiArgumentDesc* args, bool succeeded);
 
 private:
 	static constexpr uint64_t AfterTriggerNodeRef = 0x8000000000000000ull;
@@ -263,10 +269,6 @@ private:
 	void RegisterNodeHandler(OsirisHookSignature const& sig, std::size_t handlerId);
 	void HookOsiris();
 
-	void InsertPreHook(Node* node, TuplePtrLL* tuple, bool deleted);
-	void InsertPostHook(Node* node, TuplePtrLL* tuple, bool deleted);
-	void CallQueryPreHook(Node* node, OsiArgumentDesc* args);
-	void CallQueryPostHook(Node* node, OsiArgumentDesc* args, bool succeeded);
 	void RunHandlers(uint64_t nodeRef, TuplePtrLL* tuple) const;
 	void RunHandler(ServerState& lua, RegistryEntry const& func, TuplePtrLL* tuple) const;
 	void RunHandlers(uint64_t nodeRef, OsiArgumentDesc* tuple) const;

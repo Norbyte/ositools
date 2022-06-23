@@ -13,10 +13,7 @@ OsirisCallbackManager::~OsirisCallbackManager()
 {
 	auto wrappers = gExtender->GetServer().Osiris().GetVMTWrappers();
 	if (osirisHooked_ && wrappers) {
-		wrappers->InsertPreHook = std::function<void(Node*, TuplePtrLL*, bool)>();
-		wrappers->InsertPostHook = std::function<void(Node*, TuplePtrLL*, bool)>();
-		wrappers->CallQueryPreHook = std::function<void(Node*, OsiArgumentDesc*)>();
-		wrappers->CallQueryPostHook = std::function<void(Node*, OsiArgumentDesc*, bool)>();
+		wrappers->OsirisCallbacksAttachment = nullptr;
 	}
 }
 
@@ -216,11 +213,7 @@ void OsirisCallbackManager::HookOsiris()
 	gExtender->GetServer().Osiris().HookNodeVMTs();
 	auto wrappers = gExtender->GetServer().Osiris().GetVMTWrappers();
 	if (wrappers) {
-		using namespace std::placeholders;
-		wrappers->InsertPreHook = std::bind(&OsirisCallbackManager::InsertPreHook, this, _1, _2, _3);
-		wrappers->InsertPostHook = std::bind(&OsirisCallbackManager::InsertPostHook, this, _1, _2, _3);
-		wrappers->CallQueryPreHook = std::bind(&OsirisCallbackManager::CallQueryPreHook, this, _1, _2);
-		wrappers->CallQueryPostHook = std::bind(&OsirisCallbackManager::CallQueryPostHook, this, _1, _2, _3);
+		wrappers->OsirisCallbacksAttachment = this;
 	}
 
 	osirisHooked_ = true;

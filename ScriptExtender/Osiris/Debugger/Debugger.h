@@ -186,6 +186,15 @@ namespace dse::osidbg
 		void RuleActionPreHook(RuleActionNode * action);
 		void RuleActionPostHook(RuleActionNode * action);
 
+		void IsValidPreHook(Node* node, VirtTupleLL* tuple, AdapterRef* adapter);
+		void IsValidPostHook(Node* node, VirtTupleLL* tuple, AdapterRef* adapter, bool succeeded);
+		void PushDownPreHook(Node* node, VirtTupleLL* tuple, AdapterRef* adapter, EntryPoint entry, bool deleted);
+		void PushDownPostHook(Node* node, VirtTupleLL* tuple, AdapterRef* adapter, EntryPoint entry, bool deleted);
+		void InsertPreHook(Node* node, TuplePtrLL* tuple, bool deleted);
+		void InsertPostHook(Node* node, TuplePtrLL* tuple, bool deleted);
+		void CallQueryPreHook(Node* node, OsiArgumentDesc* args);
+		void CallQueryPostHook(Node* node, OsiArgumentDesc* args, bool succeeded);
+
 	private:
 		OsirisStaticGlobals & globals_;
 		DebugMessageHandler & messageHandler_;
@@ -224,15 +233,6 @@ namespace dse::osidbg
 
 		ResultCode EvaluateInServerThread(uint32_t seq, EvalType type, uint32_t nodeId, MsgTuple const & params,
 			bool & querySucceeded);
-
-		void IsValidPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter);
-		void IsValidPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, bool succeeded);
-		void PushDownPreHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted);
-		void PushDownPostHook(Node * node, VirtTupleLL * tuple, AdapterRef * adapter, EntryPoint entry, bool deleted);
-		void InsertPreHook(Node * node, TuplePtrLL * tuple, bool deleted);
-		void InsertPostHook(Node * node, TuplePtrLL * tuple, bool deleted);
-		void CallQueryPreHook(Node * node, OsiArgumentDesc * args);
-		void CallQueryPostHook(Node * node, OsiArgumentDesc * args, bool succeeded);
 
 		void PushFrame(CallStackFrame const & frame);
 		void PopFrame(CallStackFrame const & frame);

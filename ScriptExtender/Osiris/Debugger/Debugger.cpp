@@ -311,16 +311,8 @@ namespace dse::osidbg
 
 		messageHandler_.SetDebugger(this);
 
-		using namespace std::placeholders;
 		auto wrappers = gExtender->GetServer().Osiris().GetVMTWrappers();
-		wrappers->IsValidPreHook = std::bind(&Debugger::IsValidPreHook, this, _1, _2, _3);
-		wrappers->IsValidPostHook = std::bind(&Debugger::IsValidPostHook, this, _1, _2, _3, _4);
-		wrappers->PushDownPreHook = std::bind(&Debugger::PushDownPreHook, this, _1, _2, _3, _4, _5);
-		wrappers->PushDownPostHook = std::bind(&Debugger::PushDownPostHook, this, _1, _2, _3, _4, _5);
-		wrappers->InsertPreHook = std::bind(&Debugger::InsertPreHook, this, _1, _2, _3);
-		wrappers->InsertPostHook = std::bind(&Debugger::InsertPostHook, this, _1, _2, _3);
-		wrappers->CallQueryPreHook = std::bind(&Debugger::CallQueryPreHook, this, _1, _2);
-		wrappers->CallQueryPostHook = std::bind(&Debugger::CallQueryPostHook, this, _1, _2, _3);
+		wrappers->DebuggerAttachment = this;
 		DEBUG("Debugger::Debugger(): Attached to story");
 	}
 
@@ -332,14 +324,7 @@ namespace dse::osidbg
 
 		auto wrappers = gExtender->GetServer().Osiris().GetVMTWrappers();
 		if (wrappers) {
-			wrappers->IsValidPreHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *)>();
-			wrappers->IsValidPostHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, bool)>();
-			wrappers->PushDownPreHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
-			wrappers->PushDownPostHook = std::function<void(Node *, VirtTupleLL *, AdapterRef *, EntryPoint, bool)>();
-			wrappers->InsertPreHook = std::function<void(Node *, TuplePtrLL *, bool)>();
-			wrappers->InsertPostHook = std::function<void(Node *, TuplePtrLL *, bool)>();
-			wrappers->CallQueryPreHook = std::function<void(Node *, OsiArgumentDesc *)>();
-			wrappers->CallQueryPostHook = std::function<void(Node *, OsiArgumentDesc *, bool)>();
+			wrappers->DebuggerAttachment = nullptr;
 		}
 	}
 
