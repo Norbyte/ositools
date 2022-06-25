@@ -396,7 +396,6 @@ namespace dse::lua
 		{
 			if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
 				auto val = lua_tointeger(L, index);
-				auto index = EnumInfo<T>::Find((T)val);
 				if (((T)val & ~EnumInfo<T>::AllowedFlags) == (T)0) {
 					return (T)val;
 				} else {
@@ -404,8 +403,7 @@ namespace dse::lua
 				}
 			} else {
 				auto val = lua_tointeger(L, index);
-				auto index = EnumInfo<T>::Find((T)val);
-				if (index) {
+				if (EnumInfo<T>::Find((T)val)) {
 					return (T)val;
 				} else {
 					luaL_error(L, "Param %d: not a valid '%s' enum index: %d", index, EnumInfo<T>::Name, val);
