@@ -854,9 +854,9 @@ namespace dse::esv::lua
 			&& skillProperties->Properties.Find(FixedString("AlwaysBackstab")) != nullptr;
 
 		stats::DamagePairList inputDmgList{ *damageList };
-		stats::HitDamageInfo tempHit;
+		stats::HitDamageInfo tempHit{ *hit };
 		ComputeCharacterHitEventParams params{ target, attacker, weapon, &inputDmgList, hitType, noHitRoll,
-			forceReduceDurability, & tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, 1.0f, false };
+			forceReduceDurability, &tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, 1.0f, false };
 		ThrowEvent(*this, "ComputeCharacterHit", params);
 
 		if (params.Handled) {
