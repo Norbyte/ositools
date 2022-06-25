@@ -82,10 +82,10 @@ std::optional<STDString> GameVersion()
 	}
 }
 
-int MonotonicTime()
+int64_t MonotonicTime()
 {
 	using namespace std::chrono;
-	return (int)time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
+	return (int64_t)time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
 }
 
 void Print(lua_State* L)
