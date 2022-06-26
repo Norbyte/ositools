@@ -223,6 +223,168 @@ end)
  - The old `Stringify(value, beautify, stringifyInternalTypes)` API is retained for backwards compatibility
 
 
+### Math library
+
+A new math library, `Ext.Math` was added with the following functions:
+
+##### Add(a: any, b: any)
+
+Adds the two operands. All math types (number/vec3/vec4/mat3x3/mat4x4) are supported. Mixing different operand types works in if a reasonable implementation is available (eg. `number + vec3`).
+
+##### Sub(a: any, b: any)
+
+Subtracts the two operands. All math types (number/vec3/vec4/mat3x3/mat4x4) are supported. Mixing different operand types works in if a reasonable implementation is available (eg. `vec3 - number`).
+
+##### Mul(a: any, b: any)
+
+Multiplies the two operands. All math types (number/vec3/vec4/mat3x3/mat4x4) are supported. Mixing different operand types works in if a reasonable implementation is available (eg. `mat3x3 * vec3`).
+
+##### Div(a: any, b: any)
+
+Divides the two operands. All math types (number/vec3/vec4/mat3x3/mat4x4) are supported.
+
+##### vec3|vec4 Reflect(I: vec3|vec4, N: vec3|vec4)
+
+For the incident vector `I` and surface orientation `N`, returns the reflection direction: `result = I - 2.0 * dot(N, I) * N`.
+
+##### float Angle(a: vec3|vec4, b: vec3|vec4)
+
+Returns the absolute angle between two vectors. Parameters need to be normalized.
+
+##### vec3 Cross(x: vec3, y: vec3)
+
+Returns the cross product of x and y.
+
+##### float Distance(p0: vec3, p1: vec3)
+
+Returns the distance between p0 and p1, i.e., `length(p0 - p1)`.
+
+##### float Dot(x: vec3, y: vec3)
+
+Returns the dot product of x and y.
+
+##### float Length(x: vec3|vec4)
+
+Returns the length of x, i.e., `sqrt(x * x)`.
+
+##### vec3|vec4 Determinant(x: vec3|vec4)
+
+Returns a vector in the same direction as x but with length of 1.
+
+##### float Length(x: mat3|mat4)
+
+Return the determinant of a matrix.
+
+##### mat3|mat4 Inverse(x: mat3|mat4)
+
+Return the inverse of a matrix.
+
+##### mat3|mat4 Transpose(x: mat3|mat4)
+
+Returns the transposed matrix of `x`.
+
+##### mat3|mat4 OuterProduct(c: vec3|vec4, r: vec3|vec4)
+
+Treats the first parameter `c` as a column vector and the second parameter `r` as a row vector and does a linear algebraic matrix multiply `c * r`.
+
+##### void Rotate(m: mat3|mat4, angle: float, axis: vec4)
+
+Builds a rotation matrix created from an axis of 3 scalars and an angle expressed in radians.
+
+##### void Translate(m: mat4, translation: vec3)
+
+Transforms a matrix with a translation 4 * 4 matrix created from a vector of 3 components.
+
+##### void Scale(m: mat4, translation: vec3)
+
+Transforms a matrix with a scale 4 * 4 matrix created from a vector of 3 components.
+
+##### mat4 BuildRotation4(v: vec3, angle: float)
+
+Builds a rotation 4 * 4 matrix created from an axis of 3 scalars and an angle expressed in radians.
+
+##### mat3 BuildRotation3(v: vec3, angle: float)
+
+Builds a rotation 3 * 3 matrix created from an axis of 3 scalars and an angle expressed in radians.
+
+##### mat4 BuildTranslation(v: vec3)
+
+Builds a translation 4 * 4 matrix created from a vector of 3 components.
+
+##### mat4 BuildScale(v: vec3)
+
+Builds a scale 4 * 4 matrix created from 3 scalars.
+
+##### vec3 ExtractEulerAngles(m: mat3|mat4)
+
+Extracts the `(X * Y * Z)` Euler angles from the rotation matrix M.
+
+##### mat4 BuildFromEulerAngles4(angles: vec3)
+
+Creates a 3D 4 * 4 homogeneous rotation matrix from euler angles `(X * Y * Z)`.
+
+##### mat3 BuildFromEulerAngles3(angles: vec3)
+
+Creates a 3D 3 * 3 homogeneous rotation matrix from euler angles `(X * Y * Z)`.
+
+##### void Decompose(m: mat4, scale: vec3, yawPitchRoll: vec3, translation: vec3)
+
+Decomposes a model matrix to translations, rotation and scale components.
+
+##### float ExtractAxisAngle(m: mat3|mat4, axis: vec3)
+
+Decomposes a model matrix to translations, rotation and scale components.
+
+##### mat3 BuildFromAxisAngle3(axis: vec3, angle: float)
+##### mat4 BuildFromAxisAngle4(axis: vec3, angle: float)
+
+Build a matrix from axis and angle.
+
+##### vec3|vec4 Perpendicular(x: vec3|vec4, normal: vec3|vec4)
+
+Projects `x` on a perpendicular axis of `normal`.
+
+##### vec3|vec4 Project(x: vec3|vec4, normal: vec3|vec4)
+
+Projects `x` on `normal`.
+
+##### float Fract(x: float)
+
+Return `x - floor(x).`
+
+##### float Trunc(x: float)
+
+Returns a value equal to the nearest integer to x whose absolute value is not larger than the absolute value of x.
+
+##### float Sign(x: float)
+
+Returns 1.0 if `x > 0`, 0.0 if `x == 0`, or -1.0 if `x < 0`.
+
+##### float Clamp(val: float, minVal: float, maxVal: float)
+
+Returns `min(max(x, minVal), maxVal)` for each component in x using the floating-point values minVal and maxVal.
+
+##### float Lerp(x: float, y: float, a: float)
+
+Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of x and y using the floating-point value a.
+
+##### float Acos(x: float)
+
+Arc cosine. Returns an angle whose sine is x.
+
+##### float Asin(x: float)
+
+Arc sine. Returns an angle whose sine is x.
+
+##### float Atan(y_over_x: float)
+
+ Arc tangent. Returns an angle whose tangent is `y_over_x`.
+
+##### float Atan2(x: float, y: float)
+
+Arc tangent. Returns an angle whose tangent is `y / x`. The signs of x and y are used to determine what quadrant the angle is in.
+
+
 ### New Events
 
  - `BeforeStatusApply`: thrown before a status is applied on the server; similarly to the Osiris `NRD_OnStatusAttempt` event, this can be used to prevent a status from being applied.
@@ -262,6 +424,10 @@ An inefficient inventory sync issue was fixed in the base game where syncing inv
 - Fix incorrectly mapped signed fields in some status mappings
 - Fix crash while syncing stats with null FixedStrings
 - Add GB4 talents to requirement enum
+- Fixed memory leak when fetching Flash objects
+- Fix ComputeCharacterHit not inheriting hit values from caller (infinite reflection loop, etc.)
+- Fix integer overflow in `Ext.MonotonicTime()`
+- Fix Osiris callbacks not working when debugger is enabled
 
 ### IDE helpers
 

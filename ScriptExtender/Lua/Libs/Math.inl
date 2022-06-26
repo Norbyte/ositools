@@ -376,7 +376,7 @@ UserReturn Cross(lua_State* L, glm::vec3 const& x, glm::vec3 const& y)
 
 
 /// <summary>
-/// Returns the distance betwwen p0 and p1, i.e., `length(p0 - p1)`.
+/// Returns the distance between p0 and p1, i.e., `length(p0 - p1)`.
 /// </summary>
 float Distance(lua_State* L, glm::vec3 const& p0, glm::vec3 const& p1)
 {
@@ -525,7 +525,7 @@ UserReturn OuterProduct(lua_State* L, MathParam const& c, MathParam const& r)
 }
 
 /// <summary>
-/// Builds a rotation 4 * 4 matrix created from an axis of 3 scalars and an angle expressed in radians.
+/// Builds a rotation matrix created from an axis of 3 scalars and an angle expressed in radians.
 /// </summary>
 void Rotate(lua_State* L, MathParam const& m, float angle, glm::vec3 const& axis)
 {
@@ -550,7 +550,7 @@ void Rotate(lua_State* L, MathParam const& m, float angle, glm::vec3 const& axis
 }
 
 /// <summary>
-/// Transforms a matrix with a scale 4 * 4 matrix created from a vector of 3 components.
+/// Transforms a matrix with a translation 4 * 4 matrix created from a vector of 3 components.
 /// </summary>
 void Translate(lua_State* L, glm::mat4 const& m, glm::vec3 const& translation)
 {
@@ -559,7 +559,7 @@ void Translate(lua_State* L, glm::mat4 const& m, glm::vec3 const& translation)
 }
 
 /// <summary>
-/// Transforms a matrix with a translation 4 * 4 matrix created from 3 scalars.
+/// Transforms a matrix with a scale 4 * 4 matrix created from 3 scalars.
 /// </summary>
 void Scale(lua_State* L, glm::mat4 const& m, glm::vec3 const& scale)
 {
@@ -584,7 +584,7 @@ glm::mat3 BuildRotation3(glm::vec3 const& v, float angle)
 }
 
 /// <summary>
-/// Transforms a matrix with a scale 4 * 4 matrix created from a vector of 3 components.
+/// Builds a translation 4 * 4 matrix created from a vector of 3 components.
 /// </summary>
 glm::mat4 BuildTranslation(glm::vec3 const& v)
 {
@@ -592,7 +592,7 @@ glm::mat4 BuildTranslation(glm::vec3 const& v)
 }
 
 /// <summary>
-/// Transforms a matrix with a translation 4 * 4 matrix created from 3 scalars.
+///  Builds a scale 4 * 4 matrix created from 3 scalars.
 /// </summary>
 glm::mat4 BuildScale(glm::vec3 const& v)
 {
