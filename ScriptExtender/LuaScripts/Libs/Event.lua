@@ -6,7 +6,9 @@ function SubscribableEvent:New(name)
 	local o = {
 		First = nil,
 		NextIndex = 1,
-		Name = name
+		Name = name,
+		PendingDeletions = {},
+		EnterCount = 0
 	}
 	setmetatable(o, self)
     self.__index = self
@@ -84,21 +86,40 @@ function SubscribableEvent:RemoveNode(node)
 end
 
 function SubscribableEvent:Unsubscribe(handlerIndex)
+	if self.EnterCount == 0 then
+		self:DoUnsubscribe(handlerIndex)
+	else
+		table.insert(self.PendingDeletions, handlerIndex)
+	end
+end
+
+function SubscribableEvent:DoUnsubscribe(handlerIndex)
 	local cur = self.First
 	while cur ~= nil do
 		if cur.Index == handlerIndex then
 			self:RemoveNode(cur)
-			return true
+			return
 		end
 
 		cur = cur.Next
 	end
 	
 	Ext.PrintWarning("Attempted to remove subscriber ID " .. handlerIndex .. " for event '" .. self.Name .. "', but no such subscriber exists (maybe it was removed already?)")
-	return false
+end
+
+function SubscribableEvent:ProcessUnsubscriptions()
+	if self.EnterCount == 0 and #self.PendingDeletions > 0 then
+		for i,handlerIndex in pairs(self.PendingDeletions) do
+			self:DoUnsubscribe(handlerIndex)
+		end
+
+		self.PendingDeletions = {}
+	end
 end
 
 function SubscribableEvent:Throw(event)
+	self.EnterCount = self.EnterCount + 1
+
 	local cur = self.First
 	while cur ~= nil do
 		if event.Stopped then
@@ -118,6 +139,9 @@ function SubscribableEvent:Throw(event)
 			cur = cur.Next
 		end
 	end
+
+	self.EnterCount = self.EnterCount - 1
+	self:ProcessUnsubscriptions()
 end
 
 local MissingSubscribableEvent = {}
