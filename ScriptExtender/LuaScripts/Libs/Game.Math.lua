@@ -13,6 +13,9 @@ if setfenv ~= nil then
     setfenv(1, Game.Math)
 end
 
+--- @class HitCalculationContext
+--- @field DamageMultiplier number
+
 DamageTypeToDeathTypeMap = {
     Physical = "Physical",
     Piercing = "Piercing",
@@ -772,11 +775,12 @@ end
 
 --- @param hit HitRequest
 --- @param attacker StatCharacter
-function ApplyCriticalHit(hit, attacker)
+--- @param ctx HitCalculationContext
+function ApplyCriticalHit(hit, attacker, ctx)
     local mainWeapon = attacker.MainWeapon
     if mainWeapon ~= nil then
         hit.CriticalHit = true
-        hit.DamageMultiplier = hit.DamageMultiplier + (GetCriticalHitMultiplier(mainWeapon, attacker, 0, 0) - 1.0)
+        ctx.DamageMultiplier = ctx.DamageMultiplier + (GetCriticalHitMultiplier(mainWeapon, attacker) - 1.0)
     end
 end
 
@@ -819,9 +823,10 @@ end
 --- @param attacker StatCharacter
 --- @param hitType string HitType enumeration
 --- @param criticalRoll string CriticalRoll enumeration
-function ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll)
+--- @param ctx HitCalculationContext
+function ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll, ctx)
     if ShouldApplyCriticalHit(hit, attacker, hitType, criticalRoll) then
-        ApplyCriticalHit(hit, attacker)
+        ApplyCriticalHit(hit, attacker, ctx)
     end
 end
 
@@ -893,10 +898,11 @@ end
 --- @param hitType string HitType enumeration
 --- @param target StatCharacter
 --- @param attacker StatCharacter
-function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
+--- @param ctx HitCalculationContext
+function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, ctx)
     hit.Hit = true;
     damageList:AggregateSameTypeDamages()
-    damageList:Multiply(hit.DamageMultiplier)
+    damageList:Multiply(ctx.DamageMultiplier)
 
     local totalDamage = 0
     for i,damage in pairs(damageList:ToTable()) do
@@ -912,7 +918,7 @@ function DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
     hit.DamageList = Ext.NewDamageList()
 
     for i,damageType in pairs(statusBonusDmgTypes) do
-        damageList.Add(damageType, math.ceil(totalDamage * 0.1))
+        damageList:Add(damageType, math.ceil(totalDamage * 0.1))
     end
 
     ApplyDamagesToHitInfo(damageList, hit)
@@ -1066,18 +1072,20 @@ end
 --- @param criticalRoll string CriticalRoll enumeration
 function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHitRoll, forceReduceDurability, hit, alwaysBackstab, highGroundFlag, criticalRoll)
 
-    hit.DamageMultiplier = 1.0
+    local ctx = {
+        DamageMultiplier = 1.0
+    }
     local statusBonusDmgTypes = {}
     
     if attacker == nil then
-        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
+        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, ctx)
         return hit
     end
 
-    hit.DamageMultiplier = 1.0 + GetAttackerDamageMultiplier(attacker, target, highGroundFlag)
+    ctx.DamageMultiplier = 1.0 + GetAttackerDamageMultiplier(attacker, target, highGroundFlag)
     if hitType == "Magic" or hitType == "Surface" or hitType == "DoT" or hitType == "Reflected" then
-        ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll)
-        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
+        ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll, ctx)
+        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, ctx)
         return hit
     end
 
@@ -1111,7 +1119,7 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
     end
 
     if attacker.TALENT_Damage then
-        hit.DamageMultiplier = hit.DamageMultiplier + 0.1
+        ctx.DamageMultiplier = ctx.DamageMultiplier + 0.1
     end
 
     local hitBlocked = false
@@ -1140,8 +1148,8 @@ function ComputeCharacterHit(target, attacker, weapon, damageList, hitType, noHi
     end
 
     if not hitBlocked then
-        ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll)
-        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker)
+        ConditionalApplyCriticalHitMultiplier(hit, target, attacker, hitType, criticalRoll, ctx)
+        DoHit(hit, damageList, statusBonusDmgTypes, hitType, target, attacker, ctx)
     end
 
     return hit
@@ -1304,7 +1312,7 @@ MagicSavingThrows = {
     MagicArmor = true
 }
 
---- @param character StatCharacter
+--- @param character EsvCharacter
 --- @param savingThrow string SavingThrow enumeration
 function GetSavingThrowChanceMultiplier(character, savingThrow)
     if savingThrow == "PhysicalArmor" then
