@@ -174,7 +174,6 @@ struct ComputeCharacterHitEventParams
 	bool AlwaysBackstab;
 	stats::HighGroundBonus HighGround;
 	stats::CriticalRoll CriticalRoll;
-	float DamageMultiplier;
 	bool Handled{ false };
 };
 

@@ -592,7 +592,7 @@ glm::mat4 BuildTranslation(glm::vec3 const& v)
 }
 
 /// <summary>
-///  Builds a scale 4 * 4 matrix created from 3 scalars.
+/// Builds a scale 4 * 4 matrix created from 3 scalars.
 /// </summary>
 glm::mat4 BuildScale(glm::vec3 const& v)
 {
@@ -723,7 +723,7 @@ struct PerpendicularOp
 };
 
 /// <summary>
-/// Projects `x` a perpendicular axis of `normal`.
+/// Projects `x` on a perpendicular axis of `normal`.
 /// </summary>
 UserReturn Perpendicular(lua_State* L, MathParam const& x, MathParam const& normal)
 {
@@ -837,6 +837,22 @@ float Atan2(float x, float y)
 	return glm::atan(x, y);
 }
 
+/// <summary>
+/// Returns true if x holds a NaN (not a number) representation.
+/// </summary>
+float IsNaN(lua_Number x)
+{
+	return glm::isnan(x);
+}
+
+/// <summary>
+/// Returns true if x holds a positive infinity or negative infinity representation.
+/// </summary>
+float IsInf(lua_Number x)
+{
+	return glm::isinf(x);
+}
+
 void RegisterMathLib()
 {
 	DECLARE_MODULE(Math, Both)
@@ -884,6 +900,8 @@ void RegisterMathLib()
 	MODULE_FUNCTION(Acos)
 	MODULE_FUNCTION(Atan)
 	MODULE_FUNCTION(Atan2)
+	MODULE_FUNCTION(IsNaN)
+	MODULE_FUNCTION(IsInf)
 
 	END_MODULE()
 }

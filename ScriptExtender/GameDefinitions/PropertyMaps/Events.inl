@@ -78,7 +78,6 @@ P_REF(SkillProperties)
 P(AlwaysBackstab)
 P(HighGround)
 P(CriticalRoll)
-P(DamageMultiplier)
 P(Handled)
 END_CLS()
 

@@ -856,7 +856,7 @@ namespace dse::esv::lua
 		stats::DamagePairList inputDmgList{ *damageList };
 		stats::HitDamageInfo tempHit{ *hit };
 		ComputeCharacterHitEventParams params{ target, attacker, weapon, &inputDmgList, hitType, noHitRoll,
-			forceReduceDurability, &tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, 1.0f, false };
+			forceReduceDurability, &tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, 1.0f };
 		ThrowEvent(*this, "ComputeCharacterHit", params);
 
 		if (params.Handled) {
