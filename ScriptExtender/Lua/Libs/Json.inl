@@ -11,7 +11,7 @@ void Parse(lua_State * L, Json::Value const & val);
 
 void ParseArray(lua_State * L, Json::Value const & val)
 {
-	lua_newtable(L);
+	lua_createtable(L, (int)val.size(), 0);
 	int idx = 1;
 	for (auto it = val.begin(), end = val.end(); it != end; ++it) {
 		push(L, idx++);
@@ -22,7 +22,7 @@ void ParseArray(lua_State * L, Json::Value const & val)
 
 void ParseObject(lua_State * L, Json::Value const & val)
 {
-	lua_newtable(L);
+	lua_createtable(L, 0, (int)val.size());
 	for (auto it = val.begin(), end = val.end(); it != end; ++it) {
 		Parse(L, it.key());
 		Parse(L, *it);
