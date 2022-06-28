@@ -621,6 +621,7 @@ glm::vec3 ExtractEulerAngles(lua_State* L, MathParam const& m)
 
 	default:
 		luaL_error(L, "Expected a 3x3 or 4x4 matrix");
+		return glm::vec3();
 	}
 }
 
@@ -687,6 +688,7 @@ float ExtractAxisAngle(lua_State* L, MathParam const& m, glm::vec3 const& axis_)
 
 	default:
 		luaL_error(L, "Expected a 3x3 or 4x4 matrix");
+		return 0.0f;
 	}
 }
 

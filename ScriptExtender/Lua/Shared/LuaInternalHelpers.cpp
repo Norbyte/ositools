@@ -56,11 +56,19 @@ namespace dse::lua
 		return tab;
 	}
 
+	unsigned int lua_get_array_size(Table* arr)
+	{
+		unsigned int i;
+		for (i = arr->sizearray; i > 0 && ttisnil(&arr->array[i - 1]); i--) {}
+		return i;
+	}
+
 	Table* lua_get_array_n(lua_State* L, int idx, int size)
 	{
 		auto arr = lua_get_array(L, idx);
-		if (arr->sizearray != size) {
-			luaL_error(L, "Param %d: expected %d-element array, got a %d-element array", idx, size, arr->sizearray);
+		auto arrSize = lua_get_array_size(arr);
+		if (arrSize != size) {
+			luaL_error(L, "Param %d: expected %d-element array, got a %d-element array", idx, size, arrSize);
 			return nullptr;
 		}
 
@@ -246,7 +254,7 @@ namespace dse::lua
 				luaL_error(L, "Param %d must be an array-like table, not a hashtable", index);
 			}
 
-			val.Arity = tab->sizearray;
+			val.Arity = lua_get_array_size(tab);
 			switch (val.Arity) {
 			case 3: val.vec3 = get_raw(L, tab, Overload<glm::vec3>{}); break;
 			case 4: val.vec4 = get_raw(L, tab, Overload<glm::vec4>{}); break;
