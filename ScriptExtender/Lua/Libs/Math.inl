@@ -842,7 +842,7 @@ float Atan2(float x, float y)
 /// <summary>
 /// Returns true if x holds a NaN (not a number) representation.
 /// </summary>
-float IsNaN(lua_Number x)
+bool IsNaN(lua_Number x)
 {
 	return glm::isnan(x);
 }
@@ -850,7 +850,7 @@ float IsNaN(lua_Number x)
 /// <summary>
 /// Returns true if x holds a positive infinity or negative infinity representation.
 /// </summary>
-float IsInf(lua_Number x)
+bool IsInf(lua_Number x)
 {
 	return glm::isinf(x);
 }
