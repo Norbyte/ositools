@@ -947,7 +947,6 @@ bool CopyStats(Object* obj, FixedString const& copyFrom)
 /// </summary>
 /// <lua_export>Create</lua_export>
 /// <lua_legacy>Ext.CreateStat</lua_legacy>
-/// <lua_returns>stats::Object</lua_returns>
 /// <param name="statName">Name of stats entry to create; it should be globally unique</param>
 /// <param name="modifierList">Stats entry type (eg. `SkillData`, `StatusData`, `Weapon`, etc.)</param>
 /// <param name="copyFromTemplate">If this parameter is not `nil`, stats properties are copied from the specified stats entry to the newly created entry</param>

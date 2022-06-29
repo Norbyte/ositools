@@ -79,6 +79,7 @@ void Visual::OverrideTextureMaterialParameter(FixedString const& parameter, Fixe
 
 END_SE()
 
+/// <lua_module>Visual</lua_module>
 BEGIN_NS(ecl::lua::visual)
 
 Visual* Get(ComponentHandle const& handle)

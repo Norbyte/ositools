@@ -1,6 +1,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>CustomStat</lua_module>
 BEGIN_NS(esv::lua::stats)
 
 std::optional<FixedString> Create(char const* name, char const* description)

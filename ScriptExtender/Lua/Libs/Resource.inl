@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Resource</lua_module>
 BEGIN_NS(lua::resource)
 
 Resource* Get(ResourceType type, FixedString templateId)

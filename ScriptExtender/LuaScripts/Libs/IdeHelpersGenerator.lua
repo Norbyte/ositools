@@ -47,13 +47,7 @@ function Generator:LoadNativeData()
         self.NativeClasses = res.classes
     
         for name,mod in pairs(res.modules) do
-            if mod.name:sub(1, 8) == 'dse::esv' then
-                self.NativeModules['ExtServer.' .. name] = mod
-            elseif mod.name:sub(1, 8) == 'dse::ecl' then
-                self.NativeModules['ExtClient.' .. name] = mod
-            else
-                self.NativeModules['Ext.' .. name] = mod
-            end
+            self.NativeModules[name] = mod
         end
     else
         Ext.PrintWarning("Unable to load native class data; IDE helpers will not include annotations from C++ code")
@@ -235,6 +229,9 @@ function Generator:FindNativeMethod(fname, nativeCls)
     local nativeMethod = nil
     if nativeCls ~= nil then
         nativeMethod = nativeCls.methods[fname]
+        if nativeMethod == nil then
+            nativeMethod = nativeCls.methods["Lua" .. fname]
+        end
     end
 
     return nativeMethod
@@ -291,7 +288,13 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod)
     local argDescs = {}
     local args = {}
 
-    local clsName = self:MakeTypeName(cls.TypeName)
+    local clsName
+    if cls.Kind == "Module" then
+        clsName = self:MakeModuleTypeName(cls)
+    else
+        clsName = self:MakeTypeName(cls.TypeName)
+    end
+
     local helpersClsName = clsName:gsub("%.", "")
 
     for i,arg in ipairs(fun.Params) do
@@ -365,7 +368,7 @@ function Generator:EmitClass(type)
     end
 
     if #extendedMethodSigs > 0 then
-        self:EmitLine(name .. ' = {}')
+        self:EmitLine('local ' .. name .. ' = {}')
         self:EmitLine("")
         
         for i,fname in ipairs(extendedMethodSigs) do
@@ -412,7 +415,7 @@ function Generator:EmitModule(type)
         self:EmitModuleFunction(type, fname, nativeDefn)
     end
 
-    self:EmitLine(helpersModuleName .. ' = {}')
+    self:EmitLine('local ' .. helpersModuleName .. ' = {}')
     self:EmitLine("")
     
     for i,fname in ipairs(extendedFuncSigs) do
@@ -423,16 +426,33 @@ end
 function Generator:EmitExt(role)
     self:EmitComment("@class Ext" .. (role or ""))
 
+    local aliases = {}
     for i,mod in ipairs(self.Modules) do
         if role == nil or mod.ModuleRole == "Both" or mod.ModuleRole == role then
             local helpersModuleName = self:MakeModuleTypeName(mod)
-            self:EmitComment("@field " .. mod.NativeName .. " " .. helpersModuleName)
+            if aliases[mod.NativeName] ~= nil then
+                aliases[mod.NativeName] = aliases[mod.NativeName] .. "|" .. helpersModuleName
+            else
+                aliases[mod.NativeName] = helpersModuleName
+            end
+        end
+    end
+
+    local emitted = {}
+    for i,mod in ipairs(self.Modules) do
+        if role == nil or mod.ModuleRole == "Both" or mod.ModuleRole == role then
+            local helpersModuleName = self:MakeModuleTypeName(mod)
+            if emitted[mod.NativeName] == nil then
+                self:EmitComment("@field " .. mod.NativeName .. " " .. (aliases[mod.NativeName] or helpersModuleName))
+                emitted[mod.NativeName] = true
+            end
             if mod.ModuleRole ~= "Both" then
                 self:EmitComment("@field " .. mod.ModuleRole .. mod.NativeName .. " " .. helpersModuleName)
             end
         end
     end
 
+    self:EmitLine("Ext = {}")
     self:EmitEmptyLine()
     self:EmitEmptyLine()
 end

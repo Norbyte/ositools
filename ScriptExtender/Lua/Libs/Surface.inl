@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Surface</lua_module>
 BEGIN_NS(lua::surface)
 
 UserReturn GetTransformRules(lua_State* L)

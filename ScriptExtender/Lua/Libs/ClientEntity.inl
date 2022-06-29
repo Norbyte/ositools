@@ -1,6 +1,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Entity</lua_module>
 BEGIN_NS(ecl::lua::ecs)
 
 void MakeLegacyClientCharacterObjectRef(lua_State* L, ecl::Character* value)

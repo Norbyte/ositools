@@ -1,3 +1,5 @@
+#include <Lua/Shared/LuaMethodHelpers.h>
+
 /// <lua_module>UI</lua_module>
 BEGIN_NS(ecl::lua::ui)
 

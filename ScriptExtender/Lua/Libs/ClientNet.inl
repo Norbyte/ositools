@@ -1,6 +1,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Net</lua_module>
 BEGIN_NS(ecl::lua::net)
 
 void PostMessageToServer(char const* channel, char const* payload)

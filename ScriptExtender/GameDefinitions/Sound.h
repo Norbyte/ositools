@@ -8,6 +8,7 @@
 namespace dse
 {
     using SoundObjectId = uint64_t;
+    static constexpr SoundObjectId InvalidSoundObjectId = 0xffffffffffffffffull;
 
     struct SoundCache
     {

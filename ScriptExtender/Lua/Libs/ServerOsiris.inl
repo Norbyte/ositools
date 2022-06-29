@@ -2,6 +2,7 @@
 #include <Extender/ScriptExtender.h>
 #include <regex>
 
+/// <lua_module>Osiris</lua_module>
 BEGIN_NS(esv::lua::osiris)
 
 void RegisterListener(lua_State* L, char const* name, int arity, char const* typeName)

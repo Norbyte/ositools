@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Template</lua_module>
 BEGIN_NS(esv::lua::tmpl)
 
 GameObjectTemplate* GetRootTemplate(FixedString const& templateId)

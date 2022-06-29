@@ -3,6 +3,7 @@
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
 
+/// <lua_module>Ai</lua_module>
 BEGIN_NS(esv::lua::ai)
 
 AiModifiers* GetArchetypes()

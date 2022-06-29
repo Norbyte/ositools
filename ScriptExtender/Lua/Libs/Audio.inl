@@ -1,8 +1,7 @@
 #include <GameDefinitions/Symbols.h>
 
+/// <lua_module>Audio</lua_module>
 BEGIN_NS(ecl::lua::audio)
-
-using namespace dse::lua;
 
 EoCSoundManager* GetSoundManager()
 {
@@ -15,20 +14,20 @@ EoCSoundManager* GetSoundManager()
 	return nullptr;
 }
 
-std::optional<SoundObjectId> GetSoundObjectId(lua_State* L, int idx)
+SoundObjectId GetSoundObjectId(lua_State* L, int idx)
 {
 	auto snd = GetSoundManager();
-	if (!snd) return {};
+	if (!snd) return InvalidSoundObjectId;
 
 	switch (lua_type(L, idx)) {
 	case LUA_TNIL:
-		return 0xffffffffffffffffull;
+		return InvalidSoundObjectId;
 
 	case LUA_TSTRING:
 	{
 		auto name = get<char const*>(L, idx);
 		if (strcmp(name, "Global") == 0) {
-			return 0xffffffffffffffffull;
+			return InvalidSoundObjectId;
 		} else if (strcmp(name, "Music") == 0) {
 			return snd->MusicHandle;
 		} else if (strcmp(name, "Ambient") == 0) {
@@ -46,8 +45,7 @@ std::optional<SoundObjectId> GetSoundObjectId(lua_State* L, int idx)
 		} else if (strcmp(name, "Player4") == 0) {
 			return snd->PlayerSoundHandles[3];
 		} else {
-			LuaError("Unknown built-in sound object name: " << name);
-			return {};
+			luaL_error(L, "Unknown built-in sound object name: %s", name);
 		}
 	}
 
@@ -59,175 +57,106 @@ std::optional<SoundObjectId> GetSoundObjectId(lua_State* L, int idx)
 			if (character) {
 				return character->SoundObjectHandles[0];
 			} else {
-				return {};
+				luaL_error(L, "No character object exists with the specified handle");
+				return InvalidSoundObjectId;
 			}
 		} else {
-			LuaError("Only character handles are supported as sound objects");
-			return {};
+			luaL_error(L, "Only character handles are supported as sound objects");
+			return InvalidSoundObjectId;
 		}
 	}
 
 	default:
-		LuaError("Must specify nil, character handle or built-in name as sound object");
-		return {};
+		luaL_error(L, "Must specify nil, character handle or built-in name as sound object");
+		return InvalidSoundObjectId;
 	}
 }
 
-int SetSwitch(lua_State* L)
+END_NS()
+
+BEGIN_NS(lua)
+
+SoundObjectId do_get(lua_State* L, int index, Overload<SoundObjectId>)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto switchGroup = get<char const*>(L, 2);
-	auto state = get<char const*>(L, 3);
-
-	if (!soundObject) {
-		push(L, false);
-		return 1;
-	}
-
-	bool ok = GetSoundManager()->SetSwitch(switchGroup, state, *soundObject);
-	push(L, ok);
-	return 1;
+	return ecl::lua::audio::GetSoundObjectId(L, index);
 }
 
-int SetState(lua_State* L)
+END_NS()
+
+BEGIN_NS(ecl::lua::audio)
+
+using namespace dse::lua;
+
+bool SetSwitch(SoundObjectId soundObject, char const* switchGroup, char const* state)
 {
-	auto stateGroup = get<char const*>(L, 1);
-	auto state = get<char const*>(L, 2);
-
-	if (!GetSoundManager()) {
-		push(L, false);
-		return 1;
-	}
-
-	bool ok = GetSoundManager()->SetState(stateGroup, state);
-	push(L, ok);
-	return 1;
+	return GetSoundManager()->SetSwitch(switchGroup, state, soundObject);
 }
 
-int SetRTPC(lua_State* L)
+bool SetState(char const* stateGroup, char const* state)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto rtpcName = get<char const*>(L, 2);
-	auto value = get<float>(L, 3);
-
-	if (!soundObject) {
-		push(L, false);
-		return 1;
-	}
-
-	bool ok = GetSoundManager()->SetRTPCValue(*soundObject, rtpcName, value) == 1;
-	push(L, ok);
-	return 1;
+	return GetSoundManager()->SetState(stateGroup, state);
 }
 
-int GetRTPC(lua_State* L)
+bool SetRTPC(SoundObjectId soundObject, char const* rtpcName, float value)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto rtpcName = get<char const*>(L, 2);
-
-	if (!soundObject) {
-		push(L, nullptr);
-		return 1;
-	}
-
-	float value = GetSoundManager()->GetRTPCValue(*soundObject, rtpcName);
-	push(L, value);
-	return 1;
+	return GetSoundManager()->SetRTPCValue(soundObject, rtpcName, value) == 1;
 }
 
-int ResetRTPC(lua_State* L)
+float GetRTPC(SoundObjectId soundObject, char const* rtpcName)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto rtpcName = get<char const*>(L, 2);
-
-	if (!soundObject) {
-		push(L, false);
-		return 1;
-	}
-
-	bool ok = GetSoundManager()->ResetRTPCValue(*soundObject, rtpcName) == 1;
-	push(L, ok);
-	return 1;
+	return GetSoundManager()->GetRTPCValue(soundObject, rtpcName);
 }
 
-int Stop(lua_State* L)
+bool ResetRTPC(SoundObjectId soundObject, char const* rtpcName)
+{
+	return GetSoundManager()->ResetRTPCValue(soundObject, rtpcName) == 1;
+}
+
+void Stop(std::optional<SoundObjectId> soundObject)
 {
 	auto snd = GetSoundManager();
 	if (!snd) {
-		return 0;
+		return;
 	}
 
-	if (lua_gettop(L) == 0) {
-		snd->StopAll();
+	if (soundObject) {
+		snd->StopAllOnObject(*soundObject);
 	} else {
-		auto soundObject = GetSoundObjectId(L, 1);
-		if (soundObject) {
-			snd->StopAllOnObject(*soundObject);
-		}
+		snd->StopAll();
 	}
-
-	return 0;
 }
 
-int PauseAllSounds(lua_State* L)
+void PauseAllSounds()
 {
 	auto snd = GetSoundManager();
 	if (!snd) {
-		return 0;
+		return;
 	}
 
 	snd->PauseAllSounds();
-	return 0;
 }
 
-int ResumeAllSounds(lua_State* L)
+void ResumeAllSounds()
 {
 	auto snd = GetSoundManager();
 	if (!snd) {
-		return 0;
+		return;
 	}
 
 	snd->ResumeAllSounds();
-	return 0;
 }
 
-int PostEvent(lua_State* L)
+bool PostEvent(SoundObjectId soundObject, char const* eventName, std::optional<float> positionSec)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto eventName = get<char const*>(L, 2);
-	float positionSec = 0.0f;
-	if (lua_gettop(L) > 2) {
-		positionSec = get<float>(L, 3);
-	}
-
-	if (!soundObject) {
-		push(L, false);
-		return 1;
-	}
-
-	bool ok = GetSoundManager()->PostEvent(*soundObject, eventName, positionSec, nullptr);
-	push(L, ok);
-	return 1;
+	return GetSoundManager()->PostEvent(soundObject, eventName, positionSec.value_or(0.0f), nullptr);
 }
 
-int PlayExternalSound(lua_State* L)
+bool PlayExternalSound(SoundObjectId soundObject, char const* eventName, char const* path, unsigned int codecId)
 {
-	auto soundObject = GetSoundObjectId(L, 1);
-	auto eventName = get<char const*>(L, 2);
-	auto path = get<char const*>(L, 3);
-	auto codecId = get<unsigned int>(L, 4);
-
-	if (!soundObject) {
-		push(L, false);
-		return 1;
-	}
-
 	Path lsPath;
 	lsPath.Name = GetStaticSymbols().ToPath(path, PathRootType::Data);
 	auto eventId = GetSoundManager()->GetIDFromString(eventName);
-	bool ok = GetSoundManager()->PlayExternalSound(*soundObject, eventId, lsPath, codecId, nullptr);
-	push(L, ok);
-	return 1;
+	return GetSoundManager()->PlayExternalSound(soundObject, eventId, lsPath, codecId, nullptr);
 }
 
 void RegisterAudioLib()

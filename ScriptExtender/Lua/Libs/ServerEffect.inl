@@ -12,6 +12,7 @@ void Effect::Delete()
 
 END_NS()
 
+/// <lua_module>Effect</lua_module>
 BEGIN_NS(esv::lua::effect)
 
 ObjectSet<Effect*> GetAllEffects()

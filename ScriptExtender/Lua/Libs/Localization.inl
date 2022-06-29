@@ -2,6 +2,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <ScriptHelpers.h>
 
+/// <lua_module>L10N</lua_module>
 BEGIN_NS(lua::loca)
 
 STDString GetTranslatedString(lua_State* L, char const* translatedStringKey, std::optional<char const*> fallbackText)

@@ -3,6 +3,7 @@
 #include <ScriptHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>IO</lua_module>
 BEGIN_NS(lua::io)
 
 std::optional<STDString> LoadFile(char const* path, std::optional<FixedString> context)

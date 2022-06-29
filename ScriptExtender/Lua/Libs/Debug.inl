@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Debug</lua_module>
 BEGIN_NS(lua::debug)
 
 void DebugDumpLifetimes(lua_State* L)

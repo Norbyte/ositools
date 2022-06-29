@@ -5,6 +5,7 @@
 #include <json/json.h>
 #include <lstate.h>
 
+/// <lua_module>Json</lua_module>
 BEGIN_NS(lua::json)
 
 void Parse(lua_State * L, Json::Value const & val);

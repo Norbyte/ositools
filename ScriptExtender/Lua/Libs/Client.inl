@@ -1,6 +1,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Client</lua_module>
 BEGIN_NS(ecl::lua::client)
 
 std::optional<GameState> GetGameState()
@@ -13,6 +14,9 @@ ModManager* GetModManager()
 	return GetModManagerClient();
 }
 
+/// <summary>
+/// Updates shroud data for a cell in the specified position.
+/// </summary>
 void UpdateShroud(float x, float y, ShroudType layer, int value)
 {
 	if (value < 0 || value > 255) {

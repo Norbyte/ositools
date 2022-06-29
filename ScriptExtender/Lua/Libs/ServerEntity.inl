@@ -2,6 +2,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Entity</lua_module>
 BEGIN_NS(esv::lua::ecs)
 
 #include <Lua/Shared/LevelIteratorFunctions.inl>
@@ -378,7 +379,6 @@ ComponentHandle NullHandle()
 
 void RegisterEntityLib()
 {
-	/// <lua_module>Ext.Entity</summary>
 	DECLARE_MODULE(Entity, Server)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(NullHandle)

@@ -1,6 +1,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>Server</lua_module>
 BEGIN_NS(esv::lua::server)
 
 std::optional<GameState> GetGameState()

@@ -3,6 +3,7 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
 
+/// <lua_module>PropertyList</lua_module>
 BEGIN_NS(esv::lua::proplist)
 
 void ExecuteSkillPropertiesOnTarget(lua_State* L)

@@ -3,6 +3,7 @@
 #include <Extender/ScriptExtender.h>
 #include <Version.h>
 
+/// <lua_module>Utils</lua_module>
 BEGIN_NS(lua::utils)
 
 UserReturn Include(lua_State * L)

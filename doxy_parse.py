@@ -1,4 +1,3 @@
-from sys import implementation
 from xml.etree import ElementTree
 from os import listdir
 from os.path import isfile, join
@@ -15,17 +14,18 @@ class DescriptionMetadata:
             return
 
         for para in n.findall('para'):
-            if para.text is not None:
-                if para.text.startswith('<'):
+            text = self.do_parse_text(para)
+            if len(text) > 0:
+                if text.startswith('<'):
                     try:
-                        ele = ElementTree.fromstring('<root>' + para.text + '</root>')
+                        ele = ElementTree.fromstring('<root>' + text + '</root>')
                         for tag in list(ele):
                             desc = {'text': tag.text}
                             for k,v in tag.attrib.items():
                                 desc[k] = v
                             self.attributes[tag.tag] = desc
                     except ElementTree.ParseError:
-                        print('Warning: Failed to parse annotation: ' + para.text)
+                        print('Warning: Failed to parse annotation: ' + text)
         self.text += self.parse_text(n)
 
     def tag_wrap(self, text: str, tag: str):
@@ -43,6 +43,9 @@ class DescriptionMetadata:
         if n.tag == 'para' and n.text is not None and n.text.startswith('<'):
             return ''
 
+        return self.do_parse_text(n)
+
+    def do_parse_text(self, n: ElementTree.Element):
         text = ''
         if n.text is not None and n.tag != 'briefdescription' and n.tag != 'detaileddescription' and n.tag != 'parameterdescription':
             text += n.text
@@ -206,6 +209,7 @@ class NamespaceDefn:
     name = ''
     exported = False
     export_name = None
+    lua_name = None
 
     def __init__(self):
         self.functions = {}
@@ -218,6 +222,13 @@ class NamespaceDefn:
         if 'lua_module' in desc.attributes:
             self.exported = True
             self.export_name = desc.attributes['lua_module']['text']
+
+            if self.name[0:8] == "dse::ecl":
+                self.lua_name = "Client" + self.export_name
+            elif self.name[0:8] == "dse::esv":
+                self.lua_name = "Server" + self.export_name
+            else:
+                self.lua_name = self.export_name
 
         self.parse_definition(n)
 
@@ -233,7 +244,7 @@ class NamespaceDefn:
             if memberdef.tag == 'memberdef' and memberdef.attrib['kind'] == 'function':
                 fun = FunctionDefn()
                 fun.from_xml(memberdef, self)
-                if fun.exported:
+                if fun.exported or self.exported:
                     self.functions[fun.name] = fun
 
     def to_json(self):
@@ -244,7 +255,7 @@ class NamespaceDefn:
         }
 
         for fun in self.functions.values():
-            if fun.exported:
+            if fun.exported or self.exported:
                 defns["functions"][fun.export_name] = fun.to_json()
         
         for cls in self.classes.values():
@@ -375,7 +386,7 @@ class DoxyMetadata:
 
         for ns in self.namespaces.values():
             if ns.exported:
-                defns["modules"][ns.export_name] = ns.to_json()
+                defns["modules"][ns.lua_name or ns.name] = ns.to_json()
         
         for cls in self.classes.values():
             if cls.has_any_annotations():
