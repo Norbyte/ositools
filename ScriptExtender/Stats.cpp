@@ -1194,12 +1194,12 @@ void CharacterStatsGetters::WrapAll()
 {
 	if (Wrapped) return;
 
-#define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
+/*#define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
 Wrapper##name.Wrap(Get##name); \
 }
 
 #include <GameDefinitions/CharacterGetters.inl>
-#undef DEFN_GETTER
+#undef DEFN_GETTER*/
 
 	if (GetHitChance != nullptr) {
 		WrapperHitChance.Wrap(GetHitChance);
