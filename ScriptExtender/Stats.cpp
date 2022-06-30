@@ -1194,8 +1194,6 @@ void CharacterStatsGetters::WrapAll()
 {
 	if (Wrapped) return;
 
-	return;
-
 #define DEFN_GETTER(type, name) if (Get##name != nullptr) { \
 Wrapper##name.Wrap(Get##name); \
 }

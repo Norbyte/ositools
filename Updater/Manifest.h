@@ -9,6 +9,8 @@
 
 BEGIN_SE()
 
+struct UpdaterConfig;
+
 struct VersionNumber
 {
 	inline VersionNumber()
