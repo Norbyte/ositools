@@ -394,6 +394,9 @@ Arc tangent. Returns an angle whose tangent is `y / x`. The signs of x and y are
  - `OnResetCompleted`: Thrown when a console `reset` command or an `NRD_LuaReset` Osiris call completes.
  - `Tick`: Thrown on each game loop tick on both the client and the server. Normally game logic runs at ~30hz, so this event is thrown roughly every 33ms.
     -  The `Ext.OnNextTick(fun)` helper registers a handler that is only called on the next tick and is unregistered afterwards
+ - `OnBeforeSortAiActions`: Thrown before the AI sorts potential actions a character can perform based on their score. This hook can be used to apply manual adjustments to action scores.
+ - `OnAfterSortAiActions`: Thrown after the AI sorts actions a character can perform based on their score.
+ - `OnPeekAiAction`: Thrown before behavior scripts fetch the next AI action that should be executed. This hook can be used to switch to another action or to edit the selected AI action.
 
 
 ### Helper functions
@@ -447,6 +450,9 @@ An inefficient inventory sync issue was fixed in the base game where syncing inv
 
 ## Ext. name changes
 
+Functions that were previously directly under the `Ext.` table are now split into separate modules (eg. `Ext.JsonStringify` is now `Ext.Json.Stringify`).
+The old names will continue to work, but will throw a `Calling Ext.JsonStringify is deprecated; use Ext.Json.Stringify instead.` warning.
+List of changes:
 
 ### Shared context
 
