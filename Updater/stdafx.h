@@ -40,6 +40,8 @@ struct UpdaterConfig
 	std::string ManifestURL;
 	std::string ManifestName;
 	std::string UpdateChannel;
+	std::string TargetVersion;
+	std::string TargetResourceDigest;
 	std::wstring CachePath;
 	bool Debug;
 	bool ValidateSignature;

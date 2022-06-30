@@ -100,7 +100,10 @@ struct Manifest
 		std::string Name;
 		std::unordered_map<std::string, ResourceVersion> ResourceVersions;
 
-		std::optional<Manifest::ResourceVersion> FindResourceVersion(VersionNumber const& gameVersion) const;
+		std::optional<Manifest::ResourceVersion> FindResourceVersionWithOverrides(VersionNumber const& gameVersion,
+			UpdaterConfig const& config) const;
+		std::optional<Manifest::ResourceVersion> FindResourceVersion(VersionNumber const& gameVersion,
+			std::optional<VersionNumber> resourceVersion) const;
 	};
 
 	int32_t ManifestVersion;

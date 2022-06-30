@@ -174,6 +174,8 @@ void LoadConfigFile(std::wstring const& configPath, UpdaterConfig& config)
 	ConfigGetString(root, "ManifestURL", config.ManifestURL);
 	ConfigGetString(root, "ManifestName", config.ManifestName);
 	ConfigGetString(root, "UpdateChannel", config.UpdateChannel);
+	ConfigGetString(root, "TargetVersion", config.TargetVersion);
+	ConfigGetString(root, "TargetResourceDigest", config.TargetResourceDigest);
 	ConfigGetString(root, "CachePath", config.CachePath);
 #if defined(HAS_DEBUG_LOGGING)
 	ConfigGetBool(root, "Debug", config.Debug);
@@ -402,8 +404,8 @@ private:
 class ResourceCacheRepository
 {
 public:
-	ResourceCacheRepository(std::wstring const& path)
-		: path_(path)
+	ResourceCacheRepository(UpdaterConfig const& config, std::wstring const& path)
+		: config_(config), path_(path)
 	{
 		DEBUG("ResourceCache path: %s", ToUTF8(path).c_str());
 		LoadManifest(GetCachedManifestPath());
@@ -507,7 +509,7 @@ public:
 			return {};
 		}
 
-		auto ver = resource->second.FindResourceVersion(gameVersion);
+		auto ver = resource->second.FindResourceVersionWithOverrides(gameVersion, config_);
 		if (!ver) {
 			return {};
 		}
@@ -527,7 +529,7 @@ public:
 			return {};
 		}
 
-		auto ver = resource->second.FindResourceVersion(gameVersion);
+		auto ver = resource->second.FindResourceVersionWithOverrides(gameVersion, config_);
 		if (!ver) {
 			return {};
 		}
@@ -541,6 +543,7 @@ public:
 	}
 
 private:
+	UpdaterConfig const& config_;
 	std::wstring path_;
 	Manifest manifest_;
 
@@ -649,10 +652,18 @@ public:
 			return false;
 		}
 
-		auto version = resIt->second.FindResourceVersion(gameVersion);
+		auto version = resIt->second.FindResourceVersionWithOverrides(gameVersion, config_);
 		if (!version) {
-			reason.Message = "Script extender not available for game version v";
-			reason.Message += gameVersion.ToString();
+			if (!config_.TargetResourceDigest.empty()) {
+				reason.Message = "Script extender digest not found in manifest: ";
+				reason.Message += config_.TargetResourceDigest;
+			} else if (!config_.TargetVersion.empty()) {
+				reason.Message = "Script extender version not found in manifest: ";
+				reason.Message += config_.TargetVersion;
+			} else {
+				reason.Message = "Script extender not available for game version v";
+				reason.Message += gameVersion.ToString();
+			}
 			return false;
 		}
 
@@ -707,7 +718,7 @@ public:
 	void Launch()
 	{
 		UpdatePaths();
-		cache_ = std::make_unique<ResourceCacheRepository>(config_.CachePath);
+		cache_ = std::make_unique<ResourceCacheRepository>(config_, config_.CachePath);
 
 		ErrorReason updateReason;
 		bool updated = TryToUpdate(updateReason);
