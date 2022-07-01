@@ -254,7 +254,7 @@ namespace dse::esv
 
 			for (int32_t index = 0; index < count; index++) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
-				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
+				eventArgs->Add(OsiArgumentValue{ index });
 
 				gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ForLoopEventHandle, eventArgs);
 
@@ -271,7 +271,7 @@ namespace dse::esv
 			for (int32_t index = 0; index < count; index++) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, objectGuid });
 				eventArgs->Add(OsiArgumentValue{ ValueType::String, eventName });
-				eventArgs->Add(OsiArgumentValue{ (int64_t)index });
+				eventArgs->Add(OsiArgumentValue{ index });
 
 				gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ForLoopObjectEventHandle, eventArgs);
 
