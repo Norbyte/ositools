@@ -63,7 +63,6 @@ private:
 	void FindEoCGlobalsEoCApp();
 	void FindGlobalStringTableEoCApp();
 #else
-	void FindExportsEoCPlugin();
 	void FindServerGlobalsEoCPlugin();
 	void FindEoCGlobalsEoCPlugin();
 	void FindGlobalStringTableCoreLib();
@@ -75,6 +74,8 @@ private:
 	SymbolMappings mappings_;
 	SymbolMapper symbolMapper_;
 	SymbolMapper::ModuleInfo appModule_;
+	SymbolMapper::ModuleInfo gameEngineModule_;
+	SymbolMapper::ModuleInfo coreLibModule_;
 
 	bool InitFailed{ false };
 	bool CriticalInitFailed{ false };

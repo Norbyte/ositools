@@ -367,7 +367,7 @@ FileReader * ScriptExtender::OnFileReaderCreate(FileReader::CtorProc* next, File
 			Path overriddenPath;
 			overriddenPath.Name = it->second;
 #if !defined(OSI_EOCAPP)
-			overriddenPath.Unknown = path->Unknown;
+			overriddenPath.Unknown = path.Unknown;
 #endif
 			lock.unlock();
 			return next(self, overriddenPath, type);

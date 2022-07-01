@@ -182,9 +182,15 @@ struct SymbolMappings
 		StaticSymbolRef TargetRef;
 	};
 
+	struct StaticSymbol
+	{
+		int Offset{ 0 };
+		bool Bound{ false };
+	};
+
 	std::unordered_map<std::string, Mapping> Mappings;
 	std::unordered_map<std::string, DllImport> DllImports;
-	std::unordered_map<std::string, int> StaticSymbolOffsets;
+	std::unordered_map<std::string, StaticSymbol> StaticSymbols;
 };
 
 class SymbolMappingLoader

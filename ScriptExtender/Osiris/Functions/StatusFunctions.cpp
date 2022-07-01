@@ -479,7 +479,7 @@ namespace dse::esv
 	int CustomFunctionLibrary::OnGetSkillAPCost(stats::SkillPrototype::GetAttackAPCostProc* next, stats::SkillPrototype* self, stats::Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius, int* pElementalAffinity)
 #else
-	int CustomFunctionLibrary::OnGetSkillAPCost(SkillPrototype::GetAttackAPCostProc* next, SkillPrototype* self, Character* character, eoc::AiGrid* aiGrid,
+	int CustomFunctionLibrary::OnGetSkillAPCost(stats::SkillPrototype::GetAttackAPCostProc* next, stats::SkillPrototype* self, stats::Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius, bool unused, int* pElementalAffinity)
 #endif
 	{

@@ -460,7 +460,7 @@
       <Target Type="Absolute" Offset="0" Symbol="ecl__GameStateMachine__Update" /> <!-- ecl::GameStateMachine::Update -->
     </Mapping>
 
-    <Mapping Name="ecl::GameStateEventManager::ExecuteGameStateChangedEvent">
+    <Mapping Name="ecl::GameStateEventManager::ExecuteGameStateChangedEvent" Critical="true">
       @str 4C 8D 0D ?? ?? ?? ??  // lea r9, aClientStateSwa ; "CLIENT STATE SWAP - from: %s, to: %s\n"
       4C 89 44 24 28  // mov     [rsp+68h+var_40], r8
       33 D2  // xor     edx, edx
@@ -477,7 +477,7 @@
       <Target Type="Absolute" Offset="0" Symbol="esv__GameStateMachine__Update" /> <!-- esv::GameStateMachine::Update -->
     </Mapping>
 
-    <Mapping Name="esv::GameStateEventManager::ExecuteGameStateChangedEvent">
+    <Mapping Name="esv::GameStateEventManager::ExecuteGameStateChangedEvent" Critical="true">
       @str 4C 8D 0D ?? ?? ?? ??  // lea     r9, aServerStateSwa ; "SERVER STATE SWAP - from: %s, to: %s\n"
       4C 89 44 24 28  // mov     [rsp+68h+var_40], r8
       33 D2  // xor     edx, edx
@@ -876,7 +876,7 @@
       <Target Type="Indirect" Offset="@func" Symbol="ls__ScriptCheckBlock__Build" /> <!-- ls::ScriptCheckBlock::Build -->
     </Mapping>
 
-    <Mapping Name="esv::OsirisVariableHelper::SavegameVisit" Critical="true" >
+    <Mapping Name="esv::OsirisVariableHelper::SavegameVisit" Critical="true">
       48 89 5C 24 18  // mov     [rsp+arg_10], rbx
       48 89 6C 24 20  // mov     [rsp+arg_18], rbp
       57  // push    rdi

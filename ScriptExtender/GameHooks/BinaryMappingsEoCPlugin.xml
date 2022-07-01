@@ -1,7 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BinaryMappings>
   <Mappings Version="3.6.117.3735" Default="true">
-    <Mapping Name="LevelManager2" Scope="Custom">
+
+    <DllImport Symbol="CrtAlloc" Module="ucrtbase.dll" Proc="malloc" />
+    <DllImport Symbol="CrtFree" Module="ucrtbase.dll" Proc="free" />
+
+    <DllImport Symbol="IgValuePathMakeNameRef" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathMakeNameRef" />
+    <DllImport Symbol="IgValuePathPathMakeArrayRef" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathMakeArrayRef" />
+    <DllImport Symbol="IgValuePathSetArrayIndex" Module="iggy_w64.dll" Proc="Igg&#121;ValuePathSetArrayIndex" />
+    <DllImport Symbol="IgValueGetType" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetTypeRS" />
+    <DllImport Symbol="IgValueGetArrayLength" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetArrayLengthRS" />
+    <DllImport Symbol="IgValueGetBoolean" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetBooleanRS" />
+    <DllImport Symbol="IgValueGetF64" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetF64RS" />
+    <DllImport Symbol="IgValueGetStringUTF8" Module="iggy_w64.dll" Proc="Igg&#121;ValueGetStringUTF8RS" />
+    <DllImport Symbol="IgValueSetBoolean" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetBooleanRS" />
+    <DllImport Symbol="IgValueSetF64" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetF64RS" />
+    <DllImport Symbol="IgValueSetStringUTF8" Module="iggy_w64.dll" Proc="Igg&#121;ValueSetStringUTF8RS" />
+    <DllImport Symbol="IgPlayerCreateFastNameUTF8" Module="iggy_w64.dll" Proc="Igg&#121;PlayerCreateFastNameUTF8" />
+    <DllImport Symbol="IgPlayerCallMethod" Module="iggy_w64.dll" Proc="Igg&#121;PlayerCallMethodRS" />
+
+    <DllImport Symbol="IgSetWarningCallback" Module="iggy_w64.dll" Proc="Igg&#121;SetWarningCallback" />
+    <DllImport Symbol="IgSetTraceCallbackUTF8" Module="iggy_w64.dll" Proc="Igg&#121;SetTraceCallbackUTF8" />
+    
+    <DllImport Symbol="EoCAlloc" Module="CoreLib.dll" Proc="?Malloc@GlobalAllocator@ls@@QEAAPEAX_KPEBDH1@Z" />
+    <DllImport Symbol="EoCFree" Module="CoreLib.dll" Proc="?Free@GlobalAllocator@ls@@QEAAXPEAX@Z" />
+    
+    <DllImport Symbol="ls__FixedString__Create" Module="CoreLib.dll" Proc="?Create@FixedString@ls@@SA?AV12@PEBD_J@Z" />
+    <DllImport Symbol="ls__Path__GetPrefixForRoot" Module="CoreLib.dll" Proc="?GetPrefixForRoot@Path@ls@@CA?AV?$_StringView@DX@2@W4EPathRoot@2@@Z" />
+    <DllImport Symbol="ls__FileReader__ctor" Module="CoreLib.dll" Proc="??0FileReader@ls@@QEAA@AEBVPath@1@W4EType@01@@Z" />
+    <DllImport Symbol="ls__FileReader__dtor" Module="CoreLib.dll" Proc="??1FileReader@ls@@QEAA@XZ" />
+    
+    <DllImport Symbol="TranslatedStringRepository__GetInstance" Module="CoreLib.dll" Proc="?GetInstance@?$Singleton@VTranslatedStringRepository@ls@@@ls@@SAPEAVTranslatedStringRepository@2@XZ" />
+    <DllImport Symbol="TranslatedStringRepository__Get" Module="CoreLib.dll" Proc="?Get@TranslatedStringRepository@ls@@QEBAAEBVSTDWString@2@AEBVRuntimeStringHandle@2@AEA_KW4EGender@2@2_N@Z" />
+    <DllImport Symbol="TranslatedStringRepository__UnloadOverrides" Module="CoreLib.dll" Proc="?UnloadOverrides@TranslatedStringRepository@ls@@QEAA?B_NXZ" />
+    <DllImport Symbol="TranslatedStringKeyManager__GetInstance" Module="CoreLib.dll" Proc="?GetInstance@?$Singleton@VTranslatedStringKeyManager@ls@@@ls@@SAPEAVTranslatedStringKeyManager@2@XZ" />
+    <DllImport Symbol="TranslatedStringKeyManager__GetTranlatedStringFromKey" Module="CoreLib.dll" Proc="?GetTranlatedStringFromKey@TranslatedStringKeyManager@ls@@QEBA?AVTranslatedString@2@AEBVFixedString@2@_N@Z" />
+
+    <DllImport Symbol="AppInstance" Module="GameEngine.dll" Proc="?s_AppInstance@BaseApp@@1PEAV1@EA" />
+    <DllImport Symbol="ResourceManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ" />
+    <DllImport Symbol="UIObjectManager__RegisterUIObjectCreator" Module="GameEngine.dll" Proc="?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z" />
+    <DllImport Symbol="UIObjectManager__CreateUIObject" Module="GameEngine.dll" Proc="?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z" />
+    <DllImport Symbol="UIObjectManager__DestroyUIObject" Module="GameEngine.dll" Proc="?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z" />
+    <DllImport Symbol="UIObjectManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VUIObjectManager@ls@@@ls@@SAPEAVUIObjectManager@2@XZ" />
+    <DllImport Symbol="ModManager__CollectAvailableMods" Module="GameEngine.dll" Proc="?CollectAvailableMods@ModManager@ls@@SAXAEAV?$ObjectSet@VModule@ls@@V?$DefaultComparator@VModule@ls@@@2@@2@@Z" />
+    <DllImport Symbol="ls__ScriptCheckBlock__Build" Module="GameEngine.dll" Proc="?Build@ScriptCheckBlock@ls@@SAPEAVIScriptCheckObject@2@AEBVSTDString@2@PEBV?$ObjectSet@VSTDString@ls@@V?$DefaultComparator@VSTDString@ls@@@2@@2@HH@Z" />
+    
+    
+    <Mapping Name="esv::LevelManager2" Scope="Custom">
       48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:ls__gServerLevelAllocator
       48 89 7C 24 50  // mov     [rsp+38h+arg_10], rdi
       E8 ?? ?? ?? ??  // call    esv__LevelManager__GetGameActionManager
@@ -18,121 +63,121 @@
       E8 ?? ?? ?? ??  // call esv__GameObjectMoveAction__Setup
       48 8B D3  // mov     rdx, rbx
       48 8B CF  // mov     rcx, rdi
-      E8 ?? ?? ?? ??  // call    esv__GameActionManager__AddActionDeferred="true"
-      <Target Type="Indirect" Offset="0" Symbol="EsvLevelManager" /> <!-- LevelManager -->
-      <Target Type="Indirect" Offset="57" Symbol="GameObjectMoveActionSetup" /> <!-- esv::GameObjectMoveAction::Setup -->
-      <Target Type="Indirect" Offset="68" Symbol="AddGameAction" /> <!-- esv::GameActionManager::AddAction -->
+      E8 ?? ?? ?? ??  // call    esv__GameActionManager__AddAction"
+      <Target Type="Indirect" Offset="0" Symbol="esv__LevelManager" />
+      <Target Type="Indirect" Offset="57" Symbol="esv__GameObjectMoveAction__Setup" />
+      <Target Type="Indirect" Offset="68" Symbol="esv__GameActionManager__AddGameAction" />
     </Mapping>
 
-    <Mapping Name="TornadoAction2" Scope="Custom">
+    <Mapping Name="esv::TornadoAction::Setup2" Scope="Custom">
       48 8B C4  // mov     rax, rsp
       53  // push    rbx
-      55  // push    rbpDeferred="true"
-      <Target Type="Absolute" Offset="0" Symbol="TornadoActionSetup" /> <!-- esv::TornadoAction::Setup -->
+      55  // push    rbp
+      <Target Type="Absolute" Offset="0" Symbol="esv__TornadoAction__Setup" />
     </Mapping>
 
-    <Mapping Name="WallAction2" Scope="Custom">
+    <Mapping Name="esv::WallAction::CreateWall2" Scope="Custom">
       48 8B C4  // mov     rax, rsp
       48 89 58 18  // mov     [rax+18h], rbx
-      48 89 70 20  // mov     [rax+20h], rsiDeferred="true"
-      <Target Type="Absolute" Offset="0" Symbol="WallActionCreateWall" /> <!-- esv::TornadoAction::Setup -->
+      48 89 70 20  // mov     [rax+20h], rsi
+      <Target Type="Absolute" Offset="0" Symbol="esv__WallAction__CreateWall" />
     </Mapping>
 
-    <Mapping Name="esv::SummonHelpers::Summon" Scope="Custom">
+    <Mapping Name="esv::SummonHelpers::Summon2" Scope="Custom">
       48 8D 55 E0  // lea     rdx, [rbp+0B0h+summonArgs]
       C6 45 0D 00  // mov     [rbp+0B0h+summonArgs.MapToAiGrid_M], 0
       48 8D 4C 24 50  // lea     rcx, [rsp+1B0h+var_160]
       E8 ?? ?? ?? ??  // call    esv__SummonHelpers__Summon
-      48 8D 4C 24 50  // lea     rcx, [rsp+1B0h+var_160]Deferred="true"
-      <Target Type="Indirect" Offset="13" Symbol="SummonHelpersSummon" /> <!-- esv::SummonHelpers::Summon -->
+      48 8D 4C 24 50  // lea     rcx, [rsp+1B0h+var_160]
+      <Target Type="Indirect" Offset="13" Symbol="esv__SummonHelpers__Summon" />
     </Mapping>
 
     <Mapping Name="ApplyStatus" Scope="Custom">
       C7 43 2C 00 00 00 00  // mov     dword ptr [rbx+2Ch], 0
       48 8B CF  // mov     rcx, rdi
       E8 ?? ?? ?? ??  // call    esv__StatusMachine__ApplyStatus
-      48 8B 7C 24 40  // mov     rdi, [rsp+28h+arg_10]Deferred="true"
-      <Target Type="Indirect" Offset="10" Symbol="esv__StatusMachine__ApplyStatus" /> <!-- esv::StatusMachine::ApplyStatus -->
+      48 8B 7C 24 40  // mov     rdi, [rsp+28h+arg_10]
+      <Target Type="Indirect" Offset="10" Symbol="esv__StatusMachine__ApplyStatus" />
     </Mapping>
 
-    <Mapping Name="esv::StatusHit::__vftable" Scope="Custom">
+    <Mapping Name="esv::StatusHit::__vftable2" Scope="Custom">
       48 8B C4  // mov     rax, rsp
       55  // push    rbp
-      53  // push    rbxDeferred="true"
-      <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHitEoCApp2" />
+      53  // push    rbx
+      <Target Type="Absolute" Offset="0" EngineCallback="FindStatusHit" />
     </Mapping>
 
-    <Mapping Name="esv::StatusHeal::__vftable" Scope="Custom">
+    <Mapping Name="esv::StatusHeal::__vftable2" Scope="Custom">
       48 89 5C 24 10  // mov     [rsp-8+arg_8], rbx
-      48 89 74 24 18  // mov     [rsp-8+arg_10], rsiDeferred="true"
-      <Target Type="Absolute" Offset="0" NextSymbol="FindStatusHealEoCApp2" />
+      48 89 74 24 18  // mov     [rsp-8+arg_10], rsi
+      <Target Type="Absolute" Offset="0" EngineCallback="FindStatusHeal" />
     </Mapping>
 
-    <Mapping Name="GetAbility" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetAbility" Scope="Custom">
       45 33 C9  // xor     r9d, r9d
       45 33 C0  // xor     r8d, r8d
       8B D0  // mov     edx, eax
       48 8B CF  // mov     rcx, rdi
-      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetAbilityDeferred="true"
-      {"GetAbility", SymbolMappingTarget::kIndirect, 11, CHAR_GETTER_SYM(GetAbility)}
+      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetAbility
+      <Target Type="Indirect" Offset="11" Symbol="CharacterStatGetters__GetAbility" />
     </Mapping>
 
-    <Mapping Name="GetTalent" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetTalent" Scope="Custom">
       45 0F B6 C5  // movzx   r8d, r13b
       BA 03 00 00 00  // mov     edx, 3
       48 8B CF  // mov     rcx, rdi
       45 03 FC  // add     r15d, r12d
-      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__HasTalentDeferred="true"
-      {"GetTalent", SymbolMappingTarget::kIndirect, 15, CHAR_GETTER_SYM(GetTalent)}
+      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__HasTalent
+      <Target Type="Indirect" Offset="15" Symbol="CharacterStatGetters__GetTalent" />
     </Mapping>
 
-    <Mapping Name="GetChanceToHitBoost" Scope="Custom">
+    <Mapping Name="CharacterStatGetters::GetChanceToHitBoost" Scope="Custom">
       48 0F 4D C2  // cmovge  rax, rdx
       33 D2  // xor     edx, edx
       8B 18  // mov     ebx, [rax]
-      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetChanceToHitBoostDeferred="true"
-      {"GetChanceToHitBoost", SymbolMappingTarget::kIndirect, 8, CHAR_GETTER_SYM(GetChanceToHitBoost)}
+      E8 ?? ?? ?? ??  // call    CDivinityStats_Character__GetChanceToHitBoost
+      <Target Type="Indirect" Offset="8" Symbol="CharacterStatGetters__GetChanceToHitBoost" />
     </Mapping>
 
-    <Mapping Name="Character::_HitInternal" Scope="Custom">
+    <Mapping Name="esv::Character::_HitInternal" Scope="Custom">
       88 44 24 28  // mov     [rsp+0A8h+var_80], al
       89 6C 24 20  // mov     [rsp+0A8h+var_88], ebp
-      E8 ?? ?? ?? ??  // call    CDivinityStats_Character___HitInternalDeferred="true"
-      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" /> <!-- Character::_HitInternal -->
+      E8 ?? ?? ?? ??  // call    CDivinityStats_Character___HitInternal
+      <Target Type="Indirect" Offset="8" Symbol="CDivinityStats_Character__HitInternal" />
     </Mapping>
 
-    <Mapping Name="esv::Character::Hit" Scope="Custom">
+    <Mapping Name="esv::Character::Hit2" Scope="Custom">
       48 89 44 24 30  // mov     qword ptr [rsp+150h+a7], rax
       C6 44 24 28 00  // mov     byte ptr [rsp+150h+a6], 0
       C7 44 24 20 05 00 00 00  // mov     [rsp+150h+a5], 5
       E8 ?? ?? ?? ??  // call    esv__Character__Hit
       ?? 8B ?? B0 01 00 00  // mov     r13, [r15+1B0h]
-      EB 66  // jmp short xxxDeferred="true"
-      <Target Type="Indirect" Offset="18" Symbol="esv__Character__Hit" NextSymbol="CharacterHitInternal" NextSymbolSeekSize="0x280" />
+      EB 66  // jmp short xxx
+      <Target Type="Indirect" Offset="18" Symbol="esv__Character__Hit" NextSymbol="esv::Character::_HitInternal" NextSymbolSeekSize="0x280" />
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam2" Scope="Custom">
       40 55  // push    rbp
       53  // push    rbx
-      56  // push    rsiDeferred="true"
+      56  // push    rsi
       <Target Type="Absolute" Offset="0" Symbol="SkillPrototype__FormatDescriptionParam" /> <!-- eoc::SkillPrototype::FormatDescriptionParam2 -->
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototype::GetSkillDamage2" Scope="Custom">
       44 88 4C 24 20  // mov     [rsp-8+arg_18], r9b
       55  // push    rbp
-      53  // push    rbxDeferred="true"
+      53  // push    rbx
       <Target Type="Absolute" Offset="0" Symbol="SkillPrototype__GetSkillDamage" /> <!-- eoc::SkillPrototype::GetSkillDamage2 -->
     </Mapping>
 
     <Mapping Name="eoc::StatusPrototype::FormatDescriptionParam2" Scope="Custom">
       40 53  // push    rbx
       55  // push    rbp
-      56  // push    rsiDeferred="true"
+      56  // push    rsi
       <Target Type="Absolute" Offset="0" Symbol="StatusPrototype__FormatDescriptionParam" /> <!-- eoc::StatusPrototype::FormatDescriptionParam2 -->
     </Mapping>
 
-    <Mapping Name="esv::GameActionManager::CreateAction" Deferred="true">
+    <Mapping Name="esv::GameActionManager::CreateAction">
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_GameAction
       4C 8B 05 ?? ?? ?? ??  // mov     r8, cs:xxx
       48 8B CF  // mov     rcx, rdi
@@ -153,7 +198,7 @@
       8B 50 08  // mov     edx, [rax+8]
       E8 ?? ?? ?? ??  // call    esv__GameActionManager__CreateAction
       <Condition Type="FixedString" Offset="0" Value="GameAction" />
-      <Target Type="Indirect" Offset="72" Symbol="CreateGameAction" /> <!-- esv::GameActionManager::CreateAction -->
+      <Target Type="Indirect" Offset="72" Symbol="esv__GameActionManager__CreateAction" />
     </Mapping>
 
     <Mapping Name="esv::ProjectileHelpers::ShootProjectile">
@@ -163,17 +208,17 @@
       48 8D 4C 24 70  // lea     rcx, [rsp+0F8h+shootProjectile]
       89 BC 24 B8 00 00 00  // mov     [rsp+0F8h+shootProjectile.CasterLevel], edi
       E8 ?? ?? ?? ??  // call    esv__ProjectileHelpers__ShootProjectile
-      <Target Type="Indirect" Offset="27" Symbol="esv__ProjectileHelpers__ShootProjectile" /> <!-- esv::ProjectileHelpers::ShootProjectile -->
+      <Target Type="Indirect" Offset="27" Symbol="esv__ProjectileHelpers__ShootProjectile" />
     </Mapping>
 
     <Mapping Name="esv::Projectile::Explode">
       48 8D AC 24 30 FE FF FF  // lea     rbp, [rsp-1D0h]
       48 81 EC D0 02 00 00  // sub     rsp, 2D0h
       44 0F 29 BC 24 30 02 00 00  // movaps  [rsp+2F0h+var_C0], xmm15
-      <Target Type="Absolute" Offset="-0x0E" Symbol="esv__Projectile__Explode" /> <!-- esv::Projectile::Explode -->
+      <Target Type="Absolute" Offset="-0x0E" Symbol="esv__Projectile__Explode" />
     </Mapping>
 
-    <Mapping Name="LevelManager" Deferred="true" >
+    <Mapping Name="esv::LevelManager">
       41 83 C8 FF  // or      r8d, 0FFFFFFFFh
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_ForceMove
       48 8B C8  // mov     rcx, rax
@@ -182,10 +227,10 @@
       75 25  // jnz     short loc_180EE4875
       4C 8D 46 70  // lea     r8, [rsi+70h]
       <Condition Type="FixedString" Offset="4" Value="ForceMove" />
-      <Target Type="Absolute" Offset="0" NextSymbol="LevelManager" NextSymbolSeekSize="0x100" /> <!-- LevelManager -->
+      <Target Type="Absolute" Offset="0" NextSymbol="esv::LevelManager2" NextSymbolSeekSize="0x100" />
     </Mapping>
 
-    <Mapping Name="esv::WallAction::CreateWall" Deferred="true" >
+    <Mapping Name="esv::WallAction::CreateWall">
       41 83 C8 FF  // or      r8d, 0FFFFFFFFh
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_GrowTimeout
       48 8B C8  // mov     rcx, rax
@@ -195,10 +240,10 @@
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_GrowSpeed
       F3 44 0F 5E 3D ?? ?? ?? ??  // divss   xmm15, cs:dword_1819A9AD0
       <Condition Type="FixedString" Offset="4" Value="GrowTimeout" />
-      <Target Type="Absolute" Offset="-0x100" NextSymbol="WallAction" NextSymbolSeekSize="0x100" /> <!-- esv::WallAction::CreateWall -->
+      <Target Type="Absolute" Offset="-0x100" NextSymbol="esv::WallAction::CreateWall2" NextSymbolSeekSize="0x100" /> <!-- esv::WallAction::CreateWall -->
     </Mapping>
 
-    <Mapping Name="esv::TornadoAction::Setup" Deferred="true" >
+    <Mapping Name="esv::TornadoAction::Setup">
       48 8D 57 50  // lea     rdx, [rdi+50h]
       E8 ?? ?? ?? ??  // call    eoc__SkillPrototypeManager__GetPrototype
       41 83 C8 FF  // or      r8d, 0FFFFFFFFh
@@ -207,18 +252,18 @@
       48 8B F0  // mov     rsi, rax
       E8 ?? ?? ?? ??  // call    eoc__SkillPrototype__GetMappedValue
       <Condition Type="FixedString" Offset="13" Value="RandomPoints" />
-      <Target Type="Absolute" Offset="-0x100" NextSymbol="TornadoAction" NextSymbolSeekSize="0x100" /> <!-- esv::TornadoAction::Setup -->
+      <Target Type="Absolute" Offset="-0x100" NextSymbol="esv::TornadoAction::Setup2" NextSymbolSeekSize="0x100" />
     </Mapping>
 
-    <Mapping Name="esv::SummonHelpers::Summon" Deferred="true" >
+    <Mapping Name="esv::SummonHelpers::Summon">
       44 0F 28 94 24 20 01 00 00  // movaps  xmm10, [rsp+1B0h+var_90]
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_SpawnObject
       49 8B CE  // mov     rcx, r14
       <Condition Type="FixedString" Offset="9" Value="SpawnObject" />
-      <Target Type="Absolute" Offset="-0x400" NextSymbol="SummonHelpersSummon" NextSymbolSeekSize="0x400" /> <!-- esv::SummonHelpers::Summon -->
+      <Target Type="Absolute" Offset="-0x400" NextSymbol="esv::SummonHelpers::Summon2" NextSymbolSeekSize="0x400" /> <!-- esv::SummonHelpers::Summon -->
     </Mapping>
 
-    <Mapping Name="esv::StatusMachine::CreateStatus" Deferred="true" >
+    <Mapping Name="esv::StatusMachine::CreateStatus">
       83 7A 1C 00  // cmp     dword ptr [rdx+1Ch], 0
       48 8B F2  // mov     rsi, rdx
       4C 8B F1  // mov     r14, rcx
@@ -232,26 +277,26 @@
       48 8B CF  //  mov     rcx, rdi
       E8 ?? ?? ?? ??  //  call    esv__StatusMachine__CreateStatus
       <Condition Type="FixedString" Offset="19" Value="LIFESTEAL" />
-      <Target Type="Indirect" Offset="49" Symbol="esv__StatusMachine__CreateStatus" /> <!-- esv::StatusMachine::CreateStatus -->
-      <Target Type="Absolute" Offset="55" NextSymbol="ApplyStatus" NextSymbolSeekSize="0x100" /> <!-- esv::StatusMachine::ApplyStatus -->
+      <Target Type="Indirect" Offset="49" Symbol="esv__StatusMachine__CreateStatus" />
+      <Target Type="Absolute" Offset="55" NextSymbol="ApplyStatus" NextSymbolSeekSize="0x100" />
     </Mapping>
 
-    <Mapping Name="esv::StatusHit::__vftable" Deferred="true" >
+    <Mapping Name="esv::StatusHit::__vftable">
       4C 8D 0D ?? ?? ?? ??  // lea     r9, fsx_Dummy_BodyFX
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01
       E8 ?? ?? ?? ??  // call    esv__EffectFactory__CreateEffectWrapper
       48 8B D8  // mov     rbx, rax
       <Condition Type="FixedString" Offset="7" Value="RS3_FX_GP_Status_Retaliation_Beam_01" />
-      <Target Type="Absolute" Offset="-0x600" NextSymbol="StatusHit" NextSymbolSeekSize="0x600" /> <!-- esv::StatusHit::__vftable -->
+      <Target Type="Absolute" Offset="-0x600" NextSymbol="esv::StatusHit::__vftable2" NextSymbolSeekSize="0x600" />
     </Mapping>
 
-    <Mapping Name="esv::StatusHeal::__vftable" Deferred="true" >
+    <Mapping Name="esv::StatusHeal::__vftable">
       45 33 C9  // xor     r9d, r9d
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_TargetDependentHeal
       48 8B CB  // mov     rcx, rbx
       FF 90 B0 01 00 00  // call    qword ptr [rax+1B0h]
       <Condition Type="FixedString" Offset="3" Value="TargetDependentHeal" />
-      <Target Type="Absolute" Offset="-0x200" NextSymbol="StatusHeal" NextSymbolSeekSize="0x200" /> <!-- esv::StatusHeal::__vftable -->
+      <Target Type="Absolute" Offset="-0x200" NextSymbol="esv::StatusHeal::__vftable2" NextSymbolSeekSize="0x200" />
     </Mapping>
 
     <Mapping Name="esv::StatusHit::Setup">
@@ -265,7 +310,7 @@
       48 89 74 24 40  // mov     [rsp+28h+arg_10], rsi
       4C 89 74 24 48  // mov     [rsp+28h+arg_18], r14
       E8  // call    HitDamageInfo__Copy
-      <Target Type="Absolute" Offset="0" Symbol="esv__StatusHit__Setup" /> <!-- esv::StatusHit::Setup -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__StatusHit__Setup" />
     </Mapping>
 
     <Mapping Name="esv::ParseItem">
@@ -275,8 +320,8 @@
       33 D2  // xor     edx, edx
       48 8D 4C 24 60  // lea     rcx, [rsp+0B8h+var_58]
       E8 ?? ?? ?? ??  // call    esv__CreateItemFromParsed
-      <Target Type="Indirect" Offset="8" Symbol="ParseItem" /> <!-- esv::ParseItem -->
-      <Target Type="Indirect" Offset="20" Symbol="CreateItemFromParsed" /> <!-- esv::CreateItemFromParsed -->
+      <Target Type="Indirect" Offset="8" Symbol="esv__ParseItem" />
+      <Target Type="Indirect" Offset="20" Symbol="esv__CreateItemFromParsed" />
     </Mapping>
 
     <Mapping Name="UICharacterSheetHook">
@@ -288,7 +333,7 @@
       // Replacement: B2 01 90 90 90 90 90 90 90 90
       44 38 B8 B0 00 00 00  // cmp     [rax+0B0h], r15b
       0F 94 C2  // setz    dl
-      <Target Type="Absolute" Offset="25" Symbol="UICharacterSheetHook" /> <!-- UICharacterSheetHook -->
+      <Target Type="Absolute" Offset="25" Symbol="UICharacterSheetHook" />
     </Mapping>
 
     <Mapping Name="ActivateEntitySystemHook">
@@ -303,7 +348,7 @@
       75 ??  // jnz     short xxx
       48 8B CB  // mov     rcx, rbx
       E8 ?? ?? ?? ??  // call    xxx
-      <Target Type="Absolute" Offset="33" NextSymbol="FindActivateEntitySystemEoCApp" NextSymbolSeekSize="FIXME" /> <!-- ActivateEntitySystemHook -->
+      <Target Type="Absolute" Offset="33" EngineCallback="FindActivateEntitySystem" />
     </Mapping>
 
     <Mapping Name="CustomStatUIRollHook">
@@ -318,7 +363,7 @@
       48 8B 08  // mov     rcx, [rax]
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:qword_182543378
       49 89 43 98  // mov     [r11-68h], rax
-      <Target Type="Absolute" Offset="0" Symbol="CustomStatUIRollHook" /> <!-- CustomStatUIRollHook -->
+      <Target Type="Absolute" Offset="0" Symbol="CustomStatUIRollHook" />
     </Mapping>
 
     <Mapping Name="esv::CustomStatsProtocol::ProcessMsg">
@@ -329,10 +374,10 @@
       48 83 EC 40  // sub     rsp, 40h
       48 8D 15 ?? ?? ?? ??  // lea     rdx, "esv::CustomStatsProtocol"
       <Condition Type="String" Offset="14" Value="esv::CustomStatsProtocol::ProcessMsg" />
-      <Target Type="Absolute" Offset="0" Symbol="EsvCustomStatsProtocolProcessMsg" /> <!-- esv::CustomStatsProtocol::ProcessMsg -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__CustomStatsProtocol__ProcessMsg" />
     </Mapping>
 
-    <Mapping Name="ErrorFuncs">
+    <Mapping Name="ecl::EoCClient">
       48 8B 1D ?? ?? ?? ??  // mov     rbx, cs:ecl__gEocClient
       48 8D 8C 24 90 00 00 00  // lea     rcx, [rsp+158h+var_C8]
       41 B1 01  // mov     r9b, 1
@@ -344,8 +389,8 @@
       48 8B D0  // mov     rdx, rax
       48 8B CB  // mov     rcx, rbx
       E8 ?? ?? ?? ??  // call    ecl__EocClient__HandleError
-      <Target Type="Indirect" Offset="0" Symbol="EoCClient" /> <!-- ecl::EoCClient -->
-      <Target Type="Indirect" Offset="43" Symbol="EoCClientHandleError" /> <!-- ecl::EoCClient::HandleError -->
+      <Target Type="Indirect" Offset="0" Symbol="ecl__EoCClient" />
+      <Target Type="Indirect" Offset="43" Symbol="ecl__EoCClient__HandleError" />
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototypeManager::Init">
@@ -356,8 +401,8 @@
       48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:eoc__gSkillPrototypeManager
       E8 ?? ?? ?? ??  // call    eoc__SkillPrototypeManager__Init
       <Condition Type="String" Offset="0" Value="Skills" />
-      <Target Type="Indirect" Offset="28" Symbol="SkillPrototypeManagerInit" /> <!-- eoc::SkillPrototypeManager::Init -->
-      <Target Type="Indirect" Offset="21" Symbol="eoc__SkillPrototypeManager" /> <!-- eoc::SkillPrototypeManager -->
+      <Target Type="Indirect" Offset="28" Symbol="SkillPrototypeManager__Init" />
+      <Target Type="Indirect" Offset="21" Symbol="eoc__SkillPrototypeManager" />
     </Mapping>
 
     <Mapping Name="RPGStats::Load">
@@ -369,7 +414,7 @@
       48 81 C7 20 01 00 00  // add     rdi, 120h
       48 8B CF  // mov     rcx, rdi
       48 89 7D EF  // mov     [rbp+57h+var_68], rdi
-      <Target Type="Indirect" Offset="6" Symbol="RPGStats__Load" /> <!-- RPGStats::Load -->
+      <Target Type="Indirect" Offset="6" Symbol="RPGStats__Load" />
     </Mapping>
 
     <Mapping Name="eoc::StatusPrototypeManager::Init">
@@ -379,36 +424,36 @@
       FF 90 80 00 00 00  // call    qword ptr [rax+80h]
       48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:eoc__gSkillPrototypeManager
       <Condition Type="String" Offset="0" Value="Statuses" />
-      <Target Type="Indirect" Offset="21" Symbol="eoc__StatusPrototypeManager" /> <!-- eoc::StatusPrototypeManager -->
+      <Target Type="Indirect" Offset="21" Symbol="eoc__StatusPrototypeManager" />
     </Mapping>
 
-    <Mapping Name="ecl::GameStateEventManager::ExecuteGameStateChangedEvent">
+    <Mapping Name="ecl::GameStateEventManager::ExecuteGameStateChangedEvent" Critical="true">
       4C 8D 0D ?? ?? ?? ??  // lea r9, aClientStateSwa ; "CLIENT STATE SWAP - from: %s, to: %s\n"
       48 8B CF  // mov rcx, rdi
       C7 44 24 30 80 00 00 00  // mov [rsp+78h+var_48.logLevel], 80h
       4C 8D 44 24 30  // lea r8, [rsp+78h+var_48]
-      <Condition Type="String" Offset="0" Value="CLIENT STATE SWAP - from: %s, to: %s\n" />
-      <Target Type="Indirect" Offset="0x44" Symbol="ecl__GameStateEventManager__ExecuteGameStateChangedEvent" /> <!-- ecl::GameStateEventManager::ExecuteGameStateChangedEvent -->
+      <Condition Type="String" Offset="0" Value="CLIENT STATE SWAP - from: %s, to: %s&#10;" />
+      <Target Type="Indirect" Offset="0x44" Symbol="ecl__GameStateEventManager__ExecuteGameStateChangedEvent" />
     </Mapping>
 
-    <Mapping Name="esv::GameStateEventManager::ExecuteGameStateChangedEvent">
+    <Mapping Name="esv::GameStateEventManager::ExecuteGameStateChangedEvent" Critical="true">
       4C 8D 0D ?? ?? ?? ??  // lea r9, aClientStateSwa ; "SERVER STATE SWAP - from: %s, to: %s\n"
       48 89 7C 24 28  // mov     [rsp+78h+var_50], rdi
       4C 8D 44 24 30  // lea     r8, [rsp+78h+var_48]
-      <Condition Type="String" Offset="0" Value="SERVER STATE SWAP - from: %s, to: %s\n" />
-      <Target Type="Indirect" Offset="0x4D" Symbol="esv__GameStateEventManager__ExecuteGameStateChangedEvent" /> <!-- esv::GameStateEventManager::ExecuteGameStateChangedEvent -->
+      <Condition Type="String" Offset="0" Value="SERVER STATE SWAP - from: %s, to: %s&#10;" />
+      <Target Type="Indirect" Offset="0x4D" Symbol="esv__GameStateEventManager__ExecuteGameStateChangedEvent" />
     </Mapping>
 
     <Mapping Name="esv::GameStateThreaded::GameStateWorker::DoWork">
       48 8D 2D ?? ?? ?? ??  // lea     rbp, aEsvGamestateth ; "esv::GameStateThreaded::GameStateWorker::DoWork"
       <Condition Type="String" Offset="0" Value="esv::GameStateThreaded::GameStateWorker::DoWork" />
-      <Target Type="Absolute" Offset="-0x44" Symbol="esv__GameStateThreaded__GameStateWorker__DoWork" /> <!-- esv::GameStateThreaded::GameStateWorker::DoWork -->
+      <Target Type="Absolute" Offset="-0x44" Symbol="esv__GameStateThreaded__GameStateWorker__DoWork" />
     </Mapping>
 
     <Mapping Name="ecl::GameStateThreaded::GameStateWorker::DoWork">
       4C 8D 35 ?? ?? ?? ??  // lea     r14, aEclGamestateth ; "ecl::GameStateThreaded::GameStateWorker::DoWork"
       <Condition Type="String" Offset="0" Value="ecl::GameStateThreaded::GameStateWorker::DoWork" />
-      <Target Type="Absolute" Offset="-0x30" Symbol="ecl__GameStateThreaded__GameStateWorker__DoWork" /> <!-- ecl::GameStateThreaded::GameStateWorker::DoWork -->
+      <Target Type="Absolute" Offset="-0x30" Symbol="ecl__GameStateThreaded__GameStateWorker__DoWork" />
     </Mapping>
 
     <Mapping Name="net::Host::AddProtocol">
@@ -418,7 +463,7 @@
       E8 ?? ?? ?? ??  // call    net__Host__AddProtocol
       45 33 C9  // xor     r9d, r9d
       C6 44 24 20 01  // mov     byte ptr [rsp+68h+var_48], 1
-      <Target Type="Indirect" Offset="11" Symbol="net__Host__AddProtocol" /> <!-- net::Host::AddProtocol -->
+      <Target Type="Indirect" Offset="11" Symbol="net__Host__AddProtocol" />
     </Mapping>
 
     <Mapping Name="net::MessageFactory::RegisterMessage">
@@ -454,10 +499,10 @@
       41 8B 87 60 03 00 00  // mov     eax, [r15+360h]
       41 0F B6 D4  // movzx   edx, r12b
       89 47 44  // mov     [rdi+44h], eax
-      <Target Type="Absolute" Offset="0" NextSymbol="FindCharacterStatGettersEoCApp" NextSymbolSeekSize="FIXME" /> <!-- CharacterStatsGetters -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindCharacterStatGetters" />
     </Mapping>
 
-    <Mapping Name="GetHitChance">
+    <Mapping Name="CharacterStatGetters::GetHitChance">
       48 89 5C 24 10  // mov     [rsp+arg_8], rbx
       48 89 6C 24 20  // mov     [rsp+arg_18], rbp
       56  // push    rsi
@@ -466,10 +511,10 @@
       48 83 EC 20  // sub     rsp, 20h
       48 8B 99 68 02 00 00  // mov     rbx, [rcx+268h]
       4C 8B F2  //  mov     r14, rdx
-      <Target Type="Absolute" Offset="0" Symbol="GetHitChance" NextSymbol="ChanceToHitBoost" NextSymbolSeekSize="0x200" />
+      <Target Type="Absolute" Offset="0" Symbol="CharacterStatGetters__GetHitChance" NextSymbol="CharacterStatGetters::GetChanceToHitBoost" NextSymbolSeekSize="0x200" />
     </Mapping>
 
-    <Mapping Name="esv::Character::Hit" Deferred="true" >
+    <Mapping Name="esv::Character::Hit">
       4C 89 ?? 24 18 01 00 00  // mov     [rsp+150h+var_38], r15
       E8 ?? ?? ?? ??  // call    eoc__StatusPrototype__GetMappedValue
       85 C0  // test    eax, eax
@@ -477,7 +522,7 @@
       48 8B CB  // mov     rcx, rbx
       40 0F 95 C7  // setnz   dil
       <Condition Type="FixedString" Offset="15" Value="DamageItems" />
-      <Target Type="Absolute" Offset="0" NextSymbol="CharacterHit" NextSymbolSeekSize="0x300" /> <!-- esv::Character::Hit -->
+      <Target Type="Absolute" Offset="0" NextSymbol="esv::Character::Hit2" NextSymbolSeekSize="0x300" />
     </Mapping>
 
     <Mapping Name="FindLibraries" AllowFail="true" >
@@ -493,7 +538,7 @@
       44 8D 42 ??  // lea r8d, [rdx+XXh]
       48 8D 15 ?? ?? ?? ??  // lea rdx, xxx
       48 8D 0D ?? ?? ?? ??  // lea rcx, xxx
-      <Target Type="Absolute" Offset="0" NextSymbol="FindLibrariesEoCPlugin" NextSymbolSeekSize="FIXME" /> <!-- FindLibraries -->
+      <Target Type="Absolute" Offset="0" EngineCallback="FindLibraries" />
     </Mapping>
 
     <Mapping Name="esv::ActionMachine::SetState">
@@ -505,44 +550,44 @@
       C6 44 24 20 00  // mov     [rsp+78h+a5], 0
       40 0F B6 D7  // movzx   edx, dil
       E8 ?? ?? ?? ??  // call    xxx
-      <Target Type="Indirect" Offset="28" NextSymbol="FindActionMachineSetState" NextSymbolSeekSize="FIXME" /> <!-- esv::ActionMachine::SetState -->
+      <Target Type="Indirect" Offset="28" EngineCallback="FindActionMachineSetState" />
     </Mapping>
 
-    <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam" Deferred="true" >
+    <Mapping Name="eoc::SkillPrototype::FormatDescriptionParam">
       0F 29 BC 24 70 03 00 00  // movaps  [rsp+3B0h+var_40], xmm7
       41 83 C8 FF  // or      r8d, 0FFFFFFFFh
       89 5C 24 4C  // mov     [rsp+3B0h+a3], ebx
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_UseWeaponDamage
       <Condition Type="FixedString" Offset="16" Value="UseWeaponDamage" />
-      <Target Type="Absolute" Offset="-0x100" NextSymbol="SkillPrototypeFormatDescriptionParam" NextSymbolSeekSize="0x100" /> <!-- eoc::SkillPrototype::FormatDescriptionParam -->
+      <Target Type="Absolute" Offset="-0x100" NextSymbol="eoc::SkillPrototype::FormatDescriptionParam2" NextSymbolSeekSize="0x100" />
     </Mapping>
 
-    <Mapping Name="eoc::SkillPrototype::GetSkillDamage" Deferred="true" >
+    <Mapping Name="eoc::SkillPrototype::GetSkillDamage">
       48 0F 44 FE  // cmovz   rdi, rsi
       41 83 C8 FF  // or      r8d, 0FFFFFFFFh
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_Damage_Multiplier_2
       49 8B CD  // mov     rcx, r13
       <Condition Type="FixedString" Offset="8" Value="Damage Multiplier" />
-      <Target Type="Absolute" Offset="-0x180" NextSymbol="SkillPrototypeGetSkillDamage" NextSymbolSeekSize="0x180" /> <!-- eoc::SkillPrototype::GetSkillDamage -->
+      <Target Type="Absolute" Offset="-0x180" NextSymbol="eoc::SkillPrototype::GetSkillDamage2" NextSymbolSeekSize="0x180" />
     </Mapping>
 
-    <Mapping Name="eoc::StatusPrototype::FormatDescriptionParam" Deferred="true" >
+    <Mapping Name="eoc::StatusPrototype::FormatDescriptionParam">
       48 3B 05 ?? ?? ?? ??  // cmp     rax, cs:fs_Damage
       0F 85 80 00 00 00  // jnz     loc_xxx
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_DamageStats
       48 8B CF  //  mov     rcx, rdi
       E8 ?? ?? ?? ??  // call    eoc__StatusPrototype__GetFixedStringValue
       <Condition Type="FixedString" Offset="13" Value="DamageStats" />
-      <Target Type="Absolute" Offset="-0x80" NextSymbol="StatusPrototypeFormatDescriptionParam" NextSymbolSeekSize="0x80" /> <!-- eoc::StatusPrototype::FormatDescriptionParam -->
+      <Target Type="Absolute" Offset="-0x80" NextSymbol="eoc::StatusPrototype::FormatDescriptionParam2" NextSymbolSeekSize="0x80" />
     </Mapping>
 
-    <Mapping Name="esv::EoCServer" Deferred="true" >
+    <Mapping Name="esv::EoCServer">
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_CurrentCellCount
       48 8B CE  // mov     rcx, rsi
       FF 90 90 01 00 00  // call    qword ptr [rax+190h]
       4C 8B 0D ?? ?? ?? ??  //  mov     r9, cs:esv__gEoCServer
       <Condition Type="FixedString" Offset="0" Value="CurrentCellCount" />
-      <Target Type="Indirect" Offset="16" Symbol="EoCServer" /> <!-- esv::EoCServer -->
+      <Target Type="Indirect" Offset="16" Symbol="esv__EoCServer" />
     </Mapping>
 
     <Mapping Name="esv::TurnManager::UpdateTurnOrder">
@@ -552,17 +597,17 @@
       48 8D 6C 24 B1  //  lea     rbp,[rsp - 4Fh]
       48 81 EC 88 00 00 00  //  sub     rsp, 88h
       3A 15 ?? ?? ?? ??  //  cmp     dl, cs:xxx
-      <Target Type="Absolute" Offset="0" Symbol="esv__TurnManager__UpdateTurnOrder" /> <!-- esv::TurnManager::UpdateTurnOrder -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__TurnManager__UpdateTurnOrder" />
     </Mapping>
 
-    <Mapping Name="GlobalSwitches" Deferred="true" >
+    <Mapping Name="ls::GlobalSwitches">
       48 83 EC 20  // sub     rsp, 20h
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:gGlobalSwitches
       4C 8B F2  // mov     r14, rdx
       48 8B F1  // mov     rsi, rcx
       48 8D 15 ?? ?? ?? ??  // lea     rdx, fs_UseLevelCache
       <Condition Type="FixedString" Offset="17" Value="UseLevelCache" />
-      <Target Type="Indirect" Offset="4" Symbol="pGlobalSwitches" /> <!-- GlobalSwitches -->
+      <Target Type="Indirect" Offset="4" Symbol="ls__GlobalSwitches" />
     </Mapping>
 
     <Mapping Name="esv::Inventory::Equip">
@@ -570,7 +615,7 @@
       55 56 41 54 41 56 41 57  // push    rbp, rsi, r12, r14, r15
       48 8D 6C 24 E9  // lea     rbp, [rsp-17h]
       48 81 EC B0 00 00 00  // sub     rsp, 0B0h
-      <Target Type="Absolute" Offset="0" Symbol="InventoryEquip" /> <!-- esv::Inventory::Equip -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__Inventory__Equip" />
     </Mapping>
 
     <Mapping Name="ecl::EoCUI::EoCUI">
@@ -580,8 +625,8 @@
       48 89 03  // mov     [rbx], rax
       66 C7 83 54 01 00 00 00 00  // mov     word ptr [rbx+154h], 0
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:?Unassigned@ComponentHandle@ls@@2V12@B
-      <Target Type="Absolute" Offset="-9" Symbol="ecl__EoCUI__ctor" /> <!-- ecl::EoCUI::EoCUI -->
-      <Target Type="Indirect" Offset="16" Symbol="ecl__EoCUI__vftable" /> <!-- ecl::EoCUI::vftable -->
+      <Target Type="Absolute" Offset="-9" Symbol="ecl__EoCUI__ctor" />
+      <Target Type="Indirect" Offset="16" Symbol="ecl__EoCUI__vftable" />
     </Mapping>
 
     <Mapping Name="eoc::gSpeakerManager">
@@ -590,7 +635,7 @@
       49 8B 04 24  // mov     rax, [r12]
       4C 8D 05 ?? ?? ?? ??  // lea     r8, aRootTemplates ; "Root templates"
       <Condition Type="String" Offset="16" Value="Root templates" />
-      <Target Type="Indirect" Offset="0" Symbol="eoc__SpeakerManager" /> <!-- eoc::gSpeakerManager -->
+      <Target Type="Indirect" Offset="0" Symbol="eoc__SpeakerManager" />
     </Mapping>
 
     <Mapping Name="esv::OsirisVariableHelper::SavegameVisit">
@@ -602,7 +647,7 @@
       48 8B D9  // mov     rbx, rcx
       48 8D 15 ?? ?? ?? ??  // lea     rdx, xxx ; "esv::OsirisVariableHelper::SavegameVisit"
       <Condition Type="String" Offset="14" Value="esv::OsirisVariableHelper::SavegameVisit" />
-      <Target Type="Absolute" Offset="0" Symbol="esv__OsirisVariableHelper__SavegameVisit" /> <!-- esv::OsirisVariableHelper::SavegameVisit -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__OsirisVariableHelper__SavegameVisit" />
     </Mapping>
 
     <Mapping Name="esv::Character::ApplyDamage">
@@ -612,7 +657,7 @@
       C6 44 24 28 00  // mov     [rsp+0B0h+var_88], 0
       48 89 44 24 20  // mov     [rsp+0B0h+impactDirection], rax
       E8 ?? ?? ?? ??  // call    esv__Character__ApplyDamage
-      <Target Type="Indirect" Offset="27" Symbol="esv__Character__ApplyDamage" /> <!-- esv::Character::ApplyDamage -->
+      <Target Type="Indirect" Offset="27" Symbol="esv__Character__ApplyDamage" />
     </Mapping>
 
     <Mapping Name="ecl::InventoryFactory">
@@ -621,7 +666,7 @@
       48 8B 03  // mov     rax, [rbx]
       4C 8D 05 ?? ?? ?? ??  // lea     r8, str_Triggers ; "Triggers"
       <Condition Type="String" Offset="15" Value="Triggers" />
-      <Target Type="Indirect" Offset="0" Symbol="EclInventoryFactory" /> <!-- ecl::InventoryFactory -->
+      <Target Type="Indirect" Offset="0" Symbol="ecl__InventoryFactory" />
     </Mapping>
 
     <Mapping Name="ecl::LevelManager">
@@ -632,7 +677,7 @@
       48 8B 15 ?? ?? ?? ??  // mov     rdx, cs:ecl__gLevelManager
       48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:eoc__gNetworkFixedStrings
       <Condition Type="String" Offset="0" Value="NetworkFixedStrings" />
-      <Target Type="Indirect" Offset="21" Symbol="EclLevelManager" /> <!-- esv::LevelManager -->
+      <Target Type="Indirect" Offset="21" Symbol="ecl__LevelManager" />
     </Mapping>
 
     <Mapping Name="esv::ItemHelpers::GenerateTreasureItem">
@@ -644,7 +689,7 @@
       33 ED  // xor     ebp, ebp
       45 33 F6  // xor     r14d, r14d
       49 8B 87 90 00 00 00  // mov     rax, [r15+90h]
-      <Target Type="Absolute" Offset="-0x18" Symbol="esv__ItemHelpers__GenerateTreasureItem" /> <!-- esv::ItemHelpers::GenerateTreasureItem -->
+      <Target Type="Absolute" Offset="-0x18" Symbol="esv__ItemHelpers__GenerateTreasureItem" />
     </Mapping>
 
     <Mapping Name="esv::CombineManager::ExecuteCombination">
@@ -654,7 +699,7 @@
       48 33 C4  // xor     rax, rsp
       48 89 85 00 01 00 00  // mov     [rbp+150h+var_50], rax
       4C 8B B5 90 01 00 00  // mov     r14, [rbp+150h+combinationId]
-      <Target Type="Absolute" Offset="-0x0D" Symbol="esv__CombineManager__ExecuteCombination" /> <!-- esv::CombineManager::ExecuteCombination -->
+      <Target Type="Absolute" Offset="-0x0D" Symbol="esv__CombineManager__ExecuteCombination" />
     </Mapping>
 
     <Mapping Name="eoc::SurfaceTransformActionsFromType">
@@ -663,7 +708,7 @@
       77 17  // ja      short xxx
       48 69 C3 D0 02 00 00  // imul    rax, rbx, 2D0h
       48 8D 0D ?? ?? ?? ??  // lea     rcx, eoc__SurfaceTransformActionsFromType
-      <Target Type="Indirect" Offset="15" Symbol="eoc__SurfaceTransformActionsFromType" /> <!-- eoc::SurfaceTransformActionsFromType -->
+      <Target Type="Indirect" Offset="15" Symbol="eoc__SurfaceTransformActionsFromType" />
     </Mapping>
 
     <Mapping Name="eoc::SurfaceTemplates">
@@ -672,7 +717,7 @@
       48 8D 35 ?? ?? ?? ??  // lea     rsi, esv__gSurfaceTemplates
       83 FF 4E  // cmp     edi, 4Eh
       77 ??  // ja      short xxx
-      <Target Type="Indirect" Offset="7" Symbol="eoc__SurfaceTemplates" /> <!-- eoc::SurfaceTemplates -->
+      <Target Type="Indirect" Offset="7" Symbol="eoc__SurfaceTemplates" />
     </Mapping>
 
     <Mapping Name="esv::SurfaceActionFactory">
@@ -681,16 +726,16 @@
       48 89 44 24 58  // mov     [rsp+140h+surfaceMgr], rax
       4D 8B 00  // mov     r8, [r8]
       E8 ?? ?? ?? ??  // call    esv__SurfaceActionFactory__CreateAction
-      <Target Type="Indirect" Offset="5" Symbol="esv__SurfaceActionFactory" /> <!-- esv::SurfaceActionFactory -->
-      <Target Type="Indirect" Offset="20" Symbol="esv__SurfaceActionFactory__CreateAction" /> <!-- esv::SurfaceActionFactory::CreateAction -->
+      <Target Type="Indirect" Offset="5" Symbol="esv__SurfaceActionFactory" />
+      <Target Type="Indirect" Offset="20" Symbol="esv__SurfaceActionFactory__CreateAction" />
     </Mapping>
 
     <Mapping Name="esv::TransformSurfaceAction::Init">
       44 8B 47 24  // mov     r8d, [rdi+24h]
       48 8D 0D ?? ?? ?? ??  // lea     rcx, "TransformSurfaceAction Created! action: %u (%d:%s)"
       8B D0  // mov     edx, eax
-      <Condition Type="String" Offset="4" Value="TransformSurfaceAction Created! action: %u (%d:%s)\n" />
-      <Target Type="Absolute" Offset="-0x46" Symbol="esv__TransformSurfaceAction__Init" /> <!-- esv::TransformSurfaceAction::Init -->
+      <Condition Type="String" Offset="4" Value="TransformSurfaceAction Created! action: %u (%d:%s)&#10;" />
+      <Target Type="Absolute" Offset="-0x46" Symbol="esv__TransformSurfaceAction__Init" />
     </Mapping>
 
     <Mapping Name="eoc::SkillPrototype::GetAttackAPCost">
@@ -698,7 +743,7 @@
       48 83 EC 40  // sub     rsp, 40h
       8B 79 28  // mov     edi, [rcx+28h]
       4D 8B E1  // mov     r12, r9
-      <Target Type="Absolute" Offset="-8" Symbol="SkillPrototype__GetAttackAPCost" /> <!-- eoc::SkillPrototype::GetAttackAPCost -->
+      <Target Type="Absolute" Offset="-8" Symbol="SkillPrototype__GetAttackAPCost" />
     </Mapping>
 
     <Mapping Name="eoc::AiGrid::SearchForCell">
@@ -707,7 +752,7 @@
       48 83 EC 70  // sub     rsp, 70h
       33 C0  // xor     eax, eax
       F3 0F 11 54 24 4C  // movss   dword ptr [rsp+78h+realXZ+4], xmm2
-      <Target Type="Absolute" Offset="0" Symbol="eoc__AiGrid__SearchForCell" /> <!-- eoc::AiGrid::SearchForCell -->
+      <Target Type="Absolute" Offset="0" Symbol="eoc__AiGrid__SearchForCell" />
     </Mapping>
 
     <Mapping Name="esv::ExecutePropertyDataOnGroundHit">
@@ -716,7 +761,7 @@
       4D 8B E1  // mov     r12, r9
       49 8B F0  // mov     rsi, r8
       48 8B F9  // mov     rdi, rcx
-      <Target Type="Absolute" Offset="-0x0D" Symbol="esv__ExecutePropertyDataOnGroundHit" /> <!-- esv::ExecutePropertyDataOnGroundHit -->
+      <Target Type="Absolute" Offset="-0x0D" Symbol="esv__ExecutePropertyDataOnGroundHit" />
     </Mapping>
 
     <Mapping Name="RPGStats::ParseProperties">
@@ -726,7 +771,7 @@
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:__security_cookie
       48 33 C4  // xor     rax, rsp
       48 89 85 B0 00 00 00  // mov     [rbp+0B0h], rax
-      <Target Type="Absolute" Offset="-0x07" Symbol="RPGStats__ParseProperties" /> <!-- RPGStats::ParseProperties -->
+      <Target Type="Absolute" Offset="-0x07" Symbol="RPGStats__ParseProperties" />
     </Mapping>
 
     <Mapping Name="esv::ExecutePropertyDataOnPositionOnly">
@@ -734,7 +779,7 @@
       F3 0F 11 58 20  // movss   dword ptr [rax+20h], xmm3
       4C 89 40 18  //  mov     [rax+18h], r8
       48 89 50 10  // mov     [rax+10h], rdx
-      <Target Type="Absolute" Offset="0" Symbol="esv__ExecutePropertyDataOnPositionOnly" /> <!-- esv::ExecutePropertyDataOnPositionOnly -->
+      <Target Type="Absolute" Offset="0" Symbol="esv__ExecutePropertyDataOnPositionOnly" />
     </Mapping>
 
     <Mapping Name="esv::ExecuteCharacterExtraProperties">
@@ -742,7 +787,7 @@
       48 8D AC 24 68 FD FF FF  // lea     rbp, [rsp-298h]
       48 81 EC 98 03 00 00  // sub     rsp, 398h
       48 8B 85 F8 02 00 00  // mov     rax, [rbp+2B0h+damageInfo]
-      <Target Type="Absolute" Offset="-0x18" Symbol="esv__ExecuteCharacterSetExtraProperties" /> <!-- esv::ExecuteCharacterExtraProperties -->
+      <Target Type="Absolute" Offset="-0x18" Symbol="esv__ExecuteCharacterSetExtraProperties" />
     </Mapping>
   </Mappings>
 </BinaryMappings>

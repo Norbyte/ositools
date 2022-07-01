@@ -72,7 +72,7 @@ namespace dse
 #else
 	STDString StaticSymbols::ToPath(StringView path, PathRootType root, bool canonicalize) const
 	{
-		if (GetPrefixForRoot == nullptr) {
+		if (ls__Path__GetPrefixForRoot == nullptr) {
 			ERR("LibraryManager::ToPath(): Path root API not available!");
 			return "";
 		}
@@ -83,7 +83,7 @@ namespace dse
 		}
 
 		StringView rootPath;
-		GetPrefixForRoot(&rootPath, (unsigned)root);
+		ls__Path__GetPrefixForRoot(&rootPath, (unsigned)root);
 
 		if (rootPath.empty()) {
 			ERR("StaticSymbols::ToPath(): Path roots not initialized!");
@@ -98,7 +98,7 @@ namespace dse
 
 	FileReaderPin StaticSymbols::MakeFileReader(StringView path, PathRootType root, bool canonicalize) const
 	{
-		if (GetPrefixForRoot == nullptr || FileReaderCtor == nullptr) {
+		if (ls__Path__GetPrefixForRoot == nullptr || ls__FileReader__ctor == nullptr) {
 			ERR("StaticSymbols::MakeFileReader(): File reader API not available!");
 			return FileReaderPin(nullptr);
 		}
@@ -107,7 +107,7 @@ namespace dse
 		lsPath.Name = ToPath(path, root, canonicalize);
 
 		auto reader = new FileReader();
-		FileReaderCtor(reader, &lsPath, 2);
+		ls__FileReader__ctor(reader, lsPath, 2);
 		return FileReaderPin(reader);
 	}
 #endif

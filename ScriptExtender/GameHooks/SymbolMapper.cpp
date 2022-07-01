@@ -452,9 +452,10 @@ bool SymbolMappingLoader::LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMap
 		return false;
 	}
 
-	auto symIt = mappings_.StaticSymbolOffsets.find(staticSymbol);
-	if (symIt != mappings_.StaticSymbolOffsets.end()) {
-		imp.TargetRef = StaticSymbolRef(symIt->second);
+	auto symIt = mappings_.StaticSymbols.find(staticSymbol);
+	if (symIt != mappings_.StaticSymbols.end()) {
+		imp.TargetRef = StaticSymbolRef(symIt->second.Offset);
+		symIt->second.Bound = true;
 	} else {
 		ERR("DllImport references nonexistent engine symbol: '%s'", staticSymbol);
 		return false;
@@ -506,9 +507,10 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, Pattern const& p
 
 	auto staticSymbol = ele->Attribute("Symbol");
 	if (staticSymbol) {
-		auto symIt = mappings_.StaticSymbolOffsets.find(staticSymbol);
-		if (symIt != mappings_.StaticSymbolOffsets.end()) {
-			target.TargetRef = StaticSymbolRef(symIt->second);
+		auto symIt = mappings_.StaticSymbols.find(staticSymbol);
+		if (symIt != mappings_.StaticSymbols.end()) {
+			target.TargetRef = StaticSymbolRef(symIt->second.Offset);
+			symIt->second.Bound = true;
 		} else {
 			ERR("Mapping target references nonexistent engine symbol: '%s'", staticSymbol);
 			return false;

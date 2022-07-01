@@ -25,43 +25,49 @@ namespace dse
 			CriticalInitFailed = true;
 		}
 
+		if (!CriticalInitFailed) {
+#if 0
+			// Debug check for symbol xml -> engine bindings
+			for (auto const& sym : mappings_.StaticSymbols) {
+				if (!sym.second.Bound) {
+					WARN("No mapping exists for engine symbol: %s", sym.first.c_str());
+				}
+			}
+		}
+#endif
+
 		memset(&GetStaticSymbols().CharStatsGetters, 0, sizeof(GetStaticSymbols().CharStatsGetters));
 
+		if (!BindApp()) {
 #if defined(OSI_EOCAPP)
-		if (BindApp()) {
+			ERR("LibraryManager::FindLibraries(): Unable to bind EoCApp module.");
 #else
-		if (BindApp()) {
-#endif
-			RegisterLibraries(symbolMapper_);
-			symbolMapper_.MapAllSymbols(false);
-
-			CriticalInitFailed = CriticalInitFailed || symbolMapper_.HasFailedCriticalMappings();
-			InitFailed = InitFailed || symbolMapper_.HasFailedMappings();
-
-#if defined(OSI_EOCAPP)
-			FindServerGlobalsEoCApp();
-			FindEoCGlobalsEoCApp();
-			FindGlobalStringTableEoCApp();
-#else
-			FindExportsEoCPlugin();
-			FindServerGlobalsEoCPlugin();
-			FindEoCGlobalsEoCPlugin();
-			FindGlobalStringTableCoreLib();
-#endif
-
-			return !CriticalInitFailed;
-		} else {
-#if defined(OSI_EOCAPP)
-			ERR("LibraryManager::FindLibraries(): Unable to locate EoCApp module.");
-#else
-			ERR("LibraryManager::FindLibraries(): Unable to locate EoCPlugin module.");
+			ERR("LibraryManager::FindLibraries(): Unable to bind EoCPlugin module.");
 #endif
 			return false;
 		}
+
+		RegisterLibraries(symbolMapper_);
+		symbolMapper_.MapAllSymbols(false);
+
+		CriticalInitFailed = CriticalInitFailed || symbolMapper_.HasFailedCriticalMappings();
+		InitFailed = InitFailed || symbolMapper_.HasFailedMappings();
+
+#if defined(OSI_EOCAPP)
+		FindServerGlobalsEoCApp();
+		FindEoCGlobalsEoCApp();
+		FindGlobalStringTableEoCApp();
+#else
+		FindServerGlobalsEoCPlugin();
+		FindEoCGlobalsEoCPlugin();
+		FindGlobalStringTableCoreLib();
+#endif
+
+		return !CriticalInitFailed;
 	}
 
-#define SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair(#name, (int)offsetof(StaticSymbols, name)))
-#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbolOffsets.insert(std::make_pair("CharacterStatGetters__" #name, (int)offsetof(StaticSymbols, CharStatsGetters) + (int)offsetof(stats::CharacterStatsGetters, name)))
+#define SYM_OFF(name) mappings_.StaticSymbols.insert(std::make_pair(#name, SymbolMappings::StaticSymbol{ (int)offsetof(StaticSymbols, name) }))
+#define CHAR_GETTER_SYM_OFF(name) mappings_.StaticSymbols.insert(std::make_pair("CharacterStatGetters__" #name, SymbolMappings::StaticSymbol{ (int)offsetof(StaticSymbols, CharStatsGetters) + (int)offsetof(stats::CharacterStatsGetters, name) }))
 
 	void LibraryManager::RegisterSymbols()
 	{
@@ -290,6 +296,16 @@ namespace dse
 		symbolMapper_.MapAllSymbols(true);
 
 		if (!CriticalInitFailed) {
+
+			for (auto const& sym : mappings_.StaticSymbols) {
+				if (sym.second.Bound && sym.second.Offset != -1) {
+					auto ptr = (void**)((uint8_t*)&GetStaticSymbols() + sym.second.Offset);
+					if (!*ptr) {
+						ERR("Engine symbol not bound after mapping phase: %s", sym.first.c_str());
+					}
+				}
+			}
+
 			GFS.Initialize();
 			InitializeEnumerations();
 			InitPropertyMaps();
