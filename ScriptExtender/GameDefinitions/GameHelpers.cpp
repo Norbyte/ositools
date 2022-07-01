@@ -65,7 +65,7 @@ namespace dse
 		Path lsPath;
 		lsPath.Name = absolutePath;
 
-		auto reader = new FileReader();
+		auto reader = GameAlloc<FileReader>();
 		ls__FileReader__ctor(reader, lsPath, 2);
 		return FileReaderPin(reader);
 	}
@@ -106,7 +106,7 @@ namespace dse
 		Path lsPath;
 		lsPath.Name = ToPath(path, root, canonicalize);
 
-		auto reader = new FileReader();
+		auto reader = GameAlloc<FileReader>();
 		ls__FileReader__ctor(reader, lsPath, 2);
 		return FileReaderPin(reader);
 	}
