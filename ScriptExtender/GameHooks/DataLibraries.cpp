@@ -192,6 +192,7 @@ namespace dse
 		SYM_OFF(ls__UIHelper__CustomDrawObject);
 
 		SYM_OFF(ls__DragDropManager);
+		SYM_OFF(ls__DragDropManager__GetInstance);
 		SYM_OFF(ls__DragDropManager__StartDragString);
 		SYM_OFF(ls__DragDropManager__StartDragHandle);
 		SYM_OFF(ls__DragDropManager__StopDrag);
@@ -227,6 +228,7 @@ namespace dse
 		SYM_OFF(esv__gAiHelpers);
 
 		SYM_OFF(ls__GlobalTemplateManager);
+		SYM_OFF(ls__GlobalTemplateManager__GetInstance);
 		SYM_OFF(esv__CacheTemplateManager);
 		SYM_OFF(esv__LocalTemplateManager);
 		SYM_OFF(ecl__CacheTemplateManager);
@@ -240,6 +242,7 @@ namespace dse
 		SYM_OFF(ls__Visual__AddAttachment);
 
 		SYM_OFF(ls__gEffectsManager);
+		SYM_OFF(ls__EffectsManager__GetInstance);
 		SYM_OFF(ls__EffectsManager__DestroyEffect);
 
 		SYM_OFF(esv__EffectManager__CreateEffect);

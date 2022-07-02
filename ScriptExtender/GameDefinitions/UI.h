@@ -610,6 +610,7 @@ namespace dse
 
 	struct DragDropManager
 	{
+		using GetInstanceProc = DragDropManager* ();
 		using StartDragStringProc = bool(DragDropManager* self, PlayerId playerId, FixedString const& objectId, bool setupStartDrag, uint64_t mousePos);
 		using StartDragHandleProc = bool(DragDropManager* self, PlayerId playerId, ComponentHandle const& objectHandle, bool setupStartDrag, uint64_t mousePos);
 		using StopDragProc = bool (DragDropManager* self, PlayerId playerId);

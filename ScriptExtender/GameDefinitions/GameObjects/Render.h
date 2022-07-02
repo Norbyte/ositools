@@ -428,5 +428,6 @@ struct VisualFactory : public ComponentFactory<Visual, ObjectFactoryRWLocker>
 };
 
 using EffectsManager__DestroyEffect = bool (void* self, ComponentHandle const& handle);
+using EffectsManager__GetInstanceProc = void* ();
 
 END_SE()

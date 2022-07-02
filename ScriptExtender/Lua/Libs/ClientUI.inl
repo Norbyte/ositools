@@ -280,7 +280,7 @@ UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
 
 dse::DragDropManager* GetDragDrop()
 {
-	return *GetStaticSymbols().ls__DragDropManager;
+	return GetStaticSymbols().GetDragDropManager();
 }
 
 /// <summary>

@@ -232,6 +232,7 @@ namespace dse
 		ecl::FlashCustomDrawCallback::CustomDrawObject* ls__UIHelper__CustomDrawObject{ nullptr };
 
 		DragDropManager** ls__DragDropManager{ nullptr };
+		DragDropManager::GetInstanceProc* ls__DragDropManager__GetInstance{ nullptr };
 		DragDropManager::StartDragStringProc* ls__DragDropManager__StartDragString{ nullptr };
 		DragDropManager::StartDragHandleProc* ls__DragDropManager__StartDragHandle{ nullptr };
 		DragDropManager::StopDragProc* ls__DragDropManager__StopDrag{ nullptr };
@@ -270,6 +271,7 @@ namespace dse
 		esv::AiHelpers::SortActionsProc* esv__AiHelpers__SortActions{ nullptr };
 
 		GlobalTemplateManager** ls__GlobalTemplateManager{ nullptr };
+		GlobalTemplateManager::GetInstanceProc* ls__GlobalTemplateManager__GetInstance{ nullptr };
 		GlobalCacheTemplateManager** esv__CacheTemplateManager{ nullptr };
 		LocalTemplateManager** esv__LocalTemplateManager{ nullptr };
 		GlobalCacheTemplateManager** ecl__CacheTemplateManager{ nullptr };
@@ -283,6 +285,7 @@ namespace dse
 		Visual::AddAttachmentProc* ls__Visual__AddAttachment{ nullptr };
 
 		void** ls__gEffectsManager{ nullptr };
+		EffectsManager__GetInstanceProc* ls__EffectsManager__GetInstance{ nullptr };
 		EffectsManager__DestroyEffect* ls__EffectsManager__DestroyEffect{ nullptr };
 
 		esv::EffectManager::CreateEffectProc* esv__EffectManager__CreateEffect{ nullptr };
@@ -538,6 +541,39 @@ namespace dse
 			}
 
 			return repo;
+		}
+
+		inline void* GetEffectsManager() const
+		{
+			if (ls__gEffectsManager) {
+				return *ls__gEffectsManager;
+			} else if (ls__EffectsManager__GetInstance) {
+				return ls__EffectsManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline GlobalTemplateManager* GetGlobalTemplateManager() const
+		{
+			if (ls__GlobalTemplateManager) {
+				return *ls__GlobalTemplateManager;
+			} else if (ls__GlobalTemplateManager__GetInstance) {
+				return ls__GlobalTemplateManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline DragDropManager* GetDragDropManager() const
+		{
+			if (ls__DragDropManager) {
+				return *ls__DragDropManager;
+			} else if (ls__DragDropManager__GetInstance) {
+				return ls__DragDropManager__GetInstance();
+			} else {
+				return nullptr;
+			}
 		}
 
 		inline SurfaceTemplate* GetSurfaceTemplate(SurfaceType type) const

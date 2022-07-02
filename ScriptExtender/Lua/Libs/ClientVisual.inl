@@ -11,9 +11,9 @@ void ResourceManager::DestroyVisual(ComponentHandle const& handle)
 		auto del = GetStaticSymbols().ls__VisualFactory__DestroyVisual;
 		del(VisualFactory, handle.Handle);
 	} else if ((ObjectHandleType)handle.GetType() == ObjectHandleType::Effect) {
-		auto mgr = GetStaticSymbols().ls__gEffectsManager;
+		auto mgr = GetStaticSymbols().GetEffectsManager();
 		auto del = GetStaticSymbols().ls__EffectsManager__DestroyEffect;
-		del(*mgr, handle);
+		del(mgr, handle);
 	} else {
 		OsiError("Don't know how to destroy visual of type " << GetHandleTypeName(handle));
 	}

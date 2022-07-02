@@ -36,14 +36,41 @@
     <DllImport Symbol="TranslatedStringKeyManager__GetInstance" Module="CoreLib.dll" Proc="?GetInstance@?$Singleton@VTranslatedStringKeyManager@ls@@@ls@@SAPEAVTranslatedStringKeyManager@2@XZ" />
     <DllImport Symbol="TranslatedStringKeyManager__GetTranlatedStringFromKey" Module="CoreLib.dll" Proc="?GetTranlatedStringFromKey@TranslatedStringKeyManager@ls@@QEBA?AVTranslatedString@2@AEBVFixedString@2@_N@Z" />
 
+    <DllImport Symbol="ls__GlobalStrings" Module="CoreLib.dll" Proc="?s_Table@GlobalStringTable@ls@@0PEAV12@EA" />
+    <DllImport Symbol="ls__GraphicSettings" Module="CoreLib.dll" Proc="?GraphicSettings@@3PEAU0ls@@EA" />
+
     <DllImport Symbol="AppInstance" Module="GameEngine.dll" Proc="?s_AppInstance@BaseApp@@1PEAV1@EA" />
     <DllImport Symbol="ResourceManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ" />
     <DllImport Symbol="UIObjectManager__RegisterUIObjectCreator" Module="GameEngine.dll" Proc="?RegisterUIObjectCreator@UIObjectManager@ls@@QEAAXIPEAUUIObjectFunctor@2@@Z" />
     <DllImport Symbol="UIObjectManager__CreateUIObject" Module="GameEngine.dll" Proc="?CreateUIObject@UIObjectManager@ls@@QEAA?AVObjectHandle@2@III_KF@Z" />
     <DllImport Symbol="UIObjectManager__DestroyUIObject" Module="GameEngine.dll" Proc="?DestroyUIObject@UIObjectManager@ls@@QEAA_NAEBVObjectHandle@2@@Z" />
     <DllImport Symbol="UIObjectManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VUIObjectManager@ls@@@ls@@SAPEAVUIObjectManager@2@XZ" />
+    
     <DllImport Symbol="ModManager__CollectAvailableMods" Module="GameEngine.dll" Proc="?CollectAvailableMods@ModManager@ls@@SAXAEAV?$ObjectSet@VModule@ls@@V?$DefaultComparator@VModule@ls@@@2@@2@@Z" />
+    <DllImport Symbol="ModuleSettings__Validate" Module="GameEngine.dll" Proc="?Validate@ModuleSettings@ls@@QEBA?AW4EValidation@12@AEBV12@QEAV?$ObjectSet@VModuleShortDesc@ls@@V?$DefaultComparator@VModuleShortDesc@ls@@@2@@2@@Z" />
+    <DllImport Symbol="Module__Hash" Module="GameEngine.dll" Proc="?Hash@Module@ls@@QEAA_NXZ" />
     <DllImport Symbol="ls__ScriptCheckBlock__Build" Module="GameEngine.dll" Proc="?Build@ScriptCheckBlock@ls@@SAPEAVIScriptCheckObject@2@AEBVSTDString@2@PEBV?$ObjectSet@VSTDString@ls@@V?$DefaultComparator@VSTDString@ls@@@2@@2@HH@Z" />
+    
+    <DllImport Symbol="ResourceManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VResourceManager@ls@@@ls@@SAPEAVResourceManager@2@XZ" />
+    <DllImport Symbol="ResourceManager__InstantiateVisual" Module="GameEngine.dll" Proc="?InstantiateVisual@ResourceManager@ls@@QEAAPEAVVisual@2@AEBVFixedString@2@_N11@Z" />
+    
+    <DllImport Symbol="ls__EffectsManager__DestroyEffect" Module="GameEngine.dll" Proc="?DestroyEffect@EffectsManager@ls@@QEAAXAEBVObjectHandle@2@@Z" />
+    <DllImport Symbol="ls__EffectsManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VEffectsManager@ls@@@ls@@SAPEAVEffectsManager@2@XZ" />
+    <DllImport Symbol="ls__VisualFactory__DestroyVisual" Module="GameEngine.dll" Proc="?DestroyVisual@VisualFactory@ls@@QEAAXVObjectHandle@2@@Z" />
+    <DllImport Symbol="ls__Visual__AddAttachment" Module="GameEngine.dll" Proc="?AddAttachment@Visual@ls@@QEAA_NPEAV12@AEBVFixedString@2@HI@Z" />
+
+    <DllImport Symbol="ls__CacheTemplateManagerBase__CacheTemplate" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VGlobalTemplateManager@ls@@@ls@@SAPEAVGlobalTemplateManager@2@XZ" />
+    <DllImport Symbol="ls__GlobalTemplateManager__GetInstance" Module="GameEngine.dll" Proc="?CacheTemplate@CacheTemplateManagerBase@ls@@QEAAPEAVGameObjectTemplate@2@PEBV32@@Z" />
+
+    <DllImport Symbol="ls__UIHelper__CustomDrawObject" Module="GameEngine.dll" Proc="?CustomDrawObject@UIHelper@ls@@SAXAEBUFlashCustomDrawCallback@2@QEAVRenderableObject@2@@Z" />
+    <DllImport Symbol="ls__UIHelper__UIClearIcon" Module="GameEngine.dll" Proc="?UIClearIcon@UIHelper@ls@@SAXQEAUCustomDrawStruct@2@@Z" />
+    <DllImport Symbol="ls__UIHelper__UICreateIconMesh" Module="GameEngine.dll" Proc="?UICreateIconMesh@UIHelper@ls@@SAXAEBVFixedString@2@QEAUCustomDrawStruct@2@II0@Z" />
+    <DllImport Symbol="ls__UIObject__GetUIScaleMultiplier" Module="GameEngine.dll" Proc="?GetUIScaleMultiplier@UIObject@ls@@QEBAMXZ" />
+
+    <DllImport Symbol="ls__DragDropManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VDragDropManager@ls@@@ls@@SAPEAVDragDropManager@2@XZ" />
+    <DllImport Symbol="ls__DragDropManager__StartDragHandle" Module="GameEngine.dll" Proc="?StartDrag@DragDropManager@ls@@QEAAXFAEBVObjectHandle@2@_NVVector2f@@@Z" />
+    <DllImport Symbol="ls__DragDropManager__StartDragString" Module="GameEngine.dll" Proc="?StartDrag@DragDropManager@ls@@QEAAXFAEBVFixedString@2@_NVVector2f@@@Z" />
+    <DllImport Symbol="ls__DragDropManager__StopDrag" Module="GameEngine.dll" Proc="?StopDrag@DragDropManager@ls@@QEAAXF@Z" />
     
     
     <Mapping Name="esv::LevelManager2" Scope="Custom">
@@ -788,6 +815,170 @@
       48 81 EC 98 03 00 00  // sub     rsp, 398h
       48 8B 85 F8 02 00 00  // mov     rax, [rbp+2B0h+damageInfo]
       <Target Type="Absolute" Offset="-0x18" Symbol="esv__ExecuteCharacterSetExtraProperties" />
+    </Mapping>
+
+    <Mapping Name="NetworkFixedStrings">
+      @str1 4c 8d 05 cb 4b 0d 01 // lea     r8, aNetworkfixedst; "NetworkFixedStrings"
+      ba 01 00 00 00 // mov     edx, 1
+      49 8b cc // mov     rcx, r12
+      ff 90 80 00 00 00 // call    qword ptr [rax+80h]
+      @ref1 48 8b 15 66 fb f2 01 // mov     rdx, cs:ecl__gLevelManager
+      @ref2 48 8b 0d df 48 fa 01 // mov     rcx, cs:eoc__gNetworkFixedStrings
+      48 83 c2 28 // add     rdx, 28h ; '('
+      <Condition Type="String" Offset="@str1" Value="NetworkFixedStrings" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__LevelManager" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="NetworkFixedStrings" />
+    </Mapping>
+
+    <Mapping Name="esv::GetGameObjectTemplateItem2">
+      c7 44 24 30 35 00 00 00 // mov     [rsp+48h+var_28.line], 35h ; '5'
+      eb 63 // jmp     short loc_180A95438
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gCacheTemplateManager
+      48 8b d3 // mov     rdx, rbx
+      eb ?? // jmp     short loc_180A953A8
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gLevelManager; _QWORD
+      48 83 79 08 00 // cmp     qword ptr [rcx+8], 0
+      74 ?? // jz      short loc_180A953F6
+      e8 ?? ?? ?? ?? // call    esv__LevelManager__GetLocalTemplateManager
+      eb 0c // jmp     short loc_180A95402
+      @ref2 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:esv__gLocalTemplateManager
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__CacheTemplateManager" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__LocalTemplateManager" />
+    </Mapping>
+
+    <Mapping Name="esv::GetGameObjectTemplateItem">
+      0f 84 ?? ?? ?? ?? // jz      loc_180A954C5
+      83 e8 01 // sub     eax, 1
+      0f 84 ?? ?? ?? ?? // jz      loc_180A954AD
+      48 89 74 24 50 // mov     [rsp+48h+arg_0], rsi
+      @str1 48 8d 35 ?? ?? ?? ?? // lea     rsi, aEsvGetgameobje; "esv::GetGameObjectTemplate"
+      <Condition Type="String" Offset="@str1" Value="esv::GetGameObjectTemplate" />
+      <Target Type="Absolute" Offset="0" NextSymbol="esv::GetGameObjectTemplateItem2" NextSymbolSeekSize="0x100" />
+    </Mapping>
+
+    <Mapping Name="ls::CustomDrawStruct::VMT" Module="GameEngine">
+      48 8d 15 ?? ?? ?? ?? // lea     rdx, unk_1804730D8
+      b9 28 00 00 00 // mov     ecx, 28h ; '('
+      ff 15 ?? ?? ?? ?? // call    operator new(unsigned __int64,ls::MemoryTag const)
+      48 8b f8 // mov     rdi, rax
+      48 85 c0 // test    rax, rax
+      0f 84 be 00 00 00 // jz      loc_1802D34C1
+      @ref 48 8d 05 ?? ?? ?? ?? // lea     rax, ??_7CustomDrawStruct@ls@@6B@; const ls::CustomDrawStruct::`vftable'
+      48 c7 47 08 00 00 00 00 // mov     qword ptr [rdi+8], 0
+      <Target Type="Indirect" Offset="@ref" Symbol="ls__CustomDrawStruct__VMT" />
+    </Mapping>
+
+    <Mapping Name="ecl::DragDropManager">
+      @str1 4c 8d 05 ?? ?? ?? ?? // lea     r8, aDragdrop; "DragDrop"
+      ba 01 00 00 00 // mov     edx, 1
+      48 8b cb // mov     rcx, rbx
+      ff 90 80 00 00 00 // call    qword ptr [rax+80h]
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gDragDropManager
+      <Condition Type="String" Offset="@str1" Value="DragDrop" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__DragDropManager" />
+    </Mapping>
+
+    <Mapping Name="ecl::GameStateMachine::Update">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aGamestatemachi; "GameStateMachine"
+      48 8d 4c 24 30 // lea     rcx, [rsp+28h+arg_0]; _QWORD
+      ff 15 ?? ?? ?? ?? // call    ls::HProfileSample::HProfileSample(char const *)
+      48 8b 4f 40 // mov     rcx, [rdi+40h]
+      48 8b d3 // mov     rdx, rbx
+      @ref e8 ?? ?? ?? ?? // call    ecl__GameStateMachine__Update
+      <Condition Type="String" Offset="@str1" Value="GameStateMachine" />
+      <Target Type="Indirect" Offset="@ref" Symbol="ecl__GameStateMachine__Update" />
+    </Mapping>
+
+    <Mapping Name="esv::GameStateMachine::Update">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aEocserverUpdat; "EocServer - Update"
+      48 8d 4c 24 30 // lea     rcx, [rsp+28h+arg_0]; _QWORD
+      ff 15 ?? ?? ?? ?? // call    ls::HProfileSample::HProfileSample(char const *)
+      48 8b 4f 78 // mov     rcx, [rdi+78h]
+      48 8b d3 // mov     rdx, rbx
+      @ref e8 ?? ?? ?? ?? // call    esv__GameStateMachine__Update
+      <Condition Type="String" Offset="@str1" Value="EocServer - Update" />
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__GameStateMachine__Update" />
+    </Mapping>
+
+    <Mapping Name="ecl::InventoryProtocol::PostUpdate">
+      48 8b c4 // mov     rax, rsp
+      41 55 // push    r13
+      48 81 ec a0 00 00 00 // sub     rsp, 0A0h
+      4c 8b e9 // mov     r13, rcx
+      48 89 68 f0 // mov     [rax-10h], rbp
+      48 8d 48 08 // lea     rcx, [rax+8]; _QWORD
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aEclInventorypr_3; "ecl::InventoryProtocol::PostUpdate"
+      <Condition Type="String" Offset="@str1" Value="ecl::InventoryProtocol::PostUpdate" />
+      <Target Type="Absolute" Offset="0" Symbol="ecl__InventoryProtocol__PostUpdate" />
+    </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Init">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, aRs3FxGpStatusS; "RS3_FX_GP_Status_Smelly_01:Dummy_Status"...
+      4c 8b c0 // mov     r8, rax
+      48 c7 44 24 20 00 00 00 00 // mov     [rsp+68h+var_48], 0
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__MultiEffectHandler__Init
+      <Condition Type="String" Offset="@str1" Value="RS3_FX_GP_Status_Smelly_01:Dummy_StatusFX" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__MultiEffectHandler__Init" />
+    </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Delete">
+      48 81 c1 d0 00 00 00 // add     rcx, 0D0h ; 'Ð'
+      48 89 5c 24 38 // mov     [rsp+28h+arg_8], rbx
+      33 d2 // xor     edx, edx
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__MultiEffectHandler__Delete
+      48 8d 8f a0 01 00 00 // lea     rcx, [rdi+1A0h]
+      33 d2 // xor     edx, edx
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__MultiEffectHandler__Delete" />
+    </Mapping>
+
+    <Mapping Name="ecl::MultiEffectHandler::Update">
+      48 8d 8b d0 00 00 00 // lea     rcx, [rbx+0D0h]
+      @ref e8 ?? ?? ?? ?? // call    ecl__MultiEffectHandler__Update
+      48 8d 8b a0 01 00 00 // lea     rcx, [rbx+1A0h]
+      48 83 c4 20 // add     rsp, 20h
+      5b // pop     rbx
+      e9 ?? ?? ?? ?? // jmp     ecl__MultiEffectHandler__Update
+      <Target Type="Indirect" Offset="@ref" Symbol="ecl__MultiEffectHandler__Update" />
+    </Mapping>
+
+    <Mapping Name="eoc::CharacterCreationManager">
+      48 85 c0 // test    rax, rax
+      0f 84 e0 00 00 00 // jz      loc_18035505C
+      @ref1 48 8b 1d ?? ?? ?? ?? // mov     rbx, cs:eoc__gCharacterCreationManager
+      48 8d a8 08 03 00 00 // lea     rbp, [rax+308h]
+      48 8b 07 // mov     rax, [rdi]
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_MALE
+      48 8b cf // mov     rcx, rdi
+      ff 90 a8 00 00 00 // call    qword ptr [rax+0A8h]
+      <Condition Type="FixedString" Offset="@str1" Value="MALE" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="eoc__CharacterCreationManager" />
+    </Mapping>
+
+    <Mapping Name="esv::AlignmentContainer">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_LEADERSHIP; FixedString *
+      48 8d 8c 24 90 00 00 00 // lea     rcx, [rsp+88h+statusId]; FixedString *
+      ff 15 ?? ?? ?? ?? // call    ls::FixedString::operator=(ls::FixedString const)
+      @ref 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:esv__gAlignmentContainer
+      <Condition Type="FixedString" Offset="@str1" Value="LEADERSHIP" />
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__AlignmentContainer" />
+    </Mapping>
+
+    <Mapping Name="esv::EffectManager::DestroyEffect">
+      4c 8b 02 // mov     r8, [rdx]
+      4c 39 83 c8 01 00 00 // cmp     [rbx+1C8h], r8
+      74 2b // jz      short loc_180CF121A
+      48 8b 93 c8 01 00 00 // mov     rdx, [rbx+1C8h]; a2
+      48 8b 88 e0 00 00 00 // mov     rcx, [rax+0E0h]; this
+      @ref e8 ?? ?? ?? ?? // call    esv__EffectManager__DestroyEffect
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__DestroyEffect" />
+    </Mapping>
+
+    <Mapping Name="esv::EffectManager::CreateEffect">
+      48 8b 88 e0 00 00 00 // mov     rcx, [rax+0E0h]
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_RS3_FX_Skills_Soul_ShacklesOfPain_LinkBeam_01
+      @ref e8 ?? ?? ?? ?? // call    esv__EffectManager__CreateEffect
+      <Condition Type="FixedString" Offset="@str1" Value="RS3_FX_Skills_Soul_ShacklesOfPain_LinkBeam_01" />
+      <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__CreateEffect" />
     </Mapping>
   </Mappings>
 </BinaryMappings>
