@@ -25,8 +25,8 @@ namespace dse
 			CriticalInitFailed = true;
 		}
 
-		if (!CriticalInitFailed) {
 #if 0
+		if (!CriticalInitFailed) {
 			// Debug check for symbol xml -> engine bindings
 			for (auto const& sym : mappings_.StaticSymbols) {
 				if (!sym.second.Bound) {

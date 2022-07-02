@@ -41,7 +41,7 @@ function Build-Extender
 
 	Write-Output " ===== BUILDING EXTENDER ===== "
 	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
-	# msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }
 
 function Create-Update-Package ($ZipPath)
@@ -56,15 +56,15 @@ function Create-Update-Package ($ZipPath)
 
 	Copy-Item "x64\Release\CrashReporter.exe" -Destination $BuildDir\CrashReporter.exe
 	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $BuildDir\OsiExtenderEoCApp.dll
-	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $BuildDir\OsiExtenderEoCPlugin.dll
+	Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $BuildDir\OsiExtenderEoCPlugin.dll
 	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $BuildDir\libprotobuf-lite.dll
 
 	Copy-Item "x64\Release\CrashReporter.pdb" -Destination $PDBDir\CrashReporter.pdb
 	Copy-Item "x64\Game Release\OsiExtenderEoCApp.pdb" -Destination $PDBDir\OsiExtenderEoCApp.pdb
-	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.pdb" -Destination $PDBDir\OsiExtenderEoCPlugin.pdb
+	Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.pdb" -Destination $PDBDir\OsiExtenderEoCPlugin.pdb
 	Copy-Item "x64\Release\CrashReporter.exe" -Destination $PDBDir\CrashReporter.exe
 	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $PDBDir\OsiExtenderEoCApp.dll
-	# Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $PDBDir\OsiExtenderEoCPlugin.dll
+	Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $PDBDir\OsiExtenderEoCPlugin.dll
 	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $PDBDir\libprotobuf-lite.dll
 	
 	Remove-Item $ZipPath -ErrorAction SilentlyContinue
