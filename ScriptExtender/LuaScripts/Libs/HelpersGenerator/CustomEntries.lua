@@ -1,6 +1,6 @@
 ---@diagnostic disable
 
-local SubscribableEventType = [[--- @class SubscribableEvent<T>:{ Subscribe:fun(self:SubscribableEvent, callback:fun(e:T|SubscribableEventParams), opts:{Priority:integer, Once:boolean}|nil):integer, Unsubscribe:fun(self:SubscribableEvent, index:integer)}
+local SubscribableEventType = [[--- @class SubscribableEvent<T>:{ (Subscribe:fun(self:SubscribableEvent, callback:fun(e:T|SubscribableEventParams), opts:{Priority:integer, Once:boolean}|nil):integer), (Unsubscribe:fun(self:SubscribableEvent, index:integer))}
 
 --- @class SubscribableEventParams
 --- @field StopPropagation fun(self:SubscribableEventParams) Stop the event from continuing on to other registered listeners.]]
