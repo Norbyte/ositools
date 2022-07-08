@@ -139,8 +139,13 @@ _D = Ext.Dump
 _P = Ext.Utils.Print
 
 function CallDeprecated(fun, oldName, newName)
+	local shownWarning = false
 	return function (...)
-		Ext._WarnDeprecated56("Calling Ext." .. oldName .. " is deprecated; use Ext." .. newName .. " instead.")
+		if shownWarning == false then
+			Ext._WarnDeprecated56("Calling Ext." .. oldName .. " is deprecated; use Ext." .. newName .. " instead.")
+			shownWarning = true
+		end
+
 		return fun(...)
 	end
 end
