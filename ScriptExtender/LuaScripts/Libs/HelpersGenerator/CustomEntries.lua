@@ -462,7 +462,7 @@ function Ext.GetCharacter(id) end
 --- @deprecated
 --- Returns the property proxy of the specified item
 --- @param id string|integer|ObjectHandle Item UUID or handle or NetID
---- @return EsvItem|EclCharacter
+--- @return EsvItem|EclItem
 function Ext.GetItem(id) end
 
 --- @deprecated
