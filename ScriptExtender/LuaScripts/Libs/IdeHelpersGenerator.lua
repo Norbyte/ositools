@@ -4,7 +4,7 @@ local _format = string.format
 
 local NEWLINE = "\r\n"
 
----@type {Specific:table<string,string>, Misc:string[]}
+---@type {Specific:table<string,string>, Misc:string[], Flash:string[]}
 local _CustomEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomEntries.lua")
 ---@type table<string,{Before:string|nil, After:string|nil}>
 local _CustomTypeEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomTypeEntries.lua")
@@ -619,6 +619,10 @@ function Generator:EmitExt(role, declareGlobal)
         self:EmitLine("--#endregion")
         self:EmitEmptyLine()
         for _,v in ipairs(_CustomEntries.Misc) do
+            self:EmitLine(v)
+            self:EmitEmptyLine()
+        end
+        for _,v in ipairs(_CustomEntries.Flash) do
             self:EmitLine(v)
             self:EmitEmptyLine()
         end
