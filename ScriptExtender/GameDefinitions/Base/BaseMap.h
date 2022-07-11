@@ -9,30 +9,31 @@ BEGIN_SE()
 unsigned int GetNearestLowerPrime(unsigned int num);
 
 template <class TKey, class TValue>
+struct MapNode
+{
+	MapNode<TKey, TValue>* Next{ nullptr };
+	TKey Key;
+	TValue Value;
+
+	MapNode() {}
+
+	MapNode(TKey const& key, TValue const& value)
+		: Key(key), Value(value)
+	{}
+
+	MapNode(TKey const& key, TValue&& value)
+		: Key(key), Value(std::move(value))
+	{}
+};
+
+template <class TKey, class TValue>
 struct MapInternals
 {
 	using KeyType = TKey;
 	using ValueType = TValue;
 
-	struct Node
-	{
-		Node* Next{ nullptr };
-		TKey Key;
-		TValue Value;
-
-		Node() {}
-
-		Node(TKey const& key, TValue const& value)
-			: Key(key), Value(value)
-		{}
-
-		Node(TKey const& key, TValue && value)
-			: Key(key), Value(std::move(value))
-		{}
-	};
-
 	uint32_t HashSize{ 0 };
-	Node** HashTable{ nullptr };
+	MapNode<TKey, TValue>** HashTable{ nullptr };
 	uint32_t ItemCount{ 0 };
 };
 
@@ -42,26 +43,9 @@ struct RefMapInternals
 	using KeyType = TKey;
 	using ValueType = TValue;
 
-	struct Node
-	{
-		Node* Next{ nullptr };
-		TKey Key;
-		TValue Value;
-
-		Node() {}
-
-		Node(TKey const& key, TValue const& value)
-			: Key(key), Value(value)
-		{}
-
-		Node(TKey const& key, TValue&& value)
-			: Key(key), Value(std::move(value))
-		{}
-	};
-
 	uint32_t ItemCount{ 0 };
 	uint32_t HashSize{ 0 };
-	Node** HashTable{ nullptr };
+	MapNode<TKey, TValue>** HashTable{ nullptr };
 };
 
 template <class TInternals>
@@ -70,7 +54,7 @@ class MapBase : private TInternals
 public:
 	using KeyType = TInternals::KeyType;
 	using ValueType = TInternals::ValueType;
-	using Node = TInternals::Node;
+	using Node = MapNode<KeyType, ValueType>;
 
 	class Iterator
 	{

@@ -58,15 +58,7 @@
     </Expand>
   </Type>
 
-  <Type Name="dse::MapInternals&lt;*,*&gt;::Node">
-    <DisplayString>{{ Key={Key} Value={Value} }}</DisplayString>
-    <Expand>
-      <Item Name="Key" ExcludeView="simple">Key</Item>
-      <Item Name="Value" ExcludeView="simple">Value</Item>
-    </Expand>
-  </Type>
-
-  <Type Name="dse::RefMapInternals&lt;*,*&gt;::Node">
+  <Type Name="dse::MapNode&lt;*,*&gt;">
     <DisplayString>{{ Key={Key} Value={Value} }}</DisplayString>
     <Expand>
       <Item Name="Key" ExcludeView="simple">Key</Item>
