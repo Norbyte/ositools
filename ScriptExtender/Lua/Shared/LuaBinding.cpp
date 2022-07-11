@@ -356,6 +356,57 @@ namespace dse::lua
 		}
 	}
 
+	CMetatable* mtCharacter;
+
+	int LuaCharacterIndex(lua_State* L)
+	{
+		unsigned long long extra;
+		auto val = lua_tolightcppobject(L, 1, &extra);
+
+		auto lifetime = (Lifetime*)extra;
+		if (!lifetime->IsAlive()) {
+			WARN("Trying to fetch metatable of dead object?");
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto propertyMapId = (val >> 48);
+		auto objectPtr = (val & 0x0000ffffffffffffull);
+
+		if (propertyMapId != 1) {
+			WARN("Trying to fetch metatable of unknown type?");
+			push(L, nullptr);
+			return 1;
+		}
+
+		auto object = (ecl::Character*)objectPtr;
+		auto prop = get<FixedString>(L, 2);
+		if (!ObjectProxyHelpers<ecl::Character>::GetProperty(L, object, LifetimeFromState(L), prop)) {
+			push(L, nullptr);
+		}
+
+		return 1;
+	}
+
+	CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsigned long long extra)
+	{
+		auto lifetime = (Lifetime*)extra;
+		if (!lifetime->IsAlive()) {
+			WARN("Trying to fetch metatable of dead object?");
+			return nullptr;
+		}
+
+		auto propertyMapId = (val >> 48);
+		auto objectPtr = (val & 0x0000ffffffffffffull);
+
+		if (propertyMapId == 1) {
+			return mtCharacter;
+		} else {
+			WARN("Trying to fetch metatable of unknown type?");
+			return nullptr;
+		}
+	}
+
 	State::State()
 		: lifetimeStack_(lifetimePool_),
 		globalLifetime_(lifetimePool_, lifetimePool_.Allocate())
@@ -363,12 +414,16 @@ namespace dse::lua
 		globalLifetime_.GetLifetime()->SetInfinite();
 
 		L = lua_newstate(LuaAlloc, nullptr);
+		lua_setup_cppobjects(L, nullptr, nullptr, &LuaCppGetLightMetatable, nullptr);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
 		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
 #endif
 		lua_atpanic(L, &LuaPanic);
 		OpenLibs();
+
+		mtCharacter = lua_alloc_cmetatable(L);
+		lua_cmetatable_set(L, mtCharacter, 0, &LuaCharacterIndex);
 	}
 
 	void RestoreLevelMaps(std::unordered_set<int32_t> const &);

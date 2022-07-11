@@ -56,6 +56,18 @@ UserReturn GetCharacter(lua_State* L)
 	return 1;
 }
 
+UserReturn GetCharacter2(lua_State* L)
+{
+	ecl::Character* character = LuaGetCharacter(L, 1);
+	auto lifetime = State::FromLua(L)->GetCurrentLifetime();
+	assert(((uintptr_t)character & 0xffff000000000000ull) == 0);
+	assert(((uintptr_t)lifetime.lifetime & 0xffff000000000000ull) == 0);
+	auto ptr = (uintptr_t)character | (1ull << 48);
+	auto tag = (uintptr_t)lifetime.lifetime;
+	lua_pushlightcppobject(L, ptr, tag);
+	return 1;
+}
+
 Item* LuaGetItem(lua_State* L, int index)
 {
 	switch (lua_type(L, index)) {
@@ -160,6 +172,7 @@ void RegisterEntityLib()
 	BEGIN_MODULE()
 	MODULE_FUNCTION(NullHandle)
 	MODULE_FUNCTION(GetCharacter)
+	MODULE_FUNCTION(GetCharacter2)
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
