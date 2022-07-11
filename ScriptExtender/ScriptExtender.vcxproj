@@ -73,6 +73,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Terrain.h" />
     <ClInclude Include="GameDefinitions\GameObjects\UseActions.h" />
     <ClInclude Include="GameDefinitions\GlobalFixedStrings.h" />
+    <ClInclude Include="GameDefinitions\Input.h" />
     <ClInclude Include="GameDefinitions\Misc.h" />
     <ClInclude Include="GameDefinitions\Net.h" />
     <ClInclude Include="GameDefinitions\Osiris.h" />

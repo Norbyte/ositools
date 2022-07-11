@@ -8,6 +8,7 @@
 #include <GameDefinitions/Components/Item.h>
 #include <GameDefinitions/Components/Inventory.h>
 #include <GameDefinitions/GameObjects/Level.h>
+#include <GameDefinitions/Input.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/Osiris.h>
 #include <GameDefinitions/GameObjects/Status.h>
@@ -309,6 +310,9 @@ namespace dse
 		Module::HashProc* Module__Hash{ nullptr };
 		esv::LoadProtocol::HandleModuleLoadedProc* esv__LoadProtocol__HandleModuleLoaded{ nullptr };
 
+		InputManager** ls__InputManager{ nullptr };
+		InputManager::GetInstanceProc* ls__InputManager__GetInstance{ nullptr };
+
 		esv::AlignmentContainer** esv__AlignmentContainer{ nullptr };
 		void* esv__AlignmentContainer__Load__Hook{ nullptr };
 
@@ -571,6 +575,17 @@ namespace dse
 				return *ls__DragDropManager;
 			} else if (ls__DragDropManager__GetInstance) {
 				return ls__DragDropManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline InputManager* GetInputManager() const
+		{
+			if (ls__InputManager) {
+				return *ls__InputManager;
+			} else if (ls__InputManager__GetInstance) {
+				return ls__InputManager__GetInstance();
 			} else {
 				return nullptr;
 			}

@@ -263,6 +263,9 @@ namespace dse
 		SYM_OFF(Module__Hash);
 		SYM_OFF(esv__LoadProtocol__HandleModuleLoaded);
 
+		SYM_OFF(ls__InputManager);
+		SYM_OFF(ls__InputManager__GetInstance);
+
 		SYM_OFF(esv__AlignmentContainer);
 		SYM_OFF(esv__AlignmentContainer__Load__Hook);
 

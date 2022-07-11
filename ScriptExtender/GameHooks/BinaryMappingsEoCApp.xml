@@ -1393,5 +1393,15 @@
       <Condition Type="FixedString" Offset="@str1" Value="FakeFullscreenEnabled" />
       <Target Type="Indirect" Offset="@ref1" Symbol="ls__GraphicSettings" />
     </Mapping>
+
+    <Mapping Name="ls::InputManager">
+      49 89 43 e8 // mov     [r11-18h], rax
+      @str1 48 8d 05 ?? ?? ?? ?? // lea     rax, aAux4Dungeons; "Aux4_Dungeons"
+      49 89 43 f0 // mov     [r11-10h], rax
+      e8 ?? ?? ?? ?? // call    sub_1412BEDA0
+      @ref1 48 8b 35 ?? ?? ?? ?? // mov     rsi, cs:ls__InputManager
+      <Condition Type="String" Offset="@str1" Value="Aux4_Dungeons" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__InputManager" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

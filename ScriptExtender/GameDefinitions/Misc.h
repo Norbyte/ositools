@@ -284,25 +284,6 @@ namespace dse
 		bool ShowHDRCalibration;
 	};
 
-	struct InputValue
-	{
-		int field_0;
-		int field_4;
-		bool field_8;
-	};
-
-	struct InputEvent
-	{
-		int EventId;
-		int InputPlayerIndex;
-		int16_t InputDeviceId;
-		InputValue OldValue;
-		InputValue NewValue;
-		InputType Type;
-		bool WasPreferred;
-	};
-
-
 	struct TranslatedArgumentString
 	{
 		void* VMT{ nullptr };
@@ -536,6 +517,8 @@ namespace dse
 	};
 
 	extern TempStrings gTempStrings;
+
+	struct InputEvent;
 
 	struct App
 	{
