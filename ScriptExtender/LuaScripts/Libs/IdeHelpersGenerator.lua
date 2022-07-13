@@ -396,13 +396,25 @@ local serverEventParamsPattern = "EsvLua(%a+)EventParams"
 local clientEventParamsPattern = "EclLua(%a+)EventParams"
 local bothContextEventParamsPattern = "(%a+)EventParams"
 
-local eventTypeGenerationData = {}
+---@type table<integer, {Type:string, Event:string, Context:string|"server"|"client"|"any"}>
+local eventTypeGenerationData = {
+    ---TODO Still uses the old callback, so Ext.Events.CalculateTurnOrder is never thrown.
+    --CalculateTurnOrder = {Type="", Event="CalculateTurnOrder", Context="server"},
+    NetMessageReceived = {Type="LuaNetMessageEventParams", Event="NetMessageReceived", Context="any"},
+}
+
+---Event name to index in eventTypeGenerationData
+---@type table<string, integer>
 local eventTypeGenerationDataIndex = {}
+
 local EVENT_NAME_SWAP = {
     GameStateChange = "GameStateChanged",
     LuaTick = "Tick",
     LuaConsole = "DoConsoleCommand",
     AiRequestPeek = "OnPeekAiAction",
+    ExecutePropertyDataOnTarget = "OnExecutePropertyDataOnTarget",
+    ExecutePropertyDataOnPosition = "OnExecutePropertyDataOnPosition",
+    ExecutePropertyDataOnGroundHit = "GroundHit",
 }
 local IGNORE_PARAMS = {
     LuaEmptyEventParams = true
@@ -477,6 +489,13 @@ function Generator:EmitClass(type)
                 lastIndex = lastIndex+1
                 eventTypeGenerationData[lastIndex] = {Type = name, Event = "OnAfterSortAiActions", Context = context}
                 eventTypeGenerationDataIndex["OnAfterSortAiActions"] = lastIndex
+            elseif eventName == "StatusDelete" then
+                local lastIndex = #eventTypeGenerationData+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "StatusDelete", Context = context}
+                eventTypeGenerationDataIndex["StatusDelete"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "BeforeStatusDelete", Context = context}
+                eventTypeGenerationDataIndex["BeforeStatusDelete"] = lastIndex
             else
                 if EVENT_NAME_SWAP[eventName] then
                     eventName = EVENT_NAME_SWAP[eventName]
