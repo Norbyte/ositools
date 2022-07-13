@@ -24,6 +24,7 @@ function Ext.GameVersion() end
 --- @deprecated
 --- Loads the specified Lua file
 --- @param fileName string|nil Path of Lua file, relative to Mods/<Mod>/Story/RawFiles/Lua
+--- @see Ext_Utils#Include
 function Ext.Require(fileName) end
 
 --- @alias ExtEngineEvent string|"SessionLoading"|"SessionLoaded"|"ModuleLoading"|"ModuleLoadStarted"|"ModuleResume"|"StatsLoaded"|"GameStateChanged"|"SkillGetDescriptionParam"|"StatusGetDescriptionParam"|"GetSkillDamage"|"GetSkillAPCost"|"ComputeCharacterHit"|"CalculateTurnOrder"|"GetHitChance"|"StatusGetEnterChance"|"StatusHitEnter"|"BeforeCharacterApplyDamage"|"UIInvoke"|"UICall"|"AfterUIInvoke"|"AfterUICall"|"BeforeShootProjectile"|"ShootProjectile"|"ProjectileHit"|"GroundHit"|"InputEvent"|"TreasureItemGenerated"
