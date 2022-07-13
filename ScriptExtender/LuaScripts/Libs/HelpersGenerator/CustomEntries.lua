@@ -799,130 +799,124 @@ function Ext.HandleToDouble(handle) end
 function Ext.DoubleToHandle(handle) end
 
 --#endregion
-]],
+]]},
 Flash = {[[
 --#region Flash Types
 
---- @class FlashObject
 --- Represents an object in Flash.
 --- Implements the __index and __newindex metamethods using string keys (i.e. allows table-like behavior):
 --- obj.field = 123 -- Can assign values to any object property
 --- Ext.Print(obj.field) -- Can read any object property
----
 --- Field values are returned using the appropriate Lua type;
 --- Flash Boolean/Number/string = Lua boolean/number/string
 --- Flash Object = Lua engine class FlashObject
 --- Flash array = Lua engine class FlashArray
 --- Flash function = Lua engine class FlashFunction
-local FlashObject = {}
+--- @class FlashObject
 
---- Represents an array in Flash.
+--- Represents an array in Flash that begins at index 0.
 --- Implements the __index, __newindex and __len metamethods using integer keys (i.e. allows table-like behavior):
 --- arr[2] = 123 -- Can assign values to any array index
 --- Ext.Print(arr[2]) -- Can read any array index
 --- Ext.Print(#arr) -- Can query length of array
 --- @class FlashArray<T>: { [integer]: T }
 
---- @class FlashFunction
 --- Represents a function or method in Flash.
 --- Implements the __call metamethod (i.e. can be called).
 --- The passed arguments are forwarded to the Flash method and the return value of the Flash method is returned.
-local FlashFunction = {}
+--- @class FlashFunction
 
----@class FlashEventDispatcher:FlashObject
+--- @class FlashEventDispatcher:FlashObject
 
----Currently unsupported type 12.
----@class FlashDisplayObject:FlashEventDispatcher
+--- Currently unsupported type 12.
+--- @class FlashDisplayObject:FlashEventDispatcher
 
----@class FlashInteractiveObject:FlashDisplayObject
----@field doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
----@field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
----@field tabEnabled boolean Specifies whether this object is in the tab order.
----@field tabIndex integer Specifies the tab ordering of objects in a SWF file.
+--- @class FlashInteractiveObject:FlashDisplayObject
+--- @field doubleClickEnabled boolean Specifies whether the object receives doubleClick events.
+--- @field mouseEnabled boolean Specifies whether this object receives mouse, or other user input, messages.
+--- @field tabEnabled boolean Specifies whether this object is in the tab order.
+--- @field tabIndex integer Specifies the tab ordering of objects in a SWF file.
 
----@class FlashBitmapData
----@class FlashMatrix
----@class FlashVector
----@class FlashTextSnapshot
----@class FlashPoint
----@class FlashEvent
----@class FlashMouseEvent
+--- @class FlashBitmapData
+--- @class FlashMatrix
+--- @class FlashVector
+--- @class FlashTextSnapshot
+--- @class FlashPoint
+--- @class FlashEvent
+--- @class FlashMouseEvent
 
----@class FlashGraphics:FlashObject
----@field beginBitmapFill fun(bitmap:FlashBitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean) Fills a drawing area with a bitmap image.
----@field beginFill fun(color:integer, alpha:number) Specifies a simple one-color fill that subsequent calls to other Graphics methods (such as lineTo or drawCircle) use when drawing.
----@field beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient fill used by subsequent calls to other Graphics methods (such as lineTo or drawCircle) for the object.
----@field clear function Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
----@field curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number) Draws a quadratic Bezier curve using the current line style from the current drawing position to the control point specified.
----@field drawCircle fun(x:number, y:number, radius:number) Draws a circle.
----@field drawEllipse fun(x:number, y:number, width:number, height:number) Draws an ellipse.
----@field drawPath fun(commands:FlashVector, data:FlashVector, winding:string) Submits a series of commands for drawing.
----@field drawRect fun(x:number, y:number, width:number, height:number) Draws a rectangle.
----@field drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number) Draws a rounded rectangle.
----@field endFill function Applies a fill to the lines and curves that were added since the last call to beginFill, beginGradientFill, or beginBitmapFill methods.
----@field lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient to use for the stroke when drawing lines.
----@field lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number) Specifies a line style used for subsequent calls to Graphics methods such as the lineTo method or the drawCircle method.
----@field lineTo fun(x:number, y:number) Draws a line using the current line style from the current drawing position.
----@field moveTo fun(x:number, y:number) Moves the current drawing position,
+--- @class FlashGraphics:FlashObject
+--- @field beginBitmapFill fun(bitmap:FlashBitmapData, matrix:FlashMatrix, repeat:boolean, smooth:boolean) Fills a drawing area with a bitmap image.
+--- @field beginFill fun(color:integer, alpha:number) Specifies a simple one-color fill that subsequent calls to other Graphics methods (such as lineTo or drawCircle) use when drawing.
+--- @field beginGradientFill fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient fill used by subsequent calls to other Graphics methods (such as lineTo or drawCircle) for the object.
+--- @field clear function Clears the graphics that were drawn to this Graphics object, and resets fill and line style settings.
+--- @field curveTo fun(controlX:number, controlY:number, anchorX:number, anchorY:number) Draws a quadratic Bezier curve using the current line style from the current drawing position to the control point specified.
+--- @field drawCircle fun(x:number, y:number, radius:number) Draws a circle.
+--- @field drawEllipse fun(x:number, y:number, width:number, height:number) Draws an ellipse.
+--- @field drawPath fun(commands:FlashVector, data:FlashVector, winding:string) Submits a series of commands for drawing.
+--- @field drawRect fun(x:number, y:number, width:number, height:number) Draws a rectangle.
+--- @field drawRoundRect fun(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight:number) Draws a rounded rectangle.
+--- @field endFill function Applies a fill to the lines and curves that were added since the last call to beginFill, beginGradientFill, or beginBitmapFill methods.
+--- @field lineGradientStyle fun(type:string, colors:FlashArray, alphas:FlashArray, ratios:FlashArray, matrix:FlashMatrix, spreadMethod:string, interpolationMethod:string, focalPointRatio:number) Specifies a gradient to use for the stroke when drawing lines.
+--- @field lineStyle fun(thickness:number, color:integer, alpha:number, pixelHinting:boolean, scaleMode:string, caps:string, joints:string, miterLimit:number) Specifies a line style used for subsequent calls to Graphics methods such as the lineTo method or the drawCircle method.
+--- @field lineTo fun(x:number, y:number) Draws a line using the current line style from the current drawing position.
+--- @field moveTo fun(x:number, y:number) Moves the current drawing position,
 
----@class FlashDisplayObjectContainer:FlashInteractiveObject
----@field mouseChildren boolean Determines whether or not the children of the object are mouse, or user input device, enabled.
----@field numChildren integer Returns the number of children of this object. [read-only]
----@field tabChildren boolean Determines whether the children of the object are tab enabled.
----@field textSnapshot FlashTextSnapshot Returns a TextSnapshot object for this DisplayObjectContainer instance. [read-only]
----@field addChild fun(child:FlashDisplayObject):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
----@field addChildAt fun(child:FlashDisplayObject, index:integer):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
----@field areInaccessibleObjectsUnderPoint fun(point:FlashPoint):boolean Indicates whether the security restrictions would cause any display objects to be omitted from the list returned by calling the DisplayObjectContainer.getObjectsUnderPoint() method with the specified point point.
----@field contains fun(child:FlashDisplayObject):boolean Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself.
----@field getChildAt fun(index:integer):FlashDisplayObject Returns the child display object instance that exists at the specified index.
----@field getChildByName fun(name:string):FlashDisplayObject Returns the child display object that exists with the specified name.
----@field getChildIndex fun(child:FlashDisplayObject):integer Returns the index position of a child DisplayObject instance.
----@field getObjectsUnderPoint fun(point:FlashPoint):table Returns an array of objects that lie under the specified point and are children (or grandchildren, and so on) of this DisplayObjectContainer instance.
----@field removeChild fun(child:FlashDisplayObject):FlashDisplayObject Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance.
----@field removeChildAt fun(index:integer):FlashDisplayObject Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer.
----@field removeChildren fun(beginIndex:integer, endIndex:integer) Removes all child DisplayObject instances from the child list of the DisplayObjectContainer instance.
----@field setChildIndex fun(child:FlashDisplayObject, index:integer) Changes the position of an existing child in the display object container.
----@field swapChildren fun(child1:FlashDisplayObject, child2:FlashDisplayObject) Swaps the z-order (front-to-back order) of the two specified child objects.
----@field swapChildrenAt fun(index1:integer, index2:integer) Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list.
+--- @class FlashDisplayObjectContainer:FlashInteractiveObject
+--- @field mouseChildren boolean Determines whether or not the children of the object are mouse, or user input device, enabled.
+--- @field numChildren integer Returns the number of children of this object. [read-only]
+--- @field tabChildren boolean Determines whether the children of the object are tab enabled.
+--- @field textSnapshot FlashTextSnapshot Returns a TextSnapshot object for this DisplayObjectContainer instance. [read-only]
+--- @field addChild fun(child:FlashDisplayObject):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+--- @field addChildAt fun(child:FlashDisplayObject, index:integer):FlashDisplayObject Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+--- @field areInaccessibleObjectsUnderPoint fun(point:FlashPoint):boolean Indicates whether the security restrictions would cause any display objects to be omitted from the list returned by calling the DisplayObjectContainer.getObjectsUnderPoint() method with the specified point point.
+--- @field contains fun(child:FlashDisplayObject):boolean Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself.
+--- @field getChildAt fun(index:integer):FlashDisplayObject Returns the child display object instance that exists at the specified index.
+--- @field getChildByName fun(name:string):FlashDisplayObject Returns the child display object that exists with the specified name.
+--- @field getChildIndex fun(child:FlashDisplayObject):integer Returns the index position of a child DisplayObject instance.
+--- @field getObjectsUnderPoint fun(point:FlashPoint):table Returns an array of objects that lie under the specified point and are children (or grandchildren, and so on) of this DisplayObjectContainer instance.
+--- @field removeChild fun(child:FlashDisplayObject):FlashDisplayObject Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance.
+--- @field removeChildAt fun(index:integer):FlashDisplayObject Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer.
+--- @field removeChildren fun(beginIndex:integer, endIndex:integer) Removes all child DisplayObject instances from the child list of the DisplayObjectContainer instance.
+--- @field setChildIndex fun(child:FlashDisplayObject, index:integer) Changes the position of an existing child in the display object container.
+--- @field swapChildren fun(child1:FlashDisplayObject, child2:FlashDisplayObject) Swaps the z-order (front-to-back order) of the two specified child objects.
+--- @field swapChildrenAt fun(index1:integer, index2:integer) Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list.
 
----@class FlashSprite:FlashDisplayObjectContainer
----@field buttonMode boolean Specifies the button mode of this sprite.
----@field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
----@field soundTransform number Controls sound within this sprite.
----@field useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true.
+--- @class FlashSprite:FlashDisplayObjectContainer
+--- @field buttonMode boolean Specifies the button mode of this sprite.
+--- @field graphics FlashGraphics Specifies the Graphics object that belongs to this sprite where vector drawing commands can occur. [read-only]
+--- @field soundTransform number Controls sound within this sprite.
+--- @field useHandCursor boolean A value that indicates whether the pointing hand (hand cursor) appears when the pointer rolls over a sprite in which the buttonMode property is set to true.
 
+--- @class FlashMovieClip:FlashSprite
+--- @field currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
+--- @field currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
+--- @field currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
+--- @field scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
+--- @field enabled boolean A Boolean value that indicates whether a movie clip is enabled.
+--- @field framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
+--- @field isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
+--- @field totalFrames integer The total number of frames in the MovieClip instance. [read-only]
+--- @field trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events.
+--- @field gotoAndPlay fun(frame:string|integer, scene:string|nil) Starts playing the SWF file at the specified frame.
+--- @field gotoAndStop fun(frame:string|integer, scene:string|nil) Brings the playhead to the specified frame of the movie clip and stops it there.
+--- @field nextFrame function Sends the playhead to the next frame and stops it.
+--- @field nextScene function Moves the playhead to the next scene of the MovieClip instance.
+--- @field play function Moves the playhead in the timeline of the movie clip.
+--- @field prevFrame function Sends the playhead to the previous frame and stops it.
+--- @field prevScene function Moves the playhead to the previous scene of the MovieClip instance.
+--- @field stop function Stops the playhead in the movie clip.
+--- @field hitTest fun(x:number, y:number, shapeFlag:boolean|nil):boolean
 
----@class FlashMovieClip:FlashSprite
----@field currentFrame integer Specifies the number of the frame in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field currentFrameLabel string The label at the current frame in the timeline of the MovieClip instance. [read-only]
----@field currentLabel string The current label in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field currentLabels string[] Returns an array of FrameLabel objects from the current scene. [read-only]
----@field currentScene FlashObject The current scene in which the playhead is located in the timeline of the MovieClip instance. [read-only]
----@field scenes FlashArray[] An array of Scene objects, each listing the name, the number of frames, and the frame labels for a scene in the MovieClip instance. [read-only]
----@field enabled boolean A Boolean value that indicates whether a movie clip is enabled.
----@field framesLoaded integer The number of frames that are loaded from a streaming SWF file. [read-only]
----@field isPlaying boolean A Boolean value that indicates whether a movie clip is curently playing. [read-only]
----@field totalFrames integer The total number of frames in the MovieClip instance. [read-only]
----@field trackAsMenu boolean Indicates whether other display objects that are SimpleButton or MovieClip objects can receive mouse release events or other user input release events.
----@field gotoAndPlay fun(frame:string|integer, scene:string|nil) Starts playing the SWF file at the specified frame.
----@field gotoAndStop fun(frame:string|integer, scene:string|nil) Brings the playhead to the specified frame of the movie clip and stops it there.
----@field nextFrame function Sends the playhead to the next frame and stops it.
----@field nextScene function Moves the playhead to the next scene of the MovieClip instance.
----@field play function Moves the playhead in the timeline of the movie clip.
----@field prevFrame function Sends the playhead to the previous frame and stops it.
----@field prevScene function Moves the playhead to the previous scene of the MovieClip instance.
----@field stop function Stops the playhead in the movie clip.
----@field hitTest fun(x:number, y:number, shapeFlag:boolean|nil):boolean
-
-
----@class FlashMainTimeline:FlashMovieClip
----@field events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled.
----@field onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is"handled"and won't send events to other UI objects.
----@field onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is"handled"and won't send events to other UI objects.
----@field onEventResolution fun(width:number, height:number) Invoked by the engine when the screen is resized.
----@field onEventInit function Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call.
+--- @class FlashMainTimeline:FlashMovieClip
+--- @field events string[] An array of input keys this UI should listen for, in the form of 'IE Name', such as 'IE UICreationTabPrev'. The engine will invoke onEventDown/onEventUp when these keys are pressed, if they haven't been handled.
+--- @field onEventDown fun(id:number):boolean Invoked by the engine when a valid input key in this.events is pressed. If true is returned, the key is"handled"and won't send events to other UI objects.
+--- @field onEventUp fun(id:number):boolean Invoked by the engine when a valid input key in this.events is released. If true is returned, the key is"handled"and won't send events to other UI objects.
+--- @field onEventResolution fun(width:number, height:number) Invoked by the engine when the screen is resized.
+--- @field onEventInit function Invoked by the engine. Typically used to register the anchor id and layout with ExternalInterface.call.
 
 --#endregion
 ]]}
-	},
 }

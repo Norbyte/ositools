@@ -396,12 +396,25 @@ local serverEventParamsPattern = "EsvLua(%a+)EventParams"
 local clientEventParamsPattern = "EclLua(%a+)EventParams"
 local bothContextEventParamsPattern = "(%a+)EventParams"
 
-local eventTypeGenerationData = {}
+---@type table<integer, {Type:string, Event:string, Context:string|"server"|"client"|"any"}>
+local eventTypeGenerationData = {
+    ---TODO Still uses the old callback, so Ext.Events.CalculateTurnOrder is never thrown.
+    --CalculateTurnOrder = {Type="", Event="CalculateTurnOrder", Context="server"},
+    NetMessageReceived = {Type="LuaNetMessageEventParams", Event="NetMessageReceived", Context="any"},
+}
+
+---Event name to index in eventTypeGenerationData
+---@type table<string, integer>
 local eventTypeGenerationDataIndex = {}
+
 local EVENT_NAME_SWAP = {
     GameStateChange = "GameStateChanged",
     LuaTick = "Tick",
     LuaConsole = "DoConsoleCommand",
+    AiRequestPeek = "OnPeekAiAction",
+    ExecutePropertyDataOnTarget = "OnExecutePropertyDataOnTarget",
+    ExecutePropertyDataOnPosition = "OnExecutePropertyDataOnPosition",
+    ExecutePropertyDataOnGroundHit = "GroundHit",
 }
 local IGNORE_PARAMS = {
     LuaEmptyEventParams = true
@@ -469,21 +482,37 @@ function Generator:EmitClass(type)
             context = "server"
         end
         if eventName then
-            if EVENT_NAME_SWAP[eventName] then
-                eventName = EVENT_NAME_SWAP[eventName]
+            if eventName == "AiRequestSort" then
+                local lastIndex = #eventTypeGenerationData+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "OnBeforeSortAiActions", Context = context}
+                eventTypeGenerationDataIndex["OnBeforeSortAiActions"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "OnAfterSortAiActions", Context = context}
+                eventTypeGenerationDataIndex["OnAfterSortAiActions"] = lastIndex
+            elseif eventName == "StatusDelete" then
+                local lastIndex = #eventTypeGenerationData+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "StatusDelete", Context = context}
+                eventTypeGenerationDataIndex["StatusDelete"] = lastIndex
+                lastIndex = lastIndex+1
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = "BeforeStatusDelete", Context = context}
+                eventTypeGenerationDataIndex["BeforeStatusDelete"] = lastIndex
             else
-                eventName = eventName:gsub("^Lua", "")
+                if EVENT_NAME_SWAP[eventName] then
+                    eventName = EVENT_NAME_SWAP[eventName]
+                else
+                    eventName = eventName:gsub("^Lua", "")
+                end
+                local lastIndex = eventTypeGenerationDataIndex[eventName]
+                if lastIndex == nil then
+                    lastIndex = #eventTypeGenerationData+1
+                else
+                    local lastData = eventTypeGenerationData[lastIndex]
+                    name = lastData.Type .. "|" .. name
+                    context = "any"
+                end
+                eventTypeGenerationData[lastIndex] = {Type = name, Event = eventName, Context = context}
+                eventTypeGenerationDataIndex[eventName] = lastIndex
             end
-            local lastIndex = eventTypeGenerationDataIndex[eventName]
-            if lastIndex == nil then
-                lastIndex = #eventTypeGenerationData+1
-            else
-                local lastData = eventTypeGenerationData[lastIndex]
-                name = lastData.Type .. "|" .. name
-                context = "any"
-            end
-            eventTypeGenerationData[lastIndex] = {Type = name, Event = eventName, Context = context}
-            eventTypeGenerationDataIndex[eventName] = lastIndex
         end
     end
 end
@@ -607,27 +636,31 @@ function Generator:EmitExt(role, declareGlobal)
     if declareGlobal then
         self:EmitLine("Ext = {Events = {}}")
         self:EmitEmptyLine()
-        self:EmitLine("--#region Extender Events")
         self:EmitEmptyLine()
-        for k,v in pairs(_CustomEntries.Specific) do
-            self:EmitLine(v)
-            if k == "SubscribableEventType" then
-                GenerateSubscriptionEvents(self)
+        if _CustomEntries.Specific then
+            for k,v in pairs(_CustomEntries.Specific) do
+                self:EmitLine(v)
+                if k == "SubscribableEventType" then
+                    self:EmitLine("--#region Extender Events")
+                    GenerateSubscriptionEvents(self)
+                    self:EmitLine("--#endregion")
+                end
+                self:EmitEmptyLine()
             end
             self:EmitEmptyLine()
         end
-        self:EmitLine("--#endregion")
-        self:EmitEmptyLine()
-        for _,v in ipairs(_CustomEntries.Misc) do
-            self:EmitLine(v)
+        if _CustomEntries.Misc then
+            for _,v in ipairs(_CustomEntries.Misc) do
+                self:EmitLine(v)
+            end
             self:EmitEmptyLine()
         end
-        for _,v in ipairs(_CustomEntries.Flash) do
-            self:EmitLine(v)
-            self:EmitEmptyLine()
+        if _CustomEntries.Flash then
+            for _,v in ipairs(_CustomEntries.Flash) do
+                self:EmitLine(v)
+            end
         end
     end
-    self:EmitEmptyLine()
     self:EmitEmptyLine()
 end
 
