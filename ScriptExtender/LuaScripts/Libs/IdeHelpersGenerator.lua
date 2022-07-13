@@ -1,3 +1,18 @@
+local _DEBUG = Ext.Debug.IsDeveloperMode()
+
+local _format = string.format
+
+local NEWLINE = "\r\n"
+
+---@type {Specific:table<string,string>, Misc:string[], Flash:string[]}
+local _CustomEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomEntries.lua")
+---@type table<string,{Before:string|nil, After:string|nil}>
+local _CustomTypeEntries = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomTypeEntries.lua")
+---@type table<string,{Before:string|nil, After:string|nil}>
+local _CustomFunctionExtras = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/CustomFunctionExtras.lua")
+---@type string
+local _OsiLines = Ext.Utils.Include(nil, "builtin://Libs/HelpersGenerator/Osi.lua")
+
 local Generator = {}
 
 function Generator.Trim(s)
@@ -17,6 +32,41 @@ Generator.ValueKindToLua = {
     Any = "any"
 }
 
+local startingText = [[--- @diagnostic disable
+
+--- Special global value that contains the current mod UUID during load
+--- @type FixedString
+ModuleUUID = "UUID"
+
+--- Using a DB like a function will allow inserting new values into the database (ex. `Osi.DB_IsPlayer("02a77f1f-872b-49ca-91ab-32098c443beb")`  
+--- @overload fun(...:string|number|nil)
+--- @class OsiDatabase
+local OsiDatabase = {}
+--- Databases can be read using the Get method. The method checks its parameters against the database and only returns rows that match the query.  
+--- The number of parameters passed to Get must be equivalent to the number of columns in the target database.  
+--- Each parameter defines an (optional) filter on the corresponding column.  
+--- If the parameter is nil, the column is not filtered (equivalent to passing _ in Osiris). If the parameter is not nil, only rows with matching values will be returned.
+--- @vararg string|number|nil
+--- @return table<integer,table<integer,string|number>>
+function OsiDatabase:Get(...) end
+--- The Delete method can be used to delete rows from databases.  
+--- The number of parameters passed to Delete must be equivalent to the number of columns in the target database.  
+--- Each parameter defines an (optional) filter on the corresponding column.  
+--- If the parameter is nil, the column is not filtered (equivalent to passing _ in Osiris). If the parameter is not nil, only rows with matching values will be deleted. 
+--- @vararg string|number|nil
+function OsiDatabase:Delete(...) end
+
+--- @class Osi
+--- @field DB_IsPlayer OsiDatabase|fun(GUID:string) All player characters
+--- @field DB_Origins OsiDatabase|fun(GUID:string) All origin characters
+--- @field DB_Avatars OsiDatabase|fun(GUID:string) All player characters that were created in character creation, or that have an `AVATAR` tag
+--- @field DB_CombatObjects OsiDatabase|fun(GUID:string, combatID:integer) All objects in combat
+--- @field DB_CombatCharacters OsiDatabase|fun(GUID:string, combatID:integer) All characters in combat
+--- @field DB_Dialogs OsiDatabase|fun(GUID:string, dialog:string)|fun(GUID1:string, GUID2:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, dialog:string)|fun(GUID1:string, GUID2:string, GUID3:string, GUID4:string, dialog:string) All registered dialogs for objects, the most common being the version with a single character
+Osi = {}
+
+]]
+
 function Generator:New()
     local o = {}
     setmetatable(o, self)
@@ -27,7 +77,7 @@ function Generator:New()
     o.Modules = {}
     o.NativeClasses = {}
     o.NativeModules = {}
-    o.Text = ""
+    o.Text = startingText
     self.__index = self
     return o
 end
@@ -50,12 +100,12 @@ function Generator:LoadNativeData()
             self.NativeModules[name] = mod
         end
     else
-        Ext.PrintWarning("Unable to load native class data; IDE helpers will not include annotations from C++ code")
-        Ext.PrintWarning(res)
+        Ext.Utils.PrintWarning("Unable to load native class data; IDE helpers will not include annotations from C++ code")
+        Ext.Utils.PrintWarning(res)
     end
 end
 
-function Generator:Build()
+function Generator:Build(addOsi)
     local types = Ext.Types.GetAllTypes()
     local sortedTypes = {}
 
@@ -109,10 +159,13 @@ function Generator:Build()
         self:EmitEmptyLine()
         self:EmitEmptyLine()
     end
-
+    
     self:EmitExt("Client")
     self:EmitExt("Server")
-    self:EmitExt(nil)
+    self:EmitExt(nil, true)
+    if addOsi then
+        self:EmitLine(_OsiLines)
+    end
 end
 
 function Generator:MakeTypeName(type)
@@ -178,15 +231,18 @@ function Generator:MakeTypeSignature(cls, type, forceExpand, nativeDefn)
 end
 
 function Generator:EmitEmptyLine()
-    self.Text = self.Text .. "\r\n"
+    self.Text = self.Text .. NEWLINE
 end
 
-function Generator:EmitLine(text)
-    self.Text = self.Text .. text .. "\r\n"
+function Generator:EmitLine(text, skipNewline)
+    self.Text = self.Text .. text .. NEWLINE
+    if not skipNewline then
+        self.Text = self.Text .. NEWLINE
+    end
 end
 
 function Generator:EmitComment(text)
-    self.Text = self.Text .. "--- " .. text .. "\r\n"
+    self.Text = self.Text .. "--- " .. text .. NEWLINE
 end
 
 function Generator:EmitMultiLineComment(text)
@@ -210,7 +266,7 @@ end
 function Generator:EmitEnumeration(type)
     local decl = "string"
     for key,value in pairs(type.EnumValues) do
-        decl = decl .. " | \"'" .. key .. "'\""
+        decl = _format("%s|\"%s\"", decl, key)
     end
     self:EmitAlias(type.TypeName, decl)
 end
@@ -274,17 +330,17 @@ function Generator:EmitMethod(type, fname, nativeDefn)
     end
 end
 
-function Generator:EmitModuleFunction(type, fname, nativeDefn)
+function Generator:EmitModuleFunction(type, fname, nativeDefn, afterText)
     local nativeFunc = self:FindNativeFunction(fname, nativeDefn)
 
     if nativeFunc == nil then
         self:EmitComment("@field " .. fname .. " " .. self:MakeTypeSignature(nil, type.Methods[fname]))
     else
-        self:EmitFullMethodSignature(type, fname, type.Methods[fname], nativeFunc)
+        self:EmitFullMethodSignature(type, fname, type.Methods[fname], nativeFunc, afterText)
     end
 end
 
-function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod)
+function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod, afterText)
     local argDescs = {}
     local args = {}
 
@@ -314,19 +370,42 @@ function Generator:EmitFullMethodSignature(cls, funcName, fun, nativeMethod)
     end
 
     fun = fun .. funcName .. "(" .. table.concat(args, ", ") .. ") end"
-    local desc = table.concat(argDescs, "\r\n")
+    local desc = table.concat(argDescs, NEWLINE)
 
     local funcDesc = self.Trim(nativeMethod.description)
     if nativeMethod.implementation_file ~= nil and #funcDesc > 0 then
-        funcDesc = funcDesc .. "\r\n" .. "Location: " .. nativeMethod.implementation_file .. ":" .. nativeMethod.implementation_line
+        funcDesc = funcDesc .. NEWLINE .. "Location: " .. nativeMethod.implementation_file .. ":" .. nativeMethod.implementation_line
     end
 
     if #funcDesc > 0 then
         self:EmitMultiLineComment(funcDesc)
     end
 
-    self.Text = self.Text .. desc .. "\r\n" .. fun .. "\r\n\r\n"
+    if desc ~= "" then
+        self.Text = self.Text .. desc .. NEWLINE .. fun
+    else
+        self.Text = self.Text .. fun
+    end
+    if afterText then
+        self.Text = self.Text .. NEWLINE .. afterText
+    end
+    self.Text = self.Text .. NEWLINE .. NEWLINE
 end
+
+local serverEventParamsPattern = "EsvLua(%a+)EventParams"
+local clientEventParamsPattern = "EclLua(%a+)EventParams"
+local bothContextEventParamsPattern = "(%a+)EventParams"
+
+local eventTypeGenerationData = {}
+local eventTypeGenerationDataIndex = {}
+local EVENT_NAME_SWAP = {
+    GameStateChange = "GameStateChanged",
+    LuaTick = "Tick",
+    LuaConsole = "DoConsoleCommand",
+}
+local IGNORE_PARAMS = {
+    LuaEmptyEventParams = true
+}
 
 function Generator:EmitClass(type)
     local name = self:MakeTypeName(type.TypeName)
@@ -375,7 +454,40 @@ function Generator:EmitClass(type)
             self:EmitMethod(type, fname, nativeDefn)
         end
     end
+
+    if not IGNORE_PARAMS[name] and string.find(name, "EventParams") then
+        local context = "any"
+        local _,_,eventName = string.find(name, serverEventParamsPattern)
+        if not eventName then
+            _,_,eventName = string.find(name, clientEventParamsPattern)
+            if eventName then
+                context = "client"
+            else
+                _,_,eventName = string.find(name, bothContextEventParamsPattern)
+            end
+        else
+            context = "server"
+        end
+        if eventName then
+            if EVENT_NAME_SWAP[eventName] then
+                eventName = EVENT_NAME_SWAP[eventName]
+            else
+                eventName = eventName:gsub("^Lua", "")
+            end
+            local lastIndex = eventTypeGenerationDataIndex[eventName]
+            if lastIndex == nil then
+                lastIndex = #eventTypeGenerationData+1
+            else
+                local lastData = eventTypeGenerationData[lastIndex]
+                name = lastData.Type .. "|" .. name
+                context = "any"
+            end
+            eventTypeGenerationData[lastIndex] = {Type = name, Event = eventName, Context = context}
+            eventTypeGenerationDataIndex[eventName] = lastIndex
+        end
+    end
 end
+
 
 function Generator:MakeModuleTypeName(type)
     local name = type.NativeName:gsub("%.", "")
@@ -414,16 +526,56 @@ function Generator:EmitModule(type)
     for i,fname in ipairs(basicFuncSigs) do
         self:EmitModuleFunction(type, fname, nativeDefn)
     end
+    local customText = _CustomTypeEntries[helpersModuleName]
+    if customText and customText.Before then
+        self:EmitLine(customText.Before)
+    end
 
     self:EmitLine('local ' .. helpersModuleName .. ' = {}')
-    self:EmitLine("")
+    if customText and customText.After then
+        self:EmitLine(customText.After)
+    end
+    self:EmitEmptyLine()
     
     for i,fname in ipairs(extendedFuncSigs) do
-        self:EmitModuleFunction(type, fname, nativeDefn)
+        local afterText = nil
+        if nativeDefn ~= nil then
+            local functionAdditions = _CustomFunctionExtras[helpersModuleName.."."..fname]
+            if functionAdditions then
+                if functionAdditions.Before then
+                    self:EmitLine(functionAdditions.Before, true)
+                end
+                afterText = functionAdditions.After
+            end
+        end
+        self:EmitModuleFunction(type, fname, nativeDefn, afterText)
     end
 end
 
-function Generator:EmitExt(role)
+local function GenerateSubscriptionEvents(self)
+    for _,k in pairs(Ext._Internal._PublishedSharedEvents) do
+        if not eventTypeGenerationDataIndex[k] then
+            if _DEBUG then
+                Ext.Utils.PrintWarning("Found unregistered event", k)
+            end
+            eventTypeGenerationData[#eventTypeGenerationData+1] = {Type="LuaEmptyEventParams", Event = k, Context = "any"}
+        end
+    end
+    table.sort(eventTypeGenerationData, function(a,b) return a.Event < b.Event end)
+    for _,v in ipairs(eventTypeGenerationData) do
+        if v.Context == "server" then
+            self:EmitComment("🔨**Server-Only**🔨  ")
+        elseif v.Context == "client" then
+            self:EmitComment("🔧**Client-Only**🔧  ")
+        else
+            self:EmitComment("🔨🔧**Server/Client**🔧🔨  ")
+        end
+        self:EmitComment(_format("@type SubscribableEvent<%s>  ", v.Type))
+        self:EmitLine(_format('Ext.Events.%s = {}', v.Event))
+    end
+end
+
+function Generator:EmitExt(role, declareGlobal)
     self:EmitComment("@class Ext" .. (role or ""))
 
     local aliases = {}
@@ -452,14 +604,43 @@ function Generator:EmitExt(role)
         end
     end
 
-    self:EmitLine("Ext = {}")
+    if declareGlobal then
+        self:EmitLine("Ext = {Events = {}}")
+        self:EmitEmptyLine()
+        self:EmitLine("--#region Extender Events")
+        self:EmitEmptyLine()
+        for k,v in pairs(_CustomEntries.Specific) do
+            self:EmitLine(v)
+            if k == "SubscribableEventType" then
+                GenerateSubscriptionEvents(self)
+            end
+            self:EmitEmptyLine()
+        end
+        self:EmitLine("--#endregion")
+        self:EmitEmptyLine()
+        for _,v in ipairs(_CustomEntries.Misc) do
+            self:EmitLine(v)
+            self:EmitEmptyLine()
+        end
+        for _,v in ipairs(_CustomEntries.Flash) do
+            self:EmitLine(v)
+            self:EmitEmptyLine()
+        end
+    end
     self:EmitEmptyLine()
     self:EmitEmptyLine()
 end
 
-Ext.Types.GenerateIdeHelpers = function ()
+---@param outputPath string|nil
+---@param addOsi boolean|nil
+Ext.Types.GenerateIdeHelpers = function (outputPath, addOsi)
+    eventTypeGenerationData = {}
+    eventTypeGenerationDataIndex = {}
     local gen = Generator:New()
     gen:LoadNativeData()
-    gen:Build()
+    gen:Build(addOsi)
+    if outputPath then
+        Ext.IO.SaveFile(outputPath, gen.Text)
+    end
     return gen.Text
 end
