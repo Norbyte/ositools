@@ -637,26 +637,30 @@ function Generator:EmitExt(role, declareGlobal)
         self:EmitLine("Ext = {Events = {}}")
         self:EmitEmptyLine()
         self:EmitEmptyLine()
-        for k,v in pairs(_CustomEntries.Specific) do
-            self:EmitLine(v)
-            if k == "SubscribableEventType" then
-                self:EmitLine("--#region Extender Events")
-                GenerateSubscriptionEvents(self)
-                self:EmitLine("--#endregion")
+        if _CustomEntries.Specific then
+            for k,v in pairs(_CustomEntries.Specific) do
+                self:EmitLine(v)
+                if k == "SubscribableEventType" then
+                    self:EmitLine("--#region Extender Events")
+                    GenerateSubscriptionEvents(self)
+                    self:EmitLine("--#endregion")
+                end
+                self:EmitEmptyLine()
             end
             self:EmitEmptyLine()
         end
-        self:EmitEmptyLine()
-        for _,v in ipairs(_CustomEntries.Misc) do
-            self:EmitLine(v)
+        if _CustomEntries.Misc then
+            for _,v in ipairs(_CustomEntries.Misc) do
+                self:EmitLine(v)
+            end
             self:EmitEmptyLine()
         end
-        for _,v in ipairs(_CustomEntries.Flash) do
-            self:EmitLine(v)
-            self:EmitEmptyLine()
+        if _CustomEntries.Flash then
+            for _,v in ipairs(_CustomEntries.Flash) do
+                self:EmitLine(v)
+            end
         end
     end
-    self:EmitEmptyLine()
     self:EmitEmptyLine()
 end
 
