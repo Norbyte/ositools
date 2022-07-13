@@ -799,7 +799,7 @@ function Ext.HandleToDouble(handle) end
 function Ext.DoubleToHandle(handle) end
 
 --#endregion
-]],
+]]},
 Flash = {[[
 --#region Flash Types
 
@@ -924,5 +924,4 @@ local FlashFunction = {}
 
 --#endregion
 ]]}
-	},
 }
