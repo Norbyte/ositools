@@ -29,7 +29,7 @@ Ext._WarnDeprecated56 = function (msg, type)
 	if _I._WarningShown[type] == nil then
 		Ext.PrintWarning(msg)
 		if not _I._DeprecationURLShown then
-			Ext.PrintWarning("See https://github.com/Norbyte/ositools/blob/master/LuaAPIDocs.md#migrating-from-v55-to-v56 for more info.")
+			Ext.PrintWarning("See https://github.com/Norbyte/ositools/blob/master/Docs/ReleaseNotesv56.md for more info.")
 			_I._DeprecationURLShown = true
 		end
 		_I._WarningShown[type] = true
