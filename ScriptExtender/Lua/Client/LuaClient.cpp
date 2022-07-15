@@ -341,6 +341,11 @@ ExtensionState & ExtensionState::Get()
 }
 
 
+ExtensionState::~ExtensionState()
+{
+	if (Lua) Lua->Shutdown();
+}
+
 lua::State * ExtensionState::GetLua()
 {
 	if (Lua) {
@@ -357,6 +362,7 @@ ModManager * ExtensionState::GetModManager()
 
 void ExtensionState::DoLuaReset()
 {
+	if (Lua) Lua->Shutdown();
 	Lua.reset();
 	Lua = std::make_unique<lua::ClientState>();
 	Lua->Initialize();

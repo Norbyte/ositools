@@ -146,7 +146,6 @@ namespace dse::lua
 		};
 
 		uint32_t RestrictionFlags{ 0 };
-		std::unordered_set<int32_t> OverriddenLevelMaps;
 
 		State();
 		~State();
@@ -186,6 +185,7 @@ namespace dse::lua
 		}
 
 		virtual void Initialize() = 0;
+		virtual void Shutdown();
 		virtual bool IsClient() = 0;
 
 		void FinishStartup();

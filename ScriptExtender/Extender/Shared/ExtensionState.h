@@ -21,6 +21,8 @@ namespace dse
 		using PostResetCallback = std::function<void()>;
 		std::mt19937_64 OsiRng;
 
+		virtual ~ExtensionStateBase();
+
 		virtual void Reset();
 		virtual lua::State * GetLua() = 0;
 		virtual ModManager * GetModManager() = 0;

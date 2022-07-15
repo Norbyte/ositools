@@ -75,6 +75,10 @@ namespace dse::lua
 
 	RegistryEntry & RegistryEntry::operator = (RegistryEntry && other)
 	{
+		if (ref_ != -1) {
+			luaL_unref(L_, LUA_REGISTRYINDEX, ref_);
+		}
+
 		L_ = other.L_;
 		ref_ = other.ref_;
 		other.ref_ = -1;
@@ -371,14 +375,18 @@ namespace dse::lua
 		OpenLibs();
 	}
 
-	void RestoreLevelMaps(std::unordered_set<int32_t> const &);
+	void RestoreLevelMaps(bool isClient);
 
 	State::~State()
 	{
 		globalLifetime_.GetLifetime()->ClearInfinite();
 		globalLifetime_.GetLifetime()->Kill();
-		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
+	}
+
+	void State::Shutdown()
+	{
+		RestoreLevelMaps(IsClient());
 	}
 
 	State* State::FromLua(lua_State* L)

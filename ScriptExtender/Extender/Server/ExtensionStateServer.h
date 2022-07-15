@@ -30,6 +30,8 @@ public:
 	std::unique_ptr<ObjectSet<eoc::ItemDefinition>> PendingItemClone;
 	std::unique_ptr<ShootProjectileApiHelper> ProjectileHelper;
 
+	~ExtensionState() override;
+
 	void Reset() override;
 	lua::State * GetLua() override;
 	ModManager * GetModManager() override;

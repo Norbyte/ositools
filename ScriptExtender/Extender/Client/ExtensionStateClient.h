@@ -12,6 +12,8 @@ class ExtensionState : public ExtensionStateBase
 public:
 	static ExtensionState & Get();
 
+	~ExtensionState() override;
+
 	lua::State * GetLua() override;
 	ModManager * GetModManager() override;
 
