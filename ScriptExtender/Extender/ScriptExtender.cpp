@@ -16,8 +16,12 @@
 
 #undef DEBUG_SERVER_CLIENT
 
+BEGIN_SE()
+
 void InitCrashReporting();
 void ShutdownCrashReporting();
+
+END_SE()
 
 namespace dse
 {

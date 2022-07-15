@@ -104,6 +104,8 @@ void LogOsirisMsg(std::string_view msg);
 
 std::optional<std::string> GetExeResource(int resourceId);
 
+BEGIN_SE()
+
 extern std::atomic<uint32_t> gDisableCrashReportingCount;
 
 struct DisableCrashReporting
@@ -121,3 +123,5 @@ struct DisableCrashReporting
 	DisableCrashReporting(DisableCrashReporting const&) = delete;
 	DisableCrashReporting& operator = (DisableCrashReporting const&) = delete;
 };
+
+END_SE()
