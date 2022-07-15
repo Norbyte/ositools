@@ -126,8 +126,9 @@ struct CustomLevelMap : public LevelMap
 		auto state = gExtender->GetCurrentExtensionState();
 		if (!state || !state->GetLua()) return {};
 
-		auto lua = state->GetLua();
+		LuaVirtualPin lua(state);
 		auto L = lua->GetState();
+		StackCheck _(L);
 
 		if (lua->IsClient()) {
 			if (!ClientFunction) return {};
@@ -141,7 +142,7 @@ struct CustomLevelMap : public LevelMap
 		push(L, level);
 
 		Restriction restriction(*lua, State::RestrictAll);
-		if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
+		if (CallWithTraceback(L, 2, 1) != 0) { // stack: retval
 			OsiError("Level scaled value fetch failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return {};
@@ -149,6 +150,7 @@ struct CustomLevelMap : public LevelMap
 
 		if (lua_type(L, -1) != LUA_TNUMBER) {
 			OsiErrorS("Level scaled fetcher returned non-numeric value");
+			// lua_pop(L, 1); // stack: -
 			return {};
 		}
 

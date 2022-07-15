@@ -109,6 +109,10 @@ namespace dse::lua
 
 	int CallWithTraceback(lua_State * L, int narg, int nres)
 	{
+#if defined(DEBUG)
+		assert(gExtender->GetCurrentExtensionState()->GetLuaRefs() > 0);
+#endif
+
 		int base = lua_gettop(L) - narg;  /* function index */
 		lua_pushcfunction(L, &TracebackHandler);  /* push message handler */
 		lua_insert(L, base);  /* put it under function and args */

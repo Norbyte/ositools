@@ -84,6 +84,11 @@ namespace dse
 			return loadedFileFullPaths_;
 		}
 
+		inline uint32_t GetLuaRefs() const
+		{
+			return luaRefs_;
+		}
+
 	protected:
 		friend class LuaVirtualPin;
 		static std::unordered_set<std::string_view> sAllFeatureFlags;

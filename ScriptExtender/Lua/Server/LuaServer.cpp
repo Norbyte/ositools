@@ -1176,8 +1176,9 @@ namespace dse::esv
 		if (Lua) Lua->Shutdown();
 		Lua.reset();
 		Lua = std::make_unique<lua::ServerState>(*this);
-		Lua->Initialize();
-		Lua->StoryFunctionMappingsUpdated();
+		LuaStatePin<ExtensionState, lua::ServerState> pin(*this);
+		pin->Initialize();
+		pin->StoryFunctionMappingsUpdated();
 	}
 
 	void ExtensionState::LuaStartup()
