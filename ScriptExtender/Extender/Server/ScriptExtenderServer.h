@@ -42,11 +42,6 @@ public:
 		return networkFixedStrings_;
 	}
 
-	/*inline ServerEntitySystemHelpers& GetEntityHelpers()
-	{
-		return entityHelpers_;
-	}*/
-
 	inline OsirisExtender& Osiris()
 	{
 		return osiris_;
@@ -58,19 +53,12 @@ public:
 	void ResetExtensionState();
 	void LoadExtensionState();
 
-	// HACK - we need to expose this so it can be added to the CrashReporter whitelist
-	enum class GameStateWorkerStartTag {};
-	enum class GameStateMachcineUpdateTag {};
-	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachcineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
-
 private:
 	OsirisExtender osiris_;
 	std::unique_ptr<ExtensionState> extensionState_;
 	bool extensionLoaded_{ false };
 	NetworkManager network_;
 	NetworkFixedStringSender networkFixedStrings_;
-	//ServerEntitySystemHelpers entityHelpers_;
 
 	enum class GameStateChangedEventTag {};
 	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
@@ -80,6 +68,11 @@ private:
 	void OnGameStateWorkerStart(void * self);
 	void OnGameStateWorkerExit(void* self);
 	void OnUpdate(void* self, GameTime* time);
+
+	enum class GameStateWorkerStartTag {};
+	enum class GameStateMachcineUpdateTag {};
+	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
+	HookableFunction<GameStateMachcineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 };
 
 END_NS()

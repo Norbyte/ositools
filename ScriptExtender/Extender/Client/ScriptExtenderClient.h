@@ -37,21 +37,10 @@ public:
 		return networkFixedStrings_;
 	}
 
-	/*inline ClientEntitySystemHelpers& GetEntityHelpers()
-	{
-		return entityHelpers_;
-	}*/
-
 	bool IsInClientThread() const;
 	void ResetLuaState();
 	void ResetExtensionState();
 	void LoadExtensionState();
-
-	// HACK - we need to expose this so it can be added to the CrashReporter whitelist
-	enum class GameStateWorkerStartTag {};
-	enum class GameStateMachineUpdateTag {};
-	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 
 private:
 	ExtenderConfig& config_;
@@ -59,7 +48,6 @@ private:
 	bool extensionLoaded_{ false };
 	NetworkManager network_;
 	NetworkFixedStringReceiver networkFixedStrings_;
-	//ClientEntitySystemHelpers entityHelpers_;
 
 	enum class GameStateChangedEventTag {};
 	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
@@ -74,6 +62,11 @@ private:
 
 	static void FlashTraceCallback(void* ctx, void* player, char const* message);
 	static void FlashWarningCallback(void* ctx, void* player, int code, char const* message);
+
+	enum class GameStateWorkerStartTag {};
+	enum class GameStateMachineUpdateTag {};
+	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
+	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 };
 
 END_NS()

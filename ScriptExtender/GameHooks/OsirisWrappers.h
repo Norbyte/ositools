@@ -69,10 +69,6 @@ public:
 
 	// FIXME - move all to EngineHooks!
 	POSTHOOKABLE(void(eoc::NetworkFixedStrings*, void *), InitNetworkFixedStrings);
-	POSTHOOKABLE(void(void *, ecl::GameState, ecl::GameState), ClientGameStateChangedEvent);
-	POSTHOOKABLE(void(void *, esv::GameState, esv::GameState), ServerGameStateChangedEvent);
-	HOOKABLE(void(void *), ClientGameStateWorkerStart);
-	HOOKABLE(void(void *), ServerGameStateWorkerStart);
 	PREHOOKABLE(void(void *), SkillPrototypeManagerInit);
 	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientConnectMessage__Serialize);
 	POSTHOOKABLE(void(net::Message*, net::BitstreamSerializer*), eocnet__ClientAcceptMessage__Serialize);
