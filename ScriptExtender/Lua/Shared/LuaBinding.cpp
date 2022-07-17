@@ -75,6 +75,10 @@ namespace dse::lua
 
 	RegistryEntry & RegistryEntry::operator = (RegistryEntry && other)
 	{
+		if (ref_ != -1) {
+			luaL_unref(L_, LUA_REGISTRYINDEX, ref_);
+		}
+
 		L_ = other.L_;
 		ref_ = other.ref_;
 		other.ref_ = -1;
@@ -105,6 +109,10 @@ namespace dse::lua
 
 	int CallWithTraceback(lua_State * L, int narg, int nres)
 	{
+#if defined(DEBUG)
+		assert(gExtender->GetCurrentExtensionState()->GetLuaRefs() > 0);
+#endif
+
 		int base = lua_gettop(L) - narg;  /* function index */
 		lua_pushcfunction(L, &TracebackHandler);  /* push message handler */
 		lua_insert(L, base);  /* put it under function and args */
@@ -426,14 +434,18 @@ namespace dse::lua
 		lua_cmetatable_set(L, mtCharacter, 0, &LuaCharacterIndex);
 	}
 
-	void RestoreLevelMaps(std::unordered_set<int32_t> const &);
+	void RestoreLevelMaps(bool isClient);
 
 	State::~State()
 	{
 		globalLifetime_.GetLifetime()->ClearInfinite();
 		globalLifetime_.GetLifetime()->Kill();
-		RestoreLevelMaps(OverriddenLevelMaps);
 		lua_close(L);
+	}
+
+	void State::Shutdown()
+	{
+		RestoreLevelMaps(IsClient());
 	}
 
 	State* State::FromLua(lua_State* L)

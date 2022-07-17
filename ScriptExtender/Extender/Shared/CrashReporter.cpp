@@ -11,7 +11,11 @@
 #include <iostream>
 #include <fstream>
 
+BEGIN_SE()
+
 std::atomic<uint32_t> gDisableCrashReportingCount{ 0 };
+
+std::unordered_set<void*> gRegisteredTrampolines;
 
 struct ExcludedSymbol
 {
@@ -23,19 +27,6 @@ struct ExcludedSymbol
 // Wrapper frames are included in the stack trace for any server/client worker thread crash,
 // so we have to filter them to make sure that we don't receive a report for every (unrelated) game crash.
 static const ExcludedSymbol ExcludedSymbols[] = {
-	{&decltype(dse::EngineHooks::esv__ActionMachine__SetState)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::esv__ActionMachine__ResetState)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::esv__CombineManager__ExecuteCombination)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::esv__ProjectileHelpers__ShootProjectile)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::esv__Projectile__Explode)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::UIObjectManager__CreateUIObject)::CallToTrampoline, 0x120},
-	{&decltype(dse::EngineHooks::FileReader__ctor)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::ClientGameStateWorkerStart)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::ServerGameStateWorkerStart)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::Event)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::Call)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::Query)::CallToTrampoline, 0x120},
-	{&decltype(dse::OsirisWrappers::RuleActionCall)::CallToTrampoline, 0x120},
 	{&dse::esv::CustomFunctionLibrary::OnShootProjectile, 0x120},
 	{&dse::NodeVMTWrapper::s_WrappedIsValid, 0x100},
 	{&dse::NodeVMTWrapper::s_WrappedPushDownTuple, 0x100},
@@ -186,6 +177,13 @@ public:
 					}
 				}
 
+				for (auto const& trampoline : gRegisteredTrampolines) {
+					if (Backtrace[i] >= trampoline && Backtrace[i] < (uint8_t*)trampoline + 0x120) {
+						excluded = true;
+						break;
+					}
+				}
+
 				if (!excluded) {
 					return true;
 				}
@@ -284,3 +282,5 @@ void ShutdownCrashReporting()
 {
 	CrashReporter::Shutdown();
 }
+
+END_SE()

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <functional>
+#include <unordered_set>
 #include <detours.h>
 
 namespace dse {
+
+	extern std::unordered_set<void*> gRegisteredTrampolines;
 
 	template <typename T>
 	class WrappedFunction;
@@ -203,6 +206,7 @@ namespace dse {
 		void Wrap(void * Function)
 		{
 			this->wrapped_.Wrap(Function, &CallToTrampoline);
+			gRegisteredTrampolines.insert(&CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");

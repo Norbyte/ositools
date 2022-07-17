@@ -361,6 +361,13 @@ ADD_TYPE("ModId", FixedString)
 #endif
 
 #if defined(GENERATING_PROPMAP)
+pm.AddProperty("ModifierList",
+	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
+		push(L, obj->GetModifierList()->Name);
+		return true;
+	}
+);
+
 pm.AddProperty("StatsEntry",
 	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
 		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, obj, lifetime, std::optional<int>(), false);

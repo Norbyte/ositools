@@ -17,6 +17,9 @@ namespace dse
 		"DisableFolding"
 	};
 
+	ExtensionStateBase::~ExtensionStateBase()
+	{}
+
 	void ExtensionStateBase::Reset()
 	{
 		time_t tm;

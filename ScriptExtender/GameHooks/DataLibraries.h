@@ -12,10 +12,10 @@ struct GameVersionInfo
 
 	inline bool IsSupported() const
 	{
-		// We need v3.6.54 or later for game, v3.6.51+ for editor
+		// We need v3.6.69 or later for game, v3.6.51+ for editor
 		return (Major == 3 && Minor > 6)
 #if defined(OSI_EOCAPP)
-			|| (Major == 3 && Minor == 6 && Revision >= 54);
+			|| (Major == 3 && Minor == 6 && Revision >= 69);
 #else
 			|| (Major == 3 && Minor == 6 && Revision >= 51);
 #endif

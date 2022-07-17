@@ -28,10 +28,6 @@ STATIC_HOOK(Assert)
 STATIC_HOOK(CreateFileW)
 STATIC_HOOK(CloseHandle)
 STATIC_HOOK(InitNetworkFixedStrings)
-STATIC_HOOK(ClientGameStateChangedEvent)
-STATIC_HOOK(ServerGameStateChangedEvent)
-STATIC_HOOK(ClientGameStateWorkerStart)
-STATIC_HOOK(ServerGameStateWorkerStart)
 STATIC_HOOK(SkillPrototypeManagerInit)
 STATIC_HOOK(eocnet__ClientConnectMessage__Serialize)
 STATIC_HOOK(eocnet__ClientAcceptMessage__Serialize)
@@ -162,22 +158,6 @@ void OsirisWrappers::InitializeExtensions()
 		InitNetworkFixedStrings.Wrap(lib.InitNetworkFixedStrings);
 	}
 
-	if (lib.ecl__GameStateEventManager__ExecuteGameStateChangedEvent != nullptr) {
-		ClientGameStateChangedEvent.Wrap(lib.ecl__GameStateEventManager__ExecuteGameStateChangedEvent);
-	}
-
-	if (lib.esv__GameStateEventManager__ExecuteGameStateChangedEvent != nullptr) {
-		ServerGameStateChangedEvent.Wrap(lib.esv__GameStateEventManager__ExecuteGameStateChangedEvent);
-	}
-
-	if (lib.ecl__GameStateThreaded__GameStateWorker__DoWork != nullptr) {
-		ClientGameStateWorkerStart.Wrap(lib.ecl__GameStateThreaded__GameStateWorker__DoWork);
-	}
-
-	if (lib.esv__GameStateThreaded__GameStateWorker__DoWork != nullptr) {
-		ServerGameStateWorkerStart.Wrap(lib.esv__GameStateThreaded__GameStateWorker__DoWork);
-	}
-
 	if (lib.SkillPrototypeManager__Init != nullptr) {
 		SkillPrototypeManagerInit.Wrap(lib.SkillPrototypeManager__Init);
 	}
@@ -232,10 +212,6 @@ void OsirisWrappers::Shutdown()
 	eocnet__ClientAcceptMessage__Serialize.Unwrap();
 
 	InitNetworkFixedStrings.Unwrap();
-	ClientGameStateChangedEvent.Unwrap();
-	ServerGameStateChangedEvent.Unwrap();
-	ClientGameStateWorkerStart.Unwrap();
-	ServerGameStateWorkerStart.Unwrap();
 	SkillPrototypeManagerInit.Unwrap();
 	RPGStats__Load.Unwrap();
 	TranslatedStringRepository__UnloadOverrides.Unwrap();

@@ -11,8 +11,12 @@ STATIC_HOOK(gameStateMachineUpdate_)
 #include <Extender/Shared/ThreadedExtenderState.inl>
 #include <Extender/Shared/ModuleHasher.inl>
 
+BEGIN_SE()
+
 void InitCrashReporting();
 void ShutdownCrashReporting();
+
+END_SE()
 
 BEGIN_NS(ecl)
 
@@ -272,7 +276,6 @@ void ScriptExtender::ResetExtensionState()
 {
 	extensionState_ = std::make_unique<ExtensionState>();
 	extensionState_->Reset();
-#pragma message("needed?")
 	gExtender->ClearPathOverrides();
 	extensionLoaded_ = false;
 }

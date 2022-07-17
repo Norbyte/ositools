@@ -16,8 +16,12 @@
 
 #undef DEBUG_SERVER_CLIENT
 
+BEGIN_SE()
+
 void InitCrashReporting();
 void ShutdownCrashReporting();
+
+END_SE()
 
 namespace dse
 {
@@ -57,7 +61,7 @@ void ScriptExtender::Initialize()
 		} else {
 			ERR("Game version v%d.%d.%d.%d is not supported, please upgrade!", gameVersion.Major, gameVersion.Minor, gameVersion.Revision, gameVersion.Build);
 			// Hard exit below a certain version as th EoCClient error display UI won't work anymore
-			Fail(L"Script Extender doesn't support game versions below v3.6.54, please upgrade!");
+			Fail(L"Script Extender doesn't support game versions below v3.6.69, please upgrade!");
 		}
 	} else {
 		ERR("Failed to retrieve game version info.");

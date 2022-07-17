@@ -21,6 +21,8 @@ namespace dse
 		using PostResetCallback = std::function<void()>;
 		std::mt19937_64 OsiRng;
 
+		virtual ~ExtensionStateBase();
+
 		virtual void Reset();
 		virtual lua::State * GetLua() = 0;
 		virtual ModManager * GetModManager() = 0;
@@ -80,6 +82,11 @@ namespace dse
 		inline std::unordered_map<STDString, STDString> const& GetLoadedFileFullPaths() const
 		{
 			return loadedFileFullPaths_;
+		}
+
+		inline uint32_t GetLuaRefs() const
+		{
+			return luaRefs_;
 		}
 
 	protected:

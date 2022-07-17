@@ -234,11 +234,6 @@ void ScriptExtender::LoadExtensionState()
 
 	extensionState_->LoadConfigs();
 
-	// PostInitLibraries() should be called after extension config is loaded,
-	// otherwise it won't hook functions that may be needed later on
-	#pragma message("still needed?")
-	// PostInitLibraries();
-
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
 		gExtender->GetLibraryManager().EnableCustomStats();
 		gExtender->GetLibraryManager().DisableItemFolding();

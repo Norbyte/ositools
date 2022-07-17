@@ -571,6 +571,11 @@ namespace dse::lua
 		RegistryEntry & operator = (RegistryEntry const &) = delete;
 		RegistryEntry & operator = (RegistryEntry &&);
 
+		inline operator bool() const
+		{
+			return ref_ != -1;
+		}
+
 		void Push() const;
 
 	private:

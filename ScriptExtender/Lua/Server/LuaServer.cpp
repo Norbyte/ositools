@@ -1138,6 +1138,11 @@ namespace dse::esv
 		return gExtender->GetServer().GetExtensionState();
 	}
 
+	ExtensionState::~ExtensionState()
+	{
+		if (Lua) Lua->Shutdown();
+	}
+
 	lua::State * ExtensionState::GetLua()
 	{
 		if (Lua) {
@@ -1168,10 +1173,12 @@ namespace dse::esv
 
 	void ExtensionState::DoLuaReset()
 	{
+		if (Lua) Lua->Shutdown();
 		Lua.reset();
 		Lua = std::make_unique<lua::ServerState>(*this);
-		Lua->Initialize();
-		Lua->StoryFunctionMappingsUpdated();
+		LuaStatePin<ExtensionState, lua::ServerState> pin(*this);
+		pin->Initialize();
+		pin->StoryFunctionMappingsUpdated();
 	}
 
 	void ExtensionState::LuaStartup()

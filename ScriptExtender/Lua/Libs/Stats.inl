@@ -94,7 +94,8 @@ int StatsExtraDataProxy::NewIndex(lua_State* L)
 
 struct CustomLevelMap : public LevelMap
 {
-	RegistryEntry Function;
+	RegistryEntry ClientFunction;
+	RegistryEntry ServerFunction;
 	LevelMap * OriginalLevelMap{ nullptr };
 
 	CustomLevelMap() {}
@@ -122,20 +123,26 @@ struct CustomLevelMap : public LevelMap
 
 	std::optional<int64_t> LuaGetScaledValue(int attributeValue, int level)
 	{
-		// GetScaledValue must always use the client pin, as the override function is
-		// reigstered from the client state
-		ecl::LuaClientPin pin(ecl::ExtensionState::Get());
-		if (!pin) return {};
+		auto state = gExtender->GetCurrentExtensionState();
+		if (!state || !state->GetLua()) return {};
 
-		Restriction restriction(*pin, State::RestrictAll);
+		LuaVirtualPin lua(state);
+		auto L = lua->GetState();
+		StackCheck _(L);
 
-		auto L = pin->GetState();
-		Function.Push();
+		if (lua->IsClient()) {
+			if (!ClientFunction) return {};
+			ClientFunction.Push();
+		} else {
+			if (!ServerFunction) return {};
+			ServerFunction.Push();
+		}
 
 		push(L, attributeValue);
 		push(L, level);
 
-		if (lua_pcall(L, 2, 1, 0) != 0) { // stack: retval
+		Restriction restriction(*lua, State::RestrictAll);
+		if (CallWithTraceback(L, 2, 1) != 0) { // stack: retval
 			OsiError("Level scaled value fetch failed: " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 			return {};
@@ -143,6 +150,7 @@ struct CustomLevelMap : public LevelMap
 
 		if (lua_type(L, -1) != LUA_TNUMBER) {
 			OsiErrorS("Level scaled fetcher returned non-numeric value");
+			// lua_pop(L, 1); // stack: -
 			return {};
 		}
 
@@ -152,16 +160,24 @@ struct CustomLevelMap : public LevelMap
 	}
 };
 
-void RestoreLevelMaps(std::unordered_set<int32_t> const & levelMapIds)
+CustomLevelMap gDummyCustomLevelMap;
+
+void RestoreLevelMaps(bool isClient)
 {
 	auto & levelMaps = GetStaticSymbols().GetStats()->LevelMaps.Primitives;
-	for (auto levelMapIndex : levelMapIds) {
-		auto levelMap = static_cast<CustomLevelMap *>(levelMaps[levelMapIndex]);
-		levelMaps[levelMapIndex] = levelMap->OriginalLevelMap;
-	}
+	for (auto& levelMap : levelMaps) {
+		if (*(void**)levelMap == *(void**)&gDummyCustomLevelMap) {
+			auto customMap = static_cast<CustomLevelMap*>(levelMap);
+			if (isClient) {
+				customMap->ClientFunction = RegistryEntry{};
+			} else {
+				customMap->ServerFunction = RegistryEntry{};
+			}
 
-	if (!levelMapIds.empty()) {
-		OsiWarn("Restored " << levelMapIds.size() << " level map overrides (Lua VM deleted)");
+			if (!customMap->ClientFunction && !customMap->ServerFunction) {
+				levelMap = customMap->OriginalLevelMap;
+			}
+		}
 	}
 }
 
@@ -829,27 +845,28 @@ void SetLevelScaling(lua_State * L, FixedString const& modifierListName, FixedSt
 		return;
 	}
 
-	LevelMap * originalLevelMap;
+	CustomLevelMap* levelMap;
 	auto currentLevelMap = stats->LevelMaps.Find(modifier->LevelMapIndex);
-		
-	auto it = lua->OverriddenLevelMaps.find(modifier->LevelMapIndex);
-	if (it != lua->OverriddenLevelMaps.end()) {
-		auto overridden = static_cast<CustomLevelMap *>(currentLevelMap);
-		originalLevelMap = overridden->OriginalLevelMap;
+
+	if (*(void**)currentLevelMap == *(void**)&gDummyCustomLevelMap) {
+		levelMap = static_cast<CustomLevelMap*>(currentLevelMap);
 	} else {
-		originalLevelMap = currentLevelMap;
+		auto originalLevelMap = currentLevelMap;
+
+		levelMap = GameAlloc<CustomLevelMap>();
+		levelMap->ModifierListIndex = originalLevelMap->ModifierListIndex;
+		levelMap->ModifierIndex = originalLevelMap->ModifierIndex;
+		levelMap->ValueListIndex = originalLevelMap->ValueListIndex;
+		levelMap->Name = originalLevelMap->Name;
+		levelMap->OriginalLevelMap = originalLevelMap;
+		stats->LevelMaps.Primitives[modifier->LevelMapIndex] = levelMap;
 	}
 
-	auto levelMap = GameAlloc<CustomLevelMap>();
-	levelMap->ModifierListIndex = originalLevelMap->ModifierListIndex;
-	levelMap->ModifierIndex = originalLevelMap->ModifierIndex;
-	levelMap->ValueListIndex = originalLevelMap->ValueListIndex;
-	levelMap->Name = originalLevelMap->Name;
-	levelMap->Function = RegistryEntry(L, 3);
-	levelMap->OriginalLevelMap = originalLevelMap;
-
-	stats->LevelMaps.Primitives[modifier->LevelMapIndex] = levelMap;
-	lua->OverriddenLevelMaps.insert(modifier->LevelMapIndex);
+	if (lua->IsClient()) {
+		levelMap->ClientFunction = RegistryEntry(L, 3);
+	} else {
+		levelMap->ServerFunction = RegistryEntry(L, 3);
+	}
 }
 
 /// <summary>
