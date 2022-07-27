@@ -330,6 +330,16 @@ namespace dse
         ObjectSet<uint32_t>* GetColorChoices(VisualTemplateColorIndex slot);
     };
 
+
+    struct ItemTemplateEquipment
+    {
+        std::array<FixedString, 17> VisualResources;
+        std::array<bool, 17> SyncAnimationWithParent;
+        uint32_t VisualSetSlots;
+        uint32_t EquipmentSlots;
+    };
+
+
     struct ItemTemplate : public EoCGameObjectTemplate
     {
         CombatComponentTemplate CombatComponent;
@@ -371,7 +381,7 @@ namespace dse
         OverrideableProperty<ObjectSet<IActionData*>> OnDestroyActions;
         OverrideableProperty<TranslatedString> OnUseDescription;
         OverrideableProperty<ObjectSet<void*>> Scripts; // ScriptData*
-        OverrideableProperty<ObjectSet<void*>> ItemList; // eoc::InventoryItemData
+        OverrideableProperty<ObjectSet<InventoryItemData>> ItemList;
         OverrideableProperty<FixedString> DefaultState;
         OverrideableProperty<FixedString> Owner;
         OverrideableProperty<FixedString> Key;
@@ -380,7 +390,7 @@ namespace dse
         OverrideableProperty<int32_t> Amount;
         OverrideableProperty<int32_t> MaxStackAmount;
         OverrideableProperty<int32_t> TreasureLevel;
-        void* Equipment;
+        ItemTemplateEquipment* Equipment;
         __int64 field_6F0;
         OverrideableProperty<FixedString> DropSound;
         OverrideableProperty<FixedString> PickupSound;
