@@ -36,7 +36,7 @@ namespace dse::lua
 	class StatsEntryProxyRefImpl : public ObjectProxyRefImpl<stats::Object>
 	{
 	public:
-		StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy);
+		StatsEntryProxyRefImpl(LifetimeHandle const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy);
 
 		FixedString const& GetTypeName() const override;
 		bool GetProperty(lua_State* L, FixedString const& prop) override;
@@ -172,11 +172,11 @@ namespace dse::lua
 			return startupDone_;
 		}
 
-		LifetimeHolder GetCurrentLifetime();
+		LifetimeHandle GetCurrentLifetime();
 
-		inline LifetimeHolder GetGlobalLifetime()
+		inline LifetimeHandle GetGlobalLifetime()
 		{
-			return globalLifetime_.Get();
+			return globalLifetime_;
 		}
 
 		inline LifetimePool& GetLifetimePool()
@@ -215,7 +215,7 @@ namespace dse::lua
 
 		LifetimePool lifetimePool_;
 		LifetimeStack lifetimeStack_;
-		LifetimeReference globalLifetime_;
+		LifetimeHandle globalLifetime_;
 
 		void OpenLibs();
 	};
@@ -255,7 +255,7 @@ namespace dse::lua
 		try {
 			StackCheck _(L, 0);
 			Restriction restriction(state, restrictions);
-			LifetimePin _p(state.GetStack());
+			LifetimeStackPin _p(state.GetStack());
 			PushInternalFunction(L, "_ThrowEvent");
 			auto luaEvent = EventObject::Make(L, state.GetCurrentLifetime(), eventName, evt, canPreventAction, WriteableEvent{});
 			if (!CheckedCall(L, 1, "_ThrowEvent")) {

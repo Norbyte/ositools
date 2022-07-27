@@ -49,7 +49,7 @@ void AddBitmaskProperty(GenericPropertyMap& pm, std::size_t offset)
 	}
 }
 
-bool CharacterSetFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+bool CharacterSetFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	auto ch = reinterpret_cast<esv::Character*>(obj);
 	auto set = get<bool>(L, index);
@@ -114,18 +114,20 @@ bool EnableWriteProtectedWrites{ false };
 		static bool initialized{ false };
 		if (initialized) return;
 
+		int nextRegistryIndex{ 0 };
+
 #define GENERATING_PROPMAP
 
 #define BEGIN_CLS(cls) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
-	pm.Init(); \
+	pm.Init(nextRegistryIndex++); \
 	pm.Name = FixedString(#cls);
 
 #define BEGIN_CLS_TN(cls, typeName) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
-	pm.Init(); \
+	pm.Init(nextRegistryIndex++); \
 	pm.Name = FixedString(#typeName);
 
 #define END_CLS() pm.Finish(); \
@@ -189,7 +191,7 @@ bool EnableWriteProtectedWrites{ false };
 
 #define P_GETTER(name, fun) \
 	pm.AddProperty(#name, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			CallGetter(L, obj, &PM::ObjectType::fun); \
 			return true; \
 		}, \
@@ -198,11 +200,11 @@ bool EnableWriteProtectedWrites{ false };
 
 #define P_GETTER_SETTER(prop, getter, setter) \
 	pm.AddProperty(#prop, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			CallGetter(L, obj, &PM::ObjectType::getter); \
 			return true; \
 		}, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, int index, std::size_t offset, uint64_t flag) { \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, int index, std::size_t offset, uint64_t flag) { \
 			CallSetter(L, obj, index, &PM::ObjectType::setter); \
 			return true; \
 		}, \
@@ -212,7 +214,7 @@ bool EnableWriteProtectedWrites{ false };
 // FIXME - avoid generating a separate push function for each closure
 #define P_FUN(name, fun) \
 	pm.AddProperty(#name, \
-		[](lua_State* L, LifetimeHolder const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			lua_pushcfunction(L, [](lua_State* L) -> int { \
 				return CallMethod(L, &PM::ObjectType::fun); \
 			}); \

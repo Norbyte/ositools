@@ -128,7 +128,7 @@ void* GetUserdataPointer(lua_State* L, int index)
 {
 	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
 	if (proxy) {
-		return proxy->GetRaw();
+		return proxy->GetRaw(L);
 	}
 
 	return lua_touserdata(L, index);
@@ -196,7 +196,7 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 
 #if !defined(NDEBUG)
 	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
-	auto objPtr = proxy ? proxy->GetRaw() : nullptr;
+	auto objPtr = proxy ? proxy->GetRaw(L) : nullptr;
 	auto typeName = proxy ? proxy->GetImpl()->GetTypeName() : FixedString{};
 #endif
 

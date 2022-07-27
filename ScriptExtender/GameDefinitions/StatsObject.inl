@@ -667,32 +667,32 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 	}
 }
 
-bool Object::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, Object* object, FixedString const& prop)
+bool Object::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop)
 {
 	return object->LuaGetAttribute(L, prop, {});
 }
 
-bool Object::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, Object* object, FixedString const& prop, int index)
+bool Object::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop, int index)
 {
 	return object->LuaSetAttribute(L, prop, index);
 }
 
-bool StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop)
+bool StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop)
 {
 	return Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
 }
 
-bool StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
+bool StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
 {
 	return Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
 }
 
-bool SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop)
+bool SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop)
 {
 	return Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
 }
 
-bool SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
+bool SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
 {
 	return Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
 }

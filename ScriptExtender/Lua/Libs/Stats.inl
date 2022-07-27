@@ -6,7 +6,7 @@
 
 BEGIN_NS(lua)
 
-StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHolder const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy)
+StatsEntryProxyRefImpl::StatsEntryProxyRefImpl(LifetimeHandle const& lifetime, stats::Object* obj, std::optional<int> level, bool legacy)
 	: ObjectProxyRefImpl(lifetime, obj),
 	level_(level), legacy_(legacy)
 {}

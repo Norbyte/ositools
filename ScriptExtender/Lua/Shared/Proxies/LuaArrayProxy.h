@@ -55,7 +55,7 @@ template <class TArray, class TElement>
 class ArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	ArrayProxyByRefImpl(LifetimeHolder const& lifetime, TArray* obj)
+	ArrayProxyByRefImpl(LifetimeHandle const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -108,7 +108,7 @@ public:
 
 private:
 	TArray* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 
@@ -118,7 +118,7 @@ class ArrayProxyByValImpl : public ArrayProxyImplBase
 public:
 	static_assert(!std::is_pointer_v<TElement>, "ArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	ArrayProxyByValImpl(LifetimeHolder const& lifetime, TArray* obj)
+	ArrayProxyByValImpl(LifetimeHandle const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -185,7 +185,7 @@ public:
 
 private:
 	TArray* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 
@@ -193,7 +193,7 @@ template <class TArray, class TElement>
 class FixedSizeArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	FixedSizeArrayProxyByRefImpl(LifetimeHolder const& lifetime, TArray* obj)
+	FixedSizeArrayProxyByRefImpl(LifetimeHandle const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -246,7 +246,7 @@ public:
 
 private:
 	TArray* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 
@@ -256,7 +256,7 @@ class FixedSizeArrayProxyByValImpl : public ArrayProxyImplBase
 public:
 	static_assert(!std::is_pointer_v<TElement>, "FixedSizeArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	FixedSizeArrayProxyByValImpl(LifetimeHolder const& lifetime, TArray* obj)
+	FixedSizeArrayProxyByValImpl(LifetimeHandle const& lifetime, TArray* obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -316,7 +316,7 @@ public:
 
 private:
 	TArray* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 
@@ -327,80 +327,80 @@ public:
 	static char const * const MetatableName;
 
 	template <class TImpl, class... Args>
-	inline static TImpl* MakeImplByRef(lua_State* L, LifetimeHolder const& lifetime, Args... args)
+	inline static TImpl* MakeImplByRef(lua_State* L, LifetimeHandle const& lifetime, Args... args)
 	{
 		auto self = NewWithExtraData(L, sizeof(TImpl), lifetime);
 		return new (self->GetImpl()) TImpl(lifetime, args...);
 	}
 
 	template <class T>
-	inline static auto MakeByRef(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, Array<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByRefImpl<Array<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static auto MakeByRef(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, Vector<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByRefImpl<Vector<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static auto MakeByRef(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, std::span<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<FixedSizeArrayProxyByRefImpl<std::span<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static auto MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByRefImpl<ObjectSet<T, Allocator, StoreSize>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator>
-	inline static auto MakeByRef(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByRefImpl<PrimitiveSmallSet<T, Allocator>, T>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
-	inline static auto MakeByRef(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByRef(lua_State* L, std::array<T, Size>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<FixedSizeArrayProxyByRefImpl<std::array<T, Size>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static auto MakeByVal(lua_State* L, Array<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, Array<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByValImpl<Array<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static auto MakeByVal(lua_State* L, Vector<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, Vector<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByValImpl<Vector<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T>
-	inline static auto MakeByVal(lua_State* L, std::span<T>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, std::span<T>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<FixedSizeArrayProxyByValImpl<std::span<T>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static auto MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByValImpl<ObjectSet<T, Allocator, StoreSize>, T>>(L, lifetime, object);
 	}
 
 	template <class T, class Allocator>
-	inline static auto MakeByVal(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<ArrayProxyByValImpl<PrimitiveSmallSet<T, Allocator>, T>>(L, lifetime, object);
 	}
 
 	template <class T, int Size>
-	inline static auto MakeByVal(lua_State* L, std::array<T, Size>* object, LifetimeHolder const& lifetime)
+	inline static auto MakeByVal(lua_State* L, std::array<T, Size>* object, LifetimeHandle const& lifetime)
 	{
 		return MakeImplByRef<FixedSizeArrayProxyByValImpl<std::array<T, Size>, T>>(L, lifetime, object);
 	}
@@ -410,15 +410,15 @@ public:
 		return reinterpret_cast<ArrayProxyImplBase*>(this + 1);
 	}
 
-	inline bool IsAlive() const
+	inline bool IsAlive(lua_State* L) const
 	{
-		return lifetime_.IsAlive();
+		return lifetime_.IsAlive(L);
 	}
 
 	template <class T>
-	T* Get()
+	T* Get(lua_State* L)
 	{
-		if (!lifetime_.IsAlive()) {
+		if (!lifetime_.IsAlive(L)) {
 			return nullptr;
 		}
 
@@ -430,9 +430,9 @@ public:
 	}
 
 private:
-	LifetimeReference lifetime_;
+	LifetimeHandle lifetime_;
 
-	ArrayProxy(LifetimeHolder const& lifetime)
+	ArrayProxy(LifetimeHandle const& lifetime)
 		: lifetime_(lifetime)
 	{}
 
@@ -474,7 +474,7 @@ template <class T, size_t Size>
 struct IsArrayLike<std::array<T, Size>> { static constexpr bool Value = true; using TElement = T; };
 
 template <class T>
-inline void push_array_ref_proxy(lua_State* L, LifetimeHolder const& lifetime, T* v)
+inline void push_array_ref_proxy(lua_State* L, LifetimeHandle const& lifetime, T* v)
 {
 	ArrayProxy::MakeByRef<T>(L, v, lifetime);
 }

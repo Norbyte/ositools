@@ -9,13 +9,13 @@ BEGIN_NS(lua)
 class GenericPropertyMap
 {
 public:
-	using TFallbackGetter = bool(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop);
-	using TFallbackSetter = bool(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index);
+	using TFallbackGetter = bool(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop);
+	using TFallbackSetter = bool(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index);
 
 	struct RawPropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, std::size_t offset, uint64_t flag);
-		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, void* object, int index, std::size_t offset, uint64_t flag);
+		using Getter = bool (lua_State* L, LifetimeHandle const& lifetime, void* object, std::size_t offset, uint64_t flag);
+		using Setter = bool (lua_State* L, LifetimeHandle const& lifetime, void* object, int index, std::size_t offset, uint64_t flag);
 
 		FixedString Name;
 		Getter* Get;
@@ -24,11 +24,11 @@ public:
 		uint64_t Flag;
 	};
 
-	void Init();
+	void Init(int registryIndex);
 	void Finish();
 	bool HasProperty(FixedString const& prop) const;
-	bool GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const;
-	bool SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const;
+	bool GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const;
+	bool SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
 		typename RawPropertyAccessors::Setter* setter, std::size_t offset, uint64_t flag = 0);
 
@@ -39,9 +39,10 @@ public:
 	TFallbackSetter* FallbackSetter{ nullptr };
 	bool IsInitializing{ false };
 	bool Initialized{ false };
+	int RegistryIndex{ -1 };
 };
 
-inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	return false;
 }
@@ -52,13 +53,13 @@ class LuaPropertyMap : public GenericPropertyMap
 public:
 	struct PropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, std::size_t offset, uint64_t flag);
-		using Setter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
-		using FallbackGetter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop);
-		using FallbackSetter = bool (lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop, int index);
+		using Getter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, std::size_t offset, uint64_t flag);
+		using Setter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
+		using FallbackGetter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop);
+		using FallbackSetter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index);
 	};
 
-	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop) const
+	inline bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop) const
 	{
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
@@ -73,7 +74,7 @@ public:
 #endif
 	}
 
-	inline bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, FixedString const& prop, int index) const
+	inline bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index) const
 	{
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
@@ -88,7 +89,7 @@ public:
 #endif
 	}
 
-	inline bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, RawPropertyAccessors const& prop) const
+	inline bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop) const
 	{
 		auto getter = (typename PropertyAccessors::Getter*)prop.Get;
 
@@ -105,7 +106,7 @@ public:
 #endif
 	}
 
-	inline bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, T* object, RawPropertyAccessors const& prop, int index) const
+	inline bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop, int index) const
 	{
 		auto setter = (typename PropertyAccessors::Setter*)prop.Set;
 

@@ -7,13 +7,13 @@ ADD_TYPE("Handle", uint32_t)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("Type",
-	[](lua_State* L, LifetimeHolder const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
 		push(L, obj->Handle.Type());
 		return true;
 	}
 );
 pm.AddProperty("Handle",
-	[](lua_State* L, LifetimeHolder const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, GameObjectTemplate* obj, std::size_t offset, uint64_t flag) {
 		push(L, obj->Handle.Value);
 		return true;
 	}

@@ -217,7 +217,7 @@ void DebugConsole::ConsoleThread()
 						params.Command = line.substr(1);
 						ThrowEvent(*pin, "DoConsoleCommand", params, false, 0);
 					} else {
-						lua::StaticLifetimePin _(pin->GetStack(), pin->GetGlobalLifetime().lifetime);
+						lua::StaticLifetimeStackPin _(pin->GetStack(), pin->GetGlobalLifetime());
 						auto L = pin->GetState();
 						if (luaL_loadstring(L, line.c_str()) || lua::CallWithTraceback(L, 0, 0)) { // stack: errmsg
 							ERR("%s", lua_tostring(L, -1));

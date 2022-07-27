@@ -87,7 +87,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
 				push(L, (**attrFlags & flag) != 0);
@@ -96,7 +96,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 			}
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<bool>(L, index);
 			int flagsId = (int)obj->AttributeFlagsObjectId;
 			auto attrFlags = GetStaticSymbols().GetStats()->GetOrCreateFlags(flagsId);
@@ -117,11 +117,11 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->AbilityModifiers[flag]);
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<int32_t>(L, index);
 			obj->AbilityModifiers[flag] = val;
 			return true;
@@ -134,11 +134,11 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	auto talentId = label.Value;
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->Talents.HasTalent((stats::TalentType)flag));
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<bool>(L, index);
 			if (val) {
 				obj->Talents.Set((uint32_t)flag);
@@ -271,7 +271,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
 				push(L, (**attrFlags & flag) != 0);
@@ -280,7 +280,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 			}
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<bool>(L, index);
 			auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)obj->AttributeFlagsObjectId);
 			if (attrFlags) {
@@ -299,11 +299,11 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->Abilities[flag]);
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<int32_t>(L, index);
 			obj->Abilities[flag] = val;
 			return true;
@@ -316,11 +316,11 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	auto talentId = label.Value;
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->Talents.HasTalent((stats::TalentType)flag));
 			return true;
 		},
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, int index, std::size_t offset, uint64_t flag) {
 			auto val = get<bool>(L, index);
 			if (val) {
 				obj->Talents.Set((uint32_t)flag);
@@ -362,21 +362,21 @@ ADD_TYPE("ModId", FixedString)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("ModifierList",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
 		push(L, obj->GetModifierList()->Name);
 		return true;
 	}
 );
 
 pm.AddProperty("StatsEntry",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
 		ObjectProxy2::MakeImpl<StatsEntryProxyRefImpl, stats::Object>(L, obj, lifetime, std::optional<int>(), false);
 		return true;
 	}
 );
 
 pm.AddProperty("ModId",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Object* obj, std::size_t offset, uint64_t flag) {
 		push(L, gExtender->GetStatLoadOrderHelper().GetStatsEntryMod(obj->Name));
 		return true;
 	}
@@ -467,7 +467,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 #if defined(GENERATING_PROPMAP)
 // TODO - GFS.strCharacter
 pm.AddProperty("Rotation",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->GameObject) {
 			push(L, *obj->GameObject->GetRotation());
 		} else {
@@ -479,7 +479,7 @@ pm.AddProperty("Rotation",
 );
 
 pm.AddProperty("Position",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->GameObject) {
 			push(L, *obj->GameObject->GetTranslate());
 		} else {
@@ -491,7 +491,7 @@ pm.AddProperty("Position",
 );
 
 pm.AddProperty("MyGuid",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->GameObject) {
 			push(L, *obj->GameObject->GetGuid());
 		} else {
@@ -503,7 +503,7 @@ pm.AddProperty("MyGuid",
 );
 
 pm.AddProperty("NetID",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->GameObject) {
 			push(L, ((IGameObject*)obj->GameObject)->NetID);
 		} else {
@@ -519,7 +519,7 @@ for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
 
 	// Boosted property getter (eg. BlockChance)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (stats::CharacterStatGetterType)flag, false, false));
 			return true;
 		},
@@ -529,7 +529,7 @@ for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
 	// Base property getter (eg. BaseBlockChance)
 	STDString basePropName = STDString("Base") + label.Key.GetString();
 	pm.AddProperty(basePropName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, GetStaticSymbols().CharStatsGetters.GetStat(obj, (stats::CharacterStatGetterType)flag, false, true));
 			return true;
 		},
@@ -542,7 +542,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 
 	// Boosted ability getter (eg. Aerothurge)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->GetAbility((stats::AbilityType)flag, false));
 			return true;
 		},
@@ -552,7 +552,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	// Base ability getter (eg. BaseAerothurge)
 	STDString baseAbilityName = STDString("Base") + label.Key.GetString();
 	pm.AddProperty(baseAbilityName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->GetAbility((stats::AbilityType)flag, true));
 			return true;
 		},
@@ -566,7 +566,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	// Talent getter (eg. TALENT_ResistDead)
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->HasTalent((stats::TalentType)flag, false));
 			return true;
 		},
@@ -576,7 +576,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	// Base talent getter (eg. TALENT_BaseResistDead)
 	STDString baseTalentName = STDString("TALENT_Base") + label.Key.GetString();
 	pm.AddProperty(baseTalentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->HasTalent((stats::TalentType)flag, true));
 			return true;
 		},
@@ -628,7 +628,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 
 	// Ability stat getter (eg. Aerothurge)
 	pm.AddProperty(label.Key.GetString(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->GetAbility((stats::AbilityType)flag));
 			return true;
 		},
@@ -642,7 +642,7 @@ for (auto const& label : EnumInfo<stats::TalentType>::Values) {
 	// Talent stat getter (eg. TALENT_)
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
-		[](lua_State* L, LifetimeHolder const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
+		[](lua_State* L, LifetimeHandle const& lifetime, stats::Item* obj, std::size_t offset, uint64_t flag) {
 			push(L, obj->HasTalent((stats::TalentType)flag));
 			return true;
 		},
@@ -667,7 +667,7 @@ ADD_TYPE("StatsObject", stats::Object)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::StatusPrototype* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::StatusPrototype* obj, std::size_t offset, uint64_t flag) {
 		MakeObjectRef(L, obj->GetStats());
 		return true;
 	}
@@ -703,7 +703,7 @@ ADD_TYPE("StatsObject", stats::Object)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatsObject",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::SkillPrototype* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::SkillPrototype* obj, std::size_t offset, uint64_t flag) {
 		MakeObjectRef(L, obj->GetStats());
 		return true;
 	}

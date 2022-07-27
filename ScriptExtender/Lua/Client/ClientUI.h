@@ -15,11 +15,11 @@ BEGIN_NS(lua)
 class UIObjectProxyRefImpl : public ObjectProxyImplBase
 {
 public:
-	UIObjectProxyRefImpl(LifetimeHolder const& containerLifetime, UIObject* obj, LifetimeHolder const& lifetime);
+	UIObjectProxyRefImpl(LifetimeHandle const& containerLifetime, UIObject* obj, LifetimeHandle const& lifetime);
 	~UIObjectProxyRefImpl() override;
 
-	UIObject* Get() const;
-	void* GetRaw() override;
+	UIObject* Get(lua_State* L) const;
+	void* GetRaw(lua_State* L) override;
 	FixedString const& GetTypeName() const override;
 	bool GetProperty(lua_State* L, FixedString const& prop) override;
 	bool SetProperty(lua_State* L, FixedString const& prop, int index) override;
@@ -28,11 +28,11 @@ public:
 
 private:
 	ComponentHandle handle_;
-	LifetimeHolder containerLifetime_;
-	LifetimeReference lifetime_;
+	LifetimeHandle containerLifetime_;
+	LifetimeHandle lifetime_;
 };
 
-void MakeUIObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value);
+void MakeUIObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value);
 
 void LuaToInvokeDataValue(lua_State* L, int index, ig::InvokeDataValue& val);
 void InvokeDataValueToLua(lua_State* L, ig::InvokeDataValue const& val);

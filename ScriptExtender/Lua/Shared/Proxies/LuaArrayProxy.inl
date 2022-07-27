@@ -8,7 +8,7 @@ int ArrayProxy::Index(lua_State* L)
 {
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to read dead Array<%s>", impl->GetType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
@@ -26,7 +26,7 @@ int ArrayProxy::NewIndex(lua_State* L)
 {
 	StackCheck _(L, 0);
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to write dead Array<%s>", impl->GetType().TypeName.GetString());
 		return 0;
 	}
@@ -40,7 +40,7 @@ int ArrayProxy::Length(lua_State* L)
 {
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to get length of dead Array<%s>", impl->GetType().TypeName.GetString());
 		push(L, nullptr);
 		return 1;
@@ -53,7 +53,7 @@ int ArrayProxy::Length(lua_State* L)
 int ArrayProxy::Next(lua_State* L)
 {
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to iterate dead Array<%s>", impl->GetType().TypeName.GetString());
 		return 0;
 	}
@@ -70,7 +70,7 @@ int ArrayProxy::ToString(lua_State* L)
 {
 	StackCheck _(L, 1);
 	char entityName[200];
-	if (lifetime_.IsAlive()) {
+	if (lifetime_.IsAlive(L)) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Array<%s> (%p)", GetImpl()->GetType().TypeName.GetString(), GetImpl()->GetRaw());
 	} else {
 		_snprintf_s(entityName, std::size(entityName) - 1, "Array<%s> (%p, DEAD REFERENCE)", GetImpl()->GetType().TypeName.GetString(), GetImpl()->GetRaw());

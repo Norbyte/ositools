@@ -13,26 +13,26 @@ BEGIN_NS(lua)
 
 using namespace dse::ecl::lua;
 	
-UIObjectProxyRefImpl::UIObjectProxyRefImpl(LifetimeHolder const& containerLifetime, UIObject* obj, LifetimeHolder const& lifetime)
+UIObjectProxyRefImpl::UIObjectProxyRefImpl(LifetimeHandle const& containerLifetime, UIObject* obj, LifetimeHandle const& lifetime)
 	: handle_(obj->UIObjectHandle), containerLifetime_(containerLifetime), lifetime_(lifetime)
 {}
 		
 UIObjectProxyRefImpl::~UIObjectProxyRefImpl()
 {}
 
-UIObject* UIObjectProxyRefImpl::Get() const
+UIObject* UIObjectProxyRefImpl::Get(lua_State* L) const
 {
 	auto self = GetStaticSymbols().GetUIObjectManager()->Get(handle_);
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		WarnDeprecated56("An access was made to a UIObject instance after its lifetime has expired; this behavior is deprecated.");
 	}
 
 	return self;
 }
 
-void* UIObjectProxyRefImpl::GetRaw()
+void* UIObjectProxyRefImpl::GetRaw(lua_State* L)
 {
-	return Get();
+	return Get(L);
 }
 
 FixedString const& UIObjectProxyRefImpl::GetTypeName() const
@@ -42,21 +42,21 @@ FixedString const& UIObjectProxyRefImpl::GetTypeName() const
 
 bool UIObjectProxyRefImpl::GetProperty(lua_State* L, FixedString const& prop)
 {
-	auto ui = Get();
+	auto ui = Get(L);
 	if (!ui) return false;
 	return ObjectProxyHelpers<UIObject>::GetProperty(L, ui, containerLifetime_, prop);
 }
 
 bool UIObjectProxyRefImpl::SetProperty(lua_State* L, FixedString const& prop, int index)
 {
-	auto ui = Get();
+	auto ui = Get(L);
 	if (!ui) return false;
 	return ObjectProxyHelpers<UIObject>::SetProperty(L, ui, containerLifetime_, prop, index);
 }
 
 int UIObjectProxyRefImpl::Next(lua_State* L, FixedString const& key)
 {
-	auto ui = Get();
+	auto ui = Get(L);
 	if (!ui) return 0;
 	return ObjectProxyHelpers<UIObject>::Next(L, ui, containerLifetime_, key);
 }
@@ -66,7 +66,7 @@ bool UIObjectProxyRefImpl::IsA(FixedString const& typeName)
 	return ObjectProxyHelpers<UIObject>::IsA(typeName);
 }
 
-void MakeUIObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value)
+void MakeUIObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value)
 {
 	if (value) {
 		ObjectProxy2::MakeImpl<UIObjectProxyRefImpl, UIObject>(L, value, State::FromLua(L)->GetGlobalLifetime(), lifetime);

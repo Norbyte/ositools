@@ -61,9 +61,9 @@ UserReturn GetCharacter2(lua_State* L)
 	ecl::Character* character = LuaGetCharacter(L, 1);
 	auto lifetime = State::FromLua(L)->GetCurrentLifetime();
 	assert(((uintptr_t)character & 0xffff000000000000ull) == 0);
-	assert(((uintptr_t)lifetime.lifetime & 0xffff000000000000ull) == 0);
+	assert(((uintptr_t)lifetime.handle_ & 0xffff000000000000ull) == 0);
 	auto ptr = (uintptr_t)character | (1ull << 48);
-	auto tag = (uintptr_t)lifetime.lifetime;
+	auto tag = (uintptr_t)lifetime.handle_;
 	lua_pushlightcppobject(L, ptr, tag);
 	return 1;
 }

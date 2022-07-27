@@ -11,14 +11,14 @@ BEGIN_NS(lua)
 extern bool EnableWriteProtectedWrites;
 
 template <class T>
-bool GenericGetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t)
+bool GenericGetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	return LuaWrite(L, *value) == 1;
 }
 
 template <class T>
-bool GenericSetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+bool GenericSetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	lua_pushvalue(L, index);
@@ -28,7 +28,7 @@ bool GenericSetOffsetProperty(lua_State* L, LifetimeHolder const& lifetime, void
 }
 
 template <class T>
-bool GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t flag)
+bool GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t flag)
 {
 	auto value = *(T*)((std::uintptr_t)obj + offset);
 	push(L, (value & (T)flag) == (T)flag);
@@ -36,7 +36,7 @@ bool GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, v
 }
 
 template <class T>
-bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	auto set = get<bool>(L, index);
@@ -50,7 +50,7 @@ bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHolder const& lifetime, v
 }
 
 template <class T>
-bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	if (EnableWriteProtectedWrites) {
 		return GenericSetOffsetProperty<T>(L, lifetime, obj, index, offset, flag);
@@ -60,13 +60,13 @@ bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHolder const& 
 	}
 }
 
-inline bool SetPropertyWriteProtected(lua_State* L, LifetimeHolder const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+inline bool SetPropertyWriteProtected(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	return false;
 }
 
 template <class T>
-bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHolder const& lifetime, void* obj, std::size_t offset, uint64_t)
+bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	MakeObjectRef(L, lifetime, value);

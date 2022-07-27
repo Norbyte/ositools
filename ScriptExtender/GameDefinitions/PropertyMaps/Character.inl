@@ -143,7 +143,7 @@ for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
 }
 
 pm.AddProperty("PlayerCustomData",
-	[](lua_State* L, LifetimeHolder const& lifetime, esv::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, esv::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->PlayerData) {
 			MakeObjectRef(L, &obj->PlayerData->CustomData);
 		} else {
@@ -389,7 +389,7 @@ ADD_TYPE("PlayerCustomData", eoc::PlayerCustomData)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("PlayerCustomData",
-	[](lua_State* L, LifetimeHolder const& lifetime, ecl::Character* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, ecl::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->PlayerData) {
 			MakeObjectRef(L, &obj->PlayerData->CustomData);
 		} else {

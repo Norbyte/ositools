@@ -3,10 +3,11 @@
 
 BEGIN_NS(lua)
 
-void GenericPropertyMap::Init()
+void GenericPropertyMap::Init(int registryIndex)
 {
 	assert(!IsInitializing && !Initialized);
 	IsInitializing = true;
+	RegistryIndex = registryIndex;
 }
 
 void GenericPropertyMap::Finish()
@@ -21,7 +22,7 @@ bool GenericPropertyMap::HasProperty(FixedString const& prop) const
 	return Properties.find(prop) != Properties.end();
 }
 
-bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop) const
+bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
@@ -35,7 +36,7 @@ bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHolder const& life
 	return it->second.Get(L, lifetime, object, it->second.Offset, it->second.Flag);
 }
 
-bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHolder const& lifetime, void* object, FixedString const& prop, int index) const
+bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
@@ -65,7 +66,7 @@ int ObjectProxy2::Index(lua_State* L)
 {
 	StackCheck _(L, 1);
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to read object of type '%s' whose lifetime has expired", impl->GetTypeName());
 		push(L, nullptr);
 		return 1;
@@ -83,7 +84,7 @@ int ObjectProxy2::NewIndex(lua_State* L)
 {
 	StackCheck _(L, 0);
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to write dead object of type '%s'", impl->GetTypeName());
 		return 0;
 	}
@@ -96,7 +97,7 @@ int ObjectProxy2::NewIndex(lua_State* L)
 int ObjectProxy2::Next(lua_State* L)
 {
 	auto impl = GetImpl();
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		luaL_error(L, "Attempted to iterate dead object of type '%s'", impl->GetTypeName());
 		return 0;
 	}
@@ -113,10 +114,10 @@ int ObjectProxy2::ToString(lua_State* L)
 {
 	StackCheck _(L, 1);
 	char entityName[200];
-	if (lifetime_.IsAlive()) {
-		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw());
+	if (lifetime_.IsAlive(L)) {
+		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw(L));
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p, DEAD REFERENCE)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p, DEAD REFERENCE)", GetImpl()->GetTypeName().GetString(), GetImpl()->GetRaw(L));
 	}
 
 	push(L, entityName);
@@ -125,14 +126,14 @@ int ObjectProxy2::ToString(lua_State* L)
 
 bool ObjectProxy2::IsEqual(lua_State* L, ObjectProxy2* other)
 {
-	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+	return GetImpl()->GetRaw(L) == other->GetImpl()->GetRaw(L);
 }
 
 void* ObjectProxy2::CheckedGetRaw(lua_State* L, int index, FixedString const& typeName)
 {
 	auto proxy = Userdata<ObjectProxy2>::CheckUserData(L, index);
 	if (proxy->GetImpl()->IsA(typeName)) {
-		auto obj = proxy->GetRaw();
+		auto obj = proxy->GetRaw(L);
 		if (obj == nullptr) {
 			luaL_error(L, "Argument %d: got object of type '%s' whose lifetime has expired", index, typeName.GetString());
 			return nullptr;
@@ -149,7 +150,7 @@ void* ObjectProxy2::TryGetRaw(lua_State* L, int index, FixedString const& typeNa
 {
 	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
 	if (proxy && proxy->GetImpl()->IsA(typeName)) {
-		return proxy->GetRaw();
+		return proxy->GetRaw(L);
 	} else {
 		return nullptr;
 	}

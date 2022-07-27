@@ -417,10 +417,8 @@ namespace dse::lua
 
 	State::State()
 		: lifetimeStack_(lifetimePool_),
-		globalLifetime_(lifetimePool_, lifetimePool_.Allocate())
+		globalLifetime_(lifetimePool_.Allocate())
 	{
-		globalLifetime_.GetLifetime()->SetInfinite();
-
 		L = lua_newstate(LuaAlloc, nullptr);
 		lua_setup_cppobjects(L, nullptr, nullptr, &LuaCppGetLightMetatable, nullptr);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
@@ -438,8 +436,7 @@ namespace dse::lua
 
 	State::~State()
 	{
-		globalLifetime_.GetLifetime()->ClearInfinite();
-		globalLifetime_.GetLifetime()->Kill();
+		lifetimePool_.Release(globalLifetime_);
 		lua_close(L);
 	}
 
@@ -453,11 +450,11 @@ namespace dse::lua
 		return *reinterpret_cast<State**>(lua_getextraspace(L));
 	}
 
-	LifetimeHolder State::GetCurrentLifetime()
+	LifetimeHandle State::GetCurrentLifetime()
 	{
 		if (lifetimeStack_.IsEmpty()) {
 			OsiErrorS("Attempted to construct Lua object proxy while lifetime stack is empty");
-			return LifetimeHolder(lifetimePool_, nullptr);
+			return LifetimeHandle{};
 		} else {
 			return lifetimeStack_.GetCurrent();
 		}
@@ -467,7 +464,7 @@ namespace dse::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
-		LifetimePin _l(lifetimeStack_);
+		LifetimeStackPin _l(lifetimeStack_);
 		auto lifetime = lifetimeStack_.GetCurrent();
 		PushExtFunction(L, "_LoadBootstrap");
 		push(L, path);
@@ -534,7 +531,7 @@ namespace dse::lua
 #endif
 
 		/* Ask Lua to run our little script */
-		LifetimePin _(lifetimeStack_);
+		LifetimeStackPin _(lifetimeStack_);
 		status = CallWithTraceback(L, 0, LUA_MULTRET);
 		if (status != LUA_OK) {
 			LuaError("Failed to execute script: " << lua_tostring(L, -1));

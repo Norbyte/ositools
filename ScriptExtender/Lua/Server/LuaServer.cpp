@@ -22,19 +22,19 @@ END_NS()
 
 BEGIN_NS(lua)
 
-LifetimeHolder LifetimeFromState(lua_State* L)
+LifetimeHandle LifetimeFromState(lua_State* L)
 {
 	return State::FromLua(L)->GetCurrentLifetime();
 }
 
-LifetimeHolder GlobalLifetimeFromState(lua_State* L)
+LifetimeHandle GlobalLifetimeFromState(lua_State* L)
 {
 	return State::FromLua(L)->GetGlobalLifetime();
 }
 
 #define MAKE_REF(ty) case ActionDataType::ty: ObjectProxy2::MakeRef(L, static_cast<ty##ActionData*>(obj), lifetime); return;
 
-void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, LifetimeHolder const & lifetime)
+void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, LifetimeHandle const & lifetime)
 {
 	switch (obj->Type) {
 	MAKE_REF(Teleport)
@@ -73,7 +73,7 @@ void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, Lifeti
 
 #define MAKE_REF(ty) case SurfaceActionType::ty: ObjectProxy2::MakeRef(L, static_cast<esv::ty*>(obj), lifetime); return;
 
-void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceAction* obj, LifetimeHolder const& lifetime)
+void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceAction* obj, LifetimeHandle const& lifetime)
 {
 	switch (obj->VMT->GetTypeId(obj)) {
 	MAKE_REF(CreateSurfaceAction)
@@ -98,7 +98,7 @@ void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceActio
 
 #define MAKE_REF(ty, cls) case ObjectHandleType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
 
-void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHolder const & lifetime)
+void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHandle const & lifetime)
 {
 	ComponentHandle handle;
 	obj->GetObjectHandle(handle);
@@ -140,17 +140,17 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 #undef MAKE_REF
 
 
-void LuaPolymorphic<IEoCServerObject>::MakeRef(lua_State* L, IEoCServerObject* obj, LifetimeHolder const& lifetime)
+void LuaPolymorphic<IEoCServerObject>::MakeRef(lua_State* L, IEoCServerObject* obj, LifetimeHandle const& lifetime)
 {
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }
 
-void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* obj, LifetimeHolder const& lifetime)
+void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* obj, LifetimeHandle const& lifetime)
 {
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }
 
-void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplate* obj, LifetimeHolder const& lifetime)
+void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplate* obj, LifetimeHandle const& lifetime)
 {
 	auto type = obj->GetTypeId();
 
@@ -188,14 +188,14 @@ void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplat
 	ObjectProxy2::MakeRef(L, obj, lifetime);
 }
 
-void LuaPolymorphic<EoCGameObjectTemplate>::MakeRef(lua_State* L, EoCGameObjectTemplate* obj, LifetimeHolder const& lifetime)
+void LuaPolymorphic<EoCGameObjectTemplate>::MakeRef(lua_State* L, EoCGameObjectTemplate* obj, LifetimeHandle const& lifetime)
 {
 	LuaPolymorphic<GameObjectTemplate>::MakeRef(L, obj, lifetime);
 }
 
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 
-void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHolder const & lifetime)
+void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHandle const & lifetime)
 {
 	switch (status->GetStatusId()) {
 	MAKE_REF(HIT, esv::StatusHit)
@@ -290,7 +290,7 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 
 #define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
 
-void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, LifetimeHolder const & lifetime)
+void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, LifetimeHandle const & lifetime)
 {
 	switch (status->GetStatusId()) {
 	// FIXME - map client status types
@@ -304,7 +304,7 @@ void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, Lif
 #undef MAKE_REF
 
 
-void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectInstance* stats, LifetimeHolder const & lifetime)
+void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectInstance* stats, LifetimeHandle const & lifetime)
 {
 	auto modifierList = stats->GetModifierList();
 	if (modifierList && modifierList->Name == GFS.strCharacter) {
@@ -316,7 +316,7 @@ void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectI
 	}
 }
 
-void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::EquipmentAttributes* stats, LifetimeHolder const & lifetime)
+void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::EquipmentAttributes* stats, LifetimeHandle const & lifetime)
 {
 	switch (stats->StatsType) {
 	case stats::EquipmentStatsType::Weapon: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesWeapon*>(stats));
@@ -327,10 +327,10 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 }
 
 template <>
-esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get() const
+esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {
 	auto self = esv::GetEntityWorld()->GetComponent<esv::Character>(handle_);
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		WarnDeprecated56("An access was made to an esv::Character instance after its lifetime has expired; this behavior is deprecated.");
 	}
 
@@ -1081,7 +1081,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
+		LifetimeStackPin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_GetModPersistentVars");
 		push(L, modTable);
@@ -1106,7 +1106,7 @@ namespace dse::esv::lua
 	{
 		StackCheck _(L, 0);
 		Restriction restriction(*this, RestrictAll);
-		LifetimePin _p(lifetimeStack_);
+		LifetimeStackPin _p(lifetimeStack_);
 
 		PushExtFunction(L, "_RestoreModPersistentVars");
 		push(L, modTable);

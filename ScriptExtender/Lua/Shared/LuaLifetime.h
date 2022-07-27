@@ -5,7 +5,7 @@
 
 BEGIN_NS(lua)
 
-template <class T, unsigned Size>
+template <class T, std::size_t Size>
 class HierarchicalPoolAllocator
 {
 public:
@@ -23,6 +23,10 @@ public:
 		auto l1buckets = Size / (PageBits * PageBits);
 		if (l1buckets % PageBits) {
 			l1_[std::size(l1_) - 1] = 0xffffffffffffffffull << (PageBits - (l1buckets & (PageBits - 1)));
+		}
+
+		for (std::size_t i = 0; i < Size; i++) {
+			pool_[i].SetIndex(i);
 		}
 	}
 
@@ -58,12 +62,6 @@ public:
 #endif
 
 				auto lifetime = pool_ + off;
-#if defined(DEBUG_LIFETIMES)
-				if (lifetime->References() > 0) {
-					ERR("Attempted to construct a lifetime on a slot that still has references! This is very, very bad!");
-				}
-#endif
-
 				lifetime->Acquire();
 				return lifetime;
 			}
@@ -101,6 +99,12 @@ public:
 		ptr->Release();
 	}
 
+	T* Get(std::size_t index) const
+	{
+		assert(index < Size);
+		return pool_ + index;
+	}
+
 public:
 	static_assert((Size % 4096) == 0, "Size must be a multiple of 4096");
 
@@ -115,44 +119,33 @@ class LifetimePool;
 class Lifetime : public Noncopyable<Lifetime>
 {
 public:
-	Lifetime()
-		: isDeleted_(true), isAlive_(false), isInfinite_(false), references_(0)
+	inline Lifetime()
 	{}
 
-	~Lifetime()
+	inline ~Lifetime()
 	{
-		assert(references_ == 0 && !isAlive_);
+		assert(!isAlive_);
 	}
 
-	void Acquire()
+	inline void Acquire()
 	{
-		isDeleted_ = false;
+		assert(!isAlive_);
 		isAlive_ = true;
-		isInfinite_ = false;
-		references_ = 0;
+		salt_++;
 #if defined(TRACE_LIFETIMES)
 		INFO("[%p] ACQUIRE", this);
 #endif
 	}
 
-	void Release()
+	inline void Release()
 	{
 #if defined(DEBUG_LIFETIMES)
-		if (isInfinite_) {
-			ERR("[%p] Attempted to release a persistent reference. This is very, very bad!", this);
-		}
-
-		if (isAlive_) {
-			ERR("[%p] Attempted to release an alive lifetime.", this);
-		}
-
-		if (isDeleted_) {
-			ERR("[%p] Attempted to release a deleted reference. This is very, very bad!", this);
+		if (!isAlive_) {
+			ERR("[%p] Attempted to release a lifetime that is not alive.", this);
 		}
 #endif
 
-		assert(references_ == 0 && !isDeleted_);
-		isDeleted_ = true;
+		assert(isAlive_);
 		isAlive_ = false;
 #if defined(TRACE_LIFETIMES)
 		INFO("[%p] RELEASE", this);
@@ -164,54 +157,19 @@ public:
 		return isAlive_;
 	}
 
-	inline void SetInfinite()
+	inline uint32_t Index() const
 	{
-#if defined(TRACE_LIFETIMES)
-		INFO("[%p] MAKE GLOBAL", this);
-#endif
-		assert(!isInfinite_);
-		isInfinite_ = true;
+		return index_;
 	}
 
-	inline void ClearInfinite()
+	inline uint32_t Salt() const
 	{
-#if defined(TRACE_LIFETIMES)
-		INFO("[%p] MAKE GLOBAL", this);
-#endif
-		assert(isInfinite_);
-		isInfinite_ = false;
+		return salt_;
 	}
 
-	inline unsigned References() const
+	inline void SetIndex(std::size_t i)
 	{
-		return references_;
-	}
-
-	inline void Kill()
-	{
-#if defined(DEBUG_LIFETIMES)
-		if (isInfinite_) {
-			ERR("[%p] Attempted to kill a persistent reference. This is very, very bad!", this);
-			return;
-		}
-
-		if (!isAlive_) {
-			ERR("[%p] Attempted to kill a reference that is not alive.", this);
-			return;
-		}
-
-		if (isDeleted_ || references_ == 0) {
-			ERR("[%p] Attempted to kill a deleted lifetime!", this);
-			return;
-		}
-#endif
-
-#if defined(TRACE_LIFETIMES)
-		INFO("[%p] Kill", this);
-#endif
-
-		assert(isAlive_);
-		isAlive_ = false;
+		index_ = (uint32_t)i;
 	}
 
 protected:
@@ -219,43 +177,143 @@ protected:
 	friend class LifetimePin;
 	friend class StaticLifetimePin;
 
-	void AddRef()
-	{
-#if defined(DEBUG_LIFETIMES)
-		if (!isAlive_ || isDeleted_) {
-			ERR("[%p] IncRef on deleted lifetime?", this);
-			return;
-		}
-#endif
-
-		references_++;
-	}
-
-	unsigned DecRef()
-	{
-		assert(references_ > 0);
-		return --references_;
-	}
-
 private:
-	std::atomic<unsigned> references_;
-	bool isDeleted_;
-	bool isAlive_;
-	bool isInfinite_;
+	uint32_t index_{ 0 };
+	uint32_t salt_{ 0 };
+	bool isAlive_{ false };
+};
+
+
+struct LifetimeHandle
+{
+	static constexpr unsigned HandleBits = 48;
+	static constexpr unsigned IndexBits = 18;
+	static constexpr unsigned SaltBits = (HandleBits - IndexBits);
+	static constexpr unsigned MaxPoolSize = 1 << IndexBits;
+	static constexpr uint64_t IndexMask = (1ull << IndexBits) - 1;
+	static constexpr uint64_t SaltMask = (1ull << SaltBits) - 1;
+	static constexpr uint64_t HandleMask = (1ull << HandleBits) - 1;
+
+	static constexpr uint64_t NullHandle = 0ull;
+
+	uint64_t handle_;
+
+	inline LifetimeHandle()
+		: handle_(NullHandle)
+	{}
+
+	explicit inline LifetimeHandle(uint64_t handle)
+		: handle_(handle)
+	{}
+
+	explicit inline LifetimeHandle(uint32_t index, uint32_t salt)
+		: handle_(((uint64_t)index & IndexMask) | (((uint64_t)salt & SaltMask) << IndexBits))
+	{}
+
+	explicit inline LifetimeHandle(Lifetime const* lifetime)
+		: handle_(MakeHandle(lifetime))
+	{}
+
+	static inline uint64_t MakeHandle(Lifetime const* lifetime)
+	{
+		if (lifetime) {
+			return (uint64_t)lifetime->Index() | (((uint64_t)lifetime->Salt() & SaltMask) << IndexBits);
+		} else {
+			return NullHandle;
+		}
+	}
+
+	inline LifetimeHandle(LifetimeHandle const& oh)
+		: handle_(oh.handle_)
+	{}
+
+	inline LifetimeHandle& operator = (LifetimeHandle const& oh)
+	{
+		handle_ = oh.handle_;
+		return *this;
+	}
+
+	inline bool operator == (LifetimeHandle const& oh) const
+	{
+		return handle_ == oh.handle_;
+	}
+
+	explicit inline operator bool() const
+	{
+		return handle_ != NullHandle;
+	}
+
+	inline bool operator !() const
+	{
+		return handle_ == NullHandle;
+	}
+
+	explicit inline operator uint64_t() const
+	{
+		return (uint64_t)handle_;
+	}
+
+	inline uint32_t GetIndex() const
+	{
+		return (handle_ & IndexMask);
+	}
+
+	inline uint32_t GetSalt() const
+	{
+		return (handle_ >> IndexBits) & SaltMask;
+	}
+
+	inline bool IsAlive(lua_State* L) const
+	{
+		return GetLifetime(L) != nullptr;
+	}
+
+	Lifetime* GetLifetime(lua_State* L) const;
 };
 
 class LifetimePool : Noncopyable<LifetimePool>
 {
 public:
-	inline Lifetime* Allocate()
+	inline LifetimeHandle Allocate()
 	{
-		return pool_.Allocate();
+		return LifetimeHandle(pool_.Allocate());
 	}
 
-	inline void Release(Lifetime* lifetime)
+	inline Lifetime* Get(LifetimeHandle handle)
 	{
-		assert(lifetime->References() == 0);
-		pool_.Free(lifetime);
+		if (!handle) return nullptr;
+
+		auto ref = pool_.Get(handle.GetIndex());
+		if (ref == nullptr) {
+#if defined(DEBUG_LIFETIMES)
+			ERR("[%016lx] Attempted to get lifetime with invalid index %d (max is %d).", (uint64_t)handle, handle.GetIndex(), LifetimeHandle::MaxPoolSize);
+#endif
+			return nullptr;
+		}
+
+		if (ref->Salt() != handle.GetSalt()) {
+#if defined(DEBUG_LIFETIMES)
+			ERR("[%016lx] Lifetime salt mismatch; got %d, expected %d", (uint64_t)handle, ref->Salt(), handle.GetSalt());
+#endif
+			return nullptr;
+		}
+
+		if (!ref->IsAlive()) {
+#if defined(DEBUG_LIFETIMES)
+			ERR("[%016lx] Attempted to get a dead lifetime.", (uint64_t)handle);
+#endif
+			return nullptr;
+		}
+
+		return ref;
+	}
+
+	inline void Release(LifetimeHandle handle)
+	{
+		auto ref = Get(handle);
+		if (ref) {
+			pool_.Free(ref);
+		}
 	}
 
 	inline auto const& GetAllocator() const
@@ -264,247 +322,168 @@ public:
 	}
 
 private:
-	HierarchicalPoolAllocator<Lifetime, 262144> pool_;
-};
-
-class LifetimeHolder
-{
-public:
-	inline LifetimeHolder(LifetimePool& pool, Lifetime* lifetime)
-		: lifetime(lifetime), pool(pool)
-	{}
-
-	LifetimeHolder(LifetimeHolder&& o) noexcept
-		: lifetime(o.lifetime), pool(o.pool)
-	{}
-
-	LifetimeHolder(LifetimeHolder const& o)
-		: lifetime(o.lifetime), pool(o.pool)
-	{}
-
-	Lifetime* lifetime;
-	LifetimePool& pool;
-};
-
-class LifetimeReference
-{
-public:
-	inline LifetimeReference(LifetimePool& pool, Lifetime* lifetime)
-		: lifetime_(lifetime), pool_(pool)
-	{
-		if (lifetime_) {
-			lifetime_->AddRef();
-		}
-	}
-
-	inline ~LifetimeReference()
-	{
-		if (lifetime_ && lifetime_->DecRef() == 0) {
-			pool_.Release(lifetime_);
-		}
-	}
-
-	LifetimeReference(LifetimeReference&& o) noexcept
-		: lifetime_(o.lifetime_), pool_(o.pool_)
-	{
-		o.lifetime_ = nullptr;
-	}
-
-	LifetimeReference(LifetimeReference const& o)
-		: lifetime_(o.lifetime_), pool_(o.pool_)
-	{
-		if (lifetime_) {
-			lifetime_->AddRef();
-		}
-	}
-
-	LifetimeReference(LifetimeHolder&& o) noexcept
-		: lifetime_(o.lifetime), pool_(o.pool)
-	{}
-
-	LifetimeReference(LifetimeHolder const& o)
-		: lifetime_(o.lifetime), pool_(o.pool)
-	{
-		if (lifetime_) {
-			lifetime_->AddRef();
-		}
-	}
-
-	LifetimeReference& operator = (LifetimeReference const&) = delete;
-	LifetimeReference& operator = (LifetimeReference &&) = delete;
-
-	inline bool IsAlive() const
-	{
-		return lifetime_ && lifetime_->IsAlive();
-	}
-
-	inline LifetimeHolder Get() const
-	{
-		return LifetimeHolder(pool_, lifetime_);
-	}
-
-	inline Lifetime* GetLifetime() const
-	{
-		return lifetime_;
-	}
-
-private:
-	Lifetime* lifetime_;
-	LifetimePool& pool_;
+	HierarchicalPoolAllocator<Lifetime, LifetimeHandle::MaxPoolSize> pool_;
 };
 
 class LifetimeStack
 {
 public:
-	LifetimeStack(LifetimePool& pool)
+	inline LifetimeStack(LifetimePool& pool)
 		: pool_(pool)
 	{}
 
-	LifetimePool& Pool()
+	inline LifetimePool& Pool()
 	{
 		return pool_;
 	}
 
-	bool IsEmpty() const
+	inline bool IsEmpty() const
 	{
 		return stack_.empty();
 	}
 
-	Lifetime* Push()
+	inline LifetimeHandle Push()
 	{
 		assert(stack_.size() < 0x1000);
 		auto lifetime = pool_.Allocate();
-		stack_.push_back(LifetimeReference(pool_, lifetime));
+		stack_.push_back(lifetime);
 		return lifetime;
 	}
 
-	void Push(Lifetime* lifetime)
+	inline void Push(LifetimeHandle lifetime)
 	{
 		assert(stack_.size() < 0x1000);
-		stack_.push_back(LifetimeReference(pool_, lifetime));
+		stack_.push_back(lifetime);
 	}
 
-	void PopAndKill()
+	inline void PopAndKill()
 	{
 		assert(!stack_.empty());
-		auto lifetime = stack_.rbegin()->GetLifetime();
-		if (lifetime != nullptr) {
-			lifetime->Kill();
-		}
+		auto lifetime = *stack_.rbegin();
+		pool_.Release(lifetime);
 		stack_.pop_back();
 	}
 
-	void PopAndKill(Lifetime* lifetime)
+	inline void PopAndKill(LifetimeHandle lifetime)
 	{
 		assert(!stack_.empty());
-		assert(stack_.rbegin()->GetLifetime() == lifetime);
-		if (lifetime != nullptr) {
-			lifetime->Kill();
-		}
+		assert(*stack_.rbegin() == lifetime);
+		pool_.Release(lifetime);
 		stack_.pop_back();
 	}
 
-	void Pop(Lifetime* lifetime)
+	inline void Pop(LifetimeHandle lifetime)
 	{
 		assert(!stack_.empty());
-		assert(stack_.rbegin()->GetLifetime() == lifetime);
+		assert(*stack_.rbegin() == lifetime);
 		stack_.pop_back();
 	}
 
-	inline LifetimeHolder GetCurrent() const
+	inline LifetimeHandle GetCurrent() const
 	{
 		assert(!stack_.empty());
-		return stack_.rbegin()->Get();
+		return *stack_.rbegin();
 	}
 
 private:
 	LifetimePool& pool_;
-	Vector<LifetimeReference> stack_;
+	Vector<LifetimeHandle> stack_;
 };
 
-class LifetimePin : Noncopyable<LifetimePin>
+// RAII lifetime stack guard; 
+// Allocates a lifetime object on construction and pushes it onto the top of the lifetime stack;
+// removes and deletes the lifetime on destruction
+class LifetimeStackPin : Noncopyable<LifetimeStackPin>
 {
 public:
-	LifetimePin(LifetimeStack& stack)
+	inline LifetimeStackPin(LifetimeStack& stack)
 		: stack_(stack)
 	{
 		lifetime_ = stack_.Push();
-		if (lifetime_) {
-			lifetime_->AddRef();
-		}
 	}
 
-	~LifetimePin()
+	LifetimeStackPin(lua_State* L);
+
+	inline ~LifetimeStackPin()
 	{
 		stack_.PopAndKill(lifetime_);
-		if (lifetime_ && lifetime_->DecRef() == 0) {
-			stack_.Pool().Release(lifetime_);
-		}
+	}
+
+	inline LifetimeHandle GetLifetime() const
+	{
+		return lifetime_;
 	}
 
 private:
 	LifetimeStack& stack_;
-	Lifetime* lifetime_;
+	LifetimeHandle lifetime_;
 };
 
-class StaticLifetimePin : Noncopyable<StaticLifetimePin>
+
+// RAII lifetime stack guard; 
+// Pushes the specified a lifetime object to the top of the lifetime stack on construction;
+// removes it from the stack on destruction (does not destroy the lifetime!)
+class StaticLifetimeStackPin : Noncopyable<StaticLifetimeStackPin>
 {
 public:
-	StaticLifetimePin(LifetimeStack& stack, Lifetime* lifetime)
+	inline StaticLifetimeStackPin(LifetimeStack& stack, LifetimeHandle lifetime)
 		: stack_(stack), lifetime_(lifetime)
 	{
 		 stack_.Push(lifetime_);
-		 if (lifetime_) {
-			 lifetime_->AddRef();
-		 }
 	}
 
-	~StaticLifetimePin()
+	StaticLifetimeStackPin(lua_State* L, LifetimeHandle lifetime);
+
+	inline ~StaticLifetimeStackPin()
 	{
 		stack_.Pop(lifetime_);
-		if (lifetime_ && lifetime_->DecRef() == 0) {
-			stack_.Pool().Release(lifetime_);
-		}
+	}
+
+	inline LifetimeHandle GetLifetime() const
+	{
+		return lifetime_;
 	}
 
 private:
 	LifetimeStack& stack_;
-	Lifetime* lifetime_;
+	LifetimeHandle lifetime_;
 };
 
-template <class T>
-class LifetimeTrackedObject : public Noncopyable<LifetimeTrackedObject<T>>
+
+// RAII lifetime owner guard; 
+// Allocates a lifetime object on construction; deletes the lifetime on destruction
+class LifetimeOwnerPin : Noncopyable<LifetimeOwnerPin>
 {
 public:
-	inline LifetimeTrackedObject(T* obj, LifetimePool& lifetimePool, Lifetime* lifetime)
-		: object_(obj), reference_(lifetimePool, lifetime)
+	inline LifetimeOwnerPin(LifetimePool& pool)
+		: pool_(pool), lifetime_(pool_.Allocate())
 	{}
 	
-	inline LifetimeTrackedObject(T* obj, LifetimeReference const& lifetime)
-		: object_(obj), reference_(lifetime)
+	inline LifetimeOwnerPin(LifetimePool& pool, LifetimeHandle const& lifetime)
+		: pool_(pool), lifetime_(lifetime)
 	{}
 	
-	inline LifetimeTrackedObject(T* obj, LifetimeHolder const& lifetime)
-		: object_(obj), reference_(lifetime)
-	{}
+	LifetimeOwnerPin(lua_State* L);
+	LifetimeOwnerPin(lua_State* L, LifetimeHandle const& lifetime);
 
-	inline T* Get() const
+	inline ~LifetimeOwnerPin()
 	{
-		if (reference_.IsAlive()) {
-			return object_;
-		} else {
-			return nullptr;
-		}
+		pool_.Release(lifetime_);
 	}
 
-	inline LifetimeHolder GetLifetime() const
+	inline LifetimeHandle GetLifetime() const
 	{
-		return reference_.Get();
+		return lifetime_;
+	}
+
+	inline operator LifetimeHandle() const
+	{
+		return lifetime_;
 	}
 
 private:
-	T* object_;
-	LifetimeReference reference_;
+	LifetimePool& pool_;
+	LifetimeHandle lifetime_;
 };
 
 END_NS()

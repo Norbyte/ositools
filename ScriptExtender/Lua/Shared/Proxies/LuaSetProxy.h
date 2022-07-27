@@ -31,15 +31,15 @@ public:
 		return reinterpret_cast<SetProxyImplBase*>(this + 1);
 	}
 
-	inline bool IsAlive() const
+	inline bool IsAlive(lua_State* L) const
 	{
-		return lifetime_.IsAlive();
+		return lifetime_.IsAlive(L);
 	}
 
 	template <class T>
-	T* Get()
+	T* Get(lua_State* L)
 	{
-		if (!lifetime_.IsAlive()) {
+		if (!lifetime_.IsAlive(L)) {
 			return nullptr;
 		}
 			
@@ -51,9 +51,9 @@ public:
 	}
 
 private:
-	LifetimeReference lifetime_;
+	LifetimeHandle lifetime_;
 
-	SetProxy(LifetimeHolder const& lifetime)
+	SetProxy(LifetimeHandle const& lifetime)
 		: lifetime_(lifetime)
 	{}
 
@@ -77,7 +77,7 @@ template <class T>
 struct IsSetLike { static constexpr bool Value = false; };
 
 template <class T>
-inline void push_set_proxy(lua_State* L, LifetimeHolder const& lifetime, T* v)
+inline void push_set_proxy(lua_State* L, LifetimeHandle const& lifetime, T* v)
 {
 	SetProxy::Make<T>(L, v, lifetime);
 }

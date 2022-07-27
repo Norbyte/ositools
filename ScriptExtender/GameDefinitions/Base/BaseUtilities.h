@@ -319,7 +319,7 @@ struct LuaPolymorphic {
 	template <> \
 	struct LuaPolymorphic<cls> { \
 		static constexpr bool IsPolymorphic = true; \
-		static void MakeRef(lua_State* L, cls* value, LifetimeHolder const& lifetime); \
+		static void MakeRef(lua_State* L, cls* value, LifetimeHandle const& lifetime); \
 	};
 
 

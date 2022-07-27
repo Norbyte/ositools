@@ -18,7 +18,7 @@ ADD_TYPE("RootTemplate", SurfaceTemplate)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("RootTemplate",
-	[](lua_State* L, LifetimeHolder const& lifetime, esv::Surface* obj, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, esv::Surface* obj, std::size_t offset, uint64_t flag) {
 		MakeObjectRef(L, GetStaticSymbols().GetSurfaceTemplate(obj->SurfaceType));
 		return true;
 	}

@@ -16,10 +16,10 @@
 BEGIN_NS(lua)
 
 template <>
-ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
+ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get(lua_State* L) const
 {
 	auto self = ecl::GetEntityWorld()->GetComponent<ecl::Character>(handle_);
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		WarnDeprecated56("An access was made to an ecl::Character instance after its lifetime has expired; this behavior is deprecated.");
 	}
 
@@ -27,10 +27,10 @@ ecl::Character* ObjectProxyHandleBasedRefImpl<ecl::Character>::Get() const
 }
 
 template <>
-ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get() const
+ecl::Item* ObjectProxyHandleBasedRefImpl<ecl::Item>::Get(lua_State* L) const
 {
 	auto self = ecl::GetEntityWorld()->GetComponent<ecl::Item>(handle_);
-	if (!lifetime_.IsAlive()) {
+	if (!lifetime_.IsAlive(L)) {
 		WarnDeprecated56("An access was made to an ecl::Item instance after its lifetime has expired; this behavior is deprecated.");
 	}
 

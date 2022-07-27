@@ -52,7 +52,7 @@ ObjectSet<FixedString> Item::GetDeltaMods()
 	}
 }
 
-bool Item::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop)
+bool Item::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop)
 {
 	auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;
 	if (object->Stats) {
@@ -69,7 +69,7 @@ bool Item::LuaFallbackGet(lua_State* L, lua::LifetimeHolder const& lifetime, Ite
 	return false;
 }
 
-bool Item::LuaFallbackSet(lua_State* L, lua::LifetimeHolder const& lifetime, Item* object, FixedString const& prop, int index)
+bool Item::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index)
 {
 	if (object->Stats) {
 		auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;

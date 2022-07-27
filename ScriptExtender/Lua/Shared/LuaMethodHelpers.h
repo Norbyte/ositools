@@ -9,7 +9,7 @@
 BEGIN_NS(lua)
 
 template <class T>
-inline void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value)
+inline void MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value)
 {
 	if (value == nullptr) {
 		push(L, nullptr);
@@ -54,14 +54,14 @@ inline void MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, T* value
 }
 
 template <class T>
-inline auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, OverrideableProperty<T>* value)
+inline auto MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, OverrideableProperty<T>* value)
 {
 	return MakeObjectRef(L, lifetime, &value->Value);
 }
 
-void MakeUIObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value);
+void MakeUIObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value);
 
-inline auto MakeObjectRef(lua_State* L, LifetimeHolder const& lifetime, UIObject* value)
+inline auto MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, UIObject* value)
 {
 	return MakeUIObjectRef(L, lifetime, value);
 }

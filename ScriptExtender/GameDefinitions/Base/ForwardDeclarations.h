@@ -165,7 +165,7 @@ class ScriptExtender;
 // Forward declarations for custom Lua serializers
 namespace lua
 {
-	class LifetimeHolder;
+	struct LifetimeHandle;
 }
 
 END_SE()

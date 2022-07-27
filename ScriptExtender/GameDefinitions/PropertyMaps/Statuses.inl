@@ -28,7 +28,7 @@ ADD_TYPE("StatusType", FixedString)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatusType",
-	[](lua_State* L, LifetimeHolder const& lifetime, esv::Status* status, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, esv::Status* status, std::size_t offset, uint64_t flag) {
 		push(L, status->GetStatusId());
 		return true;
 	}
@@ -482,7 +482,7 @@ ADD_TYPE("StatusType", FixedString)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("StatusType",
-	[](lua_State* L, LifetimeHolder const& lifetime, ecl::Status* status, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, ecl::Status* status, std::size_t offset, uint64_t flag) {
 		push(L, status->GetStatusId());
 		return true;
 	}

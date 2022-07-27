@@ -11,9 +11,9 @@ class EventObjectParamsImplBase
 public:
 	inline virtual ~EventObjectParamsImplBase() {};
 	virtual TypeInformation const& GetType() const = 0;
-	virtual bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop) = 0;
-	virtual bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop, int index) = 0;
-	virtual int Next(lua_State* L, LifetimeHolder const& lifetime, FixedString const& key) = 0;
+	virtual bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, FixedString const& prop) = 0;
+	virtual bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, FixedString const& prop, int index) = 0;
+	virtual int Next(lua_State* L, LifetimeHandle const& lifetime, FixedString const& key) = 0;
 	virtual void* GetRaw() = 0;
 };
 
@@ -41,17 +41,17 @@ public:
 		return GetTypeInfo<TParams>();
 	}
 
-	bool GetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop) override
+	bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, FixedString const& prop) override
 	{
 		return ObjectProxyHelpers<TParams>::GetProperty(L, &params_, lifetime, prop);
 	}
 
-	bool SetProperty(lua_State* L, LifetimeHolder const& lifetime, FixedString const& prop, int index) override
+	bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, FixedString const& prop, int index) override
 	{
 		return ObjectProxyHelpers<TParams>::SetProperty(L, &params_, lifetime, prop, index);
 	}
 
-	int Next(lua_State* L, LifetimeHolder const& lifetime, FixedString const& key) override
+	int Next(lua_State* L, LifetimeHandle const& lifetime, FixedString const& key) override
 	{
 		return ObjectProxyHelpers<TParams>::Next(L, &params_, lifetime, key);
 	}
@@ -73,7 +73,7 @@ public:
 	static char const* const MetatableName;
 
 	template <class TParams>
-	inline static EventObject* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
+	inline static EventObject* Make(lua_State* L, LifetimeHandle const& lifetime, char const* eventName,
 		TParams& eventParams, bool canPreventAction, WriteableEvent)
 	{
 		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, true);
@@ -82,7 +82,7 @@ public:
 	}
 
 	template <class TParams>
-	inline static EventObject* Make(lua_State* L, LifetimeHolder const& lifetime, char const* eventName,
+	inline static EventObject* Make(lua_State* L, LifetimeHandle const& lifetime, char const* eventName,
 		TParams const& eventParams, bool canPreventAction, ReadOnlyEvent)
 	{
 		auto self = NewWithExtraData(L, sizeof(EventObjectParamsImpl<TParams>), lifetime, eventName, canPreventAction, false);
@@ -97,9 +97,9 @@ public:
 		return reinterpret_cast<EventObjectParamsImplBase*>(this + 1);
 	}
 
-	inline bool IsAlive() const
+	inline bool IsAlive(lua_State* L) const
 	{
-		return lifetime_.IsAlive();
+		return lifetime_.IsAlive(L);
 	}
 
 	inline bool IsActionPrevented() const
@@ -108,9 +108,9 @@ public:
 	}
 
 	template <class TParams>
-	TParams* Get()
+	TParams* Get(lua_State* L)
 	{
-		if (!lifetime_.IsAlive()) {
+		if (!lifetime_.IsAlive(L)) {
 			return nullptr;
 		}
 
@@ -122,14 +122,14 @@ public:
 	}
 
 private:
-	LifetimeReference lifetime_;
+	LifetimeHandle lifetime_;
 	char const* eventName_;
 	bool canPreventAction_;
 	bool writeable_;
 	bool preventedAction_{ false };
 	bool eventStopped_{ false };
 
-	EventObject(LifetimeHolder const& lifetime, char const* eventName, bool canPreventAction, bool writeable)
+	EventObject(LifetimeHandle const& lifetime, char const* eventName, bool canPreventAction, bool writeable)
 		: lifetime_(lifetime), eventName_(eventName), canPreventAction_(canPreventAction), writeable_(writeable)
 	{}
 

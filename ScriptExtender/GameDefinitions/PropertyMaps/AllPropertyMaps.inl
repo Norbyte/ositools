@@ -68,12 +68,12 @@ P_REF(DamageList)
 // EffectFlags is an integer in v55
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("EffectFlags",
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::HitDamageInfo* hit, std::size_t offset, uint64_t flag) {
 		WarnDeprecated56("Reading EffectFlags directly is deprecated; use the new boolean properties (Hit, Blocked, Dodged, etc.) instead");
 		push(L, (uint32_t)hit->EffectFlags);
 		return true;
 	},
-	[](lua_State* L, LifetimeHolder const& lifetime, stats::HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, stats::HitDamageInfo* hit, int index, std::size_t offset, uint64_t flag) {
 		WarnDeprecated56("Writing EffectFlags directly is deprecated; use the new boolean properties (Hit, Blocked, Dodged, etc.) instead");
 		hit->EffectFlags = (stats::HitFlag)get<uint32_t>(L, index);
 		return true;
@@ -213,37 +213,37 @@ ADD_TYPE("Height", uint32_t)
 
 #if defined(GENERATING_PROPMAP)
 pm.AddProperty("OffsetX",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, ai->DataGrid.OffsetX);
 		return true;
 	}
 );
 pm.AddProperty("OffsetY",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, ai->DataGrid.OffsetY);
 		return true;
 	}
 );
 pm.AddProperty("OffsetZ",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, ai->DataGrid.OffsetZ);
 		return true;
 	}
 );
 pm.AddProperty("GridScale",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, ai->DataGrid.GridScale);
 		return true;
 	}
 );
 pm.AddProperty("Width",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, (double)ai->DataGrid.Width * ai->DataGrid.GridScale);
 		return true;
 	}
 );
 pm.AddProperty("Height",
-	[](lua_State* L, LifetimeHolder const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
+	[](lua_State* L, LifetimeHandle const& lifetime, eoc::AiGrid* ai, std::size_t offset, uint64_t flag) {
 		push(L, (double)ai->DataGrid.Height * ai->DataGrid.GridScale);
 		return true;
 	}

@@ -297,7 +297,7 @@ public:
 	void Call(char const* mod, char const* func, Vector<TArg> const & args)
 	{
 		auto L = GetState();
-		LifetimePin _(GetStack());
+		LifetimeStackPin _(GetStack());
 		lua_checkstack(L, (int)args.size() + 1);
 		auto stackSize = lua_gettop(L);
 

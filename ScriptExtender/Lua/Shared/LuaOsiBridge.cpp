@@ -857,7 +857,7 @@ namespace dse::esv::lua
 
 		auto L = lua->GetState();
 		lua_checkstack(L, params.Count() + 1);
-		LifetimePin _(lua->GetStack());
+		LifetimeStackPin _(lua->GetStack());
 		handler_.Push();
 
 		auto param = &params;
@@ -913,7 +913,7 @@ namespace dse::esv::lua
 	{
 		auto L = GetState();
 		lua_checkstack(L, params.Count() + 1);
-		LifetimePin _(GetStack());
+		LifetimeStackPin _(GetStack());
 
 		auto stackSize = lua_gettop(L);
 		if (func) {

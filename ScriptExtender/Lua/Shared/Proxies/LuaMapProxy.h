@@ -27,7 +27,7 @@ class RefMapByRefProxyImpl : public MapProxyImplBase
 public:
 	static_assert(ByVal<TKey>::Value, "RefMap key should be a by-value type!");
 
-	RefMapByRefProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
+	RefMapByRefProxyImpl(LifetimeHandle const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -108,7 +108,7 @@ public:
 
 private:
 	RefMap<TKey, TValue>* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 	
@@ -118,7 +118,7 @@ class RefMapByValProxyImpl : public MapProxyImplBase
 public:
 	static_assert(ByVal<TKey>::Value, "RefMap key should be a by-value type!");
 
-	RefMapByValProxyImpl(LifetimeHolder const& lifetime, RefMap<TKey, TValue> * obj)
+	RefMapByValProxyImpl(LifetimeHandle const& lifetime, RefMap<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -218,7 +218,7 @@ public:
 
 private:
 	RefMap<TKey, TValue>* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 	
 
@@ -228,7 +228,7 @@ class MapByRefProxyImpl : public MapProxyImplBase
 public:
 	static_assert(ByVal<TKey>::Value, "Map key should be a by-value type!");
 
-	MapByRefProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
+	MapByRefProxyImpl(LifetimeHandle const& lifetime, Map<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -309,7 +309,7 @@ public:
 
 private:
 	Map<TKey, TValue>* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 	
@@ -319,7 +319,7 @@ class MapByValProxyImpl : public MapProxyImplBase
 public:
 	static_assert(ByVal<TKey>::Value, "Map key should be a by-value type!");
 
-	MapByValProxyImpl(LifetimeHolder const& lifetime, Map<TKey, TValue> * obj)
+	MapByValProxyImpl(LifetimeHandle const& lifetime, Map<TKey, TValue> * obj)
 		: object_(obj), lifetime_(lifetime)
 	{
 		assert(obj != nullptr);
@@ -419,7 +419,7 @@ public:
 
 private:
 	Map<TKey, TValue>* object_;
-	LifetimeHolder lifetime_;
+	LifetimeHandle lifetime_;
 };
 
 
@@ -431,28 +431,28 @@ public:
 
 
 	template <class TKey, class TValue>
-	inline static RefMapByRefProxyImpl<TKey, TValue>* MakeByRef(lua_State* L, RefMap<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	inline static RefMapByRefProxyImpl<TKey, TValue>* MakeByRef(lua_State* L, RefMap<TKey, TValue>* object, LifetimeHandle const& lifetime)
 	{
 		auto self = NewWithExtraData(L, sizeof(RefMapByRefProxyImpl<TKey, TValue>), lifetime);
 		return new (self->GetImpl()) RefMapByRefProxyImpl<TKey, TValue>(lifetime, object);
 	}
 
 	template <class TKey, class TValue>
-	inline static RefMapByValProxyImpl<TKey, TValue>* MakeByVal(lua_State* L, RefMap<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	inline static RefMapByValProxyImpl<TKey, TValue>* MakeByVal(lua_State* L, RefMap<TKey, TValue>* object, LifetimeHandle const& lifetime)
 	{
 		auto self = NewWithExtraData(L, sizeof(RefMapByValProxyImpl<TKey, TValue>), lifetime);
 		return new (self->GetImpl()) RefMapByValProxyImpl<TKey, TValue>(lifetime, object);
 	}
 
 	template <class TKey, class TValue>
-	inline static MapByRefProxyImpl<TKey, TValue>* MakeByRef(lua_State* L, Map<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	inline static MapByRefProxyImpl<TKey, TValue>* MakeByRef(lua_State* L, Map<TKey, TValue>* object, LifetimeHandle const& lifetime)
 	{
 		auto self = NewWithExtraData(L, sizeof(MapByRefProxyImpl<TKey, TValue>), lifetime);
 		return new (self->GetImpl()) MapByRefProxyImpl<TKey, TValue>(lifetime, object);
 	}
 
 	template <class TKey, class TValue>
-	inline static MapByValProxyImpl<TKey, TValue>* MakeByVal(lua_State* L, Map<TKey, TValue>* object, LifetimeHolder const& lifetime)
+	inline static MapByValProxyImpl<TKey, TValue>* MakeByVal(lua_State* L, Map<TKey, TValue>* object, LifetimeHandle const& lifetime)
 	{
 		auto self = NewWithExtraData(L, sizeof(MapByValProxyImpl<TKey, TValue>), lifetime);
 		return new (self->GetImpl()) MapByValProxyImpl<TKey, TValue>(lifetime, object);
@@ -463,15 +463,15 @@ public:
 		return reinterpret_cast<MapProxyImplBase*>(this + 1);
 	}
 
-	inline bool IsAlive() const
+	inline bool IsAlive(lua_State* L) const
 	{
-		return lifetime_.IsAlive();
+		return lifetime_.IsAlive(L);
 	}
 
 	template <class TKey, class TValue>
-	RefMapByRefProxyImpl<TKey, TValue>* GetByRefRefMap()
+	RefMapByRefProxyImpl<TKey, TValue>* GetByRefRefMap(lua_State* L)
 	{
-		if (!lifetime_.IsAlive()) {
+		if (!lifetime_.IsAlive(L)) {
 			return nullptr;
 		}
 			
@@ -479,9 +479,9 @@ public:
 	}
 
 	template <class TKey, class TValue>
-	RefMapByValProxyImpl<TKey, TValue>* GetByValRefMap()
+	RefMapByValProxyImpl<TKey, TValue>* GetByValRefMap(lua_State* L)
 	{
-		if (!lifetime_.IsAlive()) {
+		if (!lifetime_.IsAlive(L)) {
 			return nullptr;
 		}
 			
@@ -489,9 +489,9 @@ public:
 	}
 
 private:
-	LifetimeReference lifetime_;
+	LifetimeHandle lifetime_;
 
-	MapProxy(LifetimeHolder const& lifetime)
+	MapProxy(LifetimeHandle const& lifetime)
 		: lifetime_(lifetime)
 	{}
 
@@ -531,7 +531,7 @@ struct IsMapLike<RefMap<TK, TV>>
 };
 
 template <class T>
-inline void push_map_proxy_by_ref(lua_State* L, LifetimeHolder const& lifetime, T* v)
+inline void push_map_proxy_by_ref(lua_State* L, LifetimeHandle const& lifetime, T* v)
 {
 	MapProxy::MakeByRef<T>(L, v, lifetime);
 }
