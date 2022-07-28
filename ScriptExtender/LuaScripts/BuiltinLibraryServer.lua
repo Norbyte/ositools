@@ -71,11 +71,11 @@ Ext.Events.OnExecutePropertyDataOnPosition:Subscribe(function (e)
 end)
 
 _C = function ()
-	return Ext.GetCharacter(CharacterGetHostCharacter())
+	return Ext.Entity.GetCharacter(CharacterGetHostCharacter())
 end
 
 _W = function ()
-	return Ext.GetItem(CharacterGetEquippedWeapon(CharacterGetHostCharacter()))
+	return Ext.Entity.GetItem(CharacterGetEquippedWeapon(CharacterGetHostCharacter()))
 end
 
 -- Backwards compatibility with old Osiris APIs

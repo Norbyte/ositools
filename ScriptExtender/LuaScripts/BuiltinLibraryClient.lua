@@ -243,7 +243,7 @@ _C = function ()
 	if statusConsole == nil then return end
 	local handle = statusConsole:GetPlayerHandle()
 	if handle == nil then return end
-	return Ext.GetCharacter(handle)
+	return Ext.Entity.GetCharacter(handle)
 end
 
 -- Debug helper to get character being examined
@@ -252,7 +252,7 @@ _E = function ()
 	if examine == nil then return end
 	local handle = examine:GetPlayerHandle()
 	if handle == nil then return end
-	return Ext.GetCharacter(handle)
+	return Ext.Entity.GetCharacter(handle)
 end
 
 -- Backwards compatibility with old UI APIs

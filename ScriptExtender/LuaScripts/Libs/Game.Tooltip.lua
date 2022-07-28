@@ -694,7 +694,7 @@ function TooltipHooks:GetCompareItem(ui, item, offHand)
     end
 
     --- @type EclCharacter
-    local char = Ext.GetCharacter(owner)
+    local char = Ext.Entity.GetCharacter(owner)
 
     if item.Stats.ItemSlot == "Weapon" then
         if offHand then
