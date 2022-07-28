@@ -9,6 +9,7 @@
 #include <Lua/Shared/Proxies/LuaSetProxy.h>
 #include <Lua/Shared/Proxies/LuaEvent.h>
 #include <Lua/Shared/Proxies/LuaEntityProxy.h>
+#include <Lua/Shared/Proxies/LuaCppClass.h>
 
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
@@ -184,6 +185,11 @@ namespace dse::lua
 			return lifetimePool_;
 		}
 
+		inline CppMetatableManager& GetMetatableManager()
+		{
+			return metatableManager_;
+		}
+
 		virtual void Initialize() = 0;
 		virtual void Shutdown();
 		virtual bool IsClient() = 0;
@@ -216,6 +222,8 @@ namespace dse::lua
 		LifetimePool lifetimePool_;
 		LifetimeStack lifetimeStack_;
 		LifetimeHandle globalLifetime_;
+
+		CppMetatableManager metatableManager_;
 
 		void OpenLibs();
 	};

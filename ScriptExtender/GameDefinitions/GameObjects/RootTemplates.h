@@ -390,8 +390,7 @@ namespace dse
         OverrideableProperty<int32_t> Amount;
         OverrideableProperty<int32_t> MaxStackAmount;
         OverrideableProperty<int32_t> TreasureLevel;
-        ItemTemplateEquipment* Equipment;
-        __int64 field_6F0;
+        OverrideableProperty<ItemTemplateEquipment*> Equipment;
         OverrideableProperty<FixedString> DropSound;
         OverrideableProperty<FixedString> PickupSound;
         OverrideableProperty<FixedString> UseSound;

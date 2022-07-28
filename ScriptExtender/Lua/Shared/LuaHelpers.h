@@ -714,4 +714,13 @@ namespace dse::lua
 		lua_pop(L, 1);
 		return val;
 	}
+
+	void lua_push_cppobject(lua_State* L, int metatableIndex, int propertyMapIndex, void* object, LifetimeHandle const& lifetime);
+	void lua_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj);
+	bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj);
+
+	void* LuaCppAlloc(lua_State* L, size_t size);
+	void LuaCppFree(lua_State* L, void* block, size_t size);
+	CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsigned long long extra);
+	CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra);
 }

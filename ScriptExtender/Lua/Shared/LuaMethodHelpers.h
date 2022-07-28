@@ -5,6 +5,7 @@
 #include <Lua/Shared/Proxies/LuaArrayProxy.h>
 #include <Lua/Shared/Proxies/LuaMapProxy.h>
 #include <Lua/Shared/Proxies/LuaSetProxy.h>
+#include <Lua/Shared/Proxies/LuaCppObjectProxy.h>
 
 BEGIN_NS(lua)
 
@@ -46,9 +47,9 @@ inline void MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value
 		}
 	} else {
 		if constexpr (LuaLifetimeInfo<T>::HasInfiniteLifetime) {
-			ObjectProxy2::MakeRef(L, value, State::FromLua(L)->GetGlobalLifetime());
+			LightObjectProxyByRefMetatable::Make(L, value, State::FromLua(L)->GetGlobalLifetime());
 		} else {
-			ObjectProxy2::MakeRef(L, value, lifetime);
+			LightObjectProxyByRefMetatable::Make(L, value, lifetime);
 		}
 	}
 }

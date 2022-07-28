@@ -391,6 +391,12 @@
     <ClInclude Include="GameDefinitions\Input.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaCppClass.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaCppObjectProxy.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -834,6 +840,9 @@
     </None>
     <None Include="Lua\Libs\Math.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaCppObjectProxy.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

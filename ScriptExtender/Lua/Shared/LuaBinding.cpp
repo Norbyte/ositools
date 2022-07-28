@@ -396,31 +396,12 @@ namespace dse::lua
 		return 1;
 	}
 
-	CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsigned long long extra)
-	{
-		auto lifetime = (Lifetime*)extra;
-		if (!lifetime->IsAlive()) {
-			WARN("Trying to fetch metatable of dead object?");
-			return nullptr;
-		}
-
-		auto propertyMapId = (val >> 48);
-		auto objectPtr = (val & 0x0000ffffffffffffull);
-
-		if (propertyMapId == 1) {
-			return mtCharacter;
-		} else {
-			WARN("Trying to fetch metatable of unknown type?");
-			return nullptr;
-		}
-	}
-
 	State::State()
 		: lifetimeStack_(lifetimePool_),
 		globalLifetime_(lifetimePool_.Allocate())
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
-		lua_setup_cppobjects(L, nullptr, nullptr, &LuaCppGetLightMetatable, nullptr);
+		lua_setup_cppobjects(L, &LuaCppAlloc, &LuaCppFree, &LuaCppGetLightMetatable, &LuaCppGetMetatable);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
 		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);

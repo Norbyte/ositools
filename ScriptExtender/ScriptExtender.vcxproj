@@ -107,6 +107,8 @@
     <ClInclude Include="Lua\Shared\LuaMethodHelpers.h" />
     <ClInclude Include="Lua\Shared\LuaSerializers.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaCppClass.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaCppObjectProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />
@@ -318,6 +320,7 @@
     <None Include="Lua\Server\ServerItem.inl" />
     <None Include="Lua\Shared\LevelIteratorFunctions.inl" />
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaCppObjectProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaEvent.inl" />
     <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />

@@ -116,6 +116,11 @@ public:
 		return luaBuiltinBundle_;
 	}
 
+	inline lua::CppPropertyMapManager& GetPropertyMapManager()
+	{
+		return propertyMapManager_;
+	}
+
 	void ClearPathOverrides();
 	void AddPathOverride(STDString const & path, STDString const & overriddenPath);
 	std::optional<STDString> GetPathOverride(STDString const& path);
@@ -137,6 +142,7 @@ private:
 	esv::StatusHelpers statusHelpers_;
 	ModuleHasher hasher_;
 	lua::LuaBundle luaBuiltinBundle_;
+	lua::CppPropertyMapManager propertyMapManager_;
 
 	ExtenderConfig config_;
 	bool extensionsEnabled_{ false };

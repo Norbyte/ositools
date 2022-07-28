@@ -114,20 +114,18 @@ bool EnableWriteProtectedWrites{ false };
 		static bool initialized{ false };
 		if (initialized) return;
 
-		int nextRegistryIndex{ 0 };
-
 #define GENERATING_PROPMAP
 
 #define BEGIN_CLS(cls) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
-	pm.Init(nextRegistryIndex++); \
+	pm.Init(gExtender->GetPropertyMapManager().RegisterPropertyMap(&pm)); \
 	pm.Name = FixedString(#cls);
 
 #define BEGIN_CLS_TN(cls, typeName) { \
 	using PM = StaticLuaPropertyMap<cls>; \
 	auto& pm = StaticLuaPropertyMap<cls>::PropertyMap; \
-	pm.Init(nextRegistryIndex++); \
+	pm.Init(gExtender->GetPropertyMapManager().RegisterPropertyMap(&pm)); \
 	pm.Name = FixedString(#typeName);
 
 #define END_CLS() pm.Finish(); \

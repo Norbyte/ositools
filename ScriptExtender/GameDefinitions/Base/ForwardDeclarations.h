@@ -166,6 +166,7 @@ class ScriptExtender;
 namespace lua
 {
 	struct LifetimeHandle;
+	struct CppObjectMetadata;
 }
 
 END_SE()
