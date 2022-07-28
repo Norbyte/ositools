@@ -27,7 +27,7 @@ struct FixedString
 		: Str(nullptr)
 	{}
 
-	inline explicit FixedString(STDString const& s)
+	inline explicit FixedString(StringView const& s)
 		: FixedString(s.data(), (int)s.size())
 	{}
 

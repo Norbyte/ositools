@@ -9,10 +9,11 @@
 
 namespace dse
 {
-	StaticSymbols & GetStaticSymbols()
+	StaticSymbols* gStaticSymbols{ nullptr };
+
+	void InitStaticSymbols()
 	{
-		static auto sSymbols = new StaticSymbols();
-		return *sSymbols;
+		gStaticSymbols = new StaticSymbols();
 	}
 
 	RuntimeStringHandle::RuntimeStringHandle()
