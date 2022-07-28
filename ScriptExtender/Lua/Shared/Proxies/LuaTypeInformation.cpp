@@ -36,20 +36,20 @@ void RegisterObjectProxyTypeInformation()
 #define GENERATING_TYPE_INFO
 #define ADD_TYPE(prop, type) ty.Members.insert(std::make_pair(FixedString(prop), GetTypeInfoRef<type>()));
 
-#define BEGIN_CLS(clsName) { \
+#define BEGIN_CLS(clsName) ([]() { \
 	using TClass = clsName;\
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#clsName)); \
 	ty.Kind = LuaTypeId::Object; \
 	ty.NativeName = FixedString(typeid(TClass).name());
 
 
-#define BEGIN_CLS_TN(clsName, typeName) { \
+#define BEGIN_CLS_TN(clsName, typeName) ([]() { \
 	using TClass = clsName;\
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#typeName)); \
 	ty.Kind = LuaTypeId::Object; \
 	ty.NativeName = FixedString(typeid(TClass).name());
 
-#define END_CLS() GetStaticTypeInfo(Overload<TClass>{}).Type = &ty; }
+#define END_CLS() GetStaticTypeInfo(Overload<TClass>{}).Type = &ty; })();
 #define INHERIT(base) ty.ParentType = GetTypeInfoRef<base>();
 #define P(prop) ty.Members.insert(std::make_pair(FixedString(#prop), GetTypeInfoRef<decltype(TClass::prop)>()));
 #define P_RO(prop) ty.Members.insert(std::make_pair(FixedString(#prop), GetTypeInfoRef<decltype(TClass::prop)>()));
@@ -84,30 +84,30 @@ void RegisterObjectProxyTypeInformation()
 #undef P_FALLBACK
 
 
-#define BEGIN_BITMASK_NS(NS, T, type) { \
+#define BEGIN_BITMASK_NS(NS, T, type) ([]() { \
 	using TEnum = NS::T; \
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#NS "::" #T)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
-#define BEGIN_ENUM_NS(NS, T, type) { \
+#define BEGIN_ENUM_NS(NS, T, type) ([]() { \
 	using TEnum = NS::T; \
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#NS "::" #T)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
-#define BEGIN_BITMASK(T, type) { \
+#define BEGIN_BITMASK(T, type) ([]() { \
 	using TEnum = T; \
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#T)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
-#define BEGIN_ENUM(T, type) { \
+#define BEGIN_ENUM(T, type) ([]() { \
 	using TEnum = T; \
 	auto& ty = TypeInformationRepository::GetInstance().RegisterType(FixedString(#T)); \
 	ty.Kind = LuaTypeId::Enumeration;
 
 #define E(label) ty.EnumValues.insert(std::make_pair(FixedString(#label), (uint64_t)TEnum::label));
 #define EV(label, value) ty.EnumValues.insert(std::make_pair(FixedString(#label), (uint64_t)TEnum::label));
-#define END_ENUM_NS() GetStaticTypeInfo(Overload<TEnum>{}).Type = &ty; }
-#define END_ENUM() GetStaticTypeInfo(Overload<TEnum>{}).Type = &ty; }
+#define END_ENUM_NS() GetStaticTypeInfo(Overload<TEnum>{}).Type = &ty; })();
+#define END_ENUM() GetStaticTypeInfo(Overload<TEnum>{}).Type = &ty; })(); 
 
 #include <GameDefinitions/Enumerations.inl>
 
