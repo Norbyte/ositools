@@ -37,21 +37,6 @@ struct CppObjectProxyHelpers
 
 		return 0;
 	}
-
-	static bool IsA(GenericPropertyMap const& map, FixedString const& typeName)
-	{
-		if (map.Name == typeName) {
-			return true;
-		}
-
-		for (auto const& parent : map.Parents) {
-			if (parent == typeName) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 };
 
 int CppPropertyMapManager::RegisterPropertyMap(GenericPropertyMap* mt)

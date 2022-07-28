@@ -23,7 +23,7 @@
 
 BEGIN_NS(lua)
 
-void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child, STDString const& baseClsName)
+void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child)
 {
 	for (auto const& prop : base.Properties) {
 		child.AddRawProperty(prop.first.GetString(), prop.second.Get, prop.second.Set, prop.second.Offset, prop.second.Flag);
@@ -33,7 +33,12 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 		child.Parents.push_back(parent);
 	}
 
-	child.Parents.push_back(FixedString(baseClsName));
+	for (auto const& parent : base.ParentRegistryIndices) {
+		child.ParentRegistryIndices.push_back(parent);
+	}
+
+	child.Parents.push_back(base.Name);
+	child.ParentRegistryIndices.push_back(base.RegistryIndex);
 }
 
 template <class T>
@@ -133,7 +138,7 @@ bool EnableWriteProtectedWrites{ false };
 
 #define INHERIT(base) { \
 		auto& basePm = StaticLuaPropertyMap<base>::PropertyMap; \
-		InheritProperties(basePm, pm, #base); \
+		InheritProperties(basePm, pm); \
 	}
 
 #define P(prop) \

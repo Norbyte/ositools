@@ -91,12 +91,13 @@ public:
 	{
 		CppObjectMetadata meta;
 		if (lua_try_get_cppobject(L, index, meta)) {
-			if (meta.PropertyMapTag == propertyMapIndex) {
+			auto& pm = LuaGetPropertyMap(meta.PropertyMapTag);
+			if (pm.IsA(propertyMapIndex)) {
 				return meta.Ptr;
 			} else {
 				luaL_error(L, "Argument %d: Expected object of type '%s', got '%s'", index,
 					LuaGetPropertyMap(propertyMapIndex).Name.GetString(),
-					LuaGetPropertyMap(meta.PropertyMapTag).Name.GetString());
+					pm.Name.GetString());
 				return nullptr;
 			}
 		} else {

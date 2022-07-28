@@ -31,10 +31,12 @@ public:
 	bool SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
 		typename RawPropertyAccessors::Setter* setter, std::size_t offset, uint64_t flag = 0);
+	bool IsA(int typeRegistryIndex) const;
 
 	FixedString Name;
 	std::unordered_map<FixedString, RawPropertyAccessors> Properties;
 	std::vector<FixedString> Parents;
+	std::vector<int> ParentRegistryIndices;
 	TFallbackGetter* FallbackGetter{ nullptr };
 	TFallbackSetter* FallbackSetter{ nullptr };
 	bool IsInitializing{ false };

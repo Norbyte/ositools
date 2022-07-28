@@ -59,6 +59,20 @@ void GenericPropertyMap::AddRawProperty(char const* prop, typename RawPropertyAc
 	Properties.insert(std::make_pair(key, RawPropertyAccessors{ key, getter, setter, offset, flag }));
 }
 
+bool GenericPropertyMap::IsA(int typeRegistryIndex) const
+{
+	if (RegistryIndex == typeRegistryIndex) {
+		return true;
+	}
+
+	for (auto const& parent : ParentRegistryIndices) {
+		if (parent == typeRegistryIndex) {
+			return true;
+		}
+	}
+
+	return false;
+}
 
 char const* const ObjectProxy2::MetatableName = "Object";
 
