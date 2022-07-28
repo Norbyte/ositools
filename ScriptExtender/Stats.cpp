@@ -198,7 +198,7 @@ void DamagePairList::Multiply(float multiplier)
 
 void DamagePairList::LuaMerge(lua_State* L)
 {
-	auto other = lua::ObjectProxy2::CheckedGet<DamagePairList>(L, 2);
+	auto other = lua::CheckedGetObject<DamagePairList>(L, 2);
 
 	for (auto const& dmg : *other) {
 		AddDamage(dmg.DamageType, dmg.Amount);
@@ -251,7 +251,7 @@ UserReturn DamagePairList::LuaToTable(lua_State* L)
 
 void DamagePairList::LuaCopyFrom(lua_State* L)
 {
-	auto other = ObjectProxy2::CheckedGet<DamagePairList>(L, 2);
+	auto other = CheckedGetObject<DamagePairList>(L, 2);
 	*this = *other;
 }
 

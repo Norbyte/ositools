@@ -637,7 +637,7 @@ namespace dse::esv::lua
 				push(L, nullptr);
 			}
 		} else {
-			auto item = ObjectProxy2::CheckedGet<esv::Item>(L, 1);
+			auto item = CheckedGetObject<esv::Item>(L, 1);
 			bool recursive{ false };
 			if (lua_gettop(L) > 1) {
 				recursive = get<bool>(L, 2);
@@ -685,7 +685,7 @@ namespace dse::esv::lua
 
 	int ApplyStatus(lua_State* L)
 	{
-		auto status = ObjectProxy2::CheckedGet<esv::Status>(L, 1);
+		auto status = CheckedGetObject<esv::Status>(L, 1);
 		StatusMachine* statusMachine{ nullptr };
 
 		auto ownerHandle = status->OwnerHandle;

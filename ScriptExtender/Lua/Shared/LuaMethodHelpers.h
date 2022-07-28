@@ -177,9 +177,25 @@ inline constexpr int ReturnValueSize(Overload<std::tuple<Args...>>)
 }
 
 template <class T>
+T* CheckedGetObject(lua_State* L, int index)
+{
+	switch (lua_type(L, index)) {
+	case LUA_TUSERDATA: return ObjectProxy2::CheckedGet<T>(L, index);
+	case LUA_TLIGHTCPPOBJECT:
+	case LUA_TCPPOBJECT:
+		return LightObjectProxyByRefMetatable::GetTyped<T>(L, index);
+
+	default:
+		luaL_error(L, "Argument %d: Expected object of type '%s', got '%s'", index, 
+			StaticLuaPropertyMap<T>::PropertyMap.Name.GetString(), lua_typename(L, lua_type(L, index)));
+		return nullptr;
+	}
+}
+
+template <class T>
 inline ProxyParam<T> checked_get_param(lua_State* L, int i, Overload<ProxyParam<T>>)
 {
-	return ProxyParam(ObjectProxy2::CheckedGet<T>(L, i));
+	return ProxyParam(CheckedGetObject<T>(L, i));
 }
 
 template <class T>
@@ -188,7 +204,7 @@ inline std::optional<ProxyParam<T>> checked_get_param(lua_State* L, int i, Overl
 	if (lua_gettop(L) < i || lua_isnil(L, i)) {
 		return {};
 	} else {
-		return ProxyParam(ObjectProxy2::CheckedGet<T>(L, i));
+		return ProxyParam(CheckedGetObject<T>(L, i));
 	}
 }
 
@@ -203,7 +219,7 @@ inline std::remove_cv_t<std::remove_reference_t<T>> checked_get_param_cv(lua_Sta
 template <class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, 0);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto obj = CheckedGetObject<T>(L, 1);
 	(obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	return 0;
 }
@@ -211,7 +227,7 @@ inline int CallMethodHelper(lua_State* L, void (T::* fun)(lua_State*, Args...), 
 // Return values pushed by callee, lua_State passed
 template <class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, UserReturn (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto obj = CheckedGetObject<T>(L, 1);
 	auto nret = (obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	return (int)nret;
 }
@@ -220,7 +236,7 @@ inline int CallMethodHelper(lua_State* L, UserReturn (T::* fun)(lua_State*, Args
 template <class R, class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, R (T::* fun)(lua_State*, Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, ReturnValueSize(Overload<R>{}));
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto obj = CheckedGetObject<T>(L, 1);
 	auto retval = (obj->*fun)(L, checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	PushReturnValue(L, retval);
 	return ReturnValueSize(Overload<R>{});
@@ -236,7 +252,7 @@ inline int CallMethod(lua_State* L, R(T::* fun)(lua_State*, Args...)) {
 template <class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, void (T::* fun)(Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, 0);
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto obj = CheckedGetObject<T>(L, 1);
 	(obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	return 0;
 }
@@ -245,7 +261,7 @@ inline int CallMethodHelper(lua_State* L, void (T::* fun)(Args...), std::index_s
 template <class R, class T, class ...Args, size_t ...Indices>
 inline int CallMethodHelper(lua_State* L, R (T::* fun)(Args...), std::index_sequence<Indices...>) {
 	StackCheck _(L, ReturnValueSize(Overload<R>{}));
-	auto obj = ObjectProxy2::CheckedGet<T>(L, 1);
+	auto obj = CheckedGetObject<T>(L, 1);
 	auto retval = (obj->*fun)(checked_get_param_cv<Args>(L, 2 + (int)Indices)...);
 	PushReturnValue(L, retval);
 	return ReturnValueSize(Overload<R>{});

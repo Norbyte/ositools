@@ -4,6 +4,7 @@
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaLifetime.h>
 #include <Lua/Shared/LuaBinding.h>
+#include <Extender/ScriptExtender.h>
 
 #include <cstdint>
 #include <lua.h>
@@ -537,6 +538,21 @@ bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObject
 	return true;
 }
 
+bool lua_try_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj)
+{
+	auto value = lua_index2addr(L, idx);
+	if (!CppObjectVal::IsCppObject(value)) {
+		return false;
+	}
+
+	CppObjectVal val(value);
+	obj.Ptr = val.Ptr();
+	obj.MetatableTag = val.TypeTag();
+	obj.PropertyMapTag = val.PropertyMapTag();
+	obj.Lifetime = val.Lifetime();
+	return true;
+}
+
 
 void* LuaCppAlloc(lua_State* L, size_t size)
 {
@@ -562,5 +578,9 @@ CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra
 	throw std::runtime_error("Unsupported!");
 }
 
+GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex)
+{
+	return *gExtender->GetPropertyMapManager().GetPropertyMap(propertyMapIndex);
+}
 
 END_NS()

@@ -86,6 +86,33 @@ public:
 		}
 	}
 
+	static void* Get(lua_State* L, int index, int propertyMapIndex)
+	{
+		CppObjectMetadata meta;
+		if (lua_try_get_cppobject(L, index, meta)) {
+			if (meta.PropertyMapTag == propertyMapIndex) {
+				return meta.Ptr;
+			} else {
+				luaL_error(L, "Argument %d: Expected object of type '%s', got '%s'", index,
+					LuaGetPropertyMap(propertyMapIndex).Name.GetString(),
+					LuaGetPropertyMap(meta.PropertyMapTag).Name.GetString());
+				return nullptr;
+			}
+		} else {
+			luaL_error(L, "Argument %d: Expected object of type '%s', got '%s'", index,
+				LuaGetPropertyMap(propertyMapIndex).Name.GetString(),
+				lua_typename(L, lua_type(L, index)));
+			return nullptr;
+		}
+	}
+
+	template <class T>
+	static T* GetTyped(lua_State* L, int index)
+	{
+		auto ptr = Get(L, index, StaticLuaPropertyMap<T>::PropertyMap.RegistryIndex);
+		return reinterpret_cast<T*>(ptr);
+	}
+
 	static int CallProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<Callable, T>) {
