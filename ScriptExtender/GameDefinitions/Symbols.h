@@ -631,5 +631,12 @@ namespace dse
 		ResourceBank* GetResourceBank() const;
 	};
 
-	StaticSymbols & GetStaticSymbols();
+	extern StaticSymbols* gStaticSymbols;
+
+	void InitStaticSymbols();
+
+	inline StaticSymbols& GetStaticSymbols()
+	{
+		return *gStaticSymbols;
+	}
 }

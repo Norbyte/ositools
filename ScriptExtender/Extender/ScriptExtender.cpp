@@ -69,6 +69,8 @@ void ScriptExtender::Initialize()
 
 	DEBUG("ScriptExtender::Initialize: Starting");
 	auto initStart = std::chrono::high_resolution_clock::now();
+	
+	InitStaticSymbols();
 
 	if (!Libraries.FindLibraries(gameVersion.Revision)) {
 		ERR("ScriptExtender::Initialize: Could not load libraries; skipping scripting extension initialization.");
