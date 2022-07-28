@@ -3,12 +3,8 @@
 /// <lua_module>Types</lua_module>
 BEGIN_NS(lua::types)
 
-std::optional<STDString> GetObjectTypeName(lua_State * L, int index)
+std::optional<STDString> GetUserdataObjectTypeName(lua_State * L, int index)
 {
-	if (lua_type(L, index) != LUA_TUSERDATA) {
-		return {};
-	}
-
 	auto object = Userdata<ObjectProxy2>::AsUserData(L, index);
 	if (object) {
 		return object->GetImpl()->GetTypeName().GetString();
@@ -37,16 +33,26 @@ std::optional<STDString> GetObjectTypeName(lua_State * L, int index)
 	return {};
 }
 
+std::optional<STDString> GetCppObjectTypeName(lua_State * L, int index)
+{
+	CppObjectMetadata meta;
+	lua_get_cppobject(L, index, meta);
+	auto propertyMap = gExtender->GetPropertyMapManager().GetPropertyMap(meta.PropertyMapTag);
+	return propertyMap->Name.GetString();
+}
+
 UserReturn GetObjectType(lua_State * L)
 {
 	StackCheck _(L, 1);
-	auto type = GetObjectTypeName(L, 1);
-	if (type) {
-		push(L, *type);
-	} else {
-		push(L, nullptr);
+	std::optional<STDString> type;
+	switch (lua_type(L, 1)) {
+	case LUA_TUSERDATA: type = GetUserdataObjectTypeName(L, 1); break;
+	case LUA_TLIGHTCPPOBJECT:
+	case LUA_TCPPOBJECT:
+		type = GetCppObjectTypeName(L, 1); break;
 	}
 
+	push(L, type);
 	return 1;
 }
 
