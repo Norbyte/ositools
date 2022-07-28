@@ -17,6 +17,7 @@ class Lengthable {};
 class Iterable {};
 class Stringifiable {};
 class EqualityComparable {};
+class Named {};
 
 template <class T>
 class Userdata

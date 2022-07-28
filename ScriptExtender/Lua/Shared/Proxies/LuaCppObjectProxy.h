@@ -7,7 +7,8 @@
 BEGIN_NS(lua)
 
 class LightObjectProxyByRefMetatable : public LightCppObjectMetatable<LightObjectProxyByRefMetatable>, 
-	public Indexable, public NewIndexable, public Iterable, public Stringifiable, public EqualityComparable
+	public Indexable, public NewIndexable, public Iterable, public Stringifiable, public EqualityComparable, 
+	public Named
 {
 public:
 	static int Index(lua_State* L, CppObjectMetadata& self);
@@ -15,6 +16,7 @@ public:
 	static int ToString(lua_State* L, CppObjectMetadata& self);
 	static int IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other);
 	static int Next(lua_State* L, CppObjectMetadata& self);
+	static int Name(lua_State* L, CppObjectMetadata& self);
 	static char const* GetTypeName(lua_State* L, CppObjectMetadata& self);
 };
 

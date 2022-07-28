@@ -108,12 +108,6 @@ int LightObjectProxyByRefMetatable::Index(lua_State* L, CppObjectMetadata& self)
 	return 1;
 }
 
-char const* LightObjectProxyByRefMetatable::GetTypeName(lua_State* L, CppObjectMetadata& self)
-{
-	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
-	return pm->Name.GetString();
-}
-
 int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& self)
 {
 	StackCheck _(L, 0);
@@ -167,6 +161,18 @@ int LightObjectProxyByRefMetatable::Next(lua_State* L, CppObjectMetadata& self)
 		auto key = get<FixedString>(L, 2);
 		return CppObjectProxyHelpers::Next(L, *pm, self.Ptr, self.Lifetime, key);
 	}
+}
+
+int LightObjectProxyByRefMetatable::Name(lua_State* L, CppObjectMetadata& self)
+{
+	push(L, GetTypeName(L, self));
+	return 1;
+}
+
+char const* LightObjectProxyByRefMetatable::GetTypeName(lua_State* L, CppObjectMetadata& self)
+{
+	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
+	return pm->Name.GetString();
 }
 
 int LightCppObjectMetatable<LightObjectProxyByRefMetatable>::registryIndex_{ -1 };

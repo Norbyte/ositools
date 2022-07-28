@@ -96,7 +96,7 @@ namespace dse::lua
 	{
 		const char *msg = lua_tostring(L, 1);
 		if (msg == NULL) {  /* is error object not a string? */
-			if (luaL_callmeta(L, 1, "__tostring") &&  /* does it have a metamethod */
+			if (luaL_callmetaevent(L, 1, TM_TOSTRING) &&  /* does it have a metamethod */
 				lua_type(L, -1) == LUA_TSTRING)  /* that produces a string? */
 				return 1;  /* that is the message */
 			else

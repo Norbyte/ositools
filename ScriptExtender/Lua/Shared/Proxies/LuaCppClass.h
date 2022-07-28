@@ -62,7 +62,8 @@ enum class MetamethodName : int
 	Concat,
 	Call,
 	Pairs,
-	ToString
+	ToString,
+	Name
 };
 
 template <class T>
@@ -221,6 +222,17 @@ public:
 		}
 	}
 
+	static int NameProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<Named, T>) {
+			CppObjectMetadata self;
+			lua_get_cppobject(L, 1, 0, self);
+			return T::Name(L, self);
+		} else {
+			return luaL_error(L, "Not named!");
+		}
+	}
+
 	static void PopulateMetatable(lua_State* L, CMetatable* mt)
 	{
 		// Add custom metatable items by overriding this in subclasses
@@ -258,6 +270,10 @@ public:
 
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
 			lua_cmetatable_set(L, mt, (int)MetamethodName::Eq, &EqualProxy);
+		}
+
+		if constexpr (std::is_base_of_v<Named, T>) {
+			lua_cmetatable_set(L, mt, (int)MetamethodName::Name, &NameProxy);
 		}
 
 		T::PopulateMetatable(L, mt);
