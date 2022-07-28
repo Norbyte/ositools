@@ -134,6 +134,13 @@ void* GetUserdataPointer(lua_State* L, int index)
 	return lua_touserdata(L, index);
 }
 
+void* GetLightCppObjectPointer(lua_State* L, int index)
+{
+	CppObjectMetadata meta;
+	lua_get_cppobject(L, index, meta);
+	return meta.Ptr;
+}
+
 void* GetPointerValue(lua_State* L, int index)
 {
 	switch (lua_type(L, index)) {
@@ -142,6 +149,10 @@ void* GetPointerValue(lua_State* L, int index)
 
 	case LUA_TUSERDATA:
 		return GetUserdataPointer(L, index);
+
+	case LUA_TLIGHTCPPOBJECT:
+	case LUA_TCPPOBJECT:
+		return GetLightCppObjectPointer(L, index);
 
 	default:
 		return nullptr;
@@ -153,6 +164,8 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	StackCheck _(L, 0);
+
+	index = lua_absindex(L, index);
 
 	if (ctx.AvoidRecursion) {
 		auto ptr = GetPointerValue(L, index);
@@ -166,18 +179,26 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 		}
 	}
 
-	index = lua_absindex(L, index);
-	if (!lua_getmetatable(L, index)) {
-		return Json::Value::null;
-	}
+	if (lua_type(L, index) == LUA_TUSERDATA) {
+		if (!lua_getmetatable(L, index)) {
+			return Json::Value::null;
+		}
 
-	push(L, "__pairs");
-	lua_gettable(L, -2);
-	lua_remove(L, -2);
-	// No __pairs function, can't iterate this object
-	if (lua_type(L, -1) == LUA_TNIL) {
-		lua_pop(L, 1);
-		return Json::Value::null;
+		push(L, "__pairs");
+		lua_gettable(L, -2);
+		lua_remove(L, -2);
+		// No __pairs function, can't iterate this object
+		if (lua_type(L, -1) == LUA_TNIL) {
+			lua_pop(L, 1);
+			return Json::Value::null;
+		}
+	} else {
+		CppObjectMetadata meta;
+		lua_get_cppobject(L, index, meta);
+		auto mt = State::FromLua(L)->GetMetatableManager().GetMetatable(meta.MetatableTag);
+		if (!lua_cmetatable_push(L, mt, (int)MetamethodName::Pairs)) {
+			return Json::Value::null;
+		}
 	}
 
 	Json::Value arr(Json::objectValue);
@@ -214,15 +235,16 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 
 		Json::Value val(Stringify(L, -1, depth + 1, ctx));
 
-		if (lua_type(L, -2) == LUA_TSTRING) {
+		auto type = lua_type(L, -2);
+		if (type == LUA_TSTRING) {
 			auto key = lua_tostring(L, -2);
 			arr[key] = val;
-		} else if (lua_type(L, -2) == LUA_TNUMBER) {
+		} else if (type == LUA_TNUMBER) {
 			lua_pushvalue(L, -2);
 			auto key = lua_tostring(L, -1);
 			arr[key] = val;
 			lua_pop(L, 1);
-		} else if (lua_type(L, -2) == LUA_TUSERDATA && ctx.StringifyInternalTypes) {
+		} else if ((type == LUA_TUSERDATA || type == LUA_TLIGHTCPPOBJECT || type == LUA_TCPPOBJECT) && ctx.StringifyInternalTypes) {
 			int top = lua_gettop(L);
 			lua_getglobal(L, "tostring");  /* function to be called */
 			lua_pushvalue(L, -3);   /* value to print */
@@ -233,7 +255,7 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 			}
 			int top2 = lua_gettop(L);
 			lua_pop(L, 1);  /* pop result */
-		} else if (lua_type(L, -2) == LUA_TLIGHTUSERDATA && ctx.StringifyInternalTypes) {
+		} else if (type == LUA_TLIGHTUSERDATA && ctx.StringifyInternalTypes) {
 			auto handle = get<ComponentHandle>(L, -2);
 			char key[100];
 			sprintf_s(key, "%016llx", handle.Handle);
@@ -391,6 +413,8 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 		return StringifyTable(L, index, depth, ctx);
 
 	case LUA_TUSERDATA:
+	case LUA_TLIGHTCPPOBJECT:
+	case LUA_TCPPOBJECT:
 	{
 		if (ctx.IterateUserdata) {
 			auto obj = StringifyUserdata(L, index, depth, ctx);

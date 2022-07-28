@@ -40,7 +40,7 @@ LifetimeOwnerPin::LifetimeOwnerPin(lua_State* L, LifetimeHandle const& lifetime)
 TValue* lua_index2addr(lua_State* L, int idx)
 {
 	CallInfo* ci = L->ci;
-	if (idx > 0 && idx <= ci->top - (ci->func + 1)) {
+	if (idx > 0 && idx <= L->top - (ci->func + 1)) {
 		TValue* o = ci->func + idx;
 		if (o >= L->top) {
 			luaL_error(L, "Invalid stack index: %d", idx);
@@ -503,6 +503,16 @@ void lua_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMeta
 	}
 
 	obj.Ptr = val.Ptr();
+	obj.MetatableTag = typeTag;
+	obj.PropertyMapTag = val.PropertyMapTag();
+	obj.Lifetime = val.Lifetime();
+}
+
+void lua_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj)
+{
+	CppObjectVal val(L, idx);
+	obj.Ptr = val.Ptr();
+	obj.MetatableTag = val.TypeTag();
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 }
@@ -521,6 +531,7 @@ bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObject
 	}
 
 	obj.Ptr = val.Ptr();
+	obj.MetatableTag = typeTag;
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 	return true;

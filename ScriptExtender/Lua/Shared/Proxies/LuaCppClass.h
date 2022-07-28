@@ -7,6 +7,7 @@ BEGIN_NS(lua)
 struct CppObjectMetadata
 {
 	void* Ptr;
+	uint8_t MetatableTag;
 	uint16_t PropertyMapTag;
 	LifetimeHandle Lifetime;
 };

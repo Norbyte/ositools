@@ -327,25 +327,30 @@ namespace dse::lua
 
 	inline FixedString do_get(lua_State* L, int index, Overload<FixedString>)
 	{
-		auto str = luaL_checkstring(L, index);
-		return FixedString(str);
+		size_t len;
+		auto str = luaL_checklstring(L, index, &len);
+		return FixedString(str, (int)len);
 	}
 
 	inline STDString do_get(lua_State* L, int index, Overload<STDString>)
 	{
-		return STDString(luaL_checkstring(L, index));
+		size_t len;
+		auto str = luaL_checklstring(L, index, &len);
+		return STDString(str, len);
 	}
 
 	inline STDWString do_get(lua_State* L, int index, Overload<STDWString>)
 	{
-		auto str = luaL_checkstring(L, index);
-		return FromUTF8(str);
+		size_t len;
+		auto str = luaL_checklstring(L, index, &len);
+		return FromUTF8(StringView(str, len));
 	}
 
 	inline Guid do_get(lua_State* L, int index, Overload<Guid>)
 	{
-		auto str = luaL_checkstring(L, index);
-		auto guid = Guid::ParseGuidString(str);
+		size_t len;
+		auto str = luaL_checklstring(L, index, &len);
+		auto guid = Guid::ParseGuidString(StringView(str, len));
 		if (!guid) {
 			luaL_error(L, "Param %d: not a valid GUID value: '%s'", str);
 		}
@@ -717,6 +722,7 @@ namespace dse::lua
 
 	void lua_push_cppobject(lua_State* L, int metatableIndex, int propertyMapIndex, void* object, LifetimeHandle const& lifetime);
 	void lua_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj);
+	void lua_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj);
 	bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj);
 
 	void* LuaCppAlloc(lua_State* L, size_t size);
