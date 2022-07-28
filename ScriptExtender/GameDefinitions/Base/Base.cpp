@@ -241,29 +241,12 @@ const char* FixedString::FindGlobalString(const char * s)
 
 FixedString::FixedString(char const* s, int length)
 {
-	if (s == nullptr) {
-		Str = nullptr;
-	} else {
-		auto str = FindGlobalString(s);
-		if (!str) {
-			auto createFixedString = GetStaticSymbols().ls__FixedString__Create;
-			if (createFixedString != nullptr) {
+	auto createFixedString = GetStaticSymbols().ls__FixedString__Create;
 #if defined(OSI_EOCAPP)
-				str = createFixedString(s, length);
+	Str = createFixedString(s, length);
 #else
-				FixedString fs;
-				createFixedString(&fs, s, length);
-				str = fs.Str;
-				fs.Str = nullptr;
+	createFixedString(this, s, length);
 #endif
-			} else {
-				OsiErrorS("ls::FixedString::Create not available!");
-			}
-		}
-
-		Str = str;
-		IncRef();
-	}
 }
 
 bool IsHexChar(char c)
@@ -292,12 +275,7 @@ bool IsValidGuidString(StringView s)
 
 FixedString NameGuidToFixedString(StringView nameGuid)
 {
-	if (nameGuid.data() == nullptr || nameGuid.empty()) {
-		return FixedString{};
-	}
-
-	if (!IsValidGuidString(nameGuid)) {
-		OsiError("GUID (" << nameGuid << ") malformed!");
+	if (nameGuid.data() == nullptr || nameGuid.size() < 36) {
 		return FixedString{};
 	}
 

@@ -31,7 +31,7 @@ struct FixedString
 		: FixedString(s.data(), (int)s.size())
 	{}
 
-	explicit FixedString(char const* s, int length = -1);
+	explicit FixedString(char const* s, int length);
 
 	inline FixedString(FixedString const & fs)
 		: Str(fs.Str)
