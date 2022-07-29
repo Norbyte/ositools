@@ -77,7 +77,7 @@ MapProxyImplBase* CppPropertyMapManager::GetMapProxy(int index)
 
 CppMetatableManager::CppMetatableManager()
 {
-	metatables_.resize((int)MetatableTag::Max);
+	metatables_.resize((int)MetatableTag::Max + 1);
 }
 
 void CppMetatableManager::RegisterMetatable(MetatableTag tag, CMetatable* mt)
