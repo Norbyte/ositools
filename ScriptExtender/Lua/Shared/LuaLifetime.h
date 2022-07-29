@@ -119,6 +119,8 @@ class LifetimePool;
 class Lifetime : public Noncopyable<Lifetime>
 {
 public:
+	static constexpr uint32_t SaltMask = (1ull << 30) - 1;
+
 	inline Lifetime()
 	{}
 
@@ -131,7 +133,7 @@ public:
 	{
 		assert(!isAlive_);
 		isAlive_ = true;
-		salt_++;
+		salt_ = ((salt_ + 1) & SaltMask);
 #if defined(TRACE_LIFETIMES)
 		INFO("[%p] ACQUIRE", this);
 #endif
@@ -193,6 +195,7 @@ struct LifetimeHandle
 	static constexpr uint64_t IndexMask = (1ull << IndexBits) - 1;
 	static constexpr uint64_t SaltMask = (1ull << SaltBits) - 1;
 	static constexpr uint64_t HandleMask = (1ull << HandleBits) - 1;
+	static_assert(SaltMask == Lifetime::SaltMask);
 
 	static constexpr uint64_t NullHandle = 0ull;
 
