@@ -129,38 +129,38 @@ private:
 };
 
 
-struct GameStateChangeEventParams
+struct GameStateChangedEvent : public EventBase
 {
 	GameState FromState;
 	GameState ToState;
 };
 
-struct StatusGetEnterChanceEventParams
+struct StatusGetEnterChanceEvent : public EventBase
 {
 	esv::Status* Status;
 	bool IsEnterCheck;
 	std::optional<int32_t> EnterChance;
 };
 
-struct BeforeStatusApplyEventParams
+struct BeforeStatusApplyEvent : public EventBase
 {
 	IEoCServerObject* Owner;
 	esv::Status* Status;
 	bool PreventStatusApply;
 };
 
-struct StatusHitEnterEventParams
+struct StatusHitEnterEvent : public EventBase
 {
 	esv::StatusHit* Hit;
 	PendingHit* Context;
 };
 
-struct StatusDeleteEventParams
+struct StatusDeleteEvent : public EventBase
 {
 	esv::Status* Status;
 };
 
-struct ComputeCharacterHitEventParams
+struct ComputeCharacterHitEvent : public EventBase
 {
 	stats::Character* Target;
 	stats::Character* Attacker;
@@ -177,7 +177,7 @@ struct ComputeCharacterHitEventParams
 	bool Handled{ false };
 };
 
-struct BeforeCharacterApplyDamageEventParams
+struct BeforeCharacterApplyDamageEvent : public EventBase
 {
 	esv::Character* Target;
 	stats::ObjectInstance* Attacker;
@@ -188,13 +188,13 @@ struct BeforeCharacterApplyDamageEventParams
 	bool Handled{ false };
 };
 
-struct TreasureItemGeneratedEventParams
+struct TreasureItemGeneratedEvent : public EventBase
 {
 	esv::Item* Item;
 	esv::Item* ResultingItem{ nullptr };
 };
 
-struct BeforeCraftingExecuteCombinationEventParams
+struct BeforeCraftingExecuteCombinationEvent : public EventBase
 {
 	esv::Character* Character;
 	CraftingStationType CraftingStation;
@@ -204,7 +204,7 @@ struct BeforeCraftingExecuteCombinationEventParams
 	bool Processed{ false };
 };
 
-struct AfterCraftingExecuteCombinationEventParams
+struct AfterCraftingExecuteCombinationEvent : public EventBase
 {
 	esv::Character* Character;
 	CraftingStationType CraftingStation;
@@ -214,31 +214,31 @@ struct AfterCraftingExecuteCombinationEventParams
 	ObjectSet<esv::Item*> Items;
 };
 
-struct BeforeShootProjectileEventParams
+struct BeforeShootProjectileEvent : public EventBase
 {
 	ShootProjectileHelper* Projectile;
 };
 
-struct ShootProjectileEventParams
+struct ShootProjectileEvent : public EventBase
 {
 	Projectile* Projectile;
 };
 
-struct ProjectileHitEventParams
+struct ProjectileHitEvent : public EventBase
 {
 	Projectile* Projectile;
 	IEoCServerObject* HitObject;
 	glm::vec3 Position;
 };
 
-struct ExecutePropertyDataOnGroundHitEventParams
+struct GroundHitEvent : public EventBase
 {
 	glm::vec3 Position;
 	IEoCServerObject* Caster;
 	stats::DamagePairList* DamageList;
 };
 
-struct ExecutePropertyDataOnTargetEventParams
+struct OnExecutePropertyDataOnTargetEvent : public EventBase
 {
 	stats::PropertyExtender* Property;
 	IEoCServerObject* Attacker;
@@ -249,13 +249,13 @@ struct ExecutePropertyDataOnTargetEventParams
 	stats::HitDamageInfo const* Hit;
 };
 
-struct AiRequestSortEventParams
+struct AiRequestSortEvent : public EventBase
 {
 	ComponentHandle CharacterHandle;
 	AiRequest* Request;
 };
 
-struct AiRequestPeekEventParams
+struct OnPeekAiActionEvent : public EventBase
 {
 	ComponentHandle CharacterHandle;
 	AiRequest* Request;
@@ -263,7 +263,7 @@ struct AiRequestPeekEventParams
 	bool IsFinished;
 };
 
-struct ExecutePropertyDataOnPositionEventParams
+struct OnExecutePropertyDataOnPositionEvent : public EventBase
 {
 	stats::PropertyExtender* Property;
 	IEoCServerObject* Attacker;

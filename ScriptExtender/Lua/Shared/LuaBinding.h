@@ -9,6 +9,7 @@
 #include <Lua/Shared/Proxies/LuaEvent.h>
 #include <Lua/Shared/Proxies/LuaEntityProxy.h>
 #include <Lua/Shared/Proxies/LuaCppClass.h>
+#include <Lua/Shared/Proxies/LuaCppObjectProxy.h>
 
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>
@@ -59,31 +60,31 @@ namespace dse::lua
 		int NewIndex(lua_State * L);
 	};
 
-	struct ConsoleEventParams
+	struct DoConsoleCommandEvent : public EventBase
 	{
 		STDString Command;
 	};
 
-	struct TickEventParams
+	struct TickEvent : public EventBase
 	{
 		GameTime Time;
 	};
 
-	struct NetMessageEventParams
+	struct NetMessageEvent : public EventBase
 	{
 		STDString Channel;
 		STDString Payload;
 		UserId UserID;
 	};
 
-	struct GetHitChanceEventParams
+	struct GetHitChanceEvent : public EventBase
 	{
 		stats::Character* Attacker;
 		stats::Character* Target;
 		std::optional<int32_t> HitChance;
 	};
 
-	struct GetSkillDamageEventParams
+	struct GetSkillDamageEvent : public EventBase
 	{
 		stats::SkillPrototype* Skill;
 		stats::ObjectInstance* Attacker;
@@ -97,7 +98,7 @@ namespace dse::lua
 		std::optional<stats::DeathType> DeathType;
 	};
 
-	struct GetSkillAPCostEventParams
+	struct GetSkillAPCostEvent : public EventBase
 	{
 		stats::SkillPrototype* Skill;
 		stats::Character* Character;
@@ -121,6 +122,13 @@ namespace dse::lua
 		Exception(std::string const& msg)
 			: std::runtime_error("Lua error thrown: " + msg)
 		{}
+	};
+
+	enum class EventResult
+	{
+		Successful,
+		Failed,
+		ActionPrevented
 	};
 
 	class State : Noncopyable<State>
@@ -214,6 +222,17 @@ namespace dse::lua
 			glm::vec3* position, float* radius);
 		void OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId);
 
+		template <class TEvent>
+		EventResult ThrowEvent(char const* eventName, TEvent& evt, bool canPreventAction = false, uint32_t restrictions = 0)
+		{
+			static_assert(std::is_base_of_v<EventBase, TEvent>, "Event object must be a descendant of EventBase");
+			StackCheck _(L, 0);
+			LifetimeStackPin _p(GetStack());
+			PushInternalFunction(L, "_ThrowEvent");
+			LightObjectProxyByRefMetatable::Make(L, &evt, GetCurrentLifetime());
+			return DispatchEvent(evt, eventName, canPreventAction, restrictions);
+		}
+
 	protected:
 		lua_State * L;
 		bool startupDone_{ false };
@@ -225,6 +244,7 @@ namespace dse::lua
 		CppMetatableManager metatableManager_;
 
 		void OpenLibs();
+		EventResult DispatchEvent(EventBase& evt, char const* eventName, bool canPreventAction, uint32_t restrictions);
 	};
 
 	class Restriction
@@ -245,47 +265,6 @@ namespace dse::lua
 		State & state_;
 		uint32_t oldFlags_;
 	};
-
-	enum class EventResult
-	{
-		Successful,
-		Failed,
-		ActionPrevented
-	};
-
-	template <class TEvent>
-	EventResult ThrowEvent(State& state, char const* eventName, TEvent& evt, bool canPreventAction = false, uint32_t restrictions = 0)
-	{
-		auto L = state.GetState();
-		auto stackSize = lua_gettop(L);
-
-		try {
-			StackCheck _(L, 0);
-			Restriction restriction(state, restrictions);
-			LifetimeStackPin _p(state.GetStack());
-			PushInternalFunction(L, "_ThrowEvent");
-			auto luaEvent = EventObject::Make(L, state.GetCurrentLifetime(), eventName, evt, canPreventAction, WriteableEvent{});
-			if (!CheckedCall(L, 1, "_ThrowEvent")) {
-				return EventResult::Failed;
-			}
-
-			if (luaEvent->IsActionPrevented()) {
-				return EventResult::ActionPrevented;
-			} else {
-				return EventResult::Successful;
-			}
-		} catch (Exception &) {
-			auto stackRemaining = lua_gettop(L) - stackSize;
-			if (stackRemaining > 0) {
-				LuaError("Failed to dispatch event '" << eventName << "': " << lua_tostring(L, -1));
-				lua_pop(L, stackRemaining);
-			} else {
-				LuaError("Internal error while dispatching event '" << eventName << "'");
-			}
-
-			return EventResult::Failed;
-		}
-	}
 
 	void WarnDeprecated56(char const* msg);
 

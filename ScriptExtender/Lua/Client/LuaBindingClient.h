@@ -49,18 +49,18 @@ namespace dse::ecl::lua
 		void RegisterLib(lua_State * L) override;
 	};
 
-	struct GameStateChangeEventParams
+	struct GameStateChangedEvent : public EventBase
 	{
 		GameState FromState;
 		GameState ToState;
 	};
 
-	struct UIObjectCreatedEventParams
+	struct UIObjectCreatedEvent : public EventBase
 	{
 		UIObject* UI;
 	};
 
-	struct UICallEventParams
+	struct UICallEvent : public EventBase
 	{
 		UIObject* UI;
 		STDString Function;
@@ -68,7 +68,7 @@ namespace dse::ecl::lua
 		char const* When;
 	};
 
-	struct SkillGetDescriptionEventParams
+	struct SkillGetDescriptionParamEvent : public EventBase
 	{
 		stats::SkillPrototype* Skill;
 		stats::Character* Character;
@@ -77,7 +77,7 @@ namespace dse::ecl::lua
 		STDString Description;
 	};
 
-	struct StatusGetDescriptionEventParams
+	struct StatusGetDescriptionParamEvent : public EventBase
 	{
 		stats::StatusPrototype* Status;
 		stats::ObjectInstance* Owner;
@@ -86,15 +86,15 @@ namespace dse::ecl::lua
 		STDString Description;
 	};
 
-	struct SkillGetPropertyDescriptionEventParams
+	struct SkillGetPropertyDescriptionEvent : public EventBase
 	{
 		stats::PropertyExtender* Property;
 		STDString Description;
 	};
 
-	struct InputEventParams
+	struct InputEvent : public EventBase
 	{
-		InputEvent* Event;
+		dse::InputEvent* Event;
 	};
 
 	class ClientState : public State
@@ -120,17 +120,17 @@ namespace dse::ecl::lua
 		void OnUpdate(GameTime const& time) override;
 
 		void OnCreateUIObject(ComponentHandle handle);
-		EventResult OnUICall(UICallEventParams& params);
-		void OnAfterUICall(UICallEventParams& params);
-		EventResult OnUIInvoke(UICallEventParams& params);
-		void OnAfterUIInvoke(UICallEventParams& params);
+		EventResult OnUICall(UICallEvent& params);
+		void OnAfterUICall(UICallEvent& params);
+		EventResult OnUIInvoke(UICallEvent& params);
+		void OnAfterUIInvoke(UICallEvent& params);
 		std::optional<STDWString> SkillGetDescriptionParam(stats::SkillPrototype * prototype,
 			stats::Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem);
 		std::optional<STDWString> StatusGetDescriptionParam(stats::StatusPrototype * prototype, stats::ObjectInstance* owner,
 			stats::ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts);
 		void OnGameStateChanged(GameState fromState, GameState toState);
 		std::optional<STDString> GetSkillPropertyDescription(stats::PropertyExtender*);
-		void OnAppInputEvent(InputEvent const& inputEvent);
+		void OnAppInputEvent(dse::InputEvent const& inputEvent);
 
 		void OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle);
 		UIObject * GetUIObject(char const * name);

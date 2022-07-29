@@ -10,11 +10,6 @@ std::optional<STDString> GetUserdataObjectTypeName(lua_State * L, int index)
 		return object->GetImpl()->GetTypeName().GetString();
 	}
 
-	auto event = Userdata<EventObject>::AsUserData(L, index);
-	if (event) {
-		return event->GetImpl()->GetType().TypeName.GetString();
-	}
-
 	return {};
 }
 

@@ -71,7 +71,6 @@ void InitObjectProxyPropertyMaps();
 void RegisterSharedMetatables(lua_State* L)
 {
 	Userdata<ObjectProxy2>::RegisterMetatable(L);
-	Userdata<EventObject>::RegisterMetatable(L);
 	LightObjectProxyByRefMetatable::RegisterMetatable(L);
 	ArrayProxyMetatable::RegisterMetatable(L);
 	MapProxyMetatable::RegisterMetatable(L);

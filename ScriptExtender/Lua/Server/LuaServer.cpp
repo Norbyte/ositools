@@ -808,29 +808,39 @@ namespace dse::esv::lua
 
 	std::optional<int32_t> ServerState::StatusGetEnterChance(esv::Status* status, bool isEnterCheck)
 	{
-		StatusGetEnterChanceEventParams params{ status, isEnterCheck };
-		ThrowEvent(*this, "StatusGetEnterChance", params);
+		StatusGetEnterChanceEvent params{
+			.Status = status,
+			.IsEnterCheck = isEnterCheck
+		};
+		ThrowEvent("StatusGetEnterChance", params);
 		return params.EnterChance;
 	}
 
 	bool ServerState::OnApplyStatus(ComponentHandle const& ownerHandle, esv::Status* status, bool preventStatusApply)
 	{
 		auto owner = GetEntityWorld()->GetGameObject(ownerHandle);
-		BeforeStatusApplyEventParams params{ owner, status, preventStatusApply };
-		ThrowEvent(*this, "BeforeStatusApply", params);
+		BeforeStatusApplyEvent params { 
+			.Owner = owner, 
+			.Status = status,
+			.PreventStatusApply = preventStatusApply
+		};
+		ThrowEvent("BeforeStatusApply", params);
 		return params.PreventStatusApply;
 	}
 
 	void ServerState::OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context)
 	{
-		StatusHitEnterEventParams params{ hit, context };
-		ThrowEvent(*this, "StatusHitEnter", params);
+		StatusHitEnterEvent params { 
+			.Hit = hit, 
+			.Context = context
+		};
+		ThrowEvent("StatusHitEnter", params);
 	}
 
 	void ServerState::OnBeforeStatusDelete(esv::Status* status)
 	{
-		StatusDeleteEventParams params{ status };
-		if (ThrowEvent(*this, "BeforeStatusDelete", params, true) == EventResult::ActionPrevented) {
+		StatusDeleteEvent params { .Status = status };
+		if (ThrowEvent("BeforeStatusDelete", params, true) == EventResult::ActionPrevented) {
 			if ((bool)(status->Flags2 & (StatusFlags2::RequestDelete | StatusFlags2::RequestDeleteAtTurnEnd))) {
 				status->Flags2 &= ~(StatusFlags2::RequestDelete | StatusFlags2::RequestDeleteAtTurnEnd);
 			} else {
@@ -841,8 +851,8 @@ namespace dse::esv::lua
 
 	void ServerState::OnStatusDelete(esv::Status* status)
 	{
-		StatusDeleteEventParams params{ status };
-		ThrowEvent(*this, "StatusDelete", params);
+		StatusDeleteEvent params { .Status = status };
+		ThrowEvent("StatusDelete", params);
 	}
 
 	bool ServerState::ComputeCharacterHit(stats::Character * target,
@@ -855,9 +865,22 @@ namespace dse::esv::lua
 
 		stats::DamagePairList inputDmgList{ *damageList };
 		stats::HitDamageInfo tempHit{ *hit };
-		ComputeCharacterHitEventParams params{ target, attacker, weapon, &inputDmgList, hitType, noHitRoll,
-			forceReduceDurability, &tempHit, skillProperties, alwaysBackstab, highGroundFlag, criticalRoll, false };
-		ThrowEvent(*this, "ComputeCharacterHit", params);
+		ComputeCharacterHitEvent params{
+			.Target = target,
+			.Attacker = attacker,
+			.Weapon = weapon,
+			.DamageList = &inputDmgList,
+			.HitType = hitType,
+			.NoHitRoll = noHitRoll,
+			.ForceReduceDurability = forceReduceDurability,
+			.Hit = &tempHit,
+			.SkillProperties = skillProperties,
+			.AlwaysBackstab = alwaysBackstab,
+			.HighGround = highGroundFlag,
+			.CriticalRoll = criticalRoll,
+			.Handled = false
+		};
+		ThrowEvent("ComputeCharacterHit", params);
 
 		if (params.Handled) {
 			*hit = tempHit;
@@ -885,25 +908,36 @@ namespace dse::esv::lua
 			}
 		}
 
-		BeforeCharacterApplyDamageEventParams evt{
-			target, attacker, &hit, causeType, impactDirection, context
+		BeforeCharacterApplyDamageEvent evt{
+			.Target = target, 
+			.Attacker = attacker, 
+			.Hit = &hit, 
+			.Cause = causeType, 
+			.ImpactDirection = impactDirection, 
+			.Context = context
 		};
-		ThrowEvent(*this, "BeforeCharacterApplyDamage", evt);
+		ThrowEvent("BeforeCharacterApplyDamage", evt);
 		return evt.Handled;
 	}
 
 
 	void ServerState::OnGameStateChanged(GameState fromState, GameState toState)
 	{
-		GameStateChangeEventParams params{ fromState, toState };
-		ThrowEvent(*this, "GameStateChanged", params);
+		GameStateChangedEvent params { 
+			.FromState = fromState, 
+			.ToState = toState
+		};
+		ThrowEvent("GameStateChanged", params);
 	}
 
 
 	esv::Item* ServerState::OnGenerateTreasureItem(esv::Item* item)
 	{
-		TreasureItemGeneratedEventParams params{ item, nullptr };
-		ThrowEvent(*this, "TreasureItemGenerated", params);
+		TreasureItemGeneratedEvent params { 
+			.Item = item, 
+			.ResultingItem = nullptr
+		};
+		ThrowEvent("TreasureItemGenerated", params);
 
 		if (!params.ResultingItem) {
 			return item;
@@ -926,7 +960,12 @@ namespace dse::esv::lua
 	bool ServerState::OnBeforeCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId)
 	{
-		BeforeCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity };
+		BeforeCraftingExecuteCombinationEvent params { 
+			.Character = character, 
+			.CraftingStation = craftingStation, 
+			.CombinationId = combinationId, 
+			.Quantity = quantity
+		};
 
 		for (auto ingredientHandle : ingredients) {
 			auto ingredient = GetEntityWorld()->GetComponent<Item>(ingredientHandle);
@@ -935,7 +974,7 @@ namespace dse::esv::lua
 			}
 		}
 
-		ThrowEvent(*this, "BeforeCraftingExecuteCombination", params);
+		ThrowEvent("BeforeCraftingExecuteCombination", params);
 
 		return params.Processed;
 	}
@@ -944,7 +983,13 @@ namespace dse::esv::lua
 	void ServerState::OnAfterCraftingExecuteCombination(CraftingStationType craftingStation, ObjectSet<ComponentHandle> const& ingredients,
 		esv::Character* character, uint8_t quantity, FixedString const& combinationId, bool succeeded)
 	{
-		AfterCraftingExecuteCombinationEventParams params{ character, craftingStation, combinationId, quantity, succeeded };
+		AfterCraftingExecuteCombinationEvent params { 
+			.Character = character, 
+			.CraftingStation = craftingStation, 
+			.CombinationId = combinationId, 
+			.Quantity = quantity, 
+			.Succeeded = succeeded
+		};
 
 		for (auto ingredientHandle : ingredients) {
 			auto ingredient = GetEntityWorld()->GetComponent<Item>(ingredientHandle);
@@ -953,35 +998,43 @@ namespace dse::esv::lua
 			}
 		}
 
-		ThrowEvent(*this, "AfterCraftingExecuteCombination", params);
+		ThrowEvent("AfterCraftingExecuteCombination", params);
 	}
 
 
 	void ServerState::OnBeforeShootProjectile(ShootProjectileHelper* helper)
 	{
-		BeforeShootProjectileEventParams params{ helper };
-		ThrowEvent(*this, "BeforeShootProjectile", params);
+		BeforeShootProjectileEvent params { .Projectile = helper };
+		ThrowEvent("BeforeShootProjectile", params);
 	}
 
 
 	void ServerState::OnShootProjectile(Projectile* projectile)
 	{
-		ShootProjectileEventParams params{ projectile };
-		ThrowEvent(*this, "ShootProjectile", params);
+		ShootProjectileEvent params { .Projectile = projectile };
+		ThrowEvent("ShootProjectile", params);
 	}
 
 	void ServerState::OnProjectileHit(Projectile* projectile, ComponentHandle const& hitObject, glm::vec3 const& position)
 	{
 		auto hitObj = GetEntityWorld()->GetGameObject(hitObject);
-		ProjectileHitEventParams params{ projectile, hitObj, position };
-		ThrowEvent(*this, "ProjectileHit", params);
+		ProjectileHitEvent params { 
+			.Projectile = projectile, 
+			.HitObject = hitObj, 
+			.Position = position
+		};
+		ThrowEvent("ProjectileHit", params);
 	}
 
 
 	void ServerState::OnExecutePropertyDataOnGroundHit(glm::vec3& position, ComponentHandle casterHandle, stats::DamagePairList* damageList)
 	{
-		ExecutePropertyDataOnGroundHitEventParams params{ position, GetEntityWorld()->GetGameObject(casterHandle), damageList };
-		ThrowEvent(*this, "GroundHit", params);
+		GroundHitEvent params { 
+			.Position = position, 
+			.Caster = GetEntityWorld()->GetGameObject(casterHandle), 
+			.DamageList = damageList
+		};
+		ThrowEvent("GroundHit", params);
 	}
 
 
@@ -991,10 +1044,16 @@ namespace dse::esv::lua
 	{
 		auto attacker = GetEntityWorld()->GetGameObject(attackerHandle);
 		auto target = GetEntityWorld()->GetGameObject(targetHandle);
-		ExecutePropertyDataOnTargetEventParams params{ 
-			prop, attacker, target, impactOrigin, isFromItem, skillProto, damageInfo
+		OnExecutePropertyDataOnTargetEvent params { 
+			.Property = prop, 
+			.Attacker = attacker, 
+			.Target = target, 
+			.ImpactOrigin = impactOrigin, 
+			.IsFromItem = isFromItem, 
+			.Skill = skillProto, 
+			.Hit = damageInfo
 		};
-		ThrowEvent(*this, "OnExecutePropertyDataOnTarget", params);
+		ThrowEvent("OnExecutePropertyDataOnTarget", params);
 	}
 
 
@@ -1003,29 +1062,46 @@ namespace dse::esv::lua
 		stats::HitDamageInfo const* damageInfo)
 	{
 		auto attacker = GetEntityWorld()->GetGameObject(attackerHandle);
-		ExecutePropertyDataOnPositionEventParams params{
-			prop, attacker, position, areaRadius, isFromItem, skillPrototype, damageInfo
+		OnExecutePropertyDataOnPositionEvent params {
+			.Property = prop, 
+			.Attacker = attacker, 
+			.Position = position, 
+			.AreaRadius = areaRadius, 
+			.IsFromItem = isFromItem, 
+			.Skill = skillPrototype, 
+			.Hit = damageInfo
 		};
-		ThrowEvent(*this, "OnExecutePropertyDataOnPosition", params);
+		ThrowEvent("OnExecutePropertyDataOnPosition", params);
 	}
 
 
 	void ServerState::OnBeforeSortAiActions(ComponentHandle characterHandle, AiRequest* request)
 	{
-		AiRequestSortEventParams params{ characterHandle, request };
-		ThrowEvent(*this, "OnBeforeSortAiActions", params);
+		AiRequestSortEvent params { 
+			.CharacterHandle = characterHandle, 
+			.Request = request
+		};
+		ThrowEvent("OnBeforeSortAiActions", params);
 	}
 
 	void ServerState::OnAfterSortAiActions(ComponentHandle characterHandle, AiRequest* request)
 	{
-		AiRequestSortEventParams params{ characterHandle, request };
-		ThrowEvent(*this, "OnAfterSortAiActions", params);
+		AiRequestSortEvent params{
+			.CharacterHandle = characterHandle,
+			.Request = request
+		};
+		ThrowEvent("OnAfterSortAiActions", params);
 	}
 
 	void ServerState::OnPeekAiAction(ComponentHandle characterHandle, AiRequest* request, AiActionType actionType, bool isFinished)
 	{
-		AiRequestPeekEventParams params{ characterHandle, request, actionType, isFinished };
-		ThrowEvent(*this, "OnPeekAiAction", params);
+		OnPeekAiActionEvent params {
+			.CharacterHandle = characterHandle, 
+			.Request = request, 
+			.ActionType = actionType, 
+			.IsFinished = isFinished
+		};
+		ThrowEvent("OnPeekAiAction", params);
 	}
 
 

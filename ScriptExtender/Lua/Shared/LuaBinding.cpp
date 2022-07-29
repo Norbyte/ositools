@@ -525,8 +525,11 @@ namespace dse::lua
 
 	std::optional<int32_t> State::GetHitChance(stats::Character * attacker, stats::Character * target)
 	{
-		GetHitChanceEventParams params{ attacker, target };
-		ThrowEvent(*this, "GetHitChance", params, false, RestrictAll);
+		GetHitChanceEvent params { 
+			.Attacker = attacker, 
+			.Target = target
+		};
+		ThrowEvent("GetHitChance", params, false, RestrictAll);
 		return params.HitChance;
 	}
 
@@ -534,9 +537,17 @@ namespace dse::lua
 		stats::ObjectInstance *attacker, bool isFromItem, bool stealthed, glm::vec3 const& attackerPosition,
 		glm::vec3 const& targetPosition, stats::DeathType * pDeathType, int level, bool noRandomization)
 	{
-		GetSkillDamageEventParams params{ skill, attacker, isFromItem, stealthed, attackerPosition, targetPosition,
-			level, noRandomization };
-		ThrowEvent(*this, "GetSkillDamage", params, false, RestrictOsiris);
+		GetSkillDamageEvent params { 
+			.Skill = skill, 
+			.Attacker = attacker, 
+			.IsFromItem = isFromItem, 
+			.Stealthed = stealthed, 
+			.AttackerPosition = attackerPosition, 
+			.TargetPosition = targetPosition,
+			.Level = level, 
+			.NoRandomization = noRandomization
+		};
+		ThrowEvent("GetSkillDamage", params, false, RestrictOsiris);
 		if (params.DeathType && params.DamageList.size() > 0) {
 			for (auto const& dmg : params.DamageList) {
 				damageList->AddDamage(dmg.DamageType, dmg.Amount);
@@ -554,8 +565,14 @@ namespace dse::lua
 	std::optional<std::pair<int, bool>> State::GetSkillAPCost(stats::SkillPrototype* skill, stats::Character* character, eoc::AiGrid* aiGrid,
 		glm::vec3* position, float* radius)
 	{
-		GetSkillAPCostEventParams params{ skill, character, aiGrid, position, radius };
-		ThrowEvent(*this, "GetSkillAPCost", params, false, RestrictAll);
+		GetSkillAPCostEvent params { 
+			.Skill = skill, 
+			.Character = character, 
+			.AiGrid = aiGrid, 
+			.Position = position, 
+			.Radius = radius
+		};
+		ThrowEvent("GetSkillAPCost", params, false, RestrictAll);
 		if (params.AP && params.ElementalAffinity) {
 			return std::make_pair(*params.AP, *params.ElementalAffinity);
 		} else {
@@ -565,59 +582,91 @@ namespace dse::lua
 
 	void State::OnNetMessageReceived(STDString const & channel, STDString const & payload, UserId userId)
 	{
-		NetMessageEventParams params;
+		NetMessageEvent params;
 		params.Channel = channel;
 		params.Payload = payload;
 		params.UserID = userId;
-		ThrowEvent(*this, "NetMessageReceived", params);
+		ThrowEvent("NetMessageReceived", params);
+	}
+
+	EventResult State::DispatchEvent(EventBase& evt, char const* eventName, bool canPreventAction, uint32_t restrictions)
+	{
+		auto stackSize = lua_gettop(L) - 2;
+
+		try {
+			Restriction restriction(*this, restrictions);
+			evt.Name = FixedString(eventName);
+			evt.CanPreventAction = canPreventAction;
+
+			if (!CheckedCall(L, 1, "_ThrowEvent")) {
+				return EventResult::Failed;
+			}
+
+			if (evt.ActionPrevented) {
+				return EventResult::ActionPrevented;
+			} else {
+				return EventResult::Successful;
+			}
+		} catch (Exception&) {
+			auto stackRemaining = lua_gettop(L) - stackSize;
+			if (stackRemaining > 0) {
+				LuaError("Failed to dispatch event '" << eventName << "': " << lua_tostring(L, -1));
+				lua_pop(L, stackRemaining);
+			}
+			else {
+				LuaError("Internal error while dispatching event '" << eventName << "'");
+			}
+
+			return EventResult::Failed;
+		}
 	}
 
 	void State::OnGameSessionLoading()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "SessionLoading", params, false, RestrictAll | ScopeSessionLoad);
+		EmptyEvent params;
+		ThrowEvent("SessionLoading", params, false, RestrictAll | ScopeSessionLoad);
 	}
 
 	void State::OnGameSessionLoaded()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "SessionLoaded", params, false, RestrictAll);
+		EmptyEvent params;
+		ThrowEvent("SessionLoaded", params, false, RestrictAll);
 	}
 
 	void State::OnModuleLoadStarted()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "ModuleLoadStarted", params, false, RestrictAll | ScopeModulePreLoad);
+		EmptyEvent params;
+		ThrowEvent("ModuleLoadStarted", params, false, RestrictAll | ScopeModulePreLoad);
 	}
 
 	void State::OnModuleLoading()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "ModuleLoading", params, false, RestrictAll | ScopeModuleLoad);
+		EmptyEvent params;
+		ThrowEvent("ModuleLoading", params, false, RestrictAll | ScopeModuleLoad);
 	}
 
 	void State::OnStatsLoaded()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "StatsLoaded", params, false, RestrictAll | ScopeModuleLoad);
+		EmptyEvent params;
+		ThrowEvent("StatsLoaded", params, false, RestrictAll | ScopeModuleLoad);
 	}
 
 	void State::OnModuleResume()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "ModuleResume", params, false, RestrictAll | ScopeModuleResume);
+		EmptyEvent params;
+		ThrowEvent("ModuleResume", params, false, RestrictAll | ScopeModuleResume);
 	}
 
 	void State::OnResetCompleted()
 	{
-		EmptyEventParams params;
-		ThrowEvent(*this, "ResetCompleted", params, false, 0);
+		EmptyEvent params;
+		ThrowEvent("ResetCompleted", params, false, 0);
 	}
 
 	void State::OnUpdate(GameTime const& time)
 	{
-		TickEventParams params{ time };
-		ThrowEvent(*this, "Tick", params, false, 0);
+		TickEvent params{ .Time = time };
+		ThrowEvent("Tick", params, false, 0);
 
 		lua_gc(L, LUA_GCSTEP, 10);
 	}

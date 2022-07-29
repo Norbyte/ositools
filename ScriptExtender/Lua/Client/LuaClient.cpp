@@ -200,10 +200,10 @@ void ClientState::OnUpdate(GameTime const& time)
 
 void ClientState::OnCreateUIObject(ComponentHandle uiObjectHandle)
 {
-	UIObjectCreatedEventParams params;
+	UIObjectCreatedEvent params;
 	auto uiManager = GetStaticSymbols().GetUIObjectManager();
 	params.UI = uiManager->Get(uiObjectHandle);
-	ThrowEvent(*this, "UIObjectCreated", params);
+	ThrowEvent("UIObjectCreated", params);
 }
 
 // Workaround for strange bug where an InvokeDataValue is corrupted after an Invoke handler call
@@ -226,43 +226,48 @@ bool AreInvokeParamsPlausible(std::span<ig::InvokeDataValue> const& params)
 	return true;
 }
 
-EventResult ClientState::OnUICall(UICallEventParams& params)
+EventResult ClientState::OnUICall(UICallEvent& params)
 {
 	if (!AreInvokeParamsPlausible(params.Args)) return EventResult::Failed;
 
 	params.When = "Before";
-	return ThrowEvent(*this, "UICall", params, true);
+	return ThrowEvent("UICall", params, true);
 }
 
-void ClientState::OnAfterUICall(UICallEventParams& params)
+void ClientState::OnAfterUICall(UICallEvent& params)
 {
 	if (!AreInvokeParamsPlausible(params.Args)) return;
 
 	params.When = "After";
-	ThrowEvent(*this, "UICall", params);
+	ThrowEvent("UICall", params);
 }
 
-EventResult ClientState::OnUIInvoke(UICallEventParams& params)
+EventResult ClientState::OnUIInvoke(UICallEvent& params)
 {
 	if (!AreInvokeParamsPlausible(params.Args)) return EventResult::Failed;
 
 	params.When = "Before";
-	return ThrowEvent(*this, "UIInvoke", params, true);
+	return ThrowEvent("UIInvoke", params, true);
 }
 
-void ClientState::OnAfterUIInvoke(UICallEventParams& params)
+void ClientState::OnAfterUIInvoke(UICallEvent& params)
 {
 	if (!AreInvokeParamsPlausible(params.Args)) return;
 
 	params.When = "After";
-	ThrowEvent(*this, "UIInvoke", params);
+	ThrowEvent("UIInvoke", params);
 }
 
 std::optional<STDWString> ClientState::SkillGetDescriptionParam(stats::SkillPrototype * prototype,
 	stats::Character * character, ObjectSet<STDString> const & paramTexts, bool isFromItem)
 {
-	SkillGetDescriptionEventParams params{ prototype, character, paramTexts, isFromItem };
-	ThrowEvent(*this, "SkillGetDescriptionParam", params);
+	SkillGetDescriptionParamEvent params {
+		.Skill = prototype, 
+		.Character = character, 
+		.Params = paramTexts, 
+		.IsFromItem = isFromItem
+	};
+	ThrowEvent("SkillGetDescriptionParam", params);
 
 	if (!params.Description.empty()) {
 		return FromUTF8(params.Description);
@@ -275,8 +280,13 @@ std::optional<STDWString> ClientState::SkillGetDescriptionParam(stats::SkillProt
 std::optional<STDWString> ClientState::StatusGetDescriptionParam(stats::StatusPrototype * prototype, stats::ObjectInstance* owner,
 	stats::ObjectInstance* statusSource, ObjectSet<STDString> const & paramTexts)
 {
-	StatusGetDescriptionEventParams params{ prototype, owner, statusSource, paramTexts };
-	ThrowEvent(*this, "StatusGetDescriptionParam", params);
+	StatusGetDescriptionParamEvent params {
+		.Status = prototype, 
+		.Owner = owner, 
+		.StatusSource = statusSource, 
+		.Params = paramTexts
+	};
+	ThrowEvent("StatusGetDescriptionParam", params);
 
 	if (!params.Description.empty()) {
 		return FromUTF8(params.Description);
@@ -287,8 +297,11 @@ std::optional<STDWString> ClientState::StatusGetDescriptionParam(stats::StatusPr
 
 void ClientState::OnGameStateChanged(GameState fromState, GameState toState)
 {
-	GameStateChangeEventParams params{ fromState, toState };
-	ThrowEvent(*this, "GameStateChanged", params);
+	GameStateChangedEvent params { 
+		.FromState = fromState, 
+		.ToState = toState
+	};
+	ThrowEvent("GameStateChanged", params);
 }
 
 
@@ -300,8 +313,8 @@ void ClientState::OnCustomClientUIObjectCreated(char const * name, ComponentHand
 
 std::optional<STDString> ClientState::GetSkillPropertyDescription(stats::PropertyExtender* prop)
 {
-	SkillGetPropertyDescriptionEventParams params{ prop };
-	ThrowEvent(*this, "SkillGetPropertyDescription", params);
+	SkillGetPropertyDescriptionEvent params { .Property = prop };
+	ThrowEvent("SkillGetPropertyDescription", params);
 
 	if (!params.Description.empty()) {
 		return params.Description;
@@ -311,10 +324,10 @@ std::optional<STDString> ClientState::GetSkillPropertyDescription(stats::Propert
 }
 
 
-void ClientState::OnAppInputEvent(InputEvent const& inputEvent)
+void ClientState::OnAppInputEvent(dse::InputEvent const& inputEvent)
 {
-	InputEventParams params{ const_cast<InputEvent*>(&inputEvent) };
-	ThrowEvent(*this, "InputEvent", params);
+	InputEvent params { .Event = const_cast<dse::InputEvent*>(&inputEvent) };
+	ThrowEvent("InputEvent", params);
 }
 
 

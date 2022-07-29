@@ -153,7 +153,12 @@ CustomUI::CustomUI(dse::Path * path)
 
 void CustomUI::OnFunctionCalled(const char * func, unsigned int numArgs, ig::InvokeDataValue * args)
 {
-	UICallEventParams call{ this, func, {args, args + numArgs}, nullptr };
+	UICallEvent call { 
+		.UI = this, 
+		.Function = func, 
+		.Args = {args, args + numArgs}, 
+		.When = nullptr
+	};
 	bool prevented{ false };
 
 	{
@@ -914,7 +919,12 @@ std::unordered_map<UIObject::VMT *, UIObject::OnFunctionCalledProc> OriginalUIOb
 
 void UIObjectFunctionCallCapture(UIObject* self, const char* function, unsigned int numArgs, ig::InvokeDataValue* args)
 {
-	UICallEventParams call{ self, function, {args, args + numArgs}, nullptr };
+	UICallEvent call { 
+		.UI = self, 
+		.Function = function, 
+		.Args = {args, args + numArgs}, 
+		.When = nullptr
+	};
 	bool prevented{ false };
 
 	{
@@ -1044,7 +1054,12 @@ bool OnFlashPlayerPreInvoke(ig::FlashPlayer* self, int64_t& invokeId, Args... ar
 	if (lua && ui) {
 		Vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
 		auto invokeName = self->Invokes[(uint32_t)invokeId].Name;
-		UICallEventParams call{ ui, invokeName, {invokeArgs.data(), invokeArgs.data() + invokeArgs.size()}, nullptr };
+		UICallEvent call{ 
+			.UI = ui, 
+			.Function = invokeName, 
+			.Args = {invokeArgs.data(), invokeArgs.data() + invokeArgs.size()}, 
+			.When = nullptr
+		};
 		bool prevent = (lua->OnUIInvoke(call) == EventResult::ActionPrevented);
 		if (!prevent && invokeName != call.Function) {
 			bool foundId{ false };
@@ -1075,7 +1090,12 @@ void OnFlashPlayerPostInvoke(ig::FlashPlayer* self, int64_t invokeId, Args... ar
 	if (lua && ui) {
 		Vector<ig::InvokeDataValue> invokeArgs{ (*args)... };
 		auto invokeName = self->Invokes[(uint32_t)invokeId].Name;
-		UICallEventParams call{ ui, invokeName, {invokeArgs.data(), invokeArgs.data() + invokeArgs.size()}, nullptr };
+		UICallEvent call { 
+			.UI = ui, 
+			.Function = invokeName, 
+			.Args = {invokeArgs.data(), invokeArgs.data() + invokeArgs.size()}, 
+			.When = nullptr
+		};
 		lua->OnAfterUIInvoke(call);
 	}
 }
@@ -1173,7 +1193,12 @@ static bool FlashPlayerInvokeArgsCapture(ig::FlashPlayer* self, int64_t invokeId
 	auto ui = FindUIObject(self);
 	auto invokeName = self->Invokes[(uint32_t)invokeId].Name;
 
-	UICallEventParams call{ ui, invokeName, {args, args + numArgs}, nullptr };
+	UICallEvent call { 
+		.UI = ui, 
+		.Function = invokeName, 
+		.Args = {args, args + numArgs}, 
+		.When = nullptr
+	};
 	bool prevented{ false };
 
 	{
