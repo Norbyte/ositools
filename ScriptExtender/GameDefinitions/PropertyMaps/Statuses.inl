@@ -30,7 +30,7 @@ ADD_TYPE("StatusType", FixedString)
 pm.AddProperty("StatusType",
 	[](lua_State* L, LifetimeHandle const& lifetime, esv::Status* status, std::size_t offset, uint64_t flag) {
 		push(L, status->GetStatusId());
-		return true;
+		return PropertyOperationResult::Success;
 	}
 );
 #endif
@@ -484,7 +484,7 @@ ADD_TYPE("StatusType", FixedString)
 pm.AddProperty("StatusType",
 	[](lua_State* L, LifetimeHandle const& lifetime, ecl::Status* status, std::size_t offset, uint64_t flag) {
 		push(L, status->GetStatusId());
-		return true;
+		return PropertyOperationResult::Success;
 	}
 );
 #endif

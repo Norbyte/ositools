@@ -588,7 +588,6 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 
 	auto modifier = GetModifierInfo(attribute);
 	if (!modifier) {
-		push(L, nullptr);
 		return false;
 	}
 
@@ -661,38 +660,37 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 	}
 
 	default:
-		OsiError("Don't know how to fetch values of type '" << modifier->ValueList->Name << "'");
-		push(L, nullptr);
+		OsiError("Don't know how to set values of type '" << modifier->ValueList->Name << "'");
 		return false;
 	}
 }
 
-bool Object::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop)
+PropertyOperationResult Object::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop)
 {
-	return object->LuaGetAttribute(L, prop, {});
+	return object->LuaGetAttribute(L, prop, {}) ? PropertyOperationResult::Success : PropertyOperationResult::NoSuchProperty;
 }
 
-bool Object::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop, int index)
+PropertyOperationResult Object::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop, int index)
 {
-	return object->LuaSetAttribute(L, prop, index);
+	return object->LuaSetAttribute(L, prop, index) ? PropertyOperationResult::Success : PropertyOperationResult::NoSuchProperty;
 }
 
-bool StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop)
+PropertyOperationResult StatusPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop)
 {
 	return Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
 }
 
-bool StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
+PropertyOperationResult StatusPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop, int index)
 {
 	return Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
 }
 
-bool SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop)
+PropertyOperationResult SkillPrototype::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop)
 {
 	return Object::LuaFallbackGet(L, lifetime, object->GetStats(), prop);
 }
 
-bool SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
+PropertyOperationResult SkillPrototype::LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop, int index)
 {
 	return Object::LuaFallbackSet(L, lifetime, object->GetStats(), prop, index);
 }

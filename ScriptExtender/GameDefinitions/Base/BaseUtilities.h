@@ -304,6 +304,15 @@ struct OverrideableProperty
     bool IsOverridden;
 };
 
+enum PropertyOperationResult
+{
+	Success,
+	NoSuchProperty,
+	ReadOnly,
+	UnsupportedType,
+	Unknown
+};
+
 END_SE()
 
 BEGIN_NS(lua)

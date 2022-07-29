@@ -473,8 +473,8 @@ struct Object : public Noncopyable<Object>
 	int LuaGetAttribute(lua_State* L, FixedString const& attribute, std::optional<int> level);
 	bool LuaSetAttribute(lua_State* L, FixedString const& attribute, int index);
 
-	static bool LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop);
-	static bool LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop, int index);
+	static PropertyOperationResult LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop);
+	static PropertyOperationResult LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, Object* object, FixedString const& prop, int index);
 
 private:
 	void LuaGetAttributeShared(lua_State* L, FixedString const& attribute, std::optional<int> level, bool byRef);
@@ -915,8 +915,8 @@ struct SkillPrototype
 
 	Object * GetStats() const;
 
-	static bool LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop);
-	static bool LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop, int index);
+	static PropertyOperationResult LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop);
+	static PropertyOperationResult LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, SkillPrototype* object, FixedString const& prop, int index);
 };
 
 struct SkillPrototypeManager
@@ -947,8 +947,8 @@ struct StatusPrototype
 
 	Object * GetStats() const;
 
-	static bool LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop);
-	static bool LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop, int index);
+	static PropertyOperationResult LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop);
+	static PropertyOperationResult LuaFallbackSet(lua_State* L, lua::LifetimeHandle const& lifetime, StatusPrototype* object, FixedString const& prop, int index);
 };
 
 struct StatusPrototypeManager

@@ -149,7 +149,7 @@ pm.AddProperty("PlayerCustomData",
 		} else {
 			push(L, nullptr);
 		}
-		return true;
+		return PropertyOperationResult::Success;
 	}
 );
 #endif
@@ -395,7 +395,7 @@ pm.AddProperty("PlayerCustomData",
 		} else {
 			push(L, nullptr);
 		}
-		return true;
+		return PropertyOperationResult::Success;
 	}
 );
 #endif

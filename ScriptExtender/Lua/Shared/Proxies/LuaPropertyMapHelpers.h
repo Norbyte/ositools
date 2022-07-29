@@ -11,32 +11,32 @@ BEGIN_NS(lua)
 extern bool EnableWriteProtectedWrites;
 
 template <class T>
-bool GenericGetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
+PropertyOperationResult GenericGetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
-	return LuaWrite(L, *value) == 1;
+	return (LuaWrite(L, *value) == 1) ? PropertyOperationResult::Success : PropertyOperationResult::Unknown;
 }
 
 template <class T>
-bool GenericSetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+PropertyOperationResult GenericSetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	lua_pushvalue(L, index);
 	LuaRead(L, *value);
 	lua_pop(L, 1);
-	return true;
+	return PropertyOperationResult::Success;
 }
 
 template <class T>
-bool GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t flag)
+PropertyOperationResult GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t flag)
 {
 	auto value = *(T*)((std::uintptr_t)obj + offset);
 	push(L, (value & (T)flag) == (T)flag);
-	return 1;
+	return PropertyOperationResult::Success;
 }
 
 template <class T>
-bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+PropertyOperationResult GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	auto set = get<bool>(L, index);
@@ -46,31 +46,26 @@ bool GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, v
 		*value &= (T)~flag;
 	}
 
-	return true;
+	return PropertyOperationResult::Success;
 }
 
 template <class T>
-bool GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+PropertyOperationResult GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	if (EnableWriteProtectedWrites) {
 		return GenericSetOffsetProperty<T>(L, lifetime, obj, index, offset, flag);
 	} else {
 		OsiError("Attempted to set a write-protected property");
-		return false;
+		return PropertyOperationResult::ReadOnly;
 	}
 }
 
-inline bool SetPropertyWriteProtected(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
-{
-	return false;
-}
-
 template <class T>
-bool GenericGetOffsetRefProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
+PropertyOperationResult GenericGetOffsetRefProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
 	auto* value = (T*)((std::uintptr_t)obj + offset);
 	MakeObjectRef(L, lifetime, value);
-	return true;
+	return PropertyOperationResult::Success;
 }
 
 void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child);

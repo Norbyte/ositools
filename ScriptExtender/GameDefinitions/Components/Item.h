@@ -178,8 +178,8 @@ namespace dse
 			ObjectSet<FixedString> GetDeltaMods();
 			void LuaSetDeltaMods(lua_State* L);
 
-			static bool LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
-			static bool LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
+			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
+			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
 		};
 
 		typedef void(*ParseItem)(Item * Item, ObjectSet<eoc::ItemDefinition> * ParsedItems, bool CopyNetId, bool CopyContainerContents);
@@ -325,8 +325,8 @@ namespace dse
 			std::optional<FixedString> GetOwnerCharacter();
 			ObjectSet<FixedString> GetDeltaMods();
 
-			static bool LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
-			static bool LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
+			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
+			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
 		};
 
 		struct ItemFactory : public NetworkComponentFactory<Item>

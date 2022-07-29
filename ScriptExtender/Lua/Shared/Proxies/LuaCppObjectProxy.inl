@@ -105,9 +105,26 @@ int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& se
 
 	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
 	auto prop = get<FixedString>(L, 2);
-	if (!pm->SetRawProperty(L, self.Lifetime, self.Ptr, prop, 3)) {
-		luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeName(L, self), prop.GetString());
-		return 0;
+	auto result = pm->SetRawProperty(L, self.Lifetime, self.Ptr, prop, 3);
+	switch (result) {
+	case PropertyOperationResult::Success:
+		break;
+
+	case PropertyOperationResult::NoSuchProperty:
+		luaL_error(L, "Class '%s' has no property named '%s'", GetTypeName(L, self), prop.GetString());
+		break;
+
+	case PropertyOperationResult::ReadOnly:
+		luaL_error(L, "Cannot set property %s::%s - property is read-only", GetTypeName(L, self), prop.GetString());
+		break;
+
+	case PropertyOperationResult::UnsupportedType:
+		luaL_error(L, "Cannot set property %s::%s - cannot write properties of this type", GetTypeName(L, self), prop.GetString());
+		break;
+
+	case PropertyOperationResult::Unknown:
+		luaL_error(L, "Cannot set property %s::%s - unknown error", GetTypeName(L, self), prop.GetString());
+		break;
 	}
 
 	return 0;

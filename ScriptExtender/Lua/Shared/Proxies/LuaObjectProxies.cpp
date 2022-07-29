@@ -54,7 +54,7 @@ void AddBitmaskProperty(GenericPropertyMap& pm, std::size_t offset)
 	}
 }
 
-bool CharacterSetFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
+PropertyOperationResult CharacterSetFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	auto ch = reinterpret_cast<esv::Character*>(obj);
 	auto set = get<bool>(L, index);
@@ -64,7 +64,7 @@ bool CharacterSetFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, i
 		ch->ClearFlags(flag);
 	}
 
-	return true;
+	return PropertyOperationResult::Success;
 }
 
 // Lua property map and object proxy template specialization declarations
@@ -196,7 +196,7 @@ bool EnableWriteProtectedWrites{ false };
 	pm.AddProperty(#name, \
 		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			CallGetter(L, obj, &PM::ObjectType::fun); \
-			return true; \
+			return PropertyOperationResult::Success; \
 		}, \
 		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
 	);
@@ -205,11 +205,11 @@ bool EnableWriteProtectedWrites{ false };
 	pm.AddProperty(#prop, \
 		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
 			CallGetter(L, obj, &PM::ObjectType::getter); \
-			return true; \
+			return PropertyOperationResult::Success; \
 		}, \
 		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, int index, std::size_t offset, uint64_t flag) { \
 			CallSetter(L, obj, index, &PM::ObjectType::setter); \
-			return true; \
+			return PropertyOperationResult::Success; \
 		}, \
 		0 \
 	);
@@ -221,7 +221,7 @@ bool EnableWriteProtectedWrites{ false };
 			lua_pushcfunction(L, [](lua_State* L) -> int { \
 				return CallMethod(L, &PM::ObjectType::fun); \
 			}); \
-			return true; \
+			return PropertyOperationResult::Success; \
 		}, \
 		(PM::TPropertyMap::PropertyAccessors::Setter*)&GenericSetNonWriteableProperty, 0 \
 	);

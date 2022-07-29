@@ -22,28 +22,28 @@ bool GenericPropertyMap::HasProperty(FixedString const& prop) const
 	return Properties.find(prop) != Properties.end();
 }
 
-bool GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const
+PropertyOperationResult GenericPropertyMap::GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
 		if (FallbackGetter) {
 			return FallbackGetter(L, lifetime, object, prop);
 		} else {
-			return false;
+			return PropertyOperationResult::NoSuchProperty;
 		}
 	}
 
 	return it->second.Get(L, lifetime, object, it->second.Offset, it->second.Flag);
 }
 
-bool GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const
+PropertyOperationResult GenericPropertyMap::SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const
 {
 	auto it = Properties.find(prop);
 	if (it == Properties.end()) {
 		if (FallbackSetter) {
 			return FallbackSetter(L, lifetime, object, prop, index);
 		} else {
-			return false;
+			return PropertyOperationResult::NoSuchProperty;
 		}
 	}
 

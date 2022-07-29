@@ -9,13 +9,13 @@ BEGIN_NS(lua)
 class GenericPropertyMap
 {
 public:
-	using TFallbackGetter = bool(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop);
-	using TFallbackSetter = bool(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index);
+	using TFallbackGetter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop);
+	using TFallbackSetter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index);
 
 	struct RawPropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHandle const& lifetime, void* object, std::size_t offset, uint64_t flag);
-		using Setter = bool (lua_State* L, LifetimeHandle const& lifetime, void* object, int index, std::size_t offset, uint64_t flag);
+		using Getter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, void* object, std::size_t offset, uint64_t flag);
+		using Setter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, void* object, int index, std::size_t offset, uint64_t flag);
 
 		FixedString Name;
 		Getter* Get;
@@ -27,8 +27,8 @@ public:
 	void Init(int registryIndex);
 	void Finish();
 	bool HasProperty(FixedString const& prop) const;
-	bool GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const;
-	bool SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const;
+	PropertyOperationResult GetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop) const;
+	PropertyOperationResult SetRawProperty(lua_State* L, LifetimeHandle const& lifetime, void* object, FixedString const& prop, int index) const;
 	void AddRawProperty(char const* prop, typename RawPropertyAccessors::Getter* getter,
 		typename RawPropertyAccessors::Setter* setter, std::size_t offset, uint64_t flag = 0);
 	bool IsA(int typeRegistryIndex) const;
@@ -44,9 +44,9 @@ public:
 	int RegistryIndex{ -1 };
 };
 
-inline bool GenericSetNonWriteableProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+inline PropertyOperationResult GenericSetNonWriteableProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
 {
-	return false;
+	return PropertyOperationResult::UnsupportedType;
 }
 
 template <class T>
@@ -55,13 +55,13 @@ class LuaPropertyMap : public GenericPropertyMap
 public:
 	struct PropertyAccessors
 	{
-		using Getter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, std::size_t offset, uint64_t flag);
-		using Setter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
-		using FallbackGetter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop);
-		using FallbackSetter = bool (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index);
+		using Getter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, T* object, std::size_t offset, uint64_t flag);
+		using Setter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, T* object, int index, std::size_t offset, uint64_t flag);
+		using FallbackGetter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop);
+		using FallbackSetter = PropertyOperationResult (lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index);
 	};
 
-	inline bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop) const
+	inline PropertyOperationResult GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop) const
 	{
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
@@ -69,14 +69,14 @@ public:
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while reading property %s.%s", Name.GetString(), prop.GetString());
-			return false;
+			return PropertyOperationResult::Unknown;
 		}
 #else
 		return GetRawProperty(L, lifetime, (void*)object, prop);
 #endif
 	}
 
-	inline bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index) const
+	inline PropertyOperationResult SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, FixedString const& prop, int index) const
 	{
 #if defined(DEBUG_TRAP_GETTERS)
 		__try {
@@ -84,14 +84,14 @@ public:
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while writing property %s.%s", Name.GetString(), prop.GetString());
-			return false;
+			return PropertyOperationResult::Unknown;
 		}
 #else
 		return SetRawProperty(L, lifetime, (void*)object, prop, index);
 #endif
 	}
 
-	inline bool GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop) const
+	inline PropertyOperationResult GetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop) const
 	{
 		auto getter = (typename PropertyAccessors::Getter*)prop.Get;
 
@@ -101,14 +101,14 @@ public:
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while reading property %s.%s", Name.GetString(), prop.Name.GetString());
-			return false;
+			return PropertyOperationResult::Unknown;
 		}
 #else
 		return getter(L, lifetime, object, prop.Offset, prop.Flag);
 #endif
 	}
 
-	inline bool SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop, int index) const
+	inline PropertyOperationResult SetProperty(lua_State* L, LifetimeHandle const& lifetime, T* object, RawPropertyAccessors const& prop, int index) const
 	{
 		auto setter = (typename PropertyAccessors::Setter*)prop.Set;
 
@@ -118,7 +118,7 @@ public:
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			ERR("Exception while writing property %s.%s", Name.GetString(), prop.Name.GetString());
-			return false;
+			return PropertyOperationResult::Unknown;
 		}
 #else
 		return setter(L, lifetime, object, index, prop.Offset, prop.Flag);
