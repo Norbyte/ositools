@@ -1,16 +1,9 @@
 #pragma once
 
 #include <Lua/Shared/Proxies/LuaUserdata.h>
+#include <Lua/Shared/LuaHelpers.h>
 
 BEGIN_NS(lua)
-
-struct CppObjectMetadata
-{
-	void* Ptr;
-	uint8_t MetatableTag;
-	uint16_t PropertyMapTag;
-	LifetimeHandle Lifetime;
-};
 
 class CppPropertyMapManager
 {
@@ -22,11 +15,20 @@ private:
 	ObjectSet<GenericPropertyMap*> propertyMaps_;
 };
 
+struct CppObjectMetadata
+{
+	void* Ptr;
+	MetatableTag MetatableTag;
+	uint16_t PropertyMapTag;
+	LifetimeHandle Lifetime;
+};
+
 class CppMetatableManager
 {
 public:
-	int RegisterMetatable(CMetatable* mt);
-	CMetatable* GetMetatable(int index);
+	CppMetatableManager();
+	void RegisterMetatable(MetatableTag tag, CMetatable* mt);
+	CMetatable* GetMetatable(MetatableTag tag);
 
 	static CppMetatableManager& FromLua(lua_State* L);
 
@@ -70,17 +72,17 @@ template <class T>
 class LightCppObjectMetatable
 {
 public:
-	template <class T>
-	inline static void Make(lua_State* L, T* object, LifetimeHandle const& lifetime)
+	template <class TObj>
+	inline static void Make(lua_State* L, TObj* object, LifetimeHandle const& lifetime)
 	{
-		auto const& pm = StaticLuaPropertyMap<T>::PropertyMap;
-		lua_push_cppobject(L, RegistryIndex(), pm.RegistryIndex, object, lifetime);
+		auto const& pm = StaticLuaPropertyMap<TObj>::PropertyMap;
+		lua_push_cppobject(L, T::MetaTag, pm.RegistryIndex, object, lifetime);
 	}
 
 	static std::optional<CppObjectMetadata> TryGet(lua_State* L, int index)
 	{
 		CppObjectMetadata meta;
-		if (lua_try_get_cppobject(L, index, RegistryIndex(), meta)) {
+		if (lua_try_get_cppobject(L, index, T::MetaTag, meta)) {
 			return meta;
 		} else {
 			return {};
@@ -119,7 +121,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Callable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Call(L, self);
 		} else {
 			return luaL_error(L, "Not callable!");
@@ -130,7 +132,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Indexable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Index(L, self);
 		} else {
 			return luaL_error(L, "Not indexable!");
@@ -141,7 +143,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<NewIndexable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::NewIndex(L, self);
 		} else {
 			return luaL_error(L, "Not newindexable!");
@@ -152,7 +154,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Lengthable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Length(L, self);
 		} else {
 			return luaL_error(L, "Not lengthable!");
@@ -163,7 +165,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Iterable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Pairs(L, self);
 		} else {
 			return luaL_error(L, "Not iterable!");
@@ -174,7 +176,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Stringifiable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::ToString(L, self);
 		} else {
 			return luaL_error(L, "Not stringifiable!");
@@ -185,10 +187,10 @@ public:
 	{
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
 			CppObjectMetadata self, other;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 
 			bool equal;
-			if (lua_try_get_cppobject(L, 2, 0, other)) {
+			if (lua_try_get_cppobject(L, 2, T::MetaTag, other)) {
 				equal = T::IsEqual(L, self, other);
 			} else {
 				equal = false;
@@ -216,7 +218,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Iterable, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Next(L, self);
 		} else {
 			return luaL_error(L, "Not iterable!");
@@ -227,7 +229,7 @@ public:
 	{
 		if constexpr (std::is_base_of_v<Named, T>) {
 			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, 0, self);
+			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::Name(L, self);
 		} else {
 			return luaL_error(L, "Not named!");
@@ -278,16 +280,8 @@ public:
 		}
 
 		T::PopulateMetatable(L, mt);
-		registryIndex_ = CppMetatableManager::FromLua(L).RegisterMetatable(mt);
+		CppMetatableManager::FromLua(L).RegisterMetatable(T::MetaTag, mt);
 	}
-
-	inline static int RegistryIndex()
-	{
-		return registryIndex_;
-	}
-
-private:
-	static int registryIndex_;
 };
 
 END_NS()

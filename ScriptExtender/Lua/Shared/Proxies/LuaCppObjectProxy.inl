@@ -54,19 +54,21 @@ GenericPropertyMap* CppPropertyMapManager::GetPropertyMap(int index)
 	}
 }
 
-int CppMetatableManager::RegisterMetatable(CMetatable* mt)
+CppMetatableManager::CppMetatableManager()
 {
-	metatables_.push_back(mt);
-	return (int)(metatables_.size() - 1);
+	metatables_.resize((int)MetatableTag::Max);
 }
 
-CMetatable* CppMetatableManager::GetMetatable(int index)
+void CppMetatableManager::RegisterMetatable(MetatableTag tag, CMetatable* mt)
 {
-	if (index >= 0 && (uint32_t)index < metatables_.size()) {
-		return metatables_[index];
-	} else {
-		return nullptr;
-	}
+	assert(tag <= MetatableTag::Max);
+	metatables_[(int)tag] = mt;
+}
+
+CMetatable* CppMetatableManager::GetMetatable(MetatableTag tag)
+{
+	assert(tag <= MetatableTag::Max);
+	return metatables_[(int)tag];
 }
 
 CppMetatableManager& CppMetatableManager::FromLua(lua_State* L)
@@ -159,7 +161,5 @@ char const* LightObjectProxyByRefMetatable::GetTypeName(lua_State* L, CppObjectM
 	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
 	return pm->Name.GetString();
 }
-
-int LightCppObjectMetatable<LightObjectProxyByRefMetatable>::registryIndex_{ -1 };
 
 END_NS()

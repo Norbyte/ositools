@@ -11,6 +11,8 @@ class LightObjectProxyByRefMetatable : public LightCppObjectMetatable<LightObjec
 	public Named
 {
 public:
+	static constexpr MetatableTag MetaTag = MetatableTag::ObjectProxyByRef;
+
 	static int Index(lua_State* L, CppObjectMetadata& self);
 	static int NewIndex(lua_State* L, CppObjectMetadata& self);
 	static int ToString(lua_State* L, CppObjectMetadata& self);

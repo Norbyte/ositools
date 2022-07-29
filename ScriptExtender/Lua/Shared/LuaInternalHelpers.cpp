@@ -411,9 +411,9 @@ struct CppObjectVal
 		return LifetimeHandle(extra & LifetimeHandle::HandleMask);
 	}
 
-	static inline uint8_t TypeTagFromExtra(uint64_t extra)
+	static inline MetatableTag MetatableTagFromExtra(uint64_t extra)
 	{
-		return (uint8_t)((extra >> LifetimeHandle::HandleBits) & TypeTagMask);
+		return (lua::MetatableTag)((extra >> LifetimeHandle::HandleBits) & TypeTagMask);
 	}
 
 	static inline uint64_t MakeRaw(void* ptr, uint16_t propertyMapTag)
@@ -421,9 +421,9 @@ struct CppObjectVal
 		return ((uint64_t)ptr & PointerMask) | (((uint64_t)propertyMapTag & PropertyMapTagMask) << PointerBits);
 	}
 
-	static inline uint64_t MakeExtra(uint8_t typeTag, LifetimeHandle const& lifetime)
+	static inline uint64_t MakeExtra(MetatableTag metatableTag, LifetimeHandle const& lifetime)
 	{
-		return ((uint64_t)lifetime.handle_ & LifetimeHandle::HandleMask) | (((uint64_t)typeTag & TypeTagMask) << LifetimeHandle::HandleBits);
+		return ((uint64_t)lifetime.handle_ & LifetimeHandle::HandleMask) | (((uint64_t)metatableTag & TypeTagMask) << LifetimeHandle::HandleBits);
 	}
 
 	inline uint64_t RawValue() const
@@ -473,38 +473,37 @@ struct CppObjectVal
 		}
 	}
 
-	inline uint8_t TypeTag() const
+	inline MetatableTag MetatableTag() const
 	{
 		if (ttislightcppobject(value_)) {
-			return TypeTagFromExtra(Extra());
+			return MetatableTagFromExtra(Extra());
 		} else {
 			auto udata = GetUdata();
-			return TypeTagFromExtra(udata->LifetimeAndTypeTag);
+			return MetatableTagFromExtra(udata->LifetimeAndTypeTag);
 		}
 	}
 
 	TValue* value_;
 };
 
-void lua_push_cppobject(lua_State* L, int metatableIndex, int propertyMapIndex, void* object, LifetimeHandle const& lifetime)
+void lua_push_cppobject(lua_State* L, MetatableTag metatableTag, int propertyMapIndex, void* object, LifetimeHandle const& lifetime)
 {
-	assert(metatableIndex >= 0);
 	assert(propertyMapIndex >= 0);
 	auto val = CppObjectVal::MakeRaw(object, propertyMapIndex);
-	auto extra = CppObjectVal::MakeExtra((uint8_t)metatableIndex, lifetime);
+	auto extra = CppObjectVal::MakeExtra(metatableTag, lifetime);
 	lua_pushlightcppobject(L, val, extra);
 }
 
-void lua_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj)
+void lua_get_cppobject(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppObjectMetadata& obj)
 {
 	CppObjectVal val(L, idx);
-	auto typeTag = val.TypeTag();
-	if (typeTag != expectedTypeTag) {
-		luaL_error(L, "Param %d must be a C++ of type %d; got %d", idx, expectedTypeTag, typeTag);
+	auto metatableTag = val.MetatableTag();
+	if (metatableTag != expectedMetatableTag) {
+		luaL_error(L, "Param %d must be a C++ of type %d; got %d", idx, expectedMetatableTag, metatableTag);
 	}
 
 	obj.Ptr = val.Ptr();
-	obj.MetatableTag = typeTag;
+	obj.MetatableTag = metatableTag;
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 }
@@ -513,12 +512,12 @@ void lua_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj)
 {
 	CppObjectVal val(L, idx);
 	obj.Ptr = val.Ptr();
-	obj.MetatableTag = val.TypeTag();
+	obj.MetatableTag = val.MetatableTag();
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 }
 
-bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObjectMetadata& obj)
+bool lua_try_get_cppobject(lua_State* L, int idx, MetatableTag expectedTypeTag, CppObjectMetadata& obj)
 {
 	auto value = lua_index2addr(L, idx);
 	if (!CppObjectVal::IsCppObject(value)) {
@@ -526,13 +525,13 @@ bool lua_try_get_cppobject(lua_State* L, int idx, int expectedTypeTag, CppObject
 	}
 
 	CppObjectVal val(value);
-	auto typeTag = val.TypeTag();
-	if (typeTag != expectedTypeTag) {
+	auto metatableTag = val.MetatableTag();
+	if (metatableTag != expectedTypeTag) {
 		return false;
 	}
 
 	obj.Ptr = val.Ptr();
-	obj.MetatableTag = typeTag;
+	obj.MetatableTag = metatableTag;
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 	return true;
@@ -547,7 +546,7 @@ bool lua_try_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj)
 
 	CppObjectVal val(value);
 	obj.Ptr = val.Ptr();
-	obj.MetatableTag = val.TypeTag();
+	obj.MetatableTag = val.MetatableTag();
 	obj.PropertyMapTag = val.PropertyMapTag();
 	obj.Lifetime = val.Lifetime();
 	return true;
@@ -569,8 +568,8 @@ CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsign
 	// Don't check lifetime here, as fetching metatable requires no access to the underlying object.
 	// (Also the caller can cache the metamethod so checking here is useless)
 
-	auto typeTag = CppObjectVal::TypeTagFromExtra(extra);
-	return State::FromLua(L)->GetMetatableManager().GetMetatable(typeTag);
+	auto metatableTag = CppObjectVal::MetatableTagFromExtra(extra);
+	return State::FromLua(L)->GetMetatableManager().GetMetatable(metatableTag);
 }
 
 CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra)
