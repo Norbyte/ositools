@@ -53,6 +53,14 @@ public:
 	void ResetExtensionState();
 	void LoadExtensionState();
 
+
+	enum class GameStateWorkerStartTag {};
+	enum class GameStateMachcineUpdateTag {};
+	enum class GameStateChangedEventTag {};
+	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
+	HookableFunction<GameStateMachcineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
+	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
+
 private:
 	OsirisExtender osiris_;
 	std::unique_ptr<ExtensionState> extensionState_;
@@ -60,19 +68,11 @@ private:
 	NetworkManager network_;
 	NetworkFixedStringSender networkFixedStrings_;
 
-	enum class GameStateChangedEventTag {};
-	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
-
 	void OnBaseModuleLoaded(void * self);
 	void OnGameStateChanged(void * self, GameState fromState, GameState toState);
 	void OnGameStateWorkerStart(void * self);
 	void OnGameStateWorkerExit(void* self);
 	void OnUpdate(void* self, GameTime* time);
-
-	enum class GameStateWorkerStartTag {};
-	enum class GameStateMachcineUpdateTag {};
-	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachcineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 };
 
 END_NS()

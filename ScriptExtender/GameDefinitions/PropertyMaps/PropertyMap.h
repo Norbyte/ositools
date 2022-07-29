@@ -75,7 +75,7 @@ namespace dse
 		} else if constexpr (std::is_same<T, NetId>::value) {
 			return LegacyPropertyType::kUInt32;
 		} else {
-			static_assert(false, "Unsupported property type");
+			static_assert(!std::is_same<T, NetId>::value, "Unsupported property type");
 		}
 	}
 

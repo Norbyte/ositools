@@ -346,26 +346,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Game Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -423,7 +423,7 @@
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\LuaJIT-2.1\x64_debug;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\LuaJIT-2.1\x64_debug;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\The Divinity Engine 2\DefEd\DXGI.dll"</Command>
@@ -455,7 +455,7 @@ $(SolutionDir)x64\Debug\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(Project
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
       <AdditionalDependencies>LuaLib.lib;	Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\x64\Debug;$(SolutionDir)\External\jsoncpp-build\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Divinity Original Sin 2\DefEd\bin\DXGI.dll"</Command>
@@ -490,7 +490,7 @@ $(SolutionDir)x64\Debug\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(Project
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
@@ -525,7 +525,7 @@ $(SolutionDir)x64\Release\ResourceBundler.exe "$(ProjectDir)LuaScripts" "$(Proje
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\src\lib_json\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;$(SolutionDir)\\External\x64-windows\lib;$(SolutionDir)\External\Detours\lib.X64;$(SolutionDir)\External\jsoncpp-build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LuaLib.lib;Rpcrt4.lib;ws2_32.lib;libprotobuf-lite.lib;detours.lib;jsoncpp.lib;dbghelp.lib;version.lib;winhttp.lib;comctl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>

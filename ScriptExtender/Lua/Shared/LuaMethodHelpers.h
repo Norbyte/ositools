@@ -19,15 +19,15 @@ inline void MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value
 	if constexpr (LuaPolymorphic<T>::IsPolymorphic) {
 		return LuaPolymorphic<T>::MakeRef(L, value, lifetime);
 	} else if constexpr (IsArrayLike<T>::Value) {
-		if constexpr (ByVal<IsArrayLike<T>::TElement>::Value) {
-			ArrayProxy::MakeByVal<IsArrayLike<T>::TElement>(L, value, lifetime);
+		if constexpr (ByVal<typename IsArrayLike<T>::TElement>::Value) {
+			ArrayProxy::MakeByVal<typename IsArrayLike<T>::TElement>(L, value, lifetime);
 		} else {
-			ArrayProxy::MakeByRef<IsArrayLike<T>::TElement>(L, value, lifetime);
+			ArrayProxy::MakeByRef<typename IsArrayLike<T>::TElement>(L, value, lifetime);
 		}
 	} else if constexpr (IsMapLike<T>::Value) {
-		static_assert(ByVal<IsMapLike<T>::TKey>::Value, "Map key is a type that we cannot serialize by-value?");
+		static_assert(ByVal<typename IsMapLike<T>::TKey>::Value, "Map key is a type that we cannot serialize by-value?");
 
-		if constexpr (ByVal<IsMapLike<T>::TValue>::Value) {
+		if constexpr (ByVal<typename IsMapLike<T>::TValue>::Value) {
 			MapProxy::MakeByVal(L, value, lifetime);
 		} else {
 			MapProxy::MakeByRef(L, value, lifetime);

@@ -42,15 +42,20 @@ public:
 	void ResetExtensionState();
 	void LoadExtensionState();
 
+
+	enum class GameStateWorkerStartTag {};
+	enum class GameStateMachineUpdateTag {};
+	enum class GameStateChangedEventTag {};
+	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
+	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
+	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
+
 private:
 	ExtenderConfig& config_;
 	std::unique_ptr<ExtensionState> extensionState_;
 	bool extensionLoaded_{ false };
 	NetworkManager network_;
 	NetworkFixedStringReceiver networkFixedStrings_;
-
-	enum class GameStateChangedEventTag {};
-	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
 
 	void OnBaseModuleLoaded(void* self);
 	void OnGameStateChanged(void* self, GameState fromState, GameState toState);
@@ -62,11 +67,6 @@ private:
 
 	static void FlashTraceCallback(void* ctx, void* player, char const* message);
 	static void FlashWarningCallback(void* ctx, void* player, int code, char const* message);
-
-	enum class GameStateWorkerStartTag {};
-	enum class GameStateMachineUpdateTag {};
-	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 };
 
 END_NS()

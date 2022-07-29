@@ -181,7 +181,7 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 
 	if (lua_type(L, index) == LUA_TUSERDATA) {
 		if (!lua_getmetatable(L, index)) {
-			return Json::Value::null;
+			return Json::Value();
 		}
 
 		push(L, "__pairs");
@@ -190,14 +190,14 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 		// No __pairs function, can't iterate this object
 		if (lua_type(L, -1) == LUA_TNIL) {
 			lua_pop(L, 1);
-			return Json::Value::null;
+			return Json::Value();
 		}
 	} else {
 		CppObjectMetadata meta;
 		lua_get_cppobject(L, index, meta);
 		auto mt = State::FromLua(L)->GetMetatableManager().GetMetatable(meta.MetatableTag);
 		if (!lua_cmetatable_push(L, mt, (int)MetamethodName::Pairs)) {
-			return Json::Value::null;
+			return Json::Value();
 		}
 	}
 

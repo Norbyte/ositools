@@ -313,20 +313,20 @@ namespace dse::lua
 	template <class T>
 	typename std::enable_if_t<std::is_enum_v<T>, LuaSerializer&> operator << (LuaSerializer& s, T& v)
 	{
-		if constexpr (std::is_base_of_v<EnumInfoBase<T>, EnumInfo<T>>) {
+		if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
+			if (s.IsWriting) {
+				push_flags(s.L, v);
+			}
+			else {
+				v = checked_get_flags<T>(s.L, -1);
+			}
+		} else {
+			static_assert(std::is_base_of_v<EnumInfoBase<T>, EnumInfo<T>>, "Cannot serialize an enumeration that has no EnumInfo!");
 			if (s.IsWriting) {
 				push(s.L, v);
 			} else {
 				v = get<T>(s.L, -1);
 			}
-		} else if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
-			if (s.IsWriting) {
-				push_flags(s.L, v);
-			} else {
-				v = checked_get_flags<T>(s.L, -1);
-			}
-		} else {
-			static_assert(false, "Cannot serialize an enumeration that has no EnumInfo!");
 		}
 
 		return s;
