@@ -98,6 +98,8 @@ struct StringifyContext
 	bool Beautify{ true };
 	bool AvoidRecursion{ false };
 	uint32_t MaxDepth{ 64 };
+	int32_t LimitDepth{ -1 };
+	int32_t LimitArrayElements{ -1 };
 	std::unordered_set<void*> SeenUserdata;
 };
 
@@ -240,6 +242,10 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 			auto key = lua_tostring(L, -2);
 			arr[key] = val;
 		} else if (type == LUA_TNUMBER) {
+			if (ctx.LimitArrayElements != -1 && lua_tointeger(L, -2) > ctx.LimitArrayElements) {
+				break;
+			}
+
 			lua_pushvalue(L, -2);
 			auto key = lua_tostring(L, -1);
 			arr[key] = val;
@@ -410,6 +416,10 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 		return Json::Value(lua_tostring(L, index));
 
 	case LUA_TTABLE:
+		if (ctx.LimitDepth != -1 && depth > (uint32_t)ctx.LimitDepth) {
+			return Json::Value("*DEPTH LIMIT EXCEEDED*");
+		}
+
 		return StringifyTable(L, index, depth, ctx);
 
 	case LUA_TUSERDATA:
@@ -417,6 +427,10 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 	case LUA_TCPPOBJECT:
 	{
 		if (ctx.IterateUserdata) {
+			if (ctx.LimitDepth != -1 && depth > (uint32_t)ctx.LimitDepth) {
+				return Json::Value("*DEPTH LIMIT EXCEEDED*");
+			}
+
 			auto obj = StringifyUserdata(L, index, depth, ctx);
 			if (!obj.isNull()) {
 				return obj;
@@ -466,6 +480,8 @@ UserReturn LuaStringify(lua_State * L)
 			ctx.IterateUserdata = try_gettable<bool>(L, "IterateUserdata", 2, false);
 			ctx.AvoidRecursion = try_gettable<bool>(L, "AvoidRecursion", 2, false);
 			ctx.MaxDepth = try_gettable<uint32_t>(L, "MaxDepth", 2, 64);
+			ctx.LimitDepth = try_gettable<int32_t>(L, "LimitDepth", 2, -1);
+			ctx.LimitArrayElements = try_gettable<int32_t>(L, "LimitArrayElements", 2, -1);
 
 			if (ctx.MaxDepth > 64) {
 				ctx.MaxDepth = 64;
