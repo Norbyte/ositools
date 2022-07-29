@@ -20,11 +20,6 @@ std::optional<STDString> GetUserdataObjectTypeName(lua_State * L, int index)
 		return STDString("Array<") + arr->GetImpl()->GetType().TypeName.GetString() + ">";
 	}
 
-	auto set = Userdata<SetProxy>::AsUserData(L, index);
-	if (set) {
-		return STDString("Array<") + set->GetImpl()->GetType().TypeName.GetString() + ">";
-	}
-
 	auto map = Userdata<MapProxy>::AsUserData(L, index);
 	if (map) {
 		return STDString("Map<") + map->GetImpl()->GetKeyType().TypeName.GetString() + ", " + map->GetImpl()->GetValueType().TypeName.GetString() + ">";

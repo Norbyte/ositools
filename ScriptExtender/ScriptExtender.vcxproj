@@ -115,7 +115,6 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
-    <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="Osiris\Debugger\Debugger.h" />
@@ -325,7 +324,6 @@
     <None Include="Lua\Shared\Proxies\LuaEvent.inl" />
     <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl" />
-    <None Include="Lua\Shared\Proxies\LuaSetProxy.inl" />
     <None Include="Osiris\Debugger\osidebug.proto" />
   </ItemGroup>
   <ItemGroup>

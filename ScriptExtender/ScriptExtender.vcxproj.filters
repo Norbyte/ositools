@@ -313,9 +313,6 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
-    <ClInclude Include="Lua\Shared\Proxies\LuaSetProxy.h">
-      <Filter>Lua\Shared\Proxies</Filter>
-    </ClInclude>
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
@@ -638,9 +635,6 @@
       <Filter>Lua\Shared\Proxies</Filter>
     </None>
     <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl">
-      <Filter>Lua\Shared\Proxies</Filter>
-    </None>
-    <None Include="Lua\Shared\Proxies\LuaSetProxy.inl">
       <Filter>Lua\Shared\Proxies</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl">

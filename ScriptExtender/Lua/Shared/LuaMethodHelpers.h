@@ -4,7 +4,6 @@
 #include <Lua/Shared/Proxies/LuaObjectProxy.h>
 #include <Lua/Shared/Proxies/LuaArrayProxy.h>
 #include <Lua/Shared/Proxies/LuaMapProxy.h>
-#include <Lua/Shared/Proxies/LuaSetProxy.h>
 #include <Lua/Shared/Proxies/LuaCppObjectProxy.h>
 
 BEGIN_NS(lua)
@@ -32,12 +31,6 @@ inline void MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value
 			MapProxy::MakeByVal(L, value, lifetime);
 		} else {
 			MapProxy::MakeByRef(L, value, lifetime);
-		}
-	} else if constexpr (IsSetLike<T>::Value) {
-		if constexpr (ByVal<IsSetLike<T>::TElement>::Value) {
-			SetProxy::MakeByVal<IsSetLike<T>::TElement>(L, value, lifetime);
-		} else {
-			SetProxy::MakeByRef<IsSetLike<T>::TElement>(L, value, lifetime);
 		}
 	} else if constexpr (std::is_pointer_v<T>) {
 		if constexpr (std::is_const_v<std::remove_pointer_t<T>>) {

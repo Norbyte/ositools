@@ -7,7 +7,6 @@
 #include <Lua/Shared/Proxies/LuaEvent.inl>
 #include <Lua/Shared/Proxies/LuaMapProxy.inl>
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
-#include <Lua/Shared/Proxies/LuaSetProxy.inl>
 #include <Lua/Shared/Proxies/LuaCppObjectProxy.inl>
 
 BEGIN_SE()
