@@ -83,7 +83,7 @@ struct ObjectProxyHelpers
 				StackCheck _(L, 2);
 				auto it = map.Properties.begin();
 				push(L, it->first);
-				if (!map.GetProperty(L, lifetime, object, it->second)) {
+				if (map.GetProperty(L, lifetime, object, it->second) != PropertyOperationResult::Success) {
 					push(L, nullptr);
 				}
 
@@ -96,7 +96,7 @@ struct ObjectProxyHelpers
 				if (it != map.Properties.end()) {
 					StackCheck _(L, 2);
 					push(L, it->first);
-					if (!map.GetProperty(L, lifetime, object, it->second)) {
+					if (map.GetProperty(L, lifetime, object, it->second) != PropertyOperationResult::Success) {
 						push(L, nullptr);
 					}
 

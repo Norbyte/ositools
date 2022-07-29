@@ -56,7 +56,7 @@ PropertyOperationResult Item::LuaFallbackGet(lua_State* L, lua::LifetimeHandle c
 {
 	auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;
 	if (object->Stats) {
-		if (map.GetProperty(L, lifetime, object->Stats, prop)) {
+		if (map.GetProperty(L, lifetime, object->Stats, prop) == PropertyOperationResult::Success) {
 			WarnDeprecated56("Getting stats properties through an ecl::Item instance is deprecated! (Use item.Stats instead)");
 			return PropertyOperationResult::Success;
 		}

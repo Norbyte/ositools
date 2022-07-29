@@ -13,7 +13,7 @@ struct CppObjectProxyHelpers
 				StackCheck _(L, 2);
 				auto it = pm.Properties.begin();
 				push(L, it->first);
-				if (!pm.GetRawProperty(L, lifetime, object, it->first)) {
+				if (pm.GetRawProperty(L, lifetime, object, it->first) != PropertyOperationResult::Success) {
 					push(L, nullptr);
 				}
 
@@ -26,7 +26,7 @@ struct CppObjectProxyHelpers
 				if (it != pm.Properties.end()) {
 					StackCheck _(L, 2);
 					push(L, it->first);
-					if (!pm.GetRawProperty(L, lifetime, object, it->first)) {
+					if (pm.GetRawProperty(L, lifetime, object, it->first) != PropertyOperationResult::Success) {
 						push(L, nullptr);
 					}
 
