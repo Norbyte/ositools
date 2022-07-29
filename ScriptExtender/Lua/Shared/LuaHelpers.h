@@ -12,11 +12,9 @@ BEGIN_NS(lua)
 enum class MetatableTag : uint8_t
 {
 	ObjectProxyByRef = 0,
-	ArrayProxyByVal = 1,
-	ArrayProxyByRef = 2,
-	MapProxyByVal = 3,
-	MapProxyByRef = 4,
-	Max = MapProxyByRef
+	ArrayProxy = 1,
+	MapProxy = 2,
+	Max = MapProxy
 };
 
 #if !defined(NDEBUG)
@@ -272,15 +270,6 @@ inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v
 	} else {
 		lua_pushnil(L);
 	}
-}
-
-template <class T>
-inline typename std::enable_if_t<std::is_pointer_v<T>,
-	std::enable_if_t<!std::is_same_v<T, char const*>,
-	std::enable_if_t<!std::is_same_v<T, char*>,
-	std::enable_if_t<!std::is_same_v<T, lua_CFunction>, void>>>> push(lua_State* L, T v)
-{
-	static_assert(false, "Can't push pointers to Lua");
 }
 
 template <class T>

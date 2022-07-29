@@ -2,17 +2,24 @@
 
 #include <Lua/Shared/Proxies/LuaUserdata.h>
 #include <Lua/Shared/LuaHelpers.h>
+#include <Lua/Shared/Proxies/LuaPropertyMap.h>
 
 BEGIN_NS(lua)
+
+class ArrayProxyImplBase;
 
 class CppPropertyMapManager
 {
 public:
 	int RegisterPropertyMap(GenericPropertyMap* mt);
 	GenericPropertyMap* GetPropertyMap(int index);
+	
+	int RegisterArrayProxy(ArrayProxyImplBase* mt);
+	ArrayProxyImplBase* GetArrayProxy(int index);
 
 private:
 	ObjectSet<GenericPropertyMap*> propertyMaps_;
+	ObjectSet<ArrayProxyImplBase*> arrayProxies_;
 };
 
 struct CppObjectMetadata
@@ -131,8 +138,15 @@ public:
 	static int IndexProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<Indexable, T>) {
+			StackCheck _(L, 1);
 			CppObjectMetadata self;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
+
+			if (!self.Lifetime.IsAlive(L)) {
+				luaL_error(L, "Attempted to read '%s' whose lifetime has expired", T::GetTypeName(L, self));
+				return 0;
+			}
+
 			return T::Index(L, self);
 		} else {
 			return luaL_error(L, "Not indexable!");
@@ -142,8 +156,15 @@ public:
 	static int NewIndexProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<NewIndexable, T>) {
+			StackCheck _(L, 0);
 			CppObjectMetadata self;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
+
+			if (!self.Lifetime.IsAlive(L)) {
+				luaL_error(L, "Attempted to write '%s' whose lifetime has expired", T::GetTypeName(L, self));
+				return 0;
+			}
+
 			return T::NewIndex(L, self);
 		} else {
 			return luaL_error(L, "Not newindexable!");
@@ -153,8 +174,16 @@ public:
 	static int LengthProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<Lengthable, T>) {
+			StackCheck _(L, 1);
 			CppObjectMetadata self;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
+
+			if (!self.Lifetime.IsAlive(L)) {
+				luaL_error(L, "Attempted to get length of '%s' whose lifetime has expired", T::GetTypeName(L, self));
+				push(L, nullptr);
+				return 1;
+			}
+
 			return T::Length(L, self);
 		} else {
 			return luaL_error(L, "Not lengthable!");
@@ -175,6 +204,7 @@ public:
 	static int ToStringProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<Stringifiable, T>) {
+			StackCheck _(L, 1);
 			CppObjectMetadata self;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
 			return T::ToString(L, self);
@@ -186,6 +216,7 @@ public:
 	static int EqualProxy(lua_State* L)
 	{
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			StackCheck _(L, 1);
 			CppObjectMetadata self, other;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
 
@@ -219,6 +250,12 @@ public:
 		if constexpr (std::is_base_of_v<Iterable, T>) {
 			CppObjectMetadata self;
 			lua_get_cppobject(L, 1, T::MetaTag, self);
+
+			if (!self.Lifetime.IsAlive(L)) {
+				luaL_error(L, "Attempted to iterate '%s' whose lifetime has expired", T::GetTypeName(L, self));
+				return 0;
+			}
+
 			return T::Next(L, self);
 		} else {
 			return luaL_error(L, "Not iterable!");
@@ -227,13 +264,11 @@ public:
 
 	static int NameProxy(lua_State* L)
 	{
-		if constexpr (std::is_base_of_v<Named, T>) {
-			CppObjectMetadata self;
-			lua_get_cppobject(L, 1, T::MetaTag, self);
-			return T::Name(L, self);
-		} else {
-			return luaL_error(L, "Not named!");
-		}
+		StackCheck _(L, 1);
+		CppObjectMetadata self;
+		lua_get_cppobject(L, 1, T::MetaTag, self);
+		push(L, T::GetTypeName(L, self));
+		return 1;
 	}
 
 	static void PopulateMetatable(lua_State* L, CMetatable* mt)
@@ -275,9 +310,7 @@ public:
 			lua_cmetatable_set(L, mt, (int)MetamethodName::Eq, &EqualProxy);
 		}
 
-		if constexpr (std::is_base_of_v<Named, T>) {
-			lua_cmetatable_set(L, mt, (int)MetamethodName::Name, &NameProxy);
-		}
+		lua_cmetatable_set(L, mt, (int)MetamethodName::Name, &NameProxy);
 
 		T::PopulateMetatable(L, mt);
 		CppMetatableManager::FromLua(L).RegisterMetatable(T::MetaTag, mt);

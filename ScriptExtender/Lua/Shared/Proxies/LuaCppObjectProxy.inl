@@ -47,11 +47,20 @@ int CppPropertyMapManager::RegisterPropertyMap(GenericPropertyMap* mt)
 
 GenericPropertyMap* CppPropertyMapManager::GetPropertyMap(int index)
 {
-	if (index >= 0 && (uint32_t)index < propertyMaps_.size()) {
-		return propertyMaps_[index];
-	} else {
-		return nullptr;
-	}
+	assert(index >= 0 && (uint32_t)index < propertyMaps_.size());
+	return propertyMaps_[index];
+}
+
+int CppPropertyMapManager::RegisterArrayProxy(ArrayProxyImplBase* mt)
+{
+	arrayProxies_.push_back(mt);
+	return (int)(arrayProxies_.size() - 1);
+}
+
+ArrayProxyImplBase* CppPropertyMapManager::GetArrayProxy(int index)
+{
+	assert(index >= 0 && (uint32_t)index < arrayProxies_.size());
+	return arrayProxies_[index];
 }
 
 CppMetatableManager::CppMetatableManager()
@@ -79,17 +88,23 @@ CppMetatableManager& CppMetatableManager::FromLua(lua_State* L)
 
 int LightObjectProxyByRefMetatable::Index(lua_State* L, CppObjectMetadata& self)
 {
-	StackCheck _(L, 1);
-	if (!self.Lifetime.IsAlive(L)) {
-		luaL_error(L, "Attempted to read object of type '%s' whose lifetime has expired", GetTypeName(L, self));
-		return 0;
-	}
-
 	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
 	auto prop = get<FixedString>(L, 2);
-	if (!pm->GetRawProperty(L, self.Lifetime, self.Ptr, prop)) {
-		luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeName(L, self), prop.GetString());
-		return 0;
+	auto result = pm->GetRawProperty(L, self.Lifetime, self.Ptr, prop);
+	switch (result) {
+	case PropertyOperationResult::Success:
+		break;
+
+	case PropertyOperationResult::NoSuchProperty:
+		luaL_error(L, "Property does not exist: %s::%s - property does not exist", GetTypeName(L, self), prop.GetString());
+		push(L, nullptr);
+		break;
+
+	case PropertyOperationResult::Unknown:
+	default:
+		luaL_error(L, "Cannot get property %s::%s - unknown error", GetTypeName(L, self), prop.GetString());
+		push(L, nullptr);
+		break;
 	}
 
 	return 1;
@@ -97,12 +112,6 @@ int LightObjectProxyByRefMetatable::Index(lua_State* L, CppObjectMetadata& self)
 
 int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& self)
 {
-	StackCheck _(L, 0);
-	if (!self.Lifetime.IsAlive(L)) {
-		luaL_error(L, "Attempted to write object of type '%s' whose lifetime has expired", GetTypeName(L, self));
-		return 0;
-	}
-
 	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
 	auto prop = get<FixedString>(L, 2);
 	auto result = pm->SetRawProperty(L, self.Lifetime, self.Ptr, prop, 3);
@@ -111,7 +120,7 @@ int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& se
 		break;
 
 	case PropertyOperationResult::NoSuchProperty:
-		luaL_error(L, "Class '%s' has no property named '%s'", GetTypeName(L, self), prop.GetString());
+		luaL_error(L, "Cannot set property %s::%s - property does not exist", GetTypeName(L, self), prop.GetString());
 		break;
 
 	case PropertyOperationResult::ReadOnly:
@@ -123,6 +132,7 @@ int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& se
 		break;
 
 	case PropertyOperationResult::Unknown:
+	default:
 		luaL_error(L, "Cannot set property %s::%s - unknown error", GetTypeName(L, self), prop.GetString());
 		break;
 	}
@@ -132,8 +142,6 @@ int LightObjectProxyByRefMetatable::NewIndex(lua_State* L, CppObjectMetadata& se
 
 int LightObjectProxyByRefMetatable::ToString(lua_State* L, CppObjectMetadata& self)
 {
-	StackCheck _(L, 1);
-
 	char entityName[200];
 	if (self.Lifetime.IsAlive(L)) {
 		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p)", GetTypeName(L, self), self.Ptr);
@@ -153,11 +161,6 @@ int LightObjectProxyByRefMetatable::IsEqual(lua_State* L, CppObjectMetadata& sel
 
 int LightObjectProxyByRefMetatable::Next(lua_State* L, CppObjectMetadata& self)
 {
-	if (!self.Lifetime.IsAlive(L)) {
-		luaL_error(L, "Attempted to iterate object of type '%s' whose lifetime has expired", GetTypeName(L, self));
-		return 0;
-	}
-
 	auto pm = gExtender->GetPropertyMapManager().GetPropertyMap(self.PropertyMapTag);
 	if (lua_type(L, 2) == LUA_TNIL) {
 		return CppObjectProxyHelpers::Next(L, *pm, self.Ptr, self.Lifetime, FixedString{});
@@ -165,12 +168,6 @@ int LightObjectProxyByRefMetatable::Next(lua_State* L, CppObjectMetadata& self)
 		auto key = get<FixedString>(L, 2);
 		return CppObjectProxyHelpers::Next(L, *pm, self.Ptr, self.Lifetime, key);
 	}
-}
-
-int LightObjectProxyByRefMetatable::Name(lua_State* L, CppObjectMetadata& self)
-{
-	push(L, GetTypeName(L, self));
-	return 1;
 }
 
 char const* LightObjectProxyByRefMetatable::GetTypeName(lua_State* L, CppObjectMetadata& self)

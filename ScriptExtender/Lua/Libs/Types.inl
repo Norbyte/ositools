@@ -15,11 +15,6 @@ std::optional<STDString> GetUserdataObjectTypeName(lua_State * L, int index)
 		return event->GetImpl()->GetType().TypeName.GetString();
 	}
 
-	auto arr = Userdata<ArrayProxy>::AsUserData(L, index);
-	if (arr) {
-		return STDString("Array<") + arr->GetImpl()->GetType().TypeName.GetString() + ">";
-	}
-
 	auto map = Userdata<MapProxy>::AsUserData(L, index);
 	if (map) {
 		return STDString("Map<") + map->GetImpl()->GetKeyType().TypeName.GetString() + ", " + map->GetImpl()->GetValueType().TypeName.GetString() + ">";
@@ -32,8 +27,23 @@ std::optional<STDString> GetCppObjectTypeName(lua_State * L, int index)
 {
 	CppObjectMetadata meta;
 	lua_get_cppobject(L, index, meta);
-	auto propertyMap = gExtender->GetPropertyMapManager().GetPropertyMap(meta.PropertyMapTag);
-	return propertyMap->Name.GetString();
+
+	switch (meta.MetatableTag) {
+	case MetatableTag::ObjectProxyByRef:
+	{
+		auto propertyMap = gExtender->GetPropertyMapManager().GetPropertyMap(meta.PropertyMapTag);
+		return propertyMap->Name.GetString();
+	}
+
+	case MetatableTag::ArrayProxy:
+	{
+		auto impl = gExtender->GetPropertyMapManager().GetArrayProxy(meta.PropertyMapTag);
+		return impl->GetType().TypeName.GetString();
+	}
+
+	default:
+		return {};
+	}
 }
 
 UserReturn GetObjectType(lua_State * L)

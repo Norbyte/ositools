@@ -286,21 +286,21 @@ public:
 		auto ref = pool_.Get(handle.GetIndex());
 		if (ref == nullptr) {
 #if defined(DEBUG_LIFETIMES)
-			ERR("[%016lx] Attempted to get lifetime with invalid index %d (max is %d).", (uint64_t)handle, handle.GetIndex(), LifetimeHandle::MaxPoolSize);
+			ERR("[%012lx] Attempted to get lifetime with invalid index %d (max is %d).", (uint64_t)handle, handle.GetIndex(), LifetimeHandle::MaxPoolSize);
 #endif
 			return nullptr;
 		}
 
 		if (ref->Salt() != handle.GetSalt()) {
 #if defined(DEBUG_LIFETIMES)
-			ERR("[%016lx] Lifetime salt mismatch; got %d, expected %d", (uint64_t)handle, ref->Salt(), handle.GetSalt());
+			ERR("[%012lx] Lifetime salt mismatch; got %d, expected %d", (uint64_t)handle, ref->Salt(), handle.GetSalt());
 #endif
 			return nullptr;
 		}
 
 		if (!ref->IsAlive()) {
 #if defined(DEBUG_LIFETIMES)
-			ERR("[%016lx] Attempted to get a dead lifetime.", (uint64_t)handle);
+			ERR("[%012lx] Attempted to get a dead lifetime.", (uint64_t)handle);
 #endif
 			return nullptr;
 		}

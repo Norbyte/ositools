@@ -28,10 +28,21 @@ struct ObjectProxyHelpers
 	static bool GetProperty(lua_State* L, T* object, LifetimeHandle const& lifetime, FixedString const& prop)
 	{
 		auto const& map = StaticLuaPropertyMap<T>::PropertyMap;
-		auto fetched = map.GetProperty(L, lifetime, object, prop);
-		if (!fetched) {
-			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
-			return false;
+		auto result = map.GetProperty(L, lifetime, object, prop);
+		switch (result) {
+		case PropertyOperationResult::Success:
+			break;
+
+		case PropertyOperationResult::NoSuchProperty:
+			luaL_error(L, "Property does not exist: %s::%s - property does not exist", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+			push(L, nullptr);
+			break;
+
+		case PropertyOperationResult::Unknown:
+		default:
+			luaL_error(L, "Cannot get property %s::%s - unknown error", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+			push(L, nullptr);
+			break;
 		}
 
 		return true;
@@ -40,13 +51,28 @@ struct ObjectProxyHelpers
 	static bool SetProperty(lua_State* L, T* object, LifetimeHandle const& lifetime, FixedString const& prop, int index)
 	{
 		auto const& map = StaticLuaPropertyMap<T>::PropertyMap;
-		auto ok = map.SetProperty(L, lifetime, object, prop, index);
-		if (!ok) {
-			luaL_error(L, "Object of type '%s' has no property named '%s'", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+		auto result = map.SetProperty(L, lifetime, object, prop, index);
+		switch (result) {
+		case PropertyOperationResult::Success:
+			return true;
+
+		case PropertyOperationResult::NoSuchProperty:
+			luaL_error(L, "Cannot set property %s::%s - property does not exist", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+			return false;
+
+		case PropertyOperationResult::ReadOnly:
+			luaL_error(L, "Cannot set property %s::%s - property is read-only", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+			return false;
+
+		case PropertyOperationResult::UnsupportedType:
+			luaL_error(L, "Cannot set property %s::%s - cannot write properties of this type", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
+			return false;
+
+		case PropertyOperationResult::Unknown:
+		default:
+			luaL_error(L, "Cannot set property %s::%s - unknown error", GetTypeInfo<T>().TypeName.GetString(), prop.GetString());
 			return false;
 		}
-
-		return true;
 	}
 
 	static int Next(lua_State* L, T* object, LifetimeHandle const& lifetime, FixedString const& key)
