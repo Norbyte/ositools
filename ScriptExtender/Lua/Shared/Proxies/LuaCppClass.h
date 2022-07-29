@@ -7,6 +7,7 @@
 BEGIN_NS(lua)
 
 class ArrayProxyImplBase;
+class MapProxyImplBase;
 
 class CppPropertyMapManager
 {
@@ -16,10 +17,14 @@ public:
 	
 	int RegisterArrayProxy(ArrayProxyImplBase* mt);
 	ArrayProxyImplBase* GetArrayProxy(int index);
+	
+	int RegisterMapProxy(MapProxyImplBase* mt);
+	MapProxyImplBase* GetMapProxy(int index);
 
 private:
 	ObjectSet<GenericPropertyMap*> propertyMaps_;
 	ObjectSet<ArrayProxyImplBase*> arrayProxies_;
+	ObjectSet<MapProxyImplBase*> mapProxies_;
 };
 
 struct CppObjectMetadata

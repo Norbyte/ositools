@@ -2,83 +2,78 @@
 
 BEGIN_NS(lua)
 
-char const* const MapProxy::MetatableName = "Map";
-
-int MapProxy::Index(lua_State* L)
+MapProxyImplBase::MapProxyImplBase()
 {
-	StackCheck _(L, 1);
-	auto impl = GetImpl();
-	if (!lifetime_.IsAlive(L)) {
-		luaL_error(L, "Attempted to read dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
-		push(L, nullptr);
-		return 1;
-	}
+	Register();
+}
 
-	if (!impl->GetValue(L, 2)) {
+void MapProxyImplBase::Register()
+{
+	assert(registryIndex_ == -1);
+	registryIndex_ = gExtender->GetPropertyMapManager().RegisterMapProxy(this);
+}
+
+int MapProxyImplBase::GetRegistryIndex() const
+{
+	assert(registryIndex_ >= 0);
+	return registryIndex_;
+}
+
+int MapProxyMetatable::Index(lua_State* L, CppObjectMetadata& self)
+{
+	auto impl = gExtender->GetPropertyMapManager().GetMapProxy(self.PropertyMapTag);
+	if (!impl->GetValue(L, self, 2)) {
 		push(L, nullptr);
 	}
 
 	return 1;
 }
 
-int MapProxy::NewIndex(lua_State* L)
+int MapProxyMetatable::NewIndex(lua_State* L, CppObjectMetadata& self)
 {
-	StackCheck _(L, 0);
-	auto impl = GetImpl();
-	if (!lifetime_.IsAlive(L)) {
-		luaL_error(L, "Attempted to write dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
-		return 0;
-	}
-
-	impl->SetValue(L, 2, 3);
+	auto impl = gExtender->GetPropertyMapManager().GetMapProxy(self.PropertyMapTag);
+	impl->SetValue(L, self, 2, 3);
 	return 0;
 }
 
-int MapProxy::Length(lua_State* L)
+int MapProxyMetatable::Length(lua_State* L, CppObjectMetadata& self)
 {
-	StackCheck _(L, 1);
-	auto impl = GetImpl();
-	if (!lifetime_.IsAlive(L)) {
-		luaL_error(L, "Attempted to get length of dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
-		push(L, nullptr);
-		return 1;
-	}
-
-	push(L, impl->Length());
+	auto impl = gExtender->GetPropertyMapManager().GetMapProxy(self.PropertyMapTag);
+	push(L, impl->Length(self));
 	return 1;
 }
 
-int MapProxy::Next(lua_State* L)
+int MapProxyMetatable::Next(lua_State* L, CppObjectMetadata& self)
 {
-	auto impl = GetImpl();
-	if (!lifetime_.IsAlive(L)) {
-		luaL_error(L, "Attempted to iterate dead Map<%s, %s>", impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString());
-		return 0;
-	}
-
-	return impl->Next(L, 2);
+	auto impl = gExtender->GetPropertyMapManager().GetMapProxy(self.PropertyMapTag);
+	return impl->Next(L, self, 2);
 }
 
-int MapProxy::ToString(lua_State* L)
+int MapProxyMetatable::ToString(lua_State* L, CppObjectMetadata& self)
 {
 	StackCheck _(L, 1);
 	char entityName[200];
-	auto impl = GetImpl();
-	if (lifetime_.IsAlive(L)) {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p)", 
-			impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString(), GetImpl()->GetRaw());
+	if (self.Lifetime.IsAlive(L)) {
+		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p)", 
+			GetTypeName(L, self), self.Ptr);
 	} else {
-		_snprintf_s(entityName, std::size(entityName) - 1, "Map<%s, %s> (%p, DEAD REFERENCE)", 
-			impl->GetKeyType().TypeName.GetString(), impl->GetValueType().TypeName.GetString(), GetImpl()->GetRaw());
+		_snprintf_s(entityName, std::size(entityName) - 1, "%s (%p, DEAD REFERENCE)", 
+			GetTypeName(L, self), self.Ptr);
 	}
 
 	push(L, entityName);
 	return 1;
 }
 
-bool MapProxy::IsEqual(lua_State* L, MapProxy* other)
+bool MapProxyMetatable::IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other)
 {
-	return GetImpl()->GetRaw() == other->GetImpl()->GetRaw();
+	return self.Ptr == other.Ptr && self.PropertyMapTag == other.PropertyMapTag;
+}
+
+char const* MapProxyMetatable::GetTypeName(lua_State* L, CppObjectMetadata& self)
+{
+	auto impl = gExtender->GetPropertyMapManager().GetMapProxy(self.PropertyMapTag);
+	return impl->GetArrayType().TypeName.GetString();
 }
 
 END_NS()

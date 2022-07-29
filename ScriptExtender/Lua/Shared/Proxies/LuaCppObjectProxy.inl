@@ -63,6 +63,18 @@ ArrayProxyImplBase* CppPropertyMapManager::GetArrayProxy(int index)
 	return arrayProxies_[index];
 }
 
+int CppPropertyMapManager::RegisterMapProxy(MapProxyImplBase* mt)
+{
+	mapProxies_.push_back(mt);
+	return (int)(mapProxies_.size() - 1);
+}
+
+MapProxyImplBase* CppPropertyMapManager::GetMapProxy(int index)
+{
+	assert(index >= 0 && (uint32_t)index < mapProxies_.size());
+	return mapProxies_[index];
+}
+
 CppMetatableManager::CppMetatableManager()
 {
 	metatables_.resize((int)MetatableTag::Max);

@@ -46,7 +46,8 @@ public:
 	inline virtual ~ArrayProxyImplBase() {};
 	void Register();
 	virtual int GetRegistryIndex() const;
-	virtual TypeInformation const& GetType() const = 0;
+	virtual TypeInformation const& GetArrayType() const = 0;
+	virtual TypeInformation const& GetElementType() const = 0;
 	virtual bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) = 0;
 	virtual bool SetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex, int luaIndex) = 0;
 	virtual int Next(lua_State* L, CppObjectMetadata& self, int key) = 0;
@@ -61,9 +62,14 @@ template <class TArray, class TElement>
 class ArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	TypeInformation const& GetType() const override
+	TypeInformation const& GetElementType() const override
 	{
 		return GetTypeInfo<TElement>();
+	}
+	
+	TypeInformation const& GetArrayType() const override
+	{
+		return GetTypeInfo<TArray>();
 	}
 
 	bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) override
@@ -109,9 +115,14 @@ class ArrayProxyByValImpl : public ArrayProxyImplBase
 public:
 	static_assert(!std::is_pointer_v<TElement>, "ArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	TypeInformation const& GetType() const override
+	TypeInformation const& GetElementType() const override
 	{
 		return GetTypeInfo<TElement>();
+	}
+
+	TypeInformation const& GetArrayType() const override
+	{
+		return GetTypeInfo<TArray>();
 	}
 
 	bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) override
@@ -170,9 +181,14 @@ template <class TArray, class TElement>
 class FixedSizeArrayProxyByRefImpl : public ArrayProxyImplBase
 {
 public:
-	TypeInformation const& GetType() const override
+	TypeInformation const& GetElementType() const override
 	{
 		return GetTypeInfo<TElement>();
+	}
+
+	TypeInformation const& GetArrayType() const override
+	{
+		return GetTypeInfo<TArray>();
 	}
 
 	bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) override
@@ -218,9 +234,14 @@ class FixedSizeArrayProxyByValImpl : public ArrayProxyImplBase
 public:
 	static_assert(!std::is_pointer_v<TElement>, "FixedSizeArrayProxyByValImpl template parameter should not be a pointer type!");
 
-	TypeInformation const& GetType() const override
+	TypeInformation const& GetElementType() const override
 	{
 		return GetTypeInfo<TElement>();
+	}
+
+	TypeInformation const& GetArrayType() const override
+	{
+		return GetTypeInfo<TArray>();
 	}
 
 	bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) override
@@ -268,7 +289,7 @@ public:
 };
 
 
-class ArrayProxy : public LightCppObjectMetatable<ArrayProxy>, public Indexable, public NewIndexable,
+class ArrayProxyMetatable : public LightCppObjectMetatable<ArrayProxyMetatable>, public Indexable, public NewIndexable,
 	public Lengthable, public Iterable, public Stringifiable, public EqualityComparable
 {
 public:
@@ -391,7 +412,7 @@ struct IsArrayLike<std::array<T, Size>> { static constexpr bool Value = true; us
 template <class T>
 inline void push_array_ref_proxy(lua_State* L, LifetimeHandle const& lifetime, T* v)
 {
-	ArrayProxy::MakeByRef<T>(L, v, lifetime);
+	ArrayProxyMetatable::MakeByRef<T>(L, v, lifetime);
 }
 
 void* checked_get_array_proxy(lua_State* L, int index, int propertyMapIndex);
@@ -399,7 +420,7 @@ void* checked_get_array_proxy(lua_State* L, int index, int propertyMapIndex);
 template <class T>
 inline T* checked_get_array_proxy(lua_State* L, int index)
 {
-	auto ptr = checked_get_array_proxy(L, index, ArrayProxy::GetImplementation<T>()->GetRegistryIndex());
+	auto ptr = checked_get_array_proxy(L, index, ArrayProxyMetatable::GetImplementation<T>()->GetRegistryIndex());
 	return reinterpret_cast<T*>(ptr);
 }
 
