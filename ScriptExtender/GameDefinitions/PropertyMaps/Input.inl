@@ -28,7 +28,7 @@ P_RO(field_E8)
 END_CLS()
 
 BEGIN_CLS(InputRaw)
-P_RO(InputType)
+P_RO(InputId)
 P_GETTER_SETTER(DeviceId, LuaGetDeviceId, LuaSetDeviceId)
 END_CLS()
 

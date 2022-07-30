@@ -312,6 +312,7 @@ namespace dse
 
 		InputManager** ls__InputManager{ nullptr };
 		InputManager::GetInstanceProc* ls__InputManager__GetInstance{ nullptr };
+		InputManager::InjectInputProc* ls__InputManager__InjectInput{ nullptr };
 
 		esv::AlignmentContainer** esv__AlignmentContainer{ nullptr };
 		void* esv__AlignmentContainer__Load__Hook{ nullptr };

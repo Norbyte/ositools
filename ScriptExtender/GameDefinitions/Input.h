@@ -53,7 +53,7 @@ struct InputEventDesc
 
 struct alignas(4) InputRaw
 {
-	InputRawType InputType;
+	InputRawType InputId;
 	int16_t _Padding;
 	InputDeviceId DeviceId;
 	int16_t _Padding2;

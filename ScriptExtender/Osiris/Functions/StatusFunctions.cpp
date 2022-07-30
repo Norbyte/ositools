@@ -685,6 +685,14 @@ namespace dse::esv
 		}
 	}
 
+	void CustomFunctionLibrary::OnInjectInput(InputManager* self, InjectInputData const& input)
+	{
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+		if (lua) {
+			lua->OnRawInputEvent(input);
+		}
+	}
+
 	int CustomFunctionLibrary::OnInventoryProtocolPostUpdate(ecl::InventoryProtocol::PostUpdateProc* next, ecl::InventoryProtocol* self)
 	{
 		if (self->ItemUpdates.size() > 0x200) {

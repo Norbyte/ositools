@@ -331,6 +331,13 @@ void ClientState::OnAppInputEvent(dse::InputEvent const& inputEvent)
 }
 
 
+void ClientState::OnRawInputEvent(InjectInputData const& inputEvent)
+{
+	RawInputEvent params { .Input = &inputEvent };
+	ThrowEvent("RawInput", params);
+}
+
+
 UIObject * ClientState::GetUIObject(char const * name)
 {
 	auto it = clientUI_.find(name);

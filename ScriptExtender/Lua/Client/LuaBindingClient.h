@@ -97,6 +97,11 @@ namespace dse::ecl::lua
 		dse::InputEvent* Event;
 	};
 
+	struct RawInputEvent : public EventBase
+	{
+		InjectInputData const* Input;
+	};
+
 	class ClientState : public State
 	{
 	public:
@@ -131,6 +136,7 @@ namespace dse::ecl::lua
 		void OnGameStateChanged(GameState fromState, GameState toState);
 		std::optional<STDString> GetSkillPropertyDescription(stats::PropertyExtender*);
 		void OnAppInputEvent(dse::InputEvent const& inputEvent);
+		void OnRawInputEvent(InjectInputData const& inputEvent);
 
 		void OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle);
 		UIObject * GetUIObject(char const * name);

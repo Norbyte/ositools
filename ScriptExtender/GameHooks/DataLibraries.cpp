@@ -265,6 +265,7 @@ namespace dse
 
 		SYM_OFF(ls__InputManager);
 		SYM_OFF(ls__InputManager__GetInstance);
+		SYM_OFF(ls__InputManager__InjectInput);
 
 		SYM_OFF(esv__AlignmentContainer);
 		SYM_OFF(esv__AlignmentContainer__Load__Hook);

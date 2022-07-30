@@ -12,7 +12,8 @@ _I._PublishedEvents = {
 	"UICall",
 	"AfterUIInvoke",
 	"AfterUICall",
-	"InputEvent"
+	"InputEvent",
+	"RawInput"
 }
 
 Ext.IsClient = function ()

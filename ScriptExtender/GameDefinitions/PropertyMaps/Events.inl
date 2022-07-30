@@ -252,3 +252,8 @@ BEGIN_CLS(ecl::lua::InputEvent)
 INHERIT(lua::EventBase)
 P_REF(Event)
 END_CLS()
+
+BEGIN_CLS(ecl::lua::RawInputEvent)
+INHERIT(lua::EventBase)
+P_REF(Input)
+END_CLS()

@@ -287,6 +287,9 @@ namespace dse::esv
 		lib.ecl__InventoryProtocol__PostUpdate.SetWrapper(
 			std::bind(&CustomFunctionLibrary::OnInventoryProtocolPostUpdate, this, _1, _2)
 		);
+		lib.ls__InputManager__InjectInput.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnInjectInput, this, _1, _2)
+		);
 
 		loaded_ = true;
 	}
