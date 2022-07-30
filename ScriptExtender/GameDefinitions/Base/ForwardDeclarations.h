@@ -51,6 +51,11 @@ struct AppliedMaterial;
 
 struct EoCSoundManager;
 
+struct InputManager;
+struct InputValue;
+struct InputEvent;
+struct InjectInputData;
+
 struct SkillAIParams;
 
 namespace stats

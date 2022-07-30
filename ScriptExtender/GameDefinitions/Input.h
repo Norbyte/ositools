@@ -5,26 +5,34 @@
 
 BEGIN_SE()
 
+enum class InputDeviceId : int16_t
+{
+	C = -2,
+	Unknown = -1,
+	Key = 0,
+	Mouse = 1,
+	Touchbar = 11
+};
+
+FixedString InputDeviceIdToString(InputDeviceId id);
+InputDeviceId StringToInputDeviceId(FixedString id);
+
 struct InputValue
 {
-	int16_t DeviceId;
-	__int16 field_2;
-	InputModifier Modifiers;
-	uint8_t field_5[3];
-	uint8_t State;
-	uint8_t field_9;
-	uint8_t field_A;
-	uint8_t field_B;
+	float Value;
+	float Value2;
+	InputState State;
 };
 
 
 struct InputDevice
 {
-	__int64 field_0;
-	__int64 field_8;
-	__int16 DeviceId;
-	__int64 field_18;
-	__int64 field_20;
+	int64_t InputPlayerIndex;
+	int32_t field_8;
+	int32_t ControllerMapping;
+	int16_t DeviceId;
+	std::array<float, 4> field_14;
+	uint8_t field_24;
 };
 
 
@@ -45,10 +53,20 @@ struct InputEventDesc
 
 struct alignas(4) InputRaw
 {
-	int16_t InputRawType;
+	InputRawType InputType;
 	int16_t _Padding;
 	InputDeviceId DeviceId;
 	int16_t _Padding2;
+
+	inline FixedString LuaGetDeviceId()
+	{
+		return InputDeviceIdToString(DeviceId);
+	}
+
+	inline void LuaSetDeviceId(FixedString id)
+	{
+		DeviceId = StringToInputDeviceId(id);
+	}
 };
 
 struct InputRawChange
@@ -90,6 +108,16 @@ struct InputEvent
 	InputValue NewValue;
 	InputType Type;
 	bool WasPreferred;
+
+	inline FixedString LuaGetDeviceId()
+	{
+		return InputDeviceIdToString(DeviceId);
+	}
+
+	inline void LuaSetDeviceId(FixedString id)
+	{
+		DeviceId = StringToInputDeviceId(id);
+	}
 };
 
 struct FireEventDesc
@@ -131,8 +159,8 @@ struct InputEventListener
 struct InputListenerGroup
 {
 	int RefCount;
+	ObjectSet<InputEventListener*> TraversingListeners;
 	ObjectSet<InputEventListener*> Listeners;
-	ObjectSet<InputEventListener*> Listeners2;
 	bool IsTraversing;
 };
 
@@ -173,22 +201,16 @@ struct InputScheme
 	std::array<Map<uint64_t, uint64_t>, 4> InputDeviceSomeMaps;
 };
 
-struct InputValueSet
+struct InputSetState
 {
-	struct InputValueDefn
-	{
-		float field_0;
-		int field_4;
-		uint8_t field_8;
-	};
-
-	std::array<InputValueDefn, 173> Inputs;
+	std::array<InputValue, 173> Inputs;
 	bool Initialized;
 };
 
 struct InputManager
 {
 	using GetInstanceProc = InputManager * ();
+	using InjectInputProc = bool (InputManager*, InjectInputData const&);
 
 	struct HoldRepeatEvent
 	{
@@ -201,7 +223,7 @@ struct InputManager
 	};
 
 	RefMap<int32_t, HoldRepeatEvent> PerPlayerHoldRepeatEvents;
-	Array<InputValueSet*> InputValueSets;
+	Array<InputSetState*> InputStates;
 	RefMap<int32_t, InputEventDesc> InputDefinitions;
 	InputScheme InputScheme;
 	InputModifier PressedModifiers;

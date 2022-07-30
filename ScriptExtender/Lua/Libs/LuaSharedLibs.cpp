@@ -16,6 +16,7 @@
 #include <Lua/Libs/ClientNet.inl>
 #include <Lua/Libs/ClientVisual.inl>
 #include <Lua/Libs/ClientEntity.inl>
+#include <Lua/Libs/ClientInput.inl>
 #include <Lua/Libs/Server.inl>
 #include <Lua/Libs/ServerAi.inl>
 #include <Lua/Libs/ServerOsiris.inl>
@@ -42,6 +43,7 @@ void RegisterClientLibraries()
 	visual::RegisterVisualLib();
 	ecs::RegisterEntityLib();
 	tmpl::RegisterTemplateLib();
+	input::RegisterInputLib();
 }
 
 END_NS()

@@ -223,3 +223,10 @@ FS(item);
 FS(surface);
 FS(projectile);
 FS(trigger);
+
+// InputDeviceId values
+FS(C);
+FS(Unknown);
+FS(Key);
+FS(Mouse);
+FS(Touchbar);

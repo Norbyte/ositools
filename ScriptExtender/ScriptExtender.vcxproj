@@ -257,6 +257,7 @@
     <None Include="GameDefinitions\PropertyMaps\Effect.inl" />
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Input.inl" />
     <None Include="GameDefinitions\PropertyMaps\Item.inl" />
     <None Include="GameDefinitions\PropertyMaps\Level.inl" />
     <None Include="GameDefinitions\PropertyMaps\Material.inl" />
@@ -289,6 +290,7 @@
     <None Include="Lua\Libs\Audio.inl" />
     <None Include="Lua\Libs\Client.inl" />
     <None Include="Lua\Libs\ClientEntity.inl" />
+    <None Include="Lua\Libs\ClientInput.inl" />
     <None Include="Lua\Libs\ClientTemplate.inl" />
     <None Include="Lua\Libs\ClientVisual.inl" />
     <None Include="Lua\Libs\ClientNet.inl" />
