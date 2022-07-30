@@ -7,12 +7,14 @@ BEGIN_SE()
 
 struct InputValue
 {
-	int field_0;
-	int field_4;
-	char State;
-	char field_9;
-	char field_A;
-	char field_B;
+	int16_t DeviceId;
+	__int16 field_2;
+	InputModifier Modifiers;
+	uint8_t field_5[3];
+	uint8_t State;
+	uint8_t field_9;
+	uint8_t field_A;
+	uint8_t field_B;
 };
 
 
@@ -41,11 +43,12 @@ struct InputEventDesc
 	int field_E8;
 };
 
-struct InputRaw
+struct alignas(4) InputRaw
 {
-	int16_t InputId;
-	__int16 field_2;
-	__int16 InputValueSet;
+	int16_t InputRawType;
+	int16_t _Padding;
+	InputDeviceId DeviceId;
+	int16_t _Padding2;
 };
 
 struct InputRawChange
@@ -82,7 +85,7 @@ struct InputEvent
 {
 	int EventId;
 	int InputPlayerIndex;
-	int16_t InputDeviceId;
+	InputDeviceId DeviceId;
 	InputValue OldValue;
 	InputValue NewValue;
 	InputType Type;
@@ -135,9 +138,18 @@ struct InputListenerGroup
 
 struct InputBinding : public InputRaw
 {
-	uint8_t Modifiers;
+	InputModifier Modifiers;
+	uint8_t Modifiers2[3];
 };
 
+struct InputBindingDesc
+{
+	int32_t PlayerIndex;
+	int32_t field_4;
+	InputBinding Binding;
+	int32_t field_14;
+	bool field_18;
+};
 
 struct InputScheme
 {
@@ -147,24 +159,30 @@ struct InputScheme
 		__int64 field_8;
 		InputBinding Binding;
 	};
+	
+	struct BindingSet
+	{
+		ObjectSet<InputBindingDesc> Bindings;
+		bool Initialized;
+	};
 
-	Map<FixedString, Binding*>* RawToBindingMap;
-	RefMap<int32_t, Array<InputBinding>> PerPlayerBindings[4];
+	std::array<BindingSet, 173>* Bindings;
+	std::array<RefMap<int32_t, Array<InputBinding>>, 4> PerPlayerBindings;
 	Map<uint16_t, int32_t> DeviceIdToPlayerId;
-	ObjectSet<void*> InputDeviceLists[4];
-	Map<uint64_t, uint64_t> InputDeviceSomeMaps[4];
+	std::array<ObjectSet<void*>, 4> InputDeviceLists;
+	std::array<Map<uint64_t, uint64_t>, 4> InputDeviceSomeMaps;
 };
 
 struct InputValueSet
 {
 	struct InputValueDefn
 	{
-		int field_0;
+		float field_0;
 		int field_4;
 		uint8_t field_8;
 	};
 
-	InputValueDefn Inputs[173];
+	std::array<InputValueDefn, 173> Inputs;
 	bool Initialized;
 };
 
@@ -186,23 +204,25 @@ struct InputManager
 	Array<InputValueSet*> InputValueSets;
 	RefMap<int32_t, InputEventDesc> InputDefinitions;
 	InputScheme InputScheme;
-	uint8_t PressedModifiers;
+	InputModifier PressedModifiers;
 	double LastUpdateTime;
 	bool ControllerAllowKeyboardMouseInput;
 	Map<int32_t, void*> field_198;
 	InputListenerGroup InputListenerGroup1;
 	InputListenerGroup InputListenerGroup;
 	ObjectSet<InputRaw> RawInputs;
-	int PlayerDevices[4];
-	int16_t PlayerDeviceIDs[4];
+	std::array<int, 4> PlayerDevices;
+	std::array<int16_t, 4> PlayerDeviceIDs;
 	InputScheme::Binding CurrentRemap;
 	ObjectSet<InputRaw> RawInputs2;
-	ObjectSet<uint32_t> RawInputTypes[12];
+#if !defined(OSI_EOCAPP)
+	std::array<ObjectSet<uint32_t>, 12> RawInputTypes;
 	ObjectSet<InjectTextData> TextInjects;
+#endif
 	ObjectSet<InjectInputData> InputInjects;
 	ObjectSet<InjectDeviceEvent> DeviceEventInjects;
-	uint64_t field_4A8[8];
-	InputDevice PerDeviceData[4];
+	float field_4A8[4][4];
+	std::array<InputDevice, 4> PerDeviceData;
 };
 
 END_SE()
