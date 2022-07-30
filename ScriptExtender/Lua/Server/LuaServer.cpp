@@ -559,7 +559,7 @@ namespace dse::esv::lua
 			// TODO - fetching CombatGroup?
 		} else if (strcmp(prop, "Character") == 0) {
 			auto character = team->EntityWrapper.GetCharacter();
-			ecs::MakeLegacyServerCharacterObjectRef(L, character);
+			MakeObjectRef(L, character);
 		} else if (strcmp(prop, "Item") == 0) {
 			auto item = team->EntityWrapper.GetItem();
 			MakeObjectRef(L, item);

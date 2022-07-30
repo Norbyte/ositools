@@ -52,7 +52,7 @@ UserReturn GetCharacter(lua_State* L)
 
 	StackCheck _(L, 1);
 	Character* character = LuaGetCharacter(L, 1);
-	MakeLegacyServerCharacterObjectRef(L, character);
+	MakeObjectRef(L, character);
 	return 1;
 }
 

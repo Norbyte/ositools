@@ -52,7 +52,7 @@ Character* LuaGetCharacter(lua_State* L, int index)
 UserReturn GetCharacter(lua_State* L)
 {
 	ecl::Character* character = LuaGetCharacter(L, 1);
-	MakeLegacyClientCharacterObjectRef(L, character);
+	MakeObjectRef(L, character);
 	return 1;
 }
 
@@ -93,7 +93,7 @@ Item* LuaGetItem(lua_State* L, int index)
 UserReturn GetItem(lua_State* L)
 {
 	ecl::Item* item = LuaGetItem(L, 1);
-	MakeLegacyClientItemObjectRef(L, item);
+	MakeObjectRef(L, item);
 	return 1;
 }
 
