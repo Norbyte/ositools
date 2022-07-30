@@ -140,7 +140,7 @@ void* GetLightCppObjectPointer(lua_State* L, int index)
 {
 	CppObjectMetadata meta;
 	lua_get_cppobject(L, index, meta);
-	return meta.Ptr;
+	return (void*)((uintptr_t)meta.Ptr | ((uint64_t)meta.PropertyMapTag << 48) | ((uint64_t)meta.MetatableTag << 62));
 }
 
 void* GetPointerValue(lua_State* L, int index)
