@@ -701,6 +701,19 @@ namespace dse
 			uint64_t field_250;
 		};
 
+		struct UILoadingScreen : public EoCUI
+		{
+			float LoadProgress;
+			float LastLoadProgress;
+			float HintTimer;
+			int HintId;
+			bool field_1A8;
+			bool RequestDelete;
+			ComponentHandle SomeUIHandle;
+			STDWString CurrentStatusText;
+			STDWString NextStatusText;
+		};
+
 		struct PickPosition
 		{
 			glm::vec3 Position;

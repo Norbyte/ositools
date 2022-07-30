@@ -1,12 +1,14 @@
 #include <stdafx.h>
 #include <Extender/Client/ScriptExtenderClient.h>
 #include <Extender/ScriptExtender.h>
+#include <Version.h>
 
 
 #define STATIC_HOOK(name) decltype(dse::ecl::ScriptExtender::name) * decltype(dse::ecl::ScriptExtender::name)::gHook;
 STATIC_HOOK(gameStateWorkerStart_)
 STATIC_HOOK(gameStateChangedEvent_)
 STATIC_HOOK(gameStateMachineUpdate_)
+STATIC_HOOK(gameStateLoadIncLocalProgress_)
 
 #include <Extender/Shared/ThreadedExtenderState.inl>
 #include <Extender/Shared/ModuleHasher.inl>
@@ -87,13 +89,18 @@ void ScriptExtender::Initialize()
 		gameStateMachineUpdate_.Wrap(lib.ecl__GameStateMachine__Update);
 	}
 
+	if (lib.ecl__GameStateLoad__IncLocalProgress != nullptr) {
+		gameStateLoadIncLocalProgress_.Wrap(lib.ecl__GameStateLoad__IncLocalProgress);
+	}
+
 	DetourTransactionCommit();
 
 	using namespace std::placeholders;
 	gameStateChangedEvent_.SetPostHook(std::bind(&ScriptExtender::OnGameStateChanged, this, _1, _2, _3));
 	gameStateWorkerStart_.AddPreHook(std::bind(&ScriptExtender::OnGameStateWorkerStart, this, _1));
 	gameStateWorkerStart_.AddPostHook(std::bind(&ScriptExtender::OnGameStateWorkerExit, this, _1));
-	gameStateMachineUpdate_.AddPostHook(std::bind(&ScriptExtender::OnUpdate, this, _1, _2));
+	gameStateMachineUpdate_.SetPostHook(std::bind(&ScriptExtender::OnUpdate, this, _1, _2));
+	gameStateLoadIncLocalProgress_.SetPostHook(std::bind(&ScriptExtender::OnIncLocalProgress, this, _1, _2, _3));
 }
 
 void ScriptExtender::Shutdown()
@@ -146,6 +153,8 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 	if (fromState != GameState::Unknown) {
 		AddThread(GetCurrentThreadId());
 	}
+
+	ShowLoadingProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
 
 	switch (fromState) {
 	case GameState::LoadModule:
@@ -245,6 +254,27 @@ void ScriptExtender::OnUpdate(void* self, GameTime* time)
 	if (extensionState_) {
 		extensionState_->OnUpdate(*time);
 	}
+}
+
+void ScriptExtender::OnIncLocalProgress(void* self, int progress, char const* state)
+{
+	ShowLoadingProgress(FromUTF8(state));
+}
+
+void ScriptExtender::ShowLoadingProgress(STDWString const& status)
+{
+	auto uiMgr = GetStaticSymbols().GetUIObjectManager();
+	if (!uiMgr) return;
+	auto loadingScreenUi = (UILoadingScreen*)uiMgr->GetByType(23);
+	if (!loadingScreenUi || (loadingScreenUi->Flags & UIObjectFlags::OF_Visible) != UIObjectFlags::OF_Visible) return;
+	STDWString statusText = status;
+	statusText += L" (Script Extender v";
+	statusText += std::to_wstring(CurrentVersion);
+#if defined(_DEBUG)
+	statusText += L" Devel";
+#endif
+	statusText += L")";
+	loadingScreenUi->NextStatusText = statusText;
 }
 
 bool ScriptExtender::IsInClientThread() const

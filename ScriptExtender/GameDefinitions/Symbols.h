@@ -204,6 +204,7 @@ namespace dse
 		esv::GameStateThreaded__GameStateWorker__DoWork esv__GameStateThreaded__GameStateWorker__DoWork{ nullptr };
 		ecl::GameStateMachine__Update ecl__GameStateMachine__Update{ nullptr };
 		esv::GameStateMachine__Update esv__GameStateMachine__Update{ nullptr };
+		ecl::GameStateLoad__IncLocalProgress ecl__GameStateLoad__IncLocalProgress{ nullptr };
 
 		net::Host::AddProtocol net__Host__AddProtocol{ nullptr };
 		net::MessageFactory::RegisterMessage net__MessageFactory__RegisterMessage{ nullptr };

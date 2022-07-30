@@ -836,6 +836,7 @@ namespace ecl
 	typedef void (*GameStateThreaded__GameStateWorker__DoWork)(void* self);
 	typedef void (*GameStateMachine__Update)(void* self, GameTime* time);
 	typedef void (*GameStateEventManager__ExecuteGameStateChangedEvent)(void* self, GameState fromState, GameState toState);
+	typedef void (*GameStateLoad__IncLocalProgress)(void* self, int progress, char const* state);
 
 	EntityWorld* GetEntityWorld();
 }

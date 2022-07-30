@@ -42,13 +42,16 @@ public:
 	void ResetExtensionState();
 	void LoadExtensionState();
 
+	void ShowLoadingProgress(STDWString const& status);
 
 	enum class GameStateWorkerStartTag {};
 	enum class GameStateMachineUpdateTag {};
 	enum class GameStateChangedEventTag {};
+	enum class GameStateLoadIncLocalProgress {};
 	HookableFunction<GameStateWorkerStartTag, void(void*)> gameStateWorkerStart_;
-	HookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
+	PostHookableFunction<GameStateMachineUpdateTag, void(void*, GameTime*)> gameStateMachineUpdate_;
 	PostHookableFunction<GameStateChangedEventTag, void(void*, GameState, GameState)> gameStateChangedEvent_;
+	PostHookableFunction<GameStateLoadIncLocalProgress, void(void*, int, char const*)> gameStateLoadIncLocalProgress_;
 
 private:
 	ExtenderConfig& config_;
@@ -62,6 +65,7 @@ private:
 	void OnGameStateWorkerStart(void* self);
 	void OnGameStateWorkerExit(void* self);
 	void OnUpdate(void* self, GameTime* time);
+	void OnIncLocalProgress(void* self, int progress, char const* state);
 
 	void RegisterFlashTraceCallbacks();
 

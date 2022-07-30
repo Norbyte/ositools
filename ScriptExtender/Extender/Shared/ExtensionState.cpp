@@ -489,6 +489,7 @@ namespace dse
 	void ExtensionStateBase::LuaResetInternal()
 	{
 		std::lock_guard _(luaMutex_);
+		gExtender->GetClient().ShowLoadingProgress(L"Lua Init");
 		assert(LuaPendingDelete);
 		assert(luaRefs_ == 0);
 
@@ -542,6 +543,7 @@ namespace dse
 			if (configIt != modConfigs_.end()) {
 				auto const & config = configIt->second;
 				if (config.FeatureFlags.find("Lua") != config.FeatureFlags.end()) {
+					gExtender->GetClient().ShowLoadingProgress(mod.Info.Name);
 					LuaLoadBootstrap(config, mod);
 				}
 			}

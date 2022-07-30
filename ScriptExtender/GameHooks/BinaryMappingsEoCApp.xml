@@ -1418,5 +1418,19 @@
       @ref1 e8 ?? ?? ?? ?? // call    ls__InputManager__DoInjectInputData
       <Target Type="Indirect" Offset="@ref1" Symbol="ls__InputManager__InjectInput" />
     </Mapping>
+
+    <Mapping Name="ecl::GameStateLoad::IncLocalProgress">
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ls__gLoadingScreenManager
+      8b c2 // mov     eax, edx
+      48 01 41 40 // add     [rcx+40h], rax
+      c3 // retn
+      cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc // db 12h dup(0CCh)
+      48 8b 15 ?? ?? ?? ?? // mov     rdx, cs:ls__gLoadingScreenManager
+      8b 41 18 // mov     eax, [rcx+18h]
+      48 89 42 38 // mov     [rdx+38h], rax
+      48 c7 42 40 00 00 00 00 // mov     qword ptr [rdx+40h], 0
+      f2 0f 10 05 ?? ?? ?? ?? // movsd   xmm0, qword ptr cs:xmmword_14297EDE0
+      <Target Type="Absolute" Offset="0" Symbol="ecl__GameStateLoad__IncLocalProgress" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

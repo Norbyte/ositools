@@ -163,6 +163,7 @@ namespace dse
 		SYM_OFF(esv__GameStateThreaded__GameStateWorker__DoWork);
 		SYM_OFF(ecl__GameStateMachine__Update);
 		SYM_OFF(esv__GameStateMachine__Update);
+		SYM_OFF(ecl__GameStateLoad__IncLocalProgress);
 
 		SYM_OFF(net__Host__AddProtocol);
 		SYM_OFF(net__MessageFactory__RegisterMessage);
