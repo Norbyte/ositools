@@ -36,11 +36,12 @@ function Build-Extender
 
 	# MSVC is broken and sometimes reuses old struct definitions from previous compilations.
 	# Force a full recompile each time
-	Remove-Item "x64\Game Release" -Recurse -ErrorAction SilentlyContinue
-	Remove-Item "x64\Editor Release" -Recurse -ErrorAction SilentlyContinue
+	# Remove-Item "x64\Game Release" -Recurse -ErrorAction SilentlyContinue
+	# Remove-Item "x64\Editor Release" -Recurse -ErrorAction SilentlyContinue
 
-	Write-Output " ===== BUILDING EXTENDER ===== "
+	Write-Output " ===== BUILDING GAME EXTENDER ===== "
 	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
 	msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }
 
