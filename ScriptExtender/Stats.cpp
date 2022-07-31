@@ -971,19 +971,7 @@ PropertyList* RPGStats::ConstructPropertyList(FixedString const& propertyName)
 
 PropertyData* RPGStats::ConstructProperty(PropertyType type)
 {
-	gCRPGStatsVMTMappings.MapVMTs();
 	auto stats = GetStaticSymbols().GetStats();
-
-	auto typeIt = gCRPGStatsVMTMappings.PropertyTypes.find(type);
-	if (typeIt == gCRPGStatsVMTMappings.PropertyTypes.end()) {
-		OsiError("Unknown object property type: " << (unsigned)type);
-		return nullptr;
-	}
-
-	if (typeIt->second == nullptr) {
-		OsiError("Cannot construct object property of type  " << (unsigned)type << " - VMT not mapped!");
-		return nullptr;
-	}
 
 	PropertyData* prop{ nullptr };
 	switch (type) {
@@ -1032,7 +1020,22 @@ PropertyData* RPGStats::ConstructProperty(PropertyType type)
 		return nullptr;
 	}
 
-	*(void**)prop = typeIt->second;
+	if (type < PropertyType::CustomDescription) {
+		gCRPGStatsVMTMappings.MapVMTs();
+		auto typeIt = gCRPGStatsVMTMappings.PropertyTypes.find(type);
+		if (typeIt == gCRPGStatsVMTMappings.PropertyTypes.end()) {
+			OsiError("Unknown object property type: " << (unsigned)type);
+			return nullptr;
+		}
+
+		if (typeIt->second == nullptr) {
+			OsiError("Cannot construct object property of type  " << (unsigned)type << " - VMT not mapped!");
+			return nullptr;
+		}
+
+		*(void**)prop = typeIt->second;
+	}
+
 	prop->TypeId = type;
 	prop->Context = (PropertyContext)0;
 	prop->Conditions = nullptr;
