@@ -324,12 +324,7 @@ inline char const* do_get(lua_State* L, int index, Overload<char const*>)
 	return luaL_checkstring(L, index);
 }
 
-inline FixedString do_get(lua_State* L, int index, Overload<FixedString>)
-{
-	size_t len;
-	auto str = luaL_checklstring(L, index, &len);
-	return FixedString(str, (int)len);
-}
+FixedString do_get(lua_State* L, int index, Overload<FixedString>);
 
 inline STDString do_get(lua_State* L, int index, Overload<STDString>)
 {
@@ -730,5 +725,8 @@ void LuaCppFree(lua_State* L, void* block, size_t size);
 CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsigned long long extra);
 CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra);
 class GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex);
+
+void LuaCacheString(lua_State* L, TString* s);
+void LuaReleaseString(lua_State* L, TString* s);
 
 END_NS()

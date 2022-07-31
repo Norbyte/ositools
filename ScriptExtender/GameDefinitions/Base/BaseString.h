@@ -17,6 +17,9 @@ std::wstring FromStdUTF8(StringView s);
 
 struct FixedString
 {
+	// Indicates that we shouldn't create a new global string table entry if the string doesn't exist
+	enum class DontCreate {};
+
 #if defined(OSI_EOCAPP)
 	typedef char const* (CreateProc)(char const* str, int length);
 #else
@@ -28,10 +31,11 @@ struct FixedString
 	{}
 
 	inline explicit FixedString(StringView const& s)
-		: FixedString(s.data(), (int)s.size())
+		: FixedString(s.data(), s.size())
 	{}
 
-	explicit FixedString(char const* s, int length);
+	explicit FixedString(char const* s, std::size_t length);
+	explicit FixedString(char const* s, std::size_t length, DontCreate);
 
 	inline FixedString(FixedString const & fs)
 		: Str(fs.Str)
@@ -129,7 +133,7 @@ private:
 		}
 	}
 
-	static const char* FindGlobalString(const char* s);
+	static const char* FindGlobalString(const char* s, uint64_t length);
 };
 
 inline uint64_t Hash(FixedString const& s)

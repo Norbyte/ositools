@@ -370,6 +370,7 @@ namespace dse::lua
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
 		lua_setup_cppobjects(L, &LuaCppAlloc, &LuaCppFree, &LuaCppGetLightMetatable, &LuaCppGetMetatable);
+		lua_setup_strcache(L, &LuaCacheString, &LuaReleaseString);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
 		luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);

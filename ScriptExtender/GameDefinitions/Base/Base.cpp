@@ -223,30 +223,32 @@ uint32_t GlobalStringTable::Hash(char const * s, uint64_t length)
 	return murmur3_32((const uint8_t *)s, length, 0) % 0xFFF1;
 }
 
-const char* FixedString::FindGlobalString(const char * s)
+const char* FixedString::FindGlobalString(const char * s, uint64_t length)
 {
 	if (s == nullptr) {
-		OsiErrorS("Attempted to look up a null string!");
 		return nullptr;
 	}
 
 	auto stringTable = GetStaticSymbols().GetGlobalStringTable();
-	if (stringTable == nullptr) {
-		OsiErrorS("Global string table not available!");
-		return nullptr;
-	}
-
-	return stringTable->Find(s, strlen(s));
+	return stringTable->Find(s, length);
 }
 
-FixedString::FixedString(char const* s, int length)
+FixedString::FixedString(char const* s, std::size_t length)
 {
 	auto createFixedString = GetStaticSymbols().ls__FixedString__Create;
 #if defined(OSI_EOCAPP)
-	Str = createFixedString(s, length);
+	Str = createFixedString(s, (int)length);
 #else
-	createFixedString(this, s, length);
+	createFixedString(this, s, (int)length);
 #endif
+}
+
+FixedString::FixedString(char const* s, std::size_t length, DontCreate)
+{
+	Str = FindGlobalString(s, length);
+	if (Str) {
+		IncRef();
+	}
 }
 
 bool IsHexChar(char c)

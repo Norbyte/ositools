@@ -12,6 +12,7 @@
 #include <lauxlib.h>
 #include <lobject.h>
 #include <lstate.h>
+#include <lstring.h>
 
 BEGIN_NS(lua)
 
@@ -576,6 +577,42 @@ CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra
 {
 	throw std::runtime_error("Unsupported!");
 }
+
+
+
+FixedString do_get(lua_State* L, int index, Overload<FixedString>)
+{
+	StkId o = index2addr(L, index);
+	if (ttisstring(o)) {
+		auto s = tsvalue(o);
+		auto fs = reinterpret_cast<FixedString*>(&s->cache);
+		if (fs) {
+			return *fs;
+		} else {
+			return FixedString(getstr((s), tsslen(s));
+		}
+	}
+
+	size_t len;
+	auto str = luaL_checklstring(L, index, &len);
+	return FixedString(str, len);
+}
+
+void LuaCacheString(lua_State* L, TString* s)
+{
+	static_assert(sizeof(LUA_STRING_EXTRATYPE) == sizeof(FixedString));
+	auto fs = reinterpret_cast<FixedString*>(&s->cache);
+	new (fs) FixedString(getstr(s), tsslen(s), FixedString::DontCreate{});
+}
+
+void LuaReleaseString(lua_State* L, TString* s)
+{
+	static_assert(sizeof(LUA_STRING_EXTRATYPE) == sizeof(FixedString));
+	auto fs = reinterpret_cast<FixedString*>(&s->cache);
+	fs->~FixedString();
+}
+
+
 
 GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex)
 {
