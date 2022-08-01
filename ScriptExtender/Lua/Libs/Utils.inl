@@ -221,7 +221,7 @@ STDString GetGameMode()
 }
 
 // Variation of Lua builtin math_random() with custom RNG
-int64_t Random(lua_State *L)
+UserReturn Random(lua_State *L)
 {
 	auto state = gExtender->GetCurrentExtensionState();
 
@@ -252,7 +252,8 @@ int64_t Random(lua_State *L)
 #endif
 
 	std::uniform_int_distribution<int64_t> dist(low, up);
-	return dist(state->OsiRng);
+	push(L, dist(state->OsiRng));
+	return 1;
 }
 
 int64_t Round(double val)
