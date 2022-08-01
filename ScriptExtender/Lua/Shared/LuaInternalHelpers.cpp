@@ -585,11 +585,11 @@ FixedString do_get(lua_State* L, int index, Overload<FixedString>)
 	StkId o = index2addr(L, index);
 	if (ttisstring(o)) {
 		auto s = tsvalue(o);
-		auto fs = reinterpret_cast<FixedString*>(&s->cache);
+		auto & fs = *reinterpret_cast<FixedString *>(&s->cache);
 		if (fs) {
-			return *fs;
+			return fs;
 		} else {
-			return FixedString(getstr((s), tsslen(s));
+			return FixedString(getstr(s), tsslen(s));
 		}
 	}
 
