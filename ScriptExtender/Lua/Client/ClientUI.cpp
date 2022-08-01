@@ -553,7 +553,7 @@ bool CustomDrawHelper::DrawIcon(UIObject* self, ecl::FlashCustomDrawCallback* ca
 			draw(callback, icon->second->IconMesh);
 
 			if (DebugDrawCalls) {
-				INFO("Custom draw callback handled: %s -> %s", ToUTF8(callback->Name).c_str(), icon->second->IconName.Str);
+				INFO("Custom draw callback handled: %s -> %s", ToUTF8(callback->Name).c_str(), icon->second->IconName.GetString());
 			}
 
 			return true;

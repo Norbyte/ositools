@@ -566,7 +566,7 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 
 		return true;
 	} else if (attribute == GFS.strSkillProperties || attribute == GFS.strExtraProperties) {
-		STDString name = Name.Str;
+		STDString name = Name.GetString();
 		name += "_";
 		name += attribute.GetString();
 		FixedString statsPropertyKey(name.c_str());
@@ -647,7 +647,7 @@ bool Object::LuaSetAttribute(lua_State * L, FixedString const& attribute, int va
 
 	case AttributeType::PropertyList:
 	{
-		STDString name = Name.Str;
+		STDString name = Name.GetString();
 		name += "_";
 		name += attribute.GetString();
 		FixedString statsPropertyKey(name.c_str());

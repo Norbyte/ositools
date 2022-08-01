@@ -219,7 +219,7 @@ namespace dse::esv
 			Vector<std::tuple<char const*, bool, bool>> skillEvents;
 
 			for (auto const& skill : character->SkillManager->Skills) {
-				skillEvents.push_back(std::tuple(skill.Value->SkillId.Str, skill.Value->IsLearned, skill.Value->IsActivated));
+				skillEvents.push_back(std::tuple(skill.Value->SkillId.GetString(), skill.Value->IsLearned, skill.Value->IsActivated));
 			}
 
 			for (auto const& skill : skillEvents) {

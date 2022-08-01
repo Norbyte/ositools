@@ -98,9 +98,9 @@ namespace dse
 	{
 		for (auto const& val : EnumInfo<stats::TalentType>::Values) {
 			auto id = val.Value;
-			auto talentName = prefix + val.Key.Str;
+			auto talentName = prefix + val.Key.GetString();
 			FixedString talentFS(talentName.c_str());
-			AddProperty<bool>(propertyMap, talentFS.Str, 0);
+			AddProperty<bool>(propertyMap, talentFS.GetString(), 0);
 
 			propertyMap.Properties[talentFS].GetInt = [id, f](void* obj) -> std::optional<int64_t> {
 				auto attrs = reinterpret_cast<T*>(obj);
@@ -669,7 +669,7 @@ namespace dse
 
 			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
 				auto id = val.Value;
-				AddProperty<bool>(propertyMap, val.Key.Str, 0);
+				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
 				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
 					auto attrs = reinterpret_cast<stats::EquipmentAttributes*>(obj);
@@ -697,7 +697,7 @@ namespace dse
 			}
 
 			for (auto const& v : EnumInfo<stats::AbilityType>::Values) {
-				AddProperty<int32_t>(propertyMap, v.Key.Str, offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
+				AddProperty<int32_t>(propertyMap, v.Key.GetString(), offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
 			}
 
 			AddTalentArray<stats::EquipmentAttributes>(propertyMap, "TALENT_", [](stats::EquipmentAttributes* obj) {
@@ -807,7 +807,7 @@ namespace dse
 
 			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
 				auto id = val.Value;
-				AddProperty<bool>(propertyMap, val.Key.Str, 0);
+				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
 				propertyMap.Properties[val.Key].GetInt = [id](void* obj) -> std::optional<int64_t> {
 					auto attrs = reinterpret_cast<stats::CharacterDynamicStat*>(obj);
@@ -835,7 +835,7 @@ namespace dse
 			}
 
 			for (auto const& val : EnumInfo<stats::AbilityType>::Values) {
-				AddProperty<int32_t>(propertyMap, val.Key.Str, offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
+				AddProperty<int32_t>(propertyMap, val.Key.GetString(), offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
 			}
 
 			AddTalentArray<stats::CharacterDynamicStat>(propertyMap, "TALENT_", [](stats::CharacterDynamicStat* obj) {
@@ -1380,13 +1380,13 @@ namespace dse
 			}
 
 			if (!*val) {
-				args[firstArg + 1].Set(FixedString("NULL_00000000-0000-0000-0000-000000000000").Str);
+				args[firstArg + 1].Set(FixedString("NULL_00000000-0000-0000-0000-000000000000").GetString());
 				return true;
 			}
 
 			auto gameObject = esv::GetEntityWorld()->GetGameObject(*val);
 			if (gameObject != nullptr) {
-				args[firstArg + 1].Set(gameObject->GetGuid()->Str);
+				args[firstArg + 1].Set(*gameObject->GetGuid());
 				return true;
 			}
 

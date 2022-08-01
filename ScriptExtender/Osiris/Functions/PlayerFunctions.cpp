@@ -131,7 +131,7 @@ namespace dse::esv
 			if (skillBarItem->Type == eoc::SkillBarItemType::Item) {
 				auto item = GetEntityWorld()->GetComponent<Item>(skillBarItem->ItemHandle);
 				if (item != nullptr) {
-					args[2].Set(item->MyGuid.Str);
+					args[2].Set(item->MyGuid);
 					return true;
 				} else {
 					return false;
@@ -149,7 +149,7 @@ namespace dse::esv
 			if (skillBarItem == nullptr) return false;
 
 			if (skillBarItem->Type == eoc::SkillBarItemType::Skill) {
-				args[2].Set(skillBarItem->SkillOrStatId.Str);
+				args[2].Set(skillBarItem->SkillOrStatId);
 				return true;
 			} else {
 				return false;

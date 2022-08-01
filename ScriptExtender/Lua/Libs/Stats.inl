@@ -919,8 +919,8 @@ bool CopyStats(Object* obj, FixedString const& copyFrom)
 	if (obj->ModifierListIndex != copyFromObject->ModifierListIndex) {
 		auto objModifier = stats->ModifierLists.Find(obj->ModifierListIndex);
 		auto copyModifier = stats->ModifierLists.Find(obj->ModifierListIndex);
-		OsiError("Cannot copy stats from object '" << copyFrom << "' (a " << copyModifier->Name.Str 
-			<< ") to an object of type " << objModifier->Name.Str);
+		OsiError("Cannot copy stats from object '" << copyFrom << "' (a " << copyModifier->Name 
+			<< ") to an object of type " << objModifier->Name);
 		return false;
 	}
 
@@ -1150,11 +1150,11 @@ int TypedEnumLabelToIndex(lua_State* L, FixedString const& label)
 
 // TODO - this solution has subpar performance
 #define BEGIN_ENUM_NS(NS, T, type) \
-if (strcmp(enumName.Str, #T) == 0) { \
+if (strcmp(enumName.GetString(), #T) == 0) { \
 	return TypedEnumIndexToLabel<NS::T>(L, (NS::T)index); \
 }
 #define BEGIN_ENUM(T, type) \
-if (strcmp(enumName.Str, #T) == 0) { \
+if (strcmp(enumName.GetString(), #T) == 0) { \
 	return TypedEnumIndexToLabel<T>(L, (T)index); \
 }
 
@@ -1191,11 +1191,11 @@ UserReturn EnumIndexToLabel(lua_State* L, FixedString const& enumName, int index
 	
 // TODO - this solution has subpar performance
 #define BEGIN_ENUM_NS(NS, T, type) \
-if (strcmp(enumName.Str, #T) == 0) { \
+if (strcmp(enumName.GetString(), #T) == 0) { \
 	return TypedEnumLabelToIndex<NS::T>(L, label); \
 }
 #define BEGIN_ENUM(T, type) \
-if (strcmp(enumName.Str, #T) == 0) { \
+if (strcmp(enumName.GetString(), #T) == 0) { \
 	return TypedEnumLabelToIndex<T>(L, label); \
 }
 

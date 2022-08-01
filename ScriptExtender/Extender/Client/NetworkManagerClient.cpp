@@ -257,13 +257,13 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 	for (uint32_t i = 0; i < sizeMin; i++) {
 		auto const& serverString = updatedStrings_[i];
 		auto clientString = fs.FixedStrSet[i + 1];
-		if (serverString != clientString.Str) {
-			ERR("NetworkFixedStrings mismatch - entry %d different! %s vs %s", i, serverString.c_str(), clientString.Str);
+		if (serverString != clientString.GetString()) {
+			ERR("NetworkFixedStrings mismatch - entry %d different! %s vs %s", i, serverString.c_str(), clientString.GetString());
 
 			// Find out which string caused the conflict
 			conflictingString_.clear();
 			for (auto str : updatedStrings_) {
-				if (str == clientString.Str) {
+				if (str == clientString.GetString()) {
 					// Client string exists in server map --> server string missing from local NetworkFixedStrings
 					conflictingString_ = serverString;
 				}
@@ -271,7 +271,7 @@ void NetworkFixedStringReceiver::UpdateFromServer()
 
 			if (conflictingString_.empty()) {
 				// Client string not found on server
-				conflictingString_ = clientString.Str;
+				conflictingString_ = clientString.GetString();
 			}
 
 			notInSync_ = true;

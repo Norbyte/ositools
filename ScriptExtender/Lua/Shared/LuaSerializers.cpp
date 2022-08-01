@@ -160,7 +160,7 @@ namespace dse::lua
 				if (idx) {
 					v.Index = *idx;
 				} else {
-					luaL_error(s.L, "Treasure table '%s' does not exist!", treasureTable.Str);
+					luaL_error(s.L, "Treasure table '%s' does not exist!", treasureTable.GetString());
 				}
 
 				v.IsTreasureTable = true;
@@ -170,7 +170,7 @@ namespace dse::lua
 				if (idx) {
 					v.Index = *idx;
 				} else {
-					luaL_error(s.L, "Treasure category '%s' does not exist!", treasureCategory.Str);
+					luaL_error(s.L, "Treasure category '%s' does not exist!", treasureCategory.GetString());
 				}
 
 				v.IsTreasureTable = false;
@@ -179,7 +179,7 @@ namespace dse::lua
 		}
 
 		for (int i = 0; i < 7; i++) {
-			s.VisitOptionalProperty(stats->TreasureItemTypes[i].Str, v.Frequencies[i], (uint16_t)0);
+			s.VisitOptionalProperty(stats->TreasureItemTypes[i].GetString(), v.Frequencies[i], (uint16_t)0);
 		}
 
 		s.EndObject();
@@ -376,7 +376,7 @@ namespace dse::lua
 			if (idx) {
 				v = *idx;
 			} else {
-				luaL_error(s.L, "'%s' is not a valid value for enumeration '%s'", enumName.Str, str);
+				luaL_error(s.L, "'%s' is not a valid value for enumeration '%s'", enumName.GetString(), str);
 			}
 			lua_pop(s.L, 1);
 		}

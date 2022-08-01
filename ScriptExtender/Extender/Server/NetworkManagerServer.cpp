@@ -221,7 +221,7 @@ void NetworkFixedStringSender::Dump()
 		auto nfsLogPath = gExtender->MakeLogFilePath(L"NetworkFixedStrings", L"log");
 		std::ofstream logOut(nfsLogPath.c_str(), std::ios::out);
 		for (auto const& string : strings) {
-			logOut << (string ? string.Str : "(NULL)") << std::endl;
+			logOut << (string ? string.GetString() : "(NULL)") << std::endl;
 		}
 		logOut.close();
 		DEBUG(L"OsirisProxy::DumpNetworkFixedStrings() - Saved to %s", nfsLogPath.c_str());
@@ -272,7 +272,7 @@ void NetworkFixedStringSender::SendUpdateToUser(UserId userId)
 		auto syncMsg = msg->GetMessage().mutable_s2c_sync_strings();
 		auto numStrings = nfs.FixedStrSet.size();
 		for (uint32_t i = 1; i < numStrings; i++) {
-			syncMsg->add_network_string(nfs.FixedStrSet[i].Str);
+			syncMsg->add_network_string(nfs.FixedStrSet[i].GetString());
 		}
 
 		network_.Send(msg, userId);

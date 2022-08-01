@@ -48,7 +48,7 @@ UserReturn GetTransformRules(lua_State* L)
 			lua_settable(L, -3);
 		}
 
-		lua_setfield(L, -2, EnumInfo<SurfaceType>::Find((SurfaceType)i).Str);
+		lua_setfield(L, -2, EnumInfo<SurfaceType>::Find((SurfaceType)i).GetString());
 	}
 
 	return 1;

@@ -130,7 +130,7 @@ namespace dse::esv
 			return nullptr;
 		}
 
-		auto statusMachine = GetStatusMachine(Target->GetGuid()->Str);
+		auto statusMachine = GetStatusMachine(Target->GetGuid()->GetString());
 		if (!statusMachine) {
 			OsiErrorS("Target has no StatusMachine!");
 			return nullptr;
@@ -183,7 +183,7 @@ namespace dse::esv
 		damage.HitWithWeapon = Hit->HitWithWeapon;
 
 		if (SimulateHit) {
-			auto targetCharacter = GetEntityWorld()->GetComponent<Character>(Target->GetGuid()->Str);
+			auto targetCharacter = GetEntityWorld()->GetComponent<Character>(Target->GetGuid()->GetString());
 			if (targetCharacter == nullptr) {
 				OsiErrorS("Attempt to hit an item with SimulateHit flag ?!");
 			} else {

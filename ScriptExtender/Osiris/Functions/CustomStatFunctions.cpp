@@ -152,7 +152,7 @@ namespace dse::esv
 			return 0;
 		}
 
-		return statsComponent->StatValues.TryGet(FixedString(statDefn->Id.Str), 0);
+		return statsComponent->StatValues.TryGet(statDefn->Id, 0);
 	}
 
 	bool CustomStatHelpers::SetCharacterStat(EntityHandle entityHandle, char const* statId, int value)
@@ -207,7 +207,7 @@ namespace dse::esv
 
 			auto statsId = CustomStatHelpers::CreateStat(statName, statDescription);
 			if (statsId) {
-				statId.Set(statsId->Str);
+				statId.Set(*statsId);
 				return true;
 			} else {
 				return false;
@@ -221,7 +221,7 @@ namespace dse::esv
 
 			auto statDefn = CustomStatHelpers::FindStatDefinitionByName(statName);
 			if (statDefn != nullptr) {
-				statId.Set(statDefn->Id.Str);
+				statId.Set(statDefn->Id);
 				return true;
 			} else {
 				OsiWarn("Custom stat '" << statName << "' does not exist!");

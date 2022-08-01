@@ -300,10 +300,10 @@ namespace dse::esv
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
+			sourceGuid = source->GetGuid()->GetString();
 		}
 
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *target->GetGuid() });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 		eventArgs->Add(OsiArgumentValue{ (int32_t)statusHit->Hit.TotalDamageDone });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
@@ -332,10 +332,10 @@ namespace dse::esv
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 		auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 		if (source != nullptr) {
-			sourceGuid = source->GetGuid()->Str;
+			sourceGuid = source->GetGuid()->GetString();
 		}
 
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, target->GetGuid()->Str });
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *target->GetGuid() });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 		eventArgs->Add(OsiArgumentValue{ (int32_t)status->HealAmount });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
@@ -358,7 +358,7 @@ namespace dse::esv
 		char const * sourceGuid = "NULL_00000000-0000-0000-0000-000000000000";
 		if (attackerStats != nullptr
 			&& attackerStats->GameObject != nullptr) {
-			sourceGuid = attackerStats->GameObject->GetGuid()->Str;
+			sourceGuid = attackerStats->GameObject->GetGuid()->GetString();
 		}
 
 		int32_t totalDamage{ 0 };
@@ -366,7 +366,7 @@ namespace dse::esv
 			totalDamage += dmg.Amount;
 		}
 
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, self->GetGuid()->Str });
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *self->GetGuid() });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 		eventArgs->Add(OsiArgumentValue{ (int32_t)totalDamage });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)helper.Handle.Handle });
@@ -382,7 +382,7 @@ namespace dse::esv
 		char const * targetGuid{ nullptr };
 		auto target = GetEntityWorld()->GetGameObject(self->OwnerObjectHandle);
 		if (target != nullptr) {
-			targetGuid = target->GetGuid()->Str;
+			targetGuid = target->GetGuid()->GetString();
 		} else {
 			OsiErrorS("Can't throw ApplyStatus event - target handle could not be resolved.");
 		}
@@ -395,12 +395,12 @@ namespace dse::esv
 		if (status->StatusSourceHandle) {
 			auto source = GetEntityWorld()->GetGameObject(status->StatusSourceHandle);
 			if (source != nullptr) {
-				sourceGuid = source->GetGuid()->Str;
+				sourceGuid = source->GetGuid()->GetString();
 			}
 		}
 
 		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, targetGuid });
-		eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+		eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId });
 		eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 		eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, sourceGuid });
 

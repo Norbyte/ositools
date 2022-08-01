@@ -20,7 +20,7 @@ namespace dse::esv
 			if (strcmp(args[2].String, "StatusType") == 0) {
 				auto type = EnumInfo<StatusType>::Find(status->GetStatusId());
 				if (type) {
-					args[3].Set(type.Str);
+					args[3].Set(type);
 					return true;
 				}
 			}

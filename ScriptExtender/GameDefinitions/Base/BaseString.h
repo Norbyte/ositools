@@ -26,6 +26,13 @@ struct FixedString
 	typedef void (CreateProc)(FixedString* self, char const* str, int length);
 #endif
 
+	struct Metadata
+	{
+		std::atomic<int64_t> RefCount;
+		uint16_t Length;
+		uint16_t HashKey;
+	};
+
 	inline FixedString()
 		: Str(nullptr)
 	{}
@@ -105,16 +112,13 @@ struct FixedString
 		return (Str != nullptr) ? Str : "";
 	}
 
-	char const * Str;
-
-	struct Metadata
+	inline Metadata const* GetMetadata() const
 	{
-		std::atomic<int64_t> RefCount;
-		uint16_t Length;
-		uint16_t HashKey;
-	};
+		return (Str != nullptr) ? (Metadata*)(const_cast<char*>(Str - sizeof(Metadata))) : nullptr;
+	}
 
 private:
+	char const* Str;
 
 	inline void IncRef()
 	{
@@ -138,7 +142,7 @@ private:
 
 inline uint64_t Hash(FixedString const& s)
 {
-	return (uint64_t)s.Str;
+	return (uint64_t)s.GetString();
 }
 
 FixedString NameGuidToFixedString(StringView nameGuid);
@@ -249,14 +253,14 @@ namespace std
 
 		result_type operator()(argument_type const& fn) const noexcept
 		{
-			return std::hash<std::uintptr_t>{}((std::uintptr_t)fn.Str);
+			return std::hash<std::uintptr_t>{}((std::uintptr_t)fn.GetString());
 		}
 	};
 
 	inline ostream& operator << (ostream& out, dse::FixedString const& str)
 	{
 		if (str) {
-			out << str.Str;
+			out << str.GetString();
 		} else {
 			out << "(null)";
 		}

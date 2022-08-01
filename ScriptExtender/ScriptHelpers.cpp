@@ -133,7 +133,7 @@ bool GetTranslatedStringFromKey(FixedString const& key, TranslatedString& transl
 	if (getter(keyMgr, translated, key, false)) {
 		// If the string key is not localized, use the content from the localization LSB.
 		if (translated.Handle.Handle != GFS.strNullStringHandle) {
-			return GetTranslatedString(translated.Handle.Handle.Str, translated.Handle.ReferenceString);
+			return GetTranslatedString(translated.Handle.Handle.GetString(), translated.Handle.ReferenceString);
 		} else {
 			return !translated.Handle.ReferenceString.empty();
 		}

@@ -58,19 +58,19 @@ void DumpNetworking()
 
 	INFO("SessionLoaded responses:");
 	for (auto const& load : loadProto->OS_SessionLoaded) {
-		INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
+		INFO("    Peer %d (%s)", load.PeerId, load.field_8.GetString());
 	}
 
 	INFO("LevelLoaded responses:");
 	for (auto const& load : loadProto->OS_LevelLoaded) {
-		INFO("    Peer %d (%s)", load.PeerId, load.field_8.Str);
+		INFO("    Peer %d (%s)", load.PeerId, load.field_8.GetString());
 	}
 
 	INFO("FileTransferOutbox items:");
 	for (auto const& item : loadProto->OS_FileTransferOutbox) {
 		INFO("    Peer %d, user %d", item.PeerId, item.UserId_M);
 		for (auto const& path : item.OS_FixedString) {
-			INFO("        FS %s", path.Str);
+			INFO("        FS %s", path.GetString());
 		}
 		for (auto const& path : item.OS_Path) {
 			INFO("        Path %s", path.Name.c_str());

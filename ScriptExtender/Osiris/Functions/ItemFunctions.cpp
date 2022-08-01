@@ -20,11 +20,11 @@ namespace dse::esv
 				return false;
 			}
 
-			if (!item->StatsId.Str) {
+			if (!item->StatsId) {
 				OsiError("Item '" << itemGuid << "' has no stats ID!");
 				return false;
 			} else {
-				args[1].Set(item->StatsId.Str);
+				args[1].Set(item->StatsId);
 				return true;
 			}
 		}
@@ -44,8 +44,8 @@ namespace dse::esv
 			} else {
 				OsiWarn("NRD_ItemGetGenerationParams() with 4 arguments is deprecated. Use the 5-argument version instead!");
 
-				args[1].Set(item->Generation->Base ? item->Generation->Base.Str : "");
-				args[2].Set(item->Generation->ItemType ? item->Generation->ItemType.Str : "");
+				args[1].Set(item->Generation->Base ? item->Generation->Base.GetString() : "");
+				args[2].Set(item->Generation->ItemType ? item->Generation->ItemType.GetString() : "");
 				args[3].Set((int32_t)item->Generation->Level);
 				return true;
 			}
@@ -64,8 +64,8 @@ namespace dse::esv
 				OsiError("Item '" << itemGuid << "' has no generation data!");
 				return false;
 			} else {
-				args[1].String = item->Generation->Base ? item->Generation->Base.Str : "";
-				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.Str : "";
+				args[1].String = item->Generation->Base ? item->Generation->Base.GetString() : "";
+				args[2].String = item->Generation->ItemType ? item->Generation->ItemType.GetString() : "";
 				args[3].Int32 = item->Generation->Level;
 				args[4].Int32 = item->Generation->Random;
 				return true;
@@ -117,7 +117,7 @@ namespace dse::esv
 				for (auto const& boost : item->Generation->Boosts) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost });
 					eventArgs->Add(OsiArgumentValue{ 1 });
 					gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -128,7 +128,7 @@ namespace dse::esv
 				for (auto const& boost : item->Stats->DeltaMods) {
 					auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 					eventArgs->Add(OsiArgumentValue{ ValueType::ItemGuid, itemGuid });
-					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost.Str });
+					eventArgs->Add(OsiArgumentValue{ ValueType::String, boost });
 					eventArgs->Add(OsiArgumentValue{ 0 });
 					gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ItemDeltaModIteratorEventHandle, eventArgs);
 					delete eventArgs;
@@ -179,7 +179,7 @@ namespace dse::esv
 
 			auto parent = GetEntityWorld()->GetGameObject(inventory->ParentHandle);
 			if (parent != nullptr) {
-				parentGuid.Set(parent->MyGuid.Str);
+				parentGuid.Set(parent->MyGuid);
 				return true;
 			} else {
 				return false;
@@ -382,7 +382,7 @@ namespace dse::esv
 				return false;
 			}
 
-			args[0].Set(item->GetGuid()->Str);
+			args[0].Set(*item->GetGuid());
 			return true;
 		}
 

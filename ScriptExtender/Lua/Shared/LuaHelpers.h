@@ -190,10 +190,7 @@ inline void push(lua_State * L, char const * v)
 	}
 }
 
-inline void push(lua_State * L, FixedString const& v)
-{
-	lua_pushstring(L, v.Str);
-}
+void push(lua_State* L, FixedString const& v);
 
 inline void push(lua_State* L, STDString const& s)
 {
@@ -642,7 +639,7 @@ inline T checked_get_flags(lua_State* L, int index)
 		if (val) {
 			flags |= *val;
 		} else {
-			luaL_error(L, "Label '%s' is not valid for enumeration '%s'", label.Str, EnumInfo<T>::Name);
+			luaL_error(L, "Label '%s' is not valid for enumeration '%s'", label.GetString(), EnumInfo<T>::Name);
 		}
 	}
 

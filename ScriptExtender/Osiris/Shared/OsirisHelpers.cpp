@@ -89,4 +89,14 @@ namespace dse
 			OsiError("Tried to return string as a " << (unsigned)TypeId << " variable!");
 		}
 	}
+
+	void __declspec(noinline) OsiArgumentValue::Set(FixedString const& value)
+	{
+		if (TypeId == ValueType::None) return;
+		if ((unsigned)TypeId >= (unsigned)ValueType::String) {
+			String = value.GetStringOrDefault();
+		} else {
+			OsiError("Tried to return string as a " << (unsigned)TypeId << " variable!");
+		}
+	}
 }

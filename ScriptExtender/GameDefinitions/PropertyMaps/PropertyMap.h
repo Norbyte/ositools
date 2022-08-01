@@ -324,12 +324,8 @@ namespace dse
 			case LegacyPropertyType::kDynamicFixedString:
 			case LegacyPropertyType::kFixedStringGuid:
 			{
-				auto p = reinterpret_cast<FixedString *>(ptr)->Str;
-				if (p != nullptr) {
-					return p;
-				} else {
-					return "";
-				}
+				auto& fs = *reinterpret_cast<FixedString *>(ptr);
+				return fs.GetStringOrDefault();
 			}
 
 			case LegacyPropertyType::kStringPtr:
@@ -362,8 +358,8 @@ namespace dse
 				auto handle = reinterpret_cast<ComponentHandle *>(ptr);
 				if (*handle) {
 					auto object = esv::GetEntityWorld()->GetGameObject(*handle, false);
-					if (object != nullptr) {
-						return object->MyGuid.Str;
+					if (object != nullptr && object->MyGuid) {
+						return object->MyGuid.GetString();
 					} else {
 						return {};
 					}
@@ -711,7 +707,7 @@ namespace dse
 			auto ptr = reinterpret_cast<TEnum *>(reinterpret_cast<std::uintptr_t>(obj) + offset);
 			auto val = EnumInfo<TEnum>::Find(*ptr);
 			if (val) {
-				return val.Str;
+				return val.GetString();
 			} else {
 				return {};
 			}

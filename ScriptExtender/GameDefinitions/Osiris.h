@@ -47,6 +47,10 @@ struct OsiArgumentValue
 		: TypeId(type), String(const_cast<char *>(str))
 	{}
 
+	inline OsiArgumentValue(ValueType type, FixedString const& str)
+		: TypeId(type), String(const_cast<char*>(str.GetStringOrDefault()))
+	{}
+
 	inline OsiArgumentValue(float flt)
 		: TypeId(ValueType::Real), Float(flt)
 	{}
@@ -97,6 +101,7 @@ struct OsiArgumentValue
 	void Set(int64_t value);
 	void Set(float value);
 	void Set(char const * value);
+	void Set(FixedString const& value);
 
 	std::string ToString() const
 	{

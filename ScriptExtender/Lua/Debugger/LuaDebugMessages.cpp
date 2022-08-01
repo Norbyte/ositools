@@ -181,10 +181,10 @@ namespace dse::lua::dbg
 
 		if (configs != nullptr && modManager != nullptr) {
 			for (auto const& config : *configs) {
-				auto mod = modManager->FindModByNameGuid(config.first.Str);
+				auto mod = modManager->FindModByNameGuid(config.first.GetString());
 				if (mod != nullptr) {
 					auto modInfo = info->add_module();
-					modInfo->set_uuid(config.first.Str);
+					modInfo->set_uuid(config.first.GetString());
 					modInfo->set_name(ToUTF8(mod->Info.DisplayName.Handle.ReferenceString).c_str());
 					modInfo->set_author(ToUTF8(mod->Info.Author).c_str());
 					modInfo->set_path(ToUTF8(mod->Info.Directory).c_str());

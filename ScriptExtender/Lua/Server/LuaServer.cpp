@@ -411,7 +411,7 @@ namespace dse::esv::lua
 		if (strcmp(prop, "CombatId") == 0) {
 			push(L, combatId_);
 		} else if (strcmp(prop, "LevelName") == 0) {
-			push(L, combat->LevelName.Str);
+			push(L, combat->LevelName);
 		} else if (strcmp(prop, "IsActive") == 0) {
 			push(L, combat->IsActive);
 		} else {
@@ -598,7 +598,7 @@ namespace dse::esv::lua
 				return 1;
 			}
 
-			OsiError("ItemConstructor has no property named " << func.Str);
+			OsiError("ItemConstructor has no property named " << func);
 			push(L, nullptr);
 			return 1;
 		} else {
@@ -1312,7 +1312,7 @@ namespace dse::esv
 		// return the persistent vars we loaded from the savegame instead
 		auto cachedIt = cachedPersistentVars_.find(mod);
 		if (cachedIt != cachedPersistentVars_.end()) {
-			ERR("Persistent variables for mod %s could not be retrieved, saving cached values!", mod.Str);
+			ERR("Persistent variables for mod %s could not be retrieved, saving cached values!", mod.GetString());
 			return cachedIt->second;
 		} else {
 			return {};
@@ -1325,13 +1325,13 @@ namespace dse::esv
 
 		auto modTable = GetModTable(mod);
 		if (modTable) {
-			DEBUG("Restoring persistent vars for mod %s (%ld bytes)", mod.Str, vars.size());
+			DEBUG("Restoring persistent vars for mod %s (%ld bytes)", mod.GetString(), vars.size());
 			LuaServerPin lua(*this);
 			if (lua) {
 				lua->RestoreModPersistentVars(*modTable, vars);
 			}
 		} else {
-			ERR("Savegame has persistent variables for mod %s, but it is not loaded or has no ModTable! Variables may be lost on next save!", mod.Str);
+			ERR("Savegame has persistent variables for mod %s, but it is not loaded or has no ModTable! Variables may be lost on next save!", mod.GetString());
 		}
 	}
 

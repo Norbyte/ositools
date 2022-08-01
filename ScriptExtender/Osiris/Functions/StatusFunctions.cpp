@@ -42,7 +42,7 @@ namespace dse::esv
 			for (auto const status : statusMachine->Statuses) {
 				auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::String, eventName });
 				eventArgs->Add(OsiArgumentValue{ ValueType::GuidString, gameObjectGuid });
-				eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId.Str });
+				eventArgs->Add(OsiArgumentValue{ ValueType::String, status->StatusId });
 				eventArgs->Add(OsiArgumentValue{ (int64_t)status->StatusHandle });
 
 				gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(StatusIteratorEventHandle, eventArgs);
@@ -331,7 +331,7 @@ namespace dse::esv
 			return;
 		}
 
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *character->GetGuid() });
 		eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
 		gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ActionStateExitHandle, eventArgs);
 		delete eventArgs;
@@ -360,7 +360,7 @@ namespace dse::esv
 				return;
 			}
 
-			auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+			auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *character->GetGuid() });
 			eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
 			gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ActionStateExitHandle, eventArgs);
 			delete eventArgs;
@@ -424,7 +424,7 @@ namespace dse::esv
 			return;
 		}
 
-		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, character->GetGuid()->Str });
+		auto eventArgs = OsiArgumentDesc::Create(OsiArgumentValue{ ValueType::GuidString, *character->GetGuid() });
 		eventArgs->Add(OsiArgumentValue{ ValueType::String, typeName });
 
 		gExtender->GetServer().Osiris().GetCustomFunctionInjector().ThrowEvent(ActionStateEnterHandle, eventArgs);
@@ -437,12 +437,12 @@ namespace dse::esv
 		auto parsed = next(self, str);
 		if (parsed != nullptr && parsed->TypeId == stats::PropertyType::Status) {
 			auto status = static_cast<stats::PropertyStatus*>(parsed);
-			if (strncmp(status->Status.Str, "EXT:", 4) == 0) {
+			if (strncmp(status->Status.GetString(), "EXT:", 4) == 0) {
 				auto extProp = GameAlloc<stats::PropertyExtender>();
 				extProp->Context = status->Context;
 				extProp->TypeId = stats::PropertyType::Extender;
 				extProp->Conditions = status->Conditions;
-				extProp->PropertyName = FixedString(status->Status.Str + 4);
+				extProp->PropertyName = FixedString(status->Status.GetString() + 4);
 				extProp->Arg1 = status->StatusChance;
 				extProp->Arg2 = status->Duration;
 				extProp->Arg3 = status->StatsId;
@@ -775,12 +775,12 @@ namespace dse::esv
 
 				INFO("Server modlist:");
 				for (auto const& mod : hostModSettings.Mods) {
-					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
+					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.GetString(), ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
 				}
 
 				INFO("Client modlist:");
 				for (auto const& mod : peerModSettings.modSettings.Mods) {
-					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.Str, ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
+					INFO("%s - %s - %s - %d - %s", mod.ModuleUUID.GetString(), ToUTF8(mod.Folder).c_str(), ToUTF8(mod.Name).c_str(), mod.Version.Ver, mod.MD5.c_str());
 				}
 
 				std::stringstream ss;

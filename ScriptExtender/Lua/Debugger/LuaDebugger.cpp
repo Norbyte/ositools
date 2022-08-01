@@ -63,7 +63,7 @@ namespace dse::lua::dbg
 
 			auto type = EnumInfo<ObjectHandleType>::Find((ObjectHandleType)handle.GetType());
 			if (type) {
-				ss << type.Str;
+				ss << type;
 			}
 			else {
 				ss << "UNKNOWN";

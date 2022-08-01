@@ -384,7 +384,7 @@ namespace dse::esv
 				}
 
 				if (guid) {
-					summonGuid.Set(guid.Str);
+					summonGuid.Set(guid);
 					return true;
 				}
 				else {
