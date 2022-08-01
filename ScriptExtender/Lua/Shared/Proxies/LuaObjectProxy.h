@@ -475,20 +475,4 @@ protected:
 	bool IsEqual(lua_State* L, ObjectProxy2* other);
 };
 
-template <class T>
-inline void push_proxy(lua_State* L, LifetimeHandle const& lifetime, T const& v)
-{
-	if constexpr (std::is_pointer_v<T> 
-		&& (std::is_base_of_v<HasObjectProxy, std::remove_pointer_t<T>>
-			|| HasObjectProxyTag<std::remove_pointer_t<T>>::HasProxy)) {
-		if (v) {
-			ObjectProxy2::MakeRef<std::remove_pointer_t<T>>(L, v, lifetime);
-		} else {
-			lua_pushnil(L);
-		}
-	} else {
-		push(L, v);
-	}
-}
-
 END_NS()

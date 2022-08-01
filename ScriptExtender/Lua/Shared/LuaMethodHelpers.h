@@ -48,6 +48,18 @@ inline void MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value
 }
 
 template <class T>
+inline void MakeDirectObjectRef(lua_State* L, LifetimeHandle const& lifetime, T* value)
+{
+	if (value == nullptr) {
+		push(L, nullptr);
+	} else if constexpr (LuaLifetimeInfo<T>::HasInfiniteLifetime) {
+		LightObjectProxyByRefMetatable::Make(L, value, State::FromLua(L)->GetGlobalLifetime());
+	} else {
+		LightObjectProxyByRefMetatable::Make(L, value, lifetime);
+	}
+}
+
+template <class T>
 inline auto MakeObjectRef(lua_State* L, LifetimeHandle const& lifetime, OverrideableProperty<T>* value)
 {
 	return MakeObjectRef(L, lifetime, &value->Value);

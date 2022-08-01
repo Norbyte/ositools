@@ -32,7 +32,7 @@ LifetimeHandle GlobalLifetimeFromState(lua_State* L)
 	return State::FromLua(L)->GetGlobalLifetime();
 }
 
-#define MAKE_REF(ty) case ActionDataType::ty: ObjectProxy2::MakeRef(L, static_cast<ty##ActionData*>(obj), lifetime); return;
+#define MAKE_REF(ty) case ActionDataType::ty: MakeDirectObjectRef(L, lifetime, static_cast<ty##ActionData*>(obj)); return;
 
 void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, LifetimeHandle const & lifetime)
 {
@@ -59,11 +59,11 @@ void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, Lifeti
 	MAKE_REF(Recipe)
 
 	case ActionDataType::DestroyParameters:
-		ObjectProxy2::MakeRef(L, static_cast<DestroyParametersData*>(obj), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<DestroyParametersData*>(obj));
 		return;
 
 	default:
-		ObjectProxy2::MakeRef(L, obj, lifetime);
+		MakeDirectObjectRef(L, lifetime, obj);
 		return;
 	}
 }
@@ -71,7 +71,7 @@ void LuaPolymorphic<IActionData>::MakeRef(lua_State* L, IActionData* obj, Lifeti
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty) case SurfaceActionType::ty: ObjectProxy2::MakeRef(L, static_cast<esv::ty*>(obj), lifetime); return;
+#define MAKE_REF(ty) case SurfaceActionType::ty: MakeDirectObjectRef(L, lifetime, static_cast<esv::ty*>(obj)); return;
 
 void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceAction* obj, LifetimeHandle const& lifetime)
 {
@@ -88,7 +88,7 @@ void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceActio
 
 	default:
 		OsiError("No property map found for this surface type!");
-		ObjectProxy2::MakeRef(L, obj, lifetime);
+		MakeDirectObjectRef(L, lifetime, obj);
 		return;
 	}
 }
@@ -96,7 +96,7 @@ void LuaPolymorphic<esv::SurfaceAction>::MakeRef(lua_State* L, esv::SurfaceActio
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty, cls) case ObjectHandleType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(obj), lifetime); return;
+#define MAKE_REF(ty, cls) case ObjectHandleType::ty: MakeDirectObjectRef(L, lifetime, static_cast<cls*>(obj)); return;
 
 void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, LifetimeHandle const & lifetime)
 {
@@ -127,12 +127,12 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 	case ObjectType::ServerSoundVolumeTrigger:
 	case ObjectType::ServerRegionTrigger:
 	case ObjectType::ServerExplorationTrigger:
-		ObjectProxy2::MakeRef(L, static_cast<esv::Trigger*>(obj), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<esv::Trigger*>(obj));
 		return;*/
 
 	default:
 		OsiError("Creating Lua proxy for unknown handle type " << handle.GetType());
-		ObjectProxy2::MakeRef(L, obj, lifetime);
+		MakeDirectObjectRef(L, lifetime, obj);
 		return;
 	}
 }
@@ -150,50 +150,31 @@ void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* o
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }
 
+#define MAKE_REF(ty, cls) if (*type == GFS.ty) { MakeDirectObjectRef(L, lifetime, static_cast<cls*>(obj)); return; }
+
 void LuaPolymorphic<GameObjectTemplate>::MakeRef(lua_State* L, GameObjectTemplate* obj, LifetimeHandle const& lifetime)
 {
 	auto type = obj->GetTypeId();
 
-	if (*type == GFS.strLevelTemplate) {
-		ObjectProxy2::MakeRef(L, static_cast<LevelTemplate*>(obj), lifetime);
-		return;
-	}
-
-	if (*type == GFS.strcharacter) {
-		ObjectProxy2::MakeRef(L, static_cast<CharacterTemplate*>(obj), lifetime);
-		return;
-	}
-	
-	if (*type == GFS.stritem) {
-		ObjectProxy2::MakeRef(L, static_cast<ItemTemplate*>(obj), lifetime);
-		return;
-	}
-	
-	if (*type == GFS.strsurface) {
-		ObjectProxy2::MakeRef(L, static_cast<SurfaceTemplate*>(obj), lifetime);
-		return;
-	}
-	
-	if (*type == GFS.strprojectile) {
-		ObjectProxy2::MakeRef(L, static_cast<ProjectileTemplate*>(obj), lifetime);
-		return;
-	}
-	
-	if (*type == GFS.strtrigger) {
-		ObjectProxy2::MakeRef(L, static_cast<TriggerTemplate*>(obj), lifetime);
-		return;
-	}
+	MAKE_REF(strLevelTemplate, LevelTemplate)
+	MAKE_REF(strcharacter, CharacterTemplate)
+	MAKE_REF(stritem, ItemTemplate)
+	MAKE_REF(strsurface, SurfaceTemplate)
+	MAKE_REF(strprojectile, ProjectileTemplate)
+	MAKE_REF(strtrigger, TriggerTemplate)
 
 	OsiError("Creating Lua proxy for unknown template type " << *type);
-	ObjectProxy2::MakeRef(L, obj, lifetime);
+	MakeDirectObjectRef(L, lifetime, obj);
 }
+
+#undef MAKE_REF
 
 void LuaPolymorphic<EoCGameObjectTemplate>::MakeRef(lua_State* L, EoCGameObjectTemplate* obj, LifetimeHandle const& lifetime)
 {
 	LuaPolymorphic<GameObjectTemplate>::MakeRef(L, obj, lifetime);
 }
 
-#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
+#define MAKE_REF(ty, cls) case StatusType::ty: MakeDirectObjectRef(L, lifetime, static_cast<cls*>(status)); return;
 
 void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, LifetimeHandle const & lifetime)
 {
@@ -252,7 +233,7 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 	case StatusType::DEMONIC_BARGAIN:
 	case StatusType::EFFECT:
 	case StatusType::TUTORIAL_BED:
-		ObjectProxy2::MakeRef(L, static_cast<esv::Status*>(status), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<esv::Status*>(status));
 		return;
 
 	case StatusType::MUTED:
@@ -275,12 +256,12 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 	case StatusType::EXTRA_TURN:
 	case StatusType::PLAY_DEAD:
 	case StatusType::DEACTIVATED:
-		ObjectProxy2::MakeRef(L, static_cast<esv::StatusConsumeBase*>(status), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<esv::StatusConsumeBase*>(status));
 		return;
 
 	default:
 		OsiWarn("No property map available for unknown status type " << (unsigned)status->GetStatusId());
-		ObjectProxy2::MakeRef(L, static_cast<esv::Status*>(status), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<esv::Status*>(status));
 		return;
 	}
 }
@@ -288,7 +269,7 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty, cls) case StatusType::ty: ObjectProxy2::MakeRef(L, static_cast<cls*>(status), lifetime); return;
+#define MAKE_REF(ty, cls) case StatusType::ty: MakeDirectObjectRef(L, lifetime, static_cast<cls*>(status)); return;
 
 void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, LifetimeHandle const & lifetime)
 {
@@ -296,7 +277,7 @@ void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, Lif
 	// FIXME - map client status types
 
 	default:
-		ObjectProxy2::MakeRef(L, static_cast<ecl::Status*>(status), lifetime);
+		MakeDirectObjectRef(L, lifetime, static_cast<ecl::Status*>(status));
 		return;
 	}
 }
@@ -308,21 +289,21 @@ void LuaPolymorphic<stats::ObjectInstance>::MakeRef(lua_State* L, stats::ObjectI
 {
 	auto modifierList = stats->GetModifierList();
 	if (modifierList && modifierList->Name == GFS.strCharacter) {
-		return MakeObjectRef(L, lifetime, static_cast<stats::Character*>(stats));
+		MakeDirectObjectRef(L, lifetime, static_cast<stats::Character*>(stats));
 	} else if (modifierList && modifierList->IsItemType()) {
-		return MakeObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
+		MakeDirectObjectRef(L, lifetime, static_cast<stats::Item*>(stats));
 	} else {
-		ObjectProxy2::MakeRef(L, stats, lifetime);
+		MakeDirectObjectRef(L, lifetime, stats);
 	}
 }
 
 void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::EquipmentAttributes* stats, LifetimeHandle const & lifetime)
 {
 	switch (stats->StatsType) {
-	case stats::EquipmentStatsType::Weapon: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesWeapon*>(stats));
-	case stats::EquipmentStatsType::Armor: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesArmor*>(stats));
-	case stats::EquipmentStatsType::Shield: return MakeObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesShield*>(stats));
-	default: return MakeObjectRef(L, lifetime, stats);
+	case stats::EquipmentStatsType::Weapon: return MakeDirectObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesWeapon*>(stats));
+	case stats::EquipmentStatsType::Armor: return MakeDirectObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesArmor*>(stats));
+	case stats::EquipmentStatsType::Shield: return MakeDirectObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesShield*>(stats));
+	default: return MakeDirectObjectRef(L, lifetime, stats);
 	}
 }
 

@@ -1,6 +1,7 @@
 #include <Lua/Shared/Proxies/LuaEntityProxy.h>
 #include <Lua/Shared/LuaHelpers.h>
 #include <Lua/Shared/LuaBinding.h>
+#include <Lua/Shared/LuaMethodHelpers.h>
 
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Inventory.h>
@@ -136,7 +137,7 @@ bool ConstructComponentProxyHelper(lua_State* L, TEntityWorld* entityWorld, Comp
 {
 	auto component = entityWorld->GetComponent<T>(handle);
 	if (component != nullptr) {
-		ObjectProxy2::MakeRef(L, component, lua::State::FromLua(L)->GetCurrentLifetime());
+		lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), component);
 		return true;
 	} else {
 		push(L, nullptr);
@@ -160,7 +161,7 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::esv::EntityCompo
 	{
 		auto inventory = GetStaticSymbols().GetServerInventoryFactory()->Get(handle);
 		if (inventory) {
-			ObjectProxy2::MakeRef(L, inventory, lua::State::FromLua(L)->GetCurrentLifetime());
+			lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), inventory);
 			return true;
 		} else {
 			push(L, nullptr);
@@ -172,7 +173,7 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::esv::EntityCompo
 	{
 		auto inventoryView = GetStaticSymbols().GetServerInventoryViewFactory()->Get(handle);
 		if (inventoryView) {
-			ObjectProxy2::MakeRef(L, inventoryView, lua::State::FromLua(L)->GetCurrentLifetime());
+			lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), inventoryView);
 			return true;
 		} else {
 			push(L, nullptr);
@@ -185,7 +186,7 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::esv::EntityCompo
 		auto factory = *GetStaticSymbols().esv__SurfaceActionFactory;
 		auto action = factory->Get(handle);
 		if (action) {
-			ObjectProxy2::MakeRef(L, action, lua::State::FromLua(L)->GetCurrentLifetime());
+			lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), action);
 			return true;
 		} else {
 			push(L, nullptr);
@@ -211,7 +212,7 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::ecl::EntityCompo
 	{
 		auto inventory = GetStaticSymbols().GetClientInventoryFactory()->Get(handle);
 		if (inventory) {
-			ObjectProxy2::MakeRef(L, inventory, lua::State::FromLua(L)->GetCurrentLifetime());
+			lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), inventory);
 			return true;
 		} else {
 			push(L, nullptr);
@@ -223,7 +224,7 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::ecl::EntityCompo
 	{
 		auto inventoryView = GetStaticSymbols().GetClientInventoryViewFactory()->Get(handle);
 		if (inventoryView) {
-			ObjectProxy2::MakeRef(L, inventoryView, lua::State::FromLua(L)->GetCurrentLifetime());
+			lua::MakeObjectRef(L, lua::State::FromLua(L)->GetCurrentLifetime(), inventoryView);
 			return true;
 		} else {
 			push(L, nullptr);
