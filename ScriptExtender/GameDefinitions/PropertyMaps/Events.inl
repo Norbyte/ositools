@@ -191,6 +191,11 @@ P_REF(Skill)
 P_REF(Hit)
 END_CLS()
 
+BEGIN_CLS(esv::lua::CalculateTurnOrderEvent)
+INHERIT(lua::EventBase)
+P_REF(Combat)
+END_CLS()
+
 BEGIN_CLS(esv::lua::AiRequestSortEvent)
 INHERIT(lua::EventBase)
 P(CharacterHandle)

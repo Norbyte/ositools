@@ -32,66 +32,6 @@ BEGIN_NS(esv::lua)
 
 using namespace dse::lua;
 
-
-class TurnManagerCombatProxy : public Userdata<TurnManagerCombatProxy>, public Indexable
-{
-public:
-	static char const * const MetatableName;
-
-	static void PopulateMetatable(lua_State * L);
-
-	inline TurnManagerCombatProxy(uint8_t combatId)
-		: combatId_(combatId)
-	{}
-
-	inline esv::TurnManager::Combat * Get()
-	{
-		return GetEntityWorld()->GetTurnManager()->Combats.FindValueRef(combatId_);
-	}
-
-	int Index(lua_State * L);
-
-private:
-	uint8_t combatId_;
-
-	static int GetCurrentTurnOrder(lua_State * L);
-	static int GetNextTurnOrder(lua_State * L);
-	static int UpdateCurrentTurnOrder(lua_State * L);
-	static int UpdateNextTurnOrder(lua_State * L);
-	static int GetAllTeams(lua_State * L);
-};
-
-class TurnManagerTeamProxy : public Userdata<TurnManagerTeamProxy>, public Indexable
-{
-public:
-	static char const * const MetatableName;
-
-	inline TurnManagerTeamProxy(eoc::CombatTeamId teamId)
-		: teamId_(teamId)
-	{}
-
-	inline eoc::CombatTeamId TeamId() const
-	{
-		return teamId_;
-	}
-
-	inline esv::TurnManager::CombatTeam * Get()
-	{
-		auto combat = GetEntityWorld()->GetTurnManager()->Combats.FindValueRef(teamId_.CombatId);
-		if (combat) {
-			return combat->Teams.TryGet((uint32_t)teamId_);
-		} else {
-			return nullptr;
-		}
-	}
-
-	int Index(lua_State * L);
-
-private:
-	eoc::CombatTeamId teamId_;
-};
-
-
 class ItemConstructor : public Userdata<ItemConstructor>, public Indexable
 {
 public:
@@ -274,6 +214,11 @@ struct OnExecutePropertyDataOnPositionEvent : public EventBase
 	stats::HitDamageInfo const* Hit;
 };
 
+struct CalculateTurnOrderEvent : public EventBase
+{
+	TurnManager::Combat* Combat;
+};
+
 class ServerState : public State
 {
 public:
@@ -338,7 +283,7 @@ public:
 	}
 
 	std::optional<int32_t> StatusGetEnterChance(esv::Status * status, bool isEnterCheck);
-	bool OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
+	void OnUpdateTurnOrder(esv::TurnManager * self, uint8_t combatId);
 	bool OnApplyStatus(ComponentHandle const& ownerHandle, esv::Status* status, bool preventStatusApply);
 	void OnStatusHitEnter(esv::StatusHit* hit, PendingHit* context);
 	void OnBeforeStatusDelete(esv::Status* status);

@@ -223,27 +223,22 @@ Status* GetStatus(lua_State* L)
 	return status;
 }
 
-UserReturn GetCombat(lua_State* L, uint32_t combatId)
+TurnManager::Combat* GetCombat(lua_State* L, uint32_t combatId)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-		return luaL_error(L, "Attempted to resolve combat ID in restricted context");
+		luaL_error(L, "Attempted to resolve combat ID in restricted context");
+		return nullptr;
 	}
 
 	auto turnMgr = GetEntityWorld()->GetTurnManager();
-	if (turnMgr == nullptr) {
-		OsiErrorS("esv::TurnManager not available");
-		return 0;
-	}
-
 	auto combat = turnMgr->Combats.find((uint8_t)combatId);
 	if (!combat) {
 		OsiError("No combat found with ID " << combatId);
-		return 0;
+		return nullptr;
 	}
 
-	TurnManagerCombatProxy::New(L, (uint8_t)combatId);
-	return 1;
+	return &combat.Value();
 }
 
 Surface* GetSurface(lua_State* L, ComponentHandle handle)

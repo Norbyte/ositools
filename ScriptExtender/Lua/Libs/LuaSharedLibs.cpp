@@ -24,6 +24,7 @@
 #include <Lua/Libs/ServerCustomStats.inl>
 #include <Lua/Libs/ServerEntity.inl>
 #include <Lua/Libs/ServerEffect.inl>
+#include <Lua/Libs/ServerCombat.inl>
 #include <Lua/Libs/Surface.inl>
 #include <Lua/Libs/ServerSurfaceAction.inl>
 #include <Lua/Libs/ServerPropertyLists.inl>
@@ -62,6 +63,7 @@ void RegisterServerLibraries()
 	surface::action::RegisterSurfaceActionLib();
 	tmpl::RegisterTemplateLib();
 	proplist::RegisterPropertyListLib();
+	combat::RegisterCombatLib();
 }
 
 END_NS()

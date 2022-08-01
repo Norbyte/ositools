@@ -42,6 +42,16 @@ namespace dse
 			{
 				return CombinedId < o.CombinedId;
 			}
+
+			inline uint32_t GetTeamId()
+			{
+				return TeamId;
+			}
+
+			inline uint8_t GetCombatId()
+			{
+				return (uint8_t)CombatId;
+			}
 		};
 
 		struct CombatComponent : public ProtectedGameObject<CombatComponent>
@@ -93,17 +103,17 @@ namespace dse
 				struct Item * Item;
 				uint8_t Flags;
 
-				esv::Character * GetCharacter() const
+				inline esv::Character * GetCharacter() const
 				{
 					return GetEntityWorld()->GetComponent<esv::Character>(Handle);
 				}
 
-				esv::Item * GetItem() const
+				inline esv::Item * GetItem() const
 				{
 					return GetEntityWorld()->GetComponent<esv::Item>(Handle);
 				}
 
-				eoc::CombatComponent * GetCombatComponent() const
+				inline eoc::CombatComponent * GetCombatComponent() const
 				{
 					return GetEntityWorld()->GetComponent<esv::CombatComponent>(Handle);
 				}
@@ -119,7 +129,7 @@ namespace dse
 
 			struct CombatTeam
 			{
-				eoc::CombatTeamId TeamId;
+				eoc::CombatTeamId Id;
 				uint16_t Initiative;
 				uint16_t CombatTeamRound;
 				bool StillInCombat;
@@ -127,6 +137,27 @@ namespace dse
 				CombatGroup *CombatGroup;
 				EntityWrapper EntityWrapper;
 				ComponentHandleWithType ComponentHandle;
+
+				// For compatibility with extender v55
+				inline uint32_t GetTeamId()
+				{
+					return Id.GetTeamId();
+				}
+
+				inline uint8_t GetCombatId()
+				{
+					return Id.GetCombatId();
+				}
+
+				inline Character* GetCharacter()
+				{
+					return EntityWrapper.GetCharacter();
+				}
+
+				inline Item* GetItem()
+				{
+					return EntityWrapper.GetItem();
+				}
 			};
 
 			struct Combat : public ProtectedGameObject<Combat>
@@ -155,6 +186,27 @@ namespace dse
 				bool CombatStartEventSent;
 				uint8_t NewRound;
 				bool IsFightBetweenPlayers;
+
+				// For compatibility with extender v55
+				ObjectSet<CombatTeam*, MSVCMemoryAllocator>* LuaGetCurrentTurnOrder()
+				{
+					return &CurrentRoundTeams;
+				}
+
+				ObjectSet<CombatTeam*, MSVCMemoryAllocator>* LuaGetNextTurnOrder()
+				{
+					return &NextRoundTeams;
+				}
+
+				void LuaUpdateCurrentTurnOrder(lua_State* L);
+				void LuaUpdateNextTurnOrder(lua_State* L);
+				void LuaUpdateTurnOrder(lua_State* L, int index, ObjectSet<esv::TurnManager::CombatTeam*, MSVCMemoryAllocator>& combatTeams,
+					ObjectSet<eoc::CombatTeamId>& combatNotifies);
+
+				RefMap<uint32_t, CombatTeam*>* LuaGetAllTeams()
+				{
+					return &Teams;
+				}
 			};
 
 			struct TimeoutOverride
@@ -168,16 +220,16 @@ namespace dse
 			ObjectSet<ComponentHandleWithType> AttachedCombatComponents;
 			ObjectSet<EntityHandle> CombatEntities;
 			ObjectSet<EntityHandle> CombatEntities2;
-			ObjectSet<EntityWrapper> EntityWrapperSet;
-			ObjectSet<ComponentHandle> EntitesLeftCombatHandleSet;
+			ObjectSet<EntityWrapper> EntityWrappers;
+			ObjectSet<ComponentHandle> EntitesLeftCombat;
 			int TeamMode;
 			RefMap<uint8_t, Combat> Combats;
-			ObjectSet<uint8_t> FreeIdSet;
+			ObjectSet<uint8_t> FreeCombatIds;
 			uint8_t NextCombatId;
 			RefMap<uint8_t, TimeoutOverride> TimeoutOverrides;
-			Map<FixedString, CombatGroup> CombatGroupInfos;
+			Map<FixedString, CombatGroup> CombatGroups;
 			ObjectSet<void *> WaypointDistSet;
-			ObjectSet<esv::Character *> CharacterPtrSet;
+			ObjectSet<esv::Character *> CombatParticipants;
 		};
 
 	}

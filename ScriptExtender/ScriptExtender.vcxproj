@@ -304,6 +304,7 @@
     <None Include="Lua\Libs\Resource.inl" />
     <None Include="Lua\Libs\Server.inl" />
     <None Include="Lua\Libs\ServerAi.inl" />
+    <None Include="Lua\Libs\ServerCombat.inl" />
     <None Include="Lua\Libs\ServerCustomStats.inl" />
     <None Include="Lua\Libs\ServerEffect.inl" />
     <None Include="Lua\Libs\ServerEntity.inl" />

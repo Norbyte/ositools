@@ -395,6 +395,16 @@ _I._CallLegacyEvent = function (fn, event)
 			event.Processed = true
 			event:StopPropagation()
 		end
+	elseif event.Name == "CalculateTurnOrder" then
+		local origTeams = {}
+		for i,team in pairs(event.Combat.NextRoundTeams) do
+			origTeams[i] = team
+		end
+		local turnOrder = fn(event.Combat, origTeams)
+		if turnOrder ~= nil then
+			event.Combat:UpdateNextTurnOrder(turnOrder)
+			event:StopPropagation()
+		end
 	elseif event.Name == "BeforeShootProjectile" then
 		fn(event.Projectile)
 	elseif event.Name == "ShootProjectile" then

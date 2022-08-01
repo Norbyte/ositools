@@ -5,7 +5,7 @@ _I._PublishedEvents = {
 	"GetSkillDamage",
 	"GetSkillAPCost",
 	"ComputeCharacterHit",
-	"CalculateTurnOrder", -- FIXME
+	"CalculateTurnOrder",
 	"GetHitChance",
 	"StatusGetEnterChance",
 	"BeforeStatusApply",

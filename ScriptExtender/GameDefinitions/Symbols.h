@@ -602,7 +602,6 @@ namespace dse
 			}
 		}
 
-
 		inline void RegisterUIObjectCreator(UIObjectManager * self, unsigned int index, UIObjectFunctor * creator)
 		{
 #if defined(OSI_EOCAPP)
