@@ -31,6 +31,11 @@ END_SE()
 /// <lua_module>Input</lua_module>
 BEGIN_NS(ecl::lua::input)
 
+InputManager* GetInputManager()
+{
+	return GetStaticSymbols().GetInputManager();
+}
+
 bool InjectInput(FixedString deviceId, InputRawType inputId, InputState state, float value1, float value2, std::optional<bool> immediate)
 {
 	InjectInputData input;
@@ -54,6 +59,7 @@ void RegisterInputLib()
 {
 	DECLARE_MODULE(Input, Client)
 	BEGIN_MODULE()
+	MODULE_FUNCTION(GetInputManager)
 	MODULE_FUNCTION(InjectInput)
 	END_MODULE()
 }

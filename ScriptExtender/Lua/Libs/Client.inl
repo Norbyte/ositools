@@ -14,11 +14,6 @@ ModManager* GetModManager()
 	return GetModManagerClient();
 }
 
-InputManager* GetInputManager()
-{
-	return GetStaticSymbols().GetInputManager();
-}
-
 /// <summary>
 /// Updates shroud data for a cell in the specified position.
 /// </summary>
@@ -45,7 +40,6 @@ void RegisterClientLib()
 	MODULE_FUNCTION(GetGameState)
 	MODULE_FUNCTION(GetModManager)
 	MODULE_FUNCTION(UpdateShroud)
-	MODULE_FUNCTION(GetInputManager)
 	END_MODULE()
 }
 
