@@ -13,6 +13,7 @@
 #include <lobject.h>
 #include <lstate.h>
 #include <lstring.h>
+#include <lapi.h>
 
 BEGIN_NS(lua)
 
@@ -596,6 +597,24 @@ FixedString do_get(lua_State* L, int index, Overload<FixedString>)
 	size_t len;
 	auto str = luaL_checklstring(L, index, &len);
 	return FixedString(str, len);
+}
+
+void push(lua_State* L, FixedString const& v)
+{
+	lua_lock(L);
+	TString* ts;
+	if (v) {
+		ts = luaS_new(L, v.GetString());
+		auto fs = reinterpret_cast<FixedString*>(&ts->cache);
+		new (fs) FixedString(v);
+	} else {
+		ts = luaS_new(L, "");
+	}
+
+	setsvalue2s(L, L->top, ts);
+	api_incr_top(L);
+	luaC_checkGC(L);
+	lua_unlock(L);
 }
 
 void LuaCacheString(lua_State* L, TString* s)
