@@ -43,7 +43,18 @@ Character* LuaGetCharacter(lua_State* L, int index)
 	}
 }
 
-UserReturn GetCharacter(lua_State* L)
+Character* GetCharacter(lua_State* L)
+{
+	auto lua = State::FromLua(L);
+	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
+		luaL_error(L, "Attempted to resolve character handle in restricted context");
+		return nullptr;
+	}
+
+	return LuaGetCharacter(L, 1);
+}
+
+UserReturn GetCharacterLegacy(lua_State* L)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
@@ -52,7 +63,7 @@ UserReturn GetCharacter(lua_State* L)
 
 	StackCheck _(L, 1);
 	Character* character = LuaGetCharacter(L, 1);
-	MakeObjectRef(L, character);
+	MakeLegacyServerCharacterObjectRef(L, character);
 	return 1;
 }
 
@@ -383,6 +394,7 @@ void RegisterEntityLib()
 	BEGIN_MODULE()
 	MODULE_FUNCTION(NullHandle)
 	MODULE_FUNCTION(GetCharacter)
+	MODULE_FUNCTION(GetCharacterLegacy)
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetTrigger)
 	MODULE_FUNCTION(GetGameObject)

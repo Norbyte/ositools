@@ -49,18 +49,16 @@ Character* LuaGetCharacter(lua_State* L, int index)
 	}
 }
 
-UserReturn GetCharacter(lua_State* L)
+UserReturn GetCharacterLegacy(lua_State* L)
 {
 	ecl::Character* character = LuaGetCharacter(L, 1);
-	MakeObjectRef(L, character);
+	MakeLegacyClientCharacterObjectRef(L, character);
 	return 1;
 }
 
-UserReturn GetCharacterFast(lua_State* L)
+Character* GetCharacter(lua_State* L)
 {
-	ecl::Character* character = LuaGetCharacter(L, 1);
-	MakeObjectRef(L, character);
-	return 1;
+	return LuaGetCharacter(L, 1);
 }
 
 Item* LuaGetItem(lua_State* L, int index)
@@ -90,11 +88,16 @@ Item* LuaGetItem(lua_State* L, int index)
 	}
 }
 
-UserReturn GetItem(lua_State* L)
+UserReturn GetItemLegacy(lua_State* L)
 {
 	ecl::Item* item = LuaGetItem(L, 1);
-	MakeObjectRef(L, item);
+	MakeLegacyClientItemObjectRef(L, item);
 	return 1;
+}
+
+Item* GetItem(lua_State* L)
+{
+	return LuaGetItem(L, 1);
 }
 
 Inventory* GetInventory(ComponentHandle handle)
@@ -166,8 +169,9 @@ void RegisterEntityLib()
 	BEGIN_MODULE()
 	MODULE_FUNCTION(NullHandle)
 	MODULE_FUNCTION(GetCharacter)
-	MODULE_FUNCTION(GetCharacterFast)
+	MODULE_FUNCTION(GetCharacterLegacy)
 	MODULE_FUNCTION(GetItem)
+	MODULE_FUNCTION(GetItemLegacy)
 	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetGameObject)

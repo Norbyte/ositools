@@ -269,8 +269,10 @@ Ext.DoubleToHandle = CallDeprecated(Ext.UI.DoubleToHandle, "DoubleToHandle", "UI
 Ext.GetPickingState = CallDeprecated(Ext.UI.GetPickingState, "GetPickingState", "UI.GetPickingState")
 
 -- Backwards compatibility with old Entity APIs
-Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacter, "GetCharacter", "Entity.GetCharacter")
-Ext.GetItem = CallDeprecated(Ext.Entity.GetItem, "GetItem", "Entity.GetItem")
+-- NOTE: we call GetCharacterLegacy/GetItemLegacy internally since they have different lifetime behavior
+-- for compatibility with pre-v56 lifetimes
+Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacterLegacy, "GetCharacter", "Entity.GetCharacter")
+Ext.GetItem = CallDeprecated(Ext.Entity.GetItemLegacy, "GetItem", "Entity.GetItem")
 Ext.GetStatus = CallDeprecated(Ext.Entity.GetStatus, "GetStatus", "Entity.GetStatus")
 Ext.GetGameObject = CallDeprecated(Ext.Entity.GetGameObject, "GetGameObject", "Entity.GetGameObject")
 Ext.GetAiGrid = CallDeprecated(Ext.Entity.GetAiGrid, "GetAiGrid", "Entity.GetAiGrid")

@@ -97,7 +97,9 @@ Ext.GetCharactersAroundPosition = CallDeprecated(Ext.Entity.GetCharacterGuidsAro
 Ext.GetAllItems = CallDeprecated(Ext.Entity.GetAllItemGuids, "GetAllItems", "Entity.GetAllItemGuids")
 Ext.GetItemsAroundPosition = CallDeprecated(Ext.Entity.GetItemGuidsAroundPosition, "GetItemsAroundPosition", "Entity.GetItemGuidsAroundPosition")
 Ext.GetAllTriggers = CallDeprecated(Ext.Entity.GetAllTriggerGuids, "GetAllTriggers", "Entity.GetAllTriggerGuids")
-Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacter, "GetCharacter", "Entity.GetCharacter")
+-- NOTE: we call GetCharacterLegacy internally since they have different lifetime behavior
+-- for compatibility with pre-v56 lifetimes
+Ext.GetCharacter = CallDeprecated(Ext.Entity.GetCharacterLegacy, "GetCharacter", "Entity.GetCharacter")
 Ext.GetItem = CallDeprecated(Ext.Entity.GetItem, "GetItem", "Entity.GetItem")
 Ext.GetTrigger = CallDeprecated(Ext.Entity.GetTrigger, "GetTrigger", "Entity.GetTrigger")
 Ext.GetGameObject = CallDeprecated(Ext.Entity.GetGameObject, "GetGameObject", "Entity.GetGameObject")
