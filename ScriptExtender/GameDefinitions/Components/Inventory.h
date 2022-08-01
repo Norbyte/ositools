@@ -32,8 +32,8 @@ namespace dse
 			RefMap<int32_t, ComponentHandle> * Views;
 			ObjectSet<ComponentHandle> UpdateViews;
 			uint64_t Unknown2;
-			RefMap<FixedString, uint32_t> BuyBackAmounts;
-			RefMap<FixedString, uint32_t> TimeItemAddedToInventory;
+			RefMap<ComponentHandle, uint32_t> BuyBackAmounts;
+			RefMap<ComponentHandle, uint32_t> TimeItemAddedToInventory;
 			ObjectSet<ComponentHandle> PinnedContainers;
 		};
 
@@ -73,6 +73,13 @@ namespace dse
 		{
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientInventory;
 
+			struct BuyBackAmount
+			{
+				int32_t Amount;
+				int32_t Price;
+				ComponentHandle Character;
+			};
+
 			void* VMT;
 			FixedString GUID;
 			NetId NetID;
@@ -90,7 +97,7 @@ namespace dse
 			RefMap<int, void*>* Views; // <int, InventoryView*>
 			ObjectSet<ComponentHandle> UpdateViews;
 			RefMap<int, void*>* OfferedAmounts;
-			RefMap<ComponentHandle, void*>* BuyBackAmounts;
+			RefMap<ComponentHandle, BuyBackAmount>* BuyBackAmounts;
 			ObjectSet<ComponentHandle> PinnedContainers;
 		};
 
