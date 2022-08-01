@@ -120,7 +120,6 @@ Status* GetStatus(lua_State* L)
 
 IEoCClientObject* GetGameObject(lua_State* L)
 {
-	StackCheck _(L, 1);
 	switch (lua_type(L, 1)) {
 	case LUA_TLIGHTUSERDATA:
 	{
