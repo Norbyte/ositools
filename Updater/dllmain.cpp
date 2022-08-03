@@ -413,7 +413,7 @@ public:
 
 	std::wstring GetCachedManifestPath() const
 	{
-		return path_ + L"\\Manifest2.json";
+		return path_ + L"\\Manifest-" + FromUTF8(config_.UpdateChannel) + L".json";
 	}
 
 	bool LoadManifest(std::wstring const& path)
