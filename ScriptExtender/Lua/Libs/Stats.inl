@@ -1247,8 +1247,8 @@ void AddVoiceMetaData(FixedString const& speakerGuid, FixedString const& transla
 		return;
 	}
 
-	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->insert(speakerGuid, {});
-	auto voiceMeta = speaker->insert(translatedStringKey, {});
+	auto speaker = (*speakerMgr)->SpeakerMetaDataHashMap->get_or_insert(speakerGuid);
+	auto voiceMeta = speaker->get_or_insert(translatedStringKey);
 	voiceMeta->CodecID = 4;
 	voiceMeta->IsRecorded = true;
 	voiceMeta->Length = (float)length;
