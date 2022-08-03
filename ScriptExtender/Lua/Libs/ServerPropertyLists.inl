@@ -19,7 +19,7 @@ void ExecuteSkillPropertiesOnTarget(lua_State* L)
 	dse::stats::SkillPrototype* skillProto{ nullptr };
 	auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 	if (skillProtoMgr && *skillProtoMgr) {
-		skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
+		skillProto = (*skillProtoMgr)->Prototypes.try_get(skillId);
 	}
 
 	if (!skillProto) {
@@ -28,7 +28,7 @@ void ExecuteSkillPropertiesOnTarget(lua_State* L)
 	}
 
 	auto exec = GetStaticSymbols().esv__ExecuteCharacterSetExtraProperties;
-	auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
+	auto skillProperties = skillProto->GetStats()->PropertyLists.try_get(GFS.strSkillProperties);
 
 	if (!skillProperties) {
 		LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -61,7 +61,7 @@ void ExecuteSkillPropertiesOnPosition(lua_State* L)
 	dse::stats::SkillPrototype* skillProto{ nullptr };
 	auto skillProtoMgr = GetStaticSymbols().eoc__SkillPrototypeManager;
 	if (skillProtoMgr && *skillProtoMgr) {
-		skillProto = (*skillProtoMgr)->Prototypes.TryGet(skillId);
+		skillProto = (*skillProtoMgr)->Prototypes.try_get(skillId);
 	}
 
 	if (!skillProto) {
@@ -70,7 +70,7 @@ void ExecuteSkillPropertiesOnPosition(lua_State* L)
 	}
 
 	auto exec = GetStaticSymbols().esv__ExecutePropertyDataOnPositionOnly;
-	auto skillProperties = skillProto->GetStats()->PropertyLists.TryGet(GFS.strSkillProperties);
+	auto skillProperties = skillProto->GetStats()->PropertyLists.try_get(GFS.strSkillProperties);
 
 	if (!skillProperties) {
 		LuaError("Skill " << skillId << " has no SkillProperties!");
@@ -92,7 +92,7 @@ void ExecuteExtraPropertiesOnTarget(FixedString statsEntryName, FixedString prop
 {
 	dse::stats::SkillPrototype* skillProto{ nullptr };
 	if (skillId) {
-		skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.TryGet(*skillId);
+		skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(*skillId);
 		if (!skillProto) {
 			LuaError("Couldn't find skill prototype for " << *skillId);
 			return;
@@ -105,7 +105,7 @@ void ExecuteExtraPropertiesOnTarget(FixedString statsEntryName, FixedString prop
 		return;
 	}
 
-	auto extraProperties = stat->PropertyLists.TryGet(propertyName);
+	auto extraProperties = stat->PropertyLists.try_get(propertyName);
 	if (!extraProperties) {
 		LuaError("Stats entry " << statsEntryName << " has no property list named " << propertyName);
 		return;
@@ -127,7 +127,7 @@ void ExecuteExtraPropertiesOnPosition(FixedString statsEntryName, FixedString pr
 {
 	dse::stats::SkillPrototype* skillProto{ nullptr };
 	if (skillId) {
-		skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.TryGet(*skillId);
+		skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(*skillId);
 		if (!skillProto) {
 			LuaError("Couldn't find skill prototype for " << *skillId);
 			return;
@@ -140,7 +140,7 @@ void ExecuteExtraPropertiesOnPosition(FixedString statsEntryName, FixedString pr
 		return;
 	}
 
-	auto extraProperties = stat->PropertyLists.TryGet(propertyName);
+	auto extraProperties = stat->PropertyLists.try_get(propertyName);
 	if (!extraProperties) {
 		LuaError("Stats entry " << statsEntryName << " has no property list named " << propertyName);
 		return;

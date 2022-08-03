@@ -197,7 +197,7 @@ struct NamedElementManager : public Noncopyable<NamedElementManager<T>>
 
 	T * Find(FixedString const& str) const
 	{
-		auto ptr = NameHashMap.FindValueRef(str);
+		auto ptr = NameHashMap.try_get_ptr(str);
 		if (ptr != nullptr) {
 			return Primitives[*ptr];
 		} else {

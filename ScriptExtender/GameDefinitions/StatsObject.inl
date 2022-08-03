@@ -61,7 +61,7 @@ std::optional<char const*> Object::GetString(ModifierInfo const& modifier) const
 		OsiError("Conditions property '" << modifier.Modifier->Name << "' is not readable");
 		return {};
 	} else if (modifier.ValueList->Values.size() > 0) {
-		auto enumLabel = modifier.ValueList->Values.FindByValue(index);
+		auto enumLabel = modifier.ValueList->Values.find_by_value(index);
 		if (enumLabel) {
 			return enumLabel.Key().GetString();
 		}
@@ -139,7 +139,7 @@ std::optional<PropertyList*> Object::GetPropertyList(ModifierInfo const& modifie
 		return {};
 	}
 
-	auto properties = PropertyLists.TryGet(modifier.Modifier->Name);
+	auto properties = PropertyLists.try_get(modifier.Modifier->Name);
 	if (properties) {
 		return properties;
 	} else {

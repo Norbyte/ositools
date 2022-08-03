@@ -178,7 +178,7 @@ namespace dse::esv
 			return nullptr;
 		}
 
-		auto proto = (*statusProtoMgr)->Prototypes.TryGet(statusId);
+		auto proto = (*statusProtoMgr)->Prototypes.try_get(statusId);
 		if (!proto) {
 			OsiError("No status found with ID: " << statusId);
 			return nullptr;

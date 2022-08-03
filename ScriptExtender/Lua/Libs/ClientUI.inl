@@ -238,7 +238,7 @@ UserReturn GetPickingState(lua_State* L, std::optional<int> playerIndex)
 		return 1;
 	}
 
-	auto helper = level->PickingHelperManager->PlayerHelpers.TryGet(playerIndex.value_or(1));
+	auto helper = level->PickingHelperManager->PlayerHelpers.try_get(playerIndex.value_or(1));
 	if (helper == nullptr) {
 		push(L, nullptr);
 		return 1;

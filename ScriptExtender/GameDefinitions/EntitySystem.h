@@ -130,13 +130,13 @@ struct NetworkComponentFactory : public ComponentFactory<TComponent>
 			return nullptr;
 		}
 
-		return NetIds.TryGet(index);
+		return NetIds.try_get(index);
 	}
 
 	TComponent* FindByGuid(FixedString const& guid) const
 	{
 		if (!guid) return nullptr;
-		return Guids.TryGet(guid);
+		return Guids.try_get(guid);
 	}
 };
 

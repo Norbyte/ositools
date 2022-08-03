@@ -150,7 +150,7 @@ bool CreateTranslatedStringKey(FixedString const& key, FixedString const& handle
 		return false;
 	}
 
-	auto mapping = keyMgr->StringKeys.FindValueRef(key);
+	auto mapping = keyMgr->StringKeys.try_get_ptr(key);
 	if (mapping) {
 		mapping->Handle.Handle = handle;
 	} else {
@@ -173,7 +173,7 @@ bool CreateTranslatedString(FixedString const& handle, STDWString const& string)
 	}
 
 	EnterCriticalSection(&repo->CriticalSection);
-	auto str = repo->TranslatedStringOverrides[0]->FindValueRef(handle);
+	auto str = repo->TranslatedStringOverrides[0]->try_get_ptr(handle);
 	if (str) {
 		**str = string;
 	} else {

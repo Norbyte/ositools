@@ -152,7 +152,7 @@ namespace dse::esv
 			return 0;
 		}
 
-		return statsComponent->StatValues.TryGet(statDefn->Id, 0);
+		return statsComponent->StatValues.try_get(statDefn->Id, 0);
 	}
 
 	bool CustomStatHelpers::SetCharacterStat(EntityHandle entityHandle, char const* statId, int value)
@@ -297,7 +297,7 @@ std::optional<int> CustomStatHelpers::GetCharacterStat(EntityHandle entityHandle
 		return 0;
 	}
 
-	return statsComponent->StatValues.TryGet(statId, 0);
+	return statsComponent->StatValues.try_get(statId, 0);
 }
 
 END_NS()

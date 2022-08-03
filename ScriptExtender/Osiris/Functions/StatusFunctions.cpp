@@ -631,7 +631,7 @@ namespace dse::esv
 	void CustomFunctionLibrary::OnPeekAiAction(AiHelpers* self, Character* character, AiActionType actionType, bool isFinished)
 	{
 		auto characterHandle = character->Base.Component.Handle;
-		auto request = (*GetStaticSymbols().esv__gAiHelpers)->CharacterAiRequests.TryGet(characterHandle);
+		auto request = (*GetStaticSymbols().esv__gAiHelpers)->CharacterAiRequests.try_get(characterHandle);
 		if (request == nullptr || request->IsCalculating) return;
 
 		esv::LuaServerPin lua(esv::ExtensionState::Get());
@@ -764,7 +764,7 @@ namespace dse::esv
 			if (result != 0) {
 				STDWString userName = L"(Unknown)";
 				auto gameServer = (*GetStaticSymbols().esv__EoCServer)->GameServer;
-				auto peer = gameServer->Peers.FindValueRef(peerModSettings.peerId);
+				auto peer = gameServer->Peers.try_get_ptr(peerModSettings.peerId);
 				if (peer != nullptr) {
 					for (auto const& user : peer->Users) {
 						userName = user.Value.UserName;

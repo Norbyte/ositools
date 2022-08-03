@@ -13,7 +13,7 @@ void GetCharacterGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& 
 	}
 
 	auto& helpers = GetEoCServer()->EntityManager->CharacterConversionHelpers;
-	auto characters = helpers.RegisteredCharacters.TryGet(levelName);
+	auto characters = helpers.RegisteredCharacters.try_get(levelName);
 	if (characters == nullptr) {
 		OsiError("No characters registered for level: " << levelName);
 		return;
@@ -42,7 +42,7 @@ void GetCharactersGeneric(ObjectSet<Character *>& characters, FixedString const&
 	}
 
 	auto& helpers = GetEoCServer()->EntityManager->CharacterConversionHelpers;
-	auto levelCharacters = helpers.RegisteredCharacters.TryGet(levelName);
+	auto levelCharacters = helpers.RegisteredCharacters.try_get(levelName);
 	if (levelCharacters == nullptr) {
 		OsiError("No characters registered for level: " << levelName);
 		return;
@@ -70,7 +70,7 @@ void GetItemGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& reque
 	}
 
 	auto& helpers = GetEoCServer()->EntityManager->ItemConversionHelpers;
-	auto items = helpers.RegisteredItems.TryGet(levelName);
+	auto items = helpers.RegisteredItems.try_get(levelName);
 	if (items == nullptr) {
 		OsiError("No items registered for level: " << levelName);
 		return;
@@ -98,7 +98,7 @@ void GetItemsGeneric(ObjectSet<Item*>& resultItems, FixedString const& requested
 	}
 
 	auto& helpers = GetEoCServer()->EntityManager->ItemConversionHelpers;
-	auto items = helpers.RegisteredItems.TryGet(levelName);
+	auto items = helpers.RegisteredItems.try_get(levelName);
 	if (items == nullptr) {
 		OsiError("No items registered for level: " << levelName);
 		return;
@@ -126,7 +126,7 @@ void GetTriggerGuidsGeneric(ObjectSet<FixedString>& guids, FixedString const& re
 	}
 
 	auto& helpers = GetEoCServer()->EntityManager->TriggerConversionHelpers;
-	auto triggers = helpers.RegisteredTriggers.TryGet(levelName);
+	auto triggers = helpers.RegisteredTriggers.try_get(levelName);
 	if (triggers == nullptr) {
 		OsiError("No triggers registered for level: " << levelName);
 		return;

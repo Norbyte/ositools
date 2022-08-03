@@ -549,7 +549,7 @@ void UpdateItemCombo(lua_State* L)
 
 UserReturn GetItemComboPreviewData(lua_State* L, FixedString const& comboName)
 {
-	auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.TryGet(comboName);
+	auto preview = GetStaticSymbols().GetStats()->ItemCombinationManager->PreviewData.try_get(comboName);
 	return LuaWrite(L, preview);
 }
 
@@ -559,7 +559,7 @@ void UpdateItemComboPreviewData(lua_State* L)
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto existing = stats->ItemCombinationManager->PreviewData.TryGet(name);
+	auto existing = stats->ItemCombinationManager->PreviewData.try_get(name);
 	ItemCombinationPreviewData* previewData = existing ? existing : nullptr;
 	bool isNew = (previewData == nullptr);
 
@@ -574,7 +574,7 @@ void UpdateItemComboPreviewData(lua_State* L)
 
 UserReturn GetItemComboProperty(lua_State* L, FixedString const& propertyName)
 {
-	auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.TryGet(propertyName);
+	auto prop = GetStaticSymbols().GetStats()->ItemCombinationManager->ComboProperties.try_get(propertyName);
 	return LuaWrite(L, prop);
 }
 
@@ -584,7 +584,7 @@ void UpdateItemComboProperty(lua_State* L)
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto existing = stats->ItemCombinationManager->ComboProperties.TryGet(name);
+	auto existing = stats->ItemCombinationManager->ComboProperties.try_get(name);
 	ItemCombinationProperty* comboProperty = existing ? existing : nullptr;
 	bool isNew = (comboProperty == nullptr);
 
@@ -599,14 +599,14 @@ void UpdateItemComboProperty(lua_State* L)
 
 UserReturn GetItemGroup(lua_State* L, FixedString const& name)
 {
-	auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.TryGet(name);
+	auto group = GetStaticSymbols().GetStats()->ItemProgressionManager->ItemGroups.try_get(name);
 	return LuaWrite(L, group);
 }
 
 
 UserReturn GetNameGroup(lua_State* L, FixedString const& name)
 {
-	auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.TryGet(name);
+	auto nameGroup = GetStaticSymbols().GetStats()->ItemProgressionManager->NameGroups.try_get(name);
 	return LuaWrite(L, nameGroup);
 }
 
@@ -641,7 +641,7 @@ RefMap<FixedString, ItemColorDefinition>* GetAllItemColors()
 
 ItemColorDefinition* GetItemColor(lua_State* L, FixedString const& colorName)
 {
-	return GetStaticSymbols().GetStats()->Colors.FindValueRef(colorName);
+	return GetStaticSymbols().GetStats()->Colors.try_get_ptr(colorName);
 }
 
 void UpdateItemColor(lua_State* L)
@@ -650,7 +650,7 @@ void UpdateItemColor(lua_State* L)
 	auto name = checked_getfield<FixedString>(L, "Name", 1);
 
 	auto stats = GetStaticSymbols().GetStats();
-	auto itemColor = stats->Colors.FindValueRef(name);
+	auto itemColor = stats->Colors.try_get_ptr(name);
 	bool isNew = (itemColor == nullptr);
 
 	lua_pushvalue(L, 1);
@@ -789,7 +789,7 @@ void AddCustomDescription(lua_State * L, const char* statName, const char* attri
 	auto object = StatFindObject(statName);
 	if (!object) return;
 
-	auto props = object->PropertyLists.TryGet(FixedString(attributeName));
+	auto props = object->PropertyLists.try_get(FixedString(attributeName));
 	if (props == nullptr) {
 		OsiError("Stat object '" << object->Name << "' has no property list named '" << attributeName << "'");
 		return;

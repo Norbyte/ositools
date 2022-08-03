@@ -317,7 +317,9 @@ public:
 
 	ValueType* insert(KeyType const& key, ValueType const& value) requires std::copyable<ValueType>
 	{
-		auto item = this->HashTable[Hash(key) % this->HashSize];
+		auto* hash = &this->HashTable[Hash(key) % this->HashSize];
+
+		auto item = *hash;
 		auto last = item;
 		while (item != nullptr) {
 			if (key == item->Key) {
@@ -331,7 +333,7 @@ public:
 
 		auto node = GameAlloc<Node>(key, value);
 		if (last == nullptr) {
-			this->HashTable[Hash(key) % this->HashSize] = node;
+			*hash = node;
 		} else {
 			last->Next = node;
 		}
@@ -342,7 +344,9 @@ public:
 
 	ValueType* insert(KeyType && key, ValueType && value)
 	{
-		auto item = this->HashTable[Hash(key) % this->HashSize];
+		auto* hash = &this->HashTable[Hash(key) % this->HashSize];
+
+		auto item = *hash;
 		auto last = item;
 		while (item != nullptr) {
 			if (key == item->Key) {
@@ -356,7 +360,7 @@ public:
 
 		auto node = GameAlloc<Node>(std::move(key), std::move(value));
 		if (last == nullptr) {
-			this->HashTable[Hash(key) % this->HashSize] = node;
+			*hash = node;
 		} else {
 			last->Next = node;
 		}
@@ -375,6 +379,32 @@ public:
 		return insert(std::move(v.first), std::move(v.second));
 	}
 
+	ValueType* get_or_insert(KeyType const & key)
+	{
+		auto* hash = &this->HashTable[Hash(key) % this->HashSize];
+
+		auto item = *hash;
+		auto last = item;
+		while (item != nullptr) {
+			if (key == item->Key) {
+				return &item->Value;
+			}
+
+			last = item;
+			item = item->Next;
+		}
+
+		auto node = GameAlloc<Node>(key, ValueType{});
+		if (last == nullptr) {
+			*hash = node;
+		} else {
+			last->Next = node;
+		}
+
+		this->ItemCount++;
+		return &node->Value;
+	}
+
 	void erase(Iterator const& it)
 	{
 		auto elem = *it.CurrentNode;
@@ -389,7 +419,7 @@ public:
 		}
 	}
 
-	Iterator FindByValue(ValueType const& value)
+	Iterator find_by_value(ValueType const& value)
 	{
 		for (uint32_t bucket = 0; bucket < this->HashSize; bucket++) {
 			Node* item = this->HashTable[bucket];
@@ -405,7 +435,7 @@ public:
 		return end();
 	}
 
-	ConstIterator FindByValue(ValueType const& value) const
+	ConstIterator find_by_value(ValueType const& value) const
 	{
 		for (uint32_t bucket = 0; bucket < this->HashSize; bucket++) {
 			Node* item = this->HashTable[bucket];
@@ -451,7 +481,7 @@ public:
 		return end();
 	}
 
-	ValueType const* FindValueRef(KeyType const& key) const
+	ValueType const* try_get_ptr(KeyType const& key) const
 	{
 		auto it = find(key);
 		if (it) {
@@ -461,7 +491,7 @@ public:
 		}
 	}
 
-	ValueType* FindValueRef(KeyType const& key)
+	ValueType* try_get_ptr(KeyType const& key)
 	{
 		auto it = find(key);
 		if (it) {
@@ -471,7 +501,7 @@ public:
 		}
 	}
 
-	ValueType TryGet(KeyType const& key, ValueType defaultValue = {}) const
+	ValueType try_get(KeyType const& key, ValueType defaultValue = {}) const
 	{
 		auto it = find(key);
 		if (it) {

@@ -20,7 +20,7 @@ namespace dse::esv
 				return nullptr;
 			}
 
-			auto skill = character->SkillManager->Skills.TryGet(FixedString(skillId));
+			auto skill = character->SkillManager->Skills.try_get(FixedString(skillId));
 			if (!skill) {
 				OsiError("Character '" << characterGuid << "' doesn't have skill '" << skillId << "'!");
 				return nullptr;

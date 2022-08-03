@@ -309,7 +309,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 		return;
 	}
 
-	auto pProto = Prototypes.TryGet(object->Name);
+	auto pProto = Prototypes.try_get(object->Name);
 	if (pProto == nullptr) {
 		auto proto = GameAlloc<SkillPrototype>();
 		proto->StatsObjectIndex = object->Handle;
@@ -339,7 +339,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 
 		STDString lv1Name = pProto->SkillId.GetStringOrDefault();
 		lv1Name += "_-1";
-		auto lv1Proto = Prototypes.TryGet(FixedString(lv1Name.c_str()));
+		auto lv1Proto = Prototypes.try_get(FixedString(lv1Name.c_str()));
 		if (lv1Proto) {
 			SyncSkillStat(object, lv1Proto);
 		}
@@ -362,9 +362,9 @@ void StatusPrototypeManager::SyncStatusStat(Object* object)
 	}
 
 	StatusPrototype* proto;
-	auto pProto = Prototypes.TryGet(object->Name);
+	auto pProto = Prototypes.try_get(object->Name);
 	if (pProto == nullptr) {
-		auto hitProto = Prototypes.TryGet(GFS.strHIT);
+		auto hitProto = Prototypes.try_get(GFS.strHIT);
 		if (!hitProto) {
 			OsiError("Couldn't sync new status entry - missing HIT status!");
 			return;
@@ -1067,7 +1067,7 @@ FixedString RPGStats::EnumIndexToLabel(FixedString const& enumName, int index)
 		return FixedString{};
 	}
 
-	auto value = rpgEnum->Values.FindByValue(index);
+	auto value = rpgEnum->Values.find_by_value(index);
 	if (value) {
 		return value.Key();
 	} else {

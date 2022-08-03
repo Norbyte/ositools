@@ -885,7 +885,7 @@ namespace dse::esv::lua
 		Restriction restriction(*this, RestrictOsiris);
 
 		auto turnMgr = GetEntityWorld()->GetTurnManager();
-		auto combat = turnMgr->Combats.FindValueRef(combatId);
+		auto combat = turnMgr->Combats.try_get_ptr(combatId);
 		if (combat == nullptr) {
 			OsiError("No combat found with ID " << (unsigned)combatId);
 			return;
