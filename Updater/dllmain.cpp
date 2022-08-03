@@ -954,6 +954,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
 		gDxgiWrapper = std::make_unique<DxgiWrapper>();
+
+		// Allow loading graphics mods that work via DXGI.dll (ReShade, etc.)
+		// DXGI.dll should be renamed to DxgiNext.dll, and the updater will load it automatically.
+		LoadLibraryW(L"DxgiNext.dll");
+
 		if (ShouldLoad()) {
 			StartUpdaterThread();
 		}
