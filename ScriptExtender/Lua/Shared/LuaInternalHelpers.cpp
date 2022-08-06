@@ -51,6 +51,9 @@ TValue* lua_index2addr(lua_State* L, int idx)
 		} else {
 			return o;
 		}
+	} else if (idx >= 0) {
+		luaL_error(L, "Param #%d missing", idx);
+		return nullptr;
 	} else {
 		luaL_error(L, "Non-absolute stack indices not supported: %d", idx);
 		return nullptr;

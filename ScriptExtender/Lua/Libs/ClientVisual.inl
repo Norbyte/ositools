@@ -82,7 +82,7 @@ END_SE()
 /// <lua_module>Visual</lua_module>
 BEGIN_NS(ecl::lua::visual)
 
-Visual* Get(ComponentHandle const& handle)
+Visual* GetVisual(ComponentHandle const& handle)
 {
 	if ((ObjectHandleType)handle.GetType() != ObjectHandleType::Visual) {
 		OsiError("Expected a visual handle, got " << GetHandleTypeName(handle));
@@ -91,6 +91,12 @@ Visual* Get(ComponentHandle const& handle)
 
 	auto factory = GetStaticSymbols().GetResourceManager()->VisualFactory;
 	return factory->Get(handle);
+}
+
+ClientMultiVisual* Get(lua_State* L, ComponentHandle const& handle)
+{
+	auto state = ClientState::FromLua(L);
+	return state->GetVisualSystem().Get(handle);
 }
 
 ClientMultiVisual* Create(lua_State* L, glm::vec3 const& position)
@@ -118,6 +124,17 @@ ClientMultiVisual* CreateOnItem(lua_State* L, glm::vec3 const& position, std::op
 	auto effect = state->GetVisualSystem().Create();
 	init(effect, ":", position, target ? target->Object : nullptr, nullptr, listenForTextKeys ? listenForTextKeys->Object : nullptr, GFS.strEmpty);
 	return effect;
+}
+
+ClientMultiVisual::~ClientMultiVisual()
+{
+	auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
+	del(this, true);
+}
+
+void ClientMultiVisual::SetHandle(ComponentHandle handle)
+{
+	Handle = handle;
 }
 
 void ClientMultiVisual::Delete(lua_State* L)
@@ -359,6 +376,7 @@ void RegisterVisualLib()
 	DECLARE_MODULE(Visual, Client)
 	BEGIN_MODULE()
 	MODULE_FUNCTION(Get)
+	MODULE_FUNCTION(GetVisual)
 	MODULE_FUNCTION(Create)
 	MODULE_FUNCTION(CreateOnCharacter)
 	MODULE_FUNCTION(CreateOnItem)

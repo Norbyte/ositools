@@ -41,50 +41,33 @@ END_NS()
 
 BEGIN_NS(ecl::lua::visual)
 
+VisualSystem::VisualSystem()
+	: visualFactory_(0x100, 0x1000)
+{}
+
 VisualSystem::~VisualSystem()
-{
-	auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
-	for (auto const& effect : visuals_) {
-		del(effect.Value.get(), true);
-	}
-}
+{}
 
 ClientMultiVisual* VisualSystem::Get(ComponentHandle handle)
 {
-	auto it = visuals_.find(handle);
-	if (it) {
-		return it.Value().get();
-	} else {
-		return nullptr;
-	}
+	return visualFactory_.Get(handle);
 }
 
 ClientMultiVisual* VisualSystem::Create()
 {
-	auto effect = MakeGameUnique<ClientMultiVisual>();
-	// FIXME - assign handle!
-	// effect->Handle
-
-	auto ptr = effect.get();
-	visuals_.insert(std::make_pair(effect->Handle, std::move(effect)));
-	return ptr;
+	return visualFactory_.Create();
 }
 
 void VisualSystem::Destroy(ClientMultiVisual* effect)
 {
-	auto it = std::find_if(visuals_.begin(), visuals_.end(), [&](auto const& v) { return v.Value.get() == effect; });
-	if (it != visuals_.end()) {
-		auto del = GetStaticSymbols().ecl__MultiEffectHandler__Delete;
-		del(it.Value().get(), false);
-		visuals_.erase(it);
-	}
+	visualFactory_.Destroy(effect->Handle);
 }
 
 void VisualSystem::Update()
 {
 	auto update = GetStaticSymbols().ecl__MultiEffectHandler__Update;
-	for (auto const& effect : visuals_) {
-		update(effect.Value.get());
+	for (auto effect : visualFactory_.Components) {
+		update(effect);
 	}
 
 	for (auto const& handle : pendingVisualDeletes_) {

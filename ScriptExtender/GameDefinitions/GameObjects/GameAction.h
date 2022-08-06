@@ -10,6 +10,8 @@ namespace dse
 	{
 		struct GameAction : public ProtectedGameObject<GameAction>
 		{
+			static constexpr auto ObjectTypeIndex = ObjectHandleType::Unknown;
+
 			void * VMT;
 			FixedString SomeFS;
 			NetId NetID;
@@ -21,9 +23,9 @@ namespace dse
 			float ActivateTimer;
 		};
 
-		struct GameActionManager : public ProtectedGameObject<GameActionManager>
+		struct GameActionManager : public NetworkComponentFactory<GameAction>
 		{
-			uint8_t Unmapped[0x130];
+			BaseComponentProcessingSystem<EntityWorld> ComponentProcessingSystem;
 			Set<GameAction *> GameActions;
 		};
 

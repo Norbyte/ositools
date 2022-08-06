@@ -11,6 +11,10 @@ BEGIN_NS(ecl::lua::visual)
 struct ClientMultiVisual : public MultiEffectHandler
 {
 public:
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::ExtenderClientVisual;
+
+	~ClientMultiVisual();
+	void SetHandle(ComponentHandle handle);
 	void ParseFromStats(char const* effect, std::optional<char const*> weaponBones);
 	Visual* AddVisual(lua_State* L, FixedString const& visualId);
 	void Delete(lua_State* L);
@@ -22,6 +26,7 @@ public:
 class VisualSystem
 {
 public:
+	VisualSystem();
 	~VisualSystem();
 
 	ClientMultiVisual* Get(ComponentHandle handle);
@@ -32,7 +37,7 @@ public:
 	void RequestDeleteVisual(ComponentHandle handle);
 
 private:
-	Map<ComponentHandle, GameUniquePtr<ClientMultiVisual>> visuals_;
+	ComponentFactory<ClientMultiVisual> visualFactory_;
 	ObjectSet<ComponentHandle> pendingVisualDeletes_;
 };
 

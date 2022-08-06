@@ -37,16 +37,17 @@ struct BaseComponent
 	}
 };
 
-struct IObjectFactory : public ProtectedGameObject<IObjectFactory>
+struct IObjectFactory : public Noncopyable<IObjectFactory>
 {
-	void* VMT;
-	/*virtual ComponentHandle * ReevaluateHandle(ComponentHandle & handle) = 0;
-	virtual ComponentHandle * GetFreeHandle(ComponentHandle & handle) = 0;
+	virtual ComponentHandle * ReevaluateHandle(ComponentHandle & handle) = 0;
+	virtual ComponentHandle GetFreeHandle() = 0;
 	virtual bool IsFreeIndex(uint32_t index) = 0;
 	virtual bool IsReservedIndex(uint32_t index) = 0;
-	virtual uint64_t ReserveIndex(uint32_t index) = 0;
-	virtual uint64_t UnreserveIndex(uint32_t index) = 0;
-	virtual void Destroy() = 0;*/
+	virtual void Reserve(uint32_t index) = 0;
+	virtual void Unreserve(uint32_t index) = 0;
+	virtual ~IObjectFactory();
+	virtual void Destroy() = 0;
+	virtual void OnDestroyObject(void* object) = 0;
 };
 
 struct ObjectFactoryNullLocker : public IObjectFactory
@@ -61,13 +62,47 @@ template <class TComponent, class TLocker = ObjectFactoryNullLocker>
 struct ComponentFactory : public TLocker
 {
 	static constexpr ObjectHandleType ObjectTypeIndex = TComponent::ObjectTypeIndex;
+	static constexpr uintptr_t ReservedFlag = 0x4000000000000000ull;
 
 	Array<TComponent*> ComponentsByHandleIndex;
 	Array<uint32_t> Salts;
-	Set<uint32_t> FreeSlotIndices;
+	Queue<uint32_t> FreeHandleQueue;
 	ObjectSet<TComponent*> Components;
-	bool HasReservedIndices;
-	uint32_t MaximumSize;
+	bool NeedsFreeHandleQueueRebuild{false};
+	uint32_t MaximumSize{ 0 };
+
+	ComponentFactory(uint32_t size, uint32_t maximumSize)
+	{
+		assert(size <= maximumSize);
+		MaximumSize = maximumSize;
+		Grow(size);
+	}
+
+	~ComponentFactory()
+	{}
+
+	TComponent* Create()
+	{
+		auto handle = GetFreeHandle();
+		auto component = GameAlloc<TComponent>();
+		component->SetHandle(handle);
+		Components.push_back(component);
+		ComponentsByHandleIndex[handle.GetIndex()] = component;
+		return component;
+	}
+
+	bool Destroy(ComponentHandle handle)
+	{
+		auto component = Get(handle);
+		if (!component) {
+			ERR("Couldn't find object to destroy (%016x)", handle.Handle);
+			return false;
+		}
+
+		Components.remove(component);
+		ReleaseHandle(handle);
+		return true;
+	}
 
 	TComponent* Get(ComponentHandle handle) const
 	{
@@ -85,6 +120,110 @@ struct ComponentFactory : public TLocker
 		}
 
 		return ComponentsByHandleIndex[index];
+	}
+
+	ComponentHandle* ReevaluateHandle(ComponentHandle& handle) override
+	{
+		if (!Get(handle)) {
+			handle = ComponentHandle{};
+		}
+
+		return &handle;
+	}
+
+	ComponentHandle GetFreeHandle() override
+	{
+		if (NeedsFreeHandleQueueRebuild) {
+			RebuildFreeHandleQueue();
+		}
+
+		if (FreeHandleQueue.empty()) {
+			Grow();
+		}
+
+		auto index = FreeHandleQueue.pop();
+		auto salt = Salts[index];
+		return ComponentHandle((uint32_t)ObjectTypeIndex, index, salt);
+	}
+
+	bool IsFreeIndex(uint32_t index) override
+	{
+		return index < ComponentsByHandleIndex.size()
+			&& ComponentsByHandleIndex[index] == nullptr;
+	}
+
+	bool IsReservedIndex(uint32_t index) override
+	{
+		return index < ComponentsByHandleIndex.size()
+			&& ComponentsByHandleIndex[index] == (TComponent*)ReservedFlag;
+	}
+
+	void Reserve(uint32_t index) override
+	{
+		assert(index < ComponentsByHandleIndex.size());
+		assert(ComponentsByHandleIndex[index] == nullptr);
+		ComponentsByHandleIndex[index] = (TComponent*)ReservedFlag;
+		NeedsFreeHandleQueueRebuild = true;
+	}
+
+	void Unreserve(uint32_t index) override
+	{
+		assert(index < ComponentsByHandleIndex.size());
+		assert(ComponentsByHandleIndex[index] == (TComponent*)ReservedFlag);
+		ComponentsByHandleIndex[index] = nullptr;
+		NeedsFreeHandleQueueRebuild = true;
+	}
+
+	void Destroy() override
+	{
+		throw std::runtime_error("Unsupported!");
+	}
+
+	void OnDestroyObject(void* object) override
+	{
+	}
+
+private:
+	void ReleaseHandle(ComponentHandle handle)
+	{
+		if (NeedsFreeHandleQueueRebuild) {
+			RebuildFreeHandleQueue();
+		}
+
+		auto index = handle.GetIndex();
+		Salts[index] = (Salts[index] + 1) % 0x400000;
+		FreeHandleQueue.push(index);
+		ComponentsByHandleIndex[index] = nullptr;
+	}
+
+	void Grow()
+	{
+		Grow(ComponentsByHandleIndex.size() + ComponentsByHandleIndex.grow_size());
+	}
+
+	void Grow(uint32_t newSize)
+	{
+		auto curSize = ComponentsByHandleIndex.size();
+		ComponentsByHandleIndex.resize(newSize);
+		Salts.resize(newSize);
+
+		for (auto i = curSize; i < newSize; i++) {
+			ComponentsByHandleIndex[i] = nullptr;
+			Salts[i] = 1;
+			FreeHandleQueue.push(i);
+		}
+	}
+
+	void RebuildFreeHandleQueue()
+	{
+		FreeHandleQueue.clear();
+		for (uint32_t i = 0; i < ComponentsByHandleIndex.size(); i++) {
+			if (!ComponentsByHandleIndex[i]) {
+				FreeHandleQueue.push(i);
+			}
+		}
+
+		NeedsFreeHandleQueueRebuild = false;
 	}
 };
 
@@ -446,14 +585,14 @@ struct IEoCClientObject : public IGameObject
 	virtual void LoadAi() = 0;
 	virtual void UnloadAi() = 0;
 	virtual bool Unknown0() = 0;
-	virtual bool Unknown1() = 0;
+	virtual bool GetFadeIn() = 0;
 	virtual bool Unknown2() = 0;
-	virtual float Unknown3() = 0;
-	virtual FixedString * Unknown4() = 0;
+	virtual float GetOpacity() = 0;
+	virtual FixedString * GetFadeGroup() = 0;
 	virtual bool Unknown5() = 0;
 	virtual float GetHeight2() = 0;
 	virtual TranslatedString* GetDisplayName(TranslatedString& name) = 0;
-	virtual float Unknown6() = 0;
+	virtual float GetPathRadius() = 0;
 	virtual void SavegameVisit() = 0;
 	virtual void SetLight(FixedString *) = 0;
 	virtual void * GetLight() = 0;

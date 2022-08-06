@@ -9,6 +9,8 @@
 
 namespace dse
 {
+	IObjectFactory::~IObjectFactory() {}
+
 	StaticSymbols* gStaticSymbols{ nullptr };
 
 	void InitStaticSymbols()
