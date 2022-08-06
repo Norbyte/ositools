@@ -20,6 +20,7 @@
 #include <GameDefinitions/PropertyMaps/Ai.inl>
 #include <GameDefinitions/PropertyMaps/Combat.inl>
 #include <GameDefinitions/PropertyMaps/Input.inl>
+#include <GameDefinitions/PropertyMaps/Physics.inl>
 
 
 BEGIN_CLS(TypeInformation)

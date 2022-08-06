@@ -432,9 +432,9 @@ namespace dse
 			glm::vec3 MovementStartPosition;
 			glm::vec3 LadderPosition;
 			glm::vec3 field_4C;
-			void* PhysicsObject;
+			PhysicsObject* Physics;
 			void* Light;
-			void* AiObject;
+			eoc::Ai* AI;
 			int field_70;
 			UserId UserID;
 			int16_t ReservedForPlayerId;

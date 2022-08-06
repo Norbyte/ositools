@@ -35,9 +35,9 @@ struct Scenery : public IEoCClientObject
 	float Scale;
 	FixedString GUID;
 	uint8_t CoverAmount;
-	void* Physics; // PhysicsObject*
-	SoundSettings* Sound;
-	FadeSettings* Fade;
+	PhysicsObject* Physics;
+	SoundSettings* SoundParams;
+	FadeSettings* FadeParams;
 	GameObjectTemplate* Template;
 	FixedString VisualResourceID;
 	FixedString DefaultState;

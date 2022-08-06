@@ -41,6 +41,11 @@ struct LocalTemplateManager;
 struct GlobalCacheTemplateManager;
 struct LevelCacheTemplateManager;
 
+struct PhysicsObject;
+struct PhysicsShape;
+struct PhysicsRagdoll;
+
+struct Skeleton;
 struct Scene;
 struct MoveableObject;
 struct Visual;
@@ -140,6 +145,7 @@ namespace ecl
 	struct Level;
 	struct Status;
 	struct StatusMachine;
+	struct Scenery;
 
 	struct EntityManager;
 	struct ShroudManager;

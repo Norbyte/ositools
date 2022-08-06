@@ -397,6 +397,9 @@
     <ClInclude Include="GameDefinitions\Components\Scenery.h">
       <Filter>GameDefinitions\Components</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Physics.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -851,6 +854,9 @@
       <Filter>Lua\Libs</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\Scenery.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Physics.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>

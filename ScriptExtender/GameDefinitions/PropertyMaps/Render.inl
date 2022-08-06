@@ -10,11 +10,6 @@ P_REF(Bound)
 END_CLS()
 
 
-BEGIN_CLS(PhysicsRagdoll)
-// No simple way to expose for now
-END_CLS()
-
-
 BEGIN_CLS(Actor)
 P_REF(Skeleton)
 P_REF(MeshBindings)
@@ -138,14 +133,6 @@ P_FUN(OverrideVec2MaterialParameter, OverrideMaterialParameter<glm::vec2>)
 P_FUN(OverrideVec3MaterialParameter, OverrideVec3MaterialParameter)
 P_FUN(OverrideVec4MaterialParameter, OverrideVec4MaterialParameter)
 P_FUN(OverrideTextureMaterialParameter, OverrideTextureMaterialParameter)
-END_CLS()
-
-
-BEGIN_CLS(PhysicsShape)
-P_RO(Name)
-P_RO(Translate)
-P_RO(Rotate)
-P_RO(Scale)
 END_CLS()
 
 

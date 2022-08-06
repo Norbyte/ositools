@@ -4,10 +4,9 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Resource.h>
+#include <GameDefinitions/GameObjects/Physics.h>
 
 BEGIN_SE()
-
-struct PhysicsRagdoll;
 
 struct Skeleton : public ProtectedGameObject<Skeleton>
 {
@@ -54,24 +53,6 @@ struct MeshBinding : public ProtectedGameObject<MeshBinding>
 	void* Unknown2;
 	glm::mat4 Transform;
 	Bound Bound;
-};
-
-struct PhysicsRagdoll
-{
-	void* RagdollSubsystem;
-	void* PhysicsTemplate;
-	float field_10;
-	int ActiveCount;
-	int field_18;
-	int field_1C;
-	ObjectSet<glm::mat4> matrix4s;
-	ObjectSet<int8_t> chars;
-	__int64 field_60;
-	bool HasHitEvent;
-	float IgnoreHitsForTime;
-	Skeleton* Skeleton;
-	void* Animation;
-	glm::mat4 Transform;
 };
 
 struct CallbackThreadsafetyHelper
@@ -325,15 +306,6 @@ struct Visual : public MoveableObject
 	void OverrideVec3MaterialParameter(FixedString const& parameter, glm::vec3 const& vec, bool isColor);
 	void OverrideVec4MaterialParameter(FixedString const& parameter, glm::vec4 const& vec, bool isColor);
 	void OverrideTextureMaterialParameter(FixedString const& parameter, FixedString const& textureId);
-};
-
-struct PhysicsShape : public ProtectedGameObject<PhysicsShape>
-{
-	void* VMT;
-	FixedString Name;
-	glm::vec3 Translate;
-	glm::mat3 Rotate;
-	float Scale;
 };
 
 struct PropertyList

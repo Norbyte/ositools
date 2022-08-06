@@ -286,8 +286,8 @@ namespace dse
 			glm::mat3 WorldRot;
 			float Scale;
 			glm::vec3 Velocity;
-			void* PhysicsObject;
-			void* AiObject;
+			PhysicsObject* Physics;
+			eoc::Ai* AI;
 			ItemTemplate* CurrentTemplate;
 			stats::Item* Stats;
 			FixedString StatsId;
