@@ -288,12 +288,30 @@ inline void CallGetter(lua_State* L, T* obj, R(T::* fun)()) {
 }
 
 
+template <class R, class T, class TEnum>
+inline void CallFlagGetter(lua_State* L, T* obj, R(T::* fun)(TEnum), TEnum flag) {
+	static_assert(ReturnValueSize(Overload<R>{}) == 1, "Can only push 1 value to stack in a getter.");
+	StackCheck _(L, 1);
+	auto retval = (obj->*fun)(flag);
+	PushReturnValue(L, retval);
+}
+
+
 template <class T, class TArg>
 inline void CallSetter(lua_State* L, T* obj, int index, void(T::* fun)(TArg)) {
 	static_assert(ReturnValueSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
 	StackCheck _(L, 0);
 	auto val = checked_get_param_cv<TArg>(L, index);
 	(obj->*fun)(val);
+}
+
+
+template <class T, class TArg, class TEnum>
+inline void CallFlagSetter(lua_State* L, T* obj, int index, void(T::* fun)(TEnum, TArg), TEnum flag) {
+	static_assert(ReturnValueSize(Overload<TArg>{}) == 1, "Can only get 1 value from stack in a setter.");
+	StackCheck _(L, 0);
+	auto val = checked_get_param_cv<TArg>(L, index);
+	(obj->*fun)(flag, val);
 }
 
 

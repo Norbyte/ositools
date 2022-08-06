@@ -178,6 +178,11 @@ namespace dse
 			ObjectSet<FixedString> GetDeltaMods();
 			void LuaSetDeltaMods(lua_State* L);
 
+			ItemFlags LuaGetFlags();
+			void LuaSetFlags(ItemFlags flags);
+			bool LuaHasFlag(ItemFlags flag);
+			void LuaSetFlag(ItemFlags flag, bool set);
+
 			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
 			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);
 		};
@@ -324,6 +329,11 @@ namespace dse
 			ObjectSet<FixedString> GetInventoryItemGuids();
 			std::optional<FixedString> GetOwnerCharacter();
 			ObjectSet<FixedString> GetDeltaMods();
+
+			ItemFlags LuaGetFlags();
+			void LuaSetFlags(ItemFlags flags);
+			bool LuaHasFlag(ItemFlags flag);
+			void LuaSetFlag(ItemFlags flag, bool set);
 
 			static PropertyOperationResult LuaFallbackGet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop);
 			static PropertyOperationResult LuaFallbackSet(lua_State* L, dse::lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop, int index);

@@ -294,6 +294,11 @@ namespace dse
 			Skill* GetSkillInfo(FixedString const& skill);
 			std::optional<int> GetCustomStatValue(FixedString const& statId);
 			bool SetCustomStatValue(FixedString const& statId, int value);
+
+			CharacterFlags LuaGetFlags();
+			void LuaSetFlags(CharacterFlags flags);
+			bool LuaHasFlag(CharacterFlags flag);
+			void LuaSetFlag(CharacterFlags flag, bool set);
 		};
 
 		struct CharacterFactory : public NetworkComponentFactory<Character>
@@ -521,6 +526,11 @@ namespace dse
 			Item* GetItemBySlot(stats::ItemSlot32 slot);
 			std::optional<FixedString> GetItemGuidBySlot(stats::ItemSlot32 slot);
 			std::optional<int> GetCustomStatValue(FixedString const& statId);
+
+			CharacterFlags LuaGetFlags();
+			void LuaSetFlags(CharacterFlags flags);
+			bool LuaHasFlag(CharacterFlags flag);
+			void LuaSetFlag(CharacterFlags flag, bool set);
 		};
 
 	}

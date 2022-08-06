@@ -123,25 +123,14 @@ END_CLS()
 BEGIN_CLS(esv::Character)
 INHERIT(IEoCServerObject)
 P_RO(WorldPos)
-P_RO(Flags)
+P_GETTER_SETTER(Flags, LuaGetFlags, LuaSetFlags)
+P_BITMASK_GETTER_SETTER(Flags, LuaHasFlag, LuaSetFlag)
 
 #if defined(GENERATING_TYPE_INFO)
-for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
-	ADD_TYPE(label.Key, bool)
-}
 ADD_TYPE("PlayerCustomData", eoc::PlayerCustomData)
 #endif
 
 #if defined(GENERATING_PROPMAP)
-for (auto const& label : EnumInfo<esv::CharacterFlags>::Values) {
-	pm.AddRawProperty(label.Key.GetString(),
-		&(GenericGetOffsetBitmaskFlag<esv::CharacterFlags>),
-		&CharacterSetFlag,
-		offsetof(esv::Character, Flags),
-		(uint64_t)label.Value
-	);
-}
-
 pm.AddProperty("PlayerCustomData",
 	[](lua_State* L, LifetimeHandle const& lifetime, esv::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->PlayerData) {
@@ -343,14 +332,16 @@ END_CLS()
 BEGIN_CLS(ecl::Character)
 INHERIT(IEoCClientReplicatedObject)
 P_RO(WorldPos)
-P_RO(Flags)
-P_BITMASK(Flags)
+P_GETTER_SETTER(Flags, LuaGetFlags, LuaSetFlags)
+P_BITMASK_GETTER_SETTER(Flags, LuaHasFlag, LuaSetFlag)
 P_RO(CurrentLevel)
 // Available via IGameObject
 // P_RO(Scale)
 // P_RO(Velocity)
 P(MovementStartPosition)
 P(LadderPosition)
+P_REF(AI)
+P_REF(Physics)
 P_RO(UserID)
 P_RO(ReservedForPlayerId)
 P_RO(ReservedForPlayerId2)

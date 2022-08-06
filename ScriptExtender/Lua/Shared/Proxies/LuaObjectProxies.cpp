@@ -17,6 +17,7 @@
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>
 #include <Extender/ScriptExtender.h>
@@ -54,6 +55,21 @@ void AddBitmaskProperty(GenericPropertyMap& pm, std::size_t offset)
 	}
 }
 
+template <class TCls, class TEnum>
+void AddBitmaskProperty(LuaPropertyMap<TCls>& pm, std::size_t offset,
+	typename LuaPropertyMap<TCls>::PropertyAccessors::Getter* getter,
+	typename LuaPropertyMap<TCls>::PropertyAccessors::Setter* setter)
+{
+	for (auto const& label : EnumInfo<TEnum>::Values) {
+		pm.AddProperty(label.Key.GetString(),
+			getter,
+			setter,
+			offset,
+			(uint64_t)label.Value
+		);
+	}
+}
+
 PropertyOperationResult CharacterSetFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
 	auto ch = reinterpret_cast<esv::Character*>(obj);
@@ -79,6 +95,7 @@ PropertyOperationResult CharacterSetFlag(lua_State* L, LifetimeHandle const& lif
 #define P_REF(prop)
 #define P_REF_TY(prop, ty)
 #define P_BITMASK(prop)
+#define P_BITMASK_GETTER_SETTER(prop, getter, setter)
 #define PN(name, prop)
 #define PN_RO(name, prop)
 #define PN_REF(name, prop)
@@ -98,6 +115,7 @@ PropertyOperationResult CharacterSetFlag(lua_State* L, LifetimeHandle const& lif
 #undef P_REF
 #undef P_REF_TY
 #undef P_BITMASK
+#undef P_BITMASK_GETTER_SETTER
 #undef PN
 #undef PN_RO
 #undef PN_REF
@@ -171,6 +189,17 @@ bool EnableWriteProtectedWrites{ false };
 
 #define P_BITMASK(prop) AddBitmaskProperty<decltype(PM::ObjectType::prop)>(pm, offsetof(PM::ObjectType, prop));
 
+#define P_BITMASK_GETTER_SETTER(prop, getter, setter) \
+	AddBitmaskProperty<PM::ObjectType, decltype(PM::ObjectType::prop)>(pm, offsetof(PM::ObjectType, prop), \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, std::size_t offset, uint64_t flag) { \
+			CallFlagGetter(L, obj, &PM::ObjectType::getter, (decltype(PM::ObjectType::prop))flag); \
+			return PropertyOperationResult::Success; \
+		}, \
+		[](lua_State* L, LifetimeHandle const& lifetime, PM::ObjectType* obj, int index, std::size_t offset, uint64_t flag) { \
+			CallFlagSetter(L, obj, index, &PM::ObjectType::setter, (decltype(PM::ObjectType::prop))flag); \
+			return PropertyOperationResult::Success; \
+		});
+
 #define PN(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
@@ -240,6 +269,7 @@ bool EnableWriteProtectedWrites{ false };
 #undef P_REF
 #undef P_REF_TY
 #undef P_BITMASK
+#undef P_BITMASK_GETTER_SETTER
 #undef PN
 #undef PN_RO
 #undef PN_REF

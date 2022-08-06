@@ -52,6 +52,31 @@ ObjectSet<FixedString> Item::GetDeltaMods()
 	}
 }
 
+ItemFlags Item::LuaGetFlags()
+{
+	return Flags;
+}
+
+void Item::LuaSetFlags(ItemFlags flags)
+{
+	SetFlags((uint64_t)flags & ~(uint64_t)Flags);
+	ClearFlags((uint64_t)Flags & ~(uint64_t)flags);
+}
+
+bool Item::LuaHasFlag(ItemFlags flag)
+{
+	return (Flags & flag) == flag;
+}
+
+void Item::LuaSetFlag(ItemFlags flag, bool set)
+{
+	if (set) {
+		SetFlags((uint64_t)flag);
+	} else {
+		ClearFlags((uint64_t)flag);
+	}
+}
+
 PropertyOperationResult Item::LuaFallbackGet(lua_State* L, lua::LifetimeHandle const& lifetime, Item* object, FixedString const& prop)
 {
 	auto const& map = StaticLuaPropertyMap<stats::Item>::PropertyMap;
@@ -76,6 +101,32 @@ PropertyOperationResult Item::LuaFallbackSet(lua_State* L, lua::LifetimeHandle c
 		return map.SetProperty(L, lifetime, object->Stats, prop, index);
 	} else {
 		return PropertyOperationResult::NoSuchProperty;
+	}
+}
+
+
+SceneryFlags Scenery::LuaGetFlags()
+{
+	return Flags;
+}
+
+void Scenery::LuaSetFlags(SceneryFlags flags)
+{
+	SetFlags((uint64_t)flags & ~(uint64_t)Flags);
+	ClearFlags((uint64_t)Flags & ~(uint64_t)flags);
+}
+
+bool Scenery::LuaHasFlag(SceneryFlags flag)
+{
+	return (Flags & flag) == flag;
+}
+
+void Scenery::LuaSetFlag(SceneryFlags flag, bool set)
+{
+	if (set) {
+		SetFlags((uint64_t)flag);
+	} else {
+		ClearFlags((uint64_t)flag);
 	}
 }
 

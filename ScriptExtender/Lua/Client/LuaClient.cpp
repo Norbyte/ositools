@@ -7,6 +7,7 @@
 #include <Extender/Client/ExtensionStateClient.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 #include <GameDefinitions/GameObjects/Ai.h>
+#include <GameDefinitions/Components/Scenery.h>
 #include "resource.h"
 
 #include <Lua/Client/ClientEntitySystem.inl>

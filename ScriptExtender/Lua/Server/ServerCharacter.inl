@@ -129,4 +129,29 @@ bool Character::SetCustomStatValue(FixedString const& statId, int value)
 	return esv::CustomStatHelpers::SetCharacterStat(Base.Entity, statId.GetString(), value);
 }
 
+CharacterFlags Character::LuaGetFlags()
+{
+	return Flags;
+}
+
+void Character::LuaSetFlags(CharacterFlags flags)
+{
+	SetFlags((uint64_t)flags & ~(uint64_t)Flags);
+	ClearFlags((uint64_t)Flags & ~(uint64_t)flags);
+}
+
+bool Character::LuaHasFlag(CharacterFlags flag)
+{
+	return (Flags & flag) == flag;
+}
+
+void Character::LuaSetFlag(CharacterFlags flag, bool set)
+{
+	if (set) {
+		SetFlags((uint64_t)flag);
+	} else {
+		ClearFlags((uint64_t)flag);
+	}
+}
+
 END_NS()

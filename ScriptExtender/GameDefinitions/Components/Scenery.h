@@ -44,6 +44,11 @@ struct Scenery : public IEoCClientObject
 	uint8_t RenderChannel;
 	bool IsBlocker;
 	SceneryRenderFlags RenderFlags;
+
+	SceneryFlags LuaGetFlags();
+	void LuaSetFlags(SceneryFlags flags);
+	bool LuaHasFlag(SceneryFlags flag);
+	void LuaSetFlag(SceneryFlags flag, bool set);
 };
 
 

@@ -57,6 +57,7 @@ void RegisterObjectProxyTypeInformation()
 #define P_REF(prop) ty.Members.insert(std::make_pair(FixedString(#prop), GetTypeInfoRef<decltype(TClass::prop)>()));
 #define P_REF_TY(prop, propty) ty.Members.insert(std::make_pair(FixedString(#prop), GetTypeInfoRef<propty>()));
 #define P_BITMASK(prop) AddBitmaskTypeInfo<decltype(TClass::prop)>(ty);
+#define P_BITMASK_GETTER_SETTER(prop, getter, setter) AddBitmaskTypeInfo<decltype(TClass::prop)>(ty);
 #define PN(name, prop) ty.Members.insert(std::make_pair(FixedString(#name), GetTypeInfoRef<decltype(TClass::prop)>()));
 #define PN_RO(name, prop) ty.Members.insert(std::make_pair(FixedString(#name), GetTypeInfoRef<decltype(TClass::prop)>()));
 #define PN_REF(name, prop) ty.Members.insert(std::make_pair(FixedString(#name), GetTypeInfoRef<decltype(TClass::prop)>()));
@@ -76,6 +77,7 @@ void RegisterObjectProxyTypeInformation()
 #undef P_REF
 #undef P_REF_TY
 #undef P_BITMASK
+#undef P_BITMASK_GETTER_SETTER
 #undef PN
 #undef PN_RO
 #undef PN_REF

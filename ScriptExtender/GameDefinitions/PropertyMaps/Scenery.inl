@@ -1,5 +1,6 @@
 BEGIN_CLS(ecl::Scenery)
-P_RO(Flags)
+P_GETTER_SETTER(Flags, LuaGetFlags, LuaSetFlags)
+P_BITMASK_GETTER_SETTER(Flags, LuaHasFlag, LuaSetFlag)
 P_RO(LevelName)
 P_RO(GUID)
 P(CoverAmount)
