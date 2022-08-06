@@ -2,6 +2,7 @@
 #include <GameDefinitions/Components/Projectile.h>
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <GameDefinitions/CustomStats.h>
 #include <Lua/Server/LuaBindingServer.h>
@@ -111,6 +112,7 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 		
 	MAKE_REF(ClientCharacter, ecl::Character)
 	MAKE_REF(ClientItem, ecl::Item)
+	MAKE_REF(ClientScenery, ecl::Scenery)
 
 	// FIXME - triggers need a prototype for each type, since they multiple-inherit from IEoCServerObject
 	/*case ObjectType::ServerEocPointTrigger:

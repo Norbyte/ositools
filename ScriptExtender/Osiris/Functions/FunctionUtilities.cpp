@@ -2,6 +2,7 @@
 #include "FunctionLibrary.h"
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/Components/Projectile.h>
+#include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Symbols.h>
 
 namespace dse
@@ -325,6 +326,11 @@ namespace dse
 				return item;
 			}
 
+			auto scenery = GetComponent<Scenery>(nameGuid, false);
+			if (scenery != nullptr) {
+				return scenery;
+			}
+
 			if (logError) {
 				OsiError("No EoC client object found with GUID '" << nameGuid << "'");
 			}
@@ -344,6 +350,9 @@ namespace dse
 
 			case ObjectHandleType::ClientItem:
 				return GetComponent<Item>(handle, logError);
+
+			case ObjectHandleType::ClientScenery:
+				return GetComponent<Scenery>(handle, logError);
 
 			default:
 				OsiError("GameObjects with handle type " << handle.GetType() << " not supported!");

@@ -505,7 +505,9 @@ pm.AddProperty("MyGuid",
 pm.AddProperty("NetID",
 	[](lua_State* L, LifetimeHandle const& lifetime, stats::Character* obj, std::size_t offset, uint64_t flag) {
 		if (obj->GameObject) {
-			push(L, ((IGameObject*)obj->GameObject)->NetID);
+			NetId netId;
+			obj->GameObject->GetNetID(netId);
+			push(L, netId);
 		} else {
 			push(L, nullptr);
 		}

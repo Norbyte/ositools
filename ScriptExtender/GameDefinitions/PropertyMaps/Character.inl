@@ -341,7 +341,7 @@ P_REF(Skills)
 END_CLS()
 
 BEGIN_CLS(ecl::Character)
-INHERIT(IEoCClientObject)
+INHERIT(IEoCClientReplicatedObject)
 P_RO(WorldPos)
 P_RO(Flags)
 P_BITMASK(Flags)

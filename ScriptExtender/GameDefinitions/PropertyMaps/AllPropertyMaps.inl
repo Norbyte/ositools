@@ -4,6 +4,7 @@
 #include <GameDefinitions/PropertyMaps/Statuses.inl>
 #include <GameDefinitions/PropertyMaps/Character.inl>
 #include <GameDefinitions/PropertyMaps/Item.inl>
+#include <GameDefinitions/PropertyMaps/Scenery.inl>
 #include <GameDefinitions/PropertyMaps/Level.inl>
 #include <GameDefinitions/PropertyMaps/Stats.inl>
 #include <GameDefinitions/PropertyMaps/Surface.inl>

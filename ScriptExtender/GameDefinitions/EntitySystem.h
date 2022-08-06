@@ -95,7 +95,7 @@ struct ComponentFactory : public TLocker
 	{
 		auto component = Get(handle);
 		if (!component) {
-			ERR("Couldn't find object to destroy (%016x)", handle.Handle);
+			OsiError("Couldn't find object to destroy: " << std::hex << handle.Handle);
 			return false;
 		}
 
@@ -574,9 +574,6 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	Visual* LuaGetVisual();
 
 	BaseComponent Base;
-	FixedString MyGuid;
-
-	NetId NetID;
 };
 
 struct IEoCClientObject : public IGameObject
@@ -584,12 +581,12 @@ struct IEoCClientObject : public IGameObject
 	virtual eoc::Ai * GetAi() = 0;
 	virtual void LoadAi() = 0;
 	virtual void UnloadAi() = 0;
-	virtual bool Unknown0() = 0;
+	virtual bool IsFadeable() = 0;
 	virtual bool GetFadeIn() = 0;
 	virtual bool Unknown2() = 0;
 	virtual float GetOpacity() = 0;
 	virtual FixedString * GetFadeGroup() = 0;
-	virtual bool Unknown5() = 0;
+	virtual bool IsSeeThrough() = 0;
 	virtual float GetHeight2() = 0;
 	virtual TranslatedString* GetDisplayName(TranslatedString& name) = 0;
 	virtual float GetPathRadius() = 0;
@@ -607,6 +604,12 @@ struct IEoCClientObject : public IGameObject
 	RefReturn<ecl::Status> LuaGetStatusByHandle(ComponentHandle const& handle);
 	ObjectSet<FixedString> LuaGetStatusIds();
 	UserReturn LuaGetStatuses(lua_State* L);
+};
+
+struct IEoCClientReplicatedObject : public IEoCClientObject
+{
+	FixedString MyGuid;
+	NetId NetID;
 };
 
 struct IEoCServerObject : public IGameObject
@@ -634,6 +637,9 @@ struct IEoCServerObject : public IGameObject
 	GameObjectTemplate* CreateCacheTemplate();
 	void LuaTransformTemplate(ProxyParam<GameObjectTemplate> tmpl);
 	void ForceSyncToPeers();
+
+	FixedString MyGuid;
+	NetId NetID;
 };
 
 template <class TWorld>

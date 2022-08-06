@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameDefinitions/Base/Base.h>
+#include <functional>
 
 BEGIN_SE()
 

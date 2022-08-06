@@ -263,7 +263,7 @@ namespace dse
 
 	namespace ecl
 	{
-		struct Item : public IEoCClientObject
+		struct Item : public IEoCClientReplicatedObject
 		{
 			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Item;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientItem;

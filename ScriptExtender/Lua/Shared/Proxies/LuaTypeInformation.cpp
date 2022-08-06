@@ -7,6 +7,7 @@
 #include <GameDefinitions/GameObjects/Material.h>
 #include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>
 #include <Extender/ScriptExtender.h>

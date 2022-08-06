@@ -394,6 +394,9 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaCppObjectProxy.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Components\Scenery.h">
+      <Filter>GameDefinitions\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -846,6 +849,9 @@
     </None>
     <None Include="Lua\Libs\ServerCombat.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Scenery.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

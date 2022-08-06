@@ -720,7 +720,7 @@ public:
 		o.writeIndex_ = 0;
 	}
 
-	virtual ~Queue()
+	~Queue()
 	{
 		if (buf_) {
 			GameDeleteArray<T>(buf_, capacity_);

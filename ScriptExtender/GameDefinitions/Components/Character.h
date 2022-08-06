@@ -408,7 +408,7 @@ namespace dse
 		};
 
 
-		struct Character : public IEoCClientObject
+		struct Character : public IEoCClientReplicatedObject
 		{
 			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
 			static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientCharacter;

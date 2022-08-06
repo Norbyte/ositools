@@ -572,8 +572,7 @@ namespace dse
 		CRITICAL_SECTION CriticalSection3;
 		int64_t WorkerThreadJobVMT;
 		int64_t field_D0;
-		RefMap<uint32_t, UIObjectFunctor *> UIObjectCreators;
-		int64_t field_E8;
+		Map<uint32_t, UIObjectFunctor *> UIObjectCreators;
 		ObjectSet<UIObject *> UIObjects;
 		bool ShouldPrepareRenderData;
 		bool SortNeeded;
