@@ -707,12 +707,12 @@ AttributeType ValueList::GetPropertyType() const
 		return AttributeType::Requirements;
 	}
 
+	if (Name == GFS.strAttributeFlags) {
+		return AttributeType::Flags;
+	}
+
 	if (Values.size() > 0) {
-		if (Name == GFS.strAttributeFlags) {
-			return AttributeType::Flags;
-		} else {
-			return AttributeType::Enumeration;
-		}
+		return AttributeType::Enumeration;
 	}
 		
 	return AttributeType::Unknown;
