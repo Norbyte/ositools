@@ -44,6 +44,7 @@ struct LevelCacheTemplateManager;
 struct PhysicsObject;
 struct PhysicsShape;
 struct PhysicsRagdoll;
+struct PhysicsScene;
 
 struct Skeleton;
 struct Scene;

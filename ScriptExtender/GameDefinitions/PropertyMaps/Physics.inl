@@ -13,7 +13,8 @@ END_CLS()
 
 BEGIN_CLS(PhysicsObject)
 P_RO(TemplateID)
-P_REF(PhysicsScene)
+// Not mapped to ensure that dumping objects won't dump the entire scene
+// P_REF(PhysicsScene)
 P_REF(GameObject)
 P_REF(Shapes)
 P_RO(Translate)

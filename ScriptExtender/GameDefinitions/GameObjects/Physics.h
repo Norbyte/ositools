@@ -42,7 +42,6 @@ struct PhysicsObject : public ProtectedGameObject<PhysicsObject>
 	virtual void CreateRenderableObjects(ObjectSet<RenderableObject*>&) = 0;
 	virtual void field_28() = 0;
 
-	void* VMT;
 	FixedString TemplateID;
 	PhysicsScene* PhysicsScene;
 	IGameObject* GameObject;

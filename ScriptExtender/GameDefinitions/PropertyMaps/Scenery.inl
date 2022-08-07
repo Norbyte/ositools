@@ -18,7 +18,6 @@ END_CLS()
 
 
 BEGIN_CLS(ecl::Scenery::SoundSettings)
-P_REF(Template)
 P(SoundAttenuation)
 P(SoundInitEvent)
 P(LoopSound)
@@ -26,7 +25,6 @@ END_CLS()
 
 
 BEGIN_CLS(ecl::Scenery::FadeSettings)
-P_REF(Template)
 P(FadeIn)
 P(Opacity)
 P(FadeGroup)

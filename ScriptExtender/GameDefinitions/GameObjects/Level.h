@@ -32,7 +32,7 @@ namespace dse
 		void* DummyManager;
 		void* ReferenceManager;
 		void* Scene;
-		void* PhysicsScene;
+		PhysicsScene* PhysicsScene;
 		ObjectSet<void*> GameObjects;
 		void* Text3DManager;
 		ObjectSet<void*> ActivePersistentLevelTemplates;

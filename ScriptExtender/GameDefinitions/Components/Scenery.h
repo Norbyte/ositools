@@ -13,7 +13,9 @@ struct Scenery : public IEoCClientObject
 
 	struct SoundSettings
 	{
+#if !defined(OSI_EOCAPP)
 		GameObjectTemplate* Template;
+#endif
 		int16_t SoundAttenuation;
 		FixedString SoundInitEvent;
 		FixedString LoopSound;
@@ -21,13 +23,14 @@ struct Scenery : public IEoCClientObject
 
 	struct FadeSettings
 	{
+#if !defined(OSI_EOCAPP)
 		GameObjectTemplate* Template;
+#endif
 		bool FadeIn;
 		float Opacity;
 		FixedString FadeGroup;
 	};
 
-	BaseComponent Base;
 	glm::vec3 Translation;
 	SceneryFlags Flags;
 	FixedString LevelName;
