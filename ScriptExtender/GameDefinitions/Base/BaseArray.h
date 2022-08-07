@@ -778,9 +778,11 @@ public:
 		} else {
 			buf_[writeIndex_] = value;
 			size_++;
-			if (++writeIndex_ == capacity_) {
-				writeIndex_ = 0;
-			}
+			writeIndex_++;
+		}
+
+		if (writeIndex_ == capacity_) {
+			writeIndex_ = 0;
 		}
 	}
 
