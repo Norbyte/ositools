@@ -46,25 +46,15 @@ UIObject* Create(char const* name, char const* path, int layer, std::optional<UI
 
 	auto absPath = sym.ToPath(path, PathRootType::Data);
 
-	std::optional<uint32_t> creatorId;
-	for (auto const& creator : uiManager->UIObjectCreators) {
-		if (creator.Value->Path.Name == absPath.c_str()) {
-			creatorId = creator.Key;
-			break;
-		}
-	}
+	auto creator = GameAlloc<UIObjectFunctor>();
+	creator->Path.Name = absPath;
+	creator->CreateProc = CustomUI::Creator;
 
-	if (!creatorId) {
-		auto creator = GameAlloc<UIObjectFunctor>();
-		creator->Path.Name = absPath;
-		creator->CreateProc = CustomUI::Creator;
-
-		sym.RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
-		creatorId = NextCustomCreatorId++;
-	}
+	sym.RegisterUIObjectCreator(uiManager, NextCustomCreatorId, creator);
+	auto creatorId = NextCustomCreatorId++;
 
 	ComponentHandle handle;
-	sym.UIObjectManager__CreateUIObject(uiManager, &handle, layer, *creatorId, flags, 0x80, 0);
+	sym.UIObjectManager__CreateUIObject(uiManager, &handle, layer, creatorId, flags, 0x80, 0);
 
 	if (!handle) {
 		OsiError("Failed to create UI object");
