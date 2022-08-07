@@ -270,7 +270,7 @@ Visual* ClientMultiVisual::AddVisual(lua_State* L, FixedString const& visualId)
 		allowTPose = try_gettable<bool>(L, "AllowTPose", 3, false);
 		resetScale = try_gettable<bool>(L, "ResetScale", 3, false);
 		syncAnimationWithParent = try_gettable<bool>(L, "SyncAnimationWithParent", 3, false);
-		boneName = try_gettable<FixedString>(L, "Bone", 3, GFS.strEmpty);
+		boneName = try_gettable<FixedString>(L, "Bone", 3, GFS.strNull);
 		color1 = try_gettable<glm::vec4>(L, "Color1", 3);
 		color2 = try_gettable<glm::vec4>(L, "Color2", 3);
 		color3 = try_gettable<glm::vec4>(L, "Color3", 3);
