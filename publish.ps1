@@ -41,6 +41,11 @@ function Build-Extender
 
 	Write-Output " ===== BUILDING GAME EXTENDER ===== "
 	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	
+	x64\Release\SymbolTableGenerator.exe "x64\Game Release\OsiExtenderEoCApp.pdb" "ScriptExtender\GameHooks\OsiExtenderEoCApp.symtab"
+	
+	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	
 	Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
 	msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }

@@ -347,3 +347,4 @@ republish-manifest.bat
 ScriptExtenderTypeGen
 ScriptExtender/LuaScripts/Libs/IdeHelpersNativeData.lua
 *.diagsession
+*.symtab

@@ -5,6 +5,7 @@
 #include <Extender/ScriptExtender.h>
 #include <Osiris/Shared/NodeHooks.h>
 #include <Lua/Client/ClientUI.h>
+#include <resource.h>
 
 #include <vector>
 #include <string>
@@ -39,6 +40,219 @@ static const ExcludedSymbol ExcludedSymbols[] = {
 	{&dse::CustomFunctionInjector::StaticQueryWrapper, 0x120}
 };
 
+class CrashReporterSymbolData
+{
+public:
+	struct SymbolData
+	{
+		// Address relative to binary
+		uint32_t RVA;
+		// Size of symbol
+		uint32_t Size;
+		// Address of name (null-terminated) in string table
+		uint32_t NameOffset;
+	};
+
+	void Load(int resourceId)
+	{
+		auto symbols = GetExeResource(resourceId);
+		if (symbols) {
+			symbols_.resize(symbols->size());
+			memcpy(symbols_.data(), symbols->data(), symbols->size());
+		}
+	}
+
+	uint32_t NumSymbols() const
+	{
+		if (symbols_.empty()) return 0;
+		return *(uint32_t*)symbols_.data();
+	}
+
+	SymbolData* FindSymbol(uint32_t rva) const
+	{
+		if (symbols_.empty()) return nullptr;
+		
+		SymbolData* sym = (SymbolData *)(symbols_.data() + 4);
+		auto it = std::lower_bound(sym, sym + NumSymbols(), rva, [](SymbolData const& sym, uint32_t rva) {
+			return sym.RVA < rva;
+		});
+
+		if (it == sym + NumSymbols()) {
+			return nullptr;
+		}
+
+		if (rva >= it->RVA && rva < it->RVA + it->Size) {
+			return it;
+		}
+
+		if (it > sym && rva >= (it-1)->RVA && rva < (it - 1)->RVA + (it - 1)->Size) {
+			return (it - 1);
+		}
+
+		return nullptr;
+	}
+
+	char const* GetName(SymbolData* sym) const
+	{
+		return (char const*)(symbols_.data() + 4 + (sizeof(SymbolData) * NumSymbols()) + sym->NameOffset);
+	}
+
+private:
+	std::vector<uint8_t> symbols_;
+};
+
+#pragma pack(push, 1)
+// PE32+ header
+// see: https://docs.microsoft.com/en-us/windows/win32/debug/pe-format
+struct PeHeader
+{
+	uint32_t Magic;
+	uint16_t Machine;
+	uint16_t NumberOfSections;
+	uint32_t TimeDateStamp;
+	uint32_t PointerToSymbolTable;
+	uint32_t NumberOfSymbols;
+	uint16_t SizeOfOptionalHeader;
+	uint16_t Characteristics;
+	uint16_t OptionalMagic;
+	uint8_t  MajorLinkerVersion;
+	uint8_t  MinorLinkerVersion;
+	uint32_t SizeOfCode;
+	uint32_t SizeOfInitializedData;
+	uint32_t SizeOfUninitializedData;
+	uint32_t AddressOfEntryPoint;
+	uint32_t BaseOfCode;
+	uint64_t ImageBase;
+};
+#pragma pack(pop)
+
+class BacktraceDumper
+{
+public:
+	// Show at most 20 lines to avoid flooding the crash reporter dialog
+	static constexpr unsigned MaxLines = 20;
+	void* Backtrace[32];
+	WORD BacktraceSize;
+
+	void Initialize()
+	{
+		eocAppSymbols_.Load(IDR_SYMBOL_TABLE_EOCAPP);
+		symbols_.Load(IDR_SYMBOL_TABLE_EXTENDER);
+
+		MODULEINFO moduleInfo;
+		auto hEoCApp = GetModuleHandleW(L"EoCApp.exe");
+		if (hEoCApp != NULL) {
+			if (GetModuleInformation(GetCurrentProcess(), hEoCApp, &moduleInfo, sizeof(moduleInfo))) {
+				eocAppStart_ = (uint8_t*)moduleInfo.lpBaseOfDll;
+				eocAppEnd_ = eocAppStart_ + moduleInfo.SizeOfImage;
+			}
+		}
+
+		if (GetModuleInformation(GetCurrentProcess(), gThisModule, &moduleInfo, sizeof(moduleInfo))) {
+			extenderStart_ = (uint8_t*)moduleInfo.lpBaseOfDll;
+			extenderEnd_ = extenderStart_ + moduleInfo.SizeOfImage;
+		}
+
+		moduleHandles_.reserve(0x100);
+		modules_.reserve(0x100);
+	}
+
+	void __forceinline SnapshotThread()
+	{
+		BacktraceSize = CaptureStackBackTrace(2, (DWORD)std::size(Backtrace), Backtrace, NULL);
+	}
+
+	bool TryGetFunctionName(std::stringstream& ss, uint8_t* bt, bool isFirst)
+	{
+		char moduleName[0x100];
+
+		if (bt >= extenderStart_ && bt < extenderEnd_) {
+			auto symbolOffset = (uint32_t)((uint8_t*)bt - extenderStart_);
+			auto sym = symbols_.FindSymbol(symbolOffset);
+			if (sym) {
+				ss << symbols_.GetName(sym) << "+0x" << std::hex << std::setw(0) << (uint64_t)(symbolOffset - sym->RVA) << std::endl;
+				return true;
+			}
+		}
+
+		if (bt >= eocAppStart_ && bt < eocAppEnd_) {
+			auto symbolOffset = (uint32_t)((uint8_t*)bt - eocAppStart_);
+			auto sym = eocAppSymbols_.FindSymbol(symbolOffset);
+			if (sym) {
+				ss << symbols_.GetName(sym) << "+0x" << std::hex << std::setw(0) << (uint64_t)(symbolOffset - sym->RVA) << std::endl;
+				return true;
+			}
+		}
+
+		bool found{ false };
+		for (auto i = 0; i < modules_.size(); i++) {
+			auto const& mod = modules_[i];
+			if (bt >= mod.lpBaseOfDll && bt <= (uint8_t*)mod.lpBaseOfDll + mod.SizeOfImage) {
+				DWORD length = GetModuleBaseNameA(GetCurrentProcess(), moduleHandles_[i], moduleName, sizeof(moduleName) - 1);
+				if (length) {
+					moduleName[length] = 0;
+
+					// Remove ntdll/kernelbase error handler frames from the top of the stack
+					if (isFirst && (_stricmp(moduleName, "ntdll.dll") == 0 || _stricmp(moduleName, "kernelbase.dll") == 0)) {
+						return false;
+					}
+
+					auto base = (mod.lpBaseOfDll == eocAppStart_) ? 0x140000000 : 0x180000000;
+					auto relativeAddr = (uint8_t*)bt - (uint8_t*)mod.lpBaseOfDll + base;
+					ss << moduleName << "!0x" << std::hex << (uint64_t)relativeAddr;
+					found = true;
+					break;
+				}
+			}
+		}
+
+		if (!found) {
+			ss << "Unknown!0x" << std::hex << std::setfill('0') << std::setw(16) << (uint64_t)bt;
+		}
+
+		ss << std::endl;
+		return true;
+	}
+
+	std::string DumpBacktrace()
+	{
+		DWORD cbNeeded{ 0 };
+		EnumProcessModules(GetCurrentProcess(), NULL, 0, &cbNeeded);
+
+		moduleHandles_.resize(cbNeeded / sizeof(HMODULE));
+		EnumProcessModules(GetCurrentProcess(), moduleHandles_.data(), (DWORD)moduleHandles_.size() * sizeof(HMODULE), &cbNeeded);
+
+		modules_.resize(moduleHandles_.size());
+		for (std::size_t i = 0; i < modules_.size(); i++) {
+			GetModuleInformation(GetCurrentProcess(), moduleHandles_[i], modules_.data() + i, sizeof(MODULEINFO));
+		}
+
+		std::stringstream backtrace;
+
+		unsigned lines{ 0 };
+		for (auto i = 0; i < BacktraceSize; i++) {
+			auto bt = Backtrace[i];
+			if (TryGetFunctionName(backtrace, (uint8_t*)bt, backtrace.str().empty())) {
+				if (lines++ >= MaxLines) {
+					break;
+				}
+			}
+		}
+
+		return backtrace.str();
+	}
+
+private:
+	CrashReporterSymbolData eocAppSymbols_;
+	CrashReporterSymbolData symbols_;
+	std::vector<HMODULE> moduleHandles_;
+	std::vector<MODULEINFO> modules_;
+	uint8_t* eocAppStart_{ nullptr };
+	uint8_t* eocAppEnd_{ nullptr };
+	uint8_t* extenderStart_{ nullptr };
+	uint8_t* extenderEnd_{ nullptr };
+};
+
 class CrashReporter
 {
 public:
@@ -48,10 +262,10 @@ public:
 		DWORD ThreadId;
 	};
 
-	static void * Backtrace[32];
 	static bool Initialized;
 	static LPTOP_LEVEL_EXCEPTION_FILTER PrevExceptionFilter;
 	static std::terminate_handler PrevTerminateHandler;
+	static BacktraceDumper Dumper;
 
 	static void Initialize()
 	{
@@ -59,6 +273,7 @@ public:
 
 		PrevExceptionFilter = SetUnhandledExceptionFilter(&OnUnhandledException);
 		PrevTerminateHandler = std::set_terminate(&OnTerminate);
+		Dumper.Initialize();
 		Initialized = true;
 	}
 
@@ -166,19 +381,19 @@ public:
 		moduleStart = moduleInfo.lpBaseOfDll;
 		moduleEnd = (uint8_t *)moduleStart + moduleInfo.SizeOfImage;
 
-		auto traceSize = CaptureStackBackTrace(2, (DWORD)std::size(Backtrace), Backtrace, NULL);
-		for (auto i = 0; i < traceSize; i++) {
-			if (Backtrace[i] >= moduleStart && Backtrace[i] < moduleEnd) {
+		Dumper.SnapshotThread();
+		for (auto i = 0; i < Dumper.BacktraceSize; i++) {
+			if (Dumper.Backtrace[i] >= moduleStart && Dumper.Backtrace[i] < moduleEnd) {
 				bool excluded = false;
 				for (auto const & sym : ExcludedSymbols) {
-					if (Backtrace[i] >= sym.Ptr && Backtrace[i] < (uint8_t *)sym.Ptr + sym.Size) {
+					if (Dumper.Backtrace[i] >= sym.Ptr && Dumper.Backtrace[i] < (uint8_t *)sym.Ptr + sym.Size) {
 						excluded = true;
 						break;
 					}
 				}
 
 				for (auto const& trampoline : gRegisteredTrampolines) {
-					if (Backtrace[i] >= trampoline && Backtrace[i] < (uint8_t*)trampoline + 0x120) {
+					if (Dumper.Backtrace[i] >= trampoline && Dumper.Backtrace[i] < (uint8_t*)trampoline + 0x120) {
 						excluded = true;
 						break;
 					}
@@ -222,11 +437,23 @@ public:
 		CloseHandle(pi.hThread);
 	}
 
+	static void CreateBacktraceFile(std::wstring const& dumpPath)
+	{
+		auto bt = Dumper.DumpBacktrace();
+		std::wstring btPath = dumpPath;
+		btPath += L".bt";
+		std::ofstream f(btPath.c_str(), std::ios::out | std::ios::binary);
+		if (f.good()) {
+			f.write(bt.data(), bt.size());
+		}
+	}
+
 	static DWORD WINAPI CrashReporterThread(LPVOID userData)
 	{
 		auto params = (CrashReporterThreadParams *)userData;
 		auto dumpPath = GetMiniDumpPath();
 		if (CreateMiniDump(params, dumpPath)) {
+			CreateBacktraceFile(dumpPath);
 			LaunchCrashReporter(dumpPath);
 		}
 
@@ -268,10 +495,10 @@ public:
 	}
 };
 
-void * CrashReporter::Backtrace[32];
 bool CrashReporter::Initialized{ false };
 LPTOP_LEVEL_EXCEPTION_FILTER CrashReporter::PrevExceptionFilter{ nullptr };
 std::terminate_handler CrashReporter::PrevTerminateHandler{ nullptr };
+BacktraceDumper CrashReporter::Dumper;
 
 void InitCrashReporting()
 {

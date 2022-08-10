@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30330.147
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptExtender", "ScriptExtender\ScriptExtender.vcxproj", "{4723A102-E4DE-4874-BED7-6DA4EC2D0C80}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -25,6 +25,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceBundler", "ResourceBundler\ResourceBundler.vcxproj", "{E6B4C00D-0231-4177-B365-6B3DF1669F85}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Updater", "Updater\Updater.vcxproj", "{64C761E8-2D71-4BD0-A3E3-85F9246AEAA3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SymbolTableGenerator", "SymbolTableGenerator\SymbolTableGenerator.vcxproj", "{225A4088-AC3B-4C7A-8507-2194B3A9805A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,14 @@ Global
 		{64C761E8-2D71-4BD0-A3E3-85F9246AEAA3}.Game Debug|x64.Build.0 = Debug|x64
 		{64C761E8-2D71-4BD0-A3E3-85F9246AEAA3}.Game Release|x64.ActiveCfg = Release|x64
 		{64C761E8-2D71-4BD0-A3E3-85F9246AEAA3}.Game Release|x64.Build.0 = Release|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Editor Debug|x64.ActiveCfg = Debug|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Editor Debug|x64.Build.0 = Debug|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Editor Release|x64.ActiveCfg = Release|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Editor Release|x64.Build.0 = Release|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Game Debug|x64.ActiveCfg = Debug|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Game Debug|x64.Build.0 = Debug|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Game Release|x64.ActiveCfg = Release|x64
+		{225A4088-AC3B-4C7A-8507-2194B3A9805A}.Game Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
