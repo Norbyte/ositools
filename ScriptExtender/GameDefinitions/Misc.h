@@ -178,9 +178,9 @@ namespace dse
 		bool field_BCF;
 		bool FadeCharacters;
 		bool SomeAiLogFlag;
-		bool field_BD2;
-		bool field_BD3;
-		bool AutoIdentifyItems;
+		bool AiLevelScaleScores;
+		bool AiUsePositionScores;
+		bool PeaceMode;
 		bool EnableVoiceLogging;
 		bool MouseLock;
 		bool DisableEdgePanning;
