@@ -10,8 +10,6 @@ END_CLS()
 
 
 BEGIN_CLS(IGameObject)
-P_REF(Base)
-
 P_GETTER(Handle, LuaGetHandle)
 P_GETTER_SETTER(Translate, LuaGetTranslate, LuaSetTranslate)
 P_GETTER_SETTER(Rotation, LuaGetRotate, LuaSetRotate)
@@ -27,6 +25,7 @@ END_CLS()
 
 BEGIN_CLS(IEoCServerObject)
 INHERIT(IGameObject)
+P_REF(Base)
 P_RO(MyGuid)
 P_RO(NetID)
 P_GETTER(DisplayName, LuaGetDisplayName)
@@ -42,6 +41,7 @@ END_CLS()
 
 BEGIN_CLS(IEoCClientObject)
 INHERIT(IGameObject)
+P_REF(Base)
 P_GETTER(DisplayName, LuaGetDisplayName)
 P_FUN(GetStatus, LuaGetStatus)
 P_FUN(GetStatusByType, LuaGetStatusByType)

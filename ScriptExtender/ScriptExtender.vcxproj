@@ -272,6 +272,7 @@
     <None Include="GameDefinitions\PropertyMaps\Stats.inl" />
     <None Include="GameDefinitions\PropertyMaps\Statuses.inl" />
     <None Include="GameDefinitions\PropertyMaps\Surface.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Trigger.inl" />
     <None Include="GameDefinitions\PropertyMaps\UI.inl" />
     <None Include="GameDefinitions\PropertyMaps\UseActions.inl" />
     <None Include="GameDefinitions\StatsObject.inl" />

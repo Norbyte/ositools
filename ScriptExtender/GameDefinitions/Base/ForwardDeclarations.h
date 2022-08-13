@@ -26,6 +26,7 @@ struct IGameObject;
 struct IEoCServerObject;
 struct IEoCClientObject;
 struct Trigger;
+struct AreaTrigger;
 struct Level;
 
 struct ModuleInfo;
@@ -111,7 +112,8 @@ namespace esv
 	struct Level;
 	struct Status;
 	struct StatusMachine;
-	struct Trigger;
+	struct AreaTriggerBase;
+	struct PointTriggerBase;
 
 	struct SurfaceManager;
 	struct GameActionManager;
