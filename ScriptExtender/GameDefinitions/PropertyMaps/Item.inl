@@ -185,6 +185,34 @@ P_REF(PinnedContainerTags)
 END_CLS()
 
 
+BEGIN_CLS(esv::ItemMover)
+P_REF(Movements)
+END_CLS()
+
+
+BEGIN_CLS(esv::ItemMovement::InventoryAddParams)
+P(OwnerCharacterHandle)
+P(Flags)
+P(InventoryNetId)
+P(Slot)
+END_CLS()
+
+
+BEGIN_CLS(esv::ItemMovement)
+P_RO(ItemHandle)
+P_RO(MoverHandle)
+P(Moving)
+P(MovingToInventory)
+P(MovingInWorld)
+P(HeightForced)
+P(AiBounds)
+P(WakePhysics)
+P(DoHitTest)
+P_REF(InventoryAdd)
+P(MoveEventName)
+END_CLS()
+
+
 BEGIN_CLS(ecl::Item)
 INHERIT(IEoCClientReplicatedObject)
 P_RO(WorldPos)

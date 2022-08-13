@@ -41,7 +41,7 @@ namespace dse
         Transform Transform;
         bool NonUniformScale;
 #if defined(OSI_EOCAPP)
-        OverrideableProperty<FixedString> UnknownProperty;
+        uint64_t _Unknown1[2];
 #endif
         OverrideableProperty<FixedString> VisualTemplate;
         OverrideableProperty<FixedString> PhysicsTemplate;
@@ -71,7 +71,7 @@ namespace dse
         ObjectSet<GameObjectTemplate*> RootTemplates;
         Map<TemplateHandle, GameObjectTemplate*> RootTemplatesByHandle;
         Map<TemplateHandle, GameObjectTemplate*> GlobalTemplatesByHandle;
-        Map<uint16_t, ObjectSet<GameObjectTemplate*>> TemplatesByType;
+        Map<uint16_t, ObjectSet<GameObjectTemplate*>*> TemplatesByType;
         uint32_t FirstHandle;
         uint32_t LastHandle;
         FixedString ModName;
@@ -91,7 +91,7 @@ namespace dse
     {
         void* VMT;
         Map<FixedString, GameObjectTemplate*> Templates;
-        Map<uint16_t, ObjectSet<GameObjectTemplate*>> TemplatesByType;
+        Map<uint16_t, ObjectSet<GameObjectTemplate*>*> TemplatesByType;
         Map<TemplateHandle, GameObjectTemplate*> TemplatesByHandle;
         uint32_t RefCount;
         bool Locked;
@@ -487,7 +487,13 @@ namespace dse
         void* PhysicsTypeData;
         OverrideableProperty<FixedString> TriggerType;
         OverrideableProperty<uint32_t> PhysicsType;
+#if defined(OSI_EOCAPP)
+        uint64_t UnknownTrigger1;
+#endif
         OverrideableProperty<glm::vec4> Color4;
+#if defined(OSI_EOCAPP)
+        uint64_t UnknownTrigger2;
+#endif
         OverrideableProperty<FixedString> TriggerGizmoOverride;
     };
 

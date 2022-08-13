@@ -526,6 +526,8 @@ void TypeInformationRepository::Initialize()
 	RegisterStaticType<ComponentHandle>("ComponentHandle", LuaTypeId::Integer);
 	RegisterStaticType<EntityHandle>("EntityHandle", LuaTypeId::Integer);
 	RegisterStaticType<char const*>("CString", LuaTypeId::String);
+	RegisterStaticType<Guid>("Guid", LuaTypeId::String);
+	RegisterStaticType<TemplateHandle>("TemplateHandle", LuaTypeId::Integer);
 	RegisterStaticType<ig::InvokeDataValue>("IggyInvokeDataValue", LuaTypeId::Any);
 
 	auto& ivec2 = RegisterStaticType<glm::ivec2>("ivec2", LuaTypeId::Array);
