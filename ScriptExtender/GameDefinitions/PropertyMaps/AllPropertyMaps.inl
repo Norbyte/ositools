@@ -21,6 +21,7 @@
 #include <GameDefinitions/PropertyMaps/Combat.inl>
 #include <GameDefinitions/PropertyMaps/Input.inl>
 #include <GameDefinitions/PropertyMaps/Physics.inl>
+#include <GameDefinitions/PropertyMaps/Trigger.inl>
 
 
 BEGIN_CLS(TypeInformation)
@@ -114,34 +115,6 @@ P(CriticalRoll)
 P(HitReason)
 P(DamageSourceType)
 P(Strength)
-END_CLS()
-
-
-BEGIN_CLS(Trigger)
-// P_RO(Handle) // Defunct, use GetObjectHandle() instead
-// P_RO(UUID) // Defunct, use GetGuid() instead
-P_RO(SyncFlags)
-P_RO(Translate)
-P_RO(TriggerType)
-P_RO(IsGlobal)
-P_RO(Level)
-P_RO(Rotate)
-P_RO(Rotate2)
-END_CLS()
-
-
-// FIXME - stub!
-BEGIN_CLS(esv::AtmosphereTrigger)
-END_CLS()
-
-
-BEGIN_CLS(SoundVolumeTriggerData)
-P_RO(AmbientSound)
-P_RO(Occlusion)
-P_RO(AuxBus1)
-P_RO(AuxBus2)
-P_RO(AuxBus3)
-P_RO(AuxBus4)
 END_CLS()
 
 
@@ -272,9 +245,6 @@ P_FUN(ConvertDamageType, ConvertDamageType)
 P_FUN(AggregateSameTypeDamages, AggregateSameTypeDamages)
 P_FUN(ToTable, LuaToTable)
 P_FUN(CopyFrom, LuaCopyFrom)
-END_CLS()
-
-BEGIN_CLS(esv::Trigger)
 END_CLS()
 
 BEGIN_CLS(Resource)
