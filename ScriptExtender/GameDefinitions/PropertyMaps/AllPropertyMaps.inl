@@ -22,6 +22,7 @@
 #include <GameDefinitions/PropertyMaps/Input.inl>
 #include <GameDefinitions/PropertyMaps/Physics.inl>
 #include <GameDefinitions/PropertyMaps/Trigger.inl>
+#include <GameDefinitions/PropertyMaps/GameAction.inl>
 
 
 BEGIN_CLS(TypeInformation)

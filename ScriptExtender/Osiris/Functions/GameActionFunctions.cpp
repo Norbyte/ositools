@@ -52,7 +52,7 @@ namespace dse::esv
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			args[5].Set((int64_t)action->MyHandle);
+			args[5].Set((int64_t)action->Handle);
 			return true;
 		}
 
@@ -67,7 +67,7 @@ namespace dse::esv
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			args[5].Set((int64_t)action->MyHandle);
+			args[5].Set((int64_t)action->Handle);
 			return true;
 		}
 
@@ -125,7 +125,7 @@ namespace dse::esv
 			lib.esv__WallAction__CreateWall(action);
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			args[8].Set((int64_t)action->MyHandle);
+			args[8].Set((int64_t)action->Handle);
 			return true;
 		}
 
@@ -148,7 +148,7 @@ namespace dse::esv
 			lib.esv__TornadoAction__Setup(action);
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			args[8].Set((int64_t)action->MyHandle);
+			args[8].Set((int64_t)action->Handle);
 			return true;
 		}
 
@@ -161,7 +161,7 @@ namespace dse::esv
 			auto actionMgr = lib.GetGameActionManager();
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			args[5].Set((int64_t)action->MyHandle);
+			args[5].Set((int64_t)action->Handle);
 			return true;
 		}
 
@@ -214,7 +214,7 @@ namespace dse::esv
 			lib.esv__GameObjectMoveAction__Setup(action, objectHandle, &targetPosition);
 			lib.AddGameActionWrapper(actionMgr, action);
 
-			gameActionHandle.Set((int64_t)action->MyHandle);
+			gameActionHandle.Set((int64_t)action->Handle);
 			return true;
 		}
 

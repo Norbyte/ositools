@@ -179,7 +179,7 @@ namespace dse::esv
 
 			auto parent = GetEntityWorld()->GetGameObject(inventory->ParentHandle);
 			if (parent != nullptr) {
-				parentGuid.Set(parent->MyGuid);
+				parentGuid.Set(*parent->GetGuid());
 				return true;
 			} else {
 				return false;
