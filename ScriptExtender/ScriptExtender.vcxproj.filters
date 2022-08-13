@@ -400,6 +400,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\Physics.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Movement.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -863,6 +866,9 @@
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\GameAction.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\States.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>

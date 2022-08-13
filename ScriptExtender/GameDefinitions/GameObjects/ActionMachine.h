@@ -58,7 +58,7 @@ namespace dse
 
 			struct ActionMachine * Machine;
 			uint8_t Unknown1;
-			uint32_t Unknown2;
+			uint32_t TransactionId;
 
 			LegacyPropertyMapBase * GetPropertyMap();
 			char const * GetTypeName();
@@ -76,7 +76,7 @@ namespace dse
 			ObjectSet<void*> DamageDividers; // DamageDivider::Damage ?
 		};
 
-		struct ASAttack : public ProtectedGameObject<ActionState>
+		struct ASAttack : public ActionState
 		{
 			ComponentHandle TargetHandle;
 			glm::vec3 TargetPosition;
@@ -174,7 +174,7 @@ namespace dse
 			using ResetStateProc = bool (esv::ActionMachine* self, bool force);
 
 			ComponentHandle CharacterHandle;
-			ActionMachineLayer Layers[3];
+			std::array<ActionMachineLayer, 3> Layers;
 			bool IsEntering[4];
 			uint16_t Unknown;
 			ActionState * CachedActions[24];

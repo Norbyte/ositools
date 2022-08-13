@@ -8,6 +8,7 @@
 #include <GameDefinitions/GameObjects/Render.h>
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/GameObjects/Physics.h>
+#include <GameDefinitions/GameObjects/Movement.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>

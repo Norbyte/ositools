@@ -151,6 +151,7 @@ namespace dse
 		};
 
 
+
 		struct Character : public IEoCServerObject
 		{
 			static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
@@ -192,7 +193,7 @@ namespace dse
 			bool U5;
 			stats::Character * Stats;
 			ComponentHandle InventoryHandle;
-			void * MovementMachine;
+			esv::MovementMachine * MovementMachine;
 			esv::ActionMachine * ActionMachine;
 			void * SteeringMachine;
 			void * BehaviourMachine;

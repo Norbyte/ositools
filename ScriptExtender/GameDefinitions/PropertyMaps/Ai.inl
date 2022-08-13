@@ -3,6 +3,17 @@ P_REF(Modifiers)
 END_CLS()
 
 
+BEGIN_CLS(eoc::PathParams)
+P(GridRadius)
+P(XZ)
+P(AiGridFlag0x10)
+P(AvoidTraps)
+P(field_16)
+P(NoSurfaceEffects)
+P_REF(SurfacePathInfluences)
+END_CLS()
+
+
 BEGIN_CLS(esv::AiModifiers)
 P_REF(BaseModifiers)
 P_REF(Archetypes)

@@ -23,6 +23,7 @@
 #include <GameDefinitions/PropertyMaps/Physics.inl>
 #include <GameDefinitions/PropertyMaps/Trigger.inl>
 #include <GameDefinitions/PropertyMaps/GameAction.inl>
+#include <GameDefinitions/PropertyMaps/States.inl>
 
 
 BEGIN_CLS(TypeInformation)
@@ -116,41 +117,6 @@ P(CriticalRoll)
 P(HitReason)
 P(DamageSourceType)
 P(Strength)
-END_CLS()
-
-
-BEGIN_CLS(esv::ASAttack)
-P_RO(TargetHandle)
-P_RO(TargetPosition)
-P_RO(IsFinished)
-P_RO(AlwaysHit)
-P_RO(TimeRemaining)
-P_RO(AnimationFinished)
-P_RO(TotalHits)
-P_RO(TotalHitOffHand)
-P_RO(TotalShoots)
-P_RO(TotalShootsOffHand)
-P_RO(HitCount)
-P_RO(HitCountOffHand)
-P_RO(ShootCount)
-P_RO(ShootCountOffHand)
-P_RO(MainWeaponHandle)
-P_RO(OffWeaponHandle)
-P_RO(MainHandHitType)
-P_RO(OffHandHitType)
-P_RO(ProjectileUsesHitObject)
-P_RO(ProjectileStartPosition)
-P_RO(ProjectileTargetPosition)
-P_RO(DamageDurability)
-END_CLS()
-
-
-BEGIN_CLS(esv::ASPrepareSkill)
-P_RO(SkillId)
-P_RO(PrepareAnimationInit)
-P_RO(PrepareAnimationLoop)
-P_RO(IsFinished)
-P_RO(IsEntered)
 END_CLS()
 
 

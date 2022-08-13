@@ -189,8 +189,9 @@ P_RO(ForceSynchCount)
 P_REF(Stats)
 // FIXME - convert to a TypedHandle? / add resolve mechanism
 P_RO(InventoryHandle)
+P_REF(MovementMachine)
+P_REF(ActionMachine)
 // FIXME - refs to all state machines 
-// P_REF(ActionMachine)
 // P_REF(SteeringMachine)
 // P_REF(BehaviourMachine)
 // P_REF(CharacterSupervisor)

@@ -33,11 +33,11 @@ namespace dse::eoc
     {
         uint64_t field_0;
         int GridRadius;
-        float XZ[2];
-        bool field_14;
-        bool field_15;
+        glm::vec2 XZ;
+        bool AiGridFlag0x10;
+        bool AvoidTraps;
         bool field_16;
-        bool field_17;
+        bool NoSurfaceEffects;
         ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
     };
 
