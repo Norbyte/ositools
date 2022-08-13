@@ -125,25 +125,15 @@ Trigger* LuaGetTrigger(lua_State* L, int index)
 	}
 }
 
-UserReturn GetTrigger(lua_State* L)
+Trigger* GetTrigger(lua_State* L)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
-		return luaL_error(L, "Attempted to resolve trigger handle in restricted context");
+		luaL_error(L, "Attempted to resolve trigger handle in restricted context");
+		return nullptr;
 	}
 
-	StackCheck _(L, 1);
-	Trigger* trigger = LuaGetTrigger(L, 1);
-
-	if (trigger != nullptr) {
-		// FIXME - re-add when migrated to new proxy
-		/*MakeObjectRef(L, trigger);*/
-		push(L, nullptr);
-	} else {
-		push(L, nullptr);
-	}
-
-	return 1;
+	return LuaGetTrigger(L, 1);
 }
 
 IGameObject* LuaGetGameObject(lua_State* L, int idx)

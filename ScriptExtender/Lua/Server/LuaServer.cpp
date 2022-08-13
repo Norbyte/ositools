@@ -108,29 +108,25 @@ void LuaPolymorphic<IGameObject>::MakeRef(lua_State* L, IGameObject* obj, Lifeti
 	MAKE_REF(ServerCharacter, esv::Character)
 	MAKE_REF(ServerItem, esv::Item)
 	MAKE_REF(ServerProjectile, esv::Projectile)
+	MAKE_REF(ServerEocPointTrigger, esv::EocPointTrigger)
+	MAKE_REF(ServerEocAreaTrigger, esv::EocAreaTrigger)
+	MAKE_REF(ServerStartTrigger, esv::StartTrigger)
+	MAKE_REF(ServerTeleportTrigger, esv::TeleportTrigger)
+	MAKE_REF(ServerEventTrigger, esv::EventTrigger)
+	MAKE_REF(ServerCrimeAreaTrigger, esv::CrimeAreaTrigger)
+	MAKE_REF(ServerCrimeRegionTrigger, esv::CrimeRegionTrigger)
 	MAKE_REF(ServerAtmosphereTrigger, esv::AtmosphereTrigger)
+	MAKE_REF(ServerAIHintAreaTrigger, esv::AIHintAreaTrigger)
+	MAKE_REF(ServerMusicVolumeTrigger, esv::MusicVolumeTrigger)
+	MAKE_REF(ServerSecretRegionTrigger, esv::SecretRegionTrigger)
+	MAKE_REF(ServerStatsAreaTrigger, esv::StatsAreaTrigger)
+	MAKE_REF(ServerSoundVolumeTrigger, esv::SoundVolumeTrigger)
+	MAKE_REF(ServerRegionTrigger, esv::RegionTrigger)
+	MAKE_REF(ServerExplorationTrigger, esv::ExplorationTrigger)
 		
 	MAKE_REF(ClientCharacter, ecl::Character)
 	MAKE_REF(ClientItem, ecl::Item)
 	MAKE_REF(ClientScenery, ecl::Scenery)
-
-	// FIXME - triggers need a prototype for each type, since they multiple-inherit from IEoCServerObject
-	/*case ObjectType::ServerEocPointTrigger:
-	case ObjectType::ServerEocAreaTrigger:
-	case ObjectType::ServerStartTrigger:
-	case ObjectType::ServerTeleportTrigger:
-	case ObjectType::ServerEventTrigger:
-	case ObjectType::ServerCrimeAreaTrigger:
-	case ObjectType::ServerCrimeRegionTrigger:
-	case ObjectType::ServerAIHintAreaTrigger:
-	case ObjectType::ServerMusicVolumeTrigger:
-	case ObjectType::ServerSecretRegionTrigger:
-	case ObjectType::ServerStatsAreaTrigger:
-	case ObjectType::ServerSoundVolumeTrigger:
-	case ObjectType::ServerRegionTrigger:
-	case ObjectType::ServerExplorationTrigger:
-		MakeDirectObjectRef(L, lifetime, static_cast<esv::Trigger*>(obj));
-		return;*/
 
 	default:
 		OsiError("Creating Lua proxy for unknown handle type " << handle.GetType());
@@ -148,6 +144,26 @@ void LuaPolymorphic<IEoCServerObject>::MakeRef(lua_State* L, IEoCServerObject* o
 }
 
 void LuaPolymorphic<IEoCClientObject>::MakeRef(lua_State* L, IEoCClientObject* obj, LifetimeHandle const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<Trigger>::MakeRef(lua_State* L, Trigger* obj, LifetimeHandle const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<AreaTrigger>::MakeRef(lua_State* L, AreaTrigger* obj, LifetimeHandle const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<esv::AreaTriggerBase>::MakeRef(lua_State* L, esv::AreaTriggerBase* obj, LifetimeHandle const& lifetime)
+{
+	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
+}
+
+void LuaPolymorphic<esv::PointTriggerBase>::MakeRef(lua_State* L, esv::PointTriggerBase* obj, LifetimeHandle const& lifetime)
 {
 	LuaPolymorphic<IGameObject>::MakeRef(L, obj, lifetime);
 }

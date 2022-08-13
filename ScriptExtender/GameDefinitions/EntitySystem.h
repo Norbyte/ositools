@@ -725,86 +725,8 @@ namespace esv
 			return (TurnManager*)((uint8_t*)system.System - 8);
 		}
 
-		static constexpr int32_t TriggerOffsets[] = {
-			168, // EoCPointTrigger
-			208, // EoCAreaTrigger
-			168, // StartTrigger
-			168, // TeleportTrigger
-			208, // EventTrigger
-			208, // CrimeAreaTrigger
-			208, // CrimeRegionTrigger
-			256, // AtmosphereTrigger
-			208, // AIHintAreaTrigger
-			208, // MusicVolumeTrigger
-			208, // SecretRegionTrigger
-			208, // StatsAreaTrigger
-			296, // SoundVolumeTrigger
-			208, // RegionTrigger
-			208 // ExplorationTrigger
-		};
-
-
-		inline Trigger* GetTrigger(char const* nameGuid, bool logError = true)
-		{
-			static constexpr EntityComponentIndex triggerTypes[] = {
-				EntityComponentIndex::EoCPointTrigger,
-				EntityComponentIndex::EoCAreaTrigger,
-				EntityComponentIndex::StartTrigger,
-				EntityComponentIndex::TeleportTrigger,
-				EntityComponentIndex::EventTrigger,
-				EntityComponentIndex::CrimeAreaTrigger,
-				EntityComponentIndex::CrimeRegionTrigger,
-				EntityComponentIndex::AtmosphereTrigger,
-				EntityComponentIndex::AIHintAreaTrigger,
-				EntityComponentIndex::MusicVolumeTrigger,
-				EntityComponentIndex::SecretRegionTrigger,
-				EntityComponentIndex::StatsAreaTrigger,
-				EntityComponentIndex::SoundVolumeTrigger,
-				EntityComponentIndex::RegionTrigger,
-				EntityComponentIndex::ExplorationTrigger
-			};
-
-			for (auto i = 0; i < std::size(triggerTypes); i++) {
-				auto component = GetBaseComponent(triggerTypes[i], nameGuid, false);
-				if (component != nullptr) {
-					return (Trigger*)((uintptr_t)component - TriggerOffsets[i]);
-				}
-			}
-
-			return nullptr;
-		}
-
-		inline Trigger* GetTrigger(ComponentHandle handle, bool logError = true)
-		{
-			auto type = (ObjectHandleType)handle.GetType();
-			if (type != ObjectHandleType::ServerEocPointTrigger
-				&& type != ObjectHandleType::ServerEocAreaTrigger
-				&& type != ObjectHandleType::ServerStartTrigger
-				&& type != ObjectHandleType::ServerTeleportTrigger
-				&& type != ObjectHandleType::ServerEventTrigger
-				&& type != ObjectHandleType::ServerCrimeAreaTrigger
-				&& type != ObjectHandleType::ServerCrimeRegionTrigger
-				&& type != ObjectHandleType::ServerAtmosphereTrigger
-				&& type != ObjectHandleType::ServerAIHintAreaTrigger
-				&& type != ObjectHandleType::ServerMusicVolumeTrigger
-				&& type != ObjectHandleType::ServerSecretRegionTrigger
-				&& type != ObjectHandleType::ServerStatsAreaTrigger
-				&& type != ObjectHandleType::ServerSoundVolumeTrigger
-				&& type != ObjectHandleType::ServerRegionTrigger
-				&& type != ObjectHandleType::ServerExplorationTrigger) {
-				return nullptr;
-			}
-
-			auto typeIdx = (unsigned)type - (unsigned)ObjectHandleType::ServerEocPointTrigger;
-			auto componentType = (EntityComponentIndex)((unsigned)EntityComponentIndex::EoCPointTrigger + typeIdx);
-
-			auto component = GetBaseComponent(componentType, type, handle, logError);
-			if (component != nullptr) {
-				return (Trigger*)((uintptr_t)component - TriggerOffsets[typeIdx]);
-			} else {
-				return nullptr;
-			}
-		}
+		Trigger* GetTrigger(char const* nameGuid, bool logError = true);
+		Trigger* GetTrigger(ComponentHandle handle, bool logError = true);
 
 		IGameObject* GetGameObject(char const* nameGuid, bool logError = true);
 		IGameObject* GetGameObject(ComponentHandle handle, bool logError = true);
