@@ -327,9 +327,9 @@ public:
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static auto MakeByRef(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
+	inline static auto MakeByRef(lua_State* L, Set<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
 	{
-		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<ObjectSet<T, Allocator, StoreSize>, T>>());
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<Set<T, Allocator, StoreSize>, T>>());
 	}
 
 	template <class T, class Allocator>
@@ -363,9 +363,9 @@ public:
 	}
 
 	template <class T, class Allocator, bool StoreSize>
-	inline static auto MakeByVal(lua_State* L, ObjectSet<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
+	inline static auto MakeByVal(lua_State* L, Set<T, Allocator, StoreSize>* object, LifetimeHandle const& lifetime)
 	{
-		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<ObjectSet<T, Allocator, StoreSize>, T>>());
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<Set<T, Allocator, StoreSize>, T>>());
 	}
 
 	template <class T, class Allocator>
@@ -400,6 +400,9 @@ struct IsArrayLike<Vector<T>> { static constexpr bool Value = true; using TEleme
 
 template <class T>
 struct IsArrayLike<std::span<T>> { static constexpr bool Value = true; using TElement = T; };
+
+template <class T, class Allocator, bool StoreSize>
+struct IsArrayLike<Set<T, Allocator, StoreSize>> { static constexpr bool Value = true; using TElement = T; };
 
 template <class T, class Allocator, bool StoreSize>
 struct IsArrayLike<ObjectSet<T, Allocator, StoreSize>> { static constexpr bool Value = true; using TElement = T; };
