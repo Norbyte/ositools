@@ -111,6 +111,7 @@ namespace dse::lua
 	inline LuaSerializer& operator << (LuaSerializer& s, UserId& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, ComponentHandle& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, EntityHandle& v) { return s.Visit(v); }
+	inline LuaSerializer& operator << (LuaSerializer& s, TemplateHandle& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::ivec2& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::i16vec2& v) { return s.Visit(v); }
 	inline LuaSerializer& operator << (LuaSerializer& s, glm::vec2& v) { return s.Visit(v); }

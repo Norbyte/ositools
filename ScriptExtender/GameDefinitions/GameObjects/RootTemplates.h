@@ -10,28 +10,6 @@
 
 namespace dse
 {
-    struct TemplateHandle
-    {
-        static constexpr uint32_t InvalidHandle = 0;
-
-        inline TemplateHandle() : Value(InvalidHandle) {}
-        inline TemplateHandle(TemplateHandle const& h) : Value(h.Value) {}
-        inline TemplateHandle(uint32_t v) : Value(v) {}
-        inline TemplateHandle(TemplateType type, uint32_t index) : Value(index | ((uint32_t)type << 29)) {}
-
-        inline uint32_t Index() const
-        {
-            return Value & 0x1FFFFFFF;
-        }
-
-        inline TemplateType Type() const
-        {
-            return (TemplateType)(Value >> 29);
-        }
-
-        uint32_t Value;
-    };
-
     struct GameObjectTemplate : ProtectedGameObject<GameObjectTemplate>
     {
         virtual FixedString* GetTypeId() = 0;

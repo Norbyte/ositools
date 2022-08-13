@@ -213,6 +213,39 @@ struct EntityHandleWithType
 	}
 };
 
+struct TemplateHandle
+{
+    static constexpr uint32_t InvalidHandle = 0;
+
+    inline TemplateHandle() : Value(InvalidHandle) {}
+    inline TemplateHandle(TemplateHandle const& h) : Value(h.Value) {}
+    inline TemplateHandle(uint32_t v) : Value(v) {}
+    inline TemplateHandle(uint32_t type, uint32_t index) : Value(index | (type << 29)) {}
+
+	inline bool operator == (TemplateHandle const& oh) const
+	{
+		return Value == oh.Value;
+	}
+
+    inline uint32_t Index() const
+    {
+        return Value & 0x1FFFFFFF;
+    }
+
+    inline uint32_t Type() const
+    {
+        return (Value >> 29);
+    }
+
+    uint32_t Value;
+};
+
+inline uint64_t Hash(TemplateHandle v)
+{
+	return v.Value;
+}
+
+
 struct Pool
 {
 	int PoolSize;

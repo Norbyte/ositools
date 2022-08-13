@@ -66,7 +66,7 @@ GameObjectTemplate* CreateCacheTemplate(FixedString const& templateId)
 		return nullptr;
 	}
 
-	if (tmpl->Handle.Type() != TemplateType::RootTemplate) {
+	if (tmpl->Handle.Type() != (uint32_t)TemplateType::RootTemplate) {
 		OsiError("Cannot cache template that is not global: " << templateId);
 		return nullptr;
 	}

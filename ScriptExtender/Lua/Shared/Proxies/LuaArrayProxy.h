@@ -21,6 +21,7 @@ BY_VAL(double);
 BY_VAL(bool);
 BY_VAL(ComponentHandle);
 BY_VAL(EntityHandle);
+BY_VAL(TemplateHandle);
 BY_VAL(FixedString);
 BY_VAL(STDString);
 BY_VAL(STDWString);

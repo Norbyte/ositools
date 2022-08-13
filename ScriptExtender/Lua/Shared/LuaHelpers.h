@@ -224,6 +224,11 @@ inline void push(lua_State* L, ComponentHandle const& h)
 	lua_pushlightuserdata(L, (void*)h.Handle);
 }
 
+inline void push(lua_State* L, TemplateHandle const& h)
+{
+	push(L, h.Value);
+}
+
 inline void push(lua_State* L, lua_CFunction v)
 {
 	lua_pushcfunction(L, v);
@@ -353,6 +358,11 @@ inline ComponentHandle do_get(lua_State* L, int index, Overload<ComponentHandle>
 {
 	luaL_checktype(L, index, LUA_TLIGHTUSERDATA);
 	return ComponentHandle{ (uint64_t)lua_touserdata(L, index) };
+}
+
+inline TemplateHandle do_get(lua_State* L, int index, Overload<TemplateHandle>)
+{
+	return TemplateHandle((uint32_t)luaL_checknumber(L, index));
 }
 
 inline Path do_get(lua_State* L, int index, Overload<Path>)
