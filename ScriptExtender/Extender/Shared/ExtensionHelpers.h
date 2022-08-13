@@ -57,7 +57,7 @@ namespace dse
 
 			ComponentHandle Handle;
 			esv::Character * Source{ nullptr };
-			IEoCServerObject * Target{ nullptr };
+			IGameObject * Target{ nullptr };
 
 			HelperType Type{ HelperType::HT_CustomHit };
 			stats::HitDamageInfo * Hit{ nullptr };

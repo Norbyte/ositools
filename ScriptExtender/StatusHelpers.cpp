@@ -127,7 +127,7 @@ namespace dse::esv
 		return status;
 	}
 
-	void StatusHelpers::PreventApply(IEoCServerObject* gameObject, ComponentHandle const& statusHandle, bool preventApply)
+	void StatusHelpers::PreventApply(IGameObject* gameObject, ComponentHandle const& statusHandle, bool preventApply)
 	{
 		ComponentHandle gameObjectHandle;
 		gameObject->GetObjectHandle(gameObjectHandle);

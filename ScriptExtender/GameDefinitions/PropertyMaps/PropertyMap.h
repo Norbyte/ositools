@@ -358,14 +358,11 @@ namespace dse
 				auto handle = reinterpret_cast<ComponentHandle *>(ptr);
 				if (*handle) {
 					auto object = esv::GetEntityWorld()->GetGameObject(*handle, false);
-					if (object != nullptr && object->MyGuid) {
-						return object->MyGuid.GetString();
-					} else {
-						return {};
+					if (object != nullptr) {
+						return object->GetGuid()->GetString();
 					}
-				} else {
-					return {};
 				}
+				return {};
 			}
 
 			default:

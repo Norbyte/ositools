@@ -61,7 +61,7 @@ namespace dse::esv
 	public:
 		esv::StatusMachine* GetStatusMachine(char const* gameObjectGuid);
 		esv::Status* GetStatus(char const* gameObjectGuid, ComponentHandle const& statusHandle);
-		void PreventApply(IEoCServerObject* gameObject, ComponentHandle const& statusHandle, bool preventApply);
+		void PreventApply(IGameObject* gameObject, ComponentHandle const& statusHandle, bool preventApply);
 
 		Status* PrepareStatus(esv::StatusMachine* statusMachine, FixedString const& stautsId, float lifeTime);
 		std::optional<ComponentHandle> ApplyActiveDefense(esv::Character* character, FixedString const& stautsId, float lifeTime);

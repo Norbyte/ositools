@@ -146,7 +146,7 @@ UserReturn GetTrigger(lua_State* L)
 	return 1;
 }
 
-IEoCServerObject* LuaGetGameObject(lua_State* L, int idx)
+IGameObject* LuaGetGameObject(lua_State* L, int idx)
 {
 	switch (lua_type(L, idx)) {
 	case LUA_TLIGHTUSERDATA:
@@ -167,7 +167,7 @@ IEoCServerObject* LuaGetGameObject(lua_State* L, int idx)
 	}
 }
 
-IEoCServerObject* GetGameObject(lua_State* L)
+IGameObject* GetGameObject(lua_State* L)
 {
 	auto lua = State::FromLua(L);
 	if (lua->RestrictionFlags & State::RestrictHandleConversion) {
@@ -190,13 +190,15 @@ Status* GetStatus(lua_State* L)
 		luaL_error(L, "Attempted to resolve status handle in restricted context");
 	}
 
-	IEoCServerObject* gameObject = LuaGetGameObject(L, 1);
-	if (gameObject == nullptr || gameObject->GetStatusMachine() == nullptr) return 0;
+	auto gameObject = LuaGetGameObject(L, 1);
+	if (gameObject == nullptr) return 0;
+	auto statusMachine = static_cast<IEoCServerObject*>(gameObject)->GetStatusMachine();
+	if (statusMachine == nullptr) return 0;
 
 	Status* status;
 	if (lua_type(L, 2) == LUA_TLIGHTUSERDATA) {
 		auto statusHandle = get<ComponentHandle>(L, 2);
-		status = gameObject->GetStatusMachine()->GetServerStatus(statusHandle, true);
+		status = statusMachine->GetServerStatus(statusHandle, true);
 		if (!status) {
 			OsiError("Game object has no status with handle 0x" << std::hex << statusHandle.Handle);
 		}
@@ -207,13 +209,13 @@ Status* GetStatus(lua_State* L)
 		// (eg. NRD_OnHit, NRD_OnPrepareHit, etc.) use these handles and Osiris doesn't support lightuserdata
 		if (index > 0xffffffff) {
 			ComponentHandle statusHandle{ index };
-			status = gameObject->GetStatusMachine()->GetServerStatus(statusHandle, true);
+			status = statusMachine->GetServerStatus(statusHandle, true);
 			if (!status) {
 				OsiError("Game object has no status with handle 0x" << std::hex << statusHandle.Handle);
 			}
 		} else {
 			NetId statusNetId{ (uint32_t)index };
-			status = gameObject->GetStatusMachine()->GetStatus(statusNetId);
+			status = statusMachine->GetStatus(statusNetId);
 			if (!status) {
 				OsiError("Character has no status with NetId 0x" << std::hex << index);
 			}

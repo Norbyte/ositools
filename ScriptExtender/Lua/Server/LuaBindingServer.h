@@ -84,7 +84,7 @@ struct StatusGetEnterChanceEvent : public EventBase
 
 struct BeforeStatusApplyEvent : public EventBase
 {
-	IEoCServerObject* Owner;
+	IGameObject* Owner;
 	esv::Status* Status;
 	bool PreventStatusApply;
 };
@@ -167,22 +167,22 @@ struct ShootProjectileEvent : public EventBase
 struct ProjectileHitEvent : public EventBase
 {
 	Projectile* Projectile;
-	IEoCServerObject* HitObject;
+	IGameObject* HitObject;
 	glm::vec3 Position;
 };
 
 struct GroundHitEvent : public EventBase
 {
 	glm::vec3 Position;
-	IEoCServerObject* Caster;
+	IGameObject* Caster;
 	stats::DamagePairList* DamageList;
 };
 
 struct OnExecutePropertyDataOnTargetEvent : public EventBase
 {
 	stats::PropertyExtender* Property;
-	IEoCServerObject* Attacker;
-	IEoCServerObject* Target;
+	IGameObject* Attacker;
+	IGameObject* Target;
 	glm::vec3 ImpactOrigin;
 	bool IsFromItem;
 	stats::SkillPrototype* Skill;
@@ -206,7 +206,7 @@ struct OnPeekAiActionEvent : public EventBase
 struct OnExecutePropertyDataOnPositionEvent : public EventBase
 {
 	stats::PropertyExtender* Property;
-	IEoCServerObject* Attacker;
+	IGameObject* Attacker;
 	glm::vec3 Position;
 	float AreaRadius;
 	bool IsFromItem;

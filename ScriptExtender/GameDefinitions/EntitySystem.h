@@ -548,8 +548,8 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	virtual void UnloadVisual() = 0;
 	virtual void ReloadVisual() = 0;
 	virtual Visual* GetVisual() = 0;
-	virtual void GetPhysics() = 0;
-	virtual void SetPhysics() = 0;
+	virtual PhysicsObject* GetPhysics() = 0;
+	virtual void SetPhysics(PhysicsObject* physics) = 0;
 	virtual void LoadPhysics() = 0;
 	virtual void UnloadPhysics() = 0;
 	virtual void ReloadPhysics() = 0;
@@ -572,8 +572,6 @@ struct IGameObject : public ProtectedGameObject<IGameObject>
 	glm::vec3 LuaGetVelocity();
 	float LuaGetHeight();
 	Visual* LuaGetVisual();
-
-	BaseComponent Base;
 };
 
 struct IEoCClientObject : public IGameObject
@@ -604,6 +602,8 @@ struct IEoCClientObject : public IGameObject
 	RefReturn<ecl::Status> LuaGetStatusByHandle(ComponentHandle const& handle);
 	ObjectSet<FixedString> LuaGetStatusIds();
 	UserReturn LuaGetStatuses(lua_State* L);
+
+	BaseComponent Base;
 };
 
 struct IEoCClientReplicatedObject : public IEoCClientObject
@@ -638,6 +638,7 @@ struct IEoCServerObject : public IGameObject
 	void LuaTransformTemplate(ProxyParam<GameObjectTemplate> tmpl);
 	void ForceSyncToPeers();
 
+	BaseComponent Base;
 	FixedString MyGuid;
 	NetId NetID;
 };
@@ -805,8 +806,8 @@ namespace esv
 			}
 		}
 
-		IEoCServerObject* GetGameObject(char const* nameGuid, bool logError = true);
-		IEoCServerObject* GetGameObject(ComponentHandle handle, bool logError = true);
+		IGameObject* GetGameObject(char const* nameGuid, bool logError = true);
+		IGameObject* GetGameObject(ComponentHandle handle, bool logError = true);
 	};
 
 	struct GameStateMachine : public ProtectedGameObject<GameStateMachine>

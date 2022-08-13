@@ -18,7 +18,7 @@ void MakeLegacyServerCharacterObjectRef(lua_State* L, esv::Character* value);
 Character* LuaGetCharacter(lua_State* L, int index);
 Item* LuaGetItem(lua_State* L, int index);
 Trigger* LuaGetTrigger(lua_State* L, int index);
-IEoCServerObject* LuaGetGameObject(lua_State* L, int idx);
+IGameObject* LuaGetGameObject(lua_State* L, int idx);
 END_NS()
 
 BEGIN_NS(lua)
@@ -443,7 +443,7 @@ namespace dse::esv::lua
 			return 1;
 		}
 
-		auto statusMachine = gameObj->GetStatusMachine();
+		auto statusMachine = static_cast<IEoCServerObject*>(gameObj)->GetStatusMachine();
 		if (!statusMachine) {
 			push(L, nullptr);
 			return 1;
