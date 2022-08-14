@@ -112,6 +112,12 @@ inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overl
 	return &MakeDeferredArrayType<T>;
 }
 
+template <class T, class Allocator, bool StoreSize>
+inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<Set<T, Allocator, StoreSize>>)
+{
+	return &MakeDeferredArrayType<T>;
+}
+
 template <class T>
 inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overload<CompactObjectSet<T>>)
 {
