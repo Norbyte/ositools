@@ -5,11 +5,13 @@ if ($Channel -ne "Devel" -And $Channel -ne "Release" -And $Channel -ne "Nightly"
 	Exit 1
 }
 
+$GameChannel = $Channel
+$EditorChannel = $Channel + "Editor"
 $S3Bucket = "nb-stor"
-$S3RootPath = "dos2-updater-v2/Channels/$Channel"
-$S3LegacyRootPath = "dos/OsiExtender/$Channel"
-$CloudFrontRootPath = "/Channels/$Channel"
-$CloudFrontRootURL = "https://dbn4nit5dt5fw.cloudfront.net/Channels/$Channel"
+$S3RootPath = "dos2-updater-v2/Channels"
+$S3LegacyRootPath = "dos/OsiExtender"
+$CloudFrontRootPath = "/Channels"
+$CloudFrontRootURL = "https://dbn4nit5dt5fw.cloudfront.net/Channels"
 $CloudFrontDistributionID = "E3P2WRK1Q5QRSZ"
 $CloudFrontLegacyDistributionID = "E34KSY7UYCK5B3"
 
@@ -20,11 +22,19 @@ $BuildRoot = Join-Path "$PublishingRoot" "Build"
 $PDBRoot = Join-Path "$PublishingRoot" "PDB"
 $RootPath = (Get-Location).Path
 $ManifestPath = Join-Path $PublishingRoot "Manifest2.json"
-$BuildPackagePath = Join-Path $BuildRoot "Latest.zip"
-$DllPath = Join-Path $RootPath "x64\Game Release\OsiExtenderEoCApp.dll"
+$GameBuildZipPath = Join-Path $BuildRoot "GameLatest.zip"
+$EditorBuildZipPath = Join-Path $BuildRoot "EditorLatest.zip"
+$LegacyBuildZipPath = Join-Path $BuildRoot "LegacyLatest.zip"
+$GameDllPath = Join-Path $RootPath "x64\Game Release\OsiExtenderEoCApp.dll"
+$EditorDllPath = Join-Path $RootPath "x64\Editor Release\OsiExtenderEoCPlugin.dll"
 
-$BuildDir = Join-Path "$BuildRoot" "TempBuild"
+$GameBuildDir = Join-Path "$BuildRoot" "TempGameBuild"
+$EditorBuildDir = Join-Path "$BuildRoot" "TempEditorBuild"
+$LegacyBuildDir = Join-Path "$BuildRoot" "TempLegacyBuild"
 $PDBDir = Join-Path "$PDBRoot" "TempPDB"
+	
+$EditorMinVersion = "3.6.51.0"
+$EditorMaxVersion = "-"
 	
 $GameMinVersion = "3.6.54.0"
 $GameMaxVersion = "-"
@@ -32,38 +42,28 @@ $GameMaxVersion = "-"
 function Build-Extender
 {
 	# Force a build date refresh
-	(gci ScriptExtender/Extender/Shared/Console.cpp).LastWriteTime = Get-Date
+	#(gci ScriptExtender/Extender/Shared/Console.cpp).LastWriteTime = Get-Date
 
 	# MSVC is broken and sometimes reuses old struct definitions from previous compilations.
 	# Force a full recompile each time
 	# Remove-Item "x64\Game Release" -Recurse -ErrorAction SilentlyContinue
 	# Remove-Item "x64\Editor Release" -Recurse -ErrorAction SilentlyContinue
 
-	Write-Output " ===== BUILDING GAME EXTENDER ===== "
-	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	#Write-Output " ===== BUILDING GAME EXTENDER ===== "
+	#msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 	
-	x64\Release\SymbolTableGenerator.exe "x64\Game Release\OsiExtenderEoCApp.pdb" "ScriptExtender\GameHooks\OsiExtenderEoCApp.symtab"
+	#x64\Release\SymbolTableGenerator.exe "x64\Game Release\OsiExtenderEoCApp.pdb" "ScriptExtender\GameHooks\OsiExtenderEoCApp.symtab"
 	
-	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	#msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 	
-	Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
-	msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	#Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
+	#msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }
 
-function Create-Update-Package ($ZipPath)
+function Create-PDBDir
 {
-	Remove-Item $BuildDir -Recurse -ErrorAction SilentlyContinue
 	Remove-Item $PDBDir -Recurse -ErrorAction SilentlyContinue
-
-	New-Item $BuildDir -ItemType "directory"
 	New-Item $PDBDir -ItemType "directory"
-
-	git show -s --format="D:OS2 Extender Version: Commit %H, %cD" > $BuildDir\Version.txt
-
-	Copy-Item "x64\Release\CrashReporter.exe" -Destination $BuildDir\CrashReporter.exe
-	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $BuildDir\OsiExtenderEoCApp.dll
-	Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $BuildDir\OsiExtenderEoCPlugin.dll
-	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $BuildDir\libprotobuf-lite.dll
 
 	Copy-Item "x64\Release\CrashReporter.pdb" -Destination $PDBDir\CrashReporter.pdb
 	Copy-Item "x64\Game Release\OsiExtenderEoCApp.pdb" -Destination $PDBDir\OsiExtenderEoCApp.pdb
@@ -72,41 +72,104 @@ function Create-Update-Package ($ZipPath)
 	Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $PDBDir\OsiExtenderEoCApp.dll
 	Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $PDBDir\OsiExtenderEoCPlugin.dll
 	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $PDBDir\libprotobuf-lite.dll
+}
+
+function Create-Update-Package ($BuildDir, $ZipPath, $HasEditor, $HasGame)
+{
+	Remove-Item $BuildDir -Recurse -ErrorAction SilentlyContinue
+	New-Item $BuildDir -ItemType "directory"
+
+	git show -s --format="D:OS2 Extender Version: Commit %H, %cD" > $BuildDir\Version.txt
+
+	Copy-Item "x64\Release\CrashReporter.exe" -Destination $BuildDir\CrashReporter.exe
+	Copy-Item External\x64-windows\bin\libprotobuf-lite.dll -Destination $BuildDir\libprotobuf-lite.dll
+	
+	if ($HasEditor)
+	{
+		Copy-Item "x64\Editor Release\OsiExtenderEoCPlugin.dll" -Destination $BuildDir\OsiExtenderEoCPlugin.dll
+	}
+	
+	if ($HasGame)
+	{
+		Copy-Item "x64\Game Release\OsiExtenderEoCApp.dll" -Destination $BuildDir\OsiExtenderEoCApp.dll
+	}
 	
 	Remove-Item $ZipPath -ErrorAction SilentlyContinue
 	Compress-Archive -Path $BuildDir\* -DestinationPath $ZipPath -CompressionLevel Optimal
 }
 
-function Archive-Build ($Digest)
+function Archive-Build ($Digest, $ZipPath)
 {
+	Write-Output $Digest
+	Write-Output $ZipPath
 	$ArchivePDBDir = Join-Path "$PDBRoot" "$Digest"
+	Write-Output "------------------------------------Digest:" $Digest
 	New-Item $ArchivePDBDir -ItemType directory -ErrorAction SilentlyContinue
 	Copy-Item $PDBDir\* -Destination $ArchivePDBDir
-	Copy-Item $BuildPackagePath -Destination $BuildRoot\$DigestPath.zip
+	Copy-Item $ZipPath -Destination $BuildRoot\$DigestPath.zip
 }
 
-function Build-Release
+function Build-Package ($BuildDir, $ZipPath, $DllPath, $Channel, $IsGame, $IsEditor)
 {
-	Build-Extender
-	Create-Update-Package $BuildPackagePath
-	Archive-Build Latest
+	Create-Update-Package $BuildDir $ZipPath $IsGame $IsEditor
 
-	x64\Release\UpdateSigner.exe sign package-signer.key $BuildPackagePath
-	x64\Release\UpdateSigner.exe verify $BuildPackagePath
+	x64\Release\UpdateSigner.exe sign package-signer.key $ZipPath
+	x64\Release\UpdateSigner.exe verify $ZipPath
+
+	if ($IsEditor)
+	{
+		x64\Release\UpdateSigner.exe update-manifest "$ManifestPath" ScriptExtender "$ZipPath" "$DllPath" $EditorMinVersion $EditorMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
+	}
+	
+	if ($IsGame)
+	{
+		x64\Release\UpdateSigner.exe update-manifest "$ManifestPath" ScriptExtender "$ZipPath" "$DllPath" $GameMinVersion $GameMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
+	}
 }
 
-Build-Release
+function Build-Legacy-Package ($BuildDir, $ZipPath)
+{
+	Create-Update-Package $BuildDir $ZipPath 1 1
+	Archive-Build Latest $ZipPath
 
-x64\Release\UpdateSigner.exe update-manifest "$ManifestPath" ScriptExtender "$BuildPackagePath" "$DllPath" $GameMinVersion $GameMaxVersion "$CloudFrontRootURL/Packages/"
-$DigestPath = (x64\Release\UpdateSigner.exe compute-path "$BuildPackagePath" "$DllPath")
+	x64\Release\UpdateSigner.exe sign package-signer.key $ZipPath
+	x64\Release\UpdateSigner.exe verify $ZipPath
+}
 
-Archive-Build $DigestPath
+function Publish-Legacy-Package
+{
+	aws s3 cp $LegacyBuildZipPath s3://$S3Bucket/$S3LegacyRootPath/Latest.zip
+	aws s3api put-object-acl --bucket $S3Bucket --key $S3LegacyRootPath/Latest.zip --acl public-read
+	aws cloudfront create-invalidation --distribution-id $CloudFrontLegacyDistributionID --paths /$Channel/Latest.zip
+}
+
+function Publish-Package ($ZipPath, $DigestPath, $Channel)
+{
+	Write-Output "S3 path: s3://$S3Bucket/$S3RootPath/$Channel/Packages/$DigestPath"
+	Write-Output "CloudFront path: $CloudFrontRootPath/$Channel/Packages/$DigestPath"
+	Write-Output "URL: $CloudFrontRootURL/$Channel/Packages/$DigestPath"
+
+	aws s3 cp $ZipPath "s3://$S3Bucket/$S3RootPath/$Channel/Packages/$DigestPath"
+	aws s3api put-object-acl --bucket nb-stor --key "$S3RootPath/$Channel/Packages/$DigestPath" --acl public-read
+	aws s3 cp $ManifestPath "s3://$S3Bucket/$S3RootPath/$Channel/$S3ManifestPath"
+	aws s3api put-object-acl --bucket nb-stor --key "$S3RootPath/$Channel/$S3ManifestPath" --acl public-read
+	aws cloudfront create-invalidation --distribution-id $CloudFrontDistributionID --paths "$CloudFrontRootPath/$Channel/$S3ManifestPath" "$CloudFrontRootPath/$Channel/Packages/$DigestPath"
+}
+
+Build-Extender
+
+Build-Package $GameBuildDir $GameBuildZipPath $GameDllPath $GameChannel 1 0
+$GameDigestPath = (x64\Release\UpdateSigner.exe compute-path "$GameBuildZipPath" "$GameDllPath")
+Archive-Build $GameDigestPath $GameBuildZipPath
+
+Build-Package $EditorBuildDir $EditorBuildZipPath $EditorDllPath $EditorChannel 0 1
+$EditorDigestPath = (x64\Release\UpdateSigner.exe compute-path "$EditorBuildZipPath" "$EditorDllPath")
+Archive-Build $EditorDigestPath $EditorBuildZipPath
+
+Build-Legacy-Package $LegacyBuildDir $LegacyBuildZipPath
 
 Write-Output "Build completed."
 Write-Output "."
-Write-Output "S3 path: s3://$S3Bucket/$S3RootPath/Packages/$DigestPath"
-Write-Output "CloudFront path: $CloudFrontRootPath/Packages/$DigestPath"
-Write-Output "URL: $CloudFrontRootURL/Packages/$DigestPath"
 
 Write-Output "*********************************************************************************"
 Write-Output ""
@@ -115,14 +178,7 @@ Write-Output ""
 Write-Output "*********************************************************************************"
 Read-Host
 
-
-Write-Output " ===== UPLOADING PACKAGE ===== "
-aws s3 cp $BuildPackagePath "s3://$S3Bucket/$S3RootPath/Packages/$DigestPath"
-aws s3api put-object-acl --bucket nb-stor --key "$S3RootPath/Packages/$DigestPath" --acl public-read
-aws s3 cp $ManifestPath "s3://$S3Bucket/$S3RootPath/$S3ManifestPath"
-aws s3api put-object-acl --bucket nb-stor --key "$S3RootPath/$S3ManifestPath" --acl public-read
-aws cloudfront create-invalidation --distribution-id $CloudFrontDistributionID --paths "$CloudFrontRootPath/$S3ManifestPath" "$CloudFrontRootPath/Packages/$DigestPath"
-
-aws s3 cp $BuildPackagePath s3://$S3Bucket/$S3LegacyRootPath/Latest.zip
-aws s3api put-object-acl --bucket $S3Bucket --key $S3LegacyRootPath/Latest.zip --acl public-read
-aws cloudfront create-invalidation --distribution-id $CloudFrontLegacyDistributionID --paths /$Channel/Latest.zip
+Write-Output " ===== UPLOADING PACKAGES ===== "
+Publish-Package $GameBuildZipPath $GameDigestPath $GameChannel
+Publish-Package $EditorBuildZipPath $EditorDigestPath $EditorChannel
+Publish-Legacy-Package

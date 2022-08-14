@@ -21,6 +21,8 @@
 #define UPDATER_MANIFEST_URL "https://dbn4nit5dt5fw.cloudfront.net/Channels/"
 #define UPDATER_MANIFEST_NAME "Manifest2.json"
 #define UPDATER_CHANNEL "Release"
+#define UPDATER_CHANNEL_GAME ""
+#define UPDATER_CHANNEL_EDITOR "Editor"
 #define GAME_DLL L"OsiExtenderEoCApp.dll"
 #define EDITOR_DLL L"OsiExtenderEoCPlugin.dll"
 
@@ -72,6 +74,11 @@ HMODULE GetExeHandle()
 	}
 
 	return hGameModule;
+}
+
+bool IsInEditor()
+{
+	return GetModuleHandleW(L"DivinityEngine2.exe") != NULL;
 }
 
 std::optional<VersionNumber> GetGameVersion()
@@ -290,7 +297,7 @@ public:
 
 	std::wstring GetAppDllPath()
 	{
-		if (GetModuleHandleW(L"DivinityEngine2.exe") != NULL) {
+		if (IsInEditor()) {
 			return GetLocalPath() + L"\\" + EDITOR_DLL;
 		} else {
 			return GetLocalPath() + L"\\" + GAME_DLL;
@@ -848,6 +855,12 @@ public:
 		}
 		
 		LoadConfigFile(exeDir_ + L"\\ScriptExtenderUpdaterConfig.json", config_);
+
+		if (IsInEditor()) {
+			config_.UpdateChannel += UPDATER_CHANNEL_EDITOR;
+		} else {
+			config_.UpdateChannel += UPDATER_CHANNEL_GAME;
+		}
 	}
 
 private:
