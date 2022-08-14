@@ -134,8 +134,21 @@ Ext.Dump = function (val)
 	Ext.Utils.Print(Ext.DumpExport(val))
 end
 
+Ext.DumpShallow = function (val)
+	local opts = {
+		Beautify = true,
+		StringifyInternalTypes = true,
+		IterateUserdata = true,
+		AvoidRecursion = true,
+		LimitDepth = 1,
+		LimitArrayElements = 3
+	}
+	Ext.Utils.Print(Ext.Json.Stringify(val, opts))
+end
+
 -- Global helper aliases for Ext.Dump, Ext.Print
 _D = Ext.Dump
+_DS = Ext.DumpShallow
 _P = Ext.Utils.Print
 
 function CallDeprecated(fun, oldName, newName)

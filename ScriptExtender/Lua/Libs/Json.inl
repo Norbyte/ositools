@@ -161,6 +161,78 @@ void* GetPointerValue(lua_State* L, int index)
 	}
 }
 
+bool CheckForRecursion(lua_State* L, int index, StringifyContext& ctx)
+{
+	if (ctx.AvoidRecursion) {
+		auto ptr = GetPointerValue(L, index);
+		if (ptr) {
+			auto seenIt = ctx.SeenUserdata.find(ptr);
+			if (seenIt != ctx.SeenUserdata.end()) {
+				return true;
+			} else {
+				ctx.SeenUserdata.insert(ptr);
+			}
+		}
+	}
+
+	return false;
+}
+
+bool TryGetUserdataPairs(lua_State* L, int index)
+{
+	if (lua_type(L, index) == LUA_TUSERDATA) {
+		if (!lua_getmetatable(L, index)) {
+			return false;
+		}
+
+		push(L, "__pairs");
+		lua_gettable(L, -2);
+		lua_remove(L, -2);
+		// No __pairs function, can't iterate this object
+		if (lua_type(L, -1) != LUA_TNIL) {
+			return true;
+		} else {
+			lua_pop(L, 1);
+			return false;
+		}
+	} else {
+		CppObjectMetadata meta;
+		lua_get_cppobject(L, index, meta);
+		auto mt = State::FromLua(L)->GetMetatableManager().GetMetatable(meta.MetatableTag);
+		if (lua_cmetatable_push(L, mt, (int)MetamethodName::Pairs)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool IsArrayLikeUserdata(lua_State* L, int index)
+{
+	StackCheck _(L, 0);
+
+	if (lua_type(L, index) == LUA_TLIGHTCPPOBJECT) {
+		CppObjectMetadata meta;
+		lua_get_cppobject(L, index, meta);
+		return meta.MetatableTag == MetatableTag::ArrayProxy;
+	}
+
+	return false;
+}
+
+bool IsMapLikeUserdata(lua_State* L, int index)
+{
+	StackCheck _(L, 0);
+
+	if (lua_type(L, index) == LUA_TLIGHTCPPOBJECT) {
+		CppObjectMetadata meta;
+		lua_get_cppobject(L, index, meta);
+		return meta.MetatableTag == MetatableTag::MapProxy;
+	}
+
+	return false;
+}
+
 Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx);
 
 Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
@@ -169,41 +241,22 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 
 	index = lua_absindex(L, index);
 
-	if (ctx.AvoidRecursion) {
-		auto ptr = GetPointerValue(L, index);
-		if (ptr) {
-			auto seenIt = ctx.SeenUserdata.find(ptr);
-			if (seenIt != ctx.SeenUserdata.end()) {
-				return Json::Value("*RECURSION*");
-			} else {
-				ctx.SeenUserdata.insert(ptr);
-			}
-		}
+	if (CheckForRecursion(L, index, ctx)) {
+		return Json::Value("*RECURSION*");
 	}
 
-	if (lua_type(L, index) == LUA_TUSERDATA) {
-		if (!lua_getmetatable(L, index)) {
-			return Json::Value();
-		}
-
-		push(L, "__pairs");
-		lua_gettable(L, -2);
-		lua_remove(L, -2);
-		// No __pairs function, can't iterate this object
-		if (lua_type(L, -1) == LUA_TNIL) {
-			lua_pop(L, 1);
-			return Json::Value();
-		}
+	Json::Value arr;
+	if (IsArrayLikeUserdata(L, index)) {
+		arr = Json::Value(Json::arrayValue);
 	} else {
-		CppObjectMetadata meta;
-		lua_get_cppobject(L, index, meta);
-		auto mt = State::FromLua(L)->GetMetatableManager().GetMetatable(meta.MetatableTag);
-		if (!lua_cmetatable_push(L, mt, (int)MetamethodName::Pairs)) {
-			return Json::Value();
-		}
+		arr = Json::Value(Json::objectValue);
 	}
 
-	Json::Value arr(Json::objectValue);
+	bool isMap = IsMapLikeUserdata(L, index);
+
+	if (!TryGetUserdataPairs(L, index)) {
+		return Json::Value();
+	}
 
 	// Call __pairs(obj)
 	auto nextIndex = lua_absindex(L, -1);
@@ -217,13 +270,12 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 	// Call __next(obj, k)
 	lua_call(L, 2, 2); // returns k, val
 
-#if !defined(NDEBUG)
-	auto proxy = Userdata<ObjectProxy2>::AsUserData(L, index);
-	auto objPtr = proxy ? proxy->GetRaw(L) : nullptr;
-	auto typeName = proxy ? proxy->GetImpl()->GetTypeName() : FixedString{};
-#endif
-
+	int numElements{ 0 };
 	while (lua_type(L, -2) != LUA_TNIL) {
+		if (isMap && ctx.LimitArrayElements != -1 && numElements > ctx.LimitArrayElements) {
+			break;
+		}
+
 #if !defined(NDEBUG)
 		STDString key;
 		if (lua_type(L, -2) == LUA_TSTRING) {
@@ -246,10 +298,15 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 				break;
 			}
 
-			lua_pushvalue(L, -2);
-			auto key = lua_tostring(L, -1);
-			arr[key] = val;
-			lua_pop(L, 1);
+			if (arr.type() == Json::arrayValue) {
+				auto key = (uint32_t)lua_tointeger(L, -1);
+				arr[key] = val;
+			} else {
+				lua_pushvalue(L, -2);
+				auto key = lua_tostring(L, -1);
+				arr[key] = val;
+				lua_pop(L, 1);
+			}
 		} else if ((type == LUA_TUSERDATA || type == LUA_TLIGHTCPPOBJECT || type == LUA_TCPPOBJECT) && ctx.StringifyInternalTypes) {
 			int top = lua_gettop(L);
 			lua_getglobal(L, "tostring");  /* function to be called */
@@ -278,6 +335,7 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 		lua_remove(L, -4);
 		// Call __next(obj, k)
 		lua_call(L, 2, 2); // returns k, val
+		numElements++;
 	}
 
 	lua_pop(L, 2);
@@ -287,7 +345,7 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 	return arr;
 }
 
-Json::Value StringifyObject(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyTableAsObject(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::objectValue);
 	lua_pushnil(L);
@@ -315,7 +373,7 @@ Json::Value StringifyObject(lua_State * L, int index, unsigned depth, StringifyC
 	return arr;
 }
 
-Json::Value StringifyArray(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+Json::Value StringifyTableAsArray(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	Json::Value arr(Json::arrayValue);
 	lua_pushnil(L);
@@ -368,22 +426,14 @@ bool JsonCanStringifyAsArray(lua_State * L, int index)
 
 Json::Value StringifyTable(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
-	if (ctx.AvoidRecursion) {
-		auto ptr = GetPointerValue(L, index);
-		if (ptr) {
-			auto seenIt = ctx.SeenUserdata.find(ptr);
-			if (seenIt != ctx.SeenUserdata.end()) {
-				return Json::Value("*RECURSION*");
-			} else {
-				ctx.SeenUserdata.insert(ptr);
-			}
-		}
+	if (CheckForRecursion(L, index, ctx)) {
+		return Json::Value("*RECURSION*");
 	}
 
 	if (JsonCanStringifyAsArray(L, index)) {
-		return StringifyArray(L, index, depth, ctx);
+		return StringifyTableAsArray(L, index, depth, ctx);
 	} else {
-		return StringifyObject(L, index, depth, ctx);
+		return StringifyTableAsObject(L, index, depth, ctx);
 	}
 }
 
