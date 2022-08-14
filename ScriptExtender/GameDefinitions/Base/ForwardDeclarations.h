@@ -102,6 +102,8 @@ namespace esv
 	struct MovementState;
 	struct ActionMachine;
 	struct ActionState;
+	struct BaseController;
+	struct StatusController;
 
 	struct CustomStatDefinitionComponent;
 	struct CustomStatSystem;

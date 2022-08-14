@@ -201,7 +201,7 @@ namespace dse
 			void * NetworkController;
 			void * OsirisController;
 			void * RequestController;
-			void * StatusController;
+			esv::StatusController* StatusController;
 #if !defined(OSI_EOCAPP)
 			uint64_t U8[2];
 #endif

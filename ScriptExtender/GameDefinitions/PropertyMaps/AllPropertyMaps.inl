@@ -24,6 +24,7 @@
 #include <GameDefinitions/PropertyMaps/Trigger.inl>
 #include <GameDefinitions/PropertyMaps/GameAction.inl>
 #include <GameDefinitions/PropertyMaps/States.inl>
+#include <GameDefinitions/PropertyMaps/Controllers.inl>
 
 
 BEGIN_CLS(TypeInformation)

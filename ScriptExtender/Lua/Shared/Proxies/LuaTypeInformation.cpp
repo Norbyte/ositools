@@ -1,18 +1,6 @@
 #include <stdafx.h>
 
-#include <GameDefinitions/Enumerations.h>
-#include <GameDefinitions/Symbols.h>
-#include <GameDefinitions/GameObjects/Ai.h>
-#include <GameDefinitions/GameObjects/AiHelpers.h>
-#include <GameDefinitions/GameObjects/Material.h>
-#include <GameDefinitions/GameObjects/Render.h>
-#include <GameDefinitions/GameObjects/Surface.h>
-#include <GameDefinitions/GameObjects/Physics.h>
-#include <GameDefinitions/GameObjects/Movement.h>
-#include <GameDefinitions/Components/Scenery.h>
-#include <GameDefinitions/Components/Trigger.h>
-#include <Hit.h>
-#include <Extender/ScriptExtender.h>
+#include <Lua/Shared/Proxies/PropertyMapDependencies.h>
 
 BEGIN_SE()
 

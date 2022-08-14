@@ -403,6 +403,12 @@
     <ClInclude Include="GameDefinitions\GameObjects\Movement.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Controllers.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\PropertyMapDependencies.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -869,6 +875,9 @@
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
     <None Include="GameDefinitions\PropertyMaps\States.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Controllers.inl">
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>

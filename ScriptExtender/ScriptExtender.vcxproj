@@ -61,6 +61,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Ai.h" />
     <ClInclude Include="GameDefinitions\GameObjects\AiHelpers.h" />
     <ClInclude Include="GameDefinitions\GameObjects\CharacterCreation.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Controllers.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Effect.h" />
     <ClInclude Include="GameDefinitions\GameObjects\GameAction.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Level.h" />
@@ -119,6 +120,7 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMap.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaPropertyMapHelpers.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaUserdata.h" />
+    <ClInclude Include="Lua\Shared\Proxies\PropertyMapDependencies.h" />
     <ClInclude Include="NetProtocol.h" />
     <ClInclude Include="Osiris\Debugger\Debugger.h" />
     <ClInclude Include="Osiris\Debugger\DebugInterface.h" />
@@ -257,6 +259,7 @@
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
     <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl" />
     <None Include="GameDefinitions\PropertyMaps\Combat.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Controllers.inl" />
     <None Include="GameDefinitions\PropertyMaps\Effect.inl" />
     <None Include="GameDefinitions\PropertyMaps\EntitySystem.inl" />
     <None Include="GameDefinitions\PropertyMaps\Events.inl" />
