@@ -555,10 +555,10 @@ namespace dse
 		LegacyPropertyMapBase * ActionState::GetPropertyMap()
 		{
 			switch (GetType()) {
-			case ActionStateType::ASAttack:
+			case ActionStateType::Attack:
 				return &gASAttackPropertyMap;
 
-			case ActionStateType::ASPrepareSkill:
+			case ActionStateType::PrepareSkill:
 				return &gASPrepareSkillPropertyMap;
 
 			default:
@@ -569,7 +569,7 @@ namespace dse
 		char const * ActionState::GetTypeName()
 		{
 			auto type = GetType();
-			if (type <= ActionStateType::ASJumpFlight) {
+			if (type <= ActionStateType::JumpFlight) {
 				return sActionStateNames[(unsigned)type];
 			} else {
 				return nullptr;

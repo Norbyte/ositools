@@ -174,7 +174,7 @@ namespace dse::esv
 
 			auto state = character->ActionMachine->Layers[0].State;
 
-			if (state->GetType() == ActionStateType::ASUseSkill) {
+			if (state->GetType() == ActionStateType::UseSkill) {
 				auto useSkill = static_cast<ASUseSkill*>(state);
 				if (useSkill->Skill != nullptr) {
 					return OsirisPropertyMapGetRaw(gSkillStatePropertyMap, useSkill->Skill, args, 1, Type);
@@ -325,8 +325,8 @@ namespace dse::esv
 		auto type = curState->GetType();
 		auto typeName = curState->GetTypeName();
 		// Avoid event spam from idle/anim states
-		if (type == esv::ActionStateType::ASIdle
-			|| type == esv::ActionStateType::ASAnimation
+		if (type == esv::ActionStateType::Idle
+			|| type == esv::ActionStateType::Animation
 			|| typeName == nullptr) {
 			return;
 		}
@@ -354,8 +354,8 @@ namespace dse::esv
 			auto type = curState->GetType();
 			auto typeName = curState->GetTypeName();
 			// Avoid event spam from idle/anim states
-			if (type == esv::ActionStateType::ASIdle
-				|| type == esv::ActionStateType::ASAnimation
+			if (type == esv::ActionStateType::Idle
+				|| type == esv::ActionStateType::Animation
 				|| typeName == nullptr) {
 				return;
 			}
@@ -418,8 +418,8 @@ namespace dse::esv
 		auto type = actionState->GetType();
 		auto typeName = actionState->GetTypeName();
 		// Avoid event spam from idle/anim states
-		if (type == esv::ActionStateType::ASIdle
-			|| type == esv::ActionStateType::ASAnimation
+		if (type == esv::ActionStateType::Idle
+			|| type == esv::ActionStateType::Animation
 			|| typeName == nullptr) {
 			return;
 		}

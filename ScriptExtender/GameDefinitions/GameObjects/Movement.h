@@ -11,7 +11,13 @@ struct MovementMachine;
 struct MovementState : public ProtectedGameObject<MovementState>
 {
 	virtual ~MovementState() = 0;
-
+	virtual bool Enter() = 0;
+	virtual bool Continue() = 0;
+	virtual void Update(GameTime const& t) = 0;
+	virtual uint32_t Unknown1() = 0;
+	virtual void Exit() = 0;
+	virtual bool IsFinished() = 0;
+	virtual MovementStateType GetTypeId() = 0;
 
 	MovementMachine* MovementMachine;
 	int TransactionId;

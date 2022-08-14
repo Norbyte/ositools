@@ -9,34 +9,6 @@ namespace dse
 
 	namespace esv
 	{
-		enum class ActionStateType
-		{
-			ASAttack = 2,
-			ASDie = 3,
-			ASHit = 4,
-			ASIdle = 5,
-			ASAnimation = 6,
-			ASPrepareSkill = 7,
-			ASUseSkill = 8,
-			ASPickUp = 9,
-			ASDrop = 10,
-			ASMoveItem = 11,
-			ASKnockedDown = 12,
-			ASSummoning = 13,
-			ASPolymorphing = 14,
-			ASUseItem = 15,
-			ASCombineItem = 17,
-			ASTeleportFall = 18,
-			ASSheath = 19,
-			ASUnsheath = 20,
-			ASIdentify = 21,
-			ASRepair = 22,
-			ASLockpick = 23,
-			ASDisarmTrap = 24,
-			ASIncapacitated = 25,
-			ASJumpFlight = 26
-		};
-
 		struct ActionState : public ProtectedGameObject<ActionState>
 		{
 			virtual ~ActionState() = 0;

@@ -99,7 +99,9 @@ namespace eoc
 namespace esv
 {
 	struct MovementMachine;
+	struct MovementState;
 	struct ActionMachine;
+	struct ActionState;
 
 	struct CustomStatDefinitionComponent;
 	struct CustomStatSystem;

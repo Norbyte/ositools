@@ -2,6 +2,7 @@
 #include <GameDefinitions/Components/Projectile.h>
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Surface.h>
+#include <GameDefinitions/GameObjects/Movement.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <GameDefinitions/CustomStats.h>
@@ -322,6 +323,26 @@ void LuaPolymorphic<stats::EquipmentAttributes>::MakeRef(lua_State* L, stats::Eq
 	case stats::EquipmentStatsType::Armor: return MakeDirectObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesArmor*>(stats));
 	case stats::EquipmentStatsType::Shield: return MakeDirectObjectRef(L, lifetime, static_cast<stats::EquipmentAttributesShield*>(stats));
 	default: return MakeDirectObjectRef(L, lifetime, stats);
+	}
+}
+
+void LuaPolymorphic<esv::MovementState>::MakeRef(lua_State* L, esv::MovementState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetTypeId()) {
+	case esv::MovementStateType::Movement: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMovement*>(o));
+	case esv::MovementStateType::MoveTo: return MakeDirectObjectRef(L, lifetime, static_cast<esv::MSMoveTo*>(o));
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o, LifetimeHandle const & lifetime)
+{
+	switch (o->GetType()) {
+	case esv::ActionStateType::Attack: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASAttack*>(o));
+	case esv::ActionStateType::PrepareSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASPrepareSkill*>(o));
+	case esv::ActionStateType::UseSkill: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ASUseSkill*>(o));
+	// TODO - map others
+	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }
 
