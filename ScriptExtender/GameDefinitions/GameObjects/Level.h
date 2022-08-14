@@ -55,6 +55,12 @@ struct LevelDesc : public ProtectedGameObject<LevelDesc>
 	uint8_t Type;
 };
 
+struct ActivePersistentLevelTemplate
+{
+	LevelTemplate* Template;
+	AreaTrigger* Area;
+};
+
 struct Level : public ProtectedGameObject<Level>
 {
 	void* VMT;
@@ -67,7 +73,7 @@ struct Level : public ProtectedGameObject<Level>
 	PhysicsScene* PhysicsScene;
 	ObjectSet<IGameObject *> GameObjects;
 	void* Text3DManager;
-	ObjectSet<LevelTemplate *> ActivePersistentLevelTemplates;
+	ObjectSet<ActivePersistentLevelTemplate> ActivePersistentLevelTemplates;
 };
 
 END_SE()

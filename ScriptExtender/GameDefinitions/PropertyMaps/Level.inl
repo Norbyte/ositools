@@ -18,6 +18,12 @@ P_REF(ActivePersistentLevelTemplates)
 END_CLS()
 
 
+BEGIN_CLS(ActivePersistentLevelTemplate)
+P_REF(Template)
+P_REF(Area)
+END_CLS()
+
+
 BEGIN_CLS(esv::EnvironmentalInfluences::Status)
 P_RO(Handle)
 P(FirstAttempt)

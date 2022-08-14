@@ -93,7 +93,6 @@ P_REF(OffHandDamageList)
 // TODO: DamageDividerDamage, 2
 P(MainHandHitType)
 P(OffHandHitType)
-P(OffHandHitType)
 P_REF(HitObject1)
 P_REF(HitObject2)
 P(ProjectileUsesHitObject)
