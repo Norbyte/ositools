@@ -21,7 +21,8 @@ $PublishingRoot = Join-Path "C:\Dev\LS\DOS2PublishingRoot" "$Channel"
 $BuildRoot = Join-Path "$PublishingRoot" "Build"
 $PDBRoot = Join-Path "$PublishingRoot" "PDB"
 $RootPath = (Get-Location).Path
-$ManifestPath = Join-Path $PublishingRoot "Manifest2.json"
+$GameManifestPath = Join-Path $PublishingRoot "GameManifest2.json"
+$EditorManifestPath = Join-Path $PublishingRoot "EditorManifest2.json"
 $GameBuildZipPath = Join-Path $BuildRoot "GameLatest.zip"
 $EditorBuildZipPath = Join-Path $BuildRoot "EditorLatest.zip"
 $LegacyBuildZipPath = Join-Path $BuildRoot "LegacyLatest.zip"
@@ -42,22 +43,22 @@ $GameMaxVersion = "-"
 function Build-Extender
 {
 	# Force a build date refresh
-	#(gci ScriptExtender/Extender/Shared/Console.cpp).LastWriteTime = Get-Date
+	(gci ScriptExtender/Extender/Shared/Console.cpp).LastWriteTime = Get-Date
 
 	# MSVC is broken and sometimes reuses old struct definitions from previous compilations.
 	# Force a full recompile each time
 	# Remove-Item "x64\Game Release" -Recurse -ErrorAction SilentlyContinue
 	# Remove-Item "x64\Editor Release" -Recurse -ErrorAction SilentlyContinue
 
-	#Write-Output " ===== BUILDING GAME EXTENDER ===== "
-	#msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	Write-Output " ===== BUILDING GAME EXTENDER ===== "
+	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 	
-	#x64\Release\SymbolTableGenerator.exe "x64\Game Release\OsiExtenderEoCApp.pdb" "ScriptExtender\GameHooks\OsiExtenderEoCApp.symtab"
+	x64\Release\SymbolTableGenerator.exe "x64\Game Release\OsiExtenderEoCApp.pdb" "ScriptExtender\GameHooks\OsiExtenderEoCApp.symtab"
 	
-	#msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	msbuild OsiTools.sln "/p:Configuration=Game Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 	
-	#Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
-	#msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
+	Write-Output " ===== BUILDING EDITOR EXTENDER ===== "
+	msbuild OsiTools.sln "/p:Configuration=Editor Release" /t:Build /m /nologo /verbosity:quiet /consoleloggerparameters:summary
 }
 
 function Create-PDBDir
@@ -111,26 +112,25 @@ function Archive-Build ($Digest, $ZipPath)
 
 function Build-Package ($BuildDir, $ZipPath, $DllPath, $Channel, $IsGame, $IsEditor)
 {
-	Create-Update-Package $BuildDir $ZipPath $IsGame $IsEditor
+	Create-Update-Package $BuildDir $ZipPath $IsEditor $IsGame
 
 	x64\Release\UpdateSigner.exe sign package-signer.key $ZipPath
 	x64\Release\UpdateSigner.exe verify $ZipPath
 
 	if ($IsEditor)
 	{
-		x64\Release\UpdateSigner.exe update-manifest "$ManifestPath" ScriptExtender "$ZipPath" "$DllPath" $EditorMinVersion $EditorMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
+		x64\Release\UpdateSigner.exe update-manifest "$EditorManifestPath" ScriptExtender "$ZipPath" "$DllPath" $EditorMinVersion $EditorMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
 	}
 	
 	if ($IsGame)
 	{
-		x64\Release\UpdateSigner.exe update-manifest "$ManifestPath" ScriptExtender "$ZipPath" "$DllPath" $GameMinVersion $GameMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
+		x64\Release\UpdateSigner.exe update-manifest "$GameManifestPath" ScriptExtender "$ZipPath" "$DllPath" $GameMinVersion $GameMaxVersion "$CloudFrontRootURL/$Channel/Packages/"
 	}
 }
 
 function Build-Legacy-Package ($BuildDir, $ZipPath)
 {
 	Create-Update-Package $BuildDir $ZipPath 1 1
-	Archive-Build Latest $ZipPath
 
 	x64\Release\UpdateSigner.exe sign package-signer.key $ZipPath
 	x64\Release\UpdateSigner.exe verify $ZipPath
@@ -143,7 +143,7 @@ function Publish-Legacy-Package
 	aws cloudfront create-invalidation --distribution-id $CloudFrontLegacyDistributionID --paths /$Channel/Latest.zip
 }
 
-function Publish-Package ($ZipPath, $DigestPath, $Channel)
+function Publish-Package ($ZipPath, $DigestPath, $Channel, $ManifestPath)
 {
 	Write-Output "S3 path: s3://$S3Bucket/$S3RootPath/$Channel/Packages/$DigestPath"
 	Write-Output "CloudFront path: $CloudFrontRootPath/$Channel/Packages/$DigestPath"
@@ -179,6 +179,6 @@ Write-Output "******************************************************************
 Read-Host
 
 Write-Output " ===== UPLOADING PACKAGES ===== "
-Publish-Package $GameBuildZipPath $GameDigestPath $GameChannel
-Publish-Package $EditorBuildZipPath $EditorDigestPath $EditorChannel
+Publish-Package $GameBuildZipPath $GameDigestPath $GameChannel $GameManifestPath
+Publish-Package $EditorBuildZipPath $EditorDigestPath $EditorChannel $EditorManifestPath
 Publish-Legacy-Package
