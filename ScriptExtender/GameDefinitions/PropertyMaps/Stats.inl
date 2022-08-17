@@ -607,6 +607,7 @@ P(Durability)
 P(DurabilityCounter)
 P(ItemTypeReal) // For compatibility with v55; new name is Rarity
 PN(Rarity, ItemTypeReal)
+P_REF(GameObject)
 P_REF(DynamicStats)
 P_RO(AttributeFlags)
 P_BITMASK(AttributeFlags)

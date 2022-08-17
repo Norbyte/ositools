@@ -634,7 +634,7 @@ struct Item : public ObjectInstance
 	FixedString ItemTypeReal; // Saved
 	FixedString U8;
 	Vector<EquipmentAttributes *> DynamicStats;
-	uint64_t U9[1];
+	IGameObject* GameObject;
 	StatAttributeFlags AttributeFlags;
 	int32_t MaxCharges; // Saved; -1 = Not overridden
 	int32_t Charges; // Saved; -1 = Not overridden
