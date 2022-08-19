@@ -275,22 +275,37 @@ int UIFlashArray::Index(lua_State * L)
 {
 	StackCheck _(L, 1);
 	ig::IggyValuePath path;
-	auto index = get<int>(L, 2);
-	if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
-		return PushFlashRef(L, path_.paths_, &path);
+
+	if (lua_type(L, 2) == LUA_TNUMBER) {
+		auto index = get<int>(L, 2);
+		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
+			return PushFlashRef(L, path_.paths_, &path);
+		}
 	} else {
-		push(L, nullptr);
-		return 1;
+		auto name = get<char const*>(L, 2);
+		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
+			return PushFlashRef(L, path_.paths_, &path);
+		}
 	}
+
+	push(L, nullptr);
+	return 1;
 }
 
 int UIFlashArray::NewIndex(lua_State* L)
 {
 	StackCheck _(L, 0);
 	ig::IggyValuePath path;
-	auto index = get<int>(L, 2);
-	if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
-		SetFlashValue(L, &path, 3);
+	if (lua_type(L, 2) == LUA_TNUMBER) {
+		auto index = get<int>(L, 2);
+		if (GetStaticSymbols().IgValuePathPathMakeArrayRef(&path, path_.Last(), index, path_.Last()->Iggy)) {
+			SetFlashValue(L, &path, 3);
+		}
+	} else {
+		auto name = get<char const*>(L, 2);
+		if (GetStaticSymbols().IgValuePathMakeNameRef(&path, path_.Last(), name)) {
+			SetFlashValue(L, &path, 3);
+		}
 	}
 
 	return 0;
