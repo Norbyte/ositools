@@ -76,7 +76,7 @@ public:
 	bool GetElement(lua_State* L, CppObjectMetadata& self, unsigned arrayIndex) override
 	{
 		auto obj = reinterpret_cast<TArray*>(self.Ptr);
-		if (arrayIndex > 0 && arrayIndex <= (int)obj->size()) {
+		if (arrayIndex > 0 && arrayIndex <= (unsigned)obj->size()) {
 			MakeObjectRef(L, self.Lifetime, &(*obj)[arrayIndex - 1]);
 			return true;
 		} else {
@@ -338,6 +338,12 @@ public:
 		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<PrimitiveSmallSet<T, Allocator>, T>>());
 	}
 
+	template <class T>
+	inline static auto MakeByRef(lua_State* L, Queue<T>* object, LifetimeHandle const& lifetime)
+	{
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByRefImpl<Queue<T>, T>>());
+	}
+
 	template <class T, int Size>
 	inline static auto MakeByRef(lua_State* L, std::array<T, Size>* object, LifetimeHandle const& lifetime)
 	{
@@ -372,6 +378,12 @@ public:
 	inline static auto MakeByVal(lua_State* L, PrimitiveSmallSet<T, Allocator>* object, LifetimeHandle const& lifetime)
 	{
 		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<PrimitiveSmallSet<T, Allocator>, T>>());
+	}
+
+	template <class T>
+	inline static auto MakeByVal(lua_State* L, Queue<T>* object, LifetimeHandle const& lifetime)
+	{
+		MakeImpl(L, object, lifetime, GetImplementation<ArrayProxyByValImpl<Queue<T>, T>>());
 	}
 
 	template <class T, int Size>
@@ -409,6 +421,9 @@ struct IsArrayLike<ObjectSet<T, Allocator, StoreSize>> { static constexpr bool V
 
 template <class T, class Allocator>
 struct IsArrayLike<PrimitiveSmallSet<T, Allocator>> { static constexpr bool Value = true; using TElement = T; };
+
+template <class T>
+struct IsArrayLike<Queue<T>> { static constexpr bool Value = true; using TElement = T; };
 
 template <class T, size_t Size>
 struct IsArrayLike<std::array<T, Size>> { static constexpr bool Value = true; using TElement = T; };

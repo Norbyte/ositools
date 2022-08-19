@@ -764,7 +764,17 @@ public:
 		return capacity_;
 	}
 
-	void push(T const& value)
+	inline T const& operator [] (size_type index) const
+	{
+		return buf_[(readIndex_ + index) % capacity_];
+	}
+
+	inline T& operator [] (size_type index)
+	{
+		return buf_[(readIndex_ + index) % capacity_];
+	}
+
+	void push_back(T const& value)
 	{
 		if (size_ == 0 || readIndex_ == writeIndex_) {
 			resize(capacity_increment());

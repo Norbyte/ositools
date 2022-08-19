@@ -192,7 +192,7 @@ private:
 
 		auto index = handle.GetIndex();
 		Salts[index] = (Salts[index] + 1) % 0x400000;
-		FreeHandleQueue.push(index);
+		FreeHandleQueue.push_back(index);
 		ComponentsByHandleIndex[index] = nullptr;
 	}
 
@@ -210,7 +210,7 @@ private:
 		for (auto i = curSize; i < newSize; i++) {
 			ComponentsByHandleIndex[i] = nullptr;
 			Salts[i] = 1;
-			FreeHandleQueue.push(i);
+			FreeHandleQueue.push_back(i);
 		}
 	}
 
@@ -219,7 +219,7 @@ private:
 		FreeHandleQueue.clear();
 		for (uint32_t i = 0; i < ComponentsByHandleIndex.size(); i++) {
 			if (!ComponentsByHandleIndex[i]) {
-				FreeHandleQueue.push(i);
+				FreeHandleQueue.push_back(i);
 			}
 		}
 
