@@ -118,6 +118,112 @@ void DebugConsole::SubmitTaskAndWait(bool server, std::function<void()> task)
 	}
 }
 
+void DebugConsole::PrintHelp()
+{
+	DEBUG("Anything typed in will be executed as Lua code except the following special commands:");
+	DEBUG("  server - Switch to server context");
+	DEBUG("  client - Switch to client context");
+	DEBUG("  reset client - Reset client Lua state");
+	DEBUG("  reset server - Reset server Lua state");
+	DEBUG("  reset - Reset client and server Lua states");
+	DEBUG("  silence <on|off> - Enable/disable silent mode (log output when in input mode)");
+	DEBUG("  exit - Leave console mode");
+	DEBUG("  !<cmd> <arg1> ... <argN> - Trigger Lua \"ConsoleCommand\" event with arguments cmd, arg1, ..., argN");
+}
+
+void DebugConsole::ResetLua()
+{
+	DEBUG("Resetting Lua states.");
+	SubmitTaskAndWait(true, []() {
+		gExtender->GetServer().ResetLuaState();
+	});
+
+	SubmitTaskAndWait(false, []() {
+		if (!gExtender->GetServer().RequestResetClientLuaState()) {
+			gExtender->GetClient().ResetLuaState();
+		}
+	});
+}
+
+void DebugConsole::ResetLuaClient()
+{
+	DEBUG("Resetting client Lua state.");
+	SubmitTaskAndWait(false, []() {
+		if (!gExtender->GetServer().RequestResetClientLuaState()) {
+			gExtender->GetClient().ResetLuaState();
+		}
+	});
+}
+
+void DebugConsole::ResetLuaServer()
+{
+	DEBUG("Resetting server Lua state.");
+	SubmitTaskAndWait(true, []() {
+		gExtender->GetServer().ResetLuaState();
+	});
+}
+
+void DebugConsole::ExecLuaCommand(std::string const& cmd)
+{
+	auto task = [cmd]() {
+		auto state = gExtender->GetCurrentExtensionState();
+
+		if (!state) {
+			ERR("Extensions not initialized!");
+			return;
+		}
+
+		LuaVirtualPin pin(*state);
+		if (!pin) {
+			ERR("Lua state not initialized!");
+			return;
+		}
+
+		if (cmd[0] == '!') {
+			lua::DoConsoleCommandEvent params;
+			params.Command = cmd.substr(1);
+			pin->ThrowEvent("DoConsoleCommand", params, false, 0);
+		} else {
+			lua::StaticLifetimeStackPin _(pin->GetStack(), pin->GetGlobalLifetime());
+			auto L = pin->GetState();
+			if (luaL_loadstring(L, cmd.c_str()) || lua::CallWithTraceback(L, 0, 0)) { // stack: errmsg
+				ERR("%s", lua_tostring(L, -1));
+				lua_pop(L, 1);
+			}
+		}
+	};
+
+	SubmitTaskAndWait(serverContext_, task);
+}
+
+void DebugConsole::HandleCommand(std::string const& cmd)
+{
+	if (cmd.empty()) {
+	} else if (cmd == "server") {
+		DEBUG("Switching to server context.");
+		serverContext_ = true;
+	} else if (cmd == "client") {
+		DEBUG("Switching to client context.");
+		serverContext_ = false;
+	} else if (cmd == "reset") {
+		ResetLua();
+	} else if (cmd == "reset server") {
+		ResetLuaServer();
+	} else if (cmd == "reset client") {
+		ResetLuaClient();
+	} else if (cmd == "silence on") {
+		DEBUG("Silent mode ON");
+		silence_ = true;
+	} else if (cmd == "silence off") {
+		DEBUG("Silent mode OFF");
+		silence_ = false;
+	} else if (cmd == "help") {
+		PrintHelp();
+	} else {
+		ExecLuaCommand(cmd);
+	}
+}
+
 void DebugConsole::ConsoleThread()
 {
 	std::string line;
@@ -133,100 +239,47 @@ void DebugConsole::ConsoleThread()
 
 		DEBUG("Entering server Lua console.");
 
-		bool serverContext = true;
-
 		while (consoleRunning_) {
 			inputEnabled_ = true;
 			silence_ = silence;
 
-			if (serverContext) {
-				std::cout << "S >> ";
+			if (serverContext_) {
+				std::cout << "S";
 			} else {
-				std::cout << "C >> ";
+				std::cout << "C";
+			}
+
+			if (multiLineMode_) {
+				std::cout << " >> ";
+			} else {
+				std::cout << " -->> ";
 			}
 
 			std::cout.flush();
 			std::getline(std::cin, line);
 			inputEnabled_ = false;
 			silence_ = false;
-			if (line == "exit") break;
 
-			if (line.empty()) {
-			} else if (line == "server") {
-				DEBUG("Switching to server context.");
-				serverContext = true;
-			} else if (line == "client") {
-				DEBUG("Switching to client context.");
-				serverContext = false;
-			} else if (line == "reset") {
-				DEBUG("Resetting Lua states.");
-				SubmitTaskAndWait(true, []() {
-					gExtender->GetServer().ResetLuaState();
-				});
+			if (!multiLineMode_) {
+				if (line == "exit") {
+					break;
+				}
 
-				SubmitTaskAndWait(false, []() {
-					if (!gExtender->GetServer().RequestResetClientLuaState()) {
-						gExtender->GetClient().ResetLuaState();
-					}
-				});
-			} else if (line == "reset server") {
-				DEBUG("Resetting server Lua state.");
-				SubmitTaskAndWait(true, []() {
-					gExtender->GetServer().ResetLuaState();
-				});
-			} else if (line == "reset client") {
-				DEBUG("Resetting client Lua state.");
-				SubmitTaskAndWait(false, []() {
-					if (!gExtender->GetServer().RequestResetClientLuaState()) {
-						gExtender->GetClient().ResetLuaState();
-					}
-				});
-			} else if (line == "silence on") {
-				DEBUG("Silent mode ON");
-				silence = true;
-			} else if (line == "silence off") {
-				DEBUG("Silent mode OFF");
-				silence = false;
-			} else if (line == "help") {
-				DEBUG("Anything typed in will be executed as Lua code except the following special commands:");
-				DEBUG("  server - Switch to server context");
-				DEBUG("  client - Switch to client context");
-				DEBUG("  reset client - Reset client Lua state");
-				DEBUG("  reset server - Reset server Lua state");
-				DEBUG("  reset - Reset client and server Lua states");
-				DEBUG("  silence <on|off> - Enable/disable silent mode (log output when in input mode)");
-				DEBUG("  exit - Leave console mode");
-				DEBUG("  !<cmd> <arg1> ... <argN> - Trigger Lua \"ConsoleCommand\" event with arguments cmd, arg1, ..., argN");
+				if (line == "--[[") {
+					multiLineMode_ = true;
+					multiLineCommand_.clear();
+					continue;
+				}
+
+				HandleCommand(line);
 			} else {
-				auto task = [line]() {
-					auto state = gExtender->GetCurrentExtensionState();
-
-					if (!state) {
-						ERR("Extensions not initialized!");
-						return;
-					}
-
-					LuaVirtualPin pin(*state);
-					if (!pin) {
-						ERR("Lua state not initialized!");
-						return;
-					}
-
-					if (line[0] == '!') {
-						lua::DoConsoleCommandEvent params;
-						params.Command = line.substr(1);
-						pin->ThrowEvent("DoConsoleCommand", params, false, 0);
-					} else {
-						lua::StaticLifetimeStackPin _(pin->GetStack(), pin->GetGlobalLifetime());
-						auto L = pin->GetState();
-						if (luaL_loadstring(L, line.c_str()) || lua::CallWithTraceback(L, 0, 0)) { // stack: errmsg
-							ERR("%s", lua_tostring(L, -1));
-							lua_pop(L, 1);
-						}
-					}
-				};
-
-				SubmitTaskAndWait(serverContext, task);
+				if (line == "]]--") {
+					multiLineMode_ = false;
+					HandleCommand(multiLineCommand_);
+				} else {
+					multiLineCommand_ += line;
+					multiLineCommand_ += '\n';
+				}
 			}
 		}
 
