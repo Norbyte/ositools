@@ -4,6 +4,7 @@
 #include <GameDefinitions/Symbols.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/GameObjects/Ai.h>
+#include <GameDefinitions/GameObjects/Movement.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
 
@@ -574,6 +575,16 @@ namespace dse
 			} else {
 				return nullptr;
 			}
+		}
+
+		ActionStateType ActionState::LuaGetTypeId()
+		{
+			return GetType();
+		}
+
+		MovementStateType MovementState::LuaGetTypeId()
+		{
+			return GetTypeId();
 		}
 	}
 

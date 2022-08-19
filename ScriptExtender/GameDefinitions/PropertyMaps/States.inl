@@ -1,4 +1,5 @@
 BEGIN_CLS(esv::MovementState)
+P_GETTER(Type, LuaGetTypeId)
 P_RO(TransactionId)
 END_CLS()
 
@@ -64,6 +65,7 @@ END_CLS()
 
 
 BEGIN_CLS(esv::ActionState)
+P_GETTER(Type, LuaGetTypeId)
 P_RO(TransactionId)
 END_CLS()
 

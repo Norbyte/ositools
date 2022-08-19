@@ -104,6 +104,8 @@ namespace esv
 	struct ActionState;
 	struct BaseController;
 	struct StatusController;
+	struct Task;
+	struct TaskController;
 
 	struct CustomStatDefinitionComponent;
 	struct CustomStatSystem;
@@ -121,6 +123,7 @@ namespace esv
 	struct StatusMachine;
 	struct AreaTriggerBase;
 	struct PointTriggerBase;
+	struct AIHintAreaTrigger;
 
 	struct SurfaceManager;
 	struct GameActionManager;

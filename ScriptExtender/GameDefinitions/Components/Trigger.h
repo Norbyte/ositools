@@ -9,7 +9,7 @@ namespace dse
 	struct ITriggerData : public ProtectedGameObject<ITriggerData>
 	{
 		virtual ~ITriggerData() = 0;
-		virtual int GetSyncBehaviour() = 0;
+		virtual int GetSyncBehavior() = 0;
 		virtual ITriggerData* Clone() = 0;
 		virtual bool Visit(ObjectVisitor* visitor) = 0;
 	};

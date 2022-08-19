@@ -34,6 +34,7 @@ namespace dse
 
 			LegacyPropertyMapBase * GetPropertyMap();
 			char const * GetTypeName();
+			ActionStateType LuaGetTypeId();
 		};
 
 		struct NumberDivider

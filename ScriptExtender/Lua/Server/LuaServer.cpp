@@ -3,6 +3,7 @@
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/GameObjects/Movement.h>
+#include <GameDefinitions/GameObjects/Controllers.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <GameDefinitions/CustomStats.h>
@@ -345,6 +346,36 @@ void LuaPolymorphic<esv::ActionState>::MakeRef(lua_State* L, esv::ActionState* o
 	default: return MakeDirectObjectRef(L, lifetime, o);
 	}
 }
+
+#define MAKE_REF(ty) case esv::TaskType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<esv::Osiris##ty##Task*>(o));
+
+void LuaPolymorphic<esv::Task>::MakeRef(lua_State* L, esv::Task* o, LifetimeHandle const & lifetime)
+{
+	switch (o->TaskTypeId) {
+	MAKE_REF(MoveToLocation)
+	MAKE_REF(MoveToObject)
+	MAKE_REF(Flee)
+	MAKE_REF(MoveInRange)
+	MAKE_REF(TeleportToLocation)
+	MAKE_REF(Appear)
+	MAKE_REF(Disappear)
+	MAKE_REF(FollowNPC)
+	MAKE_REF(Wander)
+	MAKE_REF(Steer)
+	MAKE_REF(PlayAnimation)
+	MAKE_REF(Drop)
+	MAKE_REF(PickupItem)
+	MAKE_REF(UseItem)
+	MAKE_REF(MoveItem)
+	MAKE_REF(Attack)
+	MAKE_REF(Resurrect)
+	MAKE_REF(UseSkill)
+	MAKE_REF(MoveToAndTalk)
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#undef MAKE_REF
 
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const

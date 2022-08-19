@@ -3,6 +3,13 @@ P_REF(Modifiers)
 END_CLS()
 
 
+BEGIN_CLS(eoc::AiPathCheckpoint)
+P(NetID)
+P(X)
+P(Y)
+END_CLS()
+
+
 BEGIN_CLS(eoc::PathParams)
 P(GridRadius)
 P(XZ)

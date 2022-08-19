@@ -19,6 +19,8 @@ struct MovementState : public ProtectedGameObject<MovementState>
 	virtual bool IsFinished() = 0;
 	virtual MovementStateType GetTypeId() = 0;
 
+	MovementStateType LuaGetTypeId();
+
 	MovementMachine* MovementMachine;
 	int TransactionId;
 	int field_14;

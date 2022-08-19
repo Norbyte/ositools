@@ -15,6 +15,13 @@ namespace dse
 
 namespace dse::eoc
 {
+    struct AiPathCheckpoint
+    {
+        NetId NetID;
+        float X;
+        float Y;
+    };
+
     struct AiGridPortal : public ProtectedGameObject<AiGridPortal>
     {
         uint64_t field_0;

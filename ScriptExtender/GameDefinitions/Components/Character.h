@@ -193,20 +193,20 @@ namespace dse
 			bool U5;
 			stats::Character * Stats;
 			ComponentHandle InventoryHandle;
-			esv::MovementMachine * MovementMachine;
-			esv::ActionMachine * ActionMachine;
+			MovementMachine * MovementMachine;
+			ActionMachine * ActionMachine;
 			void * SteeringMachine;
-			void * BehaviourMachine;
+			void * BehaviorMachine;
 			void * CharacterSupervisor;
 			void * NetworkController;
-			void * OsirisController;
+			TaskController * OsirisController;
 			void * RequestController;
-			esv::StatusController* StatusController;
+			StatusController* StatusController;
 #if !defined(OSI_EOCAPP)
 			uint64_t U8[2];
 #endif
 			void * ScriptController;
-			void * DialogController;
+			TaskController * DialogController;
 			StatusMachine * StatusMachine;
 			SkillManager * SkillManager;
 			void * VariableManager;
@@ -251,6 +251,7 @@ namespace dse
 			int32_t MaxVitalityPatchCheck;
 			int32_t MaxArmorPatchCheck;
 			int32_t MaxMagicArmorPatchCheck;
+			float SpeedMultiplier;
 			FixedString AnimationSetOverride;
 			ComponentHandle PartyHandle;
 			ObjectSet<FixedString> CreatedTemplateItems;
@@ -449,7 +450,7 @@ namespace dse
 			void* MovementMachine;
 			void* ActionStateMachine;
 			void* SteeringMachine;
-			void* BehaviourMachine;
+			void* BehaviorMachine;
 			void* InputController;
 			void* NetworkController;
 			void* StatusController;
