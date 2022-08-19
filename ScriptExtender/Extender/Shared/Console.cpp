@@ -227,7 +227,6 @@ void DebugConsole::HandleCommand(std::string const& cmd)
 void DebugConsole::ConsoleThread()
 {
 	std::string line;
-	bool silence = true;
 	while (consoleRunning_) {
 		wchar_t tempBuf;
 		DWORD tempRead;
@@ -239,9 +238,11 @@ void DebugConsole::ConsoleThread()
 
 		DEBUG("Entering server Lua console.");
 
+		bool oldSilence = silence_;
+
 		while (consoleRunning_) {
 			inputEnabled_ = true;
-			silence_ = silence;
+			silence_ = oldSilence;
 
 			if (serverContext_) {
 				std::cout << "S";
@@ -250,14 +251,15 @@ void DebugConsole::ConsoleThread()
 			}
 
 			if (multiLineMode_) {
-				std::cout << " >> ";
-			} else {
 				std::cout << " -->> ";
+			} else {
+				std::cout << " >> ";
 			}
 
 			std::cout.flush();
 			std::getline(std::cin, line);
 			inputEnabled_ = false;
+			oldSilence = silence_;
 			silence_ = false;
 
 			if (!multiLineMode_) {
