@@ -294,13 +294,13 @@ Json::Value StringifyUserdata(lua_State * L, int index, unsigned depth, Stringif
 			auto key = lua_tostring(L, -2);
 			arr[key] = val;
 		} else if (type == LUA_TNUMBER) {
-			if (ctx.LimitArrayElements != -1 && lua_tointeger(L, -2) > ctx.LimitArrayElements) {
+			auto key = lua_tointeger(L, -2);
+			if (ctx.LimitArrayElements != -1 && key > ctx.LimitArrayElements) {
 				break;
 			}
 
 			if (arr.type() == Json::arrayValue) {
-				auto key = (uint32_t)lua_tointeger(L, -1);
-				arr[key] = val;
+				arr[(uint32_t)key - 1] = val;
 			} else {
 				lua_pushvalue(L, -2);
 				auto key = lua_tostring(L, -1);
