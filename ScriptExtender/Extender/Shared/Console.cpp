@@ -39,7 +39,7 @@ void DebugConsole::SetColor(DebugMessageType type)
 
 void DebugConsole::Debug(DebugMessageType type, char const* msg)
 {
-	if (consoleRunning_ && !silence_) {
+	if (consoleRunning_ && (!inputEnabled_ || !silence_)) {
 		SetColor(type);
 		OutputDebugStringA(msg);
 		OutputDebugStringA("\r\n");
@@ -238,12 +238,8 @@ void DebugConsole::ConsoleThread()
 
 		DEBUG("Entering server Lua console.");
 
-		bool oldSilence = silence_;
-
 		while (consoleRunning_) {
 			inputEnabled_ = true;
-			silence_ = oldSilence;
-
 			if (serverContext_) {
 				std::cout << "S";
 			} else {
@@ -259,8 +255,6 @@ void DebugConsole::ConsoleThread()
 			std::cout.flush();
 			std::getline(std::cin, line);
 			inputEnabled_ = false;
-			oldSilence = silence_;
-			silence_ = false;
 
 			if (!multiLineMode_) {
 				if (line == "exit") {

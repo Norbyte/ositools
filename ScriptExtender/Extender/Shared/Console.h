@@ -20,7 +20,7 @@ public:
 private:
 	bool created_{ false };
 	bool inputEnabled_{ false };
-	bool silence_{ false };
+	bool silence_{ true };
 	bool consoleRunning_{ false };
 	bool logToFile_{ false };
 	bool serverContext_{ true };
