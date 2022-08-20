@@ -23,7 +23,7 @@ struct GameAction : public ProtectedGameObject<GameAction>
 struct GameActionManager : public NetworkComponentFactory<GameAction>
 {
 	BaseComponentProcessingSystem<EntityWorld> ComponentProcessingSystem;
-	Set<GameAction *> GameActions;
+	ObjectSet<GameAction *> GameActions;
 };
 
 struct TornadoAction : public GameAction
