@@ -2,6 +2,8 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
+#include <GameDefinitions/Stats.h>
+#include <GameDefinitions/Components/Projectile.h>
 
 BEGIN_NS(esv)
 
@@ -36,11 +38,10 @@ struct TornadoAction : public GameAction
 	bool Finished;
 	bool IsFromItem;
 	float HitRadius;
-	uint64_t _Unk2;
+	stats::PropertyList SkillProperties;
 	ObjectSet<glm::vec3> AnchorList;
 	uint64_t Anchor;
 	float Interpolation;
-	uint32_t _Unk3;
 	ComponentHandle SurfaceActionHandle;
 	ObjectSet<ComponentHandle> HitCharacterHandles;
 	ObjectSet<ComponentHandle> HitItemHandles;
@@ -50,6 +51,15 @@ struct TornadoAction : public GameAction
 
 struct StormAction : public GameAction
 {
+	struct Strike
+	{
+		ComponentHandle Object;
+		glm::vec3 Target;
+		glm::vec3 Source;
+		FixedString SkillId;
+	};
+
+
 	ComponentHandle OwnerHandle;
 	glm::vec3 Position;
 	float LifeTime;
@@ -58,10 +68,12 @@ struct StormAction : public GameAction
 	float StrikeTimer;
 	bool Finished;
 	bool IsFromItem;
-	uint64_t Unkn[3 * 5];
-	ObjectSet<FixedString> FSSet;
-	ObjectSet<void *> ProjectileTargetDescSet;
-	ObjectSet<void *> StrikeSet;
+	eoc::GameRandom Random1;
+	eoc::GameRandom Random2;
+	eoc::GameRandom Random3;
+	ObjectSet<FixedString> ProjectileSkills;
+	ObjectSet<ProjectileTargetDesc> ProjectileTargets;
+	ObjectSet<Strike> Strikes;
 };
 
 struct RainAction : public GameAction
@@ -87,25 +99,47 @@ struct WallAction : public GameAction
 	glm::vec3 Target;
 	glm::vec3 Source;
 	float LifeTime;
-	ObjectSet<void *> Walls;
+	ObjectSet<ComponentHandle> Walls;
 	float TurnTimer;
 	bool Finished;
 	bool IsFromItem;
-	uint64_t Unk1;
-	uint64_t Unk2;
-	uint32_t Unk3;
-	uint32_t Unk4;
+	uint64_t NumWallsGrown;
+	float TimeSinceLastWall;
+	float GrowTimePerWall;
+	float GrowTimeout;
+	int State;
 };
 
 struct StatusDomeAction : public GameAction
 {
 	ComponentHandle OwnerHandle;
 	glm::vec3 Position;
-	uint8_t _Pad3[4];
 	float LifeTime;
 	FixedString SkillId;
 	bool Finished;
 	void * SkillStatusAura;
+};
+
+struct PathAction : public GameAction
+{
+	FixedString SkillId;
+	ComponentHandle Owner;
+	glm::vec3 Position;
+	glm::vec3 Target;
+	float TurnTimer;
+	float Speed;
+	float HitRadius;
+	stats::PropertyList* SkillProperties;
+	ObjectSet<glm::vec3> Waypoints;
+	uint64_t Anchor;
+	uint64_t PreviousAnchor;
+	float Interpolation;
+	float Distance;
+	ComponentHandle SurfaceAction;
+	ObjectSet<ComponentHandle> HitCharacters;
+	ObjectSet<ComponentHandle> HitItems;
+	bool Finished;
+	bool IsFromItem;
 };
 
 struct GameObjectMoveAction : public GameAction

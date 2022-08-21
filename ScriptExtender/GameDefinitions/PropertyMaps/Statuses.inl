@@ -458,6 +458,32 @@ INHERIT(esv::StatusConsumeBase)
 END_CLS()
 
 
+BEGIN_CLS(esv::Aura::AppliedAura)
+P(LifeTime)
+P_REF(AppliedStatuses)
+END_CLS()
+
+
+BEGIN_CLS(esv::Aura)
+P_REF(AuraSelf)
+P_REF(AuraAllies)
+P_REF(AuraNeutrals)
+P_REF(AuraEnemies)
+P_REF(AuraItems)
+P_RO(Owner)
+P_RO(SomeObjHandle)
+P_REF(AppliedAuras)
+P(TickTimer)
+END_CLS()
+
+
+BEGIN_CLS(esv::SkillStatusAura)
+INHERIT(esv::Aura)
+P(Position)
+P(AreaRadius)
+END_CLS()
+
+
 BEGIN_CLS(esv::StatusMachine)
 P_RO(IsStatusMachineActive)
 P_RO(PreventStatusApply)

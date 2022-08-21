@@ -29,6 +29,7 @@ LUA_POLYMORPHIC(stats::EquipmentAttributes)
 LUA_POLYMORPHIC(esv::MovementState)
 LUA_POLYMORPHIC(esv::ActionState)
 LUA_POLYMORPHIC(esv::Task)
+LUA_POLYMORPHIC(esv::GameAction)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);

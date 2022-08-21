@@ -377,6 +377,24 @@ void LuaPolymorphic<esv::Task>::MakeRef(lua_State* L, esv::Task* o, LifetimeHand
 
 #undef MAKE_REF
 
+#define MAKE_REF(ty) case GameActionType::ty: return MakeDirectObjectRef(L, lifetime, static_cast<esv::ty*>(o));
+
+void LuaPolymorphic<esv::GameAction>::MakeRef(lua_State* L, esv::GameAction* o, LifetimeHandle const & lifetime)
+{
+	switch (o->ActionType) {
+	MAKE_REF(RainAction)
+	MAKE_REF(StormAction)
+	MAKE_REF(WallAction)
+	MAKE_REF(TornadoAction)
+	MAKE_REF(PathAction)
+	MAKE_REF(GameObjectMoveAction)
+	MAKE_REF(StatusDomeAction)
+	default: return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
+#undef MAKE_REF
+
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {

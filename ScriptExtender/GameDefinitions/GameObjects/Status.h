@@ -618,6 +618,42 @@ struct StatusMachine : public dse::StatusMachine<Status>
 	esv::Status* GetServerStatus(ComponentHandle handle, bool returnUnapplied) const;
 };
 
+struct Aura
+{
+	struct AppliedAura
+	{
+		float LifeTime;
+		ObjectSet<ComponentHandle> AppliedStatuses;
+	};
+
+
+	virtual ~Aura() = 0;
+	virtual void Visit(ObjectVisitor*) = 0;
+	virtual glm::vec3& GetPosition() = 0;
+	virtual float GetRadius() = 0;
+	virtual bool IsOwnerActive() = 0;
+	virtual Level* GetLevel() = 0;
+	virtual void ParseAuraString(FixedString const& aura, void*) = 0;
+
+	ObjectSet<FixedString> AuraSelf;
+	ObjectSet<FixedString> AuraAllies;
+	ObjectSet<FixedString> AuraNeutrals;
+	ObjectSet<FixedString> AuraEnemies;
+	ObjectSet<FixedString> AuraItems;
+	ComponentHandle Owner;
+	ComponentHandle SomeObjHandle;
+	RefMap<ComponentHandle, AppliedAura> AppliedAuras;
+	float TickTimer;
+};
+
+
+struct SkillStatusAura : public Aura
+{
+	glm::vec3 Position;
+	float AreaRadius;
+};
+
+
 END_NS()
 
 BEGIN_NS(ecl)

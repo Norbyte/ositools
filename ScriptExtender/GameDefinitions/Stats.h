@@ -39,6 +39,23 @@ struct ScriptCheckVariable : public IScriptCheckObject
 
 END_SE()
 
+BEGIN_NS(eoc)
+
+struct GameRandom
+{
+	int* FixedRollList;
+	int CurFixedRollIndex;
+	int Steps;
+	int RerolledLCG_X;
+	int BucketCount;
+	int LCG_X;
+	int MinRoll;
+	int StepSize;
+	BYTE field_24;
+};
+
+END_NS()
+
 BEGIN_NS(stats)
 
 struct TDamagePair
@@ -655,13 +672,6 @@ struct Item : public ObjectInstance
 	int32_t GetAbility(AbilityType ability);
 };
 
-struct EoCGameRandom
-{
-	uint64_t Unkn0;
-	uint32_t Unkn1[7];
-	uint8_t Unkn2;
-};
-
 struct CharacterEquippedItem
 {
 	int32_t ItemStatsHandle;
@@ -779,8 +789,8 @@ struct Character : public ObjectInstance
 	Vector<CharacterEquippedItem*> EquippedItems;
 	ObjectSet<SurfacePathInfluence> SurfacePathInfluences;
 	int32_t ActiveBoostConditions[16]; // Saved
-	EoCGameRandom DamageRng;
-	EoCGameRandom CriticalHitRng;
+	eoc::GameRandom DamageRng;
+	eoc::GameRandom CriticalHitRng;
 	int32_t MaxVitality;
 	int32_t BaseMaxVitality;
 	int32_t MaxArmor;

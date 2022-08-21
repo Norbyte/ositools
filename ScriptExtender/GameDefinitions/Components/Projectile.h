@@ -12,6 +12,13 @@ namespace dse
 
 	namespace esv
 	{
+        struct ProjectileTargetDesc
+        {
+            ComponentHandle Target;
+            glm::vec3 TargetPosition;
+            glm::vec3 TargetPosition2;
+        };
+
         struct DefaultProjectileHit : Noncopyable<DefaultProjectileHit>
         {
             virtual void Destroy(bool b) = 0;
