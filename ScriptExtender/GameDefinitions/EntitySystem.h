@@ -781,8 +781,8 @@ namespace ecl
 	{
 		EntityManager* EntityManager;
 		void* ItemFactory;
-		RefMap<FixedString, ObjectSet<Item*>*> RegisteredItemsByLevel;
-		RefMap<FixedString, ObjectSet<Item*>*> ActivatedItemsByLevel;
+		RefMap<FixedString, ObjectSet<Item*>*> RegisteredItems;
+		RefMap<FixedString, ObjectSet<Item*>*> ActivatedItems;
 	};
 
 
@@ -790,8 +790,8 @@ namespace ecl
 	{
 		EntityManager* EntityManager;
 		void* CharacterFactory;
-		RefMap<FixedString, ObjectSet<Character*>*> RegisteredCharactersByLevel;
-		RefMap<FixedString, ObjectSet<Character*>*> ActivatedCharactersByLevel;
+		RefMap<FixedString, ObjectSet<Character*>*> RegisteredCharacters;
+		RefMap<FixedString, ObjectSet<Character*>*> ActivatedCharacters;
 	};
 
 
@@ -800,7 +800,14 @@ namespace ecl
 		void* VMT;
 		ecl::EntityManager* EntityManager;
 		void* TriggerFactory;
-		RefMap<FixedString, ObjectSet<void*>*> RegisteredTriggersByLevel;
+		RefMap<FixedString, ObjectSet<Trigger *>*> RegisteredTriggers;
+	};
+	
+	
+	struct SceneryConversionHelpers
+	{
+		EntityManager* EntityManager;
+		RefMap<FixedString, ObjectSet<Scenery *>*> RegisteredScenery;
 	};
 
 		
@@ -808,7 +815,7 @@ namespace ecl
 	{
 		EntityManager* EntityManager;
 		void* ProjectileFactory;
-		RefMap<FixedString, ObjectSet<void*>*> RegisteredProjectilesByLevel;
+		RefMap<FixedString, ObjectSet<Projectile *>*> RegisteredProjectiles;
 	};
 
 
@@ -826,7 +833,7 @@ namespace ecl
 		ItemConversionHelpers ItemConversionHelpers;
 		CharacterConversionHelpers CharacterConversionHelpers;
 		TriggerConversionHelpers TriggerConversionHelpers;
-		uint64_t Unknown[3];
+		SceneryConversionHelpers SceneryConversionHelpers;
 		ProjectileConversionHelpers ProjectileConversionHelpers;
 		void* WallManager;
 		ObjectSet<FixedString> TriggerTypes;

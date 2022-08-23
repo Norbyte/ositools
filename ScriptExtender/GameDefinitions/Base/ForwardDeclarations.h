@@ -159,6 +159,7 @@ namespace ecl
 	struct Status;
 	struct StatusMachine;
 	struct Scenery;
+	struct Projectile;
 
 	struct EntityManager;
 	struct ShroudManager;

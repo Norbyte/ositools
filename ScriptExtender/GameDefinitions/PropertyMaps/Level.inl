@@ -189,9 +189,47 @@ P_REF(Levels2)
 END_CLS()
 
 
+BEGIN_CLS(ecl::ItemConversionHelpers)
+P_REF(RegisteredItems)
+P_REF(ActivatedItems)
+END_CLS()
+
+
+BEGIN_CLS(ecl::CharacterConversionHelpers)
+P_REF(RegisteredCharacters)
+P_REF(ActivatedCharacters)
+END_CLS()
+
+
+BEGIN_CLS(ecl::TriggerConversionHelpers)
+P_REF(RegisteredTriggers)
+END_CLS()
+
+
+BEGIN_CLS(ecl::SceneryConversionHelpers)
+P_REF(RegisteredScenery)
+END_CLS()
+
+
+BEGIN_CLS(ecl::ProjectileConversionHelpers)
+P_REF(RegisteredProjectiles)
+END_CLS()
+
+
+BEGIN_CLS(ecl::EntityManager)
+P_REF(ItemConversionHelpers)
+P_REF(CharacterConversionHelpers)
+P_REF(TriggerConversionHelpers)
+P_REF(SceneryConversionHelpers)
+P_REF(ProjectileConversionHelpers)
+END_CLS()
+
+
 BEGIN_CLS(ecl::Level)
 INHERIT(Level)
 P_REF(AiGrid)
+P_REF(EntityManager)
+P_REF(LevelCacheTemplateManager)
 // etc ...
 END_CLS()
 
