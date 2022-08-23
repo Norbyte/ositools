@@ -143,3 +143,43 @@ namespace dse
         };
 	}
 }
+
+BEGIN_NS(ecl)
+
+struct Projectile : public IEoCClientObject
+{
+    void* VMT;
+    FixedString GUID;
+    NetId NetID;
+    uint32_t _Pad;
+    bool RequestDelete;
+    ComponentHandle TargetCharacter;
+    ComponentHandle Caster;
+    ComponentHandle Source;
+    ComponentHandle MovingObject;
+    FixedString SpawnEffect;
+    bool SpawnFXOverridesImpactFX;
+    glm::vec3 SourcePos;
+    glm::vec3 TargetPos;
+    float LifeTime;
+    uint64_t field_88;
+    FixedString ImpactFX;
+    bool RotateImpact;
+    float ExplodeRadius;
+    uint64_t field_A0;
+    eoc::PathMover PathMover;
+    uint64_t Flags;
+    bool IsGlobal;
+    glm::vec3 Translate;
+    glm::vec3 Velocity;
+    glm::mat3 Rotation;
+    float Scale;
+    FixedString Level;
+    ProjectileTemplate* CurrentTemplate;
+    ObjectSet<int> PeerIDClassNames;
+    Visual* Visual;
+    FixedString SkillID;
+    bool IsFirstTick;
+};
+
+END_NS()
