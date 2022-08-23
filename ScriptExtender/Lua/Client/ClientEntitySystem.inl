@@ -4,6 +4,8 @@ using namespace lua;
 
 std::optional<STDWString> IEoCClientObject::LuaGetDisplayName()
 {
+	if (!GetCurrentTemplate()) return {};
+
 	TranslatedString name;
 	GetDisplayName(name);
 	return name.Handle.ReferenceString;
