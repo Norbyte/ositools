@@ -368,6 +368,10 @@ public:
 	// noinline needed to ensure that the error handler stack is always 2 levels deep
 	static __declspec(noinline) bool IsExtensionRelatedCrash()
 	{
+		if (gExtender->GetConfig().ForceCrashReporting) {
+			return true;
+		}
+
 		if (gDisableCrashReportingCount > 0) {
 			return false;
 		}

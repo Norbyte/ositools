@@ -33,6 +33,7 @@ namespace dse {
 			}
 
 			Wrap(ExportProc, NewFunction);
+			gRegisteredTrampolines.insert(NewFunction);
 		}
 
 		void Wrap(void * Function, FuncType NewFunction)
@@ -206,7 +207,6 @@ namespace dse {
 		void Wrap(void * Function)
 		{
 			this->wrapped_.Wrap(Function, &CallToTrampoline);
-			gRegisteredTrampolines.insert(&CallToTrampoline);
 
 			if (gHook != nullptr) {
 				Fail("Hook already registered");

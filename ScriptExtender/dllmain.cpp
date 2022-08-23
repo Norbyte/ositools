@@ -58,6 +58,7 @@ void LoadConfig(std::wstring const & configPath, dse::ExtenderConfig & config)
 	ConfigGet(root, "LogRuntime", config.LogRuntime);
 	ConfigGet(root, "EnableExtensions", config.EnableExtensions);
 	ConfigGet(root, "SendCrashReports", config.SendCrashReports);
+	ConfigGet(root, "ForceCrashReporting", config.ForceCrashReporting);
 	ConfigGet(root, "DumpNetworkStrings", config.DumpNetworkStrings);
 	ConfigGet(root, "SyncNetworkStrings", config.SyncNetworkStrings);
 	ConfigGet(root, "EnableDebugger", config.EnableDebugger);
