@@ -1,4 +1,5 @@
 BEGIN_CLS(ecl::Scenery)
+INHERIT(IEoCClientObject)
 P_GETTER_SETTER(Flags, LuaGetFlags, LuaSetFlags)
 P_BITMASK_GETTER_SETTER(Flags, LuaHasFlag, LuaSetFlag)
 P_RO(LevelName)
