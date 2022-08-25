@@ -179,7 +179,7 @@ public:
 			auto symbolOffset = (uint32_t)((uint8_t*)bt - eocAppStart_);
 			auto sym = eocAppSymbols_.FindSymbol(symbolOffset);
 			if (sym) {
-				ss << symbols_.GetName(sym) << "+0x" << std::hex << std::setw(0) << (uint64_t)(symbolOffset - sym->RVA) << std::endl;
+				ss << eocAppSymbols_.GetName(sym) << "+0x" << std::hex << std::setw(0) << (uint64_t)(symbolOffset - sym->RVA) << std::endl;
 				return true;
 			}
 		}
