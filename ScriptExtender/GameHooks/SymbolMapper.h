@@ -18,7 +18,7 @@ public:
 		: ptr_(const_cast<uint8_t *>(ptr)),
 		size_(size)
 	{
-		BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, PAGE_READWRITE, &oldProtect_);
+		BOOL succeeded = VirtualProtect((LPVOID)ptr_, size_, PAGE_EXECUTE_READWRITE, &oldProtect_);
 		if (!succeeded) Fail("VirtualProtect() failed");
 	}
 

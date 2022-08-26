@@ -536,10 +536,12 @@ namespace dse
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().EnableAchievements) {
 			if (GetStaticSymbols().ls__ModuleSettings__HasCustomMods != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().ls__ModuleSettings__HasCustomMods);
-				WriteAnchor code(p, 0x40);
-				p[0x0E] = 0x90;
-				p[0x0F] = 0xE9;
+				{
+					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ls__ModuleSettings__HasCustomMods);
+					WriteAnchor code(p, 0x40);
+					p[0x0E] = 0x90;
+					p[0x0F] = 0xE9;
+				}
 
 				if (GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5 != nullptr) {
 					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5);
