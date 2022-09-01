@@ -161,10 +161,22 @@ inline StaticTypeInformation::InitializerProc* MakeDeferredTypeInitializer(Overl
 }
 
 template <class T>
-StaticTypeInformation& GetStaticTypeInfoInternal()
+StaticTypeInformation& GetStaticTypeInfoInternal(Overload<T>)
 {
 	static StaticTypeInformation info{ nullptr, MakeDeferredTypeInitializer(Overload<T>{}) };
 	return info;
+}
+
+template <class T, class Allocator, bool StoreSize>
+StaticTypeInformation& GetStaticTypeInfoInternal(Overload<ObjectSet<T, Allocator, StoreSize>>)
+{
+	return GetStaticTypeInfoInternal(Overload<Set<T, Allocator, StoreSize>>{});
+}
+
+template <class T, class Allocator>
+StaticTypeInformation& GetStaticTypeInfoInternal(Overload<CompactObjectSet<T, Allocator>>)
+{
+	return GetStaticTypeInfoInternal(Overload<ObjectSet<T, Allocator, true>>{});
 }
 
 template <class T>
@@ -177,7 +189,7 @@ StaticTypeInformation& GetStaticTypeInfo(Overload<T>)
 	} else if constexpr (std::is_const_v<T> || std::is_volatile_v<T>) {
 		return GetStaticTypeInfo(Overload<std::remove_cv_t<T>>{});
 	} else {
-		return GetStaticTypeInfoInternal<T>();
+		return GetStaticTypeInfoInternal(Overload<T>{});
 	}
 }
 
