@@ -145,6 +145,17 @@ glm::vec4 get_raw(lua_State* L, Table* arr, Overload<glm::vec4>)
 	};
 }
 
+glm::quat get_raw(lua_State* L, Table* arr, Overload<glm::quat>)
+{
+	// quat constructor uses W,X,Y,Z
+	return glm::quat{
+		lua_val_get_float(L, arr->array + 3),
+		lua_val_get_float(L, arr->array),
+		lua_val_get_float(L, arr->array + 1),
+		lua_val_get_float(L, arr->array + 2),
+	};
+}
+
 glm::mat3 get_raw(lua_State* L, Table* arr, Overload<glm::mat3>)
 {
 	return glm::mat3{
@@ -196,6 +207,14 @@ void set_raw(Table* tab, glm::vec3 const& v)
 }
 
 void set_raw(Table* tab, glm::vec4 const& v)
+{
+	setfltvalue(tab->array + 0, v.x);
+	setfltvalue(tab->array + 1, v.y);
+	setfltvalue(tab->array + 2, v.z);
+	setfltvalue(tab->array + 3, v.w);
+}
+
+void set_raw(Table* tab, glm::quat const& v)
 {
 	setfltvalue(tab->array + 0, v.x);
 	setfltvalue(tab->array + 1, v.y);
@@ -255,6 +274,13 @@ glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>)
 	auto i = lua_absindex(L, index);
 	auto arr = lua_get_array_n(L, i, 4);
 	return get_raw(L, arr, Overload<glm::vec4>{});
+}
+
+glm::quat do_get(lua_State* L, int index, Overload<glm::quat>)
+{
+	auto i = lua_absindex(L, index);
+	auto arr = lua_get_array_n(L, i, 4);
+	return get_raw(L, arr, Overload<glm::quat>{});
 }
 
 glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>)
@@ -322,6 +348,13 @@ void push(lua_State* L, glm::vec4 const& v)
 	set_raw(tab, v);
 }
 
+void push(lua_State* L, glm::quat const& v)
+{
+	lua_createtable(L, 4, 0);
+	auto tab = lua_get_top_table_unsafe(L);
+	set_raw(tab, v);
+}
+
 void push(lua_State* L, glm::mat3 const& m)
 {
 	lua_createtable(L, 9, 0);
@@ -349,6 +382,12 @@ void assign(lua_State* L, int idx, glm::vec3 const& v)
 }
 
 void assign(lua_State* L, int idx, glm::vec4 const& v)
+{
+	auto tab = lua_get_array_n(L, idx, 4);
+	set_raw(tab, v);
+}
+
+void assign(lua_State* L, int idx, glm::quat const& v)
 {
 	auto tab = lua_get_array_n(L, idx, 4);
 	set_raw(tab, v);

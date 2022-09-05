@@ -540,6 +540,8 @@ void TypeInformationRepository::Initialize()
 	vec3.ElementType = GetStaticTypeInfo(Overload<float>{});
 	auto& vec4 = RegisterStaticType<glm::vec4>("vec4", LuaTypeId::Array);
 	vec4.ElementType = GetStaticTypeInfo(Overload<float>{});
+	auto& quat = RegisterStaticType<glm::quat>("quat", LuaTypeId::Array);
+	quat.ElementType = GetStaticTypeInfo(Overload<float>{});
 	auto& mat3 = RegisterStaticType<glm::mat3>("mat3", LuaTypeId::Array);
 	mat3.ElementType = GetStaticTypeInfo(Overload<float>{});
 	auto& mat4 = RegisterStaticType<glm::mat4>("mat4", LuaTypeId::Array);

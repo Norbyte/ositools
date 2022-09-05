@@ -63,6 +63,7 @@ struct MathParam
 		float f;
 		glm::vec3 vec3;
 		glm::vec4 vec4;
+		glm::quat quat;
 		glm::mat3 mat3;
 		glm::mat4 mat4;
 	};
@@ -253,6 +254,7 @@ void push(lua_State* L, glm::ivec2 const& v);
 void push(lua_State* L, glm::vec2 const& v);
 void push(lua_State* L, glm::vec3 const& v);
 void push(lua_State* L, glm::vec4 const& v);
+void push(lua_State* L, glm::quat const& v);
 void push(lua_State* L, glm::mat3 const& m);
 void push(lua_State* L, glm::mat4 const& m);
 void push(lua_State* L, ig::InvokeDataValue const& v);
@@ -260,6 +262,7 @@ void push(lua_State* L, ig::InvokeDataValue const& v);
 void assign(lua_State* L, int idx, glm::vec2 const& v);
 void assign(lua_State* L, int idx, glm::vec3 const& v);
 void assign(lua_State* L, int idx, glm::vec4 const& v);
+void assign(lua_State* L, int idx, glm::quat const& v);
 void assign(lua_State* L, int idx, glm::mat3 const& m);
 void assign(lua_State* L, int idx, glm::mat4 const& m);
 
@@ -503,6 +506,7 @@ inline glm::i16vec2 do_get(lua_State* L, int index, Overload<glm::i16vec2>)
 glm::vec2 do_get(lua_State* L, int index, Overload<glm::vec2>);
 glm::vec3 do_get(lua_State* L, int index, Overload<glm::vec3>);
 glm::vec4 do_get(lua_State* L, int index, Overload<glm::vec4>);
+glm::quat do_get(lua_State* L, int index, Overload<glm::quat>);
 glm::mat3 do_get(lua_State* L, int index, Overload<glm::mat3>);
 glm::mat4 do_get(lua_State* L, int index, Overload<glm::mat4>);
 MathParam do_get(lua_State* L, int index, Overload<MathParam>);
