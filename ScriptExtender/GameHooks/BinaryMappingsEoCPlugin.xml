@@ -983,5 +983,33 @@
       <Condition Type="FixedString" Offset="@str1" Value="RS3_FX_Skills_Soul_ShacklesOfPain_LinkBeam_01" />
       <Target Type="Indirect" Offset="@ref" Symbol="esv__EffectManager__CreateEffect" />
     </Mapping>
+
+    <Mapping Name="esv::OsirisTaskFactory::CreateTask">
+      44 89 ac 24 90 00 00 00 // mov     [rsp+78h+a2], r13d
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_TaskId
+      49 8b ce // mov     rcx, r14
+      ff 90 90 01 00 00 // call    qword ptr [rax+190h]
+      44 8b ac 24 90 00 00 00 // mov     r13d, [rsp+78h+a2]
+      48 8b cb // mov     rcx, rbx; a1
+      4c 8b 46 10 // mov     r8, [rsi+10h]; a3
+      41 8b d5 // mov     edx, r13d; a2
+      @ref1 e8 ?? ?? ?? ?? // call    esv__OsirisTaskFactory__CreateTask
+      <Condition Type="FixedString" Offset="@str1" Value="TaskId" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory__CreateTask" />
+    </Mapping>
+
+    <Mapping Name="esv::OsirisTaskFactory::ReleaseTask">
+      48 8b 07 // mov     rax, [rdi]
+      48 8d 54 24 28 // lea     rdx, [rsp+0B8h+var_90]
+      @ref1 48 8b 1d ?? ?? ?? ?? // mov     rbx, cs:esv__gOsirisTaskFactory
+      48 8b cf // mov     rcx, rdi
+      ff 50 20 // call    qword ptr [rax+20h]
+      ba 06 00 00 00 // mov     edx, 6; a2
+      48 8b cb // mov     rcx, rbx; a1
+      4c 8b 00 // mov     r8, [rax]; a3
+      @ref2 e8 ?? ?? ?? ?? // call    esv__OsirisTaskFactory__CreateTask
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__OsirisTaskFactory__CreateTask" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

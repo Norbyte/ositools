@@ -20,6 +20,8 @@ struct GameAction : public ProtectedGameObject<GameAction>
 	bool Active;
 	bool Dirty;
 	float ActivateTimer;
+
+	void Destroy();
 };
 
 struct GameActionManager : public NetworkComponentFactory<GameAction>

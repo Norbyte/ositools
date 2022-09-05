@@ -1432,5 +1432,33 @@
       f2 0f 10 05 ?? ?? ?? ?? // movsd   xmm0, qword ptr cs:xmmword_14297EDE0
       <Target Type="Absolute" Offset="0" Symbol="ecl__GameStateLoad__IncLocalProgress" />
     </Mapping>
+
+    <Mapping Name="esv::OsirisTaskFactory::CreateTask">
+      44 89 6c 24 70 // mov     [rsp+58h+arg_10], r13d
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_TaskId
+      48 8b ce // mov     rcx, rsi
+      ff 90 90 01 00 00 // call    qword ptr [rax+190h]
+      44 8b 6c 24 70 // mov     r13d, [rsp+58h+arg_10]
+      48 8b cb // mov     rcx, rbx
+      4c 8b 45 10 // mov     r8, [rbp+10h]
+      41 8b d5 // mov     edx, r13d
+      @ref1 e8 ?? ?? ?? ?? // call    esv__OsirisTaskFactory__CreateTask
+      <Condition Type="FixedString" Offset="@str1" Value="TaskId" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory__CreateTask" />
+    </Mapping>
+
+    <Mapping Name="esv::OsirisTaskFactory::ReleaseTask">
+      41 83 7e 14 03 // cmp     dword ptr [r14+14h], 3
+      74 11 // jz      short loc_141A0C0D9
+      49 8b 06 // mov     rax, [r14]
+      49 8b ce // mov     rcx, r14
+      41 c7 46 14 03 00 00 00 // mov     dword ptr [r14+14h], 3
+      ff 50 28 // call    qword ptr [rax+28h]
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:esv__gOsirisTaskFactory
+      49 8b d6 // mov     rdx, r14
+      @ref2 e8 ?? ?? ?? ?? // call    esv__OsirisTaskFactory__ReleaseTask
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__OsirisTaskFactory__ReleaseTask" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

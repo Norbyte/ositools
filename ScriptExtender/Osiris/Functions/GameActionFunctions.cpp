@@ -35,7 +35,7 @@ namespace dse::esv
 			action->SkillId = FixedString(args[1].String);
 			ComponentHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
-			action->OwnerHandle = characterHandle;
+			action->Owner = characterHandle;
 
 			action->Position = pos;
 			return action;
@@ -114,7 +114,7 @@ namespace dse::esv
 			action->SkillId = FixedString(args[1].String);
 			ComponentHandle characterHandle;
 			character->GetObjectHandle(characterHandle);
-			action->OwnerHandle = characterHandle;
+			action->Owner = characterHandle;
 
 			action->IsFromItem = false;
 			action->LifeTime = *lifetime / 1000.0f;
@@ -211,44 +211,11 @@ namespace dse::esv
 				action->BeamEffectName = FixedString(beamEffectName);
 			}
 
-			lib.esv__GameObjectMoveAction__Setup(action, objectHandle, &targetPosition);
+			lib.esv__GameObjectMoveAction__Setup(action, objectHandle, targetPosition);
 			lib.AddGameActionWrapper(actionMgr, action);
 
 			gameActionHandle.Set((int64_t)action->Handle);
 			return true;
-		}
-
-		void DestroyGameActionInternal(esv::GameAction & action)
-		{
-			switch (action.ActionType) {
-			case GameActionType::RainAction:
-				static_cast<esv::RainAction &>(action).Finished = true;
-				break;
-
-			case GameActionType::StormAction:
-				static_cast<esv::StormAction &>(action).LifeTime = 0.0f;
-				break;
-
-			case GameActionType::WallAction:
-				static_cast<esv::WallAction &>(action).LifeTime = 0.0f;
-				break;
-
-			case GameActionType::TornadoAction:
-				static_cast<esv::TornadoAction &>(action).Finished = true;
-				break;
-
-			case GameActionType::StatusDomeAction:
-				static_cast<esv::StatusDomeAction &>(action).Finished = true;
-				break;
-
-			case GameActionType::GameObjectMoveAction:
-				static_cast<esv::GameObjectMoveAction &>(action).DoneMoving = true;
-				break;
-
-			default:
-				OsiError("Don't know how to destroy game action type " << (unsigned)action.ActionType);
-				break;
-			}
 		}
 
 		void GameActionDestroy(OsiArgumentDesc const & args)
@@ -256,7 +223,7 @@ namespace dse::esv
 			auto gameAction = FindGameActionByHandle(ComponentHandle{ args[0].Int64 });
 			if (gameAction == nullptr) return;
 
-			DestroyGameActionInternal(*gameAction);
+			gameAction->Destroy();
 		}
 
 		bool GameActionGetLifeTime(OsiArgumentDesc & args)

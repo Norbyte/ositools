@@ -23,6 +23,7 @@
 #include <GameDefinitions/GameObjects/CharacterCreation.h>
 #include <GameDefinitions/Alignment.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
+#include <GameDefinitions/GameObjects/Controllers.h>
 
 namespace dse
 {
@@ -265,6 +266,10 @@ namespace dse
 		esv::LevelManager ** esv__LevelManager{ nullptr };
 		esv::InventoryFactory ** esv__InventoryFactory{ nullptr };
 		esv::InventoryViewFactory ** esv__InventoryViewFactory{ nullptr };
+
+		esv::OsirisTaskFactory** esv__OsirisTaskFactory{ nullptr };
+		esv::OsirisTaskFactory::CreateTaskProc* esv__OsirisTaskFactory__CreateTask{ nullptr };
+		esv::OsirisTaskFactory::ReleaseTaskProc* esv__OsirisTaskFactory__ReleaseTask{ nullptr };
 
 		esv::AiModifiers ** esv__gAiModifiers{ nullptr };
 		esv::AiHelpers ** esv__gAiHelpers{ nullptr };

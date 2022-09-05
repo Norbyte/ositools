@@ -225,6 +225,10 @@ namespace dse
 		SYM_OFF(esv__InventoryFactory);
 		SYM_OFF(esv__InventoryViewFactory);
 
+		SYM_OFF(esv__OsirisTaskFactory);
+		SYM_OFF(esv__OsirisTaskFactory__CreateTask);
+		SYM_OFF(esv__OsirisTaskFactory__ReleaseTask);
+
 		SYM_OFF(esv__gAiModifiers);
 		SYM_OFF(esv__gAiHelpers);
 
