@@ -392,9 +392,9 @@ typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index,
 	case LUA_TSTRING:
 	{
 		auto val = lua_tostring(L, index);
-		auto index = EnumInfo<T>::Find(val);
-		if (index) {
-			return (T)*index;
+		auto valueIndex = EnumInfo<T>::Find(val);
+		if (valueIndex) {
+			return (T)*valueIndex;
 		} else {
 			luaL_error(L, "Param %d: not a valid '%s' enum label: %s", index, EnumInfo<T>::Name, val);
 		}
