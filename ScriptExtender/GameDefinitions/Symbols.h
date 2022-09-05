@@ -142,7 +142,7 @@ namespace dse
 		esv::GameActionManager__CreateAction esv__GameActionManager__CreateAction{ nullptr };
 		esv::GameActionManager__AddAction esv__GameActionManager__AddGameAction{ nullptr };
 		esv::TornadoAction__Setup esv__TornadoAction__Setup{ nullptr };
-		esv::TornadoAction__Setup esv__WallAction__CreateWall{ nullptr };
+		esv::WallAction__CreateWall esv__WallAction__CreateWall{ nullptr };
 		esv::SummonHelpers__Summon esv__SummonHelpers__Summon{ nullptr };
 		esv::GameObjectMoveAction__Setup esv__GameObjectMoveAction__Setup{ nullptr };
 

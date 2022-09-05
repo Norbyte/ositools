@@ -221,7 +221,7 @@ namespace dse
 			ObjectSet<EntityHandle> CombatEntities;
 			ObjectSet<EntityHandle> CombatEntities2;
 			ObjectSet<EntityWrapper> EntityWrappers;
-			ObjectSet<ComponentHandle> EntitesLeftCombat;
+			ObjectSet<ComponentHandle> EntitiesLeftCombat;
 			int TeamMode;
 			RefMap<uint8_t, Combat> Combats;
 			ObjectSet<uint8_t> FreeCombatIds;

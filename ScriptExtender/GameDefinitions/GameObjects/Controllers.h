@@ -48,7 +48,7 @@ struct Task
 	virtual void SavegameVisit(ObjectVisitor& visitor) = 0;
 	virtual void OnStart(GameTime const& t) = 0;
 	virtual void Exit() = 0;
-	virtual void OnFinished() = 0;
+	virtual void Finish() = 0;
 	virtual uint64_t Ret0() = 0;
 	virtual void RequestExit() = 0;
 	virtual uint64_t Ret02() = 0;
@@ -63,12 +63,25 @@ struct Task
 };
 
 
+struct OsirisTaskFactory
+{
+	using CreateTaskProc = Task * (OsirisTaskFactory* self, TaskType type, uint64_t characterHandle);
+	using ReleaseTaskProc = void (OsirisTaskFactory* self, Task* task);
+
+	Pool Pools[19];
+};
+
+
 struct TaskController : public BaseController
 {
 	Queue<Task*> Tasks;
 	bool RemoveNextTask_M;
 	bool UpdateInProgress;
 	bool FlushRequested;
+
+	void PurgeQueue();
+	void FlushQueue();
+	void QueueTask(Task* task);
 };
 
 

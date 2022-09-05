@@ -31,7 +31,7 @@ struct GameActionManager : public NetworkComponentFactory<GameAction>
 struct TornadoAction : public GameAction
 {
 	FixedString SkillId;
-	ComponentHandle OwnerHandle;
+	ComponentHandle Owner;
 	glm::vec3 Position;
 	glm::vec3 Target;
 	float TurnTimer;
@@ -60,7 +60,7 @@ struct StormAction : public GameAction
 	};
 
 
-	ComponentHandle OwnerHandle;
+	ComponentHandle Owner;
 	glm::vec3 Position;
 	float LifeTime;
 	FixedString SkillId;
@@ -78,7 +78,7 @@ struct StormAction : public GameAction
 
 struct RainAction : public GameAction
 {
-	ComponentHandle OwnerHandle;
+	ComponentHandle Owner;
 	glm::vec3 Position;
 	float AreaRadius;
 	float LifeTime;
@@ -95,7 +95,7 @@ struct RainAction : public GameAction
 struct WallAction : public GameAction
 {
 	FixedString SkillId;
-	ComponentHandle OwnerHandle;
+	ComponentHandle Owner;
 	glm::vec3 Target;
 	glm::vec3 Source;
 	float LifeTime;
@@ -112,7 +112,7 @@ struct WallAction : public GameAction
 
 struct StatusDomeAction : public GameAction
 {
-	ComponentHandle OwnerHandle;
+	ComponentHandle Owner;
 	glm::vec3 Position;
 	float LifeTime;
 	FixedString SkillId;
@@ -144,14 +144,15 @@ struct PathAction : public GameAction
 
 struct GameObjectMoveAction : public GameAction
 {
-	void * PathMover;
-	ComponentHandle ObjectToMove;
+	eoc::PathMover * PathMover;
+	ComponentHandle Owner;
 	bool DoneMoving;
-	uint32_t U3[2];
+	float NextMoveTime;
+	float LastMoveTime;
 	ComponentHandle CasterCharacterHandle;
 	FixedString BeamEffectName;
 	ComponentHandle SomeHandle;
-	uint64_t _U4[8];
+	uint64_t DoneMovingCallback[8];
 };
 
 typedef void * (*GameActionManager__CreateAction)(GameActionManager * GameActionManager, GameActionType actionId, uint64_t SomeHandle);
@@ -160,7 +161,8 @@ typedef void(*GameActionManager__AddAction)(Set<GameAction *> * GameActionManage
 #else
 typedef void(*GameActionManager__AddAction)(GameActionManager * GameActionManager, esv::GameAction * Action);
 #endif
-typedef void(*TornadoAction__Setup)(void * TornadoAction);
-typedef void(*GameObjectMoveAction__Setup)(void * Action, ComponentHandle & ObjectToMove, glm::vec3 * TargetPosition);
+typedef void(*TornadoAction__Setup)(TornadoAction* self);
+typedef void(*WallAction__CreateWall)(WallAction * self);
+typedef void(*GameObjectMoveAction__Setup)(GameObjectMoveAction* self, ComponentHandle & ObjectToMove, glm::vec3 const& TargetPosition);
 
 END_NS()
