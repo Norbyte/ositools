@@ -124,9 +124,17 @@ std::optional<ObjectSet<FixedString>> Object::GetFlags(ModifierInfo const& modif
 		return {};
 	}
 
-	for (auto const& kv : modifier.ValueList->Values) {
-		if (*flags & (1ull << (kv.Value - 1))) {
-			flagSet.push_back(kv.Key);
+	if (modifier.ValueList->Values.size() > 0) {
+		for (auto const& kv : modifier.ValueList->Values) {
+			if (*flags & (1ull << (kv.Value - 1))) {
+				flagSet.push_back(kv.Key);
+			}
+		}
+	} else {
+		for (auto const& kv : EnumInfo<StatAttributeFlags>::Values) {
+			if (((StatAttributeFlags)*flags & kv.Value) == kv.Value) {
+				flagSet.push_back(kv.Key);
+			}
 		}
 	}
 
@@ -222,15 +230,28 @@ bool Object::SetFlags(ModifierInfo const& modifier, ObjectSet<FixedString> const
 	}
 
 	auto stats = GetStaticSymbols().GetStats();
-	int64_t flags{ 0 };
-	for (auto const& flag : value) {
-		auto flagValue = modifier.ValueList->Values.find(flag);
-		if (!flagValue) {
-			OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Value (\"" << flag << "\") is not a valid enum label");
-			return false;
-		}
+	uint64_t flags{ 0 };
 
-		flags |= (1ll << (flagValue.Value() - 1));
+	if (modifier.ValueList->Values.size() > 0) {
+		for (auto const& flag : value) {
+			auto flagValue = modifier.ValueList->Values.find(flag);
+			if (!flagValue) {
+				OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Value (\"" << flag << "\") is not a valid enum label");
+				return false;
+			}
+
+			flags |= (1ll << (flagValue.Value() - 1));
+		}
+	} else {
+		for (auto const& flag : value) {
+			auto flagValue = EnumInfo<StatAttributeFlags>::Find(flag);
+			if (!flagValue) {
+				OsiError("Couldn't set " << Name << "." << modifier.Modifier->Name << ": Value (\"" << flag << "\") is not a valid enum label");
+				return false;
+			}
+
+			flags |= (uint64_t)*flagValue;
+		}
 	}
 
 	int poolIdx{ -1 };
