@@ -4,6 +4,8 @@
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Stats.h>
+#include <GameDefinitions/Misc.h>
+#include <GameDefinitions/GameObjects/Effect.h>
 
 BEGIN_SE()
 
@@ -572,7 +574,9 @@ struct StatusHealSharing : public StatusConsumeBase
 
 struct StatusHealSharingCaster : public StatusConsumeBase
 {
-	ComponentHandle StatusTargetHandle; // Saved
+	ObjectSet<ComponentHandle> StatusTargets; // Saved
+	// Character handle -> beam effect handle
+	Map<ComponentHandle, ComponentHandle> BeamEffects;
 };
 
 struct StatusExtraTurn : public StatusConsumeBase {};
@@ -708,6 +712,331 @@ struct Status
 
 struct StatusMachine : public dse::StatusMachine<Status>
 {};
+
+struct StatusConsumeBase : public Status
+{
+	struct MaterialParam
+	{
+		FixedString Value;
+		FixedString Name;
+	};
+
+	struct StatsData
+	{
+		int TurnIndex;
+		FixedString StatsId;
+	};
+
+	STDWString TooltipText;
+	ObjectSet<StatsData> StatsDataPerTurn;
+	FixedString StatsId;
+	FixedString StackId;
+	FixedString Icon;
+	FixedString OriginalWeaponId;
+	FixedString OverrideWeaponId;
+	ComponentHandle OverrideWeaponHandle;
+	int AttributeHandle;
+	FixedString StatusEffectOverrideForItems;
+	MultiEffectHandler EffectHandler;
+	MultiEffectHandler ApplyEffectHandler;
+	glm::vec3 SourceDirection;
+	int field_27C;
+	uint32_t MaterialType;
+	FixedString Material;
+	StatusMaterialApplyFlags MaterialApplyFlags;
+	bool MaterialApplyNormalMap;
+	float MaterialFadeAmount;
+	float MaterialOverlayOffset;
+	ObjectSet<MaterialParam> MaterialParams;
+	int Turn;
+	float AuraRadius;
+	FixedString AuraFX;
+	ComponentHandle AuraFXHandle;
+	float CurrentStatsMultiplier;
+	bool HasItemFlag0x200000000000;
+	bool TooltipTextNeedsUpdating;
+	ObjectSet<STDWString> TooltipTexts;
+};
+
+
+struct StatusDying : public Status
+{
+	NetId InflicterNetId;
+	DeathType DeathType;
+	int AttackDirection;
+	glm::vec3 ImpactDirection;
+	bool IsAlreadyDead;
+	bool DieActionsCompleted;
+	bool SkipAnimation;
+	bool CombatId;
+};
+
+struct StatusCharmed : public StatusConsumeBase
+{
+	ComponentHandle EffectHandle;
+	ComponentHandle OriginalOwnerCharacterHandle;
+};
+
+struct StatusFloating : public StatusConsumeBase
+{
+	bool OnlyWhileMoving;
+};
+
+struct StatusIncapacitated : public StatusConsumeBase
+{
+	float CurrentFreezeTime;
+	float FreezeTime;
+};
+
+struct StatusEncumbered : public StatusConsumeBase
+{
+	int State;
+	eoc::Text LogMessage;
+	float NextMessageDelay;
+};
+
+struct StatusDamage : public StatusConsumeBase
+{
+	int DamageLevel;
+	FixedString DamageStats;
+};
+
+struct StatusHealing : public StatusConsumeBase
+{
+	int HealAmount;
+	int HealStat;
+};
+
+struct StatusLeadership : public StatusConsumeBase
+{
+	float Strength;
+};
+
+struct StatusAdrenaline : public StatusConsumeBase
+{
+	int InitialAPMod;
+	int SecondaryAPMod;
+};
+
+struct StatusPolymorphed : public StatusConsumeBase
+{
+	bool DisableInteractions;
+	FixedString PolymorphResult;
+};
+
+struct StatusDamageOnMove : public StatusConsumeBase
+{
+	int DamageAmount;
+	float DistancePerDamage;
+};
+
+struct StatusGuardianAngel : public StatusConsumeBase
+{
+	ComponentHandle EffectHandle;
+};
+
+struct StatusChallenge : public StatusConsumeBase
+{
+	ComponentHandle SourceHandle;
+	bool Target;
+};
+
+struct StatusActiveDefense : public StatusConsumeBase
+{
+	int Charges;
+	glm::vec3 TargetPos;
+	ComponentHandle TargetHandle;
+	int TargetSize;
+	ComponentHandle EffectHandle;
+};
+
+struct StatusSpark : public StatusConsumeBase
+{
+	int Charges;
+};
+
+struct StatusAoO : public Status
+{
+	ComponentHandle SourceHandle;
+	ComponentHandle TargetHandle;
+	bool ShowOverhead;
+};
+
+struct StatusBoost : public Status
+{
+	FixedString BoostId;
+};
+
+struct StatusClean : public Status
+{
+	ecl::MultiEffectHandler EffectHandler;
+	FixedString OverlayMaterial;
+};
+
+struct StatusCombat : public Status
+{
+	int CombatAndTeamId;
+};
+
+struct StatusHeal : public Status
+{
+	float EffectTime;
+	int HealAmount;
+	bool TargetDependentHeal;
+	std::array<int32_t, 3> TargetDependentHealAmount;
+	uint32_t HealEffect;
+	FixedString HealEffectId;
+	int HealType;
+	MultiEffectHandler EffectHandler;
+};
+
+struct StatusHit : public Status
+{
+	float TimeRemaining;
+	bool DeleteRequested;
+	HitDamageInfo DamageInfo;
+	ComponentHandle HitByHandle;
+	int HitByType;
+	ComponentHandle WeaponHandle;
+	int HitReason;
+	bool Interruption;
+	bool AllowInterruptAction_IsIdleAction;
+	glm::vec3 ImpactPosition;
+	glm::vec3 ImpactDirection;
+};
+
+struct StatusIdentify : public Status
+{
+	int Level;
+	ComponentHandle Identifier;
+};
+
+struct StatusKnockedDown : public Status
+{
+	int KnockedDownState;
+	MultiEffectHandler EffectHandler;
+};
+
+struct StatusSitting : public Status
+{
+	ComponentHandle ItemHandle;
+	int NetId;
+	glm::vec3 Position;
+	int Index;
+};
+
+struct StatusRepair : public Status
+{
+	int Repaired;
+	ComponentHandle RepairerHandle;
+};
+
+struct StatusRotate : public Status
+{
+	float Yaw;
+};
+
+struct StatusSmelly : public Status
+{
+	MultiEffectHandler EffectHandler;
+	FixedString OverlayMaterial;
+};
+
+struct StatusSneaking : public Status
+{
+	bool ClientRequestStop;
+	bool Failed;
+	ComponentHandle OH;
+	MultiEffectHandler EffectHandler;
+};
+
+struct StatusSummoning : public Status
+{
+	float AnimationDuration;
+	int SummonLevel;
+};
+
+struct StatusTeleportFall : public Status
+{
+	glm::vec3 Target;
+	float ReappearTime;
+	FixedString SkillId;
+	bool HasDamage;
+	MultiEffectHandler EffectHandler;
+};
+
+struct StatusThrown : public Status
+{
+	int Level;
+	float AnimationDuration;
+	bool IsThrowingSelf;
+	float LandingEstimate;
+	bool Landed;
+};
+
+struct StatusUnlock : public Status
+{
+	int Unlocked;
+};
+
+struct StatusUnsheathed : public Status
+{
+	bool Force;
+};
+
+struct StatusMaterial : public Status
+{
+	FixedString MaterialUUID;
+	StatusMaterialApplyFlags ApplyFlags;
+	bool IsOverlayMaterial;
+	bool Fading;
+	bool ApplyNormalMap;
+	bool Force;
+	bool HasVisuals;
+};
+
+struct StatusSpirit : public Status
+{
+	ObjectSet<NetId> Characters;
+};
+
+struct StatusClimbing : public Status
+{
+	glm::quat field_50;
+	glm::quat field_60;
+	glm::quat field_70;
+	glm::vec3 MoveDirection;
+	int Status;
+	ComponentHandle LadderHandle;
+	float UpdateTimer;
+	bool Direction;
+	bool Started;
+	bool JumpUpLadders;
+	bool NeedsCharacterUpdate;
+	float ClimbLoopDuration;
+};
+
+struct StatusEffect : public Status
+{
+	bool Active;
+	bool PlayerSameParty;
+	bool PeaceOnly;
+	FixedString PlayerHasTag;
+	FixedString Icon;
+	eoc::Text Description;
+	FixedString StatusEffect;
+	MultiEffectHandler EffectHandler;
+	FixedString BeamEffect;
+	BeamEffectHandler BeamHandler;
+};
+
+struct StatusTutorialBed : public Status
+{
+	ComponentHandle BedHandle;
+	float AnimationDuration;
+	float AnimationDuration2;
+};
+
 
 END_NS()
 

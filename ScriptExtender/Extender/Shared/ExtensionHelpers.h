@@ -27,7 +27,7 @@ namespace dse
 		struct ShootProjectileApiHelper
 		{
 			ShootProjectileHelper Helper;
-			ShootProjectileHelperHitObject HitObject;
+			HitObject HitObject;
 			stats::DamagePairList DamageList;
 			bool HasStartPosition{ false };
 			bool HasEndPosition{ false };

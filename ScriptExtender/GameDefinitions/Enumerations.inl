@@ -1580,14 +1580,14 @@ BEGIN_BITMASK_NS(esv, StatusFlags2, uint8_t)
 END_ENUM_NS()
 
 
-BEGIN_BITMASK_NS(esv, StatusMaterialApplyFlags, uint8_t)
+BEGIN_BITMASK(StatusMaterialApplyFlags, uint8_t)
 	EV(ApplyOnBody, 1)
 	EV(ApplyOnArmor, 2)
 	EV(ApplyOnWeapon, 4)
 	EV(ApplyOnWings, 8)
 	EV(ApplyOnHorns, 0x10)
 	EV(ApplyOnOverhead, 0x20)
-END_ENUM_NS()
+END_ENUM()
 
 
 BEGIN_ENUM(StatusType, uint32_t)

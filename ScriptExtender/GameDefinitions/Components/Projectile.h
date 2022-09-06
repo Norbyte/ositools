@@ -6,6 +6,7 @@
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/Misc.h>
+#include <GameDefinitions/Helpers.h>
 
 namespace dse
 {
@@ -100,13 +101,6 @@ namespace dse
             ObjectSet<int32_t> PrimSetPeerID;
         };
 
-	    struct ShootProjectileHelperHitObject
-	    {
-		    int HitInterpolation{ 0 };
-		    ComponentHandle Target;
-		    glm::vec3 Position;
-	    };
-
 	    struct ShootProjectileHelper
 	    {
 		    FixedString SkillId;
@@ -118,7 +112,7 @@ namespace dse
 		    uint8_t Random{ 0 };
             stats::DamagePairList * DamageList;
 		    int32_t CasterLevel{ -1 };
-		    ShootProjectileHelperHitObject * HitObject;
+            HitObject* HitObject;
 		    bool IsTrap{ false };
 		    bool UnknownFlag1{ false };
 		    FixedString CleanseStatuses;

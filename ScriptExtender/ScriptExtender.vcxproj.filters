@@ -409,6 +409,9 @@
     <ClInclude Include="Lua\Shared\Proxies\PropertyMapDependencies.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Helpers.h">
+      <Filter>GameDefinitions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

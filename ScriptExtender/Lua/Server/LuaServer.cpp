@@ -289,12 +289,90 @@ void LuaPolymorphic<esv::Status>::MakeRef(lua_State* L, esv::Status* status, Lif
 #undef MAKE_REF
 
 
-#define MAKE_REF(ty, cls) case StatusType::ty: MakeDirectObjectRef(L, lifetime, static_cast<cls*>(status)); return;
+#define MAKE_REF(ty, cls) case StatusType::ty: MakeDirectObjectRef(L, lifetime, static_cast<ecl::cls*>(status)); return;
 
 void LuaPolymorphic<ecl::Status>::MakeRef(lua_State* L, ecl::Status* status, LifetimeHandle const & lifetime)
 {
 	switch (status->GetStatusId()) {
-	// FIXME - map client status types
+	MAKE_REF(HIT, StatusHit)
+	MAKE_REF(DYING, StatusDying)
+	MAKE_REF(HEAL, StatusHeal)
+	MAKE_REF(CHARMED, StatusCharmed)
+	MAKE_REF(KNOCKED_DOWN, StatusKnockedDown)
+	MAKE_REF(SUMMONING, StatusSummoning)
+	MAKE_REF(HEALING, StatusHealing)
+	MAKE_REF(THROWN, StatusThrown)
+	MAKE_REF(TELEPORT_FALLING, StatusTeleportFall)
+	MAKE_REF(COMBAT, StatusCombat)
+	MAKE_REF(AOO, StatusAoO)
+	MAKE_REF(SNEAKING, StatusSneaking)
+	MAKE_REF(UNLOCK, StatusUnlock)
+	MAKE_REF(BOOST, StatusBoost)
+	MAKE_REF(UNSHEATHED, StatusUnsheathed)
+	MAKE_REF(SITTING, StatusSitting)
+	MAKE_REF(LYING, StatusSitting)
+	MAKE_REF(ROTATE, StatusRotate)
+	MAKE_REF(IDENTIFY, StatusIdentify)
+	MAKE_REF(REPAIR, StatusRepair)
+	MAKE_REF(MATERIAL, StatusMaterial)
+	MAKE_REF(ADRENALINE, StatusAdrenaline)
+	MAKE_REF(SPIRIT, StatusSpirit)
+	MAKE_REF(DAMAGE, StatusDamage)
+	MAKE_REF(CLIMBING, StatusClimbing)
+	MAKE_REF(INCAPACITATED, StatusIncapacitated)
+	MAKE_REF(POLYMORPHED, StatusPolymorphed)
+	MAKE_REF(DAMAGE_ON_MOVE, StatusDamageOnMove)
+	MAKE_REF(CHALLENGE, StatusChallenge)
+	MAKE_REF(ACTIVE_DEFENSE, StatusActiveDefense)
+	MAKE_REF(SPARK, StatusSpark)
+	MAKE_REF(CONSTRAINED, StatusSitting)
+
+	case StatusType::STORY_FROZEN:
+	case StatusType::SMELLY:
+	case StatusType::CLEAN:
+	case StatusType::UNHEALABLE:
+	case StatusType::FLANKED:
+	case StatusType::INFUSED:
+	case StatusType::SOURCE_MUTED:
+	case StatusType::DEMONIC_BARGAIN:
+	case StatusType::EFFECT:
+	case StatusType::TUTORIAL_BED:
+	case StatusType::EXPLODE:
+	case StatusType::DRAIN:
+	case StatusType::INSURFACE:
+		MakeDirectObjectRef(L, lifetime, static_cast<ecl::Status*>(status));
+		return;
+
+	case StatusType::MUTED:
+	case StatusType::CONSUME:
+	case StatusType::FEAR:
+	case StatusType::BLIND:
+	case StatusType::ENCUMBERED:
+	case StatusType::LEADERSHIP:
+	case StatusType::WIND_WALKER:
+	case StatusType::DARK_AVENGER:
+	case StatusType::REMORSE:
+	case StatusType::DECAYING_TOUCH:
+	case StatusType::CHANNELING:
+	case StatusType::FORCE_MOVE:
+	case StatusType::OVERPOWER:
+	case StatusType::COMBUSTION:
+	case StatusType::GUARDIAN_ANGEL:
+	case StatusType::FLOATING:
+	case StatusType::DISARMED:
+	case StatusType::EXTRA_TURN:
+	case StatusType::PLAY_DEAD:
+	case StatusType::DEACTIVATED:
+	case StatusType::STANCE:
+	case StatusType::INFECTIOUS_DISEASED:
+	case StatusType::INVISIBLE:
+	case StatusType::SHACKLES_OF_PAIN:
+	case StatusType::SHACKLES_OF_PAIN_CASTER:
+	case StatusType::SPIRIT_VISION:
+	case StatusType::HEAL_SHARING:
+	case StatusType::HEAL_SHARING_CASTER:
+		MakeDirectObjectRef(L, lifetime, static_cast<ecl::StatusConsumeBase*>(status));
+		return;
 
 	default:
 		MakeDirectObjectRef(L, lifetime, static_cast<ecl::Status*>(status));

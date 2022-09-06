@@ -392,7 +392,7 @@ namespace dse
 			BEGIN_PROPERTIES(gStatusMaterialPropertyMap, esv::StatusMaterial);
 			propertyMap.Parent = &gStatusPropertyMap;
 			PROP(MaterialUUID);
-			PROP_FLAGS(ApplyFlags, esv::StatusMaterialApplyFlags, true);
+			PROP_FLAGS(ApplyFlags, StatusMaterialApplyFlags, true);
 			PROP(IsOverlayMaterial);
 			PROP(Fading);
 			PROP(ApplyNormalMap);
@@ -516,7 +516,6 @@ namespace dse
 		{
 			BEGIN_PROPERTIES(gStatusHealSharingCasterPropertyMap, esv::StatusHealSharingCaster);
 			propertyMap.Parent = &gStatusConsumeBasePropertyMap;
-			PROP(StatusTargetHandle);
 		}
 
 		{

@@ -157,6 +157,19 @@ struct MultiEffectHandler : public Noncopyable<MultiEffectHandler>
 	bool ListeningOnTextKeys;
 };
 
+struct BeamEffectHandler : public Noncopyable<BeamEffectHandler>
+{
+	void* VMT;
+	glm::vec3 SourcePosition;
+	ComponentHandle SourceHandle;
+	ComponentHandle TargetHandle;
+	ComponentHandle SourceHandle2;
+	RefMap<FixedString, ObjectSet<MultiEffectHandler::EffectInfo*>> TextKeyEffectDescs;
+	RefMap<FixedString, ObjectSet<ComponentHandle>> TextKeyEffects;
+	ObjectSet<ComponentHandle> Effects;
+	bool ListeningOnTextKeys;
+};
+
 END_NS()
 
 BEGIN_NS(esv)

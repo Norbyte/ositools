@@ -2,7 +2,7 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
-#include <GameDefinitions/Components/Projectile.h>
+#include <GameDefinitions/Helpers.h>
 
 namespace dse
 {
@@ -79,8 +79,8 @@ namespace dse
 			__int64 field_120;
 			int MainHandHitType;
 			int OffHandHitType;
-			ShootProjectileHelperHitObject HitObject1;
-			ShootProjectileHelperHitObject HitObject2;
+			HitObject HitObject1;
+			HitObject HitObject2;
 			bool ProjectileUsesHitObject;
 			glm::vec3 ProjectileStartPosition;
 			glm::vec3 ProjectileTargetPosition;
