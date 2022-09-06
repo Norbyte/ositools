@@ -257,6 +257,9 @@ P(ItemColorOverride)
 P_REF(CustomDisplayName)
 P_REF(CustomDescription)
 P_REF(CustomBookContent)
+#if defined(OSI_EOCAPP)
+P(Icon)
+#endif
 
 // v55 compatibility
 PN_REF(RootTemplate, CurrentTemplate)

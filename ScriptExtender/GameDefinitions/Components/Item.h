@@ -325,6 +325,9 @@ namespace dse
 			TranslatedString CustomBookContent;
 			int GatewayTeleportationsRemaining;
 			uint16_t UpdateRefCount;
+#if defined(OSI_EOCAPP)
+			FixedString Icon;
+#endif
 
 			ObjectSet<FixedString> GetInventoryItemGuids();
 			std::optional<FixedString> GetOwnerCharacter();
