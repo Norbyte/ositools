@@ -305,3 +305,112 @@ namespace dse
 	}
 
 }
+
+BEGIN_NS(ecl)
+
+struct Surface;
+
+
+struct SurfaceRegion
+{
+    int8_t X;
+    int8_t Y;
+};
+
+struct SurfaceMetaData
+{
+    uint32_t CombatComponentIndex;
+    ComponentHandle OwnerHandle;
+    uint32_t CombatTeamId;
+    float TimeElapsed;
+    bool field_14;
+};
+
+
+struct SurfaceManager
+{
+    void* VMT;
+    __int64 field_8;
+    std::array<Surface*, 79> SurfacesByType;
+    Level* Level;
+    void* AlphaRenderer; // SurfaceAlphaRenderer*
+    Array<SurfaceRegion> Regions;
+    bool NeedsVisualReload;
+    bool ShouldReloadInstances;
+    bool ShouldReloadEffects;
+    Array<SurfaceMetaData> MetaData;
+};
+
+struct SubSurface;
+
+struct Surface
+{
+    struct FadeOutInstance
+    {
+        __int64 field_0;
+        glm::vec3 Position;
+        int field_14;
+        __int64 field_18;
+    };
+
+
+    void* VMT;
+    SubSurface* SubSurfaceGrid;
+    int Width;
+    int Height;
+    ObjectSet<SubSurface*> SubSurfaces;
+    SurfaceManager* SurfaceManager;
+    eoc::AiGrid* AiGrid;
+    void* SceneInstanceManager;
+    void* Random;
+    int SomeCellSizeRemainder;
+    int field_5C;
+    __int64 field_60;
+    __int64 field_68;
+    SurfaceType SurfaceTypeId;
+    uint8_t Flags;
+    SurfaceTemplate* Template;
+    ObjectSet<FixedString> InstanceVisuals;
+    ObjectSet<FadeOutInstance> FadeOut;
+    ObjectSet<RefMap<int, ComponentHandle>> Effects; // PooledRefMap*
+    uint64_t NumIntroFXVisuals;
+    EntityHandle EntityHandle;
+    ObjectSet<glm::vec3> OS_Vec3f;
+    ObjectSet<SurfaceRegion> Regions;
+    bool NeedsSoundUpdate;
+    uint32_t RandomSeed;
+    ObjectSet<glm::i16vec2> Cells;
+};
+
+struct SubSurfaceCell
+{
+    int16_t LayerIndex;
+    int16_t SoundPositionIndex;
+};
+
+struct SubSurface
+{
+    struct ChangingCell
+    {
+        int16_t X;
+        int16_t Y;
+        int field_4;
+        bool field_8;
+    };
+
+    uint8_t X;
+    uint8_t Y;
+    void* CullObject;
+    ObjectSet<ChangingCell> Changes;
+    float FadeInSpeed;
+    float FadeOutSpeed;
+    SurfaceType SurfaceTypeId;
+    SurfaceLayer Layer;
+    ecl::Surface* Surface;
+    std::array<ecl::SubSurfaceCell, 256> SoundSurfaceRegionList;
+    ObjectSet<glm::vec3> SoundPositions;
+};
+
+
+
+END_NS()

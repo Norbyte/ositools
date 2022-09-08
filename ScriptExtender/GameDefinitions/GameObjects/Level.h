@@ -197,7 +197,7 @@ struct Level : public dse::Level
 	void* GameActionManager;
 	void* FadeManager;
 	PickingHelperManager* PickingHelperManager;
-	void* SurfaceManager;
+	SurfaceManager* SurfaceManager;
 	void* AtmosphereManager;
 	ShroudManager* ShroudManager;
 	void* SeeThroughManager;

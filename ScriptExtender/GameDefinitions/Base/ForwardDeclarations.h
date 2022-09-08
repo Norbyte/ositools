@@ -161,6 +161,9 @@ namespace ecl
 	struct Scenery;
 	struct Projectile;
 
+	struct Surface;
+	struct SurfaceManager;
+
 	struct EntityManager;
 	struct ShroudManager;
 	struct PickingHelper;
