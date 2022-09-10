@@ -74,6 +74,8 @@ namespace dse
 			return LegacyPropertyType::kVector3;
 		} else if constexpr (std::is_same<T, NetId>::value) {
 			return LegacyPropertyType::kUInt32;
+		} else if constexpr (std::is_same<T, eoc::CombatTeamId>::value) {
+			return LegacyPropertyType::kInt32;
 		} else {
 			static_assert(!std::is_same<T, NetId>::value, "Unsupported property type");
 		}

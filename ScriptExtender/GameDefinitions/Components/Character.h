@@ -62,25 +62,6 @@ namespace dse
 		};
 	}
 
-	using InputPlayerIndex = uint32_t;
-
-	struct PlayerManager
-	{
-		struct PlayerInfo
-		{
-			uint32_t PlayerId;
-			void* RenderView;
-		};
-
-		void * VMT;
-		uint16_t NextPlayerId;
-		ObjectSet<PlayerId> FreePlayerIds;
-		ObjectSet<PlayerId> PlayerList;
-		RefMap<PlayerId, PlayerInfo> PlayerIds;
-		RefMap<InputPlayerIndex, PlayerId> InputPlayerIndices;
-		ObjectSet<void *> RenderViews; // rf::RenderView*
-	};
-
 
 	namespace esv
 	{
@@ -345,19 +326,6 @@ namespace dse
 
 	namespace ecl 
 	{
-		struct PlayerManager : public dse::PlayerManager
-		{
-			void* VMT_IProfileSelector;
-			void* VMT_EventListener;
-			void* VMT_PlayerManager2;
-			RefMap<PlayerId, FixedString> PlayerIdToProfileGuid;
-			RefMap<PlayerId, NetId> PlayerIdToNetIdMap;
-			ObjectSet<InputPlayerIndex> InputPlayerIndices;
-			uint64_t Unknown[3];
-			ObjectSet<void*> field_F0;
-			uint64_t Unknown2[6];
-		};
-
 		struct PlayerCustomData : public eoc::PlayerCustomData {};
 
 		struct PlayerData : public ProtectedGameObject<PlayerData>

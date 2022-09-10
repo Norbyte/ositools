@@ -204,7 +204,7 @@ END_CLS()
 BEGIN_CLS(esv::StatusCombat)
 INHERIT(esv::Status)
 P_RO(ReadyForCombat)
-P_RO(OwnerTeamId)
+P_REF(OwnerTeamId)
 END_CLS()
 
 
@@ -696,7 +696,7 @@ END_CLS()
 
 BEGIN_CLS(ecl::StatusCombat)
 INHERIT(ecl::Status)
-P_RO(CombatAndTeamId)
+P_REF(CombatTeamId)
 END_CLS()
 
 

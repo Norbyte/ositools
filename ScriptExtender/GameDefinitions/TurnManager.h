@@ -235,6 +235,74 @@ namespace dse
 	}
 }
 
+BEGIN_NS(eoc)
+
+struct CombatGroupInfo
+{
+	FixedString Id;
+	TranslatedString Name;
+};
+
+END_NS()
+
+
+BEGIN_NS(ecl)
+
+struct GameEventListener
+{
+	virtual ~GameEventListener() = 0;
+	virtual bool OnLevelLoad(Event const& e) = 0;
+	virtual bool OnLevelActivate(Event const& e) = 0;
+	virtual bool OnLevelUnload(Event const& e) = 0;
+	virtual bool OnLevelDeactivate(Event const& e) = 0;
+	virtual bool OnModuleLoad(Event const& e) = 0;
+	virtual bool OnModuleUnload(Event const& e) = 0;
+	virtual bool OnSessionLoad(Event const& e) = 0;
+	virtual bool OnSessionUnload(Event const& e) = 0;
+	virtual bool OnDifficultyChanged(Event const& e) = 0;
+	virtual bool OnCharacterAddedToParty(Event const& e) = 0;
+	virtual bool OnPartySwitched(Event const& e) = 0;
+	virtual bool OnCharacterOwnerChanged(Event const& e) = 0;
+	virtual bool OnCharacterTransformedEvent(Event const& e) = 0;
+	virtual bool OnSplitscreenChanged(Event const& e) = 0;
+	virtual bool OnCharacterAssigned(Event const& e) = 0;
+};
+
+struct TurnManager : public ProtectedGameObject<TurnManager>, public GameEventListener
+{
+	struct CombatOrderChange
+	{
+		uint32_t TeamId;
+		bool field_4;
+		int OrderIndex;
+		int field_C;
+	};
+
+	struct Combat : public ProtectedGameObject<Combat>
+	{
+		ObjectSet<ComponentHandleWithType> CurrentRoundTeams;
+		ObjectSet<ComponentHandleWithType> NextRoundTeams;
+		ObjectSet<ComponentHandleWithType> CombatGroups;
+		// TeamId -> Combat component handle
+		RefMap<uint32_t, ComponentHandleWithType> Teams;
+		eoc::CombatTeamId InitialPlayerTeamId;
+		eoc::CombatTeamId InitialEnemyTeamId;
+		FixedString LevelName;
+		float TurnTimer;
+		ObjectSet<CombatOrderChange> OrderChanges;
+	};
+
+	BaseComponentProcessingSystem<EntityWorld> Base;
+	ObjectSet<EntityHandle> EntityHandles;
+	RefMap<uint8_t, Combat> Combats;
+	RefMap<PlayerId, NetId> PlayerIdToCombatantNetId;
+	Map<FixedString, eoc::CombatGroupInfo> CombatGroups;
+	__int64 field_68;
+	bool CameraControl;
+};
+
+END_NS()
+
 namespace std
 {
 	template<> struct hash<dse::eoc::CombatTeamId>

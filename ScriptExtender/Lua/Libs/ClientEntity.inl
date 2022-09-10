@@ -164,6 +164,12 @@ PlayerManager* GetPlayerManager()
 	return (ecl::PlayerManager*)*GetStaticSymbols().ls__PlayerManager__Instance;
 }
 
+TurnManager* GetTurnManager()
+{
+	return GetEntityWorld()->GetTurnManager();
+}
+
+
 ComponentHandle NullHandle()
 {
 	return ComponentHandle(ComponentHandle::NullHandle);
@@ -184,6 +190,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetCurrentLevel)
 	MODULE_FUNCTION(GetPlayerManager)
+	MODULE_FUNCTION(GetTurnManager)
 	END_MODULE()
 }
 

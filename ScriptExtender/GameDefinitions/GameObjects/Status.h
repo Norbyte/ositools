@@ -6,6 +6,7 @@
 #include <GameDefinitions/Stats.h>
 #include <GameDefinitions/Misc.h>
 #include <GameDefinitions/GameObjects/Effect.h>
+#include <GameDefinitions/TurnManager.h>
 
 BEGIN_SE()
 
@@ -324,7 +325,7 @@ struct StatusCombat : public Status
 {
 	bool ReadyForCombat; // Saved
 	float field_94;
-	int OwnerTeamId; // Saved
+	eoc::CombatTeamId OwnerTeamId; // Saved
 	__int64 field_A0;
 };
 
@@ -875,7 +876,7 @@ struct StatusClean : public Status
 
 struct StatusCombat : public Status
 {
-	int CombatAndTeamId;
+	eoc::CombatTeamId CombatTeamId;
 };
 
 struct StatusHeal : public Status

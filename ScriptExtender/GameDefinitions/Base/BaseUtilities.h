@@ -313,6 +313,11 @@ enum PropertyOperationResult
 	Unknown
 };
 
+struct Event
+{
+	virtual uint32_t GetEventId() = 0;
+};
+
 END_SE()
 
 BEGIN_NS(lua)

@@ -169,6 +169,7 @@ namespace ecl
 	struct ShroudManager;
 	struct PickingHelper;
 	struct PickingHelperManager;
+	struct TurnManager;
 
 	struct EoCUI;
 	class ExtensionState;

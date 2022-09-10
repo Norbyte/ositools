@@ -715,13 +715,13 @@ namespace esv
 	{
 		inline CustomStatSystem* GetCustomStatSystem()
 		{
-			auto sys = SystemTypes[(uint32_t)SystemType::CustomStat].System;
+			auto sys = SystemTypes[(uint32_t)EntitySystemIndex::CustomStatsSystem].System;
 			return (CustomStatSystem*)((uint8_t*)sys - 0x18);
 		}
 
 		inline TurnManager* GetTurnManager()
 		{
-			auto const& system = SystemTypes[(unsigned)SystemType::TurnManager];
+			auto const& system = SystemTypes[(unsigned)EntitySystemIndex::TurnManager];
 			return (TurnManager*)((uint8_t*)system.System - 8);
 		}
 
@@ -824,6 +824,12 @@ namespace ecl
 	public:
 		IEoCClientObject* GetGameObject(char const* nameGuid, bool logError = true);
 		IEoCClientObject* GetGameObject(ComponentHandle handle, bool logError = true);
+
+		inline TurnManager* GetTurnManager()
+		{
+			auto const& system = SystemTypes[(unsigned)EntitySystemIndex::TurnManager];
+			return (TurnManager*)((uint8_t*)system.System - 8);
+		}
 	};
 
 
