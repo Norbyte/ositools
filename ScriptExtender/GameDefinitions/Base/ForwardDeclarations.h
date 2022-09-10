@@ -171,6 +171,8 @@ namespace ecl
 	struct PickingHelperManager;
 	struct TurnManager;
 
+	struct GameCamera;
+
 	struct EoCUI;
 	class ExtensionState;
 }
@@ -183,6 +185,13 @@ namespace ig
 	struct FlashObject;
 	struct FlashPlayer;
 	struct IggyBinding;
+}
+
+namespace rf
+{
+	struct Camera;
+	struct CameraController;
+	struct CameraManager;
 }
 
 struct UIObject;

@@ -30,6 +30,7 @@ LUA_POLYMORPHIC(esv::MovementState)
 LUA_POLYMORPHIC(esv::ActionState)
 LUA_POLYMORPHIC(esv::Task)
 LUA_POLYMORPHIC(esv::GameAction)
+LUA_POLYMORPHIC(rf::CameraController)
 
 void RegisterLibraries();
 void RegisterSharedMetatables(lua_State* L);

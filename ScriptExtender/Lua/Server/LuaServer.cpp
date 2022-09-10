@@ -473,6 +473,16 @@ void LuaPolymorphic<esv::GameAction>::MakeRef(lua_State* L, esv::GameAction* o, 
 
 #undef MAKE_REF
 
+void LuaPolymorphic<rf::CameraController>::MakeRef(lua_State* L, rf::CameraController* o, LifetimeHandle const & lifetime)
+{
+	auto const& sym = GetStaticSymbols();
+	if (sym.ecl__GameCamera__VMT && *(void**)o == sym.ecl__GameCamera__VMT) {
+		return MakeDirectObjectRef(L, lifetime, static_cast<ecl::GameCamera*>(o));
+	} else {
+		return MakeDirectObjectRef(L, lifetime, o);
+	}
+}
+
 template <>
 esv::Character* ObjectProxyHandleBasedRefImpl<esv::Character>::Get(lua_State* L) const
 {

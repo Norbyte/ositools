@@ -24,6 +24,7 @@
 #include <GameDefinitions/Alignment.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
 #include <GameDefinitions/GameObjects/Controllers.h>
+#include <GameDefinitions/GameObjects/Camera.h>
 
 namespace dse
 {
@@ -321,6 +322,10 @@ namespace dse
 		InputManager::GetInstanceProc* ls__InputManager__GetInstance{ nullptr };
 		InputManager::InjectInputProc* ls__InputManager__InjectInput{ nullptr };
 
+		rf::CameraManager** rf__CameraManager{ nullptr };
+		rf::CameraManager::GetInstanceProc* rf__CameraManager__GetInstance{ nullptr };
+		void* ecl__GameCamera__VMT{ nullptr };
+
 		esv::AlignmentContainer** esv__AlignmentContainer{ nullptr };
 		void* esv__AlignmentContainer__Load__Hook{ nullptr };
 
@@ -594,6 +599,17 @@ namespace dse
 				return *ls__InputManager;
 			} else if (ls__InputManager__GetInstance) {
 				return ls__InputManager__GetInstance();
+			} else {
+				return nullptr;
+			}
+		}
+
+		inline rf::CameraManager* GetCameraManager() const
+		{
+			if (rf__CameraManager) {
+				return *rf__CameraManager;
+			} else if (rf__CameraManager__GetInstance) {
+				return rf__CameraManager__GetInstance();
 			} else {
 				return nullptr;
 			}

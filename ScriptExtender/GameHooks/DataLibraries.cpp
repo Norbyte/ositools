@@ -273,6 +273,10 @@ namespace dse
 		SYM_OFF(ls__InputManager__GetInstance);
 		SYM_OFF(ls__InputManager__InjectInput);
 
+		SYM_OFF(rf__CameraManager);
+		SYM_OFF(rf__CameraManager__GetInstance);
+		SYM_OFF(ecl__GameCamera__VMT);
+
 		SYM_OFF(esv__AlignmentContainer);
 		SYM_OFF(esv__AlignmentContainer__Load__Hook);
 

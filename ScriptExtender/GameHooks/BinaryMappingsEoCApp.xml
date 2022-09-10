@@ -1461,5 +1461,27 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory" />
       <Target Type="Indirect" Offset="@ref2" Symbol="esv__OsirisTaskFactory__ReleaseTask" />
     </Mapping>
+
+    <Mapping Name="rf::CameraManager">
+      @str1 48 8d 15 ?? ?? ?? ?? // lea     rdx, fs_SpectatorCam
+      @ref1 48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:rf__gCameraManager
+      0f 29 7c 24 50 // movaps  [rsp+78h+var_28], xmm7
+      <Condition Type="FixedString" Offset="@str1" Value="SpectatorCam" />
+      <Target Type="Indirect" Offset="@ref1" Symbol="rf__CameraManager" />
+    </Mapping>
+
+    <Mapping Name="ecl::GameCamera">
+      48 83 ec 20 // sub     rsp, 20h
+      @ref1 48 8d 05 ?? ?? ?? ?? // lea     rax, ecl__GameCamera__VMT
+      48 8b d9 // mov     rbx, rcx
+      48 89 01 // mov     [rcx], rax
+      48 8d 05 ?? ?? ?? ?? // lea     rax, off_142141308
+      48 89 81 b0 03 00 00 // mov     [rcx+3B0h], rax
+      48 8d 05 ?? ?? ?? ?? // lea     rax, off_142141428
+      48 89 81 e0 03 00 00 // mov     [rcx+3E0h], rax
+      48 8d 05 ?? ?? ?? ?? // lea     rax, off_1420F5D30
+      48 89 81 98 04 00 00 // mov     [rcx+498h], rax
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__GameCamera__VMT" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

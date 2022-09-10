@@ -72,6 +72,8 @@
     <DllImport Symbol="ls__DragDropManager__StartDragString" Module="GameEngine.dll" Proc="?StartDrag@DragDropManager@ls@@QEAAXFAEBVFixedString@2@_NVVector2f@@@Z" />
     <DllImport Symbol="ls__DragDropManager__StopDrag" Module="GameEngine.dll" Proc="?StopDrag@DragDropManager@ls@@QEAAXF@Z" />
     
+    <DllImport Symbol="rf__CameraManager__GetInstance" Module="RenderFramework.dll" Proc="?GetInstance@?$Singleton@VCameraManager@rf@@@ls@@SAPEAVCameraManager@rf@@XZ" />
+    
     <DllImport Symbol="ls__InputManager__GetInstance" Module="CoreLib.dll" Proc="?GetInstance@?$Singleton@VInputManager@ls@@@ls@@SAPEAVInputManager@2@XZ" />
     <DllImport Symbol="ls__InputManager__InjectInput" Module="CoreLib.dll" Proc="?InjectInput@InputManager@ls@@AEAA_NAEBUInjectInputData@input@2@@Z" />
     

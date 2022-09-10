@@ -33,6 +33,11 @@ void UpdateShroud(float x, float y, ShroudType layer, int value)
 	level->ShroudManager->ShroudData->SetByteAtPos(layer, x, y, (uint8_t)value);
 }
 
+rf::CameraManager* GetCameraManager()
+{
+	return GetStaticSymbols().GetCameraManager();
+}
+
 void RegisterClientLib()
 {
 	DECLARE_MODULE(Client, Client)
@@ -40,6 +45,7 @@ void RegisterClientLib()
 	MODULE_FUNCTION(GetGameState)
 	MODULE_FUNCTION(GetModManager)
 	MODULE_FUNCTION(UpdateShroud)
+	MODULE_FUNCTION(GetCameraManager)
 	END_MODULE()
 }
 

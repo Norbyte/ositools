@@ -26,6 +26,7 @@
 #include <GameDefinitions/PropertyMaps/States.inl>
 #include <GameDefinitions/PropertyMaps/Controllers.inl>
 #include <GameDefinitions/PropertyMaps/Player.inl>
+#include <GameDefinitions/PropertyMaps/Camera.inl>
 
 
 BEGIN_CLS(TypeInformation)

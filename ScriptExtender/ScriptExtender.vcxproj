@@ -60,6 +60,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\ActionMachine.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Ai.h" />
     <ClInclude Include="GameDefinitions\GameObjects\AiHelpers.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Camera.h" />
     <ClInclude Include="GameDefinitions\GameObjects\CharacterCreation.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Controllers.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Effect.h" />
@@ -258,6 +259,7 @@
     <None Include="GameDefinitions\PropertyMaps\Ai.inl" />
     <None Include="GameDefinitions\PropertyMaps\Alignment.inl" />
     <None Include="GameDefinitions\PropertyMaps\AllPropertyMaps.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Camera.inl" />
     <None Include="GameDefinitions\PropertyMaps\Character.inl" />
     <None Include="GameDefinitions\PropertyMaps\CharacterCreation.inl" />
     <None Include="GameDefinitions\PropertyMaps\Combat.inl" />
