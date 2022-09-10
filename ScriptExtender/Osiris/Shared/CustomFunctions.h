@@ -11,7 +11,7 @@
 
 namespace dse
 {
-	enum EoCFunctionType
+	enum class EoCFunctionType
 	{
 		Call = 1,
 		Query = 2,

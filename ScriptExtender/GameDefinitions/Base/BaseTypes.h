@@ -312,6 +312,7 @@ struct Bound
 };
 
 using PlayerId = int16_t;
+using EInputPlayerIndex = int32_t;
 
 struct BitMatrix
 {

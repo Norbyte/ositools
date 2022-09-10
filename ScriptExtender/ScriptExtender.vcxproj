@@ -70,6 +70,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Movement.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Party.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Physics.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Player.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Render.h" />
     <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Status.h" />
@@ -271,6 +272,7 @@
     <None Include="GameDefinitions\PropertyMaps\Material.inl" />
     <None Include="GameDefinitions\PropertyMaps\Mod.inl" />
     <None Include="GameDefinitions\PropertyMaps\Physics.inl" />
+    <None Include="GameDefinitions\PropertyMaps\Player.inl" />
     <None Include="GameDefinitions\PropertyMaps\Projectile.inl" />
     <None Include="GameDefinitions\PropertyMaps\Render.inl" />
     <None Include="GameDefinitions\PropertyMaps\RootTemplates.inl" />

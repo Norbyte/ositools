@@ -64,6 +64,7 @@ struct InputEvent;
 struct InjectInputData;
 
 struct SkillAIParams;
+struct PlayerManager;
 
 namespace stats
 {

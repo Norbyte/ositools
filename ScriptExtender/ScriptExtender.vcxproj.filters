@@ -412,6 +412,9 @@
     <ClInclude Include="GameDefinitions\Helpers.h">
       <Filter>GameDefinitions</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Player.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -885,6 +888,9 @@
     </None>
     <None Include="Lua\Libs\ServerAction.inl">
       <Filter>Lua\Libs</Filter>
+    </None>
+    <None Include="GameDefinitions\PropertyMaps\Player.inl">
+      <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

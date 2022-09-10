@@ -209,6 +209,7 @@ namespace dse
 		SYM_OFF(TranslatedStringKeyManager__GetTranlatedStringFromKey);
 
 		SYM_OFF(eoc__SpeakerManager);
+		SYM_OFF(ls__PlayerManager__Instance);
 		SYM_OFF(esv__OsirisVariableHelper__SavegameVisit);
 		SYM_OFF(ModManager__CollectAvailableMods);
 		SYM_OFF(ls__ScriptCheckBlock__Build);

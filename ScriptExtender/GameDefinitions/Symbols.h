@@ -251,6 +251,7 @@ namespace dse
 		TranslatedStringKeyManager::GetTranlatedStringFromKey TranslatedStringKeyManager__GetTranlatedStringFromKey{ nullptr };
 
 		eoc::SpeakerManager ** eoc__SpeakerManager{ nullptr };
+		PlayerManager** ls__PlayerManager__Instance{ nullptr };
 		void* esv__OsirisVariableHelper__SavegameVisit{ nullptr };
 		ModManager::CollectAvailableMods ModManager__CollectAvailableMods{ nullptr };
 		stats::ScriptCheckBlock__Build ls__ScriptCheckBlock__Build{ nullptr };

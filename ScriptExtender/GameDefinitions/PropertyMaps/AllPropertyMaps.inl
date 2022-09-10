@@ -25,6 +25,7 @@
 #include <GameDefinitions/PropertyMaps/GameAction.inl>
 #include <GameDefinitions/PropertyMaps/States.inl>
 #include <GameDefinitions/PropertyMaps/Controllers.inl>
+#include <GameDefinitions/PropertyMaps/Player.inl>
 
 
 BEGIN_CLS(TypeInformation)

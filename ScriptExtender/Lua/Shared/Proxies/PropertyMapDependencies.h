@@ -19,6 +19,7 @@
 #include <GameDefinitions/GameObjects/Physics.h>
 #include <GameDefinitions/GameObjects/Movement.h>
 #include <GameDefinitions/GameObjects/Controllers.h>
+#include <GameDefinitions/GameObjects/Player.h>
 #include <GameDefinitions/Components/Scenery.h>
 #include <GameDefinitions/Components/Trigger.h>
 #include <Hit.h>

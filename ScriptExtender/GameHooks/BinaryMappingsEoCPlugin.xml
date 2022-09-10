@@ -388,12 +388,13 @@
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:__security_cookie
       48 33 C4  // xor     rax, rsp
       48 89 44 24 70  // mov     [rsp+88h+var_18], rax
-      48 8B 05 ?? ?? ?? ??  // mov     rax, cs:?s_Ptr@PlayerManager@ls@@1PEAV12@EA
+      @ref 48 8B 05 ?? ?? ?? ??  // mov     rax, cs:?s_Ptr@PlayerManager@ls@@1PEAV12@EA
       49 8D 53 A8  // lea     rdx, [r11-58h]
       48 8B 08  // mov     rcx, [rax]
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:qword_182543378
       49 89 43 98  // mov     [r11-68h], rax
       <Target Type="Absolute" Offset="0" Symbol="CustomStatUIRollHook" />
+      <Target Type="Indirect" Offset="@ref" Symbol="ls__PlayerManager__Instance" />
     </Mapping>
 
     <Mapping Name="esv::CustomStatsProtocol::ProcessMsg">

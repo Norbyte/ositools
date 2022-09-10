@@ -1,5 +1,6 @@
 #include <Lua/Shared/LuaMethodHelpers.h>
 #include <Extender/ScriptExtender.h>
+#include <GameDefinitions/GameObjects/Player.h>
 
 /// <lua_module>Entity</lua_module>
 BEGIN_NS(ecl::lua::ecs)
@@ -158,6 +159,11 @@ Level* GetCurrentLevel()
 	return GetStaticSymbols().GetCurrentClientLevel();
 }
 
+PlayerManager* GetPlayerManager()
+{
+	return (ecl::PlayerManager*)*GetStaticSymbols().ls__PlayerManager__Instance;
+}
+
 ComponentHandle NullHandle()
 {
 	return ComponentHandle(ComponentHandle::NullHandle);
@@ -177,6 +183,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetGameObject)
 	MODULE_FUNCTION(GetAiGrid)
 	MODULE_FUNCTION(GetCurrentLevel)
+	MODULE_FUNCTION(GetPlayerManager)
 	END_MODULE()
 }
 
