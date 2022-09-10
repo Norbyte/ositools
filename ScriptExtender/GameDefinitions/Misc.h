@@ -8,6 +8,55 @@
 
 namespace dse
 {
+	struct GlobalCameraSwitches
+	{
+		float MoveSpeed;
+		float LookAtDistanceThreshold;
+		float DistanceAdjustmentSpeedMultiplier;
+		float LookAtSpeedPower;
+		float DistanceAdjustmentSpeedMultiplier2;
+		float LookAtSpeedPower2;
+		float MaxCameraDistance;
+		float MinCameraDistance;
+		float DefaultCameraDistance;
+		float MaxCameraDistanceController;
+		float MinCameraDistanceController;
+		float DefaultCameraDistanceController;
+		float MaxCameraDistanceWithTarget;
+		float MinCameraDistanceWithTarget;
+		float DefaultCameraDistanceWithTarget;
+		float TargetHeightOffset;
+		float TargetHeightOffsetController;
+		float field_44;
+		float field_48;
+		float FOV;
+		float FOVController;
+		float CameraAvoidanceMultiplier;
+		float CameraAvoidanceMultiplierWithTarget;
+		float CamAvoidanceOffset;
+		float CamAvoidanceOffsetWithTarget;
+		float CamAvoidancePower;
+		float CamAvoidancePowerWithTarget;
+		float DistanceAdjustmentThreshold;
+		float DistanceAdjustmentSpeedPower;
+		float BaseCameraDistance;
+		float BaseTargetCameraDistance;
+		float ViewportFrameCursorThreshold1;
+		float ViewportFrameCursorThreshold2;
+		float DefaultCameraDistanceOverhead;
+		float MaxCameraDistanceOverhead;
+		float MinCameraDistanceOverhead;
+		float FOVOverhead;
+		glm::vec3 DefaultPosition;
+		glm::vec3 DefaultPosition2;
+		glm::vec3 DefaultCombatPosition;
+		glm::vec3 DefaultCombatPosition2;
+		glm::vec3 DefaultOverheadPosition;
+		glm::vec3 DefaultOverheadPosition2;
+		glm::vec3 DefaultControllerPosition;
+		glm::vec3 DefaultControllerPosition2;
+	};
+
 	struct GlobalSwitches
 	{
 		struct SomeOption
@@ -222,8 +271,8 @@ namespace dse
 		int NextServerMode;
 		int ServerMode;
 		uint32_t ServerFrameCap;
-		std::array<float, 61> Floats1;
-		std::array<float, 61> Floats2;
+		GlobalCameraSwitches CameraSwitchesMode0;
+		GlobalCameraSwitches CameraSwitchesMode1;
 		std::array<float, 32> Floats3;
 		std::array<SomeOption, 50> Options2;
 		int GameMasterBind;
