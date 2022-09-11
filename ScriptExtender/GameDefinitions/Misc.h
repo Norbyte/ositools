@@ -16,14 +16,14 @@ namespace dse
 		float LookAtSpeedPower;
 		float DistanceAdjustmentSpeedMultiplier2;
 		float LookAtSpeedPower2;
-		float MaxCameraDistance;
 		float MinCameraDistance;
+		float MaxCameraDistance;
 		float DefaultCameraDistance;
-		float MaxCameraDistanceController;
 		float MinCameraDistanceController;
+		float MaxCameraDistanceController;
 		float DefaultCameraDistanceController;
-		float MaxCameraDistanceWithTarget;
 		float MinCameraDistanceWithTarget;
+		float MaxCameraDistanceWithTarget;
 		float DefaultCameraDistanceWithTarget;
 		float TargetHeightOffset;
 		float TargetHeightOffsetController;
@@ -44,8 +44,8 @@ namespace dse
 		float ViewportFrameCursorThreshold1;
 		float ViewportFrameCursorThreshold2;
 		float DefaultCameraDistanceOverhead;
-		float MaxCameraDistanceOverhead;
 		float MinCameraDistanceOverhead;
+		float MaxCameraDistanceOverhead;
 		float FOVOverhead;
 		glm::vec3 DefaultPosition;
 		glm::vec3 DefaultPosition2;
