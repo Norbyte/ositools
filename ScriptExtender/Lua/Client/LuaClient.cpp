@@ -321,6 +321,17 @@ void ClientState::OnRawInputEvent(InjectInputData const& inputEvent)
 	ThrowEvent("RawInput", params);
 }
 
+void ClientState::OnCreateEquipmentVisuals(EntityHandle entityHandle, EquipmentVisualSystemSetParam& params)
+{
+	auto character = GetEntityWorld()->GetComponent<Character>(entityHandle, false);
+	CreateEquipmentVisualsRequestEvent evt{
+		.Entity = entityHandle,
+		.Character = character,
+		.Params = &params
+	};
+	ThrowEvent("CreateEquipmentVisualsRequest", evt);
+}
+
 
 UIObject * ClientState::GetUIObject(char const * name)
 {

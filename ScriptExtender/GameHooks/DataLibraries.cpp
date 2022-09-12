@@ -258,6 +258,7 @@ namespace dse
 		SYM_OFF(ResourceManager__InstantiateVisual);
 		SYM_OFF(ResourceManager__Instance);
 		SYM_OFF(ls__VisualFactory__DestroyVisual);
+		SYM_OFF(ecl__EquipmentVisualsSystem__CreateVisuals);
 		SYM_OFF(ls__GlobalSwitches);
 		SYM_OFF(ls__GraphicSettings);
 

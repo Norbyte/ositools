@@ -13,7 +13,8 @@ _I._PublishedEvents = {
 	"AfterUIInvoke",
 	"AfterUICall",
 	"InputEvent",
-	"RawInput"
+	"RawInput",
+	"CreateEquipmentVisualsRequest"
 }
 
 Ext.IsClient = function ()

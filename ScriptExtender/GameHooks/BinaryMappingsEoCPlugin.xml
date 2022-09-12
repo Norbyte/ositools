@@ -1014,5 +1014,19 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="esv__OsirisTaskFactory" />
       <Target Type="Indirect" Offset="@ref2" Symbol="esv__OsirisTaskFactory__CreateTask" />
     </Mapping>
+
+    <Mapping Name="ecl::EquipmentVisualsSystem::CreateVisuals">
+      48 8b 54 24 70 // mov     rdx, [rsp+160h+a2]; a2
+      4c 8d 45 80 // lea     r8, [rbp+60h+visualParam]; a3
+      48 8b c8 // mov     rcx, rax; a1
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__EquipmentVisualsSystem__CreateVisuals
+      48 8b d8 // mov     rbx, rax
+      41 8d 46 fd // lea     eax, [r14-3]
+      83 f8 01 // cmp     eax, 1
+      77 2e // ja      short loc_1804198F4
+      48 8b 0d ?? ?? ?? ?? // mov     rcx, cs:ecl__gItemFactory
+      48 8b 95 80 00 00 00 // mov     rdx, [rbp+60h+arg_10]; _QWORD
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__EquipmentVisualsSystem__CreateVisuals" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

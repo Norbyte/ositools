@@ -1483,5 +1483,22 @@
       48 89 81 98 04 00 00 // mov     [rcx+498h], rax
       <Target Type="Indirect" Offset="@ref1" Symbol="ecl__GameCamera__VMT" />
     </Mapping>
+
+    <Mapping Name="ecl::EquipmentVisualsSystem::CreateVisuals">
+      4c 8d 44 24 20 // lea     r8, [rsp+0D8h+params]; params
+      25 00 00 f8 ff // and     eax, 0FFF80000h
+      40 0f b6 cf // movzx   ecx, dil
+      0b c8 // or      ecx, eax
+      4c 89 b4 24 a0 00 00 00 // mov     qword ptr [rsp+0D8h+params.AttachFlags], r14
+      89 8c 24 a8 00 00 00 // mov     [rsp+0D8h+params.SlotAndFlags], ecx
+      48 8d 53 40 // lea     rdx, [rbx+40h]; entity
+      48 8b cd // mov     rcx, rbp; a1
+      @ref1 e8 ?? ?? ?? ?? // call    ecl__EquipmentVisualsSystem__CreateVisuals
+      48 8d 4c 24 20 // lea     rcx, [rsp+0D8h+params]
+      e8 ?? ?? ?? ?? // call    sub_1402F5280
+      ff c7 // inc     edi
+      83 ff 0e // cmp     edi, 0Eh
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__EquipmentVisualsSystem__CreateVisuals" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

@@ -402,3 +402,36 @@ P_FUN(GetItemObjectBySlot, GetItemBySlot)
 P_FUN(GetCustomStat, GetCustomStatValue)
 P_FUN(SetScale, LuaSetScale)
 END_CLS()
+
+
+BEGIN_CLS(ecl::EquipmentVisualsComponent::LoadingVisual)
+P_RO(Handle)
+END_CLS()
+
+
+BEGIN_CLS(ecl::EquipmentVisualsComponent::VisualEntry)
+P_REF(Visual)
+P_REF(LoadingVisual)
+P(EquipmentSlotMask)
+P(VisualSetSlotMask)
+END_CLS()
+
+
+BEGIN_CLS(ecl::EquipmentVisualsComponent)
+P_REF(Visuals)
+END_CLS()
+
+
+BEGIN_CLS(ecl::EquipmentVisualSystemSetParam)
+P(VisualResourceID)
+P(AttachmentBoneName)
+P(LevelName)
+P(ClothHandle)
+P_REF(Colors)
+P(AttachFlags)
+P_BITMASK(AttachFlags)
+P(EquipmentSlotMask)
+P(VisualSetSlotMask)
+P_BITMASK(SlotAndFlags)
+P_GETTER_SETTER(Slot, GetSlot, SetSlot)
+END_CLS()

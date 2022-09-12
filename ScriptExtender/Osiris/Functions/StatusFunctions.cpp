@@ -724,6 +724,14 @@ namespace dse::esv
 		return 0;
 	}
 
+	void CustomFunctionLibrary::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem* self, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params)
+	{
+		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
+		if (lua) {
+			lua->OnCreateEquipmentVisuals(entityHandle, params);
+		}
+	}
+
 	bool CustomFunctionLibrary::OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self,
 		LoadProtocol::PeerModSettings& peerModSettings, ModuleSettings& hostModSettings)
 	{

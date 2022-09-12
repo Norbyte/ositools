@@ -290,6 +290,9 @@ namespace dse::esv
 		lib.ls__InputManager__InjectInput.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnInjectInput, this, _1, _2)
 		);
+		lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetPreHook(
+			std::bind(&CustomFunctionLibrary::OnCreateEquipmentVisuals, this, _1, _2, _3)
+		);
 
 		loaded_ = true;
 	}

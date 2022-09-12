@@ -107,6 +107,13 @@ namespace dse::ecl::lua
 		InjectInputData const* Input;
 	};
 
+	struct CreateEquipmentVisualsRequestEvent : public EventBase
+	{
+		EntityHandle Entity;
+		Character* Character;
+		EquipmentVisualSystemSetParam* Params;
+	};
+
 	class ClientState : public State
 	{
 	public:
@@ -142,6 +149,7 @@ namespace dse::ecl::lua
 		std::optional<STDString> GetSkillPropertyDescription(stats::PropertyExtender*);
 		void OnAppInputEvent(dse::InputEvent const& inputEvent);
 		void OnRawInputEvent(InjectInputData const& inputEvent);
+		void OnCreateEquipmentVisuals(EntityHandle entityHandle, EquipmentVisualSystemSetParam& params);
 
 		void OnCustomClientUIObjectCreated(char const * name, ComponentHandle handle);
 		UIObject * GetUIObject(char const * name);

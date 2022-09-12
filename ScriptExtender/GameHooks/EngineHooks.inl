@@ -38,3 +38,4 @@ HOOK_DEFN(App__OnInputEvent, App__OnInputEvent, App::VMT::OnInputEventProc, PreH
 HOOK_DEFN(FileReader__ctor, ls__FileReader__ctor, FileReader::CtorProc, WrappableFunction)
 HOOK_DEFN(ecl__InventoryProtocol__PostUpdate, ecl__InventoryProtocol__PostUpdate, ecl::InventoryProtocol::PostUpdateProc, WrappableFunction)
 HOOK_DEFN(ls__InputManager__InjectInput, ls__InputManager__InjectInput, InputManager::InjectInputProc, PreHookableFunction)
+HOOK_DEFN(ecl__EquipmentVisualsSystem__CreateVisuals, ecl__EquipmentVisualsSystem__CreateVisuals, ecl::EquipmentVisualsSystem::CreateVisualsProc, PreHookableFunction)
