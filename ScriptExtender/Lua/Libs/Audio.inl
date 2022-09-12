@@ -76,7 +76,10 @@ END_NS()
 
 BEGIN_NS(lua)
 
-SoundObjectId do_get(lua_State* L, int index, Overload<SoundObjectId>)
+enum class SoundObjectIdTag {};
+using LuaSoundObjectId = TypedPrimitive<SoundObjectId, SoundObjectIdTag>;
+
+LuaSoundObjectId do_get(lua_State* L, int index, Overload<LuaSoundObjectId>)
 {
 	return ecl::lua::audio::GetSoundObjectId(L, index);
 }
@@ -87,7 +90,7 @@ BEGIN_NS(ecl::lua::audio)
 
 using namespace dse::lua;
 
-bool SetSwitch(SoundObjectId soundObject, char const* switchGroup, char const* state)
+bool SetSwitch(LuaSoundObjectId soundObject, char const* switchGroup, char const* state)
 {
 	return GetSoundManager()->SetSwitch(switchGroup, state, soundObject);
 }
@@ -97,22 +100,22 @@ bool SetState(char const* stateGroup, char const* state)
 	return GetSoundManager()->SetState(stateGroup, state);
 }
 
-bool SetRTPC(SoundObjectId soundObject, char const* rtpcName, float value)
+bool SetRTPC(LuaSoundObjectId soundObject, char const* rtpcName, float value)
 {
 	return GetSoundManager()->SetRTPCValue(soundObject, rtpcName, value) == 1;
 }
 
-float GetRTPC(SoundObjectId soundObject, char const* rtpcName)
+float GetRTPC(LuaSoundObjectId soundObject, char const* rtpcName)
 {
 	return GetSoundManager()->GetRTPCValue(soundObject, rtpcName);
 }
 
-bool ResetRTPC(SoundObjectId soundObject, char const* rtpcName)
+bool ResetRTPC(LuaSoundObjectId soundObject, char const* rtpcName)
 {
 	return GetSoundManager()->ResetRTPCValue(soundObject, rtpcName) == 1;
 }
 
-void Stop(std::optional<SoundObjectId> soundObject)
+void Stop(std::optional<LuaSoundObjectId> soundObject)
 {
 	auto snd = GetSoundManager();
 	if (!snd) {
@@ -146,12 +149,12 @@ void ResumeAllSounds()
 	snd->ResumeAllSounds();
 }
 
-bool PostEvent(SoundObjectId soundObject, char const* eventName, std::optional<float> positionSec)
+bool PostEvent(LuaSoundObjectId soundObject, char const* eventName, std::optional<float> positionSec)
 {
 	return GetSoundManager()->PostEvent(soundObject, eventName, positionSec.value_or(0.0f), nullptr);
 }
 
-bool PlayExternalSound(SoundObjectId soundObject, char const* eventName, char const* path, unsigned int codecId)
+bool PlayExternalSound(LuaSoundObjectId soundObject, char const* eventName, char const* path, unsigned int codecId)
 {
 	Path lsPath;
 	lsPath.Name = GetStaticSymbols().ToPath(path, PathRootType::Data);

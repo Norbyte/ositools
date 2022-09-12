@@ -106,6 +106,51 @@ inline uint64_t Hash(UserId v)
 }
 
 
+template <class T, class TTag>
+struct TypedPrimitive
+{
+	T Value;
+
+	inline TypedPrimitive()
+		: Value()
+	{}
+
+	inline TypedPrimitive(T v)
+		: Value(v)
+	{}
+
+	inline TypedPrimitive(TypedPrimitive<T, TTag> const & v)
+		: Value(v.Value)
+	{}
+
+	inline TypedPrimitive& operator = (TypedPrimitive<T, TTag> const & v)
+	{
+		Value = v.Value;
+		return *this;
+	}
+
+	inline TypedPrimitive& operator = (T v)
+	{
+		Value = v;
+		return *this;
+	}
+
+	inline bool operator == (TypedPrimitive<T, TTag> const & v) const
+	{
+		return Value == v.Value;
+	}
+
+	inline bool operator == (T v) const
+	{
+		return Value == v;
+	}
+
+	inline operator T() const
+	{
+		return (T)Value;
+	}
+};
+
 
 template <class T>
 struct TypedHandle
