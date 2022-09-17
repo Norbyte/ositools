@@ -77,11 +77,28 @@ void LoadConfig(std::wstring const & configPath, dse::ExtenderConfig & config)
 	ConfigGet(root, "LuaBuiltinResourceDirectory", config.LuaBuiltinResourceDirectory);
 }
 
+std::wstring GetConfigPath()
+{
+	std::wstring exeDir;
+	HMODULE exeHandle = GetModuleHandleW(NULL);
+	if (exeHandle != NULL) {
+		exeDir.resize(MAX_PATH);
+		DWORD exeSize = GetModuleFileNameW(exeHandle, exeDir.data(), (DWORD)exeDir.size());
+		exeDir.resize(exeSize);
+		auto sep = exeDir.find_last_of(L'\\');
+		if (sep != std::string::npos) {
+			exeDir = exeDir.substr(0, sep + 1);
+		}
+	}
+
+	return exeDir + L"OsirisExtenderSettings.json";
+}
+
 void SetupOsirisProxy(HMODULE hModule)
 {
 	dse::gExtender = std::make_unique<dse::ScriptExtender>();
 	auto & config = dse::gExtender->GetConfig();
-	LoadConfig(L"OsirisExtenderSettings.json", config);
+	LoadConfig(GetConfigPath(), config);
 
 	DisableThreadLibraryCalls(hModule);
 	if (config.CreateConsole) {
