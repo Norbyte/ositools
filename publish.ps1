@@ -37,7 +37,7 @@ $PDBDir = Join-Path "$PDBRoot" "TempPDB"
 $EditorMinVersion = "3.6.51.0"
 $EditorMaxVersion = "-"
 	
-$GameMinVersion = "3.6.54.0"
+$GameMinVersion = "3.6.117.0"
 $GameMaxVersion = "-"
 
 function Build-Extender
