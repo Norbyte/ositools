@@ -208,6 +208,11 @@ Ext.RegisterUITypeInvokeListener(28, "openMenu", function (menu, ...)
     menu:Invoke("setDebugText", ver)
 end)
 
+Ext.RegisterUITypeInvokeListener(72, "openMenu", function (menu, ...)
+    local ver = Ext.GameVersion() .. " (Script Extender v" .. Ext.Version() .. ")"
+    menu:Invoke("setDebugText", ver)
+end)
+
 _I._RegisterEvents()
 
 -- Support for UI call/invoke listeners
@@ -222,7 +227,7 @@ end)
 -- Subscribe to main menu calls
 Ext.Events.UIObjectCreated:Subscribe(function (e)
 	local ui = e.UI
-    if ui:GetTypeId() == 28 then
+    if ui:GetTypeId() == 28 or ui:GetTypeId() == 72 then
         ui:CaptureExternalInterfaceCalls()
         ui:CaptureInvokes()
     end
