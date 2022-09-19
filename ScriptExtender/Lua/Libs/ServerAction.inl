@@ -143,8 +143,16 @@ T* PrepareGameAction(GameActionType type, FixedString const& skillId, ProxyParam
 	static_cast<ty*>(action)->SkillId = skillId; \
 	break;
 
-GameAction* CreateGameAction(GameActionType type, FixedString const& skillId, ProxyParam<Character> character)
+GameAction* CreateGameAction(lua_State* L, GameActionType type, FixedString const& skillId, ProxyParam<Character> character)
 {
+	if (type != GameActionType::GameObjectMoveAction) {
+		auto skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(skillId);
+		if (!skillProto) {
+			luaL_error(L, "Skill ID '%s' specified for game action does not exist", skillId.GetStringOrDefault());
+			return nullptr;
+		}
+	}
+
 	GameAction* action{ nullptr };
 
 	switch (type) {

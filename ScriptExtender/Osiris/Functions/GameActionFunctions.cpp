@@ -23,6 +23,12 @@ namespace dse::esv
 			}
 
 			auto const & lib = GetStaticSymbols();
+			auto skillProto = (*GetStaticSymbols().eoc__SkillPrototypeManager)->Prototypes.try_get(FixedString(args[1].String));
+			if (!skillProto) {
+				OsiError("No such skill entry: '" << args[1].String << "'");
+				return nullptr;
+			}
+
 			auto actionMgr = lib.GetGameActionManager();
 
 			if (lib.esv__GameActionManager__CreateAction == nullptr || lib.esv__GameActionManager__AddGameAction == nullptr || actionMgr == nullptr) {
