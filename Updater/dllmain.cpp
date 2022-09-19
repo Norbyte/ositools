@@ -280,6 +280,7 @@ public:
 			return true;
 		} else {
 			DEBUG("Unzipping failed: %s", reason.c_str());
+			DeleteFileW(packagePath.c_str());
 			return false;
 		}
 	}
@@ -339,6 +340,8 @@ private:
 			return false;
 		}
 
+		bool failed{ false };
+
 		auto entries = archive->GetEntriesCount();
 		for (auto i = 0; i < entries; i++) {
 			auto entry = archive->GetEntry(i);
@@ -352,6 +355,7 @@ private:
 				DEBUG("Failed to open %s for extraction", entry->GetFullName().c_str());
 				reason = "Script Extender update failed:\r\n";
 				reason += std::string("Failed to open file ") + entry->GetFullName() + " for extraction";
+				failed = true;
 				break;
 			}
 
@@ -360,6 +364,7 @@ private:
 				DEBUG("Failed to decompress %s", entry->GetFullName().c_str());
 				reason = "Script Extender update failed:\r\n";
 				reason += std::string("Failed to decompress file ") + entry->GetFullName();
+				failed = true;
 				break;
 			}
 
@@ -380,11 +385,22 @@ private:
 				DEBUG("Failed to move file %s", entry->GetFullName().c_str());
 				reason = "Script Extender update failed:\r\n";
 				reason += std::string("Failed to update file ") + entry->GetFullName();
+				failed = true;
 				break;
 			}
 		}
 
-		return true;
+		if (failed) {
+			auto entries = archive->GetEntriesCount();
+			for (auto i = 0; i < entries; i++) {
+				auto entry = archive->GetEntry(i);
+				DEBUG("Removing: %s", entry->GetFullName().c_str());
+				auto outPath = resourcePath + L"\\" + FromUTF8(entry->GetFullName());
+				DeleteFileW(outPath.c_str());
+			}
+		}
+
+		return !failed;
 	}
 
 	bool DeleteLocalCacheFromZip(std::wstring const& zipPath, std::wstring const& resourcePath)
