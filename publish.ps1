@@ -138,9 +138,9 @@ function Build-Legacy-Package ($BuildDir, $ZipPath)
 
 function Publish-Legacy-Package
 {
-	aws s3 cp $LegacyBuildZipPath s3://$S3Bucket/$S3LegacyRootPath/Latest.zip
-	aws s3api put-object-acl --bucket $S3Bucket --key $S3LegacyRootPath/Latest.zip --acl public-read
-	aws cloudfront create-invalidation --distribution-id $CloudFrontLegacyDistributionID --paths /$Channel/Latest.zip
+	aws s3 cp $LegacyBuildZipPath s3://$S3Bucket/$S3LegacyRootPath/$GameChannel/Latest.zip
+	aws s3api put-object-acl --bucket $S3Bucket --key $S3LegacyRootPath/$GameChannel/Latest.zip --acl public-read
+	aws cloudfront create-invalidation --distribution-id $CloudFrontLegacyDistributionID --paths /$GameChannel/Latest.zip
 }
 
 function Publish-Package ($ZipPath, $DigestPath, $Channel, $ManifestPath)
