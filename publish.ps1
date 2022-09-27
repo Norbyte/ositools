@@ -159,11 +159,14 @@ function Publish-Package ($ZipPath, $DigestPath, $Channel, $ManifestPath)
 Build-Extender
 
 Build-Package $GameBuildDir $GameBuildZipPath $GameDllPath $GameChannel 1 0
-$GameDigestPath = (x64\Release\UpdateSigner.exe compute-path "$GameBuildZipPath" "$GameDllPath")
-Archive-Build $GameDigestPath $GameBuildZipPath
-
 Build-Package $EditorBuildDir $EditorBuildZipPath $EditorDllPath $EditorChannel 0 1
+
+Create-PDBDir
+
+$GameDigestPath = (x64\Release\UpdateSigner.exe compute-path "$GameBuildZipPath" "$GameDllPath")
 $EditorDigestPath = (x64\Release\UpdateSigner.exe compute-path "$EditorBuildZipPath" "$EditorDllPath")
+
+Archive-Build $GameDigestPath $GameBuildZipPath
 Archive-Build $EditorDigestPath $EditorBuildZipPath
 
 Build-Legacy-Package $LegacyBuildDir $LegacyBuildZipPath
