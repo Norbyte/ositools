@@ -116,10 +116,11 @@ struct StatusDomeAction : public GameAction
 {
 	ComponentHandle Owner;
 	glm::vec3 Position;
+	float AreaRadius;
 	float LifeTime;
 	FixedString SkillId;
 	bool Finished;
-	void * SkillStatusAura;
+	SkillStatusAura* Aura;
 };
 
 struct PathAction : public GameAction

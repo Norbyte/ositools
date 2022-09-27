@@ -23,6 +23,11 @@ INHERIT(eoc::CombatComponent)
 END_CLS()
 
 
+BEGIN_CLS(ecl::CombatComponent)
+INHERIT(eoc::CombatComponent)
+END_CLS()
+
+
 BEGIN_CLS(esv::TurnManager)
 P_REF(AttachedCombatComponents)
 P_REF(CombatEntities)

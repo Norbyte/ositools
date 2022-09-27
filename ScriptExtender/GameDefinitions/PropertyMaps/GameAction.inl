@@ -100,10 +100,11 @@ BEGIN_CLS(esv::StatusDomeAction)
 INHERIT(esv::GameAction)
 P_RO(Owner)
 P(Position)
+P(AreaRadius)
 P(LifeTime)
 P(SkillId)
 P(Finished)
-// TODO - P_REF(SkillStatusAura)
+P_REF(Aura)
 END_CLS()
 
 

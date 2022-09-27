@@ -142,6 +142,9 @@ BEGIN_NS(ecl)
 
 struct Projectile : public IEoCClientObject
 {
+    static constexpr auto ComponentPoolIndex = EntityComponentIndex::Projectile;
+    static constexpr auto ObjectTypeIndex = ObjectHandleType::ClientProjectile;
+
     void* VMT;
     FixedString GUID;
     NetId NetID;

@@ -207,6 +207,8 @@ bool ConstructComponentProxy(lua_State* L, EntityWorldBase<dse::ecl::EntityCompo
 	// Components from ECS
 	P_CLS(ecl::Character);
 	P_CLS(ecl::Item);
+	P_CLS(ecl::Projectile);
+	P_CLS(ecl::CombatComponent);
 
 	case esv::Inventory::ObjectTypeIndex:
 	{

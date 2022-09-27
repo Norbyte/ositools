@@ -301,6 +301,12 @@ struct TurnManager : public ProtectedGameObject<TurnManager>, public GameEventLi
 	bool CameraControl;
 };
 
+struct CombatComponent : public eoc::CombatComponent
+{
+	static constexpr auto ComponentPoolIndex = ecl::EntityComponentIndex::Combat;
+	static constexpr auto ObjectTypeIndex = ObjectHandleType::CombatComponent;
+};
+
 END_NS()
 
 namespace std
