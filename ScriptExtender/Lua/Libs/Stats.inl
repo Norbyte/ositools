@@ -474,11 +474,17 @@ void UpdateEquipmentSet(lua_State* L)
 	}
 }
 
-UserReturn GetTreasureTable(lua_State* L, FixedString const& tableName)
+UserReturn GetTreasureTableLegacy(lua_State* L, FixedString const& tableName)
 {
 	auto stats = GetStaticSymbols().GetStats();
 	auto table = stats->TreasureTables.Find(tableName);
 	return LuaWrite(L, table);
+}
+
+stats::TreasureTable* GetTreasureTable(FixedString const& tableName)
+{
+	auto stats = GetStaticSymbols().GetStats();
+	return stats->TreasureTables.Find(tableName);
 }
 
 void UpdateTreasureTable(lua_State* L)
@@ -1300,7 +1306,8 @@ void RegisterStatsLib()
 		
 	DECLARE_SUBMODULE(Stats, TreasureTable, Both)
 	BEGIN_MODULE()
-	MODULE_NAMED_FUNCTION("GetLegacy", GetTreasureTable)
+	MODULE_NAMED_FUNCTION("Get", GetTreasureTable)
+	MODULE_NAMED_FUNCTION("GetLegacy", GetTreasureTableLegacy)
 	MODULE_NAMED_FUNCTION("Update", UpdateTreasureTable)
 	END_MODULE()
 		

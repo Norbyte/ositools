@@ -1039,8 +1039,8 @@ struct TreasureSubTableDescription
 	{
 		int Index;
 		int Frequency;
-		uint16_t Frequencies[7];
-		uint16_t Frequencies2[7];
+		std::array<uint16_t, 7> Frequencies;
+		std::array<uint16_t, 7> CurrentFrequencies;
 		bool IsTreasureTable;
 		bool IsTreasureTable2;
 	};

@@ -107,7 +107,7 @@ namespace dse::lua
 
 		if (!s.IsWriting) {
 			v.TotalFrequency = 0;
-			v.CategoryFrequencies.reallocate(v.Categories.size());
+			v.CategoryFrequencies.resize(v.Categories.size());
 			for (uint32_t i = 0; i < v.Categories.size(); i++) {
 				v.CategoryFrequencies[i] = v.Categories[i]->Frequency;
 				v.TotalFrequency += v.Categories[i]->Frequency;
@@ -121,7 +121,7 @@ namespace dse::lua
 				}
 			}
 
-			v.Amounts.reallocate(v.DropCounts.size());
+			v.Amounts.resize(v.DropCounts.size());
 			for (uint32_t i = 0; i < v.DropCounts.size(); i++) {
 				v.Amounts[i] = v.DropCounts[i].Amount;
 			}
@@ -179,7 +179,10 @@ namespace dse::lua
 		}
 
 		for (int i = 0; i < 7; i++) {
-			s.VisitOptionalProperty(stats->TreasureItemTypes[i].GetString(), v.Frequencies[i], (uint16_t)0);
+			uint16_t frequency = v.Frequencies[i];
+			s.VisitOptionalProperty(stats->TreasureItemTypes[i].GetString(), frequency, (uint16_t)0);
+			v.Frequencies[i] = frequency;
+			v.CurrentFrequencies[i] = frequency;
 		}
 
 		s.EndObject();
