@@ -167,6 +167,11 @@ IGameObject* GetGameObject(lua_State* L)
 	return LuaGetGameObject(L, 1);
 }
 
+CombatComponent* GetCombatComponent(ComponentHandle handle)
+{
+	return GetEntityWorld()->GetComponent<CombatComponent>(handle);
+}
+
 Inventory* GetInventory(ComponentHandle handle)
 {
 	auto factory = *GetStaticSymbols().esv__InventoryFactory;
@@ -385,6 +390,7 @@ void RegisterEntityLib()
 	MODULE_FUNCTION(GetItem)
 	MODULE_FUNCTION(GetTrigger)
 	MODULE_FUNCTION(GetGameObject)
+	MODULE_FUNCTION(GetCombatComponent)
 	MODULE_FUNCTION(GetInventory)
 	MODULE_FUNCTION(GetStatus)
 	MODULE_FUNCTION(GetCombat)
