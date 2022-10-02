@@ -517,8 +517,8 @@ struct EquipmentVisualsComponent : public BaseComponent
 	{
 		Visual* Visual;
 		LoadingVisual* LoadingVisual;
-		uint16_t EquipmentSlotMask;
-		uint16_t VisualSetSlotMask;
+		DeactivateEquipmentSlotMask EquipmentSlotMask;
+		DeactivateVisualSetSlotMask VisualSetSlotMask;
 	};
 
 	std::array<VisualEntry, 14> Visuals;
@@ -537,8 +537,8 @@ struct EquipmentVisualSystemSetParam
 #endif
 	std::array<glm::vec4, 5> Colors;
 	VisualAttachmentFlags AttachFlags;
-	uint16_t EquipmentSlotMask;
-	uint16_t VisualSetSlotMask;
+	DeactivateEquipmentSlotMask EquipmentSlotMask;
+	DeactivateVisualSetSlotMask VisualSetSlotMask;
 	// 8b slot, 24b flags
 	VisualSystemSetFlags SlotAndFlags;
 
