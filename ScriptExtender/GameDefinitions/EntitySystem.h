@@ -99,6 +99,7 @@ struct ComponentFactory : public TLocker
 			return false;
 		}
 
+		GameDelete(component);
 		Components.remove(component);
 		ReleaseHandle(handle);
 		return true;
