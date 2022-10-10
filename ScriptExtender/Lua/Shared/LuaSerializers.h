@@ -318,9 +318,8 @@ namespace dse::lua
 		if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
 			if (s.IsWriting) {
 				push_flags(s.L, v);
-			}
-			else {
-				v = checked_get_flags<T>(s.L, -1);
+			} else {
+				v = get<T>(s.L, -1);
 			}
 		} else {
 			static_assert(std::is_base_of_v<EnumInfoBase<T>, EnumInfo<T>>, "Cannot serialize an enumeration that has no EnumInfo!");
