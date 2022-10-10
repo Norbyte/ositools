@@ -186,6 +186,8 @@ namespace dse
 		SYM_OFF(ecl__EoCUI__ctor);
 		SYM_OFF(ecl__EoCUI__vftable);
 		SYM_OFF(ls__UIObject__GetUIScaleMultiplier);
+		SYM_OFF(ls__UIObject__RaiseFlag);
+		SYM_OFF(ls__UIObject__ClearFlag);
 
 		SYM_OFF(ls__CustomDrawStruct__VMT);
 		SYM_OFF(ls__UIHelper__UIClearIcon);

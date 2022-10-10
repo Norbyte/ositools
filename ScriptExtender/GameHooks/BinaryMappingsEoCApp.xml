@@ -792,6 +792,18 @@
       <Target Type="Indirect" Offset="@func" Symbol="UIObjectManager__DestroyUIObject" /> <!-- ls::UIObjectManager::DestroyUIObject -->
     </Mapping>
 
+    <Mapping Name="ls::UIObject::ClearFlag">
+      89 9f 00 02 00 00 // mov     [rdi+200h], ebx
+      ba e0 01 00 00 // mov     edx, 1E0h
+      48 8b cf // mov     rcx, rdi
+      @ref1 e8 ?? ?? ?? ?? // call    ls__UIObject__ClearFlag
+      ba 20 00 00 00 // mov     edx, 20h ; ' '
+      48 8b cf // mov     rcx, rdi
+      @ref2 e8 ?? ?? ?? ?? // call    ls__UIObject__RaiseFlag
+      <Target Type="Indirect" Offset="@ref1" Symbol="ls__UIObject__ClearFlag" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="ls__UIObject__RaiseFlag" />
+    </Mapping>
+
     <Mapping Name="ecl::EoCUI::vftable" Scope="Custom">
       C7 83 48 01 00 00 00 00 00 00  // mov     dword ptr [rbx+148h], 0
       @func 48 8D 05 ?? ?? ?? ??  // lea     rax, ecl__EoCUI__vftable

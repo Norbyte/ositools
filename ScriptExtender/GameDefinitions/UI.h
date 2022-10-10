@@ -366,10 +366,15 @@ namespace dse
 	struct UIObject : Noncopyable<UIObject>
 	{
 		static constexpr auto ObjectTypeIndex = ObjectHandleType::UIObject;
+		static constexpr auto ProtectedFlags = UIObjectFlags::OF_Load
+			| UIObjectFlags::OF_Loaded
+			| UIObjectFlags::OF_RequestDelete
+			| UIObjectFlags::OF_DeleteOnChildDestroy;
 
 		typedef void(* OnFunctionCalledProc)(UIObject * self, const char *, unsigned int, ig::InvokeDataValue *);
 		typedef void(* CustomDrawCallbackProc)(UIObject * self, void *);
 		typedef float (GetUIScaleMultiplierProc)(UIObject * self);
+		typedef void (RaiseFlagProc)(UIObject * self, UIObjectFlags flags);
 
 		struct VMT
 		{
@@ -505,6 +510,13 @@ namespace dse
 		int Type;
 		PlayerId PlayerId;
 
+		void RaiseFlags(UIObjectFlags flags);
+		void ClearFlags(UIObjectFlags flags);
+
+		UIObjectFlags LuaGetFlags();
+		void LuaSetFlags(UIObjectFlags flags);
+		bool LuaHasFlag(UIObjectFlags flag);
+		void LuaSetFlag(UIObjectFlags flag, bool set);
 
 		void LuaSetPosition(int x, int y);
 		std::optional<glm::ivec2> LuaGetPosition();

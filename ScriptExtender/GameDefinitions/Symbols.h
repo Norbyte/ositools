@@ -229,6 +229,8 @@ namespace dse
 		ecl::EoCUI::ctor ecl__EoCUI__ctor{ nullptr };
 		UIObject::VMT * ecl__EoCUI__vftable{ nullptr };
 		UIObject::GetUIScaleMultiplierProc* ls__UIObject__GetUIScaleMultiplier{ nullptr };
+		UIObject::RaiseFlagProc* ls__UIObject__RaiseFlag{ nullptr };
+		UIObject::RaiseFlagProc* ls__UIObject__ClearFlag{ nullptr };
 
 		void* ls__CustomDrawStruct__VMT{ nullptr };
 		CustomDrawStruct::UIClearIcon* ls__UIHelper__UIClearIcon{ nullptr };

@@ -677,6 +677,51 @@ void CustomDrawHelper::ClearCustomIcon(UIObject* ui, STDWString const& element)
 }
 
 
+UIObjectFlags UIObject::LuaGetFlags()
+{
+	return Flags;
+}
+
+void UIObject::RaiseFlags(UIObjectFlags flags)
+{
+	GetStaticSymbols().ls__UIObject__RaiseFlag(this, flags);
+}
+
+void UIObject::ClearFlags(UIObjectFlags flags)
+{
+	GetStaticSymbols().ls__UIObject__ClearFlag(this, flags);
+}
+
+void UIObject::LuaSetFlags(UIObjectFlags flags)
+{
+	auto filteredFlags = (flags & ~ProtectedFlags) | (Flags & ProtectedFlags);
+	if (filteredFlags != flags) {
+		OsiError("Attempted to set/clear protected UIObject flags: " << (uint64_t)flags);
+	}
+
+	RaiseFlags(filteredFlags & ~Flags);
+	ClearFlags(Flags & ~filteredFlags);
+}
+
+bool UIObject::LuaHasFlag(UIObjectFlags flag)
+{
+	return (Flags & flag) == flag;
+}
+
+void UIObject::LuaSetFlag(UIObjectFlags flag, bool set)
+{
+	if (!!(flag & ProtectedFlags)) {
+		OsiError("Attempted to set/clear protected UIObject flags: " << (uint64_t)flag);
+		return;
+	}
+
+	if (set) {
+		RaiseFlags(flag);
+	} else {
+		ClearFlags(flag);
+	}
+}
+
 void UIObject::LuaSetPosition(int x, int y)
 {
 	glm::ivec2 pos(x, y);

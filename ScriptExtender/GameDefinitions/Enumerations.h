@@ -143,34 +143,40 @@ namespace dse
 	constexpr bool IsBitmaskV = IsBitmask<T>::value;
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator | (T lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator | (T lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		return static_cast<T>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator & (T lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator & (T lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		return static_cast<T>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator ^ (T lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator ^ (T lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		return static_cast<T>(static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator ~ (T v)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator ~ (T v)
 	{
 		return static_cast<T>(~static_cast<std::underlying_type_t<T>>(v));
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator |= (T& lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, bool> operator ! (T v)
+	{
+		return !static_cast<std::underlying_type_t<T>>(v);
+	}
+
+	template <class T>
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator |= (T& lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		lhs = static_cast<T>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
@@ -178,7 +184,7 @@ namespace dse
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator &= (T& lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator &= (T& lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		lhs = static_cast<T>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
@@ -186,7 +192,7 @@ namespace dse
 	}
 
 	template <class T>
-	typename std::enable_if_t<IsBitmaskV<T>, T> operator ^= (T& lhs, T rhs)
+	constexpr typename std::enable_if_t<IsBitmaskV<T>, T> operator ^= (T& lhs, T rhs)
 	{
 		using underlying = std::underlying_type_t<T>;
 		lhs = static_cast<T>(static_cast<underlying>(lhs) ^ static_cast<underlying>(rhs));

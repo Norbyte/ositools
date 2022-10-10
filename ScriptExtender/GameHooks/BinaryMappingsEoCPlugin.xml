@@ -66,6 +66,8 @@
     <DllImport Symbol="ls__UIHelper__UIClearIcon" Module="GameEngine.dll" Proc="?UIClearIcon@UIHelper@ls@@SAXQEAUCustomDrawStruct@2@@Z" />
     <DllImport Symbol="ls__UIHelper__UICreateIconMesh" Module="GameEngine.dll" Proc="?UICreateIconMesh@UIHelper@ls@@SAXAEBVFixedString@2@QEAUCustomDrawStruct@2@II0@Z" />
     <DllImport Symbol="ls__UIObject__GetUIScaleMultiplier" Module="GameEngine.dll" Proc="?GetUIScaleMultiplier@UIObject@ls@@QEBAMXZ" />
+    <DllImport Symbol="ls__UIObject__RaiseFlag" Module="GameEngine.dll" Proc="?RaiseFlag@UIObject@ls@@QEAAXH@Z" />
+    <DllImport Symbol="ls__UIObject__ClearFlag" Module="GameEngine.dll" Proc="?ClearFlag@UIObject@ls@@QEAAXH@Z" />
 
     <DllImport Symbol="ls__DragDropManager__GetInstance" Module="GameEngine.dll" Proc="?GetInstance@?$Singleton@VDragDropManager@ls@@@ls@@SAPEAVDragDropManager@2@XZ" />
     <DllImport Symbol="ls__DragDropManager__StartDragHandle" Module="GameEngine.dll" Proc="?StartDrag@DragDropManager@ls@@QEAAXFAEBVObjectHandle@2@_NVVector2f@@@Z" />
