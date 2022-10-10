@@ -106,12 +106,6 @@ PropertyOperationResult CharacterSetFlag(lua_State* L, LifetimeHandle const& lif
 #undef P_FUN
 #undef P_FALLBACK
 
-#if defined(DEBUG)
-bool EnableWriteProtectedWrites{ true };
-#else
-bool EnableWriteProtectedWrites{ false };
-#endif
-
 // Property registrations
 
 	void InitObjectProxyPropertyMaps()
@@ -151,7 +145,7 @@ bool EnableWriteProtectedWrites{ false };
 #define P_RO(prop) \
 	pm.AddRawProperty(#prop, \
 		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
-		&(GenericSetOffsetWriteProtectedProperty<decltype(PM::ObjectType::prop)>), \
+		&GenericSetReadOnlyProperty, \
 		offsetof(PM::ObjectType, prop) \
 	);
 
@@ -192,7 +186,7 @@ bool EnableWriteProtectedWrites{ false };
 #define PN_RO(name, prop) \
 	pm.AddRawProperty(#name, \
 		&(GenericGetOffsetProperty<decltype(PM::ObjectType::prop)>), \
-		&(GenericSetOffsetWriteProtectedProperty<decltype(PM::ObjectType::prop)>), \
+		&GenericSetReadOnlyProperty, \
 		offsetof(PM::ObjectType, prop) \
 	);
 

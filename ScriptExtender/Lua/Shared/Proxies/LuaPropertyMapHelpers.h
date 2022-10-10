@@ -8,8 +8,6 @@
 
 BEGIN_NS(lua)
 
-extern bool EnableWriteProtectedWrites;
-
 template <class T>
 PropertyOperationResult GenericGetOffsetProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t)
 {
@@ -47,17 +45,6 @@ PropertyOperationResult GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle
 	}
 
 	return PropertyOperationResult::Success;
-}
-
-template <class T>
-PropertyOperationResult GenericSetOffsetWriteProtectedProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
-{
-	if (EnableWriteProtectedWrites) {
-		return GenericSetOffsetProperty<T>(L, lifetime, obj, index, offset, flag);
-	} else {
-		OsiError("Attempted to set a write-protected property");
-		return PropertyOperationResult::ReadOnly;
-	}
 }
 
 template <class T>

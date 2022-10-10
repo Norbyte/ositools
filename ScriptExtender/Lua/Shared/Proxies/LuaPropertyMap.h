@@ -49,6 +49,11 @@ inline PropertyOperationResult GenericSetNonWriteableProperty(lua_State* L, Life
 	return PropertyOperationResult::UnsupportedType;
 }
 
+inline PropertyOperationResult GenericSetReadOnlyProperty(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t)
+{
+	return PropertyOperationResult::ReadOnly;
+}
+
 template <class T>
 class LuaPropertyMap : public GenericPropertyMap
 {
