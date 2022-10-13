@@ -1781,7 +1781,7 @@ BEGIN_BITMASK_NS(ecl, DeactivateVisualSetSlotMask, uint16_t)
 	EV(DeactivateTorso, 1 << 2)
 	EV(DeactivateArms, 1 << 3)
 	EV(DeactivateTrousers, 1 << 4)
-	EV(DeactivateBoots, 1 << 5)
+	EV(DeactivateBootsVisual, 1 << 5)
 	EV(DeactivateBeard, 1 << 6)
 END_ENUM_NS()
 
