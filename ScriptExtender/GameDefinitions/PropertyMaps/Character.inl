@@ -54,9 +54,9 @@ END_CLS()
 
 
 BEGIN_CLS(eoc::SkillBarItem)
-P_RO(Type)
-P_RO(SkillOrStatId)
-P_RO(ItemHandle)
+P(Type)
+P(SkillOrStatId)
+P(ItemHandle)
 END_CLS()
 
 
