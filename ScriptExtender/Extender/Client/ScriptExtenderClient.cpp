@@ -324,8 +324,7 @@ void ScriptExtender::LoadExtensionState()
 
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
 		DEBUG("ecl::ScriptExtender::LoadExtensionStateClient(): Re-initializing module state.");
-		gExtender->GetLibraryManager().EnableCustomStats();
-		gExtender->GetLibraryManager().DisableItemFolding();
+		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
 		extensionState_->LuaReset(true);
 	}

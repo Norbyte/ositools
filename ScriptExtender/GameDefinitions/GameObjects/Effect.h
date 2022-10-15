@@ -2,7 +2,7 @@
 
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
-#include <GameDefinitions/GameObjects/Render.h>
+#include <GameDefinitions/GameObjects/Visuals.h>
 
 BEGIN_NS(ecl)
 

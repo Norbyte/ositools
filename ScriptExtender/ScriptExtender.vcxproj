@@ -73,6 +73,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\Physics.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Player.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Render.h" />
+    <ClInclude Include="GameDefinitions\GameObjects\Visuals.h" />
     <ClInclude Include="GameDefinitions\GameObjects\RootTemplates.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Status.h" />
     <ClInclude Include="GameDefinitions\GameObjects\Surface.h" />

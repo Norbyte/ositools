@@ -84,7 +84,7 @@ namespace dse::esv
 			ObjectSet<ComponentHandle>* ingredientHandles, esv::Character* character, uint8_t quantity, char openUI, FixedString* combinationId);
 
 
-		void OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent);
+		void OnAppInputEvent(IApp* self, uint16_t& retval, InputEvent const& inputEvent);
 		void OnInjectInput(InputManager* self, InjectInputData const& input);
 		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
 			ModuleSettings& hostModSettings);

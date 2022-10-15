@@ -189,6 +189,8 @@ namespace ig
 
 namespace rf
 {
+	struct RendererCommandBuffer;
+
 	struct Camera;
 	struct CameraController;
 	struct CameraManager;

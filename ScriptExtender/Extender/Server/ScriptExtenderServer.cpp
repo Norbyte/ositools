@@ -235,8 +235,7 @@ void ScriptExtender::LoadExtensionState()
 	extensionState_->LoadConfigs();
 
 	if (!gExtender->GetLibraryManager().CriticalInitializationFailed()) {
-		gExtender->GetLibraryManager().EnableCustomStats();
-		gExtender->GetLibraryManager().DisableItemFolding();
+		gExtender->GetLibraryManager().ApplyCodePatches();
 		network_.ExtendNetworking();
 		osiris_.GetCustomFunctionManager().ClearDynamicEntries();
 		extensionState_->LuaReset(true);

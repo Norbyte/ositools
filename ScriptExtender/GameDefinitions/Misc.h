@@ -567,14 +567,32 @@ namespace dse
 
 	extern TempStrings gTempStrings;
 
-	struct InputEvent;
+	struct PreciseClock
+	{
+		uint64_t PerformanceCounter;
+		uint64_t TimeElapsed;
+		bool Started;
+	};
 
-	struct App
+	struct GameClock : public PreciseClock
+	{
+		int FrameCap;
+		uint64_t LastFrameTime;
+		uint64_t PerformanceFrequency;
+		uint64_t StartPerformanceCounter;
+		uint64_t CurrentPerformanceCounter;
+		uint64_t FrameStartPerformanceCounter;
+	};
+
+	struct InputEvent;
+	struct RenderThread;
+
+	struct IApp : public ProtectedGameObject<IApp>
 	{
 	public:
 		struct VMT
 		{
-			using OnInputEventProc = void (App* self, uint16_t& retval, InputEvent const& inputEvent);
+			using OnInputEventProc = void (IApp* self, uint16_t& retval, InputEvent const& inputEvent);
 
 			void* Destroy;
 			void* GetInputListenerPriority;
@@ -593,4 +611,79 @@ namespace dse
 		void* WindowEventListenerVMT;
 		void* API;
 	};
+
+	struct BaseApp : public IApp
+	{
+		void* VMT;
+		void* TaskBarPtr;
+#if !defined(OSI_EOCAPP)
+		bool TaskBarInitialized;
+#endif
+		STDString MediaPathTxt;
+		void* DebugStringScratchBuffer;
+		void* DebugStringScratchBufferCol2;
+		__int64 field_68;
+		void* CameraManager;
+		int DefaultRenderFrameId;
+		void* DefaultRenderView;
+		void* FullScreenRenderView;
+		void* field_90;
+		void* field_98;
+		Map<FixedString, void*> Map__HM;
+		GameClock Clock;
+		double LastTickTime;
+		float LastDeltaTime;
+		bool SomeTickFlag;
+		__int64 field_110;
+		uint8_t ScreenFade[144];
+		RenderThread* RenderThread;
+#if !defined(OSI_EOCAPP)
+		void* Console;
+		void* ConsoleServer;
+		__int64 field_1C0;
+#endif
+		bool IsWindowOpen;
+		bool CloseRequested;
+		bool IsFocused;
+		WORD FrameCap;
+		uint64_t GameClockInitValue;
+		uint64_t GameClockInitValue2;
+		void* FILEptr;
+		void* Config;
+		void* Config2;
+		void* GraphicSettingsConfig;
+		__int64 lsImmediateCommandManager_CommandBuffer;
+		__int64 ImmediateCommandManager_CommandBuffer;
+		__int64 RelaxedCommandManager_CommandBuffer;
+		__int64 field_210;
+		__int64 EntityManager;
+#if defined(OSI_EOCAPP)
+		void* field_1F8;
+#endif
+		bool IsInScreenShotVideoMode;
+#if !defined(OSI_EOCAPP)
+		ScratchBuffer ScratchStr;
+#endif
+		CRITICAL_SECTION ConsoleCriticalSection;
+		ObjectSet<void*> ConsoleCommandBuffers;
+		void* EntityWorld;
+		char field_298;
+		__int64 field_2A0;
+		__int64 field_2A8;
+		__int64 field_2B0;
+		__int64 field_2B8;
+
+		rf::RendererCommandBuffer* GetRCB();
+	};
+
+	struct App : public BaseApp
+	{
+		void* EoC;
+		void* ServerWorker;
+		bool RequestStopServer;
+		ObjectSet<UserId> OS_UserID2;
+		ObjectSet<UserId> OS_UserID;
+		ObjectSet<uint16_t> OS_Short;
+	};
+
 }

@@ -677,7 +677,7 @@ namespace dse::esv
 		return ok;
 	}
 
-	void CustomFunctionLibrary::OnAppInputEvent(App* self, uint16_t& retval, InputEvent const& inputEvent)
+	void CustomFunctionLibrary::OnAppInputEvent(IApp* self, uint16_t& retval, InputEvent const& inputEvent)
 	{
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {

@@ -470,6 +470,16 @@ namespace dse
 			|| state == ecl::GameState::Lobby;
 	}
 
+
+	void LibraryManager::ApplyCodePatches()
+	{
+		EnableCustomStats();
+		DisableItemFolding();
+		EnableAchievements();
+		EnableShroudUpdates();
+	}
+
+
 	void LibraryManager::EnableCustomStats()
 	{
 		auto const& sym = GetStaticSymbols();
@@ -529,6 +539,8 @@ namespace dse
 
 	void LibraryManager::DisableItemFolding()
 	{
+		if (disabledItemFolding_) return;
+
 		if (gExtender->HasFeatureFlag("DisableFolding")) {
 #if defined(OSI_EOCAPP)
 			if (GetStaticSymbols().CDivinityStats_Item__FoldDynamicAttributes != nullptr) {
@@ -537,6 +549,7 @@ namespace dse
 				p[0x26] = 0x90;
 				p[0x27] = 0xE9;
 				DEBUG("Dynamic item stat folding disabled.");
+				disabledItemFolding_ = true;
 			} else {
 				ERR("Could not disable item stat folding; symbol Item::FoldDynamicAttributes not mapped!");
 			}
@@ -544,6 +557,12 @@ namespace dse
 			DEBUG("Folding is already disabled in the editor; not patching Item::FoldDynamicAttributes");
 #endif
 		}
+	}
+
+
+	void LibraryManager::EnableAchievements()
+	{
+		if (enabledAchievements_) return;
 
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().EnableAchievements) {
@@ -563,10 +582,20 @@ namespace dse
 				}
 
 				DEBUG("Modded achievements enabled.");
+				enabledAchievements_ = true;
 			} else {
 				ERR("Could not enable achievements; symbol ls::ModuleSettings::HasCustomMods not mapped!");
 			}
 		}
+#endif
+	}
+
+
+	void LibraryManager::EnableShroudUpdates()
+	{
+		if (enabledShroudUpdates_) return;
+
+#if defined(OSI_EOCAPP)
 #endif
 	}
 }

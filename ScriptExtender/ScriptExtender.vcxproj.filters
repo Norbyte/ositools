@@ -346,7 +346,7 @@
     <ClInclude Include="GameDefinitions\GameObjects\UseActions.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="GameDefinitions\GameObjects\Render.h">
+    <ClInclude Include="GameDefinitions\GameObjects\Visuals.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="GameDefinitions\GameObjects\Terrain.h">
@@ -416,6 +416,9 @@
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="GameDefinitions\GameObjects\Camera.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\Render.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
   </ItemGroup>

@@ -25,6 +25,7 @@
 #include <GameDefinitions/GameObjects/AiHelpers.h>
 #include <GameDefinitions/GameObjects/Controllers.h>
 #include <GameDefinitions/GameObjects/Camera.h>
+#include <GameDefinitions/GameObjects/Render.h>
 
 namespace dse
 {

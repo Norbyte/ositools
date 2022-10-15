@@ -3,403 +3,220 @@
 #include <GameDefinitions/Base/Base.h>
 #include <GameDefinitions/Enumerations.h>
 #include <GameDefinitions/EntitySystem.h>
-#include <GameDefinitions/Resource.h>
-#include <GameDefinitions/GameObjects/Physics.h>
+#include <d3d11.h>
 
 BEGIN_SE()
 
-struct Skeleton : public ProtectedGameObject<Skeleton>
+struct CommandDispatcherBuffer
 {
-	virtual ~Skeleton() = 0;
-	virtual void Unkn08() = 0;
-	virtual void Unkn10() = 0;
-	virtual void Unkn18() = 0;
-	virtual void Unkn20() = 0;
-	virtual void Unkn28() = 0;
-	virtual void Unkn30() = 0;
-	virtual bool GetBoneIndexFromName(char const* boneName, int* boneIndex) = 0;
-	virtual char const* GetBoneNameFromIndex(int boneIndex) = 0;
-	virtual int GetBoneParentIndex(int boneIndex) = 0;
-	virtual void Unkn50() = 0;
-
-	bool NeedsUpdate;
-	int NumBones;
-	void* Bones;
-	PhysicsRagdoll* LinkedRagdoll;
+	void* BufferStart;
+	void* BufferCur;
+	uint64_t Size;
 };
 
-struct AnimatableObject;
-struct Visual;
-
-struct Pose : public ProtectedGameObject<Pose>
+struct CommandDispatcher : public ProtectedGameObject<CommandDispatcher>
 {
-	glm::mat4* CompositeMatrices;
-	int NumCompositeMatrices;
+	CommandDispatcherBuffer ExecuteBuffer;
+	CommandDispatcherBuffer DestructorBuffer;
+	bool StoreCommand;
 };
 
-struct MeshBinding : public ProtectedGameObject<MeshBinding>
+struct Dispatcher : public ProtectedGameObject<Dispatcher>
 {
-	virtual ~MeshBinding() = 0;
-	virtual void RemapToSkeleton(Skeleton* skeleton) = 0;
-	virtual void Unk10() = 0;
-	virtual void UpdatePose() = 0;
-	virtual void Unk20() = 0;
-	virtual void Unk28() = 0;
-	virtual void Unk30() = 0;
-
-	void* Unknown1;
-	Pose Pose;
-	AnimatableObject* Link;
-	void* Unknown2;
-	glm::mat4 Transform;
-	Bound Bound;
-};
-
-struct CallbackThreadsafetyHelper
-{
-	__int64 field_0;
-	__int64 field_8;
-};
-
-struct Actor
-{
-	virtual ~Actor() = 0;
-	virtual void OnWTCompletion() = 0;
-	virtual void OnWTCanceled() = 0;
-	virtual void ExecuteWTKernel() = 0;
-	virtual void GetHeuristic() = 0;
-	virtual void DestroyCallbacks() = 0;
-	virtual void AddAnimation() = 0;
-	virtual void RemoveAnimation() = 0;
-	virtual void PlayAnimation() = 0;
-	virtual void SetAnimationSpeed() = 0;
-	virtual void StopAnimations() = 0;
-	virtual void GetAnimationSpeed() = 0;
-	virtual void IsAnimationLooping() = 0;
-	virtual void IsAnimationEnabled() = 0;
-	virtual void IsAnimationPlaying() = 0;
-	virtual void SetTextKeyEventHandler(void* handler) = 0;
-	virtual void* GetTextKeyEventHandler() = 0;
-	virtual void CalculateLOD() = 0;
-	virtual void BuildTransitionData() = 0;
-	virtual void CheckCompleteTransitions() = 0;
-	virtual void UpdateTime() = 0;
-	virtual void UpdateTransitions() = 0;
-	virtual void UpdateActor() = 0;
-	virtual void UpdateRagdoll() = 0;
-	virtual void UpdateIK() = 0;
-
-	void AddMeshBinding(MeshBinding* binding);
-
-	__int64 field_8;
-	Skeleton* Skeleton;
-	void* AnimationLayers;
-	ObjectSet<MeshBinding*> MeshBindings;
-	__int64 field_40;
-#if defined(OSI_EOCAPP)
-	__int64 field_48;
-#endif
-	PhysicsRagdoll PhysicsRagdoll;
-	void* Animation;
-	void* TextKeyEventHandler;
-	__int64 field_118;
-	int field_120;
-	char field_124;
-	int field_128;
-	__int64 field_130;
-	int field_138;
-	char field_13C;
-	int field_140;
-	CallbackThreadsafetyHelper field_148;
-	CallbackThreadsafetyHelper field_158;
-	bool WorkerThreadPending;
-	uint8_t TextKeyPrepareFlags;
-	Visual* Visual;
-	GameTime Time;
-	int AnimationUpdateTicket;
+	void* VMT;
+	CommandDispatcherBuffer* Buffers[2];
+	CRITICAL_SECTION CriticalSections[2];
 };
 
 
-struct MoveableObject : public ProtectedGameObject<MoveableObject>
+struct ThreadDispatcher : public Dispatcher
 {
-	virtual uint32_t GetRTTI() = 0;
-	virtual ~MoveableObject() = 0;
-
-	virtual void SetWorldTranslate(glm::vec3 const& translate) = 0;
-	virtual void SetWorldRotate(glm::mat3 const& rotate) = 0;
-	virtual void SetWorldScale(glm::vec3 const& scale) = 0;
-	virtual void SetWorldTransform(glm::mat4 const& mat) = 0;
-	virtual void SetWorldTransform(glm::vec3 const& translate, glm::mat3 const& rotate, glm::vec3 const& scale) = 0;
-
-	virtual void SetLocalTranslate(glm::vec3 const& translate) = 0;
-	virtual void SetLocalRotate(glm::mat3 const& rotate) = 0;
-	virtual void SetLocalScale(glm::vec3 const& scale) = 0;
-	virtual void SetLocalTransform(glm::mat4 const& mat) = 0;
-	virtual void SetLocalTransform(glm::vec3 const& translate, glm::mat3 const& rotate, glm::vec3 const& scale) = 0;
-
-	virtual uint8_t CalculateTextureLOD(glm::vec3 const& translate) = 0;
-	virtual void SetTextureLOD(/* ??? */) = 0;
-	virtual uint64_t GetCullFlags() = 0;
-	virtual void CameraSort(void* cameraController) = 0;
-	virtual bool AttachToScene(Scene* scene) = 0;
-	virtual bool DetachFromScene() = 0;
-	virtual bool IsAttachedToScene() = 0;
-	virtual char const* GetDebugName() = 0;
-	virtual void GetDebugInfo(ScratchBuffer* debugInfo) = 0;
-	virtual void NotifyBoundChange() = 0;
-	virtual void UpdateBound() = 0;
-	virtual void UpdateBoundChange() = 0;
-
-#if defined(OSI_EOCAPP)
-	uint64_t Unknown1;
-#endif
-	Transform LocalTransform;
-
-#if defined(OSI_EOCAPP)
-	float Unknown2[2];
-#endif
-	Transform WorldTransform;
-	Scene *ContainingScene;
-	void* CullFunction;
-	void* CameraSortCallback;
-	uint8_t ObjectFlags;
-	void* Node;
-	uint8_t DirtyFlags;
-	Bound WorldBound;
-	Bound LocalBound;
-	Bound BaseBound;
+	int field_68;
 };
 
 
-struct AnimationSet
+template <class T>
+struct ObjectContainer : public ProtectedGameObject<ObjectContainer<T>>
 {
-	struct AnimationDescriptor
+	T** Objects;
+	uint32_t** Salts;
+	uint32_t PageSize;
+	Queue<uint32_t> FreeList;
+	CRITICAL_SECTION PageLock;
+	SRWLOCK SRWSpinLock;
+	int field_60;
+	ObjectSet<T*> Objects2;
+	CRITICAL_SECTION PageAllocLock;
+	uint32_t NumUsedPages;
+	uint32_t NumTotalPages;
+
+	T* Get(ComponentHandle h) const
 	{
-		FixedString ID;
-		FixedString Name;
-	};
+		if (!h) return nullptr;
 
-	RefMap<int, RefMap<FixedString, AnimationDescriptor>> AnimationSubSets;
-	FixedString Type;
-};
+		auto index = h.GetIndex();
+		auto page = index / PageSize;
+		auto offset = index - page * PageSize;
+		if (page >= NumUsedPages || index >= PageSize) return nullptr;
 
+		if (Salts[page][index] != h.GetSalt()) return nullptr;
 
-struct VisualResource : public DeferredLoadableResource
-{
-	struct BonePosRot
-	{
-		glm::vec3 Position;
-		glm::mat3 Rotation;
-	};
-
-	struct Attachment
-	{
-		FixedString UUID;
-		FixedString Name;
-	};
-
-	struct ObjectDesc
-	{
-		FixedString ObjectID;
-		FixedString MaterialID;
-		uint8_t LOD;
-	};
-
-	struct ClothParam
-	{
-		FixedString UUID;
-		float LinearStiffness;
-		float BendingStiffness;
-		int Iterations;
-		float PoseMatching;
-		float Margin;
-		float MassPerMeterSqr;
-		bool AtmosphericWindEnabled;
-		float Lift;
-		float Drag;
-		float FrontalWindSpeed;
-		float FrontalWindFrequency;
-		float FrontalWindVariance;
-	};
-
-
-	FixedString Template;
-	ObjectSet<ObjectDesc> Objects;
-	Array<float> LODDistances;
-	ObjectSet<Attachment> Attachments;
-	RefMap<FixedString, FixedString> KnownAnimationSetOverrides;
-	ObjectSet<FixedString> AnimationWaterfall;
-	AnimationSet* CustomAnimationSet;
-	AnimationSet* ResolvedAnimationSet;
-	FixedString BlueprintInstanceResourceID;
-	ObjectSet<ClothParam> ClothParams;
-	RefMap<FixedString, BonePosRot> Bones;
-};
-
-
-struct Visual : public MoveableObject
-{
-	static constexpr auto ObjectTypeIndex = ObjectHandleType::Visual;
-
-	virtual void Pick(void* ray, void* pickResult) = 0;
-	virtual void UpdateCullFlags() = 0;
-
-	using AddAttachmentProc = bool (Visual* self, Visual* attachedVisual, FixedString const& attachmentBoneName, int16_t dummyAttachmentBoneIndex, VisualAttachmentFlags flags);
-
-	struct Attachment
-	{
-		Visual* Visual;
-		int16_t DummyAttachmentBoneIndex;
-		int16_t BoneIndex;
-		int field_C;
-		FixedString AttachmentBoneName;
-		VisualAttachmentFlags Flags;
-	};
-
-	struct ObjectDesc
-	{
-		RenderableObject* Renderable;
-		uint8_t field_8;
-	};
-
-	ComponentHandle Handle;
-	Actor* Actor;
-	Skeleton* Skeleton;
-	ObjectSet<ObjectDesc> SubObjects;
-	ObjectSet<float> LODDistances;
-	ObjectSet<Attachment> Attachments;
-	Visual* Parent;
-	VisualResource* VisualResource;
-	IGameObject* GameObject;
-	VisualFlags VisualFlags;
-	uint8_t TextKeyPrepareFlags;
-	uint16_t CullFlags;
-	bool PlayingAttachedEffects;
-	bool ShowMesh;
-	bool HasCloth;
-	bool ChildVisualHasCloth;
-	float FadeOpacity;
-	bool ReceiveColorFromParent;
-
-	template <class T>
-	void OverrideMaterialParameter(FixedString const& parameter, T const& value)
-	{
-		for (auto const& object : SubObjects) {
-			auto material = object.Renderable->ActiveAppliedMaterial;
-			if (material) {
-				material->MaterialParameters.OverrideParameter(parameter, value);
-			}
-		}
-
-		for (auto const& attachment : Attachments) {
-			if (attachment.Visual->ReceiveColorFromParent) {
-				for (auto const& object : attachment.Visual->SubObjects) {
-					auto material = object.Renderable->ActiveAppliedMaterial;
-					if (material) {
-						material->MaterialParameters.OverrideParameter(parameter, value);
-					}
-				}
-			}
-		}
+		return &Objects[page][index];
 	}
-
-	void OverrideVec3MaterialParameter(FixedString const& parameter, glm::vec3 const& vec, bool isColor);
-	void OverrideVec4MaterialParameter(FixedString const& parameter, glm::vec4 const& vec, bool isColor);
-	void OverrideTextureMaterialParameter(FixedString const& parameter, FixedString const& textureId);
 };
 
-struct PropertyList
+END_SE()
+
+BEGIN_NS(rf)
+
+struct Texture
 {
-	int RenderPasses;
-	uint8_t OpaqueChannel;
-	uint8_t AlphaChannel;
-	uint8_t field_6;
-	uint8_t field_7;
-	int TransformType;
-	uint32_t _Pad;
+	ID3D11Resource* Resource;
+	ID3D11RenderTargetView* RenderTargetView;
+	ID3D11DepthStencilView* DepthStencilView;
+	ID3D11DepthStencilView* DepthStencilView2;
+	ID3D11UnorderedAccessView* UnorderedAccessView;
+	ID3D11RenderTargetView** RenderTargetViews;
+	ID3D11DepthStencilView** DepthStencilViewArray;
+	void* TexArray2;
+	__int64 field_40;
+	DXGI_FORMAT DXGIFormatTexture;
+	DXGI_FORMAT DXGIFormatRTV;
+	DXGI_FORMAT DXGIFormatDSV;
+	DXGI_FORMAT DXGIFormat4;
+	uint32_t Format;
+	uint16_t UsageFlag;
+	uint8_t AccessFlag;
+	int MSAASamples;
+	int SizeX;
+	int SizeY;
+	int SizeZ;
+	int TexArraySize;
+	int NumMipSizes;
+	int NumMipSizes2;
+	int MipBytes_M;
+	int field_80;
+	int field_84;
+	__int64 field_88;
 };
 
-struct RenderableObject : public MoveableObject
+
+struct RendererBase
 {
-	void* Model; // rf::Model*
-	void* ClothModel;
-	bool IsSimulatedCloth;
-	uint32_t _Pad;
-	dse::PropertyList PropertyList;
-	Visual* ParentVisual;
-	ObjectSet<AppliedMaterial*> AppliedMaterials;
-	AppliedMaterial* ActiveAppliedMaterial;
-	ObjectSet<AppliedMaterial*> AppliedOverlayMaterials;
-	bool HasPhysicsProxy;
-	PhysicsShape* ClothPhysicsShape;
-	uint8_t LOD;
-	uint32_t _Pad2;
-	float MeshRandomData[4];
-	void* RenderCallback;
+#if !defined(OSI_EOCAPP)
+	Map<FixedString, void*> DebugRenderPasses;
+#endif
+	ObjectContainer<Texture> TextureContainer;
+	ObjectContainer<void*> ShaderContainer;
+	ObjectContainer<void*> VertexBufferContainer;
+	ObjectContainer<void*> IndexBufferContainer;
+	ObjectContainer<void*> StructuredBufferContainer;
+	ObjectContainer<void*> TexturedFontContainer;
+	ObjectContainer<void*> VertexFormatContainer;
+	ObjectContainer<void*> SamplerStateContainer;
+	ObjectContainer<void*> BlendStateContainer;
+	ObjectContainer<void*> DepthStateContainer;
+	ObjectContainer<void*> RasterizerStateContainer;
+	CRITICAL_SECTION CriticalSection;
+	__int64 GameTime;
+	__int64 field_830;
+	__int64 API;
+	void *field_840;
+	void *field_848;
+	char field_850;
+	__int64 field_858;
+	__int64 field_860;
+	__int64 field_868;
+	__int64 field_870;
+	__int64 field_878;
+	__int64 field_880;
+	__int64 field_888;
+	int field_890;
+	__int64 field_898;
+	int field_8A0;
+	__int64 field_8A8;
+	__int64 field_8B0;
+	__int64 field_8B8;
+	__int64 field_8C0;
+	__int64 field_8C8;
+	__int64 field_8D0;
+	__int64 field_8D8;
+	__int64 field_8E0;
+	__int64 field_8E8;
+	__int64 field_8F0;
+	int field_8F8;
+	char field_8FC;
+	char field_8FD;
+	__int64 field_900[64];
+	int field_B00;
+	int field_B04;
+	int field_B08;
+	__int64 field_B10;
+	__int64 field_B18;
+	int field_B20;
 };
 
-struct AnimatableObject : public RenderableObject
+
+struct D3D11Renderer : public RendererBase
 {
-	void* Unknown;
-	MeshBinding* MeshBinding;
-	char field_260;
-	uint64_t NumOverrideTransforms;
-	Transform* OverrideTransforms;
+	ID3D11Device* D3D11Device;
+	ID3D11DeviceContext* D3D11DeviceContext;
+	__int64 field_B38;
+	__int64 field_B40;
+	ObjectContainer<void*> CompiledShaders;
+	ObjectContainer<void*> ConstantBuffers;
+	__int64 field_CB8;
+	__int64 field_CC0;
+	__int64 field_CC8;
+	__int64 field_CD0;
+	uint8_t field_CD8[144];
+	uint8_t field_D68[240];
+	__int64 field_E58;
+	__int64 field_E60;
+	__int64 SRWSpinLock;
+	int field_E70;
+	int field_E74;
+	int field_E78;
+	int field_E7C;
+	__int64 field_E80;
+	int field_E88;
+	int field_E8C;
+#if !defined(OSI_EOCAPP)
+	__int64 field_E90;
+#endif
+	ObjectContainer<void*> TextureRemoveData;
 };
 
 
-struct WorkerThreadJob : public ProtectedGameObject<WorkerThreadJob>
+struct RendererCommandBuffer : public CommandDispatcher
 {
-	__int64 field_0;
-	__int64 field_8;
+	D3D11Renderer* Renderer;
+	uint64_t field_40;
+	uint64_t field_48;
+	uint64_t field_50;
 };
 
+END_NS()
 
-struct Light : public MoveableObject
+BEGIN_SE()
+
+struct RenderThread : public ProtectedGameObject<RenderThread>
 {
-	WorkerThreadJob WorkerThreadJob;
-	BaseComponent BaseComponent;
-	glm::vec3 TranslateOffset;
-	glm::vec3 TranslateOffset2;
-	glm::vec3 Color;
-	float SpotLightAngles[2];
-	float Radius;
-	float Intensity;
-	float IntensityOffset;
-	float FlickerSpeed;
-	float FlickerAmount;
-	float MovementSpeed;
-	float MovementAmount;
-	float VolumetricLightIntensity;
-	float VolumetricLightCollisionProbability;
-	bool IsFlickering;
-	bool IsMoving;
-	bool CastShadow;
-	bool LightVolume;
-	bool IsEnabled;
-	int LightType;
-	int LightVolumeSamples;
-	void* LightVolumeTexture;
-	int LightVolumeMapping;
-	uint8_t field_24C;
-	void* Template; // LightTemplate*
-	Scene* AssociatedScene;
-	bool IsUpdateJobRunning;
+	struct RenderThreadDispatcher : public ProtectedGameObject<RenderThreadDispatcher>
+	{
+		RenderThread* Thread;
+		ThreadDispatcher* BaseDispatcher;
+		void* LeaveGameDrawScopeJob;
+		__int64 field_18;
+		Dispatcher* ParentDispatcher;
+		uint32_t ThreadID;
+	};
+
+	void* Events[4];
+	RenderThreadDispatcher* RenderDispatcher;
+	void* GameThread;
+	rf::RendererCommandBuffer* RCB1;
+	rf::RendererCommandBuffer* RCB2;
 };
-
-
-struct VisualComponent : public BaseComponent
-{
-	Visual* Visual;
-	VisualComponentFlags Flags;
-};
-
-struct VisualFactory : public ComponentFactory<Visual, ObjectFactoryRWLocker>
-{
-	using DestroyVisualProc = bool (VisualFactory* self, uint64_t handle);
-};
-
-using EffectsManager__DestroyEffect = bool (void* self, ComponentHandle const& handle);
-using EffectsManager__GetInstanceProc = void* ();
 
 END_SE()

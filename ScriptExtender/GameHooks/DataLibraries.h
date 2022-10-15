@@ -29,8 +29,7 @@ public:
 
 	bool FindLibraries(uint32_t gameRevision);
 	bool PostStartupFindLibraries();
-	void EnableCustomStats();
-	void DisableItemFolding();
+	void ApplyCodePatches();
 	bool GetGameVersion(GameVersionInfo & version);
 
 	void ShowStartupError(STDWString const & msg, bool wait, bool exitGame);
@@ -68,6 +67,11 @@ private:
 	void FindGlobalStringTableCoreLib();
 #endif
 
+	void EnableCustomStats();
+	void DisableItemFolding();
+	void EnableAchievements();
+	void EnableShroudUpdates();
+
 	bool CanShowError();
 	bool CanShowMessages();
 
@@ -83,6 +87,9 @@ private:
 	bool EnabledCustomStats{ false };
 	bool EnabledCustomStatsPane{ false };
 	bool enabledCustomAlignments_{ false };
+	bool disabledItemFolding_{ false };
+	bool enabledAchievements_{ false };
+	bool enabledShroudUpdates_{ false };
 };
 
 END_SE()

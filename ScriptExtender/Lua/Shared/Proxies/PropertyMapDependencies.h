@@ -14,7 +14,7 @@
 #include <GameDefinitions/GameObjects/Ai.h>
 #include <GameDefinitions/GameObjects/AiHelpers.h>
 #include <GameDefinitions/GameObjects/Material.h>
-#include <GameDefinitions/GameObjects/Render.h>
+#include <GameDefinitions/GameObjects/Visuals.h>
 #include <GameDefinitions/GameObjects/Surface.h>
 #include <GameDefinitions/GameObjects/Physics.h>
 #include <GameDefinitions/GameObjects/Movement.h>

@@ -954,4 +954,14 @@ namespace dse
 
 		return AiMetaData[tile->AiMetaDataIndex];
 	}
+
+
+	rf::RendererCommandBuffer* BaseApp::GetRCB()
+	{
+		if (GetCurrentThreadId() == RenderThread->RenderDispatcher->ThreadID) {
+			return RenderThread->RCB2;
+		} else {
+			return RenderThread->RCB1;
+		}
+	}
 }
