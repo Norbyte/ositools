@@ -373,6 +373,12 @@ namespace dse::ecl
 {
     struct ShroudManager : public ProtectedGameObject<ShroudManager>
     {
+        struct HeightMapTextureCell
+        {
+            uint16_t Height;
+            uint16_t Walkable;
+        };
+
         void* VMT;
         void* LevelAllocator;
         ObjectSet<glm::vec2> OS_Vector2f;
@@ -383,7 +389,7 @@ namespace dse::ecl
         eoc::ShroudData* ShroudData;
         ComponentHandle TextureHandles[4];
         bool TexturesLoaded[4];
-        ComponentHandle AiGridTexture;
+        ComponentHandle AiGridHeightMapTexture;
         char field_88;
         char field_89;
         char field_8A;
@@ -394,5 +400,7 @@ namespace dse::ecl
         ObjectSet<ComponentHandle> OS_ObjectHandle;
         ObjectSet<ComponentHandle> OS_ObjectHandle2;
         char field_108;
+
+        void RebuildHeightMapTexture();
     };
 }

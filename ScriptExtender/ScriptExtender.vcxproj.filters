@@ -421,6 +421,9 @@
     <ClInclude Include="GameDefinitions\GameObjects\Render.h">
       <Filter>GameDefinitions\GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\Base\HalfHelpers.h">
+      <Filter>GameDefinitions\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

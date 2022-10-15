@@ -7,6 +7,7 @@
 #include <GameDefinitions/GameObjects/Movement.h>
 #include <Extender/ScriptExtender.h>
 #include <GameDefinitions/PropertyMaps/PropertyMaps.h>
+#include <GameDefinitions/Base/HalfHelpers.h>
 
 namespace dse
 {
@@ -965,3 +966,52 @@ namespace dse
 		}
 	}
 }
+
+BEGIN_NS(ecl)
+
+void ShroudManager::RebuildHeightMapTexture()
+{
+	auto app = GetStaticSymbols().AppInstance;
+	auto rcb = (*app)->GetRCB();
+	if (!rcb) {
+		OsiError("Couldn't get RCB!");
+		return;
+	}
+
+	auto tex = rcb->Renderer->TextureContainer.Get(AiGridHeightMapTexture);
+	if (!tex) {
+		OsiError("No AiGrid texture is currently bound or couldn't fetch texture!");
+		return;
+	}
+
+	D3D11_MAPPED_SUBRESOURCE res;
+	auto subres = D3D11CalcSubresource(0, 0, 0);
+	auto ok = rcb->Renderer->D3D11DeviceContext->Map(tex->Resource, subres, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	if (ok != S_OK) {
+		OsiError("Couldn't memory map AiGrid texture!");
+		return;
+	}
+
+	auto grid = Level->AiGrid;
+	auto currentRow = (uint8_t*)res.pData;
+	for (int32_t y = 0; y < grid->DataGrid.Height; y++) {
+		auto currentPixel = (HeightMapTextureCell*)currentRow;
+		for (int32_t x = 0; x < grid->DataGrid.Width; x++) {
+			auto tile = grid->Tiles->Get(glm::i32vec2(x, y));
+			currentPixel->Height = encode_flt16((tile->Height * 0.25f) + grid->DataGrid.OffsetY);
+			if (tile->AiFlags & 1) {
+				currentPixel->Walkable = encode_flt16(1.0f);
+			}
+			else {
+				currentPixel->Walkable = encode_flt16(1.0f);
+			}
+			currentPixel++;
+		}
+
+		currentRow += res.RowPitch;
+	}
+
+	rcb->Renderer->D3D11DeviceContext->Unmap(tex->Resource, 0);
+}
+
+END_NS()

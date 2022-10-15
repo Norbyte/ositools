@@ -248,6 +248,7 @@ namespace dse
 		SYM_OFF(ecl__MultiEffectHandler__Delete);
 
 		SYM_OFF(ls__Visual__AddAttachment);
+		SYM_OFF(ecl__ShroudManager__InitObjectsHook);
 
 		SYM_OFF(ls__gEffectsManager);
 		SYM_OFF(ls__EffectsManager__GetInstance);
@@ -596,6 +597,13 @@ namespace dse
 		if (enabledShroudUpdates_) return;
 
 #if defined(OSI_EOCAPP)
+		if (GetStaticSymbols().ecl__ShroudManager__InitObjectsHook != nullptr) {
+			auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ecl__ShroudManager__InitObjectsHook);
+			WriteAnchor code(p, 0x40);
+			uint8_t patch[] = {0xc6, 0x44, 0x24, 0x60, 0x06, 0x90, 0x90};
+			memcpy(p, patch, sizeof(patch));
+			enabledShroudUpdates_ = true;
+		}
 #endif
 	}
 }

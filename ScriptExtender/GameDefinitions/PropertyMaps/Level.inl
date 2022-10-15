@@ -229,9 +229,15 @@ BEGIN_CLS(ecl::Level)
 INHERIT(Level)
 P_REF(AiGrid)
 P_REF(SurfaceManager)
+P_REF(ShroudManager)
 P_REF(EntityManager)
 P_REF(LevelCacheTemplateManager)
 // etc ...
+END_CLS()
+
+
+BEGIN_CLS(ecl::ShroudManager)
+P_FUN(RebuildHeightMapTexture, RebuildHeightMapTexture)
 END_CLS()
 
 

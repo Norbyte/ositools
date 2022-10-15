@@ -1512,5 +1512,21 @@
       83 ff 0e // cmp     edi, 0Eh
       <Target Type="Indirect" Offset="@ref1" Symbol="ecl__EquipmentVisualsSystem__CreateVisuals" />
     </Mapping>
+
+    <Mapping Name="ecl::ShroudManager::InitObjects">
+      89 4d c8 // mov     [rbp+1A0h+loadCmd.field_8], ecx
+      89 4d f8 // mov     [rbp+1A0h+loadCmd.Format], ecx
+      88 4d 22 // mov     [rbp+1A0h+loadCmd.AccessFlag], cl
+      48 8d 4d c0 // lea     rcx, [rbp+1A0h+loadCmd]; this
+      89 7c 24 28 // mov     [rsp+2A0h+layers], edi; height
+      44 89 44 24 20 // mov     [rsp+2A0h+height], r8d; width
+      4d 8b c4 // mov     r8, r12; texMemory
+      48 89 75 c0 // mov     [rbp+1A0h+loadCmd.VMT], rsi
+      c7 45 18 01 00 00 00 // mov     [rbp+1A0h+loadCmd.TexArraySize], 1
+      @ref1 c7 45 1c 01 00 00 00 // mov     [rbp+1A0h+loadCmd.NumSamples], 1
+      e8 ?? ?? ?? ?? // call    rf__DataLoaderCreateTextureFromMemoryCommand__Do
+      48 8b 5d a0 // mov     rbx, [rbp+1A0h+pHandle]
+      <Target Type="Absolute" Offset="@ref1" Symbol="ecl__ShroudManager__InitObjectsHook" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

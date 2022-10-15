@@ -47,6 +47,7 @@
     <ClInclude Include="GameDefinitions\Base\BaseTypes.h" />
     <ClInclude Include="GameDefinitions\Base\BaseUtilities.h" />
     <ClInclude Include="GameDefinitions\Base\ForwardDeclarations.h" />
+    <ClInclude Include="GameDefinitions\Base\HalfHelpers.h" />
     <ClInclude Include="GameDefinitions\Base\ObjectVisitor.h" />
     <ClInclude Include="GameDefinitions\Components\Character.h" />
     <ClInclude Include="GameDefinitions\Components\Inventory.h" />
