@@ -301,7 +301,7 @@ void SkillPrototypeManager::SyncSkillStat(Object* object)
 	if (strcmp(*skillTypeName, "Cone") == 0) {
 		skillType = SkillType::Zone;
 	} else {
-		skillType = EnumInfo<SkillType>::Find(*skillTypeName);
+		skillType = EnumInfo<SkillType>::Find(FixedString(*skillTypeName));
 	}
 
 	if (!skillType) {
@@ -355,7 +355,7 @@ void StatusPrototypeManager::SyncStatusStat(Object* object)
 		return;
 	}
 
-	auto statusType = EnumInfo<StatusType>::Find(*statusTypeName);
+	auto statusType = EnumInfo<StatusType>::Find(FixedString(*statusTypeName));
 	if (!statusType) {
 		OsiError("Unsupported StatusType: " << *statusTypeName);
 		return;
@@ -1112,7 +1112,7 @@ std::optional<StatAttributeFlags> RPGStats::StringToAttributeFlags(const char * 
 	STDString token;
 	std::istringstream tokenStream(value);
 	while (std::getline(tokenStream, token, ';')) {
-		auto label = EnumInfo<StatAttributeFlags>::Find(token.c_str());
+		auto label = EnumInfo<StatAttributeFlags>::Find(FixedString(token.c_str()));
 		if (label) {
 			flags |= *label;
 		} else {

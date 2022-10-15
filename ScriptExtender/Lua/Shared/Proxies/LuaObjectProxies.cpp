@@ -27,10 +27,10 @@ void CopyRawProperties(GenericPropertyMap const& base, GenericPropertyMap& child
 template <class T>
 void AddBitmaskProperty(GenericPropertyMap& pm, std::size_t offset)
 {
-	for (auto const& label : EnumInfo<T>::Values) {
+	for (auto const& label : EnumInfo<T>::Store.Values) {
 		pm.AddRawProperty(label.Key.GetString(),
-			&(GenericGetOffsetBitmaskFlag<T>),
-			&(GenericSetOffsetBitmaskFlag<T>),
+			&(GenericGetOffsetBitmaskFlag<std::underlying_type_t<T>>),
+			&(GenericSetOffsetBitmaskFlag<std::underlying_type_t<T>>),
 			offset,
 			(uint64_t)label.Value
 		);
@@ -42,7 +42,7 @@ void AddBitmaskProperty(LuaPropertyMap<TCls>& pm, std::size_t offset,
 	typename LuaPropertyMap<TCls>::PropertyAccessors::Getter* getter,
 	typename LuaPropertyMap<TCls>::PropertyAccessors::Setter* setter)
 {
-	for (auto const& label : EnumInfo<TEnum>::Values) {
+	for (auto const& label : EnumInfo<TEnum>::Store.Values) {
 		pm.AddProperty(label.Key.GetString(),
 			getter,
 			setter,

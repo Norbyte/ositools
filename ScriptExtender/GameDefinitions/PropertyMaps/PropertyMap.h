@@ -724,7 +724,7 @@ namespace dse
 		};
 
 		info.SetString = [offset](void * obj, char const * str) -> bool {
-			auto enumVal = EnumInfo<TEnum>::Find(str);
+			auto enumVal = EnumInfo<TEnum>::Find(FixedString(str));
 			if (!enumVal) {
 				return false;
 			}
@@ -750,7 +750,7 @@ namespace dse
 		info.Flags = 0;
 		AddPropertyInternal(map, name, info);
 
-		for (auto const& val : Enum::Values) {
+		for (auto const& val : Enum::Store.Values) {
 			LegacyPropertyMapBase::FlagInfo flag;
 			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);

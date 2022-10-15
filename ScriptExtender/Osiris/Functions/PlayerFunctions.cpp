@@ -293,7 +293,7 @@ namespace dse::esv
 			auto character = FindPlayerByNameGuid(characterGuid);
 			if (character == nullptr) return;
 
-			auto attribute = EnumInfo<PlayerUpgradeAttribute>::Find(attributeName);
+			auto attribute = EnumInfo<PlayerUpgradeAttribute>::Find(FixedString(attributeName));
 			if (!attribute) {
 				OsiError("Unknown character attribute: " << attributeName);
 				return;
@@ -325,7 +325,7 @@ namespace dse::esv
 			auto character = FindPlayerByNameGuid(characterGuid);
 			if (character == nullptr) return;
 
-			auto ability = EnumInfo<stats::AbilityType>::Find(abilityName);
+			auto ability = EnumInfo<stats::AbilityType>::Find(FixedString(abilityName));
 			if (!ability) {
 				OsiError("Unknown ability: " << abilityName);
 				return;
@@ -347,7 +347,7 @@ namespace dse::esv
 			auto character = FindPlayerByNameGuid(characterGuid);
 			if (character == nullptr) return;
 
-			auto talent = EnumInfo<stats::TalentType>::Find(talentName);
+			auto talent = EnumInfo<stats::TalentType>::Find(FixedString(talentName));
 			if (!talent) {
 				OsiError("Unknown talent type: " << talentName);
 				return;

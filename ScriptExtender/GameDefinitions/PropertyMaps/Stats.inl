@@ -71,20 +71,20 @@ P_RO(BoostName)
 P_RO(StatsType)
 
 #if defined(GENERATING_TYPE_INFO)
-for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+for (auto const& label : EnumInfo<StatAttributeFlags>::Store.Values) {
 	ADD_TYPE(label.Key, bool)
 }
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	ADD_TYPE(label.Key, int32_t)
 }
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
 }
 #endif
 
 #if defined(GENERATING_PROPMAP)
 // Attribute flag getters/setters
-for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+for (auto const& label : EnumInfo<StatAttributeFlags>::Store.Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
 		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
@@ -114,7 +114,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 }
 
 // Ability getters (eg. Aerothurge)
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
 		[](lua_State* L, LifetimeHandle const& lifetime, stats::EquipmentAttributes* obj, std::size_t offset, uint64_t flag) {
@@ -130,7 +130,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 }
 
 // Talent getter (eg. TALENT_)
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	auto talentId = label.Value;
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
@@ -255,20 +255,20 @@ P(BonusWeapon)
 P(StepsType)
 
 #if defined(GENERATING_TYPE_INFO)
-for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+for (auto const& label : EnumInfo<StatAttributeFlags>::Store.Values) {
 	ADD_TYPE(label.Key, bool)
 }
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	ADD_TYPE(label.Key, int32_t)
 }
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
 }
 #endif
 
 #if defined(GENERATING_PROPMAP)
 // Attribute flag getters/setters
-for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
+for (auto const& label : EnumInfo<StatAttributeFlags>::Store.Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
 		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
@@ -296,7 +296,7 @@ for (auto const& label : EnumInfo<StatAttributeFlags>::Values) {
 }
 
 // Ability getters (eg. Aerothurge)
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	auto abilityId = label.Value;
 	pm.AddProperty(label.Key.GetString(),
 		[](lua_State* L, LifetimeHandle const& lifetime, stats::CharacterDynamicStat* obj, std::size_t offset, uint64_t flag) {
@@ -312,7 +312,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 }
 
 // Talent getter (eg. TALENT_)
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	auto talentId = label.Value;
 	STDString talentName = STDString("TALENT_") + label.Key.GetString();
 	pm.AddProperty(talentName.c_str(),
@@ -451,15 +451,15 @@ P_GETTER(OffHandWeapon, GetOffHandWeapon)
 ADD_TYPE("Position", glm::vec3)
 ADD_TYPE("MyGuid", FixedString)
 ADD_TYPE("NetID", NetId)
-for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
+for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Store.Values) {
 	ADD_TYPE(label.Key, int32_t)
 	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
 }
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	ADD_TYPE(label.Key, int32_t)
 	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
 }
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
 }
 #endif
@@ -516,7 +516,7 @@ pm.AddProperty("NetID",
 	}
 );
 
-for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
+for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Store.Values) {
 	auto statId = label.Value;
 
 	// Boosted property getter (eg. BlockChance)
@@ -539,7 +539,7 @@ for (auto const& label : EnumInfo<stats::CharacterStatGetterType>::Values) {
 	);
 }
 
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	auto abilityId = label.Value;
 
 	// Boosted ability getter (eg. Aerothurge)
@@ -562,7 +562,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	);
 }
 
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	auto talentId = label.Value;
 
 	// Talent getter (eg. TALENT_ResistDead)
@@ -621,17 +621,17 @@ P_RO(NameCool)
 P_REF(DeltaMods)
 
 #if defined(GENERATING_TYPE_INFO)
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	ADD_TYPE(label.Key, int32_t)
 	ADD_TYPE(STDString("Base") + label.Key.GetString(), int32_t)
 }
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	ADD_TYPE(STDString("TALENT_") + label.Key.GetString(), bool)
 }
 #endif
 
 #if defined(GENERATING_PROPMAP)
-for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
+for (auto const& label : EnumInfo<stats::AbilityType>::Store.Values) {
 	auto abilityId = label.Value;
 
 	// Ability stat getter (eg. Aerothurge)
@@ -644,7 +644,7 @@ for (auto const& label : EnumInfo<stats::AbilityType>::Values) {
 	);
 }
 
-for (auto const& label : EnumInfo<stats::TalentType>::Values) {
+for (auto const& label : EnumInfo<stats::TalentType>::Store.Values) {
 	auto talentId = label.Value;
 
 	// Talent stat getter (eg. TALENT_)

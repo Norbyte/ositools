@@ -5,19 +5,20 @@
 namespace dse
 {
 	template <class T>
-	struct BitmaskInfoBase
+	struct BitmaskInfoStore
 	{
-		static Vector<FixedString> Labels;
-		static Map<FixedString, T> Values;
-		static T AllowedFlags;
+		Vector<FixedString> Labels;
+		Map<FixedString, T> Values;
+		T AllowedFlags;
+		FixedString EnumName;
 
-		static void Init(unsigned sizeHint)
+		void Init(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 		}
 
-		static void __declspec(noinline) Add(T val, char const* label)
+		void __declspec(noinline) Add(T val, char const* label)
 		{
 			DWORD index;
 			if (_BitScanForward64(&index, (uint64_t)val)) {
@@ -33,10 +34,10 @@ namespace dse
 			FixedString fs(label);
 			Labels[index] = fs;
 			Values.insert(std::move(fs), val);
-			AllowedFlags = (T)((uint64_t)AllowedFlags | (uint64_t)val);
+			AllowedFlags |= val;
 		}
 
-		static std::optional<T> Find(FixedString const& name)
+		std::optional<T> Find(FixedString const& name) const
 		{
 			auto val = Values.find(name);
 			if (!val) {
@@ -46,16 +47,10 @@ namespace dse
 			}
 		}
 
-		static std::optional<T> Find(char const* name)
-		{
-			// TODO - remove when all refs are gone
-			return Find(FixedString(name));
-		}
-
-		static FixedString Find(T val)
+		FixedString Find(T val) const
 		{
 			DWORD index;
-			if (_BitScanForward64(&index, (uint64_t)val)) {
+			if (_BitScanForward64(&index, val)) {
 				index++;
 			} else {
 				index = 0;
@@ -70,21 +65,54 @@ namespace dse
 	};
 
 	template <class T>
-	struct EnumInfoBase
+	struct BitmaskInfoBase
 	{
-		static Vector<FixedString> Labels;
-		static Map<FixedString, T> Values;
+		using UnderlyingType = uint64_t;
+		static BitmaskInfoStore<UnderlyingType> Store;
 
 		static void Init(unsigned sizeHint)
+		{
+			Store.Init(sizeHint);
+		}
+
+		static void Add(T val, char const* label)
+		{
+			Store.Add((UnderlyingType)val, label);
+		}
+
+		static std::optional<T> Find(FixedString const& name)
+		{
+			auto val = Store.Find(name);
+			if (!val) {
+				return {};
+			} else {
+				return (T)*val;
+			}
+		}
+
+		static FixedString Find(T val)
+		{
+			return Store.Find((UnderlyingType)val);
+		}
+	};
+
+	template <class T>
+	struct EnumInfoStore
+	{
+		Vector<FixedString> Labels;
+		Map<FixedString, T> Values;
+		FixedString EnumName;
+
+		void Init(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
 		}
 
-		static void __declspec(noinline) Add(T val, char const* label)
+		void __declspec(noinline) Add(T val, char const* label)
 		{
 			FixedString fs(label);
-			auto index = static_cast<uint32_t>(val);
+			auto index = static_cast<std::size_t>(val);
 
 			if (Labels.size() <= index) {
 				Labels.resize(index + 1);
@@ -94,7 +122,7 @@ namespace dse
 			Values.insert(std::move(fs), val);
 		}
 
-		static std::optional<T> Find(FixedString const& name)
+		std::optional<T> Find(FixedString const& name) const
 		{
 			auto val = Values.find(name);
 			if (val) {
@@ -104,20 +132,45 @@ namespace dse
 			}
 		}
 
-		static std::optional<T> Find(char const* name)
+		FixedString Find(T val) const
 		{
-			// TODO - remove when all refs are gone
-			return Find(FixedString(name));
+			if (val >= Labels.size()) {
+				return FixedString{};
+			}
+
+			return Labels[val];
+		}
+	};
+
+	template <class T>
+	struct EnumInfoBase
+	{
+		using UnderlyingType = uint64_t;
+		static EnumInfoStore<UnderlyingType> Store;
+
+		static void Init(unsigned sizeHint)
+		{
+			Store.Init(sizeHint);
+		}
+
+		static void Add(T val, char const* label)
+		{
+			Store.Add((UnderlyingType)val, label);
+		}
+
+		static std::optional<T> Find(FixedString const& name)
+		{
+			auto val = Store.Find(name);
+			if (val) {
+				return (T)*val;
+			} else {
+				return {};
+			}
 		}
 
 		static FixedString Find(T val)
 		{
-			auto v = (uint32_t)val;
-			if (v >= Labels.size()) {
-				return FixedString{};
-			}
-
-			return Labels[v];
+			return Store.Find((UnderlyingType)val);
 		}
 	};
 

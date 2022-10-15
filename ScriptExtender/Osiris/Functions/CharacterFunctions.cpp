@@ -133,7 +133,7 @@ namespace dse::esv
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
 			if (permanentBoosts == nullptr) return;
 
-			auto talentId = EnumInfo<stats::TalentType>::Find(talent);
+			auto talentId = EnumInfo<stats::TalentType>::Find(FixedString(talent));
 			if (!talentId) {
 				OsiError("Talent name is invalid: " << talent);
 				return;
@@ -154,7 +154,7 @@ namespace dse::esv
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
 			if (permanentBoosts == nullptr) return false;
 
-			auto talentId = EnumInfo<stats::TalentType>::Find(talent);
+			auto talentId = EnumInfo<stats::TalentType>::Find(FixedString(talent));
 			if (!talentId) {
 				OsiError("Talent name is invalid: " << talent);
 				return false;
@@ -176,7 +176,7 @@ namespace dse::esv
 			auto permanentBoosts = GetCharacterDynamicStat(character, 1);
 			if (permanentBoosts == nullptr) return;
 
-			auto talentId = EnumInfo<stats::TalentType>::Find(talent);
+			auto talentId = EnumInfo<stats::TalentType>::Find(FixedString(talent));
 			if (!talentId) {
 				OsiError("Talent name is invalid: " << talent);
 				return;
@@ -253,7 +253,7 @@ namespace dse::esv
 
 			int16_t slotIndex = -1;
 			if (*slotName) {
-				auto slot = EnumInfo<stats::ItemSlot>::Find(slotName);
+				auto slot = EnumInfo<stats::ItemSlot>::Find(FixedString(slotName));
 				if (!slot) {
 					OsiError("Cannot equip item to invalid slot: " << slotName);
 					return;

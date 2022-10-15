@@ -96,8 +96,8 @@ namespace dse
 	template <class T, class TalentArrayFetcher>
 	void AddTalentArray(LegacyPropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
-		for (auto const& val : EnumInfo<stats::TalentType>::Values) {
-			auto id = val.Value;
+		for (auto const& val : EnumInfo<stats::TalentType>::Store.Values) {
+			auto id = (TalentType)val.Value;
 			auto talentName = prefix + val.Key.GetString();
 			FixedString talentFS(talentName.c_str());
 			AddProperty<bool>(propertyMap, talentFS.GetString(), 0);
@@ -666,7 +666,7 @@ namespace dse
 			PROP_RO(BoostName);
 			PROP_ENUM_RO(StatsType);
 
-			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Store.Values) {
 				auto id = val.Value;
 				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
@@ -674,7 +674,7 @@ namespace dse
 					auto attrs = reinterpret_cast<stats::EquipmentAttributes*>(obj);
 					auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
-						return (uint64_t)(**attrFlags & (uint64_t)id) != 0 ? 1 : 0;
+						return (**attrFlags & id) != 0 ? 1 : 0;
 					} else {
 						return 0;
 					}
@@ -687,15 +687,15 @@ namespace dse
 					attrs->AttributeFlagsObjectId = flagsId;
 
 					if (value) {
-						*attrFlags |= (uint64_t)id;
+						*attrFlags |= id;
 					} else {
-						*attrFlags &= (uint64_t)~id;
+						*attrFlags &= ~id;
 					}
 					return true;
 				};
 			}
 
-			for (auto const& v : EnumInfo<stats::AbilityType>::Values) {
+			for (auto const& v : EnumInfo<stats::AbilityType>::Store.Values) {
 				AddProperty<int32_t>(propertyMap, v.Key.GetString(), offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
 			}
 
@@ -804,7 +804,7 @@ namespace dse
 			PROP(BonusWeapon);
 			PROP(StepsType);
 
-			for (auto const& val : EnumInfo<StatAttributeFlags>::Values) {
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Store.Values) {
 				auto id = val.Value;
 				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
@@ -812,7 +812,7 @@ namespace dse
 					auto attrs = reinterpret_cast<stats::CharacterDynamicStat*>(obj);
 					auto attrFlags = GetStaticSymbols().GetStats()->GetFlags((int)attrs->AttributeFlagsObjectId);
 					if (attrFlags) {
-						return (uint64_t)(**attrFlags & (uint64_t)id) != 0 ? 1 : 0;
+						return (**attrFlags & id) != 0 ? 1 : 0;
 					} else {
 						return 0;
 					}
@@ -825,15 +825,15 @@ namespace dse
 					attrs->AttributeFlagsObjectId = flagsId;
 
 					if (value) {
-						*attrFlags |= (uint64_t)id;
+						*attrFlags |= id;
 					} else {
-						*attrFlags &= (uint64_t)~id;
+						*attrFlags &= ~id;
 					}
 					return true;
 				};
 			}
 
-			for (auto const& val : EnumInfo<stats::AbilityType>::Values) {
+			for (auto const& val : EnumInfo<stats::AbilityType>::Store.Values) {
 				AddProperty<int32_t>(propertyMap, val.Key.GetString(), offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
 			}
 
@@ -969,16 +969,16 @@ namespace dse
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 
-			for (auto const& val : EnumInfo<esv::CharacterFlags>::Values) {
+			for (auto const& val : EnumInfo<esv::CharacterFlags>::Store.Values) {
 				auto id = val.Value;
 				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {
 					flag.Set = [id](void* obj, bool value) -> bool {
 						auto ch = reinterpret_cast<esv::Character*>(obj);
 						if (value) {
-							ch->SetFlags((uint64_t)id);
+							ch->SetFlags(id);
 						} else {
-							ch->ClearFlags((uint64_t)id);
+							ch->ClearFlags(id);
 						}
 						return true;
 					};
@@ -1039,16 +1039,16 @@ namespace dse
 			propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 
-			for (auto const& val : EnumInfo<esv::ItemFlags>::Values) {
+			for (auto const& val : EnumInfo<esv::ItemFlags>::Store.Values) {
 				auto id = val.Value;
 				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {
 					flag.Set = [id](void* obj, bool value) -> bool {
 						auto ch = reinterpret_cast<esv::Item*>(obj);
 						if (value) {
-							ch->SetFlags((uint64_t)id);
+							ch->SetFlags(id);
 						} else {
-							ch->ClearFlags((uint64_t)id);
+							ch->ClearFlags(id);
 						}
 						return true;
 					};

@@ -90,7 +90,7 @@ namespace dse::esv
 				return;
 			}
 
-			auto damageTypeLbl = EnumInfo<stats::DamageType>::Find(damageType);
+			auto damageTypeLbl = EnumInfo<stats::DamageType>::Find(FixedString(damageType));
 			if (!damageTypeLbl) {
 				OsiError("Unknown DamageType: " << damageType);
 				return;

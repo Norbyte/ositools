@@ -355,7 +355,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -378,7 +378,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return false;
 
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return false;
@@ -403,7 +403,7 @@ namespace dse::esv
 
 			if (helper == nullptr) return;
 
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -444,7 +444,7 @@ namespace dse::esv
 			if (status == nullptr) return;
 
 			auto damageTypeStr = args[2].String;
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;
@@ -459,7 +459,7 @@ namespace dse::esv
 			if (status == nullptr) return false;
 
 			auto damageTypeStr = args[2].String;
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return false;
@@ -485,7 +485,7 @@ namespace dse::esv
 			auto damageTypeStr = args[2].String;
 			auto amount = args[3].Int32;
 
-			auto damageType = EnumInfo<stats::DamageType>::Find(damageTypeStr);
+			auto damageType = EnumInfo<stats::DamageType>::Find(FixedString(damageTypeStr));
 			if (!damageType) {
 				OsiError("Not a valid DamageType: " << damageTypeStr);
 				return;

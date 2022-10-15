@@ -25,23 +25,23 @@ PropertyOperationResult GenericSetOffsetProperty(lua_State* L, LifetimeHandle co
 	return PropertyOperationResult::Success;
 }
 
-template <class T>
+template <class UnderlyingType>
 PropertyOperationResult GenericGetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, std::size_t offset, uint64_t flag)
 {
-	auto value = *(T*)((std::uintptr_t)obj + offset);
-	push(L, (value & (T)flag) == (T)flag);
+	auto value = *(UnderlyingType*)((std::uintptr_t)obj + offset);
+	push(L, (value & (UnderlyingType)flag) == (UnderlyingType)flag);
 	return PropertyOperationResult::Success;
 }
 
-template <class T>
+template <class UnderlyingType>
 PropertyOperationResult GenericSetOffsetBitmaskFlag(lua_State* L, LifetimeHandle const& lifetime, void* obj, int index, std::size_t offset, uint64_t flag)
 {
-	auto* value = (T*)((std::uintptr_t)obj + offset);
+	auto* value = (UnderlyingType*)((std::uintptr_t)obj + offset);
 	auto set = get<bool>(L, index);
 	if (set) {
-		*value |= (T)flag;
+		*value |= (UnderlyingType)flag;
 	} else {
-		*value &= (T)~flag;
+		*value &= (UnderlyingType)~flag;
 	}
 
 	return PropertyOperationResult::Success;

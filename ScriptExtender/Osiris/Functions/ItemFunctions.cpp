@@ -258,7 +258,7 @@ namespace dse::esv
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return false;
 
-			auto abilityId = EnumInfo<stats::AbilityType>::Find(ability);
+			auto abilityId = EnumInfo<stats::AbilityType>::Find(FixedString(ability));
 			if (!abilityId) {
 				OsiError("Ability name is invalid: " << ability);
 				return false;
@@ -280,7 +280,7 @@ namespace dse::esv
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return false;
 
-			auto talentId = EnumInfo<stats::TalentType>::Find(talent);
+			auto talentId = EnumInfo<stats::TalentType>::Find(FixedString(talent));
 			if (!talentId) {
 				OsiError("Talent name is invalid: " << talent);
 				return false;
@@ -302,7 +302,7 @@ namespace dse::esv
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return;
 
-			auto abilityId = EnumInfo<stats::AbilityType>::Find(ability);
+			auto abilityId = EnumInfo<stats::AbilityType>::Find(FixedString(ability));
 			if (!abilityId) {
 				OsiError("Ability name is invalid: " << ability);
 				return;
@@ -323,7 +323,7 @@ namespace dse::esv
 			auto permanentBoosts = GetItemDynamicStat(item, 1);
 			if (permanentBoosts == nullptr) return;
 
-			auto talentId = EnumInfo<stats::TalentType>::Find(talent);
+			auto talentId = EnumInfo<stats::TalentType>::Find(FixedString(talent));
 			if (!talentId) {
 				OsiError("Talent name is invalid: " << talent);
 				return;

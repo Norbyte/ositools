@@ -60,7 +60,7 @@ namespace dse::esv
 			auto statusMachine = GetStatusMachine(gameObjectGuid);
 			if (statusMachine == nullptr) return false;
 			
-			auto typeId = EnumInfo<StatusType>::Find(statusType);
+			auto typeId = EnumInfo<StatusType>::Find(FixedString(statusType));
 			if (!typeId) {
 				OsiError("Status type unknown: " << statusType);
 				return false;

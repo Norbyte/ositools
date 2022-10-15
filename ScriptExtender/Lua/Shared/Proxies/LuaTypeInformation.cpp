@@ -6,12 +6,18 @@ BEGIN_SE()
 
 // Type information registration
 
+template <class UnderlyingType>
+void AddBitmaskTypeInfo(TypeInformation& ty, Map<FixedString, UnderlyingType> const& values)
+{
+	for (auto const& label : values) {
+		ty.Members.insert(std::make_pair(label.Key, GetTypeInfoRef<bool>()));
+	}
+}
+
 template <class T>
 void AddBitmaskTypeInfo(TypeInformation& ty)
 {
-	for (auto const& label : EnumInfo<T>::Values) {
-		ty.Members.insert(std::make_pair(label.Key, GetTypeInfoRef<bool>()));
-	}
+	AddBitmaskTypeInfo(ty, EnumInfo<T>::Store.Values);
 }
 
 template <class Fun>
