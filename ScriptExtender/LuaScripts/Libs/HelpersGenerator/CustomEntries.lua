@@ -9,6 +9,30 @@ return {
 	Specific = {SubscribableEventType = SubscribableEventType},
 	Misc = {
 [[
+--#region Debug/dev functions
+
+--- Returns the active controlled character.
+--- @param playerIndex integer? Defaults to 1.
+--- @return EclCharacter|EsvCharacter
+function _C(playerIndex) end
+
+--- Returns the character being examined in the examine UI.
+--- Client-only.
+--- @return EclCharacter
+function _E() end
+
+--- Returns the item equipped in the Weapon slot of the active controlled character.
+--- In the client context, this uses player 1's character.
+--- @return EclItem|EsvItem
+function _W() end
+
+-- Aliases for logging functions.
+_D = Ext.Dump
+_DS = Ext.DumpShallow
+_P = Ext.Utils.Print
+
+--#endregion
+
 --#region Deprecated Functions (moved to Ext modules)
 
 --- @deprecated
