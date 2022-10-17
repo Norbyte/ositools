@@ -254,6 +254,20 @@ _C = function (playerIndex)
 	return Ext.Entity.GetCharacter(charNetID) 
 end
 
+-- Debug helper to get the current player character's weapon
+_W = function ()
+	local char = _C()
+	local item
+
+	if char then
+		local itemGUID = char:GetItemBySlot("Weapon")
+
+		item = itemGUID and Ext.Entity.GetItem(itemGUID)
+	end
+
+	return item
+end
+
 -- Debug helper to get character being examined
 _E = function ()
 	local examine = Ext.UI.GetByType(104)
