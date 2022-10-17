@@ -11,16 +11,19 @@ return {
 [[
 --#region Debug/dev functions
 
+--- @deprecated For debugging usage only - do not use in mod releases.
 --- Returns the active controlled character.
 --- @param playerIndex integer? Defaults to 1.
 --- @return EclCharacter|EsvCharacter
 function _C(playerIndex) end
 
+--- @deprecated For debugging usage only - do not use in mod releases.
 --- Returns the character being examined in the examine UI.
 --- Client-only.
 --- @return EclCharacter
 function _E() end
 
+--- @deprecated For debugging usage only - do not use in mod releases.
 --- Returns the item equipped in the Weapon slot of the active controlled character.
 --- In the client context, this uses player 1's character.
 --- @return EclItem|EsvItem
