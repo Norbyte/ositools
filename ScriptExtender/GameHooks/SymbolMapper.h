@@ -117,22 +117,36 @@ struct SymbolMappings
 		std::wstring WString;
 	};
 
-	enum ActionType
+	enum ReferenceType
 	{
 		kNone,
 		kAbsolute, // Save absolute value (p + Offset)
 		kIndirect // Save AsmResolveIndirectRef(p + Offset)
 	};
 
+	struct Reference
+	{
+		ReferenceType Type{ ReferenceType::kNone };
+		int32_t Offset{ 0 };
+	};
+
 	struct Target
 	{
 		std::string Name;
-		ActionType Type{ ActionType::kNone };
-		int32_t Offset{ 0 };
+		Reference Ref;
 		StaticSymbolRef TargetRef;
 		std::string NextSymbol;
 		int32_t NextSymbolSeekSize{ 0 };
 		std::string EngineCallback;
+	};
+
+	struct Patch
+	{
+		Reference Ref;
+		std::vector<uint8_t> Bytes;
+		uint8_t const* ResolvedRef{ nullptr };
+		std::vector<uint8_t> OriginalBytes;
+		bool WasApplied{ false };
 	};
 
 	enum class SymbolVersion
@@ -171,6 +185,7 @@ struct SymbolMappings
 		Pattern Pattern;
 		std::vector<Condition> Conditions;
 		std::vector<Target> Targets;
+		std::vector<Patch> Patches;
 		VersionRequirement Version;
 	};
 
@@ -212,6 +227,9 @@ private:
 	bool LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappings::Mapping& sym);
 	bool LoadDllImport(tinyxml2::XMLElement* mapping, SymbolMappings::DllImport& imp);
 	bool LoadTarget(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Target& target);
+	bool LoadPatchText(std::string_view s, std::vector<uint8_t>& bytes);
+	bool LoadPatch(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Patch& patch);
+	bool LoadReference(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Reference& ref);
 	bool LoadCondition(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Condition& condition);
 };
 
@@ -241,7 +259,7 @@ public:
 	void AddEngineCallback(std::string const& name, std::function<MappingResult (uint8_t const *)> const& cb);
 	void MapAllSymbols(bool deferred);
 	bool MapSymbol(std::string const& mappingName, uint8_t const* customStart, std::size_t customSize);
-	bool MapSymbol(SymbolMappings::Mapping const& mapping, uint8_t const* customStart, std::size_t customSize);
+	bool MapSymbol(SymbolMappings::Mapping& mapping, uint8_t const* customStart, std::size_t customSize);
 	bool MapDllImport(SymbolMappings::DllImport const& imp);
 
 	inline bool HasFailedCriticalMappings() const
@@ -273,8 +291,10 @@ private:
 	bool IsFixedStringRef(uint8_t const* ref, char const* str) const;
 	bool IsIndirectFixedStringRef(uint8_t const* ref, char const* str) const;
 
+	std::optional<uint8_t const*> ResolveRef(SymbolMappings::Reference const& ref, uint8_t const* match);
 	bool EvaluateSymbolCondition(SymbolMappings::Condition const& cond, uint8_t const* match);
 	MappingResult ExecSymbolMappingAction(SymbolMappings::Target const& target, uint8_t const* match);
+	bool UpdatePatchReference(SymbolMappings::Patch& patch, uint8_t const* match);
 };
 
 END_SE()

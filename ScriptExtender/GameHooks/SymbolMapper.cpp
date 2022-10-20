@@ -422,6 +422,15 @@ bool SymbolMappingLoader::LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappi
 		targetNode = targetNode->NextSiblingElement("Target");
 	}
 
+	auto patchNode = mapping->FirstChildElement("Patch");
+	while (patchNode != nullptr) {
+		SymbolMappings::Patch patch;
+		if (LoadPatch(patchNode, sym.Pattern, patch)) {
+			sym.Patches.push_back(patch);
+		}
+		patchNode = patchNode->NextSiblingElement("Patch");
+	}
+
 	auto conditionNode = mapping->FirstChildElement("Condition");
 	while (conditionNode != nullptr) {
 		SymbolMappings::Condition condition;
@@ -436,8 +445,8 @@ bool SymbolMappingLoader::LoadMapping(tinyxml2::XMLElement* mapping, SymbolMappi
 		conditionNode = conditionNode->NextSiblingElement("Condition");
 	}
 
-	if (sym.Targets.empty()) {
-		ERR("Mapping '%s' has no valid targets!", sym.Name.c_str());
+	if (sym.Targets.empty() && sym.Patches.empty()) {
+		ERR("Mapping '%s' has no valid targets or patches!", sym.Name.c_str());
 		return false;
 	}
 
@@ -487,23 +496,7 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, Pattern const& p
 	auto name = ele->Attribute("Name");
 	if (name) target.Name = name;
 
-	auto type = ele->Attribute("Type");
-	if (strcmp(type, "Absolute") == 0) {
-		target.Type = SymbolMappings::ActionType::kAbsolute;
-	} else if (strcmp(type, "Indirect") == 0) {
-		target.Type = SymbolMappings::ActionType::kIndirect;
-	} else {
-		ERR("Unsupported mapping action type: %s", type);
-		return false;
-	}
-
-	auto offset = GetOffsetAttribute(ele, pattern, "Offset");
-	if (!offset) {
-		ERR("Mapping target has invalid Offset value.");
-		return false;
-	}
-
-	target.Offset = *offset;
+	if (!LoadReference(ele, pattern, target.Ref)) return false;
 
 	auto staticSymbol = ele->Attribute("Symbol");
 	if (staticSymbol) {
@@ -556,6 +549,88 @@ bool SymbolMappingLoader::LoadTarget(tinyxml2::XMLElement* ele, Pattern const& p
 		return false;
 	}
 
+	return true;
+}
+
+bool SymbolMappingLoader::LoadPatchText(std::string_view s, std::vector<uint8_t>& bytes)
+{
+	char const * c = s.data();
+	while (*c) {
+		if (*c == ' ' || *c == '\t' || *c == '\r' || *c == '\n') {
+			c++;
+			continue;
+		}
+
+		if (*c == '/') {
+			while (*c && *c != '\r' && *c != '\n') c++;
+			continue;
+		}
+
+		if (!c[1] || !c[2] || !std::isspace(c[2])) {
+			ERR("Bytes must be separated by whitespace");
+			return false;
+		}
+
+		auto patByte = HexByteToByte(c[0], c[1]);
+		if (!patByte) {
+			return false;
+		}
+
+		bytes.push_back(*patByte);
+		c += 3;
+	}
+
+	return true;
+}
+
+bool SymbolMappingLoader::LoadPatch(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Patch& patch)
+{
+	if (!LoadReference(ele, pattern, patch.Ref)) return false;
+
+	std::string replacement;
+	auto patternText = ele->FirstChild();
+	while (patternText) {
+		auto text = patternText->ToText();
+		if (text) {
+			replacement += text->Value();
+		}
+
+		patternText = patternText->NextSibling();
+	}
+
+	if (!LoadPatchText(replacement, patch.Bytes)) {
+		ERR("Failed to parse patch replacement:\n%s", replacement.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+
+bool SymbolMappingLoader::LoadReference(tinyxml2::XMLElement* ele, Pattern const& pattern, SymbolMappings::Reference& ref)
+{
+	auto type = ele->Attribute("Type");
+	if (!type) {
+		ERR("Mapping reference must have a Type property.");
+		return false;
+	}
+
+	if (strcmp(type, "Absolute") == 0) {
+		ref.Type = SymbolMappings::ReferenceType::kAbsolute;
+	} else if (strcmp(type, "Indirect") == 0) {
+		ref.Type = SymbolMappings::ReferenceType::kIndirect;
+	} else {
+		ERR("Unsupported mapping reference type: %s", type);
+		return false;
+	}
+
+	auto offset = GetOffsetAttribute(ele, pattern, "Offset");
+	if (!offset) {
+		ERR("Mapping reference has invalid Offset value.");
+		return false;
+	}
+
+	ref.Offset = *offset;
 	return true;
 }
 
@@ -674,51 +749,77 @@ bool SymbolMapper::EvaluateSymbolCondition(SymbolMappings::Condition const & con
 	}
 }
 
-SymbolMapper::MappingResult SymbolMapper::ExecSymbolMappingAction(SymbolMappings::Target const & target, uint8_t const * match)
+std::optional<uint8_t const*> SymbolMapper::ResolveRef(SymbolMappings::Reference const& ref, uint8_t const* match)
 {
-	if (target.Type == SymbolMappings::ActionType::kNone) return MappingResult::Success;
+	if (match == nullptr) return {};
 
-	uint8_t const * ptr{ nullptr };
-	switch (target.Type) {
-	case SymbolMappings::ActionType::kAbsolute:
-		ptr = match + target.Offset;
-		break;
+	switch (ref.Type) {
+	case SymbolMappings::ReferenceType::kAbsolute:
+		return match + ref.Offset;
 
-	case SymbolMappings::ActionType::kIndirect:
-		ptr = AsmResolveInstructionRef(match + target.Offset);
-		break;
-
-	default:
-		break;
+	case SymbolMappings::ReferenceType::kIndirect:
+	{
+		auto ptr = AsmResolveInstructionRef(match + ref.Offset);
+		return (ptr != nullptr) ? ptr : std::optional<uint8_t const*>();
 	}
 
-	if (ptr != nullptr) {
-		auto targetPtr = target.TargetRef.Get();
-		if (targetPtr != nullptr) {
-			*targetPtr = const_cast<uint8_t *>(ptr);
-		}
+	default:
+		ERR("Unhandled reference type");
+		return {};
+	}
+}
 
-		if (!target.NextSymbol.empty()) {
-			if (!MapSymbol(mappings_.Mappings[target.NextSymbol], ptr, target.NextSymbolSeekSize)) {
-				return MappingResult::Fail;
-			}
-		}
+SymbolMapper::MappingResult SymbolMapper::ExecSymbolMappingAction(SymbolMappings::Target const & target, uint8_t const * match)
+{
+	if (target.Ref.Type == SymbolMappings::ReferenceType::kNone) return MappingResult::Success;
 
-		if (!target.EngineCallback.empty()) {
-			auto cb = engineCallbacks_.find(target.EngineCallback);
-			if (cb == engineCallbacks_.end()) {
-				ERR("Target references nonexistent engine callback: '%s'", target.EngineCallback.c_str());
-				return MappingResult::Fail;
-			} else {
-				return cb->second(ptr);
-			}
-		}
+	auto pptr = ResolveRef(target.Ref, match);
 
-		return MappingResult::Success;
-	} else {
+	if (!pptr) {
 		ERR("Could not map match to symbol address while resolving '%s'", target.Name.c_str());
 		return MappingResult::Fail;
 	}
+
+	auto ptr = *pptr;
+	auto targetPtr = target.TargetRef.Get();
+	if (targetPtr != nullptr) {
+		*targetPtr = const_cast<uint8_t *>(ptr);
+	}
+
+	if (!target.NextSymbol.empty()) {
+		if (!MapSymbol(mappings_.Mappings[target.NextSymbol], ptr, target.NextSymbolSeekSize)) {
+			return MappingResult::Fail;
+		}
+	}
+
+	if (!target.EngineCallback.empty()) {
+		auto cb = engineCallbacks_.find(target.EngineCallback);
+		if (cb == engineCallbacks_.end()) {
+			ERR("Target references nonexistent engine callback: '%s'", target.EngineCallback.c_str());
+			return MappingResult::Fail;
+		} else {
+			return cb->second(ptr);
+		}
+	}
+
+	return MappingResult::Success;
+}
+
+bool SymbolMapper::UpdatePatchReference(SymbolMappings::Patch& patch, uint8_t const* match)
+{
+	if (patch.ResolvedRef != nullptr) {
+		ERR("Trying to resolve reference multiple times?");
+		return true;
+	}
+
+	auto ptr = ResolveRef(patch.Ref, match);
+	if (!ptr) {
+		ERR("Could not map patch to symbol address");
+		return false;
+	}
+
+	patch.ResolvedRef = *ptr;
+	return true;
 }
 
 bool SymbolMapper::MapSymbol(std::string const& mappingName, uint8_t const* customStart, std::size_t customSize)
@@ -732,7 +833,7 @@ bool SymbolMapper::MapSymbol(std::string const& mappingName, uint8_t const* cust
 	return MapSymbol(mapping->second, customStart, customSize);
 }
 
-bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t const * customStart, std::size_t customSize)
+bool SymbolMapper::MapSymbol(SymbolMappings::Mapping & mapping, uint8_t const * customStart, std::size_t customSize)
 {
 	if (mapping.Version.Type != SymbolMappings::SymbolVersion::None) {
 		bool passed;
@@ -812,6 +913,12 @@ bool SymbolMapper::MapSymbol(SymbolMappings::Mapping const & mapping, uint8_t co
 				}
 				if (action == MappingResult::TryNext) {
 					patternAction = Pattern::ScanAction::Continue;
+				}
+			}
+
+			for (auto& patch : mapping.Patches) {
+				if (UpdatePatchReference(patch, match)) {
+					mapped = true;
 				}
 			}
 
@@ -926,7 +1033,7 @@ void SymbolMapper::AddEngineCallback(std::string const& name, std::function<Mapp
 
 void SymbolMapper::MapAllSymbols(bool deferred)
 {
-	for (auto const& mapping : mappings_.Mappings) {
+	for (auto& mapping : mappings_.Mappings) {
 		if (mapping.second.Scope != SymbolMappings::MatchScope::kCustom
 			&& deferred == ((mapping.second.Flag & SymbolMappings::Mapping::kDeferred) != 0)) {
 			MapSymbol(mapping.second, nullptr, 0);

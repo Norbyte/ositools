@@ -154,7 +154,9 @@ void ScriptExtender::OnGameStateChanged(void* self, GameState fromState, GameSta
 		AddThread(GetCurrentThreadId());
 	}
 
-	ShowLoadingProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
+	if (gExtender->WasInitialized()) {
+		ShowLoadingProgress(FromUTF8(EnumInfo<GameState>::Find(toState).GetStringOrDefault()));
+	}
 
 	switch (fromState) {
 	case GameState::LoadModule:

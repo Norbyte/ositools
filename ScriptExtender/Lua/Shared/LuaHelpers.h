@@ -305,7 +305,7 @@ template <class T>
 inline void push_flags(lua_State* L, T value)
 {
 	static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
-	push_flags(L, (typename EnumInfo<T>::UnderlyingType)value, EnumInfo<T>::Store);
+	push_flags(L, (typename EnumInfo<T>::UnderlyingType)value, *EnumInfo<T>::Store);
 }
 
 template <class T>
@@ -483,9 +483,9 @@ template <class T>
 typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index, Overload<T>)
 {
 	if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
-		return (T)do_get_bitfield(L, index, EnumInfo<T>::Store);
+		return (T)do_get_bitfield(L, index, *EnumInfo<T>::Store);
 	} else {
-		return (T)do_get_enum(L, index, EnumInfo<T>::Store);
+		return (T)do_get_enum(L, index, *EnumInfo<T>::Store);
 	}
 }
 

@@ -45,6 +45,11 @@ public:
 	void PostStartup();
 	void Shutdown();
 
+	inline bool WasInitialized() const
+	{
+		return postStartupDone_;
+	}
+
 	inline ExtenderConfig& GetConfig()
 	{
 		return config_;
