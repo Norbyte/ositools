@@ -1139,7 +1139,7 @@ int TypedEnumLabelToIndex(lua_State* L, FixedString const& label)
 {
 	auto index = EnumInfo<T>::Find(label);
 	if (index) {
-		push(L, *index);
+		push(L, (typename EnumInfo<T>::UnderlyingType)*index);
 	} else {
 		push(L, nullptr);
 	}
