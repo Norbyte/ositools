@@ -96,7 +96,7 @@ namespace dse
 	template <class T, class TalentArrayFetcher>
 	void AddTalentArray(LegacyPropertyMapBase& propertyMap, STDString const& prefix, TalentArrayFetcher f)
 	{
-		for (auto const& val : EnumInfo<stats::TalentType>::Store.Values) {
+		for (auto const& val : EnumInfo<stats::TalentType>::Store->Values) {
 			auto id = (TalentType)val.Value;
 			auto talentName = prefix + val.Key.GetString();
 			FixedString talentFS(talentName.c_str());
@@ -666,7 +666,7 @@ namespace dse
 			PROP_RO(BoostName);
 			PROP_ENUM_RO(StatsType);
 
-			for (auto const& val : EnumInfo<StatAttributeFlags>::Store.Values) {
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Store->Values) {
 				auto id = val.Value;
 				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
@@ -695,7 +695,7 @@ namespace dse
 				};
 			}
 
-			for (auto const& v : EnumInfo<stats::AbilityType>::Store.Values) {
+			for (auto const& v : EnumInfo<stats::AbilityType>::Store->Values) {
 				AddProperty<int32_t>(propertyMap, v.Key.GetString(), offsetof(TObject, AbilityModifiers) + (unsigned)v.Value * sizeof(int32_t));
 			}
 
@@ -804,7 +804,7 @@ namespace dse
 			PROP(BonusWeapon);
 			PROP(StepsType);
 
-			for (auto const& val : EnumInfo<StatAttributeFlags>::Store.Values) {
+			for (auto const& val : EnumInfo<StatAttributeFlags>::Store->Values) {
 				auto id = val.Value;
 				AddProperty<bool>(propertyMap, val.Key.GetString(), 0);
 
@@ -833,7 +833,7 @@ namespace dse
 				};
 			}
 
-			for (auto const& val : EnumInfo<stats::AbilityType>::Store.Values) {
+			for (auto const& val : EnumInfo<stats::AbilityType>::Store->Values) {
 				AddProperty<int32_t>(propertyMap, val.Key.GetString(), offsetof(TObject, Abilities) + (unsigned)val.Value * sizeof(int32_t));
 			}
 
@@ -969,7 +969,7 @@ namespace dse
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strIsGameMaster].Flags &= ~kPropWrite;
 
-			for (auto const& val : EnumInfo<esv::CharacterFlags>::Store.Values) {
+			for (auto const& val : EnumInfo<esv::CharacterFlags>::Store->Values) {
 				auto id = val.Value;
 				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {
@@ -1039,7 +1039,7 @@ namespace dse
 			propertyMap.Flags[GFS.strDestroyed].Flags &= ~kPropWrite;
 			propertyMap.Flags[GFS.strGlobal].Flags &= ~kPropWrite;
 
-			for (auto const& val : EnumInfo<esv::ItemFlags>::Store.Values) {
+			for (auto const& val : EnumInfo<esv::ItemFlags>::Store->Values) {
 				auto id = val.Value;
 				auto& flag = propertyMap.Flags[val.Key];
 				if (flag.Flags & kPropWrite) {

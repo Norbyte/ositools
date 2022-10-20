@@ -750,7 +750,7 @@ namespace dse
 		info.Flags = 0;
 		AddPropertyInternal(map, name, info);
 
-		for (auto const& val : Enum::Store.Values) {
+		for (auto const& val : Enum::Store->Values) {
 			LegacyPropertyMapBase::FlagInfo flag;
 			flag.Property = fieldName;
 			flag.Flags = kPropRead | (canWrite ? kPropWrite : 0);

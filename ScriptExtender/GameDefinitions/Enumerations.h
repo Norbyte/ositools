@@ -12,7 +12,7 @@ namespace dse
 		T AllowedFlags;
 		FixedString EnumName;
 
-		void Init(unsigned sizeHint)
+		BitmaskInfoStore(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
@@ -68,21 +68,21 @@ namespace dse
 	struct BitmaskInfoBase
 	{
 		using UnderlyingType = uint64_t;
-		static BitmaskInfoStore<UnderlyingType> Store;
+		static BitmaskInfoStore<UnderlyingType>* Store;
 
 		static void Init(unsigned sizeHint)
 		{
-			Store.Init(sizeHint);
+			Store = GameAlloc<BitmaskInfoStore<UnderlyingType>>(sizeHint);
 		}
 
 		static void Add(T val, char const* label)
 		{
-			Store.Add((UnderlyingType)val, label);
+			Store->Add((UnderlyingType)val, label);
 		}
 
 		static std::optional<T> Find(FixedString const& name)
 		{
-			auto val = Store.Find(name);
+			auto val = Store->Find(name);
 			if (!val) {
 				return {};
 			} else {
@@ -92,7 +92,7 @@ namespace dse
 
 		static FixedString Find(T val)
 		{
-			return Store.Find((UnderlyingType)val);
+			return Store->Find((UnderlyingType)val);
 		}
 	};
 
@@ -103,7 +103,7 @@ namespace dse
 		Map<FixedString, T> Values;
 		FixedString EnumName;
 
-		void Init(unsigned sizeHint)
+		EnumInfoStore(unsigned sizeHint)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
@@ -146,21 +146,21 @@ namespace dse
 	struct EnumInfoBase
 	{
 		using UnderlyingType = uint64_t;
-		static EnumInfoStore<UnderlyingType> Store;
+		static EnumInfoStore<UnderlyingType>* Store;
 
 		static void Init(unsigned sizeHint)
 		{
-			Store.Init(sizeHint);
+			Store = GameAlloc<EnumInfoStore<UnderlyingType>>(sizeHint);
 		}
 
 		static void Add(T val, char const* label)
 		{
-			Store.Add((UnderlyingType)val, label);
+			Store->Add((UnderlyingType)val, label);
 		}
 
 		static std::optional<T> Find(FixedString const& name)
 		{
-			auto val = Store.Find(name);
+			auto val = Store->Find(name);
 			if (val) {
 				return (T)*val;
 			} else {
@@ -170,7 +170,7 @@ namespace dse
 
 		static FixedString Find(T val)
 		{
-			return Store.Find((UnderlyingType)val);
+			return Store->Find((UnderlyingType)val);
 		}
 	};
 

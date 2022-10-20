@@ -8,6 +8,9 @@
 #include <limits>  // numeric_limits
 #include <utility> // is_integral_v, is_floating_point_v, forward
 
+#pragma warning( push )
+#pragma warning( disable : 4804 )
+
 namespace std
 {
   template< typename T , typename U >
@@ -149,3 +152,5 @@ auto encode_flt16( F && value )
 template< typename F = float, typename X >
 auto decode_flt16( X && value )
 { return flt16_encoder::decode< F >( std::forward< X >( value ) ); }
+
+#pragma warning( pop )

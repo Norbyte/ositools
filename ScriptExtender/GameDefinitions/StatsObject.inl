@@ -131,7 +131,7 @@ std::optional<ObjectSet<FixedString>> Object::GetFlags(ModifierInfo const& modif
 			}
 		}
 	} else {
-		for (auto const& kv : EnumInfo<StatAttributeFlags>::Store.Values) {
+		for (auto const& kv : EnumInfo<StatAttributeFlags>::Store->Values) {
 			if ((*flags & kv.Value) == kv.Value) {
 				flagSet.push_back(kv.Key);
 			}

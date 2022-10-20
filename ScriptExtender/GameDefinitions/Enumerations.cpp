@@ -8,13 +8,13 @@ namespace dse
 {
 
 #define BEGIN_BITMASK_NS(NS, T, type) \
-	BitmaskInfoStore<uint64_t> BitmaskInfoBase<NS::T>::Store;
+	BitmaskInfoStore<uint64_t>* BitmaskInfoBase<NS::T>::Store;
 #define BEGIN_ENUM_NS(NS, T, type) \
-	EnumInfoStore<uint64_t> EnumInfoBase<NS::T>::Store;
+	EnumInfoStore<uint64_t>* EnumInfoBase<NS::T>::Store;
 #define BEGIN_BITMASK(T, type) \
-	BitmaskInfoStore<uint64_t> BitmaskInfoBase<T>::Store;
+	BitmaskInfoStore<uint64_t>* BitmaskInfoBase<T>::Store;
 #define BEGIN_ENUM(T, type) \
-	EnumInfoStore<uint64_t> EnumInfoBase<T>::Store;
+	EnumInfoStore<uint64_t>* EnumInfoBase<T>::Store;
 #define E(label)
 #define EV(label, value)
 #define END_ENUM_NS()

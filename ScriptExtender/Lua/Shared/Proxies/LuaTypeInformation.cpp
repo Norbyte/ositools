@@ -17,7 +17,7 @@ void AddBitmaskTypeInfo(TypeInformation& ty, Map<FixedString, UnderlyingType> co
 template <class T>
 void AddBitmaskTypeInfo(TypeInformation& ty)
 {
-	AddBitmaskTypeInfo(ty, EnumInfo<T>::Store.Values);
+	AddBitmaskTypeInfo(ty, EnumInfo<T>::Store->Values);
 }
 
 template <class Fun>
