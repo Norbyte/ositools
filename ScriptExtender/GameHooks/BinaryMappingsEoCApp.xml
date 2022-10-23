@@ -352,7 +352,9 @@
       C7 45 B0 03 00 00 00  // mov     [rbp+0D0h+var_120], 3
       // Replacement: c6 45 f8 01             mov    BYTE PTR [rbp-0x8],0x1
       @hook 0F 94 45 F8  // setz    [rbp+0D0h+var_D8]
-      <Target Type="Absolute" Offset="@hook" Symbol="UICharacterSheetHook" /> <!-- UICharacterSheetHook -->
+      <Patch Type="Absolute" Offset="@hook">
+        c6 45 f8 01
+      </Patch>
     </Mapping>
 
     <Mapping Name="ActivateEntitySystemHook">
@@ -368,8 +370,8 @@
     </Mapping>
 
     <Mapping Name="CustomStatUIRollHook">
-      // Replacement: C3 (retn)>
-      4C 8B DC  // mov     r11, rsp
+      // Replacement: C3 (retn)
+      @repl 4C 8B DC  // mov     r11, rsp
       48 81 EC 88 00 00 00  // sub     rsp, 88h
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:__security_cookie
       48 33 C4  // xor     rax, rsp
@@ -379,8 +381,10 @@
       @ref 48 8B 0D ?? ?? ?? ??  // mov     rcx, cs:ls__gPlayerManager
       49 89 43 98  // mov     [r11-68h], rax
       48 8D 05  // lea     rax, ecl__CustomStatsProtocolSomething__vftable
-      <Target Type="Absolute" Offset="0" Symbol="CustomStatUIRollHook" /> <!-- CustomStatUIRollHook -->
       <Target Type="Indirect" Offset="@ref" Symbol="ls__PlayerManager__Instance" />
+      <Patch Type="Absolute" Offset="@repl">
+        C3
+      </Patch>
     </Mapping>
 
     <Mapping Name="esv::CustomStatsProtocol::ProcessMsg">
@@ -699,8 +703,12 @@
       49 8D 6B A1  // lea     rbp, [r11-5Fh]
       48 81 EC B8 00 00 00  // sub     rsp, 0B8h
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:gGlobalSwitches
-      4C 8B E9  // mov     r13, rcx
-      <Target Type="Absolute" Offset="0" Symbol="CDivinityStats_Item__FoldDynamicAttributes" /> <!-- Item::FoldDynamicAttributes -->
+      4c 8b e9 // mov     r13, rcx
+      80 b8 f3 0b 00 00 01 // cmp     byte ptr [rax+0BF3h], 1
+      @ref 0f 85 a5 07 00 00 // jnz     loc_141CC53A1
+      <Patch Type="Absolute" Offset="@ref">
+        90 e9 a5 07 00 00 // call     loc_141CC53A1
+      </Patch>
     </Mapping>
 
     <Mapping Name="ls::ModuleSettings::HasCustomMods" AllowFail="true" >
@@ -709,9 +717,11 @@
       8B 69 1C  // mov     ebp, [rcx+1Ch]
       33 F6  // xor     esi, esi
       48 85 ED  // test    rbp, rbp
-      0F 84 ?? 00 00 00  // jz      xxx
+      @ref 0F 84 ?? 00 00 00  // jz      xxx
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:fs_xxx
-      <Target Type="Absolute" Offset="0" Symbol="ls__ModuleSettings__HasCustomMods" /> <!-- ls::ModuleSettings::HasCustomMods -->
+      <Patch Type="Absolute" Offset="@ref">
+        90 E9
+      </Patch>
     </Mapping>
 
     <Mapping Name="ls::ModuleSettings::HasCustomModsGB5" AllowFail="true" >
@@ -720,7 +730,10 @@
       48 8B 88 A8 00 00 00  // mov     rcx, [rax+0A8h]
       44 8B B9 A4 03 00 00  // mov     r15d, [rcx+3A4h]
       4D 85 FF  // test    r15, r15
-      <Target Type="Absolute" Offset="-0x18" Symbol="ls__ModuleSettings__HasCustomModsGB5" /> <!-- ls::ModuleSettings::HasCustomModsGB5 {}, {}, -->
+      @ref 0f 84 84 00 00 00 // jz      loc_141AA6D1C
+      <Patch Type="Absolute" Offset="@ref">
+        90 E9
+      </Patch>
     </Mapping>
 
     <Mapping Name="ls::ModuleSettings::Validate">
@@ -1262,12 +1275,17 @@
     </Mapping>
 
     <Mapping Name="esv::AlignmentContainer::Load Hook">
-      48 8B 9A F0 02 00 00 // mov     rbx, [rdx+2F0h]
+      @ref1 48 8B 9A F0 02 00 00 // mov     rbx, [rdx+2F0h]
       @str 4C 8D 25 ?? ?? ?? ??  // lea     r12, aStoryAlignment ; "Story/Alignments/Alignment.lsx"
-      8B 82 FC 02 00 00 // mov     eax, [rdx+2FCh]
+      @ref2 8B 82 FC 02 00 00 // mov     eax, [rdx+2FCh]
       48 69 F8 58 03 00 00 // imul    rdi, rax, 358h
       <Condition Type="WString" Offset="@str" Value="Story/Alignments/Alignment.lsx" />
-      <Target Type="Absolute" Offset="0" Symbol="esv__AlignmentContainer__Load__Hook" />
+      <Patch Type="Absolute" Offset="@ref1">
+        48 8B 9A B0 02 00 00 // mov     rbx, [rdx+2B0h]
+      </Patch>
+      <Patch Type="Absolute" Offset="@ref2">
+        8B 82 BC 02 00 00 // mov     eax, [rdx+2BCh]
+      </Patch>
     </Mapping>
 
     <Mapping Name="esv::EffectManager::DestroyEffect">
@@ -1526,7 +1544,9 @@
       @ref1 c7 45 1c 01 00 00 00 // mov     [rbp+1A0h+loadCmd.NumSamples], 1
       e8 ?? ?? ?? ?? // call    rf__DataLoaderCreateTextureFromMemoryCommand__Do
       48 8b 5d a0 // mov     rbx, [rbp+1A0h+pHandle]
-      <Target Type="Absolute" Offset="@ref1" Symbol="ecl__ShroudManager__InitObjectsHook" />
+      <Patch Type="Absolute" Offset="@ref1">
+        c6 44 24 60 06 90 90
+      </Patch>
     </Mapping>
   </Mappings>
 </BinaryMappings>

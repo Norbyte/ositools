@@ -365,9 +365,11 @@
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:ecl__gEocClient
       48 8D 4D B0  // lea     rcx, [rbp+0D0h+var_120]
       // Replacement: B2 01 90 90 90 90 90 90 90 90
-      44 38 B8 B0 00 00 00  // cmp     [rax+0B0h], r15b
+      @hook 44 38 B8 B0 00 00 00  // cmp     [rax+0B0h], r15b
       0F 94 C2  // setz    dl
-      <Target Type="Absolute" Offset="25" Symbol="UICharacterSheetHook" />
+      <Patch Type="Absolute" Offset="@hook">
+        B2 01 90 90 90 90 90 90 90 90
+      </Patch>
     </Mapping>
 
     <Mapping Name="ActivateEntitySystemHook">
@@ -387,7 +389,7 @@
 
     <Mapping Name="CustomStatUIRollHook">
       // Replacement: C3 (retn)>
-      4C 8B DC  // mov     r11, rsp
+      @repl 4C 8B DC  // mov     r11, rsp
       48 81 EC 88 00 00 00  // sub     rsp, 88h
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:__security_cookie
       48 33 C4  // xor     rax, rsp
@@ -397,8 +399,10 @@
       48 8B 08  // mov     rcx, [rax]
       48 8B 05 ?? ?? ?? ??  // mov     rax, cs:qword_182543378
       49 89 43 98  // mov     [r11-68h], rax
-      <Target Type="Absolute" Offset="0" Symbol="CustomStatUIRollHook" />
       <Target Type="Indirect" Offset="@ref" Symbol="ls__PlayerManager__Instance" />
+      <Patch Type="Absolute" Offset="@repl">
+        C3
+      </Patch>
     </Mapping>
 
     <Mapping Name="esv::CustomStatsProtocol::ProcessMsg">

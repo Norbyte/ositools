@@ -150,10 +150,8 @@ namespace dse
 		SYM_OFF(eoc__SurfaceTransformActionsFromType);
 		SYM_OFF(eoc__SurfaceTemplates);
 
-		SYM_OFF(UICharacterSheetHook);
 		SYM_OFF(ActivateClientSystemsHook);
 		SYM_OFF(ActivateServerSystemsHook);
-		SYM_OFF(CustomStatUIRollHook);
 		SYM_OFF(NetworkFixedStrings);
 		SYM_OFF(InitNetworkFixedStrings);
 
@@ -477,17 +475,72 @@ namespace dse
 		EnableCustomStats();
 		DisableItemFolding();
 		EnableAchievements();
-		EnableShroudUpdates();
+		ApplyCodePatch("ecl::ShroudManager::InitObjects");
+	}
+
+
+	bool LibraryManager::ApplyCodePatch(std::string const& mapping)
+	{
+		auto it = mappings_.Mappings.find(mapping);
+		if (it == mappings_.Mappings.end()) {
+			ERR("Cannot apply patch - no such mapping: '%s'", mapping.c_str());
+			return false;
+		}
+
+		if (it->second.Patches.empty()) {
+			ERR("Cannot apply patch - mapping '%s' contains no patch entries", mapping.c_str());
+			return false;
+		}
+
+		for (auto& patch : it->second.Patches) {
+			ApplyPatch(patch);
+		}
+
+		return true;
+	}
+
+
+	void LibraryManager::UndoCodePatch(std::string const& mapping)
+	{
+		auto it = mappings_.Mappings.find(mapping);
+		if (it == mappings_.Mappings.end()) {
+			ERR("Cannot undo patch - no such mapping: '%s'", mapping.c_str());
+			return;
+		}
+
+		for (auto& patch : it->second.Patches) {
+			UndoPatch(patch);
+		}
+	}
+
+
+	void LibraryManager::ApplyPatch(SymbolMappings::Patch& patch)
+	{
+		if (patch.WasApplied || patch.ResolvedRef == nullptr) return;
+
+		WriteAnchor code(patch.ResolvedRef, patch.Bytes.size());
+		patch.OriginalBytes.resize(patch.Bytes.size());
+		memcpy(patch.OriginalBytes.data(), patch.ResolvedRef, patch.OriginalBytes.size());
+		memcpy(const_cast<uint8_t*>(patch.ResolvedRef), patch.Bytes.data(), patch.Bytes.size());
+		patch.WasApplied = true;
+	}
+
+
+	void LibraryManager::UndoPatch(SymbolMappings::Patch& patch)
+	{
+		if (!patch.WasApplied) return;
+
+		WriteAnchor code(patch.ResolvedRef, patch.OriginalBytes.size());
+		memcpy(const_cast<uint8_t*>(patch.ResolvedRef), patch.OriginalBytes.data(), patch.OriginalBytes.size());
+		patch.WasApplied = false;
 	}
 
 
 	void LibraryManager::EnableCustomStats()
 	{
 		auto const& sym = GetStaticSymbols();
-		if (sym.UICharacterSheetHook == nullptr
-			|| sym.ActivateClientSystemsHook == nullptr
-			|| sym.ActivateServerSystemsHook == nullptr
-			|| sym.CustomStatUIRollHook == nullptr) {
+		if (sym.ActivateClientSystemsHook == nullptr
+			|| sym.ActivateServerSystemsHook == nullptr) {
 			ERR("LibraryManager::EnableCustomStats(): Hooks not available");
 			return;
 		}
@@ -505,104 +558,37 @@ namespace dse
 				memcpy(code.ptr(), replacement, sizeof(replacement));
 			}
 
-			{
-				uint8_t const replacement[] = { 0xC3 };
-				WriteAnchor code(sym.CustomStatUIRollHook, sizeof(replacement));
-				memcpy(code.ptr(), replacement, sizeof(replacement));
-			}
+			ApplyCodePatch("CustomStatUIRollHook");
 
 			EnabledCustomStats = true;
 		}
 
 		if (gExtender->HasFeatureFlag("CustomStats")
-			&& gExtender->HasFeatureFlag("CustomStatsPane")
-			&& !EnabledCustomStatsPane) {
-			uint8_t const replacement[] = {
-#if defined(OSI_EOCAPP)
-				0xc6, 0x45, 0xf8, 0x01
-#else
-				0xB2, 0x01, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
-#endif
-			};
-
-			WriteAnchor code(sym.UICharacterSheetHook, sizeof(replacement));
-			memcpy(code.ptr(), replacement, sizeof(replacement));
-			EnabledCustomStatsPane = true;
+			&& gExtender->HasFeatureFlag("CustomStatsPane")) {
+			ApplyCodePatch("UICharacterSheetHook");
 		}
 
-		if (!enabledCustomAlignments_ && sym.esv__AlignmentContainer__Load__Hook) {
-			WriteAnchor code((uint8_t*)sym.esv__AlignmentContainer__Load__Hook, 0x100);
-			*(uint32_t*)(code.ptr() + 3) = 0x2B0;
-			*(uint32_t*)(code.ptr() + 16) = 0x2BC;
-			enabledCustomAlignments_ = true;
-		}
+		ApplyCodePatch("esv::AlignmentContainer::Load Hook");
 	}
 
 	void LibraryManager::DisableItemFolding()
 	{
-		if (disabledItemFolding_) return;
-
-		if (gExtender->HasFeatureFlag("DisableFolding")) {
 #if defined(OSI_EOCAPP)
-			if (GetStaticSymbols().CDivinityStats_Item__FoldDynamicAttributes != nullptr) {
-				auto p = reinterpret_cast<uint8_t *>(GetStaticSymbols().CDivinityStats_Item__FoldDynamicAttributes);
-				WriteAnchor code(p, 0x40);
-				p[0x26] = 0x90;
-				p[0x27] = 0xE9;
-				DEBUG("Dynamic item stat folding disabled.");
-				disabledItemFolding_ = true;
-			} else {
-				ERR("Could not disable item stat folding; symbol Item::FoldDynamicAttributes not mapped!");
-			}
-#else
-			DEBUG("Folding is already disabled in the editor; not patching Item::FoldDynamicAttributes");
-#endif
+		if (gExtender->HasFeatureFlag("DisableFolding")) {
+			ApplyCodePatch("Item::FoldDynamicAttributes");
+			DEBUG("Dynamic item stat folding disabled.");
 		}
+#endif
 	}
 
 
 	void LibraryManager::EnableAchievements()
 	{
-		if (enabledAchievements_) return;
-
 #if defined(OSI_EOCAPP)
 		if (gExtender->GetConfig().EnableAchievements) {
-			if (GetStaticSymbols().ls__ModuleSettings__HasCustomMods != nullptr) {
-				{
-					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ls__ModuleSettings__HasCustomMods);
-					WriteAnchor code(p, 0x40);
-					p[0x0E] = 0x90;
-					p[0x0F] = 0xE9;
-				}
-
-				if (GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5 != nullptr) {
-					auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ls__ModuleSettings__HasCustomModsGB5);
-					WriteAnchor code(p, 0x40);
-					p[0x32] = 0x90;
-					p[0x33] = 0xE9;
-				}
-
-				DEBUG("Modded achievements enabled.");
-				enabledAchievements_ = true;
-			} else {
-				ERR("Could not enable achievements; symbol ls::ModuleSettings::HasCustomMods not mapped!");
-			}
-		}
-#endif
-	}
-
-
-	void LibraryManager::EnableShroudUpdates()
-	{
-		if (enabledShroudUpdates_) return;
-
-#if defined(OSI_EOCAPP)
-		if (GetStaticSymbols().ecl__ShroudManager__InitObjectsHook != nullptr) {
-			auto p = reinterpret_cast<uint8_t*>(GetStaticSymbols().ecl__ShroudManager__InitObjectsHook);
-			WriteAnchor code(p, 0x40);
-			uint8_t patch[] = {0xc6, 0x44, 0x24, 0x60, 0x06, 0x90, 0x90};
-			memcpy(p, patch, sizeof(patch));
-			enabledShroudUpdates_ = true;
+			ApplyCodePatch("ls::ModuleSettings::HasCustomMods");
+			ApplyCodePatch("ls::ModuleSettings::HasCustomModsGB5");
+			DEBUG("Modded achievements enabled.");
 		}
 #endif
 	}

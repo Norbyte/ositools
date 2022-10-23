@@ -32,6 +32,9 @@ public:
 	void ApplyCodePatches();
 	bool GetGameVersion(GameVersionInfo & version);
 
+	bool ApplyCodePatch(std::string const& mapping);
+	void UndoCodePatch(std::string const& mapping);
+
 	void ShowStartupError(STDWString const & msg, bool wait, bool exitGame);
 	void ShowStartupError(STDWString const & msg, bool exitGame);
 	void ShowStartupMessage(STDWString const & msg, bool exitGame);
@@ -70,10 +73,12 @@ private:
 	void EnableCustomStats();
 	void DisableItemFolding();
 	void EnableAchievements();
-	void EnableShroudUpdates();
 
 	bool CanShowError();
 	bool CanShowMessages();
+
+	void ApplyPatch(SymbolMappings::Patch& patch);
+	void UndoPatch(SymbolMappings::Patch& patch);
 
 	SymbolMappings mappings_;
 	SymbolMapper symbolMapper_;
@@ -85,11 +90,6 @@ private:
 	bool CriticalInitFailed{ false };
 	bool PostLoaded{ false };
 	bool EnabledCustomStats{ false };
-	bool EnabledCustomStatsPane{ false };
-	bool enabledCustomAlignments_{ false };
-	bool disabledItemFolding_{ false };
-	bool enabledAchievements_{ false };
-	bool enabledShroudUpdates_{ false };
 };
 
 END_SE()

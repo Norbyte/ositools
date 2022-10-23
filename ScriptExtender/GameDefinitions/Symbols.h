@@ -194,10 +194,8 @@ namespace dse
 		eoc::SurfaceTransformInteractions* eoc__SurfaceTransformActionsFromType{ nullptr };
 		SurfaceTemplate** eoc__SurfaceTemplates{ nullptr };
 
-		uint8_t const * UICharacterSheetHook{ nullptr };
 		uint8_t const * ActivateClientSystemsHook{ nullptr };
 		uint8_t const * ActivateServerSystemsHook{ nullptr };
-		uint8_t const * CustomStatUIRollHook{ nullptr };
 		eoc::NetworkFixedStrings ** NetworkFixedStrings{ nullptr };
 		void * InitNetworkFixedStrings{ nullptr };
 
