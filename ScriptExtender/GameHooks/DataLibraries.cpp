@@ -115,6 +115,11 @@ namespace dse
 		SYM_OFF(esv__Status__GetEnterChance);
 		SYM_OFF(esv__Status__ShouldDelete);
 
+		SYM_OFF(esv__StatusConsume__Enter);
+		SYM_OFF(esv__StatusConsumeBase__Enter);
+		SYM_OFF(esv__StatusConsume__Exit);
+		SYM_OFF(esv__StatusConsumeBase__Exit);
+
 		SYM_OFF(esv__ParseItem);
 		SYM_OFF(esv__CreateItemFromParsed);
 		SYM_OFF(esv__Inventory__Equip);

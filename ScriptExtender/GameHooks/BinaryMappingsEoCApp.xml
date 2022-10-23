@@ -1548,5 +1548,68 @@
         c6 44 24 60 06 90 90
       </Patch>
     </Mapping>
+
+    <Mapping Name="esv::StatusConsume::Enter" Scope="Custom">
+      @ref1 41 57 // push    r15
+      48 83 ec 30 // sub     rsp, 30h
+      @str1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:fs_MADNESS.Str
+      4c 8b f9 // mov     r15, rcx
+      <Condition Type="FixedString" Offset="@str1" Value="MADNESS" />
+      <Target Type="Absolute" Offset="@ref1" Symbol="esv__StatusConsume__Enter" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusConsumeBase::Enter" Scope="Custom">
+      49 8b cf // mov     rcx, r15
+      48 83 c4 30 // add     rsp, 30h
+      41 5f // pop     r15
+      @ref1 e9 ?? ?? ?? ?? // jmp     esv__StatusConsumeBase__Enter
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusConsumeBase__Enter" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusConsume::Enter Initial" Deferred="true">
+      33 c0 // xor     eax, eax
+      48 8b 98 80 02 00 00 // mov     rbx, [rax+280h]
+      8b 88 8c 02 00 00 // mov     ecx, [rax+28Ch]
+      48 8d 3c cb // lea     rdi, [rbx+rcx*8]
+      48 3b fb // cmp     rdi, rbx
+      0f 84 c2 00 00 00 // jz      loc_141A7F0F0
+      48 89 6c 24 48 // mov     [rsp+38h+arg_8], rbp
+      48 89 74 24 50 // mov     [rsp+38h+arg_10], rsi
+      4c 89 74 24 20 // mov     [rsp+38h+var_18], r14
+      0f 1f 00 // nop     dword ptr [rax]
+      <Target Type="Absolute" Offset="-0x60" NextSymbol="esv::StatusConsume::Enter" NextSymbolSeekSize="0x40" />
+      <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusConsumeBase::Enter" NextSymbolSeekSize="0x100" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusConsume::Exit" Scope="Custom">
+      @ref1 41 56 // push    r14
+      48 83 ec 30 // sub     rsp, 30h
+      @str1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:fs_MADNESS.Str
+      4c 8b f1 // mov     r14, rcx
+      <Condition Type="FixedString" Offset="@str1" Value="MADNESS" />
+      <Target Type="Absolute" Offset="@ref1" Symbol="esv__StatusConsume__Exit" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusConsumeBase::Exit" Scope="Custom">
+      49 8b ce // mov     rcx, r14
+      48 83 c4 30 // add     rsp, 30h
+      41 5e // pop     r14
+      @ref1 e9 ?? ?? ?? ?? // jmp     esv__StatusConsumeBase__Exit
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusConsumeBase__Exit" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusConsume::Exit Initial" Deferred="true">
+      33 c0 // xor     eax, eax
+      48 8b 98 80 02 00 00 // mov     rbx, [rax+280h]
+      8b 88 8c 02 00 00 // mov     ecx, [rax+28Ch]
+      48 8d 3c cb // lea     rdi, [rbx+rcx*8]
+      48 3b fb // cmp     rdi, rbx
+      0f 84 b5 00 00 00 // jz      loc_141A7F233
+      48 89 6c 24 50 // mov     [rsp+38h+arg_10], rbp
+      48 89 74 24 28 // mov     [rsp+38h+var_10], rsi
+      0f 1f 84 00 00 00 00 00 // nop     dword ptr [rax+rax+00000000h]
+      <Target Type="Absolute" Offset="-0x60" NextSymbol="esv::StatusConsume::Exit" NextSymbolSeekSize="0x40" />
+      <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusConsumeBase::Exit" NextSymbolSeekSize="0x100" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>

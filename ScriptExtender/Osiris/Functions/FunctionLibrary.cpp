@@ -217,6 +217,14 @@ namespace dse::esv
 		lib.esv__StatusHeal__Enter.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnStatusHealEnter, this, _1)
 		);
+#if defined(OSI_EOCAPP)
+		lib.esv__StatusConsume__Enter.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnStatusConsumeEnter, this, _1, _2)
+		);
+		lib.esv__StatusConsume__Exit.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnStatusConsumeExit, this, _1, _2)
+		);
+#endif
 		lib.esv__ActionMachine__SetState.AddPreHook(
 			std::bind(&CustomFunctionLibrary::OnBeforeActionMachineSetState, this, _1, _2, _3, _4, _5, _6)
 		);

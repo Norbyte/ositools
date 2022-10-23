@@ -43,6 +43,8 @@ namespace dse::esv
 		int32_t OnGetHitChance(stats::CDivinityStats_Character__GetHitChance * wrappedGetHitChance,
 			stats::Character * attacker, stats::Character * target);
 		void OnStatusHealEnter(esv::Status * status);
+		bool OnStatusConsumeEnter(esv::Status::EnterProc* wrappedEnter, esv::Status* status);
+		void OnStatusConsumeExit(esv::Status::ExitProc* wrappedExit, esv::Status* status);
 
 		static Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper);
 		void OnProjectileExplode(Projectile* projectile);

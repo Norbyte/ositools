@@ -307,6 +307,46 @@ namespace dse::esv
 		gExtender->GetStatusHelpers().ThrowStatusHealEnter(statusHeal);
 	}
 
+	bool WillMadnessCrash(StatusConsume* status)
+	{
+		if (status->StatusId != GFS.strMADNESS) return false;
+
+		auto ch = GetEntityWorld()->GetComponent<Character>(status->OwnerHandle, false);
+		// Game may crash if an item with MADNESS has summons
+		if (ch == nullptr) return true;
+
+		for (auto const& summonHandle : ch->SummonHandles) {
+			auto summon = GetEntityWorld()->GetComponent<Character>(summonHandle, false);
+			// Game may crash if any of the summons is already gone,
+			// or if the summon is an item
+			if (summon == nullptr) return true;
+		}
+
+		return false;
+	}
+
+	bool CustomFunctionLibrary::OnStatusConsumeEnter(esv::Status::EnterProc* wrappedEnter, esv::Status* status)
+	{
+		if (WillMadnessCrash(static_cast<StatusConsume*>(status))) {
+			// Skip all StatusConsume-specific logic if it would crash the game;
+			// the "real" consume logic in esv::StatusConsumeBase does not have this bug
+			return GetStaticSymbols().esv__StatusConsumeBase__Enter(status);
+		} else {
+			return wrappedEnter(status);
+		}
+	}
+
+	void CustomFunctionLibrary::OnStatusConsumeExit(esv::Status::ExitProc* wrappedExit, esv::Status* status)
+	{
+		if (WillMadnessCrash(static_cast<StatusConsume*>(status))) {
+			// Skip all StatusConsume-specific logic if it would crash the game;
+			// the "real" consume logic in esv::StatusConsumeBase does not have this bug
+			return GetStaticSymbols().esv__StatusConsumeBase__Exit(status);
+		} else {
+			return wrappedExit(status);
+		}
+	}
+
 	void CustomFunctionLibrary::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
 	{
 		if (actionLayer >= 3 || self->IsEntering[actionLayer]) return;

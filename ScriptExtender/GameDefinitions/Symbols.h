@@ -157,6 +157,12 @@ namespace dse
 		esv::Status::GetEnterChanceProc* esv__Status__GetEnterChance{ nullptr };
 		esv::Status::ShouldDeleteProc* esv__Status__ShouldDelete{ nullptr };
 
+		esv::Status::EnterProc* esv__StatusConsume__Enter{ nullptr };
+		esv::Status::EnterProc* esv__StatusConsumeBase__Enter{ nullptr };
+		esv::Status::ExitProc* esv__StatusConsume__Exit{ nullptr };
+		esv::Status::ExitProc* esv__StatusConsumeBase__Exit{ nullptr };
+		
+
 		esv::ParseItem esv__ParseItem{ nullptr };
 		esv::CreateItemFromParsed esv__CreateItemFromParsed{ nullptr };
 		esv::Inventory::Equip esv__Inventory__Equip{ nullptr };

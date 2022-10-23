@@ -63,6 +63,7 @@ struct Status : public ProtectedGameObject<Status>
 
 	using GetEnterChanceProc = int32_t(Status* self, bool isEnterCheck);
 	using EnterProc = bool (Status* self);
+	using ExitProc = void (Status* self);
 	using ShouldDeleteProc = bool (Status* self);
 
 	virtual ~Status() = 0;
