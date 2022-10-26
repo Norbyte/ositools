@@ -364,7 +364,7 @@ namespace dse::esv
 			auto & dmgList = *helper->DamageList;
 			for (uint32_t i = 0; i < dmgList.size(); i++) {
 				if (dmgList[i].DamageType == *damageType) {
-					dmgList.remove(i);
+					dmgList.remove_at(i);
 					break;
 				}
 			}

@@ -64,7 +64,7 @@ struct TDamagePair
 	DamageType DamageType;
 };
 
-struct DamagePairList : public Array<TDamagePair>
+struct DamagePairList : public ObjectSet<TDamagePair>
 {
 	void AddDamage(DamageType damageType, int32_t amount);
 	void ClearDamage(DamageType damageType);

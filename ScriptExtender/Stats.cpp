@@ -134,7 +134,7 @@ void DamagePairList::ClearDamage(stats::DamageType damageType)
 {
 	for (uint32_t i = 0; i < size(); i++) {
 		if ((*this)[i].DamageType == damageType) {
-			remove(i);
+			remove_at(i);
 			i--;
 		}
 	}
@@ -149,7 +149,7 @@ void DamagePairList::AddDamage(DamageType damageType, int32_t amount)
 		if ((*this)[i].DamageType == damageType) {
 			auto newAmount = (*this)[i].Amount + amount;
 			if (newAmount == 0) {
-				remove(i);
+				remove_at(i);
 			} else {
 				(*this)[i].Amount = newAmount;
 			}
@@ -224,7 +224,7 @@ void DamagePairList::AggregateSameTypeDamages()
 			auto & dest = (*this)[j - 1];
 			if (src.DamageType == dest.DamageType) {
 				dest.Amount += src.Amount;
-				remove(i - 1);
+				remove_at(i - 1);
 				break;
 			}
 		}
