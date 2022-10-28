@@ -2114,7 +2114,7 @@ BEGIN_BITMASK_NS(ecl, CharacterFlags3, uint8_t)
 	EV(LootCorpseRequested, 0x08)
 	EV(HasCustomVisualSet, 0x10)
 	EV(RefreshVisualsRequested, 0x20)
-	EV(InArena, 0x40)
+	EV(IsArenaParticipant, 0x40)
 	EV(Spectating, 0x80)
 END_ENUM_NS()
 
