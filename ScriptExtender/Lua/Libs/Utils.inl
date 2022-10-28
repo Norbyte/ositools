@@ -47,6 +47,18 @@ UserReturn Include(lua_State * L)
 	}
 }
 
+UserReturn LoadString(lua_State * L, char const* s)
+{
+	auto status = luaL_loadbufferx(L, s, strlen(s), NULL, "t");
+	if (status == LUA_OK) {
+		return 1;
+	} else {  /* error (message is on top of the stack) */
+		lua_pushnil(L);
+		lua_insert(L, -2);  /* put before error message */
+		return 2;  /* return nil plus error message */
+	}
+}
+
 void ArgsToStream(lua_State * L, std::stringstream & ss)
 {
 	int nargs = lua_gettop(L);  /* number of arguments */
@@ -284,6 +296,7 @@ void RegisterUtilsLib()
 	MODULE_FUNCTION(GameVersion)
 	MODULE_FUNCTION(MonotonicTime)
 	MODULE_FUNCTION(Include)
+	MODULE_FUNCTION(LoadString)
 	MODULE_FUNCTION(Print)
 	MODULE_FUNCTION(PrintError)
 	MODULE_FUNCTION(PrintWarning)
