@@ -383,6 +383,25 @@ struct SkillManager : public ProtectedGameObject<SkillManager>
 };
 
 
+struct CharacterBody : public ProtectedGameObject<CharacterBody>
+{
+	ComponentHandle CharacterHandle;
+	Character* Character;
+	FixedString NextAnimation;
+	FixedString CurrentAnimation;
+	std::array<FixedString, 2> AnimationOverride;
+	float AnimRandom;
+	float ClimbLoopDuration;
+	FixedString QueuedAnimation;
+	bool AnimationRunning;
+	bool IsImmediate;
+	bool WaitForLoad;
+	float AnimationDuration;
+	float SpeedScaledAnimationDuration;
+	void* ActionState;
+};
+
+
 struct Character : public IEoCClientReplicatedObject
 {
 	static constexpr auto ComponentPoolIndex = EntityComponentIndex::Character;
@@ -392,16 +411,15 @@ struct Character : public IEoCClientReplicatedObject
 	Status* GetStatus(NetId handle) const;
 
 	glm::vec3 WorldPos;
-	uint32_t _Pad2;
 	ecl::CharacterFlags Flags;
-	uint32_t U2;
+	float AIBoundSize;
 	FixedString CurrentLevel;
 	glm::mat3 WorldRot;
 	float Scale;
 	glm::vec3 Velocity;
 	glm::vec3 MovementStartPosition;
 	glm::vec3 LadderPosition;
-	glm::vec3 field_4C;
+	glm::vec3 MovementTargetPosition;
 	PhysicsObject* Physics;
 	void* Light;
 	eoc::Ai* AI;
@@ -428,7 +446,7 @@ struct Character : public IEoCClientReplicatedObject
 	SkillManager* SkillManager;
 	int AnimType;
 	__int64 field_108;
-	void* CharacterBody;
+	CharacterBody* CharacterBody;
 	ComponentHandle OwnerCharacterHandle;
 	ComponentHandle CorpseOwnerHandle;
 	ComponentHandle CorpseCharacterHandle;
@@ -448,44 +466,43 @@ struct Character : public IEoCClientReplicatedObject
 	float field_248;
 	float LifeTime;
 	float field_250;
-	SoundObjectId SoundObjectHandles[3];
+	std::array<SoundObjectId, 3> SoundObjectHandles;
 	ComponentHandle OH9;
 	ComponentHandle FollowCharacterHandle;
-	uint8_t PickpocketNLootingFlags;
-	uint8_t Flags2;
-	uint32_t Flags3;
-	char field_288;
-	char field_289;
+	CharacterFlags3 Flags3;
+	CharacterFlags2 Flags2;
+	uint32_t field_284;
+	uint8_t Color;
+	uint8_t Team;
 	TranslatedString* DisplayNameOverride;
 	TranslatedString StoryDisplayName;
 	TranslatedString OriginalDisplayName;
 	ComponentHandle TalkingIconEffect;
 	float AnimationSpeed;
 	int SoundBoneIndex;
-	int field_3F8;
-	int field_3FC;
-	ObjectSet<FixedString> FixedStrings2;
+	int PhysicsBoneIndex;
+	ObjectSet<FixedString> VoiceSet;
 	FixedString AnimationSetOverride;
 	float WalkSpeedOverride;
 	float RunSpeedOverride;
 	float SneakCheckTimer;
-	float SomeCCValue;
+	float FadeTimer;
 	ComponentHandle PartyHandle;
 	int PhysicsPickingState;
-	int field_444;
+	int CrimeState;
 	void* SoftBodyCollisionTemplate;
 	bool HasCloth;
 	void* RagdollTemplate;
-	int field_460;
-	__int64 field_468;
-	__int64 field_470;
-	__int64 field_478;
+	uint32_t GMState;
+	int64_t DamageCounter;
+	int64_t HealCounter;
+	int64_t KillCounter;
 	ComponentHandle MovingProjectileHandle;
 	FixedString Archetype;
-	FixedString FS3;
-	int field_498;
-	char field_49C;
-	ObjectSet<ComponentHandle> ObjectHandles;
+	FixedString EquipmentColor;
+	int DialogId;
+	bool IsDialogAiControlled;
+	ObjectSet<ComponentHandle> SummonHandles;
 	Map<ComponentHandle, int> AttitudeMaps;
 	uint64_t ImmuneFlags;
 	__int64 field_4E0;
