@@ -796,8 +796,10 @@ FixedString do_get(lua_State* L, int index, Overload<FixedString>)
 	}
 
 	size_t len;
-	auto str = luaL_checklstring(L, index, &len);
-	return FixedString(str, len);
+	auto str = luaL_tolstring(L, index, &len);
+	auto fs = FixedString(str, len);
+	lua_pop(L, 1);
+	return fs;
 }
 
 void push(lua_State* L, FixedString const& v)
