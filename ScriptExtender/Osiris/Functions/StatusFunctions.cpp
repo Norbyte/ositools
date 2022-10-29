@@ -347,6 +347,16 @@ namespace dse::esv
 		}
 	}
 
+	bool CustomFunctionLibrary::OnOsiShowNotification(osi::OsirisCallHandlerProc* wrappedHandler, void* proc, osi::ExecutionContext* ctx)
+	{
+		auto ch = GetEntityWorld()->GetComponent<Character>(ctx->Params[0].Str, false);
+		if (ch == nullptr || !ch->PartyHandle) {
+			return false;
+		}
+
+		return wrappedHandler(proc, ctx);
+	}
+
 	void CustomFunctionLibrary::OnBeforeActionMachineSetState(esv::ActionMachine* self, uint64_t actionLayer, esv::ActionState* actionState, int* somePtr, bool force, bool setLayer)
 	{
 		if (actionLayer >= 3 || self->IsEntering[actionLayer]) return;

@@ -251,7 +251,8 @@ namespace dse
 		SYM_OFF(ecl__MultiEffectHandler__Delete);
 
 		SYM_OFF(ls__Visual__AddAttachment);
-		SYM_OFF(ecl__ShroudManager__InitObjectsHook);
+
+		SYM_OFF(osi__ShowNotification);
 
 		SYM_OFF(ls__gEffectsManager);
 		SYM_OFF(ls__EffectsManager__GetInstance);

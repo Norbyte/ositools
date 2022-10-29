@@ -63,7 +63,16 @@ struct ActivePersistentLevelTemplate
 
 struct Level : public ProtectedGameObject<Level>
 {
-	void* VMT;
+	virtual ~Level() = 0;
+	virtual bool Load() = 0;
+	virtual bool Instantiate() = 0;
+	virtual bool Unload() = 0;
+	virtual bool Activate() = 0;
+	virtual void Update(GameTime const& time) = 0;
+	virtual void Pick(void* ray, void* pickResult, bool) = 0;
+	virtual LevelMetaData* GetMetaData() = 0;
+	virtual void* GetEntityManager() = 0;
+
 	LevelDesc* LevelDesc;
 	LocalTemplateManager* LocalTemplateManager;
 	char Unknown;

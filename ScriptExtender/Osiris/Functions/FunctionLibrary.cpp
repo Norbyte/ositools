@@ -301,6 +301,11 @@ namespace dse::esv
 		lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnCreateEquipmentVisuals, this, _1, _2, _3)
 		);
+#if defined(OSI_EOCAPP)
+		lib.osi__ShowNotification.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnOsiShowNotification, this, _1, _2, _3)
+		);
+#endif
 
 		loaded_ = true;
 	}

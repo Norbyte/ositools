@@ -5,6 +5,7 @@ HOOK_DEFN(esv__StatusHeal__Enter, esv__StatusHeal__Enter, esv::Status::EnterProc
 
 HOOK_DEFN(esv__StatusConsume__Enter, esv__StatusConsume__Enter, esv::Status::EnterProc, WrappableFunction)
 HOOK_DEFN(esv__StatusConsume__Exit, esv__StatusConsume__Exit, esv::Status::ExitProc, WrappableFunction)
+HOOK_DEFN(osi__ShowNotification, osi__ShowNotification, osi::OsirisCallHandlerProc, WrappableFunction)
 
 HOOK_DEFN(esv__StatusMachine__ApplyStatus, esv__StatusMachine__ApplyStatus, esv::StatusMachine::ApplyStatusProc, WrappableFunction)
 HOOK_DEFN(esv__StatusMachine__Update, esv__StatusMachine__Update, esv::StatusMachine::UpdateProc, PreHookableFunction)

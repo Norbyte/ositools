@@ -1223,3 +1223,39 @@ struct OsirisDynamicGlobals
 };
 
 }
+
+BEGIN_NS(osi)
+
+struct TypeInfo
+{
+	char const* Name;
+	uint16_t TypeId;
+	uint16_t TypeId2;
+	uint64_t Flags;
+	void* ValueContext;
+	void* GetValueFunc;
+	void* SetValueFunc;
+};
+
+
+struct ExecutionContext
+{
+	struct Param
+	{
+		TypeInfo* Type;
+		union {
+			int32_t Int;
+			int64_t Int64;
+			float Flt;
+			char* Str;
+		};
+	};
+
+	Param Params[8];
+	__int64 field_80;
+	int Result;
+};
+
+using OsirisCallHandlerProc = bool (void* proc, ExecutionContext* cxt);
+
+END_NS()

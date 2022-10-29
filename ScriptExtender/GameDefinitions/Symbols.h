@@ -312,7 +312,8 @@ namespace dse
 		ResourceManager ** ResourceManager__Instance{ nullptr };
 		VisualFactory::DestroyVisualProc* ls__VisualFactory__DestroyVisual{ nullptr };
 		ecl::EquipmentVisualsSystem::CreateVisualsProc* ecl__EquipmentVisualsSystem__CreateVisuals{ nullptr };
-		void* ecl__ShroudManager__InitObjectsHook{ nullptr };
+
+		osi::OsirisCallHandlerProc* osi__ShowNotification{ nullptr };
 
 #if defined(OSI_EOCAPP)
 		GlobalSwitches ** ls__GlobalSwitches{ nullptr };

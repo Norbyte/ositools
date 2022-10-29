@@ -46,6 +46,8 @@ namespace dse::esv
 		bool OnStatusConsumeEnter(esv::Status::EnterProc* wrappedEnter, esv::Status* status);
 		void OnStatusConsumeExit(esv::Status::ExitProc* wrappedExit, esv::Status* status);
 
+		bool OnOsiShowNotification(osi::OsirisCallHandlerProc* wrappedHandler, void* proc, osi::ExecutionContext* ctx);
+
 		static Projectile* OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper);
 		void OnProjectileExplode(Projectile* projectile);
 		void OnActionMachineSetState(esv::ActionMachine * self, uint64_t actionLayer, esv::ActionState * actionState, int * somePtr, bool force, bool setLayer, bool succeeded);
