@@ -35,6 +35,13 @@ struct CppObjectMetadata
 	LifetimeHandle Lifetime;
 };
 
+struct CppValueMetadata
+{
+	uint64_t Value;
+	MetatableTag MetatableTag;
+	uint32_t PropertyMapTag;
+};
+
 class CppMetatableManager
 {
 public:

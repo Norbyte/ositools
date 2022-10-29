@@ -10,6 +10,7 @@
 #include <Lua/Shared/Proxies/LuaEntityProxy.h>
 #include <Lua/Shared/Proxies/LuaCppClass.h>
 #include <Lua/Shared/Proxies/LuaCppObjectProxy.h>
+#include <Lua/Shared/Proxies/LuaCppValue.h>
 
 #include <GameDefinitions/Components/Character.h>
 #include <GameDefinitions/Components/Item.h>

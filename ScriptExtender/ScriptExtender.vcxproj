@@ -118,6 +118,7 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaArrayProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaCppClass.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaCppObjectProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaCppValue.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />

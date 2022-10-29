@@ -207,6 +207,7 @@ class ScriptExtender;
 namespace lua
 {
 	struct LifetimeHandle;
+	struct CppValueMetadata;
 	struct CppObjectMetadata;
 }
 
