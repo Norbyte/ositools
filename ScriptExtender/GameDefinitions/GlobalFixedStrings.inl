@@ -230,3 +230,8 @@ FS(Unknown);
 FS(Key);
 FS(Mouse);
 FS(Touchbar);
+
+// EnumValueMetatable properties
+FS(Value);
+FS(Label);
+FS(EnumName);

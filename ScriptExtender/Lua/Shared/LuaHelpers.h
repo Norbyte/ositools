@@ -14,7 +14,9 @@ enum class MetatableTag : uint8_t
 	ObjectProxyByRef = 0,
 	ArrayProxy = 1,
 	MapProxy = 2,
-	Max = MapProxy
+	EnumValue = 3,
+	BitfieldValue = 4,
+	Max = BitfieldValue
 };
 
 #if !defined(NDEBUG)
@@ -56,6 +58,12 @@ struct StackCheck
 	{}
 };
 #endif
+
+// LuaEnumValue forward declarations
+void push_enum_value(lua_State* L, EnumUnderlyingType value, EnumInfoStore<EnumUnderlyingType> const& store);
+EnumUnderlyingType get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);
+std::optional<EnumUnderlyingType> try_get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);
+
 
 struct MathParam
 {
@@ -269,12 +277,8 @@ void assign(lua_State* L, int idx, glm::mat4 const& m);
 template <class T>
 inline typename std::enable_if_t<std::is_enum_v<T>, void> push(lua_State* L, T v)
 {
-	auto label = EnumInfo<T>::Find(v);
-	if (label) {
-		push(L, label);
-	} else {
-		lua_pushnil(L);
-	}
+	auto ei = EnumInfo<T>::Store;
+	push_enum_value(L, static_cast<EnumUnderlyingType>(v), *ei);
 }
 
 template <class T>
@@ -443,49 +447,13 @@ UnderlyingType do_get_bitfield(lua_State * L, int index, BitmaskInfoStore<Underl
 	return 0;
 }
 
-template <class UnderlyingType>
-UnderlyingType do_get_enum(lua_State* L, int index, EnumInfoStore<UnderlyingType> const& store)
-{
-	switch (lua_type(L, index)) {
-	case LUA_TSTRING:
-	{
-		auto val = do_get(L, index, Overload<FixedString>{});
-		auto valueIndex = store.Find(val);
-		if (valueIndex) {
-			return *valueIndex;
-		} else {
-			luaL_error(L, "Param %d: not a valid '%s' enum label: %s", index, store.EnumName.GetStringOrDefault(), val.GetStringOrDefault());
-		}
-		break;
-	}
-
-	case LUA_TNUMBER:
-	{
-		auto val = (UnderlyingType)lua_tointeger(L, index);
-		if (store.Find(val)) {
-			return val;
-		} else {
-			luaL_error(L, "Param %d: not a valid '%s' enum index: %ld", index, store.EnumName.GetStringOrDefault(), val);
-		}
-		break;
-	}
-
-	default:
-		luaL_error(L, "Param %d: expected integer or string '%s' enumeration value, got %s", index,
-			store.EnumName.GetStringOrDefault(), lua_typename(L, lua_type(L, index)));
-		break;
-	}
-
-	return 0;
-}
-
 template <class T>
 typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index, Overload<T>)
 {
 	if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
 		return (T)do_get_bitfield(L, index, *EnumInfo<T>::Store);
 	} else {
-		return (T)do_get_enum(L, index, *EnumInfo<T>::Store);
+		return (T)get_enum_value(L, index, *EnumInfo<T>::Store);
 	}
 }
 
@@ -761,11 +729,19 @@ std::optional<T> try_gettable(lua_State* L, char const* k, int index)
 	return val;
 }
 
+// Object API for storing pointer-like data in a Lua TValue.
 void lua_push_cppobject(lua_State* L, MetatableTag metatableTag, int propertyMapIndex, void* object, LifetimeHandle const& lifetime);
 void lua_get_cppobject(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppObjectMetadata& obj);
 void lua_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj);
 bool lua_try_get_cppobject(lua_State* L, int idx, CppObjectMetadata& obj);
 bool lua_try_get_cppobject(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppObjectMetadata& obj);
+
+// Value API for storing raw 64-bit data in a Lua TValue.
+void lua_push_cppvalue(lua_State* L, MetatableTag metatableTag, int propertyMapIndex, uint64_t object);
+void lua_get_cppvalue(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppValueMetadata& obj);
+void lua_get_cppvalue(lua_State* L, int idx, CppValueMetadata& obj);
+bool lua_try_get_cppvalue(lua_State* L, int idx, CppValueMetadata& obj);
+bool lua_try_get_cppvalue(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppValueMetadata& obj);
 
 void* LuaCppAlloc(lua_State* L, size_t size);
 void LuaCppFree(lua_State* L, void* block, size_t size);

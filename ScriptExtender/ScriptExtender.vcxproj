@@ -120,6 +120,7 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaCppObjectProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaCppValue.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEntityProxy.h" />
+    <ClInclude Include="Lua\Shared\Proxies\LuaEnumValue.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaEvent.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaMapProxy.h" />
     <ClInclude Include="Lua\Shared\Proxies\LuaObjectProxy.h" />
@@ -344,6 +345,7 @@
     <None Include="Lua\Shared\Proxies\LuaArrayProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaCppObjectProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaEntityProxy.inl" />
+    <None Include="Lua\Shared\Proxies\LuaEnumValue.inl" />
     <None Include="Lua\Shared\Proxies\LuaEvent.inl" />
     <None Include="Lua\Shared\Proxies\LuaMapProxy.inl" />
     <None Include="Lua\Shared\Proxies\LuaObjectProxy.inl" />

@@ -438,6 +438,38 @@ Json::Value StringifyTable(lua_State * L, int index, unsigned depth, StringifyCo
 }
 
 
+Json::Value StringifyInternalType(lua_State * L, int index, StringifyContext& ctx)
+{
+	if (ctx.StringifyInternalTypes) {
+		auto val = Json::Value(luaL_tolstring(L, index, NULL));
+		lua_pop(L, 1);
+		return val;
+	} else {
+		throw std::runtime_error("Attempted to stringify a lightuserdata, userdata, function or thread value");
+	}
+}
+
+Json::Value TryStringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
+{
+	CppValueMetadata meta;
+	if (lua_try_get_cppvalue(L, index, EnumValueMetatable::MetaTag, meta)) {
+		return Json::Value(EnumValueMetatable::GetLabel(meta).GetStringOrDefault());
+	}
+
+	if (ctx.IterateUserdata) {
+		if (ctx.LimitDepth != -1 && depth > (uint32_t)ctx.LimitDepth) {
+			return Json::Value("*DEPTH LIMIT EXCEEDED*");
+		}
+
+		auto obj = StringifyUserdata(L, index, depth, ctx);
+		if (!obj.isNull()) {
+			return obj;
+		}
+	}
+
+	return StringifyInternalType(L, index, ctx);
+}
+
 Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	if (depth > ctx.MaxDepth) {
@@ -475,32 +507,12 @@ Json::Value Stringify(lua_State * L, int index, unsigned depth, StringifyContext
 	case LUA_TUSERDATA:
 	case LUA_TLIGHTCPPOBJECT:
 	case LUA_TCPPOBJECT:
-	{
-		if (ctx.IterateUserdata) {
-			if (ctx.LimitDepth != -1 && depth > (uint32_t)ctx.LimitDepth) {
-				return Json::Value("*DEPTH LIMIT EXCEEDED*");
-			}
-
-			auto obj = StringifyUserdata(L, index, depth, ctx);
-			if (!obj.isNull()) {
-				return obj;
-			}
-			// Fallthrough
-		} else {
-			// Fallthrough
-		}
-	}
+		return TryStringifyUserdata(L, index, depth, ctx);
 
 	case LUA_TLIGHTUSERDATA:
 	case LUA_TFUNCTION:
 	case LUA_TTHREAD:
-		if (ctx.StringifyInternalTypes) {
-			auto val = Json::Value(luaL_tolstring(L, index, NULL));
-			lua_pop(L, 1);
-			return val;
-		} else {
-			throw std::runtime_error("Attempted to stringify a lightuserdata, userdata, function or thread value");
-		}
+		return StringifyInternalType(L, index, ctx);
 
 	default:
 		throw std::runtime_error("Attempted to stringify an unknown type");

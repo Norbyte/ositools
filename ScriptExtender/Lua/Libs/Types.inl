@@ -37,6 +37,13 @@ std::optional<STDString> GetCppObjectTypeName(lua_State * L, int index)
 		return impl->GetArrayType().TypeName.GetString();
 	}
 
+	case MetatableTag::EnumValue:
+	{
+		CppValueMetadata val;
+		lua_get_cppvalue(L, index, val);
+		return EnumValueMetatable::GetTypeName(L, val);
+	}
+
 	default:
 		return {};
 	}

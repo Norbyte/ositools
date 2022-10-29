@@ -95,9 +95,18 @@ public:
 	{
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
 			StackCheck _(L, 1);
+
+			// __eq is called for both (TValue == x) and (x == TValue) scenarios, i.e.
+			// the CppValue can be either in the 1st, 2nd or both arguments.
+			// We'll always try to cast the first argument first and if it fails check the second.
 			CppValueMetadata self;
-			lua_get_cppvalue(L, 1, T::MetaTag, self);
-			push(L, T::IsEqual(L, self, 2));
+			if (lua_try_get_cppvalue(L, 1, T::MetaTag, self)) {
+				push(L, T::IsEqual(L, self, 2));
+			} else {
+				lua_get_cppvalue(L, 2, T::MetaTag, self);
+				push(L, T::IsEqual(L, self, 1));
+			}
+
 			return 1;
 		} else {
 			return luaL_error(L, "Not comparable!");

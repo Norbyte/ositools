@@ -8,6 +8,7 @@
 #include <Lua/Shared/Proxies/LuaMapProxy.inl>
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaCppObjectProxy.inl>
+#include <Lua/Shared/Proxies/LuaEnumValue.inl>
 
 BEGIN_SE()
 
