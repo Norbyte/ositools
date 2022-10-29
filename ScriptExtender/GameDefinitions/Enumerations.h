@@ -4,18 +4,24 @@
 
 namespace dse
 {
+	// Type used to store enumeration and bitmask values internally.
+	// Must be a superset of all enum/bitmask types used ingame.
+	using EnumUnderlyingType = uint64_t;
+
 	template <class T>
 	struct BitmaskInfoStore
 	{
 		Vector<FixedString> Labels;
 		Map<FixedString, T> Values;
-		T AllowedFlags;
+		T AllowedFlags{ 0 };
 		FixedString EnumName;
+		int RegistryIndex{ -1 };
 
-		BitmaskInfoStore(unsigned sizeHint)
+		BitmaskInfoStore(unsigned sizeHint, FixedString const& enumName)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
+			EnumName = enumName;
 		}
 
 		void __declspec(noinline) Add(T val, char const* label)
@@ -67,12 +73,12 @@ namespace dse
 	template <class T>
 	struct BitmaskInfoBase
 	{
-		using UnderlyingType = uint64_t;
+		using UnderlyingType = EnumUnderlyingType;
 		static BitmaskInfoStore<UnderlyingType>* Store;
 
-		static void Init(unsigned sizeHint)
+		static void Init(unsigned sizeHint, char const* enumName)
 		{
-			Store = GameAlloc<BitmaskInfoStore<UnderlyingType>>(sizeHint);
+			Store = GameAlloc<BitmaskInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName));
 		}
 
 		static void Add(T val, char const* label)
@@ -102,11 +108,13 @@ namespace dse
 		Vector<FixedString> Labels;
 		Map<FixedString, T> Values;
 		FixedString EnumName;
+		int RegistryIndex{ -1 };
 
-		EnumInfoStore(unsigned sizeHint)
+		EnumInfoStore(unsigned sizeHint, FixedString const& enumName)
 		{
 			Labels.reserve(sizeHint);
 			Values.ResizeHashtable(GetNearestLowerPrime(sizeHint));
+			EnumName = enumName;
 		}
 
 		void __declspec(noinline) Add(T val, char const* label)
@@ -145,12 +153,12 @@ namespace dse
 	template <class T>
 	struct EnumInfoBase
 	{
-		using UnderlyingType = uint64_t;
+		using UnderlyingType = EnumUnderlyingType;
 		static EnumInfoStore<UnderlyingType>* Store;
 
-		static void Init(unsigned sizeHint)
+		static void Init(unsigned sizeHint, char const* enumName)
 		{
-			Store = GameAlloc<EnumInfoStore<UnderlyingType>>(sizeHint);
+			Store = GameAlloc<EnumInfoStore<UnderlyingType>>(sizeHint, FixedString(enumName));
 		}
 
 		static void Add(T val, char const* label)
@@ -180,6 +188,26 @@ namespace dse
 	struct EnumInfo
 	{
 		static_assert(EnumInfoFakeDep<T>::value, "EnumInfo not implemented for this type!");
+	};
+
+	struct EnumRegistry
+	{
+		static EnumRegistry& Get();
+
+		Map<FixedString, EnumInfoStore<EnumUnderlyingType>*> EnumsByName;
+		ObjectSet<EnumInfoStore<EnumUnderlyingType>*> EnumsById;
+
+		void Register(EnumInfoStore<EnumUnderlyingType>* ei);
+	};
+
+	struct BitmaskRegistry
+	{
+		static BitmaskRegistry& Get();
+
+		Map<FixedString, BitmaskInfoStore<EnumUnderlyingType>*> BitfieldsByName;
+		ObjectSet<BitmaskInfoStore<EnumUnderlyingType>*> BitfieldsById;
+
+		void Register(BitmaskInfoStore<EnumUnderlyingType>* ei);
 	};
 
 	#define MAKE_ENUM_INFO(T, size) \

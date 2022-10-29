@@ -11,6 +11,36 @@
 
 namespace dse
 {
+	EnumRegistry& EnumRegistry::Get()
+	{
+		static EnumRegistry reg;
+		return reg;
+	}
+
+	void EnumRegistry::Register(EnumInfoStore<EnumUnderlyingType>* ei)
+	{
+		assert(EnumsByName.find(ei->EnumName) == EnumsByName.end());
+		EnumsByName.insert(std::make_pair(ei->EnumName, ei));
+		ei->RegistryIndex = (int32_t)EnumsById.size();
+		EnumsById.push_back(ei);
+	}
+
+
+	BitmaskRegistry& BitmaskRegistry::Get()
+	{
+		static BitmaskRegistry reg;
+		return reg;
+	}
+	
+	void BitmaskRegistry::Register(BitmaskInfoStore<EnumUnderlyingType>* ei)
+	{
+		assert(BitfieldsByName.find(ei->EnumName) == BitfieldsByName.end());
+		BitfieldsByName.insert(std::make_pair(ei->EnumName, ei));
+		ei->RegistryIndex = (int32_t)BitfieldsById.size();
+		BitfieldsById.push_back(ei);
+	}
+
+
 	IObjectFactory::~IObjectFactory() {}
 
 	StaticSymbols* gStaticSymbols{ nullptr };

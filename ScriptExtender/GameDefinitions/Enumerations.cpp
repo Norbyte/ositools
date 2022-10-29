@@ -35,19 +35,23 @@ namespace dse
 #define BEGIN_BITMASK_NS(NS, T, type) { \
 	using e = NS::T; \
 	using ei = EnumInfo<e>; \
-	ei::Init(61);
+	ei::Init(61, #NS "::" #T); \
+	BitmaskRegistry::Get().Register(ei::Store);
 #define BEGIN_ENUM_NS(NS, T, type) { \
 	using e = NS::T; \
 	using ei = EnumInfo<e>; \
-	ei::Init(61);
+	ei::Init(61, #NS "::" #T); \
+	EnumRegistry::Get().Register(ei::Store);
 #define BEGIN_BITMASK(T, type) { \
 	using e = T; \
 	using ei = EnumInfo<e>; \
-	ei::Init(61);
+	ei::Init(61, #T); \
+	BitmaskRegistry::Get().Register(ei::Store);
 #define BEGIN_ENUM(T, type) { \
 	using e = T; \
 	using ei = EnumInfo<e>; \
-	ei::Init(61);
+	ei::Init(61, #T); \
+	EnumRegistry::Get().Register(ei::Store);
 #define E(label) ei::Add(e::label, #label);
 #define EV(label, value) ei::Add(e::label, #label);
 #define END_ENUM_NS() }
