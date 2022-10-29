@@ -165,10 +165,9 @@ int LightObjectProxyByRefMetatable::ToString(lua_State* L, CppObjectMetadata& se
 	return 1;
 }
 
-int LightObjectProxyByRefMetatable::IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other)
+bool LightObjectProxyByRefMetatable::IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other)
 {
-	push(L, self.Ptr == other.Ptr && self.PropertyMapTag == other.PropertyMapTag);
-	return 1;
+	return self.Ptr == other.Ptr && self.PropertyMapTag == other.PropertyMapTag;
 }
 
 int LightObjectProxyByRefMetatable::Next(lua_State* L, CppObjectMetadata& self)

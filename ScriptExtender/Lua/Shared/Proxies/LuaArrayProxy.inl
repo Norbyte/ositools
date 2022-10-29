@@ -72,7 +72,7 @@ int ArrayProxyMetatable::ToString(lua_State* L, CppObjectMetadata& self)
 	return 1;
 }
 
-int ArrayProxyMetatable::IsEqual(lua_State*, CppObjectMetadata& self, CppObjectMetadata& other)
+bool ArrayProxyMetatable::IsEqual(lua_State*, CppObjectMetadata& self, CppObjectMetadata& other)
 {
 	return self.Ptr == other.Ptr && self.PropertyMapTag == other.PropertyMapTag;
 }

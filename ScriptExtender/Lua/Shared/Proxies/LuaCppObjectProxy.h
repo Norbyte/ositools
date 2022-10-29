@@ -15,7 +15,7 @@ public:
 	static int Index(lua_State* L, CppObjectMetadata& self);
 	static int NewIndex(lua_State* L, CppObjectMetadata& self);
 	static int ToString(lua_State* L, CppObjectMetadata& self);
-	static int IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other);
+	static bool IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other);
 	static int Next(lua_State* L, CppObjectMetadata& self);
 	static char const* GetTypeName(lua_State* L, CppObjectMetadata& self);
 };

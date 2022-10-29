@@ -397,7 +397,7 @@ public:
 	static int Length(lua_State* L, CppObjectMetadata& self);
 	static int Next(lua_State* L, CppObjectMetadata& self);
 	static int ToString(lua_State* L, CppObjectMetadata& self);
-	static int IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other);
+	static bool IsEqual(lua_State* L, CppObjectMetadata& self, CppObjectMetadata& other);
 	static char const* GetTypeName(lua_State* L, CppObjectMetadata& self);
 };
 
