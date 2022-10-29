@@ -1611,5 +1611,26 @@
       <Target Type="Absolute" Offset="-0x60" NextSymbol="esv::StatusConsume::Exit" NextSymbolSeekSize="0x40" />
       <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusConsumeBase::Exit" NextSymbolSeekSize="0x100" />
     </Mapping>
+
+    <Mapping Name="osi::ShowNotification" Scope="Custom">
+      @ref 48 89 5c 24 08 // mov     [rsp+arg_0], rbx
+      57 // push    rdi
+      48 83 ec 50 // sub     rsp, 50h
+      <Target Type="Absolute" Offset="@ref" Symbol="osi__ShowNotification" />
+    </Mapping>
+
+    <Mapping Name="osi::ShowNotification Initial" Deferred="true">
+      8b 53 10 // mov     edx, [rbx+10h]
+      eb 06 // jmp     short loc_141B5266F
+      8b 15 ?? ?? ?? ?? // mov     edx, cs:dword_1428ED20C
+      @ref1 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:esv__gEoCServer
+      4c 8d 44 24 20 // lea     r8, [rsp+58h+var_38]
+      48 8b 88 80 00 00 00 // mov     rcx, [rax+80h]
+      48 8b 89 f8 02 00 00 // mov     rcx, [rcx+2F8h]
+      48 8b 89 08 01 00 00 // mov     rcx, [rcx+108h]
+      e8 ?? ?? ?? ?? // call    sub_1419EA0C0
+      b3 01 // mov     bl, 1
+      <Target Type="Absolute" Offset="-0x100" NextSymbol="osi::ShowNotification" NextSymbolSeekSize="0x80" />
+    </Mapping>
   </Mappings>
 </BinaryMappings>
