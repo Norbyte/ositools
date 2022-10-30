@@ -10,7 +10,7 @@
 BEGIN_NS(lua)
 
 class BitfieldValueMetatable : public LightCppValueMetatable<BitfieldValueMetatable>,
-	public Indexable, public Stringifiable, public EqualityComparable, public HasBinaryOps
+	public Indexable, public Lengthable, public Iterable, public Stringifiable, public EqualityComparable, public HasBinaryOps
 {
 public:
 	static constexpr MetatableTag MetaTag = MetatableTag::BitfieldValue;
@@ -29,11 +29,14 @@ public:
 
 	static BitmaskInfoStore<EnumUnderlyingType>* GetBitfieldInfo(CppValueMetadata const& val);
 	static EnumUnderlyingType GetValue(CppValueMetadata const& self);
+	static std::optional<EnumUnderlyingType> GetValueAtIndex(CppValueMetadata const& self, int index);
 	static Json::Value ToJson(CppValueMetadata& self);
 
 	static int Index(lua_State* L, CppValueMetadata& self);
 	static int ToString(lua_State* L, CppValueMetadata& self);
 	static bool IsEqual(lua_State* L, CppValueMetadata& self, int otherIndex);
+	static int Length(lua_State* L, CppValueMetadata& self);
+	static int Next(lua_State* L, CppValueMetadata& self);
 	static int BAnd(lua_State* L, CppValueMetadata& self, int otherIndex);
 	static int BOr(lua_State* L, CppValueMetadata& self, int otherIndex);
 	static int BXor(lua_State* L, CppValueMetadata& self, int otherIndex);

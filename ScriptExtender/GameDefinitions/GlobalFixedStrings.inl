@@ -233,6 +233,9 @@ FS(Touchbar);
 
 // EnumValueMetatable properties
 FS(Value);
+FS(__Value);
 FS(Label);
 FS(Labels);
+FS(__Labels);
 FS(EnumName);
+FS(__EnumName);
