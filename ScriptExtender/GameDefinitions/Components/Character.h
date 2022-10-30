@@ -559,12 +559,12 @@ struct EquipmentVisualSystemSetParam
 	// 8b slot, 24b flags
 	VisualSystemSetFlags SlotAndFlags;
 
-	inline ItemSlot GetSlot()
+	inline ItemSlot32 GetSlot()
 	{
-		return (ItemSlot)SlotAndFlags;
+		return (ItemSlot32)((uint32_t)SlotAndFlags & 0xff);
 	}
 
-	void SetSlot(ItemSlot slot)
+	void SetSlot(ItemSlot32 slot)
 	{
 		SlotAndFlags = (VisualSystemSetFlags)(((uint32_t)SlotAndFlags & 0xffffff00) | (uint32_t)slot);
 	}
