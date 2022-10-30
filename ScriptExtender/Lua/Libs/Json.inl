@@ -452,8 +452,13 @@ Json::Value StringifyInternalType(lua_State * L, int index, StringifyContext& ct
 Json::Value TryStringifyUserdata(lua_State * L, int index, unsigned depth, StringifyContext& ctx)
 {
 	CppValueMetadata meta;
+	index = lua_absindex(L, index);
 	if (lua_try_get_cppvalue(L, index, EnumValueMetatable::MetaTag, meta)) {
 		return Json::Value(EnumValueMetatable::GetLabel(meta).GetStringOrDefault());
+	}
+	
+	if (lua_try_get_cppvalue(L, index, BitfieldValueMetatable::MetaTag, meta)) {
+		return BitfieldValueMetatable::ToJson(meta);
 	}
 
 	if (ctx.IterateUserdata) {

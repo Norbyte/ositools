@@ -84,7 +84,7 @@ EnumUnderlyingType get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnd
 	case LUA_TLIGHTCPPOBJECT:
 	{
 		CppValueMetadata meta;
-		lua_get_cppvalue(L, index, meta);
+		lua_get_cppvalue(L, lua_absindex(L, index), meta);
 		if (meta.MetatableTag == EnumValueMetatable::MetaTag && meta.PropertyMapTag == (unsigned)store.RegistryIndex) {
 			return static_cast<EnumUnderlyingType>(meta.Value);
 		} else {
@@ -127,7 +127,7 @@ std::optional<EnumUnderlyingType> try_get_enum_value(lua_State* L, int index, En
 	case LUA_TLIGHTCPPOBJECT:
 	{
 		CppValueMetadata meta;
-		lua_get_cppvalue(L, index, meta);
+		lua_get_cppvalue(L, lua_absindex(L, index), meta);
 		if (meta.MetatableTag == EnumValueMetatable::MetaTag && meta.PropertyMapTag == (unsigned)store.RegistryIndex) {
 			return static_cast<EnumUnderlyingType>(meta.Value);
 		}
