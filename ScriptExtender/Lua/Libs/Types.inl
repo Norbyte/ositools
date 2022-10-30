@@ -44,6 +44,13 @@ std::optional<STDString> GetCppObjectTypeName(lua_State * L, int index)
 		return EnumValueMetatable::GetTypeName(L, val);
 	}
 
+	case MetatableTag::BitfieldValue:
+	{
+		CppValueMetadata val;
+		lua_get_cppvalue(L, index, val);
+		return BitfieldValueMetatable::GetTypeName(L, val);
+	}
+
 	default:
 		return {};
 	}

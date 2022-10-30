@@ -430,6 +430,9 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaCppValue.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="Lua\Shared\Proxies\LuaBitfieldValue.h">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">
@@ -911,6 +914,9 @@
       <Filter>GameDefinitions\PropertyMaps</Filter>
     </None>
     <None Include="Lua\Shared\Proxies\LuaEnumValue.inl">
+      <Filter>Lua\Shared\Proxies</Filter>
+    </None>
+    <None Include="Lua\Shared\Proxies\LuaBitfieldValue.inl">
       <Filter>Lua\Shared\Proxies</Filter>
     </None>
   </ItemGroup>

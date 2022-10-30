@@ -39,7 +39,7 @@ UserReturn GetTransformRules(lua_State* L)
 				if ((uint64_t)surface == 0) break;
 
 				push(L, surfIdx++);
-				push_flags(L, surface);
+				push_bitfield(L, surface);
 				lua_settable(L, -3);
 			}
 

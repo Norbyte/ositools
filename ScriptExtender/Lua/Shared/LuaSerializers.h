@@ -317,7 +317,7 @@ namespace dse::lua
 	{
 		if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
 			if (s.IsWriting) {
-				push_flags(s.L, v);
+				push_bitfield(s.L, v);
 			} else {
 				v = get<T>(s.L, -1);
 			}

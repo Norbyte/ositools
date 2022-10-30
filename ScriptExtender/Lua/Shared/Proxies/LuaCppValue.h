@@ -113,6 +113,66 @@ public:
 		}
 	}
 
+	static int BAndProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			StackCheck _(L, 1);
+			CppValueMetadata self;
+			if (lua_try_get_cppvalue(L, 1, T::MetaTag, self)) {
+				return T::BAnd(L, self, 2);
+			} else {
+				lua_get_cppvalue(L, 2, T::MetaTag, self);
+				return T::BAnd(L, self, 1);
+			}
+		} else {
+			return luaL_error(L, "Binary ops not supported!");
+		}
+	}
+
+	static int BOrProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			StackCheck _(L, 1);
+			CppValueMetadata self;
+			if (lua_try_get_cppvalue(L, 1, T::MetaTag, self)) {
+				return T::BOr(L, self, 2);
+			} else {
+				lua_get_cppvalue(L, 2, T::MetaTag, self);
+				return T::BOr(L, self, 1);
+			}
+		} else {
+			return luaL_error(L, "Binary ops not supported!");
+		}
+	}
+
+	static int BXorProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			StackCheck _(L, 1);
+			CppValueMetadata self;
+			if (lua_try_get_cppvalue(L, 1, T::MetaTag, self)) {
+				return T::BXor(L, self, 2);
+			} else {
+				lua_get_cppvalue(L, 2, T::MetaTag, self);
+				return T::BXor(L, self, 1);
+			}
+		} else {
+			return luaL_error(L, "Binary ops not supported!");
+		}
+	}
+
+	static int BNotProxy(lua_State* L)
+	{
+		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
+			StackCheck _(L, 1);
+			CppValueMetadata self;
+			lua_get_cppvalue(L, 2, T::MetaTag, self);
+			return T::BNot(L, self);
+		} else {
+			return luaL_error(L, "Binary ops not supported!");
+		}
+	}
+
 	// Default __pairs implementation
 	static int Pairs(lua_State* L, CppValueMetadata const& self)
 	{
@@ -181,6 +241,13 @@ public:
 
 		if constexpr (std::is_base_of_v<EqualityComparable, T>) {
 			lua_cmetatable_set(L, mt, (int)MetamethodName::Eq, &EqualProxy);
+		}
+
+		if constexpr (std::is_base_of_v<HasBinaryOps, T>) {
+			lua_cmetatable_set(L, mt, (int)MetamethodName::BAnd, &BAndProxy);
+			lua_cmetatable_set(L, mt, (int)MetamethodName::BOr, &BOrProxy);
+			lua_cmetatable_set(L, mt, (int)MetamethodName::BXor, &BXorProxy);
+			lua_cmetatable_set(L, mt, (int)MetamethodName::BNot, &BNotProxy);
 		}
 
 		lua_cmetatable_set(L, mt, (int)MetamethodName::Name, &NameProxy);

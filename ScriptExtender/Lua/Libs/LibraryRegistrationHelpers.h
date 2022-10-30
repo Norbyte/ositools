@@ -9,6 +9,7 @@
 #include <Lua/Shared/Proxies/LuaObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaCppObjectProxy.inl>
 #include <Lua/Shared/Proxies/LuaEnumValue.inl>
+#include <Lua/Shared/Proxies/LuaBitfieldValue.inl>
 
 BEGIN_SE()
 

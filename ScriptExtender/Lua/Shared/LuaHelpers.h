@@ -64,6 +64,9 @@ void push_enum_value(lua_State* L, EnumUnderlyingType value, EnumInfoStore<EnumU
 EnumUnderlyingType get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);
 std::optional<EnumUnderlyingType> try_get_enum_value(lua_State* L, int index, EnumInfoStore<EnumUnderlyingType> const& store);
 
+EnumUnderlyingType get_bitfield_value(lua_State* L, int index, BitmaskInfoStore<EnumUnderlyingType> const& store, bool maskInvalidBits);
+std::optional<EnumUnderlyingType> try_get_bitfield_value(lua_State* L, int index, BitmaskInfoStore<EnumUnderlyingType> const& store, bool maskInvalidBits);
+void push_bitfield_value(lua_State* L, EnumUnderlyingType value, BitmaskInfoStore<EnumUnderlyingType> const& store);
 
 struct MathParam
 {
@@ -291,25 +294,11 @@ inline void push(lua_State* L, std::optional<T> const& v)
 	}
 }
 
-template <class UnderlyingType>
-void push_flags(lua_State* L, UnderlyingType value, BitmaskInfoStore<UnderlyingType> const& store)
-{
-	lua_newtable(L);
-	int i = 1;
-	for (auto const& val : store.Values) {
-		if ((value & val.Value) == val.Value) {
-			push(L, i++);
-			push(L, val.Key);
-			lua_settable(L, -3);
-		}
-	}
-}
-
 template <class T>
-inline void push_flags(lua_State* L, T value)
+inline void push_bitfield(lua_State* L, T value)
 {
 	static_assert(std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>, "Can only push bitmask fields!");
-	push_flags(L, (typename EnumInfo<T>::UnderlyingType)value, *EnumInfo<T>::Store);
+	push_bitfield_value(L, (typename EnumInfo<T>::UnderlyingType)value, *EnumInfo<T>::Store);
 }
 
 template <class T>
@@ -394,64 +383,11 @@ inline typename std::enable_if_t<std::is_floating_point_v<T>, T> do_get(lua_Stat
 	return (T)luaL_checknumber(L, index);
 }
 
-template <class UnderlyingType>
-UnderlyingType do_get_bitfield(lua_State * L, int index, BitmaskInfoStore<UnderlyingType> const& store)
-{
-	switch (lua_type(L, index)) {
-	case LUA_TSTRING:
-	{
-		auto val = do_get(L, index, Overload<FixedString>{});
-		auto valueIndex = store.Find(val);
-		if (valueIndex) {
-			return *valueIndex;
-		} else {
-			luaL_error(L, "Param %d: not a valid '%s' bitfield value: %s", index, store.EnumName.GetStringOrDefault(), val.GetStringOrDefault());
-		}
-		break;
-	}
-
-	case LUA_TNUMBER:
-	{
-		auto val = (UnderlyingType)lua_tointeger(L, index);
-		if ((val & ~store.AllowedFlags) == 0) {
-			return val;
-		} else {
-			luaL_error(L, "Param %d: not a valid '%s' bitfield value: %08lx", index, store.EnumName.GetStringOrDefault(), val);
-		}
-		break;
-	}
-
-	case LUA_TTABLE:
-	{
-		UnderlyingType val{ 0 };
-		for (auto valueIdx : iterate(L, index)) {
-			auto label = do_get(L, valueIdx, Overload<FixedString>{});
-			auto index = store.Find(label);
-			if (index) {
-				val |= *index;
-			} else {
-				luaL_error(L, "Param %d: not a valid '%s' bitfield value: %s", 
-					index, store.EnumName.GetStringOrDefault(), label.GetString());
-			}
-		}
-
-		return val;
-	}
-
-	default:
-		luaL_error(L, "Param %d: expected integer, string or table '%s' bitfield value, got %s", index,
-			store.EnumName.GetStringOrDefault(), lua_typename(L, lua_type(L, index)));
-		break;
-	}
-
-	return 0;
-}
-
 template <class T>
 typename std::enable_if_t<std::is_enum_v<T>, T> do_get(lua_State * L, int index, Overload<T>)
 {
 	if constexpr (std::is_base_of_v<BitmaskInfoBase<T>, EnumInfo<T>>) {
-		return (T)do_get_bitfield(L, index, *EnumInfo<T>::Store);
+		return (T)get_bitfield_value(L, index, *EnumInfo<T>::Store);
 	} else {
 		return (T)get_enum_value(L, index, *EnumInfo<T>::Store);
 	}
