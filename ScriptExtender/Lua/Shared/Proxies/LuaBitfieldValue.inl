@@ -16,7 +16,8 @@ EnumUnderlyingType BitfieldValueMetatable::GetValue(CppValueMetadata const& self
 
 std::optional<EnumUnderlyingType> BitfieldValueMetatable::GetValueAtIndex(CppValueMetadata const& self, int index)
 {
-	auto v = self.Value;
+	auto ei = GetBitfieldInfo(self);
+	auto v = self.Value & ei->AllowedFlags;
 	int i = 0;
 	DWORD bitIndex = 0;
 	while (i <= index && _BitScanForward64(&bitIndex, v)) {
@@ -114,6 +115,12 @@ int BitfieldValueMetatable::ToString(lua_State* L, CppValueMetadata& self)
 		}
 	}
 
+	if (self.Value & ~ei->AllowedFlags) {
+		if (!labels.empty()) labels += ',';
+		labels += "Unknowns:";
+		labels += std::to_string(self.Value & ~ei->AllowedFlags);
+	}
+
 	push(L, STDString(ei->EnumName.GetString()) + "(" + labels + ")");
 	return 1;
 }
@@ -127,7 +134,8 @@ bool BitfieldValueMetatable::IsEqual(lua_State* L, CppValueMetadata& self, int o
 
 int BitfieldValueMetatable::Length(lua_State* L, CppValueMetadata& self)
 {
-	auto len = (unsigned)_mm_popcnt_u64(self.Value);
+	auto ei = GetBitfieldInfo(self);
+	auto len = (unsigned)_mm_popcnt_u64(self.Value & ei->AllowedFlags);
 	push(L, len);
 	return 1;
 }
