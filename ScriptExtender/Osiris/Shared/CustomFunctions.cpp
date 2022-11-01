@@ -499,6 +499,12 @@ struct CustomEventGuard
 
 void CustomFunctionInjector::ThrowEvent(FunctionHandle handle, OsiArgumentDesc * args) const
 {
+	auto state = GetStaticSymbols().GetServerState();
+	if (!state || *state == esv::GameState::UnloadSession) {
+		OsiError("Attempted to throw Osiris event when game is not running!");
+		return;
+	}
+
 	auto it = divToOsiMappings_.find(handle);
 	if (it == divToOsiMappings_.end()) {
 		OsiError("Event handle not mapped: " << std::hex << (unsigned)handle);
