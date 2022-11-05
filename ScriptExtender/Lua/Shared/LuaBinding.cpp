@@ -369,7 +369,8 @@ namespace dse::lua
 		globalLifetime_(lifetimePool_.Allocate())
 	{
 		L = lua_newstate(LuaAlloc, nullptr);
-		lua_setup_cppobjects(L, &LuaCppAlloc, &LuaCppFree, &LuaCppGetLightMetatable, &LuaCppGetMetatable);
+		internal_ = lua_new_internal_state();
+		lua_setup_cppobjects(L, &LuaCppAlloc, &LuaCppFree, &LuaCppGetLightMetatable, &LuaCppGetMetatable, &LuaCppCanonicalize);
 		lua_setup_strcache(L, &LuaCacheString, &LuaReleaseString);
 		*reinterpret_cast<State**>(lua_getextraspace(L)) = this;
 #if LUA_VERSION_NUM <= 501
@@ -385,6 +386,9 @@ namespace dse::lua
 	{
 		lifetimePool_.Release(globalLifetime_);
 		lua_close(L);
+		if (internal_) {
+			lua_release_internal_state(internal_);
+		}
 	}
 
 	void State::Shutdown()

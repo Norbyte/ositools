@@ -134,6 +134,8 @@ namespace dse::lua
 		ActionPrevented
 	};
 
+	struct LuaInternalState;
+
 	class State : Noncopyable<State>
 	{
 	public:
@@ -171,6 +173,11 @@ namespace dse::lua
 		inline lua_State * GetState()
 		{
 			return L;
+		}
+
+		inline LuaInternalState* GetInternalState()
+		{
+			return internal_;
 		}
 
 		inline LifetimeStack& GetStack()
@@ -238,6 +245,7 @@ namespace dse::lua
 
 	protected:
 		lua_State * L;
+		LuaInternalState* internal_{ nullptr };
 		bool startupDone_{ false };
 
 		LifetimePool lifetimePool_;

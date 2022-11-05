@@ -17,6 +17,11 @@
 
 BEGIN_NS(lua)
 
+struct LuaInternalState
+{
+	TValue canonicalizationCache;
+};
+
 Lifetime* LifetimeHandle::GetLifetime(lua_State* L) const
 {
 	auto& pool = State::FromLua(L)->GetLifetimePool();
@@ -721,6 +726,14 @@ void lua_get_cppvalue(lua_State* L, int idx, CppValueMetadata& obj)
 	obj.PropertyMapTag = val.PropertyMapTag();
 }
 
+void lua_get_cppvalue(lua_State* L, TValue* v, CppValueMetadata& obj)
+{
+	CppValue val(v);
+	obj.Value = val.Value();
+	obj.MetatableTag = val.MetatableTag();
+	obj.PropertyMapTag = val.PropertyMapTag();
+}
+
 bool lua_try_get_cppvalue(lua_State* L, int idx, MetatableTag expectedTypeTag, CppValueMetadata& obj)
 {
 	auto value = lua_index2addr(L, idx);
@@ -778,6 +791,40 @@ CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsign
 CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra)
 {
 	throw std::runtime_error("Unsupported!");
+}
+
+LuaInternalState* lua_new_internal_state()
+{
+	auto st = GameAlloc<LuaInternalState>();
+	setnilvalue(&st->canonicalizationCache);
+	return st;
+}
+
+void lua_release_internal_state(LuaInternalState* state)
+{
+	GameDelete(state);
+}
+
+void* LuaCppCanonicalize(lua_State* L, void* val)
+{
+	auto v = reinterpret_cast<TValue*>(val);
+	CppValueMetadata meta;
+	lua_get_cppvalue(L, v, meta);
+	if (meta.MetatableTag != MetatableTag::EnumValue) {
+		return nullptr;
+	}
+
+	auto state = State::FromLua(L)->GetInternalState();
+	auto label = EnumValueMetatable::GetLabel(meta);
+	if (label) {
+		TString* ts;
+		ts = luaS_newlstr(L, label.GetString(), label.GetMetadata()->Length);
+		setsvalue2s(L, &state->canonicalizationCache, ts);
+	} else {
+		setnilvalue(&state->canonicalizationCache);
+	}
+
+	return &state->canonicalizationCache;
 }
 
 

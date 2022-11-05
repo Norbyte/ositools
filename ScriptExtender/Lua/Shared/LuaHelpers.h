@@ -665,6 +665,10 @@ std::optional<T> try_gettable(lua_State* L, char const* k, int index)
 	return val;
 }
 
+struct LuaInternalState;
+LuaInternalState* lua_new_internal_state();
+void lua_release_internal_state(LuaInternalState* state);
+
 // Object API for storing pointer-like data in a Lua TValue.
 void lua_push_cppobject(lua_State* L, MetatableTag metatableTag, int propertyMapIndex, void* object, LifetimeHandle const& lifetime);
 void lua_get_cppobject(lua_State* L, int idx, MetatableTag expectedMetatableTag, CppObjectMetadata& obj);
@@ -683,6 +687,7 @@ void* LuaCppAlloc(lua_State* L, size_t size);
 void LuaCppFree(lua_State* L, void* block, size_t size);
 CMetatable* LuaCppGetLightMetatable(lua_State* L, unsigned long long val, unsigned long long extra);
 CMetatable* LuaCppGetMetatable(lua_State* L, void* val, unsigned long long extra);
+void* LuaCppCanonicalize(lua_State* L, void* val);
 class GenericPropertyMap& LuaGetPropertyMap(int propertyMapIndex);
 
 void LuaCacheString(lua_State* L, TString* s);
