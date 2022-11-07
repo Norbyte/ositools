@@ -92,6 +92,13 @@ P_REF(Bones)
 END_CLS()
 
 
+BEGIN_CLS(VisualSetResource)
+P_REF(VisualSet)
+P_REF(VisualSetIndices)
+P(LastUsedPreviewVisual)
+END_CLS()
+
+
 BEGIN_CLS(Visual::Attachment)
 P_REF(Visual)
 P_RO(DummyAttachmentBoneIndex)

@@ -5,6 +5,7 @@
 #include <GameDefinitions/EntitySystem.h>
 #include <GameDefinitions/Resource.h>
 #include <GameDefinitions/GameObjects/Physics.h>
+#include <GameDefinitions/GameObjects/VisualsShared.h>
 
 BEGIN_SE()
 
@@ -234,6 +235,15 @@ struct VisualResource : public DeferredLoadableResource
 	FixedString BlueprintInstanceResourceID;
 	ObjectSet<ClothParam> ClothParams;
 	RefMap<FixedString, BonePosRot> Bones;
+};
+
+struct VisualSet;
+
+struct VisualSetResource : public NonDeferredLoadableResource
+{
+	VisualSet* VisualSet;
+	VisualSetIndices VisualSetIndices;
+	FixedString LastUsedPreviewVisual;
 };
 
 

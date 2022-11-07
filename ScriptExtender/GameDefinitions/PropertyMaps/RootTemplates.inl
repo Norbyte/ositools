@@ -157,7 +157,7 @@ P(ExplosionFX)
 P_REF(SkillList)
 P_REF(ItemList)
 P(VisualSetResourceID)
-P(VisualSetIndices)
+P_REF(VisualSetIndices)
 P(TrophyID)
 P(SoundInitEvent)
 P(SoundAttachBone)
@@ -306,6 +306,14 @@ P(CombatGroupID)
 P(IsBoss)
 P(IsInspector)
 P(StartCombatRange)
+END_CLS()
+
+
+BEGIN_CLS(VisualSetIndices)
+P_FUN(GetColor, LuaGetColorIndex)
+P_FUN(GetVisual, LuaGetVisualIndex)
+P_FUN(SetColor, LuaSetColorIndex)
+P_FUN(SetVisual, LuaSetVisualIndex)
 END_CLS()
 
 

@@ -37,6 +37,11 @@ struct DeferredLoadableResource : public Resource
     TwoStepLoadable TwoStepLoader;
 };
 
+struct NonDeferredLoadableResource : public Resource
+{
+    uint16_t RefCount;
+    uint8_t LoadState;
+};
 
 struct ResourceContainer : public ProtectedGameObject<ResourceContainer>
 {

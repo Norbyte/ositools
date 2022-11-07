@@ -433,6 +433,9 @@
     <ClInclude Include="Lua\Shared\Proxies\LuaBitfieldValue.h">
       <Filter>Lua\Shared\Proxies</Filter>
     </ClInclude>
+    <ClInclude Include="GameDefinitions\GameObjects\VisualsShared.h">
+      <Filter>GameDefinitions\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Extender\Client\ScriptExtenderClient.cpp">

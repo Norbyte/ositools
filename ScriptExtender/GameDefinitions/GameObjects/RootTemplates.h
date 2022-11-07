@@ -7,6 +7,7 @@
 #include <GameDefinitions/GameObjects/Status.h>
 #include <GameDefinitions/GameObjects/ActionMachine.h>
 #include <GameDefinitions/GameObjects/UseActions.h>
+#include <GameDefinitions/GameObjects/VisualsShared.h>
 
 namespace dse
 {
@@ -279,7 +280,7 @@ namespace dse
         OverrideableProperty<ObjectSet<CharacterSkillData>> SkillList;
         OverrideableProperty<ObjectSet<InventoryItemData>> ItemList;
         OverrideableProperty<FixedString> VisualSetResourceID;
-        OverrideableProperty<uint64_t> VisualSetIndices;
+        OverrideableProperty<VisualSetIndices> VisualSetIndices;
         OverrideableProperty<FixedString> TrophyID;
         OverrideableProperty<FixedString> SoundInitEvent;
         OverrideableProperty<FixedString> SoundAttachBone;

@@ -259,7 +259,7 @@ struct Character : public IEoCServerObject
 	void* CharacterBody;
 	RefMap<ComponentHandle, ObjectSet<stats::PropertyStatus*>> StatusesFromItems;
 	ObjectSet<FixedString> TagsFromItems;
-	void * VisualSetIndices;
+	VisualSetIndices VisualSetIndices;
 	bool ReadyCheckBlocked;
 	bool CorpseLootable;
 	uint8_t NumConsumables;
@@ -507,7 +507,7 @@ struct Character : public IEoCClientReplicatedObject
 	uint64_t ImmuneFlags;
 	__int64 field_4E0;
 	ObjectSet<FixedString> ItemTags;
-	void* VisualSetIndices;
+	VisualSetIndices VisualSetIndices;
 	bool CorpseLootable;
 
 	ObjectSet<FixedString> GetInventoryItemGuids();

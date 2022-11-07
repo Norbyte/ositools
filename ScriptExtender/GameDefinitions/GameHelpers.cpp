@@ -179,6 +179,33 @@ namespace dse
 		}
 	}
 
+	uint32_t VisualSetIndices::LuaGetColorIndex(lua_State* L, unsigned index)
+	{
+		if (index > NumColors) luaL_error(L, "Color index must be below %d", NumColors);
+		return GetColorIndex(index);
+	}
+
+	uint32_t VisualSetIndices::LuaGetVisualIndex(lua_State* L, unsigned index)
+	{
+		if (index > NumVisuals) luaL_error(L, "Visual index must be below %d", NumVisuals);
+		return GetVisualIndex(index);
+	}
+
+	void VisualSetIndices::LuaSetColorIndex(lua_State* L, unsigned index, uint32_t value)
+	{
+		if (index > NumColors) luaL_error(L, "Color index must be below %d", NumColors);
+		auto mask = ColorMasks[index];
+		if (value > mask) luaL_error(L, "Color value for index %d must be below %d", index, mask);
+		SetColorIndex(index, value);
+	}
+
+	void VisualSetIndices::LuaSetVisualIndex(lua_State* L, unsigned index, uint32_t value)
+	{
+		if (index > NumVisuals) luaL_error(L, "Visual index must be below %d", NumVisuals);
+		auto mask = VisualMasks[index];
+		if (value > mask) luaL_error(L, "Visual value for index %d must be below %d", index, mask);
+		SetVisualIndex(index, value);
+	}
 
 	ObjectSet<FixedString>* CharacterTemplate::GetVisualChoices(VisualTemplateVisualIndex slot)
 	{

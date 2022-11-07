@@ -1210,7 +1210,6 @@ namespace dse
 			PROP_TPL(ExplosionFX);
 			// TODO - Scripts, SkillList, ItemList
 			PROP_TPL(VisualSetResourceID);
-			PROP_TPL(VisualSetIndices);
 			PROP_TPL(TrophyID);
 			PROP_TPL(SoundInitEvent);
 			PROP_TPL(SoundAttachBone);
