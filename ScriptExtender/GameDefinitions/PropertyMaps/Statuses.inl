@@ -1,5 +1,6 @@
 BEGIN_CLS(esv::Status)
 P_RO(NetID)
+P(StartTime)
 P_RO(StatusId)
 P(CanEnterChance)
 P(StartTimer)

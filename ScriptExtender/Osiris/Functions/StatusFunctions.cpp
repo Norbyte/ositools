@@ -802,12 +802,25 @@ namespace dse::esv
 		return 0;
 	}
 
-	void CustomFunctionLibrary::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem* self, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params)
+	Visual* CustomFunctionLibrary::OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisualsProc* wrapped,
+		ecl::EquipmentVisualsSystem* self, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params)
 	{
+		// Fix game crash when calling CreateEquipmentVisuals) with an invalid resource UUID
+		if (params.VisualResourceID && params.VisualResourceID != GFS.strEmpty) {
+			auto bank = GetStaticSymbols().GetResourceBank();
+			if (bank->Container.GetResource(ResourceType::Visual, params.VisualResourceID) == nullptr
+				&& bank->Container.GetResource(ResourceType::Effect, params.VisualResourceID) == nullptr) {
+				ERR("Tried to instantiate nonexistent visual '%s'!", params.VisualResourceID.GetStringOrDefault());
+				return nullptr;
+			}
+		}
+
 		ecl::LuaClientPin lua(ecl::ExtensionState::Get());
 		if (lua) {
 			lua->OnCreateEquipmentVisuals(entityHandle, params);
 		}
+
+		return wrapped(self, entityHandle, params);
 	}
 
 	bool CustomFunctionLibrary::OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self,

@@ -97,7 +97,8 @@ namespace dse::esv
 		bool OnPeerModuleLoaded(LoadProtocol::HandleModuleLoadedProc* next, LoadProtocol* self, LoadProtocol::PeerModSettings& peerModSettings, 
 			ModuleSettings& hostModSettings);
 		int OnInventoryProtocolPostUpdate(ecl::InventoryProtocol::PostUpdateProc* next, ecl::InventoryProtocol* self);
-		void OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem*, EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params);
+		Visual* OnCreateEquipmentVisuals(ecl::EquipmentVisualsSystem::CreateVisualsProc* wrapped, ecl::EquipmentVisualsSystem*,
+			EntityHandle entityHandle, ecl::EquipmentVisualSystemSetParam& params);
 
 	private:
 		OsirisExtender& osiris_;

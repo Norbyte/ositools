@@ -9,7 +9,7 @@ BEGIN_NS(lua::resource)
 Resource* Get(ResourceType type, FixedString templateId)
 {
 	auto bank = GetStaticSymbols().GetResourceBank();
-	return bank->Container.Banks[(uint32_t)type]->Resources.try_get(templateId);
+	return bank->Container.GetResource(type, templateId);
 }
 
 void RegisterResourceLib()

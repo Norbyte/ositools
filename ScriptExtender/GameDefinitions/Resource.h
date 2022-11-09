@@ -53,7 +53,14 @@ struct ResourceContainer : public ProtectedGameObject<ResourceContainer>
         int field_28;
     };
 
-    void* VMT;
+    virtual ~ResourceContainer();
+    virtual void Destroy();
+    virtual bool AddResource(Resource* resource);
+    virtual void RemoveResource(Resource* resource, bool destroy);
+    virtual void RemoveResource(ResourceType type, FixedString const& uuid, bool destroy);
+    virtual Resource* GetResource(ResourceType type, FixedString const& uuid);
+    virtual bool HasResource(Resource* resource);
+
     Bank* Banks[14];
 };
 

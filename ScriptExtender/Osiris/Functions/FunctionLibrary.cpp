@@ -309,8 +309,8 @@ namespace dse::esv
 		lib.ls__InputManager__InjectInput.SetPreHook(
 			std::bind(&CustomFunctionLibrary::OnInjectInput, this, _1, _2)
 		);
-		lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetPreHook(
-			std::bind(&CustomFunctionLibrary::OnCreateEquipmentVisuals, this, _1, _2, _3)
+		lib.ecl__EquipmentVisualsSystem__CreateVisuals.SetWrapper(
+			std::bind(&CustomFunctionLibrary::OnCreateEquipmentVisuals, this, _1, _2, _3, _4)
 		);
 #if defined(OSI_EOCAPP)
 		lib.osi__ShowNotification.SetWrapper(

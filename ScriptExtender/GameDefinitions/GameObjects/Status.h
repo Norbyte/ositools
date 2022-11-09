@@ -75,7 +75,7 @@ struct Status : public ProtectedGameObject<Status>
 	// 2 - Apply only one instance, new instances replace old ones
 	// 3 - Apply only the first instance; triggers combat?
 	virtual uint32_t GetStatusType() = 0;
-	virtual void AddStatsData2_Maybe() = 0;
+	virtual void SetStatsId() = 0;
 	virtual void * GetStatsIdByIndex(int index) = 0;
 	virtual void VMT38() = 0;
 	virtual void VMT40() = 0;
@@ -87,12 +87,12 @@ struct Status : public ProtectedGameObject<Status>
 	virtual void Update(void * A, float Time_M) = 0;
 	virtual void Tick(int * a2, float a3, float a4) = 0;
 	virtual void Exit() = 0;
-	virtual void VMT88() = 0;
+	virtual void DeleteBeforeEnter() = 0;
 	virtual void ConsumeStatsId() = 0;
 	virtual void VMT98() = 0;
 	virtual void IsImmobilizingStatus() = 0;
-	virtual void VMTA8() = 0;
-	virtual void VMTB0() = 0;
+	virtual void OnTurnStarted() = 0;
+	virtual void ShouldSyncToPeer() = 0;
 	virtual void GetSyncData() = 0;
 	virtual void VMTC0() = 0;
 	virtual void Serialize() = 0;
@@ -104,9 +104,9 @@ struct Status : public ProtectedGameObject<Status>
 	virtual void AddStatsData_Maybe() = 0;
 
 	// void * VMT;
-	FixedString FS1;
+	FixedString GUID; // Unused
 	NetId NetID;
-	uint64_t U1;
+	double StartTime;
 	FixedString StatusId; // Saved
 	int32_t CanEnterChance; // Saved
 	float StartTimer; // Saved
