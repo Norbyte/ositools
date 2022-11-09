@@ -447,6 +447,23 @@ namespace dse::esv
 
 	Projectile* CustomFunctionLibrary::OnShootProjectile(esv::ProjectileHelpers__ShootProjectile* next, ShootProjectileHelper* helper)
 	{
+		// Work around crash where the caster handle is no longer valid.
+		// The projectile logic will try to fetch the stats of the caster without checking if the
+		// caster object is NULL, causing a crash.
+		if (helper->Caster) {
+			if (helper->Caster.GetType() == (uint32_t)esv::Character::ObjectTypeIndex
+				&& esv::GetEntityWorld()->GetComponent<esv::Character>(helper->Caster, false) == nullptr) {
+				ERR("Attempted to shoot projectile with nonexistent caster character handle!");
+				helper->Caster = ComponentHandle{};
+			}
+
+			if (helper->Caster.GetType() == (uint32_t)esv::Item::ObjectTypeIndex
+				&& esv::GetEntityWorld()->GetComponent<esv::Item>(helper->Caster, false) == nullptr) {
+				ERR("Attempted to shoot projectile with nonexistent caster item handle!");
+				helper->Caster = ComponentHandle{};
+			}
+		}
+
 		{
 			LuaServerPin lua(ExtensionState::Get());
 			if (lua) {
