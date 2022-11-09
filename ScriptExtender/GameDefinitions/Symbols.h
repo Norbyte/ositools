@@ -191,8 +191,12 @@ namespace dse
 
 		esv::StatusMachine::CreateStatusProc* esv__StatusMachine__CreateStatus{ nullptr };
 		esv::StatusMachine::ApplyStatusProc* esv__StatusMachine__ApplyStatus{ nullptr };
+		esv::StatusMachine::EnterStatusProc* esv__StatusMachine__EnterStatus{ nullptr };
 		esv::StatusMachine::UpdateProc* esv__StatusMachine__Update{ nullptr };
 		esv::StatusMachine::DeleteStatusByHandleProc* esv__StatusMachine__DeleteStatusByHandle{ nullptr };
+		esv::StatusMachine::ExitStatusProc* esv__StatusMachine__ExitStatus{ nullptr };
+
+		ecl::StatusMachine::ExitStatusProc* ecl__StatusMachine__ExitStatus{ nullptr };
 
 		esv::SurfaceActionFactory** esv__SurfaceActionFactory{ nullptr };
 		esv::SurfaceActionFactory::CreateActionProc* esv__SurfaceActionFactory__CreateAction{ nullptr };

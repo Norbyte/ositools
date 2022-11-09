@@ -251,6 +251,12 @@ namespace dse::esv
 		return status;
 	}
 
+	bool CustomFunctionLibrary::OnStatusMachineEnter(esv::StatusMachine::EnterStatusProc* wrapped, 
+		esv::StatusMachine* self, esv::Status* status)
+	{
+		return wrapped(self, status);
+	}
+
 	void CustomFunctionLibrary::OnStatusMachineUpdate(esv::StatusMachine* self, GameTime* time)
 	{
 		auto shouldDelete = GetStaticSymbols().esv__Status__ShouldDelete;
@@ -270,6 +276,28 @@ namespace dse::esv
 		LuaServerPin lua(ExtensionState::Get());
 		if (lua) {
 			lua->OnStatusDelete(status);
+		}
+	}
+
+	void CustomFunctionLibrary::OnStatusMachineExit(esv::StatusMachine::ExitStatusProc* wrapped, 
+		esv::StatusMachine* self, esv::Status* status)
+	{
+		wrapped(self, status);
+	}
+
+	void CustomFunctionLibrary::OnClientStatusMachineExit(ecl::StatusMachine::ExitStatusProc* wrapped, 
+		ecl::StatusMachine* self, ecl::Status* status)
+	{
+		// Work around crash when the character no longer has any stats but a sneak check is
+		// being performed on it when exiting statuses
+		auto character = ecl::GetEntityWorld()->GetComponent<ecl::Character>(status->OwnerHandle);
+		if (character && character->Stats == nullptr) {
+			status->Exit();
+			if ((status->Flags & ecl::StatusFlags::HasVisuals) == ecl::StatusFlags::HasVisuals) {
+				status->DestroyVisuals();
+			}
+		} else {
+			wrapped(self, status);
 		}
 	}
 

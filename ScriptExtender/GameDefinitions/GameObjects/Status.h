@@ -616,10 +616,12 @@ struct StatusTutorialBed : public Status {};
 
 struct StatusMachine : public dse::StatusMachine<Status>
 {
-	using CreateStatusProc = Status * (StatusMachine* StatusMachine, FixedString const& StatusId, uint64_t ComponentHandle);
-	using ApplyStatusProc = void(StatusMachine* StatusMachine, Status* Status);
-	using UpdateProc = void(StatusMachine* StatusMachine, GameTime* time);
+	using CreateStatusProc = Status * (StatusMachine* self, FixedString const& StatusId, uint64_t ComponentHandle);
+	using ApplyStatusProc = void (StatusMachine* self, Status* status);
+	using EnterStatusProc = bool (StatusMachine* self, Status* status);
+	using UpdateProc = void(StatusMachine* self, GameTime* time);
 	using DeleteStatusByHandleProc = bool(StatusMachine* self, ComponentHandle* handle);
+	using ExitStatusProc = void (StatusMachine* self, Status* status);
 
 	esv::Status* GetServerStatus(ComponentHandle handle, bool returnUnapplied) const;
 };
@@ -713,7 +715,9 @@ struct Status
 };
 
 struct StatusMachine : public dse::StatusMachine<Status>
-{};
+{
+	using ExitStatusProc = void (StatusMachine* self, Status* status);
+};
 
 struct StatusConsumeBase : public Status
 {

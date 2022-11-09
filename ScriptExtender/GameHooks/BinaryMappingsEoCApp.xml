@@ -301,6 +301,45 @@
       <Target Type="Absolute" Offset="0x40" NextSymbol="esv::StatusMachine::DeleteStatusByHandle" NextSymbolSeekSize="0x80" />
     </Mapping>
 
+    <Mapping Name="esv::StatusMachine::EnterStatus">
+      80 bb 88 00 00 00 80 // cmp     byte ptr [rbx+88h], 80h ; '€'
+      73 38 // jnb     short loc_1418982BB
+      f3 0f 10 43 2c // movss   xmm0, dword ptr [rbx+2Ch]
+      0f 2f f0 // comiss  xmm6, xmm0
+      f3 41 0f 5c 46 08 // subss   xmm0, dword ptr [r14+8]
+      0f 93 c0 // setnb   al
+      f3 0f 11 43 2c // movss   dword ptr [rbx+2Ch], xmm0
+      84 c0 // test    al, al
+      74 15 // jz      short loc_1418982B2
+      48 8b d3 // mov     rdx, rbx
+      48 8b cd // mov     rcx, rbp
+      @ref1 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DoEnter
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__EnterStatus" />
+    </Mapping>
+
+    <Mapping Name="esv::StatusMachine::ExitStatus">
+      ff c8 // dec     eax
+      89 87 3c 01 00 00 // mov     [rdi+13Ch], eax
+      80 be 88 00 00 00 80 // cmp     byte ptr [rsi+88h], 80h ; '€'
+      72 08 // jb      short loc_141896F26
+      48 8b d6 // mov     rdx, rsi
+      @ref1 e8 ?? ?? ?? ?? // call    esv__StatusMachine__ExitStatus
+      48 8b 06 // mov     rax, [rsi]
+      48 8d 54 24 30 // lea     rdx, [rsp+28h+arg_0]
+      <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__ExitStatus" />
+    </Mapping>
+
+    <Mapping Name="ecl::StatusMachine::ExitStatus">
+      ff c8 // dec     eax
+      89 83 3c 01 00 00 // mov     [rbx+13Ch], eax
+      f6 47 40 02 // test    byte ptr [rdi+40h], 2
+      74 0b // jz      short loc_141613406
+      48 8b d7 // mov     rdx, rdi; status
+      48 8b cb // mov     rcx, rbx; this
+      @ref1 e8 5a f6 ff ff // call    ecl__StatusMachine__ExitStatus
+      <Target Type="Indirect" Offset="@ref1" Symbol="ecl__StatusMachine__ExitStatus" />
+    </Mapping>
+
     <Mapping Name="esv::StatusHit::__vftable Initial">
       4C 8D 0D ?? ?? ?? ??  // lea     r9, fsx_Dummy_BodyFX
       @str 48 8D 15 ?? ?? ?? ??  // lea     rdx, fsx_RS3_FX_GP_Status_Retaliation_Beam_01

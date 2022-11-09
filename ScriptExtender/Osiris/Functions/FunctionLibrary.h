@@ -36,8 +36,12 @@ namespace dse::esv
 
 		void PostStartup();
 
+		bool OnStatusMachineEnter(esv::StatusMachine::EnterStatusProc* wrapped, esv::StatusMachine* self, esv::Status* status);
 		void OnStatusMachineUpdate(esv::StatusMachine* self, GameTime* time);
 		void OnStatusMachineDelete(esv::StatusMachine* self, ComponentHandle* handle);
+		void OnStatusMachineExit(esv::StatusMachine::ExitStatusProc* wrapped, esv::StatusMachine* self, esv::Status* status);
+		void OnClientStatusMachineExit(ecl::StatusMachine::ExitStatusProc* wrapped, ecl::StatusMachine* self, ecl::Status* status);
+
 		int32_t OnStatusGetEnterChance(esv::Status::GetEnterChanceProc* wrappedGetEnterChance, 
 			esv::Status * status, bool isEnterCheck);
 		int32_t OnGetHitChance(stats::CDivinityStats_Character__GetHitChance * wrappedGetHitChance,

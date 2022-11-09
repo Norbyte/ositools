@@ -8,8 +8,12 @@ HOOK_DEFN(esv__StatusConsume__Exit, esv__StatusConsume__Exit, esv::Status::ExitP
 HOOK_DEFN(osi__ShowNotification, osi__ShowNotification, osi::OsirisCallHandlerProc, WrappableFunction)
 
 HOOK_DEFN(esv__StatusMachine__ApplyStatus, esv__StatusMachine__ApplyStatus, esv::StatusMachine::ApplyStatusProc, WrappableFunction)
+HOOK_DEFN(esv__StatusMachine__EnterStatus, esv__StatusMachine__EnterStatus, esv::StatusMachine::EnterStatusProc, WrappableFunction)
 HOOK_DEFN(esv__StatusMachine__Update, esv__StatusMachine__Update, esv::StatusMachine::UpdateProc, PreHookableFunction)
 HOOK_DEFN(esv__StatusMachine__DeleteStatusByHandle, esv__StatusMachine__DeleteStatusByHandle, esv::StatusMachine::DeleteStatusByHandleProc, PreHookableFunction)
+HOOK_DEFN(esv__StatusMachine__ExitStatus, esv__StatusMachine__ExitStatus, esv::StatusMachine::ExitStatusProc, WrappableFunction)
+
+HOOK_DEFN(ecl__StatusMachine__ExitStatus, ecl__StatusMachine__ExitStatus, ecl::StatusMachine::ExitStatusProc, WrappableFunction)
 
 HOOK_DEFN(esv__ProjectileHelpers__ShootProjectile, esv__ProjectileHelpers__ShootProjectile, esv::ProjectileHelpers__ShootProjectile, WrappableFunction)
 HOOK_DEFN(esv__Projectile__Explode, esv__Projectile__Explode, esv::Projectile::ExplodeProc, PreHookableFunction)
