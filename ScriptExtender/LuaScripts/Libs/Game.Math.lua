@@ -1002,7 +1002,7 @@ function CalculateHitChance(attacker, target)
         return 100
     end
 
-    local ranged = IsRangedWeapon(attacker.MainWeapon.WeaponType)
+    local ranged = IsRangedWeapon(attacker.MainWeapon)
     local accuracy = attacker.Accuracy
     local dodge = 0
     if (not attacker.Invisible or ranged) and target.IsIncapacitatedRefCount == 0 then
