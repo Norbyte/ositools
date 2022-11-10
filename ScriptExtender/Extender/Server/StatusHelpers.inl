@@ -39,7 +39,26 @@ void StatusHelpers::PostStartup()
 bool StatusHelpers::OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped,
 	StatusMachine* self, Status* status)
 {
-	return wrapped(self, status);
+	StatusApplyData applyData{
+		.Status = status,
+		.PendingDelete = false
+	};
+	pendingApply_.insert(std::make_pair(status->StatusHandle, applyData));
+
+	auto done = wrapped(self, status);
+
+	auto it = pendingApply_.find(status->StatusHandle);
+	if (it != pendingApply_.end()) {
+		// Re-add status to the StatusMachine if we removed it because a status delete was requested
+		// during the Enter() call
+		if (it->second.PendingDelete) {
+			self->Statuses.push_back(status);
+		}
+
+		pendingApply_.erase(it);
+	}
+
+	return done;
 }
 
 void StatusHelpers::OnStatusMachineUpdate(StatusMachine* self, GameTime* time)
@@ -67,7 +86,25 @@ void StatusHelpers::OnStatusMachineDelete(StatusMachine* self, ComponentHandle* 
 bool StatusHelpers::OnStatusMachineDestroy(StatusMachine::DestroyStatusProc* wrapped,
 	StatusMachine* self, ComponentHandle const& handle)
 {
-	return wrapped(self, handle);
+	auto it = pendingApply_.find(handle);
+	if (it != pendingApply_.end()) {
+		auto status = it->second.Status;
+		if (!it->second.PendingDelete) {
+			// Remove status from the list of active statues and mark it for deletion;
+			// we should _NOT_ delete the status object here, as it will crash the game.
+			ERR("Attempted to remove status '%s' while it is being applied; this is dangerous!", status->StatusId.GetStringOrDefault());
+			it->second.PendingDelete = true;
+			self->Statuses.remove(status);
+			status->Flags2 |= StatusFlags2::RequestDelete;
+			return true;
+		} else {
+			// Status remove requested after we already marked it; RIP.
+			ERR("Attempted to remove status '%s' while it is being applied and marked for deletion; THIS WILL CRASH!", status->StatusId.GetStringOrDefault());
+			return wrapped(self, handle);
+		}
+	} else {
+		return wrapped(self, handle);
+	}
 }
 
 void StatusHelpers::OnStatusMachineExit(StatusMachine::ExitStatusProc* wrapped,

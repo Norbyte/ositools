@@ -16,6 +16,15 @@ public:
 	Status* PrepareStatus(StatusMachine* statusMachine, FixedString const& statusId, float lifeTime);
 
 private:
+	struct StatusApplyData
+	{
+		Status* Status;
+		bool PendingDelete{false};
+	};
+
+	// Statuses that are being applied - i.e. we're inside StatusMachine::DoEnter()
+	std::unordered_map<ComponentHandle, StatusApplyData> pendingApply_;
+
 	bool OnStatusMachineEnter(StatusMachine::EnterStatusProc* wrapped, StatusMachine* self, 
 		Status* status);
 	void OnStatusMachineUpdate(StatusMachine* self, GameTime* time);

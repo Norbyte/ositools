@@ -317,6 +317,22 @@
       <Target Type="Indirect" Offset="@ref1" Symbol="esv__StatusMachine__EnterStatus" />
     </Mapping>
 
+    <Mapping Name="esv::StatusMachine::DestroyStatus">
+      48 8b 86 30 01 00 00 // mov     rax, [rsi+130h]
+      48 8b 0c f8 // mov     rcx, [rax+rdi*8]
+      @str 48 8b 05 ?? ?? ?? ?? // mov     rax, cs:fs_INFUSED
+      48 39 41 20 // cmp     [rcx+20h], rax
+      75 20 // jnz     short loc_141866A6F
+      48 8b 01 // mov     rax, [rcx]
+      48 8d 54 24 20 // lea     rdx, [rsp+38h+var_18]
+      ff 50 10 // call    qword ptr [rax+10h]
+      48 8b d0 // mov     rdx, rax; uint64_t *
+      48 8b ce // mov     rcx, rsi; esv::StatusManager *
+      @ref2 e8 ?? ?? ?? ?? // call    esv__StatusMachine__DestroyStatus
+      <Condition Type="FixedString" Offset="@str" Value="INFUSED" />
+      <Target Type="Indirect" Offset="@ref2" Symbol="esv__StatusMachine__DestroyStatus" />
+    </Mapping>
+
     <Mapping Name="esv::StatusMachine::ExitStatus">
       ff c8 // dec     eax
       89 87 3c 01 00 00 // mov     [rdi+13Ch], eax

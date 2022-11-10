@@ -621,6 +621,7 @@ struct StatusMachine : public dse::StatusMachine<Status>
 	using EnterStatusProc = bool (StatusMachine* self, Status* status);
 	using UpdateProc = void(StatusMachine* self, GameTime* time);
 	using DeleteStatusByHandleProc = bool(StatusMachine* self, ComponentHandle* handle);
+	using DestroyStatusProc = bool (StatusMachine* self, ComponentHandle const& handle);
 	using ExitStatusProc = void (StatusMachine* self, Status* status);
 
 	esv::Status* GetServerStatus(ComponentHandle handle, bool returnUnapplied) const;
